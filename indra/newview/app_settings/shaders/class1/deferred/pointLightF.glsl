@@ -33,12 +33,12 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2DRect diffuseRect;
-uniform sampler2DRect specularRect;
-uniform sampler2DRect normalMap;
+uniform sampler2D diffuseRect;
+uniform sampler2D specularRect;
+uniform sampler2D normalMap;
 uniform sampler2D noiseMap;
 uniform sampler2D lightFunc;
-uniform sampler2DRect depthMap;
+uniform sampler2D depthMap;
 
 uniform vec3 env_mat[3];
 uniform float sun_wash;
@@ -64,7 +64,6 @@ void main()
     vec4 frag = vary_fragcoord;
     frag.xyz /= frag.w;
     frag.xyz = frag.xyz*0.5+0.5;
-    frag.xy *= screen_res;
     
     vec3 pos = getPosition(frag.xy).xyz;
     vec3 lv = trans_center.xyz-pos;
@@ -88,7 +87,7 @@ void main()
     
     float noise = texture2D(noiseMap, frag.xy/128.0).b;
     
-    vec3 col = texture2DRect(diffuseRect, frag.xy).rgb;
+    vec3 col = texture2D(diffuseRect, frag.xy).rgb;
 
     float fa = falloff+1.0;
     float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
@@ -99,7 +98,7 @@ void main()
 
     col = color.rgb*lit*col;
 
-    vec4 spec = texture2DRect(specularRect, frag.xy);
+    vec4 spec = texture2D(specularRect, frag.xy);
     if (spec.a > 0.0)
     {
         lit = min(da*6.0, 1.0) * dist_atten;

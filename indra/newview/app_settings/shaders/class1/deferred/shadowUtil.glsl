@@ -23,8 +23,8 @@
  * $/LicenseInfo$
  */
 
-uniform sampler2DRect   normalMap;
-uniform sampler2DRect   depthMap;
+uniform sampler2D   normalMap;
+uniform sampler2D   depthMap;
 uniform sampler2DShadow shadowMap0;
 uniform sampler2DShadow shadowMap1;
 uniform sampler2DShadow shadowMap2;

@@ -31,10 +31,10 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2DRect diffuseMap;
+uniform sampler2D diffuseMap;
 VARYING vec2 vary_fragcoord;
 
 void main() 
 {
-	frag_color = texture2DRect(diffuseMap, vary_fragcoord.xy);
+	frag_color = texture2D(diffuseMap, vary_fragcoord.xy);
 }

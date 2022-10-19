@@ -390,7 +390,7 @@ void LLPostProcess::doEffects(void)
 
 void LLPostProcess::copyFrameBuffer(U32 & texture, unsigned int width, unsigned int height)
 {
-	gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_RECT_TEXTURE, texture);
+	gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, texture);
 	glCopyTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, 0, 0, width, height, 0);
 }
 
@@ -502,7 +502,7 @@ void LLPostProcess::createTexture(LLPointer<LLImageGL>& texture, unsigned int wi
 	texture = new LLImageGL(FALSE) ;	
 	if(texture->createGLTexture())
 	{
-		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_RECT_TEXTURE, texture->getTexName());
+		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, texture->getTexName());
 		glTexImage2D(GL_TEXTURE_RECTANGLE, 0, 4, width, height, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
 		gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);

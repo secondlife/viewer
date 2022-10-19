@@ -33,7 +33,7 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2DRect diffuseRect;
+uniform sampler2D diffuseRect;
 
 uniform vec2 screen_res;
 VARYING vec2 vary_fragcoord;
@@ -82,7 +82,7 @@ float noise(vec2 x) {
 void main() 
 {
     //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
-    vec4 diff = texture2DRect(diffuseRect, vary_fragcoord);
+    vec4 diff = texture2D(diffuseRect, vary_fragcoord);
     diff.rgb = linear_to_srgb(diff.rgb);
     vec3 seed = (diff.rgb+vec3(1.0))*vec3(vary_fragcoord.xy, vary_fragcoord.x+vary_fragcoord.y);
     vec3 nz = vec3(noise(seed.rg), noise(seed.gb), noise(seed.rb));

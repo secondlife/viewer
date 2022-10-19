@@ -37,19 +37,19 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2DRect diffuseRect;
-uniform sampler2DRect specularRect;
-uniform sampler2DRect normalMap;
-uniform sampler2DRect emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
+uniform sampler2D diffuseRect;
+uniform sampler2D specularRect;
+uniform sampler2D normalMap;
+uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 uniform sampler2D altDiffuseMap; // PBR: irradiance, skins/default/textures/default_irradiance.png
 
 const float M_PI = 3.14159265;
 
 #if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
-uniform sampler2DRect lightMap;
+uniform sampler2D lightMap;
 #endif
 
-uniform sampler2DRect depthMap;
+uniform sampler2D depthMap;
 uniform sampler2D     lightFunc;
 
 uniform float blur_size;
@@ -118,18 +118,18 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
 void main()
 {
     vec2  tc           = vary_fragcoord.xy;
-    float depth        = texture2DRect(depthMap, tc.xy).r;
+    float depth        = texture2D(depthMap, tc.xy).r;
     vec4  pos          = getPositionWithDepth(tc, depth);
-    vec4  norm         = texture2DRect(normalMap, tc);
+    vec4  norm         = texture2D(normalMap, tc);
     float envIntensity = norm.z;
     norm.xyz           = getNorm(tc);
     vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
 
-    vec4 baseColor     = texture2DRect(diffuseRect, tc);
-    vec4 spec        = texture2DRect(specularRect, vary_fragcoord.xy); // NOTE: PBR linear Emissive
+    vec4 baseColor     = texture2D(diffuseRect, tc);
+    vec4 spec        = texture2D(specularRect, vary_fragcoord.xy); // NOTE: PBR linear Emissive
 
 #if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
-    vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
+    vec2 scol_ambocc = texture2D(lightMap, vary_fragcoord.xy).rg;
 #endif
 
 #if defined(HAS_SUN_SHADOW)
@@ -155,12 +155,12 @@ void main()
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 orm = texture2DRect(specularRect, tc).rgb; 
+        vec3 orm = texture2D(specularRect, tc).rgb; 
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
         float ao = orm.r * ambocc;
 
-        vec3 colorEmissive = texture2DRect(emissiveRect, tc).rgb;
+        vec3 colorEmissive = texture2D(emissiveRect, tc).rgb;
 
         // PBR IBL
         float gloss      = 1.0 - perceptualRoughness;

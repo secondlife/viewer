@@ -33,8 +33,8 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2DRect diffuseRect;
-uniform sampler2DRect depthMap;
+uniform sampler2D diffuseRect;
+uniform sampler2D depthMap;
 uniform sampler2D bloomMap;
 
 uniform float depth_cutoff;
@@ -69,19 +69,19 @@ void main()
 {
 	vec2 tc = vary_fragcoord.xy;
 
-    float z = texture2DRect(depthMap, tc).r;
+    float z = texture2D(depthMap, tc).r;
 	z = z*2.0-1.0;
 	vec4 ndc = vec4(0.0, 0.0, z, 1.0);
 	vec4 p = inv_proj*ndc;
 	float depth = p.z/p.w;
 	
-	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord.xy);
+	vec4 diff = texture2D(diffuseRect, vary_fragcoord.xy);
 	
 	float sc = calc_cof(depth);
 	sc = min(sc, max_cof);
 	sc = max(sc, -max_cof);
 	
-	vec4 bloom = texture2D(bloomMap, vary_fragcoord.xy/screen_res);
+	vec4 bloom = texture2D(bloomMap, vary_fragcoord.xy);
 	frag_color.rgb = diff.rgb + bloom.rgb;
 	frag_color.a = sc/max_cof*0.5+0.5;
 }

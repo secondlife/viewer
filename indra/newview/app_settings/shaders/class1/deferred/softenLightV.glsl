@@ -41,5 +41,5 @@ void main()
     // appease OSX GLSL compiler/linker by touching all the varyings we said we would
     setAtmosAttenuation(vec3(1));
     setAdditiveColor(vec3(0));
-    vary_fragcoord = (pos.xy*0.5+0.5)*screen_res;
+    vary_fragcoord = (pos.xy*0.5+0.5);
 }

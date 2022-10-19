@@ -180,7 +180,6 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
 void main() 
 {
     vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
-    frag *= screen_res;
     
     vec4 pos = vec4(vary_position, 1.0);
 #ifndef IS_AVATAR_SKIN

@@ -36,10 +36,10 @@ out vec4 frag_color;
 
 //class 1 -- no shadows
 
-uniform sampler2DRect diffuseRect;
-uniform sampler2DRect specularRect;
-uniform sampler2DRect depthMap;
-uniform sampler2DRect normalMap;
+uniform sampler2D diffuseRect;
+uniform sampler2D specularRect;
+uniform sampler2D depthMap;
+uniform sampler2D normalMap;
 uniform samplerCube environmentMap;
 uniform sampler2D noiseMap;
 uniform sampler2D projectionMap;
@@ -137,7 +137,6 @@ void main()
 	vec4 frag = vary_fragcoord;
 	frag.xyz /= frag.w;
 	frag.xyz = frag.xyz*0.5+0.5;
-	frag.xy *= screen_res;
 	
 	vec3 pos = getPosition(frag.xy).xyz;
 	vec3 lv = trans_center.xyz-pos.xyz;
@@ -148,7 +147,7 @@ void main()
 		discard;
 	}
 		
-	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
+	vec3 norm = texture2D(normalMap, frag.xy).xyz;
 	float envIntensity = norm.z;
 	norm = getNorm(frag.xy);
 	norm = normalize(norm);
@@ -176,11 +175,11 @@ void main()
 	lv = normalize(lv);
 	float da = dot(norm, lv);
 		
-	vec3 diff_tex = texture2DRect(diffuseRect, frag.xy).rgb;
+	vec3 diff_tex = texture2D(diffuseRect, frag.xy).rgb;
 	//light shaders output linear and are gamma corrected later in postDeferredGammaCorrectF.glsl
     diff_tex.rgb = srgb_to_linear(diff_tex.rgb);
 
-	vec4 spec = texture2DRect(specularRect, frag.xy);
+	vec4 spec = texture2D(specularRect, frag.xy);
 
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
 	vec3 dlit = vec3(0, 0, 0);

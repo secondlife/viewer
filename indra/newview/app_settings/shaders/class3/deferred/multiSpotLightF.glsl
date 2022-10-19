@@ -34,13 +34,13 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2DRect diffuseRect;
-uniform sampler2DRect specularRect;
-uniform sampler2DRect depthMap;
-uniform sampler2DRect normalMap;
-uniform sampler2DRect emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
+uniform sampler2D diffuseRect;
+uniform sampler2D specularRect;
+uniform sampler2D depthMap;
+uniform sampler2D normalMap;
+uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 uniform samplerCube environmentMap;
-uniform sampler2DRect lightMap;
+uniform sampler2D lightMap;
 uniform sampler2D noiseMap;
 uniform sampler2D projectionMap; // rgba
 uniform sampler2D lightFunc;
@@ -117,7 +117,7 @@ void main()
     
     if (proj_shadow_idx >= 0)
     {
-        vec4 shd = texture2DRect(lightMap, tc);
+        vec4 shd = texture2D(lightMap, tc);
         shadow = (proj_shadow_idx==0)?shd.b:shd.a;
         shadow += shadow_fade;
         shadow = clamp(shadow, 0.0, 1.0);        
@@ -138,8 +138,8 @@ void main()
     float nh, nl, nv, vh, lightDist;
     calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
 
-    vec3 diffuse = texture2DRect(diffuseRect, tc).rgb;
-    vec4 spec    = texture2DRect(specularRect, tc);
+    vec3 diffuse = texture2D(diffuseRect, tc).rgb;
+    vec4 spec    = texture2D(specularRect, tc);
     vec3 dlit    = vec3(0, 0, 0);
     vec3 slit    = vec3(0, 0, 0);
 
@@ -147,7 +147,7 @@ void main()
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 colorEmissive = texture2DRect(emissiveRect, tc).rgb; 
+        vec3 colorEmissive = texture2D(emissiveRect, tc).rgb; 
         vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;

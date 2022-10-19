@@ -40,5 +40,5 @@ void main()
 	vec4 pos = modelview_projection_matrix * vec4(position.xyz, 1.0);
 	gl_Position = pos;	
 	vary_tc = (pos.xy*0.5+0.5)*tc_scale;
-	vary_fragcoord = (pos.xy*0.5+0.5)*screen_res;
+	vary_fragcoord = (pos.xy*0.5+0.5);
 }

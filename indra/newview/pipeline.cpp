@@ -735,7 +735,7 @@ void LLPipeline::allocatePhysicsBuffer()
 
 	if (mPhysicsDisplay.getWidth() != resX || mPhysicsDisplay.getHeight() != resY)
 	{
-		mPhysicsDisplay.allocate(resX, resY, GL_RGBA, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+		mPhysicsDisplay.allocate(resX, resY, GL_RGBA, TRUE, FALSE, LLTexUnit::TT_TEXTURE, FALSE);
 	}
 }
 
@@ -829,7 +829,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
 	if (RenderUIBuffer)
 	{
-		if (!mRT->uiScreen.allocate(resX,resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE))
+		if (!mRT->uiScreen.allocate(resX,resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE))
 		{
 			return false;
 		}
@@ -843,14 +843,14 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		const U32 occlusion_divisor = 3;
 
 		//allocate deferred rendering color buffers
-		if (!mRT->deferredScreen.allocate(resX, resY, GL_RGBA, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
-		//if (!mRT->deferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
-		if (!mRT->occlusionDepth.allocate(resX/occlusion_divisor, resY/occlusion_divisor, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+		if (!mRT->deferredScreen.allocate(resX, resY, GL_RGBA, TRUE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
+		//if (!mRT->deferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
+		if (!mRT->occlusionDepth.allocate(resX/occlusion_divisor, resY/occlusion_divisor, 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
 		if (!addDeferredAttachments(mRT->deferredScreen)) return false;
 	
 		GLuint screenFormat = GL_RGBA16;
         
-		if (!mRT->screen.allocate(resX, resY, screenFormat, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+		if (!mRT->screen.allocate(resX, resY, screenFormat, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
 
         mRT->deferredScreen.shareDepthBuffer(mRT->screen);
 
@@ -865,7 +865,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		
 		if (shadow_detail > 0 || ssao || RenderDepthOfField || samples > 0)
 		{ //only need mRT->deferredLight for shadows OR ssao OR dof OR fxaa
-			if (!mRT->deferredLight.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;
+			if (!mRT->deferredLight.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE)) return false;
 		}
 		else
 		{
@@ -893,7 +893,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		//mRT->deferredDepth.release();
 		mRT->occlusionDepth.release();
 						
-		if (!mRT->screen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;		
+		if (!mRT->screen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_TEXTURE, FALSE)) return false;		
 	}
 	
 	gGL.getTexUnit(0)->disable();
@@ -2547,7 +2547,7 @@ void LLPipeline::downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& d
 	vert[1].set(-1,-3,0);
 	vert[2].set(3,1,0);
 	
-	if (source.getUsage() == LLTexUnit::TT_RECT_TEXTURE)
+	if (source.getUsage() == LLTexUnit::TT_TEXTURE)
 	{
 		shader = &gDownsampleDepthRectProgram;
 		shader->bind();

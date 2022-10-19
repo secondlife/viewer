@@ -24,8 +24,8 @@
  */
 
 uniform sampler2D       noiseMap;
-uniform sampler2DRect   normalMap;
-uniform sampler2DRect   depthMap;
+uniform sampler2D   normalMap;
+uniform sampler2D   depthMap;
 
 uniform float ssao_radius;
 uniform float ssao_max_radius;
@@ -47,7 +47,7 @@ vec2 getScreenCoordinateAo(vec2 screenpos)
 
 float getDepthAo(vec2 pos_screen)
 {
-    float depth = texture2DRect(depthMap, pos_screen).r;
+    float depth = texture2D(depthMap, pos_screen).r;
     return depth;
 }
 

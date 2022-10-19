@@ -33,10 +33,10 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2DRect depthMap;
-uniform sampler2DRect diffuseRect;
-uniform sampler2DRect specularRect;
-uniform sampler2DRect emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
+uniform sampler2D depthMap;
+uniform sampler2D diffuseRect;
+uniform sampler2D specularRect;
+uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 uniform sampler2D     noiseMap;
 uniform sampler2D     lightFunc;
 
@@ -87,15 +87,15 @@ void main()
     vec3 n;
     vec4 norm = getNormalEnvIntensityFlags(tc, n, envIntensity); // need `norm.w` for GET_GBUFFER_FLAG()
 
-    vec4 spec    = texture2DRect(specularRect, tc);
-    vec3 diffuse = texture2DRect(diffuseRect, tc).rgb;
+    vec4 spec    = texture2D(specularRect, tc);
+    vec3 diffuse = texture2D(diffuseRect, tc).rgb;
 
     vec3  h, l, v = -normalize(pos);
     float nh, nv, vh, lightDist;
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 colorEmissive = texture2DRect(emissiveRect, tc).rgb;
+        vec3 colorEmissive = texture2D(emissiveRect, tc).rgb;
         vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;

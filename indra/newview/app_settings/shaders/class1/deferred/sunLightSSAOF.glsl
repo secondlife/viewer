@@ -35,7 +35,7 @@ out vec4 frag_color;
 
 //class 1 -- no shadow, SSAO only
 
-uniform sampler2DRect normalMap;
+uniform sampler2D normalMap;
 
 // Inputs
 VARYING vec2 vary_fragcoord;

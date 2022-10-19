@@ -33,8 +33,8 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2DRect normalMap;
-uniform sampler2DRect lightMap;
+uniform sampler2D normalMap;
+uniform sampler2D lightMap;
 
 uniform float dist_factor;
 uniform float blur_size;
@@ -52,7 +52,7 @@ void main()
     vec2 tc = vary_fragcoord.xy;
     vec3 norm = getNorm(tc);
     vec3 pos = getPosition(tc).xyz;
-    vec4 ccol = texture2DRect(lightMap, tc).rgba;
+    vec4 ccol = texture2D(lightMap, tc).rgba;
     
     vec2 dlt = kern_scale * delta / (1.0+norm.xy*norm.xy);
     dlt /= max(-pos.z*dist_factor, 1.0);
@@ -89,7 +89,7 @@ void main()
         
         if (d*d <= pointplanedist_tolerance_pow2)
         {
-            col += texture2DRect(lightMap, samptc)*k[i].xyxx;
+            col += texture2D(lightMap, samptc)*k[i].xyxx;
             defined_weight += k[i].xy;
         }
     }
@@ -103,7 +103,7 @@ void main()
         
         if (d*d <= pointplanedist_tolerance_pow2)
         {
-            col += texture2DRect(lightMap, samptc)*k[i].xyxx;
+            col += texture2D(lightMap, samptc)*k[i].xyxx;
             defined_weight += k[i].xy;
         }
     }
