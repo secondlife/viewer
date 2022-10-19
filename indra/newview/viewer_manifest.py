@@ -908,7 +908,7 @@ class DarwinManifest(ViewerManifest):
                     # Let exception, if any, propagate -- if this doesn't
                     # work, we need the build to noisily fail!
                     oldpath = subprocess.check_output(
-                        ['objdump', '--macho', '--dylib-id', '--non-verbose',
+                        ['objdump', '-macho', '-dylib-id', '-non-verbose',
                          os.path.join(relpkgdir, "BugsplatMac.framework", "BugsplatMac")]
                         ).splitlines()[-1]  # take the last line of output
                     self.run_command(
