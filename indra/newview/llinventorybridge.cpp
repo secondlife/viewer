@@ -4311,7 +4311,7 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 			items.push_back(std::string("IM All Contacts In Folder"));
 		}
 
-        if (((flags & ITEM_IN_MULTI_SELECTION) == 0) && hasChildren())
+        if (((flags & ITEM_IN_MULTI_SELECTION) == 0) && hasChildren() && (type != LLFolderType::FT_OUTFIT))
         {
             items.push_back(std::string("Ungroup folder items"));
         }
