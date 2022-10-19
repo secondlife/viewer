@@ -35,35 +35,64 @@
 #include "lltinygltfhelper.h"
 #include "llviewercontrol.h"
 #include "llviewergenericmessage.h"
+#include "llviewerobjectlist.h"
 
 #include "tinygltf/tiny_gltf.h"
 #include <strstream>
+
+#include "json/reader.h"
+#include "json/value.h"
 
 namespace
 {
     class LLGLTFOverrideDispatchHandler : public LLDispatchHandler
     {
+        LOG_CLASS(LLGLTFOverrideDispatchHandler);
     public:
         LLGLTFOverrideDispatchHandler() = default;
         ~LLGLTFOverrideDispatchHandler() override = default;
 
         bool operator()(const LLDispatcher* dispatcher, const std::string& key, const LLUUID& invoice, const sparam_t& strings) override
         {
-            for (std::string const & s : strings) {
-                LL_DEBUGS() << "received override: " << s << LL_ENDL;
+            // iterate over pairs of parameters
+            int i;
+            for (i = 0; i+1 < strings.size(); i += 2)
+            {
+                std::string params_json = strings[i];
+                std::string override_json = strings[i+1];
 
-#if 0
-                // for now messages are coming in llsd
-                LLSD override_data;
-                std::istringstream input(s);
-                LLSDSerialize::deserialize(override_data, input, s.length());
-                LL_DEBUGS() << "deserialized override: " << override_data << LL_ENDL;
-#else
+                LL_DEBUGS() << "received override: " << params_json << " | " << override_json << LL_ENDL;
+
+                Json::Value params;
+                Json::Reader reader;
+                bool success = reader.parse(params_json, params);
+                if (!success)
+                {
+                    LL_WARNS() << "failed to parse override parameters.  errors: " << reader.getFormatedErrorMessages() << LL_ENDL;
+                    break;
+                }
+
+                LLViewerObject * obj = gObjectList.findObject(LLUUID(params["object_id"].asString()));
+                S32 side = params["side"].asInt();
+
                 std::string warn_msg, error_msg;
-                LLGLTFMaterial override_data;
-                override_data.fromJSON(s, warn_msg, error_msg);
-#endif
+                LLPointer<LLGLTFMaterial> override_data = new LLGLTFMaterial();
+                success = override_data->fromJSON(override_json, warn_msg, error_msg);
+//                if (!success)
+//                {
+//                    LL_WARNS() << "failed to parse GLTF override data.  errors: " << error_msg << " | warnings: " << warn_msg << LL_ENDL;
+//                    break;
+//                }
+
+                if(obj)
+                {
+                    obj->getTE(side)->setGLTFMaterialOverride(override_data);
+                }
+
+                LL_DEBUGS() << "successfully parsed override: " << override_data->asJSON() << LL_ENDL;
             }
+
+            LL_WARNS_IF(i != strings.size()) << "parse error or unhandled mismatched odd number of parameters for material override" << LL_ENDL;
 
             return true;
         }

@@ -200,6 +200,10 @@ public:
 	// Media flags
 	enum { MF_NONE = 0x0, MF_HAS_MEDIA = 0x1 };
 
+    // GLTF override
+    LLGLTFMaterial* getGLTFMaterialOverride() { return mGLTFMaterialOverrides; }
+    void setGLTFMaterialOverride(LLGLTFMaterial* mat) { mGLTFMaterialOverrides = mat; }
+
 public:
 	F32                 mScaleS;                // S, T offset
 	F32                 mScaleT;                // S, T offset
@@ -227,6 +231,10 @@ protected:
 	LLMaterialID        mMaterialID;
 	LLMaterialPtr		mMaterial;
     LLPointer<LLGLTFMaterial> mGLTFMaterial;  // if present, ignore mMaterial
+
+    // GLTF material parameter overrides -- the viewer will use this data to override material parameters
+    // set by the asset
+    LLPointer<LLGLTFMaterial> mGLTFMaterialOverrides;
 
 	// Note the media data is not sent via the same message structure as the rest of the TE
 	LLMediaEntry*		mMediaEntry;			// The media data for the face
