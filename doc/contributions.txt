@@ -1386,6 +1386,8 @@ Sovereign Engineer
 	SL-15096
 	SL-16127
 	SL-18249
+    SL-18394
+    SL-18412
 SpacedOut Frye
 	VWR-34
 	VWR-45
