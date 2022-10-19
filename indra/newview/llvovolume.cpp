@@ -5223,7 +5223,7 @@ bool can_batch_texture(LLFace* facep)
 		return false;
 	}
 	
-    if (facep->getTextureEntry()->getGLTFMaterial() != nullptr)
+    if (facep->getTextureEntry()->getGLTFRenderMaterial() != nullptr)
     { // PBR materials break indexed texture batching
         return false;
     }
@@ -5390,7 +5390,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
     
     LLUUID mat_id;
 
-    auto* gltf_mat = (LLFetchedGLTFMaterial*) facep->getTextureEntry()->getGLTFMaterial();
+    auto* gltf_mat = (LLFetchedGLTFMaterial*) facep->getTextureEntry()->getGLTFRenderMaterial();
     if (gltf_mat != nullptr)
     {
         mat_id = gltf_mat->getHash(); // TODO: cache this hash
@@ -5873,7 +5873,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                 bool is_pbr = false;
 #endif
 #else
-                LLGLTFMaterial *gltf_mat = facep->getTextureEntry()->getGLTFMaterial();
+                LLGLTFMaterial *gltf_mat = facep->getTextureEntry()->getGLTFRenderMaterial();
                 bool is_pbr = gltf_mat != nullptr;
 #endif
 
@@ -6011,7 +6011,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						if (gPipeline.canUseWindLightShadersOnObjects()
 							&& LLPipeline::sRenderBump)
 						{
-                            LLGLTFMaterial* gltf_mat = te->getGLTFMaterial();
+                            LLGLTFMaterial* gltf_mat = te->getGLTFRenderMaterial();
 
 							if (LLPipeline::sRenderDeferred && 
                                 (gltf_mat != nullptr || (te->getMaterialParams().notNull()  && !te->getMaterialID().isNull())))
@@ -6716,7 +6716,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 
 			BOOL is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) ? TRUE : FALSE;
 		
-            LLGLTFMaterial* gltf_mat = te->getGLTFMaterial();
+            LLGLTFMaterial* gltf_mat = te->getGLTFRenderMaterial();
 
             LLMaterial* mat = nullptr;
             bool can_be_shiny = false;

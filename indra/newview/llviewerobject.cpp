@@ -4920,7 +4920,7 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
 		mTESpecularMaps[te] = LLViewerTextureManager::getFetchedTexture(spec_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM, LLViewerTexture::LOD_TEXTURE);
 	}
 
-    LLFetchedGLTFMaterial* mat = (LLFetchedGLTFMaterial*) getTE(te)->getGLTFMaterial();
+    LLFetchedGLTFMaterial* mat = (LLFetchedGLTFMaterial*) getTE(te)->getGLTFRenderMaterial();
     LLUUID mat_id = getRenderMaterialID(te);
     if (mat == nullptr && mat_id.notNull())
     {
@@ -5317,6 +5317,36 @@ S32 LLViewerObject::setTEMaterialParams(const U8 te, const LLMaterialPtr pMateri
 
 	refreshMaterials();
 	return retval;
+}
+
+S32 LLViewerObject::setTEGLTFMaterialOverride(U8 te, LLGLTFMaterial* override_mat)
+{
+    S32 retval = TEM_CHANGE_NONE;
+
+    LLTextureEntry* tep = getTE(te);
+    if (!tep)
+    {
+        LL_WARNS() << "No texture entry for te " << (S32)te << ", object " << mID << LL_ENDL;
+        return retval;
+    }
+
+    LLFetchedGLTFMaterial* src_mat = (LLFetchedGLTFMaterial*) tep->getGLTFMaterial();
+
+    tep->setGLTFMaterialOverride(override_mat);
+
+    if (override_mat && src_mat)
+    {
+        LLFetchedGLTFMaterial* render_mat = new LLFetchedGLTFMaterial(*src_mat);
+        render_mat->applyOverride(*override_mat);
+        tep->setGLTFRenderMaterial(render_mat);
+        retval = TEM_CHANGE_TEXTURE;
+    }
+    else if (tep->setGLTFRenderMaterial(nullptr))
+    {
+        retval = TEM_CHANGE_TEXTURE;
+    }
+
+    return retval;
 }
 
 void LLViewerObject::refreshMaterials()

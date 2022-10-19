@@ -1334,9 +1334,9 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 	LLColor4U color = tep->getColor();
 
-    if (tep->getGLTFMaterial())
+    if (tep->getGLTFRenderMaterial())
     {
-        color = tep->getGLTFMaterial()->mBaseColor;
+        color = tep->getGLTFRenderMaterial()->mBaseColor;
     }
 
 	if (rebuild_color)
@@ -1599,7 +1599,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			scalea.load3(scale.mV);
 
 			LLMaterial* mat = tep->getMaterialParams().get();
-            LLGLTFMaterial* gltf_mat = tep->getGLTFMaterial();
+            LLGLTFMaterial* gltf_mat = tep->getGLTFRenderMaterial();
 
 			bool do_bump = bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1);
 

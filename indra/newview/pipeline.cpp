@@ -1617,7 +1617,7 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 	}
 		
 	LLMaterial* mat = te->getMaterialParams().get();
-    LLGLTFMaterial* gltf_mat = te->getGLTFMaterial();
+    LLGLTFMaterial* gltf_mat = te->getGLTFRenderMaterial();
 
 	bool color_alpha = te->getColor().mV[3] < 0.999f;
 	bool alpha = color_alpha;

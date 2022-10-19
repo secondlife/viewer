@@ -446,3 +446,28 @@ void LLGLTFMaterial::writeOverridesToModel(tinygltf::Model& model, S32 mat_index
         material_out.doubleSided = mDoubleSided;
     }
 }
+
+void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
+{
+    if (override_mat.mBaseColorId != getDefaultBaseColorId())
+    {
+        mBaseColorId = override_mat.mBaseColorId;
+    }
+
+    if (override_mat.mNormalId != getDefaultNormalId())
+    {
+        mNormalId = override_mat.mNormalId;
+    }
+
+    if (override_mat.mMetallicRoughnessId != getDefaultMetallicRoughnessId())
+    {
+        mMetallicRoughnessId = override_mat.mMetallicRoughnessId;
+    }
+
+    if (override_mat.mEmissiveId != getDefaultEmissiveId())
+    {
+        mEmissiveId = override_mat.mEmissiveId;
+    }
+
+    //TODO -- implement non texture parameters
+}

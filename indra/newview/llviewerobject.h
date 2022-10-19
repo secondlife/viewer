@@ -356,6 +356,7 @@ public:
 	/*virtual*/ S32     setTEGlow(const U8 te, const F32 glow);
 	/*virtual*/ S32     setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
 	/*virtual*/ S32		setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams);
+    S32     setTEGLTFMaterialOverride(U8 te, LLGLTFMaterial* mat);
 
 	// Used by Materials update functions to properly kick off rebuilds
 	// of VBs etc when materials updates require changes.

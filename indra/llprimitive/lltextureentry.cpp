@@ -491,6 +491,25 @@ S32 LLTextureEntry::setBumpShiny(U8 bump_shiny)
 	return TEM_CHANGE_NONE;
 }
 
+void LLTextureEntry::setGLTFMaterial(LLGLTFMaterial* material)
+{ 
+    mGLTFMaterial = material; 
+    if (mGLTFMaterial == nullptr)
+    {
+        setGLTFRenderMaterial(nullptr);
+    }
+}
+
+S32 LLTextureEntry::setGLTFRenderMaterial(LLGLTFMaterial* mat)
+{
+    if (mGLTFRenderMaterial != mat)
+    {
+        mGLTFRenderMaterial = mat;
+        return TEM_CHANGE_TEXTURE;
+    }
+    return TEM_CHANGE_NONE;
+}
+
 S32 LLTextureEntry::setMediaFlags(U8 media_flags)
 {
 	media_flags &= TEM_MEDIA_MASK;

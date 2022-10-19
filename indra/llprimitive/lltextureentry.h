@@ -163,8 +163,6 @@ public:
 	const LLMaterialID& getMaterialID() const { return mMaterialID; };
 	const LLMaterialPtr getMaterialParams() const { return mMaterial; };
 
-    LLGLTFMaterial* getGLTFMaterial() const { return mGLTFMaterial; }
-
     // *NOTE: it is possible for hasMedia() to return true, but getMediaData() to return NULL.
     // CONVERSELY, it is also possible for hasMedia() to return false, but getMediaData()
     // to NOT return NULL.  
@@ -197,16 +195,17 @@ public:
 	enum { MF_NONE = 0x0, MF_HAS_MEDIA = 0x1 };
 
     // GLTF asset
-    void setGLTFMaterial(LLGLTFMaterial* material) { mGLTFMaterial = material; }
-    LLGLTFMaterial* getGLTFMaterial() { return mGLTFMaterial; }
+    void setGLTFMaterial(LLGLTFMaterial* material);
+    LLGLTFMaterial* getGLTFMaterial() const { return mGLTFMaterial; }
 
     // GLTF override
     LLGLTFMaterial* getGLTFMaterialOverride() { return mGLTFMaterialOverrides; }
     void setGLTFMaterialOverride(LLGLTFMaterial* mat) { mGLTFMaterialOverrides = mat; }
 
-    // GLTF render
-    LLGLTFMaterial* getGLTFRenderMaterial() { return mGLTFRenderMaterial; }
-    void setGLTFRenderMaterial(LLGLTFMaterial* mat) { mGLTFRenderMaterial = mat; }
+    // GLTF render material
+    // nuanced behavior here -- if there is no render material, fall back to getGLTFMaterial, but ONLY for the getter, not the setter
+    LLGLTFMaterial* getGLTFRenderMaterial() const { return mGLTFRenderMaterial.notNull() ? mGLTFRenderMaterial : getGLTFMaterial(); }
+    S32 setGLTFRenderMaterial(LLGLTFMaterial* mat);
 
 public:
 	F32                 mScaleS;                // S, T offset
