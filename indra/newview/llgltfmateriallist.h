@@ -30,7 +30,7 @@
 #include "llgltfmaterial.h"
 #include "llpointer.h"
 
-#include <map>
+#include <unordered_map>
 
 class LLFetchedGLTFMaterial;
 
@@ -49,7 +49,7 @@ public:
 
     static void registerCallbacks();
 private:
-    typedef std::map<LLUUID, LLPointer<LLFetchedGLTFMaterial > > uuid_mat_map_t;
+    typedef std::unordered_map<LLUUID, LLPointer<LLFetchedGLTFMaterial > > uuid_mat_map_t;
     uuid_mat_map_t mList;
 
     LLUUID mLastUpdateKey;

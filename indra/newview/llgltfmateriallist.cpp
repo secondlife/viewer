@@ -175,7 +175,12 @@ void LLGLTFMaterialList::flushMaterials()
     const F64 MAX_INACTIVE_TIME = 30.f;
     F64 cur_time = LLTimer::getTotalSeconds();
 
-    uuid_mat_map_t::iterator iter = mList.upper_bound(mLastUpdateKey);
+    // advance iter one past the last key we updated
+    uuid_mat_map_t::iterator iter = mList.find(mLastUpdateKey);
+    if (iter != mList.end()) {
+        ++iter;
+    }
+
     while (update_count-- > 0)
     {
         if (iter == mList.end())
