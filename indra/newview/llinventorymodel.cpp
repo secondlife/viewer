@@ -1691,11 +1691,11 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
 	// Can't have links to links, so there's no need for this update
 	// if the item removed is a link. Can also skip if source of the
 	// update is getting broken link info separately.
-	obj = NULL; // delete obj
 	if (fix_broken_links && !is_link_type)
 	{
 		updateLinkedObjectsFromPurge(id);
 	}
+	obj = nullptr; // delete obj
 	if (do_notify_observers)
 	{
 		notifyObservers();
