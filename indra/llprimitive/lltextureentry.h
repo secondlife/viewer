@@ -204,7 +204,7 @@ public:
 
     // GLTF render material
     // nuanced behavior here -- if there is no render material, fall back to getGLTFMaterial, but ONLY for the getter, not the setter
-    LLGLTFMaterial* getGLTFRenderMaterial() const { return mGLTFRenderMaterial.notNull() ? mGLTFRenderMaterial : getGLTFMaterial(); }
+    LLGLTFMaterial* getGLTFRenderMaterial() const { return mGLTFRenderMaterial.notNull() ? mGLTFRenderMaterial.get() : getGLTFMaterial(); }
     S32 setGLTFRenderMaterial(LLGLTFMaterial* mat);
 
 public:
