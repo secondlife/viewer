@@ -1360,7 +1360,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>20.0</real>
+      <real>40.0</real>
     </map>
     <key>DiskCacheDirName</key>
     <map>
@@ -6808,6 +6808,9 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
+      <!-- *HACK: On first run, set this to 0 for new users,
+           otherwise the default is 1 to maintain consistent experience
+           for existing users. Hardcoded in llnetmap.cpp -->
       <integer>1</integer>
     </map>
     <key>MiniMapScale</key>
@@ -6820,6 +6823,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>128.0</real>
+    </map>
+    <key>MiniMapShowPropertyLines</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not to show parcel borders on the MiniMap.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <real>1</real>
     </map>
     <key>MouseSensitivity</key>
     <map>
@@ -7099,13 +7113,13 @@
     <key>NonvisibleObjectsInMemoryTime</key>
     <map>
       <key>Comment</key>
-      <string>Number of frames non-visible objects stay in memory before being removed. 0 means never to remove.</string>
+      <string>Number of frames non-visible objects stay in memory before being removed. 0 means max.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-			<integer>300</integer>
+			<integer>64</integer>
     </map>
     <key>NoPreload</key>
     <map>
@@ -11022,7 +11036,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>1024</integer>
+      <integer>2048</integer>
     </map>
     <key>SceneLoadLowMemoryBound</key>
     <map>

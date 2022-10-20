@@ -48,52 +48,59 @@ extern float gOctreeMinSize;
 #define LL_OCTREE_MAX_CAPACITY 128
 #endif*/
 
-template <class T> class LLOctreeNode;
+// T is the type of the element referenced by the octree node.
+// T_PTR determines how pointers to elements are stored internally.
+// LLOctreeNode<T, LLPointer<T>> assumes ownership of inserted elements and
+// deletes elements removed from the tree.
+// LLOctreeNode<T, T*> doesn't take ownership of inserted elements, so the API
+// user is responsible for managing the storage lifecycle of elements added to
+// the tree.
+template <class T, typename T_PTR> class LLOctreeNode;
 
-template <class T>
+template <class T, typename T_PTR>
 class LLOctreeListener: public LLTreeListener<T>
 {
 public:
 	typedef LLTreeListener<T> BaseType;
-	typedef LLOctreeNode<T> oct_node;
+    typedef LLOctreeNode<T, T_PTR> oct_node;
 
 	virtual void handleChildAddition(const oct_node* parent, oct_node* child) = 0;
 	virtual void handleChildRemoval(const oct_node* parent, const oct_node* child) = 0;
 };
 
-template <class T>
+template <class T, typename T_PTR>
 class LLOctreeTraveler
 {
 public:
-	virtual void traverse(const LLOctreeNode<T>* node);
-	virtual void visit(const LLOctreeNode<T>* branch) = 0;
+    virtual void traverse(const LLOctreeNode<T, T_PTR>* node);
+    virtual void visit(const LLOctreeNode<T, T_PTR>* branch) = 0;
 };
 
-template <class T>
-class LLOctreeTravelerDepthFirst : public LLOctreeTraveler<T>
+template <class T, typename T_PTR>
+class LLOctreeTravelerDepthFirst : public LLOctreeTraveler<T, T_PTR>
 {
 public:
-	virtual void traverse(const LLOctreeNode<T>* node) override;
+	virtual void traverse(const LLOctreeNode<T, T_PTR>* node) override;
 };
 
-template <class T>
+template <class T, typename T_PTR>
 class alignas(16) LLOctreeNode : public LLTreeNode<T>
 {
     LL_ALIGN_NEW
 public:
 
-	typedef LLOctreeTraveler<T>									oct_traveler;
-	typedef LLTreeTraveler<T>									tree_traveler;
-	typedef std::vector< LLPointer<T> >							element_list;		// note:  don't remove the whitespace between "> >"
-	typedef LLPointer<T>*										element_iter;
-	typedef const LLPointer<T>*									const_element_iter;
+    typedef LLOctreeTraveler<T, T_PTR>                          oct_traveler;
+    typedef LLTreeTraveler<T>                                   tree_traveler;
+    typedef std::vector<T_PTR>                                  element_list;
+    typedef typename element_list::iterator                     element_iter;
+    typedef typename element_list::const_iterator               const_element_iter;
 	typedef typename std::vector<LLTreeListener<T>*>::iterator	tree_listener_iter;
-	typedef LLOctreeNode<T>**									child_list;
-	typedef LLOctreeNode<T>**									child_iter;
+    typedef LLOctreeNode<T, T_PTR>**                            child_list;
+    typedef LLOctreeNode<T, T_PTR>**                            child_iter;
 
-	typedef LLTreeNode<T>		BaseType;
-	typedef LLOctreeNode<T>		oct_node;
-	typedef LLOctreeListener<T>	oct_listener;
+    typedef LLTreeNode<T>               BaseType;
+    typedef LLOctreeNode<T, T_PTR>      oct_node;
+    typedef LLOctreeListener<T, T_PTR>  oct_listener;
 
     enum
     {
@@ -108,9 +115,6 @@ public:
 		mOctant(octant) 
 	{ 
 		llassert(size[0] >= gOctreeMinSize*0.5f);
-		//always keep a NULL terminated list to avoid out of bounds exceptions in debug builds
-		mData.push_back(NULL);
-		mDataEnd = &mData[0];
 
 		mCenter = center;
 		mSize = size;
@@ -121,8 +125,6 @@ public:
 			mOctant = ((oct_node*) mParent)->getOctant(mCenter);
 		}
 
-		mElementCount = 0;
-
 		clearChildren();
 	}
 
@@ -130,15 +132,14 @@ public:
 	{ 
 		BaseType::destroyListeners();
 		
-		for (U32 i = 0; i < mElementCount; ++i)
+        const U32 element_count = getElementCount();
+        for (U32 i = 0; i < element_count; ++i)
 		{
 			mData[i]->setBinIndex(-1);
 			mData[i] = NULL;
 		}
 
 		mData.clear();
-		mData.push_back(NULL);
-		mDataEnd = &mData[0];
 
 		for (U32 i = 0; i < getChildCount(); i++)
 		{
@@ -238,14 +239,12 @@ public:
 	void accept(oct_traveler* visitor)				{ visitor->visit(this); }
 	virtual bool isLeaf() const						{ return mChildCount == 0; }
 	
-	U32 getElementCount() const						{ return mElementCount; }
-	bool isEmpty() const							{ return mElementCount == 0; }
-	element_list& getData()							{ return mData; }
-	const element_list& getData() const				{ return mData; }
-	element_iter getDataBegin()						{ return &mData[0]; }
-	element_iter getDataEnd()						{ return mDataEnd; }
-	const_element_iter getDataBegin() const			{ return &mData[0]; }
-	const_element_iter getDataEnd() const			{ return mDataEnd; }
+    U32 getElementCount() const                     { return (U32)mData.size(); }
+    bool isEmpty() const                            { return mData.empty(); }
+    element_iter getDataBegin()                     { return mData.begin(); }
+    element_iter getDataEnd()                       { return mData.end(); }
+    const_element_iter getDataBegin() const         { return mData.cbegin(); }
+    const_element_iter getDataEnd() const           { return mData.cend(); }
 		
 	U32 getChildCount()	const						{ return mChildCount; }
 	oct_node* getChild(U32 index)					{ return mChild[index]; }
@@ -263,7 +262,7 @@ public:
 			U8 idx = mChildMap[i];
 			if (idx != NO_CHILD_NODES)
 			{
-				LLOctreeNode<T>* child = mChild[idx];
+                oct_node* child = mChild[idx];
 
 				if (child->getOctant() != i)
 				{
@@ -281,7 +280,7 @@ public:
 
 	oct_node* getNodeAt(const LLVector4a& pos, const F32& rad)
 	{ 
-		LLOctreeNode<T>* node = this;
+        oct_node* node = this;
 
 		if (node->isInside(pos, rad))
 		{
@@ -303,7 +302,7 @@ public:
 		}
 		else if (!node->contains(rad) && node->getParent())
 		{ //if we got here, data does not exist in this node
-			return ((LLOctreeNode<T>*) node->getParent())->getNodeAt(pos, rad);
+            return ((oct_node*) node->getParent())->getNodeAt(pos, rad);
 		}
 
 		return node;
@@ -318,7 +317,7 @@ public:
 			OCT_ERRS << "!!! INVALID ELEMENT ADDED TO OCTREE BRANCH !!!" << LL_ENDL;
 			return false;
 		}
-		LLOctreeNode<T>* parent = getOctParent();
+        oct_node* parent = getOctParent();
 
 		//is it here?
 		if (isInside(data->getPositionGroup()))
@@ -326,11 +325,8 @@ public:
 			if ((((getElementCount() < gOctreeMaxCapacity || getSize()[0] <= gOctreeMinSize) && contains(data->getBinRadius())) ||
 				(data->getBinRadius() > getSize()[0] &&	parent && parent->getElementCount() >= gOctreeMaxCapacity))) 
 			{ //it belongs here
-				mData.push_back(NULL);
-				mData[mElementCount] = data;
-				mElementCount++;
-				mDataEnd = &mData[mElementCount];
-				data->setBinIndex(mElementCount-1);
+                mData.push_back(data);
+                data->setBinIndex(getElementCount() - 1);
 				BaseType::insert(data);
 				return true;
 			}
@@ -354,7 +350,7 @@ public:
 				size.mul(0.5f);
 		        		
 				//push center in direction of data
-				LLOctreeNode<T>::pushCenter(center, size, data);
+                oct_node::pushCenter(center, size, data);
 
 				// handle case where floating point number gets too small
 				LLVector4a val;
@@ -366,11 +362,8 @@ public:
 
 				if( lt == 0x7 )
 				{
-					mData.push_back(NULL);
-					mData[mElementCount] = data;
-					mElementCount++;
-					mDataEnd = &mData[mElementCount];
-					data->setBinIndex(mElementCount-1);
+                    mData.push_back(data);
+                    data->setBinIndex(getElementCount() - 1);
 					BaseType::insert(data);
 					return true;
 				}
@@ -396,7 +389,7 @@ public:
 
 				llassert(size[0] >= gOctreeMinSize*0.5f);
 				//make the new kid
-				child = new LLOctreeNode<T>(center, size, this);
+                child = new oct_node(center, size, this);
 				addChild(child);
 								
 				child->insert(data);
@@ -429,28 +422,25 @@ public:
 	}
 
 	void _remove(T* data, S32 i)
-	{ //precondition -- mElementCount > 0, idx is in range [0, mElementCount)
+    { //precondition -- getElementCount() > 0, idx is in range [0, getElementCount())
 
-		mElementCount--;
 		data->setBinIndex(-1); 
 		
-		if (mElementCount > 0)
+        const U32 new_element_count = getElementCount() - 1;
+		if (new_element_count > 0)
 		{
-			if (mElementCount != i)
+			if (new_element_count != i)
 			{
-				mData[i] = mData[mElementCount]; //might unref data, do not access data after this point
+				mData[i] = mData[new_element_count]; //might unref data, do not access data after this point
 				mData[i]->setBinIndex(i);
 			}
 
-			mData[mElementCount] = NULL;
+			mData[new_element_count] = NULL;
 			mData.pop_back();
-			mDataEnd = &mData[mElementCount];
 		}
 		else
 		{
 			mData.clear();
-			mData.push_back(NULL);
-			mDataEnd = &mData[0];
 		}
 
 		this->notifyRemoval(data);
@@ -463,7 +453,7 @@ public:
 
 		S32 i = data->getBinIndex();
 
-		if (i >= 0 && i < mElementCount)
+        if (i >= 0 && i < getElementCount())
 		{
 			if (mData[i] == data)
 			{ //found it
@@ -506,7 +496,8 @@ public:
 
 	void removeByAddress(T* data)
 	{
-        for (U32 i = 0; i < mElementCount; ++i)
+        const U32 element_count = getElementCount();
+        for (U32 i = 0; i < element_count; ++i)
 		{
 			if (mData[i] == data)
 			{ //we have data
@@ -518,7 +509,7 @@ public:
 		
 		for (U32 i = 0; i < getChildCount(); i++)
 		{	//we don't contain data, so pass this guy down
-			LLOctreeNode<T>* child = (LLOctreeNode<T>*) getChild(i);
+            oct_node* child = (oct_node*) getChild(i);
 			child->removeByAddress(data);
 		}
 	}
@@ -672,22 +663,20 @@ protected:
 	oct_node* mParent;
 	U8 mOctant;
 
-	LLOctreeNode<T>* mChild[8];
+    oct_node* mChild[8];
 	U8 mChildMap[8];
 	U32 mChildCount;
 
 	element_list mData;
-	element_iter mDataEnd;
-	U32 mElementCount;
 }; 
 
 //just like a regular node, except it might expand on insert and compress on balance
-template <class T>
-class LLOctreeRoot : public LLOctreeNode<T>
+template <class T, typename T_PTR>
+class LLOctreeRoot : public LLOctreeNode<T, T_PTR>
 {
 public:
-	typedef LLOctreeNode<T>	BaseType;
-	typedef LLOctreeNode<T>	oct_node;
+    typedef LLOctreeNode<T, T_PTR> BaseType;
+    typedef LLOctreeNode<T, T_PTR> oct_node;
 
 	LLOctreeRoot(const LLVector4a& center, 
 				 const LLVector4a& size, 
@@ -768,7 +757,7 @@ public:
 			oct_node* node = this->getNodeAt(data);
 			if (node == this)
 			{
-				LLOctreeNode<T>::insert(data);
+                oct_node::insert(data);
 			}
 			else if (node->isInside(data->getPositionGroup()))
 			{
@@ -788,13 +777,13 @@ public:
 				LLVector4a center, size;
 				center = this->getCenter();
 				size = this->getSize();
-				LLOctreeNode<T>::pushCenter(center, size, data);
+                oct_node::pushCenter(center, size, data);
 				this->setCenter(center);
 				size.mul(2.f);
 				this->setSize(size);
 				this->updateMinMax();
 			}
-			LLOctreeNode<T>::insert(data);
+            oct_node::insert(data);
 		}
 		else
 		{
@@ -806,7 +795,7 @@ public:
 
 				//expand this node
 				LLVector4a newcenter(center);
-				LLOctreeNode<T>::pushCenter(newcenter, size, data);
+                oct_node::pushCenter(newcenter, size, data);
 				this->setCenter(newcenter);
 				LLVector4a size2 = size;
 				size2.mul(2.f);
@@ -816,11 +805,11 @@ public:
 				llassert(size[0] >= gOctreeMinSize);
 
 				//copy our children to a new branch
-				LLOctreeNode<T>* newnode = new LLOctreeNode<T>(center, size, this);
+                oct_node* newnode = new oct_node(center, size, this);
 				
 				for (U32 i = 0; i < this->getChildCount(); i++)
 				{
-					LLOctreeNode<T>* child = this->getChild(i);
+                    oct_node* child = this->getChild(i);
 					newnode->addChild(child);
 				}
 
@@ -846,8 +835,8 @@ public:
 //========================
 //		LLOctreeTraveler
 //========================
-template <class T>
-void LLOctreeTraveler<T>::traverse(const LLOctreeNode<T>* node)
+template <class T, typename T_PTR>
+void LLOctreeTraveler<T, T_PTR>::traverse(const LLOctreeNode<T, T_PTR>* node)
 {
 	node->accept(this);
 	for (U32 i = 0; i < node->getChildCount(); i++)
@@ -856,8 +845,8 @@ void LLOctreeTraveler<T>::traverse(const LLOctreeNode<T>* node)
 	}
 }
 
-template <class T>
-void LLOctreeTravelerDepthFirst<T>::traverse(const LLOctreeNode<T>* node)
+template <class T, typename T_PTR>
+void LLOctreeTravelerDepthFirst<T, T_PTR>::traverse(const LLOctreeNode<T, T_PTR>* node)
 {
 	for (U32 i = 0; i < node->getChildCount(); i++)
 	{

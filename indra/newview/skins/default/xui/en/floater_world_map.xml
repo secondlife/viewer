@@ -733,6 +733,7 @@
      name="zoom_icon"
      top_pad="7"
      width="16" ></icon>
+    <!-- NOTE: min_val for zoom slider is hardcoded for performance reasons -->
     <slider
      follows="left|bottom"
      height="16"
@@ -740,7 +741,7 @@
      initial_value="-2"
      left_pad="0"
      layout="topleft"
-     max_val="0"
+     max_val="4"
      min_val="-8"
      name="zoom slider"
      show_text="false"

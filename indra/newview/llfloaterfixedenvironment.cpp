@@ -296,6 +296,7 @@ void LLFloaterFixedEnvironment::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
     if (ctrl_action == ACTION_SAVE)
     {
         doApplyUpdateInventory(setting_clone);
+        clearDirtyFlag();
     }
     else if (ctrl_action == ACTION_SAVEAS)
     {
