@@ -476,6 +476,8 @@ void LLGLTFMaterial::writeOverridesToModel(tinygltf::Model& model, S32 mat_index
 
 void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
 {
+    // TODO: potentially reimplement this with a more general purpose JSON merge
+
     if (override_mat.mBaseColorId != getDefaultBaseColorId())
     {
         mBaseColorId = override_mat.mBaseColorId;
@@ -496,5 +498,60 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
         mEmissiveId = override_mat.mEmissiveId;
     }
 
-    //TODO -- implement non texture parameters
+    if (override_mat.mBaseColor != getDefaultBaseColor())
+    {
+        mBaseColor = override_mat.mBaseColor;
+    }
+
+    if (override_mat.mEmissiveColor != getDefaultEmissiveColor())
+    {
+        mEmissiveColor = override_mat.mEmissiveColor;
+    }
+
+    if (override_mat.mMetallicFactor != getDefaultMetallicFactor())
+    {
+        mMetallicFactor = override_mat.mMetallicFactor;
+    }
+
+    if (override_mat.mRoughnessFactor != getDefaultRoughnessFactor())
+    {
+        mRoughnessFactor = override_mat.mRoughnessFactor;
+    }
+
+    if (override_mat.mAlphaMode != getDefaultAlphaMode())
+    {
+        mAlphaMode = override_mat.mAlphaMode;
+    }
+    if (override_mat.mAlphaCutoff != getDefaultAlphaCutoff())
+    {
+        mAlphaCutoff = override_mat.mAlphaCutoff;
+    }
+
+    if (override_mat.mDoubleSided != getDefaultDoubleSided())
+    {
+        mDoubleSided = override_mat.mDoubleSided;
+    }
+
+    for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    {
+        if (override_mat.mTextureTransform[i].mOffset != getDefaultTextureOffset())
+        {
+            mTextureTransform[i].mOffset = override_mat.mTextureTransform[i].mOffset;
+        }
+
+        if (override_mat.mTextureTransform[i].mScale != getDefaultTextureScale())
+        {
+            mTextureTransform[i].mScale = override_mat.mTextureTransform[i].mScale;
+        }
+
+        if (override_mat.mTextureTransform[i].mScale != getDefaultTextureScale())
+        {
+            mTextureTransform[i].mScale = override_mat.mTextureTransform[i].mScale;
+        }
+
+        if (override_mat.mTextureTransform[i].mRotation != getDefaultTextureRotation())
+        {
+            mTextureTransform[i].mRotation = override_mat.mTextureTransform[i].mRotation;
+        }
+    }
 }
