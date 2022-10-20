@@ -79,13 +79,30 @@ public:
     bool mDoubleSided = false;
     AlphaMode mAlphaMode = ALPHA_MODE_OPAQUE;
 
-    enum TextureTransformIdx : U32
+    // get a UUID based on a hash of this LLGLTFMaterial
+    LLUUID getHash() const
     {
-        TEXTURE_TRANSFORM_DIFFUSE_EMISSIVE,
-        TEXTURE_TRANSFORM_NORMAL,
-        TEXTURE_TRANSFORM_METALLIC_ROUGHNESS
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+        LLMD5 md5;
+        md5.update((unsigned char*)this, sizeof(this));
+        md5.finalize();
+        LLUUID id;
+        md5.raw_digest(id.mData);
+        // *TODO: Hash the overrides
+        return id;
+    }
+
+    enum TextureInfo : U32
+    {
+        GLTF_TEXTURE_INFO_BASE_COLOR,
+        GLTF_TEXTURE_INFO_NORMAL,
+        GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS,
+        GLTF_TEXTURE_INFO_EMISSIVE,
+
+        GLTF_TEXTURE_INFO_COUNT
     };
-    TextureTransform mTextureTransform[3];
+
+    std::array<TextureTransform, GLTF_TEXTURE_INFO_COUNT> mTextureTransform;
 
     //setters for various members (will clamp to acceptable ranges)
 
@@ -101,6 +118,9 @@ public:
     void setRoughnessFactor(F32 roughness);
     void setAlphaMode(S32 mode);
     void setDoubleSided(bool double_sided);
+    void setTextureOffset(TextureInfo texture_info, const LLVector2& offset);
+    void setTextureScale(TextureInfo texture_info, const LLVector2& scale);
+    void setTextureRotation(TextureInfo texture_info, float rotation);
 
     // Default value accessors
     static LLUUID getDefaultBaseColorId();
@@ -114,6 +134,9 @@ public:
     static LLColor4 getDefaultBaseColor();
     static LLColor3 getDefaultEmissiveColor();
     static bool getDefaultDoubleSided();
+    static LLVector2 getDefaultTextureOffset();
+    static LLVector2 getDefaultTextureScale();
+    static F32 getDefaultTextureRotation();
 
     // set mAlphaMode from string.
     // Anything otherthan "MASK" or "BLEND" sets mAlphaMode to ALPHA_MODE_OPAQUE
@@ -160,17 +183,6 @@ public:
 
     // write to given tinygltf::Model
     void writeToModel(tinygltf::Model& model, S32 mat_index) const;
-
-    // get a UUID based on a hash of this LLGLTFMaterial
-    LLUUID getHash() const
-    {
-        LLMD5 md5;
-        md5.update((unsigned char*)this, sizeof(this));
-        md5.finalize();
-        LLUUID id;
-        md5.raw_digest(id.mData);
-        return id;
-    }
 
     // calculate the fields in this material that differ from a base material and write them out to a given tinygltf::Model
     void writeOverridesToModel(tinygltf::Model& model, S32 mat_index, LLGLTFMaterial const* base_material) const;
