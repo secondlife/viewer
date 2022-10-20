@@ -116,15 +116,6 @@ if (WINDOWS)
           LINK_FLAGS "/NODEFAULTLIB:LIBCMT"
           LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
           )
-elseif (DARWIN)
-  # Support our "@executable_path/../Resources" load path for our test
-  # executable. This SHOULD properly be "$<TARGET_FILE_DIR:lltest>/Resources",
-  # but the CMake $<TARGET_FILE_DIR> generator expression isn't evaluated by
-  # CREATE_LINK, so fudge it.
-  # Make sure the symlink's parent directory exists...
-  file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/test")
-  file(CREATE_LINK "../sharedlibs/Release/Resources" "${CMAKE_BINARY_DIR}/test/Resources"
-       SYMBOLIC)
 endif (WINDOWS)
 
 set(TEST_EXE $<TARGET_FILE:lltest>)
@@ -153,4 +144,13 @@ set(test_results ${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt)
 # developers choose to disable LL_TESTS.
 if (LL_TESTS)  
     add_custom_target(tests_ok ALL DEPENDS ${test_results})
+    if(DARWIN)
+      # Support our "@executable_path/../Resources" load path for our test
+      # executable. This SHOULD properly be "$<TARGET_FILE_DIR:lltest>/Resources",
+      # but the CMake $<TARGET_FILE_DIR> generator expression isn't evaluated by
+      # CREATE_LINK, so fudge it.
+      add_custom_command( TARGET tests_ok PRE_BUILD
+              COMMAND cmake -E create_symlink ${SHARED_LIB_STAGING_DIR} ${CMAKE_BINARY_DIR}/test/Resource
+              )
+    endif()
 endif (LL_TESTS)
