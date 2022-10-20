@@ -22,6 +22,7 @@
 #include "stringize.h"
 
 LL::ThreadPool::ThreadPool(const std::string& name, size_t threads, size_t capacity):
+    super(name),
     mQueue(name, capacity),
     mName("ThreadPool:" + name),
     mThreadCount(threads)

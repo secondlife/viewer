@@ -3814,7 +3814,20 @@ void LLFolderBridge::perform_pasteFromClipboard()
 				{
 					if (item && can_move_to_landmarks(item))
 					{
-						dropToFavorites(item);
+                        if (LLClipboard::instance().isCutMode())
+                        {
+                            LLViewerInventoryItem* viitem = dynamic_cast<LLViewerInventoryItem*>(item);
+                            llassert(viitem);
+                            if (viitem)
+                            {
+                                //changeItemParent() implicity calls dirtyFilter
+                                changeItemParent(model, viitem, parent_id, FALSE);
+                            }
+                        }
+                        else
+                        {
+                            dropToFavorites(item);
+                        }
 					}
 				}
 				else if (LLClipboard::instance().isCutMode())

@@ -202,7 +202,7 @@ VARYING vec2 vary_texcoord2;
 uniform float env_intensity;
 uniform vec4 specular_color;  // specular color RGB and specular exponent (glossiness) in alpha
 
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK)
+#ifdef HAS_ALPHA_MASK
 uniform float minimum_alpha;
 #endif
 
@@ -227,11 +227,12 @@ void main()
     vec4 diffcol = texture2D(diffuseMap, vary_texcoord0.xy);
 	diffcol.rgb *= vertex_color.rgb;
 
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK)
-
-    // Comparing floats cast from 8-bit values, produces acne right at the 8-bit transition points
-    float bias = 0.001953125; // 1/512, or half an 8-bit quantization
-    if (diffcol.a < minimum_alpha-bias)
+#ifdef HAS_ALPHA_MASK
+#if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND
+    if (diffcol.a*vertex_color.a < minimum_alpha)
+#else
+    if (diffcol.a < minimum_alpha)
+#endif
     {
         discard;
     }

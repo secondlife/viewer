@@ -3333,6 +3333,18 @@ function="World.EnvPreset"
                  function="Advanced.DropPacket" />
             </menu_item_call>
         </menu>
+        <menu
+         create_jump_keys="true"
+         label="Cache"
+         name="Cache"
+         tear_off="true">
+            <menu_item_call
+             label="Purge Disk Cache"
+             name="Purge Disk Cache">
+                <menu_item_call.on_click
+                 function="Advanced.PurgeDiskCache" />
+            </menu_item_call>
+        </menu>
         <menu_item_call
          label="Dump Scripted Camera"
          name="Dump Scripted Camera">

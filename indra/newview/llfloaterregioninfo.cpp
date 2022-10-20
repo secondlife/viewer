@@ -47,6 +47,7 @@
 
 #include "llagent.h"
 #include "llappviewer.h"
+#include "llavataractions.h"
 #include "llavatarname.h"
 #include "llfloateravatarpicker.h"
 #include "llbutton.h" 
@@ -1829,7 +1830,7 @@ void LLPanelEstateInfo::updateControls(LLViewerRegion* region)
 	setCtrlsEnabled(god || owner || manager);
 	
 	getChildView("apply_btn")->setEnabled(FALSE);
-
+    getChildView("estate_owner")->setEnabled(TRUE);
 	getChildView("message_estate_btn")->setEnabled(god || owner || manager);
 	getChildView("kick_user_from_estate_btn")->setEnabled(god || owner || manager);
 
@@ -1890,6 +1891,8 @@ BOOL LLPanelEstateInfo::postBuild()
 	getChild<LLUICtrl>("parcel_access_override")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeAccessOverride, this));
 
 	getChild<LLUICtrl>("externally_visible_radio")->setFocus(TRUE);
+
+    getChild<LLTextBox>("estate_owner")->setIsFriendCallback(LLAvatarActions::isFriend);
 
 	return LLPanelRegionInfo::postBuild();
 }
@@ -2137,6 +2140,7 @@ BOOL LLPanelEstateCovenant::postBuild()
 {
 	mEstateNameText = getChild<LLTextBox>("estate_name_text");
 	mEstateOwnerText = getChild<LLTextBox>("estate_owner_text");
+    mEstateOwnerText->setIsFriendCallback(LLAvatarActions::isFriend);
 	mLastModifiedText = getChild<LLTextBox>("covenant_timestamp_text");
 	mEditor = getChild<LLViewerTextEditor>("covenant_editor");
 	LLButton* reset_button = getChild<LLButton>("reset_covenant");

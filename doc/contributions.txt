@@ -401,6 +401,7 @@ Cinder Roxley
     STORM-2127
     STORM-2144
     SL-3404
+    SL-17634
 Clara Young
 Coaldust Numbers
     VWR-1095
@@ -1122,6 +1123,7 @@ Nicky Dasmijn
 	SL-14541
 	SL-16438
 	SL-17218
+	SL-17585
 Nicky Perian
 	OPEN-1
 	STORM-1087
