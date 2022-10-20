@@ -419,21 +419,15 @@ public:
 		mFilter(filter)
 	{}
 
-	virtual ~LLFolderViewModel() 
-	{
-		delete mSorter;
-		mSorter = NULL;
-		delete mFilter;
-		mFilter = NULL;
-	}
+	virtual ~LLFolderViewModel() {}
 
 	virtual SortType& getSorter()					 { return *mSorter; }
 	virtual const SortType& getSorter() const 		 { return *mSorter; }
-	virtual void setSorter(const SortType& sorter) 	 { mSorter = new SortType(sorter); requestSortAll(); }
+	virtual void setSorter(const SortType& sorter) 	 { mSorter.reset(new SortType(sorter)); requestSortAll(); }
 
 	virtual FilterType& getFilter() 				 { return *mFilter; }
 	virtual const FilterType& getFilter() const		 { return *mFilter; }
-	virtual void setFilter(const FilterType& filter) { mFilter = new FilterType(filter); }
+	virtual void setFilter(const FilterType& filter) { mFilter.reset(new FilterType(filter)); }
 
 	// By default, we assume the content is available. If a network fetch mechanism is implemented for the model,
 	// this method needs to be overloaded and return the relevant fetch status.
@@ -471,8 +465,8 @@ public:
 	}
 
 protected:
-	SortType*		mSorter;
-	FilterType*		mFilter;
+	std::unique_ptr<SortType>		mSorter;
+	std::unique_ptr<FilterType>		mFilter;
 };
 
 #endif // LLFOLDERVIEWMODEL_H
