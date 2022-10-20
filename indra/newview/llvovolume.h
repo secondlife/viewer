@@ -209,6 +209,7 @@ public:
 	static void	setTEMaterialParamsCallbackTE(const LLUUID& objectID, const LLMaterialID& pMaterialID, const LLMaterialPtr pMaterialParams, U32 te);
 
 	/*virtual*/ S32		setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams) override;
+                S32     setTEGLTFMaterialOverride(U8 te, LLGLTFMaterial* mat) override;
 	/*virtual*/ S32		setTEScale(const U8 te, const F32 s, const F32 t) override;
 	/*virtual*/ S32		setTEScaleS(const U8 te, const F32 s) override;
 	/*virtual*/ S32		setTEScaleT(const U8 te, const F32 t) override;
