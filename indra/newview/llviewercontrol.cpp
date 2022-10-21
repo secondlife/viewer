@@ -781,7 +781,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderDebugPipeline", handleRenderDebugPipelineChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderResolutionDivisor", handleRenderResolutionDivisorChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderDeferred", handleRenderDeferredChanged);
-    setting_setup_signal_listener(gSavedSettings, "RenderShadowDetail", handleSetShaderChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderShadowDetail", handleShadowDetailChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderDeferredSSAO", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderPerformanceTest", handleRenderPerfTestChanged);
     setting_setup_signal_listener(gSavedSettings, "TextureMemory", handleVideoMemoryChanged);
