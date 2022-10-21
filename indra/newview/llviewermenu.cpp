@@ -54,6 +54,7 @@
 #include "llcompilequeue.h"
 #include "llconsole.h"
 #include "lldebugview.h"
+#include "lldiskcache.h"
 #include "llenvironment.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
@@ -2080,6 +2081,32 @@ class LLAdvancedDropPacket : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		gMessageSystem->mPacketRing.dropPackets(1);
+		return true;
+	}
+};
+
+//////////////////////
+// PURGE DISK CACHE //
+//////////////////////
+
+
+class LLAdvancedPurgeDiskCache : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+        LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+        LL::WorkQueue::ptr_t general_queue = LL::WorkQueue::getInstance("General");
+        llassert_always(main_queue);
+        llassert_always(general_queue);
+        main_queue->postTo(
+            general_queue,
+            []() // Work done on general queue
+            {
+                LLDiskCache::getInstance()->purge();
+                // Nothing needed to return
+            },
+            [](){}); // Callback to main thread is empty as there is nothing left to do
+
 		return true;
 	}
 };
@@ -9509,6 +9536,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedEnableMessageLog(), "Advanced.EnableMessageLog");
 	view_listener_t::addMenu(new LLAdvancedDisableMessageLog(), "Advanced.DisableMessageLog");
 	view_listener_t::addMenu(new LLAdvancedDropPacket(), "Advanced.DropPacket");
+
+    // Advanced > Cache
+    view_listener_t::addMenu(new LLAdvancedPurgeDiskCache(), "Advanced.PurgeDiskCache");
 
 	// Advanced > Recorder
 	view_listener_t::addMenu(new LLAdvancedAgentPilot(), "Advanced.AgentPilot");

@@ -393,6 +393,8 @@ void LLModel::setVolumeFaceData(
 	U32 num_verts, 
 	U32 num_indices)
 {
+    llassert(num_indices % 3 == 0);
+
 	LLVolumeFace& face = mVolumeFaces[f];
 
 	face.resizeVertices(num_verts);
@@ -932,8 +934,6 @@ LLSD LLModel::writeModel(
 
 LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite, BOOL as_slm)
 {
-	U32 bytes = 0;
-	
 	std::string::size_type cur_offset = 0;
 
 	LLSD header;
@@ -955,7 +955,6 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite, BO
 			header["skin"]["offset"] = (LLSD::Integer) cur_offset;
 			header["skin"]["size"] = (LLSD::Integer) size;
 			cur_offset += size;
-			bytes += size;
 		}
 	}
 
@@ -971,7 +970,6 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite, BO
 			header["physics_convex"]["offset"] = (LLSD::Integer) cur_offset;
 			header["physics_convex"]["size"] = (LLSD::Integer) size;
 			cur_offset += size;
-			bytes += size;
 		}
 	}
 
@@ -993,7 +991,6 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite, BO
 			header[model_names[i]]["offset"] = (LLSD::Integer) cur_offset;
 			header[model_names[i]]["size"] = (LLSD::Integer) size;
 			cur_offset += size;
-			bytes += size;
 		}
 	}
 

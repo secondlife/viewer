@@ -133,6 +133,7 @@ public:
 	inline LLFace*      getFace(const S32 i) const;
 	inline S32			getNumFaces()      	 const;
     face_list_t& getFaces() { return mFaces; }
+    const face_list_t& getFaces() const { return mFaces; }
 
 	//void                removeFace(const S32 i); // SJB: Avoid using this, it's slow
 	LLFace*				addFace(LLFacePool *poolp, LLViewerTexture *texturep);

@@ -127,13 +127,7 @@ BOOL LLDataPacker::unpackFixed(F32 &value, const char *name,
 		total_bits++;
 	}
 
-	S32 min_val;
 	U32 max_val;
-	if (is_signed)
-	{
-		min_val = 1 << int_bits;
-		min_val *= -1;
-	}
 	max_val = 1 << int_bits;
 
 	F32 fixed_val;

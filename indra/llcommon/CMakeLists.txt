@@ -268,6 +268,11 @@ set(llcommon_HEADER_FILES
     workqueue.h
     StackWalker.h
     )
+    
+if (DARWIN)
+  list(APPEND llcommon_HEADER_FILES llsys_objc.h)
+  list(APPEND llcommon_SOURCE_FILES llsys_objc.mm)
+endif (DARWIN)
 
 set_source_files_properties(${llcommon_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
@@ -314,12 +319,6 @@ target_link_libraries(
     ${URIPARSER_LIBRARIES}
     ${TRACY_LIBRARY}
     )
-
-if (DARWIN)
-  include(CMakeFindFrameworks)
-  find_library(CARBON_LIBRARY Carbon)
-  target_link_libraries(llcommon ${CARBON_LIBRARY})
-endif (DARWIN)
 
 add_dependencies(llcommon stage_third_party_libs)
 

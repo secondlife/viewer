@@ -1700,7 +1700,7 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global, BOOL should_update_octree_bounds)
         // updates needed, set REBUILD_RIGGED accordingly.
 
         // Without the flag, this will remove unused rigged volumes, which we are not currently very aggressive about.
-        updateRiggedVolume();
+        updateRiggedVolume(false);
     }
 
     LLVolume* volume = mRiggedVolume;
@@ -1994,7 +1994,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	
 	if (mDrawable->isState(LLDrawable::REBUILD_RIGGED))
 	{
-		updateRiggedVolume();
+		updateRiggedVolume(false);
 		genBBoxes(FALSE);
 		mDrawable->clearState(LLDrawable::REBUILD_RIGGED);
 	}
@@ -5145,8 +5145,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 			}
 
 			{
-    			delete dst_face.mOctree;
-				dst_face.mOctree = NULL;
+                dst_face.destroyOctree();
 
 				LLVector4a size;
 				size.setSub(dst_face.mExtents[1], dst_face.mExtents[0]);
@@ -6122,7 +6121,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			else
 			{
 				drawablep->clearState(LLDrawable::RIGGED);
-                vobj->updateRiggedVolume();
+                vobj->updateRiggedVolume(false);
 			}
 		}
 	}

@@ -74,7 +74,7 @@ static inline bool Check_FMOD_Error(FMOD_RESULT result, const char *string)
     return true;
 }
 
-bool LLAudioEngine_FMODSTUDIO::init(const S32 num_channels, void* userdata, const std::string &app_title)
+bool LLAudioEngine_FMODSTUDIO::init(void* userdata, const std::string &app_title)
 {
     U32 version;
     FMOD_RESULT result;
@@ -86,7 +86,7 @@ bool LLAudioEngine_FMODSTUDIO::init(const S32 num_channels, void* userdata, cons
         return false;
 
     //will call LLAudioEngine_FMODSTUDIO::allocateListener, which needs a valid mSystem pointer.
-    LLAudioEngine::init(num_channels, userdata, app_title);
+    LLAudioEngine::init(userdata, app_title);
 
     result = mSystem->getVersion(&version);
     Check_FMOD_Error(result, "FMOD::System::getVersion");
@@ -98,7 +98,7 @@ bool LLAudioEngine_FMODSTUDIO::init(const S32 num_channels, void* userdata, cons
     }
 
     // In this case, all sounds, PLUS wind and stream will be software.
-    result = mSystem->setSoftwareChannels(num_channels + 2);
+    result = mSystem->setSoftwareChannels(LL_MAX_AUDIO_CHANNELS + 2);
     Check_FMOD_Error(result, "FMOD::System::setSoftwareChannels");
 
     FMOD_ADVANCEDSETTINGS settings;
@@ -127,7 +127,7 @@ bool LLAudioEngine_FMODSTUDIO::init(const S32 num_channels, void* userdata, cons
         {
             LL_DEBUGS("AppInit") << "Trying PulseAudio audio output..." << LL_ENDL;
             if (mSystem->setOutput(FMOD_OUTPUTTYPE_PULSEAUDIO) == FMOD_OK &&
-                (result = mSystem->init(num_channels + 2, fmod_flags, const_cast<char*>(app_title.c_str()))) == FMOD_OK)
+                (result = mSystem->init(LL_MAX_AUDIO_CHANNELS + 2, fmod_flags, const_cast<char*>(app_title.c_str()))) == FMOD_OK)
             {
                 LL_DEBUGS("AppInit") << "PulseAudio output initialized OKAY" << LL_ENDL;
                 audio_ok = true;
@@ -149,7 +149,7 @@ bool LLAudioEngine_FMODSTUDIO::init(const S32 num_channels, void* userdata, cons
         {
             LL_DEBUGS("AppInit") << "Trying ALSA audio output..." << LL_ENDL;
             if (mSystem->setOutput(FMOD_OUTPUTTYPE_ALSA) == FMOD_OK &&
-                (result = mSystem->init(num_channels + 2, fmod_flags, 0)) == FMOD_OK)
+                (result = mSystem->init(LL_MAX_AUDIO_CHANNELS + 2, fmod_flags, 0)) == FMOD_OK)
             {
                 LL_DEBUGS("AppInit") << "ALSA audio output initialized OKAY" << LL_ENDL;
                 audio_ok = true;
@@ -190,7 +190,7 @@ bool LLAudioEngine_FMODSTUDIO::init(const S32 num_channels, void* userdata, cons
     // initialize the FMOD engine
     // number of channel in this case looks to be identiacal to number of max simultaneously
     // playing objects and we can set practically any number
-    result = mSystem->init(num_channels + 2, fmod_flags, 0);
+    result = mSystem->init(LL_MAX_AUDIO_CHANNELS + 2, fmod_flags, 0);
     if (Check_FMOD_Error(result, "Error initializing FMOD Studio with default settins, retrying with other format"))
     {
         result = mSystem->setSoftwareFormat(44100, FMOD_SPEAKERMODE_STEREO, 0/*- ignore*/);
@@ -198,7 +198,7 @@ bool LLAudioEngine_FMODSTUDIO::init(const S32 num_channels, void* userdata, cons
         {
             return false;
         }
-        result = mSystem->init(num_channels + 2, fmod_flags, 0);
+        result = mSystem->init(LL_MAX_AUDIO_CHANNELS + 2, fmod_flags, 0);
     }
     if (Check_FMOD_Error(result, "Error initializing FMOD Studio"))
     {

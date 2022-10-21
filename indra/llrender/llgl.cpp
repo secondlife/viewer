@@ -1206,14 +1206,14 @@ bool LLGLManager::initGL()
     stop_glerror();
     glGetIntegerv(GL_MAX_SAMPLES, &mMaxSamples);
     stop_glerror();
+
     if (mGLVersion >= 4.59f)
     {
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &mMaxAnisotropy);
+        stop_glerror();
     }
-	stop_glerror();
-	
-	initGLStates();
 
+	initGLStates();
 	stop_glerror();
 
 	return true;
