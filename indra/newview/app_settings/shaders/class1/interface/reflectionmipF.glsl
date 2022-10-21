@@ -89,7 +89,7 @@ void main()
 
     // convert linear depth to distance
     vec3 v;
-    v.xy = depth_tc / 512.0 * 2.0 - 1.0;
+    v.xy = vary_texcoord0.xy / 512.0 * 2.0 - 1.0;
     v.z = 1.0;
     v = normalize(v);
     dist /= v.z;
