@@ -2421,7 +2421,7 @@ void LLImageGLThread::run()
     // We must perform setup on this thread before actually servicing our
     // WorkQueue, likewise cleanup afterwards.
     mWindow->makeContextCurrent(mContext);
-    gGL.init();
+    gGL.init(false);
     ThreadPool::run();
     gGL.shutdown();
     mWindow->destroySharedContext(mContext);

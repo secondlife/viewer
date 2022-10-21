@@ -34,6 +34,7 @@ class LLScrollListCtrl;
 class LLGLTFMaterial;
 class LLViewerObject;
 class LLViewerFetchedTexture;
+class LLFetchedGLTFMaterial;
 
 class LLLocalGLTFMaterial
 {
@@ -53,7 +54,7 @@ public:
     bool updateSelf();
 
 private:
-    bool loadMaterial(LLPointer<LLGLTFMaterial> raw, S32 index);
+    bool loadMaterial();
 
 private: /* private enums */
     enum ELinkStatus
@@ -80,7 +81,9 @@ private: /* members */
     S32         mUpdateRetries;
     S32         mMaterialIndex; // Single file can have more than one
 
-    // material needs to maintain textures
+    // Maintain textures and material pointers to
+    // make sure they won't be deleted in any way
+    LLPointer<LLFetchedGLTFMaterial> mGLTFMaterial;
     LLPointer<LLViewerFetchedTexture> mBaseColorFetched;
     LLPointer<LLViewerFetchedTexture> mNormalFetched;
     LLPointer<LLViewerFetchedTexture> mMRFetched;

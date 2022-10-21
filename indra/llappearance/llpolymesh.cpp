@@ -612,14 +612,16 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                                         // we reached the end of the morphs
                                         break;
                                 }
-                                LLPolyMorphData* morph_data = new LLPolyMorphData(std::string(morphName));
+                                std::string morph_name(morphName);
+                                LLPolyMorphData* morph_data = new LLPolyMorphData(morph_name);
 
                                 BOOL result = morph_data->loadBinary(fp, this);
 
                                 if (!result)
                                 {
-                                        delete morph_data;
-                                        continue;
+                                    LL_WARNS() << "Failure loading " << morph_name << " from " << fileName << LL_ENDL;
+                                    delete morph_data;
+                                    continue;
                                 }
 
                                 mMorphData.insert(morph_data);

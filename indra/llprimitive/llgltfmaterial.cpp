@@ -37,7 +37,7 @@ LLGLTFMaterial::LLGLTFMaterial(const LLGLTFMaterial& rhs)
 
 LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
 {
-    //have to do a manual operator= because of LLRefCount 
+    //have to do a manual operator= because of LLRefCount
     mBaseColorId = rhs.mBaseColorId;
     mNormalId = rhs.mNormalId;
     mMetallicRoughnessId = rhs.mMetallicRoughnessId;
@@ -53,10 +53,7 @@ LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
     mDoubleSided = rhs.mDoubleSided;
     mAlphaMode = rhs.mAlphaMode;
 
-    for (S32 i = 0; i < 3; ++i)
-    {
-        mTextureTransform[i] = rhs.mTextureTransform[i];
-    }
+    mTextureTransform = rhs.mTextureTransform;
 
     return *this;
 }
@@ -285,14 +282,29 @@ void LLGLTFMaterial::setRoughnessFactor(F32 roughness)
 
 void LLGLTFMaterial::setAlphaMode(S32 mode)
 {
-    mAlphaMode = (AlphaMode)llclamp(mode, (S32)ALPHA_MODE_OPAQUE, (S32)ALPHA_MODE_MASK);
+    mAlphaMode = (AlphaMode) llclamp(mode, (S32) ALPHA_MODE_OPAQUE, (S32) ALPHA_MODE_MASK);
 }
 
 void LLGLTFMaterial::setDoubleSided(bool double_sided)
 {
-    // sure, no clamping will ever be needed for a bool, but include the 
+    // sure, no clamping will ever be needed for a bool, but include the
     // setter for consistency with the clamping API
     mDoubleSided = double_sided;
+}
+
+void LLGLTFMaterial::setTextureOffset(TextureInfo texture_info, const LLVector2& offset)
+{
+    mTextureTransform[texture_info].mOffset = offset;
+}
+
+void LLGLTFMaterial::setTextureScale(TextureInfo texture_info, const LLVector2& scale)
+{
+    mTextureTransform[texture_info].mScale = scale;
+}
+
+void LLGLTFMaterial::setTextureRotation(TextureInfo texture_info, float rotation)
+{
+    mTextureTransform[texture_info].mRotation = rotation;
 }
 
 // Default value accessors
@@ -324,7 +336,7 @@ F32 LLGLTFMaterial::getDefaultAlphaCutoff()
 
 S32 LLGLTFMaterial::getDefaultAlphaMode()
 {
-    return (S32)ALPHA_MODE_OPAQUE;
+    return (S32) ALPHA_MODE_OPAQUE;
 }
 
 F32 LLGLTFMaterial::getDefaultMetallicFactor()
@@ -350,6 +362,21 @@ LLColor3 LLGLTFMaterial::getDefaultEmissiveColor()
 bool LLGLTFMaterial::getDefaultDoubleSided()
 {
     return false;
+}
+
+LLVector2 LLGLTFMaterial::getDefaultTextureOffset()
+{
+    return LLVector2(0.f, 0.f);
+}
+
+LLVector2 LLGLTFMaterial::getDefaultTextureScale()
+{
+    return LLVector2(1.f, 1.f);
+}
+
+F32 LLGLTFMaterial::getDefaultTextureRotation()
+{
+    return 0.f;
 }
 
 void LLGLTFMaterial::writeOverridesToModel(tinygltf::Model& model, S32 mat_index, LLGLTFMaterial const* base_material) const
@@ -449,6 +476,8 @@ void LLGLTFMaterial::writeOverridesToModel(tinygltf::Model& model, S32 mat_index
 
 void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
 {
+    // TODO: potentially reimplement this with a more general purpose JSON merge
+
     if (override_mat.mBaseColorId != getDefaultBaseColorId())
     {
         mBaseColorId = override_mat.mBaseColorId;
@@ -469,5 +498,60 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
         mEmissiveId = override_mat.mEmissiveId;
     }
 
-    //TODO -- implement non texture parameters
+    if (override_mat.mBaseColor != getDefaultBaseColor())
+    {
+        mBaseColor = override_mat.mBaseColor;
+    }
+
+    if (override_mat.mEmissiveColor != getDefaultEmissiveColor())
+    {
+        mEmissiveColor = override_mat.mEmissiveColor;
+    }
+
+    if (override_mat.mMetallicFactor != getDefaultMetallicFactor())
+    {
+        mMetallicFactor = override_mat.mMetallicFactor;
+    }
+
+    if (override_mat.mRoughnessFactor != getDefaultRoughnessFactor())
+    {
+        mRoughnessFactor = override_mat.mRoughnessFactor;
+    }
+
+    if (override_mat.mAlphaMode != getDefaultAlphaMode())
+    {
+        mAlphaMode = override_mat.mAlphaMode;
+    }
+    if (override_mat.mAlphaCutoff != getDefaultAlphaCutoff())
+    {
+        mAlphaCutoff = override_mat.mAlphaCutoff;
+    }
+
+    if (override_mat.mDoubleSided != getDefaultDoubleSided())
+    {
+        mDoubleSided = override_mat.mDoubleSided;
+    }
+
+    for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    {
+        if (override_mat.mTextureTransform[i].mOffset != getDefaultTextureOffset())
+        {
+            mTextureTransform[i].mOffset = override_mat.mTextureTransform[i].mOffset;
+        }
+
+        if (override_mat.mTextureTransform[i].mScale != getDefaultTextureScale())
+        {
+            mTextureTransform[i].mScale = override_mat.mTextureTransform[i].mScale;
+        }
+
+        if (override_mat.mTextureTransform[i].mScale != getDefaultTextureScale())
+        {
+            mTextureTransform[i].mScale = override_mat.mTextureTransform[i].mScale;
+        }
+
+        if (override_mat.mTextureTransform[i].mRotation != getDefaultTextureRotation())
+        {
+            mTextureTransform[i].mRotation = override_mat.mTextureTransform[i].mRotation;
+        }
+    }
 }

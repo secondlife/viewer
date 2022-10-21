@@ -62,6 +62,7 @@ static BOOL deferred_render = FALSE;
 
 // minimum alpha before discarding a fragment
 static const F32 MINIMUM_ALPHA = 0.004f; // ~ 1/255
+
 // minimum alpha before discarding a fragment when rendering impostors
 static const F32 MINIMUM_IMPOSTOR_ALPHA = 0.1f;
 
@@ -179,7 +180,6 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
         (LLPipeline::sUnderWaterRender) ? &gDeferredAlphaWaterProgram : &gDeferredAlphaProgram;
     prepare_alpha_shader(simple_shader, false, true, water_sign); //prime simple shader (loads shadow relevant uniforms)
 
-
     LLGLSLShader* materialShader = LLPipeline::sUnderWaterRender ? gDeferredMaterialWaterProgram : gDeferredMaterialProgram;
     for (int i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
     {
@@ -255,8 +255,14 @@ void LLDrawPoolAlpha::render(S32 pass)
     {
         minimum_alpha = MINIMUM_IMPOSTOR_ALPHA;
     }
+
     prepare_forward_shader(fullbright_shader, minimum_alpha);
     prepare_forward_shader(simple_shader, minimum_alpha);
+
+    for (int i = 0; i < LLMaterial::SHADER_COUNT; ++i)
+    {
+        prepare_forward_shader(LLPipeline::sUnderWaterRender ? &gDeferredMaterialWaterProgram[i] : &gDeferredMaterialProgram[i], minimum_alpha);
+    }
 
     //first pass -- rigged only and drawn to depth buffer
     forwardRender(true);

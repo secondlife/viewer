@@ -36,7 +36,6 @@
 #include "llviewercontrol.h"
 #include "llviewergenericmessage.h"
 #include "llviewerobjectlist.h"
-#include "pipeline.h"
 
 #include "tinygltf/tiny_gltf.h"
 #include <strstream>
@@ -87,10 +86,7 @@ namespace
 
                 if(obj)
                 {
-                    if (obj->setTEGLTFMaterialOverride(side, override_data))
-                    {
-                         gPipeline.markTextured(obj->mDrawable);
-                    }
+                    obj->setTEGLTFMaterialOverride(side, override_data);
                 }
 
                 LL_DEBUGS() << "successfully parsed override: " << override_data->asJSON() << LL_ENDL;

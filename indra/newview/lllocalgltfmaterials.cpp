@@ -152,18 +152,7 @@ bool LLLocalGLTFMaterial::updateSelf()
 
             if (mLastModified.asString() != new_last_modified.asString())
             {
-                LLPointer<LLFetchedGLTFMaterial> raw_material;
-                if (mWorldID.notNull())
-                {
-                    // update existing material
-                    // will create a new one if material doesn't exist yet
-                    raw_material = (LLFetchedGLTFMaterial*)gGLTFMaterialList.getMaterial(mWorldID);
-                }
-                else
-                {
-                    raw_material = new LLFetchedGLTFMaterial();
-                }
-                if (loadMaterial(raw_material, mMaterialIndex))
+                if (loadMaterial())
                 {
                     // decode is successful, we can safely proceed.
                     if (mWorldID.isNull())
@@ -172,8 +161,10 @@ bool LLLocalGLTFMaterial::updateSelf()
                     }
                     mLastModified = new_last_modified;
 
-                    // will replace material if it already exists
-                    gGLTFMaterialList.addMaterial(mWorldID, raw_material);
+                    // addMaterial will replace material witha a new
+                    // pointer if value already exists but we are
+                    // reusing existing pointer, so it should add only.
+                    gGLTFMaterialList.addMaterial(mWorldID, mGLTFMaterial);
 
                     mUpdateRetries = LL_LOCAL_UPDATE_RETRIES;
                     updated = true;
@@ -223,9 +214,20 @@ bool LLLocalGLTFMaterial::updateSelf()
     return updated;
 }
 
-bool LLLocalGLTFMaterial::loadMaterial(LLPointer<LLGLTFMaterial> mat, S32 index)
+bool LLLocalGLTFMaterial::loadMaterial()
 {
     bool decode_successful = false;
+
+    if (mWorldID.notNull())
+    {
+        // We should already have it, but update mGLTFMaterial just in case
+        // will create a new one if material doesn't exist yet
+        mGLTFMaterial = (LLFetchedGLTFMaterial*)gGLTFMaterialList.getMaterial(mWorldID);
+    }
+    else
+    {
+        mGLTFMaterial = new LLFetchedGLTFMaterial();
+    }
 
     switch (mExtension)
     {
@@ -261,19 +263,19 @@ bool LLLocalGLTFMaterial::loadMaterial(LLPointer<LLGLTFMaterial> mat, S32 index)
                 break;
             }
 
-            if (model_in.materials.size() <= index)
+            if (model_in.materials.size() <= mMaterialIndex)
             {
                 // materials are missing
-                LL_WARNS() << "Cannot load Material, Material " << index << " is missing, " << mFilename << LL_ENDL;
+                LL_WARNS() << "Cannot load Material, Material " << mMaterialIndex << " is missing, " << mFilename << LL_ENDL;
                 decode_successful = false;
                 break;
             }
 
             // sets everything, but textures will have inaccurate ids
-            mat->setFromModel(model_in, index);
+            mGLTFMaterial->setFromModel(model_in, mMaterialIndex);
 
             std::string folder = gDirUtilp->getDirName(filename_lc);
-            tinygltf::Material material_in = model_in.materials[index];
+            tinygltf::Material material_in = model_in.materials[mMaterialIndex];
 
             if (!material_in.name.empty())
             {
@@ -302,19 +304,50 @@ bool LLLocalGLTFMaterial::loadMaterial(LLPointer<LLGLTFMaterial> mat, S32 index)
 
             if (mBaseColorFetched)
             {
-                mat->mBaseColorId= mBaseColorFetched->getID();
+                mBaseColorFetched->addTextureStats(64.f * 64.f, TRUE);
+                mGLTFMaterial->mBaseColorId = mBaseColorFetched->getID();
+                mGLTFMaterial->mBaseColorTexture = mBaseColorFetched;
             }
+            else
+            {
+                mGLTFMaterial->mBaseColorId = LLUUID::null;
+                mGLTFMaterial->mBaseColorTexture = nullptr;
+            }
+
             if (mNormalFetched)
             {
-                mat->mNormalId = mNormalFetched->getID();
+                mNormalFetched->addTextureStats(64.f * 64.f, TRUE);
+                mGLTFMaterial->mNormalId = mNormalFetched->getID();
+                mGLTFMaterial->mNormalTexture = mBaseColorFetched;
             }
+            else
+            {
+                mGLTFMaterial->mNormalId = LLUUID::null;
+                mGLTFMaterial->mNormalTexture = nullptr;
+            }
+
             if (mMRFetched)
             {
-                mat->mMetallicRoughnessId = mMRFetched->getID();
+                mMRFetched->addTextureStats(64.f * 64.f, TRUE);
+                mGLTFMaterial->mMetallicRoughnessId = mMRFetched->getID();
+                mGLTFMaterial->mMetallicRoughnessTexture = mBaseColorFetched;
             }
+            else
+            {
+                mGLTFMaterial->mMetallicRoughnessId = LLUUID::null;
+                mGLTFMaterial->mMetallicRoughnessTexture = nullptr;
+            }
+
             if (mEmissiveFetched)
             {
-                mat->mEmissiveId = mEmissiveFetched->getID();
+                mEmissiveFetched->addTextureStats(64.f * 64.f, TRUE);
+                mGLTFMaterial->mEmissiveId = mEmissiveFetched->getID();
+                mGLTFMaterial->mEmissiveTexture = mBaseColorFetched;
+            }
+            else
+            {
+                mGLTFMaterial->mEmissiveId = LLUUID::null;
+                mGLTFMaterial->mEmissiveTexture = nullptr;
             }
 
             break;

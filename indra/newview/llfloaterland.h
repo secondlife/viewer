@@ -413,6 +413,7 @@ protected:
 private:
 	LLUUID mLastRegionID;
 	F64 mNextUpdateTime; //seconds since client start
+    LLTextBox* mTextEstateOwner;
 };
 
 #endif

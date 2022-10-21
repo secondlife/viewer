@@ -87,7 +87,7 @@ void LLReflectionMap::autoAdjustOrigin()
                 return;
             }
 
-            if (node->isLeaf() || node->getChildCount() > 1 || node->getData().size() > 0)
+            if (node->isLeaf() || node->getChildCount() > 1 || node->getElementCount() > 0)
             { // use center of object bounding box for leaf nodes or nodes with multiple child nodes
                 mOrigin = bounds[0];
 

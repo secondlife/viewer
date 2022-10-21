@@ -69,11 +69,9 @@ void LLPatchVertexArray::create(U32 surface_width, U32 patch_width, F32 meters_p
 	// (The -1 is there because an LLSurface has a buffer of 1 on 
 	// its East and North edges).
 	U32 power_of_two = 1;
-	U32 surface_order = 0;
 	while (power_of_two < (surface_width-1))
 	{
 		power_of_two *= 2;
-		surface_order += 1;
 	}
 
 	if (power_of_two == (surface_width-1))

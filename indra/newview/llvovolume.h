@@ -65,7 +65,10 @@ public:
 	{
 	}
 
-	void update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, const LLVolume* src_volume);
+    using FaceIndex = S32;
+    static const FaceIndex UPDATE_ALL_FACES = -1;
+    static const FaceIndex DO_NOT_UPDATE_FACES = -2;
+    void update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, const LLVolume* src_volume);
 
     std::string mExtraDebugText;
 };
@@ -209,6 +212,7 @@ public:
 	static void	setTEMaterialParamsCallbackTE(const LLUUID& objectID, const LLMaterialID& pMaterialID, const LLMaterialPtr pMaterialParams, U32 te);
 
 	/*virtual*/ S32		setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams) override;
+                S32     setTEGLTFMaterialOverride(U8 te, LLGLTFMaterial* mat) override;
 	/*virtual*/ S32		setTEScale(const U8 te, const F32 s, const F32 t) override;
 	/*virtual*/ S32		setTEScaleS(const U8 te, const F32 s) override;
 	/*virtual*/ S32		setTEScaleT(const U8 te, const F32 t) override;
@@ -379,8 +383,9 @@ public:
 	S32 getMDCImplCount() { return mMDCImplCount; }
 	
 
-	//rigged volume update (for raycasting)
-	void updateRiggedVolume(bool force_update = false);
+    // Rigged volume update (for raycasting)
+    // By default, this updates the bounding boxes of all the faces and builds an octree for precise per-triangle raycasting
+    void updateRiggedVolume(bool force_treat_as_rigged);
 	LLRiggedVolume* getRiggedVolume();
 
 	//returns true if volume should be treated as a rigged volume
