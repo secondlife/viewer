@@ -1401,15 +1401,14 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
     }
 }
 
-void LLMaterialEditor::loadLiveMaterial(LLUUID &asset_id)
+void LLMaterialEditor::loadLiveMaterialEditor()
 {
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", LLSD(LIVE_MATERIAL_EDITOR_KEY));
+    me->mIsOverride = true;
     me->setTitle(me->getString("material_override_title"));
-    me->setAssetId(asset_id);
-    if (asset_id.notNull())
-    {
-        me->setFromGLTFMaterial(gGLTFMaterialList.getMaterial(asset_id));
-    }
+    me->childSetVisible("save", false);
+    me->childSetVisible("save_as", false);
+    me->setFromSelection();
     me->openFloater();
     me->setFocus(TRUE);
 }
@@ -1904,7 +1903,7 @@ private:
 
 void LLMaterialEditor::applyToSelection()
 {
-    if (!mKey.isUUID() || mKey.asUUID() != LIVE_MATERIAL_EDITOR_KEY)
+    if (!mIsOverride)
     {
         // Only apply if working with 'live' materials
         // Might need a better way to distinguish 'live' mode.
@@ -1973,6 +1972,22 @@ void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
     setAlphaMode(mat->getAlphaMode());
     setAlphaCutoff(mat->mAlphaCutoff);
 }
+
+void LLMaterialEditor::setFromSelection()
+{
+    struct LLSelectedTEGetGLTFRenderMaterial : public LLSelectedTEGetFunctor<LLPointer<LLGLTFMaterial> >
+    {
+        LLPointer<LLGLTFMaterial> get(LLViewerObject* object, S32 te_index)
+        {
+            return object->getTE(te_index)->getGLTFRenderMaterial(); // present user with combined override + asset
+        }
+    } func;
+
+    LLPointer<LLGLTFMaterial> mat;
+    LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, mat);
+    setFromGLTFMaterial(mat);
+}
+
 
 void LLMaterialEditor::loadAsset()
 {

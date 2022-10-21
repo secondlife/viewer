@@ -2970,7 +2970,7 @@ void load_life_gltf_material(bool copy)
     }
     else
     {
-        LLMaterialEditor::loadLiveMaterial(mat_id);
+        LLMaterialEditor::loadLiveMaterialEditor();
     }
 
     LLViewerJoystick::getInstance()->moveObjects(true);
@@ -2979,7 +2979,8 @@ void load_life_gltf_material(bool copy)
 
 void handle_object_edit_gltf_material()
 {
-    load_life_gltf_material(false);
+    handle_object_edit();
+    LLMaterialEditor::loadLiveMaterialEditor();
 }
 
 void handle_object_save_gltf_material()

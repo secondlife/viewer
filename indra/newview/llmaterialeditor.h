@@ -103,7 +103,7 @@ public:
     // will promt to select specific one
     static void loadMaterialFromFile(const std::string& filename, S32 index = -1);
 
-    static void loadLiveMaterial(LLUUID &asset_id);
+    static void loadLiveMaterialEditor();
 
     static void loadFromGLTFMaterial(LLUUID &asset_id);
 
@@ -222,6 +222,7 @@ public:
 
 private:
     void setFromGLTFMaterial(LLGLTFMaterial* mat);
+    void setFromSelection();
 
     void loadMaterial(const tinygltf::Model &model, const std::string &filename_lc, S32 index);
 
@@ -271,5 +272,8 @@ private:
     S32 mExpectedUploadCost;
     std::string mMaterialNameShort;
     std::string mMaterialName;
+
+    // if true, this instance is live instance editing overrides
+    bool mIsOverride = false;
 };
 
