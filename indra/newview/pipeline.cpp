@@ -8673,15 +8673,17 @@ void LLPipeline::renderDeferredLighting()
 
                 LLVector3 gauss[32];  // xweight, yweight, offset
 
+				F32 screenPixelSize = 1.f / screen_target->getWidth();
+
                 for (U32 i = 0; i < kern_length; i++)
                 {
                     gauss[i].mV[0] = llgaussian(x, go.mV[0]);
                     gauss[i].mV[1] = llgaussian(x, go.mV[1]);
                     gauss[i].mV[2] = x;
-                    x += 1.f;
+                    x += screenPixelSize;
                 }
 
-                gDeferredBlurLightProgram.uniform2f(sDelta, 1.f, 0.f);
+                gDeferredBlurLightProgram.uniform2f(sDelta, screenPixelSize, 0.f);
                 gDeferredBlurLightProgram.uniform1f(sDistFactor, dist_factor);
                 gDeferredBlurLightProgram.uniform3fv(sKern, kern_length, gauss[0].mV);
                 gDeferredBlurLightProgram.uniform1f(sKernScale, blur_size * (kern_length / 2.f - 0.5f));
