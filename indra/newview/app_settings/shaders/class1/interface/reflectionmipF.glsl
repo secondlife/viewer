@@ -84,8 +84,7 @@ void main()
 
     frag_color = vec4(color, 1.0);
 #else
-    vec2 depth_tc = vary_texcoord0.xy * resScale;
-    float depth = texture(depthMap, depth_tc).r;
+    float depth = texture(depthMap, vary_texcoord0.xy).r;
     float dist = linearDepth(depth, znear, zfar);
 
     // convert linear depth to distance

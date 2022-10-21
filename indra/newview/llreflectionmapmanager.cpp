@@ -472,13 +472,13 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
             gGL.texCoord2f(0, 0);
             gGL.vertex2f(-1, -1);
 
-            gGL.texCoord2f(res, 0);
+            gGL.texCoord2f(1.f, 0);
             gGL.vertex2f(1, -1);
 
-            gGL.texCoord2f(res, res);
+            gGL.texCoord2f(1.f, 1.f);
             gGL.vertex2f(1, 1);
 
-            gGL.texCoord2f(0, res);
+            gGL.texCoord2f(0, 1.f);
             gGL.vertex2f(-1, 1);
             gGL.end();
             gGL.flush();
