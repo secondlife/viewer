@@ -45,59 +45,57 @@
 
 namespace
 {
-    class LLGLTFOverrideDispatchHandler : public LLDispatchHandler
+    class LLGLTFMaterialOverrideDispatchHandler : public LLDispatchHandler
     {
-        LOG_CLASS(LLGLTFOverrideDispatchHandler);
+        LOG_CLASS(LLGLTFMaterialOverrideDispatchHandler);
     public:
-        LLGLTFOverrideDispatchHandler() = default;
-        ~LLGLTFOverrideDispatchHandler() override = default;
+        LLGLTFMaterialOverrideDispatchHandler() = default;
+        ~LLGLTFMaterialOverrideDispatchHandler() override = default;
 
         bool operator()(const LLDispatcher* dispatcher, const std::string& key, const LLUUID& invoice, const sparam_t& strings) override
         {
-            // iterate over pairs of parameters
-            int i;
-            for (i = 0; i+1 < strings.size(); i += 2)
-            {
-                std::string params_json = strings[i];
-                std::string override_json = strings[i+1];
+            // receive override data from simulator via LargeGenericMessage
+            // message should have:
+            //  object_id - UUID of LLViewerObject
+            //  side - S32 index of texture entry
+            //  gltf_json - String of GLTF json for override data
 
-                LL_DEBUGS() << "received override: " << params_json << " | " << override_json << LL_ENDL;
 
-                Json::Value params;
-                Json::Reader reader;
-                bool success = reader.parse(params_json, params);
-                if (!success)
+            LLSD message;
+
+            sparam_t::const_iterator it = strings.begin();
+            if (it != strings.end()) {
+                const std::string& llsdRaw = *it++;
+                std::istringstream llsdData(llsdRaw);
+                if (!LLSDSerialize::deserialize(message, llsdData, llsdRaw.length()))
                 {
-                    LL_WARNS() << "failed to parse override parameters.  errors: " << reader.getFormatedErrorMessages() << LL_ENDL;
-                    break;
+                    LL_WARNS() << "LLGLTFMaterialOverrideDispatchHandler: Attempted to read parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
                 }
+            }
+            
+            LLViewerObject * obj = gObjectList.findObject(message["object_id"].asUUID());
+            S32 side = message["side"].asInteger();
+            std::string gltf_json = message["gltf_json"].asString();
 
-                LLViewerObject * obj = gObjectList.findObject(LLUUID(params["object_id"].asString()));
-                S32 side = params["side"].asInt();
-
-                std::string warn_msg, error_msg;
-                LLPointer<LLGLTFMaterial> override_data = new LLGLTFMaterial();
-                success = override_data->fromJSON(override_json, warn_msg, error_msg);
-//                if (!success)
-//                {
-//                    LL_WARNS() << "failed to parse GLTF override data.  errors: " << error_msg << " | warnings: " << warn_msg << LL_ENDL;
-//                    break;
-//                }
-
-                if(obj)
+            std::string warn_msg, error_msg;
+            LLPointer<LLGLTFMaterial> override_data = new LLGLTFMaterial();
+            bool success = override_data->fromJSON(gltf_json, warn_msg, error_msg);
+            if (!success)
+            {
+                LL_WARNS() << "failed to parse GLTF override data.  errors: " << error_msg << " | warnings: " << warn_msg << LL_ENDL;
+            }
+            else
+            {
+                if (obj)
                 {
                     obj->setTEGLTFMaterialOverride(side, override_data);
                 }
-
-                LL_DEBUGS() << "successfully parsed override: " << override_data->asJSON() << LL_ENDL;
             }
-
-            LL_WARNS_IF(i != strings.size()) << "parse error or unhandled mismatched odd number of parameters for material override" << LL_ENDL;
 
             return true;
         }
     };
-    LLGLTFOverrideDispatchHandler handle_gltf_override_message;
+    LLGLTFMaterialOverrideDispatchHandler handle_gltf_override_message;
 }
 
 LLGLTFMaterialList gGLTFMaterialList;
@@ -256,5 +254,5 @@ void LLGLTFMaterialList::flushMaterials()
 // static
 void LLGLTFMaterialList::registerCallbacks()
 {
-    gGenericDispatcher.addHandler("GLTF", &handle_gltf_override_message);
+    gGenericDispatcher.addHandler("GLTFMaterialOverride", &handle_gltf_override_message);
 }

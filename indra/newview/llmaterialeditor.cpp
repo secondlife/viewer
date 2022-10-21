@@ -1872,42 +1872,24 @@ public:
 
     bool apply(LLViewerObject* objectp, S32 te) override
     {
+        // post override from given object and te to the simulator
+        // requestData should have:
+        //  object_id - UUID of LLViewerObject
+        //  side - S32 index of texture entry
+        //  gltf_json - String of GLTF json for override data
+
         if (objectp && objectp->permModify() && objectp->getVolume())
         {
-            //LLVOVolume* vobjp = (LLVOVolume*)objectp;
-            S32 local_id = objectp->getLocalID();
-
             LLPointer<LLGLTFMaterial> material = new LLGLTFMaterial();
-            LLPointer<LLGLTFMaterial> base;
+            
             mEditor->getGLTFMaterial(material);
 
-            tinygltf::Model model_out;
-
-            if(mAssetID != LLUUID::null)
-            {
-                base = gGLTFMaterialList.getMaterial(mAssetID);
-                material->writeOverridesToModel(model_out, 0, base);
-            }
-            else
-            {
-                material->writeToModel(model_out, 0);
-            }
-
-            std::string overrides_json;
-            {
-                tinygltf::TinyGLTF gltf;
-                std::ostringstream str;
-
-                gltf.WriteGltfSceneToStream(&model_out, str, false, false);
-
-                overrides_json = str.str();
-                LL_DEBUGS() << "overrides_json " << overrides_json << LL_ENDL;
-            }
-
+            std::string overrides_json = material->asJSON();
+            
             LLSD overrides = llsd::map(
-                "local_id", local_id,
+                "object_id", objectp->getID(),
                 "side", te,
-                "overrides", overrides_json
+                "gltf_json", overrides_json
             );
             LLCoros::instance().launch("modifyMaterialCoro", std::bind(&LLMaterialEditor::modifyMaterialCoro, mEditor, mCapUrl, overrides));
         }
