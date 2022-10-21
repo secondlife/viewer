@@ -81,6 +81,7 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
         vec3 pos, vec3 norm, float glossiness, float envIntensity);
 void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 norm);
 void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 norm, float envIntensity);
+float getDepth(vec2 pos_screen);
 
 vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
@@ -118,7 +119,7 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
 void main()
 {
     vec2  tc           = vary_fragcoord.xy;
-    float depth        = texture2D(depthMap, tc.xy).r;
+    float depth        = getDepth(tc.xy);
     vec4  pos          = getPositionWithDepth(tc, depth);
     vec4  norm         = texture2D(normalMap, tc);
     float envIntensity = norm.z;

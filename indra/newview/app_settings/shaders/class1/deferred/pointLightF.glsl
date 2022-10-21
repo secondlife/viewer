@@ -57,6 +57,7 @@ uniform vec4 viewport;
 
 vec3 getNorm(vec2 pos_screen);
 vec4 getPosition(vec2 pos_screen);
+float getDepth(vec2 pos);
 vec3 srgb_to_linear(vec3 c);
 
 void main() 
@@ -124,6 +125,7 @@ void main()
     {
         discard;
     }
+    final_color.rgb = vec3(getDepth(frag.xy));
 
     frag_color.rgb = col;   
     frag_color.a = 0.0;

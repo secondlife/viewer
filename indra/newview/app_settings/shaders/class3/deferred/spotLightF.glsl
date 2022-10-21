@@ -90,6 +90,7 @@ vec3 getProjectedLightAmbiance(float amb_da, float attenuation, float lit, float
 vec3 getProjectedLightDiffuseColor(float light_distance, vec2 projected_uv );
 vec3 getProjectedLightSpecularColor(vec3 pos, vec3 n);
 vec2 getScreenXY(vec4 clip_point);
+vec2 getScreenCoord(vec4 clip_point);
 vec3 srgb_to_linear(vec3 c);
 vec4 texture2DLodSpecular(vec2 tc, float lod);
 
@@ -110,7 +111,7 @@ void main()
     discard;
 #else
     vec3 final_color = vec3(0,0,0);
-    vec2 tc          = getScreenXY(vary_fragcoord);
+    vec2 tc          = getScreenCoord(vary_fragcoord);
     vec3 pos         = getPosition(tc).xyz;
 
     vec3 lv;

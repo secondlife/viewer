@@ -72,6 +72,7 @@ uniform vec2 screen_res;
 uniform mat4 inv_proj;
 vec3 getNorm(vec2 pos_screen);
 vec3 srgb_to_linear(vec3 c);
+float getDepth(vec2 tc);
 
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {

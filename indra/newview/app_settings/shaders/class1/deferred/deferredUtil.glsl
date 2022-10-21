@@ -138,10 +138,6 @@ bool clipProjectedLightVars(vec3 light_center, vec3 pos, out float dist, out flo
 vec2 getScreenCoordinate(vec2 screenpos)
 {
     vec2 sc = screenpos.xy * 2.0;
-    if (screen_res.x > 0 && screen_res.y > 0)
-    {
-       sc /= screen_res;
-    }
     return sc - vec2(1.0, 1.0);
 }
 
@@ -333,6 +329,14 @@ vec4 getPositionWithDepth(vec2 pos_screen, float depth)
     return vec4(getPositionWithNDC(ndc), 1.0);
 }
 
+vec2 getScreenCoord(vec4 clip)
+{
+    vec4 ndc = clip;
+         ndc.xyz /= clip.w;
+    vec2 screen = vec2( ndc.xy * 0.5 );
+         screen += 0.5;
+    return screen;
+}
 
 vec2 getScreenXY(vec4 clip)
 {

@@ -57,6 +57,7 @@ float calcLegacyDistanceAttenuation(float distance, float falloff);
 vec4 getPosition(vec2 pos_screen);
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
 vec2 getScreenXY(vec4 clip);
+vec2 getScreenCoord(vec4 clip);
 vec3 srgb_to_linear(vec3 c);
 
 // Util
@@ -76,7 +77,7 @@ void main()
     discard;  // Bail immediately
 #else
     vec3 final_color = vec3(0, 0, 0);
-    vec2 tc          = getScreenXY(vary_fragcoord);
+    vec2 tc          = getScreenCoord(vary_fragcoord);
     vec3 pos         = getPosition(tc).xyz;
     if (pos.z < far_z)
     {

@@ -54,6 +54,8 @@ VARYING vec4 vary_fragcoord;
 vec4 getPosition(vec2 pos_screen);
 vec3 getNorm(vec2 pos_screen);
 vec3 srgb_to_linear(vec3 c);
+float getDepth(vec2 tc);
+vec2 getScreenCoord(vec4 clip);
 
 void main()
 {
@@ -62,7 +64,7 @@ void main()
 #endif
 
     vec3 out_col = vec3(0, 0, 0);
-    vec2 frag    = (vary_fragcoord.xy * 0.5 + 0.5);
+    vec2 frag    = getScreenCoord(vary_fragcoord);
     vec3 pos     = getPosition(frag.xy).xyz;
     if (pos.z < far_z)
     {

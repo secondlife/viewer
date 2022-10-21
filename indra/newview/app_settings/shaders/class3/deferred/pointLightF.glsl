@@ -62,7 +62,9 @@ float calcLegacyDistanceAttenuation(float distance, float falloff);
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
 vec4 getPosition(vec2 pos_screen);
 vec2 getScreenXY(vec4 clip);
+vec2 getScreenCoord(vec4 clip);
 vec3 srgb_to_linear(vec3 c);
+float getDepth(vec2 tc);
 
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
                     float perceptualRoughness, 
@@ -74,7 +76,7 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
 void main()
 {
     vec3 final_color = vec3(0);
-    vec2 tc          = getScreenXY(vary_fragcoord);
+    vec2 tc          = getScreenCoord(vary_fragcoord);
     vec3 pos         = getPosition(tc).xyz;
 
     float envIntensity;
