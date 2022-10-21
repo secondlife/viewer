@@ -78,6 +78,7 @@
 #include "llsidepanelinventory.h"
 #include "llavatarname.h"
 #include "llagentui.h"
+#include "lluiusage.h"
 
 // Flags for kick message
 const U32 KICK_FLAGS_DEFAULT	= 0x0;
@@ -113,7 +114,7 @@ void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::strin
 	payload["id"] = id;
 	payload["name"] = name;
     
-    	LLNotificationsUtil::add("AddFriendWithMessage", args, payload, &callbackAddFriendWithMessage);
+	LLNotificationsUtil::add("AddFriendWithMessage", args, payload, &callbackAddFriendWithMessage);
 
 	// add friend to recent people list
 	LLRecentPeople::instance().add(id);
@@ -1418,6 +1419,8 @@ bool LLAvatarActions::handleUnfreeze(const LLSD& notification, const LLSD& respo
 void LLAvatarActions::requestFriendship(const LLUUID& target_id, const std::string& target_name, const std::string& message)
 {
 	const LLUUID calling_card_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
+	LLUIUsage::instance().logCommand("Agent.SendFriendRequest");
+
 	send_improved_im(target_id,
 					 target_name,
 					 message,

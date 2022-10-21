@@ -14,7 +14,7 @@
 				<label name="favorites_bar_label" tool_tip="Second Life içerisinde sık kullandığınız yerlere hızla erişmek için Yer İmlerini buraya sürükleyin!">
 					Favoriler Çubuğu
 				</label>
-				<more_button name="&gt;&gt;" tool_tip="Favorilerimden daha çok göster">
+				<more_button name="&gt;&gt;" tool_tip="Favorilerimden daha çok göster" width="65">
 					Daha Fazla ▼
 				</more_button>
 			</favorites_bar>

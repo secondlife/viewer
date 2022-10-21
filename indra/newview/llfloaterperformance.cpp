@@ -616,8 +616,7 @@ bool is_ALM_available()
     
     return LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
         bumpshiny &&
-        shaders &&
-        gGLManager.mHasFramebufferObject;
+        shaders;
 }
 
 void LLFloaterPerformance::onClickAdvancedLighting()

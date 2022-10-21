@@ -403,7 +403,7 @@ namespace LL
                 [result = std::forward<CALLABLE>(callable)(),
                  callback = std::move(callback)]
                 ()
-                { callback(std::move(result)); };
+                mutable { callback(std::move(result)); };
         }
     };
 
@@ -449,7 +449,7 @@ namespace LL
              callable = std::move(callable),
              callback = std::move(callback)]
             ()
-            {
+            mutable {
                 // Use postMaybe() below in case this originating WorkQueue
                 // has been closed or destroyed. Remember, the outer lambda is
                 // now running on a thread servicing the target WorkQueue, and
@@ -513,7 +513,7 @@ namespace LL
                 // We dare to bind a reference to Promise because it's
                 // specifically designed for cross-thread communication.
                 [&promise, callable = std::move(callable)]()
-                {
+                mutable {
                     try
                     {
                         // call the caller's callable and trigger promise with result
@@ -542,7 +542,7 @@ namespace LL
                 time,
                 // &promise is designed for cross-thread access
                 [&promise, callable = std::move(callable)]()
-                {
+                mutable {
                     try
                     {
                         callable();

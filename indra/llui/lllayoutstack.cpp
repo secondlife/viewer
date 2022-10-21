@@ -395,7 +395,6 @@ void LLLayoutStack::updateLayout()
 	space_to_distribute += panelp ? ll_round((F32)mPanelSpacing * panelp->getVisibleAmount()) : 0;
 
 	S32 remaining_space = space_to_distribute;
-	F32 fraction_distributed = 0.f;
 	if (space_to_distribute > 0 && total_visible_fraction > 0.f)
 	{	// give space proportionally to visible auto resize panels
 		BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
@@ -404,7 +403,6 @@ void LLLayoutStack::updateLayout()
 			{
 				F32 fraction_to_distribute = (panelp->mFractionalSize * panelp->getAutoResizeFactor()) / (total_visible_fraction);
 				S32 delta = ll_round((F32)space_to_distribute * fraction_to_distribute);
-				fraction_distributed += fraction_to_distribute;
 				panelp->mTargetDim += delta;
 				remaining_space -= delta;
 			}

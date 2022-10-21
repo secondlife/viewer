@@ -1176,7 +1176,6 @@ void LLFloaterPreference::refreshEnabledState()
 	BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
 						bumpshiny &&
 						shaders && 
-						gGLManager.mHasFramebufferObject &&
 						(ctrl_wind_light->get()) ? TRUE : FALSE;
 
 	ctrl_deferred->setEnabled(enabled);
