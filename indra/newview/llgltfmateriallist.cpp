@@ -74,6 +74,7 @@ namespace
             }
             
             LLViewerObject * obj = gObjectList.findObject(message["object_id"].asUUID());
+            llassert(obj); // should never get an override for an object we don't know about
             S32 side = message["side"].asInteger();
             std::string gltf_json = message["gltf_json"].asString();
 

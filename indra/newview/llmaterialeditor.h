@@ -103,7 +103,8 @@ public:
     // will promt to select specific one
     static void loadMaterialFromFile(const std::string& filename, S32 index = -1);
 
-    static void loadLiveMaterialEditor();
+    static void loadLive();
+    static void loadObjectSave();
 
     static void loadFromGLTFMaterial(LLUUID &asset_id);
 

@@ -1401,7 +1401,7 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
     }
 }
 
-void LLMaterialEditor::loadLiveMaterialEditor()
+void LLMaterialEditor::loadLive()
 {
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", LLSD(LIVE_MATERIAL_EDITOR_KEY));
     if (me->setFromSelection())
@@ -1411,6 +1411,18 @@ void LLMaterialEditor::loadLiveMaterialEditor()
         me->childSetVisible("save", false);
         me->childSetVisible("save_as", false);
 
+        me->openFloater();
+        me->setFocus(TRUE);
+    }
+}
+
+void LLMaterialEditor::loadObjectSave()
+{
+    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", LLSD(LIVE_MATERIAL_EDITOR_KEY));
+    if (me->setFromSelection())
+    {
+        me->mIsOverride = false;
+        me->childSetVisible("save", false);
         me->openFloater();
         me->setFocus(TRUE);
     }

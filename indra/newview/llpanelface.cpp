@@ -4588,7 +4588,7 @@ void LLPanelFace::onPbrStartEditing()
 
     LL_DEBUGS() << "loading material live editor with asset " << material_id << LL_ENDL;
 
-    LLMaterialEditor::loadLiveMaterialEditor();
+    LLMaterialEditor::loadLive();
 }
 
 bool LLPanelFace::isIdenticalPlanarTexgen()

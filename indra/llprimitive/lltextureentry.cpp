@@ -80,22 +80,7 @@ LLTextureEntry::LLTextureEntry(const LLTextureEntry &rhs)
   , mSelected(false)
   , mMaterialUpdatePending(false)
 {
-	mID = rhs.mID;
-	mScaleS = rhs.mScaleS;
-	mScaleT = rhs.mScaleT;
-	mOffsetS = rhs.mOffsetS;
-	mOffsetT = rhs.mOffsetT;
-	mRotation = rhs.mRotation;
-	mColor = rhs.mColor;
-	mBump = rhs.mBump;
-	mMediaFlags = rhs.mMediaFlags;
-	mGlow = rhs.mGlow;
-	mMaterialID = rhs.mMaterialID;
-	mMaterial = rhs.mMaterial;
-	if (rhs.mMediaEntry != NULL) {
-		// Make a copy
-		mMediaEntry = new LLMediaEntry(*rhs.mMediaEntry);
-	}
+    *this = rhs;
 }
 
 LLTextureEntry &LLTextureEntry::operator=(const LLTextureEntry &rhs)
@@ -124,6 +109,17 @@ LLTextureEntry &LLTextureEntry::operator=(const LLTextureEntry &rhs)
 		else {
 			mMediaEntry = NULL;
 		}
+
+        mMaterialID = rhs.mMaterialID;
+
+        if (rhs.mGLTFMaterialOverrides.notNull())
+        {
+            mGLTFMaterialOverrides = new LLGLTFMaterial(*rhs.mGLTFMaterialOverrides);
+        }
+        else
+        {
+            mGLTFMaterialOverrides = nullptr;
+        }
 	}
 
 	return *this;
@@ -218,6 +214,11 @@ void LLTextureEntry::asLLSD(LLSD& sd) const
 		sd[TEXTURE_MEDIA_DATA_KEY] = mediaData;
 	}
 	sd["glow"] = mGlow;
+
+    if (mGLTFMaterialOverrides.notNull())
+    {
+        sd["gltf_override"] = mGLTFMaterialOverrides->asJSON();
+    }
 }
 
 bool LLTextureEntry::fromLLSD(const LLSD& sd)
@@ -281,6 +282,24 @@ bool LLTextureEntry::fromLLSD(const LLSD& sd)
 	{
 		setGlow((F32)sd[w].asReal() );
 	}
+
+    w = "gltf_override";
+    if (sd.has(w))
+    {
+        if (mGLTFMaterialOverrides.isNull())
+        {
+            mGLTFMaterialOverrides = new LLGLTFMaterial();
+        }
+
+        std::string warn_msg, error_msg;
+        if (!mGLTFMaterialOverrides->fromJSON(sd[w].asString(), warn_msg, error_msg))
+        {
+            LL_WARNS() << llformat("Failed to parse GLTF json: %s -- %s", warn_msg.c_str(), error_msg.c_str()) << LL_ENDL;
+            LL_WARNS() << sd[w].asString() << LL_ENDL;
+
+            mGLTFMaterialOverrides = nullptr;
+        }
+    }
 
 	return true;
 fail:
