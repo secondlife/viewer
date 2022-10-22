@@ -352,6 +352,7 @@ namespace tut
     template<> template<>
     void object::test<1>()
     {
+        // Verify that EWOULDBLOCK / EAGAIN works
         set_test_name("raw APR nonblocking I/O");
 
         // Create a script file in a temporary place.
