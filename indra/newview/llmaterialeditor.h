@@ -222,7 +222,7 @@ public:
 
 private:
     void setFromGLTFMaterial(LLGLTFMaterial* mat);
-    void setFromSelection();
+    bool setFromSelection();
 
     void loadMaterial(const tinygltf::Model &model, const std::string &filename_lc, S32 index);
 

@@ -1404,13 +1404,16 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
 void LLMaterialEditor::loadLiveMaterialEditor()
 {
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", LLSD(LIVE_MATERIAL_EDITOR_KEY));
-    me->mIsOverride = true;
-    me->setTitle(me->getString("material_override_title"));
-    me->childSetVisible("save", false);
-    me->childSetVisible("save_as", false);
-    me->setFromSelection();
-    me->openFloater();
-    me->setFocus(TRUE);
+    if (me->setFromSelection())
+    {
+        me->mIsOverride = true;
+        me->setTitle(me->getString("material_override_title"));
+        me->childSetVisible("save", false);
+        me->childSetVisible("save_as", false);
+
+        me->openFloater();
+        me->setFocus(TRUE);
+    }
 }
 
 void LLMaterialEditor::loadFromGLTFMaterial(LLUUID &asset_id)
@@ -1973,7 +1976,7 @@ void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
     setAlphaCutoff(mat->mAlphaCutoff);
 }
 
-void LLMaterialEditor::setFromSelection()
+bool LLMaterialEditor::setFromSelection()
 {
     struct LLSelectedTEGetGLTFRenderMaterial : public LLSelectedTEGetFunctor<LLPointer<LLGLTFMaterial> >
     {
@@ -1985,7 +1988,13 @@ void LLMaterialEditor::setFromSelection()
 
     LLPointer<LLGLTFMaterial> mat;
     LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, mat);
-    setFromGLTFMaterial(mat);
+    if (mat.notNull())
+    {
+        setFromGLTFMaterial(mat);
+        return true;
+    }
+
+    return false;
 }
 
 
