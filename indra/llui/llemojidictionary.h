@@ -57,7 +57,7 @@ class LLEmojiDictionary : public LLParamSingleton<LLEmojiDictionary>, public LLI
 
 public:
 	static void initClass();
-	LLWString   findMatchingEmojis(std::string needle);
+	LLWString   findMatchingEmojis(const std::string& needle) const;
 	std::string getNameFromEmoji(llwchar ch);
 
 private:

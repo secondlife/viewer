@@ -31,6 +31,8 @@
 #include "llsdserialize.h"
 
 #include <boost/algorithm/string.hpp>
+#include <boost/range/adaptor/filtered.hpp>
+#include <boost/range/algorithm/transform.hpp>
 
 // ============================================================================
 // Constants
@@ -89,6 +91,41 @@ bool LLEmojiDescriptor::isValid() const
 		!Categories.empty();
 }
 
+struct emoji_filter_base
+{
+	emoji_filter_base(const std::string& needle)
+	{
+		// Search without the colon (if present) so the user can type ':food' and see all emojis in the 'Food' category
+		mNeedle = (boost::starts_with(needle, ":")) ? needle.substr(1) : needle;
+		LLStringUtil::toLower(mNeedle);
+	}
+
+protected:
+	std::string mNeedle;
+};
+
+struct emoji_filter_shortcode_or_category_contains : public emoji_filter_base
+{
+	emoji_filter_shortcode_or_category_contains(const std::string& needle) : emoji_filter_base(needle) {}
+
+	bool operator()(const LLEmojiDescriptor& descr) const
+	{
+		for (const auto& short_code : descr.ShortCodes)
+		{
+			if (boost::icontains(short_code, mNeedle))
+				return true;
+		}
+
+		for (const auto& category : descr.Categories)
+		{
+			if (boost::icontains(category, mNeedle))
+				return true;
+		}
+
+		return false;
+	}
+};
+
 // ============================================================================
 // LLEmojiDictionary class
 //
@@ -130,35 +167,12 @@ void LLEmojiDictionary::initClass()
 	}
 }
 
-LLWString LLEmojiDictionary::findMatchingEmojis(std::string needle)
+LLWString LLEmojiDictionary::findMatchingEmojis(const std::string& needle) const
 {
-	// Search without the colon (if present) so the user can type ':food' and see all emojis in the 'Food' category
-	LLStringUtil::toLower(needle);
-	const auto kitty_needle = boost::make_iterator_range((boost::starts_with(needle, ":")) ? needle.begin() + 1 : needle.begin(), needle.end());
-
-	LLWString wstr;
-	for (const auto& descr : mEmojis)
-	{
-		for (const auto& short_code : descr.ShortCodes)
-		{
-			if (boost::icontains(short_code, kitty_needle))
-			{
-				wstr.push_back(descr.Character);
-				continue;
-			}
-		}
-
-		for (const auto& category : descr.Categories)
-		{
-			if (boost::icontains(category, kitty_needle))
-			{
-				wstr.push_back(descr.Character);
-				continue;
-			}
-		}
-	}
-
-	return wstr;
+	LLWString result;
+	boost::transform(mEmojis | boost::adaptors::filtered(emoji_filter_shortcode_or_category_contains(needle)),
+		             std::back_inserter(result), [](const auto& descr) { return descr.Character; });
+	return result;
 }
 
 std::string LLEmojiDictionary::getNameFromEmoji(llwchar ch)
