@@ -60,6 +60,7 @@ public:
 								ignore_tab,
 								commit_on_focus_lost,
 								show_context_menu,
+								show_emoji_helper,
 								enable_tooltip_paste,
 								auto_indent;
 
@@ -201,6 +202,9 @@ public:
 	void			setShowContextMenu(bool show) { mShowContextMenu = show; }
 	bool			getShowContextMenu() const { return mShowContextMenu; }
 
+	void			setShowEmojiHelper(bool show);
+	bool			getShowEmojiHelper() const { return mShowEmojiHelper; }
+
 	void			setPassDelete(BOOL b) { mPassDelete = b; }
 
 protected:
@@ -317,6 +321,7 @@ private:
 
 	BOOL			mAllowEmbeddedItems;
 	bool			mShowContextMenu;
+	bool			mShowEmojiHelper;
 	bool			mEnableTooltipPaste;
 	bool			mPassDelete;
 	bool			mKeepSelectionOnReturn;	// disabling of removing selected text after pressing of Enter
