@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llemojidictionary.h"
+#include "llemojihelper.h"
 #include "llpanelemojicomplete.h"
 #include "lluictrlfactory.h"
 
@@ -101,9 +102,9 @@ BOOL LLPanelEmojiComplete::handleHover(S32 x, S32 y, MASK mask)
 
 BOOL LLPanelEmojiComplete::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 {
+	bool handled = false;
 	if (MASK_NONE == mask)
 	{
-		bool handled = false;
 		switch (key)
 		{
 			case KEY_LEFT:
@@ -116,11 +117,24 @@ BOOL LLPanelEmojiComplete::handleKey(KEY key, MASK mask, BOOL called_from_parent
 				selectNext();
 				handled = true;
 				break;
+			case KEY_RETURN:
+				if (!mEmojis.empty())
+				{
+					LLWString wstr;
+					wstr.push_back(mEmojis.at(mCurSelected));
+					setValue(wstring_to_utf8str(wstr));
+					onCommit();
+					handled = true;
+				}
+				break;
 		}
-		return handled;
 	}
 
-	return false;
+	if (handled)
+	{
+		return TRUE;
+	}
+	return LLUICtrl::handleKey(key, mask, called_from_parent);
 }
 
 void LLPanelEmojiComplete::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -223,6 +237,26 @@ LLFloaterEmojiComplete::LLFloaterEmojiComplete(const LLSD& sdKey)
 	setIsChrome(true);
 }
 
+BOOL LLFloaterEmojiComplete::handleKey(KEY key, MASK mask, BOOL called_from_parent)
+{
+	bool handled = false;
+	if (MASK_NONE == mask)
+	{
+		switch (key)
+		{
+			case KEY_ESCAPE:
+				LLEmojiHelper::instance().hideHelper();
+				handled = true;
+				break;
+		}
+
+	}
+
+	if (handled)
+		return TRUE;
+	return LLFloater::handleKey(key, mask, called_from_parent);
+}
+
 void LLFloaterEmojiComplete::onOpen(const LLSD& key)
 {
 	mEmojiCtrl->setEmojiHint(key["hint"].asString());
@@ -231,9 +265,15 @@ void LLFloaterEmojiComplete::onOpen(const LLSD& key)
 BOOL LLFloaterEmojiComplete::postBuild()
 {
 	mEmojiCtrl = findChild<LLPanelEmojiComplete>("emoji_complete_ctrl");
+	mEmojiCtrl->setCommitCallback(
+		std::bind([&](const LLSD& sdValue)
+		{
+			setValue(sdValue);
+			onCommit();
+		}, std::placeholders::_2));
 	mEmojiCtrlHorz = getRect().getWidth() - mEmojiCtrl->getRect().getWidth();
 
-	return TRUE;
+	return LLFloater::postBuild();
 }
 
 void LLFloaterEmojiComplete::reshape(S32 width, S32 height, BOOL called_from_parent)

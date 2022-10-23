@@ -98,6 +98,11 @@ void LLEmojiHelper::showHelper(LLUICtrl* hostctrl_p, S32 local_x, S32 local_y, c
 
 void LLEmojiHelper::hideHelper(const LLUICtrl* ctrl_p)
 {
+	if (ctrl_p && !isActive(ctrl_p))
+	{
+		return;
+	}
+
 	setHostCtrl(nullptr);
 }
 

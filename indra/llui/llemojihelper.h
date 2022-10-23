@@ -45,7 +45,7 @@ public:
 	bool        isActive(const LLUICtrl* ctrl_p) const;
 	static bool isCursorInEmojiCode(const LLWString& wtext, S32 cursor_pos, S32* short_code_pos_p = nullptr);
 	void        showHelper(LLUICtrl* hostctrl_p, S32 local_x, S32 local_y, const std::string& short_code, std::function<void(LLWString)> commit_cb);
-	void        hideHelper(const LLUICtrl* ctrl_p);
+	void        hideHelper(const LLUICtrl* ctrl_p = nullptr);
 
 	// Eventing
 	bool handleKey(const LLUICtrl* ctrl_p, KEY key, MASK mask);

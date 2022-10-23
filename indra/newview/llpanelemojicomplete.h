@@ -98,6 +98,7 @@ public:
 	LLFloaterEmojiComplete(const LLSD& sdKey);
 
 public:
+	BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent) override;
 	void onOpen(const LLSD& key) override;
 	BOOL postBuild() override;
 	void reshape(S32 width, S32 height, BOOL called_from_parent) override;
