@@ -39,12 +39,18 @@ constexpr U32 MIN_MOUSE_MOVE_DELTA = 4;
 static LLDefaultChildRegistry::Register<LLPanelEmojiComplete> r("emoji_complete");
 
 LLPanelEmojiComplete::Params::Params()
-	: selected_image("selected_image")
+	: autosize("autosize")
+	, max_emoji("max_emoji")
+	, padding("padding")
+	, selected_image("selected_image")
 {
 }
 
 LLPanelEmojiComplete::LLPanelEmojiComplete(const LLPanelEmojiComplete::Params& p)
 	: LLUICtrl(p)
+	, mAutoSize(p.autosize)
+	, mMaxVisible(p.max_emoji)
+	, mPadding(p.padding)
 	, mSelectedImage(p.selected_image)
 {
 	setFont(p.font);
@@ -125,9 +131,23 @@ void LLPanelEmojiComplete::reshape(S32 width, S32 height, BOOL called_from_paren
 
 void LLPanelEmojiComplete::setEmojiHint(const std::string& hint)
 {
+	llwchar curEmoji = (mCurSelected < mEmojis.size()) ? mEmojis.at(mCurSelected) : 0;
+	size_t curEmojiIdx = (curEmoji) ? mEmojis.find(curEmoji) : std::string::npos;
+
 	mEmojis = LLEmojiDictionary::instance().findMatchingEmojis(hint);
+	mCurSelected = (std::string::npos != curEmojiIdx) ? curEmojiIdx : 0;
+
+	if (mAutoSize)
+	{
+		mVisibleEmojis = std::min(mEmojis.size(), mMaxVisible);
+		reshape(mVisibleEmojis * mEmojiWidth, getRect().getHeight(), false);
+	}
+	else
+	{
+		updateConstraints();
+	}
+
 	mScrollPos = llmin(mScrollPos, mEmojis.size());
-	updateConstraints();
 }
 
 size_t LLPanelEmojiComplete::posToIndex(S32 x, S32 y) const
@@ -200,11 +220,34 @@ LLFloaterEmojiComplete::LLFloaterEmojiComplete(const LLSD& sdKey)
 	setFocusStealsFrontmost(false);
 	setAutoFocus(false);
 	setBackgroundVisible(false);
+	setIsChrome(true);
 }
 
 void LLFloaterEmojiComplete::onOpen(const LLSD& key)
 {
-	findChild<LLPanelEmojiComplete>("emoji_complete_ctrl")->setEmojiHint(key["hint"].asString());
+	mEmojiCtrl->setEmojiHint(key["hint"].asString());
+}
+
+BOOL LLFloaterEmojiComplete::postBuild()
+{
+	mEmojiCtrl = findChild<LLPanelEmojiComplete>("emoji_complete_ctrl");
+	mEmojiCtrlHorz = getRect().getWidth() - mEmojiCtrl->getRect().getWidth();
+
+	return TRUE;
+}
+
+void LLFloaterEmojiComplete::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	if (!called_from_parent)
+	{
+		LLRect rctFloater = getRect(), rctCtrl = mEmojiCtrl->getRect();
+		rctFloater.mRight = rctFloater.mLeft + rctCtrl.getWidth() + mEmojiCtrlHorz;
+		setRect(rctFloater);
+
+		return;
+	}
+
+	LLFloater::reshape(width, height, called_from_parent);
 }
 
 // ============================================================================

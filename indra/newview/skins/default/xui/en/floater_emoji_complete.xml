@@ -13,14 +13,16 @@
  single_instance="true"
  width="240"
  >
-    <emoji_complete
-     height="30"
-     follows="top|left"
-     layout="topleft"
-     left="5"
-     top="5"
-     width="230"
-     name="emoji_complete_ctrl"
-     >
-    </emoji_complete>
+	<emoji_complete
+	 autosize="true"
+	 height="30"
+	 follows="top|left"
+	 layout="topleft"
+	 left="5"
+	 max_emoji="7"
+	 name="emoji_complete_ctrl"
+	 top="5"
+	 width="230"
+	 >
+	</emoji_complete>
 </floater>

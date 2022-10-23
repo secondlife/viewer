@@ -39,6 +39,10 @@ class LLPanelEmojiComplete : public LLUICtrl
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
+		Optional<bool>       autosize;
+		Optional<S32>        max_emoji,
+		                     padding;
+
 		Optional<LLUIImage*> selected_image;
 
 		Params();
@@ -68,8 +72,12 @@ protected:
 protected:
 	static constexpr auto npos = std::numeric_limits<size_t>::max();
 
+	bool            mAutoSize = false;
 	const LLFontGL* mFont;
 	U16             mEmojiWidth = 0;
+	size_t          mMaxVisible = 0;
+	S32             mPadding = 8;
+	LLRect          mRenderRect;
 	LLUIImagePtr	mSelectedImage;
 
 	LLWString       mEmojis;
@@ -78,9 +86,6 @@ protected:
 	size_t          mScrollPos = 0;
 	size_t          mCurSelected = 0;
 	LLVector2       mLastHover;
-
-	S32             mPadding = 8;
-	LLRect          mRenderRect;
 };
 
 // ============================================================================
@@ -94,6 +99,12 @@ public:
 
 public:
 	void onOpen(const LLSD& key) override;
+	BOOL postBuild() override;
+	void reshape(S32 width, S32 height, BOOL called_from_parent) override;
+
+protected:
+	LLPanelEmojiComplete* mEmojiCtrl = nullptr;
+	S32                   mEmojiCtrlHorz = 0;
 };
 
 // ============================================================================
