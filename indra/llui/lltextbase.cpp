@@ -3557,6 +3557,20 @@ LLEmojiTextSegment::LLEmojiTextSegment(const LLColor4& color, S32 start, S32 end
 {
 }
 
+BOOL LLEmojiTextSegment::handleToolTip(S32 x, S32 y, MASK mask)
+{
+	if (mTooltip.empty())
+	{
+		LLWString emoji = getWText().substr(getStart(), getEnd() - getStart());
+		if (!emoji.empty())
+		{
+			mTooltip = LLEmojiHelper::instance().getToolTip(emoji[0]);
+		}
+	}
+
+	return LLNormalTextSegment::handleToolTip(x, y, mask);
+}
+
 //
 // LLOnHoverChangeableTextSegment
 //
