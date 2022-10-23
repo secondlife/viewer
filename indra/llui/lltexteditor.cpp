@@ -676,6 +676,21 @@ void LLTextEditor::selectByCursorPosition(S32 prev_cursor_pos, S32 next_cursor_p
 	endSelection();
 }
 
+void LLTextEditor::handleEmojiCommit(const LLWString& wstr)
+{
+	LLWString wtext(getWText()); S32 shortCodePos;
+	if (LLEmojiHelper::isCursorInEmojiCode(wtext, mCursorPos, &shortCodePos))
+	{
+		remove(shortCodePos, mCursorPos - shortCodePos, true);
+
+		auto styleParams = LLStyle::Params();
+		styleParams.font = LLFontGL::getFontEmoji();
+		insert(shortCodePos, wstr, false, new LLEmojiTextSegment(new LLStyle(styleParams), shortCodePos, shortCodePos + wstr.size(), *this));
+
+		setCursorPos(shortCodePos + 1);
+	}
+}
+
 BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL	handled = FALSE;
@@ -1147,9 +1162,9 @@ void LLTextEditor::addChar(llwchar wc)
 		LLWString wtext(getWText()); S32 shortCodePos;
 		if (LLEmojiHelper::isCursorInEmojiCode(wtext, mCursorPos, &shortCodePos))
 		{
-			const LLRect cursorRect = getLocalRectFromDocIndex(mCursorPos);
-			const LLWString shortCode = wtext.substr(shortCodePos, mCursorPos);
-			LLEmojiHelper::instance().showHelper(this, cursorRect.mLeft, cursorRect.mTop, wstring_to_utf8str(shortCode));
+			const LLRect cursorRect = getLocalRectFromDocIndex(mCursorPos - 1);
+			const LLWString shortCode = wtext.substr(shortCodePos, mCursorPos - shortCodePos);
+			LLEmojiHelper::instance().showHelper(this, cursorRect.mLeft, cursorRect.mTop, wstring_to_utf8str(shortCode), std::bind(&LLTextEditor::handleEmojiCommit, this, std::placeholders::_1));
 		}
 	}
 
