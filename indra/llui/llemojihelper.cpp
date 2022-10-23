@@ -59,8 +59,18 @@ bool LLEmojiHelper::isCursorInEmojiCode(const LLWString& wtext, S32 cursorPos, S
 {
 	S32 shortCodePos = cursorPos;
 
-	while (shortCodePos > 1 &&
-		   (LLStringOps::isAlnum(wtext[shortCodePos - 1]) || wtext[shortCodePos - 1] == L'-' || wtext[shortCodePos - 1] == L'_') )
+	auto isPartOfShortcode = [](llwchar ch) {
+		switch (ch)
+		{
+			case L'-':
+			case L'_':
+			case L'+':
+				return true;
+			default:
+				return LLStringOps::isAlnum(ch);
+		}
+	};
+	while (shortCodePos > 1 && isPartOfShortcode(wtext[shortCodePos - 1]))
 	{
 		shortCodePos--;
 	}
