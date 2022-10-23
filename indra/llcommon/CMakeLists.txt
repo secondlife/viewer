@@ -261,7 +261,6 @@ add_library (llcommon ${llcommon_SOURCE_FILES})
 target_link_libraries(
         llcommon
         ll::apr
-        ll::bugsplat
         ll::expat
         ll::jsoncpp
         ll::zlib-ng
