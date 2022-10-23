@@ -59,7 +59,8 @@ public:
 	void reshape(S32 width, S32 height, BOOL called_from_parent) override;
 
 public:
-	void setEmojiHint(const std::string& hint);
+	size_t getEmojiCount() const { return mEmojis.size(); }
+	void   setEmojiHint(const std::string& hint);
 protected:
 	size_t posToIndex(S32 x, S32 y) const;
 	void select(size_t emoji_idx);

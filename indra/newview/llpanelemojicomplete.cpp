@@ -260,6 +260,10 @@ BOOL LLFloaterEmojiComplete::handleKey(KEY key, MASK mask, BOOL called_from_pare
 void LLFloaterEmojiComplete::onOpen(const LLSD& key)
 {
 	mEmojiCtrl->setEmojiHint(key["hint"].asString());
+	if (0 == mEmojiCtrl->getEmojiCount())
+	{
+		LLEmojiHelper::instance().hideHelper();
+	}
 }
 
 BOOL LLFloaterEmojiComplete::postBuild()
