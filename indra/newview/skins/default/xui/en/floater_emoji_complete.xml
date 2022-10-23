@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_close="false"
+ can_dock="false"
+ can_drag_on_left="false"
+ can_minimize="false"
+ can_resize="false"
+ can_tear_off="false"
+ header_height="0"
+ layout="topleft"
+ legacy_header_height="0"
+ height="40"
+ single_instance="true"
+ width="240"
+ >
+    <emoji_complete
+     height="30"
+     follows="top|left"
+     layout="topleft"
+     left="5"
+     top="5"
+     width="230"
+     name="emoji_complete_ctrl"
+     >
+    </emoji_complete>
+</floater>
