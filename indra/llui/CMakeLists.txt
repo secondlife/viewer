@@ -53,6 +53,7 @@ set(llui_SOURCE_FILES
     lldockcontrol.cpp
     lldraghandle.cpp
     lleditmenuhandler.cpp
+	llemojidictionary.cpp
     llf32uictrl.cpp
     llfiltereditor.cpp
     llflashtimer.cpp
@@ -163,6 +164,7 @@ set(llui_HEADER_FILES
     lldockablefloater.h
     lldockcontrol.h
     lleditmenuhandler.h
+	llemojidictionary.h
     llf32uictrl.h
     llfiltereditor.h 
     llflashtimer.h
