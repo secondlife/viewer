@@ -3039,7 +3039,29 @@ void LLFloaterView::syncFloaterTabOrder()
 			LLFloater* floaterp = dynamic_cast<LLFloater*>(*child_it);
 			if (gFocusMgr.childHasKeyboardFocus(floaterp))
 			{
-				bringToFront(floaterp, FALSE);
+                if (mFrontChild != floaterp)
+                {
+                    // Grab a list of the top floaters that want to stay on top of the focused floater
+					std::list<LLView*> listTop;
+					if (mFrontChild && !mFrontChild->canFocusStealFrontmost())
+                    {
+                        for (LLView* childfloaterp : *getChildList())
+                        {
+                            if (static_cast<LLFloater*>(childfloaterp)->canFocusStealFrontmost())
+                                break;
+							listTop.push_back(childfloaterp);
+                        }
+                    }
+
+                    bringToFront(floaterp, FALSE);
+
+                    // Restore top floaters
+                    for (LLView* childp :listTop)
+                    {
+                        sendChildToFront(childp);
+                    }
+                }
+
 				break;
 			}
 		}
