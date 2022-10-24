@@ -276,5 +276,8 @@ private:
 
     // if true, this instance is live instance editing overrides
     bool mIsOverride = false;
+    // local id, texture ids per face for object overrides
+    // for "cancel" support
+    std::map<U32, uuid_vec_t> mObjectOverridesSavedValues;
 };
 
