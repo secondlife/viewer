@@ -4773,7 +4773,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 	{
 		if ((pick_rigged) || (getAvatar() && (getAvatar()->isSelf()) && (LLFloater::isVisible(gFloaterTools))))
 		{
-			updateRiggedVolume(true, LLRiggedVolume::DO_NOT_UPDATE_FACES);
+            updateRiggedVolume(true, LLRiggedVolume::DO_NOT_UPDATE_FACES);
 			volume = mRiggedVolume;
 			transform = false;
 		}
@@ -4980,7 +4980,7 @@ void LLVOVolume::updateRiggedVolume(bool force_treat_as_rigged, LLRiggedVolume::
 	//Update mRiggedVolume to match current animation frame of avatar. 
 	//Also update position/size in octree.  
 
-	if ((!force_treat_as_rigged) && (!treatAsRigged()))
+    if ((!force_treat_as_rigged) && (!treatAsRigged()))
 	{
 		clearRiggedVolume();
 		
@@ -5009,7 +5009,7 @@ void LLVOVolume::updateRiggedVolume(bool force_treat_as_rigged, LLRiggedVolume::
 		updateRelativeXform();
 	}
 
-	mRiggedVolume->update(skin, avatar, volume, face_index, rebuild_face_octrees);
+    mRiggedVolume->update(skin, avatar, volume, face_index, rebuild_face_octrees);
 }
 
 void LLRiggedVolume::update(
@@ -5172,12 +5172,7 @@ void LLRiggedVolume::update(
             if (rebuild_face_octrees)
 			{
                 dst_face.destroyOctree();
-
-				LLVector4a size;
-				size.setSub(dst_face.mExtents[1], dst_face.mExtents[0]);
-				size.splat(size.getLength3().getF32()*0.5f);
-			
-				dst_face.createOctree(1.f);
+                dst_face.createOctree();
 			}
 		}
 	}
@@ -5427,7 +5422,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	
 	LLViewerTexture* tex = facep->getTexture();
 
-    
 	U8 index = facep->getTextureIndex();
 
     LLMaterial* mat = nullptr;
@@ -6421,6 +6415,13 @@ struct CompareBatchBreakerRigged
     }
 };
 
+struct CompareDrawOrder
+{
+    bool operator()(const LLFace* const& lhs, const LLFace* const& rhs)
+    {
+        return lhs->getDrawOrderIndex() < rhs->getDrawOrderIndex();
+    }
+};
 
 U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, BOOL distance_sort, BOOL batch_textures, BOOL rigged)
 {
@@ -6454,6 +6455,11 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
             {
                 //sort faces by things that break batches, including avatar and mesh id
                 std::sort(faces, faces + face_count, CompareBatchBreakerRigged());
+            }
+            else
+            {
+                // preserve legacy draw order for rigged faces
+                std::sort(faces, faces + face_count, CompareDrawOrder());
             }
         }
         else if (!distance_sort)
