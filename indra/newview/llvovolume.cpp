@@ -4848,7 +4848,9 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 				continue;
 			}
 
-            updateRiggedVolume(true, i);
+            // This calculates the bounding box of the skinned mesh from scratch. It's actually quite expensive, but not nearly as expensive as building a full octree.
+            // rebuild_face_octrees = false because an octree for this face will be built later only if needed for narrow phase picking.
+            updateRiggedVolume(true, i, false);
 			face_hit = volume->lineSegmentIntersect(local_start, local_end, i,
 													&p, &tc, &n, &tn);
 			
@@ -4978,7 +4980,7 @@ void LLVOVolume::updateRiggedVolume(bool force_treat_as_rigged, LLRiggedVolume::
 	//Update mRiggedVolume to match current animation frame of avatar. 
 	//Also update position/size in octree.  
 
-	if ((!force_update) && (!treatAsRigged()))
+	if ((!force_treat_as_rigged) && (!treatAsRigged()))
 	{
 		clearRiggedVolume();
 		
