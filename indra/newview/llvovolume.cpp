@@ -4773,7 +4773,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 	{
 		if ((pick_rigged) || (getAvatar() && (getAvatar()->isSelf()) && (LLFloater::isVisible(gFloaterTools))))
 		{
-			updateRiggedVolume(true);
+			updateRiggedVolume(true, LLRiggedVolume::DO_NOT_UPDATE_FACES);
 			volume = mRiggedVolume;
 			transform = false;
 		}
@@ -4848,6 +4848,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 				continue;
 			}
 
+            updateRiggedVolume(true, i);
 			face_hit = volume->lineSegmentIntersect(local_start, local_end, i,
 													&p, &tc, &n, &tn);
 			
@@ -4971,7 +4972,7 @@ void LLVOVolume::clearRiggedVolume()
 	}
 }
 
-void LLVOVolume::updateRiggedVolume(bool force_update)
+void LLVOVolume::updateRiggedVolume(bool force_treat_as_rigged, LLRiggedVolume::FaceIndex face_index, bool rebuild_face_octrees)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 	//Update mRiggedVolume to match current animation frame of avatar. 
@@ -5006,10 +5007,15 @@ void LLVOVolume::updateRiggedVolume(bool force_update)
 		updateRelativeXform();
 	}
 
-	mRiggedVolume->update(skin, avatar, volume);
+	mRiggedVolume->update(skin, avatar, volume, face_index, rebuild_face_octrees);
 }
 
-void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, const LLVolume* volume)
+void LLRiggedVolume::update(
+    const LLMeshSkinInfo* skin,
+    LLVOAvatar* avatar,
+    const LLVolume* volume,
+    FaceIndex face_index,
+    bool rebuild_face_octrees)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 	bool copy = false;
@@ -5040,7 +5046,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 		if (is_paused)
 		{
             S32 frames_paused = LLFrameTimer::getFrameCount() - avatar->getMotionController().getPausedFrame();
-            if (frames_paused > 2)
+            if (frames_paused > 1)
             {
                 return;
             }
@@ -5059,7 +5065,24 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
     S32 rigged_vert_count = 0;
     S32 rigged_face_count = 0;
     LLVector4a box_min, box_max;
-	for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
+    S32 face_begin;
+    S32 face_end;
+    if (face_index == DO_NOT_UPDATE_FACES)
+    {
+        face_begin = 0;
+        face_end = 0;
+    }
+    else if (face_index == UPDATE_ALL_FACES)
+    {
+        face_begin = 0;
+        face_end = volume->getNumVolumeFaces();
+    }
+    else
+    {
+        face_begin = face_index;
+        face_end = face_begin + 1;
+    }
+    for (S32 i = face_begin; i < face_end; ++i)
 	{
 		const LLVolumeFace& vol_face = volume->getVolumeFace(i);
 		
@@ -5144,6 +5167,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 
 			}
 
+            if (rebuild_face_octrees)
 			{
                 dst_face.destroyOctree();
 
