@@ -199,12 +199,12 @@ public:
     LLGLTFMaterial* getGLTFMaterial() const { return mGLTFMaterial; }
 
     // GLTF override
-    LLGLTFMaterial* getGLTFMaterialOverride() { return mGLTFMaterialOverrides; }
+    LLGLTFMaterial* getGLTFMaterialOverride() const { return mGLTFMaterialOverrides; }
     void setGLTFMaterialOverride(LLGLTFMaterial* mat) { mGLTFMaterialOverrides = mat; }
 
     // GLTF render material
     // nuanced behavior here -- if there is no render material, fall back to getGLTFMaterial, but ONLY for the getter, not the setter
-    LLGLTFMaterial* getGLTFRenderMaterial() const { return mGLTFRenderMaterial.notNull() ? mGLTFRenderMaterial.get() : getGLTFMaterial(); }
+    LLGLTFMaterial* getGLTFRenderMaterial() const;
     S32 setGLTFRenderMaterial(LLGLTFMaterial* mat);
 
 public:

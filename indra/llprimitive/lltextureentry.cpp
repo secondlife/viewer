@@ -519,6 +519,17 @@ void LLTextureEntry::setGLTFMaterial(LLGLTFMaterial* material)
     }
 }
 
+LLGLTFMaterial* LLTextureEntry::getGLTFRenderMaterial() const
+{ 
+    if (mGLTFRenderMaterial.notNull())
+    {
+        return mGLTFRenderMaterial;
+    }
+    
+    llassert(getGLTFMaterialOverride() == nullptr);
+    return getGLTFMaterial();
+}
+
 S32 LLTextureEntry::setGLTFRenderMaterial(LLGLTFMaterial* mat)
 {
     if (mGLTFRenderMaterial != mat)

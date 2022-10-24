@@ -48,9 +48,19 @@ public:
     void flushMaterials();
 
     static void registerCallbacks();
+
+    // save an override update for later (for example, if an override arrived for an unknown object)
+    void queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFMaterial* override_data);
+
+    void applyQueuedOverrides(LLViewerObject* obj);
+
 private:
     typedef std::unordered_map<LLUUID, LLPointer<LLFetchedGLTFMaterial > > uuid_mat_map_t;
     uuid_mat_map_t mList;
+
+    typedef std::vector<LLPointer<LLGLTFMaterial> > override_list_t;
+    typedef std::unordered_map<LLUUID, override_list_t > queued_override_map_t;
+    queued_override_map_t mQueuedOverrides;
 
     LLUUID mLastUpdateKey;
 };

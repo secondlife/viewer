@@ -43,6 +43,8 @@
 #include "json/reader.h"
 #include "json/value.h"
 
+LLGLTFMaterialList gGLTFMaterialList;
+
 namespace
 {
     class LLGLTFMaterialOverrideDispatchHandler : public LLDispatchHandler
@@ -72,24 +74,27 @@ namespace
                     LL_WARNS() << "LLGLTFMaterialOverrideDispatchHandler: Attempted to read parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
                 }
             }
+
+            LLUUID object_id = message["object_id"].asUUID();
             
-            LLViewerObject * obj = gObjectList.findObject(message["object_id"].asUUID());
-            llassert(obj); // should never get an override for an object we don't know about
+            LLViewerObject * obj = gObjectList.findObject(object_id);
             S32 side = message["side"].asInteger();
             std::string gltf_json = message["gltf_json"].asString();
 
             std::string warn_msg, error_msg;
             LLPointer<LLGLTFMaterial> override_data = new LLGLTFMaterial();
             bool success = override_data->fromJSON(gltf_json, warn_msg, error_msg);
+
             if (!success)
             {
                 LL_WARNS() << "failed to parse GLTF override data.  errors: " << error_msg << " | warnings: " << warn_msg << LL_ENDL;
             }
             else
             {
-                if (obj)
+                if (!obj || !obj->setTEGLTFMaterialOverride(side, override_data))
                 {
-                    obj->setTEGLTFMaterialOverride(side, override_data);
+                     // object not ready to receive override data, queue for later
+                    gGLTFMaterialList.queueOverrideUpdate(object_id, side, override_data);
                 }
             }
 
@@ -99,7 +104,41 @@ namespace
     LLGLTFMaterialOverrideDispatchHandler handle_gltf_override_message;
 }
 
-LLGLTFMaterialList gGLTFMaterialList;
+void LLGLTFMaterialList::queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFMaterial* override_data)
+{
+    override_list_t& overrides = mQueuedOverrides[id];
+    
+    if (overrides.size() < side + 1)
+    {
+        overrides.resize(side + 1);
+    }
+
+    overrides[side] = override_data;
+}
+
+void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
+{
+    const LLUUID& id = obj->getID();
+    auto& iter = mQueuedOverrides.find(id);
+
+    if (iter != mQueuedOverrides.end())
+    {
+        override_list_t& overrides = iter->second;
+        for (int i = 0; i < overrides.size(); ++i)
+        {
+            if (overrides[i].notNull())
+            {
+                if (!obj->getTE(i)->getGLTFMaterial())
+                { // object doesn't have its base GLTF material yet, don't apply override (yet)
+                    return;
+                }
+                obj->setTEGLTFMaterialOverride(i, overrides[i]);
+            }
+        }
+
+        mQueuedOverrides.erase(iter);
+    }
+}
 
 LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
 {

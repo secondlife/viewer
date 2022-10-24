@@ -88,6 +88,7 @@
 #include "llcallstack.h"
 #include "llsculptidsize.h"
 #include "llavatarappearancedefines.h"
+#include "llgltfmateriallist.h"
 
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
@@ -5822,6 +5823,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			{
 				continue;
 			}
+
+            // apply any pending material overrides
+            gGLTFMaterialList.applyQueuedOverrides(vobj);
 
             std::string vobj_name = llformat("Vol%p", vobj);
 
