@@ -50,7 +50,7 @@ public:
         EF_ROTATION = 1 << 2,
         EF_ROTATION_IN_PARENT_FRAME = 1 << 3, // unset-->ROOT_FRAME, set-->PARENT_FRAME
         EF_SCALE = 1 << 4,
-        EF_DISABLE_CONSTRAINT = 1 << 7
+        EF_USE_IK = 1 << 7
     };
 
     enum E_REFERENCE_FRAME
@@ -66,7 +66,7 @@ public:
     void setPosition(const LLVector3& position, E_REFERENCE_FRAME frame=ROOT_FRAME);
     void setScale(const LLVector3& scale);
     void setJointID(S32 id);
-    void disableConstraint() { mMask |= EF_DISABLE_CONSTRAINT; }
+    void useIK() { mMask |= EF_USE_IK; }
 
     S16 getJointID() const { return mJointID; }
     LLQuaternion getRotation() const { return mRotation; }
@@ -83,7 +83,7 @@ public:
     bool hasRotation() const { return (mMask & EF_ROTATION) > 0; }
     bool hasPosition() const { return (mMask & EF_POSITION) > 0; }
     bool hasScale() const { return (mMask & EF_SCALE) > 0; }
-    bool hasDisabledConstraint() const { return (mMask & EF_DISABLE_CONSTRAINT) > 0; }
+    bool usesIK() const { return (mMask & EF_USE_IK) > 0; }
 
     bool rotationIsParentLocal() const { return (mMask & EF_ROTATION_IN_PARENT_FRAME) > 0; }
 

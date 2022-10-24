@@ -2662,6 +2662,7 @@ class LLAdvancedPuppeterringEnableLaunchLeap : public view_listener_t
 {
     bool handleEvent(const LLSD & userdata) override
     {
+        //SPATTERS TODO add generic handler here?
         return (LLPuppetMotion::GetPuppetryEnabled() && !LLPuppetModule::instance().havePuppetModule());
     }
 };

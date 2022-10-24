@@ -811,9 +811,9 @@ void LLPuppetMotion::applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::
             target.setPos(event.getPosition() * 0.5f * mArmSpan);
             something_changed = true;
         }
-        if (event.hasDisabledConstraint())
+        if (event.usesIK())
         {
-            target.disableConstraint();
+            target.useIK();
             something_changed = true;
         }
         if (something_changed)

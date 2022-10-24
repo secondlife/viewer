@@ -88,8 +88,8 @@ public:
     void delegate() { mMask |= HAS_DELEGATED; }
     bool hasDelegated() const { return (mMask & HAS_DELEGATED) > 0; }
 
-    void disableConstraint() { mMask |= DISABLE_CONSTRAINT; }
-    bool hasDisabledConstraint() const { return (mMask & DISABLE_CONSTRAINT) > 0; }
+    void useIK() { mMask |= USE_IK; }
+    bool usesIK() const { return (mMask & USE_IK) > 0; }
 private:
     LLVector3 mPos;
     LLQuaternion mRot;
@@ -100,7 +100,7 @@ private:
         HAS_ROT = 1 << 1,
         POS_IS_LOCAL = 1 << 2, // not yet used
         ROT_IS_LOCAL = 1 << 3,
-        DISABLE_CONSTRAINT = 1 << 6,
+        USE_IK = 1 << 6,
         HAS_DELEGATED = 1 << 7 // EXPERIMENTAL
     };
     U8 mMask = 0; // per-feature bits
