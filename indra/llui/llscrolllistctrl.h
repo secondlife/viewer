@@ -261,8 +261,8 @@ public:
 	virtual LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos = ADD_BOTTOM, const LLSD& id = LLSD());
 
 	BOOL			selectItemByLabel( const std::string& item, BOOL case_sensitive = TRUE, S32 column = 0 );		// FALSE if item not found
-	BOOL			selectItemByPrefix(const std::string& target, BOOL case_sensitive = TRUE);
-	BOOL			selectItemByPrefix(const LLWString& target, BOOL case_sensitive = TRUE);
+	BOOL			selectItemByPrefix(const std::string& target, BOOL case_sensitive = TRUE, S32 column = -1);
+	BOOL			selectItemByPrefix(const LLWString& target, BOOL case_sensitive = TRUE, S32 column = -1);
 	LLScrollListItem*  getItemByLabel( const std::string& item, BOOL case_sensitive = TRUE, S32 column = 0 );
 	const std::string	getSelectedItemLabel(S32 column = 0) const;
 	LLSD			getSelectedValue();

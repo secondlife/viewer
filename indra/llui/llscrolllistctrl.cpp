@@ -1313,14 +1313,14 @@ LLScrollListItem* LLScrollListCtrl::getItemByLabel(const std::string& label, BOO
 }
 
 
-BOOL LLScrollListCtrl::selectItemByPrefix(const std::string& target, BOOL case_sensitive)
+BOOL LLScrollListCtrl::selectItemByPrefix(const std::string& target, BOOL case_sensitive, S32 column)
 {
-	return selectItemByPrefix(utf8str_to_wstring(target), case_sensitive);
+	return selectItemByPrefix(utf8str_to_wstring(target), case_sensitive, column);
 }
 
 // Selects first enabled item that has a name where the name's first part matched the target string.
 // Returns false if item not found.
-BOOL LLScrollListCtrl::selectItemByPrefix(const LLWString& target, BOOL case_sensitive)
+BOOL LLScrollListCtrl::selectItemByPrefix(const LLWString& target, BOOL case_sensitive, S32 column)
 {
 	BOOL found = FALSE;
 
@@ -1335,7 +1335,7 @@ BOOL LLScrollListCtrl::selectItemByPrefix(const LLWString& target, BOOL case_sen
 		{
 			LLScrollListItem* item = *iter;
 			// Only select enabled items with matching names
-			LLScrollListCell* cellp = item->getColumn(getSearchColumn());
+			LLScrollListCell* cellp = item->getColumn(column == -1 ? getSearchColumn() : column);
 			BOOL select = cellp ? item->getEnabled() && ('\0' == cellp->getValue().asString()[0]) : FALSE;
 			if (select)
 			{
@@ -1358,7 +1358,7 @@ BOOL LLScrollListCtrl::selectItemByPrefix(const LLWString& target, BOOL case_sen
 			LLScrollListItem* item = *iter;
 
 			// Only select enabled items with matching names
-			LLScrollListCell* cellp = item->getColumn(getSearchColumn());
+			LLScrollListCell* cellp = item->getColumn(column == -1 ? getSearchColumn() : column);
 			if (!cellp)
 			{
 				continue;
