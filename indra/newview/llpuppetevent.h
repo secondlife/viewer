@@ -79,7 +79,7 @@ public:
 
     void interpolate(F32 del, const LLPuppetJointEvent& A, const LLPuppetJointEvent& B);
 
-    bool isEmpty() const { return (mMask & (EF_ROTATION | EF_POSITION | EF_SCALE | EF_DISABLE_CONSTRAINT)) == 0; }
+    bool isEmpty() const { return (mMask & (EF_ROTATION | EF_POSITION | EF_SCALE | EF_USE_IK)) == 0; }
     bool hasRotation() const { return (mMask & EF_ROTATION) > 0; }
     bool hasPosition() const { return (mMask & EF_POSITION) > 0; }
     bool hasScale() const { return (mMask & EF_SCALE) > 0; }
