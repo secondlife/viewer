@@ -302,6 +302,11 @@ void LLMaterialEditor::onClickCloseBtn(bool app_quitting)
 
 void LLMaterialEditor::onClose(bool app_quitting)
 {
+    if (mSelectionUpdateSlot.connected())
+    {
+        mSelectionUpdateSlot.disconnect();
+    }
+
     LLPreview::onClose(app_quitting);
 }
 
@@ -1463,42 +1468,61 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
             );
     }
 }
+void LLMaterialEditor::onSelectionChanged()
+{
+    mHasUnsavedChanges = false;
+    clearTextures();
+    setFromSelection();
+    saveLiveValues();
+}
+
+void LLMaterialEditor::saveLiveValues()
+{
+    // Collect ids to be able to revert overrides.
+    // TODO: monitor selection changes and resave on selection changes
+    mObjectOverridesSavedValues.clear();
+    struct g : public LLSelectedObjectFunctor
+    {
+        g(LLMaterialEditor* me) : mEditor(me) {}
+        virtual bool apply(LLViewerObject* objectp)
+        {
+            if (!objectp)
+            {
+                return false;
+            }
+
+            U32 local_id = objectp->getLocalID();
+            S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+            for (U8 te = 0; te < num_tes; te++)
+            {
+                LLUUID mat_id = objectp->getRenderMaterialID(te);
+                mEditor->mObjectOverridesSavedValues[local_id].push_back(mat_id);
+            }
+            return true;
+        }
+        LLMaterialEditor* mEditor;
+    } savefunc(this);
+    LLSelectMgr::getInstance()->getSelection()->applyToObjects(&savefunc);
+}
 
 void LLMaterialEditor::loadLive()
 {
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", LLSD(LIVE_MATERIAL_EDITOR_KEY));
-    if (me->setFromSelection())
+    if (me)
     {
+        me->setFromSelection();
         me->mIsOverride = true;
         me->setTitle(me->getString("material_override_title"));
         me->childSetVisible("save", false);
         me->childSetVisible("save_as", false);
-        me->mObjectOverridesSavedValues.clear();
 
-        // Collect ids to be able to revert overrides.
-        // TODO: monitor selection changes and resave on selection changes
-        struct g : public LLSelectedObjectFunctor
+        // Set up for selection changes updates
+        if (!me->mSelectionUpdateSlot.connected())
         {
-            g(LLMaterialEditor* me) : mEditor(me) {}
-            virtual bool apply(LLViewerObject* objectp)
-            {
-                if (!objectp)
-                {
-                    return false;
-                }
-
-                U32 local_id = objectp->getLocalID();
-                S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
-                for (U8 te = 0; te < num_tes; te++)
-                {
-                    LLUUID mat_id = objectp->getRenderMaterialID(te);
-                    mEditor->mObjectOverridesSavedValues[local_id].push_back(mat_id);
-                }
-                return true;
-            }
-            LLMaterialEditor* mEditor;
-        } savefunc(me);
-        LLSelectMgr::getInstance()->getSelection()->applyToObjects(&savefunc);
+            me->mSelectionUpdateSlot = LLSelectMgr::instance().mUpdateSignal.connect(boost::bind(&LLMaterialEditor::onSelectionChanged, me));
+        }
+        // Collect ids to be able to revert overrides on cancel.
+        me->saveLiveValues();
 
         me->openFloater();
         me->setFocus(TRUE);
@@ -2095,6 +2119,10 @@ bool LLMaterialEditor::setFromSelection()
         return true;
     }
 
+    // pick defaults from a blank material;
+    LLGLTFMaterial blank_mat;
+    setFromGLTFMaterial(&blank_mat);
+
     return false;
 }
 
@@ -2424,6 +2452,16 @@ S32 LLMaterialEditor::saveTextures()
     }
 
     // discard upload buffers once textures have been saved
+    clearTextures();
+
+    // asset storage can callback immediately, causing a decrease
+    // of mUploadingTexturesCount, report amount of work scheduled
+    // not amount of work remaining
+    return work_count;
+}
+
+void LLMaterialEditor::clearTextures()
+{
     mBaseColorJ2C = nullptr;
     mNormalJ2C = nullptr;
     mEmissiveJ2C = nullptr;
@@ -2438,11 +2476,6 @@ S32 LLMaterialEditor::saveTextures()
     mNormalTextureUploadId.setNull();
     mMetallicTextureUploadId.setNull();
     mEmissiveTextureUploadId.setNull();
-
-    // asset storage can callback immediately, causing a decrease
-    // of mUploadingTexturesCount, report amount of work scheduled
-    // not amount of work remaining
-    return work_count;
 }
 
 void LLMaterialEditor::loadDefaults()

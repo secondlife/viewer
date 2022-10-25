@@ -116,6 +116,7 @@ private:
 	viewer_media_t		mMediaImpl;
 	LLMediaEntry*       mMediaEntry;
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
+    boost::signals2::connection mSelectionUpdateSlot;
 };
 
 LLInspectObject::LLInspectObject(const LLSD& sd)
@@ -175,9 +176,12 @@ BOOL LLInspectObject::postBuild(void)
 	getChild<LLUICtrl>("more_info_btn")->setCommitCallback(
 		boost::bind(&LLInspectObject::onClickMoreInfo, this));
 
-	// Watch for updates to selection properties off the network
-	LLSelectMgr::getInstance()->mUpdateSignal.connect(
-		boost::bind(&LLInspectObject::update, this) );
+    if (!mSelectionUpdateSlot.connected())
+    {
+        // Watch for updates to selection properties off the network
+        mSelectionUpdateSlot = LLSelectMgr::getInstance()->mUpdateSignal.connect(
+            boost::bind(&LLInspectObject::update, this));
+    }
 
 	return TRUE;
 }
@@ -242,6 +246,11 @@ void LLInspectObject::onClose(bool app_quitting)
 	// Release selection to deselect
 	mObjectSelection = NULL;
 	mPreviousObjectID = mObjectID;
+
+    if (mSelectionUpdateSlot.connected())
+    {
+        mSelectionUpdateSlot.disconnect();
+    }
 
 	getChild<LLMenuButton>("gear_btn")->hideMenu();
 }

@@ -103,6 +103,8 @@ public:
     // will promt to select specific one
     static void loadMaterialFromFile(const std::string& filename, S32 index = -1);
 
+    void onSelectionChanged(); // // live overrides selection changes
+    void saveLiveValues(); // for restoration on cancel
     static void loadLive();
     static void loadObjectSave();
 
@@ -118,6 +120,7 @@ public:
     // save textures to inventory if needed
     // returns amount of scheduled uploads
     S32 saveTextures();
+    void clearTextures();
 
     void onClickSave();
 
@@ -279,5 +282,6 @@ private:
     // local id, texture ids per face for object overrides
     // for "cancel" support
     std::map<U32, uuid_vec_t> mObjectOverridesSavedValues;
+    boost::signals2::connection mSelectionUpdateSlot;
 };
 
