@@ -1009,36 +1009,6 @@ LLUUID::LLUUID()
 	return !(word[0] | word[1] | word[2] | word[3]);
 }
 
-// Copy constructor
- LLUUID::LLUUID(const LLUUID& rhs)
-{
-	U32 *tmp = (U32 *)mData;
-	U32 *rhstmp = (U32 *)rhs.mData;
-	tmp[0] = rhstmp[0];
-	tmp[1] = rhstmp[1];
-	tmp[2] = rhstmp[2];
-	tmp[3] = rhstmp[3];
-}
-
- LLUUID::~LLUUID()
-{
-}
-
-// Assignment
- LLUUID& LLUUID::operator=(const LLUUID& rhs)
-{
-	// No need to check the case where this==&rhs.  The branch is slower than the write.
-	U32 *tmp = (U32 *)mData;
-	U32 *rhstmp = (U32 *)rhs.mData;
-	tmp[0] = rhstmp[0];
-	tmp[1] = rhstmp[1];
-	tmp[2] = rhstmp[2];
-	tmp[3] = rhstmp[3];
-	
-	return *this;
-}
-
-
  LLUUID::LLUUID(const char *in_string)
 {
 	if (!in_string || in_string[0] == 0)
