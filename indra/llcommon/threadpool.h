@@ -22,8 +22,10 @@
 namespace LL
 {
 
-    class ThreadPool
+    class ThreadPool: public LLInstanceTracker<ThreadPool, std::string>
     {
+    private:
+        using super = LLInstanceTracker<ThreadPool, std::string>;
     public:
         /**
          * Pass ThreadPool a string name. This can be used to look up the

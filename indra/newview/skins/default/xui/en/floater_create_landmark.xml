@@ -88,6 +88,7 @@
      spellcheck="true"
      text_readonly_color="white"
      text_type="ascii_with_newline"
+     commit_on_focus_lost="true"
      top_pad="5"
      width="290"
      wrap="true" />

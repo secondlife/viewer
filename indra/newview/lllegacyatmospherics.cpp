@@ -386,7 +386,6 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
 		return;
 	}
 
-	const BOOL hide_clip_plane = TRUE;
 	LLColor4 target_fog(0.f, 0.2f, 0.5f, 0.f);
 
 	const F32 water_height = gAgent.getRegion() ? gAgent.getRegion()->getWaterHeight() : 0.f;
@@ -472,33 +471,17 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
 
 	render_fog_color = sky_fog_color;
 
-	F32 fog_density = 0.f;
 	fog_distance = mFogRatio * distance;
 	
 	if (camera_height > water_height)
 	{
 		LLColor4 fog(render_fog_color);
 		mGLFogCol = fog;
-
-		if (hide_clip_plane)
-		{
-			// For now, set the density to extend to the cull distance.
-			const F32 f_log = 2.14596602628934723963618357029f; // sqrt(fabs(log(0.01f)))
-			fog_density = f_log/fog_distance;
-		}
-		else
-		{
-			const F32 f_log = 4.6051701859880913680359829093687f; // fabs(log(0.01f))
-			fog_density = (f_log)/fog_distance;
-		}
 	}
 	else
 	{
         LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
 		F32 depth = water_height - camera_height;
-		
-		// get the water param manager variables
-        float water_fog_density = pwater->getModifiedWaterFogDensity(depth <= 0.0f);
 
 		LLColor4 water_fog_color(pwater->getWaterFogColor());
 
@@ -512,9 +495,6 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
 
 		// set the gl fog color
 		mGLFogCol = fogCol;
-
-		// set the density based on what the shaders use
-		fog_density = water_fog_density * gSavedSettings.getF32("WaterGLFogDensityScale");
 	}
 
 	mFogColor = sky_fog_color;

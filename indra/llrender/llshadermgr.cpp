@@ -665,7 +665,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	
 	if (file == NULL)
 	{
-		LL_SHADER_LOADING_WARNS() << "GLSL Shader file not found: " << open_file_name << LL_ENDL;
+		LL_WARNS("ShaderLoading") << "GLSL Shader file not found: " << open_file_name << LL_ENDL;
 		return 0;
 	}
 

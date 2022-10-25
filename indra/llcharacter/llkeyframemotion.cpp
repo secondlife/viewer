@@ -1222,8 +1222,11 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 
 //-----------------------------------------------------------------------------
 // deserialize()
+//
+// allow_invalid_joints should be true when handling existing content, to avoid breakage.
+// During upload, we should be more restrictive and reject such animations.
 //-----------------------------------------------------------------------------
-BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id)
+BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, bool allow_invalid_joints)
 {
 	BOOL old_version = FALSE;
 	mJointMotionList = new LLKeyframeMotion::JointMotionList;
@@ -1344,6 +1347,15 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id)
 		return FALSE;
 	}
 
+	//SL-17206 hack to alter Female_land loop setting, while current behavior won't be changed serverside
+	LLUUID const female_land_anim("ca1baf4d-0a18-5a1f-0330-e4bd1e71f09e");
+	LLUUID const formal_female_land_anim("6a9a173b-61fa-3ad5-01fa-a851cfc5f66a");
+	if (female_land_anim == asset_id || formal_female_land_anim == asset_id)
+	{
+		LL_WARNS() << "Animation(" << asset_id << ") won't be looped." << LL_ENDL;
+		mJointMotionList->mLoop = FALSE;
+	}
+
 	//-------------------------------------------------------------------------
 	// get easeIn and easeOut
 	//-------------------------------------------------------------------------
@@ -1443,6 +1455,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id)
 		if (joint)
 		{
             S32 joint_num = joint->getJointNum();
+			joint_name = joint->getName(); // canonical name in case this is an alias.
 //			LL_INFOS() << "  joint: " << joint_name << LL_ENDL;
             if ((joint_num >= (S32)LL_CHARACTER_MAX_ANIMATED_JOINTS) || (joint_num < 0))
             {
@@ -1457,7 +1470,10 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id)
 		{
 			LL_WARNS() << "invalid joint name: " << joint_name
                        << " for animation " << asset_id << LL_ENDL;
-			//return FALSE;
+			if (!allow_invalid_joints)
+			{
+				return FALSE;
+			}
 		}
 
 		joint_motion->mJointName = joint_name;
@@ -2096,8 +2112,9 @@ U32	LLKeyframeMotion::getFileSize()
 //-----------------------------------------------------------------------------
 // dumpToFile()
 //-----------------------------------------------------------------------------
-void LLKeyframeMotion::dumpToFile(const std::string& name)
+bool LLKeyframeMotion::dumpToFile(const std::string& name)
 {
+	bool succ = false;
     if (isLoaded())
     {
         std::string outfile_base;
@@ -2114,10 +2131,24 @@ void LLKeyframeMotion::dumpToFile(const std::string& name)
             const LLUUID& id = getID();
             outfile_base = id.asString();
         }
-        std::string outfilename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfile_base + ".anim");
+
+		if (gDirUtilp->getExtension(outfile_base).empty())
+		{
+			outfile_base += ".anim";
+		}
+		std::string outfilename;
+		if (gDirUtilp->getDirName(outfile_base).empty())
+		{
+			outfilename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfile_base);
+		}
+		else
+		{
+			outfilename = outfile_base;
+		}
         if (LLFile::isfile(outfilename))
         {
-            return;
+			LL_WARNS() << outfilename << " already exists, write failed" << LL_ENDL;
+            return false;
         }
 
         S32 file_size = getFileSize();
@@ -2131,11 +2162,13 @@ void LLKeyframeMotion::dumpToFile(const std::string& name)
             outfile.open(outfilename, LL_APR_WPB);
             if (outfile.getFileHandle())
             {
-                outfile.write(buffer, file_size);
+                S32 wrote_bytes = outfile.write(buffer, file_size);
+				succ = (wrote_bytes == file_size);
             }
         }
         delete [] buffer;
     }
+	return succ;
 }
 
 //-----------------------------------------------------------------------------

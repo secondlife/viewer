@@ -173,7 +173,6 @@ void LLFloaterColorPicker::showUI ()
 	openFloater(getKey());
 	setVisible ( TRUE );
 	setFocus ( TRUE );
-	setRevertOnCancel(FALSE);
 
 	// HACK: if system color picker is required - close the SL one we made and use default system dialog
 	if ( gSavedSettings.getBOOL ( "UseDefaultColorPicker" ) )
@@ -185,15 +184,23 @@ void LLFloaterColorPicker::showUI ()
 		// code that will get switched in for default system color picker
 		if ( swatch )
 		{
+            // Todo: this needs to be threaded for viewer not to timeout
 			LLColor4 curCol = swatch->get ();
 			send_agent_pause();
-			getWindow()->dialogColorPicker( &curCol [ 0 ], &curCol [ 1 ], &curCol [ 2 ] );
+			bool commit = getWindow()->dialogColorPicker( &curCol [ 0 ], &curCol [ 1 ], &curCol [ 2 ] );
 			send_agent_resume();
 
-			setOrigRgb ( curCol [ 0 ], curCol [ 1 ], curCol [ 2 ] );
-			setCurRgb( curCol [ 0 ], curCol [ 1 ], curCol [ 2 ] );
+            if (commit)
+            {
+                setOrigRgb(curCol[0], curCol[1], curCol[2]);
+                setCurRgb(curCol[0], curCol[1], curCol[2]);
 
-			LLColorSwatchCtrl::onColorChanged ( swatch, LLColorSwatchCtrl::COLOR_CHANGE );
+                LLColorSwatchCtrl::onColorChanged(swatch, LLColorSwatchCtrl::COLOR_SELECT);
+            }
+            else
+            {
+                LLColorSwatchCtrl::onColorChanged(swatch, LLColorSwatchCtrl::COLOR_CANCEL);
+            }
 		}
 
 		closeFloater();
@@ -391,10 +398,7 @@ void LLFloaterColorPicker::onClickCancel ( void* data )
 
 		if ( self )
 		{
-		    if(self->getRevertOnCancel())
-		    {
-		        self->cancelSelection ();
-		    }
+		    self->cancelSelection();
 			self->closeFloater();
 		}
 	}
