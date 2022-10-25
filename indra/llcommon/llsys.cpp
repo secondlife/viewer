@@ -64,6 +64,7 @@ using namespace llsd;
 #   include <psapi.h>               // GetPerformanceInfo() et al.
 #	include <VersionHelpers.h>
 #elif LL_DARWIN
+#   include "llsys_objc.h"
 #	include <errno.h>
 #	include <sys/sysctl.h>
 #	include <sys/utsname.h>
@@ -74,12 +75,6 @@ using namespace llsd;
 #	include <mach/mach_host.h>
 #	include <mach/task.h>
 #	include <mach/task_info.h>
-
-// disable warnings about Gestalt calls being deprecated
-// until Apple get's on the ball and provides an alternative
-//
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-
 #elif LL_LINUX
 #	include <errno.h>
 #	include <sys/utsname.h>
@@ -278,12 +273,9 @@ LLOSInfo::LLOSInfo() :
 	{
 		const char * DARWIN_PRODUCT_NAME = "Mac OS X";
 		
-		SInt32 major_version, minor_version, bugfix_version;
-		OSErr r1 = Gestalt(gestaltSystemVersionMajor, &major_version);
-		OSErr r2 = Gestalt(gestaltSystemVersionMinor, &minor_version);
-		OSErr r3 = Gestalt(gestaltSystemVersionBugFix, &bugfix_version);
+		S32 major_version, minor_version, bugfix_version = 0;
 
-		if((r1 == noErr) && (r2 == noErr) && (r3 == noErr))
+		if (LLGetDarwinOSInfo(major_version, minor_version, bugfix_version))
 		{
 			mMajorVer = major_version;
 			mMinorVer = minor_version;
@@ -1410,10 +1402,3 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	if (dst != NULL) gzclose(dst);
 	return retval;
 }
-
-#if LL_DARWIN
-// disable warnings about Gestalt calls being deprecated
-// until Apple get's on the ball and provides an alternative
-//
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif

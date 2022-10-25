@@ -324,6 +324,23 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
             return;
         }
 
+        if (!LLWorld::instanceExists())
+        {
+            LL_WARNS("AppInit", "Capabilities") << "Received capabilities, but world no longer exists!" << LL_ENDL;
+            return;
+        }
+
+        regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+        if (!regionp) //region was removed
+        {
+            LL_WARNS("AppInit", "Capabilities") << "Received capabilities for region that no longer exists!" << LL_ENDL;
+            return; // this error condition is not recoverable.
+        }
+
+        impl = regionp->getRegionImplNC();
+
+        ++(impl->mSeedCapAttempts);
+
         if (!result.isMap() || result.has("error"))
         {
             LL_WARNS("AppInit", "Capabilities") << "Malformed response" << LL_ENDL;
@@ -342,23 +359,6 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
 
         // remove the http_result from the llsd
         result.erase("http_result");
-
-        if (!LLWorld::instanceExists())
-        {
-            LL_WARNS("AppInit", "Capabilities") << "Received capabilities, but world no longer exists!" << LL_ENDL;
-            return;
-        }
-
-        regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
-        if (!regionp) //region was removed
-        {
-            LL_WARNS("AppInit", "Capabilities") << "Received capabilities for region that no longer exists!" << LL_ENDL;
-            return; // this error condition is not recoverable.
-        }
-
-        impl = regionp->getRegionImplNC();
-
-        ++(impl->mSeedCapAttempts);
 
         if (id != impl->mHttpResponderID) // region is no longer referring to this request
         {
@@ -1067,6 +1067,15 @@ S32 LLViewerRegion::renderPropertyLines()
 		return 0;
 	}
 }
+
+void LLViewerRegion::renderPropertyLinesOnMinimap(F32 scale_pixels_per_meter, const F32 *parcel_outline_color)
+{
+    if (mParcelOverlay)
+    {
+        mParcelOverlay->renderPropertyLinesOnMinimap(scale_pixels_per_meter, parcel_outline_color);
+    }
+}
+
 
 // This gets called when the height field changes.
 void LLViewerRegion::dirtyHeights()

@@ -1713,6 +1713,10 @@ void LLSplashScreenMacOSX::showImpl()
 
 void LLSplashScreenMacOSX::updateImpl(const std::string& mesg)
 {
+	if(mWindow != NULL)
+	{
+		CFStringCreateWithCString(NULL, mesg.c_str(), kCFStringEncodingUTF8);
+	}
 }
 
 
