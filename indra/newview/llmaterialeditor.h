@@ -209,7 +209,6 @@ public:
     bool getDoubleSided();
     void setDoubleSided(bool double_sided);
 
-    void setHasUnsavedChanges(bool value);
     void setCanSaveAs(bool value);
     void setCanSave(bool value);
     void setEnableEditing(bool can_modify);
@@ -223,6 +222,8 @@ public:
     void loadDefaults();
 
     void modifyMaterialCoro(std::string cap_url, LLSD overrides);
+
+    U32 getUnsavedChangesFlags() { return mUnsavedChanges; }
 
 private:
     void setFromGLTFMaterial(LLGLTFMaterial* mat);
@@ -271,7 +272,10 @@ private:
     // based on what we know about it.
     const std::string buildMaterialDescription();
 
-    bool mHasUnsavedChanges;
+    void resetUnsavedChanges();
+    void markChangesUnsaved(U32 dirty_flag);
+
+    U32 mUnsavedChanges; // flags to indicate individual changed parameters
     S32 mUploadingTexturesCount;
     S32 mExpectedUploadCost;
     std::string mMaterialNameShort;
