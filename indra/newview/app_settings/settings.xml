@@ -3387,29 +3387,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <!-- TODO: Remove settings keys DisablePrimaryGraphicsMemoryAccounting and DisableSecondaryGraphicsMemoryAccounting after testing, and code that references them -->
-    <key>DisablePrimaryGraphicsMemoryAccounting</key>
-    <map>
-      <key>Comment</key>
-      <string>Disable the first method used to detect GPU memory use</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>DisableSecondaryGraphicsMemoryAccounting</key>
-    <map>
-      <key>Comment</key>
-      <string>Disable the second method used to detect GPU memory use, used as a fallback when the first method fails</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>DisableTextHyperlinkActions</key>
     <map>
       <key>Comment</key>

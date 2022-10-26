@@ -397,7 +397,6 @@ void LLPipeline::connectRefreshCachedSettingsSafe(const std::string name)
 
 void LLPipeline::init()
 {
-    LL_WARNS() << "Begin pipeline initialization" << LL_ENDL; // TODO: Remove after testing
 	refreshCachedSettings();
 
     mRT = &mMainRT;
@@ -416,7 +415,6 @@ void LLPipeline::init()
 	mInitialized = true;
 	
 	stop_glerror();
-    LL_WARNS() << "No GL errors yet. Pipeline initialization will continue." << LL_ENDL; // TODO: Remove after testing
 
 	//create render pass pools
 	getPool(LLDrawPool::POOL_ALPHA_PRE_WATER);
@@ -479,9 +477,7 @@ void LLPipeline::init()
 	
 	// Enable features
 		
-    LL_WARNS() << "Shader initialization start" << LL_ENDL; // TODO: Remove after testing
 	LLViewerShaderMgr::instance()->setShaders();
-    LL_WARNS() << "Shader initialization end" << LL_ENDL; // TODO: Remove after testing
 
 	stop_glerror();
 
