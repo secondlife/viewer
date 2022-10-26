@@ -219,8 +219,6 @@ public:
     // initialize the UI from a default GLTF material
     void loadDefaults();
 
-    void modifyMaterialCoro(std::string cap_url, LLSD overrides);
-
 private:
     void setFromGLTFMaterial(LLGLTFMaterial* mat);
     bool setFromSelection();

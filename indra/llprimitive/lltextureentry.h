@@ -200,7 +200,7 @@ public:
 
     // GLTF override
     LLGLTFMaterial* getGLTFMaterialOverride() const { return mGLTFMaterialOverrides; }
-    void setGLTFMaterialOverride(LLGLTFMaterial* mat) { mGLTFMaterialOverrides = mat; }
+    void setGLTFMaterialOverride(LLGLTFMaterial* mat);
 
     // GLTF render material
     // nuanced behavior here -- if there is no render material, fall back to getGLTFMaterial, but ONLY for the getter, not the setter

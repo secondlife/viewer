@@ -1950,48 +1950,14 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
 
             if (te != -1)
             {
-                LLTextureEntry* tep = objectp->getTE(te);
-                if (asset_id.notNull())
-                {
-                    tep->setGLTFMaterial(gGLTFMaterialList.getMaterial(asset_id));
-                }
-                else
-                {
-                    tep->setGLTFMaterial(nullptr);
-                }
-
-                objectp->faceMappingChanged();
-                gPipeline.markTextured(objectp->mDrawable);
-
-                LLRenderMaterialParams* param_block = (LLRenderMaterialParams*)objectp->getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
-                if (param_block)
-                {
-                    param_block->setMaterial(te, asset_id);
-                }
+                objectp->setRenderMaterialID(te, asset_id);
             }
             else // Shouldn't happen?
             {
                 S32 num_faces = objectp->getNumTEs();
                 for (S32 face = 0; face < num_faces; face++)
                 {
-                    LLTextureEntry* tep = objectp->getTE(face);
-                    if (asset_id.notNull())
-                    {
-                        tep->setGLTFMaterial(gGLTFMaterialList.getMaterial(asset_id));
-                    }
-                    else
-                    {
-                        tep->setGLTFMaterial(nullptr);
-                    }
-
-                    objectp->faceMappingChanged();
-                    gPipeline.markTextured(objectp->mDrawable);
-
-                    LLRenderMaterialParams* param_block = (LLRenderMaterialParams*)objectp->getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
-                    if (param_block)
-                    {
-                        param_block->setMaterial(face, asset_id);
-                    }
+                    objectp->setRenderMaterialID(te, asset_id);
                 }
             }
 

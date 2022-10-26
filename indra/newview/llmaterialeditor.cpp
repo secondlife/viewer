@@ -1994,7 +1994,7 @@ public:
                 "side", te,
                 "gltf_json", overrides_json
             );
-            LLCoros::instance().launch("modifyMaterialCoro", std::bind(&LLMaterialEditor::modifyMaterialCoro, mEditor, mCapUrl, overrides));
+            LLCoros::instance().launch("modifyMaterialCoro", std::bind(&LLGLTFMaterialList::modifyMaterialCoro, mCapUrl, overrides));
         }
         return true;
     }
@@ -2452,30 +2452,3 @@ void LLMaterialEditor::loadDefaults()
     setFromGltfModel(model_in, 0, true);
 }
 
-void LLMaterialEditor::modifyMaterialCoro(std::string cap_url, LLSD overrides)
-{
-    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("modifyMaterialCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
-    LLCore::HttpHeaders::ptr_t httpHeaders;
-
-    httpOpts->setFollowRedirects(true);
-
-    LL_DEBUGS() << "Applying override via ModifyMaterialParams cap: " << overrides << LL_ENDL;
-
-    LLSD result = httpAdapter->postAndSuspend(httpRequest, cap_url, overrides, httpOpts, httpHeaders);
-
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-    if (!status)
-    {
-        LL_WARNS() << "Failed to modify material." << LL_ENDL;
-    }
-    else if (!result["success"].asBoolean())
-    {
-        LL_WARNS() << "Failed to modify material: " << result["message"] << LL_ENDL;
-    }
-}

@@ -36,12 +36,14 @@
 #include "llviewercontrol.h"
 #include "llviewergenericmessage.h"
 #include "llviewerobjectlist.h"
-
+#include "llcorehttputil.h"
 #include "tinygltf/tiny_gltf.h"
 #include <strstream>
 
 #include "json/reader.h"
 #include "json/value.h"
+
+#include <unordered_set>
 
 LLGLTFMaterialList gGLTFMaterialList;
 
@@ -77,27 +79,80 @@ namespace
 
             LLUUID object_id = message["object_id"].asUUID();
             
-            LLViewerObject * obj = gObjectList.findObject(object_id);
-            S32 side = message["side"].asInteger();
-            std::string gltf_json = message["gltf_json"].asString();
+            LLViewerObject * obj = gObjectList.findObject(object_id); // NOTE: null object here does NOT mean nothing to do, parse message and queue results for later
+            bool clear_all = true;
 
-            std::string warn_msg, error_msg;
-            LLPointer<LLGLTFMaterial> override_data = new LLGLTFMaterial();
-            bool success = override_data->fromJSON(gltf_json, warn_msg, error_msg);
+            if (message.has("sides") && message.has("gltf_json"))
+            {
+                LLSD& sides = message["sides"];
+                LLSD& gltf_json = message["gltf_json"];
 
-            if (!success)
-            {
-                LL_WARNS() << "failed to parse GLTF override data.  errors: " << error_msg << " | warnings: " << warn_msg << LL_ENDL;
-            }
-            else
-            {
-                if (!obj || !obj->setTEGLTFMaterialOverride(side, override_data))
+                if (sides.isArray() && gltf_json.isArray() &&
+                    sides.size() != 0 &&
+                    sides.size() == gltf_json.size())
                 {
-                     // object not ready to receive override data, queue for later
-                    gGLTFMaterialList.queueOverrideUpdate(object_id, side, override_data);
+                    clear_all = false;
+
+                    // message should be interpreted thusly:
+                    ///  sides is a list of face indices
+                    //   gltf_json is a list of corresponding json
+                    //   any side not represented in "sides" has no override
+
+                    // parse json
+                    std::unordered_set<S32> side_set;
+
+                    for (int i = 0; i < sides.size(); ++i)
+                    {
+                        LLPointer<LLGLTFMaterial> override_data = new LLGLTFMaterial();
+                        
+                        std::string gltf_json = message["gltf_json"][i].asString();
+
+                        std::string warn_msg, error_msg;
+                        
+                        bool success = override_data->fromJSON(gltf_json, warn_msg, error_msg);
+
+                        if (!success)
+                        {
+                            LL_WARNS() << "failed to parse GLTF override data.  errors: " << error_msg << " | warnings: " << warn_msg << LL_ENDL;
+                        }
+                        else
+                        {
+                            S32 side = sides[i].asInteger();
+                            // flag this side to not be nulled out later
+                            side_set.insert(sides);
+
+                            if (!obj || !obj->setTEGLTFMaterialOverride(side, override_data))
+                            {
+                                // object not ready to receive override data, queue for later
+                                gGLTFMaterialList.queueOverrideUpdate(object_id, side, override_data);
+                            }
+                        }
+                    }
+
+                    if (obj && side_set.size() != obj->getNumTEs())
+                    { // object exists and at least one texture entry needs to have its override data nulled out
+                        for (int i = 0; i < obj->getNumTEs(); ++i)
+                        {
+                            if (side_set.find(i) == side_set.end())
+                            {
+                                obj->setTEGLTFMaterialOverride(i, nullptr);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    LL_WARNS() << "Malformed GLTF override message data: " << message << LL_ENDL;
                 }
             }
-
+            
+            if (clear_all && obj)
+            { // override list was empty or an error occurred, null out all overrides for this object
+                for (int i = 0; i < obj->getNumTEs(); ++i)
+                {
+                    obj->setTEGLTFMaterialOverride(i, nullptr);
+                }
+            }
             return true;
         }
     };
@@ -295,4 +350,33 @@ void LLGLTFMaterialList::flushMaterials()
 void LLGLTFMaterialList::registerCallbacks()
 {
     gGenericDispatcher.addHandler("GLTFMaterialOverride", &handle_gltf_override_message);
+}
+
+// static
+void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("modifyMaterialCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    LLCore::HttpHeaders::ptr_t httpHeaders;
+
+    httpOpts->setFollowRedirects(true);
+
+    LL_DEBUGS() << "Applying override via ModifyMaterialParams cap: " << overrides << LL_ENDL;
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, cap_url, overrides, httpOpts, httpHeaders);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS() << "Failed to modify material." << LL_ENDL;
+    }
+    else if (!result["success"].asBoolean())
+    {
+        LL_WARNS() << "Failed to modify material: " << result["message"] << LL_ENDL;
+    }
 }

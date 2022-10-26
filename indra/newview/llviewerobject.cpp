@@ -7115,6 +7115,20 @@ const LLUUID& LLViewerObject::getRenderMaterialID(U8 te) const
 
 void LLViewerObject::setRenderMaterialID(U8 te, const LLUUID& id, bool update_server)
 {
+    if (update_server)
+    {
+        // clear out any existing override data and render material
+        getTE(te)->setGLTFMaterialOverride(nullptr);
+        getTE(te)->setGLTFRenderMaterial(nullptr);
+
+        LLCoros::instance().launch("modifyMaterialCoro", 
+            std::bind(&LLGLTFMaterialList::modifyMaterialCoro, 
+                gAgent.getRegionCapability("ModifyMaterialParams"), 
+                llsd::map(
+                    "object_id", getID(),
+                    "side", te)));
+    }
+
     if (id.notNull())
     {
         getTE(te)->setGLTFMaterial(gGLTFMaterialList.getMaterial(id));

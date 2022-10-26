@@ -49,6 +49,13 @@ public:
 
     static void registerCallbacks();
 
+    // apply given override data via given cap url
+    //  cap_url -- should be gAgent.getRegionCapability("ModifyMaterialParams")
+    //  overrides -- LLSD map in the format
+    //    "object_id": LLUUID - object to be modified
+    //    "side": integer - index of face to be modified
+    //    "gltf_json" : string - GLTF compliant json of override data (optional, if omitted any existing override data will be cleared)
+    static void modifyMaterialCoro(std::string cap_url, LLSD overrides);
     // save an override update for later (for example, if an override arrived for an unknown object)
     void queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFMaterial* override_data);
 
