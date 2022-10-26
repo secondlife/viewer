@@ -41,6 +41,7 @@
 #include "llstring.h"
 #include "lltextutil.h"
 #include "lltrans.h"
+#include "lltranslate.h"
 #include "lluictrlfactory.h"
 #include "llfloaterimsessiontab.h"
 #include "llagent.h"
@@ -510,6 +511,31 @@ void chatterBoxInvitationCoro(std::string url, LLUUID sessionId, LLIMMgr::EInvit
 
 }
 
+void translateSuccess(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text, 
+                    bool log2file, std::string originalMsg, std::string expectLang, std::string translation, const std::string detected_language)
+{
+    std::string message_txt(utf8_text);
+    // filter out non-interesting responses  
+    if (!translation.empty()
+        && ((detected_language.empty()) || (expectLang != detected_language))
+        && (LLStringUtil::compareInsensitive(translation, originalMsg) != 0))
+    {
+        message_txt += " (" + LLTranslate::removeNoTranslateTags(translation) + ")";
+    }
+
+    LLIMModel::getInstance()->processAddingMessage(session_id, from, from_id, message_txt, log2file);
+}
+
+void translateFailure(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text,
+                    bool log2file, int status, const std::string err_msg)
+{
+    std::string message_txt(utf8_text);
+    std::string msg = LLTrans::getString("TranslationFailed", LLSD().with("[REASON]", err_msg));
+    LLStringUtil::replaceString(msg, "\n", " "); // we want one-line error messages
+    message_txt += " (" + msg + ")";
+
+    LLIMModel::getInstance()->processAddingMessage(session_id, from, from_id, message_txt, log2file);
+}
 
 LLIMModel::LLIMModel() 
 {
@@ -1188,39 +1214,56 @@ bool LLIMModel::logToFile(const std::string& file_name, const std::string& from,
 	}
 }
 
-bool LLIMModel::proccessOnlineOfflineNotification(
+void LLIMModel::proccessOnlineOfflineNotification(
 	const LLUUID& session_id, 
 	const std::string& utf8_text)
 {
 	// Add system message to history
-	return addMessage(session_id, SYSTEM_FROM, LLUUID::null, utf8_text);
+	addMessage(session_id, SYSTEM_FROM, LLUUID::null, utf8_text);
 }
 
-bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, 
+void LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, 
 						   const std::string& utf8_text, bool log2file /* = true */) { 
 
-	LLIMSession* session = addMessageSilently(session_id, from, from_id, utf8_text, log2file);
-	if (!session) return false;
+    if (gSavedSettings.getBOOL("TranslateChat") && (from != SYSTEM_FROM))
+    {
+        const std::string from_lang = ""; // leave empty to trigger autodetect
+        const std::string to_lang = LLTranslate::getTranslateLanguage();
 
-	//good place to add some1 to recent list
-	//other places may be called from message history.
-	if( !from_id.isNull() &&
-		( session->isP2PSessionType() || session->isAdHocSessionType() ) )
-		LLRecentPeople::instance().add(from_id);
+        LLTranslate::translateMessage(from_lang, to_lang, utf8_text,
+            boost::bind(&translateSuccess, session_id, from, from_id, utf8_text, log2file, utf8_text, from_lang, _1, _2),
+            boost::bind(&translateFailure, session_id, from, from_id, utf8_text, log2file, _1, _2));
+    }
+    else
+    {
+        processAddingMessage(session_id, from, from_id, utf8_text, log2file);
+    }
+}
 
-	// notify listeners
-	LLSD arg;
-	arg["session_id"] = session_id;
-	arg["num_unread"] = session->mNumUnread;
-	arg["participant_unread"] = session->mParticipantUnreadMessageCount;
-	arg["message"] = utf8_text;
-	arg["from"] = from;
-	arg["from_id"] = from_id;
-	arg["time"] = LLLogChat::timestamp(false);
-	arg["session_type"] = session->mSessionType;
-	mNewMsgSignal(arg);
+void LLIMModel::processAddingMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id,
+    const std::string& utf8_text, bool log2file /* = true */)
+{
+    LLIMSession* session = addMessageSilently(session_id, from, from_id, utf8_text, log2file);
+    if (!session) return;
 
-	return true;
+    //good place to add some1 to recent list
+    //other places may be called from message history.
+    if( !from_id.isNull() &&
+        ( session->isP2PSessionType() || session->isAdHocSessionType() ) )
+        LLRecentPeople::instance().add(from_id);
+
+    // notify listeners
+    LLSD arg;
+    arg["session_id"] = session_id;
+    arg["num_unread"] = session->mNumUnread;
+    arg["participant_unread"] = session->mParticipantUnreadMessageCount;
+    arg["message"] = utf8_text;
+    arg["from"] = from;
+    arg["from_id"] = from_id;
+    arg["time"] = LLLogChat::timestamp(false);
+    arg["session_type"] = session->mSessionType;
+
+    mNewMsgSignal(arg);
 }
 
 LLIMModel::LLIMSession* LLIMModel::addMessageSilently(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, 

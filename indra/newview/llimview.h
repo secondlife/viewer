@@ -208,7 +208,8 @@ public:
 	 * and also saved into a file if log2file is specified.
 	 * It sends new message signal for each added message.
 	 */
-	bool addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& other_participant_id, const std::string& utf8_text, bool log2file = true);
+	void addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& other_participant_id, const std::string& utf8_text, bool log2file = true);
+    void processAddingMessage(const LLUUID& session_id, const std::string& from, const LLUUID& other_participant_id, const std::string& utf8_text, bool log2file = true);
 
 	/**
 	 * Similar to addMessage(...) above but won't send a signal about a new message added
@@ -219,7 +220,7 @@ public:
 	/**
 	 * Add a system message to an IM Model
 	 */
-	bool proccessOnlineOfflineNotification(const LLUUID& session_id, const std::string& utf8_text);
+	void proccessOnlineOfflineNotification(const LLUUID& session_id, const std::string& utf8_text);
 
 	/**
 	 * Get a session's name. 
