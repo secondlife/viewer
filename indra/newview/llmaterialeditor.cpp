@@ -334,6 +334,7 @@ void LLMaterialEditor::setBaseColorId(const LLUUID& id)
 {
     mBaseColorTextureCtrl->setValue(id);
     mBaseColorTextureCtrl->setDefaultImageAssetID(id);
+    mBaseColorTextureCtrl->setTentative(FALSE);
 }
 
 void LLMaterialEditor::setBaseColorUploadId(const LLUUID& id)
@@ -409,6 +410,7 @@ void LLMaterialEditor::setMetallicRoughnessId(const LLUUID& id)
 {
     mMetallicTextureCtrl->setValue(id);
     mMetallicTextureCtrl->setDefaultImageAssetID(id);
+    mMetallicTextureCtrl->setTentative(FALSE);
 }
 
 void LLMaterialEditor::setMetallicRoughnessUploadId(const LLUUID& id)
@@ -452,6 +454,7 @@ void LLMaterialEditor::setEmissiveId(const LLUUID& id)
 {
     mEmissiveTextureCtrl->setValue(id);
     mEmissiveTextureCtrl->setDefaultImageAssetID(id);
+    mEmissiveTextureCtrl->setTentative(FALSE);
 }
 
 void LLMaterialEditor::setEmissiveUploadId(const LLUUID& id)
@@ -485,6 +488,7 @@ void LLMaterialEditor::setNormalId(const LLUUID& id)
 {
     mNormalTextureCtrl->setValue(id);
     mNormalTextureCtrl->setDefaultImageAssetID(id);
+    mNormalTextureCtrl->setTentative(FALSE);
 }
 
 void LLMaterialEditor::setNormalUploadId(const LLUUID& id)
@@ -2188,25 +2192,40 @@ bool LLMaterialEditor::setFromSelection()
 {
     struct LLSelectedTEGetGLTFRenderMaterial : public LLSelectedTEGetFunctor<LLPointer<LLGLTFMaterial> >
     {
-        LLPointer<LLGLTFMaterial> get(LLViewerObject* object, S32 te_index)
+        LLPointer<LLGLTFMaterial> get(LLViewerObject* objectp, S32 te_index)
         {
-            return object->getTE(te_index)->getGLTFRenderMaterial(); // present user with combined override + asset
+            if (!objectp)
+            {
+                return nullptr;
+            }
+            LLTextureEntry *tep = objectp->getTE(te_index);
+            if (!tep)
+            {
+                return nullptr;
+            }
+            return tep->getGLTFRenderMaterial(); // present user with combined override + asset
         }
     } func;
 
     LLPointer<LLGLTFMaterial> mat;
-    LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, mat);
+    bool identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, mat);
     if (mat.notNull())
     {
         setFromGLTFMaterial(mat);
-        return true;
+    }
+    else
+    {
+        // pick defaults from a blank material;
+        LLGLTFMaterial blank_mat;
+        setFromGLTFMaterial(&blank_mat);
     }
 
-    // pick defaults from a blank material;
-    LLGLTFMaterial blank_mat;
-    setFromGLTFMaterial(&blank_mat);
+    mBaseColorTextureCtrl->setTentative(!identical);
+    mMetallicTextureCtrl->setTentative(!identical);
+    mEmissiveTextureCtrl->setTentative(!identical);
+    mNormalTextureCtrl->setTentative(!identical);
 
-    return false;
+    return mat.notNull();
 }
 
 
