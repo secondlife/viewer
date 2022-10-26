@@ -142,6 +142,10 @@ LLInspectObject::LLInspectObject(const LLSD& sd)
 
 LLInspectObject::~LLInspectObject()
 {
+    if (mSelectionUpdateSlot.connected())
+    {
+        mSelectionUpdateSlot.disconnect();
+    }
 }
 
 /*virtual*/
@@ -246,11 +250,6 @@ void LLInspectObject::onClose(bool app_quitting)
 	// Release selection to deselect
 	mObjectSelection = NULL;
 	mPreviousObjectID = mObjectID;
-
-    if (mSelectionUpdateSlot.connected())
-    {
-        mSelectionUpdateSlot.disconnect();
-    }
 
 	getChild<LLMenuButton>("gear_btn")->hideMenu();
 }
