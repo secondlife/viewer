@@ -698,9 +698,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6cc4791cda8bd22b31a7a5c6d6096444</string>
+              <string>66c308642234797ef82b1e22b96b5ae6</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/105572/923689/freetype-2.12.1.575556-darwin64-575556.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/106497/930538/freetype-2.12.1.576084-darwin64-576084.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -722,9 +722,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>89bfcc2fb628187cf6730a81f43c513e</string>
+              <string>fb161e641d4f4bfdeefed6021c192331</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/105574/923703/freetype-2.12.1.575556-windows-575556.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/106496/930532/freetype-2.12.1.576084-windows-576084.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -734,16 +734,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cd2fb236e24aa912939c5e87b8a42ec7</string>
+              <string>fe29d0aa898b534f3083ad53f04afd40</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/105573/923695/freetype-2.12.1.575556-windows64-575556.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/106495/930523/freetype-2.12.1.576084-windows64-576084.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.12.1.575556</string>
+        <string>2.12.1.576084</string>
       </map>
       <key>glext</key>
       <map>
@@ -1028,6 +1028,62 @@
         </map>
         <key>version</key>
         <string>2012.1-2</string>
+      </map>
+      <key>icu4c</key>
+      <map>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/lindenlab/3p-icu4c</string>
+        <key>copyright</key>
+        <string>Copyright (c) 1995-2011 International Business Machines Corporation and others &lt;http://source.icu-project.org&gt;</string>
+        <key>description</key>
+        <string>ICU is a mature, widely used set of C/C++ and Java libraries providing Unicode and Globalization support for software applications. ICU is widely portable and gives applications the same results on all platforms and between C/C++ and Java software.</string>
+        <key>license</key>
+        <string>ICU, permissive non-copyleft free software license</string>
+        <key>license_file</key>
+        <string>LICENSES/icu.txt</string>
+        <key>name</key>
+        <string>icu4c</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>8fc61ee230e63db756e14415573f604d</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/106176/928492/icu4c-4.8.1-darwin64-575914.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>9898b1f45bc92d4fc75b1d1a68c59514</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/106438/930144/icu4c-4.8.1-windows-575914.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>8ad662698b5d99ce169517ce11cf2bef</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/106439/930151/icu4c-4.8.1-windows64-575914.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>4.8.1</string>
       </map>
       <key>jpegencoderbasic</key>
       <map>
