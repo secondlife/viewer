@@ -2956,30 +2956,20 @@ void handle_object_edit()
 	return;
 }
 
-void load_life_gltf_material(bool copy)
+void handle_object_edit_gltf_material()
 {
-    update_camera();
-
-    LLSelectedTEGetmatIdAndPermissions func;
-    LLUUID mat_id;
-    LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, mat_id);
-
-    if (copy)
+    if (!LLFloaterReg::instanceVisible("build"))
     {
-        LLMaterialEditor::loadFromGLTFMaterial(mat_id);
+        handle_object_edit(); // does update_camera();
     }
     else
     {
-        LLMaterialEditor::loadLive();
+        update_camera();
+
+        LLViewerJoystick::getInstance()->moveObjects(true);
+        LLViewerJoystick::getInstance()->setNeedsReset(true);
     }
 
-    LLViewerJoystick::getInstance()->moveObjects(true);
-    LLViewerJoystick::getInstance()->setNeedsReset(true);
-}
-
-void handle_object_edit_gltf_material()
-{
-    handle_object_edit();
     LLMaterialEditor::loadLive();
 }
 

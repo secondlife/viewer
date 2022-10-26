@@ -1948,18 +1948,7 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
                 objectp->setParameterEntryInUse(LLNetworkData::PARAMS_RENDER_MATERIAL, TRUE, false /*prevent an update*/);
             }
 
-            if (te != -1)
-            {
-                objectp->setRenderMaterialID(te, asset_id);
-            }
-            else // Shouldn't happen?
-            {
-                S32 num_faces = objectp->getNumTEs();
-                for (S32 face = 0; face < num_faces; face++)
-                {
-                    objectp->setRenderMaterialID(te, asset_id);
-                }
-            }
+            objectp->setRenderMaterialID(te, asset_id);
 
             return true;
         }

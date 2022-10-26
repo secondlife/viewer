@@ -13,6 +13,22 @@
          function="EnableEdit" />
     </menu_item_call>
     <menu_item_call
+     label="Edit PBR Material"
+     name="EditGLTFMaterial">
+        <menu_item_call.on_click
+         function="Object.EditGLTFMaterial" />
+        <menu_item_call.on_enable
+         function="Object.EnableEditGLTFMaterial"/>
+    </menu_item_call>
+    <menu_item_call
+     label="Save material to inventory"
+     name="SaveGLTFMaterial">
+        <menu_item_call.on_click
+         function="Object.SaveGLTFMaterial" />
+        <menu_item_call.on_enable
+         function="Object.EnableSaveGLTFMaterial"/>
+    </menu_item_call>
+    <menu_item_call
      enabled="false"
      label="Detach item"
      layout="topleft"

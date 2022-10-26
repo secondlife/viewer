@@ -103,6 +103,8 @@ public:
     // will promt to select specific one
     static void loadMaterialFromFile(const std::string& filename, S32 index = -1);
 
+    void onSelectionChanged(); // // live overrides selection changes
+    void saveLiveValues(); // for restoration on cancel
     static void loadLive();
     static void loadObjectSave();
 
@@ -118,6 +120,7 @@ public:
     // save textures to inventory if needed
     // returns amount of scheduled uploads
     S32 saveTextures();
+    void clearTextures();
 
     void onClickSave();
 
@@ -206,7 +209,6 @@ public:
     bool getDoubleSided();
     void setDoubleSided(bool double_sided);
 
-    void setHasUnsavedChanges(bool value);
     void setCanSaveAs(bool value);
     void setCanSave(bool value);
     void setEnableEditing(bool can_modify);
@@ -218,6 +220,8 @@ public:
 
     // initialize the UI from a default GLTF material
     void loadDefaults();
+
+    U32 getUnsavedChangesFlags() { return mUnsavedChanges; }
 
 private:
     void setFromGLTFMaterial(LLGLTFMaterial* mat);
@@ -266,7 +270,10 @@ private:
     // based on what we know about it.
     const std::string buildMaterialDescription();
 
-    bool mHasUnsavedChanges;
+    void resetUnsavedChanges();
+    void markChangesUnsaved(U32 dirty_flag);
+
+    U32 mUnsavedChanges; // flags to indicate individual changed parameters
     S32 mUploadingTexturesCount;
     S32 mExpectedUploadCost;
     std::string mMaterialNameShort;
@@ -277,5 +284,6 @@ private:
     // local id, texture ids per face for object overrides
     // for "cancel" support
     std::map<U32, uuid_vec_t> mObjectOverridesSavedValues;
+    boost::signals2::connection mSelectionUpdateSlot;
 };
 

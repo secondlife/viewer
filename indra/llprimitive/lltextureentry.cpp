@@ -512,16 +512,19 @@ S32 LLTextureEntry::setBumpShiny(U8 bump_shiny)
 
 void LLTextureEntry::setGLTFMaterial(LLGLTFMaterial* material)
 { 
-    // assert on precondtion:
-    // whether or not mGLTFMaterial is null, any existing override should have been nulled out 
-    // before calling setGLTFMaterial
-    // NOTE: if you're hitting this assert, try to make sure calling code is using LLViewerObject::setRenderMaterialID
-    llassert(getGLTFMaterialOverride() == nullptr);
-
-    mGLTFMaterial = material;
-    if (mGLTFMaterial == nullptr)
+    if (material != getGLTFMaterial())
     {
-        setGLTFRenderMaterial(nullptr);
+        // assert on precondtion:
+        // whether or not mGLTFMaterial is null, any existing override should have been nulled out 
+        // before calling setGLTFMaterial
+        // NOTE: if you're hitting this assert, try to make sure calling code is using LLViewerObject::setRenderMaterialID
+        llassert(getGLTFMaterialOverride() == nullptr);
+
+        mGLTFMaterial = material;
+        if (mGLTFMaterial == nullptr)
+        {
+            setGLTFRenderMaterial(nullptr);
+        }
     }
 }
 

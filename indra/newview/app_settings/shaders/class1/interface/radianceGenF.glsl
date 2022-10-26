@@ -124,7 +124,7 @@ vec4 prefilterEnvMap(vec3 R)
 	vec3 V = R;
 	vec4 color = vec4(0.0);
 	float totalWeight = 0.0;
-	float envMapDim = 256.0;
+	float envMapDim = 128.0;
     int numSamples = 4;
     
     float numMips = 6.0;
