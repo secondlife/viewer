@@ -115,8 +115,11 @@ const LLInventoryItem *LLPreview::getItem() const
 	}
 	else if (mObjectUUID.isNull())
 	{
-		// it's an inventory item, so get the item.
-		item = gInventory.getItem(mItemUUID);
+        if (mItemUUID.notNull())
+        {
+            // it's an inventory item, so get the item.
+            item = gInventory.getItem(mItemUUID);
+        }
 	}
 	else
 	{
