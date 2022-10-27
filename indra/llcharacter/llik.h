@@ -88,8 +88,8 @@ public:
     void delegate() { mMask |= HAS_DELEGATED; }
     bool hasDelegated() const { return (mMask & HAS_DELEGATED) > 0; }
 
-    void useIK() { mMask |= USE_IK; }
-    bool usesIK() const { return (mMask & USE_IK) > 0; }
+    void useIK() { return; }
+    bool usesIK() const { return true; }
 private:
     LLVector3 mPos;
     LLQuaternion mRot;

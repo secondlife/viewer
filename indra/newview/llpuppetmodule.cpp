@@ -53,19 +53,6 @@
 static const std::string current_camera_setting("puppetry_current_camera");
 static const std::string puppetry_parts_setting("puppetry_enabled_parts");
 
-bool partial_match( std::string tokstr, std::string cmpstr )
-{
-    //Do a case-insensitive string comparison up to the length of the shorter.
-    //Params:
-    //   tokstr is the token we want to match against.  It must be all upper-case
-    //   cmpstr the string to compare against the token.
-    //Return:
-    //   True if a match up to length of shorter string else False.
-    int len = tokstr.length() < cmpstr.length() ? tokstr.length() : cmpstr.length();
-    
-    return ( !tokstr.compare(0, len, cmpstr, 0, len) );
-}
-
 std::vector<std::string> getKeyKeys(const LLSD& data, std::string key)
 {
     //For a flexible format, let's get key names from a LLSD
@@ -127,15 +114,13 @@ void processGetRequest(const LLSD& data)
     for ( auto key = keys.begin(); key != keys.end(); ++key)
     {
         //Simple get requests
-        std::string str=*key;
-        std::transform(str.begin(), str.end(), str.begin(), ::toupper);
 
-        if (partial_match( "CAMERA", str ) )
+        if ( *key == "c" || *key == "camera" )
         {
             //getCameraNumber returns results immediately as a Response.
             LLPuppetModule::instance().getCameraNumber_(data);
         }
-        else if (partial_match( "SKELETON", str ) )
+        else if ( *key == "s" || *key == "skeleton" )
         {
             //send_skeleton
             LLPuppetModule::instance().send_skeleton(data);
@@ -224,7 +209,7 @@ void processJoints(const LLSD& data, bool use_ik)
             v.mV[VY] = value.get(1).asReal();
             v.mV[VZ] = value.get(2).asReal();
 
-            if (partial_match( "ROTATION", param_name ) || partial_match("LOCAL_ROTATION", param_name))
+            if ( param_name == "r" || param_name == "lr" || param_name == "rotation" || param_name == "local_rotation" )
             {
                 // Packed quaternions have the imaginary part (e.g. xyz)
                 LLQuaternion q;
@@ -244,15 +229,15 @@ void processJoints(const LLSD& data, bool use_ik)
                 {
                     q.mQ[VW] = sqrtf(1.0f - imaginary_length_squared);
                 }
-                LLPuppetJointEvent::E_REFERENCE_FRAME ref_frame = partial_match("LOCAL_ROTATION", param_name) ?
+                LLPuppetJointEvent::E_REFERENCE_FRAME ref_frame = ( param_name == "lr" || param_name == "local_rotation") ?
                     LLPuppetJointEvent::PARENT_FRAME : LLPuppetJointEvent::ROOT_FRAME;
                 joint_event.setRotation(q, ref_frame);
             }
-            else if (partial_match( "POSITION", param_name ))
+            else if (param_name == "p" || param_name == "position" )
             {
                 joint_event.setPosition(v);
             }
-            else if (partial_match( "SCALE", param_name ))
+            else if (param_name == "s" || param_name == "scale")
             {
                 joint_event.setScale(v);
             }
@@ -285,18 +270,14 @@ void processSetRequest(const LLSD& data)
     for ( std::vector<std::string>::iterator key = keys.begin(); key != keys.end(); ++key)
     {
         //Simple get requests
-        std::string str=*key;
-        std::transform(str.begin(), str.end(), str.begin(), ::toupper);
-        
-        if (partial_match( "CAMERA", str ) )
+        if (*key == "c" || *key == "camera")
         {
         }
-        else if (partial_match( "JOINT_STATE", str ) )
+        else if (*key == "j" || *key == "joint_state")
         {
             processJoints(data["set"][*key], false);
         }
-        else if (partial_match( "INVERSE_KINEMATICS", str )
-                 || partial_match( "IK", str))
+        else if (*key == "k" || *key == "i" || *key == "ik" || *key == "inverse_kinematics" )
         {
             processJoints(data["set"][*key], true);
         }
