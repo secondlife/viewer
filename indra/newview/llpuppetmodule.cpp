@@ -53,65 +53,22 @@
 static const std::string current_camera_setting("puppetry_current_camera");
 static const std::string puppetry_parts_setting("puppetry_enabled_parts");
 
-std::vector<std::string> getKeyKeys(const LLSD& data, std::string key)
-{
-    //For a flexible format, let's get key names from a LLSD
-    //whether they're a string, array, or map and return them
-    //as a list of strings.
-    
-    std::vector<std::string> result;
-
-    if (!data.isMap())
-    {
-        LL_WARNS("Puppet") << "Received invalid non-map data" << LL_ENDL;
-        return result;
-    }
-
-    LL_DEBUGS("LLLeapData") << "puppet data: " << data << LL_ENDL;
-    
-    if (!data.has(key))
-    {
-        LL_WARNS("Puppet") << key << " message did not contain a " << key << " key." << LL_ENDL;
-        return result;
-    }
-        
-    if (data[key].isString())
-    {
-        result.push_back(data[key].asString());
-    }
-    else if (data[key].isArray() && data[key][0].isString())
-    {
-        for (LLSD::array_const_iterator it = data[key].beginArray(); it != data[key].endArray(); ++it)
-        {
-            result.push_back(it->asString());
-        }
-    }
-    else if (data[key].isMap())
-    {
-        for (LLSD::map_const_iterator it = data[key].beginMap(); it != data[key].endMap(); ++it)
-        {
-            result.push_back(it->first);
-        }
-    }
-    return result;
-}
-
 void processGetRequest(const LLSD& data)
 {
     // Puppetry GET requests are processed here.
     // Expected data format:
     // data = 'command'
     
-    std::vector<std::string> keys;
-    keys = getKeyKeys(data, "get");
-    
-    if ( keys.size() == 0 )
+    std::string verb="get";
+    LL_DEBUGS("LLLeapData") << "puppet data: " << data << LL_ENDL;
+
+    if (!data.isMap() || !data.has(verb) || !data[verb].isArray() )
     {
-        LL_WARNS("Puppet") << "get did not contain string, array of strings, or map." << LL_ENDL;
+        LL_WARNS("Puppet") << "Badly formatted get request" << LL_ENDL;
         return;
     }
     
-    for ( auto key = keys.begin(); key != keys.end(); ++key)
+    for ( auto key = data[verb].beginArray(); key != data[verb].endArray(); ++key)
     {
         //Simple get requests
 
@@ -130,6 +87,12 @@ void processGetRequest(const LLSD& data)
 
 void processJoints(const LLSD& data, bool use_ik)
 {
+    if (!data.isMap())
+    {
+        LL_WARNS("Puppet") << "Joint data is not a map" << LL_ENDL;
+        return;
+    }
+    
     if (!isAgentAvatarValid())
     {
         LL_WARNS("Puppet") << "Agent avatar is not valid" << LL_ENDL;
@@ -259,15 +222,16 @@ void processSetRequest(const LLSD& data)
     // Expected data format:
     // data = 'command'
 
-    std::vector<std::string> keys = getKeyKeys(data,"set");
-    
-    if ( keys.size() == 0 )
+    std::string verb="set";
+    LL_DEBUGS("LLLeapData") << "puppet data: " << data << LL_ENDL;
+
+    if (!data.isMap() || !data.has(verb) || !data[verb].isArray() )
     {
-        LL_WARNS("Puppet") << "get did not contain string, array of strings, or map." << LL_ENDL;
+        LL_WARNS("Puppet") << "Badly formatted get request" << LL_ENDL;
         return;
     }
     
-    for ( std::vector<std::string>::iterator key = keys.begin(); key != keys.end(); ++key)
+    for ( auto key = data[verb].beginArray(); key != data[verb].endArray(); ++key)
     {
         //Simple get requests
         if (*key == "c" || *key == "camera")
@@ -275,11 +239,11 @@ void processSetRequest(const LLSD& data)
         }
         else if (*key == "j" || *key == "joint_state")
         {
-            processJoints(data["set"][*key], false);
+            processJoints(data[verb][key->asString()], false);
         }
         else if (*key == "k" || *key == "i" || *key == "ik" || *key == "inverse_kinematics" )
         {
-            processJoints(data["set"][*key], true);
+            processJoints(data[verb][key->asString()], true);
         }
     }
     return;
