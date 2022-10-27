@@ -118,6 +118,7 @@ public:
     void setRoughnessFactor(F32 roughness);
     void setAlphaMode(S32 mode);
     void setDoubleSided(bool double_sided);
+
     void setTextureOffset(TextureInfo texture_info, const LLVector2& offset);
     void setTextureScale(TextureInfo texture_info, const LLVector2& scale);
     void setTextureRotation(TextureInfo texture_info, float rotation);
@@ -189,5 +190,12 @@ public:
 
     void applyOverride(const LLGLTFMaterial& override_mat);
 
+private:
+
+    template<typename T>
+    void setFromTexture(const tinygltf::Model& model, const T& texture_info, TextureInfo texture_info_id, LLUUID& texture_id_out);
+
+    template<typename T>
+    void writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, const LLUUID& texture_id, bool is_override, const LLUUID& base_texture_id) const;
 };
 
