@@ -227,6 +227,8 @@ LLMaterialEditor::LLMaterialEditor(const LLSD& key)
     {
         mAssetID = item->getAssetUUID();
     }
+    // if this is a 'live editor' instance, it uses live overrides
+    mIsOverride = key.asString() == LIVE_MATERIAL_EDITOR_KEY;
 }
 
 void LLMaterialEditor::setObjectID(const LLUUID& object_id)
@@ -293,7 +295,7 @@ BOOL LLMaterialEditor::postBuild()
     // Emissive
     childSetCommitCallback("emissive color", changes_callback, (void*)&MATERIAL_EMISIVE_COLOR_DIRTY);
 
-    childSetVisible("unsaved_changes", mUnsavedChanges);
+    childSetVisible("unsaved_changes", mUnsavedChanges && !mIsOverride);
 
     getChild<LLUICtrl>("total_upload_fee")->setTextArg("[FEE]", llformat("%d", 0));
 
@@ -527,7 +529,8 @@ void LLMaterialEditor::resetUnsavedChanges()
 void LLMaterialEditor::markChangesUnsaved(U32 dirty_flag)
 {
     mUnsavedChanges |= dirty_flag;
-    childSetVisible("unsaved_changes", mUnsavedChanges);
+    // at the moment live editing (mIsOverride) applies everything 'live'
+    childSetVisible("unsaved_changes", mUnsavedChanges && !mIsOverride);
 
     if (mUnsavedChanges)
     {
@@ -1552,7 +1555,6 @@ void LLMaterialEditor::loadLive()
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", floater_key);
     if (me)
     {
-        me->mIsOverride = true;
         me->setFromSelection();
         me->setTitle(me->getString("material_override_title"));
         me->childSetVisible("save", false);
@@ -1576,7 +1578,6 @@ void LLMaterialEditor::loadObjectSave()
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
     if (me && me->setFromSelection())
     {
-        me->mIsOverride = false;
         me->childSetVisible("save", false);
         me->mMaterialName = LLTrans::getString("New Material");
         me->setTitle(me->mMaterialName);
