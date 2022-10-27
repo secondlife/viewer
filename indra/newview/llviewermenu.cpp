@@ -2809,37 +2809,39 @@ void handle_object_open()
 	LLFloaterReg::showInstance("openobject");
 }
 
-struct LLSelectedTEGetmatIdAndPermissions : public LLSelectedTEGetFunctor<LLUUID>
+struct LLSelectedTEGetmatIdAndPermissions : public LLSelectedTEFunctor
 {
     LLSelectedTEGetmatIdAndPermissions() : mCanCopy(true), mCanModify(true), mCanTransfer(true) {}
-    LLUUID get(LLViewerObject* object, S32 te_index)
+    bool apply(LLViewerObject* objectp, S32 te_index)
     {
-        mCanCopy &= (bool)object->permCopy();
-        mCanTransfer &= (bool)object->permTransfer();
-        mCanModify &= (bool)object->permModify();
-        // return true if all ids are identical
-        return object->getRenderMaterialID(te_index);
+        mCanCopy &= (bool)objectp->permCopy();
+        mCanTransfer &= (bool)objectp->permTransfer();
+        mCanModify &= (bool)objectp->permModify();
+        LLUUID mat_id = objectp->getRenderMaterialID(te_index);
+        if (mat_id.notNull())
+        {
+            mMaterialId = mat_id;
+        }
+        return true;
     }
     bool mCanCopy;
     bool mCanModify;
     bool mCanTransfer;
+    LLUUID mMaterialId;
 };
 
 bool enable_object_edit_gltf_material()
 {
     LLSelectedTEGetmatIdAndPermissions func;
-    LLUUID mat_id;
-    LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, mat_id);
-
-    return func.mCanModify;
+    LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
+    return func.mCanModify && func.mMaterialId.notNull();
 }
 
 bool enable_object_save_gltf_material()
 {
     LLSelectedTEGetmatIdAndPermissions func;
-    LLUUID mat_id;
-    LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, mat_id);
-    return func.mCanCopy && mat_id.notNull();
+    LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
+    return func.mCanCopy && func.mMaterialId.notNull();
 }
 
 bool enable_object_open()
