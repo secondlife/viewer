@@ -512,7 +512,7 @@ void LLDrawPoolFullbrightAlphaMask::renderPostDeferred(S32 pass)
     LLGLSLShader* shader = nullptr;
     if (LLPipeline::sRenderingHUDs)
     {
-        shader = &gObjectFullbrightAlphaMaskProgram;
+        shader = &gDeferredFullbrightAlphaMaskProgram;
     }
     else if (LLPipeline::sRenderDeferred)
     {
