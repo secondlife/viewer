@@ -53,35 +53,46 @@
 static const std::string current_camera_setting("puppetry_current_camera");
 static const std::string puppetry_parts_setting("puppetry_enabled_parts");
 
-// static
-void processLeapData(const LLSD& data)
+void processGetRequest(const LLSD& data)
 {
-    // Data arrives through a LEAP child process which is specified via
-    // option to the secondlife viewer.  It is most likely started via the UI.
-    // It also can be started on the command line like this:
-    //
-    //   '--leap "python /path/to/script.py"'
-    //
-    // The viewer will launch the script which is expected to write messages
-    // to its stdout.  Each message is converted into a proper LLEvent on the
-    // "puppetry" LLEventPump, and an LLEventListener submits their 'data'
-    // payloads to this method.
-    // Note: don't confuse the more general LLEvent class with the specific
-    // LLPuppetJointEvent and LLPuppetEvent classes: they do not share ancestry.
-    //
+    // Puppetry GET requests are processed here.
     // Expected data format:
-    //   data = {'command':'move','joint_name':{'param_name':[r1.23,r4.56,r7.89]}, ...}
-    // Where:
-    //   joint_name = e.g. mWristLeft
-    //   param_name = rot | pos | scale | eff
-    //   param value = array of 3 floats [x,y,z]
+    // data = 'command'
+    
+    std::string verb="get";
+    LL_DEBUGS("LLLeapData") << "puppet data: " << data << LL_ENDL;
 
-    if (!data.isMap())
+    if (!data.isMap() || !data.has(verb) || !data[verb].isArray() )
     {
-        LL_WARNS("Puppet") << "Received invalid non-map data" << LL_ENDL;
+        LL_WARNS("Puppet") << "Badly formatted get request" << LL_ENDL;
         return;
     }
+    
+    for ( auto key = data[verb].beginArray(); key != data[verb].endArray(); ++key)
+    {
+        //Simple get requests
 
+        if ( *key == "c" || *key == "camera" )
+        {
+            //getCameraNumber returns results immediately as a Response.
+            LLPuppetModule::instance().getCameraNumber_(data);
+        }
+        else if ( *key == "s" || *key == "skeleton" )
+        {
+            //send_skeleton
+            LLPuppetModule::instance().send_skeleton(data);
+        }
+    }
+}
+
+void processJoints(const LLSD& data, bool use_ik)
+{
+    if (!data.isMap())
+    {
+        LL_WARNS("Puppet") << "Joint data is not a map" << LL_ENDL;
+        return;
+    }
+    
     if (!isAgentAvatarValid())
     {
         LL_WARNS("Puppet") << "Agent avatar is not valid" << LL_ENDL;
@@ -108,7 +119,7 @@ void processLeapData(const LLSD& data)
             joint_itr != data.endMap();
             ++joint_itr)
     {
-        const std::string& joint_name = joint_itr->first;
+        std::string joint_name = joint_itr->first;
         if (joint_name == "time")
         {   // Actually shouldn't get 'time', but it's added when writing data to a file.
             continue;       // Ignore it if it sneaks in here (TBD - is it useful downstream?)
@@ -117,8 +128,22 @@ void processLeapData(const LLSD& data)
         LLJoint* joint = voa->getJoint(joint_name);
         if (!joint)
         {
-            continue;
+            std::string::const_iterator it = joint_name.begin();
+            if (it != joint_name.end() && std::isdigit(*it))
+            {
+                //joint name not found but started with a digit, try it as a joint_id.
+                joint = voa->getSkeletonJoint(std::stoi(joint_name));
+                if (!joint)
+                {
+                    continue;   //Better luck next joint
+                }
+                else
+                {
+                    joint_name = joint->getName();
+                }
+            }
         }
+        
         if (joint_name == "mHead")
         {   // If the head is animated, stop looking at the mouse
             LLPuppetModule::instance().disableHeadMotion();
@@ -139,20 +164,18 @@ void processLeapData(const LLSD& data)
                 ++param_itr)
         {
             const LLSD& value = param_itr->second;
-            const std::string& param_name = param_itr->first;
-            if (!value.isArray() || value.size() != 3)
+            std::string param_name = param_itr->first;
+
+            if (use_ik)
             {
-                if (param_name == "no_constraint" && value.asBoolean())
-                {
-                    joint_event.disableConstraint();
-                }
-                continue;
+                joint_event.useIK();
             }
+            
             v.mV[VX] = value.get(0).asReal();
             v.mV[VY] = value.get(1).asReal();
             v.mV[VZ] = value.get(2).asReal();
 
-            if (param_name == "rot" || param_name == "local_rot")
+            if ( param_name == "r" || param_name == "rotation" )
             {
                 // Packed quaternions have the imaginary part (e.g. xyz)
                 LLQuaternion q;
@@ -172,22 +195,17 @@ void processLeapData(const LLSD& data)
                 {
                     q.mQ[VW] = sqrtf(1.0f - imaginary_length_squared);
                 }
-                LLPuppetJointEvent::E_REFERENCE_FRAME ref_frame = param_name == "local_rot" ?
-                    LLPuppetJointEvent::PARENT_FRAME : LLPuppetJointEvent::ROOT_FRAME;
+                LLPuppetJointEvent::E_REFERENCE_FRAME ref_frame = use_ik ?
+                    LLPuppetJointEvent::ROOT_FRAME : LLPuppetJointEvent::PARENT_FRAME;
                 joint_event.setRotation(q, ref_frame);
             }
-            else if (param_name == "pos")
+            else if (param_name == "p" || param_name == "position" )
             {
                 joint_event.setPosition(v);
             }
-            else if (param_name == "scale")
+            else if (param_name == "s" || param_name == "scale")
             {
                 joint_event.setScale(v);
-            }
-            // LEGACY support for "eff" -- please use "pos" instead
-            else if (param_name == "eff")
-            {
-                joint_event.setPosition(v);
             }
         }
         if (!joint_event.isEmpty())
@@ -196,9 +214,43 @@ void processLeapData(const LLSD& data)
             {
                 gAgentAvatarp->startMotion(ANIM_AGENT_PUPPET_MOTION);
             }
-            std::static_pointer_cast<LLPuppetMotion>(motion)->addExpressionEvent(joint_event);
+            std::static_pointer_cast<LLPuppetMotion>(motion)->addExpressionEvent(joint_event, use_ik);
         }
     }
+}
+
+void processSetRequest(const LLSD& data)
+{
+    // Puppetry SET requests are processed here.
+    // Expected data format:
+    // data = 'command'
+
+    std::string verb="set";
+    LL_DEBUGS("LLLeapData") << "puppet data: " << data << LL_ENDL;
+
+    if (!data.isMap() || !data.has(verb) || !data[verb].isMap() )
+    {
+        LL_WARNS("Puppet") << "Badly formatted get request" << LL_ENDL;
+        return;
+    }
+    
+    for ( auto it = data[verb].beginMap(); it != data[verb].endMap(); ++it)
+    {
+        //Simple get requests
+        std::string key = it->first;
+        if (key == "c" || key == "camera")
+        {
+        }
+        else if (key == "j" || key == "joint_state")
+        {
+            processJoints(it->second, false);
+        }
+        else if (key == "i" || key == "inverse_kinematics" )
+        {
+            processJoints(it->second, true);
+        }
+    }
+    return;
 }
 
 LLPuppetModule::LLPuppetModule() :
@@ -212,28 +264,30 @@ LLPuppetModule::LLPuppetModule() :
     gSavedSettings.declareS32(current_camera_setting, 0, "Camera device number, 0, 1, 2 etc");
     gSavedSettings.declareS32(puppetry_parts_setting, PPM_ALL, "Enabled puppetry body parts mask");
 
-    add("move",
-        "Send puppet movement data\n"
-        "Expected data format:\n"
-        "  {'joint_name':{'param_name':[r1.23,r4.56,r7.89]}, ...}\n"
-        "Where:\n"
-        "  joint_name = e.g. mWristLeft\n"
-        "  param_name = rot | pos | scale | eff\n"
-        "  param value = array of 3 floats [x,y,z]\n"
-        "No response is generated - invalid data blob is ignored",
-        &processLeapData);
-    add("get_camera",
-        "Request camera number: returns [\"camera_id\"]",
-        &LLPuppetModule::getCameraNumber_);
-    add("set_camera",
-        "Set camera number [\"camera_id\"]",
-        &LLPuppetModule::setCameraNumber_,
-        [this](){ return this; },   // instance getter
-        llsd::array("camera_id"));  // argument names
-    add("send_skeleton",
-        "Request skeleton data: returns dict",
-        &LLPuppetModule::send_skeleton);
+    //This section defines the external API targets for this event handler, created with the add routine.
+    add("get",
+        "Puppetry plugin module has requested information from the viewer\n"
+        "Requested data may be a simple string.  EX:\n"
+        "  camera_id\n"
+        "  skeleton\n"
+        "Or a key and dict"
+        "Response will be a set issued to the plugin module. EX:\n"
+        "  camera_id: <integer>\n"
+        "  skeleton: <llsd>\n"
+        "multiple items may be requested in a single get",
+        &processGetRequest);
+    add("set",
+        "Puppetry plugin module request to apply settings to the viewer.\n"
+        "Set data is a structure following the form\n"
+        " {'<to_be_set>':<value|structure>}\n"
+        "EX: \n"
+        "  camera_id: <integer>\n"
+        "  joint: {<name>:inverse_kinematics:position[<float>,<float>,<float>]}\n"
+        "A set may trigger a set to be issued back to the plugin.\n"
+        "multiple pieces of data may be set in a single set.",
+        &processSetRequest);
 
+    //This function defines viewer-internal API endpoints for this event handler.
     mPlugin = LLEventPumps::instance().obtain("SkeletonUpdate").listen(
                     "LLPuppetModule",
                     [](const LLSD& unused)

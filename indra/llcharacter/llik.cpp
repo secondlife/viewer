@@ -1281,7 +1281,7 @@ void LLIK::Joint::clearAllFlags()
 void LLIK::Joint::lockLocalRot(const LLQuaternion& local_rot)
 {
     mLocalRot = local_rot;
-    if (mConstraint && !(mTarget && mTarget->hasDisabledConstraint()))
+    if (mConstraint && !(mTarget && !mTarget->usesIK()))
     {
         mConstraint->enforce(*this);
     }
@@ -1298,7 +1298,7 @@ bool LLIK::Joint::enforceConstraint()
         // have been optimistically modified but mLocalRot was not.
         return true;
     }
-    if (mConstraint && !(mTarget && mTarget->hasDisabledConstraint()))
+    if (mConstraint && !(mTarget && !mTarget->usesIK()))
     {
         return mConstraint->enforce(*this);
     }
@@ -1666,7 +1666,7 @@ void LLIK::Joint::untwist()
     {
         // compute new_local_rot
         LLQuaternion new_local_rot = LLQuaternion::DEFAULT;
-        if (mConstraint && !(mTarget && mTarget->hasDisabledConstraint()))
+        if (mConstraint && !(mTarget && !mTarget->usesIK()))
         {
             new_local_rot = mConstraint->minimizeTwist(mLocalRot);
         }
