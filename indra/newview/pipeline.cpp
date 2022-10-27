@@ -6150,7 +6150,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 				
 		// FIND NEW LIGHTS THAT ARE IN RANGE
 		light_set_t new_nearby_lights;
-		for (LLDrawable::drawable_set_t::iterator iter = mLights.begin();
+		for (LLDrawable::ordered_drawable_set_t::iterator iter = mLights.begin();
 			 iter != mLights.end(); ++iter)
 		{
 			LLDrawable* drawable = *iter;

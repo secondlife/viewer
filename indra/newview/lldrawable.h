@@ -42,6 +42,7 @@
 #include "llrect.h"
 #include "llappviewer.h" // for gFrameTimeSeconds
 #include "llvieweroctree.h"
+#include <unordered_set>
 
 class LLCamera;
 class LLDrawPool;
@@ -223,7 +224,8 @@ public:
 	friend class LLDrawPool;
 	friend class LLSpatialBridge;
 	
-	typedef std::set<LLPointer<LLDrawable> > drawable_set_t;
+	typedef std::unordered_set<LLPointer<LLDrawable> > drawable_set_t;
+    typedef std::set<LLPointer<LLDrawable> > ordered_drawable_set_t;
 	typedef std::vector<LLPointer<LLDrawable> > drawable_vector_t;
 	typedef std::list<LLPointer<LLDrawable> > drawable_list_t;
 	typedef std::queue<LLPointer<LLDrawable> > drawable_queue_t;

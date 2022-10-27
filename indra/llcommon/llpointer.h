@@ -340,4 +340,28 @@ private:
 	bool mStayUnique;
 };
 
+
+// boost hash adapter
+template <class Type>
+struct boost::hash<LLPointer<Type>>
+{
+    typedef LLPointer<Type> argument_type;
+    typedef std::size_t result_type;
+    result_type operator()(argument_type const& s) const
+    {
+        return (std::size_t) s.get();
+    }
+};
+
+// Adapt boost hash to std hash
+namespace std
+{
+    template<class Type> struct hash<LLPointer<Type>>
+    {
+        std::size_t operator()(LLPointer<Type> const& s) const noexcept
+        {
+            return boost::hash<LLPointer<Type>>()(s);
+        }
+    };
+}
 #endif

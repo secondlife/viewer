@@ -798,7 +798,7 @@ protected:
 	};
 	typedef std::set< Light, Light::compare > light_set_t;
 	
-	LLDrawable::drawable_set_t		mLights;
+	LLDrawable::ordered_drawable_set_t	mLights;
 	light_set_t						mNearbyLights; // lights near camera
 	LLColor4						mHWLightColors[8];
 	

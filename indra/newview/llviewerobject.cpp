@@ -7234,22 +7234,11 @@ void LLViewerObject::setRenderMaterialIDs(const LLRenderMaterialParams* material
 {
     if (!local_origin)
     {
-        const S32 num_tes = llmin((S32)getNumTEs(), (S32)getNumFaces()); // avatars have TEs but no faces
-        for (S32 te = 0; te < num_tes; ++te)
+        for (S32 te = 0; te < getNumTEs(); ++te)
         {
             const LLUUID& id = material_params ? material_params->getMaterial(te) : LLUUID::null;
-            if (id.notNull())
-            {
-                getTE(te)->setGLTFMaterial(gGLTFMaterialList.getMaterial(id));
-                setHasRenderMaterialParams(true);
-            }
-            else
-            {
-                getTE(te)->setGLTFMaterial(nullptr);
-            }
+            setRenderMaterialID(te, id, false);
         }
-        faceMappingChanged();
-        gPipeline.markTextured(mDrawable);
     }
 }
 
