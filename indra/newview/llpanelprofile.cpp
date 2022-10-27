@@ -1055,7 +1055,6 @@ void LLPanelProfileSecondLife::resetData()
 
 void LLPanelProfileSecondLife::processProfileProperties(const LLAvatarData* avatar_data)
 {
-    LLUUID avatar_id = getAvatarId();
     const LLRelationship* relationship = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
     if ((relationship != NULL || gAgent.isGodlike()) && !getSelfProfile())
     {

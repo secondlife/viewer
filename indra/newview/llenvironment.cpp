@@ -684,7 +684,6 @@ namespace
             if (!injection->mBlendIn)
                 mix = 1.0 - mix;
             stringset_t dummy;
-            LLUUID cloud_noise_id = getCloudNoiseTextureId();
             F64 value = this->mSettings[injection->mKeyName].asReal();
             if (this->getCloudNoiseTextureId().isNull())
             {

@@ -1307,7 +1307,6 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
                                                           TRUE /* pick_transparent */, 
                                                           FALSE /* pick_rigged */);
 
-					LLUUID object_id = pick_info.getObjectID();
 					S32 object_face = pick_info.mObjectFace;
 					std::string url = data;
 

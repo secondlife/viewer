@@ -7651,7 +7651,6 @@ void handle_selected_texture_info(void*)
    		map_t::iterator it;
    		for (it = faces_per_texture.begin(); it != faces_per_texture.end(); ++it)
    		{
-   			LLUUID image_id = it->first;
    			U8 te = it->second[0];
    			LLViewerTexture* img = node->getObject()->getTEImage(te);
    			S32 height = img->getHeight();

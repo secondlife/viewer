@@ -2711,7 +2711,6 @@ void LLInventoryModel::buildParentChildMap()
 			// some accounts has pbroken inventory root folders
 			
 			std::string name = "My Inventory";
-			LLUUID prev_root_id = mRootFolderID;
 			for (parent_cat_map_t::const_iterator it = mParentChildCategoryTree.begin(),
 					 it_end = mParentChildCategoryTree.end(); it != it_end; ++it)
 			{
