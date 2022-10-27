@@ -252,6 +252,7 @@
              width="64" />
             <texture_picker
              can_apply_immediately="true"
+             allow_no_texture="true"
              follows="left|top"
              height="80"
              label="PBR       "
