@@ -119,7 +119,7 @@ namespace
                         {
                             S32 side = sides[i].asInteger();
                             // flag this side to not be nulled out later
-                            side_set.insert(sides);
+                            side_set.insert(sides[i]);
 
                             if (!obj || !obj->setTEGLTFMaterialOverride(side, override_data))
                             {
