@@ -65,7 +65,9 @@ const std::string MATERIAL_NORMAL_DEFAULT_NAME = "Normal";
 const std::string MATERIAL_METALLIC_DEFAULT_NAME = "Metallic Roughness";
 const std::string MATERIAL_EMISSIVE_DEFAULT_NAME = "Emissive";
 
-const LLUUID LIVE_MATERIAL_EDITOR_KEY("6cf97162-8b68-49eb-b627-79886c9fd17d");
+// Don't use ids here, LLPreview will attempt to use it as an inventory item
+static const std::string LIVE_MATERIAL_EDITOR_KEY = "Live Editor";
+static const std::string SAVE_LIVE_MATERIAL_KEY = "Save Material Editor";
 
 // Dirty flags
 static const U32 MATERIAL_BASE_COLOR_DIRTY = 0x1 << 0;
@@ -1169,6 +1171,12 @@ void LLMaterialEditor::finishSaveAs(
 
 void LLMaterialEditor::refreshFromInventory(const LLUUID& new_item_id)
 {
+    if (mIsOverride)
+    {
+        // refreshFromInventory shouldn't be called for overrides,
+        // but just in case.
+        return;
+    }
     if (new_item_id.notNull())
     {
         mItemUUID = new_item_id;
@@ -1536,11 +1544,12 @@ void LLMaterialEditor::saveLiveValues()
 
 void LLMaterialEditor::loadLive()
 {
-    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", LLSD(LIVE_MATERIAL_EDITOR_KEY));
+    const LLSD floater_key(LIVE_MATERIAL_EDITOR_KEY);
+    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", floater_key);
     if (me)
     {
-        me->setFromSelection();
         me->mIsOverride = true;
+        me->setFromSelection();
         me->setTitle(me->getString("material_override_title"));
         me->childSetVisible("save", false);
         me->childSetVisible("save_as", false);
@@ -1553,19 +1562,20 @@ void LLMaterialEditor::loadLive()
         // Collect ids to be able to revert overrides on cancel.
         me->saveLiveValues();
 
-        me->openFloater();
+        me->openFloater(floater_key);
         me->setFocus(TRUE);
     }
 }
 
 void LLMaterialEditor::loadObjectSave()
 {
-    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", LLSD(LIVE_MATERIAL_EDITOR_KEY));
-    if (me->setFromSelection())
+    const LLSD floater_key(SAVE_LIVE_MATERIAL_KEY);
+    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", floater_key);
+    if (me && me->setFromSelection())
     {
         me->mIsOverride = false;
         me->childSetVisible("save", false);
-        me->openFloater();
+        me->openFloater(floater_key);
         me->setFocus(TRUE);
     }
 }
@@ -2226,10 +2236,13 @@ bool LLMaterialEditor::setFromSelection()
         setFromGLTFMaterial(&blank_mat);
     }
 
-    mBaseColorTextureCtrl->setTentative(!identical);
-    mMetallicTextureCtrl->setTentative(!identical);
-    mEmissiveTextureCtrl->setTentative(!identical);
-    mNormalTextureCtrl->setTentative(!identical);
+    if (mIsOverride)
+    {
+        mBaseColorTextureCtrl->setTentative(!identical);
+        mMetallicTextureCtrl->setTentative(!identical);
+        mEmissiveTextureCtrl->setTentative(!identical);
+        mNormalTextureCtrl->setTentative(!identical);
+    }
 
     return mat.notNull();
 }
