@@ -67,7 +67,6 @@ const std::string MATERIAL_EMISSIVE_DEFAULT_NAME = "Emissive";
 
 // Don't use ids here, LLPreview will attempt to use it as an inventory item
 static const std::string LIVE_MATERIAL_EDITOR_KEY = "Live Editor";
-static const std::string SAVE_LIVE_MATERIAL_KEY = "Save Material Editor";
 
 // Dirty flags
 static const U32 MATERIAL_BASE_COLOR_DIRTY = 0x1 << 0;
@@ -1507,10 +1506,12 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
 }
 void LLMaterialEditor::onSelectionChanged()
 {
+    // This won't get deletion or deselectAll()
+    // Might need to handle that separately
     mUnsavedChanges = 0;
     clearTextures();
     setFromSelection();
-    saveLiveValues();
+    // saveLiveValues(); todo
 }
 
 void LLMaterialEditor::saveLiveValues()
@@ -1532,6 +1533,8 @@ void LLMaterialEditor::saveLiveValues()
             S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
             for (U8 te = 0; te < num_tes; te++)
             {
+                // Todo: fix this, overrides don't care about ids,
+                // we will have to save actual values or materials
                 LLUUID mat_id = objectp->getRenderMaterialID(te);
                 mEditor->mObjectOverridesSavedValues[local_id].push_back(mat_id);
             }
@@ -1544,6 +1547,7 @@ void LLMaterialEditor::saveLiveValues()
 
 void LLMaterialEditor::loadLive()
 {
+    // Allow only one 'live' instance
     const LLSD floater_key(LIVE_MATERIAL_EDITOR_KEY);
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", floater_key);
     if (me)
@@ -1569,13 +1573,14 @@ void LLMaterialEditor::loadLive()
 
 void LLMaterialEditor::loadObjectSave()
 {
-    const LLSD floater_key(SAVE_LIVE_MATERIAL_KEY);
-    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", floater_key);
+    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
     if (me && me->setFromSelection())
     {
         me->mIsOverride = false;
         me->childSetVisible("save", false);
-        me->openFloater(floater_key);
+        me->mMaterialName = LLTrans::getString("New Material");
+        me->setTitle(me->mMaterialName);
+        me->openFloater();
         me->setFocus(TRUE);
     }
 }
@@ -2053,12 +2058,14 @@ public:
 
             if (material.isNull())
             {
-                material = new LLGLTFMaterial();
+                // overrides are not supposed to work or apply if
+                // there is no base material to work from
+                return false;
             }
-            else
-            {
-                material = new LLGLTFMaterial(*material);
-            }
+
+            // make a copy to not invalidate existing
+            // material for multiple objects
+            material = new LLGLTFMaterial(*material);
 
             // Override object's values with values from editor where appropriate
             if (mEditor->getUnsavedChangesFlags() & MATERIAL_BASE_COLOR_DIRTY)
@@ -2206,45 +2213,114 @@ void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
 
 bool LLMaterialEditor::setFromSelection()
 {
-    struct LLSelectedTEGetGLTFRenderMaterial : public LLSelectedTEGetFunctor<LLPointer<LLGLTFMaterial> >
+    struct LLSelectedTEGetmatIdAndPermissions : public LLSelectedTEFunctor
     {
-        LLPointer<LLGLTFMaterial> get(LLViewerObject* objectp, S32 te_index)
+        LLSelectedTEGetmatIdAndPermissions(bool for_override)
+            : mIsOverride(for_override)
+            , mIdenticalTexColor(true)
+            , mIdenticalTexMetal(true)
+            , mIdenticalTexEmissive(true)
+            , mIdenticalTexNormal(true)
+            , mFirst(true)
+        {}
+
+        bool apply(LLViewerObject* objectp, S32 te_index)
         {
             if (!objectp)
             {
-                return nullptr;
+                return false;
             }
+            LLUUID mat_id = objectp->getRenderMaterialID(te_index);
+            bool can_use = mIsOverride ? objectp->permModify() : objectp->permCopy();
             LLTextureEntry *tep = objectp->getTE(te_index);
-            if (!tep)
+            // We might want to disable this entirely if at least
+            // something in selection is no-copy or no modify
+            // or has no base material
+            if (can_use && tep && mat_id.notNull())
             {
-                return nullptr;
+                LLPointer<LLGLTFMaterial> mat = tep->getGLTFRenderMaterial();
+                LLUUID tex_color_id;
+                LLUUID tex_metal_id;
+                LLUUID tex_emissive_id;
+                LLUUID tex_normal_id;
+                llassert(mat.notNull()); // by this point shouldn't be null
+                if (mat.notNull())
+                {
+                    tex_color_id = mat->mBaseColorId;
+                    tex_metal_id = mat->mMetallicRoughnessId;
+                    tex_emissive_id = mat->mEmissiveId;
+                    tex_normal_id = mat->mNormalId;
+                }
+                if (mFirst)
+                {
+                    mMaterial = mat;
+                    mTexColorId = tex_color_id;
+                    mTexMetalId = tex_metal_id;
+                    mTexEmissiveId = tex_emissive_id;
+                    mTexNormalId = tex_normal_id;
+                    mFirst = false;
+                }
+                else
+                {
+                    if (mTexColorId != tex_color_id)
+                    {
+                        mIdenticalTexColor = false;
+                    }
+                    if (mTexMetalId != tex_metal_id)
+                    {
+                        mIdenticalTexMetal = false;
+                    }
+                    if (mTexEmissiveId != tex_emissive_id)
+                    {
+                        mIdenticalTexEmissive = false;
+                    }
+                    if (mTexNormalId != tex_normal_id)
+                    {
+                        mIdenticalTexNormal = false;
+                    }
+                }
             }
-            return tep->getGLTFRenderMaterial(); // present user with combined override + asset
+            return true;
         }
-    } func;
+        bool mIsOverride;
+        bool mIdenticalTexColor;
+        bool mIdenticalTexMetal;
+        bool mIdenticalTexEmissive;
+        bool mIdenticalTexNormal;
+        bool mFirst;
+        LLUUID mTexColorId;
+        LLUUID mTexMetalId;
+        LLUUID mTexEmissiveId;
+        LLUUID mTexNormalId;
+        LLPointer<LLGLTFMaterial> mMaterial;
+    } func(mIsOverride);
 
-    LLPointer<LLGLTFMaterial> mat;
-    bool identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, mat);
-    if (mat.notNull())
+    LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
+    if (func.mMaterial.notNull())
     {
-        setFromGLTFMaterial(mat);
+        setFromGLTFMaterial(func.mMaterial);
+        setEnableEditing(true);
     }
     else
     {
         // pick defaults from a blank material;
         LLGLTFMaterial blank_mat;
         setFromGLTFMaterial(&blank_mat);
+        if (mIsOverride)
+        {
+            setEnableEditing(false);
+        }
     }
 
     if (mIsOverride)
     {
-        mBaseColorTextureCtrl->setTentative(!identical);
-        mMetallicTextureCtrl->setTentative(!identical);
-        mEmissiveTextureCtrl->setTentative(!identical);
-        mNormalTextureCtrl->setTentative(!identical);
+        mBaseColorTextureCtrl->setTentative(!func.mIdenticalTexColor);
+        mMetallicTextureCtrl->setTentative(!func.mIdenticalTexMetal);
+        mEmissiveTextureCtrl->setTentative(!func.mIdenticalTexEmissive);
+        mNormalTextureCtrl->setTentative(!func.mIdenticalTexNormal);
     }
 
-    return mat.notNull();
+    return func.mMaterial.notNull();
 }
 
 
