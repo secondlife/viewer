@@ -659,12 +659,19 @@ void LLPuppetMotion::clearAll()
 
 
 
-void LLPuppetMotion::addExpressionEvent(const LLPuppetJointEvent& event)
+void LLPuppetMotion::addExpressionEvent(const LLPuppetJointEvent& event, bool is_ik)
 {
     //TODO this is a bit sloppy.  We're updating asynchonously
     //There should only be one captured frame from the expression
     //controller but just in case, use a map so we don't overflow events
-    mExpressionEvents[event.getJointID()] = event;
+    if (is_ik)
+    {
+        mIKExpressionEvents[event.getJointID()] = event;
+    }
+    else
+    {
+        mJSExpressionEvents[event.getJointID()] = event;
+    }
     mNeedsUpdate = true;
 }
 
@@ -806,7 +813,6 @@ void LLPuppetMotion::solveForTargetsAndHarvestResults(LLIK::Solver::target_map_t
 			//Add a joint event for broadcast per SL-18363
 			LLPuppetJointEvent joint_event;
 			joint_event.setJointID(id);
-			joint_event.disableConstraint();
 			joint_event.setRotation(mIKSolver.getJointLocalRot(id), LLPuppetJointEvent::PARENT_FRAME);
 
 			broadcast_event.addJointEvent(joint_event);
@@ -851,15 +857,15 @@ void LLPuppetMotion::applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::
     }
 }
 
-void LLPuppetMotion::updateFromExpression(Timestamp now)
+void LLPuppetMotion::updateFromExpression(Timestamp now, express_map_t& event_map)
 {
-    if (!mExpressionEvents.empty())
+    if (!event_map.empty())
     {
         bool something_changed = false;
 
         LLIK::Solver::target_map_t targets;
 
-        for(const auto& data_pair : mExpressionEvents)
+        for(const auto& data_pair : event_map)
         {
             S16 joint_id = data_pair.first;
             state_map_t::iterator state_iter = mJointStates.find(joint_id);
@@ -872,7 +878,7 @@ void LLPuppetMotion::updateFromExpression(Timestamp now)
             something_changed = true;
         }
 
-        mExpressionEvents.clear();
+        event_map.clear();
 
         if (targets.size())
         {
@@ -1062,7 +1068,8 @@ BOOL LLPuppetMotion::onUpdate(F32 time, U8* joint_mask)
     Timestamp now = (S32)(LLFrameTimer::getElapsedSeconds() * MSEC_PER_SEC);
     if (mIsSelf)
     {
-        updateFromExpression(now);
+        updateFromExpression(now, mIKExpressionEvents);
+        updateFromExpression(now, mJSExpressionEvents);
         pumpOutgoingEvents();
         if (LLPuppetModule::instance().getEcho())
         {   // Check for updates from server if we're echoing from there

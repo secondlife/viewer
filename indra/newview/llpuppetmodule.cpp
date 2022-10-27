@@ -214,7 +214,7 @@ void processJoints(const LLSD& data, bool use_ik)
             {
                 gAgentAvatarp->startMotion(ANIM_AGENT_PUPPET_MOTION);
             }
-            std::static_pointer_cast<LLPuppetMotion>(motion)->addExpressionEvent(joint_event);
+            std::static_pointer_cast<LLPuppetMotion>(motion)->addExpressionEvent(joint_event, use_ik);
         }
     }
 }

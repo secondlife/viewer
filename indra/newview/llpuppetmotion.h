@@ -93,7 +93,7 @@ public:
     virtual ~LLPuppetMotion() {}
 
     void collectJoints(LLJoint* joint);
-    void addExpressionEvent(const LLPuppetJointEvent& event);
+    void addExpressionEvent(const LLPuppetJointEvent& event, bool is_ik);
     void queueOutgoingEvent(const LLPuppetEvent& event);
     void unpackEvents(LLMessageSystem *mesgsys,int blocknum);
 
@@ -169,7 +169,7 @@ private:
     void packEvents();
     void pumpOutgoingEvents();
     void solveForTargetsAndHarvestResults(LLIK::Solver::target_map_t& targets, Timestamp now, bool something_changed=false);
-    void updateFromExpression(Timestamp now);
+    void updateFromExpression(Timestamp now, express_map_t& event_map);
     void updateFromBroadcast(Timestamp now);
     void rememberPosedJoint(S16 joint_id, LLPointer<LLJointState> joint_state, Timestamp now);
 
@@ -182,7 +182,8 @@ private:
     std::vector< LLPointer<LLJointState> > mJointsToRemoveFromPose;
     LLFrameTimer            mBroadcastTimer;   // When to broadcast events.
     LLFrameTimer            mPlaybackTimer;    // Playback what was broadcast
-    express_map_t           mExpressionEvents; // Data from the expression controller.
+    express_map_t           mIKExpressionEvents; // IK Data from the expression controller.
+    express_map_t           mJSExpressionEvents; // JS Data from the expression controller.
     LLIK::Solver            mIKSolver;
     LLVOAvatar*             mAvatar = nullptr;
     Timestamp               mNextJointStateExpiry = DISTANT_FUTURE_TIMESTAMP;
