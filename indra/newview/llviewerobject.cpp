@@ -4767,8 +4767,37 @@ void LLViewerObject::setNumTEs(const U8 num_tes)
 		{
 			deleteTEImages();
 		}
+
+        S32 original_tes = getNumTEs();
+
 		LLPrimitive::setNumTEs(num_tes);
 		setChanged(TEXTURE);
+
+        // touch up GLTF materials
+        if (original_tes > 0)
+        {
+            for (int i = original_tes; i < getNumTEs(); ++i)
+            {
+                LLTextureEntry* src = getTE(original_tes - 1);
+                LLTextureEntry* tep = getTE(i);
+                setRenderMaterialID(i, getRenderMaterialID(original_tes - 1), false);
+
+                if (tep)
+                {
+                    LLGLTFMaterial* base_material = src->getGLTFMaterial();
+                    LLGLTFMaterial* override_material = src->getGLTFMaterialOverride();
+                    if (base_material && override_material)
+                    {
+                        tep->setGLTFMaterialOverride(new LLGLTFMaterial(*override_material));
+
+                        LLGLTFMaterial* render_material = new LLFetchedGLTFMaterial();
+                        *render_material = *base_material;
+                        render_material->applyOverride(*override_material);
+                        tep->setGLTFRenderMaterial(render_material);
+                    }
+                }
+            }
+        }
 
 		if (mDrawable.notNull())
 		{
@@ -7129,12 +7158,12 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
 
     for (S32 te = start_idx; te < end_idx; ++te)
     {
+        // clear out any existing override data and render material
+        getTE(te)->setGLTFMaterialOverride(nullptr);
+        getTE(te)->setGLTFRenderMaterial(nullptr);
+
         if (update_server)
         {
-            // clear out any existing override data and render material
-            getTE(te)->setGLTFMaterialOverride(nullptr);
-            getTE(te)->setGLTFRenderMaterial(nullptr);
-
             LLCoros::instance().launch("modifyMaterialCoro",
                 std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
                     gAgent.getRegionCapability("ModifyMaterialParams"),

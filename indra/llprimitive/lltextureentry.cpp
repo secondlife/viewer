@@ -112,6 +112,8 @@ LLTextureEntry &LLTextureEntry::operator=(const LLTextureEntry &rhs)
 
         mMaterialID = rhs.mMaterialID;
 
+        mGLTFMaterial = rhs.mGLTFMaterial;
+        
         if (rhs.mGLTFMaterialOverrides.notNull())
         {
             mGLTFMaterialOverrides = new LLGLTFMaterial(*rhs.mGLTFMaterialOverrides);
