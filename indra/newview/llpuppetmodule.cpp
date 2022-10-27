@@ -128,15 +128,19 @@ void processJoints(const LLSD& data, bool use_ik)
         LLJoint* joint = voa->getJoint(joint_name);
         if (!joint)
         {
-            //Joint not found by name, try by joint_id
-            joint = voa->getSkeletonJoint(atoi(joint_name.c_str()));
-            if (!joint)
+            std::string::const_iterator it = joint_name.begin();
+            if (it != joint_name.end() && std::isdigit(*it))
             {
-                continue;   //Better luck next joint
-            }
-            else
-            {
-                joint_name = joint->getName();
+                //joint name not found but started with a digit, try it as a joint_id.
+                joint = voa->getSkeletonJoint(std::stoi(joint_name));
+                if (!joint)
+                {
+                    continue;   //Better luck next joint
+                }
+                else
+                {
+                    joint_name = joint->getName();
+                }
             }
         }
         
@@ -161,7 +165,6 @@ void processJoints(const LLSD& data, bool use_ik)
         {
             const LLSD& value = param_itr->second;
             std::string param_name = param_itr->first;
-            std::transform(param_name.begin(), param_name.end(), param_name.begin(), ::toupper);
 
             if (use_ik)
             {
@@ -172,7 +175,7 @@ void processJoints(const LLSD& data, bool use_ik)
             v.mV[VY] = value.get(1).asReal();
             v.mV[VZ] = value.get(2).asReal();
 
-            if ( param_name == "r" || param_name == "lr" || param_name == "rotation" || param_name == "local_rotation" )
+            if ( param_name == "r" || param_name == "rotation" )
             {
                 // Packed quaternions have the imaginary part (e.g. xyz)
                 LLQuaternion q;
@@ -192,8 +195,8 @@ void processJoints(const LLSD& data, bool use_ik)
                 {
                     q.mQ[VW] = sqrtf(1.0f - imaginary_length_squared);
                 }
-                LLPuppetJointEvent::E_REFERENCE_FRAME ref_frame = ( param_name == "lr" || param_name == "local_rotation") ?
-                    LLPuppetJointEvent::PARENT_FRAME : LLPuppetJointEvent::ROOT_FRAME;
+                LLPuppetJointEvent::E_REFERENCE_FRAME ref_frame = use_ik ?
+                    LLPuppetJointEvent::ROOT_FRAME : LLPuppetJointEvent::PARENT_FRAME;
                 joint_event.setRotation(q, ref_frame);
             }
             else if (param_name == "p" || param_name == "position" )
@@ -225,25 +228,26 @@ void processSetRequest(const LLSD& data)
     std::string verb="set";
     LL_DEBUGS("LLLeapData") << "puppet data: " << data << LL_ENDL;
 
-    if (!data.isMap() || !data.has(verb) || !data[verb].isArray() )
+    if (!data.isMap() || !data.has(verb) || !data[verb].isMap() )
     {
         LL_WARNS("Puppet") << "Badly formatted get request" << LL_ENDL;
         return;
     }
     
-    for ( auto key = data[verb].beginArray(); key != data[verb].endArray(); ++key)
+    for ( auto it = data[verb].beginMap(); it != data[verb].endMap(); ++it)
     {
         //Simple get requests
-        if (*key == "c" || *key == "camera")
+        std::string key = it->first;
+        if (key == "c" || key == "camera")
         {
         }
-        else if (*key == "j" || *key == "joint_state")
+        else if (key == "j" || key == "joint_state")
         {
-            processJoints(data[verb][key->asString()], false);
+            processJoints(it->second, false);
         }
-        else if (*key == "k" || *key == "i" || *key == "ik" || *key == "inverse_kinematics" )
+        else if (key == "i" || key == "inverse_kinematics" )
         {
-            processJoints(data[verb][key->asString()], true);
+            processJoints(it->second, true);
         }
     }
     return;
