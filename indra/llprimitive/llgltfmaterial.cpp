@@ -30,6 +30,11 @@
 
 #include "tinygltf/tiny_gltf.h"
 
+const char* GLTF_FILE_EXTENSION_TRANSFORM = "KHR_texture_transform";
+const char* GLTF_FILE_EXTENSION_TRANSFORM_SCALE = "scale";
+const char* GLTF_FILE_EXTENSION_TRANSFORM_OFFSET = "offset";
+const char* GLTF_FILE_EXTENSION_TRANSFORM_ROTATION = "rotation";
+
 LLGLTFMaterial::LLGLTFMaterial(const LLGLTFMaterial& rhs)
 {
     *this = rhs;
@@ -82,6 +87,7 @@ std::string LLGLTFMaterial::asJSON(bool prettyprint) const
 {
 #if 1
     tinygltf::TinyGLTF gltf;
+
     tinygltf::Model model_out;
 
     std::ostringstream str;
@@ -105,49 +111,14 @@ void LLGLTFMaterial::setFromModel(const tinygltf::Model& model, S32 mat_index)
 
     const tinygltf::Material& material_in = model.materials[mat_index];
 
-    // get base color texture
-    S32 tex_index = material_in.pbrMetallicRoughness.baseColorTexture.index;
-    if (tex_index >= 0)
-    {
-        mBaseColorId.set(model.images[tex_index].uri);
-    }
-    else
-    {
-        mBaseColorId.setNull();
-    }
-
-    // get normal map
-    tex_index = material_in.normalTexture.index;
-    if (tex_index >= 0)
-    {
-        mNormalId.set(model.images[tex_index].uri);
-    }
-    else
-    {
-        mNormalId.setNull();
-    }
-
-    // get metallic-roughness texture
-    tex_index = material_in.pbrMetallicRoughness.metallicRoughnessTexture.index;
-    if (tex_index >= 0)
-    {
-        mMetallicRoughnessId.set(model.images[tex_index].uri);
-    }
-    else
-    {
-        mMetallicRoughnessId.setNull();
-    }
-
-    // get emissive texture
-    tex_index = material_in.emissiveTexture.index;
-    if (tex_index >= 0)
-    {
-        mEmissiveId.set(model.images[tex_index].uri);
-    }
-    else
-    {
-        mEmissiveId.setNull();
-    }
+    // Apply base color texture
+    setFromTexture(model, material_in.pbrMetallicRoughness.baseColorTexture, GLTF_TEXTURE_INFO_BASE_COLOR, mBaseColorId);
+    // Apply normal map
+    setFromTexture(model, material_in.normalTexture, GLTF_TEXTURE_INFO_NORMAL, mNormalId);
+    // Apply metallic-roughness texture
+    setFromTexture(model, material_in.pbrMetallicRoughness.metallicRoughnessTexture, GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS, mMetallicRoughnessId);
+    // Apply emissive texture
+    setFromTexture(model, material_in.emissiveTexture, GLTF_TEXTURE_INFO_EMISSIVE, mEmissiveId);
 
     setAlphaMode(material_in.alphaMode);
     mAlphaCutoff = llclamp((F32)material_in.alphaCutoff, 0.f, 1.f);
@@ -161,62 +132,110 @@ void LLGLTFMaterial::setFromModel(const tinygltf::Model& model, S32 mat_index)
     mDoubleSided = material_in.doubleSided;
 }
 
+LLVector2 vec2_from_json(const tinygltf::Value::Object& object, const char* key, const LLVector2& default_value)
+{
+    const auto it = object.find(key);
+    if (it == object.end())
+    {
+        return default_value;
+    }
+    const tinygltf::Value& vec2_json = std::get<1>(*it);
+    if (!vec2_json.IsArray() || vec2_json.ArrayLen() < LENGTHOFVECTOR2)
+    {
+        return default_value;
+    }
+    LLVector2 value;
+    for (U32 i = 0; i < LENGTHOFVECTOR2; ++i)
+    {
+        const tinygltf::Value& real_json = vec2_json.Get(i);
+        if (!real_json.IsReal())
+        {
+            return default_value;
+        }
+        value.mV[i] = (F32)real_json.Get<double>();
+    }
+    return value;
+}
+
+F32 float_from_json(const tinygltf::Value::Object& object, const char* key, const F32 default_value)
+{
+    const auto it = object.find(key);
+    if (it == object.end())
+    {
+        return default_value;
+    }
+    const tinygltf::Value& real_json = std::get<1>(*it);
+    if (!real_json.IsReal())
+    {
+        return default_value;
+    }
+    return (F32)real_json.GetNumberAsDouble();
+}
+
+template<typename T>
+std::string gltf_get_texture_image(const tinygltf::Model& model, const T& texture_info)
+{
+    const S32 texture_idx = texture_info.index;
+    if (texture_idx < 0 || texture_idx >= model.textures.size())
+    {
+        return "";
+    }
+    const tinygltf::Texture& texture = model.textures[texture_idx];
+
+    // Ignore texture.sampler for now
+
+    const S32 image_idx = texture.source;
+    if (image_idx < 0 || image_idx >= model.images.size())
+    {
+        return "";
+    }
+    const tinygltf::Image& image = model.images[image_idx];
+
+    return image.uri;
+}
+
+// *NOTE: Use template here as workaround for the different similar texture info classes
+template<typename T>
+void LLGLTFMaterial::setFromTexture(const tinygltf::Model& model, const T& texture_info, TextureInfo texture_info_id, LLUUID& texture_id_out)
+{
+    const std::string uri = gltf_get_texture_image(model, texture_info);
+    texture_id_out.set(uri);
+
+    const tinygltf::Value::Object& extensions_object = texture_info.extensions;
+    const auto transform_it = extensions_object.find(GLTF_FILE_EXTENSION_TRANSFORM);
+    if (transform_it != extensions_object.end())
+    {
+        const tinygltf::Value& transform_json = std::get<1>(*transform_it);
+        if (transform_json.IsObject())
+        {
+            const tinygltf::Value::Object& transform_object = transform_json.Get<tinygltf::Value::Object>();
+            TextureTransform& transform = mTextureTransform[texture_info_id];
+            transform.mOffset = vec2_from_json(transform_object, GLTF_FILE_EXTENSION_TRANSFORM_OFFSET, getDefaultTextureOffset());
+            transform.mScale = vec2_from_json(transform_object, GLTF_FILE_EXTENSION_TRANSFORM_SCALE, getDefaultTextureScale());
+            transform.mRotation = float_from_json(transform_object, GLTF_FILE_EXTENSION_TRANSFORM_ROTATION, getDefaultTextureRotation());
+        }
+    }
+}
+
 void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
 {
-    if (model.materials.size() < mat_index + 1)
+    if (model.materials.size() < mat_index+1)
     {
         model.materials.resize(mat_index + 1);
     }
 
     tinygltf::Material& material_out = model.materials[mat_index];
 
+    constexpr bool is_override = false;
+
     // set base color texture
-    if (mBaseColorId.notNull())
-    {
-        U32 idx = model.images.size();
-        model.images.resize(idx + 1);
-        model.textures.resize(idx + 1);
-
-        material_out.pbrMetallicRoughness.baseColorTexture.index = idx;
-        model.textures[idx].source = idx;
-        model.images[idx].uri = mBaseColorId.asString();
-    }
-
+    writeToTexture(model, material_out.pbrMetallicRoughness.baseColorTexture, GLTF_TEXTURE_INFO_BASE_COLOR, mBaseColorId, is_override, LLUUID());
     // set normal texture
-    if (mNormalId.notNull())
-    {
-        U32 idx = model.images.size();
-        model.images.resize(idx + 1);
-        model.textures.resize(idx + 1);
-
-        material_out.normalTexture.index = idx;
-        model.textures[idx].source = idx;
-        model.images[idx].uri = mNormalId.asString();
-    }
-
+    writeToTexture(model, material_out.normalTexture, GLTF_TEXTURE_INFO_NORMAL, mNormalId, is_override, LLUUID());
     // set metallic-roughness texture
-    if (mMetallicRoughnessId.notNull())
-    {
-        U32 idx = model.images.size();
-        model.images.resize(idx + 1);
-        model.textures.resize(idx + 1);
-
-        material_out.pbrMetallicRoughness.metallicRoughnessTexture.index = idx;
-        model.textures[idx].source = idx;
-        model.images[idx].uri = mMetallicRoughnessId.asString();
-    }
-
+    writeToTexture(model, material_out.pbrMetallicRoughness.metallicRoughnessTexture, GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS, mMetallicRoughnessId, is_override, LLUUID());
     // set emissive texture
-    if (mEmissiveId.notNull())
-    {
-        U32 idx = model.images.size();
-        model.images.resize(idx + 1);
-        model.textures.resize(idx + 1);
-
-        material_out.emissiveTexture.index = idx;
-        model.textures[idx].source = idx;
-        model.images[idx].uri = mEmissiveId.asString();
-    }
+    writeToTexture(model, material_out.emissiveTexture, GLTF_TEXTURE_INFO_EMISSIVE, mEmissiveId, is_override, LLUUID());
 
     material_out.alphaMode = getAlphaMode();
     material_out.alphaCutoff = mAlphaCutoff;
@@ -230,6 +249,46 @@ void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
     material_out.doubleSided = mDoubleSided;
 
     model.asset.version = "2.0";
+}
+
+template<typename T>
+void gltf_allocate_texture_image(tinygltf::Model& model, T& texture_info, const std::string& uri)
+{
+    const S32 image_idx = model.images.size();
+    model.images.emplace_back();
+    model.images[image_idx].uri = uri;
+
+    // The texture, not to be confused with the texture info
+    const S32 texture_idx = model.textures.size();
+    model.textures.emplace_back();
+    tinygltf::Texture& texture = model.textures[texture_idx];
+    texture.source = image_idx;
+
+    texture_info.index = texture_idx;
+}
+
+template<typename T>
+void LLGLTFMaterial::writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, const LLUUID& texture_id, bool is_override, const LLUUID& base_texture_id) const
+{
+    if (texture_id.isNull() || (is_override && texture_id == base_texture_id))
+    {
+        return;
+    }
+
+    gltf_allocate_texture_image(model, texture_info, texture_id.asString());
+
+    tinygltf::Value::Object transform_map;
+    const TextureTransform& transform = mTextureTransform[texture_info_id];
+    transform_map[GLTF_FILE_EXTENSION_TRANSFORM_OFFSET] = tinygltf::Value(tinygltf::Value::Array({
+        tinygltf::Value(transform.mOffset.mV[VX]),
+        tinygltf::Value(transform.mOffset.mV[VY])
+    }));
+    transform_map[GLTF_FILE_EXTENSION_TRANSFORM_SCALE] = tinygltf::Value(tinygltf::Value::Array({
+        tinygltf::Value(transform.mScale.mV[VX]),
+        tinygltf::Value(transform.mScale.mV[VY])
+    }));
+    transform_map[GLTF_FILE_EXTENSION_TRANSFORM_ROTATION] = tinygltf::Value(transform.mRotation);
+    texture_info.extensions[GLTF_FILE_EXTENSION_TRANSFORM] = tinygltf::Value(transform_map);
 }
 
 
@@ -390,53 +449,16 @@ void LLGLTFMaterial::writeOverridesToModel(tinygltf::Model& model, S32 mat_index
 
     // TODO - fix handling of resetting to null/default values
 
+    constexpr bool is_override = true;
+
     // set base color texture
-    if (mBaseColorId.notNull() && mBaseColorId != base_material->mBaseColorId)
-    {
-        U32 idx = model.images.size();
-        model.images.resize(idx + 1);
-        model.textures.resize(idx + 1);
-
-        material_out.pbrMetallicRoughness.baseColorTexture.index = idx;
-        model.textures[idx].source = idx;
-        model.images[idx].uri = mBaseColorId.asString();
-    }
-
+    writeToTexture(model, material_out.pbrMetallicRoughness.baseColorTexture, GLTF_TEXTURE_INFO_BASE_COLOR, mBaseColorId, is_override, base_material->mBaseColorId);
     // set normal texture
-    if (mNormalId.notNull() && mNormalId != base_material->mNormalId)
-    {
-        U32 idx = model.images.size();
-        model.images.resize(idx + 1);
-        model.textures.resize(idx + 1);
-
-        material_out.normalTexture.index = idx;
-        model.textures[idx].source = idx;
-        model.images[idx].uri = mNormalId.asString();
-    }
-
+    writeToTexture(model, material_out.normalTexture, GLTF_TEXTURE_INFO_NORMAL, mNormalId, is_override, base_material->mNormalId);
     // set metallic-roughness texture
-    if (mMetallicRoughnessId.notNull() && mMetallicRoughnessId != base_material->mMetallicRoughnessId)
-    {
-        U32 idx = model.images.size();
-        model.images.resize(idx + 1);
-        model.textures.resize(idx + 1);
-
-        material_out.pbrMetallicRoughness.metallicRoughnessTexture.index = idx;
-        model.textures[idx].source = idx;
-        model.images[idx].uri = mMetallicRoughnessId.asString();
-    }
-
+    writeToTexture(model, material_out.pbrMetallicRoughness.metallicRoughnessTexture, GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS, mMetallicRoughnessId, is_override, base_material->mMetallicRoughnessId);
     // set emissive texture
-    if (mEmissiveId.notNull() && mEmissiveId != base_material->mEmissiveId)
-    {
-        U32 idx = model.images.size();
-        model.images.resize(idx + 1);
-        model.textures.resize(idx + 1);
-
-        material_out.emissiveTexture.index = idx;
-        model.textures[idx].source = idx;
-        model.images[idx].uri = mEmissiveId.asString();
-    }
+    writeToTexture(model, material_out.emissiveTexture, GLTF_TEXTURE_INFO_EMISSIVE, mEmissiveId, is_override, base_material->mEmissiveId);
 
     if (mAlphaMode != base_material->mAlphaMode)
     {

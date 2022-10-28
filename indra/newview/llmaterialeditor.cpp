@@ -67,7 +67,6 @@ const std::string MATERIAL_EMISSIVE_DEFAULT_NAME = "Emissive";
 
 // Don't use ids here, LLPreview will attempt to use it as an inventory item
 static const std::string LIVE_MATERIAL_EDITOR_KEY = "Live Editor";
-static const std::string SAVE_LIVE_MATERIAL_KEY = "Save Material Editor";
 
 // Dirty flags
 static const U32 MATERIAL_BASE_COLOR_DIRTY = 0x1 << 0;
@@ -228,6 +227,8 @@ LLMaterialEditor::LLMaterialEditor(const LLSD& key)
     {
         mAssetID = item->getAssetUUID();
     }
+    // if this is a 'live editor' instance, it uses live overrides
+    mIsOverride = key.asString() == LIVE_MATERIAL_EDITOR_KEY;
 }
 
 void LLMaterialEditor::setObjectID(const LLUUID& object_id)
@@ -294,7 +295,7 @@ BOOL LLMaterialEditor::postBuild()
     // Emissive
     childSetCommitCallback("emissive color", changes_callback, (void*)&MATERIAL_EMISIVE_COLOR_DIRTY);
 
-    childSetVisible("unsaved_changes", mUnsavedChanges);
+    childSetVisible("unsaved_changes", mUnsavedChanges && !mIsOverride);
 
     getChild<LLUICtrl>("total_upload_fee")->setTextArg("[FEE]", llformat("%d", 0));
 
@@ -528,7 +529,8 @@ void LLMaterialEditor::resetUnsavedChanges()
 void LLMaterialEditor::markChangesUnsaved(U32 dirty_flag)
 {
     mUnsavedChanges |= dirty_flag;
-    childSetVisible("unsaved_changes", mUnsavedChanges);
+    // at the moment live editing (mIsOverride) applies everything 'live'
+    childSetVisible("unsaved_changes", mUnsavedChanges && !mIsOverride);
 
     if (mUnsavedChanges)
     {
@@ -852,17 +854,21 @@ bool LLMaterialEditor::decodeAsset(const std::vector<char>& buffer)
                     }
                     else
                     {
-                        LL_WARNS() << "Failed to decode material asset: " << LL_ENDL;
-                        LL_WARNS() << warn_msg << LL_ENDL;
-                        LL_WARNS() << error_msg << LL_ENDL;
+                        LL_WARNS("MaterialEditor") << "Floater " << getKey() << " Failed to decode material asset: " << LL_NEWLINE
+                         << warn_msg << LL_NEWLINE
+                         << error_msg << LL_ENDL;
                     }
                 }
             }
         }
+        else
+        {
+            LL_WARNS("MaterialEditor") << "Invalid LLSD content "<< asset << " for flaoter " << getKey() << LL_ENDL;
+        }
     }
     else
     {
-        LL_WARNS() << "Failed to deserialize material LLSD" << LL_ENDL;
+        LL_WARNS("MaterialEditor") << "Failed to deserialize material LLSD for flaoter " << getKey() << LL_ENDL;
     }
 
     return false;
@@ -1016,7 +1022,7 @@ bool LLMaterialEditor::saveIfNeeded()
                     std::string agent_url(region->getCapability("UpdateMaterialAgentInventory"));
                     if (agent_url.empty())
                     {
-                        LL_ERRS() << "missing required agent inventory cap url" << LL_ENDL;
+                        LL_ERRS("MaterialEditor") << "missing required agent inventory cap url" << LL_ENDL;
                     }
                     LLViewerAssetUpload::EnqueueInventoryUpload(agent_url, uploadInfo);
                 }
@@ -1037,7 +1043,7 @@ bool LLMaterialEditor::saveToInventoryItem(const std::string &buffer, const LLUU
     const LLViewerRegion* region = gAgent.getRegion();
     if (!region)
     {
-        LL_WARNS() << "Not connected to a region, cannot save material." << LL_ENDL;
+        LL_WARNS("MaterialEditor") << "Not connected to a region, cannot save material." << LL_ENDL;
         return false;
     }
     std::string agent_url = region->getCapability("UpdateMaterialAgentInventory");
@@ -1078,7 +1084,7 @@ bool LLMaterialEditor::saveToInventoryItem(const std::string &buffer, const LLUU
     }
     else // !gAssetStorage
     {
-        LL_WARNS() << "Not connected to an materials capable region." << LL_ENDL;
+        LL_WARNS("MaterialEditor") << "Not connected to an materials capable region." << LL_ENDL;
         return false;
     }
 
@@ -1165,7 +1171,7 @@ void LLMaterialEditor::finishSaveAs(
     else if (me)
     {
         me->setEnabled(true);
-        LL_WARNS() << "Item does not exist" << LL_ENDL;
+        LL_WARNS("MaterialEditor") << "Item does not exist, floater " << me->getKey() << LL_ENDL;
     }
 }
 
@@ -1175,8 +1181,10 @@ void LLMaterialEditor::refreshFromInventory(const LLUUID& new_item_id)
     {
         // refreshFromInventory shouldn't be called for overrides,
         // but just in case.
+        LL_WARNS("MaterialEditor") << "Tried to refresh from inventory for live editor" << LL_ENDL;
         return;
     }
+    LLSD old_key = getKey();
     if (new_item_id.notNull())
     {
         mItemUUID = new_item_id;
@@ -1199,7 +1207,7 @@ void LLMaterialEditor::refreshFromInventory(const LLUUID& new_item_id)
             setKey(LLSD(new_item_id));
         }
     }
-    LL_DEBUGS() << "LLPreviewNotecard::refreshFromInventory()" << LL_ENDL;
+    LL_DEBUGS("MaterialEditor") << "New floater key: " << getKey() << " Old key: " << old_key << LL_ENDL;
     loadAsset();
 }
 
@@ -1390,7 +1398,7 @@ static void pack_textures(
     if (base_color_img)
     {
         base_color_j2c = LLViewerTextureList::convertToUploadFile(base_color_img);
-        LL_INFOS() << "BaseColor: " << base_color_j2c->getDataSize() << LL_ENDL;
+        LL_DEBUGS("MaterialEditor") << "BaseColor: " << base_color_j2c->getDataSize() << LL_ENDL;
     }
 
     if (normal_img)
@@ -1403,7 +1411,7 @@ static void pack_textures(
         S32 lossy_bytes = normal_j2c->getDataSize();
         S32 lossless_bytes = test->getDataSize();
 
-        LL_INFOS() << llformat("Lossless vs Lossy: (%d/%d) = %.2f", lossless_bytes, lossy_bytes, (F32)lossless_bytes / lossy_bytes) << LL_ENDL;
+        LL_DEBUGS("MaterialEditor") << llformat("Lossless vs Lossy: (%d/%d) = %.2f", lossless_bytes, lossy_bytes, (F32)lossless_bytes / lossy_bytes) << LL_ENDL;
 
         normal_j2c = test;
     }
@@ -1411,13 +1419,13 @@ static void pack_textures(
     if (mr_img)
     {
         mr_j2c = LLViewerTextureList::convertToUploadFile(mr_img);
-        LL_INFOS() << "Metallic/Roughness: " << mr_j2c->getDataSize() << LL_ENDL;
+        LL_DEBUGS("MaterialEditor") << "Metallic/Roughness: " << mr_j2c->getDataSize() << LL_ENDL;
     }
 
     if (emissive_img)
     {
         emissive_j2c = LLViewerTextureList::convertToUploadFile(emissive_img);
-        LL_INFOS() << "Emissive: " << emissive_j2c->getDataSize() << LL_ENDL;
+        LL_DEBUGS("MaterialEditor") << "Emissive: " << emissive_j2c->getDataSize() << LL_ENDL;
     }
 }
 
@@ -1507,10 +1515,12 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
 }
 void LLMaterialEditor::onSelectionChanged()
 {
+    // This won't get deletion or deselectAll()
+    // Might need to handle that separately
     mUnsavedChanges = 0;
     clearTextures();
     setFromSelection();
-    saveLiveValues();
+    // saveLiveValues(); todo
 }
 
 void LLMaterialEditor::saveLiveValues()
@@ -1532,6 +1542,8 @@ void LLMaterialEditor::saveLiveValues()
             S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
             for (U8 te = 0; te < num_tes; te++)
             {
+                // Todo: fix this, overrides don't care about ids,
+                // we will have to save actual values or materials
                 LLUUID mat_id = objectp->getRenderMaterialID(te);
                 mEditor->mObjectOverridesSavedValues[local_id].push_back(mat_id);
             }
@@ -1544,11 +1556,11 @@ void LLMaterialEditor::saveLiveValues()
 
 void LLMaterialEditor::loadLive()
 {
+    // Allow only one 'live' instance
     const LLSD floater_key(LIVE_MATERIAL_EDITOR_KEY);
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", floater_key);
     if (me)
     {
-        me->mIsOverride = true;
         me->setFromSelection();
         me->setTitle(me->getString("material_override_title"));
         me->childSetVisible("save", false);
@@ -1569,13 +1581,13 @@ void LLMaterialEditor::loadLive()
 
 void LLMaterialEditor::loadObjectSave()
 {
-    const LLSD floater_key(SAVE_LIVE_MATERIAL_KEY);
-    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", floater_key);
+    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
     if (me && me->setFromSelection())
     {
-        me->mIsOverride = false;
         me->childSetVisible("save", false);
-        me->openFloater(floater_key);
+        me->mMaterialName = LLTrans::getString("New Material");
+        me->setTitle(me->mMaterialName);
+        me->openFloater();
         me->setFocus(TRUE);
     }
 }
@@ -1584,7 +1596,7 @@ void LLMaterialEditor::loadFromGLTFMaterial(LLUUID &asset_id)
 {
     if (asset_id.isNull())
     {
-        LL_WARNS() << "Trying to open material with null id" << LL_ENDL;
+        LL_WARNS("MaterialEditor") << "Trying to open material with null id" << LL_ENDL;
         return;
     }
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
@@ -2053,12 +2065,14 @@ public:
 
             if (material.isNull())
             {
-                material = new LLGLTFMaterial();
+                // overrides are not supposed to work or apply if
+                // there is no base material to work from
+                return false;
             }
-            else
-            {
-                material = new LLGLTFMaterial(*material);
-            }
+
+            // make a copy to not invalidate existing
+            // material for multiple objects
+            material = new LLGLTFMaterial(*material);
 
             // Override object's values with values from editor where appropriate
             if (mEditor->getUnsavedChangesFlags() & MATERIAL_BASE_COLOR_DIRTY)
@@ -2153,7 +2167,7 @@ void LLMaterialEditor::applyToSelection()
     }
     else
     {
-        LL_WARNS() << "not connected to materials capable region, missing ModifyMaterialParams cap" << LL_ENDL;
+        LL_WARNS("MaterialEditor") << "Not connected to materials capable region, missing ModifyMaterialParams cap" << LL_ENDL;
 
         // Fallback local preview. Will be removed once override systems is finished and new cap is deployed everywhere.
         LLPointer<LLFetchedGLTFMaterial> mat = new LLFetchedGLTFMaterial();
@@ -2206,45 +2220,114 @@ void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
 
 bool LLMaterialEditor::setFromSelection()
 {
-    struct LLSelectedTEGetGLTFRenderMaterial : public LLSelectedTEGetFunctor<LLPointer<LLGLTFMaterial> >
+    struct LLSelectedTEGetmatIdAndPermissions : public LLSelectedTEFunctor
     {
-        LLPointer<LLGLTFMaterial> get(LLViewerObject* objectp, S32 te_index)
+        LLSelectedTEGetmatIdAndPermissions(bool for_override)
+            : mIsOverride(for_override)
+            , mIdenticalTexColor(true)
+            , mIdenticalTexMetal(true)
+            , mIdenticalTexEmissive(true)
+            , mIdenticalTexNormal(true)
+            , mFirst(true)
+        {}
+
+        bool apply(LLViewerObject* objectp, S32 te_index)
         {
             if (!objectp)
             {
-                return nullptr;
+                return false;
             }
+            LLUUID mat_id = objectp->getRenderMaterialID(te_index);
+            bool can_use = mIsOverride ? objectp->permModify() : objectp->permCopy();
             LLTextureEntry *tep = objectp->getTE(te_index);
-            if (!tep)
+            // We might want to disable this entirely if at least
+            // something in selection is no-copy or no modify
+            // or has no base material
+            if (can_use && tep && mat_id.notNull())
             {
-                return nullptr;
+                LLPointer<LLGLTFMaterial> mat = tep->getGLTFRenderMaterial();
+                LLUUID tex_color_id;
+                LLUUID tex_metal_id;
+                LLUUID tex_emissive_id;
+                LLUUID tex_normal_id;
+                llassert(mat.notNull()); // by this point shouldn't be null
+                if (mat.notNull())
+                {
+                    tex_color_id = mat->mBaseColorId;
+                    tex_metal_id = mat->mMetallicRoughnessId;
+                    tex_emissive_id = mat->mEmissiveId;
+                    tex_normal_id = mat->mNormalId;
+                }
+                if (mFirst)
+                {
+                    mMaterial = mat;
+                    mTexColorId = tex_color_id;
+                    mTexMetalId = tex_metal_id;
+                    mTexEmissiveId = tex_emissive_id;
+                    mTexNormalId = tex_normal_id;
+                    mFirst = false;
+                }
+                else
+                {
+                    if (mTexColorId != tex_color_id)
+                    {
+                        mIdenticalTexColor = false;
+                    }
+                    if (mTexMetalId != tex_metal_id)
+                    {
+                        mIdenticalTexMetal = false;
+                    }
+                    if (mTexEmissiveId != tex_emissive_id)
+                    {
+                        mIdenticalTexEmissive = false;
+                    }
+                    if (mTexNormalId != tex_normal_id)
+                    {
+                        mIdenticalTexNormal = false;
+                    }
+                }
             }
-            return tep->getGLTFRenderMaterial(); // present user with combined override + asset
+            return true;
         }
-    } func;
+        bool mIsOverride;
+        bool mIdenticalTexColor;
+        bool mIdenticalTexMetal;
+        bool mIdenticalTexEmissive;
+        bool mIdenticalTexNormal;
+        bool mFirst;
+        LLUUID mTexColorId;
+        LLUUID mTexMetalId;
+        LLUUID mTexEmissiveId;
+        LLUUID mTexNormalId;
+        LLPointer<LLGLTFMaterial> mMaterial;
+    } func(mIsOverride);
 
-    LLPointer<LLGLTFMaterial> mat;
-    bool identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, mat);
-    if (mat.notNull())
+    LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
+    if (func.mMaterial.notNull())
     {
-        setFromGLTFMaterial(mat);
+        setFromGLTFMaterial(func.mMaterial);
+        setEnableEditing(true);
     }
     else
     {
         // pick defaults from a blank material;
         LLGLTFMaterial blank_mat;
         setFromGLTFMaterial(&blank_mat);
+        if (mIsOverride)
+        {
+            setEnableEditing(false);
+        }
     }
 
     if (mIsOverride)
     {
-        mBaseColorTextureCtrl->setTentative(!identical);
-        mMetallicTextureCtrl->setTentative(!identical);
-        mEmissiveTextureCtrl->setTentative(!identical);
-        mNormalTextureCtrl->setTentative(!identical);
+        mBaseColorTextureCtrl->setTentative(!func.mIdenticalTexColor);
+        mMetallicTextureCtrl->setTentative(!func.mIdenticalTexMetal);
+        mEmissiveTextureCtrl->setTentative(!func.mIdenticalTexEmissive);
+        mNormalTextureCtrl->setTentative(!func.mIdenticalTexNormal);
     }
 
-    return mat.notNull();
+    return func.mMaterial.notNull();
 }
 
 
@@ -2279,6 +2362,7 @@ void LLMaterialEditor::loadAsset()
 
         {
             mAssetID = item->getAssetUUID();
+
             if (mAssetID.isNull())
             {
                 mAssetStatus = PREVIEW_ASSET_LOADED;
@@ -2305,7 +2389,7 @@ void LLMaterialEditor::loadAsset()
                     else
                     {
                         // The object that we're trying to look at disappeared, bail.
-                        LL_WARNS() << "Can't find object " << mObjectUUID << " associated with notecard." << LL_ENDL;
+                        LL_WARNS("MaterialEditor") << "Can't find object " << mObjectUUID << " associated with material." << LL_ENDL;
                         mAssetID.setNull();
                         mAssetStatus = PREVIEW_ASSET_LOADED;
                         resetUnsavedChanges();
@@ -2376,11 +2460,15 @@ void LLMaterialEditor::onLoadComplete(const LLUUID& asset_uuid,
     LLAssetType::EType type,
     void* user_data, S32 status, LLExtStat ext_status)
 {
-    LL_INFOS() << "LLMaterialEditor::onLoadComplete()" << LL_ENDL;
     LLSD* floater_key = (LLSD*)user_data;
+    LL_DEBUGS("MaterialEditor") << "loading " << asset_uuid << " for " << *floater_key << LL_ENDL;
     LLMaterialEditor* editor = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", *floater_key);
     if (editor)
     {
+        if (asset_uuid != editor->mAssetID)
+        {
+            LL_WARNS() << "Asset id mismatch, expected: " << editor->mAssetID << " got: " << asset_uuid << LL_ENDL;
+        }
         if (0 == status)
         {
             LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
@@ -2419,6 +2507,10 @@ void LLMaterialEditor::onLoadComplete(const LLUUID& asset_uuid,
             LL_WARNS() << "Problem loading material: " << status << LL_ENDL;
             editor->mAssetStatus = PREVIEW_ASSET_ERROR;
         }
+    }
+    else
+    {
+        LL_DEBUGS("MaterialEditor") << "Floater " << *floater_key << " does not exist." << LL_ENDL;
     }
     delete floater_key;
 }
