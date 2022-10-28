@@ -7153,6 +7153,13 @@ const LLUUID& LLViewerObject::getRenderMaterialID(U8 te) const
 
 void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool update_server)
 {
+    // implementation is delicate
+
+    // if update is bound for server, should always null out GLTFRenderMaterial and GLTFMaterialOverride even if ids haven't changed
+    //  (the case where ids haven't changed indicates the user has reapplied the original material, in which case overrides should be dropped)
+    // otherwise, should only null out where ids have changed 
+    //  (the case where ids have changed but overrides are still present is from unsynchronized updates from the simulator)
+    
     S32 start_idx = 0;
     S32 end_idx = getNumTEs();
 
@@ -7168,26 +7175,36 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
     // update local state
     for (S32 te = start_idx; te < end_idx; ++te)
     {
-        // clear out any existing override data and render material
-        getTE(te)->setGLTFMaterialOverride(nullptr);
-        getTE(te)->setGLTFRenderMaterial(nullptr);
+        
+        LLGLTFMaterial* new_material = nullptr;
+        LLTextureEntry* tep = getTE(te);
 
         if (id.notNull())
         {
-            getTE(te)->setGLTFMaterial(gGLTFMaterialList.getMaterial(id));
+            new_material = gGLTFMaterialList.getMaterial(id);
         }
-        else
+        
+        bool material_changed = tep->getGLTFMaterial() != new_material;
+
+        if (update_server || material_changed)
+        { 
+            tep->setGLTFRenderMaterial(nullptr);
+            tep->setGLTFMaterialOverride(nullptr);
+        }
+
+        if (new_material != tep->getGLTFMaterial())
         {
-            getTE(te)->setGLTFMaterial(nullptr);
+            tep->setGLTFMaterial(new_material);
         }
     }
 
+    // signal to render pipe that render batches must be rebuilt for this object
     faceMappingChanged();
     gPipeline.markTextured(mDrawable);
 
     if (update_server)
     {
-        // blank out any override data
+        // blank out any override data on the ser
         for (S32 te = start_idx; te < end_idx; ++te)
         {
             LLCoros::instance().launch("modifyMaterialCoro",
