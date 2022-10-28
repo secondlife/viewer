@@ -2333,11 +2333,6 @@ bool LLMaterialEditor::setFromSelection()
 
 void LLMaterialEditor::loadAsset()
 {
-    // derived from LLPreviewNotecard::loadAsset
-    
-    // TODO: see commented out "editor" references and make them do something appropriate to the UI
-   
-    // request the asset.
     const LLInventoryItem* item;
     if (mNotecardInventoryID.notNull())
     {
@@ -2405,6 +2400,7 @@ void LLMaterialEditor::loadAsset()
 
                 setEnableEditing(false); // wait for it to load
 
+                // request the asset.
                 gAssetStorage->getInvItemAsset(source_sim,
                     gAgent.getID(),
                     gAgent.getSessionID(),

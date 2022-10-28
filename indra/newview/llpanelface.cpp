@@ -223,7 +223,7 @@ BOOL	LLPanelFace::postBuild()
     if (pbr_ctrl)
     {
         pbr_ctrl->setDefaultImageAssetID(LLUUID::null);
-        pbr_ctrl->setBlankImageAssetID(LLUUID::null); // should there be some empty default material?
+        pbr_ctrl->setBlankImageAssetID(LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID);
         pbr_ctrl->setCommitCallback(boost::bind(&LLPanelFace::onCommitPbr, this, _2));
         pbr_ctrl->setOnCancelCallback(boost::bind(&LLPanelFace::onCancelPbr, this, _2));
         pbr_ctrl->setOnSelectCallback(boost::bind(&LLPanelFace::onSelectPbr, this, _2));

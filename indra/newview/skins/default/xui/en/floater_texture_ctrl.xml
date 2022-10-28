@@ -275,19 +275,6 @@
          name="BAKED_AUX3"
          value="10" />
   </combo_box>
-  <check_box
-     follows="left|top"
-     height="20"
-     initial_value="false"
-     label="Hide Base Mesh Region"
-     
-layout="topleft"
-     name="hide_base_mesh_region"
-     left_delta="0"
-     top_pad="10"
-     top_delta="0"
-     width="120" 
-     visible="false"/>
 <!-- bottom static -->
     <button
      follows="bottom"
