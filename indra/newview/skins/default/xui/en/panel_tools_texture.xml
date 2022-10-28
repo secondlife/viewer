@@ -239,6 +239,36 @@
              width="160" />
             <texture_picker
              can_apply_immediately="true"
+             allow_no_texture="true"
+             follows="left|top"
+             height="80"
+             label="PBR       "
+             layout="topleft"
+             left="10"
+             name="pbr_control"
+             tool_tip="Click to choose a pbr material"
+             top_pad="5"
+             width="64" />
+            <button
+             follows="left|top"
+             height="23"
+             layout="topleft"
+             left_pad="10"
+             top_delta="0"
+             name="pbr_from_inventory"
+             label="Choose from inventory"
+             width="140"/>
+            <button
+             follows="left|top"
+             height="23"
+             layout="topleft"
+             left_delta="0"
+             top_pad="4"
+             name="edit_selected_pbr"
+             label="Edit Selected"
+             width="140"/>
+            <texture_picker
+             can_apply_immediately="true"
              default_image_name="Default"
              fallback_image="materials_ui_x_24.png"
              follows="left|top"
@@ -248,19 +278,7 @@
              left="10"
              name="texture control"
              tool_tip="Click to choose a picture"
-             top_pad="5"
-             width="64" />
-            <texture_picker
-             can_apply_immediately="true"
-             allow_no_texture="true"
-             follows="left|top"
-             height="80"
-             label="PBR       "
-             layout="topleft"
-             left="10"
-             name="pbr_control"
-             tool_tip="Click to choose a pbr material"
-             top_delta="0"
+             top_delta="-27"
              width="64" />
             <text
              type="string"
