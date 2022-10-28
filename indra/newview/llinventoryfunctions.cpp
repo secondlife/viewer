@@ -529,7 +529,11 @@ BOOL get_is_item_worn(const LLUUID& id)
 	const LLViewerInventoryItem* item = gInventory.getItem(id);
 	if (!item)
 		return FALSE;
-
+    
+    if (item->getIsLinkType() && !gInventory.getItem(item->getLinkedUUID()))
+    {
+        return FALSE;
+    }
 	// Consider the item as worn if it has links in COF.
 	if (LLAppearanceMgr::instance().isLinkedInCOF(id))
 	{

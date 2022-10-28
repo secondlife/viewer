@@ -1636,6 +1636,8 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
 		LL_WARNS(LOG_INV) << "Deleting non-existent object [ id: " << id << " ] " << LL_ENDL;
 		return;
 	}
+
+    LLInventoryModel::item_array_t links = collectLinksTo(id);
 	
 	LL_DEBUGS(LOG_INV) << "Deleting inventory object " << id << LL_ENDL;
 	mLastItem = NULL;
@@ -1694,7 +1696,7 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
 	obj = NULL; // delete obj
 	if (fix_broken_links && !is_link_type)
 	{
-		updateLinkedObjectsFromPurge(id);
+        rebuildLinkItems(links);
 	}
 	if (do_notify_observers)
 	{
@@ -1702,26 +1704,25 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
 	}
 }
 
-void LLInventoryModel::updateLinkedObjectsFromPurge(const LLUUID &baseobj_id)
+void LLInventoryModel::rebuildLinkItems(LLInventoryModel::item_array_t& items)
 {
-	LLInventoryModel::item_array_t item_array = collectLinksTo(baseobj_id);
-
-	// REBUILD is expensive, so clear the current change list first else
-	// everything else on the changelist will also get rebuilt.
-	if (item_array.size() > 0)
-	{
-		notifyObservers();
-		for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
-			iter != item_array.end();
-			iter++)
-		{
-			const LLViewerInventoryItem *linked_item = (*iter);
-			const LLUUID &item_id = linked_item->getUUID();
-			if (item_id == baseobj_id) continue;
-			addChangedMask(LLInventoryObserver::REBUILD, item_id);
-		}
-		notifyObservers();
-	}
+    // REBUILD is expensive, so clear the current change list first else
+    // everything else on the changelist will also get rebuilt.
+    if (items.size() > 0)
+    {
+        notifyObservers();
+        for (LLInventoryModel::item_array_t::const_iterator iter = items.begin();
+            iter != items.end();
+            iter++)
+        {
+            const LLViewerInventoryItem *linked_item = (*iter);
+            if (linked_item)
+            {
+                addChangedMask(LLInventoryObserver::REBUILD, linked_item->getUUID());
+            }
+        }
+        notifyObservers();
+    }
 }
 
 // Add/remove an observer. If the observer is destroyed, be sure to
