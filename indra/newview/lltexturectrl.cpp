@@ -479,7 +479,6 @@ BOOL LLFloaterTexturePicker::postBuild()
 	LLToolPipette::getInstance()->setToolSelectCallback(boost::bind(&LLFloaterTexturePicker::onTextureSelect, this, _1));
 	
 	getChild<LLComboBox>("l_bake_use_texture_combo_box")->setCommitCallback(onBakeTextureSelect, this);
-	getChild<LLCheckBoxCtrl>("hide_base_mesh_region")->setCommitCallback(onHideBaseMeshRegionCheck, this);
 
 	setBakeTextureEnabled(TRUE);
 	return TRUE;
@@ -822,7 +821,6 @@ void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
 	self->getChild<LLButton>("Default")->setVisible(index == 0 ? TRUE : FALSE);
 	self->getChild<LLButton>("Blank")->setVisible(index == 0 ? TRUE : FALSE);
 	self->getChild<LLButton>("None")->setVisible(index == 0 ? TRUE : FALSE);
-	self->getChild<LLButton>("Pipette")->setVisible(index == 0 ? TRUE : FALSE);
 	self->getChild<LLFilterEditor>("inventory search editor")->setVisible(index == 0 ? TRUE : FALSE);
 	self->getChild<LLInventoryPanel>("inventory panel")->setVisible(index == 0 ? TRUE : FALSE);
 
@@ -832,7 +830,10 @@ void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
 	self->getChild<LLScrollListCtrl>("l_name_list")->setVisible(index == 1 ? TRUE : FALSE);
 
 	self->getChild<LLComboBox>("l_bake_use_texture_combo_box")->setVisible(index == 2 ? TRUE : FALSE);
-	self->getChild<LLCheckBoxCtrl>("hide_base_mesh_region")->setVisible(FALSE);// index == 2 ? TRUE : FALSE);
+
+    bool pipette_visible = (index == 0)
+        && (self->mInventoryPickType != LLTextureCtrl::PICK_MATERIAL);
+	self->getChild<LLButton>("Pipette")->setVisible(pipette_visible);
 
 	if (index == 2)
 	{
@@ -1111,13 +1112,6 @@ void LLFloaterTexturePicker::onBakeTextureSelect(LLUICtrl* ctrl, void *user_data
 	}
 }
 
-//static
-void LLFloaterTexturePicker::onHideBaseMeshRegionCheck(LLUICtrl* ctrl, void *user_data)
-{
-	//LLFloaterTexturePicker* picker = (LLFloaterTexturePicker*)user_data;
-	//LLCheckBoxCtrl* check_box = (LLCheckBoxCtrl*)ctrl;
-}
-
 void LLFloaterTexturePicker::updateFilterPermMask()
 {
 	//mInventoryPanel->setFilterPermMask( getFilterPermMask() );  Commented out due to no-copy texture loss.
@@ -1242,6 +1236,16 @@ void LLFloaterTexturePicker::setInventoryPickType(LLTextureCtrl::EPickInventoryT
     mInventoryPickType = type;
     refreshLocalList();
     refreshInventoryFilter();
+
+    if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    {
+        getChild<LLButton>("Pipette")->setVisible(false);
+    }
+    else
+    {
+        S32 index = mModeSelector->getValue().asInteger();
+        getChild<LLButton>("Pipette")->setVisible(index == 0);
+    }
 }
 
 void LLFloaterTexturePicker::onPickerCallback(const std::vector<std::string>& filenames, LLHandle<LLFloater> handle)
@@ -1292,7 +1296,17 @@ void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
 	if (inventory_item_id.notNull())
 	{
 		LLToolPipette::getInstance()->setResult(TRUE, "");
-		setImageID(te.getID());
+        if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+        {
+            // tes have no data about material ids
+            // Plus gltf materials are layered with overrides,
+            // which mean that end result might have no id.
+            LL_WARNS() << "tes have no data about material ids" << LL_ENDL;
+        }
+        else
+        {
+            setImageID(te.getID());
+        }
 
 		mNoCopyTextureSelected = FALSE;
 		LLInventoryItem* itemp = gInventory.getItem(inventory_item_id);
