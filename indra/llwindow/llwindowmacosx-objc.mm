@@ -64,13 +64,13 @@ void setupCocoa()
 
 bool copyToPBoard(const unsigned short *str, unsigned int len)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc]init];
-	NSPasteboard *pboard = [NSPasteboard generalPasteboard];
-	[pboard clearContents];
-	
-	NSArray *contentsToPaste = [[NSArray alloc] initWithObjects:[NSString stringWithCharacters:str length:len], nil];
-	[pool release];
-	return [pboard writeObjects:contentsToPaste];
+    @autoreleasepool {
+        NSPasteboard *pboard = [NSPasteboard generalPasteboard];
+        [pboard clearContents];
+        
+        NSArray *contentsToPaste = [[[NSArray alloc] initWithObjects:[NSString stringWithCharacters:str length:len], nil] autorelease];
+        return [pboard writeObjects:contentsToPaste];
+    }
 }
 
 bool pasteBoardAvailable()
@@ -79,22 +79,23 @@ bool pasteBoardAvailable()
 	return [[NSPasteboard generalPasteboard] canReadObjectForClasses:classArray options:[NSDictionary dictionary]];
 }
 
-const unsigned short *copyFromPBoard()
+unsigned short *copyFromPBoard()
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc]init];
-	NSPasteboard *pboard = [NSPasteboard generalPasteboard];
-	NSArray *classArray = [NSArray arrayWithObject:[NSString class]];
-	NSString *str = NULL;
-	BOOL ok = [pboard canReadObjectForClasses:classArray options:[NSDictionary dictionary]];
-	if (ok)
-	{
-		NSArray *objToPaste = [pboard readObjectsForClasses:classArray options:[NSDictionary dictionary]];
-		str = [objToPaste objectAtIndex:0];
-	}
-	unichar* temp = (unichar*)calloc([str length]+1, sizeof(unichar));
-	[str getCharacters:temp];
-	[pool release];
-	return temp;
+    @autoreleasepool {
+        NSPasteboard *pboard = [NSPasteboard generalPasteboard];
+        NSArray *classArray = [NSArray arrayWithObject:[NSString class]];
+        NSString *str = NULL;
+        BOOL ok = [pboard canReadObjectForClasses:classArray options:[NSDictionary dictionary]];
+        if (ok)
+        {
+            NSArray *objToPaste = [pboard readObjectsForClasses:classArray options:[NSDictionary dictionary]];
+            str = [objToPaste objectAtIndex:0];
+        }
+        NSUInteger str_len = [str length];
+        unichar* temp = (unichar*)calloc(str_len+1, sizeof(unichar));
+        [str getCharacters:temp range:NSMakeRange(0, str_len)];
+        return temp;
+    }
 }
 
 CursorRef createImageCursor(const char *fullpath, int hotspotX, int hotspotY)
