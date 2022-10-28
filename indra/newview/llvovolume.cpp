@@ -5986,7 +5986,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					U32 type = gPipeline.getPoolTypeFromTE(te, tex);
                     if (is_pbr && gltf_mat && gltf_mat->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_BLEND)
                     {
-                        type = LLDrawPool::POOL_PBR_OPAQUE;
+                        type = LLDrawPool::POOL_GLTF_PBR;
                     }
                     else
 					if (type != LLDrawPool::POOL_ALPHA && force_simple)
@@ -6790,7 +6790,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
                     if (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
                         registerFace(group, facep, LLRenderPass::PASS_ALPHA);
                     else
-                        registerFace(group, facep, LLRenderPass::PASS_PBR_OPAQUE);
+                        registerFace(group, facep, LLRenderPass::PASS_GLTF_PBR);
                 }
                 else
 				// do NOT use 'fullbright' for this logic or you risk sending

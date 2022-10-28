@@ -121,8 +121,8 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
 	case POOL_WL_SKY:
 		poolp = new LLDrawPoolWLSky();
 		break;
-	case POOL_PBR_OPAQUE:
-		poolp = new LLDrawPoolPBROpaque();
+	case POOL_GLTF_PBR:
+		poolp = new LLDrawPoolGLTFPBR();
 		break;
 	default:
 		LL_ERRS() << "Unknown draw pool type!" << LL_ENDL;

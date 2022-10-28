@@ -29,7 +29,7 @@
 
 #include "lldrawpool.h"
 
-class LLDrawPoolPBROpaque : public LLRenderPass
+class LLDrawPoolGLTFPBR final : public LLRenderPass
 {
 public:
     enum
@@ -44,20 +44,17 @@ public:
                          | LLVertexBuffer::MAP_TANGENT
                          | LLVertexBuffer::MAP_COLOR
     };
-    virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+    U32 getVertexDataMask() override { return VERTEX_DATA_MASK; }
 
-    LLDrawPoolPBROpaque();
+    LLDrawPoolGLTFPBR();
 
-    /*virtual*/ S32 getNumDeferredPasses() { return 1; }
-    /*virtual*/ void renderDeferred(S32 pass);
+    S32 getNumDeferredPasses() override { return 1; }
+    void renderDeferred(S32 pass) override;
 
-    // Non ALM isn't supported
-    /*virtual*/ void beginRenderPass(S32 pass);
-    /*virtual*/ void endRenderPass(S32 pass);
-    /*virtual*/ S32  getNumPasses() { return 0; }
-    /*virtual*/ void render(S32 pass = 0);
-    /*virtual*/ void prerender();
+    S32 getNumShadowPasses() override { return 1; }
+    void renderShadow(S32 pass) override;
 
+    
 };
 
 #endif // LL_LLDRAWPOOLPBROPAQUE_H

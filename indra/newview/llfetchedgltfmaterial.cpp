@@ -30,6 +30,7 @@
 #include "llviewertexturelist.h"
 #include "llavatarappearancedefines.h"
 #include "llshadermgr.h"
+#include "pipeline.h"
 
 LLFetchedGLTFMaterial::LLFetchedGLTFMaterial()
     : LLGLTFMaterial()
@@ -66,38 +67,40 @@ void LLFetchedGLTFMaterial::bind(LLGLSLShader* shader)
         gGL.getTexUnit(0)->bindFast(LLViewerFetchedTexture::sWhiteImagep);
     }
 
+    if (!LLPipeline::sShadowRender)
+    {
+        if (mNormalTexture.notNull())
+        {
+            shader->bindTexture(LLShaderMgr::BUMP_MAP, mNormalTexture);
+        }
+        else
+        {
+            shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
+        }
 
-    if (mNormalTexture.notNull())
-    {
-        shader->bindTexture(LLShaderMgr::BUMP_MAP, mNormalTexture);
-    }
-    else
-    {
-        shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
-    }
+        if (mMetallicRoughnessTexture.notNull())
+        {
+            shader->bindTexture(LLShaderMgr::SPECULAR_MAP, mMetallicRoughnessTexture); // PBR linear packed Occlusion, Roughness, Metal.
+        }
+        else
+        {
+            shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
+        }
 
-    if (mMetallicRoughnessTexture.notNull())
-    {
-        shader->bindTexture(LLShaderMgr::SPECULAR_MAP, mMetallicRoughnessTexture); // PBR linear packed Occlusion, Roughness, Metal.
-    }
-    else
-    {
-        shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
-    }
+        if (mEmissiveTexture.notNull())
+        {
+            shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, mEmissiveTexture);  // PBR sRGB Emissive
+        }
+        else
+        {
+            shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, LLViewerFetchedTexture::sWhiteImagep);
+        }
 
-    if (mEmissiveTexture.notNull())
-    {
-        shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, mEmissiveTexture);  // PBR sRGB Emissive
-    }
-    else
-    {
-        shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, LLViewerFetchedTexture::sWhiteImagep);
-    }
+        // NOTE: base color factor is baked into vertex stream
 
-    // NOTE: base color factor is baked into vertex stream
-
-    shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, mRoughnessFactor);
-    shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, mMetallicFactor);
-    shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, mEmissiveColor.mV);
+        shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, mRoughnessFactor);
+        shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, mMetallicFactor);
+        shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, mEmissiveColor.mV);
+    }
 
 }

@@ -60,6 +60,7 @@ public:
 		POOL_TERRAIN,
         POOL_MATERIALS,
         POOL_GRASS,
+        POOL_GLTF_PBR,
 		POOL_TREE,
 		POOL_ALPHA_MASK,
 		POOL_FULLBRIGHT_ALPHA_MASK,
@@ -73,7 +74,6 @@ public:
         POOL_VOIDWATER,
         POOL_WATER,
         POOL_ALPHA_POST_WATER,
-		POOL_PBR_OPAQUE,
         POOL_ALPHA, // note there is no actual "POOL_ALPHA" but pre-water and post-water pools consume POOL_ALPHA faces
 		NUM_POOL_TYPES,
 		// * invisiprims work by rendering to the depth buffer but not the color buffer, occluding anything rendered after them
@@ -114,8 +114,8 @@ public:
 	virtual S32 getNumShadowPasses();
 	virtual void renderShadow(S32 pass = 0);
 
-	virtual void render(S32 pass = 0) = 0;
-	virtual void prerender() = 0;
+    virtual void render(S32 pass = 0) {};
+    virtual void prerender() {};
 	virtual U32 getVertexDataMask() = 0;
 	virtual BOOL verify() const { return TRUE; }		// Verify that all data in the draw pool is correct!
 	virtual S32 getShaderLevel() const { return mShaderLevel; }
@@ -199,8 +199,8 @@ public:
         PASS_FULLBRIGHT_ALPHA_MASK_RIGGED,
 		PASS_ALPHA_INVISIBLE,
         PASS_ALPHA_INVISIBLE_RIGGED,
-        PASS_PBR_OPAQUE,
-        PASS_PBR_OPAQUE_RIGGED,
+        PASS_GLTF_PBR,
+        PASS_GLTF_PBR_RIGGED,
 		NUM_RENDER_TYPES,
 	};
 
@@ -327,10 +327,10 @@ public:
                 return "PASS_ALPHA_INVISIBLE";
             case PASS_ALPHA_INVISIBLE_RIGGED:
                 return "PASS_ALPHA_INVISIBLE_RIGGED";
-            case PASS_PBR_OPAQUE:
-                return "PASS_PBR_OPAQUE";
-            case PASS_PBR_OPAQUE_RIGGED:
-                return "PASS_PBR_OPAQUE_RIGGED";
+            case PASS_GLTF_PBR:
+                return "PASS_GLTF_PBR";
+            case PASS_GLTF_PBR_RIGGED:
+                return "PASS_GLTF_PBR_RIGGED";
 
             default:
                 return "Unknown pass";
