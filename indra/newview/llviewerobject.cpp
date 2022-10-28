@@ -5361,6 +5361,13 @@ S32 LLViewerObject::setTEGLTFMaterialOverride(U8 te, LLGLTFMaterial* override_ma
 
     LLFetchedGLTFMaterial* src_mat = (LLFetchedGLTFMaterial*) tep->getGLTFMaterial();
 
+    if (!src_mat)
+    { // we can get into this state if an override has arrived before the viewer has
+        // received or handled an update, return TEM_CHANGE_NONE to signal to LLGLTFMaterialList that it
+        // should queue the update for later
+        return retval;
+    }
+
     tep->setGLTFMaterialOverride(override_mat);
 
     // if override mat exists, we must also have a source mat
