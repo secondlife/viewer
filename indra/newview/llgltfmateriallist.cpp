@@ -47,6 +47,8 @@
 
 LLGLTFMaterialList gGLTFMaterialList;
 
+const LLUUID LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID("968cbad0-4dad-d64e-71b5-72bf13ad051a");
+
 namespace
 {
     class LLGLTFMaterialOverrideDispatchHandler : public LLDispatchHandler

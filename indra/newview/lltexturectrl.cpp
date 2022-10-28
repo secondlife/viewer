@@ -700,8 +700,9 @@ void LLFloaterTexturePicker::onBtnBlank(void* userdata)
 void LLFloaterTexturePicker::onBtnNone(void* userdata)
 {
 	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
+    self->setCanApply(true, true);
 	self->setImageID( LLUUID::null );
-	self->commitCancel();
+    self->commitIfImmediateSet();
 }
 
 /*
