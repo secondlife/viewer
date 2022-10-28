@@ -854,17 +854,21 @@ bool LLMaterialEditor::decodeAsset(const std::vector<char>& buffer)
                     }
                     else
                     {
-                        LL_WARNS() << "Failed to decode material asset: " << LL_ENDL;
-                        LL_WARNS() << warn_msg << LL_ENDL;
-                        LL_WARNS() << error_msg << LL_ENDL;
+                        LL_WARNS("MaterialEditor") << "Floater " << getKey() << " Failed to decode material asset: " << LL_NEWLINE
+                         << warn_msg << LL_NEWLINE
+                         << error_msg << LL_ENDL;
                     }
                 }
             }
         }
+        else
+        {
+            LL_WARNS("MaterialEditor") << "Invalid LLSD content "<< asset << " for flaoter " << getKey() << LL_ENDL;
+        }
     }
     else
     {
-        LL_WARNS() << "Failed to deserialize material LLSD" << LL_ENDL;
+        LL_WARNS("MaterialEditor") << "Failed to deserialize material LLSD for flaoter " << getKey() << LL_ENDL;
     }
 
     return false;
@@ -1018,7 +1022,7 @@ bool LLMaterialEditor::saveIfNeeded()
                     std::string agent_url(region->getCapability("UpdateMaterialAgentInventory"));
                     if (agent_url.empty())
                     {
-                        LL_ERRS() << "missing required agent inventory cap url" << LL_ENDL;
+                        LL_ERRS("MaterialEditor") << "missing required agent inventory cap url" << LL_ENDL;
                     }
                     LLViewerAssetUpload::EnqueueInventoryUpload(agent_url, uploadInfo);
                 }
@@ -1039,7 +1043,7 @@ bool LLMaterialEditor::saveToInventoryItem(const std::string &buffer, const LLUU
     const LLViewerRegion* region = gAgent.getRegion();
     if (!region)
     {
-        LL_WARNS() << "Not connected to a region, cannot save material." << LL_ENDL;
+        LL_WARNS("MaterialEditor") << "Not connected to a region, cannot save material." << LL_ENDL;
         return false;
     }
     std::string agent_url = region->getCapability("UpdateMaterialAgentInventory");
@@ -1080,7 +1084,7 @@ bool LLMaterialEditor::saveToInventoryItem(const std::string &buffer, const LLUU
     }
     else // !gAssetStorage
     {
-        LL_WARNS() << "Not connected to an materials capable region." << LL_ENDL;
+        LL_WARNS("MaterialEditor") << "Not connected to an materials capable region." << LL_ENDL;
         return false;
     }
 
@@ -1167,7 +1171,7 @@ void LLMaterialEditor::finishSaveAs(
     else if (me)
     {
         me->setEnabled(true);
-        LL_WARNS() << "Item does not exist" << LL_ENDL;
+        LL_WARNS("MaterialEditor") << "Item does not exist, floater " << me->getKey() << LL_ENDL;
     }
 }
 
@@ -1177,8 +1181,10 @@ void LLMaterialEditor::refreshFromInventory(const LLUUID& new_item_id)
     {
         // refreshFromInventory shouldn't be called for overrides,
         // but just in case.
+        LL_WARNS("MaterialEditor") << "Tried to refresh from inventory for live editor" << LL_ENDL;
         return;
     }
+    LLSD old_key = getKey();
     if (new_item_id.notNull())
     {
         mItemUUID = new_item_id;
@@ -1201,7 +1207,7 @@ void LLMaterialEditor::refreshFromInventory(const LLUUID& new_item_id)
             setKey(LLSD(new_item_id));
         }
     }
-    LL_DEBUGS() << "LLPreviewNotecard::refreshFromInventory()" << LL_ENDL;
+    LL_DEBUGS("MaterialEditor") << "New floater key: " << getKey() << " Old key: " << old_key << LL_ENDL;
     loadAsset();
 }
 
@@ -1392,7 +1398,7 @@ static void pack_textures(
     if (base_color_img)
     {
         base_color_j2c = LLViewerTextureList::convertToUploadFile(base_color_img);
-        LL_INFOS() << "BaseColor: " << base_color_j2c->getDataSize() << LL_ENDL;
+        LL_DEBUGS("MaterialEditor") << "BaseColor: " << base_color_j2c->getDataSize() << LL_ENDL;
     }
 
     if (normal_img)
@@ -1405,7 +1411,7 @@ static void pack_textures(
         S32 lossy_bytes = normal_j2c->getDataSize();
         S32 lossless_bytes = test->getDataSize();
 
-        LL_INFOS() << llformat("Lossless vs Lossy: (%d/%d) = %.2f", lossless_bytes, lossy_bytes, (F32)lossless_bytes / lossy_bytes) << LL_ENDL;
+        LL_DEBUGS("MaterialEditor") << llformat("Lossless vs Lossy: (%d/%d) = %.2f", lossless_bytes, lossy_bytes, (F32)lossless_bytes / lossy_bytes) << LL_ENDL;
 
         normal_j2c = test;
     }
@@ -1413,13 +1419,13 @@ static void pack_textures(
     if (mr_img)
     {
         mr_j2c = LLViewerTextureList::convertToUploadFile(mr_img);
-        LL_INFOS() << "Metallic/Roughness: " << mr_j2c->getDataSize() << LL_ENDL;
+        LL_DEBUGS("MaterialEditor") << "Metallic/Roughness: " << mr_j2c->getDataSize() << LL_ENDL;
     }
 
     if (emissive_img)
     {
         emissive_j2c = LLViewerTextureList::convertToUploadFile(emissive_img);
-        LL_INFOS() << "Emissive: " << emissive_j2c->getDataSize() << LL_ENDL;
+        LL_DEBUGS("MaterialEditor") << "Emissive: " << emissive_j2c->getDataSize() << LL_ENDL;
     }
 }
 
@@ -1590,7 +1596,7 @@ void LLMaterialEditor::loadFromGLTFMaterial(LLUUID &asset_id)
 {
     if (asset_id.isNull())
     {
-        LL_WARNS() << "Trying to open material with null id" << LL_ENDL;
+        LL_WARNS("MaterialEditor") << "Trying to open material with null id" << LL_ENDL;
         return;
     }
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
@@ -2161,7 +2167,7 @@ void LLMaterialEditor::applyToSelection()
     }
     else
     {
-        LL_WARNS() << "not connected to materials capable region, missing ModifyMaterialParams cap" << LL_ENDL;
+        LL_WARNS("MaterialEditor") << "Not connected to materials capable region, missing ModifyMaterialParams cap" << LL_ENDL;
 
         // Fallback local preview. Will be removed once override systems is finished and new cap is deployed everywhere.
         LLPointer<LLFetchedGLTFMaterial> mat = new LLFetchedGLTFMaterial();
@@ -2356,6 +2362,7 @@ void LLMaterialEditor::loadAsset()
 
         {
             mAssetID = item->getAssetUUID();
+
             if (mAssetID.isNull())
             {
                 mAssetStatus = PREVIEW_ASSET_LOADED;
@@ -2382,7 +2389,7 @@ void LLMaterialEditor::loadAsset()
                     else
                     {
                         // The object that we're trying to look at disappeared, bail.
-                        LL_WARNS() << "Can't find object " << mObjectUUID << " associated with notecard." << LL_ENDL;
+                        LL_WARNS("MaterialEditor") << "Can't find object " << mObjectUUID << " associated with material." << LL_ENDL;
                         mAssetID.setNull();
                         mAssetStatus = PREVIEW_ASSET_LOADED;
                         resetUnsavedChanges();
@@ -2453,11 +2460,15 @@ void LLMaterialEditor::onLoadComplete(const LLUUID& asset_uuid,
     LLAssetType::EType type,
     void* user_data, S32 status, LLExtStat ext_status)
 {
-    LL_INFOS() << "LLMaterialEditor::onLoadComplete()" << LL_ENDL;
     LLSD* floater_key = (LLSD*)user_data;
+    LL_DEBUGS("MaterialEditor") << "loading " << asset_uuid << " for " << *floater_key << LL_ENDL;
     LLMaterialEditor* editor = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", *floater_key);
     if (editor)
     {
+        if (asset_uuid != editor->mAssetID)
+        {
+            LL_WARNS() << "Asset id mismatch, expected: " << editor->mAssetID << " got: " << asset_uuid << LL_ENDL;
+        }
         if (0 == status)
         {
             LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
@@ -2496,6 +2507,10 @@ void LLMaterialEditor::onLoadComplete(const LLUUID& asset_uuid,
             LL_WARNS() << "Problem loading material: " << status << LL_ENDL;
             editor->mAssetStatus = PREVIEW_ASSET_ERROR;
         }
+    }
+    else
+    {
+        LL_DEBUGS("MaterialEditor") << "Floater " << *floater_key << " does not exist." << LL_ENDL;
     }
     delete floater_key;
 }
