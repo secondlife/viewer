@@ -103,8 +103,10 @@ public:
     // will promt to select specific one
     static void loadMaterialFromFile(const std::string& filename, S32 index = -1);
 
-    void onSelectionChanged(); // // live overrides selection changes
+    void onSelectionChanged(); // live overrides selection changes
     void saveLiveValues(); // for restoration on cancel
+
+    static void updateLive();
     static void loadLive();
     static void loadObjectSave();
 

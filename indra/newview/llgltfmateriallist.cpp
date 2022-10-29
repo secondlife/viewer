@@ -31,6 +31,7 @@
 #include "lldispatcher.h"
 #include "llfetchedgltfmaterial.h"
 #include "llfilesystem.h"
+#include "llmaterialeditor.h"
 #include "llsdserialize.h"
 #include "lltinygltfhelper.h"
 #include "llviewercontrol.h"
@@ -128,6 +129,12 @@ namespace
                                 // object not ready to receive override data, queue for later
                                 gGLTFMaterialList.queueOverrideUpdate(object_id, side, override_data);
                             }
+                            else if (obj && obj->isAnySelected())
+                            {
+                                // Might want to cause a full selection
+                                // update here instead of just an editor
+                                LLMaterialEditor::updateLive();
+                            }
                         }
                     }
 
@@ -139,6 +146,12 @@ namespace
                             {
                                 obj->setTEGLTFMaterialOverride(i, nullptr);
                             }
+                        }
+                        if (obj->isAnySelected())
+                        {
+                            // Might want to cause a full selection
+                            // update here instead of just an editor
+                            LLMaterialEditor::updateLive();
                         }
                     }
                 }
@@ -153,6 +166,12 @@ namespace
                 for (int i = 0; i < obj->getNumTEs(); ++i)
                 {
                     obj->setTEGLTFMaterialOverride(i, nullptr);
+                }
+                if (obj->isAnySelected())
+                {
+                    // Might want to cause a full selection
+                    // update here instead of just an editor
+                    LLMaterialEditor::updateLive();
                 }
             }
             return true;
@@ -190,6 +209,12 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
                     return;
                 }
                 obj->setTEGLTFMaterialOverride(i, overrides[i]);
+                if (obj->isAnySelected())
+                {
+                    // Might want to cause a full selection
+                    // update here instead of just an editor
+                    LLMaterialEditor::updateLive();
+                }
             }
         }
 

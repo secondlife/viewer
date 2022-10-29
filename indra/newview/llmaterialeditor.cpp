@@ -1513,13 +1513,14 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
             );
     }
 }
+
 void LLMaterialEditor::onSelectionChanged()
 {
     // This won't get deletion or deselectAll()
     // Might need to handle that separately
-    mUnsavedChanges = 0;
     clearTextures();
     setFromSelection();
+    // At the moment all cahges are 'live' so don't reset dirty flags
     // saveLiveValues(); todo
 }
 
@@ -1552,6 +1553,21 @@ void LLMaterialEditor::saveLiveValues()
         LLMaterialEditor* mEditor;
     } savefunc(this);
     LLSelectMgr::getInstance()->getSelection()->applyToObjects(&savefunc);
+}
+
+void LLMaterialEditor::updateLive()
+{
+    const LLSD floater_key(LIVE_MATERIAL_EDITOR_KEY);
+    LLFloater* instance = LLFloaterReg::findInstance("material_editor", floater_key);
+    if (instance && LLFloater::isVisible(instance))
+    {
+        LLMaterialEditor* me = (LLMaterialEditor*)instance;
+        if (me)
+        {
+            me->clearTextures();
+            me->setFromSelection();
+        }
+    }
 }
 
 void LLMaterialEditor::loadLive()
@@ -2164,6 +2180,9 @@ void LLMaterialEditor::applyToSelection()
         // TODO figure out how to get the right asset id in cases where we don't have a good one
         LLRenderMaterialOverrideFunctor override_func(this, url);
         selected_objects->applyToTEs(&override_func);
+
+        // we posted all changes
+        mUnsavedChanges = 0;
     }
     else
     {
