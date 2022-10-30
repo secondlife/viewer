@@ -668,11 +668,11 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 
 		if (cgl_err != kCGLNoError )
 		{
-			LL_DEBUGS("GLInit") << "Multi-threaded OpenGL not available." << LL_ENDL;
+			LL_INFOS("GLInit") << "Multi-threaded OpenGL not available." << LL_ENDL;
 		}
 		else
 		{
-			LL_DEBUGS("GLInit") << "Multi-threaded OpenGL enabled." << LL_ENDL;
+            LL_INFOS("GLInit") << "Multi-threaded OpenGL enabled." << LL_ENDL;
 		}
 	}
 	makeFirstResponder(mWindow, mGLView);
