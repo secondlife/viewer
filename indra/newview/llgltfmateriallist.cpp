@@ -31,6 +31,7 @@
 #include "lldispatcher.h"
 #include "llfetchedgltfmaterial.h"
 #include "llfilesystem.h"
+#include "llmaterialeditor.h"
 #include "llsdserialize.h"
 #include "lltinygltfhelper.h"
 #include "llviewercontrol.h"
@@ -116,6 +117,12 @@ namespace
                         if (!success)
                         {
                             LL_WARNS() << "failed to parse GLTF override data.  errors: " << error_msg << " | warnings: " << warn_msg << LL_ENDL;
+
+                            // unblock material editor
+                            if (obj && obj->isAnySelected())
+                            {
+                                LLMaterialEditor::updateLive(object_id, sides[i].asInteger());
+                            }
                         }
                         else
                         {
@@ -128,16 +135,25 @@ namespace
                                 // object not ready to receive override data, queue for later
                                 gGLTFMaterialList.queueOverrideUpdate(object_id, side, override_data);
                             }
+                            else if (obj && obj->isAnySelected())
+                            {
+                                LLMaterialEditor::updateLive(object_id, side);
+                            }
                         }
                     }
 
                     if (obj && side_set.size() != obj->getNumTEs())
                     { // object exists and at least one texture entry needs to have its override data nulled out
+                        bool object_has_selection = obj->isAnySelected();
                         for (int i = 0; i < obj->getNumTEs(); ++i)
                         {
                             if (side_set.find(i) == side_set.end())
                             {
                                 obj->setTEGLTFMaterialOverride(i, nullptr);
+                                if (object_has_selection)
+                                {
+                                    LLMaterialEditor::updateLive(object_id, i);
+                                }
                             }
                         }
                     }
@@ -150,9 +166,14 @@ namespace
             
             if (clear_all && obj)
             { // override list was empty or an error occurred, null out all overrides for this object
+                bool object_has_selection = obj->isAnySelected();
                 for (int i = 0; i < obj->getNumTEs(); ++i)
                 {
                     obj->setTEGLTFMaterialOverride(i, nullptr);
+                    if (object_has_selection)
+                    {
+                        LLMaterialEditor::updateLive(obj->getID(), i);
+                    }
                 }
             }
             return true;
@@ -180,6 +201,7 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
 
     if (iter != mQueuedOverrides.end())
     {
+        bool object_has_selection = obj->isAnySelected();
         override_list_t& overrides = iter->second;
         for (int i = 0; i < overrides.size(); ++i)
         {
@@ -190,6 +212,10 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
                     return;
                 }
                 obj->setTEGLTFMaterialOverride(i, overrides[i]);
+                if (object_has_selection)
+                {
+                    LLMaterialEditor::updateLive(id, i);
+                }
             }
         }
 
@@ -355,7 +381,7 @@ void LLGLTFMaterialList::registerCallbacks()
 }
 
 // static
-void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides)
+void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides, void(*done_callback)(bool) )
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -373,12 +399,20 @@ void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides)
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
+    bool success = true;
     if (!status)
     {
         LL_WARNS() << "Failed to modify material." << LL_ENDL;
+        success = false;
     }
     else if (!result["success"].asBoolean())
     {
         LL_WARNS() << "Failed to modify material: " << result["message"] << LL_ENDL;
+        success = false;
+    }
+
+    if (done_callback)
+    {
+        done_callback(success);
     }
 }

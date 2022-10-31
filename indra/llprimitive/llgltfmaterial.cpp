@@ -241,6 +241,7 @@ void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
     material_out.alphaCutoff = mAlphaCutoff;
 
     mBaseColor.write(material_out.pbrMetallicRoughness.baseColorFactor);
+    material_out.emissiveFactor.resize(3); // 0 size by default
     mEmissiveColor.write(material_out.emissiveFactor);
 
     material_out.pbrMetallicRoughness.metallicFactor = mMetallicFactor;
@@ -477,6 +478,7 @@ void LLGLTFMaterial::writeOverridesToModel(tinygltf::Model& model, S32 mat_index
 
     if (mEmissiveColor != base_material->mEmissiveColor)
     {
+        material_out.emissiveFactor.resize(3); // 0 size by default
         mEmissiveColor.write(material_out.emissiveFactor);
     }
 

@@ -228,6 +228,8 @@ protected:
 	static void		onCommitRepeatsPerMeter(	LLUICtrl* ctrl, void* userinfo);
 	static void		onClickAutoFix(void*);
     static void		onAlignTexture(void*);
+    static void 	onClickBtnLoadInvPBR(void* userdata);
+    static void 	onClickBtnEditPBR(void* userdata);
 
 public: // needs to be accessible to selection manager
     void            onCopyColor(); // records all selected faces
@@ -438,7 +440,6 @@ private:
 	 */
     void onTextureSelectionChanged(LLInventoryItem* itemp);
     void onPbrSelectionChanged(LLInventoryItem* itemp);
-    void onPbrStartEditing();
 
     LLMenuButton*   mMenuClipboardColor;
     LLMenuButton*   mMenuClipboardTexture;

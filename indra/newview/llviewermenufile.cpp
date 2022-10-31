@@ -106,8 +106,7 @@ class LLFileEnableUploadMaterial : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::findInstance("material_editor");
-        if (me && me->isShown())
+        if (!gAgent.getRegionCapability("UpdateMaterialAgentInventory").empty())
         {
             return false;
         }
@@ -1145,6 +1144,7 @@ void init_menu_file()
 
 	view_listener_t::addEnable(new LLFileEnableUpload(), "File.EnableUpload");
 	view_listener_t::addEnable(new LLFileEnableUploadModel(), "File.EnableUploadModel");
+    view_listener_t::addEnable(new LLFileEnableUploadMaterial(), "File.EnableUploadMaterial");
 	view_listener_t::addMenu(new LLMeshEnabled(), "File.MeshEnabled");
 	view_listener_t::addMenu(new LLMeshUploadVisible(), "File.VisibleUploadModel");
 

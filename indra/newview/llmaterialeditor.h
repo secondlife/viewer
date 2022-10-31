@@ -103,8 +103,11 @@ public:
     // will promt to select specific one
     static void loadMaterialFromFile(const std::string& filename, S32 index = -1);
 
-    void onSelectionChanged(); // // live overrides selection changes
+    void onSelectionChanged(); // live overrides selection changes
     void saveLiveValues(); // for restoration on cancel
+
+    static void updateLive();
+    static void updateLive(const LLUUID &object_id, S32 te);
     static void loadLive();
     static void loadObjectSave();
 
@@ -281,8 +284,11 @@ private:
 
     // if true, this instance is live instance editing overrides
     bool mIsOverride = false;
+    bool mOverrideInProgress = false;
     // local id, texture ids per face for object overrides
     // for "cancel" support
+    static LLUUID mOverrideObjectId; // static to avoid searching for the floater
+    static S32 mOverrideObjectTE;
     std::map<U32, uuid_vec_t> mObjectOverridesSavedValues;
     boost::signals2::connection mSelectionUpdateSlot;
 };

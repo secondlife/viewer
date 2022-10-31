@@ -7212,7 +7212,7 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
                     gAgent.getRegionCapability("ModifyMaterialParams"),
                     llsd::map(
                         "object_id", getID(),
-                        "side", te)));
+                        "side", te), nullptr));
         }
 
         // update and send LLRenderMaterialParams
