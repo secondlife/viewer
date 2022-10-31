@@ -109,7 +109,9 @@ public:
     static void updateLive();
     static void updateLive(const LLUUID &object_id, S32 te);
     static void loadLive();
-    static void loadObjectSave();
+
+    static void saveObjectsMaterialAs();
+    static void onSaveObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response);
 
     static void loadFromGLTFMaterial(LLUUID &asset_id);
 
@@ -139,7 +141,6 @@ public:
     bool decodeAsset(const std::vector<char>& buffer);
 
     bool saveIfNeeded();
-    static bool saveToInventoryItem(const std::string &buffer, const LLUUID &item_id, const LLUUID &task_id);
 
     static void finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId);
 
@@ -227,6 +228,9 @@ public:
     U32 getUnsavedChangesFlags() { return mUnsavedChanges; }
 
 private:
+    static bool updateInventoryItem(const std::string &buffer, const LLUUID &item_id, const LLUUID &task_id);
+    static void createInventoryItem(const std::string &buffer, const std::string &name, const std::string &desc);
+
     void setFromGLTFMaterial(LLGLTFMaterial* mat);
     bool setFromSelection();
 

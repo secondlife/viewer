@@ -106,7 +106,7 @@ class LLFileEnableUploadMaterial : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        if (!gAgent.getRegionCapability("UpdateMaterialAgentInventory").empty())
+        if (gAgent.getRegionCapability("UpdateMaterialAgentInventory").empty())
         {
             return false;
         }
