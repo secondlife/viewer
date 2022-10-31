@@ -241,8 +241,14 @@ void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
     material_out.alphaCutoff = mAlphaCutoff;
 
     mBaseColor.write(material_out.pbrMetallicRoughness.baseColorFactor);
+
     material_out.emissiveFactor.resize(3); // 0 size by default
-    mEmissiveColor.write(material_out.emissiveFactor);
+
+    if (mEmissiveColor != LLGLTFMaterial::getDefaultEmissiveColor())
+    {
+        material_out.emissiveFactor.resize(3);
+        mEmissiveColor.write(material_out.emissiveFactor);
+    }
 
     material_out.pbrMetallicRoughness.metallicFactor = mMetallicFactor;
     material_out.pbrMetallicRoughness.roughnessFactor = mRoughnessFactor;
@@ -437,65 +443,6 @@ LLVector2 LLGLTFMaterial::getDefaultTextureScale()
 F32 LLGLTFMaterial::getDefaultTextureRotation()
 {
     return 0.f;
-}
-
-void LLGLTFMaterial::writeOverridesToModel(tinygltf::Model& model, S32 mat_index, LLGLTFMaterial const* base_material) const
-{
-    if (model.materials.size() < mat_index + 1)
-    {
-        model.materials.resize(mat_index + 1);
-    }
-
-    tinygltf::Material& material_out = model.materials[mat_index];
-
-    // TODO - fix handling of resetting to null/default values
-
-    constexpr bool is_override = true;
-
-    // set base color texture
-    writeToTexture(model, material_out.pbrMetallicRoughness.baseColorTexture, GLTF_TEXTURE_INFO_BASE_COLOR, mBaseColorId, is_override, base_material->mBaseColorId);
-    // set normal texture
-    writeToTexture(model, material_out.normalTexture, GLTF_TEXTURE_INFO_NORMAL, mNormalId, is_override, base_material->mNormalId);
-    // set metallic-roughness texture
-    writeToTexture(model, material_out.pbrMetallicRoughness.metallicRoughnessTexture, GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS, mMetallicRoughnessId, is_override, base_material->mMetallicRoughnessId);
-    // set emissive texture
-    writeToTexture(model, material_out.emissiveTexture, GLTF_TEXTURE_INFO_EMISSIVE, mEmissiveId, is_override, base_material->mEmissiveId);
-
-    if (mAlphaMode != base_material->mAlphaMode)
-    {
-        material_out.alphaMode = getAlphaMode();
-    }
-
-    if (mAlphaCutoff != base_material->mAlphaCutoff)
-    {
-        material_out.alphaCutoff = mAlphaCutoff;
-    }
-
-    if (mBaseColor != base_material->mBaseColor)
-    {
-        mBaseColor.write(material_out.pbrMetallicRoughness.baseColorFactor);
-    }
-
-    if (mEmissiveColor != base_material->mEmissiveColor)
-    {
-        material_out.emissiveFactor.resize(3); // 0 size by default
-        mEmissiveColor.write(material_out.emissiveFactor);
-    }
-
-    if (mMetallicFactor != base_material->mMetallicFactor)
-    {
-        material_out.pbrMetallicRoughness.metallicFactor = mMetallicFactor;
-    }
-
-    if (mRoughnessFactor != base_material->mRoughnessFactor)
-    {
-        material_out.pbrMetallicRoughness.roughnessFactor = mRoughnessFactor;
-    }
-
-    if (mDoubleSided != base_material->mDoubleSided)
-    {
-        material_out.doubleSided = mDoubleSided;
-    }
 }
 
 void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)

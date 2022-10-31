@@ -185,9 +185,6 @@ public:
     // write to given tinygltf::Model
     void writeToModel(tinygltf::Model& model, S32 mat_index) const;
 
-    // calculate the fields in this material that differ from a base material and write them out to a given tinygltf::Model
-    void writeOverridesToModel(tinygltf::Model& model, S32 mat_index, LLGLTFMaterial const* base_material) const;
-
     void applyOverride(const LLGLTFMaterial& override_mat);
 
 private:
