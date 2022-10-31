@@ -58,53 +58,52 @@ void processGetRequest(const LLSD& data)
     // Puppetry GET requests are processed here.
     // Expected data format:
     // data = 'command'
-    
-    std::string verb="get";
-    LL_DEBUGS("LLLeapData") << "puppet data: " << data << LL_ENDL;
+    // data = {command:get, get:[thing_one, thing_two, ...]}
+    // data = {command:get, g:[thing_one, thing_two, ...]}
 
-    if (!data.isMap() || !data.has(verb) || !data[verb].isArray() )
+    // always check for short format first...
+    std::string verb="g";
+    if (!data.has(verb))
     {
-        LL_WARNS("Puppet") << "Badly formatted get request" << LL_ENDL;
+        // ... and long format second
+        verb = "get";
+        if (!data.has(verb))
+        {
+            LL_WARNS("Puppet") << "malformed GET: map no 'get' key" << LL_ENDL;
+            return;
+        }
+    }
+    const LLSD& payload = data[verb];
+    if (!payload.isArray())
+    {
+        LL_WARNS("Puppet") << "malformed GET: 'get' value not array" << LL_ENDL;
         return;
     }
-    
-    for ( auto key = data[verb].beginArray(); key != data[verb].endArray(); ++key)
-    {
-        //Simple get requests
 
-        if ( *key == "c" || *key == "camera" )
+    for (auto itr = payload.beginArray(); itr != payload.endArray(); ++itr)
+    {
+        std::string key = itr->asString();
+        if ( *itr == "c" || *itr == "camera" )
         {
             //getCameraNumber returns results immediately as a Response.
             LLPuppetModule::instance().getCameraNumber_(data);
         }
-        else if ( *key == "s" || *key == "skeleton" )
+        else if ( *itr == "s" || *itr == "skeleton" )
         {
-            //send_skeleton
             LLPuppetModule::instance().send_skeleton(data);
         }
     }
 }
 
-void processJoints(const LLSD& data, bool use_ik)
+void processJointData(const std::string& key, const LLSD& data)
 {
-    if (!data.isMap())
-    {
-        LL_WARNS("Puppet") << "Joint data is not a map" << LL_ENDL;
-        return;
-    }
-    
-    if (!isAgentAvatarValid())
-    {
-        LL_WARNS("Puppet") << "Agent avatar is not valid" << LL_ENDL;
-        return;
-    }
-
     LLVOAvatar* voa = static_cast<LLVOAvatar*>(gObjectList.findObject(gAgentID));
     if (!voa)
     {
         LL_WARNS("Puppet") << "No avatar object found for self" << LL_ENDL;
         return;
     }
+
     LLMotion::ptr_t motion(gAgentAvatarp->findMotion(ANIM_AGENT_PUPPET_MOTION));
     if (!motion)
     {
@@ -112,53 +111,70 @@ void processJoints(const LLSD& data, bool use_ik)
         return;
     }
 
-    LL_DEBUGS("LLLeapData") << "puppet data: " << data << LL_ENDL;
+    // the reference frame depends on the key
+    LLPuppetJointEvent::E_REFERENCE_FRAME ref_frame = LLPuppetJointEvent::ROOT_FRAME;
+    if (key == "i" || key == "inverse_kinematics" )
+    {
+        // valid key for ROOT_FRAME
+    }
+    else if (key == "j" || key == "joint_state" )
+    {
+        ref_frame = LLPuppetJointEvent::PARENT_FRAME;
+    }
+    else
+    {
+        // invalid key
+        return;
+    }
 
-    LLVector3 v;
+    LLPuppetModule& puppet_module = LLPuppetModule::instance();
+
     for (LLSD::map_const_iterator joint_itr = data.beginMap();
             joint_itr != data.endMap();
             ++joint_itr)
     {
-        std::string joint_name = joint_itr->first;
-        if (joint_name == "time")
-        {   // Actually shouldn't get 'time', but it's added when writing data to a file.
-            continue;       // Ignore it if it sneaks in here (TBD - is it useful downstream?)
-        }
-
-        LLJoint* joint = voa->getJoint(joint_name);
-        if (!joint)
-        {
-            std::string::const_iterator it = joint_name.begin();
-            if (it != joint_name.end() && std::isdigit(*it))
-            {
-                //joint name not found but started with a digit, try it as a joint_id.
-                joint = voa->getSkeletonJoint(std::stoi(joint_name));
-                if (!joint)
-                {
-                    continue;   //Better luck next joint
-                }
-                else
-                {
-                    joint_name = joint->getName();
-                }
-            }
-        }
-        
-        if (joint_name == "mHead")
-        {   // If the head is animated, stop looking at the mouse
-            LLPuppetModule::instance().disableHeadMotion();
-        }
         const LLSD& params = joint_itr->second;
         if (!params.isMap())
         {
             continue;
         }
 
-        // Record that we've seen this joint name
-        LLPuppetModule::instance().addActiveJoint(joint_name);
+        std::string joint_name = joint_itr->first;
+        LLJoint* joint;
+        S32 joint_index = -1;
+        try
+        {
+            // we first try to extract a joint_index out of joint_name
+            joint_index = std::stoi(joint_name);
+            joint = voa->getJoint(joint_index);
+            if (joint)
+            {
+                joint_name = joint->getName();
+            }
+        }
+        catch (const std::invalid_argument&)
+        {
+            // joint_name wasn't a numerical index
+            // so now we try it as a real name
+            joint = voa->getJoint(joint_name);
+            joint_index = joint->getJointNum();
+        }
+        if (!joint)
+        {
+            continue;
+        }
 
+        if (joint_name == "mHead")
+        {   // If the head is animated, stop looking at the mouse
+            puppet_module.disableHeadMotion();
+        }
+
+        // Record that we've seen this joint name
+        puppet_module.addActiveJoint(joint_name);
+
+        LLVector3 v;
         LLPuppetJointEvent joint_event;
-        joint_event.setJointID(joint->getJointNum());
+        joint_event.setJointID(joint_index);
         for (LLSD::map_const_iterator param_itr = params.beginMap();
                 param_itr != params.endMap();
                 ++param_itr)
@@ -166,19 +182,14 @@ void processJoints(const LLSD& data, bool use_ik)
             const LLSD& value = param_itr->second;
             std::string param_name = param_itr->first;
 
-            if (use_ik)
-            {
-                joint_event.useIK();
-            }
-            
             v.mV[VX] = value.get(0).asReal();
             v.mV[VY] = value.get(1).asReal();
             v.mV[VZ] = value.get(2).asReal();
 
             if ( param_name == "r" || param_name == "rotation" )
             {
-                // Packed quaternions have the imaginary part (e.g. xyz)
                 LLQuaternion q;
+                // Packed quaternions have the imaginary part (xyz)
                 // copy the imaginary part
                 memcpy(q.mQ, v.mV, 3 * sizeof(F32));
                 // compute the real part
@@ -195,13 +206,11 @@ void processJoints(const LLSD& data, bool use_ik)
                 {
                     q.mQ[VW] = sqrtf(1.0f - imaginary_length_squared);
                 }
-                LLPuppetJointEvent::E_REFERENCE_FRAME ref_frame = use_ik ?
-                    LLPuppetJointEvent::ROOT_FRAME : LLPuppetJointEvent::PARENT_FRAME;
                 joint_event.setRotation(q, ref_frame);
             }
             else if (param_name == "p" || param_name == "position" )
             {
-                joint_event.setPosition(v);
+                joint_event.setPosition(v, ref_frame);
             }
             else if (param_name == "s" || param_name == "scale")
             {
@@ -214,7 +223,7 @@ void processJoints(const LLSD& data, bool use_ik)
             {
                 gAgentAvatarp->startMotion(ANIM_AGENT_PUPPET_MOTION);
             }
-            std::static_pointer_cast<LLPuppetMotion>(motion)->addExpressionEvent(joint_event, use_ik);
+            std::static_pointer_cast<LLPuppetMotion>(motion)->addExpressionEvent(joint_event, ref_frame);
         }
     }
 }
@@ -223,34 +232,54 @@ void processSetRequest(const LLSD& data)
 {
     // Puppetry SET requests are processed here.
     // Expected data format:
-    // data = 'command'
-
-    std::string verb="set";
+    // data = {command:set, set:{inverse_kinematics:{...},joint_state:{...}}
+    // data = {command:set, s:{i:{...},j:{...}}
     LL_DEBUGS("LLLeapData") << "puppet data: " << data << LL_ENDL;
 
-    if (!data.isMap() || !data.has(verb) || !data[verb].isMap() )
+    if (!isAgentAvatarValid())
     {
-        LL_WARNS("Puppet") << "Badly formatted get request" << LL_ENDL;
+        LL_WARNS("Puppet") << "Agent avatar is not valid" << LL_ENDL;
         return;
     }
-    
-    for ( auto it = data[verb].beginMap(); it != data[verb].endMap(); ++it)
+
+    // always check for short format first...
+    std::string verb="s";
+    if (!data.has(verb))
     {
-        //Simple get requests
-        std::string key = it->first;
-        if (key == "c" || key == "camera")
+        // ... and long format second
+        verb = "set";
+        if (!data.has(verb))
         {
-        }
-        else if (key == "j" || key == "joint_state")
-        {
-            processJoints(it->second, false);
-        }
-        else if (key == "i" || key == "inverse_kinematics" )
-        {
-            processJoints(it->second, true);
+            LL_WARNS("Puppet") << "malformed SET: map no 'set' key" << LL_ENDL;
+            return;
         }
     }
-    return;
+    const LLSD& payload = data[verb];
+    if (!payload.isMap())
+    {
+        LL_WARNS("Puppet") << "malformed SET: 'set' value not map" << LL_ENDL;
+        return;
+    }
+
+    for (auto it = payload.beginMap(); it != payload.endMap(); ++it)
+    {
+        const std::string& key = it->first;
+        if (key == "c" || key == "camera")
+        {
+            S32 camera_num = it->second;
+            LLPuppetModule& puppet_module = LLPuppetModule::instance();
+            puppet_module.setCameraNumber_(camera_num);
+            puppet_module.sendCameraNumber(); //Notify the leap module of the updated camera choice.
+        }
+
+        const LLSD& joint_data = it->second;
+        if (!joint_data.isMap())
+        {
+            LL_WARNS("Puppet") << "Joint data is not a map" << LL_ENDL;
+            continue;
+        }
+        processJointData(key, joint_data);
+    }
 }
 
 LLPuppetModule::LLPuppetModule() :
@@ -463,6 +492,7 @@ void LLPuppetModule::addActiveJoint(const std::string & joint_name)
 
 bool LLPuppetModule::isActiveJoint(const std::string & joint_name)
 {
+    // TODO: use expiry pattern here
     active_joint_map_t::iterator iter = mActiveJoints.find(joint_name);
     if (iter != mActiveJoints.end())
     {

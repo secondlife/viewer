@@ -93,7 +93,7 @@ public:
     virtual ~LLPuppetMotion() {}
 
     void collectJoints(LLJoint* joint);
-    void addExpressionEvent(const LLPuppetJointEvent& event, bool is_ik);
+    void addExpressionEvent(const LLPuppetJointEvent& event, LLPuppetJointEvent::E_REFERENCE_FRAME ref_frame);
     void queueOutgoingEvent(const LLPuppetEvent& event);
     void unpackEvents(LLMessageSystem *mesgsys,int blocknum);
 
