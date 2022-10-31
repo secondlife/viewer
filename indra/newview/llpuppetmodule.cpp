@@ -147,7 +147,10 @@ void processJointData(const std::string& key, const LLSD& data)
             // we first try to extract a joint_index out of joint_name
             joint_index = std::stoi(joint_name);
             joint = voa->getJoint(joint_index);
-            joint_name = joint->getName();
+            if (joint)
+            {
+                joint_name = joint->getName();
+            }
         }
         catch (const std::invalid_argument&)
         {
