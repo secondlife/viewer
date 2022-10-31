@@ -2221,17 +2221,22 @@ void LLMaterialEditor::applyToSelection()
     std::string url = gAgent.getRegionCapability("ModifyMaterialParams");
     if (!url.empty())
     {
-        mOverrideInProgress = true;
-        LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
-        // TODO figure out how to get the right asset id in cases where we don't have a good one
-        LLRenderMaterialOverrideFunctor override_func(this, url);
-        if (!selected_objects->applyToTEs(&override_func))
+        // Don't send data if there is nothing to send.
+        // Some UI elements will cause multiple commits,
+        // like spin ctrls on click and on down
+        if (mUnsavedChanges != 0)
         {
-            mOverrideInProgress = false;
-        }
+            mOverrideInProgress = true;
+            LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
+            LLRenderMaterialOverrideFunctor override_func(this, url);
+            if (!selected_objects->applyToTEs(&override_func))
+            {
+                mOverrideInProgress = false;
+            }
 
-        // we posted all changes
-        mUnsavedChanges = 0;
+            // we posted all changes
+            mUnsavedChanges = 0;
+        }
     }
     else
     {
