@@ -1746,7 +1746,6 @@ void LLMaterialEditor::saveObjectsMaterialAs()
 
     if (func.mMaterial.notNull())
     {
-        func.mMaterial;
         payload["data"] = func.mMaterial->asJSON();
     }
     else
