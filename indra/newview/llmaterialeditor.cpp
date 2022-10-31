@@ -86,6 +86,9 @@ static const U32 MATERIAL_DOUBLE_SIDED_DIRTY = 0x1 << 9;
 static const U32 MATERIAL_ALPHA_MODE_DIRTY = 0x1 << 10;
 static const U32 MATERIAL_ALPHA_CUTOFF_DIRTY = 0x1 << 11;
 
+LLUUID LLMaterialEditor::mOverrideObjectId;
+S32 LLMaterialEditor::mOverrideObjectTE = -1;
+
 LLFloaterComboOptions::LLFloaterComboOptions()
     : LLFloater(LLSD())
 {
@@ -1518,8 +1521,16 @@ void LLMaterialEditor::onSelectionChanged()
 {
     // This won't get deletion or deselectAll()
     // Might need to handle that separately
-    clearTextures();
-    setFromSelection();
+
+    // Drop selection updates if we are waiting for
+    // overrides to finish aplying to not reset values
+    // (might need a timeout)
+    if (!mOverrideInProgress)
+    {
+        clearTextures();
+        setFromSelection();
+    }
+
     // At the moment all cahges are 'live' so don't reset dirty flags
     // saveLiveValues(); todo
 }
@@ -1564,6 +1575,29 @@ void LLMaterialEditor::updateLive()
         LLMaterialEditor* me = (LLMaterialEditor*)instance;
         if (me)
         {
+            me->mOverrideInProgress = false;
+            me->clearTextures();
+            me->setFromSelection();
+        }
+    }
+}
+
+void LLMaterialEditor::updateLive(const LLUUID &object_id, S32 te)
+{
+    if (mOverrideObjectId != object_id
+        || mOverrideObjectTE != te)
+    {
+        // Not an update we are waiting for
+        return;
+    }
+    const LLSD floater_key(LIVE_MATERIAL_EDITOR_KEY);
+    LLFloater* instance = LLFloaterReg::findInstance("material_editor", floater_key);
+    if (instance && LLFloater::isVisible(instance))
+    {
+        LLMaterialEditor* me = (LLMaterialEditor*)instance;
+        if (me)
+        {
+            me->mOverrideInProgress = false;
             me->clearTextures();
             me->setFromSelection();
         }
@@ -1577,6 +1611,7 @@ void LLMaterialEditor::loadLive()
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", floater_key);
     if (me)
     {
+        me->mOverrideInProgress = false;
         me->setFromSelection();
         me->setTitle(me->getString("material_override_title"));
         me->childSetVisible("save", false);
@@ -2152,9 +2187,19 @@ public:
                 "side", te,
                 "gltf_json", overrides_json
             );
-            LLCoros::instance().launch("modifyMaterialCoro", std::bind(&LLGLTFMaterialList::modifyMaterialCoro, mCapUrl, overrides));
+            LLCoros::instance().launch("modifyMaterialCoro", std::bind(&LLGLTFMaterialList::modifyMaterialCoro, mCapUrl, overrides, modifyCallback));
         }
         return true;
+    }
+
+    static void modifyCallback(bool success)
+    {
+        if (!success)
+        {
+            // something went wrong update selection
+            LLMaterialEditor::updateLive();
+        }
+        // else we will get updateLive(obj, id) from aplied overrides
     }
 
 private:
@@ -2176,10 +2221,14 @@ void LLMaterialEditor::applyToSelection()
     std::string url = gAgent.getRegionCapability("ModifyMaterialParams");
     if (!url.empty())
     {
+        mOverrideInProgress = true;
         LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
         // TODO figure out how to get the right asset id in cases where we don't have a good one
         LLRenderMaterialOverrideFunctor override_func(this, url);
-        selected_objects->applyToTEs(&override_func);
+        if (!selected_objects->applyToTEs(&override_func))
+        {
+            mOverrideInProgress = false;
+        }
 
         // we posted all changes
         mUnsavedChanges = 0;
@@ -2247,6 +2296,7 @@ bool LLMaterialEditor::setFromSelection()
             , mIdenticalTexMetal(true)
             , mIdenticalTexEmissive(true)
             , mIdenticalTexNormal(true)
+            , mObjectTE(-1)
             , mFirst(true)
         {}
 
@@ -2284,6 +2334,8 @@ bool LLMaterialEditor::setFromSelection()
                     mTexMetalId = tex_metal_id;
                     mTexEmissiveId = tex_emissive_id;
                     mTexNormalId = tex_normal_id;
+                    mObjectTE = te_index;
+                    mObjectId = objectp->getID();
                     mFirst = false;
                 }
                 else
@@ -2318,6 +2370,8 @@ bool LLMaterialEditor::setFromSelection()
         LLUUID mTexMetalId;
         LLUUID mTexEmissiveId;
         LLUUID mTexNormalId;
+        LLUUID mObjectId;
+        S32 mObjectTE;
         LLPointer<LLGLTFMaterial> mMaterial;
     } func(mIsOverride);
 
@@ -2344,6 +2398,10 @@ bool LLMaterialEditor::setFromSelection()
         mMetallicTextureCtrl->setTentative(!func.mIdenticalTexMetal);
         mEmissiveTextureCtrl->setTentative(!func.mIdenticalTexEmissive);
         mNormalTextureCtrl->setTentative(!func.mIdenticalTexNormal);
+
+        // Memorize selection data for filtering further updates
+        mOverrideObjectId = func.mObjectId;
+        mOverrideObjectTE = func.mObjectTE;
     }
 
     return func.mMaterial.notNull();

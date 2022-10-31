@@ -57,7 +57,7 @@ public:
     //    "object_id": LLUUID - object to be modified
     //    "side": integer - index of face to be modified
     //    "gltf_json" : string - GLTF compliant json of override data (optional, if omitted any existing override data will be cleared)
-    static void modifyMaterialCoro(std::string cap_url, LLSD overrides);
+    static void modifyMaterialCoro(std::string cap_url, LLSD overrides, void(*done_callback)(bool));
     // save an override update for later (for example, if an override arrived for an unknown object)
     void queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFMaterial* override_data);
 
