@@ -33,11 +33,11 @@
 class LLViewerHome
 {
 public:
-	/// return the URL to use for the web-based Home side panel
-	static std::string getHomeURL();
+    /// return the URL to use for the web-based Home side panel
+    static std::string getHomeURL();
 
-	/// return the authentication key for the Home web site
-	static std::string getAuthKey();
+    /// return the authentication key for the Home web site
+    static std::string getAuthKey();
 };
 
 #endif

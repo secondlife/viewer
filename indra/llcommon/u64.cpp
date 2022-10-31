@@ -31,75 +31,75 @@
 
 U64 str_to_U64(const std::string& str)
 {
-	U64 result = 0;
-	const char *aptr = strpbrk(str.c_str(),"0123456789");
+    U64 result = 0;
+    const char *aptr = strpbrk(str.c_str(),"0123456789");
 
-	if (!aptr)
-	{
-		LL_WARNS() << "str_to_U64: Bad string to U64 conversion attempt: format\n" << LL_ENDL;
-	}
-	else
-	{
-		while ((*aptr >= '0') && (*aptr <= '9'))
-		{
-			result = result*10 + (*aptr++ - '0');
-		}
-	}
-	return (result);
+    if (!aptr)
+    {
+        LL_WARNS() << "str_to_U64: Bad string to U64 conversion attempt: format\n" << LL_ENDL;
+    }
+    else
+    {
+        while ((*aptr >= '0') && (*aptr <= '9'))
+        {
+            result = result*10 + (*aptr++ - '0');
+        }
+    }
+    return (result);
 }
 
 
 std::string U64_to_str(U64 value) 
 {
-	std::string res;
-	U32 part1,part2,part3;
-	
-	part3 = (U32)(value % (U64)10000000);
-	
-	value /= 10000000;
-	part2 = (U32)(value % (U64)10000000);
-	
-	value /= 10000000;
-	part1 = (U32)(value % (U64)10000000);
-	
-	// three cases to avoid leading zeroes unless necessary
-	
-	if (part1)
-	{
-		res = llformat("%u%07u%07u",part1,part2,part3);
-	}
-	else if (part2)
-	{
-		res = llformat("%u%07u",part2,part3);
-	}
-	else
-	{
-		res = llformat("%u",part3);	
-	}
-	return res;
+    std::string res;
+    U32 part1,part2,part3;
+    
+    part3 = (U32)(value % (U64)10000000);
+    
+    value /= 10000000;
+    part2 = (U32)(value % (U64)10000000);
+    
+    value /= 10000000;
+    part1 = (U32)(value % (U64)10000000);
+    
+    // three cases to avoid leading zeroes unless necessary
+    
+    if (part1)
+    {
+        res = llformat("%u%07u%07u",part1,part2,part3);
+    }
+    else if (part2)
+    {
+        res = llformat("%u%07u",part2,part3);
+    }
+    else
+    {
+        res = llformat("%u",part3); 
+    }
+    return res;
 } 
 
 char* U64_to_str(U64 value, char* result, S32 result_size) 
 {
-	std::string res = U64_to_str(value);
-	LLStringUtil::copy(result, res.c_str(), result_size);
-	return result;
+    std::string res = U64_to_str(value);
+    LLStringUtil::copy(result, res.c_str(), result_size);
+    return result;
 }
 
 F64 U64_to_F64(const U64 value)
 {
-	S64 top_bits = (S64)(value >> 1);
-	F64 result = (F64)top_bits;
-	result *= 2.f;
-	result += (U32)(value & 0x01);
-	return result;
+    S64 top_bits = (S64)(value >> 1);
+    F64 result = (F64)top_bits;
+    result *= 2.f;
+    result += (U32)(value & 0x01);
+    return result;
 }
 
-U64	llstrtou64(const char* str, char** end, S32 base)
+U64 llstrtou64(const char* str, char** end, S32 base)
 {
 #ifdef LL_WINDOWS
-	return _strtoui64(str,end,base);
+    return _strtoui64(str,end,base);
 #else
-	return strtoull(str,end,base);
+    return strtoull(str,end,base);
 #endif
 }

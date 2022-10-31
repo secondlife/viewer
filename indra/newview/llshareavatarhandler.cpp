@@ -33,35 +33,35 @@
 class LLShareWithAvatarHandler : public LLCommandHandler
 {
 public: 
-	// requires trusted browser to trigger
-	LLShareWithAvatarHandler() : LLCommandHandler("sharewithavatar", UNTRUSTED_THROTTLE) 
-	{ 
-	}
-	
-	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
-	{
-		if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableAvatarShare"))
-		{
-			LLNotificationsUtil::add("NoAvatarShare", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
-			return true;
-		}
+    // requires trusted browser to trigger
+    LLShareWithAvatarHandler() : LLCommandHandler("sharewithavatar", UNTRUSTED_THROTTLE) 
+    { 
+    }
+    
+    bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+    {
+        if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableAvatarShare"))
+        {
+            LLNotificationsUtil::add("NoAvatarShare", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
+            return true;
+        }
 
-		//Make sure we have some parameters
-		if (params.size() == 0)
-		{
-			return false;
-		}
-		
-		//Get the ID
-		LLUUID id;
-		if (!id.set( params[0], FALSE ))
-		{
-			return false;
-		}
-		
-		//instigate share with this avatar
-		LLAvatarActions::share( id );		
-		return true;
-	}
+        //Make sure we have some parameters
+        if (params.size() == 0)
+        {
+            return false;
+        }
+        
+        //Get the ID
+        LLUUID id;
+        if (!id.set( params[0], FALSE ))
+        {
+            return false;
+        }
+        
+        //instigate share with this avatar
+        LLAvatarActions::share( id );       
+        return true;
+    }
 };
 LLShareWithAvatarHandler gShareWithAvatar;

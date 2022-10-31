@@ -32,25 +32,25 @@
 class LLPanelAppearanceTab : public LLPanel
 {
 public:
-	LLPanelAppearanceTab() : LLPanel() {}
-	virtual ~LLPanelAppearanceTab() {}
+    LLPanelAppearanceTab() : LLPanel() {}
+    virtual ~LLPanelAppearanceTab() {}
 
-	virtual void setFilterSubString(const std::string& string) = 0;
+    virtual void setFilterSubString(const std::string& string) = 0;
 
-	virtual bool isActionEnabled(const LLSD& userdata) = 0;
+    virtual bool isActionEnabled(const LLSD& userdata) = 0;
 
-	virtual void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const {}
+    virtual void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const {}
 
-	static const std::string& getFilterSubString() { return sFilterSubString; }
+    static const std::string& getFilterSubString() { return sFilterSubString; }
 
 protected:
 
-	/**
-	 * Returns true if there are any items that can be taken off among currently selected, otherwise false.
-	 */
-	bool canTakeOffSelected();
+    /**
+     * Returns true if there are any items that can be taken off among currently selected, otherwise false.
+     */
+    bool canTakeOffSelected();
 
-	static std::string		sFilterSubString;
+    static std::string      sFilterSubString;
 };
 
 #endif //LL_LLPANELAPPEARANCETAB_H

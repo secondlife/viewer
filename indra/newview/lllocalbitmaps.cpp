@@ -81,797 +81,797 @@ static const S32 LL_LOCAL_UPDATE_RETRIES    = 5;
 /*  LLLocalBitmap: unit class            */
 /*=======================================*/ 
 LLLocalBitmap::LLLocalBitmap(std::string filename)
-	: mFilename(filename)
-	, mShortName(gDirUtilp->getBaseFileName(filename, true))
-	, mValid(false)
-	, mLastModified()
-	, mLinkStatus(LS_ON)
-	, mUpdateRetries(LL_LOCAL_UPDATE_RETRIES)
+    : mFilename(filename)
+    , mShortName(gDirUtilp->getBaseFileName(filename, true))
+    , mValid(false)
+    , mLastModified()
+    , mLinkStatus(LS_ON)
+    , mUpdateRetries(LL_LOCAL_UPDATE_RETRIES)
 {
-	mTrackingID.generate();
+    mTrackingID.generate();
 
-	/* extension */
-	std::string temp_exten = gDirUtilp->getExtension(mFilename);
+    /* extension */
+    std::string temp_exten = gDirUtilp->getExtension(mFilename);
 
-	if (temp_exten == "bmp")
-	{ 
-		mExtension = ET_IMG_BMP;
-	}
-	else if (temp_exten == "tga")
-	{
-		mExtension = ET_IMG_TGA;
-	}
-	else if (temp_exten == "jpg" || temp_exten == "jpeg")
-	{
-		mExtension = ET_IMG_JPG;
-	}
-	else if (temp_exten == "png")
-	{
-		mExtension = ET_IMG_PNG;
-	}
-	else
-	{
-		LL_WARNS() << "File of no valid extension given, local bitmap creation aborted." << "\n"
-			    << "Filename: " << mFilename << LL_ENDL;
-		return; // no valid extension.
-	}
+    if (temp_exten == "bmp")
+    { 
+        mExtension = ET_IMG_BMP;
+    }
+    else if (temp_exten == "tga")
+    {
+        mExtension = ET_IMG_TGA;
+    }
+    else if (temp_exten == "jpg" || temp_exten == "jpeg")
+    {
+        mExtension = ET_IMG_JPG;
+    }
+    else if (temp_exten == "png")
+    {
+        mExtension = ET_IMG_PNG;
+    }
+    else
+    {
+        LL_WARNS() << "File of no valid extension given, local bitmap creation aborted." << "\n"
+                << "Filename: " << mFilename << LL_ENDL;
+        return; // no valid extension.
+    }
 
-	/* next phase of unit creation is nearly the same as an update cycle.
-	   we're running updateSelf as a special case with the optional UT_FIRSTUSE
-	   which omits the parts associated with removing the outdated texture */
-	mValid = updateSelf(UT_FIRSTUSE);
+    /* next phase of unit creation is nearly the same as an update cycle.
+       we're running updateSelf as a special case with the optional UT_FIRSTUSE
+       which omits the parts associated with removing the outdated texture */
+    mValid = updateSelf(UT_FIRSTUSE);
 }
 
 LLLocalBitmap::~LLLocalBitmap()
 {
-	// replace IDs with defaults, if set to do so.
-	if(LL_LOCAL_REPLACE_ON_DEL && mValid && gAgentAvatarp) // fix for STORM-1837
-	{
-		replaceIDs(mWorldID, IMG_DEFAULT);
-		LLLocalBitmapMgr::getInstance()->doRebake();
-	}
+    // replace IDs with defaults, if set to do so.
+    if(LL_LOCAL_REPLACE_ON_DEL && mValid && gAgentAvatarp) // fix for STORM-1837
+    {
+        replaceIDs(mWorldID, IMG_DEFAULT);
+        LLLocalBitmapMgr::getInstance()->doRebake();
+    }
 
-	// delete self from gimagelist
-	LLViewerFetchedTexture* image = gTextureList.findImage(mWorldID, TEX_LIST_STANDARD);
-	gTextureList.deleteImage(image);
+    // delete self from gimagelist
+    LLViewerFetchedTexture* image = gTextureList.findImage(mWorldID, TEX_LIST_STANDARD);
+    gTextureList.deleteImage(image);
 
-	if (image)
-	{
-		image->unref();
-	}
+    if (image)
+    {
+        image->unref();
+    }
 }
 
 /* accessors */
 std::string LLLocalBitmap::getFilename()
 {
-	return mFilename;
+    return mFilename;
 }
 
 std::string LLLocalBitmap::getShortName()
 {
-	return mShortName;
+    return mShortName;
 }
 
 LLUUID LLLocalBitmap::getTrackingID()
 {
-	return mTrackingID;
+    return mTrackingID;
 }
 
 LLUUID LLLocalBitmap::getWorldID()
 {
-	return mWorldID;
+    return mWorldID;
 }
 
 bool LLLocalBitmap::getValid()
 {
-	return mValid;
+    return mValid;
 }
 
 /* update functions */
 bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 {
-	bool updated = false;
-	
-	if (mLinkStatus == LS_ON)
-	{
-		// verifying that the file exists
-		if (gDirUtilp->fileExists(mFilename))
-		{
-			// verifying that the file has indeed been modified
+    bool updated = false;
+    
+    if (mLinkStatus == LS_ON)
+    {
+        // verifying that the file exists
+        if (gDirUtilp->fileExists(mFilename))
+        {
+            // verifying that the file has indeed been modified
 
 #ifndef LL_WINDOWS
-			const std::time_t temp_time = boost::filesystem::last_write_time(boost::filesystem::path(mFilename));
+            const std::time_t temp_time = boost::filesystem::last_write_time(boost::filesystem::path(mFilename));
 #else
-			const std::time_t temp_time = boost::filesystem::last_write_time(boost::filesystem::path(utf8str_to_utf16str(mFilename)));
+            const std::time_t temp_time = boost::filesystem::last_write_time(boost::filesystem::path(utf8str_to_utf16str(mFilename)));
 #endif
-			LLSD new_last_modified = asctime(localtime(&temp_time));
+            LLSD new_last_modified = asctime(localtime(&temp_time));
 
-			if (mLastModified.asString() != new_last_modified.asString())
-			{
-				/* loading the image file and decoding it, here is a critical point which,
-				   if fails, invalidates the whole update (or unit creation) process. */
-				LLPointer<LLImageRaw> raw_image = new LLImageRaw();
-				if (decodeBitmap(raw_image))
-				{
-					// decode is successful, we can safely proceed.
-					LLUUID old_id = LLUUID::null;
-					if ((optional_firstupdate != UT_FIRSTUSE) && !mWorldID.isNull())
-					{
-						old_id = mWorldID;
-					}
-					mWorldID.generate();
-					mLastModified = new_last_modified;
+            if (mLastModified.asString() != new_last_modified.asString())
+            {
+                /* loading the image file and decoding it, here is a critical point which,
+                   if fails, invalidates the whole update (or unit creation) process. */
+                LLPointer<LLImageRaw> raw_image = new LLImageRaw();
+                if (decodeBitmap(raw_image))
+                {
+                    // decode is successful, we can safely proceed.
+                    LLUUID old_id = LLUUID::null;
+                    if ((optional_firstupdate != UT_FIRSTUSE) && !mWorldID.isNull())
+                    {
+                        old_id = mWorldID;
+                    }
+                    mWorldID.generate();
+                    mLastModified = new_last_modified;
 
-					LLPointer<LLViewerFetchedTexture> texture = new LLViewerFetchedTexture
-						("file://"+mFilename, FTT_LOCAL_FILE, mWorldID, LL_LOCAL_USE_MIPMAPS);
+                    LLPointer<LLViewerFetchedTexture> texture = new LLViewerFetchedTexture
+                        ("file://"+mFilename, FTT_LOCAL_FILE, mWorldID, LL_LOCAL_USE_MIPMAPS);
 
-					texture->createGLTexture(LL_LOCAL_DISCARD_LEVEL, raw_image);
-					texture->setCachedRawImage(LL_LOCAL_DISCARD_LEVEL, raw_image);
-					texture->ref(); 
+                    texture->createGLTexture(LL_LOCAL_DISCARD_LEVEL, raw_image);
+                    texture->setCachedRawImage(LL_LOCAL_DISCARD_LEVEL, raw_image);
+                    texture->ref(); 
 
-					gTextureList.addImage(texture, TEX_LIST_STANDARD);
-			
-					if (optional_firstupdate != UT_FIRSTUSE)
-					{
-						// seek out everything old_id uses and replace it with mWorldID
-						replaceIDs(old_id, mWorldID);
+                    gTextureList.addImage(texture, TEX_LIST_STANDARD);
+            
+                    if (optional_firstupdate != UT_FIRSTUSE)
+                    {
+                        // seek out everything old_id uses and replace it with mWorldID
+                        replaceIDs(old_id, mWorldID);
 
-						// remove old_id from gimagelist
-						LLViewerFetchedTexture* image = gTextureList.findImage(old_id, TEX_LIST_STANDARD);
-						if (image != NULL)
-						{
-							gTextureList.deleteImage(image);
-							image->unref();
-						}
-					}
+                        // remove old_id from gimagelist
+                        LLViewerFetchedTexture* image = gTextureList.findImage(old_id, TEX_LIST_STANDARD);
+                        if (image != NULL)
+                        {
+                            gTextureList.deleteImage(image);
+                            image->unref();
+                        }
+                    }
 
-					mUpdateRetries = LL_LOCAL_UPDATE_RETRIES;
-					updated = true;
-				}
+                    mUpdateRetries = LL_LOCAL_UPDATE_RETRIES;
+                    updated = true;
+                }
 
-				// if decoding failed, we get here and it will attempt to decode it in the next cycles
-				// until mUpdateRetries runs out. this is done because some software lock the bitmap while writing to it
-				else
-				{
-					if (mUpdateRetries)
-					{
-						mUpdateRetries--;
-					}
-					else
-					{
-						LL_WARNS() << "During the update process the following file was found" << "\n"
-							    << "but could not be opened or decoded for " << LL_LOCAL_UPDATE_RETRIES << " attempts." << "\n"
-								<< "Filename: " << mFilename << "\n"
-								<< "Disabling further update attempts for this file." << LL_ENDL;
+                // if decoding failed, we get here and it will attempt to decode it in the next cycles
+                // until mUpdateRetries runs out. this is done because some software lock the bitmap while writing to it
+                else
+                {
+                    if (mUpdateRetries)
+                    {
+                        mUpdateRetries--;
+                    }
+                    else
+                    {
+                        LL_WARNS() << "During the update process the following file was found" << "\n"
+                                << "but could not be opened or decoded for " << LL_LOCAL_UPDATE_RETRIES << " attempts." << "\n"
+                                << "Filename: " << mFilename << "\n"
+                                << "Disabling further update attempts for this file." << LL_ENDL;
 
-						LLSD notif_args;
-						notif_args["FNAME"] = mFilename;
-						notif_args["NRETRIES"] = LL_LOCAL_UPDATE_RETRIES;
-						LLNotificationsUtil::add("LocalBitmapsUpdateFailedFinal", notif_args);
+                        LLSD notif_args;
+                        notif_args["FNAME"] = mFilename;
+                        notif_args["NRETRIES"] = LL_LOCAL_UPDATE_RETRIES;
+                        LLNotificationsUtil::add("LocalBitmapsUpdateFailedFinal", notif_args);
 
-						mLinkStatus = LS_BROKEN;
-					}
-				}		
-			}
-			
-		} // end if file exists
+                        mLinkStatus = LS_BROKEN;
+                    }
+                }       
+            }
+            
+        } // end if file exists
 
-		else
-		{
-			LL_WARNS() << "During the update process, the following file was not found." << "\n" 
-			        << "Filename: " << mFilename << "\n"
-				    << "Disabling further update attempts for this file." << LL_ENDL;
+        else
+        {
+            LL_WARNS() << "During the update process, the following file was not found." << "\n" 
+                    << "Filename: " << mFilename << "\n"
+                    << "Disabling further update attempts for this file." << LL_ENDL;
 
-			LLSD notif_args;
-			notif_args["FNAME"] = mFilename;
-			LLNotificationsUtil::add("LocalBitmapsUpdateFileNotFound", notif_args);
+            LLSD notif_args;
+            notif_args["FNAME"] = mFilename;
+            LLNotificationsUtil::add("LocalBitmapsUpdateFileNotFound", notif_args);
 
-			mLinkStatus = LS_BROKEN;
-		}
-	}
+            mLinkStatus = LS_BROKEN;
+        }
+    }
 
-	return updated;
+    return updated;
 }
 
 bool LLLocalBitmap::decodeBitmap(LLPointer<LLImageRaw> rawimg)
 {
-	bool decode_successful = false;
+    bool decode_successful = false;
 
-	switch (mExtension)
-	{
-		case ET_IMG_BMP:
-		{
-			LLPointer<LLImageBMP> bmp_image = new LLImageBMP;
-			if (bmp_image->load(mFilename) && bmp_image->decode(rawimg, 0.0f))
-			{
-				rawimg->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
-				decode_successful = true;
-			}
-			break;
-		}
+    switch (mExtension)
+    {
+        case ET_IMG_BMP:
+        {
+            LLPointer<LLImageBMP> bmp_image = new LLImageBMP;
+            if (bmp_image->load(mFilename) && bmp_image->decode(rawimg, 0.0f))
+            {
+                rawimg->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+                decode_successful = true;
+            }
+            break;
+        }
 
-		case ET_IMG_TGA:
-		{
-			LLPointer<LLImageTGA> tga_image = new LLImageTGA;
-			if ((tga_image->load(mFilename) && tga_image->decode(rawimg))
-			&& ((tga_image->getComponents() == 3) || (tga_image->getComponents() == 4)))
-			{
-				rawimg->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
-				decode_successful = true;
-			}
-			break;
-		}
+        case ET_IMG_TGA:
+        {
+            LLPointer<LLImageTGA> tga_image = new LLImageTGA;
+            if ((tga_image->load(mFilename) && tga_image->decode(rawimg))
+            && ((tga_image->getComponents() == 3) || (tga_image->getComponents() == 4)))
+            {
+                rawimg->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+                decode_successful = true;
+            }
+            break;
+        }
 
-		case ET_IMG_JPG:
-		{
-			LLPointer<LLImageJPEG> jpeg_image = new LLImageJPEG;
-			if (jpeg_image->load(mFilename) && jpeg_image->decode(rawimg, 0.0f))
-			{
-				rawimg->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
-				decode_successful = true;
-			}
-			break;
-		}
+        case ET_IMG_JPG:
+        {
+            LLPointer<LLImageJPEG> jpeg_image = new LLImageJPEG;
+            if (jpeg_image->load(mFilename) && jpeg_image->decode(rawimg, 0.0f))
+            {
+                rawimg->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+                decode_successful = true;
+            }
+            break;
+        }
 
-		case ET_IMG_PNG:
-		{
-			LLPointer<LLImagePNG> png_image = new LLImagePNG;
-			if (png_image->load(mFilename) && png_image->decode(rawimg, 0.0f))
-			{
-				rawimg->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
-				decode_successful = true;
-			}
-			break;
-		}
+        case ET_IMG_PNG:
+        {
+            LLPointer<LLImagePNG> png_image = new LLImagePNG;
+            if (png_image->load(mFilename) && png_image->decode(rawimg, 0.0f))
+            {
+                rawimg->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+                decode_successful = true;
+            }
+            break;
+        }
 
-		default:
-		{
-			// separating this into -several- LL_WARNS() calls because in the extremely unlikely case that this happens
-			// accessing mFilename and any other object properties might very well crash the viewer.
-			// getting here should be impossible, or there's been a pretty serious bug.
+        default:
+        {
+            // separating this into -several- LL_WARNS() calls because in the extremely unlikely case that this happens
+            // accessing mFilename and any other object properties might very well crash the viewer.
+            // getting here should be impossible, or there's been a pretty serious bug.
 
-			LL_WARNS() << "During a decode attempt, the following local bitmap had no properly assigned extension." << LL_ENDL;
-			LL_WARNS() << "Filename: " << mFilename << LL_ENDL;
-		    LL_WARNS() << "Disabling further update attempts for this file." << LL_ENDL;
-			mLinkStatus = LS_BROKEN;
-		}
-	}
+            LL_WARNS() << "During a decode attempt, the following local bitmap had no properly assigned extension." << LL_ENDL;
+            LL_WARNS() << "Filename: " << mFilename << LL_ENDL;
+            LL_WARNS() << "Disabling further update attempts for this file." << LL_ENDL;
+            mLinkStatus = LS_BROKEN;
+        }
+    }
 
-	return decode_successful;
+    return decode_successful;
 }
 
 void LLLocalBitmap::replaceIDs(LLUUID old_id, LLUUID new_id)
 {
-	// checking for misuse.
-	if (old_id == new_id)
-	{
-		LL_INFOS() << "An attempt was made to replace a texture with itself. (matching UUIDs)" << "\n"
-			    << "Texture UUID: " << old_id.asString() << LL_ENDL;
-		return;
-	}
+    // checking for misuse.
+    if (old_id == new_id)
+    {
+        LL_INFOS() << "An attempt was made to replace a texture with itself. (matching UUIDs)" << "\n"
+                << "Texture UUID: " << old_id.asString() << LL_ENDL;
+        return;
+    }
 
-	// processing updates per channel; makes the process scalable.
-	// the only actual difference is in SetTE* call i.e. SetTETexture, SetTENormal, etc.
-	updateUserPrims(old_id, new_id, LLRender::DIFFUSE_MAP);
-	updateUserPrims(old_id, new_id, LLRender::NORMAL_MAP);
-	updateUserPrims(old_id, new_id, LLRender::SPECULAR_MAP);
+    // processing updates per channel; makes the process scalable.
+    // the only actual difference is in SetTE* call i.e. SetTETexture, SetTENormal, etc.
+    updateUserPrims(old_id, new_id, LLRender::DIFFUSE_MAP);
+    updateUserPrims(old_id, new_id, LLRender::NORMAL_MAP);
+    updateUserPrims(old_id, new_id, LLRender::SPECULAR_MAP);
 
-	updateUserVolumes(old_id, new_id, LLRender::LIGHT_TEX);	
-	updateUserVolumes(old_id, new_id, LLRender::SCULPT_TEX); // isn't there supposed to be an IMG_DEFAULT_SCULPT or something?
-	
-	// default safeguard image for layers
-	if( new_id == IMG_DEFAULT )
-	{
-		new_id = IMG_DEFAULT_AVATAR;
-	}
+    updateUserVolumes(old_id, new_id, LLRender::LIGHT_TEX); 
+    updateUserVolumes(old_id, new_id, LLRender::SCULPT_TEX); // isn't there supposed to be an IMG_DEFAULT_SCULPT or something?
+    
+    // default safeguard image for layers
+    if( new_id == IMG_DEFAULT )
+    {
+        new_id = IMG_DEFAULT_AVATAR;
+    }
 
-	/* It doesn't actually update all of those, it merely checks if any of them
-		contain the referenced ID and if so, updates. */
-	updateUserLayers(old_id, new_id, LLWearableType::WT_ALPHA);
-	updateUserLayers(old_id, new_id, LLWearableType::WT_EYES);
-	updateUserLayers(old_id, new_id, LLWearableType::WT_GLOVES);
-	updateUserLayers(old_id, new_id, LLWearableType::WT_JACKET);
-	updateUserLayers(old_id, new_id, LLWearableType::WT_PANTS);
-	updateUserLayers(old_id, new_id, LLWearableType::WT_SHIRT);
-	updateUserLayers(old_id, new_id, LLWearableType::WT_SHOES);
-	updateUserLayers(old_id, new_id, LLWearableType::WT_SKIN);
-	updateUserLayers(old_id, new_id, LLWearableType::WT_SKIRT);
-	updateUserLayers(old_id, new_id, LLWearableType::WT_SOCKS);
-	updateUserLayers(old_id, new_id, LLWearableType::WT_TATTOO);
-	updateUserLayers(old_id, new_id, LLWearableType::WT_UNIVERSAL);
-	updateUserLayers(old_id, new_id, LLWearableType::WT_UNDERPANTS);
-	updateUserLayers(old_id, new_id, LLWearableType::WT_UNDERSHIRT);
+    /* It doesn't actually update all of those, it merely checks if any of them
+        contain the referenced ID and if so, updates. */
+    updateUserLayers(old_id, new_id, LLWearableType::WT_ALPHA);
+    updateUserLayers(old_id, new_id, LLWearableType::WT_EYES);
+    updateUserLayers(old_id, new_id, LLWearableType::WT_GLOVES);
+    updateUserLayers(old_id, new_id, LLWearableType::WT_JACKET);
+    updateUserLayers(old_id, new_id, LLWearableType::WT_PANTS);
+    updateUserLayers(old_id, new_id, LLWearableType::WT_SHIRT);
+    updateUserLayers(old_id, new_id, LLWearableType::WT_SHOES);
+    updateUserLayers(old_id, new_id, LLWearableType::WT_SKIN);
+    updateUserLayers(old_id, new_id, LLWearableType::WT_SKIRT);
+    updateUserLayers(old_id, new_id, LLWearableType::WT_SOCKS);
+    updateUserLayers(old_id, new_id, LLWearableType::WT_TATTOO);
+    updateUserLayers(old_id, new_id, LLWearableType::WT_UNIVERSAL);
+    updateUserLayers(old_id, new_id, LLWearableType::WT_UNDERPANTS);
+    updateUserLayers(old_id, new_id, LLWearableType::WT_UNDERSHIRT);
 }
 
 // this function sorts the faces from a getFaceList[getNumFaces] into a list of objects
 // in order to prevent multiple sendTEUpdate calls per object during updateUserPrims
 std::vector<LLViewerObject*> LLLocalBitmap::prepUpdateObjects(LLUUID old_id, U32 channel)
 {
-	std::vector<LLViewerObject*> obj_list;
-	LLViewerFetchedTexture* old_texture = gTextureList.findImage(old_id, TEX_LIST_STANDARD);
+    std::vector<LLViewerObject*> obj_list;
+    LLViewerFetchedTexture* old_texture = gTextureList.findImage(old_id, TEX_LIST_STANDARD);
 
-	for(U32 face_iterator = 0; face_iterator < old_texture->getNumFaces(channel); face_iterator++)
-	{
-		// getting an object from a face
-		LLFace* face_to_object = (*old_texture->getFaceList(channel))[face_iterator];
+    for(U32 face_iterator = 0; face_iterator < old_texture->getNumFaces(channel); face_iterator++)
+    {
+        // getting an object from a face
+        LLFace* face_to_object = (*old_texture->getFaceList(channel))[face_iterator];
 
-		if(face_to_object)
-		{
-			LLViewerObject* affected_object = face_to_object->getViewerObject();
+        if(face_to_object)
+        {
+            LLViewerObject* affected_object = face_to_object->getViewerObject();
 
-			if(affected_object)
-			{
+            if(affected_object)
+            {
 
-				// we have an object, we'll take it's UUID and compare it to
-				// whatever we already have in the returnable object list.
-				// if there is a match - we do not add (to prevent duplicates)
-				LLUUID mainlist_obj_id = affected_object->getID();
-				bool add_object = true;
+                // we have an object, we'll take it's UUID and compare it to
+                // whatever we already have in the returnable object list.
+                // if there is a match - we do not add (to prevent duplicates)
+                LLUUID mainlist_obj_id = affected_object->getID();
+                bool add_object = true;
 
-				// begin looking for duplicates
-				std::vector<LLViewerObject*>::iterator objlist_iter = obj_list.begin();
-				for(; (objlist_iter != obj_list.end()) && add_object; objlist_iter++)
-				{
-					LLViewerObject* obj = *objlist_iter;
-					if (obj->getID() == mainlist_obj_id)
-					{
-						add_object = false; // duplicate found.
-					}
-				}
-				// end looking for duplicates
+                // begin looking for duplicates
+                std::vector<LLViewerObject*>::iterator objlist_iter = obj_list.begin();
+                for(; (objlist_iter != obj_list.end()) && add_object; objlist_iter++)
+                {
+                    LLViewerObject* obj = *objlist_iter;
+                    if (obj->getID() == mainlist_obj_id)
+                    {
+                        add_object = false; // duplicate found.
+                    }
+                }
+                // end looking for duplicates
 
-				if(add_object)
-				{
-					obj_list.push_back(affected_object);
-				}
+                if(add_object)
+                {
+                    obj_list.push_back(affected_object);
+                }
 
-			}
+            }
 
-		}
-		
-	} // end of face-iterating for()
+        }
+        
+    } // end of face-iterating for()
 
-	return obj_list;
+    return obj_list;
 }
 
 void LLLocalBitmap::updateUserPrims(LLUUID old_id, LLUUID new_id, U32 channel)
 {
-	std::vector<LLViewerObject*> objectlist = prepUpdateObjects(old_id, channel);
+    std::vector<LLViewerObject*> objectlist = prepUpdateObjects(old_id, channel);
 
-	for(std::vector<LLViewerObject*>::iterator object_iterator = objectlist.begin();
-		object_iterator != objectlist.end(); object_iterator++)
-	{
-		LLViewerObject* object = *object_iterator;
+    for(std::vector<LLViewerObject*>::iterator object_iterator = objectlist.begin();
+        object_iterator != objectlist.end(); object_iterator++)
+    {
+        LLViewerObject* object = *object_iterator;
 
-		if(object)
-		{
-			bool update_tex = false;
-			bool update_mat = false;
-			S32 num_faces = object->getNumFaces();
+        if(object)
+        {
+            bool update_tex = false;
+            bool update_mat = false;
+            S32 num_faces = object->getNumFaces();
 
-			for (U8 face_iter = 0; face_iter < num_faces; face_iter++)
-			{
-				if (object->mDrawable)
-				{
-					LLFace* face = object->mDrawable->getFace(face_iter);
-					if (face && face->getTexture(channel) && face->getTexture(channel)->getID() == old_id)
-					{
-						// these things differ per channel, unless there already is a universal
-						// texture setting function to setTE that takes channel as a param?
-						// p.s.: switch for now, might become if - if an extra test is needed to verify before touching normalmap/specmap
-						switch(channel)
-						{
-							case LLRender::DIFFUSE_MAP:
-					{
+            for (U8 face_iter = 0; face_iter < num_faces; face_iter++)
+            {
+                if (object->mDrawable)
+                {
+                    LLFace* face = object->mDrawable->getFace(face_iter);
+                    if (face && face->getTexture(channel) && face->getTexture(channel)->getID() == old_id)
+                    {
+                        // these things differ per channel, unless there already is a universal
+                        // texture setting function to setTE that takes channel as a param?
+                        // p.s.: switch for now, might become if - if an extra test is needed to verify before touching normalmap/specmap
+                        switch(channel)
+                        {
+                            case LLRender::DIFFUSE_MAP:
+                    {
                                 object->setTETexture(face_iter, new_id);
                                 update_tex = true;
-								break;
-							}
-
-							case LLRender::NORMAL_MAP:
-							{
-								object->setTENormalMap(face_iter, new_id);
-								update_mat = true;
-								update_tex = true;
                                 break;
-							}
+                            }
 
-							case LLRender::SPECULAR_MAP:
-							{
-								object->setTESpecularMap(face_iter, new_id);
+                            case LLRender::NORMAL_MAP:
+                            {
+                                object->setTENormalMap(face_iter, new_id);
                                 update_mat = true;
-								update_tex = true;
+                                update_tex = true;
                                 break;
-							}
-						}
-						// end switch
+                            }
 
-					}
-				}
-			}
-			
-			if (update_tex)
-			{
-				object->sendTEUpdate();
-			}
+                            case LLRender::SPECULAR_MAP:
+                            {
+                                object->setTESpecularMap(face_iter, new_id);
+                                update_mat = true;
+                                update_tex = true;
+                                break;
+                            }
+                        }
+                        // end switch
 
-			if (update_mat)
-			{
+                    }
+                }
+            }
+            
+            if (update_tex)
+            {
+                object->sendTEUpdate();
+            }
+
+            if (update_mat)
+            {
                 object->mDrawable->getVOVolume()->faceMappingChanged();
-			}
-		}
-	}
+            }
+        }
+    }
 }
 
 void LLLocalBitmap::updateUserVolumes(LLUUID old_id, LLUUID new_id, U32 channel)
 {
-	LLViewerFetchedTexture* old_texture = gTextureList.findImage(old_id, TEX_LIST_STANDARD);
-	for (U32 volume_iter = 0; volume_iter < old_texture->getNumVolumes(channel); volume_iter++)
-	{
-		LLVOVolume* volobjp = (*old_texture->getVolumeList(channel))[volume_iter];
-		switch (channel)
-	{
-			case LLRender::LIGHT_TEX:
-			{
-				if (volobjp->getLightTextureID() == old_id)
-				{
-					volobjp->setLightTextureID(new_id);
-				}
-				break;
-			}
-			case LLRender::SCULPT_TEX:
-			{
-				LLViewerObject* object = (LLViewerObject*)volobjp;
+    LLViewerFetchedTexture* old_texture = gTextureList.findImage(old_id, TEX_LIST_STANDARD);
+    for (U32 volume_iter = 0; volume_iter < old_texture->getNumVolumes(channel); volume_iter++)
+    {
+        LLVOVolume* volobjp = (*old_texture->getVolumeList(channel))[volume_iter];
+        switch (channel)
+    {
+            case LLRender::LIGHT_TEX:
+            {
+                if (volobjp->getLightTextureID() == old_id)
+                {
+                    volobjp->setLightTextureID(new_id);
+                }
+                break;
+            }
+            case LLRender::SCULPT_TEX:
+            {
+                LLViewerObject* object = (LLViewerObject*)volobjp;
 
-				if (object)
-		{
-			if (object->isSculpted() && object->getVolume() &&
-				object->getVolume()->getParams().getSculptID() == old_id)
-			{
-				LLSculptParams* old_params = (LLSculptParams*)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-				LLSculptParams new_params(*old_params);
-				new_params.setSculptTexture(new_id, (*old_params).getSculptType());
-				object->setParameterEntry(LLNetworkData::PARAMS_SCULPT, new_params, TRUE);
-			}
-		}
-	}
-		}
-	}
+                if (object)
+        {
+            if (object->isSculpted() && object->getVolume() &&
+                object->getVolume()->getParams().getSculptID() == old_id)
+            {
+                LLSculptParams* old_params = (LLSculptParams*)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+                LLSculptParams new_params(*old_params);
+                new_params.setSculptTexture(new_id, (*old_params).getSculptType());
+                object->setParameterEntry(LLNetworkData::PARAMS_SCULPT, new_params, TRUE);
+            }
+        }
+    }
+        }
+    }
 }
 
 void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableType::EType type)
 {
-	U32 count = gAgentWearables.getWearableCount(type);
-	for(U32 wearable_iter = 0; wearable_iter < count; wearable_iter++)
-	{
-		LLViewerWearable* wearable = gAgentWearables.getViewerWearable(type, wearable_iter);
-		if (wearable)
-		{
-			std::vector<LLLocalTextureObject*> texture_list = wearable->getLocalTextureListSeq();
-			for(std::vector<LLLocalTextureObject*>::iterator texture_iter = texture_list.begin();
-				texture_iter != texture_list.end(); texture_iter++)
-			{
-				LLLocalTextureObject* lto = *texture_iter;
+    U32 count = gAgentWearables.getWearableCount(type);
+    for(U32 wearable_iter = 0; wearable_iter < count; wearable_iter++)
+    {
+        LLViewerWearable* wearable = gAgentWearables.getViewerWearable(type, wearable_iter);
+        if (wearable)
+        {
+            std::vector<LLLocalTextureObject*> texture_list = wearable->getLocalTextureListSeq();
+            for(std::vector<LLLocalTextureObject*>::iterator texture_iter = texture_list.begin();
+                texture_iter != texture_list.end(); texture_iter++)
+            {
+                LLLocalTextureObject* lto = *texture_iter;
 
-				if (lto && lto->getID() == old_id)
-				{
-					U32 local_texlayer_index = 0; /* can't keep that as static const, gives errors, so i'm leaving this var here */
-					LLAvatarAppearanceDefines::EBakedTextureIndex baked_texind =
-						lto->getTexLayer(local_texlayer_index)->getTexLayerSet()->getBakedTexIndex();
-				
-					LLAvatarAppearanceDefines::ETextureIndex reg_texind = getTexIndex(type, baked_texind);
-					if (reg_texind != LLAvatarAppearanceDefines::TEX_NUM_INDICES)
-					{
-						U32 index;
-						if (gAgentWearables.getWearableIndex(wearable,index))
-						{
-							gAgentAvatarp->setLocalTexture(reg_texind, gTextureList.getImage(new_id), FALSE, index);
-							gAgentAvatarp->wearableUpdated(type);
-							/* telling the manager to rebake once update cycle is fully done */
-							LLLocalBitmapMgr::getInstance()->setNeedsRebake();
-						}
-					}
+                if (lto && lto->getID() == old_id)
+                {
+                    U32 local_texlayer_index = 0; /* can't keep that as static const, gives errors, so i'm leaving this var here */
+                    LLAvatarAppearanceDefines::EBakedTextureIndex baked_texind =
+                        lto->getTexLayer(local_texlayer_index)->getTexLayerSet()->getBakedTexIndex();
+                
+                    LLAvatarAppearanceDefines::ETextureIndex reg_texind = getTexIndex(type, baked_texind);
+                    if (reg_texind != LLAvatarAppearanceDefines::TEX_NUM_INDICES)
+                    {
+                        U32 index;
+                        if (gAgentWearables.getWearableIndex(wearable,index))
+                        {
+                            gAgentAvatarp->setLocalTexture(reg_texind, gTextureList.getImage(new_id), FALSE, index);
+                            gAgentAvatarp->wearableUpdated(type);
+                            /* telling the manager to rebake once update cycle is fully done */
+                            LLLocalBitmapMgr::getInstance()->setNeedsRebake();
+                        }
+                    }
 
-				}
-			}
-		}
-	}
+                }
+            }
+        }
+    }
 }
 
 LLAvatarAppearanceDefines::ETextureIndex LLLocalBitmap::getTexIndex(
-	LLWearableType::EType type, LLAvatarAppearanceDefines::EBakedTextureIndex baked_texind)
+    LLWearableType::EType type, LLAvatarAppearanceDefines::EBakedTextureIndex baked_texind)
 {
-	LLAvatarAppearanceDefines::ETextureIndex result = LLAvatarAppearanceDefines::TEX_NUM_INDICES; // using as a default/fail return.
+    LLAvatarAppearanceDefines::ETextureIndex result = LLAvatarAppearanceDefines::TEX_NUM_INDICES; // using as a default/fail return.
 
-	switch(type)
-	{
-		case LLWearableType::WT_ALPHA:
-		{
-			switch(baked_texind)
-			{
-				case LLAvatarAppearanceDefines::BAKED_EYES:
-				{
-					result = LLAvatarAppearanceDefines::TEX_EYES_ALPHA;
-					break;
-				}
+    switch(type)
+    {
+        case LLWearableType::WT_ALPHA:
+        {
+            switch(baked_texind)
+            {
+                case LLAvatarAppearanceDefines::BAKED_EYES:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_EYES_ALPHA;
+                    break;
+                }
 
-				case LLAvatarAppearanceDefines::BAKED_HAIR:
-				{
-					result = LLAvatarAppearanceDefines::TEX_HAIR_ALPHA;
-					break;
-				}
+                case LLAvatarAppearanceDefines::BAKED_HAIR:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_HAIR_ALPHA;
+                    break;
+                }
 
-				case LLAvatarAppearanceDefines::BAKED_HEAD:
-				{
-					result = LLAvatarAppearanceDefines::TEX_HEAD_ALPHA;
-					break;
-				}
+                case LLAvatarAppearanceDefines::BAKED_HEAD:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_HEAD_ALPHA;
+                    break;
+                }
 
-				case LLAvatarAppearanceDefines::BAKED_LOWER:
-				{
-					result = LLAvatarAppearanceDefines::TEX_LOWER_ALPHA;
-					break;
-				}
-				case LLAvatarAppearanceDefines::BAKED_UPPER:
-				{
-					result = LLAvatarAppearanceDefines::TEX_UPPER_ALPHA;
-					break;
-				}
+                case LLAvatarAppearanceDefines::BAKED_LOWER:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_LOWER_ALPHA;
+                    break;
+                }
+                case LLAvatarAppearanceDefines::BAKED_UPPER:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_UPPER_ALPHA;
+                    break;
+                }
 
-				default:
-				{
-					break;
-				}
+                default:
+                {
+                    break;
+                }
 
-			}
-			break;
+            }
+            break;
 
-		}
+        }
 
-		case LLWearableType::WT_EYES:
-		{
-			if (baked_texind == LLAvatarAppearanceDefines::BAKED_EYES)
-			{
-				result = LLAvatarAppearanceDefines::TEX_EYES_IRIS;
-			}
+        case LLWearableType::WT_EYES:
+        {
+            if (baked_texind == LLAvatarAppearanceDefines::BAKED_EYES)
+            {
+                result = LLAvatarAppearanceDefines::TEX_EYES_IRIS;
+            }
 
-			break;
-		}
+            break;
+        }
 
-		case LLWearableType::WT_GLOVES:
-		{
-			if (baked_texind == LLAvatarAppearanceDefines::BAKED_UPPER)
-			{
-				result = LLAvatarAppearanceDefines::TEX_UPPER_GLOVES;
-			}
+        case LLWearableType::WT_GLOVES:
+        {
+            if (baked_texind == LLAvatarAppearanceDefines::BAKED_UPPER)
+            {
+                result = LLAvatarAppearanceDefines::TEX_UPPER_GLOVES;
+            }
 
-			break;
-		}
+            break;
+        }
 
-		case LLWearableType::WT_JACKET:
-		{
-			if (baked_texind == LLAvatarAppearanceDefines::BAKED_LOWER)
-			{
-				result = LLAvatarAppearanceDefines::TEX_LOWER_JACKET;
-			}
-			else if (baked_texind == LLAvatarAppearanceDefines::BAKED_UPPER)
-			{
-				result = LLAvatarAppearanceDefines::TEX_UPPER_JACKET;
-			}
+        case LLWearableType::WT_JACKET:
+        {
+            if (baked_texind == LLAvatarAppearanceDefines::BAKED_LOWER)
+            {
+                result = LLAvatarAppearanceDefines::TEX_LOWER_JACKET;
+            }
+            else if (baked_texind == LLAvatarAppearanceDefines::BAKED_UPPER)
+            {
+                result = LLAvatarAppearanceDefines::TEX_UPPER_JACKET;
+            }
 
-			break;
-		}
+            break;
+        }
 
-		case LLWearableType::WT_PANTS:
-		{
-			if (baked_texind == LLAvatarAppearanceDefines::BAKED_LOWER)
-			{
-				result = LLAvatarAppearanceDefines::TEX_LOWER_PANTS;
-			}
+        case LLWearableType::WT_PANTS:
+        {
+            if (baked_texind == LLAvatarAppearanceDefines::BAKED_LOWER)
+            {
+                result = LLAvatarAppearanceDefines::TEX_LOWER_PANTS;
+            }
 
-			break;
-		}
+            break;
+        }
 
-		case LLWearableType::WT_SHIRT:
-		{
-			if (baked_texind == LLAvatarAppearanceDefines::BAKED_UPPER)
-			{
-				result = LLAvatarAppearanceDefines::TEX_UPPER_SHIRT;
-			}
+        case LLWearableType::WT_SHIRT:
+        {
+            if (baked_texind == LLAvatarAppearanceDefines::BAKED_UPPER)
+            {
+                result = LLAvatarAppearanceDefines::TEX_UPPER_SHIRT;
+            }
 
-			break;
-		}
+            break;
+        }
 
-		case LLWearableType::WT_SHOES:
-		{
-			if (baked_texind == LLAvatarAppearanceDefines::BAKED_LOWER)
-			{
-				result = LLAvatarAppearanceDefines::TEX_LOWER_SHOES;
-			}
+        case LLWearableType::WT_SHOES:
+        {
+            if (baked_texind == LLAvatarAppearanceDefines::BAKED_LOWER)
+            {
+                result = LLAvatarAppearanceDefines::TEX_LOWER_SHOES;
+            }
 
-			break;
-		}
+            break;
+        }
 
-		case LLWearableType::WT_SKIN:
-		{
-			switch(baked_texind)
-			{
-				case LLAvatarAppearanceDefines::BAKED_HEAD:
-				{
-					result = LLAvatarAppearanceDefines::TEX_HEAD_BODYPAINT;
-					break;
-				}
+        case LLWearableType::WT_SKIN:
+        {
+            switch(baked_texind)
+            {
+                case LLAvatarAppearanceDefines::BAKED_HEAD:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_HEAD_BODYPAINT;
+                    break;
+                }
 
-				case LLAvatarAppearanceDefines::BAKED_LOWER:
-				{
-					result = LLAvatarAppearanceDefines::TEX_LOWER_BODYPAINT;
-					break;
-				}
-				case LLAvatarAppearanceDefines::BAKED_UPPER:
-				{
-					result = LLAvatarAppearanceDefines::TEX_UPPER_BODYPAINT;
-					break;
-				}
+                case LLAvatarAppearanceDefines::BAKED_LOWER:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_LOWER_BODYPAINT;
+                    break;
+                }
+                case LLAvatarAppearanceDefines::BAKED_UPPER:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_UPPER_BODYPAINT;
+                    break;
+                }
 
-				default:
-				{
-					break;
-				}
+                default:
+                {
+                    break;
+                }
 
-			}
-			break;
-		}
+            }
+            break;
+        }
 
-		case LLWearableType::WT_SKIRT:
-		{
-			if (baked_texind == LLAvatarAppearanceDefines::BAKED_SKIRT)
-			{
-				result = LLAvatarAppearanceDefines::TEX_SKIRT;
-			}
+        case LLWearableType::WT_SKIRT:
+        {
+            if (baked_texind == LLAvatarAppearanceDefines::BAKED_SKIRT)
+            {
+                result = LLAvatarAppearanceDefines::TEX_SKIRT;
+            }
 
-			break;
-		}
+            break;
+        }
 
-		case LLWearableType::WT_SOCKS:
-		{
-			if (baked_texind == LLAvatarAppearanceDefines::BAKED_LOWER)
-			{
-				result = LLAvatarAppearanceDefines::TEX_LOWER_SOCKS;
-			}
+        case LLWearableType::WT_SOCKS:
+        {
+            if (baked_texind == LLAvatarAppearanceDefines::BAKED_LOWER)
+            {
+                result = LLAvatarAppearanceDefines::TEX_LOWER_SOCKS;
+            }
 
-			break;
-		}
+            break;
+        }
 
-		case LLWearableType::WT_TATTOO:
-		{
-			switch (baked_texind)
-			{
-				case LLAvatarAppearanceDefines::BAKED_HEAD:
-				{
-					result = LLAvatarAppearanceDefines::TEX_HEAD_TATTOO;
-					break;
-				}
+        case LLWearableType::WT_TATTOO:
+        {
+            switch (baked_texind)
+            {
+                case LLAvatarAppearanceDefines::BAKED_HEAD:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_HEAD_TATTOO;
+                    break;
+                }
 
-				case LLAvatarAppearanceDefines::BAKED_LOWER:
-				{
-					result = LLAvatarAppearanceDefines::TEX_LOWER_TATTOO;
-					break;
-				}
-				case LLAvatarAppearanceDefines::BAKED_UPPER:
-				{
-					result = LLAvatarAppearanceDefines::TEX_UPPER_TATTOO;
-					break;
-				}
-				default:
-				{
-					break;
-				}
-			}
-			break;
-			
-		}
-		case LLWearableType::WT_UNIVERSAL:
-		{
-			switch (baked_texind)
-			{
-				
-				case LLAvatarAppearanceDefines::BAKED_SKIRT:
-				{
-					result = LLAvatarAppearanceDefines::TEX_SKIRT_TATTOO;
-					break;
-				}
-				case LLAvatarAppearanceDefines::BAKED_EYES:
-				{
-					result = LLAvatarAppearanceDefines::TEX_EYES_TATTOO;
-					break;
-				}
-				case LLAvatarAppearanceDefines::BAKED_HAIR:
-				{
-					result = LLAvatarAppearanceDefines::TEX_HAIR_TATTOO;
-					break;
-				}
-				case LLAvatarAppearanceDefines::BAKED_LEFT_ARM:
-				{
-					result = LLAvatarAppearanceDefines::TEX_LEFT_ARM_TATTOO;
-					break;
-				}
-				case LLAvatarAppearanceDefines::BAKED_LEFT_LEG:
-				{
-					result = LLAvatarAppearanceDefines::TEX_LEFT_LEG_TATTOO;
-					break;
-				}
-				case LLAvatarAppearanceDefines::BAKED_AUX1:
-				{
-					result = LLAvatarAppearanceDefines::TEX_AUX1_TATTOO;
-					break;
-				}
-				case LLAvatarAppearanceDefines::BAKED_AUX2:
-				{
-					result = LLAvatarAppearanceDefines::TEX_AUX2_TATTOO;
-					break;
-				}
-				case LLAvatarAppearanceDefines::BAKED_AUX3:
-				{
-					result = LLAvatarAppearanceDefines::TEX_AUX3_TATTOO;
-					break;
-				}
-				case LLAvatarAppearanceDefines::BAKED_UPPER:
-				{
-					result = LLAvatarAppearanceDefines::TEX_UPPER_UNIVERSAL_TATTOO;
-					break;
-				}
-				case LLAvatarAppearanceDefines::BAKED_LOWER:
-				{
-					result = LLAvatarAppearanceDefines::TEX_LOWER_UNIVERSAL_TATTOO;
-					break;
-				}
-				case LLAvatarAppearanceDefines::BAKED_HEAD:
-				{
-					result = LLAvatarAppearanceDefines::TEX_HEAD_UNIVERSAL_TATTOO;
-					break;
-				}
+                case LLAvatarAppearanceDefines::BAKED_LOWER:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_LOWER_TATTOO;
+                    break;
+                }
+                case LLAvatarAppearanceDefines::BAKED_UPPER:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_UPPER_TATTOO;
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+            break;
+            
+        }
+        case LLWearableType::WT_UNIVERSAL:
+        {
+            switch (baked_texind)
+            {
+                
+                case LLAvatarAppearanceDefines::BAKED_SKIRT:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_SKIRT_TATTOO;
+                    break;
+                }
+                case LLAvatarAppearanceDefines::BAKED_EYES:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_EYES_TATTOO;
+                    break;
+                }
+                case LLAvatarAppearanceDefines::BAKED_HAIR:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_HAIR_TATTOO;
+                    break;
+                }
+                case LLAvatarAppearanceDefines::BAKED_LEFT_ARM:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_LEFT_ARM_TATTOO;
+                    break;
+                }
+                case LLAvatarAppearanceDefines::BAKED_LEFT_LEG:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_LEFT_LEG_TATTOO;
+                    break;
+                }
+                case LLAvatarAppearanceDefines::BAKED_AUX1:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_AUX1_TATTOO;
+                    break;
+                }
+                case LLAvatarAppearanceDefines::BAKED_AUX2:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_AUX2_TATTOO;
+                    break;
+                }
+                case LLAvatarAppearanceDefines::BAKED_AUX3:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_AUX3_TATTOO;
+                    break;
+                }
+                case LLAvatarAppearanceDefines::BAKED_UPPER:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_UPPER_UNIVERSAL_TATTOO;
+                    break;
+                }
+                case LLAvatarAppearanceDefines::BAKED_LOWER:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_LOWER_UNIVERSAL_TATTOO;
+                    break;
+                }
+                case LLAvatarAppearanceDefines::BAKED_HEAD:
+                {
+                    result = LLAvatarAppearanceDefines::TEX_HEAD_UNIVERSAL_TATTOO;
+                    break;
+                }
 
 
-				default:
-				{
-					break;
-				}
+                default:
+                {
+                    break;
+                }
 
-			}
-			break;
-		}
+            }
+            break;
+        }
 
-		case LLWearableType::WT_UNDERPANTS:
-		{
-			if (baked_texind == LLAvatarAppearanceDefines::BAKED_LOWER)
-			{
-				result = LLAvatarAppearanceDefines::TEX_LOWER_UNDERPANTS;
-			}
+        case LLWearableType::WT_UNDERPANTS:
+        {
+            if (baked_texind == LLAvatarAppearanceDefines::BAKED_LOWER)
+            {
+                result = LLAvatarAppearanceDefines::TEX_LOWER_UNDERPANTS;
+            }
 
-			break;
-		}
+            break;
+        }
 
-		case LLWearableType::WT_UNDERSHIRT:
-		{
-			if (baked_texind == LLAvatarAppearanceDefines::BAKED_UPPER)
-			{
-				result = LLAvatarAppearanceDefines::TEX_UPPER_UNDERSHIRT;
-			}
+        case LLWearableType::WT_UNDERSHIRT:
+        {
+            if (baked_texind == LLAvatarAppearanceDefines::BAKED_UPPER)
+            {
+                result = LLAvatarAppearanceDefines::TEX_UPPER_UNDERSHIRT;
+            }
 
-			break;
-		}
+            break;
+        }
 
-		default:
-		{
-			LL_WARNS() << "Unknown wearable type: " << (int)type << "\n"
-				    << "Baked Texture Index: " << (int)baked_texind << "\n"
-					<< "Filename: " << mFilename << "\n"
-					<< "TrackingID: " << mTrackingID << "\n"
-					<< "InworldID: " << mWorldID << LL_ENDL;
-		}
+        default:
+        {
+            LL_WARNS() << "Unknown wearable type: " << (int)type << "\n"
+                    << "Baked Texture Index: " << (int)baked_texind << "\n"
+                    << "Filename: " << mFilename << "\n"
+                    << "TrackingID: " << mTrackingID << "\n"
+                    << "InworldID: " << mWorldID << LL_ENDL;
+        }
 
-	}
-	return result;
+    }
+    return result;
 }
 
 /*=======================================*/
@@ -887,23 +887,23 @@ LLLocalBitmapTimer::~LLLocalBitmapTimer()
 
 void LLLocalBitmapTimer::startTimer()
 {
-	mEventTimer.start();
+    mEventTimer.start();
 }
 
 void LLLocalBitmapTimer::stopTimer()
 {
-	mEventTimer.stop();
+    mEventTimer.stop();
 }
 
 bool LLLocalBitmapTimer::isRunning()
 {
-	return mEventTimer.getStarted();
+    return mEventTimer.getStarted();
 }
 
 BOOL LLLocalBitmapTimer::tick()
 {
-	LLLocalBitmapMgr::getInstance()->doUpdates();
-	return FALSE;
+    LLLocalBitmapMgr::getInstance()->doUpdates();
+    return FALSE;
 }
 
 /*=======================================*/
@@ -951,99 +951,99 @@ LLUUID LLLocalBitmapMgr::addUnit(const std::string &filename)
 
 bool LLLocalBitmapMgr::addUnit()
 {
-	bool add_successful = false;
+    bool add_successful = false;
 
-	LLFilePicker& picker = LLFilePicker::instance();
-	if (picker.getMultipleOpenFiles(LLFilePicker::FFLOAD_IMAGE))
-	{
-		mTimer.stopTimer();
+    LLFilePicker& picker = LLFilePicker::instance();
+    if (picker.getMultipleOpenFiles(LLFilePicker::FFLOAD_IMAGE))
+    {
+        mTimer.stopTimer();
 
-		std::string filename = picker.getFirstFile();
-		while(!filename.empty())
-		{
+        std::string filename = picker.getFirstFile();
+        while(!filename.empty())
+        {
             if (addUnit(filename).notNull())
             {
                 add_successful = true;
             }
-			filename = picker.getNextFile();
-		}
-		
-		mTimer.startTimer();
-	}
+            filename = picker.getNextFile();
+        }
+        
+        mTimer.startTimer();
+    }
 
-	return add_successful;
+    return add_successful;
 }
 
 bool LLLocalBitmapMgr::checkTextureDimensions(std::string filename)
 {
-	std::string exten = gDirUtilp->getExtension(filename);
-	U32 codec = LLImageBase::getCodecFromExtension(exten);
-	std::string mImageLoadError;
-	LLImageDimensionsInfo image_info;
-	if (!image_info.load(filename,codec))
-	{
-		return false;
-	}
+    std::string exten = gDirUtilp->getExtension(filename);
+    U32 codec = LLImageBase::getCodecFromExtension(exten);
+    std::string mImageLoadError;
+    LLImageDimensionsInfo image_info;
+    if (!image_info.load(filename,codec))
+    {
+        return false;
+    }
 
-	S32 max_width = gSavedSettings.getS32("max_texture_dimension_X");
-	S32 max_height = gSavedSettings.getS32("max_texture_dimension_Y");
+    S32 max_width = gSavedSettings.getS32("max_texture_dimension_X");
+    S32 max_height = gSavedSettings.getS32("max_texture_dimension_Y");
 
-	if ((image_info.getWidth() > max_width) || (image_info.getHeight() > max_height))
-	{
-		LLStringUtil::format_map_t args;
-		args["WIDTH"] = llformat("%d", max_width);
-		args["HEIGHT"] = llformat("%d", max_height);
-		mImageLoadError = LLTrans::getString("texture_load_dimensions_error", args);
+    if ((image_info.getWidth() > max_width) || (image_info.getHeight() > max_height))
+    {
+        LLStringUtil::format_map_t args;
+        args["WIDTH"] = llformat("%d", max_width);
+        args["HEIGHT"] = llformat("%d", max_height);
+        mImageLoadError = LLTrans::getString("texture_load_dimensions_error", args);
 
-		LLSD notif_args;
-		notif_args["REASON"] = mImageLoadError;
-		LLNotificationsUtil::add("CannotUploadTexture", notif_args);
+        LLSD notif_args;
+        notif_args["REASON"] = mImageLoadError;
+        LLNotificationsUtil::add("CannotUploadTexture", notif_args);
 
-		return false;
-	}
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 void LLLocalBitmapMgr::delUnit(LLUUID tracking_id)
 {
-	if (!mBitmapList.empty())
-	{	
-		std::vector<LLLocalBitmap*> to_delete;
-		for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
-		{   /* finding which ones we want deleted and making a separate list */
-			LLLocalBitmap* unit = *iter;
-			if (unit->getTrackingID() == tracking_id)
-			{
-				to_delete.push_back(unit);
-			}
-		}
+    if (!mBitmapList.empty())
+    {   
+        std::vector<LLLocalBitmap*> to_delete;
+        for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
+        {   /* finding which ones we want deleted and making a separate list */
+            LLLocalBitmap* unit = *iter;
+            if (unit->getTrackingID() == tracking_id)
+            {
+                to_delete.push_back(unit);
+            }
+        }
 
-		for(std::vector<LLLocalBitmap*>::iterator del_iter = to_delete.begin();
-			del_iter != to_delete.end(); del_iter++)
-		{   /* iterating over a temporary list, hence preserving the iterator validity while deleting. */
-			LLLocalBitmap* unit = *del_iter;
-			mBitmapList.remove(unit);
-			delete unit;
-			unit = NULL;
-		}
-	}
+        for(std::vector<LLLocalBitmap*>::iterator del_iter = to_delete.begin();
+            del_iter != to_delete.end(); del_iter++)
+        {   /* iterating over a temporary list, hence preserving the iterator validity while deleting. */
+            LLLocalBitmap* unit = *del_iter;
+            mBitmapList.remove(unit);
+            delete unit;
+            unit = NULL;
+        }
+    }
 }
 
 LLUUID LLLocalBitmapMgr::getWorldID(LLUUID tracking_id)
 {
-	LLUUID world_id = LLUUID::null;
+    LLUUID world_id = LLUUID::null;
 
-	for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
-	{
-		LLLocalBitmap* unit = *iter;
-		if (unit->getTrackingID() == tracking_id)
-		{
-			world_id = unit->getWorldID();
-		}
-	}
+    for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
+    {
+        LLLocalBitmap* unit = *iter;
+        if (unit->getTrackingID() == tracking_id)
+        {
+            world_id = unit->getWorldID();
+        }
+    }
 
-	return world_id;
+    return world_id;
 }
 
 bool LLLocalBitmapMgr::isLocal(const LLUUID world_id)
@@ -1061,73 +1061,73 @@ bool LLLocalBitmapMgr::isLocal(const LLUUID world_id)
 
 std::string LLLocalBitmapMgr::getFilename(LLUUID tracking_id)
 {
-	std::string filename = "";
+    std::string filename = "";
 
-	for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
-	{
-		LLLocalBitmap* unit = *iter;
-		if (unit->getTrackingID() == tracking_id)
-		{
-			filename = unit->getFilename();
-		}
-	}
+    for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
+    {
+        LLLocalBitmap* unit = *iter;
+        if (unit->getTrackingID() == tracking_id)
+        {
+            filename = unit->getFilename();
+        }
+    }
 
-	return filename;
+    return filename;
 }
 
 void LLLocalBitmapMgr::feedScrollList(LLScrollListCtrl* ctrl)
 {
-	if (ctrl)
-	{
-		ctrl->clearRows();
+    if (ctrl)
+    {
+        ctrl->clearRows();
 
-		if (!mBitmapList.empty())
-		{
-			for (local_list_iter iter = mBitmapList.begin();
-				 iter != mBitmapList.end(); iter++)
-			{
-				LLSD element;
-				element["columns"][0]["column"] = "unit_name";
-				element["columns"][0]["type"]   = "text";
-				element["columns"][0]["value"]  = (*iter)->getShortName();
+        if (!mBitmapList.empty())
+        {
+            for (local_list_iter iter = mBitmapList.begin();
+                 iter != mBitmapList.end(); iter++)
+            {
+                LLSD element;
+                element["columns"][0]["column"] = "unit_name";
+                element["columns"][0]["type"]   = "text";
+                element["columns"][0]["value"]  = (*iter)->getShortName();
 
-				element["columns"][1]["column"] = "unit_id_HIDDEN";
-				element["columns"][1]["type"]   = "text";
-				element["columns"][1]["value"]  = (*iter)->getTrackingID();
+                element["columns"][1]["column"] = "unit_id_HIDDEN";
+                element["columns"][1]["type"]   = "text";
+                element["columns"][1]["value"]  = (*iter)->getTrackingID();
 
-				ctrl->addElement(element);
-			}
-		}
-	}
+                ctrl->addElement(element);
+            }
+        }
+    }
 
 }
 
 void LLLocalBitmapMgr::doUpdates()
 {
-	// preventing theoretical overlap in cases with huge number of loaded images.
-	mTimer.stopTimer();
-	mNeedsRebake = false;
+    // preventing theoretical overlap in cases with huge number of loaded images.
+    mTimer.stopTimer();
+    mNeedsRebake = false;
 
-	for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
-	{
-		(*iter)->updateSelf();
-	}
+    for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
+    {
+        (*iter)->updateSelf();
+    }
 
-	doRebake();
-	mTimer.startTimer();
+    doRebake();
+    mTimer.startTimer();
 }
 
 void LLLocalBitmapMgr::setNeedsRebake()
 {
-	mNeedsRebake = true;
+    mNeedsRebake = true;
 }
 
 void LLLocalBitmapMgr::doRebake()
 { /* separated that from doUpdates to insure a rebake can be called separately during deletion */
-	if (mNeedsRebake)
-	{
-		gAgentAvatarp->forceBakeAllTextures(LL_LOCAL_SLAM_FOR_DEBUG);
-		mNeedsRebake = false;
-	}
+    if (mNeedsRebake)
+    {
+        gAgentAvatarp->forceBakeAllTextures(LL_LOCAL_SLAM_FOR_DEBUG);
+        mNeedsRebake = false;
+    }
 }
 

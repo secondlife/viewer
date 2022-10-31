@@ -34,46 +34,46 @@ LLFloaterHandler gFloaterHandler;
 
 LLFloater* get_parent_floater(LLView* view)
 {
-	LLFloater* floater = NULL;
-	LLView* parent = view->getParent();
-	while (parent)
-	{
-		floater = dynamic_cast<LLFloater*>(parent);
-		if (floater)
-		{
-			break;
-		}
-		parent = parent->getParent();
-	}
-	return floater;
+    LLFloater* floater = NULL;
+    LLView* parent = view->getParent();
+    while (parent)
+    {
+        floater = dynamic_cast<LLFloater*>(parent);
+        if (floater)
+        {
+            break;
+        }
+        parent = parent->getParent();
+    }
+    return floater;
 }
 
 
 bool LLFloaterHandler::handle(const LLSD &params, const LLSD &query_map, LLMediaCtrl *web)
 {
-	if (params.size() < 1) return false;
-	LLFloater* floater = NULL;
-	// *TODO: implement floater lookup by name
+    if (params.size() < 1) return false;
+    LLFloater* floater = NULL;
+    // *TODO: implement floater lookup by name
 
-	if (params[0].asString() == "destinations")
-	{
-		LLFloaterReg::toggleInstanceOrBringToFront("destinations");
-		return true;
-	}
-	if (params[0].asString() == "self")
-	{
-		if (web)
-		{
-			floater = get_parent_floater(web);
-		}
-	}
-	if (params[1].asString() == "close")
-	{
-		if (floater)
-		{
-			floater->closeFloater();
-			return true;
-		}
-	}
-	return false;
+    if (params[0].asString() == "destinations")
+    {
+        LLFloaterReg::toggleInstanceOrBringToFront("destinations");
+        return true;
+    }
+    if (params[0].asString() == "self")
+    {
+        if (web)
+        {
+            floater = get_parent_floater(web);
+        }
+    }
+    if (params[1].asString() == "close")
+    {
+        if (floater)
+        {
+            floater->closeFloater();
+            return true;
+        }
+    }
+    return false;
 }

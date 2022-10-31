@@ -40,176 +40,176 @@ template <class TKey, class TData>
 class KeyUseTrackerNodeImpl
 {
 public:
-	U64 mLastUse;
-	U32 mUseCount;
-	TKey mKey;
-	TData mData;
+    U64 mLastUse;
+    U32 mUseCount;
+    TKey mKey;
+    TData mData;
 
-	KeyUseTrackerNodeImpl( TKey k, TData d ) :
-		mLastUse(0),
-		mUseCount(0),
-		mKey( k ),
-		mData( d )
-	{
-	}
+    KeyUseTrackerNodeImpl( TKey k, TData d ) :
+        mLastUse(0),
+        mUseCount(0),
+        mKey( k ),
+        mData( d )
+    {
+    }
 };
 
 
 template <class TKey, class TData>
 class LLKeyUseTracker
 {
-	typedef KeyUseTrackerNodeImpl<TKey,TData> TKeyUseTrackerNode;
-	typedef std::list<TKeyUseTrackerNode *> TKeyList;
-	TKeyList mKeyList;
-	U64 mMemUsecs;
-	U64 mLastExpire;
-	U32 mMaxCount;
-	U32 mCount;
+    typedef KeyUseTrackerNodeImpl<TKey,TData> TKeyUseTrackerNode;
+    typedef std::list<TKeyUseTrackerNode *> TKeyList;
+    TKeyList mKeyList;
+    U64 mMemUsecs;
+    U64 mLastExpire;
+    U32 mMaxCount;
+    U32 mCount;
 
-	static U64 getTime()
-	{
-		// This function operates on a frame basis, not instantaneous.
-		// We can rely on its output for determining first use in a
-		// frame.
-		return LLFrameTimer::getTotalTime();
-	}
+    static U64 getTime()
+    {
+        // This function operates on a frame basis, not instantaneous.
+        // We can rely on its output for determining first use in a
+        // frame.
+        return LLFrameTimer::getTotalTime();
+    }
 
-	void ageKeys()
-	{
-		U64 now = getTime();
-		if( now == mLastExpire )
-		{
-			return;
-		}
-		mLastExpire = now;
+    void ageKeys()
+    {
+        U64 now = getTime();
+        if( now == mLastExpire )
+        {
+            return;
+        }
+        mLastExpire = now;
 
-		while( !mKeyList.empty() && (now - mKeyList.front()->mLastUse > mMemUsecs ) )
-		{
-			delete mKeyList.front();
-			mKeyList.pop_front();
-			mCount--;
-		}
-	}
+        while( !mKeyList.empty() && (now - mKeyList.front()->mLastUse > mMemUsecs ) )
+        {
+            delete mKeyList.front();
+            mKeyList.pop_front();
+            mCount--;
+        }
+    }
 
-	TKeyUseTrackerNode *findNode( TKey key )
-	{
-		ageKeys();
+    TKeyUseTrackerNode *findNode( TKey key )
+    {
+        ageKeys();
 
-		typename TKeyList::iterator i;
-		for( i = mKeyList.begin(); i != mKeyList.end(); i++ )
-		{
-			if( (*i)->mKey == key )
-				return *i;
-		}
+        typename TKeyList::iterator i;
+        for( i = mKeyList.begin(); i != mKeyList.end(); i++ )
+        {
+            if( (*i)->mKey == key )
+                return *i;
+        }
 
-		return NULL;
-	}
+        return NULL;
+    }
 
-	TKeyUseTrackerNode *removeNode( TKey key )
-	{
-		TKeyUseTrackerNode *i;
-		i = findNode( key );
-		if( i )
-		{
-			mKeyList.remove( i );
-			mCount--;
-			return i;
-		}
+    TKeyUseTrackerNode *removeNode( TKey key )
+    {
+        TKeyUseTrackerNode *i;
+        i = findNode( key );
+        if( i )
+        {
+            mKeyList.remove( i );
+            mCount--;
+            return i;
+        }
 
-		return NULL;
-	}
+        return NULL;
+    }
 
 public:
-	LLKeyUseTracker( U32 memory_seconds, U32 max_count ) :
-		mLastExpire(0),
-		mMaxCount( max_count ),
-		mCount(0)
-	{
-		mMemUsecs = ((U64)memory_seconds) * 1000000;
-	}
+    LLKeyUseTracker( U32 memory_seconds, U32 max_count ) :
+        mLastExpire(0),
+        mMaxCount( max_count ),
+        mCount(0)
+    {
+        mMemUsecs = ((U64)memory_seconds) * 1000000;
+    }
 
-	~LLKeyUseTracker()
-	{
-		// Flush list
-		while( !mKeyList.empty() )
-		{
-			delete mKeyList.front();
-			mKeyList.pop_front();
-			mCount--;
-		}
-	}
+    ~LLKeyUseTracker()
+    {
+        // Flush list
+        while( !mKeyList.empty() )
+        {
+            delete mKeyList.front();
+            mKeyList.pop_front();
+            mCount--;
+        }
+    }
 
-	void markUse( TKey key, TData data )
-	{
-		TKeyUseTrackerNode *node = removeNode( key );
-		if( !node )
-		{
-			node = new TKeyUseTrackerNode(key, data);
-		}
-		else
-		{
-			// Update data
-			node->mData = data;
-		}
-		node->mLastUse = getTime();
-		node->mUseCount++;
-		mKeyList.push_back( node );
-		mCount++;
+    void markUse( TKey key, TData data )
+    {
+        TKeyUseTrackerNode *node = removeNode( key );
+        if( !node )
+        {
+            node = new TKeyUseTrackerNode(key, data);
+        }
+        else
+        {
+            // Update data
+            node->mData = data;
+        }
+        node->mLastUse = getTime();
+        node->mUseCount++;
+        mKeyList.push_back( node );
+        mCount++;
 
-		// Too many items? Drop head
-		if( mCount > mMaxCount )
-		{
-			delete mKeyList.front();
-			mKeyList.pop_front();
-			mCount--;
-		}
-	}
+        // Too many items? Drop head
+        if( mCount > mMaxCount )
+        {
+            delete mKeyList.front();
+            mKeyList.pop_front();
+            mCount--;
+        }
+    }
 
-	void forgetKey( TKey key )
-	{
-		TKeyUseTrackerNode *node = removeNode( key );
-		if( node )
-		{
-			delete node;
-		}
-	}
+    void forgetKey( TKey key )
+    {
+        TKeyUseTrackerNode *node = removeNode( key );
+        if( node )
+        {
+            delete node;
+        }
+    }
 
-	U32 getUseCount( TKey key )
-	{
-		TKeyUseTrackerNode *node = findNode( key );
-		if( node )
-		{
-			return node->mUseCount;
-		}
-		return 0;
-	}
+    U32 getUseCount( TKey key )
+    {
+        TKeyUseTrackerNode *node = findNode( key );
+        if( node )
+        {
+            return node->mUseCount;
+        }
+        return 0;
+    }
 
-	U64 getTimeSinceUse( TKey key )
-	{
-		TKeyUseTrackerNode *node = findNode( key );
-		if( node )
-		{
-			U64 now = getTime();
-			U64 delta = now - node->mLastUse;
-			return (U32)( delta / 1000000 );
-		}
-		return 0;
-	}
+    U64 getTimeSinceUse( TKey key )
+    {
+        TKeyUseTrackerNode *node = findNode( key );
+        if( node )
+        {
+            U64 now = getTime();
+            U64 delta = now - node->mLastUse;
+            return (U32)( delta / 1000000 );
+        }
+        return 0;
+    }
 
-	TData *getLastUseData( TKey key )
-	{
-		TKeyUseTrackerNode *node = findNode( key );
-		if( node )
-		{
-			return &node->mData;
-		}
-		return NULL;
-	}
+    TData *getLastUseData( TKey key )
+    {
+        TKeyUseTrackerNode *node = findNode( key );
+        if( node )
+        {
+            return &node->mData;
+        }
+        return NULL;
+    }
 
-	U32 getKeyCount()
-	{
-		return mCount;
-	}
+    U32 getKeyCount()
+    {
+        return mCount;
+    }
 };
 
 #endif

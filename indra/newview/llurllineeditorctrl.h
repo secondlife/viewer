@@ -34,58 +34,58 @@
 
 // LLURLLineEditor class performing escaping of an URL while copying or cutting the target text
 class LLURLLineEditor: public LLLineEditor {
-	LOG_CLASS( LLURLLineEditor);
+    LOG_CLASS( LLURLLineEditor);
 
 public:
-	// LLLineEditor overrides to do necessary escaping
-	/*virtual*/		void copy();
-	/*virtual*/ 	void cut();
+    // LLLineEditor overrides to do necessary escaping
+    /*virtual*/     void copy();
+    /*virtual*/     void cut();
 
 protected:
-	LLURLLineEditor(const Params&);
-	friend class LLUICtrlFactory;
-	friend class LLFloaterEditUI;
+    LLURLLineEditor(const Params&);
+    friend class LLUICtrlFactory;
+    friend class LLFloaterEditUI;
 
 private:
-	// util function to escape selected text and copy it to clipboard
-	void 			copyEscapedURLToClipboard();
+    // util function to escape selected text and copy it to clipboard
+    void            copyEscapedURLToClipboard();
 
-	// Helper class to do rollback if needed
-	class LLURLLineEditorRollback
-	{
-	public:
-		LLURLLineEditorRollback( LLURLLineEditor* ed )
-			:
-			mCursorPos( ed->mCursorPos ),
-			mScrollHPos( ed->mScrollHPos ),
-			mIsSelecting( ed->mIsSelecting ),
-			mSelectionStart( ed->mSelectionStart ),
-			mSelectionEnd( ed->mSelectionEnd )
-		{
-			mText = ed->getText();
-		}
+    // Helper class to do rollback if needed
+    class LLURLLineEditorRollback
+    {
+    public:
+        LLURLLineEditorRollback( LLURLLineEditor* ed )
+            :
+            mCursorPos( ed->mCursorPos ),
+            mScrollHPos( ed->mScrollHPos ),
+            mIsSelecting( ed->mIsSelecting ),
+            mSelectionStart( ed->mSelectionStart ),
+            mSelectionEnd( ed->mSelectionEnd )
+        {
+            mText = ed->getText();
+        }
 
-		void doRollback( LLURLLineEditor* ed )
-		{
-			ed->mCursorPos = mCursorPos;
-			ed->mScrollHPos = mScrollHPos;
-			ed->mIsSelecting = mIsSelecting;
-			ed->mSelectionStart = mSelectionStart;
-			ed->mSelectionEnd = mSelectionEnd;
-			ed->mText = mText;
-			ed->mPrevText = mText;
-		}
+        void doRollback( LLURLLineEditor* ed )
+        {
+            ed->mCursorPos = mCursorPos;
+            ed->mScrollHPos = mScrollHPos;
+            ed->mIsSelecting = mIsSelecting;
+            ed->mSelectionStart = mSelectionStart;
+            ed->mSelectionEnd = mSelectionEnd;
+            ed->mText = mText;
+            ed->mPrevText = mText;
+        }
 
-		std::string getText()   { return mText; }
+        std::string getText()   { return mText; }
 
-	private:
-		std::string mText;
-		S32		mCursorPos;
-		S32		mScrollHPos;
-		BOOL	mIsSelecting;
-		S32		mSelectionStart;
-		S32		mSelectionEnd;
-	}; // end class LLURLLineEditorRollback
+    private:
+        std::string mText;
+        S32     mCursorPos;
+        S32     mScrollHPos;
+        BOOL    mIsSelecting;
+        S32     mSelectionStart;
+        S32     mSelectionEnd;
+    }; // end class LLURLLineEditorRollback
 
 };
 

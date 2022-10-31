@@ -33,26 +33,26 @@
 const S32 gMaxRefCount = S32_MAX;
 
 LLRefCount::LLRefCount(const LLRefCount& other)
-:	mRef(0)
+:   mRef(0)
 {
 }
 
 LLRefCount& LLRefCount::operator=(const LLRefCount&)
 {
-	// do nothing, since ref count is specific to *this* reference
-	return *this;
+    // do nothing, since ref count is specific to *this* reference
+    return *this;
 }
 
 LLRefCount::LLRefCount() :
-	mRef(0)
+    mRef(0)
 {
 }
 
 LLRefCount::~LLRefCount()
 { 
-	if (mRef != LL_REFCOUNT_FREE && mRef != 0)
-	{
-		LL_ERRS() << "deleting non-zero reference" << LL_ENDL;
-	}
+    if (mRef != LL_REFCOUNT_FREE && mRef != 0)
+    {
+        LL_ERRS() << "deleting non-zero reference" << LL_ENDL;
+    }
 }
 

@@ -179,29 +179,29 @@ namespace {
 #if 1
 namespace LLMarketplaceImport
 {
-	// Basic interface for this namespace
+    // Basic interface for this namespace
 
-	bool hasSessionCookie();
-	bool inProgress();
-	bool resultPending();
-	S32 getResultStatus();
-	const LLSD& getResults();
+    bool hasSessionCookie();
+    bool inProgress();
+    bool resultPending();
+    S32 getResultStatus();
+    const LLSD& getResults();
 
-	bool establishMarketplaceSessionCookie();
-	bool pollStatus();
-	bool triggerImport();
-	
-	// Internal state variables
+    bool establishMarketplaceSessionCookie();
+    bool pollStatus();
+    bool triggerImport();
+    
+    // Internal state variables
 
-	static std::string sMarketplaceCookie = "";
-	static LLSD sImportId = LLSD::emptyMap();
-	static bool sImportInProgress = false;
-	static bool sImportPostPending = false;
-	static bool sImportGetPending = false;
-	static S32 sImportResultStatus = 0;
-	static LLSD sImportResults = LLSD::emptyMap();
+    static std::string sMarketplaceCookie = "";
+    static LLSD sImportId = LLSD::emptyMap();
+    static bool sImportInProgress = false;
+    static bool sImportPostPending = false;
+    static bool sImportGetPending = false;
+    static S32 sImportResultStatus = 0;
+    static LLSD sImportResults = LLSD::emptyMap();
 
-	// Responders
+    // Responders
 
     void marketplacePostCoro(std::string url)
     {
@@ -329,101 +329,101 @@ namespace LLMarketplaceImport
 
     }
 
-	// Basic API
+    // Basic API
 
-	bool hasSessionCookie()
-	{
-		return !sMarketplaceCookie.empty();
-	}
-	
-	bool inProgress()
-	{
-		return sImportInProgress;
-	}
-	
-	bool resultPending()
-	{
-		return (sImportPostPending || sImportGetPending);
-	}
-	
-	S32 getResultStatus()
-	{
+    bool hasSessionCookie()
+    {
+        return !sMarketplaceCookie.empty();
+    }
+    
+    bool inProgress()
+    {
+        return sImportInProgress;
+    }
+    
+    bool resultPending()
+    {
+        return (sImportPostPending || sImportGetPending);
+    }
+    
+    S32 getResultStatus()
+    {
         return sImportResultStatus;
-	}
-	
-	const LLSD& getResults()
-	{
-		return sImportResults;
-	}
-	
-	static std::string getInventoryImportURL()
-	{
-		std::string url = getMarketplaceURL("MarketplaceURL");
-		
-		url += "api/1/";
-		url += gAgent.getID().getString();
-		url += "/inventory/import/";
-		
-		return url;
-	}
-	
-	bool establishMarketplaceSessionCookie()
-	{
-		if (hasSessionCookie())
-		{
-			return false;
-		}
+    }
+    
+    const LLSD& getResults()
+    {
+        return sImportResults;
+    }
+    
+    static std::string getInventoryImportURL()
+    {
+        std::string url = getMarketplaceURL("MarketplaceURL");
+        
+        url += "api/1/";
+        url += gAgent.getID().getString();
+        url += "/inventory/import/";
+        
+        return url;
+    }
+    
+    bool establishMarketplaceSessionCookie()
+    {
+        if (hasSessionCookie())
+        {
+            return false;
+        }
 
-		sImportInProgress = true;
-		sImportGetPending = true;
-		
-		std::string url = getInventoryImportURL();
+        sImportInProgress = true;
+        sImportGetPending = true;
+        
+        std::string url = getInventoryImportURL();
 
         LLCoros::instance().launch("marketplaceGetCoro",
             boost::bind(&marketplaceGetCoro, url, false));
 
-		return true;
-	}
-	
-	bool pollStatus()
-	{
-		if (!hasSessionCookie())
-		{
-			return false;
-		}
-		
-		sImportGetPending = true;
+        return true;
+    }
+    
+    bool pollStatus()
+    {
+        if (!hasSessionCookie())
+        {
+            return false;
+        }
+        
+        sImportGetPending = true;
 
-		std::string url = getInventoryImportURL();
+        std::string url = getInventoryImportURL();
 
-		url += sImportId.asString();
+        url += sImportId.asString();
 
         LLCoros::instance().launch("marketplaceGetCoro",
             boost::bind(&marketplaceGetCoro, url, true));
         
-		return true;
-	}
-	
-	bool triggerImport()
-	{
-		if (!hasSessionCookie())
-		{
-			return false;
-		}
+        return true;
+    }
+    
+    bool triggerImport()
+    {
+        if (!hasSessionCookie())
+        {
+            return false;
+        }
 
-		sImportId = LLSD::emptyMap();
-		sImportInProgress = true;
-		sImportPostPending = true;
-		sImportResultStatus = MarketplaceErrorCodes::IMPORT_PROCESSING;
-		sImportResults = LLSD::emptyMap();
+        sImportId = LLSD::emptyMap();
+        sImportInProgress = true;
+        sImportPostPending = true;
+        sImportResultStatus = MarketplaceErrorCodes::IMPORT_PROCESSING;
+        sImportResults = LLSD::emptyMap();
 
-		std::string url = getInventoryImportURL();
-		
+        std::string url = getInventoryImportURL();
+        
         LLCoros::instance().launch("marketplacePostCoro",
             boost::bind(&marketplacePostCoro, url));
 
-		return true;
-	}
+        return true;
+    }
 }
 #endif
 
@@ -435,56 +435,56 @@ static const F32 MARKET_IMPORTER_UPDATE_FREQUENCY = 1.0f;
 //static
 void LLMarketplaceInventoryImporter::update()
 {
-	if (instanceExists())
-	{
-		static LLTimer update_timer;
-		if (update_timer.hasExpired())
-		{
-			LLMarketplaceInventoryImporter::instance().updateImport();
-			update_timer.setTimerExpirySec(MARKET_IMPORTER_UPDATE_FREQUENCY);
-		}
-	}
+    if (instanceExists())
+    {
+        static LLTimer update_timer;
+        if (update_timer.hasExpired())
+        {
+            LLMarketplaceInventoryImporter::instance().updateImport();
+            update_timer.setTimerExpirySec(MARKET_IMPORTER_UPDATE_FREQUENCY);
+        }
+    }
 }
 
 LLMarketplaceInventoryImporter::LLMarketplaceInventoryImporter()
-	: mAutoTriggerImport(false)
-	, mImportInProgress(false)
-	, mInitialized(false)
-	, mMarketPlaceStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
-	, mErrorInitSignal(NULL)
-	, mStatusChangedSignal(NULL)
-	, mStatusReportSignal(NULL)
+    : mAutoTriggerImport(false)
+    , mImportInProgress(false)
+    , mInitialized(false)
+    , mMarketPlaceStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
+    , mErrorInitSignal(NULL)
+    , mStatusChangedSignal(NULL)
+    , mStatusReportSignal(NULL)
 {
 }
 
 boost::signals2::connection LLMarketplaceInventoryImporter::setInitializationErrorCallback(const status_report_signal_t::slot_type& cb)
 {
-	if (mErrorInitSignal == NULL)
-	{
-		mErrorInitSignal = new status_report_signal_t();
-	}
-	
-	return mErrorInitSignal->connect(cb);
+    if (mErrorInitSignal == NULL)
+    {
+        mErrorInitSignal = new status_report_signal_t();
+    }
+    
+    return mErrorInitSignal->connect(cb);
 }
 
 boost::signals2::connection LLMarketplaceInventoryImporter::setStatusChangedCallback(const status_changed_signal_t::slot_type& cb)
 {
-	if (mStatusChangedSignal == NULL)
-	{
-		mStatusChangedSignal = new status_changed_signal_t();
-	}
+    if (mStatusChangedSignal == NULL)
+    {
+        mStatusChangedSignal = new status_changed_signal_t();
+    }
 
-	return mStatusChangedSignal->connect(cb);
+    return mStatusChangedSignal->connect(cb);
 }
 
 boost::signals2::connection LLMarketplaceInventoryImporter::setStatusReportCallback(const status_report_signal_t::slot_type& cb)
 {
-	if (mStatusReportSignal == NULL)
-	{
-		mStatusReportSignal = new status_report_signal_t();
-	}
+    if (mStatusReportSignal == NULL)
+    {
+        mStatusReportSignal = new status_report_signal_t();
+    }
 
-	return mStatusReportSignal->connect(cb);
+    return mStatusReportSignal->connect(cb);
 }
 
 void LLMarketplaceInventoryImporter::initialize()
@@ -507,45 +507,45 @@ void LLMarketplaceInventoryImporter::initialize()
 
 void LLMarketplaceInventoryImporter::reinitializeAndTriggerImport()
 {
-	mInitialized = false;
-	mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED;
-	initialize();
-	mAutoTriggerImport = true;
+    mInitialized = false;
+    mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED;
+    initialize();
+    mAutoTriggerImport = true;
 }
 
 bool LLMarketplaceInventoryImporter::triggerImport()
 {
-	const bool import_triggered = LLMarketplaceImport::triggerImport();
-	
-	if (!import_triggered)
-	{
-		reinitializeAndTriggerImport();
-	}
-	
-	return import_triggered;
+    const bool import_triggered = LLMarketplaceImport::triggerImport();
+    
+    if (!import_triggered)
+    {
+        reinitializeAndTriggerImport();
+    }
+    
+    return import_triggered;
 }
 
 void LLMarketplaceInventoryImporter::updateImport()
 {
-	const bool in_progress = LLMarketplaceImport::inProgress();
-	
-	if (in_progress && !LLMarketplaceImport::resultPending())
-	{
-		const bool polling_status = LLMarketplaceImport::pollStatus();
-		
-		if (!polling_status)
-		{
-			reinitializeAndTriggerImport();
-		}
-	}	
-	
-	if (mImportInProgress != in_progress)
-	{
-		mImportInProgress = in_progress;
+    const bool in_progress = LLMarketplaceImport::inProgress();
+    
+    if (in_progress && !LLMarketplaceImport::resultPending())
+    {
+        const bool polling_status = LLMarketplaceImport::pollStatus();
+        
+        if (!polling_status)
+        {
+            reinitializeAndTriggerImport();
+        }
+    }   
+    
+    if (mImportInProgress != in_progress)
+    {
+        mImportInProgress = in_progress;
 
-		// If we are no longer in progress
-		if (!mImportInProgress)
-		{
+        // If we are no longer in progress
+        if (!mImportInProgress)
+        {
             // Look for results success
             mInitialized = LLMarketplaceImport::hasSessionCookie();
 
@@ -586,8 +586,8 @@ void LLMarketplaceInventoryImporter::updateImport()
                     (*mErrorInitSignal)(LLMarketplaceImport::getResultStatus(), LLMarketplaceImport::getResults());
                 }
             }
-		}
-	}
+        }
+    }
     
     // Make sure we trigger the status change with the final state (in case of auto trigger after initialize)
     if (mStatusChangedSignal)
@@ -602,16 +602,16 @@ void LLMarketplaceInventoryImporter::updateImport()
 class LLMarketplaceInventoryObserver : public LLInventoryObserver
 {
 public:
-	LLMarketplaceInventoryObserver() {}
-	virtual ~LLMarketplaceInventoryObserver() {}
-	virtual void changed(U32 mask);
+    LLMarketplaceInventoryObserver() {}
+    virtual ~LLMarketplaceInventoryObserver() {}
+    virtual void changed(U32 mask);
 };
 
 void LLMarketplaceInventoryObserver::changed(U32 mask)
 {
     // When things are added to the marketplace, we might need to re-validate and fix the containing listings
-	if (mask & LLInventoryObserver::ADD)
-	{
+    if (mask & LLInventoryObserver::ADD)
+    {
         const std::set<LLUUID>& changed_items = gInventory.getChangedIDs();
         
         std::set<LLUUID>::const_iterator id_it = changed_items.begin();
@@ -638,7 +638,7 @@ void LLMarketplaceInventoryObserver::changed(U32 mask)
                 LLMarketplaceData::instance().decrementValidationWaiting(obj->getUUID(),count);
             }
         }
-	}
+    }
     
     // When things are changed in the inventory, this can trigger a host of changes in the marketplace listings folder:
     // * stock counts changing : no copy items coming in and out will change the stock count on folders
@@ -646,8 +646,8 @@ void LLMarketplaceInventoryObserver::changed(U32 mask)
     // Since we should cannot raise inventory change while the observer is called (the list will be cleared
     // once observers are called) we need to raise a flag in the inventory to signal that things have been dirtied.
     
-	if (mask & (LLInventoryObserver::INTERNAL | LLInventoryObserver::STRUCTURE))
-	{
+    if (mask & (LLInventoryObserver::INTERNAL | LLInventoryObserver::STRUCTURE))
+    {
         const std::set<LLUUID>& changed_items = gInventory.getChangedIDs();
     
         std::set<LLUUID>::const_iterator id_it = changed_items.begin();
@@ -678,7 +678,7 @@ void LLMarketplaceInventoryObserver::changed(U32 mask)
                 }
             }
         }
-	}
+    }
 }
 
 // Tuple == Item
@@ -724,7 +724,7 @@ LLMarketplaceData::LLMarketplaceData() :
 
 LLMarketplaceData::~LLMarketplaceData()
 {
-	gInventory.removeObserver(mInventoryObserver);
+    gInventory.removeObserver(mInventoryObserver);
 }
 
 
@@ -749,11 +749,11 @@ LLSD LLMarketplaceData::getMarketplaceStringSubstitutions()
 
 void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& cb)
 {
-	if (mStatusUpdatedSignal == NULL)
-	{
-		mStatusUpdatedSignal = new status_updated_signal_t();
-	}
-	mStatusUpdatedSignal->connect(cb);
+    if (mStatusUpdatedSignal == NULL)
+    {
+        mStatusUpdatedSignal = new status_updated_signal_t();
+    }
+    mStatusUpdatedSignal->connect(cb);
     
     if (mMarketPlaceStatus != MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
     {
@@ -837,11 +837,11 @@ void LLMarketplaceData::getMerchantStatusCoro()
 
 void LLMarketplaceData::setDataFetchedSignal(const status_updated_signal_t::slot_type& cb)
 {
-	if (mDataFetchedSignal == NULL)
-	{
-		mDataFetchedSignal = new status_updated_signal_t();
-	}
-	mDataFetchedSignal->connect(cb);
+    if (mDataFetchedSignal == NULL)
+    {
+        mDataFetchedSignal = new status_updated_signal_t();
+    }
+    mDataFetchedSignal->connect(cb);
 }
 
 // Get/Post/Put requests to the SLM Server using the SLM API
@@ -1298,7 +1298,7 @@ std::string LLMarketplaceData::getSLMConnectURL(const std::string& route)
             url += route;
         }
     }
-	return url;
+    return url;
 }
 
 void LLMarketplaceData::setSLMStatus(U32 status)
@@ -1586,7 +1586,7 @@ bool LLMarketplaceData::associateListing(const LLUUID& folder_id, const LLUUID& 
 // Methods privately called or called by SLM responders to perform changes
 bool LLMarketplaceData::addListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed,  const std::string& edit_url, S32 count)
 {
-	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id, listing_id, version_id, is_listed);
+    mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id, listing_id, version_id, is_listed);
     mMarketplaceItems[folder_id].mEditURL = edit_url;
     mMarketplaceItems[folder_id].mCountOnHand = count;
     if (version_id.notNull())
@@ -1600,7 +1600,7 @@ bool LLMarketplaceData::deleteListing(const LLUUID& folder_id, bool update)
 {
     LLUUID version_folder = getVersionFolder(folder_id);
     
-	if (mMarketplaceItems.erase(folder_id) != 1)
+    if (mMarketplaceItems.erase(folder_id) != 1)
     {
         return false;
     }

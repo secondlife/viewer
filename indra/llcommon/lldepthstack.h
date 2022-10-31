@@ -32,65 +32,65 @@
 template <class DATA_TYPE> class LLDepthStack
 {
 private:
-	std::deque<DATA_TYPE*>	mStack;
-	U32						mCurrentDepth;
-	U32						mMaxDepth;
+    std::deque<DATA_TYPE*>  mStack;
+    U32                     mCurrentDepth;
+    U32                     mMaxDepth;
 
 public:
-	LLDepthStack() 
-	:	mCurrentDepth(0), mMaxDepth(0) 
-	{}
+    LLDepthStack() 
+    :   mCurrentDepth(0), mMaxDepth(0) 
+    {}
 
-	void setDepth(U32 depth)
-	{
-		mMaxDepth = depth;
-	}
+    void setDepth(U32 depth)
+    {
+        mMaxDepth = depth;
+    }
 
-	U32 getDepth(void) const
-	{
-		return mCurrentDepth;
-	}
+    U32 getDepth(void) const
+    {
+        return mCurrentDepth;
+    }
 
-	void push(DATA_TYPE *data)
-	{ 
-		if (mCurrentDepth < mMaxDepth)
-		{
-			mStack.push_back(data); 
-			mCurrentDepth++;
-		}
-		else
-		{
-			// the last item falls off stack and is deleted
-			if (!mStack.empty())
-			{
-				mStack.pop_front();
-			}
-			mStack.push_back(data);
-		}
-	}
-	
-	DATA_TYPE *pop()
-	{ 
-		DATA_TYPE *tempp = NULL;
-		if (!mStack.empty())
-		{
-			tempp = mStack.back();
-			mStack.pop_back(); 
-			mCurrentDepth--;
-		}
-		return tempp; 
-	}
-	
-	DATA_TYPE *check()
-	{ 
-		return mStack.empty() ? NULL : mStack.back();
-	}
+    void push(DATA_TYPE *data)
+    { 
+        if (mCurrentDepth < mMaxDepth)
+        {
+            mStack.push_back(data); 
+            mCurrentDepth++;
+        }
+        else
+        {
+            // the last item falls off stack and is deleted
+            if (!mStack.empty())
+            {
+                mStack.pop_front();
+            }
+            mStack.push_back(data);
+        }
+    }
+    
+    DATA_TYPE *pop()
+    { 
+        DATA_TYPE *tempp = NULL;
+        if (!mStack.empty())
+        {
+            tempp = mStack.back();
+            mStack.pop_back(); 
+            mCurrentDepth--;
+        }
+        return tempp; 
+    }
+    
+    DATA_TYPE *check()
+    { 
+        return mStack.empty() ? NULL : mStack.back();
+    }
 
-	void removeAllNodes()
-	{ 
-		mCurrentDepth = 0;
-		mStack.clear(); 
-	}
+    void removeAllNodes()
+    { 
+        mCurrentDepth = 0;
+        mStack.clear(); 
+    }
 };
 
 #endif

@@ -38,25 +38,25 @@ class LLPluginClassMedia;
 class LLStreamingAudio_MediaPlugins : public LLStreamingAudioInterface
 {
  public:
-	LLStreamingAudio_MediaPlugins();
-	/*virtual*/ ~LLStreamingAudio_MediaPlugins();
+    LLStreamingAudio_MediaPlugins();
+    /*virtual*/ ~LLStreamingAudio_MediaPlugins();
 
-	/*virtual*/ void start(const std::string& url);
-	/*virtual*/ void stop();
-	/*virtual*/ void pause(int pause);
-	/*virtual*/ void update();
-	/*virtual*/ int isPlaying();
-	/*virtual*/ void setGain(F32 vol);
-	/*virtual*/ F32 getGain();
-	/*virtual*/ std::string getURL();
+    /*virtual*/ void start(const std::string& url);
+    /*virtual*/ void stop();
+    /*virtual*/ void pause(int pause);
+    /*virtual*/ void update();
+    /*virtual*/ int isPlaying();
+    /*virtual*/ void setGain(F32 vol);
+    /*virtual*/ F32 getGain();
+    /*virtual*/ std::string getURL();
 
 private:
-	LLPluginClassMedia* initializeMedia(const std::string& media_type);
+    LLPluginClassMedia* initializeMedia(const std::string& media_type);
 
-	LLPluginClassMedia *mMediaPlugin;
+    LLPluginClassMedia *mMediaPlugin;
 
-	std::string mURL;
-	F32 mGain;
+    std::string mURL;
+    F32 mGain;
 };
 
 

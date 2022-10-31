@@ -32,21 +32,21 @@
 class LLFloaterHoverHeight: public LLFloater
 {
 public:
-	LLFloaterHoverHeight(const LLSD& key);
-	BOOL postBuild();
+    LLFloaterHoverHeight(const LLSD& key);
+    BOOL postBuild();
 
-	static void onSliderMoved(LLUICtrl* ctrl, void* userData);
+    static void onSliderMoved(LLUICtrl* ctrl, void* userData);
 
-	void onFinalCommit();
+    void onFinalCommit();
 
-	static void syncFromPreferenceSetting(void *user_data, bool update_offset = true);
+    static void syncFromPreferenceSetting(void *user_data, bool update_offset = true);
 
-	void onRegionChanged();
-	void onSimulatorFeaturesReceived(const LLUUID &region_id);
-	void updateEditEnabled();
+    void onRegionChanged();
+    void onSimulatorFeaturesReceived(const LLUUID &region_id);
+    void updateEditEnabled();
 
-	/*virtual*/ void onClose(bool app_quitting);
-	boost::signals2::connection mRegionChangedSlot;
+    /*virtual*/ void onClose(bool app_quitting);
+    boost::signals2::connection mRegionChangedSlot;
 };
 
 #endif

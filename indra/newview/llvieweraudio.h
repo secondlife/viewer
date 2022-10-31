@@ -32,7 +32,7 @@
 
 // comment out to turn off wind
 #define kAUDIO_ENABLE_WIND 
-//#define kAUDIO_ENABLE_WATER 1	// comment out to turn off water
+//#define kAUDIO_ENABLE_WATER 1 // comment out to turn off water
 
 void init_audio();
 void audio_update_volume(bool force_update = true);
@@ -41,52 +41,52 @@ void audio_update_wind(bool force_update = true);
 
 class LLViewerAudio : public LLSingleton<LLViewerAudio>
 {
-	LLSINGLETON(LLViewerAudio);
-	virtual ~LLViewerAudio();
+    LLSINGLETON(LLViewerAudio);
+    virtual ~LLViewerAudio();
 
 public:
 
-	enum EFadeState
-	{
-		FADE_IDLE,
-		FADE_IN,
-		FADE_OUT,
-	};
+    enum EFadeState
+    {
+        FADE_IDLE,
+        FADE_IN,
+        FADE_OUT,
+    };
 
-	void startInternetStreamWithAutoFade(const std::string &streamURI);
-	void stopInternetStreamWithAutoFade();
-	
-	bool onIdleUpdate();
+    void startInternetStreamWithAutoFade(const std::string &streamURI);
+    void stopInternetStreamWithAutoFade();
+    
+    bool onIdleUpdate();
 
-	EFadeState getFadeState() { return mFadeState; }
-	bool isDone() { return mDone; };
-	F32 getFadeVolume();
-	bool getForcedTeleportFade() { return mForcedTeleportFade; };
-	void setForcedTeleportFade(bool fade) { mForcedTeleportFade = fade;} ;
-	std::string getNextStreamURI() { return mNextStreamURI; };
-	void setNextStreamURI(const std::string &stream) { mNextStreamURI = stream; } ;
-	void setWasPlaying(bool playing) { mWasPlaying = playing;} ;
+    EFadeState getFadeState() { return mFadeState; }
+    bool isDone() { return mDone; };
+    F32 getFadeVolume();
+    bool getForcedTeleportFade() { return mForcedTeleportFade; };
+    void setForcedTeleportFade(bool fade) { mForcedTeleportFade = fade;} ;
+    std::string getNextStreamURI() { return mNextStreamURI; };
+    void setNextStreamURI(const std::string &stream) { mNextStreamURI = stream; } ;
+    void setWasPlaying(bool playing) { mWasPlaying = playing;} ;
 
 private:
 
-	bool mDone;
-	F32 mFadeTime;
-	std::string mNextStreamURI;
-	EFadeState mFadeState;
-	LLFrameTimer stream_fade_timer;
-	bool mIdleListnerActive;
-	bool mForcedTeleportFade;
-	bool mWasPlaying;
-	boost::signals2::connection	mTeleportFailedConnection;
-	boost::signals2::connection	mTeleportFinishedConnection;
-	boost::signals2::connection mTeleportStartedConnection;
+    bool mDone;
+    F32 mFadeTime;
+    std::string mNextStreamURI;
+    EFadeState mFadeState;
+    LLFrameTimer stream_fade_timer;
+    bool mIdleListnerActive;
+    bool mForcedTeleportFade;
+    bool mWasPlaying;
+    boost::signals2::connection mTeleportFailedConnection;
+    boost::signals2::connection mTeleportFinishedConnection;
+    boost::signals2::connection mTeleportStartedConnection;
 
-	void registerIdleListener();
-	void deregisterIdleListener() { mIdleListnerActive = false; };
-	void startFading();
-	void onTeleportFailed();
-	void onTeleportFinished(const LLVector3d& pos, const bool& local);
-	void onTeleportStarted();
+    void registerIdleListener();
+    void deregisterIdleListener() { mIdleListnerActive = false; };
+    void startFading();
+    void onTeleportFailed();
+    void onTeleportFinished(const LLVector3d& pos, const bool& local);
+    void onTeleportStarted();
 };
 
 #endif //LL_VIEWER_H

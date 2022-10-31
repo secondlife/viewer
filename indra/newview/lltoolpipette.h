@@ -41,30 +41,30 @@ class LLViewerObject;
 class LLPickInfo;
 
 class LLToolPipette
-:	public LLTool, public LLSingleton<LLToolPipette>
+:   public LLTool, public LLSingleton<LLToolPipette>
 {
-	LLSINGLETON(LLToolPipette);
-	virtual ~LLToolPipette();
+    LLSINGLETON(LLToolPipette);
+    virtual ~LLToolPipette();
 
 public:
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleToolTip(S32 x, S32 y, MASK mask);
+    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual BOOL    handleHover(S32 x, S32 y, MASK mask);
+    virtual BOOL    handleToolTip(S32 x, S32 y, MASK mask);
 
-	// Note: Don't return connection; use boost::bind + boost::signals2::trackable to disconnect slots
-	typedef boost::signals2::signal<void (const LLTextureEntry& te)> signal_t;
-	void setToolSelectCallback(const signal_t::slot_type& cb) { mSignal.connect(cb); }
-	void setResult(BOOL success, const std::string& msg);
-	
-	void setTextureEntry(const LLTextureEntry* entry);
-	static void pickCallback(const LLPickInfo& pick_info);
+    // Note: Don't return connection; use boost::bind + boost::signals2::trackable to disconnect slots
+    typedef boost::signals2::signal<void (const LLTextureEntry& te)> signal_t;
+    void setToolSelectCallback(const signal_t::slot_type& cb) { mSignal.connect(cb); }
+    void setResult(BOOL success, const std::string& msg);
+    
+    void setTextureEntry(const LLTextureEntry* entry);
+    static void pickCallback(const LLPickInfo& pick_info);
 
 protected:
-	LLTextureEntry	mTextureEntry;
-	signal_t		mSignal;
-	BOOL			mSuccess;
-	std::string		mTooltipMsg;
+    LLTextureEntry  mTextureEntry;
+    signal_t        mSignal;
+    BOOL            mSuccess;
+    std::string     mTooltipMsg;
 };
 
 #endif //LL_LLTOOLPIPETTE_H

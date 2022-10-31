@@ -115,7 +115,7 @@ private:
     void reshapeWindow();
 
     // pointer to a corresponding channel's instance
-    LLNotificationsUI::LLScreenChannel*	mChannel;
+    LLNotificationsUI::LLScreenChannel* mChannel;
 
     /**
      * Reference to an appropriate Well chiclet to release "new message" state. EXT-3147
@@ -158,14 +158,14 @@ private:
     // ID of a toast loaded by user (by clicking notification well item)
     LLUUID mLoadedToastId;
 
-    LLNotificationListView*	mGroupInviteMessageList;
-    LLNotificationListView*	mGroupNoticeMessageList;
-    LLNotificationListView*	mTransactionMessageList;
-    LLNotificationListView*	mSystemMessageList;
+    LLNotificationListView* mGroupInviteMessageList;
+    LLNotificationListView* mGroupNoticeMessageList;
+    LLNotificationListView* mTransactionMessageList;
+    LLNotificationListView* mSystemMessageList;
     LLNotificationSeparator* mNotificationsSeparator;
     LLTabContainer* mNotificationsTabContainer;
-    LLButton*	mDeleteAllBtn;
-    LLButton*	mCollapseAllBtn;
+    LLButton*   mDeleteAllBtn;
+    LLButton*   mCollapseAllBtn;
 };
 
 #endif // LL_FLOATERNOTIFICATIONSTABBED_H

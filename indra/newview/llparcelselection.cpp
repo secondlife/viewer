@@ -35,22 +35,22 @@
 // LLParcelSelection
 //
 LLParcelSelection::LLParcelSelection() :
-	mParcel(NULL),
-	mSelectedMultipleOwners(FALSE),
-	mWholeParcelSelected(FALSE),
-	mSelectedSelfCount(0),
-	mSelectedOtherCount(0),
-	mSelectedPublicCount(0)
+    mParcel(NULL),
+    mSelectedMultipleOwners(FALSE),
+    mWholeParcelSelected(FALSE),
+    mSelectedSelfCount(0),
+    mSelectedOtherCount(0),
+    mSelectedPublicCount(0)
 {
 }
 
 LLParcelSelection::LLParcelSelection(LLParcel* parcel)  :
-	mParcel(parcel),
-	mSelectedMultipleOwners(FALSE),
-	mWholeParcelSelected(FALSE),
-	mSelectedSelfCount(0),
-	mSelectedOtherCount(0),
-	mSelectedPublicCount(0)
+    mParcel(parcel),
+    mSelectedMultipleOwners(FALSE),
+    mWholeParcelSelected(FALSE),
+    mSelectedSelfCount(0),
+    mSelectedOtherCount(0),
+    mSelectedPublicCount(0)
 {
 }
 
@@ -60,23 +60,23 @@ LLParcelSelection::~LLParcelSelection()
 
 BOOL LLParcelSelection::getMultipleOwners() const
 {
-	return mSelectedMultipleOwners;
+    return mSelectedMultipleOwners;
 }
 
 
 BOOL LLParcelSelection::getWholeParcelSelected() const
 {
-	return mWholeParcelSelected;
+    return mWholeParcelSelected;
 }
 
 
 S32 LLParcelSelection::getClaimableArea() const
 {
-	const S32 UNIT_AREA = S32( PARCEL_GRID_STEP_METERS * PARCEL_GRID_STEP_METERS );
-	return mSelectedPublicCount * UNIT_AREA;
+    const S32 UNIT_AREA = S32( PARCEL_GRID_STEP_METERS * PARCEL_GRID_STEP_METERS );
+    return mSelectedPublicCount * UNIT_AREA;
 }
 
 bool LLParcelSelection::hasOthersSelected() const
 {
-	return mSelectedOtherCount != 0;
+    return mSelectedOtherCount != 0;
 }

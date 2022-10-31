@@ -41,27 +41,27 @@
 //static
 std::string LLViewerHelpUtil::helpURLEncode( const std::string &component )
 {
-	// Every character rfc3986 allows as unreserved in 2.3, minus the tilde
-	// which we may grant special meaning. Yay.
-	const char* allowed =   
-	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	"abcdefghijklmnopqrstuvwxyz"
-	"0123456789"
-	"-._";
-	std::string escaped = LLURI::escape(component, allowed);
-	
-	return escaped;
+    // Every character rfc3986 allows as unreserved in 2.3, minus the tilde
+    // which we may grant special meaning. Yay.
+    const char* allowed =   
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789"
+    "-._";
+    std::string escaped = LLURI::escape(component, allowed);
+    
+    return escaped;
 }
 
 //static
 std::string LLViewerHelpUtil::buildHelpURL( const std::string &topic)
 {
-	LLSD substitution;
-	substitution["TOPIC"] = helpURLEncode(topic);
-	substitution["DEBUG_MODE"] = gAgent.isGodlike() ? "/debug" : "";
-	
-	// get the help URL and expand all of the substitutions
-	// (also adds things like [LANGUAGE], [VERSION], [OS], etc.)
-	std::string helpURL = gSavedSettings.getString("HelpURLFormat");
-	return LLWeb::expandURLSubstitutions(helpURL, substitution);
+    LLSD substitution;
+    substitution["TOPIC"] = helpURLEncode(topic);
+    substitution["DEBUG_MODE"] = gAgent.isGodlike() ? "/debug" : "";
+    
+    // get the help URL and expand all of the substitutions
+    // (also adds things like [LANGUAGE], [VERSION], [OS], etc.)
+    std::string helpURL = gSavedSettings.getString("HelpURLFormat");
+    return LLWeb::expandURLSubstitutions(helpURL, substitution);
 }

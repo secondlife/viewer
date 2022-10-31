@@ -1503,12 +1503,12 @@ void LLEnvironment::updateEnvironment(LLSettingsBase::Seconds transition, bool f
     {
         if (transition != TRANSITION_INSTANT)
         {
-	        DayInstance::ptr_t trans = std::make_shared<DayTransition>(
-	            mCurrentEnvironment->getSky(), mCurrentEnvironment->getWater(), pinstance, transition);
-	
-	        trans->animate();
-	
-	        mCurrentEnvironment = trans;
+            DayInstance::ptr_t trans = std::make_shared<DayTransition>(
+                mCurrentEnvironment->getSky(), mCurrentEnvironment->getWater(), pinstance, transition);
+    
+            trans->animate();
+    
+            mCurrentEnvironment = trans;
         }
         else
         {

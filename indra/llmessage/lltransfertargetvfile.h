@@ -36,58 +36,58 @@ class LLFileSystem;
 // Lame, an S32 for now until I figure out the deal with how we want to do
 // error codes.
 typedef void (*LLTTVFCompleteCallback)(
-	S32 status,
-	const LLUUID& file_id,
-	LLAssetType::EType file_type,
-	LLBaseDownloadRequest* user_data, LLExtStat ext_status );
+    S32 status,
+    const LLUUID& file_id,
+    LLAssetType::EType file_type,
+    LLBaseDownloadRequest* user_data, LLExtStat ext_status );
 
 class LLTransferTargetParamsVFile : public LLTransferTargetParams
 {
 public:
-	LLTransferTargetParamsVFile();
+    LLTransferTargetParamsVFile();
 
-	void setAsset(const LLUUID& asset_id, LLAssetType::EType asset_type);
-	void setCallback(LLTTVFCompleteCallback cb, LLBaseDownloadRequest& request);
+    void setAsset(const LLUUID& asset_id, LLAssetType::EType asset_type);
+    void setCallback(LLTTVFCompleteCallback cb, LLBaseDownloadRequest& request);
 
-	LLUUID getAssetID() const						{ return mAssetID; }
-	LLAssetType::EType getAssetType() const			{ return mAssetType; }
+    LLUUID getAssetID() const                       { return mAssetID; }
+    LLAssetType::EType getAssetType() const         { return mAssetType; }
 
-	friend class LLTransferTargetVFile;
+    friend class LLTransferTargetVFile;
 protected:
-	bool unpackParams(LLDataPacker& dp);
+    bool unpackParams(LLDataPacker& dp);
 
-	LLUUID				mAssetID;
-	LLAssetType::EType	mAssetType;
+    LLUUID              mAssetID;
+    LLAssetType::EType  mAssetType;
 
-	LLTTVFCompleteCallback	mCompleteCallback;
-	LLBaseDownloadRequest*	mRequestDatap;
-	S32						mErrCode;
+    LLTTVFCompleteCallback  mCompleteCallback;
+    LLBaseDownloadRequest*  mRequestDatap;
+    S32                     mErrCode;
 };
 
 
 class LLTransferTargetVFile : public LLTransferTarget
 {
 public:
-	LLTransferTargetVFile(const LLUUID& uuid, LLTransferSourceType src_type);
-	virtual ~LLTransferTargetVFile();
+    LLTransferTargetVFile(const LLUUID& uuid, LLTransferSourceType src_type);
+    virtual ~LLTransferTargetVFile();
 
-	//static void requestTransfer(LLTransferTargetChannel* channelp,
-	//							const char* local_filename,
-	//							const LLTransferSourceParams& source_params,
-	//							LLTTVFCompleteCallback callback);
+    //static void requestTransfer(LLTransferTargetChannel* channelp,
+    //                          const char* local_filename,
+    //                          const LLTransferSourceParams& source_params,
+    //                          LLTTVFCompleteCallback callback);
 
-	static void updateQueue(bool shutdown = false);
-	
+    static void updateQueue(bool shutdown = false);
+    
 protected:
-	virtual bool unpackParams(LLDataPacker& dp);
-	/*virtual*/ void applyParams(const LLTransferTargetParams& params);
-	/*virtual*/ LLTSCode dataCallback(const S32 packet_id, U8* in_datap, const S32 in_size);
-	/*virtual*/ void completionCallback(const LLTSCode status);
+    virtual bool unpackParams(LLDataPacker& dp);
+    /*virtual*/ void applyParams(const LLTransferTargetParams& params);
+    /*virtual*/ LLTSCode dataCallback(const S32 packet_id, U8* in_datap, const S32 in_size);
+    /*virtual*/ void completionCallback(const LLTSCode status);
 
-	LLTransferTargetParamsVFile mParams;
+    LLTransferTargetParamsVFile mParams;
 
-	BOOL mNeedsCreate;
-	LLUUID mTempID;
+    BOOL mNeedsCreate;
+    LLUUID mTempID;
 };
 
 #endif // LL_LLTRANSFERTARGETFILE_H

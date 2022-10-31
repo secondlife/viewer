@@ -47,10 +47,10 @@
 //extern LLControlGroup gSavedSettings;                           // read only
 
 LLPolyMorphData *clone_morph_param_duplicate(const LLPolyMorphData *src_data,
-					     const std::string &name);
+                         const std::string &name);
 LLPolyMorphData *clone_morph_param_direction(const LLPolyMorphData *src_data,
-					     const LLVector3 &direction,
-					     const std::string &name);
+                         const LLVector3 &direction,
+                         const std::string &name);
 LLPolyMorphData *clone_morph_param_cleavage(const LLPolyMorphData *src_data,
                                             F32 scale,
                                             const std::string &name);
@@ -236,10 +236,10 @@ BOOL LLPolyMeshSharedData::allocateVertexData( U32 numVertices )
         mWeights = (F32*) ll_aligned_malloc_16(numVertices*sizeof(F32));
         for (i = 0; i < numVertices; i++)
         {
-			mBaseCoords[i].clear();
-			mBaseNormals[i].clear();
-			mBaseBinormals[i].clear();
-			mTexCoords[i].clear();
+            mBaseCoords[i].clear();
+            mBaseNormals[i].clear();
+            mBaseBinormals[i].clear();
+            mTexCoords[i].clear();
             mWeights[i] = 0.f;
         }
         mNumVertices = numVertices;
@@ -411,47 +411,47 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 
                         allocateVertexData( numVertices );      
 
-						for (U16 i = 0; i < numVertices; ++i)
-						{
-							//----------------------------------------------------------------
-							// Coords
-							//----------------------------------------------------------------
-							numRead = fread(&mBaseCoords[i], sizeof(float), 3, fp);
-							llendianswizzle(&mBaseCoords[i], sizeof(float), 3);
-							if (numRead != 3)
-							{
-									LL_ERRS() << "can't read Coordinates from " << fileName << LL_ENDL;
-									return FALSE;
-							}
-						}
+                        for (U16 i = 0; i < numVertices; ++i)
+                        {
+                            //----------------------------------------------------------------
+                            // Coords
+                            //----------------------------------------------------------------
+                            numRead = fread(&mBaseCoords[i], sizeof(float), 3, fp);
+                            llendianswizzle(&mBaseCoords[i], sizeof(float), 3);
+                            if (numRead != 3)
+                            {
+                                    LL_ERRS() << "can't read Coordinates from " << fileName << LL_ENDL;
+                                    return FALSE;
+                            }
+                        }
 
-						for (U16 i = 0; i < numVertices; ++i)
-						{
-							//----------------------------------------------------------------
-							// Normals
-							//----------------------------------------------------------------
-							numRead = fread(&mBaseNormals[i], sizeof(float), 3, fp);
-							llendianswizzle(&mBaseNormals[i], sizeof(float), 3);
-							if (numRead != 3)
-							{
-									LL_ERRS() << " can't read Normals from " << fileName << LL_ENDL;
-									return FALSE;
-							}
-						}
+                        for (U16 i = 0; i < numVertices; ++i)
+                        {
+                            //----------------------------------------------------------------
+                            // Normals
+                            //----------------------------------------------------------------
+                            numRead = fread(&mBaseNormals[i], sizeof(float), 3, fp);
+                            llendianswizzle(&mBaseNormals[i], sizeof(float), 3);
+                            if (numRead != 3)
+                            {
+                                    LL_ERRS() << " can't read Normals from " << fileName << LL_ENDL;
+                                    return FALSE;
+                            }
+                        }
 
-						for (U16 i = 0; i < numVertices; ++i)
-						{
-							//----------------------------------------------------------------
-							// Binormals
-							//----------------------------------------------------------------
-							numRead = fread(&mBaseBinormals[i], sizeof(float), 3, fp);
-							llendianswizzle(&mBaseBinormals[i], sizeof(float), 3);
-							if (numRead != 3)
-							{
-									LL_ERRS() << " can't read Binormals from " << fileName << LL_ENDL;
-									return FALSE;
-							}
-						}
+                        for (U16 i = 0; i < numVertices; ++i)
+                        {
+                            //----------------------------------------------------------------
+                            // Binormals
+                            //----------------------------------------------------------------
+                            numRead = fread(&mBaseBinormals[i], sizeof(float), 3, fp);
+                            llendianswizzle(&mBaseBinormals[i], sizeof(float), 3);
+                            if (numRead != 3)
+                            {
+                                    LL_ERRS() << " can't read Binormals from " << fileName << LL_ENDL;
+                                    return FALSE;
+                            }
+                        }
 
                         //----------------------------------------------------------------
                         // TexCoords
@@ -636,46 +636,46 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                                 if (!strcmp(morphName, "Breast_Female_Cleavage"))
                                 {
                                         mMorphData.insert(clone_morph_param_duplicate(morph_data,
-										      "Breast_Physics_InOut_Driven"));
+                                              "Breast_Physics_InOut_Driven"));
                                 }
                                 if (!strcmp(morphName, "Breast_Gravity"))
                                 {
                                         mMorphData.insert(clone_morph_param_duplicate(morph_data,
-										      "Breast_Physics_UpDown_Driven"));
+                                              "Breast_Physics_UpDown_Driven"));
                                 }
 
                                 if (!strcmp(morphName, "Big_Belly_Torso"))
                                 {
                                         mMorphData.insert(clone_morph_param_direction(morph_data,
-										      LLVector3(0,0,0.05f),
-										      "Belly_Physics_Torso_UpDown_Driven"));
+                                              LLVector3(0,0,0.05f),
+                                              "Belly_Physics_Torso_UpDown_Driven"));
                                 }
 
                                 if (!strcmp(morphName, "Big_Belly_Legs"))
                                 {
                                         mMorphData.insert(clone_morph_param_direction(morph_data,
-										      LLVector3(0,0,0.05f),
-										      "Belly_Physics_Legs_UpDown_Driven"));
+                                              LLVector3(0,0,0.05f),
+                                              "Belly_Physics_Legs_UpDown_Driven"));
                                 }
 
                                 if (!strcmp(morphName, "skirt_belly"))
                                 {
                                         mMorphData.insert(clone_morph_param_direction(morph_data,
-										      LLVector3(0,0,0.05f),
-										      "Belly_Physics_Skirt_UpDown_Driven"));
+                                              LLVector3(0,0,0.05f),
+                                              "Belly_Physics_Skirt_UpDown_Driven"));
                                 }
 
                                 if (!strcmp(morphName, "Small_Butt"))
                                 {
                                         mMorphData.insert(clone_morph_param_direction(morph_data,
-										      LLVector3(0,0,0.05f),
-										      "Butt_Physics_UpDown_Driven"));
+                                              LLVector3(0,0,0.05f),
+                                              "Butt_Physics_UpDown_Driven"));
                                 }
                                 if (!strcmp(morphName, "Small_Butt"))
                                 {
                                         mMorphData.insert(clone_morph_param_direction(morph_data,
-										      LLVector3(0,0.03f,0),
-										      "Butt_Physics_LeftRight_Driven"));
+                                              LLVector3(0,0.03f,0),
+                                              "Butt_Physics_LeftRight_Driven"));
                                 }
                         }
 
@@ -751,57 +751,57 @@ const LLVector2 &LLPolyMeshSharedData::getUVs(U32 index)
 //-----------------------------------------------------------------------------
 LLPolyMesh::LLPolyMesh(LLPolyMeshSharedData *shared_data, LLPolyMesh *reference_mesh)
 {       
-	llassert(shared_data);
+    llassert(shared_data);
 
-	mSharedData = shared_data;
-	mReferenceMesh = reference_mesh;
-	mAvatarp = NULL;
-	mVertexData = NULL;
+    mSharedData = shared_data;
+    mReferenceMesh = reference_mesh;
+    mAvatarp = NULL;
+    mVertexData = NULL;
 
-	mCurVertexCount = 0;
-	mFaceIndexCount = 0;
-	mFaceIndexOffset = 0;
-	mFaceVertexCount = 0;
-	mFaceVertexOffset = 0;
+    mCurVertexCount = 0;
+    mFaceIndexCount = 0;
+    mFaceIndexOffset = 0;
+    mFaceVertexCount = 0;
+    mFaceVertexOffset = 0;
 
-	if (shared_data->isLOD() && reference_mesh)
-	{
-		mCoords = reference_mesh->mCoords;
-		mNormals = reference_mesh->mNormals;
-		mScaledNormals = reference_mesh->mScaledNormals;
-		mBinormals = reference_mesh->mBinormals;
-		mScaledBinormals = reference_mesh->mScaledBinormals;
-		mTexCoords = reference_mesh->mTexCoords;
-		mClothingWeights = reference_mesh->mClothingWeights;
-	}
-	else
-	{
-		// Allocate memory without initializing every vector
-		// NOTE: This makes asusmptions about the size of LLVector[234]
-		S32 nverts = mSharedData->mNumVertices;
-		//make sure it's an even number of verts for alignment
-		nverts += nverts%2;
-		S32 nfloats = nverts * (
-					4 + //coords
-					4 + //normals
-					4 + //weights
-					2 + //coords
-					4 + //scaled normals
-					4 + //binormals
-					4); //scaled binormals
+    if (shared_data->isLOD() && reference_mesh)
+    {
+        mCoords = reference_mesh->mCoords;
+        mNormals = reference_mesh->mNormals;
+        mScaledNormals = reference_mesh->mScaledNormals;
+        mBinormals = reference_mesh->mBinormals;
+        mScaledBinormals = reference_mesh->mScaledBinormals;
+        mTexCoords = reference_mesh->mTexCoords;
+        mClothingWeights = reference_mesh->mClothingWeights;
+    }
+    else
+    {
+        // Allocate memory without initializing every vector
+        // NOTE: This makes asusmptions about the size of LLVector[234]
+        S32 nverts = mSharedData->mNumVertices;
+        //make sure it's an even number of verts for alignment
+        nverts += nverts%2;
+        S32 nfloats = nverts * (
+                    4 + //coords
+                    4 + //normals
+                    4 + //weights
+                    2 + //coords
+                    4 + //scaled normals
+                    4 + //binormals
+                    4); //scaled binormals
 
-		//use 16 byte aligned vertex data to make LLPolyMesh SSE friendly
-		mVertexData = (F32*) ll_aligned_malloc_16(nfloats*4);
-		S32 offset = 0;
-		mCoords				= 	(LLVector4a*)(mVertexData + offset); offset += 4*nverts;
-		mNormals			=	(LLVector4a*)(mVertexData + offset); offset += 4*nverts;
-		mClothingWeights	= 	(LLVector4a*)(mVertexData + offset); offset += 4*nverts;
-		mTexCoords			= 	(LLVector2*)(mVertexData + offset);  offset += 2*nverts;
-		mScaledNormals		=   (LLVector4a*)(mVertexData + offset); offset += 4*nverts;
-		mBinormals			=   (LLVector4a*)(mVertexData + offset); offset += 4*nverts;
-		mScaledBinormals	=   (LLVector4a*)(mVertexData + offset); offset += 4*nverts; 
-		initializeForMorph();
-	}
+        //use 16 byte aligned vertex data to make LLPolyMesh SSE friendly
+        mVertexData = (F32*) ll_aligned_malloc_16(nfloats*4);
+        S32 offset = 0;
+        mCoords             =   (LLVector4a*)(mVertexData + offset); offset += 4*nverts;
+        mNormals            =   (LLVector4a*)(mVertexData + offset); offset += 4*nverts;
+        mClothingWeights    =   (LLVector4a*)(mVertexData + offset); offset += 4*nverts;
+        mTexCoords          =   (LLVector2*)(mVertexData + offset);  offset += 2*nverts;
+        mScaledNormals      =   (LLVector4a*)(mVertexData + offset); offset += 4*nverts;
+        mBinormals          =   (LLVector4a*)(mVertexData + offset); offset += 4*nverts;
+        mScaledBinormals    =   (LLVector4a*)(mVertexData + offset); offset += 4*nverts; 
+        initializeForMorph();
+    }
 }
 
 
@@ -810,8 +810,8 @@ LLPolyMesh::LLPolyMesh(LLPolyMeshSharedData *shared_data, LLPolyMesh *reference_
 //-----------------------------------------------------------------------------
 LLPolyMesh::~LLPolyMesh()
 {
-	delete_and_clear(mJointRenderData);
-	ll_aligned_free_16(mVertexData);
+    delete_and_clear(mJointRenderData);
+    ll_aligned_free_16(mVertexData);
 }
 
 
@@ -978,16 +978,16 @@ LLVector4a *LLPolyMesh::getScaledBinormals()
 void LLPolyMesh::initializeForMorph()
 {
     LLVector4a::memcpyNonAliased16((F32*) mCoords, (F32*) mSharedData->mBaseCoords, sizeof(LLVector4a) * mSharedData->mNumVertices);
-	LLVector4a::memcpyNonAliased16((F32*) mNormals, (F32*) mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
-	LLVector4a::memcpyNonAliased16((F32*) mScaledNormals, (F32*) mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
-	LLVector4a::memcpyNonAliased16((F32*) mBinormals, (F32*) mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
-	LLVector4a::memcpyNonAliased16((F32*) mScaledBinormals, (F32*) mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
-	LLVector4a::memcpyNonAliased16((F32*) mTexCoords, (F32*) mSharedData->mTexCoords, sizeof(LLVector2) * (mSharedData->mNumVertices + mSharedData->mNumVertices%2));
+    LLVector4a::memcpyNonAliased16((F32*) mNormals, (F32*) mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
+    LLVector4a::memcpyNonAliased16((F32*) mScaledNormals, (F32*) mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
+    LLVector4a::memcpyNonAliased16((F32*) mBinormals, (F32*) mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
+    LLVector4a::memcpyNonAliased16((F32*) mScaledBinormals, (F32*) mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
+    LLVector4a::memcpyNonAliased16((F32*) mTexCoords, (F32*) mSharedData->mTexCoords, sizeof(LLVector2) * (mSharedData->mNumVertices + mSharedData->mNumVertices%2));
 
-	for (U32 i = 0; i < mSharedData->mNumVertices; ++i)
-	{
-		mClothingWeights[i].clear();
-	}
+    for (U32 i = 0; i < mSharedData->mNumVertices; ++i)
+    {
+        mClothingWeights[i].clear();
+    }
 }
 
 //-----------------------------------------------------------------------------

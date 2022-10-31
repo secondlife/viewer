@@ -28,11 +28,11 @@
 #import "llopenglview-objc.h"
 
 @interface LLAppDelegate : NSObject <NSApplicationDelegate> {
-	LLNSWindow *window;
-	NSWindow *inputWindow;
-	LLNonInlineTextView *inputView;
-	NSTimer *frameTimer;
-	NSString *currentInputLanguage;
+    LLNSWindow *window;
+    NSWindow *inputWindow;
+    LLNonInlineTextView *inputView;
+    NSTimer *frameTimer;
+    NSString *currentInputLanguage;
     std::string secondLogPath;
 }
 

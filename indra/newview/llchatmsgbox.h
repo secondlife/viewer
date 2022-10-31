@@ -40,25 +40,25 @@
 /// line).
 ///
 class LLChatMsgBox :
-	public LLTextBox
+    public LLTextBox
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLTextBox::Params>
-	{
-		Optional<S32>	block_spacing;
+    struct Params : public LLInitParam::Block<Params, LLTextBox::Params>
+    {
+        Optional<S32>   block_spacing;
 
-		Params();
-	};
+        Params();
+    };
 
 protected:
-	LLChatMsgBox(const Params&);
-	friend class LLUICtrlFactory;
+    LLChatMsgBox(const Params&);
+    friend class LLUICtrlFactory;
 
 public:
-	void				addText(const LLStringExplicit &text, const LLStyle::Params& input_params = LLStyle::Params());
-	
+    void                addText(const LLStringExplicit &text, const LLStyle::Params& input_params = LLStyle::Params());
+    
 private:
-	S32					mBlockSpacing;
+    S32                 mBlockSpacing;
 };
 
 #endif

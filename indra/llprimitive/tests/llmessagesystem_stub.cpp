@@ -29,12 +29,12 @@ char * _PREHASH_TextureEntry;
 
 S32 LLMessageSystem::getSizeFast(char const*, char const*) const
 {
-	return 0;
+    return 0;
 }
 
 S32 LLMessageSystem::getSizeFast(char const*, int, char const*) const
 {
-	return 0;
+    return 0;
 }
 
 void LLMessageSystem::getBinaryDataFast(char const*, char const*, void*, int, int, int)

@@ -37,69 +37,69 @@
 #define LL_LLSPLITBUTTON_H
 
 class LLSplitButton
-	:	public LLUICtrl
+    :   public LLUICtrl
 {
 public:
-	typedef enum e_arrow_position
-	{
-		LEFT,
-		RIGHT
-	} EArrowPosition;
+    typedef enum e_arrow_position
+    {
+        LEFT,
+        RIGHT
+    } EArrowPosition;
 
-	struct ArrowPositionValues : public LLInitParam::TypeValuesHelper<EArrowPosition, ArrowPositionValues>
-	{
-		static void declareValues();
-	};
+    struct ArrowPositionValues : public LLInitParam::TypeValuesHelper<EArrowPosition, ArrowPositionValues>
+    {
+        static void declareValues();
+    };
 
-	struct ItemParams : public LLInitParam::Block<ItemParams, LLButton::Params>
-	{
-		ItemParams();
-	};
+    struct ItemParams : public LLInitParam::Block<ItemParams, LLButton::Params>
+    {
+        ItemParams();
+    };
 
-	struct Params :	public LLInitParam::Block<Params, LLUICtrl::Params>
-	{
-		Optional<EArrowPosition, ArrowPositionValues> arrow_position;
-		Optional<LLButton::Params> arrow_button;
-		Optional<LLPanel::Params> items_panel;
-		Multiple<ItemParams> items;
+    struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+    {
+        Optional<EArrowPosition, ArrowPositionValues> arrow_position;
+        Optional<LLButton::Params> arrow_button;
+        Optional<LLPanel::Params> items_panel;
+        Multiple<ItemParams> items;
 
-		Params();
-	};
+        Params();
+    };
 
 
-	virtual ~LLSplitButton() {};
+    virtual ~LLSplitButton() {};
 
-	//Overridden
-	virtual void	onFocusLost();
-	virtual void	setFocus(BOOL b);
-	virtual void	setEnabled(BOOL enabled);
+    //Overridden
+    virtual void    onFocusLost();
+    virtual void    setFocus(BOOL b);
+    virtual void    setEnabled(BOOL enabled);
 
-	//Callbacks
-	void	onArrowBtnDown();
-	void	onHeldDownShownButton();
-	void	onItemSelected(LLUICtrl* ctrl);
-	void	setSelectionCallback(commit_callback_t cb) { mSelectionCallback = cb; }
+    //Callbacks
+    void    onArrowBtnDown();
+    void    onHeldDownShownButton();
+    void    onItemSelected(LLUICtrl* ctrl);
+    void    setSelectionCallback(commit_callback_t cb) { mSelectionCallback = cb; }
 
-	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 
-	virtual void	showButtons();
-	virtual void	hideButtons();
+    virtual void    showButtons();
+    virtual void    hideButtons();
 
 
 protected:
-	friend class LLUICtrlFactory;
-	LLSplitButton(const LLSplitButton::Params& p);
+    friend class LLUICtrlFactory;
+    LLSplitButton(const LLSplitButton::Params& p);
 
-	LLButton* prepareItemButton(LLButton::Params params);
-	LLPanel* prepareItemsPanel(LLPanel::Params params, S32 items_count);
+    LLButton* prepareItemButton(LLButton::Params params);
+    LLPanel* prepareItemsPanel(LLPanel::Params params, S32 items_count);
 
-	LLPanel* mItemsPanel;
-	std::list<LLButton*> mHidenItems;
-	LLButton* mArrowBtn;
-	LLButton* mShownItem;
-	EArrowPosition mArrowPosition;
+    LLPanel* mItemsPanel;
+    std::list<LLButton*> mHidenItems;
+    LLButton* mArrowBtn;
+    LLButton* mShownItem;
+    EArrowPosition mArrowPosition;
 
-	commit_callback_t mSelectionCallback;
+    commit_callback_t mSelectionCallback;
 };
 
 

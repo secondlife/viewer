@@ -33,23 +33,23 @@
 class LL_COMMON_API LLMortician 
 {
 public:
-	LLMortician() { mIsDead = FALSE; }
-	static U32 graveyardCount() { return sGraveyard.size(); };
-	static U32 logClass(std::stringstream &str);
-	static void updateClass();
-	virtual ~LLMortician();
-	void die();
-	BOOL isDead() { return mIsDead; }
+    LLMortician() { mIsDead = FALSE; }
+    static U32 graveyardCount() { return sGraveyard.size(); };
+    static U32 logClass(std::stringstream &str);
+    static void updateClass();
+    virtual ~LLMortician();
+    void die();
+    BOOL isDead() { return mIsDead; }
 
-	// sets destroy immediate true
-	static void setZealous(BOOL b);
+    // sets destroy immediate true
+    static void setZealous(BOOL b);
 
 private:
-	static BOOL sDestroyImmediate;
+    static BOOL sDestroyImmediate;
 
-	BOOL mIsDead;
+    BOOL mIsDead;
 
-	static std::list<LLMortician*> sGraveyard;
+    static std::list<LLMortician*> sGraveyard;
 };
 
 #endif

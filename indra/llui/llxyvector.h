@@ -42,13 +42,13 @@ public:
     struct Params
         : public LLInitParam::Block<Params, LLUICtrl::Params>
     {
-        Optional<LLLineEditor::Params>		x_entry;
-        Optional<LLLineEditor::Params>		y_entry;
-        Optional<LLPanel::Params>		    touch_area;
-        Optional<LLViewBorder::Params>	    border;
-        Optional<S32>		                edit_bar_height;
-        Optional<S32>		                padding;
-        Optional<S32>		                label_width;
+        Optional<LLLineEditor::Params>      x_entry;
+        Optional<LLLineEditor::Params>      y_entry;
+        Optional<LLPanel::Params>           touch_area;
+        Optional<LLViewBorder::Params>      border;
+        Optional<S32>                       edit_bar_height;
+        Optional<S32>                       padding;
+        Optional<S32>                       label_width;
         Optional<F32>                       min_val_x;
         Optional<F32>                       max_val_x;
         Optional<F32>                       increment_x;
@@ -68,15 +68,15 @@ public:
     virtual ~LLXYVector();
     /*virtual*/ BOOL postBuild();
 
-    virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-    virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual BOOL    handleHover(S32 x, S32 y, MASK mask);
+    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
 
-    virtual void	draw();
+    virtual void    draw();
 
-    virtual void	setValue(const LLSD& value);
-    void	        setValue(F32 x, F32 y);
-    virtual LLSD	getValue() const;
+    virtual void    setValue(const LLSD& value);
+    void            setValue(F32 x, F32 y);
+    virtual LLSD    getValue() const;
 
 protected:
     friend class LLUICtrlFactory;
@@ -86,10 +86,10 @@ protected:
 protected:
     LLTextBox*          mXLabel;
     LLTextBox*          mYLabel;
-    LLLineEditor*		mXEntry;
-    LLLineEditor*	    mYEntry;
+    LLLineEditor*       mXEntry;
+    LLLineEditor*       mYEntry;
     LLPanel*            mTouchArea;
-    LLViewBorder*		mBorder;
+    LLViewBorder*       mBorder;
 
 private:
     void update();

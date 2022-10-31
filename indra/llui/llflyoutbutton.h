@@ -37,32 +37,32 @@
 class LLFlyoutButton : public LLComboBox
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLComboBox::Params>
-	{
-		Optional<LLButton::Params> action_button;
-		Deprecated                 allow_text_entry;
+    struct Params : public LLInitParam::Block<Params, LLComboBox::Params>
+    {
+        Optional<LLButton::Params> action_button;
+        Deprecated                 allow_text_entry;
 
-		Params()
-		:	action_button("action_button"),
-		    allow_text_entry("allow_text_entry")
-		{
-			changeDefault(LLComboBox::Params::allow_text_entry, false);
-		}
+        Params()
+        :   action_button("action_button"),
+            allow_text_entry("allow_text_entry")
+        {
+            changeDefault(LLComboBox::Params::allow_text_entry, false);
+        }
 
-	};
+    };
 protected:
-	LLFlyoutButton(const Params&);
-	friend class LLUICtrlFactory;
+    LLFlyoutButton(const Params&);
+    friend class LLUICtrlFactory;
 public:
-	virtual void	draw();
+    virtual void    draw();
 
-	void setToggleState(BOOL state);
+    void setToggleState(BOOL state);
 
-	void onActionButtonClick(const LLSD& data);
+    void onActionButtonClick(const LLSD& data);
 
 protected:
-	LLButton*				mActionButton;
-	BOOL					mToggleState;
+    LLButton*               mActionButton;
+    BOOL                    mToggleState;
 };
 
 #endif // LL_LLFLYOUTBUTTON_H

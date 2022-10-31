@@ -32,17 +32,17 @@
 class LLBox
 {
 protected:
-//	GLuint	mDisplayList;
-	F32		mVertex[8][3];
-	U32		mTriangleCount;
+//  GLuint  mDisplayList;
+    F32     mVertex[8][3];
+    U32     mTriangleCount;
 public:
-	void	prerender();
-	void	cleanupGL();
+    void    prerender();
+    void    cleanupGL();
 
-	void	renderface(S32 which_face);
-	void	render();
+    void    renderface(S32 which_face);
+    void    render();
 
-	U32		getTriangleCount()			{ return mTriangleCount; }
+    U32     getTriangleCount()          { return mTriangleCount; }
 };
 
 extern LLBox gBox;

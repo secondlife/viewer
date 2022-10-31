@@ -28,7 +28,7 @@
 
 namespace LLInspectObjectUtil
 {
-	void registerFloater();
+    void registerFloater();
 }
 
 #endif

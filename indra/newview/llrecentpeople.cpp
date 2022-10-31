@@ -35,87 +35,87 @@ using namespace LLOldEvents;
 
 bool LLRecentPeople::add(const LLUUID& id, const LLSD& userdata)
 {
-	if (id == gAgent.getID())
-		return false;
+    if (id == gAgent.getID())
+        return false;
 
-	bool is_not_group_id = LLGroupMgr::getInstance()->getGroupData(id) == NULL;
+    bool is_not_group_id = LLGroupMgr::getInstance()->getGroupData(id) == NULL;
 
-	if (is_not_group_id)
-	{
-		//[] instead of insert to replace existing id->llsd["date"] with new date value
-		mPeople[id] = userdata;
-		mChangedSignal();
-	}
+    if (is_not_group_id)
+    {
+        //[] instead of insert to replace existing id->llsd["date"] with new date value
+        mPeople[id] = userdata;
+        mChangedSignal();
+    }
 
-	return is_not_group_id;
+    return is_not_group_id;
 }
 
 bool LLRecentPeople::contains(const LLUUID& id) const
 {
-	return mPeople.find(id) != mPeople.end();
+    return mPeople.find(id) != mPeople.end();
 }
 
 void LLRecentPeople::get(uuid_vec_t& result) const
 {
-	result.clear();
-	for (recent_people_t::const_iterator pos = mPeople.begin(); pos != mPeople.end(); ++pos)
-		result.push_back((*pos).first);
+    result.clear();
+    for (recent_people_t::const_iterator pos = mPeople.begin(); pos != mPeople.end(); ++pos)
+        result.push_back((*pos).first);
 }
 
 const LLDate LLRecentPeople::getDate(const LLUUID& id) const
 {
-	recent_people_t::const_iterator it = mPeople.find(id);
-	if (it!= mPeople.end()) return it->second["date"].asDate();
+    recent_people_t::const_iterator it = mPeople.find(id);
+    if (it!= mPeople.end()) return it->second["date"].asDate();
 
-	static LLDate no_date = LLDate();
-	return no_date;
+    static LLDate no_date = LLDate();
+    return no_date;
 }
 
 const LLSD& LLRecentPeople::getData(const LLUUID& id) const
 {
-	recent_people_t::const_iterator it = mPeople.find(id);
+    recent_people_t::const_iterator it = mPeople.find(id);
 
-	if (it != mPeople.end())
-		return it->second;
+    if (it != mPeople.end())
+        return it->second;
 
-	static LLSD no_data = LLSD();
-	return no_data;
+    static LLSD no_data = LLSD();
+    return no_data;
 }
 
 // virtual
 bool LLRecentPeople::handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 {
-	(void) userdata;
-	add(event->getValue().asUUID());
-	return true;
+    (void) userdata;
+    add(event->getValue().asUUID());
+    return true;
 }
 
 void LLRecentPeople::updateAvatarsArrivalTime(uuid_vec_t& uuids)
 {
-	id_to_time_map_t buf = mAvatarsArrivalTime;
-	mAvatarsArrivalTime.clear();
+    id_to_time_map_t buf = mAvatarsArrivalTime;
+    mAvatarsArrivalTime.clear();
 
-	for (uuid_vec_t::const_iterator id_it = uuids.begin(); id_it != uuids.end(); ++id_it)
-	{
-		if (buf.find(*id_it) != buf.end())
-		{
-			mAvatarsArrivalTime[*id_it] = buf[*id_it];
-		}
-		else
-		{
-			mAvatarsArrivalTime[*id_it] = LLDate::now().secondsSinceEpoch();
-		}
-	}
+    for (uuid_vec_t::const_iterator id_it = uuids.begin(); id_it != uuids.end(); ++id_it)
+    {
+        if (buf.find(*id_it) != buf.end())
+        {
+            mAvatarsArrivalTime[*id_it] = buf[*id_it];
+        }
+        else
+        {
+            mAvatarsArrivalTime[*id_it] = LLDate::now().secondsSinceEpoch();
+        }
+    }
 }
 
 F32 LLRecentPeople::getArrivalTimeByID(const LLUUID& id)
 {
-	id_to_time_map_t::const_iterator it = mAvatarsArrivalTime.find(id);
+    id_to_time_map_t::const_iterator it = mAvatarsArrivalTime.find(id);
 
-	if (it != mAvatarsArrivalTime.end())
-	{
-		return it->second;
-	}
-	return LLDate::now().secondsSinceEpoch();
+    if (it != mAvatarsArrivalTime.end())
+    {
+        return it->second;
+    }
+    return LLDate::now().secondsSinceEpoch();
 }
 

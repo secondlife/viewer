@@ -43,24 +43,24 @@ class LLViewerTexLayerSetBuffer;
 class LLViewerTexLayerSet : public LLTexLayerSet
 {
 public:
-	LLViewerTexLayerSet(LLAvatarAppearance* const appearance);
-	virtual ~LLViewerTexLayerSet();
+    LLViewerTexLayerSet(LLAvatarAppearance* const appearance);
+    virtual ~LLViewerTexLayerSet();
 
-	/*virtual*/void				requestUpdate();
-	BOOL						isLocalTextureDataAvailable() const;
-	BOOL						isLocalTextureDataFinal() const;
-	void						updateComposite();
-	/*virtual*/void				createComposite();
-	void						setUpdatesEnabled(BOOL b);
-	BOOL						getUpdatesEnabled()	const 	{ return mUpdatesEnabled; }
+    /*virtual*/void             requestUpdate();
+    BOOL                        isLocalTextureDataAvailable() const;
+    BOOL                        isLocalTextureDataFinal() const;
+    void                        updateComposite();
+    /*virtual*/void             createComposite();
+    void                        setUpdatesEnabled(BOOL b);
+    BOOL                        getUpdatesEnabled() const   { return mUpdatesEnabled; }
 
-	LLVOAvatarSelf*				getAvatar();
-	const LLVOAvatarSelf*		getAvatar()	const;
-	LLViewerTexLayerSetBuffer*	getViewerComposite();
-	const LLViewerTexLayerSetBuffer*	getViewerComposite() const;
+    LLVOAvatarSelf*             getAvatar();
+    const LLVOAvatarSelf*       getAvatar() const;
+    LLViewerTexLayerSetBuffer*  getViewerComposite();
+    const LLViewerTexLayerSetBuffer*    getViewerComposite() const;
 
 private:
-	BOOL						mUpdatesEnabled;
+    BOOL                        mUpdatesEnabled;
 
 };
 
@@ -71,62 +71,62 @@ private:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLViewerTexLayerSetBuffer : public LLTexLayerSetBuffer, public LLViewerDynamicTexture
 {
-	LOG_CLASS(LLViewerTexLayerSetBuffer);
+    LOG_CLASS(LLViewerTexLayerSetBuffer);
 
 public:
-	LLViewerTexLayerSetBuffer(LLTexLayerSet* const owner, S32 width, S32 height);
-	virtual ~LLViewerTexLayerSetBuffer();
+    LLViewerTexLayerSetBuffer(LLTexLayerSet* const owner, S32 width, S32 height);
+    virtual ~LLViewerTexLayerSetBuffer();
 
 public:
-	/*virtual*/ S8          getType() const;
-	BOOL					isInitialized(void) const;
-	static void				dumpTotalByteCount();
-	const std::string		dumpTextureInfo() const;
-	virtual void 			restoreGLTexture();
-	virtual void 			destroyGLTexture();
+    /*virtual*/ S8          getType() const;
+    BOOL                    isInitialized(void) const;
+    static void             dumpTotalByteCount();
+    const std::string       dumpTextureInfo() const;
+    virtual void            restoreGLTexture();
+    virtual void            destroyGLTexture();
 private:
-	LLViewerTexLayerSet*	getViewerTexLayerSet() 
-		{ return dynamic_cast<LLViewerTexLayerSet*> (mTexLayerSet); }
-	const LLViewerTexLayerSet*	getViewerTexLayerSet() const
-		{ return dynamic_cast<const LLViewerTexLayerSet*> (mTexLayerSet); }
-	static S32				sGLByteCount;
+    LLViewerTexLayerSet*    getViewerTexLayerSet() 
+        { return dynamic_cast<LLViewerTexLayerSet*> (mTexLayerSet); }
+    const LLViewerTexLayerSet*  getViewerTexLayerSet() const
+        { return dynamic_cast<const LLViewerTexLayerSet*> (mTexLayerSet); }
+    static S32              sGLByteCount;
 
-	//--------------------------------------------------------------------
-	// Tex Layer Render
-	//--------------------------------------------------------------------
-	virtual void			preRenderTexLayerSet();
-	virtual void			midRenderTexLayerSet(BOOL success);
-	virtual void			postRenderTexLayerSet(BOOL success);
-	virtual S32				getCompositeOriginX() const { return getOriginX(); }
-	virtual S32				getCompositeOriginY() const { return getOriginY(); }
-	virtual S32				getCompositeWidth() const { return getFullWidth(); }
-	virtual S32				getCompositeHeight() const { return getFullHeight(); }
+    //--------------------------------------------------------------------
+    // Tex Layer Render
+    //--------------------------------------------------------------------
+    virtual void            preRenderTexLayerSet();
+    virtual void            midRenderTexLayerSet(BOOL success);
+    virtual void            postRenderTexLayerSet(BOOL success);
+    virtual S32             getCompositeOriginX() const { return getOriginX(); }
+    virtual S32             getCompositeOriginY() const { return getOriginY(); }
+    virtual S32             getCompositeWidth() const { return getFullWidth(); }
+    virtual S32             getCompositeHeight() const { return getFullHeight(); }
 
-	//--------------------------------------------------------------------
-	// Dynamic Texture Interface
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
+    // Dynamic Texture Interface
+    //--------------------------------------------------------------------
 public:
-	/*virtual*/ BOOL		needsRender();
+    /*virtual*/ BOOL        needsRender();
 protected:
-	// Pass these along for tex layer rendering.
-	virtual void			preRender(BOOL clear_depth) { preRenderTexLayerSet(); }
-	virtual void			postRender(BOOL success) { postRenderTexLayerSet(success); }
-	virtual BOOL			render() { return renderTexLayerSet(mBoundTarget); }
-	
-	//--------------------------------------------------------------------
-	// Updates
-	//--------------------------------------------------------------------
+    // Pass these along for tex layer rendering.
+    virtual void            preRender(BOOL clear_depth) { preRenderTexLayerSet(); }
+    virtual void            postRender(BOOL success) { postRenderTexLayerSet(success); }
+    virtual BOOL            render() { return renderTexLayerSet(mBoundTarget); }
+    
+    //--------------------------------------------------------------------
+    // Updates
+    //--------------------------------------------------------------------
 public:
-	void					requestUpdate();
-	BOOL					requestUpdateImmediate();
+    void                    requestUpdate();
+    BOOL                    requestUpdateImmediate();
 protected:
-	BOOL					isReadyToUpdate() const;
-	void					doUpdate();
-	void					restartUpdateTimer();
+    BOOL                    isReadyToUpdate() const;
+    void                    doUpdate();
+    void                    restartUpdateTimer();
 private:
-	BOOL					mNeedsUpdate; 					// Whether we need to locally update our baked textures
-	U32						mNumLowresUpdates; 				// Number of times we've locally updated with lowres version of our baked textures
-	LLFrameTimer    		mNeedsUpdateTimer; 				// Tracks time since update was requested and performed.
+    BOOL                    mNeedsUpdate;                   // Whether we need to locally update our baked textures
+    U32                     mNumLowresUpdates;              // Number of times we've locally updated with lowres version of our baked textures
+    LLFrameTimer            mNeedsUpdateTimer;              // Tracks time since update was requested and performed.
 };
 
 #endif  // LL_VIEWER_TEXLAYER_H

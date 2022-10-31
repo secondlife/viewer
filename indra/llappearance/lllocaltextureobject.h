@@ -42,44 +42,44 @@ class LLWearable;
 class LLLocalTextureObject
 {
 public:
-	LLLocalTextureObject();
-	LLLocalTextureObject(LLGLTexture* image, const LLUUID& id);
-	LLLocalTextureObject(const LLLocalTextureObject& lto);
-	~LLLocalTextureObject();
+    LLLocalTextureObject();
+    LLLocalTextureObject(LLGLTexture* image, const LLUUID& id);
+    LLLocalTextureObject(const LLLocalTextureObject& lto);
+    ~LLLocalTextureObject();
 
-	LLGLTexture* getImage() const;
-	LLTexLayer* getTexLayer(U32 index) const;
-	LLTexLayer* getTexLayer(const std::string &name);
-	U32 		getNumTexLayers() const;
-	LLUUID		getID() const;
-	S32			getDiscard() const;
-	BOOL		getBakedReady() const;
+    LLGLTexture* getImage() const;
+    LLTexLayer* getTexLayer(U32 index) const;
+    LLTexLayer* getTexLayer(const std::string &name);
+    U32         getNumTexLayers() const;
+    LLUUID      getID() const;
+    S32         getDiscard() const;
+    BOOL        getBakedReady() const;
 
-	void setImage(LLGLTexture* new_image);
-	BOOL setTexLayer(LLTexLayer *new_tex_layer, U32 index);
-	BOOL addTexLayer(LLTexLayer *new_tex_layer, LLWearable *wearable);
-	BOOL addTexLayer(LLTexLayerTemplate *new_tex_layer, LLWearable *wearable);
-	BOOL removeTexLayer(U32 index);
+    void setImage(LLGLTexture* new_image);
+    BOOL setTexLayer(LLTexLayer *new_tex_layer, U32 index);
+    BOOL addTexLayer(LLTexLayer *new_tex_layer, LLWearable *wearable);
+    BOOL addTexLayer(LLTexLayerTemplate *new_tex_layer, LLWearable *wearable);
+    BOOL removeTexLayer(U32 index);
 
-	void setID(LLUUID new_id);
-	void setDiscard(S32 new_discard);
-	void setBakedReady(BOOL ready);
+    void setID(LLUUID new_id);
+    void setDiscard(S32 new_discard);
+    void setBakedReady(BOOL ready);
 
 protected:
 
 private:
 
-	LLPointer<LLGLTexture>			mImage;
-	// NOTE: LLLocalTextureObject should be the exclusive owner of mTexEntry and mTexLayer
-	// using shared pointers here only for smart assignment & cleanup
-	// do NOT create new shared pointers to these objects, or keep pointers to them around
-	typedef std::vector<LLTexLayer*> tex_layer_vec_t;
-	tex_layer_vec_t mTexLayers;
+    LLPointer<LLGLTexture>          mImage;
+    // NOTE: LLLocalTextureObject should be the exclusive owner of mTexEntry and mTexLayer
+    // using shared pointers here only for smart assignment & cleanup
+    // do NOT create new shared pointers to these objects, or keep pointers to them around
+    typedef std::vector<LLTexLayer*> tex_layer_vec_t;
+    tex_layer_vec_t mTexLayers;
 
-	LLUUID			mID;
+    LLUUID          mID;
 
-	BOOL mIsBakedReady;
-	S32 mDiscard;
+    BOOL mIsBakedReady;
+    S32 mDiscard;
 };
 
  #endif // LL_LOCALTEXTUREOBJECT_H

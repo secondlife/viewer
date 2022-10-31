@@ -24,11 +24,11 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_OPSETGET_H_
-#define	_LLCORE_HTTP_OPSETGET_H_
+#ifndef _LLCORE_HTTP_OPSETGET_H_
+#define _LLCORE_HTTP_OPSETGET_H_
 
 
-#include "linden_common.h"		// Modifies curl/curl.h interfaces
+#include "linden_common.h"      // Modifies curl/curl.h interfaces
 
 #include "httpcommon.h"
 
@@ -55,37 +55,37 @@ class HttpOpSetGet : public HttpOperation
 public:
     typedef boost::shared_ptr<HttpOpSetGet> ptr_t;
 
-	HttpOpSetGet();
+    HttpOpSetGet();
 
-	virtual ~HttpOpSetGet();							// Use release()
+    virtual ~HttpOpSetGet();                            // Use release()
 
 private:
-	HttpOpSetGet(const HttpOpSetGet &);					// Not defined
-	void operator=(const HttpOpSetGet &);				// Not defined
+    HttpOpSetGet(const HttpOpSetGet &);                 // Not defined
+    void operator=(const HttpOpSetGet &);               // Not defined
 
 public:
-	/// Threading:  called by application thread
-	HttpStatus setupGet(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass);
-	HttpStatus setupSet(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass, long value);
-	HttpStatus setupSet(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass, const std::string & value);
+    /// Threading:  called by application thread
+    HttpStatus setupGet(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass);
+    HttpStatus setupSet(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass, long value);
+    HttpStatus setupSet(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass, const std::string & value);
 
-	virtual void stageFromRequest(HttpService *);
+    virtual void stageFromRequest(HttpService *);
 
 public:
-	// Request data
-	HttpRequest::EPolicyOption	mReqOption;
-	HttpRequest::policy_t		mReqClass;
-	bool						mReqDoSet;
-	long						mReqLongValue;
-	std::string					mReqStrValue;
+    // Request data
+    HttpRequest::EPolicyOption  mReqOption;
+    HttpRequest::policy_t       mReqClass;
+    bool                        mReqDoSet;
+    long                        mReqLongValue;
+    std::string                 mReqStrValue;
 
-	// Reply Data
-	long						mReplyLongValue;
-	std::string					mReplyStrValue;
+    // Reply Data
+    long                        mReplyLongValue;
+    std::string                 mReplyStrValue;
 };  // end class HttpOpSetGet
 
 
 }   // end namespace LLCore
 
-#endif	// _LLCORE_HTTP_OPSETGET_H_
+#endif  // _LLCORE_HTTP_OPSETGET_H_
 

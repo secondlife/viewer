@@ -44,86 +44,86 @@ class LLVector2;
 class LLViewerParcelOverlay : public LLGLUpdate
 {
 public:
-	LLViewerParcelOverlay(LLViewerRegion* region, F32 region_width_meters);
-	~LLViewerParcelOverlay();
+    LLViewerParcelOverlay(LLViewerRegion* region, F32 region_width_meters);
+    ~LLViewerParcelOverlay();
 
-	// ACCESS
-	LLViewerTexture*		getTexture() const		{ return mTexture; }
+    // ACCESS
+    LLViewerTexture*        getTexture() const      { return mTexture; }
 
-	BOOL			isOwned(const LLVector3& pos) const;
-	BOOL			isOwnedSelf(const LLVector3& pos) const;
-	BOOL			isOwnedGroup(const LLVector3& pos) const;
-	BOOL			isOwnedOther(const LLVector3& pos) const;
+    BOOL            isOwned(const LLVector3& pos) const;
+    BOOL            isOwnedSelf(const LLVector3& pos) const;
+    BOOL            isOwnedGroup(const LLVector3& pos) const;
+    BOOL            isOwnedOther(const LLVector3& pos) const;
 
-	// "encroaches" means the prim hangs over the parcel, but its center
-	// might be in another parcel. for now, we simply test axis aligned 
-	// bounding boxes which isn't perfect, but is close
-	bool encroachesOwned(const std::vector<LLBBox>& boxes) const;
-	bool encroachesOnUnowned(const std::vector<LLBBox>& boxes) const;
-	bool encroachesOnNearbyParcel(const std::vector<LLBBox>& boxes) const;
-	
-	BOOL			isSoundLocal(const LLVector3& pos) const;
+    // "encroaches" means the prim hangs over the parcel, but its center
+    // might be in another parcel. for now, we simply test axis aligned 
+    // bounding boxes which isn't perfect, but is close
+    bool encroachesOwned(const std::vector<LLBBox>& boxes) const;
+    bool encroachesOnUnowned(const std::vector<LLBBox>& boxes) const;
+    bool encroachesOnNearbyParcel(const std::vector<LLBBox>& boxes) const;
+    
+    BOOL            isSoundLocal(const LLVector3& pos) const;
 
-	BOOL			isBuildCameraAllowed(const LLVector3& pos) const;
-	F32				getOwnedRatio() const;
+    BOOL            isBuildCameraAllowed(const LLVector3& pos) const;
+    F32             getOwnedRatio() const;
 
-	// Returns the number of vertices drawn
-	S32				renderPropertyLines();
-    void			renderPropertyLinesOnMinimap(F32 scale_pixels_per_meter, const F32* parcel_outline_color);
+    // Returns the number of vertices drawn
+    S32             renderPropertyLines();
+    void            renderPropertyLinesOnMinimap(F32 scale_pixels_per_meter, const F32* parcel_outline_color);
 
-	U8				ownership( const LLVector3& pos) const;
-	U8				parcelLineFlags( const LLVector3& pos) const;
-	U8				parcelLineFlags(S32 row, S32 col) const;
+    U8              ownership( const LLVector3& pos) const;
+    U8              parcelLineFlags( const LLVector3& pos) const;
+    U8              parcelLineFlags(S32 row, S32 col) const;
 
-	// MANIPULATE
-	void	uncompressLandOverlay(S32 chunk, U8 *compressed_overlay);
+    // MANIPULATE
+    void    uncompressLandOverlay(S32 chunk, U8 *compressed_overlay);
 
-	// Indicate property lines and overlay texture need to be rebuilt.
-	void	setDirty();
+    // Indicate property lines and overlay texture need to be rebuilt.
+    void    setDirty();
 
-	void	idleUpdate(bool update_now = false);
-	void	updateGL();
+    void    idleUpdate(bool update_now = false);
+    void    updateGL();
     
 private:
-	// This is in parcel rows and columns, not grid rows and columns
-	// Stored in bottom three bits.
-	U8		ownership(S32 row, S32 col) const	
-				{ return parcelFlags(row, col, (U8)0x7); }
+    // This is in parcel rows and columns, not grid rows and columns
+    // Stored in bottom three bits.
+    U8      ownership(S32 row, S32 col) const   
+                { return parcelFlags(row, col, (U8)0x7); }
 
-    U8		parcelFlags(S32 row, S32 col, U8 flags) const;
+    U8      parcelFlags(S32 row, S32 col, U8 flags) const;
 
-	void	addPropertyLine(std::vector<LLVector3>& vertex_array,
-				std::vector<LLColor4U>& color_array,
-				std::vector<LLVector2>& coord_array,
-				const F32 start_x, const F32 start_y, 
-				const U32 edge, 
-				const LLColor4U& color);
+    void    addPropertyLine(std::vector<LLVector3>& vertex_array,
+                std::vector<LLColor4U>& color_array,
+                std::vector<LLVector2>& coord_array,
+                const F32 start_x, const F32 start_y, 
+                const U32 edge, 
+                const LLColor4U& color);
 
-	void 	updateOverlayTexture();
-	void	updatePropertyLines();
-	
+    void    updateOverlayTexture();
+    void    updatePropertyLines();
+    
 private:
-	// Back pointer to the region that owns this structure.
-	LLViewerRegion*	mRegion;
+    // Back pointer to the region that owns this structure.
+    LLViewerRegion* mRegion;
 
-	S32				mParcelGridsPerEdge;
+    S32             mParcelGridsPerEdge;
 
-	LLPointer<LLViewerTexture> mTexture;
-	LLPointer<LLImageRaw> mImageRaw;
-	
-	// Size: mParcelGridsPerEdge * mParcelGridsPerEdge
-	// Each value is 0-3, PARCEL_AVAIL to PARCEL_SELF in the two low bits
-	// and other flags in the upper bits.
-	U8				*mOwnership;
+    LLPointer<LLViewerTexture> mTexture;
+    LLPointer<LLImageRaw> mImageRaw;
+    
+    // Size: mParcelGridsPerEdge * mParcelGridsPerEdge
+    // Each value is 0-3, PARCEL_AVAIL to PARCEL_SELF in the two low bits
+    // and other flags in the upper bits.
+    U8              *mOwnership;
 
-	// Update propery lines and overlay texture
-	BOOL			mDirty;
-	LLFrameTimer	mTimeSinceLastUpdate;
-	S32				mOverlayTextureIdx;
-	
-	S32				mVertexCount;
-	F32*			mVertexArray;
-	U8*				mColorArray;
+    // Update propery lines and overlay texture
+    BOOL            mDirty;
+    LLFrameTimer    mTimeSinceLastUpdate;
+    S32             mOverlayTextureIdx;
+    
+    S32             mVertexCount;
+    F32*            mVertexArray;
+    U8*             mColorArray;
 };
 
 #endif

@@ -36,16 +36,16 @@
  */
 class LLPanelGenericTip: public LLPanelTipToast
 {
-	// disallow instantiation of this class
+    // disallow instantiation of this class
 private:
-	// grant privileges to instantiate this class to LLToastPanel
-	friend class LLToastPanel;
-	/**
-	 * Generic toast tip panel.
-	 * This is particular case of toast panel that decoupled from LLToastNotifyPanel.
-	 * From now LLToastNotifyPanel is deprecated and will be removed after all  panel
-	 * types are represented in separate classes.
-	 */
-	LLPanelGenericTip(const LLNotificationPtr& notification);
+    // grant privileges to instantiate this class to LLToastPanel
+    friend class LLToastPanel;
+    /**
+     * Generic toast tip panel.
+     * This is particular case of toast panel that decoupled from LLToastNotifyPanel.
+     * From now LLToastNotifyPanel is deprecated and will be removed after all  panel
+     * types are represented in separate classes.
+     */
+    LLPanelGenericTip(const LLNotificationPtr& notification);
 };
 #endif /* LL_PANELGENERICTIP_H */

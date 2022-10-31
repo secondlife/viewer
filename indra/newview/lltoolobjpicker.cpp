@@ -46,128 +46,128 @@
 
 
 LLToolObjPicker::LLToolObjPicker()
-:	LLTool( std::string("ObjPicker"), NULL ),
-	mPicked( FALSE ),
-	mHitObjectID( LLUUID::null ),
-	mExitCallback( NULL ),
-	mExitCallbackData( NULL )
+:   LLTool( std::string("ObjPicker"), NULL ),
+    mPicked( FALSE ),
+    mHitObjectID( LLUUID::null ),
+    mExitCallback( NULL ),
+    mExitCallbackData( NULL )
 { }
 
 
 // returns TRUE if an object was selected 
 BOOL LLToolObjPicker::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	LLRootView* viewp = gViewerWindow->getRootView();
-	BOOL handled = viewp->handleMouseDown(x, y, mask);
+    LLRootView* viewp = gViewerWindow->getRootView();
+    BOOL handled = viewp->handleMouseDown(x, y, mask);
 
-	mHitObjectID.setNull();
+    mHitObjectID.setNull();
 
-	if (! handled)
-	{
-		// didn't click in any UI object, so must have clicked in the world
-		gViewerWindow->pickAsync(x, y, mask, pickCallback);
-		handled = TRUE;
-	}
-	else
-	{
-		if (hasMouseCapture())
-		{
-			setMouseCapture(FALSE);
-		}
-		else
-		{
-			LL_WARNS() << "PickerTool doesn't have mouse capture on mouseDown" << LL_ENDL;	
-		}
-	}
+    if (! handled)
+    {
+        // didn't click in any UI object, so must have clicked in the world
+        gViewerWindow->pickAsync(x, y, mask, pickCallback);
+        handled = TRUE;
+    }
+    else
+    {
+        if (hasMouseCapture())
+        {
+            setMouseCapture(FALSE);
+        }
+        else
+        {
+            LL_WARNS() << "PickerTool doesn't have mouse capture on mouseDown" << LL_ENDL;  
+        }
+    }
 
-	// Pass mousedown to base class
-	LLTool::handleMouseDown(x, y, mask);
+    // Pass mousedown to base class
+    LLTool::handleMouseDown(x, y, mask);
 
-	return handled;
+    return handled;
 }
 
 void LLToolObjPicker::pickCallback(const LLPickInfo& pick_info)
 {
-	LLToolObjPicker::getInstance()->mHitObjectID = pick_info.mObjectID;
-	LLToolObjPicker::getInstance()->mPicked = pick_info.mObjectID.notNull();
+    LLToolObjPicker::getInstance()->mHitObjectID = pick_info.mObjectID;
+    LLToolObjPicker::getInstance()->mPicked = pick_info.mObjectID.notNull();
 }
 
 
 BOOL LLToolObjPicker::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	LLView* viewp = gViewerWindow->getRootView();
-	BOOL handled = viewp->handleHover(x, y, mask);
-	if (handled)
-	{
-		// let UI handle this
-	}
+    LLView* viewp = gViewerWindow->getRootView();
+    BOOL handled = viewp->handleHover(x, y, mask);
+    if (handled)
+    {
+        // let UI handle this
+    }
 
-	LLTool::handleMouseUp(x, y, mask);
-	if (hasMouseCapture())
-	{
-		setMouseCapture(FALSE);
-	}
-	else
-	{
-		LL_WARNS() << "PickerTool doesn't have mouse capture on mouseUp" << LL_ENDL;	
-	}
-	return handled;
+    LLTool::handleMouseUp(x, y, mask);
+    if (hasMouseCapture())
+    {
+        setMouseCapture(FALSE);
+    }
+    else
+    {
+        LL_WARNS() << "PickerTool doesn't have mouse capture on mouseUp" << LL_ENDL;    
+    }
+    return handled;
 }
 
 
 BOOL LLToolObjPicker::handleHover(S32 x, S32 y, MASK mask)
 {
-	LLView *viewp = gViewerWindow->getRootView();
-	BOOL handled = viewp->handleHover(x, y, mask);
-	if (!handled) 
-	{
-		// Used to do pick on hover.  Now we just always display the cursor.
-		ECursorType cursor = UI_CURSOR_ARROWLOCKED;
+    LLView *viewp = gViewerWindow->getRootView();
+    BOOL handled = viewp->handleHover(x, y, mask);
+    if (!handled) 
+    {
+        // Used to do pick on hover.  Now we just always display the cursor.
+        ECursorType cursor = UI_CURSOR_ARROWLOCKED;
 
-		cursor = UI_CURSOR_TOOLPICKOBJECT3;
+        cursor = UI_CURSOR_TOOLPICKOBJECT3;
 
-		gViewerWindow->setCursor(cursor);
-	}
-	return handled;
+        gViewerWindow->setCursor(cursor);
+    }
+    return handled;
 }
 
 
 void LLToolObjPicker::onMouseCaptureLost()
 {
-	if (mExitCallback)
-	{
-		mExitCallback(mExitCallbackData);
+    if (mExitCallback)
+    {
+        mExitCallback(mExitCallbackData);
 
-		mExitCallback = NULL;
-		mExitCallbackData = NULL;
-	}
+        mExitCallback = NULL;
+        mExitCallbackData = NULL;
+    }
 
-	mPicked = FALSE;
-	mHitObjectID.setNull();
+    mPicked = FALSE;
+    mHitObjectID.setNull();
 }
 
 // virtual
 void LLToolObjPicker::setExitCallback(void (*callback)(void *), void *callback_data)
 {
-	mExitCallback = callback;
-	mExitCallbackData = callback_data;
+    mExitCallback = callback;
+    mExitCallbackData = callback_data;
 }
 
 // virtual
 void LLToolObjPicker::handleSelect()
 {
-	LLTool::handleSelect();
-	setMouseCapture(TRUE);
+    LLTool::handleSelect();
+    setMouseCapture(TRUE);
 }
 
 // virtual
 void LLToolObjPicker::handleDeselect()
 {
-	if (hasMouseCapture())
-	{
-		LLTool::handleDeselect();
-		setMouseCapture(FALSE);
-	}
+    if (hasMouseCapture())
+    {
+        LLTool::handleDeselect();
+        setMouseCapture(FALSE);
+    }
 }
 
 

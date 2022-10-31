@@ -50,37 +50,37 @@ typedef void (*LLVPCallback)(LLViewerPart &part, const F32 dt);
 class LLViewerPart : public LLPartData
 {
 public:
-	~LLViewerPart();
+    ~LLViewerPart();
 public:
-	LLViewerPart();
+    LLViewerPart();
 
-	void init(LLPointer<LLViewerPartSource> sourcep, LLViewerTexture *imagep, LLVPCallback cb);
-
-
-	U32					mPartID;					// Particle ID used primarily for moving between groups
-	F32					mLastUpdateTime;			// Last time the particle was updated
-	F32					mSkipOffset;				// Offset against current group mSkippedTime
-
-	LLVPCallback		mVPCallback;				// Callback function for more complicated behaviors
-	LLPointer<LLViewerPartSource> mPartSourcep;		// Particle source used for this object
-
-	LLViewerPart*		mParent;					// particle to connect to if this is part of a particle ribbon
-	LLViewerPart*		mChild;						// child particle for clean reference destruction
-
-	// Current particle state (possibly used for rendering)
-	LLPointer<LLViewerTexture>	mImagep;
-	LLVector3		mPosAgent;
-	LLVector3		mVelocity;
-	LLVector3		mAccel;
-	LLVector3		mAxis;
-	LLColor4		mColor;
-	LLVector2		mScale;
-	F32				mStartGlow;
-	F32				mEndGlow;
-	LLColor4U		mGlow;
+    void init(LLPointer<LLViewerPartSource> sourcep, LLViewerTexture *imagep, LLVPCallback cb);
 
 
-	static U32		sNextPartID;
+    U32                 mPartID;                    // Particle ID used primarily for moving between groups
+    F32                 mLastUpdateTime;            // Last time the particle was updated
+    F32                 mSkipOffset;                // Offset against current group mSkippedTime
+
+    LLVPCallback        mVPCallback;                // Callback function for more complicated behaviors
+    LLPointer<LLViewerPartSource> mPartSourcep;     // Particle source used for this object
+
+    LLViewerPart*       mParent;                    // particle to connect to if this is part of a particle ribbon
+    LLViewerPart*       mChild;                     // child particle for clean reference destruction
+
+    // Current particle state (possibly used for rendering)
+    LLPointer<LLViewerTexture>  mImagep;
+    LLVector3       mPosAgent;
+    LLVector3       mVelocity;
+    LLVector3       mAccel;
+    LLVector3       mAxis;
+    LLColor4        mColor;
+    LLVector2       mScale;
+    F32             mStartGlow;
+    F32             mEndGlow;
+    LLColor4U       mGlow;
+
+
+    static U32      sNextPartID;
 };
 
 
@@ -88,128 +88,128 @@ public:
 class LLViewerPartGroup
 {
 public:
-	LLViewerPartGroup(const LLVector3 &center,
-					  const F32 box_radius,
-					  bool hud);
-	virtual ~LLViewerPartGroup();
+    LLViewerPartGroup(const LLVector3 &center,
+                      const F32 box_radius,
+                      bool hud);
+    virtual ~LLViewerPartGroup();
 
-	void cleanup();
+    void cleanup();
 
-	BOOL addPart(LLViewerPart* part, const F32 desired_size = -1.f);
-	
-	void updateParticles(const F32 lastdt);
+    BOOL addPart(LLViewerPart* part, const F32 desired_size = -1.f);
+    
+    void updateParticles(const F32 lastdt);
 
-	BOOL posInGroup(const LLVector3 &pos, const F32 desired_size = -1.f);
+    BOOL posInGroup(const LLVector3 &pos, const F32 desired_size = -1.f);
 
-	void shift(const LLVector3 &offset);
+    void shift(const LLVector3 &offset);
 
-	F32 getBoxRadius() { return mBoxRadius; }
-	F32 getBoxSide() { return mBoxSide; }
+    F32 getBoxRadius() { return mBoxRadius; }
+    F32 getBoxSide() { return mBoxSide; }
 
-	typedef std::vector<LLViewerPart*>  part_list_t;
-	part_list_t mParticles;
+    typedef std::vector<LLViewerPart*>  part_list_t;
+    part_list_t mParticles;
 
-	const LLVector3 &getCenterAgent() const		{ return mCenterAgent; }
-	S32 getCount() const					{ return (S32) mParticles.size(); }
-	LLViewerRegion *getRegion() const		{ return mRegionp; }
+    const LLVector3 &getCenterAgent() const     { return mCenterAgent; }
+    S32 getCount() const                    { return (S32) mParticles.size(); }
+    LLViewerRegion *getRegion() const       { return mRegionp; }
 
-	void removeParticlesByID(const U32 source_id);
-	
-	LLPointer<LLVOPartGroup> mVOPartGroupp;
+    void removeParticlesByID(const U32 source_id);
+    
+    LLPointer<LLVOPartGroup> mVOPartGroupp;
 
-	BOOL mUniformParticles;
-	U32 mID;
+    BOOL mUniformParticles;
+    U32 mID;
 
-	F32 mSkippedTime;
-	bool mHud;
+    F32 mSkippedTime;
+    bool mHud;
 
 protected:
-	LLVector3 mCenterAgent;
-	F32 mBoxRadius;
-	F32 mBoxSide;
-	LLVector3 mMinObjPos;
-	LLVector3 mMaxObjPos;
+    LLVector3 mCenterAgent;
+    F32 mBoxRadius;
+    F32 mBoxSide;
+    LLVector3 mMinObjPos;
+    LLVector3 mMaxObjPos;
 
-	LLViewerRegion *mRegionp;
+    LLViewerRegion *mRegionp;
 };
 
 class LLViewerPartSim : public LLSingleton<LLViewerPartSim>
 {
-	LLSINGLETON(LLViewerPartSim);
+    LLSINGLETON(LLViewerPartSim);
 public:
-	void destroyClass();
+    void destroyClass();
 
-	typedef std::vector<LLViewerPartGroup *> group_list_t;
-	typedef std::vector<LLPointer<LLViewerPartSource> > source_list_t;
+    typedef std::vector<LLViewerPartGroup *> group_list_t;
+    typedef std::vector<LLPointer<LLViewerPartSource> > source_list_t;
 
-	void enable(bool enabled);
+    void enable(bool enabled);
 
-	void shift(const LLVector3 &offset);
+    void shift(const LLVector3 &offset);
 
-	void updateSimulation();
+    void updateSimulation();
 
-	void addPartSource(LLPointer<LLViewerPartSource> sourcep);
+    void addPartSource(LLPointer<LLViewerPartSource> sourcep);
 
-	void cleanupRegion(LLViewerRegion *regionp);
+    void cleanupRegion(LLViewerRegion *regionp);
 
-	static BOOL shouldAddPart(); // Just decides whether this particle should be added or not (for particle count capping)
-	F32 maxRate() // Return maximum particle generation rate
-	{
-		if (sParticleCount >= MAX_PART_COUNT)
-		{
-			return 1.f;
-		}
-		if (sParticleCount > PART_THROTTLE_THRESHOLD*sMaxParticleCount)
-		{
-			return (((F32)sParticleCount/(F32)sMaxParticleCount)-PART_THROTTLE_THRESHOLD)*PART_THROTTLE_RESCALE;
-		}
-		return 0.f;
-	}
-	F32 getRefRate() { return sParticleAdaptiveRate; }
-	F32 getBurstRate() {return sParticleBurstRate; }
-	void addPart(LLViewerPart* part);
-	void updatePartBurstRate() ;
-	void clearParticlesByID(const U32 system_id);
-	void clearParticlesByOwnerID(const LLUUID& task_id);
-	void removeLastCreatedSource();
+    static BOOL shouldAddPart(); // Just decides whether this particle should be added or not (for particle count capping)
+    F32 maxRate() // Return maximum particle generation rate
+    {
+        if (sParticleCount >= MAX_PART_COUNT)
+        {
+            return 1.f;
+        }
+        if (sParticleCount > PART_THROTTLE_THRESHOLD*sMaxParticleCount)
+        {
+            return (((F32)sParticleCount/(F32)sMaxParticleCount)-PART_THROTTLE_THRESHOLD)*PART_THROTTLE_RESCALE;
+        }
+        return 0.f;
+    }
+    F32 getRefRate() { return sParticleAdaptiveRate; }
+    F32 getBurstRate() {return sParticleBurstRate; }
+    void addPart(LLViewerPart* part);
+    void updatePartBurstRate() ;
+    void clearParticlesByID(const U32 system_id);
+    void clearParticlesByOwnerID(const LLUUID& task_id);
+    void removeLastCreatedSource();
 
-	const source_list_t* getParticleSystemList() const { return &mViewerPartSources; }
+    const source_list_t* getParticleSystemList() const { return &mViewerPartSources; }
 
-	friend class LLViewerPartGroup;
+    friend class LLViewerPartGroup;
 
-	BOOL aboveParticleLimit() const { return sParticleCount > sMaxParticleCount; }
+    BOOL aboveParticleLimit() const { return sParticleCount > sMaxParticleCount; }
 
-	static void setMaxPartCount(const S32 max_parts)	{ sMaxParticleCount = max_parts; }
-	static S32  getMaxPartCount()						{ return sMaxParticleCount; }
-	static void incPartCount(const S32 count)			{ sParticleCount += count; }
-	static void decPartCount(const S32 count)			{ sParticleCount -= count; }
-	
-	U32 mID;
+    static void setMaxPartCount(const S32 max_parts)    { sMaxParticleCount = max_parts; }
+    static S32  getMaxPartCount()                       { return sMaxParticleCount; }
+    static void incPartCount(const S32 count)           { sParticleCount += count; }
+    static void decPartCount(const S32 count)           { sParticleCount -= count; }
+    
+    U32 mID;
 
 protected:
-	LLViewerPartGroup *createViewerPartGroup(const LLVector3 &pos_agent, const F32 desired_size, bool hud);
-	LLViewerPartGroup *put(LLViewerPart* part);
+    LLViewerPartGroup *createViewerPartGroup(const LLVector3 &pos_agent, const F32 desired_size, bool hud);
+    LLViewerPartGroup *put(LLViewerPart* part);
 
-	group_list_t mViewerPartGroups;
-	source_list_t mViewerPartSources;
-	LLFrameTimer mSimulationTimer;
+    group_list_t mViewerPartGroups;
+    source_list_t mViewerPartSources;
+    LLFrameTimer mSimulationTimer;
 
-	static S32 sMaxParticleCount;
-	static S32 sParticleCount;
-	static F32 sParticleAdaptiveRate;
-	static F32 sParticleBurstRate;
+    static S32 sMaxParticleCount;
+    static S32 sParticleCount;
+    static F32 sParticleAdaptiveRate;
+    static F32 sParticleBurstRate;
 
-	static const S32 MAX_PART_COUNT;
-	static const F32 PART_THROTTLE_THRESHOLD;
-	static const F32 PART_THROTTLE_RESCALE;
-	static const F32 PART_ADAPT_RATE_MULT;
-	static const F32 PART_ADAPT_RATE_MULT_RECIP;
+    static const S32 MAX_PART_COUNT;
+    static const F32 PART_THROTTLE_THRESHOLD;
+    static const F32 PART_THROTTLE_RESCALE;
+    static const F32 PART_ADAPT_RATE_MULT;
+    static const F32 PART_ADAPT_RATE_MULT_RECIP;
 
 //debug use only
 public:
-	static S32 sParticleCount2;
+    static S32 sParticleCount2;
 
-	static void checkParticleCount(U32 size = 0) ;
+    static void checkParticleCount(U32 size = 0) ;
 };
 
 #endif // LL_LLVIEWERPARTSIM_H

@@ -33,7 +33,7 @@
 #include "llcrashlock.h"
 #include "linden_common.h"
 #include "llstring.h"
-#include "indra_constants.h"	// CRASH_BEHAVIOR_...
+#include "indra_constants.h"    // CRASH_BEHAVIOR_...
 #include "llerror.h"
 #include "llerrorcontrol.h"
 #include "lltimer.h"
@@ -86,11 +86,11 @@ void LLCrashLoggerHandler::onFailure(LLCore::HttpResponse * response, LLCore::Ht
 }
 
 LLCrashLogger::LLCrashLogger() :
-	mCrashBehavior(CRASH_BEHAVIOR_ALWAYS_SEND),
-	mCrashInPreviousExec(false),
-	mCrashSettings("CrashSettings"),
-	mSentCrashLogs(false),
-	mCrashHost("")
+    mCrashBehavior(CRASH_BEHAVIOR_ALWAYS_SEND),
+    mCrashInPreviousExec(false),
+    mCrashSettings("CrashSettings"),
+    mSentCrashLogs(false),
+    mCrashHost("")
 {
 }
 
@@ -105,63 +105,63 @@ const int LINE_SEARCH_DIST = 500;
 const std::string SKIP_TEXT = "\n ...Skipping... \n";
 void trimSLLog(std::string& sllog)
 {
-	if(sllog.length() > TRIM_SIZE * 2)
-	{
-		std::string::iterator head = sllog.begin() + TRIM_SIZE;
-		std::string::iterator tail = sllog.begin() + sllog.length() - TRIM_SIZE;
-		std::string::iterator new_head = std::find(head, head - LINE_SEARCH_DIST, '\n');
-		if(new_head != head - LINE_SEARCH_DIST)
-		{
-			head = new_head;
-		}
+    if(sllog.length() > TRIM_SIZE * 2)
+    {
+        std::string::iterator head = sllog.begin() + TRIM_SIZE;
+        std::string::iterator tail = sllog.begin() + sllog.length() - TRIM_SIZE;
+        std::string::iterator new_head = std::find(head, head - LINE_SEARCH_DIST, '\n');
+        if(new_head != head - LINE_SEARCH_DIST)
+        {
+            head = new_head;
+        }
 
-		std::string::iterator new_tail = std::find(tail, tail + LINE_SEARCH_DIST, '\n');
-		if(new_tail != tail + LINE_SEARCH_DIST)
-		{
-			tail = new_tail;
-		}
+        std::string::iterator new_tail = std::find(tail, tail + LINE_SEARCH_DIST, '\n');
+        if(new_tail != tail + LINE_SEARCH_DIST)
+        {
+            tail = new_tail;
+        }
 
-		sllog.erase(head, tail);
-		sllog.insert(head, SKIP_TEXT.begin(), SKIP_TEXT.end());
-	}
+        sllog.erase(head, tail);
+        sllog.insert(head, SKIP_TEXT.begin(), SKIP_TEXT.end());
+    }
 }
 
 std::string getStartupStateFromLog(std::string& sllog)
 {
-	std::string startup_state = "STATE_FIRST";
-	std::string startup_token = "Startup state changing from ";
+    std::string startup_state = "STATE_FIRST";
+    std::string startup_token = "Startup state changing from ";
 
-	int index = sllog.rfind(startup_token);
-	if (index < 0 || index + startup_token.length() > sllog.length()) {
-		return startup_state;
-	}
+    int index = sllog.rfind(startup_token);
+    if (index < 0 || index + startup_token.length() > sllog.length()) {
+        return startup_state;
+    }
 
-	// find new line
-	char cur_char = sllog[index + startup_token.length()];
-	std::string::size_type newline_loc = index + startup_token.length();
-	while(cur_char != '\n' && newline_loc < sllog.length())
-	{
-		newline_loc++;
-		cur_char = sllog[newline_loc];
-	}
-	
-	// get substring and find location of " to "
-	std::string state_line = sllog.substr(index, newline_loc - index);
-	std::string::size_type state_index = state_line.find(" to ");
-	startup_state = state_line.substr(state_index + 4, state_line.length() - state_index - 4);
+    // find new line
+    char cur_char = sllog[index + startup_token.length()];
+    std::string::size_type newline_loc = index + startup_token.length();
+    while(cur_char != '\n' && newline_loc < sllog.length())
+    {
+        newline_loc++;
+        cur_char = sllog[newline_loc];
+    }
+    
+    // get substring and find location of " to "
+    std::string state_line = sllog.substr(index, newline_loc - index);
+    std::string::size_type state_index = state_line.find(" to ");
+    startup_state = state_line.substr(state_index + 4, state_line.length() - state_index - 4);
 
-	return startup_state;
+    return startup_state;
 }
 
 bool LLCrashLogger::readFromXML(LLSD& dest, const std::string& filename )
 {
-	std::string db_file_name = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,filename);
-	llifstream log_file(db_file_name.c_str());
+    std::string db_file_name = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,filename);
+    llifstream log_file(db_file_name.c_str());
 
-	// Look for it in the given file
-	if (log_file.is_open())
-	{
-		LLSDSerialize::fromXML(dest, log_file);
+    // Look for it in the given file
+    if (log_file.is_open())
+    {
+        LLSDSerialize::fromXML(dest, log_file);
         log_file.close();
         return true;
     }
@@ -175,8 +175,8 @@ bool LLCrashLogger::readFromXML(LLSD& dest, const std::string& filename )
 void LLCrashLogger::mergeLogs( LLSD src_sd )
 {
     LLSD::map_iterator iter = src_sd.beginMap();
-	LLSD::map_iterator end = src_sd.endMap();
-	for( ; iter != end; ++iter)
+    LLSD::map_iterator end = src_sd.endMap();
+    for( ; iter != end; ++iter)
     {
         mDebugLog[iter->first] = iter->second;
     }
@@ -184,35 +184,35 @@ void LLCrashLogger::mergeLogs( LLSD src_sd )
 
 bool LLCrashLogger::readMinidump(std::string minidump_path)
 {
-	size_t length=0;
+    size_t length=0;
 
-	llifstream minidump_stream(minidump_path.c_str(), std::ios_base::in | std::ios_base::binary);
-	if(minidump_stream.is_open())
-	{
-		minidump_stream.seekg(0, std::ios::end);
-		length = (size_t)minidump_stream.tellg();
+    llifstream minidump_stream(minidump_path.c_str(), std::ios_base::in | std::ios_base::binary);
+    if(minidump_stream.is_open())
+    {
+        minidump_stream.seekg(0, std::ios::end);
+        length = (size_t)minidump_stream.tellg();
         LL_WARNS("CRASHREPORT") << "minidump length "<< length <<LL_ENDL;
-		minidump_stream.seekg(0, std::ios::beg);
-		
-		LLSD::Binary data;
-		data.resize(length);
-		
-		minidump_stream.read(reinterpret_cast<char *>(&(data[0])),length);
-		minidump_stream.close();
-		
-		mCrashInfo["Minidump"] = data;
-	}
+        minidump_stream.seekg(0, std::ios::beg);
+        
+        LLSD::Binary data;
+        data.resize(length);
+        
+        minidump_stream.read(reinterpret_cast<char *>(&(data[0])),length);
+        minidump_stream.close();
+        
+        mCrashInfo["Minidump"] = data;
+    }
     else
     {
         LL_WARNS("CRASHREPORT") << "failed to open minidump "<<minidump_path<<LL_ENDL;
     }
     
-	return (length>0?true:false);
+    return (length>0?true:false);
 }
 
 void LLCrashLogger::gatherFiles()
 {
-	updateApplication("Gathering logs...");
+    updateApplication("Gathering logs...");
 
     LLSD static_sd;
     LLSD dynamic_sd;
@@ -231,41 +231,41 @@ void LLCrashLogger::gatherFiles()
     {
         mDebugLog = static_sd;
         mergeLogs(dynamic_sd);
-		mCrashInPreviousExec = mDebugLog["CrashNotHandled"].asBoolean();
+        mCrashInPreviousExec = mDebugLog["CrashNotHandled"].asBoolean();
 
-		mFileMap["SecondLifeLog"] = mDebugLog["SLLog"].asString();
-		mFileMap["SettingsXml"] = mDebugLog["SettingsFilename"].asString();
+        mFileMap["SecondLifeLog"] = mDebugLog["SLLog"].asString();
+        mFileMap["SettingsXml"] = mDebugLog["SettingsFilename"].asString();
         mFileMap["CrashHostUrl"] = loadCrashURLSetting();
-		if(mDebugLog.has("CAFilename"))
-		{
+        if(mDebugLog.has("CAFilename"))
+        {
             LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
                 LLCore::HttpRequest::GLOBAL_POLICY_ID, mDebugLog["CAFilename"].asString(), NULL);
-		}
-		else
-		{
+        }
+        else
+        {
             LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
                 LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), NULL);
-		}
+        }
 
-		LL_INFOS("CRASHREPORT") << "Using log file from debug log " << mFileMap["SecondLifeLog"] << LL_ENDL;
-		LL_INFOS("CRASHREPORT") << "Using settings file from debug log " << mFileMap["SettingsXml"] << LL_ENDL;
-	}
-	else
-	{
-		// Figure out the filename of the second life log
+        LL_INFOS("CRASHREPORT") << "Using log file from debug log " << mFileMap["SecondLifeLog"] << LL_ENDL;
+        LL_INFOS("CRASHREPORT") << "Using settings file from debug log " << mFileMap["SettingsXml"] << LL_ENDL;
+    }
+    else
+    {
+        // Figure out the filename of the second life log
         LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
             LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), NULL);
         
-		mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
+        mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
         mFileMap["SettingsXml"] = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
-	}
+    }
 
     if (!gDirUtilp->fileExists(mFileMap["SecondLifeLog"]) ) //We would prefer to get this from the per-run but here's our fallback.
     {
         mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.old");
     }
 
-	gatherPlatformSpecificFiles();
+    gatherPlatformSpecificFiles();
 
 
     if ( has_logs && (mFileMap["CrashHostUrl"] != "") )
@@ -273,16 +273,16 @@ void LLCrashLogger::gatherFiles()
         mCrashHost = mFileMap["CrashHostUrl"];
     }
 
-	//default to agni, per product
-	mAltCrashHost = "http://viewercrashreport.agni.lindenlab.com/cgi-bin/viewercrashreceiver.py";
+    //default to agni, per product
+    mAltCrashHost = "http://viewercrashreport.agni.lindenlab.com/cgi-bin/viewercrashreceiver.py";
 
-	mCrashInfo["DebugLog"] = mDebugLog;
-	mFileMap["StatsLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"stats.log");
-	
-	updateApplication("Encoding files...");
+    mCrashInfo["DebugLog"] = mDebugLog;
+    mFileMap["StatsLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"stats.log");
+    
+    updateApplication("Encoding files...");
 
-	for(std::map<std::string, std::string>::iterator itr = mFileMap.begin(); itr != mFileMap.end(); ++itr)
-	{
+    for(std::map<std::string, std::string>::iterator itr = mFileMap.begin(); itr != mFileMap.end(); ++itr)
+    {
         std::string file = (*itr).second;
         if (!file.empty())
         {
@@ -314,17 +314,17 @@ void LLCrashLogger::gatherFiles()
         {
             LL_DEBUGS("CRASHREPORT") << "empty file in list for " << itr->first << LL_ENDL;
         }
-	}
-	
-	std::string minidump_path;
-	// Add minidump as binary.
+    }
+    
+    std::string minidump_path;
+    // Add minidump as binary.
     bool has_minidump = mDebugLog.has("MinidumpPath");
     
-	if (has_minidump)
-	{
-		minidump_path = mDebugLog["MinidumpPath"].asString();
-		has_minidump = readMinidump(minidump_path);
-	}
+    if (has_minidump)
+    {
+        minidump_path = mDebugLog["MinidumpPath"].asString();
+        has_minidump = readMinidump(minidump_path);
+    }
     else
     {
         LL_WARNS("CRASHREPORT") << "DebugLog does not have MinidumpPath" << LL_ENDL;
@@ -352,7 +352,7 @@ void LLCrashLogger::gatherFiles()
                     {
                         minidump_path = *iter;
                         has_minidump = readMinidump(fullname);
-						mDebugLog["MinidumpPath"] = fullname;
+                        mDebugLog["MinidumpPath"] = fullname;
                     }
                     else
                     {
@@ -378,7 +378,7 @@ void LLCrashLogger::gatherFiles()
 
 LLSD LLCrashLogger::constructPostData()
 {
-	return mCrashInfo;
+    return mCrashInfo;
 }
 
 const char* const CRASH_SETTINGS_FILE = "settings_crash_behavior.xml";
@@ -386,14 +386,14 @@ const char* const CRASH_SETTINGS_FILE = "settings_crash_behavior.xml";
 std::string LLCrashLogger::loadCrashURLSetting()
 {
 
-	// First check user_settings (in the user's home dir)
-	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
-	if (! mCrashSettings.loadFromFile(filename))
-	{
-		// Next check app_settings (in the SL program dir)
-		std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, CRASH_SETTINGS_FILE);
-		mCrashSettings.loadFromFile(filename);
-	}
+    // First check user_settings (in the user's home dir)
+    std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
+    if (! mCrashSettings.loadFromFile(filename))
+    {
+        // Next check app_settings (in the SL program dir)
+        std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, CRASH_SETTINGS_FILE);
+        mCrashSettings.loadFromFile(filename);
+    }
 
     if (! mCrashSettings.controlExists("CrashHostUrl"))
     {
@@ -413,9 +413,9 @@ bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg
     httpOpts->setTimeout(timeout);
     httpOpts->setSSLVerifyPeer(false);
 
-	for(int i = 0; i < retries; ++i)
-	{
-		updateApplication(llformat("%s, try %d...", msg.c_str(), i+1));
+    for(int i = 0; i < retries; ++i)
+    {
+        updateApplication(llformat("%s, try %d...", msg.c_str(), i+1));
 
         LL_INFOS("CRASHREPORT") << "POST crash data to " << host << LL_ENDL;
         LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(httpRequest.get(), LLCore::HttpRequest::DEFAULT_POLICY_ID, 0,
@@ -435,14 +435,14 @@ bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg
             updateApplication(); // No new message, just pump the IO
             httpRequest->update(0L);
         }
-		if(gSent)
-		{
-			return gSent;
-		}
+        if(gSent)
+        {
+            return gSent;
+        }
 
         LL_WARNS("CRASHREPORT") << "Failed to send crash report to \"" << host << "\"" << LL_ENDL;
-	}
-	return gSent;
+    }
+    return gSent;
 }
 
 bool LLCrashLogger::sendCrashLog(std::string dump_dir)
@@ -456,40 +456,40 @@ bool LLCrashLogger::sendCrashLog(std::string dump_dir)
 
     LL_DEBUGS("CRASHREPORT") << "sending " << report_file << LL_ENDL;
 
-	gatherFiles();
+    gatherFiles();
     
-	LLSD post_data;
-	post_data = constructPostData();
+    LLSD post_data;
+    post_data = constructPostData();
     
-	updateApplication("Sending reports...");
+    updateApplication("Sending reports...");
 
-	llofstream out_file(report_file.c_str());
-	LLSDSerialize::toPrettyXML(post_data, out_file);
+    llofstream out_file(report_file.c_str());
+    LLSDSerialize::toPrettyXML(post_data, out_file);
     out_file.flush();
-	out_file.close();
+    out_file.close();
     
-	bool sent = false;
+    bool sent = false;
     
     if(mCrashHost != "")
-	{
+    {
         LL_WARNS("CRASHREPORT") << "Sending crash data to server from CrashHostUrl '" << mCrashHost << "'" << LL_ENDL;
         
         std::string msg = "Using override crash server... ";
         msg = msg+mCrashHost.c_str();
         updateApplication(msg.c_str());
         
-		sent = runCrashLogPost(mCrashHost, post_data, std::string("Sending to server"), CRASH_UPLOAD_RETRIES, CRASH_UPLOAD_TIMEOUT);
-	}
+        sent = runCrashLogPost(mCrashHost, post_data, std::string("Sending to server"), CRASH_UPLOAD_RETRIES, CRASH_UPLOAD_TIMEOUT);
+    }
     
-	if(!sent)
-	{
+    if(!sent)
+    {
         updateApplication("Using default server...");
-		sent = runCrashLogPost(mAltCrashHost, post_data, std::string("Sending to default server"), CRASH_UPLOAD_RETRIES, CRASH_UPLOAD_TIMEOUT);
-	}
+        sent = runCrashLogPost(mAltCrashHost, post_data, std::string("Sending to default server"), CRASH_UPLOAD_RETRIES, CRASH_UPLOAD_TIMEOUT);
+    }
     
-	mSentCrashLogs = sent;
+    mSentCrashLogs = sent;
     
-	return sent;
+    return sent;
 }
 
 bool LLCrashLogger::sendCrashLogs()
@@ -497,16 +497,16 @@ bool LLCrashLogger::sendCrashLogs()
     LLSD locks = mKeyMaster.getProcessList();
     LLSD newlocks = LLSD::emptyArray();
 
-	LLSD opts = getOptionData(PRIORITY_COMMAND_LINE);
+    LLSD opts = getOptionData(PRIORITY_COMMAND_LINE);
     LLSD rec;
 
-	if ( opts.has("pid") && opts.has("dumpdir") && opts.has("procname") )
+    if ( opts.has("pid") && opts.has("dumpdir") && opts.has("procname") )
     {
         rec["pid"]=opts["pid"];
         rec["dumpdir"]=opts["dumpdir"];
         rec["procname"]=opts["procname"];
     }
-	
+    
     if (locks.isArray())
     {
         for (LLSD::array_iterator lock=locks.beginArray();
@@ -521,7 +521,7 @@ bool LLCrashLogger::sendCrashLogs()
                 }
                 else
                 {
-					//TODO:  This is a hack but I didn't want to include boost in another file or retest everything related to lldir 
+                    //TODO:  This is a hack but I didn't want to include boost in another file or retest everything related to lldir 
                     if (LLCrashLock::fileExists((*lock)["dumpdir"].asString()))
                     {
                         //the viewer cleans up the log directory on clean shutdown
@@ -535,7 +535,7 @@ bool LLCrashLogger::sendCrashLogs()
                             mKeyMaster.cleanupProcess((*lock)["dumpdir"].asString());
                         }
                     }
-				}
+                }
             }
             else
             {
@@ -555,7 +555,7 @@ bool LLCrashLogger::sendCrashLogs()
 
 void LLCrashLogger::updateApplication(const std::string& message)
 {
-	if (!message.empty()) LL_INFOS("CRASHREPORT") << message << LL_ENDL;
+    if (!message.empty()) LL_INFOS("CRASHREPORT") << message << LL_ENDL;
 }
 
 bool LLCrashLogger::init()
@@ -564,26 +564,26 @@ bool LLCrashLogger::init()
     
     LLCore::LLHttp::initialize();
 
-	// We assume that all the logs we're looking for reside on the current drive
-	gDirUtilp->initAppDirs("SecondLife");
+    // We assume that all the logs we're looking for reside on the current drive
+    gDirUtilp->initAppDirs("SecondLife");
 
-	LLError::initForApplication(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""), gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
+    LLError::initForApplication(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""), gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
 
-	// Default to the product name "Second Life" (this is overridden by the -name argument)
-	mProductName = "Second Life";
+    // Default to the product name "Second Life" (this is overridden by the -name argument)
+    mProductName = "Second Life";
 
-	// Rename current log file to ".old"
-	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "crashreport.log.old");
-	std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "crashreport.log");
+    // Rename current log file to ".old"
+    std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "crashreport.log.old");
+    std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "crashreport.log");
 
 #if LL_WINDOWS
-	LLAPRFile::remove(old_log_file);
+    LLAPRFile::remove(old_log_file);
 #endif 
 
-	LLFile::rename(log_file.c_str(), old_log_file.c_str());
+    LLFile::rename(log_file.c_str(), old_log_file.c_str());
     
-	// Set the log file to crashreport.log
-	LLError::logToFile(log_file);  //NOTE:  Until this line, LL_INFOS LL_WARNS, etc are blown to the ether. 
+    // Set the log file to crashreport.log
+    LLError::logToFile(log_file);  //NOTE:  Until this line, LL_INFOS LL_WARNS, etc are blown to the ether. 
 
     LL_INFOS("CRASHREPORT") << "Crash reporter file rotation complete." << LL_ENDL;
 
@@ -592,9 +592,9 @@ bool LLCrashLogger::init()
     
     while (!locked && mKeyMaster.isWaiting())
     {
-		LL_INFOS("CRASHREPORT") << "Waiting for lock." << LL_ENDL;
+        LL_INFOS("CRASHREPORT") << "Waiting for lock." << LL_ENDL;
 #if LL_WINDOWS
-		Sleep(1000);
+        Sleep(1000);
 #else
         ::sleep(1);
 #endif 
@@ -608,24 +608,24 @@ bool LLCrashLogger::init()
     }
 
     mCrashSettings.declareS32("CrashSubmitBehavior", CRASH_BEHAVIOR_ALWAYS_SEND,
-							  "Controls behavior when viewer crashes "
-							  "(0 = ask before sending crash report, "
-							  "1 = always send crash report, "
-							  "2 = never send crash report)");
+                              "Controls behavior when viewer crashes "
+                              "(0 = ask before sending crash report, "
+                              "1 = always send crash report, "
+                              "2 = never send crash report)");
     
     init_curl();
     LLCore::HttpRequest::createService();
     LLCore::HttpRequest::startThread();
 
-	return true;
+    return true;
 }
 
 // For cleanup code common to all platforms.
 void LLCrashLogger::commonCleanup()
 {
     term_curl();
-	LLError::logToFile("");   //close crashreport.log
-	SUBSYSTEM_CLEANUP(LLProxy);
+    LLError::logToFile("");   //close crashreport.log
+    SUBSYSTEM_CLEANUP(LLProxy);
 }
 
 void LLCrashLogger::init_curl()

@@ -42,27 +42,27 @@ typedef std::map<std::string, LLPathfindingObjectPtr> LLPathfindingObjectMap;
 class LLPathfindingObjectList
 {
 public:
-	LLPathfindingObjectList();
-	virtual ~LLPathfindingObjectList();
+    LLPathfindingObjectList();
+    virtual ~LLPathfindingObjectList();
 
-	bool isEmpty() const;
+    bool isEmpty() const;
 
-	void clear();
+    void clear();
 
-	void update(LLPathfindingObjectPtr pUpdateObjectPtr);
-	void update(LLPathfindingObjectListPtr pUpdateObjectListPtr);
+    void update(LLPathfindingObjectPtr pUpdateObjectPtr);
+    void update(LLPathfindingObjectListPtr pUpdateObjectListPtr);
 
-	LLPathfindingObjectPtr find(const std::string &pObjectId) const;
+    LLPathfindingObjectPtr find(const std::string &pObjectId) const;
 
-	typedef LLPathfindingObjectMap::const_iterator const_iterator;
-	const_iterator begin() const;
-	const_iterator end() const;
+    typedef LLPathfindingObjectMap::const_iterator const_iterator;
+    const_iterator begin() const;
+    const_iterator end() const;
 
 protected:
-	LLPathfindingObjectMap &getObjectMap();
+    LLPathfindingObjectMap &getObjectMap();
 
 private:
-	LLPathfindingObjectMap mObjectMap;
+    LLPathfindingObjectMap mObjectMap;
 };
 
 #endif // LL_LLPATHFINDINGOBJECTLIST_H

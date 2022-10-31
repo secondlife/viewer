@@ -42,7 +42,7 @@ public:
     bool stopStream(); // Returns true if the stream was successfully stopped.
     bool ready();
 
-    const std::string& getURL() 	{ return mInternetStreamURL; }
+    const std::string& getURL()     { return mInternetStreamURL; }
 
     FMOD_OPENSTATE getOpenState(unsigned int* percentbuffered = NULL, bool* starving = NULL, bool* diskbusy = NULL);
 protected:
@@ -68,8 +68,8 @@ mRetryCount(0)
 {
     // Number of milliseconds of audio to buffer for the audio card.
     // Must be larger than the usual Second Life frame stutter time.
-    const U32 buffer_seconds = 10;		//sec
-    const U32 estimated_bitrate = 128;	//kbit/sec
+    const U32 buffer_seconds = 10;      //sec
+    const U32 estimated_bitrate = 128;  //kbit/sec
     FMOD_RESULT result = mSystem->setStreamBufferSize(estimated_bitrate * buffer_seconds * 128/*bytes/kbit*/, FMOD_TIMEUNIT_RAWBYTES);
     if (result != FMOD_OK)
     {
@@ -151,8 +151,8 @@ void LLStreamingAudio_FMODSTUDIO::start(const std::string& url)
 {
     //if (!mInited)
     //{
-    //	LL_WARNS() << "startInternetStream before audio initialized" << LL_ENDL;
-    //	return;
+    //  LL_WARNS() << "startInternetStream before audio initialized" << LL_ENDL;
+    //  return;
     //}
 
     // "stop" stream but don't clear url, etc. in case url == mInternetStreamURL
@@ -365,7 +365,7 @@ void LLStreamingAudio_FMODSTUDIO::setGain(F32 vol)
 
     if (mFMODInternetStreamChannelp)
     {
-        vol = llclamp(vol * vol, 0.f, 1.f);	//should vol be squared here?
+        vol = llclamp(vol * vol, 0.f, 1.f); //should vol be squared here?
 
         mFMODInternetStreamChannelp->setVolume(vol);
     }
@@ -406,7 +406,7 @@ FMOD::Channel *LLAudioStreamManagerFMODSTUDIO::startStream()
     }
 
     if (mStreamChannel)
-        return mStreamChannel;	//Already have a channel for this stream.
+        return mStreamChannel;  //Already have a channel for this stream.
 
     FMOD_RESULT result = mSystem->playSound(mInternetStream, NULL, true, &mStreamChannel);
     if (result != FMOD_OK)

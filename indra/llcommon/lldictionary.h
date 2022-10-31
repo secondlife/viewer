@@ -34,65 +34,65 @@
 
 struct LL_COMMON_API LLDictionaryEntry
 {
-	LLDictionaryEntry(const std::string &name);
-	virtual ~LLDictionaryEntry() {}
-	const std::string mName;
-	std::string mNameCapitalized;
+    LLDictionaryEntry(const std::string &name);
+    virtual ~LLDictionaryEntry() {}
+    const std::string mName;
+    std::string mNameCapitalized;
 };
 
 template <class Index, class Entry>
 class LLDictionary : public std::map<Index, Entry *>
 {
 public:
-	typedef std::map<Index, Entry *> map_t;
-	typedef typename map_t::iterator iterator_t;
-	typedef typename map_t::const_iterator const_iterator_t;
-	
-	LLDictionary() {}
-	virtual ~LLDictionary()
-	{
-		for (iterator_t iter = map_t::begin(); iter != map_t::end(); ++iter)
-			delete (iter->second);
-	}
+    typedef std::map<Index, Entry *> map_t;
+    typedef typename map_t::iterator iterator_t;
+    typedef typename map_t::const_iterator const_iterator_t;
+    
+    LLDictionary() {}
+    virtual ~LLDictionary()
+    {
+        for (iterator_t iter = map_t::begin(); iter != map_t::end(); ++iter)
+            delete (iter->second);
+    }
 
-	const Entry *lookup(Index index) const
-	{
-		const_iterator_t dictionary_iter = map_t::find(index);
-		if (dictionary_iter == map_t::end()) return NULL;
-		return dictionary_iter->second;
-	}
-	const Index lookup(const std::string &name) const 
-	{
-		for (const_iterator_t dictionary_iter = map_t::begin();
-			 dictionary_iter != map_t::end();
-			 dictionary_iter++)
-		{
-			const Entry *entry = dictionary_iter->second;
-			if (entry->mName == name)
-			{
-				return dictionary_iter->first;
-			}
-		}
-		return notFound();
-	}
+    const Entry *lookup(Index index) const
+    {
+        const_iterator_t dictionary_iter = map_t::find(index);
+        if (dictionary_iter == map_t::end()) return NULL;
+        return dictionary_iter->second;
+    }
+    const Index lookup(const std::string &name) const 
+    {
+        for (const_iterator_t dictionary_iter = map_t::begin();
+             dictionary_iter != map_t::end();
+             dictionary_iter++)
+        {
+            const Entry *entry = dictionary_iter->second;
+            if (entry->mName == name)
+            {
+                return dictionary_iter->first;
+            }
+        }
+        return notFound();
+    }
 
 protected:
-	virtual Index notFound() const
-	{
-		// default is to assert
-		// don't assert -- makes it impossible to work on mesh-development and viewer-development simultaneously
-		//			-- davep 2010.10.29
-		//llassert(false);
-		return Index(-1);
-	}
-	void addEntry(Index index, Entry *entry)
-	{
-		if (lookup(index))
-		{
-			LL_ERRS() << "Dictionary entry already added (attempted to add duplicate entry)" << LL_ENDL;
-		}
-		(*this)[index] = entry;
-	}
+    virtual Index notFound() const
+    {
+        // default is to assert
+        // don't assert -- makes it impossible to work on mesh-development and viewer-development simultaneously
+        //          -- davep 2010.10.29
+        //llassert(false);
+        return Index(-1);
+    }
+    void addEntry(Index index, Entry *entry)
+    {
+        if (lookup(index))
+        {
+            LL_ERRS() << "Dictionary entry already added (attempted to add duplicate entry)" << LL_ENDL;
+        }
+        (*this)[index] = entry;
+    }
 };
 
 #endif // LL_LLDICTIONARY_H

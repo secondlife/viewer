@@ -35,34 +35,34 @@
 
 bool LLTransUtil::parseStrings(const std::string& xml_filename, const std::set<std::string>& default_args)
 {
-	LLXMLNodePtr root;
-	// Pass LLDir::ALL_SKINS to load a composite of all the individual string
-	// definitions in the default skin and the current skin. This means an
-	// individual skin can provide an xml_filename that overrides only a
-	// subset of the available string definitions; any string definition not
-	// overridden by that skin will be sought in the default skin.
-	bool success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root, LLDir::ALL_SKINS);
-	if (!success)
-	{
-		gDirUtilp->dumpCurrentDirectories(LLError::LEVEL_WARN);
-		LL_ERRS() << "Couldn't load string table " << xml_filename << ". Please reinstall viewer from  https://secondlife.com/support/downloads/ and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
-		return false;
-	}
+    LLXMLNodePtr root;
+    // Pass LLDir::ALL_SKINS to load a composite of all the individual string
+    // definitions in the default skin and the current skin. This means an
+    // individual skin can provide an xml_filename that overrides only a
+    // subset of the available string definitions; any string definition not
+    // overridden by that skin will be sought in the default skin.
+    bool success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root, LLDir::ALL_SKINS);
+    if (!success)
+    {
+        gDirUtilp->dumpCurrentDirectories(LLError::LEVEL_WARN);
+        LL_ERRS() << "Couldn't load string table " << xml_filename << ". Please reinstall viewer from  https://secondlife.com/support/downloads/ and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
+        return false;
+    }
 
-	return LLTrans::parseStrings(root, default_args);
+    return LLTrans::parseStrings(root, default_args);
 }
 
 
 bool LLTransUtil::parseLanguageStrings(const std::string& xml_filename)
 {
-	LLXMLNodePtr root;
-	BOOL success  = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
-	
-	if (!success)
-	{
-		LL_ERRS() << "Couldn't load localization table " << xml_filename << LL_ENDL;
-		return false;
-	}
-	
-	return LLTrans::parseLanguageStrings(root);
+    LLXMLNodePtr root;
+    BOOL success  = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
+    
+    if (!success)
+    {
+        LL_ERRS() << "Couldn't load localization table " << xml_filename << LL_ENDL;
+        return false;
+    }
+    
+    return LLTrans::parseLanguageStrings(root);
 }

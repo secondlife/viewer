@@ -30,5 +30,5 @@
 
 std::string LLAnimStateLabels::getStateLabel( const char* animName )
 {
-	return LLTrans::getString(std::string("anim_") + std::string(animName) );
+    return LLTrans::getString(std::string("anim_") + std::string(animName) );
 }

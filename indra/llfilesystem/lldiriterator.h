@@ -37,51 +37,51 @@
 class LLDirIterator
 {
 public:
-	/**
-	 * Constructs LLDirIterator object to search for glob pattern
-	 * matches in a directory.
-	 *
-	 * @param dirname - name of a directory to search in.
-	 * @param mask - search pattern, a glob expression
-	 *
-	 * Wildcards supported in glob expressions:
-	 * --------------------------------------------------------------
-	 * | Wildcard 	| Matches										|
-	 * --------------------------------------------------------------
-	 * | 	* 		|zero or more characters						|
-	 * | 	?		|exactly one character							|
-	 * | [abcde]	|exactly one character listed					|
-	 * | [a-e]		|exactly one character in the given range		|
-	 * | [!abcde]	|any character that is not listed				|
-	 * | [!a-e]		|any character that is not in the given range	|
-	 * | {abc,xyz}	|exactly one entire word in the options given	|
-	 * --------------------------------------------------------------
-	 */
-	LLDirIterator(const std::string &dirname, const std::string &mask);
+    /**
+     * Constructs LLDirIterator object to search for glob pattern
+     * matches in a directory.
+     *
+     * @param dirname - name of a directory to search in.
+     * @param mask - search pattern, a glob expression
+     *
+     * Wildcards supported in glob expressions:
+     * --------------------------------------------------------------
+     * | Wildcard   | Matches                                       |
+     * --------------------------------------------------------------
+     * |    *       |zero or more characters                        |
+     * |    ?       |exactly one character                          |
+     * | [abcde]    |exactly one character listed                   |
+     * | [a-e]      |exactly one character in the given range       |
+     * | [!abcde]   |any character that is not listed               |
+     * | [!a-e]     |any character that is not in the given range   |
+     * | {abc,xyz}  |exactly one entire word in the options given   |
+     * --------------------------------------------------------------
+     */
+    LLDirIterator(const std::string &dirname, const std::string &mask);
 
-	~LLDirIterator();
+    ~LLDirIterator();
 
-	/**
-	 * Searches for the next directory entry matching the glob mask
-	 * specified upon iterator construction.
-	 * Returns true if a match is found, sets fname
-	 * parameter to the name of the matched directory entry and
-	 * increments the iterator position.
-	 *
-	 * Typical usage:
-	 * <code>
-	 * LLDirIterator iter(directory, pattern);
-	 * if ( iter.next(scanResult) )
-	 * </code>
-	 *
-	 * @param fname - name of the matched directory entry.
-	 * @return true if a match is found, false otherwise.
-	 */
-	bool next(std::string &fname);
+    /**
+     * Searches for the next directory entry matching the glob mask
+     * specified upon iterator construction.
+     * Returns true if a match is found, sets fname
+     * parameter to the name of the matched directory entry and
+     * increments the iterator position.
+     *
+     * Typical usage:
+     * <code>
+     * LLDirIterator iter(directory, pattern);
+     * if ( iter.next(scanResult) )
+     * </code>
+     *
+     * @param fname - name of the matched directory entry.
+     * @return true if a match is found, false otherwise.
+     */
+    bool next(std::string &fname);
 
 protected:
-	class Impl;
-	Impl* mImpl;
+    class Impl;
+    Impl* mImpl;
 };
 
 #endif //LL_LLDIRITERATOR_H

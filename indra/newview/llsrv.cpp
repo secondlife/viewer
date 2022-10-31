@@ -31,34 +31,34 @@
 
 struct Responder : public LLAres::UriRewriteResponder
 {
-	std::vector<std::string> mUris;
-	void rewriteResult(const std::vector<std::string> &uris) {
-		for (size_t i = 0; i < uris.size(); i++)
-		{
-			LL_INFOS() << "[" << i << "] " << uris[i] << LL_ENDL;
-		}
-		mUris = uris;
-	}
+    std::vector<std::string> mUris;
+    void rewriteResult(const std::vector<std::string> &uris) {
+        for (size_t i = 0; i < uris.size(); i++)
+        {
+            LL_INFOS() << "[" << i << "] " << uris[i] << LL_ENDL;
+        }
+        mUris = uris;
+    }
 };
 
 std::vector<std::string> LLSRV::rewriteURI(const std::string& uri)
 {
-	LLPointer<Responder> resp = new Responder;
+    LLPointer<Responder> resp = new Responder;
 
-	gAres->rewriteURI(uri, resp);
- 	gAres->processAll();
+    gAres->rewriteURI(uri, resp);
+    gAres->processAll();
 
-	// It's been observed in deployment that c-ares can return control
-	// to us without firing all of our callbacks, in which case the
-	// returned vector will be empty, instead of a singleton as we
-	// might wish.
+    // It's been observed in deployment that c-ares can return control
+    // to us without firing all of our callbacks, in which case the
+    // returned vector will be empty, instead of a singleton as we
+    // might wish.
 
-	if (!resp->mUris.empty())
-	{
-		return resp->mUris;
-	}
+    if (!resp->mUris.empty())
+    {
+        return resp->mUris;
+    }
 
-	std::vector<std::string> uris;
-	uris.push_back(uri);
-	return uris;
+    std::vector<std::string> uris;
+    uris.push_back(uri);
+    return uris;
 }

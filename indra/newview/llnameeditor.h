@@ -37,42 +37,42 @@
 
 
 class LLNameEditor
-:	public LLLineEditor
+:   public LLLineEditor
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLLineEditor::Params>
-	{
-		Optional<bool>		is_group;
-		Optional<LLUUID>	name_id;
+    struct Params : public LLInitParam::Block<Params, LLLineEditor::Params>
+    {
+        Optional<bool>      is_group;
+        Optional<LLUUID>    name_id;
 
-		Params()
-		:	is_group("is_group"),
-			name_id("name_id")
-		{}
-	};
+        Params()
+        :   is_group("is_group"),
+            name_id("name_id")
+        {}
+    };
 
 protected:
-	LLNameEditor(const Params&);
-	friend class LLUICtrlFactory;
+    LLNameEditor(const Params&);
+    friend class LLUICtrlFactory;
 public:
-	virtual ~LLNameEditor();
+    virtual ~LLNameEditor();
 
-	void setNameID(const LLUUID& name_id, BOOL is_group);
+    void setNameID(const LLUUID& name_id, BOOL is_group);
 
-	void refresh(const LLUUID& id, const std::string& full_name, bool is_group);
+    void refresh(const LLUUID& id, const std::string& full_name, bool is_group);
 
-	static void refreshAll(const LLUUID& id, const std::string& full_name, bool is_group);
+    static void refreshAll(const LLUUID& id, const std::string& full_name, bool is_group);
 
 
-	// Take/return agent UUIDs
-	virtual void	setValue( const LLSD& value );
-	virtual LLSD	getValue() const;
-
-private:
-	static std::set<LLNameEditor*> sInstances;
+    // Take/return agent UUIDs
+    virtual void    setValue( const LLSD& value );
+    virtual LLSD    getValue() const;
 
 private:
-	LLUUID mNameID;
+    static std::set<LLNameEditor*> sInstances;
+
+private:
+    LLUUID mNameID;
 
 };
 

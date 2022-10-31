@@ -35,48 +35,48 @@ template<typename T>
 class LLLazyValue
 {
 public:
-	typedef typename boost::add_reference<typename boost::add_const<T>::type>::type	T_const_ref;
-	typedef typename boost::function<T_const_ref (void)>							function_type;
+    typedef typename boost::add_reference<typename boost::add_const<T>::type>::type T_const_ref;
+    typedef typename boost::function<T_const_ref (void)>                            function_type;
 
 public:
-	LLLazyValue(const function_type& value) 
-	:	mValueGetter(value)
-	{} 
-	LLLazyValue(T_const_ref value)
-	:	mValue(value)
-	{}
-	LLLazyValue()
-	:	mValue()
-	{}
+    LLLazyValue(const function_type& value) 
+    :   mValueGetter(value)
+    {} 
+    LLLazyValue(T_const_ref value)
+    :   mValue(value)
+    {}
+    LLLazyValue()
+    :   mValue()
+    {}
 
-	void set(const LLLazyValue& val)
-	{
-		mValueGetter = val.mValueGetter;
-	}
+    void set(const LLLazyValue& val)
+    {
+        mValueGetter = val.mValueGetter;
+    }
 
-	void set(T_const_ref val)
-	{
-		mValue = val;
-		mValueGetter = NULL;
-	}
+    void set(T_const_ref val)
+    {
+        mValue = val;
+        mValueGetter = NULL;
+    }
 
-	T_const_ref get() const
-	{
-		if (!mValueGetter.empty())
-		{
-			return mValueGetter();
-		}
-		return mValue;
-	}
+    T_const_ref get() const
+    {
+        if (!mValueGetter.empty())
+        {
+            return mValueGetter();
+        }
+        return mValue;
+    }
 
-	bool isUsingFunction() const
-	{
-		return mValueGetter != NULL;
-	}
+    bool isUsingFunction() const
+    {
+        return mValueGetter != NULL;
+    }
 
 private:
-	function_type	mValueGetter;
-	T				mValue;
+    function_type   mValueGetter;
+    T               mValue;
 };
 
 #endif // LL_LAZY_VALUE_H

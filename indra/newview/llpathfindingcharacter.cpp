@@ -45,21 +45,21 @@
 //---------------------------------------------------------------------------
 
 LLPathfindingCharacter::LLPathfindingCharacter(const std::string &pUUID, const LLSD& pCharacterData)
-	: LLPathfindingObject(pUUID, pCharacterData),
-	mCPUTime(0U),
-	mIsHorizontal(FALSE),
-	mLength(0.0f),
-	mRadius(0.0f)
+    : LLPathfindingObject(pUUID, pCharacterData),
+    mCPUTime(0U),
+    mIsHorizontal(FALSE),
+    mLength(0.0f),
+    mRadius(0.0f)
 {
-	parseCharacterData(pCharacterData);
+    parseCharacterData(pCharacterData);
 }
 
 LLPathfindingCharacter::LLPathfindingCharacter(const LLPathfindingCharacter& pOther)
-	: LLPathfindingObject(pOther),
-	mCPUTime(pOther.mCPUTime),
-	mIsHorizontal(pOther.mIsHorizontal),
-	mLength(pOther.mLength),
-	mRadius(pOther.mRadius)
+    : LLPathfindingObject(pOther),
+    mCPUTime(pOther.mCPUTime),
+    mIsHorizontal(pOther.mIsHorizontal),
+    mLength(pOther.mLength),
+    mRadius(pOther.mRadius)
 {
 }
 
@@ -69,31 +69,31 @@ LLPathfindingCharacter::~LLPathfindingCharacter()
 
 LLPathfindingCharacter& LLPathfindingCharacter::operator =(const LLPathfindingCharacter& pOther)
 {
-	dynamic_cast<LLPathfindingObject &>(*this) = pOther;
+    dynamic_cast<LLPathfindingObject &>(*this) = pOther;
 
-	mCPUTime = pOther.mCPUTime;
-	mIsHorizontal = pOther.mIsHorizontal;
-	mLength = pOther.mLength;
-	mRadius = pOther.mRadius;
+    mCPUTime = pOther.mCPUTime;
+    mIsHorizontal = pOther.mIsHorizontal;
+    mLength = pOther.mLength;
+    mRadius = pOther.mRadius;
 
-	return *this;
+    return *this;
 }
 
 void LLPathfindingCharacter::parseCharacterData(const LLSD &pCharacterData)
 {
-	llassert(pCharacterData.has(CHARACTER_CPU_TIME_FIELD));
-	llassert(pCharacterData.get(CHARACTER_CPU_TIME_FIELD).isReal());
-	mCPUTime = pCharacterData.get(CHARACTER_CPU_TIME_FIELD).asReal();
+    llassert(pCharacterData.has(CHARACTER_CPU_TIME_FIELD));
+    llassert(pCharacterData.get(CHARACTER_CPU_TIME_FIELD).isReal());
+    mCPUTime = pCharacterData.get(CHARACTER_CPU_TIME_FIELD).asReal();
 
-	llassert(pCharacterData.has(CHARACTER_HORIZONTAL_FIELD));
-	llassert(pCharacterData.get(CHARACTER_HORIZONTAL_FIELD).isBoolean());
-	mIsHorizontal = pCharacterData.get(CHARACTER_HORIZONTAL_FIELD).asBoolean();
+    llassert(pCharacterData.has(CHARACTER_HORIZONTAL_FIELD));
+    llassert(pCharacterData.get(CHARACTER_HORIZONTAL_FIELD).isBoolean());
+    mIsHorizontal = pCharacterData.get(CHARACTER_HORIZONTAL_FIELD).asBoolean();
 
-	llassert(pCharacterData.has(CHARACTER_LENGTH_FIELD));
-	llassert(pCharacterData.get(CHARACTER_LENGTH_FIELD).isReal());
-	mLength = pCharacterData.get(CHARACTER_LENGTH_FIELD).asReal();
+    llassert(pCharacterData.has(CHARACTER_LENGTH_FIELD));
+    llassert(pCharacterData.get(CHARACTER_LENGTH_FIELD).isReal());
+    mLength = pCharacterData.get(CHARACTER_LENGTH_FIELD).asReal();
 
-	llassert(pCharacterData.has(CHARACTER_RADIUS_FIELD));
-	llassert(pCharacterData.get(CHARACTER_RADIUS_FIELD).isReal());
-	mRadius = pCharacterData.get(CHARACTER_RADIUS_FIELD).asReal();
+    llassert(pCharacterData.has(CHARACTER_RADIUS_FIELD));
+    llassert(pCharacterData.get(CHARACTER_RADIUS_FIELD).isReal());
+    mRadius = pCharacterData.get(CHARACTER_RADIUS_FIELD).asReal();
 }

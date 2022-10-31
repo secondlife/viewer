@@ -39,8 +39,8 @@ HttpRequestQueue * HttpRequestQueue::sInstance(NULL);
 
 
 HttpRequestQueue::HttpRequestQueue()
-	: RefCounted(true),
-	  mQueueStopped(false)
+    : RefCounted(true),
+      mQueueStopped(false)
 {
 }
 
@@ -53,99 +53,99 @@ HttpRequestQueue::~HttpRequestQueue()
 
 void HttpRequestQueue::init()
 {
-	llassert_always(! sInstance);
-	sInstance = new HttpRequestQueue();
+    llassert_always(! sInstance);
+    sInstance = new HttpRequestQueue();
 }
 
 
 void HttpRequestQueue::term()
 {
-	if (sInstance)
-	{
-		sInstance->release();
-		sInstance = NULL;
-	}
+    if (sInstance)
+    {
+        sInstance->release();
+        sInstance = NULL;
+    }
 }
 
 
 HttpStatus HttpRequestQueue::addOp(const HttpRequestQueue::opPtr_t &op)
 {
-	bool wake(false);
-	{
-		HttpScopedLock lock(mQueueMutex);
+    bool wake(false);
+    {
+        HttpScopedLock lock(mQueueMutex);
 
-		if (mQueueStopped)
-		{
-			// Return op and error to caller
-			return HttpStatus(HttpStatus::LLCORE, HE_SHUTTING_DOWN);
-		}
-		wake = mQueue.empty();
-		mQueue.push_back(op);
-	}
-	if (wake)
-	{
-		mQueueCV.notify_all();
-	}
-	return HttpStatus();
+        if (mQueueStopped)
+        {
+            // Return op and error to caller
+            return HttpStatus(HttpStatus::LLCORE, HE_SHUTTING_DOWN);
+        }
+        wake = mQueue.empty();
+        mQueue.push_back(op);
+    }
+    if (wake)
+    {
+        mQueueCV.notify_all();
+    }
+    return HttpStatus();
 }
 
 
 HttpRequestQueue::opPtr_t HttpRequestQueue::fetchOp(bool wait)
 {
-	HttpOperation::ptr_t result;
+    HttpOperation::ptr_t result;
 
-	{
-		HttpScopedLock lock(mQueueMutex);
+    {
+        HttpScopedLock lock(mQueueMutex);
 
-		while (mQueue.empty())
-		{
-			if (! wait || mQueueStopped)
+        while (mQueue.empty())
+        {
+            if (! wait || mQueueStopped)
                 return HttpOperation::ptr_t();
-			mQueueCV.wait(lock);
-		}
+            mQueueCV.wait(lock);
+        }
 
-		result = mQueue.front();
-		mQueue.erase(mQueue.begin());
-	}
+        result = mQueue.front();
+        mQueue.erase(mQueue.begin());
+    }
 
-	// Caller also acquires the reference count
-	return result;
+    // Caller also acquires the reference count
+    return result;
 }
 
 
 void HttpRequestQueue::fetchAll(bool wait, OpContainer & ops)
 {
-	// Not valid putting something back on the queue...
-	llassert_always(ops.empty());
+    // Not valid putting something back on the queue...
+    llassert_always(ops.empty());
 
-	{
-		HttpScopedLock lock(mQueueMutex);
+    {
+        HttpScopedLock lock(mQueueMutex);
 
-		while (mQueue.empty())
-		{
-			if (! wait || mQueueStopped)
-				return;
-			mQueueCV.wait(lock);
-		}
+        while (mQueue.empty())
+        {
+            if (! wait || mQueueStopped)
+                return;
+            mQueueCV.wait(lock);
+        }
 
-		mQueue.swap(ops);
-	}
+        mQueue.swap(ops);
+    }
 
-	// Caller also acquires the reference counts on each op.
-	return;
+    // Caller also acquires the reference counts on each op.
+    return;
 }
 
 
 void HttpRequestQueue::wakeAll()
 {
-	mQueueCV.notify_all();
+    mQueueCV.notify_all();
 }
 
 
 bool HttpRequestQueue::stopQueue()
 {
-	{
-		HttpScopedLock lock(mQueueMutex);
+    {
+        HttpScopedLock lock(mQueueMutex);
 
         if (!mQueueStopped)
         {
@@ -155,7 +155,7 @@ bool HttpRequestQueue::stopQueue()
         }
         wakeAll();
         return false;
-	}
+    }
 }
 
 

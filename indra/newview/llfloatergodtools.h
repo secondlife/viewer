@@ -52,67 +52,67 @@ class LLTextBox;
 class LLMessageSystem;
 
 class LLFloaterGodTools
-	: public LLFloater
+    : public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 public:
 
-	enum EGodPanel
-	{
-		PANEL_GRID,
-		PANEL_REGION,
-		PANEL_OBJECT,
-		PANEL_REQUEST,
-		PANEL_COUNT
-	};
+    enum EGodPanel
+    {
+        PANEL_GRID,
+        PANEL_REGION,
+        PANEL_OBJECT,
+        PANEL_REQUEST,
+        PANEL_COUNT
+    };
 
-	static void* createPanelGrid(void *userdata);
-	static void* createPanelRegion(void *userdata);
-	static void* createPanelObjects(void *userdata);
-	static void* createPanelRequest(void *userdata);
+    static void* createPanelGrid(void *userdata);
+    static void* createPanelRegion(void *userdata);
+    static void* createPanelObjects(void *userdata);
+    static void* createPanelRequest(void *userdata);
 
-	static void refreshAll();
+    static void refreshAll();
 
-	void showPanel(const std::string& panel_name);
+    void showPanel(const std::string& panel_name);
 
-	virtual void onOpen(const LLSD& key);
+    virtual void onOpen(const LLSD& key);
 
-	virtual void draw();
+    virtual void draw();
 
-	// call this once per frame to handle visibility, rect location,
-	// button highlights, etc.
-	void updatePopup(LLCoordGL center, MASK mask);
+    // call this once per frame to handle visibility, rect location,
+    // button highlights, etc.
+    void updatePopup(LLCoordGL center, MASK mask);
 
-	// Get data to populate UI.
-	void sendRegionInfoRequest();
+    // Get data to populate UI.
+    void sendRegionInfoRequest();
 
-	// get and process region info if necessary.
-	static void processRegionInfo(LLMessageSystem* msg);
+    // get and process region info if necessary.
+    static void processRegionInfo(LLMessageSystem* msg);
 
-	// Send possibly changed values to simulator.
-	void sendGodUpdateRegionInfo();
+    // Send possibly changed values to simulator.
+    void sendGodUpdateRegionInfo();
 
 private:
-	
-	LLFloaterGodTools(const LLSD& key);
-	~LLFloaterGodTools();
-	
+    
+    LLFloaterGodTools(const LLSD& key);
+    ~LLFloaterGodTools();
+    
 protected:
-	U64 computeRegionFlags() const;
+    U64 computeRegionFlags() const;
 
 protected:
 
-	/*virtual*/	BOOL	postBuild();
-	// When the floater is going away, reset any options that need to be 
-	// cleared.
-	void resetToolState();
+    /*virtual*/ BOOL    postBuild();
+    // When the floater is going away, reset any options that need to be 
+    // cleared.
+    void resetToolState();
 
 public:
-	LLPanelRegionTools 	*mPanelRegionTools;
-	LLPanelObjectTools	*mPanelObjectTools;
+    LLPanelRegionTools  *mPanelRegionTools;
+    LLPanelObjectTools  *mPanelObjectTools;
 
-	LLHost mCurrentHost;
-	LLFrameTimer mUpdateTimer;
+    LLHost mCurrentHost;
+    LLFrameTimer mUpdateTimer;
 };
 
 
@@ -124,57 +124,57 @@ class LLPanelRegionTools
 : public LLPanel
 {
 public:
-	LLPanelRegionTools();
-	/*virtual*/ ~LLPanelRegionTools();
+    LLPanelRegionTools();
+    /*virtual*/ ~LLPanelRegionTools();
 
-	BOOL postBuild();
+    BOOL postBuild();
 
-	/*virtual*/ void refresh();
+    /*virtual*/ void refresh();
 
-	static void onSaveState(void* userdata);
-	static void onChangeSimName(LLLineEditor* caller, void* userdata);
-	
-	void onChangeAnything();
-	void onChangePrelude();
-	void onApplyChanges();
-	void onBakeTerrain();
-	void onRevertTerrain();
-	void onSwapTerrain();
-	void onSelectRegion();
-	void onRefresh();
+    static void onSaveState(void* userdata);
+    static void onChangeSimName(LLLineEditor* caller, void* userdata);
+    
+    void onChangeAnything();
+    void onChangePrelude();
+    void onApplyChanges();
+    void onBakeTerrain();
+    void onRevertTerrain();
+    void onSwapTerrain();
+    void onSelectRegion();
+    void onRefresh();
 
-	// set internal checkboxes/spinners/combos 
-	const std::string getSimName() const;
-	U32 getEstateID() const;
-	U32 getParentEstateID() const;
-	U64 getRegionFlags() const;
-	U64 getRegionFlagsMask() const;
-	F32 getBillableFactor() const;
-	S32 getPricePerMeter() const;
-	S32 getGridPosX() const;
-	S32 getGridPosY() const;
-	S32 getRedirectGridX() const;
-	S32 getRedirectGridY() const;
+    // set internal checkboxes/spinners/combos 
+    const std::string getSimName() const;
+    U32 getEstateID() const;
+    U32 getParentEstateID() const;
+    U64 getRegionFlags() const;
+    U64 getRegionFlagsMask() const;
+    F32 getBillableFactor() const;
+    S32 getPricePerMeter() const;
+    S32 getGridPosX() const;
+    S32 getGridPosY() const;
+    S32 getRedirectGridX() const;
+    S32 getRedirectGridY() const;
 
-	// set internal checkboxes/spinners/combos 
-	void setSimName(const std::string& name);
-	void setEstateID(U32 id);
-	void setParentEstateID(U32 id);
-	void setCheckFlags(U64 flags);
-	void setBillableFactor(F32 billable_factor);
-	void setPricePerMeter(S32 price);
-	void setGridPosX(S32 pos);
-	void setGridPosY(S32 pos);
-	void setRedirectGridX(S32 pos);
-	void setRedirectGridY(S32 pos);
+    // set internal checkboxes/spinners/combos 
+    void setSimName(const std::string& name);
+    void setEstateID(U32 id);
+    void setParentEstateID(U32 id);
+    void setCheckFlags(U64 flags);
+    void setBillableFactor(F32 billable_factor);
+    void setPricePerMeter(S32 price);
+    void setGridPosX(S32 pos);
+    void setGridPosY(S32 pos);
+    void setRedirectGridX(S32 pos);
+    void setRedirectGridY(S32 pos);
 
-	U64 computeRegionFlags(U64 initial_flags) const;
-	void clearAllWidgets();
-	void enableAllWidgets();
+    U64 computeRegionFlags(U64 initial_flags) const;
+    void clearAllWidgets();
+    void enableAllWidgets();
 
 protected:
-	// gets from internal checkboxes/spinners/combos
-	void updateCurrentRegion() const;
+    // gets from internal checkboxes/spinners/combos
+    void updateCurrentRegion() const;
 };
 
 
@@ -186,19 +186,19 @@ class LLPanelGridTools
 : public LLPanel
 {
 public:
-	LLPanelGridTools();
-	virtual ~LLPanelGridTools();
+    LLPanelGridTools();
+    virtual ~LLPanelGridTools();
 
-	BOOL postBuild();
+    BOOL postBuild();
 
-	void refresh();
+    void refresh();
 
-	static void onDragSunPhase(LLUICtrl *ctrl, void *userdata);
-	void onClickFlushMapVisibilityCaches();
-	static bool flushMapVisibilityCachesConfirm(const LLSD& notification, const LLSD& response);
+    static void onDragSunPhase(LLUICtrl *ctrl, void *userdata);
+    void onClickFlushMapVisibilityCaches();
+    static bool flushMapVisibilityCachesConfirm(const LLSD& notification, const LLSD& response);
 
 protected:
-	std::string        mKickMessage; // Message to send on kick
+    std::string        mKickMessage; // Message to send on kick
 };
 
 
@@ -210,37 +210,37 @@ class LLPanelObjectTools
 : public LLPanel
 {
 public:
-	LLPanelObjectTools();
-	/*virtual*/ ~LLPanelObjectTools();
+    LLPanelObjectTools();
+    /*virtual*/ ~LLPanelObjectTools();
 
-	BOOL postBuild();
+    BOOL postBuild();
 
-	/*virtual*/ void refresh();
+    /*virtual*/ void refresh();
 
-	void setTargetAvatar(const LLUUID& target_id);
-	U64 computeRegionFlags(U64 initial_flags) const;
-	void clearAllWidgets();
-	void enableAllWidgets();
-	void setCheckFlags(U64 flags);
+    void setTargetAvatar(const LLUUID& target_id);
+    U64 computeRegionFlags(U64 initial_flags) const;
+    void clearAllWidgets();
+    void enableAllWidgets();
+    void setCheckFlags(U64 flags);
 
-	void onChangeAnything();
-	void onApplyChanges();
-	void onClickSet();
-	void callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
-	void onClickDeletePublicOwnedBy();
-	void onClickDeleteAllScriptedOwnedBy();
-	void onClickDeleteAllOwnedBy();
-	static bool callbackSimWideDeletes(const LLSD& notification, const LLSD& response);
-	void onGetTopColliders();
-	void onGetTopScripts();
-	void onGetScriptDigest();
-	static void onClickSetBySelection(void* data);
+    void onChangeAnything();
+    void onApplyChanges();
+    void onClickSet();
+    void callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
+    void onClickDeletePublicOwnedBy();
+    void onClickDeleteAllScriptedOwnedBy();
+    void onClickDeleteAllOwnedBy();
+    static bool callbackSimWideDeletes(const LLSD& notification, const LLSD& response);
+    void onGetTopColliders();
+    void onGetTopScripts();
+    void onGetScriptDigest();
+    static void onClickSetBySelection(void* data);
 
 protected:
-	LLUUID		mTargetAvatar;
+    LLUUID      mTargetAvatar;
 
-	// For all delete dialogs, store flags here for message.
-	U32 mSimWideDeletesFlags;
+    // For all delete dialogs, store flags here for message.
+    U32 mSimWideDeletesFlags;
 }; 
 
 
@@ -251,20 +251,20 @@ protected:
 class LLPanelRequestTools : public LLPanel
 {
 public:
-	LLPanelRequestTools();
-	/*virtual*/ ~LLPanelRequestTools();
+    LLPanelRequestTools();
+    /*virtual*/ ~LLPanelRequestTools();
 
-	BOOL postBuild();
+    BOOL postBuild();
 
-	void refresh();
+    void refresh();
 
-	static void sendRequest(const std::string& request, 
-							const std::string& parameter, 
-							const LLHost& host);
+    static void sendRequest(const std::string& request, 
+                            const std::string& parameter, 
+                            const LLHost& host);
 
 protected:
-	void onClickRequest();
-	void sendRequest(const LLHost& host);
+    void onClickRequest();
+    void sendRequest(const LLHost& host);
 };
 
 // Flags are SWD_ flags.

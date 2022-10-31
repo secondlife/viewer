@@ -32,78 +32,78 @@
 class LLViewBorder : public LLView
 {
 public:
-	typedef enum e_bevel { BEVEL_IN, BEVEL_OUT, BEVEL_BRIGHT, BEVEL_NONE } EBevel ;
-	typedef enum e_style { STYLE_LINE, STYLE_TEXTURE } EStyle;
+    typedef enum e_bevel { BEVEL_IN, BEVEL_OUT, BEVEL_BRIGHT, BEVEL_NONE } EBevel ;
+    typedef enum e_style { STYLE_LINE, STYLE_TEXTURE } EStyle;
 
-	struct BevelValues
-	:	public LLInitParam::TypeValuesHelper<LLViewBorder::EBevel, BevelValues>
-	{
-		static void declareValues();
-	};
+    struct BevelValues
+    :   public LLInitParam::TypeValuesHelper<LLViewBorder::EBevel, BevelValues>
+    {
+        static void declareValues();
+    };
 
-	struct StyleValues
-	:	public LLInitParam::TypeValuesHelper<LLViewBorder::EStyle, StyleValues>
-	{
-		static void declareValues();
-	};
+    struct StyleValues
+    :   public LLInitParam::TypeValuesHelper<LLViewBorder::EStyle, StyleValues>
+    {
+        static void declareValues();
+    };
 
-	struct Params : public LLInitParam::Block<Params, LLView::Params>
-	{
-		Optional<EBevel, BevelValues>	bevel_style;
-		Optional<EStyle, StyleValues>	render_style;	
-		Optional<S32>					border_thickness;
+    struct Params : public LLInitParam::Block<Params, LLView::Params>
+    {
+        Optional<EBevel, BevelValues>   bevel_style;
+        Optional<EStyle, StyleValues>   render_style;   
+        Optional<S32>                   border_thickness;
 
-		Optional<LLUIColor>		highlight_light_color,
-								highlight_dark_color,
-								shadow_light_color,
-								shadow_dark_color;
+        Optional<LLUIColor>     highlight_light_color,
+                                highlight_dark_color,
+                                shadow_light_color,
+                                shadow_dark_color;
 
-		Params();
-	};
+        Params();
+    };
 protected:
-	LLViewBorder(const Params&);
-	friend class LLUICtrlFactory;
+    LLViewBorder(const Params&);
+    friend class LLUICtrlFactory;
 public:
-	virtual void setValue(const LLSD& val) { setRect(LLRect(val)); }
+    virtual void setValue(const LLSD& val) { setRect(LLRect(val)); }
 
-	virtual BOOL isCtrl() const { return FALSE; }
+    virtual BOOL isCtrl() const { return FALSE; }
 
-	// llview functionality
-	virtual void draw();
-	
-	static BOOL getBevelFromAttribute(LLXMLNodePtr node, LLViewBorder::EBevel& bevel_style);
+    // llview functionality
+    virtual void draw();
+    
+    static BOOL getBevelFromAttribute(LLXMLNodePtr node, LLViewBorder::EBevel& bevel_style);
 
-	void		setBorderWidth(S32 width)			{ mBorderWidth = width; }
-	S32			getBorderWidth() const				{ return mBorderWidth; }
-	void		setBevel(EBevel bevel)				{ mBevel = bevel; }
-	EBevel		getBevel() const					{ return mBevel; }
-	void		setColors( const LLColor4& shadow_dark, const LLColor4& highlight_light );
-	void		setColorsExtended( const LLColor4& shadow_light, const LLColor4& shadow_dark,
-				  				   const LLColor4& highlight_light, const LLColor4& highlight_dark );
-	void		setTexture( const class LLUUID &image_id );
+    void        setBorderWidth(S32 width)           { mBorderWidth = width; }
+    S32         getBorderWidth() const              { return mBorderWidth; }
+    void        setBevel(EBevel bevel)              { mBevel = bevel; }
+    EBevel      getBevel() const                    { return mBevel; }
+    void        setColors( const LLColor4& shadow_dark, const LLColor4& highlight_light );
+    void        setColorsExtended( const LLColor4& shadow_light, const LLColor4& shadow_dark,
+                                   const LLColor4& highlight_light, const LLColor4& highlight_dark );
+    void        setTexture( const class LLUUID &image_id );
 
-	LLColor4	getHighlightLight() {return mHighlightLight.get();}
-	LLColor4	getShadowDark() {return mHighlightDark.get();}
+    LLColor4    getHighlightLight() {return mHighlightLight.get();}
+    LLColor4    getShadowDark() {return mHighlightDark.get();}
 
-	EStyle		getStyle() const { return mStyle; }
+    EStyle      getStyle() const { return mStyle; }
 
-	void		setKeyboardFocusHighlight( BOOL b )	{ mHasKeyboardFocus = b; }
+    void        setKeyboardFocusHighlight( BOOL b ) { mHasKeyboardFocus = b; }
 
 private:
-	void		drawOnePixelLines();
-	void		drawTwoPixelLines();
-	void		drawTextures();
-	
-	EBevel		mBevel;
-	EStyle		mStyle;
-	LLUIColor	mHighlightLight;
-	LLUIColor	mHighlightDark;
-	LLUIColor	mShadowLight;
-	LLUIColor	mShadowDark;
-	LLUIColor	mBackgroundColor;
-	S32			mBorderWidth;
-	LLPointer<LLUIImage>	mTexture;
-	BOOL		mHasKeyboardFocus;
+    void        drawOnePixelLines();
+    void        drawTwoPixelLines();
+    void        drawTextures();
+    
+    EBevel      mBevel;
+    EStyle      mStyle;
+    LLUIColor   mHighlightLight;
+    LLUIColor   mHighlightDark;
+    LLUIColor   mShadowLight;
+    LLUIColor   mShadowDark;
+    LLUIColor   mBackgroundColor;
+    S32         mBorderWidth;
+    LLPointer<LLUIImage>    mTexture;
+    BOOL        mHasKeyboardFocus;
 };
 
 #endif // LL_LLVIEWBORDER_H

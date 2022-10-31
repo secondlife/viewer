@@ -39,52 +39,52 @@
 
 namespace LLMarketplaceInventoryNotifications
 {
-	typedef boost::signals2::signal<void (const LLSD& param)>	no_copy_payload_cb_signal_t;
+    typedef boost::signals2::signal<void (const LLSD& param)>   no_copy_payload_cb_signal_t;
 
-	static no_copy_payload_cb_signal_t*	no_copy_cb_action = NULL;
-	static bool							no_copy_notify_active = false;
-	static std::list<LLSD>				no_copy_payloads;
+    static no_copy_payload_cb_signal_t* no_copy_cb_action = NULL;
+    static bool                         no_copy_notify_active = false;
+    static std::list<LLSD>              no_copy_payloads;
 
-	void notifyNoCopyCallback(const LLSD& notification, const LLSD& response)
-	{
-		const S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-		
-		if (option == 0)
-		{
-			llassert(!no_copy_payloads.empty());
-			llassert(no_copy_cb_action != NULL);
-			
-			BOOST_FOREACH(const LLSD& payload, no_copy_payloads)
-			{
-				(*no_copy_cb_action)(payload);
-			}
-		}
-		
-		delete no_copy_cb_action;
-		no_copy_cb_action = NULL;
-		
-		no_copy_notify_active = false;
-		no_copy_payloads.clear();
-	}
+    void notifyNoCopyCallback(const LLSD& notification, const LLSD& response)
+    {
+        const S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+        
+        if (option == 0)
+        {
+            llassert(!no_copy_payloads.empty());
+            llassert(no_copy_cb_action != NULL);
+            
+            BOOST_FOREACH(const LLSD& payload, no_copy_payloads)
+            {
+                (*no_copy_cb_action)(payload);
+            }
+        }
+        
+        delete no_copy_cb_action;
+        no_copy_cb_action = NULL;
+        
+        no_copy_notify_active = false;
+        no_copy_payloads.clear();
+    }
 
-	void update()
-	{
-		if (!no_copy_notify_active && !no_copy_payloads.empty())
-		{
-			no_copy_notify_active = true;
-			
-			LLNotificationsUtil::add("ConfirmNoCopyToOutbox", LLSD(), LLSD(), boost::bind(&notifyNoCopyCallback, _1, _2));
-		}
-	}
-		
-	void addNoCopyNotification(const LLSD& payload, const NoCopyCallbackFunction& cb)
-	{
-		if (no_copy_cb_action == NULL)
-		{
-			no_copy_cb_action = new no_copy_payload_cb_signal_t;
-			no_copy_cb_action->connect(boost::bind(cb, _1));
-		}
+    void update()
+    {
+        if (!no_copy_notify_active && !no_copy_payloads.empty())
+        {
+            no_copy_notify_active = true;
+            
+            LLNotificationsUtil::add("ConfirmNoCopyToOutbox", LLSD(), LLSD(), boost::bind(&notifyNoCopyCallback, _1, _2));
+        }
+    }
+        
+    void addNoCopyNotification(const LLSD& payload, const NoCopyCallbackFunction& cb)
+    {
+        if (no_copy_cb_action == NULL)
+        {
+            no_copy_cb_action = new no_copy_payload_cb_signal_t;
+            no_copy_cb_action->connect(boost::bind(cb, _1));
+        }
 
-		no_copy_payloads.push_back(payload);
-	}
+        no_copy_payloads.push_back(payload);
+    }
 }

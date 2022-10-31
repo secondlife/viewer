@@ -42,112 +42,112 @@ class LLViewerVisualParam;
 // class LLBreastMotion
 //-----------------------------------------------------------------------------
 class LLBreastMotion :
-	public LLMotion
+    public LLMotion
 {
 public:
-	// Constructor
-	LLBreastMotion(const LLUUID &id);
+    // Constructor
+    LLBreastMotion(const LLUUID &id);
 
-	// Destructor
-	virtual ~LLBreastMotion();
-
-public:
-	//-------------------------------------------------------------------------
-	// functions to support MotionController and MotionRegistry
-	//-------------------------------------------------------------------------
-
-	// static constructor
-	// all subclasses must implement such a function and register it
-	static LLMotion *create(const LLUUID &id) { return new LLBreastMotion(id); }
+    // Destructor
+    virtual ~LLBreastMotion();
 
 public:
-	//-------------------------------------------------------------------------
-	// animation callbacks to be implemented by subclasses
-	//-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
+    // functions to support MotionController and MotionRegistry
+    //-------------------------------------------------------------------------
 
-	// motions must specify whether or not they loop
-	virtual BOOL getLoop() { return TRUE; }
+    // static constructor
+    // all subclasses must implement such a function and register it
+    static LLMotion *create(const LLUUID &id) { return new LLBreastMotion(id); }
 
-	// motions must report their total duration
-	virtual F32 getDuration() { return 0.0; }
+public:
+    //-------------------------------------------------------------------------
+    // animation callbacks to be implemented by subclasses
+    //-------------------------------------------------------------------------
 
-	// motions must report their "ease in" duration
-	virtual F32 getEaseInDuration() { return BREAST_MOTION_FADEIN_TIME; }
+    // motions must specify whether or not they loop
+    virtual BOOL getLoop() { return TRUE; }
 
-	// motions must report their "ease out" duration.
-	virtual F32 getEaseOutDuration() { return BREAST_MOTION_FADEOUT_TIME; }
+    // motions must report their total duration
+    virtual F32 getDuration() { return 0.0; }
 
-	// called to determine when a motion should be activated/deactivated based on avatar pixel coverage
-	virtual F32 getMinPixelArea();
+    // motions must report their "ease in" duration
+    virtual F32 getEaseInDuration() { return BREAST_MOTION_FADEIN_TIME; }
 
-	// motions must report their priority
-	virtual LLJoint::JointPriority getPriority() { return LLJoint::MEDIUM_PRIORITY; }
+    // motions must report their "ease out" duration.
+    virtual F32 getEaseOutDuration() { return BREAST_MOTION_FADEOUT_TIME; }
 
-	virtual LLMotionBlendType getBlendType() { return ADDITIVE_BLEND; }
+    // called to determine when a motion should be activated/deactivated based on avatar pixel coverage
+    virtual F32 getMinPixelArea();
 
-	// run-time (post constructor) initialization,
-	// called after parameters have been set
-	// must return true to indicate success and be available for activation
-	virtual LLMotionInitStatus onInitialize(LLCharacter *character);
+    // motions must report their priority
+    virtual LLJoint::JointPriority getPriority() { return LLJoint::MEDIUM_PRIORITY; }
 
-	// called when a motion is activated
-	// must return TRUE to indicate success, or else
-	// it will be deactivated
-	virtual BOOL onActivate();
+    virtual LLMotionBlendType getBlendType() { return ADDITIVE_BLEND; }
 
-	// called per time step
-	// must return TRUE while it is active, and
-	// must return FALSE when the motion is completed.
-	virtual BOOL onUpdate(F32 time, U8* joint_mask);
+    // run-time (post constructor) initialization,
+    // called after parameters have been set
+    // must return true to indicate success and be available for activation
+    virtual LLMotionInitStatus onInitialize(LLCharacter *character);
 
-	// called when a motion is deactivated
-	virtual void onDeactivate();
+    // called when a motion is activated
+    // must return TRUE to indicate success, or else
+    // it will be deactivated
+    virtual BOOL onActivate();
+
+    // called per time step
+    // must return TRUE while it is active, and
+    // must return FALSE when the motion is completed.
+    virtual BOOL onUpdate(F32 time, U8* joint_mask);
+
+    // called when a motion is deactivated
+    virtual void onDeactivate();
 
 protected:
-	LLVector3 toLocal(const LLVector3 &world_vector);
-	LLVector3 calculateVelocity_local(const F32 time_delta);
-	LLVector3 calculateAcceleration_local(const LLVector3 &new_char_velocity_local_vec,
-										  const F32 time_delta);
-	F32 calculateTimeDelta();
+    LLVector3 toLocal(const LLVector3 &world_vector);
+    LLVector3 calculateVelocity_local(const F32 time_delta);
+    LLVector3 calculateAcceleration_local(const LLVector3 &new_char_velocity_local_vec,
+                                          const F32 time_delta);
+    F32 calculateTimeDelta();
 private:
-	//-------------------------------------------------------------------------
-	// joint states to be animated
-	//-------------------------------------------------------------------------
-	LLPointer<LLJointState> mChestState;
-	LLCharacter*		mCharacter;
+    //-------------------------------------------------------------------------
+    // joint states to be animated
+    //-------------------------------------------------------------------------
+    LLPointer<LLJointState> mChestState;
+    LLCharacter*        mCharacter;
 
 
-	//-------------------------------------------------------------------------
-	// miscellaneous parameters
-	//-------------------------------------------------------------------------
-	LLViewerVisualParam *mBreastParamsUser[3];
-	LLViewerVisualParam *mBreastParamsDriven[3];
-	LLVector3           mBreastParamsMin;
-	LLVector3           mBreastParamsMax;
+    //-------------------------------------------------------------------------
+    // miscellaneous parameters
+    //-------------------------------------------------------------------------
+    LLViewerVisualParam *mBreastParamsUser[3];
+    LLViewerVisualParam *mBreastParamsDriven[3];
+    LLVector3           mBreastParamsMin;
+    LLVector3           mBreastParamsMax;
 
-	LLVector3           mCharLastPosition_world_pt; // Last position of the avatar
-	LLVector3			mCharLastVelocity_local_vec; // How fast the character is moving
-	LLVector3           mCharLastAcceleration_local_vec; // Change in character velocity
+    LLVector3           mCharLastPosition_world_pt; // Last position of the avatar
+    LLVector3           mCharLastVelocity_local_vec; // How fast the character is moving
+    LLVector3           mCharLastAcceleration_local_vec; // Change in character velocity
 
-	LLVector3           mBreastLastPosition_local_pt; // Last parameters for breast
-	LLVector3           mBreastVelocity_local_vec; // How fast the breast params are moving
-	LLVector3           mBreastLastUpdatePosition_local_pt; // Last parameters when visual update was sent
+    LLVector3           mBreastLastPosition_local_pt; // Last parameters for breast
+    LLVector3           mBreastVelocity_local_vec; // How fast the breast params are moving
+    LLVector3           mBreastLastUpdatePosition_local_pt; // Last parameters when visual update was sent
 
 
-	F32 mBreastMassParam;
-	F32 mBreastGravityParam;
-	U32 mBreastSmoothingParam;
+    F32 mBreastMassParam;
+    F32 mBreastGravityParam;
+    U32 mBreastSmoothingParam;
 
-	LLVector3 mBreastSpringParam;
-	LLVector3 mBreastDampingParam;
-	LLVector3 mBreastGainParam;
-	LLVector3 mBreastMaxVelocityParam;
-	LLVector3 mBreastDragParam;
+    LLVector3 mBreastSpringParam;
+    LLVector3 mBreastDampingParam;
+    LLVector3 mBreastGainParam;
+    LLVector3 mBreastMaxVelocityParam;
+    LLVector3 mBreastDragParam;
 
-	LLFrameTimer	mTimer;
-	F32             mLastTime;
-	
-	U32            mFileTicks;
+    LLFrameTimer    mTimer;
+    F32             mLastTime;
+    
+    U32            mFileTicks;
 };
 
 #endif // LL_LLBREASTMOTION_H

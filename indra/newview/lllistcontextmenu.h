@@ -47,31 +47,31 @@ class LLContextMenu;
 class LLListContextMenu
 {
 public:
-	LLListContextMenu();
-	virtual ~LLListContextMenu();
+    LLListContextMenu();
+    virtual ~LLListContextMenu();
 
-	/**
-	 * Show the menu at specified coordinates.
-	 *
-	 * @param spawning_view View to spawn at.
-	 * @param uuids An array of list items ids.
-	 * @param x Horizontal coordinate in the spawn_view's coordinate frame.
-	 * @param y Vertical coordinate in the spawn_view's coordinate frame.
-	 */
-	virtual void show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y);
+    /**
+     * Show the menu at specified coordinates.
+     *
+     * @param spawning_view View to spawn at.
+     * @param uuids An array of list items ids.
+     * @param x Horizontal coordinate in the spawn_view's coordinate frame.
+     * @param y Vertical coordinate in the spawn_view's coordinate frame.
+     */
+    virtual void show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y);
 
-	virtual void hide();
+    virtual void hide();
 
 protected:
-	typedef boost::function<void (const LLUUID& id)> functor_t;
+    typedef boost::function<void (const LLUUID& id)> functor_t;
 
-	virtual LLContextMenu* createMenu() = 0;
+    virtual LLContextMenu* createMenu() = 0;
 
-	static LLContextMenu* createFromFile(const std::string& filename);
-	static void handleMultiple(functor_t functor, const uuid_vec_t& ids);
+    static LLContextMenu* createFromFile(const std::string& filename);
+    static void handleMultiple(functor_t functor, const uuid_vec_t& ids);
 
-	uuid_vec_t			mUUIDs;
-	LLHandle<LLContextMenu>	mMenuHandle;
+    uuid_vec_t          mUUIDs;
+    LLHandle<LLContextMenu> mMenuHandle;
 };
 
 #endif // LL_LLLISTCONTEXTMENU_H

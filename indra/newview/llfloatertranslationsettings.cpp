@@ -43,157 +43,157 @@
 #include "llradiogroup.h"
 
 LLFloaterTranslationSettings::LLFloaterTranslationSettings(const LLSD& key)
-:	LLFloater(key)
-,	mMachineTranslationCB(NULL)
-,	mLanguageCombo(NULL)
-,	mTranslationServiceRadioGroup(NULL)
-,	mBingAPIKeyEditor(NULL)
-,	mGoogleAPIKeyEditor(NULL)
-,	mBingVerifyBtn(NULL)
-,	mGoogleVerifyBtn(NULL)
-,	mOKBtn(NULL)
-,	mBingKeyVerified(false)
-,	mGoogleKeyVerified(false)
+:   LLFloater(key)
+,   mMachineTranslationCB(NULL)
+,   mLanguageCombo(NULL)
+,   mTranslationServiceRadioGroup(NULL)
+,   mBingAPIKeyEditor(NULL)
+,   mGoogleAPIKeyEditor(NULL)
+,   mBingVerifyBtn(NULL)
+,   mGoogleVerifyBtn(NULL)
+,   mOKBtn(NULL)
+,   mBingKeyVerified(false)
+,   mGoogleKeyVerified(false)
 {
 }
 
 // virtual
 BOOL LLFloaterTranslationSettings::postBuild()
 {
-	mMachineTranslationCB = getChild<LLCheckBoxCtrl>("translate_chat_checkbox");
-	mLanguageCombo = getChild<LLComboBox>("translate_language_combo");
-	mTranslationServiceRadioGroup = getChild<LLRadioGroup>("translation_service_rg");
-	mBingAPIKeyEditor = getChild<LLLineEditor>("bing_api_key");
-	mGoogleAPIKeyEditor = getChild<LLLineEditor>("google_api_key");
-	mBingVerifyBtn = getChild<LLButton>("verify_bing_api_key_btn");
-	mGoogleVerifyBtn = getChild<LLButton>("verify_google_api_key_btn");
-	mOKBtn = getChild<LLButton>("ok_btn");
+    mMachineTranslationCB = getChild<LLCheckBoxCtrl>("translate_chat_checkbox");
+    mLanguageCombo = getChild<LLComboBox>("translate_language_combo");
+    mTranslationServiceRadioGroup = getChild<LLRadioGroup>("translation_service_rg");
+    mBingAPIKeyEditor = getChild<LLLineEditor>("bing_api_key");
+    mGoogleAPIKeyEditor = getChild<LLLineEditor>("google_api_key");
+    mBingVerifyBtn = getChild<LLButton>("verify_bing_api_key_btn");
+    mGoogleVerifyBtn = getChild<LLButton>("verify_google_api_key_btn");
+    mOKBtn = getChild<LLButton>("ok_btn");
 
-	mMachineTranslationCB->setCommitCallback(boost::bind(&LLFloaterTranslationSettings::updateControlsEnabledState, this));
-	mTranslationServiceRadioGroup->setCommitCallback(boost::bind(&LLFloaterTranslationSettings::updateControlsEnabledState, this));
-	mOKBtn->setClickedCallback(boost::bind(&LLFloaterTranslationSettings::onBtnOK, this));
-	getChild<LLButton>("cancel_btn")->setClickedCallback(boost::bind(&LLFloater::closeFloater, this, false));
-	mBingVerifyBtn->setClickedCallback(boost::bind(&LLFloaterTranslationSettings::onBtnBingVerify, this));
-	mGoogleVerifyBtn->setClickedCallback(boost::bind(&LLFloaterTranslationSettings::onBtnGoogleVerify, this));
+    mMachineTranslationCB->setCommitCallback(boost::bind(&LLFloaterTranslationSettings::updateControlsEnabledState, this));
+    mTranslationServiceRadioGroup->setCommitCallback(boost::bind(&LLFloaterTranslationSettings::updateControlsEnabledState, this));
+    mOKBtn->setClickedCallback(boost::bind(&LLFloaterTranslationSettings::onBtnOK, this));
+    getChild<LLButton>("cancel_btn")->setClickedCallback(boost::bind(&LLFloater::closeFloater, this, false));
+    mBingVerifyBtn->setClickedCallback(boost::bind(&LLFloaterTranslationSettings::onBtnBingVerify, this));
+    mGoogleVerifyBtn->setClickedCallback(boost::bind(&LLFloaterTranslationSettings::onBtnGoogleVerify, this));
 
-	mBingAPIKeyEditor->setFocusReceivedCallback(boost::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
-	mBingAPIKeyEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onBingKeyEdited, this), NULL);
-	mGoogleAPIKeyEditor->setFocusReceivedCallback(boost::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
-	mGoogleAPIKeyEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onGoogleKeyEdited, this), NULL);
+    mBingAPIKeyEditor->setFocusReceivedCallback(boost::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
+    mBingAPIKeyEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onBingKeyEdited, this), NULL);
+    mGoogleAPIKeyEditor->setFocusReceivedCallback(boost::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
+    mGoogleAPIKeyEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onGoogleKeyEdited, this), NULL);
 
-	center();
-	return TRUE;
+    center();
+    return TRUE;
 }
 
 // virtual
 void LLFloaterTranslationSettings::onOpen(const LLSD& key)
 {
-	mMachineTranslationCB->setValue(gSavedSettings.getBOOL("TranslateChat"));
-	mLanguageCombo->setSelectedByValue(gSavedSettings.getString("TranslateLanguage"), TRUE);
-	mTranslationServiceRadioGroup->setSelectedByValue(gSavedSettings.getString("TranslationService"), TRUE);
+    mMachineTranslationCB->setValue(gSavedSettings.getBOOL("TranslateChat"));
+    mLanguageCombo->setSelectedByValue(gSavedSettings.getString("TranslateLanguage"), TRUE);
+    mTranslationServiceRadioGroup->setSelectedByValue(gSavedSettings.getString("TranslationService"), TRUE);
 
-	std::string bing_key = gSavedSettings.getString("BingTranslateAPIKey");
-	if (!bing_key.empty())
-	{
-		mBingAPIKeyEditor->setText(bing_key);
-		mBingAPIKeyEditor->setTentative(FALSE);
-		verifyKey(LLTranslate::SERVICE_BING, bing_key, false);
-	}
-	else
-	{
-		mBingAPIKeyEditor->setTentative(TRUE);
-		mBingKeyVerified = FALSE;
-	}
+    std::string bing_key = gSavedSettings.getString("BingTranslateAPIKey");
+    if (!bing_key.empty())
+    {
+        mBingAPIKeyEditor->setText(bing_key);
+        mBingAPIKeyEditor->setTentative(FALSE);
+        verifyKey(LLTranslate::SERVICE_BING, bing_key, false);
+    }
+    else
+    {
+        mBingAPIKeyEditor->setTentative(TRUE);
+        mBingKeyVerified = FALSE;
+    }
 
-	std::string google_key = gSavedSettings.getString("GoogleTranslateAPIKey");
-	if (!google_key.empty())
-	{
-		mGoogleAPIKeyEditor->setText(google_key);
-		mGoogleAPIKeyEditor->setTentative(FALSE);
-		verifyKey(LLTranslate::SERVICE_GOOGLE, google_key, false);
-	}
-	else
-	{
-		mGoogleAPIKeyEditor->setTentative(TRUE);
-		mGoogleKeyVerified = FALSE;
-	}
+    std::string google_key = gSavedSettings.getString("GoogleTranslateAPIKey");
+    if (!google_key.empty())
+    {
+        mGoogleAPIKeyEditor->setText(google_key);
+        mGoogleAPIKeyEditor->setTentative(FALSE);
+        verifyKey(LLTranslate::SERVICE_GOOGLE, google_key, false);
+    }
+    else
+    {
+        mGoogleAPIKeyEditor->setTentative(TRUE);
+        mGoogleKeyVerified = FALSE;
+    }
 
-	updateControlsEnabledState();
+    updateControlsEnabledState();
 }
 
 void LLFloaterTranslationSettings::setBingVerified(bool ok, bool alert)
 {
-	if (alert)
-	{
-		showAlert(ok ? "bing_api_key_verified" : "bing_api_key_not_verified");
-	}
+    if (alert)
+    {
+        showAlert(ok ? "bing_api_key_verified" : "bing_api_key_not_verified");
+    }
 
-	mBingKeyVerified = ok;
-	updateControlsEnabledState();
+    mBingKeyVerified = ok;
+    updateControlsEnabledState();
 }
 
 void LLFloaterTranslationSettings::setGoogleVerified(bool ok, bool alert)
 {
-	if (alert)
-	{
-		showAlert(ok ? "google_api_key_verified" : "google_api_key_not_verified");
-	}
+    if (alert)
+    {
+        showAlert(ok ? "google_api_key_verified" : "google_api_key_not_verified");
+    }
 
-	mGoogleKeyVerified = ok;
-	updateControlsEnabledState();
+    mGoogleKeyVerified = ok;
+    updateControlsEnabledState();
 }
 
 std::string LLFloaterTranslationSettings::getSelectedService() const
 {
-	return mTranslationServiceRadioGroup->getSelectedValue().asString();
+    return mTranslationServiceRadioGroup->getSelectedValue().asString();
 }
 
 std::string LLFloaterTranslationSettings::getEnteredBingKey() const
 {
-	return mBingAPIKeyEditor->getTentative() ? LLStringUtil::null : mBingAPIKeyEditor->getText();
+    return mBingAPIKeyEditor->getTentative() ? LLStringUtil::null : mBingAPIKeyEditor->getText();
 }
 
 std::string LLFloaterTranslationSettings::getEnteredGoogleKey() const
 {
-	return mGoogleAPIKeyEditor->getTentative() ? LLStringUtil::null : mGoogleAPIKeyEditor->getText();
+    return mGoogleAPIKeyEditor->getTentative() ? LLStringUtil::null : mGoogleAPIKeyEditor->getText();
 }
 
 void LLFloaterTranslationSettings::showAlert(const std::string& msg_name) const
 {
-	LLSD args;
-	args["MESSAGE"] = getString(msg_name);
-	LLNotificationsUtil::add("GenericAlert", args);
+    LLSD args;
+    args["MESSAGE"] = getString(msg_name);
+    LLNotificationsUtil::add("GenericAlert", args);
 }
 
 void LLFloaterTranslationSettings::updateControlsEnabledState()
 {
-	// Enable/disable controls based on the checkbox value.
-	bool on = mMachineTranslationCB->getValue().asBoolean();
-	std::string service = getSelectedService();
-	bool bing_selected = service == "bing";
-	bool google_selected = service == "google";
+    // Enable/disable controls based on the checkbox value.
+    bool on = mMachineTranslationCB->getValue().asBoolean();
+    std::string service = getSelectedService();
+    bool bing_selected = service == "bing";
+    bool google_selected = service == "google";
 
-	mTranslationServiceRadioGroup->setEnabled(on);
-	mLanguageCombo->setEnabled(on);
+    mTranslationServiceRadioGroup->setEnabled(on);
+    mLanguageCombo->setEnabled(on);
 
-	getChild<LLTextBox>("bing_api_key_label")->setEnabled(on);
-	mBingAPIKeyEditor->setEnabled(on);
+    getChild<LLTextBox>("bing_api_key_label")->setEnabled(on);
+    mBingAPIKeyEditor->setEnabled(on);
 
-	getChild<LLTextBox>("google_api_key_label")->setEnabled(on);
-	mGoogleAPIKeyEditor->setEnabled(on);
+    getChild<LLTextBox>("google_api_key_label")->setEnabled(on);
+    mGoogleAPIKeyEditor->setEnabled(on);
 
-	mBingAPIKeyEditor->setEnabled(on && bing_selected);
-	mGoogleAPIKeyEditor->setEnabled(on && google_selected);
+    mBingAPIKeyEditor->setEnabled(on && bing_selected);
+    mGoogleAPIKeyEditor->setEnabled(on && google_selected);
 
-	mBingVerifyBtn->setEnabled(on && bing_selected &&
-		!mBingKeyVerified && !getEnteredBingKey().empty());
-	mGoogleVerifyBtn->setEnabled(on && google_selected &&
-		!mGoogleKeyVerified && !getEnteredGoogleKey().empty());
+    mBingVerifyBtn->setEnabled(on && bing_selected &&
+        !mBingKeyVerified && !getEnteredBingKey().empty());
+    mGoogleVerifyBtn->setEnabled(on && google_selected &&
+        !mGoogleKeyVerified && !getEnteredGoogleKey().empty());
 
-	bool service_verified = (bing_selected && mBingKeyVerified) || (google_selected && mGoogleKeyVerified);
-	gSavedPerAccountSettings.setBOOL("TranslatingEnabled", service_verified);
+    bool service_verified = (bing_selected && mBingKeyVerified) || (google_selected && mGoogleKeyVerified);
+    gSavedPerAccountSettings.setBOOL("TranslatingEnabled", service_verified);
 
-	mOKBtn->setEnabled(!on || service_verified);
+    mOKBtn->setEnabled(!on || service_verified);
 }
 
 /*static*/
@@ -228,68 +228,68 @@ void LLFloaterTranslationSettings::verifyKey(int service, const std::string& key
 
 void LLFloaterTranslationSettings::onEditorFocused(LLFocusableElement* control)
 {
-	LLLineEditor* editor = dynamic_cast<LLLineEditor*>(control);
-	if (editor && editor->hasTabStop()) // if enabled. getEnabled() doesn't work
-	{
-		if (editor->getTentative())
-		{
-			editor->setText(LLStringUtil::null);
-			editor->setTentative(FALSE);
-		}
-	}
+    LLLineEditor* editor = dynamic_cast<LLLineEditor*>(control);
+    if (editor && editor->hasTabStop()) // if enabled. getEnabled() doesn't work
+    {
+        if (editor->getTentative())
+        {
+            editor->setText(LLStringUtil::null);
+            editor->setTentative(FALSE);
+        }
+    }
 }
 
 void LLFloaterTranslationSettings::onBingKeyEdited()
 {
-	if (mBingAPIKeyEditor->isDirty())
-	{
-		setBingVerified(false, false);
-	}
+    if (mBingAPIKeyEditor->isDirty())
+    {
+        setBingVerified(false, false);
+    }
 }
 
 void LLFloaterTranslationSettings::onGoogleKeyEdited()
 {
-	if (mGoogleAPIKeyEditor->isDirty())
-	{
-		setGoogleVerified(false, false);
-	}
+    if (mGoogleAPIKeyEditor->isDirty())
+    {
+        setGoogleVerified(false, false);
+    }
 }
 
 void LLFloaterTranslationSettings::onBtnBingVerify()
 {
-	std::string key = getEnteredBingKey();
-	if (!key.empty())
-	{
-		verifyKey(LLTranslate::SERVICE_BING, key);
-	}
+    std::string key = getEnteredBingKey();
+    if (!key.empty())
+    {
+        verifyKey(LLTranslate::SERVICE_BING, key);
+    }
 }
 
 void LLFloaterTranslationSettings::onBtnGoogleVerify()
 {
-	std::string key = getEnteredGoogleKey();
-	if (!key.empty())
-	{
-		verifyKey(LLTranslate::SERVICE_GOOGLE, key);
-	}
+    std::string key = getEnteredGoogleKey();
+    if (!key.empty())
+    {
+        verifyKey(LLTranslate::SERVICE_GOOGLE, key);
+    }
 }
 void LLFloaterTranslationSettings::onClose(bool app_quitting)
 {
-	std::string service = gSavedSettings.getString("TranslationService");
-	bool bing_selected = service == "bing";
-	bool google_selected = service == "google";
+    std::string service = gSavedSettings.getString("TranslationService");
+    bool bing_selected = service == "bing";
+    bool google_selected = service == "google";
 
-	bool service_verified = (bing_selected && mBingKeyVerified) || (google_selected && mGoogleKeyVerified);
-	gSavedPerAccountSettings.setBOOL("TranslatingEnabled", service_verified);
+    bool service_verified = (bing_selected && mBingKeyVerified) || (google_selected && mGoogleKeyVerified);
+    gSavedPerAccountSettings.setBOOL("TranslatingEnabled", service_verified);
 
 }
 void LLFloaterTranslationSettings::onBtnOK()
 {
-	gSavedSettings.setBOOL("TranslateChat", mMachineTranslationCB->getValue().asBoolean());
-	gSavedSettings.setString("TranslateLanguage", mLanguageCombo->getSelectedValue().asString());
-	gSavedSettings.setString("TranslationService", getSelectedService());
-	gSavedSettings.setString("BingTranslateAPIKey", getEnteredBingKey());
-	gSavedSettings.setString("GoogleTranslateAPIKey", getEnteredGoogleKey());
-	(LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->
-			showTranslationCheckbox(LLTranslate::isTranslationConfigured());
-	closeFloater(false);
+    gSavedSettings.setBOOL("TranslateChat", mMachineTranslationCB->getValue().asBoolean());
+    gSavedSettings.setString("TranslateLanguage", mLanguageCombo->getSelectedValue().asString());
+    gSavedSettings.setString("TranslationService", getSelectedService());
+    gSavedSettings.setString("BingTranslateAPIKey", getEnteredBingKey());
+    gSavedSettings.setString("GoogleTranslateAPIKey", getEnteredGoogleKey());
+    (LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->
+            showTranslationCheckbox(LLTranslate::isTranslationConfigured());
+    closeFloater(false);
 }

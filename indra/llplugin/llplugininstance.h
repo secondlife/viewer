@@ -39,9 +39,9 @@
 class LLPluginInstanceMessageListener
 {
 public:
-	virtual ~LLPluginInstanceMessageListener();
+    virtual ~LLPluginInstanceMessageListener();
    /** Plugin receives message from plugin loader shell. */
-	virtual void receivePluginMessage(const std::string &message) = 0;
+    virtual void receivePluginMessage(const std::string &message) = 0;
 };
 
 /**
@@ -49,51 +49,51 @@ public:
  */
 class LLPluginInstance
 {
-	LOG_CLASS(LLPluginInstance);
+    LOG_CLASS(LLPluginInstance);
 public:
-	LLPluginInstance(LLPluginInstanceMessageListener *owner);
-	virtual ~LLPluginInstance();
-	
-	// Load a plugin dll/dylib/so
-	// Returns 0 if successful, APR error code or error code returned from the plugin's init function on failure.
-	int load(const std::string& plugin_dir, std::string &plugin_file);
-	
-	// Sends a message to the plugin.
-	void sendMessage(const std::string &message);
-	
+    LLPluginInstance(LLPluginInstanceMessageListener *owner);
+    virtual ~LLPluginInstance();
+    
+    // Load a plugin dll/dylib/so
+    // Returns 0 if successful, APR error code or error code returned from the plugin's init function on failure.
+    int load(const std::string& plugin_dir, std::string &plugin_file);
+    
+    // Sends a message to the plugin.
+    void sendMessage(const std::string &message);
+    
    // TODO:DOC is this comment obsolete? can't find "send_count" anywhere in indra tree.
-	// send_count is the maximum number of message to process from the send queue.  If negative, it will drain the queue completely.
-	// The receive queue is always drained completely.
-	// Returns the total number of messages processed from both queues.
-	void idle(void);
-	
-	/** The signature of the function for sending a message from plugin to plugin loader shell.
+    // send_count is the maximum number of message to process from the send queue.  If negative, it will drain the queue completely.
+    // The receive queue is always drained completely.
+    // Returns the total number of messages processed from both queues.
+    void idle(void);
+    
+    /** The signature of the function for sending a message from plugin to plugin loader shell.
     *
-	 * @param[in] message_string Null-terminated C string 
+     * @param[in] message_string Null-terminated C string 
     * @param[in] user_data The opaque reference that the callee supplied during setup.
     */
-	typedef void (*sendMessageFunction) (const char *message_string, void **user_data);
+    typedef void (*sendMessageFunction) (const char *message_string, void **user_data);
 
-	/** The signature of the plugin init function. TODO:DOC check direction (pluging loader shell to plugin?)
+    /** The signature of the plugin init function. TODO:DOC check direction (pluging loader shell to plugin?)
     *
     * @param[in] host_user_data Data from plugin loader shell.
     * @param[in] plugin_send_function Function for sending from the plugin loader shell to plugin.
     */
-	typedef int (*pluginInitFunction) (sendMessageFunction host_send_func, void *host_user_data, sendMessageFunction *plugin_send_func, void **plugin_user_data);
-	
+    typedef int (*pluginInitFunction) (sendMessageFunction host_send_func, void *host_user_data, sendMessageFunction *plugin_send_func, void **plugin_user_data);
+    
    /** Name of plugin init function */
-	static const char *PLUGIN_INIT_FUNCTION_NAME;
-	
+    static const char *PLUGIN_INIT_FUNCTION_NAME;
+    
 private:
-	static void staticReceiveMessage(const char *message_string, void **user_data);
-	void receiveMessage(const char *message_string);
+    static void staticReceiveMessage(const char *message_string, void **user_data);
+    void receiveMessage(const char *message_string);
 
-	apr_dso_handle_t *mDSOHandle;
-	
-	void *mPluginUserData;
-	sendMessageFunction mPluginSendMessageFunction;
-	
-	LLPluginInstanceMessageListener *mOwner;
+    apr_dso_handle_t *mDSOHandle;
+    
+    void *mPluginUserData;
+    sendMessageFunction mPluginSendMessageFunction;
+    
+    LLPluginInstanceMessageListener *mOwner;
 };
 
 #endif // LL_LLPLUGININSTANCE_H

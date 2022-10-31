@@ -37,9 +37,9 @@
 //
 
 class LLCone
-{	
+{   
 public:
-	void render(S32 sides = 12);
+    void render(S32 sides = 12);
 };
 
 

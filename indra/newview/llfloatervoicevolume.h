@@ -28,8 +28,8 @@
 
 namespace LLFloaterVoiceVolumeUtil
 {
-	// Register with LLFloaterReg
-	void registerFloater();
+    // Register with LLFloaterReg
+    void registerFloater();
 }
 
 #endif // LL_LLFLOATERVOICEVOLUME_H

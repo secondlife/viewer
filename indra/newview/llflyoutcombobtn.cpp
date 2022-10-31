@@ -48,8 +48,8 @@ LLFlyoutComboBtnCtrl::LLFlyoutComboBtnCtrl(LLPanel* parent,
     mParent->childSetAction(flyout_button, [this](LLUICtrl *ctrl, const LLSD &data) { onFlyoutButton(ctrl, data); });
     mParent->childSetAction(action_button, [this](LLUICtrl *ctrl, const LLSD &data) { onFlyoutAction(ctrl, data); });
 
-	mFlyoutMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu> (menu_file, gMenuHolder,
-			LLViewerMenuHolderGL::child_registry_t::instance());
+    mFlyoutMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu> (menu_file, gMenuHolder,
+            LLViewerMenuHolderGL::child_registry_t::instance());
 
     // select the first item in the list.
     setSelectedItem(0);
@@ -120,11 +120,11 @@ void LLFlyoutComboBtnCtrl::setMenuItemLabel(const std::string &item, const std::
 
 void LLFlyoutComboBtnCtrl::onFlyoutButton(LLUICtrl *ctrl, const LLSD &data)
 {
-	S32 x, y;
+    S32 x, y;
     LLUI::getInstance()->getMousePositionLocal(mParent, &x, &y);
 
-	mFlyoutMenu->updateParent(LLMenuGL::sMenuContainer);
-	LLMenuGL::showPopup(mParent, mFlyoutMenu, x, y);
+    mFlyoutMenu->updateParent(LLMenuGL::sMenuContainer);
+    LLMenuGL::showPopup(mParent, mFlyoutMenu, x, y);
 }
 
 void LLFlyoutComboBtnCtrl::onFlyoutItemSelected(LLUICtrl *ctrl, const LLSD &data)

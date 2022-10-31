@@ -26,41 +26,41 @@
 
 void LLUIImage::draw(S32 x, S32 y, const LLColor4& color) const
 {
-	draw(x, y, getWidth(), getHeight(), color);
+    draw(x, y, getWidth(), getHeight(), color);
 }
 
 void LLUIImage::draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const
 {
-	gl_draw_scaled_image_with_border(
-		x, y, 
-		width, height, 
-		mImage, 
-		color,
-		FALSE,
-		mClipRegion,
-		mScaleRegion,
-		mScaleStyle == SCALE_INNER);
+    gl_draw_scaled_image_with_border(
+        x, y, 
+        width, height, 
+        mImage, 
+        color,
+        FALSE,
+        mClipRegion,
+        mScaleRegion,
+        mScaleStyle == SCALE_INNER);
 }
 
 void LLUIImage::drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const
 {
-	gl_draw_scaled_image_with_border(
-		x, y, 
-		width, height, 
-		mImage, 
-		color, 
-		TRUE,
-		mClipRegion,
-		mScaleRegion,
-		mScaleStyle == SCALE_INNER);
+    gl_draw_scaled_image_with_border(
+        x, y, 
+        width, height, 
+        mImage, 
+        color, 
+        TRUE,
+        mClipRegion,
+        mScaleRegion,
+        mScaleStyle == SCALE_INNER);
 }
 
 void LLUIImage::drawBorder(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, S32 border_width) const
 {
-	LLRect border_rect;
-	border_rect.setOriginAndSize(x, y, width, height);
-	border_rect.stretch(border_width, border_width);
-	drawSolid(border_rect, color);
+    LLRect border_rect;
+    border_rect.setOriginAndSize(x, y, width, height);
+    border_rect.stretch(border_width, border_width);
+    drawSolid(border_rect, color);
 }
 
 // returns dimensions of underlying textures, which might not be equal to ui image portion

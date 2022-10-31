@@ -37,31 +37,31 @@ class LLViewerObject;
 class LLVOInventoryListener
 {
 public:
-	virtual void inventoryChanged(LLViewerObject* object,
-								 LLInventoryObject::object_list_t* inventory,
-								 S32 serial_num,
-								 void* user_data) = 0;
+    virtual void inventoryChanged(LLViewerObject* object,
+                                 LLInventoryObject::object_list_t* inventory,
+                                 S32 serial_num,
+                                 void* user_data) = 0;
 
-	// Remove the listener from the object and clear this listener
-	void removeVOInventoryListener();
+    // Remove the listener from the object and clear this listener
+    void removeVOInventoryListener();
 
-	// Just clear this listener, don't worry about the object.
-	void clearVOInventoryListener();
+    // Just clear this listener, don't worry about the object.
+    void clearVOInventoryListener();
 
 protected:
-	LLVOInventoryListener() : mListenerVObject(NULL) { }
-	virtual ~LLVOInventoryListener() { removeVOInventoryListener(); }
+    LLVOInventoryListener() : mListenerVObject(NULL) { }
+    virtual ~LLVOInventoryListener() { removeVOInventoryListener(); }
 
-	void registerVOInventoryListener(LLViewerObject* object, void* user_data);
-	void requestVOInventory();
+    void registerVOInventoryListener(LLViewerObject* object, void* user_data);
+    void requestVOInventory();
 
 private:
-	// LLViewerObject is normally wrapped by an LLPointer, but not in
-	// this case, because it's already sure to be kept alive by
-	// LLPointers held by other objects that have longer lifetimes
-	// than this one.  Plumbing correct LLPointer usage all the way
-	// down here has been deemed too much work for now.
-	LLViewerObject *mListenerVObject;
+    // LLViewerObject is normally wrapped by an LLPointer, but not in
+    // this case, because it's already sure to be kept alive by
+    // LLPointers held by other objects that have longer lifetimes
+    // than this one.  Plumbing correct LLPointer usage all the way
+    // down here has been deemed too much work for now.
+    LLViewerObject *mListenerVObject;
 };
 
 #endif

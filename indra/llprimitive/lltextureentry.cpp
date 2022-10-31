@@ -55,7 +55,7 @@ static const std::string MEDIA_VERSION_STRING_PREFIX = "x-mv:";
 // static 
 LLTextureEntry* LLTextureEntry::newTextureEntry()
 {
-	return new LLTextureEntry();
+    return new LLTextureEntry();
 }
 
 //===============================================================
@@ -64,7 +64,7 @@ LLTextureEntry::LLTextureEntry()
   , mSelected(false)
   , mMaterialUpdatePending(false)
 {
-	init(LLUUID::null,1.f,1.f,0.f,0.f,0.f,DEFAULT_BUMP_CODE);
+    init(LLUUID::null,1.f,1.f,0.f,0.f,0.f,DEFAULT_BUMP_CODE);
 }
 
 LLTextureEntry::LLTextureEntry(const LLUUID& tex_id)
@@ -72,7 +72,7 @@ LLTextureEntry::LLTextureEntry(const LLUUID& tex_id)
   , mSelected(false)
   , mMaterialUpdatePending(false)
 {
-	init(tex_id,1.f,1.f,0.f,0.f,0.f,DEFAULT_BUMP_CODE);
+    init(tex_id,1.f,1.f,0.f,0.f,0.f,DEFAULT_BUMP_CODE);
 }
 
 LLTextureEntry::LLTextureEntry(const LLTextureEntry &rhs)
@@ -80,489 +80,489 @@ LLTextureEntry::LLTextureEntry(const LLTextureEntry &rhs)
   , mSelected(false)
   , mMaterialUpdatePending(false)
 {
-	mID = rhs.mID;
-	mScaleS = rhs.mScaleS;
-	mScaleT = rhs.mScaleT;
-	mOffsetS = rhs.mOffsetS;
-	mOffsetT = rhs.mOffsetT;
-	mRotation = rhs.mRotation;
-	mColor = rhs.mColor;
-	mBump = rhs.mBump;
-	mMediaFlags = rhs.mMediaFlags;
-	mGlow = rhs.mGlow;
-	mMaterialID = rhs.mMaterialID;
-	mMaterial = rhs.mMaterial;
-	if (rhs.mMediaEntry != NULL) {
-		// Make a copy
-		mMediaEntry = new LLMediaEntry(*rhs.mMediaEntry);
-	}
+    mID = rhs.mID;
+    mScaleS = rhs.mScaleS;
+    mScaleT = rhs.mScaleT;
+    mOffsetS = rhs.mOffsetS;
+    mOffsetT = rhs.mOffsetT;
+    mRotation = rhs.mRotation;
+    mColor = rhs.mColor;
+    mBump = rhs.mBump;
+    mMediaFlags = rhs.mMediaFlags;
+    mGlow = rhs.mGlow;
+    mMaterialID = rhs.mMaterialID;
+    mMaterial = rhs.mMaterial;
+    if (rhs.mMediaEntry != NULL) {
+        // Make a copy
+        mMediaEntry = new LLMediaEntry(*rhs.mMediaEntry);
+    }
 }
 
 LLTextureEntry &LLTextureEntry::operator=(const LLTextureEntry &rhs)
 {
-	if (this != &rhs)
-	{
-		mID = rhs.mID;
-		mScaleS = rhs.mScaleS;
-		mScaleT = rhs.mScaleT;
-		mOffsetS = rhs.mOffsetS;
-		mOffsetT = rhs.mOffsetT;
-		mRotation = rhs.mRotation;
-		mColor = rhs.mColor;
-		mBump = rhs.mBump;
-		mMediaFlags = rhs.mMediaFlags;
-		mGlow = rhs.mGlow;
-		mMaterialID = rhs.mMaterialID;
-		mMaterial = rhs.mMaterial;
-		if (mMediaEntry != NULL) {
-			delete mMediaEntry;
-		}
-		if (rhs.mMediaEntry != NULL) {
-			// Make a copy
-			mMediaEntry = new LLMediaEntry(*rhs.mMediaEntry);
-		}
-		else {
-			mMediaEntry = NULL;
-		}
-	}
+    if (this != &rhs)
+    {
+        mID = rhs.mID;
+        mScaleS = rhs.mScaleS;
+        mScaleT = rhs.mScaleT;
+        mOffsetS = rhs.mOffsetS;
+        mOffsetT = rhs.mOffsetT;
+        mRotation = rhs.mRotation;
+        mColor = rhs.mColor;
+        mBump = rhs.mBump;
+        mMediaFlags = rhs.mMediaFlags;
+        mGlow = rhs.mGlow;
+        mMaterialID = rhs.mMaterialID;
+        mMaterial = rhs.mMaterial;
+        if (mMediaEntry != NULL) {
+            delete mMediaEntry;
+        }
+        if (rhs.mMediaEntry != NULL) {
+            // Make a copy
+            mMediaEntry = new LLMediaEntry(*rhs.mMediaEntry);
+        }
+        else {
+            mMediaEntry = NULL;
+        }
+    }
 
-	return *this;
+    return *this;
 }
 
 void LLTextureEntry::init(const LLUUID& tex_id, F32 scale_s, F32 scale_t, F32 offset_s, F32 offset_t, F32 rotation, U8 bump)
 {
-	setID(tex_id);
+    setID(tex_id);
 
-	mScaleS = scale_s;
-	mScaleT = scale_t;
-	mOffsetS = offset_s;
-	mOffsetT = offset_t;
-	mRotation = rotation;
-	mBump = bump;
-	mMediaFlags = 0x0;
+    mScaleS = scale_s;
+    mScaleT = scale_t;
+    mOffsetS = offset_s;
+    mOffsetT = offset_t;
+    mRotation = rotation;
+    mBump = bump;
+    mMediaFlags = 0x0;
     mGlow = 0;
-	mMaterialID.clear();
-	
-	setColor(LLColor4(1.f, 1.f, 1.f, 1.f));
-	if (mMediaEntry != NULL) {
-	    delete mMediaEntry;
-	}
-	mMediaEntry = NULL;
+    mMaterialID.clear();
+    
+    setColor(LLColor4(1.f, 1.f, 1.f, 1.f));
+    if (mMediaEntry != NULL) {
+        delete mMediaEntry;
+    }
+    mMediaEntry = NULL;
 }
 
 LLTextureEntry::~LLTextureEntry()
 {
-	if(mMediaEntry)
-	{
-		delete mMediaEntry;
-		mMediaEntry = NULL;
-	}
+    if(mMediaEntry)
+    {
+        delete mMediaEntry;
+        mMediaEntry = NULL;
+    }
 }
 
 bool LLTextureEntry::operator!=(const LLTextureEntry &rhs) const
 {
-	if (mID != rhs.mID) return(true);
-	if (mScaleS != rhs.mScaleS) return(true);
-	if (mScaleT != rhs.mScaleT) return(true);
-	if (mOffsetS != rhs.mOffsetS) return(true);
-	if (mOffsetT != rhs.mOffsetT) return(true);
-	if (mRotation != rhs.mRotation) return(true);
-	if (mColor != rhs.mColor) return (true);
-	if (mBump != rhs.mBump) return (true);
-	if (mMediaFlags != rhs.mMediaFlags) return (true);
-	if (mGlow != rhs.mGlow) return (true);
-	if (mMaterialID != rhs.mMaterialID) return (true);
-	return(false);
+    if (mID != rhs.mID) return(true);
+    if (mScaleS != rhs.mScaleS) return(true);
+    if (mScaleT != rhs.mScaleT) return(true);
+    if (mOffsetS != rhs.mOffsetS) return(true);
+    if (mOffsetT != rhs.mOffsetT) return(true);
+    if (mRotation != rhs.mRotation) return(true);
+    if (mColor != rhs.mColor) return (true);
+    if (mBump != rhs.mBump) return (true);
+    if (mMediaFlags != rhs.mMediaFlags) return (true);
+    if (mGlow != rhs.mGlow) return (true);
+    if (mMaterialID != rhs.mMaterialID) return (true);
+    return(false);
 }
 
 bool LLTextureEntry::operator==(const LLTextureEntry &rhs) const
 {
-	if (mID != rhs.mID) return(false);
-	if (mScaleS != rhs.mScaleS) return(false);
-	if (mScaleT != rhs.mScaleT) return(false);
-	if (mOffsetS != rhs.mOffsetS) return(false);
-	if (mOffsetT != rhs.mOffsetT) return(false);
-	if (mRotation != rhs.mRotation) return(false);
-	if (mColor != rhs.mColor) return (false);
-	if (mBump != rhs.mBump) return (false);
-	if (mMediaFlags != rhs.mMediaFlags) return false;
-	if (mGlow != rhs.mGlow) return false;
-	if (mMaterialID != rhs.mMaterialID) return (false);
-	return(true);
+    if (mID != rhs.mID) return(false);
+    if (mScaleS != rhs.mScaleS) return(false);
+    if (mScaleT != rhs.mScaleT) return(false);
+    if (mOffsetS != rhs.mOffsetS) return(false);
+    if (mOffsetT != rhs.mOffsetT) return(false);
+    if (mRotation != rhs.mRotation) return(false);
+    if (mColor != rhs.mColor) return (false);
+    if (mBump != rhs.mBump) return (false);
+    if (mMediaFlags != rhs.mMediaFlags) return false;
+    if (mGlow != rhs.mGlow) return false;
+    if (mMaterialID != rhs.mMaterialID) return (false);
+    return(true);
 }
 
 LLSD LLTextureEntry::asLLSD() const
 {
-	LLSD sd;
-	asLLSD(sd);
-	return sd;
+    LLSD sd;
+    asLLSD(sd);
+    return sd;
 }
 
 void LLTextureEntry::asLLSD(LLSD& sd) const
 {
-	sd["imageid"] = mID;
-	sd["colors"] = ll_sd_from_color4(mColor);
-	sd["scales"] = mScaleS;
-	sd["scalet"] = mScaleT;
-	sd["offsets"] = mOffsetS;
-	sd["offsett"] = mOffsetT;
-	sd["imagerot"] = mRotation;
-	sd["bump"] = getBumpShiny();
-	sd["fullbright"] = getFullbright();
-	sd["media_flags"] = mMediaFlags;
-	if (hasMedia()) {
-		LLSD mediaData;
+    sd["imageid"] = mID;
+    sd["colors"] = ll_sd_from_color4(mColor);
+    sd["scales"] = mScaleS;
+    sd["scalet"] = mScaleT;
+    sd["offsets"] = mOffsetS;
+    sd["offsett"] = mOffsetT;
+    sd["imagerot"] = mRotation;
+    sd["bump"] = getBumpShiny();
+    sd["fullbright"] = getFullbright();
+    sd["media_flags"] = mMediaFlags;
+    if (hasMedia()) {
+        LLSD mediaData;
         if (NULL != getMediaData()) {
             getMediaData()->asLLSD(mediaData);
         }
-		sd[TEXTURE_MEDIA_DATA_KEY] = mediaData;
-	}
-	sd["glow"] = mGlow;
+        sd[TEXTURE_MEDIA_DATA_KEY] = mediaData;
+    }
+    sd["glow"] = mGlow;
 }
 
 bool LLTextureEntry::fromLLSD(const LLSD& sd)
 {
-	const char *w, *x;
-	w = "imageid";
-	if (sd.has(w))
-	{
-		setID( sd[w] );
-	} else goto fail;
-	w = "colors";
-	if (sd.has(w))
-	{
-		setColor( ll_color4_from_sd(sd["colors"]) );
-	} else goto fail;
-	w = "scales";
-	x = "scalet";
-	if (sd.has(w) && sd.has(x))
-	{
-		setScale( (F32)sd[w].asReal(), (F32)sd[x].asReal() );
-	} else goto fail;
-	w = "offsets";
-	x = "offsett";
-	if (sd.has(w) && sd.has(x))
-	{
-		setOffset( (F32)sd[w].asReal(), (F32)sd[x].asReal() );
-	} else goto fail;
-	w = "imagerot";
-	if (sd.has(w))
-	{
-		setRotation( (F32)sd[w].asReal() );
-	} else goto fail;
-	w = "bump";
-	if (sd.has(w))
-	{
-		setBumpShiny( sd[w].asInteger() );
-	} else goto fail;
-	w = "fullbright";
-	if (sd.has(w))
-	{
-		setFullbright( sd[w].asInteger() );
-	} else goto fail;
-	w = "media_flags";
-	if (sd.has(w))
-	{
-		setMediaTexGen( sd[w].asInteger() );
-	} else goto fail;
-	// If the "has media" flag doesn't match the fact that 
-	// media data exists, updateMediaData will "fix" it
-	// by either clearing or setting the flag
-	w = TEXTURE_MEDIA_DATA_KEY;
-	if (hasMedia() != sd.has(w))
-	{
-		LL_WARNS() << "LLTextureEntry::fromLLSD: media_flags (" << hasMedia() <<
-			") does not match presence of media_data (" << sd.has(w) << ").  Fixing." << LL_ENDL;
-	}
-	updateMediaData(sd[w]);
+    const char *w, *x;
+    w = "imageid";
+    if (sd.has(w))
+    {
+        setID( sd[w] );
+    } else goto fail;
+    w = "colors";
+    if (sd.has(w))
+    {
+        setColor( ll_color4_from_sd(sd["colors"]) );
+    } else goto fail;
+    w = "scales";
+    x = "scalet";
+    if (sd.has(w) && sd.has(x))
+    {
+        setScale( (F32)sd[w].asReal(), (F32)sd[x].asReal() );
+    } else goto fail;
+    w = "offsets";
+    x = "offsett";
+    if (sd.has(w) && sd.has(x))
+    {
+        setOffset( (F32)sd[w].asReal(), (F32)sd[x].asReal() );
+    } else goto fail;
+    w = "imagerot";
+    if (sd.has(w))
+    {
+        setRotation( (F32)sd[w].asReal() );
+    } else goto fail;
+    w = "bump";
+    if (sd.has(w))
+    {
+        setBumpShiny( sd[w].asInteger() );
+    } else goto fail;
+    w = "fullbright";
+    if (sd.has(w))
+    {
+        setFullbright( sd[w].asInteger() );
+    } else goto fail;
+    w = "media_flags";
+    if (sd.has(w))
+    {
+        setMediaTexGen( sd[w].asInteger() );
+    } else goto fail;
+    // If the "has media" flag doesn't match the fact that 
+    // media data exists, updateMediaData will "fix" it
+    // by either clearing or setting the flag
+    w = TEXTURE_MEDIA_DATA_KEY;
+    if (hasMedia() != sd.has(w))
+    {
+        LL_WARNS() << "LLTextureEntry::fromLLSD: media_flags (" << hasMedia() <<
+            ") does not match presence of media_data (" << sd.has(w) << ").  Fixing." << LL_ENDL;
+    }
+    updateMediaData(sd[w]);
 
-	w = "glow";
-	if (sd.has(w))
-	{
-		setGlow((F32)sd[w].asReal() );
-	}
+    w = "glow";
+    if (sd.has(w))
+    {
+        setGlow((F32)sd[w].asReal() );
+    }
 
-	return true;
+    return true;
 fail:
-	return false;
+    return false;
 }
 
 // virtual 
 // override this method for each derived class
 LLTextureEntry* LLTextureEntry::newBlank() const
 {
-	return new LLTextureEntry();
+    return new LLTextureEntry();
 }
 
 // virtual 
 LLTextureEntry* LLTextureEntry::newCopy() const
 {
-	return new LLTextureEntry(*this);
+    return new LLTextureEntry(*this);
 }
 
 S32 LLTextureEntry::setID(const LLUUID &tex_id)
 {
-	if (mID != tex_id)
-	{
-		mID = tex_id;
-		return TEM_CHANGE_TEXTURE;
-	}
-	return TEM_CHANGE_NONE;
+    if (mID != tex_id)
+    {
+        mID = tex_id;
+        return TEM_CHANGE_TEXTURE;
+    }
+    return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setScale(F32 s, F32 t)
 {
-	S32 retval = 0;
+    S32 retval = 0;
 
-	if (  (mScaleS != s)
-		||(mScaleT != t))
-	{
-		mScaleS = s;
-		mScaleT = t;
+    if (  (mScaleS != s)
+        ||(mScaleT != t))
+    {
+        mScaleS = s;
+        mScaleT = t;
 
-		retval = TEM_CHANGE_TEXTURE;
-	}
-	return retval;
+        retval = TEM_CHANGE_TEXTURE;
+    }
+    return retval;
 }
 
 S32 LLTextureEntry::setScaleS(F32 s)
 {
-	S32 retval = TEM_CHANGE_NONE;
-	if (mScaleS != s)
-	{
-		mScaleS = s;
-		retval = TEM_CHANGE_TEXTURE;
-	}
-	return retval;
+    S32 retval = TEM_CHANGE_NONE;
+    if (mScaleS != s)
+    {
+        mScaleS = s;
+        retval = TEM_CHANGE_TEXTURE;
+    }
+    return retval;
 }
 
 S32 LLTextureEntry::setScaleT(F32 t)
 {
-	S32 retval = TEM_CHANGE_NONE;
-	if (mScaleT != t)
-	{
-		mScaleT = t;
-		retval = TEM_CHANGE_TEXTURE;
-	}
-	return retval;
+    S32 retval = TEM_CHANGE_NONE;
+    if (mScaleT != t)
+    {
+        mScaleT = t;
+        retval = TEM_CHANGE_TEXTURE;
+    }
+    return retval;
 }
 
 S32 LLTextureEntry::setColor(const LLColor4 &color)
 {
-	if (mColor != color)
-	{
-		mColor = color;
-		return TEM_CHANGE_COLOR;
-	}
-	return TEM_CHANGE_NONE;
+    if (mColor != color)
+    {
+        mColor = color;
+        return TEM_CHANGE_COLOR;
+    }
+    return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setColor(const LLColor3 &color)
 {
-	if (mColor != color)
-	{
-		// This preserves alpha.
-		mColor.setVec(color);
-		return TEM_CHANGE_COLOR;
-	}
-	return TEM_CHANGE_NONE;
+    if (mColor != color)
+    {
+        // This preserves alpha.
+        mColor.setVec(color);
+        return TEM_CHANGE_COLOR;
+    }
+    return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setAlpha(const F32 alpha)
 {
-	if (mColor.mV[VW] != alpha)
-	{
-		mColor.mV[VW] = alpha;
-		return TEM_CHANGE_COLOR;
-	}
-	return TEM_CHANGE_NONE;
+    if (mColor.mV[VW] != alpha)
+    {
+        mColor.mV[VW] = alpha;
+        return TEM_CHANGE_COLOR;
+    }
+    return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setOffset(F32 s, F32 t)
 {
-	S32 retval = 0;
+    S32 retval = 0;
 
-	if (  (mOffsetS != s)
-		||(mOffsetT != t))
-	{
-		mOffsetS = s;
-		mOffsetT = t;
+    if (  (mOffsetS != s)
+        ||(mOffsetT != t))
+    {
+        mOffsetS = s;
+        mOffsetT = t;
 
-		retval = TEM_CHANGE_TEXTURE;
-	}
-	return retval;
+        retval = TEM_CHANGE_TEXTURE;
+    }
+    return retval;
 }
 
 S32 LLTextureEntry::setOffsetS(F32 s)
 {
-	S32 retval = 0;
-	if (mOffsetS != s)
-	{
-		mOffsetS = s;
-		retval = TEM_CHANGE_TEXTURE;
-	}
-	return retval;
+    S32 retval = 0;
+    if (mOffsetS != s)
+    {
+        mOffsetS = s;
+        retval = TEM_CHANGE_TEXTURE;
+    }
+    return retval;
 }
 
 S32 LLTextureEntry::setOffsetT(F32 t)
 {
-	S32 retval = 0;
-	if (mOffsetT != t)
-	{
-		mOffsetT = t;
-		retval = TEM_CHANGE_TEXTURE;
-	}
-	return retval;
+    S32 retval = 0;
+    if (mOffsetT != t)
+    {
+        mOffsetT = t;
+        retval = TEM_CHANGE_TEXTURE;
+    }
+    return retval;
 }
 
 S32 LLTextureEntry::setRotation(F32 theta)
 {
-	if (mRotation != theta && llfinite(theta))
-	{
-		mRotation = theta;
-		return TEM_CHANGE_TEXTURE;
-	}
-	return TEM_CHANGE_NONE;
+    if (mRotation != theta && llfinite(theta))
+    {
+        mRotation = theta;
+        return TEM_CHANGE_TEXTURE;
+    }
+    return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setBumpShinyFullbright(U8 bump)
 {
-	if (mBump != bump)
-	{
-		mBump = bump;
-		return TEM_CHANGE_TEXTURE;
-	}
-	return TEM_CHANGE_NONE;
+    if (mBump != bump)
+    {
+        mBump = bump;
+        return TEM_CHANGE_TEXTURE;
+    }
+    return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setMediaTexGen(U8 media)
 {
-	S32 result = TEM_CHANGE_NONE;
-	result |= setTexGen(media & TEM_TEX_GEN_MASK);
-	result |= setMediaFlags(media & TEM_MEDIA_MASK);
-	return result;
+    S32 result = TEM_CHANGE_NONE;
+    result |= setTexGen(media & TEM_TEX_GEN_MASK);
+    result |= setMediaFlags(media & TEM_MEDIA_MASK);
+    return result;
 }
 
 S32 LLTextureEntry::setBumpmap(U8 bump)
 {
-	bump &= TEM_BUMP_MASK;
-	if (getBumpmap() != bump)
-	{
-		mBump &= ~TEM_BUMP_MASK;
-		mBump |= bump;
-		return TEM_CHANGE_TEXTURE;
-	}
-	return TEM_CHANGE_NONE;
+    bump &= TEM_BUMP_MASK;
+    if (getBumpmap() != bump)
+    {
+        mBump &= ~TEM_BUMP_MASK;
+        mBump |= bump;
+        return TEM_CHANGE_TEXTURE;
+    }
+    return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setFullbright(U8 fullbright)
 {
-	fullbright &= TEM_FULLBRIGHT_MASK;
-	if (getFullbright() != fullbright)
-	{
-		mBump &= ~(TEM_FULLBRIGHT_MASK<<TEM_FULLBRIGHT_SHIFT);
-		mBump |= fullbright << TEM_FULLBRIGHT_SHIFT;
-		return TEM_CHANGE_TEXTURE;
-	}
-	return TEM_CHANGE_NONE;
+    fullbright &= TEM_FULLBRIGHT_MASK;
+    if (getFullbright() != fullbright)
+    {
+        mBump &= ~(TEM_FULLBRIGHT_MASK<<TEM_FULLBRIGHT_SHIFT);
+        mBump |= fullbright << TEM_FULLBRIGHT_SHIFT;
+        return TEM_CHANGE_TEXTURE;
+    }
+    return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setShiny(U8 shiny)
 {
-	shiny &= TEM_SHINY_MASK;
-	if (getShiny() != shiny)
-	{
-		mBump &= ~(TEM_SHINY_MASK<<TEM_SHINY_SHIFT);
-		mBump |= shiny << TEM_SHINY_SHIFT;
-		return TEM_CHANGE_TEXTURE;
-	}
-	return TEM_CHANGE_NONE;
+    shiny &= TEM_SHINY_MASK;
+    if (getShiny() != shiny)
+    {
+        mBump &= ~(TEM_SHINY_MASK<<TEM_SHINY_SHIFT);
+        mBump |= shiny << TEM_SHINY_SHIFT;
+        return TEM_CHANGE_TEXTURE;
+    }
+    return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setBumpShiny(U8 bump_shiny)
 {
-	bump_shiny &= TEM_BUMP_SHINY_MASK;
-	if (getBumpShiny() != bump_shiny)
-	{
-		mBump &= ~TEM_BUMP_SHINY_MASK;
-		mBump |= bump_shiny;
-		return TEM_CHANGE_TEXTURE;
-	}
-	return TEM_CHANGE_NONE;
+    bump_shiny &= TEM_BUMP_SHINY_MASK;
+    if (getBumpShiny() != bump_shiny)
+    {
+        mBump &= ~TEM_BUMP_SHINY_MASK;
+        mBump |= bump_shiny;
+        return TEM_CHANGE_TEXTURE;
+    }
+    return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setMediaFlags(U8 media_flags)
 {
-	media_flags &= TEM_MEDIA_MASK;
-	if (getMediaFlags() != media_flags)
-	{
-		mMediaFlags &= ~TEM_MEDIA_MASK;
-		mMediaFlags |= media_flags;
+    media_flags &= TEM_MEDIA_MASK;
+    if (getMediaFlags() != media_flags)
+    {
+        mMediaFlags &= ~TEM_MEDIA_MASK;
+        mMediaFlags |= media_flags;
         
-		// Special code for media handling
-		if( hasMedia() && mMediaEntry == NULL)
-		{
-			mMediaEntry = new LLMediaEntry;
-		}
+        // Special code for media handling
+        if( hasMedia() && mMediaEntry == NULL)
+        {
+            mMediaEntry = new LLMediaEntry;
+        }
         else if ( ! hasMedia() && mMediaEntry != NULL)
         {
             delete mMediaEntry;
             mMediaEntry = NULL;
         }
         
-		return TEM_CHANGE_MEDIA;
-	}
-	return TEM_CHANGE_NONE;
+        return TEM_CHANGE_MEDIA;
+    }
+    return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setTexGen(U8 tex_gen)
 {
-	tex_gen &= TEM_TEX_GEN_MASK;
-	if (getTexGen() != tex_gen)
-	{
-		mMediaFlags &= ~TEM_TEX_GEN_MASK;
-		mMediaFlags |= tex_gen;
-		return TEM_CHANGE_TEXTURE;
-	}
-	return TEM_CHANGE_NONE;
+    tex_gen &= TEM_TEX_GEN_MASK;
+    if (getTexGen() != tex_gen)
+    {
+        mMediaFlags &= ~TEM_TEX_GEN_MASK;
+        mMediaFlags |= tex_gen;
+        return TEM_CHANGE_TEXTURE;
+    }
+    return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setGlow(F32 glow)
 {
-	if (mGlow != glow)
-	{
-		mGlow = glow;
-		return TEM_CHANGE_TEXTURE;
-	}
-	return TEM_CHANGE_NONE;
+    if (mGlow != glow)
+    {
+        mGlow = glow;
+        return TEM_CHANGE_TEXTURE;
+    }
+    return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setMaterialID(const LLMaterialID& pMaterialID)
 {
-	if ( (mMaterialID != pMaterialID) || (mMaterialUpdatePending && !mSelected) )
-	{
-		if (mSelected)
-		{
-			mMaterialUpdatePending = true;
-			mMaterialID = pMaterialID;
-			return TEM_CHANGE_TEXTURE;
-		}
+    if ( (mMaterialID != pMaterialID) || (mMaterialUpdatePending && !mSelected) )
+    {
+        if (mSelected)
+        {
+            mMaterialUpdatePending = true;
+            mMaterialID = pMaterialID;
+            return TEM_CHANGE_TEXTURE;
+        }
 
-		mMaterialUpdatePending = false;
-		mMaterialID = pMaterialID;
-		return TEM_CHANGE_TEXTURE;
-	}
-	return TEM_CHANGE_NONE;
+        mMaterialUpdatePending = false;
+        mMaterialID = pMaterialID;
+        return TEM_CHANGE_TEXTURE;
+    }
+    return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setMaterialParams(const LLMaterialPtr pMaterialParams)
 {
-	if (mSelected)
-	{
-		mMaterialUpdatePending = true;
-	}
-	mMaterial = pMaterialParams;
-	return TEM_CHANGE_TEXTURE;
+    if (mSelected)
+    {
+        mMaterialUpdatePending = true;
+    }
+    mMaterial = pMaterialParams;
+    return TEM_CHANGE_TEXTURE;
 }
 
 void LLTextureEntry::setMediaData(const LLMediaEntry &media_entry)
@@ -577,23 +577,23 @@ void LLTextureEntry::setMediaData(const LLMediaEntry &media_entry)
 
 bool LLTextureEntry::updateMediaData(const LLSD& media_data)
 {
-	if (media_data.isUndefined())
-	{
-		// clear the media data
+    if (media_data.isUndefined())
+    {
+        // clear the media data
         clearMediaData();
-		return false;
-	}
-	else {
-		mMediaFlags |= MF_HAS_MEDIA;
-		if (mMediaEntry == NULL)
-		{
-			mMediaEntry = new LLMediaEntry;
-		}
+        return false;
+    }
+    else {
+        mMediaFlags |= MF_HAS_MEDIA;
+        if (mMediaEntry == NULL)
+        {
+            mMediaEntry = new LLMediaEntry;
+        }
         // *NOTE: this will *clobber* all of the fields in mMediaEntry 
         // with whatever fields are present (or not present) in media_data!
- 		mMediaEntry->fromLLSD(media_data);
-		return true;
-	}
+        mMediaEntry->fromLLSD(media_data);
+        return true;
+    }
 }
 
 void LLTextureEntry::clearMediaData()
@@ -672,5 +672,5 @@ LLUUID LLTextureEntry::getAgentIDFromMediaVersionString(const std::string &versi
 //static
 bool LLTextureEntry::isMediaVersionString(const std::string &version_string)
 {
-	return std::string::npos != version_string.find(MEDIA_VERSION_STRING_PREFIX);
+    return std::string::npos != version_string.find(MEDIA_VERSION_STRING_PREFIX);
 }

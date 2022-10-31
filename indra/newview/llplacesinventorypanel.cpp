@@ -44,17 +44,17 @@ static const LLPlacesInventoryBridgeBuilder PLACES_INVENTORY_BUILDER;
 
 LLPlacesInventoryPanel::LLPlacesInventoryPanel(const Params& p) : 
     LLAssetFilteredInventoryPanel(p),
-	mSavedFolderState(NULL)
+    mSavedFolderState(NULL)
 {
-	mInvFVBridgeBuilder = &PLACES_INVENTORY_BUILDER;
-	mSavedFolderState = new LLSaveFolderState();
-	mSavedFolderState->setApply(FALSE);
+    mInvFVBridgeBuilder = &PLACES_INVENTORY_BUILDER;
+    mSavedFolderState = new LLSaveFolderState();
+    mSavedFolderState->setApply(FALSE);
 }
 
 
 LLPlacesInventoryPanel::~LLPlacesInventoryPanel()
 {
-	delete mSavedFolderState;
+    delete mSavedFolderState;
 }
 
 
@@ -67,7 +67,7 @@ LLFolderView * LLPlacesInventoryPanel::createFolderRoot(LLUUID root_id )
     p.rect = LLRect(0, 0, getRect().getWidth(), 0);
     p.parent_panel = this;
     p.tool_tip = p.name;
-    p.listener = mInvFVBridgeBuilder->createBridge(	LLAssetType::AT_CATEGORY,
+    p.listener = mInvFVBridgeBuilder->createBridge( LLAssetType::AT_CATEGORY,
         LLAssetType::AT_CATEGORY,
         LLInventoryType::IT_CATEGORY,
         this,
@@ -90,33 +90,33 @@ LLFolderView * LLPlacesInventoryPanel::createFolderRoot(LLUUID root_id )
 // save current folder open state
 void LLPlacesInventoryPanel::saveFolderState()
 {
-	mSavedFolderState->setApply(FALSE);
-	mFolderRoot.get()->applyFunctorRecursively(*mSavedFolderState);
+    mSavedFolderState->setApply(FALSE);
+    mFolderRoot.get()->applyFunctorRecursively(*mSavedFolderState);
 }
 
 // re-open folders which state was saved
 void LLPlacesInventoryPanel::restoreFolderState()
 {
-	mSavedFolderState->setApply(TRUE);
-	mFolderRoot.get()->applyFunctorRecursively(*mSavedFolderState);
-	LLOpenFoldersWithSelection opener;
-	mFolderRoot.get()->applyFunctorRecursively(opener);
-	mFolderRoot.get()->scrollToShowSelection();
+    mSavedFolderState->setApply(TRUE);
+    mFolderRoot.get()->applyFunctorRecursively(*mSavedFolderState);
+    LLOpenFoldersWithSelection opener;
+    mFolderRoot.get()->applyFunctorRecursively(opener);
+    mFolderRoot.get()->scrollToShowSelection();
 }
 
-S32	LLPlacesInventoryPanel::notify(const LLSD& info) 
+S32 LLPlacesInventoryPanel::notify(const LLSD& info) 
 {
-	if(info.has("action"))
-	{
-		std::string str_action = info["action"];
-		if(str_action == "select_first")
-		{
-			return mFolderRoot.get()->notify(info);
-		}
-		else if(str_action == "select_last")
-		{
-			return mFolderRoot.get()->notify(info);
-		}
-	}
-	return 0;
+    if(info.has("action"))
+    {
+        std::string str_action = info["action"];
+        if(str_action == "select_first")
+        {
+            return mFolderRoot.get()->notify(info);
+        }
+        else if(str_action == "select_last")
+        {
+            return mFolderRoot.get()->notify(info);
+        }
+    }
+    return 0;
 }

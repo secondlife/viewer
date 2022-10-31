@@ -39,24 +39,24 @@
 class LLDir_Linux : public LLDir
 {
 public:
-	LLDir_Linux();
-	virtual ~LLDir_Linux();
+    LLDir_Linux();
+    virtual ~LLDir_Linux();
 
-	/*virtual*/ void initAppDirs(const std::string &app_name,
-		const std::string& app_read_only_data_dir);
+    /*virtual*/ void initAppDirs(const std::string &app_name,
+        const std::string& app_read_only_data_dir);
 
-	virtual std::string getCurPath();
-	virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask);
-	/*virtual*/ bool fileExists(const std::string &filename) const;
+    virtual std::string getCurPath();
+    virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask);
+    /*virtual*/ bool fileExists(const std::string &filename) const;
 
-	/*virtual*/ std::string getLLPluginLauncher();
-	/*virtual*/ std::string getLLPluginFilename(std::string base_name);
+    /*virtual*/ std::string getLLPluginLauncher();
+    /*virtual*/ std::string getLLPluginFilename(std::string base_name);
 
 private:
-	DIR *mDirp;
-	int mCurrentDirIndex;
-	int mCurrentDirCount;
-	std::string mCurrentDir;
+    DIR *mDirp;
+    int mCurrentDirIndex;
+    int mCurrentDirCount;
+    std::string mCurrentDir;
 };
 
 #endif // LL_LLDIR_LINUX_H

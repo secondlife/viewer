@@ -33,15 +33,15 @@
 
 
 LLPanelGenericTip::LLPanelGenericTip(
-		const LLNotificationPtr& notification) :
-		LLPanelTipToast(notification)
+        const LLNotificationPtr& notification) :
+        LLPanelTipToast(notification)
 {
-	buildFromFile( "panel_generic_tip.xml");
+    buildFromFile( "panel_generic_tip.xml");
 
-	getChild<LLUICtrl>("message")->setValue(notification->getMessage());
+    getChild<LLUICtrl>("message")->setValue(notification->getMessage());
 
 
-	S32 max_line_count =  gSavedSettings.getS32("TipToastMessageLineCount");
-	snapToMessageHeight(getChild<LLTextBox> ("message"), max_line_count);
+    S32 max_line_count =  gSavedSettings.getS32("TipToastMessageLineCount");
+    snapToMessageHeight(getChild<LLTextBox> ("message"), max_line_count);
 }
 

@@ -53,33 +53,33 @@ class LLPhysicsVolumeParams : public LLVolumeParams
 {
 public:
 
-	LLPhysicsVolumeParams( const LLVolumeParams& params, bool forceConvex ) : 
-		LLVolumeParams( params ),
-		mForceConvex(forceConvex) {}
+    LLPhysicsVolumeParams( const LLVolumeParams& params, bool forceConvex ) : 
+        LLVolumeParams( params ),
+        mForceConvex(forceConvex) {}
 
-	bool operator==(const LLPhysicsVolumeParams &params) const
-	{
-		return ( LLVolumeParams::operator==(params) && (mForceConvex == params.mForceConvex) );
-	}
+    bool operator==(const LLPhysicsVolumeParams &params) const
+    {
+        return ( LLVolumeParams::operator==(params) && (mForceConvex == params.mForceConvex) );
+    }
 
-	bool operator!=(const LLPhysicsVolumeParams &params) const
-	{
-		return !operator==(params);
-	}
+    bool operator!=(const LLPhysicsVolumeParams &params) const
+    {
+        return !operator==(params);
+    }
 
-	bool operator<(const LLPhysicsVolumeParams &params) const
-	{
-		if ( LLVolumeParams::operator!=(params) )
-		{
-			return LLVolumeParams::operator<(params);
-		}
-		return (params.mForceConvex == false) && (mForceConvex == true);	
-	}
+    bool operator<(const LLPhysicsVolumeParams &params) const
+    {
+        if ( LLVolumeParams::operator!=(params) )
+        {
+            return LLVolumeParams::operator<(params);
+        }
+        return (params.mForceConvex == false) && (mForceConvex == true);    
+    }
 
-	bool shouldForceConvex() const { return mForceConvex; }
+    bool shouldForceConvex() const { return mForceConvex; }
 
 private:
-	bool mForceConvex;
+    bool mForceConvex;
 };
 
 
@@ -87,55 +87,55 @@ class LLPhysicsShapeBuilderUtil
 {
 public:
 
-	class PhysicsShapeSpecification
-	{
-	public:
-		enum ShapeType
-		{
-			// Primitive types
-			BOX,
-			SPHERE,
-			CYLINDER,
+    class PhysicsShapeSpecification
+    {
+    public:
+        enum ShapeType
+        {
+            // Primitive types
+            BOX,
+            SPHERE,
+            CYLINDER,
 
-			USER_CONVEX,	// User specified they wanted the convex hull of the volume
+            USER_CONVEX,    // User specified they wanted the convex hull of the volume
 
-			PRIM_CONVEX,	// Either a volume that is inherently convex but not a primitive type, or a shape
-							// with dimensions such that will convexify it anyway.
+            PRIM_CONVEX,    // Either a volume that is inherently convex but not a primitive type, or a shape
+                            // with dimensions such that will convexify it anyway.
 
- 			SCULPT,			// Special case for traditional sculpts--they are the convex hull of a single particular set of volume params
+            SCULPT,         // Special case for traditional sculpts--they are the convex hull of a single particular set of volume params
 
-			USER_MESH,		// A user mesh. May or may not contain a convex decomposition.
+            USER_MESH,      // A user mesh. May or may not contain a convex decomposition.
 
-			PRIM_MESH,		// A non-convex volume which we have to represent accurately
+            PRIM_MESH,      // A non-convex volume which we have to represent accurately
 
-			INVALID
-		};
+            INVALID
+        };
 
-		PhysicsShapeSpecification() : 
-		mType( INVALID ),
-		mScale( 0.f, 0.f, 0.f ),
-		mCenter( 0.f, 0.f, 0.f ) {}
-		
-		bool isConvex() { return (mType != USER_MESH && mType != PRIM_MESH && mType != INVALID); }
-		bool isMesh() { return (mType == USER_MESH) || (mType == PRIM_MESH); }
+        PhysicsShapeSpecification() : 
+        mType( INVALID ),
+        mScale( 0.f, 0.f, 0.f ),
+        mCenter( 0.f, 0.f, 0.f ) {}
+        
+        bool isConvex() { return (mType != USER_MESH && mType != PRIM_MESH && mType != INVALID); }
+        bool isMesh() { return (mType == USER_MESH) || (mType == PRIM_MESH); }
 
-		ShapeType getType() { return mType; }
-		const LLVector3& getScale() { return mScale; }
-		const LLVector3& getCenter() { return mCenter; }
+        ShapeType getType() { return mType; }
+        const LLVector3& getScale() { return mScale; }
+        const LLVector3& getCenter() { return mCenter; }
 
-	private:
-		friend class LLPhysicsShapeBuilderUtil;
+    private:
+        friend class LLPhysicsShapeBuilderUtil;
 
-		ShapeType	mType;
+        ShapeType   mType;
 
-		// Dimensions of an AABB around the shape
-		LLVector3	mScale;
+        // Dimensions of an AABB around the shape
+        LLVector3   mScale;
 
-		// Offset of shape from origin of primitive's reference frame
-		LLVector3	mCenter;
-	};
+        // Offset of shape from origin of primitive's reference frame
+        LLVector3   mCenter;
+    };
 
-	static void determinePhysicsShape( const LLPhysicsVolumeParams& volume_params, const LLVector3& scale, PhysicsShapeSpecification& specOut );
+    static void determinePhysicsShape( const LLPhysicsVolumeParams& volume_params, const LLVector3& scale, PhysicsShapeSpecification& specOut );
 };
 
 #endif //LL_PHYSICS_SHAPE_BUILDER_H

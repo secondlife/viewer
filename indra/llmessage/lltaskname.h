@@ -37,24 +37,24 @@
 
 typedef enum e_lltask_name
 {
-	LLTASK_NULL				= 0, // Not a valid task
-	LLTASK_AGENT			= 1, // The player's agent in Linden World
-	LLTASK_CHILD_AGENT		= 2, // Child agents sent to adjacent regions
-//	LLTASK_BASIC_SHOT,		// Simple shot that moves in a straight line
-//	LLTASK_BIG_SHOT,		// Big shot that uses gravity
-	LLTASK_TREE				= 5, // A tree
-//	LLTASK_BIRD,			// a bird
-//	LLTASK_ATOR,			// a predator
-//	LLTASK_SMOKE,			// Smoke poof
-//	LLTASK_SPARK,			// Little spark
-//	LLTASK_ROCK,			// Rock
-	LLTASK_GRASS			= 11, // Grass
-	LLTASK_PSYS				= 12, // particle system test example 
-//	LLTASK_ORACLE,
-//	LLTASK_DEMON,			// Maxwell's demon
-//	LLTASK_LSL_TEST,		// Linden Scripting Language Test Object
-	LLTASK_PRIMITIVE		= 16,
-//	LLTASK_GHOST			= 17, // a ghost (Boo!)
-	LLTASK_TREE_NEW			= 18
+    LLTASK_NULL             = 0, // Not a valid task
+    LLTASK_AGENT            = 1, // The player's agent in Linden World
+    LLTASK_CHILD_AGENT      = 2, // Child agents sent to adjacent regions
+//  LLTASK_BASIC_SHOT,      // Simple shot that moves in a straight line
+//  LLTASK_BIG_SHOT,        // Big shot that uses gravity
+    LLTASK_TREE             = 5, // A tree
+//  LLTASK_BIRD,            // a bird
+//  LLTASK_ATOR,            // a predator
+//  LLTASK_SMOKE,           // Smoke poof
+//  LLTASK_SPARK,           // Little spark
+//  LLTASK_ROCK,            // Rock
+    LLTASK_GRASS            = 11, // Grass
+    LLTASK_PSYS             = 12, // particle system test example 
+//  LLTASK_ORACLE,
+//  LLTASK_DEMON,           // Maxwell's demon
+//  LLTASK_LSL_TEST,        // Linden Scripting Language Test Object
+    LLTASK_PRIMITIVE        = 16,
+//  LLTASK_GHOST            = 17, // a ghost (Boo!)
+    LLTASK_TREE_NEW         = 18
 } ELLTaskName;
 #endif

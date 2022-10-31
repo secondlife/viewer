@@ -52,83 +52,83 @@ LLDebugView* gDebugView = NULL;
 static LLDefaultChildRegistry::Register<LLDebugView> r("debug_view");
 
 LLDebugView::LLDebugView(const LLDebugView::Params& p)
-:	LLView(p),
-	mFastTimerView(NULL),
-	mDebugConsolep(NULL),
-	mFloaterSnapRegion(NULL)
+:   LLView(p),
+    mFastTimerView(NULL),
+    mDebugConsolep(NULL),
+    mFloaterSnapRegion(NULL)
 {}
 
 LLDebugView::~LLDebugView()
 {
-	// These have already been deleted.  Fix the globals appropriately.
-	gDebugView = NULL;
-	gTextureView = NULL;
-	gSceneView = NULL;
-	gSceneMonitorView = NULL;
+    // These have already been deleted.  Fix the globals appropriately.
+    gDebugView = NULL;
+    gTextureView = NULL;
+    gSceneView = NULL;
+    gSceneMonitorView = NULL;
 }
 
 void LLDebugView::init()
 {
-	LLRect r;
-	LLRect rect = getLocalRect();
+    LLRect r;
+    LLRect rect = getLocalRect();
 
-	// Rectangle to draw debug data in (full height, 3/4 width)
-	r.set(10, rect.getHeight() - 100, ((rect.getWidth()*3)/4), 100);
-	LLConsole::Params cp;
-	cp.name("debug console");
-	cp.max_lines(20);
-	cp.rect(r);
-	cp.font(LLFontGL::getFontMonospace());
-	cp.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_LEFT);
-	cp.visible(false);
-	mDebugConsolep = LLUICtrlFactory::create<LLConsole>(cp);
-	addChild(mDebugConsolep);
+    // Rectangle to draw debug data in (full height, 3/4 width)
+    r.set(10, rect.getHeight() - 100, ((rect.getWidth()*3)/4), 100);
+    LLConsole::Params cp;
+    cp.name("debug console");
+    cp.max_lines(20);
+    cp.rect(r);
+    cp.font(LLFontGL::getFontMonospace());
+    cp.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_LEFT);
+    cp.visible(false);
+    mDebugConsolep = LLUICtrlFactory::create<LLConsole>(cp);
+    addChild(mDebugConsolep);
 
-	r.set(150 - 25, rect.getHeight() - 50, rect.getWidth()/2 - 25, rect.getHeight() - 450);
+    r.set(150 - 25, rect.getHeight() - 50, rect.getWidth()/2 - 25, rect.getHeight() - 450);
 
-	r.setLeftTopAndSize(25, rect.getHeight() - 50, (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f), 
-  									 (S32) (gViewerWindow->getWindowRectScaled().getHeight() * 0.75f));
-	
-	mFastTimerView = dynamic_cast<LLFastTimerView*>(LLFloaterReg::getInstance("block_timers"));
+    r.setLeftTopAndSize(25, rect.getHeight() - 50, (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f), 
+                                     (S32) (gViewerWindow->getWindowRectScaled().getHeight() * 0.75f));
+    
+    mFastTimerView = dynamic_cast<LLFastTimerView*>(LLFloaterReg::getInstance("block_timers"));
 
-	gSceneView = new LLSceneView(r);
-	gSceneView->setFollowsTop();
-	gSceneView->setFollowsLeft();
-	gSceneView->setVisible(FALSE);
-	addChild(gSceneView);
-	gSceneView->setRect(rect);
-	
-	gSceneMonitorView = new LLSceneMonitorView(r);
-	gSceneMonitorView->setFollowsTop();
-	gSceneMonitorView->setFollowsLeft();
-	gSceneMonitorView->setVisible(FALSE);
-	addChild(gSceneMonitorView);
-	gSceneMonitorView->setRect(rect);
-	
-	r.setLeftTopAndSize(25, rect.getHeight() - 50, (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f), 
-									 (S32) (gViewerWindow->getWindowRectScaled().getHeight() * 0.75f));
+    gSceneView = new LLSceneView(r);
+    gSceneView->setFollowsTop();
+    gSceneView->setFollowsLeft();
+    gSceneView->setVisible(FALSE);
+    addChild(gSceneView);
+    gSceneView->setRect(rect);
+    
+    gSceneMonitorView = new LLSceneMonitorView(r);
+    gSceneMonitorView->setFollowsTop();
+    gSceneMonitorView->setFollowsLeft();
+    gSceneMonitorView->setVisible(FALSE);
+    addChild(gSceneMonitorView);
+    gSceneMonitorView->setRect(rect);
+    
+    r.setLeftTopAndSize(25, rect.getHeight() - 50, (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f), 
+                                     (S32) (gViewerWindow->getWindowRectScaled().getHeight() * 0.75f));
 
-	r.set(150, rect.getHeight() - 50, 820, 100);
-	LLTextureView::Params tvp;
-	tvp.name("gTextureView");
-	tvp.rect(r);
-	tvp.follows.flags(FOLLOWS_TOP|FOLLOWS_LEFT);
-	tvp.visible(false);
-	gTextureView = LLUICtrlFactory::create<LLTextureView>(tvp);
-	addChild(gTextureView);
-	//gTextureView->reshape(r.getWidth(), r.getHeight(), TRUE);
+    r.set(150, rect.getHeight() - 50, 820, 100);
+    LLTextureView::Params tvp;
+    tvp.name("gTextureView");
+    tvp.rect(r);
+    tvp.follows.flags(FOLLOWS_TOP|FOLLOWS_LEFT);
+    tvp.visible(false);
+    gTextureView = LLUICtrlFactory::create<LLTextureView>(tvp);
+    addChild(gTextureView);
+    //gTextureView->reshape(r.getWidth(), r.getHeight(), TRUE);
 }
 
 void LLDebugView::draw()
 {
-	if (mFloaterSnapRegion == NULL)
-	{
-		mFloaterSnapRegion = getRootView()->getChildView("floater_snap_region");
-	}
+    if (mFloaterSnapRegion == NULL)
+    {
+        mFloaterSnapRegion = getRootView()->getChildView("floater_snap_region");
+    }
 
-	LLRect debug_rect;
-	mFloaterSnapRegion->localRectToOtherView(mFloaterSnapRegion->getLocalRect(), &debug_rect, getParent());
+    LLRect debug_rect;
+    mFloaterSnapRegion->localRectToOtherView(mFloaterSnapRegion->getLocalRect(), &debug_rect, getParent());
 
-	setShape(debug_rect);
-	LLView::draw();
+    setShape(debug_rect);
+    LLView::draw();
 }

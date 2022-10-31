@@ -30,59 +30,59 @@ class LLDate;
 
 namespace LLDateUtil
 {
-	/**
-	 * Convert a date provided by the server into seconds since the Epoch.
-	 * 
-	 * @param[out] date Number of seconds since 01/01/1970 UTC.
-	 * @param[in]  str  Date string (MM/DD/YYYY) in PDT time zone.
-	 * 
-	 * @return true on success, false on parse error
-	 */
-	bool dateFromPDTString(LLDate& date, const std::string& str);
+    /**
+     * Convert a date provided by the server into seconds since the Epoch.
+     * 
+     * @param[out] date Number of seconds since 01/01/1970 UTC.
+     * @param[in]  str  Date string (MM/DD/YYYY) in PDT time zone.
+     * 
+     * @return true on success, false on parse error
+     */
+    bool dateFromPDTString(LLDate& date, const std::string& str);
 
-	/**
-	 * Get human-readable avatar age.
-	 * 
-	 * Used for avatar inspectors and profiles.
-	 * 
-	 * @param born_date Date an avatar was born on.
-	 * @param now       Current date.
-	 * 
-	 * @return human-readable localized string like "1 year, 2 months",
-	 *         or "???" on error.
-	 */
-	std::string ageFromDate(const LLDate& born_date, const LLDate& now);
+    /**
+     * Get human-readable avatar age.
+     * 
+     * Used for avatar inspectors and profiles.
+     * 
+     * @param born_date Date an avatar was born on.
+     * @param now       Current date.
+     * 
+     * @return human-readable localized string like "1 year, 2 months",
+     *         or "???" on error.
+     */
+    std::string ageFromDate(const LLDate& born_date, const LLDate& now);
 
-	// Convert a date provided by the server (MM/DD/YYYY) into a localized,
-	// human-readable age (1 year, 2 months) using translation strings.
-	// Pass LLDate::now() for now.
-	// Used for avatar inspectors and profiles.
-	std::string ageFromDate(const std::string& date_string, const LLDate& now);
+    // Convert a date provided by the server (MM/DD/YYYY) into a localized,
+    // human-readable age (1 year, 2 months) using translation strings.
+    // Pass LLDate::now() for now.
+    // Used for avatar inspectors and profiles.
+    std::string ageFromDate(const std::string& date_string, const LLDate& now);
 
-	// Calls the above with LLDate::now()
-	std::string ageFromDate(const std::string& date_string);
+    // Calls the above with LLDate::now()
+    std::string ageFromDate(const std::string& date_string);
 
-	// As above, for YYYY-MM-DD dates
-	//std::string ageFromDateISO(const std::string& date_string, const LLDate& now);
+    // As above, for YYYY-MM-DD dates
+    //std::string ageFromDateISO(const std::string& date_string, const LLDate& now);
 
-	// Calls the above with LLDate::now()
-	//std::string ageFromDateISO(const std::string& date_string);
+    // Calls the above with LLDate::now()
+    //std::string ageFromDateISO(const std::string& date_string);
 
-	//std::string ageFromDate(S32 born_year, S32 born_month, S32 born_day, const LLDate& now);
+    //std::string ageFromDate(S32 born_year, S32 born_month, S32 born_day, const LLDate& now);
 
-	/**
-	 * Convert a string of a specified date format into seconds since the Epoch.
-	 *
-	 * Many of the format flags are those used by strftime(...), but not all.
-	 * For the full list of supported time format specifiers
-	 * see http://www.boost.org/doc/libs/1_47_0/doc/html/date_time/date_time_io.html#date_time.format_flags
-	 *
-	 * @param format Format characters string. Example: "%A %b %d, %Y"
-	 * @param str    Date string containing the time in specified format.
-	 *
-	 * @return Number of seconds since 01/01/1970 UTC.
-	 */
-	S32 secondsSinceEpochFromString(const std::string& format, const std::string& str);
+    /**
+     * Convert a string of a specified date format into seconds since the Epoch.
+     *
+     * Many of the format flags are those used by strftime(...), but not all.
+     * For the full list of supported time format specifiers
+     * see http://www.boost.org/doc/libs/1_47_0/doc/html/date_time/date_time_io.html#date_time.format_flags
+     *
+     * @param format Format characters string. Example: "%A %b %d, %Y"
+     * @param str    Date string containing the time in specified format.
+     *
+     * @return Number of seconds since 01/01/1970 UTC.
+     */
+    S32 secondsSinceEpochFromString(const std::string& format, const std::string& str);
 }
 
 #endif

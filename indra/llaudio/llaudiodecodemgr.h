@@ -42,12 +42,12 @@ class LLAudioDecodeMgr : public LLSingleton<LLAudioDecodeMgr>
     LLSINGLETON(LLAudioDecodeMgr);
     ~LLAudioDecodeMgr();
 public:
-	void processQueue();
-	BOOL addDecodeRequest(const LLUUID &uuid);
-	void addAudioRequest(const LLUUID &uuid);
-	
+    void processQueue();
+    BOOL addDecodeRequest(const LLUUID &uuid);
+    void addAudioRequest(const LLUUID &uuid);
+    
 protected:
-	class Impl;
+    class Impl;
     Impl* mImpl;
 };
 

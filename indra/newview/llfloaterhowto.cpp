@@ -80,13 +80,13 @@ LLFloaterHowTo* LLFloaterHowTo::getInstance()
 
 BOOL LLFloaterHowTo::handleKeyHere(KEY key, MASK mask)
 {
-	BOOL handled = FALSE;
+    BOOL handled = FALSE;
 
-	if (KEY_F1 == key )
-	{
-		closeFloater();
-		handled = TRUE;
-	}
+    if (KEY_F1 == key )
+    {
+        closeFloater();
+        handled = TRUE;
+    }
 
-	return handled;
+    return handled;
 }

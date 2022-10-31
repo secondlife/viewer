@@ -34,13 +34,13 @@
 
 BOOL LLWindowCallbacks::handleTranslatedKeyDown(const KEY key, const MASK mask, BOOL repeated)
 {
-	return FALSE;
+    return FALSE;
 }
 
 
 BOOL LLWindowCallbacks::handleTranslatedKeyUp(const KEY key, const MASK mask)
 {
-	return FALSE;
+    return FALSE;
 }
 
 void LLWindowCallbacks::handleScanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level)
@@ -49,29 +49,29 @@ void LLWindowCallbacks::handleScanKey(KEY key, BOOL key_down, BOOL key_up, BOOL 
 
 BOOL LLWindowCallbacks::handleUnicodeChar(llwchar uni_char, MASK mask)
 {
-	return FALSE;
+    return FALSE;
 }
 
 
 BOOL LLWindowCallbacks::handleMouseDown(LLWindow *window, const LLCoordGL pos, MASK mask)
 {
-	return FALSE;
+    return FALSE;
 }
 
 BOOL LLWindowCallbacks::handleMouseUp(LLWindow *window, const LLCoordGL pos, MASK mask)
 {
-	return FALSE;
+    return FALSE;
 }
 
 void LLWindowCallbacks::handleMouseLeave(LLWindow *window)
 {
-	return;
+    return;
 }
 
 BOOL LLWindowCallbacks::handleCloseRequest(LLWindow *window)
 {
-	//allow the window to close
-	return TRUE;
+    //allow the window to close
+    return TRUE;
 }
 
 void LLWindowCallbacks::handleQuit(LLWindow *window)
@@ -80,22 +80,22 @@ void LLWindowCallbacks::handleQuit(LLWindow *window)
 
 BOOL LLWindowCallbacks::handleRightMouseDown(LLWindow *window, const LLCoordGL pos, MASK mask)
 {
-	return FALSE;
+    return FALSE;
 }
 
 BOOL LLWindowCallbacks::handleRightMouseUp(LLWindow *window, const LLCoordGL pos, MASK mask)
 {
-	return FALSE;
+    return FALSE;
 }
 
 BOOL LLWindowCallbacks::handleMiddleMouseDown(LLWindow *window, const LLCoordGL pos, MASK mask)
 {
-	return FALSE;
+    return FALSE;
 }
 
 BOOL LLWindowCallbacks::handleMiddleMouseUp(LLWindow *window, const LLCoordGL pos, MASK mask)
 {
-	return FALSE;
+    return FALSE;
 }
 
 BOOL LLWindowCallbacks::handleOtherMouseDown(LLWindow *window, const LLCoordGL pos, MASK mask, S32 button)
@@ -110,12 +110,12 @@ BOOL LLWindowCallbacks::handleOtherMouseUp(LLWindow *window, const LLCoordGL pos
 
 BOOL LLWindowCallbacks::handleActivate(LLWindow *window, BOOL activated)
 {
-	return FALSE;
+    return FALSE;
 }
 
 BOOL LLWindowCallbacks::handleActivateApp(LLWindow *window, BOOL activating)
 {
-	return FALSE;
+    return FALSE;
 }
 
 void LLWindowCallbacks::handleMouseMove(LLWindow *window, const LLCoordGL pos, MASK mask)
@@ -140,7 +140,7 @@ void LLWindowCallbacks::handleResize(LLWindow *window, const S32 width, const S3
 
 void LLWindowCallbacks::handleFocus(LLWindow *window)
 {
-	 LL_WARNS("COCOA") << "Called handleFocus proto" << LL_ENDL;
+     LL_WARNS("COCOA") << "Called handleFocus proto" << LL_ENDL;
 }
 
 void LLWindowCallbacks::handleFocusLost(LLWindow *window)
@@ -152,14 +152,14 @@ void LLWindowCallbacks::handleMenuSelect(LLWindow *window, const S32 menu_item)
 }
 
 BOOL LLWindowCallbacks::handlePaint(LLWindow *window, const S32 x, const S32 y, 
-									const S32 width, const S32 height)
+                                    const S32 width, const S32 height)
 {
-	return FALSE;
+    return FALSE;
 }
 
 BOOL LLWindowCallbacks::handleDoubleClick(LLWindow *window, const LLCoordGL pos, MASK mask)
 {
-	return FALSE;
+    return FALSE;
 }
 
 void LLWindowCallbacks::handleWindowBlock(LLWindow *window)
@@ -176,27 +176,27 @@ void LLWindowCallbacks::handleDataCopy(LLWindow *window, S32 data_type, void *da
 
 LLWindowCallbacks::DragNDropResult LLWindowCallbacks::handleDragNDrop(LLWindow *window, LLCoordGL pos, MASK mask, DragNDropAction action, std::string data )
 {
-	return LLWindowCallbacks::DND_NONE;
+    return LLWindowCallbacks::DND_NONE;
 }
 
 BOOL LLWindowCallbacks::handleTimerEvent(LLWindow *window)
 {
-	return FALSE;
+    return FALSE;
 }
 
 BOOL LLWindowCallbacks::handleDeviceChange(LLWindow *window)
 {
-	return FALSE;
+    return FALSE;
 }
 
 BOOL LLWindowCallbacks::handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height)
 {
-	return FALSE;
+    return FALSE;
 }
 
 BOOL LLWindowCallbacks::handleWindowDidChangeScreen(LLWindow *window)
 {
-	return FALSE;
+    return FALSE;
 }
 
 void LLWindowCallbacks::handlePingWatchdog(LLWindow *window, const char * msg)
@@ -221,7 +221,7 @@ std::string LLWindowCallbacks::translateString(const char* tag)
 
 //virtual
 std::string LLWindowCallbacks::translateString(const char* tag,
-		const std::map<std::string, std::string>& args)
+        const std::map<std::string, std::string>& args)
 {
-	return std::string();
+    return std::string();
 }

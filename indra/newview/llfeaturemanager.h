@@ -37,146 +37,146 @@
 
 typedef enum EGPUClass
 {
-	GPU_CLASS_UNKNOWN = -1,
-	GPU_CLASS_0 = 0,
-	GPU_CLASS_1 = 1,
-	GPU_CLASS_2 = 2,
-	GPU_CLASS_3 = 3,
-	GPU_CLASS_4 = 4,
-	GPU_CLASS_5 = 5
+    GPU_CLASS_UNKNOWN = -1,
+    GPU_CLASS_0 = 0,
+    GPU_CLASS_1 = 1,
+    GPU_CLASS_2 = 2,
+    GPU_CLASS_3 = 3,
+    GPU_CLASS_4 = 4,
+    GPU_CLASS_5 = 5
 } EGPUClass; 
 
 
 class LLFeatureInfo
 {
 public:
-	LLFeatureInfo() : mValid(FALSE), mAvailable(FALSE), mRecommendedLevel(-1) {}
-	LLFeatureInfo(const std::string& name, const BOOL available, const F32 level);
+    LLFeatureInfo() : mValid(FALSE), mAvailable(FALSE), mRecommendedLevel(-1) {}
+    LLFeatureInfo(const std::string& name, const BOOL available, const F32 level);
 
-	BOOL isValid() const	{ return mValid; };
+    BOOL isValid() const    { return mValid; };
 
 public:
-	BOOL		mValid;
-	std::string	mName;
-	BOOL		mAvailable;
-	F32			mRecommendedLevel;
+    BOOL        mValid;
+    std::string mName;
+    BOOL        mAvailable;
+    F32         mRecommendedLevel;
 };
 
 
 class LLFeatureList
 {
 public:
-	typedef std::map<std::string, LLFeatureInfo> feature_map_t;
+    typedef std::map<std::string, LLFeatureInfo> feature_map_t;
 
-	LLFeatureList(const std::string& name);
-	virtual ~LLFeatureList();
+    LLFeatureList(const std::string& name);
+    virtual ~LLFeatureList();
 
-	BOOL isFeatureAvailable(const std::string& name);
-	F32 getRecommendedValue(const std::string& name);
+    BOOL isFeatureAvailable(const std::string& name);
+    F32 getRecommendedValue(const std::string& name);
 
-	void setFeatureAvailable(const std::string& name, const BOOL available);
-	void setRecommendedLevel(const std::string& name, const F32 level);
+    void setFeatureAvailable(const std::string& name, const BOOL available);
+    void setRecommendedLevel(const std::string& name, const F32 level);
 
-	bool loadFeatureList(LLFILE *fp);
+    bool loadFeatureList(LLFILE *fp);
 
-	BOOL maskList(LLFeatureList &mask);
+    BOOL maskList(LLFeatureList &mask);
 
-	void addFeature(const std::string& name, const BOOL available, const F32 level);
+    void addFeature(const std::string& name, const BOOL available, const F32 level);
 
-	feature_map_t& getFeatures()
-	{
-		return mFeatures;
-	}
+    feature_map_t& getFeatures()
+    {
+        return mFeatures;
+    }
 
-	void dump();
+    void dump();
 protected:
-	std::string	mName;
-	feature_map_t	mFeatures;
+    std::string mName;
+    feature_map_t   mFeatures;
 };
 
 
 class LLFeatureManager : public LLFeatureList, public LLSingleton<LLFeatureManager>
 {
-	LLSINGLETON(LLFeatureManager);
-	~LLFeatureManager() {cleanupFeatureTables();}
+    LLSINGLETON(LLFeatureManager);
+    ~LLFeatureManager() {cleanupFeatureTables();}
 
-	// initialize this by loading feature table and gpu table
-	void initSingleton();
+    // initialize this by loading feature table and gpu table
+    void initSingleton();
 
 public:
 
-	void maskCurrentList(const std::string& name); // Mask the current feature list with the named list
+    void maskCurrentList(const std::string& name); // Mask the current feature list with the named list
 
-	bool loadFeatureTables();
+    bool loadFeatureTables();
 
-	EGPUClass getGPUClass() 			{ return mGPUClass; }
-	std::string& getGPUString() 		{ return mGPUString; }
-	BOOL isGPUSupported()				{ return mGPUSupported; }
-	F32 getExpectedGLVersion()			{ return mExpectedGLVersion; }
-	
-	void cleanupFeatureTables();
+    EGPUClass getGPUClass()             { return mGPUClass; }
+    std::string& getGPUString()         { return mGPUString; }
+    BOOL isGPUSupported()               { return mGPUSupported; }
+    F32 getExpectedGLVersion()          { return mExpectedGLVersion; }
+    
+    void cleanupFeatureTables();
 
-	S32 getVersion() const				{ return mTableVersion; }
-	void setSafe(const BOOL safe)		{ mSafe = safe; }
-	BOOL isSafe() const					{ return mSafe; }
+    S32 getVersion() const              { return mTableVersion; }
+    void setSafe(const BOOL safe)       { mSafe = safe; }
+    BOOL isSafe() const                 { return mSafe; }
 
-	LLFeatureList *findMask(const std::string& name);
-	BOOL maskFeatures(const std::string& name);
+    LLFeatureList *findMask(const std::string& name);
+    BOOL maskFeatures(const std::string& name);
 
-	// set the graphics to low, medium, high, or ultra.
-	// skipFeatures forces skipping of mostly hardware settings
-	// that we don't want to change when we change graphics
-	// settings
-	void setGraphicsLevel(U32 level, bool skipFeatures);
+    // set the graphics to low, medium, high, or ultra.
+    // skipFeatures forces skipping of mostly hardware settings
+    // that we don't want to change when we change graphics
+    // settings
+    void setGraphicsLevel(U32 level, bool skipFeatures);
 
-	// What 'level' values are valid to pass to setGraphicsLevel()?
-	// 0 is the low end...
-	U32 getMaxGraphicsLevel() const;
-	bool isValidGraphicsLevel(U32 level) const;
+    // What 'level' values are valid to pass to setGraphicsLevel()?
+    // 0 is the low end...
+    U32 getMaxGraphicsLevel() const;
+    bool isValidGraphicsLevel(U32 level) const;
 
-	// setGraphicsLevel() levels have names.
-	std::string getNameForGraphicsLevel(U32 level) const;
-	// returns -1 for unrecognized name (hence S32 rather than U32)
-	S32 getGraphicsLevelForName(const std::string& name) const;
+    // setGraphicsLevel() levels have names.
+    std::string getNameForGraphicsLevel(U32 level) const;
+    // returns -1 for unrecognized name (hence S32 rather than U32)
+    S32 getGraphicsLevelForName(const std::string& name) const;
 
-	void applyBaseMasks();
-	void applyRecommendedSettings();
+    void applyBaseMasks();
+    void applyRecommendedSettings();
 
-	// apply the basic masks.  Also, skip one saved
-	// in the skip list if true
-	void applyFeatures(bool skipFeatures);
+    // apply the basic masks.  Also, skip one saved
+    // in the skip list if true
+    void applyFeatures(bool skipFeatures);
 
-	LLSD getRecommendedSettingsMap();
+    LLSD getRecommendedSettingsMap();
 
 protected:
-	bool loadGPUClass();
+    bool loadGPUClass();
 
-	bool parseFeatureTable(std::string filename);
-	///< @returns TRUE is file parsed correctly, FALSE if not
+    bool parseFeatureTable(std::string filename);
+    ///< @returns TRUE is file parsed correctly, FALSE if not
 
-	void initBaseMask();
+    void initBaseMask();
 
-	std::map<std::string, LLFeatureList *> mMaskList;
-	std::set<std::string> mSkippedFeatures;
-	BOOL		mInited;
-	S32			mTableVersion;
-	BOOL		mSafe;					// Reinitialize everything to the "safe" mask
-	EGPUClass	mGPUClass;
-	F32			mExpectedGLVersion;		//expected GL version according to gpu table
-	std::string	mGPUString;
-	BOOL		mGPUSupported;
+    std::map<std::string, LLFeatureList *> mMaskList;
+    std::set<std::string> mSkippedFeatures;
+    BOOL        mInited;
+    S32         mTableVersion;
+    BOOL        mSafe;                  // Reinitialize everything to the "safe" mask
+    EGPUClass   mGPUClass;
+    F32         mExpectedGLVersion;     //expected GL version according to gpu table
+    std::string mGPUString;
+    BOOL        mGPUSupported;
 };
 
 inline
 LLFeatureManager::LLFeatureManager()
-:	LLFeatureList("default"),
+:   LLFeatureList("default"),
 
-	mInited(FALSE),
-	mTableVersion(0),
-	mSafe(FALSE),
-	mGPUClass(GPU_CLASS_UNKNOWN),
-	mExpectedGLVersion(0.f),
-	mGPUSupported(FALSE)
+    mInited(FALSE),
+    mTableVersion(0),
+    mSafe(FALSE),
+    mGPUClass(GPU_CLASS_UNKNOWN),
+    mExpectedGLVersion(0.f),
+    mGPUSupported(FALSE)
 {
 }
 

@@ -33,20 +33,20 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-//		LLEventTimer Implementation
+//      LLEventTimer Implementation
 //
 //////////////////////////////////////////////////////////////////////////////
 
 LLEventTimer::LLEventTimer(F32 period)
 : mEventTimer()
 {
-	mPeriod = period;
+    mPeriod = period;
 }
 
 LLEventTimer::LLEventTimer(const LLDate& time)
 : mEventTimer()
 {
-	mPeriod = (F32)(time.secondsSinceEpoch() - LLDate::now().secondsSinceEpoch());
+    mPeriod = (F32)(time.secondsSinceEpoch() - LLDate::now().secondsSinceEpoch());
 }
 
 
@@ -57,17 +57,17 @@ LLEventTimer::~LLEventTimer()
 //static
 void LLEventTimer::updateClass() 
 {
-	for (auto& timer : instance_snapshot())
-	{
-		F32 et = timer.mEventTimer.getElapsedTimeF32();
-		if (timer.mEventTimer.getStarted() && et > timer.mPeriod) {
-			timer.mEventTimer.reset();
-			if ( timer.tick() )
-			{
-				delete &timer;
-			}
-		}
-	}
+    for (auto& timer : instance_snapshot())
+    {
+        F32 et = timer.mEventTimer.getElapsedTimeF32();
+        if (timer.mEventTimer.getStarted() && et > timer.mPeriod) {
+            timer.mEventTimer.reset();
+            if ( timer.tick() )
+            {
+                delete &timer;
+            }
+        }
+    }
 }
 
 

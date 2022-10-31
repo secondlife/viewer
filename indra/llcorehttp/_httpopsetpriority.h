@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_SETPRIORITY_H_
-#define	_LLCORE_HTTP_SETPRIORITY_H_
+#ifndef _LLCORE_HTTP_SETPRIORITY_H_
+#define _LLCORE_HTTP_SETPRIORITY_H_
 
 
 #include "httpcommon.h"
@@ -49,24 +49,24 @@ namespace LLCore
 class HttpOpSetPriority : public HttpOperation
 {
 public:
-	HttpOpSetPriority(HttpHandle handle, HttpRequest::priority_t priority);
+    HttpOpSetPriority(HttpHandle handle, HttpRequest::priority_t priority);
 
-	virtual ~HttpOpSetPriority();
+    virtual ~HttpOpSetPriority();
 
 private:
-	HttpOpSetPriority(const HttpOpSetPriority &);			// Not defined
-	void operator=(const HttpOpSetPriority &);				// Not defined
+    HttpOpSetPriority(const HttpOpSetPriority &);           // Not defined
+    void operator=(const HttpOpSetPriority &);              // Not defined
 
 public:
-	virtual void stageFromRequest(HttpService *);
+    virtual void stageFromRequest(HttpService *);
 
 protected:
-	// Request Data
-	HttpHandle					mHandle;
-	HttpRequest::priority_t		mPriority;
+    // Request Data
+    HttpHandle                  mHandle;
+    HttpRequest::priority_t     mPriority;
 }; // end class HttpOpSetPriority
 
 }  // end namespace LLCore
 
-#endif	// _LLCORE_HTTP_SETPRIORITY_H_
+#endif  // _LLCORE_HTTP_SETPRIORITY_H_
 

@@ -31,12 +31,12 @@
 #include "llfloater.h"
 
 class LLFloaterFontTest:
-	public LLFloater
+    public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 private:
-	LLFloaterFontTest(const LLSD& key);
-	~LLFloaterFontTest();
+    LLFloaterFontTest(const LLSD& key);
+    ~LLFloaterFontTest();
 };
 
 #endif

@@ -35,7 +35,7 @@
 class LLPipelineListener: public LLEventAPI
 {
 public:
-	LLPipelineListener();
+    LLPipelineListener();
 };
 
 #endif /* ! defined(LL_LLPIPELINELISTENER_H) */

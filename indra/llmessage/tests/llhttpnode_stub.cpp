@@ -69,19 +69,19 @@ const LLHTTPNode* LLHTTPNode::findNode(const std::string& name) const { return N
 LLHTTPNode::Response::~Response(){}
 void LLHTTPNode::Response::notFound(const std::string& message)
 {
-	status(404, message);
+    status(404, message);
 }
 void LLHTTPNode::Response::notFound()
 {
-	status(404, "Not Found");
+    status(404, "Not Found");
 }
 void LLHTTPNode::Response::methodNotAllowed()
 {
-	status(405, "Method Not Allowed");
+    status(405, "Method Not Allowed");
 }
 void LLHTTPNode::Response::statusUnknownError(S32 code)
 {
-	status(code, "Unknown Error");
+    status(code, "Unknown Error");
 }
 
 void LLHTTPNode::Response::status(S32 code, const std::string& message)
@@ -90,7 +90,7 @@ void LLHTTPNode::Response::status(S32 code, const std::string& message)
 
 void LLHTTPNode::Response::addHeader(const std::string& name,const std::string& value) 
 {
-	mHeaders[name] = value;
+    mHeaders[name] = value;
 }
 void LLHTTPNode::describe(Description& desc) const { }
 

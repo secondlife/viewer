@@ -42,35 +42,35 @@
 #include "llviewershadermgr.h"
 
 LLDrawPoolGround::LLDrawPoolGround() :
-	LLFacePool(POOL_GROUND)
+    LLFacePool(POOL_GROUND)
 {
 }
 
 void LLDrawPoolGround::prerender()
 {
-	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT);
+    mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT);
 }
 
 void LLDrawPoolGround::render(S32 pass)
 {
-	if (mDrawFace.empty() || !gSavedSettings.getBOOL("RenderGround"))
-	{
-		return;
-	}	
-	
-	LLGLSPipelineDepthTestSkyBox gls_skybox(true, false);
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    if (mDrawFace.empty() || !gSavedSettings.getBOOL("RenderGround"))
+    {
+        return;
+    }   
+    
+    LLGLSPipelineDepthTestSkyBox gls_skybox(true, false);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-	F32 water_height = gAgent.getRegion()->getWaterHeight();
-	gGL.pushMatrix();
-	LLVector3 origin = LLViewerCamera::getInstance()->getOrigin();
-	gGL.translatef(origin.mV[0], origin.mV[1], llmax(origin.mV[2], water_height));
+    F32 water_height = gAgent.getRegion()->getWaterHeight();
+    gGL.pushMatrix();
+    LLVector3 origin = LLViewerCamera::getInstance()->getOrigin();
+    gGL.translatef(origin.mV[0], origin.mV[1], llmax(origin.mV[2], water_height));
 
-	LLFace *facep = mDrawFace[0];
+    LLFace *facep = mDrawFace[0];
 
-	LLOverrideFaceColor col(this, gSky.mVOSkyp->getGLFogColor());
-	facep->renderIndexed();
-	
-	gGL.popMatrix();
+    LLOverrideFaceColor col(this, gSky.mVOSkyp->getGLFogColor());
+    facep->renderIndexed();
+    
+    gGL.popMatrix();
 }
 

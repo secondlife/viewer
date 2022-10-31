@@ -36,25 +36,25 @@ class LLMessageSystem;
 
 class LLHUDManager : public LLSingleton<LLHUDManager>
 {
-	LLSINGLETON(LLHUDManager);
-	~LLHUDManager();
+    LLSINGLETON(LLHUDManager);
+    ~LLHUDManager();
 
 public:
-	LLHUDEffect *createViewerEffect(const U8 type, BOOL send_to_sim = TRUE, BOOL originated_here = TRUE);
+    LLHUDEffect *createViewerEffect(const U8 type, BOOL send_to_sim = TRUE, BOOL originated_here = TRUE);
 
-	void updateEffects();
-	void sendEffects();
-	void cleanupEffects();
+    void updateEffects();
+    void sendEffects();
+    void cleanupEffects();
 
-	static void shutdownClass();
+    static void shutdownClass();
 
-	static void processViewerEffect(LLMessageSystem *mesgsys, void **user_data);
+    static void processViewerEffect(LLMessageSystem *mesgsys, void **user_data);
 
-	static LLColor4 sParentColor;
-	static LLColor4 sChildColor;
+    static LLColor4 sParentColor;
+    static LLColor4 sChildColor;
 
 protected:
-	std::vector<LLPointer<LLHUDEffect> > mHUDEffects;
+    std::vector<LLPointer<LLHUDEffect> > mHUDEffects;
 };
 
 #endif // LL_LLHUDMANAGER_H

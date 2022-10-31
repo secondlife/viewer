@@ -46,43 +46,43 @@ static LLPanelInjector<LLPanelExperiences> register_experiences_panel("experienc
 static const LLExperienceItemComparator NAME_COMPARATOR;
 
 LLPanelExperiences::LLPanelExperiences(  )
-	: mExperiencesList(NULL)
+    : mExperiencesList(NULL)
 {
     buildFromFile("panel_experiences.xml");
 }
 
 BOOL LLPanelExperiences::postBuild( void )
 {
-	mExperiencesList = getChild<LLFlatListView>("experiences_list");
-	if (hasString("loading_experiences"))
-	{
-		mExperiencesList->setNoItemsCommentText(getString("loading_experiences"));
-	}
-	else if (hasString("no_experiences"))
-	{
-		mExperiencesList->setNoItemsCommentText(getString("no_experiences"));
-	}
-	mExperiencesList->setComparator(&NAME_COMPARATOR);
+    mExperiencesList = getChild<LLFlatListView>("experiences_list");
+    if (hasString("loading_experiences"))
+    {
+        mExperiencesList->setNoItemsCommentText(getString("loading_experiences"));
+    }
+    else if (hasString("no_experiences"))
+    {
+        mExperiencesList->setNoItemsCommentText(getString("no_experiences"));
+    }
+    mExperiencesList->setComparator(&NAME_COMPARATOR);
 
-	return TRUE;
+    return TRUE;
 }
 
 
 
 LLExperienceItem* LLPanelExperiences::getSelectedExperienceItem()
 {
-	LLPanel* selected_item = mExperiencesList->getSelectedItem();
-	if (!selected_item) return NULL;
+    LLPanel* selected_item = mExperiencesList->getSelectedItem();
+    if (!selected_item) return NULL;
 
-	return dynamic_cast<LLExperienceItem*>(selected_item);
+    return dynamic_cast<LLExperienceItem*>(selected_item);
 }
 
 void LLPanelExperiences::setExperienceList( const LLSD& experiences )
 {
-	if (hasString("no_experiences"))
-	{
-		mExperiencesList->setNoItemsCommentText(getString("no_experiences"));
-	}
+    if (hasString("no_experiences"))
+    {
+        mExperiencesList->setNoItemsCommentText(getString("no_experiences"));
+    }
     mExperiencesList->clear();
 
     LLSD::array_const_iterator it = experiences.beginArray();
@@ -148,41 +148,41 @@ void LLPanelExperiences::addExperience( const LLUUID& id )
 
         item->init(id);
         mExperiencesList->addItem(item, id);
-		mExperiencesList->sort();
+        mExperiencesList->sort();
     }
 }
 
 void LLPanelExperiences::setButtonAction(const std::string& label, const commit_signal_t::slot_type& cb )
 {
-	if(label.empty())
-	{
-		getChild<LLLayoutPanel>("button_panel")->setVisible(false);
-	}
-	else
-	{
-		getChild<LLLayoutPanel>("button_panel")->setVisible(true);
-		LLButton* child = getChild<LLButton>("btn_action");
-		child->setCommitCallback(cb);
-		child->setLabel(getString(label));
-	}
+    if(label.empty())
+    {
+        getChild<LLLayoutPanel>("button_panel")->setVisible(false);
+    }
+    else
+    {
+        getChild<LLLayoutPanel>("button_panel")->setVisible(true);
+        LLButton* child = getChild<LLButton>("btn_action");
+        child->setCommitCallback(cb);
+        child->setLabel(getString(label));
+    }
 }
 
 void LLPanelExperiences::enableButton( bool enable )
 {
-	getChild<LLButton>("btn_action")->setEnabled(enable);
+    getChild<LLButton>("btn_action")->setEnabled(enable);
 }
 
 
 LLExperienceItem::LLExperienceItem()
-	: mName(NULL)
+    : mName(NULL)
 {
-	buildFromFile("panel_experience_list_item.xml");
+    buildFromFile("panel_experience_list_item.xml");
 }
 
 void LLExperienceItem::init( const LLUUID& id)
 {
     mName = getChild<LLUICtrl>("experience_name");
-	mName->setValue(LLSLURL("experience", id, "profile").getSLURLString());
+    mName->setValue(LLSLURL("experience", id, "profile").getSLURLString());
 }
 
 LLExperienceItem::~LLExperienceItem()
@@ -192,12 +192,12 @@ LLExperienceItem::~LLExperienceItem()
 
 std::string LLExperienceItem::getExperienceName() const
 {
-	if (mName)
-	{
-		return mName->getValue();
-	}
-	
-	return "";
+    if (mName)
+    {
+        return mName->getValue();
+    }
+    
+    return "";
 }
 
 void LLPanelSearchExperiences::doSearch()
@@ -220,20 +220,20 @@ BOOL LLPanelSearchExperiences::postBuild( void )
 
 bool LLExperienceItemComparator::compare(const LLPanel* item1, const LLPanel* item2) const
 {
-	const LLExperienceItem* experience_item1 = dynamic_cast<const LLExperienceItem*>(item1);
-	const LLExperienceItem* experience_item2 = dynamic_cast<const LLExperienceItem*>(item2);
-	
-	if (!experience_item1 || !experience_item2)
-	{
-		LL_ERRS() << "item1 and item2 cannot be null" << LL_ENDL;
-		return true;
-	}
+    const LLExperienceItem* experience_item1 = dynamic_cast<const LLExperienceItem*>(item1);
+    const LLExperienceItem* experience_item2 = dynamic_cast<const LLExperienceItem*>(item2);
+    
+    if (!experience_item1 || !experience_item2)
+    {
+        LL_ERRS() << "item1 and item2 cannot be null" << LL_ENDL;
+        return true;
+    }
 
-	std::string name1 = experience_item1->getExperienceName();
-	std::string name2 = experience_item2->getExperienceName();
+    std::string name1 = experience_item1->getExperienceName();
+    std::string name2 = experience_item2->getExperienceName();
 
-	LLStringUtil::toUpper(name1);
-	LLStringUtil::toUpper(name2);
+    LLStringUtil::toUpper(name1);
+    LLStringUtil::toUpper(name2);
 
-	return name1 < name2;
+    return name1 < name2;
 }

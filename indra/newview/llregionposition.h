@@ -40,22 +40,22 @@ class LLViewerRegion;
 class LLRegionPosition
 {
 private:
-	LLViewerRegion *mRegionp;
+    LLViewerRegion *mRegionp;
 public:
-	LLVector3		mPositionRegion;
-	LLRegionPosition();
-	LLRegionPosition(LLViewerRegion *regionp, const LLVector3 &position_local);
-	LLRegionPosition(const LLVector3d &global_position); // From global coords ONLY!
+    LLVector3       mPositionRegion;
+    LLRegionPosition();
+    LLRegionPosition(LLViewerRegion *regionp, const LLVector3 &position_local);
+    LLRegionPosition(const LLVector3d &global_position); // From global coords ONLY!
 
-	LLViewerRegion*		getRegion() const;
-	void				setPositionGlobal(const LLVector3d& global_pos);
-	LLVector3d			getPositionGlobal() const;
-	const LLVector3&	getPositionRegion() const;
-	const LLVector3		getPositionAgent() const;
+    LLViewerRegion*     getRegion() const;
+    void                setPositionGlobal(const LLVector3d& global_pos);
+    LLVector3d          getPositionGlobal() const;
+    const LLVector3&    getPositionRegion() const;
+    const LLVector3     getPositionAgent() const;
 
 
-	void clear() { mRegionp = NULL; mPositionRegion.clearVec(); }
-//	LLRegionPosition operator+(const LLRegionPosition &pos) const;
+    void clear() { mRegionp = NULL; mPositionRegion.clearVec(); }
+//  LLRegionPosition operator+(const LLRegionPosition &pos) const;
 };
 
 #endif // LL_REGION_POSITION_H

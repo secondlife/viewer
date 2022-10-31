@@ -37,50 +37,50 @@
 
 // protected
 LLFloaterSoundDevices::LLFloaterSoundDevices(const LLSD& key)
-:	LLTransientDockableFloater(NULL, false, key)
+:   LLTransientDockableFloater(NULL, false, key)
 {
-	LLTransientFloaterMgr::getInstance()->addControlView(this);
+    LLTransientFloaterMgr::getInstance()->addControlView(this);
 
-	// force docked state since this floater doesn't save it between recreations
-	setDocked(true);
+    // force docked state since this floater doesn't save it between recreations
+    setDocked(true);
 }
 
 LLFloaterSoundDevices::~LLFloaterSoundDevices()
 {
-	LLTransientFloaterMgr::getInstance()->removeControlView(this);
+    LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
 
 // virtual
 BOOL LLFloaterSoundDevices::postBuild()
 {
-	LLTransientDockableFloater::postBuild();
+    LLTransientDockableFloater::postBuild();
 
-	updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
+    updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
 
-	LLPanelVoiceDeviceSettings* panel = findChild<LLPanelVoiceDeviceSettings>("device_settings_panel");
-	if (panel)
-	{
-		panel->setUseTuningMode(false);
-		getChild<LLUICtrl>("voice_input_device")->setCommitCallback(boost::bind(&LLPanelVoiceDeviceSettings::apply, panel));
-		getChild<LLUICtrl>("voice_output_device")->setCommitCallback(boost::bind(&LLPanelVoiceDeviceSettings::apply, panel));
-		getChild<LLUICtrl>("mic_volume_slider")->setCommitCallback(boost::bind(&LLPanelVoiceDeviceSettings::apply, panel));
-	}
-	return TRUE;
+    LLPanelVoiceDeviceSettings* panel = findChild<LLPanelVoiceDeviceSettings>("device_settings_panel");
+    if (panel)
+    {
+        panel->setUseTuningMode(false);
+        getChild<LLUICtrl>("voice_input_device")->setCommitCallback(boost::bind(&LLPanelVoiceDeviceSettings::apply, panel));
+        getChild<LLUICtrl>("voice_output_device")->setCommitCallback(boost::bind(&LLPanelVoiceDeviceSettings::apply, panel));
+        getChild<LLUICtrl>("mic_volume_slider")->setCommitCallback(boost::bind(&LLPanelVoiceDeviceSettings::apply, panel));
+    }
+    return TRUE;
 }
 
 //virtual
 void LLFloaterSoundDevices::setDocked(bool docked, bool pop_on_undock/* = true*/)
 {
-	LLTransientDockableFloater::setDocked(docked, pop_on_undock);
+    LLTransientDockableFloater::setDocked(docked, pop_on_undock);
 }
 
 // virtual
 void LLFloaterSoundDevices::setFocus( BOOL b )
 {
-	LLTransientDockableFloater::setFocus(b);
+    LLTransientDockableFloater::setFocus(b);
 
-	// Force using active floater transparency
-	// We have to override setFocus() for because selecting an item of the
-	// combobox causes the floater to lose focus and thus become transparent.
-	updateTransparency(TT_ACTIVE);
+    // Force using active floater transparency
+    // We have to override setFocus() for because selecting an item of the
+    // combobox causes the floater to lose focus and thus become transparent.
+    updateTransparency(TT_ACTIVE);
 }

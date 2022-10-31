@@ -30,36 +30,36 @@
 class LLPanel;
 
 class LLViewChildren
-	// makes it easy to manipulate children of a view by id safely
-	// encapsulates common operations into simple, one line calls
+    // makes it easy to manipulate children of a view by id safely
+    // encapsulates common operations into simple, one line calls
 {
 public:
-	LLViewChildren(LLPanel& parent);
-	
-	// all views
-	void show(const std::string& id, bool visible = true);
-	void hide(const std::string& id) { show(id, false); }
+    LLViewChildren(LLPanel& parent);
+    
+    // all views
+    void show(const std::string& id, bool visible = true);
+    void hide(const std::string& id) { show(id, false); }
 
-	void enable(const std::string& id, bool enabled = true);
-	void disable(const std::string& id) { enable(id, false); };
+    void enable(const std::string& id, bool enabled = true);
+    void disable(const std::string& id) { enable(id, false); };
 
-	//
-	// LLTextBox
-	void setText(const std::string& id,
-		const std::string& text, bool visible = true);
+    //
+    // LLTextBox
+    void setText(const std::string& id,
+        const std::string& text, bool visible = true);
 
-	// LLIconCtrl
-	enum Badge { BADGE_OK, BADGE_NOTE, BADGE_WARN, BADGE_ERROR };
-	
-	void setBadge(const std::string& id, Badge b, bool visible = true);
+    // LLIconCtrl
+    enum Badge { BADGE_OK, BADGE_NOTE, BADGE_WARN, BADGE_ERROR };
+    
+    void setBadge(const std::string& id, Badge b, bool visible = true);
 
-	
-	// LLButton
-	void setAction(const std::string& id, void(*function)(void*), void* value);
+    
+    // LLButton
+    void setAction(const std::string& id, void(*function)(void*), void* value);
 
 
 private:
-	LLPanel& mParent;
+    LLPanel& mParent;
 };
 
 #endif

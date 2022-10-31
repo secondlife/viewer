@@ -37,7 +37,7 @@
 
 
 LLFloaterDestinations::LLFloaterDestinations(const LLSD& key)
-	:	LLFloater(key)
+    :   LLFloater(key)
 {
 }
 
@@ -47,8 +47,8 @@ LLFloaterDestinations::~LLFloaterDestinations()
 
 BOOL LLFloaterDestinations::postBuild()
 {
-	enableResizeCtrls(true, true, false);
-	return TRUE;
+    enableResizeCtrls(true, true, false);
+    return TRUE;
 }
 
 

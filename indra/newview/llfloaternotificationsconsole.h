@@ -34,24 +34,24 @@
 class LLNotification;
 
 class LLFloaterNotificationConsole : 
-	public LLFloater
+    public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 
 public:
 
-	// LLPanel
-	BOOL postBuild();
+    // LLPanel
+    BOOL postBuild();
 
-	void addChannel(const std::string& type, bool open = false);
-	void updateResizeLimits(LLLayoutStack &stack);
+    void addChannel(const std::string& type, bool open = false);
+    void updateResizeLimits(LLLayoutStack &stack);
 
-	void removeChannel(const std::string& type);
-	void updateResizeLimits();
+    void removeChannel(const std::string& type);
+    void updateResizeLimits();
 
 private:
-	LLFloaterNotificationConsole(const LLSD& key);	
-	void onClickAdd();
+    LLFloaterNotificationConsole(const LLSD& key);  
+    void onClickAdd();
 };
 
 
@@ -61,15 +61,15 @@ private:
 class LLFloaterNotification : public LLFloater
 {
 public:
-	LLFloaterNotification(LLNotification* note);
+    LLFloaterNotification(LLNotification* note);
 
-	// LLPanel
-	BOOL postBuild();
-	void respond();
+    // LLPanel
+    BOOL postBuild();
+    void respond();
 
 private:
-	static void onCommitResponse(LLUICtrl* ctrl, void* data) { ((LLFloaterNotification*)data)->respond(); }
-	LLNotification* mNote;
+    static void onCommitResponse(LLUICtrl* ctrl, void* data) { ((LLFloaterNotification*)data)->respond(); }
+    LLNotification* mNote;
 };
 #endif
 

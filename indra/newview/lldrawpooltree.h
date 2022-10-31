@@ -31,42 +31,42 @@
 
 class LLDrawPoolTree : public LLFacePool
 {
-	LLPointer<LLViewerTexture> mTexturep;
+    LLPointer<LLViewerTexture> mTexturep;
 public:
-	enum
-	{
-		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
-							LLVertexBuffer::MAP_NORMAL |
+    enum
+    {
+        VERTEX_DATA_MASK =  LLVertexBuffer::MAP_VERTEX |
+                            LLVertexBuffer::MAP_NORMAL |
                             LLVertexBuffer::MAP_COLOR  |
-							LLVertexBuffer::MAP_TEXCOORD0
-	};
+                            LLVertexBuffer::MAP_TEXCOORD0
+    };
 
-	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+    virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
 
-	LLDrawPoolTree(LLViewerTexture *texturep);
+    LLDrawPoolTree(LLViewerTexture *texturep);
 
-	/*virtual*/ void prerender();
+    /*virtual*/ void prerender();
 
-	/*virtual*/ S32 getNumDeferredPasses() { return 1; }
-	/*virtual*/ void beginDeferredPass(S32 pass);
-	/*virtual*/ void endDeferredPass(S32 pass);
-	/*virtual*/ void renderDeferred(S32 pass);
+    /*virtual*/ S32 getNumDeferredPasses() { return 1; }
+    /*virtual*/ void beginDeferredPass(S32 pass);
+    /*virtual*/ void endDeferredPass(S32 pass);
+    /*virtual*/ void renderDeferred(S32 pass);
 
-	/*virtual*/ S32 getNumShadowPasses() { return 1; }
-	/*virtual*/ void beginShadowPass(S32 pass);
-	/*virtual*/ void endShadowPass(S32 pass);
-	/*virtual*/ void renderShadow(S32 pass);
+    /*virtual*/ S32 getNumShadowPasses() { return 1; }
+    /*virtual*/ void beginShadowPass(S32 pass);
+    /*virtual*/ void endShadowPass(S32 pass);
+    /*virtual*/ void renderShadow(S32 pass);
 
-	/*virtual*/ void beginRenderPass( S32 pass );
-	/*virtual*/ void render(S32 pass = 0);
-	/*virtual*/ void endRenderPass( S32 pass );
-	/*virtual*/ S32	 getNumPasses() { return 1; }
-	/*virtual*/ BOOL verify() const;
-	/*virtual*/ LLViewerTexture *getTexture();
-	/*virtual*/ LLViewerTexture *getDebugTexture();
-	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
+    /*virtual*/ void beginRenderPass( S32 pass );
+    /*virtual*/ void render(S32 pass = 0);
+    /*virtual*/ void endRenderPass( S32 pass );
+    /*virtual*/ S32  getNumPasses() { return 1; }
+    /*virtual*/ BOOL verify() const;
+    /*virtual*/ LLViewerTexture *getTexture();
+    /*virtual*/ LLViewerTexture *getDebugTexture();
+    /*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
 
-	static S32 sDiffTex;
+    static S32 sDiffTex;
 };
 
 #endif // LL_LLDRAWPOOLTREE_H

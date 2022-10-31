@@ -49,68 +49,68 @@ class LLJoint;
 class LLVisualParamHint : public LLViewerDynamicTexture
 {
 protected:
-	virtual ~LLVisualParamHint();
+    virtual ~LLVisualParamHint();
 
 public:
-	LLVisualParamHint(
-		S32 pos_x, S32 pos_y,
-		S32 width, S32 height, 
-		LLViewerJointMesh *mesh, 
-		LLViewerVisualParam *param,
-		LLWearable *wearable,
-		F32 param_weight, 
-		LLJoint* jointp);	
+    LLVisualParamHint(
+        S32 pos_x, S32 pos_y,
+        S32 width, S32 height, 
+        LLViewerJointMesh *mesh, 
+        LLViewerVisualParam *param,
+        LLWearable *wearable,
+        F32 param_weight, 
+        LLJoint* jointp);   
 
-	/*virtual*/ S8 getType() const ;
+    /*virtual*/ S8 getType() const ;
 
-	BOOL					needsRender();
-	void					preRender(BOOL clear_depth);
-	BOOL					render();
-	void					requestUpdate( S32 delay_frames ) {mNeedsUpdate = TRUE; mDelayFrames = delay_frames; }
-	void					setUpdateDelayFrames( S32 delay_frames ) { mDelayFrames = delay_frames; }
-	void					draw(F32 alpha);
-	
-	LLViewerVisualParam*	getVisualParam() { return mVisualParam; }
-	F32						getVisualParamWeight() { return mVisualParamWeight; }
-	BOOL					getVisible() { return mIsVisible; }
+    BOOL                    needsRender();
+    void                    preRender(BOOL clear_depth);
+    BOOL                    render();
+    void                    requestUpdate( S32 delay_frames ) {mNeedsUpdate = TRUE; mDelayFrames = delay_frames; }
+    void                    setUpdateDelayFrames( S32 delay_frames ) { mDelayFrames = delay_frames; }
+    void                    draw(F32 alpha);
+    
+    LLViewerVisualParam*    getVisualParam() { return mVisualParam; }
+    F32                     getVisualParamWeight() { return mVisualParamWeight; }
+    BOOL                    getVisible() { return mIsVisible; }
 
-	void					setAllowsUpdates( BOOL b ) { mAllowsUpdates = b; }
+    void                    setAllowsUpdates( BOOL b ) { mAllowsUpdates = b; }
 
-	const LLRect&			getRect()	{ return mRect; }
+    const LLRect&           getRect()   { return mRect; }
 
-	// Requests updates for all instances (excluding two possible exceptions)  Grungy but efficient.
-	static void				requestHintUpdates( LLVisualParamHint* exception1 = NULL, LLVisualParamHint* exception2 = NULL );
+    // Requests updates for all instances (excluding two possible exceptions)  Grungy but efficient.
+    static void             requestHintUpdates( LLVisualParamHint* exception1 = NULL, LLVisualParamHint* exception2 = NULL );
 
 protected:
-	BOOL					mNeedsUpdate;		// does this texture need to be re-rendered?
-	BOOL					mIsVisible;			// is this distortion hint visible?
-	LLViewerJointMesh*		mJointMesh;			// mesh that this distortion applies to
-	LLViewerVisualParam*	mVisualParam;		// visual param applied by this hint
-	LLWearable*				mWearablePtr;		// wearable we're editing
-	F32						mVisualParamWeight;		// weight for this visual parameter
-	BOOL					mAllowsUpdates;		// updates are blocked unless this is true
-	S32						mDelayFrames;		// updates are blocked for this many frames
-	LLRect					mRect;
-	F32						mLastParamWeight;
-	LLJoint*				mCamTargetJoint;	// joint to target with preview camera
+    BOOL                    mNeedsUpdate;       // does this texture need to be re-rendered?
+    BOOL                    mIsVisible;         // is this distortion hint visible?
+    LLViewerJointMesh*      mJointMesh;         // mesh that this distortion applies to
+    LLViewerVisualParam*    mVisualParam;       // visual param applied by this hint
+    LLWearable*             mWearablePtr;       // wearable we're editing
+    F32                     mVisualParamWeight;     // weight for this visual parameter
+    BOOL                    mAllowsUpdates;     // updates are blocked unless this is true
+    S32                     mDelayFrames;       // updates are blocked for this many frames
+    LLRect                  mRect;
+    F32                     mLastParamWeight;
+    LLJoint*                mCamTargetJoint;    // joint to target with preview camera
 
-	LLUIImagePtr mBackgroundp;
+    LLUIImagePtr mBackgroundp;
 
-	typedef std::set< LLVisualParamHint* > instance_list_t;
-	static instance_list_t sInstances;
+    typedef std::set< LLVisualParamHint* > instance_list_t;
+    static instance_list_t sInstances;
 };
 
 // this class resets avatar data at the end of an update cycle
 class LLVisualParamReset : public LLViewerDynamicTexture
 {
 protected:
-	/*virtual */ ~LLVisualParamReset(){}
+    /*virtual */ ~LLVisualParamReset(){}
 public:
-	LLVisualParamReset();
-	/*virtual */ BOOL render();
-	/*virtual*/ S8 getType() const ;
+    LLVisualParamReset();
+    /*virtual */ BOOL render();
+    /*virtual*/ S8 getType() const ;
 
-	static BOOL sDirty;
+    static BOOL sDirty;
 };
 
 #endif

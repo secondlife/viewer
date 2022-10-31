@@ -36,18 +36,18 @@
 
 enum EKeystate 
 {
-	KEYSTATE_DOWN,
-	KEYSTATE_LEVEL,
-	KEYSTATE_UP
+    KEYSTATE_DOWN,
+    KEYSTATE_LEVEL,
+    KEYSTATE_UP
 };
 
 typedef boost::function<bool(EKeystate keystate)> LLKeyFunc;
 typedef std::string (LLKeyStringTranslatorFunc)(const char *label);
-	
+    
 enum EKeyboardInsertMode
 {
-	LL_KIM_INSERT,
-	LL_KIM_OVERWRITE
+    LL_KIM_INSERT,
+    LL_KIM_OVERWRITE
 };
 
 class LLWindowCallbacks;
@@ -55,79 +55,79 @@ class LLWindowCallbacks;
 class LLKeyboard
 {
 public:
-	LLKeyboard();
-	virtual ~LLKeyboard();
+    LLKeyboard();
+    virtual ~LLKeyboard();
 
-    void			resetKeyDownAndHandle();
-    void			resetKeys();
-
-
-	F32				getCurKeyElapsedTime()	{ return getKeyDown(mCurScanKey) ? getKeyElapsedTime( mCurScanKey ) : 0.f; }
-	F32				getCurKeyElapsedFrameCount()	{ return getKeyDown(mCurScanKey) ? (F32)getKeyElapsedFrameCount( mCurScanKey ) : 0.f; }
-	BOOL			getKeyDown(const KEY key) { return mKeyLevel[key]; }
-	BOOL			getKeyRepeated(const KEY key) { return mKeyRepeated[key]; }
-
-	BOOL			translateKey(const U16 os_key, KEY *translated_key);
-	U16				inverseTranslateKey(const KEY translated_key);
-	BOOL			handleTranslatedKeyUp(KEY translated_key, U32 translated_mask);		// Translated into "Linden" keycodes
-	BOOL			handleTranslatedKeyDown(KEY translated_key, U32 translated_mask);	// Translated into "Linden" keycodes
+    void            resetKeyDownAndHandle();
+    void            resetKeys();
 
 
-	virtual BOOL	handleKeyUp(const U16 key, MASK mask) = 0;
-	virtual BOOL	handleKeyDown(const U16 key, MASK mask) = 0;
-	
+    F32             getCurKeyElapsedTime()  { return getKeyDown(mCurScanKey) ? getKeyElapsedTime( mCurScanKey ) : 0.f; }
+    F32             getCurKeyElapsedFrameCount()    { return getKeyDown(mCurScanKey) ? (F32)getKeyElapsedFrameCount( mCurScanKey ) : 0.f; }
+    BOOL            getKeyDown(const KEY key) { return mKeyLevel[key]; }
+    BOOL            getKeyRepeated(const KEY key) { return mKeyRepeated[key]; }
+
+    BOOL            translateKey(const U16 os_key, KEY *translated_key);
+    U16             inverseTranslateKey(const KEY translated_key);
+    BOOL            handleTranslatedKeyUp(KEY translated_key, U32 translated_mask);     // Translated into "Linden" keycodes
+    BOOL            handleTranslatedKeyDown(KEY translated_key, U32 translated_mask);   // Translated into "Linden" keycodes
+
+
+    virtual BOOL    handleKeyUp(const U16 key, MASK mask) = 0;
+    virtual BOOL    handleKeyDown(const U16 key, MASK mask) = 0;
+    
 #ifdef LL_DARWIN
-	// We only actually use this for OS X.
-	virtual void	handleModifier(MASK mask) = 0;
+    // We only actually use this for OS X.
+    virtual void    handleModifier(MASK mask) = 0;
 #endif // LL_DARWIN
 
-	// Asynchronously poll the control, alt, and shift keys and set the
-	// appropriate internal key masks.
-	virtual void	resetMaskKeys() = 0;
-	virtual void	scanKeyboard() = 0;															// scans keyboard, calls functions as necessary
-	// Mac must differentiate between Command = Control for keyboard events
-	// and Command != Control for mouse events.
-	virtual MASK	currentMask(BOOL for_mouse_event) = 0;
-	virtual KEY		currentKey() { return mCurTranslatedKey; }
+    // Asynchronously poll the control, alt, and shift keys and set the
+    // appropriate internal key masks.
+    virtual void    resetMaskKeys() = 0;
+    virtual void    scanKeyboard() = 0;                                                         // scans keyboard, calls functions as necessary
+    // Mac must differentiate between Command = Control for keyboard events
+    // and Command != Control for mouse events.
+    virtual MASK    currentMask(BOOL for_mouse_event) = 0;
+    virtual KEY     currentKey() { return mCurTranslatedKey; }
 
-	EKeyboardInsertMode getInsertMode()	{ return mInsertMode; }
-	void toggleInsertMode();
+    EKeyboardInsertMode getInsertMode() { return mInsertMode; }
+    void toggleInsertMode();
 
-	static BOOL		maskFromString(const std::string& str, MASK *mask);		// False on failure
-	static BOOL		keyFromString(const std::string& str, KEY *key);			// False on failure
-	static std::string stringFromKey(KEY key, bool translate = true);
-	static std::string stringFromAccelerator( MASK accel_mask ); // separated for convinience, returns with "+": "Shift+" or "Shift+Alt+"...
-	static std::string stringFromAccelerator( MASK accel_mask, KEY key );
+    static BOOL     maskFromString(const std::string& str, MASK *mask);     // False on failure
+    static BOOL     keyFromString(const std::string& str, KEY *key);            // False on failure
+    static std::string stringFromKey(KEY key, bool translate = true);
+    static std::string stringFromAccelerator( MASK accel_mask ); // separated for convinience, returns with "+": "Shift+" or "Shift+Alt+"...
+    static std::string stringFromAccelerator( MASK accel_mask, KEY key );
 
-	void setCallbacks(LLWindowCallbacks *cbs) { mCallbacks = cbs; }
-	F32				getKeyElapsedTime( KEY key );  // Returns time in seconds since key was pressed.
-	S32				getKeyElapsedFrameCount( KEY key );  // Returns time in frames since key was pressed.
+    void setCallbacks(LLWindowCallbacks *cbs) { mCallbacks = cbs; }
+    F32             getKeyElapsedTime( KEY key );  // Returns time in seconds since key was pressed.
+    S32             getKeyElapsedFrameCount( KEY key );  // Returns time in frames since key was pressed.
 
-	static void		setStringTranslatorFunc( LLKeyStringTranslatorFunc *trans_func );
-	
+    static void     setStringTranslatorFunc( LLKeyStringTranslatorFunc *trans_func );
+    
 protected:
-	void 			addKeyName(KEY key, const std::string& name);
+    void            addKeyName(KEY key, const std::string& name);
 
 protected:
-	std::map<U16, KEY>	mTranslateKeyMap;		// Map of translations from OS keys to Linden KEYs
-	std::map<KEY, U16>	mInvTranslateKeyMap;	// Map of translations from Linden KEYs to OS keys
-	LLWindowCallbacks *mCallbacks;
+    std::map<U16, KEY>  mTranslateKeyMap;       // Map of translations from OS keys to Linden KEYs
+    std::map<KEY, U16>  mInvTranslateKeyMap;    // Map of translations from Linden KEYs to OS keys
+    LLWindowCallbacks *mCallbacks;
 
-	LLTimer			mKeyLevelTimer[KEY_COUNT];	// Time since level was set
-	S32				mKeyLevelFrameCount[KEY_COUNT];	// Frames since level was set
-	BOOL			mKeyLevel[KEY_COUNT];		// Levels
-	BOOL			mKeyRepeated[KEY_COUNT];	// Key was repeated
-	BOOL			mKeyUp[KEY_COUNT];			// Up edge
-	BOOL			mKeyDown[KEY_COUNT];		// Down edge
-	KEY				mCurTranslatedKey;
-	KEY				mCurScanKey;		// Used during the scanKeyboard()
+    LLTimer         mKeyLevelTimer[KEY_COUNT];  // Time since level was set
+    S32             mKeyLevelFrameCount[KEY_COUNT]; // Frames since level was set
+    BOOL            mKeyLevel[KEY_COUNT];       // Levels
+    BOOL            mKeyRepeated[KEY_COUNT];    // Key was repeated
+    BOOL            mKeyUp[KEY_COUNT];          // Up edge
+    BOOL            mKeyDown[KEY_COUNT];        // Down edge
+    KEY             mCurTranslatedKey;
+    KEY             mCurScanKey;        // Used during the scanKeyboard()
 
-	static LLKeyStringTranslatorFunc*	mStringTranslator;	// Used for l10n + PC/Mac/Linux accelerator labeling
-	
-	EKeyboardInsertMode mInsertMode;
+    static LLKeyStringTranslatorFunc*   mStringTranslator;  // Used for l10n + PC/Mac/Linux accelerator labeling
+    
+    EKeyboardInsertMode mInsertMode;
 
-	static std::map<KEY,std::string> sKeysToNames;
-	static std::map<std::string,KEY> sNamesToKeys;
+    static std::map<KEY,std::string> sKeysToNames;
+    static std::map<std::string,KEY> sNamesToKeys;
 };
 
 extern LLKeyboard *gKeyboard;

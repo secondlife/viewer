@@ -2,10 +2,10 @@
  * @file lltexture.h
  * @brief LLTexture definition
  *
- *	This class acts as a wrapper for OpenGL calls.
- *	The goal of this class is to minimize the number of api calls due to legacy rendering
- *	code, to define an interface for a multiple rendering API abstraction of the UI
- *	rendering, and to abstract out direct rendering calls in a way that is cleaner and easier to maintain.
+ *  This class acts as a wrapper for OpenGL calls.
+ *  The goal of this class is to minimize the number of api calls due to legacy rendering
+ *  code, to define an interface for a multiple rendering API abstraction of the UI
+ *  rendering, and to abstract out direct rendering calls in a way that is cleaner and easier to maintain.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -44,32 +44,32 @@ class LLFontGL ;
 //
 class LLTexture : public virtual LLRefCount
 {
-	friend class LLTexUnit ;
-	friend class LLFontGL ;
+    friend class LLTexUnit ;
+    friend class LLFontGL ;
 
 protected:
-	virtual ~LLTexture();
+    virtual ~LLTexture();
 
 public:
-	LLTexture()
-	{}
+    LLTexture()
+    {}
 
-	//
-	//interfaces to access LLGLTexture
-	//
-	virtual S8         getType() const;
-	virtual void       setKnownDrawSize(S32 width, S32 height);
-	virtual bool       bindDefaultImage(const S32 stage = 0);
-	virtual bool       bindDebugImage(const S32 stage = 0);
-	virtual void       forceImmediateUpdate();
-	virtual void       setActive();
-	virtual S32	       getWidth(S32 discard_level = -1) const;
-	virtual S32	       getHeight(S32 discard_level = -1) const;
-	virtual bool       isActiveFetching();
+    //
+    //interfaces to access LLGLTexture
+    //
+    virtual S8         getType() const;
+    virtual void       setKnownDrawSize(S32 width, S32 height);
+    virtual bool       bindDefaultImage(const S32 stage = 0);
+    virtual bool       bindDebugImage(const S32 stage = 0);
+    virtual void       forceImmediateUpdate();
+    virtual void       setActive();
+    virtual S32        getWidth(S32 discard_level = -1) const;
+    virtual S32        getHeight(S32 discard_level = -1) const;
+    virtual bool       isActiveFetching();
     virtual LLImageGL* getGLTexture() const;
 
 private:
-	virtual void updateBindStatsForTester();
+    virtual void updateBindStatsForTester();
 };
 #endif
 

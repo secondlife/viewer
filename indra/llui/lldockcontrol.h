@@ -39,58 +39,58 @@
 class LLDockControl
 {
 public:
-	enum DocAt
-	{
-		TOP,
-		LEFT,
-		RIGHT,
-		BOTTOM
-	};
+    enum DocAt
+    {
+        TOP,
+        LEFT,
+        RIGHT,
+        BOTTOM
+    };
 
 public:
-	// callback for a function getting a rect valid for control's position
-	typedef boost::function<void (LLRect& )> get_allowed_rect_callback_t;
+    // callback for a function getting a rect valid for control's position
+    typedef boost::function<void (LLRect& )> get_allowed_rect_callback_t;
 
-	LOG_CLASS(LLDockControl);
-	LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
-			const LLUIImagePtr& dockTongue, DocAt dockAt, get_allowed_rect_callback_t get_rect_callback = NULL);
-	virtual ~LLDockControl();
+    LOG_CLASS(LLDockControl);
+    LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
+            const LLUIImagePtr& dockTongue, DocAt dockAt, get_allowed_rect_callback_t get_rect_callback = NULL);
+    virtual ~LLDockControl();
 
 public:
-	void on();
-	void off();
-	void forceRecalculatePosition();
-	void setDock(LLView* dockWidget);
-	LLView* getDock()
-	{
-		return mDockWidgetHandle.get();
-	}
-	void repositionDockable();
-	void drawToungue();
-	bool isDockVisible();
+    void on();
+    void off();
+    void forceRecalculatePosition();
+    void setDock(LLView* dockWidget);
+    LLView* getDock()
+    {
+        return mDockWidgetHandle.get();
+    }
+    void repositionDockable();
+    void drawToungue();
+    bool isDockVisible();
 
-	// gets a rect that bounds possible positions for a dockable control (EXT-1111)
-	void getAllowedRect(LLRect& rect);
+    // gets a rect that bounds possible positions for a dockable control (EXT-1111)
+    void getAllowedRect(LLRect& rect);
 
-	S32 getTongueWidth() { return mDockTongue->getWidth(); }
-	S32 getTongueHeight() { return mDockTongue->getHeight(); }
+    S32 getTongueWidth() { return mDockTongue->getWidth(); }
+    S32 getTongueHeight() { return mDockTongue->getHeight(); }
 
 private:
-	virtual void moveDockable();
+    virtual void moveDockable();
 private:
-	get_allowed_rect_callback_t mGetAllowedRectCallback;
-	bool mEnabled;
-	bool mRecalculateDockablePosition;
-	bool mDockWidgetVisible;
-	DocAt mDockAt;
-	LLHandle<LLView> mDockWidgetHandle;
-	LLRect mPrevDockRect;
-	LLRect mRootRect;
-	LLRect mFloaterRect;
-	LLFloater* mDockableFloater;
-	LLUIImagePtr mDockTongue;
-	S32 mDockTongueX;
-	S32 mDockTongueY;
+    get_allowed_rect_callback_t mGetAllowedRectCallback;
+    bool mEnabled;
+    bool mRecalculateDockablePosition;
+    bool mDockWidgetVisible;
+    DocAt mDockAt;
+    LLHandle<LLView> mDockWidgetHandle;
+    LLRect mPrevDockRect;
+    LLRect mRootRect;
+    LLRect mFloaterRect;
+    LLFloater* mDockableFloater;
+    LLUIImagePtr mDockTongue;
+    S32 mDockTongueX;
+    S32 mDockTongueY;
 };
 
 #endif /* LL_DOCKCONTROL_H */

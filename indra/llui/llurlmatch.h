@@ -45,69 +45,69 @@
 class LLUrlMatch
 {
 public:
-	LLUrlMatch();
+    LLUrlMatch();
 
-	/// return true if this object does not contain a valid Url match yet
-	bool empty() const { return mUrl.empty(); }
+    /// return true if this object does not contain a valid Url match yet
+    bool empty() const { return mUrl.empty(); }
 
-	/// return the offset in the string for the first character of the Url
-	U32 getStart() const { return mStart; }
+    /// return the offset in the string for the first character of the Url
+    U32 getStart() const { return mStart; }
 
-	/// return the offset in the string for the last character of the Url
-	U32 getEnd() const { return mEnd; }
+    /// return the offset in the string for the last character of the Url
+    U32 getEnd() const { return mEnd; }
 
-	/// return the Url that has been matched in the input string
-	std::string getUrl() const { return mUrl; }
+    /// return the Url that has been matched in the input string
+    std::string getUrl() const { return mUrl; }
 
-	/// return a label that can be used for the display of this Url
-	std::string getLabel() const { return mLabel; }
+    /// return a label that can be used for the display of this Url
+    std::string getLabel() const { return mLabel; }
 
-	/// return a right part of url which should be drawn in grey
-	std::string getQuery() const { return mQuery; }
+    /// return a right part of url which should be drawn in grey
+    std::string getQuery() const { return mQuery; }
 
-	/// return a message that could be displayed in a tooltip or status bar
-	std::string getTooltip() const { return mTooltip; }
+    /// return a message that could be displayed in a tooltip or status bar
+    std::string getTooltip() const { return mTooltip; }
 
-	/// return the filename for an icon that can be displayed next to this Url
-	std::string getIcon() const { return mIcon; }
+    /// return the filename for an icon that can be displayed next to this Url
+    std::string getIcon() const { return mIcon; }
 
-	/// Return the color to render the displayed text
-	LLStyle::Params getStyle() const { return mStyle; }
+    /// Return the color to render the displayed text
+    LLStyle::Params getStyle() const { return mStyle; }
 
-	/// Return the name of a XUI file containing the context menu items
-	std::string getMenuName() const { return mMenuName; }
+    /// Return the name of a XUI file containing the context menu items
+    std::string getMenuName() const { return mMenuName; }
 
-	/// return the SL location that this Url describes, or "" if none.
-	std::string getLocation() const { return mLocation; }
+    /// return the SL location that this Url describes, or "" if none.
+    std::string getLocation() const { return mLocation; }
 
-	/// Should this link text be underlined only when mouse is hovered over it?
-	bool underlineOnHoverOnly() const { return mUnderlineOnHoverOnly; }
+    /// Should this link text be underlined only when mouse is hovered over it?
+    bool underlineOnHoverOnly() const { return mUnderlineOnHoverOnly; }
 
-	/// Return true if Url is trusted.
-	bool isTrusted() const { return mTrusted; }
+    /// Return true if Url is trusted.
+    bool isTrusted() const { return mTrusted; }
 
-	/// Change the contents of this match object (used by LLUrlRegistry)
-	void setValues(U32 start, U32 end, const std::string &url, const std::string &label,
-	               const std::string& query, const std::string &tooltip, const std::string &icon,
-				   const LLStyle::Params& style, const std::string &menu, 
-				   const std::string &location, const LLUUID& id,
-				   bool underline_on_hover_only = false, bool trusted = false);
+    /// Change the contents of this match object (used by LLUrlRegistry)
+    void setValues(U32 start, U32 end, const std::string &url, const std::string &label,
+                   const std::string& query, const std::string &tooltip, const std::string &icon,
+                   const LLStyle::Params& style, const std::string &menu, 
+                   const std::string &location, const LLUUID& id,
+                   bool underline_on_hover_only = false, bool trusted = false);
 
-	const LLUUID& getID() const { return mID; }
+    const LLUUID& getID() const { return mID; }
 private:
-	U32         mStart;
-	U32         mEnd;
-	std::string mUrl;
-	std::string mLabel;
-	std::string mQuery;
-	std::string mTooltip;
-	std::string mIcon;
-	std::string mMenuName;
-	std::string mLocation;
-	LLUUID		mID;
-	LLStyle::Params mStyle;
-	bool		mUnderlineOnHoverOnly;
-	bool		mTrusted;
+    U32         mStart;
+    U32         mEnd;
+    std::string mUrl;
+    std::string mLabel;
+    std::string mQuery;
+    std::string mTooltip;
+    std::string mIcon;
+    std::string mMenuName;
+    std::string mLocation;
+    LLUUID      mID;
+    LLStyle::Params mStyle;
+    bool        mUnderlineOnHoverOnly;
+    bool        mTrusted;
 };
 
 #endif

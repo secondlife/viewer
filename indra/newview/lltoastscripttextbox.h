@@ -34,27 +34,27 @@
  * Toast panel for scripted llTextbox notifications.
  */
 class LLToastScriptTextbox
-:	public LLToastPanel
+:   public LLToastPanel
 {
 public:
-	void close();
+    void close();
 
-	// Non-transient messages.  You can specify non-default button
-	// layouts (like one for script dialogs) by passing various
-	// numbers in for "layout".
-	LLToastScriptTextbox(const LLNotificationPtr& notification);
+    // Non-transient messages.  You can specify non-default button
+    // layouts (like one for script dialogs) by passing various
+    // numbers in for "layout".
+    LLToastScriptTextbox(const LLNotificationPtr& notification);
 
-	/*virtual*/ ~LLToastScriptTextbox();
+    /*virtual*/ ~LLToastScriptTextbox();
 
 private:
 
-	LLTextEditor* mInfoText;
+    LLTextEditor* mInfoText;
 
-	void onClickSubmit();
-	void onClickIgnore();
+    void onClickSubmit();
+    void onClickIgnore();
 
-	void snapToMessageHeight();
-	static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
+    void snapToMessageHeight();
+    static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
 };
 
 #endif

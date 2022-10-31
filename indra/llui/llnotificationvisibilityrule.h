@@ -37,67 +37,67 @@
 // from the appropriate local language directory).
 struct LLNotificationVisibilityRule
 {
-	struct Filter : public LLInitParam::Block<Filter>
-	{
-		Optional<std::string>	type,
-								tag,
-								name;
+    struct Filter : public LLInitParam::Block<Filter>
+    {
+        Optional<std::string>   type,
+                                tag,
+                                name;
 
-		Filter()
-		:	type("type"),
-			tag("tag"),
-			name("name")
-		{}
-	};
+        Filter()
+        :   type("type"),
+            tag("tag"),
+            name("name")
+        {}
+    };
 
-	struct Respond : public LLInitParam::Block<Respond, Filter>
-	{
-		Mandatory<std::string> response;
+    struct Respond : public LLInitParam::Block<Respond, Filter>
+    {
+        Mandatory<std::string> response;
 
-		Respond()
-		:	response("response")
-		{}
-	};
+        Respond()
+        :   response("response")
+        {}
+    };
 
-	struct Rule : public LLInitParam::ChoiceBlock<Rule>
-	{
-		Alternative<Filter>		show;
-		Alternative<Filter>		hide;
-		Alternative<Respond>	respond;
+    struct Rule : public LLInitParam::ChoiceBlock<Rule>
+    {
+        Alternative<Filter>     show;
+        Alternative<Filter>     hide;
+        Alternative<Respond>    respond;
 
-		Rule()
-		:	show("show"),
-			hide("hide"),
-			respond("respond")
-		{}
-	};
+        Rule()
+        :   show("show"),
+            hide("hide"),
+            respond("respond")
+        {}
+    };
 
-	struct Rules : public LLInitParam::Block<Rules>
-	{
-		Multiple<Rule>	rules;
+    struct Rules : public LLInitParam::Block<Rules>
+    {
+        Multiple<Rule>  rules;
 
-		Rules()
-		:	rules("")
-		{}
-	};
+        Rules()
+        :   rules("")
+        {}
+    };
 
-	LLNotificationVisibilityRule(const Rule& p);
-	
+    LLNotificationVisibilityRule(const Rule& p);
+    
     // If true, this rule makes matching notifications visible.  Otherwise, it makes them invisible.
     bool mVisible;
 
     // Which response to give when making a notification invisible.  An empty string means the notification should be cancelled instead of responded to.
-	std::string mResponse;
+    std::string mResponse;
 
     // String to match against the notification's "type".  An empty string matches all notifications.
     std::string mType;
-	
+    
     // String to match against the notification's tag(s).  An empty string matches all notifications.
-	std::string mTag;
+    std::string mTag;
 
     // String to match against the notification's name.  An empty string matches all notifications.
-	std::string mName;
-	
+    std::string mName;
+    
 };
 
 #endif //LL_LLNOTIFICATION_VISIBILITY_RULE_H

@@ -34,19 +34,19 @@
 class LLAppViewerMacOSX : public LLAppViewer
 {
 public:
-	LLAppViewerMacOSX();
-	virtual ~LLAppViewerMacOSX();
+    LLAppViewerMacOSX();
+    virtual ~LLAppViewerMacOSX();
 
-	//
-	// Main application logic
-	//
-	virtual bool init();			// Override to do application initialization
+    //
+    // Main application logic
+    //
+    virtual bool init();            // Override to do application initialization
 
 protected:
-	virtual bool restoreErrorTrap();
+    virtual bool restoreErrorTrap();
 
-	std::string generateSerialNumber();
-	virtual bool initParseCommandLine(LLCommandLineParser& clp);
+    std::string generateSerialNumber();
+    virtual bool initParseCommandLine(LLCommandLineParser& clp);
 };
 
 #endif // LL_LLAPPVIEWERMACOSX_H

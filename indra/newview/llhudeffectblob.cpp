@@ -33,11 +33,11 @@
 #include "llui.h"
 
 LLHUDEffectBlob::LLHUDEffectBlob(const U8 type) 
-:	LLHUDEffect(type), 
-	mPixelSize(10)
+:   LLHUDEffect(type), 
+    mPixelSize(10)
 {
-	mTimer.start();
-	mImage = LLUI::getUIImage("Camera_Drag_Dot");
+    mTimer.start();
+    mImage = LLUI::getUIImage("Camera_Drag_Dot");
 }
 
 LLHUDEffectBlob::~LLHUDEffectBlob()
@@ -46,50 +46,50 @@ LLHUDEffectBlob::~LLHUDEffectBlob()
 
 void LLHUDEffectBlob::markDead()
 {
-	mImage = NULL;
+    mImage = NULL;
 
-	LLHUDEffect::markDead();
+    LLHUDEffect::markDead();
 }
 
 void LLHUDEffectBlob::render()
 {
-	F32 time = mTimer.getElapsedTimeF32();
-	if (mDuration < time)
-	{
-		markDead();
-		return;
-	}
+    F32 time = mTimer.getElapsedTimeF32();
+    if (mDuration < time)
+    {
+        markDead();
+        return;
+    }
 
-	LLVector3 pos_agent = gAgent.getPosAgentFromGlobal(mPositionGlobal);
+    LLVector3 pos_agent = gAgent.getPosAgentFromGlobal(mPositionGlobal);
 
-	LLVector3 pixel_up, pixel_right;
+    LLVector3 pixel_up, pixel_right;
 
-	LLViewerCamera::instance().getPixelVectors(pos_agent, pixel_up, pixel_right);
+    LLViewerCamera::instance().getPixelVectors(pos_agent, pixel_up, pixel_right);
 
-	LLGLSPipelineAlpha gls_pipeline_alpha;
-	gGL.getTexUnit(0)->bind(mImage->getImage());
+    LLGLSPipelineAlpha gls_pipeline_alpha;
+    gGL.getTexUnit(0)->bind(mImage->getImage());
 
-	LLColor4U color = mColor;
-	color.mV[VALPHA] = (U8)clamp_rescale(time, 0.f, mDuration, 255.f, 0.f);
-	gGL.color4ubv(color.mV);
+    LLColor4U color = mColor;
+    color.mV[VALPHA] = (U8)clamp_rescale(time, 0.f, mDuration, 255.f, 0.f);
+    gGL.color4ubv(color.mV);
 
-	{ gGL.pushMatrix();
-		gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
-		LLVector3 u_scale = pixel_right * (F32)mPixelSize;
-		LLVector3 v_scale = pixel_up * (F32)mPixelSize;
-		
-		{ gGL.begin(LLRender::QUADS);
-			gGL.texCoord2f(0.f, 1.f);
-			gGL.vertex3fv((v_scale - u_scale).mV);
-			gGL.texCoord2f(0.f, 0.f);
-			gGL.vertex3fv((-v_scale - u_scale).mV);
-			gGL.texCoord2f(1.f, 0.f);
-			gGL.vertex3fv((-v_scale + u_scale).mV);
-			gGL.texCoord2f(1.f, 1.f);
-			gGL.vertex3fv((v_scale + u_scale).mV);
-		} gGL.end();
+    { gGL.pushMatrix();
+        gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
+        LLVector3 u_scale = pixel_right * (F32)mPixelSize;
+        LLVector3 v_scale = pixel_up * (F32)mPixelSize;
+        
+        { gGL.begin(LLRender::QUADS);
+            gGL.texCoord2f(0.f, 1.f);
+            gGL.vertex3fv((v_scale - u_scale).mV);
+            gGL.texCoord2f(0.f, 0.f);
+            gGL.vertex3fv((-v_scale - u_scale).mV);
+            gGL.texCoord2f(1.f, 0.f);
+            gGL.vertex3fv((-v_scale + u_scale).mV);
+            gGL.texCoord2f(1.f, 1.f);
+            gGL.vertex3fv((v_scale + u_scale).mV);
+        } gGL.end();
 
-	} gGL.popMatrix();
+    } gGL.popMatrix();
 }
 
 void LLHUDEffectBlob::renderForTimer()

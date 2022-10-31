@@ -33,8 +33,8 @@ LLEditMenuHandler* LLEditMenuHandler::gEditMenuHandler = NULL;
 
 LLEditMenuHandler::~LLEditMenuHandler()
 {
-	if (gEditMenuHandler == this)
-	{
-		gEditMenuHandler = NULL;
-	}
+    if (gEditMenuHandler == this)
+    {
+        gEditMenuHandler = NULL;
+    }
 }

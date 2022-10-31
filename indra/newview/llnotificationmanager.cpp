@@ -42,7 +42,7 @@ using namespace LLNotificationsUI;
 //--------------------------------------------------------------------------
 LLNotificationManager::LLNotificationManager()
 {
-	init();
+    init();
 }
 
 //--------------------------------------------------------------------------
@@ -53,17 +53,17 @@ LLNotificationManager::~LLNotificationManager()
 //--------------------------------------------------------------------------
 void LLNotificationManager::init()
 {
-	mChannels.push_back(new LLScriptHandler());
-	mChannels.push_back(new LLTipHandler());
-	mChannels.push_back(new LLGroupHandler());
-	mChannels.push_back(new LLAlertHandler("Alerts", "alert", false));
-	mChannels.push_back(new LLAlertHandler("AlertModal", "alertmodal", true));
-	mChannels.push_back(new LLOfferHandler());
-	mChannels.push_back(new LLHintHandler());
-	mChannels.push_back(new LLBrowserNotification());
-	mChannels.push_back(new LLIMHandler());
+    mChannels.push_back(new LLScriptHandler());
+    mChannels.push_back(new LLTipHandler());
+    mChannels.push_back(new LLGroupHandler());
+    mChannels.push_back(new LLAlertHandler("Alerts", "alert", false));
+    mChannels.push_back(new LLAlertHandler("AlertModal", "alertmodal", true));
+    mChannels.push_back(new LLOfferHandler());
+    mChannels.push_back(new LLHintHandler());
+    mChannels.push_back(new LLBrowserNotification());
+    mChannels.push_back(new LLIMHandler());
   
-	mChatHandler = std::shared_ptr<LLFloaterIMNearbyChatHandler>(new LLFloaterIMNearbyChatHandler());
+    mChatHandler = std::shared_ptr<LLFloaterIMNearbyChatHandler>(new LLFloaterIMNearbyChatHandler());
 }
 
 //--------------------------------------------------------------------------

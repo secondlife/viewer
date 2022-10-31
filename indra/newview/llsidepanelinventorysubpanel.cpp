@@ -48,9 +48,9 @@
 // Default constructor
 LLSidepanelInventorySubpanel::LLSidepanelInventorySubpanel(const LLPanel::Params& p)
   : LLPanel(p),
-	mIsDirty(TRUE),
-	mIsEditing(FALSE),
-	mCancelBtn(NULL)
+    mIsDirty(TRUE),
+    mIsEditing(FALSE),
+    mCancelBtn(NULL)
 {
 }
 
@@ -63,77 +63,77 @@ LLSidepanelInventorySubpanel::~LLSidepanelInventorySubpanel()
 BOOL LLSidepanelInventorySubpanel::postBuild()
 {
 
-	mCancelBtn = findChild<LLButton>("cancel_btn");
-	if (mCancelBtn)
-	{
-		mCancelBtn->setClickedCallback(boost::bind(&LLSidepanelInventorySubpanel::onCancelButtonClicked, this));
-	}
-	return TRUE;
+    mCancelBtn = findChild<LLButton>("cancel_btn");
+    if (mCancelBtn)
+    {
+        mCancelBtn->setClickedCallback(boost::bind(&LLSidepanelInventorySubpanel::onCancelButtonClicked, this));
+    }
+    return TRUE;
 }
 
 void LLSidepanelInventorySubpanel::setVisible(BOOL visible)
 {
-	if (visible)
-	{
-		dirty();
-	}
-	LLPanel::setVisible(visible);
+    if (visible)
+    {
+        dirty();
+    }
+    LLPanel::setVisible(visible);
 }
 
 void LLSidepanelInventorySubpanel::setIsEditing(BOOL edit)
 {
-	mIsEditing = edit;
-	mIsDirty = TRUE;
+    mIsEditing = edit;
+    mIsDirty = TRUE;
 }
 
 BOOL LLSidepanelInventorySubpanel::getIsEditing() const
 {
 
-	return TRUE; // Default everything to edit mode since we're not using an edit button anymore.
-	// return mIsEditing;
+    return TRUE; // Default everything to edit mode since we're not using an edit button anymore.
+    // return mIsEditing;
 }
 
 void LLSidepanelInventorySubpanel::reset()
 {
-	mIsDirty = TRUE;
+    mIsDirty = TRUE;
 }
 
 void LLSidepanelInventorySubpanel::draw()
 {
-	if (mIsDirty)
-	{
-		refresh();
-		updateVerbs();
-		mIsDirty = FALSE;
-	}
+    if (mIsDirty)
+    {
+        refresh();
+        updateVerbs();
+        mIsDirty = FALSE;
+    }
 
-	LLPanel::draw();
+    LLPanel::draw();
 }
 
 void LLSidepanelInventorySubpanel::dirty()
 {
-	mIsDirty = TRUE;
-	setIsEditing(FALSE);
+    mIsDirty = TRUE;
+    setIsEditing(FALSE);
 }
 
 void LLSidepanelInventorySubpanel::updateVerbs()
 {
-	if (mCancelBtn)
-	{
-		mCancelBtn->setVisible(mIsEditing);
-	}
+    if (mCancelBtn)
+    {
+        mCancelBtn->setVisible(mIsEditing);
+    }
 }
 
 void LLSidepanelInventorySubpanel::onEditButtonClicked()
 {
-	setIsEditing(TRUE);
-	refresh();
-	updateVerbs();
+    setIsEditing(TRUE);
+    refresh();
+    updateVerbs();
 }
 
 void LLSidepanelInventorySubpanel::onCancelButtonClicked()
 {
-	setIsEditing(FALSE);
-	refresh();
-	updateVerbs();
+    setIsEditing(FALSE);
+    refresh();
+    updateVerbs();
 }

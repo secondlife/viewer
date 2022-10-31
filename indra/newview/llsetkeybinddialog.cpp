@@ -78,9 +78,9 @@ LLSetKeyBindDialog::LLSetKeyBindDialog(const LLSD& key)
     mContextConeOutAlpha(0.f),
     mContextConeFadeTime(0.f)
 {
-	mContextConeInAlpha = gSavedSettings.getF32("ContextConeInAlpha");
-	mContextConeOutAlpha = gSavedSettings.getF32("ContextConeOutAlpha");
-	mContextConeFadeTime = gSavedSettings.getF32("ContextConeFadeTime");
+    mContextConeInAlpha = gSavedSettings.getF32("ContextConeInAlpha");
+    mContextConeOutAlpha = gSavedSettings.getF32("ContextConeOutAlpha");
+    mContextConeFadeTime = gSavedSettings.getF32("ContextConeFadeTime");
 }
 
 LLSetKeyBindDialog::~LLSetKeyBindDialog()

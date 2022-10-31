@@ -34,14 +34,14 @@ class LLFloaterSoundDevices : public LLTransientDockableFloater
 {
 public:
 
-	LOG_CLASS(LLFloaterSoundDevices);
+    LOG_CLASS(LLFloaterSoundDevices);
 
-	LLFloaterSoundDevices(const LLSD& key);
-	~LLFloaterSoundDevices();
+    LLFloaterSoundDevices(const LLSD& key);
+    ~LLFloaterSoundDevices();
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void setDocked(bool docked, bool pop_on_undock = true);
-	/*virtual*/ void setFocus( BOOL b );
+    /*virtual*/ BOOL postBuild();
+    /*virtual*/ void setDocked(bool docked, bool pop_on_undock = true);
+    /*virtual*/ void setFocus( BOOL b );
 };
 
 

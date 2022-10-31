@@ -35,36 +35,36 @@ class LLUUID;
 class LLFloaterScriptDebug : public LLMultiFloater
 {
 public:
-	LLFloaterScriptDebug(const LLSD& key);
-	virtual ~LLFloaterScriptDebug();
-	virtual BOOL postBuild();
-	virtual void setVisible(BOOL visible);
+    LLFloaterScriptDebug(const LLSD& key);
+    virtual ~LLFloaterScriptDebug();
+    virtual BOOL postBuild();
+    virtual void setVisible(BOOL visible);
     static void show(const LLUUID& object_id);
 
     /*virtual*/ void closeFloater(bool app_quitting = false);
-	static void addScriptLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color, const LLUUID& source_id);
+    static void addScriptLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color, const LLUUID& source_id);
 
 protected:
-	static LLFloater* addOutputWindow(const LLUUID& object_id);
+    static LLFloater* addOutputWindow(const LLUUID& object_id);
 
 protected:
-	static LLFloaterScriptDebug*	sInstance;
+    static LLFloaterScriptDebug*    sInstance;
 };
 
 class LLFloaterScriptDebugOutput : public LLFloater
 {
 public:
-	LLFloaterScriptDebugOutput(const LLSD& object_id);
-	~LLFloaterScriptDebugOutput();
+    LLFloaterScriptDebugOutput(const LLSD& object_id);
+    ~LLFloaterScriptDebugOutput();
 
-	void addLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color);
+    void addLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color);
 
-	virtual BOOL postBuild();
-	
+    virtual BOOL postBuild();
+    
 protected:
-	LLTextEditor* mHistoryEditor;
+    LLTextEditor* mHistoryEditor;
 
-	LLUUID mObjectID;
+    LLUUID mObjectID;
 };
 
 #endif // LL_LLFLOATERSCRIPTDEBUG_H

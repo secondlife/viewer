@@ -43,38 +43,38 @@
 
 #define SHOW_RECENT_TAB (0)
 LLFloaterExperiences::LLFloaterExperiences(const LLSD& data)
-	:LLFloater(data)
+    :LLFloater(data)
 {
 }
 
 LLPanelExperiences* LLFloaterExperiences::addTab(const std::string& name, bool select)
 {
-	LLPanelExperiences* newPanel = LLPanelExperiences::create(name);
+    LLPanelExperiences* newPanel = LLPanelExperiences::create(name);
     getChild<LLTabContainer>("xp_tabs")->addTabPanel(LLTabContainer::TabPanelParams().
         panel(newPanel).
         label(LLTrans::getString(name)).
         select_tab(select));
 
-	return newPanel;
+    return newPanel;
 }
 
 BOOL LLFloaterExperiences::postBuild()
 {
-	getChild<LLTabContainer>("xp_tabs")->addTabPanel(new LLPanelExperiencePicker());
+    getChild<LLTabContainer>("xp_tabs")->addTabPanel(new LLPanelExperiencePicker());
     addTab("Allowed_Experiences_Tab", true);
     addTab("Blocked_Experiences_Tab", false);
     addTab("Admin_Experiences_Tab", false);
     addTab("Contrib_Experiences_Tab", false);
-	LLPanelExperiences* owned = addTab("Owned_Experiences_Tab", false);
-	owned->setButtonAction("acquire", boost::bind(&LLFloaterExperiences::sendPurchaseRequest, this));
-	owned->enableButton(false);
+    LLPanelExperiences* owned = addTab("Owned_Experiences_Tab", false);
+    owned->setButtonAction("acquire", boost::bind(&LLFloaterExperiences::sendPurchaseRequest, this));
+    owned->enableButton(false);
 #if SHOW_RECENT_TAB
-	addTab("Recent_Experiences_Tab", false);
+    addTab("Recent_Experiences_Tab", false);
 #endif //SHOW_RECENT_TAB
-	getChild<LLTabContainer>("xp_tabs")->addTabPanel(new LLPanelExperienceLog());
+    getChild<LLTabContainer>("xp_tabs")->addTabPanel(new LLPanelExperienceLog());
     resizeToTabs();
 
-   	return TRUE;
+    return TRUE;
 }
 
 
@@ -237,10 +237,10 @@ void LLFloaterExperiences::onClose( bool app_quitting )
 
 void LLFloaterExperiences::checkPurchaseInfo(LLPanelExperiences* panel, const LLSD& content) const
 {
-	panel->enableButton(content.has("purchase"));
+    panel->enableButton(content.has("purchase"));
 
-	LLFloaterExperiences::findInstance()->updateInfo("GetAdminExperiences","Admin_Experiences_Tab");
-	LLFloaterExperiences::findInstance()->updateInfo("GetCreatorExperiences","Contrib_Experiences_Tab");
+    LLFloaterExperiences::findInstance()->updateInfo("GetAdminExperiences","Admin_Experiences_Tab");
+    LLFloaterExperiences::findInstance()->updateInfo("GetCreatorExperiences","Contrib_Experiences_Tab");
 }
 
 void LLFloaterExperiences::checkAndOpen(LLPanelExperiences* panel, const LLSD& content) const
@@ -271,9 +271,9 @@ void LLFloaterExperiences::checkAndOpen(LLPanelExperiences* panel, const LLSD& c
 
 void LLFloaterExperiences::updateInfo(std::string experienceCap, std::string tab)
 {
-	LLViewerRegion* region = gAgent.getRegion();
-	if (region)
-	{
+    LLViewerRegion* region = gAgent.getRegion();
+    if (region)
+    {
         NameMap_t tabMap;
         LLHandle<LLFloaterExperiences> handle = getDerivedHandle<LLFloaterExperiences>();
 
@@ -311,7 +311,7 @@ void LLFloaterExperiences::sendPurchaseRequest()
 
 LLFloaterExperiences* LLFloaterExperiences::findInstance()
 {
-	return LLFloaterReg::findTypedInstance<LLFloaterExperiences>("experiences");
+    return LLFloaterReg::findTypedInstance<LLFloaterExperiences>("experiences");
 }
 
 

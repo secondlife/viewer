@@ -53,7 +53,7 @@ typedef std::shared_ptr<LLSettingsBase> LLSettingsBasePtr_t;
  */
 class LLFloaterEditExtDayCycle : public LLFloaterEditEnvironmentBase
 {
-	LOG_CLASS(LLFloaterEditExtDayCycle);
+    LOG_CLASS(LLFloaterEditExtDayCycle);
 
     friend class LLDaySettingCopiedCallback;
 
@@ -100,7 +100,7 @@ public:
     virtual LLSettingsBase::ptr_t getEditSettings()   const override { return mEditDay; }
 
 
-    BOOL			            handleKeyUp(KEY key, MASK mask, BOOL called_from_parent) override;
+    BOOL                        handleKeyUp(KEY key, MASK mask, BOOL called_from_parent) override;
 
 protected:
     virtual void                setEditSettingsAndUpdate(const LLSettingsBase::ptr_t &settings) override;
@@ -109,40 +109,40 @@ private:
     typedef std::function<void()> on_confirm_fn;
     F32 getCurrentFrame() const;
 
-	// flyout response/click
-	void                        onButtonApply(LLUICtrl *ctrl, const LLSD &data);
+    // flyout response/click
+    void                        onButtonApply(LLUICtrl *ctrl, const LLSD &data);
     //virtual void                onClickCloseBtn(bool app_quitting = false) override;
     //void                        onButtonImport();
     void                        onButtonLoadFrame();
     void                        onAddFrame();
-	void                        onRemoveFrame();
+    void                        onRemoveFrame();
     void                        onCloneTrack();
     void                        onLoadTrack();
     void                        onClearTrack();
-	void                        onCommitName(class LLLineEditor* caller, void* user_data);
-	void                        onTrackSelectionCallback(const LLSD& user_data);
-	void                        onPlayActionCallback(const LLSD& user_data);
-	// time slider clicked
-	void                        onTimeSliderCallback();
-	// a frame moved or frame selection changed
-	void                        onFrameSliderCallback(const LLSD &);
+    void                        onCommitName(class LLLineEditor* caller, void* user_data);
+    void                        onTrackSelectionCallback(const LLSD& user_data);
+    void                        onPlayActionCallback(const LLSD& user_data);
+    // time slider clicked
+    void                        onTimeSliderCallback();
+    // a frame moved or frame selection changed
+    void                        onFrameSliderCallback(const LLSD &);
     void                        onFrameSliderDoubleClick(S32 x, S32 y, MASK mask);
     void                        onFrameSliderMouseDown(S32 x, S32 y, MASK mask);
     void                        onFrameSliderMouseUp(S32 x, S32 y, MASK mask);
 
     void                        cloneTrack(U32 source_index, U32 dest_index);
     void                        cloneTrack(const LLSettingsDay::ptr_t &source_day, U32 source_index, U32 dest_index);
-	void                        selectTrack(U32 track_index, bool force = false);
-	void                        selectFrame(F32 frame, F32 slop_factor);
-	void                        clearTabs();
-	void                        updateTabs();
-	void                        updateWaterTabs(const LLSettingsWaterPtr_t &p_water);
-	void                        updateSkyTabs(const LLSettingsSkyPtr_t &p_sky);
-	void                        updateButtons();
-	void                        updateLabels();
-	void                        updateSlider(); //generate sliders from current track
-	void                        updateTimeAndLabel();
-	void                        addSliderFrame(F32 frame, const LLSettingsBase::ptr_t &setting, bool update_ui = true);
+    void                        selectTrack(U32 track_index, bool force = false);
+    void                        selectFrame(F32 frame, F32 slop_factor);
+    void                        clearTabs();
+    void                        updateTabs();
+    void                        updateWaterTabs(const LLSettingsWaterPtr_t &p_water);
+    void                        updateSkyTabs(const LLSettingsSkyPtr_t &p_sky);
+    void                        updateButtons();
+    void                        updateLabels();
+    void                        updateSlider(); //generate sliders from current track
+    void                        updateTimeAndLabel();
+    void                        addSliderFrame(F32 frame, const LLSettingsBase::ptr_t &setting, bool update_ui = true);
     void                        removeCurrentSliderFrame();
     void                        removeSliderFrame(F32 frame);
 
@@ -201,7 +201,7 @@ private:
     LLButton *                  mCloneTrack;
     LLButton *                  mLoadTrack;
     LLButton *                  mClearTrack;
-    LLMultiSliderCtrl*	        mTimeSlider;
+    LLMultiSliderCtrl*          mTimeSlider;
     LLMultiSliderCtrl*          mFramesSlider;
     LLView*                     mSkyTabLayoutContainer;
     LLView*                     mWaterTabLayoutContainer;

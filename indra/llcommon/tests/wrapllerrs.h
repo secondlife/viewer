@@ -117,9 +117,9 @@ class CaptureLogRecorder : public LLError::Recorder, public boost::noncopyable
 {
 public:
     CaptureLogRecorder()
-		: LLError::Recorder(),
-		boost::noncopyable(),
-		mMessages()
+        : LLError::Recorder(),
+        boost::noncopyable(),
+        mMessages()
     {
     }
 

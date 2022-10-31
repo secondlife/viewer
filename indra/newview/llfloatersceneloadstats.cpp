@@ -31,10 +31,10 @@
 
 
 LLFloaterSceneLoadStats::LLFloaterSceneLoadStats( const LLSD& key ) 
-:	LLFloater(key)
+:   LLFloater(key)
 {}
 
 BOOL LLFloaterSceneLoadStats::postBuild()
 {
-	return TRUE;
+    return TRUE;
 }

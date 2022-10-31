@@ -35,28 +35,28 @@ class LLPanelGroupInvite
 : public LLPanel
 {
 public:
-	LLPanelGroupInvite(const LLUUID& group_id);
-	~LLPanelGroupInvite();
-	
-	void addUsers(uuid_vec_t& agent_ids);
-	/**
-	 * this callback is being used to add a user whose fullname isn't been loaded before invoking of addUsers().
-	 */  
-	void addUserCallback(const LLUUID& id, const LLAvatarName& av_name);
-	void clear();
-	void update();
+    LLPanelGroupInvite(const LLUUID& group_id);
+    ~LLPanelGroupInvite();
+    
+    void addUsers(uuid_vec_t& agent_ids);
+    /**
+     * this callback is being used to add a user whose fullname isn't been loaded before invoking of addUsers().
+     */  
+    void addUserCallback(const LLUUID& id, const LLAvatarName& av_name);
+    void clear();
+    void update();
 
-	void setCloseCallback(void (*close_callback)(void*), void* data);
+    void setCloseCallback(void (*close_callback)(void*), void* data);
 
-	virtual void draw();
-	virtual BOOL postBuild();
+    virtual void draw();
+    virtual BOOL postBuild();
 protected:
-	class impl;
-	impl* mImplementation;
+    class impl;
+    impl* mImplementation;
 
-	BOOL mPendingUpdate;
-	LLUUID mStoreSelected;
-	void updateLists();
+    BOOL mPendingUpdate;
+    LLUUID mStoreSelected;
+    void updateLists();
 };
 
 #endif

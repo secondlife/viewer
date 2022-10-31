@@ -37,41 +37,41 @@
 
 //static
 std::string LLViewerHome::getHomeURL()
-{	
-	// Return the URL to display in the Home side tray. We read
-	// this value from settings.xml and support various substitutions
+{   
+    // Return the URL to display in the Home side tray. We read
+    // this value from settings.xml and support various substitutions
 
-	LLSD substitution;
-	substitution["AUTH_TOKEN"] = LLURI::escape(getAuthKey());
+    LLSD substitution;
+    substitution["AUTH_TOKEN"] = LLURI::escape(getAuthKey());
 
-	// get the home URL from the settings.xml file
-	std::string homeURL = gSavedSettings.getString("HomeSidePanelURL");
+    // get the home URL from the settings.xml file
+    std::string homeURL = gSavedSettings.getString("HomeSidePanelURL");
 
-	// support a grid-level override of the URL from login.cgi
-	LLSD grid_url = LLLoginInstance::getInstance()->getResponse("home_sidetray_url");
-	if (! grid_url.asString().empty())
-	{
-		homeURL = grid_url.asString();
-	}	
+    // support a grid-level override of the URL from login.cgi
+    LLSD grid_url = LLLoginInstance::getInstance()->getResponse("home_sidetray_url");
+    if (! grid_url.asString().empty())
+    {
+        homeURL = grid_url.asString();
+    }   
 
-	// expand all substitution strings in the URL and return it
-	// (also adds things like [LANGUAGE], [VERSION], [OS], etc.)
-	return LLWeb::expandURLSubstitutions(homeURL, substitution);
+    // expand all substitution strings in the URL and return it
+    // (also adds things like [LANGUAGE], [VERSION], [OS], etc.)
+    return LLWeb::expandURLSubstitutions(homeURL, substitution);
 }
 
 //static
 std::string LLViewerHome::getAuthKey()
 {
-	// return the value of the (optional) auth token returned by login.cgi
-	// this lets the server provide an authentication token that we can
-	// blindly pass to the Home web page for it to perform authentication.
-	// We use "home_sidetray_token", and fallback to "auth_token" if not
-	// present.
-	LLSD auth_token = LLLoginInstance::getInstance()->getResponse("home_sidetray_token");
-	if (auth_token.asString().empty())
-	{
-		auth_token = LLLoginInstance::getInstance()->getResponse("auth_token");
-	}
-	return auth_token.asString();
+    // return the value of the (optional) auth token returned by login.cgi
+    // this lets the server provide an authentication token that we can
+    // blindly pass to the Home web page for it to perform authentication.
+    // We use "home_sidetray_token", and fallback to "auth_token" if not
+    // present.
+    LLSD auth_token = LLLoginInstance::getInstance()->getResponse("home_sidetray_token");
+    if (auth_token.asString().empty())
+    {
+        auth_token = LLLoginInstance::getInstance()->getResponse("auth_token");
+    }
+    return auth_token.asString();
 }
 

@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_SERVICE_H_
-#define	_LLCORE_HTTP_SERVICE_H_
+#ifndef _LLCORE_HTTP_SERVICE_H_
+#define _LLCORE_HTTP_SERVICE_H_
 
 
 #include <vector>
@@ -82,160 +82,160 @@ class HttpOpSetGet;
 class HttpService
 {
 protected:
-	HttpService();
-	virtual ~HttpService();
+    HttpService();
+    virtual ~HttpService();
 
 private:
-	HttpService(const HttpService &);			// Not defined
-	void operator=(const HttpService &);		// Not defined
+    HttpService(const HttpService &);           // Not defined
+    void operator=(const HttpService &);        // Not defined
 
 public:
-	enum EState
-	{
-		NOT_INITIALIZED = -1,
-		INITIALIZED,			///< init() has been called
-		RUNNING,				///< thread created and running
-		STOPPED					///< thread has committed to exiting
-	};
+    enum EState
+    {
+        NOT_INITIALIZED = -1,
+        INITIALIZED,            ///< init() has been called
+        RUNNING,                ///< thread created and running
+        STOPPED                 ///< thread has committed to exiting
+    };
 
-	// Ordered enumeration of idling strategies available to
-	// threadRun's loop.  Ordered so that std::min on values
-	// produces the most conservative result of multiple
-	// requests.
-	enum ELoopSpeed
-	{
-		NORMAL,					///< continuous polling of request, ready, active queues
-		REQUEST_SLEEP			///< can sleep indefinitely waiting for request queue write
-	};
+    // Ordered enumeration of idling strategies available to
+    // threadRun's loop.  Ordered so that std::min on values
+    // produces the most conservative result of multiple
+    // requests.
+    enum ELoopSpeed
+    {
+        NORMAL,                 ///< continuous polling of request, ready, active queues
+        REQUEST_SLEEP           ///< can sleep indefinitely waiting for request queue write
+    };
 
-	static void init(HttpRequestQueue *);
-	static void term();
+    static void init(HttpRequestQueue *);
+    static void term();
 
-	/// Threading:  callable by any thread once inited.
-	inline static HttpService * instanceOf()
-		{
-			return sInstance;
-		}
+    /// Threading:  callable by any thread once inited.
+    inline static HttpService * instanceOf()
+        {
+            return sInstance;
+        }
 
-	/// Return the state of the worker thread.  Note that the
-	/// transition from RUNNING to STOPPED is performed by the
-	/// worker thread itself.  This has two weaknesses:
-	/// - race where the thread hasn't really stopped but will
-	/// - data ordering between threads where a non-worker thread
-	///   may see a stale RUNNING status.
-	///
-	/// This transition is generally of interest only to unit tests
-	/// and these weaknesses shouldn't be any real burden.
-	///
-	/// Threading:  callable by any thread with above exceptions.
-	static EState getState()
-		{
-			return sState;
-		}
+    /// Return the state of the worker thread.  Note that the
+    /// transition from RUNNING to STOPPED is performed by the
+    /// worker thread itself.  This has two weaknesses:
+    /// - race where the thread hasn't really stopped but will
+    /// - data ordering between threads where a non-worker thread
+    ///   may see a stale RUNNING status.
+    ///
+    /// This transition is generally of interest only to unit tests
+    /// and these weaknesses shouldn't be any real burden.
+    ///
+    /// Threading:  callable by any thread with above exceptions.
+    static EState getState()
+        {
+            return sState;
+        }
 
-	/// Threading:  callable by any thread but uses @see getState() and
-	/// acquires its weaknesses.
-	static bool isStopped();
+    /// Threading:  callable by any thread but uses @see getState() and
+    /// acquires its weaknesses.
+    static bool isStopped();
 
-	/// Threading:  callable by init thread *once*.
-	void startThread();
+    /// Threading:  callable by init thread *once*.
+    void startThread();
 
-	/// Threading:  callable by worker thread.
-	void stopRequested();
+    /// Threading:  callable by worker thread.
+    void stopRequested();
 
-	/// Threading:  callable by worker thread.
-	void shutdown();
+    /// Threading:  callable by worker thread.
+    void shutdown();
 
-	/// Try to find the given request handle on any of the request
-	/// queues and reset the priority (and queue position) of the
-	/// request if found.
-	///
-	/// @return			True if the request was found somewhere.
-	///
-	/// Threading:  callable by worker thread.
-	bool changePriority(HttpHandle handle, HttpRequest::priority_t priority);
-	
-	/// Try to find the given request handle on any of the request
-	/// queues and cancel the operation.
-	///
-	/// @return			True if the request was found and canceled.
-	///
-	/// Threading:  callable by worker thread.
-	bool cancel(HttpHandle handle);
-	
-	/// Threading:  callable by worker thread.
-	HttpPolicy & getPolicy()
-		{
-			return *mPolicy;
-		}
+    /// Try to find the given request handle on any of the request
+    /// queues and reset the priority (and queue position) of the
+    /// request if found.
+    ///
+    /// @return         True if the request was found somewhere.
+    ///
+    /// Threading:  callable by worker thread.
+    bool changePriority(HttpHandle handle, HttpRequest::priority_t priority);
+    
+    /// Try to find the given request handle on any of the request
+    /// queues and cancel the operation.
+    ///
+    /// @return         True if the request was found and canceled.
+    ///
+    /// Threading:  callable by worker thread.
+    bool cancel(HttpHandle handle);
+    
+    /// Threading:  callable by worker thread.
+    HttpPolicy & getPolicy()
+        {
+            return *mPolicy;
+        }
 
-	/// Threading:  callable by worker thread.
-	HttpLibcurl & getTransport()
-		{
-			return *mTransport;
-		}
+    /// Threading:  callable by worker thread.
+    HttpLibcurl & getTransport()
+        {
+            return *mTransport;
+        }
 
-	/// Threading:  callable by worker thread.
-	HttpRequestQueue & getRequestQueue()
-		{
-			return *mRequestQueue;
-		}
+    /// Threading:  callable by worker thread.
+    HttpRequestQueue & getRequestQueue()
+        {
+            return *mRequestQueue;
+        }
 
-	/// Threading:  callable by consumer thread.
-	HttpRequest::policy_t createPolicyClass();
-	
+    /// Threading:  callable by consumer thread.
+    HttpRequest::policy_t createPolicyClass();
+    
 protected:
-	void threadRun(LLCoreInt::HttpThread * thread);
-	
-	ELoopSpeed processRequestQueue(ELoopSpeed loop);
-
-protected:
-	friend class HttpOpSetGet;
-	friend class HttpRequest;
-	
-	// Used internally to describe what operations are allowed
-	// on each policy option.
-	struct OptionDescriptor
-	{
-		bool		mIsLong;
-		bool		mIsDynamic;
-		bool		mIsGlobal;
-		bool		mIsClass;
-		bool		mIsCallback;
-	};
-		
-	HttpStatus getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
-							   long * ret_value);
-	HttpStatus getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
-							   std::string * ret_value);
-	HttpStatus getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
-								HttpRequest::policyCallback_t * ret_value);
-
-	HttpStatus setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
-							   long value, long * ret_value);
-	HttpStatus setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
-							   const std::string & value, std::string * ret_value);
-	HttpStatus setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
-								HttpRequest::policyCallback_t value, 
-								HttpRequest::policyCallback_t * ret_value);
+    void threadRun(LLCoreInt::HttpThread * thread);
+    
+    ELoopSpeed processRequestQueue(ELoopSpeed loop);
 
 protected:
-	static const OptionDescriptor		sOptionDesc[HttpRequest::PO_LAST];
-	static HttpService *				sInstance;
-	
-	// === shared data ===
-	static volatile EState				sState;
-	HttpRequestQueue *					mRequestQueue;	// Refcounted
-	LLAtomicU32							mExitRequested;
-	LLCoreInt::HttpThread *				mThread;
-	
-	// === working-thread-only data ===
-	HttpPolicy *						mPolicy;		// Simple pointer, has ownership
-	HttpLibcurl *						mTransport;		// Simple pointer, has ownership
-	
-	// === main-thread-only data ===
-	HttpRequest::policy_t				mLastPolicy;
-	
+    friend class HttpOpSetGet;
+    friend class HttpRequest;
+    
+    // Used internally to describe what operations are allowed
+    // on each policy option.
+    struct OptionDescriptor
+    {
+        bool        mIsLong;
+        bool        mIsDynamic;
+        bool        mIsGlobal;
+        bool        mIsClass;
+        bool        mIsCallback;
+    };
+        
+    HttpStatus getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
+                               long * ret_value);
+    HttpStatus getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
+                               std::string * ret_value);
+    HttpStatus getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
+                                HttpRequest::policyCallback_t * ret_value);
+
+    HttpStatus setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
+                               long value, long * ret_value);
+    HttpStatus setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
+                               const std::string & value, std::string * ret_value);
+    HttpStatus setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
+                                HttpRequest::policyCallback_t value, 
+                                HttpRequest::policyCallback_t * ret_value);
+
+protected:
+    static const OptionDescriptor       sOptionDesc[HttpRequest::PO_LAST];
+    static HttpService *                sInstance;
+    
+    // === shared data ===
+    static volatile EState              sState;
+    HttpRequestQueue *                  mRequestQueue;  // Refcounted
+    LLAtomicU32                         mExitRequested;
+    LLCoreInt::HttpThread *             mThread;
+    
+    // === working-thread-only data ===
+    HttpPolicy *                        mPolicy;        // Simple pointer, has ownership
+    HttpLibcurl *                       mTransport;     // Simple pointer, has ownership
+    
+    // === main-thread-only data ===
+    HttpRequest::policy_t               mLastPolicy;
+    
 };  // end class HttpService
 
 }  // end namespace LLCore

@@ -26,7 +26,7 @@
 #ifndef LLSAFEHANDLE_H
 #define LLSAFEHANDLE_H
 
-#include "llerror.h"	// *TODO: consider eliminating this
+#include "llerror.h"    // *TODO: consider eliminating this
 #include "llsingleton.h"
 
 /*==========================================================================*|
@@ -61,138 +61,138 @@ template <class Type>
 class LLSafeHandle
 {
 public:
-	LLSafeHandle() :
-		mPointer(NULL)
-	{
-	}
+    LLSafeHandle() :
+        mPointer(NULL)
+    {
+    }
 
-	LLSafeHandle(Type* ptr) : 
-		mPointer(NULL)
-	{
-		assign(ptr);
-	}
+    LLSafeHandle(Type* ptr) : 
+        mPointer(NULL)
+    {
+        assign(ptr);
+    }
 
-	LLSafeHandle(const LLSafeHandle<Type>& ptr) : 
-		mPointer(NULL)
-	{
-		assign(ptr.mPointer);
-	}
+    LLSafeHandle(const LLSafeHandle<Type>& ptr) : 
+        mPointer(NULL)
+    {
+        assign(ptr.mPointer);
+    }
 
-	// support conversion up the type hierarchy.  See Item 45 in Effective C++, 3rd Ed.
-	template<typename Subclass>
-	LLSafeHandle(const LLSafeHandle<Subclass>& ptr) : 
-		mPointer(NULL)
-	{
-		assign(ptr.get());
-	}
+    // support conversion up the type hierarchy.  See Item 45 in Effective C++, 3rd Ed.
+    template<typename Subclass>
+    LLSafeHandle(const LLSafeHandle<Subclass>& ptr) : 
+        mPointer(NULL)
+    {
+        assign(ptr.get());
+    }
 
-	~LLSafeHandle()								
-	{
-		unref();
-	}
+    ~LLSafeHandle()                             
+    {
+        unref();
+    }
 
-	const Type*	operator->() const				{ return nonNull(mPointer); }
-	Type*	operator->()						{ return nonNull(mPointer); }
+    const Type* operator->() const              { return nonNull(mPointer); }
+    Type*   operator->()                        { return nonNull(mPointer); }
 
-	Type*	get() const							{ return mPointer; }
-	void	clear()								{ assign(NULL); }
-	// we disallow these operations as they expose our null objects to direct manipulation
-	// and bypass the reference counting semantics
-	//const Type&	operator*() const			{ return *nonNull(mPointer); }
-	//Type&	operator*()							{ return *nonNull(mPointer); }
+    Type*   get() const                         { return mPointer; }
+    void    clear()                             { assign(NULL); }
+    // we disallow these operations as they expose our null objects to direct manipulation
+    // and bypass the reference counting semantics
+    //const Type&   operator*() const           { return *nonNull(mPointer); }
+    //Type& operator*()                         { return *nonNull(mPointer); }
 
-	operator BOOL()  const						{ return mPointer != NULL; }
-	operator bool()  const						{ return mPointer != NULL; }
-	bool operator!() const						{ return mPointer == NULL; }
-	bool isNull() const							{ return mPointer == NULL; }
-	bool notNull() const						{ return mPointer != NULL; }
+    operator BOOL()  const                      { return mPointer != NULL; }
+    operator bool()  const                      { return mPointer != NULL; }
+    bool operator!() const                      { return mPointer == NULL; }
+    bool isNull() const                         { return mPointer == NULL; }
+    bool notNull() const                        { return mPointer != NULL; }
 
 
-	operator Type*()       const				{ return mPointer; }
-	operator const Type*() const				{ return mPointer; }
-	bool operator !=(Type* ptr) const           { return (mPointer != ptr); 	}
-	bool operator ==(Type* ptr) const           { return (mPointer == ptr); 	}
-	bool operator ==(const LLSafeHandle<Type>& ptr) const           { return (mPointer == ptr.mPointer); 	}
-	bool operator < (const LLSafeHandle<Type>& ptr) const           { return (mPointer < ptr.mPointer); 	}
-	bool operator > (const LLSafeHandle<Type>& ptr) const           { return (mPointer > ptr.mPointer); 	}
+    operator Type*()       const                { return mPointer; }
+    operator const Type*() const                { return mPointer; }
+    bool operator !=(Type* ptr) const           { return (mPointer != ptr);     }
+    bool operator ==(Type* ptr) const           { return (mPointer == ptr);     }
+    bool operator ==(const LLSafeHandle<Type>& ptr) const           { return (mPointer == ptr.mPointer);    }
+    bool operator < (const LLSafeHandle<Type>& ptr) const           { return (mPointer < ptr.mPointer);     }
+    bool operator > (const LLSafeHandle<Type>& ptr) const           { return (mPointer > ptr.mPointer);     }
 
-	LLSafeHandle<Type>& operator =(Type* ptr)                   
-	{ 
-		assign(ptr);
-		return *this; 
-	}
+    LLSafeHandle<Type>& operator =(Type* ptr)                   
+    { 
+        assign(ptr);
+        return *this; 
+    }
 
-	LLSafeHandle<Type>& operator =(const LLSafeHandle<Type>& ptr)  
-	{ 
-		assign(ptr.mPointer);
-		return *this; 
-	}
+    LLSafeHandle<Type>& operator =(const LLSafeHandle<Type>& ptr)  
+    { 
+        assign(ptr.mPointer);
+        return *this; 
+    }
 
-	// support assignment up the type hierarchy. See Item 45 in Effective C++, 3rd Ed.
-	template<typename Subclass>
-	LLSafeHandle<Type>& operator =(const LLSafeHandle<Subclass>& ptr)  
-	{ 
-		assign(ptr.get());
-		return *this; 
-	}
-
-protected:
-	void ref()                             
-	{ 
-		if (mPointer)
-		{
-			mPointer->ref();
-		}
-	}
-
-	void unref()
-	{
-		if (mPointer)
-		{
-			Type *tempp = mPointer;
-			mPointer = NULL;
-			tempp->unref();
-			if (mPointer != NULL)
-			{
-				LL_WARNS() << "Unreference did assignment to non-NULL because of destructor" << LL_ENDL;
-				unref();
-			}
-		}
-	}
-
-	void assign(Type* ptr)
-	{
-		if( mPointer != ptr )
-		{
-			unref(); 
-			mPointer = ptr; 
-			ref();
-		}
-	}
-
-	// Define an LLSingleton whose sole purpose is to hold a "null instance"
-	// of the subject Type: the canonical instance to dereference if this
-	// LLSafeHandle actually holds a null pointer. We use LLSingleton
-	// specifically so that the "null instance" can be cleaned up at a well-
-	// defined time, specifically LLSingletonBase::deleteAll().
-	// Of course, as with any LLSingleton, the "null instance" is only
-	// instantiated on demand -- in this case, if you actually try to
-	// dereference an LLSafeHandle containing null.
-	class NullInstanceHolder: public LLSingleton<NullInstanceHolder>
-	{
-		LLSINGLETON_EMPTY_CTOR(NullInstanceHolder);
-		~NullInstanceHolder() {}
-	public:
-		Type mNullInstance;
-	};
-
-	static Type* nonNull(Type* ptr)
-	{
-		return ptr? ptr : &NullInstanceHolder::instance().mNullInstance;
-	}
+    // support assignment up the type hierarchy. See Item 45 in Effective C++, 3rd Ed.
+    template<typename Subclass>
+    LLSafeHandle<Type>& operator =(const LLSafeHandle<Subclass>& ptr)  
+    { 
+        assign(ptr.get());
+        return *this; 
+    }
 
 protected:
-	Type*	mPointer;
+    void ref()                             
+    { 
+        if (mPointer)
+        {
+            mPointer->ref();
+        }
+    }
+
+    void unref()
+    {
+        if (mPointer)
+        {
+            Type *tempp = mPointer;
+            mPointer = NULL;
+            tempp->unref();
+            if (mPointer != NULL)
+            {
+                LL_WARNS() << "Unreference did assignment to non-NULL because of destructor" << LL_ENDL;
+                unref();
+            }
+        }
+    }
+
+    void assign(Type* ptr)
+    {
+        if( mPointer != ptr )
+        {
+            unref(); 
+            mPointer = ptr; 
+            ref();
+        }
+    }
+
+    // Define an LLSingleton whose sole purpose is to hold a "null instance"
+    // of the subject Type: the canonical instance to dereference if this
+    // LLSafeHandle actually holds a null pointer. We use LLSingleton
+    // specifically so that the "null instance" can be cleaned up at a well-
+    // defined time, specifically LLSingletonBase::deleteAll().
+    // Of course, as with any LLSingleton, the "null instance" is only
+    // instantiated on demand -- in this case, if you actually try to
+    // dereference an LLSafeHandle containing null.
+    class NullInstanceHolder: public LLSingleton<NullInstanceHolder>
+    {
+        LLSINGLETON_EMPTY_CTOR(NullInstanceHolder);
+        ~NullInstanceHolder() {}
+    public:
+        Type mNullInstance;
+    };
+
+    static Type* nonNull(Type* ptr)
+    {
+        return ptr? ptr : &NullInstanceHolder::instance().mNullInstance;
+    }
+
+protected:
+    Type*   mPointer;
 };
 
 #endif

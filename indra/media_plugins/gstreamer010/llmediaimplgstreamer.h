@@ -44,8 +44,8 @@ extern "C" {
 
 extern "C" {
 gboolean llmediaimplgstreamer_bus_callback (GstBus     *bus,
-					    GstMessage *message,
-					    gpointer    data);
+                        GstMessage *message,
+                        gpointer    data);
 }
 
 #endif // LL_GSTREAMER010_ENABLED

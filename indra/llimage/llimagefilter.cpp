@@ -54,14 +54,14 @@ LLImageFilter::LLImageFilter(const std::string& file_path) :
     mStencilMax(1.0)
 {
     // Load filter description from file
-	llifstream filter_xml(file_path.c_str());
-	if (filter_xml.is_open())
-	{
-		// Load and parse the file
-		LLPointer<LLSDParser> parser = new LLSDXMLParser();
-		parser->parse(filter_xml, mFilterData, LLSDSerialize::SIZE_UNLIMITED);
-		filter_xml.close();
-	}
+    llifstream filter_xml(file_path.c_str());
+    if (filter_xml.is_open())
+    {
+        // Load and parse the file
+        LLPointer<LLSDParser> parser = new LLSDXMLParser();
+        parser->parse(filter_xml, mFilterData, LLSDSerialize::SIZE_UNLIMITED);
+        filter_xml.close();
+    }
 }
 
 LLImageFilter::~LLImageFilter()
@@ -88,9 +88,9 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
 {
     mImage = raw_image;
     
-	//std::cout << "Filter : size = " << mFilterData.size() << std::endl;
-	for (S32 i = 0; i < mFilterData.size(); ++i)
-	{
+    //std::cout << "Filter : size = " << mFilterData.size() << std::endl;
+    for (S32 i = 0; i < mFilterData.size(); ++i)
+    {
         std::string filter_name = mFilterData[i][0].asString();
         // Dump out the filter values (for debug)
         //std::cout << "Filter : name = " << mFilterData[i][0].asString() << ", params = ";
@@ -309,35 +309,35 @@ void LLImageFilter::blendStencil(F32 alpha, U8* pixel, U8 red, U8 green, U8 blue
 
 void LLImageFilter::colorCorrect(const U8* lut_red, const U8* lut_green, const U8* lut_blue)
 {
-	const S32 components = mImage->getComponents();
-	llassert( components >= 1 && components <= 4 );
+    const S32 components = mImage->getComponents();
+    llassert( components >= 1 && components <= 4 );
     
-	S32 width  = mImage->getWidth();
+    S32 width  = mImage->getWidth();
     S32 height = mImage->getHeight();
     
-	U8* dst_data = mImage->getData();
-	for (S32 j = 0; j < height; j++)
-	{
+    U8* dst_data = mImage->getData();
+    for (S32 j = 0; j < height; j++)
+    {
         for (S32 i = 0; i < width; i++)
         {
             // Blend LUT value
             blendStencil(getStencilAlpha(i,j), dst_data, lut_red[dst_data[VRED]], lut_green[dst_data[VGREEN]], lut_blue[dst_data[VBLUE]]);
             dst_data += components;
         }
-	}
+    }
 }
 
 void LLImageFilter::colorTransform(const LLMatrix3 &transform)
 {
-	const S32 components = mImage->getComponents();
-	llassert( components >= 1 && components <= 4 );
+    const S32 components = mImage->getComponents();
+    llassert( components >= 1 && components <= 4 );
     
-	S32 width  = mImage->getWidth();
+    S32 width  = mImage->getWidth();
     S32 height = mImage->getHeight();
     
-	U8* dst_data = mImage->getData();
-	for (S32 j = 0; j < height; j++)
-	{
+    U8* dst_data = mImage->getData();
+    for (S32 j = 0; j < height; j++)
+    {
         for (S32 i = 0; i < width; i++)
         {
             // Compute transform
@@ -349,13 +349,13 @@ void LLImageFilter::colorTransform(const LLMatrix3 &transform)
             blendStencil(getStencilAlpha(i,j), dst_data, dst.mV[VRED], dst.mV[VGREEN], dst.mV[VBLUE]);
             dst_data += components;
         }
-	}
+    }
 }
 
 void LLImageFilter::convolve(const LLMatrix3 &kernel, bool normalize, bool abs_value)
 {
-	const S32 components = mImage->getComponents();
-	llassert( components >= 1 && components <= 4 );
+    const S32 components = mImage->getComponents();
+    llassert( components >= 1 && components <= 4 );
     
     // Compute normalization factors
     F32 kernel_min = 0.0;
@@ -380,22 +380,22 @@ void LLImageFilter::convolve(const LLMatrix3 &kernel, bool normalize, bool abs_v
     F32 kernel_range = kernel_max - kernel_min;
     
     // Allocate temporary buffers and initialize algorithm's data
-	S32 width  = mImage->getWidth();
+    S32 width  = mImage->getWidth();
     S32 height = mImage->getHeight();
     
-	U8* dst_data = mImage->getData();
+    U8* dst_data = mImage->getData();
 
-	S32 buffer_size = width * components;
-	llassert_always(buffer_size > 0);
-	std::vector<U8> even_buffer(buffer_size);
-	std::vector<U8> odd_buffer(buffer_size);
-	
+    S32 buffer_size = width * components;
+    llassert_always(buffer_size > 0);
+    std::vector<U8> even_buffer(buffer_size);
+    std::vector<U8> odd_buffer(buffer_size);
+    
     U8* south_data = dst_data + buffer_size;
     U8* east_west_data;
     U8* north_data;
     
     // Line 0 : we set the line to 0 (debatable)
-    memcpy( &even_buffer[0], dst_data, buffer_size );	/* Flawfinder: ignore */
+    memcpy( &even_buffer[0], dst_data, buffer_size );   /* Flawfinder: ignore */
     for (S32 i = 0; i < width; i++)
     {
         blendStencil(getStencilAlpha(i,0), dst_data, 0, 0, 0);
@@ -405,17 +405,17 @@ void LLImageFilter::convolve(const LLMatrix3 &kernel, bool normalize, bool abs_v
     
     // All other lines
     for (S32 j = 1; j < (height-1); j++)
-	{
+    {
         // We need to buffer 2 lines. We flip north and east-west (current) to avoid moving too much memory around
         if (j % 2)
         {
-            memcpy( &odd_buffer[0], dst_data, buffer_size );	/* Flawfinder: ignore */
+            memcpy( &odd_buffer[0], dst_data, buffer_size );    /* Flawfinder: ignore */
             east_west_data = &odd_buffer[0];
             north_data = &even_buffer[0];
         }
         else
         {
-            memcpy( &even_buffer[0], dst_data, buffer_size );	/* Flawfinder: ignore */
+            memcpy( &even_buffer[0], dst_data, buffer_size );   /* Flawfinder: ignore */
             east_west_data = &even_buffer[0];
             north_data = &odd_buffer[0];
         }
@@ -479,7 +479,7 @@ void LLImageFilter::convolve(const LLMatrix3 &kernel, bool normalize, bool abs_v
         blendStencil(getStencilAlpha(width-1,j), dst_data, 0, 0, 0);
         dst_data += components;
         south_data += buffer_size;
-	}
+    }
     
     // Last line
     for (S32 i = 0; i < width; i++)
@@ -491,10 +491,10 @@ void LLImageFilter::convolve(const LLMatrix3 &kernel, bool normalize, bool abs_v
 
 void LLImageFilter::filterScreen(EScreenMode mode, const F32 wave_length, const F32 angle)
 {
-	const S32 components = mImage->getComponents();
-	llassert( components >= 1 && components <= 4 );
+    const S32 components = mImage->getComponents();
+    llassert( components >= 1 && components <= 4 );
     
-	S32 width  = mImage->getWidth();
+    S32 width  = mImage->getWidth();
     S32 height = mImage->getHeight();
     
     F32 wave_length_pixels = wave_length * (F32)(height) / 2.0;
@@ -509,9 +509,9 @@ void LLImageFilter::filterScreen(EScreenMode mode, const F32 wave_length, const 
         gamma[i] = (U8)(255.0 * gamma_i);
     }
     
-	U8* dst_data = mImage->getData();
-	for (S32 j = 0; j < height; j++)
-	{
+    U8* dst_data = mImage->getData();
+    for (S32 j = 0; j < height; j++)
+    {
         for (S32 i = 0; i < width; i++)
         {
             // Compute screen value
@@ -536,7 +536,7 @@ void LLImageFilter::filterScreen(EScreenMode mode, const F32 wave_length, const 
             blendStencil(getStencilAlpha(i,j), dst_data, dst_value, dst_value, dst_value);
             dst_data += components;
         }
-	}
+    }
 }
 
 //============================================================================
@@ -610,8 +610,8 @@ U32* LLImageFilter::getBrightnessHistogram()
 
 void LLImageFilter::computeHistograms()
 {
- 	const S32 components = mImage->getComponents();
-	llassert( components >= 1 && components <= 4 );
+    const S32 components = mImage->getComponents();
+    llassert( components >= 1 && components <= 4 );
     
     // Allocate memory for the histograms
     if (!mHistoRed)
@@ -641,10 +641,10 @@ void LLImageFilter::computeHistograms()
     }
     
     // Compute them
-	S32 pixels = mImage->getWidth() * mImage->getHeight();
-	U8* dst_data = mImage->getData();
-	for (S32 i = 0; i < pixels; i++)
-	{
+    S32 pixels = mImage->getWidth() * mImage->getHeight();
+    U8* dst_data = mImage->getData();
+    for (S32 i = 0; i < pixels; i++)
+    {
         mHistoRed[dst_data[VRED]]++;
         mHistoGreen[dst_data[VGREEN]]++;
         mHistoBlue[dst_data[VBLUE]]++;
@@ -652,8 +652,8 @@ void LLImageFilter::computeHistograms()
         S32 brightness = ((S32)(dst_data[VRED]) + (S32)(dst_data[VGREEN]) + (S32)(dst_data[VBLUE])) / 3;
         mHistoBrightness[brightness]++;
         // next pixel...
-		dst_data += components;
-	}
+        dst_data += components;
+    }
 }
 
 //============================================================================

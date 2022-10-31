@@ -38,179 +38,179 @@
 
 
 namespace {
-	// Render Types
-	void toggle_render_types_wrapper(LLSD const& request)
-	{
-		for (LLSD::array_const_iterator iter = request["types"].beginArray();
-			iter != request["types"].endArray();
-			++iter)
-		{
-			U32 render_type = render_type_from_string( iter->asString() );
-			if ( render_type != 0 )
-			{
-				LLPipeline::toggleRenderTypeControl( render_type );
-			}
-		}
-	}
+    // Render Types
+    void toggle_render_types_wrapper(LLSD const& request)
+    {
+        for (LLSD::array_const_iterator iter = request["types"].beginArray();
+            iter != request["types"].endArray();
+            ++iter)
+        {
+            U32 render_type = render_type_from_string( iter->asString() );
+            if ( render_type != 0 )
+            {
+                LLPipeline::toggleRenderTypeControl( render_type );
+            }
+        }
+    }
 
-	void has_render_type_wrapper(LLSD const& request)
-	{
-		LLEventAPI::Response response(LLSD(), request);
-		U32 render_type = render_type_from_string( request["type"].asString() );
-		if ( render_type != 0 )
-		{
-			response["value"] = LLPipeline::hasRenderTypeControl( render_type );
-		}
-		else
-		{
-			response.error(STRINGIZE("unknown type '" << request["type"].asString() << "'"));
-		}
-	}
+    void has_render_type_wrapper(LLSD const& request)
+    {
+        LLEventAPI::Response response(LLSD(), request);
+        U32 render_type = render_type_from_string( request["type"].asString() );
+        if ( render_type != 0 )
+        {
+            response["value"] = LLPipeline::hasRenderTypeControl( render_type );
+        }
+        else
+        {
+            response.error(STRINGIZE("unknown type '" << request["type"].asString() << "'"));
+        }
+    }
 
-	void disable_all_render_types_wrapper(LLSD const& request)
-	{
-		gPipeline.clearAllRenderTypes();
-	}
+    void disable_all_render_types_wrapper(LLSD const& request)
+    {
+        gPipeline.clearAllRenderTypes();
+    }
 
-	void enable_all_render_types_wrapper(LLSD const& request)
-	{
-		gPipeline.setAllRenderTypes();
-	}
+    void enable_all_render_types_wrapper(LLSD const& request)
+    {
+        gPipeline.setAllRenderTypes();
+    }
 
-	// Render Features
-	void toggle_render_features_wrapper(LLSD const& request)
-	{
-		for (LLSD::array_const_iterator iter = request["features"].beginArray();
-			iter != request["features"].endArray();
-			++iter)
-		{
-			U32 render_feature = feature_from_string( iter->asString() );
-			if ( render_feature != 0 )
-			{
-				LLPipeline::toggleRenderDebugFeatureControl( render_feature );
-			}
-		}
-	}
+    // Render Features
+    void toggle_render_features_wrapper(LLSD const& request)
+    {
+        for (LLSD::array_const_iterator iter = request["features"].beginArray();
+            iter != request["features"].endArray();
+            ++iter)
+        {
+            U32 render_feature = feature_from_string( iter->asString() );
+            if ( render_feature != 0 )
+            {
+                LLPipeline::toggleRenderDebugFeatureControl( render_feature );
+            }
+        }
+    }
 
-	void has_render_feature_wrapper(LLSD const& request)
-	{
-		LLEventAPI::Response response(LLSD(), request);
-		U32 render_feature = feature_from_string( request["feature"].asString() );
-		if ( render_feature != 0 )
-		{
-			response["value"] = gPipeline.hasRenderDebugFeatureMask(render_feature);
-		}
-		else
-		{
-			response.error(STRINGIZE("unknown feature '" << request["feature"].asString() << "'"));
-		}
-	}
+    void has_render_feature_wrapper(LLSD const& request)
+    {
+        LLEventAPI::Response response(LLSD(), request);
+        U32 render_feature = feature_from_string( request["feature"].asString() );
+        if ( render_feature != 0 )
+        {
+            response["value"] = gPipeline.hasRenderDebugFeatureMask(render_feature);
+        }
+        else
+        {
+            response.error(STRINGIZE("unknown feature '" << request["feature"].asString() << "'"));
+        }
+    }
 
-	void disable_all_render_features_wrapper(LLSD const& request)
-	{
-		gPipeline.clearAllRenderDebugFeatures();
-	}
+    void disable_all_render_features_wrapper(LLSD const& request)
+    {
+        gPipeline.clearAllRenderDebugFeatures();
+    }
 
-	void enable_all_render_features_wrapper(LLSD const& request)
-	{
-		gPipeline.setAllRenderDebugFeatures();
-	}
+    void enable_all_render_features_wrapper(LLSD const& request)
+    {
+        gPipeline.setAllRenderDebugFeatures();
+    }
 
-	// Render Info Displays
-	void toggle_info_displays_wrapper(LLSD const& request)
-	{
-		for (LLSD::array_const_iterator iter = request["displays"].beginArray();
-			iter != request["displays"].endArray();
-			++iter)
-		{
-			U64 info_display = info_display_from_string( iter->asString() );
-			if ( info_display != 0 )
-			{
-				LLPipeline::toggleRenderDebug( info_display );
-			}
-		}
-	}
+    // Render Info Displays
+    void toggle_info_displays_wrapper(LLSD const& request)
+    {
+        for (LLSD::array_const_iterator iter = request["displays"].beginArray();
+            iter != request["displays"].endArray();
+            ++iter)
+        {
+            U64 info_display = info_display_from_string( iter->asString() );
+            if ( info_display != 0 )
+            {
+                LLPipeline::toggleRenderDebug( info_display );
+            }
+        }
+    }
 
-	void has_info_display_wrapper(LLSD const& request)
-	{
-		LLEventAPI::Response response(LLSD(), request);
-		U64 info_display = info_display_from_string( request["display"].asString() );
-		if ( info_display != 0 )
-		{
-			response["value"] = gPipeline.hasRenderDebugMask(info_display);
-		}
-		else
-		{
-			response.error(STRINGIZE("unknown display '" << request["display"].asString() << "'"));
-		}
-	}
+    void has_info_display_wrapper(LLSD const& request)
+    {
+        LLEventAPI::Response response(LLSD(), request);
+        U64 info_display = info_display_from_string( request["display"].asString() );
+        if ( info_display != 0 )
+        {
+            response["value"] = gPipeline.hasRenderDebugMask(info_display);
+        }
+        else
+        {
+            response.error(STRINGIZE("unknown display '" << request["display"].asString() << "'"));
+        }
+    }
 
-	void disable_all_info_displays_wrapper(LLSD const& request)
-	{
-		gPipeline.clearAllRenderDebugDisplays();
-	}
+    void disable_all_info_displays_wrapper(LLSD const& request)
+    {
+        gPipeline.clearAllRenderDebugDisplays();
+    }
 
-	void enable_all_info_displays_wrapper(LLSD const& request)
-	{
-		gPipeline.setAllRenderDebugDisplays();
-	}
+    void enable_all_info_displays_wrapper(LLSD const& request)
+    {
+        gPipeline.setAllRenderDebugDisplays();
+    }
 
 }
 
 
 LLPipelineListener::LLPipelineListener():
-	LLEventAPI("LLPipeline",
-			   "API to te rendering pipeline.")
+    LLEventAPI("LLPipeline",
+               "API to te rendering pipeline.")
 {
-	// Render Types
-	add("toggleRenderTypes",
-		"Toggle rendering [\"types\"]:\n"
-		"See: llviewermenu.cpp:render_type_from_string for list of available types.",
-		&toggle_render_types_wrapper);
-	add("hasRenderType",
-		"Check if rendering [\"type\"] is enabled:\n"
-		"See: llviewermenu.cpp:render_type_from_string for list of available types.",
-		&has_render_type_wrapper,
-		LLSDMap("reply", LLSD()));
-	add("disableAllRenderTypes",
-		"Turn off all rendering types.",
-		&disable_all_render_types_wrapper);
-	add("enableAllRenderTypes",
-		"Turn on all rendering types.",
-		&enable_all_render_types_wrapper);
+    // Render Types
+    add("toggleRenderTypes",
+        "Toggle rendering [\"types\"]:\n"
+        "See: llviewermenu.cpp:render_type_from_string for list of available types.",
+        &toggle_render_types_wrapper);
+    add("hasRenderType",
+        "Check if rendering [\"type\"] is enabled:\n"
+        "See: llviewermenu.cpp:render_type_from_string for list of available types.",
+        &has_render_type_wrapper,
+        LLSDMap("reply", LLSD()));
+    add("disableAllRenderTypes",
+        "Turn off all rendering types.",
+        &disable_all_render_types_wrapper);
+    add("enableAllRenderTypes",
+        "Turn on all rendering types.",
+        &enable_all_render_types_wrapper);
 
-	// Render Features
-	add("toggleRenderFeatures",
-		"Toggle rendering [\"features\"]:\n"
-		"See: llviewermenu.cpp:feature_from_string for list of available features.",
-		&toggle_render_features_wrapper);
-	add("hasRenderFeature",
-		"Check if rendering [\"feature\"] is enabled:\n"
-		"See: llviewermenu.cpp:render_feature_from_string for list of available features.",
-		&has_render_feature_wrapper,
-		LLSDMap("reply", LLSD()));
-	add("disableAllRenderFeatures",
-		"Turn off all rendering features.",
-		&disable_all_render_features_wrapper);
-	add("enableAllRenderFeatures",
-		"Turn on all rendering features.",
-		&enable_all_render_features_wrapper);
+    // Render Features
+    add("toggleRenderFeatures",
+        "Toggle rendering [\"features\"]:\n"
+        "See: llviewermenu.cpp:feature_from_string for list of available features.",
+        &toggle_render_features_wrapper);
+    add("hasRenderFeature",
+        "Check if rendering [\"feature\"] is enabled:\n"
+        "See: llviewermenu.cpp:render_feature_from_string for list of available features.",
+        &has_render_feature_wrapper,
+        LLSDMap("reply", LLSD()));
+    add("disableAllRenderFeatures",
+        "Turn off all rendering features.",
+        &disable_all_render_features_wrapper);
+    add("enableAllRenderFeatures",
+        "Turn on all rendering features.",
+        &enable_all_render_features_wrapper);
 
-	// Render Info Displays
-	add("toggleRenderInfoDisplays",
-		"Toggle info [\"displays\"]:\n"
-		"See: llviewermenu.cpp:info_display_from_string for list of available displays.",
-		&toggle_info_displays_wrapper);
-	add("hasRenderInfoDisplay",
-		"Check if info [\"display\"] is enabled:\n"
-		"See: llviewermenu.cpp:info_display_from_string for list of available displays.",
-		&has_info_display_wrapper,
-		LLSDMap("reply", LLSD()));
-	add("disableAllRenderInfoDisplays",
-		"Turn off all info displays.",
-		&disable_all_info_displays_wrapper);
-	add("enableAllRenderInfoDisplays",
-		"Turn on all info displays.",
-		&enable_all_info_displays_wrapper);
+    // Render Info Displays
+    add("toggleRenderInfoDisplays",
+        "Toggle info [\"displays\"]:\n"
+        "See: llviewermenu.cpp:info_display_from_string for list of available displays.",
+        &toggle_info_displays_wrapper);
+    add("hasRenderInfoDisplay",
+        "Check if info [\"display\"] is enabled:\n"
+        "See: llviewermenu.cpp:info_display_from_string for list of available displays.",
+        &has_info_display_wrapper,
+        LLSDMap("reply", LLSD()));
+    add("disableAllRenderInfoDisplays",
+        "Turn off all info displays.",
+        &disable_all_info_displays_wrapper);
+    add("enableAllRenderInfoDisplays",
+        "Turn on all info displays.",
+        &enable_all_info_displays_wrapper);
 }
 

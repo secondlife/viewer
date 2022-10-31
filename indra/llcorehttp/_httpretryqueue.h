@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_RETRY_QUEUE_H_
-#define	_LLCORE_HTTP_RETRY_QUEUE_H_
+#ifndef _LLCORE_HTTP_RETRY_QUEUE_H_
+#define _LLCORE_HTTP_RETRY_QUEUE_H_
 
 
 #include <queue>
@@ -49,41 +49,41 @@ namespace LLCore
 
 struct HttpOpRetryCompare
 {
-	bool operator()(const HttpOpRequest::ptr_t &lhs, const HttpOpRequest::ptr_t &rhs)
-		{
-			return lhs->mPolicyRetryAt < rhs->mPolicyRetryAt;
-		}
+    bool operator()(const HttpOpRequest::ptr_t &lhs, const HttpOpRequest::ptr_t &rhs)
+        {
+            return lhs->mPolicyRetryAt < rhs->mPolicyRetryAt;
+        }
 };
 
-	
+    
 typedef std::priority_queue<HttpOpRequest::ptr_t,
-							std::deque<HttpOpRequest::ptr_t>,
-							LLCore::HttpOpRetryCompare> HttpRetryQueueBase;
+                            std::deque<HttpOpRequest::ptr_t>,
+                            LLCore::HttpOpRetryCompare> HttpRetryQueueBase;
 
 class HttpRetryQueue : public HttpRetryQueueBase
 {
 public:
-	HttpRetryQueue()
-		: HttpRetryQueueBase()
-		{}
-	
-	~HttpRetryQueue()
-		{}
-	
+    HttpRetryQueue()
+        : HttpRetryQueueBase()
+        {}
+    
+    ~HttpRetryQueue()
+        {}
+    
 protected:
-	HttpRetryQueue(const HttpRetryQueue &);		// Not defined
-	void operator=(const HttpRetryQueue &);		// Not defined
+    HttpRetryQueue(const HttpRetryQueue &);     // Not defined
+    void operator=(const HttpRetryQueue &);     // Not defined
 
 public:
-	const container_type & get_container() const
-		{
-			return c;
-		}
+    const container_type & get_container() const
+        {
+            return c;
+        }
 
-	container_type & get_container()
-		{
-			return c;
-		}
+    container_type & get_container()
+        {
+            return c;
+        }
 
 }; // end class HttpRetryQueue
 
@@ -91,4 +91,4 @@ public:
 }  // end namespace LLCore
 
 
-#endif	// _LLCORE_HTTP_RETRY_QUEUE_H_
+#endif  // _LLCORE_HTTP_RETRY_QUEUE_H_

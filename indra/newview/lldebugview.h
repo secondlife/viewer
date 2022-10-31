@@ -43,25 +43,25 @@ class LLFloaterStats;
 class LLDebugView : public LLView
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLView::Params>
-	{
-		Params()
-		{
-			changeDefault(mouse_opaque, false);
-		}
-	};
-	
-	LLDebugView(const Params&);
-	~LLDebugView();
+    struct Params : public LLInitParam::Block<Params, LLView::Params>
+    {
+        Params()
+        {
+            changeDefault(mouse_opaque, false);
+        }
+    };
+    
+    LLDebugView(const Params&);
+    ~LLDebugView();
 
-	void init();
-	void draw();
-	
-	void setStatsVisible(BOOL visible);
-	
-	LLFastTimerView* mFastTimerView;
-	LLConsole*		 mDebugConsolep;
-	LLView*			 mFloaterSnapRegion;
+    void init();
+    void draw();
+    
+    void setStatsVisible(BOOL visible);
+    
+    LLFastTimerView* mFastTimerView;
+    LLConsole*       mDebugConsolep;
+    LLView*          mFloaterSnapRegion;
 };
 
 extern LLDebugView* gDebugView;

@@ -45,11 +45,11 @@ class LLVOWLClouds;
 class LLSky  
 {
 public:
-	LLSky();
-	~LLSky();
+    LLSky();
+    ~LLSky();
 
-	void init();
-	void cleanup();
+    void init();
+    void cleanup();
 
     // These directions should be in CFR coord sys (+x at, +z up, +y right)
     void setSunAndMoonDirectionsCFR(const LLVector3 &sun_direction, const LLVector3 &moon_direction);
@@ -64,33 +64,33 @@ public:
     void setSunScale(F32 sun_scale);
     void setMoonScale(F32 moon_scale);
 
-	LLColor4 getSkyFogColor() const;
+    LLColor4 getSkyFogColor() const;
 
-	void setCloudDensityAtAgent(F32 cloud_density);
-	void setWind(const LLVector3& wind);
+    void setCloudDensityAtAgent(F32 cloud_density);
+    void setWind(const LLVector3& wind);
 
-	void updateFog(const F32 distance);
-	void updateCull();
-	void updateSky();
+    void updateFog(const F32 distance);
+    void updateCull();
+    void updateSky();
 
-	S32  mLightingGeneration;
-	BOOL mUpdatedThisFrame;
+    S32  mLightingGeneration;
+    BOOL mUpdatedThisFrame;
 
-	void setFogRatio(const F32 fog_ratio);		// Fog distance as fraction of cull distance.
-	F32 getFogRatio() const;
-	LLColor4U getFadeColor() const;
+    void setFogRatio(const F32 fog_ratio);      // Fog distance as fraction of cull distance.
+    F32 getFogRatio() const;
+    LLColor4U getFadeColor() const;
 
-	void destroyGL();
-	void restoreGL();
-	void resetVertexBuffers();
+    void destroyGL();
+    void restoreGL();
+    void resetVertexBuffers();
 
-	void addSunMoonBeacons();
-	void renderSunMoonBeacons(const LLVector3& pos_agent, const LLVector3& direction, LLColor4 color);
+    void addSunMoonBeacons();
+    void renderSunMoonBeacons(const LLVector3& pos_agent, const LLVector3& direction, LLColor4 color);
 
 public:
-	LLPointer<LLVOSky>		mVOSkyp;	// Pointer to the LLVOSky object (only one, ever!)
-	LLPointer<LLVOGround>	mVOGroundp;
-	LLPointer<LLVOWLSky>	mVOWLSkyp;
+    LLPointer<LLVOSky>      mVOSkyp;    // Pointer to the LLVOSky object (only one, ever!)
+    LLPointer<LLVOGround>   mVOGroundp;
+    LLPointer<LLVOWLSky>    mVOWLSkyp;
 
 protected:
     LLColor4 mFogColor;

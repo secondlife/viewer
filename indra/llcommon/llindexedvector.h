@@ -40,61 +40,61 @@ template <typename Type, typename Key, int BlockSize = 32>
 class LLIndexedVector
 {
 public:
-	typedef typename std::vector<Type>::iterator iterator;
-	typedef typename std::vector<Type>::const_iterator const_iterator;
-	typedef typename std::vector<Type>::reverse_iterator reverse_iterator;
-	typedef typename std::vector<Type>::const_reverse_iterator const_reverse_iterator;
-	typedef typename std::vector<Type>::size_type size_type;
+    typedef typename std::vector<Type>::iterator iterator;
+    typedef typename std::vector<Type>::const_iterator const_iterator;
+    typedef typename std::vector<Type>::reverse_iterator reverse_iterator;
+    typedef typename std::vector<Type>::const_reverse_iterator const_reverse_iterator;
+    typedef typename std::vector<Type>::size_type size_type;
 protected:
-	std::vector<Type> mVector;
-	std::map<Key, U32> mIndexMap;
-	
+    std::vector<Type> mVector;
+    std::map<Key, U32> mIndexMap;
+    
 public:
-	LLIndexedVector() { mVector.reserve(BlockSize); }
-	
-	iterator begin() { return mVector.begin(); }
-	const_iterator begin() const { return mVector.begin(); }
-	iterator end() { return mVector.end(); }
-	const_iterator end() const { return mVector.end(); }
+    LLIndexedVector() { mVector.reserve(BlockSize); }
+    
+    iterator begin() { return mVector.begin(); }
+    const_iterator begin() const { return mVector.begin(); }
+    iterator end() { return mVector.end(); }
+    const_iterator end() const { return mVector.end(); }
 
-	reverse_iterator rbegin() { return mVector.rbegin(); }
-	const_reverse_iterator rbegin() const { return mVector.rbegin(); }
-	reverse_iterator rend() { return mVector.rend(); }
-	const_reverse_iterator rend() const { return mVector.rend(); }
+    reverse_iterator rbegin() { return mVector.rbegin(); }
+    const_reverse_iterator rbegin() const { return mVector.rbegin(); }
+    reverse_iterator rend() { return mVector.rend(); }
+    const_reverse_iterator rend() const { return mVector.rend(); }
 
-	void reset() { mVector.resize(0); mIndexMap.resize(0); }
-	bool empty() const { return mVector.empty(); }
-	size_type size() const { return mVector.size(); }
-	
-	Type& operator[](const Key& k)
-	{
-		typename std::map<Key, U32>::const_iterator iter = mIndexMap.find(k);
-		if (iter == mIndexMap.end())
-		{
-			U32 n = mVector.size();
-			mIndexMap[k] = n;
-			mVector.push_back(Type());
-			llassert(mVector.size() == mIndexMap.size());
-			return mVector[n];
-		}
-		else
-		{
-			return mVector[iter->second];
-		}
-	}
+    void reset() { mVector.resize(0); mIndexMap.resize(0); }
+    bool empty() const { return mVector.empty(); }
+    size_type size() const { return mVector.size(); }
+    
+    Type& operator[](const Key& k)
+    {
+        typename std::map<Key, U32>::const_iterator iter = mIndexMap.find(k);
+        if (iter == mIndexMap.end())
+        {
+            U32 n = mVector.size();
+            mIndexMap[k] = n;
+            mVector.push_back(Type());
+            llassert(mVector.size() == mIndexMap.size());
+            return mVector[n];
+        }
+        else
+        {
+            return mVector[iter->second];
+        }
+    }
 
-	const_iterator find(const Key& k) const
-	{
-		typename std::map<Key, U32>::const_iterator iter = mIndexMap.find(k);
-		if(iter == mIndexMap.end())
-		{
-			return mVector.end();
-		}
-		else
-		{
-			return mVector.begin() + iter->second;
-		}
-	}
+    const_iterator find(const Key& k) const
+    {
+        typename std::map<Key, U32>::const_iterator iter = mIndexMap.find(k);
+        if(iter == mIndexMap.end())
+        {
+            return mVector.end();
+        }
+        else
+        {
+            return mVector.begin() + iter->second;
+        }
+    }
 };
 
 #endif

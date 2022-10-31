@@ -29,31 +29,31 @@
 #include "lllistview.h"
 
 #include "lltextbox.h"
-#include "lluictrlfactory.h"	// LLDefaultChildRegistry
+#include "lluictrlfactory.h"    // LLDefaultChildRegistry
 
 // linker optimizes this out on Windows until there is a real reference
 // to this file
 static LLDefaultChildRegistry::Register<LLListView> r("list_view");
 
 LLListView::Params::Params()
-:	bg_color("bg_color"),
-	fg_selected_color("fg_selected_color"),
-	bg_selected_color("bg_selected_color")
+:   bg_color("bg_color"),
+    fg_selected_color("fg_selected_color"),
+    bg_selected_color("bg_selected_color")
 {}
 
 LLListView::LLListView(const Params& p)
-:	LLUICtrl(p),
-	mLabel(NULL),
-	mBgColor(p.bg_color()),
-	mFgSelectedColor(p.fg_selected_color()),
-	mBgSelectedColor(p.bg_selected_color())
+:   LLUICtrl(p),
+    mLabel(NULL),
+    mBgColor(p.bg_color()),
+    mFgSelectedColor(p.fg_selected_color()),
+    mBgSelectedColor(p.bg_selected_color())
 {
-	LLRect label_rect(0, 20, 300, 0);
-	LLTextBox::Params text_box_params;
-	text_box_params.rect(label_rect);
-	text_box_params.initial_value("This is a list-view");
-	mLabel = LLUICtrlFactory::create<LLTextBox>(text_box_params);
-	addChild(mLabel);
+    LLRect label_rect(0, 20, 300, 0);
+    LLTextBox::Params text_box_params;
+    text_box_params.rect(label_rect);
+    text_box_params.initial_value("This is a list-view");
+    mLabel = LLUICtrlFactory::create<LLTextBox>(text_box_params);
+    addChild(mLabel);
 }
 
 LLListView::~LLListView()
@@ -63,5 +63,5 @@ LLListView::~LLListView()
 // placeholder for setting a property
 void LLListView::setString(const std::string& s)
 {
-	mLabel->setValue( LLSD(s) );
+    mLabel->setValue( LLSD(s) );
 }

@@ -40,34 +40,34 @@ class LLInventoryItem;
 class LLSidepanelInventorySubpanel : public LLPanel
 {
 public:
-	LLSidepanelInventorySubpanel(const LLPanel::Params& p = getDefaultParams());
-	virtual ~LLSidepanelInventorySubpanel();
+    LLSidepanelInventorySubpanel(const LLPanel::Params& p = getDefaultParams());
+    virtual ~LLSidepanelInventorySubpanel();
 
-	/*virtual*/ void setVisible(BOOL visible);
-	virtual BOOL postBuild();
-	virtual void draw();
-	virtual void reset();
+    /*virtual*/ void setVisible(BOOL visible);
+    virtual BOOL postBuild();
+    virtual void draw();
+    virtual void reset();
 
-	void dirty();
-	void setIsEditing(BOOL edit);
+    void dirty();
+    void setIsEditing(BOOL edit);
 protected:
-	virtual void refresh() = 0;
-	virtual void save() = 0;
-	virtual void updateVerbs();
-	
-	BOOL getIsEditing() const;
-	
-	//
-	// UI Elements
-	// 
+    virtual void refresh() = 0;
+    virtual void save() = 0;
+    virtual void updateVerbs();
+    
+    BOOL getIsEditing() const;
+    
+    //
+    // UI Elements
+    // 
 protected:
-	void 						onEditButtonClicked();
-	void 						onCancelButtonClicked();
-	LLButton*					mCancelBtn;
+    void                        onEditButtonClicked();
+    void                        onCancelButtonClicked();
+    LLButton*                   mCancelBtn;
 
 private:
-	BOOL mIsDirty; 		// item properties need to be updated
-	BOOL mIsEditing; 	// if we're in edit mode
+    BOOL mIsDirty;      // item properties need to be updated
+    BOOL mIsEditing;    // if we're in edit mode
 };
 
 #endif // LL_LLSIDEPANELINVENTORYSUBPANEL_H

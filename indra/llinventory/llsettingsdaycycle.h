@@ -128,7 +128,7 @@ public:
     static validation_list_t    validationList();
 
     virtual LLSettingsBase::ptr_t buildDerivedClone() const SETTINGS_OVERRIDE { return buildClone(); }
-	
+    
     LLSettingsBase::TrackPosition getUpperBoundFrame(S32 track, const LLSettingsBase::TrackPosition& keyframe);
     LLSettingsBase::TrackPosition getLowerBoundFrame(S32 track, const LLSettingsBase::TrackPosition& keyframe);
 

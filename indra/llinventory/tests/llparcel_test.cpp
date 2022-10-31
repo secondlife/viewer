@@ -35,35 +35,35 @@
 
 namespace tut
 {
-	struct llinventoryparcel_data
-	{
-	};
-	typedef test_group<llinventoryparcel_data> llinventoryparcel_test;
-	typedef llinventoryparcel_test::object llinventoryparcel_object;
-	tut::llinventoryparcel_test llinventoryparcel("LLInventoryParcel");
+    struct llinventoryparcel_data
+    {
+    };
+    typedef test_group<llinventoryparcel_data> llinventoryparcel_test;
+    typedef llinventoryparcel_test::object llinventoryparcel_object;
+    tut::llinventoryparcel_test llinventoryparcel("LLInventoryParcel");
 
-	template<> template<>
-	void llinventoryparcel_object::test<1>()
-	{
-		for (S32 i=0; i<LLParcel::C_COUNT; ++i)
-		{
-			const std::string& catstring =  LLParcel::getCategoryString(LLParcel::ECategory(i));
-			ensure("LLParcel::getCategoryString(i)",
-			       !catstring.empty());
+    template<> template<>
+    void llinventoryparcel_object::test<1>()
+    {
+        for (S32 i=0; i<LLParcel::C_COUNT; ++i)
+        {
+            const std::string& catstring =  LLParcel::getCategoryString(LLParcel::ECategory(i));
+            ensure("LLParcel::getCategoryString(i)",
+                   !catstring.empty());
 
-			const std::string& catuistring =  LLParcel::getCategoryUIString(LLParcel::ECategory(i));
-			ensure("LLParcel::getCategoryUIString(i)",
-			       !catuistring.empty());
+            const std::string& catuistring =  LLParcel::getCategoryUIString(LLParcel::ECategory(i));
+            ensure("LLParcel::getCategoryUIString(i)",
+                   !catuistring.empty());
 
-			ensure_equals("LLParcel::ECategory mapping of string back to enum", LLParcel::getCategoryFromString(catstring), i);
-			ensure_equals("LLParcel::ECategory mapping of uistring back to enum", LLParcel::getCategoryFromUIString(catuistring), i);
-		}
+            ensure_equals("LLParcel::ECategory mapping of string back to enum", LLParcel::getCategoryFromString(catstring), i);
+            ensure_equals("LLParcel::ECategory mapping of uistring back to enum", LLParcel::getCategoryFromUIString(catuistring), i);
+        }
 
-		// test the C_ANY case, which has to work for UI strings
-		const std::string& catuistring =  LLParcel::getCategoryUIString(LLParcel::C_ANY);
-		ensure("LLParcel::getCategoryUIString(C_ANY)",
-		       !catuistring.empty());
+        // test the C_ANY case, which has to work for UI strings
+        const std::string& catuistring =  LLParcel::getCategoryUIString(LLParcel::C_ANY);
+        ensure("LLParcel::getCategoryUIString(C_ANY)",
+               !catuistring.empty());
 
-		ensure_equals("LLParcel::ECategory mapping of uistring back to enum", LLParcel::getCategoryFromUIString(catuistring), LLParcel::C_ANY);
-	}
+        ensure_equals("LLParcel::ECategory mapping of uistring back to enum", LLParcel::getCategoryFromUIString(catuistring), LLParcel::C_ANY);
+    }
 }

@@ -32,7 +32,7 @@ LLTestMessageSender::~LLTestMessageSender()
 
 S32 LLTestMessageSender::sendMessage(const LLHost& host, LLStoredMessagePtr message)
 {
-	mSendHosts.push_back(host);
-	mSendMessages.push_back(message);
-	return 0;
+    mSendHosts.push_back(host);
+    mSendMessages.push_back(message);
+    return 0;
 }

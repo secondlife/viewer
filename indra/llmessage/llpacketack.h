@@ -33,83 +33,83 @@
 class LLReliablePacketParams
 {
 public:
-	LLHost mHost;
-	S32 mRetries;
-	BOOL mPingBasedRetry;
-	F32Seconds mTimeout;
-	void (*mCallback)(void **,S32);
-	void** mCallbackData;
-	char* mMessageName;
+    LLHost mHost;
+    S32 mRetries;
+    BOOL mPingBasedRetry;
+    F32Seconds mTimeout;
+    void (*mCallback)(void **,S32);
+    void** mCallbackData;
+    char* mMessageName;
 
 public:
-	LLReliablePacketParams()
-	{
-		clear();
-	};
+    LLReliablePacketParams()
+    {
+        clear();
+    };
 
-	~LLReliablePacketParams() { };
+    ~LLReliablePacketParams() { };
 
-	void clear()
-	{
-		mHost.invalidate();
-		mRetries = 0;
-		mPingBasedRetry = TRUE;
-		mTimeout = F32Seconds(0.f);
-		mCallback = NULL;
-		mCallbackData = NULL;
-		mMessageName = NULL;
-	};
+    void clear()
+    {
+        mHost.invalidate();
+        mRetries = 0;
+        mPingBasedRetry = TRUE;
+        mTimeout = F32Seconds(0.f);
+        mCallback = NULL;
+        mCallbackData = NULL;
+        mMessageName = NULL;
+    };
 
-	void set(
-		const LLHost& host,
-		S32 retries,
-		BOOL ping_based_retry,
-		F32Seconds timeout, 
-		void (*callback)(void**,S32),
-		void** callback_data, char* name)
-	{
-		mHost = host;
-		mRetries = retries;
-		mPingBasedRetry = ping_based_retry;
-		mTimeout = timeout;
-		mCallback = callback;
-		mCallbackData = callback_data;
-		mMessageName = name;
-	};
+    void set(
+        const LLHost& host,
+        S32 retries,
+        BOOL ping_based_retry,
+        F32Seconds timeout, 
+        void (*callback)(void**,S32),
+        void** callback_data, char* name)
+    {
+        mHost = host;
+        mRetries = retries;
+        mPingBasedRetry = ping_based_retry;
+        mTimeout = timeout;
+        mCallback = callback;
+        mCallbackData = callback_data;
+        mMessageName = name;
+    };
 };
 
 class LLReliablePacket
 {
 public:
-	LLReliablePacket(
-		S32 socket,
-		U8* buf_ptr,
-		S32 buf_len,
-		LLReliablePacketParams* params);
-	~LLReliablePacket()
-	{ 
-		mCallback = NULL;
-		delete [] mBuffer;
-		mBuffer = NULL;
-	};
+    LLReliablePacket(
+        S32 socket,
+        U8* buf_ptr,
+        S32 buf_len,
+        LLReliablePacketParams* params);
+    ~LLReliablePacket()
+    { 
+        mCallback = NULL;
+        delete [] mBuffer;
+        mBuffer = NULL;
+    };
 
-	friend class LLCircuitData;
+    friend class LLCircuitData;
 protected:
-	S32 mSocket;
-	LLHost mHost;
-	S32 mRetries;
-	BOOL mPingBasedRetry;
-	F32Seconds mTimeout;
-	void (*mCallback)(void**,S32);
-	void** mCallbackData;
-	char* mMessageName;
+    S32 mSocket;
+    LLHost mHost;
+    S32 mRetries;
+    BOOL mPingBasedRetry;
+    F32Seconds mTimeout;
+    void (*mCallback)(void**,S32);
+    void** mCallbackData;
+    char* mMessageName;
 
-	U8* mBuffer;
-	S32 mBufferLength;
+    U8* mBuffer;
+    S32 mBufferLength;
 
-	TPACKETID mPacketID;
+    TPACKETID mPacketID;
 
-	F64Seconds mExpirationTime;
+    F64Seconds mExpirationTime;
 };
 
 #endif

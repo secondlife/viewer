@@ -37,40 +37,40 @@ class LLViewerRegion;
 class LLVLManager
 {
 public:
-	~LLVLManager();
+    ~LLVLManager();
 
-	void addLayerData(LLVLData *vl_datap, const S32Bytes mesg_size);
+    void addLayerData(LLVLData *vl_datap, const S32Bytes mesg_size);
 
-	void unpackData(const S32 num_packets = 10);
+    void unpackData(const S32 num_packets = 10);
 
-	S32Bytes getTotalBytes() const;
+    S32Bytes getTotalBytes() const;
 
-	U32Bits getLandBits() const;
-	U32Bits getWindBits() const;
-	U32Bits getCloudBits() const;
+    U32Bits getLandBits() const;
+    U32Bits getWindBits() const;
+    U32Bits getCloudBits() const;
 
-	void resetBitCounts();
+    void resetBitCounts();
 
-	void cleanupData(LLViewerRegion *regionp);
+    void cleanupData(LLViewerRegion *regionp);
 protected:
 
-	std::vector<LLVLData *> mPacketData;
-	U32Bits mLandBits;
-	U32Bits mWindBits;
-	U32Bits mCloudBits;
+    std::vector<LLVLData *> mPacketData;
+    U32Bits mLandBits;
+    U32Bits mWindBits;
+    U32Bits mCloudBits;
 };
 
 class LLVLData
 {
 public:
-	LLVLData(LLViewerRegion *regionp,
-			 const S8 type, U8 *data, const S32 size);
-	~LLVLData();
+    LLVLData(LLViewerRegion *regionp,
+             const S8 type, U8 *data, const S32 size);
+    ~LLVLData();
 
-	S8 mType;
-	U8 *mData;
-	S32 mSize;
-	LLViewerRegion *mRegionp;
+    S8 mType;
+    U8 *mData;
+    S32 mSize;
+    LLViewerRegion *mRegionp;
 };
 
 extern LLVLManager gVLManager;

@@ -30,153 +30,153 @@
 #include "llcontrol.h"
 
 LLAgentAccess::LLAgentAccess(LLControlGroup& savedSettings) :
-	mSavedSettings(savedSettings),
-	mAccess(SIM_ACCESS_PG),
-	mAdminOverride(false),
-	mGodLevel(GOD_NOT)
+    mSavedSettings(savedSettings),
+    mAccess(SIM_ACCESS_PG),
+    mAdminOverride(false),
+    mGodLevel(GOD_NOT)
 {
 }
 
-bool LLAgentAccess::getAdminOverride() const	
+bool LLAgentAccess::getAdminOverride() const    
 { 
-	return mAdminOverride; 
+    return mAdminOverride; 
 }
 
 void LLAgentAccess::setAdminOverride(bool b)
 { 
-	mAdminOverride = b; 
+    mAdminOverride = b; 
 }
 
 void LLAgentAccess::setGodLevel(U8 god_level)
 { 
-	mGodLevel = god_level; 
+    mGodLevel = god_level; 
 }
 
 bool LLAgentAccess::isGodlike() const
 {
 #ifdef HACKED_GODLIKE_VIEWER
-	return true;
+    return true;
 #else
-	if(mAdminOverride) return true;
-	return mGodLevel > GOD_NOT;
+    if(mAdminOverride) return true;
+    return mGodLevel > GOD_NOT;
 #endif
 }
 
 bool LLAgentAccess::isGodlikeWithoutAdminMenuFakery() const
 {
 #ifdef HACKED_GODLIKE_VIEWER
-	return true;
+    return true;
 #else
-	return mGodLevel > GOD_NOT;
+    return mGodLevel > GOD_NOT;
 #endif
 }
 
 U8 LLAgentAccess::getGodLevel() const
 {
 #ifdef HACKED_GODLIKE_VIEWER
-	return GOD_MAINTENANCE;
+    return GOD_MAINTENANCE;
 #else
-	if(mAdminOverride) return GOD_FULL; // :(
-	return mGodLevel;
+    if(mAdminOverride) return GOD_FULL; // :(
+    return mGodLevel;
 #endif
 }
 
 bool LLAgentAccess::wantsPGOnly() const
 {
-	return (prefersPG() || isTeen()) && !isGodlike();
+    return (prefersPG() || isTeen()) && !isGodlike();
 }
 
 bool LLAgentAccess::canAccessMature() const
 {
-	// if you prefer mature, you're either mature or adult, and
-	// therefore can access all mature content
-	return isGodlike() || (prefersMature() && !isTeen());
+    // if you prefer mature, you're either mature or adult, and
+    // therefore can access all mature content
+    return isGodlike() || (prefersMature() && !isTeen());
 }
 
 bool LLAgentAccess::canAccessAdult() const
 {
-	// if you prefer adult, you must BE adult.
-	return isGodlike() || (prefersAdult() && isAdult());
+    // if you prefer adult, you must BE adult.
+    return isGodlike() || (prefersAdult() && isAdult());
 }
 
 bool LLAgentAccess::prefersPG() const
 {
-	U32 access = mSavedSettings.getU32("PreferredMaturity");
-	return access < SIM_ACCESS_MATURE;
+    U32 access = mSavedSettings.getU32("PreferredMaturity");
+    return access < SIM_ACCESS_MATURE;
 }
 
 bool LLAgentAccess::prefersMature() const
 {
-	U32 access = mSavedSettings.getU32("PreferredMaturity");
-	return access >= SIM_ACCESS_MATURE;
+    U32 access = mSavedSettings.getU32("PreferredMaturity");
+    return access >= SIM_ACCESS_MATURE;
 }
 
 bool LLAgentAccess::prefersAdult() const
 {
-	U32 access = mSavedSettings.getU32("PreferredMaturity");
-	return access >= SIM_ACCESS_ADULT;
+    U32 access = mSavedSettings.getU32("PreferredMaturity");
+    return access >= SIM_ACCESS_ADULT;
 }
 
 bool LLAgentAccess::isTeen() const
 {
-	return mAccess < SIM_ACCESS_MATURE;
+    return mAccess < SIM_ACCESS_MATURE;
 }
 
 bool LLAgentAccess::isMature() const
 {
-	return mAccess >= SIM_ACCESS_MATURE;
+    return mAccess >= SIM_ACCESS_MATURE;
 }
 
 bool LLAgentAccess::isAdult() const
 {
-	return mAccess >= SIM_ACCESS_ADULT;
+    return mAccess >= SIM_ACCESS_ADULT;
 }
 
 //static 
 int LLAgentAccess::convertTextToMaturity(char text)
 {
-	if ('A' == text)
-	{
-		return SIM_ACCESS_ADULT;
-	}
-	else if ('M'== text)
-	{
-		return SIM_ACCESS_MATURE;
-	}
-	else if ('P'== text)
-	{
-		return SIM_ACCESS_PG;
-	}
-	return SIM_ACCESS_MIN;
+    if ('A' == text)
+    {
+        return SIM_ACCESS_ADULT;
+    }
+    else if ('M'== text)
+    {
+        return SIM_ACCESS_MATURE;
+    }
+    else if ('P'== text)
+    {
+        return SIM_ACCESS_PG;
+    }
+    return SIM_ACCESS_MIN;
 }
 
 void LLAgentAccess::setMaturity(char text)
 {
-	mAccess = LLAgentAccess::convertTextToMaturity(text);
-	U32 preferred_access = mSavedSettings.getU32("PreferredMaturity");
-	while (!canSetMaturity(preferred_access))
-	{
-		if (preferred_access == SIM_ACCESS_ADULT)
-		{
-			preferred_access = SIM_ACCESS_MATURE;
-		}
-		else
-		{
-			// Mature or invalid access gets set to PG
-			preferred_access = SIM_ACCESS_PG;
-		}
-	}
-	mSavedSettings.setU32("PreferredMaturity", preferred_access);
+    mAccess = LLAgentAccess::convertTextToMaturity(text);
+    U32 preferred_access = mSavedSettings.getU32("PreferredMaturity");
+    while (!canSetMaturity(preferred_access))
+    {
+        if (preferred_access == SIM_ACCESS_ADULT)
+        {
+            preferred_access = SIM_ACCESS_MATURE;
+        }
+        else
+        {
+            // Mature or invalid access gets set to PG
+            preferred_access = SIM_ACCESS_PG;
+        }
+    }
+    mSavedSettings.setU32("PreferredMaturity", preferred_access);
 }
 
 bool LLAgentAccess::canSetMaturity(S32 maturity)
 {
-	if (isGodlike()) // Gods can always set their Maturity level
-		return true;
-	if (isAdult()) // Adults can always set their Maturity level
-		return true;
-	if (maturity == SIM_ACCESS_PG || (maturity == SIM_ACCESS_MATURE && isMature()))
-		return true;
-	else
-		return false;
+    if (isGodlike()) // Gods can always set their Maturity level
+        return true;
+    if (isAdult()) // Adults can always set their Maturity level
+        return true;
+    if (maturity == SIM_ACCESS_PG || (maturity == SIM_ACCESS_MATURE && isMature()))
+        return true;
+    else
+        return false;
 }

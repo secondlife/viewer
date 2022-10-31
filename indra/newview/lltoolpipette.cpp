@@ -47,8 +47,8 @@
 //
 
 LLToolPipette::LLToolPipette()
-:	LLTool(std::string("Pipette")),
-	mSuccess(TRUE)
+:   LLTool(std::string("Pipette")),
+    mSuccess(TRUE)
 { 
 }
 
@@ -59,78 +59,78 @@ LLToolPipette::~LLToolPipette()
 
 BOOL LLToolPipette::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	mSuccess = TRUE;
-	mTooltipMsg.clear();
-	setMouseCapture(TRUE);
-	gViewerWindow->pickAsync(x, y, mask, pickCallback);
-	return TRUE;
+    mSuccess = TRUE;
+    mTooltipMsg.clear();
+    setMouseCapture(TRUE);
+    gViewerWindow->pickAsync(x, y, mask, pickCallback);
+    return TRUE;
 }
 
 BOOL LLToolPipette::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	mSuccess = TRUE;
-	LLSelectMgr::getInstance()->unhighlightAll();
-	// *NOTE: This assumes the pipette tool is a transient tool.
-	LLToolMgr::getInstance()->clearTransientTool();
-	setMouseCapture(FALSE);
-	return TRUE;
+    mSuccess = TRUE;
+    LLSelectMgr::getInstance()->unhighlightAll();
+    // *NOTE: This assumes the pipette tool is a transient tool.
+    LLToolMgr::getInstance()->clearTransientTool();
+    setMouseCapture(FALSE);
+    return TRUE;
 }
 
 BOOL LLToolPipette::handleHover(S32 x, S32 y, MASK mask)
 {
-	gViewerWindow->setCursor(mSuccess ? UI_CURSOR_PIPETTE : UI_CURSOR_NO);
-	if (hasMouseCapture()) // mouse button is down
-	{
-		gViewerWindow->pickAsync(x, y, mask, pickCallback);
-		return TRUE;
-	}
-	return FALSE;
+    gViewerWindow->setCursor(mSuccess ? UI_CURSOR_PIPETTE : UI_CURSOR_NO);
+    if (hasMouseCapture()) // mouse button is down
+    {
+        gViewerWindow->pickAsync(x, y, mask, pickCallback);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 BOOL LLToolPipette::handleToolTip(S32 x, S32 y, MASK mask)
 {
-	if (mTooltipMsg.empty())
-	{
-		return FALSE;
-	}
+    if (mTooltipMsg.empty())
+    {
+        return FALSE;
+    }
 
-	LLRect sticky_rect;
-	sticky_rect.setCenterAndSize(x, y, 20, 20);
-	LLToolTipMgr::instance().show(LLToolTip::Params()
-		.message(mTooltipMsg)
-		.sticky_rect(sticky_rect));
+    LLRect sticky_rect;
+    sticky_rect.setCenterAndSize(x, y, 20, 20);
+    LLToolTipMgr::instance().show(LLToolTip::Params()
+        .message(mTooltipMsg)
+        .sticky_rect(sticky_rect));
 
-	return TRUE;
+    return TRUE;
 }
 
 void LLToolPipette::setTextureEntry(const LLTextureEntry* entry)
 {
-	if (entry)
-	{
-		mTextureEntry = *entry;
-		mSignal(mTextureEntry);
-	}
+    if (entry)
+    {
+        mTextureEntry = *entry;
+        mSignal(mTextureEntry);
+    }
 }
 
 void LLToolPipette::pickCallback(const LLPickInfo& pick_info)
 {
-	LLViewerObject* hit_obj	= pick_info.getObject();
-	LLSelectMgr::getInstance()->unhighlightAll();
+    LLViewerObject* hit_obj = pick_info.getObject();
+    LLSelectMgr::getInstance()->unhighlightAll();
 
-	// if we clicked on a face of a valid prim, save off texture entry data
-	if (hit_obj && 
-		hit_obj->getPCode() == LL_PCODE_VOLUME &&
-		pick_info.mObjectFace != -1)
-	{
-		//TODO: this should highlight the selected face only
-		LLSelectMgr::getInstance()->highlightObjectOnly(hit_obj);
-		const LLTextureEntry* entry = hit_obj->getTE(pick_info.mObjectFace);
-		LLToolPipette::getInstance()->setTextureEntry(entry);
-	}
+    // if we clicked on a face of a valid prim, save off texture entry data
+    if (hit_obj && 
+        hit_obj->getPCode() == LL_PCODE_VOLUME &&
+        pick_info.mObjectFace != -1)
+    {
+        //TODO: this should highlight the selected face only
+        LLSelectMgr::getInstance()->highlightObjectOnly(hit_obj);
+        const LLTextureEntry* entry = hit_obj->getTE(pick_info.mObjectFace);
+        LLToolPipette::getInstance()->setTextureEntry(entry);
+    }
 }
 
 void LLToolPipette::setResult(BOOL success, const std::string& msg)
 {
-	mTooltipMsg = msg;
-	mSuccess = success;
+    mTooltipMsg = msg;
+    mSuccess = success;
 }

@@ -33,72 +33,72 @@
 #include "llui.h"
 
 LLStyle::Params::Params()
-:	visible("visible", true),
-	drop_shadow("drop_shadow", LLFontGL::NO_SHADOW),
-	color("color", LLColor4::black),
-	readonly_color("readonly_color", LLColor4::black),
-	selected_color("selected_color", LLColor4::black),
-	font("font", LLFontGL::getFontMonospace()),
-	image("image"),
-	link_href("href"),
-	is_link("is_link")
+:   visible("visible", true),
+    drop_shadow("drop_shadow", LLFontGL::NO_SHADOW),
+    color("color", LLColor4::black),
+    readonly_color("readonly_color", LLColor4::black),
+    selected_color("selected_color", LLColor4::black),
+    font("font", LLFontGL::getFontMonospace()),
+    image("image"),
+    link_href("href"),
+    is_link("is_link")
 {}
 
 
 LLStyle::LLStyle(const LLStyle::Params& p)
-:	mVisible(p.visible),
-	mColor(p.color),
-	mReadOnlyColor(p.readonly_color),
-	mSelectedColor(p.selected_color),
-	mFont(p.font()),
-	mLink(p.link_href),
-	mIsLink(p.is_link.isProvided() ? p.is_link : !p.link_href().empty()),
-	mDropShadow(p.drop_shadow),
-	mImagep(p.image())
+:   mVisible(p.visible),
+    mColor(p.color),
+    mReadOnlyColor(p.readonly_color),
+    mSelectedColor(p.selected_color),
+    mFont(p.font()),
+    mLink(p.link_href),
+    mIsLink(p.is_link.isProvided() ? p.is_link : !p.link_href().empty()),
+    mDropShadow(p.drop_shadow),
+    mImagep(p.image())
 {}
 
 void LLStyle::setFont(const LLFontGL* font)
 {
-	mFont = font;
+    mFont = font;
 }
 
 
 const LLFontGL* LLStyle::getFont() const
 {
-	return mFont;
+    return mFont;
 }
 
 void LLStyle::setLinkHREF(const std::string& href)
 {
-	mLink = href;
+    mLink = href;
 }
 
 BOOL LLStyle::isLink() const
 {
-	return mIsLink;
+    return mIsLink;
 }
 
 BOOL LLStyle::isVisible() const
 {
-	return mVisible;
+    return mVisible;
 }
 
 void LLStyle::setVisible(BOOL is_visible)
 {
-	mVisible = is_visible;
+    mVisible = is_visible;
 }
 
 LLPointer<LLUIImage> LLStyle::getImage() const
 {
-	return mImagep;
+    return mImagep;
 }
 
 void LLStyle::setImage(const LLUUID& src)
 {
-	mImagep = LLUI::getUIImageByID(src);
+    mImagep = LLUI::getUIImageByID(src);
 }
 
 void LLStyle::setImage(const std::string& name)
 {
-	mImagep = LLUI::getUIImage(name);
+    mImagep = LLUI::getUIImage(name);
 }

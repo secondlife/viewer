@@ -37,79 +37,79 @@ bool LLThreadLocalPointerBase::sInitialized = false;
 
 void LLThreadLocalPointerBase::set( void* value )
 {
-	llassert(sInitialized && mThreadKey);
+    llassert(sInitialized && mThreadKey);
 
-	apr_status_t result = apr_threadkey_private_set((void*)value, mThreadKey);
-	if (result != APR_SUCCESS)
-	{
-		ll_apr_warn_status(result);
-		LL_ERRS() << "Failed to set thread local data" << LL_ENDL;
-	}
+    apr_status_t result = apr_threadkey_private_set((void*)value, mThreadKey);
+    if (result != APR_SUCCESS)
+    {
+        ll_apr_warn_status(result);
+        LL_ERRS() << "Failed to set thread local data" << LL_ENDL;
+    }
 }
 
 void* LLThreadLocalPointerBase::get() const
 {
-	// llassert(sInitialized);
-	void* ptr;
-	apr_status_t result =
-		apr_threadkey_private_get(&ptr, mThreadKey);
-	if (result != APR_SUCCESS)
-	{
-		ll_apr_warn_status(result);
-		LL_ERRS() << "Failed to get thread local data" << LL_ENDL;
-	}
-	return ptr;
+    // llassert(sInitialized);
+    void* ptr;
+    apr_status_t result =
+        apr_threadkey_private_get(&ptr, mThreadKey);
+    if (result != APR_SUCCESS)
+    {
+        ll_apr_warn_status(result);
+        LL_ERRS() << "Failed to get thread local data" << LL_ENDL;
+    }
+    return ptr;
 }
 
 
 void LLThreadLocalPointerBase::initStorage( )
 {
-	apr_status_t result = apr_threadkey_private_create(&mThreadKey, NULL, gAPRPoolp);
-	if (result != APR_SUCCESS)
-	{
-		ll_apr_warn_status(result);
-		LL_ERRS() << "Failed to allocate thread local data" << LL_ENDL;
-	}
+    apr_status_t result = apr_threadkey_private_create(&mThreadKey, NULL, gAPRPoolp);
+    if (result != APR_SUCCESS)
+    {
+        ll_apr_warn_status(result);
+        LL_ERRS() << "Failed to allocate thread local data" << LL_ENDL;
+    }
 }
 
 void LLThreadLocalPointerBase::destroyStorage()
 {
-	if (sInitialized)
-	{
-		if (mThreadKey)
-		{
-			apr_status_t result = apr_threadkey_private_delete(mThreadKey);
-			if (result != APR_SUCCESS)
-			{
-				ll_apr_warn_status(result);
-				LL_ERRS() << "Failed to delete thread local data" << LL_ENDL;
-			}
-		}
-	}
+    if (sInitialized)
+    {
+        if (mThreadKey)
+        {
+            apr_status_t result = apr_threadkey_private_delete(mThreadKey);
+            if (result != APR_SUCCESS)
+            {
+                ll_apr_warn_status(result);
+                LL_ERRS() << "Failed to delete thread local data" << LL_ENDL;
+            }
+        }
+    }
 }
 
 //static
 void LLThreadLocalPointerBase::initAllThreadLocalStorage()
 {
-	if (!sInitialized)
-	{
-		for (auto& base : instance_snapshot())
-		{
-			base.initStorage();
-		}
-		sInitialized = true;
-	}
+    if (!sInitialized)
+    {
+        for (auto& base : instance_snapshot())
+        {
+            base.initStorage();
+        }
+        sInitialized = true;
+    }
 }
 
 //static
 void LLThreadLocalPointerBase::destroyAllThreadLocalStorage()
 {
-	if (sInitialized)
-	{
-		//for (auto& base : instance_snapshot())
-		//{
-		//	base.destroyStorage();
-		//}
-		sInitialized = false;
-	}
+    if (sInitialized)
+    {
+        //for (auto& base : instance_snapshot())
+        //{
+        //  base.destroyStorage();
+        //}
+        sInitialized = false;
+    }
 }

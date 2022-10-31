@@ -30,7 +30,7 @@
 
 // Linden library includes
 #include "llglheaders.h"
-#include "llwindow.h"			// getPosition()
+#include "llwindow.h"           // getPosition()
 
 // Viewer includes
 #include "llviewerwindow.h"
@@ -51,15 +51,15 @@ S32 LLViewerDynamicTexture::sNumRenders = 0;
 // LLViewerDynamicTexture()
 //-----------------------------------------------------------------------------
 LLViewerDynamicTexture::LLViewerDynamicTexture(S32 width, S32 height, S32 components, EOrder order, BOOL clamp) : 
-	LLViewerTexture(width, height, components, FALSE),
-	mClamp(clamp)
+    LLViewerTexture(width, height, components, FALSE),
+    mClamp(clamp)
 {
-	llassert((1 <= components) && (components <= 4));
+    llassert((1 <= components) && (components <= 4));
 
-	generateGLTexture();
+    generateGLTexture();
 
-	llassert( 0 <= order && order < ORDER_COUNT );
-	LLViewerDynamicTexture::sInstances[ order ].insert(this);
+    llassert( 0 <= order && order < ORDER_COUNT );
+    LLViewerDynamicTexture::sInstances[ order ].insert(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -67,16 +67,16 @@ LLViewerDynamicTexture::LLViewerDynamicTexture(S32 width, S32 height, S32 compon
 //-----------------------------------------------------------------------------
 LLViewerDynamicTexture::~LLViewerDynamicTexture()
 {
-	for( S32 order = 0; order < ORDER_COUNT; order++ )
-	{
-		LLViewerDynamicTexture::sInstances[order].erase(this);  // will fail in all but one case.
-	}
+    for( S32 order = 0; order < ORDER_COUNT; order++ )
+    {
+        LLViewerDynamicTexture::sInstances[order].erase(this);  // will fail in all but one case.
+    }
 }
 
 //virtual 
 S8 LLViewerDynamicTexture::getType() const
 {
-	return LLViewerTexture::DYNAMIC_TEXTURE ;
+    return LLViewerTexture::DYNAMIC_TEXTURE ;
 }
 
 //-----------------------------------------------------------------------------
@@ -84,25 +84,25 @@ S8 LLViewerDynamicTexture::getType() const
 //-----------------------------------------------------------------------------
 void LLViewerDynamicTexture::generateGLTexture()
 {
-	LLViewerTexture::generateGLTexture() ;
-	generateGLTexture(-1, 0, 0, FALSE);
+    LLViewerTexture::generateGLTexture() ;
+    generateGLTexture(-1, 0, 0, FALSE);
 }
 
 void LLViewerDynamicTexture::generateGLTexture(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format, BOOL swap_bytes)
 {
-	if (mComponents < 1 || mComponents > 4)
-	{
-		LL_ERRS() << "Bad number of components in dynamic texture: " << mComponents << LL_ENDL;
-	}
-	
-	LLPointer<LLImageRaw> raw_image = new LLImageRaw(mFullWidth, mFullHeight, mComponents);
-	if (internal_format >= 0)
-	{
-		setExplicitFormat(internal_format, primary_format, type_format, swap_bytes);
-	}
-	createGLTexture(0, raw_image, 0, TRUE, LLGLTexture::DYNAMIC_TEX);
-	setAddressMode((mClamp) ? LLTexUnit::TAM_CLAMP : LLTexUnit::TAM_WRAP);
-	mGLTexturep->setGLTextureCreated(false);
+    if (mComponents < 1 || mComponents > 4)
+    {
+        LL_ERRS() << "Bad number of components in dynamic texture: " << mComponents << LL_ENDL;
+    }
+    
+    LLPointer<LLImageRaw> raw_image = new LLImageRaw(mFullWidth, mFullHeight, mComponents);
+    if (internal_format >= 0)
+    {
+        setExplicitFormat(internal_format, primary_format, type_format, swap_bytes);
+    }
+    createGLTexture(0, raw_image, 0, TRUE, LLGLTexture::DYNAMIC_TEX);
+    setAddressMode((mClamp) ? LLTexUnit::TAM_CLAMP : LLTexUnit::TAM_WRAP);
+    mGLTexturep->setGLTextureCreated(false);
 }
 
 //-----------------------------------------------------------------------------
@@ -110,7 +110,7 @@ void LLViewerDynamicTexture::generateGLTexture(LLGLint internal_format, LLGLenum
 //-----------------------------------------------------------------------------
 BOOL LLViewerDynamicTexture::render()
 {
-	return FALSE;
+    return FALSE;
 }
 
 //-----------------------------------------------------------------------------
@@ -118,48 +118,48 @@ BOOL LLViewerDynamicTexture::render()
 //-----------------------------------------------------------------------------
 void LLViewerDynamicTexture::preRender(BOOL clear_depth)
 {
-	gPipeline.allocatePhysicsBuffer();
-	if (!gNonInteractive)
-	{
-		llassert(mFullWidth <= static_cast<S32>(gPipeline.mPhysicsDisplay.getWidth()));
-		llassert(mFullHeight <= static_cast<S32>(gPipeline.mPhysicsDisplay.getHeight()));
-	}
+    gPipeline.allocatePhysicsBuffer();
+    if (!gNonInteractive)
+    {
+        llassert(mFullWidth <= static_cast<S32>(gPipeline.mPhysicsDisplay.getWidth()));
+        llassert(mFullHeight <= static_cast<S32>(gPipeline.mPhysicsDisplay.getHeight()));
+    }
 
-	if (gPipeline.mPhysicsDisplay.isComplete() && !gGLManager.mIsAMD)
-	{ //using offscreen render target, just use the bottom left corner
-		mOrigin.set(0, 0);
-	}
-	else
-	{ // force rendering to on-screen portion of frame buffer
-		LLCoordScreen window_pos;
-		gViewerWindow->getWindow()->getPosition( &window_pos );
-		mOrigin.set(0, gViewerWindow->getWindowHeightRaw() - mFullHeight);  // top left corner
+    if (gPipeline.mPhysicsDisplay.isComplete() && !gGLManager.mIsAMD)
+    { //using offscreen render target, just use the bottom left corner
+        mOrigin.set(0, 0);
+    }
+    else
+    { // force rendering to on-screen portion of frame buffer
+        LLCoordScreen window_pos;
+        gViewerWindow->getWindow()->getPosition( &window_pos );
+        mOrigin.set(0, gViewerWindow->getWindowHeightRaw() - mFullHeight);  // top left corner
 
-		if (window_pos.mX < 0)
-		{
-			mOrigin.mX = -window_pos.mX;
-		}
-		if (window_pos.mY < 0)
-		{
-			mOrigin.mY += window_pos.mY;
-			mOrigin.mY = llmax(mOrigin.mY, 0) ;
-		}
-	}
+        if (window_pos.mX < 0)
+        {
+            mOrigin.mX = -window_pos.mX;
+        }
+        if (window_pos.mY < 0)
+        {
+            mOrigin.mY += window_pos.mY;
+            mOrigin.mY = llmax(mOrigin.mY, 0) ;
+        }
+    }
 
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	// Set up camera
-	LLViewerCamera* camera = LLViewerCamera::getInstance();
-	mCamera.setOrigin(*camera);
-	mCamera.setAxes(*camera);
-	mCamera.setAspect(camera->getAspect());
-	mCamera.setView(camera->getView());
-	mCamera.setNear(camera->getNear());
+    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    // Set up camera
+    LLViewerCamera* camera = LLViewerCamera::getInstance();
+    mCamera.setOrigin(*camera);
+    mCamera.setAxes(*camera);
+    mCamera.setAspect(camera->getAspect());
+    mCamera.setView(camera->getView());
+    mCamera.setNear(camera->getNear());
 
-	glViewport(mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight);
-	if (clear_depth)
-	{
-		glClear(GL_DEPTH_BUFFER_BIT);
-	}
+    glViewport(mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight);
+    if (clear_depth)
+    {
+        glClear(GL_DEPTH_BUFFER_BIT);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -167,36 +167,36 @@ void LLViewerDynamicTexture::preRender(BOOL clear_depth)
 //-----------------------------------------------------------------------------
 void LLViewerDynamicTexture::postRender(BOOL success)
 {
-	{
-		if (success)
-		{
-			if(mGLTexturep.isNull())
-			{
-				generateGLTexture() ;
-			}
-			else if(!mGLTexturep->getHasGLTexture())
-			{
-				generateGLTexture() ;
-			}			
-			else if(mGLTexturep->getDiscardLevel() != 0)//do not know how it happens, but regenerate one if it does.
-			{
-				generateGLTexture() ;
-			}
+    {
+        if (success)
+        {
+            if(mGLTexturep.isNull())
+            {
+                generateGLTexture() ;
+            }
+            else if(!mGLTexturep->getHasGLTexture())
+            {
+                generateGLTexture() ;
+            }           
+            else if(mGLTexturep->getDiscardLevel() != 0)//do not know how it happens, but regenerate one if it does.
+            {
+                generateGLTexture() ;
+            }
 
-			success = mGLTexturep->setSubImageFromFrameBuffer(0, 0, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight);
-		}
-	}
+            success = mGLTexturep->setSubImageFromFrameBuffer(0, 0, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight);
+        }
+    }
 
-	// restore viewport
-	gViewerWindow->setup2DViewport();
+    // restore viewport
+    gViewerWindow->setup2DViewport();
 
-	// restore camera
-	LLViewerCamera* camera = LLViewerCamera::getInstance();
-	camera->setOrigin(mCamera);
-	camera->setAxes(mCamera);
-	camera->setAspect(mCamera.getAspect());
-	camera->setView(mCamera.getView());
-	camera->setNear(mCamera.getNear());
+    // restore camera
+    LLViewerCamera* camera = LLViewerCamera::getInstance();
+    camera->setOrigin(mCamera);
+    camera->setAxes(mCamera);
+    camera->setAspect(mCamera.getAspect());
+    camera->setView(mCamera.getView());
+    camera->setNear(mCamera.getNear());
 }
 
 //-----------------------------------------------------------------------------
@@ -206,62 +206,62 @@ void LLViewerDynamicTexture::postRender(BOOL success)
 //-----------------------------------------------------------------------------
 BOOL LLViewerDynamicTexture::updateAllInstances()
 {
-	sNumRenders = 0;
-	if (gGLManager.mIsDisabled)
-	{
-		return TRUE;
-	}
+    sNumRenders = 0;
+    if (gGLManager.mIsDisabled)
+    {
+        return TRUE;
+    }
 
-	bool use_fbo = gPipeline.mBake.isComplete() && !gGLManager.mIsAMD;
+    bool use_fbo = gPipeline.mBake.isComplete() && !gGLManager.mIsAMD;
 
-	if (use_fbo)
-	{
-		gPipeline.mBake.bindTarget();
+    if (use_fbo)
+    {
+        gPipeline.mBake.bindTarget();
         gPipeline.mBake.clear();
-	}
+    }
 
-	LLGLSLShader::bindNoShader();
-	LLVertexBuffer::unbind();
-	
-	BOOL result = FALSE;
-	BOOL ret = FALSE ;
-	for( S32 order = 0; order < ORDER_COUNT; order++ )
-	{
-		for (instance_list_t::iterator iter = LLViewerDynamicTexture::sInstances[order].begin();
-			 iter != LLViewerDynamicTexture::sInstances[order].end(); ++iter)
-		{
-			LLViewerDynamicTexture *dynamicTexture = *iter;
-			if (dynamicTexture->needsRender())
-			{				
-				glClear(GL_DEPTH_BUFFER_BIT);
-				gDepthDirty = TRUE;
-								
-				gGL.color4f(1,1,1,1);
+    LLGLSLShader::bindNoShader();
+    LLVertexBuffer::unbind();
+    
+    BOOL result = FALSE;
+    BOOL ret = FALSE ;
+    for( S32 order = 0; order < ORDER_COUNT; order++ )
+    {
+        for (instance_list_t::iterator iter = LLViewerDynamicTexture::sInstances[order].begin();
+             iter != LLViewerDynamicTexture::sInstances[order].end(); ++iter)
+        {
+            LLViewerDynamicTexture *dynamicTexture = *iter;
+            if (dynamicTexture->needsRender())
+            {               
+                glClear(GL_DEPTH_BUFFER_BIT);
+                gDepthDirty = TRUE;
+                                
+                gGL.color4f(1,1,1,1);
                 dynamicTexture->setBoundTarget(use_fbo ? &gPipeline.mBake : nullptr);
-				dynamicTexture->preRender();	// Must be called outside of startRender()
-				result = FALSE;
-				if (dynamicTexture->render())
-				{
-					ret = TRUE ;
-					result = TRUE;
-					sNumRenders++;
-				}
-				gGL.flush();
-				LLVertexBuffer::unbind();
-				dynamicTexture->setBoundTarget(nullptr);
-				dynamicTexture->postRender(result);
-			}
-		}
-	}
+                dynamicTexture->preRender();    // Must be called outside of startRender()
+                result = FALSE;
+                if (dynamicTexture->render())
+                {
+                    ret = TRUE ;
+                    result = TRUE;
+                    sNumRenders++;
+                }
+                gGL.flush();
+                LLVertexBuffer::unbind();
+                dynamicTexture->setBoundTarget(nullptr);
+                dynamicTexture->postRender(result);
+            }
+        }
+    }
 
-	if (use_fbo)
-	{
-		gPipeline.mBake.flush();
-	}
+    if (use_fbo)
+    {
+        gPipeline.mBake.flush();
+    }
 
     gGL.flush();
 
-	return ret;
+    return ret;
 }
 
 //-----------------------------------------------------------------------------
@@ -270,15 +270,15 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 //-----------------------------------------------------------------------------
 void LLViewerDynamicTexture::destroyGL()
 {
-	for( S32 order = 0; order < ORDER_COUNT; order++ )
-	{
-		for (instance_list_t::iterator iter = LLViewerDynamicTexture::sInstances[order].begin();
-			 iter != LLViewerDynamicTexture::sInstances[order].end(); ++iter)
-		{
-			LLViewerDynamicTexture *dynamicTexture = *iter;
-			dynamicTexture->destroyGLTexture() ;
-		}
-	}
+    for( S32 order = 0; order < ORDER_COUNT; order++ )
+    {
+        for (instance_list_t::iterator iter = LLViewerDynamicTexture::sInstances[order].begin();
+             iter != LLViewerDynamicTexture::sInstances[order].end(); ++iter)
+        {
+            LLViewerDynamicTexture *dynamicTexture = *iter;
+            dynamicTexture->destroyGLTexture() ;
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -287,18 +287,18 @@ void LLViewerDynamicTexture::destroyGL()
 //-----------------------------------------------------------------------------
 void LLViewerDynamicTexture::restoreGL()
 {
-	if (gGLManager.mIsDisabled)
-	{
-		return ;
-	}			
-	
-	for( S32 order = 0; order < ORDER_COUNT; order++ )
-	{
-		for (instance_list_t::iterator iter = LLViewerDynamicTexture::sInstances[order].begin();
-			 iter != LLViewerDynamicTexture::sInstances[order].end(); ++iter)
-		{
-			LLViewerDynamicTexture *dynamicTexture = *iter;
-			dynamicTexture->restoreGLTexture() ;
-		}
-	}
+    if (gGLManager.mIsDisabled)
+    {
+        return ;
+    }           
+    
+    for( S32 order = 0; order < ORDER_COUNT; order++ )
+    {
+        for (instance_list_t::iterator iter = LLViewerDynamicTexture::sInstances[order].begin();
+             iter != LLViewerDynamicTexture::sInstances[order].end(); ++iter)
+        {
+            LLViewerDynamicTexture *dynamicTexture = *iter;
+            dynamicTexture->restoreGLTexture() ;
+        }
+    }
 }

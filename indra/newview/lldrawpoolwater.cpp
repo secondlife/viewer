@@ -34,7 +34,7 @@
 #include "m3math.h"
 #include "llrender.h"
 
-#include "llagent.h"		// for gAgent for getRegion for getWaterHeight
+#include "llagent.h"        // for gAgent for getRegion for getWaterHeight
 #include "llcubemap.h"
 #include "lldrawable.h"
 #include "llface.h"
@@ -93,7 +93,7 @@ void LLDrawPoolWater::setNormalMaps(const LLUUID& normalMapId, const LLUUID& nex
 //static
 void LLDrawPoolWater::restoreGL()
 {
-	/*LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
+    /*LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
     if (pwater)
     {
         setTransparentTextures(pwater->getTransparentTextureID(), pwater->getNextTransparentTextureID());
@@ -104,29 +104,29 @@ void LLDrawPoolWater::restoreGL()
 
 void LLDrawPoolWater::prerender()
 {
-	mShaderLevel = (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps) ? LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WATER) : 0;
+    mShaderLevel = (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps) ? LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WATER) : 0;
 }
 
 S32 LLDrawPoolWater::getNumPasses()
 {
-	if (LLViewerCamera::getInstance()->getOrigin().mV[2] < 1024.f)
-	{
-		return 1;
-	}
+    if (LLViewerCamera::getInstance()->getOrigin().mV[2] < 1024.f)
+    {
+        return 1;
+    }
 
-	return 0;
+    return 0;
 }
 
 void LLDrawPoolWater::beginPostDeferredPass(S32 pass)
 {
-	beginRenderPass(pass);
-	deferred_render = TRUE;
+    beginRenderPass(pass);
+    deferred_render = TRUE;
 }
 
 void LLDrawPoolWater::endPostDeferredPass(S32 pass)
 {
-	endRenderPass(pass);
-	deferred_render = FALSE;
+    endRenderPass(pass);
+    deferred_render = FALSE;
 }
 
 //===============================
@@ -143,192 +143,192 @@ void LLDrawPoolWater::renderDeferred(S32 pass)
         return;
     }
 
-	deferred_render = TRUE;
-	renderWater();
-	deferred_render = FALSE;
+    deferred_render = TRUE;
+    renderWater();
+    deferred_render = FALSE;
 }
 
 //=========================================
 
 void LLDrawPoolWater::render(S32 pass)
 {
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
-	if (mDrawFace.empty() || LLDrawable::getCurrentFrame() <= 1)
-	{
-		return;
-	}
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
+    if (mDrawFace.empty() || LLDrawable::getCurrentFrame() <= 1)
+    {
+        return;
+    }
 
-	//do a quick 'n dirty depth sort
-	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-			 iter != mDrawFace.end(); iter++)
-	{
-		LLFace* facep = *iter;
-		facep->mDistance = -facep->mCenterLocal.mV[2];
-	}
+    //do a quick 'n dirty depth sort
+    for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
+             iter != mDrawFace.end(); iter++)
+    {
+        LLFace* facep = *iter;
+        facep->mDistance = -facep->mCenterLocal.mV[2];
+    }
 
-	std::sort(mDrawFace.begin(), mDrawFace.end(), LLFace::CompareDistanceGreater());
+    std::sort(mDrawFace.begin(), mDrawFace.end(), LLFace::CompareDistanceGreater());
 
-	// See if we are rendering water as opaque or not
-	if (!LLPipeline::sRenderTransparentWater)
-	{
-		// render water for low end hardware
-		renderOpaqueLegacyWater();
-		return;
-	}
+    // See if we are rendering water as opaque or not
+    if (!LLPipeline::sRenderTransparentWater)
+    {
+        // render water for low end hardware
+        renderOpaqueLegacyWater();
+        return;
+    }
 
-	LLGLEnable blend(GL_BLEND);
+    LLGLEnable blend(GL_BLEND);
 
-	if ((mShaderLevel > 0) && !sSkipScreenCopy)
-	{
-		renderWater();
-		return;
-	}
+    if ((mShaderLevel > 0) && !sSkipScreenCopy)
+    {
+        renderWater();
+        return;
+    }
 
-	LLVOSky *voskyp = gSky.mVOSkyp;
+    LLVOSky *voskyp = gSky.mVOSkyp;
 
-	stop_glerror();
+    stop_glerror();
 
-	if (!gGLManager.mHasMultitexture)
-	{
-		// Ack!  No multitexture!  Bail!
-		return;
-	}
+    if (!gGLManager.mHasMultitexture)
+    {
+        // Ack!  No multitexture!  Bail!
+        return;
+    }
 
-	LLFace* refl_face = voskyp->getReflFace();
+    LLFace* refl_face = voskyp->getReflFace();
 
-	gPipeline.disableLights();
-	
-	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
+    gPipeline.disableLights();
+    
+    LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 
-	LLGLDisable cullFace(GL_CULL_FACE);
-	
-	// Set up second pass first
-	gGL.getTexUnit(1)->activate();
-	gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(1)->bind(mWaterImagep[0]) ;
+    LLGLDisable cullFace(GL_CULL_FACE);
+    
+    // Set up second pass first
+    gGL.getTexUnit(1)->activate();
+    gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(1)->bind(mWaterImagep[0]) ;
 
     gGL.getTexUnit(2)->activate();
-	gGL.getTexUnit(2)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(2)->bind(mWaterImagep[1]) ;
+    gGL.getTexUnit(2)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(2)->bind(mWaterImagep[1]) ;
 
-	LLVector3 camera_up = LLViewerCamera::getInstance()->getUpAxis();
-	F32 up_dot = camera_up * LLVector3::z_axis;
+    LLVector3 camera_up = LLViewerCamera::getInstance()->getUpAxis();
+    F32 up_dot = camera_up * LLVector3::z_axis;
 
-	LLColor4 water_color;
-	if (LLViewerCamera::getInstance()->cameraUnderWater())
-	{
-		water_color.setVec(1.f, 1.f, 1.f, 0.4f);
-	}
-	else
-	{
-		water_color.setVec(1.f, 1.f, 1.f, 0.5f*(1.f + up_dot));
-	}
+    LLColor4 water_color;
+    if (LLViewerCamera::getInstance()->cameraUnderWater())
+    {
+        water_color.setVec(1.f, 1.f, 1.f, 0.4f);
+    }
+    else
+    {
+        water_color.setVec(1.f, 1.f, 1.f, 0.5f*(1.f + up_dot));
+    }
 
-	gGL.diffuseColor4fv(water_color.mV);
+    gGL.diffuseColor4fv(water_color.mV);
 
-	// Automatically generate texture coords for detail map
-	glEnable(GL_TEXTURE_GEN_S); //texture unit 1
-	glEnable(GL_TEXTURE_GEN_T); //texture unit 1
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    // Automatically generate texture coords for detail map
+    glEnable(GL_TEXTURE_GEN_S); //texture unit 1
+    glEnable(GL_TEXTURE_GEN_T); //texture unit 1
+    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
 
-	// Slowly move over time.
-	F32 offset = fmod(gFrameTimeSeconds*2.f, 100.f);
-	F32 tp0[4] = {16.f/256.f, 0.0f, 0.0f, offset*0.01f};
-	F32 tp1[4] = {0.0f, 16.f/256.f, 0.0f, offset*0.01f};
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0);
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1);
+    // Slowly move over time.
+    F32 offset = fmod(gFrameTimeSeconds*2.f, 100.f);
+    F32 tp0[4] = {16.f/256.f, 0.0f, 0.0f, offset*0.01f};
+    F32 tp1[4] = {0.0f, 16.f/256.f, 0.0f, offset*0.01f};
+    glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0);
+    glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1);
 
-	gGL.getTexUnit(0)->activate();
-	
-	glClearStencil(1);
-	glClear(GL_STENCIL_BUFFER_BIT);
-	LLGLEnable gls_stencil(GL_STENCIL_TEST);
-	glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
-	glStencilFunc(GL_ALWAYS, 0, 0xFFFFFFFF);
+    gGL.getTexUnit(0)->activate();
+    
+    glClearStencil(1);
+    glClear(GL_STENCIL_BUFFER_BIT);
+    LLGLEnable gls_stencil(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
+    glStencilFunc(GL_ALWAYS, 0, 0xFFFFFFFF);
 
-	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-		 iter != mDrawFace.end(); iter++)
-	{
-		LLFace *face = *iter;
-		if (voskyp->isReflFace(face))
-		{
-			continue;
-		}
-		gGL.getTexUnit(0)->bind(face->getTexture());
-		face->renderIndexed();
-	}
+    for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
+         iter != mDrawFace.end(); iter++)
+    {
+        LLFace *face = *iter;
+        if (voskyp->isReflFace(face))
+        {
+            continue;
+        }
+        gGL.getTexUnit(0)->bind(face->getTexture());
+        face->renderIndexed();
+    }
 
-	// Now, disable texture coord generation on texture state 1
-	gGL.getTexUnit(1)->activate();
-	gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(1)->disable();
+    // Now, disable texture coord generation on texture state 1
+    gGL.getTexUnit(1)->activate();
+    gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(1)->disable();
 
     glDisable(GL_TEXTURE_GEN_S); //texture unit 1
-	glDisable(GL_TEXTURE_GEN_T); //texture unit 1
+    glDisable(GL_TEXTURE_GEN_T); //texture unit 1
 
     gGL.getTexUnit(2)->activate();
-	gGL.getTexUnit(2)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(2)->disable();
+    gGL.getTexUnit(2)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(2)->disable();
 
-	glDisable(GL_TEXTURE_GEN_S); //texture unit 1
-	glDisable(GL_TEXTURE_GEN_T); //texture unit 1
+    glDisable(GL_TEXTURE_GEN_S); //texture unit 1
+    glDisable(GL_TEXTURE_GEN_T); //texture unit 1
 
-	// Disable texture coordinate and color arrays
-	gGL.getTexUnit(0)->activate();
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    // Disable texture coordinate and color arrays
+    gGL.getTexUnit(0)->activate();
+    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-	stop_glerror();
-	
-	if (gSky.mVOSkyp->getCubeMap())
-	{
-		gSky.mVOSkyp->getCubeMap()->enable(0);
-		gSky.mVOSkyp->getCubeMap()->bind();
+    stop_glerror();
+    
+    if (gSky.mVOSkyp->getCubeMap())
+    {
+        gSky.mVOSkyp->getCubeMap()->enable(0);
+        gSky.mVOSkyp->getCubeMap()->bind();
 
-		gGL.matrixMode(LLRender::MM_TEXTURE);
-		gGL.loadIdentity();
-		LLMatrix4 camera_mat = LLViewerCamera::getInstance()->getModelview();
-		LLMatrix4 camera_rot(camera_mat.getMat3());
-		camera_rot.invert();
+        gGL.matrixMode(LLRender::MM_TEXTURE);
+        gGL.loadIdentity();
+        LLMatrix4 camera_mat = LLViewerCamera::getInstance()->getModelview();
+        LLMatrix4 camera_rot(camera_mat.getMat3());
+        camera_rot.invert();
 
-		gGL.loadMatrix((F32 *)camera_rot.mMatrix);
+        gGL.loadMatrix((F32 *)camera_rot.mMatrix);
 
-		gGL.matrixMode(LLRender::MM_MODELVIEW);
-		LLOverrideFaceColor overrid(this, 1.f, 1.f, 1.f,  0.5f*up_dot);
+        gGL.matrixMode(LLRender::MM_MODELVIEW);
+        LLOverrideFaceColor overrid(this, 1.f, 1.f, 1.f,  0.5f*up_dot);
 
-		for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-			 iter != mDrawFace.end(); iter++)
-		{
-			LLFace *face = *iter;
-			if (voskyp->isReflFace(face))
-			{
-				//refl_face = face;
-				continue;
-			}
+        for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
+             iter != mDrawFace.end(); iter++)
+        {
+            LLFace *face = *iter;
+            if (voskyp->isReflFace(face))
+            {
+                //refl_face = face;
+                continue;
+            }
 
-			if (face->getGeomCount() > 0)
-			{					
-				face->renderIndexed();
-			}
-		}
+            if (face->getGeomCount() > 0)
+            {                   
+                face->renderIndexed();
+            }
+        }
 
-		gSky.mVOSkyp->getCubeMap()->disable();
-		
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-		gGL.matrixMode(LLRender::MM_TEXTURE);
-		gGL.loadIdentity();
-		gGL.matrixMode(LLRender::MM_MODELVIEW);
-		
-	}
+        gSky.mVOSkyp->getCubeMap()->disable();
+        
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+        gGL.matrixMode(LLRender::MM_TEXTURE);
+        gGL.loadIdentity();
+        gGL.matrixMode(LLRender::MM_MODELVIEW);
+        
+    }
 
-	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
     if (refl_face)
-	{
-		glStencilFunc(GL_NOTEQUAL, 0, 0xFFFFFFFF);
-		renderReflection(refl_face);
-	}
+    {
+        glStencilFunc(GL_NOTEQUAL, 0, 0xFFFFFFFF);
+        renderReflection(refl_face);
+    }
 }
 
 // for low end hardware
@@ -342,132 +342,132 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
         return;
     }
 
-	LLGLSLShader* shader = NULL;
-	if (LLPipeline::sUnderWaterRender)
-	{
-		shader = &gObjectSimpleNonIndexedTexGenWaterProgram;
-	}
-	else
-	{
-		shader = &gObjectSimpleNonIndexedTexGenProgram;
-	}
+    LLGLSLShader* shader = NULL;
+    if (LLPipeline::sUnderWaterRender)
+    {
+        shader = &gObjectSimpleNonIndexedTexGenWaterProgram;
+    }
+    else
+    {
+        shader = &gObjectSimpleNonIndexedTexGenProgram;
+    }
 
-	shader->bind();
+    shader->bind();
 
-	stop_glerror();
+    stop_glerror();
 
-	// Depth sorting and write to depth buffer
-	// since this is opaque, we should see nothing
-	// behind the water.  No blending because
-	// of no transparency.  And no face culling so
-	// that the underside of the water is also opaque.
-	LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);
-	LLGLDisable no_cull(GL_CULL_FACE);
-	LLGLDisable no_blend(GL_BLEND);
+    // Depth sorting and write to depth buffer
+    // since this is opaque, we should see nothing
+    // behind the water.  No blending because
+    // of no transparency.  And no face culling so
+    // that the underside of the water is also opaque.
+    LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);
+    LLGLDisable no_cull(GL_CULL_FACE);
+    LLGLDisable no_blend(GL_BLEND);
 
-	gPipeline.disableLights();
+    gPipeline.disableLights();
 
-	// Activate the texture binding and bind one
-	// texture since all images will have the same texture
-	gGL.getTexUnit(0)->activate();
-	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(0)->bind(mOpaqueWaterImagep);
+    // Activate the texture binding and bind one
+    // texture since all images will have the same texture
+    gGL.getTexUnit(0)->activate();
+    gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->bind(mOpaqueWaterImagep);
 
-	// Automatically generate texture coords for water texture
-	if (!shader)
-	{
-		glEnable(GL_TEXTURE_GEN_S); //texture unit 0
-		glEnable(GL_TEXTURE_GEN_T); //texture unit 0
-		glTexGenf(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-		glTexGenf(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	}
+    // Automatically generate texture coords for water texture
+    if (!shader)
+    {
+        glEnable(GL_TEXTURE_GEN_S); //texture unit 0
+        glEnable(GL_TEXTURE_GEN_T); //texture unit 0
+        glTexGenf(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+        glTexGenf(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    }
 
-	// Use the fact that we know all water faces are the same size
-	// to save some computation
+    // Use the fact that we know all water faces are the same size
+    // to save some computation
 
-	// Slowly move texture coordinates over time so the watter appears
-	// to be moving.
-	F32 movement_period_secs = 50.f;
+    // Slowly move texture coordinates over time so the watter appears
+    // to be moving.
+    F32 movement_period_secs = 50.f;
 
-	F32 offset = fmod(gFrameTimeSeconds, movement_period_secs);
+    F32 offset = fmod(gFrameTimeSeconds, movement_period_secs);
 
-	if (movement_period_secs != 0)
-	{
-	 	offset /= movement_period_secs;
-	}
-	else
-	{
-		offset = 0;
-	}
+    if (movement_period_secs != 0)
+    {
+        offset /= movement_period_secs;
+    }
+    else
+    {
+        offset = 0;
+    }
 
-	F32 tp0[4] = { 16.f / 256.f, 0.0f, 0.0f, offset };
-	F32 tp1[4] = { 0.0f, 16.f / 256.f, 0.0f, offset };
+    F32 tp0[4] = { 16.f / 256.f, 0.0f, 0.0f, offset };
+    F32 tp1[4] = { 0.0f, 16.f / 256.f, 0.0f, offset };
 
-	if (!shader)
-	{
-		glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0);
-		glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1);
-	}
-	else
-	{
-		shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_S, 1, tp0);
-		shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_T, 1, tp1);
-	}
+    if (!shader)
+    {
+        glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0);
+        glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1);
+    }
+    else
+    {
+        shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_S, 1, tp0);
+        shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_T, 1, tp1);
+    }
 
-	gGL.diffuseColor3f(1.f, 1.f, 1.f);
+    gGL.diffuseColor3f(1.f, 1.f, 1.f);
 
-	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-		 iter != mDrawFace.end(); iter++)
-	{
-		LLFace *face = *iter;
-		if (voskyp->isReflFace(face))
-		{
-			continue;
-		}
+    for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
+         iter != mDrawFace.end(); iter++)
+    {
+        LLFace *face = *iter;
+        if (voskyp->isReflFace(face))
+        {
+            continue;
+        }
 
-		face->renderIndexed();
-	}
+        face->renderIndexed();
+    }
 
-	stop_glerror();
+    stop_glerror();
 
-	if (!shader)
-	{
-		// Reset the settings back to expected values
-		glDisable(GL_TEXTURE_GEN_S); //texture unit 0
-		glDisable(GL_TEXTURE_GEN_T); //texture unit 0
-	}
+    if (!shader)
+    {
+        // Reset the settings back to expected values
+        glDisable(GL_TEXTURE_GEN_S); //texture unit 0
+        glDisable(GL_TEXTURE_GEN_T); //texture unit 0
+    }
 
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 }
 
 
 void LLDrawPoolWater::renderReflection(LLFace* face)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-	LLVOSky *voskyp = gSky.mVOSkyp;
+    LLVOSky *voskyp = gSky.mVOSkyp;
 
-	if (!voskyp)
-	{
-		return;
-	}
+    if (!voskyp)
+    {
+        return;
+    }
 
-	if (!face->getGeomCount())
-	{
-		return;
-	}
-	
-	S8 dr = voskyp->getDrawRefl();
-	if (dr < 0)
-	{
-		return;
-	}
+    if (!face->getGeomCount())
+    {
+        return;
+    }
+    
+    S8 dr = voskyp->getDrawRefl();
+    if (dr < 0)
+    {
+        return;
+    }
 
-	LLGLSNoFog noFog;
+    LLGLSNoFog noFog;
 
-	gGL.getTexUnit(0)->bind((dr == 0) ? voskyp->getSunTex() : voskyp->getMoonTex());
+    gGL.getTexUnit(0)->bind((dr == 0) ? voskyp->getSunTex() : voskyp->getMoonTex());
 
-	LLOverrideFaceColor override(this, LLColor4(face->getFaceColor().mV));
-	face->renderIndexed();
+    LLOverrideFaceColor override(this, LLColor4(face->getFaceColor().mV));
+    face->renderIndexed();
 }
 
 void LLDrawPoolWater::renderWater()
@@ -704,10 +704,10 @@ void LLDrawPoolWater::renderWater()
 
 LLViewerTexture *LLDrawPoolWater::getDebugTexture()
 {
-	return LLViewerFetchedTexture::sSmokeImagep;
+    return LLViewerFetchedTexture::sSmokeImagep;
 }
 
 LLColor3 LLDrawPoolWater::getDebugColor() const
 {
-	return LLColor3(0.f, 1.f, 1.f);
+    return LLColor3(0.f, 1.f, 1.f);
 }

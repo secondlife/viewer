@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_BUFFER_ARRAY_H_
-#define	_LLCORE_BUFFER_ARRAY_H_
+#ifndef _LLCORE_BUFFER_ARRAY_H_
+#define _LLCORE_BUFFER_ARRAY_H_
 
 
 #include <cstdlib>
@@ -67,75 +67,75 @@ class BufferArrayStreamBuf;
 class BufferArray : public LLCoreInt::RefCounted
 {
 public:
-	// BufferArrayStreamBuf has intimate knowledge of this
-	// implementation to implement a buffer-free adapter.
-	// Changes here will likely need to be reflected there.
-	friend class BufferArrayStreamBuf;
-	
-	BufferArray();
+    // BufferArrayStreamBuf has intimate knowledge of this
+    // implementation to implement a buffer-free adapter.
+    // Changes here will likely need to be reflected there.
+    friend class BufferArrayStreamBuf;
+    
+    BufferArray();
 
-	typedef LLCoreInt::IntrusivePtr<BufferArray> ptr_t;
+    typedef LLCoreInt::IntrusivePtr<BufferArray> ptr_t;
 
 protected:
-	virtual ~BufferArray();						// Use release()
+    virtual ~BufferArray();                     // Use release()
 
 private:
-	BufferArray(const BufferArray &);			// Not defined
-	void operator=(const BufferArray &);		// Not defined
+    BufferArray(const BufferArray &);           // Not defined
+    void operator=(const BufferArray &);        // Not defined
 
 public:
-	// Internal magic number, may be used by unit tests.
-	static const size_t BLOCK_ALLOC_SIZE = 65540;
-	
-	/// Appends the indicated data to the BufferArray
-	/// modifying current position and total size.  New
-	/// position is one beyond the final byte of the buffer.
-	///
-	/// @return			Count of bytes copied to BufferArray
-	size_t append(const void * src, size_t len);
+    // Internal magic number, may be used by unit tests.
+    static const size_t BLOCK_ALLOC_SIZE = 65540;
+    
+    /// Appends the indicated data to the BufferArray
+    /// modifying current position and total size.  New
+    /// position is one beyond the final byte of the buffer.
+    ///
+    /// @return         Count of bytes copied to BufferArray
+    size_t append(const void * src, size_t len);
 
-	/// Similar to @see append(), this call guarantees a
-	/// contiguous block of memory of requested size placed
-	/// at the current end of the BufferArray.  On return,
-	/// the data in the memory is considered valid whether
-	/// the caller writes to it or not.
-	///
-	/// @return			Pointer to contiguous region at end
-	///					of BufferArray of 'len' size.
-	void * appendBufferAlloc(size_t len);
+    /// Similar to @see append(), this call guarantees a
+    /// contiguous block of memory of requested size placed
+    /// at the current end of the BufferArray.  On return,
+    /// the data in the memory is considered valid whether
+    /// the caller writes to it or not.
+    ///
+    /// @return         Pointer to contiguous region at end
+    ///                 of BufferArray of 'len' size.
+    void * appendBufferAlloc(size_t len);
 
-	/// Current count of bytes in BufferArray instance.
-	size_t size() const
-		{
-			return mLen;
-		}
+    /// Current count of bytes in BufferArray instance.
+    size_t size() const
+        {
+            return mLen;
+        }
 
-	/// Copies data from the given position in the instance
-	/// to the caller's buffer.  Will return a short count of
-	/// bytes copied if the 'len' extends beyond the data.
-	size_t read(size_t pos, void * dst, size_t len);
+    /// Copies data from the given position in the instance
+    /// to the caller's buffer.  Will return a short count of
+    /// bytes copied if the 'len' extends beyond the data.
+    size_t read(size_t pos, void * dst, size_t len);
 
-	/// Copies data from the caller's buffer to the instance
-	/// at the current position.  May overwrite existing data,
-	/// append data when current position is equal to the
-	/// size of the instance or do a mix of both.
-	size_t write(size_t pos, const void * src, size_t len);
-	
+    /// Copies data from the caller's buffer to the instance
+    /// at the current position.  May overwrite existing data,
+    /// append data when current position is equal to the
+    /// size of the instance or do a mix of both.
+    size_t write(size_t pos, const void * src, size_t len);
+    
 protected:
-	int findBlock(size_t pos, size_t * ret_offset);
+    int findBlock(size_t pos, size_t * ret_offset);
 
-	bool getBlockStartEnd(int block, const char ** start, const char ** end);
-	
+    bool getBlockStartEnd(int block, const char ** start, const char ** end);
+    
 protected:
-	class Block;
-	typedef std::vector<Block *> container_t;
+    class Block;
+    typedef std::vector<Block *> container_t;
 
-	container_t			mBlocks;
-	size_t				mLen;
+    container_t         mBlocks;
+    size_t              mLen;
 
 };  // end class BufferArray
 
 
 }  // end namespace LLCore
 
-#endif	// _LLCORE_BUFFER_ARRAY_H_
+#endif  // _LLCORE_BUFFER_ARRAY_H_

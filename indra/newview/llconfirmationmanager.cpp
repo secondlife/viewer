@@ -42,71 +42,71 @@ LLConfirmationManager::ListenerBase::~ListenerBase()
 
 static bool onConfirmAlert(const LLSD& notification, const LLSD& response, LLConfirmationManager::ListenerBase* listener)
 {
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (option == 0)
-	{
-		listener->confirmed("");
-	}
-	
-	delete listener;
-	return false;
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0)
+    {
+        listener->confirmed("");
+    }
+    
+    delete listener;
+    return false;
 }
 
 static bool onConfirmAlertPassword(const LLSD& notification, const LLSD& response, LLConfirmationManager::ListenerBase* listener)
 {
-	std::string text = response["message"].asString();
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-		
-	if (option == 0)
-	{
-		listener->confirmed(text);
-	}
-	
-	delete listener;
-	return false;
+    std::string text = response["message"].asString();
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+        
+    if (option == 0)
+    {
+        listener->confirmed(text);
+    }
+    
+    delete listener;
+    return false;
 }
 
  
 void LLConfirmationManager::confirm(Type type,
-	const std::string& action,
-	ListenerBase* listener)
+    const std::string& action,
+    ListenerBase* listener)
 {
-	LLSD args;
-	args["ACTION"] = action;
+    LLSD args;
+    args["ACTION"] = action;
 
-	switch (type)
-	{
-		case TYPE_CLICK:
-			LLNotificationsUtil::add("ConfirmPurchase", args, LLSD(), boost::bind(onConfirmAlert, _1, _2, listener));
-		  break;
+    switch (type)
+    {
+        case TYPE_CLICK:
+            LLNotificationsUtil::add("ConfirmPurchase", args, LLSD(), boost::bind(onConfirmAlert, _1, _2, listener));
+          break;
 
-		case TYPE_PASSWORD:
-			LLNotificationsUtil::add("ConfirmPurchasePassword", args, LLSD(), boost::bind(onConfirmAlertPassword, _1, _2, listener));
-		  break;
-		case TYPE_NONE:
-		default:
-		  listener->confirmed("");
-		  break;
-	}
+        case TYPE_PASSWORD:
+            LLNotificationsUtil::add("ConfirmPurchasePassword", args, LLSD(), boost::bind(onConfirmAlertPassword, _1, _2, listener));
+          break;
+        case TYPE_NONE:
+        default:
+          listener->confirmed("");
+          break;
+    }
 }
 
 
 void LLConfirmationManager::confirm(
-	const std::string& type,
-	const std::string& action,
-	ListenerBase* listener)
+    const std::string& type,
+    const std::string& action,
+    ListenerBase* listener)
 {
-	Type decodedType = TYPE_NONE;
-	
-	if (type == "click")
-	{
-		decodedType = TYPE_CLICK;
-	}
-	else if (type == "password")
-	{
-		decodedType = TYPE_PASSWORD;
-	}
-	
-	confirm(decodedType, action, listener);
+    Type decodedType = TYPE_NONE;
+    
+    if (type == "click")
+    {
+        decodedType = TYPE_CLICK;
+    }
+    else if (type == "password")
+    {
+        decodedType = TYPE_PASSWORD;
+    }
+    
+    confirm(decodedType, action, listener);
 }
 

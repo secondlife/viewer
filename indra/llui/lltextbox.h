@@ -31,57 +31,57 @@
 #include "lltextbase.h"
 
 class LLTextBox :
-	public LLTextBase
+    public LLTextBase
 {
 public:
-	
-	// *TODO: Add callback to Params
-	typedef boost::function<void (void)> callback_t;
-	
-	struct Params : public LLInitParam::Block<Params, LLTextBase::Params>
-	{};
+    
+    // *TODO: Add callback to Params
+    typedef boost::function<void (void)> callback_t;
+    
+    struct Params : public LLInitParam::Block<Params, LLTextBase::Params>
+    {};
 
 protected:
-	LLTextBox(const Params&);
-	friend class LLUICtrlFactory;
+    LLTextBox(const Params&);
+    friend class LLUICtrlFactory;
 
 public:
-	virtual ~LLTextBox();
+    virtual ~LLTextBox();
 
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
 
-	/*virtual*/ void setEnabled(BOOL enabled);
+    /*virtual*/ void setEnabled(BOOL enabled);
 
-	/*virtual*/ void setText( const LLStringExplicit& text, const LLStyle::Params& input_params = LLStyle::Params() );
-	
-	void			setRightAlign()							{ mHAlign = LLFontGL::RIGHT; }
-	void			setHAlign( LLFontGL::HAlign align )		{ mHAlign = align; }
-	void			setClickedCallback( boost::function<void (void*)> cb, void* userdata = NULL );
+    /*virtual*/ void setText( const LLStringExplicit& text, const LLStyle::Params& input_params = LLStyle::Params() );
+    
+    void            setRightAlign()                         { mHAlign = LLFontGL::RIGHT; }
+    void            setHAlign( LLFontGL::HAlign align )     { mHAlign = align; }
+    void            setClickedCallback( boost::function<void (void*)> cb, void* userdata = NULL );
 
-	void			reshapeToFitText(BOOL called_from_parent = FALSE);
+    void            reshapeToFitText(BOOL called_from_parent = FALSE);
 
-	S32				getTextPixelWidth();
-	S32				getTextPixelHeight();
+    S32             getTextPixelWidth();
+    S32             getTextPixelHeight();
 
-	/*virtual*/ LLSD	getValue() const;
-	/*virtual*/ BOOL	setTextArg( const std::string& key, const LLStringExplicit& text );
+    /*virtual*/ LLSD    getValue() const;
+    /*virtual*/ BOOL    setTextArg( const std::string& key, const LLStringExplicit& text );
 
-	void			setShowCursorHand(bool show_cursor) { mShowCursorHand = show_cursor; }
+    void            setShowCursorHand(bool show_cursor) { mShowCursorHand = show_cursor; }
 
 protected:
-	void            onUrlLabelUpdated(const std::string &url, const std::string &label);
+    void            onUrlLabelUpdated(const std::string &url, const std::string &label);
 
-	LLUIString			mText;
-	callback_t			mClickedCallback;
-	bool				mShowCursorHand;
+    LLUIString          mText;
+    callback_t          mClickedCallback;
+    bool                mShowCursorHand;
 };
 
 // Build time optimization, generate once in .cpp file
 #ifndef LLTEXTBOX_CPP
 extern template class LLTextBox* LLView::getChild<class LLTextBox>(
-	const std::string& name, BOOL recurse) const;
+    const std::string& name, BOOL recurse) const;
 #endif
 
 #endif

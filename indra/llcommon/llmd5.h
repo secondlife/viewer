@@ -100,8 +100,8 @@ public:
   LLMD5              (const unsigned char *string, const unsigned int number);
   
 // methods to acquire finalized result
-  void				raw_digest(unsigned char *array) const;	// provide 16-byte array for binary data
-  void				hex_digest(char *string) const;			// provide 33-byte array for ascii-hex string
+  void              raw_digest(unsigned char *array) const; // provide 16-byte array for binary data
+  void              hex_digest(char *string) const;         // provide 33-byte array for ascii-hex string
 
   friend LL_COMMON_API std::ostream&   operator<< (std::ostream&, LLMD5 context);
 

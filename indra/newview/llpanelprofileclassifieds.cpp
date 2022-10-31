@@ -78,11 +78,11 @@ class LLClassifiedHandler : public LLCommandHandler, public LLAvatarPropertiesOb
 public:
     // throttle calls from untrusted browsers
     LLClassifiedHandler() : LLCommandHandler("classified", UNTRUSTED_THROTTLE) {}
-	
-	std::set<LLUUID> mClassifiedIds;
-	std::string mRequestVerb;
     
-	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+    std::set<LLUUID> mClassifiedIds;
+    std::string mRequestVerb;
+    
+    bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
     {
         if (LLStartUp::getStartupState() < STATE_STARTED)
         {

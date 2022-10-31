@@ -29,8 +29,8 @@
 #include "lltextureinfodetails.h"
 
 LLTextureInfoDetails::LLTextureInfoDetails() 
-:	mType(REQUEST_TYPE_NONE), 
-	mOffset(0)
+:   mType(REQUEST_TYPE_NONE), 
+    mOffset(0)
 {
 }
 

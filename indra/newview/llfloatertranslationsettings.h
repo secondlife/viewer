@@ -38,42 +38,42 @@ class LLRadioGroup;
 class LLFloaterTranslationSettings : public LLFloater
 {
 public:
-	LLFloaterTranslationSettings(const LLSD& key);
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+    LLFloaterTranslationSettings(const LLSD& key);
+    /*virtual*/ BOOL postBuild();
+    /*virtual*/ void onOpen(const LLSD& key);
 
-	void setBingVerified(bool ok, bool alert);
-	void setGoogleVerified(bool ok, bool alert);
-	void onClose(bool app_quitting);
+    void setBingVerified(bool ok, bool alert);
+    void setGoogleVerified(bool ok, bool alert);
+    void onClose(bool app_quitting);
 
 private:
-	std::string getSelectedService() const;
-	std::string getEnteredBingKey() const;
-	std::string getEnteredGoogleKey() const;
-	void showAlert(const std::string& msg_name) const;
-	void updateControlsEnabledState();
-	void verifyKey(int service, const std::string& key, bool alert = true);
+    std::string getSelectedService() const;
+    std::string getEnteredBingKey() const;
+    std::string getEnteredGoogleKey() const;
+    void showAlert(const std::string& msg_name) const;
+    void updateControlsEnabledState();
+    void verifyKey(int service, const std::string& key, bool alert = true);
 
-	void onEditorFocused(LLFocusableElement* control);
-	void onBingKeyEdited();
-	void onGoogleKeyEdited();
-	void onBtnBingVerify();
-	void onBtnGoogleVerify();
-	void onBtnOK();
+    void onEditorFocused(LLFocusableElement* control);
+    void onBingKeyEdited();
+    void onGoogleKeyEdited();
+    void onBtnBingVerify();
+    void onBtnGoogleVerify();
+    void onBtnOK();
 
     static void setVerificationStatus(int service, bool alert, bool ok);
 
-	LLCheckBoxCtrl* mMachineTranslationCB;
-	LLComboBox* mLanguageCombo;
-	LLLineEditor* mBingAPIKeyEditor;
-	LLLineEditor* mGoogleAPIKeyEditor;
-	LLRadioGroup* mTranslationServiceRadioGroup;
-	LLButton* mBingVerifyBtn;
-	LLButton* mGoogleVerifyBtn;
-	LLButton* mOKBtn;
+    LLCheckBoxCtrl* mMachineTranslationCB;
+    LLComboBox* mLanguageCombo;
+    LLLineEditor* mBingAPIKeyEditor;
+    LLLineEditor* mGoogleAPIKeyEditor;
+    LLRadioGroup* mTranslationServiceRadioGroup;
+    LLButton* mBingVerifyBtn;
+    LLButton* mGoogleVerifyBtn;
+    LLButton* mOKBtn;
 
-	bool mBingKeyVerified;
-	bool mGoogleKeyVerified;
+    bool mBingKeyVerified;
+    bool mGoogleKeyVerified;
 };
 
 #endif // LL_LLFLOATERTRANSLATIONSETTINGS_H

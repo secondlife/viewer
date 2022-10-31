@@ -43,27 +43,27 @@ class LL_COMMON_API LLLiveAppConfig : public LLLiveFile
 {
 public:
 
-	/**
-	 * @brief Constructor
-	 *
-	 * @param filename. The name of the file for periodically checking
-	 * configuration.
-	 * @param refresh_period How often the internal timer should
-	 * bother checking the filesystem.
-	 * @param The application priority level of that configuration file.
-	 */
-	LLLiveAppConfig(
-		const std::string& filename,
-		F32 refresh_period,
-		LLApp::OptionPriority priority);
+    /**
+     * @brief Constructor
+     *
+     * @param filename. The name of the file for periodically checking
+     * configuration.
+     * @param refresh_period How often the internal timer should
+     * bother checking the filesystem.
+     * @param The application priority level of that configuration file.
+     */
+    LLLiveAppConfig(
+        const std::string& filename,
+        F32 refresh_period,
+        LLApp::OptionPriority priority);
 
-	~LLLiveAppConfig(); ///< Destructor
+    ~LLLiveAppConfig(); ///< Destructor
 
 protected:
-	/*virtual*/ bool loadFile();
+    /*virtual*/ bool loadFile();
 
 private:
-	LLApp::OptionPriority mPriority;
+    LLApp::OptionPriority mPriority;
 };
 
 #endif

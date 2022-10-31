@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_READY_QUEUE_H_
-#define	_LLCORE_HTTP_READY_QUEUE_H_
+#ifndef _LLCORE_HTTP_READY_QUEUE_H_
+#define _LLCORE_HTTP_READY_QUEUE_H_
 
 
 #include <queue>
@@ -61,64 +61,64 @@ typedef std::deque<HttpOpRequest::ptr_t> HttpReadyQueueBase;
 #else
 
 typedef std::priority_queue<HttpOpRequest::ptr_t,
-							std::deque<HttpOpRequest::ptr_t>,
-							LLCore::HttpOpRequestCompare> HttpReadyQueueBase;
+                            std::deque<HttpOpRequest::ptr_t>,
+                            LLCore::HttpOpRequestCompare> HttpReadyQueueBase;
 
 #endif // LLCORE_HTTP_READY_QUEUE_IGNORES_PRIORITY
 
 class HttpReadyQueue : public HttpReadyQueueBase
 {
 public:
-	HttpReadyQueue()
-		: HttpReadyQueueBase()
-		{}
-	
-	~HttpReadyQueue()
-		{}
-	
+    HttpReadyQueue()
+        : HttpReadyQueueBase()
+        {}
+    
+    ~HttpReadyQueue()
+        {}
+    
 protected:
-	HttpReadyQueue(const HttpReadyQueue &);		// Not defined
-	void operator=(const HttpReadyQueue &);		// Not defined
+    HttpReadyQueue(const HttpReadyQueue &);     // Not defined
+    void operator=(const HttpReadyQueue &);     // Not defined
 
 public:
 
 #if LLCORE_HTTP_READY_QUEUE_IGNORES_PRIORITY
-	// Types and methods needed to make a std::deque look
-	// more like a std::priority_queue, at least for our
-	// purposes.
-	typedef HttpReadyQueueBase container_type;
-	
-	const_reference top() const
-		{
-			return front();
-		}
+    // Types and methods needed to make a std::deque look
+    // more like a std::priority_queue, at least for our
+    // purposes.
+    typedef HttpReadyQueueBase container_type;
+    
+    const_reference top() const
+        {
+            return front();
+        }
 
-	void pop()
-		{
-			pop_front();
-		}
+    void pop()
+        {
+            pop_front();
+        }
 
-	void push(const value_type & v)
-		{
-			push_back(v);
-		}
-	
+    void push(const value_type & v)
+        {
+            push_back(v);
+        }
+    
 #endif // LLCORE_HTTP_READY_QUEUE_IGNORES_PRIORITY
-	
-	const container_type & get_container() const
-		{
-			return *this;
-		}
+    
+    const container_type & get_container() const
+        {
+            return *this;
+        }
 
-	container_type & get_container()
-		{
-			return *this;
-		}
-	
+    container_type & get_container()
+        {
+            return *this;
+        }
+    
 }; // end class HttpReadyQueue
 
 
 }  // end namespace LLCore
 
 
-#endif	// _LLCORE_HTTP_READY_QUEUE_H_
+#endif  // _LLCORE_HTTP_READY_QUEUE_H_

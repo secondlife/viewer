@@ -35,13 +35,13 @@
  */
 class LLPanelOnlineStatus : public LLPanelTipToast
 {
-	// disallow instantiation of this class
+    // disallow instantiation of this class
 private:
-	// grant privileges to instantiate this class to LLToastPanel
-	friend class LLToastPanel;
+    // grant privileges to instantiate this class to LLToastPanel
+    friend class LLToastPanel;
 
-	LLPanelOnlineStatus(const LLNotificationPtr& notification);
-	virtual ~LLPanelOnlineStatus() {}
+    LLPanelOnlineStatus(const LLNotificationPtr& notification);
+    virtual ~LLPanelOnlineStatus() {}
 };
 
 #endif /* LL_PANELONLINESTATUS_H */

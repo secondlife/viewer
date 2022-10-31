@@ -36,86 +36,86 @@ class LLTextEditor;
 class LLPanelPlaceProfile : public LLPanelPlaceInfo
 {
 public:
-	LLPanelPlaceProfile();
-	/*virtual*/ ~LLPanelPlaceProfile();
+    LLPanelPlaceProfile();
+    /*virtual*/ ~LLPanelPlaceProfile();
 
-	/*virtual*/ BOOL postBuild();
+    /*virtual*/ BOOL postBuild();
 
-	/*virtual*/ void resetLocation();
+    /*virtual*/ void resetLocation();
 
-	/*virtual*/ void setInfoType(EInfoType type);
+    /*virtual*/ void setInfoType(EInfoType type);
 
-	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
+    /*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
 
-	/*virtual*/ void onVisibilityChange(BOOL new_visibility);
+    /*virtual*/ void onVisibilityChange(BOOL new_visibility);
 
-	// Displays information about the currently selected parcel
-	// without sending a request to the server.
-	// If is_current_parcel true shows "You Are Here" banner.
-	void displaySelectedParcelInfo(LLParcel* parcel,
-								   LLViewerRegion* region,
-								   const LLVector3d& pos_global,
-								   bool is_current_parcel);
+    // Displays information about the currently selected parcel
+    // without sending a request to the server.
+    // If is_current_parcel true shows "You Are Here" banner.
+    void displaySelectedParcelInfo(LLParcel* parcel,
+                                   LLViewerRegion* region,
+                                   const LLVector3d& pos_global,
+                                   bool is_current_parcel);
 
-	void updateEstateName(const std::string& name);
-	void updateEstateOwnerName(const std::string& name);
-	void updateCovenantText(const std::string &text);
+    void updateEstateName(const std::string& name);
+    void updateEstateOwnerName(const std::string& name);
+    void updateCovenantText(const std::string &text);
 
 private:
-	void onForSaleBannerClick();
+    void onForSaleBannerClick();
 
-	static void updateYouAreHereBanner(void*);// added to gIdleCallbacks
+    static void updateYouAreHereBanner(void*);// added to gIdleCallbacks
 
-	/**
-	 * Holds last displayed parcel. Needed for YouAreHere banner.
-	 */
-	S32					mSelectedParcelID;
-	LLUUID				mLastSelectedRegionID;
-	F64					mNextCovenantUpdateTime;  //seconds since client start
+    /**
+     * Holds last displayed parcel. Needed for YouAreHere banner.
+     */
+    S32                 mSelectedParcelID;
+    LLUUID              mLastSelectedRegionID;
+    F64                 mNextCovenantUpdateTime;  //seconds since client start
 
-	LLPanel*			mForSalePanel;
-	LLPanel*			mYouAreHerePanel;
+    LLPanel*            mForSalePanel;
+    LLPanel*            mYouAreHerePanel;
 
-	LLIconCtrl*			mParcelRatingIcon;
-	LLTextBox*			mParcelRatingText;
-	LLIconCtrl*			mVoiceIcon;
-	LLTextBox*			mVoiceText;
-	LLIconCtrl*			mFlyIcon;
-	LLTextBox*			mFlyText;
-	LLIconCtrl*			mPushIcon;
-	LLTextBox*			mPushText;
-	LLIconCtrl*			mBuildIcon;
-	LLTextBox*			mBuildText;
-	LLIconCtrl*			mScriptsIcon;
-	LLTextBox*			mScriptsText;
-	LLIconCtrl*			mDamageIcon;
-	LLTextBox*			mDamageText;
-	LLIconCtrl*			mSeeAVsIcon;
-	LLTextBox*			mSeeAVsText;
+    LLIconCtrl*         mParcelRatingIcon;
+    LLTextBox*          mParcelRatingText;
+    LLIconCtrl*         mVoiceIcon;
+    LLTextBox*          mVoiceText;
+    LLIconCtrl*         mFlyIcon;
+    LLTextBox*          mFlyText;
+    LLIconCtrl*         mPushIcon;
+    LLTextBox*          mPushText;
+    LLIconCtrl*         mBuildIcon;
+    LLTextBox*          mBuildText;
+    LLIconCtrl*         mScriptsIcon;
+    LLTextBox*          mScriptsText;
+    LLIconCtrl*         mDamageIcon;
+    LLTextBox*          mDamageText;
+    LLIconCtrl*         mSeeAVsIcon;
+    LLTextBox*          mSeeAVsText;
 
-	LLTextBox*			mRegionNameText;
-	LLTextBox*			mRegionTypeText;
-	LLIconCtrl*			mRegionRatingIcon;
-	LLTextBox*			mRegionRatingText;
-	LLTextBox*			mRegionOwnerText;
-	LLTextBox*			mRegionGroupText;
+    LLTextBox*          mRegionNameText;
+    LLTextBox*          mRegionTypeText;
+    LLIconCtrl*         mRegionRatingIcon;
+    LLTextBox*          mRegionRatingText;
+    LLTextBox*          mRegionOwnerText;
+    LLTextBox*          mRegionGroupText;
 
-	LLTextBox*			mEstateNameText;
-	LLTextBox*			mEstateRatingText;
-	LLIconCtrl*			mEstateRatingIcon;
-	LLTextBox*			mEstateOwnerText;
-	LLTextEditor*		mCovenantText;
+    LLTextBox*          mEstateNameText;
+    LLTextBox*          mEstateRatingText;
+    LLIconCtrl*         mEstateRatingIcon;
+    LLTextBox*          mEstateOwnerText;
+    LLTextEditor*       mCovenantText;
 
-	LLTextBox*			mSalesPriceText;
-	LLTextBox*			mAreaText;
-	LLTextBox*			mTrafficText;
-	LLTextBox*			mPrimitivesText;
-	LLTextBox*			mParcelScriptsText;
-	LLTextBox*			mTerraformLimitsText;
-	LLTextEditor*		mSubdivideText;
-	LLTextEditor*		mResaleText;
-	LLTextBox*			mSaleToText;
-	LLAccordionCtrl*	mAccordionCtrl;
+    LLTextBox*          mSalesPriceText;
+    LLTextBox*          mAreaText;
+    LLTextBox*          mTrafficText;
+    LLTextBox*          mPrimitivesText;
+    LLTextBox*          mParcelScriptsText;
+    LLTextBox*          mTerraformLimitsText;
+    LLTextEditor*       mSubdivideText;
+    LLTextEditor*       mResaleText;
+    LLTextBox*          mSaleToText;
+    LLAccordionCtrl*    mAccordionCtrl;
 };
 
 #endif // LL_LLPANELPLACEPROFILE_H

@@ -36,21 +36,21 @@ class LLViewerWindow;
 class LLWindowListener : public LLEventAPI
 {
 public:
-	typedef boost::function<LLKeyboard*()> KeyboardGetter;
-	LLWindowListener(LLViewerWindow * window, const KeyboardGetter& kbgetter);
+    typedef boost::function<LLKeyboard*()> KeyboardGetter;
+    LLWindowListener(LLViewerWindow * window, const KeyboardGetter& kbgetter);
 
-	void getInfo(LLSD const & evt);
-	void getPaths(LLSD const & evt);
-	void keyDown(LLSD const & evt);
-	void keyUp(LLSD const & evt);
-	void mouseDown(LLSD const & evt);
-	void mouseUp(LLSD const & evt);
-	void mouseMove(LLSD const & evt);
-	void mouseScroll(LLSD const & evt);
+    void getInfo(LLSD const & evt);
+    void getPaths(LLSD const & evt);
+    void keyDown(LLSD const & evt);
+    void keyUp(LLSD const & evt);
+    void mouseDown(LLSD const & evt);
+    void mouseUp(LLSD const & evt);
+    void mouseMove(LLSD const & evt);
+    void mouseScroll(LLSD const & evt);
 
 private:
-	LLViewerWindow * mWindow;
-	KeyboardGetter mKbGetter;
+    LLViewerWindow * mWindow;
+    KeyboardGetter mKbGetter;
 };
 
 

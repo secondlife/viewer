@@ -69,103 +69,103 @@
 class LLSeedRand
 {
 public:
-	LLSeedRand()
-	{
+    LLSeedRand()
+    {
 #if LL_WINDOWS
-		srand(LLUUID::getRandomSeed());
+        srand(LLUUID::getRandomSeed());
 #else
-		srand48(LLUUID::getRandomSeed());
+        srand48(LLUUID::getRandomSeed());
 #endif
-	}
+    }
 };
 static LLSeedRand sRandomSeeder;
 inline F64 ll_internal_random_double()
 {
 #if LL_WINDOWS
-	return (F64)rand() / (F64)RAND_MAX; 
+    return (F64)rand() / (F64)RAND_MAX; 
 #else
-	return drand48();
+    return drand48();
 #endif
 }
 inline F32 ll_internal_random_float()
 {
 #if LL_WINDOWS
-	return (F32)rand() / (F32)RAND_MAX; 
+    return (F32)rand() / (F32)RAND_MAX; 
 #else
-	return (F32)drand48();
+    return (F32)drand48();
 #endif
 }
 #else
 static LLRandLagFib2281 gRandomGenerator(LLUUID::getRandomSeed());
 inline F64 ll_internal_random_double()
 {
-	// *HACK: Through experimentation, we have found that dual core
-	// CPUs (or at least multi-threaded processes) seem to
-	// occasionally give an obviously incorrect random number -- like
-	// 5^15 or something. Sooooo, clamp it as described above.
-	F64 rv = gRandomGenerator();
-	if(!((rv >= 0.0) && (rv < 1.0))) return fmod(rv, 1.0);
-	return rv;
+    // *HACK: Through experimentation, we have found that dual core
+    // CPUs (or at least multi-threaded processes) seem to
+    // occasionally give an obviously incorrect random number -- like
+    // 5^15 or something. Sooooo, clamp it as described above.
+    F64 rv = gRandomGenerator();
+    if(!((rv >= 0.0) && (rv < 1.0))) return fmod(rv, 1.0);
+    return rv;
 }
 
 inline F32 ll_internal_random_float()
 {
-	// The clamping rules are described above.
-	F32 rv = (F32)gRandomGenerator();
-	if(!((rv >= 0.0f) && (rv < 1.0f))) return fmod(rv, 1.f);
-	return rv;
+    // The clamping rules are described above.
+    F32 rv = (F32)gRandomGenerator();
+    if(!((rv >= 0.0f) && (rv < 1.0f))) return fmod(rv, 1.f);
+    return rv;
 }
 #endif
 
 S32 ll_rand()
 {
-	return ll_rand(RAND_MAX);
+    return ll_rand(RAND_MAX);
 }
 
 S32 ll_rand(S32 val)
 {
-	// The clamping rules are described above.
-	S32 rv = (S32)(ll_internal_random_double() * val);
-	if(rv == val) return 0;
-	return rv;
+    // The clamping rules are described above.
+    S32 rv = (S32)(ll_internal_random_double() * val);
+    if(rv == val) return 0;
+    return rv;
 }
 
 F32 ll_frand()
 {
-	return ll_internal_random_float();
+    return ll_internal_random_float();
 }
 
 F32 ll_frand(F32 val)
 {
-	// The clamping rules are described above.
-	F32 rv = ll_internal_random_float() * val;
-	if(val > 0)
-	{
-		if(rv >= val) return 0.0f;
-	}
-	else
-	{
-		if(rv <= val) return 0.0f;
-	}
-	return rv;
+    // The clamping rules are described above.
+    F32 rv = ll_internal_random_float() * val;
+    if(val > 0)
+    {
+        if(rv >= val) return 0.0f;
+    }
+    else
+    {
+        if(rv <= val) return 0.0f;
+    }
+    return rv;
 }
 
 F64 ll_drand()
 {
-	return ll_internal_random_double();
+    return ll_internal_random_double();
 }
 
 F64 ll_drand(F64 val)
 {
-	// The clamping rules are described above.
-	F64 rv = ll_internal_random_double() * val;
-	if(val > 0)
-	{
-		if(rv >= val) return 0.0;
-	}
-	else
-	{
-		if(rv <= val) return 0.0;
-	}
-	return rv;
+    // The clamping rules are described above.
+    F64 rv = ll_internal_random_double() * val;
+    if(val > 0)
+    {
+        if(rv >= val) return 0.0;
+    }
+    else
+    {
+        if(rv <= val) return 0.0;
+    }
+    return rv;
 }

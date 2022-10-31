@@ -38,71 +38,71 @@ class LLImageRaw;
 class LLPreviewTexture : public LLPreview
 {
 public:
-	LLPreviewTexture(const LLSD& key);
-	~LLPreviewTexture();
+    LLPreviewTexture(const LLSD& key);
+    ~LLPreviewTexture();
 
-	virtual void		draw();
+    virtual void        draw();
 
-	virtual BOOL		canSaveAs() const;
-	virtual void		saveAs();
+    virtual BOOL        canSaveAs() const;
+    virtual void        saveAs();
 
-	virtual void		loadAsset();
-	virtual EAssetStatus	getAssetStatus();
-	
-	virtual void		reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-	virtual void 		onFocusReceived();
-	
-	static void			onFileLoadedForSave( 
-							BOOL success,
-							LLViewerFetchedTexture *src_vi,
-							LLImageRaw* src, 
-							LLImageRaw* aux_src,
-							S32 discard_level, 
-							BOOL final,
-							void* userdata );
-	void 				openToSave();
+    virtual void        loadAsset();
+    virtual EAssetStatus    getAssetStatus();
+    
+    virtual void        reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    virtual void        onFocusReceived();
+    
+    static void         onFileLoadedForSave( 
+                            BOOL success,
+                            LLViewerFetchedTexture *src_vi,
+                            LLImageRaw* src, 
+                            LLImageRaw* aux_src,
+                            S32 discard_level, 
+                            BOOL final,
+                            void* userdata );
+    void                openToSave();
 
-	void				saveTextureToFile(const std::vector<std::string>& filenames);
+    void                saveTextureToFile(const std::vector<std::string>& filenames);
     void                saveMultipleToFile(const std::string& file_name = "");
-	
-	static void			onSaveAsBtn(void* data);
+    
+    static void         onSaveAsBtn(void* data);
 
-	void				hideCtrlButtons();
+    void                hideCtrlButtons();
 
-	/*virtual*/ void setObjectID(const LLUUID& object_id);
+    /*virtual*/ void setObjectID(const LLUUID& object_id);
 protected:
-	void				init();
-	void				populateRatioList();
-	/* virtual */ BOOL	postBuild();
-	bool				setAspectRatio(const F32 width, const F32 height);
-	static void			onAspectRatioCommit(LLUICtrl*,void* userdata);
-	void				adjustAspectRatio();
-	
+    void                init();
+    void                populateRatioList();
+    /* virtual */ BOOL  postBuild();
+    bool                setAspectRatio(const F32 width, const F32 height);
+    static void         onAspectRatioCommit(LLUICtrl*,void* userdata);
+    void                adjustAspectRatio();
+    
 private:
-	void				updateImageID(); // set what image is being uploaded.
-	void				updateDimensions();
-	LLUUID				mImageID;
-	LLPointer<LLViewerFetchedTexture>		mImage;
-	S32                 mImageOldBoostLevel;
-	std::string			mSaveFileName;
-	LLFrameTimer		mSavedFileTimer;
-	BOOL				mLoadingFullImage;
-	BOOL                mShowKeepDiscard;
-	BOOL                mCopyToInv;
+    void                updateImageID(); // set what image is being uploaded.
+    void                updateDimensions();
+    LLUUID              mImageID;
+    LLPointer<LLViewerFetchedTexture>       mImage;
+    S32                 mImageOldBoostLevel;
+    std::string         mSaveFileName;
+    LLFrameTimer        mSavedFileTimer;
+    BOOL                mLoadingFullImage;
+    BOOL                mShowKeepDiscard;
+    BOOL                mCopyToInv;
 
-	// Save the image once it's loaded.
-	BOOL                mPreviewToSave;
+    // Save the image once it's loaded.
+    BOOL                mPreviewToSave;
 
-	// This is stored off in a member variable, because the save-as
-	// button and drag and drop functionality need to know.
-	BOOL mIsCopyable;
-	BOOL mIsFullPerm;
-	BOOL mUpdateDimensions;
-	S32 mLastHeight;
-	S32 mLastWidth;
-	F32 mAspectRatio;	
+    // This is stored off in a member variable, because the save-as
+    // button and drag and drop functionality need to know.
+    BOOL mIsCopyable;
+    BOOL mIsFullPerm;
+    BOOL mUpdateDimensions;
+    S32 mLastHeight;
+    S32 mLastWidth;
+    F32 mAspectRatio;   
 
-	LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ; 
-	std::vector<std::string>		mRatiosList;
+    LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ; 
+    std::vector<std::string>        mRatiosList;
 };
 #endif  // LL_LLPREVIEWTEXTURE_H

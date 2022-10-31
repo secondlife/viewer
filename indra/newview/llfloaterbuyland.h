@@ -34,15 +34,15 @@ class LLParcelSelection;
 class LLFloaterBuyLand
 {
 public:
-	static void buyLand(LLViewerRegion* region,
-						LLSafeHandle<LLParcelSelection> parcel,
-						bool is_for_group);
-	static void updateCovenantText(const std::string& string, const LLUUID& asset_id);
-	static void updateEstateName(const std::string& name);
-	static void updateLastModified(const std::string& text);
-	static void updateEstateOwnerName(const std::string& name);
-	
-	static LLFloater* buildFloater(const LLSD& key);
+    static void buyLand(LLViewerRegion* region,
+                        LLSafeHandle<LLParcelSelection> parcel,
+                        bool is_for_group);
+    static void updateCovenantText(const std::string& string, const LLUUID& asset_id);
+    static void updateEstateName(const std::string& name);
+    static void updateLastModified(const std::string& text);
+    static void updateEstateOwnerName(const std::string& name);
+    
+    static LLFloater* buildFloater(const LLSD& key);
 };
 
 #endif

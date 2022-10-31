@@ -33,39 +33,39 @@ class LLListener
 {
  private:
  protected:
-	LLVector3 mPosition;
-	LLVector3 mVelocity;
-	LLVector3 mListenAt;
-	LLVector3 mListenUp;
+    LLVector3 mPosition;
+    LLVector3 mVelocity;
+    LLVector3 mListenAt;
+    LLVector3 mListenUp;
 
  public:
 
  private:
  protected:
  public:  
-	LLListener();
-	virtual ~LLListener();
-	virtual void init();  
+    LLListener();
+    virtual ~LLListener();
+    virtual void init();  
 
-	virtual void set(LLVector3 pos, LLVector3 vel, LLVector3 up, LLVector3 at);
+    virtual void set(LLVector3 pos, LLVector3 vel, LLVector3 up, LLVector3 at);
 
-	virtual void setPosition(LLVector3 pos);
-	virtual void setVelocity(LLVector3 vel);
+    virtual void setPosition(LLVector3 pos);
+    virtual void setVelocity(LLVector3 vel);
 
-	virtual void orient(LLVector3 up, LLVector3 at);
-	virtual void translate(LLVector3 offset);
+    virtual void orient(LLVector3 up, LLVector3 at);
+    virtual void translate(LLVector3 offset);
 
-	virtual void setDopplerFactor(F32 factor);
-	virtual void setRolloffFactor(F32 factor);
+    virtual void setDopplerFactor(F32 factor);
+    virtual void setRolloffFactor(F32 factor);
 
-	virtual LLVector3 getPosition();
-	virtual LLVector3 getAt();
-	virtual LLVector3 getUp();
+    virtual LLVector3 getPosition();
+    virtual LLVector3 getAt();
+    virtual LLVector3 getUp();
 
-	virtual F32 getDopplerFactor();
-	virtual F32 getRolloffFactor();
+    virtual F32 getDopplerFactor();
+    virtual F32 getRolloffFactor();
 
-	virtual void commitDeferredChanges();
+    virtual void commitDeferredChanges();
 };
 
 #endif

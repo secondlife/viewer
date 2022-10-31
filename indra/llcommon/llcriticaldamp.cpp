@@ -39,20 +39,20 @@ F32 LLSmoothInterpolation::sTimeDelta;
 // helper functors
 struct LLSmoothInterpolation::CompareTimeConstants
 {
-	bool operator()(const F32& a, const LLSmoothInterpolation::Interpolant& b) const
-	{
-		return a < b.mTimeScale;
-	}
+    bool operator()(const F32& a, const LLSmoothInterpolation::Interpolant& b) const
+    {
+        return a < b.mTimeScale;
+    }
 
-	bool operator()(const LLSmoothInterpolation::Interpolant& a, const F32& b) const
-	{
-		return a.mTimeScale < b; // bottom of a is higher than bottom of b
-	}
+    bool operator()(const LLSmoothInterpolation::Interpolant& a, const F32& b) const
+    {
+        return a.mTimeScale < b; // bottom of a is higher than bottom of b
+    }
 
-	bool operator()(const LLSmoothInterpolation::Interpolant& a, const LLSmoothInterpolation::Interpolant& b) const
-	{
-		return a.mTimeScale < b.mTimeScale; // bottom of a is higher than bottom of b
-	}
+    bool operator()(const LLSmoothInterpolation::Interpolant& a, const LLSmoothInterpolation::Interpolant& b) const
+    {
+        return a.mTimeScale < b.mTimeScale; // bottom of a is higher than bottom of b
+    }
 };
 
 //-----------------------------------------------------------------------------
@@ -60,7 +60,7 @@ struct LLSmoothInterpolation::CompareTimeConstants
 //-----------------------------------------------------------------------------
 LLSmoothInterpolation::LLSmoothInterpolation()
 {
-	sTimeDelta = 0.f;
+    sTimeDelta = 0.f;
 }
 
 // static
@@ -69,13 +69,13 @@ LLSmoothInterpolation::LLSmoothInterpolation()
 //-----------------------------------------------------------------------------
 void LLSmoothInterpolation::updateInterpolants()
 {
-	sTimeDelta = sInternalTimer.getElapsedTimeAndResetF32();
+    sTimeDelta = sInternalTimer.getElapsedTimeAndResetF32();
 
-	for (S32 i = 0; i < sInterpolants.size(); i++)
-	{
-		Interpolant& interp = sInterpolants[i];
-		interp.mInterpolant = calcInterpolant(interp.mTimeScale);
-	}
+    for (S32 i = 0; i < sInterpolants.size(); i++)
+    {
+        Interpolant& interp = sInterpolants[i];
+        interp.mInterpolant = calcInterpolant(interp.mTimeScale);
+    }
 } 
 
 //-----------------------------------------------------------------------------
@@ -83,32 +83,32 @@ void LLSmoothInterpolation::updateInterpolants()
 //-----------------------------------------------------------------------------
 F32 LLSmoothInterpolation::getInterpolant(F32SecondsImplicit time_constant, bool use_cache)
 {
-	if (time_constant == 0.f)
-	{
-		return 1.f;
-	}
+    if (time_constant == 0.f)
+    {
+        return 1.f;
+    }
 
-	if (use_cache)
-	{
-		interpolant_vec_t::iterator find_it = std::lower_bound(sInterpolants.begin(), sInterpolants.end(), time_constant.value(), CompareTimeConstants());
-		if (find_it != sInterpolants.end() && find_it->mTimeScale == time_constant) 
-		{
-			return find_it->mInterpolant;
-		}
-		else
-		{
-			Interpolant interp;
-			interp.mTimeScale = time_constant.value();
-			interp.mInterpolant = calcInterpolant(time_constant.value());
-			sInterpolants.insert(find_it, interp);
-			return interp.mInterpolant;
-		}
-	}
-	else
-	{
-		return calcInterpolant(time_constant.value());
+    if (use_cache)
+    {
+        interpolant_vec_t::iterator find_it = std::lower_bound(sInterpolants.begin(), sInterpolants.end(), time_constant.value(), CompareTimeConstants());
+        if (find_it != sInterpolants.end() && find_it->mTimeScale == time_constant) 
+        {
+            return find_it->mInterpolant;
+        }
+        else
+        {
+            Interpolant interp;
+            interp.mTimeScale = time_constant.value();
+            interp.mInterpolant = calcInterpolant(time_constant.value());
+            sInterpolants.insert(find_it, interp);
+            return interp.mInterpolant;
+        }
+    }
+    else
+    {
+        return calcInterpolant(time_constant.value());
 
-	}
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -116,6 +116,6 @@ F32 LLSmoothInterpolation::getInterpolant(F32SecondsImplicit time_constant, bool
 //-----------------------------------------------------------------------------
 F32 LLSmoothInterpolation::calcInterpolant(F32 time_constant)
 {
-	return llclamp(1.f - powf(2.f, -sTimeDelta / time_constant), 0.f, 1.f);
+    return llclamp(1.f - powf(2.f, -sTimeDelta / time_constant), 0.f, 1.f);
 }
 

@@ -34,33 +34,33 @@
 class LLComboBox;
 
 class LLPanelVoiceEffect
-	: public LLPanel
-	, public LLVoiceEffectObserver
+    : public LLPanel
+    , public LLVoiceEffectObserver
 {
 public:
-	LOG_CLASS(LLPanelVoiceEffect);
+    LOG_CLASS(LLPanelVoiceEffect);
 
-	LLPanelVoiceEffect();
-	virtual ~LLPanelVoiceEffect();
+    LLPanelVoiceEffect();
+    virtual ~LLPanelVoiceEffect();
 
-	virtual BOOL postBuild();
+    virtual BOOL postBuild();
 
 private:
-	void onCommitVoiceEffect();
-	void update(bool list_updated);
+    void onCommitVoiceEffect();
+    void update(bool list_updated);
 
-	/// Called by voice effect provider when voice effect list is changed.
-	virtual void onVoiceEffectChanged(bool effect_list_updated);
+    /// Called by voice effect provider when voice effect list is changed.
+    virtual void onVoiceEffectChanged(bool effect_list_updated);
 
-	// Fixed entries in the Voice Morph list
-	typedef enum e_voice_effect_combo_items
-	{
-		NO_VOICE_EFFECT = 0,
-		PREVIEW_VOICE_EFFECTS = 1,
-		GET_VOICE_EFFECTS = 2
-	} EVoiceEffectComboItems;
+    // Fixed entries in the Voice Morph list
+    typedef enum e_voice_effect_combo_items
+    {
+        NO_VOICE_EFFECT = 0,
+        PREVIEW_VOICE_EFFECTS = 1,
+        GET_VOICE_EFFECTS = 2
+    } EVoiceEffectComboItems;
 
-	LLComboBox* mVoiceEffectCombo;
+    LLComboBox* mVoiceEffectCombo;
 };
 
 

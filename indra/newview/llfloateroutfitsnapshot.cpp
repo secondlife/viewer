@@ -35,7 +35,7 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llpostcard.h"
-#include "llresmgr.h"		// LLLocale
+#include "llresmgr.h"       // LLLocale
 #include "llsdserialize.h"
 #include "llsidetraypanelcontainer.h"
 #include "llspinctrl.h"
@@ -309,7 +309,7 @@ void LLFloaterOutfitSnapshot::onOpen(const LLSD& key)
 
 void LLFloaterOutfitSnapshot::onExtendFloater()
 {
-	impl->setAdvanced(gSavedSettings.getBOOL("AdvanceOutfitSnapshot"));
+    impl->setAdvanced(gSavedSettings.getBOOL("AdvanceOutfitSnapshot"));
 }
 
 // static 

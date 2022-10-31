@@ -28,68 +28,68 @@
 
 #include "llnotifications.h"
 #include "llsd.h"
-#include "llxmlnode.h"	// apparently needed to call LLNotifications::instance()
+#include "llxmlnode.h"  // apparently needed to call LLNotifications::instance()
 
 LLNotificationPtr LLNotificationsUtil::add(const std::string& name)
 {
-	LLNotification::Params::Functor functor_p;
-	functor_p.name = name;
-	return LLNotifications::instance().add(
-		LLNotification::Params().name(name).substitutions(LLSD()).payload(LLSD()).functor(functor_p));	
+    LLNotification::Params::Functor functor_p;
+    functor_p.name = name;
+    return LLNotifications::instance().add(
+        LLNotification::Params().name(name).substitutions(LLSD()).payload(LLSD()).functor(functor_p));  
 }
 
 LLNotificationPtr LLNotificationsUtil::add(const std::string& name, 
-					  const LLSD& substitutions)
+                      const LLSD& substitutions)
 {
-	LLNotification::Params::Functor functor_p;
-	functor_p.name = name;
-	return LLNotifications::instance().add(
-		LLNotification::Params().name(name).substitutions(substitutions).payload(LLSD()).functor(functor_p));	
+    LLNotification::Params::Functor functor_p;
+    functor_p.name = name;
+    return LLNotifications::instance().add(
+        LLNotification::Params().name(name).substitutions(substitutions).payload(LLSD()).functor(functor_p));   
 }
 
 LLNotificationPtr LLNotificationsUtil::add(const std::string& name, 
-					  const LLSD& substitutions, 
-					  const LLSD& payload)
+                      const LLSD& substitutions, 
+                      const LLSD& payload)
 {
-	LLNotification::Params::Functor functor_p;
-	functor_p.name = name;
-	return LLNotifications::instance().add(
-		LLNotification::Params().name(name).substitutions(substitutions).payload(payload).functor(functor_p));	
+    LLNotification::Params::Functor functor_p;
+    functor_p.name = name;
+    return LLNotifications::instance().add(
+        LLNotification::Params().name(name).substitutions(substitutions).payload(payload).functor(functor_p));  
 }
 
 LLNotificationPtr LLNotificationsUtil::add(const std::string& name, 
-					  const LLSD& substitutions, 
-					  const LLSD& payload, 
-					  const std::string& functor_name)
+                      const LLSD& substitutions, 
+                      const LLSD& payload, 
+                      const std::string& functor_name)
 {
-	LLNotification::Params::Functor functor_p;
-	functor_p.name = functor_name;
-	return LLNotifications::instance().add(
-		LLNotification::Params().name(name).substitutions(substitutions).payload(payload).functor(functor_p));	
+    LLNotification::Params::Functor functor_p;
+    functor_p.name = functor_name;
+    return LLNotifications::instance().add(
+        LLNotification::Params().name(name).substitutions(substitutions).payload(payload).functor(functor_p));  
 }
 
 LLNotificationPtr LLNotificationsUtil::add(const std::string& name, 
-					  const LLSD& substitutions, 
-					  const LLSD& payload, 
-					  boost::function<void (const LLSD&, const LLSD&)> functor)
+                      const LLSD& substitutions, 
+                      const LLSD& payload, 
+                      boost::function<void (const LLSD&, const LLSD&)> functor)
 {
-	LLNotification::Params::Functor functor_p;
-	functor_p.function = functor;
-	return LLNotifications::instance().add(
-		LLNotification::Params().name(name).substitutions(substitutions).payload(payload).functor(functor_p));	
+    LLNotification::Params::Functor functor_p;
+    functor_p.function = functor;
+    return LLNotifications::instance().add(
+        LLNotification::Params().name(name).substitutions(substitutions).payload(payload).functor(functor_p));  
 }
 
 S32 LLNotificationsUtil::getSelectedOption(const LLSD& notification, const LLSD& response)
 {
-	return LLNotification::getSelectedOption(notification, response);
+    return LLNotification::getSelectedOption(notification, response);
 }
 
 void LLNotificationsUtil::cancel(LLNotificationPtr pNotif)
 {
-	LLNotifications::instance().cancel(pNotif);
+    LLNotifications::instance().cancel(pNotif);
 }
 
 LLNotificationPtr LLNotificationsUtil::find(LLUUID uuid)
 {
-	return LLNotifications::instance().find(uuid);
+    return LLNotifications::instance().find(uuid);
 }

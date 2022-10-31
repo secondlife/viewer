@@ -31,7 +31,7 @@
 class LLWidgetReg
 {
 public:
-	static void initClass(bool register_widgets);
+    static void initClass(bool register_widgets);
 };
 
 #endif

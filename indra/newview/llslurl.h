@@ -35,80 +35,80 @@
 class LLSLURL
 {
 public:
-	static const char* SLURL_HTTPS_SCHEME;
-	static const char* SLURL_HTTP_SCHEME;
-	static const char* SLURL_SL_SCHEME;
-	static const char* SLURL_SECONDLIFE_SCHEME;
-	static const char* SLURL_SECONDLIFE_PATH;
-	static const char* SLURL_COM;
-	static const char* WWW_SLURL_COM;
-	static const char* SECONDLIFE_COM;
-	static const char* MAPS_SECONDLIFE_COM;
-	static const char* SLURL_X_GRID_LOCATION_INFO_SCHEME;
-	static LLSLURL START_LOCATION;
-	static const char* SIM_LOCATION_HOME;
-	static const char* SIM_LOCATION_LAST;
-	static const char* SLURL_APP_PATH;
-	static const char* SLURL_REGION_PATH;	
-	
-	// if you modify this enumeration, update typeName as well
-	enum SLURL_TYPE { 
-		INVALID, 
-		LOCATION,
-		HOME_LOCATION,
-		LAST_LOCATION,
-		APP,
-		HELP,
-		NUM_SLURL_TYPES // must be last
-	};
-		
-	
-	LLSLURL(): mType(INVALID)  { }
-	LLSLURL(const std::string& slurl);
-	LLSLURL(const std::string& grid, const std::string& region);
-	LLSLURL(const std::string& region, const LLVector3& position);
-	LLSLURL(const std::string& grid, const std::string& region, const LLVector3& position);
-	LLSLURL(const std::string& grid, const std::string& region, const LLVector3d& global_position);
-	LLSLURL(const std::string& region, const LLVector3d& global_position);
-	LLSLURL(const std::string& command, const LLUUID&id, const std::string& verb);
-	
-	SLURL_TYPE getType() const { return mType; }
-	
-	std::string getSLURLString() const;
-	std::string getLoginString() const;
-	std::string getLocationString() const; 
-	std::string getGrid() const { return mGrid; }
-	std::string getRegion() const { return mRegion; }
-	LLVector3   getPosition() const { return mPosition; }
-	std::string getAppCmd() const { return mAppCmd; }
-	std::string getAppQuery() const { return mAppQuery; }
-	LLSD        getAppQueryMap() const { return mAppQueryMap; }
-	LLSD        getAppPath() const { return mAppPath; }
-	
-	bool        isValid() const { return mType != INVALID; }
-	bool        isSpatial() const { return (mType == LAST_LOCATION) || (mType == HOME_LOCATION) || (mType == LOCATION); }
-	
-	bool operator==(const LLSLURL& rhs);
-	bool operator!=(const LLSLURL&rhs);
+    static const char* SLURL_HTTPS_SCHEME;
+    static const char* SLURL_HTTP_SCHEME;
+    static const char* SLURL_SL_SCHEME;
+    static const char* SLURL_SECONDLIFE_SCHEME;
+    static const char* SLURL_SECONDLIFE_PATH;
+    static const char* SLURL_COM;
+    static const char* WWW_SLURL_COM;
+    static const char* SECONDLIFE_COM;
+    static const char* MAPS_SECONDLIFE_COM;
+    static const char* SLURL_X_GRID_LOCATION_INFO_SCHEME;
+    static LLSLURL START_LOCATION;
+    static const char* SIM_LOCATION_HOME;
+    static const char* SIM_LOCATION_LAST;
+    static const char* SLURL_APP_PATH;
+    static const char* SLURL_REGION_PATH;   
+    
+    // if you modify this enumeration, update typeName as well
+    enum SLURL_TYPE { 
+        INVALID, 
+        LOCATION,
+        HOME_LOCATION,
+        LAST_LOCATION,
+        APP,
+        HELP,
+        NUM_SLURL_TYPES // must be last
+    };
+        
+    
+    LLSLURL(): mType(INVALID)  { }
+    LLSLURL(const std::string& slurl);
+    LLSLURL(const std::string& grid, const std::string& region);
+    LLSLURL(const std::string& region, const LLVector3& position);
+    LLSLURL(const std::string& grid, const std::string& region, const LLVector3& position);
+    LLSLURL(const std::string& grid, const std::string& region, const LLVector3d& global_position);
+    LLSLURL(const std::string& region, const LLVector3d& global_position);
+    LLSLURL(const std::string& command, const LLUUID&id, const std::string& verb);
+    
+    SLURL_TYPE getType() const { return mType; }
+    
+    std::string getSLURLString() const;
+    std::string getLoginString() const;
+    std::string getLocationString() const; 
+    std::string getGrid() const { return mGrid; }
+    std::string getRegion() const { return mRegion; }
+    LLVector3   getPosition() const { return mPosition; }
+    std::string getAppCmd() const { return mAppCmd; }
+    std::string getAppQuery() const { return mAppQuery; }
+    LLSD        getAppQueryMap() const { return mAppQueryMap; }
+    LLSD        getAppPath() const { return mAppPath; }
+    
+    bool        isValid() const { return mType != INVALID; }
+    bool        isSpatial() const { return (mType == LAST_LOCATION) || (mType == HOME_LOCATION) || (mType == LOCATION); }
+    
+    bool operator==(const LLSLURL& rhs);
+    bool operator!=(const LLSLURL&rhs);
 
     std::string asString() const ;
 
 protected:
-	static const std::string typeName[NUM_SLURL_TYPES];
-	/// Get a human-readable version of the type for logging
-	static std::string getTypeString(SLURL_TYPE type);	
-	
-	SLURL_TYPE mType;
-	
-	// used for Apps and Help
-	std::string mAppCmd;
-	LLSD        mAppPath;
-	LLSD        mAppQueryMap;
-	std::string mAppQuery;
-	
-	std::string mGrid;  // reference to grid manager grid
-	std::string mRegion;
-	LLVector3  mPosition;
+    static const std::string typeName[NUM_SLURL_TYPES];
+    /// Get a human-readable version of the type for logging
+    static std::string getTypeString(SLURL_TYPE type);  
+    
+    SLURL_TYPE mType;
+    
+    // used for Apps and Help
+    std::string mAppCmd;
+    LLSD        mAppPath;
+    LLSD        mAppQueryMap;
+    std::string mAppQuery;
+    
+    std::string mGrid;  // reference to grid manager grid
+    std::string mRegion;
+    LLVector3  mPosition;
 };
 
 #endif // LLSLURL_H

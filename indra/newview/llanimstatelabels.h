@@ -31,7 +31,7 @@
 class LLAnimStateLabels
 {
 public:
-	static std::string getStateLabel( const char *animName );
+    static std::string getStateLabel( const char *animName );
 };
 
 #endif // LL_ANIMSTATELABELS_H

@@ -67,7 +67,7 @@ void LLAllocatorHeapProfile::parse(std::string const & prof_text)
 
     std::string::const_iterator prof_begin = prof_text.begin() + HEAP_PROFILE_MAGIC_STR.length();
 
-	range_t prof_range(prof_begin, prof_text.end());
+    range_t prof_range(prof_begin, prof_text.end());
     boost::algorithm::split(prof_lines,
         prof_range,
         boost::bind(std::equal_to<llwchar>(), '\n', _1));
@@ -107,23 +107,23 @@ void LLAllocatorHeapProfile::parse(std::string const & prof_text)
         ++j;
 
         while(j != line_elems.end() && j->empty()) { ++j; } // skip any separator tokens
-	llassert(j != line_elems.end());
+    llassert(j != line_elems.end());
         if (j != line_elems.end())
-	{
-		++j; // skip the '@'
+    {
+        ++j; // skip the '@'
 
-		mLines.push_back(line(live_count, live_size, tot_count, tot_size));
-		line & current_line = mLines.back();
-		
-		for(; j != line_elems.end(); ++j)
-		{
-			if(!j->empty())
-			{
-				U32 marker = boost::lexical_cast<U32>(*j);
-				current_line.mTrace.push_back(marker);
-			}
-		}
-	}
+        mLines.push_back(line(live_count, live_size, tot_count, tot_size));
+        line & current_line = mLines.back();
+        
+        for(; j != line_elems.end(); ++j)
+        {
+            if(!j->empty())
+            {
+                U32 marker = boost::lexical_cast<U32>(*j);
+                current_line.mTrace.push_back(marker);
+            }
+        }
+    }
     }
     // *TODO - parse MAPPED_LIBRARIES section here if we're ever interested in it
 }

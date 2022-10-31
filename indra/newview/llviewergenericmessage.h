@@ -34,8 +34,8 @@ class LLMessageSystem;
 
 
 void send_generic_message(const std::string& method,
-						  const std::vector<std::string>& strings,
-						  const LLUUID& invoice = LLUUID::null);
+                          const std::vector<std::string>& strings,
+                          const LLUUID& invoice = LLUUID::null);
 
 void process_generic_message(LLMessageSystem* msg, void**);
 void process_large_generic_message(LLMessageSystem* msg, void**);

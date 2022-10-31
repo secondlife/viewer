@@ -36,18 +36,18 @@ class LLFloaterDeletePrefPreset : public LLFloater
 {
 
 public:
-	LLFloaterDeletePrefPreset(const LLSD &key);
+    LLFloaterDeletePrefPreset(const LLSD &key);
 
-	/*virtual*/	BOOL	postBuild();
-	/*virtual*/ void	onOpen(const LLSD& key);
+    /*virtual*/ BOOL    postBuild();
+    /*virtual*/ void    onOpen(const LLSD& key);
 
-	void onBtnDelete();
-	void onBtnCancel();
+    void onBtnDelete();
+    void onBtnCancel();
 
 private:
-	void onPresetsListChange();
+    void onPresetsListChange();
 
-	std::string mSubdirectory;
+    std::string mSubdirectory;
 };
 
 #endif // LL_LLFLOATERDELETEPREFPRESET_H

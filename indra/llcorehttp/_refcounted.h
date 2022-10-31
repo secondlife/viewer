@@ -44,81 +44,81 @@ namespace LLCoreInt
 class RefCounted
 {
 private:
-	RefCounted();								// Not defined - may not be default constructed
-	void operator=(const RefCounted &);			// Not defined
-	
+    RefCounted();                               // Not defined - may not be default constructed
+    void operator=(const RefCounted &);         // Not defined
+    
 public:
-	explicit RefCounted(bool const implicit)
-		: mRefCount(implicit)
-		{}
+    explicit RefCounted(bool const implicit)
+        : mRefCount(implicit)
+        {}
 
-	// ref-count interface
-	void addRef() const;
-	void release() const;
-	bool isLastRef() const;
-	S32 getRefCount() const;
-	void noRef() const;
+    // ref-count interface
+    void addRef() const;
+    void release() const;
+    bool isLastRef() const;
+    S32 getRefCount() const;
+    void noRef() const;
 
-	static const S32			NOT_REF_COUNTED = -1;
-	
+    static const S32            NOT_REF_COUNTED = -1;
+    
 protected:
-	virtual ~RefCounted();
-	virtual void destroySelf();
+    virtual ~RefCounted();
+    virtual void destroySelf();
 
 private:
-	mutable LLAtomicS32			mRefCount;
+    mutable LLAtomicS32         mRefCount;
 
 }; // end class RefCounted
 
 
 inline void RefCounted::addRef() const
 {
-	S32 count(++mRefCount);
-	llassert_always(count >= 0);
+    S32 count(++mRefCount);
+    llassert_always(count >= 0);
 }
 
 
 inline void RefCounted::release() const
 {
-	S32 count(mRefCount);
-	llassert_always(count != NOT_REF_COUNTED);
-	llassert_always(count > 0);
-	count = --mRefCount;
+    S32 count(mRefCount);
+    llassert_always(count != NOT_REF_COUNTED);
+    llassert_always(count > 0);
+    count = --mRefCount;
 
-	// clean ourselves up if that was the last reference
-	if (0 == count)
-	{
-		const_cast<RefCounted *>(this)->destroySelf();
-	}
+    // clean ourselves up if that was the last reference
+    if (0 == count)
+    {
+        const_cast<RefCounted *>(this)->destroySelf();
+    }
 }
 
 
 inline bool RefCounted::isLastRef() const
 {
-	const S32 count(mRefCount);
-	llassert_always(count != NOT_REF_COUNTED);
-	llassert_always(count >= 1);
-	return (1 == count);
+    const S32 count(mRefCount);
+    llassert_always(count != NOT_REF_COUNTED);
+    llassert_always(count >= 1);
+    return (1 == count);
 }
 
 
 inline S32 RefCounted::getRefCount() const
 {
-	const S32 result(mRefCount);
-	return result;
+    const S32 result(mRefCount);
+    return result;
 }
 
 
 inline void RefCounted::noRef() const
 {
-	llassert_always(mRefCount <= 1);
-	mRefCount = NOT_REF_COUNTED;
+    llassert_always(mRefCount <= 1);
+    mRefCount = NOT_REF_COUNTED;
 }
 
 
 inline void RefCounted::destroySelf()
 {
-	delete this;
+    delete this;
 }
 
 /**
@@ -131,26 +131,26 @@ inline void RefCounted::destroySelf()
 template <typename T>
 struct IntrusivePtr: public boost::intrusive_ptr<T>
 {
-	IntrusivePtr():
-		boost::intrusive_ptr<T>()
-	{}
-	IntrusivePtr(T* p):
-		boost::intrusive_ptr<T>(p, false)
-	{}
+    IntrusivePtr():
+        boost::intrusive_ptr<T>()
+    {}
+    IntrusivePtr(T* p):
+        boost::intrusive_ptr<T>(p, false)
+    {}
 };
 
 inline void intrusive_ptr_add_ref(RefCounted* p)
 {
-	p->addRef();
+    p->addRef();
 }
 
 inline void intrusive_ptr_release(RefCounted* p)
 {
-	p->release();
+    p->release();
 }
 
 } // end namespace LLCoreInt
 
 
-#endif	// LLCOREINT__REFCOUNTED_H_
+#endif  // LLCOREINT__REFCOUNTED_H_
 

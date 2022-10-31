@@ -34,10 +34,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 LLUrlWhiteList::LLUrlWhiteList () :
-	mLoaded ( false ),
-	mFilename ( "url_whitelist.ini" ),
-	mUrlList ( 0 ),
-	mCurIndex ( 0 )
+    mLoaded ( false ),
+    mFilename ( "url_whitelist.ini" ),
+    mUrlList ( 0 ),
+    mCurIndex ( 0 )
 {
 }
 
@@ -51,146 +51,146 @@ LLUrlWhiteList::~LLUrlWhiteList ()
 //
 bool LLUrlWhiteList::load ()
 {
-	// don't load if we're already loaded
-	if ( mLoaded )
-		return ( true );
+    // don't load if we're already loaded
+    if ( mLoaded )
+        return ( true );
 
-	// remove current entries before we load over them
-	clear ();
+    // remove current entries before we load over them
+    clear ();
 
-	// build filename for each user
-	std::string resolvedFilename = gDirUtilp->getExpandedFilename ( LL_PATH_PER_SL_ACCOUNT, mFilename );
+    // build filename for each user
+    std::string resolvedFilename = gDirUtilp->getExpandedFilename ( LL_PATH_PER_SL_ACCOUNT, mFilename );
 
-	// open a file for reading
-	llifstream file(resolvedFilename.c_str());
-	if ( file.is_open () )
-	{
-		// add each line in the file to the list
-		std::string line;
-		while ( std::getline ( file, line ) )
-		{
-			addItem ( line, false );
-		};
+    // open a file for reading
+    llifstream file(resolvedFilename.c_str());
+    if ( file.is_open () )
+    {
+        // add each line in the file to the list
+        std::string line;
+        while ( std::getline ( file, line ) )
+        {
+            addItem ( line, false );
+        };
 
-		file.close ();
+        file.close ();
 
-		// flag as loaded
-		mLoaded = true;
+        // flag as loaded
+        mLoaded = true;
 
-		return true;
-	};
+        return true;
+    };
 
-	return false;
+    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 bool LLUrlWhiteList::save ()
 {
-	// build filename for each user
-	std::string resolvedFilename = gDirUtilp->getExpandedFilename ( LL_PATH_PER_SL_ACCOUNT, mFilename );
+    // build filename for each user
+    std::string resolvedFilename = gDirUtilp->getExpandedFilename ( LL_PATH_PER_SL_ACCOUNT, mFilename );
 
-	if (resolvedFilename.empty())
-	{
-		LL_INFOS() << "No per-user dir for saving URL whitelist - presumably not logged in yet.  Skipping." << LL_ENDL;
-		return false;
-	}
+    if (resolvedFilename.empty())
+    {
+        LL_INFOS() << "No per-user dir for saving URL whitelist - presumably not logged in yet.  Skipping." << LL_ENDL;
+        return false;
+    }
 
-	// open a file for writing
-	llofstream file(resolvedFilename.c_str());
-	if ( file.is_open () )
-	{
-		// for each entry we have
-		for ( string_list_t::iterator iter = mUrlList.begin (); iter != mUrlList.end (); ++iter )
-		{
-			file << ( *iter ) << std::endl;
-		}
+    // open a file for writing
+    llofstream file(resolvedFilename.c_str());
+    if ( file.is_open () )
+    {
+        // for each entry we have
+        for ( string_list_t::iterator iter = mUrlList.begin (); iter != mUrlList.end (); ++iter )
+        {
+            file << ( *iter ) << std::endl;
+        }
 
-		file.close ();
+        file.close ();
 
-		return true;
-	};
+        return true;
+    };
 
-	return false;
+    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 bool LLUrlWhiteList::clear ()
 {
-	mUrlList.clear ();
+    mUrlList.clear ();
 
-	mCurIndex = 0;
+    mCurIndex = 0;
 
-	return true;
+    return true;
 }
 
 std::string url_cleanup(std::string pattern)
 {
-	LLStringUtil::trim(pattern);
-	S32 length = pattern.length();
-	S32 position = 0;
-	std::string::reverse_iterator it = pattern.rbegin();
-	++it;	// skip last char, might be '/'
-	++position;
-	for (; it < pattern.rend(); ++it)
-	{
-		char c = *it;
-		if (c == '/')
-		{
-			// found second to last '/'
-			S32 desired_length = length - position;
-			LLStringUtil::truncate(pattern, desired_length);
-			break;
-		}
-		++position;
-	}
-	return pattern;
+    LLStringUtil::trim(pattern);
+    S32 length = pattern.length();
+    S32 position = 0;
+    std::string::reverse_iterator it = pattern.rbegin();
+    ++it;   // skip last char, might be '/'
+    ++position;
+    for (; it < pattern.rend(); ++it)
+    {
+        char c = *it;
+        if (c == '/')
+        {
+            // found second to last '/'
+            S32 desired_length = length - position;
+            LLStringUtil::truncate(pattern, desired_length);
+            break;
+        }
+        ++position;
+    }
+    return pattern;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 bool LLUrlWhiteList::addItem ( const std::string& itemIn, bool saveAfterAdd )
 {
-	std::string item = url_cleanup(itemIn);
-	
-	mUrlList.push_back ( item );
+    std::string item = url_cleanup(itemIn);
+    
+    mUrlList.push_back ( item );
 
-	// use this when all you want to do is call addItem ( ... ) where necessary
-	if ( saveAfterAdd )
-		save ();
+    // use this when all you want to do is call addItem ( ... ) where necessary
+    if ( saveAfterAdd )
+        save ();
 
-	return true;
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 bool LLUrlWhiteList::getFirst ( std::string& valueOut )
 {
-	if ( mUrlList.size () == 0 )
-		return false;
+    if ( mUrlList.size () == 0 )
+        return false;
 
-	mCurIndex = 0;
-	valueOut = mUrlList[mCurIndex++];
+    mCurIndex = 0;
+    valueOut = mUrlList[mCurIndex++];
 
-	return true;	
+    return true;    
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 bool LLUrlWhiteList::getNext ( std::string& valueOut )
 {
-	if ( mCurIndex >= mUrlList.size () )
-		return false;
+    if ( mCurIndex >= mUrlList.size () )
+        return false;
 
-	valueOut = mUrlList[mCurIndex++];
+    valueOut = mUrlList[mCurIndex++];
 
-	return true;
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 bool LLUrlWhiteList::containsMatch ( const std::string& patternIn )
 {
-	return false;
+    return false;
 }

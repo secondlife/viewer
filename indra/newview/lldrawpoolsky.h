@@ -35,33 +35,33 @@ class LLGLSLShader;
 class LLDrawPoolSky : public LLFacePool
 {
 private:
-	LLSkyTex			*mSkyTex;
-	LLGLSLShader		*mShader;
+    LLSkyTex            *mSkyTex;
+    LLGLSLShader        *mShader;
 
 public:
-	enum
-	{
-		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
-							LLVertexBuffer::MAP_TEXCOORD0
-	};
+    enum
+    {
+        VERTEX_DATA_MASK =  LLVertexBuffer::MAP_VERTEX |
+                            LLVertexBuffer::MAP_TEXCOORD0
+    };
 
-	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+    virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
 
-	LLDrawPoolSky();
+    LLDrawPoolSky();
 
-	/*virtual*/ S32 getNumPostDeferredPasses() { return getNumPasses(); }
-	/*virtual*/ void beginPostDeferredPass(S32 pass) { beginRenderPass(pass); }
-	/*virtual*/ void endPostDeferredPass(S32 pass) { endRenderPass(pass); }
-	/*virtual*/ void renderPostDeferred(S32 pass) { render(pass); }
+    /*virtual*/ S32 getNumPostDeferredPasses() { return getNumPasses(); }
+    /*virtual*/ void beginPostDeferredPass(S32 pass) { beginRenderPass(pass); }
+    /*virtual*/ void endPostDeferredPass(S32 pass) { endRenderPass(pass); }
+    /*virtual*/ void renderPostDeferred(S32 pass) { render(pass); }
 
-	/*virtual*/ void prerender();
-	/*virtual*/ void render(S32 pass = 0);
-	/*virtual*/ void endRenderPass(S32 pass);
-	void setSkyTex(LLSkyTex* const st) { mSkyTex = st; }
+    /*virtual*/ void prerender();
+    /*virtual*/ void render(S32 pass = 0);
+    /*virtual*/ void endRenderPass(S32 pass);
+    void setSkyTex(LLSkyTex* const st) { mSkyTex = st; }
 
-	void renderSkyFace(U8 index);
-	void renderHeavenlyBody(U8 hb, LLFace* face);
-	void renderSunHalo(LLFace* face);
+    void renderSkyFace(U8 index);
+    void renderHeavenlyBody(U8 hb, LLFace* face);
+    void renderSunHalo(LLFace* face);
 
 };
 

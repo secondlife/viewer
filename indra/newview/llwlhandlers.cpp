@@ -40,50 +40,50 @@
 // static
 bool LLEnvironmentRequest::initiate(LLEnvironment::environment_apply_fn cb)
 {
-	LLViewerRegion* cur_region = gAgent.getRegion();
+    LLViewerRegion* cur_region = gAgent.getRegion();
 
-	if (!cur_region)
-	{
-		LL_WARNS("WindlightCaps") << "Viewer region not set yet, skipping env. settings request" << LL_ENDL;
-		return false;
-	}
+    if (!cur_region)
+    {
+        LL_WARNS("WindlightCaps") << "Viewer region not set yet, skipping env. settings request" << LL_ENDL;
+        return false;
+    }
 
-	if (!cur_region->capabilitiesReceived())
-	{
-		LL_INFOS("WindlightCaps") << "Deferring windlight settings request until we've got region caps" << LL_ENDL;
+    if (!cur_region->capabilitiesReceived())
+    {
+        LL_INFOS("WindlightCaps") << "Deferring windlight settings request until we've got region caps" << LL_ENDL;
         cur_region->setCapabilitiesReceivedCallback([cb](const LLUUID &region_id, LLViewerRegion* regionp) { LLEnvironmentRequest::onRegionCapsReceived(region_id, cb); });
-		return false;
-	}
+        return false;
+    }
 
-	return doRequest(cb);
+    return doRequest(cb);
 }
 
 // static
 void LLEnvironmentRequest::onRegionCapsReceived(const LLUUID& region_id, LLEnvironment::environment_apply_fn cb)
 {
-	if (region_id != gAgent.getRegion()->getRegionID())
-	{
-		LL_INFOS("WindlightCaps") << "Got caps for a non-current region" << LL_ENDL;
-		return;
-	}
+    if (region_id != gAgent.getRegion()->getRegionID())
+    {
+        LL_INFOS("WindlightCaps") << "Got caps for a non-current region" << LL_ENDL;
+        return;
+    }
 
-	LL_DEBUGS("WindlightCaps") << "Received region capabilities" << LL_ENDL;
-	doRequest(cb);
+    LL_DEBUGS("WindlightCaps") << "Received region capabilities" << LL_ENDL;
+    doRequest(cb);
 }
 
 // static
 bool LLEnvironmentRequest::doRequest(LLEnvironment::environment_apply_fn cb)
 {
-	std::string url = gAgent.getRegionCapability("EnvironmentSettings");
-	if (url.empty())
-	{
-		LL_INFOS("WindlightCaps") << "Skipping windlight setting request - we don't have this capability" << LL_ENDL;
-		// region is apparently not capable of this; don't respond at all
+    std::string url = gAgent.getRegionCapability("EnvironmentSettings");
+    if (url.empty())
+    {
+        LL_INFOS("WindlightCaps") << "Skipping windlight setting request - we don't have this capability" << LL_ENDL;
+        // region is apparently not capable of this; don't respond at all
         // (there shouldn't be any regions where this is the case... but
         LL_INFOS("ENVIRONMENT") << "No legacy windlight caps... just set the region to be the default day." << LL_ENDL;
         LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_REGION, LLSettingsDay::GetDefaultAssetId());
-		return false;
-	}
+        return false;
+    }
 
     std::string coroname =
         LLCoros::instance().launch("LLEnvironmentRequest::environmentRequestCoro",
@@ -159,26 +159,26 @@ clock_t LLEnvironmentApply::sLastUpdate = clock_t(0.f);
 // static
 bool LLEnvironmentApply::initiateRequest(const LLSD& content, LLEnvironment::environment_apply_fn cb)
 {
-	clock_t current = clock();
+    clock_t current = clock();
 
-	// Make sure we don't update too frequently.
-	if (current < sLastUpdate + (UPDATE_WAIT_SECONDS * CLOCKS_PER_SEC))
-	{
-		LLSD args(LLSD::emptyMap());
-		args["WAIT"] = (F64)UPDATE_WAIT_SECONDS;
-		LLNotificationsUtil::add("EnvUpdateRate", args);
-		return false;
-	}
+    // Make sure we don't update too frequently.
+    if (current < sLastUpdate + (UPDATE_WAIT_SECONDS * CLOCKS_PER_SEC))
+    {
+        LLSD args(LLSD::emptyMap());
+        args["WAIT"] = (F64)UPDATE_WAIT_SECONDS;
+        LLNotificationsUtil::add("EnvUpdateRate", args);
+        return false;
+    }
 
-	sLastUpdate = current;
+    sLastUpdate = current;
 
-	// Send update request.
-	std::string url = gAgent.getRegionCapability("ExtEnvironment");
-	if (url.empty())
-	{
-		LL_WARNS("WindlightCaps") << "Applying windlight settings not supported" << LL_ENDL;
-		return false;
-	}
+    // Send update request.
+    std::string url = gAgent.getRegionCapability("ExtEnvironment");
+    if (url.empty())
+    {
+        LL_WARNS("WindlightCaps") << "Applying windlight settings not supported" << LL_ENDL;
+        return false;
+    }
 
     LL_INFOS("WindlightCaps") << "Sending windlight settings to " << url << LL_ENDL;
     LL_DEBUGS("WindlightCaps") << "content: " << content << LL_ENDL;
@@ -186,7 +186,7 @@ bool LLEnvironmentApply::initiateRequest(const LLSD& content, LLEnvironment::env
     std::string coroname =
         LLCoros::instance().launch("LLEnvironmentApply::environmentApplyCoro",
         [url, content, cb]() { LLEnvironmentApply::environmentApplyCoro(url, content, cb); });
-	return true;
+    return true;
 }
 
 void LLEnvironmentApply::environmentApplyCoro(std::string url, LLSD content, LLEnvironment::environment_apply_fn cb)

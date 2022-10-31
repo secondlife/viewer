@@ -34,13 +34,13 @@ LLWLDayCycle::~LLWLDayCycle(void)
 
 bool LLWLDayCycle::getKeytime(LLWLParamKey keyFrame, F32& keyTime)
 {
-	keyTime = 0.5;
-	return true;
+    keyTime = 0.5;
+    return true;
 }
 
 bool LLWLDayCycle::removeKeyframe(F32 time)
 {
-	return true;
+    return true;
 }
 
 void LLWLDayCycle::loadDayCycleFromFile(const std::string& fileName)

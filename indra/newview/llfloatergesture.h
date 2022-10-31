@@ -49,61 +49,61 @@ class LLMultiGesture;
 class LLMenuGL;
 
 class LLFloaterGesture
-:	public LLFloater, LLInventoryFetchDescendentsObserver
+:   public LLFloater, LLInventoryFetchDescendentsObserver
 {
-	LOG_CLASS(LLFloaterGesture);
+    LOG_CLASS(LLFloaterGesture);
 public:
-	LLFloaterGesture(const LLSD& key);
-	virtual ~LLFloaterGesture();
+    LLFloaterGesture(const LLSD& key);
+    virtual ~LLFloaterGesture();
 
-	virtual BOOL postBuild();
-	virtual void done ();
-	void refreshAll();
-	/**
-	 * @brief Add new scrolllistitem into gesture_list.
-	 * @param  item_id inventory id of gesture
-	 * @param  gesture can be NULL , if item was not loaded yet
-	 */
-	void addGesture(const LLUUID& item_id, LLMultiGesture* gesture, LLCtrlListInterface * list);
+    virtual BOOL postBuild();
+    virtual void done ();
+    void refreshAll();
+    /**
+     * @brief Add new scrolllistitem into gesture_list.
+     * @param  item_id inventory id of gesture
+     * @param  gesture can be NULL , if item was not loaded yet
+     */
+    void addGesture(const LLUUID& item_id, LLMultiGesture* gesture, LLCtrlListInterface * list);
 
 protected:
-	// Reads from the gesture manager's list of active gestures
-	// and puts them in this list.
-	void buildGestureList();
-	void playGesture(LLUUID item_id);
+    // Reads from the gesture manager's list of active gestures
+    // and puts them in this list.
+    void buildGestureList();
+    void playGesture(LLUUID item_id);
 private:
-	void addToCurrentOutFit();
-	/**
-	 * @brief  This method is using to collect selected items. 
-	 * In some places gesture_list can be rebuilt by gestureObservers during  iterating data from LLScrollListCtrl::getAllSelected().
-	 * Therefore we have to copy these items to avoid viewer crash.
-	 * @see LLFloaterGesture::onActivateBtnClick
-	 */
-	void getSelectedIds(uuid_vec_t& ids);
-	bool isActionEnabled(const LLSD& command);
-	/**
-	 * @brief Activation rules:
-	 *  According to Gesture Spec:
-	 *  1. If all selected gestures are active: set to inactive
-	 *  2. If all selected gestures are inactive: set to active
-	 *  3. If selected gestures are in a mixed state: set all to active
-	 */
-	void onActivateBtnClick();
-	void onClickEdit();
-	void onClickPlay();
-	void onClickNew();
-	void onCommitList();
-	void onCopyPasteAction(const LLSD& command);
-	void onDeleteSelected();
-	void onRenameSelected();
+    void addToCurrentOutFit();
+    /**
+     * @brief  This method is using to collect selected items. 
+     * In some places gesture_list can be rebuilt by gestureObservers during  iterating data from LLScrollListCtrl::getAllSelected().
+     * Therefore we have to copy these items to avoid viewer crash.
+     * @see LLFloaterGesture::onActivateBtnClick
+     */
+    void getSelectedIds(uuid_vec_t& ids);
+    bool isActionEnabled(const LLSD& command);
+    /**
+     * @brief Activation rules:
+     *  According to Gesture Spec:
+     *  1. If all selected gestures are active: set to inactive
+     *  2. If all selected gestures are inactive: set to active
+     *  3. If selected gestures are in a mixed state: set all to active
+     */
+    void onActivateBtnClick();
+    void onClickEdit();
+    void onClickPlay();
+    void onClickNew();
+    void onCommitList();
+    void onCopyPasteAction(const LLSD& command);
+    void onDeleteSelected();
+    void onRenameSelected();
 
-	static void onGestureRename(const LLSD& notification, const LLSD& response);
+    static void onGestureRename(const LLSD& notification, const LLSD& response);
 
-	LLUUID mSelectedID;
-	LLUUID mGestureFolderID;
-	LLScrollListCtrl* mGestureList;
+    LLUUID mSelectedID;
+    LLUUID mGestureFolderID;
+    LLScrollListCtrl* mGestureList;
 
-	LLFloaterGestureObserver* mObserver;
+    LLFloaterGestureObserver* mObserver;
 };
 
 

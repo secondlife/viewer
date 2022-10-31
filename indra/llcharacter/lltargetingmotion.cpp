@@ -45,10 +45,10 @@ const F32 TORSO_TARGET_HALF_LIFE = 0.25f;
 //-----------------------------------------------------------------------------
 LLTargetingMotion::LLTargetingMotion(const LLUUID &id) : LLMotion(id)
 {
-	mCharacter = NULL;
-	mName = "targeting";
+    mCharacter = NULL;
+    mName = "targeting";
 
-	mTorsoState = new LLJointState;
+    mTorsoState = new LLJointState;
 }
 
 
@@ -65,29 +65,29 @@ LLTargetingMotion::~LLTargetingMotion()
 //-----------------------------------------------------------------------------
 LLMotion::LLMotionInitStatus LLTargetingMotion::onInitialize(LLCharacter *character)
 {
-	// save character for future use
-	mCharacter = character;
+    // save character for future use
+    mCharacter = character;
 
-	mPelvisJoint = mCharacter->getJoint("mPelvis");
-	mTorsoJoint = mCharacter->getJoint("mTorso");
-	mRightHandJoint = mCharacter->getJoint("mWristRight");
+    mPelvisJoint = mCharacter->getJoint("mPelvis");
+    mTorsoJoint = mCharacter->getJoint("mTorso");
+    mRightHandJoint = mCharacter->getJoint("mWristRight");
 
-	// make sure character skeleton is copacetic
-	if (!mPelvisJoint ||
-		!mTorsoJoint ||
-		!mRightHandJoint)
-	{
-		LL_WARNS() << "Invalid skeleton for targeting motion!" << LL_ENDL;
-		return STATUS_FAILURE;
-	}
+    // make sure character skeleton is copacetic
+    if (!mPelvisJoint ||
+        !mTorsoJoint ||
+        !mRightHandJoint)
+    {
+        LL_WARNS() << "Invalid skeleton for targeting motion!" << LL_ENDL;
+        return STATUS_FAILURE;
+    }
 
-	mTorsoState->setJoint( mTorsoJoint );
+    mTorsoState->setJoint( mTorsoJoint );
 
-	// add joint states to the pose
-	mTorsoState->setUsage(LLJointState::ROT);
-	addJointState( mTorsoState );
+    // add joint states to the pose
+    mTorsoState->setUsage(LLJointState::ROT);
+    addJointState( mTorsoState );
 
-	return STATUS_SUCCESS;
+    return STATUS_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------
@@ -95,7 +95,7 @@ LLMotion::LLMotionInitStatus LLTargetingMotion::onInitialize(LLCharacter *charac
 //-----------------------------------------------------------------------------
 BOOL LLTargetingMotion::onActivate()
 {
-	return TRUE;
+    return TRUE;
 }
 
 //-----------------------------------------------------------------------------
@@ -104,58 +104,58 @@ BOOL LLTargetingMotion::onActivate()
 BOOL LLTargetingMotion::onUpdate(F32 time, U8* joint_mask)
 {
     LL_PROFILE_ZONE_SCOPED;
-	F32 slerp_amt = LLSmoothInterpolation::getInterpolant(TORSO_TARGET_HALF_LIFE);
+    F32 slerp_amt = LLSmoothInterpolation::getInterpolant(TORSO_TARGET_HALF_LIFE);
 
-	LLVector3 target;
-	LLVector3* lookAtPoint = (LLVector3*)mCharacter->getAnimationData("LookAtPoint");
+    LLVector3 target;
+    LLVector3* lookAtPoint = (LLVector3*)mCharacter->getAnimationData("LookAtPoint");
 
-	BOOL result = TRUE;
+    BOOL result = TRUE;
 
-	if (!lookAtPoint)
-	{
-		return TRUE;
-	}
-	else
-	{
-		target = *lookAtPoint;
-		target.normVec();
-	}
-	
-	//LLVector3 target_plane_normal = LLVector3(1.f, 0.f, 0.f) * mPelvisJoint->getWorldRotation();
-	//LLVector3 torso_dir = LLVector3(1.f, 0.f, 0.f) * (mTorsoJoint->getWorldRotation() * mTorsoState->getRotation());
+    if (!lookAtPoint)
+    {
+        return TRUE;
+    }
+    else
+    {
+        target = *lookAtPoint;
+        target.normVec();
+    }
+    
+    //LLVector3 target_plane_normal = LLVector3(1.f, 0.f, 0.f) * mPelvisJoint->getWorldRotation();
+    //LLVector3 torso_dir = LLVector3(1.f, 0.f, 0.f) * (mTorsoJoint->getWorldRotation() * mTorsoState->getRotation());
 
-	LLVector3 skyward(0.f, 0.f, 1.f);
-	LLVector3 left(skyward % target);
-	left.normVec();
-	LLVector3 up(target % left);
-	up.normVec();
-	LLQuaternion target_aim_rot(target, left, up);
+    LLVector3 skyward(0.f, 0.f, 1.f);
+    LLVector3 left(skyward % target);
+    left.normVec();
+    LLVector3 up(target % left);
+    up.normVec();
+    LLQuaternion target_aim_rot(target, left, up);
 
-	LLQuaternion cur_torso_rot = mTorsoJoint->getWorldRotation();
+    LLQuaternion cur_torso_rot = mTorsoJoint->getWorldRotation();
 
-	LLVector3 right_hand_at = LLVector3(0.f, -1.f, 0.f) * mRightHandJoint->getWorldRotation();
-	left.setVec(skyward % right_hand_at);
-	left.normVec();
-	up.setVec(right_hand_at % left);
-	up.normVec();
-	LLQuaternion right_hand_rot(right_hand_at, left, up);
+    LLVector3 right_hand_at = LLVector3(0.f, -1.f, 0.f) * mRightHandJoint->getWorldRotation();
+    left.setVec(skyward % right_hand_at);
+    left.normVec();
+    up.setVec(right_hand_at % left);
+    up.normVec();
+    LLQuaternion right_hand_rot(right_hand_at, left, up);
 
-	LLQuaternion new_torso_rot = (cur_torso_rot * ~right_hand_rot) * target_aim_rot;
+    LLQuaternion new_torso_rot = (cur_torso_rot * ~right_hand_rot) * target_aim_rot;
 
-	// find ideal additive rotation to make torso point in correct direction
-	new_torso_rot = new_torso_rot * ~cur_torso_rot;
+    // find ideal additive rotation to make torso point in correct direction
+    new_torso_rot = new_torso_rot * ~cur_torso_rot;
 
-	// slerp from current additive rotation to ideal additive rotation
-	new_torso_rot = nlerp(slerp_amt, mTorsoState->getRotation(), new_torso_rot);
+    // slerp from current additive rotation to ideal additive rotation
+    new_torso_rot = nlerp(slerp_amt, mTorsoState->getRotation(), new_torso_rot);
 
-	// constraint overall torso rotation
-	LLQuaternion total_rot = new_torso_rot * mTorsoJoint->getRotation();
-	total_rot.constrain(F_PI_BY_TWO * 0.8f);
-	new_torso_rot = total_rot * ~mTorsoJoint->getRotation();
+    // constraint overall torso rotation
+    LLQuaternion total_rot = new_torso_rot * mTorsoJoint->getRotation();
+    total_rot.constrain(F_PI_BY_TWO * 0.8f);
+    new_torso_rot = total_rot * ~mTorsoJoint->getRotation();
 
-	mTorsoState->setRotation(new_torso_rot);
+    mTorsoState->setRotation(new_torso_rot);
 
-	return result;
+    return result;
 }
 
 //-----------------------------------------------------------------------------

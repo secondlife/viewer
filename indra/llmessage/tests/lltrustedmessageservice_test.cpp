@@ -40,7 +40,7 @@ LLPounceable<LLMessageSystem*, LLPounceableStatic> gMessageSystem;
 LLMessageConfig::SenderTrust
 LLMessageConfig::getSenderTrustedness(const std::string& msg_name)
 {
-	return LLMessageConfig::NOT_SET;
+    return LLMessageConfig::NOT_SET;
 }
 
 void LLMessageSystem::receivedMessageFromTrustedSender()
@@ -49,12 +49,12 @@ void LLMessageSystem::receivedMessageFromTrustedSender()
 
 bool LLMessageSystem::isTrustedSender(const LLHost& host) const
 {
-	return false;
+    return false;
 }
 
 bool LLMessageSystem::isTrustedMessage(const std::string& name) const
 {
-	return false;
+    return false;
 }
 
 bool messageDispatched = false;
@@ -63,80 +63,80 @@ LLSD lastLLSD;
 std::string lastMessageName;
 
 void LLMessageSystem::dispatch(const std::string& msg_name,
-							   const LLSD& message,
-							   LLHTTPNode::ResponsePtr responsep)
+                               const LLSD& message,
+                               LLHTTPNode::ResponsePtr responsep)
 {
-	messageDispatched = true;
-	lastLLSD = message;
-	lastMessageName = msg_name;
+    messageDispatched = true;
+    lastLLSD = message;
+    lastMessageName = msg_name;
 }
 
 void LLMessageSystem::dispatchTemplate(const std::string& msg_name,
-						 const LLSD& message,
-						 LLHTTPNode::ResponsePtr responsep)
+                         const LLSD& message,
+                         LLHTTPNode::ResponsePtr responsep)
 {
-	lastLLSD = message;
-	lastMessageName = msg_name;
-	messageDispatchedAsBinary = true;
+    lastLLSD = message;
+    lastMessageName = msg_name;
+    messageDispatchedAsBinary = true;
 }
 
 namespace tut
 {
-	    struct LLTrustedMessageServiceData
-		{
-			LLTrustedMessageServiceData()
-			{
-				LLSD emptyLLSD;
-				lastLLSD = emptyLLSD;
-				lastMessageName = "uninitialised message name";
-				messageDispatched = false;
-				messageDispatchedAsBinary = false;
-			}
-		};
+        struct LLTrustedMessageServiceData
+        {
+            LLTrustedMessageServiceData()
+            {
+                LLSD emptyLLSD;
+                lastLLSD = emptyLLSD;
+                lastMessageName = "uninitialised message name";
+                messageDispatched = false;
+                messageDispatchedAsBinary = false;
+            }
+        };
 
-	typedef test_group<LLTrustedMessageServiceData> factory;
-	typedef factory::object object;
+    typedef test_group<LLTrustedMessageServiceData> factory;
+    typedef factory::object object;
 }
 
 namespace
 {
-	tut::factory tf("LLTrustedMessageServiceData");
+    tut::factory tf("LLTrustedMessageServiceData");
 }
 
 namespace tut
 {
-	// characterisation tests
+    // characterisation tests
 
-	// 1) test that messages get forwarded with names etc. as current behaviour (something like LLMessageSystem::dispatch(name, data...)
+    // 1) test that messages get forwarded with names etc. as current behaviour (something like LLMessageSystem::dispatch(name, data...)
 
-	// test llsd messages are sent as normal using LLMessageSystem::dispatch() (eventually)
-	template<> template<>
-	void object::test<1>()
-	{
-		LLHTTPNode::ResponsePtr response;
-		LLSD input;
-		LLSD context;
-		LLTrustedMessageService adapter;
-		adapter.post(response, context, input);
-		// test original ting got called wit nowt, ya get me blood?
-		ensure_equals(messageDispatched, true);
-		ensure(lastLLSD.has("body"));
-	}
+    // test llsd messages are sent as normal using LLMessageSystem::dispatch() (eventually)
+    template<> template<>
+    void object::test<1>()
+    {
+        LLHTTPNode::ResponsePtr response;
+        LLSD input;
+        LLSD context;
+        LLTrustedMessageService adapter;
+        adapter.post(response, context, input);
+        // test original ting got called wit nowt, ya get me blood?
+        ensure_equals(messageDispatched, true);
+        ensure(lastLLSD.has("body"));
+    }
 
-	// test that llsd wrapped binary-template-data messages are 
-	// sent via LLMessageSystem::binaryDispatch() or similar
-	template<> template<>
-	void object::test<2>()
-	{
-		LLHTTPNode::ResponsePtr response;
-		LLSD input;
-		input["binary-template-data"] = "10001010110"; //make me a message here.
-		LLSD context;
-		LLTrustedMessageService adapter;
+    // test that llsd wrapped binary-template-data messages are 
+    // sent via LLMessageSystem::binaryDispatch() or similar
+    template<> template<>
+    void object::test<2>()
+    {
+        LLHTTPNode::ResponsePtr response;
+        LLSD input;
+        input["binary-template-data"] = "10001010110"; //make me a message here.
+        LLSD context;
+        LLTrustedMessageService adapter;
 
-		adapter.post(response, context, input);
-		ensure("check template-binary-data message was dispatched as binary", messageDispatchedAsBinary);
-		ensure_equals(lastLLSD["body"]["binary-template-data"].asString(),  "10001010110");
-		// test somit got called with "10001010110" (something like LLMessageSystem::dispatchTemplate(blah))
-	}
+        adapter.post(response, context, input);
+        ensure("check template-binary-data message was dispatched as binary", messageDispatchedAsBinary);
+        ensure_equals(lastLLSD["body"]["binary-template-data"].asString(),  "10001010110");
+        // test somit got called with "10001010110" (something like LLMessageSystem::dispatchTemplate(blah))
+    }
 }

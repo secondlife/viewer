@@ -57,7 +57,7 @@ namespace tut
     }
 
     template<> template<>
-	void LLDirIteratorTest_t::test<1>()
+    void LLDirIteratorTest_t::test<1>()
     {
        test_chop_662();
     }

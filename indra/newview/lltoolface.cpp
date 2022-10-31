@@ -45,7 +45,7 @@
 //
 
 LLToolFace::LLToolFace()
-:	LLTool(std::string("Texture"))
+:   LLTool(std::string("Texture"))
 { }
 
 
@@ -55,97 +55,97 @@ LLToolFace::~LLToolFace()
 
 BOOL LLToolFace::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	if (!LLSelectMgr::getInstance()->getSelection()->isEmpty())
-	{
-		// You should already have an object selected from the mousedown.
-		// If so, show its properties
-		LLFloaterReg::showInstance("build", "Texture");
-		return TRUE;
-	}
-	else
-	{
-		// Nothing selected means the first mouse click was probably
-		// bad, so try again.
-		return FALSE;
-	}
+    if (!LLSelectMgr::getInstance()->getSelection()->isEmpty())
+    {
+        // You should already have an object selected from the mousedown.
+        // If so, show its properties
+        LLFloaterReg::showInstance("build", "Texture");
+        return TRUE;
+    }
+    else
+    {
+        // Nothing selected means the first mouse click was probably
+        // bad, so try again.
+        return FALSE;
+    }
 }
 
 
 BOOL LLToolFace::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	gViewerWindow->pickAsync(x, y, mask, pickCallback);
-	return TRUE;
+    gViewerWindow->pickAsync(x, y, mask, pickCallback);
+    return TRUE;
 }
 
 void LLToolFace::pickCallback(const LLPickInfo& pick_info)
 {
-	LLViewerObject* hit_obj	= pick_info.getObject();
-	if (hit_obj)
-	{
-		S32 hit_face = pick_info.mObjectFace;
-		
-		if (hit_obj->isAvatar())
-		{
-			// ...clicked on an avatar, so don't do anything
-			return;
-		}
+    LLViewerObject* hit_obj = pick_info.getObject();
+    if (hit_obj)
+    {
+        S32 hit_face = pick_info.mObjectFace;
+        
+        if (hit_obj->isAvatar())
+        {
+            // ...clicked on an avatar, so don't do anything
+            return;
+        }
 
-		// ...clicked on a world object, try to pick the appropriate face
+        // ...clicked on a world object, try to pick the appropriate face
 
-		if (pick_info.mKeyMask & MASK_SHIFT)
-		{
-			// If object not selected, need to inform sim
-			if ( !hit_obj->isSelected() )
-			{
-				// object wasn't selected so add the object and face
-				LLSelectMgr::getInstance()->selectObjectOnly(hit_obj, hit_face);
-			}
-			else if (!LLSelectMgr::getInstance()->getSelection()->contains(hit_obj, hit_face) )
-			{
-				// object is selected, but not this face, so add it.
-				LLSelectMgr::getInstance()->addAsIndividual(hit_obj, hit_face);
-			}
-			else
-			{
-				// object is selected, as is this face, so remove the face.
-				LLSelectMgr::getInstance()->remove(hit_obj, hit_face);
+        if (pick_info.mKeyMask & MASK_SHIFT)
+        {
+            // If object not selected, need to inform sim
+            if ( !hit_obj->isSelected() )
+            {
+                // object wasn't selected so add the object and face
+                LLSelectMgr::getInstance()->selectObjectOnly(hit_obj, hit_face);
+            }
+            else if (!LLSelectMgr::getInstance()->getSelection()->contains(hit_obj, hit_face) )
+            {
+                // object is selected, but not this face, so add it.
+                LLSelectMgr::getInstance()->addAsIndividual(hit_obj, hit_face);
+            }
+            else
+            {
+                // object is selected, as is this face, so remove the face.
+                LLSelectMgr::getInstance()->remove(hit_obj, hit_face);
 
-				// BUG: If you remove the last face, the simulator won't know about it.
-			}
-		}
-		else
-		{
-			// clicked without modifiers, select only
-			// this face
-			LLSelectMgr::getInstance()->deselectAll();
-			LLSelectMgr::getInstance()->selectObjectOnly(hit_obj, hit_face);
-		}
-	}
-	else
-	{
-		if (!(pick_info.mKeyMask == MASK_SHIFT))
-		{
-			LLSelectMgr::getInstance()->deselectAll();
-		}
-	}
+                // BUG: If you remove the last face, the simulator won't know about it.
+            }
+        }
+        else
+        {
+            // clicked without modifiers, select only
+            // this face
+            LLSelectMgr::getInstance()->deselectAll();
+            LLSelectMgr::getInstance()->selectObjectOnly(hit_obj, hit_face);
+        }
+    }
+    else
+    {
+        if (!(pick_info.mKeyMask == MASK_SHIFT))
+        {
+            LLSelectMgr::getInstance()->deselectAll();
+        }
+    }
 }
 
 
 void LLToolFace::handleSelect()
 {
-	// From now on, draw faces
-	LLSelectMgr::getInstance()->setTEMode(TRUE);
+    // From now on, draw faces
+    LLSelectMgr::getInstance()->setTEMode(TRUE);
 }
 
 
 void LLToolFace::handleDeselect()
 {
-	// Stop drawing faces
-	LLSelectMgr::getInstance()->setTEMode(FALSE);
+    // Stop drawing faces
+    LLSelectMgr::getInstance()->setTEMode(FALSE);
 }
 
 
 void LLToolFace::render()
 {
-	// for now, do nothing
+    // for now, do nothing
 }

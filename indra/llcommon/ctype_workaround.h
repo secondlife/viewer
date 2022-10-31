@@ -45,9 +45,9 @@ __const __int32_t *__ctype_toupper;
 // call this function at the beginning of main() 
 void ctype_workaround()
 {
-	__ctype_b = *(__ctype_b_loc());
-	__ctype_toupper = *(__ctype_toupper_loc());
-	__ctype_tolower = *(__ctype_tolower_loc());
+    __ctype_b = *(__ctype_b_loc());
+    __ctype_toupper = *(__ctype_toupper_loc());
+    __ctype_tolower = *(__ctype_tolower_loc());
 }
 
 #endif

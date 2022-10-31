@@ -44,17 +44,17 @@ static const std::string DEFAULT_DEVICE("Default");
 
 
 LLPanelVoiceDeviceSettings::LLPanelVoiceDeviceSettings()
-	: LLPanel()
+    : LLPanel()
 {
-	mCtrlInputDevices = NULL;
-	mCtrlOutputDevices = NULL;
-	mInputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
-	mOutputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
-	mDevicesUpdated = FALSE;  //obsolete
-	mUseTuningMode = true;
+    mCtrlInputDevices = NULL;
+    mCtrlOutputDevices = NULL;
+    mInputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
+    mOutputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
+    mDevicesUpdated = FALSE;  //obsolete
+    mUseTuningMode = true;
 
-	// grab "live" mic volume level
-	mMicVolume = gSavedSettings.getF32("AudioLevelMic");
+    // grab "live" mic volume level
+    mMicVolume = gSavedSettings.getF32("AudioLevelMic");
 
 }
 
@@ -64,278 +64,278 @@ LLPanelVoiceDeviceSettings::~LLPanelVoiceDeviceSettings()
 
 BOOL LLPanelVoiceDeviceSettings::postBuild()
 {
-	LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
-	// set mic volume tuning slider based on last mic volume setting
-	volume_slider->setValue(mMicVolume);
+    LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
+    // set mic volume tuning slider based on last mic volume setting
+    volume_slider->setValue(mMicVolume);
 
-	mCtrlInputDevices = getChild<LLComboBox>("voice_input_device");
-	mCtrlOutputDevices = getChild<LLComboBox>("voice_output_device");
+    mCtrlInputDevices = getChild<LLComboBox>("voice_input_device");
+    mCtrlOutputDevices = getChild<LLComboBox>("voice_output_device");
 
-	mCtrlInputDevices->setCommitCallback(
-		boost::bind(&LLPanelVoiceDeviceSettings::onCommitInputDevice, this));
-	mCtrlOutputDevices->setCommitCallback(
-		boost::bind(&LLPanelVoiceDeviceSettings::onCommitOutputDevice, this));
+    mCtrlInputDevices->setCommitCallback(
+        boost::bind(&LLPanelVoiceDeviceSettings::onCommitInputDevice, this));
+    mCtrlOutputDevices->setCommitCallback(
+        boost::bind(&LLPanelVoiceDeviceSettings::onCommitOutputDevice, this));
 
-	mLocalizedDeviceNames[DEFAULT_DEVICE]				= getString("default_text");
-	mLocalizedDeviceNames["No Device"]					= getString("name_no_device");
-	mLocalizedDeviceNames["Default System Device"]		= getString("name_default_system_device");
+    mLocalizedDeviceNames[DEFAULT_DEVICE]               = getString("default_text");
+    mLocalizedDeviceNames["No Device"]                  = getString("name_no_device");
+    mLocalizedDeviceNames["Default System Device"]      = getString("name_default_system_device");
 
-	mCtrlOutputDevices->setMouseDownCallback(boost::bind(&LLPanelVoiceDeviceSettings::onOutputDevicesClicked, this));
-	mCtrlInputDevices->setMouseDownCallback(boost::bind(&LLPanelVoiceDeviceSettings::onInputDevicesClicked, this));
-	
-	
-	return TRUE;
+    mCtrlOutputDevices->setMouseDownCallback(boost::bind(&LLPanelVoiceDeviceSettings::onOutputDevicesClicked, this));
+    mCtrlInputDevices->setMouseDownCallback(boost::bind(&LLPanelVoiceDeviceSettings::onInputDevicesClicked, this));
+    
+    
+    return TRUE;
 }
 
 // virtual
 void LLPanelVoiceDeviceSettings::onVisibilityChange ( BOOL new_visibility )
 {
-	if (new_visibility)
-	{
-		initialize();	
-	}
-	else
-	{
-		cleanup();
-		// when closing this window, turn of visiblity control so that 
-		// next time preferences is opened we don't suspend voice
-		gSavedSettings.setBOOL("ShowDeviceSettings", FALSE);
-	}
+    if (new_visibility)
+    {
+        initialize();   
+    }
+    else
+    {
+        cleanup();
+        // when closing this window, turn of visiblity control so that 
+        // next time preferences is opened we don't suspend voice
+        gSavedSettings.setBOOL("ShowDeviceSettings", FALSE);
+    }
 }
 void LLPanelVoiceDeviceSettings::draw()
 {
-	refresh();
+    refresh();
 
-	// let user know that volume indicator is not yet available
-	bool is_in_tuning_mode = LLVoiceClient::getInstance()->inTuningMode();
-	getChildView("wait_text")->setVisible( !is_in_tuning_mode && mUseTuningMode);
+    // let user know that volume indicator is not yet available
+    bool is_in_tuning_mode = LLVoiceClient::getInstance()->inTuningMode();
+    getChildView("wait_text")->setVisible( !is_in_tuning_mode && mUseTuningMode);
 
-	LLPanel::draw();
+    LLPanel::draw();
 
-	if (is_in_tuning_mode)
-	{
-		const S32 num_bars = 5;
-		F32 voice_power = LLVoiceClient::getInstance()->tuningGetEnergy() / LLVoiceClient::OVERDRIVEN_POWER_LEVEL;
-		S32 discrete_power = llmin(num_bars, llfloor(voice_power * (F32)num_bars + 0.1f));
+    if (is_in_tuning_mode)
+    {
+        const S32 num_bars = 5;
+        F32 voice_power = LLVoiceClient::getInstance()->tuningGetEnergy() / LLVoiceClient::OVERDRIVEN_POWER_LEVEL;
+        S32 discrete_power = llmin(num_bars, llfloor(voice_power * (F32)num_bars + 0.1f));
 
-		for(S32 power_bar_idx = 0; power_bar_idx < num_bars; power_bar_idx++)
-		{
-			std::string view_name = llformat("%s%d", "bar", power_bar_idx);
-			LLView* bar_view = getChild<LLView>(view_name);
-			if (bar_view)
-			{
-				gl_rect_2d(bar_view->getRect(), LLColor4::grey, TRUE);
+        for(S32 power_bar_idx = 0; power_bar_idx < num_bars; power_bar_idx++)
+        {
+            std::string view_name = llformat("%s%d", "bar", power_bar_idx);
+            LLView* bar_view = getChild<LLView>(view_name);
+            if (bar_view)
+            {
+                gl_rect_2d(bar_view->getRect(), LLColor4::grey, TRUE);
 
-				LLColor4 color;
-				if (power_bar_idx < discrete_power)
-				{
-					color = (power_bar_idx >= 3) ? LLUIColorTable::instance().getColor("OverdrivenColor") : LLUIColorTable::instance().getColor("SpeakingColor");
-				}
-				else
-				{
-					color = LLUIColorTable::instance().getColor("PanelFocusBackgroundColor");
-				}
+                LLColor4 color;
+                if (power_bar_idx < discrete_power)
+                {
+                    color = (power_bar_idx >= 3) ? LLUIColorTable::instance().getColor("OverdrivenColor") : LLUIColorTable::instance().getColor("SpeakingColor");
+                }
+                else
+                {
+                    color = LLUIColorTable::instance().getColor("PanelFocusBackgroundColor");
+                }
 
-				LLRect color_rect = bar_view->getRect();
-				color_rect.stretch(-1);
-				gl_rect_2d(color_rect, color, TRUE);
-			}
-		}
-	}
+                LLRect color_rect = bar_view->getRect();
+                color_rect.stretch(-1);
+                gl_rect_2d(color_rect, color, TRUE);
+            }
+        }
+    }
 }
 
 void LLPanelVoiceDeviceSettings::apply()
 {
-	std::string s;
-	if(mCtrlInputDevices)
-	{
-		s = mCtrlInputDevices->getValue().asString();
-		gSavedSettings.setString("VoiceInputAudioDevice", s);
-		mInputDevice = s;
-	}
+    std::string s;
+    if(mCtrlInputDevices)
+    {
+        s = mCtrlInputDevices->getValue().asString();
+        gSavedSettings.setString("VoiceInputAudioDevice", s);
+        mInputDevice = s;
+    }
 
-	if(mCtrlOutputDevices)
-	{
-		s = mCtrlOutputDevices->getValue().asString();
-		gSavedSettings.setString("VoiceOutputAudioDevice", s);
-		mOutputDevice = s;
-	}
+    if(mCtrlOutputDevices)
+    {
+        s = mCtrlOutputDevices->getValue().asString();
+        gSavedSettings.setString("VoiceOutputAudioDevice", s);
+        mOutputDevice = s;
+    }
 
-	// assume we are being destroyed by closing our embedding window
-	LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
-	if(volume_slider)
-	{
-		F32 slider_value = (F32)volume_slider->getValue().asReal();
-		gSavedSettings.setF32("AudioLevelMic", slider_value);
-		mMicVolume = slider_value;
-	}
+    // assume we are being destroyed by closing our embedding window
+    LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
+    if(volume_slider)
+    {
+        F32 slider_value = (F32)volume_slider->getValue().asReal();
+        gSavedSettings.setF32("AudioLevelMic", slider_value);
+        mMicVolume = slider_value;
+    }
 }
 
 void LLPanelVoiceDeviceSettings::cancel()
 {
-	gSavedSettings.setString("VoiceInputAudioDevice", mInputDevice);
-	gSavedSettings.setString("VoiceOutputAudioDevice", mOutputDevice);
+    gSavedSettings.setString("VoiceInputAudioDevice", mInputDevice);
+    gSavedSettings.setString("VoiceOutputAudioDevice", mOutputDevice);
 
-	if(mCtrlInputDevices)
-		mCtrlInputDevices->setValue(mInputDevice);
+    if(mCtrlInputDevices)
+        mCtrlInputDevices->setValue(mInputDevice);
 
-	if(mCtrlOutputDevices)
-		mCtrlOutputDevices->setValue(mOutputDevice);
+    if(mCtrlOutputDevices)
+        mCtrlOutputDevices->setValue(mOutputDevice);
 
-	gSavedSettings.setF32("AudioLevelMic", mMicVolume);
-	LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
-	if(volume_slider)
-	{
-		volume_slider->setValue(mMicVolume);
-	}
+    gSavedSettings.setF32("AudioLevelMic", mMicVolume);
+    LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
+    if(volume_slider)
+    {
+        volume_slider->setValue(mMicVolume);
+    }
 }
 
 void LLPanelVoiceDeviceSettings::refresh()
 {
-	//grab current volume
-	LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
-	// set mic volume tuning slider based on last mic volume setting
-	F32 current_volume = (F32)volume_slider->getValue().asReal();
-	LLVoiceClient::getInstance()->tuningSetMicVolume(current_volume);
+    //grab current volume
+    LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
+    // set mic volume tuning slider based on last mic volume setting
+    F32 current_volume = (F32)volume_slider->getValue().asReal();
+    LLVoiceClient::getInstance()->tuningSetMicVolume(current_volume);
 
-	// Fill in popup menus
-	bool device_settings_available = LLVoiceClient::getInstance()->deviceSettingsAvailable();
+    // Fill in popup menus
+    bool device_settings_available = LLVoiceClient::getInstance()->deviceSettingsAvailable();
 
-	if (mCtrlInputDevices)
-	{
-		mCtrlInputDevices->setEnabled(device_settings_available);
-	}
+    if (mCtrlInputDevices)
+    {
+        mCtrlInputDevices->setEnabled(device_settings_available);
+    }
 
-	if (mCtrlOutputDevices)
-	{
-		mCtrlOutputDevices->setEnabled(device_settings_available);
-	}
+    if (mCtrlOutputDevices)
+    {
+        mCtrlOutputDevices->setEnabled(device_settings_available);
+    }
 
-	getChild<LLSlider>("mic_volume_slider")->setEnabled(device_settings_available);
+    getChild<LLSlider>("mic_volume_slider")->setEnabled(device_settings_available);
 
-	if(!device_settings_available)
-	{
-		// The combo boxes are disabled, since we can't get the device settings from the daemon just now.
-		// Put the currently set default (ONLY) in the box, and select it.
-		if(mCtrlInputDevices)
-		{
-			mCtrlInputDevices->removeall();
-			mCtrlInputDevices->add(getLocalizedDeviceName(mInputDevice), mInputDevice, ADD_BOTTOM);
-			mCtrlInputDevices->setValue(mInputDevice);
-		}
-		if(mCtrlOutputDevices)
-		{
-			mCtrlOutputDevices->removeall();
-			mCtrlOutputDevices->add(getLocalizedDeviceName(mOutputDevice), mOutputDevice, ADD_BOTTOM);
-			mCtrlOutputDevices->setValue(mOutputDevice);
-		}
-	}
-	else if (LLVoiceClient::getInstance()->deviceSettingsUpdated())
-	{
-		LLVoiceDeviceList::const_iterator device;
-		
-		if(mCtrlInputDevices)
-		{
-			mCtrlInputDevices->removeall();
-			mCtrlInputDevices->add(getLocalizedDeviceName(DEFAULT_DEVICE), DEFAULT_DEVICE, ADD_BOTTOM);
+    if(!device_settings_available)
+    {
+        // The combo boxes are disabled, since we can't get the device settings from the daemon just now.
+        // Put the currently set default (ONLY) in the box, and select it.
+        if(mCtrlInputDevices)
+        {
+            mCtrlInputDevices->removeall();
+            mCtrlInputDevices->add(getLocalizedDeviceName(mInputDevice), mInputDevice, ADD_BOTTOM);
+            mCtrlInputDevices->setValue(mInputDevice);
+        }
+        if(mCtrlOutputDevices)
+        {
+            mCtrlOutputDevices->removeall();
+            mCtrlOutputDevices->add(getLocalizedDeviceName(mOutputDevice), mOutputDevice, ADD_BOTTOM);
+            mCtrlOutputDevices->setValue(mOutputDevice);
+        }
+    }
+    else if (LLVoiceClient::getInstance()->deviceSettingsUpdated())
+    {
+        LLVoiceDeviceList::const_iterator device;
+        
+        if(mCtrlInputDevices)
+        {
+            mCtrlInputDevices->removeall();
+            mCtrlInputDevices->add(getLocalizedDeviceName(DEFAULT_DEVICE), DEFAULT_DEVICE, ADD_BOTTOM);
 
-			for(device=LLVoiceClient::getInstance()->getCaptureDevices().begin(); 
-				device != LLVoiceClient::getInstance()->getCaptureDevices().end();
-				device++)
-			{
-				mCtrlInputDevices->add(getLocalizedDeviceName(device->display_name), device->full_name, ADD_BOTTOM);
-			}
-
-			// Fix invalid input audio device preference.
-			if (!mCtrlInputDevices->setSelectedByValue(mInputDevice, TRUE))
-			{
-				mCtrlInputDevices->setValue(DEFAULT_DEVICE);
-				gSavedSettings.setString("VoiceInputAudioDevice", DEFAULT_DEVICE);
-				mInputDevice = DEFAULT_DEVICE;
-			}
-		}
-		
-		if(mCtrlOutputDevices)
-		{
-			mCtrlOutputDevices->removeall();
-			mCtrlOutputDevices->add(getLocalizedDeviceName(DEFAULT_DEVICE), DEFAULT_DEVICE, ADD_BOTTOM);
-
-			for(device = LLVoiceClient::getInstance()->getRenderDevices().begin(); 
-				device !=  LLVoiceClient::getInstance()->getRenderDevices().end();
+            for(device=LLVoiceClient::getInstance()->getCaptureDevices().begin(); 
+                device != LLVoiceClient::getInstance()->getCaptureDevices().end();
                 device++)
-			{
-                mCtrlOutputDevices->add(getLocalizedDeviceName(device->display_name), device->full_name, ADD_BOTTOM);
-			}
+            {
+                mCtrlInputDevices->add(getLocalizedDeviceName(device->display_name), device->full_name, ADD_BOTTOM);
+            }
 
-			// Fix invalid output audio device preference.
-			if (!mCtrlOutputDevices->setSelectedByValue(mOutputDevice, TRUE))
-			{
-				mCtrlOutputDevices->setValue(DEFAULT_DEVICE);
-				gSavedSettings.setString("VoiceOutputAudioDevice", DEFAULT_DEVICE);
-				mOutputDevice = DEFAULT_DEVICE;
-			}
-		}
-	}	
+            // Fix invalid input audio device preference.
+            if (!mCtrlInputDevices->setSelectedByValue(mInputDevice, TRUE))
+            {
+                mCtrlInputDevices->setValue(DEFAULT_DEVICE);
+                gSavedSettings.setString("VoiceInputAudioDevice", DEFAULT_DEVICE);
+                mInputDevice = DEFAULT_DEVICE;
+            }
+        }
+        
+        if(mCtrlOutputDevices)
+        {
+            mCtrlOutputDevices->removeall();
+            mCtrlOutputDevices->add(getLocalizedDeviceName(DEFAULT_DEVICE), DEFAULT_DEVICE, ADD_BOTTOM);
+
+            for(device = LLVoiceClient::getInstance()->getRenderDevices().begin(); 
+                device !=  LLVoiceClient::getInstance()->getRenderDevices().end();
+                device++)
+            {
+                mCtrlOutputDevices->add(getLocalizedDeviceName(device->display_name), device->full_name, ADD_BOTTOM);
+            }
+
+            // Fix invalid output audio device preference.
+            if (!mCtrlOutputDevices->setSelectedByValue(mOutputDevice, TRUE))
+            {
+                mCtrlOutputDevices->setValue(DEFAULT_DEVICE);
+                gSavedSettings.setString("VoiceOutputAudioDevice", DEFAULT_DEVICE);
+                mOutputDevice = DEFAULT_DEVICE;
+            }
+        }
+    }   
 }
 
 void LLPanelVoiceDeviceSettings::initialize()
 {
-	mInputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
-	mOutputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
-	mMicVolume = gSavedSettings.getF32("AudioLevelMic");
+    mInputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
+    mOutputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
+    mMicVolume = gSavedSettings.getF32("AudioLevelMic");
 
-	// ask for new device enumeration
-	LLVoiceClient::getInstance()->refreshDeviceLists();
+    // ask for new device enumeration
+    LLVoiceClient::getInstance()->refreshDeviceLists();
 
-	// put voice client in "tuning" mode
-	if (mUseTuningMode)
-	{
-		LLVoiceClient::getInstance()->tuningStart();
-		LLVoiceChannel::suspend();
-	}
+    // put voice client in "tuning" mode
+    if (mUseTuningMode)
+    {
+        LLVoiceClient::getInstance()->tuningStart();
+        LLVoiceChannel::suspend();
+    }
 }
 
 void LLPanelVoiceDeviceSettings::cleanup()
 {
-	if (mUseTuningMode)
-	{
-		LLVoiceClient::getInstance()->tuningStop();
-		LLVoiceChannel::resume();
-	}
+    if (mUseTuningMode)
+    {
+        LLVoiceClient::getInstance()->tuningStop();
+        LLVoiceChannel::resume();
+    }
 }
 
 // returns English name if no translation found
 std::string LLPanelVoiceDeviceSettings::getLocalizedDeviceName(const std::string& en_dev_name)
 {
-	std::map<std::string, std::string>::const_iterator it = mLocalizedDeviceNames.find(en_dev_name);
-	return it != mLocalizedDeviceNames.end() ? it->second : en_dev_name;
+    std::map<std::string, std::string>::const_iterator it = mLocalizedDeviceNames.find(en_dev_name);
+    return it != mLocalizedDeviceNames.end() ? it->second : en_dev_name;
 }
 
 void LLPanelVoiceDeviceSettings::onCommitInputDevice()
 {
-	if(LLVoiceClient::getInstance())
-	{
-		mInputDevice = mCtrlInputDevices->getValue().asString();
-		LLVoiceClient::getInstance()->setRenderDevice(mInputDevice);
-	}
+    if(LLVoiceClient::getInstance())
+    {
+        mInputDevice = mCtrlInputDevices->getValue().asString();
+        LLVoiceClient::getInstance()->setRenderDevice(mInputDevice);
+    }
 }
 
 void LLPanelVoiceDeviceSettings::onCommitOutputDevice()
 {
-	if(LLVoiceClient::getInstance())
-	{
-		
-		mOutputDevice = mCtrlOutputDevices->getValue().asString(); 
-		LLVoiceClient::getInstance()->setRenderDevice(mOutputDevice);
-	}
+    if(LLVoiceClient::getInstance())
+    {
+        
+        mOutputDevice = mCtrlOutputDevices->getValue().asString(); 
+        LLVoiceClient::getInstance()->setRenderDevice(mOutputDevice);
+    }
 }
 
 void LLPanelVoiceDeviceSettings::onOutputDevicesClicked()
 {
-	LLVoiceClient::getInstance()->refreshDeviceLists(false);  // fill in the pop up menus again if needed.
+    LLVoiceClient::getInstance()->refreshDeviceLists(false);  // fill in the pop up menus again if needed.
 }
 
 void LLPanelVoiceDeviceSettings::onInputDevicesClicked()
 {
-	LLVoiceClient::getInstance()->refreshDeviceLists(false);  // fill in the pop up menus again if needed.
+    LLVoiceClient::getInstance()->refreshDeviceLists(false);  // fill in the pop up menus again if needed.
 }

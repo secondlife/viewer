@@ -40,36 +40,36 @@ class LLTextEditor;
 class LLUUID;
 
 class LLFloaterTOS : 
-	public LLModalDialog,
-	public LLViewerMediaObserver
+    public LLModalDialog,
+    public LLViewerMediaObserver
 {
 public:
-	LLFloaterTOS(const LLSD& data);
-	virtual ~LLFloaterTOS();
+    LLFloaterTOS(const LLSD& data);
+    virtual ~LLFloaterTOS();
 
-	BOOL postBuild();
-	
-	virtual void draw();
+    BOOL postBuild();
+    
+    virtual void draw();
 
-	static void		updateAgree( LLUICtrl *, void* userdata );
-	static void		onContinue( void* userdata );
-	static void		onCancel( void* userdata );
+    static void     updateAgree( LLUICtrl *, void* userdata );
+    static void     onContinue( void* userdata );
+    static void     onCancel( void* userdata );
 
-	void			setSiteIsAlive( bool alive );
+    void            setSiteIsAlive( bool alive );
 
-	void			updateAgreeEnabled(bool enabled);
+    void            updateAgreeEnabled(bool enabled);
 
-	// inherited from LLViewerMediaObserver
-	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
+    // inherited from LLViewerMediaObserver
+    /*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 
 private:
     static void testSiteIsAliveCoro(LLHandle<LLFloater> handle, std::string url);
 
-	std::string		mMessage;
-	bool			mLoadingScreenLoaded;
-	bool			mSiteAlive;
-	bool			mRealNavigateBegun;
-	std::string		mReplyPumpName;
+    std::string     mMessage;
+    bool            mLoadingScreenLoaded;
+    bool            mSiteAlive;
+    bool            mRealNavigateBegun;
+    std::string     mReplyPumpName;
 
 
 };

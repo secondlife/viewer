@@ -70,8 +70,8 @@ public:
         Params();
     };
 
-    virtual BOOL	        postBuild() override;
-    virtual void	        setEnabled(BOOL enabled) override;
+    virtual BOOL            postBuild() override;
+    virtual void            setEnabled(BOOL enabled) override;
 
     void setProfileType(DensityProfileType t) { mProfileType = t; }
 

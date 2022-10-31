@@ -30,7 +30,7 @@
 #ifndef LL_RENDER2DUTILS_H
 #define LL_RENDER2DUTILS_H
 
-#include "llpointer.h"		// LLPointer<>
+#include "llpointer.h"      // LLPointer<>
 #include "llrect.h"
 #include "llsingleton.h"
 #include "llglslshader.h"
@@ -98,11 +98,11 @@ void gl_rect_2d_simple_tex( S32 width, S32 height );
 
 typedef enum e_rounded_edge
 {
-	ROUNDED_RECT_LEFT	= 0x1, 
-	ROUNDED_RECT_TOP	= 0x2, 
-	ROUNDED_RECT_RIGHT	= 0x4, 
-	ROUNDED_RECT_BOTTOM	= 0x8,
-	ROUNDED_RECT_ALL	= 0xf
+    ROUNDED_RECT_LEFT   = 0x1, 
+    ROUNDED_RECT_TOP    = 0x2, 
+    ROUNDED_RECT_RIGHT  = 0x4, 
+    ROUNDED_RECT_BOTTOM = 0x8,
+    ROUNDED_RECT_ALL    = 0xf
 }ERoundedEdge;
 
 
@@ -112,61 +112,61 @@ void gl_segmented_rect_3d_tex(const LLRectf& clip_rect, const LLRectf& center_uv
 
 inline void gl_rect_2d( const LLRect& rect, BOOL filled )
 {
-	gl_rect_2d( rect.mLeft, rect.mTop, rect.mRight, rect.mBottom, filled );
+    gl_rect_2d( rect.mLeft, rect.mTop, rect.mRight, rect.mBottom, filled );
 }
 
 inline void gl_rect_2d_offset_local( const LLRect& rect, S32 pixel_offset, BOOL filled)
 {
-	gl_rect_2d_offset_local( rect.mLeft, rect.mTop, rect.mRight, rect.mBottom, pixel_offset, filled );
+    gl_rect_2d_offset_local( rect.mLeft, rect.mTop, rect.mRight, rect.mBottom, pixel_offset, filled );
 }
 
 class LLImageProviderInterface;
 
 class LLRender2D : public LLParamSingleton<LLRender2D>
 {
-	LLSINGLETON(LLRender2D, LLImageProviderInterface* image_provider);
-	LOG_CLASS(LLRender2D);
-	~LLRender2D();
+    LLSINGLETON(LLRender2D, LLImageProviderInterface* image_provider);
+    LOG_CLASS(LLRender2D);
+    ~LLRender2D();
 public:
-	static void pushMatrix();
-	static void popMatrix();
-	static void loadIdentity();
-	static void translate(F32 x, F32 y, F32 z = 0.0f);
+    static void pushMatrix();
+    static void popMatrix();
+    static void loadIdentity();
+    static void translate(F32 x, F32 y, F32 z = 0.0f);
 
-	static void setLineWidth(F32 width);
+    static void setLineWidth(F32 width);
 
-	LLPointer<LLUIImage> getUIImageByID(const LLUUID& image_id, S32 priority = 0);
-	LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority = 0);
+    LLPointer<LLUIImage> getUIImageByID(const LLUUID& image_id, S32 priority = 0);
+    LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority = 0);
 
 protected:
-	// since LLRender2D has no control of image provider's lifecycle
-	// we need a way to tell LLRender2D that provider died and
-	// LLRender2D needs to be updated.
-	static void resetProvider();
+    // since LLRender2D has no control of image provider's lifecycle
+    // we need a way to tell LLRender2D that provider died and
+    // LLRender2D needs to be updated.
+    static void resetProvider();
 
 private:
-	LLImageProviderInterface* mImageProvider;
+    LLImageProviderInterface* mImageProvider;
 };
 
 class LLImageProviderInterface
 {
 protected:
-	LLImageProviderInterface() {};
-	virtual ~LLImageProviderInterface();
+    LLImageProviderInterface() {};
+    virtual ~LLImageProviderInterface();
 public:
-	virtual LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority) = 0;
-	virtual LLPointer<LLUIImage> getUIImageByID(const LLUUID& id, S32 priority) = 0;
-	virtual void cleanUp() = 0;
+    virtual LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority) = 0;
+    virtual LLPointer<LLUIImage> getUIImageByID(const LLUUID& id, S32 priority) = 0;
+    virtual void cleanUp() = 0;
 
-	// to notify holders when pointer gets deleted
-	typedef void(*callback_t)();
-	void addOnRemovalCallback(callback_t func);
-	void deleteOnRemovalCallback(callback_t func);
+    // to notify holders when pointer gets deleted
+    typedef void(*callback_t)();
+    void addOnRemovalCallback(callback_t func);
+    void deleteOnRemovalCallback(callback_t func);
 
 private:
 
-	typedef std::list< callback_t >	callback_list_t;
-	callback_list_t mCallbackList;
+    typedef std::list< callback_t > callback_list_t;
+    callback_list_t mCallbackList;
 };
 
 

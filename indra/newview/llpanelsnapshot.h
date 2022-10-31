@@ -41,39 +41,39 @@ class LLFloaterSnapshotBase;
 class LLPanelSnapshot: public LLPanel
 {
 public:
-	LLPanelSnapshot();
+    LLPanelSnapshot();
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+    /*virtual*/ BOOL postBuild();
+    /*virtual*/ void onOpen(const LLSD& key);
 
-	virtual std::string getWidthSpinnerName() const = 0;
-	virtual std::string getHeightSpinnerName() const = 0;
-	virtual std::string getAspectRatioCBName() const = 0;
-	virtual std::string getImageSizeComboName() const = 0;
-	virtual std::string getImageSizePanelName() const = 0;
+    virtual std::string getWidthSpinnerName() const = 0;
+    virtual std::string getHeightSpinnerName() const = 0;
+    virtual std::string getAspectRatioCBName() const = 0;
+    virtual std::string getImageSizeComboName() const = 0;
+    virtual std::string getImageSizePanelName() const = 0;
 
-	virtual S32 getTypedPreviewWidth() const;
-	virtual S32 getTypedPreviewHeight() const;
-	virtual LLSpinCtrl* getWidthSpinner();
-	virtual LLSpinCtrl* getHeightSpinner();
-	virtual void enableAspectRatioCheckbox(BOOL enable);
+    virtual S32 getTypedPreviewWidth() const;
+    virtual S32 getTypedPreviewHeight() const;
+    virtual LLSpinCtrl* getWidthSpinner();
+    virtual LLSpinCtrl* getHeightSpinner();
+    virtual void enableAspectRatioCheckbox(BOOL enable);
     virtual LLSnapshotModel::ESnapshotFormat getImageFormat() const;
-	virtual LLSnapshotModel::ESnapshotType getSnapshotType();
-	virtual void updateControls(const LLSD& info) = 0; ///< Update controls from saved settings
-	void enableControls(BOOL enable);
+    virtual LLSnapshotModel::ESnapshotType getSnapshotType();
+    virtual void updateControls(const LLSD& info) = 0; ///< Update controls from saved settings
+    void enableControls(BOOL enable);
 
 protected:
-	LLSideTrayPanelContainer* getParentContainer();
-	void updateImageQualityLevel();
-	void goBack(); ///< Switch to the default (Snapshot Options) panel
-	virtual void cancel();
+    LLSideTrayPanelContainer* getParentContainer();
+    void updateImageQualityLevel();
+    void goBack(); ///< Switch to the default (Snapshot Options) panel
+    virtual void cancel();
 
-	// common UI callbacks
-	void onCustomResolutionCommit();
-	void onResolutionComboCommit(LLUICtrl* ctrl);
-	void onKeepAspectRatioCommit(LLUICtrl* ctrl);
+    // common UI callbacks
+    void onCustomResolutionCommit();
+    void onResolutionComboCommit(LLUICtrl* ctrl);
+    void onKeepAspectRatioCommit(LLUICtrl* ctrl);
 
-	LLFloaterSnapshotBase* mSnapshotFloater;
+    LLFloaterSnapshotBase* mSnapshotFloater;
 };
 
 #endif // LL_LLPANELSNAPSHOT_H

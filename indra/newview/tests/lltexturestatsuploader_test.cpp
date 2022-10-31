@@ -51,16 +51,16 @@ static std::string most_recent_url;
 static LLSD most_recent_body;
 
 void LLHTTPClient::post(
-		const std::string& url,
-		const LLSD& body,
-		ResponderPtr,
-		const LLSD& headers,
-		const F32 timeout)
+        const std::string& url,
+        const LLSD& body,
+        ResponderPtr,
+        const LLSD& headers,
+        const F32 timeout)
 {
-	// set some sensor code
-	most_recent_url = url;
-	most_recent_body = body;
-	return;
+    // set some sensor code
+    most_recent_url = url;
+    most_recent_body = body;
+    return;
 }
 
 // End Stubbing
@@ -72,79 +72,79 @@ void LLHTTPClient::post(
 
 namespace tut
 {
-	// Test wrapper declarations
-	struct texturestatsuploader_test
-	{
-		// Constructor and destructor of the test wrapper
-		texturestatsuploader_test()
-		{
-			most_recent_url = "some sort of default text that should never match anything the tests are expecting!";
-			LLSD blank_llsd;
-			most_recent_body = blank_llsd;
-		}
-		~texturestatsuploader_test()
-		{
-		}
-	};
+    // Test wrapper declarations
+    struct texturestatsuploader_test
+    {
+        // Constructor and destructor of the test wrapper
+        texturestatsuploader_test()
+        {
+            most_recent_url = "some sort of default text that should never match anything the tests are expecting!";
+            LLSD blank_llsd;
+            most_recent_body = blank_llsd;
+        }
+        ~texturestatsuploader_test()
+        {
+        }
+    };
 
-	// Tut templating thingamagic: test group, object and test instance
-	typedef test_group<texturestatsuploader_test> texturestatsuploader_t;
-	typedef texturestatsuploader_t::object texturestatsuploader_object_t;
-	tut::texturestatsuploader_t tut_texturestatsuploader("LLTextureStatsUploader");
+    // Tut templating thingamagic: test group, object and test instance
+    typedef test_group<texturestatsuploader_test> texturestatsuploader_t;
+    typedef texturestatsuploader_t::object texturestatsuploader_object_t;
+    tut::texturestatsuploader_t tut_texturestatsuploader("LLTextureStatsUploader");
 
-	
-	// ---------------------------------------------------------------------------------------
-	// Test functions
-	// Notes:
-	// * Test as many as you possibly can without requiring a full blown simulation of everything
-	// * The tests are executed in sequence so the test instance state may change between calls
-	// * Remember that you cannot test private methods with tut
-	// ---------------------------------------------------------------------------------------
+    
+    // ---------------------------------------------------------------------------------------
+    // Test functions
+    // Notes:
+    // * Test as many as you possibly can without requiring a full blown simulation of everything
+    // * The tests are executed in sequence so the test instance state may change between calls
+    // * Remember that you cannot test private methods with tut
+    // ---------------------------------------------------------------------------------------
 
-	// ---------------------------------------------------------------------------------------
-	// Test the LLTextureInfo
-	// ---------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------
+    // Test the LLTextureInfo
+    // ---------------------------------------------------------------------------------------
 
 
-	// Test instantiation
-	template<> template<>
-	void texturestatsuploader_object_t::test<1>()
-	{
-		LLTextureStatsUploader tsu;
-		LL_INFOS() << &tsu << LL_ENDL;
-		ensure("have we crashed?", true);
-	}
+    // Test instantiation
+    template<> template<>
+    void texturestatsuploader_object_t::test<1>()
+    {
+        LLTextureStatsUploader tsu;
+        LL_INFOS() << &tsu << LL_ENDL;
+        ensure("have we crashed?", true);
+    }
 
-	// does it call out to the provided url if we ask it to?
-	template<> template<>
-	void texturestatsuploader_object_t::test<2>()
-	{	
-		LLTextureStatsUploader tsu;
-		std::string url = "http://blahblahblah";
-		LLSD texture_stats;
-		tsu.uploadStatsToSimulator(url, texture_stats);
-		ensure_equals("did the right url get called?", most_recent_url, url);
-		ensure_equals("did the right body get sent?", most_recent_body, texture_stats);
-	}
+    // does it call out to the provided url if we ask it to?
+    template<> template<>
+    void texturestatsuploader_object_t::test<2>()
+    {   
+        LLTextureStatsUploader tsu;
+        std::string url = "http://blahblahblah";
+        LLSD texture_stats;
+        tsu.uploadStatsToSimulator(url, texture_stats);
+        ensure_equals("did the right url get called?", most_recent_url, url);
+        ensure_equals("did the right body get sent?", most_recent_body, texture_stats);
+    }
 
-	// does it not call out to the provided url if we send it an ungranted cap?
-	template<> template<>
-	void texturestatsuploader_object_t::test<3>()
-	{	
-		LLTextureStatsUploader tsu;
+    // does it not call out to the provided url if we send it an ungranted cap?
+    template<> template<>
+    void texturestatsuploader_object_t::test<3>()
+    {   
+        LLTextureStatsUploader tsu;
 
-		// this url left intentionally blank to mirror
-		// not getting a cap in the caller.
-		std::string url_for_ungranted_cap = ""; 
-							  
-		LLSD texture_stats;
-		std::string most_recent_url_before_test = most_recent_url;
-		tsu.uploadStatsToSimulator(url_for_ungranted_cap, texture_stats);
+        // this url left intentionally blank to mirror
+        // not getting a cap in the caller.
+        std::string url_for_ungranted_cap = ""; 
+                              
+        LLSD texture_stats;
+        std::string most_recent_url_before_test = most_recent_url;
+        tsu.uploadStatsToSimulator(url_for_ungranted_cap, texture_stats);
 
-		ensure_equals("hopefully no url got called!", most_recent_url, most_recent_url_before_test);
-	}
+        ensure_equals("hopefully no url got called!", most_recent_url, most_recent_url_before_test);
+    }
 
-	// does it call out if the data is empty?
-	// should it even do that?
+    // does it call out if the data is empty?
+    // should it even do that?
 }
 

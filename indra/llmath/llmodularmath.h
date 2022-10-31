@@ -32,21 +32,21 @@ namespace LLModularMath
     // Return difference between lhs and rhs
     // treating the U32 operands and result
     // as unsigned values of given width.
-	template<int width>
-	inline U32 subtract(U32 lhs, U32 rhs)
-	{
-		// Generate a bit mask which will truncate
-		// unsigned values to given width at compile time.
-		const U32 mask = (1 << width) - 1;
-		
-		// Operands are unsigned, so modular
-		// arithmetic applies. If lhs < rhs,
-		// difference will wrap in to lower
-		// bits of result, which is then masked
-		// to give a value that can be represented
-		// by an unsigned value of width bits.
-		return mask & (lhs - rhs);
-	}	
+    template<int width>
+    inline U32 subtract(U32 lhs, U32 rhs)
+    {
+        // Generate a bit mask which will truncate
+        // unsigned values to given width at compile time.
+        const U32 mask = (1 << width) - 1;
+        
+        // Operands are unsigned, so modular
+        // arithmetic applies. If lhs < rhs,
+        // difference will wrap in to lower
+        // bits of result, which is then masked
+        // to give a value that can be represented
+        // by an unsigned value of width bits.
+        return mask & (lhs - rhs);
+    }   
 }
 
 #endif

@@ -37,95 +37,95 @@ class LLLineEditor;
 class LLTimeCtrl
 : public LLUICtrl
 {
-	LOG_CLASS(LLTimeCtrl);
+    LOG_CLASS(LLTimeCtrl);
 public:
-	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
-	{
-		Optional<S32> label_width;
-		Optional<S32> snap_to;
-		Optional<bool> allow_text_entry;
+    struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+    {
+        Optional<S32> label_width;
+        Optional<S32> snap_to;
+        Optional<bool> allow_text_entry;
 
-		Optional<LLUIColor> text_enabled_color;
-		Optional<LLUIColor> text_disabled_color;
+        Optional<LLUIColor> text_enabled_color;
+        Optional<LLUIColor> text_disabled_color;
 
-		Optional<LLButton::Params> up_button;
-		Optional<LLButton::Params> down_button;
+        Optional<LLButton::Params> up_button;
+        Optional<LLButton::Params> down_button;
 
-		Params();
-	};
+        Params();
+    };
 
-	F32 getTime24() const;		// 0.0 - 24.0
-	U32 getHours24() const;		// 0 - 23
-	U32 getMinutes() const;		// 0 - 59
+    F32 getTime24() const;      // 0.0 - 24.0
+    U32 getHours24() const;     // 0 - 23
+    U32 getMinutes() const;     // 0 - 59
 
-	void setTime24(F32 time);	// 0.0 - 23.98(3)
+    void setTime24(F32 time);   // 0.0 - 23.98(3)
 
 protected:
-	LLTimeCtrl(const Params&);
-	friend class LLUICtrlFactory;
+    LLTimeCtrl(const Params&);
+    friend class LLUICtrlFactory;
 
 private:
 
-	enum EDayPeriod
-	{
-		AM,
-		PM
-	};
+    enum EDayPeriod
+    {
+        AM,
+        PM
+    };
 
-	enum EEditingPart
-	{
-		HOURS,
-		MINUTES,
-		DAYPART,
-		NONE
-	};
+    enum EEditingPart
+    {
+        HOURS,
+        MINUTES,
+        DAYPART,
+        NONE
+    };
 
-	virtual void	onFocusLost();
-	virtual BOOL	handleKeyHere(KEY key, MASK mask);
+    virtual void    onFocusLost();
+    virtual BOOL    handleKeyHere(KEY key, MASK mask);
 
-	void	onUpBtn();
-	void	onDownBtn();
-	void	onTextEntry(LLLineEditor* line_editor);
+    void    onUpBtn();
+    void    onDownBtn();
+    void    onTextEntry(LLLineEditor* line_editor);
 
-	bool	isTimeStringValid(const LLWString& wstr);
+    bool    isTimeStringValid(const LLWString& wstr);
 
-	void increaseMinutes();
-	void increaseHours();
+    void increaseMinutes();
+    void increaseHours();
 
-	void decreaseMinutes();
-	void decreaseHours();
+    void decreaseMinutes();
+    void decreaseHours();
 
-	bool isPM() const;
-	void switchDayPeriod();
+    bool isPM() const;
+    void switchDayPeriod();
 
-	void updateText();
+    void updateText();
 
-	EEditingPart getEditingPart();
+    EEditingPart getEditingPart();
 
-	static std::string getHoursString(const std::string& str);
-	static std::string getMinutesString(const std::string& str);
-	static std::string getAMPMString(const std::string& str);
+    static std::string getHoursString(const std::string& str);
+    static std::string getMinutesString(const std::string& str);
+    static std::string getAMPMString(const std::string& str);
 
-	static bool isHoursStringValid(const std::string& str);
-	static bool isMinutesStringValid(const std::string& str);
-	static bool isPMAMStringValid(const std::string& str);
+    static bool isHoursStringValid(const std::string& str);
+    static bool isMinutesStringValid(const std::string& str);
+    static bool isPMAMStringValid(const std::string& str);
 
-	static U32		parseHours(const std::string& str);
-	static U32		parseMinutes(const std::string& str);
-	static bool		parseAMPM(const std::string& str);
+    static U32      parseHours(const std::string& str);
+    static U32      parseMinutes(const std::string& str);
+    static bool     parseAMPM(const std::string& str);
 
-	class LLTextBox*	mLabelBox;
+    class LLTextBox*    mLabelBox;
 
-	class LLLineEditor*	mEditor;
-	LLUIColor			mTextEnabledColor;
-	LLUIColor			mTextDisabledColor;
+    class LLLineEditor* mEditor;
+    LLUIColor           mTextEnabledColor;
+    LLUIColor           mTextDisabledColor;
 
-	class LLButton*		mUpBtn;
-	class LLButton*		mDownBtn;
+    class LLButton*     mUpBtn;
+    class LLButton*     mDownBtn;
 
-	U32				mTime;				// minutes since midnight: 0 - 1439
-	U32				mSnapToMin;			// interval in minutes to snap to
+    U32             mTime;              // minutes since midnight: 0 - 1439
+    U32             mSnapToMin;         // interval in minutes to snap to
 
-	BOOL			mAllowEdit;
+    BOOL            mAllowEdit;
 };
 #endif /* LLTIMECTRL_H_ */

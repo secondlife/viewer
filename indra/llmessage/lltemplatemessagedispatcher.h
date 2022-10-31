@@ -36,13 +36,13 @@
 class LLTemplateMessageDispatcher
 {
 public:
-	LLTemplateMessageDispatcher(LLTemplateMessageReader& template_message_reader);
-	void dispatch(const std::string& msg_name,
-				  const LLSD& message,
-				  LLHTTPNode::ResponsePtr responsep);
+    LLTemplateMessageDispatcher(LLTemplateMessageReader& template_message_reader);
+    void dispatch(const std::string& msg_name,
+                  const LLSD& message,
+                  LLHTTPNode::ResponsePtr responsep);
 
 private:
-	LLTemplateMessageReader &mTemplateMessageReader;
+    LLTemplateMessageReader &mTemplateMessageReader;
 };
 
 #endif // LLTEMPLATEMESSAGEDISPATCHER_H

@@ -41,29 +41,29 @@ LLProductInfoRequestManager::LLProductInfoRequestManager():
 
 void LLProductInfoRequestManager::initSingleton()
 {
-	std::string url = gAgent.getRegionCapability("ProductInfoRequest");
-	if (!url.empty())
-	{
+    std::string url = gAgent.getRegionCapability("ProductInfoRequest");
+    if (!url.empty())
+    {
         LLCoros::instance().launch("LLProductInfoRequestManager::getLandDescriptionsCoro",
             boost::bind(&LLProductInfoRequestManager::getLandDescriptionsCoro, this, url));
-	}
+    }
 }
 
 std::string LLProductInfoRequestManager::getDescriptionForSku(const std::string& sku)
 {
-	// The description LLSD is an array of maps; each array entry
-	// has a map with 3 fields -- description, name, and sku
-	for (LLSD::array_const_iterator it = mSkuDescriptions.beginArray();
-		 it != mSkuDescriptions.endArray();
-		 ++it)
-	{
-		//	LL_WARNS() <<  (*it)["sku"].asString() << " = " << (*it)["description"].asString() << LL_ENDL;
-		if ((*it)["sku"].asString() == sku)
-		{
-			return (*it)["description"].asString();
-		}
-	}
-	return LLTrans::getString("land_type_unknown");
+    // The description LLSD is an array of maps; each array entry
+    // has a map with 3 fields -- description, name, and sku
+    for (LLSD::array_const_iterator it = mSkuDescriptions.beginArray();
+         it != mSkuDescriptions.endArray();
+         ++it)
+    {
+        //  LL_WARNS() <<  (*it)["sku"].asString() << " = " << (*it)["description"].asString() << LL_ENDL;
+        if ((*it)["sku"].asString() == sku)
+        {
+            return (*it)["description"].asString();
+        }
+    }
+    return LLTrans::getString("land_type_unknown");
 }
 
 void LLProductInfoRequestManager::getLandDescriptionsCoro(std::string url)

@@ -338,9 +338,9 @@ public:
     /// functors to extract the 'child begin' and 'child end' iterators from
     /// each node.
     LLTreeDFSIter(const ptr_type& node, const func_type& beginfunc, const func_type& endfunc)
-	    : mBeginFunc(beginfunc),
-	    mEndFunc(endfunc),
-	    mSkipChildren(false)
+        : mBeginFunc(beginfunc),
+        mEndFunc(endfunc),
+        mSkipChildren(false)
     {
         // Only push back this node if it's non-NULL!
         if (node)
@@ -364,13 +364,13 @@ private:
         ptr_type current = mPending.back();
         // Remove it from mPending so we don't process it again later
         mPending.pop_back();
-		if (!mSkipChildren)
-		{
-			// Add all its children to mPending
-			addChildren(current);
-		}
-		// reset flag after each step
-		mSkipChildren = false;
+        if (!mSkipChildren)
+        {
+            // Add all its children to mPending
+            addChildren(current);
+        }
+        // reset flag after each step
+        mSkipChildren = false;
     }
     /// equality
     bool equal(const self_type& that) const { return this->mPending == that.mPending; }
@@ -400,7 +400,7 @@ private:
     /// functor to extract end() child iterator
     func_type mEndFunc;
     /// flag which controls traversal of children (skip children of current node if true)
-    bool	mSkipChildren;
+    bool    mSkipChildren;
 };
 
 /**
@@ -446,10 +446,10 @@ public:
     /// functors to extract the 'child begin' and 'child end' iterators from
     /// each node.
     LLTreeDFSPostIter(const ptr_type& node, const func_type& beginfunc, const func_type& endfunc)
-	    : mBeginFunc(beginfunc),
-	    mEndFunc(endfunc),
-	    mSkipAncestors(false)
-	    {
+        : mBeginFunc(beginfunc),
+        mEndFunc(endfunc),
+        mSkipAncestors(false)
+        {
         if (! node)
             return;
         mPending.push_back(typename list_type::value_type(node, false));
@@ -478,24 +478,24 @@ private:
     /// implement dereference/indirection operators
     ptr_type& dereference() const { return const_cast<ptr_type&>(mPending.back().first); }
 
-	struct isOpen
-	{
-		bool operator()(const typename list_type::value_type& item)
-		{
-			return item.second;
-		}
-	};
+    struct isOpen
+    {
+        bool operator()(const typename list_type::value_type& item)
+        {
+            return item.second;
+        }
+    };
 
     /// Call this each time we change mPending.back() -- that is, every time
     /// we're about to change the value returned by dereference(). If we
     /// haven't yet pushed the new node's children, do so now.
     void makeCurrent()
     {
-		if (mSkipAncestors)
-		{
-			mPending.erase(std::remove_if(mPending.begin(), mPending.end(), isOpen()), mPending.end());
-			mSkipAncestors = false;
-		}
+        if (mSkipAncestors)
+        {
+            mPending.erase(std::remove_if(mPending.begin(), mPending.end(), isOpen()), mPending.end());
+            mSkipAncestors = false;
+        }
 
         // Once we've popped the last node, this becomes a no-op.
         if (mPending.empty())
@@ -536,13 +536,13 @@ private:
     }
 
     /// list of the nodes yet to be processed
-    list_type	mPending;
+    list_type   mPending;
     /// functor to extract begin() child iterator
-    func_type	mBeginFunc;
+    func_type   mBeginFunc;
     /// functor to extract end() child iterator
-    func_type	mEndFunc;
-	/// flags logic to skip traversal of ancestors of current node
-	bool		mSkipAncestors;
+    func_type   mEndFunc;
+    /// flags logic to skip traversal of ancestors of current node
+    bool        mSkipAncestors;
 };
 
 /**

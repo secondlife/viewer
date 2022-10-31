@@ -36,16 +36,16 @@
 class LLHTTPStandardServices
 {
 public:
-	static void useServices();
-		/**< 
-			Having a call to this function causes the following services to be
-			registered:
-				/web/echo			-- echo input
-				/web/hello			-- return "hello"
-				/web/server/api		-- return a list of url paths on the server
-				/web/server/api/<..path..>
-									-- return description of the path
-		*/
+    static void useServices();
+        /**< 
+            Having a call to this function causes the following services to be
+            registered:
+                /web/echo           -- echo input
+                /web/hello          -- return "hello"
+                /web/server/api     -- return a list of url paths on the server
+                /web/server/api/<..path..>
+                                    -- return description of the path
+        */
 };
 
 #endif // LL_LLSDHTTPSERVER_H

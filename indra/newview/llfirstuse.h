@@ -78,23 +78,23 @@ class LLNotification;
 class LLFirstUse
 {
 public:
-	static void otherAvatarChatFirst(bool enable = true);
-	static void speak(bool enable = true);
-	static void sit(bool enable = true);
-	static void notUsingDestinationGuide(bool enable = true);
-	static void notUsingSidePanel(bool enable = true);
-	static void notMoving(bool enable = true);
-	static void viewPopup(bool enable = true);
-	static void newInventory(bool enable = true);
-	static void receiveLindens(bool enable = true);
-	static void setDisplayName(bool enable = true);
-	static void useSandbox();
-	
+    static void otherAvatarChatFirst(bool enable = true);
+    static void speak(bool enable = true);
+    static void sit(bool enable = true);
+    static void notUsingDestinationGuide(bool enable = true);
+    static void notUsingSidePanel(bool enable = true);
+    static void notMoving(bool enable = true);
+    static void viewPopup(bool enable = true);
+    static void newInventory(bool enable = true);
+    static void receiveLindens(bool enable = true);
+    static void setDisplayName(bool enable = true);
+    static void useSandbox();
+    
 protected:
-	static void firstUseNotification(const std::string& control_var, bool enable, const std::string& notification_name, LLSD args = LLSD(), LLSD payload = LLSD());
+    static void firstUseNotification(const std::string& control_var, bool enable, const std::string& notification_name, LLSD args = LLSD(), LLSD payload = LLSD());
 
-	static void init();
-	static bool processNotification(const LLSD& notify);
+    static void init();
+    static bool processNotification(const LLSD& notify);
 };
 
 #endif

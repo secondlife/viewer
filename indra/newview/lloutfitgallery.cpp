@@ -197,9 +197,9 @@ void LLOutfitGallery::reArrangeRows(S32 row_diff)
     
     for (std::vector<LLOutfitGalleryItem*>::const_iterator it = buf_items.begin(); it != buf_items.end(); ++it)
     {
-    	(*it)->setHidden(false);
-    	applyFilter(*it,sFilterSubString);
-    	addToGallery(*it);
+        (*it)->setHidden(false);
+        applyFilter(*it,sFilterSubString);
+        addToGallery(*it);
     }
     updateMessageVisibility();
 }
@@ -919,7 +919,7 @@ bool LLOutfitGalleryContextMenu::onEnable(LLSD::String param)
 
 bool LLOutfitGalleryContextMenu::onVisible(LLSD::String param)
 {
-	mMenuHandle.get()->getChild<LLUICtrl>("upload_photo")->setLabelArg("[UPLOAD_COST]", std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost()));
+    mMenuHandle.get()->getChild<LLUICtrl>("upload_photo")->setLabelArg("[UPLOAD_COST]", std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost()));
     if ("remove_photo" == param)
     {
         LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
@@ -1172,11 +1172,11 @@ void LLOutfitGallery::refreshTextures(const LLUUID& category_id)
 
 void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
 {
-	outfit_map_t::iterator outfit_it = mOutfitMap.find(outfit_id);
-	if (outfit_it == mOutfitMap.end() || outfit_it->first.isNull())
-	{
-		return;
-	}
+    outfit_map_t::iterator outfit_it = mOutfitMap.find(outfit_id);
+    if (outfit_it == mOutfitMap.end() || outfit_it->first.isNull())
+    {
+        return;
+    }
     (new LLFilePickerReplyThread(boost::bind(&LLOutfitGallery::uploadOutfitImage, this, _1, outfit_id), LLFilePicker::FFLOAD_IMAGE, false))->getFile();
 }
 

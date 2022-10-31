@@ -34,25 +34,25 @@
 
 U32  LLNullCipher::encrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len)
 {
-	if((src_len == dst_len) && src && dst)
-	{
-		memmove(dst, src, src_len);
-		return src_len;
-	}
-	return 0;
+    if((src_len == dst_len) && src && dst)
+    {
+        memmove(dst, src, src_len);
+        return src_len;
+    }
+    return 0;
 }
 
 U32 LLNullCipher::decrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len)
 {
-	if((src_len == dst_len) && src && dst)
-	{
-		memmove(dst, src, src_len);
-		return src_len;
-	}
-	return 0;
+    if((src_len == dst_len) && src && dst)
+    {
+        memmove(dst, src, src_len);
+        return src_len;
+    }
+    return 0;
 }
 
 U32 LLNullCipher::requiredEncryptionSpace(U32 len) const
 {
-	return len;
+    return len;
 }

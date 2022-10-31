@@ -38,65 +38,65 @@
 class LLMultiFloater : public LLFloater
 {
 public:
-	LLMultiFloater(const LLSD& key, const Params& params = getDefaultParams());
-	virtual ~LLMultiFloater() {};
-	
-	void buildTabContainer();
-	
-	virtual BOOL postBuild();
-	/*virtual*/ void onClose(bool app_quitting);
-	virtual void draw();
-	virtual void setVisible(BOOL visible);
-	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
-	/*virtual*/ bool addChild(LLView* view, S32 tab_group = 0);
+    LLMultiFloater(const LLSD& key, const Params& params = getDefaultParams());
+    virtual ~LLMultiFloater() {};
+    
+    void buildTabContainer();
+    
+    virtual BOOL postBuild();
+    /*virtual*/ void onClose(bool app_quitting);
+    virtual void draw();
+    virtual void setVisible(BOOL visible);
+    /*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
+    /*virtual*/ bool addChild(LLView* view, S32 tab_group = 0);
 
-	virtual void setCanResize(BOOL can_resize);
-	virtual void growToFit(S32 content_width, S32 content_height);
-	virtual void addFloater(LLFloater* floaterp, BOOL select_added_floater, LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
+    virtual void setCanResize(BOOL can_resize);
+    virtual void growToFit(S32 content_width, S32 content_height);
+    virtual void addFloater(LLFloater* floaterp, BOOL select_added_floater, LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
 
-	virtual void showFloater(LLFloater* floaterp, LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
-	virtual void removeFloater(LLFloater* floaterp);
+    virtual void showFloater(LLFloater* floaterp, LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
+    virtual void removeFloater(LLFloater* floaterp);
 
-	virtual void tabOpen(LLFloater* opened_floater, bool from_click);
-	virtual void tabClose();
+    virtual void tabOpen(LLFloater* opened_floater, bool from_click);
+    virtual void tabClose();
 
-	virtual BOOL selectFloater(LLFloater* floaterp);
-	virtual void selectNextFloater();
-	virtual void selectPrevFloater();
+    virtual BOOL selectFloater(LLFloater* floaterp);
+    virtual void selectNextFloater();
+    virtual void selectPrevFloater();
 
-	virtual LLFloater*	getActiveFloater();
-	virtual BOOL		isFloaterFlashing(LLFloater* floaterp);
-	virtual S32			getFloaterCount();
+    virtual LLFloater*  getActiveFloater();
+    virtual BOOL        isFloaterFlashing(LLFloater* floaterp);
+    virtual S32         getFloaterCount();
 
-	virtual void setFloaterFlashing(LLFloater* floaterp, BOOL flashing);
-	virtual BOOL closeAllFloaters();	//Returns FALSE if the floater could not be closed due to pending confirmation dialogs
-	void setTabContainer(LLTabContainer* tab_container) { if (!mTabContainer) mTabContainer = tab_container; }
-	void onTabSelected();
+    virtual void setFloaterFlashing(LLFloater* floaterp, BOOL flashing);
+    virtual BOOL closeAllFloaters();    //Returns FALSE if the floater could not be closed due to pending confirmation dialogs
+    void setTabContainer(LLTabContainer* tab_container) { if (!mTabContainer) mTabContainer = tab_container; }
+    void onTabSelected();
 
-	virtual void updateResizeLimits();
-	virtual void updateFloaterTitle(LLFloater* floaterp);
+    virtual void updateResizeLimits();
+    virtual void updateFloaterTitle(LLFloater* floaterp);
 
 protected:
-	struct LLFloaterData
-	{
-		S32		    mWidth;
-		S32		    mHeight;
-		BOOL	    mCanMinimize;
-		BOOL	    mCanResize;
-		BOOL        mSaveRect;
-	};
+    struct LLFloaterData
+    {
+        S32         mWidth;
+        S32         mHeight;
+        BOOL        mCanMinimize;
+        BOOL        mCanResize;
+        BOOL        mSaveRect;
+    };
 
-	LLTabContainer*		mTabContainer;
-	
-	typedef std::map<LLHandle<LLFloater>, LLFloaterData> floater_data_map_t;
-	floater_data_map_t	mFloaterDataMap;
-	
-	LLTabContainer::TabPosition mTabPos;
-	BOOL				mAutoResize;
-	S32					mOrigMinWidth, mOrigMinHeight;  // logically const but initialized late
+    LLTabContainer*     mTabContainer;
+    
+    typedef std::map<LLHandle<LLFloater>, LLFloaterData> floater_data_map_t;
+    floater_data_map_t  mFloaterDataMap;
+    
+    LLTabContainer::TabPosition mTabPos;
+    BOOL                mAutoResize;
+    S32                 mOrigMinWidth, mOrigMinHeight;  // logically const but initialized late
 
 private:
-	virtual void computeResizeLimits(S32& new_min_width, S32& new_min_height);
+    virtual void computeResizeLimits(S32& new_min_width, S32& new_min_height);
 };
 
 #endif  // LL_MULTI_FLOATER_H

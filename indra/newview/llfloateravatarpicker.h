@@ -39,75 +39,75 @@ class LLScrollListCtrl;
 class LLFloaterAvatarPicker :public LLFloater
 {
 public:
-	typedef boost::signals2::signal<bool(const uuid_vec_t&), boost_boolean_combiner> validate_signal_t;
-	typedef validate_signal_t::slot_type validate_callback_t;
+    typedef boost::signals2::signal<bool(const uuid_vec_t&), boost_boolean_combiner> validate_signal_t;
+    typedef validate_signal_t::slot_type validate_callback_t;
 
-	// The callback function will be called with an avatar name and UUID.
-	typedef boost::function<void (const uuid_vec_t&, const std::vector<LLAvatarName>&)> select_callback_t;
-	// Call this to select an avatar.	
-	static LLFloaterAvatarPicker* show(select_callback_t callback, 
-									   BOOL allow_multiple = FALSE,
-									   BOOL closeOnSelect = FALSE,
-									   BOOL skip_agent = FALSE,
+    // The callback function will be called with an avatar name and UUID.
+    typedef boost::function<void (const uuid_vec_t&, const std::vector<LLAvatarName>&)> select_callback_t;
+    // Call this to select an avatar.   
+    static LLFloaterAvatarPicker* show(select_callback_t callback, 
+                                       BOOL allow_multiple = FALSE,
+                                       BOOL closeOnSelect = FALSE,
+                                       BOOL skip_agent = FALSE,
                                        const std::string& name = "",
                                        LLView * frustumOrigin = NULL);
 
-	LLFloaterAvatarPicker(const LLSD& key);
-	virtual ~LLFloaterAvatarPicker();
-	
-	virtual	BOOL postBuild();
+    LLFloaterAvatarPicker(const LLSD& key);
+    virtual ~LLFloaterAvatarPicker();
+    
+    virtual BOOL postBuild();
 
-	void setOkBtnEnableCb(validate_callback_t cb);
+    void setOkBtnEnableCb(validate_callback_t cb);
 
-	static void processAvatarPickerReply(class LLMessageSystem* msg, void**);
-	void processResponse(const LLUUID& query_id, const LLSD& content);
+    static void processAvatarPickerReply(class LLMessageSystem* msg, void**);
+    void processResponse(const LLUUID& query_id, const LLSD& content);
 
-	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
-						   BOOL drop, EDragAndDropType cargo_type,
-						   void *cargo_data, EAcceptance *accept,
-						   std::string& tooltip_msg);
+    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
+                           BOOL drop, EDragAndDropType cargo_type,
+                           void *cargo_data, EAcceptance *accept,
+                           std::string& tooltip_msg);
 
-	void openFriendsTab();
-	BOOL isExcludeAgentFromSearchResults() {return mExcludeAgentFromSearchResults;}
+    void openFriendsTab();
+    BOOL isExcludeAgentFromSearchResults() {return mExcludeAgentFromSearchResults;}
 
 private:
-	void editKeystroke(class LLLineEditor* caller, void* user_data);
+    void editKeystroke(class LLLineEditor* caller, void* user_data);
 
-	void onBtnFind();
-	void onBtnSelect();
-	void onBtnRefresh();
-	void onRangeAdjust();
-	void onBtnClose();
-	void onList();
-	void onTabChanged();
-	bool isSelectBtnEnabled();
+    void onBtnFind();
+    void onBtnSelect();
+    void onBtnRefresh();
+    void onRangeAdjust();
+    void onBtnClose();
+    void onList();
+    void onTabChanged();
+    bool isSelectBtnEnabled();
 
-	void populateNearMe();
-	void populateFriend();
-	BOOL visibleItemsSelected() const; // Returns true if any items in the current tab are selected.
+    void populateNearMe();
+    void populateFriend();
+    BOOL visibleItemsSelected() const; // Returns true if any items in the current tab are selected.
 
     static void findCoro(std::string url, LLUUID mQueryID, std::string mName);
-	void find();
-	void setAllowMultiple(BOOL allow_multiple);
-	LLScrollListCtrl* getActiveList();
+    void find();
+    void setAllowMultiple(BOOL allow_multiple);
+    LLScrollListCtrl* getActiveList();
 
     void drawFrustum();
-	virtual void draw();
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
+    virtual void draw();
+    virtual BOOL handleKeyHere(KEY key, MASK mask);
 
-	LLUUID				mQueryID;
-	int				    mNumResultsReturned;
-	BOOL				mNearMeListComplete;
-	BOOL				mCloseOnSelect;
-	BOOL                mExcludeAgentFromSearchResults;
+    LLUUID              mQueryID;
+    int                 mNumResultsReturned;
+    BOOL                mNearMeListComplete;
+    BOOL                mCloseOnSelect;
+    BOOL                mExcludeAgentFromSearchResults;
     LLHandle <LLView>   mFrustumOrigin;
-    F32		            mContextConeOpacity;
+    F32                 mContextConeOpacity;
     F32                 mContextConeInAlpha;
     F32                 mContextConeOutAlpha;
     F32                 mContextConeFadeTime;
 
-	validate_signal_t mOkButtonValidateSignal;
-	select_callback_t mSelectionCallback;
+    validate_signal_t mOkButtonValidateSignal;
+    select_callback_t mSelectionCallback;
 };
 
 #endif

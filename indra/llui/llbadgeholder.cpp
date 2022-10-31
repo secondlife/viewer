@@ -32,14 +32,14 @@
 
 bool LLBadgeHolder::addBadge(LLBadge * badge)
 {
-	bool badge_added = false;
+    bool badge_added = false;
 
-	LLView * this_view = dynamic_cast<LLView *>(this);
+    LLView * this_view = dynamic_cast<LLView *>(this);
 
-	if (this_view && mAcceptsBadge)
-	{
-		badge_added = badge->addToView(this_view);
-	}
+    if (this_view && mAcceptsBadge)
+    {
+        badge_added = badge->addToView(this_view);
+    }
 
-	return badge_added;
+    return badge_added;
 }

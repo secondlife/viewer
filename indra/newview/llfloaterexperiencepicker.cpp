@@ -46,30 +46,30 @@
 
 LLFloaterExperiencePicker* LLFloaterExperiencePicker::show( select_callback_t callback, const LLUUID& key, BOOL allow_multiple, BOOL close_on_select, filter_list filters, LLView * frustumOrigin )
 {
-	LLFloaterExperiencePicker* floater =
-		LLFloaterReg::showTypedInstance<LLFloaterExperiencePicker>("experience_search", key);
-	if (!floater)
-	{
-		LL_WARNS() << "Cannot instantiate experience picker" << LL_ENDL;
-		return NULL;
-	}
+    LLFloaterExperiencePicker* floater =
+        LLFloaterReg::showTypedInstance<LLFloaterExperiencePicker>("experience_search", key);
+    if (!floater)
+    {
+        LL_WARNS() << "Cannot instantiate experience picker" << LL_ENDL;
+        return NULL;
+    }
 
-	if (floater->mSearchPanel)
-	{
-		floater->mSearchPanel->mSelectionCallback = callback;
-		floater->mSearchPanel->mCloseOnSelect = close_on_select;
-		floater->mSearchPanel->setAllowMultiple(allow_multiple);
-		floater->mSearchPanel->setDefaultFilters();
-		floater->mSearchPanel->addFilters(filters.begin(), filters.end());
-		floater->mSearchPanel->filterContent();
-	}
+    if (floater->mSearchPanel)
+    {
+        floater->mSearchPanel->mSelectionCallback = callback;
+        floater->mSearchPanel->mCloseOnSelect = close_on_select;
+        floater->mSearchPanel->setAllowMultiple(allow_multiple);
+        floater->mSearchPanel->setDefaultFilters();
+        floater->mSearchPanel->addFilters(filters.begin(), filters.end());
+        floater->mSearchPanel->filterContent();
+    }
 
-	if(frustumOrigin)
-	{
-		floater->mFrustumOrigin = frustumOrigin->getHandle();
-	}
+    if(frustumOrigin)
+    {
+        floater->mFrustumOrigin = frustumOrigin->getHandle();
+    }
 
-	return floater;
+    return floater;
 }
 
 void LLFloaterExperiencePicker::drawFrustum()
@@ -80,32 +80,32 @@ void LLFloaterExperiencePicker::drawFrustum()
 
 void LLFloaterExperiencePicker::draw()
 {
-	drawFrustum();
-	LLFloater::draw();
+    drawFrustum();
+    LLFloater::draw();
 }
 
 LLFloaterExperiencePicker::LLFloaterExperiencePicker( const LLSD& key )
-	:LLFloater(key)
-	,mSearchPanel(NULL)
-	,mContextConeOpacity(0.f)
-	,mContextConeInAlpha(0.f)
-	,mContextConeOutAlpha(0.f)
-	,mContextConeFadeTime(0.f)
+    :LLFloater(key)
+    ,mSearchPanel(NULL)
+    ,mContextConeOpacity(0.f)
+    ,mContextConeInAlpha(0.f)
+    ,mContextConeOutAlpha(0.f)
+    ,mContextConeFadeTime(0.f)
 {
-	mContextConeInAlpha = gSavedSettings.getF32("ContextConeInAlpha");
-	mContextConeOutAlpha = gSavedSettings.getF32("ContextConeOutAlpha");
-	mContextConeFadeTime = gSavedSettings.getF32("ContextConeFadeTime");
+    mContextConeInAlpha = gSavedSettings.getF32("ContextConeInAlpha");
+    mContextConeOutAlpha = gSavedSettings.getF32("ContextConeOutAlpha");
+    mContextConeFadeTime = gSavedSettings.getF32("ContextConeFadeTime");
 }
 
 LLFloaterExperiencePicker::~LLFloaterExperiencePicker()
 {
-	gFocusMgr.releaseFocusIfNeeded( this );
+    gFocusMgr.releaseFocusIfNeeded( this );
 }
 
 BOOL LLFloaterExperiencePicker::postBuild()
 {
-	mSearchPanel = new LLPanelExperiencePicker();
-	addChild(mSearchPanel);
-	mSearchPanel->setOrigin(0, 0);
-	return LLFloater::postBuild();
+    mSearchPanel = new LLPanelExperiencePicker();
+    addChild(mSearchPanel);
+    mSearchPanel->setOrigin(0, 0);
+    return LLFloater::postBuild();
 }

@@ -57,38 +57,38 @@
 class LLURL
 {
 public:
-	LLURL();
-	LLURL(const LLURL &url);
-	LLURL(const char * url);
+    LLURL();
+    LLURL(const LLURL &url);
+    LLURL(const char * url);
 
-	LLURL &operator=(const LLURL &rhs);
+    LLURL &operator=(const LLURL &rhs);
 
-	virtual ~LLURL();
+    virtual ~LLURL();
 
-	virtual void init (const char * url);
-	virtual void cleanup ();
+    virtual void init (const char * url);
+    virtual void cleanup ();
 
-	bool operator==(const LLURL &rhs) const;
-	bool operator!=(const LLURL &rhs) const;
+    bool operator==(const LLURL &rhs) const;
+    bool operator!=(const LLURL &rhs) const;
 
-	virtual const char *getFQURL() const;
-	virtual const char *getFullPath();
-	virtual const char *getAuthority();
+    virtual const char *getFQURL() const;
+    virtual const char *getFullPath();
+    virtual const char *getAuthority();
 
-	virtual const char *updateRelativePath(const LLURL &url);
+    virtual const char *updateRelativePath(const LLURL &url);
 
-	virtual BOOL  isExtension(const char *compare) {return (!strcmp(mExtension,compare));};
+    virtual BOOL  isExtension(const char *compare) {return (!strcmp(mExtension,compare));};
 
-public:	
-	
-	char        mURI[LL_MAX_PATH];		/* Flawfinder: ignore */
-	char        mAuthority[LL_MAX_PATH];		/* Flawfinder: ignore */
-	char        mPath[LL_MAX_PATH];		/* Flawfinder: ignore */
-	char        mFilename[LL_MAX_PATH];		/* Flawfinder: ignore */
-	char        mExtension[LL_MAX_PATH];		/* Flawfinder: ignore */
-	char        mTag[LL_MAX_PATH];		/* Flawfinder: ignore */
+public: 
+    
+    char        mURI[LL_MAX_PATH];      /* Flawfinder: ignore */
+    char        mAuthority[LL_MAX_PATH];        /* Flawfinder: ignore */
+    char        mPath[LL_MAX_PATH];     /* Flawfinder: ignore */
+    char        mFilename[LL_MAX_PATH];     /* Flawfinder: ignore */
+    char        mExtension[LL_MAX_PATH];        /* Flawfinder: ignore */
+    char        mTag[LL_MAX_PATH];      /* Flawfinder: ignore */
 
-	static char sReturnString[LL_MAX_PATH];		/* Flawfinder: ignore */
+    static char sReturnString[LL_MAX_PATH];     /* Flawfinder: ignore */
 };
 
 #endif  // LL_LLURL_H

@@ -41,70 +41,70 @@ class LLTabContainer;
 
 class LLPanelOutfitsInventory : public LLPanel
 {
-	LOG_CLASS(LLPanelOutfitsInventory);
+    LOG_CLASS(LLPanelOutfitsInventory);
 public:
-	LLPanelOutfitsInventory();
-	virtual ~LLPanelOutfitsInventory();
+    LLPanelOutfitsInventory();
+    virtual ~LLPanelOutfitsInventory();
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
-	
-	void onSearchEdit(const std::string& string);
-	void onSave();
-	void saveOutfit(bool as_new = false);
-	
-	bool onSaveCommit(const LLSD& notification, const LLSD& response);
+    /*virtual*/ BOOL postBuild();
+    /*virtual*/ void onOpen(const LLSD& key);
+    
+    void onSearchEdit(const std::string& string);
+    void onSave();
+    void saveOutfit(bool as_new = false);
+    
+    bool onSaveCommit(const LLSD& notification, const LLSD& response);
 
-	static LLSidepanelAppearance* getAppearanceSP();
+    static LLSidepanelAppearance* getAppearanceSP();
 
-	static LLPanelOutfitsInventory* findInstance();
+    static LLPanelOutfitsInventory* findInstance();
 
-	void openApearanceTab(const std::string& tab_name);
+    void openApearanceTab(const std::string& tab_name);
 
 protected:
-	void updateVerbs();
+    void updateVerbs();
 
 private:
-	LLTabContainer*			mAppearanceTabs;
-	std::string 			mFilterSubString;
+    LLTabContainer*         mAppearanceTabs;
+    std::string             mFilterSubString;
 
-	//////////////////////////////////////////////////////////////////////////////////
-	// tab panels                                                                   //
+    //////////////////////////////////////////////////////////////////////////////////
+    // tab panels                                                                   //
 protected:
-	void 					initTabPanels();
-	void 					onTabChange();
-	bool 					isCOFPanelActive() const;
-	bool 					isOutfitsListPanelActive() const;
-	bool 					isOutfitsGalleryPanelActive() const;
+    void                    initTabPanels();
+    void                    onTabChange();
+    bool                    isCOFPanelActive() const;
+    bool                    isOutfitsListPanelActive() const;
+    bool                    isOutfitsGalleryPanelActive() const;
 
 private:
-	LLPanelAppearanceTab*	mActivePanel;
-	LLOutfitsList*			mMyOutfitsPanel;
+    LLPanelAppearanceTab*   mActivePanel;
+    LLOutfitsList*          mMyOutfitsPanel;
     LLOutfitGallery*        mOutfitGalleryPanel;
-	LLPanelWearing*			mCurrentOutfitPanel;
+    LLPanelWearing*         mCurrentOutfitPanel;
 
-	// tab panels                                                                   //
-	//////////////////////////////////////////////////////////////////////////////////
+    // tab panels                                                                   //
+    //////////////////////////////////////////////////////////////////////////////////
 
-	//////////////////////////////////////////////////////////////////////////////////
-	// List Commands                                                                //
+    //////////////////////////////////////////////////////////////////////////////////
+    // List Commands                                                                //
 protected:
-	void initListCommandsHandlers();
-	void updateListCommands();
-	void onWearButtonClick();
-	void showGearMenu();
-	void onTrashButtonClick();
-	bool isActionEnabled(const LLSD& userdata);
-	void setWearablesLoading(bool val);
-	void onWearablesLoaded();
-	void onWearablesLoading();
+    void initListCommandsHandlers();
+    void updateListCommands();
+    void onWearButtonClick();
+    void showGearMenu();
+    void onTrashButtonClick();
+    bool isActionEnabled(const LLSD& userdata);
+    void setWearablesLoading(bool val);
+    void onWearablesLoaded();
+    void onWearablesLoading();
 private:
-	LLPanel*					mListCommands;
-	LLMenuGL*					mMenuAdd;
-	// List Commands                                                                //
-	//////////////////////////////////////////////////////////////////////////////////
+    LLPanel*                    mListCommands;
+    LLMenuGL*                   mMenuAdd;
+    // List Commands                                                                //
+    //////////////////////////////////////////////////////////////////////////////////
 
-	bool mInitialized;
+    bool mInitialized;
 };
 
 #endif //LL_LLPANELOUTFITSINVENTORY_H

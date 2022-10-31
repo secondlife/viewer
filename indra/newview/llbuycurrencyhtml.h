@@ -33,19 +33,19 @@ class LLFloaterBuyCurrencyHTML;
 
 class LLBuyCurrencyHTML
 {
-	public:
-		// choke point for opening a legacy or new currency floater - this overload is when the L$ sum is not required
-		static void openCurrencyFloater();
+    public:
+        // choke point for opening a legacy or new currency floater - this overload is when the L$ sum is not required
+        static void openCurrencyFloater();
 
-		// choke point for opening a legacy or new currency floater - this overload is when the L$ sum is required
-		static void openCurrencyFloater( const std::string& message, S32 sum );
+        // choke point for opening a legacy or new currency floater - this overload is when the L$ sum is required
+        static void openCurrencyFloater( const std::string& message, S32 sum );
 
-		// show and give focus to actual currency floater - this is used for both cases
-		// where the sum is required and where it is not
-		static void showDialog( bool specific_sum_requested, const std::string& message, S32 sum );
+        // show and give focus to actual currency floater - this is used for both cases
+        // where the sum is required and where it is not
+        static void showDialog( bool specific_sum_requested, const std::string& message, S32 sum );
 
-		// close (and destroy) the currency floater
-		static void closeDialog();
+        // close (and destroy) the currency floater
+        static void closeDialog();
 };
 
 #endif  // LL_LLBUYCURRENCYHTML_H

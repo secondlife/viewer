@@ -42,7 +42,7 @@ static LLPanelInjector<LLPanelGroupExperiences> t_panel_group_experiences("panel
 
 
 LLPanelGroupExperiences::LLPanelGroupExperiences()
-:	LLPanelGroupTab(), mExperiencesList(NULL)
+:   LLPanelGroupTab(), mExperiencesList(NULL)
 {
 }
 
@@ -52,25 +52,25 @@ LLPanelGroupExperiences::~LLPanelGroupExperiences()
 
 BOOL LLPanelGroupExperiences::postBuild()
 {
-	mExperiencesList = getChild<LLFlatListView>("experiences_list");
-	if (hasString("loading_experiences"))
-	{
-		mExperiencesList->setNoItemsCommentText(getString("loading_experiences"));
-	}
-	else if (hasString("no_experiences"))
-	{
-		mExperiencesList->setNoItemsCommentText(getString("no_experiences"));
-	}
+    mExperiencesList = getChild<LLFlatListView>("experiences_list");
+    if (hasString("loading_experiences"))
+    {
+        mExperiencesList->setNoItemsCommentText(getString("loading_experiences"));
+    }
+    else if (hasString("no_experiences"))
+    {
+        mExperiencesList->setNoItemsCommentText(getString("no_experiences"));
+    }
 
-	return LLPanelGroupTab::postBuild();
+    return LLPanelGroupTab::postBuild();
 }
 
 void LLPanelGroupExperiences::activate()
 {
-	if ((getGroupID() == LLUUID::null) || gDisconnected)
-	{
-		return;
-	}
+    if ((getGroupID() == LLUUID::null) || gDisconnected)
+    {
+        return;
+    }
 
     LLExperienceCache::instance().getGroupExperiences(getGroupID(),
         boost::bind(&LLPanelGroupExperiences::groupExperiencesResults, getDerivedHandle<LLPanelGroupExperiences>(), _1));
@@ -78,22 +78,22 @@ void LLPanelGroupExperiences::activate()
 
 void LLPanelGroupExperiences::setGroupID(const LLUUID& id)
 {
-	LLPanelGroupTab::setGroupID(id);
+    LLPanelGroupTab::setGroupID(id);
 
-	if(id == LLUUID::null)
-	{
-		return;
-	}
+    if(id == LLUUID::null)
+    {
+        return;
+    }
 
-	activate();
+    activate();
 }
 
 void LLPanelGroupExperiences::setExperienceList(const LLSD& experiences)
 {
-	if (hasString("no_experiences"))
-	{
-		mExperiencesList->setNoItemsCommentText(getString("no_experiences"));
-	}
+    if (hasString("no_experiences"))
+    {
+        mExperiencesList->setNoItemsCommentText(getString("no_experiences"));
+    }
     mExperiencesList->clear();
 
     LLSD::array_const_iterator it = experiences.beginArray();

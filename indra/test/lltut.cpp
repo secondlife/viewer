@@ -38,169 +38,169 @@
 
 namespace tut
 {
-	void ensure_equals(const std::string& msg, const LLDate& actual,
-		const LLDate& expected)
-	{
-		ensure_equals(msg,
-			actual.secondsSinceEpoch(), expected.secondsSinceEpoch());
-	}
+    void ensure_equals(const std::string& msg, const LLDate& actual,
+        const LLDate& expected)
+    {
+        ensure_equals(msg,
+            actual.secondsSinceEpoch(), expected.secondsSinceEpoch());
+    }
 
-	void ensure_equals(const std::string& msg, const LLURI& actual,
-		const LLURI& expected)
-	{
-		ensure_equals(msg,
-			actual.asString(), expected.asString());
-	}
+    void ensure_equals(const std::string& msg, const LLURI& actual,
+        const LLURI& expected)
+    {
+        ensure_equals(msg,
+            actual.asString(), expected.asString());
+    }
 
-	// The lexical param types here intentionally diverge from the declaration
-	// in our header file. In lltut.h, LLSD is only a forward-declared type;
-	// we have no access to its LLSD::Binary nested type, and so must restate
-	// it explicitly to declare this overload. However, an overload that does
-	// NOT match LLSD::Binary does us no good whatsoever: it would never be
-	// engaged. Stating LLSD::Binary for this definition at least means that
-	// if the LLSD::Binary type ever diverges from what we expect in lltut.h,
-	// that divergence will produce an error: no definition will match that
-	// declaration.
-	void ensure_equals(const std::string& msg,
-		const LLSD::Binary& actual, const LLSD::Binary& expected)
-	{
-		ensure_equals(msg + " size", actual.size(), expected.size());
-		
-		LLSD::Binary::const_iterator i, j;
-		int k;
-		for (i = actual.begin(), j = expected.begin(), k = 0;
-			i != actual.end();
-			++i, ++j, ++k)
-		{
-			ensure_equals(msg + " field", *i, *j);
-		}
-	}
+    // The lexical param types here intentionally diverge from the declaration
+    // in our header file. In lltut.h, LLSD is only a forward-declared type;
+    // we have no access to its LLSD::Binary nested type, and so must restate
+    // it explicitly to declare this overload. However, an overload that does
+    // NOT match LLSD::Binary does us no good whatsoever: it would never be
+    // engaged. Stating LLSD::Binary for this definition at least means that
+    // if the LLSD::Binary type ever diverges from what we expect in lltut.h,
+    // that divergence will produce an error: no definition will match that
+    // declaration.
+    void ensure_equals(const std::string& msg,
+        const LLSD::Binary& actual, const LLSD::Binary& expected)
+    {
+        ensure_equals(msg + " size", actual.size(), expected.size());
+        
+        LLSD::Binary::const_iterator i, j;
+        int k;
+        for (i = actual.begin(), j = expected.begin(), k = 0;
+            i != actual.end();
+            ++i, ++j, ++k)
+        {
+            ensure_equals(msg + " field", *i, *j);
+        }
+    }
 
-	void ensure_equals(const std::string& msg, const LLSD& actual,
-		const LLSD& expected)
-	{
-		ensure_equals(msg + " type", actual.type(), expected.type());
-		switch (actual.type())
-		{
-			case LLSD::TypeUndefined:
-				return;
-			
-			case LLSD::TypeBoolean:
-				ensure_equals(msg + " boolean", actual.asBoolean(), expected.asBoolean());
-				return;
-			
-			case LLSD::TypeInteger:
-				ensure_equals(msg + " integer", actual.asInteger(), expected.asInteger());
-				return;
-			
-			case LLSD::TypeReal:
-				ensure_equals(msg + " real", actual.asReal(), expected.asReal());
-				return;
-			
-			case LLSD::TypeString:
-				ensure_equals(msg + " string", actual.asString(), expected.asString());
-				return;
-			
-			case LLSD::TypeUUID:
-				ensure_equals(msg + " uuid", actual.asUUID(), expected.asUUID());
-				return;
-			
-			case LLSD::TypeDate:
-				ensure_equals(msg + " date", actual.asDate(), expected.asDate());
-				return;
-				
-			case LLSD::TypeURI:
-				ensure_equals(msg + " uri", actual.asURI(), expected.asURI());
-				return;
-		
-			case LLSD::TypeBinary:
-				ensure_equals(msg + " binary", actual.asBinary(), expected.asBinary());
-				return;
-		
-			case LLSD::TypeMap:
-			{
-				ensure_equals(msg + " map size", actual.size(), expected.size());
-				
-				LLSD::map_const_iterator actual_iter = actual.beginMap();
-				LLSD::map_const_iterator expected_iter = expected.beginMap();
-				
-				while(actual_iter != actual.endMap())
-				{
-					ensure_equals(msg + " map keys", 
-						actual_iter->first, expected_iter->first);
-					ensure_equals(msg + "[" + actual_iter->first + "]",
-						actual_iter->second, expected_iter->second);
-					++actual_iter;
-					++expected_iter;
-				}
-				return;
-			}
-			case LLSD::TypeArray:
-			{
-				ensure_equals(msg + " array size", actual.size(), expected.size());
-				
-				for(int i = 0; i < actual.size(); ++i)
-				{
-					ensure_equals(msg + llformat("[%d]", i),
-						actual[i], expected[i]);
-				}
-				return;
-			}
-			default:
-				// should never get here, but compiler produces warning if we
-				// don't cover this case, and at Linden warnings are fatal.
-				throw failure(STRINGIZE("invalid type field " << actual.type()));
-		}
-	}
+    void ensure_equals(const std::string& msg, const LLSD& actual,
+        const LLSD& expected)
+    {
+        ensure_equals(msg + " type", actual.type(), expected.type());
+        switch (actual.type())
+        {
+            case LLSD::TypeUndefined:
+                return;
+            
+            case LLSD::TypeBoolean:
+                ensure_equals(msg + " boolean", actual.asBoolean(), expected.asBoolean());
+                return;
+            
+            case LLSD::TypeInteger:
+                ensure_equals(msg + " integer", actual.asInteger(), expected.asInteger());
+                return;
+            
+            case LLSD::TypeReal:
+                ensure_equals(msg + " real", actual.asReal(), expected.asReal());
+                return;
+            
+            case LLSD::TypeString:
+                ensure_equals(msg + " string", actual.asString(), expected.asString());
+                return;
+            
+            case LLSD::TypeUUID:
+                ensure_equals(msg + " uuid", actual.asUUID(), expected.asUUID());
+                return;
+            
+            case LLSD::TypeDate:
+                ensure_equals(msg + " date", actual.asDate(), expected.asDate());
+                return;
+                
+            case LLSD::TypeURI:
+                ensure_equals(msg + " uri", actual.asURI(), expected.asURI());
+                return;
+        
+            case LLSD::TypeBinary:
+                ensure_equals(msg + " binary", actual.asBinary(), expected.asBinary());
+                return;
+        
+            case LLSD::TypeMap:
+            {
+                ensure_equals(msg + " map size", actual.size(), expected.size());
+                
+                LLSD::map_const_iterator actual_iter = actual.beginMap();
+                LLSD::map_const_iterator expected_iter = expected.beginMap();
+                
+                while(actual_iter != actual.endMap())
+                {
+                    ensure_equals(msg + " map keys", 
+                        actual_iter->first, expected_iter->first);
+                    ensure_equals(msg + "[" + actual_iter->first + "]",
+                        actual_iter->second, expected_iter->second);
+                    ++actual_iter;
+                    ++expected_iter;
+                }
+                return;
+            }
+            case LLSD::TypeArray:
+            {
+                ensure_equals(msg + " array size", actual.size(), expected.size());
+                
+                for(int i = 0; i < actual.size(); ++i)
+                {
+                    ensure_equals(msg + llformat("[%d]", i),
+                        actual[i], expected[i]);
+                }
+                return;
+            }
+            default:
+                // should never get here, but compiler produces warning if we
+                // don't cover this case, and at Linden warnings are fatal.
+                throw failure(STRINGIZE("invalid type field " << actual.type()));
+        }
+    }
 
-	void ensure_starts_with(const std::string& msg,
-		const std::string& actual, const std::string& expectedStart)
-	{
-		if( actual.find(expectedStart, 0) != 0 )
-		{
-			std::stringstream ss;
-			ss << msg << ": " << "expected to find '" << expectedStart
-			   << "' at start of actual '" << actual << "'";
-			throw failure(ss.str().c_str());
-		}
-	}
+    void ensure_starts_with(const std::string& msg,
+        const std::string& actual, const std::string& expectedStart)
+    {
+        if( actual.find(expectedStart, 0) != 0 )
+        {
+            std::stringstream ss;
+            ss << msg << ": " << "expected to find '" << expectedStart
+               << "' at start of actual '" << actual << "'";
+            throw failure(ss.str().c_str());
+        }
+    }
 
-	void ensure_ends_with(const std::string& msg,
-		const std::string& actual, const std::string& expectedEnd)
-	{
-		if( actual.size() < expectedEnd.size()
-			|| actual.rfind(expectedEnd)
-				!= (actual.size() - expectedEnd.size()) )
-		{
-			std::stringstream ss;
-			ss << msg << ": " << "expected to find '" << expectedEnd
-			   << "' at end of actual '" << actual << "'";
-			throw failure(ss.str().c_str());
-		}
-	}
+    void ensure_ends_with(const std::string& msg,
+        const std::string& actual, const std::string& expectedEnd)
+    {
+        if( actual.size() < expectedEnd.size()
+            || actual.rfind(expectedEnd)
+                != (actual.size() - expectedEnd.size()) )
+        {
+            std::stringstream ss;
+            ss << msg << ": " << "expected to find '" << expectedEnd
+               << "' at end of actual '" << actual << "'";
+            throw failure(ss.str().c_str());
+        }
+    }
 
-	void ensure_contains(const std::string& msg,
-		const std::string& actual, const std::string& expectedSubString)
-	{
-		if( actual.find(expectedSubString, 0) == std::string::npos )
-		{
-			std::stringstream ss;
-			ss << msg << ": " << "expected to find '" << expectedSubString
-			   << "' in actual '" << actual << "'";
-			throw failure(ss.str().c_str());
-		}
-	}
+    void ensure_contains(const std::string& msg,
+        const std::string& actual, const std::string& expectedSubString)
+    {
+        if( actual.find(expectedSubString, 0) == std::string::npos )
+        {
+            std::stringstream ss;
+            ss << msg << ": " << "expected to find '" << expectedSubString
+               << "' in actual '" << actual << "'";
+            throw failure(ss.str().c_str());
+        }
+    }
 
-	void ensure_does_not_contain(const std::string& msg,
-		const std::string& actual, const std::string& expectedSubString)
-	{
-		if( actual.find(expectedSubString, 0) != std::string::npos )
-		{
-			std::stringstream ss;
-			ss << msg << ": " << "expected not to find " << expectedSubString
-				<< " in actual " << actual;
-			throw failure(ss.str().c_str());
-		}
-	}
+    void ensure_does_not_contain(const std::string& msg,
+        const std::string& actual, const std::string& expectedSubString)
+    {
+        if( actual.find(expectedSubString, 0) != std::string::npos )
+        {
+            std::stringstream ss;
+            ss << msg << ": " << "expected not to find " << expectedSubString
+                << " in actual " << actual;
+            throw failure(ss.str().c_str());
+        }
+    }
 }
 

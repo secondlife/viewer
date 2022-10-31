@@ -36,79 +36,79 @@ class LLSD;
 class LLPathfindingLinkset : public LLPathfindingObject
 {
 public:
-	typedef enum
-	{
-		kUnknown,
-		kWalkable,
-		kStaticObstacle,
-		kDynamicObstacle,
-		kMaterialVolume,
-		kExclusionVolume,
-		kDynamicPhantom
-	} ELinksetUse;
+    typedef enum
+    {
+        kUnknown,
+        kWalkable,
+        kStaticObstacle,
+        kDynamicObstacle,
+        kMaterialVolume,
+        kExclusionVolume,
+        kDynamicPhantom
+    } ELinksetUse;
 
-	LLPathfindingLinkset(const LLSD &pTerrainData);
-	LLPathfindingLinkset(const std::string &pUUID, const LLSD &pLinksetData);
-	LLPathfindingLinkset(const LLPathfindingLinkset& pOther);
-	virtual ~LLPathfindingLinkset();
+    LLPathfindingLinkset(const LLSD &pTerrainData);
+    LLPathfindingLinkset(const std::string &pUUID, const LLSD &pLinksetData);
+    LLPathfindingLinkset(const LLPathfindingLinkset& pOther);
+    virtual ~LLPathfindingLinkset();
 
-	LLPathfindingLinkset& operator = (const LLPathfindingLinkset& pOther);
+    LLPathfindingLinkset& operator = (const LLPathfindingLinkset& pOther);
 
-	inline bool        isTerrain() const                   {return mIsTerrain;};
-	inline U32         getLandImpact() const               {return mLandImpact;};
-	BOOL               isModifiable() const                {return mIsModifiable;};
-	BOOL               isPhantom() const;
-	BOOL               canBeVolume() const                 {return mCanBeVolume;};
-	static ELinksetUse getLinksetUseWithToggledPhantom(ELinksetUse pLinksetUse);
+    inline bool        isTerrain() const                   {return mIsTerrain;};
+    inline U32         getLandImpact() const               {return mLandImpact;};
+    BOOL               isModifiable() const                {return mIsModifiable;};
+    BOOL               isPhantom() const;
+    BOOL               canBeVolume() const                 {return mCanBeVolume;};
+    static ELinksetUse getLinksetUseWithToggledPhantom(ELinksetUse pLinksetUse);
 
-	inline ELinksetUse getLinksetUse() const               {return mLinksetUse;};
+    inline ELinksetUse getLinksetUse() const               {return mLinksetUse;};
 
-	inline BOOL        isScripted() const                  {return mIsScripted;};
-	inline BOOL        hasIsScripted() const               {return mHasIsScripted;};
+    inline BOOL        isScripted() const                  {return mIsScripted;};
+    inline BOOL        hasIsScripted() const               {return mHasIsScripted;};
 
-	inline S32         getWalkabilityCoefficientA() const  {return mWalkabilityCoefficientA;};
-	inline S32         getWalkabilityCoefficientB() const  {return mWalkabilityCoefficientB;};
-	inline S32         getWalkabilityCoefficientC() const  {return mWalkabilityCoefficientC;};
-	inline S32         getWalkabilityCoefficientD() const  {return mWalkabilityCoefficientD;};
+    inline S32         getWalkabilityCoefficientA() const  {return mWalkabilityCoefficientA;};
+    inline S32         getWalkabilityCoefficientB() const  {return mWalkabilityCoefficientB;};
+    inline S32         getWalkabilityCoefficientC() const  {return mWalkabilityCoefficientC;};
+    inline S32         getWalkabilityCoefficientD() const  {return mWalkabilityCoefficientD;};
 
-	bool               isShowUnmodifiablePhantomWarning(ELinksetUse pLinksetUse) const;
-	bool               isShowPhantomToggleWarning(ELinksetUse pLinksetUse) const;
-	bool               isShowCannotBeVolumeWarning(ELinksetUse pLinksetUse) const;
-	LLSD               encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
+    bool               isShowUnmodifiablePhantomWarning(ELinksetUse pLinksetUse) const;
+    bool               isShowPhantomToggleWarning(ELinksetUse pLinksetUse) const;
+    bool               isShowCannotBeVolumeWarning(ELinksetUse pLinksetUse) const;
+    LLSD               encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
 
-	static const S32 MIN_WALKABILITY_VALUE;
-	static const S32 MAX_WALKABILITY_VALUE;
-	
+    static const S32 MIN_WALKABILITY_VALUE;
+    static const S32 MAX_WALKABILITY_VALUE;
+    
 protected:
 
 private:
-	typedef enum
-	{
-		kNavMeshGenerationIgnore,
-		kNavMeshGenerationInclude,
-		kNavMeshGenerationExclude
-	} ENavMeshGenerationCategory;
+    typedef enum
+    {
+        kNavMeshGenerationIgnore,
+        kNavMeshGenerationInclude,
+        kNavMeshGenerationExclude
+    } ENavMeshGenerationCategory;
 
-	void                              parseLinksetData(const LLSD &pLinksetData);
-	void                              parsePathfindingData(const LLSD &pLinksetData);
+    void                              parseLinksetData(const LLSD &pLinksetData);
+    void                              parsePathfindingData(const LLSD &pLinksetData);
 
-	static BOOL                       isPhantom(ELinksetUse pLinksetUse);
-	static ELinksetUse                getLinksetUse(bool pIsPhantom, ENavMeshGenerationCategory pNavMeshGenerationCategory);
-	static ENavMeshGenerationCategory getNavMeshGenerationCategory(ELinksetUse pLinksetUse);
-	static LLSD                       convertCategoryToLLSD(ENavMeshGenerationCategory pNavMeshGenerationCategory);
-	static ENavMeshGenerationCategory convertCategoryFromLLSD(const LLSD &llsd);
+    static BOOL                       isPhantom(ELinksetUse pLinksetUse);
+    static ELinksetUse                getLinksetUse(bool pIsPhantom, ENavMeshGenerationCategory pNavMeshGenerationCategory);
+    static ENavMeshGenerationCategory getNavMeshGenerationCategory(ELinksetUse pLinksetUse);
+    static LLSD                       convertCategoryToLLSD(ENavMeshGenerationCategory pNavMeshGenerationCategory);
+    static ENavMeshGenerationCategory convertCategoryFromLLSD(const LLSD &llsd);
 
-	bool         mIsTerrain;
-	U32          mLandImpact;
-	BOOL         mIsModifiable;
-	BOOL         mCanBeVolume;
-	BOOL         mIsScripted;
-	BOOL         mHasIsScripted;
-	ELinksetUse  mLinksetUse;
-	S32          mWalkabilityCoefficientA;
-	S32          mWalkabilityCoefficientB;
-	S32          mWalkabilityCoefficientC;
-	S32          mWalkabilityCoefficientD;
+    bool         mIsTerrain;
+    U32          mLandImpact;
+    BOOL         mIsModifiable;
+    BOOL         mCanBeVolume;
+    BOOL         mIsScripted;
+    BOOL         mHasIsScripted;
+    ELinksetUse  mLinksetUse;
+    S32          mWalkabilityCoefficientA;
+    S32          mWalkabilityCoefficientB;
+    S32          mWalkabilityCoefficientC;
+    S32          mWalkabilityCoefficientD;
 };
 
 #endif // LL_LLPATHFINDINGLINKSET_H

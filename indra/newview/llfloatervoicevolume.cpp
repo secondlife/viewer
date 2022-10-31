@@ -52,67 +52,67 @@ class LLAvatarName;
 // the 3D world.
 class LLFloaterVoiceVolume : public LLInspect, LLTransientFloater
 {
-	friend class LLFloaterReg;
-	
+    friend class LLFloaterReg;
+    
 public:
-	// avatar_id - Avatar ID for which to show information
-	// Inspector will be positioned relative to current mouse position
-	LLFloaterVoiceVolume(const LLSD& avatar_id);
-	virtual ~LLFloaterVoiceVolume();
-	
-	/*virtual*/ BOOL postBuild(void);
-	
-	// Because floater is single instance, need to re-parse data on each spawn
-	// (for example, inspector about same avatar but in different position)
-	/*virtual*/ void onOpen(const LLSD& avatar_id);
+    // avatar_id - Avatar ID for which to show information
+    // Inspector will be positioned relative to current mouse position
+    LLFloaterVoiceVolume(const LLSD& avatar_id);
+    virtual ~LLFloaterVoiceVolume();
+    
+    /*virtual*/ BOOL postBuild(void);
+    
+    // Because floater is single instance, need to re-parse data on each spawn
+    // (for example, inspector about same avatar but in different position)
+    /*virtual*/ void onOpen(const LLSD& avatar_id);
 
-	/*virtual*/ LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::GLOBAL; }
+    /*virtual*/ LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::GLOBAL; }
 
 private:
-	// Set the volume slider to this user's current client-side volume setting,
-	// hiding/disabling if the user is not nearby.
-	void updateVolumeControls();
+    // Set the volume slider to this user's current client-side volume setting,
+    // hiding/disabling if the user is not nearby.
+    void updateVolumeControls();
 
-	void onClickMuteVolume();
-	void onVolumeChange(const LLSD& data);
-	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
-	
+    void onClickMuteVolume();
+    void onVolumeChange(const LLSD& data);
+    void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
+    
 private:
-	LLUUID				mAvatarID;
-	// Need avatar name information to spawn friend add request
-	LLAvatarName		mAvatarName;
-	boost::signals2::connection mAvatarNameCacheConnection;
+    LLUUID              mAvatarID;
+    // Need avatar name information to spawn friend add request
+    LLAvatarName        mAvatarName;
+    boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 LLFloaterVoiceVolume::LLFloaterVoiceVolume(const LLSD& sd)
-:	LLInspect(LLSD())		// single_instance, doesn't really need key
-,	mAvatarID()				// set in onOpen()  *Note: we used to show partner's name but we dont anymore --angela 3rd Dec*
-,	mAvatarName()
+:   LLInspect(LLSD())       // single_instance, doesn't really need key
+,   mAvatarID()             // set in onOpen()  *Note: we used to show partner's name but we dont anymore --angela 3rd Dec*
+,   mAvatarName()
 ,   mAvatarNameCacheConnection()
 {
-	LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::GLOBAL, this);
-	LLTransientFloater::init(this);
+    LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::GLOBAL, this);
+    LLTransientFloater::init(this);
 }
 
 LLFloaterVoiceVolume::~LLFloaterVoiceVolume()
 {
-	if (mAvatarNameCacheConnection.connected())
-	{
-		mAvatarNameCacheConnection.disconnect();
-	}
-	LLTransientFloaterMgr::getInstance()->removeControlView(this);
+    if (mAvatarNameCacheConnection.connected())
+    {
+        mAvatarNameCacheConnection.disconnect();
+    }
+    LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
 
 /*virtual*/
 BOOL LLFloaterVoiceVolume::postBuild(void)
 {
-	getChild<LLUICtrl>("mute_btn")->setCommitCallback(
-		boost::bind(&LLFloaterVoiceVolume::onClickMuteVolume, this) );
+    getChild<LLUICtrl>("mute_btn")->setCommitCallback(
+        boost::bind(&LLFloaterVoiceVolume::onClickMuteVolume, this) );
 
-	getChild<LLUICtrl>("volume_slider")->setCommitCallback(
-		boost::bind(&LLFloaterVoiceVolume::onVolumeChange, this, _2));
+    getChild<LLUICtrl>("volume_slider")->setCommitCallback(
+        boost::bind(&LLFloaterVoiceVolume::onVolumeChange, this, _2));
 
-	return TRUE;
+    return TRUE;
 }
 
 
@@ -121,93 +121,93 @@ BOOL LLFloaterVoiceVolume::postBuild(void)
 //virtual
 void LLFloaterVoiceVolume::onOpen(const LLSD& data)
 {
-	// Start open animation
-	LLInspect::onOpen(data);
+    // Start open animation
+    LLInspect::onOpen(data);
 
-	// Extract appropriate avatar id
-	mAvatarID = data["avatar_id"];
+    // Extract appropriate avatar id
+    mAvatarID = data["avatar_id"];
 
-	LLInspect::repositionInspector(data);
+    LLInspect::repositionInspector(data);
 
-	getChild<LLUICtrl>("avatar_name")->setValue("");
-	updateVolumeControls();
+    getChild<LLUICtrl>("avatar_name")->setValue("");
+    updateVolumeControls();
 
-	if (mAvatarNameCacheConnection.connected())
-	{
-		mAvatarNameCacheConnection.disconnect();
-	}
-	mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarID, boost::bind(&LLFloaterVoiceVolume::onAvatarNameCache, this, _1, _2));
+    if (mAvatarNameCacheConnection.connected())
+    {
+        mAvatarNameCacheConnection.disconnect();
+    }
+    mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarID, boost::bind(&LLFloaterVoiceVolume::onAvatarNameCache, this, _1, _2));
 }
 
 void LLFloaterVoiceVolume::updateVolumeControls()
 {
-	bool voice_enabled = LLVoiceClient::getInstance()->getVoiceEnabled(mAvatarID);
+    bool voice_enabled = LLVoiceClient::getInstance()->getVoiceEnabled(mAvatarID);
 
-	LLUICtrl* mute_btn = getChild<LLUICtrl>("mute_btn");
-	LLUICtrl* volume_slider = getChild<LLUICtrl>("volume_slider");
+    LLUICtrl* mute_btn = getChild<LLUICtrl>("mute_btn");
+    LLUICtrl* volume_slider = getChild<LLUICtrl>("volume_slider");
 
-	// Do not display volume slider and mute button if it 
-	// is ourself or we are not in a voice channel together
-	if (!voice_enabled || (mAvatarID == gAgent.getID()))
-	{
-		mute_btn->setVisible(false);
-		volume_slider->setVisible(false);
-	}
-	else 
-	{
-		mute_btn->setVisible(true);
-		volume_slider->setVisible(true);
+    // Do not display volume slider and mute button if it 
+    // is ourself or we are not in a voice channel together
+    if (!voice_enabled || (mAvatarID == gAgent.getID()))
+    {
+        mute_btn->setVisible(false);
+        volume_slider->setVisible(false);
+    }
+    else 
+    {
+        mute_btn->setVisible(true);
+        volume_slider->setVisible(true);
 
-		// By convention, we only display and toggle voice mutes, not all mutes
-		bool is_muted = LLAvatarActions::isVoiceMuted(mAvatarID);
-		bool is_linden = LLStringUtil::endsWith(mAvatarName.getUserName(), " Linden");
+        // By convention, we only display and toggle voice mutes, not all mutes
+        bool is_muted = LLAvatarActions::isVoiceMuted(mAvatarID);
+        bool is_linden = LLStringUtil::endsWith(mAvatarName.getUserName(), " Linden");
 
-		mute_btn->setEnabled(!is_linden);
-		mute_btn->setValue(is_muted);
+        mute_btn->setEnabled(!is_linden);
+        mute_btn->setValue(is_muted);
 
-		volume_slider->setEnabled(!is_muted);
+        volume_slider->setEnabled(!is_muted);
 
-		F32 volume;
-		if (is_muted)
-		{
-			// it's clearer to display their volume as zero
-			volume = 0.f;
-		}
-		else
-		{
-			// actual volume
-			volume = LLVoiceClient::getInstance()->getUserVolume(mAvatarID);
-		}
-		volume_slider->setValue((F64)volume);
-	}
+        F32 volume;
+        if (is_muted)
+        {
+            // it's clearer to display their volume as zero
+            volume = 0.f;
+        }
+        else
+        {
+            // actual volume
+            volume = LLVoiceClient::getInstance()->getUserVolume(mAvatarID);
+        }
+        volume_slider->setValue((F64)volume);
+    }
 
 }
 
 void LLFloaterVoiceVolume::onClickMuteVolume()
 {
-	LLAvatarActions::toggleMuteVoice(mAvatarID);
-	updateVolumeControls();
+    LLAvatarActions::toggleMuteVoice(mAvatarID);
+    updateVolumeControls();
 }
 
 void LLFloaterVoiceVolume::onVolumeChange(const LLSD& data)
 {
-	F32 volume = (F32)data.asReal();
-	LLVoiceClient::getInstance()->setUserVolume(mAvatarID, volume);
+    F32 volume = (F32)data.asReal();
+    LLVoiceClient::getInstance()->setUserVolume(mAvatarID, volume);
 }
 
 void LLFloaterVoiceVolume::onAvatarNameCache(
-		const LLUUID& agent_id,
-		const LLAvatarName& av_name)
+        const LLUUID& agent_id,
+        const LLAvatarName& av_name)
 {
-	mAvatarNameCacheConnection.disconnect();
+    mAvatarNameCacheConnection.disconnect();
 
-	if (agent_id != mAvatarID)
-	{
-		return;
-	}
+    if (agent_id != mAvatarID)
+    {
+        return;
+    }
 
-	getChild<LLUICtrl>("avatar_name")->setValue(av_name.getCompleteName());
-	mAvatarName = av_name;
+    getChild<LLUICtrl>("avatar_name")->setValue(av_name.getCompleteName());
+    mAvatarName = av_name;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -215,6 +215,6 @@ void LLFloaterVoiceVolume::onAvatarNameCache(
 //////////////////////////////////////////////////////////////////////////////
 void LLFloaterVoiceVolumeUtil::registerFloater()
 {
-	LLFloaterReg::add("floater_voice_volume", "floater_voice_volume.xml",
-					  &LLFloaterReg::build<LLFloaterVoiceVolume>);
+    LLFloaterReg::add("floater_voice_volume", "floater_voice_volume.xml",
+                      &LLFloaterReg::build<LLFloaterVoiceVolume>);
 }

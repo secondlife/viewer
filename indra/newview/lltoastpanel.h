@@ -41,27 +41,27 @@
  */
 class LLToastPanel : public LLPanel {
 public:
-	LLToastPanel(const LLNotificationPtr&);
-	virtual ~LLToastPanel() = 0;
+    LLToastPanel(const LLNotificationPtr&);
+    virtual ~LLToastPanel() = 0;
 
-	virtual std::string getTitle();
-	virtual const std::string& getNotificationName();
-	virtual const LLUUID& getID();
+    virtual std::string getTitle();
+    virtual const std::string& getNotificationName();
+    virtual const LLUUID& getID();
 
-	static const S32 MIN_PANEL_HEIGHT;
-	static const S32 MAX_TEXT_LENGTH;
+    static const S32 MIN_PANEL_HEIGHT;
+    static const S32 MAX_TEXT_LENGTH;
 
-	/**
-	 * Builder method for constructing notification specific panels.
-	 * Normally type of created panels shouldn't be publicated and should be hidden
-	 * from other functionality.
-	 */
-	static LLToastPanel* buidPanelFromNotification(
-			const LLNotificationPtr& notification);
+    /**
+     * Builder method for constructing notification specific panels.
+     * Normally type of created panels shouldn't be publicated and should be hidden
+     * from other functionality.
+     */
+    static LLToastPanel* buidPanelFromNotification(
+            const LLNotificationPtr& notification);
 protected:
-	LLNotificationPtr mNotification;
-	void snapToMessageHeight(LLTextBase* message, S32 maxLineCount);
-	S32 computeSnappedToMessageHeight(LLTextBase* message, S32 maxLineCount);
+    LLNotificationPtr mNotification;
+    void snapToMessageHeight(LLTextBase* message, S32 maxLineCount);
+    S32 computeSnappedToMessageHeight(LLTextBase* message, S32 maxLineCount);
 };
 
 class LLCheckBoxCtrl;
@@ -70,17 +70,17 @@ class LLCheckBoxCtrl;
 class LLCheckBoxToastPanel : public LLToastPanel
 {
 public:
-	LLCheckBoxToastPanel(const LLNotificationPtr& p_ntf);
-	virtual ~LLCheckBoxToastPanel() {};
+    LLCheckBoxToastPanel(const LLNotificationPtr& p_ntf);
+    virtual ~LLCheckBoxToastPanel() {};
 
-	// set checkboxes acording to defaults from form
-	void			setCheckBoxes(const S32 &h_pad, const S32 &v_pad, LLView *parent_view = NULL);
-	// set single checkbox
-	bool			setCheckBox(const std::string&, const std::string&, const commit_signal_t::slot_type& cb, const S32 &h_pad, const S32 &v_pad, LLView *parent_view = NULL);
+    // set checkboxes acording to defaults from form
+    void            setCheckBoxes(const S32 &h_pad, const S32 &v_pad, LLView *parent_view = NULL);
+    // set single checkbox
+    bool            setCheckBox(const std::string&, const std::string&, const commit_signal_t::slot_type& cb, const S32 &h_pad, const S32 &v_pad, LLView *parent_view = NULL);
 protected:
-	void onCommitCheckbox(LLUICtrl* ctrl);
+    void onCommitCheckbox(LLUICtrl* ctrl);
 
-	LLCheckBoxCtrl* mCheck;
+    LLCheckBoxCtrl* mCheck;
 };
 
 #endif /* LL_TOASTPANEL_H */

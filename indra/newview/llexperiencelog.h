@@ -33,53 +33,53 @@
 
 class LLExperienceLog : public LLSingleton<LLExperienceLog>
 {
-	LLSINGLETON(LLExperienceLog);
+    LLSINGLETON(LLExperienceLog);
 public:
-	typedef boost::signals2::signal<void(LLSD&)> 
-		callback_signal_t;
-	typedef callback_signal_t::slot_type callback_slot_t;
-	typedef boost::signals2::connection callback_connection_t;
-	callback_connection_t addUpdateSignal(const callback_slot_t& cb);
+    typedef boost::signals2::signal<void(LLSD&)> 
+        callback_signal_t;
+    typedef callback_signal_t::slot_type callback_slot_t;
+    typedef boost::signals2::connection callback_connection_t;
+    callback_connection_t addUpdateSignal(const callback_slot_t& cb);
 
-	void initialize();
+    void initialize();
 
-	U32 getMaxDays() const { return mMaxDays; }
-	void setMaxDays(U32 val);
+    U32 getMaxDays() const { return mMaxDays; }
+    void setMaxDays(U32 val);
 
-	bool getNotifyNewEvent() const { return mNotifyNewEvent; }
-	void setNotifyNewEvent(bool val);
+    bool getNotifyNewEvent() const { return mNotifyNewEvent; }
+    void setNotifyNewEvent(bool val);
 
-	U32 getPageSize() const { return mPageSize; }
-	void setPageSize(U32 val) { mPageSize = val; }
+    U32 getPageSize() const { return mPageSize; }
+    void setPageSize(U32 val) { mPageSize = val; }
 
-	const LLSD& getEvents()const;
-	void clear();
+    const LLSD& getEvents()const;
+    void clear();
 
-	virtual ~LLExperienceLog();
+    virtual ~LLExperienceLog();
 
-	static void notify(LLSD& message);
-	static std::string getFilename();
-	static std::string getPermissionString(const LLSD& message, const std::string& base);
-	void setEventsToSave(LLSD new_events){mEventsToSave = new_events; }
-	bool isNotExpired(std::string& date);
-	void handleExperienceMessage(LLSD& message);
+    static void notify(LLSD& message);
+    static std::string getFilename();
+    static std::string getPermissionString(const LLSD& message, const std::string& base);
+    void setEventsToSave(LLSD new_events){mEventsToSave = new_events; }
+    bool isNotExpired(std::string& date);
+    void handleExperienceMessage(LLSD& message);
 
 protected:
-	void loadEvents();
-	void saveEvents();
-	void eraseExpired();
+    void loadEvents();
+    void saveEvents();
+    void eraseExpired();
 
 
 
-	LLSD mEvents;
-	LLSD mEventsToSave;
-	callback_signal_t mSignals;
-	callback_connection_t mNotifyConnection;
-	U32 mMaxDays;
-	U32 mPageSize;
-	bool mNotifyNewEvent;
+    LLSD mEvents;
+    LLSD mEventsToSave;
+    callback_signal_t mSignals;
+    callback_connection_t mNotifyConnection;
+    U32 mMaxDays;
+    U32 mPageSize;
+    bool mNotifyNewEvent;
 
-	friend class LLExperienceLogDispatchHandler;
+    friend class LLExperienceLogDispatchHandler;
 };
 
 

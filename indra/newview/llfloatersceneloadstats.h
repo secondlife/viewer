@@ -31,12 +31,12 @@
 
 class LLFloaterSceneLoadStats : public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 private:
-	LLFloaterSceneLoadStats(const LLSD& key);
+    LLFloaterSceneLoadStats(const LLSD& key);
 
 public:
-	BOOL postBuild();
+    BOOL postBuild();
 
 };
 

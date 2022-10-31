@@ -35,50 +35,50 @@ class LLVOAvatar;
 
 typedef enum e_pointat_type
 {
-	POINTAT_TARGET_NONE,
-	POINTAT_TARGET_SELECT,
-	POINTAT_TARGET_GRAB,
-	POINTAT_TARGET_CLEAR,
-	POINTAT_NUM_TARGETS
+    POINTAT_TARGET_NONE,
+    POINTAT_TARGET_SELECT,
+    POINTAT_TARGET_GRAB,
+    POINTAT_TARGET_CLEAR,
+    POINTAT_NUM_TARGETS
 } EPointAtType;
 
 class LLHUDEffectPointAt : public LLHUDEffect
 {
 public:
-	friend class LLHUDObject;
+    friend class LLHUDObject;
 
-	/*virtual*/ void markDead();
-	/*virtual*/ void setSourceObject(LLViewerObject* objectp);
+    /*virtual*/ void markDead();
+    /*virtual*/ void setSourceObject(LLViewerObject* objectp);
 
-	BOOL setPointAt(EPointAtType target_type, LLViewerObject *object, LLVector3 position);
-	void clearPointAtTarget();
+    BOOL setPointAt(EPointAtType target_type, LLViewerObject *object, LLVector3 position);
+    void clearPointAtTarget();
 
-	EPointAtType getPointAtType() { return mTargetType; }
-	const LLVector3& getPointAtPosAgent() { return mTargetPos; }
-	const LLVector3d getPointAtPosGlobal();
+    EPointAtType getPointAtType() { return mTargetType; }
+    const LLVector3& getPointAtPosAgent() { return mTargetPos; }
+    const LLVector3d getPointAtPosGlobal();
 protected:
-	LLHUDEffectPointAt(const U8 type);
-	~LLHUDEffectPointAt();
+    LLHUDEffectPointAt(const U8 type);
+    ~LLHUDEffectPointAt();
 
-	/*virtual*/ void render();
-	/*virtual*/ void packData(LLMessageSystem *mesgsys);
-	/*virtual*/ void unpackData(LLMessageSystem *mesgsys, S32 blocknum);
+    /*virtual*/ void render();
+    /*virtual*/ void packData(LLMessageSystem *mesgsys);
+    /*virtual*/ void unpackData(LLMessageSystem *mesgsys, S32 blocknum);
 
-	// lookat behavior has either target position or target object with offset
-	void setTargetObjectAndOffset(LLViewerObject *objp, LLVector3d offset);
-	void setTargetPosGlobal(const LLVector3d &target_pos_global);
-	bool calcTargetPosition();
-	void update();
+    // lookat behavior has either target position or target object with offset
+    void setTargetObjectAndOffset(LLViewerObject *objp, LLVector3d offset);
+    void setTargetPosGlobal(const LLVector3d &target_pos_global);
+    bool calcTargetPosition();
+    void update();
 public:
-	static BOOL sDebugPointAt;
+    static BOOL sDebugPointAt;
 private:
-	EPointAtType				mTargetType;
-	LLVector3d					mTargetOffsetGlobal;
-	LLVector3					mLastSentOffsetGlobal;
-	F32							mKillTime;
-	LLFrameTimer				mTimer;
-	LLVector3					mTargetPos;
-	F32							mLastSendTime;
+    EPointAtType                mTargetType;
+    LLVector3d                  mTargetOffsetGlobal;
+    LLVector3                   mLastSentOffsetGlobal;
+    F32                         mKillTime;
+    LLFrameTimer                mTimer;
+    LLVector3                   mTargetPos;
+    F32                         mLastSendTime;
 };
 
 #endif // LL_LLHUDEFFECTPOINTAT_H

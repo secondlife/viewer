@@ -31,43 +31,43 @@
 #include "lllineeditor.h"
 #include "llpanel.h"
 #include "llparcelselection.h"
-#include "lluifwd.h"	// widget pointer types
+#include "lluifwd.h"    // widget pointer types
 
 class LLPanelLandMedia
-:	public LLPanel
+:   public LLPanel
 {
 public:
-	LLPanelLandMedia(LLSafeHandle<LLParcelSelection>& parcelp);
-	/*virtual*/ ~LLPanelLandMedia();
-	/*virtual*/ BOOL postBuild();
-	void refresh();
-	void setMediaType(const std::string& media_type);
-	void setMediaURL(const std::string& media_type);
-	std::string getMediaURL();
+    LLPanelLandMedia(LLSafeHandle<LLParcelSelection>& parcelp);
+    /*virtual*/ ~LLPanelLandMedia();
+    /*virtual*/ BOOL postBuild();
+    void refresh();
+    void setMediaType(const std::string& media_type);
+    void setMediaURL(const std::string& media_type);
+    std::string getMediaURL();
 
 private:
-	void populateMIMECombo();
-	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
-	static void onCommitType(LLUICtrl* ctrl, void *userdata);
-	static void onSetBtn(void* userdata);
-	static void onResetBtn(void* userdata);
-	
+    void populateMIMECombo();
+    static void onCommitAny(LLUICtrl* ctrl, void *userdata);
+    static void onCommitType(LLUICtrl* ctrl, void *userdata);
+    static void onSetBtn(void* userdata);
+    static void onResetBtn(void* userdata);
+    
 private:
-	LLLineEditor*	mMediaURLEdit;
-	LLLineEditor*	mMediaDescEdit;
-	LLComboBox*		mMediaTypeCombo;
-	LLButton*		mSetURLButton;
-	LLSpinCtrl*		mMediaHeightCtrl;
-	LLSpinCtrl*		mMediaWidthCtrl;
-	LLTextBox*		mMediaSizeCtrlLabel;
-	LLTextureCtrl*	mMediaTextureCtrl;
-	LLCheckBoxCtrl*	mMediaAutoScaleCheck;
-	LLCheckBoxCtrl*	mMediaLoopCheck;
-	LLHandle<LLFloater>	mURLEntryFloater;
+    LLLineEditor*   mMediaURLEdit;
+    LLLineEditor*   mMediaDescEdit;
+    LLComboBox*     mMediaTypeCombo;
+    LLButton*       mSetURLButton;
+    LLSpinCtrl*     mMediaHeightCtrl;
+    LLSpinCtrl*     mMediaWidthCtrl;
+    LLTextBox*      mMediaSizeCtrlLabel;
+    LLTextureCtrl*  mMediaTextureCtrl;
+    LLCheckBoxCtrl* mMediaAutoScaleCheck;
+    LLCheckBoxCtrl* mMediaLoopCheck;
+    LLHandle<LLFloater> mURLEntryFloater;
 
 
-	
-	LLSafeHandle<LLParcelSelection>&	mParcel;
+    
+    LLSafeHandle<LLParcelSelection>&    mParcel;
 };
 
 #endif

@@ -30,11 +30,11 @@
 class LLAgentLanguage
 {
  public:
-	static void init();
-	static bool update();
+    static void init();
+    static bool update();
 
  private:
-	static void onChange();
+    static void onChange();
 };
 
 #endif // LL_LLAGENTLANGUAGE_H

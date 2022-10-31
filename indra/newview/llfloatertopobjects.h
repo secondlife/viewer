@@ -34,78 +34,78 @@ class LLUICtrl;
 // Bits for simulator performance query flags
 enum LAND_STAT_FLAGS
 {
-	STAT_FILTER_BY_PARCEL	= 0x00000001,
-	STAT_FILTER_BY_OWNER	= 0x00000002,
-	STAT_FILTER_BY_OBJECT	= 0x00000004,
-	STAT_FILTER_BY_PARCEL_NAME	= 0x00000008,
-	STAT_REQUEST_LAST_ENTRY	= 0x80000000,
+    STAT_FILTER_BY_PARCEL   = 0x00000001,
+    STAT_FILTER_BY_OWNER    = 0x00000002,
+    STAT_FILTER_BY_OBJECT   = 0x00000004,
+    STAT_FILTER_BY_PARCEL_NAME  = 0x00000008,
+    STAT_REQUEST_LAST_ENTRY = 0x80000000,
 };
 
 enum LAND_STAT_REPORT_TYPE
 {
-	STAT_REPORT_TOP_SCRIPTS = 0,
-	STAT_REPORT_TOP_COLLIDERS
+    STAT_REPORT_TOP_SCRIPTS = 0,
+    STAT_REPORT_TOP_COLLIDERS
 };
 
 class LLFloaterTopObjects : public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 public:
-	// Opens the floater on screen.
-//	static void show();
+    // Opens the floater on screen.
+//  static void show();
 
-	// Opens the floater if it's not on-screen.
-	// Juggles the UI based on method = "scripts" or "colliders"
-	static void handle_land_reply(LLMessageSystem* msg, void** data);
-	void handleReply(LLMessageSystem* msg, void** data);
-	
-	void clearList();
-	void updateSelectionInfo();
-	virtual BOOL postBuild();
+    // Opens the floater if it's not on-screen.
+    // Juggles the UI based on method = "scripts" or "colliders"
+    static void handle_land_reply(LLMessageSystem* msg, void** data);
+    void handleReply(LLMessageSystem* msg, void** data);
+    
+    void clearList();
+    void updateSelectionInfo();
+    virtual BOOL postBuild();
 
-	void onRefresh();
+    void onRefresh();
 
-	static void setMode(U32 mode);
-	void disableRefreshBtn();
-
-private:
-	LLFloaterTopObjects(const LLSD& key);
-	~LLFloaterTopObjects();
-
-	void initColumns(LLCtrlListInterface *list);
-
-	void onCommitObjectsList();
-	static void onDoubleClickObjectsList(void* data);
-	void onClickShowBeacon();
-
-	void returnObjects(bool all);
-
-	void onReturnAll();
-	void onReturnSelected();
-
-	static bool callbackReturnAll(const LLSD& notification, const LLSD& response);
-
-	void onGetByOwnerName();
-	void onGetByObjectName();
-	void onGetByParcelName();
-
-	void showBeacon();
+    static void setMode(U32 mode);
+    void disableRefreshBtn();
 
 private:
-	std::string mMethod;
+    LLFloaterTopObjects(const LLSD& key);
+    ~LLFloaterTopObjects();
 
-	LLSD mObjectListData;
-	uuid_vec_t mObjectListIDs;
+    void initColumns(LLCtrlListInterface *list);
 
-	U32 mCurrentMode;
-	U32 mFlags;
-	std::string mFilter;
+    void onCommitObjectsList();
+    static void onDoubleClickObjectsList(void* data);
+    void onClickShowBeacon();
 
-	BOOL mInitialized;
+    void returnObjects(bool all);
 
-	F32 mtotalScore;
+    void onReturnAll();
+    void onReturnSelected();
 
-	static LLFloaterTopObjects* sInstance;
+    static bool callbackReturnAll(const LLSD& notification, const LLSD& response);
+
+    void onGetByOwnerName();
+    void onGetByObjectName();
+    void onGetByParcelName();
+
+    void showBeacon();
+
+private:
+    std::string mMethod;
+
+    LLSD mObjectListData;
+    uuid_vec_t mObjectListIDs;
+
+    U32 mCurrentMode;
+    U32 mFlags;
+    std::string mFilter;
+
+    BOOL mInitialized;
+
+    F32 mtotalScore;
+
+    static LLFloaterTopObjects* sInstance;
 };
 
 #endif

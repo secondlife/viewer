@@ -31,7 +31,7 @@
 
 class LLSD;
 
-#if !LL_WINDOWS	//For non-windows platforms.
+#if !LL_WINDOWS //For non-windows platforms.
 #include <signal.h>
 #endif
 
@@ -51,7 +51,7 @@ public:
     LLSD getProcessList();                      //Get next process pid/dir pairs
     void cleanupProcess(std::string proc_dir);               //Remove from list, clean up working dir.
     bool putProcessList(const LLSD& processlist); //Write pid/dir pairs back to disk.
-	static bool fileExists(std::string filename);
+    static bool fileExists(std::string filename);
     
 
     //getters

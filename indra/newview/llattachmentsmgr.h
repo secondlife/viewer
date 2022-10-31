@@ -61,24 +61,24 @@
 class LLAttachmentsMgr: public LLSingleton<LLAttachmentsMgr>
 {
     LLSINGLETON(LLAttachmentsMgr);
-	virtual ~LLAttachmentsMgr();
+    virtual ~LLAttachmentsMgr();
 
 public:
     // Stores info for attachments that will be requested during idle.
-	struct AttachmentsInfo
-	{
-		LLUUID mItemID;
-		U8 mAttachmentPt;
-		BOOL mAdd;
-	};
-	typedef std::deque<AttachmentsInfo> attachments_vec_t;
+    struct AttachmentsInfo
+    {
+        LLUUID mItemID;
+        U8 mAttachmentPt;
+        BOOL mAdd;
+    };
+    typedef std::deque<AttachmentsInfo> attachments_vec_t;
 
-	void addAttachmentRequest(const LLUUID& item_id,
+    void addAttachmentRequest(const LLUUID& item_id,
                               const U8 attachment_pt,
                               const BOOL add);
     void onAttachmentRequested(const LLUUID& item_id);
-	void requestAttachments(attachments_vec_t& attachment_requests);
-	static void onIdle(void *);
+    void requestAttachments(attachments_vec_t& attachment_requests);
+    static void onIdle(void *);
 
     void onAttachmentArrived(const LLUUID& inv_item_id);
 
@@ -103,30 +103,30 @@ private:
         std::string mOpName;
     };
 
-	void removeAttachmentRequestTime(const LLUUID& inv_item_id);
-	void onIdle();
-	void requestPendingAttachments();
-	void linkRecentlyArrivedAttachments();
+    void removeAttachmentRequestTime(const LLUUID& inv_item_id);
+    void onIdle();
+    void requestPendingAttachments();
+    void linkRecentlyArrivedAttachments();
     void expireOldAttachmentRequests();
     void expireOldDetachRequests();
     void checkInvalidCOFLinks();
     void spamStatusInfo();
 
     // Attachments that we are planning to rez but haven't requested from the server yet.
-	attachments_vec_t mPendingAttachments;
+    attachments_vec_t mPendingAttachments;
 
-	// Attachments that have been requested from server but have not arrived yet.
-	LLItemRequestTimes mAttachmentRequests;
+    // Attachments that have been requested from server but have not arrived yet.
+    LLItemRequestTimes mAttachmentRequests;
 
     // Attachments that have been requested to detach but have not gone away yet.
-	LLItemRequestTimes mDetachRequests;
+    LLItemRequestTimes mDetachRequests;
 
     // Attachments that have arrived but have not been linked in the COF yet.
     std::set<LLUUID> mRecentlyArrivedAttachments;
     LLTimer mCOFLinkBatchTimer;
 
     // Attachments that are linked in the COF but may be invalid.
-	LLItemRequestTimes mQuestionableCOFLinks;
+    LLItemRequestTimes mQuestionableCOFLinks;
 };
 
 #endif

@@ -31,24 +31,24 @@
 #include "llviewercontrol.h"
 #include "llviewerregion.h"
 // library includes
-#include "llui.h"					// getLanguage()
+#include "llui.h"                   // getLanguage()
 #include "httpcommon.h"
 
 // static
 void LLAgentLanguage::init()
 {
-	gSavedSettings.getControl("Language")->getSignal()->connect(boost::bind(&onChange));
-	gSavedSettings.getControl("InstallLanguage")->getSignal()->connect(boost::bind(&onChange));
-	gSavedSettings.getControl("SystemLanguage")->getSignal()->connect(boost::bind(&onChange));
-	gSavedSettings.getControl("LanguageIsPublic")->getSignal()->connect(boost::bind(&onChange));
+    gSavedSettings.getControl("Language")->getSignal()->connect(boost::bind(&onChange));
+    gSavedSettings.getControl("InstallLanguage")->getSignal()->connect(boost::bind(&onChange));
+    gSavedSettings.getControl("SystemLanguage")->getSignal()->connect(boost::bind(&onChange));
+    gSavedSettings.getControl("LanguageIsPublic")->getSignal()->connect(boost::bind(&onChange));
 }
 
 // static
 void LLAgentLanguage::onChange()
 {
-	// Clear inventory cache so that default names of inventory items
-	// appear retranslated (EXT-8308).
-	gSavedSettings.setBOOL("PurgeCacheOnNextStartup", TRUE);
+    // Clear inventory cache so that default names of inventory items
+    // appear retranslated (EXT-8308).
+    gSavedSettings.setBOOL("PurgeCacheOnNextStartup", TRUE);
 }
 
 // send language settings to the sim
@@ -57,11 +57,11 @@ bool LLAgentLanguage::update()
 {
     LLSD body;
 
-	std::string language = LLUI::getLanguage();
-		
-	body["language"] = language;
-	body["language_is_public"] = gSavedSettings.getBOOL("LanguageIsPublic");
-		
+    std::string language = LLUI::getLanguage();
+        
+    body["language"] = language;
+    body["language_is_public"] = gSavedSettings.getBOOL("LanguageIsPublic");
+        
     if (!gAgent.requestPostCapability("UpdateAgentLanguage", body))
     {
         LL_WARNS("Language") << "Language capability unavailable." << LL_ENDL;

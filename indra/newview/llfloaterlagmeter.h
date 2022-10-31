@@ -33,48 +33,48 @@ class LLTextBox;
 
 class LLFloaterLagMeter : public LLFloater
 {
-	friend class LLFloaterReg;
-	
+    friend class LLFloaterReg;
+    
 public:
-	/*virtual*/ void draw();
-	/*virtual*/ BOOL postBuild();	
+    /*virtual*/ void draw();
+    /*virtual*/ BOOL postBuild();   
 private:
-	
-	LLFloaterLagMeter(const LLSD& key);
-	/*virtual*/ ~LLFloaterLagMeter();
-	void determineClient();
-	void determineNetwork();
-	void determineServer();
-	void updateControls(bool shrink);
-	BOOL isShrunk();
+    
+    LLFloaterLagMeter(const LLSD& key);
+    /*virtual*/ ~LLFloaterLagMeter();
+    void determineClient();
+    void determineNetwork();
+    void determineServer();
+    void updateControls(bool shrink);
+    BOOL isShrunk();
 
-	void onClickShrink();
+    void onClickShrink();
 
-	bool mShrunk;
-	S32 mMaxWidth, mMinWidth;
+    bool mShrunk;
+    S32 mMaxWidth, mMinWidth;
 
-	F32Milliseconds mClientFrameTimeCritical;
-	F32Milliseconds mClientFrameTimeWarning;
-	LLButton*		mClientButton;
-	LLTextBox*		mClientText;
-	LLTextBox*		mClientCause;
+    F32Milliseconds mClientFrameTimeCritical;
+    F32Milliseconds mClientFrameTimeWarning;
+    LLButton*       mClientButton;
+    LLTextBox*      mClientText;
+    LLTextBox*      mClientCause;
 
-	F32Percent		mNetworkPacketLossCritical;
-	F32Percent		mNetworkPacketLossWarning;
-	F32Milliseconds mNetworkPingCritical;
-	F32Milliseconds mNetworkPingWarning;
-	LLButton*       mNetworkButton;
-	LLTextBox*      mNetworkText;
-	LLTextBox*      mNetworkCause;
+    F32Percent      mNetworkPacketLossCritical;
+    F32Percent      mNetworkPacketLossWarning;
+    F32Milliseconds mNetworkPingCritical;
+    F32Milliseconds mNetworkPingWarning;
+    LLButton*       mNetworkButton;
+    LLTextBox*      mNetworkText;
+    LLTextBox*      mNetworkCause;
 
-	F32Milliseconds mServerFrameTimeCritical;
-	F32Milliseconds mServerFrameTimeWarning;
-	F32Milliseconds mServerSingleProcessMaxTime;
-	LLButton*       mServerButton;
-	LLTextBox*      mServerText;
-	LLTextBox*      mServerCause;
+    F32Milliseconds mServerFrameTimeCritical;
+    F32Milliseconds mServerFrameTimeWarning;
+    F32Milliseconds mServerSingleProcessMaxTime;
+    LLButton*       mServerButton;
+    LLTextBox*      mServerText;
+    LLTextBox*      mServerCause;
 
-	LLStringUtil::format_map_t mStringArgs;
+    LLStringUtil::format_map_t mStringArgs;
 };
 
 #endif

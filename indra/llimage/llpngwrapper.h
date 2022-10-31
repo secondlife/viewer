@@ -32,66 +32,66 @@
 class LLPngWrapper
 {
 public:
-	LLPngWrapper();
-	virtual ~LLPngWrapper();
+    LLPngWrapper();
+    virtual ~LLPngWrapper();
 
 public:
-	struct ImageInfo
-	{
-		U16 mWidth;
-		U16 mHeight;
-		S8  mComponents;
-	};
+    struct ImageInfo
+    {
+        U16 mWidth;
+        U16 mHeight;
+        S8  mComponents;
+    };
 
-	BOOL isValidPng(U8* src);
-	BOOL readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInfo *infop = NULL);
-	BOOL writePng(const LLImageRaw* rawImage, U8* dst, size_t destSize);
-	U32  getFinalSize();
-	const std::string& getErrorMessage();
+    BOOL isValidPng(U8* src);
+    BOOL readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInfo *infop = NULL);
+    BOOL writePng(const LLImageRaw* rawImage, U8* dst, size_t destSize);
+    U32  getFinalSize();
+    const std::string& getErrorMessage();
 
 protected:
-	void normalizeImage();
-	void updateMetaData();
+    void normalizeImage();
+    void updateMetaData();
 
 private:
 
-	// Structure for writing/reading PNG data to/from memory
-	// as opposed to using a file.
-	struct PngDataInfo
-	{
-		U8 *mData;
-		U32 mOffset;
-		S32 mDataSize;
-	};
+    // Structure for writing/reading PNG data to/from memory
+    // as opposed to using a file.
+    struct PngDataInfo
+    {
+        U8 *mData;
+        U32 mOffset;
+        S32 mDataSize;
+    };
 
-	static void writeFlush(png_structp png_ptr);
-	static void errorHandler(png_structp png_ptr, png_const_charp msg);
-	static void readDataCallback(png_structp png_ptr, png_bytep dest, png_size_t length);
-	static void writeDataCallback(png_structp png_ptr, png_bytep src, png_size_t length);
+    static void writeFlush(png_structp png_ptr);
+    static void errorHandler(png_structp png_ptr, png_const_charp msg);
+    static void readDataCallback(png_structp png_ptr, png_bytep dest, png_size_t length);
+    static void writeDataCallback(png_structp png_ptr, png_bytep src, png_size_t length);
 
-	void releaseResources();
+    void releaseResources();
 
-	png_structp mReadPngPtr;
-	png_infop mReadInfoPtr;
-	png_structp mWritePngPtr;
-	png_infop mWriteInfoPtr;
+    png_structp mReadPngPtr;
+    png_infop mReadInfoPtr;
+    png_structp mWritePngPtr;
+    png_infop mWriteInfoPtr;
 
-	U8 **mRowPointers;
+    U8 **mRowPointers;
 
-	png_uint_32 mWidth;
-	png_uint_32 mHeight;
-	S32 mBitDepth;
-	S32 mColorType;
-	S32 mChannels;
-	S32 mInterlaceType;
-	S32 mCompressionType;
-	S32 mFilterMethod;
+    png_uint_32 mWidth;
+    png_uint_32 mHeight;
+    S32 mBitDepth;
+    S32 mColorType;
+    S32 mChannels;
+    S32 mInterlaceType;
+    S32 mCompressionType;
+    S32 mFilterMethod;
 
-	U32 mFinalSize;
+    U32 mFinalSize;
 
-	F64 mGamma;
+    F64 mGamma;
 
-	std::string mErrorMessage;
+    std::string mErrorMessage;
 };
 
 #endif

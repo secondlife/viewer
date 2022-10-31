@@ -37,40 +37,40 @@
 class LLDelayedGestureError
 {
 public:
-	/**
-	 * @brief Generates a missing gesture error
-	 * @param id UUID of missing gesture
-	 * Delays message for up to 5 seconds if UUID can't be immediately converted to a text description
-	 */
-	static void gestureMissing(const LLUUID &id);
+    /**
+     * @brief Generates a missing gesture error
+     * @param id UUID of missing gesture
+     * Delays message for up to 5 seconds if UUID can't be immediately converted to a text description
+     */
+    static void gestureMissing(const LLUUID &id);
 
-	/**
-	 * @brief Generates a gesture failed to load error
-	 * @param id UUID of missing gesture
-	 * Delays message for up to 5 seconds if UUID can't be immediately converted to a text description
-	 */
-	static void gestureFailedToLoad(const LLUUID &id);
+    /**
+     * @brief Generates a gesture failed to load error
+     * @param id UUID of missing gesture
+     * Delays message for up to 5 seconds if UUID can't be immediately converted to a text description
+     */
+    static void gestureFailedToLoad(const LLUUID &id);
 
 private:
-	
+    
 
-	struct LLErrorEntry
-	{
-		LLErrorEntry(const std::string& notify, const LLUUID &item) : mTimer(), mNotifyName(notify), mItemID(item) {}
+    struct LLErrorEntry
+    {
+        LLErrorEntry(const std::string& notify, const LLUUID &item) : mTimer(), mNotifyName(notify), mItemID(item) {}
 
-		LLTimer mTimer;
-		std::string mNotifyName;
-		LLUUID mItemID;
-	};
+        LLTimer mTimer;
+        std::string mNotifyName;
+        LLUUID mItemID;
+    };
 
 
-	static bool doDialog(const LLErrorEntry &ent, bool uuid_ok = false);
-	static void enqueue(const LLErrorEntry &ent);
-	static void onIdle(void *userdata);
+    static bool doDialog(const LLErrorEntry &ent, bool uuid_ok = false);
+    static void enqueue(const LLErrorEntry &ent);
+    static void onIdle(void *userdata);
 
-	typedef std::list<LLErrorEntry> ErrorQueue;
+    typedef std::list<LLErrorEntry> ErrorQueue;
 
-	static ErrorQueue sQueue;
+    static ErrorQueue sQueue;
 };
 
 

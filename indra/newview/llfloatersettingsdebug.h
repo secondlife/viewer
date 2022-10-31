@@ -31,29 +31,29 @@
 #include "llfloater.h"
 
 class LLFloaterSettingsDebug 
-:	public LLFloater
+:   public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 
 public:
 
-	virtual BOOL postBuild();
-	virtual void draw();
+    virtual BOOL postBuild();
+    virtual void draw();
 
-	void updateControl(LLControlVariable* control);
+    void updateControl(LLControlVariable* control);
 
-	void onSettingSelect(LLUICtrl* ctrl);
-	void onCommitSettings();
-	void onClickDefault();
+    void onSettingSelect(LLUICtrl* ctrl);
+    void onCommitSettings();
+    void onClickDefault();
 
 private:
-	// key - selects which settings to show, one of:
-	// "all", "base", "account", "skin"
-	LLFloaterSettingsDebug(const LLSD& key);
-	virtual ~LLFloaterSettingsDebug();
-	
+    // key - selects which settings to show, one of:
+    // "all", "base", "account", "skin"
+    LLFloaterSettingsDebug(const LLSD& key);
+    virtual ~LLFloaterSettingsDebug();
+    
 protected:
-	class LLTextEditor* mComment;
+    class LLTextEditor* mComment;
 };
 
 #endif //LLFLOATERDEBUGSETTINGS_H

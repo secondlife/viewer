@@ -30,21 +30,21 @@
 //SelectionQuota atm does not require a id
 struct SelectionCost
 {
-	SelectionCost( /*LLTransactionID transactionId, */ F32 physicsCost, F32 networkCost, F32 simulationCost )
-	//: mTransactionId( transactionId)
-	: mPhysicsCost( physicsCost )
-	, mNetworkCost( networkCost )
-	, mSimulationCost( simulationCost )
-	{
-	}
-	SelectionCost()
-	: mPhysicsCost( 0.0f )
-	, mNetworkCost( 0.0f )
-	, mSimulationCost( 0.0f )
-	{}
-	
-	F32 mPhysicsCost, mNetworkCost, mSimulationCost;	
-	//LLTransactionID mTransactionId;
+    SelectionCost( /*LLTransactionID transactionId, */ F32 physicsCost, F32 networkCost, F32 simulationCost )
+    //: mTransactionId( transactionId)
+    : mPhysicsCost( physicsCost )
+    , mNetworkCost( networkCost )
+    , mSimulationCost( simulationCost )
+    {
+    }
+    SelectionCost()
+    : mPhysicsCost( 0.0f )
+    , mNetworkCost( 0.0f )
+    , mSimulationCost( 0.0f )
+    {}
+    
+    F32 mPhysicsCost, mNetworkCost, mSimulationCost;    
+    //LLTransactionID mTransactionId;
 };
 
 typedef enum { Roots = 0 , Prims } eSelectionType;

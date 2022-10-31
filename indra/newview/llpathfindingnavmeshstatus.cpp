@@ -51,48 +51,48 @@ const std::string LLPathfindingNavMeshStatus::sStatusRepending("repending");
 //---------------------------------------------------------------------------
 
 LLPathfindingNavMeshStatus::LLPathfindingNavMeshStatus()
-	: mIsValid(false),
-	mRegionUUID(),
-	mVersion(0U),
-	mStatus(kComplete)
+    : mIsValid(false),
+    mRegionUUID(),
+    mVersion(0U),
+    mStatus(kComplete)
 {
 }
 
 LLPathfindingNavMeshStatus::LLPathfindingNavMeshStatus(const LLUUID &pRegionUUID)
-	: mIsValid(false),
-	mRegionUUID(pRegionUUID),
-	mVersion(0U),
-	mStatus(kComplete)
+    : mIsValid(false),
+    mRegionUUID(pRegionUUID),
+    mVersion(0U),
+    mStatus(kComplete)
 {
 }
 
 LLPathfindingNavMeshStatus::LLPathfindingNavMeshStatus(const LLUUID &pRegionUUID, const LLSD &pContent)
-	: mIsValid(true),
-	mRegionUUID(pRegionUUID),
-	mVersion(0U),
-	mStatus(kComplete)
+    : mIsValid(true),
+    mRegionUUID(pRegionUUID),
+    mVersion(0U),
+    mStatus(kComplete)
 {
-	parseStatus(pContent);
+    parseStatus(pContent);
 }
 
 LLPathfindingNavMeshStatus::LLPathfindingNavMeshStatus(const LLSD &pContent)
-	: mIsValid(true),
-	mRegionUUID(),
-	mVersion(0U),
-	mStatus(kComplete)
+    : mIsValid(true),
+    mRegionUUID(),
+    mVersion(0U),
+    mStatus(kComplete)
 {
-	llassert(pContent.has(REGION_FIELD));
-	llassert(pContent.get(REGION_FIELD).isUUID());
-	mRegionUUID = pContent.get(REGION_FIELD).asUUID();
+    llassert(pContent.has(REGION_FIELD));
+    llassert(pContent.get(REGION_FIELD).isUUID());
+    mRegionUUID = pContent.get(REGION_FIELD).asUUID();
 
-	parseStatus(pContent);
+    parseStatus(pContent);
 }
 
 LLPathfindingNavMeshStatus::LLPathfindingNavMeshStatus(const LLPathfindingNavMeshStatus &pOther)
-	: mIsValid(pOther.mIsValid),
-	mRegionUUID(pOther.mRegionUUID),
-	mVersion(pOther.mVersion),
-	mStatus(pOther.mStatus)
+    : mIsValid(pOther.mIsValid),
+    mRegionUUID(pOther.mRegionUUID),
+    mVersion(pOther.mVersion),
+    mStatus(pOther.mStatus)
 {
 }
 
@@ -102,44 +102,44 @@ LLPathfindingNavMeshStatus::~LLPathfindingNavMeshStatus()
 
 LLPathfindingNavMeshStatus &LLPathfindingNavMeshStatus::operator =(const LLPathfindingNavMeshStatus &pOther)
 {
-	mIsValid = pOther.mIsValid;
-	mRegionUUID = pOther.mRegionUUID;
-	mVersion = pOther.mVersion;
-	mStatus = pOther.mStatus;
+    mIsValid = pOther.mIsValid;
+    mRegionUUID = pOther.mRegionUUID;
+    mVersion = pOther.mVersion;
+    mStatus = pOther.mStatus;
 
-	return *this;
+    return *this;
 }
 
 void LLPathfindingNavMeshStatus::parseStatus(const LLSD &pContent)
 {
-	llassert(pContent.has(VERSION_FIELD));
-	llassert(pContent.get(VERSION_FIELD).isInteger());
-	llassert(pContent.get(VERSION_FIELD).asInteger() >= 0);
-	mVersion = static_cast<U32>(pContent.get(VERSION_FIELD).asInteger());
+    llassert(pContent.has(VERSION_FIELD));
+    llassert(pContent.get(VERSION_FIELD).isInteger());
+    llassert(pContent.get(VERSION_FIELD).asInteger() >= 0);
+    mVersion = static_cast<U32>(pContent.get(VERSION_FIELD).asInteger());
 
-	llassert(pContent.has(STATUS_FIELD));
-	llassert(pContent.get(STATUS_FIELD).isString());
-	std::string status = pContent.get(STATUS_FIELD).asString();
+    llassert(pContent.has(STATUS_FIELD));
+    llassert(pContent.get(STATUS_FIELD).isString());
+    std::string status = pContent.get(STATUS_FIELD).asString();
 
-	if (LLStringUtil::compareStrings(status, sStatusPending) == 0)
-	{
-		mStatus = kPending;
-	}
-	else if (LLStringUtil::compareStrings(status, sStatusBuilding) == 0)
-	{
-		mStatus = kBuilding;
-	}
-	else if (LLStringUtil::compareStrings(status, sStatusComplete) == 0)
-	{
-		mStatus = kComplete;
-	}
-	else if (LLStringUtil::compareStrings(status, sStatusRepending) == 0)
-	{
-		mStatus = kRepending;
-	}
-	else
-	{
-		mStatus = kComplete;
-		llassert(0);
-	}
+    if (LLStringUtil::compareStrings(status, sStatusPending) == 0)
+    {
+        mStatus = kPending;
+    }
+    else if (LLStringUtil::compareStrings(status, sStatusBuilding) == 0)
+    {
+        mStatus = kBuilding;
+    }
+    else if (LLStringUtil::compareStrings(status, sStatusComplete) == 0)
+    {
+        mStatus = kComplete;
+    }
+    else if (LLStringUtil::compareStrings(status, sStatusRepending) == 0)
+    {
+        mStatus = kRepending;
+    }
+    else
+    {
+        mStatus = kComplete;
+        llassert(0);
+    }
 }

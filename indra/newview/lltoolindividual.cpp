@@ -68,46 +68,46 @@ LLToolIndividual::~LLToolIndividual()
 
 BOOL LLToolIndividual::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	gViewerWindow->pickAsync(x, y, mask, pickCallback);
-	return TRUE;
+    gViewerWindow->pickAsync(x, y, mask, pickCallback);
+    return TRUE;
 }
 
 void LLToolIndividual::pickCallback(const LLPickInfo& pick_info)
 {
-	LLViewerObject* obj = pick_info.getObject();
-	LLSelectMgr::getInstance()->deselectAll();
-	if(obj)
-	{
-		LLSelectMgr::getInstance()->selectObjectOnly(obj);
-	}
+    LLViewerObject* obj = pick_info.getObject();
+    LLSelectMgr::getInstance()->deselectAll();
+    if(obj)
+    {
+        LLSelectMgr::getInstance()->selectObjectOnly(obj);
+    }
 }
 
 BOOL LLToolIndividual::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	if(!LLSelectMgr::getInstance()->getSelection()->isEmpty())
-	{
-		// You should already have an object selected from the mousedown.
-		// If so, show its inventory. 
-		LLFloaterReg::showInstance("build", "Content");
-		return TRUE;
-	}
-	else
-	{
-		// Nothing selected means the first mouse click was probably
-		// bad, so try again.
-		return FALSE;
-	}
+    if(!LLSelectMgr::getInstance()->getSelection()->isEmpty())
+    {
+        // You should already have an object selected from the mousedown.
+        // If so, show its inventory. 
+        LLFloaterReg::showInstance("build", "Content");
+        return TRUE;
+    }
+    else
+    {
+        // Nothing selected means the first mouse click was probably
+        // bad, so try again.
+        return FALSE;
+    }
 }
 
 void LLToolIndividual::handleSelect()
 {
-	const BOOL children_ok = TRUE;
-	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
-	LLSelectMgr::getInstance()->deselectAll();
-	if(obj)
-	{
-		LLSelectMgr::getInstance()->selectObjectOnly(obj);
-	}
+    const BOOL children_ok = TRUE;
+    LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
+    LLSelectMgr::getInstance()->deselectAll();
+    if(obj)
+    {
+        LLSelectMgr::getInstance()->selectObjectOnly(obj);
+    }
 }
 
 ///----------------------------------------------------------------------------

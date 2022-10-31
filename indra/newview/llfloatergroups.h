@@ -53,74 +53,74 @@ class LLFloaterGroupPicker;
 class LLFloaterGroupPicker : public LLFloater
 {
 public:
-	LLFloaterGroupPicker(const LLSD& seed);
-	~LLFloaterGroupPicker();
-	
-	// Note: Don't return connection; use boost::bind + boost::signals2::trackable to disconnect slots
-	typedef boost::signals2::signal<void (LLUUID id)> signal_t;	
-	void setSelectGroupCallback(const signal_t::slot_type& cb) { mGroupSelectSignal.connect(cb); }
-	void setPowersMask(U64 powers_mask);
-	BOOL postBuild();
+    LLFloaterGroupPicker(const LLSD& seed);
+    ~LLFloaterGroupPicker();
+    
+    // Note: Don't return connection; use boost::bind + boost::signals2::trackable to disconnect slots
+    typedef boost::signals2::signal<void (LLUUID id)> signal_t; 
+    void setSelectGroupCallback(const signal_t::slot_type& cb) { mGroupSelectSignal.connect(cb); }
+    void setPowersMask(U64 powers_mask);
+    BOOL postBuild();
 
-	// implementation of factory policy
-	static LLFloaterGroupPicker* findInstance(const LLSD& seed);
-	static LLFloaterGroupPicker* createInstance(const LLSD& seed);
+    // implementation of factory policy
+    static LLFloaterGroupPicker* findInstance(const LLSD& seed);
+    static LLFloaterGroupPicker* createInstance(const LLSD& seed);
 
-	// for cases like inviting avatar to group we don't want the none option
-	void removeNoneOption();
-
-protected:
-	void ok();
-	static void onBtnOK(void* userdata);
-	static void onBtnCancel(void* userdata);
+    // for cases like inviting avatar to group we don't want the none option
+    void removeNoneOption();
 
 protected:
-	LLUUID mID;
-	U64 mPowersMask;
-	signal_t mGroupSelectSignal;
+    void ok();
+    static void onBtnOK(void* userdata);
+    static void onBtnCancel(void* userdata);
 
-	typedef std::map<const LLUUID, LLFloaterGroupPicker*> instance_map_t;
-	static instance_map_t sInstances;
+protected:
+    LLUUID mID;
+    U64 mPowersMask;
+    signal_t mGroupSelectSignal;
+
+    typedef std::map<const LLUUID, LLFloaterGroupPicker*> instance_map_t;
+    static instance_map_t sInstances;
 };
 
 class LLPanelGroups : public LLPanel, public LLOldEvents::LLSimpleListener
 {
 public:
-	LLPanelGroups();
-	virtual ~LLPanelGroups();
+    LLPanelGroups();
+    virtual ~LLPanelGroups();
 
-	//LLEventListener
-	/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
-	
-	// clear the group list, and get a fresh set of info.
-	void reset();
+    //LLEventListener
+    /*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+    
+    // clear the group list, and get a fresh set of info.
+    void reset();
 
 protected:
-	// initialize based on the type
-	BOOL postBuild();
+    // initialize based on the type
+    BOOL postBuild();
 
-	// highlight_id is a group id to highlight
-	void enableButtons();
+    // highlight_id is a group id to highlight
+    void enableButtons();
 
-	static void onGroupList(LLUICtrl* ctrl, void* userdata);
-	static void onBtnCreate(void* userdata);
-	static void onBtnActivate(void* userdata);
-	static void onBtnInfo(void* userdata);
-	static void onBtnIM(void* userdata);
-	static void onBtnLeave(void* userdata);
-	static void onBtnSearch(void* userdata);
-	static void onBtnVote(void* userdata);
-	static void onDoubleClickGroup(void* userdata);
+    static void onGroupList(LLUICtrl* ctrl, void* userdata);
+    static void onBtnCreate(void* userdata);
+    static void onBtnActivate(void* userdata);
+    static void onBtnInfo(void* userdata);
+    static void onBtnIM(void* userdata);
+    static void onBtnLeave(void* userdata);
+    static void onBtnSearch(void* userdata);
+    static void onBtnVote(void* userdata);
+    static void onDoubleClickGroup(void* userdata);
 
-	void create();
-	void activate();
-	void info();
-	void startIM();
-	void leave();
-	void search();
-	void callVote();
+    void create();
+    void activate();
+    void info();
+    void startIM();
+    void leave();
+    void search();
+    void callVote();
 
-	static bool callbackLeaveGroup(const LLSD& notification, const LLSD& response);
+    static bool callbackLeaveGroup(const LLSD& notification, const LLSD& response);
 
 };
 

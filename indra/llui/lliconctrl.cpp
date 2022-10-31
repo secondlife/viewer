@@ -40,48 +40,48 @@
 static LLDefaultChildRegistry::Register<LLIconCtrl> r("icon");
 
 LLIconCtrl::Params::Params()
-:	image("image_name"),
-	color("color"),
-	use_draw_context_alpha("use_draw_context_alpha", true),
+:   image("image_name"),
+    color("color"),
+    use_draw_context_alpha("use_draw_context_alpha", true),
     interactable("interactable", false),
-	scale_image("scale_image"),
-	min_width("min_width", 0),
-	min_height("min_height", 0)
+    scale_image("scale_image"),
+    min_width("min_width", 0),
+    min_height("min_height", 0)
 {}
 
 LLIconCtrl::LLIconCtrl(const LLIconCtrl::Params& p)
-:	LLUICtrl(p),
-	mColor(p.color()),
-	mImagep(p.image),
-	mUseDrawContextAlpha(p.use_draw_context_alpha),
+:   LLUICtrl(p),
+    mColor(p.color()),
+    mImagep(p.image),
+    mUseDrawContextAlpha(p.use_draw_context_alpha),
     mInteractable(p.interactable),
-	mPriority(0),
-	mMinWidth(p.min_width),
-	mMinHeight(p.min_height),
-	mMaxWidth(0),
-	mMaxHeight(0)
+    mPriority(0),
+    mMinWidth(p.min_width),
+    mMinHeight(p.min_height),
+    mMaxWidth(0),
+    mMaxHeight(0)
 {
-	if (mImagep.notNull())
-	{
-		LLUICtrl::setValue(mImagep->getName());
-	}
+    if (mImagep.notNull())
+    {
+        LLUICtrl::setValue(mImagep->getName());
+    }
 }
 
 LLIconCtrl::~LLIconCtrl()
 {
-	mImagep = NULL;
+    mImagep = NULL;
 }
 
 
 void LLIconCtrl::draw()
 {
-	if( mImagep.notNull() )
-	{
-		const F32 alpha = mUseDrawContextAlpha ? getDrawContext().mAlpha : getCurrentTransparency();
-		mImagep->draw(getLocalRect(), mColor.get() % alpha );
-	}
+    if( mImagep.notNull() )
+    {
+        const F32 alpha = mUseDrawContextAlpha ? getDrawContext().mAlpha : getCurrentTransparency();
+        mImagep->draw(getLocalRect(), mColor.get() % alpha );
+    }
 
-	LLUICtrl::draw();
+    LLUICtrl::draw();
 }
 
 BOOL LLIconCtrl::handleHover(S32 x, S32 y, MASK mask)
@@ -103,27 +103,27 @@ void LLIconCtrl::setValue(const LLSD& value)
 
 void LLIconCtrl::setValue(const LLSD& value, S32 priority)
 {
-	LLSD tvalue(value);
-	if (value.isString() && LLUUID::validate(value.asString()))
-	{
-		//RN: support UUIDs masquerading as strings
-		tvalue = LLSD(LLUUID(value.asString()));
-	}
-	LLUICtrl::setValue(tvalue);
-	if (tvalue.isUUID())
-	{
+    LLSD tvalue(value);
+    if (value.isString() && LLUUID::validate(value.asString()))
+    {
+        //RN: support UUIDs masquerading as strings
+        tvalue = LLSD(LLUUID(value.asString()));
+    }
+    LLUICtrl::setValue(tvalue);
+    if (tvalue.isUUID())
+    {
         mImagep = LLUI::getUIImageByID(tvalue.asUUID(), priority);
-	}
-	else
-	{
+    }
+    else
+    {
         mImagep = LLUI::getUIImage(tvalue.asString(), priority);
-	}
+    }
 
-	if(mImagep.notNull() 
-		&& mImagep->getImage().notNull() 
-		&& mMinWidth 
-		&& mMinHeight)
-	{
+    if(mImagep.notNull() 
+        && mImagep->getImage().notNull() 
+        && mMinWidth 
+        && mMinHeight)
+    {
         S32 desired_draw_width = llmax(mMinWidth, mImagep->getWidth());
         S32 desired_draw_height = llmax(mMinHeight, mImagep->getHeight());
         if (mMaxWidth && mMaxHeight)
@@ -133,15 +133,15 @@ void LLIconCtrl::setValue(const LLSD& value, S32 priority)
         }
 
         mImagep->getImage()->setKnownDrawSize(desired_draw_width, desired_draw_height);
-	}
+    }
 }
 
 std::string LLIconCtrl::getImageName() const
 {
-	if (getValue().isString())
-		return getValue().asString();
-	else
-		return std::string();
+    if (getValue().isString())
+        return getValue().asString();
+    else
+        return std::string();
 }
 
 

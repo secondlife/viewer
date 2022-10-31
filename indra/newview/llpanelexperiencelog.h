@@ -32,33 +32,33 @@
 class LLScrollListCtrl;
 
 class LLPanelExperienceLog
-	: public LLPanel 
+    : public LLPanel 
 {
 public:
 
-	LLPanelExperienceLog();
+    LLPanelExperienceLog();
 
-	static LLPanelExperienceLog* create();
+    static LLPanelExperienceLog* create();
 
-	/*virtual*/ BOOL postBuild(void);
+    /*virtual*/ BOOL postBuild(void);
 
-	void refresh();
+    void refresh();
 protected:
-	void logSizeChanged();
-	void notifyChanged();
-	void onNext();
-	void onNotify();
-	void onPrev();
-	void onProfileExperience();
-	void onReportExperience();
-	void onSelectionChanged();
+    void logSizeChanged();
+    void notifyChanged();
+    void onNext();
+    void onNotify();
+    void onPrev();
+    void onProfileExperience();
+    void onReportExperience();
+    void onSelectionChanged();
 
-	LLSD getSelectedEvent();
+    LLSD getSelectedEvent();
 private:
-	LLScrollListCtrl* mEventList;
-	U32 mPageSize;
-	U32 mCurrentPage;
-	boost::signals2::scoped_connection mNewEvent;
+    LLScrollListCtrl* mEventList;
+    U32 mPageSize;
+    U32 mCurrentPage;
+    boost::signals2::scoped_connection mNewEvent;
 };
 
 #endif // LL_LLPANELEXPERIENCELOG_H

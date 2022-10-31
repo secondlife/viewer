@@ -39,97 +39,97 @@
 class LLInboxInventoryPanel : public LLInventoryPanel
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLInventoryPanel::Params>
-	{};
-	
-	LLInboxInventoryPanel(const Params& p);
-	~LLInboxInventoryPanel();
+    struct Params : public LLInitParam::Block<Params, LLInventoryPanel::Params>
+    {};
+    
+    LLInboxInventoryPanel(const Params& p);
+    ~LLInboxInventoryPanel();
 
-	// virtual
-	void initFromParams(const LLInventoryPanel::Params&);
-	LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop);
-	LLFolderViewItem * createFolderViewItem(LLInvFVBridge * bridge);
+    // virtual
+    void initFromParams(const LLInventoryPanel::Params&);
+    LLFolderViewFolder* createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop);
+    LLFolderViewItem * createFolderViewItem(LLInvFVBridge * bridge);
 };
 
 
 class LLInboxFolderViewFolder : public LLFolderViewFolder, public LLBadgeOwner
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLFolderViewFolder::Params>
-	{
-		Optional<LLBadge::Params>	new_badge;
-		
-		Params()
-		:	new_badge("new_badge")
-		{}
-	};
-	
-	LLInboxFolderViewFolder(const Params& p);
-	
+    struct Params : public LLInitParam::Block<Params, LLFolderViewFolder::Params>
+    {
+        Optional<LLBadge::Params>   new_badge;
+        
+        Params()
+        :   new_badge("new_badge")
+        {}
+    };
+    
+    LLInboxFolderViewFolder(const Params& p);
+    
     void addItem(LLFolderViewItem* item);
-	void draw();
-	
-	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
-	void selectItem();
+    void draw();
+    
+    BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+    void selectItem();
 
-	void computeFreshness();
-	void deFreshify();
+    void computeFreshness();
+    void deFreshify();
 
-	bool isFresh() const { return mFresh; }
-	
+    bool isFresh() const { return mFresh; }
+    
 protected:
-	bool mFresh;
+    bool mFresh;
 };
 
 
 class LLInboxFolderViewItem : public LLFolderViewItem, public LLBadgeOwner
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLFolderViewItem::Params>
-	{
-		Optional<LLBadge::Params>	new_badge;
+    struct Params : public LLInitParam::Block<Params, LLFolderViewItem::Params>
+    {
+        Optional<LLBadge::Params>   new_badge;
 
-		Params()
-		:	new_badge("new_badge")
-		{}
-	};
+        Params()
+        :   new_badge("new_badge")
+        {}
+    };
 
-	LLInboxFolderViewItem(const Params& p);
+    LLInboxFolderViewItem(const Params& p);
 
-	void addToFolder(LLFolderViewFolder* folder);
-	BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+    void addToFolder(LLFolderViewFolder* folder);
+    BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
 
-	void draw();
+    void draw();
 
-	void selectItem();
+    void selectItem();
 
-	void computeFreshness();
-	void deFreshify();
+    void computeFreshness();
+    void deFreshify();
 
-	bool isFresh() const { return mFresh; }
+    bool isFresh() const { return mFresh; }
 
 protected:
-	bool mFresh;
+    bool mFresh;
 };
 
 class LLInboxNewItemsStorage : public LLSingleton<LLInboxNewItemsStorage>
-	, public LLDestroyClass<LLInboxNewItemsStorage>
+    , public LLDestroyClass<LLInboxNewItemsStorage>
 {
-	LLSINGLETON(LLInboxNewItemsStorage);
-	LOG_CLASS(LLInboxNewItemsStorage);
+    LLSINGLETON(LLInboxNewItemsStorage);
+    LOG_CLASS(LLInboxNewItemsStorage);
 public:
-	static void destroyClass();
-	void saveNewItemsIds();
+    static void destroyClass();
+    void saveNewItemsIds();
 
-	void load();
-	
-	void addFreshItem(const LLUUID& id) { mNewItemsIDs.insert(id); }
-	void removeItem(const LLUUID& id) { mNewItemsIDs.erase(id); }
-	bool isItemFresh(const LLUUID& id) { return (mNewItemsIDs.find(id) != mNewItemsIDs.end()); }
+    void load();
+    
+    void addFreshItem(const LLUUID& id) { mNewItemsIDs.insert(id); }
+    void removeItem(const LLUUID& id) { mNewItemsIDs.erase(id); }
+    bool isItemFresh(const LLUUID& id) { return (mNewItemsIDs.find(id) != mNewItemsIDs.end()); }
 
 private:
-	std::set<LLUUID> mNewItemsIDs;
+    std::set<LLUUID> mNewItemsIDs;
 };
 
 #endif //LL_INBOXINVENTORYPANEL_H

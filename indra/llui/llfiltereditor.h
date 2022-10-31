@@ -3,13 +3,13 @@
  * @brief Text editor widget that represents a filter operation
  *
  * Features: 
- *		Text entry of a single line (text, delete, left and right arrow, insert, return).
- *		Callbacks either on every keystroke or just on the return key.
- *		Focus (allow multiple text entry widgets)
- *		Clipboard (cut, copy, and paste)
- *		Horizontal scrolling to allow strings longer than widget size allows 
- *		Pre-validation (limit which keys can be used)
- *		Optional line history so previous entries can be recalled by CTRL UP/DOWN
+ *      Text entry of a single line (text, delete, left and right arrow, insert, return).
+ *      Callbacks either on every keystroke or just on the return key.
+ *      Focus (allow multiple text entry widgets)
+ *      Clipboard (cut, copy, and paste)
+ *      Horizontal scrolling to allow strings longer than widget size allows 
+ *      Pre-validation (limit which keys can be used)
+ *      Optional line history so previous entries can be recalled by CTRL UP/DOWN
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -41,14 +41,14 @@
 class LLFilterEditor : public LLSearchEditor
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLSearchEditor::Params>
-	{};
+    struct Params : public LLInitParam::Block<Params, LLSearchEditor::Params>
+    {};
 
 protected:
-	LLFilterEditor(const Params&);
-	friend class LLUICtrlFactory;
+    LLFilterEditor(const Params&);
+    friend class LLUICtrlFactory;
 
-	/*virtual*/ void handleKeystroke();
+    /*virtual*/ void handleKeystroke();
 };
 
 #endif  // LL_FILTEREDITOR_H

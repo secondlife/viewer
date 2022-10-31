@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_REPLY_QUEUE_H_
-#define	_LLCORE_HTTP_REPLY_QUEUE_H_
+#ifndef _LLCORE_HTTP_REPLY_QUEUE_H_
+#define _LLCORE_HTTP_REPLY_QUEUE_H_
 
 
 #include "_refcounted.h"
@@ -66,42 +66,42 @@ public:
     typedef boost::shared_ptr<HttpOperation>    opPtr_t;
     typedef boost::shared_ptr<HttpReplyQueue>   ptr_t;
 
-	HttpReplyQueue();
-    virtual ~HttpReplyQueue();		
+    HttpReplyQueue();
+    virtual ~HttpReplyQueue();      
 
 public:
 
     typedef std::vector< opPtr_t > OpContainer;
 
-	/// Insert an object at the back of the reply queue.
-	///
-	/// Library also takes possession of one reference count to pass
-	/// through the queue.
-	///
-	/// Threading:  callable by any thread.
+    /// Insert an object at the back of the reply queue.
+    ///
+    /// Library also takes possession of one reference count to pass
+    /// through the queue.
+    ///
+    /// Threading:  callable by any thread.
     void addOp(const opPtr_t &op);
 
-	/// Fetch an operation from the head of the queue.  Returns
-	/// NULL if none exists.
-	///
-	/// Caller acquires reference count on returned operation.
-	///
-	/// Threading:  callable by any thread.
+    /// Fetch an operation from the head of the queue.  Returns
+    /// NULL if none exists.
+    ///
+    /// Caller acquires reference count on returned operation.
+    ///
+    /// Threading:  callable by any thread.
     opPtr_t fetchOp();
 
-	/// Caller acquires reference count on each returned operation
-	///
-	/// Threading:  callable by any thread.
-	void fetchAll(OpContainer & ops);
-	
+    /// Caller acquires reference count on each returned operation
+    ///
+    /// Threading:  callable by any thread.
+    void fetchAll(OpContainer & ops);
+    
 protected:
 
-	OpContainer							mQueue;
-	LLCoreInt::HttpMutex				mQueueMutex;
-	
+    OpContainer                         mQueue;
+    LLCoreInt::HttpMutex                mQueueMutex;
+    
 }; // end class HttpReplyQueue
 
 }  // end namespace LLCore
 
 
-#endif	// _LLCORE_HTTP_REPLY_QUEUE_H_
+#endif  // _LLCORE_HTTP_REPLY_QUEUE_H_

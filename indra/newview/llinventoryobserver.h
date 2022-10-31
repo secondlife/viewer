@@ -43,29 +43,29 @@ class LLViewerInventoryCategory;
 class LLInventoryObserver
 {
 public:
-	// This enumeration is a way to refer to what changed in a more
-	// human readable format. You can mask the value provided by
-	// chaged() to see if the observer is interested in the change.
-	enum 
-	{
-		NONE 			= 0,
-		LABEL 			= 1,	// Name changed
-		INTERNAL 		= 2,	// Internal change (e.g. asset uuid different)
-		ADD 			= 4,	// Something added
-		REMOVE 			= 8,	// Something deleted
-		STRUCTURE 		= 16,	// Structural change (e.g. item or folder moved)
-		CALLING_CARD	= 32,	// Calling card change (e.g. online, grant status, cancel)
-		GESTURE 		= 64,
-		REBUILD 		= 128, 	// Item UI changed (e.g. item type different)
-		SORT 			= 256, 	// Folder needs to be resorted.
-		CREATE			= 512,  // With ADD, item has just been created.
-		// unfortunately a particular message is still associated with some unique semantics.
-		UPDATE_CREATE	= 1024,  // With ADD, item added via UpdateCreateInventoryItem
-		ALL 			= 0xffffffff
-	};
-	LLInventoryObserver();
-	virtual ~LLInventoryObserver();
-	virtual void changed(U32 mask) = 0;
+    // This enumeration is a way to refer to what changed in a more
+    // human readable format. You can mask the value provided by
+    // chaged() to see if the observer is interested in the change.
+    enum 
+    {
+        NONE            = 0,
+        LABEL           = 1,    // Name changed
+        INTERNAL        = 2,    // Internal change (e.g. asset uuid different)
+        ADD             = 4,    // Something added
+        REMOVE          = 8,    // Something deleted
+        STRUCTURE       = 16,   // Structural change (e.g. item or folder moved)
+        CALLING_CARD    = 32,   // Calling card change (e.g. online, grant status, cancel)
+        GESTURE         = 64,
+        REBUILD         = 128,  // Item UI changed (e.g. item type different)
+        SORT            = 256,  // Folder needs to be resorted.
+        CREATE          = 512,  // With ADD, item has just been created.
+        // unfortunately a particular message is still associated with some unique semantics.
+        UPDATE_CREATE   = 1024,  // With ADD, item added via UpdateCreateInventoryItem
+        ALL             = 0xffffffff
+    };
+    LLInventoryObserver();
+    virtual ~LLInventoryObserver();
+    virtual void changed(U32 mask) = 0;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,20 +76,20 @@ public:
 class LLInventoryFetchObserver : public LLInventoryObserver
 {
 public:
-	LLInventoryFetchObserver(const LLUUID& id = LLUUID::null); // single item
-	LLInventoryFetchObserver(const uuid_vec_t& ids); // multiple items
-	void setFetchID(const LLUUID& id);
-	void setFetchIDs(const uuid_vec_t& ids);
+    LLInventoryFetchObserver(const LLUUID& id = LLUUID::null); // single item
+    LLInventoryFetchObserver(const uuid_vec_t& ids); // multiple items
+    void setFetchID(const LLUUID& id);
+    void setFetchIDs(const uuid_vec_t& ids);
 
-	BOOL isFinished() const;
+    BOOL isFinished() const;
 
-	virtual void startFetch() = 0;
-	virtual void changed(U32 mask) = 0;
-	virtual void done() {};
+    virtual void startFetch() = 0;
+    virtual void changed(U32 mask) = 0;
+    virtual void done() {};
 protected:
-	uuid_vec_t mComplete;
-	uuid_vec_t mIncomplete;
-	uuid_vec_t mIDs;
+    uuid_vec_t mComplete;
+    uuid_vec_t mIncomplete;
+    uuid_vec_t mIDs;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -100,18 +100,18 @@ protected:
 class LLInventoryFetchItemsObserver : public LLInventoryFetchObserver
 {
 public:
-	LLInventoryFetchItemsObserver(const LLUUID& item_id = LLUUID::null); 
-	LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids); 
+    LLInventoryFetchItemsObserver(const LLUUID& item_id = LLUUID::null); 
+    LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids); 
 
-	/*virtual*/ void startFetch();
-	/*virtual*/ void changed(U32 mask);
+    /*virtual*/ void startFetch();
+    /*virtual*/ void changed(U32 mask);
 private:
-	LLTimer mFetchingPeriod;
+    LLTimer mFetchingPeriod;
 
-	/**
-	 * Period of waiting a notification when requested items get added into inventory.
-	 */
-	static const F32 FETCH_TIMER_EXPIRY;
+    /**
+     * Period of waiting a notification when requested items get added into inventory.
+     */
+    static const F32 FETCH_TIMER_EXPIRY;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -123,13 +123,13 @@ private:
 class LLInventoryFetchDescendentsObserver : public LLInventoryFetchObserver
 {
 public:
-	LLInventoryFetchDescendentsObserver(const LLUUID& cat_id = LLUUID::null);
-	LLInventoryFetchDescendentsObserver(const uuid_vec_t& cat_ids);
+    LLInventoryFetchDescendentsObserver(const LLUUID& cat_id = LLUUID::null);
+    LLInventoryFetchDescendentsObserver(const uuid_vec_t& cat_ids);
 
-	/*virtual*/ void startFetch();
-	/*virtual*/ void changed(U32 mask);
+    /*virtual*/ void startFetch();
+    /*virtual*/ void changed(U32 mask);
 protected:
-	BOOL isCategoryComplete(const LLViewerInventoryCategory* cat) const;
+    BOOL isCategoryComplete(const LLViewerInventoryCategory* cat) const;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -142,16 +142,16 @@ protected:
 class LLInventoryFetchComboObserver : public LLInventoryObserver
 {
 public:
-	LLInventoryFetchComboObserver(const uuid_vec_t& folder_ids,
-								  const uuid_vec_t& item_ids);
-	~LLInventoryFetchComboObserver();
-	/*virtual*/ void changed(U32 mask);
-	void startFetch();
+    LLInventoryFetchComboObserver(const uuid_vec_t& folder_ids,
+                                  const uuid_vec_t& item_ids);
+    ~LLInventoryFetchComboObserver();
+    /*virtual*/ void changed(U32 mask);
+    void startFetch();
 
-	virtual void done() = 0;
+    virtual void done() = 0;
 protected:
-	LLInventoryFetchItemsObserver *mFetchItems;
-	LLInventoryFetchDescendentsObserver *mFetchDescendents;
+    LLInventoryFetchItemsObserver *mFetchItems;
+    LLInventoryFetchDescendentsObserver *mFetchDescendents;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -166,22 +166,22 @@ protected:
 class LLInventoryAddItemByAssetObserver : public LLInventoryObserver
 {
 public:
-	LLInventoryAddItemByAssetObserver() : mIsDirty(false) {}
-	virtual void changed(U32 mask);
+    LLInventoryAddItemByAssetObserver() : mIsDirty(false) {}
+    virtual void changed(U32 mask);
 
-	void watchAsset(const LLUUID& asset_id);
-	bool isAssetWatched(const LLUUID& asset_id);
+    void watchAsset(const LLUUID& asset_id);
+    bool isAssetWatched(const LLUUID& asset_id);
 
 protected:
-	virtual void onAssetAdded(const LLUUID& asset_id) {}
-	virtual void done() = 0;
+    virtual void onAssetAdded(const LLUUID& asset_id) {}
+    virtual void done() = 0;
 
-	typedef std::vector<LLUUID> item_ref_t;
-	item_ref_t mAddedItems;
-	item_ref_t mWatchedAssets;
+    typedef std::vector<LLUUID> item_ref_t;
+    item_ref_t mAddedItems;
+    item_ref_t mWatchedAssets;
 
 private:
-	bool mIsDirty;
+    bool mIsDirty;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -193,11 +193,11 @@ private:
 class LLInventoryAddedObserver : public LLInventoryObserver
 {
 public:
-	LLInventoryAddedObserver() {}
-	/*virtual*/ void changed(U32 mask);
+    LLInventoryAddedObserver() {}
+    /*virtual*/ void changed(U32 mask);
 
 protected:
-	virtual void done() = 0;
+    virtual void done() = 0;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -210,16 +210,16 @@ protected:
 class LLInventoryCategoryAddedObserver : public LLInventoryObserver
 {
 public:
-	
-	typedef std::vector<LLViewerInventoryCategory*>	cat_vec_t;
-	
-	LLInventoryCategoryAddedObserver() : mAddedCategories() {}
-	/*virtual*/ void changed(U32 mask);
-	
+    
+    typedef std::vector<LLViewerInventoryCategory*> cat_vec_t;
+    
+    LLInventoryCategoryAddedObserver() : mAddedCategories() {}
+    /*virtual*/ void changed(U32 mask);
+    
 protected:
-	virtual void done() = 0;
-	
-	cat_vec_t	mAddedCategories;
+    virtual void done() = 0;
+    
+    cat_vec_t   mAddedCategories;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -233,16 +233,16 @@ protected:
 class LLInventoryCompletionObserver : public LLInventoryObserver
 {
 public:
-	LLInventoryCompletionObserver() {}
-	/*virtual*/ void changed(U32 mask);
+    LLInventoryCompletionObserver() {}
+    /*virtual*/ void changed(U32 mask);
 
-	void watchItem(const LLUUID& id);
+    void watchItem(const LLUUID& id);
 
 protected:
-	virtual void done() = 0;
+    virtual void done() = 0;
 
-	uuid_vec_t mComplete;
-	uuid_vec_t mIncomplete;
+    uuid_vec_t mComplete;
+    uuid_vec_t mIncomplete;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -255,38 +255,38 @@ protected:
 class LLInventoryCategoriesObserver : public LLInventoryObserver
 {
 public:
-	typedef boost::function<void()> callback_t;
+    typedef boost::function<void()> callback_t;
 
-	LLInventoryCategoriesObserver() {};
-	virtual void changed(U32 mask);
+    LLInventoryCategoriesObserver() {};
+    virtual void changed(U32 mask);
 
-	/**
-	 * Add cat_id to the list of observed categories with a
-	 * callback fired on category being changed.
-	 *
-	 * @return "true" if category was added, "false" if it could
-	 * not be found.
-	 */
-	bool addCategory(const LLUUID& cat_id, callback_t cb, bool init_name_hash = false);
-	void removeCategory(const LLUUID& cat_id);
+    /**
+     * Add cat_id to the list of observed categories with a
+     * callback fired on category being changed.
+     *
+     * @return "true" if category was added, "false" if it could
+     * not be found.
+     */
+    bool addCategory(const LLUUID& cat_id, callback_t cb, bool init_name_hash = false);
+    void removeCategory(const LLUUID& cat_id);
 
 protected:
-	struct LLCategoryData
-	{
-		LLCategoryData(const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents);
-		LLCategoryData(const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents, LLMD5 name_hash);
-		callback_t	mCallback;
-		S32			mVersion;
-		S32			mDescendentsCount;
-		LLMD5		mItemNameHash;
-		bool		mIsNameHashInitialized;
-		LLUUID		mCatID;
-	};
+    struct LLCategoryData
+    {
+        LLCategoryData(const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents);
+        LLCategoryData(const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents, LLMD5 name_hash);
+        callback_t  mCallback;
+        S32         mVersion;
+        S32         mDescendentsCount;
+        LLMD5       mItemNameHash;
+        bool        mIsNameHashInitialized;
+        LLUUID      mCatID;
+    };
 
-	typedef	std::map<LLUUID, LLCategoryData>	category_map_t;
-	typedef category_map_t::value_type			category_map_value_t;
+    typedef std::map<LLUUID, LLCategoryData>    category_map_t;
+    typedef category_map_t::value_type          category_map_value_t;
 
-	category_map_t				mCategoryMap;
+    category_map_t              mCategoryMap;
 };
 
 class LLFolderView;
@@ -295,15 +295,15 @@ class LLFolderView;
 class LLScrollOnRenameObserver: public LLInventoryObserver
 {
 public:
-	LLFolderView *mView;
-	LLUUID mUUID;
-	
-	LLScrollOnRenameObserver(const LLUUID& uuid, LLFolderView *view):
-		mUUID(uuid),
-		mView(view)
-	{
-	}
-	/* virtual */ void changed(U32 mask);
+    LLFolderView *mView;
+    LLUUID mUUID;
+    
+    LLScrollOnRenameObserver(const LLUUID& uuid, LLFolderView *view):
+        mUUID(uuid),
+        mView(view)
+    {
+    }
+    /* virtual */ void changed(U32 mask);
 };
 
 

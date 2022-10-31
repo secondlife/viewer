@@ -31,29 +31,29 @@ class LLSD;
 
 class LLFloaterTestInspectors : public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 public:
-	// nothing yet
+    // nothing yet
 
 private:
-	// Construction handled by LLFloaterReg
-	LLFloaterTestInspectors(const LLSD& seed);
-	~LLFloaterTestInspectors();
+    // Construction handled by LLFloaterReg
+    LLFloaterTestInspectors(const LLSD& seed);
+    ~LLFloaterTestInspectors();
 
-	/*virtual*/ BOOL postBuild();
+    /*virtual*/ BOOL postBuild();
 
-	// Button callback to show
-	void showAvatarInspector(LLUICtrl*, const LLSD& avatar_id);
-	void showObjectInspector(LLUICtrl*, const LLSD& avatar_id);
-	
-	// Debug function hookups for buttons
-	void onClickAvatar2D();
-	void onClickAvatar3D();
-	void onClickObject2D();
-	void onClickObject3D();
-	void onClickGroup();
-	void onClickPlace();
-	void onClickEvent();
+    // Button callback to show
+    void showAvatarInspector(LLUICtrl*, const LLSD& avatar_id);
+    void showObjectInspector(LLUICtrl*, const LLSD& avatar_id);
+    
+    // Debug function hookups for buttons
+    void onClickAvatar2D();
+    void onClickAvatar3D();
+    void onClickObject2D();
+    void onClickObject3D();
+    void onClickGroup();
+    void onClickPlace();
+    void onClickEvent();
 };
 
 #endif

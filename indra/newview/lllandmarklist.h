@@ -40,47 +40,47 @@ class LLInventoryItem;
 class LLLandmarkList
 {
 public:
-	typedef boost::function<void(LLLandmark*)> loaded_callback_t;
+    typedef boost::function<void(LLLandmark*)> loaded_callback_t;
 
-	LLLandmarkList() {}
-	~LLLandmarkList();
+    LLLandmarkList() {}
+    ~LLLandmarkList();
 
-	//S32					getLength() { return mList.getLength(); }
-	//const LLLandmark*	getFirst()	{ return mList.getFirstData(); }
-	//const LLLandmark*	getNext()	{ return mList.getNextData(); }
+    //S32                   getLength() { return mList.getLength(); }
+    //const LLLandmark* getFirst()  { return mList.getFirstData(); }
+    //const LLLandmark* getNext()   { return mList.getNextData(); }
 
-	BOOL assetExists(const LLUUID& asset_uuid);
-	LLLandmark* getAsset(const LLUUID& asset_uuid, loaded_callback_t cb = NULL);
-	static void processGetAssetReply(
-		const LLUUID& uuid,
-		LLAssetType::EType type,
-		void* user_data,
-		S32 status,
-		LLExtStat ext_status );
+    BOOL assetExists(const LLUUID& asset_uuid);
+    LLLandmark* getAsset(const LLUUID& asset_uuid, loaded_callback_t cb = NULL);
+    static void processGetAssetReply(
+        const LLUUID& uuid,
+        LLAssetType::EType type,
+        void* user_data,
+        S32 status,
+        LLExtStat ext_status );
 
-	// Returns TRUE if loading the landmark with given asset_uuid has been requested
-	// but is not complete yet.
-	BOOL isAssetInLoadedCallbackMap(const LLUUID& asset_uuid);
+    // Returns TRUE if loading the landmark with given asset_uuid has been requested
+    // but is not complete yet.
+    BOOL isAssetInLoadedCallbackMap(const LLUUID& asset_uuid);
 
 protected:
-	void onRegionHandle(const LLUUID& landmark_id);
-	void eraseCallbacks(const LLUUID& landmark_id);
-	void makeCallbacks(const LLUUID& landmark_id);
+    void onRegionHandle(const LLUUID& landmark_id);
+    void eraseCallbacks(const LLUUID& landmark_id);
+    void makeCallbacks(const LLUUID& landmark_id);
 
-	typedef std::map<LLUUID, LLLandmark*> landmark_list_t;
-	landmark_list_t mList;
+    typedef std::map<LLUUID, LLLandmark*> landmark_list_t;
+    landmark_list_t mList;
 
-	typedef std::set<LLUUID> landmark_uuid_list_t;
-	landmark_uuid_list_t mBadList;
-	landmark_uuid_list_t mWaitList;
+    typedef std::set<LLUUID> landmark_uuid_list_t;
+    landmark_uuid_list_t mBadList;
+    landmark_uuid_list_t mWaitList;
 
-	typedef std::map<LLUUID,F32> landmark_requested_list_t;
-	landmark_requested_list_t mRequestedList;
-	
-	// *TODO: make the callback multimap a template class and make use of it
-	// here and in LLLandmark.
-	typedef std::multimap<LLUUID, loaded_callback_t> loaded_callback_map_t;
-	loaded_callback_map_t mLoadedCallbackMap;
+    typedef std::map<LLUUID,F32> landmark_requested_list_t;
+    landmark_requested_list_t mRequestedList;
+    
+    // *TODO: make the callback multimap a template class and make use of it
+    // here and in LLLandmark.
+    typedef std::multimap<LLUUID, loaded_callback_t> loaded_callback_map_t;
+    loaded_callback_map_t mLoadedCallbackMap;
 };
 
 

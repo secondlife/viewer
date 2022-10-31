@@ -71,5 +71,5 @@ void LLURLDispatcherListener::dispatchRightClick(const LLSD& params) const
 
 void LLURLDispatcherListener::dispatchFromTextEditor(const LLSD& params) const
 {
-	LLURLDispatcher::dispatchFromTextEditor(params["url"], false);
+    LLURLDispatcher::dispatchFromTextEditor(params["url"], false);
 }

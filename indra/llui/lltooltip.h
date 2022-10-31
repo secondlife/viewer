@@ -39,127 +39,127 @@
 class LLToolTipView : public LLView
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLView::Params>
-	{
-		Params();
-	};
-	LLToolTipView(const LLToolTipView::Params&);
-	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMiddleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleScrollWheel( S32 x, S32 y, S32 clicks );
+    struct Params : public LLInitParam::Block<Params, LLView::Params>
+    {
+        Params();
+    };
+    LLToolTipView(const LLToolTipView::Params&);
+    /*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleMiddleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleScrollWheel( S32 x, S32 y, S32 clicks );
 
-	void drawStickyRect();
+    void drawStickyRect();
 
-	/*virtual*/ void draw();
+    /*virtual*/ void draw();
 };
 
 class LLToolTip : public LLPanel
 {
 public:
 
-	struct StyledText : public LLInitParam::Block<StyledText>
-	{
-		Mandatory<std::string>		text;
-		Optional<LLStyle::Params>	style;
-	};
+    struct StyledText : public LLInitParam::Block<StyledText>
+    {
+        Mandatory<std::string>      text;
+        Optional<LLStyle::Params>   style;
+    };
 
-	struct Params : public LLInitParam::Block<Params, LLPanel::Params> 
-	{
-		typedef boost::function<void(void)> click_callback_t;
+    struct Params : public LLInitParam::Block<Params, LLPanel::Params> 
+    {
+        typedef boost::function<void(void)> click_callback_t;
 
-		Optional<std::string>		message;
-		Multiple<StyledText>		styled_message;
+        Optional<std::string>       message;
+        Multiple<StyledText>        styled_message;
 
-		Optional<LLCoordGL>			pos;
-		Optional<F32>				delay_time,
-									visible_time_over,  // time for which tooltip is visible while mouse on it
-									visible_time_near,	// time for which tooltip is visible while mouse near it
-									visible_time_far;	// time for which tooltip is visible while mouse moved away
-		Optional<LLRect>			sticky_rect;
-		Optional<const LLFontGL*>	font;
-		Optional<LLUIImage*>		image;
-		Optional<LLUIColor>			text_color;
-		Optional<bool>				time_based_media,
-									web_based_media,
-									media_playing;
-		Optional<click_callback_t>	click_callback,
-									click_playmedia_callback,
-									click_homepage_callback;
-		Optional<S32>				max_width,
-									padding;
-		Optional<bool>				wrap;
+        Optional<LLCoordGL>         pos;
+        Optional<F32>               delay_time,
+                                    visible_time_over,  // time for which tooltip is visible while mouse on it
+                                    visible_time_near,  // time for which tooltip is visible while mouse near it
+                                    visible_time_far;   // time for which tooltip is visible while mouse moved away
+        Optional<LLRect>            sticky_rect;
+        Optional<const LLFontGL*>   font;
+        Optional<LLUIImage*>        image;
+        Optional<LLUIColor>         text_color;
+        Optional<bool>              time_based_media,
+                                    web_based_media,
+                                    media_playing;
+        Optional<click_callback_t>  click_callback,
+                                    click_playmedia_callback,
+                                    click_homepage_callback;
+        Optional<S32>               max_width,
+                                    padding;
+        Optional<bool>              wrap;
 
-		Params();
-	};
-	/*virtual*/ void draw();
-	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
-	/*virtual*/ void setVisible(BOOL visible);
+        Params();
+    };
+    /*virtual*/ void draw();
+    /*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+    /*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
+    /*virtual*/ void setVisible(BOOL visible);
 
-	bool isFading();
-	F32 getVisibleTime();
-	bool hasClickCallback();
+    bool isFading();
+    F32 getVisibleTime();
+    bool hasClickCallback();
 
-	LLToolTip(const Params& p);
-	void initFromParams(const LLToolTip::Params& params);
+    LLToolTip(const Params& p);
+    void initFromParams(const LLToolTip::Params& params);
 
-	void getToolTipMessage(std::string & message);
+    void getToolTipMessage(std::string & message);
 
 private:
-	class LLTextBox*	mTextBox;
-	class LLButton*     mInfoButton;
-	class LLButton*     mPlayMediaButton;
-	class LLButton*     mHomePageButton;
+    class LLTextBox*    mTextBox;
+    class LLButton*     mInfoButton;
+    class LLButton*     mPlayMediaButton;
+    class LLButton*     mHomePageButton;
 
-	LLFrameTimer	mFadeTimer;
-	LLFrameTimer	mVisibleTimer;
-	bool			mHasClickCallback;
-	S32				mPadding;	// pixels
+    LLFrameTimer    mFadeTimer;
+    LLFrameTimer    mVisibleTimer;
+    bool            mHasClickCallback;
+    S32             mPadding;   // pixels
 };
 
 // used for the inspector tooltips which need different background images etc.
 class LLInspector : public LLToolTip
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLToolTip::Params> 
-	{};
+    struct Params : public LLInitParam::Block<Params, LLToolTip::Params> 
+    {};
 };
 
 class LLToolTipMgr : public LLSingleton<LLToolTipMgr>
 {
-	LLSINGLETON(LLToolTipMgr);
-	LOG_CLASS(LLToolTipMgr);
+    LLSINGLETON(LLToolTipMgr);
+    LOG_CLASS(LLToolTipMgr);
 
 public:
-	void show(const LLToolTip::Params& params);
-	void show(const std::string& message);
+    void show(const LLToolTip::Params& params);
+    void show(const std::string& message);
 
-	void unblockToolTips();
-	void blockToolTips();
+    void unblockToolTips();
+    void blockToolTips();
 
-	void hideToolTips();
-	bool toolTipVisible();
-	LLRect getToolTipRect();
-	LLRect getMouseNearRect();
-	void updateToolTipVisibility();
+    void hideToolTips();
+    bool toolTipVisible();
+    LLRect getToolTipRect();
+    LLRect getMouseNearRect();
+    void updateToolTipVisibility();
 
-	void getToolTipMessage(std::string & message);
+    void getToolTipMessage(std::string & message);
 
 private:
-	void createToolTip(const LLToolTip::Params& params);
+    void createToolTip(const LLToolTip::Params& params);
 
-	bool				mToolTipsBlocked;
-	class LLToolTip*	mToolTip;
+    bool                mToolTipsBlocked;
+    class LLToolTip*    mToolTip;
 
-	// tooltip creation is deferred until the UI is drawn every frame
-	// so the last tooltip to be created in a given frame will win
-	LLToolTip::Params	mLastToolTipParams;	// description of last tooltip we showed
-	LLToolTip::Params	mNextToolTipParams; // description of next tooltip we want to show
-	bool				mNeedsToolTip;		// do we want to show a tooltip
+    // tooltip creation is deferred until the UI is drawn every frame
+    // so the last tooltip to be created in a given frame will win
+    LLToolTip::Params   mLastToolTipParams; // description of last tooltip we showed
+    LLToolTip::Params   mNextToolTipParams; // description of next tooltip we want to show
+    bool                mNeedsToolTip;      // do we want to show a tooltip
 
-	LLRect				mMouseNearRect;
+    LLRect              mMouseNearRect;
 };
 
 //

@@ -49,20 +49,20 @@
 
 // Default constructor
 LLFloaterBump::LLFloaterBump(const LLSD& key) 
-:	LLFloater(key)
+:   LLFloater(key)
 {
-	mCommitCallbackRegistrar.add("Avatar.SendIM", boost::bind(&LLFloaterBump::startIM, this));
-	mCommitCallbackRegistrar.add("Avatar.ReportAbuse", boost::bind(&LLFloaterBump::reportAbuse, this));
-	mCommitCallbackRegistrar.add("ShowAgentProfile", boost::bind(&LLFloaterBump::showProfile, this));
-	mCommitCallbackRegistrar.add("Avatar.InviteToGroup", boost::bind(&LLFloaterBump::inviteToGroup, this));
-	mCommitCallbackRegistrar.add("Avatar.Call", boost::bind(&LLFloaterBump::startCall, this));
-	mEnableCallbackRegistrar.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
-	mCommitCallbackRegistrar.add("Avatar.AddFriend", boost::bind(&LLFloaterBump::addFriend, this));
-	mEnableCallbackRegistrar.add("Avatar.EnableAddFriend", boost::bind(&LLFloaterBump::enableAddFriend, this));
-	mCommitCallbackRegistrar.add("Avatar.Mute", boost::bind(&LLFloaterBump::muteAvatar, this));
-	mEnableCallbackRegistrar.add("Avatar.EnableMute", boost::bind(&LLFloaterBump::enableMute, this));
-	mCommitCallbackRegistrar.add("PayObject", boost::bind(&LLFloaterBump::payAvatar, this));
-	mCommitCallbackRegistrar.add("Tools.LookAtSelection", boost::bind(&LLFloaterBump::zoomInAvatar, this));
+    mCommitCallbackRegistrar.add("Avatar.SendIM", boost::bind(&LLFloaterBump::startIM, this));
+    mCommitCallbackRegistrar.add("Avatar.ReportAbuse", boost::bind(&LLFloaterBump::reportAbuse, this));
+    mCommitCallbackRegistrar.add("ShowAgentProfile", boost::bind(&LLFloaterBump::showProfile, this));
+    mCommitCallbackRegistrar.add("Avatar.InviteToGroup", boost::bind(&LLFloaterBump::inviteToGroup, this));
+    mCommitCallbackRegistrar.add("Avatar.Call", boost::bind(&LLFloaterBump::startCall, this));
+    mEnableCallbackRegistrar.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
+    mCommitCallbackRegistrar.add("Avatar.AddFriend", boost::bind(&LLFloaterBump::addFriend, this));
+    mEnableCallbackRegistrar.add("Avatar.EnableAddFriend", boost::bind(&LLFloaterBump::enableAddFriend, this));
+    mCommitCallbackRegistrar.add("Avatar.Mute", boost::bind(&LLFloaterBump::muteAvatar, this));
+    mEnableCallbackRegistrar.add("Avatar.EnableMute", boost::bind(&LLFloaterBump::enableMute, this));
+    mCommitCallbackRegistrar.add("PayObject", boost::bind(&LLFloaterBump::payAvatar, this));
+    mCommitCallbackRegistrar.add("Tools.LookAtSelection", boost::bind(&LLFloaterBump::zoomInAvatar, this));
 }
 
 
@@ -73,191 +73,191 @@ LLFloaterBump::~LLFloaterBump()
 
 BOOL LLFloaterBump::postBuild()
 {
-	mList = getChild<LLScrollListCtrl>("bump_list");
-	mList->setAllowMultipleSelection(false);
-	mList->setRightMouseDownCallback(boost::bind(&LLFloaterBump::onScrollListRightClicked, this, _1, _2, _3));
+    mList = getChild<LLScrollListCtrl>("bump_list");
+    mList->setAllowMultipleSelection(false);
+    mList->setRightMouseDownCallback(boost::bind(&LLFloaterBump::onScrollListRightClicked, this, _1, _2, _3));
 
-	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_avatar_other.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	mPopupMenu->setItemVisible(std::string("Normal"), false);
-	mPopupMenu->setItemVisible(std::string("Always use impostor"), false);
-	mPopupMenu->setItemVisible(std::string("Never use impostor"), false);
-	mPopupMenu->setItemVisible(std::string("Impostor seperator"), false);
+    mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_avatar_other.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+    mPopupMenu->setItemVisible(std::string("Normal"), false);
+    mPopupMenu->setItemVisible(std::string("Always use impostor"), false);
+    mPopupMenu->setItemVisible(std::string("Never use impostor"), false);
+    mPopupMenu->setItemVisible(std::string("Impostor seperator"), false);
 
-	return TRUE;
+    return TRUE;
 }
 // virtual
 void LLFloaterBump::onOpen(const LLSD& key)
 {
-	if (gMeanCollisionList.empty())
-	{
-		mNames.clear();
-		mList->deleteAllItems();
+    if (gMeanCollisionList.empty())
+    {
+        mNames.clear();
+        mList->deleteAllItems();
 
-		std::string none_detected = getString("none_detected");
-		LLSD row;
-		row["columns"][0]["value"] = none_detected;
-		row["columns"][0]["font"] = "SansSerifBold";
-		mList->addElement(row);
-	}
-	else
-	{
-		populateCollisionList();
-	}
+        std::string none_detected = getString("none_detected");
+        LLSD row;
+        row["columns"][0]["value"] = none_detected;
+        row["columns"][0]["font"] = "SansSerifBold";
+        mList->addElement(row);
+    }
+    else
+    {
+        populateCollisionList();
+    }
 }
 
 void LLFloaterBump::populateCollisionList()
 {
-	mNames.clear();
-	mList->deleteAllItems();
+    mNames.clear();
+    mList->deleteAllItems();
 
-	for (mean_collision_list_t::iterator iter = gMeanCollisionList.begin();
-				 iter != gMeanCollisionList.end(); ++iter)
-	{
-		LLMeanCollisionData *mcd = *iter;
-		add(mList, mcd);
-	}
+    for (mean_collision_list_t::iterator iter = gMeanCollisionList.begin();
+                 iter != gMeanCollisionList.end(); ++iter)
+    {
+        LLMeanCollisionData *mcd = *iter;
+        add(mList, mcd);
+    }
 }
 
 void LLFloaterBump::add(LLScrollListCtrl* list, LLMeanCollisionData* mcd)
 {
-	if (mcd->mFullName.empty() || list->getItemCount() >= 20)
-	{
-		return;
-	}
+    if (mcd->mFullName.empty() || list->getItemCount() >= 20)
+    {
+        return;
+    }
 
-	std::string timeStr = getString ("timeStr");
-	LLSD substitution;
+    std::string timeStr = getString ("timeStr");
+    LLSD substitution;
 
-	substitution["datetime"] = (S32) mcd->mTime;
-	LLStringUtil::format (timeStr, substitution);
+    substitution["datetime"] = (S32) mcd->mTime;
+    LLStringUtil::format (timeStr, substitution);
 
-	std::string action;
-	switch(mcd->mType)
-	{
-	case MEAN_BUMP:
-		action = "bump";
-		break;
-	case MEAN_LLPUSHOBJECT:
-		action = "llpushobject";
-		break;
-	case MEAN_SELECTED_OBJECT_COLLIDE:
-		action = "selected_object_collide";
-		break;
-	case MEAN_SCRIPTED_OBJECT_COLLIDE:
-		action = "scripted_object_collide";
-		break;
-	case MEAN_PHYSICAL_OBJECT_COLLIDE:
-		action = "physical_object_collide";
-		break;
-	default:
-		LL_INFOS() << "LLFloaterBump::add unknown mean collision type "
-			<< mcd->mType << LL_ENDL;
-		return;
-	}
+    std::string action;
+    switch(mcd->mType)
+    {
+    case MEAN_BUMP:
+        action = "bump";
+        break;
+    case MEAN_LLPUSHOBJECT:
+        action = "llpushobject";
+        break;
+    case MEAN_SELECTED_OBJECT_COLLIDE:
+        action = "selected_object_collide";
+        break;
+    case MEAN_SCRIPTED_OBJECT_COLLIDE:
+        action = "scripted_object_collide";
+        break;
+    case MEAN_PHYSICAL_OBJECT_COLLIDE:
+        action = "physical_object_collide";
+        break;
+    default:
+        LL_INFOS() << "LLFloaterBump::add unknown mean collision type "
+            << mcd->mType << LL_ENDL;
+        return;
+    }
 
-	// All above action strings are in XML file
-	LLUIString text = getString(action);
-	text.setArg("[TIME]", timeStr);
-	text.setArg("[NAME]", mcd->mFullName);
+    // All above action strings are in XML file
+    LLUIString text = getString(action);
+    text.setArg("[TIME]", timeStr);
+    text.setArg("[NAME]", mcd->mFullName);
 
-	LLSD row;
-	row["id"] = mcd->mPerp;
-	row["columns"][0]["value"] = text;
-	row["columns"][0]["font"] = "SansSerifBold";
-	list->addElement(row);
+    LLSD row;
+    row["id"] = mcd->mPerp;
+    row["columns"][0]["value"] = text;
+    row["columns"][0]["font"] = "SansSerifBold";
+    list->addElement(row);
 
 
-	mNames[mcd->mPerp] = mcd->mFullName;
+    mNames[mcd->mPerp] = mcd->mFullName;
 }
 
 
 void LLFloaterBump::onScrollListRightClicked(LLUICtrl* ctrl, S32 x, S32 y)
 {
-	if (!gMeanCollisionList.empty())
-	{
-		LLScrollListItem* item = mList->hitItem(x, y);
-		if (item && mPopupMenu)
-		{
-			mItemUUID = item->getUUID();
-			mPopupMenu->buildDrawLabels();
-			mPopupMenu->updateParent(LLMenuGL::sMenuContainer);
+    if (!gMeanCollisionList.empty())
+    {
+        LLScrollListItem* item = mList->hitItem(x, y);
+        if (item && mPopupMenu)
+        {
+            mItemUUID = item->getUUID();
+            mPopupMenu->buildDrawLabels();
+            mPopupMenu->updateParent(LLMenuGL::sMenuContainer);
 
-			std::string mute_msg = (LLMuteList::getInstance()->isMuted(mItemUUID, mNames[mItemUUID])) ? "UnmuteAvatar" : "MuteAvatar";
-			mPopupMenu->getChild<LLUICtrl>("Avatar Mute")->setValue(LLTrans::getString(mute_msg));
-			mPopupMenu->setItemEnabled(std::string("Zoom In"), bool(gObjectList.findObject(mItemUUID)));
+            std::string mute_msg = (LLMuteList::getInstance()->isMuted(mItemUUID, mNames[mItemUUID])) ? "UnmuteAvatar" : "MuteAvatar";
+            mPopupMenu->getChild<LLUICtrl>("Avatar Mute")->setValue(LLTrans::getString(mute_msg));
+            mPopupMenu->setItemEnabled(std::string("Zoom In"), bool(gObjectList.findObject(mItemUUID)));
 
-			((LLContextMenu*)mPopupMenu)->show(x, y);
-			LLMenuGL::showPopup(ctrl, mPopupMenu, x, y);
-		}
-	}
+            ((LLContextMenu*)mPopupMenu)->show(x, y);
+            LLMenuGL::showPopup(ctrl, mPopupMenu, x, y);
+        }
+    }
 }
 
 
 void LLFloaterBump::startIM()
 {
-	LLAvatarActions::startIM(mItemUUID);
+    LLAvatarActions::startIM(mItemUUID);
 }
 
 void LLFloaterBump::startCall()
 {
-	LLAvatarActions::startCall(mItemUUID);
+    LLAvatarActions::startCall(mItemUUID);
 }
 
 void LLFloaterBump::reportAbuse()
 {
-	LLFloaterReporter::showFromAvatar(mItemUUID, "av_name");
+    LLFloaterReporter::showFromAvatar(mItemUUID, "av_name");
 }
 
 void LLFloaterBump::showProfile()
 {
-	LLAvatarActions::showProfile(mItemUUID);
+    LLAvatarActions::showProfile(mItemUUID);
 }
 
 void LLFloaterBump::addFriend()
 {
-	LLAvatarActions::requestFriendshipDialog(mItemUUID);
+    LLAvatarActions::requestFriendshipDialog(mItemUUID);
 }
 
 bool LLFloaterBump::enableAddFriend()
 {
-	return !LLAvatarActions::isFriend(mItemUUID);
+    return !LLAvatarActions::isFriend(mItemUUID);
 }
 
 void LLFloaterBump::muteAvatar()
 {
-	LLMute mute(mItemUUID, mNames[mItemUUID], LLMute::AGENT);
-	if (LLMuteList::getInstance()->isMuted(mute.mID))
-	{
-		LLMuteList::getInstance()->remove(mute);
-	}
-	else
-	{
-		LLMuteList::getInstance()->add(mute);
-		LLPanelBlockedList::showPanelAndSelect(mute.mID);
-	}
+    LLMute mute(mItemUUID, mNames[mItemUUID], LLMute::AGENT);
+    if (LLMuteList::getInstance()->isMuted(mute.mID))
+    {
+        LLMuteList::getInstance()->remove(mute);
+    }
+    else
+    {
+        LLMuteList::getInstance()->add(mute);
+        LLPanelBlockedList::showPanelAndSelect(mute.mID);
+    }
 }
 
 void LLFloaterBump::payAvatar()
 {
-	LLAvatarActions::pay(mItemUUID);
+    LLAvatarActions::pay(mItemUUID);
 }
 
 void LLFloaterBump::zoomInAvatar()
 {
-	handle_zoom_to_object(mItemUUID);
+    handle_zoom_to_object(mItemUUID);
 }
 
 bool LLFloaterBump::enableMute()
 {
-	return LLAvatarActions::canBlock(mItemUUID);
+    return LLAvatarActions::canBlock(mItemUUID);
 }
 
 void LLFloaterBump::inviteToGroup()
 {
-	LLAvatarActions::inviteToGroup(mItemUUID);
+    LLAvatarActions::inviteToGroup(mItemUUID);
 }
 
 LLFloaterBump* LLFloaterBump::getInstance()
 {
-	return LLFloaterReg::getTypedInstance<LLFloaterBump>("bumps");
+    return LLFloaterReg::getTypedInstance<LLFloaterBump>("bumps");
 }

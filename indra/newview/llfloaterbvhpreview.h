@@ -40,95 +40,95 @@ class LLViewerJointMesh;
 class LLPreviewAnimation : public LLViewerDynamicTexture
 {
 protected:
-	virtual ~LLPreviewAnimation();
+    virtual ~LLPreviewAnimation();
 
 public:
-	LLPreviewAnimation(S32 width, S32 height);	
+    LLPreviewAnimation(S32 width, S32 height);  
 
-	/*virtual*/ S8 getType() const ;
+    /*virtual*/ S8 getType() const ;
 
-	BOOL	render();
-	void	requestUpdate();
-	void	rotate(F32 yaw_radians, F32 pitch_radians);
-	void	zoom(F32 zoom_delta);
-	void	setZoom(F32 zoom_amt);
-	void	pan(F32 right, F32 up);
-	virtual BOOL needsUpdate() { return mNeedsUpdate; }
+    BOOL    render();
+    void    requestUpdate();
+    void    rotate(F32 yaw_radians, F32 pitch_radians);
+    void    zoom(F32 zoom_delta);
+    void    setZoom(F32 zoom_amt);
+    void    pan(F32 right, F32 up);
+    virtual BOOL needsUpdate() { return mNeedsUpdate; }
 
-	LLVOAvatar* getDummyAvatar() { return mDummyAvatar; }
+    LLVOAvatar* getDummyAvatar() { return mDummyAvatar; }
 
 protected:
-	BOOL				mNeedsUpdate;
-	F32					mCameraDistance;
-	F32					mCameraYaw;
-	F32					mCameraPitch;
-	F32					mCameraZoom;
-	LLVector3			mCameraOffset;
-	LLVector3			mCameraRelPos;
-	LLPointer<LLVOAvatar>			mDummyAvatar;
+    BOOL                mNeedsUpdate;
+    F32                 mCameraDistance;
+    F32                 mCameraYaw;
+    F32                 mCameraPitch;
+    F32                 mCameraZoom;
+    LLVector3           mCameraOffset;
+    LLVector3           mCameraRelPos;
+    LLPointer<LLVOAvatar>           mDummyAvatar;
 };
 
 class LLFloaterBvhPreview : public LLFloaterNameDesc
 {
 public:
-	LLFloaterBvhPreview(const std::string& filename);
-	virtual ~LLFloaterBvhPreview();
-	
-	BOOL postBuild();
+    LLFloaterBvhPreview(const std::string& filename);
+    virtual ~LLFloaterBvhPreview();
+    
+    BOOL postBuild();
 
-	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	BOOL handleHover(S32 x, S32 y, MASK mask);
-	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
-	void onMouseCaptureLost();
+    BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+    BOOL handleHover(S32 x, S32 y, MASK mask);
+    BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
+    void onMouseCaptureLost();
 
-	void refresh();
+    void refresh();
 
-	void onBtnPlay();
-	void onBtnPause();	
-	void onBtnStop();
-	void onSliderMove();
-	void onCommitBaseAnim();
-	void onCommitLoop();
-	void onCommitLoopIn();
-	void onCommitLoopOut();
-	bool validateLoopIn(const LLSD& data);
-	bool validateLoopOut(const LLSD& data);
-	void onCommitName();
-	void onCommitHandPose();
-	void onCommitEmote();
-	void onCommitPriority();
-	void onCommitEaseIn();
-	void onCommitEaseOut();
-	bool validateEaseIn(const LLSD& data);
-	bool validateEaseOut(const LLSD& data);
-	static void	onBtnOK(void*);
-	static void onSaveComplete(const LLUUID& asset_uuid,
-									   LLAssetType::EType type,
-									   void* user_data,
-									   S32 status, LLExtStat ext_status);
+    void onBtnPlay();
+    void onBtnPause();  
+    void onBtnStop();
+    void onSliderMove();
+    void onCommitBaseAnim();
+    void onCommitLoop();
+    void onCommitLoopIn();
+    void onCommitLoopOut();
+    bool validateLoopIn(const LLSD& data);
+    bool validateLoopOut(const LLSD& data);
+    void onCommitName();
+    void onCommitHandPose();
+    void onCommitEmote();
+    void onCommitPriority();
+    void onCommitEaseIn();
+    void onCommitEaseOut();
+    bool validateEaseIn(const LLSD& data);
+    bool validateEaseOut(const LLSD& data);
+    static void onBtnOK(void*);
+    static void onSaveComplete(const LLUUID& asset_uuid,
+                                       LLAssetType::EType type,
+                                       void* user_data,
+                                       S32 status, LLExtStat ext_status);
 private:
-	void setAnimCallbacks() ;
+    void setAnimCallbacks() ;
     std::map <std::string, std::string> getJointAliases();
 
 
 protected:
-	void			draw();
-	void			resetMotion();
+    void            draw();
+    void            resetMotion();
 
-	LLPointer< LLPreviewAnimation > mAnimPreview;
-	S32					mLastMouseX;
-	S32					mLastMouseY;
-	LLButton*			mPlayButton;
-	LLButton*			mPauseButton;	
-	LLButton*			mStopButton;
-	LLRect				mPreviewRect;
-	LLRectf				mPreviewImageRect;
-	LLAssetID			mMotionID;
-	LLTransactionID		mTransactionID;
-	LLAnimPauseRequest	mPauseRequest;
+    LLPointer< LLPreviewAnimation > mAnimPreview;
+    S32                 mLastMouseX;
+    S32                 mLastMouseY;
+    LLButton*           mPlayButton;
+    LLButton*           mPauseButton;   
+    LLButton*           mStopButton;
+    LLRect              mPreviewRect;
+    LLRectf             mPreviewImageRect;
+    LLAssetID           mMotionID;
+    LLTransactionID     mTransactionID;
+    LLAnimPauseRequest  mPauseRequest;
 
-	std::map<std::string, LLUUID>	mIDList;
+    std::map<std::string, LLUUID>   mIDList;
 };
 
 #endif  // LL_LLFLOATERBVHPREVIEW_H

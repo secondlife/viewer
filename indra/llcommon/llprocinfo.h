@@ -25,8 +25,8 @@
 * $/LicenseInfo$
 */
 
-#ifndef	LL_PROCINFO_H
-#define	LL_PROCINFO_H
+#ifndef LL_PROCINFO_H
+#define LL_PROCINFO_H
 
 
 #include "linden_common.h"
@@ -46,23 +46,23 @@
 class LL_COMMON_API LLProcInfo
 {
 public:
-	/// Public types
+    /// Public types
 
-	typedef U64 time_type;								/// Relative microseconds
-	
+    typedef U64 time_type;                              /// Relative microseconds
+    
 private:
-	LLProcInfo();										// Not defined
-	~LLProcInfo();										// Not defined
-	LLProcInfo(const LLProcInfo &);						// Not defined
-	void operator=(const LLProcInfo &);					// Not defined
+    LLProcInfo();                                       // Not defined
+    ~LLProcInfo();                                      // Not defined
+    LLProcInfo(const LLProcInfo &);                     // Not defined
+    void operator=(const LLProcInfo &);                 // Not defined
 
 public:
-	/// Get accumulated system and user CPU time in
-	/// microseconds.  Syscalls involved in every invocation.
-	///
-	/// Threading:  expected to be safe.
-	static void getCPUUsage(time_type & user_time, time_type & system_time);
+    /// Get accumulated system and user CPU time in
+    /// microseconds.  Syscalls involved in every invocation.
+    ///
+    /// Threading:  expected to be safe.
+    static void getCPUUsage(time_type & user_time, time_type & system_time);
 };
-	
+    
 
-#endif	// LL_PROCINFO_H
+#endif  // LL_PROCINFO_H

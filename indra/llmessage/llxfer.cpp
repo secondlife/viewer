@@ -43,133 +43,133 @@ const U32 LLXfer::XFER_MEM = 3;
 
 LLXfer::LLXfer (S32 chunk_size)
 {
-	init(chunk_size);
+    init(chunk_size);
 }
 
 ///////////////////////////////////////////////////////////
 
 LLXfer::~LLXfer ()
 {
-	cleanup();
+    cleanup();
 }
 
 ///////////////////////////////////////////////////////////
 
 void LLXfer::init (S32 chunk_size)
 {
-	mID = 0;
+    mID = 0;
 
-	mPacketNum = -1; // there's a preincrement before sending the zeroth packet
-	mXferSize = 0;
+    mPacketNum = -1; // there's a preincrement before sending the zeroth packet
+    mXferSize = 0;
 
-	mStatus = e_LL_XFER_UNINITIALIZED;
-	mWaitingForACK = FALSE;
-	
-	mCallback = NULL;
-	mCallbackDataHandle = NULL;
-	mCallbackResult = 0;
+    mStatus = e_LL_XFER_UNINITIALIZED;
+    mWaitingForACK = FALSE;
+    
+    mCallback = NULL;
+    mCallbackDataHandle = NULL;
+    mCallbackResult = 0;
 
-	mBufferContainsEOF = FALSE;
-	mBuffer = NULL;
-	mBufferLength = 0;
-	mBufferStartOffset = 0;
+    mBufferContainsEOF = FALSE;
+    mBuffer = NULL;
+    mBufferLength = 0;
+    mBufferStartOffset = 0;
 
-	mRetries = 0;
+    mRetries = 0;
 
-	if (chunk_size < 1)
-	{
-		chunk_size = LL_XFER_CHUNK_SIZE;
-	}
-	mChunkSize = chunk_size;
+    if (chunk_size < 1)
+    {
+        chunk_size = LL_XFER_CHUNK_SIZE;
+    }
+    mChunkSize = chunk_size;
 }
-	
+    
 ///////////////////////////////////////////////////////////
 
 void LLXfer::cleanup ()
 {
-	if (mBuffer)
-	{
-		delete[] mBuffer;
-		mBuffer = NULL;
-	}
+    if (mBuffer)
+    {
+        delete[] mBuffer;
+        mBuffer = NULL;
+    }
 }
 
 ///////////////////////////////////////////////////////////
 
 S32 LLXfer::startSend (U64 xfer_id, const LLHost &remote_host)
 {
-	LL_WARNS("Xfer") << "unexpected call to base class LLXfer::startSend for " << getFileName() << LL_ENDL;
-	return (-1);
+    LL_WARNS("Xfer") << "unexpected call to base class LLXfer::startSend for " << getFileName() << LL_ENDL;
+    return (-1);
 }
 
 ///////////////////////////////////////////////////////////
 
 void LLXfer::closeFileHandle()
 {
-	LL_WARNS("Xfer") << "unexpected call to base class LLXfer::closeFileHandle for " << getFileName() << LL_ENDL;
+    LL_WARNS("Xfer") << "unexpected call to base class LLXfer::closeFileHandle for " << getFileName() << LL_ENDL;
 }
 
 ///////////////////////////////////////////////////////////
 
 S32 LLXfer::reopenFileHandle()
 {
-	LL_WARNS("Xfer") << "unexpected call to base class LLXfer::reopenFileHandle for " << getFileName() << LL_ENDL;
-	return (-1);
+    LL_WARNS("Xfer") << "unexpected call to base class LLXfer::reopenFileHandle for " << getFileName() << LL_ENDL;
+    return (-1);
 }
 
 ///////////////////////////////////////////////////////////
 
 void LLXfer::setXferSize (S32 xfer_size)
-{	
-	mXferSize = xfer_size;
-//	cout << "starting transfer of size: " << xfer_size << endl;
+{   
+    mXferSize = xfer_size;
+//  cout << "starting transfer of size: " << xfer_size << endl;
 }
 
 ///////////////////////////////////////////////////////////
 
 S32 LLXfer::startDownload()
 {
-	LL_WARNS("Xfer") << "undifferentiated LLXfer::startDownload for " << getFileName()
-			<< LL_ENDL;
-	return (-1);
+    LL_WARNS("Xfer") << "undifferentiated LLXfer::startDownload for " << getFileName()
+            << LL_ENDL;
+    return (-1);
 }
 
 ///////////////////////////////////////////////////////////
 
 S32 LLXfer::receiveData (char *datap, S32 data_size)
 {
-	S32 retval = 0;
+    S32 retval = 0;
 
-	if (((S32) mBufferLength + data_size) > getMaxBufferSize())
-	{	// Write existing data to disk if it's larger than the buffer size
-		retval = flush();
-	}
+    if (((S32) mBufferLength + data_size) > getMaxBufferSize())
+    {   // Write existing data to disk if it's larger than the buffer size
+        retval = flush();
+    }
 
-	if (!retval)
-	{
-		if (datap != NULL)
-		{	// Append new data to mBuffer
-			memcpy(&mBuffer[mBufferLength],datap,data_size);	/*Flawfinder: ignore*/
-			mBufferLength += data_size;
-		}
-		else
-		{
-			LL_ERRS("Xfer") << "NULL data passed in receiveData" << LL_ENDL;
-		}
-	}
+    if (!retval)
+    {
+        if (datap != NULL)
+        {   // Append new data to mBuffer
+            memcpy(&mBuffer[mBufferLength],datap,data_size);    /*Flawfinder: ignore*/
+            mBufferLength += data_size;
+        }
+        else
+        {
+            LL_ERRS("Xfer") << "NULL data passed in receiveData" << LL_ENDL;
+        }
+    }
 
-	return (retval);
+    return (retval);
 }
 
 ///////////////////////////////////////////////////////////
 
 S32 LLXfer::flush()
 {
-	// only files have somewhere to flush to
-	// if we get called with a flush it means we've blown past our
-	// allocated buffer size
+    // only files have somewhere to flush to
+    // if we get called with a flush it means we've blown past our
+    // allocated buffer size
 
-	return (-1);
+    return (-1);
 }
 
 
@@ -177,185 +177,185 @@ S32 LLXfer::flush()
 
 S32 LLXfer::suck(S32 start_position)
 {
-	LL_WARNS("Xfer") << "Attempted to send a packet outside the buffer bounds in LLXfer::suck()" << LL_ENDL;
-	return (-1);
+    LL_WARNS("Xfer") << "Attempted to send a packet outside the buffer bounds in LLXfer::suck()" << LL_ENDL;
+    return (-1);
 }
 
 ///////////////////////////////////////////////////////////
 
 void LLXfer::sendPacket(S32 packet_num)
 {
-	char fdata_buf[LL_XFER_LARGE_PAYLOAD+4];		/* Flawfinder: ignore */
-	S32 fdata_size = mChunkSize;
-	BOOL last_packet = FALSE;
-	S32 num_copy = 0;
+    char fdata_buf[LL_XFER_LARGE_PAYLOAD+4];        /* Flawfinder: ignore */
+    S32 fdata_size = mChunkSize;
+    BOOL last_packet = FALSE;
+    S32 num_copy = 0;
 
-	// if the desired packet is not in our current buffered excerpt from the file. . . 
-	if (((U32)packet_num*fdata_size < mBufferStartOffset) 
-		|| ((U32)llmin((U32)mXferSize,(U32)((U32)(packet_num+1)*fdata_size)) > mBufferStartOffset + mBufferLength))
-	
-	{
-		if (suck(packet_num*fdata_size))  // returns non-zero on failure
-		{
-			abort(LL_ERR_EOF);
-			return;
-		}	
-	}
-		
-	S32 desired_read_position = 0;
-		
-	desired_read_position = packet_num * fdata_size - mBufferStartOffset;
-	
-	fdata_size = llmin((S32)mBufferLength-desired_read_position, mChunkSize);
+    // if the desired packet is not in our current buffered excerpt from the file. . . 
+    if (((U32)packet_num*fdata_size < mBufferStartOffset) 
+        || ((U32)llmin((U32)mXferSize,(U32)((U32)(packet_num+1)*fdata_size)) > mBufferStartOffset + mBufferLength))
+    
+    {
+        if (suck(packet_num*fdata_size))  // returns non-zero on failure
+        {
+            abort(LL_ERR_EOF);
+            return;
+        }   
+    }
+        
+    S32 desired_read_position = 0;
+        
+    desired_read_position = packet_num * fdata_size - mBufferStartOffset;
+    
+    fdata_size = llmin((S32)mBufferLength-desired_read_position, mChunkSize);
 
-	if (fdata_size < 0)
-	{
-		LL_WARNS("Xfer") << "negative data size in xfer send, aborting" << LL_ENDL;
-		abort(LL_ERR_EOF);
-		return;
-	}
+    if (fdata_size < 0)
+    {
+        LL_WARNS("Xfer") << "negative data size in xfer send, aborting" << LL_ENDL;
+        abort(LL_ERR_EOF);
+        return;
+    }
 
-	if (((U32)(desired_read_position + fdata_size) >= (U32)mBufferLength) && (mBufferContainsEOF))
-	{
-		last_packet = TRUE;
-	}
-		
-	if (packet_num)
-	{ 
-		num_copy = llmin(fdata_size, (S32)sizeof(fdata_buf));
-		num_copy = llmin(num_copy, (S32)(mBufferLength - desired_read_position));
-		if (num_copy > 0)
-		{
-			memcpy(fdata_buf,&mBuffer[desired_read_position],num_copy);	/*Flawfinder: ignore*/
-		}
-	}
-	else  
-	{
-		// if we're the first packet, encode size as an additional S32
-		// at start of data.
-		num_copy = llmin(fdata_size, (S32)(sizeof(fdata_buf)-sizeof(S32)));
-		num_copy = llmin(
-			num_copy,
-			(S32)(mBufferLength - desired_read_position));
-		if (num_copy > 0)
-		{
-			memcpy(	/*Flawfinder: ignore*/
-				fdata_buf + sizeof(S32),
-				&mBuffer[desired_read_position],
-				num_copy);
-		}
-		fdata_size += sizeof(S32);
-		htolememcpy(fdata_buf,&mXferSize, MVT_S32, sizeof(S32));
-	}
+    if (((U32)(desired_read_position + fdata_size) >= (U32)mBufferLength) && (mBufferContainsEOF))
+    {
+        last_packet = TRUE;
+    }
+        
+    if (packet_num)
+    { 
+        num_copy = llmin(fdata_size, (S32)sizeof(fdata_buf));
+        num_copy = llmin(num_copy, (S32)(mBufferLength - desired_read_position));
+        if (num_copy > 0)
+        {
+            memcpy(fdata_buf,&mBuffer[desired_read_position],num_copy); /*Flawfinder: ignore*/
+        }
+    }
+    else  
+    {
+        // if we're the first packet, encode size as an additional S32
+        // at start of data.
+        num_copy = llmin(fdata_size, (S32)(sizeof(fdata_buf)-sizeof(S32)));
+        num_copy = llmin(
+            num_copy,
+            (S32)(mBufferLength - desired_read_position));
+        if (num_copy > 0)
+        {
+            memcpy( /*Flawfinder: ignore*/
+                fdata_buf + sizeof(S32),
+                &mBuffer[desired_read_position],
+                num_copy);
+        }
+        fdata_size += sizeof(S32);
+        htolememcpy(fdata_buf,&mXferSize, MVT_S32, sizeof(S32));
+    }
 
-	S32 encoded_packetnum = encodePacketNum(packet_num,last_packet);
-		
-	if (fdata_size)
-	{
-		// send the packet 
-		gMessageSystem->newMessageFast(_PREHASH_SendXferPacket);
-		gMessageSystem->nextBlockFast(_PREHASH_XferID);
-		
-		gMessageSystem->addU64Fast(_PREHASH_ID, mID);
-		gMessageSystem->addU32Fast(_PREHASH_Packet, encoded_packetnum);
-		
-		gMessageSystem->nextBlockFast(_PREHASH_DataPacket);
-		gMessageSystem->addBinaryDataFast(_PREHASH_Data, &fdata_buf,fdata_size);
-			
-		S32 sent_something = gMessageSystem->sendMessage(mRemoteHost);
-		if (sent_something == 0)
-		{
-			abort(LL_ERR_CIRCUIT_GONE);
-			return;
-		}
+    S32 encoded_packetnum = encodePacketNum(packet_num,last_packet);
+        
+    if (fdata_size)
+    {
+        // send the packet 
+        gMessageSystem->newMessageFast(_PREHASH_SendXferPacket);
+        gMessageSystem->nextBlockFast(_PREHASH_XferID);
+        
+        gMessageSystem->addU64Fast(_PREHASH_ID, mID);
+        gMessageSystem->addU32Fast(_PREHASH_Packet, encoded_packetnum);
+        
+        gMessageSystem->nextBlockFast(_PREHASH_DataPacket);
+        gMessageSystem->addBinaryDataFast(_PREHASH_Data, &fdata_buf,fdata_size);
+            
+        S32 sent_something = gMessageSystem->sendMessage(mRemoteHost);
+        if (sent_something == 0)
+        {
+            abort(LL_ERR_CIRCUIT_GONE);
+            return;
+        }
 
-		ACKTimer.reset();
-		mWaitingForACK = TRUE;
-	}
-	if (last_packet)
-	{
-		mStatus = e_LL_XFER_COMPLETE;	
-	}
-	else
-	{
-		mStatus = e_LL_XFER_IN_PROGRESS;
-	}
+        ACKTimer.reset();
+        mWaitingForACK = TRUE;
+    }
+    if (last_packet)
+    {
+        mStatus = e_LL_XFER_COMPLETE;   
+    }
+    else
+    {
+        mStatus = e_LL_XFER_IN_PROGRESS;
+    }
 }
 
 ///////////////////////////////////////////////////////////
 
 void LLXfer::sendNextPacket()
 {
-	mRetries = 0;
-	sendPacket(++mPacketNum);
+    mRetries = 0;
+    sendPacket(++mPacketNum);
 }
 
 ///////////////////////////////////////////////////////////
 
 void LLXfer::resendLastPacket()
 {
-	mRetries++;
-	sendPacket(mPacketNum);
+    mRetries++;
+    sendPacket(mPacketNum);
 }
 
 ///////////////////////////////////////////////////////////
 
 S32 LLXfer::processEOF()
 {
-	S32 retval = 0;
+    S32 retval = 0;
 
-	mStatus = e_LL_XFER_COMPLETE;
+    mStatus = e_LL_XFER_COMPLETE;
 
-	if (LL_ERR_NOERR == mCallbackResult)
-	{
-		LL_INFOS("Xfer") << "xfer from " << mRemoteHost << " complete: " << getFileName()
-				<< LL_ENDL;
-	}
-	else
-	{
-		LL_INFOS("Xfer") << "xfer from " << mRemoteHost << " failed, code "
-				<< mCallbackResult << ": " << getFileName() << LL_ENDL;
-	}
+    if (LL_ERR_NOERR == mCallbackResult)
+    {
+        LL_INFOS("Xfer") << "xfer from " << mRemoteHost << " complete: " << getFileName()
+                << LL_ENDL;
+    }
+    else
+    {
+        LL_INFOS("Xfer") << "xfer from " << mRemoteHost << " failed, code "
+                << mCallbackResult << ": " << getFileName() << LL_ENDL;
+    }
 
-	if (mCallback)
-	{
-		mCallback(mCallbackDataHandle,mCallbackResult, LLExtStat::NONE);
-	}
+    if (mCallback)
+    {
+        mCallback(mCallbackDataHandle,mCallbackResult, LLExtStat::NONE);
+    }
 
-	return(retval);
+    return(retval);
 }
 
 ///////////////////////////////////////////////////////////
 
 S32 LLXfer::encodePacketNum(S32 packet_num, BOOL is_EOF)
 {
-	if (is_EOF)
-	{
-		packet_num |= 0x80000000;
-	}
-	return packet_num;
+    if (is_EOF)
+    {
+        packet_num |= 0x80000000;
+    }
+    return packet_num;
 }
 
 ///////////////////////////////////////////////////////////
 
 void LLXfer::abort (S32 result_code)
 {
-	mCallbackResult = result_code;
+    mCallbackResult = result_code;
 
-	LL_INFOS("Xfer") << "Aborting xfer from " << mRemoteHost << " named " << getFileName()
-			<< " - error: " << result_code << LL_ENDL;
+    LL_INFOS("Xfer") << "Aborting xfer from " << mRemoteHost << " named " << getFileName()
+            << " - error: " << result_code << LL_ENDL;
 
-	if (result_code != LL_ERR_CIRCUIT_GONE)
-	{
-		gMessageSystem->newMessageFast(_PREHASH_AbortXfer);
-		gMessageSystem->nextBlockFast(_PREHASH_XferID);
-		gMessageSystem->addU64Fast(_PREHASH_ID, mID);
-		gMessageSystem->addS32Fast(_PREHASH_Result, result_code);
+    if (result_code != LL_ERR_CIRCUIT_GONE)
+    {
+        gMessageSystem->newMessageFast(_PREHASH_AbortXfer);
+        gMessageSystem->nextBlockFast(_PREHASH_XferID);
+        gMessageSystem->addU64Fast(_PREHASH_ID, mID);
+        gMessageSystem->addS32Fast(_PREHASH_Result, result_code);
 
-		gMessageSystem->sendMessage(mRemoteHost);
-	}
+        gMessageSystem->sendMessage(mRemoteHost);
+    }
 
-	mStatus = e_LL_XFER_ABORTED;
+    mStatus = e_LL_XFER_ABORTED;
 }
 
 
@@ -363,28 +363,28 @@ void LLXfer::abort (S32 result_code)
 
 std::string LLXfer::getFileName() 
 {
-	return U64_to_str(mID);
+    return U64_to_str(mID);
 }
 
 ///////////////////////////////////////////////////////////
 
 U32 LLXfer::getXferTypeTag()
 {
-	return 0;
+    return 0;
 }
 
 ///////////////////////////////////////////////////////////
 
 S32 LLXfer::getMaxBufferSize ()
 {
-	return(mXferSize);
+    return(mXferSize);
 }
 
 
 std::ostream& operator<< (std::ostream& os, LLXfer &hh)
 {
-	os << hh.getFileName() ;
-	return os;
+    os << hh.getFileName() ;
+    return os;
 }
 
 

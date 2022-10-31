@@ -35,38 +35,38 @@ class LLButton;
 class LLScrollListCtrl;
 
 class LLFloaterVoiceEffect
-	: public LLFloater
-	, public LLVoiceEffectObserver
+    : public LLFloater
+    , public LLVoiceEffectObserver
 {
 public:
-	LOG_CLASS(LLFloaterVoiceEffect);
+    LOG_CLASS(LLFloaterVoiceEffect);
 
-	LLFloaterVoiceEffect(const LLSD& key);
-	virtual ~LLFloaterVoiceEffect();
+    LLFloaterVoiceEffect(const LLSD& key);
+    virtual ~LLFloaterVoiceEffect();
 
-	virtual BOOL postBuild();
-	virtual void onClose(bool app_quitting);
+    virtual BOOL postBuild();
+    virtual void onClose(bool app_quitting);
 
 private:
-	enum ColumnIndex
-	{
-		NAME_COLUMN = 0,
-		DATE_COLUMN = 1,
-	};
+    enum ColumnIndex
+    {
+        NAME_COLUMN = 0,
+        DATE_COLUMN = 1,
+    };
 
-	void refreshEffectList();
-	void updateControls();
+    void refreshEffectList();
+    void updateControls();
 
-	/// Called by voice effect provider when voice effect list is changed.
-	virtual void onVoiceEffectChanged(bool effect_list_updated);
+    /// Called by voice effect provider when voice effect list is changed.
+    virtual void onVoiceEffectChanged(bool effect_list_updated);
 
-	void onClickRecord();
-	void onClickPlay();
-	void onClickStop();
-//	void onClickActivate();
+    void onClickRecord();
+    void onClickPlay();
+    void onClickStop();
+//  void onClickActivate();
 
-	LLUUID mSelectedID;
-	LLScrollListCtrl* mVoiceEffectList;
+    LLUUID mSelectedID;
+    LLScrollListCtrl* mVoiceEffectList;
 };
 
 #endif

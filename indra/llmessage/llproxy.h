@@ -47,7 +47,7 @@
 #define SOCKS_INVALID_HOST (-7)
 
 #ifndef MAXHOSTNAMELEN
-#define	MAXHOSTNAMELEN (255 + 1) /* socks5: 255, +1 for len. */
+#define MAXHOSTNAMELEN (255 + 1) /* socks5: 255, +1 for len. */
 #endif
 
 #define SOCKSMAXUSERNAMELEN 255
@@ -68,8 +68,8 @@
 // Lets just use our own ipv4 struct rather than dragging in system
 // specific headers
 union ipv4_address_t {
-	U8		octets[4];
-	U32		addr32;
+    U8      octets[4];
+    U32     addr32;
 };
 
 // SOCKS 5 control channel commands
@@ -98,22 +98,22 @@ union ipv4_address_t {
 
 // SOCKS 5 command packet
 struct socks_command_request_t {
-	U8		version;
-	U8		command;
-	U8		reserved;
-	U8		atype;
-	U32		address;
-	U16		port;
+    U8      version;
+    U8      command;
+    U8      reserved;
+    U8      atype;
+    U32     address;
+    U16     port;
 };
 
 // Standard SOCKS 5 reply packet
 struct socks_command_response_t {
-	U8		version;
-	U8		reply;
-	U8		reserved;
-	U8		atype;
-	U8		add_bytes[4];
-	U16		port;
+    U8      version;
+    U8      reply;
+    U8      reserved;
+    U8      atype;
+    U8      add_bytes[4];
+    U16     port;
 };
 
 #define AUTH_NOT_ACCEPTABLE 0xFF // reply if preferred methods are not available
@@ -121,30 +121,30 @@ struct socks_command_response_t {
 
 // SOCKS 5 authentication request, stating which methods the client supports
 struct socks_auth_request_t {
-	U8		version;
-	U8		num_methods;
-	U8		methods; // We are only using a single method currently
+    U8      version;
+    U8      num_methods;
+    U8      methods; // We are only using a single method currently
 };
 
 // SOCKS 5 authentication response packet, stating server preferred method
 struct socks_auth_response_t {
-	U8		version;
-	U8		method;
+    U8      version;
+    U8      method;
 };
 
 // SOCKS 5 password reply packet
 struct authmethod_password_reply_t {
-	U8		version;
-	U8		status;
+    U8      version;
+    U8      status;
 };
 
 // SOCKS 5 UDP packet header
 struct proxywrap_t {
-	U16		rsv;
-	U8		frag;
-	U8		atype;
-	U32		addr;
-	U16		port;
+    U16     rsv;
+    U8      frag;
+    U8      atype;
+    U32     addr;
+    U16     port;
 };
 
 #pragma pack(pop) /* restore original alignment from stack */
@@ -153,16 +153,16 @@ struct proxywrap_t {
 // Currently selected HTTP proxy type
 enum LLHttpProxyType
 {
-	LLPROXY_SOCKS = 0,
-	LLPROXY_HTTP  = 1
+    LLPROXY_SOCKS = 0,
+    LLPROXY_HTTP  = 1
 };
 
 // Auth types
 enum LLSocks5AuthType
 {
-	METHOD_NOAUTH   = 0x00,	// Client supports no auth
-	METHOD_GSSAPI   = 0x01,	// Client supports GSSAPI (Not currently supported)
-	METHOD_PASSWORD = 0x02 	// Client supports username/password
+    METHOD_NOAUTH   = 0x00, // Client supports no auth
+    METHOD_GSSAPI   = 0x01, // Client supports GSSAPI (Not currently supported)
+    METHOD_PASSWORD = 0x02  // Client supports username/password
 };
 
 /**
@@ -219,133 +219,133 @@ enum LLSocks5AuthType
  */
 class LLProxy: public LLSingleton<LLProxy>
 {
-	/*###########################################################################################
-	METHODS THAT DO NOT LOCK mProxyMutex!
-	###########################################################################################*/
-	// Constructor, cannot have parameters due to LLSingleton parent class. Call from main thread only.
-	LLSINGLETON(LLProxy);
-	LOG_CLASS(LLProxy);
+    /*###########################################################################################
+    METHODS THAT DO NOT LOCK mProxyMutex!
+    ###########################################################################################*/
+    // Constructor, cannot have parameters due to LLSingleton parent class. Call from main thread only.
+    LLSINGLETON(LLProxy);
+    LOG_CLASS(LLProxy);
 
     /*virtual*/ void initSingleton();
 
 public:
-	// Static check for enabled status for UDP packets. Call from main thread only.
-	static bool isSOCKSProxyEnabled() { return sUDPProxyEnabled; }
+    // Static check for enabled status for UDP packets. Call from main thread only.
+    static bool isSOCKSProxyEnabled() { return sUDPProxyEnabled; }
 
-	// Get the UDP proxy address and port. Call from main thread only.
-	LLHost getUDPProxy() const { return mUDPProxy; }
+    // Get the UDP proxy address and port. Call from main thread only.
+    LLHost getUDPProxy() const { return mUDPProxy; }
 
-	/*###########################################################################################
-	END OF NON-LOCKING METHODS
-	###########################################################################################*/
+    /*###########################################################################################
+    END OF NON-LOCKING METHODS
+    ###########################################################################################*/
 
-	/*###########################################################################################
-	METHODS THAT LOCK mProxyMutex! DO NOT CALL WHILE mProxyMutex IS LOCKED!
-	###########################################################################################*/
+    /*###########################################################################################
+    METHODS THAT LOCK mProxyMutex! DO NOT CALL WHILE mProxyMutex IS LOCKED!
+    ###########################################################################################*/
 private:
-	// Destructor, closes open connections. Do not call directly, use cleanupClass().
-	~LLProxy();
+    // Destructor, closes open connections. Do not call directly, use cleanupClass().
+    ~LLProxy();
 
 public:
-	// Delete LLProxy singleton. Allows the apr_socket used in the SOCKS 5 control channel to be
-	// destroyed before the call to apr_terminate. Call from main thread only.
-	static void cleanupClass();
+    // Delete LLProxy singleton. Allows the apr_socket used in the SOCKS 5 control channel to be
+    // destroyed before the call to apr_terminate. Call from main thread only.
+    static void cleanupClass();
 
-	// Apply the current proxy settings to a curl request. Doesn't do anything if mHTTPProxyEnabled is false.
-	// Safe to call from any thread.
-	static void applyProxySettings(CURL* handle);
-	// Start a connection to the SOCKS 5 proxy. Call from main thread only.
-	S32 startSOCKSProxy(LLHost host);
+    // Apply the current proxy settings to a curl request. Doesn't do anything if mHTTPProxyEnabled is false.
+    // Safe to call from any thread.
+    static void applyProxySettings(CURL* handle);
+    // Start a connection to the SOCKS 5 proxy. Call from main thread only.
+    S32 startSOCKSProxy(LLHost host);
 
-	// Disconnect and clean up any connection to the SOCKS 5 proxy. Call from main thread only.
-	void stopSOCKSProxy();
+    // Disconnect and clean up any connection to the SOCKS 5 proxy. Call from main thread only.
+    void stopSOCKSProxy();
 
-	// Use Password auth when connecting to the SOCKS proxy. Call from main thread only.
-	bool setAuthPassword(const std::string &username, const std::string &password);
+    // Use Password auth when connecting to the SOCKS proxy. Call from main thread only.
+    bool setAuthPassword(const std::string &username, const std::string &password);
 
-	// Disable authentication when connecting to the SOCKS proxy. Call from main thread only.
-	void setAuthNone();
+    // Disable authentication when connecting to the SOCKS proxy. Call from main thread only.
+    void setAuthNone();
 
-	// Proxy HTTP packets via httpHost, which can be a SOCKS 5 or a HTTP proxy.
-	// as specified in type. Call from main thread only.
-	bool enableHTTPProxy(LLHost httpHost, LLHttpProxyType type);
-	bool enableHTTPProxy();
+    // Proxy HTTP packets via httpHost, which can be a SOCKS 5 or a HTTP proxy.
+    // as specified in type. Call from main thread only.
+    bool enableHTTPProxy(LLHost httpHost, LLHttpProxyType type);
+    bool enableHTTPProxy();
 
-	// Stop proxying HTTP packets. Call from main thread only.
-	void disableHTTPProxy();
+    // Stop proxying HTTP packets. Call from main thread only.
+    void disableHTTPProxy();
 
-	/*###########################################################################################
-	END OF LOCKING METHODS
-	###########################################################################################*/
+    /*###########################################################################################
+    END OF LOCKING METHODS
+    ###########################################################################################*/
 private:
-	/*###########################################################################################
-	METHODS THAT LOCK mProxyMutex! DO NOT CALL WHILE mProxyMutex IS LOCKED!
-	###########################################################################################*/
+    /*###########################################################################################
+    METHODS THAT LOCK mProxyMutex! DO NOT CALL WHILE mProxyMutex IS LOCKED!
+    ###########################################################################################*/
 
-	// Perform a SOCKS 5 authentication and UDP association with the proxy server.
-	S32 proxyHandshake(LLHost proxy);
+    // Perform a SOCKS 5 authentication and UDP association with the proxy server.
+    S32 proxyHandshake(LLHost proxy);
 
-	// Get the currently selected auth method.
-	LLSocks5AuthType getSelectedAuthMethod() const;
+    // Get the currently selected auth method.
+    LLSocks5AuthType getSelectedAuthMethod() const;
 
-	// Get the currently selected HTTP proxy type
-	LLHttpProxyType getHTTPProxyType() const;
+    // Get the currently selected HTTP proxy type
+    LLHttpProxyType getHTTPProxyType() const;
 
-	std::string getSocksPwd() const;
-	std::string getSocksUser() const;
+    std::string getSocksPwd() const;
+    std::string getSocksUser() const;
 
-	/*###########################################################################################
-	END OF LOCKING METHODS
-	###########################################################################################*/
+    /*###########################################################################################
+    END OF LOCKING METHODS
+    ###########################################################################################*/
 
 private:
-	// Is the HTTP proxy enabled? Safe to read in any thread, but do not write directly.
-	// Instead use enableHTTPProxy() and disableHTTPProxy() instead.
-	mutable LLAtomicBool mHTTPProxyEnabled;
+    // Is the HTTP proxy enabled? Safe to read in any thread, but do not write directly.
+    // Instead use enableHTTPProxy() and disableHTTPProxy() instead.
+    mutable LLAtomicBool mHTTPProxyEnabled;
 
-	// Mutex to protect shared members in non-main thread calls to applyProxySettings().
-	mutable LLMutex mProxyMutex;
+    // Mutex to protect shared members in non-main thread calls to applyProxySettings().
+    mutable LLMutex mProxyMutex;
 
-	/*###########################################################################################
-	MEMBERS READ AND WRITTEN ONLY IN THE MAIN THREAD. DO NOT SHARE!
-	###########################################################################################*/
+    /*###########################################################################################
+    MEMBERS READ AND WRITTEN ONLY IN THE MAIN THREAD. DO NOT SHARE!
+    ###########################################################################################*/
 
-	// Is the UDP proxy enabled?
-	static bool sUDPProxyEnabled;
+    // Is the UDP proxy enabled?
+    static bool sUDPProxyEnabled;
 
-	// UDP proxy address and port
-	LLHost mUDPProxy;
-	// TCP proxy control channel address and port
-	LLHost mTCPProxy;
+    // UDP proxy address and port
+    LLHost mUDPProxy;
+    // TCP proxy control channel address and port
+    LLHost mTCPProxy;
 
-	// socket handle to proxy TCP control channel
-	LLSocket::ptr_t mProxyControlChannel;
+    // socket handle to proxy TCP control channel
+    LLSocket::ptr_t mProxyControlChannel;
 
-	/*###########################################################################################
-	END OF UNSHARED MEMBERS
-	###########################################################################################*/
+    /*###########################################################################################
+    END OF UNSHARED MEMBERS
+    ###########################################################################################*/
 
-	/*###########################################################################################
-	MEMBERS WRITTEN IN MAIN THREAD AND READ IN ANY THREAD. ONLY READ OR WRITE AFTER LOCKING mProxyMutex!
-	###########################################################################################*/
+    /*###########################################################################################
+    MEMBERS WRITTEN IN MAIN THREAD AND READ IN ANY THREAD. ONLY READ OR WRITE AFTER LOCKING mProxyMutex!
+    ###########################################################################################*/
 
-	// HTTP proxy address and port
-	LLHost mHTTPProxy;
+    // HTTP proxy address and port
+    LLHost mHTTPProxy;
 
-	// Currently selected HTTP proxy type. Can be web or socks.
-	LLHttpProxyType mProxyType;
+    // Currently selected HTTP proxy type. Can be web or socks.
+    LLHttpProxyType mProxyType;
 
-	// SOCKS 5 selected authentication method.
-	LLSocks5AuthType mAuthMethodSelected;
+    // SOCKS 5 selected authentication method.
+    LLSocks5AuthType mAuthMethodSelected;
 
-	// SOCKS 5 username
-	std::string mSocksUsername;
-	// SOCKS 5 password
-	std::string mSocksPassword;
+    // SOCKS 5 username
+    std::string mSocksUsername;
+    // SOCKS 5 password
+    std::string mSocksPassword;
 
-	/*###########################################################################################
-	END OF SHARED MEMBERS
-	###########################################################################################*/
+    /*###########################################################################################
+    END OF SHARED MEMBERS
+    ###########################################################################################*/
 
     // A hack to get arround getInstance() and capture_dependency() which are unsafe to use inside threads
     // set/reset on init/cleanup, strictly for use in applyProxySettings

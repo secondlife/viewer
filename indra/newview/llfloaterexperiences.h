@@ -33,7 +33,7 @@
 class LLPanelExperiences;
 
 class LLFloaterExperiences :
-	public LLFloater
+    public LLFloater
 {
 public:
     LLFloaterExperiences(const LLSD& data);
@@ -47,16 +47,16 @@ protected:
 
     void clearFromRecent(const LLSD& ids);
     void resizeToTabs();
-	/*virtual*/ BOOL	postBuild();
+    /*virtual*/ BOOL    postBuild();
     void refreshContents();
     void setupRecentTabs();
     LLPanelExperiences* addTab(const std::string& name, bool select);
 
     bool updatePermissions(const LLSD& permission);
-	void sendPurchaseRequest();
-	void checkPurchaseInfo(LLPanelExperiences* panel, const LLSD& content)const;
+    void sendPurchaseRequest();
+    void checkPurchaseInfo(LLPanelExperiences* panel, const LLSD& content)const;
     void checkAndOpen(LLPanelExperiences* panel, const LLSD& content) const;
-	void updateInfo(std::string experiences, std::string tab);
+    void updateInfo(std::string experiences, std::string tab);
 
     void retrieveExperienceList(const std::string &url, const LLHandle<LLFloaterExperiences> &hparent, const NameMap_t &tabMapping,
         const std::string &errorNotify = std::string("ErrorMessage"), Callback_t cback = Callback_t());

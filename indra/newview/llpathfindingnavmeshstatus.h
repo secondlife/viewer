@@ -36,42 +36,42 @@ class LLSD;
 class LLPathfindingNavMeshStatus
 {
 public:
-	typedef enum
-	{
-		kPending,
-		kBuilding,
-		kComplete,
-		kRepending
-	} ENavMeshStatus;
+    typedef enum
+    {
+        kPending,
+        kBuilding,
+        kComplete,
+        kRepending
+    } ENavMeshStatus;
 
-	LLPathfindingNavMeshStatus();
-	LLPathfindingNavMeshStatus(const LLUUID &pRegionUUID);
-	LLPathfindingNavMeshStatus(const LLUUID &pRegionUUID, const LLSD &pContent);
-	LLPathfindingNavMeshStatus(const LLSD &pContent);
-	LLPathfindingNavMeshStatus(const LLPathfindingNavMeshStatus &pOther);
-	virtual ~LLPathfindingNavMeshStatus();
+    LLPathfindingNavMeshStatus();
+    LLPathfindingNavMeshStatus(const LLUUID &pRegionUUID);
+    LLPathfindingNavMeshStatus(const LLUUID &pRegionUUID, const LLSD &pContent);
+    LLPathfindingNavMeshStatus(const LLSD &pContent);
+    LLPathfindingNavMeshStatus(const LLPathfindingNavMeshStatus &pOther);
+    virtual ~LLPathfindingNavMeshStatus();
 
-	LLPathfindingNavMeshStatus &operator =(const LLPathfindingNavMeshStatus &pOther);
+    LLPathfindingNavMeshStatus &operator =(const LLPathfindingNavMeshStatus &pOther);
 
-	bool           isValid() const        {return mIsValid;};
-	const LLUUID   &getRegionUUID() const {return mRegionUUID;};
-	U32            getVersion() const     {return mVersion;};
-	ENavMeshStatus getStatus() const      {return mStatus;};
+    bool           isValid() const        {return mIsValid;};
+    const LLUUID   &getRegionUUID() const {return mRegionUUID;};
+    U32            getVersion() const     {return mVersion;};
+    ENavMeshStatus getStatus() const      {return mStatus;};
 
 protected:
 
 private:
-	void           parseStatus(const LLSD &pContent);
+    void           parseStatus(const LLSD &pContent);
 
-	bool           mIsValid;
-	LLUUID         mRegionUUID;
-	U32            mVersion;
-	ENavMeshStatus mStatus;
+    bool           mIsValid;
+    LLUUID         mRegionUUID;
+    U32            mVersion;
+    ENavMeshStatus mStatus;
 
-	static const std::string sStatusPending;
-	static const std::string sStatusBuilding;
-	static const std::string sStatusComplete;
-	static const std::string sStatusRepending;
+    static const std::string sStatusPending;
+    static const std::string sStatusBuilding;
+    static const std::string sStatusComplete;
+    static const std::string sStatusRepending;
 };
 
 #endif // LL_LLPATHFINDINGNAVMESHSTATUS_H

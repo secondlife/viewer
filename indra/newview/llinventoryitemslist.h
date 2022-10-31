@@ -37,71 +37,71 @@ class LLViewerInventoryItem;
 class LLInventoryItemsList : public LLFlatListViewEx
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLFlatListViewEx::Params>
-	{
-		Params();
-	};
+    struct Params : public LLInitParam::Block<Params, LLFlatListViewEx::Params>
+    {
+        Params();
+    };
 
-	virtual ~LLInventoryItemsList();
+    virtual ~LLInventoryItemsList();
 
-	void refreshList(const std::vector<LLPointer<LLViewerInventoryItem> > item_array);
+    void refreshList(const std::vector<LLPointer<LLViewerInventoryItem> > item_array);
 
-	boost::signals2::connection setRefreshCompleteCallback(const commit_signal_t::slot_type& cb);
+    boost::signals2::connection setRefreshCompleteCallback(const commit_signal_t::slot_type& cb);
 
-	/**
-	 * Let list know items need to be refreshed in next doIdle()
-	 */
-	void setNeedsRefresh(bool needs_refresh){ mRefreshState = needs_refresh ? REFRESH_ALL : REFRESH_COMPLETE; }
+    /**
+     * Let list know items need to be refreshed in next doIdle()
+     */
+    void setNeedsRefresh(bool needs_refresh){ mRefreshState = needs_refresh ? REFRESH_ALL : REFRESH_COMPLETE; }
 
-	U32 getNeedsRefresh(){ return mRefreshState; }
+    U32 getNeedsRefresh(){ return mRefreshState; }
 
-	/**
-	 * Sets the flag indicating that the list needs to be refreshed even if it is
-	 * not currently visible.
-	 */
-	void setForceRefresh(bool force_refresh){ mForceRefresh = force_refresh; }
+    /**
+     * Sets the flag indicating that the list needs to be refreshed even if it is
+     * not currently visible.
+     */
+    void setForceRefresh(bool force_refresh){ mForceRefresh = force_refresh; }
 
-	/**
-	* If refreshes when invisible.
-	*/
-	bool getForceRefresh(){ return mForceRefresh;  }
+    /**
+    * If refreshes when invisible.
+    */
+    bool getForceRefresh(){ return mForceRefresh;  }
 
-	virtual bool selectItemByValue(const LLSD& value, bool select = true);
+    virtual bool selectItemByValue(const LLSD& value, bool select = true);
 
-	void updateSelection();
+    void updateSelection();
 
-	/**
-	 * Idle routine used to refresh the list regardless of the current list
-	 * visibility, unlike draw() which is called only for the visible list.
-	 * This is needed for example to filter items of the list hidden by closed
-	 * accordion tab.
-	 */
-	virtual void doIdle();						// Real idle routine
-	static void idle(void* user_data);		// static glue to doIdle()
+    /**
+     * Idle routine used to refresh the list regardless of the current list
+     * visibility, unlike draw() which is called only for the visible list.
+     * This is needed for example to filter items of the list hidden by closed
+     * accordion tab.
+     */
+    virtual void doIdle();                      // Real idle routine
+    static void idle(void* user_data);      // static glue to doIdle()
 
 protected:
-	friend class LLUICtrlFactory;
-	LLInventoryItemsList(const LLInventoryItemsList::Params& p);
+    friend class LLUICtrlFactory;
+    LLInventoryItemsList(const LLInventoryItemsList::Params& p);
 
-	uuid_vec_t& getIDs() { return mIDs; }
+    uuid_vec_t& getIDs() { return mIDs; }
 
-	/**
-	 * Refreshes list items, adds new items and removes deleted items. 
-	 * Called from doIdle() until all new items are added,
-	 * maximum 50 items can be added during single call.
-	 */
-	void refresh();
+    /**
+     * Refreshes list items, adds new items and removes deleted items. 
+     * Called from doIdle() until all new items are added,
+     * maximum 50 items can be added during single call.
+     */
+    void refresh();
 
-	/**
-	 * Compute difference between new items and current items, fills 'vadded' with added items,
-	 * 'vremoved' with removed items. See LLCommonUtils::computeDifference
-	 */
-	void computeDifference(const uuid_vec_t& vnew, uuid_vec_t& vadded, uuid_vec_t& vremoved);
+    /**
+     * Compute difference between new items and current items, fills 'vadded' with added items,
+     * 'vremoved' with removed items. See LLCommonUtils::computeDifference
+     */
+    void computeDifference(const uuid_vec_t& vnew, uuid_vec_t& vadded, uuid_vec_t& vremoved);
 
-	/**
-	* Create panel(item) from inventory item
-	*/
-	virtual LLPanel* createNewItem(LLViewerInventoryItem* item);
+    /**
+    * Create panel(item) from inventory item
+    */
+    virtual LLPanel* createNewItem(LLViewerInventoryItem* item);
 
 protected:
     enum ERefreshStates
@@ -116,16 +116,16 @@ protected:
     ERefreshStates mRefreshState;
 
 private:
-	uuid_vec_t mIDs; // IDs of items that were added in refreshList().
-					 // Will be used in refresh() to determine added and removed ids
+    uuid_vec_t mIDs; // IDs of items that were added in refreshList().
+                     // Will be used in refresh() to determine added and removed ids
 
-	uuid_vec_t mSelectTheseIDs; // IDs that will be selected if list is not loaded till now
-	uuid_vec_t mAddedItems;
-	uuid_vec_t mRemovedItems;
+    uuid_vec_t mSelectTheseIDs; // IDs that will be selected if list is not loaded till now
+    uuid_vec_t mAddedItems;
+    uuid_vec_t mRemovedItems;
 
-	bool mForceRefresh;
+    bool mForceRefresh;
 
-	commit_signal_t mRefreshCompleteSignal;
+    commit_signal_t mRefreshCompleteSignal;
 };
 
 #endif //LL_LLINVENTORYITEMSLIST_H

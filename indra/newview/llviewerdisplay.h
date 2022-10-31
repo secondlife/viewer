@@ -36,9 +36,9 @@ void display(BOOL rebuild = TRUE, F32 zoom_factor = 1.f, int subfield = 0, BOOL 
 
 extern BOOL gDisplaySwapBuffers;
 extern BOOL gDepthDirty;
-extern BOOL	gTeleportDisplay;
-extern LLFrameTimer	gTeleportDisplayTimer;
-extern BOOL			gForceRenderLandFence;
+extern BOOL gTeleportDisplay;
+extern LLFrameTimer gTeleportDisplayTimer;
+extern BOOL         gForceRenderLandFence;
 extern BOOL gResizeScreenTexture;
 extern BOOL gResizeShadowTexture;
 extern BOOL gWindowResized;

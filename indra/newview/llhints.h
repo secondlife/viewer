@@ -34,20 +34,20 @@
 
 class LLHints :  public LLSingleton<LLHints>
 {
-	LLSINGLETON(LLHints);
-	~LLHints();
+    LLSINGLETON(LLHints);
+    ~LLHints();
 public:
-	void show(LLNotificationPtr hint);
-	void hide(LLNotificationPtr hint);
-	void registerHintTarget(const std::string& name, LLHandle<LLView> target);
-	LLHandle<LLView> getHintTarget(const std::string& name);
+    void show(LLNotificationPtr hint);
+    void hide(LLNotificationPtr hint);
+    void registerHintTarget(const std::string& name, LLHandle<LLView> target);
+    LLHandle<LLView> getHintTarget(const std::string& name);
 private:
-	LLRegistry<std::string, LLHandle<LLView> > mTargetRegistry;
-	typedef std::map<LLNotificationPtr, class LLHintPopup*> hint_map_t;
-	hint_map_t mHints;
-	void showHints(const LLSD& show);
+    LLRegistry<std::string, LLHandle<LLView> > mTargetRegistry;
+    typedef std::map<LLNotificationPtr, class LLHintPopup*> hint_map_t;
+    hint_map_t mHints;
+    void showHints(const LLSD& show);
 
-	boost::signals2::connection mControlConnection;
+    boost::signals2::connection mControlConnection;
 };
 
 

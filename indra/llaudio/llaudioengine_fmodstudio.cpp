@@ -305,7 +305,7 @@ bool LLAudioEngine_FMODSTUDIO::initWind()
 
     if (!mWindDSP)
     {
-        memset(mWindDSPDesc, 0, sizeof(*mWindDSPDesc));	//Set everything to zero
+        memset(mWindDSPDesc, 0, sizeof(*mWindDSPDesc)); //Set everything to zero
         strncpy(mWindDSPDesc->name, "Wind Unit", sizeof(mWindDSPDesc->name));
         mWindDSPDesc->pluginsdkversion = FMOD_PLUGIN_SDK_VERSION;
         mWindDSPDesc->read = &windCallback; // Assign callback - may be called from arbitrary threads
@@ -678,7 +678,7 @@ bool LLAudioBufferFMODSTUDIO::loadWAV(const std::string& filename)
     FMOD_CREATESOUNDEXINFO exinfo;
     memset(&exinfo, 0, sizeof(exinfo));
     exinfo.cbsize = sizeof(exinfo);
-    exinfo.suggestedsoundtype = FMOD_SOUND_TYPE_WAV;	//Hint to speed up loading.
+    exinfo.suggestedsoundtype = FMOD_SOUND_TYPE_WAV;    //Hint to speed up loading.
     // Load up the wav file into an fmod sample (since 1.05 fmod studio expects everything in UTF-8)
     FMOD_RESULT result = getSystem()->createSound(filename.c_str(), base_mode, &exinfo, &mSoundp);
 

@@ -33,158 +33,158 @@
 
 namespace tut
 {
-	struct MockHttpClient
-	{
-	public:
-		MockHttpClient()
-		{
-			apr_pool_create(&mPool, NULL);
-			mServerPump = new LLPumpIO(mPool);
-			mClientPump = new LLPumpIO(mPool);
-			
-			LLHTTPClient::setPump(*mClientPump);
-		}
-		
-		~MockHttpClient()
-		{
-			delete mServerPump;
-			delete mClientPump;
-			apr_pool_destroy(mPool);
-		}
+    struct MockHttpClient
+    {
+    public:
+        MockHttpClient()
+        {
+            apr_pool_create(&mPool, NULL);
+            mServerPump = new LLPumpIO(mPool);
+            mClientPump = new LLPumpIO(mPool);
+            
+            LLHTTPClient::setPump(*mClientPump);
+        }
+        
+        ~MockHttpClient()
+        {
+            delete mServerPump;
+            delete mClientPump;
+            apr_pool_destroy(mPool);
+        }
 
-		void setupTheServer()
-		{
-			LLHTTPNode& root = LLIOHTTPServer::create(mPool, *mServerPump, 8888);
+        void setupTheServer()
+        {
+            LLHTTPNode& root = LLIOHTTPServer::create(mPool, *mServerPump, 8888);
 
-			LLHTTPStandardServices::useServices();
-			LLHTTPRegistrar::buildAllServices(root);
-		}
-		
-		void runThePump(float timeout = 100.0f)
-		{
-			LLTimer timer;
-			timer.setTimerExpirySec(timeout);
+            LLHTTPStandardServices::useServices();
+            LLHTTPRegistrar::buildAllServices(root);
+        }
+        
+        void runThePump(float timeout = 100.0f)
+        {
+            LLTimer timer;
+            timer.setTimerExpirySec(timeout);
 
-			while(!mSawCompleted && !timer.hasExpired())
-			{
-				if (mServerPump)
-				{
-					mServerPump->pump();
-					mServerPump->callback();
-				}
-				if (mClientPump)
-				{
-					mClientPump->pump();
-					mClientPump->callback();
-				}
-			}
-		}
+            while(!mSawCompleted && !timer.hasExpired())
+            {
+                if (mServerPump)
+                {
+                    mServerPump->pump();
+                    mServerPump->callback();
+                }
+                if (mClientPump)
+                {
+                    mClientPump->pump();
+                    mClientPump->callback();
+                }
+            }
+        }
 
-		void killServer()
-		{
-			delete mServerPump;
-			mServerPump = NULL;
-		}
-	
-	private:
-		apr_pool_t* mPool;
-		LLPumpIO* mServerPump;
-		LLPumpIO* mClientPump;
+        void killServer()
+        {
+            delete mServerPump;
+            mServerPump = NULL;
+        }
+    
+    private:
+        apr_pool_t* mPool;
+        LLPumpIO* mServerPump;
+        LLPumpIO* mClientPump;
 
-		
-	protected:
-		void ensureStatusOK()
-		{
-			if (mSawError)
-			{
-				std::string msg =
-					llformat("httpFailure() called when not expected, status %d",
-						mStatus); 
-				fail(msg);
-			}
-		}
-	
-		void ensureStatusError()
-		{
-			if (!mSawError)
-			{
-				fail("httpFailure() wasn't called");
-			}
-		}
-		
-		LLSD getResult()
-		{
-			return mResult;
-		}
-	
-	protected:
-		bool mSawError;
-		S32 mStatus;
-		std::string mReason;
-		bool mSawCompleted;
-		LLSD mResult;
-		bool mResultDeleted;
+        
+    protected:
+        void ensureStatusOK()
+        {
+            if (mSawError)
+            {
+                std::string msg =
+                    llformat("httpFailure() called when not expected, status %d",
+                        mStatus); 
+                fail(msg);
+            }
+        }
+    
+        void ensureStatusError()
+        {
+            if (!mSawError)
+            {
+                fail("httpFailure() wasn't called");
+            }
+        }
+        
+        LLSD getResult()
+        {
+            return mResult;
+        }
+    
+    protected:
+        bool mSawError;
+        S32 mStatus;
+        std::string mReason;
+        bool mSawCompleted;
+        LLSD mResult;
+        bool mResultDeleted;
 
-		class Result : public LLHTTPClient::Responder
-		{
-		protected:
-			Result(MockHttpClient& client)
-				: mClient(client)
-			{
-			}
-		
-		public:
-			static boost::intrusive_ptr<Result> build(MockHttpClient& client)
-			{
-				return boost::intrusive_ptr<Result>(new Result(client));
-			}
-			
-			~Result()
-			{
-				mClient.mResultDeleted = true;
-			}
-			
-		protected:
-			virtual void httpFailure()
-			{
-				mClient.mSawError = true;
-				mClient.mStatus = getStatus();
-				mClient.mReason = getReason();
-			}
+        class Result : public LLHTTPClient::Responder
+        {
+        protected:
+            Result(MockHttpClient& client)
+                : mClient(client)
+            {
+            }
+        
+        public:
+            static boost::intrusive_ptr<Result> build(MockHttpClient& client)
+            {
+                return boost::intrusive_ptr<Result>(new Result(client));
+            }
+            
+            ~Result()
+            {
+                mClient.mResultDeleted = true;
+            }
+            
+        protected:
+            virtual void httpFailure()
+            {
+                mClient.mSawError = true;
+                mClient.mStatus = getStatus();
+                mClient.mReason = getReason();
+            }
 
-			virtual void httpSuccess()
-			{
-				mClient.mResult = getContent();
-			}
+            virtual void httpSuccess()
+            {
+                mClient.mResult = getContent();
+            }
 
-			virtual void httpCompleted()
-			{
-				LLHTTPClient::Responder::httpCompleted();
-				
-				mClient.mSawCompleted = true;
-			}
+            virtual void httpCompleted()
+            {
+                LLHTTPClient::Responder::httpCompleted();
+                
+                mClient.mSawCompleted = true;
+            }
 
-		private:
-			MockHttpClient& mClient;
-		};
+        private:
+            MockHttpClient& mClient;
+        };
 
-		friend class Result;
+        friend class Result;
 
-	protected:
+    protected:
 
-		void reset()
-		{
-			mSawError = false;
-			mStatus = 0;
-			mSawCompleted = false;
-			mResult.clear();
-			mResultDeleted = false;
-		}
+        void reset()
+        {
+            mSawError = false;
+            mStatus = 0;
+            mSawCompleted = false;
+            mResult.clear();
+            mResultDeleted = false;
+        }
 
-		LLHTTPClient::ResponderPtr newResult()
-		{
-			reset();
-			return Result::build(*this);
-		}
-	};
+        LLHTTPClient::ResponderPtr newResult()
+        {
+            reset();
+            return Result::build(*this);
+        }
+    };
 }

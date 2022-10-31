@@ -37,22 +37,22 @@ class LLObjectSelection;
 class LLToolSelect : public LLTool
 {
 public:
-	LLToolSelect( LLToolComposite* composite );
+    LLToolSelect( LLToolComposite* composite );
 
-	virtual BOOL		handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL		handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual BOOL        handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual BOOL        handleMouseUp(S32 x, S32 y, MASK mask);
 
-	virtual void		stopEditing();
+    virtual void        stopEditing();
 
-	static LLSafeHandle<LLObjectSelection>	handleObjectSelection(const LLPickInfo& pick, BOOL ignore_group, BOOL temp_select, BOOL select_root = FALSE);
+    static LLSafeHandle<LLObjectSelection>  handleObjectSelection(const LLPickInfo& pick, BOOL ignore_group, BOOL temp_select, BOOL select_root = FALSE);
 
-	virtual void		onMouseCaptureLost();
-	virtual void		handleDeselect();
+    virtual void        onMouseCaptureLost();
+    virtual void        handleDeselect();
 
 protected:
-	BOOL				mIgnoreGroup;
-	LLUUID				mSelectObjectID;
-	LLPickInfo			mPick;
+    BOOL                mIgnoreGroup;
+    LLUUID              mSelectObjectID;
+    LLPickInfo          mPick;
 };
 
 

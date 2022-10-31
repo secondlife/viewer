@@ -37,7 +37,7 @@
 #include "llpounceable.h"
 
 namespace {
-	const LLUUID TEST_PARCEL_ID("11111111-1111-1111-1111-111111111111");
+    const LLUUID TEST_PARCEL_ID("11111111-1111-1111-1111-111111111111");
 }
 
 LLCurl::Responder::Responder() { }
@@ -56,7 +56,7 @@ void LLMessageSystem::getS32(char const *,char const *,S32 &,S32) { }
 void LLMessageSystem::getString(char const *,char const *, std::string &,S32) { }
 void LLMessageSystem::getUUID(char const *,char const *, LLUUID & out_id,S32)
 {
-	out_id = TEST_PARCEL_ID;
+    out_id = TEST_PARCEL_ID;
 }
 void LLMessageSystem::nextBlock(char const *) { }
 void LLMessageSystem::addUUID(char const *,LLUUID const &) { }
@@ -79,61 +79,61 @@ void LLUrlEntryParcel::processParcelInfo(const LLUrlEntryParcel::LLParcelData& p
 
 namespace tut
 {
-	struct TestObserver : public LLRemoteParcelInfoObserver {
-		TestObserver() : mProcessed(false) { }
+    struct TestObserver : public LLRemoteParcelInfoObserver {
+        TestObserver() : mProcessed(false) { }
 
-		virtual void processParcelInfo(const LLParcelData& parcel_data)
-		{
-			mProcessed = true;
-		}
+        virtual void processParcelInfo(const LLParcelData& parcel_data)
+        {
+            mProcessed = true;
+        }
 
-		virtual void setParcelID(const LLUUID& parcel_id) { }
+        virtual void setParcelID(const LLUUID& parcel_id) { }
 
-		virtual void setErrorStatus(S32 status, const std::string& reason) { }
+        virtual void setErrorStatus(S32 status, const std::string& reason) { }
 
-		bool mProcessed;
-	};
+        bool mProcessed;
+    };
 
     struct RemoteParcelRequestData
     {
-		RemoteParcelRequestData()
-		{
-		}
+        RemoteParcelRequestData()
+        {
+        }
     };
     
-	typedef test_group<RemoteParcelRequestData> remoteparcelrequest_t;
-	typedef remoteparcelrequest_t::object remoteparcelrequest_object_t;
-	tut::remoteparcelrequest_t tut_remoteparcelrequest("LLRemoteParcelRequest");
+    typedef test_group<RemoteParcelRequestData> remoteparcelrequest_t;
+    typedef remoteparcelrequest_t::object remoteparcelrequest_object_t;
+    tut::remoteparcelrequest_t tut_remoteparcelrequest("LLRemoteParcelRequest");
 
-	template<> template<>
-	void remoteparcelrequest_object_t::test<1>()
-	{
-		set_test_name("observer pointer");
+    template<> template<>
+    void remoteparcelrequest_object_t::test<1>()
+    {
+        set_test_name("observer pointer");
 
-		boost::scoped_ptr<TestObserver> observer(new TestObserver());
+        boost::scoped_ptr<TestObserver> observer(new TestObserver());
 
-		LLRemoteParcelInfoProcessor & processor = LLRemoteParcelInfoProcessor::instance();
-		processor.addObserver(LLUUID(TEST_PARCEL_ID), observer.get());
+        LLRemoteParcelInfoProcessor & processor = LLRemoteParcelInfoProcessor::instance();
+        processor.addObserver(LLUUID(TEST_PARCEL_ID), observer.get());
 
-		processor.processParcelInfoReply(gMessageSystem, NULL);
+        processor.processParcelInfoReply(gMessageSystem, NULL);
 
-		ensure(observer->mProcessed);
-	}
+        ensure(observer->mProcessed);
+    }
 
-	template<> template<>
-	void remoteparcelrequest_object_t::test<2>()
-	{
-		set_test_name("CHOP-220: dangling observer pointer");
+    template<> template<>
+    void remoteparcelrequest_object_t::test<2>()
+    {
+        set_test_name("CHOP-220: dangling observer pointer");
 
-		LLRemoteParcelInfoObserver * observer = new TestObserver();
+        LLRemoteParcelInfoObserver * observer = new TestObserver();
 
-		LLRemoteParcelInfoProcessor & processor = LLRemoteParcelInfoProcessor::instance();
-		processor.addObserver(LLUUID(TEST_PARCEL_ID), observer);
+        LLRemoteParcelInfoProcessor & processor = LLRemoteParcelInfoProcessor::instance();
+        processor.addObserver(LLUUID(TEST_PARCEL_ID), observer);
 
-		delete observer;
-		observer = NULL;
+        delete observer;
+        observer = NULL;
 
-		processor.processParcelInfoReply(gMessageSystem, NULL);
-	}
+        processor.processParcelInfoReply(gMessageSystem, NULL);
+    }
 }
 #endif

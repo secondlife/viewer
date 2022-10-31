@@ -35,25 +35,25 @@
 
 void LLSavedSettingsGlue::setBOOL(LLUICtrl* ctrl, const std::string& name)
 {
-	gSavedSettings.setBOOL(name, ctrl->getValue().asBoolean());
+    gSavedSettings.setBOOL(name, ctrl->getValue().asBoolean());
 }
 
 void LLSavedSettingsGlue::setS32(LLUICtrl* ctrl, const std::string& name)
 {
-	gSavedSettings.setS32(name, ctrl->getValue().asInteger());
+    gSavedSettings.setS32(name, ctrl->getValue().asInteger());
 }
 
 void LLSavedSettingsGlue::setF32(LLUICtrl* ctrl, const std::string& name)
 {
-	gSavedSettings.setF32(name, (F32)ctrl->getValue().asReal());
+    gSavedSettings.setF32(name, (F32)ctrl->getValue().asReal());
 }
 
 void LLSavedSettingsGlue::setU32(LLUICtrl* ctrl, const std::string& name)
 {
-	gSavedSettings.setU32(name, (U32)ctrl->getValue().asInteger());
+    gSavedSettings.setU32(name, (U32)ctrl->getValue().asInteger());
 }
 
 void LLSavedSettingsGlue::setString(LLUICtrl* ctrl, const std::string& name)
 {
-	gSavedSettings.setString(name, ctrl->getValue().asString());
+    gSavedSettings.setString(name, ctrl->getValue().asString());
 }

@@ -34,14 +34,14 @@
  * LLIOFlush
  */
 LLIOPipe::EStatus LLIOFlush::process_impl(
-	const LLChannelDescriptors& channels,
-	buffer_ptr_t& buffer,
-	bool& eos,
-	LLSD& context,
-	LLPumpIO* pump)
+    const LLChannelDescriptors& channels,
+    buffer_ptr_t& buffer,
+    bool& eos,
+    LLSD& context,
+    LLPumpIO* pump)
 {
-	eos = true;
-	return STATUS_OK;
+    eos = true;
+    return STATUS_OK;
 }
 
 
@@ -49,50 +49,50 @@ LLIOPipe::EStatus LLIOFlush::process_impl(
  * @class LLIOSleep
  */
 LLIOPipe::EStatus LLIOSleep::process_impl(
-	const LLChannelDescriptors& channels,
-	buffer_ptr_t& buffer,
-	bool& eos,
-	LLSD& context,
-	LLPumpIO* pump)
+    const LLChannelDescriptors& channels,
+    buffer_ptr_t& buffer,
+    bool& eos,
+    LLSD& context,
+    LLPumpIO* pump)
 {
     LL_PROFILE_ZONE_SCOPED;
-	if(mSeconds > 0.0)
-	{
-		if(pump) pump->sleepChain(mSeconds);
-		mSeconds = 0.0;
-		return STATUS_BREAK;
-	}
-	return STATUS_DONE;
+    if(mSeconds > 0.0)
+    {
+        if(pump) pump->sleepChain(mSeconds);
+        mSeconds = 0.0;
+        return STATUS_BREAK;
+    }
+    return STATUS_DONE;
 }
 
 /** 
  * @class LLIOAddChain
  */
 LLIOPipe::EStatus LLIOAddChain::process_impl(
-	const LLChannelDescriptors& channels,
-	buffer_ptr_t& buffer,
-	bool& eos,
-	LLSD& context,
-	LLPumpIO* pump)
+    const LLChannelDescriptors& channels,
+    buffer_ptr_t& buffer,
+    bool& eos,
+    LLSD& context,
+    LLPumpIO* pump)
 {
     LL_PROFILE_ZONE_SCOPED;
-	pump->addChain(mChain, mTimeout);
-	return STATUS_DONE;
+    pump->addChain(mChain, mTimeout);
+    return STATUS_DONE;
 }
 
 /**
  * LLChangeChannel
  */
 LLChangeChannel::LLChangeChannel(S32 is, S32 becomes) :
-	mIs(is),
-	mBecomes(becomes)
+    mIs(is),
+    mBecomes(becomes)
 {
 }
 
 void LLChangeChannel::operator()(LLSegment& segment)
 {
-	if(segment.isOnChannel(mIs))
-	{
-		segment.setChannel(mBecomes);
-	}
+    if(segment.isOnChannel(mIs))
+    {
+        segment.setChannel(mBecomes);
+    }
 }

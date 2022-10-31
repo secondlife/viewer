@@ -219,20 +219,20 @@ base32_decode(char *dst, size_t size, const void *data, size_t len)
 // static
 std::string LLBase32::encode(const U8* input, size_t input_size)
 {
-	std::string output;
-	if (input)
-	{
-		// Each 5 byte chunk of input is represented by an
-		// 8 byte chunk of output.
-		size_t input_chunks = (input_size + 4) / 5;
-		size_t output_size = input_chunks * 8;
+    std::string output;
+    if (input)
+    {
+        // Each 5 byte chunk of input is represented by an
+        // 8 byte chunk of output.
+        size_t input_chunks = (input_size + 4) / 5;
+        size_t output_size = input_chunks * 8;
 
-		output.resize(output_size);
+        output.resize(output_size);
 
-		size_t encoded = base32_encode(&output[0], output_size, input, input_size);
+        size_t encoded = base32_encode(&output[0], output_size, input, input_size);
 
-		LL_INFOS() << "encoded " << encoded << " into buffer of size "
-			<< output_size << LL_ENDL;
-	}
-	return output;
+        LL_INFOS() << "encoded " << encoded << " into buffer of size "
+            << output_size << LL_ENDL;
+    }
+    return output;
 }

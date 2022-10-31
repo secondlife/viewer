@@ -55,101 +55,101 @@ const MASK DEFAULT_GRAB_MASK = MASK_CONTROL;
 class LLToolGrabBase : public LLTool
 {
 public:
-	LLToolGrabBase(LLToolComposite* composite=NULL);
-	~LLToolGrabBase();
+    LLToolGrabBase(LLToolComposite* composite=NULL);
+    ~LLToolGrabBase();
 
-	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
-	/*virtual*/ void	render();		// 3D elements
-	/*virtual*/ void	draw();			// 2D elements
+    /*virtual*/ BOOL    handleHover(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL    handleDoubleClick(S32 x, S32 y, MASK mask);
+    /*virtual*/ void    render();       // 3D elements
+    /*virtual*/ void    draw();         // 2D elements
 
-	virtual void		handleSelect();
-	virtual void		handleDeselect();
-	
-	virtual LLViewerObject*	getEditingObject();
-	virtual LLVector3d		getEditingPointGlobal();
-	virtual BOOL			isEditing();
-	virtual void			stopEditing();
-	
-	virtual void			onMouseCaptureLost();
+    virtual void        handleSelect();
+    virtual void        handleDeselect();
+    
+    virtual LLViewerObject* getEditingObject();
+    virtual LLVector3d      getEditingPointGlobal();
+    virtual BOOL            isEditing();
+    virtual void            stopEditing();
+    
+    virtual void            onMouseCaptureLost();
 
-	BOOL			hasGrabOffset()  { return TRUE; }	// HACK
-	LLVector3		getGrabOffset(S32 x, S32 y);		// HACK
+    BOOL            hasGrabOffset()  { return TRUE; }   // HACK
+    LLVector3       getGrabOffset(S32 x, S32 y);        // HACK
 
-	// Capture the mouse and start grabbing.
-	BOOL			handleObjectHit(const LLPickInfo& info);
+    // Capture the mouse and start grabbing.
+    BOOL            handleObjectHit(const LLPickInfo& info);
 
-	// Certain grabs should not highlight the "Build" toolbar button
-	BOOL getHideBuildHighlight() { return mHideBuildHighlight; }
+    // Certain grabs should not highlight the "Build" toolbar button
+    BOOL getHideBuildHighlight() { return mHideBuildHighlight; }
 
-	void setClickedInMouselook(BOOL is_clickedInMouselook) {mClickedInMouselook = is_clickedInMouselook;}
+    void setClickedInMouselook(BOOL is_clickedInMouselook) {mClickedInMouselook = is_clickedInMouselook;}
 
-	static void		pickCallback(const LLPickInfo& pick_info);
+    static void     pickCallback(const LLPickInfo& pick_info);
 private:
-	LLVector3d		getGrabPointGlobal();
-	void			startGrab();
-	void			stopGrab();
+    LLVector3d      getGrabPointGlobal();
+    void            startGrab();
+    void            stopGrab();
 
-	void			startSpin();
-	void			stopSpin();
+    void            startSpin();
+    void            stopSpin();
 
-	void			handleHoverSpin(S32 x, S32 y, MASK mask);
-	void			handleHoverActive(S32 x, S32 y, MASK mask);
-	void			handleHoverNonPhysical(S32 x, S32 y, MASK mask);
-	void			handleHoverInactive(S32 x, S32 y, MASK mask);
-	void			handleHoverFailed(S32 x, S32 y, MASK mask);
+    void            handleHoverSpin(S32 x, S32 y, MASK mask);
+    void            handleHoverActive(S32 x, S32 y, MASK mask);
+    void            handleHoverNonPhysical(S32 x, S32 y, MASK mask);
+    void            handleHoverInactive(S32 x, S32 y, MASK mask);
+    void            handleHoverFailed(S32 x, S32 y, MASK mask);
 
 private:
-	enum			EGrabMode { GRAB_INACTIVE, GRAB_ACTIVE_CENTER, GRAB_NONPHYSICAL, GRAB_LOCKED, GRAB_NOOBJECT };
+    enum            EGrabMode { GRAB_INACTIVE, GRAB_ACTIVE_CENTER, GRAB_NONPHYSICAL, GRAB_LOCKED, GRAB_NOOBJECT };
 
-	EGrabMode		mMode;
+    EGrabMode       mMode;
 
-	BOOL			mVerticalDragging;
+    BOOL            mVerticalDragging;
 
-	BOOL			mHitLand;
+    BOOL            mHitLand;
 
-	LLTimer			mGrabTimer;						// send simulator time between hover movements
+    LLTimer         mGrabTimer;                     // send simulator time between hover movements
 
-	LLVector3		mGrabOffsetFromCenterInitial;	// meters from CG of object
-	LLVector3d		mGrabHiddenOffsetFromCamera;	// in cursor hidden drag, how far is grab offset from camera
+    LLVector3       mGrabOffsetFromCenterInitial;   // meters from CG of object
+    LLVector3d      mGrabHiddenOffsetFromCamera;    // in cursor hidden drag, how far is grab offset from camera
 
-	LLVector3d		mDragStartPointGlobal;				// projected into world
-	LLVector3d		mDragStartFromCamera;			// drag start relative to camera
+    LLVector3d      mDragStartPointGlobal;              // projected into world
+    LLVector3d      mDragStartFromCamera;           // drag start relative to camera
 
-	LLPickInfo		mGrabPick;
+    LLPickInfo      mGrabPick;
 
-	S32				mLastMouseX;
-	S32				mLastMouseY;
-	S32				mAccumDeltaX;	// since cursor hidden, how far have you moved?
-	S32				mAccumDeltaY;
-	BOOL			mHasMoved;		// has mouse moved off center at all?
-	BOOL			mOutsideSlop;	// has mouse moved outside center 5 pixels?
-	BOOL			mDeselectedThisClick;
-	BOOL			mValidSelection;
+    S32             mLastMouseX;
+    S32             mLastMouseY;
+    S32             mAccumDeltaX;   // since cursor hidden, how far have you moved?
+    S32             mAccumDeltaY;
+    BOOL            mHasMoved;      // has mouse moved off center at all?
+    BOOL            mOutsideSlop;   // has mouse moved outside center 5 pixels?
+    BOOL            mDeselectedThisClick;
+    BOOL            mValidSelection;
 
-	S32             mLastFace;
-	LLVector2       mLastUVCoords;
-	LLVector2       mLastSTCoords;
-	LLVector3       mLastIntersection;
-	LLVector3       mLastNormal;
-	LLVector3       mLastBinormal;
-	LLVector3       mLastGrabPos;
+    S32             mLastFace;
+    LLVector2       mLastUVCoords;
+    LLVector2       mLastSTCoords;
+    LLVector3       mLastIntersection;
+    LLVector3       mLastNormal;
+    LLVector3       mLastBinormal;
+    LLVector3       mLastGrabPos;
 
 
-	BOOL			mSpinGrabbing;
-	LLQuaternion	mSpinRotation;
+    BOOL            mSpinGrabbing;
+    LLQuaternion    mSpinRotation;
 
-	BOOL			mHideBuildHighlight;
+    BOOL            mHideBuildHighlight;
 
-	BOOL			mClickedInMouselook;
+    BOOL            mClickedInMouselook;
 };
 
 /// This is the LLSingleton instance of LLToolGrab.
 class LLToolGrab : public LLToolGrabBase, public LLSingleton<LLToolGrab>
 {
-	LLSINGLETON_EMPTY_CTOR(LLToolGrab);
+    LLSINGLETON_EMPTY_CTOR(LLToolGrab);
 };
 
 extern BOOL gGrabBtnVertical;

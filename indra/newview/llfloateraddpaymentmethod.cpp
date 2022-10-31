@@ -33,7 +33,7 @@
 
 
 LLFloaterAddPaymentMethod::LLFloaterAddPaymentMethod(const LLSD& key)
-	:	LLFloater(key)
+    :   LLFloater(key)
 {
 }
 
@@ -43,39 +43,39 @@ LLFloaterAddPaymentMethod::~LLFloaterAddPaymentMethod()
 
 BOOL LLFloaterAddPaymentMethod::postBuild()
 {
-	setCanDrag(FALSE);
-	getChild<LLButton>("continue_btn")->setCommitCallback(boost::bind(&LLFloaterAddPaymentMethod::onContinueBtn, this));
-	getChild<LLButton>("close_btn")->setCommitCallback(boost::bind(&LLFloaterAddPaymentMethod::onCloseBtn, this));
-	return TRUE;
+    setCanDrag(FALSE);
+    getChild<LLButton>("continue_btn")->setCommitCallback(boost::bind(&LLFloaterAddPaymentMethod::onContinueBtn, this));
+    getChild<LLButton>("close_btn")->setCommitCallback(boost::bind(&LLFloaterAddPaymentMethod::onCloseBtn, this));
+    return TRUE;
 }
 
 void LLFloaterAddPaymentMethod::onOpen(const LLSD& key)
 {
-	centerOnScreen();
+    centerOnScreen();
 }
 
 void LLFloaterAddPaymentMethod::onContinueBtn()
 {
-	closeFloater();
-	LLNotificationsUtil::add("AddPaymentMethod", LLSD(), LLSD(),
-		[this](const LLSD&notif, const LLSD&resp)
-	{
-		S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
-		if (opt == 0)
-		{
-			LLWeb::loadURL(this->getString("continue_url"));
-		}
-	}); 
+    closeFloater();
+    LLNotificationsUtil::add("AddPaymentMethod", LLSD(), LLSD(),
+        [this](const LLSD&notif, const LLSD&resp)
+    {
+        S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
+        if (opt == 0)
+        {
+            LLWeb::loadURL(this->getString("continue_url"));
+        }
+    }); 
 }
 
 void LLFloaterAddPaymentMethod::onCloseBtn()
 {
-	closeFloater();
+    closeFloater();
 }
 
 void LLFloaterAddPaymentMethod::centerOnScreen()
 {
-	LLVector2 window_size = LLUI::getInstance()->getWindowSize();
-	centerWithin(LLRect(0, 0, ll_round(window_size.mV[VX]), ll_round(window_size.mV[VY])));
+    LLVector2 window_size = LLUI::getInstance()->getWindowSize();
+    centerWithin(LLRect(0, 0, ll_round(window_size.mV[VX]), ll_round(window_size.mV[VY])));
 }
 

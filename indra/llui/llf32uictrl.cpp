@@ -36,13 +36,13 @@
 // other Linden headers
 
 LLF32UICtrl::LLF32UICtrl(const Params& p)
-:	LLUICtrl(p),
-	mInitialValue(p.initial_value().asReal()),
-	mMinValue(p.min_value),
-	mMaxValue(p.max_value),
+:   LLUICtrl(p),
+    mInitialValue(p.initial_value().asReal()),
+    mMinValue(p.min_value),
+    mMaxValue(p.max_value),
     mIncrement(p.increment)
 {
-	mViewModel->setValue(p.initial_value);
+    mViewModel->setValue(p.initial_value);
 }
 
 F32 LLF32UICtrl::getValueF32() const

@@ -34,37 +34,37 @@
 class LLAppViewerWin32 : public LLAppViewer
 {
 public:
-	LLAppViewerWin32(const char* cmd_line);
-	virtual ~LLAppViewerWin32();
+    LLAppViewerWin32(const char* cmd_line);
+    virtual ~LLAppViewerWin32();
 
-	//
-	// Main application logic
-	//
-	bool init() override; // Override to do application initialization
+    //
+    // Main application logic
+    //
+    bool init() override; // Override to do application initialization
     bool cleanup() override;
 
     void reportCrashToBugsplat(void* pExcepInfo) override;
 
 protected:
-	void initLoggingAndGetLastDuration() override; // Override to clean stack_trace info.
-	void initConsole() override; // Initialize OS level debugging console.
-	bool initHardwareTest() override; // Win32 uses DX9 to test hardware.
-	bool initParseCommandLine(LLCommandLineParser& clp) override;
+    void initLoggingAndGetLastDuration() override; // Override to clean stack_trace info.
+    void initConsole() override; // Initialize OS level debugging console.
+    bool initHardwareTest() override; // Win32 uses DX9 to test hardware.
+    bool initParseCommandLine(LLCommandLineParser& clp) override;
 
-	bool beingDebugged() override;
-	bool restoreErrorTrap() override;
+    bool beingDebugged() override;
+    bool restoreErrorTrap() override;
 
-	bool sendURLToOtherInstance(const std::string& url) override;
+    bool sendURLToOtherInstance(const std::string& url) override;
 
-	std::string generateSerialNumber();
+    std::string generateSerialNumber();
 
-	static const std::string sWindowClass;
+    static const std::string sWindowClass;
 
 private:
-	void disableWinErrorReporting();
+    void disableWinErrorReporting();
 
-	std::string mCmdLine;
-	bool mIsConsoleAllocated;
+    std::string mCmdLine;
+    bool mIsConsoleAllocated;
 };
 
 #endif // LL_LLAPPVIEWERWIN32_H

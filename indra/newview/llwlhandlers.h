@@ -33,9 +33,9 @@
 
 class LLEnvironmentRequest
 {
-	LOG_CLASS(LLEnvironmentRequest);
+    LOG_CLASS(LLEnvironmentRequest);
 public:
-	/// @return true if request was successfully sent
+    /// @return true if request was successfully sent
     static bool initiate(LLEnvironment::environment_apply_fn cb);
 
 private:
@@ -49,14 +49,14 @@ private:
 
 class LLEnvironmentApply
 {
-	LOG_CLASS(LLEnvironmentApply);
+    LOG_CLASS(LLEnvironmentApply);
 public:
-	/// @return true if request was successfully sent
+    /// @return true if request was successfully sent
     static bool initiateRequest(const LLSD& content, LLEnvironment::environment_apply_fn cb);
 
 private:
-	static clock_t sLastUpdate;
-	static clock_t UPDATE_WAIT_SECONDS;
+    static clock_t sLastUpdate;
+    static clock_t UPDATE_WAIT_SECONDS;
 
     static void environmentApplyCoro(std::string url, LLSD content, LLEnvironment::environment_apply_fn cb);
 };

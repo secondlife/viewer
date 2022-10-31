@@ -32,13 +32,13 @@
 class LLPreviewSound : public LLPreview
 {
 public:
-	LLPreviewSound(const LLSD& key);
+    LLPreviewSound(const LLSD& key);
 
-	static void playSound( void* userdata );
-	static void auditionSound( void* userdata );
+    static void playSound( void* userdata );
+    static void auditionSound( void* userdata );
 
 protected:
-	/* virtual */ BOOL	postBuild();
+    /* virtual */ BOOL  postBuild();
 };
 
 #endif  // LL_LLPREVIEWSOUND_H

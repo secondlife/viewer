@@ -34,11 +34,11 @@ LLFloaterChatVoiceVolume::LLFloaterChatVoiceVolume(const LLSD& key)
 
 void LLFloaterChatVoiceVolume::onOpen(const LLSD& key)
 {
-	LLInspect::onOpen(key);
-	LLInspect::repositionInspector(key);
+    LLInspect::onOpen(key);
+    LLInspect::repositionInspector(key);
 }
 
 LLFloaterChatVoiceVolume::~LLFloaterChatVoiceVolume()
 {
-	LLTransientFloaterMgr::getInstance()->removeControlView(this);
+    LLTransientFloaterMgr::getInstance()->removeControlView(this);
 };

@@ -102,7 +102,7 @@ namespace Details
 
     void LLEventPollImpl::handleMessage(const LLSD& content)
     {
-        std::string	msg_name = content["message"];
+        std::string msg_name = content["message"];
         LLSD message;
         message["sender"] = mSenderIp;
         message["body"] = content["body"];
@@ -281,7 +281,7 @@ namespace Details
 }
 }
 
-LLEventPoll::LLEventPoll(const std::string&	poll_url, const LLHost& sender):
+LLEventPoll::LLEventPoll(const std::string& poll_url, const LLHost& sender):
     mImpl()
 { 
     mImpl = std::make_shared<LLEventPolling::Details::LLEventPollImpl>(sender);

@@ -39,102 +39,102 @@ class LLFace;
 class LLVOSurfacePatch : public LLStaticViewerObject
 {
 public:
-	static F32 sLODFactor;
+    static F32 sLODFactor;
 
-	enum
-	{
-		VERTEX_DATA_MASK =	(1 << LLVertexBuffer::TYPE_VERTEX) |
-							(1 << LLVertexBuffer::TYPE_NORMAL) |
-							(1 << LLVertexBuffer::TYPE_TEXCOORD0) |
-							(1 << LLVertexBuffer::TYPE_TEXCOORD1)
-	};
+    enum
+    {
+        VERTEX_DATA_MASK =  (1 << LLVertexBuffer::TYPE_VERTEX) |
+                            (1 << LLVertexBuffer::TYPE_NORMAL) |
+                            (1 << LLVertexBuffer::TYPE_TEXCOORD0) |
+                            (1 << LLVertexBuffer::TYPE_TEXCOORD1)
+    };
 
-	LLVOSurfacePatch(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
+    LLVOSurfacePatch(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 
-	/*virtual*/ void markDead();
+    /*virtual*/ void markDead();
 
-	// Initialize data that's only inited once per class.
-	static void initClass();
+    // Initialize data that's only inited once per class.
+    static void initClass();
 
-	virtual U32 getPartitionType() const;
+    virtual U32 getPartitionType() const;
 
-	/*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
-	/*virtual*/ void		updateGL();
-	/*virtual*/ BOOL        updateGeometry(LLDrawable *drawable);
-	/*virtual*/ BOOL		updateLOD();
-	/*virtual*/ void		updateFaceSize(S32 idx);
-	void getGeometry(LLStrider<LLVector3> &verticesp,
-								LLStrider<LLVector3> &normalsp,
-								LLStrider<LLVector2> &texCoords0p,
-								LLStrider<LLVector2> &texCoords1p,
-								LLStrider<U16> &indicesp);
+    /*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
+    /*virtual*/ void        updateGL();
+    /*virtual*/ BOOL        updateGeometry(LLDrawable *drawable);
+    /*virtual*/ BOOL        updateLOD();
+    /*virtual*/ void        updateFaceSize(S32 idx);
+    void getGeometry(LLStrider<LLVector3> &verticesp,
+                                LLStrider<LLVector3> &normalsp,
+                                LLStrider<LLVector2> &texCoords0p,
+                                LLStrider<LLVector2> &texCoords1p,
+                                LLStrider<U16> &indicesp);
 
-	/*virtual*/ void updateTextures();
-	/*virtual*/ void setPixelAreaAndAngle(LLAgent &agent); // generate accurate apparent angle and area
+    /*virtual*/ void updateTextures();
+    /*virtual*/ void setPixelAreaAndAngle(LLAgent &agent); // generate accurate apparent angle and area
 
-	/*virtual*/ void updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);
-	/*virtual*/ BOOL isActive() const; // Whether this object needs to do an idleUpdate.
+    /*virtual*/ void updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);
+    /*virtual*/ BOOL isActive() const; // Whether this object needs to do an idleUpdate.
 
-	void setPatch(LLSurfacePatch *patchp);
-	LLSurfacePatch	*getPatch() const		{ return mPatchp; }
+    void setPatch(LLSurfacePatch *patchp);
+    LLSurfacePatch  *getPatch() const       { return mPatchp; }
 
-	void dirtyPatch();
-	void dirtyGeom();
+    void dirtyPatch();
+    void dirtyGeom();
 
-	/*virtual*/ BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, 
-										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
-										  BOOL pick_transparent = FALSE,
-										  BOOL pick_rigged = FALSE,
-										  S32* face_hit = NULL,                 // which face was hit
-										  LLVector4a* intersection = NULL,       // return the intersection point
-										  LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point
-										  LLVector4a* normal = NULL,             // return the surface normal at the intersection point
-										  LLVector4a* tangent = NULL           // return the surface tangent at the intersection point
-		);
+    /*virtual*/ BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, 
+                                          S32 face = -1,                        // which face to check, -1 = ALL_SIDES
+                                          BOOL pick_transparent = FALSE,
+                                          BOOL pick_rigged = FALSE,
+                                          S32* face_hit = NULL,                 // which face was hit
+                                          LLVector4a* intersection = NULL,       // return the intersection point
+                                          LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point
+                                          LLVector4a* normal = NULL,             // return the surface normal at the intersection point
+                                          LLVector4a* tangent = NULL           // return the surface tangent at the intersection point
+        );
 
-	BOOL			mDirtiedPatch;
+    BOOL            mDirtiedPatch;
 protected:
-	~LLVOSurfacePatch();
+    ~LLVOSurfacePatch();
 
-	LLFacePool		*mPool;
-	LLFacePool		*getPool();
-	S32				mBaseComp;
-	LLSurfacePatch	*mPatchp;
-	BOOL			mDirtyTexture;
-	BOOL			mDirtyTerrain;
+    LLFacePool      *mPool;
+    LLFacePool      *getPool();
+    S32             mBaseComp;
+    LLSurfacePatch  *mPatchp;
+    BOOL            mDirtyTexture;
+    BOOL            mDirtyTerrain;
 
-	S32				mLastNorthStride;
-	S32				mLastEastStride;
-	S32				mLastStride;
-	S32				mLastLength;
+    S32             mLastNorthStride;
+    S32             mLastEastStride;
+    S32             mLastStride;
+    S32             mLastLength;
 
-	void getGeomSizesMain(const S32 stride, S32 &num_vertices, S32 &num_indices);
-	void getGeomSizesNorth(const S32 stride, const S32 north_stride,
-								  S32 &num_vertices, S32 &num_indices);
-	void getGeomSizesEast(const S32 stride, const S32 east_stride,
-								 S32 &num_vertices, S32 &num_indices);
+    void getGeomSizesMain(const S32 stride, S32 &num_vertices, S32 &num_indices);
+    void getGeomSizesNorth(const S32 stride, const S32 north_stride,
+                                  S32 &num_vertices, S32 &num_indices);
+    void getGeomSizesEast(const S32 stride, const S32 east_stride,
+                                 S32 &num_vertices, S32 &num_indices);
 
-	void updateMainGeometry(LLFace *facep,
-					   LLStrider<LLVector3> &verticesp,
-					   LLStrider<LLVector3> &normalsp,
-					   LLStrider<LLVector2> &texCoords0p,
-					   LLStrider<LLVector2> &texCoords1p,
-					   LLStrider<U16> &indicesp,
-					   U32 &index_offset);
-	void updateNorthGeometry(LLFace *facep,
-					   LLStrider<LLVector3> &verticesp,
-					   LLStrider<LLVector3> &normalsp,
-					   LLStrider<LLVector2> &texCoords0p,
-					   LLStrider<LLVector2> &texCoords1p,
-					   LLStrider<U16> &indicesp,
-					   U32 &index_offset);
-	void updateEastGeometry(LLFace *facep,
-					   LLStrider<LLVector3> &verticesp,
-					   LLStrider<LLVector3> &normalsp,
-					   LLStrider<LLVector2> &texCoords0p,
-					   LLStrider<LLVector2> &texCoords1p,
-					   LLStrider<U16> &indicesp,
-					   U32 &index_offset);
+    void updateMainGeometry(LLFace *facep,
+                       LLStrider<LLVector3> &verticesp,
+                       LLStrider<LLVector3> &normalsp,
+                       LLStrider<LLVector2> &texCoords0p,
+                       LLStrider<LLVector2> &texCoords1p,
+                       LLStrider<U16> &indicesp,
+                       U32 &index_offset);
+    void updateNorthGeometry(LLFace *facep,
+                       LLStrider<LLVector3> &verticesp,
+                       LLStrider<LLVector3> &normalsp,
+                       LLStrider<LLVector2> &texCoords0p,
+                       LLStrider<LLVector2> &texCoords1p,
+                       LLStrider<U16> &indicesp,
+                       U32 &index_offset);
+    void updateEastGeometry(LLFace *facep,
+                       LLStrider<LLVector3> &verticesp,
+                       LLStrider<LLVector3> &normalsp,
+                       LLStrider<LLVector2> &texCoords0p,
+                       LLStrider<LLVector2> &texCoords1p,
+                       LLStrider<U16> &indicesp,
+                       U32 &index_offset);
 };
 
 #endif // LL_VOSURFACEPATCH_H

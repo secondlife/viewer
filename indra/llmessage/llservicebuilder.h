@@ -53,50 +53,50 @@ std::string russ_format(const std::string& format_str, const LLSD& context);
  */
 class LLServiceBuilder
 {
-	LOG_CLASS(LLServiceBuilder);
+    LOG_CLASS(LLServiceBuilder);
 public:
-	LLServiceBuilder(void) {}
-	~LLServiceBuilder(void) {}
+    LLServiceBuilder(void) {}
+    ~LLServiceBuilder(void) {}
 
-	/** 
-	 * @brief Initialize this object with the service definitions.
-	 *
-	 * @param service_filename The services definition files -- services.xml.
-	 */
-	void loadServiceDefinitionsFromFile(const std::string& service_filename);
+    /** 
+     * @brief Initialize this object with the service definitions.
+     *
+     * @param service_filename The services definition files -- services.xml.
+     */
+    void loadServiceDefinitionsFromFile(const std::string& service_filename);
 
-	/** 
-	 * @brief Build a service url if the url needs no construction parameters.
-	 *
-	 * @param service_name The name of the service you want to call.
-	 */
-	std::string buildServiceURI(const std::string& service_name) const;
+    /** 
+     * @brief Build a service url if the url needs no construction parameters.
+     *
+     * @param service_name The name of the service you want to call.
+     */
+    std::string buildServiceURI(const std::string& service_name) const;
 
-	/** 
-	 * @brief Build a service url if the url with construction parameters.
-	 *
-	 * The parameter substitution supports string substituition from RUSS:
-	 * [[Recursive_URL_Substitution_Syntax]]
-	 * @param service_name The name of the service you want to call.
-	 * @param option_map The parameters in a map of name:value for the service.
-	 */
-	std::string buildServiceURI(
-		const std::string& service_name,
-		const LLSD& option_map) const;	
+    /** 
+     * @brief Build a service url if the url with construction parameters.
+     *
+     * The parameter substitution supports string substituition from RUSS:
+     * [[Recursive_URL_Substitution_Syntax]]
+     * @param service_name The name of the service you want to call.
+     * @param option_map The parameters in a map of name:value for the service.
+     */
+    std::string buildServiceURI(
+        const std::string& service_name,
+        const LLSD& option_map) const;  
 
 public:
-	/** 
-	 * @brief Helper method which builds construction state for a service
-	 *
-	 * This method should probably be protected, but we need to test this
-	 * method.
-	 */
-	void createServiceDefinition(
-		const std::string& service_name,
-		LLSD& service_url);
+    /** 
+     * @brief Helper method which builds construction state for a service
+     *
+     * This method should probably be protected, but we need to test this
+     * method.
+     */
+    void createServiceDefinition(
+        const std::string& service_name,
+        LLSD& service_url);
 
 protected:
-	std::map<std::string, std::string> mServiceMap;
+    std::map<std::string, std::string> mServiceMap;
 };
 
 

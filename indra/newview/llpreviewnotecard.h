@@ -45,36 +45,36 @@ class LLButton;
 class LLPreviewNotecard : public LLPreview, public LLVOInventoryListener
 {
 public:
-	LLPreviewNotecard(const LLSD& key);
-	virtual ~LLPreviewNotecard();
-	
-	bool saveItem();
-	void setObjectID(const LLUUID& object_id) override;
+    LLPreviewNotecard(const LLSD& key);
+    virtual ~LLPreviewNotecard();
+    
+    bool saveItem();
+    void setObjectID(const LLUUID& object_id) override;
 
-	// llview
-	void draw() override;
-	BOOL handleKeyHere(KEY key, MASK mask) override;
-	void setEnabled( BOOL enabled ) override;
+    // llview
+    void draw() override;
+    BOOL handleKeyHere(KEY key, MASK mask) override;
+    void setEnabled( BOOL enabled ) override;
 
-	// llfloater
-	BOOL canClose() override;
+    // llfloater
+    BOOL canClose() override;
 
-	// llpanel
-	BOOL postBuild() override;
+    // llpanel
+    BOOL postBuild() override;
 
-	// reach into the text editor, and grab the drag item
-	const LLInventoryItem* getDragItem();
+    // reach into the text editor, and grab the drag item
+    const LLInventoryItem* getDragItem();
 
 
-	// return true if there is any embedded inventory.
-	bool hasEmbeddedInventory();
+    // return true if there is any embedded inventory.
+    bool hasEmbeddedInventory();
 
-	// After saving a notecard, the tcp based upload system will
-	// change the asset, therefore, we need to re-fetch it from the
-	// asset system. :(
-	void refreshFromInventory(const LLUUID& item_id = LLUUID::null);
+    // After saving a notecard, the tcp based upload system will
+    // change the asset, therefore, we need to re-fetch it from the
+    // asset system. :(
+    void refreshFromInventory(const LLUUID& item_id = LLUUID::null);
 
-	void syncExternal();
+    void syncExternal();
 
     void inventoryChanged(LLViewerObject* object,
         LLInventoryObject::object_list_t* inventory,
@@ -83,28 +83,28 @@ public:
 
 protected:
 
-	void updateTitleButtons() override;
-	void loadAsset() override;
-	bool saveIfNeeded(LLInventoryItem* copyitem = NULL, bool sync = true);
+    void updateTitleButtons() override;
+    void loadAsset() override;
+    bool saveIfNeeded(LLInventoryItem* copyitem = NULL, bool sync = true);
 
-	void deleteNotecard();
+    void deleteNotecard();
 
-	static void onLoadComplete(const LLUUID& asset_uuid,
-							   LLAssetType::EType type,
-							   void* user_data, S32 status, LLExtStat ext_status);
+    static void onLoadComplete(const LLUUID& asset_uuid,
+                               LLAssetType::EType type,
+                               void* user_data, S32 status, LLExtStat ext_status);
 
-	static void onClickSave(void* data);
+    static void onClickSave(void* data);
 
-	static void onClickDelete(void* data);
+    static void onClickDelete(void* data);
 
-	static void onClickEdit(void* data);
+    static void onClickEdit(void* data);
 
-	static void onSaveComplete(const LLUUID& asset_uuid,
-							   void* user_data,
-							   S32 status, LLExtStat ext_status);
+    static void onSaveComplete(const LLUUID& asset_uuid,
+                               void* user_data,
+                               S32 status, LLExtStat ext_status);
 
-	bool handleSaveChangesDialog(const LLSD& notification, const LLSD& response);
-	bool handleConfirmDeleteDialog(const LLSD& notification, const LLSD& response);
+    bool handleSaveChangesDialog(const LLSD& notification, const LLSD& response);
+    bool handleConfirmDeleteDialog(const LLSD& notification, const LLSD& response);
 
     static void finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId);
     static void finishTaskUpload(LLUUID itemId, LLUUID newAssetId, LLUUID taskId);
@@ -116,14 +116,14 @@ protected:
     std::string getTmpFileName();
 
 protected:
-	LLViewerTextEditor* mEditor;
-	LLButton* mSaveBtn;
+    LLViewerTextEditor* mEditor;
+    LLButton* mSaveBtn;
 
-	LLUUID mAssetID;
+    LLUUID mAssetID;
 
-	LLUUID mObjectID;
+    LLUUID mObjectID;
 
-	LLLiveLSLFile* mLiveFile;
+    LLLiveLSLFile* mLiveFile;
 };
 
 

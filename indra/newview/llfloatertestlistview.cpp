@@ -28,7 +28,7 @@
 #include "llfloatertestlistview.h"
 
 LLFloaterTestListView::LLFloaterTestListView(const LLSD& seed)
-:	LLFloater(seed)
+:   LLFloater(seed)
 {}
 
 LLFloaterTestListView::~LLFloaterTestListView()

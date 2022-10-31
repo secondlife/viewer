@@ -36,46 +36,46 @@ class LLJoint;
 class LLMorphView : public LLView
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLView::Params>
-	{
-		Params()
-		{
-			changeDefault(mouse_opaque, false);
-			changeDefault(follows.flags, FOLLOWS_ALL);
-		}
-	};
-	LLMorphView(const LLMorphView::Params&);
-	
-	void		shutdown();
+    struct Params : public LLInitParam::Block<Params, LLView::Params>
+    {
+        Params()
+        {
+            changeDefault(mouse_opaque, false);
+            changeDefault(follows.flags, FOLLOWS_ALL);
+        }
+    };
+    LLMorphView(const LLMorphView::Params&);
+    
+    void        shutdown();
 
-	// inherited methods
-	/*virtual*/ void	setVisible(BOOL visible);
+    // inherited methods
+    /*virtual*/ void    setVisible(BOOL visible);
 
-	void		setCameraTargetJoint(LLJoint *joint)		{mCameraTargetJoint = joint;}
-	LLJoint*	getCameraTargetJoint()						{return mCameraTargetJoint;}
+    void        setCameraTargetJoint(LLJoint *joint)        {mCameraTargetJoint = joint;}
+    LLJoint*    getCameraTargetJoint()                      {return mCameraTargetJoint;}
 
-	void		setCameraOffset(const LLVector3d& camera_offset)	{mCameraOffset = camera_offset;}
-	void		setCameraTargetOffset(const LLVector3d& camera_target_offset) {mCameraTargetOffset = camera_target_offset;}
+    void        setCameraOffset(const LLVector3d& camera_offset)    {mCameraOffset = camera_offset;}
+    void        setCameraTargetOffset(const LLVector3d& camera_target_offset) {mCameraTargetOffset = camera_target_offset;}
 
-	void		updateCamera();
-	void		setCameraDrivenByKeys( BOOL b );
+    void        updateCamera();
+    void        setCameraDrivenByKeys( BOOL b );
 
 protected:
-	void		initialize();
+    void        initialize();
 
-	LLJoint*	mCameraTargetJoint;
-	LLVector3d	mCameraOffset;
-	LLVector3d	mCameraTargetOffset;
-	LLVector3d	mOldCameraPos;
-	LLVector3d	mOldTargetPos;
-	F32			mOldCameraNearClip;
-	LLFrameTimer mCameraMoveTimer;
+    LLJoint*    mCameraTargetJoint;
+    LLVector3d  mCameraOffset;
+    LLVector3d  mCameraTargetOffset;
+    LLVector3d  mOldCameraPos;
+    LLVector3d  mOldTargetPos;
+    F32         mOldCameraNearClip;
+    LLFrameTimer mCameraMoveTimer;
 
-	// camera rotation
-	F32			mCameraPitch;
-	F32			mCameraYaw;
+    // camera rotation
+    F32         mCameraPitch;
+    F32         mCameraYaw;
 
-	BOOL		mCameraDrivenByKeys;
+    BOOL        mCameraDrivenByKeys;
 };
 
 //

@@ -45,93 +45,93 @@ class LLCOFWearables : public LLPanel
 {
 public:
 
-	/**
-	 * Represents a collection of callbacks assigned to inventory panel item's buttons
-	 */
-	class LLCOFCallbacks
-	{
-	public:
-		LLCOFCallbacks() {};
-		virtual ~LLCOFCallbacks() {};
-		
-		typedef boost::function<void ()> cof_callback_t;
+    /**
+     * Represents a collection of callbacks assigned to inventory panel item's buttons
+     */
+    class LLCOFCallbacks
+    {
+    public:
+        LLCOFCallbacks() {};
+        virtual ~LLCOFCallbacks() {};
+        
+        typedef boost::function<void ()> cof_callback_t;
 
-		cof_callback_t mAddWearable;
-		cof_callback_t mMoveWearableCloser;
-		cof_callback_t mMoveWearableFurther;
-		cof_callback_t mEditWearable;
-		cof_callback_t mDeleteWearable;
-	};
+        cof_callback_t mAddWearable;
+        cof_callback_t mMoveWearableCloser;
+        cof_callback_t mMoveWearableFurther;
+        cof_callback_t mEditWearable;
+        cof_callback_t mDeleteWearable;
+    };
 
 
 
-	LLCOFWearables();
-	virtual ~LLCOFWearables();
+    LLCOFWearables();
+    virtual ~LLCOFWearables();
 
-	/*virtual*/ BOOL postBuild();
-	
-	LLUUID getSelectedUUID();
-	bool getSelectedUUIDs(uuid_vec_t& selected_ids);
+    /*virtual*/ BOOL postBuild();
+    
+    LLUUID getSelectedUUID();
+    bool getSelectedUUIDs(uuid_vec_t& selected_ids);
 
-	LLPanel* getSelectedItem();
-	void getSelectedItems(std::vector<LLPanel*>& selected_items) const;
+    LLPanel* getSelectedItem();
+    void getSelectedItems(std::vector<LLPanel*>& selected_items) const;
 
-	/* Repopulate the COF wearables list if the COF category has been changed since the last refresh */
-	void refresh();
-	void clear();
+    /* Repopulate the COF wearables list if the COF category has been changed since the last refresh */
+    void refresh();
+    void clear();
 
-	LLAssetType::EType getExpandedAccordionAssetType();
-	LLAssetType::EType getSelectedAccordionAssetType();
-	void expandDefaultAccordionTab();
+    LLAssetType::EType getExpandedAccordionAssetType();
+    LLAssetType::EType getSelectedAccordionAssetType();
+    void expandDefaultAccordionTab();
 
-	LLCOFCallbacks& getCOFCallbacks() { return mCOFCallbacks; }
+    LLCOFCallbacks& getCOFCallbacks() { return mCOFCallbacks; }
 
-	/**
-	 * Selects first clothing item with specified LLWearableType::EType from clothing list
-	 */
-	void selectClothing(LLWearableType::EType clothing_type);
+    /**
+     * Selects first clothing item with specified LLWearableType::EType from clothing list
+     */
+    void selectClothing(LLWearableType::EType clothing_type);
 
-	void setAttachmentsTitle();
+    void setAttachmentsTitle();
 
 protected:
 
-	void populateAttachmentsAndBodypartsLists(const LLInventoryModel::item_array_t& cof_items);
-	void populateClothingList(LLAppearanceMgr::wearables_by_type_t& clothing_by_type);
-	
-	void addClothingTypesDummies(const LLAppearanceMgr::wearables_by_type_t& clothing_by_type);
-	void onSelectionChange(LLFlatListView* selected_list);
-	void onAccordionTabStateChanged(LLUICtrl* ctrl, const LLSD& expanded);
+    void populateAttachmentsAndBodypartsLists(const LLInventoryModel::item_array_t& cof_items);
+    void populateClothingList(LLAppearanceMgr::wearables_by_type_t& clothing_by_type);
+    
+    void addClothingTypesDummies(const LLAppearanceMgr::wearables_by_type_t& clothing_by_type);
+    void onSelectionChange(LLFlatListView* selected_list);
+    void onAccordionTabStateChanged(LLUICtrl* ctrl, const LLSD& expanded);
 
-	LLPanelClothingListItem* buildClothingListItem(LLViewerInventoryItem* item, bool first, bool last);
-	LLPanelBodyPartsListItem* buildBodypartListItem(LLViewerInventoryItem* item);
-	LLPanelDeletableWearableListItem* buildAttachemntListItem(LLViewerInventoryItem* item);
+    LLPanelClothingListItem* buildClothingListItem(LLViewerInventoryItem* item, bool first, bool last);
+    LLPanelBodyPartsListItem* buildBodypartListItem(LLViewerInventoryItem* item);
+    LLPanelDeletableWearableListItem* buildAttachemntListItem(LLViewerInventoryItem* item);
 
-	void onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContextMenu* menu);
+    void onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContextMenu* menu);
 
-	LLFlatListView* mAttachments;
-	LLFlatListView* mClothing;
-	LLFlatListView* mBodyParts;
+    LLFlatListView* mAttachments;
+    LLFlatListView* mClothing;
+    LLFlatListView* mBodyParts;
 
-	LLFlatListView* mLastSelectedList;
+    LLFlatListView* mLastSelectedList;
 
-	LLAccordionCtrlTab* mClothingTab;
-	LLAccordionCtrlTab* mAttachmentsTab;
-	LLAccordionCtrlTab* mBodyPartsTab;
+    LLAccordionCtrlTab* mClothingTab;
+    LLAccordionCtrlTab* mAttachmentsTab;
+    LLAccordionCtrlTab* mBodyPartsTab;
 
-	LLAccordionCtrlTab* mLastSelectedTab;
+    LLAccordionCtrlTab* mLastSelectedTab;
 
-	std::map<const LLAccordionCtrlTab*, LLAssetType::EType> mTab2AssetType;
+    std::map<const LLAccordionCtrlTab*, LLAssetType::EType> mTab2AssetType;
 
-	LLCOFCallbacks mCOFCallbacks;
+    LLCOFCallbacks mCOFCallbacks;
 
-	LLListContextMenu* mClothingMenu;
-	LLListContextMenu* mAttachmentMenu;
-	LLListContextMenu* mBodyPartMenu;
+    LLListContextMenu* mClothingMenu;
+    LLListContextMenu* mAttachmentMenu;
+    LLListContextMenu* mBodyPartMenu;
 
-	LLAccordionCtrl*	mAccordionCtrl;
+    LLAccordionCtrl*    mAccordionCtrl;
 
-	/* COF category version since last refresh */
-	S32 mCOFVersion;
+    /* COF category version since last refresh */
+    S32 mCOFVersion;
 };
 
 

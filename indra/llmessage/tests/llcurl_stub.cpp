@@ -38,18 +38,18 @@ LLCurl::Responder::Responder()
 
 void LLCurl::Responder::httpCompleted()
 {
-	if (isGoodStatus())
-	{
-		httpSuccess();
-	}
-	else
-	{
-		httpFailure();
-	}
+    if (isGoodStatus())
+    {
+        httpSuccess();
+    }
+    else
+    {
+        httpFailure();
+    }
 }
 
 void LLCurl::Responder::completedRaw(LLChannelDescriptors const&,
-									 boost::shared_ptr<LLBufferArray> const&)
+                                     boost::shared_ptr<LLBufferArray> const&)
 {
 }
 
@@ -67,33 +67,33 @@ void LLCurl::Responder::httpSuccess()
 
 std::string LLCurl::Responder::dumpResponse() const
 {
-	return "dumpResponse()";
+    return "dumpResponse()";
 }
 
 void LLCurl::Responder::successResult(const LLSD& content)
 {
-	setResult(HTTP_OK, "", content);
-	httpSuccess();
+    setResult(HTTP_OK, "", content);
+    httpSuccess();
 }
 
 void LLCurl::Responder::failureResult(S32 status, const std::string& reason, const LLSD& content)
 {
-	setResult(status, reason, content);
-	httpFailure();
+    setResult(status, reason, content);
+    httpFailure();
 }
 
 
 void LLCurl::Responder::completeResult(S32 status, const std::string& reason, const LLSD& content)
 {
-	setResult(status, reason, content);
-	httpCompleted();
+    setResult(status, reason, content);
+    httpCompleted();
 }
 
 void LLCurl::Responder::setResult(S32 status, const std::string& reason, const LLSD& content /* = LLSD() */)
 {
-	mStatus = status;
-	mReason = reason;
-	mContent = content;
+    mStatus = status;
+    mReason = reason;
+    mContent = content;
 }
 
 #endif

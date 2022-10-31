@@ -39,34 +39,34 @@ public:
     struct Params : public LLInitParam::Block<Params, LLFolderView::Params>
     {
         Params()
-		{}
+        {}
     };
 
-	LLPlacesFolderView(const LLFolderView::Params& p);
-	/**
-	 *	Handles right mouse down
-	 *
-	 * Contains workaround for EXT-2786: sets current selected list for landmark
-	 * panel using @c mParentLandmarksPanel which is set in @c LLLandmarksPanel::initLandmarksPanel
-	 */
-	/*virtual*/ BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
+    LLPlacesFolderView(const LLFolderView::Params& p);
+    /**
+     *  Handles right mouse down
+     *
+     * Contains workaround for EXT-2786: sets current selected list for landmark
+     * panel using @c mParentLandmarksPanel which is set in @c LLLandmarksPanel::initLandmarksPanel
+     */
+    /*virtual*/ BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
 
-	/*virtual*/ void updateMenu();
+    /*virtual*/ void updateMenu();
 
-	void setupMenuHandle(LLInventoryType::EType asset_type, LLHandle<LLView> menu_handle);
+    void setupMenuHandle(LLInventoryType::EType asset_type, LLHandle<LLView> menu_handle);
 
-	void setParentLandmarksPanel(LLLandmarksPanel* panel)
-	{
-		mParentLandmarksPanel = panel;
-	}
+    void setParentLandmarksPanel(LLLandmarksPanel* panel)
+    {
+        mParentLandmarksPanel = panel;
+    }
 
 private:
-	/**
-	 * holds pointer to landmark panel. This pointer is used in @c LLPlacesFolderView::handleRightMouseDown
-	 */
-	LLLandmarksPanel* mParentLandmarksPanel;
-	typedef std::map<LLInventoryType::EType, LLHandle<LLView> > inventory_type_menu_handle_t;
-	inventory_type_menu_handle_t mMenuHandlesByInventoryType;
+    /**
+     * holds pointer to landmark panel. This pointer is used in @c LLPlacesFolderView::handleRightMouseDown
+     */
+    LLLandmarksPanel* mParentLandmarksPanel;
+    typedef std::map<LLInventoryType::EType, LLHandle<LLView> > inventory_type_menu_handle_t;
+    inventory_type_menu_handle_t mMenuHandlesByInventoryType;
 
 };
 

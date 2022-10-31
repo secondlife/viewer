@@ -35,7 +35,7 @@ extern "C" {
 }
 
 bool grab_gst_syms(std::string gst_dso_name,
-		   std::string gst_dso_name_vid);
+           std::string gst_dso_name_vid);
 void ungrab_gst_syms();
 
 #define LL_GST_SYM(REQ, GSTSYM, RTN, ...) extern RTN (*ll##GSTSYM)(__VA_ARGS__)

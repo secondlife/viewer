@@ -40,36 +40,36 @@ class LLGLSLShader;
 
 class LLDrawPoolMaterials : public LLRenderPass
 {
-	LLGLSLShader *mShader;
+    LLGLSLShader *mShader;
 public:
-	LLDrawPoolMaterials();
-	
-	enum
-	{
-		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
-		LLVertexBuffer::MAP_NORMAL |
-		LLVertexBuffer::MAP_TEXCOORD0 |
-		LLVertexBuffer::MAP_TEXCOORD1 |
-		LLVertexBuffer::MAP_TEXCOORD2 |
-		LLVertexBuffer::MAP_COLOR |
-		LLVertexBuffer::MAP_TANGENT
-	};
-	
-	U32 getVertexDataMask() override { return VERTEX_DATA_MASK; }
-	
-	void render(S32 pass = 0) override { }
-	S32	 getNumPasses() override {return 0;}
-	void prerender() override;
-	
-	S32 getNumDeferredPasses() override;
-	void beginDeferredPass(S32 pass) override;
-	void endDeferredPass(S32 pass) override;
-	void renderDeferred(S32 pass) override;
-	
-	void bindSpecularMap(LLViewerTexture* tex);
-	void bindNormalMap(LLViewerTexture* tex);
-	
-	void pushMaterialsBatch(LLDrawInfo& params, U32 mask, bool rigged);
+    LLDrawPoolMaterials();
+    
+    enum
+    {
+        VERTEX_DATA_MASK =  LLVertexBuffer::MAP_VERTEX |
+        LLVertexBuffer::MAP_NORMAL |
+        LLVertexBuffer::MAP_TEXCOORD0 |
+        LLVertexBuffer::MAP_TEXCOORD1 |
+        LLVertexBuffer::MAP_TEXCOORD2 |
+        LLVertexBuffer::MAP_COLOR |
+        LLVertexBuffer::MAP_TANGENT
+    };
+    
+    U32 getVertexDataMask() override { return VERTEX_DATA_MASK; }
+    
+    void render(S32 pass = 0) override { }
+    S32  getNumPasses() override {return 0;}
+    void prerender() override;
+    
+    S32 getNumDeferredPasses() override;
+    void beginDeferredPass(S32 pass) override;
+    void endDeferredPass(S32 pass) override;
+    void renderDeferred(S32 pass) override;
+    
+    void bindSpecularMap(LLViewerTexture* tex);
+    void bindNormalMap(LLViewerTexture* tex);
+    
+    void pushMaterialsBatch(LLDrawInfo& params, U32 mask, bool rigged);
 };
 
 #endif //LL_LLDRAWPOOLMATERIALS_H

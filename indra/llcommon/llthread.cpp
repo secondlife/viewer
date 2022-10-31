@@ -247,7 +247,7 @@ void LLThread::shutdown()
             // This thread just wouldn't stop, even though we gave it time
             //LL_WARNS() << "LLThread::~LLThread() exiting thread before clean exit!" << LL_ENDL;
             // Put a stake in its heart. (A very hostile method to force a thread to quit)
-#if		LL_WINDOWS
+#if     LL_WINDOWS
             TerminateThread(mNativeHandle, 0);
 #else
             pthread_cancel(mNativeHandle);
@@ -448,7 +448,7 @@ LLThreadSafeRefCount::~LLThreadSafeRefCount()
 { 
     if (mRef != 0)
     {
-		LL_ERRS() << "deleting referenced object mRef = " << mRef << LL_ENDL;
+        LL_ERRS() << "deleting referenced object mRef = " << mRef << LL_ENDL;
     }
 }
 

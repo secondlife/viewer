@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_INTERNAL_H_
-#define	_LLCORE_HTTP_INTERNAL_H_
+#ifndef _LLCORE_HTTP_INTERNAL_H_
+#define _LLCORE_HTTP_INTERNAL_H_
 
 
 // If you find this included in a public interface header,
@@ -97,7 +97,7 @@
 // Reprioritization requests have the side-effect of then
 // putting the modified request at the back of the ready queue.
 
-#define	LLCORE_HTTP_READY_QUEUE_IGNORES_PRIORITY		1
+#define LLCORE_HTTP_READY_QUEUE_IGNORES_PRIORITY        1
 
 
 namespace LLCore
@@ -168,4 +168,4 @@ const int HTTP_SERVICE_LOOP_SLEEP_NORMAL_MS = 2;
 
 }  // end namespace LLCore
 
-#endif	// _LLCORE_HTTP_INTERNAL_H_
+#endif  // _LLCORE_HTTP_INTERNAL_H_

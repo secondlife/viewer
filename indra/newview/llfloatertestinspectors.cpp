@@ -34,12 +34,12 @@
 //#include "lluictrlfactory.h"
 
 LLFloaterTestInspectors::LLFloaterTestInspectors(const LLSD& seed)
-:	LLFloater(seed)
+:   LLFloater(seed)
 {
-	mCommitCallbackRegistrar.add("ShowAvatarInspector",
-		boost::bind(&LLFloaterTestInspectors::showAvatarInspector, this, _1, _2));
-	mCommitCallbackRegistrar.add("ShowObjectInspector",
-		boost::bind(&LLFloaterTestInspectors::showObjectInspector, this, _1, _2));
+    mCommitCallbackRegistrar.add("ShowAvatarInspector",
+        boost::bind(&LLFloaterTestInspectors::showAvatarInspector, this, _1, _2));
+    mCommitCallbackRegistrar.add("ShowObjectInspector",
+        boost::bind(&LLFloaterTestInspectors::showObjectInspector, this, _1, _2));
 }
 
 LLFloaterTestInspectors::~LLFloaterTestInspectors()
@@ -47,41 +47,41 @@ LLFloaterTestInspectors::~LLFloaterTestInspectors()
 
 BOOL LLFloaterTestInspectors::postBuild()
 {
-	// Test the dummy widget construction code
-	getChild<LLUICtrl>("intentionally-not-found")->setEnabled(true);
+    // Test the dummy widget construction code
+    getChild<LLUICtrl>("intentionally-not-found")->setEnabled(true);
 
-//	getChild<LLUICtrl>("avatar_2d_btn")->setCommitCallback(
-//		boost::bind(&LLFloaterTestInspectors::onClickAvatar2D, this));
-	getChild<LLUICtrl>("avatar_3d_btn")->setCommitCallback(
-		boost::bind(&LLFloaterTestInspectors::onClickAvatar3D, this));
-	getChild<LLUICtrl>("object_2d_btn")->setCommitCallback(
-		boost::bind(&LLFloaterTestInspectors::onClickObject2D, this));
-	getChild<LLUICtrl>("object_3d_btn")->setCommitCallback(
-		boost::bind(&LLFloaterTestInspectors::onClickObject3D, this));
-	getChild<LLUICtrl>("group_btn")->setCommitCallback(
-		boost::bind(&LLFloaterTestInspectors::onClickGroup, this));
-	getChild<LLUICtrl>("place_btn")->setCommitCallback(
-		boost::bind(&LLFloaterTestInspectors::onClickPlace, this));
-	getChild<LLUICtrl>("event_btn")->setCommitCallback(
-		boost::bind(&LLFloaterTestInspectors::onClickEvent, this));
+//  getChild<LLUICtrl>("avatar_2d_btn")->setCommitCallback(
+//      boost::bind(&LLFloaterTestInspectors::onClickAvatar2D, this));
+    getChild<LLUICtrl>("avatar_3d_btn")->setCommitCallback(
+        boost::bind(&LLFloaterTestInspectors::onClickAvatar3D, this));
+    getChild<LLUICtrl>("object_2d_btn")->setCommitCallback(
+        boost::bind(&LLFloaterTestInspectors::onClickObject2D, this));
+    getChild<LLUICtrl>("object_3d_btn")->setCommitCallback(
+        boost::bind(&LLFloaterTestInspectors::onClickObject3D, this));
+    getChild<LLUICtrl>("group_btn")->setCommitCallback(
+        boost::bind(&LLFloaterTestInspectors::onClickGroup, this));
+    getChild<LLUICtrl>("place_btn")->setCommitCallback(
+        boost::bind(&LLFloaterTestInspectors::onClickPlace, this));
+    getChild<LLUICtrl>("event_btn")->setCommitCallback(
+        boost::bind(&LLFloaterTestInspectors::onClickEvent, this));
 
-	return LLFloater::postBuild();
+    return LLFloater::postBuild();
 }
 
 void LLFloaterTestInspectors::showAvatarInspector(LLUICtrl*, const LLSD& avatar_id)
 {
-	LLUUID id;  // defaults to null
-	if (LLStartUp::getStartupState() >= STATE_STARTED)
-	{
-		id = avatar_id.asUUID();
-	}
-	// spawns off mouse position automatically
-	LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", id));
+    LLUUID id;  // defaults to null
+    if (LLStartUp::getStartupState() >= STATE_STARTED)
+    {
+        id = avatar_id.asUUID();
+    }
+    // spawns off mouse position automatically
+    LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", id));
 }
 
 void LLFloaterTestInspectors::showObjectInspector(LLUICtrl*, const LLSD& object_id)
 {
-	LLFloaterReg::showInstance("inspect_object", LLSD().with("object_id", object_id));
+    LLFloaterReg::showInstance("inspect_object", LLSD().with("object_id", object_id));
 }
 
 void LLFloaterTestInspectors::onClickAvatar2D()

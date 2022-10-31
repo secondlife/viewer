@@ -41,30 +41,30 @@
 */
 class LLWearableList : public LLSingleton<LLWearableList>
 {
-	LLSINGLETON_EMPTY_CTOR(LLWearableList);
-	~LLWearableList();
+    LLSINGLETON_EMPTY_CTOR(LLWearableList);
+    ~LLWearableList();
 public:
-	void cleanup() ;
+    void cleanup() ;
 
-	S32					getLength() const { return mList.size(); }
+    S32                 getLength() const { return mList.size(); }
 
-	void				getAsset(const LLAssetID& assetID,
-								 const std::string& wearable_name,
-								 LLAvatarAppearance *avatarp,
-								 LLAssetType::EType asset_type,
-								 void(*asset_arrived_callback)(LLViewerWearable*, void* userdata),
-								 void* userdata);
+    void                getAsset(const LLAssetID& assetID,
+                                 const std::string& wearable_name,
+                                 LLAvatarAppearance *avatarp,
+                                 LLAssetType::EType asset_type,
+                                 void(*asset_arrived_callback)(LLViewerWearable*, void* userdata),
+                                 void* userdata);
 
-	LLViewerWearable*			createCopy(const LLViewerWearable* old_wearable, const std::string& new_name = std::string());
-	LLViewerWearable*			createNewWearable(LLWearableType::EType type, LLAvatarAppearance *avatarp);
-	
-	// Callback
-	static void	 	    processGetAssetReply(const char* filename, const LLAssetID& assetID, void* user_data, S32 status, LLExtStat ext_status);
+    LLViewerWearable*           createCopy(const LLViewerWearable* old_wearable, const std::string& new_name = std::string());
+    LLViewerWearable*           createNewWearable(LLWearableType::EType type, LLAvatarAppearance *avatarp);
+    
+    // Callback
+    static void         processGetAssetReply(const char* filename, const LLAssetID& assetID, void* user_data, S32 status, LLExtStat ext_status);
 
 protected:
-	LLViewerWearable* generateNewWearable(); // used for the create... functions
+    LLViewerWearable* generateNewWearable(); // used for the create... functions
 private:
-	std::map<LLUUID, LLViewerWearable*> mList;
+    std::map<LLUUID, LLViewerWearable*> mList;
 };
 
 #endif  // LL_LLWEARABLELIST_H

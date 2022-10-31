@@ -32,81 +32,81 @@
 #if LIB_NDOF
 #include "ndofdev_external.h"
 #else
-#define NDOF_Device	void
+#define NDOF_Device void
 #define NDOF_HotPlugResult S32
 #endif
 
 typedef enum e_joystick_driver_state
 {
-	JDS_UNINITIALIZED,
-	JDS_INITIALIZED,
-	JDS_INITIALIZING
+    JDS_UNINITIALIZED,
+    JDS_INITIALIZED,
+    JDS_INITIALIZING
 } EJoystickDriverState;
 
 class LLViewerJoystick : public LLSingleton<LLViewerJoystick>
 {
-	LLSINGLETON(LLViewerJoystick);
-	virtual ~LLViewerJoystick();
+    LLSINGLETON(LLViewerJoystick);
+    virtual ~LLViewerJoystick();
     LOG_CLASS(LLViewerJoystick);
 
 public:
-	void init(bool autoenable);
-	void initDevice(LLSD &guid);
-	void initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/);
-	void initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, std::string &name, LLSD &guid);
-	void terminate();
+    void init(bool autoenable);
+    void initDevice(LLSD &guid);
+    void initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/);
+    void initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, std::string &name, LLSD &guid);
+    void terminate();
 
-	void updateStatus();
-	void scanJoystick();
-	void moveObjects(bool reset = false);
-	void moveAvatar(bool reset = false);
-	void moveFlycam(bool reset = false);
-	F32 getJoystickAxis(U32 axis) const;
-	U32 getJoystickButton(U32 button) const;
-	bool isJoystickInitialized() const {return (mDriverState==JDS_INITIALIZED);}
-	bool isLikeSpaceNavigator() const;
-	void setNeedsReset(bool reset = true) { mResetFlag = reset; }
-	void setCameraNeedsUpdate(bool b)     { mCameraUpdated = b; }
-	bool getCameraNeedsUpdate() const     { return mCameraUpdated; }
-	bool getOverrideCamera() { return mOverrideCamera; }
-	void setOverrideCamera(bool val);
-	bool toggleFlycam();
-	void setSNDefaults();
-	bool isDeviceUUIDSet();
-	LLSD getDeviceUUID(); //unconverted, OS dependent value wrapped into LLSD, for comparison/search
-	std::string getDeviceUUIDString(); // converted readable value for settings
-	std::string getDescription();
+    void updateStatus();
+    void scanJoystick();
+    void moveObjects(bool reset = false);
+    void moveAvatar(bool reset = false);
+    void moveFlycam(bool reset = false);
+    F32 getJoystickAxis(U32 axis) const;
+    U32 getJoystickButton(U32 button) const;
+    bool isJoystickInitialized() const {return (mDriverState==JDS_INITIALIZED);}
+    bool isLikeSpaceNavigator() const;
+    void setNeedsReset(bool reset = true) { mResetFlag = reset; }
+    void setCameraNeedsUpdate(bool b)     { mCameraUpdated = b; }
+    bool getCameraNeedsUpdate() const     { return mCameraUpdated; }
+    bool getOverrideCamera() { return mOverrideCamera; }
+    void setOverrideCamera(bool val);
+    bool toggleFlycam();
+    void setSNDefaults();
+    bool isDeviceUUIDSet();
+    LLSD getDeviceUUID(); //unconverted, OS dependent value wrapped into LLSD, for comparison/search
+    std::string getDeviceUUIDString(); // converted readable value for settings
+    std::string getDescription();
 
 protected:
-	void updateEnabled(bool autoenable);
-	void handleRun(F32 inc);
-	void agentSlide(F32 inc);
-	void agentPush(F32 inc);
-	void agentFly(F32 inc);
-	void agentPitch(F32 pitch_inc);
-	void agentYaw(F32 yaw_inc);
-	void agentJump();
-	void resetDeltas(S32 axis[]);
-	void loadDeviceIdFromSettings();
+    void updateEnabled(bool autoenable);
+    void handleRun(F32 inc);
+    void agentSlide(F32 inc);
+    void agentPush(F32 inc);
+    void agentFly(F32 inc);
+    void agentPitch(F32 pitch_inc);
+    void agentYaw(F32 yaw_inc);
+    void agentJump();
+    void resetDeltas(S32 axis[]);
+    void loadDeviceIdFromSettings();
 #if LIB_NDOF
-	static NDOF_HotPlugResult HotPlugAddCallback(NDOF_Device *dev);
-	static void HotPlugRemovalCallback(NDOF_Device *dev);
+    static NDOF_HotPlugResult HotPlugAddCallback(NDOF_Device *dev);
+    static void HotPlugRemovalCallback(NDOF_Device *dev);
 #endif
-	
+    
 private:
-	F32						mAxes[6];
-	long					mBtn[16];
-	EJoystickDriverState	mDriverState;
-	NDOF_Device				*mNdofDev;
-	bool					mResetFlag;
-	F32						mPerfScale;
-	bool					mCameraUpdated;
-	bool 					mOverrideCamera;
-	U32						mJoystickRun;
-	LLSD					mLastDeviceUUID; // _GUID as U8 binary map, integer 1 for no device/ndof's device
-	
-	static F32				sLastDelta[7];
-	static F32				sDelta[7];
+    F32                     mAxes[6];
+    long                    mBtn[16];
+    EJoystickDriverState    mDriverState;
+    NDOF_Device             *mNdofDev;
+    bool                    mResetFlag;
+    F32                     mPerfScale;
+    bool                    mCameraUpdated;
+    bool                    mOverrideCamera;
+    U32                     mJoystickRun;
+    LLSD                    mLastDeviceUUID; // _GUID as U8 binary map, integer 1 for no device/ndof's device
+    
+    static F32              sLastDelta[7];
+    static F32              sDelta[7];
 };
 
 #endif

@@ -34,42 +34,42 @@ typedef void (*LLTTFCompleteCallback)(const LLTSCode status, void *user_data);
 class LLTransferTargetParamsFile : public LLTransferTargetParams
 {
 public:
-	LLTransferTargetParamsFile()
-		: LLTransferTargetParams(LLTTT_FILE),
+    LLTransferTargetParamsFile()
+        : LLTransferTargetParams(LLTTT_FILE),
 
-		mCompleteCallback(NULL),
-		mUserData(NULL)
-	{}
-	void setFilename(const std::string& filename)	{ mFilename = filename; }
-	void setCallback(LLTTFCompleteCallback cb, void *user_data)		{ mCompleteCallback = cb; mUserData = user_data; }
+        mCompleteCallback(NULL),
+        mUserData(NULL)
+    {}
+    void setFilename(const std::string& filename)   { mFilename = filename; }
+    void setCallback(LLTTFCompleteCallback cb, void *user_data)     { mCompleteCallback = cb; mUserData = user_data; }
 
-	friend class LLTransferTargetFile;
+    friend class LLTransferTargetFile;
 protected:
-	std::string				mFilename;
-	LLTTFCompleteCallback	mCompleteCallback;
-	void *					mUserData;
+    std::string             mFilename;
+    LLTTFCompleteCallback   mCompleteCallback;
+    void *                  mUserData;
 };
 
 
 class LLTransferTargetFile : public LLTransferTarget
 {
 public:
-	LLTransferTargetFile(const LLUUID& uuid, LLTransferSourceType src_type);
-	virtual ~LLTransferTargetFile();
+    LLTransferTargetFile(const LLUUID& uuid, LLTransferSourceType src_type);
+    virtual ~LLTransferTargetFile();
 
-	static void requestTransfer(LLTransferTargetChannel *channelp,
-								const char *local_filename,
-								const LLTransferSourceParams &source_params,
-								LLTTFCompleteCallback callback);
+    static void requestTransfer(LLTransferTargetChannel *channelp,
+                                const char *local_filename,
+                                const LLTransferSourceParams &source_params,
+                                LLTTFCompleteCallback callback);
 protected:
-	virtual bool unpackParams(LLDataPacker& dp);
-	/*virtual*/ void applyParams(const LLTransferTargetParams &params);
-	/*virtual*/ LLTSCode dataCallback(const S32 packet_id, U8 *in_datap, const S32 in_size);
-	/*virtual*/ void completionCallback(const LLTSCode status);
+    virtual bool unpackParams(LLDataPacker& dp);
+    /*virtual*/ void applyParams(const LLTransferTargetParams &params);
+    /*virtual*/ LLTSCode dataCallback(const S32 packet_id, U8 *in_datap, const S32 in_size);
+    /*virtual*/ void completionCallback(const LLTSCode status);
 
-	LLTransferTargetParamsFile mParams;
+    LLTransferTargetParamsFile mParams;
 
-	LLFILE *mFP;
+    LLFILE *mFP;
 };
 
 #endif // LL_LLTRANSFERTARGETFILE_H

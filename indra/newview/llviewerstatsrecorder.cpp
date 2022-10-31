@@ -35,242 +35,242 @@
 
 // To do - something using region name or global position
 #if LL_WINDOWS
-	static const std::string STATS_FILE_NAME("C:\\ViewerObjectCacheStats.csv");
+    static const std::string STATS_FILE_NAME("C:\\ViewerObjectCacheStats.csv");
 #else
-	static const std::string STATS_FILE_NAME("/tmp/viewerstats.csv");
+    static const std::string STATS_FILE_NAME("/tmp/viewerstats.csv");
 #endif
 
 LLViewerStatsRecorder* LLViewerStatsRecorder::sInstance = NULL;
 LLViewerStatsRecorder::LLViewerStatsRecorder() :
-	mObjectCacheFile(NULL),
-	mTimer(),
-	mStartTime(0.0),
-	mLastSnapshotTime(0.0)
+    mObjectCacheFile(NULL),
+    mTimer(),
+    mStartTime(0.0),
+    mLastSnapshotTime(0.0)
 {
-	if (NULL != sInstance)
-	{
-		LL_ERRS() << "Attempted to create multiple instances of LLViewerStatsRecorder!" << LL_ENDL;
-	}
-	sInstance = this;
-	clearStats();
+    if (NULL != sInstance)
+    {
+        LL_ERRS() << "Attempted to create multiple instances of LLViewerStatsRecorder!" << LL_ENDL;
+    }
+    sInstance = this;
+    clearStats();
 }
 
 LLViewerStatsRecorder::~LLViewerStatsRecorder()
 {
-	if (mObjectCacheFile != NULL)
-	{
-		// last chance snapshot
-		writeToLog(0.f);
-		LLFile::close(mObjectCacheFile);
-		mObjectCacheFile = NULL;
-	}
+    if (mObjectCacheFile != NULL)
+    {
+        // last chance snapshot
+        writeToLog(0.f);
+        LLFile::close(mObjectCacheFile);
+        mObjectCacheFile = NULL;
+    }
 }
 
 void LLViewerStatsRecorder::clearStats()
 {
-	mObjectCacheHitCount = 0;
-	mObjectCacheHitSize = 0;
-	mObjectCacheMissFullCount = 0;
-	mObjectCacheMissFullSize = 0;
-	mObjectCacheMissCrcCount = 0;
-	mObjectCacheMissCrcSize = 0;
-	mObjectFullUpdates = 0;
-	mObjectFullUpdatesSize = 0;
-	mObjectTerseUpdates = 0;
-	mObjectTerseUpdatesSize = 0;
-	mObjectCacheMissRequests = 0;
-	mObjectCacheMissResponses = 0;
-	mObjectCacheMissResponsesSize = 0;
-	mObjectCacheUpdateDupes = 0;
-	mObjectCacheUpdateChanges = 0;
-	mObjectCacheUpdateAdds = 0;
-	mObjectCacheUpdateReplacements = 0;
-	mObjectUpdateFailures = 0;
-	mObjectUpdateFailuresSize = 0;
-	mTextureFetchSize = 0;
+    mObjectCacheHitCount = 0;
+    mObjectCacheHitSize = 0;
+    mObjectCacheMissFullCount = 0;
+    mObjectCacheMissFullSize = 0;
+    mObjectCacheMissCrcCount = 0;
+    mObjectCacheMissCrcSize = 0;
+    mObjectFullUpdates = 0;
+    mObjectFullUpdatesSize = 0;
+    mObjectTerseUpdates = 0;
+    mObjectTerseUpdatesSize = 0;
+    mObjectCacheMissRequests = 0;
+    mObjectCacheMissResponses = 0;
+    mObjectCacheMissResponsesSize = 0;
+    mObjectCacheUpdateDupes = 0;
+    mObjectCacheUpdateChanges = 0;
+    mObjectCacheUpdateAdds = 0;
+    mObjectCacheUpdateReplacements = 0;
+    mObjectUpdateFailures = 0;
+    mObjectUpdateFailuresSize = 0;
+    mTextureFetchSize = 0;
 }
 
 
 void LLViewerStatsRecorder::recordObjectUpdateFailure(U32 local_id, const EObjectUpdateType update_type, S32 msg_size)
 {
-	mObjectUpdateFailures++;
-	mObjectUpdateFailuresSize += msg_size;
+    mObjectUpdateFailures++;
+    mObjectUpdateFailuresSize += msg_size;
 }
 
 void LLViewerStatsRecorder::recordCacheMissEvent(U32 local_id, const EObjectUpdateType update_type, U8 cache_miss_type, S32 msg_size)
 {
-	if (LLViewerRegion::CACHE_MISS_TYPE_FULL == cache_miss_type)
-	{
-		mObjectCacheMissFullCount++;
-		mObjectCacheMissFullSize += msg_size;
-	}
-	else
-	{
-		mObjectCacheMissCrcCount++;
-		mObjectCacheMissCrcSize += msg_size;
-	}
+    if (LLViewerRegion::CACHE_MISS_TYPE_FULL == cache_miss_type)
+    {
+        mObjectCacheMissFullCount++;
+        mObjectCacheMissFullSize += msg_size;
+    }
+    else
+    {
+        mObjectCacheMissCrcCount++;
+        mObjectCacheMissCrcSize += msg_size;
+    }
 }
 
 void LLViewerStatsRecorder::recordObjectUpdateEvent(U32 local_id, const EObjectUpdateType update_type, LLViewerObject * objectp, S32 msg_size)
 {
-	switch (update_type)
-	{
-	case OUT_FULL:
-		mObjectFullUpdates++;
-		mObjectFullUpdatesSize += msg_size;
-		break;
-	case OUT_TERSE_IMPROVED:
-		mObjectTerseUpdates++;
-		mObjectTerseUpdatesSize += msg_size;
-		break;
-	case OUT_FULL_COMPRESSED:
-		mObjectCacheMissResponses++;
-		mObjectCacheMissResponsesSize += msg_size;
-		break;
-	case OUT_FULL_CACHED:
-		mObjectCacheHitCount++;
-		mObjectCacheHitSize += msg_size;
-		break;
-	default:
-		LL_WARNS() << "Unknown update_type" << LL_ENDL;
-		break;
-	};
+    switch (update_type)
+    {
+    case OUT_FULL:
+        mObjectFullUpdates++;
+        mObjectFullUpdatesSize += msg_size;
+        break;
+    case OUT_TERSE_IMPROVED:
+        mObjectTerseUpdates++;
+        mObjectTerseUpdatesSize += msg_size;
+        break;
+    case OUT_FULL_COMPRESSED:
+        mObjectCacheMissResponses++;
+        mObjectCacheMissResponsesSize += msg_size;
+        break;
+    case OUT_FULL_CACHED:
+        mObjectCacheHitCount++;
+        mObjectCacheHitSize += msg_size;
+        break;
+    default:
+        LL_WARNS() << "Unknown update_type" << LL_ENDL;
+        break;
+    };
 }
 
 void LLViewerStatsRecorder::recordCacheFullUpdate(U32 local_id, const EObjectUpdateType update_type, LLViewerRegion::eCacheUpdateResult update_result, LLViewerObject* objectp, S32 msg_size)
 {
-	switch (update_result)
-	{
-		case LLViewerRegion::CACHE_UPDATE_DUPE:
-			mObjectCacheUpdateDupes++;
-			break;
-		case LLViewerRegion::CACHE_UPDATE_CHANGED:
-			mObjectCacheUpdateChanges++;
-			break;
-		case LLViewerRegion::CACHE_UPDATE_ADDED:
-			mObjectCacheUpdateAdds++;
-			break;
-		case LLViewerRegion::CACHE_UPDATE_REPLACED:
-			mObjectCacheUpdateReplacements++;
-			break;
-		default:
-			LL_WARNS() << "Unknown update_result type" << LL_ENDL;
-			break;
-	};
+    switch (update_result)
+    {
+        case LLViewerRegion::CACHE_UPDATE_DUPE:
+            mObjectCacheUpdateDupes++;
+            break;
+        case LLViewerRegion::CACHE_UPDATE_CHANGED:
+            mObjectCacheUpdateChanges++;
+            break;
+        case LLViewerRegion::CACHE_UPDATE_ADDED:
+            mObjectCacheUpdateAdds++;
+            break;
+        case LLViewerRegion::CACHE_UPDATE_REPLACED:
+            mObjectCacheUpdateReplacements++;
+            break;
+        default:
+            LL_WARNS() << "Unknown update_result type" << LL_ENDL;
+            break;
+    };
 }
 
 void LLViewerStatsRecorder::recordRequestCacheMissesEvent(S32 count)
 {
-	mObjectCacheMissRequests += count;
+    mObjectCacheMissRequests += count;
 }
 
 void LLViewerStatsRecorder::writeToLog( F32 interval )
 {
-	size_t data_size = 0;
-	F64 delta_time = LLTimer::getTotalSeconds() - mLastSnapshotTime;
-	S32 total_objects = mObjectCacheHitCount + mObjectCacheMissCrcCount + mObjectCacheMissFullCount + mObjectFullUpdates + mObjectTerseUpdates + mObjectCacheMissRequests + mObjectCacheMissResponses + mObjectCacheUpdateDupes + mObjectCacheUpdateChanges + mObjectCacheUpdateAdds + mObjectCacheUpdateReplacements + mObjectUpdateFailures;
+    size_t data_size = 0;
+    F64 delta_time = LLTimer::getTotalSeconds() - mLastSnapshotTime;
+    S32 total_objects = mObjectCacheHitCount + mObjectCacheMissCrcCount + mObjectCacheMissFullCount + mObjectFullUpdates + mObjectTerseUpdates + mObjectCacheMissRequests + mObjectCacheMissResponses + mObjectCacheUpdateDupes + mObjectCacheUpdateChanges + mObjectCacheUpdateAdds + mObjectCacheUpdateReplacements + mObjectUpdateFailures;
 
-	if ( delta_time < interval || total_objects == 0) return;
+    if ( delta_time < interval || total_objects == 0) return;
 
-	mLastSnapshotTime = LLTimer::getTotalSeconds();
-	LL_DEBUGS() << "ILX: " 
-		<< mObjectCacheHitCount << " hits, " 
-		<< mObjectCacheMissFullCount << " full misses, "
-		<< mObjectCacheMissCrcCount << " crc misses, "
-		<< mObjectFullUpdates << " full updates, "
-		<< mObjectTerseUpdates << " terse updates, "
-		<< mObjectCacheMissRequests << " cache miss requests, "
-		<< mObjectCacheMissResponses << " cache miss responses, "
-		<< mObjectCacheUpdateDupes << " cache update dupes, "
-		<< mObjectCacheUpdateChanges << " cache update changes, "
-		<< mObjectCacheUpdateAdds << " cache update adds, "
-		<< mObjectCacheUpdateReplacements << " cache update replacements, "
-		<< mObjectUpdateFailures << " update failures"
-		<< LL_ENDL;
+    mLastSnapshotTime = LLTimer::getTotalSeconds();
+    LL_DEBUGS() << "ILX: " 
+        << mObjectCacheHitCount << " hits, " 
+        << mObjectCacheMissFullCount << " full misses, "
+        << mObjectCacheMissCrcCount << " crc misses, "
+        << mObjectFullUpdates << " full updates, "
+        << mObjectTerseUpdates << " terse updates, "
+        << mObjectCacheMissRequests << " cache miss requests, "
+        << mObjectCacheMissResponses << " cache miss responses, "
+        << mObjectCacheUpdateDupes << " cache update dupes, "
+        << mObjectCacheUpdateChanges << " cache update changes, "
+        << mObjectCacheUpdateAdds << " cache update adds, "
+        << mObjectCacheUpdateReplacements << " cache update replacements, "
+        << mObjectUpdateFailures << " update failures"
+        << LL_ENDL;
 
-	if (mObjectCacheFile == NULL)
-	{
-		mStartTime = LLTimer::getTotalSeconds();
-		mObjectCacheFile = LLFile::fopen(STATS_FILE_NAME, "wb");
-		if (mObjectCacheFile)
-		{	// Write column headers
-			std::ostringstream data_msg;
-			data_msg << "EventTime(ms)\t"
-				<< "Cache Hits\t"
-				<< "Cache Full Misses\t"
-				<< "Cache Crc Misses\t"
-				<< "Full Updates\t"
-				<< "Terse Updates\t"
-				<< "Cache Miss Requests\t"
-				<< "Cache Miss Responses\t"
-				<< "Cache Update Dupes\t"
-				<< "Cache Update Changes\t"
-				<< "Cache Update Adds\t"
-				<< "Cache Update Replacements\t"
-				<< "Update Failures\t"
-				<< "Cache Hits bps\t"
-				<< "Cache Full Misses bps\t"
-				<< "Cache Crc Misses bps\t"
-				<< "Full Updates bps\t"
-				<< "Terse Updates bps\t"
-				<< "Cache Miss Responses bps\t"
-				<< "Texture Fetch bps\t"
-				<< "\n";
+    if (mObjectCacheFile == NULL)
+    {
+        mStartTime = LLTimer::getTotalSeconds();
+        mObjectCacheFile = LLFile::fopen(STATS_FILE_NAME, "wb");
+        if (mObjectCacheFile)
+        {   // Write column headers
+            std::ostringstream data_msg;
+            data_msg << "EventTime(ms)\t"
+                << "Cache Hits\t"
+                << "Cache Full Misses\t"
+                << "Cache Crc Misses\t"
+                << "Full Updates\t"
+                << "Terse Updates\t"
+                << "Cache Miss Requests\t"
+                << "Cache Miss Responses\t"
+                << "Cache Update Dupes\t"
+                << "Cache Update Changes\t"
+                << "Cache Update Adds\t"
+                << "Cache Update Replacements\t"
+                << "Update Failures\t"
+                << "Cache Hits bps\t"
+                << "Cache Full Misses bps\t"
+                << "Cache Crc Misses bps\t"
+                << "Full Updates bps\t"
+                << "Terse Updates bps\t"
+                << "Cache Miss Responses bps\t"
+                << "Texture Fetch bps\t"
+                << "\n";
 
-			data_size = data_msg.str().size();
-			if (fwrite(data_msg.str().c_str(), 1, data_size, mObjectCacheFile ) != data_size)
-			{
-				LL_WARNS() << "failed to write full headers to " << STATS_FILE_NAME << LL_ENDL;
-			}
-		}
-		else
-		{
-			//LL_WARNS() << "Couldn't open " << STATS_FILE_NAME << " for logging." << LL_ENDL;
-			return;
-		}
-	}
+            data_size = data_msg.str().size();
+            if (fwrite(data_msg.str().c_str(), 1, data_size, mObjectCacheFile ) != data_size)
+            {
+                LL_WARNS() << "failed to write full headers to " << STATS_FILE_NAME << LL_ENDL;
+            }
+        }
+        else
+        {
+            //LL_WARNS() << "Couldn't open " << STATS_FILE_NAME << " for logging." << LL_ENDL;
+            return;
+        }
+    }
 
-	std::ostringstream data_msg;
+    std::ostringstream data_msg;
 
-	data_msg << getTimeSinceStart()
-		<< "\t " << mObjectCacheHitCount
-		<< "\t" << mObjectCacheMissFullCount
-		<< "\t" << mObjectCacheMissCrcCount
-		<< "\t" << mObjectFullUpdates
-		<< "\t" << mObjectTerseUpdates
-		<< "\t" << mObjectCacheMissRequests
-		<< "\t" << mObjectCacheMissResponses
-		<< "\t" << mObjectCacheUpdateDupes
-		<< "\t" << mObjectCacheUpdateChanges
-		<< "\t" << mObjectCacheUpdateAdds
-		<< "\t" << mObjectCacheUpdateReplacements
-		<< "\t" << mObjectUpdateFailures
-		<< "\t" << (mObjectCacheHitSize * 8 / delta_time)
-		<< "\t" << (mObjectCacheMissFullSize * 8 / delta_time)
-		<< "\t" << (mObjectCacheMissCrcSize * 8 / delta_time)
-		<< "\t" << (mObjectFullUpdatesSize * 8 / delta_time)
-		<< "\t" << (mObjectTerseUpdatesSize * 8 / delta_time)
-		<< "\t" << (mObjectCacheMissResponsesSize * 8 / delta_time)
-		<< "\t" << (mTextureFetchSize * 8 / delta_time)
-		<< "\n";
+    data_msg << getTimeSinceStart()
+        << "\t " << mObjectCacheHitCount
+        << "\t" << mObjectCacheMissFullCount
+        << "\t" << mObjectCacheMissCrcCount
+        << "\t" << mObjectFullUpdates
+        << "\t" << mObjectTerseUpdates
+        << "\t" << mObjectCacheMissRequests
+        << "\t" << mObjectCacheMissResponses
+        << "\t" << mObjectCacheUpdateDupes
+        << "\t" << mObjectCacheUpdateChanges
+        << "\t" << mObjectCacheUpdateAdds
+        << "\t" << mObjectCacheUpdateReplacements
+        << "\t" << mObjectUpdateFailures
+        << "\t" << (mObjectCacheHitSize * 8 / delta_time)
+        << "\t" << (mObjectCacheMissFullSize * 8 / delta_time)
+        << "\t" << (mObjectCacheMissCrcSize * 8 / delta_time)
+        << "\t" << (mObjectFullUpdatesSize * 8 / delta_time)
+        << "\t" << (mObjectTerseUpdatesSize * 8 / delta_time)
+        << "\t" << (mObjectCacheMissResponsesSize * 8 / delta_time)
+        << "\t" << (mTextureFetchSize * 8 / delta_time)
+        << "\n";
 
-	data_size = data_msg.str().size();
-	if ( data_size != fwrite(data_msg.str().c_str(), 1, data_size, mObjectCacheFile ))
-	{
-				LL_WARNS() << "Unable to write complete column data to " << STATS_FILE_NAME << LL_ENDL;
-	}
+    data_size = data_msg.str().size();
+    if ( data_size != fwrite(data_msg.str().c_str(), 1, data_size, mObjectCacheFile ))
+    {
+                LL_WARNS() << "Unable to write complete column data to " << STATS_FILE_NAME << LL_ENDL;
+    }
 
-	clearStats();
+    clearStats();
 }
 
 F32 LLViewerStatsRecorder::getTimeSinceStart()
 {
-	return (F32) (LLTimer::getTotalSeconds() - mStartTime);
+    return (F32) (LLTimer::getTotalSeconds() - mStartTime);
 }
 
 void LLViewerStatsRecorder::recordTextureFetch( S32 msg_size )
 {
-	mTextureFetchSize += msg_size;
+    mTextureFetchSize += msg_size;
 }
 
 

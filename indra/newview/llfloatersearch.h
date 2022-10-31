@@ -43,51 +43,51 @@ class LLMediaCtrl;
 /// so that the user can click on teleport links in search results.
 ///
 class LLFloaterSearch : 
-	public LLFloaterWebContent
+    public LLFloaterWebContent
 {
 public:
-	struct SearchQuery : public LLInitParam::Block<SearchQuery>
-	{
-		Optional<std::string> category;
+    struct SearchQuery : public LLInitParam::Block<SearchQuery>
+    {
+        Optional<std::string> category;
         Optional<std::string> collection;
-		Optional<std::string> query;
+        Optional<std::string> query;
 
-		SearchQuery();
-	};
+        SearchQuery();
+    };
 
-	struct _Params : public LLInitParam::Block<_Params, LLFloaterWebContent::Params>
-	{
-		Optional<SearchQuery> search;
-	};
+    struct _Params : public LLInitParam::Block<_Params, LLFloaterWebContent::Params>
+    {
+        Optional<SearchQuery> search;
+    };
 
-	typedef LLSDParamAdapter<_Params> Params;
+    typedef LLSDParamAdapter<_Params> Params;
 
-	LLFloaterSearch(const Params& key);
+    LLFloaterSearch(const Params& key);
 
-	/// show the search floater with a new search
-	/// see search() for details on the key parameter.
-	/*virtual*/ void onOpen(const LLSD& key);
+    /// show the search floater with a new search
+    /// see search() for details on the key parameter.
+    /*virtual*/ void onOpen(const LLSD& key);
 
-	/*virtual*/ void onClose(bool app_quitting);
+    /*virtual*/ void onClose(bool app_quitting);
 
-	/// perform a search with the specific search term.
-	/// The key should be a map that can contain the following keys:
-	///  - "id": specifies the text phrase to search for
-	///  - "category": one of "all" (default), "people", "places",
-	///    "events", "groups", "wiki", "destinations", "classifieds"
-	void search(const SearchQuery &query);
+    /// perform a search with the specific search term.
+    /// The key should be a map that can contain the following keys:
+    ///  - "id": specifies the text phrase to search for
+    ///  - "category": one of "all" (default), "people", "places",
+    ///    "events", "groups", "wiki", "destinations", "classifieds"
+    void search(const SearchQuery &query);
 
-	/// changing godmode can affect the search results that are
-	/// returned by the search website - use this method to tell the
-	/// search floater that the user has changed god level.
-	void godLevelChanged(U8 godlevel);
+    /// changing godmode can affect the search results that are
+    /// returned by the search website - use this method to tell the
+    /// search floater that the user has changed god level.
+    void godLevelChanged(U8 godlevel);
 
 private:
-	/*virtual*/ BOOL postBuild();
+    /*virtual*/ BOOL postBuild();
 
     std::set<std::string> mSearchType;
     std::set<std::string> mCollectionType;
-	U8          mSearchGodLevel;
+    U8          mSearchGodLevel;
 };
 
 #endif  // LL_LLFLOATERSEARCH_H

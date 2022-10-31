@@ -37,26 +37,26 @@ class LLColor4;
 
 class LLTextParser : public LLSingleton<LLTextParser>
 {
-	LLSINGLETON(LLTextParser);
+    LLSINGLETON(LLTextParser);
 
 public:
-	typedef enum e_condition_type { CONTAINS, MATCHES, STARTS_WITH, ENDS_WITH } EConditionType;
-	typedef enum e_highlight_type { PART, ALL } EHighlightType;
-	typedef enum e_highlight_position { WHOLE, START, MIDDLE, END } EHighlightPosition;
-	typedef enum e_dialog_action { ACTION_NONE, ACTION_CLOSE, ACTION_ADD, ACTION_COPY, ACTION_UPDATE } EDialogAction;
+    typedef enum e_condition_type { CONTAINS, MATCHES, STARTS_WITH, ENDS_WITH } EConditionType;
+    typedef enum e_highlight_type { PART, ALL } EHighlightType;
+    typedef enum e_highlight_position { WHOLE, START, MIDDLE, END } EHighlightPosition;
+    typedef enum e_dialog_action { ACTION_NONE, ACTION_CLOSE, ACTION_ADD, ACTION_COPY, ACTION_UPDATE } EDialogAction;
 
-	LLSD parsePartialLineHighlights(const std::string &text,const LLColor4 &color, EHighlightPosition part=WHOLE, S32 index=0);
-	bool parseFullLineHighlights(const std::string &text, LLColor4 *color);
+    LLSD parsePartialLineHighlights(const std::string &text,const LLColor4 &color, EHighlightPosition part=WHOLE, S32 index=0);
+    bool parseFullLineHighlights(const std::string &text, LLColor4 *color);
 
 private:
-	S32  findPattern(const std::string &text, LLSD highlight);
-	std::string getFileName();
-	void loadKeywords();
-	bool saveToDisk(LLSD highlights);
+    S32  findPattern(const std::string &text, LLSD highlight);
+    std::string getFileName();
+    void loadKeywords();
+    bool saveToDisk(LLSD highlights);
 
 public:
-	LLSD	mHighlights;
-	bool	mLoaded;
+    LLSD    mHighlights;
+    bool    mLoaded;
 };
 
 #endif

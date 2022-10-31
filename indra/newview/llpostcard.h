@@ -37,16 +37,16 @@
 /// set the status in the floater.
 class LLPostCard
 {
-	LOG_CLASS(LLPostCard);
+    LOG_CLASS(LLPostCard);
 
 public:
-	typedef boost::function<void(bool ok)> result_callback_t;
+    typedef boost::function<void(bool ok)> result_callback_t;
 
-	static void setPostResultCallback(result_callback_t cb) { mResultCallback = cb; }
-	static void reportPostResult(bool ok);
+    static void setPostResultCallback(result_callback_t cb) { mResultCallback = cb; }
+    static void reportPostResult(bool ok);
 
 private:
-	static result_callback_t mResultCallback;
+    static result_callback_t mResultCallback;
 };
 
 

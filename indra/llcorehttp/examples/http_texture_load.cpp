@@ -65,8 +65,8 @@ static char url_format[1024] = "http://example.com/some/path?texture_id=%s.textu
 
 #if defined(WIN32)
 
-#define	strncpy(_a, _b, _c)			strncpy_s(_a, _b, _c)
-#define strtok_r(_a, _b, _c)		strtok_s(_a, _b, _c)
+#define strncpy(_a, _b, _c)         strncpy_s(_a, _b, _c)
+#define strtok_r(_a, _b, _c)        strtok_s(_a, _b, _c)
 
 int getopt(int argc, char * const argv[], const char *optstring);
 char *optarg(NULL);
@@ -80,48 +80,48 @@ int optind(1);
 class WorkingSet : public LLCore::HttpHandler
 {
 public:
-	WorkingSet();
-	~WorkingSet();
+    WorkingSet();
+    ~WorkingSet();
 
-	bool reload(LLCore::HttpRequest *, LLCore::HttpOptions::ptr_t &);
-	
-	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+    bool reload(LLCore::HttpRequest *, LLCore::HttpOptions::ptr_t &);
+    
+    virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 
-	void loadAssetUuids(FILE * in);
-	
+    void loadAssetUuids(FILE * in);
+    
 public:
-	struct Spec
-	{
-		std::string		mUuid;
-		int				mOffset;
-		int				mLength;
-	};
-	typedef std::set<LLCore::HttpHandle> handle_set_t;
-	typedef std::vector<Spec> asset_list_t;
-	
+    struct Spec
+    {
+        std::string     mUuid;
+        int             mOffset;
+        int             mLength;
+    };
+    typedef std::set<LLCore::HttpHandle> handle_set_t;
+    typedef std::vector<Spec> asset_list_t;
+    
 public:
-	bool						mVerbose;
-	bool						mRandomRange;
-	bool						mNoRange;
-	int							mRequestLowWater;
-	int							mRequestHighWater;
-	handle_set_t				mHandles;
-	int							mRemaining;
-	int							mLimit;
-	int							mAt;
-	std::string					mUrl;
-	asset_list_t				mAssets;
-	int							mErrorsApi;
-	int							mErrorsHttp;
-	int							mErrorsHttp404;
-	int							mErrorsHttp416;
-	int							mErrorsHttp500;
-	int							mErrorsHttp503;
-	int							mRetries;
-	int							mRetriesHttp503;
-	int							mSuccesses;
-	long						mByteCount;
-	LLCore::HttpHeaders::ptr_t	mHeaders;
+    bool                        mVerbose;
+    bool                        mRandomRange;
+    bool                        mNoRange;
+    int                         mRequestLowWater;
+    int                         mRequestHighWater;
+    handle_set_t                mHandles;
+    int                         mRemaining;
+    int                         mLimit;
+    int                         mAt;
+    std::string                 mUrl;
+    asset_list_t                mAssets;
+    int                         mErrorsApi;
+    int                         mErrorsHttp;
+    int                         mErrorsHttp404;
+    int                         mErrorsHttp416;
+    int                         mErrorsHttp500;
+    int                         mErrorsHttp503;
+    int                         mRetries;
+    int                         mRetriesHttp503;
+    int                         mSuccesses;
+    long                        mByteCount;
+    LLCore::HttpHeaders::ptr_t  mHeaders;
 };
 
 
@@ -131,28 +131,28 @@ public:
 class Metrics
 {
 public:
-	class MetricsImpl;
-	
+    class MetricsImpl;
+    
 public:
-	Metrics();
-	~Metrics();
+    Metrics();
+    ~Metrics();
 
-	void init();
-	void sample();
-	void term();
+    void init();
+    void sample();
+    void term();
 
 protected:
-	MetricsImpl *		mImpl;
+    MetricsImpl *       mImpl;
 
 public:
-	U64					mMaxVSZ;
-	U64					mMinVSZ;
-	U64					mStartWallTime;
-	U64					mEndWallTime;
-	U64					mStartUTime;
-	U64					mEndUTime;
-	U64					mStartSTime;
-	U64					mEndSTime;
+    U64                 mMaxVSZ;
+    U64                 mMinVSZ;
+    U64                 mStartWallTime;
+    U64                 mEndWallTime;
+    U64                 mStartUTime;
+    U64                 mEndUTime;
+    U64                 mStartSTime;
+    U64                 mEndSTime;
 };
 
 
@@ -161,273 +161,273 @@ public:
 //
 int main(int argc, char** argv)
 {
-	LLCore::HttpStatus status;
-	bool do_random(false);
-	bool do_whole(false);
-	bool do_verbose(false);
-	
-	int option(-1);
-	while (-1 != (option = getopt(argc, argv, "u:c:h?RwvH:p:t:")))
-	{
-		switch (option)
-		{
-		case 'u':
-			strncpy(url_format, optarg, sizeof(url_format));
-			url_format[sizeof(url_format) - 1] = '\0';
-			break;
+    LLCore::HttpStatus status;
+    bool do_random(false);
+    bool do_whole(false);
+    bool do_verbose(false);
+    
+    int option(-1);
+    while (-1 != (option = getopt(argc, argv, "u:c:h?RwvH:p:t:")))
+    {
+        switch (option)
+        {
+        case 'u':
+            strncpy(url_format, optarg, sizeof(url_format));
+            url_format[sizeof(url_format) - 1] = '\0';
+            break;
 
-		case 'c':
-		    {
-				unsigned long value;
-				char * end;
+        case 'c':
+            {
+                unsigned long value;
+                char * end;
 
-				value = strtoul(optarg, &end, 10);
-				if (value < 1 || value > 100 || *end != '\0')
-				{
-					usage(std::cerr);
-					return 1;
-				}
-				concurrency_limit = value;
-			}
-			break;
+                value = strtoul(optarg, &end, 10);
+                if (value < 1 || value > 100 || *end != '\0')
+                {
+                    usage(std::cerr);
+                    return 1;
+                }
+                concurrency_limit = value;
+            }
+            break;
 
-		case 'H':
-		    {
-				unsigned long value;
-				char * end;
+        case 'H':
+            {
+                unsigned long value;
+                char * end;
 
-				value = strtoul(optarg, &end, 10);
-				if (value < 1 || value > 200 || *end != '\0')
-				{
-					usage(std::cerr);
-					return 1;
-				}
-				highwater = value;
-			}
-			break;
+                value = strtoul(optarg, &end, 10);
+                if (value < 1 || value > 200 || *end != '\0')
+                {
+                    usage(std::cerr);
+                    return 1;
+                }
+                highwater = value;
+            }
+            break;
 
-		case 'p':
-		    {
-				unsigned long value;
-				char * end;
+        case 'p':
+            {
+                unsigned long value;
+                char * end;
 
-				value = strtoul(optarg, &end, 10);
-				if (value > 100 || *end != '\0')
-				{
-					usage(std::cerr);
-					return 1;
-				}
-				pipeline_depth = value;
-			}
-			break;
+                value = strtoul(optarg, &end, 10);
+                if (value > 100 || *end != '\0')
+                {
+                    usage(std::cerr);
+                    return 1;
+                }
+                pipeline_depth = value;
+            }
+            break;
 
-		case '5':
-		    {
-				unsigned long value;
-				char * end;
+        case '5':
+            {
+                unsigned long value;
+                char * end;
 
-				value = strtoul(optarg, &end, 10);
-				if (value > 3 || *end != '\0')
-				{
-					usage(std::cerr);
-					return 1;
-				}
-				tracing = value;
-			}
-			break;
+                value = strtoul(optarg, &end, 10);
+                if (value > 3 || *end != '\0')
+                {
+                    usage(std::cerr);
+                    return 1;
+                }
+                tracing = value;
+            }
+            break;
 
-		case 'R':
-			do_random = true;
-			do_whole = false;
-			break;
+        case 'R':
+            do_random = true;
+            do_whole = false;
+            break;
 
-		case 'w':
-			do_whole = true;
-			do_random = false;
-			break;
+        case 'w':
+            do_whole = true;
+            do_random = false;
+            break;
 
-		case 'v':
-			do_verbose = true;
-			break;
-			
-		case 'h':
-		case '?':
-			usage(std::cout);
-			return 0;
-		}
-	}
+        case 'v':
+            do_verbose = true;
+            break;
+            
+        case 'h':
+        case '?':
+            usage(std::cout);
+            return 0;
+        }
+    }
 
-	if ((optind + 1) != argc)
-	{
-		usage(std::cerr);
-		return 1;
-	}
+    if ((optind + 1) != argc)
+    {
+        usage(std::cerr);
+        return 1;
+    }
 
-	FILE * uuids(fopen(argv[optind], "r"));
-	if (! uuids)
-	{
-		const char * errstr(strerror(errno));
-		
-		std::cerr << "Couldn't open UUID file '" << argv[optind] << "'.  Reason:  "
-				  << errstr << std::endl;
-		return 1;
-	}
-	
-	// Initialization
-	init_curl();
-	LLCore::HttpRequest::createService();
-	LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CONNECTION_LIMIT,
-											   LLCore::HttpRequest::DEFAULT_POLICY_ID,
-											   concurrency_limit,
-											   NULL);
-	LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_PER_HOST_CONNECTION_LIMIT,
-											   LLCore::HttpRequest::DEFAULT_POLICY_ID,
-											   concurrency_limit,
-											   NULL);
-	if (pipeline_depth)
-	{
-		LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_PIPELINING_DEPTH,
-												   LLCore::HttpRequest::DEFAULT_POLICY_ID,
-												   pipeline_depth,
-												   NULL);
-	}
-	if (tracing)
-	{
-		LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_TRACE,
-												   LLCore::HttpRequest::DEFAULT_POLICY_ID,
-												   tracing,
-												   NULL);
-	}
-	LLCore::HttpRequest::startThread();
-	
-	// Get service point
-	LLCore::HttpRequest * hr = new LLCore::HttpRequest();
+    FILE * uuids(fopen(argv[optind], "r"));
+    if (! uuids)
+    {
+        const char * errstr(strerror(errno));
+        
+        std::cerr << "Couldn't open UUID file '" << argv[optind] << "'.  Reason:  "
+                  << errstr << std::endl;
+        return 1;
+    }
+    
+    // Initialization
+    init_curl();
+    LLCore::HttpRequest::createService();
+    LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CONNECTION_LIMIT,
+                                               LLCore::HttpRequest::DEFAULT_POLICY_ID,
+                                               concurrency_limit,
+                                               NULL);
+    LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_PER_HOST_CONNECTION_LIMIT,
+                                               LLCore::HttpRequest::DEFAULT_POLICY_ID,
+                                               concurrency_limit,
+                                               NULL);
+    if (pipeline_depth)
+    {
+        LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_PIPELINING_DEPTH,
+                                                   LLCore::HttpRequest::DEFAULT_POLICY_ID,
+                                                   pipeline_depth,
+                                                   NULL);
+    }
+    if (tracing)
+    {
+        LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_TRACE,
+                                                   LLCore::HttpRequest::DEFAULT_POLICY_ID,
+                                                   tracing,
+                                                   NULL);
+    }
+    LLCore::HttpRequest::startThread();
+    
+    // Get service point
+    LLCore::HttpRequest * hr = new LLCore::HttpRequest();
 
-	// Get request options
-	LLCore::HttpOptions::ptr_t opt = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions());
-	opt->setRetries(12);
-	opt->setUseRetryAfter(true);
-	
-	// Get a handler/working set
-	WorkingSet ws;
+    // Get request options
+    LLCore::HttpOptions::ptr_t opt = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions());
+    opt->setRetries(12);
+    opt->setUseRetryAfter(true);
+    
+    // Get a handler/working set
+    WorkingSet ws;
 
-	// Fill the working set with work
-	ws.mUrl = url_format;
-	ws.loadAssetUuids(uuids);
-	ws.mRandomRange = do_random;
-	ws.mNoRange = do_whole;
-	ws.mVerbose = do_verbose;
-	ws.mRequestHighWater = highwater;
-	ws.mRequestLowWater = ws.mRequestHighWater / 2;
-	
-	if (! ws.mAssets.size())
-	{
-		std::cerr << "No UUIDs found in file '" << argv[optind] << "'." << std::endl;
-		return 1;
-	}
+    // Fill the working set with work
+    ws.mUrl = url_format;
+    ws.loadAssetUuids(uuids);
+    ws.mRandomRange = do_random;
+    ws.mNoRange = do_whole;
+    ws.mVerbose = do_verbose;
+    ws.mRequestHighWater = highwater;
+    ws.mRequestLowWater = ws.mRequestHighWater / 2;
+    
+    if (! ws.mAssets.size())
+    {
+        std::cerr << "No UUIDs found in file '" << argv[optind] << "'." << std::endl;
+        return 1;
+    }
 
-	// Setup metrics
-	Metrics metrics;
-	metrics.init();
-	
-	// Run it
-	int passes(0);
-	while (! ws.reload(hr, opt))
-	{
-		hr->update(0);
-		ms_sleep(2);
-		if (0 == (++passes % 200))
-		{
-			metrics.sample();
-		}
-	}
-	metrics.sample();
-	metrics.term();
+    // Setup metrics
+    Metrics metrics;
+    metrics.init();
+    
+    // Run it
+    int passes(0);
+    while (! ws.reload(hr, opt))
+    {
+        hr->update(0);
+        ms_sleep(2);
+        if (0 == (++passes % 200))
+        {
+            metrics.sample();
+        }
+    }
+    metrics.sample();
+    metrics.term();
 
-	// Report
-	std::cout << "HTTP errors: " << ws.mErrorsHttp << "  API errors:  " << ws.mErrorsApi
-			  << "  Successes:  " << ws.mSuccesses << "  Byte count:  " << ws.mByteCount
-			  << std::endl;
-	std::cout << "HTTP 404 errors: " << ws.mErrorsHttp404 << "  HTTP 416 errors: " << ws.mErrorsHttp416
-			  << "  HTTP 500 errors:  " << ws.mErrorsHttp500 << "  HTTP 503 errors: " << ws.mErrorsHttp503 
-			  << std::endl;
-	std::cout << "Retries: " << ws.mRetries << "  Retries on 503: " << ws.mRetriesHttp503
-			  << std::endl;
-	std::cout << "User CPU: " << (metrics.mEndUTime - metrics.mStartUTime)
-			  << " uS  System CPU: " << (metrics.mEndSTime - metrics.mStartSTime)
-			  << " uS  Wall Time: "  << (metrics.mEndWallTime - metrics.mStartWallTime)
-			  << " uS  Maximum VSZ: " << metrics.mMaxVSZ
-			  << " Bytes  Minimum VSZ: " << metrics.mMinVSZ << " Bytes"
-			  << std::endl;
+    // Report
+    std::cout << "HTTP errors: " << ws.mErrorsHttp << "  API errors:  " << ws.mErrorsApi
+              << "  Successes:  " << ws.mSuccesses << "  Byte count:  " << ws.mByteCount
+              << std::endl;
+    std::cout << "HTTP 404 errors: " << ws.mErrorsHttp404 << "  HTTP 416 errors: " << ws.mErrorsHttp416
+              << "  HTTP 500 errors:  " << ws.mErrorsHttp500 << "  HTTP 503 errors: " << ws.mErrorsHttp503 
+              << std::endl;
+    std::cout << "Retries: " << ws.mRetries << "  Retries on 503: " << ws.mRetriesHttp503
+              << std::endl;
+    std::cout << "User CPU: " << (metrics.mEndUTime - metrics.mStartUTime)
+              << " uS  System CPU: " << (metrics.mEndSTime - metrics.mStartSTime)
+              << " uS  Wall Time: "  << (metrics.mEndWallTime - metrics.mStartWallTime)
+              << " uS  Maximum VSZ: " << metrics.mMaxVSZ
+              << " Bytes  Minimum VSZ: " << metrics.mMinVSZ << " Bytes"
+              << std::endl;
 
-	// Clean up
-	hr->requestStopThread(LLCore::HttpHandler::ptr_t());
-	ms_sleep(1000);
+    // Clean up
+    hr->requestStopThread(LLCore::HttpHandler::ptr_t());
+    ms_sleep(1000);
     opt.reset();
-	delete hr;
-	LLCore::HttpRequest::destroyService();
-	term_curl();
-	
+    delete hr;
+    LLCore::HttpRequest::destroyService();
+    term_curl();
+    
     return 0;
 }
 
 
 void usage(std::ostream & out)
 {
-	out << "\n"
-		"usage:\thttp_texture_load [options]  uuid_file\n"
-		"\n"
-		"This is a standalone program to drive the New Platform HTTP Library.\n"
-		"The program is supplied with a file of texture UUIDs, one per line\n"
-		"These are fetched sequentially using a pool of concurrent connection\n"
-		"until all are fetched.  The default URL format is only useful from\n"
-		"within Linden Lab but this can be overriden with a printf-style\n"
-		"URL formatting string on the command line.\n"
-		"\n"
-		"Options:\n"
-		"\n"
-		" -u <url_format>       printf-style format string for URL generation\n"
-		"                       Default:  " << url_format << "\n"
-		" -R                    Issue GETs with random Range: headers\n"
-		" -w                    Issue GETs without Range: headers to get whole object\n"
-		" -c <limit>            Maximum connection concurrency.  Range:  [1..100]\n"
-		"                       Default:  " << concurrency_limit << "\n"
-		" -H <limit>            HTTP request highwater (requests fed to llcorehttp).\n"
-		"                       Range:  [1..200]  Default:  " << highwater << "\n"
-		" -p <depth>            If <depth> is positive, enables and sets pipelineing\n"
-		"                       depth on HTTP requests.  Default:  " << pipeline_depth << "\n"
-		" -t <level>            If <level> is positive ([1..3]), enables and sets HTTP\n"
-		"                       tracing on HTTP requests.  Default:  " << tracing << "\n"
-		" -v                    Verbose mode.  Issue some chatter while running\n"
-		" -h                    print this help\n"
-		"\n"
-		<< std::endl;
+    out << "\n"
+        "usage:\thttp_texture_load [options]  uuid_file\n"
+        "\n"
+        "This is a standalone program to drive the New Platform HTTP Library.\n"
+        "The program is supplied with a file of texture UUIDs, one per line\n"
+        "These are fetched sequentially using a pool of concurrent connection\n"
+        "until all are fetched.  The default URL format is only useful from\n"
+        "within Linden Lab but this can be overriden with a printf-style\n"
+        "URL formatting string on the command line.\n"
+        "\n"
+        "Options:\n"
+        "\n"
+        " -u <url_format>       printf-style format string for URL generation\n"
+        "                       Default:  " << url_format << "\n"
+        " -R                    Issue GETs with random Range: headers\n"
+        " -w                    Issue GETs without Range: headers to get whole object\n"
+        " -c <limit>            Maximum connection concurrency.  Range:  [1..100]\n"
+        "                       Default:  " << concurrency_limit << "\n"
+        " -H <limit>            HTTP request highwater (requests fed to llcorehttp).\n"
+        "                       Range:  [1..200]  Default:  " << highwater << "\n"
+        " -p <depth>            If <depth> is positive, enables and sets pipelineing\n"
+        "                       depth on HTTP requests.  Default:  " << pipeline_depth << "\n"
+        " -t <level>            If <level> is positive ([1..3]), enables and sets HTTP\n"
+        "                       tracing on HTTP requests.  Default:  " << tracing << "\n"
+        " -v                    Verbose mode.  Issue some chatter while running\n"
+        " -h                    print this help\n"
+        "\n"
+        << std::endl;
 }
 
 
 WorkingSet::WorkingSet()
-	: LLCore::HttpHandler(),
-	  mVerbose(false),
-	  mRandomRange(false),
-	  mNoRange(false),
-	  mRemaining(200),
-	  mLimit(200),
-	  mAt(0),
-	  mErrorsApi(0),
-	  mErrorsHttp(0),
-	  mErrorsHttp404(0),
-	  mErrorsHttp416(0),
-	  mErrorsHttp500(0),
-	  mErrorsHttp503(0),
-	  mRetries(0),
-	  mRetriesHttp503(0),
-	  mSuccesses(0),
-	  mByteCount(0L)
+    : LLCore::HttpHandler(),
+      mVerbose(false),
+      mRandomRange(false),
+      mNoRange(false),
+      mRemaining(200),
+      mLimit(200),
+      mAt(0),
+      mErrorsApi(0),
+      mErrorsHttp(0),
+      mErrorsHttp404(0),
+      mErrorsHttp416(0),
+      mErrorsHttp500(0),
+      mErrorsHttp503(0),
+      mRetries(0),
+      mRetriesHttp503(0),
+      mSuccesses(0),
+      mByteCount(0L)
 {
-	mAssets.reserve(30000);
+    mAssets.reserve(30000);
 
-	mHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders);
-	mHeaders->append("Accept", "image/x-j2c");
+    mHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders);
+    mHeaders->append("Accept", "image/x-j2c");
 }
 
 
@@ -443,166 +443,166 @@ namespace
 
 bool WorkingSet::reload(LLCore::HttpRequest * hr, LLCore::HttpOptions::ptr_t & opt)
 {
-	if (mRequestLowWater <= mHandles.size())
-	{
-		// Haven't fallen below low-water level yet.
-		return false;
-	}
-	
-	int to_do((std::min)(mRemaining, mRequestHighWater - int(mHandles.size())));
+    if (mRequestLowWater <= mHandles.size())
+    {
+        // Haven't fallen below low-water level yet.
+        return false;
+    }
+    
+    int to_do((std::min)(mRemaining, mRequestHighWater - int(mHandles.size())));
 
-	for (int i(0); i < to_do; ++i)
-	{
-		char buffer[1024];
-#if	defined(WIN32)
-		_snprintf_s(buffer, sizeof(buffer), sizeof(buffer) - 1, mUrl.c_str(), mAssets[mAt].mUuid.c_str());
+    for (int i(0); i < to_do; ++i)
+    {
+        char buffer[1024];
+#if defined(WIN32)
+        _snprintf_s(buffer, sizeof(buffer), sizeof(buffer) - 1, mUrl.c_str(), mAssets[mAt].mUuid.c_str());
 #else
-		snprintf(buffer, sizeof(buffer), mUrl.c_str(), mAssets[mAt].mUuid.c_str());
+        snprintf(buffer, sizeof(buffer), mUrl.c_str(), mAssets[mAt].mUuid.c_str());
 #endif
-		int offset(mNoRange
-				   ? 0
-				   : (mRandomRange ? ((unsigned long) rand()) % 1000000UL : mAssets[mAt].mOffset));
-		int length(mNoRange
-				   ? 0
-				   : (mRandomRange ? ((unsigned long) rand()) % 1000000UL : mAssets[mAt].mLength));
+        int offset(mNoRange
+                   ? 0
+                   : (mRandomRange ? ((unsigned long) rand()) % 1000000UL : mAssets[mAt].mOffset));
+        int length(mNoRange
+                   ? 0
+                   : (mRandomRange ? ((unsigned long) rand()) % 1000000UL : mAssets[mAt].mLength));
 
-		LLCore::HttpHandle handle;
-		if (offset || length)
-		{
-			handle = hr->requestGetByteRange(0, 0, buffer, offset, length, opt, mHeaders, LLCore::HttpHandler::ptr_t(this, NoOpDeletor));
-		}
-		else
-		{
+        LLCore::HttpHandle handle;
+        if (offset || length)
+        {
+            handle = hr->requestGetByteRange(0, 0, buffer, offset, length, opt, mHeaders, LLCore::HttpHandler::ptr_t(this, NoOpDeletor));
+        }
+        else
+        {
             handle = hr->requestGet(0, 0, buffer, opt, mHeaders, LLCore::HttpHandler::ptr_t(this, NoOpDeletor));
-		}
-		if (! handle)
-		{
-			// Fatal.  Couldn't queue up something.
-			std::cerr << "Failed to queue work to HTTP Service.  Reason:  "
-					  << hr->getStatus().toString() << std::endl;
-			exit(1);
-		}
-		else
-		{
-			mHandles.insert(handle);
-		}
-		mAt++;
-		mRemaining--;
+        }
+        if (! handle)
+        {
+            // Fatal.  Couldn't queue up something.
+            std::cerr << "Failed to queue work to HTTP Service.  Reason:  "
+                      << hr->getStatus().toString() << std::endl;
+            exit(1);
+        }
+        else
+        {
+            mHandles.insert(handle);
+        }
+        mAt++;
+        mRemaining--;
 
-		if (mVerbose)
-		{
-			static int count(0);
-			++count;
-			if (0 == (count %5))
-				std::cout << "Queued " << count << std::endl;
-		}
-	}
+        if (mVerbose)
+        {
+            static int count(0);
+            ++count;
+            if (0 == (count %5))
+                std::cout << "Queued " << count << std::endl;
+        }
+    }
 
-	// Are we done?
-	return (! mRemaining) && mHandles.empty();
+    // Are we done?
+    return (! mRemaining) && mHandles.empty();
 }
-	
+    
 
 void WorkingSet::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
 {
-	handle_set_t::iterator it(mHandles.find(handle));
-	if (mHandles.end() == it)
-	{
-		// Wha?
-		std::cerr << "Failed to find handle in request list.  Fatal." << std::endl;
-		exit(1);
-	}
-	else
-	{
-		LLCore::HttpStatus status(response->getStatus());
-		if (status)
-		{
-			// More success
-			LLCore::BufferArray * data(response->getBody());
-			mByteCount += data ? data->size() : 0;
-			++mSuccesses;
-		}
-		else
-		{
-			// Something in this library or libcurl
-			if (status.isHttpStatus())
-			{
-				static const LLCore::HttpStatus hs404(404);
-				static const LLCore::HttpStatus hs416(416);
-				static const LLCore::HttpStatus hs500(500);
-				static const LLCore::HttpStatus hs503(503);
-				
-				++mErrorsHttp;
-				if (hs404 == status)
-				{
-					++mErrorsHttp404;
-				}
-				else if (hs416 == status)
-				{
-					++mErrorsHttp416;
-				}
-				else if (hs500 == status)
-				{
-					++mErrorsHttp500;
-				}
-				else if (hs503 == status)
-				{
-					++mErrorsHttp503;
-				}
-			}
-			else
-			{
-				++mErrorsApi;
-			}
-		}
-		unsigned int retry(0U), retry_503(0U);
-		response->getRetries(&retry, &retry_503);
-		mRetries += int(retry);
-		mRetriesHttp503 += int(retry_503);
-		mHandles.erase(it);
-	}
+    handle_set_t::iterator it(mHandles.find(handle));
+    if (mHandles.end() == it)
+    {
+        // Wha?
+        std::cerr << "Failed to find handle in request list.  Fatal." << std::endl;
+        exit(1);
+    }
+    else
+    {
+        LLCore::HttpStatus status(response->getStatus());
+        if (status)
+        {
+            // More success
+            LLCore::BufferArray * data(response->getBody());
+            mByteCount += data ? data->size() : 0;
+            ++mSuccesses;
+        }
+        else
+        {
+            // Something in this library or libcurl
+            if (status.isHttpStatus())
+            {
+                static const LLCore::HttpStatus hs404(404);
+                static const LLCore::HttpStatus hs416(416);
+                static const LLCore::HttpStatus hs500(500);
+                static const LLCore::HttpStatus hs503(503);
+                
+                ++mErrorsHttp;
+                if (hs404 == status)
+                {
+                    ++mErrorsHttp404;
+                }
+                else if (hs416 == status)
+                {
+                    ++mErrorsHttp416;
+                }
+                else if (hs500 == status)
+                {
+                    ++mErrorsHttp500;
+                }
+                else if (hs503 == status)
+                {
+                    ++mErrorsHttp503;
+                }
+            }
+            else
+            {
+                ++mErrorsApi;
+            }
+        }
+        unsigned int retry(0U), retry_503(0U);
+        response->getRetries(&retry, &retry_503);
+        mRetries += int(retry);
+        mRetriesHttp503 += int(retry_503);
+        mHandles.erase(it);
+    }
 
-	if (mVerbose)
-	{
-		static int count(0);
-		++count;
-		if (0 == (count %5))
-			std::cout << "Handled " << count << std::endl;
-	}
+    if (mVerbose)
+    {
+        static int count(0);
+        ++count;
+        if (0 == (count %5))
+            std::cout << "Handled " << count << std::endl;
+    }
 }
 
 
 void WorkingSet::loadAssetUuids(FILE * in)
 {
-	char buffer[1024];
+    char buffer[1024];
 
-	while (fgets(buffer, sizeof(buffer), in))
-	{
-		WorkingSet::Spec asset;
-		char * state(NULL);
-		char * token = strtok_r(buffer, " \t\n,", &state);
-		if (token && 36 == strlen(token))
-		{
-			// Close enough for this function
-			asset.mUuid = token;
-			asset.mOffset = 0;
-			asset.mLength = 0;
-			token = strtok_r(buffer, " \t\n,", &state);
-			if (token)
-			{
-				int offset(atoi(token));
-				token = strtok_r(buffer, " \t\n,", &state);
-				if (token)
-				{
-					int length(atoi(token));
-					asset.mOffset = offset;
-					asset.mLength = length;
-				}
-			}
-			mAssets.push_back(asset);
-		}
-	}
-	mRemaining = mLimit = mAssets.size();
+    while (fgets(buffer, sizeof(buffer), in))
+    {
+        WorkingSet::Spec asset;
+        char * state(NULL);
+        char * token = strtok_r(buffer, " \t\n,", &state);
+        if (token && 36 == strlen(token))
+        {
+            // Close enough for this function
+            asset.mUuid = token;
+            asset.mOffset = 0;
+            asset.mLength = 0;
+            token = strtok_r(buffer, " \t\n,", &state);
+            if (token)
+            {
+                int offset(atoi(token));
+                token = strtok_r(buffer, " \t\n,", &state);
+                if (token)
+                {
+                    int length(atoi(token));
+                    asset.mOffset = offset;
+                    asset.mLength = length;
+                }
+            }
+            mAssets.push_back(asset);
+        }
+    }
+    mRemaining = mLimit = mAssets.size();
 }
 
 
@@ -611,58 +611,58 @@ LLCoreInt::HttpMutex ** ssl_mutex_list = NULL;
 
 void init_curl()
 {
-	curl_global_init(CURL_GLOBAL_ALL);
+    curl_global_init(CURL_GLOBAL_ALL);
 
-	ssl_mutex_count = CRYPTO_num_locks();
-	if (ssl_mutex_count > 0)
-	{
-		ssl_mutex_list = new LLCoreInt::HttpMutex * [ssl_mutex_count];
-		
-		for (int i(0); i < ssl_mutex_count; ++i)
-		{
-			ssl_mutex_list[i] = new LLCoreInt::HttpMutex;
-		}
+    ssl_mutex_count = CRYPTO_num_locks();
+    if (ssl_mutex_count > 0)
+    {
+        ssl_mutex_list = new LLCoreInt::HttpMutex * [ssl_mutex_count];
+        
+        for (int i(0); i < ssl_mutex_count; ++i)
+        {
+            ssl_mutex_list[i] = new LLCoreInt::HttpMutex;
+        }
 
-		CRYPTO_set_locking_callback(ssl_locking_callback);
-		CRYPTO_THREADID_set_callback(ssl_thread_id_callback);
-	}
+        CRYPTO_set_locking_callback(ssl_locking_callback);
+        CRYPTO_THREADID_set_callback(ssl_thread_id_callback);
+    }
 }
 
 
 void term_curl()
 {
-	CRYPTO_set_locking_callback(NULL);
-	for (int i(0); i < ssl_mutex_count; ++i)
-	{
-		delete ssl_mutex_list[i];
-	}
-	delete [] ssl_mutex_list;
+    CRYPTO_set_locking_callback(NULL);
+    for (int i(0); i < ssl_mutex_count; ++i)
+    {
+        delete ssl_mutex_list[i];
+    }
+    delete [] ssl_mutex_list;
 }
 
 
 void ssl_thread_id_callback(CRYPTO_THREADID* pthreadid)
 {
 #if defined(WIN32)
-	CRYPTO_THREADID_set_pointer(pthreadid, GetCurrentThread());
+    CRYPTO_THREADID_set_pointer(pthreadid, GetCurrentThread());
 #else
-	CRYPTO_THREADID_set_pointer(pthreadid, pthread_self());
+    CRYPTO_THREADID_set_pointer(pthreadid, pthread_self());
 #endif
 }
 
 
 void ssl_locking_callback(int mode, int type, const char * /* file */, int /* line */)
 {
-	if (type >= 0 && type < ssl_mutex_count)
-	{
-		if (mode & CRYPTO_LOCK)
-		{
-			ssl_mutex_list[type]->lock();
-		}
-		else
-		{
-			ssl_mutex_list[type]->unlock();
-		}
-	}
+    if (type >= 0 && type < ssl_mutex_count)
+    {
+        if (mode & CRYPTO_LOCK)
+        {
+            ssl_mutex_list[type]->lock();
+        }
+        else
+        {
+            ssl_mutex_list[type]->unlock();
+        }
+    }
 }
 
 
@@ -672,41 +672,41 @@ void ssl_locking_callback(int mode, int type, const char * /* file */, int /* li
 // it too hard...
 int getopt(int argc, char * const argv[], const char *optstring)
 {
-	static int pos(0);
-	while (optind < argc)
-	{
-		if (pos == 0)
-		{
-			if (argv[optind][0] != '-')
-				return -1;
-			pos = 1;
-		}
-		if (! argv[optind][pos])
-		{
-			++optind;
-			pos = 0;
-			continue;
-		}
-		const char * thing(strchr(optstring, argv[optind][pos]));
-		if (! thing)
-		{
-			++optind;
-			return -1;
-		}
-		if (thing[1] == ':')
-		{
-			optarg = argv[++optind];
-			++optind;
-			pos = 0;
-		}
-		else
-		{
-			optarg = NULL;
-			++pos;
-		}
-		return *thing;
-	}
-	return -1;
+    static int pos(0);
+    while (optind < argc)
+    {
+        if (pos == 0)
+        {
+            if (argv[optind][0] != '-')
+                return -1;
+            pos = 1;
+        }
+        if (! argv[optind][pos])
+        {
+            ++optind;
+            pos = 0;
+            continue;
+        }
+        const char * thing(strchr(optstring, argv[optind][pos]));
+        if (! thing)
+        {
+            ++optind;
+            return -1;
+        }
+        if (thing[1] == ':')
+        {
+            optarg = argv[++optind];
+            ++optind;
+            pos = 0;
+        }
+        else
+        {
+            optarg = NULL;
+            ++pos;
+        }
+        return *thing;
+    }
+    return -1;
 }
 
 #endif
@@ -715,63 +715,63 @@ int getopt(int argc, char * const argv[], const char *optstring)
 
 #if LL_WINDOWS
 
-#define	PSAPI_VERSION	1
+#define PSAPI_VERSION   1
 #include "windows.h"
 #include "psapi.h"
 
 class Metrics::MetricsImpl
 {
 public:
-	MetricsImpl()
-		{}
+    MetricsImpl()
+        {}
 
-	~MetricsImpl()
-		{}
+    ~MetricsImpl()
+        {}
 
-	void init(Metrics * metrics)
-		{
-			HANDLE self(GetCurrentProcess());		// Does not have to be closed
-			FILETIME ft_dummy, ft_system, ft_user;
-			GetProcessTimes(self, &ft_dummy, &ft_dummy, &ft_system, &ft_user);
-			ULARGE_INTEGER uli;
-			uli.u.LowPart = ft_system.dwLowDateTime;
-			uli.u.HighPart = ft_system.dwHighDateTime;
-			metrics->mStartSTime = uli.QuadPart / U64L(10);		// Convert to uS
-			uli.u.LowPart = ft_user.dwLowDateTime;
-			uli.u.HighPart = ft_user.dwHighDateTime;
-			metrics->mStartUTime = uli.QuadPart / U64L(10);
-			metrics->mStartWallTime = totalTime();
-		}
+    void init(Metrics * metrics)
+        {
+            HANDLE self(GetCurrentProcess());       // Does not have to be closed
+            FILETIME ft_dummy, ft_system, ft_user;
+            GetProcessTimes(self, &ft_dummy, &ft_dummy, &ft_system, &ft_user);
+            ULARGE_INTEGER uli;
+            uli.u.LowPart = ft_system.dwLowDateTime;
+            uli.u.HighPart = ft_system.dwHighDateTime;
+            metrics->mStartSTime = uli.QuadPart / U64L(10);     // Convert to uS
+            uli.u.LowPart = ft_user.dwLowDateTime;
+            uli.u.HighPart = ft_user.dwHighDateTime;
+            metrics->mStartUTime = uli.QuadPart / U64L(10);
+            metrics->mStartWallTime = totalTime();
+        }
 
-	void sample(Metrics * metrics)
-		{
-			PROCESS_MEMORY_COUNTERS_EX	counters;
+    void sample(Metrics * metrics)
+        {
+            PROCESS_MEMORY_COUNTERS_EX  counters;
 
-			GetProcessMemoryInfo(GetCurrentProcess(),
-								 (PROCESS_MEMORY_COUNTERS *) &counters,
-								 sizeof(counters));
-			// Okay, PrivateUsage isn't truly VSZ but it will be
-			// a good tracker for leaks and fragmentation.  Work on
-			// a better estimator later...
-			SIZE_T vsz(counters.PrivateUsage);
-			metrics->mMaxVSZ = (std::max)(metrics->mMaxVSZ, U64(vsz));
-			metrics->mMinVSZ = (std::min)(metrics->mMinVSZ, U64(vsz));
-		}
+            GetProcessMemoryInfo(GetCurrentProcess(),
+                                 (PROCESS_MEMORY_COUNTERS *) &counters,
+                                 sizeof(counters));
+            // Okay, PrivateUsage isn't truly VSZ but it will be
+            // a good tracker for leaks and fragmentation.  Work on
+            // a better estimator later...
+            SIZE_T vsz(counters.PrivateUsage);
+            metrics->mMaxVSZ = (std::max)(metrics->mMaxVSZ, U64(vsz));
+            metrics->mMinVSZ = (std::min)(metrics->mMinVSZ, U64(vsz));
+        }
 
-	void term(Metrics * metrics)
-		{
-			HANDLE self(GetCurrentProcess());		// Does not have to be closed
-			FILETIME ft_dummy, ft_system, ft_user;
-			GetProcessTimes(self, &ft_dummy, &ft_dummy, &ft_system, &ft_user);
-			ULARGE_INTEGER uli;
-			uli.u.LowPart = ft_system.dwLowDateTime;
-			uli.u.HighPart = ft_system.dwHighDateTime;
-			metrics->mEndSTime = uli.QuadPart / U64L(10);
-			uli.u.LowPart = ft_user.dwLowDateTime;
-			uli.u.HighPart = ft_user.dwHighDateTime;
-			metrics->mEndUTime = uli.QuadPart / U64L(10);
-			metrics->mEndWallTime = totalTime();
-		}
+    void term(Metrics * metrics)
+        {
+            HANDLE self(GetCurrentProcess());       // Does not have to be closed
+            FILETIME ft_dummy, ft_system, ft_user;
+            GetProcessTimes(self, &ft_dummy, &ft_dummy, &ft_system, &ft_user);
+            ULARGE_INTEGER uli;
+            uli.u.LowPart = ft_system.dwLowDateTime;
+            uli.u.HighPart = ft_system.dwHighDateTime;
+            metrics->mEndSTime = uli.QuadPart / U64L(10);
+            uli.u.LowPart = ft_user.dwLowDateTime;
+            uli.u.HighPart = ft_user.dwHighDateTime;
+            metrics->mEndUTime = uli.QuadPart / U64L(10);
+            metrics->mEndWallTime = totalTime();
+        }
 
 protected:
 };
@@ -780,82 +780,82 @@ protected:
 
 #include <sys/resource.h>
 #include <mach/mach.h>
-	
+    
 class Metrics::MetricsImpl
 {
 public:
-	MetricsImpl()
-		{}
+    MetricsImpl()
+        {}
 
-	~MetricsImpl()
-		{}
+    ~MetricsImpl()
+        {}
 
-	void init(Metrics * metrics)
-		{
-			U64 utime, stime;
+    void init(Metrics * metrics)
+        {
+            U64 utime, stime;
 
-			if (getTimes(&utime, &stime))
-			{
-				metrics->mStartSTime = stime;
-				metrics->mStartUTime = utime;
-			}
-			metrics->mStartWallTime = totalTime();
-			sample(metrics);
-		}
+            if (getTimes(&utime, &stime))
+            {
+                metrics->mStartSTime = stime;
+                metrics->mStartUTime = utime;
+            }
+            metrics->mStartWallTime = totalTime();
+            sample(metrics);
+        }
 
-	void sample(Metrics * metrics)
-		{
-			U64 vsz;
-			
-			if (getVM(&vsz))
-			{
-				metrics->mMaxVSZ = (std::max)(metrics->mMaxVSZ, vsz);
-				metrics->mMinVSZ = (std::min)(metrics->mMinVSZ, vsz);
-			}
-		}
+    void sample(Metrics * metrics)
+        {
+            U64 vsz;
+            
+            if (getVM(&vsz))
+            {
+                metrics->mMaxVSZ = (std::max)(metrics->mMaxVSZ, vsz);
+                metrics->mMinVSZ = (std::min)(metrics->mMinVSZ, vsz);
+            }
+        }
 
-	void term(Metrics * metrics)
-		{
-			U64 utime, stime;
+    void term(Metrics * metrics)
+        {
+            U64 utime, stime;
 
-			if (getTimes(&utime, &stime))
-			{
-				metrics->mEndSTime = stime;
-				metrics->mEndUTime = utime;
-			}
-			metrics->mEndWallTime = totalTime();
-		}
+            if (getTimes(&utime, &stime))
+            {
+                metrics->mEndSTime = stime;
+                metrics->mEndUTime = utime;
+            }
+            metrics->mEndWallTime = totalTime();
+        }
 
 protected:
-	bool getVM(U64 * vsz)
-		{
-			task_basic_info				task_info_block;
-			mach_msg_type_number_t		task_info_count(TASK_BASIC_INFO_COUNT);
+    bool getVM(U64 * vsz)
+        {
+            task_basic_info             task_info_block;
+            mach_msg_type_number_t      task_info_count(TASK_BASIC_INFO_COUNT);
 
-			if (KERN_SUCCESS != task_info(mach_task_self(),
-										  TASK_BASIC_INFO,
-										  (task_info_t) &task_info_block,
-										  &task_info_count))
-			{
-				return false;
-			}
-			* vsz = task_info_block.virtual_size;
-			return true;
-		}
+            if (KERN_SUCCESS != task_info(mach_task_self(),
+                                          TASK_BASIC_INFO,
+                                          (task_info_t) &task_info_block,
+                                          &task_info_count))
+            {
+                return false;
+            }
+            * vsz = task_info_block.virtual_size;
+            return true;
+        }
 
-	bool getTimes(U64 * utime, U64 * stime)
-		{
-			struct rusage usage;
+    bool getTimes(U64 * utime, U64 * stime)
+        {
+            struct rusage usage;
 
-			if (getrusage(RUSAGE_SELF, &usage))
-			{
-				return false;
-			}
-			* utime = U64(usage.ru_utime.tv_sec) * U64L(1000000) + usage.ru_utime.tv_usec;
-			* stime = U64(usage.ru_stime.tv_sec) * U64L(1000000) + usage.ru_stime.tv_usec;
-			return true;
-		}
-	
+            if (getrusage(RUSAGE_SELF, &usage))
+            {
+                return false;
+            }
+            * utime = U64(usage.ru_utime.tv_sec) * U64L(1000000) + usage.ru_utime.tv_usec;
+            * stime = U64(usage.ru_stime.tv_sec) * U64L(1000000) + usage.ru_stime.tv_usec;
+            return true;
+        }
+    
 };
 
 #else
@@ -863,198 +863,198 @@ protected:
 class Metrics::MetricsImpl
 {
 public:
-	MetricsImpl()
-		: mProcFS(NULL),
-		  mUsecsPerTick(U64L(0))
-		{}
+    MetricsImpl()
+        : mProcFS(NULL),
+          mUsecsPerTick(U64L(0))
+        {}
 
-	
-	~MetricsImpl()
-		{
-			if (mProcFS)
-			{
-				fclose(mProcFS);
-				mProcFS = NULL;
-			}
-		}
+    
+    ~MetricsImpl()
+        {
+            if (mProcFS)
+            {
+                fclose(mProcFS);
+                mProcFS = NULL;
+            }
+        }
 
-	void init(Metrics * metrics)
-		{
-			if (! mProcFS)
-			{
-				mProcFS = fopen("/proc/self/stat", "r");
-				if (! mProcFS)
-				{
-					const int errnum(errno);
-					LL_ERRS("Main") << "Error opening proc fs:  " << strerror(errnum) << LL_ENDL;
-				}
-			}
+    void init(Metrics * metrics)
+        {
+            if (! mProcFS)
+            {
+                mProcFS = fopen("/proc/self/stat", "r");
+                if (! mProcFS)
+                {
+                    const int errnum(errno);
+                    LL_ERRS("Main") << "Error opening proc fs:  " << strerror(errnum) << LL_ENDL;
+                }
+            }
 
-			long ticks_per_sec(sysconf(_SC_CLK_TCK));
-			mUsecsPerTick = U64L(1000000) / ticks_per_sec;
-			U64 usecs_per_sec(mUsecsPerTick * ticks_per_sec);
-			if (900000 > usecs_per_sec || 1100000 < usecs_per_sec)
-			{
-				LL_ERRS("Main") << "Resolution problems using uSecs for ticks" << LL_ENDL;
-			}
+            long ticks_per_sec(sysconf(_SC_CLK_TCK));
+            mUsecsPerTick = U64L(1000000) / ticks_per_sec;
+            U64 usecs_per_sec(mUsecsPerTick * ticks_per_sec);
+            if (900000 > usecs_per_sec || 1100000 < usecs_per_sec)
+            {
+                LL_ERRS("Main") << "Resolution problems using uSecs for ticks" << LL_ENDL;
+            }
 
-			U64 utime, stime;
-			if (scanProcFS(&utime, &stime, NULL))
-			{
-				metrics->mStartSTime = stime;
-				metrics->mStartUTime = utime;
-			}
-			metrics->mStartWallTime = totalTime();
+            U64 utime, stime;
+            if (scanProcFS(&utime, &stime, NULL))
+            {
+                metrics->mStartSTime = stime;
+                metrics->mStartUTime = utime;
+            }
+            metrics->mStartWallTime = totalTime();
 
-			sample(metrics);
-		}
-
-
-	void sample(Metrics * metrics)
-		{
-			U64 vsz;
-			if (scanProcFS(NULL, NULL, &vsz))
-			{
-				metrics->mMaxVSZ = (std::max)(metrics->mMaxVSZ, vsz);
-				metrics->mMinVSZ = (std::min)(metrics->mMinVSZ, vsz);
-			}
-		}
+            sample(metrics);
+        }
 
 
-	void term(Metrics * metrics)
-		{
-			U64 utime, stime;
-			if (scanProcFS(&utime, &stime, NULL))
-			{
-				metrics->mEndSTime = stime;
-				metrics->mEndUTime = utime;
-			}
-			metrics->mEndWallTime = totalTime();
+    void sample(Metrics * metrics)
+        {
+            U64 vsz;
+            if (scanProcFS(NULL, NULL, &vsz))
+            {
+                metrics->mMaxVSZ = (std::max)(metrics->mMaxVSZ, vsz);
+                metrics->mMinVSZ = (std::min)(metrics->mMinVSZ, vsz);
+            }
+        }
 
-			sample(metrics);
-			
-			if (mProcFS)
-			{
-				fclose(mProcFS);
-				mProcFS = NULL;
-			}
-		}
-	
+
+    void term(Metrics * metrics)
+        {
+            U64 utime, stime;
+            if (scanProcFS(&utime, &stime, NULL))
+            {
+                metrics->mEndSTime = stime;
+                metrics->mEndUTime = utime;
+            }
+            metrics->mEndWallTime = totalTime();
+
+            sample(metrics);
+            
+            if (mProcFS)
+            {
+                fclose(mProcFS);
+                mProcFS = NULL;
+            }
+        }
+    
 protected:
-	bool scanProcFS(U64 * utime, U64 * stime, U64 * vsz)
-		{
-			if (mProcFS)
-			{
-				int i_dummy;
-				unsigned int ui_dummy;
-				unsigned long ul_dummy, user_ticks, sys_ticks, vsize;
-				long l_dummy, rss;
-				unsigned long long ull_dummy;
-				char c_dummy;
-				
-				char buffer[256];
-				
-				static const char * format("%d %*s %c %d %d %d %d %d %u %lu %lu %lu %lu %lu %lu %ld %ld %ld %ld %ld %ld %llu %lu %ld");
+    bool scanProcFS(U64 * utime, U64 * stime, U64 * vsz)
+        {
+            if (mProcFS)
+            {
+                int i_dummy;
+                unsigned int ui_dummy;
+                unsigned long ul_dummy, user_ticks, sys_ticks, vsize;
+                long l_dummy, rss;
+                unsigned long long ull_dummy;
+                char c_dummy;
+                
+                char buffer[256];
+                
+                static const char * format("%d %*s %c %d %d %d %d %d %u %lu %lu %lu %lu %lu %lu %ld %ld %ld %ld %ld %ld %llu %lu %ld");
 
-				fseek(mProcFS, 0L, SEEK_SET);
-				size_t len = fread(buffer, 1, sizeof(buffer) - 1, mProcFS);
-				if (! len)
-				{
-					return false;
-				}
-				buffer[len] = '\0';
-				if (23 == sscanf(buffer, format,
-								 &i_dummy,				// pid
-								 // &s_dummy,			// command name
-								 &c_dummy,				// state
-								 &i_dummy,				// ppid
-								 &i_dummy,				// pgrp
-								 &i_dummy,				// session
-								 &i_dummy,				// terminal
-								 &i_dummy,				// terminal group id
-								 &ui_dummy,				// flags
-								 &ul_dummy,				// minor faults
-								 &ul_dummy,				// minor faults in children
-								 &ul_dummy,				// major faults
-								 &ul_dummy,				// major faults in children
-								 &user_ticks,
-								 &sys_ticks,
-								 &l_dummy,				// cutime
-								 &l_dummy,				// cstime
-								 &l_dummy,				// process priority
-								 &l_dummy,				// nice value
-								 &l_dummy,				// thread count
-								 &l_dummy,				// time to SIGALRM
-								 &ull_dummy,			// start time
-								 &vsize,
-								 &rss))
-				{
-					// Looks like we understand the line
-					if (utime)
-					{
-						*utime = user_ticks * mUsecsPerTick;
-					}
+                fseek(mProcFS, 0L, SEEK_SET);
+                size_t len = fread(buffer, 1, sizeof(buffer) - 1, mProcFS);
+                if (! len)
+                {
+                    return false;
+                }
+                buffer[len] = '\0';
+                if (23 == sscanf(buffer, format,
+                                 &i_dummy,              // pid
+                                 // &s_dummy,           // command name
+                                 &c_dummy,              // state
+                                 &i_dummy,              // ppid
+                                 &i_dummy,              // pgrp
+                                 &i_dummy,              // session
+                                 &i_dummy,              // terminal
+                                 &i_dummy,              // terminal group id
+                                 &ui_dummy,             // flags
+                                 &ul_dummy,             // minor faults
+                                 &ul_dummy,             // minor faults in children
+                                 &ul_dummy,             // major faults
+                                 &ul_dummy,             // major faults in children
+                                 &user_ticks,
+                                 &sys_ticks,
+                                 &l_dummy,              // cutime
+                                 &l_dummy,              // cstime
+                                 &l_dummy,              // process priority
+                                 &l_dummy,              // nice value
+                                 &l_dummy,              // thread count
+                                 &l_dummy,              // time to SIGALRM
+                                 &ull_dummy,            // start time
+                                 &vsize,
+                                 &rss))
+                {
+                    // Looks like we understand the line
+                    if (utime)
+                    {
+                        *utime = user_ticks * mUsecsPerTick;
+                    }
 
-					if (stime)
-					{
-						*stime = sys_ticks * mUsecsPerTick;
-					}
-					
-					if (vsz)
-					{
-						*vsz = vsize;
-					}
-					return true;
-				}
-			}
-			return false;
-		}
-	
+                    if (stime)
+                    {
+                        *stime = sys_ticks * mUsecsPerTick;
+                    }
+                    
+                    if (vsz)
+                    {
+                        *vsz = vsize;
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+    
 protected:
-	FILE *		mProcFS;
-	U64			mUsecsPerTick;
-	
+    FILE *      mProcFS;
+    U64         mUsecsPerTick;
+    
 };
 
 
 #endif  // LL_WINDOWS
 
 Metrics::Metrics()
-	: mMaxVSZ(U64(0)),
-	  mMinVSZ(U64L(0xffffffffffffffff)),
-	  mStartWallTime(U64(0)),
-	  mEndWallTime(U64(0)),
-	  mStartUTime(U64(0)),
-	  mEndUTime(U64(0)),
-	  mStartSTime(U64(0)),
-	  mEndSTime(U64(0))
+    : mMaxVSZ(U64(0)),
+      mMinVSZ(U64L(0xffffffffffffffff)),
+      mStartWallTime(U64(0)),
+      mEndWallTime(U64(0)),
+      mStartUTime(U64(0)),
+      mEndUTime(U64(0)),
+      mStartSTime(U64(0)),
+      mEndSTime(U64(0))
 {
-	mImpl = new MetricsImpl();
+    mImpl = new MetricsImpl();
 }
 
 
 Metrics::~Metrics()
 {
-	delete mImpl;
-	mImpl = NULL;
+    delete mImpl;
+    mImpl = NULL;
 }
 
 
 void Metrics::init()
 {
-	mImpl->init(this);
+    mImpl->init(this);
 }
 
 
 void Metrics::sample()
 {
-	mImpl->sample(this);
+    mImpl->sample(this);
 }
 
 
 void Metrics::term()
 {
-	mImpl->term(this);
+    mImpl->term(this);
 }
 
-	
+    

@@ -27,7 +27,7 @@
 #ifndef LL_LLLIGHTCONSTANTS_H
 #define LL_LLLIGHTCONSTANTS_H
 
-//const F32 LIGHT_MAX_RADIUS			= 20.f;			// Maximum range of light
-const F32 LIGHT_FADE_TIME 			= 0.2f;
+//const F32 LIGHT_MAX_RADIUS            = 20.f;         // Maximum range of light
+const F32 LIGHT_FADE_TIME           = 0.2f;
 
 #endif // LL_LLLIGHTCONSTANTS_H

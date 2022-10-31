@@ -87,42 +87,42 @@ private:
 class AISUpdate
 {
 public:
-	AISUpdate(const LLSD& update);
-	void parseUpdate(const LLSD& update);
-	void parseMeta(const LLSD& update);
-	void parseContent(const LLSD& update);
-	void parseUUIDArray(const LLSD& content, const std::string& name, uuid_list_t& ids);
-	void parseLink(const LLSD& link_map);
-	void parseItem(const LLSD& link_map);
-	void parseCategory(const LLSD& link_map);
-	void parseDescendentCount(const LLUUID& category_id, const LLSD& embedded);
-	void parseEmbedded(const LLSD& embedded);
-	void parseEmbeddedLinks(const LLSD& links);
-	void parseEmbeddedItems(const LLSD& items);
-	void parseEmbeddedCategories(const LLSD& categories);
-	void parseEmbeddedItem(const LLSD& item);
-	void parseEmbeddedCategory(const LLSD& category);
-	void doUpdate();
+    AISUpdate(const LLSD& update);
+    void parseUpdate(const LLSD& update);
+    void parseMeta(const LLSD& update);
+    void parseContent(const LLSD& update);
+    void parseUUIDArray(const LLSD& content, const std::string& name, uuid_list_t& ids);
+    void parseLink(const LLSD& link_map);
+    void parseItem(const LLSD& link_map);
+    void parseCategory(const LLSD& link_map);
+    void parseDescendentCount(const LLUUID& category_id, const LLSD& embedded);
+    void parseEmbedded(const LLSD& embedded);
+    void parseEmbeddedLinks(const LLSD& links);
+    void parseEmbeddedItems(const LLSD& items);
+    void parseEmbeddedCategories(const LLSD& categories);
+    void parseEmbeddedItem(const LLSD& item);
+    void parseEmbeddedCategory(const LLSD& category);
+    void doUpdate();
 private:
-	void clearParseResults();
+    void clearParseResults();
 
-	typedef std::map<LLUUID,S32> uuid_int_map_t;
-	uuid_int_map_t mCatDescendentDeltas;
-	uuid_int_map_t mCatDescendentsKnown;
-	uuid_int_map_t mCatVersionsUpdated;
+    typedef std::map<LLUUID,S32> uuid_int_map_t;
+    uuid_int_map_t mCatDescendentDeltas;
+    uuid_int_map_t mCatDescendentsKnown;
+    uuid_int_map_t mCatVersionsUpdated;
 
-	typedef std::map<LLUUID,LLPointer<LLViewerInventoryItem> > deferred_item_map_t;
-	deferred_item_map_t mItemsCreated;
-	deferred_item_map_t mItemsUpdated;
-	typedef std::map<LLUUID,LLPointer<LLViewerInventoryCategory> > deferred_category_map_t;
-	deferred_category_map_t mCategoriesCreated;
-	deferred_category_map_t mCategoriesUpdated;
+    typedef std::map<LLUUID,LLPointer<LLViewerInventoryItem> > deferred_item_map_t;
+    deferred_item_map_t mItemsCreated;
+    deferred_item_map_t mItemsUpdated;
+    typedef std::map<LLUUID,LLPointer<LLViewerInventoryCategory> > deferred_category_map_t;
+    deferred_category_map_t mCategoriesCreated;
+    deferred_category_map_t mCategoriesUpdated;
 
-	// These keep track of uuid's mentioned in meta values.
-	// Useful for filtering out which content we are interested in.
-	uuid_list_t mObjectsDeletedIds;
-	uuid_list_t mItemIds;
-	uuid_list_t mCategoryIds;
+    // These keep track of uuid's mentioned in meta values.
+    // Useful for filtering out which content we are interested in.
+    uuid_list_t mObjectsDeletedIds;
+    uuid_list_t mItemIds;
+    uuid_list_t mCategoryIds;
 };
 
 #endif

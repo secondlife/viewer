@@ -42,60 +42,60 @@
  * Posts a snapshot to My Profile feed.
  */
 class LLPanelSnapshotProfile
-:	public LLPanelSnapshot
+:   public LLPanelSnapshot
 {
-	LOG_CLASS(LLPanelSnapshotProfile);
+    LOG_CLASS(LLPanelSnapshotProfile);
 
 public:
-	LLPanelSnapshotProfile();
+    LLPanelSnapshotProfile();
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+    /*virtual*/ BOOL postBuild();
+    /*virtual*/ void onOpen(const LLSD& key);
 
 private:
-	/*virtual*/ std::string getWidthSpinnerName() const		{ return "profile_snapshot_width"; }
-	/*virtual*/ std::string getHeightSpinnerName() const	{ return "profile_snapshot_height"; }
-	/*virtual*/ std::string getAspectRatioCBName() const	{ return "profile_keep_aspect_check"; }
-	/*virtual*/ std::string getImageSizeComboName() const	{ return "profile_size_combo"; }
-	/*virtual*/ std::string getImageSizePanelName() const	{ return "profile_image_size_lp"; }
-	/*virtual*/ LLSnapshotModel::ESnapshotFormat getImageFormat() const { return LLSnapshotModel::SNAPSHOT_FORMAT_PNG; }
-	/*virtual*/ void updateControls(const LLSD& info);
+    /*virtual*/ std::string getWidthSpinnerName() const     { return "profile_snapshot_width"; }
+    /*virtual*/ std::string getHeightSpinnerName() const    { return "profile_snapshot_height"; }
+    /*virtual*/ std::string getAspectRatioCBName() const    { return "profile_keep_aspect_check"; }
+    /*virtual*/ std::string getImageSizeComboName() const   { return "profile_size_combo"; }
+    /*virtual*/ std::string getImageSizePanelName() const   { return "profile_image_size_lp"; }
+    /*virtual*/ LLSnapshotModel::ESnapshotFormat getImageFormat() const { return LLSnapshotModel::SNAPSHOT_FORMAT_PNG; }
+    /*virtual*/ void updateControls(const LLSD& info);
 
-	void onSend();
+    void onSend();
 };
 
 static LLPanelInjector<LLPanelSnapshotProfile> panel_class("llpanelsnapshotprofile");
 
 LLPanelSnapshotProfile::LLPanelSnapshotProfile()
 {
-	mCommitCallbackRegistrar.add("PostToProfile.Send",		boost::bind(&LLPanelSnapshotProfile::onSend,		this));
-	mCommitCallbackRegistrar.add("PostToProfile.Cancel",	boost::bind(&LLPanelSnapshotProfile::cancel,		this));
+    mCommitCallbackRegistrar.add("PostToProfile.Send",      boost::bind(&LLPanelSnapshotProfile::onSend,        this));
+    mCommitCallbackRegistrar.add("PostToProfile.Cancel",    boost::bind(&LLPanelSnapshotProfile::cancel,        this));
 }
 
 // virtual
 BOOL LLPanelSnapshotProfile::postBuild()
 {
-	return LLPanelSnapshot::postBuild();
+    return LLPanelSnapshot::postBuild();
 }
 
 // virtual
 void LLPanelSnapshotProfile::onOpen(const LLSD& key)
 {
-	LLPanelSnapshot::onOpen(key);
+    LLPanelSnapshot::onOpen(key);
 }
 
 // virtual
 void LLPanelSnapshotProfile::updateControls(const LLSD& info)
 {
-	const bool have_snapshot = info.has("have-snapshot") ? info["have-snapshot"].asBoolean() : true;
-	getChild<LLUICtrl>("post_btn")->setEnabled(have_snapshot);
+    const bool have_snapshot = info.has("have-snapshot") ? info["have-snapshot"].asBoolean() : true;
+    getChild<LLUICtrl>("post_btn")->setEnabled(have_snapshot);
 }
 
 void LLPanelSnapshotProfile::onSend()
 {
-	std::string caption = getChild<LLUICtrl>("caption")->getValue().asString();
-	bool add_location = getChild<LLUICtrl>("add_location_cb")->getValue().asBoolean();
+    std::string caption = getChild<LLUICtrl>("caption")->getValue().asString();
+    bool add_location = getChild<LLUICtrl>("add_location_cb")->getValue().asBoolean();
 
-	LLWebProfile::uploadImage(mSnapshotFloater->getImageData(), caption, add_location);
-	mSnapshotFloater->postSave();
+    LLWebProfile::uploadImage(mSnapshotFloater->getImageData(), caption, add_location);
+    mSnapshotFloater->postSave();
 }

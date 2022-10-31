@@ -47,61 +47,61 @@ LLInventoryClipboard::LLInventoryClipboard()
 
 LLInventoryClipboard::~LLInventoryClipboard()
 {
-	reset();
+    reset();
 }
 
 void LLInventoryClipboard::add(const LLUUID& object)
 {
-	mObjects.put(object);
+    mObjects.put(object);
 }
 
 // this stores a single inventory object
 void LLInventoryClipboard::store(const LLUUID& object)
 {
-	reset();
-	mObjects.put(object);
+    reset();
+    mObjects.put(object);
 }
 
 void LLInventoryClipboard::store(const LLDynamicArray<LLUUID>& inv_objects)
 {
-	reset();
-	S32 count = inv_objects.count();
-	for(S32 i = 0; i < count; i++)
-	{
-		mObjects.put(inv_objects[i]);
-	}
+    reset();
+    S32 count = inv_objects.count();
+    for(S32 i = 0; i < count; i++)
+    {
+        mObjects.put(inv_objects[i]);
+    }
 }
 
 void LLInventoryClipboard::cut(const LLUUID& object)
 {
-	if(!mCutMode && !mObjects.empty())
-	{
-		//looks like there are some stored items, reset clipboard state
-		reset();
-	}
-	mCutMode = true;
-	add(object);
+    if(!mCutMode && !mObjects.empty())
+    {
+        //looks like there are some stored items, reset clipboard state
+        reset();
+    }
+    mCutMode = true;
+    add(object);
 }
 void LLInventoryClipboard::retrieve(LLDynamicArray<LLUUID>& inv_objects) const
 {
-	inv_objects.reset();
-	S32 count = mObjects.count();
-	for(S32 i = 0; i < count; i++)
-	{
-		inv_objects.put(mObjects[i]);
-	}
+    inv_objects.reset();
+    S32 count = mObjects.count();
+    for(S32 i = 0; i < count; i++)
+    {
+        inv_objects.put(mObjects[i]);
+    }
 }
 
 void LLInventoryClipboard::reset()
 {
-	mObjects.reset();
-	mCutMode = false;
+    mObjects.reset();
+    mCutMode = false;
 }
 
 // returns true if the clipboard has something pasteable in it.
 BOOL LLInventoryClipboard::hasContents() const
 {
-	return (mObjects.count() > 0);
+    return (mObjects.count() > 0);
 }
 
 

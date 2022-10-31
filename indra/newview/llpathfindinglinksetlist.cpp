@@ -43,14 +43,14 @@
 //---------------------------------------------------------------------------
 
 LLPathfindingLinksetList::LLPathfindingLinksetList()
-	: LLPathfindingObjectList()
+    : LLPathfindingObjectList()
 {
 }
 
 LLPathfindingLinksetList::LLPathfindingLinksetList(const LLSD& pLinksetListData)
-	: LLPathfindingObjectList()
+    : LLPathfindingObjectList()
 {
-	parseLinksetListData(pLinksetListData);
+    parseLinksetListData(pLinksetListData);
 }
 
 LLPathfindingLinksetList::~LLPathfindingLinksetList()
@@ -59,155 +59,155 @@ LLPathfindingLinksetList::~LLPathfindingLinksetList()
 
 LLSD LLPathfindingLinksetList::encodeObjectFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const
 {
-	LLSD listData;
+    LLSD listData;
 
-	for (const_iterator linksetIter = begin(); linksetIter != end(); ++linksetIter)
-	{
-		const LLPathfindingObjectPtr objectPtr = linksetIter->second;
-		const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
+    for (const_iterator linksetIter = begin(); linksetIter != end(); ++linksetIter)
+    {
+        const LLPathfindingObjectPtr objectPtr = linksetIter->second;
+        const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
 
-		if (!linkset->isTerrain())
-		{
-			LLSD linksetData = linkset->encodeAlteredFields(pLinksetUse, pA, pB, pC, pD);
-			if (!linksetData.isUndefined())
-			{
-				const std::string& uuid(linksetIter->first);
-				listData[uuid] = linksetData;
-			}
-		}
-	}
+        if (!linkset->isTerrain())
+        {
+            LLSD linksetData = linkset->encodeAlteredFields(pLinksetUse, pA, pB, pC, pD);
+            if (!linksetData.isUndefined())
+            {
+                const std::string& uuid(linksetIter->first);
+                listData[uuid] = linksetData;
+            }
+        }
+    }
 
-	return listData;
+    return listData;
 }
 
 LLSD LLPathfindingLinksetList::encodeTerrainFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const
 {
-	LLSD terrainData;
+    LLSD terrainData;
 
-	for (const_iterator linksetIter = begin(); linksetIter != end(); ++linksetIter)
-	{
-		const LLPathfindingObjectPtr objectPtr = linksetIter->second;
-		const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
+    for (const_iterator linksetIter = begin(); linksetIter != end(); ++linksetIter)
+    {
+        const LLPathfindingObjectPtr objectPtr = linksetIter->second;
+        const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
 
-		if (linkset->isTerrain())
-		{
-			terrainData = linkset->encodeAlteredFields(pLinksetUse, pA, pB, pC, pD);
-			break;
-		}
-	}
-	
-	return terrainData;
+        if (linkset->isTerrain())
+        {
+            terrainData = linkset->encodeAlteredFields(pLinksetUse, pA, pB, pC, pD);
+            break;
+        }
+    }
+    
+    return terrainData;
 }
 
 bool LLPathfindingLinksetList::isShowUnmodifiablePhantomWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const
 {
-	bool isShowWarning = false;
+    bool isShowWarning = false;
 
-	for (const_iterator objectIter = begin(); !isShowWarning && (objectIter != end()); ++objectIter)
-	{
-		const LLPathfindingObjectPtr objectPtr = objectIter->second;
-		const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
-		isShowWarning = linkset->isShowUnmodifiablePhantomWarning(pLinksetUse);
-	}
+    for (const_iterator objectIter = begin(); !isShowWarning && (objectIter != end()); ++objectIter)
+    {
+        const LLPathfindingObjectPtr objectPtr = objectIter->second;
+        const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
+        isShowWarning = linkset->isShowUnmodifiablePhantomWarning(pLinksetUse);
+    }
 
-	return isShowWarning;
+    return isShowWarning;
 }
 
 bool LLPathfindingLinksetList::isShowPhantomToggleWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const
 {
-	bool isShowWarning = false;
+    bool isShowWarning = false;
 
-	for (const_iterator objectIter = begin(); !isShowWarning && (objectIter != end()); ++objectIter)
-	{
-		const LLPathfindingObjectPtr objectPtr = objectIter->second;
-		const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
-		isShowWarning = linkset->isShowPhantomToggleWarning(pLinksetUse);
-	}
+    for (const_iterator objectIter = begin(); !isShowWarning && (objectIter != end()); ++objectIter)
+    {
+        const LLPathfindingObjectPtr objectPtr = objectIter->second;
+        const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
+        isShowWarning = linkset->isShowPhantomToggleWarning(pLinksetUse);
+    }
 
-	return isShowWarning;
+    return isShowWarning;
 }
 
 bool LLPathfindingLinksetList::isShowCannotBeVolumeWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const
 {
-	bool isShowWarning = false;
+    bool isShowWarning = false;
 
-	for (const_iterator objectIter = begin(); !isShowWarning && (objectIter != end()); ++objectIter)
-	{
-		const LLPathfindingObjectPtr objectPtr = objectIter->second;
-		const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
-		isShowWarning = linkset->isShowCannotBeVolumeWarning(pLinksetUse);
-	}
+    for (const_iterator objectIter = begin(); !isShowWarning && (objectIter != end()); ++objectIter)
+    {
+        const LLPathfindingObjectPtr objectPtr = objectIter->second;
+        const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
+        isShowWarning = linkset->isShowCannotBeVolumeWarning(pLinksetUse);
+    }
 
-	return isShowWarning;
+    return isShowWarning;
 }
 
 void LLPathfindingLinksetList::determinePossibleStates(BOOL &pCanBeWalkable, BOOL &pCanBeStaticObstacle, BOOL &pCanBeDynamicObstacle,
-	BOOL &pCanBeMaterialVolume, BOOL &pCanBeExclusionVolume, BOOL &pCanBeDynamicPhantom) const
+    BOOL &pCanBeMaterialVolume, BOOL &pCanBeExclusionVolume, BOOL &pCanBeDynamicPhantom) const
 {
-	pCanBeWalkable = FALSE;
-	pCanBeStaticObstacle = FALSE;
-	pCanBeDynamicObstacle = FALSE;
-	pCanBeMaterialVolume = FALSE;
-	pCanBeExclusionVolume = FALSE;
-	pCanBeDynamicPhantom = FALSE;
+    pCanBeWalkable = FALSE;
+    pCanBeStaticObstacle = FALSE;
+    pCanBeDynamicObstacle = FALSE;
+    pCanBeMaterialVolume = FALSE;
+    pCanBeExclusionVolume = FALSE;
+    pCanBeDynamicPhantom = FALSE;
 
-	for (const_iterator objectIter = begin();
-		!(pCanBeWalkable && pCanBeStaticObstacle && pCanBeDynamicObstacle && pCanBeMaterialVolume && pCanBeExclusionVolume && pCanBeDynamicPhantom) && (objectIter != end());
-		++objectIter)
-	{
-		const LLPathfindingObjectPtr objectPtr = objectIter->second;
-		const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
+    for (const_iterator objectIter = begin();
+        !(pCanBeWalkable && pCanBeStaticObstacle && pCanBeDynamicObstacle && pCanBeMaterialVolume && pCanBeExclusionVolume && pCanBeDynamicPhantom) && (objectIter != end());
+        ++objectIter)
+    {
+        const LLPathfindingObjectPtr objectPtr = objectIter->second;
+        const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
 
-		if (linkset->isTerrain())
-		{
-			pCanBeWalkable = TRUE;
-		}
-		else
-		{
-			if (linkset->isModifiable())
-			{
-				pCanBeWalkable = TRUE;
-				pCanBeStaticObstacle = TRUE;
-				pCanBeDynamicObstacle = TRUE;
-				pCanBeDynamicPhantom = TRUE;
-				if (linkset->canBeVolume())
-				{
-					pCanBeMaterialVolume = TRUE;
-					pCanBeExclusionVolume = TRUE;
-				}
-			}
-			else if (linkset->isPhantom())
-			{
-				pCanBeDynamicPhantom = TRUE;
-				if (linkset->canBeVolume())
-				{
-					pCanBeMaterialVolume = TRUE;
-					pCanBeExclusionVolume = TRUE;
-				}
-			}
-			else
-			{
-				pCanBeWalkable = TRUE;
-				pCanBeStaticObstacle = TRUE;
-				pCanBeDynamicObstacle = TRUE;
-			}
-		}
-	}
+        if (linkset->isTerrain())
+        {
+            pCanBeWalkable = TRUE;
+        }
+        else
+        {
+            if (linkset->isModifiable())
+            {
+                pCanBeWalkable = TRUE;
+                pCanBeStaticObstacle = TRUE;
+                pCanBeDynamicObstacle = TRUE;
+                pCanBeDynamicPhantom = TRUE;
+                if (linkset->canBeVolume())
+                {
+                    pCanBeMaterialVolume = TRUE;
+                    pCanBeExclusionVolume = TRUE;
+                }
+            }
+            else if (linkset->isPhantom())
+            {
+                pCanBeDynamicPhantom = TRUE;
+                if (linkset->canBeVolume())
+                {
+                    pCanBeMaterialVolume = TRUE;
+                    pCanBeExclusionVolume = TRUE;
+                }
+            }
+            else
+            {
+                pCanBeWalkable = TRUE;
+                pCanBeStaticObstacle = TRUE;
+                pCanBeDynamicObstacle = TRUE;
+            }
+        }
+    }
 }
 
 void LLPathfindingLinksetList::parseLinksetListData(const LLSD& pLinksetListData)
 {
-	LLPathfindingObjectMap &objectMap = getObjectMap();
+    LLPathfindingObjectMap &objectMap = getObjectMap();
 
-	for (LLSD::map_const_iterator linksetDataIter = pLinksetListData.beginMap();
-		linksetDataIter != pLinksetListData.endMap(); ++linksetDataIter)
-	{
-		const std::string& uuid(linksetDataIter->first);
-		const LLSD& linksetData = linksetDataIter->second;
-		if(linksetData.size() != 0)
-		{
-			LLPathfindingObjectPtr linksetPtr(new LLPathfindingLinkset(uuid, linksetData));
-			objectMap.insert(std::pair<std::string, LLPathfindingObjectPtr>(uuid, linksetPtr));
-		}
-	}
+    for (LLSD::map_const_iterator linksetDataIter = pLinksetListData.beginMap();
+        linksetDataIter != pLinksetListData.endMap(); ++linksetDataIter)
+    {
+        const std::string& uuid(linksetDataIter->first);
+        const LLSD& linksetData = linksetDataIter->second;
+        if(linksetData.size() != 0)
+        {
+            LLPathfindingObjectPtr linksetPtr(new LLPathfindingLinkset(uuid, linksetData));
+            objectMap.insert(std::pair<std::string, LLPathfindingObjectPtr>(uuid, linksetPtr));
+        }
+    }
 }

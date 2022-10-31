@@ -48,53 +48,53 @@ LLPreviewSound::LLPreviewSound(const LLSD& key)
 }
 
 // virtual
-BOOL	LLPreviewSound::postBuild()
+BOOL    LLPreviewSound::postBuild()
 {
-	const LLInventoryItem* item = getItem();
-	if (item)
-	{
-		getChild<LLUICtrl>("desc")->setValue(item->getDescription());
-		if (gAudiop)
-		{
-			gAudiop->preloadSound(item->getAssetUUID()); // preload the sound
-		}
-	}
-	
-	childSetAction("Sound play btn",&LLPreviewSound::playSound,this);
-	childSetAction("Sound audition btn",&LLPreviewSound::auditionSound,this);
+    const LLInventoryItem* item = getItem();
+    if (item)
+    {
+        getChild<LLUICtrl>("desc")->setValue(item->getDescription());
+        if (gAudiop)
+        {
+            gAudiop->preloadSound(item->getAssetUUID()); // preload the sound
+        }
+    }
+    
+    childSetAction("Sound play btn",&LLPreviewSound::playSound,this);
+    childSetAction("Sound audition btn",&LLPreviewSound::auditionSound,this);
 
-	LLButton* button = getChild<LLButton>("Sound play btn");
-	button->setSoundFlags(LLView::SILENT);
-	
-	button = getChild<LLButton>("Sound audition btn");
-	button->setSoundFlags(LLView::SILENT);
+    LLButton* button = getChild<LLButton>("Sound play btn");
+    button->setSoundFlags(LLView::SILENT);
+    
+    button = getChild<LLButton>("Sound audition btn");
+    button->setSoundFlags(LLView::SILENT);
 
-	childSetCommitCallback("desc", LLPreview::onText, this);
-	getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);	
+    childSetCommitCallback("desc", LLPreview::onText, this);
+    getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);  
 
-	return LLPreview::postBuild();
+    return LLPreview::postBuild();
 }
 
 // static
 void LLPreviewSound::playSound( void *userdata )
 {
-	LLPreviewSound* self = (LLPreviewSound*) userdata;
-	const LLInventoryItem *item = self->getItem();
+    LLPreviewSound* self = (LLPreviewSound*) userdata;
+    const LLInventoryItem *item = self->getItem();
 
-	if(item && gAudiop)
-	{
-		send_sound_trigger(item->getAssetUUID(), SOUND_GAIN);
-	}
+    if(item && gAudiop)
+    {
+        send_sound_trigger(item->getAssetUUID(), SOUND_GAIN);
+    }
 }
 
 // static
 void LLPreviewSound::auditionSound( void *userdata )
 {
-	LLPreviewSound* self = (LLPreviewSound*) userdata;
-	const LLInventoryItem *item = self->getItem();
+    LLPreviewSound* self = (LLPreviewSound*) userdata;
+    const LLInventoryItem *item = self->getItem();
 
-	if(item && gAudiop)
-	{
-		gAudiop->triggerSound(item->getAssetUUID(), gAgent.getID(), SOUND_GAIN, LLAudioEngine::AUDIO_TYPE_SFX);
-	}
+    if(item && gAudiop)
+    {
+        gAudiop->triggerSound(item->getAssetUUID(), gAgent.getID(), SOUND_GAIN, LLAudioEngine::AUDIO_TYPE_SFX);
+    }
 }

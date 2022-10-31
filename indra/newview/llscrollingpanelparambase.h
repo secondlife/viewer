@@ -1,7 +1,7 @@
 /** 
  * @file llscrollingpanelparam.h
  * @brief the scrolling panel containing a list of visual param 
- *  	  panels
+ *        panels
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -41,22 +41,22 @@ class LLJoint;
 class LLScrollingPanelParamBase : public LLScrollingPanel
 {
 public:
-	LLScrollingPanelParamBase( const LLPanel::Params& panel_params,
-				   LLViewerJointMesh* mesh, LLViewerVisualParam* param, BOOL allow_modify, LLWearable* wearable, LLJoint* jointp, BOOL use_hints = FALSE );
-	virtual ~LLScrollingPanelParamBase();
+    LLScrollingPanelParamBase( const LLPanel::Params& panel_params,
+                   LLViewerJointMesh* mesh, LLViewerVisualParam* param, BOOL allow_modify, LLWearable* wearable, LLJoint* jointp, BOOL use_hints = FALSE );
+    virtual ~LLScrollingPanelParamBase();
 
-	virtual void		updatePanel(BOOL allow_modify);
+    virtual void        updatePanel(BOOL allow_modify);
 
-	static void			onSliderMoved(LLUICtrl* ctrl, void* userdata);
+    static void         onSliderMoved(LLUICtrl* ctrl, void* userdata);
 
-	F32					weightToPercent( F32 weight );
-	F32					percentToWeight( F32 percent );
+    F32                 weightToPercent( F32 weight );
+    F32                 percentToWeight( F32 percent );
 
 public:
-	LLViewerVisualParam* mParam;
+    LLViewerVisualParam* mParam;
 protected:
-	BOOL mAllowModify;
-	LLWearable *mWearable;
+    BOOL mAllowModify;
+    LLWearable *mWearable;
 }; 
 
 #endif

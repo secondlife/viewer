@@ -33,20 +33,20 @@
 // timer to automatically play media
 class LLViewerParcelMediaAutoPlay : LLEventTimer, public LLSingleton<LLViewerParcelMediaAutoPlay>
 {
-	LLSINGLETON(LLViewerParcelMediaAutoPlay);
+    LLSINGLETON(LLViewerParcelMediaAutoPlay);
 public:
-	virtual BOOL tick();
-	static void playStarted();
+    virtual BOOL tick();
+    static void playStarted();
 
  private:
     // for askToPlay
-	static void onStartMediaResponse(const LLUUID &region_id, const S32 &parcel_id, const std::string &url, const bool &play);
+    static void onStartMediaResponse(const LLUUID &region_id, const S32 &parcel_id, const std::string &url, const bool &play);
 
  private:
-	S32 mLastParcelID;
-	LLUUID mLastRegionID;
-	BOOL mPlayed;
-	F32 mTimeInParcel;
+    S32 mLastParcelID;
+    LLUUID mLastRegionID;
+    BOOL mPlayed;
+    F32 mTimeInParcel;
 };
 
 

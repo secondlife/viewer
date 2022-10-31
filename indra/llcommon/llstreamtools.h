@@ -98,17 +98,17 @@ LL_COMMON_API void remove_double_quotes(std::string& line);
 // the 'value' is everything after the keyword on the same line
 // starting at the first non-whitespace and ending right before the newline
 LL_COMMON_API void get_keyword_and_value(std::string& keyword, 
-						   std::string& value, 
-						   const std::string& line);
+                           std::string& value, 
+                           const std::string& line);
 
 // continue to read from the stream until you really can't
 // read anymore or until we hit the count.  Some istream
 // implimentations have a max that they will read.
 // Returns the number of bytes read.
 LL_COMMON_API std::streamsize fullread(
-	std::istream& istr,
-	char* buf,
-	std::streamsize requested);
+    std::istream& istr,
+    char* buf,
+    std::streamsize requested);
 
 
 LL_COMMON_API std::istream& operator>>(std::istream& str, const char *tocheck);

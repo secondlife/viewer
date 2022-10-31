@@ -36,63 +36,63 @@ struct LLAvatarPicks;
  */
 class LLAgentPicksInfo : public LLSingleton<LLAgentPicksInfo>
 {
-	LLSINGLETON(LLAgentPicksInfo);
-	virtual ~LLAgentPicksInfo();
+    LLSINGLETON(LLAgentPicksInfo);
+    virtual ~LLAgentPicksInfo();
 
-	class LLAgentPicksObserver;
+    class LLAgentPicksObserver;
 
 public:
-	/**
-	 * Requests number of picks from server. 
-	 * 
-	 * Number of Picks is requested from server, thus it is not available immediately.
-	 */
-	void requestNumberOfPicks();
+    /**
+     * Requests number of picks from server. 
+     * 
+     * Number of Picks is requested from server, thus it is not available immediately.
+     */
+    void requestNumberOfPicks();
 
-	/**
-	 * Returns number of Picks.
-	 */
-	S32 getNumberOfPicks() { return mNumberOfPicks; }
+    /**
+     * Returns number of Picks.
+     */
+    S32 getNumberOfPicks() { return mNumberOfPicks; }
 
-	/**
-	 * Returns maximum number of Picks.
-	 */
-	S32 getMaxNumberOfPicks() { return mMaxNumberOfPicks; }
+    /**
+     * Returns maximum number of Picks.
+     */
+    S32 getMaxNumberOfPicks() { return mMaxNumberOfPicks; }
 
-	/**
-	 * Returns TRUE if Agent has maximum allowed number of Picks.
-	 */
-	bool isPickLimitReached();
+    /**
+     * Returns TRUE if Agent has maximum allowed number of Picks.
+     */
+    bool isPickLimitReached();
 
-	/**
-	 * After creating or deleting a Pick we can assume operation on server will be 
-	 * completed successfully. Incrementing/decrementing number of picks makes new number
-	 * of picks available immediately. Actual number of picks will be updated when we receive 
-	 * response from server.
-	 */
-	void incrementNumberOfPicks() { ++mNumberOfPicks; }
+    /**
+     * After creating or deleting a Pick we can assume operation on server will be 
+     * completed successfully. Incrementing/decrementing number of picks makes new number
+     * of picks available immediately. Actual number of picks will be updated when we receive 
+     * response from server.
+     */
+    void incrementNumberOfPicks() { ++mNumberOfPicks; }
 
-	void decrementNumberOfPicks() { --mNumberOfPicks; }
+    void decrementNumberOfPicks() { --mNumberOfPicks; }
 
-	void onServerRespond(LLAvatarPicks* picks);
-
-private:
-
-	/**
-	* Sets number of Picks.
-	*/
-	void setNumberOfPicks(S32 number) { mNumberOfPicks = number; }
-
-	/**
-	* Sets maximum number of Picks.
-	*/
-	void setMaxNumberOfPicks(S32 max_picks) { mMaxNumberOfPicks = max_picks; }
+    void onServerRespond(LLAvatarPicks* picks);
 
 private:
 
-	LLAgentPicksObserver* mAgentPicksObserver;
-	S32 mMaxNumberOfPicks;
-	S32 mNumberOfPicks;
+    /**
+    * Sets number of Picks.
+    */
+    void setNumberOfPicks(S32 number) { mNumberOfPicks = number; }
+
+    /**
+    * Sets maximum number of Picks.
+    */
+    void setMaxNumberOfPicks(S32 max_picks) { mMaxNumberOfPicks = max_picks; }
+
+private:
+
+    LLAgentPicksObserver* mAgentPicksObserver;
+    S32 mMaxNumberOfPicks;
+    S32 mNumberOfPicks;
 };
 
 #endif //LL_LLAGENTPICKS_H

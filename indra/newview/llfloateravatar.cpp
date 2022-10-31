@@ -38,25 +38,25 @@
 
 
 LLFloaterAvatar::LLFloaterAvatar(const LLSD& key)
-	:	LLFloater(key)
+    :   LLFloater(key)
 {
 }
 
 LLFloaterAvatar::~LLFloaterAvatar()
 {
-	LLMediaCtrl* avatar_picker = findChild<LLMediaCtrl>("avatar_picker_contents");
-	if (avatar_picker)
-	{
-		avatar_picker->navigateStop();
-		avatar_picker->clearCache();          //images are reloading each time already
-		avatar_picker->unloadMediaSource();
-	}
+    LLMediaCtrl* avatar_picker = findChild<LLMediaCtrl>("avatar_picker_contents");
+    if (avatar_picker)
+    {
+        avatar_picker->navigateStop();
+        avatar_picker->clearCache();          //images are reloading each time already
+        avatar_picker->unloadMediaSource();
+    }
 }
 
 BOOL LLFloaterAvatar::postBuild()
 {
-	enableResizeCtrls(true, true, false);
-	return TRUE;
+    enableResizeCtrls(true, true, false);
+    return TRUE;
 }
 
 

@@ -36,50 +36,50 @@
 bool LLTrustedMessageService::validate(const std::string& name, LLSD& context)
 const
 {
-	return true;
+    return true;
 }
 
 void LLTrustedMessageService::post(LLHTTPNode::ResponsePtr response,
-								   const LLSD& context,
-								   const LLSD& input) const
+                                   const LLSD& context,
+                                   const LLSD& input) const
 {
-	std::string name = context[CONTEXT_REQUEST][CONTEXT_WILDCARD]["message-name"];
-	std::string senderIP = context[CONTEXT_REQUEST][CONTEXT_REMOTE_HOST];
-	std::string senderPort = context[CONTEXT_REQUEST][CONTEXT_HEADERS]
-		["x-secondlife-udp-listen-port"];
+    std::string name = context[CONTEXT_REQUEST][CONTEXT_WILDCARD]["message-name"];
+    std::string senderIP = context[CONTEXT_REQUEST][CONTEXT_REMOTE_HOST];
+    std::string senderPort = context[CONTEXT_REQUEST][CONTEXT_HEADERS]
+        ["x-secondlife-udp-listen-port"];
 
-	LLSD message_data;
-	std::string sender = senderIP + ":" + senderPort;
-	message_data["sender"] = sender;
-	message_data["body"] = input;
-	
-	// untrusted senders should not have access to the trusted message
-	// service, but this can happen in development, so check and warn
-	LLMessageConfig::SenderTrust trust =
-		LLMessageConfig::getSenderTrustedness(name);
-	if ((trust == LLMessageConfig::TRUSTED ||
-		 (trust == LLMessageConfig::NOT_SET &&
-		  gMessageSystem->isTrustedMessage(name)))
-		 && !gMessageSystem->isTrustedSender(LLHost(sender)))
-	{
-		LL_WARNS("Messaging") << "trusted message POST to /trusted-message/" 
-				<< name << " from unknown or untrusted sender "
-				<< sender << LL_ENDL;
-		response->status(HTTP_FORBIDDEN, "Unknown or untrusted sender");
-	}
-	else
-	{
-		gMessageSystem->receivedMessageFromTrustedSender();
-		if (input.has("binary-template-data"))
-		{
-			LL_INFOS() << "Dispatching template: " << input << LL_ENDL;
-			// try and send this message using udp dispatch
-			LLMessageSystem::dispatchTemplate(name, message_data, response);
-		}
-		else
-		{
-			LL_INFOS() << "Dispatching without template: " << input << LL_ENDL;
-			LLMessageSystem::dispatch(name, message_data, response);
-		}
-	}
+    LLSD message_data;
+    std::string sender = senderIP + ":" + senderPort;
+    message_data["sender"] = sender;
+    message_data["body"] = input;
+    
+    // untrusted senders should not have access to the trusted message
+    // service, but this can happen in development, so check and warn
+    LLMessageConfig::SenderTrust trust =
+        LLMessageConfig::getSenderTrustedness(name);
+    if ((trust == LLMessageConfig::TRUSTED ||
+         (trust == LLMessageConfig::NOT_SET &&
+          gMessageSystem->isTrustedMessage(name)))
+         && !gMessageSystem->isTrustedSender(LLHost(sender)))
+    {
+        LL_WARNS("Messaging") << "trusted message POST to /trusted-message/" 
+                << name << " from unknown or untrusted sender "
+                << sender << LL_ENDL;
+        response->status(HTTP_FORBIDDEN, "Unknown or untrusted sender");
+    }
+    else
+    {
+        gMessageSystem->receivedMessageFromTrustedSender();
+        if (input.has("binary-template-data"))
+        {
+            LL_INFOS() << "Dispatching template: " << input << LL_ENDL;
+            // try and send this message using udp dispatch
+            LLMessageSystem::dispatchTemplate(name, message_data, response);
+        }
+        else
+        {
+            LL_INFOS() << "Dispatching without template: " << input << LL_ENDL;
+            LLMessageSystem::dispatch(name, message_data, response);
+        }
+    }
 }

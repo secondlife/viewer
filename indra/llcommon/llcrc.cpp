@@ -142,77 +142,77 @@ LLCRC::LLCRC() : mCurrent(0xffffffff)
 
 U32 LLCRC::getCRC() const
 {
-	return ~mCurrent;
+    return ~mCurrent;
 }
 
 void LLCRC::update(U8 next_byte)
 {
-	mCurrent = UPDC32(next_byte, mCurrent);
+    mCurrent = UPDC32(next_byte, mCurrent);
 }
 
 void LLCRC::update(const U8* buffer, size_t buffer_size)
 {
-	for (size_t i = 0; i < buffer_size; i++)
-	{
-		mCurrent = UPDC32(buffer[i], mCurrent);
-	}
+    for (size_t i = 0; i < buffer_size; i++)
+    {
+        mCurrent = UPDC32(buffer[i], mCurrent);
+    }
 }
 
 void LLCRC::update(const std::string& filename)
 {
-	if (filename.empty())
-	{
-		LL_ERRS() << "No filename specified" << LL_ENDL;
-		return;
-	}
+    if (filename.empty())
+    {
+        LL_ERRS() << "No filename specified" << LL_ENDL;
+        return;
+    }
 
-	FILE* fp = LLFile::fopen(filename, "rb");		/* Flawfinder: ignore */
+    FILE* fp = LLFile::fopen(filename, "rb");       /* Flawfinder: ignore */
 
-	if (fp)
-	{
-		fseek(fp, 0, SEEK_END);
-		long size = ftell(fp);
+    if (fp)
+    {
+        fseek(fp, 0, SEEK_END);
+        long size = ftell(fp);
 
-		fseek(fp, 0, SEEK_SET);
+        fseek(fp, 0, SEEK_SET);
 
-		if (size > 0)
-		{
-			U8* data = new U8[size];
-			size_t nread;
-			
-			nread = fread(data, 1, size, fp);
-			fclose(fp);
-			
-			if (nread < (size_t) size)
-			{
-				LL_WARNS() << "Short read on " << filename << LL_ENDL;
-			}
+        if (size > 0)
+        {
+            U8* data = new U8[size];
+            size_t nread;
+            
+            nread = fread(data, 1, size, fp);
+            fclose(fp);
+            
+            if (nread < (size_t) size)
+            {
+                LL_WARNS() << "Short read on " << filename << LL_ENDL;
+            }
 
-			update(data, nread);
-			delete[] data;
-		}
-		else
-		{
-			fclose(fp);
-		}
-	}
+            update(data, nread);
+            delete[] data;
+        }
+        else
+        {
+            fclose(fp);
+        }
+    }
 }
 
 
 #ifdef _DEBUG
 BOOL LLCRC::testHarness()
 {
-	const S32 TEST_BUFFER_SIZE = 16;
-	const char TEST_BUFFER[TEST_BUFFER_SIZE] = "hello &#$)$&Nd0";	/* Flawfinder: ignore */
-	LLCRC c1, c2;
-	c1.update((U8*)TEST_BUFFER, TEST_BUFFER_SIZE - 1);
-	char* rh = (char*)TEST_BUFFER;
-	while(*rh != '\0')
-	{
-		c2.update(*rh);
-		++rh;
-	}
-	return(c1.getCRC() == c2.getCRC());
+    const S32 TEST_BUFFER_SIZE = 16;
+    const char TEST_BUFFER[TEST_BUFFER_SIZE] = "hello &#$)$&Nd0";   /* Flawfinder: ignore */
+    LLCRC c1, c2;
+    c1.update((U8*)TEST_BUFFER, TEST_BUFFER_SIZE - 1);
+    char* rh = (char*)TEST_BUFFER;
+    while(*rh != '\0')
+    {
+        c2.update(*rh);
+        ++rh;
+    }
+    return(c1.getCRC() == c2.getCRC());
 }
 #endif
 

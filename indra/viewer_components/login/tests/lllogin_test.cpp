@@ -139,57 +139,57 @@ public:
 
 class LLXMLRPCListener: public LLEventTrackable
 {
-	std::string mName;
-	LLSD mEvent;
-	bool mImmediateResponse;
-	LLSD mResponse;
+    std::string mName;
+    LLSD mEvent;
+    bool mImmediateResponse;
+    LLSD mResponse;
     Debug mDebug;
 
 public:
-	LLXMLRPCListener(const std::string& name, 
-					 bool i = false,
-					 const LLSD& response = LLSD()
-					 ) : 
-		mName(name),
-		mImmediateResponse(i),
-		mResponse(response),
+    LLXMLRPCListener(const std::string& name, 
+                     bool i = false,
+                     const LLSD& response = LLSD()
+                     ) : 
+        mName(name),
+        mImmediateResponse(i),
+        mResponse(response),
         mDebug(stringize(*this))
-	{
-		if(mResponse.isUndefined())
-		{
-			mResponse["status"] = "Complete"; // StatusComplete
-			mResponse["errorcode"] = 0;
-			mResponse["error"] = "dummy response";
-			mResponse["transfer_rate"] = 0;
-			mResponse["responses"]["login"] = true;
-		}
-	}
+    {
+        if(mResponse.isUndefined())
+        {
+            mResponse["status"] = "Complete"; // StatusComplete
+            mResponse["errorcode"] = 0;
+            mResponse["error"] = "dummy response";
+            mResponse["transfer_rate"] = 0;
+            mResponse["responses"]["login"] = true;
+        }
+    }
 
-	void setResponse(const LLSD& r) 
-	{ 
-		mResponse = r; 
-	}
+    void setResponse(const LLSD& r) 
+    { 
+        mResponse = r; 
+    }
 
-	bool handle_event(const LLSD& event)
-	{
-		mDebug(STRINGIZE("LLXMLRPCListener called!: " << event));
-		mEvent = event;
-		if(mImmediateResponse)
-		{
-			sendReply();
-		}
-		return false;
-	}
+    bool handle_event(const LLSD& event)
+    {
+        mDebug(STRINGIZE("LLXMLRPCListener called!: " << event));
+        mEvent = event;
+        if(mImmediateResponse)
+        {
+            sendReply();
+        }
+        return false;
+    }
 
-	void sendReply()
-	{
-		LLEventPumps::instance().obtain(mEvent["reply"]).post(mResponse);
-	}
+    void sendReply()
+    {
+        LLEventPumps::instance().obtain(mEvent["reply"]).post(mResponse);
+    }
 
-	LLBoundListener listenTo(LLEventPump& pump)
+    LLBoundListener listenTo(LLEventPump& pump)
     {
         return pump.listen(mName, boost::bind(&LLXMLRPCListener::handle_event, this, _1));
-	}
+    }
 
     friend std::ostream& operator<<(std::ostream& out, const LLXMLRPCListener& listener)
     {
@@ -223,121 +223,121 @@ namespace tut
     void llviewerlogin_object::test<1>()
     {
         DEBUG;
-		// Testing login with an immediate response from XMLPRC
-		// The response will come before the post request exits.
-		// This tests an edge case of the login state handling.
-		LLEventStream xmlrpcPump("LLXMLRPCTransaction"); // Dummy XMLRPC pump
+        // Testing login with an immediate response from XMLPRC
+        // The response will come before the post request exits.
+        // This tests an edge case of the login state handling.
+        LLEventStream xmlrpcPump("LLXMLRPCTransaction"); // Dummy XMLRPC pump
 
-		bool respond_immediately = true;
+        bool respond_immediately = true;
 
-		// Have dummy XMLRPC respond immediately.
-		LLXMLRPCListener dummyXMLRPC("dummy_xmlrpc", respond_immediately);
-		LLTempBoundListener conn1 = dummyXMLRPC.listenTo(xmlrpcPump);
+        // Have dummy XMLRPC respond immediately.
+        LLXMLRPCListener dummyXMLRPC("dummy_xmlrpc", respond_immediately);
+        LLTempBoundListener conn1 = dummyXMLRPC.listenTo(xmlrpcPump);
 
-		LLLogin login;
+        LLLogin login;
 
-		LoginListener listener("test_ear");
-		LLTempBoundListener conn2 = listener.listenTo(login.getEventPump());
+        LoginListener listener("test_ear");
+        LLTempBoundListener conn2 = listener.listenTo(login.getEventPump());
 
-		LLSD credentials;
-		credentials["first"] = "foo";
-		credentials["last"] = "bar";
-		credentials["passwd"] = "secret";
+        LLSD credentials;
+        credentials["first"] = "foo";
+        credentials["last"] = "bar";
+        credentials["passwd"] = "secret";
 
-		login.connect("login.bar.com", credentials);
-		listener.waitFor(
-			"online state",
-			[&listener]()->bool{ return listener.lastEvent()["state"].asString() == "online"; });
-	}
+        login.connect("login.bar.com", credentials);
+        listener.waitFor(
+            "online state",
+            [&listener]()->bool{ return listener.lastEvent()["state"].asString() == "online"; });
+    }
 
     template<> template<>
     void llviewerlogin_object::test<2>()
     {
         DEBUG;
-		// Test completed response, that fails to login.
-		set_test_name("LLLogin valid response, failure (eg. bad credentials)");
+        // Test completed response, that fails to login.
+        set_test_name("LLLogin valid response, failure (eg. bad credentials)");
 
-		// Testing normal login procedure.
-		LLEventStream xmlrpcPump("LLXMLRPCTransaction"); // Dummy XMLRPC pump
+        // Testing normal login procedure.
+        LLEventStream xmlrpcPump("LLXMLRPCTransaction"); // Dummy XMLRPC pump
 
-		LLXMLRPCListener dummyXMLRPC("dummy_xmlrpc");
-		LLTempBoundListener conn1 = dummyXMLRPC.listenTo(xmlrpcPump);
+        LLXMLRPCListener dummyXMLRPC("dummy_xmlrpc");
+        LLTempBoundListener conn1 = dummyXMLRPC.listenTo(xmlrpcPump);
 
-		LLLogin login;
-		LoginListener listener("test_ear");
-		LLTempBoundListener conn2 = listener.listenTo(login.getEventPump());
+        LLLogin login;
+        LoginListener listener("test_ear");
+        LLTempBoundListener conn2 = listener.listenTo(login.getEventPump());
 
-		LLSD credentials;
-		credentials["first"] = "who";
-		credentials["last"] = "what";
-		credentials["passwd"] = "badpasswd";
+        LLSD credentials;
+        credentials["first"] = "who";
+        credentials["last"] = "what";
+        credentials["passwd"] = "badpasswd";
 
-		login.connect("login.bar.com", credentials);
-		llcoro::suspend();
+        login.connect("login.bar.com", credentials);
+        llcoro::suspend();
 
-		ensure_equals("Auth state", listener.lastEvent()["change"].asString(), "authenticating"); 
+        ensure_equals("Auth state", listener.lastEvent()["change"].asString(), "authenticating"); 
 
-		auto prev = listener.getCalls();
+        auto prev = listener.getCalls();
 
-		// Send the failed auth request reponse
-		LLSD data;
-		data["status"] = "Complete";
-		data["errorcode"] = 0;
-		data["error"] = "dummy response";
-		data["transfer_rate"] = 0;
-		data["responses"]["login"] = "false";
-		dummyXMLRPC.setResponse(data);
-		dummyXMLRPC.sendReply();
-		// we happen to know LLLogin uses a 10-second timeout to try to sync
-		// with SLVersionChecker -- allow at least that much time before
-		// giving up
-		listener.waitFor(prev, 11.0);
+        // Send the failed auth request reponse
+        LLSD data;
+        data["status"] = "Complete";
+        data["errorcode"] = 0;
+        data["error"] = "dummy response";
+        data["transfer_rate"] = 0;
+        data["responses"]["login"] = "false";
+        dummyXMLRPC.setResponse(data);
+        dummyXMLRPC.sendReply();
+        // we happen to know LLLogin uses a 10-second timeout to try to sync
+        // with SLVersionChecker -- allow at least that much time before
+        // giving up
+        listener.waitFor(prev, 11.0);
 
-		ensure_equals("Failed to offline", listener.lastEvent()["state"].asString(), "offline");
-	}
+        ensure_equals("Failed to offline", listener.lastEvent()["state"].asString(), "offline");
+    }
 
     template<> template<>
     void llviewerlogin_object::test<3>()
     {
         DEBUG;
-		// Test incomplete response, that end the attempt.
-		set_test_name("LLLogin valid response, failure (eg. bad credentials)");
+        // Test incomplete response, that end the attempt.
+        set_test_name("LLLogin valid response, failure (eg. bad credentials)");
 
-		// Testing normal login procedure.
-		LLEventStream xmlrpcPump("LLXMLRPCTransaction"); // Dummy XMLRPC pump
+        // Testing normal login procedure.
+        LLEventStream xmlrpcPump("LLXMLRPCTransaction"); // Dummy XMLRPC pump
 
-		LLXMLRPCListener dummyXMLRPC("dummy_xmlrpc");
-		LLTempBoundListener conn1 = dummyXMLRPC.listenTo(xmlrpcPump);
+        LLXMLRPCListener dummyXMLRPC("dummy_xmlrpc");
+        LLTempBoundListener conn1 = dummyXMLRPC.listenTo(xmlrpcPump);
 
-		LLLogin login;
-		LoginListener listener("test_ear");
-		LLTempBoundListener conn2 = listener.listenTo(login.getEventPump());
+        LLLogin login;
+        LoginListener listener("test_ear");
+        LLTempBoundListener conn2 = listener.listenTo(login.getEventPump());
 
-		LLSD credentials;
-		credentials["first"] = "these";
-		credentials["last"] = "don't";
-		credentials["passwd"] = "matter";
+        LLSD credentials;
+        credentials["first"] = "these";
+        credentials["last"] = "don't";
+        credentials["passwd"] = "matter";
 
-		login.connect("login.bar.com", credentials);
-		llcoro::suspend();
+        login.connect("login.bar.com", credentials);
+        llcoro::suspend();
 
-		ensure_equals("Auth state", listener.lastEvent()["change"].asString(), "authenticating"); 
+        ensure_equals("Auth state", listener.lastEvent()["change"].asString(), "authenticating"); 
 
-		auto prev = listener.getCalls();
+        auto prev = listener.getCalls();
 
-		// Send the failed auth request reponse
-		LLSD data;
-		data["status"] = "OtherError";
-		data["errorcode"] = 0;
-		data["error"] = "dummy response";
-		data["transfer_rate"] = 0;
-		dummyXMLRPC.setResponse(data);
-		dummyXMLRPC.sendReply();
-		// we happen to know LLLogin uses a 10-second timeout to try to sync
-		// with SLVersionChecker -- allow at least that much time before
-		// giving up
-		listener.waitFor(prev, 11.0);
+        // Send the failed auth request reponse
+        LLSD data;
+        data["status"] = "OtherError";
+        data["errorcode"] = 0;
+        data["error"] = "dummy response";
+        data["transfer_rate"] = 0;
+        dummyXMLRPC.setResponse(data);
+        dummyXMLRPC.sendReply();
+        // we happen to know LLLogin uses a 10-second timeout to try to sync
+        // with SLVersionChecker -- allow at least that much time before
+        // giving up
+        listener.waitFor(prev, 11.0);
 
-		ensure_equals("Failed to offline", listener.lastEvent()["state"].asString(), "offline");
-	}
+        ensure_equals("Failed to offline", listener.lastEvent()["state"].asString(), "offline");
+    }
 }

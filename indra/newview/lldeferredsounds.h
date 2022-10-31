@@ -33,13 +33,13 @@ struct SoundData;
 
 class LLDeferredSounds : public LLSingleton<LLDeferredSounds>
 {
-	LLSINGLETON_EMPTY_CTOR(LLDeferredSounds);
-	std::vector<SoundData> soundVector;
+    LLSINGLETON_EMPTY_CTOR(LLDeferredSounds);
+    std::vector<SoundData> soundVector;
 public:
-	//Add sounds to be played once progress bar is hidden (such as after teleport or loading screen)
-	void deferSound(SoundData& sound);
+    //Add sounds to be played once progress bar is hidden (such as after teleport or loading screen)
+    void deferSound(SoundData& sound);
 
-	void playdeferredSounds();
+    void playdeferredSounds();
 };
 
 #endif // LL_LLDEFERREDSOUNDS_H

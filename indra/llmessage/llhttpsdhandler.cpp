@@ -42,36 +42,36 @@ LLHttpSDHandler::LLHttpSDHandler()
 
 void LLHttpSDHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
 {
-	LLCore::HttpStatus status = response->getStatus();
+    LLCore::HttpStatus status = response->getStatus();
 
-	if (!status)
-	{
-		this->onFailure(response, status);
-	}
-	else
-	{
-		LLSD resplsd;
-		const bool emit_parse_errors = false;
+    if (!status)
+    {
+        this->onFailure(response, status);
+    }
+    else
+    {
+        LLSD resplsd;
+        const bool emit_parse_errors = false;
 
-		bool parsed = !((response->getBodySize() == 0) ||
-			!LLCoreHttpUtil::responseToLLSD(response, emit_parse_errors, resplsd));
+        bool parsed = !((response->getBodySize() == 0) ||
+            !LLCoreHttpUtil::responseToLLSD(response, emit_parse_errors, resplsd));
 
-		if (!parsed) 
-		{
-			// Only emit a warning if we failed to parse when 'content-type' == 'application/llsd+xml'
-			LLCore::HttpHeaders::ptr_t headers(response->getHeaders());
-			const std::string *contentType = (headers) ? headers->find(HTTP_IN_HEADER_CONTENT_TYPE) : NULL;
+        if (!parsed) 
+        {
+            // Only emit a warning if we failed to parse when 'content-type' == 'application/llsd+xml'
+            LLCore::HttpHeaders::ptr_t headers(response->getHeaders());
+            const std::string *contentType = (headers) ? headers->find(HTTP_IN_HEADER_CONTENT_TYPE) : NULL;
 
-			if (contentType && (HTTP_CONTENT_LLSD_XML == *contentType))
-			{
-				std::string thebody = LLCoreHttpUtil::responseToString(response);
+            if (contentType && (HTTP_CONTENT_LLSD_XML == *contentType))
+            {
+                std::string thebody = LLCoreHttpUtil::responseToString(response);
 
-				LL_WARNS() << "Failed to deserialize . " << response->getRequestURL() << " [status:" << response->getStatus().toString() << "] "
-					<< " body: " << thebody << LL_ENDL;
-			}
-		}
+                LL_WARNS() << "Failed to deserialize . " << response->getRequestURL() << " [status:" << response->getStatus().toString() << "] "
+                    << " body: " << thebody << LL_ENDL;
+            }
+        }
 
-		this->onSuccess(response, resplsd);
-	}
+        this->onSuccess(response, resplsd);
+    }
 
 }

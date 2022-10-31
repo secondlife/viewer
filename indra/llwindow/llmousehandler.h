@@ -38,36 +38,36 @@
 class LLMouseHandler
 {
 public:
-	LLMouseHandler() {}
-	virtual ~LLMouseHandler() {}
+    LLMouseHandler() {}
+    virtual ~LLMouseHandler() {}
 
-	typedef enum {
-		SHOW_NEVER,
-		SHOW_IF_NOT_BLOCKED,
-		SHOW_ALWAYS,
-	} EShowToolTip;
+    typedef enum {
+        SHOW_NEVER,
+        SHOW_IF_NOT_BLOCKED,
+        SHOW_ALWAYS,
+    } EShowToolTip;
 
-	virtual BOOL	handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down);
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask) = 0;
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask) = 0;
-	virtual BOOL	handleMiddleMouseDown(S32 x, S32 y, MASK mask) = 0;
-	virtual BOOL	handleMiddleMouseUp(S32 x, S32 y, MASK mask) = 0;
-	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask) = 0;
-	virtual BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask) = 0;
-	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask) = 0;
+    virtual BOOL    handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down);
+    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask) = 0;
+    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask) = 0;
+    virtual BOOL    handleMiddleMouseDown(S32 x, S32 y, MASK mask) = 0;
+    virtual BOOL    handleMiddleMouseUp(S32 x, S32 y, MASK mask) = 0;
+    virtual BOOL    handleRightMouseDown(S32 x, S32 y, MASK mask) = 0;
+    virtual BOOL    handleRightMouseUp(S32 x, S32 y, MASK mask) = 0;
+    virtual BOOL    handleDoubleClick(S32 x, S32 y, MASK mask) = 0;
 
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask) = 0;
-	virtual BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks) = 0;
-	virtual BOOL	handleScrollHWheel(S32 x, S32 y, S32 clicks) = 0;
-	virtual BOOL	handleToolTip(S32 x, S32 y, MASK mask) = 0;
-	virtual const std::string& getName() const = 0;
+    virtual BOOL    handleHover(S32 x, S32 y, MASK mask) = 0;
+    virtual BOOL    handleScrollWheel(S32 x, S32 y, S32 clicks) = 0;
+    virtual BOOL    handleScrollHWheel(S32 x, S32 y, S32 clicks) = 0;
+    virtual BOOL    handleToolTip(S32 x, S32 y, MASK mask) = 0;
+    virtual const std::string& getName() const = 0;
 
-	virtual void	onMouseCaptureLost() = 0;
+    virtual void    onMouseCaptureLost() = 0;
 
-	virtual void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const = 0;
-	virtual void	localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const = 0;
+    virtual void    screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const = 0;
+    virtual void    localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const = 0;
 
-	virtual BOOL hasMouseCapture() = 0;
+    virtual BOOL hasMouseCapture() = 0;
 };
 
 #endif

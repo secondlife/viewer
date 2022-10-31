@@ -38,40 +38,40 @@ class LLImageRaw;
 class LLFloaterOutfitPhotoPreview : public LLPreview
 {
 public:
-	LLFloaterOutfitPhotoPreview(const LLSD& key);
-	~LLFloaterOutfitPhotoPreview();
+    LLFloaterOutfitPhotoPreview(const LLSD& key);
+    ~LLFloaterOutfitPhotoPreview();
 
-	virtual void		draw();
+    virtual void        draw();
 
-	virtual void		loadAsset();
-	virtual EAssetStatus	getAssetStatus();
-	
-	virtual void		reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    virtual void        loadAsset();
+    virtual EAssetStatus    getAssetStatus();
+    
+    virtual void        reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
-	/*virtual*/ void setObjectID(const LLUUID& object_id);
+    /*virtual*/ void setObjectID(const LLUUID& object_id);
 
-	void setOutfitID(const LLUUID& outfit_id);
-	void onOkBtn();
-	void onCancelBtn();
+    void setOutfitID(const LLUUID& outfit_id);
+    void onOkBtn();
+    void onCancelBtn();
 
 protected:
-	void				init();
-	/* virtual */ BOOL	postBuild();
-	
+    void                init();
+    /* virtual */ BOOL  postBuild();
+    
 private:
-	void				updateImageID(); // set what image is being uploaded.
-	void				updateDimensions();
-	LLUUID				mImageID;
-	LLUUID				mOutfitID;
-	LLPointer<LLViewerFetchedTexture>		mImage;
-	S32                 mImageOldBoostLevel;
+    void                updateImageID(); // set what image is being uploaded.
+    void                updateDimensions();
+    LLUUID              mImageID;
+    LLUUID              mOutfitID;
+    LLPointer<LLViewerFetchedTexture>       mImage;
+    S32                 mImageOldBoostLevel;
 
-	// This is stored off in a member variable, because the save-as
-	// button and drag and drop functionality need to know.
-	BOOL mUpdateDimensions;
+    // This is stored off in a member variable, because the save-as
+    // button and drag and drop functionality need to know.
+    BOOL mUpdateDimensions;
 
-	BOOL mExceedLimits;
+    BOOL mExceedLimits;
 
-	LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ;
+    LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ;
 };
 #endif  // LL_LLFLOATEROUTFITPHOTOPREVIEW_H

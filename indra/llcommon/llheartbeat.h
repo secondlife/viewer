@@ -37,32 +37,32 @@
 class LL_COMMON_API LLHeartbeat
 {
 public:
-	// secs_between_heartbeat: after a heartbeat is successfully delivered,
-	//   we suppress sending more for this length of time.
-	// aggressive_heartbeat_panic_secs: if we've been failing to
-	//   successfully deliver heartbeats for this length of time then
-	//   we block for a while until we're really sure we got one delivered.
-	// aggressive_heartbeat_max_blocking_secs: this is the length of
-	//   time we block for when we're aggressively ensuring that a 'panic'
-	//   heartbeat was delivered.
-	LLHeartbeat(F32 secs_between_heartbeat = 5.0f,
-		    F32 aggressive_heartbeat_panic_secs = 10.0f,
-		    F32 aggressive_heartbeat_max_blocking_secs = 4.0f);
-	~LLHeartbeat();
+    // secs_between_heartbeat: after a heartbeat is successfully delivered,
+    //   we suppress sending more for this length of time.
+    // aggressive_heartbeat_panic_secs: if we've been failing to
+    //   successfully deliver heartbeats for this length of time then
+    //   we block for a while until we're really sure we got one delivered.
+    // aggressive_heartbeat_max_blocking_secs: this is the length of
+    //   time we block for when we're aggressively ensuring that a 'panic'
+    //   heartbeat was delivered.
+    LLHeartbeat(F32 secs_between_heartbeat = 5.0f,
+            F32 aggressive_heartbeat_panic_secs = 10.0f,
+            F32 aggressive_heartbeat_max_blocking_secs = 4.0f);
+    ~LLHeartbeat();
 
-	bool send(F32 timeout_sec = 0.0f);
-	void setSuppressed(bool is_suppressed);
+    bool send(F32 timeout_sec = 0.0f);
+    void setSuppressed(bool is_suppressed);
 
 private:
-	int rawSend();
-	int rawSendWithTimeout(F32 timeout_sec);
-	F32 mSecsBetweenHeartbeat;
-	F32 mAggressiveHeartbeatPanicSecs;
-	F32 mAggressiveHeartbeatMaxBlockingSecs;
-	bool mSuppressed;
-	LLTimer mBeatTimer;
-	LLTimer mPanicTimer;
-	LLTimer mTimeoutTimer;
+    int rawSend();
+    int rawSendWithTimeout(F32 timeout_sec);
+    F32 mSecsBetweenHeartbeat;
+    F32 mAggressiveHeartbeatPanicSecs;
+    F32 mAggressiveHeartbeatMaxBlockingSecs;
+    bool mSuppressed;
+    LLTimer mBeatTimer;
+    LLTimer mPanicTimer;
+    LLTimer mTimeoutTimer;
 };
 
 #endif // LL_HEARTBEAT_H

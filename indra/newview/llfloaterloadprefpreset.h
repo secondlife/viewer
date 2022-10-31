@@ -36,18 +36,18 @@ class LLFloaterLoadPrefPreset : public LLFloater
 {
 
 public:
-	LLFloaterLoadPrefPreset(const LLSD &key);
+    LLFloaterLoadPrefPreset(const LLSD &key);
 
-	/*virtual*/	BOOL	postBuild();
-	/*virtual*/ void	onOpen(const LLSD& key);
+    /*virtual*/ BOOL    postBuild();
+    /*virtual*/ void    onOpen(const LLSD& key);
 
-	void onBtnOk();
-	void onBtnCancel();
+    void onBtnOk();
+    void onBtnCancel();
 
 private:
-	void onPresetsListChange();
+    void onPresetsListChange();
 
-	std::string mSubdirectory;
+    std::string mSubdirectory;
 };
 
 #endif // LL_LLFLOATERLOADPREFPRESET_H

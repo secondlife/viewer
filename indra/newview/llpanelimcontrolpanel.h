@@ -33,51 +33,51 @@
 class LLParticipantList;
 
 class LLPanelChatControlPanel
-	: public LLPanel
+    : public LLPanel
 {
 public:
-	LLPanelChatControlPanel() :
-		mSessionId(LLUUID()) {};
-	~LLPanelChatControlPanel();
+    LLPanelChatControlPanel() :
+        mSessionId(LLUUID()) {};
+    ~LLPanelChatControlPanel();
 
-	virtual BOOL postBuild();
+    virtual BOOL postBuild();
 
-	virtual void setSessionId(const LLUUID& session_id);
-	const LLUUID& getSessionId() { return mSessionId; }
+    virtual void setSessionId(const LLUUID& session_id);
+    const LLUUID& getSessionId() { return mSessionId; }
 
 private:
-	LLUUID mSessionId;
+    LLUUID mSessionId;
 
-	// connection to voice channel state change signal
-	boost::signals2::connection mVoiceChannelStateChangeConnection;
+    // connection to voice channel state change signal
+    boost::signals2::connection mVoiceChannelStateChangeConnection;
 };
 
 class LLPanelGroupControlPanel : public LLPanelChatControlPanel
 {
 public:
-	LLPanelGroupControlPanel(const LLUUID& session_id);
-	~LLPanelGroupControlPanel();
+    LLPanelGroupControlPanel(const LLUUID& session_id);
+    ~LLPanelGroupControlPanel();
 
-	BOOL postBuild();
+    BOOL postBuild();
 
-	void setSessionId(const LLUUID& session_id);
-	/*virtual*/ void draw();
+    void setSessionId(const LLUUID& session_id);
+    /*virtual*/ void draw();
 
 protected:
-	LLUUID mGroupID;
+    LLUUID mGroupID;
 
-	LLParticipantList* mParticipantList;
+    LLParticipantList* mParticipantList;
 
 private:
-	void onSortMenuItemClicked(const LLSD& userdata);
+    void onSortMenuItemClicked(const LLSD& userdata);
 };
 
 class LLPanelAdHocControlPanel : public LLPanelGroupControlPanel
 {
 public:
-	LLPanelAdHocControlPanel(const LLUUID& session_id);
+    LLPanelAdHocControlPanel(const LLUUID& session_id);
 
-	BOOL postBuild();
+    BOOL postBuild();
 
 };
 

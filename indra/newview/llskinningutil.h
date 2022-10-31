@@ -67,7 +67,7 @@ namespace LLSkinningUtil
 
     void initJointNums(LLMeshSkinInfo* skin, LLVOAvatar *avatar);
     void updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *avatar, LLVolumeFace& vol_face);
-	LLQuaternion getUnscaledQuaternion(const LLMatrix4& mat4);
+    LLQuaternion getUnscaledQuaternion(const LLMatrix4& mat4);
 };
 
 #endif

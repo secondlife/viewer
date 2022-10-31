@@ -38,28 +38,28 @@ class LLComboBox;
 class LLFloaterURLEntry : public LLFloater
 {
 public:
-	// Can only be shown by LLPanelLandMedia, and pushes data back into
-	// that panel via the handle.
-	static LLHandle<LLFloater> show(LLHandle<LLPanel> panel_land_media_handle, const std::string media_url);
-	/*virtual*/	BOOL	postBuild();
+    // Can only be shown by LLPanelLandMedia, and pushes data back into
+    // that panel via the handle.
+    static LLHandle<LLFloater> show(LLHandle<LLPanel> panel_land_media_handle, const std::string media_url);
+    /*virtual*/ BOOL    postBuild();
     /*virtual*/ void onClose( bool app_quitting );
-	void headerFetchComplete(S32 status, const std::string& mime_type);
+    void headerFetchComplete(S32 status, const std::string& mime_type);
 
-	bool addURLToCombobox(const std::string& media_url);
-
-private:
-	LLFloaterURLEntry(LLHandle<LLPanel> parent);
-	/*virtual*/ ~LLFloaterURLEntry();
-	void buildURLHistory();
+    bool addURLToCombobox(const std::string& media_url);
 
 private:
-	LLComboBox*		mMediaURLEdit;
-	LLHandle<LLPanel> mPanelLandMediaHandle;
+    LLFloaterURLEntry(LLHandle<LLPanel> parent);
+    /*virtual*/ ~LLFloaterURLEntry();
+    void buildURLHistory();
 
-	static void		onBtnOK(void*);
-	static void		onBtnCancel(void*);
-	static void		onBtnClear(void*);
-	bool		    callback_clear_url_list(const LLSD& notification, const LLSD& response);
+private:
+    LLComboBox*     mMediaURLEdit;
+    LLHandle<LLPanel> mPanelLandMediaHandle;
+
+    static void     onBtnOK(void*);
+    static void     onBtnCancel(void*);
+    static void     onBtnClear(void*);
+    bool            callback_clear_url_list(const LLSD& notification, const LLSD& response);
 
     static void     getMediaTypeCoro(std::string url, LLHandle<LLFloater> parentHandle);
 

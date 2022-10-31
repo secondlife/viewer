@@ -40,19 +40,19 @@
 /// @param[in] host_user_data Message data for messages from plugin to plugin loader shell
 
 MediaPluginBase::MediaPluginBase(
-	LLPluginInstance::sendMessageFunction host_send_func,
-	void *host_user_data )
+    LLPluginInstance::sendMessageFunction host_send_func,
+    void *host_user_data )
 {
-	mHostSendFunction = host_send_func;
-	mHostUserData = host_user_data;
-	mDeleteMe = false;
-	mPixels = 0;
-	mWidth = 0;
-	mHeight = 0;
-	mTextureWidth = 0;
-	mTextureHeight = 0;
-	mDepth = 0;
-	mStatus = STATUS_NONE;
+    mHostSendFunction = host_send_func;
+    mHostUserData = host_user_data;
+    mDeleteMe = false;
+    mPixels = 0;
+    mWidth = 0;
+    mHeight = 0;
+    mTextureWidth = 0;
+    mTextureHeight = 0;
+    mDepth = 0;
+    mStatus = STATUS_NONE;
 }
 
 /**
@@ -63,24 +63,24 @@ MediaPluginBase::MediaPluginBase(
  */
 std::string MediaPluginBase::statusString()
 {
-	std::string result;
-	
-	switch(mStatus)
-	{
-		case STATUS_LOADING:	result = "loading";		break;
-		case STATUS_LOADED:		result = "loaded";		break;
-		case STATUS_ERROR:		result = "error";		break;
-		case STATUS_PLAYING:	result = "playing";		break;
-		case STATUS_PAUSED:		result = "paused";		break;
-		case STATUS_DONE:		result = "done";		break;
-		default:
-			// keep the empty string
-		break;
-	}
-	
-	return result;
+    std::string result;
+    
+    switch(mStatus)
+    {
+        case STATUS_LOADING:    result = "loading";     break;
+        case STATUS_LOADED:     result = "loaded";      break;
+        case STATUS_ERROR:      result = "error";       break;
+        case STATUS_PLAYING:    result = "playing";     break;
+        case STATUS_PAUSED:     result = "paused";      break;
+        case STATUS_DONE:       result = "done";        break;
+        default:
+            // keep the empty string
+        break;
+    }
+    
+    return result;
 }
-	
+    
 /**
  * Set media status.
  * 
@@ -89,11 +89,11 @@ std::string MediaPluginBase::statusString()
  */
 void MediaPluginBase::setStatus(EStatus status)
 {
-	if(mStatus != status)
-	{
-		mStatus = status;
-		sendStatus();
-	}
+    if(mStatus != status)
+    {
+        mStatus = status;
+        sendStatus();
+    }
 }
 
 
@@ -106,19 +106,19 @@ void MediaPluginBase::setStatus(EStatus status)
  */
 void MediaPluginBase::staticReceiveMessage(const char *message_string, void **user_data)
 {
-	MediaPluginBase *self = (MediaPluginBase*)*user_data;
+    MediaPluginBase *self = (MediaPluginBase*)*user_data;
 
-	if(self != NULL)
-	{
-		self->receiveMessage(message_string);
+    if(self != NULL)
+    {
+        self->receiveMessage(message_string);
 
-		// If the plugin has processed the delete message, delete it.
-		if(self->mDeleteMe)
-		{
-			delete self;
-			*user_data = NULL;
-		}
-	}
+        // If the plugin has processed the delete message, delete it.
+        if(self->mDeleteMe)
+        {
+            delete self;
+            *user_data = NULL;
+        }
+    }
 }
 
 /**
@@ -129,8 +129,8 @@ void MediaPluginBase::staticReceiveMessage(const char *message_string, void **us
  */
 void MediaPluginBase::sendMessage(const LLPluginMessage &message)
 {
-	std::string output = message.generate();
-	mHostSendFunction(output.c_str(), &mHostUserData);
+    std::string output = message.generate();
+    mHostSendFunction(output.c_str(), &mHostUserData);
 }
 
 /**
@@ -144,14 +144,14 @@ void MediaPluginBase::sendMessage(const LLPluginMessage &message)
  */
 void MediaPluginBase::setDirty(int left, int top, int right, int bottom)
 {
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "updated");
+    LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "updated");
 
-	message.setValueS32("left", left);
-	message.setValueS32("top", top);
-	message.setValueS32("right", right);
-	message.setValueS32("bottom", bottom);
-	
-	sendMessage(message);
+    message.setValueS32("left", left);
+    message.setValueS32("top", top);
+    message.setValueS32("right", right);
+    message.setValueS32("bottom", bottom);
+    
+    sendMessage(message);
 }
 
 /**
@@ -160,11 +160,11 @@ void MediaPluginBase::setDirty(int left, int top, int right, int bottom)
  */
 void MediaPluginBase::sendStatus()
 {
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "media_status");
+    LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "media_status");
 
-	message.setValue("status", statusString());
-	
-	sendMessage(message);
+    message.setValue("status", statusString());
+    
+    sendMessage(message);
 }
 
 
@@ -178,7 +178,7 @@ void MediaPluginBase::sendStatus()
 
 extern "C"
 {
-	LLSYMEXPORT int LLPluginInitEntryPoint(LLPluginInstance::sendMessageFunction host_send_func, void *host_user_data, LLPluginInstance::sendMessageFunction *plugin_send_func, void **plugin_user_data);
+    LLSYMEXPORT int LLPluginInitEntryPoint(LLPluginInstance::sendMessageFunction host_send_func, void *host_user_data, LLPluginInstance::sendMessageFunction *plugin_send_func, void **plugin_user_data);
 }
 
 /**
@@ -195,12 +195,12 @@ extern "C"
 LLSYMEXPORT int
 LLPluginInitEntryPoint(LLPluginInstance::sendMessageFunction host_send_func, void *host_user_data, LLPluginInstance::sendMessageFunction *plugin_send_func, void **plugin_user_data)
 {
-	return init_media_plugin(host_send_func, host_user_data, plugin_send_func, plugin_user_data);
+    return init_media_plugin(host_send_func, host_user_data, plugin_send_func, plugin_user_data);
 }
 
 #ifdef WIN32
 int WINAPI DllEntryPoint( HINSTANCE hInstance, unsigned long reason, void* params )
 {
-	return 1;
+    return 1;
 }
 #endif

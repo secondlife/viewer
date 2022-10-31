@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_COMMON_H_
-#define	_LLCORE_HTTP_COMMON_H_
+#ifndef _LLCORE_HTTP_COMMON_H_
+#define _LLCORE_HTTP_COMMON_H_
 
 /// @package LLCore::HTTP
 ///
@@ -100,7 +100,7 @@
 /// yet functional tool to do GET request performance testing.
 /// With four calls:
 ///
-///   	init_curl();
+///     init_curl();
 ///     LLCore::HttpRequest::createService();
 ///     LLCore::HttpRequest::startThread();
 ///     LLCore::HttpRequest * hr = new LLCore::HttpRequest();
@@ -133,9 +133,9 @@
 /// Issuing requests.  Using 'hr' above,
 ///
 ///     hr->requestGet(HttpRequest::DEFAULT_POLICY_ID,
-///                    0,				// Priority, not used yet
+///                    0,               // Priority, not used yet
 ///                    url,
-///                    NULL,			// options
+///                    NULL,            // options
 ///                    NULL,            // additional headers
 ///                    handler);
 ///
@@ -162,11 +162,11 @@
 /// constraints which programmers must follow and which are
 /// defined as follows:
 ///
-/// consumer	Any thread that has instanced HttpRequest and is
+/// consumer    Any thread that has instanced HttpRequest and is
 ///             issuing requests.  A particular instance can only
 ///             be used by one consumer thread but a consumer may
 ///             have many instances available to it.
-/// init		Special consumer thread, usually the main thread,
+/// init        Special consumer thread, usually the main thread,
 ///             involved in setting up the library at startup.
 /// worker      Thread used internally by the library to perform
 ///             HTTP operations.  Consumers will not have to deal
@@ -187,7 +187,7 @@
 /// only here are mutexes used.
 ///
 
-#include "linden_common.h"		// Modifies curl/curl.h interfaces
+#include "linden_common.h"      // Modifies curl/curl.h interfaces
 #include "llsd.h"
 #include "boost/intrusive_ptr.hpp"
 #include "boost/shared_ptr.hpp"
@@ -212,7 +212,7 @@ namespace LLCore
 
 typedef void * HttpHandle;
 
-#define LLCORE_HTTP_HANDLE_INVALID		(NULL)
+#define LLCORE_HTTP_HANDLE_INVALID      (NULL)
 
 /// For internal scheduling and metrics, we use a microsecond
 /// timebase compatible with the environment.
@@ -222,41 +222,41 @@ typedef U64 HttpTime;
 /// libcurl (or any other transport provider).
 enum HttpError
 {
-	// Successful value compatible with the libcurl codes.
-	HE_SUCCESS = 0,
+    // Successful value compatible with the libcurl codes.
+    HE_SUCCESS = 0,
 
-	// Intended for HTTP reply codes 100-999, indicates that
-	// the reply should be considered an error by the application.
-	HE_REPLY_ERROR = 1,
-	
-	// Service is shutting down and requested operation will
-	// not be queued or performed.
-	HE_SHUTTING_DOWN = 2,
-	
-	// Operation was canceled by request.
-	HE_OP_CANCELED = 3,
-	
-	// Invalid content range header received.
-	HE_INV_CONTENT_RANGE_HDR = 4,
-	
-	// Request handle not found
-	HE_HANDLE_NOT_FOUND = 5,
+    // Intended for HTTP reply codes 100-999, indicates that
+    // the reply should be considered an error by the application.
+    HE_REPLY_ERROR = 1,
+    
+    // Service is shutting down and requested operation will
+    // not be queued or performed.
+    HE_SHUTTING_DOWN = 2,
+    
+    // Operation was canceled by request.
+    HE_OP_CANCELED = 3,
+    
+    // Invalid content range header received.
+    HE_INV_CONTENT_RANGE_HDR = 4,
+    
+    // Request handle not found
+    HE_HANDLE_NOT_FOUND = 5,
 
-	// Invalid datatype for option/setting
-	HE_INVALID_ARG = 6,
+    // Invalid datatype for option/setting
+    HE_INVALID_ARG = 6,
 
-	// Option hasn't been explicitly set
-	HE_OPT_NOT_SET = 7,
-	
-	// Option not dynamic, must be set during init phase
-	HE_OPT_NOT_DYNAMIC = 8,
-	
-	// Invalid HTTP status code returned by server
-	HE_INVALID_HTTP_STATUS = 9,
-	
-	// Couldn't allocate resource, typically libcurl handle
-	HE_BAD_ALLOC = 10
-	
+    // Option hasn't been explicitly set
+    HE_OPT_NOT_SET = 7,
+    
+    // Option not dynamic, must be set during init phase
+    HE_OPT_NOT_DYNAMIC = 8,
+    
+    // Invalid HTTP status code returned by server
+    HE_INVALID_HTTP_STATUS = 9,
+    
+    // Couldn't allocate resource, typically libcurl handle
+    HE_BAD_ALLOC = 10
+    
 }; // end enum HttpError
 
 
@@ -278,217 +278,217 @@ enum HttpError
 /// Examples:
 ///
 /// 1.  Construct a default, successful status code:
-///				HttpStatus();
+///             HttpStatus();
 ///
 /// 2.  Construct a successful, HTTP 200 status code:
-///				HttpStatus(200);
+///             HttpStatus(200);
 ///
 /// 3.  Construct a failed, HTTP 404 not-found status code:
-///				HttpStatus(404);
+///             HttpStatus(404);
 ///
 /// 4.  Construct a failed libcurl couldn't connect status code:
-///				HttpStatus(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_CONNECT);
+///             HttpStatus(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_CONNECT);
 ///
 /// 5.  Construct an HTTP 301 status code to be treated as success:
-///				HttpStatus(301, HE_SUCCESS);
+///             HttpStatus(301, HE_SUCCESS);
 ///
-/// 6.	Construct a failed status of HTTP Status 499 with a custom error message
-///				HttpStatus(499, "Failed LLSD Response");
+/// 6.  Construct a failed status of HTTP Status 499 with a custom error message
+///             HttpStatus(499, "Failed LLSD Response");
 
 struct HttpStatus
 {
-	typedef unsigned short type_enum_t;
-	
-	HttpStatus()
-	{
-		mDetails = boost::shared_ptr<Details>(new Details(LLCORE, HE_SUCCESS));
+    typedef unsigned short type_enum_t;
+    
+    HttpStatus()
+    {
+        mDetails = boost::shared_ptr<Details>(new Details(LLCORE, HE_SUCCESS));
     }
 
-	HttpStatus(type_enum_t type, short status)
-	{
+    HttpStatus(type_enum_t type, short status)
+    {
         mDetails = boost::shared_ptr<Details>(new Details(type, status));
-	}
-	
-	HttpStatus(int http_status)
-	{
+    }
+    
+    HttpStatus(int http_status)
+    {
         mDetails = boost::shared_ptr<Details>(new Details(http_status, 
-			(http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR));
-		llassert(http_status >= 100 && http_status <= 999);
-	}
+            (http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR));
+        llassert(http_status >= 100 && http_status <= 999);
+    }
 
-	HttpStatus(int http_status, const std::string &message)
-	{
+    HttpStatus(int http_status, const std::string &message)
+    {
         mDetails = boost::shared_ptr<Details>(new Details(http_status,
-			(http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR));
-		llassert(http_status >= 100 && http_status <= 999);
-		mDetails->mMessage = message;
-	}
-	
-	HttpStatus(const HttpStatus & rhs)
-	{
-		mDetails = rhs.mDetails;
-	}
-
-	~HttpStatus()
-	{
-	}
-
-	HttpStatus & operator=(const HttpStatus & rhs)
-	{
+            (http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR));
+        llassert(http_status >= 100 && http_status <= 999);
+        mDetails->mMessage = message;
+    }
+    
+    HttpStatus(const HttpStatus & rhs)
+    {
         mDetails = rhs.mDetails;
-		return *this;
-	}
+    }
+
+    ~HttpStatus()
+    {
+    }
+
+    HttpStatus & operator=(const HttpStatus & rhs)
+    {
+        mDetails = rhs.mDetails;
+        return *this;
+    }
 
     HttpStatus & clone(const HttpStatus &rhs)
     {
         mDetails = boost::shared_ptr<Details>(new Details(*rhs.mDetails));
         return *this;
     }
-	
-	static const type_enum_t EXT_CURL_EASY = 0;			///< mStatus is an error from a curl_easy_*() call
-	static const type_enum_t EXT_CURL_MULTI = 1;		///< mStatus is an error from a curl_multi_*() call
-	static const type_enum_t LLCORE = 2;				///< mStatus is an HE_* error code
-														///< 100-999 directly represent HTTP status codes
-	/// Test for successful status in the code regardless
-	/// of error source (internal, libcurl).
-	///
-	/// @return			'true' when status is successful.
-	///
-	operator bool() const
-	{
-		return 0 == mDetails->mStatus;
-	}
+    
+    static const type_enum_t EXT_CURL_EASY = 0;         ///< mStatus is an error from a curl_easy_*() call
+    static const type_enum_t EXT_CURL_MULTI = 1;        ///< mStatus is an error from a curl_multi_*() call
+    static const type_enum_t LLCORE = 2;                ///< mStatus is an HE_* error code
+                                                        ///< 100-999 directly represent HTTP status codes
+    /// Test for successful status in the code regardless
+    /// of error source (internal, libcurl).
+    ///
+    /// @return         'true' when status is successful.
+    ///
+    operator bool() const
+    {
+        return 0 == mDetails->mStatus;
+    }
 
-	/// Inverse of previous operator.
-	///
-	/// @return			'true' on any error condition
-	bool operator !() const
-	{
-		return 0 != mDetails->mStatus;
-	}
+    /// Inverse of previous operator.
+    ///
+    /// @return         'true' on any error condition
+    bool operator !() const
+    {
+        return 0 != mDetails->mStatus;
+    }
 
-	/// Equality and inequality tests to bypass bool conversion
-	/// which will do the wrong thing in conditional expressions.
-	bool operator==(const HttpStatus & rhs) const
-	{
+    /// Equality and inequality tests to bypass bool conversion
+    /// which will do the wrong thing in conditional expressions.
+    bool operator==(const HttpStatus & rhs) const
+    {
         return (*mDetails == *rhs.mDetails); 
-	}
+    }
 
-	bool operator!=(const HttpStatus & rhs) const
-	{
-		return ! operator==(rhs);
-	}
+    bool operator!=(const HttpStatus & rhs) const
+    {
+        return ! operator==(rhs);
+    }
 
-	/// Convert to single numeric representation.  Mainly
-	/// for logging or other informal purposes.  Also
-	/// creates an ambiguous second path to integer conversion
-	/// which tends to find programming errors such as formatting
-	/// the status to a stream (operator<<).
-	operator U32() const;
-	U32 toULong() const
-	{
-		return operator U32();
-	}
+    /// Convert to single numeric representation.  Mainly
+    /// for logging or other informal purposes.  Also
+    /// creates an ambiguous second path to integer conversion
+    /// which tends to find programming errors such as formatting
+    /// the status to a stream (operator<<).
+    operator U32() const;
+    U32 toULong() const
+    {
+        return operator U32();
+    }
 
-	/// And to convert to a hex string.
-	std::string toHex() const;
-	
-	/// Convert status to a string representation.  For
-	/// success, returns an empty string.  For failure
-	/// statuses, a string as appropriate for the source of
-	/// the error code (libcurl easy, libcurl multi, or
-	/// LLCore itself).
-	std::string toString() const;
+    /// And to convert to a hex string.
+    std::string toHex() const;
+    
+    /// Convert status to a string representation.  For
+    /// success, returns an empty string.  For failure
+    /// statuses, a string as appropriate for the source of
+    /// the error code (libcurl easy, libcurl multi, or
+    /// LLCore itself).
+    std::string toString() const;
 
-	/// Convert status to a compact string representation
-	/// of the form:  "<type>_<value>".  The <type> will be
-	/// one of:  Core, Http, Easy, Multi, Unknown.  And
-	/// <value> will be an unsigned integer.  More easily
-	/// interpreted than the hex representation, it's still
-	/// compact and easily searched.
-	std::string toTerseString() const;
+    /// Convert status to a compact string representation
+    /// of the form:  "<type>_<value>".  The <type> will be
+    /// one of:  Core, Http, Easy, Multi, Unknown.  And
+    /// <value> will be an unsigned integer.  More easily
+    /// interpreted than the hex representation, it's still
+    /// compact and easily searched.
+    std::string toTerseString() const;
 
-	/// Returns true if the status value represents an
-	/// HTTP response status (100 - 999).
-	bool isHttpStatus() const
-	{
-		return 	mDetails->mType >= type_enum_t(100) && mDetails->mType <= type_enum_t(999);
-	}
+    /// Returns true if the status value represents an
+    /// HTTP response status (100 - 999).
+    bool isHttpStatus() const
+    {
+        return  mDetails->mType >= type_enum_t(100) && mDetails->mType <= type_enum_t(999);
+    }
 
-	/// Returns true if the status is one that will be retried
-	/// internally.  Provided for external consumption for cases
-	/// where that logic needs to be replicated.  Only applies
-	/// to failed statuses, successful statuses will return false.
-	bool isRetryable() const;
+    /// Returns true if the status is one that will be retried
+    /// internally.  Provided for external consumption for cases
+    /// where that logic needs to be replicated.  Only applies
+    /// to failed statuses, successful statuses will return false.
+    bool isRetryable() const;
 
-	/// Returns the currently set status code as a raw number
-	///
-	short getStatus() const
-	{
-		return mDetails->mStatus;
-	}
+    /// Returns the currently set status code as a raw number
+    ///
+    short getStatus() const
+    {
+        return mDetails->mStatus;
+    }
 
-	/// Returns the currently set status type 
-	/// 
-	type_enum_t getType() const
-	{
-		return mDetails->mType;
-	}
+    /// Returns the currently set status type 
+    /// 
+    type_enum_t getType() const
+    {
+        return mDetails->mType;
+    }
 
-	/// Returns an optional error message if one has been set.
-	///
-	std::string getMessage() const
-	{
-		return mDetails->mMessage;
-	}
+    /// Returns an optional error message if one has been set.
+    ///
+    std::string getMessage() const
+    {
+        return mDetails->mMessage;
+    }
 
-	/// Sets an optional error message
-	/// 
-	void setMessage(const std::string &message)
-	{
-		mDetails->mMessage = message;
-	}
+    /// Sets an optional error message
+    /// 
+    void setMessage(const std::string &message)
+    {
+        mDetails->mMessage = message;
+    }
 
-	/// Retrieves data about an optionally recorded SSL certificate.
-	LLSD getErrorData() const
-	{
-		return mDetails->mErrorData;
-	}
+    /// Retrieves data about an optionally recorded SSL certificate.
+    LLSD getErrorData() const
+    {
+        return mDetails->mErrorData;
+    }
 
-	/// Optionally sets an SSL certificate on this status.
-	void setErrorData(LLSD data)
-	{
-		mDetails->mErrorData = data;
-	}
+    /// Optionally sets an SSL certificate on this status.
+    void setErrorData(LLSD data)
+    {
+        mDetails->mErrorData = data;
+    }
 
 private:
 
-	struct Details
-	{
-		Details(type_enum_t type, short status):
-			mType(type),
-			mStatus(status),
-			mMessage(),
-			mErrorData()
-		{}
+    struct Details
+    {
+        Details(type_enum_t type, short status):
+            mType(type),
+            mStatus(status),
+            mMessage(),
+            mErrorData()
+        {}
 
-		Details(const Details &rhs) :
-			mType(rhs.mType),
-			mStatus(rhs.mStatus),
-			mMessage(rhs.mMessage),
-			mErrorData(rhs.mErrorData)
-		{}
+        Details(const Details &rhs) :
+            mType(rhs.mType),
+            mStatus(rhs.mStatus),
+            mMessage(rhs.mMessage),
+            mErrorData(rhs.mErrorData)
+        {}
 
         bool operator == (const Details &rhs) const
         {
             return (mType == rhs.mType) && (mStatus == rhs.mStatus);
         }
 
-		type_enum_t	mType;
-		short		mStatus;
-		std::string	mMessage;
-		LLSD		mErrorData;
-	};
+        type_enum_t mType;
+        short       mStatus;
+        std::string mMessage;
+        LLSD        mErrorData;
+    };
 
     boost::shared_ptr<Details> mDetails;
 
@@ -510,4 +510,4 @@ namespace LLHttp
 
 }  // end namespace LLCore
 
-#endif	// _LLCORE_HTTP_COMMON_H_
+#endif  // _LLCORE_HTTP_COMMON_H_

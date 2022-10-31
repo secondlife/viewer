@@ -34,17 +34,17 @@ LLClassifiedInfo::cat_map LLClassifiedInfo::sCategories;
 // static
 void LLClassifiedInfo::loadCategories(const LLSD& options)
 {
-	for(LLSD::array_const_iterator resp_it = options.beginArray(),
-		end = options.endArray(); resp_it != end; ++resp_it)
-	{
-		LLSD name = (*resp_it)["category_name"];
-		if(name.isDefined())
-		{
-			LLSD id = (*resp_it)["category_id"];
-			if(id.isDefined())
-			{
-				LLClassifiedInfo::sCategories[id.asInteger()] = name.asString();
-			}
-		}
-	}
+    for(LLSD::array_const_iterator resp_it = options.beginArray(),
+        end = options.endArray(); resp_it != end; ++resp_it)
+    {
+        LLSD name = (*resp_it)["category_name"];
+        if(name.isDefined())
+        {
+            LLSD id = (*resp_it)["category_id"];
+            if(id.isDefined())
+            {
+                LLClassifiedInfo::sCategories[id.asInteger()] = name.asString();
+            }
+        }
+    }
 }

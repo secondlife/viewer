@@ -34,35 +34,35 @@
 static LLPanelInjector<LLPanelHome> t_home("panel_sidetray_home");
 
 LLPanelHome::LLPanelHome() :
-	LLPanel(),
-	LLViewerMediaObserver(),
-	mBrowser(NULL),
-	mFirstView(true)
+    LLPanel(),
+    LLViewerMediaObserver(),
+    mBrowser(NULL),
+    mFirstView(true)
 {
 }
 
 void LLPanelHome::onOpen(const LLSD& key)
 {
-	// display the home page the first time we open the panel
-	// *NOTE: this seems to happen during login. Can we avoid that?
-	if (mFirstView && mBrowser)
-	{
-		mBrowser->navigateHome();
-	}
-	mFirstView = false;
+    // display the home page the first time we open the panel
+    // *NOTE: this seems to happen during login. Can we avoid that?
+    if (mFirstView && mBrowser)
+    {
+        mBrowser->navigateHome();
+    }
+    mFirstView = false;
 }
 
 BOOL LLPanelHome::postBuild()
 {
     mBrowser = getChild<LLMediaCtrl>("browser");
     if (mBrowser)
-	{
-		// read the URL to display from settings.xml
-		std::string url = LLViewerHome::getHomeURL();
+    {
+        // read the URL to display from settings.xml
+        std::string url = LLViewerHome::getHomeURL();
 
-		mBrowser->addObserver(this);
-		mBrowser->setHomePageUrl(url);
-	}
+        mBrowser->addObserver(this);
+        mBrowser->setHomePageUrl(url);
+    }
 
     return TRUE;
 }

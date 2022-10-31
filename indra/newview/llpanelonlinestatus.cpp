@@ -31,25 +31,25 @@
 #include "llviewercontrol.h" // for gSavedSettings
 
 LLPanelOnlineStatus::LLPanelOnlineStatus(
-		const LLNotificationPtr& notification) :
-	LLPanelTipToast(notification)
+        const LLNotificationPtr& notification) :
+    LLPanelTipToast(notification)
 {
 
-	buildFromFile(
-			"panel_online_status_toast.xml");
+    buildFromFile(
+            "panel_online_status_toast.xml");
 
 
-	getChild<LLUICtrl>("avatar_icon")->setValue(notification->getPayload()["FROM_ID"]);
-	getChild<LLUICtrl>("message")->setValue(notification->getMessage());
+    getChild<LLUICtrl>("avatar_icon")->setValue(notification->getPayload()["FROM_ID"]);
+    getChild<LLUICtrl>("message")->setValue(notification->getMessage());
 
-	if (notification->getPayload().has("respond_on_mousedown")
-			&& notification->getPayload()["respond_on_mousedown"])
-	{
-		setMouseDownCallback(boost::bind(&LLNotification::respond,
-				notification, notification->getResponseTemplate()));
-	}
+    if (notification->getPayload().has("respond_on_mousedown")
+            && notification->getPayload()["respond_on_mousedown"])
+    {
+        setMouseDownCallback(boost::bind(&LLNotification::respond,
+                notification, notification->getResponseTemplate()));
+    }
 
-	S32 max_line_count =  gSavedSettings.getS32("TipToastMessageLineCount");
-	snapToMessageHeight(getChild<LLTextBox> ("message"), max_line_count);
+    S32 max_line_count =  gSavedSettings.getS32("TipToastMessageLineCount");
+    snapToMessageHeight(getChild<LLTextBox> ("message"), max_line_count);
 
 }

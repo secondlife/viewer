@@ -44,62 +44,62 @@ enum BlockListActionType {NONE, ADD, REMOVE};
  */
 class LLBlockList: public LLFlatListViewEx, public LLMuteListObserver
 {
-	LOG_CLASS(LLBlockList);
+    LOG_CLASS(LLBlockList);
 public:
-	struct Params : public LLInitParam::Block<Params, LLFlatListViewEx::Params>
-	{
-		Params(){};
-	};
+    struct Params : public LLInitParam::Block<Params, LLFlatListViewEx::Params>
+    {
+        Params(){};
+    };
 
-	LLBlockList(const Params& p);
-	virtual ~LLBlockList();
+    LLBlockList(const Params& p);
+    virtual ~LLBlockList();
 
-	virtual BOOL 		handleRightMouseDown(S32 x, S32 y, MASK mask);
-	LLToggleableMenu*	getContextMenu() const { return mContextMenu.get(); }
-	LLBlockedListItem*	getBlockedItem() const;
+    virtual BOOL        handleRightMouseDown(S32 x, S32 y, MASK mask);
+    LLToggleableMenu*   getContextMenu() const { return mContextMenu.get(); }
+    LLBlockedListItem*  getBlockedItem() const;
 
-	virtual void onChange() { }
-	virtual void onChangeDetailed(const LLMute& );
-	virtual void draw();
+    virtual void onChange() { }
+    virtual void onChangeDetailed(const LLMute& );
+    virtual void draw();
 
-	void setNameFilter(const std::string& filter);
-	void sortByName();
-	void sortByType();
-	void refresh();
+    void setNameFilter(const std::string& filter);
+    void sortByName();
+    void sortByType();
+    void refresh();
 
-	U32 getMuteListSize() { return mMuteListSize; }
+    U32 getMuteListSize() { return mMuteListSize; }
 
 private:
 
-	void addNewItem(const LLMute* mute);
-	void removeListItem(const LLMute* mute);
-	void hideListItem(LLBlockedListItem* item, bool show);
-	void setDirty(bool dirty = true) { mDirty = dirty; }
-	bool findInsensitive(std::string haystack, const std::string& needle_upper);
+    void addNewItem(const LLMute* mute);
+    void removeListItem(const LLMute* mute);
+    void hideListItem(LLBlockedListItem* item, bool show);
+    void setDirty(bool dirty = true) { mDirty = dirty; }
+    bool findInsensitive(std::string haystack, const std::string& needle_upper);
 
-	bool isActionEnabled(const LLSD& userdata);
-	void onCustomAction (const LLSD& userdata);
-	bool isMenuItemChecked(const LLSD& userdata);
-	bool isMenuItemVisible(const LLSD& userdata);
-	void toggleMute(U32 flags);
-	void createList();
+    bool isActionEnabled(const LLSD& userdata);
+    void onCustomAction (const LLSD& userdata);
+    bool isMenuItemChecked(const LLSD& userdata);
+    bool isMenuItemVisible(const LLSD& userdata);
+    void toggleMute(U32 flags);
+    void createList();
 
-	BlockListActionType getCurrentMuteListActionType();
+    BlockListActionType getCurrentMuteListActionType();
 
-	LLHandle<LLToggleableMenu>	mContextMenu;
+    LLHandle<LLToggleableMenu>  mContextMenu;
 
-	std::string 				mNameFilter;
-	bool 						mDirty;
-	bool						mShouldAddAll;
-	BlockListActionType			mActionType;
-	U32							mMuteListSize;
+    std::string                 mNameFilter;
+    bool                        mDirty;
+    bool                        mShouldAddAll;
+    BlockListActionType         mActionType;
+    U32                         mMuteListSize;
 
-	// This data is used to save information about item that currently changed(added or removed) 
-	LLUUID						mCurItemId;
-	std::string					mCurItemName;
-	LLMute::EType 				mCurItemType;
-	U32							mCurItemFlags;
-	std::string					mPrevNameFilter;
+    // This data is used to save information about item that currently changed(added or removed) 
+    LLUUID                      mCurItemId;
+    std::string                 mCurItemName;
+    LLMute::EType               mCurItemType;
+    U32                         mCurItemFlags;
+    std::string                 mPrevNameFilter;
 
 };
 
@@ -109,17 +109,17 @@ private:
  */
 class LLBlockListItemComparator : public LLFlatListView::ItemComparator
 {
-	LOG_CLASS(LLBlockListItemComparator);
+    LOG_CLASS(LLBlockListItemComparator);
 
 public:
-	LLBlockListItemComparator() {};
-	virtual ~LLBlockListItemComparator() {};
+    LLBlockListItemComparator() {};
+    virtual ~LLBlockListItemComparator() {};
 
-	virtual bool compare(const LLPanel* item1, const LLPanel* item2) const;
+    virtual bool compare(const LLPanel* item1, const LLPanel* item2) const;
 
 protected:
 
-	virtual bool doCompare(const LLBlockedListItem* blocked_item1, const LLBlockedListItem* blocked_item2) const = 0;
+    virtual bool doCompare(const LLBlockedListItem* blocked_item1, const LLBlockedListItem* blocked_item2) const = 0;
 };
 
 
@@ -128,15 +128,15 @@ protected:
  */
 class LLBlockListNameComparator : public LLBlockListItemComparator
 {
-	LOG_CLASS(LLBlockListNameComparator);
+    LOG_CLASS(LLBlockListNameComparator);
 
 public:
-	LLBlockListNameComparator() {};
-	virtual ~LLBlockListNameComparator() {};
+    LLBlockListNameComparator() {};
+    virtual ~LLBlockListNameComparator() {};
 
 protected:
 
-	virtual bool doCompare(const LLBlockedListItem* blocked_item1, const LLBlockedListItem* blocked_item2) const;
+    virtual bool doCompare(const LLBlockedListItem* blocked_item1, const LLBlockedListItem* blocked_item2) const;
 };
 
 /*
@@ -145,15 +145,15 @@ protected:
  */
 class LLBlockListNameTypeComparator : public LLBlockListItemComparator
 {
-	LOG_CLASS(LLBlockListNameTypeComparator);
+    LOG_CLASS(LLBlockListNameTypeComparator);
 
 public:
-	LLBlockListNameTypeComparator() {};
-	virtual ~LLBlockListNameTypeComparator() {};
+    LLBlockListNameTypeComparator() {};
+    virtual ~LLBlockListNameTypeComparator() {};
 
 protected:
 
-	virtual bool doCompare(const LLBlockedListItem* blocked_item1, const LLBlockedListItem* blocked_item2) const;
+    virtual bool doCompare(const LLBlockedListItem* blocked_item1, const LLBlockedListItem* blocked_item2) const;
 };
 
 #endif /* LLBLOCKLIST_H_ */

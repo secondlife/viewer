@@ -37,111 +37,111 @@
 
 namespace
 {
-	struct Response : public LLHTTPNode::Response
-	{
-		virtual void result(const LLSD&) {}
-		virtual void status(S32 code, const std::string& message) 
-		{
-			mStatus = code;
-		}
-		virtual void extendedResult(S32 code, const std::string& message, const LLSD& headers) { }
-		virtual void extendedResult(S32 code, const LLSD& result, const LLSD& headers) { }
-		S32 mStatus;
-	};
+    struct Response : public LLHTTPNode::Response
+    {
+        virtual void result(const LLSD&) {}
+        virtual void status(S32 code, const std::string& message) 
+        {
+            mStatus = code;
+        }
+        virtual void extendedResult(S32 code, const std::string& message, const LLSD& headers) { }
+        virtual void extendedResult(S32 code, const LLSD& result, const LLSD& headers) { }
+        S32 mStatus;
+    };
 }
 
 namespace tut
-{	
-	struct LLMessageSystemTestData 
-	{
-		std::string mTestConfigDir;
-		std::string mSep;
+{   
+    struct LLMessageSystemTestData 
+    {
+        std::string mTestConfigDir;
+        std::string mSep;
 
-		LLMessageSystemTestData()
-		{
-			static bool init = false;
-			if(!init)
-			{
-				ll_init_apr();
-				//init_prehash_data();
-				init = true;
-			}
-			const F32 circuit_heartbeat_interval=5;
-			const F32 circuit_timeout=100;
+        LLMessageSystemTestData()
+        {
+            static bool init = false;
+            if(!init)
+            {
+                ll_init_apr();
+                //init_prehash_data();
+                init = true;
+            }
+            const F32 circuit_heartbeat_interval=5;
+            const F32 circuit_timeout=100;
 
 
-			// currently test disconnected message system
-			start_messaging_system("notafile", 13035,
-								   1,
-								   0,        
-								   0,        
-								   FALSE,        
-								   "notasharedsecret",
-								   NULL,
-								   false,
-								   circuit_heartbeat_interval,
-								   circuit_timeout
-								   );
-			// generate temp dir
-			std::ostringstream ostr;
+            // currently test disconnected message system
+            start_messaging_system("notafile", 13035,
+                                   1,
+                                   0,        
+                                   0,        
+                                   FALSE,        
+                                   "notasharedsecret",
+                                   NULL,
+                                   false,
+                                   circuit_heartbeat_interval,
+                                   circuit_timeout
+                                   );
+            // generate temp dir
+            std::ostringstream ostr;
 #if LL_WINDOWS
-			mSep = "\\";
-			ostr << "C:" << mSep;
+            mSep = "\\";
+            ostr << "C:" << mSep;
 #else
-			mSep = "/";
-			ostr << mSep << "tmp" << mSep;
+            mSep = "/";
+            ostr << mSep << "tmp" << mSep;
 #endif
-			LLUUID random;
-			random.generate();
-			ostr << "message-test-" << random;
-			mTestConfigDir = ostr.str();
-			LLFile::mkdir(mTestConfigDir);
-			writeConfigFile(LLSD());
-			LLMessageConfig::initClass("simulator", ostr.str());
-		}
+            LLUUID random;
+            random.generate();
+            ostr << "message-test-" << random;
+            mTestConfigDir = ostr.str();
+            LLFile::mkdir(mTestConfigDir);
+            writeConfigFile(LLSD());
+            LLMessageConfig::initClass("simulator", ostr.str());
+        }
 
-		~LLMessageSystemTestData()
-		{
-			// not end_messaging_system()
-			delete static_cast<LLMessageSystem*>(gMessageSystem);
-			gMessageSystem = NULL;
+        ~LLMessageSystemTestData()
+        {
+            // not end_messaging_system()
+            delete static_cast<LLMessageSystem*>(gMessageSystem);
+            gMessageSystem = NULL;
 
-			// rm contents of temp dir
-			std::ostringstream ostr;
-			ostr << mTestConfigDir << mSep << "message.xml";
-			int rmfile = LLFile::remove(ostr.str());
-			ensure_equals("rmfile value", rmfile, 0);
+            // rm contents of temp dir
+            std::ostringstream ostr;
+            ostr << mTestConfigDir << mSep << "message.xml";
+            int rmfile = LLFile::remove(ostr.str());
+            ensure_equals("rmfile value", rmfile, 0);
 
-			// rm temp dir
-			int rmdir = LLFile::rmdir(mTestConfigDir);
-			ensure_equals("rmdir value", rmdir, 0);
-		}
+            // rm temp dir
+            int rmdir = LLFile::rmdir(mTestConfigDir);
+            ensure_equals("rmdir value", rmdir, 0);
+        }
 
-		void writeConfigFile(const LLSD& config)
-		{
-			std::string ostr(mTestConfigDir + mSep + "message.xml");
-			llofstream file(ostr.c_str());
-			if (file.is_open())
-			{
-				LLSDSerialize::toPrettyXML(config, file);
-			}
-			file.close();
-		}
-	};
-	
-	typedef test_group<LLMessageSystemTestData>	LLMessageSystemTestGroup;
-	typedef LLMessageSystemTestGroup::object		LLMessageSystemTestObject;
-	LLMessageSystemTestGroup messageTestGroup("LLMessageSystem");
-	
-	template<> template<>
-	void LLMessageSystemTestObject::test<1>()
-		// dispatch unknown message
-	{
-		const char* name = "notamessasge";
-		const LLSD message;
-		const LLPointer<Response> response = new Response();
-		gMessageSystem->dispatch(name, message, response);
-		ensure_equals(response->mStatus, HTTP_NOT_FOUND);
-	}
+        void writeConfigFile(const LLSD& config)
+        {
+            std::string ostr(mTestConfigDir + mSep + "message.xml");
+            llofstream file(ostr.c_str());
+            if (file.is_open())
+            {
+                LLSDSerialize::toPrettyXML(config, file);
+            }
+            file.close();
+        }
+    };
+    
+    typedef test_group<LLMessageSystemTestData> LLMessageSystemTestGroup;
+    typedef LLMessageSystemTestGroup::object        LLMessageSystemTestObject;
+    LLMessageSystemTestGroup messageTestGroup("LLMessageSystem");
+    
+    template<> template<>
+    void LLMessageSystemTestObject::test<1>()
+        // dispatch unknown message
+    {
+        const char* name = "notamessasge";
+        const LLSD message;
+        const LLPointer<Response> response = new Response();
+        gMessageSystem->dispatch(name, message, response);
+        ensure_equals(response->mStatus, HTTP_NOT_FOUND);
+    }
 }
 

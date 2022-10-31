@@ -34,16 +34,16 @@ class LLFloaterPreviewTrash
 : public LLFloater
 {
 public:
-	static void show();
-	static bool isVisible();
+    static void show();
+    static bool isVisible();
 
-	LLFloaterPreviewTrash(const LLSD& key);
-	~LLFloaterPreviewTrash();
-	/*virtual*/	BOOL	postBuild();
-	
+    LLFloaterPreviewTrash(const LLSD& key);
+    ~LLFloaterPreviewTrash();
+    /*virtual*/ BOOL    postBuild();
+    
 protected:
-	void onClickEmpty();
-	void onClickCancel();
+    void onClickEmpty();
+    void onClickCancel();
 };
 
 #endif

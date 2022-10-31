@@ -31,7 +31,7 @@
 #include "llviewercontrol.h"
 
 LLFloaterCameraPresets::LLFloaterCameraPresets(const LLSD& key)
-:	LLFloater(key)
+:   LLFloater(key)
 {}
 
 LLFloaterCameraPresets::~LLFloaterCameraPresets()
@@ -57,7 +57,7 @@ void LLFloaterCameraPresets::populateList()
     LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
     std::list<std::string> preset_names;
 
-	presetsMgr->loadPresetNamesFromDir(PRESETS_CAMERA, preset_names, DEFAULT_BOTTOM);
+    presetsMgr->loadPresetNamesFromDir(PRESETS_CAMERA, preset_names, DEFAULT_BOTTOM);
 
     for (std::list<std::string>::const_iterator it = preset_names.begin(); it != preset_names.end(); ++it)
     {
@@ -133,7 +133,7 @@ void LLCameraPresetFlatItem::onDeleteBtnClick()
         args["NAME"] = mPresetName;
         LLNotificationsUtil::add("PresetNotDeleted", args);
     }
-	else if (gSavedSettings.getString("PresetCameraActive") == mPresetName)
+    else if (gSavedSettings.getString("PresetCameraActive") == mPresetName)
     {
         gSavedSettings.setString("PresetCameraActive", "");
     }

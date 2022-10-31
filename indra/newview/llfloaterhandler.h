@@ -29,11 +29,11 @@
 #include "llcommandhandler.h"
 
 class LLFloaterHandler
-:	public LLCommandHandler
+:   public LLCommandHandler
 {
 public:
-	LLFloaterHandler() : LLCommandHandler("floater", UNTRUSTED_BLOCK) { }
-	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web);
+    LLFloaterHandler() : LLCommandHandler("floater", UNTRUSTED_BLOCK) { }
+    bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web);
 };
 
 #endif

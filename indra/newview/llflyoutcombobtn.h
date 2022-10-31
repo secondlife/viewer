@@ -43,8 +43,8 @@ public:
                          const std::string &menu_file,
                          bool apply_immediately = true);
 
-	void setMenuItemEnabled(const std::string &item, bool enabled);
-	void setShownBtnEnabled(bool enabled);
+    void setMenuItemEnabled(const std::string &item, bool enabled);
+    void setShownBtnEnabled(bool enabled);
     void setMenuItemVisible(const std::string &item, bool visible);
     void setMenuItemLabel(const std::string &item, const std::string &label);
 
@@ -63,8 +63,8 @@ protected:
     void setSelectedItem(LLMenuItemGL *pitem);
 
 private:
-	LLPanel *                   mParent;
-	LLToggleableMenu *          mFlyoutMenu;
+    LLPanel *                   mParent;
+    LLToggleableMenu *          mFlyoutMenu;
     std::string                 mActionButton;
     std::string                 mFlyoutButton;
 

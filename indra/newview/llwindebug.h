@@ -36,15 +36,15 @@
 #pragma warning (pop)
 
 class LLWinDebug:
-	public LLSingleton<LLWinDebug>
+    public LLSingleton<LLWinDebug>
 {
-	LLSINGLETON_EMPTY_CTOR(LLWinDebug);
+    LLSINGLETON_EMPTY_CTOR(LLWinDebug);
 public:
-	void initSingleton();
-	static void generateMinidump(struct _EXCEPTION_POINTERS *pExceptionInfo = NULL);
-	void cleanupSingleton();
+    void initSingleton();
+    static void generateMinidump(struct _EXCEPTION_POINTERS *pExceptionInfo = NULL);
+    void cleanupSingleton();
 private:
-	static void writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMATION *ExInfop, const std::string& filename);
+    static void writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMATION *ExInfop, const std::string& filename);
 };
 
 #endif // LL_LLWINDEBUG_H

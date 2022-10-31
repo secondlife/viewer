@@ -33,324 +33,324 @@
 
 namespace LLTextValidate
 {
-	void ValidateTextNamedFuncs::declareValues()
-	{
-		declare("ascii", validateASCII);
-		declare("float", validateFloat);
-		declare("int", validateInt);
-		declare("positive_s32", validatePositiveS32);
-		declare("non_negative_s32", validateNonNegativeS32);
-		declare("alpha_num", validateAlphaNum);
-		declare("alpha_num_space", validateAlphaNumSpace);
-		declare("ascii_printable_no_pipe", validateASCIIPrintableNoPipe);
-		declare("ascii_printable_no_space", validateASCIIPrintableNoSpace);
-		declare("ascii_with_newline", validateASCIIWithNewLine);
-	}
+    void ValidateTextNamedFuncs::declareValues()
+    {
+        declare("ascii", validateASCII);
+        declare("float", validateFloat);
+        declare("int", validateInt);
+        declare("positive_s32", validatePositiveS32);
+        declare("non_negative_s32", validateNonNegativeS32);
+        declare("alpha_num", validateAlphaNum);
+        declare("alpha_num_space", validateAlphaNumSpace);
+        declare("ascii_printable_no_pipe", validateASCIIPrintableNoPipe);
+        declare("ascii_printable_no_space", validateASCIIPrintableNoSpace);
+        declare("ascii_with_newline", validateASCIIWithNewLine);
+    }
 
-	// Limits what characters can be used to [1234567890.-] with [-] only valid in the first position.
-	// Does NOT ensure that the string is a well-formed number--that's the job of post-validation--for
-	// the simple reasons that intermediate states may be invalid even if the final result is valid.
-	// 
-	bool validateFloat(const LLWString &str)
-	{
-		LLLocale locale(LLLocale::USER_LOCALE);
+    // Limits what characters can be used to [1234567890.-] with [-] only valid in the first position.
+    // Does NOT ensure that the string is a well-formed number--that's the job of post-validation--for
+    // the simple reasons that intermediate states may be invalid even if the final result is valid.
+    // 
+    bool validateFloat(const LLWString &str)
+    {
+        LLLocale locale(LLLocale::USER_LOCALE);
 
-		bool success = TRUE;
-		LLWString trimmed = str;
-		LLWStringUtil::trim(trimmed);
-		S32 len = trimmed.length();
-		if( 0 < len )
-		{
-			// May be a comma or period, depending on the locale
-			llwchar decimal_point = (llwchar)LLResMgr::getInstance()->getDecimalPoint();
+        bool success = TRUE;
+        LLWString trimmed = str;
+        LLWStringUtil::trim(trimmed);
+        S32 len = trimmed.length();
+        if( 0 < len )
+        {
+            // May be a comma or period, depending on the locale
+            llwchar decimal_point = (llwchar)LLResMgr::getInstance()->getDecimalPoint();
 
-			S32 i = 0;
+            S32 i = 0;
 
-			// First character can be a negative sign
-			if( '-' == trimmed[0] )
-			{
-				i++;
-			}
+            // First character can be a negative sign
+            if( '-' == trimmed[0] )
+            {
+                i++;
+            }
 
-			for( ; i < len; i++ )
-			{
-				if( (decimal_point != trimmed[i] ) && !LLStringOps::isDigit( trimmed[i] ) )
-				{
-					success = FALSE;
-					break;
-				}
-			}
-		}		
+            for( ; i < len; i++ )
+            {
+                if( (decimal_point != trimmed[i] ) && !LLStringOps::isDigit( trimmed[i] ) )
+                {
+                    success = FALSE;
+                    break;
+                }
+            }
+        }       
 
-		return success;
-	}
+        return success;
+    }
 
-	// Limits what characters can be used to [1234567890-] with [-] only valid in the first position.
-	// Does NOT ensure that the string is a well-formed number--that's the job of post-validation--for
-	// the simple reasons that intermediate states may be invalid even if the final result is valid.
-	//
-	bool validateInt(const LLWString &str)
-	{
-		LLLocale locale(LLLocale::USER_LOCALE);
+    // Limits what characters can be used to [1234567890-] with [-] only valid in the first position.
+    // Does NOT ensure that the string is a well-formed number--that's the job of post-validation--for
+    // the simple reasons that intermediate states may be invalid even if the final result is valid.
+    //
+    bool validateInt(const LLWString &str)
+    {
+        LLLocale locale(LLLocale::USER_LOCALE);
 
-		bool success = TRUE;
-		LLWString trimmed = str;
-		LLWStringUtil::trim(trimmed);
-		S32 len = trimmed.length();
-		if( 0 < len )
-		{
-			S32 i = 0;
+        bool success = TRUE;
+        LLWString trimmed = str;
+        LLWStringUtil::trim(trimmed);
+        S32 len = trimmed.length();
+        if( 0 < len )
+        {
+            S32 i = 0;
 
-			// First character can be a negative sign
-			if( '-' == trimmed[0] )
-			{
-				i++;
-			}
+            // First character can be a negative sign
+            if( '-' == trimmed[0] )
+            {
+                i++;
+            }
 
-			for( ; i < len; i++ )
-			{
-				if( !LLStringOps::isDigit( trimmed[i] ) )
-				{
-					success = FALSE;
-					break;
-				}
-			}
-		}		
+            for( ; i < len; i++ )
+            {
+                if( !LLStringOps::isDigit( trimmed[i] ) )
+                {
+                    success = FALSE;
+                    break;
+                }
+            }
+        }       
 
-		return success;
-	}
+        return success;
+    }
 
-	bool validatePositiveS32(const LLWString &str)
-	{
-		LLLocale locale(LLLocale::USER_LOCALE);
+    bool validatePositiveS32(const LLWString &str)
+    {
+        LLLocale locale(LLLocale::USER_LOCALE);
 
-		LLWString trimmed = str;
-		LLWStringUtil::trim(trimmed);
-		S32 len = trimmed.length();
-		bool success = TRUE;
-		if(0 < len)
-		{
-			if(('-' == trimmed[0]) || ('0' == trimmed[0]))
-			{
-				success = FALSE;
-			}
-			S32 i = 0;
-			while(success && (i < len))
-			{
-				if(!LLStringOps::isDigit(trimmed[i++]))
-				{
-					success = FALSE;
-				}
-			}
-		}
-		if (success)
-		{
-			S32 val = strtol(wstring_to_utf8str(trimmed).c_str(), NULL, 10);
-			if (val <= 0)
-			{
-				success = FALSE;
-			}
-		}
-		return success;
-	}
+        LLWString trimmed = str;
+        LLWStringUtil::trim(trimmed);
+        S32 len = trimmed.length();
+        bool success = TRUE;
+        if(0 < len)
+        {
+            if(('-' == trimmed[0]) || ('0' == trimmed[0]))
+            {
+                success = FALSE;
+            }
+            S32 i = 0;
+            while(success && (i < len))
+            {
+                if(!LLStringOps::isDigit(trimmed[i++]))
+                {
+                    success = FALSE;
+                }
+            }
+        }
+        if (success)
+        {
+            S32 val = strtol(wstring_to_utf8str(trimmed).c_str(), NULL, 10);
+            if (val <= 0)
+            {
+                success = FALSE;
+            }
+        }
+        return success;
+    }
 
-	bool validateNonNegativeS32(const LLWString &str)
-	{
-		LLLocale locale(LLLocale::USER_LOCALE);
+    bool validateNonNegativeS32(const LLWString &str)
+    {
+        LLLocale locale(LLLocale::USER_LOCALE);
 
-		LLWString trimmed = str;
-		LLWStringUtil::trim(trimmed);
-		S32 len = trimmed.length();
-		bool success = TRUE;
-		if(0 < len)
-		{
-			if('-' == trimmed[0])
-			{
-				success = FALSE;
-			}
-			S32 i = 0;
-			while(success && (i < len))
-			{
-				if(!LLStringOps::isDigit(trimmed[i++]))
-				{
-					success = FALSE;
-				}
-			}
-		}
-		if (success)
-		{
-			S32 val = strtol(wstring_to_utf8str(trimmed).c_str(), NULL, 10);
-			if (val < 0)
-			{
-				success = FALSE;
-			}
-		}
-		return success;
-	}
+        LLWString trimmed = str;
+        LLWStringUtil::trim(trimmed);
+        S32 len = trimmed.length();
+        bool success = TRUE;
+        if(0 < len)
+        {
+            if('-' == trimmed[0])
+            {
+                success = FALSE;
+            }
+            S32 i = 0;
+            while(success && (i < len))
+            {
+                if(!LLStringOps::isDigit(trimmed[i++]))
+                {
+                    success = FALSE;
+                }
+            }
+        }
+        if (success)
+        {
+            S32 val = strtol(wstring_to_utf8str(trimmed).c_str(), NULL, 10);
+            if (val < 0)
+            {
+                success = FALSE;
+            }
+        }
+        return success;
+    }
 
-	bool validateNonNegativeS32NoSpace(const LLWString &str)
-	{
-		LLLocale locale(LLLocale::USER_LOCALE);
+    bool validateNonNegativeS32NoSpace(const LLWString &str)
+    {
+        LLLocale locale(LLLocale::USER_LOCALE);
 
-		LLWString test_str = str;
-		S32 len = test_str.length();
-		bool success = TRUE;
-		if(0 < len)
-		{
-			if('-' == test_str[0])
-			{
-				success = FALSE;
-			}
-			S32 i = 0;
-			while(success && (i < len))
-			{
-				if(!LLStringOps::isDigit(test_str[i]) || LLStringOps::isSpace(test_str[i++]))
-				{
-					success = FALSE;
-				}
-			}
-		}
-		if (success)
-		{
-			S32 val = strtol(wstring_to_utf8str(test_str).c_str(), NULL, 10);
-			if (val < 0)
-			{
-				success = FALSE;
-			}
-		}
-		return success;
-	}
+        LLWString test_str = str;
+        S32 len = test_str.length();
+        bool success = TRUE;
+        if(0 < len)
+        {
+            if('-' == test_str[0])
+            {
+                success = FALSE;
+            }
+            S32 i = 0;
+            while(success && (i < len))
+            {
+                if(!LLStringOps::isDigit(test_str[i]) || LLStringOps::isSpace(test_str[i++]))
+                {
+                    success = FALSE;
+                }
+            }
+        }
+        if (success)
+        {
+            S32 val = strtol(wstring_to_utf8str(test_str).c_str(), NULL, 10);
+            if (val < 0)
+            {
+                success = FALSE;
+            }
+        }
+        return success;
+    }
 
-	bool validateAlphaNum(const LLWString &str)
-	{
-		LLLocale locale(LLLocale::USER_LOCALE);
+    bool validateAlphaNum(const LLWString &str)
+    {
+        LLLocale locale(LLLocale::USER_LOCALE);
 
-		bool rv = TRUE;
-		S32 len = str.length();
-		if(len == 0) return rv;
-		while(len--)
-		{
-			if( !LLStringOps::isAlnum((char)str[len]) )
-			{
-				rv = FALSE;
-				break;
-			}
-		}
-		return rv;
-	}
+        bool rv = TRUE;
+        S32 len = str.length();
+        if(len == 0) return rv;
+        while(len--)
+        {
+            if( !LLStringOps::isAlnum((char)str[len]) )
+            {
+                rv = FALSE;
+                break;
+            }
+        }
+        return rv;
+    }
 
-	bool validateAlphaNumSpace(const LLWString &str)
-	{
-		LLLocale locale(LLLocale::USER_LOCALE);
+    bool validateAlphaNumSpace(const LLWString &str)
+    {
+        LLLocale locale(LLLocale::USER_LOCALE);
 
-		bool rv = TRUE;
-		S32 len = str.length();
-		if(len == 0) return rv;
-		while(len--)
-		{
-			if(!(LLStringOps::isAlnum((char)str[len]) || (' ' == str[len])))
-			{
-				rv = FALSE;
-				break;
-			}
-		}
-		return rv;
-	}
+        bool rv = TRUE;
+        S32 len = str.length();
+        if(len == 0) return rv;
+        while(len--)
+        {
+            if(!(LLStringOps::isAlnum((char)str[len]) || (' ' == str[len])))
+            {
+                rv = FALSE;
+                break;
+            }
+        }
+        return rv;
+    }
 
-	// Used for most names of things stored on the server, due to old file-formats
-	// that used the pipe (|) for multiline text storage.  Examples include
-	// inventory item names, parcel names, object names, etc.
-	bool validateASCIIPrintableNoPipe(const LLWString &str)
-	{
-		bool rv = TRUE;
-		S32 len = str.length();
-		if(len == 0) return rv;
-		while(len--)
-		{
-			llwchar wc = str[len];
-			if (wc < 0x20
-				|| wc > 0x7f
-				|| wc == '|')
-			{
-				rv = FALSE;
-				break;
-			}
-			if(!(wc == ' '
-				 || LLStringOps::isAlnum((char)wc)
-				 || LLStringOps::isPunct((char)wc) ) )
-			{
-				rv = FALSE;
-				break;
-			}
-		}
-		return rv;
-	}
+    // Used for most names of things stored on the server, due to old file-formats
+    // that used the pipe (|) for multiline text storage.  Examples include
+    // inventory item names, parcel names, object names, etc.
+    bool validateASCIIPrintableNoPipe(const LLWString &str)
+    {
+        bool rv = TRUE;
+        S32 len = str.length();
+        if(len == 0) return rv;
+        while(len--)
+        {
+            llwchar wc = str[len];
+            if (wc < 0x20
+                || wc > 0x7f
+                || wc == '|')
+            {
+                rv = FALSE;
+                break;
+            }
+            if(!(wc == ' '
+                 || LLStringOps::isAlnum((char)wc)
+                 || LLStringOps::isPunct((char)wc) ) )
+            {
+                rv = FALSE;
+                break;
+            }
+        }
+        return rv;
+    }
 
 
-	// Used for avatar names
-	bool validateASCIIPrintableNoSpace(const LLWString &str)
-	{
-		bool rv = TRUE;
-		S32 len = str.length();
-		if(len == 0) return rv;
-		while(len--)
-		{
-			llwchar wc = str[len];
-			if (wc < 0x20
-				|| wc > 0x7f
-				|| LLStringOps::isSpace(wc))
-			{
-				rv = FALSE;
-				break;
-			}
-			if( !(LLStringOps::isAlnum((char)str[len]) ||
-				  LLStringOps::isPunct((char)str[len]) ) )
-			{
-				rv = FALSE;
-				break;
-			}
-		}
-		return rv;
-	}
+    // Used for avatar names
+    bool validateASCIIPrintableNoSpace(const LLWString &str)
+    {
+        bool rv = TRUE;
+        S32 len = str.length();
+        if(len == 0) return rv;
+        while(len--)
+        {
+            llwchar wc = str[len];
+            if (wc < 0x20
+                || wc > 0x7f
+                || LLStringOps::isSpace(wc))
+            {
+                rv = FALSE;
+                break;
+            }
+            if( !(LLStringOps::isAlnum((char)str[len]) ||
+                  LLStringOps::isPunct((char)str[len]) ) )
+            {
+                rv = FALSE;
+                break;
+            }
+        }
+        return rv;
+    }
 
-	bool validateASCII(const LLWString &str)
-	{
-		bool rv = TRUE;
-		S32 len = str.length();
-		while(len--)
-		{
-			if (str[len] < 0x20 || str[len] > 0x7f)
-			{
-				rv = FALSE;
-				break;
-			}
-		}
-		return rv;
-	}
+    bool validateASCII(const LLWString &str)
+    {
+        bool rv = TRUE;
+        S32 len = str.length();
+        while(len--)
+        {
+            if (str[len] < 0x20 || str[len] > 0x7f)
+            {
+                rv = FALSE;
+                break;
+            }
+        }
+        return rv;
+    }
 
-	bool validateASCIINoLeadingSpace(const LLWString &str)
-	{
-		if (LLStringOps::isSpace(str[0]))
-		{
-			return FALSE;
-		}
-		return validateASCII(str);
-	}
+    bool validateASCIINoLeadingSpace(const LLWString &str)
+    {
+        if (LLStringOps::isSpace(str[0]))
+        {
+            return FALSE;
+        }
+        return validateASCII(str);
+    }
 
-	// Used for multiline text stored on the server.
-	// Example is landmark description in Places SP.
-	bool validateASCIIWithNewLine(const LLWString &str)
-	{
-		bool rv = TRUE;
-		S32 len = str.length();
-		while(len--)
-		{
-			if ((str[len] < 0x20 && str[len] != 0xA) || str[len] > 0x7f)
-			{
-				rv = FALSE;
-				break;
-			}
-		}
-		return rv;
-	}
+    // Used for multiline text stored on the server.
+    // Example is landmark description in Places SP.
+    bool validateASCIIWithNewLine(const LLWString &str)
+    {
+        bool rv = TRUE;
+        S32 len = str.length();
+        while(len--)
+        {
+            if ((str[len] < 0x20 && str[len] != 0xA) || str[len] > 0x7f)
+            {
+                rv = FALSE;
+                break;
+            }
+        }
+        return rv;
+    }
 }

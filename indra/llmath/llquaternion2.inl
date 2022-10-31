@@ -32,7 +32,7 @@ static const LLQuad LL_V4A_MINUS_ONE = {-1.f, -1.f, -1.f, -1.f};
 // Ctor from LLQuaternion
 inline LLQuaternion2::LLQuaternion2( const LLQuaternion& quat )
 {
-	mQ.set(quat.mQ[VX], quat.mQ[VY], quat.mQ[VZ], quat.mQ[VW]);
+    mQ.set(quat.mQ[VX], quat.mQ[VY], quat.mQ[VZ], quat.mQ[VW]);
 }
 
 //////////////////////////
@@ -42,12 +42,12 @@ inline LLQuaternion2::LLQuaternion2( const LLQuaternion& quat )
 // Return the internal LLVector4a representation of the quaternion
 inline const LLVector4a& LLQuaternion2::getVector4a() const
 {
-	return mQ;
+    return mQ;
 }
 
 inline LLVector4a& LLQuaternion2::getVector4aRw()
 {
-	return mQ;
+    return mQ;
 }
 
 /////////////////////////
@@ -57,28 +57,28 @@ inline LLVector4a& LLQuaternion2::getVector4aRw()
 // Set this quaternion to the conjugate of src
 inline void LLQuaternion2::setConjugate(const LLQuaternion2& src)
 {
-	static LL_ALIGN_16( const U32 F_QUAT_INV_MASK_4A[4] ) = { 0x80000000, 0x80000000, 0x80000000, 0x00000000 };
-	mQ = _mm_xor_ps(src.mQ, *reinterpret_cast<const LLQuad*>(&F_QUAT_INV_MASK_4A));	
+    static LL_ALIGN_16( const U32 F_QUAT_INV_MASK_4A[4] ) = { 0x80000000, 0x80000000, 0x80000000, 0x00000000 };
+    mQ = _mm_xor_ps(src.mQ, *reinterpret_cast<const LLQuad*>(&F_QUAT_INV_MASK_4A)); 
 }
 
 // Renormalizes the quaternion. Assumes it has nonzero length.
 inline void LLQuaternion2::normalize()
 {
-	mQ.normalize4();
+    mQ.normalize4();
 }
 
 // Quantize this quaternion to 8 bit precision
 inline void LLQuaternion2::quantize8()
 {
-	mQ.quantize8( LL_V4A_MINUS_ONE, LL_V4A_PLUS_ONE );
-	normalize();
+    mQ.quantize8( LL_V4A_MINUS_ONE, LL_V4A_PLUS_ONE );
+    normalize();
 }
 
 // Quantize this quaternion to 16 bit precision
 inline void LLQuaternion2::quantize16()
 {
-	mQ.quantize16( LL_V4A_MINUS_ONE, LL_V4A_PLUS_ONE );
-	normalize();
+    mQ.quantize16( LL_V4A_MINUS_ONE, LL_V4A_PLUS_ONE );
+    normalize();
 }
 
 
@@ -91,12 +91,12 @@ inline void LLQuaternion2::quantize16()
 // quaternion representations and they will NOT compare equal.
 inline bool LLQuaternion2::equals(const LLQuaternion2 &rhs, F32 tolerance/* = F_APPROXIMATELY_ZERO*/) const
 {
-	return mQ.equals4(rhs.mQ, tolerance);
+    return mQ.equals4(rhs.mQ, tolerance);
 }
 
 // Return true if all components are finite and the quaternion is normalized
 inline bool LLQuaternion2::isOkRotation() const
 {
-	return mQ.isFinite4() && mQ.isNormalized4();
+    return mQ.isFinite4() && mQ.isNormalized4();
 }
 

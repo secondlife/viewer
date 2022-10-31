@@ -37,102 +37,102 @@
 class LLImageDimensionsInfo
 {
 public:
-	LLImageDimensionsInfo():
-		mData(NULL)
-		,mHeight(0)
-		,mWidth(0)
-	{}
-	~LLImageDimensionsInfo()
-	{
-		clean();
-	}
+    LLImageDimensionsInfo():
+        mData(NULL)
+        ,mHeight(0)
+        ,mWidth(0)
+    {}
+    ~LLImageDimensionsInfo()
+    {
+        clean();
+    }
 
-	bool load(const std::string& src_filename,U32 codec);
-	S32 getWidth() const { return mWidth;}
-	S32 getHeight() const { return mHeight;}
+    bool load(const std::string& src_filename,U32 codec);
+    S32 getWidth() const { return mWidth;}
+    S32 getHeight() const { return mHeight;}
 
-	const std::string& getLastError()
-	{
-		return mLastError;
-	}
+    const std::string& getLastError()
+    {
+        return mLastError;
+    }
 protected:
 
-	void clean()
-	{
-		mInfile.close();
-		delete[] mData;
-		mData = NULL;
-		mWidth = 0;
-		mHeight = 0;
-	}
+    void clean()
+    {
+        mInfile.close();
+        delete[] mData;
+        mData = NULL;
+        mWidth = 0;
+        mHeight = 0;
+    }
 
-	U8* getData()
-	{
-		return mData;
-	}
-
-
-	void setLastError(const std::string& message, const std::string& filename)
-	{
-		std::string error = message;
-		if (!filename.empty())
-			error += std::string(" FILE: ") + filename;
-		mLastError = error;
-	}
+    U8* getData()
+    {
+        return mData;
+    }
 
 
-	bool getImageDimensionsBmp();
-	bool getImageDimensionsTga();
-	bool getImageDimensionsPng();
-	bool getImageDimensionsJpeg();
-	
-	S32 read_s32()
-	{
-		char p[4];
-		mInfile.read(&p[0],4);
-		S32 temp =	(((S32)p[3])       & 0x000000FF) |
-					(((S32)p[2] << 8 ) & 0x0000FF00) |
-					(((S32)p[1] << 16) & 0x00FF0000) |
-					(((S32)p[0] << 24) & 0xFF000000);
+    void setLastError(const std::string& message, const std::string& filename)
+    {
+        std::string error = message;
+        if (!filename.empty())
+            error += std::string(" FILE: ") + filename;
+        mLastError = error;
+    }
 
-		return temp;
-	}
-	S32 read_reverse_s32()
-	{
-		char p[4];
-		mInfile.read(&p[0],4);
-		S32 temp =	(((S32)p[0])       & 0x000000FF) |
-					(((S32)p[1] << 8 ) & 0x0000FF00) |
-					(((S32)p[2] << 16) & 0x00FF0000) |
-					(((S32)p[3] << 24) & 0xFF000000);
 
-		return temp;
-	}
+    bool getImageDimensionsBmp();
+    bool getImageDimensionsTga();
+    bool getImageDimensionsPng();
+    bool getImageDimensionsJpeg();
+    
+    S32 read_s32()
+    {
+        char p[4];
+        mInfile.read(&p[0],4);
+        S32 temp =  (((S32)p[3])       & 0x000000FF) |
+                    (((S32)p[2] << 8 ) & 0x0000FF00) |
+                    (((S32)p[1] << 16) & 0x00FF0000) |
+                    (((S32)p[0] << 24) & 0xFF000000);
 
-	U8 read_byte()
-	{
-		U8 bt;
-		mInfile.read(&bt,1);
-		return bt;
-	}
+        return temp;
+    }
+    S32 read_reverse_s32()
+    {
+        char p[4];
+        mInfile.read(&p[0],4);
+        S32 temp =  (((S32)p[0])       & 0x000000FF) |
+                    (((S32)p[1] << 8 ) & 0x0000FF00) |
+                    (((S32)p[2] << 16) & 0x00FF0000) |
+                    (((S32)p[3] << 24) & 0xFF000000);
 
-	U16 read_short()
-	{
-		return read_byte() << 8 | read_byte();
-	}
+        return temp;
+    }
 
-	/// Check if the file is not shorter than min_len bytes.
-	bool checkFileLength(S32 min_len);
+    U8 read_byte()
+    {
+        U8 bt;
+        mInfile.read(&bt,1);
+        return bt;
+    }
+
+    U16 read_short()
+    {
+        return read_byte() << 8 | read_byte();
+    }
+
+    /// Check if the file is not shorter than min_len bytes.
+    bool checkFileLength(S32 min_len);
 
 protected:
-	LLAPRFile mInfile ;
-	std::string mSrcFilename;
+    LLAPRFile mInfile ;
+    std::string mSrcFilename;
 
-	std::string mLastError;
+    std::string mLastError;
 
-	U8* mData;
+    U8* mData;
 
-	S32 mWidth;
-	S32 mHeight;
+    S32 mWidth;
+    S32 mHeight;
 };
 #endif

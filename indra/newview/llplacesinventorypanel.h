@@ -35,26 +35,26 @@ class LLFolderView;
 class LLPlacesInventoryPanel : public LLAssetFilteredInventoryPanel
 {
 public:
-	struct Params 
-		:	public LLInitParam::Block<Params, LLAssetFilteredInventoryPanel::Params>
-	{
-		Params()
-		{
+    struct Params 
+        :   public LLInitParam::Block<Params, LLAssetFilteredInventoryPanel::Params>
+    {
+        Params()
+        {
            filter_asset_type = "landmark";
        }
-	};
+    };
 
-	LLPlacesInventoryPanel(const Params& p);
-	~LLPlacesInventoryPanel();
+    LLPlacesInventoryPanel(const Params& p);
+    ~LLPlacesInventoryPanel();
 
     LLFolderView * createFolderRoot(LLUUID root_id );
-	void saveFolderState();
-	void restoreFolderState();
+    void saveFolderState();
+    void restoreFolderState();
 
-	virtual S32	notify(const LLSD& info) ;
+    virtual S32 notify(const LLSD& info) ;
 
 private:
-	LLSaveFolderState*			mSavedFolderState;
+    LLSaveFolderState*          mSavedFolderState;
 };
 
 #endif //LL_LLINVENTORYSUBTREEPANEL_H

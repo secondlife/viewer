@@ -44,42 +44,42 @@ class LLViewerRegion;
 
 class LLFloaterAuction : public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 public:
-	// LLFloater interface
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void draw();
+    // LLFloater interface
+    /*virtual*/ void onOpen(const LLSD& key);
+    /*virtual*/ void draw();
 
 private:
-	
-	LLFloaterAuction(const LLSD& key);
-	~LLFloaterAuction();
-	
-	void initialize();
+    
+    LLFloaterAuction(const LLSD& key);
+    ~LLFloaterAuction();
+    
+    void initialize();
 
-	static void onClickSnapshot(void* data);
-	static void onClickResetParcel(void* data);
-	static void onClickSellToAnyone(void* data);		// Sell to anyone clicked
-	bool onSellToAnyoneConfirmed(const LLSD& notification, const LLSD& response);	// Sell confirmation clicked
-	static void onClickStartAuction(void* data);
+    static void onClickSnapshot(void* data);
+    static void onClickResetParcel(void* data);
+    static void onClickSellToAnyone(void* data);        // Sell to anyone clicked
+    bool onSellToAnyoneConfirmed(const LLSD& notification, const LLSD& response);   // Sell confirmation clicked
+    static void onClickStartAuction(void* data);
 
-	/*virtual*/ BOOL postBuild();
+    /*virtual*/ BOOL postBuild();
 
-	void doResetParcel();
-	void doSellToAnyone();
-	void clearParcelAccessList( LLParcel* parcel, LLViewerRegion* region, U32 list);
-	void cleanupAndClose();
+    void doResetParcel();
+    void doSellToAnyone();
+    void clearParcelAccessList( LLParcel* parcel, LLViewerRegion* region, U32 list);
+    void cleanupAndClose();
 
 private:
 
-	LLTransactionID mTransactionID;
-	LLAssetID mImageID;
-	LLPointer<LLViewerTexture> mImage;
-	LLSafeHandle<LLParcelSelection> mParcelp;
-	S32 mParcelID;
-	LLHost mParcelHost;
+    LLTransactionID mTransactionID;
+    LLAssetID mImageID;
+    LLPointer<LLViewerTexture> mImage;
+    LLSafeHandle<LLParcelSelection> mParcelp;
+    S32 mParcelID;
+    LLHost mParcelHost;
 
-	std::string mParcelUpdateCapUrl;	// "ParcelPropertiesUpdate" capability
+    std::string mParcelUpdateCapUrl;    // "ParcelPropertiesUpdate" capability
 };
 
 

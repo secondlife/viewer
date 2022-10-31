@@ -40,61 +40,61 @@ class LLPanelExperienceListEditor : public LLPanel
 {
 public:
 
-	typedef boost::signals2::signal<void (const LLUUID&) > list_changed_signal_t;
-	// filter function for experiences, return true if the experience should be hidden.
-	typedef boost::function<bool (const LLSD&)> experience_function;
-	typedef std::vector<experience_function> filter_list;
-	typedef LLHandle<LLFloaterExperiencePicker> PickerHandle;
-	LLPanelExperienceListEditor();
-	~LLPanelExperienceListEditor();
-	BOOL postBuild();
+    typedef boost::signals2::signal<void (const LLUUID&) > list_changed_signal_t;
+    // filter function for experiences, return true if the experience should be hidden.
+    typedef boost::function<bool (const LLSD&)> experience_function;
+    typedef std::vector<experience_function> filter_list;
+    typedef LLHandle<LLFloaterExperiencePicker> PickerHandle;
+    LLPanelExperienceListEditor();
+    ~LLPanelExperienceListEditor();
+    BOOL postBuild();
 
-	void loading();
+    void loading();
 
-	const uuid_list_t& getExperienceIds()const;
-	void setExperienceIds(const LLSD& experience_ids);
-	void addExperienceIds(const uuid_vec_t& experience_ids);
+    const uuid_list_t& getExperienceIds()const;
+    void setExperienceIds(const LLSD& experience_ids);
+    void addExperienceIds(const uuid_vec_t& experience_ids);
 
-	void addExperience(const LLUUID& id);
+    void addExperience(const LLUUID& id);
 
-	boost::signals2::connection setAddedCallback(list_changed_signal_t::slot_type cb );
-	boost::signals2::connection setRemovedCallback(list_changed_signal_t::slot_type cb );
+    boost::signals2::connection setAddedCallback(list_changed_signal_t::slot_type cb );
+    boost::signals2::connection setRemovedCallback(list_changed_signal_t::slot_type cb );
 
-	bool getReadonly() const { return mReadonly; }
-	void setReadonly(bool val);
+    bool getReadonly() const { return mReadonly; }
+    void setReadonly(bool val);
 
-	void refreshExperienceCounter();
+    void refreshExperienceCounter();
 
-	void addFilter(experience_function func){mFilters.push_back(func);}
-	void setStickyFunction(experience_function func){mSticky = func;}
-	U32 getMaxExperienceIDs() const { return mMaxExperienceIDs; }
-	void setMaxExperienceIDs(U32 val) { mMaxExperienceIDs = val; }
+    void addFilter(experience_function func){mFilters.push_back(func);}
+    void setStickyFunction(experience_function func){mSticky = func;}
+    U32 getMaxExperienceIDs() const { return mMaxExperienceIDs; }
+    void setMaxExperienceIDs(U32 val) { mMaxExperienceIDs = val; }
 private:
 
-	void onItems();
-	void onRemove();
-	void onAdd();
-	void onProfile();
+    void onItems();
+    void onRemove();
+    void onAdd();
+    void onProfile();
 
-	void checkButtonsEnabled();
-	static void experienceDetailsCallback( LLHandle<LLPanelExperienceListEditor> panel, const LLSD& experience );
-	void onExperienceDetails( const LLSD& experience );
-	void processResponse( const LLSD& content );
-	uuid_list_t mExperienceIds;
+    void checkButtonsEnabled();
+    static void experienceDetailsCallback( LLHandle<LLPanelExperienceListEditor> panel, const LLSD& experience );
+    void onExperienceDetails( const LLSD& experience );
+    void processResponse( const LLSD& content );
+    uuid_list_t mExperienceIds;
 
 
-	LLNameListCtrl*				mItems;
-	filter_list					mFilters;
-	LLButton*					mAdd;
-	LLButton*					mRemove;
-	LLButton*					mProfile;
-	PickerHandle				mPicker;
-	list_changed_signal_t		mAddedCallback;
-	list_changed_signal_t		mRemovedCallback;
-	LLUUID						mKey;
-	bool						mReadonly;
-	experience_function			mSticky;
-	U32							mMaxExperienceIDs;
+    LLNameListCtrl*             mItems;
+    filter_list                 mFilters;
+    LLButton*                   mAdd;
+    LLButton*                   mRemove;
+    LLButton*                   mProfile;
+    PickerHandle                mPicker;
+    list_changed_signal_t       mAddedCallback;
+    list_changed_signal_t       mRemovedCallback;
+    LLUUID                      mKey;
+    bool                        mReadonly;
+    experience_function         mSticky;
+    U32                         mMaxExperienceIDs;
 
 };
 

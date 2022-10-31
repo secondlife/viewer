@@ -58,89 +58,89 @@ static void* sTimingCallbackData = NULL;
 class LLHTTPPipe : public LLIOPipe
 {
 public:
-	LLHTTPPipe(const LLHTTPNode& node)
-		: mNode(node),
-		  mResponse(NULL),
-		  mState(STATE_INVOKE),
-		  mChainLock(0),
-		  mLockedPump(NULL),
-		  mStatusCode(0)
-		{ }
-	virtual ~LLHTTPPipe()
-	{
-		if (mResponse.notNull())
-		{
-			mResponse->nullPipe();
-		}
-	}
+    LLHTTPPipe(const LLHTTPNode& node)
+        : mNode(node),
+          mResponse(NULL),
+          mState(STATE_INVOKE),
+          mChainLock(0),
+          mLockedPump(NULL),
+          mStatusCode(0)
+        { }
+    virtual ~LLHTTPPipe()
+    {
+        if (mResponse.notNull())
+        {
+            mResponse->nullPipe();
+        }
+    }
 
 private:
-	// LLIOPipe API implementation.
-	virtual EStatus process_impl(
+    // LLIOPipe API implementation.
+    virtual EStatus process_impl(
         const LLChannelDescriptors& channels,
         LLIOPipe::buffer_ptr_t& buffer,
         bool& eos,
         LLSD& context,
         LLPumpIO* pump);
 
-	const LLHTTPNode& mNode;
+    const LLHTTPNode& mNode;
 
-	class Response : public LLHTTPNode::Response
-	{
-	public:
+    class Response : public LLHTTPNode::Response
+    {
+    public:
 
-		static LLPointer<Response> create(LLHTTPPipe* pipe);
-		virtual ~Response();
+        static LLPointer<Response> create(LLHTTPPipe* pipe);
+        virtual ~Response();
 
-		// from LLHTTPNode::Response
-		virtual void result(const LLSD&);
-		virtual void extendedResult(S32 code, const std::string& body, const LLSD& headers);
-		virtual void extendedResult(S32 code, const LLSD& body, const LLSD& headers);
-		virtual void status(S32 code, const std::string& message);
+        // from LLHTTPNode::Response
+        virtual void result(const LLSD&);
+        virtual void extendedResult(S32 code, const std::string& body, const LLSD& headers);
+        virtual void extendedResult(S32 code, const LLSD& body, const LLSD& headers);
+        virtual void status(S32 code, const std::string& message);
 
-		void nullPipe();
+        void nullPipe();
 
-	private:
-		Response() : mPipe(NULL) {} // Must be accessed through LLPointer.
-		LLHTTPPipe* mPipe;
-	};
-	friend class Response;
+    private:
+        Response() : mPipe(NULL) {} // Must be accessed through LLPointer.
+        LLHTTPPipe* mPipe;
+    };
+    friend class Response;
 
-	LLPointer<Response> mResponse;
+    LLPointer<Response> mResponse;
 
-	enum State
-	{
-		STATE_INVOKE,
-		STATE_DELAYED,
-		STATE_LOCKED,
-		STATE_GOOD_RESULT,
-		STATE_STATUS_RESULT,
-		STATE_EXTENDED_RESULT,
-		STATE_EXTENDED_LLSD_RESULT
-	};
-	State mState;
+    enum State
+    {
+        STATE_INVOKE,
+        STATE_DELAYED,
+        STATE_LOCKED,
+        STATE_GOOD_RESULT,
+        STATE_STATUS_RESULT,
+        STATE_EXTENDED_RESULT,
+        STATE_EXTENDED_LLSD_RESULT
+    };
+    State mState;
 
-	S32 mChainLock;
-	LLPumpIO* mLockedPump;
+    S32 mChainLock;
+    LLPumpIO* mLockedPump;
 
-	void lockChain(LLPumpIO*);
-	void unlockChain();
+    void lockChain(LLPumpIO*);
+    void unlockChain();
 
-	LLSD mResult;
-	S32 mStatusCode;
-	std::string mStatusMessage;	
-	LLSD mHeaders;
+    LLSD mResult;
+    S32 mStatusCode;
+    std::string mStatusMessage; 
+    LLSD mHeaders;
 };
 
 LLIOPipe::EStatus LLHTTPPipe::process_impl(
-	const LLChannelDescriptors& channels,
+    const LLChannelDescriptors& channels,
     buffer_ptr_t& buffer,
     bool& eos,
     LLSD& context,
     LLPumpIO* pump)
 {
     LL_PROFILE_ZONE_SCOPED;
-	PUMP_DEBUG;
+    PUMP_DEBUG;
     LL_DEBUGS() << "LLSDHTTPServer::process_impl" << LL_ENDL;
 
     // Once we have all the data, We need to read the sd on
@@ -149,166 +149,166 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
     if(!eos) return STATUS_BREAK;
     if(!pump || !buffer) return STATUS_PRECONDITION_NOT_MET;
 
-	PUMP_DEBUG;
-	if (mState == STATE_INVOKE)
-	{
-		PUMP_DEBUG;
-		mState = STATE_DELAYED;
-			// assume deferred unless mResponse does otherwise
-		mResponse = Response::create(this);
+    PUMP_DEBUG;
+    if (mState == STATE_INVOKE)
+    {
+        PUMP_DEBUG;
+        mState = STATE_DELAYED;
+            // assume deferred unless mResponse does otherwise
+        mResponse = Response::create(this);
 
-		// *TODO: Babbage: Parameterize parser?
-		// *TODO: We should look at content-type and do the right
-		// thing. Phoenix 2007-12-31
-		LLBufferStream istr(channels, buffer.get());
+        // *TODO: Babbage: Parameterize parser?
+        // *TODO: We should look at content-type and do the right
+        // thing. Phoenix 2007-12-31
+        LLBufferStream istr(channels, buffer.get());
 
-		static LLTimer timer;
-		timer.reset();
+        static LLTimer timer;
+        timer.reset();
 
-		std::string verb = context[CONTEXT_REQUEST][CONTEXT_VERB];
-		if(verb == HTTP_VERB_GET)
-		{
-			mNode.get(LLHTTPNode::ResponsePtr(mResponse), context);
-		}
-		else if(verb == HTTP_VERB_PUT)
-		{
-			LLSD input;
-			if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_LLSD)
-			{
-				LLSDSerialize::fromXML(input, istr);
-			}
-			else if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_TEXT)
-			{
-				std::ostringstream strstrm;
-				strstrm << istr.rdbuf();
-				input = strstrm.str();
-			}
-			mNode.put(LLHTTPNode::ResponsePtr(mResponse), context, input);
-		}
-		else if(verb == HTTP_VERB_POST)
-		{
-			LLSD input;
-			if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_LLSD)
-			{
-				LLSDSerialize::fromXML(input, istr);
-			}
-			else if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_TEXT)
-			{
-				std::ostringstream strstrm;
-				strstrm << istr.rdbuf();
-				input = strstrm.str();
-			}
-			mNode.post(LLHTTPNode::ResponsePtr(mResponse), context, input);
-		}
-		else if(verb == HTTP_VERB_DELETE)
-		{
-			mNode.del(LLHTTPNode::ResponsePtr(mResponse), context);
-		}		
-		else if(verb == HTTP_VERB_OPTIONS)
-		{
-			mNode.options(LLHTTPNode::ResponsePtr(mResponse), context);
-		}		
-		else 
-		{
-		    mResponse->methodNotAllowed();
-		}
+        std::string verb = context[CONTEXT_REQUEST][CONTEXT_VERB];
+        if(verb == HTTP_VERB_GET)
+        {
+            mNode.get(LLHTTPNode::ResponsePtr(mResponse), context);
+        }
+        else if(verb == HTTP_VERB_PUT)
+        {
+            LLSD input;
+            if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_LLSD)
+            {
+                LLSDSerialize::fromXML(input, istr);
+            }
+            else if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_TEXT)
+            {
+                std::ostringstream strstrm;
+                strstrm << istr.rdbuf();
+                input = strstrm.str();
+            }
+            mNode.put(LLHTTPNode::ResponsePtr(mResponse), context, input);
+        }
+        else if(verb == HTTP_VERB_POST)
+        {
+            LLSD input;
+            if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_LLSD)
+            {
+                LLSDSerialize::fromXML(input, istr);
+            }
+            else if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_TEXT)
+            {
+                std::ostringstream strstrm;
+                strstrm << istr.rdbuf();
+                input = strstrm.str();
+            }
+            mNode.post(LLHTTPNode::ResponsePtr(mResponse), context, input);
+        }
+        else if(verb == HTTP_VERB_DELETE)
+        {
+            mNode.del(LLHTTPNode::ResponsePtr(mResponse), context);
+        }       
+        else if(verb == HTTP_VERB_OPTIONS)
+        {
+            mNode.options(LLHTTPNode::ResponsePtr(mResponse), context);
+        }       
+        else 
+        {
+            mResponse->methodNotAllowed();
+        }
 
-		F32 delta = timer.getElapsedTimeF32();
-		if (sTimingCallback)
-		{
-			LLHTTPNode::Description desc;
-			mNode.describe(desc);
-			LLSD info = desc.getInfo();
-			std::string timing_name = info["description"];
-			timing_name += " ";
-			timing_name += verb;
-			sTimingCallback(timing_name.c_str(), delta, sTimingCallbackData);
-		}
+        F32 delta = timer.getElapsedTimeF32();
+        if (sTimingCallback)
+        {
+            LLHTTPNode::Description desc;
+            mNode.describe(desc);
+            LLSD info = desc.getInfo();
+            std::string timing_name = info["description"];
+            timing_name += " ";
+            timing_name += verb;
+            sTimingCallback(timing_name.c_str(), delta, sTimingCallbackData);
+        }
 
-		// Log all HTTP transactions.
-		// TODO: Add a way to log these to their own file instead of indra.log
-		// It is just too spammy to be in indra.log.
-		LL_DEBUGS() << verb << " " << context[CONTEXT_REQUEST][CONTEXT_PATH].asString()
-			<< " " << mStatusCode << " " <<  mStatusMessage << " " << delta
-			<< "s" << LL_ENDL;
+        // Log all HTTP transactions.
+        // TODO: Add a way to log these to their own file instead of indra.log
+        // It is just too spammy to be in indra.log.
+        LL_DEBUGS() << verb << " " << context[CONTEXT_REQUEST][CONTEXT_PATH].asString()
+            << " " << mStatusCode << " " <<  mStatusMessage << " " << delta
+            << "s" << LL_ENDL;
 
-		// Log Internal Server Errors
-		//if(mStatusCode == HTTP_INTERNAL_SERVER_ERROR)
-		//{
-		//	LL_WARNS() << "LLHTTPPipe::process_impl:500:Internal Server Error" 
-		//			<< LL_ENDL;
-		//}
-	}
+        // Log Internal Server Errors
+        //if(mStatusCode == HTTP_INTERNAL_SERVER_ERROR)
+        //{
+        //  LL_WARNS() << "LLHTTPPipe::process_impl:500:Internal Server Error" 
+        //          << LL_ENDL;
+        //}
+    }
 
-	PUMP_DEBUG;
-	switch (mState)
-	{
-		case STATE_DELAYED:
-			lockChain(pump);
-			mState = STATE_LOCKED;
-			return STATUS_BREAK;
+    PUMP_DEBUG;
+    switch (mState)
+    {
+        case STATE_DELAYED:
+            lockChain(pump);
+            mState = STATE_LOCKED;
+            return STATUS_BREAK;
 
-		case STATE_LOCKED:
-			// should never ever happen!
-			return STATUS_ERROR;
+        case STATE_LOCKED:
+            // should never ever happen!
+            return STATUS_ERROR;
 
-		case STATE_GOOD_RESULT:
-		{
-			LLSD headers = mHeaders;
-			headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_LLSD_XML;
-			context[CONTEXT_RESPONSE][CONTEXT_HEADERS] = headers;
-			LLBufferStream ostr(channels, buffer.get());
-			LLSDSerialize::toXML(mResult, ostr);
+        case STATE_GOOD_RESULT:
+        {
+            LLSD headers = mHeaders;
+            headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_LLSD_XML;
+            context[CONTEXT_RESPONSE][CONTEXT_HEADERS] = headers;
+            LLBufferStream ostr(channels, buffer.get());
+            LLSDSerialize::toXML(mResult, ostr);
 
-			return STATUS_DONE;
-		}
+            return STATUS_DONE;
+        }
 
-		case STATE_STATUS_RESULT:
-		{
-			LLSD headers = mHeaders;
-			headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_TEXT_PLAIN;
-			context[CONTEXT_RESPONSE][CONTEXT_HEADERS] = headers;
-			context[CONTEXT_RESPONSE]["statusCode"] = mStatusCode;
-			context[CONTEXT_RESPONSE]["statusMessage"] = mStatusMessage;
-			LLBufferStream ostr(channels, buffer.get());
-			ostr << mStatusMessage;
+        case STATE_STATUS_RESULT:
+        {
+            LLSD headers = mHeaders;
+            headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_TEXT_PLAIN;
+            context[CONTEXT_RESPONSE][CONTEXT_HEADERS] = headers;
+            context[CONTEXT_RESPONSE]["statusCode"] = mStatusCode;
+            context[CONTEXT_RESPONSE]["statusMessage"] = mStatusMessage;
+            LLBufferStream ostr(channels, buffer.get());
+            ostr << mStatusMessage;
 
-			return STATUS_DONE;
-		}
-		case STATE_EXTENDED_RESULT:
-		{
-			context[CONTEXT_RESPONSE][CONTEXT_HEADERS] = mHeaders;
-			context[CONTEXT_RESPONSE]["statusCode"] = mStatusCode;
-			LLBufferStream ostr(channels, buffer.get());
-			ostr << mStatusMessage;
+            return STATUS_DONE;
+        }
+        case STATE_EXTENDED_RESULT:
+        {
+            context[CONTEXT_RESPONSE][CONTEXT_HEADERS] = mHeaders;
+            context[CONTEXT_RESPONSE]["statusCode"] = mStatusCode;
+            LLBufferStream ostr(channels, buffer.get());
+            ostr << mStatusMessage;
 
-			return STATUS_DONE;
-		}
-		case STATE_EXTENDED_LLSD_RESULT:
-		{
-			LLSD headers = mHeaders;
-			headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_LLSD_XML;
-			context[CONTEXT_RESPONSE][CONTEXT_HEADERS] = headers;
-			context[CONTEXT_RESPONSE]["statusCode"] = mStatusCode;
-			LLBufferStream ostr(channels, buffer.get());
-			LLSDSerialize::toXML(mResult, ostr);
+            return STATUS_DONE;
+        }
+        case STATE_EXTENDED_LLSD_RESULT:
+        {
+            LLSD headers = mHeaders;
+            headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_LLSD_XML;
+            context[CONTEXT_RESPONSE][CONTEXT_HEADERS] = headers;
+            context[CONTEXT_RESPONSE]["statusCode"] = mStatusCode;
+            LLBufferStream ostr(channels, buffer.get());
+            LLSDSerialize::toXML(mResult, ostr);
 
-			return STATUS_DONE;
-		}
-		default:
-			LL_WARNS() << "LLHTTPPipe::process_impl: unexpected state "
-				<< mState << LL_ENDL;
+            return STATUS_DONE;
+        }
+        default:
+            LL_WARNS() << "LLHTTPPipe::process_impl: unexpected state "
+                << mState << LL_ENDL;
 
-			return STATUS_BREAK;
-	}
-// 	PUMP_DEBUG; // unreachable
+            return STATUS_BREAK;
+    }
+//  PUMP_DEBUG; // unreachable
 }
 
 LLPointer<LLHTTPPipe::Response> LLHTTPPipe::Response::create(LLHTTPPipe* pipe)
 {
-	LLPointer<Response> result = new Response();
-	result->mPipe = pipe;
-	return result;
+    LLPointer<Response> result = new Response();
+    result->mPipe = pipe;
+    return result;
 }
 
 // virtual
@@ -318,88 +318,88 @@ LLHTTPPipe::Response::~Response()
 
 void LLHTTPPipe::Response::nullPipe()
 {
-	mPipe = NULL;
+    mPipe = NULL;
 }
 
 // virtual
 void LLHTTPPipe::Response::result(const LLSD& r)
 {
-	if(! mPipe)
-	{
-		LL_WARNS() << "LLHTTPPipe::Response::result: NULL pipe" << LL_ENDL;
-		return;
-	}
+    if(! mPipe)
+    {
+        LL_WARNS() << "LLHTTPPipe::Response::result: NULL pipe" << LL_ENDL;
+        return;
+    }
 
-	mPipe->mStatusCode = HTTP_OK;
-	mPipe->mStatusMessage = "OK";
-	mPipe->mResult = r;
-	mPipe->mState = STATE_GOOD_RESULT;
-	mPipe->mHeaders = mHeaders;
-	mPipe->unlockChain();
+    mPipe->mStatusCode = HTTP_OK;
+    mPipe->mStatusMessage = "OK";
+    mPipe->mResult = r;
+    mPipe->mState = STATE_GOOD_RESULT;
+    mPipe->mHeaders = mHeaders;
+    mPipe->unlockChain();
 }
 
 void LLHTTPPipe::Response::extendedResult(S32 code, const LLSD& r, const LLSD& headers)
 {
-	if(! mPipe)
-	{
-		LL_WARNS() << "LLHTTPPipe::Response::extendedResult: NULL pipe" << LL_ENDL;
-		return;
-	}
+    if(! mPipe)
+    {
+        LL_WARNS() << "LLHTTPPipe::Response::extendedResult: NULL pipe" << LL_ENDL;
+        return;
+    }
 
-	mPipe->mStatusCode = code;
-	mPipe->mStatusMessage = "(LLSD)";
-	mPipe->mResult = r;
-	mPipe->mHeaders = headers;
-	mPipe->mState = STATE_EXTENDED_LLSD_RESULT;
-	mPipe->unlockChain();
+    mPipe->mStatusCode = code;
+    mPipe->mStatusMessage = "(LLSD)";
+    mPipe->mResult = r;
+    mPipe->mHeaders = headers;
+    mPipe->mState = STATE_EXTENDED_LLSD_RESULT;
+    mPipe->unlockChain();
 }
 
 void LLHTTPPipe::Response::extendedResult(S32 code, const std::string& body, const LLSD& headers)
 {
-	if(! mPipe)
-	{
-		LL_WARNS() << "LLHTTPPipe::Response::status: NULL pipe" << LL_ENDL;
-		return;
-	}
+    if(! mPipe)
+    {
+        LL_WARNS() << "LLHTTPPipe::Response::status: NULL pipe" << LL_ENDL;
+        return;
+    }
 
-	mPipe->mStatusCode = code;
-	mPipe->mStatusMessage = body;
-	mPipe->mHeaders = headers;
-	mPipe->mState = STATE_EXTENDED_RESULT;
-	mPipe->unlockChain();
+    mPipe->mStatusCode = code;
+    mPipe->mStatusMessage = body;
+    mPipe->mHeaders = headers;
+    mPipe->mState = STATE_EXTENDED_RESULT;
+    mPipe->unlockChain();
 }
 
 // virtual
 void LLHTTPPipe::Response::status(S32 code, const std::string& message)
 {
-	if(! mPipe)
-	{
-		LL_WARNS() << "LLHTTPPipe::Response::status: NULL pipe" << LL_ENDL;
-		return;
-	}
+    if(! mPipe)
+    {
+        LL_WARNS() << "LLHTTPPipe::Response::status: NULL pipe" << LL_ENDL;
+        return;
+    }
 
-	mPipe->mStatusCode = code;
-	mPipe->mStatusMessage = message;
-	mPipe->mState = STATE_STATUS_RESULT;
-	mPipe->mHeaders = mHeaders;
-	mPipe->unlockChain();
+    mPipe->mStatusCode = code;
+    mPipe->mStatusMessage = message;
+    mPipe->mState = STATE_STATUS_RESULT;
+    mPipe->mHeaders = mHeaders;
+    mPipe->unlockChain();
 }
 
 void LLHTTPPipe::lockChain(LLPumpIO* pump)
 {
-	if (mChainLock != 0) { return; }
+    if (mChainLock != 0) { return; }
 
-	mLockedPump = pump;
-	mChainLock = pump->setLock();
+    mLockedPump = pump;
+    mChainLock = pump->setLock();
 }
 
 void LLHTTPPipe::unlockChain()
 {
-	if (mChainLock == 0) { return; }
+    if (mChainLock == 0) { return; }
 
-	mLockedPump->clearLock(mChainLock);
-	mLockedPump = NULL;
-	mChainLock = 0;
+    mLockedPump->clearLock(mChainLock);
+    mLockedPump = NULL;
+    mChainLock = 0;
 }
 
 
@@ -418,26 +418,26 @@ void LLHTTPPipe::unlockChain()
 class LLHTTPResponseHeader : public LLIOPipe
 {
 public:
-	LLHTTPResponseHeader() : mCode(0) {}
-	virtual ~LLHTTPResponseHeader() {}
+    LLHTTPResponseHeader() : mCode(0) {}
+    virtual ~LLHTTPResponseHeader() {}
 
 protected:
-	/* @name LLIOPipe virtual implementations
-	 */
-	//@{
-	/** 
-	 * @brief Process the data in buffer
-	 */
-	EStatus process_impl(
-		const LLChannelDescriptors& channels,
-		buffer_ptr_t& buffer,
-		bool& eos,
-		LLSD& context,
-		LLPumpIO* pump);
-	//@}
+    /* @name LLIOPipe virtual implementations
+     */
+    //@{
+    /** 
+     * @brief Process the data in buffer
+     */
+    EStatus process_impl(
+        const LLChannelDescriptors& channels,
+        buffer_ptr_t& buffer,
+        bool& eos,
+        LLSD& context,
+        LLPumpIO* pump);
+    //@}
 
 protected:
-	S32 mCode;
+    S32 mCode;
 };
 
 
@@ -447,59 +447,59 @@ protected:
 
 // virtual
 LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
-	const LLChannelDescriptors& channels,
-	buffer_ptr_t& buffer,
-	bool& eos,
-	LLSD& context,
-	LLPumpIO* pump)
+    const LLChannelDescriptors& channels,
+    buffer_ptr_t& buffer,
+    bool& eos,
+    LLSD& context,
+    LLPumpIO* pump)
 {
     LL_PROFILE_ZONE_SCOPED;
-	PUMP_DEBUG;
-	if(eos)
-	{
-		PUMP_DEBUG;
-		//mGotEOS = true;
-		std::ostringstream ostr;
-		std::string message = context[CONTEXT_RESPONSE]["statusMessage"];
-		
-		int code = context[CONTEXT_RESPONSE]["statusCode"];
-		if (code < HTTP_OK)
-		{
-			code = HTTP_OK;
-			message = "OK";
-		}
-		
-		ostr << HTTP_VERSION_STR << " " << code << " " << message << "\r\n";
+    PUMP_DEBUG;
+    if(eos)
+    {
+        PUMP_DEBUG;
+        //mGotEOS = true;
+        std::ostringstream ostr;
+        std::string message = context[CONTEXT_RESPONSE]["statusMessage"];
+        
+        int code = context[CONTEXT_RESPONSE]["statusCode"];
+        if (code < HTTP_OK)
+        {
+            code = HTTP_OK;
+            message = "OK";
+        }
+        
+        ostr << HTTP_VERSION_STR << " " << code << " " << message << "\r\n";
 
-		S32 content_length = buffer->countAfter(channels.in(), NULL);
-		if(0 < content_length)
-		{
-			ostr << HTTP_OUT_HEADER_CONTENT_LENGTH << ": " << content_length << "\r\n";
-		}
-		// *NOTE: This guard can go away once the LLSD static map
-		// iterator is available. Phoenix. 2008-05-09
-		LLSD headers = context[CONTEXT_RESPONSE][CONTEXT_HEADERS];
-		if(headers.isDefined())
-		{
-			LLSD::map_iterator iter = headers.beginMap();
-			LLSD::map_iterator end = headers.endMap();
-			for(; iter != end; ++iter)
-			{
-				ostr << (*iter).first << ": " << (*iter).second.asString()
-					<< "\r\n";
-			}
-		}
-		ostr << "\r\n";
+        S32 content_length = buffer->countAfter(channels.in(), NULL);
+        if(0 < content_length)
+        {
+            ostr << HTTP_OUT_HEADER_CONTENT_LENGTH << ": " << content_length << "\r\n";
+        }
+        // *NOTE: This guard can go away once the LLSD static map
+        // iterator is available. Phoenix. 2008-05-09
+        LLSD headers = context[CONTEXT_RESPONSE][CONTEXT_HEADERS];
+        if(headers.isDefined())
+        {
+            LLSD::map_iterator iter = headers.beginMap();
+            LLSD::map_iterator end = headers.endMap();
+            for(; iter != end; ++iter)
+            {
+                ostr << (*iter).first << ": " << (*iter).second.asString()
+                    << "\r\n";
+            }
+        }
+        ostr << "\r\n";
 
-		LLChangeChannel change(channels.in(), channels.out());
-		std::for_each(buffer->beginSegment(), buffer->endSegment(), change);
-		std::string header = ostr.str();
-		buffer->prepend(channels.out(), (U8*)header.c_str(), header.size());
-		PUMP_DEBUG;
-		return STATUS_DONE;
-	}
-	PUMP_DEBUG;
-	return STATUS_OK;
+        LLChangeChannel change(channels.in(), channels.out());
+        std::for_each(buffer->beginSegment(), buffer->endSegment(), change);
+        std::string header = ostr.str();
+        buffer->prepend(channels.out(), (U8*)header.c_str(), header.size());
+        PUMP_DEBUG;
+        return STATUS_DONE;
+    }
+    PUMP_DEBUG;
+    return STATUS_OK;
 }
 
 
@@ -515,432 +515,432 @@ LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
 class LLHTTPResponder : public LLIOPipe
 {
 public:
-	LLHTTPResponder(const LLHTTPNode& tree, const LLSD& ctx);
-	~LLHTTPResponder();
+    LLHTTPResponder(const LLHTTPNode& tree, const LLSD& ctx);
+    ~LLHTTPResponder();
 
 protected:
-	/** 
-	 * @brief Read data off of CHANNEL_IN keeping track of last read position.
-	 *
-	 * This is a quick little hack to read headers. It is not IO
-	 * optimal, but it makes it easier for me to implement the header
-	 * parsing. Plus, there should never be more than a few headers.
-	 * This method will tend to read more than necessary, find the
-	 * newline, make the front part of dest look like a c string, and
-	 * move the read head back to where the newline was found. Thus,
-	 * the next read will pick up on the next line.
-	 * @param channel The channel to read in the buffer
-	 * @param buffer The heap array of processed data
-	 * @param dest Destination for the data to be read
-	 * @param[in,out] len <b>in</b> The size of the buffer. <b>out</b> how 
-	 * much was read. This value is not useful for determining where to 
-	 * seek orfor string assignment.
-	 * @returns Returns true if a line was found.
-	 */
-	bool readHeaderLine(
-		const LLChannelDescriptors& channels,
-		buffer_ptr_t buffer,
-		U8* dest,
-		S32& len);
-	
-	/** 
-	 * @brief Mark the request as bad, and handle appropriately
-	 *
-	 * @param channels The channels to use in the buffer.
-	 * @param buffer The heap array of processed data.
-	 */
-	void markBad(const LLChannelDescriptors& channels, buffer_ptr_t buffer);
+    /** 
+     * @brief Read data off of CHANNEL_IN keeping track of last read position.
+     *
+     * This is a quick little hack to read headers. It is not IO
+     * optimal, but it makes it easier for me to implement the header
+     * parsing. Plus, there should never be more than a few headers.
+     * This method will tend to read more than necessary, find the
+     * newline, make the front part of dest look like a c string, and
+     * move the read head back to where the newline was found. Thus,
+     * the next read will pick up on the next line.
+     * @param channel The channel to read in the buffer
+     * @param buffer The heap array of processed data
+     * @param dest Destination for the data to be read
+     * @param[in,out] len <b>in</b> The size of the buffer. <b>out</b> how 
+     * much was read. This value is not useful for determining where to 
+     * seek orfor string assignment.
+     * @returns Returns true if a line was found.
+     */
+    bool readHeaderLine(
+        const LLChannelDescriptors& channels,
+        buffer_ptr_t buffer,
+        U8* dest,
+        S32& len);
+    
+    /** 
+     * @brief Mark the request as bad, and handle appropriately
+     *
+     * @param channels The channels to use in the buffer.
+     * @param buffer The heap array of processed data.
+     */
+    void markBad(const LLChannelDescriptors& channels, buffer_ptr_t buffer);
 
 protected:
-	/* @name LLIOPipe virtual implementations
-	 */
-	//@{
-	/** 
-	 * @brief Process the data in buffer
-	 */
-	EStatus process_impl(
-		const LLChannelDescriptors& channels,
-		buffer_ptr_t& buffer,
-		bool& eos,
-		LLSD& context,
-		LLPumpIO* pump);
-	//@}
+    /* @name LLIOPipe virtual implementations
+     */
+    //@{
+    /** 
+     * @brief Process the data in buffer
+     */
+    EStatus process_impl(
+        const LLChannelDescriptors& channels,
+        buffer_ptr_t& buffer,
+        bool& eos,
+        LLSD& context,
+        LLPumpIO* pump);
+    //@}
 
 protected:
-	enum EState
-	{
-		STATE_NOTHING,
-		STATE_READING_HEADERS,
-		STATE_LOOKING_FOR_EOS,
-		STATE_DONE,
-		STATE_SHORT_CIRCUIT
-	};
+    enum EState
+    {
+        STATE_NOTHING,
+        STATE_READING_HEADERS,
+        STATE_LOOKING_FOR_EOS,
+        STATE_DONE,
+        STATE_SHORT_CIRCUIT
+    };
 
-	LLSD mBuildContext;
-	EState mState;
-	U8* mLastRead;
-	std::string mVerb;
-	std::string mAbsPathAndQuery;
-	std::string mPath;
-	std::string mQuery;
-	std::string mVersion;
-	S32 mContentLength;
-	LLSD mHeaders;
+    LLSD mBuildContext;
+    EState mState;
+    U8* mLastRead;
+    std::string mVerb;
+    std::string mAbsPathAndQuery;
+    std::string mPath;
+    std::string mQuery;
+    std::string mVersion;
+    S32 mContentLength;
+    LLSD mHeaders;
 
-	// handle the urls
-	const LLHTTPNode& mRootNode;
+    // handle the urls
+    const LLHTTPNode& mRootNode;
 };
 
 LLHTTPResponder::LLHTTPResponder(const LLHTTPNode& tree, const LLSD& ctx) :
-	mBuildContext(ctx),
-	mState(STATE_NOTHING),
-	mLastRead(NULL),
-	mContentLength(0),
-	mRootNode(tree)
+    mBuildContext(ctx),
+    mState(STATE_NOTHING),
+    mLastRead(NULL),
+    mContentLength(0),
+    mRootNode(tree)
 {
 }
 
 // virtual
 LLHTTPResponder::~LLHTTPResponder()
 {
-	//LL_DEBUGS() << "destroying LLHTTPResponder" << LL_ENDL;
+    //LL_DEBUGS() << "destroying LLHTTPResponder" << LL_ENDL;
 }
 
 bool LLHTTPResponder::readHeaderLine(
-	const LLChannelDescriptors& channels,
-	buffer_ptr_t buffer,
-	U8* dest,
-	S32& len)
+    const LLChannelDescriptors& channels,
+    buffer_ptr_t buffer,
+    U8* dest,
+    S32& len)
 {
-	--len;
-	U8* last = buffer->readAfter(channels.in(), mLastRead, dest, len);
-	dest[len] = '\0';
-	U8* newline = (U8*)strchr((char*)dest, '\n');
-	if(!newline)
-	{
-		if(len)
-		{
-			LL_DEBUGS() << "readLine failed - too long maybe?" << LL_ENDL;
-			markBad(channels, buffer);
-		}
-		return false;
-	}
-	S32 offset = -((len - 1) - (newline - dest));
-	++newline;
-	*newline = '\0';
-	mLastRead = buffer->seek(channels.in(), last, offset);
-	return true;
+    --len;
+    U8* last = buffer->readAfter(channels.in(), mLastRead, dest, len);
+    dest[len] = '\0';
+    U8* newline = (U8*)strchr((char*)dest, '\n');
+    if(!newline)
+    {
+        if(len)
+        {
+            LL_DEBUGS() << "readLine failed - too long maybe?" << LL_ENDL;
+            markBad(channels, buffer);
+        }
+        return false;
+    }
+    S32 offset = -((len - 1) - (newline - dest));
+    ++newline;
+    *newline = '\0';
+    mLastRead = buffer->seek(channels.in(), last, offset);
+    return true;
 }
 
 void LLHTTPResponder::markBad(
-	const LLChannelDescriptors& channels,
-	buffer_ptr_t buffer)
+    const LLChannelDescriptors& channels,
+    buffer_ptr_t buffer)
 {
-	mState = STATE_SHORT_CIRCUIT;
-	LLBufferStream out(channels, buffer.get());
-	out << HTTP_VERSION_STR << " 400 Bad Request\r\n\r\n<html>\n"
-		<< "<title>Bad Request</title>\n<body>\nBad Request.\n"
-		<< "</body>\n</html>\n";
+    mState = STATE_SHORT_CIRCUIT;
+    LLBufferStream out(channels, buffer.get());
+    out << HTTP_VERSION_STR << " 400 Bad Request\r\n\r\n<html>\n"
+        << "<title>Bad Request</title>\n<body>\nBad Request.\n"
+        << "</body>\n</html>\n";
 }
 
 // virtual
 LLIOPipe::EStatus LLHTTPResponder::process_impl(
-	const LLChannelDescriptors& channels,
-	buffer_ptr_t& buffer,
-	bool& eos,
-	LLSD& context,
-	LLPumpIO* pump)
+    const LLChannelDescriptors& channels,
+    buffer_ptr_t& buffer,
+    bool& eos,
+    LLSD& context,
+    LLPumpIO* pump)
 {
     LL_PROFILE_ZONE_SCOPED;
-	PUMP_DEBUG;
-	LLIOPipe::EStatus status = STATUS_OK;
+    PUMP_DEBUG;
+    LLIOPipe::EStatus status = STATUS_OK;
 
-	// parsing headers
-	if((STATE_NOTHING == mState) || (STATE_READING_HEADERS == mState))
-	{
-		PUMP_DEBUG;
-		status = STATUS_BREAK;
-		mState = STATE_READING_HEADERS;
-		const S32 HEADER_BUFFER_SIZE = 1024;
-		char buf[HEADER_BUFFER_SIZE + 1];  /*Flawfinder: ignore*/
-		S32 len = HEADER_BUFFER_SIZE;
-
-#if 0
-		if(true)
-		{
-		LLBufferArray::segment_iterator_t seg_iter = buffer->beginSegment();
-		char buf[1024];	  /*Flawfinder: ignore*/
-		while(seg_iter != buffer->endSegment())
-		{
-			memcpy(buf, (*seg_iter).data(), (*seg_iter).size());	  /*Flawfinder: ignore*/
-			buf[(*seg_iter).size()] = '\0';
-			LL_INFOS() << (*seg_iter).getChannel() << ": " << buf
-					<< LL_ENDL;
-			++seg_iter;
-		}
-		}
-#endif
-		
-		PUMP_DEBUG;
-		if(readHeaderLine(channels, buffer, (U8*)buf, len))
-		{
-			bool read_next_line = false;
-			bool parse_all = true;
-			if(mVerb.empty())
-			{
-				read_next_line = true;
-				LLMemoryStream header((U8*)buf, len);
-				header >> mVerb;
-
-				if((HTTP_VERB_GET == mVerb)
-				   || (HTTP_VERB_POST == mVerb)
-				   || (HTTP_VERB_PUT == mVerb)
-				   || (HTTP_VERB_DELETE == mVerb)
-				   || (HTTP_VERB_OPTIONS == mVerb))
-				{
-					header >> mAbsPathAndQuery;
-					header >> mVersion;
-
-					LL_DEBUGS() << "http request: "
-							 << mVerb
-							 << " " << mAbsPathAndQuery
-							 << " " << mVersion << LL_ENDL;
-
-					std::string::size_type delimiter
-						= mAbsPathAndQuery.find('?');
-					if (delimiter == std::string::npos)
-					{
-						mPath = mAbsPathAndQuery;
-						mQuery = "";
-					}
-					else
-					{
-						mPath = mAbsPathAndQuery.substr(0, delimiter);
-						mQuery = mAbsPathAndQuery.substr(delimiter+1);
-					}
-
-					if(!mAbsPathAndQuery.empty())
-					{
-						if(mVersion.empty())
-						{
-							// simple request.
-							parse_all = false;
-							mState = STATE_DONE;
-							mVersion.assign("HTTP/1.0");
-						}
-					}
-				}
-				else
-				{
-					read_next_line = false;
-					parse_all = false;
-					LL_DEBUGS() << "unknown http verb: " << mVerb << LL_ENDL;
-					markBad(channels, buffer);
-				}
-			}
-			if(parse_all)
-			{
-				bool keep_parsing = true;
-				while(keep_parsing)
-				{
-					if(read_next_line)
-					{
-						len = HEADER_BUFFER_SIZE;	
-						if (!readHeaderLine(channels, buffer, (U8*)buf, len))
-						{
-							// Failed to read the header line, probably too long.
-							// readHeaderLine already marked the channel/buffer as bad.
-							keep_parsing = false;
-							break;
-						}
-					}
-					if(0 == len)
-					{
-						return status;
-					}
-					if(buf[0] == '\r' && buf[1] == '\n')
-					{
-						// end-o-headers
-						keep_parsing = false;
-						mState = STATE_LOOKING_FOR_EOS;
-						break;
-					}
-					char* pos_colon = strchr(buf, ':');
-					if(NULL == pos_colon)
-					{
-						keep_parsing = false;
-						LL_DEBUGS() << "bad header: " << buf << LL_ENDL;
-						markBad(channels, buffer);
-						break;
-					}
-					// we've found a header
-					read_next_line = true;
-					std::string name(buf, pos_colon - buf);
-					std::string value(pos_colon + 2);
-					LLStringUtil::toLower(name);
-					if(HTTP_IN_HEADER_CONTENT_LENGTH == name)
-					{
-						LL_DEBUGS() << "Content-Length: " << value << LL_ENDL;
-						mContentLength = atoi(value.c_str());
-					}
-					else
-					{
-						LLStringUtil::trimTail(value);
-						mHeaders[name] = value;
-					}
-				}
-			}
-		}
-	}
-
-	PUMP_DEBUG;
-	// look for the end of stream based on 
-	if(STATE_LOOKING_FOR_EOS == mState)
-	{
-		if(0 == mContentLength)
-		{
-			mState = STATE_DONE;
-		}
-		else if(buffer->countAfter(channels.in(), mLastRead) >= mContentLength)
-		{
-			mState = STATE_DONE;
-		}
-		// else more bytes should be coming.
-	}
-
-	PUMP_DEBUG;
-	if(STATE_DONE == mState)
-	{
-		// hey, hey, we should have everything now, so we pass it to
-		// a content handler.
-		context[CONTEXT_REQUEST][CONTEXT_VERB] = mVerb;
-		const LLHTTPNode* node = mRootNode.traverse(mPath, context);
-		if(node)
-		{
- 			//LL_INFOS() << "LLHTTPResponder::process_impl found node for "
-			//	<< mAbsPathAndQuery << LL_ENDL;
-
-  			// Copy everything after mLast read to the out.
-			LLBufferArray::segment_iterator_t seg_iter;
-
-			buffer->lock();
-			seg_iter = buffer->splitAfter(mLastRead);
-			if(seg_iter != buffer->endSegment())
-			{
-				LLChangeChannel change(channels.in(), channels.out());
-				++seg_iter;
-				std::for_each(seg_iter, buffer->endSegment(), change);
+    // parsing headers
+    if((STATE_NOTHING == mState) || (STATE_READING_HEADERS == mState))
+    {
+        PUMP_DEBUG;
+        status = STATUS_BREAK;
+        mState = STATE_READING_HEADERS;
+        const S32 HEADER_BUFFER_SIZE = 1024;
+        char buf[HEADER_BUFFER_SIZE + 1];  /*Flawfinder: ignore*/
+        S32 len = HEADER_BUFFER_SIZE;
 
 #if 0
-				seg_iter = buffer->beginSegment();
-				char buf[1024];	  /*Flawfinder: ignore*/
-				while(seg_iter != buffer->endSegment())
-				{
-					memcpy(buf, (*seg_iter).data(), (*seg_iter).size());	  /*Flawfinder: ignore*/
-					buf[(*seg_iter).size()] = '\0';
-					LL_INFOS() << (*seg_iter).getChannel() << ": " << buf
-							<< LL_ENDL;
-					++seg_iter;
-				}
+        if(true)
+        {
+        LLBufferArray::segment_iterator_t seg_iter = buffer->beginSegment();
+        char buf[1024];   /*Flawfinder: ignore*/
+        while(seg_iter != buffer->endSegment())
+        {
+            memcpy(buf, (*seg_iter).data(), (*seg_iter).size());      /*Flawfinder: ignore*/
+            buf[(*seg_iter).size()] = '\0';
+            LL_INFOS() << (*seg_iter).getChannel() << ": " << buf
+                    << LL_ENDL;
+            ++seg_iter;
+        }
+        }
 #endif
-			}
-			buffer->unlock();
-			//
-			// *FIX: get rid of extra bytes off the end
-			//
+        
+        PUMP_DEBUG;
+        if(readHeaderLine(channels, buffer, (U8*)buf, len))
+        {
+            bool read_next_line = false;
+            bool parse_all = true;
+            if(mVerb.empty())
+            {
+                read_next_line = true;
+                LLMemoryStream header((U8*)buf, len);
+                header >> mVerb;
 
-			// Set up a chain which will prepend a content length and
-			// HTTP headers.
-			LLPumpIO::chain_t chain;
-			chain.push_back(LLIOPipe::ptr_t(new LLIOFlush));
-			context[CONTEXT_REQUEST][CONTEXT_PATH] = mPath;
-			context[CONTEXT_REQUEST][CONTEXT_QUERY_STRING] = mQuery;
-			context[CONTEXT_REQUEST][CONTEXT_REMOTE_HOST]
-				= mBuildContext[CONTEXT_REMOTE_HOST];
-			context[CONTEXT_REQUEST][CONTEXT_REMOTE_PORT]
-				= mBuildContext[CONTEXT_REMOTE_PORT];
-			context[CONTEXT_REQUEST][CONTEXT_HEADERS] = mHeaders;
+                if((HTTP_VERB_GET == mVerb)
+                   || (HTTP_VERB_POST == mVerb)
+                   || (HTTP_VERB_PUT == mVerb)
+                   || (HTTP_VERB_DELETE == mVerb)
+                   || (HTTP_VERB_OPTIONS == mVerb))
+                {
+                    header >> mAbsPathAndQuery;
+                    header >> mVersion;
 
-			const LLChainIOFactory* protocolHandler
-				= node->getProtocolHandler();
-			if (protocolHandler)
-			{
-				LL_DEBUGS() << "HTTP context: " << context << LL_ENDL;
-				protocolHandler->build(chain, context);
-			}
-			else
-			{
-				// this is a simple LLHTTPNode, so use LLHTTPPipe
-				chain.push_back(LLIOPipe::ptr_t(new LLHTTPPipe(*node)));
-			}
+                    LL_DEBUGS() << "http request: "
+                             << mVerb
+                             << " " << mAbsPathAndQuery
+                             << " " << mVersion << LL_ENDL;
 
-			// Add the header - which needs to have the same
-			// channel information as the link before it since it
-			// is part of the response.
-			LLIOPipe* header = new LLHTTPResponseHeader;
-			chain.push_back(LLIOPipe::ptr_t(header));
+                    std::string::size_type delimiter
+                        = mAbsPathAndQuery.find('?');
+                    if (delimiter == std::string::npos)
+                    {
+                        mPath = mAbsPathAndQuery;
+                        mQuery = "";
+                    }
+                    else
+                    {
+                        mPath = mAbsPathAndQuery.substr(0, delimiter);
+                        mQuery = mAbsPathAndQuery.substr(delimiter+1);
+                    }
 
-			// We need to copy all of the pipes _after_ this so
-			// that the response goes out correctly.
-			LLPumpIO::links_t current_links;
-			pump->copyCurrentLinkInfo(current_links);
-			LLPumpIO::links_t::iterator link_iter = current_links.begin();
-			LLPumpIO::links_t::iterator links_end = current_links.end();
-			bool after_this = false;
-			for(; link_iter < links_end; ++link_iter)
-			{
-				if(after_this)
-				{
-					chain.push_back((*link_iter).mPipe);
-				}
-				else if(this == (*link_iter).mPipe.get())
-				{
-					after_this = true;
-				}
-			}
-			
-			// Do the final build of the chain, and send it on
-			// it's way.
-			LLChannelDescriptors chnl = channels;
-			LLPumpIO::LLLinkInfo link;
-			LLPumpIO::links_t links;
-			LLPumpIO::chain_t::iterator it = chain.begin();
-			LLPumpIO::chain_t::iterator end = chain.end();
-			while(it != end)
-			{
-				link.mPipe = *it;
-				link.mChannels = chnl;
-				links.push_back(link);
-				chnl = LLBufferArray::makeChannelConsumer(chnl);
-				++it;
-			}
-			pump->addChain(
-				links,
-				buffer,
-				context,
-				DEFAULT_CHAIN_EXPIRY_SECS);
+                    if(!mAbsPathAndQuery.empty())
+                    {
+                        if(mVersion.empty())
+                        {
+                            // simple request.
+                            parse_all = false;
+                            mState = STATE_DONE;
+                            mVersion.assign("HTTP/1.0");
+                        }
+                    }
+                }
+                else
+                {
+                    read_next_line = false;
+                    parse_all = false;
+                    LL_DEBUGS() << "unknown http verb: " << mVerb << LL_ENDL;
+                    markBad(channels, buffer);
+                }
+            }
+            if(parse_all)
+            {
+                bool keep_parsing = true;
+                while(keep_parsing)
+                {
+                    if(read_next_line)
+                    {
+                        len = HEADER_BUFFER_SIZE;   
+                        if (!readHeaderLine(channels, buffer, (U8*)buf, len))
+                        {
+                            // Failed to read the header line, probably too long.
+                            // readHeaderLine already marked the channel/buffer as bad.
+                            keep_parsing = false;
+                            break;
+                        }
+                    }
+                    if(0 == len)
+                    {
+                        return status;
+                    }
+                    if(buf[0] == '\r' && buf[1] == '\n')
+                    {
+                        // end-o-headers
+                        keep_parsing = false;
+                        mState = STATE_LOOKING_FOR_EOS;
+                        break;
+                    }
+                    char* pos_colon = strchr(buf, ':');
+                    if(NULL == pos_colon)
+                    {
+                        keep_parsing = false;
+                        LL_DEBUGS() << "bad header: " << buf << LL_ENDL;
+                        markBad(channels, buffer);
+                        break;
+                    }
+                    // we've found a header
+                    read_next_line = true;
+                    std::string name(buf, pos_colon - buf);
+                    std::string value(pos_colon + 2);
+                    LLStringUtil::toLower(name);
+                    if(HTTP_IN_HEADER_CONTENT_LENGTH == name)
+                    {
+                        LL_DEBUGS() << "Content-Length: " << value << LL_ENDL;
+                        mContentLength = atoi(value.c_str());
+                    }
+                    else
+                    {
+                        LLStringUtil::trimTail(value);
+                        mHeaders[name] = value;
+                    }
+                }
+            }
+        }
+    }
 
-			status = STATUS_STOP;
-		}
-		else
-		{
-			LL_WARNS() << "LLHTTPResponder::process_impl didn't find a node for "
-				<< mAbsPathAndQuery << LL_ENDL;
-			LLBufferStream str(channels, buffer.get());
-			mState = STATE_SHORT_CIRCUIT;
-			str << HTTP_VERSION_STR << " 404 Not Found\r\n\r\n<html>\n"
-				<< "<title>Not Found</title>\n<body>\nNode '" << mAbsPathAndQuery
-				<< "' not found.\n</body>\n</html>\n";
-		}
-	}
+    PUMP_DEBUG;
+    // look for the end of stream based on 
+    if(STATE_LOOKING_FOR_EOS == mState)
+    {
+        if(0 == mContentLength)
+        {
+            mState = STATE_DONE;
+        }
+        else if(buffer->countAfter(channels.in(), mLastRead) >= mContentLength)
+        {
+            mState = STATE_DONE;
+        }
+        // else more bytes should be coming.
+    }
 
-	if(STATE_SHORT_CIRCUIT == mState)
-	{
-		//status = mNext->process(buffer, true, pump, context);
-		status = STATUS_DONE;
-	}
-	PUMP_DEBUG;
-	return status;
+    PUMP_DEBUG;
+    if(STATE_DONE == mState)
+    {
+        // hey, hey, we should have everything now, so we pass it to
+        // a content handler.
+        context[CONTEXT_REQUEST][CONTEXT_VERB] = mVerb;
+        const LLHTTPNode* node = mRootNode.traverse(mPath, context);
+        if(node)
+        {
+            //LL_INFOS() << "LLHTTPResponder::process_impl found node for "
+            //  << mAbsPathAndQuery << LL_ENDL;
+
+            // Copy everything after mLast read to the out.
+            LLBufferArray::segment_iterator_t seg_iter;
+
+            buffer->lock();
+            seg_iter = buffer->splitAfter(mLastRead);
+            if(seg_iter != buffer->endSegment())
+            {
+                LLChangeChannel change(channels.in(), channels.out());
+                ++seg_iter;
+                std::for_each(seg_iter, buffer->endSegment(), change);
+
+#if 0
+                seg_iter = buffer->beginSegment();
+                char buf[1024];   /*Flawfinder: ignore*/
+                while(seg_iter != buffer->endSegment())
+                {
+                    memcpy(buf, (*seg_iter).data(), (*seg_iter).size());      /*Flawfinder: ignore*/
+                    buf[(*seg_iter).size()] = '\0';
+                    LL_INFOS() << (*seg_iter).getChannel() << ": " << buf
+                            << LL_ENDL;
+                    ++seg_iter;
+                }
+#endif
+            }
+            buffer->unlock();
+            //
+            // *FIX: get rid of extra bytes off the end
+            //
+
+            // Set up a chain which will prepend a content length and
+            // HTTP headers.
+            LLPumpIO::chain_t chain;
+            chain.push_back(LLIOPipe::ptr_t(new LLIOFlush));
+            context[CONTEXT_REQUEST][CONTEXT_PATH] = mPath;
+            context[CONTEXT_REQUEST][CONTEXT_QUERY_STRING] = mQuery;
+            context[CONTEXT_REQUEST][CONTEXT_REMOTE_HOST]
+                = mBuildContext[CONTEXT_REMOTE_HOST];
+            context[CONTEXT_REQUEST][CONTEXT_REMOTE_PORT]
+                = mBuildContext[CONTEXT_REMOTE_PORT];
+            context[CONTEXT_REQUEST][CONTEXT_HEADERS] = mHeaders;
+
+            const LLChainIOFactory* protocolHandler
+                = node->getProtocolHandler();
+            if (protocolHandler)
+            {
+                LL_DEBUGS() << "HTTP context: " << context << LL_ENDL;
+                protocolHandler->build(chain, context);
+            }
+            else
+            {
+                // this is a simple LLHTTPNode, so use LLHTTPPipe
+                chain.push_back(LLIOPipe::ptr_t(new LLHTTPPipe(*node)));
+            }
+
+            // Add the header - which needs to have the same
+            // channel information as the link before it since it
+            // is part of the response.
+            LLIOPipe* header = new LLHTTPResponseHeader;
+            chain.push_back(LLIOPipe::ptr_t(header));
+
+            // We need to copy all of the pipes _after_ this so
+            // that the response goes out correctly.
+            LLPumpIO::links_t current_links;
+            pump->copyCurrentLinkInfo(current_links);
+            LLPumpIO::links_t::iterator link_iter = current_links.begin();
+            LLPumpIO::links_t::iterator links_end = current_links.end();
+            bool after_this = false;
+            for(; link_iter < links_end; ++link_iter)
+            {
+                if(after_this)
+                {
+                    chain.push_back((*link_iter).mPipe);
+                }
+                else if(this == (*link_iter).mPipe.get())
+                {
+                    after_this = true;
+                }
+            }
+            
+            // Do the final build of the chain, and send it on
+            // it's way.
+            LLChannelDescriptors chnl = channels;
+            LLPumpIO::LLLinkInfo link;
+            LLPumpIO::links_t links;
+            LLPumpIO::chain_t::iterator it = chain.begin();
+            LLPumpIO::chain_t::iterator end = chain.end();
+            while(it != end)
+            {
+                link.mPipe = *it;
+                link.mChannels = chnl;
+                links.push_back(link);
+                chnl = LLBufferArray::makeChannelConsumer(chnl);
+                ++it;
+            }
+            pump->addChain(
+                links,
+                buffer,
+                context,
+                DEFAULT_CHAIN_EXPIRY_SECS);
+
+            status = STATUS_STOP;
+        }
+        else
+        {
+            LL_WARNS() << "LLHTTPResponder::process_impl didn't find a node for "
+                << mAbsPathAndQuery << LL_ENDL;
+            LLBufferStream str(channels, buffer.get());
+            mState = STATE_SHORT_CIRCUIT;
+            str << HTTP_VERSION_STR << " 404 Not Found\r\n\r\n<html>\n"
+                << "<title>Not Found</title>\n<body>\nNode '" << mAbsPathAndQuery
+                << "' not found.\n</body>\n</html>\n";
+        }
+    }
+
+    if(STATE_SHORT_CIRCUIT == mState)
+    {
+        //status = mNext->process(buffer, true, pump, context);
+        status = STATUS_DONE;
+    }
+    PUMP_DEBUG;
+    return status;
 }
 
 
@@ -948,31 +948,31 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 void LLIOHTTPServer::createPipe(LLPumpIO::chain_t& chain, 
         const LLHTTPNode& root, const LLSD& ctx)
 {
-	chain.push_back(LLIOPipe::ptr_t(new LLHTTPResponder(root, ctx)));
+    chain.push_back(LLIOPipe::ptr_t(new LLHTTPResponder(root, ctx)));
 }
 
 
 class LLHTTPResponseFactory : public LLChainIOFactory
 {
 public:
-	bool build(LLPumpIO::chain_t& chain, LLSD ctx) const
-	{
-		LLIOHTTPServer::createPipe(chain, mTree, ctx);
-		return true;
-	}
+    bool build(LLPumpIO::chain_t& chain, LLSD ctx) const
+    {
+        LLIOHTTPServer::createPipe(chain, mTree, ctx);
+        return true;
+    }
 
-	LLHTTPNode& getRootNode() { return mTree; }
+    LLHTTPNode& getRootNode() { return mTree; }
 
 private:
-	LLHTTPNode mTree;
+    LLHTTPNode mTree;
 };
 
 
 // static
 LLHTTPNode& LLIOHTTPServer::create(
-	apr_pool_t* pool, LLPumpIO& pump, U16 port)
+    apr_pool_t* pool, LLPumpIO& pump, U16 port)
 {
-	LLSocket::ptr_t socket = LLSocket::create(
+    LLSocket::ptr_t socket = LLSocket::create(
         pool,
         LLSocket::STREAM_TCP,
         port);
@@ -982,21 +982,21 @@ LLHTTPNode& LLIOHTTPServer::create(
     }
 
     LLHTTPResponseFactory* factory = new LLHTTPResponseFactory;
-	boost::shared_ptr<LLChainIOFactory> factory_ptr(factory);
+    boost::shared_ptr<LLChainIOFactory> factory_ptr(factory);
 
     LLIOServerSocket* server = new LLIOServerSocket(pool, socket, factory_ptr);
 
-	LLPumpIO::chain_t chain;
+    LLPumpIO::chain_t chain;
     chain.push_back(LLIOPipe::ptr_t(server));
     pump.addChain(chain, NEVER_CHAIN_EXPIRY_SECS);
 
-	return factory->getRootNode();
+    return factory->getRootNode();
 }
 
 // static
 void LLIOHTTPServer::setTimingCallback(timing_callback_t callback,
-									   void* data)
+                                       void* data)
 {
-	sTimingCallback = callback;
-	sTimingCallbackData = data;
+    sTimingCallback = callback;
+    sTimingCallbackData = data;
 }

@@ -45,15 +45,15 @@ static const S32 MIN_PIXEL_AREA_3PASS_HAIR = 64*64;
 // Class Constructors
 //-----------------------------------------------------------------------------
 LLViewerJoint::LLViewerJoint() :
-	LLAvatarJoint()
+    LLAvatarJoint()
 { }
 
 LLViewerJoint::LLViewerJoint(S32 joint_num) :
-	LLAvatarJoint(joint_num)
+    LLAvatarJoint(joint_num)
 { }
 
 LLViewerJoint::LLViewerJoint(const std::string &name, LLJoint *parent) :
-	LLAvatarJoint(name, parent)
+    LLAvatarJoint(name, parent)
 { }
 
 //-----------------------------------------------------------------------------
@@ -69,96 +69,96 @@ LLViewerJoint::~LLViewerJoint()
 //--------------------------------------------------------------------
 U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
 {
-	stop_glerror();
+    stop_glerror();
 
-	U32 triangle_count = 0;
+    U32 triangle_count = 0;
 
-	//----------------------------------------------------------------
-	// ignore invisible objects
-	//----------------------------------------------------------------
-	if ( mValid )
-	{
+    //----------------------------------------------------------------
+    // ignore invisible objects
+    //----------------------------------------------------------------
+    if ( mValid )
+    {
 
 
-		//----------------------------------------------------------------
-		// if object is transparent, defer it, otherwise
-		// give the joint subclass a chance to draw itself
-		//----------------------------------------------------------------
-		if ( is_dummy )
-		{
-			triangle_count += drawShape( pixelArea, first_pass, is_dummy );
-		}
-		else if (LLPipeline::sShadowRender)
-		{
-			triangle_count += drawShape(pixelArea, first_pass, is_dummy );
-		}
-		else if ( isTransparent() && !LLPipeline::sReflectionRender)
-		{
-			// Hair and Skirt
-			if ((pixelArea > MIN_PIXEL_AREA_3PASS_HAIR))
-			{
-				// render all three passes
-				LLGLDisable cull(GL_CULL_FACE);
-				// first pass renders without writing to the z buffer
-				{
-					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-					triangle_count += drawShape( pixelArea, first_pass, is_dummy );
-				}
-				// second pass writes to z buffer only
-				gGL.setColorMask(false, false);
-				{
-					triangle_count += drawShape( pixelArea, FALSE, is_dummy  );
-				}
-				// third past respects z buffer and writes color
-				gGL.setColorMask(true, false);
-				{
-					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-					triangle_count += drawShape( pixelArea, FALSE, is_dummy  );
-				}
-			}
-			else
-			{
-				// Render Inside (no Z buffer write)
-				glCullFace(GL_FRONT);
-				{
-					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-					triangle_count += drawShape( pixelArea, first_pass, is_dummy  );
-				}
-				// Render Outside (write to the Z buffer)
-				glCullFace(GL_BACK);
-				{
-					triangle_count += drawShape( pixelArea, FALSE, is_dummy  );
-				}
-			}
-		}
-		else
-		{
-			// set up render state
-			triangle_count += drawShape( pixelArea, first_pass );
-		}
-	}
+        //----------------------------------------------------------------
+        // if object is transparent, defer it, otherwise
+        // give the joint subclass a chance to draw itself
+        //----------------------------------------------------------------
+        if ( is_dummy )
+        {
+            triangle_count += drawShape( pixelArea, first_pass, is_dummy );
+        }
+        else if (LLPipeline::sShadowRender)
+        {
+            triangle_count += drawShape(pixelArea, first_pass, is_dummy );
+        }
+        else if ( isTransparent() && !LLPipeline::sReflectionRender)
+        {
+            // Hair and Skirt
+            if ((pixelArea > MIN_PIXEL_AREA_3PASS_HAIR))
+            {
+                // render all three passes
+                LLGLDisable cull(GL_CULL_FACE);
+                // first pass renders without writing to the z buffer
+                {
+                    LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
+                    triangle_count += drawShape( pixelArea, first_pass, is_dummy );
+                }
+                // second pass writes to z buffer only
+                gGL.setColorMask(false, false);
+                {
+                    triangle_count += drawShape( pixelArea, FALSE, is_dummy  );
+                }
+                // third past respects z buffer and writes color
+                gGL.setColorMask(true, false);
+                {
+                    LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
+                    triangle_count += drawShape( pixelArea, FALSE, is_dummy  );
+                }
+            }
+            else
+            {
+                // Render Inside (no Z buffer write)
+                glCullFace(GL_FRONT);
+                {
+                    LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
+                    triangle_count += drawShape( pixelArea, first_pass, is_dummy  );
+                }
+                // Render Outside (write to the Z buffer)
+                glCullFace(GL_BACK);
+                {
+                    triangle_count += drawShape( pixelArea, FALSE, is_dummy  );
+                }
+            }
+        }
+        else
+        {
+            // set up render state
+            triangle_count += drawShape( pixelArea, first_pass );
+        }
+    }
 
-	//----------------------------------------------------------------
-	// render children
-	//----------------------------------------------------------------
-	for (LLJoint* j : mChildren)
-	{
-		// LLViewerJoint is derived from LLAvatarJoint,
-		// all children of LLAvatarJoint are assumed to be LLAvatarJoint
-		LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(j);
-		F32 jointLOD = joint->getLOD();
-		if (pixelArea >= jointLOD || sDisableLOD)
-		{
-			triangle_count += joint->render( pixelArea, TRUE, is_dummy );
+    //----------------------------------------------------------------
+    // render children
+    //----------------------------------------------------------------
+    for (LLJoint* j : mChildren)
+    {
+        // LLViewerJoint is derived from LLAvatarJoint,
+        // all children of LLAvatarJoint are assumed to be LLAvatarJoint
+        LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(j);
+        F32 jointLOD = joint->getLOD();
+        if (pixelArea >= jointLOD || sDisableLOD)
+        {
+            triangle_count += joint->render( pixelArea, TRUE, is_dummy );
 
-			if (jointLOD != DEFAULT_AVATAR_JOINT_LOD)
-			{
-				break;
-			}
-		}
-	}
+            if (jointLOD != DEFAULT_AVATAR_JOINT_LOD)
+            {
+                break;
+            }
+        }
+    }
 
-	return triangle_count;
+    return triangle_count;
 }
 
 //--------------------------------------------------------------------
@@ -166,7 +166,7 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
 //--------------------------------------------------------------------
 U32 LLViewerJoint::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
 {
-	return 0;
+    return 0;
 }
 
 // End

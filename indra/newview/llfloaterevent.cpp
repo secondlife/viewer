@@ -36,7 +36,7 @@
 #include "llviewerwindow.h"
 #include "llbutton.h"
 #include "llcachename.h"
-#include "llcommandhandler.h"	// secondlife:///app/chat/ support
+#include "llcommandhandler.h"   // secondlife:///app/chat/ support
 #include "lleventflags.h"
 #include "llmediactrl.h"
 #include "llexpandabletextbox.h"
@@ -58,10 +58,10 @@
 
 
 LLFloaterEvent::LLFloaterEvent(const LLSD& key)
-	: LLFloater(key),
+    : LLFloater(key),
       LLViewerMediaObserver(),
       mBrowser(NULL),
-	  mEventID(0)
+      mEventID(0)
 {
 }
 
@@ -73,47 +73,47 @@ LLFloaterEvent::~LLFloaterEvent()
 
 BOOL LLFloaterEvent::postBuild()
 {
-	mBrowser = getChild<LLMediaCtrl>("browser");
-	if (mBrowser)
-	{
-		mBrowser->addObserver(this);
-	}
+    mBrowser = getChild<LLMediaCtrl>("browser");
+    if (mBrowser)
+    {
+        mBrowser->addObserver(this);
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
 void LLFloaterEvent::handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event)
 {
-	switch (event) 
-	{
-		case MEDIA_EVENT_NAVIGATE_BEGIN:
-			getChild<LLUICtrl>("status_text")->setValue(getString("loading_text"));
-			break;
-			
-		case MEDIA_EVENT_NAVIGATE_COMPLETE:
-			getChild<LLUICtrl>("status_text")->setValue(getString("done_text"));
-			break;
-			
-		default:
-			break;
-	}
+    switch (event) 
+    {
+        case MEDIA_EVENT_NAVIGATE_BEGIN:
+            getChild<LLUICtrl>("status_text")->setValue(getString("loading_text"));
+            break;
+            
+        case MEDIA_EVENT_NAVIGATE_COMPLETE:
+            getChild<LLUICtrl>("status_text")->setValue(getString("done_text"));
+            break;
+            
+        default:
+            break;
+    }
 }
 
 void LLFloaterEvent::setEventID(const U32 event_id)
 {
-	mEventID = event_id;
+    mEventID = event_id;
 
-	if (event_id != 0)
-	{
-		LLSD subs;
-		subs["EVENT_ID"] = (S32)event_id;
+    if (event_id != 0)
+    {
+        LLSD subs;
+        subs["EVENT_ID"] = (S32)event_id;
         // get the search URL and expand all of the substitutions                                                       
         // (also adds things like [LANGUAGE], [VERSION], [OS], etc.)              
 
         std::string expanded_url = LLWeb::expandURLSubstitutions(gSavedSettings.getString("EventURL"), subs);
 
-		// and load the URL in the web view                                                                             
+        // and load the URL in the web view                                                                             
         mBrowser->navigateTo(expanded_url);
-		
-	}
+        
+    }
 }

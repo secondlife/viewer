@@ -25,7 +25,7 @@
  */
 
 #ifndef LL_LLVIEWERASSETSTATUS_H
-#define	LL_LLVIEWERASSETSTATUS_H
+#define LL_LLVIEWERASSETSTATUS_H
 
 
 #include "linden_common.h"
@@ -41,25 +41,25 @@
 
 namespace LLViewerAssetStatsFF
 {
-	enum EViewerAssetCategories
-	{
-		EVACTextureTempHTTPGet,			//< Texture GETs - temp/baked, HTTP
-		EVACTextureTempUDPGet,			//< Texture GETs - temp/baked, UDP
-		EVACTextureNonTempHTTPGet,		//< Texture GETs - perm, HTTP
-		EVACTextureNonTempUDPGet,		//< Texture GETs - perm, UDP
-		EVACWearableHTTPGet,			//< Wearable GETs HTTP
-		EVACWearableUDPGet,				//< Wearable GETs UDP
-		EVACSoundHTTPGet,				//< Sound GETs HTTP
-		EVACSoundUDPGet,				//< Sound GETs UDP
-		EVACGestureHTTPGet,				//< Gesture GETs HTTP
-		EVACGestureUDPGet,				//< Gesture GETs UDP
-		EVACLandmarkHTTPGet,			//< Landmark GETs HTTP
-		EVACLandmarkUDPGet,				//< Landmark GETs UDP
-		EVACOtherHTTPGet,				//< Other GETs HTTP
-		EVACOtherUDPGet,				//< Other GETs UDP
+    enum EViewerAssetCategories
+    {
+        EVACTextureTempHTTPGet,         //< Texture GETs - temp/baked, HTTP
+        EVACTextureTempUDPGet,          //< Texture GETs - temp/baked, UDP
+        EVACTextureNonTempHTTPGet,      //< Texture GETs - perm, HTTP
+        EVACTextureNonTempUDPGet,       //< Texture GETs - perm, UDP
+        EVACWearableHTTPGet,            //< Wearable GETs HTTP
+        EVACWearableUDPGet,             //< Wearable GETs UDP
+        EVACSoundHTTPGet,               //< Sound GETs HTTP
+        EVACSoundUDPGet,                //< Sound GETs UDP
+        EVACGestureHTTPGet,             //< Gesture GETs HTTP
+        EVACGestureUDPGet,              //< Gesture GETs UDP
+        EVACLandmarkHTTPGet,            //< Landmark GETs HTTP
+        EVACLandmarkUDPGet,             //< Landmark GETs UDP
+        EVACOtherHTTPGet,               //< Other GETs HTTP
+        EVACOtherUDPGet,                //< Other GETs UDP
 
-		EVACCount						// Must be last
-	};
+        EVACCount                       // Must be last
+    };
 }
 
 /**
@@ -101,125 +101,125 @@ namespace LLViewerAssetStatsFF
 class LLViewerAssetStats : public LLStopWatchControlsMixin<LLViewerAssetStats>
 {
 public:
-	/**
-	 * Type for duration and other time values in the metrics.  Selected
-	 * for compatibility with the pre-existing timestamp on the texture
-	 * fetcher class, LLTextureFetch.
-	 */
-	typedef U64Microseconds duration_t;
+    /**
+     * Type for duration and other time values in the metrics.  Selected
+     * for compatibility with the pre-existing timestamp on the texture
+     * fetcher class, LLTextureFetch.
+     */
+    typedef U64Microseconds duration_t;
 
-	/**
-	 * Type for the region identifier used in stats.  Currently uses
-	 * the region handle's type (a U64) rather than the regions's LLUUID
-	 * as the latter isn't available immediately.
-	 */
-	typedef U64 region_handle_t;
+    /**
+     * Type for the region identifier used in stats.  Currently uses
+     * the region handle's type (a U64) rather than the regions's LLUUID
+     * as the latter isn't available immediately.
+     */
+    typedef U64 region_handle_t;
 
-	struct AssetRequestType : public LLInitParam::Block<AssetRequestType>
-	{
-		Mandatory<S32>	enqueued,
-						dequeued,
-						resp_count;
-		Mandatory<F64>	resp_min,
-						resp_max,
-						resp_mean,
-						resp_mean_bytes;
-	
-		AssetRequestType();
-	};
-
-	struct FPSStats : public LLInitParam::Block<FPSStats>
+    struct AssetRequestType : public LLInitParam::Block<AssetRequestType>
     {
-		Mandatory<S32>	count;
-		Mandatory<F64>	min,
-						max,
-						mean;
-		FPSStats();
-	};
+        Mandatory<S32>  enqueued,
+                        dequeued,
+                        resp_count;
+        Mandatory<F64>  resp_min,
+                        resp_max,
+                        resp_mean,
+                        resp_mean_bytes;
+    
+        AssetRequestType();
+    };
 
-	struct RegionStats : public LLInitParam::Block<RegionStats>
+    struct FPSStats : public LLInitParam::Block<FPSStats>
     {
-		Optional<AssetRequestType>	get_texture_temp_http,
-									get_texture_temp_udp,
-									get_texture_non_temp_http,
-									get_texture_non_temp_udp,
-									get_wearable_http,
-									get_wearable_udp,
-									get_sound_http,
-									get_sound_udp,
-									get_gesture_http,
-									get_gesture_udp,
-									get_landmark_http,
-									get_landmark_udp,
-									get_other_http,
-									get_other_udp;
-		Optional<FPSStats>			fps;
-		Optional<S32>				grid_x,
-									grid_y;
-		Optional<F64>				duration;
+        Mandatory<S32>  count;
+        Mandatory<F64>  min,
+                        max,
+                        mean;
+        FPSStats();
+    };
 
-		RegionStats();
-	};
-		
-	struct AssetStats : public LLInitParam::Block<AssetStats>
-	{
-		Multiple<RegionStats>	regions;
-		Mandatory<F64>			duration;
-		
-		Mandatory<LLUUID>		session_id,
-								agent_id;
-		
-		Mandatory<std::string>	message;
-		Mandatory<S32>			sequence;
-		Mandatory<bool>			initial,
-								break_;
-		
-		AssetStats();
-	};
+    struct RegionStats : public LLInitParam::Block<RegionStats>
+    {
+        Optional<AssetRequestType>  get_texture_temp_http,
+                                    get_texture_temp_udp,
+                                    get_texture_non_temp_http,
+                                    get_texture_non_temp_udp,
+                                    get_wearable_http,
+                                    get_wearable_udp,
+                                    get_sound_http,
+                                    get_sound_udp,
+                                    get_gesture_http,
+                                    get_gesture_udp,
+                                    get_landmark_http,
+                                    get_landmark_udp,
+                                    get_other_http,
+                                    get_other_udp;
+        Optional<FPSStats>          fps;
+        Optional<S32>               grid_x,
+                                    grid_y;
+        Optional<F64>               duration;
+
+        RegionStats();
+    };
+        
+    struct AssetStats : public LLInitParam::Block<AssetStats>
+    {
+        Multiple<RegionStats>   regions;
+        Mandatory<F64>          duration;
+        
+        Mandatory<LLUUID>       session_id,
+                                agent_id;
+        
+        Mandatory<std::string>  message;
+        Mandatory<S32>          sequence;
+        Mandatory<bool>         initial,
+                                break_;
+        
+        AssetStats();
+    };
 
 public:
-	LLViewerAssetStats();
-	LLViewerAssetStats(const LLViewerAssetStats &);
+    LLViewerAssetStats();
+    LLViewerAssetStats(const LLViewerAssetStats &);
 
-	// Default destructor is correct.
-	LLViewerAssetStats & operator=(const LLViewerAssetStats &);			// Not defined
+    // Default destructor is correct.
+    LLViewerAssetStats & operator=(const LLViewerAssetStats &);         // Not defined
 
-	// Clear all metrics data.  This leaves the currently-active region
-	// in place but with zero'd data for all metrics.  All other regions
-	// are removed from the collection map.
-	void reset();
+    // Clear all metrics data.  This leaves the currently-active region
+    // in place but with zero'd data for all metrics.  All other regions
+    // are removed from the collection map.
+    void reset();
 
-	// Set hidden region argument and establish context for subsequent
-	// collection calls.
-	void setRegion(region_handle_t region_handle);
+    // Set hidden region argument and establish context for subsequent
+    // collection calls.
+    void setRegion(region_handle_t region_handle);
 
-	// Retrieve current metrics for all visited regions (NULL region UUID/handle excluded)
+    // Retrieve current metrics for all visited regions (NULL region UUID/handle excluded)
     // Uses AssetStats structure seen above
-	void getStats(AssetStats& stats, bool compact_output);
+    void getStats(AssetStats& stats, bool compact_output);
 
     // Retrieve a single asset request type (taken from a single region)
     template <typename T>
     void getStat(LLTrace::Recording& rec, T& req, LLViewerAssetStatsFF::EViewerAssetCategories cat, bool compact_output);
 
-	LLSD asLLSD(bool compact_output);
+    LLSD asLLSD(bool compact_output);
 
 protected:
-	void handleStart();
-	void handleStop();
-	void handleReset();
+    void handleStart();
+    void handleStop();
+    void handleReset();
 
-	typedef std::map<region_handle_t, LLTrace::Recording > PerRegionRecordingContainer;
+    typedef std::map<region_handle_t, LLTrace::Recording > PerRegionRecordingContainer;
 
-	// Region of the currently-active region.  Always valid but may
-	// be zero after construction or when explicitly set.  Unchanged
-	// by a reset() call.
-	region_handle_t mRegionHandle;
+    // Region of the currently-active region.  Always valid but may
+    // be zero after construction or when explicitly set.  Unchanged
+    // by a reset() call.
+    region_handle_t mRegionHandle;
 
-	// Pointer to metrics collection for currently-active region.  
-	LLTrace::Recording*			mCurRecording;
+    // Pointer to metrics collection for currently-active region.  
+    LLTrace::Recording*         mCurRecording;
 
-	// Metrics data for all regions during one collection cycle
-	PerRegionRecordingContainer mRegionRecordings;
+    // Metrics data for all regions during one collection cycle
+    PerRegionRecordingContainer mRegionRecordings;
 };
 
 
@@ -260,7 +260,7 @@ void cleanup();
  */
 inline LLViewerAssetStats::duration_t get_timestamp()
 {
-	return LLTimer::getTotalTime();
+    return LLTimer::getTotalTime();
 }
 
 /**

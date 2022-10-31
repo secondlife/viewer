@@ -30,8 +30,8 @@
 class LLViewerAttachMenu
 {
 public:
-	static void populateMenus(const std::string& attach_to_menu_name, const std::string& attach_to_hud_menu_name);
-	static void attachObjects(const uuid_vec_t& items, const std::string& joint_name);
+    static void populateMenus(const std::string& attach_to_menu_name, const std::string& attach_to_hud_menu_name);
+    static void attachObjects(const uuid_vec_t& items, const std::string& joint_name);
 };
 
 #endif // LL_LLVIEWERATTACHMENU_H

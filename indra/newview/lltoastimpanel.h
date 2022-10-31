@@ -38,43 +38,43 @@ class LLGroupIconCtrl;
 class LLToastIMPanel: public LLToastPanel 
 {
 public:
-	struct Params
-	{
-		LLNotificationPtr	notification;
-		LLUUID				avatar_id,
-							session_id;
-		std::string			from,
-							time,
-							message;
+    struct Params
+    {
+        LLNotificationPtr   notification;
+        LLUUID              avatar_id,
+                            session_id;
+        std::string         from,
+                            time,
+                            message;
 
-		Params() {}
-	};
+        Params() {}
+    };
 
-	LLToastIMPanel(LLToastIMPanel::Params &p);
-	virtual ~LLToastIMPanel();
-	/*virtual*/ BOOL 	handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask);
+    LLToastIMPanel(LLToastIMPanel::Params &p);
+    virtual ~LLToastIMPanel();
+    /*virtual*/ BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL    handleToolTip(S32 x, S32 y, MASK mask);
 private:
-	void showInspector();
+    void showInspector();
 
-	void spawnNameToolTip();
-	void spawnGroupIconToolTip();
+    void spawnNameToolTip();
+    void spawnGroupIconToolTip();
 
-	void initIcon();
+    void initIcon();
 
-	static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
+    static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
 
-	LLNotificationPtr	mNotification;
-	LLUUID				mSessionID;
-	LLUUID				mAvatarID;
-	LLAvatarIconCtrl*	mAvatarIcon;
-	LLGroupIconCtrl*	mGroupIcon;
-	LLAvatarIconCtrl*	mAdhocIcon;
-	LLTextBox*			mAvatarName;
-	LLTextBox*			mTime;
-	LLTextBox*			mMessage;
+    LLNotificationPtr   mNotification;
+    LLUUID              mSessionID;
+    LLUUID              mAvatarID;
+    LLAvatarIconCtrl*   mAvatarIcon;
+    LLGroupIconCtrl*    mGroupIcon;
+    LLAvatarIconCtrl*   mAdhocIcon;
+    LLTextBox*          mAvatarName;
+    LLTextBox*          mTime;
+    LLTextBox*          mMessage;
 
-	bool                mIsGroupMsg;
+    bool                mIsGroupMsg;
 };
 
 #endif // LLTOASTIMPANEL_H_

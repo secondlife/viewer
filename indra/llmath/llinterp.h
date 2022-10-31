@@ -30,7 +30,7 @@
 // macro definitions for common math constants (e.g. M_PI) are declared under the _USE_MATH_DEFINES
 // on Windows system.
 // So, let's define _USE_MATH_DEFINES before including math.h
-	#define _USE_MATH_DEFINES
+    #define _USE_MATH_DEFINES
 #endif
 
 #include "math.h"
@@ -40,8 +40,8 @@
 class LLInterpVal
 {
 public:
-	virtual ~LLInterpVal() {}
-	virtual void interp(LLInterpVal &target, const F32 frac); // Linear interpolation for each type
+    virtual ~LLInterpVal() {}
+    virtual void interp(LLInterpVal &target, const F32 frac); // Linear interpolation for each type
 };
 
 template <typename Type>
@@ -49,57 +49,57 @@ class LLInterp
 {
 public:
         LLInterp();
-	virtual ~LLInterp() {}
+    virtual ~LLInterp() {}
 
-	virtual void start();
-	void update(const F32 time);
-	const Type &getCurVal() const;
+    virtual void start();
+    void update(const F32 time);
+    const Type &getCurVal() const;
 
-	void setStartVal(const Type &start_val);
-	const Type &getStartVal() const;
+    void setStartVal(const Type &start_val);
+    const Type &getStartVal() const;
 
-	void setEndVal(const Type &target_val);
-	const Type &getEndVal() const;
+    void setEndVal(const Type &target_val);
+    const Type &getEndVal() const;
 
-	void setStartTime(const F32 time);
-	F32 getStartTime() const;
+    void setStartTime(const F32 time);
+    F32 getStartTime() const;
 
-	void setEndTime(const F32 time);
-	F32 getEndTime() const;
+    void setEndTime(const F32 time);
+    F32 getEndTime() const;
 
-	BOOL isActive() const;
-	BOOL isDone() const;
-	
+    BOOL isActive() const;
+    BOOL isDone() const;
+    
 protected:
-	F32 mStartTime;
-	F32 mEndTime;
-	F32 mDuration;
-	BOOL mActive;
-	BOOL mDone;
+    F32 mStartTime;
+    F32 mEndTime;
+    F32 mDuration;
+    BOOL mActive;
+    BOOL mDone;
 
-	Type mStartVal;
-	Type mEndVal;
+    Type mStartVal;
+    Type mEndVal;
 
-	F32 mCurTime;
-	Type mCurVal;
+    F32 mCurTime;
+    Type mCurVal;
 };
 
 template <typename Type>
 class LLInterpLinear : public LLInterp<Type>
 {
 public:
-	/*virtual*/ void start();
-	void update(const F32 time);
-	F32 getCurFrac() const;
+    /*virtual*/ void start();
+    void update(const F32 time);
+    F32 getCurFrac() const;
 protected:
-	F32 mCurFrac;
+    F32 mCurFrac;
 };
 
 template <typename Type>
 class LLInterpExp : public LLInterpLinear<Type>
 {
 public:
-	void update(const F32 time);
+    void update(const F32 time);
 protected:
 };
 
@@ -107,28 +107,28 @@ template <typename Type>
 class LLInterpAttractor : public LLInterp<Type>
 {
 public:
-	LLInterpAttractor();
-	/*virtual*/ void start();
-	void setStartVel(const Type &vel);
-	void setForce(const F32 force);
-	void update(const F32 time);
+    LLInterpAttractor();
+    /*virtual*/ void start();
+    void setStartVel(const Type &vel);
+    void setForce(const F32 force);
+    void update(const F32 time);
 protected:
-	F32 mForce;
-	Type mStartVel;
-	Type mVelocity;
+    F32 mForce;
+    Type mStartVel;
+    Type mVelocity;
 };
 
 template <typename Type>
 class LLInterpFunc : public LLInterp<Type>
 {
 public:
-	LLInterpFunc();
-	void update(const F32 time);
+    LLInterpFunc();
+    void update(const F32 time);
 
-	void setFunc(Type (*)(const F32, void *data), void *data);
+    void setFunc(Type (*)(const F32, void *data), void *data);
 protected:
-	Type (*mFunc)(const F32 time, void *data);
-	void *mData;
+    Type (*mFunc)(const F32 time, void *data);
+    void *mData;
 };
 
 
@@ -147,93 +147,93 @@ template <typename Type>
 LLInterp<Type>::LLInterp()
 : mStartVal(Type()), mEndVal(Type()), mCurVal(Type())
 {
-	mStartTime = 0.f;
-	mEndTime = 1.f;
-	mDuration = 1.f;
-	mCurTime = 0.f;
-	mDone = FALSE;
-	mActive = FALSE;
+    mStartTime = 0.f;
+    mEndTime = 1.f;
+    mDuration = 1.f;
+    mCurTime = 0.f;
+    mDone = FALSE;
+    mActive = FALSE;
 }
 
 template <class Type>
 void LLInterp<Type>::setStartVal(const Type &start_val)
 {
-	mStartVal = start_val;
+    mStartVal = start_val;
 }
 
 template <class Type>
 void LLInterp<Type>::start()
 {
-	mCurVal = mStartVal;
-	mCurTime = mStartTime;
-	mDone = FALSE;
-	mActive = FALSE;
+    mCurVal = mStartVal;
+    mCurTime = mStartTime;
+    mDone = FALSE;
+    mActive = FALSE;
 }
 
 template <class Type>
 const Type &LLInterp<Type>::getStartVal() const
 {
-	return mStartVal;
+    return mStartVal;
 }
 
 template <class Type>
 void LLInterp<Type>::setEndVal(const Type &end_val)
 {
-	mEndVal = end_val;
+    mEndVal = end_val;
 }
 
 template <class Type>
 const Type &LLInterp<Type>::getEndVal() const
 {
-	return mEndVal;
+    return mEndVal;
 }
 
 template <class Type>
 const Type &LLInterp<Type>::getCurVal() const
 {
-	return mCurVal;
+    return mCurVal;
 }
 
 
 template <class Type>
 void LLInterp<Type>::setStartTime(const F32 start_time)
 {
-	mStartTime = start_time;
-	mDuration = mEndTime - mStartTime;
+    mStartTime = start_time;
+    mDuration = mEndTime - mStartTime;
 }
 
 template <class Type>
 F32 LLInterp<Type>::getStartTime() const
 {
-	return mStartTime;
+    return mStartTime;
 }
 
 
 template <class Type>
 void LLInterp<Type>::setEndTime(const F32 end_time)
 {
-	mEndTime = end_time;
-	mDuration = mEndTime - mStartTime;
+    mEndTime = end_time;
+    mDuration = mEndTime - mStartTime;
 }
 
 
 template <class Type>
 F32 LLInterp<Type>::getEndTime() const
 {
-	return mEndTime;
+    return mEndTime;
 }
 
 
 template <class Type>
 BOOL LLInterp<Type>::isDone() const
 {
-	return mDone;
+    return mDone;
 }
 
 template <class Type>
 BOOL LLInterp<Type>::isActive() const
 {
-	return mActive;
+    return mActive;
 }
 
 //////////////////////////////
@@ -243,53 +243,53 @@ BOOL LLInterp<Type>::isActive() const
 template <typename Type>
 void LLInterpLinear<Type>::start()
 {
-	LLInterp<Type>::start();
-	mCurFrac = 0.f;
+    LLInterp<Type>::start();
+    mCurFrac = 0.f;
 }
 
 template <typename Type>
 void LLInterpLinear<Type>::update(const F32 time)
 {
-	F32 target_frac = (time - this->mStartTime) / this->mDuration;
-	F32 dfrac = target_frac - this->mCurFrac;
-	if (target_frac >= 0.f)
-	{
-		this->mActive = TRUE;
-	}
-	
-	if (target_frac > 1.f)
-	{
-		this->mCurVal = this->mEndVal;
-		this->mCurFrac = 1.f;
-		this->mCurTime = time;
-		this->mDone = TRUE;
-		return;
-	}
+    F32 target_frac = (time - this->mStartTime) / this->mDuration;
+    F32 dfrac = target_frac - this->mCurFrac;
+    if (target_frac >= 0.f)
+    {
+        this->mActive = TRUE;
+    }
+    
+    if (target_frac > 1.f)
+    {
+        this->mCurVal = this->mEndVal;
+        this->mCurFrac = 1.f;
+        this->mCurTime = time;
+        this->mDone = TRUE;
+        return;
+    }
 
-	target_frac = llmin(1.f, target_frac);
-	target_frac = llmax(0.f, target_frac);
+    target_frac = llmin(1.f, target_frac);
+    target_frac = llmax(0.f, target_frac);
 
-	if (dfrac >= 0.f)
-	{
-		F32 total_frac = 1.f - this->mCurFrac;
-		F32 inc_frac = dfrac / total_frac;
-		this->mCurVal = inc_frac * this->mEndVal + (1.f - inc_frac) * this->mCurVal;
-		this->mCurTime = time;
-	}
-	else
-	{
-		F32 total_frac = this->mCurFrac - 1.f;
-		F32 inc_frac = dfrac / total_frac;
-		this->mCurVal = inc_frac * this->mStartVal + (1.f - inc_frac) * this->mCurVal;
-		this->mCurTime = time;
-	}
-	mCurFrac = target_frac;
+    if (dfrac >= 0.f)
+    {
+        F32 total_frac = 1.f - this->mCurFrac;
+        F32 inc_frac = dfrac / total_frac;
+        this->mCurVal = inc_frac * this->mEndVal + (1.f - inc_frac) * this->mCurVal;
+        this->mCurTime = time;
+    }
+    else
+    {
+        F32 total_frac = this->mCurFrac - 1.f;
+        F32 inc_frac = dfrac / total_frac;
+        this->mCurVal = inc_frac * this->mStartVal + (1.f - inc_frac) * this->mCurVal;
+        this->mCurTime = time;
+    }
+    mCurFrac = target_frac;
 }
 
 template <class Type>
 F32 LLInterpLinear<Type>::getCurFrac() const
 {
-	return mCurFrac;
+    return mCurFrac;
 }
 
 
@@ -302,54 +302,54 @@ F32 LLInterpLinear<Type>::getCurFrac() const
 template <class Type>
 LLInterpAttractor<Type>::LLInterpAttractor() : LLInterp<Type>()
 {
-	mForce = 0.1f;
-	mVelocity *= 0.f;
-	mStartVel *= 0.f;
+    mForce = 0.1f;
+    mVelocity *= 0.f;
+    mStartVel *= 0.f;
 }
 
 template <class Type>
 void LLInterpAttractor<Type>::start()
 {
-	LLInterp<Type>::start();
-	mVelocity = mStartVel;
+    LLInterp<Type>::start();
+    mVelocity = mStartVel;
 }
 
 
 template <class Type>
 void LLInterpAttractor<Type>::setStartVel(const Type &vel)
 {
-	mStartVel = vel;
+    mStartVel = vel;
 }
 
 template <class Type>
 void LLInterpAttractor<Type>::setForce(const F32 force)
 {
-	mForce = force;
+    mForce = force;
 }
 
 template <class Type>
 void LLInterpAttractor<Type>::update(const F32 time)
 {
-	if (time > this->mStartTime)
-	{
-		this->mActive = TRUE;
-	}
-	else
-	{
-		return;
-	}
-	if (time > this->mEndTime)
-	{
-		this->mDone = TRUE;
-		return;
-	}
+    if (time > this->mStartTime)
+    {
+        this->mActive = TRUE;
+    }
+    else
+    {
+        return;
+    }
+    if (time > this->mEndTime)
+    {
+        this->mDone = TRUE;
+        return;
+    }
 
-	F32 dt = time - this->mCurTime;
-	Type dist_val = this->mEndVal - this->mCurVal;
-	Type dv = 0.5*dt*dt*this->mForce*dist_val;
-	this->mVelocity += dv;
-	this->mCurVal += this->mVelocity * dt;
-	this->mCurTime = time;
+    F32 dt = time - this->mCurTime;
+    Type dist_val = this->mEndVal - this->mCurVal;
+    Type dv = 0.5*dt*dt*this->mForce*dist_val;
+    this->mVelocity += dv;
+    this->mCurVal += this->mVelocity * dt;
+    this->mCurTime = time;
 }
 
 
@@ -362,36 +362,36 @@ void LLInterpAttractor<Type>::update(const F32 time)
 template <class Type>
 LLInterpFunc<Type>::LLInterpFunc() : LLInterp<Type>()
 {
-	mFunc = NULL;
-	mData = NULL;
+    mFunc = NULL;
+    mData = NULL;
 }
 
 template <class Type>
 void LLInterpFunc<Type>::setFunc(Type (*func)(const F32, void *data), void *data)
 {
-	mFunc = func;
-	mData = data;
+    mFunc = func;
+    mData = data;
 }
 
 template <class Type>
 void LLInterpFunc<Type>::update(const F32 time)
 {
-	if (time > this->mStartTime)
-	{
-		this->mActive = TRUE;
-	}
-	else
-	{
-		return;
-	}
-	if (time > this->mEndTime)
-	{
-		this->mDone = TRUE;
-		return;
-	}
+    if (time > this->mStartTime)
+    {
+        this->mActive = TRUE;
+    }
+    else
+    {
+        return;
+    }
+    if (time > this->mEndTime)
+    {
+        this->mDone = TRUE;
+        return;
+    }
 
-	this->mCurVal = (*mFunc)(time - this->mStartTime, mData);
-	this->mCurTime = time;
+    this->mCurVal = (*mFunc)(time - this->mStartTime, mData);
+    this->mCurTime = time;
 }
 
 //////////////////////////////
@@ -402,24 +402,24 @@ void LLInterpFunc<Type>::update(const F32 time)
 template <class Type>
 void LLInterpExp<Type>::update(const F32 time)
 {
-	F32 target_frac = (time - this->mStartTime) / this->mDuration;
-	if (target_frac >= 0.f)
-	{
-		this->mActive = TRUE;
-	}
-	
-	if (target_frac > 1.f)
-	{
-		this->mCurVal = this->mEndVal;
-		this->mCurFrac = 1.f;
-		this->mCurTime = time;
-		this->mDone = TRUE;
-		return;
-	}
+    F32 target_frac = (time - this->mStartTime) / this->mDuration;
+    if (target_frac >= 0.f)
+    {
+        this->mActive = TRUE;
+    }
+    
+    if (target_frac > 1.f)
+    {
+        this->mCurVal = this->mEndVal;
+        this->mCurFrac = 1.f;
+        this->mCurTime = time;
+        this->mDone = TRUE;
+        return;
+    }
 
-	this->mCurFrac = 1.f - (F32)(exp(-2.f*target_frac));
-	this->mCurVal = this->mStartVal + this->mCurFrac * (this->mEndVal - this->mStartVal);
-	this->mCurTime = time;
+    this->mCurFrac = 1.f - (F32)(exp(-2.f*target_frac));
+    this->mCurVal = this->mStartVal + this->mCurFrac * (this->mEndVal - this->mStartVal);
+    this->mCurTime = time;
 }
 
 #endif // LL_LLINTERP_H

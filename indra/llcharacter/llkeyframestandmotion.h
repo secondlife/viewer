@@ -39,79 +39,79 @@
 //-----------------------------------------------------------------------------
 LL_ALIGN_PREFIX(16)
 class LLKeyframeStandMotion :
-	public LLKeyframeMotion
+    public LLKeyframeMotion
 {
     LL_ALIGN_NEW
 public:
-	// Constructor
-	LLKeyframeStandMotion(const LLUUID &id);
+    // Constructor
+    LLKeyframeStandMotion(const LLUUID &id);
 
-	// Destructor
-	virtual ~LLKeyframeStandMotion();
-
-public:
-	//-------------------------------------------------------------------------
-	// functions to support MotionController and MotionRegistry
-	//-------------------------------------------------------------------------
-
-	// static constructor
-	// all subclasses must implement such a function and register it
-	static LLMotion *create(const LLUUID &id) { return new LLKeyframeStandMotion(id); }
+    // Destructor
+    virtual ~LLKeyframeStandMotion();
 
 public:
-	//-------------------------------------------------------------------------
-	// animation callbacks to be implemented by subclasses
-	//-------------------------------------------------------------------------
-	virtual LLMotionInitStatus onInitialize(LLCharacter *character);
-	virtual BOOL onActivate();
-	void	onDeactivate();
-	virtual BOOL onUpdate(F32 time, U8* joint_mask);
+    //-------------------------------------------------------------------------
+    // functions to support MotionController and MotionRegistry
+    //-------------------------------------------------------------------------
+
+    // static constructor
+    // all subclasses must implement such a function and register it
+    static LLMotion *create(const LLUUID &id) { return new LLKeyframeStandMotion(id); }
 
 public:
-	//-------------------------------------------------------------------------
-	// Member Data
-	//-------------------------------------------------------------------------
-    LLJoint				mPelvisJoint;
+    //-------------------------------------------------------------------------
+    // animation callbacks to be implemented by subclasses
+    //-------------------------------------------------------------------------
+    virtual LLMotionInitStatus onInitialize(LLCharacter *character);
+    virtual BOOL onActivate();
+    void    onDeactivate();
+    virtual BOOL onUpdate(F32 time, U8* joint_mask);
 
-    LLJoint				mHipLeftJoint;
-    LLJoint				mKneeLeftJoint;
-    LLJoint				mAnkleLeftJoint;
-    LLJoint				mTargetLeft;
+public:
+    //-------------------------------------------------------------------------
+    // Member Data
+    //-------------------------------------------------------------------------
+    LLJoint             mPelvisJoint;
 
-    LLJoint				mHipRightJoint;
-    LLJoint				mKneeRightJoint;
-    LLJoint				mAnkleRightJoint;
-    LLJoint				mTargetRight;
+    LLJoint             mHipLeftJoint;
+    LLJoint             mKneeLeftJoint;
+    LLJoint             mAnkleLeftJoint;
+    LLJoint             mTargetLeft;
 
-	LLCharacter	*mCharacter;
+    LLJoint             mHipRightJoint;
+    LLJoint             mKneeRightJoint;
+    LLJoint             mAnkleRightJoint;
+    LLJoint             mTargetRight;
 
-	BOOL				mFlipFeet;
+    LLCharacter *mCharacter;
 
-	LLPointer<LLJointState>	mPelvisState;
+    BOOL                mFlipFeet;
 
-	LLPointer<LLJointState>	mHipLeftState;
-	LLPointer<LLJointState>	mKneeLeftState;
-	LLPointer<LLJointState>	mAnkleLeftState;
+    LLPointer<LLJointState> mPelvisState;
 
-	LLPointer<LLJointState>	mHipRightState;
-	LLPointer<LLJointState>	mKneeRightState;
-	LLPointer<LLJointState>	mAnkleRightState;
+    LLPointer<LLJointState> mHipLeftState;
+    LLPointer<LLJointState> mKneeLeftState;
+    LLPointer<LLJointState> mAnkleLeftState;
 
-	LLJointSolverRP3	mIKLeft;
-	LLJointSolverRP3	mIKRight;
+    LLPointer<LLJointState> mHipRightState;
+    LLPointer<LLJointState> mKneeRightState;
+    LLPointer<LLJointState> mAnkleRightState;
 
-	LLVector3			mPositionLeft;
-	LLVector3			mPositionRight;
-	LLVector3			mNormalLeft;
-	LLVector3			mNormalRight;
-	LLQuaternion		mRotationLeft;
-	LLQuaternion		mRotationRight;
+    LLJointSolverRP3    mIKLeft;
+    LLJointSolverRP3    mIKRight;
 
-	LLQuaternion		mLastGoodPelvisRotation;
-	LLVector3			mLastGoodPosition;
-	BOOL				mTrackAnkles;
+    LLVector3           mPositionLeft;
+    LLVector3           mPositionRight;
+    LLVector3           mNormalLeft;
+    LLVector3           mNormalRight;
+    LLQuaternion        mRotationLeft;
+    LLQuaternion        mRotationRight;
 
-	S32					mFrameNum;
+    LLQuaternion        mLastGoodPelvisRotation;
+    LLVector3           mLastGoodPosition;
+    BOOL                mTrackAnkles;
+
+    S32                 mFrameNum;
 } LL_ALIGN_POSTFIX(16);
 
 #endif // LL_LLKEYFRAMESTANDMOTION_H

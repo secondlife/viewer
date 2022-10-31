@@ -56,48 +56,48 @@ bool LLFloaterLandHoldings::sHasLindenHome = false;
 
 // protected
 LLFloaterLandHoldings::LLFloaterLandHoldings(const LLSD& key)
-:	LLFloater(key),
-	mActualArea(0),
-	mBillableArea(0),
-	mFirstPacketReceived(FALSE),
-	mSortColumn(""),
-	mSortAscending(TRUE)
+:   LLFloater(key),
+    mActualArea(0),
+    mBillableArea(0),
+    mFirstPacketReceived(FALSE),
+    mSortColumn(""),
+    mSortAscending(TRUE)
 {
 }
 
 BOOL LLFloaterLandHoldings::postBuild()
 {
-	childSetAction("Teleport", onClickTeleport, this);
-	childSetAction("Show on Map", onClickMap, this);
+    childSetAction("Teleport", onClickTeleport, this);
+    childSetAction("Show on Map", onClickMap, this);
 
-	// Grant list
-	LLScrollListCtrl* grant_list = getChild<LLScrollListCtrl>("grant list");
-	grant_list->sortByColumnIndex(0, TRUE);
-	grant_list->setDoubleClickCallback(onGrantList, this);
+    // Grant list
+    LLScrollListCtrl* grant_list = getChild<LLScrollListCtrl>("grant list");
+    grant_list->sortByColumnIndex(0, TRUE);
+    grant_list->setDoubleClickCallback(onGrantList, this);
 
-	S32 count = gAgent.mGroups.size();
-	for(S32 i = 0; i < count; ++i)
-	{
-		LLUUID id(gAgent.mGroups.at(i).mID);
+    S32 count = gAgent.mGroups.size();
+    for(S32 i = 0; i < count; ++i)
+    {
+        LLUUID id(gAgent.mGroups.at(i).mID);
 
-		LLSD element;
-		element["id"] = id;
-		element["columns"][0]["column"] = "group";
-		element["columns"][0]["value"] = gAgent.mGroups.at(i).mName;
-		element["columns"][0]["font"] = "SANSSERIF";
+        LLSD element;
+        element["id"] = id;
+        element["columns"][0]["column"] = "group";
+        element["columns"][0]["value"] = gAgent.mGroups.at(i).mName;
+        element["columns"][0]["font"] = "SANSSERIF";
 
-		LLUIString areastr = getString("area_string");
-		areastr.setArg("[AREA]", llformat("%d", gAgent.mGroups.at(i).mContribution));
-		element["columns"][1]["column"] = "area";
-		element["columns"][1]["value"] = areastr;
-		element["columns"][1]["font"] = "SANSSERIF";
+        LLUIString areastr = getString("area_string");
+        areastr.setArg("[AREA]", llformat("%d", gAgent.mGroups.at(i).mContribution));
+        element["columns"][1]["column"] = "area";
+        element["columns"][1]["value"] = areastr;
+        element["columns"][1]["font"] = "SANSSERIF";
 
-		grant_list->addElement(element);
-	}
-	
-	center();
-	
-	return TRUE;
+        grant_list->addElement(element);
+    }
+    
+    center();
+    
+    return TRUE;
 }
 
 
@@ -111,243 +111,243 @@ void LLFloaterLandHoldings::onOpen(const LLSD& key)
     LLScrollListCtrl *list = getChild<LLScrollListCtrl>("parcel list");
     list->clearRows();
 
-	// query_id null is known to be us
-	const LLUUID& query_id = LLUUID::null;
+    // query_id null is known to be us
+    const LLUUID& query_id = LLUUID::null;
 
-	// look only for parcels we own
-	U32 query_flags = DFQ_AGENT_OWNED;
+    // look only for parcels we own
+    U32 query_flags = DFQ_AGENT_OWNED;
 
-	send_places_query(query_id,
-					  LLUUID::null,
-					  "",
-					  query_flags,
-					  LLParcel::C_ANY,
-					  "");
+    send_places_query(query_id,
+                      LLUUID::null,
+                      "",
+                      query_flags,
+                      LLParcel::C_ANY,
+                      "");
 }
 
 void LLFloaterLandHoldings::draw()
 {
-	refresh();
+    refresh();
 
-	LLFloater::draw();
+    LLFloater::draw();
 }
 
 
 // public
 void LLFloaterLandHoldings::refresh()
 {
-	LLCtrlSelectionInterface *list = childGetSelectionInterface("parcel list");
-	BOOL enable_btns = FALSE;
-	if (list && list->getFirstSelectedIndex()> -1)
-	{
-		enable_btns = TRUE;
-	}
+    LLCtrlSelectionInterface *list = childGetSelectionInterface("parcel list");
+    BOOL enable_btns = FALSE;
+    if (list && list->getFirstSelectedIndex()> -1)
+    {
+        enable_btns = TRUE;
+    }
 
-	getChildView("Teleport")->setEnabled(enable_btns);
-	getChildView("Show on Map")->setEnabled(enable_btns);
+    getChildView("Teleport")->setEnabled(enable_btns);
+    getChildView("Show on Map")->setEnabled(enable_btns);
 
-	refreshAggregates();
+    refreshAggregates();
 }
 
 
 // static
 void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 {
-	LLFloaterLandHoldings* self = LLFloaterReg::findTypedInstance<LLFloaterLandHoldings>("land_holdings");
-	S32 count = msg->getNumberOfBlocks("QueryData");
-	std::string land_sku;
-	sHasLindenHome = false;
-	if (!self)
-	{
-		for (S32 i = 0; i < count; i++)
-		{
-			if ( msg->getSizeFast(_PREHASH_QueryData, i, _PREHASH_ProductSKU) > 0 )
-			{
-				msg->getStringFast(	_PREHASH_QueryData, _PREHASH_ProductSKU, land_sku, i);
+    LLFloaterLandHoldings* self = LLFloaterReg::findTypedInstance<LLFloaterLandHoldings>("land_holdings");
+    S32 count = msg->getNumberOfBlocks("QueryData");
+    std::string land_sku;
+    sHasLindenHome = false;
+    if (!self)
+    {
+        for (S32 i = 0; i < count; i++)
+        {
+            if ( msg->getSizeFast(_PREHASH_QueryData, i, _PREHASH_ProductSKU) > 0 )
+            {
+                msg->getStringFast( _PREHASH_QueryData, _PREHASH_ProductSKU, land_sku, i);
 
-				if (LINDEN_HOMES_SKU == land_sku)
-				{
-					sHasLindenHome = true;
-					return;
-				}
-			}
-		}
-		return;
-	}
+                if (LINDEN_HOMES_SKU == land_sku)
+                {
+                    sHasLindenHome = true;
+                    return;
+                }
+            }
+        }
+        return;
+    }
 
-	LLCtrlListInterface *list = self->childGetListInterface("parcel list");
-	if (!list) return;
+    LLCtrlListInterface *list = self->childGetListInterface("parcel list");
+    if (!list) return;
 
-	// If this is the first packet, clear out the "loading..." indicator
-	if (!self->mFirstPacketReceived)
-	{
-		self->mFirstPacketReceived = TRUE;
-		list->operateOnAll(LLCtrlSelectionInterface::OP_DELETE);
-	}
+    // If this is the first packet, clear out the "loading..." indicator
+    if (!self->mFirstPacketReceived)
+    {
+        self->mFirstPacketReceived = TRUE;
+        list->operateOnAll(LLCtrlSelectionInterface::OP_DELETE);
+    }
 
-	LLUUID	owner_id;
-	std::string	name;
-	std::string	desc;
-	S32		actual_area;
-	S32		billable_area;
-	U8		flags;
-	F32		global_x;
-	F32		global_y;
-	std::string	sim_name;
-	std::string land_type;
-	
-	for (S32 i = 0; i < count; i++)
-	{
-		msg->getUUID("QueryData", "OwnerID", owner_id, i);
-		msg->getString("QueryData", "Name", name, i);
-		msg->getString("QueryData", "Desc", desc, i);
-		msg->getS32("QueryData", "ActualArea", actual_area, i);
-		msg->getS32("QueryData", "BillableArea", billable_area, i);
-		msg->getU8("QueryData", "Flags", flags, i);
-		msg->getF32("QueryData", "GlobalX", global_x, i);
-		msg->getF32("QueryData", "GlobalY", global_y, i);
-		msg->getString("QueryData", "SimName", sim_name, i);
+    LLUUID  owner_id;
+    std::string name;
+    std::string desc;
+    S32     actual_area;
+    S32     billable_area;
+    U8      flags;
+    F32     global_x;
+    F32     global_y;
+    std::string sim_name;
+    std::string land_type;
+    
+    for (S32 i = 0; i < count; i++)
+    {
+        msg->getUUID("QueryData", "OwnerID", owner_id, i);
+        msg->getString("QueryData", "Name", name, i);
+        msg->getString("QueryData", "Desc", desc, i);
+        msg->getS32("QueryData", "ActualArea", actual_area, i);
+        msg->getS32("QueryData", "BillableArea", billable_area, i);
+        msg->getU8("QueryData", "Flags", flags, i);
+        msg->getF32("QueryData", "GlobalX", global_x, i);
+        msg->getF32("QueryData", "GlobalY", global_y, i);
+        msg->getString("QueryData", "SimName", sim_name, i);
 
-		if ( msg->getSizeFast(_PREHASH_QueryData, i, _PREHASH_ProductSKU) > 0 )
-		{
-			msg->getStringFast(	_PREHASH_QueryData, _PREHASH_ProductSKU, land_sku, i);
-			LL_INFOS() << "Land sku: " << land_sku << LL_ENDL;
-			land_type = LLProductInfoRequestManager::instance().getDescriptionForSku(land_sku);
-			if (LINDEN_HOMES_SKU == land_sku)
-			{
-				sHasLindenHome = true;
-			}
-		}
-		else
-		{
-			land_sku.clear();
-			land_type = LLTrans::getString("land_type_unknown");
-		}
-		
-		if(owner_id.notNull())
-		{
-			self->mActualArea += actual_area;
-			self->mBillableArea += billable_area;
+        if ( msg->getSizeFast(_PREHASH_QueryData, i, _PREHASH_ProductSKU) > 0 )
+        {
+            msg->getStringFast( _PREHASH_QueryData, _PREHASH_ProductSKU, land_sku, i);
+            LL_INFOS() << "Land sku: " << land_sku << LL_ENDL;
+            land_type = LLProductInfoRequestManager::instance().getDescriptionForSku(land_sku);
+            if (LINDEN_HOMES_SKU == land_sku)
+            {
+                sHasLindenHome = true;
+            }
+        }
+        else
+        {
+            land_sku.clear();
+            land_type = LLTrans::getString("land_type_unknown");
+        }
+        
+        if(owner_id.notNull())
+        {
+            self->mActualArea += actual_area;
+            self->mBillableArea += billable_area;
 
-			S32 region_x = ll_round(global_x) % REGION_WIDTH_UNITS;
-			S32 region_y = ll_round(global_y) % REGION_WIDTH_UNITS;
+            S32 region_x = ll_round(global_x) % REGION_WIDTH_UNITS;
+            S32 region_y = ll_round(global_y) % REGION_WIDTH_UNITS;
 
-			std::string location;
-			location = llformat("%s (%d, %d)", sim_name.c_str(), region_x, region_y);
+            std::string location;
+            location = llformat("%s (%d, %d)", sim_name.c_str(), region_x, region_y);
 
-			std::string area;
-			if(billable_area == actual_area)
-			{
-				area = llformat("%d", billable_area);
-			}
-			else
-			{
-				area = llformat("%d / %d", billable_area, actual_area);
-			}
-			
-			std::string hidden;
-			hidden = llformat("%f %f", global_x, global_y);
+            std::string area;
+            if(billable_area == actual_area)
+            {
+                area = llformat("%d", billable_area);
+            }
+            else
+            {
+                area = llformat("%d / %d", billable_area, actual_area);
+            }
+            
+            std::string hidden;
+            hidden = llformat("%f %f", global_x, global_y);
 
-			LLSD element;
-			element["columns"][0]["column"] = "name";
-			element["columns"][0]["value"] = name;
-			element["columns"][0]["font"] = "SANSSERIF";
-			
-			element["columns"][1]["column"] = "location";
-			element["columns"][1]["value"] = location;
-			element["columns"][1]["font"] = "SANSSERIF";
-			
-			element["columns"][2]["column"] = "area";
-			element["columns"][2]["value"] = area;
-			element["columns"][2]["font"] = "SANSSERIF";
-			
-			element["columns"][3]["column"] = "type";
-			element["columns"][3]["value"] = land_type;
-			element["columns"][3]["font"] = "SANSSERIF";
-			
-			// hidden is always last column
-			element["columns"][4]["column"] = "hidden";
-			element["columns"][4]["value"] = hidden;
+            LLSD element;
+            element["columns"][0]["column"] = "name";
+            element["columns"][0]["value"] = name;
+            element["columns"][0]["font"] = "SANSSERIF";
+            
+            element["columns"][1]["column"] = "location";
+            element["columns"][1]["value"] = location;
+            element["columns"][1]["font"] = "SANSSERIF";
+            
+            element["columns"][2]["column"] = "area";
+            element["columns"][2]["value"] = area;
+            element["columns"][2]["font"] = "SANSSERIF";
+            
+            element["columns"][3]["column"] = "type";
+            element["columns"][3]["value"] = land_type;
+            element["columns"][3]["font"] = "SANSSERIF";
+            
+            // hidden is always last column
+            element["columns"][4]["column"] = "hidden";
+            element["columns"][4]["value"] = hidden;
 
-			list->addElement(element);
-		}
-	}
-	
-	self->refreshAggregates();
+            list->addElement(element);
+        }
+    }
+    
+    self->refreshAggregates();
 }
 
 void LLFloaterLandHoldings::buttonCore(S32 which)
 {
-	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("parcel list");
-	if (!list) return;
+    LLScrollListCtrl *list = getChild<LLScrollListCtrl>("parcel list");
+    if (!list) return;
 
-	S32 index = list->getFirstSelectedIndex();
-	if (index < 0) return;
+    S32 index = list->getFirstSelectedIndex();
+    if (index < 0) return;
 
-	// hidden is always last column
-	std::string location = list->getSelectedItemLabel(list->getNumColumns()-1);
+    // hidden is always last column
+    std::string location = list->getSelectedItemLabel(list->getNumColumns()-1);
 
-	F32 global_x = 0.f;
-	F32 global_y = 0.f;
-	sscanf(location.c_str(), "%f %f", &global_x, &global_y);
+    F32 global_x = 0.f;
+    F32 global_y = 0.f;
+    sscanf(location.c_str(), "%f %f", &global_x, &global_y);
 
-	// Hack: Use the agent's z-height
-	F64 global_z = gAgent.getPositionGlobal().mdV[VZ];
+    // Hack: Use the agent's z-height
+    F64 global_z = gAgent.getPositionGlobal().mdV[VZ];
 
-	LLVector3d pos_global(global_x, global_y, global_z);
-	LLFloaterWorldMap* floater_world_map = LLFloaterWorldMap::getInstance();
+    LLVector3d pos_global(global_x, global_y, global_z);
+    LLFloaterWorldMap* floater_world_map = LLFloaterWorldMap::getInstance();
 
-	switch(which)
-	{
-	case 0:
-		gAgent.teleportViaLocation(pos_global);
-		if(floater_world_map) floater_world_map->trackLocation(pos_global);
-		break;
-	case 1:
-		if(floater_world_map) floater_world_map->trackLocation(pos_global);
-		LLFloaterReg::showInstance("world_map", "center");
-		break;
-	default:
-		break;
-	}
+    switch(which)
+    {
+    case 0:
+        gAgent.teleportViaLocation(pos_global);
+        if(floater_world_map) floater_world_map->trackLocation(pos_global);
+        break;
+    case 1:
+        if(floater_world_map) floater_world_map->trackLocation(pos_global);
+        LLFloaterReg::showInstance("world_map", "center");
+        break;
+    default:
+        break;
+    }
 }
 
 // static
 void LLFloaterLandHoldings::onClickTeleport(void* data)
 {
-	LLFloaterLandHoldings* self = (LLFloaterLandHoldings*)data;
-	self->buttonCore(0);
-	self->closeFloater();
+    LLFloaterLandHoldings* self = (LLFloaterLandHoldings*)data;
+    self->buttonCore(0);
+    self->closeFloater();
 }
 
 
 // static
 void LLFloaterLandHoldings::onClickMap(void* data)
 {
-	LLFloaterLandHoldings* self = (LLFloaterLandHoldings*)data;
-	self->buttonCore(1);
+    LLFloaterLandHoldings* self = (LLFloaterLandHoldings*)data;
+    self->buttonCore(1);
 }
 
 // static
 void LLFloaterLandHoldings::onGrantList(void* data)
 {
-	LLFloaterLandHoldings* self = (LLFloaterLandHoldings*)data;
-	LLCtrlSelectionInterface *list = self->childGetSelectionInterface("grant list");
-	if (!list) return;
-	LLUUID group_id = list->getCurrentID();
-	if (group_id.notNull())
-	{
-		LLGroupActions::show(group_id);
-	}
+    LLFloaterLandHoldings* self = (LLFloaterLandHoldings*)data;
+    LLCtrlSelectionInterface *list = self->childGetSelectionInterface("grant list");
+    if (!list) return;
+    LLUUID group_id = list->getCurrentID();
+    if (group_id.notNull())
+    {
+        LLGroupActions::show(group_id);
+    }
 }
 
 void LLFloaterLandHoldings::refreshAggregates()
 {
-	S32 allowed_area = gStatusBar->getSquareMetersCredit();
-	S32 current_area = gStatusBar->getSquareMetersCommitted();
-	S32 available_area = gStatusBar->getSquareMetersLeft();
+    S32 allowed_area = gStatusBar->getSquareMetersCredit();
+    S32 current_area = gStatusBar->getSquareMetersCommitted();
+    S32 available_area = gStatusBar->getSquareMetersLeft();
 
-	getChild<LLUICtrl>("allowed_text")->setTextArg("[AREA]", llformat("%d",allowed_area));
-	getChild<LLUICtrl>("current_text")->setTextArg("[AREA]", llformat("%d",current_area));
-	getChild<LLUICtrl>("available_text")->setTextArg("[AREA]", llformat("%d",available_area));
+    getChild<LLUICtrl>("allowed_text")->setTextArg("[AREA]", llformat("%d",allowed_area));
+    getChild<LLUICtrl>("current_text")->setTextArg("[AREA]", llformat("%d",current_area));
+    getChild<LLUICtrl>("available_text")->setTextArg("[AREA]", llformat("%d",available_area));
 }

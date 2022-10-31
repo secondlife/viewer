@@ -36,9 +36,9 @@ namespace LLCore
 
 
 HttpOpSetPriority::HttpOpSetPriority(HttpHandle handle, HttpRequest::priority_t priority)
-	: HttpOperation(),
-	  mHandle(handle),
-	  mPriority(priority)
+    : HttpOperation(),
+      mHandle(handle),
+      mPriority(priority)
 {}
 
 
@@ -48,15 +48,15 @@ HttpOpSetPriority::~HttpOpSetPriority()
 
 void HttpOpSetPriority::stageFromRequest(HttpService * service)
 {
-	// Do operations
-	if (! service->changePriority(mHandle, mPriority))
-	{
-		// Request not found, fail the final status
-		mStatus = HttpStatus(HttpStatus::LLCORE, HE_HANDLE_NOT_FOUND);
-	}
-	
-	// Move directly to response queue
-	addAsReply();
+    // Do operations
+    if (! service->changePriority(mHandle, mPriority))
+    {
+        // Request not found, fail the final status
+        mStatus = HttpStatus(HttpStatus::LLCORE, HE_HANDLE_NOT_FOUND);
+    }
+    
+    // Move directly to response queue
+    addAsReply();
 }
 
 

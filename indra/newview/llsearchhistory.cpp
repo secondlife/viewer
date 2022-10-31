@@ -41,108 +41,108 @@ LLSearchHistory::LLSearchHistory()
 
 bool LLSearchHistory::load()
 {
-	// build filename for each user
-	std::string resolved_filename = getHistoryFilePath();
-	llifstream file(resolved_filename.c_str());
-	if (!file.is_open())
-	{
-		return false;
-	}
+    // build filename for each user
+    std::string resolved_filename = getHistoryFilePath();
+    llifstream file(resolved_filename.c_str());
+    if (!file.is_open())
+    {
+        return false;
+    }
 
-	clearHistory();
+    clearHistory();
 
-	// add each line in the file to the list
-	std::string line;
-	LLPointer<LLSDParser> parser = new LLSDNotationParser();
-	while (std::getline(file, line)) 
-	{
-		LLSD s_item;
-		std::istringstream iss(line);
-		if (parser->parse(iss, s_item, line.length()) == LLSDParser::PARSE_FAILURE)
-		{
-			break;
-		}
+    // add each line in the file to the list
+    std::string line;
+    LLPointer<LLSDParser> parser = new LLSDNotationParser();
+    while (std::getline(file, line)) 
+    {
+        LLSD s_item;
+        std::istringstream iss(line);
+        if (parser->parse(iss, s_item, line.length()) == LLSDParser::PARSE_FAILURE)
+        {
+            break;
+        }
 
-		mSearchHistory.push_back(s_item);
-	}
+        mSearchHistory.push_back(s_item);
+    }
 
-	file.close();
+    file.close();
 
-	return true;
+    return true;
 }
 
 bool LLSearchHistory::save()
 {
-	// build filename for each user
-	std::string resolved_filename = getHistoryFilePath();
-	// open a file for writing
-	llofstream file(resolved_filename.c_str());
-	if (!file.is_open())
-	{
-		return false;
-	}
+    // build filename for each user
+    std::string resolved_filename = getHistoryFilePath();
+    // open a file for writing
+    llofstream file(resolved_filename.c_str());
+    if (!file.is_open())
+    {
+        return false;
+    }
 
-	search_history_list_t::const_iterator it = mSearchHistory.begin();
-	for (; mSearchHistory.end() != it; ++it)
-	{
-		file << LLSDOStreamer<LLSDNotationFormatter>((*it).toLLSD()) << std::endl;
-	}
+    search_history_list_t::const_iterator it = mSearchHistory.begin();
+    for (; mSearchHistory.end() != it; ++it)
+    {
+        file << LLSDOStreamer<LLSDNotationFormatter>((*it).toLLSD()) << std::endl;
+    }
 
-	file.close();
-	return true;
+    file.close();
+    return true;
 }
 
 std::string LLSearchHistory::getHistoryFilePath()
 {
-	return gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SEARCH_HISTORY_FILE_NAME);
+    return gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SEARCH_HISTORY_FILE_NAME);
 }
 
 void LLSearchHistory::addEntry(const std::string& search_query)
 {
-	if(search_query.empty())
-	{
-		return;
-	}
+    if(search_query.empty())
+    {
+        return;
+    }
 
-	search_history_list_t::iterator it = 
-		find(mSearchHistory.begin(), mSearchHistory.end(), search_query);
+    search_history_list_t::iterator it = 
+        find(mSearchHistory.begin(), mSearchHistory.end(), search_query);
 
-	if(mSearchHistory.end() != it)
-	{
-		mSearchHistory.erase(it);
-	}
+    if(mSearchHistory.end() != it)
+    {
+        mSearchHistory.erase(it);
+    }
 
-	LLSearchHistoryItem item(search_query);
-	mSearchHistory.push_front(item);
+    LLSearchHistoryItem item(search_query);
+    mSearchHistory.push_front(item);
 }
 
 bool LLSearchHistory::LLSearchHistoryItem::operator < (const LLSearchHistory::LLSearchHistoryItem& right) const
 {
-	S32 result = LLStringUtil::compareInsensitive(search_query, right.search_query);
+    S32 result = LLStringUtil::compareInsensitive(search_query, right.search_query);
 
-	return result < 0;
+    return result < 0;
 }
 
 bool LLSearchHistory::LLSearchHistoryItem::operator > (const LLSearchHistory::LLSearchHistoryItem& right) const
 {
-	S32 result = LLStringUtil::compareInsensitive(search_query, right.search_query);
+    S32 result = LLStringUtil::compareInsensitive(search_query, right.search_query);
 
-	return result > 0;
+    return result > 0;
 }
 
 bool LLSearchHistory::LLSearchHistoryItem::operator==(const LLSearchHistory::LLSearchHistoryItem& right) const
 {
-	return 0 == LLStringUtil::compareInsensitive(search_query, right.search_query);
+    return 0 == LLStringUtil::compareInsensitive(search_query, right.search_query);
 }
 
 bool LLSearchHistory::LLSearchHistoryItem::operator==(const std::string& right) const
 {
-	return 0 == LLStringUtil::compareInsensitive(search_query, right);
+    return 0 == LLStringUtil::compareInsensitive(search_query, right);
 }
 
 LLSD LLSearchHistory::LLSearchHistoryItem::toLLSD() const
 {
-	LLSD ret;
-	ret[SEARCH_QUERY] = search_query;
-	return ret;
+    LLSD ret;
+    ret[SEARCH_QUERY] = search_query;
+    return ret;
 }

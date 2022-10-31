@@ -33,27 +33,27 @@
 #include "lltextbox.h"
 
 LLPanelAvatarTag::LLPanelAvatarTag(const LLUUID& key, const std::string im_time)
-	: LLPanel()
-	, mAvatarId(LLUUID::null)
-//	, mFadeTimer()
+    : LLPanel()
+    , mAvatarId(LLUUID::null)
+//  , mFadeTimer()
 {
-	buildFromFile( "panel_avatar_tag.xml");
-	setLeftButtonClickCallback(boost::bind(&LLPanelAvatarTag::onClick, this));
-	setAvatarId(key);
-	setTime(im_time);
+    buildFromFile( "panel_avatar_tag.xml");
+    setLeftButtonClickCallback(boost::bind(&LLPanelAvatarTag::onClick, this));
+    setAvatarId(key);
+    setTime(im_time);
 }
 
 LLPanelAvatarTag::~LLPanelAvatarTag()
 {
-	// Name callbacks will be automatically disconnected since LLPanel is trackable
+    // Name callbacks will be automatically disconnected since LLPanel is trackable
 }
 
 BOOL LLPanelAvatarTag::postBuild()
 {
-	mIcon = getChild<LLAvatarIconCtrl>("avatar_tag_icon");
-	mName = getChild<LLTextBox>("sender_tag_name");
-	mTime = getChild<LLTextBox>("tag_time");
-	return TRUE;
+    mIcon = getChild<LLAvatarIconCtrl>("avatar_tag_icon");
+    mName = getChild<LLTextBox>("sender_tag_name");
+    mTime = getChild<LLTextBox>("tag_time");
+    return TRUE;
 }
 
 void LLPanelAvatarTag::draw()
@@ -62,40 +62,40 @@ void LLPanelAvatarTag::draw()
 }
 void LLPanelAvatarTag::setName(const std::string& name)
 {
-	if (mName)
-		mName->setText(name);
+    if (mName)
+        mName->setText(name);
 }
 
 void LLPanelAvatarTag::setTime(const std::string& time)
 {
-	if (mTime)
-		mTime->setText(time);
+    if (mTime)
+        mTime->setText(time);
 }
 
 
 void LLPanelAvatarTag::setAvatarId(const LLUUID& avatar_id)
 {
-	mAvatarId = avatar_id;
-	if (mIcon)
-	{
-		mIcon->setValue(avatar_id);
-	}
-	setName(std::string(mIcon->getFullName()));
+    mAvatarId = avatar_id;
+    if (mIcon)
+    {
+        mIcon->setValue(avatar_id);
+    }
+    setName(std::string(mIcon->getFullName()));
 }
 
 boost::signals2::connection LLPanelAvatarTag::setLeftButtonClickCallback(
-																  const commit_callback_t& cb)
+                                                                  const commit_callback_t& cb)
 {
-	return setCommitCallback(cb);
+    return setCommitCallback(cb);
 }
 
 BOOL LLPanelAvatarTag::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	onCommit();
-	return TRUE;
+    onCommit();
+    return TRUE;
 }
 
 void LLPanelAvatarTag::onClick()
 {
-	// Do the on click stuff.
+    // Do the on click stuff.
 }

@@ -34,44 +34,44 @@
 const S32 FLYOUT_BUTTON_ARROW_WIDTH = 24;
 
 LLFlyoutButton::LLFlyoutButton(const Params& p)
-:	LLComboBox(p),
-	mToggleState(FALSE),
-	mActionButton(NULL)
+:   LLComboBox(p),
+    mToggleState(FALSE),
+    mActionButton(NULL)
 {
-	// Always use text box 
-	// Text label button
-	LLButton::Params bp(p.action_button);
-	bp.name(p.label);
-	bp.label(p.label);
-	bp.rect.left(0).bottom(0).width(getRect().getWidth() - FLYOUT_BUTTON_ARROW_WIDTH).height(getRect().getHeight());
-	bp.click_callback.function(boost::bind(&LLFlyoutButton::onActionButtonClick, this, _2));
-	bp.follows.flags(FOLLOWS_ALL);
+    // Always use text box 
+    // Text label button
+    LLButton::Params bp(p.action_button);
+    bp.name(p.label);
+    bp.label(p.label);
+    bp.rect.left(0).bottom(0).width(getRect().getWidth() - FLYOUT_BUTTON_ARROW_WIDTH).height(getRect().getHeight());
+    bp.click_callback.function(boost::bind(&LLFlyoutButton::onActionButtonClick, this, _2));
+    bp.follows.flags(FOLLOWS_ALL);
 
-	mActionButton = LLUICtrlFactory::create<LLButton>(bp);
-	addChild(mActionButton);
+    mActionButton = LLUICtrlFactory::create<LLButton>(bp);
+    addChild(mActionButton);
 }
 
 void LLFlyoutButton::onActionButtonClick(const LLSD& data)
 {
-	// remember last list selection?
-	mList->deselect();
-	onCommit();
+    // remember last list selection?
+    mList->deselect();
+    onCommit();
 }
 
 void LLFlyoutButton::draw()
 {
-	mActionButton->setToggleState(mToggleState);
-	mButton->setToggleState(mToggleState);
+    mActionButton->setToggleState(mToggleState);
+    mButton->setToggleState(mToggleState);
 
-	//FIXME: this should be an attribute of comboboxes, whether they have a distinct label or
-	// the label reflects the last selected item, for now we have to manually remove the label
-	setLabel(LLStringUtil::null);
-	LLComboBox::draw();	
+    //FIXME: this should be an attribute of comboboxes, whether they have a distinct label or
+    // the label reflects the last selected item, for now we have to manually remove the label
+    setLabel(LLStringUtil::null);
+    LLComboBox::draw(); 
 }
 
 void LLFlyoutButton::setToggleState(BOOL state)
 {
-	mToggleState = state;
+    mToggleState = state;
 }
 
 

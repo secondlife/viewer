@@ -50,7 +50,7 @@ public:
                             LLFloaterFixedEnvironment(const LLSD &key);
                             ~LLFloaterFixedEnvironment();
 
-    virtual BOOL	        postBuild()                 override;
+    virtual BOOL            postBuild()                 override;
     virtual void            onOpen(const LLSD& key)     override;
     virtual void            onClose(bool app_quitting)  override;
 
@@ -101,7 +101,7 @@ class LLFloaterFixedEnvironmentWater : public LLFloaterFixedEnvironment
 public:
     LLFloaterFixedEnvironmentWater(const LLSD &key);
 
-    BOOL	                postBuild()                 override;
+    BOOL                    postBuild()                 override;
 
     virtual void            onOpen(const LLSD& key)     override;
 
@@ -121,7 +121,7 @@ class LLFloaterFixedEnvironmentSky : public LLFloaterFixedEnvironment
 public:
     LLFloaterFixedEnvironmentSky(const LLSD &key);
 
-    BOOL	                postBuild()                 override;
+    BOOL                    postBuild()                 override;
 
     virtual void            onOpen(const LLSD& key)     override;
     virtual void            onClose(bool app_quitting)  override;

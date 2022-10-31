@@ -37,31 +37,31 @@
 class LLLooksHistoryPanel : public LLPanelAppearanceTab
 {
 public:
-	LLLooksHistoryPanel();
-	virtual ~LLLooksHistoryPanel();
+    LLLooksHistoryPanel();
+    virtual ~LLLooksHistoryPanel();
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onSearchEdit(const std::string& string);
-	/*virtual*/ void onShowOnMap();
-	/*virtual*/ void onLooks();
-	///*virtual*/ void onCopySLURL();
+    /*virtual*/ BOOL postBuild();
+    /*virtual*/ void onSearchEdit(const std::string& string);
+    /*virtual*/ void onShowOnMap();
+    /*virtual*/ void onLooks();
+    ///*virtual*/ void onCopySLURL();
 
-	void showLooksHistory();
-	void handleItemSelect(const LLSD& data);
+    void showLooksHistory();
+    void handleItemSelect(const LLSD& data);
 
-	static void onDoubleClickItem(void* user_data);
+    static void onDoubleClickItem(void* user_data);
 
 private:
-	enum LOOKS_HISTORY_COLUMN_ORDER
-	{
-		LIST_ICON,
-		LIST_ITEM_TITLE,
-		LIST_INDEX
-	};
+    enum LOOKS_HISTORY_COLUMN_ORDER
+    {
+        LIST_ICON,
+        LIST_ITEM_TITLE,
+        LIST_INDEX
+    };
 
-	LLLooksHistory*		mLooksHistory;
-	LLScrollListCtrl*		mHistoryItems;
-	std::string				mFilterSubString;
+    LLLooksHistory*     mLooksHistory;
+    LLScrollListCtrl*       mHistoryItems;
+    std::string             mFilterSubString;
 };
 
 #endif //LL_LLPANELLOOKSHISTORY_H

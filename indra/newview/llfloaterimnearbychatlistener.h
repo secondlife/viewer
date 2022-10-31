@@ -38,12 +38,12 @@ class LLFloaterIMNearbyChat;
 class LLFloaterIMNearbyChatListener : public LLEventAPI
 {
 public:
-	LLFloaterIMNearbyChatListener(LLFloaterIMNearbyChat & chatbar);
+    LLFloaterIMNearbyChatListener(LLFloaterIMNearbyChat & chatbar);
 
 private:
     void sendChat(LLSD const & chat_data) const;
 
-	LLFloaterIMNearbyChat & mChatbar;
+    LLFloaterIMNearbyChat & mChatbar;
 };
 
 #endif // LL_LLFLOATERIMNEARBYCHATLISTENER_H

@@ -57,75 +57,75 @@ class LLFilePicker;
 class LLDirPicker
 {
 public:
-	// calling this before main() is undefined
-	static LLDirPicker& instance( void ) { return sInstance; }
+    // calling this before main() is undefined
+    static LLDirPicker& instance( void ) { return sInstance; }
 
-	BOOL getDir(std::string* filename, bool blocking = true);
-	std::string getDirName();
+    BOOL getDir(std::string* filename, bool blocking = true);
+    std::string getDirName();
 
-	// clear any lists of buffers or whatever, and make sure the dir
-	// picker isn't locked.
-	void reset();
+    // clear any lists of buffers or whatever, and make sure the dir
+    // picker isn't locked.
+    void reset();
 
 private:
-	enum
-	{
-		SINGLE_DIRNAME_BUFFER_SIZE = 1024,
-		//DIRNAME_BUFFER_SIZE = 65536
-		DIRNAME_BUFFER_SIZE = 65000 
-	};
-	
-	void buildDirname( void );
-	bool check_local_file_access_enabled();
+    enum
+    {
+        SINGLE_DIRNAME_BUFFER_SIZE = 1024,
+        //DIRNAME_BUFFER_SIZE = 65536
+        DIRNAME_BUFFER_SIZE = 65000 
+    };
+    
+    void buildDirname( void );
+    bool check_local_file_access_enabled();
 
 #if LL_LINUX || LL_DARWIN
-	// On Linux we just implement LLDirPicker on top of LLFilePicker
-	LLFilePicker *mFilePicker;
+    // On Linux we just implement LLDirPicker on top of LLFilePicker
+    LLFilePicker *mFilePicker;
 #endif
 
 
-	std::string* mFileName;
-	std::string  mDir;
-	bool mLocked;
+    std::string* mFileName;
+    std::string  mDir;
+    bool mLocked;
 
-	static LLDirPicker sInstance;
+    static LLDirPicker sInstance;
 #if LL_WINDOWS
-	BROWSEINFO bi;
+    BROWSEINFO bi;
 #endif
-	
+    
 public:
-	// don't call these directly please.
-	LLDirPicker();
-	~LLDirPicker();
+    // don't call these directly please.
+    LLDirPicker();
+    ~LLDirPicker();
 };
 
 class LLDirPickerThread : public LLThread
 {
 public:
 
-	static std::queue<LLDirPickerThread*> sDeadQ;
-	static LLMutex* sMutex;
+    static std::queue<LLDirPickerThread*> sDeadQ;
+    static LLMutex* sMutex;
 
-	static void initClass();
-	static void cleanupClass();
-	static void clearDead();
+    static void initClass();
+    static void cleanupClass();
+    static void clearDead();
 
-	std::vector<std::string> mResponses;
-	std::string mProposedName;
+    std::vector<std::string> mResponses;
+    std::string mProposedName;
 
-	typedef boost::signals2::signal<void(const std::vector<std::string>& filenames, std::string proposed_name)> dir_picked_signal_t;
+    typedef boost::signals2::signal<void(const std::vector<std::string>& filenames, std::string proposed_name)> dir_picked_signal_t;
 
-	LLDirPickerThread(const dir_picked_signal_t::slot_type& cb, const std::string &proposed_name);
-	~LLDirPickerThread();
+    LLDirPickerThread(const dir_picked_signal_t::slot_type& cb, const std::string &proposed_name);
+    ~LLDirPickerThread();
 
-	void getFile();
+    void getFile();
 
-	virtual void run();
+    virtual void run();
 
-	virtual void notify(const std::vector<std::string>& filenames);
+    virtual void notify(const std::vector<std::string>& filenames);
 
 private:
-	dir_picked_signal_t*		mFilePickedSignal;
+    dir_picked_signal_t*        mFilePickedSignal;
 };
 
 #endif

@@ -44,87 +44,87 @@ class alignas(16) LLViewerCamera : public LLCamera, public LLSimpleton<LLViewerC
 public:
     LLViewerCamera();
 
-	typedef enum
-	{
-		CAMERA_WORLD = 0,
-		CAMERA_SHADOW0,
-		CAMERA_SHADOW1,
-		CAMERA_SHADOW2,
-		CAMERA_SHADOW3,
-		CAMERA_SHADOW4,
-		CAMERA_SHADOW5,
-		CAMERA_WATER0,
-		CAMERA_WATER1,
-		CAMERA_GI_SOURCE,
-		NUM_CAMERAS
-	} eCameraID;
+    typedef enum
+    {
+        CAMERA_WORLD = 0,
+        CAMERA_SHADOW0,
+        CAMERA_SHADOW1,
+        CAMERA_SHADOW2,
+        CAMERA_SHADOW3,
+        CAMERA_SHADOW4,
+        CAMERA_SHADOW5,
+        CAMERA_WATER0,
+        CAMERA_WATER1,
+        CAMERA_GI_SOURCE,
+        NUM_CAMERAS
+    } eCameraID;
 
-	static eCameraID sCurCameraID;
+    static eCameraID sCurCameraID;
 
-	void updateCameraLocation(const LLVector3 &center,
-								const LLVector3 &up_direction,
-								const LLVector3 &point_of_interest);
+    void updateCameraLocation(const LLVector3 &center,
+                                const LLVector3 &up_direction,
+                                const LLVector3 &point_of_interest);
 
-	static void updateFrustumPlanes(LLCamera& camera, BOOL ortho = FALSE, BOOL zflip = FALSE, BOOL no_hacks = FALSE);
-	static void updateCameraAngle(void* user_data, const LLSD& value);
-	void setPerspective(BOOL for_selection, S32 x, S32 y_from_bot, S32 width, S32 height, BOOL limit_select_distance, F32 z_near = 0, F32 z_far = 0);
+    static void updateFrustumPlanes(LLCamera& camera, BOOL ortho = FALSE, BOOL zflip = FALSE, BOOL no_hacks = FALSE);
+    static void updateCameraAngle(void* user_data, const LLSD& value);
+    void setPerspective(BOOL for_selection, S32 x, S32 y_from_bot, S32 width, S32 height, BOOL limit_select_distance, F32 z_near = 0, F32 z_far = 0);
 
-	const LLMatrix4 &getProjection() const;
-	const LLMatrix4 &getModelview() const;
+    const LLMatrix4 &getProjection() const;
+    const LLMatrix4 &getModelview() const;
 
-	// Warning!  These assume the current global matrices are correct
-	void projectScreenToPosAgent(const S32 screen_x, const S32 screen_y, LLVector3* pos_agent ) const;
-	BOOL projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoordGL &out_point, const BOOL clamp = TRUE) const;
-	BOOL projectPosAgentToScreenEdge(const LLVector3 &pos_agent, LLCoordGL &out_point) const;
+    // Warning!  These assume the current global matrices are correct
+    void projectScreenToPosAgent(const S32 screen_x, const S32 screen_y, LLVector3* pos_agent ) const;
+    BOOL projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoordGL &out_point, const BOOL clamp = TRUE) const;
+    BOOL projectPosAgentToScreenEdge(const LLVector3 &pos_agent, LLCoordGL &out_point) const;
 
-	LLVector3 getVelocityDir() const {return mVelocityDir;}
-	static LLTrace::CountStatHandle<>* getVelocityStat()		   {return &sVelocityStat; }
-	static LLTrace::CountStatHandle<>* getAngularVelocityStat()  {return &sAngularVelocityStat; }
-	F32     getCosHalfFov() {return mCosHalfCameraFOV;}
-	F32     getAverageSpeed() {return mAverageSpeed ;}
-	F32     getAverageAngularSpeed() {return mAverageAngularSpeed;}
+    LLVector3 getVelocityDir() const {return mVelocityDir;}
+    static LLTrace::CountStatHandle<>* getVelocityStat()           {return &sVelocityStat; }
+    static LLTrace::CountStatHandle<>* getAngularVelocityStat()  {return &sAngularVelocityStat; }
+    F32     getCosHalfFov() {return mCosHalfCameraFOV;}
+    F32     getAverageSpeed() {return mAverageSpeed ;}
+    F32     getAverageAngularSpeed() {return mAverageAngularSpeed;}
 
-	void getPixelVectors(const LLVector3 &pos_agent, LLVector3 &up, LLVector3 &right);
-	LLVector3 roundToPixel(const LLVector3 &pos_agent);
+    void getPixelVectors(const LLVector3 &pos_agent, LLVector3 &up, LLVector3 &right);
+    LLVector3 roundToPixel(const LLVector3 &pos_agent);
 
-	// Sets the current matrix
-	/* virtual */ void setView(F32 vertical_fov_rads);
+    // Sets the current matrix
+    /* virtual */ void setView(F32 vertical_fov_rads);
 
-	void setDefaultFOV(F32 fov) ;
-	F32 getDefaultFOV() { return mCameraFOVDefault; }
+    void setDefaultFOV(F32 fov) ;
+    F32 getDefaultFOV() { return mCameraFOVDefault; }
 
-	BOOL isDefaultFOVChanged();
+    BOOL isDefaultFOVChanged();
 
-	BOOL cameraUnderWater() const;
-	BOOL areVertsVisible(LLViewerObject* volumep, BOOL all_verts);
+    BOOL cameraUnderWater() const;
+    BOOL areVertsVisible(LLViewerObject* volumep, BOOL all_verts);
 
-	const LLVector3 &getPointOfInterest() { return mLastPointOfInterest; }
-	F32 getPixelMeterRatio() const				{ return mPixelMeterRatio; }
-	S32 getScreenPixelArea() const				{ return mScreenPixelArea; }
+    const LLVector3 &getPointOfInterest() { return mLastPointOfInterest; }
+    F32 getPixelMeterRatio() const              { return mPixelMeterRatio; }
+    S32 getScreenPixelArea() const              { return mScreenPixelArea; }
 
-	void setZoomParameters(F32 factor, S16 subregion) { mZoomFactor = factor; mZoomSubregion = subregion; }
-	F32 getZoomFactor() { return mZoomFactor; }                             
-	S16 getZoomSubRegion() { return mZoomSubregion; } 
+    void setZoomParameters(F32 factor, S16 subregion) { mZoomFactor = factor; mZoomSubregion = subregion; }
+    F32 getZoomFactor() { return mZoomFactor; }                             
+    S16 getZoomSubRegion() { return mZoomSubregion; } 
 
 protected:
-	void calcProjection(const F32 far_distance) const;
+    void calcProjection(const F32 far_distance) const;
 
-	static LLTrace::CountStatHandle<> sVelocityStat;
-	static LLTrace::CountStatHandle<> sAngularVelocityStat;
+    static LLTrace::CountStatHandle<> sVelocityStat;
+    static LLTrace::CountStatHandle<> sAngularVelocityStat;
 
-	LLVector3 mVelocityDir ;
-	F32       mAverageSpeed ;
-	F32       mAverageAngularSpeed ;
-	mutable LLMatrix4	mProjectionMatrix;	// Cache of perspective matrix
-	mutable LLMatrix4	mModelviewMatrix;
-	F32					mCameraFOVDefault;
-	F32					mPrevCameraFOVDefault;
-	F32					mCosHalfCameraFOV;
-	LLVector3			mLastPointOfInterest;
-	F32					mPixelMeterRatio; // Divide by distance from camera to get pixels per meter at that distance.
-	S32					mScreenPixelArea; // Pixel area of entire window
-	F32					mZoomFactor;
-	S16					mZoomSubregion;
+    LLVector3 mVelocityDir ;
+    F32       mAverageSpeed ;
+    F32       mAverageAngularSpeed ;
+    mutable LLMatrix4   mProjectionMatrix;  // Cache of perspective matrix
+    mutable LLMatrix4   mModelviewMatrix;
+    F32                 mCameraFOVDefault;
+    F32                 mPrevCameraFOVDefault;
+    F32                 mCosHalfCameraFOV;
+    LLVector3           mLastPointOfInterest;
+    F32                 mPixelMeterRatio; // Divide by distance from camera to get pixels per meter at that distance.
+    S32                 mScreenPixelArea; // Pixel area of entire window
+    F32                 mZoomFactor;
+    S16                 mZoomSubregion;
 
 public:
 };

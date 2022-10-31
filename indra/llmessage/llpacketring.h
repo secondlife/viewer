@@ -39,63 +39,63 @@
 class LLPacketRing
 {
 public:
-	LLPacketRing();         
+    LLPacketRing();         
     ~LLPacketRing();
 
-	void cleanup();
+    void cleanup();
 
-	void dropPackets(U32);	
-	void setDropPercentage (F32 percent_to_drop);
-	void setUseInThrottle(const BOOL use_throttle);
-	void setUseOutThrottle(const BOOL use_throttle);
-	void setInBandwidth(const F32 bps);
-	void setOutBandwidth(const F32 bps);
-	S32  receivePacket (S32 socket, char *datap);
-	S32  receiveFromRing (S32 socket, char *datap);
+    void dropPackets(U32);  
+    void setDropPercentage (F32 percent_to_drop);
+    void setUseInThrottle(const BOOL use_throttle);
+    void setUseOutThrottle(const BOOL use_throttle);
+    void setInBandwidth(const F32 bps);
+    void setOutBandwidth(const F32 bps);
+    S32  receivePacket (S32 socket, char *datap);
+    S32  receiveFromRing (S32 socket, char *datap);
 
-	BOOL sendPacket(int h_socket, char * send_buffer, S32 buf_size, LLHost host);
+    BOOL sendPacket(int h_socket, char * send_buffer, S32 buf_size, LLHost host);
 
-	inline LLHost getLastSender();
-	inline LLHost getLastReceivingInterface();
+    inline LLHost getLastSender();
+    inline LLHost getLastReceivingInterface();
 
-	S32 getAndResetActualInBits()				{ S32 bits = mActualBitsIn; mActualBitsIn = 0; return bits;}
-	S32 getAndResetActualOutBits()				{ S32 bits = mActualBitsOut; mActualBitsOut = 0; return bits;}
+    S32 getAndResetActualInBits()               { S32 bits = mActualBitsIn; mActualBitsIn = 0; return bits;}
+    S32 getAndResetActualOutBits()              { S32 bits = mActualBitsOut; mActualBitsOut = 0; return bits;}
 protected:
-	BOOL mUseInThrottle;
-	BOOL mUseOutThrottle;
-	
-	// For simulating a lower-bandwidth connection - BPS
-	LLThrottle mInThrottle;
-	LLThrottle mOutThrottle;
+    BOOL mUseInThrottle;
+    BOOL mUseOutThrottle;
+    
+    // For simulating a lower-bandwidth connection - BPS
+    LLThrottle mInThrottle;
+    LLThrottle mOutThrottle;
 
-	S32 mActualBitsIn;
-	S32 mActualBitsOut;
-	S32 mMaxBufferLength;			// How much data can we queue up before dropping data.
-	S32 mInBufferLength;			// Current incoming buffer length
-	S32 mOutBufferLength;			// Current outgoing buffer length
+    S32 mActualBitsIn;
+    S32 mActualBitsOut;
+    S32 mMaxBufferLength;           // How much data can we queue up before dropping data.
+    S32 mInBufferLength;            // Current incoming buffer length
+    S32 mOutBufferLength;           // Current outgoing buffer length
 
-	F32 mDropPercentage;			// % of packets to drop
-	U32 mPacketsToDrop;				// drop next n packets
+    F32 mDropPercentage;            // % of packets to drop
+    U32 mPacketsToDrop;             // drop next n packets
 
-	std::queue<LLPacketBuffer *> mReceiveQueue;
-	std::queue<LLPacketBuffer *> mSendQueue;
+    std::queue<LLPacketBuffer *> mReceiveQueue;
+    std::queue<LLPacketBuffer *> mSendQueue;
 
-	LLHost mLastSender;
-	LLHost mLastReceivingIF;
+    LLHost mLastSender;
+    LLHost mLastReceivingIF;
 
 private:
-	BOOL sendPacketImpl(int h_socket, const char * send_buffer, S32 buf_size, LLHost host);
+    BOOL sendPacketImpl(int h_socket, const char * send_buffer, S32 buf_size, LLHost host);
 };
 
 
 inline LLHost LLPacketRing::getLastSender()
 {
-	return mLastSender;
+    return mLastSender;
 }
 
 inline LLHost LLPacketRing::getLastReceivingInterface()
 {
-	return mLastReceivingIF;
+    return mLastReceivingIF;
 }
 
 #endif

@@ -44,59 +44,59 @@ class LLPermissions;
 class LLSidepanelItemInfo : public LLSidepanelInventorySubpanel
 {
 public:
-	LLSidepanelItemInfo(const LLPanel::Params& p = getDefaultParams());
-	virtual ~LLSidepanelItemInfo();
-	
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void reset();
+    LLSidepanelItemInfo(const LLPanel::Params& p = getDefaultParams());
+    virtual ~LLSidepanelItemInfo();
+    
+    /*virtual*/ BOOL postBuild();
+    /*virtual*/ void reset();
 
-	void setObjectID(const LLUUID& object_id);
-	void setItemID(const LLUUID& item_id);
-	void setEditMode(BOOL edit);
+    void setObjectID(const LLUUID& object_id);
+    void setItemID(const LLUUID& item_id);
+    void setEditMode(BOOL edit);
 
-	const LLUUID& getObjectID() const;
-	const LLUUID& getItemID() const;
+    const LLUUID& getObjectID() const;
+    const LLUUID& getItemID() const;
 
-	// if received update and item id (from callback) matches internal ones, update UI
-	void onUpdateCallback(const LLUUID& item_id, S32 received_update_id);
+    // if received update and item id (from callback) matches internal ones, update UI
+    void onUpdateCallback(const LLUUID& item_id, S32 received_update_id);
 
 protected:
-	/*virtual*/ void refresh();
-	/*virtual*/ void save();
+    /*virtual*/ void refresh();
+    /*virtual*/ void save();
 
-	LLViewerInventoryItem* findItem() const;
-	LLViewerObject*  findObject() const;
-	
-	void refreshFromItem(LLViewerInventoryItem* item);
+    LLViewerInventoryItem* findItem() const;
+    LLViewerObject*  findObject() const;
+    
+    void refreshFromItem(LLViewerInventoryItem* item);
 
 private:
     static void setAssociatedExperience( LLHandle<LLSidepanelItemInfo> hInfo, const LLSD& experience );
 
-	void startObjectInventoryObserver();
-	void stopObjectInventoryObserver();
-	void setPropertiesFieldsEnabled(bool enabled);
+    void startObjectInventoryObserver();
+    void stopObjectInventoryObserver();
+    void setPropertiesFieldsEnabled(bool enabled);
 
-	LLUUID mItemID; 	// inventory UUID for the inventory item.
-	LLUUID mObjectID; 	// in-world task UUID, or null if in agent inventory.
-	LLItemPropertiesObserver* mPropertiesObserver; // for syncing changes to item
-	LLObjectInventoryObserver* mObjectInventoryObserver; // for syncing changes to items inside an object
+    LLUUID mItemID;     // inventory UUID for the inventory item.
+    LLUUID mObjectID;   // in-world task UUID, or null if in agent inventory.
+    LLItemPropertiesObserver* mPropertiesObserver; // for syncing changes to item
+    LLObjectInventoryObserver* mObjectInventoryObserver; // for syncing changes to items inside an object
 
-	// We can send multiple properties updates simultaneously, make sure only last response counts and there won't be a race condition.
-	S32 mUpdatePendingId;
+    // We can send multiple properties updates simultaneously, make sure only last response counts and there won't be a race condition.
+    S32 mUpdatePendingId;
 
-	//
-	// UI Elements
-	// 
+    //
+    // UI Elements
+    // 
 protected:
-	void 						onClickCreator();
-	void 						onClickOwner();
-	void 						onCommitName();
-	void 						onCommitDescription();
-	void 						onCommitPermissions(LLUICtrl* ctrl);
-	void 						updatePermissions();
-	void 						onCommitSaleInfo(LLUICtrl* ctrl);
-	void 						updateSaleInfo();
-	void 						onCommitChanges(LLPointer<LLViewerInventoryItem> item);
+    void                        onClickCreator();
+    void                        onClickOwner();
+    void                        onCommitName();
+    void                        onCommitDescription();
+    void                        onCommitPermissions(LLUICtrl* ctrl);
+    void                        updatePermissions();
+    void                        onCommitSaleInfo(LLUICtrl* ctrl);
+    void                        updateSaleInfo();
+    void                        onCommitChanges(LLPointer<LLViewerInventoryItem> item);
 };
 
 #endif // LL_LLSIDEPANELITEMINFO_H

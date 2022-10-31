@@ -37,21 +37,21 @@
 class LLSDAppServices
 {
 public:
-	/**
-	 * @brief Call this method to declare the /app common web services.
-	 *
-	 * This will register:
-	 *  /app/config
-	 *  /app/config/runtime-override
-	 *  /app/config/runtime-override/<option-name>
-	 *  /app/config/command-line
-	 *  /app/config/specific
-	 *  /app/config/general
-	 *  /app/config/default
-	 *  /app/config/live
-	 *  /app/config/live/<option-name>
-	 */
-	static void useServices();
+    /**
+     * @brief Call this method to declare the /app common web services.
+     *
+     * This will register:
+     *  /app/config
+     *  /app/config/runtime-override
+     *  /app/config/runtime-override/<option-name>
+     *  /app/config/command-line
+     *  /app/config/specific
+     *  /app/config/general
+     *  /app/config/default
+     *  /app/config/live
+     *  /app/config/live/<option-name>
+     */
+    static void useServices();
 };
 
 

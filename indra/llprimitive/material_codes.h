@@ -29,17 +29,17 @@
 
 class LLUUID;
 
-	// material types
-const U8	LL_MCODE_STONE   = 0;
-const U8	LL_MCODE_METAL   = 1;
-const U8	LL_MCODE_GLASS   = 2;
-const U8	LL_MCODE_WOOD    = 3;
-const U8	LL_MCODE_FLESH   = 4;
-const U8	LL_MCODE_PLASTIC = 5;
-const U8	LL_MCODE_RUBBER  = 6;
-const U8	LL_MCODE_LIGHT   = 7;
+    // material types
+const U8    LL_MCODE_STONE   = 0;
+const U8    LL_MCODE_METAL   = 1;
+const U8    LL_MCODE_GLASS   = 2;
+const U8    LL_MCODE_WOOD    = 3;
+const U8    LL_MCODE_FLESH   = 4;
+const U8    LL_MCODE_PLASTIC = 5;
+const U8    LL_MCODE_RUBBER  = 6;
+const U8    LL_MCODE_LIGHT   = 7;
 const U8    LL_MCODE_END     = 8;
-const U8	LL_MCODE_MASK    = 0x0F;
+const U8    LL_MCODE_MASK    = 0x0F;
 
 // *NOTE: Define these in .cpp file to reduce duplicate instances
 extern const LLUUID LL_DEFAULT_STONE_UUID;

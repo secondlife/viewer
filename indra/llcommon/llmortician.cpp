@@ -34,7 +34,7 @@ BOOL LLMortician::sDestroyImmediate = FALSE;
 
 LLMortician::~LLMortician() 
 {
-	sGraveyard.remove(this);
+    sGraveyard.remove(this);
 }
 
 U32 LLMortician::logClass(std::stringstream &str)
@@ -75,32 +75,32 @@ U32 LLMortician::logClass(std::stringstream &str)
 
 void LLMortician::updateClass() 
 {
-	while (!sGraveyard.empty()) 
-	{
-		LLMortician* dead = sGraveyard.front();
-		delete dead;
-	}
+    while (!sGraveyard.empty()) 
+    {
+        LLMortician* dead = sGraveyard.front();
+        delete dead;
+    }
 }
 
 void LLMortician::die() 
 {
-	// It is valid to call die() more than once on something that hasn't died yet
-	if (sDestroyImmediate)
-	{
-		// *NOTE: This is a hack to ensure destruction order on shutdown (relative to non-mortician controlled classes).
-		mIsDead = TRUE;
-		delete this;
-		return;
-	}
-	else if (!mIsDead)
-	{
-		mIsDead = TRUE;
-		sGraveyard.push_back(this);
-	}
+    // It is valid to call die() more than once on something that hasn't died yet
+    if (sDestroyImmediate)
+    {
+        // *NOTE: This is a hack to ensure destruction order on shutdown (relative to non-mortician controlled classes).
+        mIsDead = TRUE;
+        delete this;
+        return;
+    }
+    else if (!mIsDead)
+    {
+        mIsDead = TRUE;
+        sGraveyard.push_back(this);
+    }
 }
 
 // static
 void LLMortician::setZealous(BOOL b)
 {
-	sDestroyImmediate = b;
+    sDestroyImmediate = b;
 }

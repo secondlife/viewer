@@ -47,70 +47,70 @@ class LLMessageSystem;
 class LLInventoryObject : public LLRefCount
 {
 public:
-	typedef std::list<LLPointer<LLInventoryObject> > object_list_t;
-	typedef std::list<LLConstPointer<LLInventoryObject> > const_object_list_t;
+    typedef std::list<LLPointer<LLInventoryObject> > object_list_t;
+    typedef std::list<LLConstPointer<LLInventoryObject> > const_object_list_t;
 
-	//--------------------------------------------------------------------
-	// Initialization
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
+    // Initialization
+    //--------------------------------------------------------------------
 public:
-	LLInventoryObject();
-	LLInventoryObject(const LLUUID& uuid, 
-					  const LLUUID& parent_uuid,
-					  LLAssetType::EType type, 
-					  const std::string& name);
-	void copyObject(const LLInventoryObject* other); // LLRefCount requires custom copy
+    LLInventoryObject();
+    LLInventoryObject(const LLUUID& uuid, 
+                      const LLUUID& parent_uuid,
+                      LLAssetType::EType type, 
+                      const std::string& name);
+    void copyObject(const LLInventoryObject* other); // LLRefCount requires custom copy
 protected:
-	virtual ~LLInventoryObject();
+    virtual ~LLInventoryObject();
 
-	//--------------------------------------------------------------------
-	// Accessors
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
+    // Accessors
+    //--------------------------------------------------------------------
 public:
-	virtual const LLUUID& getUUID() const; // inventoryID that this item points to
-	virtual const LLUUID& getLinkedUUID() const; // inventoryID that this item points to, else this item's inventoryID
-	const LLUUID& getParentUUID() const;
-	virtual const std::string& getName() const;
-	virtual LLAssetType::EType getType() const;
-	LLAssetType::EType getActualType() const; // bypasses indirection for linked items
-	BOOL getIsLinkType() const;
-	virtual time_t getCreationDate() const;
-	
-	//--------------------------------------------------------------------
-	// Mutators
-	//   Will not call updateServer
-	//--------------------------------------------------------------------
+    virtual const LLUUID& getUUID() const; // inventoryID that this item points to
+    virtual const LLUUID& getLinkedUUID() const; // inventoryID that this item points to, else this item's inventoryID
+    const LLUUID& getParentUUID() const;
+    virtual const std::string& getName() const;
+    virtual LLAssetType::EType getType() const;
+    LLAssetType::EType getActualType() const; // bypasses indirection for linked items
+    BOOL getIsLinkType() const;
+    virtual time_t getCreationDate() const;
+    
+    //--------------------------------------------------------------------
+    // Mutators
+    //   Will not call updateServer
+    //--------------------------------------------------------------------
 public:
-	void setUUID(const LLUUID& new_uuid);
-	virtual void rename(const std::string& new_name);
-	void setParent(const LLUUID& new_parent);
-	void setType(LLAssetType::EType type);
-	virtual void setCreationDate(time_t creation_date_utc); // only stored for items
+    void setUUID(const LLUUID& new_uuid);
+    virtual void rename(const std::string& new_name);
+    void setParent(const LLUUID& new_parent);
+    void setType(LLAssetType::EType type);
+    virtual void setCreationDate(time_t creation_date_utc); // only stored for items
 
-	// in place correction for inventory name string
-	static void correctInventoryName(std::string& name);
+    // in place correction for inventory name string
+    static void correctInventoryName(std::string& name);
 
-	//--------------------------------------------------------------------
-	// File Support
-	//   Implemented here so that a minimal information set can be transmitted
-	//   between simulator and viewer.
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
+    // File Support
+    //   Implemented here so that a minimal information set can be transmitted
+    //   between simulator and viewer.
+    //--------------------------------------------------------------------
 
-	virtual BOOL importLegacyStream(std::istream& input_stream);
-	virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
+    virtual BOOL importLegacyStream(std::istream& input_stream);
+    virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
 
-	virtual void updateParentOnServer(BOOL) const;
-	virtual void updateServer(BOOL) const;
+    virtual void updateParentOnServer(BOOL) const;
+    virtual void updateServer(BOOL) const;
 
-	//--------------------------------------------------------------------
-	// Member Variables
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
+    // Member Variables
+    //--------------------------------------------------------------------
 protected:
-	LLUUID mUUID;
-	LLUUID mParentUUID; // Parent category.  Root categories have LLUUID::NULL.
-	LLAssetType::EType mType;
-	std::string mName;
-	time_t mCreationDate; // seconds from 1/1/1970, UTC
+    LLUUID mUUID;
+    LLUUID mParentUUID; // Parent category.  Root categories have LLUUID::NULL.
+    LLAssetType::EType mType;
+    std::string mName;
+    time_t mCreationDate; // seconds from 1/1/1970, UTC
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -121,105 +121,105 @@ protected:
 class LLInventoryItem : public LLInventoryObject
 {
 public:
-	typedef std::vector<LLPointer<LLInventoryItem> > item_array_t;
+    typedef std::vector<LLPointer<LLInventoryItem> > item_array_t;
 
-	//--------------------------------------------------------------------
-	// Initialization
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
+    // Initialization
+    //--------------------------------------------------------------------
 public:
-	LLInventoryItem(const LLUUID& uuid,
-					const LLUUID& parent_uuid,
-					const LLPermissions& permissions,
-					const LLUUID& asset_uuid,
-					LLAssetType::EType type,
-					LLInventoryType::EType inv_type,
-					const std::string& name, 
-					const std::string& desc,
-					const LLSaleInfo& sale_info,
-					U32 flags,
-					S32 creation_date_utc);
-	LLInventoryItem();
-	// Create a copy of an inventory item from a pointer to another item
-	// Note: Because InventoryItems are ref counted, reference copy (a = b)
-	// is prohibited
-	LLInventoryItem(const LLInventoryItem* other);
-	virtual void copyItem(const LLInventoryItem* other); // LLRefCount requires custom copy
-	void generateUUID() { mUUID.generate(); }
+    LLInventoryItem(const LLUUID& uuid,
+                    const LLUUID& parent_uuid,
+                    const LLPermissions& permissions,
+                    const LLUUID& asset_uuid,
+                    LLAssetType::EType type,
+                    LLInventoryType::EType inv_type,
+                    const std::string& name, 
+                    const std::string& desc,
+                    const LLSaleInfo& sale_info,
+                    U32 flags,
+                    S32 creation_date_utc);
+    LLInventoryItem();
+    // Create a copy of an inventory item from a pointer to another item
+    // Note: Because InventoryItems are ref counted, reference copy (a = b)
+    // is prohibited
+    LLInventoryItem(const LLInventoryItem* other);
+    virtual void copyItem(const LLInventoryItem* other); // LLRefCount requires custom copy
+    void generateUUID() { mUUID.generate(); }
 protected:
-	~LLInventoryItem(); // ref counted
-	
-	//--------------------------------------------------------------------
-	// Accessors
-	//--------------------------------------------------------------------
+    ~LLInventoryItem(); // ref counted
+    
+    //--------------------------------------------------------------------
+    // Accessors
+    //--------------------------------------------------------------------
 public:
-	virtual const LLUUID& getLinkedUUID() const;
-	virtual const LLPermissions& getPermissions() const;
-	virtual const LLUUID& getCreatorUUID() const;
-	virtual const LLUUID& getAssetUUID() const;
-	virtual const std::string& getDescription() const;
-	virtual const std::string& getActualDescription() const; // Does not follow links
-	virtual const LLSaleInfo& getSaleInfo() const;
-	virtual LLInventoryType::EType getInventoryType() const;
-	virtual U32 getFlags() const;
-	virtual time_t getCreationDate() const;
-	virtual U32 getCRC32() const; // really more of a checksum.
-	
-	//--------------------------------------------------------------------
-	// Mutators
-	//   Will not call updateServer and will never fail
-	//   (though it may correct to sane values)
-	//--------------------------------------------------------------------
+    virtual const LLUUID& getLinkedUUID() const;
+    virtual const LLPermissions& getPermissions() const;
+    virtual const LLUUID& getCreatorUUID() const;
+    virtual const LLUUID& getAssetUUID() const;
+    virtual const std::string& getDescription() const;
+    virtual const std::string& getActualDescription() const; // Does not follow links
+    virtual const LLSaleInfo& getSaleInfo() const;
+    virtual LLInventoryType::EType getInventoryType() const;
+    virtual U32 getFlags() const;
+    virtual time_t getCreationDate() const;
+    virtual U32 getCRC32() const; // really more of a checksum.
+    
+    //--------------------------------------------------------------------
+    // Mutators
+    //   Will not call updateServer and will never fail
+    //   (though it may correct to sane values)
+    //--------------------------------------------------------------------
 public:
-	void setAssetUUID(const LLUUID& asset_id);
-	static void correctInventoryDescription(std::string& name);
-	void setDescription(const std::string& new_desc);
-	void setSaleInfo(const LLSaleInfo& sale_info);
-	void setPermissions(const LLPermissions& perm);
-	void setInventoryType(LLInventoryType::EType inv_type);
-	void setFlags(U32 flags);
-	void setCreator(const LLUUID& creator); // only used for calling cards
+    void setAssetUUID(const LLUUID& asset_id);
+    static void correctInventoryDescription(std::string& name);
+    void setDescription(const std::string& new_desc);
+    void setSaleInfo(const LLSaleInfo& sale_info);
+    void setPermissions(const LLPermissions& perm);
+    void setInventoryType(LLInventoryType::EType inv_type);
+    void setFlags(U32 flags);
+    void setCreator(const LLUUID& creator); // only used for calling cards
 
-	// Check for changes in permissions masks and sale info
-	// and set the corresponding bits in mFlags.
-	void accumulatePermissionSlamBits(const LLInventoryItem& old_item);
+    // Check for changes in permissions masks and sale info
+    // and set the corresponding bits in mFlags.
+    void accumulatePermissionSlamBits(const LLInventoryItem& old_item);
 
-	// Put this inventory item onto the current outgoing mesage.
-	// Assumes you have already called nextBlock().
-	virtual void packMessage(LLMessageSystem* msg) const;
+    // Put this inventory item onto the current outgoing mesage.
+    // Assumes you have already called nextBlock().
+    virtual void packMessage(LLMessageSystem* msg) const;
 
-	// Returns TRUE if the inventory item came through the network correctly.
-	// Uses a simple crc check which is defeatable, but we want to detect 
-	// network mangling somehow.
-	virtual BOOL unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
+    // Returns TRUE if the inventory item came through the network correctly.
+    // Uses a simple crc check which is defeatable, but we want to detect 
+    // network mangling somehow.
+    virtual BOOL unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
 
-	//--------------------------------------------------------------------
-	// File Support
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
+    // File Support
+    //--------------------------------------------------------------------
 public:
-	virtual BOOL importLegacyStream(std::istream& input_stream);
-	virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
+    virtual BOOL importLegacyStream(std::istream& input_stream);
+    virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
 
-	//--------------------------------------------------------------------
-	// Helper Functions
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
+    // Helper Functions
+    //--------------------------------------------------------------------
 public:
-	// Pack all information needed to reconstruct this item into the given binary bucket.
-	S32 packBinaryBucket(U8* bin_bucket, LLPermissions* perm_override = NULL) const;
-	void unpackBinaryBucket(U8* bin_bucket, S32 bin_bucket_size);
-	LLSD asLLSD() const;
-	void asLLSD( LLSD& sd ) const;
-	bool fromLLSD(const LLSD& sd, bool is_new = true);
+    // Pack all information needed to reconstruct this item into the given binary bucket.
+    S32 packBinaryBucket(U8* bin_bucket, LLPermissions* perm_override = NULL) const;
+    void unpackBinaryBucket(U8* bin_bucket, S32 bin_bucket_size);
+    LLSD asLLSD() const;
+    void asLLSD( LLSD& sd ) const;
+    bool fromLLSD(const LLSD& sd, bool is_new = true);
 
-	//--------------------------------------------------------------------
-	// Member Variables
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
+    // Member Variables
+    //--------------------------------------------------------------------
 protected:
-	LLPermissions mPermissions;
-	LLUUID mAssetUUID;
-	std::string mDescription;
-	LLSaleInfo mSaleInfo;
-	LLInventoryType::EType mInventoryType;
-	U32 mFlags;
+    LLPermissions mPermissions;
+    LLUUID mAssetUUID;
+    std::string mDescription;
+    LLSaleInfo mSaleInfo;
+    LLInventoryType::EType mInventoryType;
+    U32 mFlags;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -231,51 +231,51 @@ protected:
 class LLInventoryCategory : public LLInventoryObject
 {
 public:
-	typedef std::vector<LLPointer<LLInventoryCategory> > cat_array_t;
+    typedef std::vector<LLPointer<LLInventoryCategory> > cat_array_t;
 
-	//--------------------------------------------------------------------
-	// Initialization
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
+    // Initialization
+    //--------------------------------------------------------------------
 public:
-	LLInventoryCategory(const LLUUID& uuid, const LLUUID& parent_uuid,
-						LLFolderType::EType preferred_type,
-						const std::string& name);
-	LLInventoryCategory();
-	LLInventoryCategory(const LLInventoryCategory* other);
-	void copyCategory(const LLInventoryCategory* other); // LLRefCount requires custom copy
+    LLInventoryCategory(const LLUUID& uuid, const LLUUID& parent_uuid,
+                        LLFolderType::EType preferred_type,
+                        const std::string& name);
+    LLInventoryCategory();
+    LLInventoryCategory(const LLInventoryCategory* other);
+    void copyCategory(const LLInventoryCategory* other); // LLRefCount requires custom copy
 protected:
-	virtual ~LLInventoryCategory();
+    virtual ~LLInventoryCategory();
 
-	//--------------------------------------------------------------------
-	// Accessors And Mutators
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
+    // Accessors And Mutators
+    //--------------------------------------------------------------------
 public:
-	LLFolderType::EType getPreferredType() const;
-	void setPreferredType(LLFolderType::EType type);
-	LLSD asLLSD() const;
-	bool fromLLSD(const LLSD& sd);
+    LLFolderType::EType getPreferredType() const;
+    void setPreferredType(LLFolderType::EType type);
+    LLSD asLLSD() const;
+    bool fromLLSD(const LLSD& sd);
 
-	//--------------------------------------------------------------------
-	// Messaging
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
+    // Messaging
+    //--------------------------------------------------------------------
 public:
-	virtual void packMessage(LLMessageSystem* msg) const;
-	virtual void unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
+    virtual void packMessage(LLMessageSystem* msg) const;
+    virtual void unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
 
-	//--------------------------------------------------------------------
-	// File Support
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
+    // File Support
+    //--------------------------------------------------------------------
 public:
-	virtual BOOL importLegacyStream(std::istream& input_stream);
-	virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
+    virtual BOOL importLegacyStream(std::istream& input_stream);
+    virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
 
-	LLSD exportLLSD() const;
-	bool importLLSD(const LLSD& cat_data);
-	//--------------------------------------------------------------------
-	// Member Variables
-	//--------------------------------------------------------------------
+    LLSD exportLLSD() const;
+    bool importLLSD(const LLSD& cat_data);
+    //--------------------------------------------------------------------
+    // Member Variables
+    //--------------------------------------------------------------------
 protected:
-	LLFolderType::EType	mPreferredType; // Type that this category was "meant" to hold (although it may hold any type).	
+    LLFolderType::EType mPreferredType; // Type that this category was "meant" to hold (although it may hold any type). 
 };
 
 

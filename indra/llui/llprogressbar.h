@@ -32,35 +32,35 @@
 #include "lluiimage.h"
 
 class LLProgressBar
-	: public LLUICtrl
+    : public LLUICtrl
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
-	{
-		Optional<LLUIImage*>	image_bar,
-								image_fill;
+    struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+    {
+        Optional<LLUIImage*>    image_bar,
+                                image_fill;
 
-		Optional<LLUIColor>		color_bar,
-								color_bg;
+        Optional<LLUIColor>     color_bar,
+                                color_bg;
 
-		Params();
-	};
-	LLProgressBar(const Params&);
-	virtual ~LLProgressBar();
+        Params();
+    };
+    LLProgressBar(const Params&);
+    virtual ~LLProgressBar();
 
-	void setValue(const LLSD& value);
+    void setValue(const LLSD& value);
 
-	/*virtual*/ void draw();
+    /*virtual*/ void draw();
 
 private:
-	F32 mPercentDone;
+    F32 mPercentDone;
 
-	LLPointer<LLUIImage>	mImageBar;
-	LLUIColor	mColorBar;
+    LLPointer<LLUIImage>    mImageBar;
+    LLUIColor   mColorBar;
 
-	LLUIColor    mColorBackground;
-	
-	LLPointer<LLUIImage>	mImageFill;
+    LLUIColor    mColorBackground;
+    
+    LLPointer<LLUIImage>    mImageFill;
 };
 
 #endif // LL_LLPROGRESSBAR_H

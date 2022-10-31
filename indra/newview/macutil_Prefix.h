@@ -27,8 +27,8 @@
 /*
  *
  *  Precompiled prefix file used for
- *		AutoUpdater
- *		crashreporter
+ *      AutoUpdater
+ *      crashreporter
  *
  */
 

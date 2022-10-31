@@ -37,10 +37,10 @@ extern "C" {
 extern int      mac_vorbis_analysis(vorbis_block *vb,ogg_packet *op);
 
 extern int      mac_vorbis_analysis_headerout(vorbis_dsp_state *v,
-					  vorbis_comment *vc,
-					  ogg_packet *op,
-					  ogg_packet *op_comm,
-					  ogg_packet *op_code);
+                      vorbis_comment *vc,
+                      ogg_packet *op,
+                      ogg_packet *op_comm,
+                      ogg_packet *op_code);
 
 extern int mac_vorbis_analysis_init(vorbis_dsp_state *v,vorbis_info *vi);
 
@@ -49,12 +49,12 @@ extern int mac_vorbis_encode_ctl(vorbis_info *vi,int number,void *arg);
 extern int mac_vorbis_encode_setup_init(vorbis_info *vi);
 
 extern int mac_vorbis_encode_setup_managed(vorbis_info *vi,
-				       long channels,
-				       long rate,
-				       
-				       long max_bitrate,
-				       long nominal_bitrate,
-				       long min_bitrate);
+                       long channels,
+                       long rate,
+                       
+                       long max_bitrate,
+                       long nominal_bitrate,
+                       long min_bitrate);
 
 extern void     mac_vorbis_info_init(vorbis_info *vi);
 extern void     mac_vorbis_info_clear(vorbis_info *vi);
@@ -67,7 +67,7 @@ extern float  **mac_vorbis_analysis_buffer(vorbis_dsp_state *v,int vals);
 extern int      mac_vorbis_analysis_wrote(vorbis_dsp_state *v,int vals);
 extern int      mac_vorbis_analysis_blockout(vorbis_dsp_state *v,vorbis_block *vb);
 
-extern int		mac_ogg_stream_packetin(ogg_stream_state *os, ogg_packet *op);
+extern int      mac_ogg_stream_packetin(ogg_stream_state *os, ogg_packet *op);
 extern int      mac_ogg_stream_init(ogg_stream_state *os,int serialno);
 extern int      mac_ogg_stream_flush(ogg_stream_state *os, ogg_page *og);
 extern int      mac_ogg_stream_pageout(ogg_stream_state *os, ogg_page *og);

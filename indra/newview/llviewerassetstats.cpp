@@ -123,17 +123,17 @@ public:
 
 namespace LLViewerAssetStatsFF
 {
-	static EViewerAssetCategories asset_type_to_category(const LLViewerAssetType::EType at, bool with_http, bool is_temp)
-	{
-		// For statistical purposes, we divide GETs into several
-		// populations of asset fetches:
-		//  - textures which are de-prioritized in the asset system
-		//  - wearables (clothing, bodyparts) which directly affect
-		//    user experiences when they log in
-		//  - sounds
-		//  - gestures, including animations
-		//  - everything else.
-		//
+    static EViewerAssetCategories asset_type_to_category(const LLViewerAssetType::EType at, bool with_http, bool is_temp)
+    {
+        // For statistical purposes, we divide GETs into several
+        // populations of asset fetches:
+        //  - textures which are de-prioritized in the asset system
+        //  - wearables (clothing, bodyparts) which directly affect
+        //    user experiences when they log in
+        //  - sounds
+        //  - gestures, including animations
+        //  - everything else.
+        //
 
         EViewerAssetCategories ret;
         switch (at)
@@ -163,13 +163,13 @@ namespace LLViewerAssetStatsFF
                 ret = with_http ? EVACOtherHTTPGet : EVACOtherUDPGet;
                 break;
         }
-		return ret;
-	}
+        return ret;
+    }
 
-	static LLTrace::DCCountStatHandle<> sEnqueued[EVACCount];
-	static LLTrace::DCCountStatHandle<> sDequeued[EVACCount];
-	static LLTrace::DCEventStatHandle<> sBytesFetched[EVACCount];
-	static LLTrace::DCEventStatHandle<F64Seconds > sResponse[EVACCount];
+    static LLTrace::DCCountStatHandle<> sEnqueued[EVACCount];
+    static LLTrace::DCCountStatHandle<> sDequeued[EVACCount];
+    static LLTrace::DCEventStatHandle<> sBytesFetched[EVACCount];
+    static LLTrace::DCEventStatHandle<F64Seconds > sResponse[EVACCount];
 }
 
 // ------------------------------------------------------
@@ -181,99 +181,99 @@ LLViewerAssetStats * gViewerAssetStats(0);
 // LLViewerAssetStats class definition
 // ------------------------------------------------------
 LLViewerAssetStats::LLViewerAssetStats()
-:	mRegionHandle(U64(0)),
-	mCurRecording(NULL)
+:   mRegionHandle(U64(0)),
+    mCurRecording(NULL)
 {
-	start();
+    start();
 }
 
 
 LLViewerAssetStats::LLViewerAssetStats(const LLViewerAssetStats & src)
-:	mRegionHandle(src.mRegionHandle)
+:   mRegionHandle(src.mRegionHandle)
 {
-	mRegionRecordings = src.mRegionRecordings;
+    mRegionRecordings = src.mRegionRecordings;
 
-	mCurRecording = &mRegionRecordings[mRegionHandle];
-	
-	// assume this is being passed to another thread, so make sure we have unique copies of recording data
-	for (PerRegionRecordingContainer::iterator it = mRegionRecordings.begin(), end_it = mRegionRecordings.end();
-		it != end_it;
-		++it)
-	{
-		it->second.stop();
-		it->second.makeUnique();
-	}
+    mCurRecording = &mRegionRecordings[mRegionHandle];
+    
+    // assume this is being passed to another thread, so make sure we have unique copies of recording data
+    for (PerRegionRecordingContainer::iterator it = mRegionRecordings.begin(), end_it = mRegionRecordings.end();
+        it != end_it;
+        ++it)
+    {
+        it->second.stop();
+        it->second.makeUnique();
+    }
 
-	LLStopWatchControlsMixin<LLViewerAssetStats>::setPlayState(src.getPlayState());
+    LLStopWatchControlsMixin<LLViewerAssetStats>::setPlayState(src.getPlayState());
 }
 
 void LLViewerAssetStats::handleStart()
 {
-	if (mCurRecording)
-	{
-		mCurRecording->start();
-	}
+    if (mCurRecording)
+    {
+        mCurRecording->start();
+    }
 }
 
 void LLViewerAssetStats::handleStop()
 {
-	if (mCurRecording)
-	{
-		mCurRecording->stop();
-	}
+    if (mCurRecording)
+    {
+        mCurRecording->stop();
+    }
 }
 
 void LLViewerAssetStats::handleReset()
 {
-	reset();
+    reset();
 }
 
 
 void LLViewerAssetStats::reset()
 {
-	// Empty the map of all region stats
-	mRegionRecordings.clear();
+    // Empty the map of all region stats
+    mRegionRecordings.clear();
 
-	// initialize new recording for current region
-	if (mRegionHandle)
-	{
-		mCurRecording = &mRegionRecordings[mRegionHandle];
-		mCurRecording->setPlayState(getPlayState());
-	}
+    // initialize new recording for current region
+    if (mRegionHandle)
+    {
+        mCurRecording = &mRegionRecordings[mRegionHandle];
+        mCurRecording->setPlayState(getPlayState());
+    }
 }
 
 void LLViewerAssetStats::setRegion(region_handle_t region_handle)
 {
-	if (region_handle == mRegionHandle)
-	{
-		// Already active, ignore.
-		return;
-	}
+    if (region_handle == mRegionHandle)
+    {
+        // Already active, ignore.
+        return;
+    }
 
-	if (mCurRecording)
-	{
-		mCurRecording->pause();
-	}
-	if (region_handle)
-	{
-		mCurRecording = &mRegionRecordings[region_handle];
-		mCurRecording->setPlayState(getPlayState());
-	}
+    if (mCurRecording)
+    {
+        mCurRecording->pause();
+    }
+    if (region_handle)
+    {
+        mCurRecording = &mRegionRecordings[region_handle];
+        mCurRecording->setPlayState(getPlayState());
+    }
 
-	mRegionHandle = region_handle;
+    mRegionHandle = region_handle;
 }
 
 template <typename T>
 void LLViewerAssetStats::getStat(LLTrace::Recording& rec, T& req, LLViewerAssetStatsFF::EViewerAssetCategories cat, bool compact_output)
 {
-	using namespace LLViewerAssetStatsFF;
+    using namespace LLViewerAssetStatsFF;
 
     if (!compact_output
         || rec.getSampleCount(sEnqueued[cat]) 
         || rec.getSampleCount(sDequeued[cat])
         || rec.getSampleCount(sResponse[cat]))
     {
-        req	.enqueued(rec.getSampleCount(sEnqueued[cat]))
+        req .enqueued(rec.getSampleCount(sEnqueued[cat]))
             .dequeued(rec.getSampleCount(sDequeued[cat]))
             .resp_count(rec.getSampleCount(sResponse[cat]))
             .resp_min(rec.getMin(sResponse[cat]).value())
@@ -285,16 +285,16 @@ void LLViewerAssetStats::getStat(LLTrace::Recording& rec, T& req, LLViewerAssetS
 
 void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 {
-	using namespace LLViewerAssetStatsFF;
+    using namespace LLViewerAssetStatsFF;
 
-	stats.regions.setProvided();
-	
-	for (PerRegionRecordingContainer::iterator it = mRegionRecordings.begin(), end_it = mRegionRecordings.end();
-		it != end_it;
-		++it)
-	{
-		RegionStats& r = stats.regions.add();
-		LLTrace::Recording& rec = it->second;
+    stats.regions.setProvided();
+    
+    for (PerRegionRecordingContainer::iterator it = mRegionRecordings.begin(), end_it = mRegionRecordings.end();
+        it != end_it;
+        ++it)
+    {
+        RegionStats& r = stats.regions.add();
+        LLTrace::Recording& rec = it->second;
 
         getStat(rec, r.get_texture_temp_http, EVACTextureTempHTTPGet, compact_output);
         getStat(rec, r.get_texture_temp_udp, EVACTextureTempUDPGet, compact_output);
@@ -311,37 +311,37 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
         getStat(rec, r.get_other_http, EVACOtherHTTPGet, compact_output);
         getStat(rec, r.get_other_udp, EVACOtherUDPGet, compact_output);
         
-		S32 fps = (S32)rec.getLastValue(LLStatViewer::FPS_SAMPLE);
-		if (!compact_output || fps != 0)
-		{
-			r.fps	.count(fps)
-					.min(rec.getMin(LLStatViewer::FPS_SAMPLE))
-					.max(rec.getMax(LLStatViewer::FPS_SAMPLE))
-					.mean(rec.getMean(LLStatViewer::FPS_SAMPLE));
-		}
-		U32 grid_x(0), grid_y(0);
-		grid_from_region_handle(it->first, &grid_x, &grid_y);
-		r	.grid_x(grid_x)
-			.grid_y(grid_y)
-			.duration(F64Seconds(rec.getDuration()).value());
-	}
+        S32 fps = (S32)rec.getLastValue(LLStatViewer::FPS_SAMPLE);
+        if (!compact_output || fps != 0)
+        {
+            r.fps   .count(fps)
+                    .min(rec.getMin(LLStatViewer::FPS_SAMPLE))
+                    .max(rec.getMax(LLStatViewer::FPS_SAMPLE))
+                    .mean(rec.getMean(LLStatViewer::FPS_SAMPLE));
+        }
+        U32 grid_x(0), grid_y(0);
+        grid_from_region_handle(it->first, &grid_x, &grid_y);
+        r   .grid_x(grid_x)
+            .grid_y(grid_y)
+            .duration(F64Seconds(rec.getDuration()).value());
+    }
 
-	stats.duration(mCurRecording ? F64Seconds(mCurRecording->getDuration()).value() : 0.0);
+    stats.duration(mCurRecording ? F64Seconds(mCurRecording->getDuration()).value() : 0.0);
 }
 
 LLSD LLViewerAssetStats::asLLSD(bool compact_output)
 {
-	LLParamSDParser parser;
-	LLSD sd;
-	AssetStats stats;
-	getStats(stats, compact_output);
-	LLInitParam::predicate_rule_t rule = LLInitParam::default_parse_rules();
-	if (!compact_output)
-	{
-		rule.allow(LLInitParam::EMPTY);
-	}
-	parser.writeSD(sd, stats, rule);
-	return sd;
+    LLParamSDParser parser;
+    LLSD sd;
+    AssetStats stats;
+    getStats(stats, compact_output);
+    LLInitParam::predicate_rule_t rule = LLInitParam::default_parse_rules();
+    if (!compact_output)
+    {
+        rule.allow(LLInitParam::EMPTY);
+    }
+    parser.writeSD(sd, stats, rule);
+    return sd;
 }
 
 // ------------------------------------------------------
@@ -352,47 +352,47 @@ namespace LLViewerAssetStatsFF
 {
 void set_region(LLViewerAssetStats::region_handle_t region_handle)
 {
-	if (! gViewerAssetStats)
-		return;
+    if (! gViewerAssetStats)
+        return;
 
-	gViewerAssetStats->setRegion(region_handle);
+    gViewerAssetStats->setRegion(region_handle);
 }
 
 void record_enqueue(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 {
-	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
+    const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	add(sEnqueued[int(eac)], 1);
+    add(sEnqueued[int(eac)], 1);
 }
 
 void record_dequeue(LLViewerAssetType::EType at, bool with_http, bool is_temp)
 {
-	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
+    const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	add(sDequeued[int(eac)], 1);
+    add(sDequeued[int(eac)], 1);
 }
 
 void record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp, LLViewerAssetStats::duration_t duration, F64 bytes)
 {
-	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
+    const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
-	record(sResponse[int(eac)], F64Seconds(duration));
-	record(sBytesFetched[int(eac)], bytes);
+    record(sResponse[int(eac)], F64Seconds(duration));
+    record(sBytesFetched[int(eac)], bytes);
 }
 
 void init()
 {
-	if (! gViewerAssetStats)
-	{
-		gViewerAssetStats = new LLViewerAssetStats();
-	}
+    if (! gViewerAssetStats)
+    {
+        gViewerAssetStats = new LLViewerAssetStats();
+    }
 }
 
 void
 cleanup()
 {
-	delete gViewerAssetStats;
-	gViewerAssetStats = 0;
+    delete gViewerAssetStats;
+    gViewerAssetStats = 0;
 }
 
 
@@ -401,50 +401,50 @@ cleanup()
 
 
 LLViewerAssetStats::AssetRequestType::AssetRequestType() 
-:	enqueued("enqueued"),
-	dequeued("dequeued"),
-	resp_count("resp_count"),
-	resp_min("resp_min"),
-	resp_max("resp_max"),
-	resp_mean("resp_mean"),
+:   enqueued("enqueued"),
+    dequeued("dequeued"),
+    resp_count("resp_count"),
+    resp_min("resp_min"),
+    resp_max("resp_max"),
+    resp_mean("resp_mean"),
     resp_mean_bytes("resp_mean_bytes")
 {}
-	
+    
 LLViewerAssetStats::FPSStats::FPSStats() 
-:	count("count"),
-	min("min"),
-	max("max"),
-	mean("mean")
+:   count("count"),
+    min("min"),
+    max("max"),
+    mean("mean")
 {}
 
 LLViewerAssetStats::RegionStats::RegionStats() 
-:	get_texture_temp_http("get_texture_temp_http"),
-	get_texture_temp_udp("get_texture_temp_udp"),
-	get_texture_non_temp_http("get_texture_non_temp_http"),
-	get_texture_non_temp_udp("get_texture_non_temp_udp"),
-	get_wearable_http("get_wearable_http"),
-	get_wearable_udp("get_wearable_udp"),
-	get_sound_http("get_sound_http"),
-	get_sound_udp("get_sound_udp"),
-	get_gesture_http("get_gesture_http"),
-	get_gesture_udp("get_gesture_udp"),
-	get_landmark_http("get_landmark_http"),
-	get_landmark_udp("get_landmark_udp"),
-	get_other_http("get_other_http"),
-	get_other_udp("get_other_udp"),
-	fps("fps"),
-	grid_x("grid_x"),
-	grid_y("grid_y"),
-	duration("duration")
+:   get_texture_temp_http("get_texture_temp_http"),
+    get_texture_temp_udp("get_texture_temp_udp"),
+    get_texture_non_temp_http("get_texture_non_temp_http"),
+    get_texture_non_temp_udp("get_texture_non_temp_udp"),
+    get_wearable_http("get_wearable_http"),
+    get_wearable_udp("get_wearable_udp"),
+    get_sound_http("get_sound_http"),
+    get_sound_udp("get_sound_udp"),
+    get_gesture_http("get_gesture_http"),
+    get_gesture_udp("get_gesture_udp"),
+    get_landmark_http("get_landmark_http"),
+    get_landmark_udp("get_landmark_udp"),
+    get_other_http("get_other_http"),
+    get_other_udp("get_other_udp"),
+    fps("fps"),
+    grid_x("grid_x"),
+    grid_y("grid_y"),
+    duration("duration")
 {}
 
 LLViewerAssetStats::AssetStats::AssetStats() 
-:	regions("regions"),
-	duration("duration"),
-	session_id("session_id"),
-	agent_id("agent_id"),
-	message("message"),
-	sequence("sequence"),
-	initial("initial"),
-	break_("break")
+:   regions("regions"),
+    duration("duration"),
+    session_id("session_id"),
+    agent_id("agent_id"),
+    message("message"),
+    sequence("sequence"),
+    initial("initial"),
+    break_("break")
 {}

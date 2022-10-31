@@ -44,24 +44,24 @@ class LLPanelScriptLimitsRegionMemory;
 
 class LLFloaterScriptLimits : public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 public:
 
-	/*virtual*/ BOOL postBuild();
+    /*virtual*/ BOOL postBuild();
 
-	// from LLPanel
-	virtual void refresh();
+    // from LLPanel
+    virtual void refresh();
 
 private:
 
-	LLFloaterScriptLimits(const LLSD& seed);
-	~LLFloaterScriptLimits();
+    LLFloaterScriptLimits(const LLSD& seed);
+    ~LLFloaterScriptLimits();
 
 protected:
 
-	LLTabContainer* mTab;
-	typedef std::vector<LLPanelScriptLimitsInfo*> info_panels_t;
-	info_panels_t mInfoPanels;
+    LLTabContainer* mTab;
+    typedef std::vector<LLPanelScriptLimitsInfo*> info_panels_t;
+    info_panels_t mInfoPanels;
 };
 
 
@@ -69,17 +69,17 @@ protected:
 class LLPanelScriptLimitsInfo : public LLPanel
 {
 public:
-	LLPanelScriptLimitsInfo();
-	
-	virtual BOOL postBuild();
-	virtual void updateChild(LLUICtrl* child_ctrl);
-	
+    LLPanelScriptLimitsInfo();
+    
+    virtual BOOL postBuild();
+    virtual void updateChild(LLUICtrl* child_ctrl);
+    
 protected:
-	void initCtrl(const std::string& name);
-	
-	typedef std::vector<std::string> strings_t;
-	
-	LLHost mHost;
+    void initCtrl(const std::string& name);
+    
+    typedef std::vector<std::string> strings_t;
+    
+    LLHost mHost;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -88,53 +88,53 @@ protected:
 
 class LLPanelScriptLimitsRegionMemory : public LLPanelScriptLimitsInfo, LLRemoteParcelInfoObserver
 {
-	
+    
 public:
-	LLPanelScriptLimitsRegionMemory()
-		: LLPanelScriptLimitsInfo(), LLRemoteParcelInfoObserver(),
+    LLPanelScriptLimitsRegionMemory()
+        : LLPanelScriptLimitsInfo(), LLRemoteParcelInfoObserver(),
 
-		mParcelId(LLUUID()),
-		mGotParcelMemoryUsed(false),
-		mGotParcelMemoryMax(false),
-		mParcelMemoryMax(0),
-		mParcelMemoryUsed(0) {};
+        mParcelId(LLUUID()),
+        mGotParcelMemoryUsed(false),
+        mGotParcelMemoryMax(false),
+        mParcelMemoryMax(0),
+        mParcelMemoryUsed(0) {};
 
-	~LLPanelScriptLimitsRegionMemory();
-	
-	// LLPanel
-	virtual BOOL postBuild();
+    ~LLPanelScriptLimitsRegionMemory();
+    
+    // LLPanel
+    virtual BOOL postBuild();
 
-	void setRegionDetails(LLSD content);
-	void setRegionSummary(LLSD content);
+    void setRegionDetails(LLSD content);
+    void setRegionSummary(LLSD content);
 
-	BOOL StartRequestChain();
+    BOOL StartRequestChain();
 
-	BOOL getLandScriptResources();
-	void clearList();
-	void showBeacon();
-	void returnObjectsFromParcel(S32 local_id);
-	void returnObjects();
-	void checkButtonsEnabled();
+    BOOL getLandScriptResources();
+    void clearList();
+    void showBeacon();
+    void returnObjectsFromParcel(S32 local_id);
+    void returnObjects();
+    void checkButtonsEnabled();
 
 private:
-	void onAvatarNameCache(const LLUUID& id,
-						 const LLAvatarName& av_name);
-	void onNameCache(const LLUUID& id,
-						 const std::string& name);
+    void onAvatarNameCache(const LLUUID& id,
+                         const LLAvatarName& av_name);
+    void onNameCache(const LLUUID& id,
+                         const std::string& name);
 
-	LLSD mContent;
-	LLUUID mParcelId;
-	bool mGotParcelMemoryUsed;
-	bool mGotParcelMemoryMax;
-	S32 mParcelMemoryMax;
-	S32 mParcelMemoryUsed;
+    LLSD mContent;
+    LLUUID mParcelId;
+    bool mGotParcelMemoryUsed;
+    bool mGotParcelMemoryMax;
+    S32 mParcelMemoryMax;
+    S32 mParcelMemoryUsed;
 
-	bool mGotParcelURLsUsed;
-	bool mGotParcelURLsMax;
-	S32 mParcelURLsMax;
-	S32 mParcelURLsUsed;
+    bool mGotParcelURLsUsed;
+    bool mGotParcelURLsMax;
+    S32 mParcelURLsMax;
+    S32 mParcelURLsUsed;
 
-	std::vector<LLSD> mObjectListItems;
+    std::vector<LLSD> mObjectListItems;
 
     void getLandScriptResourcesCoro(std::string url);
     void getLandScriptSummaryCoro(std::string url);
@@ -146,10 +146,10 @@ protected:
 /*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
 /*virtual*/ void setParcelID(const LLUUID& parcel_id);
 /*virtual*/ void setErrorStatus(S32 status, const std::string& reason);
-	
-	static void onClickRefresh(void* userdata);
-	static void onClickHighlight(void* userdata);
-	static void onClickReturn(void* userdata);
+    
+    static void onClickRefresh(void* userdata);
+    static void onClickHighlight(void* userdata);
+    static void onClickReturn(void* userdata);
 };
 
 #endif

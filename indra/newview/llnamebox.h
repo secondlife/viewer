@@ -35,41 +35,41 @@
 #include "lltextbox.h"
 
 class LLNameBox
-:	public LLTextBox
+:   public LLTextBox
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLTextBox::Params>
-	{
-		Optional<bool>		is_group;
-		Optional<bool>		link;
+    struct Params : public LLInitParam::Block<Params, LLTextBox::Params>
+    {
+        Optional<bool>      is_group;
+        Optional<bool>      link;
 
-		Params()
-		:	is_group("is_group", false)
-		,	link("link", false)
-		{}
-	};
+        Params()
+        :   is_group("is_group", false)
+        ,   link("link", false)
+        {}
+    };
 
-	virtual ~LLNameBox();
+    virtual ~LLNameBox();
 
-	void setNameID(const LLUUID& name_id, BOOL is_group);
+    void setNameID(const LLUUID& name_id, BOOL is_group);
 
-	void refresh(const LLUUID& id, const std::string& full_name, bool is_group);
+    void refresh(const LLUUID& id, const std::string& full_name, bool is_group);
 
-	static void refreshAll(const LLUUID& id, const std::string& full_name, bool is_group);
+    static void refreshAll(const LLUUID& id, const std::string& full_name, bool is_group);
 
 protected:
-	LLNameBox (const Params&);
+    LLNameBox (const Params&);
 
-	friend class LLUICtrlFactory;
+    friend class LLUICtrlFactory;
 private:
-	void setName(const std::string& name, BOOL is_group);
+    void setName(const std::string& name, BOOL is_group);
 
-	static std::set<LLNameBox*> sInstances;
+    static std::set<LLNameBox*> sInstances;
 
 private:
-	LLUUID mNameID;
-	BOOL mLink;
-	std::string mInitialValue;
+    LLUUID mNameID;
+    BOOL mLink;
+    std::string mInitialValue;
 
 };
 

@@ -32,24 +32,24 @@
 
 bool llHashedUniqueID(unsigned char id[MD5HEX_STR_SIZE])
 {
-	bool idIsUnique = true;
-	LLMD5 hashed_unique_id;
-	unsigned char unique_id[MAC_ADDRESS_BYTES];
+    bool idIsUnique = true;
+    LLMD5 hashed_unique_id;
+    unsigned char unique_id[MAC_ADDRESS_BYTES];
     if ( LLMachineID::getUniqueID(unique_id, sizeof(unique_id))
          || LLUUID::getNodeID(unique_id)
-		)
-	{
-		hashed_unique_id.update(unique_id, MAC_ADDRESS_BYTES);
-		hashed_unique_id.finalize();
-		hashed_unique_id.hex_digest((char*)id);
-		LL_INFOS_ONCE("AppInit") << "System ID " << id << LL_ENDL;
-	}
-	else
-	{
-		idIsUnique = false;
-		memcpy(id,"00000000000000000000000000000000", MD5HEX_STR_SIZE);
-		LL_WARNS_ONCE("AppInit") << "Failed to get an id; cannot uniquely identify this machine." << LL_ENDL;
-	}
-	return idIsUnique;
+        )
+    {
+        hashed_unique_id.update(unique_id, MAC_ADDRESS_BYTES);
+        hashed_unique_id.finalize();
+        hashed_unique_id.hex_digest((char*)id);
+        LL_INFOS_ONCE("AppInit") << "System ID " << id << LL_ENDL;
+    }
+    else
+    {
+        idIsUnique = false;
+        memcpy(id,"00000000000000000000000000000000", MD5HEX_STR_SIZE);
+        LL_WARNS_ONCE("AppInit") << "Failed to get an id; cannot uniquely identify this machine." << LL_ENDL;
+    }
+    return idIsUnique;
 }
 

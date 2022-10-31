@@ -39,16 +39,16 @@
 
 
 namespace {
-	void startIm_wrapper(LLSD const & event)
-	{
-		LLUUID session_id = LLGroupActions::startIM(event["id"].asUUID());
-		sendReply(LLSDMap("session_id", LLSD(session_id)), event);
-	}
+    void startIm_wrapper(LLSD const & event)
+    {
+        LLUUID session_id = LLGroupActions::startIM(event["id"].asUUID());
+        sendReply(LLSDMap("session_id", LLSD(session_id)), event);
+    }
 
-	void send_message_wrapper(const std::string& text, const LLUUID& session_id, const LLUUID& group_id)
-	{
-		LLIMModel::sendMessage(text, session_id, group_id, IM_SESSION_GROUP_START);
-	}
+    void send_message_wrapper(const std::string& text, const LLUUID& session_id, const LLUUID& group_id)
+    {
+        LLIMModel::sendMessage(text, session_id, group_id, IM_SESSION_GROUP_START);
+    }
 }
 
 
@@ -65,12 +65,12 @@ GroupChatListener::GroupChatListener():
         "Assumes a prior successful startIM request.",
         &LLGroupActions::endIM,
         LLSDArray("id"));
-	add("sendIM",
-		"send a groupchat IM",
-		&send_message_wrapper,
+    add("sendIM",
+        "send a groupchat IM",
+        &send_message_wrapper,
         LLSDArray("text")("session_id")("group_id"));
 }
 /*
-	static void sendMessage(const std::string& utf8_text, const LLUUID& im_session_id,
-								const LLUUID& other_participant_id, EInstantMessage dialog);
+    static void sendMessage(const std::string& utf8_text, const LLUUID& im_session_id,
+                                const LLUUID& other_participant_id, EInstantMessage dialog);
 */

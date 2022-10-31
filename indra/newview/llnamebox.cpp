@@ -44,82 +44,82 @@ static LLDefaultChildRegistry::Register<LLNameBox> r("name_box");
 
 
 LLNameBox::LLNameBox(const Params& p)
-:	LLTextBox(p)
+:   LLTextBox(p)
 {
-	mNameID = LLUUID::null;
-	mLink = p.link;
-	mParseHTML = mLink; // STORM-215
-	mInitialValue = p.initial_value().asString();
-	LLNameBox::sInstances.insert(this);
-	setText(LLStringUtil::null);
+    mNameID = LLUUID::null;
+    mLink = p.link;
+    mParseHTML = mLink; // STORM-215
+    mInitialValue = p.initial_value().asString();
+    LLNameBox::sInstances.insert(this);
+    setText(LLStringUtil::null);
 }
 
 LLNameBox::~LLNameBox()
 {
-	LLNameBox::sInstances.erase(this);
+    LLNameBox::sInstances.erase(this);
 }
 
 void LLNameBox::setNameID(const LLUUID& name_id, BOOL is_group)
 {
-	mNameID = name_id;
+    mNameID = name_id;
 
-	std::string name;
-	BOOL got_name = FALSE;
+    std::string name;
+    BOOL got_name = FALSE;
 
-	if (!is_group)
-	{
-		LLAvatarName av_name;
-		got_name = LLAvatarNameCache::get(name_id, &av_name);
-		name = av_name.getUserName();
-	}
-	else
-	{
-		got_name = gCacheName->getGroupName(name_id, name);
-	}
+    if (!is_group)
+    {
+        LLAvatarName av_name;
+        got_name = LLAvatarNameCache::get(name_id, &av_name);
+        name = av_name.getUserName();
+    }
+    else
+    {
+        got_name = gCacheName->getGroupName(name_id, name);
+    }
 
-	// Got the name already? Set it.
-	// Otherwise it will be set later in refresh().
-	if (got_name)
-		setName(name, is_group);
-	else
-		setText(mInitialValue);
+    // Got the name already? Set it.
+    // Otherwise it will be set later in refresh().
+    if (got_name)
+        setName(name, is_group);
+    else
+        setText(mInitialValue);
 }
 
 void LLNameBox::refresh(const LLUUID& id, const std::string& full_name, bool is_group)
 {
-	if (id == mNameID)
-	{
-		setName(full_name, is_group);
-	}
+    if (id == mNameID)
+    {
+        setName(full_name, is_group);
+    }
 }
 
 void LLNameBox::refreshAll(const LLUUID& id, const std::string& full_name, bool is_group)
 {
-	std::set<LLNameBox*>::iterator it;
-	for (it = LLNameBox::sInstances.begin();
-		 it != LLNameBox::sInstances.end();
-		 ++it)
-	{
-		LLNameBox* box = *it;
-		box->refresh(id, full_name, is_group);
-	}
+    std::set<LLNameBox*>::iterator it;
+    for (it = LLNameBox::sInstances.begin();
+         it != LLNameBox::sInstances.end();
+         ++it)
+    {
+        LLNameBox* box = *it;
+        box->refresh(id, full_name, is_group);
+    }
 }
 
 void LLNameBox::setName(const std::string& name, BOOL is_group)
 {
-	if (mLink)
-	{
-		std::string url;
+    if (mLink)
+    {
+        std::string url;
 
-		if (is_group)
-			url = "[secondlife:///app/group/" + mNameID.asString() + "/about " + name + "]";
-		else
-			url = "[secondlife:///app/agent/" + mNameID.asString() + "/about " + name + "]";
+        if (is_group)
+            url = "[secondlife:///app/group/" + mNameID.asString() + "/about " + name + "]";
+        else
+            url = "[secondlife:///app/agent/" + mNameID.asString() + "/about " + name + "]";
 
-		setText(url);
-	}
-	else
-	{
-		setText(name);
-	}
+        setText(url);
+    }
+    else
+    {
+        setText(name);
+    }
 }

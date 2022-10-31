@@ -497,7 +497,7 @@ void LLViewerAssetStorage::assetRequestCoro(
         result_code = LL_ERR_ASSET_REQUEST_FAILED;
         ext_status = LLExtStat::NONE;
         removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status);
-		return;
+        return;
     }
     else if (!gAgent.getRegion()->capabilitiesReceived())
     {
@@ -528,7 +528,7 @@ void LLViewerAssetStorage::assetRequestCoro(
         result_code = LL_ERR_ASSET_REQUEST_FAILED;
         ext_status = LLExtStat::NONE;
         removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status);
-		return;
+        return;
     }
     std::string url = getAssetURL(mViewerAssetUrl, uuid,atype);
     LL_DEBUGS("ViewerAsset") << "request url: " << url << LL_ENDL;
@@ -580,9 +580,9 @@ void LLViewerAssetStorage::assetRequestCoro(
         {
             mTotalBytesFetched += size;
             
-			// This create-then-rename flow is modeled on
-			// LLTransferTargetVFile, which is what was used in the UDP
-			// case.
+            // This create-then-rename flow is modeled on
+            // LLTransferTargetVFile, which is what was used in the UDP
+            // case.
             LLUUID temp_id;
             temp_id.generate();
             LLFileSystem vf(temp_id, atype, LLFileSystem::WRITE);
@@ -608,7 +608,7 @@ void LLViewerAssetStorage::assetRequestCoro(
         else
         {
             // TODO asset-http: handle invalid size case
-			LL_WARNS("ViewerAsset") << "bad size" << LL_ENDL;
+            LL_WARNS("ViewerAsset") << "bad size" << LL_ENDL;
             result_code = LL_ERR_ASSET_REQUEST_FAILED;
             ext_status = LLExtStat::NONE;
         }

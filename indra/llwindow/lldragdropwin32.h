@@ -36,16 +36,16 @@
 
 class LLDragDropWin32
 {
-	public:
-		LLDragDropWin32();
-		~LLDragDropWin32();
+    public:
+        LLDragDropWin32();
+        ~LLDragDropWin32();
 
-		bool init( HWND hWnd );
-		void reset();
+        bool init( HWND hWnd );
+        void reset();
 
-	private:
-		IDropTarget* mDropTarget;
-		HWND mDropWindowHandle;
+    private:
+        IDropTarget* mDropTarget;
+        HWND mDropWindowHandle;
 };
 #endif // LL_LLDRAGDROP32_H
 
@@ -60,12 +60,12 @@ class LLDragDropWin32
 // impostor class that does nothing 
 class LLDragDropWin32
 {
-	public:
-		LLDragDropWin32() {};
-		~LLDragDropWin32() {};
+    public:
+        LLDragDropWin32() {};
+        ~LLDragDropWin32() {};
 
-		bool init( HWND hWnd ) { return false; };
-		void reset() { };
+        bool init( HWND hWnd ) { return false; };
+        void reset() { };
 };
 #endif // LL_LLDRAGDROP32_H
 

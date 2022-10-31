@@ -49,20 +49,20 @@ private:
     void requestTouch(LLSD const & event_data) const;
     void resetAxes(const LLSD& event_data) const;
     void getAxes(const LLSD& event_data) const;
-	void getGroups(const LLSD& event) const;
+    void getGroups(const LLSD& event) const;
     void getPosition(const LLSD& event_data) const;
     void startAutoPilot(const LLSD& event_data);
     void getAutoPilot(const LLSD& event_data) const;
     void startFollowPilot(const LLSD& event_data);
     void setAutoPilotTarget(const LLSD& event_data) const;
     void stopAutoPilot(const LLSD& event_data) const;
-	void lookAt(LLSD const & event_data) const;
+    void lookAt(LLSD const & event_data) const;
 
-	LLViewerObject * findObjectClosestTo( const LLVector3 & position ) const;
+    LLViewerObject * findObjectClosestTo( const LLVector3 & position ) const;
 
 private:
-    LLAgent &	mAgent;
-	LLUUID		mFollowTarget;
+    LLAgent &   mAgent;
+    LLUUID      mFollowTarget;
 };
 
 #endif // LL_LLAGENTLISTENER_H

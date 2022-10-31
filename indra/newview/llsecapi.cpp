@@ -42,37 +42,37 @@ LLPointer<LLSecAPIHandler> gSecAPIHandler;
 
 void initializeSecHandler()
 {
-	ERR_load_crypto_strings();
-	OpenSSL_add_all_algorithms();
+    ERR_load_crypto_strings();
+    OpenSSL_add_all_algorithms();
 
-	gHandlerMap[BASIC_SECHANDLER] = new LLSecAPIBasicHandler();
-	
-	
-	// Currently, we only have the Basic handler, so we can point the main sechandler
-	// pointer to the basic handler.  Later, we'll create a wrapper handler that
-	// selects the appropriate sechandler as needed, for instance choosing the
-	// mac keyring handler, with fallback to the basic sechandler
-	gSecAPIHandler = gHandlerMap[BASIC_SECHANDLER];
+    gHandlerMap[BASIC_SECHANDLER] = new LLSecAPIBasicHandler();
+    
+    
+    // Currently, we only have the Basic handler, so we can point the main sechandler
+    // pointer to the basic handler.  Later, we'll create a wrapper handler that
+    // selects the appropriate sechandler as needed, for instance choosing the
+    // mac keyring handler, with fallback to the basic sechandler
+    gSecAPIHandler = gHandlerMap[BASIC_SECHANDLER];
 
-	// initialize all SecAPIHandlers
-	std::string exception_msg;
-	std::map<std::string, LLPointer<LLSecAPIHandler> >::const_iterator itr;
-	for(itr = gHandlerMap.begin(); itr != gHandlerMap.end(); ++itr)
-	{
-		LLPointer<LLSecAPIHandler> handler = (*itr).second;
-		try 
-		{
-			handler->init();
-		}
-		catch (LLProtectedDataException& e)
-		{
-			exception_msg = e.what();
-		}
-	}
-	if (!exception_msg.empty())  // an exception was thrown.
-	{
-		LLTHROW(LLProtectedDataException(exception_msg));
-	}
+    // initialize all SecAPIHandlers
+    std::string exception_msg;
+    std::map<std::string, LLPointer<LLSecAPIHandler> >::const_iterator itr;
+    for(itr = gHandlerMap.begin(); itr != gHandlerMap.end(); ++itr)
+    {
+        LLPointer<LLSecAPIHandler> handler = (*itr).second;
+        try 
+        {
+            handler->init();
+        }
+        catch (LLProtectedDataException& e)
+        {
+            exception_msg = e.what();
+        }
+    }
+    if (!exception_msg.empty())  // an exception was thrown.
+    {
+        LLTHROW(LLProtectedDataException(exception_msg));
+    }
 
 }
 
@@ -85,80 +85,80 @@ void clearSecHandler()
 // the default is used
 LLPointer<LLSecAPIHandler> getSecHandler(const std::string& handler_type)
 {
-	if (gHandlerMap.find(handler_type) != gHandlerMap.end())
-	{
-		return gHandlerMap[handler_type];
-	}
-	else
-	{
-		return LLPointer<LLSecAPIHandler>(NULL);
-	}
+    if (gHandlerMap.find(handler_type) != gHandlerMap.end())
+    {
+        return gHandlerMap[handler_type];
+    }
+    else
+    {
+        return LLPointer<LLSecAPIHandler>(NULL);
+    }
 }
 // register a handler
 void registerSecHandler(const std::string& handler_type, 
-						LLPointer<LLSecAPIHandler>& handler)
+                        LLPointer<LLSecAPIHandler>& handler)
 {
-	gHandlerMap[handler_type] = handler;
+    gHandlerMap[handler_type] = handler;
 }
 
 std::ostream& operator <<(std::ostream& s, const LLCredential& cred)
 {
-	return s << (std::string)cred;
+    return s << (std::string)cred;
 }
 
 LLSD LLCredential::getLoginParams()
 {
-	LLSD result = LLSD::emptyMap();
-	std::string username;
-	try 
-	{
-		if (mIdentifier["type"].asString() == "agent")
-		{
-			// legacy credential
-			result["passwd"] = "$1$" + mAuthenticator["secret"].asString();
-			result["first"] = mIdentifier["first_name"];
-			result["last"] = mIdentifier["last_name"];
-			username = result["first"].asString() + " " + result["last"].asString();
-		}
-		else if (mIdentifier["type"].asString() == "account")
-		{
-			result["username"] = mIdentifier["account_name"];
-			result["passwd"] = mAuthenticator["secret"].asString();
-			username = result["username"].asString();
-		}
-	}
-	catch (...)
-	{
-		// nat 2016-08-18: not clear what exceptions the above COULD throw?!
-		LOG_UNHANDLED_EXCEPTION(STRINGIZE("for '" << username << "'"));
-		// we could have corrupt data, so simply return a null login param if so
-		LL_WARNS("AppInit") << "Invalid credential" << LL_ENDL;
-	}
-	return result;
+    LLSD result = LLSD::emptyMap();
+    std::string username;
+    try 
+    {
+        if (mIdentifier["type"].asString() == "agent")
+        {
+            // legacy credential
+            result["passwd"] = "$1$" + mAuthenticator["secret"].asString();
+            result["first"] = mIdentifier["first_name"];
+            result["last"] = mIdentifier["last_name"];
+            username = result["first"].asString() + " " + result["last"].asString();
+        }
+        else if (mIdentifier["type"].asString() == "account")
+        {
+            result["username"] = mIdentifier["account_name"];
+            result["passwd"] = mAuthenticator["secret"].asString();
+            username = result["username"].asString();
+        }
+    }
+    catch (...)
+    {
+        // nat 2016-08-18: not clear what exceptions the above COULD throw?!
+        LOG_UNHANDLED_EXCEPTION(STRINGIZE("for '" << username << "'"));
+        // we could have corrupt data, so simply return a null login param if so
+        LL_WARNS("AppInit") << "Invalid credential" << LL_ENDL;
+    }
+    return result;
 }
 
 void LLCredential::identifierType(std::string &idType)
 {
-	if(mIdentifier.has("type"))
-	{
-		idType = mIdentifier["type"].asString();
-	}
-	else {
-		idType = std::string();
-		
-	}
+    if(mIdentifier.has("type"))
+    {
+        idType = mIdentifier["type"].asString();
+    }
+    else {
+        idType = std::string();
+        
+    }
 }
 
 void LLCredential::authenticatorType(std::string &idType)
 {
-	if(mAuthenticator.has("type"))
-	{
-		idType = mAuthenticator["type"].asString();
-	}
-	else {
-		idType = std::string();
-		
-	}
+    if(mAuthenticator.has("type"))
+    {
+        idType = mAuthenticator["type"].asString();
+    }
+    else {
+        idType = std::string();
+        
+    }
 }
 
 LLCertException::LLCertException(const LLSD& cert_data, const std::string& msg)

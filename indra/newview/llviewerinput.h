@@ -37,39 +37,39 @@ const std::string script_mouse_handler_name = "script_trigger_lbutton";
 class LLNamedFunction
 {
 public:
-	LLNamedFunction() : mFunction(NULL) { };
-	~LLNamedFunction() { };
+    LLNamedFunction() : mFunction(NULL) { };
+    ~LLNamedFunction() { };
 
-	std::string	mName;
-	LLKeyFunc	mFunction;
+    std::string mName;
+    LLKeyFunc   mFunction;
 };
 
 class LLKeyboardBinding
 {
 public:
-    KEY				mKey;
-    MASK			mMask;
+    KEY             mKey;
+    MASK            mMask;
 
-    LLKeyFunc		mFunction;
+    LLKeyFunc       mFunction;
 };
 
 class LLMouseBinding
 {
 public:
-    EMouseClickType	mMouse;
-    MASK			mMask;
+    EMouseClickType mMouse;
+    MASK            mMask;
 
-    LLKeyFunc		mFunction;
+    LLKeyFunc       mFunction;
 };
 
 
 typedef enum e_keyboard_mode
 {
-	MODE_FIRST_PERSON,
-	MODE_THIRD_PERSON,
-	MODE_EDIT_AVATAR,
-	MODE_SITTING,
-	MODE_COUNT
+    MODE_FIRST_PERSON,
+    MODE_THIRD_PERSON,
+    MODE_EDIT_AVATAR,
+    MODE_SITTING,
+    MODE_COUNT
 } EKeyboardMode;
 
 class LLWindow;
@@ -79,50 +79,50 @@ void bind_keyboard_functions();
 class LLViewerInput
 {
 public:
-	struct KeyBinding : public LLInitParam::Block<KeyBinding>
-	{
-		Mandatory<std::string>	key,
-								mask,
-								command;
-		Optional<std::string>	mouse; // Note, not mandatory for the sake of backward campatibility with keys.xml
+    struct KeyBinding : public LLInitParam::Block<KeyBinding>
+    {
+        Mandatory<std::string>  key,
+                                mask,
+                                command;
+        Optional<std::string>   mouse; // Note, not mandatory for the sake of backward campatibility with keys.xml
 
-		KeyBinding();
-	};
+        KeyBinding();
+    };
 
-	struct KeyMode : public LLInitParam::Block<KeyMode>
-	{
-		Multiple<KeyBinding>		bindings;
+    struct KeyMode : public LLInitParam::Block<KeyMode>
+    {
+        Multiple<KeyBinding>        bindings;
 
-		KeyMode();
-	};
+        KeyMode();
+    };
 
-	struct Keys : public LLInitParam::Block<Keys>
-	{
-		Optional<KeyMode>	first_person,
-							third_person,
-							sitting,
-							edit_avatar;
-		Optional<S32> xml_version; // 'xml', because 'version' appears to be reserved
-		Keys();
-	};
+    struct Keys : public LLInitParam::Block<Keys>
+    {
+        Optional<KeyMode>   first_person,
+                            third_person,
+                            sitting,
+                            edit_avatar;
+        Optional<S32> xml_version; // 'xml', because 'version' appears to be reserved
+        Keys();
+    };
 
-	LLViewerInput();
+    LLViewerInput();
 
-	BOOL			handleKey(KEY key, MASK mask, BOOL repeated);
-	BOOL			handleKeyUp(KEY key, MASK mask);
+    BOOL            handleKey(KEY key, MASK mask, BOOL repeated);
+    BOOL            handleKeyUp(KEY key, MASK mask);
 
     // Handle 'global' keybindings that do not consume event,
     // yet need to be processed early
     // Example: we want voice to toggle even if some floater is focused
-    bool			handleGlobalBindsKeyDown(KEY key, MASK mask);
-    bool			handleGlobalBindsKeyUp(KEY key, MASK mask);
-    bool			handleGlobalBindsMouse(EMouseClickType clicktype, MASK mask, bool down);
+    bool            handleGlobalBindsKeyDown(KEY key, MASK mask);
+    bool            handleGlobalBindsKeyUp(KEY key, MASK mask);
+    bool            handleGlobalBindsMouse(EMouseClickType clicktype, MASK mask, bool down);
 
-	S32				loadBindingsXML(const std::string& filename);										// returns number bound, 0 on error
-	EKeyboardMode	getMode() const;
+    S32             loadBindingsXML(const std::string& filename);                                       // returns number bound, 0 on error
+    EKeyboardMode   getMode() const;
 
-	static BOOL		modeFromString(const std::string& string, S32 *mode);			// False on failure
-	static BOOL		mouseFromString(const std::string& string, EMouseClickType *mode);// False on failure
+    static BOOL     modeFromString(const std::string& string, S32 *mode);           // False on failure
+    static BOOL     mouseFromString(const std::string& string, EMouseClickType *mode);// False on failure
 
     bool            scanKey(KEY key,
                             BOOL key_down,
@@ -154,7 +154,7 @@ private:
         MOUSE_STATE_UP, // went up this frame
         MOUSE_STATE_SILENT // notified about 'up', do not notify again
     };
-    bool			scanMouse(EMouseClickType click, EMouseState state) const;
+    bool            scanMouse(EMouseClickType click, EMouseState state) const;
     bool            scanMouse(const std::vector<LLMouseBinding> &binding,
                           S32 binding_count,
                           EMouseClickType mouse,
@@ -162,32 +162,32 @@ private:
                           EMouseState state,
                           bool ignore_additional_masks) const;
 
-    S32				loadBindingMode(const LLViewerInput::KeyMode& keymode, S32 mode);
-    BOOL			bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name);
-    BOOL			bindMouse(const S32 mode, const EMouseClickType mouse, const MASK mask, const std::string& function_name);
-    void			resetBindings();
+    S32             loadBindingMode(const LLViewerInput::KeyMode& keymode, S32 mode);
+    BOOL            bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name);
+    BOOL            bindMouse(const S32 mode, const EMouseClickType mouse, const MASK mask, const std::string& function_name);
+    void            resetBindings();
 
-	// Hold all the ugly stuff torn out to make LLKeyboard non-viewer-specific here
+    // Hold all the ugly stuff torn out to make LLKeyboard non-viewer-specific here
 
     // TODO: at some point it is better to remake this, especially keyaboard part
     // would be much better to send to functions actual state of the button than
     // to send what we think function wants based on collection of bools (mKeyRepeated, mKeyLevel, mKeyDown)
-    std::vector<LLKeyboardBinding>	mKeyBindings[MODE_COUNT];
-    std::vector<LLMouseBinding>		mMouseBindings[MODE_COUNT];
-    bool							mLMouseDefaultHandling[MODE_COUNT]; // Due to having special priority
+    std::vector<LLKeyboardBinding>  mKeyBindings[MODE_COUNT];
+    std::vector<LLMouseBinding>     mMouseBindings[MODE_COUNT];
+    bool                            mLMouseDefaultHandling[MODE_COUNT]; // Due to having special priority
 
     // keybindings that do not consume event and are handled earlier, before floaters
-    std::vector<LLKeyboardBinding>	mGlobalKeyBindings[MODE_COUNT];
-    std::vector<LLMouseBinding>		mGlobalMouseBindings[MODE_COUNT];
+    std::vector<LLKeyboardBinding>  mGlobalKeyBindings[MODE_COUNT];
+    std::vector<LLMouseBinding>     mGlobalMouseBindings[MODE_COUNT];
 
-	typedef std::map<U32, U32> key_remap_t;
-	key_remap_t		mRemapKeys[MODE_COUNT];
-	std::set<KEY>	mKeysSkippedByUI;
-	BOOL			mKeyHandledByUI[KEY_COUNT];		// key processed successfully by UI
+    typedef std::map<U32, U32> key_remap_t;
+    key_remap_t     mRemapKeys[MODE_COUNT];
+    std::set<KEY>   mKeysSkippedByUI;
+    BOOL            mKeyHandledByUI[KEY_COUNT];     // key processed successfully by UI
 
     // This is indentical to what llkeyboard does (mKeyRepeated, mKeyLevel, mKeyDown e t c),
     // just instead of remembering individually as bools,  we record state as enum
-    EMouseState		mMouseLevel[CLICK_COUNT];	// records of key state
+    EMouseState     mMouseLevel[CLICK_COUNT];   // records of key state
 };
 
 extern LLViewerInput gViewerInput;

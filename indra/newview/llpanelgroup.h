@@ -42,130 +42,130 @@ class LLAgent;
 
 
 class LLPanelGroup : public LLPanel,
-					 public LLGroupMgrObserver,
-					 public LLVoiceClientStatusObserver
+                     public LLGroupMgrObserver,
+                     public LLVoiceClientStatusObserver
 {
 public:
-	LLPanelGroup();
-	virtual ~LLPanelGroup();
+    LLPanelGroup();
+    virtual ~LLPanelGroup();
 
-	virtual BOOL postBuild();
+    virtual BOOL postBuild();
 
-	void setGroupID(const LLUUID& group_id);
+    void setGroupID(const LLUUID& group_id);
 
-	void draw();
+    void draw();
 
-	void onOpen(const LLSD& key);
+    void onOpen(const LLSD& key);
 
-	// Group manager observer trigger.
-	virtual void changed(LLGroupChange gc);
+    // Group manager observer trigger.
+    virtual void changed(LLGroupChange gc);
 
-	// Implements LLVoiceClientStatusObserver::onChange() to enable the call
-	// button when voice is available
-	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
+    // Implements LLVoiceClientStatusObserver::onChange() to enable the call
+    // button when voice is available
+    /*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
 
-	void showNotice(const std::string& subject,
-					const std::string& message,
-					const bool& has_inventory,
-					const std::string& inventory_name,
-					LLOfferInfo* inventory_offer);
+    void showNotice(const std::string& subject,
+                    const std::string& message,
+                    const bool& has_inventory,
+                    const std::string& inventory_name,
+                    LLOfferInfo* inventory_offer);
 
-	void notifyObservers();
+    void notifyObservers();
 
-	bool apply();
-	void refreshData();
-	void callGroup();
-	void chatGroup();
+    bool apply();
+    void refreshData();
+    void callGroup();
+    void chatGroup();
 
-	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
-	static void showNotice(const std::string& subject,
-						   const std::string& message,
-						   const LLUUID& group_id,
-						   const bool& has_inventory,
-						   const std::string& inventory_name,
-						   LLOfferInfo* inventory_offer);
+    static void showNotice(const std::string& subject,
+                           const std::string& message,
+                           const LLUUID& group_id,
+                           const bool& has_inventory,
+                           const std::string& inventory_name,
+                           LLOfferInfo* inventory_offer);
 
-
-protected:
-	virtual void update(LLGroupChange gc);
-
-	void onBackBtnClick();
-	void onBtnJoin();
-
-	static void onBtnApply(void*);
-	static void onBtnRefresh(void*);
-	static void onBtnGroupCallClicked(void*);
-	static void onBtnGroupChatClicked(void*);
-
-	void reposButton(const std::string& name);
-	void reposButtons();
-	
 
 protected:
-	bool	apply(LLPanelGroupTab* tab);
+    virtual void update(LLGroupChange gc);
 
-	LLTimer mRefreshTimer;
+    void onBackBtnClick();
+    void onBtnJoin();
 
-	BOOL mSkipRefresh;
+    static void onBtnApply(void*);
+    static void onBtnRefresh(void*);
+    static void onBtnGroupCallClicked(void*);
+    static void onBtnGroupChatClicked(void*);
 
-	std::string mDefaultNeedsApplyMesg;
-	std::string mWantApplyMesg;
+    void reposButton(const std::string& name);
+    void reposButtons();
+    
 
-	std::vector<LLPanelGroupTab* > mTabs;
+protected:
+    bool    apply(LLPanelGroupTab* tab);
 
-	LLButton*		mButtonJoin;
-	LLUICtrl*		mJoinText;
+    LLTimer mRefreshTimer;
+
+    BOOL mSkipRefresh;
+
+    std::string mDefaultNeedsApplyMesg;
+    std::string mWantApplyMesg;
+
+    std::vector<LLPanelGroupTab* > mTabs;
+
+    LLButton*       mButtonJoin;
+    LLUICtrl*       mJoinText;
 };
 
 class LLPanelGroupTab : public LLPanel
 {
 public:
-	LLPanelGroupTab();
-	virtual ~LLPanelGroupTab();
+    LLPanelGroupTab();
+    virtual ~LLPanelGroupTab();
 
-	// Triggered when the tab becomes active.
-	virtual void activate() { }
-	
-	// Triggered when the tab becomes inactive.
-	virtual void deactivate() { }
+    // Triggered when the tab becomes active.
+    virtual void activate() { }
+    
+    // Triggered when the tab becomes inactive.
+    virtual void deactivate() { }
 
-	// Asks if something needs to be applied.
-	// If returning true, this function should modify the message to the user.
-	virtual bool needsApply(std::string& mesg) { return false; }
+    // Asks if something needs to be applied.
+    // If returning true, this function should modify the message to the user.
+    virtual bool needsApply(std::string& mesg) { return false; }
 
-	// Asks if there is currently a modal dialog being shown.
-	virtual BOOL hasModal() { return mHasModal; }
+    // Asks if there is currently a modal dialog being shown.
+    virtual BOOL hasModal() { return mHasModal; }
 
-	// Request to apply current data.
-	// If returning fail, this function should modify the message to the user.
-	virtual bool apply(std::string& mesg) { return true; }
+    // Request to apply current data.
+    // If returning fail, this function should modify the message to the user.
+    virtual bool apply(std::string& mesg) { return true; }
 
-	// Request a cancel of changes
-	virtual void cancel() { }
+    // Request a cancel of changes
+    virtual void cancel() { }
 
-	// Triggered when group information changes in the group manager.
-	virtual void update(LLGroupChange gc) { }
+    // Triggered when group information changes in the group manager.
+    virtual void update(LLGroupChange gc) { }
 
-	// This just connects the help button callback.
-	virtual BOOL postBuild();
+    // This just connects the help button callback.
+    virtual BOOL postBuild();
 
-	virtual BOOL isVisibleByAgent(LLAgent* agentp);
+    virtual BOOL isVisibleByAgent(LLAgent* agentp);
 
-	virtual void setGroupID(const LLUUID& id) {mGroupID = id;};
+    virtual void setGroupID(const LLUUID& id) {mGroupID = id;};
 
-	void notifyObservers() {};
+    void notifyObservers() {};
 
-	const LLUUID& getGroupID() const { return mGroupID;}
+    const LLUUID& getGroupID() const { return mGroupID;}
 
-	virtual void setupCtrls	(LLPanel* parent) {};
+    virtual void setupCtrls (LLPanel* parent) {};
 
-	virtual void onFilterChanged() { }
+    virtual void onFilterChanged() { }
 
 protected:
-	LLUUID	mGroupID;
-	BOOL mAllowEdit;
-	BOOL mHasModal;
+    LLUUID  mGroupID;
+    BOOL mAllowEdit;
+    BOOL mHasModal;
 };
 
 #endif // LL_LLPANELGROUP_H

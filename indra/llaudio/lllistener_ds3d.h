@@ -38,29 +38,29 @@ class LLListener_DS3D : public LLListener
 {
  private:
  protected:
-	IDirectSound3DListener8 *m3DListener;
+    IDirectSound3DListener8 *m3DListener;
  public:
 
  private:
  protected:
  public:  
-	LLListener_DS3D();
-	virtual ~LLListener_DS3D();
-	virtual void init();  
+    LLListener_DS3D();
+    virtual ~LLListener_DS3D();
+    virtual void init();  
 
-	virtual void setDS3DLPtr (IDirectSound3DListener8 *listener_p);
+    virtual void setDS3DLPtr (IDirectSound3DListener8 *listener_p);
 
-	virtual void translate(LLVector3 offset);
-	virtual void setPosition(LLVector3 pos);
-	virtual void setVelocity(LLVector3 vel);
-	virtual void orient(LLVector3 up, LLVector3 at);
+    virtual void translate(LLVector3 offset);
+    virtual void setPosition(LLVector3 pos);
+    virtual void setVelocity(LLVector3 vel);
+    virtual void orient(LLVector3 up, LLVector3 at);
 
-	virtual void setDopplerFactor(F32 factor);
-	virtual F32 getDopplerFactor();
-	virtual void setRolloffFactor(F32 factor);
-	virtual F32 getRolloffFactor();
+    virtual void setDopplerFactor(F32 factor);
+    virtual F32 getDopplerFactor();
+    virtual void setRolloffFactor(F32 factor);
+    virtual F32 getRolloffFactor();
 
-	virtual void commitDeferredChanges();
+    virtual void commitDeferredChanges();
 };
 
 #endif
