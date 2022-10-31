@@ -266,8 +266,10 @@ void processSetRequest(const LLSD& data)
         const std::string& key = it->first;
         if (key == "c" || key == "camera")
         {
-            // TODO: implement this?
-            continue;
+            S32 camera_num = it->second;
+            LLPuppetModule& puppet_module = LLPuppetModule::instance();
+            puppet_module.setCameraNumber_(camera_num);
+            puppet_module.sendCameraNumber(); //Notify the leap module of the updated camera choice.
         }
 
         const LLSD& joint_data = it->second;
