@@ -123,16 +123,28 @@ void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, BOOL us
     bind(0);
 
     U32 format = components == 4 ? GL_RGBA12 : GL_RGB10;
-    
-    glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, format, resolution, resolution, count*6, 0,
-        GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+
+    U32 mip = 0;
+
+    while (resolution >= 1)
+    {
+        glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, format, resolution, resolution, count * 6, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+        if (!use_mips)
+        {
+            break;
+        }
+        resolution /= 2;
+        ++mip;
+    }
 
     mImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 
     if (use_mips)
     {
         mImage->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
-        glGenerateMipmap(GL_TEXTURE_CUBE_MAP_ARRAY);
+        //glGenerateMipmap(GL_TEXTURE_CUBE_MAP_ARRAY);  // <=== latest AMD drivers do not appreciate this method of allocating mipmaps
     }
     else
     {

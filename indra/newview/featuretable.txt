@@ -1,4 +1,4 @@
-version 40
+version 41
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -285,10 +285,6 @@ RenderAnisotropic			1	0
 RenderFSAASamples			1	0
 RenderGLMultiThreaded       1   0
 RenderGLContextCoreProfile  1   0
-
-// HACK: Current AMD drivers have bugged cubemap arrays, limit number of reflection probes to 32
-list AMD
-RenderReflectionProbeCount  1   32
 
 list GL3
 RenderFSAASamples           0   0
