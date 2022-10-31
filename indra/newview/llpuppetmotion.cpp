@@ -659,17 +659,18 @@ void LLPuppetMotion::clearAll()
 
 
 
-void LLPuppetMotion::addExpressionEvent(const LLPuppetJointEvent& event, bool is_ik)
+void LLPuppetMotion::addExpressionEvent(const LLPuppetJointEvent& event, LLPuppetJointEvent::E_REFERENCE_FRAME ref_frame)
 {
     //TODO this is a bit sloppy.  We're updating asynchonously
     //There should only be one captured frame from the expression
     //controller but just in case, use a map so we don't overflow events
-    if (is_ik)
+    if (ref_frame == LLPuppetJointEvent::ROOT_FRAME)
     {
         mIKExpressionEvents[event.getJointID()] = event;
     }
     else
     {
+        // PARENT_FRAME
         mJSExpressionEvents[event.getJointID()] = event;
     }
     mNeedsUpdate = true;
