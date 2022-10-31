@@ -358,6 +358,10 @@ const S32 LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_MAX] =
 	sizeof(LLVector4), // TYPE_WEIGHT4,
 	sizeof(LLVector4), // TYPE_CLOTHWEIGHT,
 	sizeof(LLVector4), // TYPE_TEXTURE_INDEX (actually exists as position.w), no extra data, but stride is 16 bytes
+    sizeof(LLVector2), // TYPE_BASECOLOR_TEXCOORD,
+    sizeof(LLVector2), // TYPE_NORMAL_TEXCOORD,
+    sizeof(LLVector2), // TYPE_METALLIC_ROUGHNESS_TEXCOORD,
+    sizeof(LLVector2), // TYPE_EMISSIVE_TEXCOORD,
 };
 
 static const std::string vb_type_name[] =
@@ -375,6 +379,10 @@ static const std::string vb_type_name[] =
 	"TYPE_WEIGHT4",
 	"TYPE_CLOTHWEIGHT",
 	"TYPE_TEXTURE_INDEX",
+    "TYPE_BASECOLOR_TEXCOORD",
+    "TYPE_NORMAL_TEXCOORD",
+    "TYPE_METALLIC_ROUGHNESS_TEXCOORD",
+    "TYPE_EMISSIVE_TEXCOORD",
 	"TYPE_MAX",
 	"TYPE_INDEX",	
 };
@@ -1270,6 +1278,10 @@ void LLVertexBuffer::setupVertexArray()
 		4, //TYPE_WEIGHT4,
 		4, //TYPE_CLOTHWEIGHT,
 		1, //TYPE_TEXTURE_INDEX
+        2, // TYPE_BASECOLOR_TEXCOORD,
+        2, // TYPE_NORMAL_TEXCOORD,
+        2, // TYPE_METALLIC_ROUGHNESS_TEXCOORD,
+        2, // TYPE_EMISSIVE_TEXCOORD,
 	};
 
 	static const U32 attrib_type[] =
@@ -1287,6 +1299,10 @@ void LLVertexBuffer::setupVertexArray()
 		GL_FLOAT, //TYPE_WEIGHT4,
 		GL_FLOAT, //TYPE_CLOTHWEIGHT,
 		GL_UNSIGNED_INT, //TYPE_TEXTURE_INDEX
+        GL_FLOAT, // TYPE_BASECOLOR_TEXCOORD,
+        GL_FLOAT, // TYPE_NORMAL_TEXCOORD,
+        GL_FLOAT, // TYPE_METALLIC_ROUGHNESS_TEXCOORD,
+        GL_FLOAT, // TYPE_EMISSIVE_TEXCOORD,
 	};
 
 	static const bool attrib_integer[] =
@@ -1304,6 +1320,10 @@ void LLVertexBuffer::setupVertexArray()
 		false, //TYPE_WEIGHT4,
 		false, //TYPE_CLOTHWEIGHT,
 		true, //TYPE_TEXTURE_INDEX
+        false, // TYPE_BASECOLOR_TEXCOORD,
+        false, // TYPE_NORMAL_TEXCOORD,
+        false, // TYPE_METALLIC_ROUGHNESS_TEXCOORD,
+        false, // TYPE_EMISSIVE_TEXCOORD,
 	};
 
 	static const U32 attrib_normalized[] =
@@ -1321,6 +1341,10 @@ void LLVertexBuffer::setupVertexArray()
 		GL_FALSE, //TYPE_WEIGHT4,
 		GL_FALSE, //TYPE_CLOTHWEIGHT,
 		GL_FALSE, //TYPE_TEXTURE_INDEX
+        GL_FALSE, // TYPE_BASECOLOR_TEXCOORD,
+        GL_FALSE, // TYPE_NORMAL_TEXCOORD,
+        GL_FALSE, // TYPE_METALLIC_ROUGHNESS_TEXCOORD,
+        GL_FALSE, // TYPE_EMISSIVE_TEXCOORD,
 	};
 
 	bindGLBuffer(true);
@@ -1961,6 +1985,26 @@ bool LLVertexBuffer::getClothWeightStrider(LLStrider<LLVector4>& strider, S32 in
 	return VertexBufferStrider<LLVector4,TYPE_CLOTHWEIGHT>::get(*this, strider, index, count, map_range);
 }
 
+bool LLVertexBuffer::getBasecolorTexcoordStrider(LLStrider<LLVector2>& strider, S32 index, S32 count, bool map_range)
+{
+    return VertexBufferStrider<LLVector2,TYPE_BASECOLOR_TEXCOORD>::get(*this, strider, index, count, map_range);
+}
+
+bool LLVertexBuffer::getNormalTexcoordStrider(LLStrider<LLVector2>& strider, S32 index, S32 count, bool map_range)
+{
+    return VertexBufferStrider<LLVector2,TYPE_NORMAL_TEXCOORD>::get(*this, strider, index, count, map_range);
+}
+
+bool LLVertexBuffer::getMetallicRoughnessTexcoordStrider(LLStrider<LLVector2>& strider, S32 index, S32 count, bool map_range)
+{
+    return VertexBufferStrider<LLVector2,TYPE_METALLIC_ROUGHNESS_TEXCOORD>::get(*this, strider, index, count, map_range);
+}
+
+bool LLVertexBuffer::getEmissiveTexcoordStrider(LLStrider<LLVector2>& strider, S32 index, S32 count, bool map_range)
+{
+    return VertexBufferStrider<LLVector2,TYPE_EMISSIVE_TEXCOORD>::get(*this, strider, index, count, map_range);
+}
+
 //----------------------------------------------------------------------------
 
 bool LLVertexBuffer::bindGLArray()
@@ -2379,6 +2423,30 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
 		void* ptr = (void*)(base + mOffsets[TYPE_VERTEX]);
 		glVertexAttribPointer(loc, 3,GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
 	}	
+    if (data_mask & MAP_BASECOLOR_TEXCOORD)
+    {
+        S32 loc = TYPE_BASECOLOR_TEXCOORD;
+        void* ptr = (void*)(base + mOffsets[TYPE_BASECOLOR_TEXCOORD]);
+        glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_BASECOLOR_TEXCOORD], ptr);
+    }
+    if (data_mask & MAP_NORMAL_TEXCOORD)
+    {
+        S32 loc = TYPE_NORMAL_TEXCOORD;
+        void* ptr = (void*)(base + mOffsets[TYPE_NORMAL_TEXCOORD]);
+        glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_NORMAL_TEXCOORD], ptr);
+    }
+    if (data_mask & MAP_METALLIC_ROUGHNESS_TEXCOORD)
+    {
+        S32 loc = TYPE_METALLIC_ROUGHNESS_TEXCOORD;
+        void* ptr = (void*)(base + mOffsets[TYPE_METALLIC_ROUGHNESS_TEXCOORD]);
+        glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_METALLIC_ROUGHNESS_TEXCOORD], ptr);
+    }
+    if (data_mask & MAP_EMISSIVE_TEXCOORD)
+    {
+        S32 loc = TYPE_EMISSIVE_TEXCOORD;
+        void* ptr = (void*)(base + mOffsets[TYPE_EMISSIVE_TEXCOORD]);
+        glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_EMISSIVE_TEXCOORD], ptr);
+    }
 
 	llglassertok();
 }
@@ -2471,6 +2539,30 @@ void LLVertexBuffer::setupVertexBufferFast(U32 data_mask)
         S32 loc = TYPE_VERTEX;
         void* ptr = (void*)(base + mOffsets[TYPE_VERTEX]);
         glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
+    }
+    if (data_mask & MAP_BASECOLOR_TEXCOORD)
+    {
+        S32 loc = TYPE_BASECOLOR_TEXCOORD;
+        void* ptr = (void*)(base + mOffsets[TYPE_BASECOLOR_TEXCOORD]);
+        glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_BASECOLOR_TEXCOORD], ptr);
+    }
+    if (data_mask & MAP_NORMAL_TEXCOORD)
+    {
+        S32 loc = TYPE_NORMAL_TEXCOORD;
+        void* ptr = (void*)(base + mOffsets[TYPE_NORMAL_TEXCOORD]);
+        glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_NORMAL_TEXCOORD], ptr);
+    }
+    if (data_mask & MAP_METALLIC_ROUGHNESS_TEXCOORD)
+    {
+        S32 loc = TYPE_METALLIC_ROUGHNESS_TEXCOORD;
+        void* ptr = (void*)(base + mOffsets[TYPE_METALLIC_ROUGHNESS_TEXCOORD]);
+        glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_METALLIC_ROUGHNESS_TEXCOORD], ptr);
+    }
+    if (data_mask & MAP_EMISSIVE_TEXCOORD)
+    {
+        S32 loc = TYPE_EMISSIVE_TEXCOORD;
+        void* ptr = (void*)(base + mOffsets[TYPE_EMISSIVE_TEXCOORD]);
+        glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_EMISSIVE_TEXCOORD], ptr);
     }
 }
 

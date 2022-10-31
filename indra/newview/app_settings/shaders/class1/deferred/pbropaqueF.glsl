@@ -36,15 +36,16 @@ uniform sampler2D specularMap; // Packed: Occlusion, Metal, Roughness
 
 out vec4 frag_data[4];
 
-VARYING vec3 vary_position;
-VARYING vec4 vertex_color;
-VARYING vec3 vary_normal;
-VARYING vec3 vary_tangent;
+in vec3 vary_position;
+in vec4 vertex_color;
+in vec3 vary_normal;
+in vec3 vary_tangent;
 flat in float vary_sign;
 
-VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
-VARYING vec2 vary_texcoord2;
+in vec2 basecolor_texcoord;
+in vec2 normal_texcoord;
+in vec2 metallic_roughness_texcoord;
+in vec2 emissive_texcoord;
 
 uniform float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
 
@@ -56,19 +57,16 @@ uniform mat3 normal_matrix;
 
 void main()
 {
-// IF .mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
-//    vec3 col = vertex_color.rgb * diffuseLookup(vary_texcoord0.xy).rgb;
-// else
-    vec4 albedo = texture2D(diffuseMap, vary_texcoord0.xy).rgba;
-    if (albedo.a < minimum_alpha)
+    vec4 basecolor = texture2D(diffuseMap, basecolor_texcoord.xy).rgba;
+    if (basecolor.a < minimum_alpha)
     {
         discard;
     }
 
-    vec3 col = vertex_color.rgb * srgb_to_linear(albedo.rgb);
+    vec3 col = vertex_color.rgb * srgb_to_linear(basecolor.rgb);
 
     // from mikktspace.com
-    vec3 vNt = texture2D(bumpMap, vary_texcoord1.xy).xyz*2.0-1.0;
+    vec3 vNt = texture2D(bumpMap, normal_texcoord.xy).xyz*2.0-1.0;
     float sign = vary_sign;
     vec3 vN = vary_normal;
     vec3 vT = vary_tangent.xyz;
@@ -81,13 +79,13 @@ void main()
     //   occlusion 1.0
     //   roughness 0.0
     //   metal     0.0
-    vec3 spec = texture2D(specularMap, vary_texcoord2.xy).rgb;
+    vec3 spec = texture2D(specularMap, metallic_roughness_texcoord.xy).rgb;
     
     spec.g *= roughnessFactor;
     spec.b *= metallicFactor;
 
     vec3 emissive = emissiveColor;
-    emissive *= srgb_to_linear(texture2D(emissiveMap, vary_texcoord0.xy).rgb);
+    emissive *= srgb_to_linear(texture2D(emissiveMap, emissive_texcoord.xy).rgb);
 
     tnorm *= gl_FrontFacing ? 1.0 : -1.0;
 

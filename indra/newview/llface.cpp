@@ -1601,6 +1601,12 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			LLMaterial* mat = tep->getMaterialParams().get();
             LLGLTFMaterial* gltf_mat = tep->getGLTFRenderMaterial();
 
+            if (gltf_mat)
+            {
+                // Transforms will be applied later
+                do_xform = false;
+            }
+
 			bool do_bump = bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1);
 
 			if ((mat || gltf_mat) && !do_bump)

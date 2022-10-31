@@ -51,6 +51,10 @@ public:
         TEXTURE_MATRIX3,                    //  "texture_matrix3"
         OBJECT_PLANE_S,                     //  "object_plane_s"
         OBJECT_PLANE_T,                     //  "object_plane_t"
+        TEXTURE_BASECOLOR_MATRIX,           //  "texture_basecolor_matrix" (GLTF)
+        TEXTURE_NORMAL_MATRIX,              //  "texture_normal_matrix" (GLTF)
+        TEXTURE_METALLIC_ROUGHNESS_MATRIX,  //  "texture_metallic_roughness_matrix" (GLTF)
+        TEXTURE_EMISSIVE_MATRIX,            //  "texture_emissive_matrix" (GLTF)
         VIEWPORT,                           //  "viewport"
         LIGHT_POSITION,                     //  "light_position"
         LIGHT_DIRECTION,                    //  "light_direction"

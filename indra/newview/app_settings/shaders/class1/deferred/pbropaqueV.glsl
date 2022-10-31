@@ -37,25 +37,27 @@ uniform mat3 normal_matrix;
 uniform mat4 modelview_projection_matrix;
 #endif
 
-uniform mat4 texture_matrix0;
+uniform mat3 texture_basecolor_matrix;
+uniform mat3 texture_normal_matrix;
+uniform mat3 texture_metallic_roughness_matrix;
+uniform mat3 texture_emissive_matrix;
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec4 diffuse_color;
-ATTRIBUTE vec3 normal;
-ATTRIBUTE vec4 tangent;
-ATTRIBUTE vec2 texcoord0;
-ATTRIBUTE vec2 texcoord1;
-ATTRIBUTE vec2 texcoord2;
+in vec3 position;
+in vec4 diffuse_color;
+in vec3 normal;
+in vec4 tangent;
+in vec2 texcoord0;
 
-VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
-VARYING vec2 vary_texcoord2;
+out vec2 basecolor_texcoord;
+out vec2 normal_texcoord;
+out vec2 metallic_roughness_texcoord;
+out vec2 emissive_texcoord;
  
-VARYING vec4 vertex_color;
+out vec4 vertex_color;
 
-VARYING vec3 vary_tangent;
+out vec3 vary_tangent;
 flat out float vary_sign;
-VARYING vec3 vary_normal;
+out vec3 vary_normal;
 
 void main()
 {
@@ -73,9 +75,11 @@ void main()
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
 #endif
 	
-	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-	vary_texcoord1 = (texture_matrix0 * vec4(texcoord1,0,1)).xy;
-	vary_texcoord2 = (texture_matrix0 * vec4(texcoord2,0,1)).xy;
+	basecolor_texcoord = (texture_basecolor_matrix * vec3(texcoord0,1)).xy;
+	normal_texcoord = (texture_normal_matrix * vec3(texcoord0,1)).xy;
+	metallic_roughness_texcoord = (texture_metallic_roughness_matrix * vec3(texcoord0,1)).xy;
+	emissive_texcoord = (texture_emissive_matrix * vec3(texcoord0,1)).xy;
+
 #ifdef HAS_SKIN
 	vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
 	vec3 t = (mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz;
