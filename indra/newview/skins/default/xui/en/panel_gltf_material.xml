@@ -131,15 +131,15 @@
      top_pad="4"
      width="96">
       <combo_box.item
-       label="None"
+       label="Opaque"
        name="None"
        value="OPAQUE" />
       <combo_box.item
-       label="Alpha blending"
+       label="Blend"
        name="Alpha blending"
        value="BLEND" />
       <combo_box.item
-       label="Alpha masking"
+       label="Mask"
        name="Alpha masking"
        value="MASK" />
     </combo_box>
