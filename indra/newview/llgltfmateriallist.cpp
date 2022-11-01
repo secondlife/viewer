@@ -61,6 +61,7 @@ namespace
 
         bool operator()(const LLDispatcher* dispatcher, const std::string& key, const LLUUID& invoice, const sparam_t& strings) override
         {
+            LL_PROFILE_ZONE_SCOPED;
             // receive override data from simulator via LargeGenericMessage
             // message should have:
             //  object_id - UUID of LLViewerObject
@@ -196,6 +197,7 @@ void LLGLTFMaterialList::queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFM
 
 void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
 {
+    LL_PROFILE_ZONE_SCOPED;
     const LLUUID& id = obj->getID();
     auto iter = mQueuedOverrides.find(id);
 
@@ -225,9 +227,11 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
 
 LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
 {
+    LL_PROFILE_ZONE_SCOPED;
     uuid_mat_map_t::iterator iter = mList.find(id);
     if (iter == mList.end())
     {
+        LL_PROFILE_ZONE_NAMED("gltf fetch")
         LLFetchedGLTFMaterial* mat = new LLFetchedGLTFMaterial();
         mList[id] = mat;
 
@@ -242,55 +246,66 @@ LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
             gAssetStorage->getAssetData(id, LLAssetType::AT_MATERIAL,
                 [=](const LLUUID& id, LLAssetType::EType asset_type, void* user_data, S32 status, LLExtStat ext_status)
             {
+                LL_PROFILE_ZONE_SCOPED("gltf asset callback");
                 if (status)
                 {
                     LL_WARNS() << "Error getting material asset data: " << LLAssetStorage::getErrorString(status) << " (" << status << ")" << LL_ENDL;
                 }
 
-                LLFileSystem file(id, asset_type, LLFileSystem::READ);
-                auto size = file.getSize();
-                if (!size)
+                std::vector<char> buffer;
+
                 {
-                    LL_DEBUGS() << "Zero size material." << LL_ENDL;
-                    mat->mFetching = false;
-                    mat->unref();
-                    return;
+                    LL_PROFILE_ZONE_SCOPED("gltf read asset");
+                    LLFileSystem file(id, asset_type, LLFileSystem::READ);
+                    auto size = file.getSize();
+                    if (!size)
+                    {
+                        LL_DEBUGS() << "Zero size material." << LL_ENDL;
+                        mat->mFetching = false;
+                        mat->unref();
+                        return;
+                    }
+
+
+
+                    buffer.resize(size);
+                    file.read((U8*)&buffer[0], buffer.size());
                 }
 
-                std::vector<char> buffer;
-                buffer.resize(size);
-                file.read((U8*)&buffer[0], buffer.size());
-
-                LLSD asset;
-
-                // read file into buffer
-                std::istrstream str(&buffer[0], buffer.size());
-
-                if (LLSDSerialize::deserialize(asset, str, buffer.size()))
                 {
-                    if (asset.has("version") && asset["version"] == "1.0")
+                    LL_PROFILE_ZONE_SCOPED("gltf deserialize asset");
+
+                    LLSD asset;
+
+                    // read file into buffer
+                    std::istrstream str(&buffer[0], buffer.size());
+
+                    if (LLSDSerialize::deserialize(asset, str, buffer.size()))
                     {
-                        if (asset.has("type") && asset["type"].asString() == "GLTF 2.0")
+                        if (asset.has("version") && asset["version"] == "1.0")
                         {
-                            if (asset.has("data") && asset["data"].isString())
+                            if (asset.has("type") && asset["type"].asString() == "GLTF 2.0")
                             {
-                                std::string data = asset["data"];
-
-                                std::string warn_msg, error_msg;
-
-                                if (!mat->fromJSON(data, warn_msg, error_msg))
+                                if (asset.has("data") && asset["data"].isString())
                                 {
-                                    LL_WARNS() << "Failed to decode material asset: " << LL_ENDL;
-                                    LL_WARNS() << warn_msg << LL_ENDL;
-                                    LL_WARNS() << error_msg << LL_ENDL;
+                                    std::string data = asset["data"];
+
+                                    std::string warn_msg, error_msg;
+
+                                    if (!mat->fromJSON(data, warn_msg, error_msg))
+                                    {
+                                        LL_WARNS() << "Failed to decode material asset: " << LL_ENDL;
+                                        LL_WARNS() << warn_msg << LL_ENDL;
+                                        LL_WARNS() << error_msg << LL_ENDL;
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                else
-                {
-                    LL_WARNS() << "Failed to deserialize material LLSD" << LL_ENDL;
+                    else
+                    {
+                        LL_WARNS() << "Failed to deserialize material LLSD" << LL_ENDL;
+                    }
                 }
 
                 mat->mFetching = false;

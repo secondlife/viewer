@@ -42,6 +42,7 @@ LLGLTFMaterial::LLGLTFMaterial(const LLGLTFMaterial& rhs)
 
 LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
 {
+    LL_PROFILE_ZONE_SCOPED;
     //have to do a manual operator= because of LLRefCount
     mBaseColorId = rhs.mBaseColorId;
     mNormalId = rhs.mNormalId;
@@ -65,7 +66,7 @@ LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
 
 bool LLGLTFMaterial::fromJSON(const std::string& json, std::string& warn_msg, std::string& error_msg)
 {
-#if 1
+    LL_PROFILE_ZONE_SCOPED;
     tinygltf::TinyGLTF gltf;
 
     tinygltf::Model model_in;
@@ -74,18 +75,14 @@ bool LLGLTFMaterial::fromJSON(const std::string& json, std::string& warn_msg, st
     {
         setFromModel(model_in, 0);
 
-        //DEBUG generate json and print
-        LL_INFOS() << asJSON(true) << LL_ENDL;
-
         return true;
     }
-#endif
     return false;
 }
 
 std::string LLGLTFMaterial::asJSON(bool prettyprint) const
 {
-#if 1
+    LL_PROFILE_ZONE_SCOPED;
     tinygltf::TinyGLTF gltf;
 
     tinygltf::Model model_out;
@@ -97,13 +94,11 @@ std::string LLGLTFMaterial::asJSON(bool prettyprint) const
     gltf.WriteGltfSceneToStream(&model_out, str, prettyprint, false);
 
     return str.str();
-#else
-    return "";
-#endif
 }
 
 void LLGLTFMaterial::setFromModel(const tinygltf::Model& model, S32 mat_index)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (model.materials.size() <= mat_index)
     {
         return;
@@ -198,6 +193,7 @@ std::string gltf_get_texture_image(const tinygltf::Model& model, const T& textur
 template<typename T>
 void LLGLTFMaterial::setFromTexture(const tinygltf::Model& model, const T& texture_info, TextureInfo texture_info_id, LLUUID& texture_id_out)
 {
+    LL_PROFILE_ZONE_SCOPED;
     const std::string uri = gltf_get_texture_image(model, texture_info);
     texture_id_out.set(uri);
 
@@ -219,6 +215,7 @@ void LLGLTFMaterial::setFromTexture(const tinygltf::Model& model, const T& textu
 
 void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (model.materials.size() < mat_index+1)
     {
         model.materials.resize(mat_index + 1);
@@ -277,6 +274,7 @@ void gltf_allocate_texture_image(tinygltf::Model& model, T& texture_info, const 
 template<typename T>
 void LLGLTFMaterial::writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, const LLUUID& texture_id, bool is_override, const LLUUID& base_texture_id) const
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (texture_id.isNull() || (is_override && texture_id == base_texture_id))
     {
         return;
@@ -447,6 +445,7 @@ F32 LLGLTFMaterial::getDefaultTextureRotation()
 
 void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
 {
+    LL_PROFILE_ZONE_SCOPED;
     // TODO: potentially reimplement this with a more general purpose JSON merge
 
     if (override_mat.mBaseColorId != getDefaultBaseColorId())
