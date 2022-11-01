@@ -2203,7 +2203,6 @@ public:
             // Override object's values with values from editor where appropriate
             if (mEditor->getUnsavedChangesFlags() & MATERIAL_BASE_COLOR_DIRTY)
             {
-                LLColor4 baseColor = mEditor->getBaseColor();
                 material->setBaseColorFactor(mEditor->getBaseColor(), true);
             }
             if (mEditor->getUnsavedChangesFlags() & MATERIAL_BASE_COLOR_TEX_DIRTY)
