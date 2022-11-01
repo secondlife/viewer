@@ -45,6 +45,9 @@ class LLGLTFMaterial : public LLRefCount
 {
 public:
 
+    // default material for reference
+    static const LLGLTFMaterial sDefault;
+
     struct TextureTransform
     {
         LLVector2 mOffset = { 0.f, 0.f };
@@ -69,12 +72,13 @@ public:
     LLUUID mMetallicRoughnessId;
     LLUUID mEmissiveId;
 
+    // NOTE : initialize values to defaults according to the GLTF spec
     LLColor4 mBaseColor = LLColor4(1, 1, 1, 1);
     LLColor3 mEmissiveColor = LLColor3(0, 0, 0);
 
-    F32 mMetallicFactor = 0.f;
-    F32 mRoughnessFactor = 0.f;
-    F32 mAlphaCutoff = 0.f;
+    F32 mMetallicFactor = 1.f;
+    F32 mRoughnessFactor = 1.f;
+    F32 mAlphaCutoff = 0.5f;
 
     bool mDoubleSided = false;
     AlphaMode mAlphaMode = ALPHA_MODE_OPAQUE;
@@ -105,19 +109,22 @@ public:
     std::array<TextureTransform, GLTF_TEXTURE_INFO_COUNT> mTextureTransform;
 
     //setters for various members (will clamp to acceptable ranges)
+    // for_override - set to true if this value is being set as part of an override (important for handling override to default value)
 
-    void setBaseColorId(const LLUUID& id);
-    void setNormalId(const LLUUID& id);
-    void setMetallicRoughnessId(const LLUUID& id);
-    void setEmissiveId(const LLUUID& id);
+    void setBaseColorId(const LLUUID& id, bool for_override = false);
+    void setNormalId(const LLUUID& id, bool for_override = false);
+    void setMetallicRoughnessId(const LLUUID& id, bool for_override = false);
+    void setEmissiveId(const LLUUID& id, bool for_override = false);
 
-    void setBaseColorFactor(const LLColor3& baseColor, F32 transparency);
-    void setAlphaCutoff(F32 cutoff);
-    void setEmissiveColorFactor(const LLColor3& emissiveColor);
-    void setMetallicFactor(F32 metallic);
-    void setRoughnessFactor(F32 roughness);
-    void setAlphaMode(S32 mode);
-    void setDoubleSided(bool double_sided);
+    void setBaseColorFactor(const LLColor4& baseColor, bool for_override = false);
+    void setAlphaCutoff(F32 cutoff, bool for_override = false);
+    void setEmissiveColorFactor(const LLColor3& emissiveColor, bool for_override = false);
+    void setMetallicFactor(F32 metallic, bool for_override = false);
+    void setRoughnessFactor(F32 roughness, bool for_override = false);
+    void setAlphaMode(S32 mode, bool for_override = false);
+    void setDoubleSided(bool double_sided, bool for_override = false);
+
+    //NOTE: texture offsets only exist in overrides, so "for_override" is not needed
 
     void setTextureOffset(TextureInfo texture_info, const LLVector2& offset);
     void setTextureScale(TextureInfo texture_info, const LLVector2& scale);
@@ -139,34 +146,16 @@ public:
     static LLVector2 getDefaultTextureScale();
     static F32 getDefaultTextureRotation();
 
+    
+    static void hackOverrideUUID(LLUUID& id);
+    static void applyOverrideUUID(LLUUID& dst_id, const LLUUID& override_id);
+
     // set mAlphaMode from string.
     // Anything otherthan "MASK" or "BLEND" sets mAlphaMode to ALPHA_MODE_OPAQUE
-    void setAlphaMode(const std::string& mode)
-    {
-        if (mode == "MASK")
-        {
-            mAlphaMode = ALPHA_MODE_MASK;
-        }
-        else if (mode == "BLEND")
-        {
-            mAlphaMode = ALPHA_MODE_BLEND;
-        }
-        else
-        {
-            mAlphaMode = ALPHA_MODE_OPAQUE;
-        }
-    }
-
-    const char* getAlphaMode() const
-    {
-        switch (mAlphaMode)
-        {
-        case ALPHA_MODE_MASK: return "MASK";
-        case ALPHA_MODE_BLEND: return "BLEND";
-        default: return "OPAQUE";
-        }
-    }
-
+    void setAlphaMode(const std::string& mode, bool for_override = false);
+   
+    const char* getAlphaMode() const;
+    
     // set the contents of this LLGLTFMaterial from the given json
     // returns true if successful
     // json - the json text to load from

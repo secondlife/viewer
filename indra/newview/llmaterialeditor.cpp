@@ -70,21 +70,20 @@ static const std::string LIVE_MATERIAL_EDITOR_KEY = "Live Editor";
 
 // Dirty flags
 static const U32 MATERIAL_BASE_COLOR_DIRTY = 0x1 << 0;
-static const U32 MATERIAL_BASE_TRANSPARENCY_DIRTY = 0x1 << 1;
-static const U32 MATERIAL_BASE_COLOR_TEX_DIRTY = 0x1 << 2;
+static const U32 MATERIAL_BASE_COLOR_TEX_DIRTY = 0x1 << 1;
 
-static const U32 MATERIAL_NORMAL_TEX_DIRTY = 0x1 << 3;
+static const U32 MATERIAL_NORMAL_TEX_DIRTY = 0x1 << 2;
 
-static const U32 MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY = 0x1 << 4;
-static const U32 MATERIAL_METALLIC_ROUGHTNESS_METALNESS_DIRTY = 0x1 << 5;
-static const U32 MATERIAL_METALLIC_ROUGHTNESS_ROUGHNESS_DIRTY = 0x1 << 6;
+static const U32 MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY = 0x1 << 3;
+static const U32 MATERIAL_METALLIC_ROUGHTNESS_METALNESS_DIRTY = 0x1 << 4;
+static const U32 MATERIAL_METALLIC_ROUGHTNESS_ROUGHNESS_DIRTY = 0x1 << 5;
 
-static const U32 MATERIAL_EMISIVE_COLOR_DIRTY = 0x1 << 7;
-static const U32 MATERIAL_EMISIVE_TEX_DIRTY = 0x1 << 8;
+static const U32 MATERIAL_EMISIVE_COLOR_DIRTY = 0x1 << 6;
+static const U32 MATERIAL_EMISIVE_TEX_DIRTY = 0x1 << 7;
 
-static const U32 MATERIAL_DOUBLE_SIDED_DIRTY = 0x1 << 9;
-static const U32 MATERIAL_ALPHA_MODE_DIRTY = 0x1 << 10;
-static const U32 MATERIAL_ALPHA_CUTOFF_DIRTY = 0x1 << 11;
+static const U32 MATERIAL_DOUBLE_SIDED_DIRTY = 0x1 << 8;
+static const U32 MATERIAL_ALPHA_MODE_DIRTY = 0x1 << 9;
+static const U32 MATERIAL_ALPHA_CUTOFF_DIRTY = 0x1 << 10;
 
 LLUUID LLMaterialEditor::mOverrideObjectId;
 S32 LLMaterialEditor::mOverrideObjectTE = -1;
@@ -384,7 +383,7 @@ BOOL LLMaterialEditor::postBuild()
 
     // BaseColor
     childSetCommitCallback("base color", changes_callback, (void*)&MATERIAL_BASE_COLOR_DIRTY);
-    childSetCommitCallback("transparency", changes_callback, (void*)&MATERIAL_BASE_TRANSPARENCY_DIRTY);
+    childSetCommitCallback("transparency", changes_callback, (void*)&MATERIAL_BASE_COLOR_DIRTY);
     childSetCommitCallback("alpha mode", changes_callback, (void*)&MATERIAL_ALPHA_MODE_DIRTY);
     childSetCommitCallback("alpha cutoff", changes_callback, (void*)&MATERIAL_ALPHA_CUTOFF_DIRTY);
 
@@ -2263,55 +2262,52 @@ public:
             // Override object's values with values from editor where appropriate
             if (mEditor->getUnsavedChangesFlags() & MATERIAL_BASE_COLOR_DIRTY)
             {
-                material->mBaseColor = mEditor->getBaseColor();
-            }
-            if (mEditor->getUnsavedChangesFlags() & MATERIAL_BASE_TRANSPARENCY_DIRTY)
-            {
-                material->mBaseColor.mV[3] = mEditor->getTransparency();
+                LLColor4 baseColor = mEditor->getBaseColor();
+                material->setBaseColorFactor(mEditor->getBaseColor(), true);
             }
             if (mEditor->getUnsavedChangesFlags() & MATERIAL_BASE_COLOR_TEX_DIRTY)
             {
-                material->mBaseColorId = mEditor->getBaseColorId();
+                material->setBaseColorId(mEditor->getBaseColorId(), true);
             }
 
             if (mEditor->getUnsavedChangesFlags() & MATERIAL_NORMAL_TEX_DIRTY)
             {
-                material->mNormalId = mEditor->getNormalId();
+                material->setNormalId(mEditor->getNormalId(), true);
             }
 
             if (mEditor->getUnsavedChangesFlags() & MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY)
             {
-                material->mMetallicRoughnessId = mEditor->getMetallicRoughnessId();
+                material->setMetallicRoughnessId(mEditor->getMetallicRoughnessId(), true);
             }
             if (mEditor->getUnsavedChangesFlags() & MATERIAL_METALLIC_ROUGHTNESS_METALNESS_DIRTY)
             {
-                material->mMetallicFactor = mEditor->getMetalnessFactor();
+                material->setMetallicFactor(mEditor->getMetalnessFactor(), true);
             }
             if (mEditor->getUnsavedChangesFlags() & MATERIAL_METALLIC_ROUGHTNESS_ROUGHNESS_DIRTY)
             {
-                material->mRoughnessFactor = mEditor->getRoughnessFactor();
+                material->setRoughnessFactor(mEditor->getRoughnessFactor(), true);
             }
 
             if (mEditor->getUnsavedChangesFlags() & MATERIAL_EMISIVE_COLOR_DIRTY)
             {
-                material->mEmissiveColor = mEditor->getEmissiveColor();
+                material->setEmissiveColorFactor(LLColor3(mEditor->getEmissiveColor()), true);
             }
             if (mEditor->getUnsavedChangesFlags() & MATERIAL_EMISIVE_TEX_DIRTY)
             {
-                material->mEmissiveId = mEditor->getEmissiveId();
+                material->setEmissiveId(mEditor->getEmissiveId(), true);
             }
 
             if (mEditor->getUnsavedChangesFlags() & MATERIAL_DOUBLE_SIDED_DIRTY)
             {
-                material->mDoubleSided = mEditor->getDoubleSided();
+                material->setDoubleSided(mEditor->getDoubleSided(), true);
             }
             if (mEditor->getUnsavedChangesFlags() & MATERIAL_ALPHA_MODE_DIRTY)
             {
-                material->setAlphaMode(mEditor->getAlphaMode());
+                material->setAlphaMode(mEditor->getAlphaMode(), true);
             }
             if (mEditor->getUnsavedChangesFlags() & MATERIAL_ALPHA_CUTOFF_DIRTY)
             {
-                material->mAlphaCutoff = mEditor->getAlphaCutoff();
+                material->setAlphaCutoff(mEditor->getAlphaCutoff(), true);
             }
 
             std::string overrides_json = material->asJSON();
