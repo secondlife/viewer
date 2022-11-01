@@ -246,7 +246,7 @@ LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
             gAssetStorage->getAssetData(id, LLAssetType::AT_MATERIAL,
                 [=](const LLUUID& id, LLAssetType::EType asset_type, void* user_data, S32 status, LLExtStat ext_status)
             {
-                LL_PROFILE_ZONE_SCOPED("gltf asset callback");
+                LL_PROFILE_ZONE_NAMED("gltf asset callback");
                 if (status)
                 {
                     LL_WARNS() << "Error getting material asset data: " << LLAssetStorage::getErrorString(status) << " (" << status << ")" << LL_ENDL;
@@ -255,7 +255,7 @@ LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
                 std::vector<char> buffer;
 
                 {
-                    LL_PROFILE_ZONE_SCOPED("gltf read asset");
+                    LL_PROFILE_ZONE_NAMED("gltf read asset");
                     LLFileSystem file(id, asset_type, LLFileSystem::READ);
                     auto size = file.getSize();
                     if (!size)
@@ -273,7 +273,7 @@ LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
                 }
 
                 {
-                    LL_PROFILE_ZONE_SCOPED("gltf deserialize asset");
+                    LL_PROFILE_ZONE_NAMED("gltf deserialize asset");
 
                     LLSD asset;
 
