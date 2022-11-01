@@ -181,3 +181,127 @@ LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tiny
 
     return rawImage;
 }
+
+bool LLTinyGLTFHelper::getMaterialFromFile(
+    const std::string& filename,
+    S32 mat_index,
+    LLPointer < LLFetchedGLTFMaterial> material,
+    std::string& material_name,
+    LLPointer<LLViewerFetchedTexture>& base_color_tex,
+    LLPointer<LLViewerFetchedTexture>& normal_tex,
+    LLPointer<LLViewerFetchedTexture>& mr_tex,
+    LLPointer<LLViewerFetchedTexture>& emissive_tex)
+{
+    tinygltf::TinyGLTF loader;
+    std::string        error_msg;
+    std::string        warn_msg;
+    tinygltf::Model model_in;
+    std::string filename_lc = filename;
+    bool decode_successful = true;
+
+    LLStringUtil::toLower(filename_lc);
+
+    // Load a tinygltf model fom a file. Assumes that the input filename has already been
+    // been sanitized to one of (.gltf , .glb) extensions, so does a simple find to distinguish.
+    if (std::string::npos == filename_lc.rfind(".gltf"))
+    {  // file is binary
+        decode_successful = loader.LoadBinaryFromFile(&model_in, &error_msg, &warn_msg, filename_lc);
+    }
+    else
+    {  // file is ascii
+        decode_successful = loader.LoadASCIIFromFile(&model_in, &error_msg, &warn_msg, filename_lc);
+    }
+
+    if (!decode_successful)
+    {
+        LL_WARNS("GLTF") << "Cannot load Material, error: " << error_msg
+            << ", warning:" << warn_msg
+            << " file: " << filename
+            << LL_ENDL;
+        return false;
+    }
+    else if (model_in.materials.size() <= mat_index)
+    {
+        // materials are missing
+        LL_WARNS("GLTF") << "Cannot load Material, Material " << mat_index << " is missing, " << filename << LL_ENDL;
+        return false;
+    }
+
+    material->setFromModel(model_in, mat_index);
+
+    std::string folder = gDirUtilp->getDirName(filename_lc);
+    tinygltf::Material material_in = model_in.materials[mat_index];
+
+    material_name = material_in.name;
+
+    // get base color texture
+    LLPointer<LLImageRaw> base_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index);
+    // get normal map
+    LLPointer<LLImageRaw> normal_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.normalTexture.index);
+    // get metallic-roughness texture
+    LLPointer<LLImageRaw> mr_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.metallicRoughnessTexture.index);
+    // get emissive texture
+    LLPointer<LLImageRaw> emissive_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.emissiveTexture.index);
+    // get occlusion map if needed
+    LLPointer<LLImageRaw> occlusion_img;
+    if (material_in.occlusionTexture.index != material_in.pbrMetallicRoughness.metallicRoughnessTexture.index)
+    {
+        occlusion_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.occlusionTexture.index);
+    }
+
+    // todo: pass it into local bitmaps?
+    LLTinyGLTFHelper::initFetchedTextures(material_in,
+        base_img, normal_img, mr_img, emissive_img, occlusion_img,
+        base_color_tex, normal_tex, mr_tex, emissive_tex);
+
+    if (base_color_tex)
+    {
+        base_color_tex->addTextureStats(64.f * 64.f, TRUE);
+        material->mBaseColorId = base_color_tex->getID();
+        material->mBaseColorTexture = base_color_tex;
+    }
+    else
+    {
+        material->mBaseColorId = LLUUID::null;
+        material->mBaseColorTexture = nullptr;
+    }
+
+    if (normal_tex)
+    {
+        normal_tex->addTextureStats(64.f * 64.f, TRUE);
+        material->mNormalId = normal_tex->getID();
+        material->mNormalTexture = normal_tex;
+    }
+    else
+    {
+        material->mNormalId = LLUUID::null;
+        material->mNormalTexture = nullptr;
+    }
+
+    if (mr_tex)
+    {
+        mr_tex->addTextureStats(64.f * 64.f, TRUE);
+        material->mMetallicRoughnessId = mr_tex->getID();
+        material->mMetallicRoughnessTexture = mr_tex;
+    }
+    else
+    {
+        material->mMetallicRoughnessId = LLUUID::null;
+        material->mMetallicRoughnessTexture = nullptr;
+    }
+
+    if (emissive_tex)
+    {
+        emissive_tex->addTextureStats(64.f * 64.f, TRUE);
+        material->mEmissiveId = emissive_tex->getID();
+        material->mEmissiveTexture = emissive_tex;
+    }
+    else
+    {
+        material->mEmissiveId = LLUUID::null;
+        material->mEmissiveTexture = nullptr;
+    }
+
+    return true;
+
+}

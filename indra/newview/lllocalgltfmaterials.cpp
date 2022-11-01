@@ -47,7 +47,6 @@
 #include "llscrolllistctrl.h"
 #include "lltinygltfhelper.h"
 #include "llviewertexture.h"
-#include "tinygltf/tiny_gltf.h"
 
 /*=======================================*/
 /*  Formal declarations, constants, etc. */
@@ -83,7 +82,7 @@ LLLocalGLTFMaterial::LLLocalGLTFMaterial(std::string filename, S32 index)
     }
     else
     {
-        LL_WARNS() << "File of no valid extension given, local material creation aborted." << "\n"
+        LL_WARNS("GLTF") << "File of no valid extension given, local material creation aborted." << "\n"
             << "Filename: " << mFilename << LL_ENDL;
         return; // no valid extension.
     }
@@ -180,7 +179,7 @@ bool LLLocalGLTFMaterial::updateSelf()
                     }
                     else
                     {
-                        LL_WARNS() << "During the update process the following file was found" << "\n"
+                        LL_WARNS("GLTF") << "During the update process the following file was found" << "\n"
                             << "but could not be opened or decoded for " << LL_LOCAL_UPDATE_RETRIES << " attempts." << "\n"
                             << "Filename: " << mFilename << "\n"
                             << "Disabling further update attempts for this file." << LL_ENDL;
@@ -199,7 +198,7 @@ bool LLLocalGLTFMaterial::updateSelf()
 
         else
         {
-            LL_WARNS() << "During the update process, the following file was not found." << "\n"
+            LL_WARNS("GLTF") << "During the update process, the following file was not found." << "\n"
                 << "Filename: " << mFilename << "\n"
                 << "Disabling further update attempts for this file." << LL_ENDL;
 
@@ -234,120 +233,24 @@ bool LLLocalGLTFMaterial::loadMaterial()
     case ET_MATERIAL_GLTF:
     case ET_MATERIAL_GLB:
     {
-            tinygltf::TinyGLTF loader;
-            std::string        error_msg;
-            std::string        warn_msg;
-
-            tinygltf::Model model_in;
-
             std::string filename_lc = mFilename;
             LLStringUtil::toLower(filename_lc);
+            std::string material_name;
 
-            // Load a tinygltf model fom a file. Assumes that the input filename has already been
-            // been sanitized to one of (.gltf , .glb) extensions, so does a simple find to distinguish.
-            if (std::string::npos == filename_lc.rfind(".gltf"))
-            {  // file is binary
-                decode_successful = loader.LoadBinaryFromFile(&model_in, &error_msg, &warn_msg, filename_lc);
-            }
-            else
-            {  // file is ascii
-                decode_successful = loader.LoadASCIIFromFile(&model_in, &error_msg, &warn_msg, filename_lc);
-            }
+            // Might be a good idea to make these textures into local textures
+            LLTinyGLTFHelper::getMaterialFromFile(
+                mFilename,
+                mMaterialIndex,
+                mGLTFMaterial,
+                material_name,
+                mBaseColorFetched,
+                mNormalFetched,
+                mMRFetched,
+                mEmissiveFetched);
 
-            if (!decode_successful)
+            if (!material_name.empty())
             {
-                LL_WARNS() << "Cannot load Material, error: " << error_msg
-                    << ", warning:" << warn_msg
-                    << " file: " << mFilename
-                    << LL_ENDL;
-                break;
-            }
-
-            if (model_in.materials.size() <= mMaterialIndex)
-            {
-                // materials are missing
-                LL_WARNS() << "Cannot load Material, Material " << mMaterialIndex << " is missing, " << mFilename << LL_ENDL;
-                decode_successful = false;
-                break;
-            }
-
-            // sets everything, but textures will have inaccurate ids
-            mGLTFMaterial->setFromModel(model_in, mMaterialIndex);
-
-            std::string folder = gDirUtilp->getDirName(filename_lc);
-            tinygltf::Material material_in = model_in.materials[mMaterialIndex];
-
-            if (!material_in.name.empty())
-            {
-                mShortName = gDirUtilp->getBaseFileName(filename_lc, true) + " (" + material_in.name + ")";
-            }
-
-            // get base color texture
-            LLPointer<LLImageRaw> base_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index);
-            // get normal map
-            LLPointer<LLImageRaw> normal_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.normalTexture.index);
-            // get metallic-roughness texture
-            LLPointer<LLImageRaw> mr_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.metallicRoughnessTexture.index);
-            // get emissive texture
-            LLPointer<LLImageRaw> emissive_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.emissiveTexture.index);
-            // get occlusion map if needed
-            LLPointer<LLImageRaw> occlusion_img;
-            if (material_in.occlusionTexture.index != material_in.pbrMetallicRoughness.metallicRoughnessTexture.index)
-            {
-                occlusion_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.occlusionTexture.index);
-            }
-
-            // todo: pass it into local bitmaps?
-            LLTinyGLTFHelper::initFetchedTextures(material_in,
-                base_img, normal_img, mr_img, emissive_img, occlusion_img,
-                mBaseColorFetched, mNormalFetched, mMRFetched, mEmissiveFetched);
-
-            if (mBaseColorFetched)
-            {
-                mBaseColorFetched->addTextureStats(64.f * 64.f, TRUE);
-                mGLTFMaterial->mBaseColorId = mBaseColorFetched->getID();
-                mGLTFMaterial->mBaseColorTexture = mBaseColorFetched;
-            }
-            else
-            {
-                mGLTFMaterial->mBaseColorId = LLUUID::null;
-                mGLTFMaterial->mBaseColorTexture = nullptr;
-            }
-
-            if (mNormalFetched)
-            {
-                mNormalFetched->addTextureStats(64.f * 64.f, TRUE);
-                mGLTFMaterial->mNormalId = mNormalFetched->getID();
-                mGLTFMaterial->mNormalTexture = mBaseColorFetched;
-            }
-            else
-            {
-                mGLTFMaterial->mNormalId = LLUUID::null;
-                mGLTFMaterial->mNormalTexture = nullptr;
-            }
-
-            if (mMRFetched)
-            {
-                mMRFetched->addTextureStats(64.f * 64.f, TRUE);
-                mGLTFMaterial->mMetallicRoughnessId = mMRFetched->getID();
-                mGLTFMaterial->mMetallicRoughnessTexture = mBaseColorFetched;
-            }
-            else
-            {
-                mGLTFMaterial->mMetallicRoughnessId = LLUUID::null;
-                mGLTFMaterial->mMetallicRoughnessTexture = nullptr;
-            }
-
-            if (mEmissiveFetched)
-            {
-                mEmissiveFetched->addTextureStats(64.f * 64.f, TRUE);
-                mGLTFMaterial->mEmissiveId = mEmissiveFetched->getID();
-                mGLTFMaterial->mEmissiveTexture = mBaseColorFetched;
-            }
-            else
-            {
-                mGLTFMaterial->mEmissiveId = LLUUID::null;
-                mGLTFMaterial->mEmissiveTexture = nullptr;
+                mShortName = gDirUtilp->getBaseFileName(filename_lc, true) + " (" + material_name + ")";
             }
 
             break;
@@ -359,9 +262,9 @@ bool LLLocalGLTFMaterial::loadMaterial()
             // accessing mFilename and any other object properties might very well crash the viewer.
             // getting here should be impossible, or there's been a pretty serious bug.
 
-            LL_WARNS() << "During a decode attempt, the following local material had no properly assigned extension." << LL_ENDL;
-            LL_WARNS() << "Filename: " << mFilename << LL_ENDL;
-            LL_WARNS() << "Disabling further update attempts for this file." << LL_ENDL;
+            LL_WARNS("GLTF") << "During a decode attempt, the following local material had no properly assigned extension." << LL_ENDL;
+            LL_WARNS("GLTF") << "Filename: " << mFilename << LL_ENDL;
+            LL_WARNS("GLTF") << "Disabling further update attempts for this file." << LL_ENDL;
             mLinkStatus = LS_BROKEN;
         }
     }
@@ -461,7 +364,7 @@ S32 LLLocalGLTFMaterialMgr::addUnit(const std::string& filename)
 
         if (!decode_successful)
         {
-            LL_WARNS() << "Cannot load, error: Failed to decode" << error_msg
+            LL_WARNS("GLTF") << "Cannot load, error: Failed to decode" << error_msg
                 << ", warning:" << warn_msg
                 << " file: " << filename
                 << LL_ENDL;
@@ -471,7 +374,7 @@ S32 LLLocalGLTFMaterialMgr::addUnit(const std::string& filename)
         if (model_in.materials.empty())
         {
             // materials are missing
-            LL_WARNS() << "Cannot load. File has no materials " << filename << LL_ENDL;
+            LL_WARNS("GLTF") << "Cannot load. File has no materials " << filename << LL_ENDL;
             return 0;
         }
         materials_in_file = model_in.materials.size();
@@ -492,7 +395,7 @@ S32 LLLocalGLTFMaterialMgr::addUnit(const std::string& filename)
         }
         else
         {
-            LL_WARNS() << "Attempted to add invalid or unreadable image file, attempt cancelled.\n"
+            LL_WARNS("GLTF") << "Attempted to add invalid or unreadable image file, attempt cancelled.\n"
                 << "Filename: " << filename << LL_ENDL;
 
             LLSD notif_args;
