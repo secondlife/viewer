@@ -424,11 +424,11 @@ BOOL LLMaterialEditor::postBuild()
 
 void LLMaterialEditor::onClickCloseBtn(bool app_quitting)
 {
-    if (app_quitting)
+    if (app_quitting || mIsOverride)
     {
         closeFloater(app_quitting);
     }
-    else if (!mIsOverride)
+    else
     {
         onClickCancel();
     }
