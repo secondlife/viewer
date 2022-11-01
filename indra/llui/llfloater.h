@@ -225,6 +225,7 @@ public:
 	/*virtual*/ void setIsChrome(BOOL is_chrome);
 	/*virtual*/ void setRect(const LLRect &rect);
                 void setIsSingleInstance(BOOL is_single_instance);
+                BOOL getIsSingleInstance() { return mSingleInstance; }
 
 	void 			initFloater(const Params& p);
 
