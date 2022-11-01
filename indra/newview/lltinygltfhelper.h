@@ -27,6 +27,7 @@
 #pragma once
 
 #include "llgltfmaterial.h"
+#include "llgltfmateriallist.h"
 #include "llpointer.h"
 #include "tinygltf/tiny_gltf.h"
 
@@ -39,6 +40,18 @@ namespace LLTinyGLTFHelper
     const tinygltf::Image* getImageFromTextureIndex(const tinygltf::Model& model, S32 texture_index);
     LLImageRaw* getTexture(const std::string& folder, const tinygltf::Model& model, S32 texture_index, std::string& name);
     LLImageRaw* getTexture(const std::string& folder, const tinygltf::Model& model, S32 texture_index);
+
+    LLImageRaw* getTexture(const std::string& folder, const tinygltf::Model& model, S32 texture_index);
+
+    bool getMaterialFromFile(
+        const std::string& filename,
+        S32 mat_index,
+        LLPointer < LLFetchedGLTFMaterial> material,
+        std::string& material_name,
+        LLPointer<LLViewerFetchedTexture>& base_color_tex,
+        LLPointer<LLViewerFetchedTexture>& normal_tex,
+        LLPointer<LLViewerFetchedTexture>& mr_tex,
+        LLPointer<LLViewerFetchedTexture>& emissive_tex);
 
     void initFetchedTextures(tinygltf::Material& material,
         LLPointer<LLImageRaw>& base_color_img,
