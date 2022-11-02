@@ -443,6 +443,20 @@ void LLMaterialEditor::onClose(bool app_quitting)
 
     LLPreview::onClose(app_quitting);
 }
+void LLMaterialEditor::handleReshape(const LLRect& new_rect, bool by_user)
+{
+    if (by_user)
+    {
+        const LLRect old_rect = getRect();
+        LLRect clamp_rect(new_rect);
+        clamp_rect.mRight = clamp_rect.mLeft + old_rect.getWidth();
+        LLPreview::handleReshape(clamp_rect, by_user);
+    }
+    else
+    {
+        LLPreview::handleReshape(new_rect, by_user);
+    }
+}
 
 LLUUID LLMaterialEditor::getBaseColorId()
 {
@@ -648,7 +662,7 @@ void LLMaterialEditor::resetUnsavedChanges()
 void LLMaterialEditor::markChangesUnsaved(U32 dirty_flag)
 {
     mUnsavedChanges |= dirty_flag;
-    if (!mIsOverride)
+    if (mIsOverride)
     {
         // at the moment live editing (mIsOverride) applies everything 'live'
         // and "unsaved_changes", save/cancel buttons don't exist there
