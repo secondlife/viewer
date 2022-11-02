@@ -4251,7 +4251,10 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
 
 	if (needs_update)
 	{
-		mPreeditor->resetPreedit();
+        if (preedit_string.length() != 0 || result_string.length() != 0)
+        {
+            mPreeditor->resetPreedit();
+        }
 
 		if (result_string.length() > 0)
 		{
