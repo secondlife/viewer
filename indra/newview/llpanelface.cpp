@@ -203,6 +203,7 @@ BOOL	LLPanelFace::postBuild()
 	childSetAction("button align textures", &LLPanelFace::onAlignTexture, this);
     childSetAction("pbr_from_inventory", &LLPanelFace::onClickBtnLoadInvPBR, this);
     childSetAction("edit_selected_pbr", &LLPanelFace::onClickBtnEditPBR, this);
+    childSetAction("save_selected_pbr", &LLPanelFace::onClickBtnSavePBR, this);
 
 	LLTextureCtrl*	mTextureCtrl;
 	LLTextureCtrl*	mShinyTextureCtrl;
@@ -969,6 +970,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         }
         getChildView("pbr_from_inventory")->setEnabled(editable);
         getChildView("edit_selected_pbr")->setEnabled(editable && has_pbr_material);
+        getChildView("save_selected_pbr")->setEnabled(objectp->permCopy() && has_pbr_material);
 
 		LLTextureCtrl*	texture_ctrl = getChild<LLTextureCtrl>("texture control");
 		LLTextureCtrl*	shinytexture_ctrl = getChild<LLTextureCtrl>("shinytexture control");
@@ -1749,8 +1751,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		getChildView("button align")->setEnabled(FALSE);
         getChildView("pbr_from_inventory")->setEnabled(FALSE);
         getChildView("edit_selected_pbr")->setEnabled(FALSE);
-		//getChildView("has media")->setEnabled(FALSE);
-		//getChildView("media info set")->setEnabled(FALSE);
+        getChildView("save_selected_pbr")->setEnabled(FALSE);
 		
 		updateVisibility();
 
@@ -2682,6 +2683,7 @@ void LLPanelFace::updateVisibility()
     getChildView("pbr_control")->setVisible(show_pbr);
     getChildView("pbr_from_inventory")->setVisible(show_pbr);
     getChildView("edit_selected_pbr")->setVisible(show_pbr);
+    getChildView("save_selected_pbr")->setVisible(show_pbr);
 }
 
 // static
@@ -3667,6 +3669,11 @@ void LLPanelFace::onClickBtnLoadInvPBR(void* userdata)
 void LLPanelFace::onClickBtnEditPBR(void* userdata)
 {
     LLMaterialEditor::loadLive();
+}
+
+void LLPanelFace::onClickBtnSavePBR(void* userdata)
+{
+    LLMaterialEditor::saveObjectsMaterialAs();
 }
 
 enum EPasteMode

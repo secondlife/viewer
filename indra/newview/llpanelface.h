@@ -230,6 +230,7 @@ protected:
     static void		onAlignTexture(void*);
     static void 	onClickBtnLoadInvPBR(void* userdata);
     static void 	onClickBtnEditPBR(void* userdata);
+    static void 	onClickBtnSavePBR(void* userdata);
 
 public: // needs to be accessible to selection manager
     void            onCopyColor(); // records all selected faces

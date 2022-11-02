@@ -267,6 +267,15 @@
              name="edit_selected_pbr"
              label="Edit Selected"
              width="140"/>
+            <button
+             follows="left|top"
+             height="23"
+             layout="topleft"
+             left_delta="0"
+             top_pad="4"
+             name="save_selected_pbr"
+             label="Save to inventory"
+             width="140"/>
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
@@ -278,7 +287,7 @@
              left="10"
              name="texture control"
              tool_tip="Click to choose a picture"
-             top_delta="-27"
+             top_delta="-54"
              width="64" />
             <text
              type="string"
