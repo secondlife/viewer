@@ -167,6 +167,7 @@ public:
     void onClickCloseBtn(bool app_quitting = false) override;
 
     void onClose(bool app_quitting) override;
+    void handleReshape(const LLRect& new_rect, bool by_user = false) override;
 
     LLUUID getBaseColorId();
     void setBaseColorId(const LLUUID& id);

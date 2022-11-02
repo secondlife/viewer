@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  layout="topleft"
- follows="all"
+ follows="left|top|right"
  border="false"
  name="panel_gltf_material"
  top="0"
@@ -129,7 +129,7 @@
      left_delta="0"
      name="alpha mode"
      top_pad="4"
-     width="96">
+     width="89">
       <combo_box.item
        label="Opaque"
        name="None"

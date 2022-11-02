@@ -3,7 +3,7 @@
  legacy_header_height="18"
  can_resize="true"
  default_tab_group="1"
- height="786"
+ height="790"
  width="256"
  min_height="500"
  min_width="256"
@@ -14,10 +14,10 @@
  title="Editing Material">
   <scroll_container
    name="materials_scroll"
-   top="14"
+   top="18"
    left="4"
    height="768"
-   width="247"
+   width="250"
    follows="all"
    layout="topleft"
    color="DkGray2"
@@ -26,12 +26,12 @@
     <panel
      name="panel_material"
      filename="panel_gltf_material.xml"
-     border="false"
-     visible="true"
      layout="topleft"
+     follows="left|top|right"
+     border="false"
      top="0"
      left="0"
      height="768"
-     width="247" />
+     width="236" />
   </scroll_container>
 </floater>

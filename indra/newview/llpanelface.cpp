@@ -1140,11 +1140,11 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			updateAlphaControls();
 
 			if (texture_ctrl)
-				{
+			{
 				if (identical_diffuse)
 				{
 					texture_ctrl->setTentative(FALSE);
-					texture_ctrl->setEnabled(editable);
+					texture_ctrl->setEnabled(editable && !has_pbr_material);
 					texture_ctrl->setImageAssetID(id);
 					getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha && transparency <= 0.f && !has_pbr_material);
 					getChildView("label alphamode")->setEnabled(editable && mIsAlpha && !has_pbr_material);
@@ -1154,7 +1154,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 					texture_ctrl->setBakeTextureEnabled(TRUE);
 				}
 				else if (id.isNull())
-					{
+				{
 						// None selected
 					texture_ctrl->setTentative(FALSE);
 					texture_ctrl->setEnabled(FALSE);
@@ -1165,12 +1165,12 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 					getChildView("label maskcutoff")->setEnabled(FALSE);
 
 					texture_ctrl->setBakeTextureEnabled(false);
-					}
-					else
-					{
+				}
+				else
+				{
 						// Tentative: multiple selected with different textures
 					texture_ctrl->setTentative(TRUE);
-					texture_ctrl->setEnabled(editable);
+					texture_ctrl->setEnabled(editable && !has_pbr_material);
 					texture_ctrl->setImageAssetID(id);
 					getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha && transparency <= 0.f && !has_pbr_material);
 					getChildView("label alphamode")->setEnabled(editable && mIsAlpha && !has_pbr_material);
@@ -1185,14 +1185,14 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			if (shinytexture_ctrl)
 			{
 				shinytexture_ctrl->setTentative( !identical_spec );
-				shinytexture_ctrl->setEnabled( editable );
+				shinytexture_ctrl->setEnabled( editable && !has_pbr_material);
 				shinytexture_ctrl->setImageAssetID( specmap_id );
 			}
 
 			if (bumpytexture_ctrl)
 			{
 				bumpytexture_ctrl->setTentative( !identical_norm );
-				bumpytexture_ctrl->setEnabled( editable );
+				bumpytexture_ctrl->setEnabled( editable && !has_pbr_material);
 				bumpytexture_ctrl->setImageAssetID( normmap_id );
 			}
 		}
