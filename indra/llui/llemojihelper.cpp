@@ -83,6 +83,14 @@ bool LLEmojiHelper::isCursorInEmojiCode(const LLWString& wtext, S32 cursorPos, S
 
 void LLEmojiHelper::showHelper(LLUICtrl* hostctrl_p, S32 local_x, S32 local_y, const std::string& short_code, std::function<void(LLWString)> cb)
 {
+	// Commit immediately if the user already typed a full shortcode
+	if (const auto* emojiDescrp = LLEmojiDictionary::instance().getDescriptorFromShortCode(short_code))
+	{
+		cb(LLWString(1, emojiDescrp->Character));
+		hideHelper();
+		return;
+	}
+
 	if (mHelperHandle.isDead())
 	{
 		LLFloater* pHelperFloater = LLFloaterReg::getInstance(DEFAULT_EMOJI_HELPER_FLOATER);

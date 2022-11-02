@@ -29,6 +29,7 @@
 
 #include "lltextbase.h"
 
+#include "llemojihelper.h"
 #include "lllocalcliprect.h"
 #include "llmenugl.h"
 #include "llscrollcontainer.h"

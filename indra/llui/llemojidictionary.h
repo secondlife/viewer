@@ -58,14 +58,16 @@ class LLEmojiDictionary : public LLParamSingleton<LLEmojiDictionary>, public LLI
 public:
 	static void initClass();
 	LLWString   findMatchingEmojis(const std::string& needle) const;
-	std::string getNameFromEmoji(llwchar ch);
+	const LLEmojiDescriptor* getDescriptorFromShortCode(const std::string& short_code) const;
+	std::string getNameFromEmoji(llwchar ch) const;
 
 private:
 	void addEmoji(LLEmojiDescriptor&& descr);
 
 private:
 	std::list<LLEmojiDescriptor> mEmojis;
-	std::map<llwchar, const LLEmojiDescriptor*> mEmoji2Descr;
+	std::map<llwchar, const LLEmojiDescriptor&> mEmoji2Descr;
+	std::map<std::string, const LLEmojiDescriptor&> mShortCode2Descr;
 };
 
 // ============================================================================
