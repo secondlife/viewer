@@ -2302,6 +2302,36 @@ void LLTextBase::appendWidget(const LLInlineViewSegment::Params& params, const s
 	insertStringNoUndo(getLength(), widget_wide_text, &segments);
 }
 
+void LLTextBase::createTextWithEmojiSegment(const LLWString& text, S32 segment_start, LLStyleConstSP style, segment_vec_t& segments)
+{
+	LLStyleSP emoji_style;
+
+	S32 text_start = 0, text_kitty = 0, text_len = text.size();
+	for (; text_kitty < text_len; text_kitty++)
+	{
+		if (LLStringOps::isEmoji(text[text_kitty]))
+		{
+			if (text_kitty > text_start)
+			{
+				segments.push_back(new LLNormalTextSegment(style, segment_start + text_start, segment_start + text_kitty, *this));
+			}
+
+			if (!emoji_style)
+			{
+				emoji_style = new LLStyle(*style);
+				emoji_style->setFont(LLFontGL::getFontEmoji());
+			}
+			segments.push_back(new LLEmojiTextSegment(emoji_style, segment_start + text_kitty, segment_start + text_kitty + 1, *this));
+			text_start = text_kitty + 1;
+		}
+	}
+
+	if (text_start < text_len)
+	{
+		segments.push_back(new LLNormalTextSegment(style, segment_start + text_start, segment_start + text_len, *this));
+	}
+}
+
 void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, bool underline_on_hover_only)
 {
 	// Save old state
@@ -2334,6 +2364,7 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 			S32 cur_length = getLength();
 			LLStyleConstSP sp(new LLStyle(highlight_params));
 			LLTextSegmentPtr segmentp;
+			segment_vec_t segments;
 			if (underline_on_hover_only || mSkipLinkUnderline)
 			{
 				highlight_params.font.style("NORMAL");
@@ -2342,9 +2373,8 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 			}
 			else
 			{
-				segmentp = new LLNormalTextSegment(sp, cur_length, cur_length + wide_text.size(), *this);
+				createTextWithEmojiSegment(wide_text, cur_length, sp, segments);
 			}
-			segment_vec_t segments;
 			segments.push_back(segmentp);
 			insertStringNoUndo(cur_length, wide_text, &segments);
 		}
@@ -2367,7 +2397,7 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 		}
 		else
 		{
-		segments.push_back(new LLNormalTextSegment(sp, segment_start, segment_end, *this ));
+			createTextWithEmojiSegment(wide_text, segment_start, sp, segments);
 		}
 
 		insertStringNoUndo(getLength(), wide_text, &segments);
@@ -3512,6 +3542,19 @@ const LLWString& LLLabelTextSegment::getWText()	const
 const S32 LLLabelTextSegment::getLength() const
 {
 	return mEditor.getWlabel().length();
+}
+
+//
+// LLEmojiTextSegment
+//
+LLEmojiTextSegment::LLEmojiTextSegment(LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor)
+	: LLNormalTextSegment(style, start, end, editor)
+{
+}
+
+LLEmojiTextSegment::LLEmojiTextSegment(const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible)
+	: LLNormalTextSegment(color, start, end, editor, is_visible)
+{
 }
 
 //

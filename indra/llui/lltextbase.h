@@ -178,6 +178,17 @@ protected:
 	/*virtual*/	const S32			getLength()	const;
 };
 
+// Text segment that represents a single emoji character that has a different style (=font size) than the rest of
+// the document it belongs to
+class LLEmojiTextSegment : public LLNormalTextSegment
+{
+public:
+	LLEmojiTextSegment(LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor);
+	LLEmojiTextSegment(const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible = TRUE);
+
+	bool canEdit() const override { return false; }
+};
+
 // Text segment that changes it's style depending of mouse pointer position ( is it inside or outside segment)
 class LLOnHoverChangeableTextSegment : public LLNormalTextSegment
 {
@@ -629,6 +640,7 @@ protected:
 	
 	void							appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params = LLStyle::Params());
 	void							appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, bool underline_on_hover_only = false);
+	void							createTextWithEmojiSegment(const LLWString& wide_text, S32 segment_start, LLStyleConstSP style, segment_vec_t& segments);
 	S32 normalizeUri(std::string& uri);
 	
 protected:
