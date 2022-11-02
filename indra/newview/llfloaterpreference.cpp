@@ -1199,7 +1199,6 @@ void LLFloaterPreference::refreshEnabledState()
 	BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
 						bumpshiny &&
 						shaders && 
-						gGLManager.mHasFramebufferObject &&
 						(ctrl_wind_light->get()) ? TRUE : FALSE;
 
 	ctrl_deferred->setEnabled(enabled);
@@ -1250,7 +1249,6 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
     
     BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
                         ((bumpshiny_ctrl && bumpshiny_ctrl->get()) ? TRUE : FALSE) &&
-                        gGLManager.mHasFramebufferObject &&
                         (ctrl_wind_light->get()) ? TRUE : FALSE;
 
     ctrl_deferred->setEnabled(enabled);
@@ -1384,8 +1382,7 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
 	}
 
 	// disabled deferred
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") ||
-		!gGLManager.mHasFramebufferObject)
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred"))
 	{
 		ctrl_shadows->setEnabled(FALSE);
 		ctrl_shadows->setValue(0);
@@ -2952,10 +2949,15 @@ void LLPanelPreferenceControls::cancel()
         if (mConflictHandler[i].hasUnsavedChanges())
         {
             mConflictHandler[i].clear();
+            if (mEditingMode == i)
+            {
+                // cancel() can be called either when preferences floater closes
+                // or when child floater closes (like advanced graphical settings)
+                // in which case we need to clear and repopulate table
+                regenerateControls();
+            }
         }
     }
-    pControlsTable->clearRows();
-    pControlsTable->clearColumns();
 }
 
 void LLPanelPreferenceControls::saveSettings()

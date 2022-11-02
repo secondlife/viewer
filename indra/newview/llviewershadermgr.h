@@ -49,7 +49,11 @@ public:
 	void setShaders();
 	void unloadShaders();
     S32  getShaderLevel(S32 type);
-	BOOL loadBasicShaders();
+
+    // loadBasicShaders in case of a failure returns
+    // name of a file error happened at, otherwise
+    // returns an empty string
+    std::string loadBasicShaders();
 	BOOL loadShadersEffects();
 	BOOL loadShadersDeferred();
 	BOOL loadShadersObject();

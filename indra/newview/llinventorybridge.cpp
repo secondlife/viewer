@@ -1115,7 +1115,10 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         LLInventoryModel::cat_array_t categories;
         LLInventoryModel::item_array_t items;
         gInventory.collectDescendents(local_version_folder_id, categories, items, FALSE);
-        if (categories.size() >= gSavedSettings.getU32("InventoryOutboxMaxFolderCount"))
+        LLCachedControl<U32> max_depth(gSavedSettings, "InventoryOutboxMaxFolderDepth", 4);
+        LLCachedControl<U32> max_count(gSavedSettings, "InventoryOutboxMaxFolderCount", 20);
+        if (categories.size() >= max_count
+            || depth > (max_depth + 1))
         {
             disabled_items.push_back(std::string("New Folder"));
         }
@@ -3811,7 +3814,20 @@ void LLFolderBridge::perform_pasteFromClipboard()
 				{
 					if (item && can_move_to_landmarks(item))
 					{
-						dropToFavorites(item);
+                        if (LLClipboard::instance().isCutMode())
+                        {
+                            LLViewerInventoryItem* viitem = dynamic_cast<LLViewerInventoryItem*>(item);
+                            llassert(viitem);
+                            if (viitem)
+                            {
+                                //changeItemParent() implicity calls dirtyFilter
+                                changeItemParent(model, viitem, parent_id, FALSE);
+                            }
+                        }
+                        else
+                        {
+                            dropToFavorites(item);
+                        }
 					}
 				}
 				else if (LLClipboard::instance().isCutMode())

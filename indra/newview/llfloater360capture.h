@@ -47,6 +47,7 @@ class LLFloater360Capture:
 
         ~LLFloater360Capture();
         BOOL postBuild() override;
+        void onOpen(const LLSD& key) override;
         void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event) override;
 
         void changeInterestListMode(bool send_everything);

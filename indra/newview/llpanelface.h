@@ -47,6 +47,7 @@ class LLUICtrl;
 class LLViewerObject;
 class LLFloater;
 class LLMaterialID;
+class LLMediaCtrl;
 class LLMenuButton;
 
 // Represents an edit for use in replicating the op across one or more materials in the selection set.
@@ -97,11 +98,11 @@ public:
 	LLPanelFace();
 	virtual ~LLPanelFace();
 
-    void draw();
-
 	void			refresh();
-	void			setMediaURL(const std::string& url);
-	void			setMediaType(const std::string& mime_type);
+    void			refreshMedia();
+    void			unloadMedia();
+
+    /*virtual*/ void draw();
 
 	LLMaterialPtr createDefaultMaterial(LLMaterialPtr current_material)
 	{
@@ -117,6 +118,12 @@ public:
 	LLRender::eTexIndex getTextureChannelToEdit();
 
 protected:
+    void			navigateToTitleMedia(const std::string url);
+    bool			selectedMediaEditable();
+    void			clearMediaSettings();
+    void			updateMediaSettings();
+    void			updateMediaTitle();
+
 	void			getState();
 
 	void			sendTexture();			// applies and sends texture
@@ -154,6 +161,9 @@ protected:
 	void 	onSelectShinyColor(const LLSD& data);
 
 	void 	onCloseTexturePicker(const LLSD& data);
+
+    static bool deleteMediaConfirm(const LLSD& notification, const LLSD& response);
+    static bool multipleFacesSelectedConfirm(const LLSD& notification, const LLSD& response);
 
 	// Make UI reflect state of currently selected material (refresh)
 	// and UI mode (e.g. editing normal map v diffuse map)
@@ -199,6 +209,9 @@ protected:
 
 	static void		onCommitMaterialsMedia(	LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialType(	LLUICtrl* ctrl, void* userdata);
+	static void 	onClickBtnEditMedia(LLUICtrl* ctrl, void* userdata);
+	static void 	onClickBtnDeleteMedia(LLUICtrl* ctrl, void* userdata);
+	static void 	onClickBtnAddMedia(LLUICtrl* ctrl, void* userdata);
 	static void		onCommitBump(				LLUICtrl* ctrl, void* userdata);
 	static void		onCommitTexGen(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitShiny(				LLUICtrl* ctrl, void* userdata);
@@ -251,16 +264,16 @@ private:
 	F32		getCurrentShinyOffsetU();
 	F32		getCurrentShinyOffsetV();
 
+    LLComboBox *mComboMatMedia;
+    LLMediaCtrl *mTitleMedia;
+    LLTextBox *mTitleMediaText;
+
 	// Update visibility of controls to match current UI mode
 	// (e.g. materials vs media editing)
 	//
 	// Do NOT call updateUI from within this function.
 	//
 	void updateVisibility();
-
-	// Make material(s) reflect current state of UI (apply edit)
-	//
-	void updateMaterial();
 
 	// Hey look everyone, a type-safe alternative to copy and paste! :)
 	//
@@ -438,6 +451,9 @@ private:
     bool mUpdatePending;
 
     LLSD            mClipboardParams;
+
+    LLSD mMediaSettings;
+    bool mNeedMediaTitle;
 
 public:
 	#if defined(DEF_GET_MAT_STATE)

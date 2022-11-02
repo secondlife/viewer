@@ -12,8 +12,8 @@ terreno" name="terrain_raise_spin"/>
 	<spinner bottom_delta="-34" label="Limite di abbassamento 
 del terreno" name="terrain_lower_spin"/>
 	<text name="detail_texture_text">
-		Texture terreno (richiede file 512x512, 24 bit .tga)
-	</text>
+    Texture terreno (richiede file 1024x1024, 24 bit .tga)
+  </text>
 	<text name="height_text_lbl">
 		1 (basso)
 	</text>

@@ -1660,7 +1660,7 @@ void LLWindowMacOSX::hideCursor()
 
 void LLWindowMacOSX::showCursor()
 {
-	if(mCursorHidden)
+	if(mCursorHidden || !isCGCursorVisible())
 	{
 		//		LL_INFOS() << "showCursor: showing" << LL_ENDL;
 		mCursorHidden = FALSE;

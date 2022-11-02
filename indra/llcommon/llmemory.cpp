@@ -212,11 +212,9 @@ U64 LLMemory::getCurrentRSS()
 	mach_msg_type_number_t  basicInfoCount = MACH_TASK_BASIC_INFO_COUNT;
 	if (task_info(mach_task_self(), MACH_TASK_BASIC_INFO, (task_info_t)&basicInfo, &basicInfoCount) == KERN_SUCCESS)
 	{
-//		residentSize = basicInfo.resident_size;
-		// Although this method is defined to return the "resident set size,"
-		// in fact what callers want from it is the total virtual memory
-		// consumed by the application.
-		residentSize = basicInfo.virtual_size;
+        residentSize = basicInfo.resident_size;
+        // 64-bit macos apps allocate 32 GB or more at startup, and this is reflected in virtual_size.
+        // basicInfo.virtual_size is not what we want.
 	}
 	else
 	{

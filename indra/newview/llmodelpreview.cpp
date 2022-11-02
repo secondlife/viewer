@@ -86,6 +86,7 @@ static const LLColor4 PREVIEW_DEG_FILL_COL(1.f, 0.f, 0.f, 0.5f);
 static const F32 PREVIEW_DEG_EDGE_WIDTH(3.f);
 static const F32 PREVIEW_DEG_POINT_SIZE(8.f);
 static const F32 PREVIEW_ZOOM_LIMIT(10.f);
+static const std::string DEFAULT_PHYSICS_MESH_NAME = "default_physics_shape";
 
 const F32 SKIN_WEIGHT_CAMERA_DISTANCE = 16.f;
 
@@ -431,6 +432,20 @@ void LLModelPreview::rebuildUploadData()
                         LL_INFOS() << out.str() << LL_ENDL;
                         LLFloaterModelPreview::addStringToLog(out, false);
                     }
+                }
+                if (mWarnOfUnmatchedPhyicsMeshes && !lod_model && (i == LLModel::LOD_PHYSICS))
+                {
+                    // Despite the various strategies above, if we don't now have a physics model, we're going to end up with decomposition.
+                    // That's ok, but might not what they wanted. Use default_physics_shape if found.
+                    std::ostringstream out;
+                    out << "No physics model specified for " << instance.mLabel;
+                    if (mDefaultPhysicsShapeP)
+                    {
+                        out << " - using: " << DEFAULT_PHYSICS_MESH_NAME;
+                        lod_model = mDefaultPhysicsShapeP;
+                    }
+                    LL_WARNS() << out.str() << LL_ENDL;
+                    LLFloaterModelPreview::addStringToLog(out, !mDefaultPhysicsShapeP); // Flash log tab if no default.
                 }
 
                 if (lod_model)
@@ -1034,6 +1049,13 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
         }
         else
         {
+            if (loaded_lod == LLModel::LOD_PHYSICS)
+            {   // Explicitly loading physics. See if there is a default mesh.
+                LLMatrix4 ignored_transform; // Each mesh that uses this will supply their own.
+                mDefaultPhysicsShapeP = nullptr;
+                FindModel(mScene[loaded_lod], DEFAULT_PHYSICS_MESH_NAME + getLodSuffix(loaded_lod), mDefaultPhysicsShapeP, ignored_transform);
+                mWarnOfUnmatchedPhyicsMeshes = true;
+            }
             BOOL legacyMatching = gSavedSettings.getBOOL("ImporterLegacyMatching");
             if (!legacyMatching)
             {
@@ -1104,7 +1126,6 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
                                     LL_WARNS() << out.str() << LL_ENDL;
                                     LLFloaterModelPreview::addStringToLog(out, false);
                                 }
-
                                 mModel[loaded_lod][idx]->mLabel = name;
                             }
                         }
@@ -2712,7 +2733,6 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
             continue;
         }
 
-        LLModel* base_mdl = *base_iter;
         base_iter++;
 
         S32 num_faces = mdl->getNumVolumeFaces();
@@ -2787,7 +2807,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
                     //find closest weight to vf.mVertices[i].mPosition
                     LLVector3 pos(vf.mPositions[i].getF32ptr());
 
-                    const LLModel::weight_list& weight_list = base_mdl->getJointInfluences(pos);
+                    const LLModel::weight_list& weight_list = mdl->getJointInfluences(pos);
                     llassert(weight_list.size()>0 && weight_list.size() <= 4); // LLModel::loadModel() should guarantee this
 
                     LLVector4 w(0, 0, 0, 0);
@@ -2816,7 +2836,6 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
             mVertexBuffer[lod][mdl].push_back(vb);
 
             ++mesh_count;
-
         }
     }
 }
@@ -2911,6 +2930,20 @@ void LLModelPreview::loadedCallback(
         if (pPreview->mLookUpLodFiles && (lod != LLModel::LOD_HIGH))
         {
             pPreview->lookupLODModelFiles(lod);
+        }
+
+        const LLVOAvatar* avatarp = pPreview->getPreviewAvatar();
+        if (avatarp) { // set up ground plane for possible rendering
+            const LLVector3 root_pos = avatarp->mRoot->getPosition();
+            const LLVector4a* ext = avatarp->mDrawable->getSpatialExtents();
+            const LLVector4a min = ext[0], max = ext[1];
+            const F32 center = (max[2] - min[2]) * 0.5f;
+            const F32 ground = root_pos[2] - center;
+            auto plane = pPreview->mGroundPlane;
+            plane[0] = {min[0], min[1], ground};
+            plane[1] = {max[0], min[1], ground};
+            plane[2] = {max[0], max[1], ground};
+            plane[3] = {min[0], max[1], ground};
         }
     }
 
@@ -3119,6 +3152,9 @@ BOOL LLModelPreview::render()
                     // (note: all these UI updates need to be somewhere that is not render)
                     fmp->childSetValue("upload_skin", true);
                     mFirstSkinUpdate = false;
+                    upload_skin = true;
+                    skin_weight = true;
+                    mViewOption["show_skin_weight"] = true;
                 }
 
                 fmp->enableViewOption("show_skin_weight");
@@ -3723,6 +3759,7 @@ BOOL LLModelPreview::render()
                 {
                     getPreviewAvatar()->renderBones();
                 }
+                renderGroundPlane(mPelvisZOffset);
                 if (shader)
                 {
                     shader->bind();
@@ -3743,6 +3780,28 @@ BOOL LLModelPreview::render()
 
     return TRUE;
 }
+
+void LLModelPreview::renderGroundPlane(float z_offset)
+{   // Not necesarilly general - beware - but it seems to meet the needs of LLModelPreview::render
+
+	gGL.diffuseColor3f( 1.0f, 0.0f, 1.0f );
+
+	gGL.begin(LLRender::LINES);
+	gGL.vertex3fv(mGroundPlane[0].mV);
+	gGL.vertex3fv(mGroundPlane[1].mV);
+
+	gGL.vertex3fv(mGroundPlane[1].mV);
+	gGL.vertex3fv(mGroundPlane[2].mV);
+
+	gGL.vertex3fv(mGroundPlane[2].mV);
+	gGL.vertex3fv(mGroundPlane[3].mV);
+
+	gGL.vertex3fv(mGroundPlane[3].mV);
+	gGL.vertex3fv(mGroundPlane[0].mV);
+
+	gGL.end();
+}
+
 
 //-----------------------------------------------------------------------------
 // refresh()

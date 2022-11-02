@@ -33,10 +33,11 @@
 #include "llviewermenu.h" 
 
 // linden library includes
-#include "llavatarnamecache.h"	// IDEVO
+#include "llavatarnamecache.h"  // IDEVO (I Are Not Men!)
+#include "llcombobox.h"
+#include "llcoros.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
-#include "llcombobox.h"
 #include "llinventorypanel.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
@@ -53,6 +54,7 @@
 #include "llcompilequeue.h"
 #include "llconsole.h"
 #include "lldebugview.h"
+#include "lldiskcache.h"
 #include "llenvironment.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
@@ -93,6 +95,7 @@
 #include "llmarketplacefunctions.h"
 #include "llmenuoptionpathfindingrebakenavmesh.h"
 #include "llmoveview.h"
+#include "llnavigationbar.h"
 #include "llparcel.h"
 #include "llrootview.h"
 #include "llsceneview.h"
@@ -2100,6 +2103,32 @@ class LLAdvancedDropPacket : public view_listener_t
 	}
 };
 
+//////////////////////
+// PURGE DISK CACHE //
+//////////////////////
+
+
+class LLAdvancedPurgeDiskCache : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+        LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+        LL::WorkQueue::ptr_t general_queue = LL::WorkQueue::getInstance("General");
+        llassert_always(main_queue);
+        llassert_always(general_queue);
+        main_queue->postTo(
+            general_queue,
+            []() // Work done on general queue
+            {
+                LLDiskCache::getInstance()->purge();
+                // Nothing needed to return
+            },
+            [](){}); // Callback to main thread is empty as there is nothing left to do
+
+		return true;
+	}
+};
+
 
 ////////////////////
 // EVENT Recorder //
@@ -2324,25 +2353,13 @@ class LLAdvancedEnableObjectObjectOcclusion: public view_listener_t
 };
 
 /////////////////////////////////////
-// Enable Framebuffer Objects	  ///
-/////////////////////////////////////
-class LLAdvancedEnableRenderFBO: public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = gGLManager.mHasFramebufferObject;
-		return new_value;
-	}
-};
-
-/////////////////////////////////////
 // Enable Deferred Rendering	  ///
 /////////////////////////////////////
 class LLAdvancedEnableRenderDeferred: public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gGLManager.mHasFramebufferObject && LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1 &&
+		bool new_value = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1 &&
 			LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) > 0;
 		return new_value;
 	}
@@ -2355,7 +2372,7 @@ class LLAdvancedEnableRenderDeferredOptions: public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gGLManager.mHasFramebufferObject && LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1 &&
+		bool new_value = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1 &&
 			LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) > 0 && gSavedSettings.getBOOL("RenderDeferred");
 		return new_value;
 	}
@@ -2407,6 +2424,7 @@ class LLAdvancedForceErrorLlerror : public view_listener_t
 		return true;
 	}
 };
+
 class LLAdvancedForceErrorBadMemoryAccess : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -2414,6 +2432,22 @@ class LLAdvancedForceErrorBadMemoryAccess : public view_listener_t
 		force_error_bad_memory_access(NULL);
 		return true;
 	}
+};
+
+class LLAdvancedForceErrorBadMemoryAccessCoro : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLCoros::instance().launch(
+            "AdvancedForceErrorBadMemoryAccessCoro",
+            [](){
+                // Wait for one mainloop() iteration, letting the enclosing
+                // handleEvent() method return.
+                llcoro::suspend();
+                force_error_bad_memory_access(NULL);
+            });
+        return true;
+    }
 };
 
 class LLAdvancedForceErrorInfiniteLoop : public view_listener_t
@@ -2432,6 +2466,22 @@ class LLAdvancedForceErrorSoftwareException : public view_listener_t
 		force_error_software_exception(NULL);
 		return true;
 	}
+};
+
+class LLAdvancedForceErrorSoftwareExceptionCoro : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLCoros::instance().launch(
+            "AdvancedForceErrorSoftwareExceptionCoro",
+            [](){
+                // Wait for one mainloop() iteration, letting the enclosing
+                // handleEvent() method return.
+                llcoro::suspend();
+                force_error_software_exception(NULL);
+            });
+        return true;
+    }
 };
 
 class LLAdvancedForceErrorDriverCrash : public view_listener_t
@@ -5365,12 +5415,10 @@ class LLToolsEnablePathfindingRebakeRegion : public view_listener_t
 	{
 		bool returnValue = false;
 
-		if (LLPathfindingManager::getInstance() != NULL)
-		{
-			LLMenuOptionPathfindingRebakeNavmesh *rebakeInstance = LLMenuOptionPathfindingRebakeNavmesh::getInstance();
-			returnValue = (rebakeInstance->canRebakeRegion() &&
-				(rebakeInstance->getMode() == LLMenuOptionPathfindingRebakeNavmesh::kRebakeNavMesh_Available));
-		}
+        if (LLNavigationBar::instanceExists())
+        {
+            returnValue = LLNavigationBar::getInstance()->isRebakeNavMeshAvailable();
+        }
 		return returnValue;
 	}
 };
@@ -9373,7 +9421,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckWireframe(), "Advanced.CheckWireframe");
 	// Develop > Render
 	view_listener_t::addMenu(new LLAdvancedEnableObjectObjectOcclusion(), "Advanced.EnableObjectObjectOcclusion");
-	view_listener_t::addMenu(new LLAdvancedEnableRenderFBO(), "Advanced.EnableRenderFBO");
 	view_listener_t::addMenu(new LLAdvancedEnableRenderDeferred(), "Advanced.EnableRenderDeferred");
 	view_listener_t::addMenu(new LLAdvancedEnableRenderDeferredOptions(), "Advanced.EnableRenderDeferredOptions");
 	view_listener_t::addMenu(new LLAdvancedToggleRandomizeFramerate(), "Advanced.ToggleRandomizeFramerate");
@@ -9472,6 +9519,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedDisableMessageLog(), "Advanced.DisableMessageLog");
 	view_listener_t::addMenu(new LLAdvancedDropPacket(), "Advanced.DropPacket");
 
+    // Advanced > Cache
+    view_listener_t::addMenu(new LLAdvancedPurgeDiskCache(), "Advanced.PurgeDiskCache");
+
 	// Advanced > Recorder
 	view_listener_t::addMenu(new LLAdvancedAgentPilot(), "Advanced.AgentPilot");
 	view_listener_t::addMenu(new LLAdvancedToggleAgentPilotLoop(), "Advanced.ToggleAgentPilotLoop");
@@ -9482,8 +9532,10 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedForceErrorBreakpoint(), "Advanced.ForceErrorBreakpoint");
 	view_listener_t::addMenu(new LLAdvancedForceErrorLlerror(), "Advanced.ForceErrorLlerror");
 	view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccess(), "Advanced.ForceErrorBadMemoryAccess");
+	view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccessCoro(), "Advanced.ForceErrorBadMemoryAccessCoro");
 	view_listener_t::addMenu(new LLAdvancedForceErrorInfiniteLoop(), "Advanced.ForceErrorInfiniteLoop");
 	view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareException(), "Advanced.ForceErrorSoftwareException");
+	view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareExceptionCoro(), "Advanced.ForceErrorSoftwareExceptionCoro");
 	view_listener_t::addMenu(new LLAdvancedForceErrorDriverCrash(), "Advanced.ForceErrorDriverCrash");
     view_listener_t::addMenu(new LLAdvancedForceErrorCoroutineCrash(), "Advanced.ForceErrorCoroutineCrash");
     view_listener_t::addMenu(new LLAdvancedForceErrorThreadCrash(), "Advanced.ForceErrorThreadCrash");

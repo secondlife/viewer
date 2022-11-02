@@ -116,14 +116,20 @@ void LLAlignedArray<T, alignment>::resize(U32 size)
 template <class T, U32 alignment>
 T& LLAlignedArray<T, alignment>::operator[](int idx)
 {
-	llassert(idx < mElementCount);
+	if(idx >= mElementCount || idx < 0)
+    {
+        LL_ERRS() << "Out of bounds LLAlignedArray, requested: " << (S32)idx << " size: " << mElementCount << LL_ENDL;
+    }
 	return mArray[idx];
 }
 
 template <class T, U32 alignment>
 const T& LLAlignedArray<T, alignment>::operator[](int idx) const
 {
-	llassert(idx < mElementCount);
+    if (idx >= mElementCount || idx < 0)
+    {
+        LL_ERRS() << "Out of bounds LLAlignedArray, requested: " << (S32)idx << " size: " << mElementCount << LL_ENDL;
+    }
 	return mArray[idx];
 }
 

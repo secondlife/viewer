@@ -495,14 +495,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
     // e.g. OS Window for upload something or Input Window...
     // mModifiers instance variable is for insertText: or insertText:replacementRange:  (by Pell Smit)
 	mModifiers = [theEvent modifierFlags];
+    unichar ch = [[theEvent charactersIgnoringModifiers] characterAtIndex:0];
+    bool acceptsText = mHasMarkedText ? false : callKeyDown(&eventData, keycode, mModifiers, ch);
 
-    bool acceptsText = mHasMarkedText ? false : callKeyDown(&eventData, keycode, mModifiers, [[theEvent characters] characterAtIndex:0]);
-    unichar ch;
     if (acceptsText &&
         !mMarkedTextAllowed &&
         !(mModifiers & (NSControlKeyMask | NSCommandKeyMask)) &&  // commands don't invoke InputWindow
         ![(LLAppDelegate*)[NSApp delegate] romanScript] &&
-        (ch = [[theEvent charactersIgnoringModifiers] characterAtIndex:0]) > ' ' &&
+        ch > ' ' &&
         ch != NSDeleteCharacter &&
         (ch < 0xF700 || ch > 0xF8FF))  // 0xF700-0xF8FF: reserved for function keys on the keyboard(from NSEvent.h)
     {

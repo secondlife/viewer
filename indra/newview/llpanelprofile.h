@@ -184,7 +184,6 @@ private:
     void onShowAgentProfileTexture();
     void onShowTexturePicker();
     void onCommitProfileImage(const LLUUID& id);
-    void onOpenNotes();
 
 private:
 	typedef std::map<std::string, LLUUID> group_map_t;

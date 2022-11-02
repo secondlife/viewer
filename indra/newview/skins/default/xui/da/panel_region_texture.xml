@@ -7,8 +7,8 @@
 		ukendt
 	</text>
 	<text name="detail_texture_text">
-		Terræn teksturer (kræver 512x512, 24 bit .tga filer)
-	</text>
+    Terræn teksturer (kræver 1024x1024, 24 bit .tga filer)
+  </text>
 	<text name="height_text_lbl">
 		1 (Lav)
 	</text>

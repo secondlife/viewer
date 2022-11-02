@@ -7,7 +7,7 @@
 	<spinner label="Górny limit terenu" name="terrain_raise_spin" />
 	<spinner label="Dolny limit terenu" name="terrain_lower_spin" />
 	<text name="detail_texture_text">
-		Tekstury terenu (512x512 / 1024x1024, 24 bitowy plik .tga)
+		Tekstury terenu (1024x1024, 24 bitowy plik .tga)
 	</text>
 	<text name="height_text_lbl">
 		1 (Nisko)
