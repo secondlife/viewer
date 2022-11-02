@@ -2312,7 +2312,13 @@ public:
 
             std::string overrides_json = material->asJSON();
             
-            
+#if 1
+            // debug
+            std::string err, warn;
+            LLGLTFMaterial debug;
+            debug.fromJSON(overrides_json, warn, err);
+#endif
+
             LLSD overrides = llsd::map(
                 "object_id", objectp->getID(),
                 "side", te,

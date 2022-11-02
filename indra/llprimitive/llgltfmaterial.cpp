@@ -65,6 +65,9 @@ LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
 
     mTextureTransform = rhs.mTextureTransform;
 
+    mOverrideDoubleSided = rhs.mOverrideDoubleSided;
+    mOverrideAlphaMode = rhs.mOverrideDoubleSided;
+
     return *this;
 }
 
@@ -129,6 +132,22 @@ void LLGLTFMaterial::setFromModel(const tinygltf::Model& model, S32 mat_index)
     mRoughnessFactor = llclamp((F32)material_in.pbrMetallicRoughness.roughnessFactor, 0.f, 1.f);
 
     mDoubleSided = material_in.doubleSided;
+
+    if (material_in.extras.IsObject())
+    {
+        tinygltf::Value::Object extras = material_in.extras.Get<tinygltf::Value::Object>();
+        auto& alpha_mode = extras.find("override_alpha_mode");
+        if (alpha_mode != extras.end())
+        {
+            mOverrideAlphaMode = alpha_mode->second.Get<bool>();
+        }
+
+        auto& double_sided = extras.find("override_double_sided");
+        if (double_sided != extras.end())
+        {
+            mOverrideDoubleSided = double_sided->second.Get<bool>();
+        }
+    }
 }
 
 LLVector2 vec2_from_json(const tinygltf::Value::Object& object, const char* key, const LLVector2& default_value)
@@ -255,6 +274,27 @@ void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
     material_out.pbrMetallicRoughness.roughnessFactor = mRoughnessFactor;
 
     material_out.doubleSided = mDoubleSided;
+
+
+    // generate "extras" string
+    tinygltf::Value::Object extras;
+    bool write_extras = false;
+    if (mOverrideAlphaMode && mAlphaMode == getDefaultAlphaMode())
+    { 
+        extras["override_alpha_mode"] = tinygltf::Value(mOverrideAlphaMode);
+        write_extras = true;
+    }
+
+    if (mOverrideDoubleSided && mDoubleSided == getDefaultDoubleSided())
+    {
+        extras["override_double_sided"] = tinygltf::Value(mOverrideDoubleSided);
+        write_extras = true;
+    }
+
+    if (write_extras)
+    {
+        material_out.extras = tinygltf::Value(extras);
+    }
 
     model.asset.version = "2.0";
 }
@@ -425,7 +465,7 @@ void LLGLTFMaterial::setAlphaMode(S32 mode, bool for_override)
     mAlphaMode = (AlphaMode) llclamp(mode, (S32) ALPHA_MODE_OPAQUE, (S32) ALPHA_MODE_MASK);
     if (for_override)
     {
-        // TODO: what do?
+        mOverrideAlphaMode = true;
     }
 }
 
@@ -436,7 +476,7 @@ void LLGLTFMaterial::setDoubleSided(bool double_sided, bool for_override)
     mDoubleSided = double_sided;
     if (for_override)
     {
-        // TODO: what do?
+        mOverrideDoubleSided = true;
     }
 }
 
@@ -459,26 +499,6 @@ void LLGLTFMaterial::setTextureRotation(TextureInfo texture_info, float rotation
 
 // Make a static default material for accessors
 const LLGLTFMaterial LLGLTFMaterial::sDefault;
-
-LLUUID LLGLTFMaterial::getDefaultBaseColorId()
-{
-    return sDefault.mBaseColorId;
-}
-
-LLUUID LLGLTFMaterial::getDefaultNormalId()
-{
-    return sDefault.mNormalId;
-}
-
-LLUUID LLGLTFMaterial::getDefaultEmissiveId()
-{
-    return sDefault.mEmissiveId;
-}
-
-LLUUID LLGLTFMaterial::getDefaultMetallicRoughnessId()
-{
-    return sDefault.mMetallicRoughnessId;
-}
 
 F32 LLGLTFMaterial::getDefaultAlphaCutoff()
 {
@@ -535,7 +555,10 @@ void LLGLTFMaterial::applyOverrideUUID(LLUUID& dst_id, const LLUUID& override_id
 {
     if (override_id != GLTF_OVERRIDE_NULL_UUID)
     {
-        dst_id = override_id;
+        if (override_id != LLUUID::null)
+        {
+            dst_id = override_id;
+        }
     }
     else
     {
@@ -572,7 +595,7 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
         mRoughnessFactor = override_mat.mRoughnessFactor;
     }
 
-    if (override_mat.mAlphaMode != getDefaultAlphaMode())
+    if (override_mat.mAlphaMode != getDefaultAlphaMode() || override_mat.mOverrideAlphaMode)
     {
         mAlphaMode = override_mat.mAlphaMode;
     }
@@ -581,7 +604,7 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
         mAlphaCutoff = override_mat.mAlphaCutoff;
     }
 
-    if (override_mat.mDoubleSided != getDefaultDoubleSided())
+    if (override_mat.mDoubleSided != getDefaultDoubleSided() || override_mat.mOverrideDoubleSided)
     {
         mDoubleSided = override_mat.mDoubleSided;
     }
