@@ -84,6 +84,8 @@ static const U32 MATERIAL_ALPHA_CUTOFF_DIRTY = 0x1 << 10;
 
 LLUUID LLMaterialEditor::mOverrideObjectId;
 S32 LLMaterialEditor::mOverrideObjectTE = -1;
+bool LLMaterialEditor::mOverrideInProgress = false;
+bool LLMaterialEditor::mSelectionNeedsUpdate = true;
 
 LLFloaterComboOptions::LLFloaterComboOptions()
     : LLFloater(LLSD())
@@ -443,6 +445,27 @@ void LLMaterialEditor::onClose(bool app_quitting)
 
     LLPreview::onClose(app_quitting);
 }
+
+void LLMaterialEditor::draw()
+{
+    if (mIsOverride)
+    {
+        bool selection_empty = LLSelectMgr::getInstance()->getSelection()->isEmpty();
+        if (selection_empty && mHasSelection)
+        {
+            mSelectionNeedsUpdate = true;
+        }
+
+        if (mSelectionNeedsUpdate)
+        {
+            mSelectionNeedsUpdate = false;
+            clearTextures();
+            setFromSelection();
+        }
+    }
+    LLPreview::draw();
+}
+
 void LLMaterialEditor::handleReshape(const LLRect& new_rect, bool by_user)
 {
     if (by_user)
@@ -1610,32 +1633,20 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
 
 void LLMaterialEditor::onSelectionChanged()
 {
-    // This won't get deletion or deselectAll()
-    // Might need to handle that separately
-
     // Drop selection updates if we are waiting for
-    // overrides to finish aplying to not reset values
+    // overrides to finish applying to not reset values
     // (might need a timeout)
     if (!mOverrideInProgress)
     {
-        clearTextures();
-        setFromSelection();
+        // mUpdateSignal triggers a lot per frame, breakwater
+        mSelectionNeedsUpdate = true;
     }
 }
 
 void LLMaterialEditor::updateLive()
 {
-    LLFloater* instance = LLFloaterReg::findInstance("live_material_editor");
-    if (instance && LLFloater::isVisible(instance))
-    {
-        LLMaterialEditor* me = (LLMaterialEditor*)instance;
-        if (me)
-        {
-            me->mOverrideInProgress = false;
-            me->clearTextures();
-            me->setFromSelection();
-        }
-    }
+    mSelectionNeedsUpdate = true;
+    mOverrideInProgress = false;
 }
 
 void LLMaterialEditor::updateLive(const LLUUID &object_id, S32 te)
@@ -1643,20 +1654,15 @@ void LLMaterialEditor::updateLive(const LLUUID &object_id, S32 te)
     if (mOverrideObjectId != object_id
         || mOverrideObjectTE != te)
     {
-        // Not an update we are waiting for
+        // Ignore if waiting for override,
+        // if not waiting, mark selection dirty
+        mSelectionNeedsUpdate |= !mOverrideInProgress;
         return;
     }
-    LLFloater* instance = LLFloaterReg::findInstance("live_material_editor");
-    if (instance && LLFloater::isVisible(instance))
-    {
-        LLMaterialEditor* me = (LLMaterialEditor*)instance;
-        if (me)
-        {
-            me->mOverrideInProgress = false;
-            me->clearTextures();
-            me->setFromSelection();
-        }
-    }
+
+    // update for currently displayed object and face
+    mSelectionNeedsUpdate = true;
+    mOverrideInProgress = false;
 }
 
 void LLMaterialEditor::loadLive()
@@ -2401,9 +2407,13 @@ void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
 
 bool LLMaterialEditor::setFromSelection()
 {
+    LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
     LLSelectedTEGetMatData func(mIsOverride);
 
-    LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
+    selected_objects->applyToTEs(&func);
+    mHasSelection = !selected_objects->isEmpty();
+    mSelectionNeedsUpdate = false;
+
     if (func.mMaterial.notNull())
     {
         setFromGLTFMaterial(func.mMaterial);

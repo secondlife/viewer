@@ -167,6 +167,7 @@ public:
     void onClickCloseBtn(bool app_quitting = false) override;
 
     void onClose(bool app_quitting) override;
+    void draw() override;
     void handleReshape(const LLRect& new_rect, bool by_user = false) override;
 
     LLUUID getBaseColorId();
@@ -288,11 +289,13 @@ private:
 
     // if true, this instance is live instance editing overrides
     bool mIsOverride = false;
-    bool mOverrideInProgress = false;
+    bool mHasSelection = false;
     // local id, texture ids per face for object overrides
     // for "cancel" support
     static LLUUID mOverrideObjectId; // static to avoid searching for the floater
     static S32 mOverrideObjectTE;
+    static bool mOverrideInProgress;
+    static bool mSelectionNeedsUpdate;
     boost::signals2::connection mSelectionUpdateSlot;
 };
 
