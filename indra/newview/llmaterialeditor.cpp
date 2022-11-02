@@ -65,9 +65,6 @@ const std::string MATERIAL_NORMAL_DEFAULT_NAME = "Normal";
 const std::string MATERIAL_METALLIC_DEFAULT_NAME = "Metallic Roughness";
 const std::string MATERIAL_EMISSIVE_DEFAULT_NAME = "Emissive";
 
-// Don't use ids here, LLPreview will attempt to use it as an inventory item
-static const std::string LIVE_MATERIAL_EDITOR_KEY = "Live Editor";
-
 // Dirty flags
 static const U32 MATERIAL_BASE_COLOR_DIRTY = 0x1 << 0;
 static const U32 MATERIAL_BASE_COLOR_TEX_DIRTY = 0x1 << 1;
@@ -326,8 +323,6 @@ LLMaterialEditor::LLMaterialEditor(const LLSD& key)
     {
         mAssetID = item->getAssetUUID();
     }
-    // if this is a 'live editor' instance, it uses live overrides
-    mIsOverride = key.asString() == LIVE_MATERIAL_EDITOR_KEY;
 }
 
 void LLMaterialEditor::setObjectID(const LLUUID& object_id)
@@ -351,6 +346,10 @@ void LLMaterialEditor::setAuxItem(const LLInventoryItem* item)
 
 BOOL LLMaterialEditor::postBuild()
 {
+    // if this is a 'live editor' instance, it is also
+    // single instacne and uses live overrides
+    mIsOverride = getIsSingleInstance();
+
     mBaseColorTextureCtrl = getChild<LLTextureCtrl>("base_color_texture");
     mMetallicTextureCtrl = getChild<LLTextureCtrl>("metallic_roughness_texture");
     mEmissiveTextureCtrl = getChild<LLTextureCtrl>("emissive_texture");
@@ -361,15 +360,28 @@ BOOL LLMaterialEditor::postBuild()
     mEmissiveTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitEmissiveTexture, this, _1, _2));
     mNormalTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitNormalTexture, this, _1, _2));
 
-    childSetAction("save", boost::bind(&LLMaterialEditor::onClickSave, this));
-    childSetAction("save_as", boost::bind(&LLMaterialEditor::onClickSaveAs, this));
-    childSetAction("cancel", boost::bind(&LLMaterialEditor::onClickCancel, this));
+    if (!mIsOverride)
+    {
+        childSetAction("save", boost::bind(&LLMaterialEditor::onClickSave, this));
+        childSetAction("save_as", boost::bind(&LLMaterialEditor::onClickSaveAs, this));
+        childSetAction("cancel", boost::bind(&LLMaterialEditor::onClickCancel, this));
+    }
 
-    S32 upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
-    getChild<LLUICtrl>("base_color_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
-    getChild<LLUICtrl>("metallic_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
-    getChild<LLUICtrl>("emissive_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
-    getChild<LLUICtrl>("normal_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
+    if (mIsOverride)
+    {
+        childSetVisible("base_color_upload_fee", FALSE);
+        childSetVisible("metallic_upload_fee", FALSE);
+        childSetVisible("emissive_upload_fee", FALSE);
+        childSetVisible("normal_upload_fee", FALSE);
+    }
+    else
+    {
+        S32 upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
+        getChild<LLUICtrl>("base_color_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
+        getChild<LLUICtrl>("metallic_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
+        getChild<LLUICtrl>("emissive_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
+        getChild<LLUICtrl>("normal_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
+    }
 
     boost::function<void(LLUICtrl*, void*)> changes_callback = [this](LLUICtrl * ctrl, void* userData)
     {
@@ -394,9 +406,14 @@ BOOL LLMaterialEditor::postBuild()
     // Emissive
     childSetCommitCallback("emissive color", changes_callback, (void*)&MATERIAL_EMISIVE_COLOR_DIRTY);
 
-    childSetVisible("unsaved_changes", mUnsavedChanges && !mIsOverride);
+    if (!mIsOverride)
+    {
+        // "unsaved_changes" doesn't exist in live editor
+        childSetVisible("unsaved_changes", mUnsavedChanges);
 
-    getChild<LLUICtrl>("total_upload_fee")->setTextArg("[FEE]", llformat("%d", 0));
+        // Doesn't exist in live editor
+        getChild<LLUICtrl>("total_upload_fee")->setTextArg("[FEE]", llformat("%d", 0));
+    }
 
     // Todo:
     // Disable/enable setCanApplyImmediately() based on
@@ -407,7 +424,7 @@ BOOL LLMaterialEditor::postBuild()
 
 void LLMaterialEditor::onClickCloseBtn(bool app_quitting)
 {
-    if (app_quitting)
+    if (app_quitting || mIsOverride)
     {
         closeFloater(app_quitting);
     }
@@ -618,18 +635,27 @@ void LLMaterialEditor::setDoubleSided(bool double_sided)
 void LLMaterialEditor::resetUnsavedChanges()
 {
     mUnsavedChanges = 0;
-    childSetVisible("unsaved_changes", false);
-    setCanSave(false);
+    if (!mIsOverride)
+    {
+        childSetVisible("unsaved_changes", false);
+        setCanSave(false);
 
-    mExpectedUploadCost = 0;
-    getChild<LLUICtrl>("total_upload_fee")->setTextArg("[FEE]", llformat("%d", mExpectedUploadCost));
+        mExpectedUploadCost = 0;
+        getChild<LLUICtrl>("total_upload_fee")->setTextArg("[FEE]", llformat("%d", mExpectedUploadCost));
+    }
 }
 
 void LLMaterialEditor::markChangesUnsaved(U32 dirty_flag)
 {
     mUnsavedChanges |= dirty_flag;
-    // at the moment live editing (mIsOverride) applies everything 'live'
-    childSetVisible("unsaved_changes", mUnsavedChanges && !mIsOverride);
+    if (!mIsOverride)
+    {
+        // at the moment live editing (mIsOverride) applies everything 'live'
+        // and "unsaved_changes", save/cancel buttons don't exist there
+        return;
+    }
+
+    childSetVisible("unsaved_changes", mUnsavedChanges);
 
     if (mUnsavedChanges)
     {
@@ -673,12 +699,18 @@ void LLMaterialEditor::markChangesUnsaved(U32 dirty_flag)
 
 void LLMaterialEditor::setCanSaveAs(bool value)
 {
-    childSetEnabled("save_as", value);
+    if (!mIsOverride)
+    {
+        childSetEnabled("save_as", value);
+    }
 }
 
 void LLMaterialEditor::setCanSave(bool value)
 {
-    childSetEnabled("save", value);
+    if (!mIsOverride)
+    {
+        childSetEnabled("save", value);
+    }
 }
 
 void LLMaterialEditor::setEnableEditing(bool can_modify)
@@ -710,21 +742,24 @@ void LLMaterialEditor::setEnableEditing(bool can_modify)
 
 void LLMaterialEditor::onCommitBaseColorTexture(LLUICtrl * ctrl, const LLSD & data)
 {
-    // might be better to use arrays, to have a single callback
-    // and not to repeat the same thing for each tecture control
-    LLUUID new_val = mBaseColorTextureCtrl->getValue().asUUID();
-    if (new_val == mBaseColorTextureUploadId && mBaseColorTextureUploadId.notNull())
+    if (!mIsOverride)
     {
-        childSetValue("base_color_upload_fee", getString("upload_fee_string"));
-    }
-    else
-    {
-        // Texture picker has 'apply now' with 'cancel' support.
-        // Keep mBaseColorJ2C and mBaseColorFetched, it's our storage in
-        // case user decides to cancel changes.
-        // Without mBaseColorFetched, viewer will eventually cleanup
-        // the texture that is not in use
-        childSetValue("base_color_upload_fee", getString("no_upload_fee_string"));
+        // might be better to use arrays, to have a single callback
+        // and not to repeat the same thing for each tecture control
+        LLUUID new_val = mBaseColorTextureCtrl->getValue().asUUID();
+        if (new_val == mBaseColorTextureUploadId && mBaseColorTextureUploadId.notNull())
+        {
+            childSetValue("base_color_upload_fee", getString("upload_fee_string"));
+        }
+        else
+        {
+            // Texture picker has 'apply now' with 'cancel' support.
+            // Keep mBaseColorJ2C and mBaseColorFetched, it's our storage in
+            // case user decides to cancel changes.
+            // Without mBaseColorFetched, viewer will eventually cleanup
+            // the texture that is not in use
+            childSetValue("base_color_upload_fee", getString("no_upload_fee_string"));
+        }
     }
     markChangesUnsaved(MATERIAL_BASE_COLOR_TEX_DIRTY);
     applyToSelection();
@@ -732,14 +767,17 @@ void LLMaterialEditor::onCommitBaseColorTexture(LLUICtrl * ctrl, const LLSD & da
 
 void LLMaterialEditor::onCommitMetallicTexture(LLUICtrl * ctrl, const LLSD & data)
 {
-    LLUUID new_val = mMetallicTextureCtrl->getValue().asUUID();
-    if (new_val == mMetallicTextureUploadId && mMetallicTextureUploadId.notNull())
+    if (!mIsOverride)
     {
-        childSetValue("metallic_upload_fee", getString("upload_fee_string"));
-    }
-    else
-    {
-        childSetValue("metallic_upload_fee", getString("no_upload_fee_string"));
+        LLUUID new_val = mMetallicTextureCtrl->getValue().asUUID();
+        if (new_val == mMetallicTextureUploadId && mMetallicTextureUploadId.notNull())
+        {
+            childSetValue("metallic_upload_fee", getString("upload_fee_string"));
+        }
+        else
+        {
+            childSetValue("metallic_upload_fee", getString("no_upload_fee_string"));
+        }
     }
     markChangesUnsaved(MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY);
     applyToSelection();
@@ -747,14 +785,17 @@ void LLMaterialEditor::onCommitMetallicTexture(LLUICtrl * ctrl, const LLSD & dat
 
 void LLMaterialEditor::onCommitEmissiveTexture(LLUICtrl * ctrl, const LLSD & data)
 {
-    LLUUID new_val = mEmissiveTextureCtrl->getValue().asUUID();
-    if (new_val == mEmissiveTextureUploadId && mEmissiveTextureUploadId.notNull())
+    if (!mIsOverride)
     {
-        childSetValue("emissive_upload_fee", getString("upload_fee_string"));
-    }
-    else
-    {
-        childSetValue("emissive_upload_fee", getString("no_upload_fee_string"));
+        LLUUID new_val = mEmissiveTextureCtrl->getValue().asUUID();
+        if (new_val == mEmissiveTextureUploadId && mEmissiveTextureUploadId.notNull())
+        {
+            childSetValue("emissive_upload_fee", getString("upload_fee_string"));
+        }
+        else
+        {
+            childSetValue("emissive_upload_fee", getString("no_upload_fee_string"));
+        }
     }
     markChangesUnsaved(MATERIAL_EMISIVE_TEX_DIRTY);
     applyToSelection();
@@ -762,14 +803,17 @@ void LLMaterialEditor::onCommitEmissiveTexture(LLUICtrl * ctrl, const LLSD & dat
 
 void LLMaterialEditor::onCommitNormalTexture(LLUICtrl * ctrl, const LLSD & data)
 {
-    LLUUID new_val = mNormalTextureCtrl->getValue().asUUID();
-    if (new_val == mNormalTextureUploadId && mNormalTextureUploadId.notNull())
+    if (!mIsOverride)
     {
-        childSetValue("normal_upload_fee", getString("upload_fee_string"));
-    }
-    else
-    {
-        childSetValue("normal_upload_fee", getString("no_upload_fee_string"));
+        LLUUID new_val = mNormalTextureCtrl->getValue().asUUID();
+        if (new_val == mNormalTextureUploadId && mNormalTextureUploadId.notNull())
+        {
+            childSetValue("normal_upload_fee", getString("upload_fee_string"));
+        }
+        else
+        {
+            childSetValue("normal_upload_fee", getString("no_upload_fee_string"));
+        }
     }
     markChangesUnsaved(MATERIAL_NORMAL_TEX_DIRTY);
     applyToSelection();
@@ -1414,73 +1458,6 @@ void LLMaterialEditor::onCancelMsgCallback(const LLSD& notification, const LLSD&
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (0 == option)
     {
-        if (mIsOverride && !mObjectOverridesSavedValues.empty())
-        {
-            // Reapply ids back onto selection.
-            // TODO: monitor selection changes and resave on selection changes
-            struct g : public LLSelectedObjectFunctor
-            {
-                g(LLMaterialEditor* me) : mEditor(me) {}
-                virtual bool apply(LLViewerObject* objectp)
-                {
-                    if (!objectp || !objectp->permModify())
-                    {
-                        return false;
-                    }
-
-                    U32 local_id = objectp->getLocalID();
-                    if (mEditor->mObjectOverridesSavedValues.find(local_id) == mEditor->mObjectOverridesSavedValues.end())
-                    {
-                        return false;
-                    }
-
-                    S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
-                    for (U8 te = 0; te < num_tes; te++)
-                    {
-                        if (mEditor->mObjectOverridesSavedValues[local_id].size() > te
-                            && objectp->getTE(te)->isSelected())
-                        {
-                            objectp->setRenderMaterialID(
-                                te,
-                                mEditor->mObjectOverridesSavedValues[local_id][te],
-                                false /*wait for bulk update*/);
-                        }
-                    }
-                    return true;
-                }
-                LLMaterialEditor* mEditor;
-            } restorefunc(this);
-            LLSelectMgr::getInstance()->getSelection()->applyToObjects(&restorefunc);
-
-            struct f : public LLSelectedObjectFunctor
-            {
-                virtual bool apply(LLViewerObject* object)
-                {
-                    if (object && !object->permModify())
-                    {
-                        return false;
-                    }
-
-                    LLRenderMaterialParams* param_block = (LLRenderMaterialParams*)object->getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
-                    if (param_block)
-                    {
-                        if (param_block->isEmpty())
-                        {
-                            object->setHasRenderMaterialParams(false);
-                        }
-                        else
-                        {
-                            object->parameterChanged(LLNetworkData::PARAMS_RENDER_MATERIAL, true);
-                        }
-                    }
-
-                    object->sendTEUpdate();
-                    return true;
-                }
-            } sendfunc;
-            LLSelectMgr::getInstance()->getSelection()->applyToObjects(&sendfunc);
-        }
-
         closeFloater();
     }
 }
@@ -1630,46 +1607,11 @@ void LLMaterialEditor::onSelectionChanged()
         clearTextures();
         setFromSelection();
     }
-
-    // At the moment all cahges are 'live' so don't reset dirty flags
-    // saveLiveValues(); todo
-}
-
-void LLMaterialEditor::saveLiveValues()
-{
-    // Collect ids to be able to revert overrides.
-    // TODO: monitor selection changes and resave on selection changes
-    mObjectOverridesSavedValues.clear();
-    struct g : public LLSelectedObjectFunctor
-    {
-        g(LLMaterialEditor* me) : mEditor(me) {}
-        virtual bool apply(LLViewerObject* objectp)
-        {
-            if (!objectp)
-            {
-                return false;
-            }
-
-            U32 local_id = objectp->getLocalID();
-            S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
-            for (U8 te = 0; te < num_tes; te++)
-            {
-                // Todo: fix this, overrides don't care about ids,
-                // we will have to save actual values or materials
-                LLUUID mat_id = objectp->getRenderMaterialID(te);
-                mEditor->mObjectOverridesSavedValues[local_id].push_back(mat_id);
-            }
-            return true;
-        }
-        LLMaterialEditor* mEditor;
-    } savefunc(this);
-    LLSelectMgr::getInstance()->getSelection()->applyToObjects(&savefunc);
 }
 
 void LLMaterialEditor::updateLive()
 {
-    const LLSD floater_key(LIVE_MATERIAL_EDITOR_KEY);
-    LLFloater* instance = LLFloaterReg::findInstance("material_editor", floater_key);
+    LLFloater* instance = LLFloaterReg::findInstance("live_material_editor");
     if (instance && LLFloater::isVisible(instance))
     {
         LLMaterialEditor* me = (LLMaterialEditor*)instance;
@@ -1690,8 +1632,7 @@ void LLMaterialEditor::updateLive(const LLUUID &object_id, S32 te)
         // Not an update we are waiting for
         return;
     }
-    const LLSD floater_key(LIVE_MATERIAL_EDITOR_KEY);
-    LLFloater* instance = LLFloaterReg::findInstance("material_editor", floater_key);
+    LLFloater* instance = LLFloaterReg::findInstance("live_material_editor");
     if (instance && LLFloater::isVisible(instance))
     {
         LLMaterialEditor* me = (LLMaterialEditor*)instance;
@@ -1706,26 +1647,19 @@ void LLMaterialEditor::updateLive(const LLUUID &object_id, S32 te)
 
 void LLMaterialEditor::loadLive()
 {
-    // Allow only one 'live' instance
-    const LLSD floater_key(LIVE_MATERIAL_EDITOR_KEY);
-    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", floater_key);
+    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("live_material_editor");
     if (me)
     {
         me->mOverrideInProgress = false;
         me->setFromSelection();
-        me->setTitle(me->getString("material_override_title"));
-        me->childSetVisible("save", false);
-        me->childSetVisible("save_as", false);
 
         // Set up for selection changes updates
         if (!me->mSelectionUpdateSlot.connected())
         {
             me->mSelectionUpdateSlot = LLSelectMgr::instance().mUpdateSignal.connect(boost::bind(&LLMaterialEditor::onSelectionChanged, me));
         }
-        // Collect ids to be able to revert overrides on cancel.
-        me->saveLiveValues();
 
-        me->openFloater(floater_key);
+        me->openFloater();
         me->setFocus(TRUE);
     }
 }
@@ -2226,10 +2160,17 @@ private:
 class LLRenderMaterialOverrideFunctor : public LLSelectedTEFunctor
 {
 public:
-    LLRenderMaterialOverrideFunctor(LLMaterialEditor * me, std::string const & url)
-    : mEditor(me), mCapUrl(url)
+    LLRenderMaterialOverrideFunctor(
+        LLMaterialEditor * me,
+        std::string const & url,
+        const LLUUID &report_on_object_id,
+        S32 report_on_te)
+    : mEditor(me)
+    , mCapUrl(url)
+    , mSuccess(false)
+    , mObjectId(report_on_object_id)
+    , mObjectTE(report_on_te)
     {
-
     }
 
     bool apply(LLViewerObject* objectp, S32 te) override
@@ -2262,7 +2203,6 @@ public:
             // Override object's values with values from editor where appropriate
             if (mEditor->getUnsavedChangesFlags() & MATERIAL_BASE_COLOR_DIRTY)
             {
-                LLColor4 baseColor = mEditor->getBaseColor();
                 material->setBaseColorFactor(mEditor->getBaseColor(), true);
             }
             if (mEditor->getUnsavedChangesFlags() & MATERIAL_BASE_COLOR_TEX_DIRTY)
@@ -2324,7 +2264,17 @@ public:
                 "side", te,
                 "gltf_json", overrides_json
             );
-            LLCoros::instance().launch("modifyMaterialCoro", std::bind(&LLGLTFMaterialList::modifyMaterialCoro, mCapUrl, overrides, modifyCallback));
+
+            void(*done_callback)(bool) = nullptr;
+            if (mObjectTE == te
+                && mObjectId == objectp->getID())
+            {
+                mSuccess = true;
+                // We only want callback for face we are displayig material from
+                // even if we are setting all of them
+                done_callback = modifyCallback;
+            }
+            LLCoros::instance().launch("modifyMaterialCoro", std::bind(&LLGLTFMaterialList::modifyMaterialCoro, mCapUrl, overrides, done_callback));
         }
         return true;
     }
@@ -2336,12 +2286,17 @@ public:
             // something went wrong update selection
             LLMaterialEditor::updateLive();
         }
-        // else we will get updateLive(obj, id) from aplied overrides
+        // else we will get updateLive(obj, id) from applied overrides
     }
+
+    bool getResult() { return mSuccess; }
 
 private:
     LLMaterialEditor * mEditor;
     std::string mCapUrl;
+    LLUUID mObjectId;
+    S32 mObjectTE;
+    bool mSuccess;
 };
 
 void LLMaterialEditor::applyToSelection()
@@ -2365,9 +2320,11 @@ void LLMaterialEditor::applyToSelection()
         {
             mOverrideInProgress = true;
             LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
-            LLRenderMaterialOverrideFunctor override_func(this, url);
-            if (!selected_objects->applyToTEs(&override_func))
+            LLRenderMaterialOverrideFunctor override_func(this, url, mOverrideObjectId, mOverrideObjectTE);
+            selected_objects->applyToTEs(&override_func);
+            if (!override_func.getResult())
             {
+                // OverrideFunctor didn't find expected object or face
                 mOverrideInProgress = false;
             }
 

@@ -2658,11 +2658,11 @@ void LLPanelFace::updateVisibility()
 	{
 		updateShinyControls();
 	}
-	getChildView("shinyScaleU")->setVisible(show_shininess || show_pbr_normal);
-	getChildView("shinyScaleV")->setVisible(show_shininess || show_pbr_normal);
-	getChildView("shinyRot")->setVisible(show_shininess || show_pbr_normal);
-	getChildView("shinyOffsetU")->setVisible(show_shininess || show_pbr_normal);
-	getChildView("shinyOffsetV")->setVisible(show_shininess || show_pbr_normal);
+	getChildView("shinyScaleU")->setVisible(show_shininess || show_pbr_metallic);
+	getChildView("shinyScaleV")->setVisible(show_shininess || show_pbr_metallic);
+	getChildView("shinyRot")->setVisible(show_shininess || show_pbr_metallic);
+	getChildView("shinyOffsetU")->setVisible(show_shininess || show_pbr_metallic);
+	getChildView("shinyOffsetV")->setVisible(show_shininess || show_pbr_metallic);
 
 	// Normal map controls
 	if (show_bumpiness)
@@ -2672,11 +2672,11 @@ void LLPanelFace::updateVisibility()
 	getChildView("bumpytexture control")->setVisible(show_bumpiness);
 	getChildView("combobox bumpiness")->setVisible(show_bumpiness);
 	getChildView("label bumpiness")->setVisible(show_bumpiness);
-	getChildView("bumpyScaleU")->setVisible(show_bumpiness || show_pbr_metallic);
-	getChildView("bumpyScaleV")->setVisible(show_bumpiness || show_pbr_metallic);
-	getChildView("bumpyRot")->setVisible(show_bumpiness || show_pbr_metallic);
-	getChildView("bumpyOffsetU")->setVisible(show_bumpiness || show_pbr_metallic);
-	getChildView("bumpyOffsetV")->setVisible(show_bumpiness || show_pbr_metallic);
+	getChildView("bumpyScaleU")->setVisible(show_bumpiness || show_pbr_normal);
+	getChildView("bumpyScaleV")->setVisible(show_bumpiness || show_pbr_normal);
+	getChildView("bumpyRot")->setVisible(show_bumpiness || show_pbr_normal);
+	getChildView("bumpyOffsetU")->setVisible(show_bumpiness || show_pbr_normal);
+	getChildView("bumpyOffsetV")->setVisible(show_bumpiness || show_pbr_normal);
 
     // PBR controls
     getChildView("pbr_control")->setVisible(show_pbr);
