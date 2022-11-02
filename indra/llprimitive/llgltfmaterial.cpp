@@ -136,13 +136,13 @@ void LLGLTFMaterial::setFromModel(const tinygltf::Model& model, S32 mat_index)
     if (material_in.extras.IsObject())
     {
         tinygltf::Value::Object extras = material_in.extras.Get<tinygltf::Value::Object>();
-        auto& alpha_mode = extras.find("override_alpha_mode");
+        const auto& alpha_mode = extras.find("override_alpha_mode");
         if (alpha_mode != extras.end())
         {
             mOverrideAlphaMode = alpha_mode->second.Get<bool>();
         }
 
-        auto& double_sided = extras.find("override_double_sided");
+        const auto& double_sided = extras.find("override_double_sided");
         if (double_sided != extras.end())
         {
             mOverrideDoubleSided = double_sided->second.Get<bool>();
