@@ -45,17 +45,21 @@ uniform vec3 moon_dir;
 out vec4 frag_color;
 
 #ifdef HAS_SUN_SHADOW
-  VARYING vec3 vary_fragcoord;
+  in vec3 vary_fragcoord;
   uniform vec2 screen_res;
 #endif
 
-VARYING vec3 vary_position;
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
-VARYING vec2 vary_texcoord2;
-VARYING vec3 vary_normal;
-VARYING vec3 vary_tangent;
+in vec3 vary_position;
+
+in vec2 basecolor_texcoord;
+in vec2 normal_texcoord;
+in vec2 metallic_roughness_texcoord;
+in vec2 emissive_texcoord;
+
+in vec4 vertex_color;
+
+in vec3 vary_normal;
+in vec3 vary_tangent;
 flat in float vary_sign;
 
 
@@ -155,21 +159,18 @@ void main()
 
     waterClip(pos);
 
-// IF .mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
-//    vec3 col = vertex_color.rgb * diffuseLookup(vary_texcoord0.xy).rgb;
-// else
-    vec4 albedo = texture(diffuseMap, vary_texcoord0.xy).rgba;
-    albedo.rgb = srgb_to_linear(albedo.rgb);
+    vec4 basecolor = texture(diffuseMap, basecolor_texcoord.xy).rgba;
+    basecolor.rgb = srgb_to_linear(basecolor.rgb);
 #ifdef HAS_ALPHA_MASK
-    if (albedo.a < minimum_alpha)
+    if (basecolor.a < minimum_alpha)
     {
         discard;
     }
 #endif
 
-    vec3 baseColor = vertex_color.rgb * albedo.rgb;
+    vec3 col = vertex_color.rgb * basecolor.rgb;
 
-    vec3 vNt = texture(bumpMap, vary_texcoord1.xy).xyz*2.0-1.0;
+    vec3 vNt = texture(bumpMap, normal_texcoord.xy).xyz*2.0-1.0;
     float sign = vary_sign;
     vec3 vN = vary_normal;
     vec3 vT = vary_tangent.xyz;
@@ -192,7 +193,7 @@ void main()
     scol = sampleDirectionalShadow(pos.xyz, norm.xyz, frag);
 #endif
 
-    vec3 orm = texture(specularMap, vary_texcoord2.xy).rgb; //orm is packed into "emissiveRect" to keep the data in linear color space
+    vec3 orm = texture(specularMap, metallic_roughness_texcoord.xy).rgb; //orm is packed into "emissiveRect" to keep the data in linear color space
 
     float perceptualRoughness = orm.g * roughnessFactor;
     float metallic = orm.b * metallicFactor;
@@ -201,7 +202,7 @@ void main()
     // emissiveColor is the emissive color factor from GLTF and is already in linear space
     vec3 colorEmissive = emissiveColor;
     // emissiveMap here is a vanilla RGB texture encoded as sRGB, manually convert to linear
-    colorEmissive *= srgb_to_linear(texture2D(emissiveMap, vary_texcoord0.xy).rgb);
+    colorEmissive *= srgb_to_linear(texture2D(emissiveMap, emissive_texcoord.xy).rgb);
 
     // PBR IBL
     float gloss      = 1.0 - perceptualRoughness;
@@ -214,7 +215,7 @@ void main()
 
     vec3 diffuseColor;
     vec3 specularColor;
-    calcDiffuseSpecular(baseColor.rgb, metallic, diffuseColor, specularColor);
+    calcDiffuseSpecular(col.rgb, metallic, diffuseColor, specularColor);
 
     vec3 v = -normalize(pos.xyz);
     color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
@@ -235,5 +236,5 @@ void main()
     color.rgb += light.rgb;
 
     
-    frag_color = vec4(color.rgb,albedo.a * vertex_color.a);
+    frag_color = vec4(color.rgb,basecolor.a * vertex_color.a);
 }

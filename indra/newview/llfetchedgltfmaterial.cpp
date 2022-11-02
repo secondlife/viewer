@@ -101,6 +101,15 @@ void LLFetchedGLTFMaterial::bind(LLGLSLShader* shader)
         shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, mRoughnessFactor);
         shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, mMetallicFactor);
         shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, mEmissiveColor.mV);
+
+        const LLMatrix3 base_color_matrix = mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].asMatrix();
+        shader->uniformMatrix3fv(LLShaderMgr::TEXTURE_BASECOLOR_MATRIX, 1, false, (F32*)base_color_matrix.mMatrix);
+        const LLMatrix3 normal_matrix = mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].asMatrix();
+        shader->uniformMatrix3fv(LLShaderMgr::TEXTURE_NORMAL_MATRIX, 1, false, (F32*)normal_matrix.mMatrix);
+        const LLMatrix3 metallic_roughness_matrix = mTextureTransform[GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].asMatrix();
+        shader->uniformMatrix3fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_MATRIX, 1, false, (F32*)metallic_roughness_matrix.mMatrix);
+        const LLMatrix3 emissive_matrix = mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].asMatrix();
+        shader->uniformMatrix3fv(LLShaderMgr::TEXTURE_EMISSIVE_MATRIX, 1, false, (F32*)emissive_matrix.mMatrix);
     }
 
 }

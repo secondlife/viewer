@@ -1163,6 +1163,10 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedAttribs.push_back("weight4");
 	mReservedAttribs.push_back("clothing");
 	mReservedAttribs.push_back("texture_index");
+    mReservedAttribs.push_back("basecolor_texcoord"); // GLTF
+    mReservedAttribs.push_back("normal_texcoord"); // GLTF
+    mReservedAttribs.push_back("metallic_roughness_texcoord"); // GLTF
+    mReservedAttribs.push_back("emissive_texcoord"); // GLTF
 	
 	//matrix state
 	mReservedUniforms.push_back("modelview_matrix");
@@ -1177,7 +1181,11 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("texture_matrix3");
 	mReservedUniforms.push_back("object_plane_s");
 	mReservedUniforms.push_back("object_plane_t");
-	llassert(mReservedUniforms.size() == LLShaderMgr::OBJECT_PLANE_T+1);
+    mReservedUniforms.push_back("texture_basecolor_matrix"); // GLTF
+    mReservedUniforms.push_back("texture_normal_matrix"); // GLTF
+    mReservedUniforms.push_back("texture_metallic_roughness_matrix"); // GLTF
+    mReservedUniforms.push_back("texture_emissive_matrix"); // GLTF
+    llassert(mReservedUniforms.size() == LLShaderMgr::TEXTURE_EMISSIVE_MATRIX+1);
 
 	mReservedUniforms.push_back("viewport");
 
