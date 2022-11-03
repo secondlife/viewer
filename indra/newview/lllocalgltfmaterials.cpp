@@ -238,7 +238,7 @@ bool LLLocalGLTFMaterial::loadMaterial()
             std::string material_name;
 
             // Might be a good idea to make these textures into local textures
-            LLTinyGLTFHelper::getMaterialFromFile(
+            decode_successful = LLTinyGLTFHelper::getMaterialFromFile(
                 mFilename,
                 mMaterialIndex,
                 mGLTFMaterial,
