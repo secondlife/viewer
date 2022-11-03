@@ -27,12 +27,12 @@
 #import "llsys_objc.h"
 #import <AppKit/AppKit.h>
 
-static int intAtStringIndex(NSArray *array, int index)
+static NSInteger intAtStringIndex(NSArray *array, int index)
 {
     return [(NSString *)[array objectAtIndex:index] integerValue];
 }
 
-bool LLGetDarwinOSInfo(int &major, int &minor, int &patch)
+bool LLGetDarwinOSInfo(NSInteger &major, NSInteger &minor, NSInteger &patch)
 {
     if (NSAppKitVersionNumber > NSAppKitVersionNumber10_8)
     {

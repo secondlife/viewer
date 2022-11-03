@@ -313,14 +313,18 @@ public:
 		LLSD& append(const LLSD&);
 		void erase(Integer);
 		LLSD& with(Integer, const LLSD&);
-		
-		const LLSD& operator[](Integer) const;
-		LLSD& operator[](Integer);
+
+		// accept size_t so we can index relative to size()
+		const LLSD& operator[](size_t) const;
+		LLSD& operator[](size_t);
+		// overload to disambiguate [0], [1] et al.
+		const LLSD& operator[](Integer i) const { return (*this)[size_t(i)]; }
+		LLSD& operator[](Integer i) { return (*this)[size_t(i)]; }
 	//@}
 
 	/** @name Iterators */
 	//@{
-		int size() const;
+		size_t size() const;
 
 		typedef std::map<String, LLSD>::iterator		map_iterator;
 		typedef std::map<String, LLSD>::const_iterator	map_const_iterator;
