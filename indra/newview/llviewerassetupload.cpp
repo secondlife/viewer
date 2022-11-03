@@ -704,7 +704,7 @@ LLUUID LLBufferedAssetUploadInfo::finishUpload(LLSD &result)
 LLScriptAssetUpload::LLScriptAssetUpload(LLUUID itemId, std::string buffer, invnUploadFinish_f finish):
     LLBufferedAssetUploadInfo(itemId, LLAssetType::AT_LSL_TEXT, buffer, finish),
     mExerienceId(),
-    mTargetType(LSL2),
+    mTargetType(MONO),
     mIsRunning(false)
 {
 }
@@ -725,7 +725,7 @@ LLSD LLScriptAssetUpload::generatePostBody()
     if (getTaskId().isNull())
     {
         body["item_id"] = getItemId();
-        body["target"] = "lsl2";
+        body["target"] = "mono";
     }
     else
     {

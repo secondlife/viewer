@@ -1637,6 +1637,7 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
 		return;
 	}
 
+    //collect the links before removing the item from mItemMap
     LLInventoryModel::item_array_t links = collectLinksTo(id);
 	
 	LL_DEBUGS(LOG_INV) << "Deleting inventory object " << id << LL_ENDL;
