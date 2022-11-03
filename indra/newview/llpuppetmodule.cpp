@@ -175,46 +175,54 @@ void processJointData(const std::string& key, const LLSD& data)
         LLVector3 v;
         LLPuppetJointEvent joint_event;
         joint_event.setJointID(joint_index);
+        joint_event.setReferenceFrame(ref_frame);
         for (LLSD::map_const_iterator param_itr = params.beginMap();
                 param_itr != params.endMap();
                 ++param_itr)
         {
             const LLSD& value = param_itr->second;
             std::string param_name = param_itr->first;
+            constexpr S32 NUM_COMPONENTS = 3;
+            if (value.isArray() && value.size() >= NUM_COMPONENTS)
+            {
+                v.mV[VX] = value.get(0).asReal();
+                v.mV[VY] = value.get(1).asReal();
+                v.mV[VZ] = value.get(2).asReal();
 
-            v.mV[VX] = value.get(0).asReal();
-            v.mV[VY] = value.get(1).asReal();
-            v.mV[VZ] = value.get(2).asReal();
-
-            if ( param_name == "r" || param_name == "rotation" )
-            {
-                LLQuaternion q;
-                // Packed quaternions have the imaginary part (xyz)
-                // copy the imaginary part
-                memcpy(q.mQ, v.mV, 3 * sizeof(F32));
-                // compute the real part
-                F32 imaginary_length_squared = q.mQ[VX] * q.mQ[VX] + q.mQ[VY] * q.mQ[VY] + q.mQ[VZ] * q.mQ[VZ];
-                if (imaginary_length_squared > 1.0f)
+                if ( param_name == "r" || param_name == "rotation" )
                 {
-                    F32 imaginary_length = sqrtf(imaginary_length_squared);
-                    q.mQ[VX] /= imaginary_length;
-                    q.mQ[VY] /= imaginary_length;
-                    q.mQ[VZ] /= imaginary_length;
-                    q.mQ[VW] = 0.0f;
+                    LLQuaternion q;
+                    // Packed quaternions have the imaginary part (xyz)
+                    // copy the imaginary part
+                    memcpy(q.mQ, v.mV, 3 * sizeof(F32));
+                    // compute the real part
+                    F32 imaginary_length_squared = q.mQ[VX] * q.mQ[VX] + q.mQ[VY] * q.mQ[VY] + q.mQ[VZ] * q.mQ[VZ];
+                    if (imaginary_length_squared > 1.0f)
+                    {
+                        F32 imaginary_length = sqrtf(imaginary_length_squared);
+                        q.mQ[VX] /= imaginary_length;
+                        q.mQ[VY] /= imaginary_length;
+                        q.mQ[VZ] /= imaginary_length;
+                        q.mQ[VW] = 0.0f;
+                    }
+                    else
+                    {
+                        q.mQ[VW] = sqrtf(1.0f - imaginary_length_squared);
+                    }
+                    joint_event.setRotation(q);
                 }
-                else
+                else if (param_name == "p" || param_name == "position" )
                 {
-                    q.mQ[VW] = sqrtf(1.0f - imaginary_length_squared);
+                    joint_event.setPosition(v);
                 }
-                joint_event.setRotation(q, ref_frame);
+                else if (param_name == "s" || param_name == "scale")
+                {
+                    joint_event.setScale(v);
+                }
             }
-            else if (param_name == "p" || param_name == "position" )
+            else if (param_name == "d" || param_name == "disable_constraint")
             {
-                joint_event.setPosition(v, ref_frame);
-            }
-            else if (param_name == "s" || param_name == "scale")
-            {
-                joint_event.setScale(v);
+                joint_event.disableConstraint();
             }
         }
         if (!joint_event.isEmpty())
@@ -223,7 +231,7 @@ void processJointData(const std::string& key, const LLSD& data)
             {
                 gAgentAvatarp->startMotion(ANIM_AGENT_PUPPET_MOTION);
             }
-            std::static_pointer_cast<LLPuppetMotion>(motion)->addExpressionEvent(joint_event, ref_frame);
+            std::static_pointer_cast<LLPuppetMotion>(motion)->addExpressionEvent(joint_event);
         }
     }
 }

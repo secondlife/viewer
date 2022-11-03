@@ -93,7 +93,7 @@ public:
     virtual ~LLPuppetMotion() {}
 
     void collectJoints(LLJoint* joint);
-    void addExpressionEvent(const LLPuppetJointEvent& event, LLPuppetJointEvent::E_REFERENCE_FRAME ref_frame);
+    void addExpressionEvent(const LLPuppetJointEvent& event);
     void queueOutgoingEvent(const LLPuppetEvent& event);
     void unpackEvents(LLMessageSystem *mesgsys,int blocknum);
 
@@ -164,11 +164,11 @@ public:
 private:
     void measureArmSpan();
     void queueEvent(const LLPuppetEvent& event);
-    void applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::Solver::target_map_t& targets);
+    void applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::Solver::joint_config_map_t& targets);
     void applyBroadcastEvent(const LLPuppetJointEvent& event, Timestamp now, bool local_puppetry);
     void packEvents();
     void pumpOutgoingEvents();
-    void solveForTargetsAndHarvestResults(LLIK::Solver::target_map_t& targets, Timestamp now, bool something_changed=false);
+    void solveForTargetsAndHarvestResults(const LLIK::Solver::joint_config_map_t& targets, Timestamp now, bool something_changed=false);
     void updateFromExpression(Timestamp now, express_map_t& event_map);
     void updateFromBroadcast(Timestamp now);
     void rememberPosedJoint(S16 joint_id, LLPointer<LLJointState> joint_state, Timestamp now);

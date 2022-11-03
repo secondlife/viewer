@@ -95,6 +95,10 @@ constexpr S16 HAND_THUMB_RIGHT_2_ID = 94;
 constexpr S16 HAND_THUMB_RIGHT_3_ID = 95;
 #endif //ENABLE_RIGHT_CONSTRAINTS
 
+// TODO: in onUpdate() - combine the two event maps into one vector of targets
+// TODO: implement "allow incremental updates" policy
+// TODO: figure out how to handle scale of local_pos changes
+
 // HACK: the gConstraintFactory is a static global rather than a singleton
 // because I couldn't figure out how to make the singleton compile. - Leviathan
 LLIKConstraintFactory gConstraintFactory;
@@ -623,7 +627,7 @@ LLMotion::LLMotionInitStatus LLPuppetMotion::onInitialize(LLCharacter *character
         measureArmSpan();
 
         //Generate reference rotation
-        mIKSolver.resetRotations();
+        mIKSolver.resetSkeleton();
 
         // HACK: whitelist of sub-bases: joints that have only child Chains
         // and should always be Chain endpoints, never in the middle of a Chain.
@@ -654,24 +658,25 @@ void LLPuppetMotion::clearAll()
     mOutgoingEvents.clear();
     mJointStateExpiries.clear();
     mJointsToRemoveFromPose.clear();
-    mIKSolver.resetRotations();
+    mIKSolver.resetSkeleton();
 }
 
 
 
-void LLPuppetMotion::addExpressionEvent(const LLPuppetJointEvent& event, LLPuppetJointEvent::E_REFERENCE_FRAME ref_frame)
+void LLPuppetMotion::addExpressionEvent(const LLPuppetJointEvent& event)
 {
-    //TODO this is a bit sloppy.  We're updating asynchonously
-    //There should only be one captured frame from the expression
-    //controller but just in case, use a map so we don't overflow events
-    if (ref_frame == LLPuppetJointEvent::ROOT_FRAME)
+    // We store inbound events in two maps keyed by joint_id:
+    // one for parent-frame (local) per-joint config and
+    // another for root-frame (world) IK targets.
+    if (event.getMask() & LLIK::MASK_LOCAL)
     {
-        mIKExpressionEvents[event.getJointID()] = event;
+        // PARENT_FRAME (local)
+        mJSExpressionEvents[event.getJointID()] = event;
     }
     else
     {
-        // PARENT_FRAME
-        mJSExpressionEvents[event.getJointID()] = event;
+        // WORLD_FRAME (skeleton root)
+        mIKExpressionEvents[event.getJointID()] = event;
     }
     mNeedsUpdate = true;
 }
@@ -776,49 +781,74 @@ void LLPuppetMotion::rememberPosedJoint(S16 joint_id, LLPointer<LLJointState> jo
     }
 }
 
-void LLPuppetMotion::solveForTargetsAndHarvestResults(LLIK::Solver::target_map_t& targets, Timestamp now,bool something_changed)
+void LLPuppetMotion::solveForTargetsAndHarvestResults(const LLIK::Solver::joint_config_map_t& targets, Timestamp now,bool something_changed)
 {
-    if (mIsSelf)
+    bool local_puppetry = !LLPuppetModule::instance().getEcho();
+    if (mIsSelf && local_puppetry)
     {
+        // don't apply Puppetry when local agent is in mouselook
         auto camera_mode = gAgentCamera.getCameraMode();
-        if (camera_mode == CAMERA_MODE_MOUSELOOK || camera_mode == CAMERA_MODE_CUSTOMIZE_AVATAR)
-        {
-            // don't actually apply Puppetry when local agent is in mouselook
-            return;
-        }
+        local_puppetry = camera_mode != CAMERA_MODE_MOUSELOOK && camera_mode != CAMERA_MODE_CUSTOMIZE_AVATAR;
     }
 
-    bool local_puppetry = !LLPuppetModule::instance().getEcho();
+	bool remote_puppetry = something_changed && LLPuppetModule::instance().isSending();
+    if (!local_puppetry && !remote_puppetry)
+    {
+        return;
+    }
 
     mIKSolver.solveForTargets(targets);
 
-	//Create a broadcast event from post IK rotations per SL-18363
 	LLPuppetEvent broadcast_event;
-	broadcast_event.updateTimestamp();
-	//bool local_puppetry = !LLPuppetModule::instance().getEcho();
-    LLIK::Solver::target_map_t output_targets;
-
-    // copy results
-    const LLIK::Solver::S16_vec_t& active_ids = mIKSolver.getActiveIDs();
-    for (S16 id : active_ids)
+    const LLIK::Solver::joint_list_t& active_joints = mIKSolver.getActiveJoints();
+    LLVector3 pos;
+    LLQuaternion rot;
+    for (auto joint: active_joints)
     {
+        S16 id = joint->getID();
+        U8 flags = joint->getConfigFlags();
+        pos = joint->getLocalPos();
+        rot = joint->getLocalRot();
         if (local_puppetry)
         {
             LLPointer<LLJointState> joint_state = mJointStates[id];
-            joint_state->setRotation(mIKSolver.getJointLocalRot(id));
+            if (flags | LLIK::FLAG_LOCAL_POS)
+            {
+                joint_state->setPosition(pos);
+            }
+            if (flags | LLIK::FLAG_LOCAL_ROT)
+            {
+                joint_state->setRotation(rot);
+            }
             rememberPosedJoint(id, joint_state, now);
         }
-
-		if (something_changed)
-		{
-			//Add a joint event for broadcast per SL-18363
+        if (remote_puppetry)
+        {
 			LLPuppetJointEvent joint_event;
 			joint_event.setJointID(id);
-			joint_event.setRotation(mIKSolver.getJointLocalRot(id), LLPuppetJointEvent::PARENT_FRAME);
-
+            joint_event.setReferenceFrame(LLPuppetJointEvent::PARENT_FRAME);
+            if (flags | LLIK::FLAG_LOCAL_POS)
+            {
+                joint_event.setPosition(pos);
+            }
+            if (flags | LLIK::FLAG_LOCAL_ROT)
+            {
+                joint_event.setRotation(rot);
+            }
+            if (flags | LLIK::FLAG_DISABLE_CONSTRAINT)
+            {
+                joint_event.disableConstraint();
+            }
 			broadcast_event.addJointEvent(joint_event);
-		}
+        }
     }
+
+    if (remote_puppetry)
+    {
+	    broadcast_event.updateTimestamp();
+		queueOutgoingEvent(broadcast_event);
+    }
+
 	if (something_changed &&
         LLPuppetModule::instance().isSending())
 	{
@@ -827,33 +857,50 @@ void LLPuppetMotion::solveForTargetsAndHarvestResults(LLIK::Solver::target_map_t
 	}
 }
 
-void LLPuppetMotion::applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::Solver::target_map_t& targets)
+void LLPuppetMotion::applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::Solver::joint_config_map_t& configs)
 {
     S16 joint_id = event.getJointID();
     state_map_t::iterator state_iter = mJointStates.find(joint_id);
     if (state_iter != mJointStates.end())
     {
-        LLIK::Target target;
+        LLIK::Joint::Config config;
         bool something_changed = false;
-        if (event.hasRotation())
+        U8 mask = event.getMask();
+        bool local = (bool)(mask & LLIK::FLAG_LOCAL_ROT);
+        if (mask & LLIK::MASK_ROT)
         {
-            target.setRot(event.getRotation(), event.rotationIsParentLocal());
+            if (local)
+            {
+                config.setLocalRot(event.getRotation());
+            }
+            else
+            {
+                config.setTargetRot(event.getRotation());
+            }
             something_changed = true;
         }
-        if (event.hasPosition())
+        if (mask & LLIK::MASK_POS)
         {
             // don't forget to scale by 0.5*mArmSpan
-            target.setPos(event.getPosition() * 0.5f * mArmSpan);
+            if (local)
+            {
+                // TODO: figure out what to do about scale of local positions
+                config.setLocalPos(event.getPosition());
+            }
+            else
+            {
+                config.setTargetPos(event.getPosition() * 0.5f * mArmSpan);
+            }
             something_changed = true;
         }
-        if (event.usesIK())
+        if (mask & LLIK::FLAG_DISABLE_CONSTRAINT)
         {
-            target.useIK();
+            config.disableConstraint();
             something_changed = true;
         }
         if (something_changed)
         {
-            targets[joint_id] = target;
+            configs[joint_id] = config;
         }
     }
 }
@@ -864,7 +911,7 @@ void LLPuppetMotion::updateFromExpression(Timestamp now, express_map_t& event_ma
     {
         bool something_changed = false;
 
-        LLIK::Solver::target_map_t targets;
+        LLIK::Solver::joint_config_map_t configs;
 
         for(const auto& data_pair : event_map)
         {
@@ -875,15 +922,15 @@ void LLPuppetMotion::updateFromExpression(Timestamp now, express_map_t& event_ma
                 continue;
             }
             const LLPuppetJointEvent& event = data_pair.second;
-            applyEvent(event, now, targets);
+            applyEvent(event, now, configs);
             something_changed = true;
         }
 
         event_map.clear();
 
-        if (targets.size())
+        if (configs.size())
         {
-            solveForTargetsAndHarvestResults(targets, now, something_changed);
+            solveForTargetsAndHarvestResults(configs, now, something_changed);
         }
         mNeedsUpdate = false;
     }
@@ -895,19 +942,21 @@ void LLPuppetMotion::applyBroadcastEvent(const LLPuppetJointEvent& event, Timest
     {
         return;
     }
-    
+
     S16 joint_id = event.getJointID();
     state_map_t::iterator state_iter = mJointStates.find(joint_id);
     if (state_iter != mJointStates.end())
     {
-        if (event.hasRotation())
+        U8 mask = event.getMask();
+        llassert((mask & LLIK::MASK_TARGET) == 0); // broadcast event always in parent-frame
+        if (mask & LLIK::MASK_ROT)
         {
             state_iter->second->setRotation(event.getRotation());
         }
-        if (event.hasPosition())
+        if (mask & LLIK::MASK_POS)
         {
+            // Note: scale already set by broadcaster (e.g. 1.0 = 0.5*mArmSpan)
             state_iter->second->setPosition(event.getPosition());
-            // Scale set by broadcaster 0.5*mArmSpan
         }
         rememberPosedJoint(joint_id, state_iter->second, now);
     }
@@ -922,7 +971,7 @@ void LLPuppetMotion::updateFromBroadcast(Timestamp now)
     }
 
     bool local_puppetry = !LLPuppetModule::instance().getEcho();
-    
+
     // We walk the queue looking for the two bounding events: the last previous
     // and the next pending: we will interpolate between them.  If we don't
     // find bounding events we'll use whatever we've got.
@@ -1069,6 +1118,8 @@ BOOL LLPuppetMotion::onUpdate(F32 time, U8* joint_mask)
     Timestamp now = (S32)(LLFrameTimer::getElapsedSeconds() * MSEC_PER_SEC);
     if (mIsSelf)
     {
+        // TODO: combine the two event maps into one vector of targets
+        // LLIK::Solver::joint_config_map_t targets;
         updateFromExpression(now, mIKExpressionEvents);
         updateFromExpression(now, mJSExpressionEvents);
         pumpOutgoingEvents();
@@ -1195,9 +1246,7 @@ void LLPuppetMotion::collectJoints(LLJoint* joint)
 
     LLPointer<LLJointState> joint_state = new LLJointState;
     joint_state->setJoint(joint);
-    //TODO:  At present only controlling rotations. Could add position
-    //for sliding joints after constraints are added.
-    joint_state->setUsage(LLJointState::ROT);
+    joint_state->setUsage(LLJointState::ROT | LLJointState::POS);
     S16 joint_id = joint->getJointNum();
     mJointStates[joint_id] = joint_state;
     LLVector3 local_pos_in_parent_frame = joint->getPosition().scaledVec(joint->getScale());

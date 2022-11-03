@@ -35,6 +35,7 @@
 #include <vector>
 #include "lldatapacker.h"
 #include "llframetimer.h"
+#include "llik.h"
 #include "llquaternion.h"
 #include "v3math.h"
 #include "llframetimer.h"
@@ -43,16 +44,6 @@ class LLPuppetJointEvent
 {
     //Information about an expression event that we want to broadcast
 public:
-    enum E_EVENT_FLAG
-    {
-        EF_POSITION = 1 << 0,
-        EF_POSITION_IN_PARENT_FRAME = 1 << 1, // unset-->ROOT_FRAME, set-->PARENT_FRAME
-        EF_ROTATION = 1 << 2,
-        EF_ROTATION_IN_PARENT_FRAME = 1 << 3, // unset-->ROOT_FRAME, set-->PARENT_FRAME
-        EF_SCALE = 1 << 4,
-        EF_USE_IK = 1 << 7
-    };
-
     enum E_REFERENCE_FRAME
     {
         ROOT_FRAME = 0,
@@ -60,13 +51,15 @@ public:
     };
 
 public:
+    // BOOKMARK: give LLPuppetJointEvent an mReferenceFrame?
     LLPuppetJointEvent() {}
 
-    void setRotation(const LLQuaternion& rotation, E_REFERENCE_FRAME frame=ROOT_FRAME);
-    void setPosition(const LLVector3& position, E_REFERENCE_FRAME frame=ROOT_FRAME);
+    void setReferenceFrame(E_REFERENCE_FRAME frame) { mRefFrame = frame; }
+    void setRotation(const LLQuaternion& rotation);
+    void setPosition(const LLVector3& position);
     void setScale(const LLVector3& scale);
     void setJointID(S32 id);
-    void useIK() { mMask |= EF_USE_IK; }
+    void disableConstraint() { mMask |= LLIK::FLAG_DISABLE_CONSTRAINT; }
 
     S16 getJointID() const { return mJointID; }
     LLQuaternion getRotation() const { return mRotation; }
@@ -79,18 +72,18 @@ public:
 
     void interpolate(F32 del, const LLPuppetJointEvent& A, const LLPuppetJointEvent& B);
 
-    bool isEmpty() const { return (mMask & (EF_ROTATION | EF_POSITION | EF_SCALE | EF_USE_IK)) == 0; }
-    bool hasRotation() const { return (mMask & EF_ROTATION) > 0; }
-    bool hasPosition() const { return (mMask & EF_POSITION) > 0; }
-    bool hasScale() const { return (mMask & EF_SCALE) > 0; }
-    bool usesIK() const { return (mMask & EF_USE_IK) > 0; }
+    bool isEmpty() const { return mMask == 0; }
+    //bool hasRotation() const { return (mMask & LLIK::MASK_ROT) > 0; }
+    //bool hasPosition() const { return (mMask & LLIK::MASK_POS) > 0; }
+    //bool hasScale() const { return (mMask & LLIK::FLAG_LOCAL_SCALE) > 0; }
+    //bool hasDisabledConstraint() const { return (mMask & LLIK::FLAG_DISABLE_CONSTRAINT) > 0; }
 
-    bool rotationIsParentLocal() const { return (mMask & EF_ROTATION_IN_PARENT_FRAME) > 0; }
-
-    // parent-local position not yet supported
-    //bool positionIsParentLocal() const { return (mMask & EF_POSITION_IN_PARENT_FRAME) > 0; }
+    U8 getMask() const { return mMask; }
+    //bool rotationIsParentLocal() const { return (mMask & LLIK::FLAG_LOCAL_ROT) > 0; }
+    //bool positionIsParentLocal() const { return (mMask & LLIK::FLAG_LOCAL_POS) > 0; }
 
 private:
+    E_REFERENCE_FRAME mRefFrame = ROOT_FRAME;
     LLQuaternion mRotation;
     LLVector3 mPosition;
     LLVector3 mScale;
