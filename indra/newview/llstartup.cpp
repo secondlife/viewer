@@ -1434,6 +1434,9 @@ bool idle_startup()
         // to hapen with caps granted
         gTextureList.doPrefetchImages();
 
+        // will init images, should be done with caps, but before gSky.init()
+        LLEnvironment::getInstance()->initSingleton();
+
         display_startup();
 		update_texture_fetch();
 		display_startup();

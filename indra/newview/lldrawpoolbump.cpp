@@ -79,11 +79,6 @@ static S32 bump_channel = -1;
 
 #define LL_BUMPLIST_MULTITHREADED 0 // TODO -- figure out why this doesn't work
 
-// static 
-void LLStandardBumpmap::init()
-{
-	LLStandardBumpmap::restoreGL();
-}
 
 // static 
 void LLStandardBumpmap::shutdown()
@@ -94,7 +89,6 @@ void LLStandardBumpmap::shutdown()
 // static 
 void LLStandardBumpmap::restoreGL()
 {
-	addstandard();
 }
 
 // static
@@ -768,8 +762,6 @@ void LLBumpImageList::init()
 {
 	llassert( mBrightnessEntries.size() == 0 );
 	llassert( mDarknessEntries.size() == 0 );
-
-	LLStandardBumpmap::init();
 
 	LLStandardBumpmap::restoreGL();
     sMainQueue = LL::WorkQueue::getInstance("mainloop");
