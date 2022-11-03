@@ -228,6 +228,8 @@ public:
 
     U32 getUnsavedChangesFlags() { return mUnsavedChanges; }
 
+    bool capabilitiesAvalaible();
+
 private:
     static bool updateInventoryItem(const std::string &buffer, const LLUUID &item_id, const LLUUID &task_id);
     static void createInventoryItem(const std::string &buffer, const std::string &name, const std::string &desc);

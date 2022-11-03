@@ -883,6 +883,11 @@ static U32 write_texture(const LLUUID& id, tinygltf::Model& model)
 
 void LLMaterialEditor::onClickSave()
 {
+    if (!capabilitiesAvalaible())
+    {
+        LLNotificationsUtil::add("MissingMaterialCaps");
+        return;
+    }
     if (!can_afford_transaction(mExpectedUploadCost))
     {
         LLSD args;
@@ -2807,5 +2812,19 @@ void LLMaterialEditor::loadDefaults()
     tinygltf::Model model_in;
     model_in.materials.resize(1);
     setFromGltfModel(model_in, 0, true);
+}
+
+bool LLMaterialEditor::capabilitiesAvalaible()
+{
+    const LLViewerRegion* region = gAgent.getRegion();
+    if (!region)
+    {
+        LL_WARNS("MaterialEditor") << "Not connected to a region, cannot save material." << LL_ENDL;
+        return false;
+    }
+    std::string agent_url = region->getCapability("UpdateMaterialAgentInventory");
+    std::string task_url = region->getCapability("UpdateMaterialTaskInventory");
+
+    return (!agent_url.empty() && !task_url.empty());
 }
 
