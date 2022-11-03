@@ -83,8 +83,10 @@ struct LLUnit
 	typedef void is_unit_t;
 
 	// value initialization
-	LL_FORCE_INLINE explicit LLUnit(storage_t value = storage_t())
-	:	mValue(value)
+    // allow for convertible type
+    template <typename T=storage_t>
+	LL_FORCE_INLINE explicit LLUnit(T value = T())
+	:	mValue(storage_t(value))
 	{}
 
 
@@ -124,7 +126,7 @@ struct LLUnit
 	// unit initialization and conversion
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
 	LL_FORCE_INLINE LLUnit(LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other)
-	:	mValue(convert(other).mValue)
+	:	mValue(storage_t(convert(other).mValue))
 	{}
 	
 	LL_FORCE_INLINE storage_t value() const

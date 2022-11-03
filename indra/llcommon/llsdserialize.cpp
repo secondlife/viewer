@@ -99,7 +99,7 @@ void LLSDSerialize::serialize(const LLSD& sd, std::ostream& str, ELLSD_Serialize
 }
 
 // static
-bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, S32 max_bytes)
+bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, size_t max_bytes)
 {
 	LLPointer<LLSDParser> p = NULL;
 	char hdr_buf[MAX_HDR_LEN + 1] = ""; /* Flawfinder: ignore */
@@ -252,7 +252,7 @@ F64 ll_ntohd(F64 netdouble)
  * @return Returns number of bytes read off of the stream. Returns
  * PARSE_FAILURE (-1) on failure.
  */
-int deserialize_string(std::istream& istr, std::string& value, S32 max_bytes);
+int deserialize_string(std::istream& istr, std::string& value, size_t max_bytes);
 
 /**
  * @brief Parse a delimited string. 
@@ -280,7 +280,7 @@ int deserialize_string_delim(std::istream& istr, std::string& value, char d);
 int deserialize_string_raw(
 	std::istream& istr,
 	std::string& value,
-	S32 max_bytes);
+	size_t max_bytes);
 
 /**
  * @brief helper method for dealing with the different notation boolean format.
@@ -329,7 +329,7 @@ LLSDParser::LLSDParser()
 LLSDParser::~LLSDParser()
 { }
 
-S32 LLSDParser::parse(std::istream& istr, LLSD& data, S32 max_bytes, S32 max_depth)
+S32 LLSDParser::parse(std::istream& istr, LLSD& data, size_t max_bytes, S32 max_depth)
 {
 	mCheckLimits = (LLSDSerialize::SIZE_UNLIMITED == max_bytes) ? false : true;
 	mMaxBytesLeft = max_bytes;
@@ -803,7 +803,7 @@ bool LLSDNotationParser::parseBinary(std::istream& istr, LLSD& data) const
 	{
 		// We probably have a valid raw binary stream. determine
 		// the size, and read it.
-		S32 len = strtol(buf + 2, NULL, 0);
+		auto len = strtol(buf + 2, NULL, 0);
 		if(mCheckLimits && (len > mMaxBytesLeft)) return false;
 		std::vector<U8> value;
 		if(len)
@@ -1592,7 +1592,7 @@ void LLSDBinaryFormatter::formatString(
 /**
  * local functions
  */
-int deserialize_string(std::istream& istr, std::string& value, S32 max_bytes)
+int deserialize_string(std::istream& istr, std::string& value, size_t max_bytes)
 {
 	int c = istr.get();
 	if(istr.fail())
@@ -1728,7 +1728,7 @@ int deserialize_string_delim(
 int deserialize_string_raw(
 	std::istream& istr,
 	std::string& value,
-	S32 max_bytes)
+	size_t max_bytes)
 {
 	int count = 0;
 	const S32 BUF_LEN = 20;
@@ -1743,7 +1743,7 @@ int deserialize_string_raw(
 		// We probably have a valid raw string. determine
 		// the size, and read it.
 		// *FIX: This is memory inefficient.
-		S32 len = strtol(buf + 1, NULL, 0);
+		auto len = strtol(buf + 1, NULL, 0);
 		if((max_bytes>0)&&(len>max_bytes)) return LLSDParser::PARSE_FAILURE;
 		std::vector<char> buf;
 		if(len)
@@ -2110,7 +2110,7 @@ std::string zip_llsd(LLSD& data)
 
 	U8 out[CHUNK];
 
-	strm.avail_in = source.size();
+	strm.avail_in = uint32_t(source.size());
 	strm.next_in = (U8*) source.data();
 	U8* output = NULL;
 
@@ -2173,7 +2173,7 @@ std::string zip_llsd(LLSD& data)
 LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, std::istream& is, S32 size)
 {
 	U8* result = NULL;
-	U32 cur_size = 0;
+	size_t cur_size = 0;
 	z_stream strm;
 		
 	const U32 CHUNK = 65536;
