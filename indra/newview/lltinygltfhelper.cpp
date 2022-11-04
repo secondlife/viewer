@@ -259,7 +259,7 @@ bool LLTinyGLTFHelper::getMaterialFromFile(
     {
         base_color_tex->addTextureStats(64.f * 64.f, TRUE);
         material->mBaseColorId = base_color_tex->getID();
-        material->mBaseColorTexture;
+        material->mBaseColorTexture = base_color_tex;
     }
     else
     {
