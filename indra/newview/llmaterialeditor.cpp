@@ -36,6 +36,7 @@
 #include "llfilesystem.h"
 #include "llgltfmateriallist.h"
 #include "llinventorymodel.h"
+#include "lllocalgltfmaterials.h"
 #include "llnotificationsutil.h"
 #include "lltexturectrl.h"
 #include "lltrans.h"
@@ -236,6 +237,7 @@ struct LLSelectedTEGetMatData : public LLSelectedTEFunctor
     LLUUID mObjectId;
     S32 mObjectTE;
     LLPointer<LLGLTFMaterial> mMaterial;
+    LLPointer<LLLocalGLTFMaterial> mLocalMaterial;
 };
 
 LLSelectedTEGetMatData::LLSelectedTEGetMatData(bool for_override)
@@ -262,48 +264,63 @@ bool LLSelectedTEGetMatData::apply(LLViewerObject* objectp, S32 te_index)
     // or has no base material
     if (can_use && tep && mat_id.notNull())
     {
-        LLPointer<LLGLTFMaterial> mat = tep->getGLTFRenderMaterial();
-        LLUUID tex_color_id;
-        LLUUID tex_metal_id;
-        LLUUID tex_emissive_id;
-        LLUUID tex_normal_id;
-        llassert(mat.notNull()); // by this point shouldn't be null
-        if (mat.notNull())
+        if (mIsOverride)
         {
-            tex_color_id = mat->mBaseColorId;
-            tex_metal_id = mat->mMetallicRoughnessId;
-            tex_emissive_id = mat->mEmissiveId;
-            tex_normal_id = mat->mNormalId;
-        }
-        if (mFirst)
-        {
-            mMaterial = mat;
-            mTexColorId = tex_color_id;
-            mTexMetalId = tex_metal_id;
-            mTexEmissiveId = tex_emissive_id;
-            mTexNormalId = tex_normal_id;
-            mObjectTE = te_index;
-            mObjectId = objectp->getID();
-            mFirst = false;
+            LLPointer<LLGLTFMaterial> mat = tep->getGLTFRenderMaterial();
+
+            LLUUID tex_color_id;
+            LLUUID tex_metal_id;
+            LLUUID tex_emissive_id;
+            LLUUID tex_normal_id;
+            llassert(mat.notNull()); // by this point shouldn't be null
+            if (mat.notNull())
+            {
+                tex_color_id = mat->mBaseColorId;
+                tex_metal_id = mat->mMetallicRoughnessId;
+                tex_emissive_id = mat->mEmissiveId;
+                tex_normal_id = mat->mNormalId;
+            }
+            if (mFirst)
+            {
+                mMaterial = mat;
+                mTexColorId = tex_color_id;
+                mTexMetalId = tex_metal_id;
+                mTexEmissiveId = tex_emissive_id;
+                mTexNormalId = tex_normal_id;
+                mObjectTE = te_index;
+                mObjectId = objectp->getID();
+                mFirst = false;
+            }
+            else
+            {
+                if (mTexColorId != tex_color_id)
+                {
+                    mIdenticalTexColor = false;
+                }
+                if (mTexMetalId != tex_metal_id)
+                {
+                    mIdenticalTexMetal = false;
+                }
+                if (mTexEmissiveId != tex_emissive_id)
+                {
+                    mIdenticalTexEmissive = false;
+                }
+                if (mTexNormalId != tex_normal_id)
+                {
+                    mIdenticalTexNormal = false;
+                }
+            }
         }
         else
         {
-            if (mTexColorId != tex_color_id)
+            LLGLTFMaterial *mat = tep->getGLTFMaterial();
+            LLLocalGLTFMaterial *local_mat = dynamic_cast<LLLocalGLTFMaterial*>(mat);
+
+            if (local_mat)
             {
-                mIdenticalTexColor = false;
+                mLocalMaterial = local_mat;
             }
-            if (mTexMetalId != tex_metal_id)
-            {
-                mIdenticalTexMetal = false;
-            }
-            if (mTexEmissiveId != tex_emissive_id)
-            {
-                mIdenticalTexEmissive = false;
-            }
-            if (mTexNormalId != tex_normal_id)
-            {
-                mIdenticalTexNormal = false;
-            }
+            mMaterial = tep->getGLTFRenderMaterial();
         }
     }
     return true;
@@ -349,7 +366,7 @@ void LLMaterialEditor::setAuxItem(const LLInventoryItem* item)
 BOOL LLMaterialEditor::postBuild()
 {
     // if this is a 'live editor' instance, it is also
-    // single instacne and uses live overrides
+    // single instance and uses live overrides
     mIsOverride = getIsSingleInstance();
 
     mBaseColorTextureCtrl = getChild<LLTextureCtrl>("base_color_texture");
@@ -1691,17 +1708,69 @@ void LLMaterialEditor::loadLive()
 
 void LLMaterialEditor::saveObjectsMaterialAs()
 {
-    LLSD args;
-    args["DESC"] = LLTrans::getString("New Material");
-
-    LLSD payload;
 
     // Find an applicable material.
     // Do this before showing message, because
     // message is going to drop selection.
     LLSelectedTEGetMatData func(false);
-    LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
+    LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func, true /*first applicable*/);
 
+    if (func.mLocalMaterial.notNull())
+    {
+        // This is a local material, reload it from file
+        // so that user won't end up with grey textures
+        // on next login.
+        LLMaterialEditor::loadMaterialFromFile(func.mLocalMaterial->getFilename(), func.mLocalMaterial->getIndexInFile());
+
+        LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
+        if (me)
+        {
+            // apply differences on top
+            LLGLTFMaterial* local_mat = func.mLocalMaterial.get();
+            // don't use override mat here, it has 'hacked ids'
+            // and values, use end result.
+            LLGLTFMaterial* cmp_mat = func.mMaterial.get();
+
+            me->setBaseColor(cmp_mat->mBaseColor);
+            me->setMetalnessFactor(cmp_mat->mMetallicFactor);
+            me->setRoughnessFactor(cmp_mat->mRoughnessFactor);
+            me->setEmissiveColor(cmp_mat->mEmissiveColor);
+            me->setDoubleSided(cmp_mat->mDoubleSided);
+            me->setAlphaMode(cmp_mat->getAlphaMode());
+            me->setAlphaCutoff(cmp_mat->mAlphaCutoff);
+
+            // most things like colors we can apply without verifying
+            // but texture ids are going to be different from both, base and override
+            // so only apply override id if there is actually a difference
+            if (local_mat->mBaseColorId != cmp_mat->mBaseColorId)
+            {
+                me->setBaseColorId(cmp_mat->mBaseColorId);
+                me->childSetValue("base_color_upload_fee", me->getString("no_upload_fee_string"));
+            }
+            if (local_mat->mNormalId != cmp_mat->mNormalId)
+            {
+                me->setNormalId(cmp_mat->mNormalId);
+                me->childSetValue("normal_upload_fee", me->getString("no_upload_fee_string"));
+            }
+            if (local_mat->mMetallicRoughnessId != cmp_mat->mMetallicRoughnessId)
+            {
+                me->setMetallicRoughnessId(cmp_mat->mMetallicRoughnessId);
+                me->childSetValue("metallic_upload_fee", me->getString("no_upload_fee_string"));
+            }
+            if (local_mat->mEmissiveId != cmp_mat->mEmissiveId)
+            {
+                me->setEmissiveId(cmp_mat->mEmissiveId);
+                me->childSetValue("emissive_upload_fee", me->getString("no_upload_fee_string"));
+            }
+
+            // recalculate upload prices
+            me->markChangesUnsaved(0);
+        }
+
+        return;
+    }
+
+    LLSD payload;
     if (func.mMaterial.notNull())
     {
         payload["data"] = func.mMaterial->asJSON();
@@ -1714,6 +1783,9 @@ void LLMaterialEditor::saveObjectsMaterialAs()
         payload["data"] = blank_mat.asJSON();
         LL_WARNS() << "Got no material when trying to save material" << LL_ENDL;
     }
+
+    LLSD args;
+    args["DESC"] = LLTrans::getString("New Material");
 
     LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback, _1, _2));
 }

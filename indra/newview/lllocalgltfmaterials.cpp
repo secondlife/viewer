@@ -61,7 +61,6 @@ static const S32 LL_LOCAL_UPDATE_RETRIES    = 5;
 LLLocalGLTFMaterial::LLLocalGLTFMaterial(std::string filename, S32 index)
     : mFilename(filename)
     , mShortName(gDirUtilp->getBaseFileName(filename, true))
-    , mValid(false)
     , mLastModified()
     , mLinkStatus(LS_ON)
     , mUpdateRetries(LL_LOCAL_UPDATE_RETRIES)
@@ -86,17 +85,11 @@ LLLocalGLTFMaterial::LLLocalGLTFMaterial(std::string filename, S32 index)
             << "Filename: " << mFilename << LL_ENDL;
         return; // no valid extension.
     }
-
-    /* next phase of unit creation is nearly the same as an update cycle.
-       we're running updateSelf as a special case with the optional UT_FIRSTUSE
-       which omits the parts associated with removing the outdated texture */
-    mValid = updateSelf();
 }
 
 LLLocalGLTFMaterial::~LLLocalGLTFMaterial()
 {
-    // delete self from material list
-    gGLTFMaterialList.removeMaterial(mWorldID);
+    // gGLTFMaterialList will clean itself
 }
 
 /* accessors */
@@ -123,11 +116,6 @@ LLUUID LLLocalGLTFMaterial::getWorldID()
 S32 LLLocalGLTFMaterial::getIndexInFile()
 {
     return mMaterialIndex;
-}
-
-bool LLLocalGLTFMaterial::getValid()
-{
-    return mValid;
 }
 
 /* update functions */
@@ -163,7 +151,7 @@ bool LLLocalGLTFMaterial::updateSelf()
                     // addMaterial will replace material witha a new
                     // pointer if value already exists but we are
                     // reusing existing pointer, so it should add only.
-                    gGLTFMaterialList.addMaterial(mWorldID, mGLTFMaterial);
+                    gGLTFMaterialList.addMaterial(mWorldID, this);
 
                     mUpdateRetries = LL_LOCAL_UPDATE_RETRIES;
                     updated = true;
@@ -217,17 +205,6 @@ bool LLLocalGLTFMaterial::loadMaterial()
 {
     bool decode_successful = false;
 
-    if (mWorldID.notNull())
-    {
-        // We should already have it, but update mGLTFMaterial just in case
-        // will create a new one if material doesn't exist yet
-        mGLTFMaterial = (LLFetchedGLTFMaterial*)gGLTFMaterialList.getMaterial(mWorldID);
-    }
-    else
-    {
-        mGLTFMaterial = new LLFetchedGLTFMaterial();
-    }
-
     switch (mExtension)
     {
     case ET_MATERIAL_GLTF:
@@ -241,12 +218,8 @@ bool LLLocalGLTFMaterial::loadMaterial()
             decode_successful = LLTinyGLTFHelper::getMaterialFromFile(
                 mFilename,
                 mMaterialIndex,
-                mGLTFMaterial,
-                material_name,
-                mBaseColorFetched,
-                mNormalFetched,
-                mMRFetched,
-                mEmissiveFetched);
+                this,
+                material_name);
 
             if (!material_name.empty())
             {
@@ -315,7 +288,6 @@ LLLocalGLTFMaterialMgr::LLLocalGLTFMaterialMgr()
 
 LLLocalGLTFMaterialMgr::~LLLocalGLTFMaterialMgr()
 {
-    std::for_each(mMaterialList.begin(), mMaterialList.end(), DeletePointer());
     mMaterialList.clear();
 }
 
@@ -386,11 +358,12 @@ S32 LLLocalGLTFMaterialMgr::addUnit(const std::string& filename)
         // Todo: this is rather inefficient, files will be spammed with
         // separate loads and date checks, find a way to improve this.
         // May be doUpdates() should be checking individual files.
-        LLLocalGLTFMaterial* unit = new LLLocalGLTFMaterial(filename, i);
+        LLPointer<LLLocalGLTFMaterial> unit = new LLLocalGLTFMaterial(filename, i);
 
-        if (unit->getValid())
+        // load material from file
+        if (unit->updateSelf())
         {
-            mMaterialList.push_back(unit);
+            mMaterialList.emplace_back(unit);
             loaded_materials++;
         }
         else
@@ -402,7 +375,6 @@ S32 LLLocalGLTFMaterialMgr::addUnit(const std::string& filename)
             notif_args["FNAME"] = filename;
             LLNotificationsUtil::add("LocalGLTFVerifyFail", notif_args);
 
-            delete unit;
             unit = NULL;
         }
     }
@@ -429,7 +401,7 @@ void LLLocalGLTFMaterialMgr::delUnit(LLUUID tracking_id)
         {   /* iterating over a temporary list, hence preserving the iterator validity while deleting. */
             LLLocalGLTFMaterial* unit = *del_iter;
             mMaterialList.remove(unit);
-            delete unit;
+
             unit = NULL;
         }
     }

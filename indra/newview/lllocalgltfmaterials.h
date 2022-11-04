@@ -29,18 +29,17 @@
 
 #include "lleventtimer.h"
 #include "llpointer.h"
+#include "llgltfmateriallist.h"
 
 class LLScrollListCtrl;
 class LLGLTFMaterial;
 class LLViewerObject;
-class LLViewerFetchedTexture;
-class LLFetchedGLTFMaterial;
 
-class LLLocalGLTFMaterial
+class LLLocalGLTFMaterial : public LLFetchedGLTFMaterial
 {
 public: /* main */
     LLLocalGLTFMaterial(std::string filename, S32 index);
-    ~LLLocalGLTFMaterial();
+    virtual ~LLLocalGLTFMaterial();
 
 public: /* accessors */
     std::string	getFilename();
@@ -48,7 +47,6 @@ public: /* accessors */
     LLUUID		getTrackingID();
     LLUUID		getWorldID();
     S32			getIndexInFile();
-    bool		getValid();
 
 public:
     bool updateSelf();
@@ -74,20 +72,11 @@ private: /* members */
     std::string mShortName;
     LLUUID      mTrackingID;
     LLUUID      mWorldID;
-    bool        mValid;
     LLSD        mLastModified;
     EExtension  mExtension;
     ELinkStatus mLinkStatus;
     S32         mUpdateRetries;
     S32         mMaterialIndex; // Single file can have more than one
-
-    // Maintain textures and material pointers to
-    // make sure they won't be deleted in any way
-    LLPointer<LLFetchedGLTFMaterial> mGLTFMaterial;
-    LLPointer<LLViewerFetchedTexture> mBaseColorFetched;
-    LLPointer<LLViewerFetchedTexture> mNormalFetched;
-    LLPointer<LLViewerFetchedTexture> mMRFetched;
-    LLPointer<LLViewerFetchedTexture> mEmissiveFetched;
 };
 
 class LLLocalGLTFMaterialTimer : public LLEventTimer
@@ -120,9 +109,9 @@ public:
     void         doUpdates();
 
 private:
-    std::list<LLLocalGLTFMaterial*>    mMaterialList;
+    std::list<LLPointer<LLLocalGLTFMaterial> >    mMaterialList;
     LLLocalGLTFMaterialTimer           mTimer;
-    typedef std::list<LLLocalGLTFMaterial*>::iterator local_list_iter;
+    typedef std::list<LLPointer<LLLocalGLTFMaterial> >::iterator local_list_iter;
 };
 
 #endif // LL_LOCALGLTFMATERIALS_H
