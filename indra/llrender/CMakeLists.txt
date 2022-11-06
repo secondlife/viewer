@@ -35,6 +35,7 @@ set(llrender_SOURCE_FILES
     llcubemap.cpp
     llfontbitmapcache.cpp
     llfontfreetype.cpp
+    llfontfreetypesvg.cpp
     llfontgl.cpp
     llfontregistry.cpp
     llgl.cpp
@@ -62,6 +63,7 @@ set(llrender_HEADER_FILES
     llcubemap.h
     llfontgl.h
     llfontfreetype.h
+    llfontfreetypesvg.h
     llfontbitmapcache.h
     llfontregistry.h
     llgl.h

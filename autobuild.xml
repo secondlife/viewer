@@ -958,9 +958,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f3e63d80bd80da03aa7f87f7bd7c5f8b</string>
+              <string>2fee8d8320ab6bd180f0acf4d2b24bff</string>
               <key>url</key>
-              <string>freetype-2.10.1.0-windows64-222392239.tar.bz2</string>
+              <string>freetype-2.12.1.0-windows64-223091759.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2423,6 +2423,36 @@
         </map>
         <key>version</key>
         <string>7.11.1.297294</string>
+      </map>
+	  <key>nanosvg</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2013-14 Mikko Mononen</string>
+        <key>description</key>
+        <string>NanoSVG is a simple single-header-file SVG parser and rasterizer</string>
+        <key>license</key>
+        <string>Zlib</string>
+        <key>license_file</key>
+        <string>LICENSES/nanosvg.txt</string>
+        <key>name</key>
+        <string>nanosvg</string>
+        <key>platforms</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>aa73d8b6c45168b74e2cc4640ec01f95</string>
+              <key>url</key>
+              <string>nanosvg-2022.09.27-common-223101446.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>2022.09.27</string>
       </map>
       <key>nghttp2</key>
       <map>
