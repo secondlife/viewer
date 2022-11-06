@@ -11,3 +11,4 @@ if (NOT USESYSTEMLIBS)
 endif(NOT USESYSTEMLIBS)
 
 use_prebuilt_binary(fonts)
+use_prebuilt_binary(nanosvg)

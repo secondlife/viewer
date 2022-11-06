@@ -34,6 +34,7 @@
 #ifdef LL_WINDOWS
 #include <freetype2\freetype\ftsystem.h>
 #endif
+#include "llfontfreetypesvg.h"
 
 // For some reason, this won't work if it's not wrapped in the ifdef
 #ifdef FT_FREETYPE_H
@@ -50,6 +51,8 @@
 //#include "imdebug.h"
 #include "llfontbitmapcache.h"
 #include "llgl.h"
+
+#define ENABLE_OT_SVG_SUPPORT
 
 FT_Render_Mode gFontRenderMode = FT_RENDER_MODE_NORMAL;
 
@@ -83,6 +86,16 @@ LLFontManager::LLFontManager()
 		LL_ERRS() << "Freetype initialization failure!" << LL_ENDL;
 		FT_Done_FreeType(gFTLibrary);
 	}
+
+#ifdef ENABLE_OT_SVG_SUPPORT
+	SVG_RendererHooks hooks = {
+		LLFontFreeTypeSvgRenderer::OnInit,
+		LLFontFreeTypeSvgRenderer::OnFree,
+		LLFontFreeTypeSvgRenderer::OnRender,
+		LLFontFreeTypeSvgRenderer::OnPresetGlypthSlot,
+	};
+	FT_Property_Set(gFTLibrary, "ot-svg", "svg-hooks", &hooks);
+#endif
 }
 
 LLFontManager::~LLFontManager()
