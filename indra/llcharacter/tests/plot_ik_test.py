@@ -39,7 +39,7 @@ zlim = [0.0, 1.0]
 
 
 # PUT IK TEST DATA HERE
-#targets = []
+#joint_configs = []
 #initial_data = []
 #solution_data = []
 #xlim=[]
@@ -156,7 +156,7 @@ def animate(i):
 targets_x = []
 targets_y = []
 targets_z = []
-for target in targets:
+for target in joint_configs:
     targets_x.append(target['p'][0])
     targets_y.append(target['p'][1])
     targets_z.append(target['p'][2])

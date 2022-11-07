@@ -406,6 +406,8 @@ public:
 
         U8 getFlags() const { return mFlags; }
 
+        void updateFrom(const Config& other_config);
+
     private:
         LLVector3 mLocalPos;
         LLQuaternion mLocalRot;
@@ -476,15 +478,14 @@ public:
     F32 getLocalPosLength() const { return mLocalPosLength; }
 
     ptr_t getParent() { return mParent; }
-    void activate() { mHarvestFlags |= HARVEST_FLAG_ACTIVE; }
-    bool isActive() const { return (mHarvestFlags & HARVEST_FLAG_ACTIVE) > 0; }
+    void activate() { mIsActive = true; }
+    bool isActive() const { return mIsActive; }
     bool hasDisabledConstraint() const { return (mConfigFlags & FLAG_DISABLE_CONSTRAINT) > 0; }
 
     // Joint::mLocalRot is considered "locked" when its mConfigFlag's FLAG_LOCAL_ROT bit is set
     bool localRotLocked() const { return (mConfigFlags & FLAG_LOCAL_ROT) > 0; }
 
     size_t getNumChildren() const { return mChildren.size(); }
-    //U8 getHarvestFlags() const { return mHarvestFlags; }
 
     void transformTargetsToParentLocal(std::vector<LLVector3>& local_targets) const;
     bool swingTowardTargets(const std::vector<LLVector3>& local_targets, const std::vector<LLVector3>& world_targets);
@@ -528,16 +529,8 @@ protected:
 
     const Config* mConfig = nullptr; // pointer into Solver::mJointConfigs
 
-    U8 mConfigFlags; // cache of mConfig->mFlags
-    U8 mHarvestFlags; // which properties to harvest
-
-    /*
-    // mIsActive = set true by Solver when this joint is on a "chain".
-    bool mIsActive = false;
-    bool mLocalRotIsLocked = false; // Note: always 'true' for root Joints
-    bool mHasWorldPosTarget = false;
-    bool mHasWorldRotTarget = false;
-    */
+    U8 mConfigFlags = 0; // cache of mConfig->mFlags
+    bool mIsActive;
 };
 
 
@@ -567,9 +560,9 @@ public:
     // Add a Joint to the skeleton.
     void addJoint(S16 joint_id, S16 parent_id, const LLVector3& local_pos, const LLVector3& bone, const Constraint::ptr_t& constraint);
 
-    // Solve the IK problem for the given targets
+    // Solve the IK problem for the given list of Joint Configurations
     // return max_error of result
-    F32 solveForTargets(const joint_config_map_t& targets);
+    F32 configureAndSolve(const joint_config_map_t& configs);
 
     // Specify a joint as a 'wrist'.  Will be used to help 'drop the elbow'
     // of the arm to achieve a more realistic solution.

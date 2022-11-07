@@ -582,7 +582,7 @@ LLPuppetMotion::LLPuppetMotion(const LLUUID &id) :
 // override
 bool LLPuppetMotion::needsUpdate() const
 {
-    return mNeedsUpdate || LLMotion::needsUpdate();
+    return !mExpressionEvents.empty() || !mEventQueues.empty() || LLMotion::needsUpdate();
 }
 
 F32 LLPuppetMotion::getEaseInDuration()
@@ -665,20 +665,10 @@ void LLPuppetMotion::clearAll()
 
 void LLPuppetMotion::addExpressionEvent(const LLPuppetJointEvent& event)
 {
-    // We store inbound events in two maps keyed by joint_id:
-    // one for parent-frame (local) per-joint config and
-    // another for root-frame (world) IK targets.
-    if (event.getMask() & LLIK::MASK_LOCAL)
-    {
-        // PARENT_FRAME (local)
-        mJSExpressionEvents[event.getJointID()] = event;
-    }
-    else
-    {
-        // WORLD_FRAME (skeleton root)
-        mIKExpressionEvents[event.getJointID()] = event;
-    }
-    mNeedsUpdate = true;
+    // We used to collect these events in a map, keyed by joint_id,
+    // but now we just collect them onto a vector and process them
+    // FIFO later.
+    mExpressionEvents.push_back(event);
 }
 
 void LLPuppetMotion::addJointToSkeletonData(LLSD& skeleton_sd, LLJoint* joint, const LLVector3& parent_rel_pos, const LLVector3& tip_rel_end_pos)
@@ -781,7 +771,7 @@ void LLPuppetMotion::rememberPosedJoint(S16 joint_id, LLPointer<LLJointState> jo
     }
 }
 
-void LLPuppetMotion::solveForTargetsAndHarvestResults(const LLIK::Solver::joint_config_map_t& targets, Timestamp now,bool something_changed)
+void LLPuppetMotion::solveIKAndHarvestResults(const LLIK::Solver::joint_config_map_t& configs, Timestamp now)
 {
     bool local_puppetry = !LLPuppetModule::instance().getEcho();
     if (mIsSelf && local_puppetry)
@@ -791,13 +781,13 @@ void LLPuppetMotion::solveForTargetsAndHarvestResults(const LLIK::Solver::joint_
         local_puppetry = camera_mode != CAMERA_MODE_MOUSELOOK && camera_mode != CAMERA_MODE_CUSTOMIZE_AVATAR;
     }
 
-	bool remote_puppetry = something_changed && LLPuppetModule::instance().isSending();
+	bool remote_puppetry = LLPuppetModule::instance().isSending();
     if (!local_puppetry && !remote_puppetry)
     {
         return;
     }
 
-    mIKSolver.solveForTargets(targets);
+    bool something_changed = mIKSolver.configureAndSolve(configs);
 
 	LLPuppetEvent broadcast_event;
     const LLIK::Solver::joint_list_t& active_joints = mIKSolver.getActiveJoints();
@@ -852,7 +842,6 @@ void LLPuppetMotion::solveForTargetsAndHarvestResults(const LLIK::Solver::joint_
 	if (something_changed &&
         LLPuppetModule::instance().isSending())
 	{
-
 		queueOutgoingEvent(broadcast_event);
 	}
 }
@@ -905,34 +894,69 @@ void LLPuppetMotion::applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::
     }
 }
 
-void LLPuppetMotion::updateFromExpression(Timestamp now, express_map_t& event_map)
+void LLPuppetMotion::updateFromExpression(Timestamp now)
 {
-    if (!event_map.empty())
+    LLIK::Solver::joint_config_map_t configs;
+    for(const auto& event: mExpressionEvents)
     {
-        bool something_changed = false;
-
-        LLIK::Solver::joint_config_map_t configs;
-
-        for(const auto& data_pair : event_map)
+        S16 joint_id = event.getJointID();
+        state_map_t::iterator state_iter = mJointStates.find(joint_id);
+        if (state_iter == mJointStates.end())
         {
-            S16 joint_id = data_pair.first;
-            state_map_t::iterator state_iter = mJointStates.find(joint_id);
-            if (state_iter == mJointStates.end())
+            continue;
+        }
+
+        LLIK::Joint::Config config;
+        bool something_changed = false;
+        U8 mask = event.getMask();
+        if (mask & LLIK::MASK_ROT)
+        {
+            if (mask & LLIK::FLAG_LOCAL_ROT)
             {
-                continue;
+                config.setLocalRot(event.getRotation());
             }
-            const LLPuppetJointEvent& event = data_pair.second;
-            applyEvent(event, now, configs);
+            else
+            {
+                config.setTargetRot(event.getRotation());
+            }
             something_changed = true;
         }
-
-        event_map.clear();
-
-        if (configs.size())
+        if (mask & LLIK::MASK_POS)
         {
-            solveForTargetsAndHarvestResults(configs, now, something_changed);
+            // don't forget to scale by 0.5*mArmSpan
+            if (mask & LLIK::FLAG_LOCAL_POS)
+            {
+                // TODO: figure out what to do about scale of local positions
+                config.setLocalPos(event.getPosition());
+            }
+            else
+            {
+                config.setTargetPos(event.getPosition() * 0.5f * mArmSpan);
+            }
+            something_changed = true;
         }
-        mNeedsUpdate = false;
+        if (mask & LLIK::FLAG_DISABLE_CONSTRAINT)
+        {
+            config.disableConstraint();
+            something_changed = true;
+        }
+        if (something_changed)
+        {
+            LLIK::Solver::joint_config_map_t::iterator itr = configs.find(joint_id);
+            if (itr == configs.end())
+            {
+                configs.insert({joint_id, config});
+            }
+            else
+            {
+                itr->second.updateFrom(config);
+            }
+        }
+    }
+    mExpressionEvents.clear();
+    if (!configs.empty())
+    {
+        solveIKAndHarvestResults(configs, now);
     }
 }
 
@@ -1086,7 +1110,6 @@ void LLPuppetMotion::queueEvent(const LLPuppetEvent& puppet_event)
         }
         DelayedEventQueue& queue = mEventQueues[joint_id];
         queue.addEvent(remote_timestamp, local_timestamp, joint_event);
-        mNeedsUpdate = true;
     }
 }
 
@@ -1120,9 +1143,12 @@ BOOL LLPuppetMotion::onUpdate(F32 time, U8* joint_mask)
     {
         // TODO: combine the two event maps into one vector of targets
         // LLIK::Solver::joint_config_map_t targets;
-        updateFromExpression(now, mIKExpressionEvents);
-        updateFromExpression(now, mJSExpressionEvents);
-        pumpOutgoingEvents();
+        if (!mExpressionEvents.empty())
+        {
+            updateFromExpression(now);
+            pumpOutgoingEvents();
+        }
+
         if (LLPuppetModule::instance().getEcho())
         {   // Check for updates from server if we're echoing from there
             updateFromBroadcast(now);
