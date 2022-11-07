@@ -35,16 +35,16 @@ class LLToggleableMenu;
 class LLPanelPlacesTab : public LLPanel
 {
 public:
-	LLPanelPlacesTab() : LLPanel() {}
-	virtual ~LLPanelPlacesTab() {}
+    LLPanelPlacesTab() : LLPanel() {}
+    virtual ~LLPanelPlacesTab() {}
 
-	virtual void onSearchEdit(const std::string& string) = 0;
-	virtual void updateVerbs() = 0;		// Updates buttons at the bottom of Places panel
-	virtual void onShowOnMap() = 0;
-	virtual void onShowProfile() = 0;
-	virtual void onTeleport() = 0;
-	virtual void onRemoveSelected() = 0;
-	virtual bool isSingleItemSelected() = 0;
+    virtual void onSearchEdit(const std::string& string) = 0;
+    virtual void updateVerbs() = 0;     // Updates buttons at the bottom of Places panel
+    virtual void onShowOnMap() = 0;
+    virtual void onShowProfile() = 0;
+    virtual void onTeleport() = 0;
+    virtual void onRemoveSelected() = 0;
+    virtual bool isSingleItemSelected() = 0;
 
     // returns menu for current selection
     virtual LLToggleableMenu* getSelectionMenu() = 0;
@@ -56,23 +56,23 @@ public:
     */
     virtual bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept) = 0;
 
-	bool isTabVisible(); // Check if parent TabContainer is visible.
+    bool isTabVisible(); // Check if parent TabContainer is visible.
 
-	void onRegionResponse(const LLVector3d& landmark_global_pos,
-										U64 region_handle,
-										const std::string& url,
-										const LLUUID& snapshot_id,
-										bool teleport);
+    void onRegionResponse(const LLVector3d& landmark_global_pos,
+                                        U64 region_handle,
+                                        const std::string& url,
+                                        const LLUUID& snapshot_id,
+                                        bool teleport);
 
-	const std::string& getFilterSubString() { return sFilterSubString; }
-	void setFilterSubString(const std::string& string) { sFilterSubString = string; }
+    const std::string& getFilterSubString() { return sFilterSubString; }
+    void setFilterSubString(const std::string& string) { sFilterSubString = string; }
 
-	void setRemoveBtn(LLButton* trash_btn) { sRemoveBtn = trash_btn; }
+    void setRemoveBtn(LLButton* trash_btn) { sRemoveBtn = trash_btn; }
 
 protected:
-	// Search string for filtering landmarks and teleport history locations
-	static std::string		sFilterSubString;
-	static LLButton*		sRemoveBtn;
+    // Search string for filtering landmarks and teleport history locations
+    static std::string      sFilterSubString;
+    static LLButton*        sRemoveBtn;
 };
 
 #endif //LL_LLPANELPLACESTAB_H

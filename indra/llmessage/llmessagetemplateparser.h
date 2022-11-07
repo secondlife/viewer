@@ -33,48 +33,48 @@
 class LLTemplateTokenizer
 {
 public:
-	LLTemplateTokenizer(const std::string & contents);
+    LLTemplateTokenizer(const std::string & contents);
 
-	U32 line() const;
-	bool atEOF() const;
-	std::string next();
+    U32 line() const;
+    bool atEOF() const;
+    std::string next();
 
-	bool want(const std::string & token);
-	bool wantEOF();
+    bool want(const std::string & token);
+    bool wantEOF();
 private:
-	void inc();
-	void dec();
-	std::string get() const;
-	void error(std::string message = "generic") const;
+    void inc();
+    void dec();
+    std::string get() const;
+    void error(std::string message = "generic") const;
 
-	struct positioned_token
-	{
-		std::string str;
-		U32 line;
-	};
-	
-	bool mStarted;
-	std::list<positioned_token> mTokens;
-	std::list<positioned_token>::const_iterator mCurrent;
+    struct positioned_token
+    {
+        std::string str;
+        U32 line;
+    };
+    
+    bool mStarted;
+    std::list<positioned_token> mTokens;
+    std::list<positioned_token>::const_iterator mCurrent;
 };
 
 class LLTemplateParser
 {
 public:
-	typedef std::list<LLMessageTemplate *>::const_iterator message_iterator;
-	
-	static LLMessageTemplate * parseMessage(LLTemplateTokenizer & tokens);
-	static LLMessageBlock * parseBlock(LLTemplateTokenizer & tokens);
-	static LLMessageVariable * parseVariable(LLTemplateTokenizer & tokens);
+    typedef std::list<LLMessageTemplate *>::const_iterator message_iterator;
+    
+    static LLMessageTemplate * parseMessage(LLTemplateTokenizer & tokens);
+    static LLMessageBlock * parseBlock(LLTemplateTokenizer & tokens);
+    static LLMessageVariable * parseVariable(LLTemplateTokenizer & tokens);
 
-	LLTemplateParser(LLTemplateTokenizer & tokens);
-	message_iterator getMessagesBegin() const;
-	message_iterator getMessagesEnd() const;
-	F32 getVersion() const;
-	
+    LLTemplateParser(LLTemplateTokenizer & tokens);
+    message_iterator getMessagesBegin() const;
+    message_iterator getMessagesEnd() const;
+    F32 getVersion() const;
+    
 private:
-	F32 mVersion;
-	std::list<LLMessageTemplate *> mMessages;
+    F32 mVersion;
+    std::list<LLMessageTemplate *> mMessages;
 };
 
 #endif

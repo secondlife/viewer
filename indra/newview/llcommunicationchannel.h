@@ -36,30 +36,30 @@
 
 class LLCommunicationChannel : public LLNotificationChannel
 {
-	LOG_CLASS(LLCommunicationChannel);
+    LOG_CLASS(LLCommunicationChannel);
 public:
-	LLCommunicationChannel(const std::string& pName, const std::string& pParentName);
-	virtual ~LLCommunicationChannel();
+    LLCommunicationChannel(const std::string& pName, const std::string& pParentName);
+    virtual ~LLCommunicationChannel();
 
-	static bool filterByDoNotDisturbStatus(LLNotificationPtr);
+    static bool filterByDoNotDisturbStatus(LLNotificationPtr);
 
-	typedef std::multimap<LLDate, LLNotificationPtr> history_list_t;
-    S32 getHistorySize() const;	
-	history_list_t::const_iterator beginHistory() const;
-	history_list_t::const_iterator endHistory() const;
+    typedef std::multimap<LLDate, LLNotificationPtr> history_list_t;
+    S32 getHistorySize() const; 
+    history_list_t::const_iterator beginHistory() const;
+    history_list_t::const_iterator endHistory() const;
     history_list_t::iterator beginHistory();
-    history_list_t::iterator endHistory();	
+    history_list_t::iterator endHistory();  
 
-	void clearHistory();
+    void clearHistory();
     void removeItemFromHistory(LLNotificationPtr p);
 
 protected:
     virtual void onDelete(LLNotificationPtr p);
-	virtual void onFilterFail(LLNotificationPtr pNotificationPtr);
+    virtual void onFilterFail(LLNotificationPtr pNotificationPtr);
 
 private:
 
-	history_list_t mHistory;
+    history_list_t mHistory;
 };
 
 #endif // LL_LLCOMMUNICATIONCHANNEL_H

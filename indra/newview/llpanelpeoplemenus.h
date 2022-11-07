@@ -38,19 +38,19 @@ namespace LLPanelPeopleMenus
 class PeopleContextMenu : public LLListContextMenu
 {
 public:
-	/*virtual*/ LLContextMenu* createMenu();
+    /*virtual*/ LLContextMenu* createMenu();
 
 protected:
-	virtual void buildContextMenu(class LLMenuGL& menu, U32 flags);
+    virtual void buildContextMenu(class LLMenuGL& menu, U32 flags);
 
 private:
-	bool enableContextMenuItem(const LLSD& userdata);
-	bool checkContextMenuItem(const LLSD& userdata);
-	bool enableFreezeEject(const LLSD& userdata);
-	void offerTeleport();
-	void eject();
-	void startConference();
-	void requestTeleport();
+    bool enableContextMenuItem(const LLSD& userdata);
+    bool checkContextMenuItem(const LLSD& userdata);
+    bool enableFreezeEject(const LLSD& userdata);
+    void offerTeleport();
+    void eject();
+    void startConference();
+    void requestTeleport();
 };
 
 /**
@@ -59,7 +59,7 @@ private:
 class NearbyPeopleContextMenu : public PeopleContextMenu
 {
 protected:
-	/*virtual*/ void buildContextMenu(class LLMenuGL& menu, U32 flags);
+    /*virtual*/ void buildContextMenu(class LLMenuGL& menu, U32 flags);
 };
 
 extern PeopleContextMenu gPeopleContextMenu;

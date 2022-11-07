@@ -35,322 +35,322 @@
 template <typename T>
 struct LLRegistryDefaultComparator
 {
-	bool operator()(const T& lhs, const T& rhs) const
-	{
-		using std::less;
-		return less<T>()(lhs, rhs);
-	}
+    bool operator()(const T& lhs, const T& rhs) const
+    {
+        using std::less;
+        return less<T>()(lhs, rhs);
+    }
 };
 
 template <typename KEY, typename VALUE, typename COMPARATOR = LLRegistryDefaultComparator<KEY> >
 class LLRegistry
 {
 public:
-	typedef LLRegistry<KEY, VALUE, COMPARATOR>		registry_t;
-	typedef const KEY& 								ref_const_key_t;
-	typedef const VALUE&							ref_const_value_t;
-	typedef const VALUE*							ptr_const_value_t;
-	typedef VALUE*									ptr_value_t;
+    typedef LLRegistry<KEY, VALUE, COMPARATOR>      registry_t;
+    typedef const KEY&                              ref_const_key_t;
+    typedef const VALUE&                            ref_const_value_t;
+    typedef const VALUE*                            ptr_const_value_t;
+    typedef VALUE*                                  ptr_value_t;
 
-	class Registrar
-	{
-		friend class LLRegistry<KEY, VALUE, COMPARATOR>;
-	public:
-		typedef std::map<KEY, VALUE, COMPARATOR> registry_map_t;
+    class Registrar
+    {
+        friend class LLRegistry<KEY, VALUE, COMPARATOR>;
+    public:
+        typedef std::map<KEY, VALUE, COMPARATOR> registry_map_t;
 
-		bool add(ref_const_key_t key, ref_const_value_t value)
-		{
-			if (mMap.insert(std::make_pair(key, value)).second == false)
-			{
-				LL_WARNS() << "Tried to register " << key << " but it was already registered!" << LL_ENDL;
-				return false;
-			}
-			return true;
-		}
+        bool add(ref_const_key_t key, ref_const_value_t value)
+        {
+            if (mMap.insert(std::make_pair(key, value)).second == false)
+            {
+                LL_WARNS() << "Tried to register " << key << " but it was already registered!" << LL_ENDL;
+                return false;
+            }
+            return true;
+        }
 
-		void remove(ref_const_key_t key)
-		{
-			mMap.erase(key);
-		}
+        void remove(ref_const_key_t key)
+        {
+            mMap.erase(key);
+        }
 
-		void replace(ref_const_key_t key, ref_const_value_t value)
-		{
-			mMap[key] = value;
-		}
+        void replace(ref_const_key_t key, ref_const_value_t value)
+        {
+            mMap[key] = value;
+        }
 
-		typename registry_map_t::const_iterator beginItems() const
-		{
-			return mMap.begin();
-		}
+        typename registry_map_t::const_iterator beginItems() const
+        {
+            return mMap.begin();
+        }
 
-		typename registry_map_t::const_iterator endItems() const
-		{
-			return mMap.end();
-		}
+        typename registry_map_t::const_iterator endItems() const
+        {
+            return mMap.end();
+        }
 
-	protected:
-		ptr_value_t getValue(ref_const_key_t key)
-		{
-			typename registry_map_t::iterator found_it = mMap.find(key);
-			if (found_it != mMap.end())
-			{
-				return &(found_it->second);
-			}
-			return NULL;
-		}
+    protected:
+        ptr_value_t getValue(ref_const_key_t key)
+        {
+            typename registry_map_t::iterator found_it = mMap.find(key);
+            if (found_it != mMap.end())
+            {
+                return &(found_it->second);
+            }
+            return NULL;
+        }
 
-		ptr_const_value_t getValue(ref_const_key_t key) const
-		{
-			typename registry_map_t::const_iterator found_it = mMap.find(key);
-			if (found_it != mMap.end())
-			{
-				return &(found_it->second);
-			}
-			return NULL;
-		}
+        ptr_const_value_t getValue(ref_const_key_t key) const
+        {
+            typename registry_map_t::const_iterator found_it = mMap.find(key);
+            if (found_it != mMap.end())
+            {
+                return &(found_it->second);
+            }
+            return NULL;
+        }
 
-		// if the registry is used to store pointers, and null values are valid entries
-		// then use this function to check the existence of an entry
-		bool exists(ref_const_key_t key) const
-		{
-			return mMap.find(key) != mMap.end();
-		}
+        // if the registry is used to store pointers, and null values are valid entries
+        // then use this function to check the existence of an entry
+        bool exists(ref_const_key_t key) const
+        {
+            return mMap.find(key) != mMap.end();
+        }
 
-		bool empty() const
-		{
-			return mMap.empty();
-		}
+        bool empty() const
+        {
+            return mMap.empty();
+        }
 
-	protected:
-		// use currentRegistrar() or defaultRegistrar()
-		Registrar() {}
-		~Registrar() {}
+    protected:
+        // use currentRegistrar() or defaultRegistrar()
+        Registrar() {}
+        ~Registrar() {}
 
-	private:
-		registry_map_t											mMap;
-	};
-	
-	typedef typename std::list<Registrar*> scope_list_t;
-	typedef typename std::list<Registrar*>::iterator scope_list_iterator_t;
-	typedef typename std::list<Registrar*>::const_iterator scope_list_const_iterator_t;
-	
-	LLRegistry() 
-	{}
+    private:
+        registry_map_t                                          mMap;
+    };
+    
+    typedef typename std::list<Registrar*> scope_list_t;
+    typedef typename std::list<Registrar*>::iterator scope_list_iterator_t;
+    typedef typename std::list<Registrar*>::const_iterator scope_list_const_iterator_t;
+    
+    LLRegistry() 
+    {}
 
-	~LLRegistry() {}
+    ~LLRegistry() {}
 
-	ptr_value_t getValue(ref_const_key_t key)
-	{
-		for(scope_list_iterator_t it = mActiveScopes.begin();
-			it != mActiveScopes.end();
-			++it)
-		{
-			ptr_value_t valuep = (*it)->getValue(key);
-			if (valuep != NULL) return valuep;
-		}
-		return mDefaultRegistrar.getValue(key);
-	}
+    ptr_value_t getValue(ref_const_key_t key)
+    {
+        for(scope_list_iterator_t it = mActiveScopes.begin();
+            it != mActiveScopes.end();
+            ++it)
+        {
+            ptr_value_t valuep = (*it)->getValue(key);
+            if (valuep != NULL) return valuep;
+        }
+        return mDefaultRegistrar.getValue(key);
+    }
 
-	ptr_const_value_t getValue(ref_const_key_t key) const
-	{
-		for(scope_list_const_iterator_t it = mActiveScopes.begin();
-			it != mActiveScopes.end();
-			++it)
-		{
-			ptr_value_t valuep = (*it)->getValue(key);
-			if (valuep != NULL) return valuep;
-		}
-		return mDefaultRegistrar.getValue(key);
-	}
+    ptr_const_value_t getValue(ref_const_key_t key) const
+    {
+        for(scope_list_const_iterator_t it = mActiveScopes.begin();
+            it != mActiveScopes.end();
+            ++it)
+        {
+            ptr_value_t valuep = (*it)->getValue(key);
+            if (valuep != NULL) return valuep;
+        }
+        return mDefaultRegistrar.getValue(key);
+    }
 
-	bool exists(ref_const_key_t key) const
-	{
-		for(scope_list_const_iterator_t it = mActiveScopes.begin();
-			it != mActiveScopes.end();
-			++it)
-		{
-			if ((*it)->exists(key)) return true;
-		}
+    bool exists(ref_const_key_t key) const
+    {
+        for(scope_list_const_iterator_t it = mActiveScopes.begin();
+            it != mActiveScopes.end();
+            ++it)
+        {
+            if ((*it)->exists(key)) return true;
+        }
 
-		return mDefaultRegistrar.exists(key);
-	}
+        return mDefaultRegistrar.exists(key);
+    }
 
-	bool empty() const
-	{
-		for(scope_list_const_iterator_t it = mActiveScopes.begin();
-			it != mActiveScopes.end();
-			++it)
-		{
-			if (!(*it)->empty()) return false;
-		}
+    bool empty() const
+    {
+        for(scope_list_const_iterator_t it = mActiveScopes.begin();
+            it != mActiveScopes.end();
+            ++it)
+        {
+            if (!(*it)->empty()) return false;
+        }
 
-		return mDefaultRegistrar.empty();
-	}
-
-
-	Registrar& defaultRegistrar()
-	{
-		return mDefaultRegistrar;
-	}
-
-	const Registrar& defaultRegistrar() const
-	{
-		return mDefaultRegistrar;
-	}
+        return mDefaultRegistrar.empty();
+    }
 
 
-	Registrar& currentRegistrar()
-	{
-		if (!mActiveScopes.empty()) 
-		{
-			return *mActiveScopes.front();
-		}
+    Registrar& defaultRegistrar()
+    {
+        return mDefaultRegistrar;
+    }
 
-		return mDefaultRegistrar;
-	}
+    const Registrar& defaultRegistrar() const
+    {
+        return mDefaultRegistrar;
+    }
 
-	const Registrar& currentRegistrar() const
-	{
-		if (!mActiveScopes.empty()) 
-		{
-			return *mActiveScopes.front();
-		}
 
-		return mDefaultRegistrar;
-	}
+    Registrar& currentRegistrar()
+    {
+        if (!mActiveScopes.empty()) 
+        {
+            return *mActiveScopes.front();
+        }
+
+        return mDefaultRegistrar;
+    }
+
+    const Registrar& currentRegistrar() const
+    {
+        if (!mActiveScopes.empty()) 
+        {
+            return *mActiveScopes.front();
+        }
+
+        return mDefaultRegistrar;
+    }
 
 
 protected:
-	void addScope(Registrar* scope)
-	{
-		// newer scopes go up front
-		mActiveScopes.insert(mActiveScopes.begin(), scope);
-	}
+    void addScope(Registrar* scope)
+    {
+        // newer scopes go up front
+        mActiveScopes.insert(mActiveScopes.begin(), scope);
+    }
 
-	void removeScope(Registrar* scope)
-	{
-		// O(N) but should be near the beggining and N should be small and this is safer than storing iterators
-		scope_list_iterator_t iter = std::find(mActiveScopes.begin(), mActiveScopes.end(), scope);
-		if (iter != mActiveScopes.end())
-		{
-			mActiveScopes.erase(iter);
-		}
-	}
+    void removeScope(Registrar* scope)
+    {
+        // O(N) but should be near the beggining and N should be small and this is safer than storing iterators
+        scope_list_iterator_t iter = std::find(mActiveScopes.begin(), mActiveScopes.end(), scope);
+        if (iter != mActiveScopes.end())
+        {
+            mActiveScopes.erase(iter);
+        }
+    }
 
 private:
-	scope_list_t	mActiveScopes;
-	Registrar		mDefaultRegistrar;
+    scope_list_t    mActiveScopes;
+    Registrar       mDefaultRegistrar;
 };
 
 template <typename KEY, typename VALUE, typename DERIVED_TYPE, typename COMPARATOR = LLRegistryDefaultComparator<KEY> >
 class LLRegistrySingleton
-	:	public LLRegistry<KEY, VALUE, COMPARATOR>,
-		public LLSingleton<DERIVED_TYPE>
+    :   public LLRegistry<KEY, VALUE, COMPARATOR>,
+        public LLSingleton<DERIVED_TYPE>
 {
-	// This LLRegistrySingleton doesn't use LLSINGLETON(LLRegistrySingleton)
-	// because the concrete class is actually DERIVED_TYPE, not
-	// LLRegistrySingleton. So each concrete subclass needs
-	// LLSINGLETON(whatever) -- not this intermediate base class.
+    // This LLRegistrySingleton doesn't use LLSINGLETON(LLRegistrySingleton)
+    // because the concrete class is actually DERIVED_TYPE, not
+    // LLRegistrySingleton. So each concrete subclass needs
+    // LLSINGLETON(whatever) -- not this intermediate base class.
 public:
-	typedef LLRegistry<KEY, VALUE, COMPARATOR>		registry_t;
-	typedef const KEY&								ref_const_key_t;
-	typedef const VALUE&							ref_const_value_t;
-	typedef VALUE*									ptr_value_t;
-	typedef const VALUE*							ptr_const_value_t;
-	typedef LLSingleton<DERIVED_TYPE>				singleton_t;
+    typedef LLRegistry<KEY, VALUE, COMPARATOR>      registry_t;
+    typedef const KEY&                              ref_const_key_t;
+    typedef const VALUE&                            ref_const_value_t;
+    typedef VALUE*                                  ptr_value_t;
+    typedef const VALUE*                            ptr_const_value_t;
+    typedef LLSingleton<DERIVED_TYPE>               singleton_t;
 
-	class ScopedRegistrar : public registry_t::Registrar
-	{
-	public:
-		ScopedRegistrar(bool push_scope = true) 
-		{
-			if (push_scope)
-			{
-				pushScope();
-			}
-		}
+    class ScopedRegistrar : public registry_t::Registrar
+    {
+    public:
+        ScopedRegistrar(bool push_scope = true) 
+        {
+            if (push_scope)
+            {
+                pushScope();
+            }
+        }
 
-		~ScopedRegistrar()
-		{
-			if (singleton_t::instanceExists())
-			{
-				popScope();
-			}
-		}
+        ~ScopedRegistrar()
+        {
+            if (singleton_t::instanceExists())
+            {
+                popScope();
+            }
+        }
 
-		void pushScope()
-		{
-			singleton_t::instance().addScope(this);
-		}
-		
-		void popScope()
-		{
-			singleton_t::instance().removeScope(this);
-		}
-		
-		ptr_value_t getValueFromScope(ref_const_key_t key)
-		{
-			return getValue(key);
-		}
+        void pushScope()
+        {
+            singleton_t::instance().addScope(this);
+        }
+        
+        void popScope()
+        {
+            singleton_t::instance().removeScope(this);
+        }
+        
+        ptr_value_t getValueFromScope(ref_const_key_t key)
+        {
+            return getValue(key);
+        }
 
-		ptr_const_value_t getValueFromScope(ref_const_key_t key) const
-		{
-			return getValue(key);
-		}
+        ptr_const_value_t getValueFromScope(ref_const_key_t key) const
+        {
+            return getValue(key);
+        }
 
-	private:
-		typename std::list<typename registry_t::Registrar*>::iterator	mListIt;
-	};
+    private:
+        typename std::list<typename registry_t::Registrar*>::iterator   mListIt;
+    };
 
-	class StaticRegistrar : public registry_t::Registrar
-	{
-	public:
-		virtual ~StaticRegistrar() {}
-		StaticRegistrar(ref_const_key_t key, ref_const_value_t value)
-		{
-			if (singleton_t::instance().exists(key))
-			{
-				LL_ERRS() << "Duplicate registry entry under key \"" << key << "\"" << LL_ENDL;
-			}
-			singleton_t::instance().mStaticScope->add(key, value);
-		}
-	};
+    class StaticRegistrar : public registry_t::Registrar
+    {
+    public:
+        virtual ~StaticRegistrar() {}
+        StaticRegistrar(ref_const_key_t key, ref_const_value_t value)
+        {
+            if (singleton_t::instance().exists(key))
+            {
+                LL_ERRS() << "Duplicate registry entry under key \"" << key << "\"" << LL_ENDL;
+            }
+            singleton_t::instance().mStaticScope->add(key, value);
+        }
+    };
 
-	// convenience functions
-	typedef typename LLRegistry<KEY, VALUE, COMPARATOR>::Registrar& ref_registrar_t;
-	static ref_registrar_t currentRegistrar()
-	{
-		return singleton_t::instance().registry_t::currentRegistrar();
-	}
+    // convenience functions
+    typedef typename LLRegistry<KEY, VALUE, COMPARATOR>::Registrar& ref_registrar_t;
+    static ref_registrar_t currentRegistrar()
+    {
+        return singleton_t::instance().registry_t::currentRegistrar();
+    }
 
-	static ref_registrar_t defaultRegistrar()
-	{
-		return singleton_t::instance().registry_t::defaultRegistrar();
-	}
-	
-	static ptr_value_t getValue(ref_const_key_t key)
-	{
-		return singleton_t::instance().registry_t::getValue(key);
-	}
+    static ref_registrar_t defaultRegistrar()
+    {
+        return singleton_t::instance().registry_t::defaultRegistrar();
+    }
+    
+    static ptr_value_t getValue(ref_const_key_t key)
+    {
+        return singleton_t::instance().registry_t::getValue(key);
+    }
 
 protected:
-	// DERIVED_TYPE needs to derive from LLRegistrySingleton
-	LLRegistrySingleton()
-		: mStaticScope(NULL)
-	{}
+    // DERIVED_TYPE needs to derive from LLRegistrySingleton
+    LLRegistrySingleton()
+        : mStaticScope(NULL)
+    {}
 
-	virtual void initSingleton()
-	{
-		mStaticScope = new ScopedRegistrar();
-	}
+    virtual void initSingleton()
+    {
+        mStaticScope = new ScopedRegistrar();
+    }
 
-	virtual ~LLRegistrySingleton() 
-	{
-		delete mStaticScope;
-	}
+    virtual ~LLRegistrySingleton() 
+    {
+        delete mStaticScope;
+    }
 
 private:
-	ScopedRegistrar*	mStaticScope;
+    ScopedRegistrar*    mStaticScope;
 };
 
 // helper macro for doing static registration

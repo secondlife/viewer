@@ -37,74 +37,74 @@ static std::string glob_to_regex(const std::string& glob);
 class LLDirIterator::Impl
 {
 public:
-	Impl(const std::string &dirname, const std::string &mask);
-	~Impl();
+    Impl(const std::string &dirname, const std::string &mask);
+    ~Impl();
 
-	bool next(std::string &fname);
+    bool next(std::string &fname);
 
 private:
-	boost::regex			mFilterExp;
-	fs::directory_iterator	mIter;
-	bool					mIsValid;
+    boost::regex            mFilterExp;
+    fs::directory_iterator  mIter;
+    bool                    mIsValid;
 };
 
 LLDirIterator::Impl::Impl(const std::string &dirname, const std::string &mask)
-	: mIsValid(false)
+    : mIsValid(false)
 {
 #ifdef LL_WINDOWS // or BOOST_WINDOWS_API
-	fs::path dir_path(utf8str_to_utf16str(dirname));
+    fs::path dir_path(utf8str_to_utf16str(dirname));
 #else
-	fs::path dir_path(dirname);
+    fs::path dir_path(dirname);
 #endif
 
-	bool is_dir = false;
+    bool is_dir = false;
 
-	// Check if path is a directory.
-	try
-	{
-		is_dir = fs::is_directory(dir_path);
-	}
-	catch (const fs::filesystem_error& e)
-	{
-		LL_WARNS() << e.what() << LL_ENDL;
-		return;
-	}
+    // Check if path is a directory.
+    try
+    {
+        is_dir = fs::is_directory(dir_path);
+    }
+    catch (const fs::filesystem_error& e)
+    {
+        LL_WARNS() << e.what() << LL_ENDL;
+        return;
+    }
 
-	if (!is_dir)
-	{
-		LL_WARNS() << "Invalid path: \"" << dir_path.string() << "\"" << LL_ENDL;
-		return;
-	}
+    if (!is_dir)
+    {
+        LL_WARNS() << "Invalid path: \"" << dir_path.string() << "\"" << LL_ENDL;
+        return;
+    }
 
-	// Initialize the directory iterator for the given path.
-	try
-	{
-		mIter = fs::directory_iterator(dir_path);
-	}
-	catch (const fs::filesystem_error& e)
-	{
-		LL_WARNS() << e.what() << LL_ENDL;
-		return;
-	}
+    // Initialize the directory iterator for the given path.
+    try
+    {
+        mIter = fs::directory_iterator(dir_path);
+    }
+    catch (const fs::filesystem_error& e)
+    {
+        LL_WARNS() << e.what() << LL_ENDL;
+        return;
+    }
 
-	// Convert the glob mask to a regular expression
-	std::string exp = glob_to_regex(mask);
+    // Convert the glob mask to a regular expression
+    std::string exp = glob_to_regex(mask);
 
-	// Initialize boost::regex with the expression converted from
-	// the glob mask.
-	// An exception is thrown if the expression is not valid.
-	try
-	{
-		mFilterExp.assign(exp);
-	}
-	catch (boost::regex_error& e)
-	{
-		LL_WARNS() << "\"" << exp << "\" is not a valid regular expression: "
-				<< e.what() << LL_ENDL;
-		return;
-	}
+    // Initialize boost::regex with the expression converted from
+    // the glob mask.
+    // An exception is thrown if the expression is not valid.
+    try
+    {
+        mFilterExp.assign(exp);
+    }
+    catch (boost::regex_error& e)
+    {
+        LL_WARNS() << "\"" << exp << "\" is not a valid regular expression: "
+                << e.what() << LL_ENDL;
+        return;
+    }
 
-	mIsValid = true;
+    mIsValid = true;
 }
 
 LLDirIterator::Impl::~Impl()
@@ -113,39 +113,39 @@ LLDirIterator::Impl::~Impl()
 
 bool LLDirIterator::Impl::next(std::string &fname)
 {
-	fname = "";
+    fname = "";
 
-	if (!mIsValid)
-	{
-		LL_WARNS() << "The iterator is not correctly initialized." << LL_ENDL;
-		return false;
-	}
+    if (!mIsValid)
+    {
+        LL_WARNS() << "The iterator is not correctly initialized." << LL_ENDL;
+        return false;
+    }
 
-	fs::directory_iterator end_itr; // default construction yields past-the-end
-	bool found = false;
+    fs::directory_iterator end_itr; // default construction yields past-the-end
+    bool found = false;
 
-	// Check if path is a directory.
-	try
-	{
-		while (mIter != end_itr && !found)
-		{
-			boost::smatch match;
-			std::string name = mIter->path().filename().string();
-			found = ll_regex_match(name, match, mFilterExp);
-			if (found)
-			{
-				fname = name;
-			}
+    // Check if path is a directory.
+    try
+    {
+        while (mIter != end_itr && !found)
+        {
+            boost::smatch match;
+            std::string name = mIter->path().filename().string();
+            found = ll_regex_match(name, match, mFilterExp);
+            if (found)
+            {
+                fname = name;
+            }
 
-			++mIter;
-		}
-	}
-	catch (const fs::filesystem_error& e)
-	{
-		LL_WARNS() << e.what() << LL_ENDL;
-	}
+            ++mIter;
+        }
+    }
+    catch (const fs::filesystem_error& e)
+    {
+        LL_WARNS() << e.what() << LL_ENDL;
+    }
 
-	return found;
+    return found;
 }
 
 /**
@@ -158,86 +158,86 @@ in the input.
 */
 std::string glob_to_regex(const std::string& glob)
 {
-	std::string regex;
-	regex.reserve(glob.size()<<1);
-	S32 braces = 0;
-	bool escaped = false;
-	bool square_brace_open = false;
+    std::string regex;
+    regex.reserve(glob.size()<<1);
+    S32 braces = 0;
+    bool escaped = false;
+    bool square_brace_open = false;
 
-	for (std::string::const_iterator i = glob.begin(); i != glob.end(); ++i)
-	{
-		char c = *i;
+    for (std::string::const_iterator i = glob.begin(); i != glob.end(); ++i)
+    {
+        char c = *i;
 
-		switch (c)
-		{
-			case '*':
-				if (glob.begin() == i)
-				{
-					regex+="[^.].*";
-				}
-				else
-				{
-					regex+= escaped ? "*" : ".*";
-				}
-				break;
-			case '?':
-				regex+= escaped ? '?' : '.';
-				break;
-			case '{':
-				braces++;
-				regex+='(';
-				break;
-			case '}':
-				if (!braces)
-				{
-					LL_ERRS() << "glob_to_regex: Closing brace without an equivalent opening brace: " << glob << LL_ENDL;
-				}
+        switch (c)
+        {
+            case '*':
+                if (glob.begin() == i)
+                {
+                    regex+="[^.].*";
+                }
+                else
+                {
+                    regex+= escaped ? "*" : ".*";
+                }
+                break;
+            case '?':
+                regex+= escaped ? '?' : '.';
+                break;
+            case '{':
+                braces++;
+                regex+='(';
+                break;
+            case '}':
+                if (!braces)
+                {
+                    LL_ERRS() << "glob_to_regex: Closing brace without an equivalent opening brace: " << glob << LL_ENDL;
+                }
 
-				regex+=')';
-				braces--;
-				break;
-			case ',':
-				regex+= braces ? '|' : c;
-				break;
-			case '!':
-				regex+= square_brace_open ? '^' : c;
-				break;
-			case '.': // This collection have different regex meaning
-			case '^': // and so need escaping.
-			case '(': 
-			case ')':
-			case '+':
-			case '|':
-			case '$':
-				regex += '\\'; 
-			default:
-				regex += c;
-				break;
-		}
+                regex+=')';
+                braces--;
+                break;
+            case ',':
+                regex+= braces ? '|' : c;
+                break;
+            case '!':
+                regex+= square_brace_open ? '^' : c;
+                break;
+            case '.': // This collection have different regex meaning
+            case '^': // and so need escaping.
+            case '(': 
+            case ')':
+            case '+':
+            case '|':
+            case '$':
+                regex += '\\'; 
+            default:
+                regex += c;
+                break;
+        }
 
-		escaped = ('\\' == c);
-		square_brace_open = ('[' == c);
-	}
+        escaped = ('\\' == c);
+        square_brace_open = ('[' == c);
+    }
 
-	if (braces)
-	{
-		LL_ERRS() << "glob_to_regex: Unterminated brace expression: " << glob << LL_ENDL;
-	}
+    if (braces)
+    {
+        LL_ERRS() << "glob_to_regex: Unterminated brace expression: " << glob << LL_ENDL;
+    }
 
-	return regex;
+    return regex;
 }
 
 LLDirIterator::LLDirIterator(const std::string &dirname, const std::string &mask)
 {
-	mImpl = new Impl(dirname, mask);
+    mImpl = new Impl(dirname, mask);
 }
 
 LLDirIterator::~LLDirIterator()
 {
-	delete mImpl;
+    delete mImpl;
 }
 
 bool LLDirIterator::next(std::string &fname)
 {
-	return mImpl->next(fname);
+    return mImpl->next(fname);
 }

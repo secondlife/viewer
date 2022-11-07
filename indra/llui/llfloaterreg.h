@@ -46,113 +46,113 @@ typedef boost::function<LLFloater* (const LLSD& key)> LLFloaterBuildFunc;
 class LLFloaterReg
 {
 public:
-	// We use a list of LLFloater's instead of a set for two reasons:
-	// 1) With a list we have a predictable ordering, useful for finding the last opened floater of a given type.
-	// 2) We can change the key of a floater without altering the list.
-	typedef std::list<LLFloater*> instance_list_t;
-	typedef const instance_list_t const_instance_list_t;
-	typedef std::map<std::string, instance_list_t> instance_map_t;
+    // We use a list of LLFloater's instead of a set for two reasons:
+    // 1) With a list we have a predictable ordering, useful for finding the last opened floater of a given type.
+    // 2) We can change the key of a floater without altering the list.
+    typedef std::list<LLFloater*> instance_list_t;
+    typedef const instance_list_t const_instance_list_t;
+    typedef std::map<std::string, instance_list_t> instance_map_t;
 
-	struct BuildData
-	{
-		LLFloaterBuildFunc mFunc;
-		std::string mFile;
-	};
-	typedef std::map<std::string, BuildData> build_map_t;
-	
+    struct BuildData
+    {
+        LLFloaterBuildFunc mFunc;
+        std::string mFile;
+    };
+    typedef std::map<std::string, BuildData> build_map_t;
+    
 private:
-	friend class LLFloaterRegListener;
-	static instance_list_t sNullInstanceList;
-	static instance_map_t sInstanceMap;
-	static build_map_t sBuildMap;
-	static std::map<std::string,std::string> sGroupMap;
-	static bool sBlockShowFloaters;
-	/**
-	 * Defines list of floater names that can be shown despite state of sBlockShowFloaters.
-	 */
-	static std::set<std::string> sAlwaysShowableList;
-	
+    friend class LLFloaterRegListener;
+    static instance_list_t sNullInstanceList;
+    static instance_map_t sInstanceMap;
+    static build_map_t sBuildMap;
+    static std::map<std::string,std::string> sGroupMap;
+    static bool sBlockShowFloaters;
+    /**
+     * Defines list of floater names that can be shown despite state of sBlockShowFloaters.
+     */
+    static std::set<std::string> sAlwaysShowableList;
+    
 public:
-	// Registration
-	
-	// usage: LLFloaterClassRegistry::add("foo", (LLFloaterBuildFunc)&LLFloaterClassRegistry::build<LLFloaterFoo>);
-	template <class T>
-	static LLFloater* build(const LLSD& key)
-	{
-		T* floater = new T(key);
-		return floater;
-	}
-	
-	static void add(const std::string& name, const std::string& file, const LLFloaterBuildFunc& func,
-					const std::string& groupname = LLStringUtil::null);
-	static bool isRegistered(const std::string& name);
+    // Registration
+    
+    // usage: LLFloaterClassRegistry::add("foo", (LLFloaterBuildFunc)&LLFloaterClassRegistry::build<LLFloaterFoo>);
+    template <class T>
+    static LLFloater* build(const LLSD& key)
+    {
+        T* floater = new T(key);
+        return floater;
+    }
+    
+    static void add(const std::string& name, const std::string& file, const LLFloaterBuildFunc& func,
+                    const std::string& groupname = LLStringUtil::null);
+    static bool isRegistered(const std::string& name);
 
-	// Helpers
-	static LLFloater* getLastFloaterInGroup(const std::string& name);
-	static LLFloater* getLastFloaterCascading();
-	
-	// Find / get (create) / remove / destroy
-	static LLFloater* findInstance(const std::string& name, const LLSD& key = LLSD());
-	static LLFloater* getInstance(const std::string& name, const LLSD& key = LLSD());
-	static LLFloater* removeInstance(const std::string& name, const LLSD& key = LLSD());
-	static bool destroyInstance(const std::string& name, const LLSD& key = LLSD());
-	
-	// Iterators
-	static const_instance_list_t& getFloaterList(const std::string& name);
+    // Helpers
+    static LLFloater* getLastFloaterInGroup(const std::string& name);
+    static LLFloater* getLastFloaterCascading();
+    
+    // Find / get (create) / remove / destroy
+    static LLFloater* findInstance(const std::string& name, const LLSD& key = LLSD());
+    static LLFloater* getInstance(const std::string& name, const LLSD& key = LLSD());
+    static LLFloater* removeInstance(const std::string& name, const LLSD& key = LLSD());
+    static bool destroyInstance(const std::string& name, const LLSD& key = LLSD());
+    
+    // Iterators
+    static const_instance_list_t& getFloaterList(const std::string& name);
 
-	// Visibility Management
-	// return NULL if instance not found or can't create instance (no builder)
-	static LLFloater* showInstance(const std::string& name, const LLSD& key = LLSD(), BOOL focus = FALSE);
-	// Close a floater (may destroy or set invisible)
-	// return false if can't find instance
-	static bool hideInstance(const std::string& name, const LLSD& key = LLSD());
-	// return true if instance is visible:
-	static bool toggleInstance(const std::string& name, const LLSD& key = LLSD());
-	static bool instanceVisible(const std::string& name, const LLSD& key = LLSD());
+    // Visibility Management
+    // return NULL if instance not found or can't create instance (no builder)
+    static LLFloater* showInstance(const std::string& name, const LLSD& key = LLSD(), BOOL focus = FALSE);
+    // Close a floater (may destroy or set invisible)
+    // return false if can't find instance
+    static bool hideInstance(const std::string& name, const LLSD& key = LLSD());
+    // return true if instance is visible:
+    static bool toggleInstance(const std::string& name, const LLSD& key = LLSD());
+    static bool instanceVisible(const std::string& name, const LLSD& key = LLSD());
 
-	static void showInitialVisibleInstances();
-	static void hideVisibleInstances(const std::set<std::string>& exceptions = std::set<std::string>());
-	static void restoreVisibleInstances();
+    static void showInitialVisibleInstances();
+    static void hideVisibleInstances(const std::set<std::string>& exceptions = std::set<std::string>());
+    static void restoreVisibleInstances();
 
-	// Control Variables
-	static std::string getRectControlName(const std::string& name);
-	static std::string declareRectControl(const std::string& name);
-	static std::string declarePosXControl(const std::string& name);
-	static std::string declarePosYControl(const std::string& name);
-	static std::string getVisibilityControlName(const std::string& name);
-	static std::string declareVisibilityControl(const std::string& name);
-	static std::string getBaseControlName(const std::string& name);
-	static std::string declareDockStateControl(const std::string& name);
-	static std::string getDockStateControlName(const std::string& name);
+    // Control Variables
+    static std::string getRectControlName(const std::string& name);
+    static std::string declareRectControl(const std::string& name);
+    static std::string declarePosXControl(const std::string& name);
+    static std::string declarePosYControl(const std::string& name);
+    static std::string getVisibilityControlName(const std::string& name);
+    static std::string declareVisibilityControl(const std::string& name);
+    static std::string getBaseControlName(const std::string& name);
+    static std::string declareDockStateControl(const std::string& name);
+    static std::string getDockStateControlName(const std::string& name);
 
-	static void registerControlVariables();
+    static void registerControlVariables();
 
-	// Callback wrappers
-	static void toggleInstanceOrBringToFront(const LLSD& sdname, const LLSD& key = LLSD());
-	static void showInstanceOrBringToFront(const LLSD& sdname, const LLSD& key = LLSD());
-	
-	// Typed find / get / show
-	template <class T>
-	static T* findTypedInstance(const std::string& name, const LLSD& key = LLSD())
-	{
-		return dynamic_cast<T*>(findInstance(name, key));
-	}
+    // Callback wrappers
+    static void toggleInstanceOrBringToFront(const LLSD& sdname, const LLSD& key = LLSD());
+    static void showInstanceOrBringToFront(const LLSD& sdname, const LLSD& key = LLSD());
+    
+    // Typed find / get / show
+    template <class T>
+    static T* findTypedInstance(const std::string& name, const LLSD& key = LLSD())
+    {
+        return dynamic_cast<T*>(findInstance(name, key));
+    }
 
-	template <class T>
-	static T* getTypedInstance(const std::string& name, const LLSD& key = LLSD())
-	{
-		return dynamic_cast<T*>(getInstance(name, key));
-	}
+    template <class T>
+    static T* getTypedInstance(const std::string& name, const LLSD& key = LLSD())
+    {
+        return dynamic_cast<T*>(getInstance(name, key));
+    }
 
-	template <class T>
-	static T* showTypedInstance(const std::string& name, const LLSD& key = LLSD(), BOOL focus = FALSE)
-	{
-		return dynamic_cast<T*>(showInstance(name, key, focus));
-	}
+    template <class T>
+    static T* showTypedInstance(const std::string& name, const LLSD& key = LLSD(), BOOL focus = FALSE)
+    {
+        return dynamic_cast<T*>(showInstance(name, key, focus));
+    }
 
-	static void blockShowFloaters(bool value) { sBlockShowFloaters = value;}
-	
-	static U32 getVisibleFloaterInstanceCount();
+    static void blockShowFloaters(bool value) { sBlockShowFloaters = value;}
+    
+    static U32 getVisibleFloaterInstanceCount();
 };
 
 #endif

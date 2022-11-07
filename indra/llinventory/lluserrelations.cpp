@@ -34,79 +34,79 @@ const U8 LLRelationship::GRANTED_VISIBLE_MASK = LLRelationship::GRANT_MODIFY_OBJ
 const LLRelationship LLRelationship::DEFAULT_RELATIONSHIP = LLRelationship(GRANT_ONLINE_STATUS, GRANT_ONLINE_STATUS, false);
 
 LLRelationship::LLRelationship() :
-	mGrantToAgent(0),
-	mGrantFromAgent(0),
-	mChangeSerialNum(0),
-	mIsOnline(false)
+    mGrantToAgent(0),
+    mGrantFromAgent(0),
+    mChangeSerialNum(0),
+    mIsOnline(false)
 {
 }
 
 LLRelationship::LLRelationship(S32 grant_to, S32 grant_from, bool is_online) :
-	mGrantToAgent(grant_to),
-	mGrantFromAgent(grant_from),
-	mChangeSerialNum(0),
-	mIsOnline(is_online)
+    mGrantToAgent(grant_to),
+    mGrantFromAgent(grant_from),
+    mChangeSerialNum(0),
+    mIsOnline(is_online)
 {
 }
 
 bool LLRelationship::isOnline() const
 {
-	return mIsOnline;
+    return mIsOnline;
 }
 
 void LLRelationship::online(bool is_online)
 {
-	mIsOnline = is_online;
-	mChangeSerialNum++;
+    mIsOnline = is_online;
+    mChangeSerialNum++;
 }
 
 bool LLRelationship::isRightGrantedTo(S32 rights) const
 {
-	return ((mGrantToAgent & rights) == rights);
+    return ((mGrantToAgent & rights) == rights);
 }
 
 bool LLRelationship::isRightGrantedFrom(S32 rights) const
 {
-	return ((mGrantFromAgent & rights) == rights);
+    return ((mGrantFromAgent & rights) == rights);
 }
 
 S32 LLRelationship::getRightsGrantedTo() const
 {
-	return mGrantToAgent;
+    return mGrantToAgent;
 }
 
 S32 LLRelationship::getRightsGrantedFrom() const
 {
-	return mGrantFromAgent;
+    return mGrantFromAgent;
 }
 
 void LLRelationship::grantRights(S32 to_agent, S32 from_agent)
 {
-	mGrantToAgent |= to_agent;
-	mGrantFromAgent |= from_agent;
-	mChangeSerialNum++;
+    mGrantToAgent |= to_agent;
+    mGrantFromAgent |= from_agent;
+    mChangeSerialNum++;
 }
 
 void LLRelationship::revokeRights(S32 to_agent, S32 from_agent)
 {
-	mGrantToAgent &= ~to_agent;
-	mGrantFromAgent &= ~from_agent;
-	mChangeSerialNum++;
+    mGrantToAgent &= ~to_agent;
+    mGrantFromAgent &= ~from_agent;
+    mChangeSerialNum++;
 }
 
 
 
 /*
 bool LLGrantedRights::getNextRights(
-	LLUUID& agent_id,
-	S32& to_agent,
-	S32& from_agent) const
+    LLUUID& agent_id,
+    S32& to_agent,
+    S32& from_agent) const
 {
-	rights_map_t::const_iterator iter = mRights.upper_bound(agent_id);
-	if(iter == mRights.end()) return false;
-	agent_id = (*iter).first;
-	to_agent = (*iter).second.mToAgent;
-	from_agent = (*iter).second.mFromAgent;
-	return true;
+    rights_map_t::const_iterator iter = mRights.upper_bound(agent_id);
+    if(iter == mRights.end()) return false;
+    agent_id = (*iter).first;
+    to_agent = (*iter).second.mToAgent;
+    from_agent = (*iter).second.mFromAgent;
+    return true;
 }
 */

@@ -50,98 +50,98 @@ class LLSearchEditor;
 
 namespace ll
 {
-	namespace statusbar
-	{
-		struct SearchData;
-	}
+    namespace statusbar
+    {
+        struct SearchData;
+    }
 }
 class LLStatusBar
-:	public LLPanel
+:   public LLPanel
 {
 public:
-	LLStatusBar(const LLRect& rect );
-	/*virtual*/ ~LLStatusBar();
-	
-	/*virtual*/ void draw();
+    LLStatusBar(const LLRect& rect );
+    /*virtual*/ ~LLStatusBar();
+    
+    /*virtual*/ void draw();
 
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL postBuild();
+    /*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL postBuild();
 
-	// MANIPULATORS
-	void		setBalance(S32 balance);
-	void		debitBalance(S32 debit);
-	void		creditBalance(S32 credit);
+    // MANIPULATORS
+    void        setBalance(S32 balance);
+    void        debitBalance(S32 debit);
+    void        creditBalance(S32 credit);
 
-	// Request the latest currency balance from the server
-	static void sendMoneyBalanceRequest();
+    // Request the latest currency balance from the server
+    static void sendMoneyBalanceRequest();
 
-	void		setHealth(S32 percent);
+    void        setHealth(S32 percent);
 
-	void setLandCredit(S32 credit);
-	void setLandCommitted(S32 committed);
+    void setLandCredit(S32 credit);
+    void setLandCommitted(S32 committed);
 
-	void		refresh();
-	void setVisibleForMouselook(bool visible);
-		// some elements should hide in mouselook
+    void        refresh();
+    void setVisibleForMouselook(bool visible);
+        // some elements should hide in mouselook
 
-	// ACCESSORS
-	S32			getBalance() const;
-	S32			getHealth() const;
+    // ACCESSORS
+    S32         getBalance() const;
+    S32         getHealth() const;
 
-	BOOL isUserTiered() const;
-	S32 getSquareMetersCredit() const;
-	S32 getSquareMetersCommitted() const;
-	S32 getSquareMetersLeft() const;
+    BOOL isUserTiered() const;
+    S32 getSquareMetersCredit() const;
+    S32 getSquareMetersCommitted() const;
+    S32 getSquareMetersLeft() const;
 
-	LLPanelNearByMedia* getNearbyMediaPanel() { return mPanelNearByMedia; }
-
-private:
-	
-	void onClickBuyCurrency();
-	void onVolumeChanged(const LLSD& newvalue);
-
-	void onMouseEnterPresetsCamera();
-	void onMouseEnterPresets();
-	void onMouseEnterVolume();
-	void onMouseEnterNearbyMedia();
-	void onClickScreen(S32 x, S32 y);
-
-	static void onClickMediaToggle(void* data);
-	static void onClickBalance(void* data);
-
-	LLSearchEditor *mFilterEdit;
-	LLPanel *mSearchPanel;
-	void onUpdateFilterTerm();
-
-	std::unique_ptr< ll::statusbar::SearchData > mSearchData;
-	void collectSearchableItems();
-	void updateMenuSearchVisibility( const LLSD& data );
-	void updateMenuSearchPosition(); // depends onto balance position
-	void updateBalancePanelPosition();
+    LLPanelNearByMedia* getNearbyMediaPanel() { return mPanelNearByMedia; }
 
 private:
-	LLTextBox	*mTextTime;
+    
+    void onClickBuyCurrency();
+    void onVolumeChanged(const LLSD& newvalue);
 
-	LLStatGraph *mSGBandwidth;
-	LLStatGraph *mSGPacketLoss;
+    void onMouseEnterPresetsCamera();
+    void onMouseEnterPresets();
+    void onMouseEnterVolume();
+    void onMouseEnterNearbyMedia();
+    void onClickScreen(S32 x, S32 y);
 
-	LLIconCtrl	*mIconPresetsCamera;
-	LLIconCtrl	*mIconPresetsGraphic;
-	LLButton	*mBtnVolume;
-	LLTextBox	*mBoxBalance;
-	LLButton	*mMediaToggle;
-	LLFrameTimer	mClockUpdateTimer;
+    static void onClickMediaToggle(void* data);
+    static void onClickBalance(void* data);
 
-	S32				mBalance;
-	S32				mHealth;
-	S32				mSquareMetersCredit;
-	S32				mSquareMetersCommitted;
-	LLFrameTimer*	mBalanceTimer;
-	LLFrameTimer*	mHealthTimer;
-	LLPanelPresetsCameraPulldown* mPanelPresetsCameraPulldown;
-	LLPanelPresetsPulldown* mPanelPresetsPulldown;
-	LLPanelVolumePulldown* mPanelVolumePulldown;
-	LLPanelNearByMedia*	mPanelNearByMedia;
+    LLSearchEditor *mFilterEdit;
+    LLPanel *mSearchPanel;
+    void onUpdateFilterTerm();
+
+    std::unique_ptr< ll::statusbar::SearchData > mSearchData;
+    void collectSearchableItems();
+    void updateMenuSearchVisibility( const LLSD& data );
+    void updateMenuSearchPosition(); // depends onto balance position
+    void updateBalancePanelPosition();
+
+private:
+    LLTextBox   *mTextTime;
+
+    LLStatGraph *mSGBandwidth;
+    LLStatGraph *mSGPacketLoss;
+
+    LLIconCtrl  *mIconPresetsCamera;
+    LLIconCtrl  *mIconPresetsGraphic;
+    LLButton    *mBtnVolume;
+    LLTextBox   *mBoxBalance;
+    LLButton    *mMediaToggle;
+    LLFrameTimer    mClockUpdateTimer;
+
+    S32             mBalance;
+    S32             mHealth;
+    S32             mSquareMetersCredit;
+    S32             mSquareMetersCommitted;
+    LLFrameTimer*   mBalanceTimer;
+    LLFrameTimer*   mHealthTimer;
+    LLPanelPresetsCameraPulldown* mPanelPresetsCameraPulldown;
+    LLPanelPresetsPulldown* mPanelPresetsPulldown;
+    LLPanelVolumePulldown* mPanelVolumePulldown;
+    LLPanelNearByMedia* mPanelNearByMedia;
 };
 
 // *HACK: Status bar owns your cached money balance. JC

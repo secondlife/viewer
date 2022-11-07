@@ -35,19 +35,19 @@
 
 //---------------------------------------------------------------------------------
 LLSysWellItem::LLSysWellItem(const Params& p) : LLPanel(p),
-												mTitle(NULL),
-												mCloseBtn(NULL)
+                                                mTitle(NULL),
+                                                mCloseBtn(NULL)
 {
-	buildFromFile( "panel_sys_well_item.xml");
+    buildFromFile( "panel_sys_well_item.xml");
 
-	mTitle = getChild<LLTextBox>("title");
-	mCloseBtn = getChild<LLButton>("close_btn");
+    mTitle = getChild<LLTextBox>("title");
+    mCloseBtn = getChild<LLButton>("close_btn");
 
-	mTitle->setContentTrusted(false);
-	mTitle->setValue(p.title);
-	mCloseBtn->setClickedCallback(boost::bind(&LLSysWellItem::onClickCloseBtn,this));
+    mTitle->setContentTrusted(false);
+    mTitle->setValue(p.title);
+    mCloseBtn->setClickedCallback(boost::bind(&LLSysWellItem::onClickCloseBtn,this));
 
-	mID = p.notification_id;
+    mID = p.notification_id;
 }
 
 //---------------------------------------------------------------------------------
@@ -58,35 +58,35 @@ LLSysWellItem::~LLSysWellItem()
 //---------------------------------------------------------------------------------
 void LLSysWellItem::setTitle( std::string title )
 {
-	mTitle->setValue(title);
+    mTitle->setValue(title);
 }
 
 //---------------------------------------------------------------------------------
 void LLSysWellItem::onClickCloseBtn()
 {
-	mOnItemClose(this);
+    mOnItemClose(this);
 }
 
 //---------------------------------------------------------------------------------
 BOOL LLSysWellItem::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL res = LLPanel::handleMouseDown(x, y, mask);
-	if(!mCloseBtn->getRect().pointInRect(x, y))
-		mOnItemClick(this);
+    BOOL res = LLPanel::handleMouseDown(x, y, mask);
+    if(!mCloseBtn->getRect().pointInRect(x, y))
+        mOnItemClick(this);
 
-	return res;
+    return res;
 }
 
 //---------------------------------------------------------------------------------
 void LLSysWellItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	setTransparentColor(LLUIColorTable::instance().getColor( "SysWellItemSelected" ));
+    setTransparentColor(LLUIColorTable::instance().getColor( "SysWellItemSelected" ));
 }
 
 //---------------------------------------------------------------------------------
 void LLSysWellItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	setTransparentColor(LLUIColorTable::instance().getColor( "SysWellItemUnselected" ));
+    setTransparentColor(LLUIColorTable::instance().getColor( "SysWellItemUnselected" ));
 }
 
 //---------------------------------------------------------------------------------

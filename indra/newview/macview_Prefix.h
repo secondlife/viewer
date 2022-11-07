@@ -77,11 +77,11 @@
 #include "lltalkview.h"
 #include "lltool.h"
 #include "lltoolfocus.h"
-#include "lltoolcomp.h"		// for gToolGun
+#include "lltoolcomp.h"     // for gToolGun
 #include "lltoolgrab.h"
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
-#include "llui.h"			// for make_ui_sound
+#include "llui.h"           // for make_ui_sound
 #include "llviewercamera.h"
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
@@ -206,7 +206,7 @@
 /////////////////// From llloginview.cpp
 #include "llloginview.h"
 
-#include "indra_constants.h"		// for key and mask constants
+#include "indra_constants.h"        // for key and mask constants
 #include "llfontgl.h"
 #include "v4color.h"
 #include "llwindow_impl.h"
@@ -220,8 +220,8 @@
 #include "llui.h"
 //#include "lluiconstants.h"
 #include "llviewerimagelist.h"
-#include "llviewermenu.h"			// for handle_preferences()
-#include "llviewerwindow.h"			// to link into child list
+#include "llviewermenu.h"           // for handle_preferences()
+#include "llviewerwindow.h"         // to link into child list
 #include "llfocusmgr.h"
 #include "llmd5.h"
 #include "llversion.h"

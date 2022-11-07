@@ -33,37 +33,37 @@
 
 class LLFloaterRegionRestarting : public LLFloater,  public LLEventTimer
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 
 public:
-	static void close();
-	static void updateTime(S32 time);
+    static void close();
+    static void updateTime(S32 time);
 
 private:
-	LLFloaterRegionRestarting(const LLSD& key);
-	virtual ~LLFloaterRegionRestarting();
-	virtual BOOL postBuild();
-	virtual BOOL tick();
-	virtual void refresh();
-	virtual void draw();
-	virtual void regionChange();
+    LLFloaterRegionRestarting(const LLSD& key);
+    virtual ~LLFloaterRegionRestarting();
+    virtual BOOL postBuild();
+    virtual BOOL tick();
+    virtual void refresh();
+    virtual void draw();
+    virtual void regionChange();
 
-	std::string mName;
-	U32 mShakeIterations;
-	F32 mShakeMagnitude;
-	LLTimer mShakeTimer;
+    std::string mName;
+    U32 mShakeIterations;
+    F32 mShakeMagnitude;
+    LLTimer mShakeTimer;
 
-	boost::signals2::connection mRegionChangedConnection;
+    boost::signals2::connection mRegionChangedConnection;
 
-	enum
-	{
-		SHAKE_START,
-		SHAKE_LEFT,
-		SHAKE_UP,
-		SHAKE_RIGHT,
-		SHAKE_DOWN,
-		SHAKE_DONE
-	};
+    enum
+    {
+        SHAKE_START,
+        SHAKE_LEFT,
+        SHAKE_UP,
+        SHAKE_RIGHT,
+        SHAKE_DOWN,
+        SHAKE_DONE
+    };
 };
 
 #endif // LL_LLFLOATERREGIONRESTARTING_H

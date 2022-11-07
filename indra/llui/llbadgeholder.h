@@ -37,19 +37,19 @@ class LLBadgeHolder
 {
 public:
 
-	LLBadgeHolder(bool acceptsBadge)
-		: mAcceptsBadge(acceptsBadge)
-	{
-	}
+    LLBadgeHolder(bool acceptsBadge)
+        : mAcceptsBadge(acceptsBadge)
+    {
+    }
 
-	void setAcceptsBadge(bool acceptsBadge) { mAcceptsBadge = acceptsBadge; }
-	bool acceptsBadge() const { return mAcceptsBadge; }
+    void setAcceptsBadge(bool acceptsBadge) { mAcceptsBadge = acceptsBadge; }
+    bool acceptsBadge() const { return mAcceptsBadge; }
 
-	virtual bool addBadge(LLBadge * badge);
+    virtual bool addBadge(LLBadge * badge);
 
 private:
 
-	bool		mAcceptsBadge;
+    bool        mAcceptsBadge;
 
 };
 

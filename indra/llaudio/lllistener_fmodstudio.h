@@ -33,7 +33,7 @@
 //Stubs
 namespace FMOD
 {
-	class System;
+    class System;
 }
 
 //Interfaces

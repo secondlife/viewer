@@ -33,36 +33,36 @@
 class LLVoiceCallAvatarHandler : public LLCommandHandler
 {
 public: 
-	// requires trusted browser to trigger
-	LLVoiceCallAvatarHandler() : LLCommandHandler("voicecallavatar", UNTRUSTED_THROTTLE) 
-	{ 
-	}
-	
-	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
-	{
-		if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableVoiceCall"))
-		{
-			LLNotificationsUtil::add("NoVoiceCall", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
-			return true;
-		}
+    // requires trusted browser to trigger
+    LLVoiceCallAvatarHandler() : LLCommandHandler("voicecallavatar", UNTRUSTED_THROTTLE) 
+    { 
+    }
+    
+    bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+    {
+        if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableVoiceCall"))
+        {
+            LLNotificationsUtil::add("NoVoiceCall", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
+            return true;
+        }
 
-		//Make sure we have some parameters
-		if (params.size() == 0)
-		{
-			return false;
-		}
-		
-		//Get the ID
-		LLUUID id;
-		if (!id.set( params[0], FALSE ))
-		{
-			return false;
-		}
-		
-		//instigate call with this avatar
-		LLAvatarActions::startCall( id );		
-		return true;
-	}
+        //Make sure we have some parameters
+        if (params.size() == 0)
+        {
+            return false;
+        }
+        
+        //Get the ID
+        LLUUID id;
+        if (!id.set( params[0], FALSE ))
+        {
+            return false;
+        }
+        
+        //instigate call with this avatar
+        LLAvatarActions::startCall( id );       
+        return true;
+    }
 };
 
 LLVoiceCallAvatarHandler gVoiceCallAvatarHandler;

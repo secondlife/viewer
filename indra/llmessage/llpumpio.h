@@ -73,367 +73,367 @@ extern const F32 NEVER_CHAIN_EXPIRY_SECS;
 class LLPumpIO
 {
 public:
-	/**
-	 * @brief Constructor.
-	 */
-	LLPumpIO(apr_pool_t* pool);
+    /**
+     * @brief Constructor.
+     */
+    LLPumpIO(apr_pool_t* pool);
 
-	/**
-	 * @brief Destructor.
-	 */
-	~LLPumpIO();
+    /**
+     * @brief Destructor.
+     */
+    ~LLPumpIO();
 
-	/**
-	 * @brief Prepare this pump for usage.
-	 *
-	 * If you fail to call this method prior to use, the pump will
-	 * try to work, but will not come with any thread locking
-	 * mechanisms.
-	 * @param pool The apr pool to use.
-	 * @return Returns true if the pump is primed.
-	 */
-	bool prime(apr_pool_t* pool);
+    /**
+     * @brief Prepare this pump for usage.
+     *
+     * If you fail to call this method prior to use, the pump will
+     * try to work, but will not come with any thread locking
+     * mechanisms.
+     * @param pool The apr pool to use.
+     * @return Returns true if the pump is primed.
+     */
+    bool prime(apr_pool_t* pool);
 
-	/**
-	 * @brief Typedef for having a chain of pipes.
-	 */
-	typedef std::vector<LLIOPipe::ptr_t> chain_t;
+    /**
+     * @brief Typedef for having a chain of pipes.
+     */
+    typedef std::vector<LLIOPipe::ptr_t> chain_t;
 
-	/** 
-	 * @brief Add a chain to this pump and process in the next cycle.
-	 *
-	 * This method will automatically generate a buffer and assign
-	 * each link in the chain as if it were the consumer to the
-	 * previous.
-	 * @param chain The pipes for the chain
-	 * @param timeout The number of seconds in the future to
-	 * expire. Pass in 0.0f to never expire.
-	 * @param has_curl_request The chain contains LLURLRequest if true.
-	 * @return Returns true if anything was added to the pump.
-	 */
-	bool addChain(const chain_t& chain, F32 timeout, bool has_curl_request = false);
-	
-	/** 
-	 * @brief Struct to associate a pipe with it's buffer io indexes.
-	 */
-	struct LLLinkInfo
-	{
-		LLIOPipe::ptr_t mPipe;
-		LLChannelDescriptors mChannels;
-	};
+    /** 
+     * @brief Add a chain to this pump and process in the next cycle.
+     *
+     * This method will automatically generate a buffer and assign
+     * each link in the chain as if it were the consumer to the
+     * previous.
+     * @param chain The pipes for the chain
+     * @param timeout The number of seconds in the future to
+     * expire. Pass in 0.0f to never expire.
+     * @param has_curl_request The chain contains LLURLRequest if true.
+     * @return Returns true if anything was added to the pump.
+     */
+    bool addChain(const chain_t& chain, F32 timeout, bool has_curl_request = false);
+    
+    /** 
+     * @brief Struct to associate a pipe with it's buffer io indexes.
+     */
+    struct LLLinkInfo
+    {
+        LLIOPipe::ptr_t mPipe;
+        LLChannelDescriptors mChannels;
+    };
 
-	/** 
-	 * @brief Typedef for having a chain of <code>LLLinkInfo</code>
-	 * instances.
-	 */
-	typedef std::vector<LLLinkInfo> links_t;
+    /** 
+     * @brief Typedef for having a chain of <code>LLLinkInfo</code>
+     * instances.
+     */
+    typedef std::vector<LLLinkInfo> links_t;
 
-	/** 
-	 * @brief Add a chain to this pump and process in the next cycle.
-	 *
-	 * This method provides a slightly more sophisticated method for
-	 * adding a chain where the caller can specify which link elements
-	 * are on what channels. This method will fail if no buffer is
-	 * provided since any calls to generate new channels for the
-	 * buffers will cause unpredictable interleaving of data.
-	 * @param links The pipes and io indexes for the chain
-	 * @param data Shared pointer to data buffer
-	 * @param context Potentially undefined context meta-data for chain.
-	 * @param timeout The number of seconds in the future to
-	 * expire. Pass in 0.0f to never expire.
-	 * @return Returns true if anything was added to the pump.
-	 */
-	bool addChain(
-		const links_t& links,
-		LLIOPipe::buffer_ptr_t data,
-		LLSD context,
-		F32 timeout);
+    /** 
+     * @brief Add a chain to this pump and process in the next cycle.
+     *
+     * This method provides a slightly more sophisticated method for
+     * adding a chain where the caller can specify which link elements
+     * are on what channels. This method will fail if no buffer is
+     * provided since any calls to generate new channels for the
+     * buffers will cause unpredictable interleaving of data.
+     * @param links The pipes and io indexes for the chain
+     * @param data Shared pointer to data buffer
+     * @param context Potentially undefined context meta-data for chain.
+     * @param timeout The number of seconds in the future to
+     * expire. Pass in 0.0f to never expire.
+     * @return Returns true if anything was added to the pump.
+     */
+    bool addChain(
+        const links_t& links,
+        LLIOPipe::buffer_ptr_t data,
+        LLSD context,
+        F32 timeout);
 
-	/** 
-	 * @brief Set or clear a timeout for the running chain
-	 *
-	 * @param timeout The number of seconds in the future to
-	 * expire. Pass in 0.0f to never expire.
-	 * @return Returns true if the timer was set.
-	 */
-	bool setTimeoutSeconds(F32 timeout);
+    /** 
+     * @brief Set or clear a timeout for the running chain
+     *
+     * @param timeout The number of seconds in the future to
+     * expire. Pass in 0.0f to never expire.
+     * @return Returns true if the timer was set.
+     */
+    bool setTimeoutSeconds(F32 timeout);
 
-	/** 
-	 * @brief Adjust the timeout of the running chain.
-	 *
-	 * This method has no effect if there is no timeout on the chain.
-	 * @param delta The number of seconds to add to/remove from the timeout.
-	 */
-	void adjustTimeoutSeconds(F32 delta);
+    /** 
+     * @brief Adjust the timeout of the running chain.
+     *
+     * This method has no effect if there is no timeout on the chain.
+     * @param delta The number of seconds to add to/remove from the timeout.
+     */
+    void adjustTimeoutSeconds(F32 delta);
 
-	/** 
-	 * @brief Set up file descriptors for for the running chain.
-	 * @see rebuildPollset()
-	 *
-	 * There is currently a limit of one conditional per pipe.
-	 * *NOTE: The internal mechanism for building a pollset based on
-	 * pipe/pollfd/chain generates an epoll error on linux (and
-	 * probably behaves similarly on other platforms) because the
-	 * pollset rebuilder will add each apr_pollfd_t serially. This
-	 * does not matter for pipes on the same chain, since any
-	 * signalled pipe will eventually invoke a call to process(), but
-	 * is a problem if the same apr_pollfd_t is on different
-	 * chains. Once we have more than just network i/o on the pump,
-	 * this might matter.
-	 * *FIX: Given the structure of the pump and pipe relationship,
-	 * this should probably go through a different mechanism than the
-	 * pump. I think it would be best if the pipe had some kind of
-	 * controller which was passed into <code>process()</code> rather
-	 * than the pump which exposed this interface.
-	 * @param pipe The pipe which is setting a conditional
-	 * @param poll The entire socket and read/write condition - null to remove
-	 * @return Returns true if the poll state was set.
-	 */
-	bool setConditional(LLIOPipe* pipe, const apr_pollfd_t* poll);
+    /** 
+     * @brief Set up file descriptors for for the running chain.
+     * @see rebuildPollset()
+     *
+     * There is currently a limit of one conditional per pipe.
+     * *NOTE: The internal mechanism for building a pollset based on
+     * pipe/pollfd/chain generates an epoll error on linux (and
+     * probably behaves similarly on other platforms) because the
+     * pollset rebuilder will add each apr_pollfd_t serially. This
+     * does not matter for pipes on the same chain, since any
+     * signalled pipe will eventually invoke a call to process(), but
+     * is a problem if the same apr_pollfd_t is on different
+     * chains. Once we have more than just network i/o on the pump,
+     * this might matter.
+     * *FIX: Given the structure of the pump and pipe relationship,
+     * this should probably go through a different mechanism than the
+     * pump. I think it would be best if the pipe had some kind of
+     * controller which was passed into <code>process()</code> rather
+     * than the pump which exposed this interface.
+     * @param pipe The pipe which is setting a conditional
+     * @param poll The entire socket and read/write condition - null to remove
+     * @return Returns true if the poll state was set.
+     */
+    bool setConditional(LLIOPipe* pipe, const apr_pollfd_t* poll);
 
-	/** 
-	 * @brief Lock the current chain.
-	 * @see sleepChain() since it relies on the implementation of this method.
-	 *
-	 * This locks the currently running chain so that no more calls to
-	 * <code>process()</code> until you call <code>clearLock()</code>
-	 * with the lock identifier.
-	 * *FIX: Given the structure of the pump and pipe relationship,
-	 * this should probably go through a different mechanism than the
-	 * pump. I think it would be best if the pipe had some kind of
-	 * controller which was passed into <code>process()</code> rather
-	 * than the pump which exposed this interface.
-	 * @return Returns the lock identifer to be used in
-	 * <code>clearLock()</code> or 0 on failure.
-	 */
-	S32 setLock();
+    /** 
+     * @brief Lock the current chain.
+     * @see sleepChain() since it relies on the implementation of this method.
+     *
+     * This locks the currently running chain so that no more calls to
+     * <code>process()</code> until you call <code>clearLock()</code>
+     * with the lock identifier.
+     * *FIX: Given the structure of the pump and pipe relationship,
+     * this should probably go through a different mechanism than the
+     * pump. I think it would be best if the pipe had some kind of
+     * controller which was passed into <code>process()</code> rather
+     * than the pump which exposed this interface.
+     * @return Returns the lock identifer to be used in
+     * <code>clearLock()</code> or 0 on failure.
+     */
+    S32 setLock();
 
-	/** 
-	 * @brief Clears the identified lock.
-	 *
-	 * @param links A container for the links which will be appended
-	 */
-	void clearLock(S32 key);
+    /** 
+     * @brief Clears the identified lock.
+     *
+     * @param links A container for the links which will be appended
+     */
+    void clearLock(S32 key);
 
-	/**
-	 * @brief Stop processing a chain for a while.
-	 * @see setLock()
-	 *
-	 * This method will <em>not</em> update the timeout for this
-	 * chain, so it is possible to sleep the chain until it is
-	 * collected by the pump during a timeout cleanup.
-	 * @param seconds The number of seconds in the future to
-	 * resume processing.
-	 * @return Returns true if the 
-	 */
-	bool sleepChain(F64 seconds);
+    /**
+     * @brief Stop processing a chain for a while.
+     * @see setLock()
+     *
+     * This method will <em>not</em> update the timeout for this
+     * chain, so it is possible to sleep the chain until it is
+     * collected by the pump during a timeout cleanup.
+     * @param seconds The number of seconds in the future to
+     * resume processing.
+     * @return Returns true if the 
+     */
+    bool sleepChain(F64 seconds);
 
-	/** 
-	 * @brief Copy the currently running chain link info
-	 *
-	 * *FIX: Given the structure of the pump and pipe relationship,
-	 * this should probably go through a different mechanism than the
-	 * pump. I think it would be best if the pipe had some kind of
-	 * controller which was passed into <code>process()</code> rather
-	 * than the pump which exposed this interface.
-	 * @param links A container for the links which will be appended
-	 * @return Returns true if the currently running chain was copied.
-	 */
-	bool copyCurrentLinkInfo(links_t& links) const;
+    /** 
+     * @brief Copy the currently running chain link info
+     *
+     * *FIX: Given the structure of the pump and pipe relationship,
+     * this should probably go through a different mechanism than the
+     * pump. I think it would be best if the pipe had some kind of
+     * controller which was passed into <code>process()</code> rather
+     * than the pump which exposed this interface.
+     * @param links A container for the links which will be appended
+     * @return Returns true if the currently running chain was copied.
+     */
+    bool copyCurrentLinkInfo(links_t& links) const;
 
-	/** 
-	 * @brief Call this method to call process on all running chains.
-	 *
-	 * This method iterates through the running chains, and if all
-	 * pipe on a chain are unconditionally ready or if any pipe has
-	 * any conditional processiong condition then process will be
-	 * called on every chain which has requested processing.  that
-	 * chain has a file descriptor ready, <code>process()</code> will
-	 * be called for all pipes which have requested it.
-	 */
-	void pump(const S32& poll_timeout);
-	void pump();
+    /** 
+     * @brief Call this method to call process on all running chains.
+     *
+     * This method iterates through the running chains, and if all
+     * pipe on a chain are unconditionally ready or if any pipe has
+     * any conditional processiong condition then process will be
+     * called on every chain which has requested processing.  that
+     * chain has a file descriptor ready, <code>process()</code> will
+     * be called for all pipes which have requested it.
+     */
+    void pump(const S32& poll_timeout);
+    void pump();
 
-	/** 
-	 * @brief Add a chain to a special queue which will be called
-	 * during the next call to <code>callback()</code> and then
-	 * dropped from the queue.
-	 *
-	 * @param chain The IO chain that will get one <code>process()</code>.
-	 */
-	//void respond(const chain_t& pipes);
+    /** 
+     * @brief Add a chain to a special queue which will be called
+     * during the next call to <code>callback()</code> and then
+     * dropped from the queue.
+     *
+     * @param chain The IO chain that will get one <code>process()</code>.
+     */
+    //void respond(const chain_t& pipes);
 
-	/** 
-	 * @brief Add pipe to a special queue which will be called
-	 * during the next call to <code>callback()</code> and then dropped
-	 * from the queue.
-	 *
-	 * This call will add a single pipe, with no buffer, context, or
-	 * channel information to the callback queue. It will be called
-	 * once, and then dropped.
-	 * @param pipe A single io pipe which will be called
-	 * @return Returns true if anything was added to the pump.
-	 */
-	bool respond(LLIOPipe* pipe);
+    /** 
+     * @brief Add pipe to a special queue which will be called
+     * during the next call to <code>callback()</code> and then dropped
+     * from the queue.
+     *
+     * This call will add a single pipe, with no buffer, context, or
+     * channel information to the callback queue. It will be called
+     * once, and then dropped.
+     * @param pipe A single io pipe which will be called
+     * @return Returns true if anything was added to the pump.
+     */
+    bool respond(LLIOPipe* pipe);
 
-	/** 
-	 * @brief Add a chain to a special queue which will be called
-	 * during the next call to <code>callback()</code> and then
-	 * dropped from the queue.
-	 *
-	 * It is important to remember that you should not add a data
-	 * buffer or context which may still be in another chain - that
-	 * will almost certainly lead to a problems. Ensure that you are
-	 * done reading and writing to those parameters, have new
-	 * generated, or empty pointers. 
-	 * @param links The pipes and io indexes for the chain
-	 * @param data Shared pointer to data buffer
-	 * @param context Potentially undefined context meta-data for chain.
-	 * @return Returns true if anything was added to the pump.
-	 */
-	bool respond(
-		const links_t& links,
-		LLIOPipe::buffer_ptr_t data,
-		LLSD context);
+    /** 
+     * @brief Add a chain to a special queue which will be called
+     * during the next call to <code>callback()</code> and then
+     * dropped from the queue.
+     *
+     * It is important to remember that you should not add a data
+     * buffer or context which may still be in another chain - that
+     * will almost certainly lead to a problems. Ensure that you are
+     * done reading and writing to those parameters, have new
+     * generated, or empty pointers. 
+     * @param links The pipes and io indexes for the chain
+     * @param data Shared pointer to data buffer
+     * @param context Potentially undefined context meta-data for chain.
+     * @return Returns true if anything was added to the pump.
+     */
+    bool respond(
+        const links_t& links,
+        LLIOPipe::buffer_ptr_t data,
+        LLSD context);
 
-	/** 
-	 * @brief Run through the callback queue and call <code>process()</code>.
-	 *
-	 * This call will process all prending responses and call process
-	 * on each. This method will then drop all processed callback
-	 * requests which may lead to deleting the referenced objects.
-	 */
-	void callback();
+    /** 
+     * @brief Run through the callback queue and call <code>process()</code>.
+     *
+     * This call will process all prending responses and call process
+     * on each. This method will then drop all processed callback
+     * requests which may lead to deleting the referenced objects.
+     */
+    void callback();
 
-	/** 
-	 * @brief Enumeration to send commands to the pump.
-	 */
-	enum EControl
-	{
-		PAUSE,
-		RESUME,
-	};
-	
-	/** 
-	 * @brief Send a command to the pump.
-	 *
-	 * @param op What control to send to the pump.
-	 */
-	void control(EControl op);
-
-protected:
-	/** 
-	 * @brief State of the pump
-	 */
-	enum EState
-	{
-		NORMAL,
-		PAUSING,
-		PAUSED
-	};
-
-	// instance data
-	EState mState;
-	bool mRebuildPollset;
-	apr_pollset_t* mPollset;
-	S32 mPollsetClientID;
-	S32 mNextLock;
-	std::set<S32> mClearLocks;
-
-	// This is the pump's runnable scheduler used for handling
-	// expiring locks.
-	LLRunner mRunner;
-
-	// This structure is the stuff we track while running chains.
-	struct LLChainInfo
-	{
-		// methods
-		LLChainInfo();
-		void setTimeoutSeconds(F32 timeout);
-		void adjustTimeoutSeconds(F32 delta);
-
-		// basic member data
-		bool mInit;
-		bool mEOS;
-		bool mHasCurlRequest;
-		S32 mLock;
-		LLFrameTimer mTimer;
-		links_t::iterator mHead;
-		links_t mChainLinks;
-		LLIOPipe::buffer_ptr_t mData;		
-		LLSD mContext;
-
-		// tracking inside the pump
-		typedef std::pair<LLIOPipe::ptr_t, apr_pollfd_t> pipe_conditional_t;
-		typedef std::vector<pipe_conditional_t> conditionals_t;
-		conditionals_t mDescriptors;
-	};
-
-	// All the running chains & info
- 	typedef std::vector<LLChainInfo> pending_chains_t;
-	pending_chains_t mPendingChains;
-	typedef std::list<LLChainInfo> running_chains_t;
-	running_chains_t mRunningChains;
-
-	typedef running_chains_t::iterator current_chain_t;
-	current_chain_t mCurrentChain;
-
-	// structures necessary for doing callbacks
-	// since the callbacks only get one chance to run, we do not have
-	// to maintain a list.
-	typedef std::vector<LLChainInfo> callbacks_t;
-	callbacks_t mPendingCallbacks;
-	callbacks_t mCallbacks;
-
-	// memory allocator for pollsets & mutexes.
-	apr_pool_t* mPool;
-	apr_pool_t* mCurrentPool;
-	S32 mCurrentPoolReallocCount;
+    /** 
+     * @brief Enumeration to send commands to the pump.
+     */
+    enum EControl
+    {
+        PAUSE,
+        RESUME,
+    };
+    
+    /** 
+     * @brief Send a command to the pump.
+     *
+     * @param op What control to send to the pump.
+     */
+    void control(EControl op);
 
 protected:
-	void initialize(apr_pool_t* pool);
-	void cleanup();
-	current_chain_t removeRunningChain(current_chain_t& chain) ;
-	/** 
-	 * @brief Given the internal state of the chains, rebuild the pollset
-	 * @see setConditional()
-	 */
-	void rebuildPollset();
+    /** 
+     * @brief State of the pump
+     */
+    enum EState
+    {
+        NORMAL,
+        PAUSING,
+        PAUSED
+    };
 
-	/** 
-	 * @brief Process the chain passed in.
-	 *
-	 * This method will potentially modify the internals of the
-	 * chain. On end, the chain.mHead will equal
-	 * chain.mChainLinks.end().
-	 * @param chain The LLChainInfo object to work on.
-	 */
-	void processChain(LLChainInfo& chain);
+    // instance data
+    EState mState;
+    bool mRebuildPollset;
+    apr_pollset_t* mPollset;
+    S32 mPollsetClientID;
+    S32 mNextLock;
+    std::set<S32> mClearLocks;
 
-	/** 
-	 * @brief Rewind through the chain to try to recover from an error.
-	 *
-	 * This method will potentially modify the internals of the
-	 * chain.
-	 * @param chain The LLChainInfo object to work on.
-	 * @return Retuns true if someone handled the error
-	 */
-	bool handleChainError(LLChainInfo& chain, LLIOPipe::EStatus error);
+    // This is the pump's runnable scheduler used for handling
+    // expiring locks.
+    LLRunner mRunner;
 
-	//if the chain is expired, remove it
-	bool isChainExpired(LLChainInfo& chain) ;
+    // This structure is the stuff we track while running chains.
+    struct LLChainInfo
+    {
+        // methods
+        LLChainInfo();
+        void setTimeoutSeconds(F32 timeout);
+        void adjustTimeoutSeconds(F32 delta);
+
+        // basic member data
+        bool mInit;
+        bool mEOS;
+        bool mHasCurlRequest;
+        S32 mLock;
+        LLFrameTimer mTimer;
+        links_t::iterator mHead;
+        links_t mChainLinks;
+        LLIOPipe::buffer_ptr_t mData;       
+        LLSD mContext;
+
+        // tracking inside the pump
+        typedef std::pair<LLIOPipe::ptr_t, apr_pollfd_t> pipe_conditional_t;
+        typedef std::vector<pipe_conditional_t> conditionals_t;
+        conditionals_t mDescriptors;
+    };
+
+    // All the running chains & info
+    typedef std::vector<LLChainInfo> pending_chains_t;
+    pending_chains_t mPendingChains;
+    typedef std::list<LLChainInfo> running_chains_t;
+    running_chains_t mRunningChains;
+
+    typedef running_chains_t::iterator current_chain_t;
+    current_chain_t mCurrentChain;
+
+    // structures necessary for doing callbacks
+    // since the callbacks only get one chance to run, we do not have
+    // to maintain a list.
+    typedef std::vector<LLChainInfo> callbacks_t;
+    callbacks_t mPendingCallbacks;
+    callbacks_t mCallbacks;
+
+    // memory allocator for pollsets & mutexes.
+    apr_pool_t* mPool;
+    apr_pool_t* mCurrentPool;
+    S32 mCurrentPoolReallocCount;
+
+protected:
+    void initialize(apr_pool_t* pool);
+    void cleanup();
+    current_chain_t removeRunningChain(current_chain_t& chain) ;
+    /** 
+     * @brief Given the internal state of the chains, rebuild the pollset
+     * @see setConditional()
+     */
+    void rebuildPollset();
+
+    /** 
+     * @brief Process the chain passed in.
+     *
+     * This method will potentially modify the internals of the
+     * chain. On end, the chain.mHead will equal
+     * chain.mChainLinks.end().
+     * @param chain The LLChainInfo object to work on.
+     */
+    void processChain(LLChainInfo& chain);
+
+    /** 
+     * @brief Rewind through the chain to try to recover from an error.
+     *
+     * This method will potentially modify the internals of the
+     * chain.
+     * @param chain The LLChainInfo object to work on.
+     * @return Retuns true if someone handled the error
+     */
+    bool handleChainError(LLChainInfo& chain, LLIOPipe::EStatus error);
+
+    //if the chain is expired, remove it
+    bool isChainExpired(LLChainInfo& chain) ;
 
 public:
-	/** 
-	 * @brief Return number of running chains.
-	 *
-	 * *NOTE: This is only used in debugging and not considered
-	 * efficient or safe enough for production use.
-	 */
-	running_chains_t::size_type runningChains() const
-	{
-		return mRunningChains.size();
-	}
+    /** 
+     * @brief Return number of running chains.
+     *
+     * *NOTE: This is only used in debugging and not considered
+     * efficient or safe enough for production use.
+     */
+    running_chains_t::size_type runningChains() const
+    {
+        return mRunningChains.size();
+    }
 
 
 };

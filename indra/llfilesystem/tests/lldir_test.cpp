@@ -191,228 +191,228 @@ struct LLDir_Dummy: public LLDir
 
 namespace tut
 {
-	struct LLDirTest
+    struct LLDirTest
         {
         };
         typedef test_group<LLDirTest> LLDirTest_t;
         typedef LLDirTest_t::object LLDirTest_object_t;
         tut::LLDirTest_t tut_LLDirTest("LLDir");
 
-	template<> template<>
-	void LLDirTest_object_t::test<1>()
-		// getDirDelimiter
-	{
-		ensure("getDirDelimiter", !gDirUtilp->getDirDelimiter().empty());
-	}
+    template<> template<>
+    void LLDirTest_object_t::test<1>()
+        // getDirDelimiter
+    {
+        ensure("getDirDelimiter", !gDirUtilp->getDirDelimiter().empty());
+    }
 
-	template<> template<>
-	void LLDirTest_object_t::test<2>()
-		// getBaseFileName
-	{
-		std::string delim = gDirUtilp->getDirDelimiter();
-		std::string rawFile = "foo";
-		std::string rawFileExt = "foo.bAr";
-		std::string rawFileNullExt = "foo.";
-		std::string rawExt = ".bAr";
-		std::string rawDot = ".";
-		std::string pathNoExt = "aa" + delim + "bb" + delim + "cc" + delim + "dd" + delim + "ee";
-		std::string pathExt = pathNoExt + ".eXt";
-		std::string dottedPathNoExt = "aa" + delim + "bb" + delim + "cc.dd" + delim + "ee";
-		std::string dottedPathExt = dottedPathNoExt + ".eXt";
+    template<> template<>
+    void LLDirTest_object_t::test<2>()
+        // getBaseFileName
+    {
+        std::string delim = gDirUtilp->getDirDelimiter();
+        std::string rawFile = "foo";
+        std::string rawFileExt = "foo.bAr";
+        std::string rawFileNullExt = "foo.";
+        std::string rawExt = ".bAr";
+        std::string rawDot = ".";
+        std::string pathNoExt = "aa" + delim + "bb" + delim + "cc" + delim + "dd" + delim + "ee";
+        std::string pathExt = pathNoExt + ".eXt";
+        std::string dottedPathNoExt = "aa" + delim + "bb" + delim + "cc.dd" + delim + "ee";
+        std::string dottedPathExt = dottedPathNoExt + ".eXt";
 
-		// foo[.bAr]
+        // foo[.bAr]
 
-		ensure_equals("getBaseFileName/r-no-ext/no-strip-exten",
-			      gDirUtilp->getBaseFileName(rawFile, false),
-			      "foo");
+        ensure_equals("getBaseFileName/r-no-ext/no-strip-exten",
+                  gDirUtilp->getBaseFileName(rawFile, false),
+                  "foo");
 
-		ensure_equals("getBaseFileName/r-no-ext/strip-exten",
-			      gDirUtilp->getBaseFileName(rawFile, true),
-			      "foo");
+        ensure_equals("getBaseFileName/r-no-ext/strip-exten",
+                  gDirUtilp->getBaseFileName(rawFile, true),
+                  "foo");
 
-		ensure_equals("getBaseFileName/r-ext/no-strip-exten",
-			      gDirUtilp->getBaseFileName(rawFileExt, false),
-			      "foo.bAr");
+        ensure_equals("getBaseFileName/r-ext/no-strip-exten",
+                  gDirUtilp->getBaseFileName(rawFileExt, false),
+                  "foo.bAr");
 
-		ensure_equals("getBaseFileName/r-ext/strip-exten",
-			      gDirUtilp->getBaseFileName(rawFileExt, true),
-			      "foo");
+        ensure_equals("getBaseFileName/r-ext/strip-exten",
+                  gDirUtilp->getBaseFileName(rawFileExt, true),
+                  "foo");
 
-		// foo.
+        // foo.
 
-		ensure_equals("getBaseFileName/rn-no-ext/no-strip-exten",
-			      gDirUtilp->getBaseFileName(rawFileNullExt, false),
-			      "foo.");
+        ensure_equals("getBaseFileName/rn-no-ext/no-strip-exten",
+                  gDirUtilp->getBaseFileName(rawFileNullExt, false),
+                  "foo.");
 
-		ensure_equals("getBaseFileName/rn-no-ext/strip-exten",
-			      gDirUtilp->getBaseFileName(rawFileNullExt, true),
-			      "foo");
+        ensure_equals("getBaseFileName/rn-no-ext/strip-exten",
+                  gDirUtilp->getBaseFileName(rawFileNullExt, true),
+                  "foo");
 
-		// .bAr
-		// interesting case - with no basename, this IS the basename, not the extension.
+        // .bAr
+        // interesting case - with no basename, this IS the basename, not the extension.
 
-		ensure_equals("getBaseFileName/e-ext/no-strip-exten",
-			      gDirUtilp->getBaseFileName(rawExt, false),
-			      ".bAr");
+        ensure_equals("getBaseFileName/e-ext/no-strip-exten",
+                  gDirUtilp->getBaseFileName(rawExt, false),
+                  ".bAr");
 
-		ensure_equals("getBaseFileName/e-ext/strip-exten",
-			      gDirUtilp->getBaseFileName(rawExt, true),
-			      ".bAr");
+        ensure_equals("getBaseFileName/e-ext/strip-exten",
+                  gDirUtilp->getBaseFileName(rawExt, true),
+                  ".bAr");
 
-		// .
+        // .
 
-		ensure_equals("getBaseFileName/d/no-strip-exten",
-			      gDirUtilp->getBaseFileName(rawDot, false),
-			      ".");
+        ensure_equals("getBaseFileName/d/no-strip-exten",
+                  gDirUtilp->getBaseFileName(rawDot, false),
+                  ".");
 
-		ensure_equals("getBaseFileName/d/strip-exten",
-			      gDirUtilp->getBaseFileName(rawDot, true),
-			      ".");
+        ensure_equals("getBaseFileName/d/strip-exten",
+                  gDirUtilp->getBaseFileName(rawDot, true),
+                  ".");
 
-		// aa/bb/cc/dd/ee[.eXt]
+        // aa/bb/cc/dd/ee[.eXt]
 
-		ensure_equals("getBaseFileName/no-ext/no-strip-exten",
-			      gDirUtilp->getBaseFileName(pathNoExt, false),
-			      "ee");
+        ensure_equals("getBaseFileName/no-ext/no-strip-exten",
+                  gDirUtilp->getBaseFileName(pathNoExt, false),
+                  "ee");
 
-		ensure_equals("getBaseFileName/no-ext/strip-exten",
-			      gDirUtilp->getBaseFileName(pathNoExt, true),
-			      "ee");
+        ensure_equals("getBaseFileName/no-ext/strip-exten",
+                  gDirUtilp->getBaseFileName(pathNoExt, true),
+                  "ee");
 
-		ensure_equals("getBaseFileName/ext/no-strip-exten",
-			      gDirUtilp->getBaseFileName(pathExt, false),
-			      "ee.eXt");
+        ensure_equals("getBaseFileName/ext/no-strip-exten",
+                  gDirUtilp->getBaseFileName(pathExt, false),
+                  "ee.eXt");
 
-		ensure_equals("getBaseFileName/ext/strip-exten",
-			      gDirUtilp->getBaseFileName(pathExt, true),
-			      "ee");
+        ensure_equals("getBaseFileName/ext/strip-exten",
+                  gDirUtilp->getBaseFileName(pathExt, true),
+                  "ee");
 
-		// aa/bb/cc.dd/ee[.eXt]
+        // aa/bb/cc.dd/ee[.eXt]
 
-		ensure_equals("getBaseFileName/d-no-ext/no-strip-exten",
-			      gDirUtilp->getBaseFileName(dottedPathNoExt, false),
-			      "ee");
+        ensure_equals("getBaseFileName/d-no-ext/no-strip-exten",
+                  gDirUtilp->getBaseFileName(dottedPathNoExt, false),
+                  "ee");
 
-		ensure_equals("getBaseFileName/d-no-ext/strip-exten",
-			      gDirUtilp->getBaseFileName(dottedPathNoExt, true),
-			      "ee");
+        ensure_equals("getBaseFileName/d-no-ext/strip-exten",
+                  gDirUtilp->getBaseFileName(dottedPathNoExt, true),
+                  "ee");
 
-		ensure_equals("getBaseFileName/d-ext/no-strip-exten",
-			      gDirUtilp->getBaseFileName(dottedPathExt, false),
-			      "ee.eXt");
+        ensure_equals("getBaseFileName/d-ext/no-strip-exten",
+                  gDirUtilp->getBaseFileName(dottedPathExt, false),
+                  "ee.eXt");
 
-		ensure_equals("getBaseFileName/d-ext/strip-exten",
-			      gDirUtilp->getBaseFileName(dottedPathExt, true),
-			      "ee");
-	}
+        ensure_equals("getBaseFileName/d-ext/strip-exten",
+                  gDirUtilp->getBaseFileName(dottedPathExt, true),
+                  "ee");
+    }
 
-	template<> template<>
-	void LLDirTest_object_t::test<3>()
-		// getDirName
-	{
-		std::string delim = gDirUtilp->getDirDelimiter();
-		std::string rawFile = "foo";
-		std::string rawFileExt = "foo.bAr";
-		std::string pathNoExt = "aa" + delim + "bb" + delim + "cc" + delim + "dd" + delim + "ee";
-		std::string pathExt = pathNoExt + ".eXt";
-		std::string dottedPathNoExt = "aa" + delim + "bb" + delim + "cc.dd" + delim + "ee";
-		std::string dottedPathExt = dottedPathNoExt + ".eXt";
+    template<> template<>
+    void LLDirTest_object_t::test<3>()
+        // getDirName
+    {
+        std::string delim = gDirUtilp->getDirDelimiter();
+        std::string rawFile = "foo";
+        std::string rawFileExt = "foo.bAr";
+        std::string pathNoExt = "aa" + delim + "bb" + delim + "cc" + delim + "dd" + delim + "ee";
+        std::string pathExt = pathNoExt + ".eXt";
+        std::string dottedPathNoExt = "aa" + delim + "bb" + delim + "cc.dd" + delim + "ee";
+        std::string dottedPathExt = dottedPathNoExt + ".eXt";
 
-		// foo[.bAr]
+        // foo[.bAr]
 
-		ensure_equals("getDirName/r-no-ext",
-			      gDirUtilp->getDirName(rawFile),
-			      "");
+        ensure_equals("getDirName/r-no-ext",
+                  gDirUtilp->getDirName(rawFile),
+                  "");
 
-		ensure_equals("getDirName/r-ext",
-			      gDirUtilp->getDirName(rawFileExt),
-			      "");
+        ensure_equals("getDirName/r-ext",
+                  gDirUtilp->getDirName(rawFileExt),
+                  "");
 
-		// aa/bb/cc/dd/ee[.eXt]
+        // aa/bb/cc/dd/ee[.eXt]
 
-		ensure_equals("getDirName/no-ext",
-			      gDirUtilp->getDirName(pathNoExt),
-			      "aa" + delim + "bb" + delim + "cc" + delim + "dd");
+        ensure_equals("getDirName/no-ext",
+                  gDirUtilp->getDirName(pathNoExt),
+                  "aa" + delim + "bb" + delim + "cc" + delim + "dd");
 
-		ensure_equals("getDirName/ext",
-			      gDirUtilp->getDirName(pathExt),
-			      "aa" + delim + "bb" + delim + "cc" + delim + "dd");
+        ensure_equals("getDirName/ext",
+                  gDirUtilp->getDirName(pathExt),
+                  "aa" + delim + "bb" + delim + "cc" + delim + "dd");
 
-		// aa/bb/cc.dd/ee[.eXt]
+        // aa/bb/cc.dd/ee[.eXt]
 
-		ensure_equals("getDirName/d-no-ext",
-			      gDirUtilp->getDirName(dottedPathNoExt),
-			      "aa" + delim + "bb" + delim + "cc.dd");
+        ensure_equals("getDirName/d-no-ext",
+                  gDirUtilp->getDirName(dottedPathNoExt),
+                  "aa" + delim + "bb" + delim + "cc.dd");
 
-		ensure_equals("getDirName/d-ext",
-			      gDirUtilp->getDirName(dottedPathExt),
-			      "aa" + delim + "bb" + delim + "cc.dd");
-	}
+        ensure_equals("getDirName/d-ext",
+                  gDirUtilp->getDirName(dottedPathExt),
+                  "aa" + delim + "bb" + delim + "cc.dd");
+    }
 
-	template<> template<>
-	void LLDirTest_object_t::test<4>()
-		// getExtension
-	{
-		std::string delim = gDirUtilp->getDirDelimiter();
-		std::string rawFile = "foo";
-		std::string rawFileExt = "foo.bAr";
-		std::string rawFileNullExt = "foo.";
-		std::string rawExt = ".bAr";
-		std::string rawDot = ".";
-		std::string pathNoExt = "aa" + delim + "bb" + delim + "cc" + delim + "dd" + delim + "ee";
-		std::string pathExt = pathNoExt + ".eXt";
-		std::string dottedPathNoExt = "aa" + delim + "bb" + delim + "cc.dd" + delim + "ee";
-		std::string dottedPathExt = dottedPathNoExt + ".eXt";
+    template<> template<>
+    void LLDirTest_object_t::test<4>()
+        // getExtension
+    {
+        std::string delim = gDirUtilp->getDirDelimiter();
+        std::string rawFile = "foo";
+        std::string rawFileExt = "foo.bAr";
+        std::string rawFileNullExt = "foo.";
+        std::string rawExt = ".bAr";
+        std::string rawDot = ".";
+        std::string pathNoExt = "aa" + delim + "bb" + delim + "cc" + delim + "dd" + delim + "ee";
+        std::string pathExt = pathNoExt + ".eXt";
+        std::string dottedPathNoExt = "aa" + delim + "bb" + delim + "cc.dd" + delim + "ee";
+        std::string dottedPathExt = dottedPathNoExt + ".eXt";
 
-		// foo[.bAr]
+        // foo[.bAr]
 
-		ensure_equals("getExtension/r-no-ext",
-			      gDirUtilp->getExtension(rawFile),
-			      "");
+        ensure_equals("getExtension/r-no-ext",
+                  gDirUtilp->getExtension(rawFile),
+                  "");
 
-		ensure_equals("getExtension/r-ext",
-			      gDirUtilp->getExtension(rawFileExt),
-			      "bar");
+        ensure_equals("getExtension/r-ext",
+                  gDirUtilp->getExtension(rawFileExt),
+                  "bar");
 
-		// foo.
+        // foo.
 
-		ensure_equals("getExtension/rn-no-ext",
-			      gDirUtilp->getExtension(rawFileNullExt),
-			      "");
+        ensure_equals("getExtension/rn-no-ext",
+                  gDirUtilp->getExtension(rawFileNullExt),
+                  "");
 
-		// .bAr
-		// interesting case - with no basename, this IS the basename, not the extension.
+        // .bAr
+        // interesting case - with no basename, this IS the basename, not the extension.
 
-		ensure_equals("getExtension/e-ext",
-			      gDirUtilp->getExtension(rawExt),
-			      "");
+        ensure_equals("getExtension/e-ext",
+                  gDirUtilp->getExtension(rawExt),
+                  "");
 
-		// .
+        // .
 
-		ensure_equals("getExtension/d",
-			      gDirUtilp->getExtension(rawDot),
-			      "");
+        ensure_equals("getExtension/d",
+                  gDirUtilp->getExtension(rawDot),
+                  "");
 
-		// aa/bb/cc/dd/ee[.eXt]
+        // aa/bb/cc/dd/ee[.eXt]
 
-		ensure_equals("getExtension/no-ext",
-			      gDirUtilp->getExtension(pathNoExt),
-			      "");
+        ensure_equals("getExtension/no-ext",
+                  gDirUtilp->getExtension(pathNoExt),
+                  "");
 
-		ensure_equals("getExtension/ext",
-			      gDirUtilp->getExtension(pathExt),
-			      "ext");
+        ensure_equals("getExtension/ext",
+                  gDirUtilp->getExtension(pathExt),
+                  "ext");
 
-		// aa/bb/cc.dd/ee[.eXt]
+        // aa/bb/cc.dd/ee[.eXt]
 
-		ensure_equals("getExtension/d-no-ext",
-			      gDirUtilp->getExtension(dottedPathNoExt),
-			      "");
+        ensure_equals("getExtension/d-no-ext",
+                  gDirUtilp->getExtension(dottedPathNoExt),
+                  "");
 
-		ensure_equals("getExtension/d-ext",
-			      gDirUtilp->getExtension(dottedPathExt),
-			      "ext");
-	}
+        ensure_equals("getExtension/d-ext",
+                  gDirUtilp->getExtension(dottedPathExt),
+                  "ext");
+    }
 
    std::string makeTestFile( const std::string& dir, const std::string& file )
    {

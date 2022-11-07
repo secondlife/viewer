@@ -36,61 +36,61 @@ class LLLineEditor;
 class LLPanelExperiencePicker : public LLPanel
 {
 public:
-	friend class LLExperienceSearchResponder;
-	friend class LLFloaterExperiencePicker;
+    friend class LLExperienceSearchResponder;
+    friend class LLFloaterExperiencePicker;
 
-	typedef boost::function<void (const uuid_vec_t&)> select_callback_t;
-	// filter function for experiences, return true if the experience should be hidden.
-	typedef boost::function<bool (const LLSD&)> filter_function;
-	typedef std::vector<filter_function> filter_list;
+    typedef boost::function<void (const uuid_vec_t&)> select_callback_t;
+    // filter function for experiences, return true if the experience should be hidden.
+    typedef boost::function<bool (const LLSD&)> filter_function;
+    typedef std::vector<filter_function> filter_list;
 
-	LLPanelExperiencePicker();
-	virtual ~LLPanelExperiencePicker();
+    LLPanelExperiencePicker();
+    virtual ~LLPanelExperiencePicker();
 
-	BOOL postBuild();
+    BOOL postBuild();
 
-	void addFilter(filter_function func){mFilters.push_back(func);}
-	template <class IT>
-	void addFilters(IT begin, IT end){mFilters.insert(mFilters.end(), begin, end);}
-	void setDefaultFilters();
+    void addFilter(filter_function func){mFilters.push_back(func);}
+    template <class IT>
+    void addFilters(IT begin, IT end){mFilters.insert(mFilters.end(), begin, end);}
+    void setDefaultFilters();
 
-	static bool FilterWithProperty(const LLSD& experience, S32 prop);
-	static bool FilterWithoutProperties(const LLSD& experience, S32 prop);
-	static bool FilterWithoutProperty(const LLSD& experience, S32 prop);
-	static bool FilterMatching(const LLSD& experience, const LLUUID& id);
-	bool FilterOverRating(const LLSD& experience);
+    static bool FilterWithProperty(const LLSD& experience, S32 prop);
+    static bool FilterWithoutProperties(const LLSD& experience, S32 prop);
+    static bool FilterWithoutProperty(const LLSD& experience, S32 prop);
+    static bool FilterMatching(const LLSD& experience, const LLUUID& id);
+    bool FilterOverRating(const LLSD& experience);
 
 private:
-	void editKeystroke(LLLineEditor* caller, void* user_data);
+    void editKeystroke(LLLineEditor* caller, void* user_data);
 
-	void onBtnFind();
-	void onBtnSelect();
-	void onBtnClose();
-	void onBtnProfile();
-	void onList();
-	void onMaturity();
-	void onPage(S32 direction);
+    void onBtnFind();
+    void onBtnSelect();
+    void onBtnClose();
+    void onBtnProfile();
+    void onList();
+    void onMaturity();
+    void onPage(S32 direction);
 
-	void getSelectedExperienceIds( const LLScrollListCtrl* results, uuid_vec_t &experience_ids );
-	void setAllowMultiple(bool allow_multiple);
+    void getSelectedExperienceIds( const LLScrollListCtrl* results, uuid_vec_t &experience_ids );
+    void setAllowMultiple(bool allow_multiple);
 
-	void find();
+    void find();
     static void findResults(LLHandle<LLPanelExperiencePicker> hparent, LLUUID queryId, LLSD foundResult);
 
-	bool isSelectButtonEnabled();
-	void processResponse( const LLUUID& query_id, const LLSD& content );
+    bool isSelectButtonEnabled();
+    void processResponse( const LLUUID& query_id, const LLSD& content );
 
-	void filterContent();
-	bool isExperienceHidden(const LLSD& experience) const ;
-	std::string getMaturityString(int maturity);
+    void filterContent();
+    bool isExperienceHidden(const LLSD& experience) const ;
+    std::string getMaturityString(int maturity);
 
 
-	select_callback_t	mSelectionCallback;
-	filter_list			mFilters;
-	LLUUID				mQueryID;
-	LLSD				mResponse;
-	bool				mCloseOnSelect;
-	S32					mCurrentPage;
+    select_callback_t   mSelectionCallback;
+    filter_list         mFilters;
+    LLUUID              mQueryID;
+    LLSD                mResponse;
+    bool                mCloseOnSelect;
+    S32                 mCurrentPage;
 };
 
 #endif // LL_LLPANELEXPERIENCEPICKER_H

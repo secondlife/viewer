@@ -651,7 +651,7 @@ void LLSettingsVOSky::updateSettings()
     // After some A/B comparison of relesae vs EEP, tweak to allow strength to fall below 2 
     // at night, for better match. (mSceneLightStrength is a divisor, so lower value means brighter
     // local lights)
-	F32 sun_dynamic_range = llmax(gSavedSettings.getF32("RenderSunDynamicRange"), 0.0001f);
+    F32 sun_dynamic_range = llmax(gSavedSettings.getF32("RenderSunDynamicRange"), 0.0001f);
     mSceneLightStrength = 2.0f * (0.75f + sun_dynamic_range * dp);
 
     gSky.setSunAndMoonDirectionsCFR(sun_direction, moon_direction);
@@ -670,13 +670,13 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     LLVector4 light_direction = LLEnvironment::instance().getClampedLightNorm();
 
     LLShaderUniforms* shader = &((LLShaderUniforms*)ptarget)[LLGLSLShader::SG_DEFAULT];
-	{        
+    {        
         shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, light_direction);
         shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, LLViewerCamera::getInstance()->getOrigin());
-	} 
+    } 
     
     shader = &((LLShaderUniforms*)ptarget)[LLGLSLShader::SG_SKY];
-	{
+    {
         shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, light_direction);
 
         // Legacy? SETTING_CLOUD_SCROLL_RATE("cloud_scroll_rate")
@@ -702,7 +702,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
 
         LLVector4 cloud_color(LLVector3(psky->getCloudColor().mV), 1.0);
         shader->uniform4fv(LLShaderMgr::CLOUD_COLOR, cloud_color);
-	}
+    }
     
     shader = &((LLShaderUniforms*)ptarget)[LLGLSLShader::SG_ANY];
     shader->uniform1f(LLShaderMgr::SCENE_LIGHT_STRENGTH, mSceneLightStrength);
@@ -916,7 +916,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
     auto group = LLGLSLShader::SG_WATER;
     LLShaderUniforms* shader = &((LLShaderUniforms*)ptarget)[group];
     
-	{
+    {
         F32 water_height = env.getWaterHeight();
 
         //transform water plane to eye space

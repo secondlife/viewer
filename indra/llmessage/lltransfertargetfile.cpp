@@ -33,99 +33,99 @@
 
 
 LLTransferTargetFile::LLTransferTargetFile(
-	const LLUUID& uuid,
-	LLTransferSourceType src_type) :
-	LLTransferTarget(LLTTT_FILE, uuid, src_type),
-	mFP(NULL)
+    const LLUUID& uuid,
+    LLTransferSourceType src_type) :
+    LLTransferTarget(LLTTT_FILE, uuid, src_type),
+    mFP(NULL)
 {
 }
 
 LLTransferTargetFile::~LLTransferTargetFile()
 {
-	if (mFP)
-	{
-		LL_ERRS() << "LLTransferTargetFile::~LLTransferTargetFile - Should have been cleaned up in completion callback" << LL_ENDL;
-		fclose(mFP);
-		mFP = NULL;
-	}
+    if (mFP)
+    {
+        LL_ERRS() << "LLTransferTargetFile::~LLTransferTargetFile - Should have been cleaned up in completion callback" << LL_ENDL;
+        fclose(mFP);
+        mFP = NULL;
+    }
 }
 
 // virtual
 bool LLTransferTargetFile::unpackParams(LLDataPacker& dp)
 {
-	// we can safely ignore this call
-	return true;
+    // we can safely ignore this call
+    return true;
 }
 
 void LLTransferTargetFile::applyParams(const LLTransferTargetParams &params)
 {
-	if (params.getType() != mType)
-	{
-		LL_WARNS() << "Target parameter type doesn't match!" << LL_ENDL;
-		return;
-	}
-	
-	mParams = (LLTransferTargetParamsFile &)params;
+    if (params.getType() != mType)
+    {
+        LL_WARNS() << "Target parameter type doesn't match!" << LL_ENDL;
+        return;
+    }
+    
+    mParams = (LLTransferTargetParamsFile &)params;
 }
 
 LLTSCode LLTransferTargetFile::dataCallback(const S32 packet_id, U8 *in_datap, const S32 in_size)
 {
-	//LL_INFOS() << "LLTransferTargetFile::dataCallback" << LL_ENDL;
-	//LL_INFOS() << "Packet: " << packet_id << LL_ENDL;
+    //LL_INFOS() << "LLTransferTargetFile::dataCallback" << LL_ENDL;
+    //LL_INFOS() << "Packet: " << packet_id << LL_ENDL;
 
-	if (!mFP)
-	{
-		mFP = LLFile::fopen(mParams.mFilename, "wb");		/* Flawfinder: ignore */		
+    if (!mFP)
+    {
+        mFP = LLFile::fopen(mParams.mFilename, "wb");       /* Flawfinder: ignore */        
 
-		if (!mFP)
-		{
-			LL_WARNS() << "Failure opening " << mParams.mFilename << " for write by LLTransferTargetFile" << LL_ENDL;
-			return LLTS_ERROR;
-		}
-	}
-	if (!in_size)
-	{
-		return LLTS_OK;
-	}
+        if (!mFP)
+        {
+            LL_WARNS() << "Failure opening " << mParams.mFilename << " for write by LLTransferTargetFile" << LL_ENDL;
+            return LLTS_ERROR;
+        }
+    }
+    if (!in_size)
+    {
+        return LLTS_OK;
+    }
 
-	S32 count = (S32)fwrite(in_datap, 1, in_size, mFP);
-	if (count != in_size)
-	{
-		LL_WARNS() << "Failure in LLTransferTargetFile::dataCallback!" << LL_ENDL;
-		return LLTS_ERROR;
-	}
-	return LLTS_OK;
+    S32 count = (S32)fwrite(in_datap, 1, in_size, mFP);
+    if (count != in_size)
+    {
+        LL_WARNS() << "Failure in LLTransferTargetFile::dataCallback!" << LL_ENDL;
+        return LLTS_ERROR;
+    }
+    return LLTS_OK;
 }
 
 void LLTransferTargetFile::completionCallback(const LLTSCode status)
 {
-	LL_INFOS() << "LLTransferTargetFile::completionCallback" << LL_ENDL;
-	if (mFP)
-	{
-		fclose(mFP);
-	}
+    LL_INFOS() << "LLTransferTargetFile::completionCallback" << LL_ENDL;
+    if (mFP)
+    {
+        fclose(mFP);
+    }
 
-	// Still need to gracefully handle error conditions.
-	switch (status)
-	{
-	case LLTS_DONE:
-		break;
-	case LLTS_ABORT:
-	case LLTS_ERROR:
-		// We're aborting this transfer, we don't want to keep this file.
-		LL_WARNS() << "Aborting file transfer for " << mParams.mFilename << LL_ENDL;
-		if (mFP)
-		{
-			// Only need to remove file if we successfully opened it.
-			LLFile::remove(mParams.mFilename);
-		}
-	default:
-		break;
-	}
+    // Still need to gracefully handle error conditions.
+    switch (status)
+    {
+    case LLTS_DONE:
+        break;
+    case LLTS_ABORT:
+    case LLTS_ERROR:
+        // We're aborting this transfer, we don't want to keep this file.
+        LL_WARNS() << "Aborting file transfer for " << mParams.mFilename << LL_ENDL;
+        if (mFP)
+        {
+            // Only need to remove file if we successfully opened it.
+            LLFile::remove(mParams.mFilename);
+        }
+    default:
+        break;
+    }
 
-	mFP = NULL;
-	if (mParams.mCompleteCallback)
-	{
-		mParams.mCompleteCallback(status, mParams.mUserData);
-	}
+    mFP = NULL;
+    if (mParams.mCompleteCallback)
+    {
+        mParams.mCompleteCallback(status, mParams.mUserData);
+    }
 }

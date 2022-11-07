@@ -37,64 +37,64 @@ class LLDataPacker;
 class LLThrottle
 {
 public:
-	LLThrottle(const F32 throttle = 1.f);
-	~LLThrottle() { }
+    LLThrottle(const F32 throttle = 1.f);
+    ~LLThrottle() { }
 
-	void setRate(const F32 rate);
-	BOOL checkOverflow(const F32 amount); // I'm about to add an amount, TRUE if would overflow throttle
-	BOOL throttleOverflow(const F32 amount); // I just sent amount, TRUE if that overflowed the throttle
+    void setRate(const F32 rate);
+    BOOL checkOverflow(const F32 amount); // I'm about to add an amount, TRUE if would overflow throttle
+    BOOL throttleOverflow(const F32 amount); // I just sent amount, TRUE if that overflowed the throttle
 
-	F32 getAvailable();	// Return the available bits
-	F32 getRate() const				{ return mRate; }
+    F32 getAvailable(); // Return the available bits
+    F32 getRate() const             { return mRate; }
 private:
-	F32 mLookaheadSecs;	// Seconds to look ahead, maximum
-	F32	mRate;	// BPS available, dynamically adjusted
-	F32	mAvailable;	// Bits available to send right now on each channel
-	F64Seconds	mLastSendTime;		// Time since last send on this channel
+    F32 mLookaheadSecs; // Seconds to look ahead, maximum
+    F32 mRate;  // BPS available, dynamically adjusted
+    F32 mAvailable; // Bits available to send right now on each channel
+    F64Seconds  mLastSendTime;      // Time since last send on this channel
 };
 
 typedef enum e_throttle_categories
 {
-	TC_RESEND,
-	TC_LAND,
-	TC_WIND,
-	TC_CLOUD,
-	TC_TASK,
-	TC_TEXTURE,
-	TC_ASSET,
-	TC_EOF
+    TC_RESEND,
+    TC_LAND,
+    TC_WIND,
+    TC_CLOUD,
+    TC_TASK,
+    TC_TEXTURE,
+    TC_ASSET,
+    TC_EOF
 } EThrottleCats;
 
 
 class LLThrottleGroup
 {
 public:
-	LLThrottleGroup();
-	~LLThrottleGroup() { }
+    LLThrottleGroup();
+    ~LLThrottleGroup() { }
 
-	void	resetDynamicAdjust();
-	BOOL	checkOverflow(S32 throttle_cat, F32 bits);		// I'm about to send bits, TRUE if would overflow channel
-	BOOL	throttleOverflow(S32 throttle_cat, F32 bits);	// I just sent bits, TRUE if that overflowed the channel
-	BOOL	dynamicAdjust();		// Shift bandwidth from idle channels to busy channels, TRUE if adjustment occurred
-	BOOL	setNominalBPS(F32* throttle_vec);				// TRUE if any value was different, resets adjustment system if was different
+    void    resetDynamicAdjust();
+    BOOL    checkOverflow(S32 throttle_cat, F32 bits);      // I'm about to send bits, TRUE if would overflow channel
+    BOOL    throttleOverflow(S32 throttle_cat, F32 bits);   // I just sent bits, TRUE if that overflowed the channel
+    BOOL    dynamicAdjust();        // Shift bandwidth from idle channels to busy channels, TRUE if adjustment occurred
+    BOOL    setNominalBPS(F32* throttle_vec);               // TRUE if any value was different, resets adjustment system if was different
 
-	S32		getAvailable(S32 throttle_cat);					// Return bits available in the channel
+    S32     getAvailable(S32 throttle_cat);                 // Return bits available in the channel
 
-	void packThrottle(LLDataPacker &dp) const;
-	void unpackThrottle(LLDataPacker &dp);
+    void packThrottle(LLDataPacker &dp) const;
+    void unpackThrottle(LLDataPacker &dp);
 public:
-	F32		mThrottleTotal[TC_EOF];	// BPS available, sent by viewer, sum for all simulators
+    F32     mThrottleTotal[TC_EOF]; // BPS available, sent by viewer, sum for all simulators
 
 protected:
-	F32		mNominalBPS[TC_EOF];	// BPS available, adjusted to be just this simulator
-	F32		mCurrentBPS[TC_EOF];	// BPS available, dynamically adjusted
+    F32     mNominalBPS[TC_EOF];    // BPS available, adjusted to be just this simulator
+    F32     mCurrentBPS[TC_EOF];    // BPS available, dynamically adjusted
 
-	F32		mBitsAvailable[TC_EOF];	// Bits available to send right now on each channel
-	F32		mBitsSentThisPeriod[TC_EOF];	// Sent in this dynamic allocation period
-	F32		mBitsSentHistory[TC_EOF];		// Sent before this dynamic allocation period, adjusted to one period length
+    F32     mBitsAvailable[TC_EOF]; // Bits available to send right now on each channel
+    F32     mBitsSentThisPeriod[TC_EOF];    // Sent in this dynamic allocation period
+    F32     mBitsSentHistory[TC_EOF];       // Sent before this dynamic allocation period, adjusted to one period length
 
-	F64Seconds	mLastSendTime[TC_EOF];		// Time since last send on this channel
-	F64Seconds	mDynamicAdjustTime;	// Only dynamic adjust every 2 seconds or so.
+    F64Seconds  mLastSendTime[TC_EOF];      // Time since last send on this channel
+    F64Seconds  mDynamicAdjustTime; // Only dynamic adjust every 2 seconds or so.
 
 };
 

@@ -74,8 +74,8 @@ void LLWebProfile::uploadImage(LLPointer<LLImageFormatted> image, const std::str
 // static
 void LLWebProfile::setAuthCookie(const std::string& cookie)
 {
-	LL_DEBUGS("Snapshots") << "Setting auth cookie: " << cookie << LL_ENDL;
-	sAuthCookie = cookie;
+    LL_DEBUGS("Snapshots") << "Setting auth cookie: " << cookie << LL_ENDL;
+    sAuthCookie = cookie;
 }
 
 
@@ -256,15 +256,15 @@ LLCore::BufferArray::ptr_t LLWebProfile::buildPostData(const LLSD &data, LLPoint
 // static
 void LLWebProfile::reportImageUploadStatus(bool ok)
 {
-	if (mStatusCallback)
-	{
-		mStatusCallback(ok);
-	}
+    if (mStatusCallback)
+    {
+        mStatusCallback(ok);
+    }
 }
 
 // static
 std::string LLWebProfile::getAuthCookie()
 {
-	// This is needed to test image uploads on Linux viewer built with OpenSSL 1.0.0 (0.9.8 works fine).
-	return LLStringUtil::getenv("LL_SNAPSHOT_COOKIE", sAuthCookie);
+    // This is needed to test image uploads on Linux viewer built with OpenSSL 1.0.0 (0.9.8 works fine).
+    return LLStringUtil::getenv("LL_SNAPSHOT_COOKIE", sAuthCookie);
 }

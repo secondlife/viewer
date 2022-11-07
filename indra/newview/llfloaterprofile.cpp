@@ -40,7 +40,7 @@ LLFloaterProfile::LLFloaterProfile(const LLSD& key)
  mAvatarId(key["id"].asUUID()),
  mNameCallbackConnection()
 {
-	mDefaultRectForGroup = false;
+    mDefaultRectForGroup = false;
 }
 
 LLFloaterProfile::~LLFloaterProfile()

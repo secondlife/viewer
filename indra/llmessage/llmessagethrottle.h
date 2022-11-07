@@ -34,43 +34,43 @@
 
 typedef enum e_message_throttle_categories
 {
-	MTC_VIEWER_ALERT,
-	MTC_AGENT_ALERT,
-	MTC_EOF
+    MTC_VIEWER_ALERT,
+    MTC_AGENT_ALERT,
+    MTC_EOF
 } EMessageThrottleCats;
 
 class LLMessageThrottleEntry
 {
 public:
-	LLMessageThrottleEntry(const size_t hash, const U64 entry_time)
-		: mHash(hash), mEntryTime(entry_time) {}
+    LLMessageThrottleEntry(const size_t hash, const U64 entry_time)
+        : mHash(hash), mEntryTime(entry_time) {}
 
-	size_t	getHash() const { return mHash; }
-	U64		getEntryTime() const { return mEntryTime; }
+    size_t  getHash() const { return mHash; }
+    U64     getEntryTime() const { return mEntryTime; }
 protected:
-	size_t	mHash;
-	U64		mEntryTime;
+    size_t  mHash;
+    U64     mEntryTime;
 };
 
 
 class LLMessageThrottle
 {
 public:
-	LLMessageThrottle();
-	~LLMessageThrottle();
+    LLMessageThrottle();
+    ~LLMessageThrottle();
 
-	BOOL addViewerAlert	(const LLUUID& to, const std::string& mesg);
-	BOOL addAgentAlert	(const LLUUID& agent, const LLUUID& task, const std::string& mesg);
+    BOOL addViewerAlert (const LLUUID& to, const std::string& mesg);
+    BOOL addAgentAlert  (const LLUUID& agent, const LLUUID& task, const std::string& mesg);
 
-	void pruneEntries();
+    void pruneEntries();
 
 protected:
-	typedef std::deque<LLMessageThrottleEntry>							message_list_t;
-	typedef std::deque<LLMessageThrottleEntry>::iterator				message_list_iterator_t;
-	typedef std::deque<LLMessageThrottleEntry>::reverse_iterator		message_list_reverse_iterator_t;
-	typedef std::deque<LLMessageThrottleEntry>::const_iterator			message_list_const_iterator_t;
-	typedef std::deque<LLMessageThrottleEntry>::const_reverse_iterator	message_list_const_reverse_iterator_t;
-	message_list_t	mMessageList[MTC_EOF];
+    typedef std::deque<LLMessageThrottleEntry>                          message_list_t;
+    typedef std::deque<LLMessageThrottleEntry>::iterator                message_list_iterator_t;
+    typedef std::deque<LLMessageThrottleEntry>::reverse_iterator        message_list_reverse_iterator_t;
+    typedef std::deque<LLMessageThrottleEntry>::const_iterator          message_list_const_iterator_t;
+    typedef std::deque<LLMessageThrottleEntry>::const_reverse_iterator  message_list_const_reverse_iterator_t;
+    message_list_t  mMessageList[MTC_EOF];
 };
 
 extern LLMessageThrottle gMessageThrottle;

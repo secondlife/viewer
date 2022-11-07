@@ -40,82 +40,82 @@ namespace tut
 {
     struct versioninfo
     {
-		versioninfo()
-			: mResetChannel("Reset Channel")
-		{
-			std::ostringstream stream;
-			stream << LL_VIEWER_VERSION_MAJOR << "."
-				   << LL_VIEWER_VERSION_MINOR << "."
-				   << LL_VIEWER_VERSION_PATCH << "."
-				   << LL_VIEWER_VERSION_BUILD;
-			mVersion = stream.str();
-			stream.str("");
+        versioninfo()
+            : mResetChannel("Reset Channel")
+        {
+            std::ostringstream stream;
+            stream << LL_VIEWER_VERSION_MAJOR << "."
+                   << LL_VIEWER_VERSION_MINOR << "."
+                   << LL_VIEWER_VERSION_PATCH << "."
+                   << LL_VIEWER_VERSION_BUILD;
+            mVersion = stream.str();
+            stream.str("");
 
-			stream << LL_VIEWER_VERSION_MAJOR << "."
-				   << LL_VIEWER_VERSION_MINOR << "."
-				   << LL_VIEWER_VERSION_PATCH;
-			mShortVersion = stream.str();
-			stream.str("");
+            stream << LL_VIEWER_VERSION_MAJOR << "."
+                   << LL_VIEWER_VERSION_MINOR << "."
+                   << LL_VIEWER_VERSION_PATCH;
+            mShortVersion = stream.str();
+            stream.str("");
 
-			stream << ll_viewer_channel
-				   << " "
-				   << mVersion;
-			mVersionAndChannel = stream.str();
-			stream.str("");
+            stream << ll_viewer_channel
+                   << " "
+                   << mVersion;
+            mVersionAndChannel = stream.str();
+            stream.str("");
 
-			stream << mResetChannel
-				   << " "
-				   << mVersion;
-			mResetVersionAndChannel = stream.str();
-		}
-		std::string mResetChannel;
-		std::string mVersion;
-		std::string mShortVersion;
-		std::string mVersionAndChannel;
-		std::string mResetVersionAndChannel;
+            stream << mResetChannel
+                   << " "
+                   << mVersion;
+            mResetVersionAndChannel = stream.str();
+        }
+        std::string mResetChannel;
+        std::string mVersion;
+        std::string mShortVersion;
+        std::string mVersionAndChannel;
+        std::string mResetVersionAndChannel;
     };
     
-	typedef test_group<versioninfo> versioninfo_t;
-	typedef versioninfo_t::object versioninfo_object_t;
-	tut::versioninfo_t tut_versioninfo("LLVersionInfo");
+    typedef test_group<versioninfo> versioninfo_t;
+    typedef versioninfo_t::object versioninfo_object_t;
+    tut::versioninfo_t tut_versioninfo("LLVersionInfo");
 
-	template<> template<>
-	void versioninfo_object_t::test<1>()
-	{   
-		std::cout << "What we parsed from CMake: " << LL_VIEWER_VERSION_BUILD << std::endl;
-		std::cout << "What we get from llversioninfo: " << LLVersionInfo::instance().getBuild() << std::endl;
-		ensure_equals("Major version", 
-					  LLVersionInfo::instance().getMajor(), 
-					  LL_VIEWER_VERSION_MAJOR);
-		ensure_equals("Minor version", 
-					  LLVersionInfo::instance().getMinor(), 
-					  LL_VIEWER_VERSION_MINOR);
-		ensure_equals("Patch version", 
-					  LLVersionInfo::instance().getPatch(), 
-					  LL_VIEWER_VERSION_PATCH);
-		ensure_equals("Build version", 
-					  LLVersionInfo::instance().getBuild(), 
-					  LL_VIEWER_VERSION_BUILD);
-		ensure_equals("Channel version", 
-					  LLVersionInfo::instance().getChannel(), 
-					  ll_viewer_channel);
-		ensure_equals("Version String", 
-					  LLVersionInfo::instance().getVersion(), 
-					  mVersion);
-		ensure_equals("Short Version String", 
-					  LLVersionInfo::instance().getShortVersion(), 
-					  mShortVersion);
-		ensure_equals("Version and channel String", 
-					  LLVersionInfo::instance().getChannelAndVersion(), 
-					  mVersionAndChannel);
+    template<> template<>
+    void versioninfo_object_t::test<1>()
+    {   
+        std::cout << "What we parsed from CMake: " << LL_VIEWER_VERSION_BUILD << std::endl;
+        std::cout << "What we get from llversioninfo: " << LLVersionInfo::instance().getBuild() << std::endl;
+        ensure_equals("Major version", 
+                      LLVersionInfo::instance().getMajor(), 
+                      LL_VIEWER_VERSION_MAJOR);
+        ensure_equals("Minor version", 
+                      LLVersionInfo::instance().getMinor(), 
+                      LL_VIEWER_VERSION_MINOR);
+        ensure_equals("Patch version", 
+                      LLVersionInfo::instance().getPatch(), 
+                      LL_VIEWER_VERSION_PATCH);
+        ensure_equals("Build version", 
+                      LLVersionInfo::instance().getBuild(), 
+                      LL_VIEWER_VERSION_BUILD);
+        ensure_equals("Channel version", 
+                      LLVersionInfo::instance().getChannel(), 
+                      ll_viewer_channel);
+        ensure_equals("Version String", 
+                      LLVersionInfo::instance().getVersion(), 
+                      mVersion);
+        ensure_equals("Short Version String", 
+                      LLVersionInfo::instance().getShortVersion(), 
+                      mShortVersion);
+        ensure_equals("Version and channel String", 
+                      LLVersionInfo::instance().getChannelAndVersion(), 
+                      mVersionAndChannel);
 
-		LLVersionInfo::instance().resetChannel(mResetChannel);
-		ensure_equals("Reset channel version", 
-					  LLVersionInfo::instance().getChannel(), 
-					  mResetChannel);
+        LLVersionInfo::instance().resetChannel(mResetChannel);
+        ensure_equals("Reset channel version", 
+                      LLVersionInfo::instance().getChannel(), 
+                      mResetChannel);
 
-		ensure_equals("Reset Version and channel String", 
-					  LLVersionInfo::instance().getChannelAndVersion(), 
-					  mResetVersionAndChannel);
-	}
+        ensure_equals("Reset Version and channel String", 
+                      LLVersionInfo::instance().getChannelAndVersion(), 
+                      mResetVersionAndChannel);
+    }
 }

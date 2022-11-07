@@ -45,23 +45,23 @@
 class LL_COMMON_API LLMutex
 {
 public:
-	LLMutex();
-	virtual ~LLMutex();
-	
-	void lock();		// blocks
-	bool trylock();		// non-blocking, returns true if lock held.
-	void unlock();		// undefined behavior when called on mutex not being held
-	bool isLocked(); 	// non-blocking, but does do a lock/unlock so not free
-	bool isSelfLocked(); //return true if locked in a same thread
-	LLThread::id_t lockingThread() const; //get ID of locking thread
+    LLMutex();
+    virtual ~LLMutex();
+    
+    void lock();        // blocks
+    bool trylock();     // non-blocking, returns true if lock held.
+    void unlock();      // undefined behavior when called on mutex not being held
+    bool isLocked();    // non-blocking, but does do a lock/unlock so not free
+    bool isSelfLocked(); //return true if locked in a same thread
+    LLThread::id_t lockingThread() const; //get ID of locking thread
 
 protected:
-	std::mutex			mMutex;
-	mutable U32			mCount;
-	mutable LLThread::id_t	mLockingThread;
-	
+    std::mutex          mMutex;
+    mutable U32         mCount;
+    mutable LLThread::id_t  mLockingThread;
+    
 #if MUTEX_DEBUG
-	std::map<LLThread::id_t, BOOL> mIsLocked;
+    std::map<LLThread::id_t, BOOL> mIsLocked;
 #endif
 };
 
@@ -69,34 +69,34 @@ protected:
 class LL_COMMON_API LLCondition : public LLMutex
 {
 public:
-	LLCondition();
-	~LLCondition();
-	
-	void wait();		// blocks
-	void signal();
-	void broadcast();
-	
+    LLCondition();
+    ~LLCondition();
+    
+    void wait();        // blocks
+    void signal();
+    void broadcast();
+    
 protected:
-	std::condition_variable mCond;
+    std::condition_variable mCond;
 };
 
 class LLMutexLock
 {
 public:
-	LLMutexLock(LLMutex* mutex)
-	{
-		mMutex = mutex;
-		
-		if(mMutex)
-			mMutex->lock();
-	}
-	~LLMutexLock()
-	{
-		if(mMutex)
-			mMutex->unlock();
-	}
+    LLMutexLock(LLMutex* mutex)
+    {
+        mMutex = mutex;
+        
+        if(mMutex)
+            mMutex->lock();
+    }
+    ~LLMutexLock()
+    {
+        if(mMutex)
+            mMutex->unlock();
+    }
 private:
-	LLMutex* mMutex;
+    LLMutex* mMutex;
 };
 
 //============================================================================
@@ -112,18 +112,18 @@ private:
 class LLMutexTrylock
 {
 public:
-	LLMutexTrylock(LLMutex* mutex);
-	LLMutexTrylock(LLMutex* mutex, U32 aTries, U32 delay_ms = 10);
-	~LLMutexTrylock();
+    LLMutexTrylock(LLMutex* mutex);
+    LLMutexTrylock(LLMutex* mutex, U32 aTries, U32 delay_ms = 10);
+    ~LLMutexTrylock();
 
-	bool isLocked() const
-	{
-		return mLocked;
-	}
-	
+    bool isLocked() const
+    {
+        return mLocked;
+    }
+    
 private:
-	LLMutex*	mMutex;
-	bool		mLocked;
+    LLMutex*    mMutex;
+    bool        mLocked;
 };
 
 /**

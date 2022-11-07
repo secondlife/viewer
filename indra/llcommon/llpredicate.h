@@ -31,179 +31,179 @@
 
 namespace LLPredicate
 {
-	template<typename ENUM> class Rule;
+    template<typename ENUM> class Rule;
 
-	extern const U32 cPredicateFlagsFromEnum[5];
+    extern const U32 cPredicateFlagsFromEnum[5];
 
-	template<typename ENUM>
-	class Value
-	{
-	public:
-		typedef U32 predicate_flag_t;
-		static const S32 cMaxEnum = 5;
+    template<typename ENUM>
+    class Value
+    {
+    public:
+        typedef U32 predicate_flag_t;
+        static const S32 cMaxEnum = 5;
 
-		Value(ENUM e, bool predicate_value = true)
-		:	mPredicateFlags(predicate_value ? cPredicateFlagsFromEnum[e] : ~cPredicateFlagsFromEnum[e])
-		{
-			llassert(0 <= e && e < cMaxEnum);
-		}
+        Value(ENUM e, bool predicate_value = true)
+        :   mPredicateFlags(predicate_value ? cPredicateFlagsFromEnum[e] : ~cPredicateFlagsFromEnum[e])
+        {
+            llassert(0 <= e && e < cMaxEnum);
+        }
 
-		Value()
-		:	mPredicateFlags(0xFFFFffff)
-		{}
+        Value()
+        :   mPredicateFlags(0xFFFFffff)
+        {}
 
-		Value operator!() const
-		{
-			Value new_value;
-			new_value.mPredicateFlags = ~mPredicateFlags;
-			return new_value;
-		}
+        Value operator!() const
+        {
+            Value new_value;
+            new_value.mPredicateFlags = ~mPredicateFlags;
+            return new_value;
+        }
 
-		Value operator &&(const Value other) const
-		{
-			Value new_value;
-			new_value.mPredicateFlags = mPredicateFlags & other.mPredicateFlags;
-			return new_value;
-		}
+        Value operator &&(const Value other) const
+        {
+            Value new_value;
+            new_value.mPredicateFlags = mPredicateFlags & other.mPredicateFlags;
+            return new_value;
+        }
 
-		Value operator ||(const Value other) const
-		{
-			Value new_value;
-			new_value.mPredicateFlags = mPredicateFlags | other.mPredicateFlags;
-			return new_value;
-		}
+        Value operator ||(const Value other) const
+        {
+            Value new_value;
+            new_value.mPredicateFlags = mPredicateFlags | other.mPredicateFlags;
+            return new_value;
+        }
 
-		void set(ENUM e, bool value = true)
-		{
-			llassert(0 <= e && e < cMaxEnum);
-			predicate_flag_t flags_to_modify;
-			predicate_flag_t mask = cPredicateFlagsFromEnum[e];
-			if (value)
-			{	// add predicate "e" to flags that don't contain it already
-				flags_to_modify = (mPredicateFlags & ~mask);
-				// clear flags not containing e
-				mPredicateFlags &= mask;
-				// add back flags shifted to contain e
-				mPredicateFlags |= flags_to_modify << (0x1 << e);
-			}
-			else
-			{	// remove predicate "e" from flags that contain it
-				flags_to_modify = (mPredicateFlags & mask);
-				// clear flags containing e
-				mPredicateFlags &= ~mask;
-				// add back flags shifted to not contain e
-				mPredicateFlags |= flags_to_modify >> (0x1 << e);
-			}
-		}
+        void set(ENUM e, bool value = true)
+        {
+            llassert(0 <= e && e < cMaxEnum);
+            predicate_flag_t flags_to_modify;
+            predicate_flag_t mask = cPredicateFlagsFromEnum[e];
+            if (value)
+            {   // add predicate "e" to flags that don't contain it already
+                flags_to_modify = (mPredicateFlags & ~mask);
+                // clear flags not containing e
+                mPredicateFlags &= mask;
+                // add back flags shifted to contain e
+                mPredicateFlags |= flags_to_modify << (0x1 << e);
+            }
+            else
+            {   // remove predicate "e" from flags that contain it
+                flags_to_modify = (mPredicateFlags & mask);
+                // clear flags containing e
+                mPredicateFlags &= ~mask;
+                // add back flags shifted to not contain e
+                mPredicateFlags |= flags_to_modify >> (0x1 << e);
+            }
+        }
 
-		void forget(ENUM e)
-		{
-			set(e, true);
-			U32 flags_with_predicate = mPredicateFlags;
-			set(e, false);
-			// ambiguous value is result of adding and removing predicate at the same time!
-			mPredicateFlags |= flags_with_predicate;
-		}
+        void forget(ENUM e)
+        {
+            set(e, true);
+            U32 flags_with_predicate = mPredicateFlags;
+            set(e, false);
+            // ambiguous value is result of adding and removing predicate at the same time!
+            mPredicateFlags |= flags_with_predicate;
+        }
 
-		bool allSet() const
-		{
-			return mPredicateFlags == ~0;
-		}
+        bool allSet() const
+        {
+            return mPredicateFlags == ~0;
+        }
 
-		bool noneSet() const
-		{
-			return mPredicateFlags == 0;
-		}
+        bool noneSet() const
+        {
+            return mPredicateFlags == 0;
+        }
 
-		bool someSet() const
-		{
-			return mPredicateFlags != 0;
-		}
+        bool someSet() const
+        {
+            return mPredicateFlags != 0;
+        }
 
-	private:
-		predicate_flag_t mPredicateFlags;
-	};
+    private:
+        predicate_flag_t mPredicateFlags;
+    };
 
-	template<typename ENUM>
-	class Rule
-	{
-	public:
-		Rule(ENUM value)
-		:	mRule(value)
-		{}
+    template<typename ENUM>
+    class Rule
+    {
+    public:
+        Rule(ENUM value)
+        :   mRule(value)
+        {}
 
-		Rule(const Value<ENUM> other)
-		:	mRule(other)
-		{}
+        Rule(const Value<ENUM> other)
+        :   mRule(other)
+        {}
 
-		Rule()
-		{}
+        Rule()
+        {}
 
-		void require(ENUM e, bool match)
-		{
-			mRule.set(e, match);
-		}
+        void require(ENUM e, bool match)
+        {
+            mRule.set(e, match);
+        }
 
-		void allow(ENUM e)
-		{
-			mRule.forget(e);
-		}
+        void allow(ENUM e)
+        {
+            mRule.forget(e);
+        }
 
-		bool check(const Value<ENUM> value) const
-		{
-			return (mRule && value).someSet();
-		}
+        bool check(const Value<ENUM> value) const
+        {
+            return (mRule && value).someSet();
+        }
 
-		bool requires(const Value<ENUM> value) const
-		{
-			return (mRule && value).someSet() && (!mRule && value).noneSet();
-		}
+        bool requires(const Value<ENUM> value) const
+        {
+            return (mRule && value).someSet() && (!mRule && value).noneSet();
+        }
 
-		bool isAmbivalent(const Value<ENUM> value) const
-		{
-			return (mRule && value).someSet() && (!mRule && value).someSet();
-		}
+        bool isAmbivalent(const Value<ENUM> value) const
+        {
+            return (mRule && value).someSet() && (!mRule && value).someSet();
+        }
 
-		bool acceptsAll() const
-		{
-			return mRule.allSet();
-		}
+        bool acceptsAll() const
+        {
+            return mRule.allSet();
+        }
 
-		bool acceptsNone() const
-		{
-			return mRule.noneSet();
-		}
+        bool acceptsNone() const
+        {
+            return mRule.noneSet();
+        }
 
-		Rule operator!() const
-		{
-			Rule new_rule;
-			new_rule.mRule = !mRule;
-			return new_rule;
-		}
+        Rule operator!() const
+        {
+            Rule new_rule;
+            new_rule.mRule = !mRule;
+            return new_rule;
+        }
 
-		Rule operator &&(const Rule other) const
-		{
-			Rule new_rule;
-			new_rule.mRule = mRule && other.mRule;
-			return new_rule;
-		}
+        Rule operator &&(const Rule other) const
+        {
+            Rule new_rule;
+            new_rule.mRule = mRule && other.mRule;
+            return new_rule;
+        }
 
-		Rule operator ||(const Rule other) const
-		{
-			Rule new_rule;
-			new_rule.mRule = mRule || other.mRule;
-			return new_rule;
-		}
+        Rule operator ||(const Rule other) const
+        {
+            Rule new_rule;
+            new_rule.mRule = mRule || other.mRule;
+            return new_rule;
+        }
 
-	private:
-		Value<ENUM> mRule;
-	};
+    private:
+        Value<ENUM> mRule;
+    };
 }
 
 template<typename ENUM>
 LLPredicate::Value<ENUM> ll_make_predicate(ENUM e, bool predicate_value = true)
 {
-	 return LLPredicate::Value<ENUM>(e, predicate_value);
+     return LLPredicate::Value<ENUM>(e, predicate_value);
 }
 
 

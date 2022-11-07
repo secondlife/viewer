@@ -36,65 +36,65 @@ class LLMessageSystem;
  */
 class LLRegionInfoModel : public LLSingleton<LLRegionInfoModel>
 {
-	LLSINGLETON(LLRegionInfoModel);
-	LOG_CLASS(LLRegionInfoModel);
+    LLSINGLETON(LLRegionInfoModel);
+    LOG_CLASS(LLRegionInfoModel);
 
 public:
-	typedef boost::signals2::signal<void()> update_signal_t;
-	boost::signals2::connection setUpdateCallback(const update_signal_t::slot_type& cb);
+    typedef boost::signals2::signal<void()> update_signal_t;
+    boost::signals2::connection setUpdateCallback(const update_signal_t::slot_type& cb);
 
-	void sendRegionTerrain(const LLUUID& invoice) const; /// upload region terrain data
+    void sendRegionTerrain(const LLUUID& invoice) const; /// upload region terrain data
 
-	bool getUseFixedSun() const;
+    bool getUseFixedSun() const;
 
-	void setUseFixedSun(bool fixed);
+    void setUseFixedSun(bool fixed);
 
-	// *TODO: Add getters and make the data private.
-	U8			mSimAccess;
-	U8			mAgentLimit;
+    // *TODO: Add getters and make the data private.
+    U8          mSimAccess;
+    U8          mAgentLimit;
 
-	S32			mHardAgentLimit;
+    S32         mHardAgentLimit;
 
-	U64			mRegionFlags;
-	U32			mEstateID;
-	U32			mParentEstateID;
+    U64         mRegionFlags;
+    U32         mEstateID;
+    U32         mParentEstateID;
 
-	S32			mPricePerMeter;
-	S32			mRedirectGridX;
-	S32			mRedirectGridY;
+    S32         mPricePerMeter;
+    S32         mRedirectGridX;
+    S32         mRedirectGridY;
 
-	F32			mBillableFactor;
-	F32			mObjectBonusFactor;
-	F32			mWaterHeight;
-	F32			mTerrainRaiseLimit;
-	F32			mTerrainLowerLimit;
-	F32			mSunHour; // 6..30
+    F32         mBillableFactor;
+    F32         mObjectBonusFactor;
+    F32         mWaterHeight;
+    F32         mTerrainRaiseLimit;
+    F32         mTerrainLowerLimit;
+    F32         mSunHour; // 6..30
 
-	BOOL		mUseEstateSun;
+    BOOL        mUseEstateSun;
 
-	std::string	mSimName;
-	std::string	mSimType;
+    std::string mSimName;
+    std::string mSimType;
 
 protected:
-	friend class LLViewerRegion;
+    friend class LLViewerRegion;
 
 
-	/**
-	 * Refresh model with data from the incoming server message.
-	 */
-	void update(LLMessageSystem* msg);
+    /**
+     * Refresh model with data from the incoming server message.
+     */
+    void update(LLMessageSystem* msg);
 
 private:
-	void reset();
+    void reset();
 
-	// *FIXME: Duplicated code from LLPanelRegionInfo
-	static void sendEstateOwnerMessage(
-		LLMessageSystem* msg,
-		const std::string& request,
-		const LLUUID& invoice,
-		const std::vector<std::string>& strings);
+    // *FIXME: Duplicated code from LLPanelRegionInfo
+    static void sendEstateOwnerMessage(
+        LLMessageSystem* msg,
+        const std::string& request,
+        const LLUUID& invoice,
+        const std::vector<std::string>& strings);
 
-	update_signal_t mUpdateSignal;
+    update_signal_t mUpdateSignal;
 };
 
 #endif // LL_LLREGIONINFOMODEL_H

@@ -34,67 +34,67 @@ class LLToggleableMenu;
 class LLMenuButton
 : public LLButton
 {
-	LOG_CLASS(LLMenuButton);
+    LOG_CLASS(LLMenuButton);
 
 public:
-	typedef enum e_menu_position
-	{
-		MP_TOP_LEFT,
-		MP_TOP_RIGHT,
-		MP_BOTTOM_LEFT,
-		MP_BOTTOM_RIGHT
-	} EMenuPosition;
+    typedef enum e_menu_position
+    {
+        MP_TOP_LEFT,
+        MP_TOP_RIGHT,
+        MP_BOTTOM_LEFT,
+        MP_BOTTOM_RIGHT
+    } EMenuPosition;
 
-	struct MenuPositions
-		:	public LLInitParam::TypeValuesHelper<EMenuPosition, MenuPositions>
-	{
-		static void declareValues();
-	};
+    struct MenuPositions
+        :   public LLInitParam::TypeValuesHelper<EMenuPosition, MenuPositions>
+    {
+        static void declareValues();
+    };
 
-	struct Params 
-	:	public LLInitParam::Block<Params, LLButton::Params>
-	{
-		// filename for it's toggleable menu
-		Optional<std::string>	menu_filename;
-		Optional<EMenuPosition, MenuPositions>	position;
-	
-		Params();
-	};
+    struct Params 
+    :   public LLInitParam::Block<Params, LLButton::Params>
+    {
+        // filename for it's toggleable menu
+        Optional<std::string>   menu_filename;
+        Optional<EMenuPosition, MenuPositions>  position;
+    
+        Params();
+    };
 
 
-	
-	boost::signals2::connection setMouseDownCallback( const mouse_signal_t::slot_type& cb );
+    
+    boost::signals2::connection setMouseDownCallback( const mouse_signal_t::slot_type& cb );
 
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask );
+    /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleKeyHere(KEY key, MASK mask );
 
-	void hideMenu();
+    void hideMenu();
 
-	LLToggleableMenu* getMenu();
-	void setMenu(const std::string& menu_filename, EMenuPosition position = MP_TOP_LEFT);
-	void setMenu(LLToggleableMenu* menu, EMenuPosition position = MP_TOP_LEFT, bool take_ownership = false);
+    LLToggleableMenu* getMenu();
+    void setMenu(const std::string& menu_filename, EMenuPosition position = MP_TOP_LEFT);
+    void setMenu(LLToggleableMenu* menu, EMenuPosition position = MP_TOP_LEFT, bool take_ownership = false);
 
-	void setMenuPosition(EMenuPosition position) { mMenuPosition = position; }
+    void setMenuPosition(EMenuPosition position) { mMenuPosition = position; }
 
 protected:
-	friend class LLUICtrlFactory;
-	LLMenuButton(const Params&);
-	~LLMenuButton();
+    friend class LLUICtrlFactory;
+    LLMenuButton(const Params&);
+    ~LLMenuButton();
 
-	void toggleMenu();
-	void updateMenuOrigin();
+    void toggleMenu();
+    void updateMenuOrigin();
 
-	void onMenuVisibilityChange(const LLSD& param);
+    void onMenuVisibilityChange(const LLSD& param);
 
 private:
-	void cleanup();
+    void cleanup();
 
-	LLHandle<LLView>		mMenuHandle;
-	bool					mIsMenuShown;
-	EMenuPosition			mMenuPosition;
-	S32						mX;
-	S32						mY;
-	bool					mOwnMenu; // true if we manage the menu lifetime
+    LLHandle<LLView>        mMenuHandle;
+    bool                    mIsMenuShown;
+    EMenuPosition           mMenuPosition;
+    S32                     mX;
+    S32                     mY;
+    bool                    mOwnMenu; // true if we manage the menu lifetime
 };
 
 

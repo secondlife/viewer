@@ -30,10 +30,10 @@
 
 int main(int argc, char **argv)
 {
-	LL_INFOS() << "Starting crash reporter." << LL_ENDL;
+    LL_INFOS() << "Starting crash reporter." << LL_ENDL;
 
-	LLCrashLoggerLinux app;
-	app.parseCommandOptions(argc, argv);
+    LLCrashLoggerLinux app;
+    app.parseCommandOptions(argc, argv);
 
     LLSD options = LLApp::instance()->getOptionData(
                         LLApp::PRIORITY_COMMAND_LINE);
@@ -45,14 +45,14 @@ int main(int argc, char **argv)
         LL_WARNS() << "Insufficient parameters to crash report." << LL_ENDL;
     }
 
-	if (! app.init())
-	{
-		LL_WARNS() << "Unable to initialize application." << LL_ENDL;
-		return 1;
-	}
+    if (! app.init())
+    {
+        LL_WARNS() << "Unable to initialize application." << LL_ENDL;
+        return 1;
+    }
 
-	app.frame();
-	app.cleanup();
-	LL_INFOS() << "Crash reporter finished normally." << LL_ENDL;
-	return 0;
+    app.frame();
+    app.cleanup();
+    LL_INFOS() << "Crash reporter finished normally." << LL_ENDL;
+    return 0;
 }

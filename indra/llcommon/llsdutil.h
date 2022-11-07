@@ -67,9 +67,9 @@ LL_COMMON_API std::string ll_stream_notation_sd(const LLSD& sd);
 //Otherwise, returns true
 
 LL_COMMON_API BOOL compare_llsd_with_template(
-	const LLSD& llsd_to_test,
-	const LLSD& template_llsd,
-	LLSD& resultant_llsd);
+    const LLSD& llsd_to_test,
+    const LLSD& template_llsd,
+    LLSD& resultant_llsd);
 
 // filter_llsd_with_template() is a direct clone (copy-n-paste) of 
 // compare_llsd_with_template with the following differences:
@@ -80,9 +80,9 @@ LL_COMMON_API BOOL compare_llsd_with_template(
 //     for *all* the elements of the test array.  If the template array is of
 //     different size, compare_llsd_with_template() semantics apply.
 bool filter_llsd_with_template(
-	const LLSD & llsd_to_test,
-	const LLSD & template_llsd,
-	LLSD & resultant_llsd);
+    const LLSD & llsd_to_test,
+    const LLSD & template_llsd,
+    LLSD & resultant_llsd);
 
 /**
  * Recursively determine whether a given LLSD data block "matches" another
@@ -158,12 +158,12 @@ inline bool operator!=(const LLSD& lhs, const LLSD& rhs)
 // there is no need for casting.
 template<typename Input> LLSD llsd_copy_array(Input iter, Input end)
 {
-	LLSD dest;
-	for (; iter != end; ++iter)
-	{
-		dest.append(*iter);
-	}
-	return dest;
+    LLSD dest;
+    for (; iter != end; ++iter)
+    {
+        dest.append(*iter);
+    }
+    return dest;
 }
 
 namespace llsd

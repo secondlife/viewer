@@ -32,20 +32,20 @@
 
 struct LLTextureInfoDetails
 {
-	enum LLRequestType
-	{
-		REQUEST_TYPE_NONE,
-		REQUEST_TYPE_HTTP,
-		REQUEST_TYPE_UDP
-	};
+    enum LLRequestType
+    {
+        REQUEST_TYPE_NONE,
+        REQUEST_TYPE_HTTP,
+        REQUEST_TYPE_UDP
+    };
 
-	U32Microseconds	mStartTime,
-					mCompleteTime;
-	U32				mOffset;
-	U32Bytes		mSize;
-	LLRequestType	mType;
+    U32Microseconds mStartTime,
+                    mCompleteTime;
+    U32             mOffset;
+    U32Bytes        mSize;
+    LLRequestType   mType;
 
-	LLTextureInfoDetails();
+    LLTextureInfoDetails();
 };
 
 #endif // LL_LLTEXTUREINFODETAILS_H

@@ -44,179 +44,179 @@ LLViewerControlListener sSavedSettingsListener;
 } // unnamed namespace
 
 LLViewerControlListener::LLViewerControlListener()
-	: LLEventAPI("LLViewerControl",
-				 "LLViewerControl listener: set, toggle or set default for various controls")
+    : LLEventAPI("LLViewerControl",
+                 "LLViewerControl listener: set, toggle or set default for various controls")
 {
-	std::ostringstream groupnames;
-	groupnames << "[\"group\"] is one of ";
-	const char* delim = "";
-	for (const auto& key : LLControlGroup::key_snapshot())
-	{
-		groupnames << delim << '"' << key << '"';
-		delim = ", ";
-	}
-	groupnames << '\n';
-	std::string grouphelp(groupnames.str());
-	std::string replyhelp("If [\"reply\"] requested, send new [\"value\"] on specified LLEventPump\n");
+    std::ostringstream groupnames;
+    groupnames << "[\"group\"] is one of ";
+    const char* delim = "";
+    for (const auto& key : LLControlGroup::key_snapshot())
+    {
+        groupnames << delim << '"' << key << '"';
+        delim = ", ";
+    }
+    groupnames << '\n';
+    std::string grouphelp(groupnames.str());
+    std::string replyhelp("If [\"reply\"] requested, send new [\"value\"] on specified LLEventPump\n");
 
-	add("set",
-		std::string("Set [\"group\"] control [\"key\"] to optional value [\"value\"]\n"
-					"If [\"value\"] omitted, set to control's defined default value\n") +
-		grouphelp + replyhelp,
-		&LLViewerControlListener::set,
-		LLSDMap("group", LLSD())("key", LLSD()));
-	add("toggle",
-		std::string("Toggle [\"group\"] control [\"key\"], if boolean\n") + grouphelp + replyhelp,
-		&LLViewerControlListener::toggle,
-		LLSDMap("group", LLSD())("key", LLSD()));
-	add("get",
-		std::string("Query [\"group\"] control [\"key\"], replying on LLEventPump [\"reply\"]\n") +
-		grouphelp,
-		&LLViewerControlListener::get,
-		LLSDMap("group", LLSD())("key", LLSD())("reply", LLSD()));
-	add("groups",
-		"Send on LLEventPump [\"reply\"] an array [\"groups\"] of valid group names",
-		&LLViewerControlListener::groups,
-		LLSDMap("reply", LLSD()));
-	add("vars",
-		std::string("For [\"group\"], send on LLEventPump [\"reply\"] an array [\"vars\"],\n"
-					"each of whose entries looks like:\n"
-					"  [\"name\"], [\"type\"], [\"value\"], [\"comment\"]\n") + grouphelp,
-		&LLViewerControlListener::vars,
-		LLSDMap("group", LLSD())("reply", LLSD()));
+    add("set",
+        std::string("Set [\"group\"] control [\"key\"] to optional value [\"value\"]\n"
+                    "If [\"value\"] omitted, set to control's defined default value\n") +
+        grouphelp + replyhelp,
+        &LLViewerControlListener::set,
+        LLSDMap("group", LLSD())("key", LLSD()));
+    add("toggle",
+        std::string("Toggle [\"group\"] control [\"key\"], if boolean\n") + grouphelp + replyhelp,
+        &LLViewerControlListener::toggle,
+        LLSDMap("group", LLSD())("key", LLSD()));
+    add("get",
+        std::string("Query [\"group\"] control [\"key\"], replying on LLEventPump [\"reply\"]\n") +
+        grouphelp,
+        &LLViewerControlListener::get,
+        LLSDMap("group", LLSD())("key", LLSD())("reply", LLSD()));
+    add("groups",
+        "Send on LLEventPump [\"reply\"] an array [\"groups\"] of valid group names",
+        &LLViewerControlListener::groups,
+        LLSDMap("reply", LLSD()));
+    add("vars",
+        std::string("For [\"group\"], send on LLEventPump [\"reply\"] an array [\"vars\"],\n"
+                    "each of whose entries looks like:\n"
+                    "  [\"name\"], [\"type\"], [\"value\"], [\"comment\"]\n") + grouphelp,
+        &LLViewerControlListener::vars,
+        LLSDMap("group", LLSD())("reply", LLSD()));
 }
 
 struct Info
 {
-	Info(const LLSD& request):
-		response(LLSD(), request),
-		groupname(request["group"]),
-		group(LLControlGroup::getInstance(groupname)),
-		key(request["key"]),
-		control(NULL)
-	{
-		if (! group)
-		{
-			response.error(STRINGIZE("Unrecognized group '" << groupname << "'"));
-			return;
-		}
+    Info(const LLSD& request):
+        response(LLSD(), request),
+        groupname(request["group"]),
+        group(LLControlGroup::getInstance(groupname)),
+        key(request["key"]),
+        control(NULL)
+    {
+        if (! group)
+        {
+            response.error(STRINGIZE("Unrecognized group '" << groupname << "'"));
+            return;
+        }
 
-		control = group->getControl(key);
-		if (! control)
-		{
-			response.error(STRINGIZE("In group '" << groupname
-									 << "', unrecognized control key '" << key << "'"));
-		}
-	}
+        control = group->getControl(key);
+        if (! control)
+        {
+            response.error(STRINGIZE("In group '" << groupname
+                                     << "', unrecognized control key '" << key << "'"));
+        }
+    }
 
-	~Info()
-	{
-		// If in fact the request passed to our constructor names a valid
-		// group and key, grab the final value of the indicated control and
-		// stuff it in our response. Since this outer destructor runs before
-		// the contained Response destructor, this data will go into the
-		// response we send.
-		if (control)
-		{
-			response["name"]	= control->getName();
-			response["type"]	= LLControlGroup::typeEnumToString(control->type());
-			response["value"]	= control->get();
-			response["comment"] = control->getComment();
-		}
-	}
+    ~Info()
+    {
+        // If in fact the request passed to our constructor names a valid
+        // group and key, grab the final value of the indicated control and
+        // stuff it in our response. Since this outer destructor runs before
+        // the contained Response destructor, this data will go into the
+        // response we send.
+        if (control)
+        {
+            response["name"]    = control->getName();
+            response["type"]    = LLControlGroup::typeEnumToString(control->type());
+            response["value"]   = control->get();
+            response["comment"] = control->getComment();
+        }
+    }
 
-	LLEventAPI::Response response;
-	std::string groupname;
-	LLControlGroup::ptr_t group;
-	std::string key;
-	LLControlVariable* control;
+    LLEventAPI::Response response;
+    std::string groupname;
+    LLControlGroup::ptr_t group;
+    std::string key;
+    LLControlVariable* control;
 };
 
 //static
 void LLViewerControlListener::set(LLSD const & request)
 {
-	Info info(request);
-	if (! info.control)
-		return;
+    Info info(request);
+    if (! info.control)
+        return;
 
-	if (request.has("value"))
-	{
-		info.control->setValue(request["value"]);
-	}
-	else
-	{
-		info.control->resetToDefault();
-	}
+    if (request.has("value"))
+    {
+        info.control->setValue(request["value"]);
+    }
+    else
+    {
+        info.control->resetToDefault();
+    }
 }
 
 //static
 void LLViewerControlListener::toggle(LLSD const & request)
 {
-	Info info(request);
-	if (! info.control)
-		return;
+    Info info(request);
+    if (! info.control)
+        return;
 
-	if (info.control->isType(TYPE_BOOLEAN))
-	{
-		info.control->set(! info.control->get().asBoolean());
-	}
-	else
-	{
-		info.response.error(STRINGIZE("toggle of non-boolean '" << info.groupname
-									  << "' control '" << info.key
-									  << "', type is "
-									  << LLControlGroup::typeEnumToString(info.control->type())));
-	}
+    if (info.control->isType(TYPE_BOOLEAN))
+    {
+        info.control->set(! info.control->get().asBoolean());
+    }
+    else
+    {
+        info.response.error(STRINGIZE("toggle of non-boolean '" << info.groupname
+                                      << "' control '" << info.key
+                                      << "', type is "
+                                      << LLControlGroup::typeEnumToString(info.control->type())));
+    }
 }
 
 void LLViewerControlListener::get(LLSD const & request)
 {
-	// The Info constructor and destructor actually do all the work here.
-	Info info(request);
+    // The Info constructor and destructor actually do all the work here.
+    Info info(request);
 }
 
 void LLViewerControlListener::groups(LLSD const & request)
 {
-	// No Info, we're not looking up either a group or a control name.
-	Response response(LLSD(), request);
-	for (const auto& key : LLControlGroup::key_snapshot())
-	{
-		response["groups"].append(key);
-	}
+    // No Info, we're not looking up either a group or a control name.
+    Response response(LLSD(), request);
+    for (const auto& key : LLControlGroup::key_snapshot())
+    {
+        response["groups"].append(key);
+    }
 }
 
 struct CollectVars: public LLControlGroup::ApplyFunctor
 {
-	CollectVars(LLControlGroup::ptr_t g):
-		mGroup(g)
-	{}
+    CollectVars(LLControlGroup::ptr_t g):
+        mGroup(g)
+    {}
 
-	virtual void apply(const std::string& name, LLControlVariable* control)
-	{
-		vars.append(LLSDMap
-					("name", name)
-					("type", LLControlGroup::typeEnumToString(control->type()))
-					("value", control->get())
-					("comment", control->getComment()));
-	}
+    virtual void apply(const std::string& name, LLControlVariable* control)
+    {
+        vars.append(LLSDMap
+                    ("name", name)
+                    ("type", LLControlGroup::typeEnumToString(control->type()))
+                    ("value", control->get())
+                    ("comment", control->getComment()));
+    }
 
-	LLControlGroup::ptr_t mGroup;
-	LLSD vars;
+    LLControlGroup::ptr_t mGroup;
+    LLSD vars;
 };
 
 void LLViewerControlListener::vars(LLSD const & request)
 {
-	// This method doesn't use Info, because we're not looking up a specific
-	// control name.
-	Response response(LLSD(), request);
-	std::string groupname(request["group"]);
-	auto group(LLControlGroup::getInstance(groupname));
-	if (! group)
-	{
-		return response.error(STRINGIZE("Unrecognized group '" << groupname << "'"));
-	}
+    // This method doesn't use Info, because we're not looking up a specific
+    // control name.
+    Response response(LLSD(), request);
+    std::string groupname(request["group"]);
+    auto group(LLControlGroup::getInstance(groupname));
+    if (! group)
+    {
+        return response.error(STRINGIZE("Unrecognized group '" << groupname << "'"));
+    }
 
-	CollectVars collector(group);
-	group->applyToAll(&collector);
-	response["vars"] = collector.vars;
+    CollectVars collector(group);
+    group->applyToAll(&collector);
+    response["vars"] = collector.vars;
 }

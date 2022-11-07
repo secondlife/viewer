@@ -35,39 +35,39 @@
 class LLFontBitmapCache
 {
 public:
-	LLFontBitmapCache();
-	~LLFontBitmapCache();
+    LLFontBitmapCache();
+    ~LLFontBitmapCache();
 
-	// Need to call this once, before caching any glyphs.
- 	void init(S32 num_components,
-			  S32 max_char_width,
-			  S32 max_char_height);
+    // Need to call this once, before caching any glyphs.
+    void init(S32 num_components,
+              S32 max_char_width,
+              S32 max_char_height);
 
-	void reset();
+    void reset();
 
-	BOOL nextOpenPos(S32 width, S32 &posX, S32 &posY, S32 &bitmapNum);
-	
-	void destroyGL();
-	
- 	LLImageRaw *getImageRaw(U32 bitmapNum = 0) const;
- 	LLImageGL *getImageGL(U32 bitmapNum = 0) const;
-	
-	S32 getMaxCharWidth() const { return mMaxCharWidth; }
-	S32 getNumComponents() const { return mNumComponents; }
-	S32 getBitmapWidth() const { return mBitmapWidth; }
-	S32 getBitmapHeight() const { return mBitmapHeight; }
+    BOOL nextOpenPos(S32 width, S32 &posX, S32 &posY, S32 &bitmapNum);
+    
+    void destroyGL();
+    
+    LLImageRaw *getImageRaw(U32 bitmapNum = 0) const;
+    LLImageGL *getImageGL(U32 bitmapNum = 0) const;
+    
+    S32 getMaxCharWidth() const { return mMaxCharWidth; }
+    S32 getNumComponents() const { return mNumComponents; }
+    S32 getBitmapWidth() const { return mBitmapWidth; }
+    S32 getBitmapHeight() const { return mBitmapHeight; }
 
 private:
-	S32 mNumComponents;
-	S32 mBitmapWidth;
-	S32 mBitmapHeight;
-	S32 mBitmapNum;
-	S32 mMaxCharWidth;
-	S32 mMaxCharHeight;
-	S32 mCurrentOffsetX;
-	S32 mCurrentOffsetY;
-	std::vector<LLPointer<LLImageRaw> >	mImageRawVec;
-	std::vector<LLPointer<LLImageGL> > mImageGLVec;
+    S32 mNumComponents;
+    S32 mBitmapWidth;
+    S32 mBitmapHeight;
+    S32 mBitmapNum;
+    S32 mMaxCharWidth;
+    S32 mMaxCharHeight;
+    S32 mCurrentOffsetX;
+    S32 mCurrentOffsetY;
+    std::vector<LLPointer<LLImageRaw> > mImageRawVec;
+    std::vector<LLPointer<LLImageGL> > mImageGLVec;
 };
 
 #endif //LL_LLFONTBITMAPCACHE_H

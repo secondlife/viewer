@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	LL_QUATERNION2_H
-#define	LL_QUATERNION2_H
+#ifndef LL_QUATERNION2_H
+#define LL_QUATERNION2_H
 
 /////////////////////////////
 // LLQuaternion2
@@ -44,61 +44,61 @@ class LLQuaternion2
 {
 public:
 
-	//////////////////////////
-	// Ctors
-	//////////////////////////
-	
-	// Ctor
-	LLQuaternion2() {}
+    //////////////////////////
+    // Ctors
+    //////////////////////////
+    
+    // Ctor
+    LLQuaternion2() {}
 
-	// Ctor from LLQuaternion
-	explicit LLQuaternion2( const class LLQuaternion& quat );
+    // Ctor from LLQuaternion
+    explicit LLQuaternion2( const class LLQuaternion& quat );
 
-	//////////////////////////
-	// Get/Set
-	//////////////////////////
+    //////////////////////////
+    // Get/Set
+    //////////////////////////
 
-	// Load from an LLQuaternion
-	inline void operator=( const LLQuaternion& quat )
-	{
-		mQ.loadua( quat.mQ );
-	}
+    // Load from an LLQuaternion
+    inline void operator=( const LLQuaternion& quat )
+    {
+        mQ.loadua( quat.mQ );
+    }
 
-	// Return the internal LLVector4a representation of the quaternion
-	inline const LLVector4a& getVector4a() const;
-	inline LLVector4a& getVector4aRw();
+    // Return the internal LLVector4a representation of the quaternion
+    inline const LLVector4a& getVector4a() const;
+    inline LLVector4a& getVector4aRw();
 
-	/////////////////////////
-	// Quaternion modification
-	/////////////////////////
-	
-	// Set this quaternion to the conjugate of src
-	inline void setConjugate(const LLQuaternion2& src);
+    /////////////////////////
+    // Quaternion modification
+    /////////////////////////
+    
+    // Set this quaternion to the conjugate of src
+    inline void setConjugate(const LLQuaternion2& src);
 
-	// Renormalizes the quaternion. Assumes it has nonzero length.
-	inline void normalize();
+    // Renormalizes the quaternion. Assumes it has nonzero length.
+    inline void normalize();
 
-	// Quantize this quaternion to 8 bit precision
-	inline void quantize8();
+    // Quantize this quaternion to 8 bit precision
+    inline void quantize8();
 
-	// Quantize this quaternion to 16 bit precision
-	inline void quantize16();
+    // Quantize this quaternion to 16 bit precision
+    inline void quantize16();
 
-	/////////////////////////
-	// Quaternion inspection
-	/////////////////////////
+    /////////////////////////
+    // Quaternion inspection
+    /////////////////////////
 
-	// Return true if this quaternion is equal to 'rhs'. 
-	// Note! Quaternions exhibit "double-cover", so any rotation has two equally valid
-	// quaternion representations and they will NOT compare equal.
-	inline bool equals(const LLQuaternion2& rhs, F32 tolerance = F_APPROXIMATELY_ZERO ) const;
+    // Return true if this quaternion is equal to 'rhs'. 
+    // Note! Quaternions exhibit "double-cover", so any rotation has two equally valid
+    // quaternion representations and they will NOT compare equal.
+    inline bool equals(const LLQuaternion2& rhs, F32 tolerance = F_APPROXIMATELY_ZERO ) const;
 
-	// Return true if all components are finite and the quaternion is normalized
-	inline bool isOkRotation() const;
+    // Return true if all components are finite and the quaternion is normalized
+    inline bool isOkRotation() const;
 
 protected:
 
-	LLVector4a mQ;
+    LLVector4a mQ;
 
 };
 

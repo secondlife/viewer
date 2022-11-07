@@ -36,67 +36,67 @@
 
 namespace LLTrace
 {
-	class LL_COMMON_API ThreadRecorder
-	{
-	protected:
-		struct ActiveRecording;
-		typedef std::vector<ActiveRecording*> active_recording_list_t;
-	public:
-		ThreadRecorder();
-		explicit ThreadRecorder(ThreadRecorder& parent);
+    class LL_COMMON_API ThreadRecorder
+    {
+    protected:
+        struct ActiveRecording;
+        typedef std::vector<ActiveRecording*> active_recording_list_t;
+    public:
+        ThreadRecorder();
+        explicit ThreadRecorder(ThreadRecorder& parent);
 
-		~ThreadRecorder();
+        ~ThreadRecorder();
 
-		AccumulatorBufferGroup* activate(AccumulatorBufferGroup* recording);
-		void deactivate(AccumulatorBufferGroup* recording);
-		active_recording_list_t::iterator bringUpToDate(AccumulatorBufferGroup* recording);
+        AccumulatorBufferGroup* activate(AccumulatorBufferGroup* recording);
+        void deactivate(AccumulatorBufferGroup* recording);
+        active_recording_list_t::iterator bringUpToDate(AccumulatorBufferGroup* recording);
 
-		void addChildRecorder(class ThreadRecorder* child);
-		void removeChildRecorder(class ThreadRecorder* child);
+        void addChildRecorder(class ThreadRecorder* child);
+        void removeChildRecorder(class ThreadRecorder* child);
 
-		// call this periodically to gather stats data from child threads
-		void pullFromChildren();
-		void pushToParent();
+        // call this periodically to gather stats data from child threads
+        void pullFromChildren();
+        void pushToParent();
 
-		TimeBlockTreeNode* getTimeBlockTreeNode(S32 index);
+        TimeBlockTreeNode* getTimeBlockTreeNode(S32 index);
 
-	protected:
-		void init();
+    protected:
+        void init();
 
-	protected:
-		struct ActiveRecording
-		{
-			ActiveRecording(AccumulatorBufferGroup* target);
+    protected:
+        struct ActiveRecording
+        {
+            ActiveRecording(AccumulatorBufferGroup* target);
 
-			AccumulatorBufferGroup*	mTargetRecording;
-			AccumulatorBufferGroup	mPartialRecording;
+            AccumulatorBufferGroup* mTargetRecording;
+            AccumulatorBufferGroup  mPartialRecording;
 
-			void movePartialToTarget();
-		};
+            void movePartialToTarget();
+        };
 
-		AccumulatorBufferGroup			mThreadRecordingBuffers;
+        AccumulatorBufferGroup          mThreadRecordingBuffers;
 
-		BlockTimerStackRecord			mBlockTimerStackRecord;
-		active_recording_list_t			mActiveRecordings;
+        BlockTimerStackRecord           mBlockTimerStackRecord;
+        active_recording_list_t         mActiveRecordings;
 
-		class BlockTimer*				mRootTimer;
-		TimeBlockTreeNode*				mTimeBlockTreeNodes;
-		size_t							mNumTimeBlockTreeNodes;
-		typedef std::list<class ThreadRecorder*> child_thread_recorder_list_t;
+        class BlockTimer*               mRootTimer;
+        TimeBlockTreeNode*              mTimeBlockTreeNodes;
+        size_t                          mNumTimeBlockTreeNodes;
+        typedef std::list<class ThreadRecorder*> child_thread_recorder_list_t;
 
-		child_thread_recorder_list_t	mChildThreadRecorders;	// list of child thread recorders associated with this master
-		LLMutex							mChildListMutex;		// protects access to child list
-		LLMutex							mSharedRecordingMutex;
-		AccumulatorBufferGroup			mSharedRecordingBuffers;
-		ThreadRecorder*					mParentRecorder;
+        child_thread_recorder_list_t    mChildThreadRecorders;  // list of child thread recorders associated with this master
+        LLMutex                         mChildListMutex;        // protects access to child list
+        LLMutex                         mSharedRecordingMutex;
+        AccumulatorBufferGroup          mSharedRecordingBuffers;
+        ThreadRecorder*                 mParentRecorder;
 
-	};
+    };
 
-	const LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder();
-	void set_thread_recorder(ThreadRecorder*);
+    const LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder();
+    void set_thread_recorder(ThreadRecorder*);
 
-	void set_master_thread_recorder(ThreadRecorder*);
-	ThreadRecorder* get_master_thread_recorder();
+    void set_master_thread_recorder(ThreadRecorder*);
+    ThreadRecorder* get_master_thread_recorder();
 }
 
 #endif // LL_LLTRACETHREADRECORDER_H

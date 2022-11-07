@@ -39,16 +39,16 @@ void LLDir::dumpCurrentDirectories() {}
 class LLDir_stub : public LLDir
 {
 public:
-	LLDir_stub() {}
-	~LLDir_stub() {}
+    LLDir_stub() {}
+    ~LLDir_stub() {}
 
-	/*virtual*/ void initAppDirs(const std::string &app_name) {}
+    /*virtual*/ void initAppDirs(const std::string &app_name) {}
 
-	/*virtual*/ std::string getCurPath() { return "CUR_PATH_FROM_LLDIR"; }
-	/*virtual*/ U32 countFilesInDir(const std::string &dirname, const std::string &mask) { return 42; }
-	/*virtual*/ BOOL getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap) { fname = fname + "_NEXT"; return false; }
-	/*virtual*/ void getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname) { fname = "RANDOM_FILE"; }
-	/*virtual*/ bool fileExists(const std::string &filename) const { return false; }
+    /*virtual*/ std::string getCurPath() { return "CUR_PATH_FROM_LLDIR"; }
+    /*virtual*/ U32 countFilesInDir(const std::string &dirname, const std::string &mask) { return 42; }
+    /*virtual*/ BOOL getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap) { fname = fname + "_NEXT"; return false; }
+    /*virtual*/ void getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname) { fname = "RANDOM_FILE"; }
+    /*virtual*/ bool fileExists(const std::string &filename) const { return false; }
 };
 
 LLDir_stub gDirUtil;
@@ -57,6 +57,6 @@ LLDir* gDirUtilp = &gDirUtil;
 
 std::string LLDir::getExpandedFilename(ELLPath loc, const std::string& subdir, const std::string& filename) const
 {
-	return subdir + " --- " + filename + " --- expanded!";
+    return subdir + " --- " + filename + " --- expanded!";
 }
 

@@ -86,15 +86,15 @@ namespace
 
     po::options_description gOptionsDesc;
     po::positional_options_description gPositionalOptions;
-	po::variables_map gVariableMap;
+    po::variables_map gVariableMap;
 
     const LLCommandLineParser::token_vector_t gEmptyValue;
 
     void read_file_into_string(std::string& str, const std::basic_istream < char >& file)
     {
-	    std::ostringstream oss;
-	    oss << file.rdbuf();
-	    str = oss.str();
+        std::ostringstream oss;
+        oss << file.rdbuf();
+        str = oss.str();
     }
 
     bool gPastLastOption = false;
@@ -177,11 +177,11 @@ public:
         return mIsComposing;
     }
 
-	// Needed for boost 1.42
-	virtual bool is_required() const
-	{
-		return false; // All our command line options are optional.
-	}
+    // Needed for boost 1.42
+    virtual bool is_required() const
+    {
+        return false; // All our command line options are optional.
+    }
 
     virtual bool apply_default(boost::any& value_store) const
     {
@@ -288,43 +288,43 @@ bool LLCommandLineParser::parseAndStoreResults(po::command_line_parser& clp)
     {
         clp.options(gOptionsDesc);
         clp.positional(gPositionalOptions);
-		// SNOW-626: Boost 1.42 erroneously added allow_guessing to the default style
-		// (see http://groups.google.com/group/boost-list/browse_thread/thread/545d7bf98ff9bb16?fwc=2&pli=1)
-		// Remove allow_guessing from the default style, because that is not allowed
-		// when we have options that are a prefix of other options (aka, --help and --helperuri).
+        // SNOW-626: Boost 1.42 erroneously added allow_guessing to the default style
+        // (see http://groups.google.com/group/boost-list/browse_thread/thread/545d7bf98ff9bb16?fwc=2&pli=1)
+        // Remove allow_guessing from the default style, because that is not allowed
+        // when we have options that are a prefix of other options (aka, --help and --helperuri).
         clp.style((po::command_line_style::default_style & ~po::command_line_style::allow_guessing)
                   | po::command_line_style::allow_long_disguise);
-		if(mExtraParser)
-		{
-			clp.extra_parser(mExtraParser);
-		}
-			
+        if(mExtraParser)
+        {
+            clp.extra_parser(mExtraParser);
+        }
+            
         po::basic_parsed_options<char> opts = clp.run();
         po::store(opts, gVariableMap);
     }
     catch(po::error& e)
     {
         LL_WARNS() << "Caught Error:" << e.what() << LL_ENDL;
-		mErrorMsg = e.what();
+        mErrorMsg = e.what();
         return false;
     }
     catch(LLCLPError& e)
     {
         LL_WARNS() << "Caught Error:" << e.what() << LL_ENDL;
-		mErrorMsg = e.what();
+        mErrorMsg = e.what();
         return false;
     }
     catch(LLCLPLastOption&) 
     {
-		// This exception means a token was read after an option 
-		// that must be the last option was reached (see url and slurl options)
+        // This exception means a token was read after an option 
+        // that must be the last option was reached (see url and slurl options)
 
         // boost::po will have stored a malformed option. 
         // All such options will be removed below.
-		// The last option read, the last_option option, and its value
-		// are put into the error message.
-		std::string last_option;
-		std::string last_value;
+        // The last option read, the last_option option, and its value
+        // are put into the error message.
+        std::string last_option;
+        std::string last_value;
         for(po::variables_map::iterator i = gVariableMap.begin(); i != gVariableMap.end();)
         {
             po::variables_map::iterator tempI = i++;
@@ -332,26 +332,26 @@ bool LLCommandLineParser::parseAndStoreResults(po::command_line_parser& clp)
             {
                 gVariableMap.erase(tempI);
             }
-			else
-			{
-				last_option = tempI->first;
-		        LLCommandLineParser::token_vector_t* tv = 
-				    boost::any_cast<LLCommandLineParser::token_vector_t>(&(tempI->second.value())); 
-				if(!tv->empty())
-				{
-					last_value = (*tv)[tv->size()-1];
-				}
-			}
+            else
+            {
+                last_option = tempI->first;
+                LLCommandLineParser::token_vector_t* tv = 
+                    boost::any_cast<LLCommandLineParser::token_vector_t>(&(tempI->second.value())); 
+                if(!tv->empty())
+                {
+                    last_value = (*tv)[tv->size()-1];
+                }
+            }
         }
 
-		// Continue without parsing.
-		std::ostringstream msg;
-		msg << "Caught Error: Found options after last option: " 
-			<< last_option << " "
-			<< last_value;
+        // Continue without parsing.
+        std::ostringstream msg;
+        msg << "Caught Error: Found options after last option: " 
+            << last_option << " "
+            << last_value;
 
         LL_WARNS() << msg.str() << LL_ENDL;
-		mErrorMsg = msg.str();
+        mErrorMsg = msg.str();
         return false;
     } 
     return true;

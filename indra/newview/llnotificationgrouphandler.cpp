@@ -38,14 +38,14 @@ using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
 LLGroupHandler::LLGroupHandler()
-:	LLCommunicationNotificationHandler("Group Notifications", "groupnotify")
+:   LLCommunicationNotificationHandler("Group Notifications", "groupnotify")
 {
-	// Getting a Channel for our notifications
-	LLScreenChannel* channel = LLChannelManager::getInstance()->createNotificationChannel();
-	if(channel)
-	{
-		mChannel = channel->getHandle();
-	}
+    // Getting a Channel for our notifications
+    LLScreenChannel* channel = LLChannelManager::getInstance()->createNotificationChannel();
+    if(channel)
+    {
+        mChannel = channel->getHandle();
+    }
 }
 
 //--------------------------------------------------------------------------
@@ -56,41 +56,41 @@ LLGroupHandler::~LLGroupHandler()
 //--------------------------------------------------------------------------
 void LLGroupHandler::initChannel()
 {
-	S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
-	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
-	mChannel.get()->init(channel_right_bound - channel_width, channel_right_bound);
+    S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
+    S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
+    mChannel.get()->init(channel_right_bound - channel_width, channel_right_bound);
 }
 
 //--------------------------------------------------------------------------
 bool LLGroupHandler::processNotification(const LLNotificationPtr& notification, bool should_log)
 {
-	if(mChannel.isDead())
-	{
-		return false;
-	}
+    if(mChannel.isDead())
+    {
+        return false;
+    }
 
-	// arrange a channel on a screen
-	if(!mChannel.get()->getVisible())
-	{
-		initChannel();
-	}
-	
-	LLHandlerUtil::logGroupNoticeToIMGroup(notification);
+    // arrange a channel on a screen
+    if(!mChannel.get()->getVisible())
+    {
+        initChannel();
+    }
+    
+    LLHandlerUtil::logGroupNoticeToIMGroup(notification);
 
-	LLPanel* notify_box = new LLToastGroupNotifyPanel(notification);
-	LLToast::Params p;
-	p.notif_id = notification->getID();
-	p.notification = notification;
-	p.panel = notify_box;
-	p.on_delete_toast = boost::bind(&LLGroupHandler::onDeleteToast, this, _1);
+    LLPanel* notify_box = new LLToastGroupNotifyPanel(notification);
+    LLToast::Params p;
+    p.notif_id = notification->getID();
+    p.notification = notification;
+    p.panel = notify_box;
+    p.on_delete_toast = boost::bind(&LLGroupHandler::onDeleteToast, this, _1);
 
-	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
-	if(channel)
-		channel->addToast(p);
+    LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
+    if(channel)
+        channel->addToast(p);
 
-	LLGroupActions::refresh_notices();
+    LLGroupActions::refresh_notices();
 
-	return false;
+    return false;
 }
 
 

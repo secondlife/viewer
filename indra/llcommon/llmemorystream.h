@@ -49,14 +49,14 @@
 class LL_COMMON_API LLMemoryStreamBuf : public std::streambuf
 {
 public:
-	LLMemoryStreamBuf(const U8* start, S32 length);
-	~LLMemoryStreamBuf();
+    LLMemoryStreamBuf(const U8* start, S32 length);
+    ~LLMemoryStreamBuf();
 
-	void reset(const U8* start, S32 length);
+    void reset(const U8* start, S32 length);
 
 protected:
-	int underflow();
-	//std::streamsize xsgetn(char* dest, std::streamsize n);
+    int underflow();
+    //std::streamsize xsgetn(char* dest, std::streamsize n);
 };
 
 
@@ -71,11 +71,11 @@ protected:
 class LL_COMMON_API LLMemoryStream : public std::istream
 {
 public:
-	LLMemoryStream(const U8* start, S32 length);
-	~LLMemoryStream();
+    LLMemoryStream(const U8* start, S32 length);
+    ~LLMemoryStream();
 
 protected:
-	LLMemoryStreamBuf mStreamBuf;
+    LLMemoryStreamBuf mStreamBuf;
 };
 
 #endif // LL_LLMEMORYSTREAM_H

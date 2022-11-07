@@ -38,7 +38,7 @@
 // Constants
 //-----------------------------------------------------------------------------
 const LLQuaternion EDIT_MOTION_WRIST_ROTATION(F_PI_BY_TWO * 0.7f, LLVector3(1.0f, 0.0f, 0.0f));
-const F32 TARGET_LAG_HALF_LIFE	= 0.1f;		// half-life of IK targeting
+const F32 TARGET_LAG_HALF_LIFE  = 0.1f;     // half-life of IK targeting
 
 S32 LLEditingMotion::sHandPose = LLHandMotion::HAND_POSE_RELAXED_R;
 S32 LLEditingMotion::sHandPosePriority = 3;
@@ -49,20 +49,20 @@ S32 LLEditingMotion::sHandPosePriority = 3;
 //-----------------------------------------------------------------------------
 LLEditingMotion::LLEditingMotion( const LLUUID &id) : LLMotion(id)
 {
-	mCharacter = NULL;
+    mCharacter = NULL;
 
-	// create kinematic chain
-	mParentJoint.addChild( &mShoulderJoint );
-	mShoulderJoint.addChild( &mElbowJoint );
-	mElbowJoint.addChild( &mWristJoint );
+    // create kinematic chain
+    mParentJoint.addChild( &mShoulderJoint );
+    mShoulderJoint.addChild( &mElbowJoint );
+    mElbowJoint.addChild( &mWristJoint );
 
-	mName = "editing";
+    mName = "editing";
 
-	mParentState = new LLJointState;
-	mShoulderState = new LLJointState;
-	mElbowState = new LLJointState;
-	mWristState = new LLJointState;
-	mTorsoState = new LLJointState;
+    mParentState = new LLJointState;
+    mShoulderState = new LLJointState;
+    mElbowState = new LLJointState;
+    mWristState = new LLJointState;
+    mTorsoState = new LLJointState;
 }
 
 
@@ -79,63 +79,63 @@ LLEditingMotion::~LLEditingMotion()
 //-----------------------------------------------------------------------------
 LLMotion::LLMotionInitStatus LLEditingMotion::onInitialize(LLCharacter *character)
 {
-	// save character for future use
-	mCharacter = character;
+    // save character for future use
+    mCharacter = character;
 
-	// make sure character skeleton is copacetic
-	if (!mCharacter->getJoint("mShoulderLeft") ||
-		!mCharacter->getJoint("mElbowLeft") ||
-		!mCharacter->getJoint("mWristLeft"))
-	{
-		LL_WARNS() << "Invalid skeleton for editing motion!" << LL_ENDL;
-		return STATUS_FAILURE;
-	}
+    // make sure character skeleton is copacetic
+    if (!mCharacter->getJoint("mShoulderLeft") ||
+        !mCharacter->getJoint("mElbowLeft") ||
+        !mCharacter->getJoint("mWristLeft"))
+    {
+        LL_WARNS() << "Invalid skeleton for editing motion!" << LL_ENDL;
+        return STATUS_FAILURE;
+    }
 
-	// get the shoulder, elbow, wrist joints from the character
-	mParentState->setJoint( mCharacter->getJoint("mShoulderLeft")->getParent() );
-	mShoulderState->setJoint( mCharacter->getJoint("mShoulderLeft") );
-	mElbowState->setJoint( mCharacter->getJoint("mElbowLeft") );
-	mWristState->setJoint( mCharacter->getJoint("mWristLeft") );
-	mTorsoState->setJoint( mCharacter->getJoint("mTorso"));
+    // get the shoulder, elbow, wrist joints from the character
+    mParentState->setJoint( mCharacter->getJoint("mShoulderLeft")->getParent() );
+    mShoulderState->setJoint( mCharacter->getJoint("mShoulderLeft") );
+    mElbowState->setJoint( mCharacter->getJoint("mElbowLeft") );
+    mWristState->setJoint( mCharacter->getJoint("mWristLeft") );
+    mTorsoState->setJoint( mCharacter->getJoint("mTorso"));
 
-	if ( ! mParentState->getJoint() )
-	{
-		LL_INFOS() << getName() << ": Can't get parent joint." << LL_ENDL;
-		return STATUS_FAILURE;
-	}
+    if ( ! mParentState->getJoint() )
+    {
+        LL_INFOS() << getName() << ": Can't get parent joint." << LL_ENDL;
+        return STATUS_FAILURE;
+    }
 
-	mWristOffset = LLVector3(0.0f, 0.2f, 0.0f);
+    mWristOffset = LLVector3(0.0f, 0.2f, 0.0f);
 
-	// add joint states to the pose
-	mShoulderState->setUsage(LLJointState::ROT);
-	mElbowState->setUsage(LLJointState::ROT);
-	mTorsoState->setUsage(LLJointState::ROT);
-	mWristState->setUsage(LLJointState::ROT);
-	addJointState( mShoulderState );
-	addJointState( mElbowState );
-	addJointState( mTorsoState );
-	addJointState( mWristState );
+    // add joint states to the pose
+    mShoulderState->setUsage(LLJointState::ROT);
+    mElbowState->setUsage(LLJointState::ROT);
+    mTorsoState->setUsage(LLJointState::ROT);
+    mWristState->setUsage(LLJointState::ROT);
+    addJointState( mShoulderState );
+    addJointState( mElbowState );
+    addJointState( mTorsoState );
+    addJointState( mWristState );
 
-	// propagate joint positions to kinematic chain
+    // propagate joint positions to kinematic chain
     // SL-315
-	mParentJoint.setPosition(	mParentState->getJoint()->getWorldPosition() );
-	mShoulderJoint.setPosition(	mShoulderState->getJoint()->getPosition() );
-	mElbowJoint.setPosition(	mElbowState->getJoint()->getPosition() );
-	mWristJoint.setPosition(	mWristState->getJoint()->getPosition() + mWristOffset );
+    mParentJoint.setPosition(   mParentState->getJoint()->getWorldPosition() );
+    mShoulderJoint.setPosition( mShoulderState->getJoint()->getPosition() );
+    mElbowJoint.setPosition(    mElbowState->getJoint()->getPosition() );
+    mWristJoint.setPosition(    mWristState->getJoint()->getPosition() + mWristOffset );
 
-	// propagate current joint rotations to kinematic chain
-	mParentJoint.setRotation(	mParentState->getJoint()->getWorldRotation() );
-	mShoulderJoint.setRotation(	mShoulderState->getJoint()->getRotation() );
-	mElbowJoint.setRotation(	mElbowState->getJoint()->getRotation() );
+    // propagate current joint rotations to kinematic chain
+    mParentJoint.setRotation(   mParentState->getJoint()->getWorldRotation() );
+    mShoulderJoint.setRotation( mShoulderState->getJoint()->getRotation() );
+    mElbowJoint.setRotation(    mElbowState->getJoint()->getRotation() );
 
-	// connect the ikSolver to the chain
-	mIKSolver.setPoleVector( LLVector3( -1.0f, 1.0f, 0.0f ) );
-	// specifying the elbow's axis will prevent bad IK for the more
-	// singular configurations, but the axis is limb-specific -- Leviathan 
-	mIKSolver.setBAxis( LLVector3( -0.682683f, 0.0f, -0.730714f ) );
-	mIKSolver.setupJoints( &mShoulderJoint, &mElbowJoint, &mWristJoint, &mTarget );
+    // connect the ikSolver to the chain
+    mIKSolver.setPoleVector( LLVector3( -1.0f, 1.0f, 0.0f ) );
+    // specifying the elbow's axis will prevent bad IK for the more
+    // singular configurations, but the axis is limb-specific -- Leviathan 
+    mIKSolver.setBAxis( LLVector3( -0.682683f, 0.0f, -0.730714f ) );
+    mIKSolver.setupJoints( &mShoulderJoint, &mElbowJoint, &mWristJoint, &mTarget );
 
-	return STATUS_SUCCESS;
+    return STATUS_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------
@@ -143,19 +143,19 @@ LLMotion::LLMotionInitStatus LLEditingMotion::onInitialize(LLCharacter *characte
 //-----------------------------------------------------------------------------
 BOOL LLEditingMotion::onActivate()
 {
-	// propagate joint positions to kinematic chain
+    // propagate joint positions to kinematic chain
     // SL-315
-	mParentJoint.setPosition(	mParentState->getJoint()->getWorldPosition() );
-	mShoulderJoint.setPosition(	mShoulderState->getJoint()->getPosition() );
-	mElbowJoint.setPosition(	mElbowState->getJoint()->getPosition() );
-	mWristJoint.setPosition(	mWristState->getJoint()->getPosition() + mWristOffset );
+    mParentJoint.setPosition(   mParentState->getJoint()->getWorldPosition() );
+    mShoulderJoint.setPosition( mShoulderState->getJoint()->getPosition() );
+    mElbowJoint.setPosition(    mElbowState->getJoint()->getPosition() );
+    mWristJoint.setPosition(    mWristState->getJoint()->getPosition() + mWristOffset );
 
-	// propagate current joint rotations to kinematic chain
-	mParentJoint.setRotation(	mParentState->getJoint()->getWorldRotation() );
-	mShoulderJoint.setRotation(	mShoulderState->getJoint()->getRotation() );
-	mElbowJoint.setRotation(	mElbowState->getJoint()->getRotation() );
+    // propagate current joint rotations to kinematic chain
+    mParentJoint.setRotation(   mParentState->getJoint()->getWorldRotation() );
+    mShoulderJoint.setRotation( mShoulderState->getJoint()->getRotation() );
+    mElbowJoint.setRotation(    mElbowState->getJoint()->getRotation() );
 
-	return TRUE;
+    return TRUE;
 }
 
 //-----------------------------------------------------------------------------
@@ -164,92 +164,92 @@ BOOL LLEditingMotion::onActivate()
 BOOL LLEditingMotion::onUpdate(F32 time, U8* joint_mask)
 {
     LL_PROFILE_ZONE_SCOPED;
-	LLVector3 focus_pt;
-	LLVector3* pointAtPt = (LLVector3*)mCharacter->getAnimationData("PointAtPoint");
+    LLVector3 focus_pt;
+    LLVector3* pointAtPt = (LLVector3*)mCharacter->getAnimationData("PointAtPoint");
 
 
-	BOOL result = TRUE;
+    BOOL result = TRUE;
 
-	if (!pointAtPt)
-	{
-		focus_pt = mLastSelectPt;
-		result = FALSE;
-	}
-	else
-	{
-		focus_pt = *pointAtPt;
-		mLastSelectPt = focus_pt;
-	}
+    if (!pointAtPt)
+    {
+        focus_pt = mLastSelectPt;
+        result = FALSE;
+    }
+    else
+    {
+        focus_pt = *pointAtPt;
+        mLastSelectPt = focus_pt;
+    }
 
-	focus_pt += mCharacter->getCharacterPosition();
+    focus_pt += mCharacter->getCharacterPosition();
 
-	// propagate joint positions to kinematic chain
+    // propagate joint positions to kinematic chain
     // SL-315
-	mParentJoint.setPosition(	mParentState->getJoint()->getWorldPosition() );
-	mShoulderJoint.setPosition(	mShoulderState->getJoint()->getPosition() );
-	mElbowJoint.setPosition(	mElbowState->getJoint()->getPosition() );
-	mWristJoint.setPosition(	mWristState->getJoint()->getPosition() + mWristOffset );
+    mParentJoint.setPosition(   mParentState->getJoint()->getWorldPosition() );
+    mShoulderJoint.setPosition( mShoulderState->getJoint()->getPosition() );
+    mElbowJoint.setPosition(    mElbowState->getJoint()->getPosition() );
+    mWristJoint.setPosition(    mWristState->getJoint()->getPosition() + mWristOffset );
 
-	// propagate current joint rotations to kinematic chain
-	mParentJoint.setRotation(	mParentState->getJoint()->getWorldRotation() );
-	mShoulderJoint.setRotation(	mShoulderState->getJoint()->getRotation() );
-	mElbowJoint.setRotation(	mElbowState->getJoint()->getRotation() );
+    // propagate current joint rotations to kinematic chain
+    mParentJoint.setRotation(   mParentState->getJoint()->getWorldRotation() );
+    mShoulderJoint.setRotation( mShoulderState->getJoint()->getRotation() );
+    mElbowJoint.setRotation(    mElbowState->getJoint()->getRotation() );
 
-	// update target position from character
-	LLVector3 target = focus_pt - mParentJoint.getPosition();
-	F32 target_dist = target.normVec();
-	
-	LLVector3 edit_plane_normal(1.f / F_SQRT2, 1.f / F_SQRT2, 0.f);
-	edit_plane_normal.normVec();
+    // update target position from character
+    LLVector3 target = focus_pt - mParentJoint.getPosition();
+    F32 target_dist = target.normVec();
+    
+    LLVector3 edit_plane_normal(1.f / F_SQRT2, 1.f / F_SQRT2, 0.f);
+    edit_plane_normal.normVec();
 
-	edit_plane_normal.rotVec(mTorsoState->getJoint()->getWorldRotation());
-	
-	F32 dot = edit_plane_normal * target;
+    edit_plane_normal.rotVec(mTorsoState->getJoint()->getWorldRotation());
+    
+    F32 dot = edit_plane_normal * target;
 
-	if (dot < 0.f)
-	{
-		target = target + (edit_plane_normal * (dot * 2.f));
-		target.mV[VZ] += clamp_rescale(dot, 0.f, -1.f, 0.f, 5.f);
-		target.normVec();
-	}
+    if (dot < 0.f)
+    {
+        target = target + (edit_plane_normal * (dot * 2.f));
+        target.mV[VZ] += clamp_rescale(dot, 0.f, -1.f, 0.f, 5.f);
+        target.normVec();
+    }
 
-	target = target * target_dist;
-	if (!target.isFinite())
-	{
-		// Don't error out here, set a fail-safe target vector
-		LL_WARNS() << "Non finite target in editing motion with target distance of " << target_dist << 
-			" and focus point " << focus_pt << LL_ENDL;
-		target.setVec(1.f, 1.f, 1.f);
-	}
+    target = target * target_dist;
+    if (!target.isFinite())
+    {
+        // Don't error out here, set a fail-safe target vector
+        LL_WARNS() << "Non finite target in editing motion with target distance of " << target_dist << 
+            " and focus point " << focus_pt << LL_ENDL;
+        target.setVec(1.f, 1.f, 1.f);
+    }
 
     // SL-315
-	mTarget.setPosition( target + mParentJoint.getPosition());
+    mTarget.setPosition( target + mParentJoint.getPosition());
 
-//	LL_INFOS() << "Point At: " << mTarget.getPosition() << LL_ENDL;
+//  LL_INFOS() << "Point At: " << mTarget.getPosition() << LL_ENDL;
 
-	// update the ikSolver
-	if (!mTarget.getPosition().isExactlyZero())
-	{
-		LLQuaternion shoulderRot = mShoulderJoint.getRotation();
-		LLQuaternion elbowRot = mElbowJoint.getRotation();
-		mIKSolver.solve();
+    // update the ikSolver
+    if (!mTarget.getPosition().isExactlyZero())
+    {
+        LLQuaternion shoulderRot = mShoulderJoint.getRotation();
+        LLQuaternion elbowRot = mElbowJoint.getRotation();
+        mIKSolver.solve();
 
-		// use blending...
-		F32 slerp_amt = LLSmoothInterpolation::getInterpolant(TARGET_LAG_HALF_LIFE);
-		shoulderRot = slerp(slerp_amt, mShoulderJoint.getRotation(), shoulderRot);
-		elbowRot = slerp(slerp_amt, mElbowJoint.getRotation(), elbowRot);
+        // use blending...
+        F32 slerp_amt = LLSmoothInterpolation::getInterpolant(TARGET_LAG_HALF_LIFE);
+        shoulderRot = slerp(slerp_amt, mShoulderJoint.getRotation(), shoulderRot);
+        elbowRot = slerp(slerp_amt, mElbowJoint.getRotation(), elbowRot);
 
-		// now put blended values back into joints
-		llassert(shoulderRot.isFinite());
-		llassert(elbowRot.isFinite());
-		mShoulderState->setRotation(shoulderRot);
-		mElbowState->setRotation(elbowRot);
-		mWristState->setRotation(LLQuaternion::DEFAULT);
-	}
+        // now put blended values back into joints
+        llassert(shoulderRot.isFinite());
+        llassert(elbowRot.isFinite());
+        mShoulderState->setRotation(shoulderRot);
+        mElbowState->setRotation(elbowRot);
+        mWristState->setRotation(LLQuaternion::DEFAULT);
+    }
 
-	mCharacter->setAnimationData("Hand Pose", &sHandPose);
-	mCharacter->setAnimationData("Hand Pose Priority", &sHandPosePriority);
-	return result;
+    mCharacter->setAnimationData("Hand Pose", &sHandPose);
+    mCharacter->setAnimationData("Hand Pose Priority", &sHandPosePriority);
+    return result;
 }
 
 //-----------------------------------------------------------------------------

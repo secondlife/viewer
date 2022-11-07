@@ -152,38 +152,38 @@ U64 info_display_from_string(std::string info_display);
 class LLViewerMenuHolderGL : public LLMenuHolderGL
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLMenuHolderGL::Params>
-	{};
+    struct Params : public LLInitParam::Block<Params, LLMenuHolderGL::Params>
+    {};
 
-	LLViewerMenuHolderGL(const Params& p);
+    LLViewerMenuHolderGL(const Params& p);
 
-	virtual BOOL hideMenus();
-	
-	void setParcelSelection(LLSafeHandle<LLParcelSelection> selection);
-	void setObjectSelection(LLSafeHandle<LLObjectSelection> selection);
+    virtual BOOL hideMenus();
+    
+    void setParcelSelection(LLSafeHandle<LLParcelSelection> selection);
+    void setObjectSelection(LLSafeHandle<LLObjectSelection> selection);
 
-	virtual const LLRect getMenuRect() const;
+    virtual const LLRect getMenuRect() const;
 
 protected:
-	LLSafeHandle<LLParcelSelection> mParcelSelection;
-	LLSafeHandle<LLObjectSelection> mObjectSelection;
+    LLSafeHandle<LLParcelSelection> mParcelSelection;
+    LLSafeHandle<LLObjectSelection> mObjectSelection;
 };
 
-extern LLMenuBarGL*		gMenuBarView;
-//extern LLView*			gMenuBarHolder;
-extern LLMenuGL*		gEditMenu;
-extern LLMenuGL*		gPopupMenuView;
-extern LLViewerMenuHolderGL*	gMenuHolder;
-extern LLMenuBarGL*		gLoginMenuBarView;
+extern LLMenuBarGL*     gMenuBarView;
+//extern LLView*            gMenuBarHolder;
+extern LLMenuGL*        gEditMenu;
+extern LLMenuGL*        gPopupMenuView;
+extern LLViewerMenuHolderGL*    gMenuHolder;
+extern LLMenuBarGL*     gLoginMenuBarView;
 
 // Context menus in 3D scene
-extern LLContextMenu		*gMenuAvatarSelf;
-extern LLContextMenu		*gMenuAvatarOther;
-extern LLContextMenu		*gMenuObject;
-extern LLContextMenu		*gMenuAttachmentSelf;
-extern LLContextMenu		*gMenuAttachmentOther;
-extern LLContextMenu		*gMenuLand;
-extern LLContextMenu		*gMenuMuteParticle;
+extern LLContextMenu        *gMenuAvatarSelf;
+extern LLContextMenu        *gMenuAvatarOther;
+extern LLContextMenu        *gMenuObject;
+extern LLContextMenu        *gMenuAttachmentSelf;
+extern LLContextMenu        *gMenuAttachmentOther;
+extern LLContextMenu        *gMenuLand;
+extern LLContextMenu        *gMenuMuteParticle;
 
 // Needed to build menus when attachment site list available
 extern LLMenuGL* gAttachSubMenu;

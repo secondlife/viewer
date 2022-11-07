@@ -32,46 +32,46 @@ class LLTextureFetchDebugger;
 
 class LLFloaterTextureFetchDebugger : public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 public:
-	/// initialize all the callbacks for the menu
+    /// initialize all the callbacks for the menu
 
-	virtual BOOL postBuild() ;
-	virtual void draw() ;
-	
-	void onChangeTexelPixelRatio();
-	
-	void onClickStart();
-	void onClickClear();
-	void onClickClose();
-	void onClickResetFetchTime();
+    virtual BOOL postBuild() ;
+    virtual void draw() ;
+    
+    void onChangeTexelPixelRatio();
+    
+    void onClickStart();
+    void onClickClear();
+    void onClickClose();
+    void onClickResetFetchTime();
 
-	void onClickCacheRead();
-	void onClickCacheWrite();
-	void onClickHTTPLoad();
-	void onClickDecode();
-	void onClickGLTexture();
+    void onClickCacheRead();
+    void onClickCacheWrite();
+    void onClickHTTPLoad();
+    void onClickDecode();
+    void onClickGLTexture();
 
-	void onClickRefetchVisCache();
-	void onClickRefetchVisHTTP();
-	void onClickRefetchAllCache();
-	void onClickRefetchAllHTTP();
+    void onClickRefetchVisCache();
+    void onClickRefetchVisHTTP();
+    void onClickRefetchAllCache();
+    void onClickRefetchAllHTTP();
 public:
-	void idle() ;
+    void idle() ;
 
-private:	
-	LLFloaterTextureFetchDebugger(const LLSD& key);
-	virtual ~LLFloaterTextureFetchDebugger();
+private:    
+    LLFloaterTextureFetchDebugger(const LLSD& key);
+    virtual ~LLFloaterTextureFetchDebugger();
 
-	void updateButtons();
-	void disableButtons();
+    void updateButtons();
+    void disableButtons();
 
-	void setStartStatus(S32 status);
-	bool idleStart();
-private:	
-	LLTextureFetchDebugger* mDebugger;
-	std::map<std::string, bool> mButtonStateMap;
-	S32 mStartStatus;
+    void setStartStatus(S32 status);
+    bool idleStart();
+private:    
+    LLTextureFetchDebugger* mDebugger;
+    std::map<std::string, bool> mButtonStateMap;
+    S32 mStartStatus;
 };
 
 #endif // LL_FLOATER_TEXTURE_FETCH_DEBUGGER__H

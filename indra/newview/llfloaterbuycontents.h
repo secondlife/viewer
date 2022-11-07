@@ -44,25 +44,25 @@ class LLFloaterBuyContents
 : public LLFloater, public LLVOInventoryListener
 {
 public:
-	static void show(const LLSaleInfo& sale_info);
+    static void show(const LLSaleInfo& sale_info);
 
-	LLFloaterBuyContents(const LLSD& key);
-	~LLFloaterBuyContents();
-	/*virtual*/	BOOL	postBuild();
-	
+    LLFloaterBuyContents(const LLSD& key);
+    ~LLFloaterBuyContents();
+    /*virtual*/ BOOL    postBuild();
+    
 protected:
-	void requestObjectInventories();
-	/*virtual*/ void inventoryChanged(LLViewerObject* obj,
-								 LLInventoryObject::object_list_t* inv,
-								 S32 serial_num,
-								 void* data);
-	
-	void onClickBuy();
-	void onClickCancel();
+    void requestObjectInventories();
+    /*virtual*/ void inventoryChanged(LLViewerObject* obj,
+                                 LLInventoryObject::object_list_t* inv,
+                                 S32 serial_num,
+                                 void* data);
+    
+    void onClickBuy();
+    void onClickCancel();
 
 protected:
-	LLSafeHandle<LLObjectSelection> mObjectSelection;
-	LLSaleInfo mSaleInfo;
+    LLSafeHandle<LLObjectSelection> mObjectSelection;
+    LLSaleInfo mSaleInfo;
 };
 
 #endif

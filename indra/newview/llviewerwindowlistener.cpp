@@ -96,7 +96,7 @@ void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
         {
             LL_ERRS("LLViewerWindowListener") << "LLViewerWindowListener::saveSnapshot(): "
                                               << "unrecognized type " << event["type"] << LL_ENDL;
-	    return;
+        return;
         }
         type = found->second;
     }
@@ -106,8 +106,8 @@ void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
 
 void LLViewerWindowListener::requestReshape(LLSD const & event_data) const
 {
-	if(event_data.has("w") && event_data.has("h"))
-	{
-		mViewerWindow->reshape(event_data["w"].asInteger(), event_data["h"].asInteger());
-	}
+    if(event_data.has("w") && event_data.has("h"))
+    {
+        mViewerWindow->reshape(event_data["w"].asInteger(), event_data["h"].asInteger());
+    }
 }

@@ -31,8 +31,8 @@
 class LLMachineID 
 {
 public:
-	LLMachineID();
-	virtual	~LLMachineID();
+    LLMachineID();
+    virtual ~LLMachineID();
     static S32 getUniqueID(unsigned char *unique_id, size_t len);
     // fallback id for windows
     static S32 getLegacyID(unsigned char *unique_id, size_t len);

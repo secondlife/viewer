@@ -36,11 +36,11 @@ class LLUICtrl;
 class LLSavedSettingsGlue
 {
 public:
-	static void setBOOL(LLUICtrl* ctrl, const std::string& name);
-	static void setS32(LLUICtrl* ctrl, const std::string& name);
-	static void setF32(LLUICtrl* ctrl, const std::string& name);
-	static void setU32(LLUICtrl* ctrl, const std::string& name);
-	static void setString(LLUICtrl* ctrl, const std::string& name);
+    static void setBOOL(LLUICtrl* ctrl, const std::string& name);
+    static void setS32(LLUICtrl* ctrl, const std::string& name);
+    static void setF32(LLUICtrl* ctrl, const std::string& name);
+    static void setU32(LLUICtrl* ctrl, const std::string& name);
+    static void setString(LLUICtrl* ctrl, const std::string& name);
 };
 
 #endif

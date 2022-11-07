@@ -46,73 +46,73 @@ extern BOOL gDebugClicks;
 const std::string LLTool::sNameNull("null");
 
 LLTool::LLTool( const std::string& name, LLToolComposite* composite ) :
-	mComposite( composite ),
-	mName(name)
+    mComposite( composite ),
+    mName(name)
 {
 }
 
 LLTool::~LLTool()
 {
-	if( hasMouseCapture() )
-	{
-		LL_WARNS() << "Tool deleted holding mouse capture.  Mouse capture removed." << LL_ENDL;
-		gFocusMgr.removeMouseCaptureWithoutCallback( this );
-	}
+    if( hasMouseCapture() )
+    {
+        LL_WARNS() << "Tool deleted holding mouse capture.  Mouse capture removed." << LL_ENDL;
+        gFocusMgr.removeMouseCaptureWithoutCallback( this );
+    }
 }
 
 BOOL LLTool::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down)
 {
-	BOOL result = LLMouseHandler::handleAnyMouseClick(x, y, mask, clicktype, down);
-	
-	// This behavior was moved here from LLViewerWindow::handleAnyMouseClick, so it can be selectively overridden by LLTool subclasses.
-	if(down && result)
-	{
-		// This is necessary to force clicks in the world to cause edit
-		// boxes that might have keyboard focus to relinquish it, and hence
-		// cause a commit to update their value.  JC
-		gFocusMgr.setKeyboardFocus(NULL);
-	}
-	
-	return result;
+    BOOL result = LLMouseHandler::handleAnyMouseClick(x, y, mask, clicktype, down);
+    
+    // This behavior was moved here from LLViewerWindow::handleAnyMouseClick, so it can be selectively overridden by LLTool subclasses.
+    if(down && result)
+    {
+        // This is necessary to force clicks in the world to cause edit
+        // boxes that might have keyboard focus to relinquish it, and hence
+        // cause a commit to update their value.  JC
+        gFocusMgr.setKeyboardFocus(NULL);
+    }
+    
+    return result;
 }
 
 BOOL LLTool::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (gDebugClicks)
-	{
-		LL_INFOS() << "LLTool left mouse down" << LL_ENDL;
-	}
-	// by default, didn't handle it
-	// AGENT_CONTROL_LBUTTON_DOWN is handled by scanMouse() and scanKey()
-	// LL_INFOS() << "LLTool::handleMouseDown" << LL_ENDL;
-	return FALSE;
+    if (gDebugClicks)
+    {
+        LL_INFOS() << "LLTool left mouse down" << LL_ENDL;
+    }
+    // by default, didn't handle it
+    // AGENT_CONTROL_LBUTTON_DOWN is handled by scanMouse() and scanKey()
+    // LL_INFOS() << "LLTool::handleMouseDown" << LL_ENDL;
+    return FALSE;
 }
 
 BOOL LLTool::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	if (gDebugClicks) 
-	{
-		LL_INFOS() << "LLTool left mouse up" << LL_ENDL;
-	}
-	// by default, didn't handle it
-	// AGENT_CONTROL_LBUTTON_UP is handled by scanMouse() and scanKey()
-	// LL_INFOS() << "LLTool::handleMouseUp" << LL_ENDL;
-	return TRUE;
+    if (gDebugClicks) 
+    {
+        LL_INFOS() << "LLTool left mouse up" << LL_ENDL;
+    }
+    // by default, didn't handle it
+    // AGENT_CONTROL_LBUTTON_UP is handled by scanMouse() and scanKey()
+    // LL_INFOS() << "LLTool::handleMouseUp" << LL_ENDL;
+    return TRUE;
 }
 
 BOOL LLTool::handleHover(S32 x, S32 y, MASK mask)
 {
-	gViewerWindow->setCursor(UI_CURSOR_ARROW);
-	LL_DEBUGS("UserInput") << "hover handled by a tool" << LL_ENDL;		
-	// by default, do nothing, say we handled it
-	return TRUE;
+    gViewerWindow->setCursor(UI_CURSOR_ARROW);
+    LL_DEBUGS("UserInput") << "hover handled by a tool" << LL_ENDL;     
+    // by default, do nothing, say we handled it
+    return TRUE;
 }
 
 BOOL LLTool::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	// by default, didn't handle it
-	// LL_INFOS() << "LLTool::handleScrollWheel" << LL_ENDL;
-	return FALSE;
+    // by default, didn't handle it
+    // LL_INFOS() << "LLTool::handleScrollWheel" << LL_ENDL;
+    return FALSE;
 }
 
 BOOL LLTool::handleScrollHWheel(S32 x, S32 y, S32 clicks)
@@ -123,57 +123,57 @@ BOOL LLTool::handleScrollHWheel(S32 x, S32 y, S32 clicks)
 
 BOOL LLTool::handleDoubleClick(S32 x,S32 y,MASK mask)
 {
-	// LL_INFOS() << "LLTool::handleDoubleClick" << LL_ENDL;
-	// by default, pretend it's a left click
-	return FALSE;
+    // LL_INFOS() << "LLTool::handleDoubleClick" << LL_ENDL;
+    // by default, pretend it's a left click
+    return FALSE;
 }
 
 BOOL LLTool::handleRightMouseDown(S32 x,S32 y,MASK mask)
 {
-	// by default, didn't handle it
-	// LL_INFOS() << "LLTool::handleRightMouseDown" << LL_ENDL;
-	return FALSE;
+    // by default, didn't handle it
+    // LL_INFOS() << "LLTool::handleRightMouseDown" << LL_ENDL;
+    return FALSE;
 }
 
 BOOL LLTool::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
-	// by default, didn't handle it
-	// LL_INFOS() << "LLTool::handleRightMouseDown" << LL_ENDL;
-	return FALSE;
+    // by default, didn't handle it
+    // LL_INFOS() << "LLTool::handleRightMouseDown" << LL_ENDL;
+    return FALSE;
 }
  
 BOOL LLTool::handleMiddleMouseDown(S32 x,S32 y,MASK mask)
 {
-	// by default, didn't handle it
-	// LL_INFOS() << "LLTool::handleMiddleMouseDown" << LL_ENDL;
-	return FALSE;
+    // by default, didn't handle it
+    // LL_INFOS() << "LLTool::handleMiddleMouseDown" << LL_ENDL;
+    return FALSE;
 }
 
 BOOL LLTool::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 {
-	// by default, didn't handle it
-	// LL_INFOS() << "LLTool::handleMiddleMouseUp" << LL_ENDL;
-	return FALSE;
+    // by default, didn't handle it
+    // LL_INFOS() << "LLTool::handleMiddleMouseUp" << LL_ENDL;
+    return FALSE;
 }
 
 BOOL LLTool::handleToolTip(S32 x, S32 y, MASK mask)
 {
-	// by default, didn't handle it
-	// LL_INFOS() << "LLTool::handleToolTip" << LL_ENDL;
-	return FALSE;
+    // by default, didn't handle it
+    // LL_INFOS() << "LLTool::handleToolTip" << LL_ENDL;
+    return FALSE;
 }
 
 void LLTool::setMouseCapture( BOOL b )
 {
-	if( b )
-	{
-		gFocusMgr.setMouseCapture(mComposite ? mComposite : this );
-	}
-	else
-	if( hasMouseCapture() )
-	{
-		gFocusMgr.setMouseCapture( NULL );
-	}
+    if( b )
+    {
+        gFocusMgr.setMouseCapture(mComposite ? mComposite : this );
+    }
+    else
+    if( hasMouseCapture() )
+    {
+        gFocusMgr.setMouseCapture( NULL );
+    }
 }
 
 // virtual
@@ -182,29 +182,29 @@ void LLTool::draw()
 
 BOOL LLTool::hasMouseCapture()
 {
-	return gFocusMgr.getMouseCapture() == (mComposite ? mComposite : this);
+    return gFocusMgr.getMouseCapture() == (mComposite ? mComposite : this);
 }
 
 BOOL LLTool::handleKey(KEY key, MASK mask)
 {
-	return FALSE;
+    return FALSE;
 }
 
 LLTool* LLTool::getOverrideTool(MASK mask)
 {
-	// NOTE: if in flycam mode, ALT-ZOOM camera should be disabled
-	if (LLViewerJoystick::getInstance()->getOverrideCamera())
-	{
-		return NULL;
-	}
+    // NOTE: if in flycam mode, ALT-ZOOM camera should be disabled
+    if (LLViewerJoystick::getInstance()->getOverrideCamera())
+    {
+        return NULL;
+    }
 
-	static LLCachedControl<bool> alt_zoom(gSavedSettings, "EnableAltZoom", true);
-	if (alt_zoom)
-	{
-		if (mask & MASK_ALT)
-		{
-			return LLToolCamera::getInstance();
-		}
-	}
-	return NULL;
+    static LLCachedControl<bool> alt_zoom(gSavedSettings, "EnableAltZoom", true);
+    if (alt_zoom)
+    {
+        if (mask & MASK_ALT)
+        {
+            return LLToolCamera::getInstance();
+        }
+    }
+    return NULL;
 }

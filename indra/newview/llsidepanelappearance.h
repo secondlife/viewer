@@ -41,60 +41,60 @@ class LLPanelOutfitsInventory;
 
 class LLSidepanelAppearance : public LLPanel
 {
-	LOG_CLASS(LLSidepanelAppearance);
+    LOG_CLASS(LLSidepanelAppearance);
 public:
-	LLSidepanelAppearance();
-	virtual ~LLSidepanelAppearance();
+    LLSidepanelAppearance();
+    virtual ~LLSidepanelAppearance();
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);	
+    /*virtual*/ BOOL postBuild();
+    /*virtual*/ void onOpen(const LLSD& key);   
 
-	void refreshCurrentOutfitName(const std::string& name = "");
+    void refreshCurrentOutfitName(const std::string& name = "");
 
-	static void editWearable(LLViewerWearable *wearable, LLView *data, BOOL disable_camera_switch = FALSE);
+    static void editWearable(LLViewerWearable *wearable, LLView *data, BOOL disable_camera_switch = FALSE);
 
-	void fetchInventory();
-	void inventoryFetched();
+    void fetchInventory();
+    void inventoryFetched();
 
     void showOutfitsInventoryPanel(); // last selected
-	void showOutfitsInventoryPanel(const std::string& tab_name);
-	void showOutfitEditPanel();
-	void showWearableEditPanel(LLViewerWearable *wearable = NULL, BOOL disable_camera_switch = FALSE);
-	void setWearablesLoading(bool val);
-	void showDefaultSubpart();
-	void updateScrollingPanelList();
-	void updateToVisibility( const LLSD& new_visibility );
-	LLPanelEditWearable* getWearable(){ return mEditWearable; }
+    void showOutfitsInventoryPanel(const std::string& tab_name);
+    void showOutfitEditPanel();
+    void showWearableEditPanel(LLViewerWearable *wearable = NULL, BOOL disable_camera_switch = FALSE);
+    void setWearablesLoading(bool val);
+    void showDefaultSubpart();
+    void updateScrollingPanelList();
+    void updateToVisibility( const LLSD& new_visibility );
+    LLPanelEditWearable* getWearable(){ return mEditWearable; }
 
 private:
-	void onFilterEdit(const std::string& search_string);
-	void onVisibilityChanged ( const LLSD& new_visibility );
+    void onFilterEdit(const std::string& search_string);
+    void onVisibilityChanged ( const LLSD& new_visibility );
 
-	void onOpenOutfitButtonClicked();
-	void onEditAppearanceButtonClicked();
+    void onOpenOutfitButtonClicked();
+    void onEditAppearanceButtonClicked();
 
-	void toggleMyOutfitsPanel(BOOL visible, const std::string& tab_name);
-	void toggleOutfitEditPanel(BOOL visible, BOOL disable_camera_switch = FALSE);
-	void toggleWearableEditPanel(BOOL visible, LLViewerWearable* wearable = NULL, BOOL disable_camera_switch = FALSE);
+    void toggleMyOutfitsPanel(BOOL visible, const std::string& tab_name);
+    void toggleOutfitEditPanel(BOOL visible, BOOL disable_camera_switch = FALSE);
+    void toggleWearableEditPanel(BOOL visible, LLViewerWearable* wearable = NULL, BOOL disable_camera_switch = FALSE);
 
-	LLFilterEditor*			mFilterEditor;
-	LLPanelOutfitsInventory* mPanelOutfitsInventory;
-	LLPanelOutfitEdit*		mOutfitEdit;
-	LLPanelEditWearable*	mEditWearable;
+    LLFilterEditor*         mFilterEditor;
+    LLPanelOutfitsInventory* mPanelOutfitsInventory;
+    LLPanelOutfitEdit*      mOutfitEdit;
+    LLPanelEditWearable*    mEditWearable;
 
-	LLButton*					mOpenOutfitBtn;
-	LLButton*					mEditAppearanceBtn;
-	LLPanel*					mCurrOutfitPanel;
+    LLButton*                   mOpenOutfitBtn;
+    LLButton*                   mEditAppearanceBtn;
+    LLPanel*                    mCurrOutfitPanel;
 
-	LLTextBox*					mCurrentLookName;
-	LLTextBox*					mOutfitStatus;
+    LLTextBox*                  mCurrentLookName;
+    LLTextBox*                  mOutfitStatus;
 
-	// Search string for filtering landmarks and teleport
-	// history locations
-	std::string					mFilterSubString;
+    // Search string for filtering landmarks and teleport
+    // history locations
+    std::string                 mFilterSubString;
 
-	// Gets set to true when we're opened for the first time.
-	bool mOpened;
+    // Gets set to true when we're opened for the first time.
+    bool mOpened;
 };
 
 #endif //LL_LLSIDEPANELAPPEARANCE_H

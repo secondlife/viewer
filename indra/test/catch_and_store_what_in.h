@@ -64,45 +64,45 @@ std::string catch_what(FUNC func)
  * ensure("some_call_that_should_throw_Foo() didn't throw", ! threw.empty());
  * @endcode
  */
-#define CATCH_AND_STORE_WHAT_IN(THREW, EXCEPTION)	\
-catch (const EXCEPTION& ex)							\
-{													\
-	(THREW) = ex.what();							\
-}													\
+#define CATCH_AND_STORE_WHAT_IN(THREW, EXCEPTION)   \
+catch (const EXCEPTION& ex)                         \
+{                                                   \
+    (THREW) = ex.what();                            \
+}                                                   \
 CATCH_MISSED_LINUX_EXCEPTION(THREW, EXCEPTION)
 
 #ifndef LL_LINUX
-#define CATCH_MISSED_LINUX_EXCEPTION(THREW, EXCEPTION)					\
-	/* only needed on Linux */
+#define CATCH_MISSED_LINUX_EXCEPTION(THREW, EXCEPTION)                  \
+    /* only needed on Linux */
 #else // LL_LINUX
 
-#define CATCH_MISSED_LINUX_EXCEPTION(THREW, EXCEPTION)					\
-catch (const std::runtime_error& ex)									\
-{																		\
-	/* This clause is needed on Linux, on the viewer side, because	*/	\
-	/* the exception isn't caught by catch (const EXCEPTION&).		*/	\
-	/* But if the expected exception was thrown, allow the test to	*/	\
-	/* succeed anyway. Not sure how else to handle this odd case.	*/	\
-	if (std::string(typeid(ex).name()) == typeid(EXCEPTION).name())		\
-	{																	\
-		/* std::cerr << "Caught " << typeid(ex).name() */				\
-		/*			 << " with Linux workaround" << std::endl; */		\
-		(THREW) = ex.what();											\
-		/*std::cout << ex.what() << std::endl;*/						\
-	}																	\
-	else																\
-	{																	\
-		/* We don't even recognize this exception. Let it propagate	*/	\
-		/* out to TUT to fail the test.								*/	\
-		throw;															\
-	}																	\
-}																		\
-catch (...)																\
-{																		\
-	std::cerr << "Failed to catch expected exception "					\
-			  << #EXCEPTION << "!" << std::endl;						\
-	/* This indicates a problem in the test that should be addressed. */ \
-	throw;																\
+#define CATCH_MISSED_LINUX_EXCEPTION(THREW, EXCEPTION)                  \
+catch (const std::runtime_error& ex)                                    \
+{                                                                       \
+    /* This clause is needed on Linux, on the viewer side, because  */  \
+    /* the exception isn't caught by catch (const EXCEPTION&).      */  \
+    /* But if the expected exception was thrown, allow the test to  */  \
+    /* succeed anyway. Not sure how else to handle this odd case.   */  \
+    if (std::string(typeid(ex).name()) == typeid(EXCEPTION).name())     \
+    {                                                                   \
+        /* std::cerr << "Caught " << typeid(ex).name() */               \
+        /*           << " with Linux workaround" << std::endl; */       \
+        (THREW) = ex.what();                                            \
+        /*std::cout << ex.what() << std::endl;*/                        \
+    }                                                                   \
+    else                                                                \
+    {                                                                   \
+        /* We don't even recognize this exception. Let it propagate */  \
+        /* out to TUT to fail the test.                             */  \
+        throw;                                                          \
+    }                                                                   \
+}                                                                       \
+catch (...)                                                             \
+{                                                                       \
+    std::cerr << "Failed to catch expected exception "                  \
+              << #EXCEPTION << "!" << std::endl;                        \
+    /* This indicates a problem in the test that should be addressed. */ \
+    throw;                                                              \
 }
 
 #endif // LL_LINUX

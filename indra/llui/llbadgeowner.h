@@ -38,24 +38,24 @@ class LLBadgeOwner
 {
 public:
 
-	LLBadgeOwner(LLHandle< LLView > viewHandle);
+    LLBadgeOwner(LLHandle< LLView > viewHandle);
 
-	void initBadgeParams(const LLBadge::Params& p);
-	void addBadgeToParentHolder();
-	
-	bool hasBadgeHolderParent() const { return mHasBadgeHolderParent; };
-	void setBadgeVisibility(bool visible);
-	void setDrawBadgeAtTop(bool draw_at_top);
-	void reshapeBadge(const LLRect& new_rect);
-
-private:
-
-	LLBadge* createBadge(const LLBadge::Params& p);
+    void initBadgeParams(const LLBadge::Params& p);
+    void addBadgeToParentHolder();
+    
+    bool hasBadgeHolderParent() const { return mHasBadgeHolderParent; };
+    void setBadgeVisibility(bool visible);
+    void setDrawBadgeAtTop(bool draw_at_top);
+    void reshapeBadge(const LLRect& new_rect);
 
 private:
-	bool				mHasBadgeHolderParent;
-	LLBadge*			mBadge;
-	LLHandle< LLView >	mBadgeOwnerView;
+
+    LLBadge* createBadge(const LLBadge::Params& p);
+
+private:
+    bool                mHasBadgeHolderParent;
+    LLBadge*            mBadge;
+    LLHandle< LLView >  mBadgeOwnerView;
 };
 
 #endif  // LL_LLBADGEOWNER_H

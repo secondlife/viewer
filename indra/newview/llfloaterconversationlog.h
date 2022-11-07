@@ -34,22 +34,22 @@ class LLFloaterConversationLog : public LLFloater
 {
 public:
 
-	LLFloaterConversationLog(const LLSD& key);
-	virtual ~LLFloaterConversationLog(){};
+    LLFloaterConversationLog(const LLSD& key);
+    virtual ~LLFloaterConversationLog(){};
 
-	virtual BOOL postBuild();
+    virtual BOOL postBuild();
 
-	virtual void draw();
+    virtual void draw();
 
-	void onFilterEdit(const std::string& search_string);
+    void onFilterEdit(const std::string& search_string);
 
 private:
 
-	void onCustomAction (const LLSD& userdata);
-	bool isActionEnabled(const LLSD& userdata);
-	bool isActionChecked(const LLSD& userdata);
+    void onCustomAction (const LLSD& userdata);
+    bool isActionEnabled(const LLSD& userdata);
+    bool isActionChecked(const LLSD& userdata);
 
-	LLConversationLogList* mConversationLogList;
+    LLConversationLogList* mConversationLogList;
 };
 
 

@@ -43,12 +43,12 @@ namespace LLCore
 
 
 HttpOpSetGet::HttpOpSetGet()
-	: HttpOperation(),
-	  mReqOption(HttpRequest::PO_CONNECTION_LIMIT),
-	  mReqClass(HttpRequest::INVALID_POLICY_ID),
-	  mReqDoSet(false),
-	  mReqLongValue(0L),
-	  mReplyLongValue(0L)
+    : HttpOperation(),
+      mReqOption(HttpRequest::PO_CONNECTION_LIMIT),
+      mReqClass(HttpRequest::INVALID_POLICY_ID),
+      mReqDoSet(false),
+      mReqLongValue(0L),
+      mReplyLongValue(0L)
 {}
 
 
@@ -58,89 +58,89 @@ HttpOpSetGet::~HttpOpSetGet()
 
 HttpStatus HttpOpSetGet::setupGet(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass)
 {
-	HttpStatus status;
-	
-	mReqOption = opt;
-	mReqClass = pclass;
-	return status;
+    HttpStatus status;
+    
+    mReqOption = opt;
+    mReqClass = pclass;
+    return status;
 }
 
 
 HttpStatus HttpOpSetGet::setupSet(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass, long value)
 {
-	HttpStatus status;
+    HttpStatus status;
 
-	if (! HttpService::sOptionDesc[opt].mIsLong)
-	{
-		return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
-	}
-	if (! HttpService::sOptionDesc[opt].mIsDynamic)
-	{
-		return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
-	}
-	
-	mReqOption = opt;
-	mReqClass = pclass;
-	mReqDoSet = true;
-	mReqLongValue = value;
-	
-	return status;
+    if (! HttpService::sOptionDesc[opt].mIsLong)
+    {
+        return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
+    }
+    if (! HttpService::sOptionDesc[opt].mIsDynamic)
+    {
+        return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+    }
+    
+    mReqOption = opt;
+    mReqClass = pclass;
+    mReqDoSet = true;
+    mReqLongValue = value;
+    
+    return status;
 }
 
 
 HttpStatus HttpOpSetGet::setupSet(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass, const std::string & value)
 {
-	HttpStatus status;
+    HttpStatus status;
 
-	if (HttpService::sOptionDesc[opt].mIsLong)
-	{
-		return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
-	}
-	if (! HttpService::sOptionDesc[opt].mIsDynamic)
-	{
-		return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
-	}
+    if (HttpService::sOptionDesc[opt].mIsLong)
+    {
+        return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
+    }
+    if (! HttpService::sOptionDesc[opt].mIsDynamic)
+    {
+        return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+    }
 
-	mReqOption = opt;
-	mReqClass = pclass;
-	mReqDoSet = true;
-	mReqStrValue = value;
-	
-	return status;
+    mReqOption = opt;
+    mReqClass = pclass;
+    mReqDoSet = true;
+    mReqStrValue = value;
+    
+    return status;
 }
 
 
 void HttpOpSetGet::stageFromRequest(HttpService * service)
 {
-	if (mReqDoSet)
-	{
-		if (HttpService::sOptionDesc[mReqOption].mIsLong)
-		{
-			mStatus = service->setPolicyOption(mReqOption, mReqClass,
-											   mReqLongValue, &mReplyLongValue);
-		}
-		else
-		{
-			mStatus = service->setPolicyOption(mReqOption, mReqClass,
-											   mReqStrValue, &mReplyStrValue);
-		}
-	}
-	else
-	{
-		if (HttpService::sOptionDesc[mReqOption].mIsLong)
-		{
-			mStatus = service->getPolicyOption(mReqOption, mReqClass, &mReplyLongValue);
-		}
-		else
-		{
-			mStatus = service->getPolicyOption(mReqOption, mReqClass, &mReplyStrValue);
-		}
-	}
-	
-	addAsReply();
+    if (mReqDoSet)
+    {
+        if (HttpService::sOptionDesc[mReqOption].mIsLong)
+        {
+            mStatus = service->setPolicyOption(mReqOption, mReqClass,
+                                               mReqLongValue, &mReplyLongValue);
+        }
+        else
+        {
+            mStatus = service->setPolicyOption(mReqOption, mReqClass,
+                                               mReqStrValue, &mReplyStrValue);
+        }
+    }
+    else
+    {
+        if (HttpService::sOptionDesc[mReqOption].mIsLong)
+        {
+            mStatus = service->getPolicyOption(mReqOption, mReqClass, &mReplyLongValue);
+        }
+        else
+        {
+            mStatus = service->getPolicyOption(mReqOption, mReqClass, &mReplyStrValue);
+        }
+    }
+    
+    addAsReply();
 }
 
 
 }   // end namespace LLCore
 
-		
+        

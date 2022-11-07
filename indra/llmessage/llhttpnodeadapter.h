@@ -34,19 +34,19 @@ class LLHTTPNodeAdapter : public LLHTTPNode
 {
 public:
 
-	virtual bool validate(const std::string& name, LLSD& context) const
-	{
-		T node;
-		return node.validate(name, context);
-	}
-	
-	virtual void post(LLHTTPNode::ResponsePtr response,
-					  const LLSD& context,
-					  const LLSD& input) const
-	{
-		T node;
-		return node.post(response, context, input);
-	}
+    virtual bool validate(const std::string& name, LLSD& context) const
+    {
+        T node;
+        return node.validate(name, context);
+    }
+    
+    virtual void post(LLHTTPNode::ResponsePtr response,
+                      const LLSD& context,
+                      const LLSD& input) const
+    {
+        T node;
+        return node.post(response, context, input);
+    }
 };
 
 #endif // LL_HTTP_NODE_ADAPTER_H

@@ -30,8 +30,8 @@
 
 /*==========================================================================*|
 #ifdef LL_WINDOWS
-	// non-virtual destructor warning, boost::statechart does this intentionally.
-	#pragma warning (disable : 4265) 
+    // non-virtual destructor warning, boost::statechart does this intentionally.
+    #pragma warning (disable : 4265) 
 #endif
 |*==========================================================================*/
 
@@ -53,7 +53,7 @@ class LLLogin::Impl
 {
 public:
     Impl():
-		mPump("login", true) // Create the module's event pump with a tweaked (unique) name.
+        mPump("login", true) // Create the module's event pump with a tweaked (unique) name.
     {
         mValidAuthResponse["status"]        = LLSD();
         mValidAuthResponse["errorcode"]     = LLSD();
@@ -63,35 +63,35 @@ public:
 
     void connect(const std::string& uri, const LLSD& credentials);
     void disconnect();
-	LLEventPump& getEventPump() { return mPump; }
+    LLEventPump& getEventPump() { return mPump; }
 
 private:
-	LLSD getProgressEventLLSD(const std::string& state, const std::string& change,
-						   const LLSD& data = LLSD())
-	{
-		LLSD status_data;
-		status_data["state"] = state;
-		status_data["change"] = change;
-		status_data["progress"] = 0.0f;
+    LLSD getProgressEventLLSD(const std::string& state, const std::string& change,
+                           const LLSD& data = LLSD())
+    {
+        LLSD status_data;
+        status_data["state"] = state;
+        status_data["change"] = change;
+        status_data["progress"] = 0.0f;
 
-		if(mAuthResponse.has("transfer_rate"))
-		{
-			status_data["transfer_rate"] = mAuthResponse["transfer_rate"];
-		}
+        if(mAuthResponse.has("transfer_rate"))
+        {
+            status_data["transfer_rate"] = mAuthResponse["transfer_rate"];
+        }
 
-		if(data.isDefined())
-		{
-			status_data["data"] = data;
-		}
-		return status_data;
-	}
+        if(data.isDefined())
+        {
+            status_data["data"] = data;
+        }
+        return status_data;
+    }
 
-	void sendProgressEvent(const std::string& state, const std::string& change,
-						   const LLSD& data = LLSD())
-	{
-		LLSD status_data = getProgressEventLLSD(state, change, data);
-		mPump.post(status_data);
-	}
+    void sendProgressEvent(const std::string& state, const std::string& change,
+                           const LLSD& data = LLSD())
+    {
+        LLSD status_data = getProgressEventLLSD(state, change, data);
+        mPump.post(status_data);
+    }
 
     LLSD validateResponse(const std::string& pumpName, const LLSD& response)
     {
@@ -114,19 +114,19 @@ private:
     void loginCoro(std::string uri, LLSD credentials);
 
     LLEventStream mPump;
-	LLSD mAuthResponse, mValidAuthResponse;
+    LLSD mAuthResponse, mValidAuthResponse;
 };
 
 void LLLogin::Impl::connect(const std::string& uri, const LLSD& login_params)
 {
     LL_DEBUGS("LLLogin") << " connect with  uri '" << uri << "', login_params " << login_params << LL_ENDL;
-	
+    
     // Launch a coroutine with our login_() method. Run the coroutine until
     // its first wait; at that point, return here.
     std::string coroname = 
         LLCoros::instance().launch("LLLogin::Impl::login_",
                                    boost::bind(&Impl::loginCoro, this, uri, login_params));
-    LL_DEBUGS("LLLogin") << " connected with  uri '" << uri << "', login_params " << login_params << LL_ENDL;	
+    LL_DEBUGS("LLLogin") << " connected with  uri '" << uri << "', login_params " << login_params << LL_ENDL;   
 }
 
 namespace {
@@ -349,7 +349,7 @@ void LLLogin::Impl::disconnect()
 //*********************
 // LLLogin
 LLLogin::LLLogin() :
-	mImpl(new LLLogin::Impl())
+    mImpl(new LLLogin::Impl())
 {
 }
 
@@ -359,18 +359,18 @@ LLLogin::~LLLogin()
 
 void LLLogin::connect(const std::string& uri, const LLSD& credentials)
 {
-	mImpl->connect(uri, credentials);
+    mImpl->connect(uri, credentials);
 }
 
 
 void LLLogin::disconnect()
 {
-	mImpl->disconnect();
+    mImpl->disconnect();
 }
 
 LLEventPump& LLLogin::getEventPump()
 {
-	return mImpl->getEventPump();
+    return mImpl->getEventPump();
 }
 
 // The following is the list of important functions that happen in the 
@@ -404,19 +404,19 @@ LLEventPump& LLLogin::getEventPump()
 
 //sAuthUriNum = llclamp(sAuthUriNum, 0, (S32)sAuthUris.size()-1);
 //LLUserAuth::getInstance()->authenticate(
-//	sAuthUris[sAuthUriNum],
-//	auth_method,
-//	firstname,
-//	lastname,			
-//	password, // web_login_key,
-//	start.str(),
-//	gSkipOptionalUpdate,
-//	gAcceptTOS,
-//	gAcceptCriticalMessage,
-//	gLastExecEvent,
-//	requested_options,
-//	hashed_mac_string,
-//	LLAppViewer::instance()->getSerialNumber());
+//  sAuthUris[sAuthUriNum],
+//  auth_method,
+//  firstname,
+//  lastname,           
+//  password, // web_login_key,
+//  start.str(),
+//  gSkipOptionalUpdate,
+//  gAcceptTOS,
+//  gAcceptCriticalMessage,
+//  gLastExecEvent,
+//  requested_options,
+//  hashed_mac_string,
+//  LLAppViewer::instance()->getSerialNumber());
 
 //
 // Download the Response

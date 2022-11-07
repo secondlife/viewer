@@ -72,8 +72,8 @@ LLPostCard::result_callback_t LLPostCard::mResultCallback;
 // static
 void LLPostCard::reportPostResult(bool ok)
 {
-	if (mResultCallback)
-	{
-		mResultCallback(ok);
-	}
+    if (mResultCallback)
+    {
+        mResultCallback(ok);
+    }
 }

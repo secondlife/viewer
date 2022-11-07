@@ -36,36 +36,36 @@
 class LL_COMMON_API LLSmoothInterpolation 
 {
 public:
-	LLSmoothInterpolation();
+    LLSmoothInterpolation();
 
-	// MANIPULATORS
-	static void updateInterpolants();
+    // MANIPULATORS
+    static void updateInterpolants();
 
-	// ACCESSORS
-	static F32 getInterpolant(F32SecondsImplicit time_constant, bool use_cache = true);
+    // ACCESSORS
+    static F32 getInterpolant(F32SecondsImplicit time_constant, bool use_cache = true);
 
-	template<typename T> 
-	static T lerp(T a, T b, F32SecondsImplicit time_constant, bool use_cache = true)
-	{
-		F32 interpolant = getInterpolant(time_constant, use_cache);
-		return ((a * (1.f - interpolant)) 
-				+ (b * interpolant));
-	}
+    template<typename T> 
+    static T lerp(T a, T b, F32SecondsImplicit time_constant, bool use_cache = true)
+    {
+        F32 interpolant = getInterpolant(time_constant, use_cache);
+        return ((a * (1.f - interpolant)) 
+                + (b * interpolant));
+    }
 
 protected:
-	static F32 calcInterpolant(F32 time_constant);
+    static F32 calcInterpolant(F32 time_constant);
 
-	struct CompareTimeConstants;
-	static LLFrameTimer sInternalTimer;	// frame timer for calculating deltas
+    struct CompareTimeConstants;
+    static LLFrameTimer sInternalTimer; // frame timer for calculating deltas
 
-	struct Interpolant
-	{
-		F32 mTimeScale;
-		F32 mInterpolant;
-	};
-	typedef std::vector<Interpolant> interpolant_vec_t;
-	static interpolant_vec_t 	sInterpolants;
-	static F32					sTimeDelta;
+    struct Interpolant
+    {
+        F32 mTimeScale;
+        F32 mInterpolant;
+    };
+    typedef std::vector<Interpolant> interpolant_vec_t;
+    static interpolant_vec_t    sInterpolants;
+    static F32                  sTimeDelta;
 };
 
 typedef LLSmoothInterpolation LLCriticalDamp;

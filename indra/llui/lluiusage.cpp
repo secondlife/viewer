@@ -39,24 +39,24 @@ LLUIUsage::~LLUIUsage()
 // static
 std::string LLUIUsage::sanitized(const std::string& s)
 {
-	// Remove characters that make the ViewerStats db unhappy
-	std::string result(s);
-	std::replace(result.begin(), result.end(), '.', '_');
-	std::replace(result.begin(), result.end(), ' ', '_');
-	return result;
+    // Remove characters that make the ViewerStats db unhappy
+    std::string result(s);
+    std::replace(result.begin(), result.end(), '.', '_');
+    std::replace(result.begin(), result.end(), ' ', '_');
+    return result;
 }
 
 // static
 void LLUIUsage::setLLSDPath(LLSD& sd, const std::string& path, S32 max_elts, const LLSD& val)
 {
-	// Keep the last max_elts components of the specified path
-	std::vector<std::string> fields;
-	boost::split(fields, path, boost::is_any_of("/"));
-	auto first_pos = std::max(fields.begin(), fields.end() - max_elts);
-	auto end_pos = fields.end();
-	std::vector<std::string> last_fields(first_pos,end_pos);
+    // Keep the last max_elts components of the specified path
+    std::vector<std::string> fields;
+    boost::split(fields, path, boost::is_any_of("/"));
+    auto first_pos = std::max(fields.begin(), fields.end() - max_elts);
+    auto end_pos = fields.end();
+    std::vector<std::string> last_fields(first_pos,end_pos);
 
-	setLLSDNested(sd, last_fields, val);
+    setLLSDNested(sd, last_fields, val);
 }
 
 // setLLSDNested()
@@ -68,79 +68,79 @@ void LLUIUsage::setLLSDPath(LLSD& sd, const std::string& path, S32 max_elts, con
 // static
 void LLUIUsage::setLLSDNested(LLSD& sd, const std::vector<std::string>& fields, const LLSD& val)
 {
-	LLSD* fsd = &sd;
-	for (auto it=fields.begin(); it!=fields.end(); ++it)
-	{
-		if (it == fields.end()-1)
-		{
-			(*fsd)[*it] = val;
-		}
-		else
-		{
-			if (!(*fsd)[*it].isMap())
-			{
-				(*fsd)[*it] = LLSD::emptyMap();
-			}
-			fsd = &(*fsd)[*it];
-		}
-	}
+    LLSD* fsd = &sd;
+    for (auto it=fields.begin(); it!=fields.end(); ++it)
+    {
+        if (it == fields.end()-1)
+        {
+            (*fsd)[*it] = val;
+        }
+        else
+        {
+            if (!(*fsd)[*it].isMap())
+            {
+                (*fsd)[*it] = LLSD::emptyMap();
+            }
+            fsd = &(*fsd)[*it];
+        }
+    }
 }
 
 void LLUIUsage::logCommand(const std::string& command)
 {
-	mCommandCounts[sanitized(command)]++;
-	LL_DEBUGS("UIUsage") << "command " << command << LL_ENDL;
+    mCommandCounts[sanitized(command)]++;
+    LL_DEBUGS("UIUsage") << "command " << command << LL_ENDL;
 }
 
 void LLUIUsage::logControl(const std::string& control)
 {
-	mControlCounts[sanitized(control)]++;
-	LL_DEBUGS("UIUsage") << "control " << control << LL_ENDL;
+    mControlCounts[sanitized(control)]++;
+    LL_DEBUGS("UIUsage") << "control " << control << LL_ENDL;
 }
 
 
 void LLUIUsage::logFloater(const std::string& floater)
 {
-	mFloaterCounts[sanitized(floater)]++;
-	LL_DEBUGS("UIUsage") << "floater " << floater << LL_ENDL;
+    mFloaterCounts[sanitized(floater)]++;
+    LL_DEBUGS("UIUsage") << "floater " << floater << LL_ENDL;
 }
 
 void LLUIUsage::logPanel(const std::string& p)
 {
-	mPanelCounts[sanitized(p)]++;
-	LL_DEBUGS("UIUsage") << "panel " << p << LL_ENDL;
+    mPanelCounts[sanitized(p)]++;
+    LL_DEBUGS("UIUsage") << "panel " << p << LL_ENDL;
 }
 
 LLSD LLUIUsage::asLLSD() const
 {
-	LLSD result;
-	for (auto const& it : mCommandCounts)
-	{
-		result["commands"][it.first] = LLSD::Integer(it.second);
-	}
-	for (auto const& it : mControlCounts)
-	{
-		setLLSDPath(result["controls"], it.first, 2, LLSD::Integer(it.second));
-	}
-	for (auto const& it : mFloaterCounts)
-	{
-		result["floaters"][it.first] = LLSD::Integer(it.second);
-	}
-	for (auto const& it : mPanelCounts)
-	{
-		result["panels"][it.first] = LLSD::Integer(it.second);
-	}
-	return result;
+    LLSD result;
+    for (auto const& it : mCommandCounts)
+    {
+        result["commands"][it.first] = LLSD::Integer(it.second);
+    }
+    for (auto const& it : mControlCounts)
+    {
+        setLLSDPath(result["controls"], it.first, 2, LLSD::Integer(it.second));
+    }
+    for (auto const& it : mFloaterCounts)
+    {
+        result["floaters"][it.first] = LLSD::Integer(it.second);
+    }
+    for (auto const& it : mPanelCounts)
+    {
+        result["panels"][it.first] = LLSD::Integer(it.second);
+    }
+    return result;
 }
 
 // Clear up some junk content generated during initial login/UI initialization
 void LLUIUsage::clear()
 {
 
-	LL_DEBUGS("UIUsage") << "clear" << LL_ENDL;
-	mCommandCounts.clear();
-	mControlCounts.clear();
-	mFloaterCounts.clear();
-	mPanelCounts.clear();
+    LL_DEBUGS("UIUsage") << "clear" << LL_ENDL;
+    mCommandCounts.clear();
+    mControlCounts.clear();
+    mFloaterCounts.clear();
+    mPanelCounts.clear();
 }
 

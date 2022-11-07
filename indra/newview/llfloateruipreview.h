@@ -33,7 +33,7 @@
 
 namespace LLFloaterUIPreviewUtil
 {
-	void registerFloater();
+    void registerFloater();
 }
 
 #endif // LL_LLUIPREVIEW_H

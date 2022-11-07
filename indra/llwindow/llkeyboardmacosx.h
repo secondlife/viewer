@@ -31,34 +31,34 @@
 
 // These more or less mirror their equivalents in NSEvent.h.
 enum EMacEventKeys {
-	MAC_SHIFT_KEY = 1 << 17,
-	MAC_CTRL_KEY = 1 << 18,
-	MAC_ALT_KEY = 1 << 19,
-	MAC_CMD_KEY = 1 << 20,
-	MAC_FN_KEY = 1 << 23
+    MAC_SHIFT_KEY = 1 << 17,
+    MAC_CTRL_KEY = 1 << 18,
+    MAC_ALT_KEY = 1 << 19,
+    MAC_CMD_KEY = 1 << 20,
+    MAC_FN_KEY = 1 << 23
 };
 
 class LLKeyboardMacOSX : public LLKeyboard
 {
 public:
-	LLKeyboardMacOSX();
-	/*virtual*/ ~LLKeyboardMacOSX() {};
-	
-	/*virtual*/ BOOL	handleKeyUp(const U16 key, MASK mask);
-	/*virtual*/ BOOL	handleKeyDown(const U16 key, MASK mask);
-	/*virtual*/ void	resetMaskKeys();
-	/*virtual*/ MASK	currentMask(BOOL for_mouse_event);
-	/*virtual*/ void	scanKeyboard();
-	/*virtual*/ void	handleModifier(MASK mask);
-	
+    LLKeyboardMacOSX();
+    /*virtual*/ ~LLKeyboardMacOSX() {};
+    
+    /*virtual*/ BOOL    handleKeyUp(const U16 key, MASK mask);
+    /*virtual*/ BOOL    handleKeyDown(const U16 key, MASK mask);
+    /*virtual*/ void    resetMaskKeys();
+    /*virtual*/ MASK    currentMask(BOOL for_mouse_event);
+    /*virtual*/ void    scanKeyboard();
+    /*virtual*/ void    handleModifier(MASK mask);
+    
 protected:
-	MASK	updateModifiers(const U32 mask);
-	void	setModifierKeyLevel( KEY key, BOOL new_state );
-	BOOL	translateNumpadKey( const U16 os_key, KEY *translated_key );
-	U16		inverseTranslateNumpadKey(const KEY translated_key);
+    MASK    updateModifiers(const U32 mask);
+    void    setModifierKeyLevel( KEY key, BOOL new_state );
+    BOOL    translateNumpadKey( const U16 os_key, KEY *translated_key );
+    U16     inverseTranslateNumpadKey(const KEY translated_key);
 private:
-	std::map<U16, KEY> mTranslateNumpadMap;  // special map for translating OS keys to numpad keys
-	std::map<KEY, U16> mInvTranslateNumpadMap; // inverse of the above
+    std::map<U16, KEY> mTranslateNumpadMap;  // special map for translating OS keys to numpad keys
+    std::map<KEY, U16> mInvTranslateNumpadMap; // inverse of the above
 };
 
 #endif

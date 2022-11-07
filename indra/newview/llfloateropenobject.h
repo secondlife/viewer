@@ -40,45 +40,45 @@ class LLPanelObjectInventory;
 class LLFloaterOpenObject
 : public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 public:
-	
-	void dirty();
-	
-	struct LLCatAndWear
-	{
-		LLUUID mCatID;
-		bool mWear;
-		bool mFolderResponded;
-		bool mReplace;
-	};
+    
+    void dirty();
+    
+    struct LLCatAndWear
+    {
+        LLUUID mCatID;
+        bool mWear;
+        bool mFolderResponded;
+        bool mReplace;
+    };
 
 protected:
 
-	/*virtual*/	BOOL	postBuild();
-	void refresh();
-	void draw();
-	virtual void onOpen(const LLSD& key);
+    /*virtual*/ BOOL    postBuild();
+    void refresh();
+    void draw();
+    virtual void onOpen(const LLSD& key);
 
-	void moveToInventory(bool wear, bool replace = false);
+    void moveToInventory(bool wear, bool replace = false);
 
-	void onClickMoveToInventory();
-	void onClickMoveAndWear();
-	void onClickReplace();
-	void onClickCancel();
-	static void callbackCreateInventoryCategory(const LLUUID& category_id, LLUUID object_id, bool wear, bool replace = false);
-	static void callbackMoveInventory(S32 result, void* data);
+    void onClickMoveToInventory();
+    void onClickMoveAndWear();
+    void onClickReplace();
+    void onClickCancel();
+    static void callbackCreateInventoryCategory(const LLUUID& category_id, LLUUID object_id, bool wear, bool replace = false);
+    static void callbackMoveInventory(S32 result, void* data);
 
 private:
-	
-	LLFloaterOpenObject(const LLSD& key);
-	~LLFloaterOpenObject();
-	
+    
+    LLFloaterOpenObject(const LLSD& key);
+    ~LLFloaterOpenObject();
+    
 protected:
 
-	LLPanelObjectInventory*	mPanelInventoryObject;
-	LLSafeHandle<LLObjectSelection> mObjectSelection;
-	BOOL mDirty;
+    LLPanelObjectInventory* mPanelInventoryObject;
+    LLSafeHandle<LLObjectSelection> mObjectSelection;
+    BOOL mDirty;
 };
 
 #endif

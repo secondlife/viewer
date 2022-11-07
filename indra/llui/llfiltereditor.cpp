@@ -31,16 +31,16 @@
 #include "llfiltereditor.h"
 
 LLFilterEditor::LLFilterEditor(const LLFilterEditor::Params& p)
-:	LLSearchEditor(p)
+:   LLSearchEditor(p)
 {
-	setCommitOnFocusLost(FALSE); // we'll commit on every keystroke, don't re-commit when we take focus away (i.e. we go to interact with the actual results!)
+    setCommitOnFocusLost(FALSE); // we'll commit on every keystroke, don't re-commit when we take focus away (i.e. we go to interact with the actual results!)
 }
 
 
 void LLFilterEditor::handleKeystroke()
 {
-	this->LLSearchEditor::handleKeystroke();
+    this->LLSearchEditor::handleKeystroke();
 
-	// Commit on every keystroke.
-	onCommit();
+    // Commit on every keystroke.
+    onCommit();
 }

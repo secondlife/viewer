@@ -40,10 +40,10 @@ extern void process_dnd_im(const LLSD& notification);
 
 //--------------------------------------------------------------------------
 LLIMHandler::LLIMHandler()
-:	LLCommunicationNotificationHandler("IM Notifications", "notifytoast")
+:   LLCommunicationNotificationHandler("IM Notifications", "notifytoast")
 {
-	// Getting a Channel for our notifications
-	mChannel = LLChannelManager::getInstance()->createNotificationChannel()->getHandle();
+    // Getting a Channel for our notifications
+    mChannel = LLChannelManager::getInstance()->createNotificationChannel()->getHandle();
 }
 
 //--------------------------------------------------------------------------
@@ -54,9 +54,9 @@ LLIMHandler::~LLIMHandler()
 //--------------------------------------------------------------------------
 void LLIMHandler::initChannel()
 {
-	S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
-	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
-	mChannel.get()->init(channel_right_bound - channel_width, channel_right_bound);
+    S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
+    S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
+    mChannel.get()->init(channel_right_bound - channel_width, channel_right_bound);
 }
 
 //--------------------------------------------------------------------------
@@ -69,47 +69,47 @@ bool LLIMHandler::processNotification(const LLNotificationPtr& notification, boo
     }
     else
     {
-	    if(mChannel.isDead())
-	    {
-		    return false;
-	    }
+        if(mChannel.isDead())
+        {
+            return false;
+        }
 
-	    // arrange a channel on a screen
-	    if(!mChannel.get()->getVisible())
-	    {
-		    initChannel();
-	    }
+        // arrange a channel on a screen
+        if(!mChannel.get()->getVisible())
+        {
+            initChannel();
+        }
 
-	    LLSD substitutions = notification->getSubstitutions();
+        LLSD substitutions = notification->getSubstitutions();
 
-	    // According to comments in LLIMMgr::addMessage(), if we get message
-	    // from ourselves, the sender id is set to null. This fixes EXT-875.
-	    LLUUID avatar_id = substitutions["FROM_ID"].asUUID();
-	    if (avatar_id.isNull())
-		    avatar_id = gAgentID;
+        // According to comments in LLIMMgr::addMessage(), if we get message
+        // from ourselves, the sender id is set to null. This fixes EXT-875.
+        LLUUID avatar_id = substitutions["FROM_ID"].asUUID();
+        if (avatar_id.isNull())
+            avatar_id = gAgentID;
 
-	    LLToastIMPanel::Params im_p;
-	    im_p.notification = notification;
-	    im_p.avatar_id = avatar_id;
-	    im_p.from = substitutions["FROM"].asString();
-	    im_p.time = substitutions["TIME"].asString();
-	    im_p.message = substitutions["MESSAGE"].asString();
-	    im_p.session_id = substitutions["SESSION_ID"].asUUID();
+        LLToastIMPanel::Params im_p;
+        im_p.notification = notification;
+        im_p.avatar_id = avatar_id;
+        im_p.from = substitutions["FROM"].asString();
+        im_p.time = substitutions["TIME"].asString();
+        im_p.message = substitutions["MESSAGE"].asString();
+        im_p.session_id = substitutions["SESSION_ID"].asUUID();
 
-	    LLToastIMPanel* im_box = new LLToastIMPanel(im_p);
+        LLToastIMPanel* im_box = new LLToastIMPanel(im_p);
 
-	    LLToast::Params p;
-	    p.notif_id = notification->getID();
-	    p.session_id = im_p.session_id;
-	    p.notification = notification;
-	    p.panel = im_box;
-	    p.can_be_stored = false;
-	    LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
-	    if(channel)
-		    channel->addToast(p);
+        LLToast::Params p;
+        p.notif_id = notification->getID();
+        p.session_id = im_p.session_id;
+        p.notification = notification;
+        p.panel = im_box;
+        p.can_be_stored = false;
+        LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
+        if(channel)
+            channel->addToast(p);
     }
 
-	return false;
+    return false;
 }
 
 

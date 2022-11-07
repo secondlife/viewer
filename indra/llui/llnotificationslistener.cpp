@@ -88,39 +88,39 @@ LLNotificationsListener::~LLNotificationsListener()
 
 void LLNotificationsListener::requestAdd(const LLSD& event_data) const
 {
-	if(event_data.has("reply"))
-	{
-		LLSD payload(event_data["payload"]);
-		// copy reqid, if provided, to link response with request
-		payload["reqid"] = event_data["reqid"];
-		mNotifications.add(event_data["name"], 
-						   event_data["substitutions"], 
-						   payload,
-						   boost::bind(&LLNotificationsListener::NotificationResponder, 
-									   this, 
-									   event_data["reply"].asString(), 
-									   _1, _2
-									   )
-						   );
-	}
-	else
-	{
-		mNotifications.add(event_data["name"], 
-						   event_data["substitutions"], 
-						   event_data["payload"]);
-	}
+    if(event_data.has("reply"))
+    {
+        LLSD payload(event_data["payload"]);
+        // copy reqid, if provided, to link response with request
+        payload["reqid"] = event_data["reqid"];
+        mNotifications.add(event_data["name"], 
+                           event_data["substitutions"], 
+                           payload,
+                           boost::bind(&LLNotificationsListener::NotificationResponder, 
+                                       this, 
+                                       event_data["reply"].asString(), 
+                                       _1, _2
+                                       )
+                           );
+    }
+    else
+    {
+        mNotifications.add(event_data["name"], 
+                           event_data["substitutions"], 
+                           event_data["payload"]);
+    }
 }
 
 void LLNotificationsListener::NotificationResponder(const std::string& reply_pump, 
-										const LLSD& notification, 
-										const LLSD& response) const
+                                        const LLSD& notification, 
+                                        const LLSD& response) const
 {
-	LLSD response_event;
-	response_event["notification"] = notification;
-	response_event["response"] = response;
-	// surface reqid at top level of response for request/response protocol
-	response_event["reqid"] = notification["payload"]["reqid"];
-	LLEventPumps::getInstance()->obtain(reply_pump).post(response_event);
+    LLSD response_event;
+    response_event["notification"] = notification;
+    response_event["response"] = response;
+    // surface reqid at top level of response for request/response protocol
+    response_event["reqid"] = notification["payload"]["reqid"];
+    LLEventPumps::getInstance()->obtain(reply_pump).post(response_event);
 }
 
 void LLNotificationsListener::listChannels(const LLSD& params) const
@@ -192,11 +192,11 @@ void LLNotificationsListener::ignore(const LLSD& params) const
     if (params["name"].isDefined())
     {
         // ["name"] was passed: ignore just that notification
-		LLNotificationTemplatePtr templatep = mNotifications.getTemplate(params["name"]);
-		if (templatep)
-		{
-			templatep->mForm->setIgnored(ignore);
-		}
+        LLNotificationTemplatePtr templatep = mNotifications.getTemplate(params["name"]);
+        if (templatep)
+        {
+            templatep->mForm->setIgnored(ignore);
+        }
     }
     else
     {

@@ -25,8 +25,8 @@
 * $/LicenseInfo$
 */
 
-#ifndef	LL_DEADMANTIMER_H
-#define	LL_DEADMANTIMER_H
+#ifndef LL_DEADMANTIMER_H
+#define LL_DEADMANTIMER_H
 
 
 #include "linden_common.h"
@@ -78,137 +78,137 @@
 class LL_COMMON_API LLDeadmanTimer
 {
 public:
-	/// Public types
+    /// Public types
 
-	/// Low-level time type chosen for compatibility with
-	/// LLTimer::getCurrentClockCount() which is the basis
-	/// of time operations in this class.  This is likely
-	/// to change in a future version in a move to TSC-based
-	/// timing.
-	typedef U64 time_type;
-	
+    /// Low-level time type chosen for compatibility with
+    /// LLTimer::getCurrentClockCount() which is the basis
+    /// of time operations in this class.  This is likely
+    /// to change in a future version in a move to TSC-based
+    /// timing.
+    typedef U64 time_type;
+    
 public:
-	/// Construct and initialize an LLDeadmanTimer
-	///
-	/// @param horizon	Time, in seconds, after the last @see ringBell()
-	///                 call at which point the timer will consider itself
-	///					expired.
-	///
-	/// @param inc_cpu	If true, gather system and user cpu stats while
-	///					running the timer.  This does require more syscalls
-	///					during updates.  If false, cpu usage data isn't
-	///					collected and will be zero if queried.
-	LLDeadmanTimer(F64 horizon, bool inc_cpu);
+    /// Construct and initialize an LLDeadmanTimer
+    ///
+    /// @param horizon  Time, in seconds, after the last @see ringBell()
+    ///                 call at which point the timer will consider itself
+    ///                 expired.
+    ///
+    /// @param inc_cpu  If true, gather system and user cpu stats while
+    ///                 running the timer.  This does require more syscalls
+    ///                 during updates.  If false, cpu usage data isn't
+    ///                 collected and will be zero if queried.
+    LLDeadmanTimer(F64 horizon, bool inc_cpu);
 
-	~LLDeadmanTimer() 
-		{}
-	
+    ~LLDeadmanTimer() 
+        {}
+    
 private:
-	LLDeadmanTimer(const LLDeadmanTimer &);				// Not defined
-	void operator=(const LLDeadmanTimer &);				// Not defined
+    LLDeadmanTimer(const LLDeadmanTimer &);             // Not defined
+    void operator=(const LLDeadmanTimer &);             // Not defined
 
 public:
-	/// Get the current time.  Zero-basis for this time
-	/// representation is not defined and is different on
-	/// different platforms.  Do not attempt to compute
-	/// negative times relative to the first value returned,
-	/// there may not be enough 'front porch' on the range
-	/// to prevent wraparound.
-	///
-	/// Note:  Implementation is expected to change in a
-	/// future release as well.
-	///
-	static time_type getNow();
+    /// Get the current time.  Zero-basis for this time
+    /// representation is not defined and is different on
+    /// different platforms.  Do not attempt to compute
+    /// negative times relative to the first value returned,
+    /// there may not be enough 'front porch' on the range
+    /// to prevent wraparound.
+    ///
+    /// Note:  Implementation is expected to change in a
+    /// future release as well.
+    ///
+    static time_type getNow();
 
-	/// Begin timing.  If the timer is already active, it is reset
-	///	and timing begins now.
-	///
-	/// @param now		Current time as returned by @see
-	///					LLTimer::getCurrentClockCount().  If zero,
-	///					method will lookup current time.
-	///
-	void start(time_type now);
+    /// Begin timing.  If the timer is already active, it is reset
+    /// and timing begins now.
+    ///
+    /// @param now      Current time as returned by @see
+    ///                 LLTimer::getCurrentClockCount().  If zero,
+    ///                 method will lookup current time.
+    ///
+    void start(time_type now);
 
-	/// End timing.  Actively declare the end of the event independent
-	/// of the deadman's switch operation.  @see isExpired() will return
-	/// true and appropriate values will be returned.
-	///
-	/// @param now		Current time as returned by @see
-	///					LLTimer::getCurrentClockCount().  If zero,
-	///					method will lookup current time.
-	///
-	void stop(time_type now);
+    /// End timing.  Actively declare the end of the event independent
+    /// of the deadman's switch operation.  @see isExpired() will return
+    /// true and appropriate values will be returned.
+    ///
+    /// @param now      Current time as returned by @see
+    ///                 LLTimer::getCurrentClockCount().  If zero,
+    ///                 method will lookup current time.
+    ///
+    void stop(time_type now);
 
-	/// Declare that something interesting happened.  This has two
-	/// effects on an unexpired-timer.  1)  The expiration time
-	/// is extended for 'horizon' seconds after the 'now' value.
-	/// 2)  An internal counter associated with the event is incremented
-	/// by the @ref count parameter.  This count is returned via the
-	/// @see isExpired() method.
-	///
-	/// @param now		Current time as returned by @see
-	///					LLTimer::getCurrentClockCount().  If zero,
-	///					method will lookup current time.
-	///
-	/// @param count	Count of events to be associated with
-	///					this bell ringing.
-	///
-	void ringBell(time_type now, unsigned int count);
-	
-	/// Checks the status of the timer.  If the timer has expired,
-	/// also returns various timer-related stats.  Unlike ringBell(),
-	/// does not extend the horizon, it only checks for expiration.
-	///
-	/// @param now		Current time as returned by @see
-	///					LLTimer::getCurrentClockCount().  If zero,
-	///					method will lookup current time.
-	///
-	/// @param started	If expired, the starting time of the event is
-	///					returned to the caller via this reference.
-	///
-	/// @param stopped	If expired, the ending time of the event is
-	///					returned to the caller via this reference.
-	///					Ending time will be that provided in the
-	///					stop() method or the last ringBell() call
-	///					leading to expiration, whichever (stop() call
-	///					or notice of expiration) happened first.
-	///
-	/// @param count	If expired, the number of ringBell() calls
-	///					made prior to expiration.
-	///
-	/// @param user_cpu	Amount of CPU spent in user mode by the process
-	///					during the event.  Value in microseconds and will
-	///					read zero if not enabled by the constructor.
-	///
-	/// @param sys_cpu	Amount of CPU spent in system mode by the process.
-	///
-	/// @return			true if the timer has expired, false otherwise.
-	///					If true, it also returns the started,
-	///					stopped and count values otherwise these are
-	///					left unchanged.
-	///
-	bool isExpired(time_type now, F64 & started, F64 & stopped, U64 & count,
-				   U64 & user_cpu, U64 & sys_cpu);
+    /// Declare that something interesting happened.  This has two
+    /// effects on an unexpired-timer.  1)  The expiration time
+    /// is extended for 'horizon' seconds after the 'now' value.
+    /// 2)  An internal counter associated with the event is incremented
+    /// by the @ref count parameter.  This count is returned via the
+    /// @see isExpired() method.
+    ///
+    /// @param now      Current time as returned by @see
+    ///                 LLTimer::getCurrentClockCount().  If zero,
+    ///                 method will lookup current time.
+    ///
+    /// @param count    Count of events to be associated with
+    ///                 this bell ringing.
+    ///
+    void ringBell(time_type now, unsigned int count);
+    
+    /// Checks the status of the timer.  If the timer has expired,
+    /// also returns various timer-related stats.  Unlike ringBell(),
+    /// does not extend the horizon, it only checks for expiration.
+    ///
+    /// @param now      Current time as returned by @see
+    ///                 LLTimer::getCurrentClockCount().  If zero,
+    ///                 method will lookup current time.
+    ///
+    /// @param started  If expired, the starting time of the event is
+    ///                 returned to the caller via this reference.
+    ///
+    /// @param stopped  If expired, the ending time of the event is
+    ///                 returned to the caller via this reference.
+    ///                 Ending time will be that provided in the
+    ///                 stop() method or the last ringBell() call
+    ///                 leading to expiration, whichever (stop() call
+    ///                 or notice of expiration) happened first.
+    ///
+    /// @param count    If expired, the number of ringBell() calls
+    ///                 made prior to expiration.
+    ///
+    /// @param user_cpu Amount of CPU spent in user mode by the process
+    ///                 during the event.  Value in microseconds and will
+    ///                 read zero if not enabled by the constructor.
+    ///
+    /// @param sys_cpu  Amount of CPU spent in system mode by the process.
+    ///
+    /// @return         true if the timer has expired, false otherwise.
+    ///                 If true, it also returns the started,
+    ///                 stopped and count values otherwise these are
+    ///                 left unchanged.
+    ///
+    bool isExpired(time_type now, F64 & started, F64 & stopped, U64 & count,
+                   U64 & user_cpu, U64 & sys_cpu);
 
-	/// Identical to the six-arugment form except it does without the
-	/// CPU time return if the caller isn't interested in it.
-	bool isExpired(time_type now, F64 & started, F64 & stopped, U64 & count);
+    /// Identical to the six-arugment form except it does without the
+    /// CPU time return if the caller isn't interested in it.
+    bool isExpired(time_type now, F64 & started, F64 & stopped, U64 & count);
 
 protected:
-	time_type					mHorizon;
-	bool						mActive;
-	bool						mDone;
-	time_type					mStarted;
-	time_type					mExpires;
-	time_type					mStopped;
-	time_type					mCount;
+    time_type                   mHorizon;
+    bool                        mActive;
+    bool                        mDone;
+    time_type                   mStarted;
+    time_type                   mExpires;
+    time_type                   mStopped;
+    time_type                   mCount;
 
-	const bool					mIncCPU;		// Include CPU metrics in timer
-	LLProcInfo::time_type		mUStartCPU;
-	LLProcInfo::time_type		mUEndCPU;
-	LLProcInfo::time_type		mSStartCPU;
-	LLProcInfo::time_type		mSEndCPU;
+    const bool                  mIncCPU;        // Include CPU metrics in timer
+    LLProcInfo::time_type       mUStartCPU;
+    LLProcInfo::time_type       mUEndCPU;
+    LLProcInfo::time_type       mSStartCPU;
+    LLProcInfo::time_type       mSEndCPU;
 };
-	
+    
 
-#endif	// LL_DEADMANTIMER_H
+#endif  // LL_DEADMANTIMER_H

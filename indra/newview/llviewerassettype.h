@@ -36,14 +36,14 @@
 class LLViewerAssetType : public LLAssetType
 {
 public:
-	// Generate a good default description. You may want to add a verb
-	// or agent name after this depending on your application.
-	static void 				generateDescriptionFor(LLViewerAssetType::EType asset_type,
-													   std::string& description);
-	static EDragAndDropType   	lookupDragAndDropType(EType asset_type);
+    // Generate a good default description. You may want to add a verb
+    // or agent name after this depending on your application.
+    static void                 generateDescriptionFor(LLViewerAssetType::EType asset_type,
+                                                       std::string& description);
+    static EDragAndDropType     lookupDragAndDropType(EType asset_type);
 protected:
-	LLViewerAssetType() {}
-	~LLViewerAssetType() {}
+    LLViewerAssetType() {}
+    ~LLViewerAssetType() {}
 };
 
 #endif // LL_LLVIEWERASSETTYPE_H

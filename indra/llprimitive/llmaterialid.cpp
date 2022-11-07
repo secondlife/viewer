@@ -37,33 +37,33 @@ const LLMaterialID LLMaterialID::null;
 
 LLMaterialID::LLMaterialID()
 {
-	clear();
+    clear();
 }
 
 LLMaterialID::LLMaterialID(const LLSD& pMaterialID)
 {
-	llassert(pMaterialID.isBinary());
-	parseFromBinary(pMaterialID.asBinary());
+    llassert(pMaterialID.isBinary());
+    parseFromBinary(pMaterialID.asBinary());
 }
 
 LLMaterialID::LLMaterialID(const LLSD::Binary& pMaterialID)
 {
-	parseFromBinary(pMaterialID);
+    parseFromBinary(pMaterialID);
 }
 
 LLMaterialID::LLMaterialID(const void* pMemory)
 {
-	set(pMemory);
+    set(pMemory);
 }
 
 LLMaterialID::LLMaterialID(const LLMaterialID& pOtherMaterialID)
 {
-	copyFromOtherMaterialID(pOtherMaterialID);
+    copyFromOtherMaterialID(pOtherMaterialID);
 }
 
 LLMaterialID::LLMaterialID(const LLUUID& lluid)
 {
-	set(lluid.mData);
+    set(lluid.mData);
 }
 
 LLMaterialID::~LLMaterialID()
@@ -72,117 +72,117 @@ LLMaterialID::~LLMaterialID()
 
 bool LLMaterialID::operator == (const LLMaterialID& pOtherMaterialID) const
 {
-	return (compareToOtherMaterialID(pOtherMaterialID) == 0);
+    return (compareToOtherMaterialID(pOtherMaterialID) == 0);
 }
 
 bool LLMaterialID::operator != (const LLMaterialID& pOtherMaterialID) const
 {
-	return (compareToOtherMaterialID(pOtherMaterialID) != 0);
+    return (compareToOtherMaterialID(pOtherMaterialID) != 0);
 }
 
 bool LLMaterialID::operator < (const LLMaterialID& pOtherMaterialID) const
 {
-	return (compareToOtherMaterialID(pOtherMaterialID) < 0);
+    return (compareToOtherMaterialID(pOtherMaterialID) < 0);
 }
 
 bool LLMaterialID::operator <= (const LLMaterialID& pOtherMaterialID) const
 {
-	return (compareToOtherMaterialID(pOtherMaterialID) <= 0);
+    return (compareToOtherMaterialID(pOtherMaterialID) <= 0);
 }
 
 bool LLMaterialID::operator > (const LLMaterialID& pOtherMaterialID) const
 {
-	return (compareToOtherMaterialID(pOtherMaterialID) > 0);
+    return (compareToOtherMaterialID(pOtherMaterialID) > 0);
 }
 
 bool LLMaterialID::operator >= (const LLMaterialID& pOtherMaterialID) const
 {
-	return (compareToOtherMaterialID(pOtherMaterialID) >= 0);
+    return (compareToOtherMaterialID(pOtherMaterialID) >= 0);
 }
 
 LLMaterialID& LLMaterialID::operator = (const LLMaterialID& pOtherMaterialID)
 {
-	copyFromOtherMaterialID(pOtherMaterialID);
-	return (*this);
+    copyFromOtherMaterialID(pOtherMaterialID);
+    return (*this);
 }
 
 bool LLMaterialID::isNull() const
 {
-	return (compareToOtherMaterialID(LLMaterialID::null) == 0);
+    return (compareToOtherMaterialID(LLMaterialID::null) == 0);
 }
 
 const U8* LLMaterialID::get() const
 {
-	return mID;
+    return mID;
 }
 
 void LLMaterialID::set(const void* pMemory)
 {
-	llassert(pMemory != NULL);
+    llassert(pMemory != NULL);
 
-	// assumes that the required size of memory is available
-	memcpy(mID, pMemory, MATERIAL_ID_SIZE * sizeof(U8));
+    // assumes that the required size of memory is available
+    memcpy(mID, pMemory, MATERIAL_ID_SIZE * sizeof(U8));
 }
 
 void LLMaterialID::clear()
 {
-	memset(mID, 0, MATERIAL_ID_SIZE * sizeof(U8));
+    memset(mID, 0, MATERIAL_ID_SIZE * sizeof(U8));
 }
 
 LLSD LLMaterialID::asLLSD() const
 {
-	LLSD::Binary materialIDBinary;
+    LLSD::Binary materialIDBinary;
 
-	materialIDBinary.resize(MATERIAL_ID_SIZE * sizeof(U8));
-	memcpy(materialIDBinary.data(), mID, MATERIAL_ID_SIZE * sizeof(U8));
+    materialIDBinary.resize(MATERIAL_ID_SIZE * sizeof(U8));
+    memcpy(materialIDBinary.data(), mID, MATERIAL_ID_SIZE * sizeof(U8));
 
-	LLSD materialID = materialIDBinary;
-	return materialID;
+    LLSD materialID = materialIDBinary;
+    return materialID;
 }
 
 std::string LLMaterialID::asString() const
 {
-	std::string materialIDString;
-	for (unsigned int i = 0U; i < static_cast<unsigned int>(MATERIAL_ID_SIZE / sizeof(U32)); ++i)
-	{
-		if (i != 0U)
-		{
-			materialIDString += "-";
-		}
-		const U32 *value = reinterpret_cast<const U32*>(&get()[i * sizeof(U32)]);
-		materialIDString += llformat("%08x", *value);
-	}
-	return materialIDString;
+    std::string materialIDString;
+    for (unsigned int i = 0U; i < static_cast<unsigned int>(MATERIAL_ID_SIZE / sizeof(U32)); ++i)
+    {
+        if (i != 0U)
+        {
+            materialIDString += "-";
+        }
+        const U32 *value = reinterpret_cast<const U32*>(&get()[i * sizeof(U32)]);
+        materialIDString += llformat("%08x", *value);
+    }
+    return materialIDString;
 }
 
 std::ostream& operator<<(std::ostream& s, const LLMaterialID &material_id)
 {
-	s << material_id.asString();
-	return s;
+    s << material_id.asString();
+    return s;
 }
 
 
 void LLMaterialID::parseFromBinary (const LLSD::Binary& pMaterialID)
 {
-	llassert(pMaterialID.size() == (MATERIAL_ID_SIZE * sizeof(U8)));
-	memcpy(mID, &pMaterialID[0], MATERIAL_ID_SIZE * sizeof(U8));
+    llassert(pMaterialID.size() == (MATERIAL_ID_SIZE * sizeof(U8)));
+    memcpy(mID, &pMaterialID[0], MATERIAL_ID_SIZE * sizeof(U8));
 }
 
 void LLMaterialID::copyFromOtherMaterialID(const LLMaterialID& pOtherMaterialID)
 {
-	memcpy(mID, pOtherMaterialID.get(), MATERIAL_ID_SIZE * sizeof(U8));
+    memcpy(mID, pOtherMaterialID.get(), MATERIAL_ID_SIZE * sizeof(U8));
 }
 
 int LLMaterialID::compareToOtherMaterialID(const LLMaterialID& pOtherMaterialID) const
 {
-	int retVal = 0;
+    int retVal = 0;
 
-	for (unsigned int i = 0U; (retVal == 0) && (i < static_cast<unsigned int>(MATERIAL_ID_SIZE / sizeof(U32))); ++i)
-	{
-		const U32 *thisValue = reinterpret_cast<const U32*>(&get()[i * sizeof(U32)]);
-		const U32 *otherValue = reinterpret_cast<const U32*>(&pOtherMaterialID.get()[i * sizeof(U32)]);
-		retVal = ((*thisValue < *otherValue) ? -1 : ((*thisValue > *otherValue) ? 1 : 0));
-	}
+    for (unsigned int i = 0U; (retVal == 0) && (i < static_cast<unsigned int>(MATERIAL_ID_SIZE / sizeof(U32))); ++i)
+    {
+        const U32 *thisValue = reinterpret_cast<const U32*>(&get()[i * sizeof(U32)]);
+        const U32 *otherValue = reinterpret_cast<const U32*>(&pOtherMaterialID.get()[i * sizeof(U32)]);
+        retVal = ((*thisValue < *otherValue) ? -1 : ((*thisValue > *otherValue) ? 1 : 0));
+    }
 
-	return retVal;
+    return retVal;
 }

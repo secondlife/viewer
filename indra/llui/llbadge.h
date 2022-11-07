@@ -49,38 +49,38 @@ class LLUICtrlFactory;
 
 namespace LLRelPos
 {
-	enum Location
-	{
-		CENTER	= 0,
+    enum Location
+    {
+        CENTER  = 0,
 
-		LEFT	= (1 << 0),
-		RIGHT	= (1 << 1),
+        LEFT    = (1 << 0),
+        RIGHT   = (1 << 1),
 
-		TOP		= (1 << 2),
-		BOTTOM	= (1 << 3),
+        TOP     = (1 << 2),
+        BOTTOM  = (1 << 3),
 
-		BOTTOM_LEFT		= (BOTTOM | LEFT),
-		BOTTOM_RIGHT	= (BOTTOM | RIGHT),
+        BOTTOM_LEFT     = (BOTTOM | LEFT),
+        BOTTOM_RIGHT    = (BOTTOM | RIGHT),
 
-		TOP_LEFT		= (TOP | LEFT),
-		TOP_RIGHT		= (TOP | RIGHT),
-	};
+        TOP_LEFT        = (TOP | LEFT),
+        TOP_RIGHT       = (TOP | RIGHT),
+    };
 
-	inline bool IsBottom(Location relPos)	{ return (relPos & BOTTOM) == BOTTOM; }
-	inline bool IsCenter(Location relPos)	{ return (relPos == CENTER); }
-	inline bool IsLeft(Location relPos)		{ return (relPos & LEFT) == LEFT; }
-	inline bool IsRight(Location relPos)	{ return (relPos & RIGHT) == RIGHT; }
-	inline bool IsTop(Location relPos)		{ return (relPos & TOP) == TOP; }
+    inline bool IsBottom(Location relPos)   { return (relPos & BOTTOM) == BOTTOM; }
+    inline bool IsCenter(Location relPos)   { return (relPos == CENTER); }
+    inline bool IsLeft(Location relPos)     { return (relPos & LEFT) == LEFT; }
+    inline bool IsRight(Location relPos)    { return (relPos & RIGHT) == RIGHT; }
+    inline bool IsTop(Location relPos)      { return (relPos & TOP) == TOP; }
 }
 
 // NOTE: This needs to occur before Optional<LLRelPos::Location> declaration for proper compilation.
 namespace LLInitParam
 {
-	template<>
-	struct TypeValues<LLRelPos::Location> : public TypeValuesHelper<LLRelPos::Location>
-	{
-		static void declareValues();
-	};
+    template<>
+    struct TypeValues<LLRelPos::Location> : public TypeValuesHelper<LLRelPos::Location>
+    {
+        static void declareValues();
+    };
 }
 
 //
@@ -91,82 +91,82 @@ class LLBadge
 : public LLUICtrl
 {
 public:
-	struct Params 
-	: public LLInitParam::Block<Params, LLUICtrl::Params>
-	{
-		Optional< LLHandle<LLView> >	owner;	// Mandatory in code but not in xml
-		
-		Optional< LLUIImage* >			border_image;
-		Optional< LLUIColor >			border_color;
+    struct Params 
+    : public LLInitParam::Block<Params, LLUICtrl::Params>
+    {
+        Optional< LLHandle<LLView> >    owner;  // Mandatory in code but not in xml
+        
+        Optional< LLUIImage* >          border_image;
+        Optional< LLUIColor >           border_color;
 
-		Optional< LLUIImage* >			image;
-		Optional< LLUIColor >			image_color;
-		
-		Optional< std::string >			label;
-		Optional< LLUIColor >			label_color;
+        Optional< LLUIImage* >          image;
+        Optional< LLUIColor >           image_color;
+        
+        Optional< std::string >         label;
+        Optional< LLUIColor >           label_color;
 
-		Optional< S32 >					label_offset_horiz;
-		Optional< S32 >					label_offset_vert;
+        Optional< S32 >                 label_offset_horiz;
+        Optional< S32 >                 label_offset_vert;
 
-		Optional< LLRelPos::Location >	location;
-		Optional< S32 >					location_offset_hcenter;
-		Optional< S32 >					location_offset_vcenter;
-		Optional< U32 >					location_percent_hcenter;
-		Optional< U32 >					location_percent_vcenter;
+        Optional< LLRelPos::Location >  location;
+        Optional< S32 >                 location_offset_hcenter;
+        Optional< S32 >                 location_offset_vcenter;
+        Optional< U32 >                 location_percent_hcenter;
+        Optional< U32 >                 location_percent_vcenter;
 
-		Optional< F32 >					padding_horiz;
-		Optional< F32 >					padding_vert;
-		
-		Params();
-		
-		bool equals(const Params&) const;
-	};
-	
+        Optional< F32 >                 padding_horiz;
+        Optional< F32 >                 padding_vert;
+        
+        Params();
+        
+        bool equals(const Params&) const;
+    };
+    
 protected:
-	friend class LLUICtrlFactory;
-	LLBadge(const Params& p);
+    friend class LLUICtrlFactory;
+    LLBadge(const Params& p);
 
 public:
 
-	~LLBadge();
+    ~LLBadge();
 
-	bool				addToView(LLView * view);
+    bool                addToView(LLView * view);
 
-	virtual void		draw();
+    virtual void        draw();
 
-	const std::string	getLabel() const { return wstring_to_utf8str(mLabel); }
-	void				setLabel( const LLStringExplicit& label);
+    const std::string   getLabel() const { return wstring_to_utf8str(mLabel); }
+    void                setLabel( const LLStringExplicit& label);
 
-	void				setDrawAtParentTop(bool draw_at_top) { mDrawAtParentTop = draw_at_top;}
+    void                setDrawAtParentTop(bool draw_at_top) { mDrawAtParentTop = draw_at_top;}
 
 private:
-	LLPointer< LLUIImage >	mBorderImage;
-	LLUIColor				mBorderColor;
+    LLPointer< LLUIImage >  mBorderImage;
+    LLUIColor               mBorderColor;
 
-	const LLFontGL*			mGLFont;
-	
-	LLPointer< LLUIImage >	mImage;
-	LLUIColor				mImageColor;
-	
-	LLUIString				mLabel;
-	LLUIColor				mLabelColor;
+    const LLFontGL*         mGLFont;
+    
+    LLPointer< LLUIImage >  mImage;
+    LLUIColor               mImageColor;
+    
+    LLUIString              mLabel;
+    LLUIColor               mLabelColor;
 
-	S32						mLabelOffsetHoriz;
-	S32						mLabelOffsetVert;
+    S32                     mLabelOffsetHoriz;
+    S32                     mLabelOffsetVert;
 
-	LLRelPos::Location		mLocation;
-	S32						mLocationOffsetHCenter;
-	S32						mLocationOffsetVCenter;
-	F32						mLocationPercentHCenter;
-	F32						mLocationPercentVCenter;
-	
-	LLHandle< LLView >		mOwner;
+    LLRelPos::Location      mLocation;
+    S32                     mLocationOffsetHCenter;
+    S32                     mLocationOffsetVCenter;
+    F32                     mLocationPercentHCenter;
+    F32                     mLocationPercentVCenter;
+    
+    LLHandle< LLView >      mOwner;
 
-	F32						mPaddingHoriz;
-	F32						mPaddingVert;
+    F32                     mPaddingHoriz;
+    F32                     mPaddingVert;
 
-	LLScrollContainer*		mParentScroller;
-	bool					mDrawAtParentTop;
+    LLScrollContainer*      mParentScroller;
+    bool                    mDrawAtParentTop;
 };
 
 // Build time optimization, generate once in .cpp file

@@ -32,30 +32,30 @@
 class LLPopupView : public LLPanel
 {
 public:
-	LLPopupView(const Params& p = LLPanel::Params());
-	~LLPopupView();
+    LLPopupView(const Params& p = LLPanel::Params());
+    ~LLPopupView();
 
-	/*virtual*/ void draw();
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMiddleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMiddleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleRightMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ BOOL handleToolTip(S32 x, S32 y, MASK mask);
+    /*virtual*/ void draw();
+    /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleMiddleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleMiddleMouseUp(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleRightMouseUp(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
+    /*virtual*/ BOOL handleToolTip(S32 x, S32 y, MASK mask);
 
-	void addPopup(LLView* popup);
-	void removePopup(LLView* popup);
-	void clearPopups();
+    void addPopup(LLView* popup);
+    void removePopup(LLView* popup);
+    void clearPopups();
 
-	typedef std::list<LLHandle<LLView> > popup_list_t;
-	popup_list_t getCurrentPopups() { return mPopups; }
+    typedef std::list<LLHandle<LLView> > popup_list_t;
+    popup_list_t getCurrentPopups() { return mPopups; }
 
 private:
-	BOOL handleMouseEvent(boost::function<BOOL(LLView*, S32, S32)>, boost::function<bool(LLView*)>, S32 x, S32 y, bool close_popups);
-	popup_list_t mPopups;
+    BOOL handleMouseEvent(boost::function<BOOL(LLView*, S32, S32)>, boost::function<bool(LLView*)>, S32 x, S32 y, bool close_popups);
+    popup_list_t mPopups;
 };
 #endif //LL_LLROOTVIEW_H

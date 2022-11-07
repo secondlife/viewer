@@ -38,30 +38,30 @@ class LLTextBox;
 class LLFloaterMap : public LLFloater
 {
 public:
-	LLFloaterMap(const LLSD& key);
-	static LLFloaterMap* getInstance();
-	virtual ~LLFloaterMap();
-	
-	/*virtual*/ BOOL 	postBuild();
-	/*virtual*/ BOOL	handleDoubleClick( S32 x, S32 y, MASK mask );
-	/*virtual*/ void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-	/*virtual*/ void	draw();
+    LLFloaterMap(const LLSD& key);
+    static LLFloaterMap* getInstance();
+    virtual ~LLFloaterMap();
+    
+    /*virtual*/ BOOL    postBuild();
+    /*virtual*/ BOOL    handleDoubleClick( S32 x, S32 y, MASK mask );
+    /*virtual*/ void    reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    /*virtual*/ void    draw();
 
 private:
-	void setDirectionPos( LLTextBox* text_box, F32 rotation );
-	void updateMinorDirections();
+    void setDirectionPos( LLTextBox* text_box, F32 rotation );
+    void updateMinorDirections();
 
-	LLTextBox*		mTextBoxEast;
-	LLTextBox*		mTextBoxNorth;
-	LLTextBox*		mTextBoxWest;
-	LLTextBox*		mTextBoxSouth;
+    LLTextBox*      mTextBoxEast;
+    LLTextBox*      mTextBoxNorth;
+    LLTextBox*      mTextBoxWest;
+    LLTextBox*      mTextBoxSouth;
 
-	LLTextBox*		mTextBoxSouthEast;
-	LLTextBox*		mTextBoxNorthEast;
-	LLTextBox*		mTextBoxNorthWest;
-	LLTextBox*		mTextBoxSouthWest;
-	
-	LLNetMap*		mMap;
+    LLTextBox*      mTextBoxSouthEast;
+    LLTextBox*      mTextBoxNorthEast;
+    LLTextBox*      mTextBoxNorthWest;
+    LLTextBox*      mTextBoxSouthWest;
+    
+    LLNetMap*       mMap;
 };
 
 #endif  // LL_LLFLOATERMAP_H

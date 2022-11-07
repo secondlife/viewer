@@ -35,24 +35,24 @@ class LLSD;
 class LLPathfindingLinksetList : public LLPathfindingObjectList
 {
 public:
-	LLPathfindingLinksetList();
-	LLPathfindingLinksetList(const LLSD& pLinksetListData);
-	virtual ~LLPathfindingLinksetList();
+    LLPathfindingLinksetList();
+    LLPathfindingLinksetList(const LLSD& pLinksetListData);
+    virtual ~LLPathfindingLinksetList();
 
-	LLSD encodeObjectFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
-	LLSD encodeTerrainFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
+    LLSD encodeObjectFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
+    LLSD encodeTerrainFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
 
-	bool isShowUnmodifiablePhantomWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
-	bool isShowPhantomToggleWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
-	bool isShowCannotBeVolumeWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
+    bool isShowUnmodifiablePhantomWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
+    bool isShowPhantomToggleWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
+    bool isShowCannotBeVolumeWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
 
-	void determinePossibleStates(BOOL &pCanBeWalkable, BOOL &pCanBeStaticObstacle, BOOL &pCanBeDynamicObstacle,
-		BOOL &pCanBeMaterialVolume, BOOL &pCanBeExclusionVolume, BOOL &pCanBeDynamicPhantom) const;
+    void determinePossibleStates(BOOL &pCanBeWalkable, BOOL &pCanBeStaticObstacle, BOOL &pCanBeDynamicObstacle,
+        BOOL &pCanBeMaterialVolume, BOOL &pCanBeExclusionVolume, BOOL &pCanBeDynamicPhantom) const;
 
 protected:
 
 private:
-	void parseLinksetListData(const LLSD& pLinksetListData);
+    void parseLinksetListData(const LLSD& pLinksetListData);
 };
 
 #endif // LL_LLPATHFINDINGLINKSETLIST_H

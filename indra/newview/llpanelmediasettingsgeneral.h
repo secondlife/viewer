@@ -41,60 +41,60 @@ class LLFloaterMediaSettings;
 class LLPanelMediaSettingsGeneral : public LLPanel
 {
 public:
-	LLPanelMediaSettingsGeneral();
-	~LLPanelMediaSettingsGeneral();
-	
-	// XXX TODO: put these into a common parent class?
-	// Hook that the floater calls before applying changes from the panel
-	void preApply();
-	// Function that asks the panel to fill in values associated with the panel
-	// 'include_tentative' means fill in tentative values as well, otherwise do not
-	void getValues(LLSD &fill_me_in, bool include_tentative = true);
-	// Hook that the floater calls after applying changes to the panel
-	void postApply();
-	
-	BOOL postBuild();
-	/*virtual*/ void draw();
-	/*virtual*/ void onClose(bool app_quitting);
+    LLPanelMediaSettingsGeneral();
+    ~LLPanelMediaSettingsGeneral();
+    
+    // XXX TODO: put these into a common parent class?
+    // Hook that the floater calls before applying changes from the panel
+    void preApply();
+    // Function that asks the panel to fill in values associated with the panel
+    // 'include_tentative' means fill in tentative values as well, otherwise do not
+    void getValues(LLSD &fill_me_in, bool include_tentative = true);
+    // Hook that the floater calls after applying changes to the panel
+    void postApply();
+    
+    BOOL postBuild();
+    /*virtual*/ void draw();
+    /*virtual*/ void onClose(bool app_quitting);
 
-	void setParent( LLFloaterMediaSettings* parent );
-	static void initValues( void* userdata, const LLSD& media_settings ,bool editable);
-	static void clearValues( void* userdata, bool editable, bool update_preview = true);
-	
-	// Navigates the current selected face to the Home URL.
-	// If 'only_if_current_is_empty' is "true", it only performs
-	// the operation if: 1) the current URL is empty, and 2) auto play is true.
-	bool navigateHomeSelectedFace(bool only_if_current_is_empty);
-	
-	void updateMediaPreview();
+    void setParent( LLFloaterMediaSettings* parent );
+    static void initValues( void* userdata, const LLSD& media_settings ,bool editable);
+    static void clearValues( void* userdata, bool editable, bool update_preview = true);
+    
+    // Navigates the current selected face to the Home URL.
+    // If 'only_if_current_is_empty' is "true", it only performs
+    // the operation if: 1) the current URL is empty, and 2) auto play is true.
+    bool navigateHomeSelectedFace(bool only_if_current_is_empty);
+    
+    void updateMediaPreview();
 
-	const std::string getHomeUrl();
-	
+    const std::string getHomeUrl();
+    
 protected:
-	LLFloaterMediaSettings* mParent;
-	bool mMediaEditable;
+    LLFloaterMediaSettings* mParent;
+    bool mMediaEditable;
 
 private:
-	void updateCurrentUrl();
-	
-	static void onBtnResetCurrentUrl(LLUICtrl* ctrl, void *userdata);
-	static void onCommitHomeURL(LLUICtrl* ctrl, void *userdata );
-	
-	static bool isMultiple();
+    void updateCurrentUrl();
+    
+    static void onBtnResetCurrentUrl(LLUICtrl* ctrl, void *userdata);
+    static void onCommitHomeURL(LLUICtrl* ctrl, void *userdata );
+    
+    static bool isMultiple();
 
-	void checkHomeUrlPassesWhitelist();
+    void checkHomeUrlPassesWhitelist();
 
-	LLCheckBoxCtrl* mAutoLoop;
-	LLCheckBoxCtrl* mFirstClick;
-	LLCheckBoxCtrl* mAutoZoom;
-	LLCheckBoxCtrl* mAutoPlay;
-	LLCheckBoxCtrl* mAutoScale;
-	LLSpinCtrl* mWidthPixels;
-	LLSpinCtrl* mHeightPixels;
-	LLLineEditor* mHomeURL;
-	LLTextBox* mCurrentURL;
-	LLMediaCtrl* mPreviewMedia;
-	LLTextBox* mFailWhiteListText;
+    LLCheckBoxCtrl* mAutoLoop;
+    LLCheckBoxCtrl* mFirstClick;
+    LLCheckBoxCtrl* mAutoZoom;
+    LLCheckBoxCtrl* mAutoPlay;
+    LLCheckBoxCtrl* mAutoScale;
+    LLSpinCtrl* mWidthPixels;
+    LLSpinCtrl* mHeightPixels;
+    LLLineEditor* mHomeURL;
+    LLTextBox* mCurrentURL;
+    LLMediaCtrl* mPreviewMedia;
+    LLTextBox* mFailWhiteListText;
 };
 
 #endif  // LL_LLPANELMEDIAMEDIASETTINGSGENERAL_H

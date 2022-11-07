@@ -37,15 +37,15 @@
  */
 class LLPanelTipToast : public LLToastPanel
 {
-	LOG_CLASS(LLPanelTipToast);
+    LOG_CLASS(LLPanelTipToast);
 public:
-	LLPanelTipToast(const LLNotificationPtr& notification): LLToastPanel(notification) {}
-	virtual BOOL postBuild();
+    LLPanelTipToast(const LLNotificationPtr& notification): LLToastPanel(notification) {}
+    virtual BOOL postBuild();
 private:
-	void onMessageTextClick();
-	void onPanelClick(S32 x, S32 y, MASK mask);
+    void onMessageTextClick();
+    void onPanelClick(S32 x, S32 y, MASK mask);
 
-	LLUICtrl* mMessageText;
+    LLUICtrl* mMessageText;
 };
 
 #endif /* LL_PANELTOASTTIP_H */

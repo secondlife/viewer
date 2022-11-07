@@ -44,48 +44,48 @@ typedef boost::shared_ptr<LLPathfindingNavMesh> LLPathfindingNavMeshPtr;
 class LLPathfindingNavMesh
 {
 public:
-	typedef enum {
-		kNavMeshRequestUnknown,
-		kNavMeshRequestWaiting,
-		kNavMeshRequestChecking,
-		kNavMeshRequestNeedsUpdate,
-		kNavMeshRequestStarted,
-		kNavMeshRequestCompleted,
-		kNavMeshRequestNotEnabled,
-		kNavMeshRequestError
-	} ENavMeshRequestStatus;
+    typedef enum {
+        kNavMeshRequestUnknown,
+        kNavMeshRequestWaiting,
+        kNavMeshRequestChecking,
+        kNavMeshRequestNeedsUpdate,
+        kNavMeshRequestStarted,
+        kNavMeshRequestCompleted,
+        kNavMeshRequestNotEnabled,
+        kNavMeshRequestError
+    } ENavMeshRequestStatus;
 
-	typedef boost::function<void (ENavMeshRequestStatus, const LLPathfindingNavMeshStatus &, const LLSD::Binary &)>         navmesh_callback_t;
-	typedef boost::signals2::signal<void (ENavMeshRequestStatus, const LLPathfindingNavMeshStatus &, const LLSD::Binary &)> navmesh_signal_t;
-	typedef boost::signals2::connection                                                                                     navmesh_slot_t;
+    typedef boost::function<void (ENavMeshRequestStatus, const LLPathfindingNavMeshStatus &, const LLSD::Binary &)>         navmesh_callback_t;
+    typedef boost::signals2::signal<void (ENavMeshRequestStatus, const LLPathfindingNavMeshStatus &, const LLSD::Binary &)> navmesh_signal_t;
+    typedef boost::signals2::connection                                                                                     navmesh_slot_t;
 
-	LLPathfindingNavMesh(const LLUUID &pRegionUUID);
-	virtual ~LLPathfindingNavMesh();
+    LLPathfindingNavMesh(const LLUUID &pRegionUUID);
+    virtual ~LLPathfindingNavMesh();
 
-	navmesh_slot_t registerNavMeshListener(navmesh_callback_t pNavMeshCallback);
+    navmesh_slot_t registerNavMeshListener(navmesh_callback_t pNavMeshCallback);
 
-	bool hasNavMeshVersion(const LLPathfindingNavMeshStatus &pNavMeshStatus) const;
+    bool hasNavMeshVersion(const LLPathfindingNavMeshStatus &pNavMeshStatus) const;
 
-	void handleNavMeshWaitForRegionLoad();
-	void handleNavMeshCheckVersion();
-	void handleRefresh(const LLPathfindingNavMeshStatus &pNavMeshStatus);
-	void handleNavMeshNewVersion(const LLPathfindingNavMeshStatus &pNavMeshStatus);
-	void handleNavMeshStart(const LLPathfindingNavMeshStatus &pNavMeshStatus);
-	void handleNavMeshResult(const LLSD &pContent, U32 pNavMeshVersion);
-	void handleNavMeshNotEnabled();
-	void handleNavMeshError();
-	void handleNavMeshError(U32 pNavMeshVersion);
+    void handleNavMeshWaitForRegionLoad();
+    void handleNavMeshCheckVersion();
+    void handleRefresh(const LLPathfindingNavMeshStatus &pNavMeshStatus);
+    void handleNavMeshNewVersion(const LLPathfindingNavMeshStatus &pNavMeshStatus);
+    void handleNavMeshStart(const LLPathfindingNavMeshStatus &pNavMeshStatus);
+    void handleNavMeshResult(const LLSD &pContent, U32 pNavMeshVersion);
+    void handleNavMeshNotEnabled();
+    void handleNavMeshError();
+    void handleNavMeshError(U32 pNavMeshVersion);
 
 protected:
 
 private:
-	void setRequestStatus(ENavMeshRequestStatus pNavMeshRequestStatus);
-	void sendStatus();
+    void setRequestStatus(ENavMeshRequestStatus pNavMeshRequestStatus);
+    void sendStatus();
 
-	LLPathfindingNavMeshStatus mNavMeshStatus;
-	ENavMeshRequestStatus      mNavMeshRequestStatus;
-	navmesh_signal_t           mNavMeshSignal;
-	LLSD::Binary               mNavMeshData;
+    LLPathfindingNavMeshStatus mNavMeshStatus;
+    ENavMeshRequestStatus      mNavMeshRequestStatus;
+    navmesh_signal_t           mNavMeshSignal;
+    LLSD::Binary               mNavMeshData;
 };
 
 #endif // LL_LLPATHFINDINGNAVMESH_H

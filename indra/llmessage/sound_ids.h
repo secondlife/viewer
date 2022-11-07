@@ -42,12 +42,12 @@ extern const LLUUID SND_BOING;
 extern const LLUUID SND_OBJECT_CREATE;
 
 //  Different bird sounds for different states 
-extern const LLUUID SND_CHIRP;				//  Flying random chirp
-extern const LLUUID SND_CHIRP2;			//  Spooked by user 
-extern const LLUUID SND_CHIRP3;			//  Spooked by object
-extern const LLUUID SND_CHIRP4;			//  Chasing other bird 
-extern const LLUUID SND_CHIRP5;			//  Hopping random chirp
-extern const LLUUID SND_CHIRPDEAD;			//  Hit by grenade - dead!
+extern const LLUUID SND_CHIRP;              //  Flying random chirp
+extern const LLUUID SND_CHIRP2;         //  Spooked by user 
+extern const LLUUID SND_CHIRP3;         //  Spooked by object
+extern const LLUUID SND_CHIRP4;         //  Chasing other bird 
+extern const LLUUID SND_CHIRP5;         //  Hopping random chirp
+extern const LLUUID SND_CHIRPDEAD;          //  Hit by grenade - dead!
 
 
 extern const LLUUID SND_MUNCH;

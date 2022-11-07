@@ -31,31 +31,31 @@
 #include "lllineeditor.h"
 #include "llpanel.h"
 #include "llparcelselection.h"
-#include "lluifwd.h"	// widget pointer types
+#include "lluifwd.h"    // widget pointer types
 
 class LLPanelLandAudio
-	:	public LLPanel
+    :   public LLPanel
 {
 public:
-	LLPanelLandAudio(LLSafeHandle<LLParcelSelection>& parcelp);
-	/*virtual*/ ~LLPanelLandAudio();
-	/*virtual*/ BOOL postBuild();
-	void refresh();
+    LLPanelLandAudio(LLSafeHandle<LLParcelSelection>& parcelp);
+    /*virtual*/ ~LLPanelLandAudio();
+    /*virtual*/ BOOL postBuild();
+    void refresh();
 
 private:
-	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
+    static void onCommitAny(LLUICtrl* ctrl, void *userdata);
 
 private:
-	LLCheckBoxCtrl* mCheckSoundLocal;
-	LLCheckBoxCtrl* mCheckParcelEnableVoice;
-	LLCheckBoxCtrl* mCheckEstateDisabledVoice;
-	LLCheckBoxCtrl* mCheckParcelVoiceLocal;	
-	LLLineEditor*	mMusicURLEdit;
-	LLCheckBoxCtrl* mCheckAVSoundAny;
-	LLCheckBoxCtrl* mCheckAVSoundGroup;
+    LLCheckBoxCtrl* mCheckSoundLocal;
+    LLCheckBoxCtrl* mCheckParcelEnableVoice;
+    LLCheckBoxCtrl* mCheckEstateDisabledVoice;
+    LLCheckBoxCtrl* mCheckParcelVoiceLocal; 
+    LLLineEditor*   mMusicURLEdit;
+    LLCheckBoxCtrl* mCheckAVSoundAny;
+    LLCheckBoxCtrl* mCheckAVSoundGroup;
     LLCheckBoxCtrl* mCheckObscureMOAP;
 
-	LLSafeHandle<LLParcelSelection>&	mParcel;
+    LLSafeHandle<LLParcelSelection>&    mParcel;
 };
 
 #endif

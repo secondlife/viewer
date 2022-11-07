@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_REQUEST_QUEUE_H_
-#define	_LLCORE_HTTP_REQUEST_QUEUE_H_
+#ifndef _LLCORE_HTTP_REQUEST_QUEUE_H_
+#define _LLCORE_HTTP_REQUEST_QUEUE_H_
 
 
 #include <vector>
@@ -50,94 +50,94 @@ class HttpOperation;
 class HttpRequestQueue : public LLCoreInt::RefCounted
 {
 protected:
-	/// Caller acquires a Refcount on construction
-	HttpRequestQueue();
+    /// Caller acquires a Refcount on construction
+    HttpRequestQueue();
 
 protected:
-	virtual ~HttpRequestQueue();						// Use release()
+    virtual ~HttpRequestQueue();                        // Use release()
 
 private:
-	HttpRequestQueue(const HttpRequestQueue &);			// Not defined
-	void operator=(const HttpRequestQueue &);			// Not defined
+    HttpRequestQueue(const HttpRequestQueue &);         // Not defined
+    void operator=(const HttpRequestQueue &);           // Not defined
 
 public:
     typedef boost::shared_ptr<HttpOperation> opPtr_t;
 
-	static void init();
-	static void term();
-	
-	/// Threading:  callable by any thread once inited.
-	inline static HttpRequestQueue * instanceOf()
-		{
-			return sInstance;
-		}
-	
+    static void init();
+    static void term();
+    
+    /// Threading:  callable by any thread once inited.
+    inline static HttpRequestQueue * instanceOf()
+        {
+            return sInstance;
+        }
+    
 public:
     typedef std::vector<opPtr_t> OpContainer;
 
-	/// Insert an object at the back of the request queue.
-	///
-	/// Caller must provide one refcount to the queue which takes
-	/// possession of the count on success.
-	///
-	/// @return			Standard status.  On failure, caller
-	///					must dispose of the operation with
-	///					an explicit release() call.
-	///
-	/// Threading:  callable by any thread.
+    /// Insert an object at the back of the request queue.
+    ///
+    /// Caller must provide one refcount to the queue which takes
+    /// possession of the count on success.
+    ///
+    /// @return         Standard status.  On failure, caller
+    ///                 must dispose of the operation with
+    ///                 an explicit release() call.
+    ///
+    /// Threading:  callable by any thread.
     HttpStatus addOp(const opPtr_t &op);
 
-	/// Return the operation on the front of the queue.  If
-	/// the queue is empty and @wait is false, call returns
-	/// immediately and a NULL pointer is returned.  If true,
-	/// caller will sleep until explicitly woken.  Wakeups
-	/// can be spurious and callers must expect NULL pointers
-	/// even if waiting is indicated.
-	///
-	/// Caller acquires reference count any returned operation
-	///
-	/// Threading:  callable by any thread.
+    /// Return the operation on the front of the queue.  If
+    /// the queue is empty and @wait is false, call returns
+    /// immediately and a NULL pointer is returned.  If true,
+    /// caller will sleep until explicitly woken.  Wakeups
+    /// can be spurious and callers must expect NULL pointers
+    /// even if waiting is indicated.
+    ///
+    /// Caller acquires reference count any returned operation
+    ///
+    /// Threading:  callable by any thread.
     opPtr_t fetchOp(bool wait);
 
-	/// Return all queued requests to caller.  The @ops argument
-	/// should be empty when called and will be swap()'d with
-	/// current contents.  Handling of the @wait argument is
-	/// identical to @fetchOp.
-	///
-	/// Caller acquires reference count on each returned operation
-	///
-	/// Threading:  callable by any thread.
-	void fetchAll(bool wait, OpContainer & ops);
+    /// Return all queued requests to caller.  The @ops argument
+    /// should be empty when called and will be swap()'d with
+    /// current contents.  Handling of the @wait argument is
+    /// identical to @fetchOp.
+    ///
+    /// Caller acquires reference count on each returned operation
+    ///
+    /// Threading:  callable by any thread.
+    void fetchAll(bool wait, OpContainer & ops);
 
-	/// Wake any sleeping threads.  Normal queuing operations
-	/// won't require this but it may be necessary for termination
-	/// requests.
-	///
-	/// Threading:  callable by any thread.
-	void wakeAll();
+    /// Wake any sleeping threads.  Normal queuing operations
+    /// won't require this but it may be necessary for termination
+    /// requests.
+    ///
+    /// Threading:  callable by any thread.
+    void wakeAll();
 
-	/// Disallow further request queuing.  Callers to @addOp will
-	/// get a failure status (LLCORE, HE_SHUTTING_DOWN).  Callers
-	/// to @fetchAll or @fetchOp will get requests that are on the
-	/// queue but the calls will no longer wait.  Instead they'll
-	/// return immediately.  Also wakes up all sleepers to send
-	/// them on their way.
-	///
-	/// Threading:  callable by any thread.
-	bool stopQueue();
-	
+    /// Disallow further request queuing.  Callers to @addOp will
+    /// get a failure status (LLCORE, HE_SHUTTING_DOWN).  Callers
+    /// to @fetchAll or @fetchOp will get requests that are on the
+    /// queue but the calls will no longer wait.  Instead they'll
+    /// return immediately.  Also wakes up all sleepers to send
+    /// them on their way.
+    ///
+    /// Threading:  callable by any thread.
+    bool stopQueue();
+    
 protected:
-	static HttpRequestQueue *			sInstance;
-	
+    static HttpRequestQueue *           sInstance;
+    
 protected:
-	OpContainer							mQueue;
-	LLCoreInt::HttpMutex				mQueueMutex;
-	LLCoreInt::HttpConditionVariable	mQueueCV;
-	bool								mQueueStopped;
-	
+    OpContainer                         mQueue;
+    LLCoreInt::HttpMutex                mQueueMutex;
+    LLCoreInt::HttpConditionVariable    mQueueCV;
+    bool                                mQueueStopped;
+    
 }; // end class HttpRequestQueue
 
 }  // end namespace LLCore
 
 
-#endif	// _LLCORE_HTTP_REQUEST_QUEUE_H_
+#endif  // _LLCORE_HTTP_REQUEST_QUEUE_H_

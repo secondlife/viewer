@@ -31,15 +31,15 @@
 
 namespace LLTransUtil
 {
-	/**
-	 * @brief Parses the xml file that holds the strings. Used once on startup
-	 * @param xml_filename Filename to parse
-	 * @param default_args Set of strings (expected to be in the file) to use as default replacement args, e.g. "SECOND_LIFE"
-	 * @returns true if the file was parsed successfully, true if something went wrong
-	 */
-	bool parseStrings(const std::string& xml_filename, const std::set<std::string>& default_args);
+    /**
+     * @brief Parses the xml file that holds the strings. Used once on startup
+     * @param xml_filename Filename to parse
+     * @param default_args Set of strings (expected to be in the file) to use as default replacement args, e.g. "SECOND_LIFE"
+     * @returns true if the file was parsed successfully, true if something went wrong
+     */
+    bool parseStrings(const std::string& xml_filename, const std::set<std::string>& default_args);
 
-	bool parseLanguageStrings(const std::string& xml_filename);
+    bool parseLanguageStrings(const std::string& xml_filename);
 };
 
 #endif

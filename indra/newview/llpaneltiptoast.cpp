@@ -30,34 +30,34 @@
 
 BOOL LLPanelTipToast::postBuild()
 {
-	mMessageText= findChild<LLUICtrl>("message");
+    mMessageText= findChild<LLUICtrl>("message");
 
-	if (mMessageText != NULL)
-	{
-		mMessageText->setMouseUpCallback(boost::bind(&LLPanelTipToast::onMessageTextClick,this));
-		setMouseUpCallback(boost::bind(&LLPanelTipToast::onPanelClick, this, _2, _3, _4));
-	}
-	else
-	{
-		llassert(!"Can't find child 'message' text box.");
-		return FALSE;
-	}
+    if (mMessageText != NULL)
+    {
+        mMessageText->setMouseUpCallback(boost::bind(&LLPanelTipToast::onMessageTextClick,this));
+        setMouseUpCallback(boost::bind(&LLPanelTipToast::onPanelClick, this, _2, _3, _4));
+    }
+    else
+    {
+        llassert(!"Can't find child 'message' text box.");
+        return FALSE;
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
 void LLPanelTipToast::onMessageTextClick()
 {
-	// notify parent toast about need hide
-	LLSD info;
-	info["action"] = "hide_toast";
-	notifyParent(info);
+    // notify parent toast about need hide
+    LLSD info;
+    info["action"] = "hide_toast";
+    notifyParent(info);
 }
 
 void LLPanelTipToast::onPanelClick(S32 x, S32 y, MASK mask)
 {
-	if (!mMessageText->getRect().pointInRect(x, y))
-	{
-		onMessageTextClick();
-	}
+    if (!mMessageText->getRect().pointInRect(x, y))
+    {
+        onMessageTextClick();
+    }
 }

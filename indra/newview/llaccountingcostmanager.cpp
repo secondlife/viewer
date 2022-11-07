@@ -38,7 +38,7 @@
 
 //===============================================================================
 LLAccountingCostManager::LLAccountingCostManager()
-{	
+{   
 
 }
 
@@ -168,34 +168,34 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
 
 //===============================================================================
 void LLAccountingCostManager::fetchCosts( eSelectionType selectionType,
-										  const std::string& url,
-										  const LLHandle<LLAccountingCostObserver>& observer_handle )
+                                          const std::string& url,
+                                          const LLHandle<LLAccountingCostObserver>& observer_handle )
 {
-	// Invoking system must have already determined capability availability
-	if ( !url.empty() )
-	{
+    // Invoking system must have already determined capability availability
+    if ( !url.empty() )
+    {
         std::string coroname = 
             LLCoros::instance().launch("LLAccountingCostManager::accountingCostCoro",
             boost::bind(&LLAccountingCostManager::accountingCostCoro, this, url, selectionType, observer_handle));
         LL_DEBUGS() << coroname << " with  url '" << url << LL_ENDL;
 
-	}
-	else
-	{
-		//url was empty - warn & continue
-		LL_WARNS()<<"Supplied url is empty "<<LL_ENDL;
-		mObjectList.clear();
-		mPendingObjectQuota.clear();
-	}
+    }
+    else
+    {
+        //url was empty - warn & continue
+        LL_WARNS()<<"Supplied url is empty "<<LL_ENDL;
+        mObjectList.clear();
+        mPendingObjectQuota.clear();
+    }
 }
 //===============================================================================
 void LLAccountingCostManager::addObject( const LLUUID& objectID )
 {
-	mObjectList.insert( objectID );
+    mObjectList.insert( objectID );
 }
 //===============================================================================
 void LLAccountingCostManager::removePendingObject( const LLUUID& objectID )
 {
-	mPendingObjectQuota.erase( objectID );
+    mPendingObjectQuota.erase( objectID );
 }
 //===============================================================================

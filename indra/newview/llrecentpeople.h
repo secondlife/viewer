@@ -50,73 +50,73 @@ class LLDate;
  */
 class LLRecentPeople: public LLSingleton<LLRecentPeople>, public LLOldEvents::LLSimpleListener
 {
-	LLSINGLETON_EMPTY_CTOR(LLRecentPeople);
-	LOG_CLASS(LLRecentPeople);
+    LLSINGLETON_EMPTY_CTOR(LLRecentPeople);
+    LOG_CLASS(LLRecentPeople);
 public:
-	typedef std::map <LLUUID, F64> id_to_time_map_t;
-	typedef boost::signals2::signal<void ()> signal_t;
-	
-	/**
-	 * Add specified avatar to the list if it's not there already.
-	 *
-	 * @param id avatar to add.
-	 *
-	 * @param userdata additional information about last interaction party.
-	 *				   For example session id can be added.
-	 *
-	 * @return false if the avatar is in the list already, true otherwise
-	 */
-	bool add(const LLUUID& id, const LLSD& userdata = LLSD().with("date", LLDate::now()));
+    typedef std::map <LLUUID, F64> id_to_time_map_t;
+    typedef boost::signals2::signal<void ()> signal_t;
+    
+    /**
+     * Add specified avatar to the list if it's not there already.
+     *
+     * @param id avatar to add.
+     *
+     * @param userdata additional information about last interaction party.
+     *                 For example session id can be added.
+     *
+     * @return false if the avatar is in the list already, true otherwise
+     */
+    bool add(const LLUUID& id, const LLSD& userdata = LLSD().with("date", LLDate::now()));
 
-	/**
-	 * @param id avatar to search.
-	 * @return true if the avatar is in the list, false otherwise.
-	 */
-	bool contains(const LLUUID& id) const;
+    /**
+     * @param id avatar to search.
+     * @return true if the avatar is in the list, false otherwise.
+     */
+    bool contains(const LLUUID& id) const;
 
-	/**
-	 * Get the whole list.
-	 * 
-	 * @param result where to put the result.
-	 */
-	void get(uuid_vec_t& result) const;
+    /**
+     * Get the whole list.
+     * 
+     * @param result where to put the result.
+     */
+    void get(uuid_vec_t& result) const;
 
-	/**
-	 * Returns last interaction time with specified participant
-	 *
-	 */
-	const LLDate getDate(const LLUUID& id) const;
+    /**
+     * Returns last interaction time with specified participant
+     *
+     */
+    const LLDate getDate(const LLUUID& id) const;
 
-	/**
-	 * Returns data about specified participant
-	 *
-	 * @param id identifier of specific participant
-	 */
-	const LLSD& getData(const LLUUID& id) const;
+    /**
+     * Returns data about specified participant
+     *
+     * @param id identifier of specific participant
+     */
+    const LLSD& getData(const LLUUID& id) const;
 
-	/**
-	 * Set callback to be called when the list changed.
-	 * 
-	 * Multiple callbacks can be set.
-	 * 
-	 * @return no connection; use boost::bind + boost::signals2::trackable to disconnect slots.
-	 */
-	void setChangedCallback(const signal_t::slot_type& cb) { mChangedSignal.connect(cb); }
+    /**
+     * Set callback to be called when the list changed.
+     * 
+     * Multiple callbacks can be set.
+     * 
+     * @return no connection; use boost::bind + boost::signals2::trackable to disconnect slots.
+     */
+    void setChangedCallback(const signal_t::slot_type& cb) { mChangedSignal.connect(cb); }
 
-	/**
-	 * LLSimpleListener interface.
-	 */
-	/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+    /**
+     * LLSimpleListener interface.
+     */
+    /*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 
-	void updateAvatarsArrivalTime(uuid_vec_t& uuids);
-	F32 getArrivalTimeByID(const LLUUID& id);
+    void updateAvatarsArrivalTime(uuid_vec_t& uuids);
+    F32 getArrivalTimeByID(const LLUUID& id);
 
 private:
 
-	typedef std::map<LLUUID, LLSD> recent_people_t;
-	recent_people_t		mPeople;
-	signal_t			mChangedSignal;
-	id_to_time_map_t	mAvatarsArrivalTime;
+    typedef std::map<LLUUID, LLSD> recent_people_t;
+    recent_people_t     mPeople;
+    signal_t            mChangedSignal;
+    id_to_time_map_t    mAvatarsArrivalTime;
 };
 
 #endif // LL_LLRECENTPEOPLE_H

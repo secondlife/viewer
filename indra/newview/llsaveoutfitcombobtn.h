@@ -36,19 +36,19 @@ class LLButton;
  */
 class LLSaveOutfitComboBtn
 {
-	LOG_CLASS(LLSaveOutfitComboBtn);
+    LOG_CLASS(LLSaveOutfitComboBtn);
 public:
-	LLSaveOutfitComboBtn(LLPanel* parent, bool saveAsDefaultAction = false);
+    LLSaveOutfitComboBtn(LLPanel* parent, bool saveAsDefaultAction = false);
 
-	void showSaveMenu();
-	void saveOutfit(bool as_new = false);
-	void setMenuItemEnabled(const std::string& item, bool enabled);
-	void setSaveBtnEnabled(bool enabled);
+    void showSaveMenu();
+    void saveOutfit(bool as_new = false);
+    void setMenuItemEnabled(const std::string& item, bool enabled);
+    void setSaveBtnEnabled(bool enabled);
 
 private:
-	bool mSaveAsDefaultAction;
-	LLPanel* mParent;
-	LLToggleableMenu* mSaveMenu;
+    bool mSaveAsDefaultAction;
+    LLPanel* mParent;
+    LLToggleableMenu* mSaveMenu;
 };
 
 #endif // LL_LLSAVEOUTFITCOMBOBTN_H

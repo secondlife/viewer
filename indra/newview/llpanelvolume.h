@@ -46,34 +46,34 @@ class LLVOVolume;
 class LLPanelVolume : public LLPanel
 {
 public:
-	LLPanelVolume();
-	virtual ~LLPanelVolume();
+    LLPanelVolume();
+    virtual ~LLPanelVolume();
 
-	virtual void	draw();
-	virtual void 	clearCtrls();
+    virtual void    draw();
+    virtual void    clearCtrls();
 
-	virtual BOOL	postBuild();
+    virtual BOOL    postBuild();
 
-	void			refresh();
+    void            refresh();
 
-	void			sendIsLight();
-	void			sendIsFlexible();
+    void            sendIsLight();
+    void            sendIsFlexible();
 
-	static bool		precommitValidate(const LLSD& data);
-	
-	static void 	onCommitIsLight(		LLUICtrl* ctrl, void* userdata);
-	static void 	onCommitLight(			LLUICtrl* ctrl, void* userdata);
-	void 			onCommitIsFlexible(		LLUICtrl* ctrl, void* userdata);
-	static void 	onCommitFlexible(		LLUICtrl* ctrl, void* userdata);
+    static bool     precommitValidate(const LLSD& data);
+    
+    static void     onCommitIsLight(        LLUICtrl* ctrl, void* userdata);
+    static void     onCommitLight(          LLUICtrl* ctrl, void* userdata);
+    void            onCommitIsFlexible(     LLUICtrl* ctrl, void* userdata);
+    static void     onCommitFlexible(       LLUICtrl* ctrl, void* userdata);
     void            onCommitAnimatedMeshCheckbox(LLUICtrl* ctrl, void* userdata);
-	static void     onCommitPhysicsParam(       LLUICtrl* ctrl, void* userdata);
-	static void 	onCommitMaterial(		LLUICtrl* ctrl, void* userdata);
+    static void     onCommitPhysicsParam(       LLUICtrl* ctrl, void* userdata);
+    static void     onCommitMaterial(       LLUICtrl* ctrl, void* userdata);
 
-	void		onLightCancelColor(const LLSD& data);
-	void		onLightSelectColor(const LLSD& data);
+    void        onLightCancelColor(const LLSD& data);
+    void        onLightSelectColor(const LLSD& data);
 
-	void		onLightCancelTexture(const LLSD& data); 
-	void		onLightSelectTexture(const LLSD& data);
+    void        onLightCancelTexture(const LLSD& data); 
+    void        onLightSelectTexture(const LLSD& data);
 
     static void    setLightTextureID(const LLUUID &asset_id, const LLUUID &item_id, LLVOVolume* volobjp);
 
@@ -86,51 +86,51 @@ public:
     bool        menuEnableItem(const LLSD& userdata);
 
 protected:
-	void			getState();
-	void			refreshCost();
+    void            getState();
+    void            refreshCost();
 
 protected:
-	void            sendPhysicsShapeType(LLUICtrl* ctrl, void* userdata);
-	void            sendPhysicsGravity(LLUICtrl* ctrl, void* userdata);
-	void            sendPhysicsFriction(LLUICtrl* ctrl, void* userdata);
-	void            sendPhysicsRestitution(LLUICtrl* ctrl, void* userdata);
-	void            sendPhysicsDensity(LLUICtrl* ctrl, void* userdata);
+    void            sendPhysicsShapeType(LLUICtrl* ctrl, void* userdata);
+    void            sendPhysicsGravity(LLUICtrl* ctrl, void* userdata);
+    void            sendPhysicsFriction(LLUICtrl* ctrl, void* userdata);
+    void            sendPhysicsRestitution(LLUICtrl* ctrl, void* userdata);
+    void            sendPhysicsDensity(LLUICtrl* ctrl, void* userdata);
 
-	void            handleResponseChangeToFlexible(const LLSD &pNotification, const LLSD &pResponse);
+    void            handleResponseChangeToFlexible(const LLSD &pNotification, const LLSD &pResponse);
 
 /*
-	LLTextBox*		mLabelSelectSingleMessage;
-	// Light
-	LLCheckBoxCtrl*	mCheckLight;
-	LLCheckBoxCtrl*	mCheckFlexible1D;
-	LLTextBox*		mLabelColor;
-	LLColorSwatchCtrl* mLightColorSwatch;
-	LLSpinCtrl*		mLightIntensity;
-	LLSpinCtrl*		mLightRadius;
-	LLSpinCtrl*		mLightFalloff;
-	LLSpinCtrl*		mLightCutoff;
-	// Flexibile
-	LLSpinCtrl*		mSpinSections;
-	LLSpinCtrl*		mSpinGravity;
-	LLSpinCtrl*		mSpinTension;
-	LLSpinCtrl*		mSpinFriction;
-	LLSpinCtrl*		mSpinWind;
-	LLSpinCtrl*		mSpinForce[3];
+    LLTextBox*      mLabelSelectSingleMessage;
+    // Light
+    LLCheckBoxCtrl* mCheckLight;
+    LLCheckBoxCtrl* mCheckFlexible1D;
+    LLTextBox*      mLabelColor;
+    LLColorSwatchCtrl* mLightColorSwatch;
+    LLSpinCtrl*     mLightIntensity;
+    LLSpinCtrl*     mLightRadius;
+    LLSpinCtrl*     mLightFalloff;
+    LLSpinCtrl*     mLightCutoff;
+    // Flexibile
+    LLSpinCtrl*     mSpinSections;
+    LLSpinCtrl*     mSpinGravity;
+    LLSpinCtrl*     mSpinTension;
+    LLSpinCtrl*     mSpinFriction;
+    LLSpinCtrl*     mSpinWind;
+    LLSpinCtrl*     mSpinForce[3];
 */
 
-	S32			mComboMaterialItemCount;
-	LLComboBox*		mComboMaterial;
-	
+    S32         mComboMaterialItemCount;
+    LLComboBox*     mComboMaterial;
+    
 
-	LLColor4		mLightSavedColor;
-	LLPointer<LLViewerObject> mObject;
-	LLPointer<LLViewerObject> mRootObject;
+    LLColor4        mLightSavedColor;
+    LLPointer<LLViewerObject> mObject;
+    LLPointer<LLViewerObject> mRootObject;
 
-	LLComboBox*     mComboPhysicsShapeType;
-	LLSpinCtrl*     mSpinPhysicsGravity;
-	LLSpinCtrl*     mSpinPhysicsFriction;
-	LLSpinCtrl*     mSpinPhysicsDensity;
-	LLSpinCtrl*     mSpinPhysicsRestitution;
+    LLComboBox*     mComboPhysicsShapeType;
+    LLSpinCtrl*     mSpinPhysicsGravity;
+    LLSpinCtrl*     mSpinPhysicsFriction;
+    LLSpinCtrl*     mSpinPhysicsDensity;
+    LLSpinCtrl*     mSpinPhysicsRestitution;
 
     LLMenuButton*   mMenuClipboardFeatures;
     LLMenuButton*   mMenuClipboardLight;

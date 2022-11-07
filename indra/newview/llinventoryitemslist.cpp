@@ -44,93 +44,93 @@ LLInventoryItemsList::Params::Params()
 {}
 
 LLInventoryItemsList::LLInventoryItemsList(const LLInventoryItemsList::Params& p)
-:	LLFlatListViewEx(p)
-,	mRefreshState(REFRESH_COMPLETE)
-,	mForceRefresh(false)
+:   LLFlatListViewEx(p)
+,   mRefreshState(REFRESH_COMPLETE)
+,   mForceRefresh(false)
 {
-	// TODO: mCommitOnSelectionChange is set to "false" in LLFlatListView
-	// but reset to true in all derived classes. This settings might need to
-	// be added to LLFlatListView::Params() and/or set to "true" by default.
-	setCommitOnSelectionChange(true);
+    // TODO: mCommitOnSelectionChange is set to "false" in LLFlatListView
+    // but reset to true in all derived classes. This settings might need to
+    // be added to LLFlatListView::Params() and/or set to "true" by default.
+    setCommitOnSelectionChange(true);
 
-	setNoFilteredItemsMsg(LLTrans::getString("InventoryNoMatchingItems"));
+    setNoFilteredItemsMsg(LLTrans::getString("InventoryNoMatchingItems"));
 
-	gIdleCallbacks.addFunction(idle, this);
+    gIdleCallbacks.addFunction(idle, this);
 }
 
 // virtual
 LLInventoryItemsList::~LLInventoryItemsList()
 {
-	gIdleCallbacks.deleteFunction(idle, this);
+    gIdleCallbacks.deleteFunction(idle, this);
 }
 
 void LLInventoryItemsList::refreshList(const LLInventoryModel::item_array_t item_array)
 {
     getIDs().clear();
-	LLInventoryModel::item_array_t::const_iterator it = item_array.begin();
-	for( ; item_array.end() != it; ++it)
-	{
-		getIDs().push_back((*it)->getUUID());
-	}
+    LLInventoryModel::item_array_t::const_iterator it = item_array.begin();
+    for( ; item_array.end() != it; ++it)
+    {
+        getIDs().push_back((*it)->getUUID());
+    }
     mRefreshState = REFRESH_ALL;
 }
 
 boost::signals2::connection LLInventoryItemsList::setRefreshCompleteCallback(const commit_signal_t::slot_type& cb)
 {
-	return mRefreshCompleteSignal.connect(cb);
+    return mRefreshCompleteSignal.connect(cb);
 }
 
 bool LLInventoryItemsList::selectItemByValue(const LLSD& value, bool select)
 {
-	if (!LLFlatListView::selectItemByValue(value, select) && !value.isUndefined())
-	{
-		mSelectTheseIDs.push_back(value);
-		return false;
-	}
-	return true;
+    if (!LLFlatListView::selectItemByValue(value, select) && !value.isUndefined())
+    {
+        mSelectTheseIDs.push_back(value);
+        return false;
+    }
+    return true;
 }
 
 void LLInventoryItemsList::updateSelection()
 {
-	if(mSelectTheseIDs.empty()) return;
+    if(mSelectTheseIDs.empty()) return;
 
-	std::vector<LLSD> cur;
-	getValues(cur);
+    std::vector<LLSD> cur;
+    getValues(cur);
 
-	for(std::vector<LLSD>::const_iterator cur_id_it = cur.begin(); cur_id_it != cur.end() && !mSelectTheseIDs.empty(); ++cur_id_it)
-	{
-		uuid_vec_t::iterator select_ids_it = std::find(mSelectTheseIDs.begin(), mSelectTheseIDs.end(), *cur_id_it);
-		if(select_ids_it != mSelectTheseIDs.end())
-		{
-			selectItemByUUID(*select_ids_it);
-			mSelectTheseIDs.erase(select_ids_it);
-		}
-	}
+    for(std::vector<LLSD>::const_iterator cur_id_it = cur.begin(); cur_id_it != cur.end() && !mSelectTheseIDs.empty(); ++cur_id_it)
+    {
+        uuid_vec_t::iterator select_ids_it = std::find(mSelectTheseIDs.begin(), mSelectTheseIDs.end(), *cur_id_it);
+        if(select_ids_it != mSelectTheseIDs.end())
+        {
+            selectItemByUUID(*select_ids_it);
+            mSelectTheseIDs.erase(select_ids_it);
+        }
+    }
 
-	scrollToShowFirstSelectedItem();
-	mSelectTheseIDs.clear();
+    scrollToShowFirstSelectedItem();
+    mSelectTheseIDs.clear();
 }
 
 void LLInventoryItemsList::doIdle()
 {
-	if (mRefreshState == REFRESH_COMPLETE) return;
+    if (mRefreshState == REFRESH_COMPLETE) return;
 
-	if (isInVisibleChain() || mForceRefresh )
-	{
-		refresh();
+    if (isInVisibleChain() || mForceRefresh )
+    {
+        refresh();
 
-		mRefreshCompleteSignal(this, LLSD());
-	}
+        mRefreshCompleteSignal(this, LLSD());
+    }
 }
 
 //static
 void LLInventoryItemsList::idle(void* user_data)
 {
-	LLInventoryItemsList* self = static_cast<LLInventoryItemsList*>(user_data);
-	if ( self )
-	{	// Do the real idle
-		self->doIdle();
-	}
+    LLInventoryItemsList* self = static_cast<LLInventoryItemsList*>(user_data);
+    if ( self )
+    {   // Do the real idle
+        self->doIdle();
+    }
 }
 
 void LLInventoryItemsList::refresh()
@@ -262,20 +262,20 @@ void LLInventoryItemsList::refresh()
 }
 
 void LLInventoryItemsList::computeDifference(
-	const uuid_vec_t& vnew,
-	uuid_vec_t& vadded,
-	uuid_vec_t& vremoved)
+    const uuid_vec_t& vnew,
+    uuid_vec_t& vadded,
+    uuid_vec_t& vremoved)
 {
-	uuid_vec_t vcur;
-	{
-		std::vector<LLSD> vcur_values;
-		getValues(vcur_values);
+    uuid_vec_t vcur;
+    {
+        std::vector<LLSD> vcur_values;
+        getValues(vcur_values);
 
-		for (size_t i=0; i<vcur_values.size(); i++)
-			vcur.push_back(vcur_values[i].asUUID());
-	}
+        for (size_t i=0; i<vcur_values.size(); i++)
+            vcur.push_back(vcur_values[i].asUUID());
+    }
 
-	LLCommonUtils::computeDifference(vnew, vcur, vadded, vremoved);
+    LLCommonUtils::computeDifference(vnew, vcur, vadded, vremoved);
 }
 
 LLPanel* LLInventoryItemsList::createNewItem(LLViewerInventoryItem* item)

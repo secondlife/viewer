@@ -40,82 +40,82 @@
 
 namespace MarketplaceErrorCodes
 {
-	enum eCode
-	{
-		IMPORT_DONE = 200,
-		IMPORT_PROCESSING = 202,
-		IMPORT_REDIRECT = 302,
-		IMPORT_BAD_REQUEST = 400,
-		IMPORT_AUTHENTICATION_ERROR = 401,
-		IMPORT_FORBIDDEN = 403,
-		IMPORT_NOT_FOUND = 404,
-		IMPORT_DONE_WITH_ERRORS = 409,
-		IMPORT_JOB_FAILED = 410,
-		IMPORT_JOB_TIMEOUT = 499,
-		IMPORT_SERVER_SITE_DOWN = 500,
-		IMPORT_SERVER_API_DISABLED = 503,
-	};
+    enum eCode
+    {
+        IMPORT_DONE = 200,
+        IMPORT_PROCESSING = 202,
+        IMPORT_REDIRECT = 302,
+        IMPORT_BAD_REQUEST = 400,
+        IMPORT_AUTHENTICATION_ERROR = 401,
+        IMPORT_FORBIDDEN = 403,
+        IMPORT_NOT_FOUND = 404,
+        IMPORT_DONE_WITH_ERRORS = 409,
+        IMPORT_JOB_FAILED = 410,
+        IMPORT_JOB_TIMEOUT = 499,
+        IMPORT_SERVER_SITE_DOWN = 500,
+        IMPORT_SERVER_API_DISABLED = 503,
+    };
 }
 
 namespace MarketplaceStatusCodes
 {
-	enum sCode
-	{
-		MARKET_PLACE_NOT_INITIALIZED = 0,
-		MARKET_PLACE_INITIALIZING = 1,
-		MARKET_PLACE_CONNECTION_FAILURE = 2,
-		MARKET_PLACE_NOT_MERCHANT = 3,
-		MARKET_PLACE_MERCHANT = 4,
+    enum sCode
+    {
+        MARKET_PLACE_NOT_INITIALIZED = 0,
+        MARKET_PLACE_INITIALIZING = 1,
+        MARKET_PLACE_CONNECTION_FAILURE = 2,
+        MARKET_PLACE_NOT_MERCHANT = 3,
+        MARKET_PLACE_MERCHANT = 4,
         MARKET_PLACE_NOT_MIGRATED_MERCHANT = 5,
         MARKET_PLACE_MIGRATED_MERCHANT = 6
-	};
+    };
 }
 
 namespace MarketplaceFetchCodes
 {
-	enum sCode
-	{
-		MARKET_FETCH_NOT_DONE = 0,
-		MARKET_FETCH_LOADING = 1,
-		MARKET_FETCH_FAILED = 2,
-		MARKET_FETCH_DONE = 3
-	};
+    enum sCode
+    {
+        MARKET_FETCH_NOT_DONE = 0,
+        MARKET_FETCH_LOADING = 1,
+        MARKET_FETCH_FAILED = 2,
+        MARKET_FETCH_DONE = 3
+    };
 }
 
 
 class LLMarketplaceInventoryImporter
-	: public LLSingleton<LLMarketplaceInventoryImporter>
+    : public LLSingleton<LLMarketplaceInventoryImporter>
 {
-	LLSINGLETON(LLMarketplaceInventoryImporter);
+    LLSINGLETON(LLMarketplaceInventoryImporter);
 public:
-	static void update();
+    static void update();
 
-	typedef boost::signals2::signal<void (bool)> status_changed_signal_t;
-	typedef boost::signals2::signal<void (U32, const LLSD&)> status_report_signal_t;
+    typedef boost::signals2::signal<void (bool)> status_changed_signal_t;
+    typedef boost::signals2::signal<void (U32, const LLSD&)> status_report_signal_t;
 
-	boost::signals2::connection setInitializationErrorCallback(const status_report_signal_t::slot_type& cb);
-	boost::signals2::connection setStatusChangedCallback(const status_changed_signal_t::slot_type& cb);
-	boost::signals2::connection setStatusReportCallback(const status_report_signal_t::slot_type& cb);
-	
-	void initialize();
-	bool triggerImport();
-	bool isImportInProgress() const { return mImportInProgress; }
-	bool isInitialized() const { return mInitialized; }
-	U32 getMarketPlaceStatus() const { return mMarketPlaceStatus; }
-	
+    boost::signals2::connection setInitializationErrorCallback(const status_report_signal_t::slot_type& cb);
+    boost::signals2::connection setStatusChangedCallback(const status_changed_signal_t::slot_type& cb);
+    boost::signals2::connection setStatusReportCallback(const status_report_signal_t::slot_type& cb);
+    
+    void initialize();
+    bool triggerImport();
+    bool isImportInProgress() const { return mImportInProgress; }
+    bool isInitialized() const { return mInitialized; }
+    U32 getMarketPlaceStatus() const { return mMarketPlaceStatus; }
+    
 protected:
-	void reinitializeAndTriggerImport();
-	void updateImport();
-	
+    void reinitializeAndTriggerImport();
+    void updateImport();
+    
 private:
-	bool mAutoTriggerImport;
-	bool mImportInProgress;
-	bool mInitialized;
-	U32  mMarketPlaceStatus;
-	
-	status_report_signal_t *	mErrorInitSignal;
-	status_changed_signal_t *	mStatusChangedSignal;
-	status_report_signal_t *	mStatusReportSignal;
+    bool mAutoTriggerImport;
+    bool mImportInProgress;
+    bool mInitialized;
+    U32  mMarketPlaceStatus;
+    
+    status_report_signal_t *    mErrorInitSignal;
+    status_changed_signal_t *   mStatusChangedSignal;
+    status_report_signal_t *    mStatusReportSignal;
 };
 
 
@@ -127,13 +127,13 @@ private:
 // * signal Marketplace updates to inventory
 namespace SLMErrorCodes
 {
-	enum eCode
-	{
-		SLM_SUCCESS = 200,
-		SLM_RECORD_CREATED = 201,
-		SLM_MALFORMED_PAYLOAD = 400,
-		SLM_NOT_FOUND = 404,
-	};
+    enum eCode
+    {
+        SLM_SUCCESS = 200,
+        SLM_RECORD_CREATED = 201,
+        SLM_MALFORMED_PAYLOAD = 400,
+        SLM_NOT_FOUND = 404,
+    };
 }
 
 class LLMarketplaceData;
@@ -143,7 +143,7 @@ class LLInventoryObserver;
 class LLMarketplaceTuple 
 {
 public:
-	friend class LLMarketplaceData;
+    friend class LLMarketplaceData;
 
     LLMarketplaceTuple();
     LLMarketplaceTuple(const LLUUID& folder_id);
@@ -195,11 +195,11 @@ public:
     static LLSD getMarketplaceStringSubstitutions();
 
     // Public SLM API : Initialization and status
-	typedef boost::signals2::signal<void ()> status_updated_signal_t;
+    typedef boost::signals2::signal<void ()> status_updated_signal_t;
     void initializeSLM(const status_updated_signal_t::slot_type& cb);
-	U32  getSLMStatus() const { return mMarketPlaceStatus; }
+    U32  getSLMStatus() const { return mMarketPlaceStatus; }
     std::string getSLMConnectionfailureReason() { return mMarketPlaceFailureReason; }
-	void setSLMStatus(U32 status);
+    void setSLMStatus(U32 status);
     void setSLMConnectionFailure(const std::string& reason);
     void getSLMListings();
     bool isEmpty() { return (mMarketplaceItems.size() == 0); }
@@ -273,15 +273,15 @@ private:
     void deleteSLMListingCoro(S32 listingId);
 
     // Handling Marketplace connection and inventory connection
-	U32  mMarketPlaceStatus;
+    U32  mMarketPlaceStatus;
     std::string mMarketPlaceFailureReason;
-	status_updated_signal_t* mStatusUpdatedSignal;
-	LLInventoryObserver* mInventoryObserver;
+    status_updated_signal_t* mStatusUpdatedSignal;
+    LLInventoryObserver* mInventoryObserver;
     bool mDirtyCount;   // If true, stock count value need to be updated at the next check
     
     // Update data
     U32 mMarketPlaceDataFetched;
-	status_updated_signal_t* mDataFetchedSignal;
+    status_updated_signal_t* mDataFetchedSignal;
     std::set<LLUUID> mPendingUpdateSet;
 
     // Listing folders waiting for validation

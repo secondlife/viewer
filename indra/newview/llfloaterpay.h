@@ -36,20 +36,20 @@ typedef void (*money_callback)(const LLUUID&, LLViewerRegion*,S32,BOOL,S32,const
 
 namespace LLFloaterPayUtil
 {
-	/// Register with LLFloaterReg
-	void registerFloater();
+    /// Register with LLFloaterReg
+    void registerFloater();
 
-	/// Pay into an in-world object, which will trigger scripts and eventually
-	/// transfer the L$ to the resident or group that owns the object.
-	/// Objects must be selected.  Recipient (primary) object may be a child.
-	void payViaObject(money_callback callback,
-					  LLSafeHandle<LLObjectSelection> selection);
-	
-	/// Pay an avatar or group directly, not via an object in the world.
-	/// Scripts are not notified, L$ can be direcly transferred.
-	void payDirectly(money_callback callback,
-					 const LLUUID& target_id,
-					 bool is_group);
+    /// Pay into an in-world object, which will trigger scripts and eventually
+    /// transfer the L$ to the resident or group that owns the object.
+    /// Objects must be selected.  Recipient (primary) object may be a child.
+    void payViaObject(money_callback callback,
+                      LLSafeHandle<LLObjectSelection> selection);
+    
+    /// Pay an avatar or group directly, not via an object in the world.
+    /// Scripts are not notified, L$ can be direcly transferred.
+    void payDirectly(money_callback callback,
+                     const LLUUID& target_id,
+                     bool is_group);
 }
 
 #endif // LLFLOATERPAY_H

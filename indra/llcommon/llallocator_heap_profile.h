@@ -59,7 +59,7 @@ public:
     {
     }
 
-	void parse(std::string const & prof_text);
+    void parse(std::string const & prof_text);
 
     void dump(std::ostream & out) const;
 

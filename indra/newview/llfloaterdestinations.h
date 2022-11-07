@@ -31,13 +31,13 @@
 #include "llfloater.h"
 
 class LLFloaterDestinations:
-	public LLFloater
+    public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 private:
-	LLFloaterDestinations(const LLSD& key);
-	/*virtual*/	~LLFloaterDestinations();
-	/*virtual*/	BOOL postBuild();
+    LLFloaterDestinations(const LLSD& key);
+    /*virtual*/ ~LLFloaterDestinations();
+    /*virtual*/ BOOL postBuild();
 };
 
 #endif

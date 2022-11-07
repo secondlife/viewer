@@ -51,14 +51,14 @@ class LLPanelMarketplaceListings : public LLPanel
 {
 public:
     LLPanelMarketplaceListings();
-	BOOL postBuild();
-	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-						   EDragAndDropType cargo_type,
-						   void* cargo_data,
-						   EAcceptance* accept,
-						   std::string& tooltip_msg);
-	void draw();
-	LLFolderView* getRootFolder() { return mRootFolder; }
+    BOOL postBuild();
+    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+                           EDragAndDropType cargo_type,
+                           void* cargo_data,
+                           EAcceptance* accept,
+                           std::string& tooltip_msg);
+    void draw();
+    LLFolderView* getRootFolder() { return mRootFolder; }
     bool allowDropOnRoot();
     
     void buildAllPanels();
@@ -67,11 +67,11 @@ private:
     LLInventoryPanel* buildInventoryPanel(const std::string& childname, const std::string& filename);
 
     // UI callbacks
-	void onViewSortMenuItemClicked(const LLSD& userdata);
-	bool onViewSortMenuItemCheck(const LLSD& userdata);
-	void onAddButtonClicked();
+    void onViewSortMenuItemClicked(const LLSD& userdata);
+    bool onViewSortMenuItemCheck(const LLSD& userdata);
+    void onAddButtonClicked();
     void onAuditButtonClicked();
-	void onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, BOOL user_action);
+    void onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, BOOL user_action);
     void onTabChange();
     void onFilterEdit(const std::string& search_string);
     
@@ -79,8 +79,8 @@ private:
     
     LLFolderView*     mRootFolder;
     LLButton*         mAuditBtn;
-	LLFilterEditor*	  mFilterEditor;
-	std::string		  mFilterSubString;
+    LLFilterEditor*   mFilterEditor;
+    std::string       mFilterSubString;
     bool              mFilterListingFoldersOnly;
     U32               mSortOrder;
 };
@@ -92,54 +92,54 @@ private:
 class LLFloaterMarketplaceListings : public LLFloater
 {
 public:
-	LLFloaterMarketplaceListings(const LLSD& key);
-	~LLFloaterMarketplaceListings();
-	
-	void initializeMarketPlace();
+    LLFloaterMarketplaceListings(const LLSD& key);
+    ~LLFloaterMarketplaceListings();
     
-	// virtuals
-	BOOL postBuild();
-	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-						   EDragAndDropType cargo_type,
-						   void* cargo_data,
-						   EAcceptance* accept,
-						   std::string& tooltip_msg);
-	
-	void showNotification(const LLNotificationPtr& notification);
+    void initializeMarketPlace();
     
-	BOOL handleHover(S32 x, S32 y, MASK mask);
-	void onMouseLeave(S32 x, S32 y, MASK mask);
+    // virtuals
+    BOOL postBuild();
+    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+                           EDragAndDropType cargo_type,
+                           void* cargo_data,
+                           EAcceptance* accept,
+                           std::string& tooltip_msg);
+    
+    void showNotification(const LLNotificationPtr& notification);
+    
+    BOOL handleHover(S32 x, S32 y, MASK mask);
+    void onMouseLeave(S32 x, S32 y, MASK mask);
     
 protected:
-	void setRootFolder();
-	void setPanels();
-	void fetchContents();
+    void setRootFolder();
+    void setPanels();
+    void fetchContents();
     
-	void setStatusString(const std::string& statusString);
+    void setStatusString(const std::string& statusString);
 
-	void onClose(bool app_quitting);
-	void onOpen(const LLSD& key);
-	void onFocusReceived();
-	void onChanged();
+    void onClose(bool app_quitting);
+    void onOpen(const LLSD& key);
+    void onFocusReceived();
+    void onChanged();
     
     bool isAccepted(EAcceptance accept);
-	
-	void updateView();
+    
+    void updateView();
     
 private:
     S32 getFolderCount();
 
-	LLInventoryCategoriesObserver *		mCategoriesObserver;
-	LLInventoryCategoryAddedObserver *	mCategoryAddedObserver;
-		
-	LLTextBox *		mInventoryStatus;
-	LLView *		mInventoryInitializationInProgress;
-	LLView *		mInventoryPlaceholder;
-	LLTextBox *		mInventoryText;
-	LLTextBox *		mInventoryTitle;
+    LLInventoryCategoriesObserver *     mCategoriesObserver;
+    LLInventoryCategoryAddedObserver *  mCategoryAddedObserver;
+        
+    LLTextBox *     mInventoryStatus;
+    LLView *        mInventoryInitializationInProgress;
+    LLView *        mInventoryPlaceholder;
+    LLTextBox *     mInventoryText;
+    LLTextBox *     mInventoryTitle;
 
-	LLUUID			mRootFolderId;
-	LLPanelMarketplaceListings * mPanelListings;
+    LLUUID          mRootFolderId;
+    LLPanelMarketplaceListings * mPanelListings;
     bool            mPanelListingsSet;
 };
 
@@ -148,23 +148,23 @@ private:
 //-----------------------------------------------------------------------------
 class LLFloaterAssociateListing : public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 public:
-	virtual BOOL postBuild();
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
+    virtual BOOL postBuild();
+    virtual BOOL handleKeyHere(KEY key, MASK mask);
     
-	static LLFloaterAssociateListing* show(const LLUUID& folder_id);
+    static LLFloaterAssociateListing* show(const LLUUID& folder_id);
     
 private:
-	LLFloaterAssociateListing(const LLSD& key);
-	virtual ~LLFloaterAssociateListing();
+    LLFloaterAssociateListing(const LLSD& key);
+    virtual ~LLFloaterAssociateListing();
     
-	// UI Callbacks
-	void apply(BOOL user_confirm = TRUE);
-	void cancel();
+    // UI Callbacks
+    void apply(BOOL user_confirm = TRUE);
+    void cancel();
     void callback_apply(const LLSD& notification, const LLSD& response);
     
-	LLUUID mUUID;
+    LLUUID mUUID;
 };
 
 //-----------------------------------------------------------------------------
@@ -179,23 +179,23 @@ private:
 class LLFloaterMarketplaceValidation : public LLFloater
 {
 public:
-	LLFloaterMarketplaceValidation(const LLSD& key);
-	virtual ~LLFloaterMarketplaceValidation();
+    LLFloaterMarketplaceValidation(const LLSD& key);
+    virtual ~LLFloaterMarketplaceValidation();
     
-	virtual BOOL postBuild();
-	virtual void draw();
-	virtual void onOpen(const LLSD& key);
+    virtual BOOL postBuild();
+    virtual void draw();
+    virtual void onOpen(const LLSD& key);
     
     void clearMessages();
     void appendMessage(std::string& message, S32 depth, LLError::ELevel log_level);
-	static void	onOK( void* userdata );
+    static void onOK( void* userdata );
     
 private:
     struct Message {
         LLError::ELevel mErrorLevel;
         std::string mMessage;
     };
-	typedef std::vector<Message> message_list_t;
+    typedef std::vector<Message> message_list_t;
     
     void handleCurrentListing();
 
@@ -204,7 +204,7 @@ private:
 
     message_list_t mMessages;
 
-    LLTextEditor*	mEditor;
+    LLTextEditor*   mEditor;
 };
 
 //-----------------------------------------------------------------------------
@@ -214,11 +214,11 @@ private:
 class LLFloaterItemProperties : public LLFloater
 {
 public:
-	LLFloaterItemProperties(const LLSD& key);
-	virtual ~LLFloaterItemProperties();
+    LLFloaterItemProperties(const LLSD& key);
+    virtual ~LLFloaterItemProperties();
     
-	BOOL postBuild();
-	virtual void onOpen(const LLSD& key);
+    BOOL postBuild();
+    virtual void onOpen(const LLSD& key);
     
 private:
 };

@@ -29,69 +29,69 @@
 ////////////////////////////////////////////////////////////////////////////
 
 LLFixedBuffer::LLFixedBuffer(const U32 max_lines)
-	: LLLineBuffer(),
-	  mMaxLines(max_lines),
-	  mMutex()
+    : LLLineBuffer(),
+      mMaxLines(max_lines),
+      mMutex()
 {
-	mTimer.reset();
+    mTimer.reset();
 }
 
 LLFixedBuffer::~LLFixedBuffer()
 {
-	clear();
+    clear();
 }
 
 void LLFixedBuffer::clear()
 {
-	mMutex.lock() ;
-	mLines.clear();
-	mAddTimes.clear();
-	mLineLengths.clear();
-	mMutex.unlock() ;
+    mMutex.lock() ;
+    mLines.clear();
+    mAddTimes.clear();
+    mLineLengths.clear();
+    mMutex.unlock() ;
 
-	mTimer.reset();
+    mTimer.reset();
 }
 
 
 void LLFixedBuffer::addLine(const std::string& utf8line)
 {
-	LLWString wstring = utf8str_to_wstring(utf8line);
-	addWLine(wstring);
+    LLWString wstring = utf8str_to_wstring(utf8line);
+    addWLine(wstring);
 }
 
 void LLFixedBuffer::addWLine(const LLWString& line)
 {
-	if (line.empty())
-	{
-		return;
-	}
+    if (line.empty())
+    {
+        return;
+    }
 
-	removeExtraLines();
+    removeExtraLines();
 
-	mMutex.lock() ;
-	mLines.push_back(line);
-	mLineLengths.push_back((S32)line.length());
-	mAddTimes.push_back(mTimer.getElapsedTimeF32());
-	mMutex.unlock() ;
+    mMutex.lock() ;
+    mLines.push_back(line);
+    mLineLengths.push_back((S32)line.length());
+    mAddTimes.push_back(mTimer.getElapsedTimeF32());
+    mMutex.unlock() ;
 }
 
 
 void LLFixedBuffer::setMaxLines(S32 max_lines)
 {
-	mMaxLines = max_lines;
+    mMaxLines = max_lines;
 
-	removeExtraLines();
+    removeExtraLines();
 }
 
 
 void LLFixedBuffer::removeExtraLines()
 {
-	mMutex.lock() ;
-	while ((S32)mLines.size() > llmax((S32)0, (S32)(mMaxLines - 1)))
-	{
-		mLines.pop_front();
-		mAddTimes.pop_front();
-		mLineLengths.pop_front();
-	}
-	mMutex.unlock() ;
+    mMutex.lock() ;
+    while ((S32)mLines.size() > llmax((S32)0, (S32)(mMaxLines - 1)))
+    {
+        mLines.pop_front();
+        mAddTimes.pop_front();
+        mLineLengths.pop_front();
+    }
+    mMutex.unlock() ;
 }

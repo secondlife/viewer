@@ -46,7 +46,7 @@ LLPluginMessage::LLPluginMessage()
  */
 LLPluginMessage::LLPluginMessage(const LLPluginMessage &p)
 {
-	mMessage = p.mMessage;
+    mMessage = p.mMessage;
 }
 
 /**
@@ -57,7 +57,7 @@ LLPluginMessage::LLPluginMessage(const LLPluginMessage &p)
  */
 LLPluginMessage::LLPluginMessage(const std::string &message_class, const std::string &message_name)
 {
-	setMessage(message_class, message_name);
+    setMessage(message_class, message_name);
 }
 
 
@@ -73,8 +73,8 @@ LLPluginMessage::~LLPluginMessage()
  */
 void LLPluginMessage::clear()
 {
-	mMessage = LLSD::emptyMap();
-	mMessage["params"] = LLSD::emptyMap();
+    mMessage = LLSD::emptyMap();
+    mMessage["params"] = LLSD::emptyMap();
 }
 
 /**
@@ -85,9 +85,9 @@ void LLPluginMessage::clear()
  */
 void LLPluginMessage::setMessage(const std::string &message_class, const std::string &message_name)
 {
-	clear();
-	mMessage["class"] = message_class;
-	mMessage["name"] = message_name;
+    clear();
+    mMessage["class"] = message_class;
+    mMessage["name"] = message_name;
 }
 
 /**
@@ -98,7 +98,7 @@ void LLPluginMessage::setMessage(const std::string &message_class, const std::st
  */
 void LLPluginMessage::setValue(const std::string &key, const std::string &value)
 {
-	mMessage["params"][key] = value;
+    mMessage["params"][key] = value;
 }
 
 /**
@@ -109,7 +109,7 @@ void LLPluginMessage::setValue(const std::string &key, const std::string &value)
  */
 void LLPluginMessage::setValueLLSD(const std::string &key, const LLSD &value)
 {
-	mMessage["params"][key] = value;
+    mMessage["params"][key] = value;
 }
 
 /**
@@ -120,7 +120,7 @@ void LLPluginMessage::setValueLLSD(const std::string &key, const LLSD &value)
  */
 void LLPluginMessage::setValueS32(const std::string &key, S32 value)
 {
-	mMessage["params"][key] = value;
+    mMessage["params"][key] = value;
 }
 
 /**
@@ -131,9 +131,9 @@ void LLPluginMessage::setValueS32(const std::string &key, S32 value)
  */
 void LLPluginMessage::setValueU32(const std::string &key, U32 value)
 {
-	std::stringstream temp;
-	temp << "0x" << std::hex << value;
-	setValue(key, temp.str());
+    std::stringstream temp;
+    temp << "0x" << std::hex << value;
+    setValue(key, temp.str());
 }
 
 /**
@@ -144,7 +144,7 @@ void LLPluginMessage::setValueU32(const std::string &key, U32 value)
  */
 void LLPluginMessage::setValueBoolean(const std::string &key, bool value)
 {
-	mMessage["params"][key] = value;
+    mMessage["params"][key] = value;
 }
 
 /**
@@ -155,7 +155,7 @@ void LLPluginMessage::setValueBoolean(const std::string &key, bool value)
  */
 void LLPluginMessage::setValueReal(const std::string &key, F64 value)
 {
-	mMessage["params"][key] = value;
+    mMessage["params"][key] = value;
 }
 
 /**
@@ -166,10 +166,10 @@ void LLPluginMessage::setValueReal(const std::string &key, F64 value)
  */
 void LLPluginMessage::setValuePointer(const std::string &key, void* value)
 {
-	std::stringstream temp;
-	// iostreams should output pointer values in hex with an initial 0x by default.
-	temp << value;
-	setValue(key, temp.str());
+    std::stringstream temp;
+    // iostreams should output pointer values in hex with an initial 0x by default.
+    temp << value;
+    setValue(key, temp.str());
 }
 
 /**
@@ -179,7 +179,7 @@ void LLPluginMessage::setValuePointer(const std::string &key, void* value)
  */
 std::string LLPluginMessage::getClass(void) const
 {
-	return mMessage["class"];
+    return mMessage["class"];
 }
 
 /**
@@ -189,11 +189,11 @@ std::string LLPluginMessage::getClass(void) const
  */
 std::string LLPluginMessage::getName(void) const
 {
-	return mMessage["name"];
+    return mMessage["name"];
 }
 
 /**
- *	Returns true if the specified key exists in this message (useful for optional parameters).
+ *  Returns true if the specified key exists in this message (useful for optional parameters).
  *
  * @param[in] key Key
  *
@@ -201,18 +201,18 @@ std::string LLPluginMessage::getName(void) const
  */
 bool LLPluginMessage::hasValue(const std::string &key) const
 {
-	bool result = false;
-	
-	if(mMessage["params"].has(key))
-	{
-		result = true;
-	}
-	
-	return result;
+    bool result = false;
+    
+    if(mMessage["params"].has(key))
+    {
+        result = true;
+    }
+    
+    return result;
 }
 
 /**
- *	Gets the value of a key as a string. If the key does not exist, an empty string will be returned.
+ *  Gets the value of a key as a string. If the key does not exist, an empty string will be returned.
  *
  * @param[in] key Key
  *
@@ -220,18 +220,18 @@ bool LLPluginMessage::hasValue(const std::string &key) const
  */
 std::string LLPluginMessage::getValue(const std::string &key) const
 {
-	std::string result;
-	
-	if(mMessage["params"].has(key))
-	{
-		result = mMessage["params"][key].asString();
-	}
-	
-	return result;
+    std::string result;
+    
+    if(mMessage["params"].has(key))
+    {
+        result = mMessage["params"][key].asString();
+    }
+    
+    return result;
 }
 
 /**
- *	Gets the value of a key as LLSD. If the key does not exist, a null LLSD will be returned.
+ *  Gets the value of a key as LLSD. If the key does not exist, a null LLSD will be returned.
  *
  * @param[in] key Key
  *
@@ -239,18 +239,18 @@ std::string LLPluginMessage::getValue(const std::string &key) const
  */
 LLSD LLPluginMessage::getValueLLSD(const std::string &key) const
 {
-	LLSD result;
+    LLSD result;
 
-	if(mMessage["params"].has(key))
-	{
-		result = mMessage["params"][key];
-	}
-	
-	return result;
+    if(mMessage["params"].has(key))
+    {
+        result = mMessage["params"][key];
+    }
+    
+    return result;
 }
 
 /**
- *	Gets the value of a key as signed 32-bit int. If the key does not exist, 0 will be returned.
+ *  Gets the value of a key as signed 32-bit int. If the key does not exist, 0 will be returned.
  *
  * @param[in] key Key
  *
@@ -258,18 +258,18 @@ LLSD LLPluginMessage::getValueLLSD(const std::string &key) const
  */
 S32 LLPluginMessage::getValueS32(const std::string &key) const
 {
-	S32 result = 0;
+    S32 result = 0;
 
-	if(mMessage["params"].has(key))
-	{
-		result = mMessage["params"][key].asInteger();
-	}
-	
-	return result;
+    if(mMessage["params"].has(key))
+    {
+        result = mMessage["params"][key].asInteger();
+    }
+    
+    return result;
 }
 
 /**
- *	Gets the value of a key as unsigned 32-bit int. If the key does not exist, 0 will be returned.
+ *  Gets the value of a key as unsigned 32-bit int. If the key does not exist, 0 will be returned.
  *
  * @param[in] key Key
  *
@@ -277,20 +277,20 @@ S32 LLPluginMessage::getValueS32(const std::string &key) const
  */
 U32 LLPluginMessage::getValueU32(const std::string &key) const
 {
-	U32 result = 0;
+    U32 result = 0;
 
-	if(mMessage["params"].has(key))
-	{
-		std::string value = mMessage["params"][key].asString();
-		
-		result = (U32)strtoul(value.c_str(), NULL, 16);
-	}
-	
-	return result;
+    if(mMessage["params"].has(key))
+    {
+        std::string value = mMessage["params"][key].asString();
+        
+        result = (U32)strtoul(value.c_str(), NULL, 16);
+    }
+    
+    return result;
 }
 
 /**
- *	Gets the value of a key as a bool. If the key does not exist, false will be returned.
+ *  Gets the value of a key as a bool. If the key does not exist, false will be returned.
  *
  * @param[in] key Key
  *
@@ -298,18 +298,18 @@ U32 LLPluginMessage::getValueU32(const std::string &key) const
  */
 bool LLPluginMessage::getValueBoolean(const std::string &key) const
 {
-	bool result = false;
+    bool result = false;
 
-	if(mMessage["params"].has(key))
-	{
-		result = mMessage["params"][key].asBoolean();
-	}
-	
-	return result;
+    if(mMessage["params"].has(key))
+    {
+        result = mMessage["params"][key].asBoolean();
+    }
+    
+    return result;
 }
 
 /**
- *	Gets the value of a key as a double. If the key does not exist, 0 will be returned.
+ *  Gets the value of a key as a double. If the key does not exist, 0 will be returned.
  *
  * @param[in] key Key
  *
@@ -317,18 +317,18 @@ bool LLPluginMessage::getValueBoolean(const std::string &key) const
  */
 F64 LLPluginMessage::getValueReal(const std::string &key) const
 {
-	F64 result = 0.0f;
+    F64 result = 0.0f;
 
-	if(mMessage["params"].has(key))
-	{
-		result = mMessage["params"][key].asReal();
-	}
-	
-	return result;
+    if(mMessage["params"].has(key))
+    {
+        result = mMessage["params"][key].asReal();
+    }
+    
+    return result;
 }
 
 /**
- *	Gets the value of a key as a pointer. If the key does not exist, NULL will be returned.
+ *  Gets the value of a key as a pointer. If the key does not exist, NULL will be returned.
  *
  * @param[in] key Key
  *
@@ -336,49 +336,49 @@ F64 LLPluginMessage::getValueReal(const std::string &key) const
  */
 void* LLPluginMessage::getValuePointer(const std::string &key) const
 {
-	void* result = NULL;
+    void* result = NULL;
 
-	if(mMessage["params"].has(key))
-	{
-		std::string value = mMessage["params"][key].asString();
-		
-		result = (void*)llstrtou64(value.c_str(), NULL, 16);
-	}
-	
-	return result;
+    if(mMessage["params"].has(key))
+    {
+        std::string value = mMessage["params"][key].asString();
+        
+        result = (void*)llstrtou64(value.c_str(), NULL, 16);
+    }
+    
+    return result;
 }
 
 /**
- *	Flatten the message into a string.
+ *  Flatten the message into a string.
  *
  * @return Message as a string.
  */
 std::string LLPluginMessage::generate(void) const
 {
-	std::ostringstream result;
-	
-	// Pretty XML may be slightly easier to deal with while debugging...
-//	LLSDSerialize::toXML(mMessage, result);
-	LLSDSerialize::toPrettyXML(mMessage, result);
-	
-	return result.str();
+    std::ostringstream result;
+    
+    // Pretty XML may be slightly easier to deal with while debugging...
+//  LLSDSerialize::toXML(mMessage, result);
+    LLSDSerialize::toPrettyXML(mMessage, result);
+    
+    return result.str();
 }
 
 /**
- *	Parse an incoming message into component parts. Clears all existing state before starting the parse.
+ *  Parse an incoming message into component parts. Clears all existing state before starting the parse.
  *
  * @return Returns -1 on failure, otherwise returns the number of key/value pairs in the incoming message.
  */
 int LLPluginMessage::parse(const std::string &message)
 {
-	// clear any previous state
-	clear();
+    // clear any previous state
+    clear();
 
-	std::istringstream input(message);
-	
-	S32 parse_result = LLSDSerialize::fromXML(mMessage, input);
-	
-	return (int)parse_result;
+    std::istringstream input(message);
+    
+    S32 parse_result = LLSDSerialize::fromXML(mMessage, input);
+    
+    return (int)parse_result;
 }
 
 
@@ -387,7 +387,7 @@ int LLPluginMessage::parse(const std::string &message)
  */
 LLPluginMessageListener::~LLPluginMessageListener()
 {
-	// TODO: should listeners have a way to ensure they're removed from dispatcher lists when deleted?
+    // TODO: should listeners have a way to ensure they're removed from dispatcher lists when deleted?
 }
 
 
@@ -396,9 +396,9 @@ LLPluginMessageListener::~LLPluginMessageListener()
  */
 LLPluginMessageDispatcher::~LLPluginMessageDispatcher()
 {
-	
+    
 }
-	
+    
 /**
  * Add a message listener. TODO:DOC need more info on what uses this. when are multiple listeners needed?
  *
@@ -406,7 +406,7 @@ LLPluginMessageDispatcher::~LLPluginMessageDispatcher()
  */
 void LLPluginMessageDispatcher::addPluginMessageListener(LLPluginMessageListener *listener)
 {
-	mListeners.insert(listener);
+    mListeners.insert(listener);
 }
 
 /**
@@ -416,7 +416,7 @@ void LLPluginMessageDispatcher::addPluginMessageListener(LLPluginMessageListener
  */
 void LLPluginMessageDispatcher::removePluginMessageListener(LLPluginMessageListener *listener)
 {
-	mListeners.erase(listener);
+    mListeners.erase(listener);
 }
 
 /**
@@ -426,13 +426,13 @@ void LLPluginMessageDispatcher::removePluginMessageListener(LLPluginMessageListe
  */
 void LLPluginMessageDispatcher::dispatchPluginMessage(const LLPluginMessage &message)
 {
-	for (listener_set_t::iterator it = mListeners.begin();
-		it != mListeners.end();
-		)
-	{
-		LLPluginMessageListener* listener = *it;
-		listener->receivePluginMessage(message);
-		// In case something deleted an entry.
-		it = mListeners.upper_bound(listener);
-	}
+    for (listener_set_t::iterator it = mListeners.begin();
+        it != mListeners.end();
+        )
+    {
+        LLPluginMessageListener* listener = *it;
+        listener->receivePluginMessage(message);
+        // In case something deleted an entry.
+        it = mListeners.upper_bound(listener);
+    }
 }

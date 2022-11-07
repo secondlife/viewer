@@ -46,8 +46,8 @@ LLHUDView *gHUDView = NULL;
 
 LLHUDView::LLHUDView(const LLRect& r)
 {
-	buildFromFile( "panel_hud.xml");
-	setShape(r, true);
+    buildFromFile( "panel_hud.xml");
+    setShape(r, true);
 }
 
 LLHUDView::~LLHUDView()
@@ -57,16 +57,16 @@ LLHUDView::~LLHUDView()
 // virtual
 void LLHUDView::draw()
 {
-	LLTracker::drawHUDArrow();
-	LLView::draw();
+    LLTracker::drawHUDArrow();
+    LLView::draw();
 }
 
 /*virtual*/
 BOOL LLHUDView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (LLTracker::handleMouseDown(x, y))
-	{
-		return TRUE;
-	}
-	return LLView::handleMouseDown(x, y, mask);
+    if (LLTracker::handleMouseDown(x, y))
+    {
+        return TRUE;
+    }
+    return LLView::handleMouseDown(x, y, mask);
 }

@@ -37,21 +37,21 @@ class LLTextureCtrl;
 class LLFloaterAvatarTextures : public LLFloater
 {
 public:
-	LLFloaterAvatarTextures(const LLSD& id);
-	virtual ~LLFloaterAvatarTextures();
+    LLFloaterAvatarTextures(const LLSD& id);
+    virtual ~LLFloaterAvatarTextures();
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void draw();
+    /*virtual*/ BOOL postBuild();
+    /*virtual*/ void draw();
 
-	void refresh();
-
-private:
-	static void onClickDump(void*);
+    void refresh();
 
 private:
-	LLUUID	mID;
-	std::string mTitle;
-	LLTextureCtrl* mTextures[LLAvatarAppearanceDefines::TEX_NUM_INDICES];
+    static void onClickDump(void*);
+
+private:
+    LLUUID  mID;
+    std::string mTitle;
+    LLTextureCtrl* mTextures[LLAvatarAppearanceDefines::TEX_NUM_INDICES];
 };
 
 #endif

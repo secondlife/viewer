@@ -39,94 +39,94 @@ class LLLayoutStack : public LLView, public LLInstanceTracker<LLLayoutStack>
 {
 public:
 
-	struct LayoutStackRegistry : public LLChildRegistry<LayoutStackRegistry>
-	{
-		LLSINGLETON_EMPTY_CTOR(LayoutStackRegistry);
-	};
+    struct LayoutStackRegistry : public LLChildRegistry<LayoutStackRegistry>
+    {
+        LLSINGLETON_EMPTY_CTOR(LayoutStackRegistry);
+    };
 
-	struct Params : public LLInitParam::Block<Params, LLView::Params>
-	{
-		Mandatory<EOrientation>	orientation;
-		Optional<S32>			border_size;
-		Optional<bool>			animate,
-								clip;
-		Optional<F32>			open_time_constant,
-								close_time_constant;
-		Optional<S32>			resize_bar_overlap;
-		Optional<bool>			show_drag_handle;
-		Optional<S32>			drag_handle_first_indent;
-		Optional<S32>			drag_handle_second_indent;
-		Optional<S32>			drag_handle_thickness;
-		Optional<S32>			drag_handle_shift;
+    struct Params : public LLInitParam::Block<Params, LLView::Params>
+    {
+        Mandatory<EOrientation> orientation;
+        Optional<S32>           border_size;
+        Optional<bool>          animate,
+                                clip;
+        Optional<F32>           open_time_constant,
+                                close_time_constant;
+        Optional<S32>           resize_bar_overlap;
+        Optional<bool>          show_drag_handle;
+        Optional<S32>           drag_handle_first_indent;
+        Optional<S32>           drag_handle_second_indent;
+        Optional<S32>           drag_handle_thickness;
+        Optional<S32>           drag_handle_shift;
 
-		Params();
-	};
+        Params();
+    };
 
-	typedef LayoutStackRegistry child_registry_t;
+    typedef LayoutStackRegistry child_registry_t;
 
-	virtual ~LLLayoutStack();
+    virtual ~LLLayoutStack();
 
-	/*virtual*/ void draw();
-	/*virtual*/ void removeChild(LLView*);
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ bool addChild(LLView* child, S32 tab_group = 0);
-	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    /*virtual*/ void draw();
+    /*virtual*/ void removeChild(LLView*);
+    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool addChild(LLView* child, S32 tab_group = 0);
+    /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
+    static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
 
-	typedef enum e_animate
-	{
-		NO_ANIMATE,
-		ANIMATE
-	} EAnimate;
+    typedef enum e_animate
+    {
+        NO_ANIMATE,
+        ANIMATE
+    } EAnimate;
 
-	void addPanel(LLLayoutPanel* panel, EAnimate animate = NO_ANIMATE);
-	void collapsePanel(LLPanel* panel, BOOL collapsed = TRUE);
-	S32 getNumPanels() { return mPanels.size(); }
+    void addPanel(LLLayoutPanel* panel, EAnimate animate = NO_ANIMATE);
+    void collapsePanel(LLPanel* panel, BOOL collapsed = TRUE);
+    S32 getNumPanels() { return mPanels.size(); }
 
-	void updateLayout();
+    void updateLayout();
 
-	S32 getPanelSpacing() const { return mPanelSpacing; }
-	
-	static void updateClass();
+    S32 getPanelSpacing() const { return mPanelSpacing; }
+    
+    static void updateClass();
 
 protected:
-	LLLayoutStack(const Params&);
-	friend class LLUICtrlFactory;
-	friend class LLLayoutPanel;
+    LLLayoutStack(const Params&);
+    friend class LLUICtrlFactory;
+    friend class LLLayoutPanel;
 
 private:
-	void updateResizeBarLimits();
-	bool animatePanels();
-	void createResizeBar(LLLayoutPanel* panel);
+    void updateResizeBarLimits();
+    bool animatePanels();
+    void createResizeBar(LLLayoutPanel* panel);
 
-	const EOrientation mOrientation;
+    const EOrientation mOrientation;
 
-	typedef std::vector<LLLayoutPanel*> e_panel_list_t;
-	e_panel_list_t mPanels;
+    typedef std::vector<LLLayoutPanel*> e_panel_list_t;
+    e_panel_list_t mPanels;
 
-	LLLayoutPanel* findEmbeddedPanel(LLPanel* panelp) const;
-	LLLayoutPanel* findEmbeddedPanelByName(const std::string& name) const;
-	void updateFractionalSizes();
-	void normalizeFractionalSizes();
-	void updatePanelRect( LLLayoutPanel* param1, const LLRect& new_rect );
+    LLLayoutPanel* findEmbeddedPanel(LLPanel* panelp) const;
+    LLLayoutPanel* findEmbeddedPanelByName(const std::string& name) const;
+    void updateFractionalSizes();
+    void normalizeFractionalSizes();
+    void updatePanelRect( LLLayoutPanel* param1, const LLRect& new_rect );
 
-	S32 mPanelSpacing;
+    S32 mPanelSpacing;
 
-	// true if we already applied animation this frame
-	bool mAnimatedThisFrame;
-	bool mAnimate;
-	bool mClip;
-	F32  mOpenTimeConstant;
-	F32  mCloseTimeConstant;
-	bool mNeedsLayout;
-	S32  mResizeBarOverlap;
-	bool mShowDragHandle;
-	S32  mDragHandleFirstIndent;
-	S32  mDragHandleSecondIndent;
-	S32  mDragHandleThickness;
-	S32  mDragHandleShift;
+    // true if we already applied animation this frame
+    bool mAnimatedThisFrame;
+    bool mAnimate;
+    bool mClip;
+    F32  mOpenTimeConstant;
+    F32  mCloseTimeConstant;
+    bool mNeedsLayout;
+    S32  mResizeBarOverlap;
+    bool mShowDragHandle;
+    S32  mDragHandleFirstIndent;
+    S32  mDragHandleSecondIndent;
+    S32  mDragHandleThickness;
+    S32  mDragHandleShift;
 }; // end class LLLayoutStack
 
 
@@ -135,76 +135,76 @@ class LLLayoutPanel : public LLPanel
 friend class LLLayoutStack;
 friend class LLUICtrlFactory;
 public:
-	struct Params : public LLInitParam::Block<Params, LLPanel::Params>
-	{
-		Optional<S32>			expanded_min_dim,
-								min_dim;
-		Optional<bool>			user_resize,
-								auto_resize;
+    struct Params : public LLInitParam::Block<Params, LLPanel::Params>
+    {
+        Optional<S32>           expanded_min_dim,
+                                min_dim;
+        Optional<bool>          user_resize,
+                                auto_resize;
 
-		Params();
-	};
+        Params();
+    };
 
-	~LLLayoutPanel();
+    ~LLLayoutPanel();
 
-	void initFromParams(const Params& p);
+    void initFromParams(const Params& p);
 
-	void handleReshape(const LLRect& new_rect, bool by_user);
+    void handleReshape(const LLRect& new_rect, bool by_user);
 
-	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-	
+    void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    
 
-	void setVisible(BOOL visible);
+    void setVisible(BOOL visible);
 
-	S32 getLayoutDim() const;
-	S32 getTargetDim() const;
-	void setTargetDim(S32 value);
-	S32 getMinDim() const { return llmax(0, mMinDim); }
-	void setMinDim(S32 value) { mMinDim = value; }
+    S32 getLayoutDim() const;
+    S32 getTargetDim() const;
+    void setTargetDim(S32 value);
+    S32 getMinDim() const { return llmax(0, mMinDim); }
+    void setMinDim(S32 value) { mMinDim = value; }
 
-	S32 getExpandedMinDim() const { return mExpandedMinDim >= 0 ? mExpandedMinDim : getMinDim(); }
-	void setExpandedMinDim(S32 value) { mExpandedMinDim = value; }
-	
-	S32 getRelevantMinDim() const
-	{
-		S32 min_dim = mMinDim;
-		
-		if (!mCollapsed)
-		{
-			min_dim = getExpandedMinDim();
-		}
-		
-		return min_dim;
-	}
+    S32 getExpandedMinDim() const { return mExpandedMinDim >= 0 ? mExpandedMinDim : getMinDim(); }
+    void setExpandedMinDim(S32 value) { mExpandedMinDim = value; }
+    
+    S32 getRelevantMinDim() const
+    {
+        S32 min_dim = mMinDim;
+        
+        if (!mCollapsed)
+        {
+            min_dim = getExpandedMinDim();
+        }
+        
+        return min_dim;
+    }
 
-	F32 getAutoResizeFactor() const;
-	F32 getVisibleAmount() const;
-	S32 getVisibleDim() const;
-	LLResizeBar* getResizeBar() { return mResizeBar; }
+    F32 getAutoResizeFactor() const;
+    F32 getVisibleAmount() const;
+    S32 getVisibleDim() const;
+    LLResizeBar* getResizeBar() { return mResizeBar; }
 
-	bool isCollapsed() const { return mCollapsed;}
+    bool isCollapsed() const { return mCollapsed;}
 
-	void setOrientation(LLView::EOrientation orientation);
-	void storeOriginalDim();
+    void setOrientation(LLView::EOrientation orientation);
+    void storeOriginalDim();
 
-	void setIgnoreReshape(bool ignore) { mIgnoreReshape = ignore; }
+    void setIgnoreReshape(bool ignore) { mIgnoreReshape = ignore; }
 
 protected:
-	LLLayoutPanel(const Params& p);
-	
-	const bool	mAutoResize;
-	const bool	mUserResize;
+    LLLayoutPanel(const Params& p);
+    
+    const bool  mAutoResize;
+    const bool  mUserResize;
 
-	S32		mExpandedMinDim;
-	S32		mMinDim;
-	bool	mCollapsed;
-	F32		mVisibleAmt;
-	F32		mCollapseAmt;
-	F32		mFractionalSize;
-	S32		mTargetDim;
-	bool	mIgnoreReshape;
-	LLView::EOrientation mOrientation;
-	class LLResizeBar* mResizeBar;
+    S32     mExpandedMinDim;
+    S32     mMinDim;
+    bool    mCollapsed;
+    F32     mVisibleAmt;
+    F32     mCollapseAmt;
+    F32     mFractionalSize;
+    S32     mTargetDim;
+    bool    mIgnoreReshape;
+    LLView::EOrientation mOrientation;
+    class LLResizeBar* mResizeBar;
 };
 
 

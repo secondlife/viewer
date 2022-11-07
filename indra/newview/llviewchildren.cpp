@@ -42,58 +42,58 @@
 // *NOTE: Do not use mParent reference in the constructor, since it is
 // potentially not fully constructud.
 LLViewChildren::LLViewChildren(LLPanel& parent)
-	: mParent(parent)
+    : mParent(parent)
 {
 }
 
 
 void LLViewChildren::show(const std::string& id, bool visible)
 {
-	mParent.getChildView(id)->setVisible(visible);
+    mParent.getChildView(id)->setVisible(visible);
 }
 
 void LLViewChildren::enable(const std::string& id, bool enabled)
 {
-	mParent.getChildView(id)->setEnabled(enabled);
+    mParent.getChildView(id)->setEnabled(enabled);
 }
 
 void LLViewChildren::setText(
-	const std::string& id, const std::string& text, bool visible)
+    const std::string& id, const std::string& text, bool visible)
 {
-	LLTextBox* child = mParent.getChild<LLTextBox>(id);
-	if (child)
-	{
-		child->setVisible(visible);
-		child->setText(text);
-	}
+    LLTextBox* child = mParent.getChild<LLTextBox>(id);
+    if (child)
+    {
+        child->setVisible(visible);
+        child->setText(text);
+    }
 }
 
 void LLViewChildren::setBadge(const std::string& id, Badge badge, bool visible)
 {
-	LLIconCtrl* child = mParent.getChild<LLIconCtrl>(id);
-	if (child)
-	{
-		child->setVisible(visible);
-		switch (badge)
-		{
-			default:
-			case BADGE_OK:		child->setValue(std::string("badge_ok.j2c"));	break;
-			case BADGE_NOTE:	child->setValue(std::string("badge_note.j2c"));	break;
-			case BADGE_WARN:
-			case BADGE_ERROR:
-				child->setValue(std::string("badge_warn.j2c"));	break;
-		}
-	}
+    LLIconCtrl* child = mParent.getChild<LLIconCtrl>(id);
+    if (child)
+    {
+        child->setVisible(visible);
+        switch (badge)
+        {
+            default:
+            case BADGE_OK:      child->setValue(std::string("badge_ok.j2c"));   break;
+            case BADGE_NOTE:    child->setValue(std::string("badge_note.j2c")); break;
+            case BADGE_WARN:
+            case BADGE_ERROR:
+                child->setValue(std::string("badge_warn.j2c")); break;
+        }
+    }
 }
 
 void LLViewChildren::setAction(const std::string& id,
-	void(*function)(void*), void* value)
+    void(*function)(void*), void* value)
 {
-	LLButton* button = mParent.getChild<LLButton>(id);
-	if (button)
-	{
-		button->setClickedCallback(function, value);
-	}
+    LLButton* button = mParent.getChild<LLButton>(id);
+    if (button)
+    {
+        button->setClickedCallback(function, value);
+    }
 }
 
 

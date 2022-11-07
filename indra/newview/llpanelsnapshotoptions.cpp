@@ -39,35 +39,35 @@
  * Provides several ways to save a snapshot.
  */
 class LLPanelSnapshotOptions
-:	public LLPanel
+:   public LLPanel
 {
-	LOG_CLASS(LLPanelSnapshotOptions);
+    LOG_CLASS(LLPanelSnapshotOptions);
 
 public:
-	LLPanelSnapshotOptions();
-	~LLPanelSnapshotOptions();
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+    LLPanelSnapshotOptions();
+    ~LLPanelSnapshotOptions();
+    /*virtual*/ BOOL postBuild();
+    /*virtual*/ void onOpen(const LLSD& key);
 
 private:
-	void updateUploadCost();
-	void openPanel(const std::string& panel_name);
-	void onSaveToProfile();
-	void onSaveToEmail();
-	void onSaveToInventory();
-	void onSaveToComputer();
+    void updateUploadCost();
+    void openPanel(const std::string& panel_name);
+    void onSaveToProfile();
+    void onSaveToEmail();
+    void onSaveToInventory();
+    void onSaveToComputer();
 
-	LLFloaterSnapshotBase* mSnapshotFloater;
+    LLFloaterSnapshotBase* mSnapshotFloater;
 };
 
 static LLPanelInjector<LLPanelSnapshotOptions> panel_class("llpanelsnapshotoptions");
 
 LLPanelSnapshotOptions::LLPanelSnapshotOptions()
 {
-	mCommitCallbackRegistrar.add("Snapshot.SaveToProfile",		boost::bind(&LLPanelSnapshotOptions::onSaveToProfile,	this));
-	mCommitCallbackRegistrar.add("Snapshot.SaveToEmail",		boost::bind(&LLPanelSnapshotOptions::onSaveToEmail,		this));
-	mCommitCallbackRegistrar.add("Snapshot.SaveToInventory",	boost::bind(&LLPanelSnapshotOptions::onSaveToInventory,	this));
-	mCommitCallbackRegistrar.add("Snapshot.SaveToComputer",		boost::bind(&LLPanelSnapshotOptions::onSaveToComputer,	this));
+    mCommitCallbackRegistrar.add("Snapshot.SaveToProfile",      boost::bind(&LLPanelSnapshotOptions::onSaveToProfile,   this));
+    mCommitCallbackRegistrar.add("Snapshot.SaveToEmail",        boost::bind(&LLPanelSnapshotOptions::onSaveToEmail,     this));
+    mCommitCallbackRegistrar.add("Snapshot.SaveToInventory",    boost::bind(&LLPanelSnapshotOptions::onSaveToInventory, this));
+    mCommitCallbackRegistrar.add("Snapshot.SaveToComputer",     boost::bind(&LLPanelSnapshotOptions::onSaveToComputer,  this));
 }
 
 LLPanelSnapshotOptions::~LLPanelSnapshotOptions()
@@ -77,53 +77,53 @@ LLPanelSnapshotOptions::~LLPanelSnapshotOptions()
 // virtual
 BOOL LLPanelSnapshotOptions::postBuild()
 {
-	mSnapshotFloater = getParentByType<LLFloaterSnapshotBase>();
-	return LLPanel::postBuild();
+    mSnapshotFloater = getParentByType<LLFloaterSnapshotBase>();
+    return LLPanel::postBuild();
 }
 
 // virtual
 void LLPanelSnapshotOptions::onOpen(const LLSD& key)
 {
-	updateUploadCost();
+    updateUploadCost();
 }
 
 void LLPanelSnapshotOptions::updateUploadCost()
 {
-	S32 upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
-	getChild<LLUICtrl>("save_to_inventory_btn")->setLabelArg("[AMOUNT]", llformat("%d", upload_cost));
+    S32 upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
+    getChild<LLUICtrl>("save_to_inventory_btn")->setLabelArg("[AMOUNT]", llformat("%d", upload_cost));
 }
 
 void LLPanelSnapshotOptions::openPanel(const std::string& panel_name)
 {
-	LLSideTrayPanelContainer* parent = dynamic_cast<LLSideTrayPanelContainer*>(getParent());
-	if (!parent)
-	{
-		LL_WARNS() << "Cannot find panel container" << LL_ENDL;
-		return;
-	}
+    LLSideTrayPanelContainer* parent = dynamic_cast<LLSideTrayPanelContainer*>(getParent());
+    if (!parent)
+    {
+        LL_WARNS() << "Cannot find panel container" << LL_ENDL;
+        return;
+    }
 
-	parent->openPanel(panel_name);
-	parent->getCurrentPanel()->onOpen(LLSD());
-	mSnapshotFloater->postPanelSwitch();
+    parent->openPanel(panel_name);
+    parent->getCurrentPanel()->onOpen(LLSD());
+    mSnapshotFloater->postPanelSwitch();
 }
 
 void LLPanelSnapshotOptions::onSaveToProfile()
 {
-	openPanel("panel_snapshot_profile");
+    openPanel("panel_snapshot_profile");
 }
 
 void LLPanelSnapshotOptions::onSaveToEmail()
 {
-	openPanel("panel_snapshot_postcard");
+    openPanel("panel_snapshot_postcard");
 }
 
 void LLPanelSnapshotOptions::onSaveToInventory()
 {
-	openPanel("panel_snapshot_inventory");
+    openPanel("panel_snapshot_inventory");
 }
 
 void LLPanelSnapshotOptions::onSaveToComputer()
 {
-	openPanel("panel_snapshot_local");
+    openPanel("panel_snapshot_local");
 }
 

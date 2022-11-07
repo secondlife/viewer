@@ -40,20 +40,20 @@ class LLObjectSelection;
 typedef LLSafeHandle<LLObjectSelection> LLObjectSelectionHandle;
 
 class LLFloaterBuildOptions
-	:	public LLFloater
+    :   public LLFloater
 {
 public:
-	virtual BOOL postBuild();
+    virtual BOOL postBuild();
 
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/	void onClose(bool app_quitting);
+    /*virtual*/ void onOpen(const LLSD& key);
+    /*virtual*/ void onClose(bool app_quitting);
 
 private:
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 
-	LLFloaterBuildOptions(const LLSD& key);
-	~LLFloaterBuildOptions();
+    LLFloaterBuildOptions(const LLSD& key);
+    ~LLFloaterBuildOptions();
 
-	LLObjectSelectionHandle	mObjectSelection;
+    LLObjectSelectionHandle mObjectSelection;
 };
 #endif

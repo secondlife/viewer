@@ -32,15 +32,15 @@
 class LL_COMMON_API LLErrorThread : public LLThread
 {
 public:
-	LLErrorThread();
-	~LLErrorThread();
+    LLErrorThread();
+    ~LLErrorThread();
 
-	/*virtual*/ void run(void);
-	void setUserData(void *user_data);
-	void *getUserData() const;
+    /*virtual*/ void run(void);
+    void setUserData(void *user_data);
+    void *getUserData() const;
 
 protected:
-	void* mUserDatap; // User data associated with this thread
+    void* mUserDatap; // User data associated with this thread
 };
 
 #endif // LL_LLERRORTHREAD_H

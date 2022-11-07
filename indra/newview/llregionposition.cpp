@@ -34,61 +34,61 @@
 
 LLRegionPosition::LLRegionPosition()
 {
-	mRegionp = NULL;
+    mRegionp = NULL;
 }
 
 LLRegionPosition::LLRegionPosition(LLViewerRegion *regionp, const LLVector3 &position)
 {
-	mRegionp = regionp;
-	mPositionRegion = position;
+    mRegionp = regionp;
+    mPositionRegion = position;
 }
 
 LLRegionPosition::LLRegionPosition(const LLVector3d &global_position)
 {
-	setPositionGlobal(global_position);
+    setPositionGlobal(global_position);
 }
 
 LLViewerRegion *LLRegionPosition::getRegion() const
 {
-	return mRegionp;
+    return mRegionp;
 }
 
 const LLVector3 &LLRegionPosition::getPositionRegion() const
 {
-	return mPositionRegion;
+    return mPositionRegion;
 }
 
 const LLVector3 LLRegionPosition::getPositionAgent() const
 {
-	return mRegionp->getPosAgentFromRegion( mPositionRegion );
+    return mRegionp->getPosAgentFromRegion( mPositionRegion );
 }
 
 LLVector3d LLRegionPosition::getPositionGlobal() const
 {
-	if (mRegionp)
-	{
-		return mRegionp->getPosGlobalFromRegion(mPositionRegion);
-	}
-	else
-	{
-		LLVector3d pos_global;
-		pos_global.setVec(mPositionRegion);
-		return pos_global;
-	}
+    if (mRegionp)
+    {
+        return mRegionp->getPosGlobalFromRegion(mPositionRegion);
+    }
+    else
+    {
+        LLVector3d pos_global;
+        pos_global.setVec(mPositionRegion);
+        return pos_global;
+    }
 }
 
 
 void LLRegionPosition::setPositionGlobal(const LLVector3d& position_global )
 {
-	mRegionp = LLWorld::getInstance()->getRegionFromPosGlobal(position_global);
-	if (mRegionp)
-	{
-		mPositionRegion = mRegionp->getPosRegionFromGlobal(position_global);
-	}
-	else
-	{
-		mRegionp = gAgent.getRegion();
-		llassert(mRegionp);
-		mPositionRegion = mRegionp->getPosRegionFromGlobal(position_global);
-	}
+    mRegionp = LLWorld::getInstance()->getRegionFromPosGlobal(position_global);
+    if (mRegionp)
+    {
+        mPositionRegion = mRegionp->getPosRegionFromGlobal(position_global);
+    }
+    else
+    {
+        mRegionp = gAgent.getRegion();
+        llassert(mRegionp);
+        mPositionRegion = mRegionp->getPosRegionFromGlobal(position_global);
+    }
 }

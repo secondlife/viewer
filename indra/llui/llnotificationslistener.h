@@ -46,9 +46,9 @@ public:
 private:
     void requestAdd(LLSD const & event_data) const;
 
-	void NotificationResponder(const std::string& replypump, 
-							   const LLSD& notification, 
-							   const LLSD& response) const;
+    void NotificationResponder(const std::string& replypump, 
+                               const LLSD& notification, 
+                               const LLSD& response) const;
 
     void listChannels(const LLSD& params) const;
     void listChannelNotifications(const LLSD& params) const;
@@ -62,7 +62,7 @@ private:
     class Forwarder;
     typedef std::map<std::string, std::shared_ptr<Forwarder> > ForwarderMap;
     ForwarderMap mForwarders;
-	LLNotifications & mNotifications;
+    LLNotifications & mNotifications;
 };
 
 #endif // LL_LLNOTIFICATIONSLISTENER_H

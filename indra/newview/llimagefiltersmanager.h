@@ -34,20 +34,20 @@
 
 class LLImageFiltersManager : public LLSingleton<LLImageFiltersManager>
 {
-	LLSINGLETON(LLImageFiltersManager);
-	~LLImageFiltersManager();
-	LOG_CLASS(LLImageFiltersManager);
+    LLSINGLETON(LLImageFiltersManager);
+    ~LLImageFiltersManager();
+    LOG_CLASS(LLImageFiltersManager);
 public:
     const std::vector<std::string> getFiltersList() const;
     std::string getFilterPath(const std::string& filter_name);
   
 private:
-	void loadAllFilters();
-	void loadFiltersFromDir(const std::string& dir);
+    void loadAllFilters();
+    void loadFiltersFromDir(const std::string& dir);
     
-	/*virtual*/ void initSingleton();
+    /*virtual*/ void initSingleton();
     
-	// List of filters : first is the user friendly localized name, second is the xml file name
+    // List of filters : first is the user friendly localized name, second is the xml file name
     std::map<std::string,std::string> mFiltersList;
 };
 

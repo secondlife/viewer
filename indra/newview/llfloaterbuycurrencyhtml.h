@@ -31,29 +31,29 @@
 #include "llmediactrl.h"
 
 class LLFloaterBuyCurrencyHTML : 
-	public LLFloater, 
-	public LLViewerMediaObserver
+    public LLFloater, 
+    public LLViewerMediaObserver
 {
-	public:
-		LLFloaterBuyCurrencyHTML( const LLSD& key );
+    public:
+        LLFloaterBuyCurrencyHTML( const LLSD& key );
 
-		/*virtual*/ BOOL postBuild();
-		/*virtual*/ void onClose( bool app_quitting );
+        /*virtual*/ BOOL postBuild();
+        /*virtual*/ void onClose( bool app_quitting );
 
-		// inherited from LLViewerMediaObserver
-		/*virtual*/ void handleMediaEvent( LLPluginClassMedia* self, EMediaEvent event );
+        // inherited from LLViewerMediaObserver
+        /*virtual*/ void handleMediaEvent( LLPluginClassMedia* self, EMediaEvent event );
 
-		// allow our controlling parent to tell us paramters
-		void setParams( bool specific_sum_requested, const std::string& message, S32 sum );
+        // allow our controlling parent to tell us paramters
+        void setParams( bool specific_sum_requested, const std::string& message, S32 sum );
 
-		// parse and construct URL and set browser to navigate there.
-		void navigateToFinalURL();
+        // parse and construct URL and set browser to navigate there.
+        void navigateToFinalURL();
 
-	private:
-		LLMediaCtrl* mBrowser;
-		bool mSpecificSumRequested;
-		std::string mMessage;
-		S32 mSum;
+    private:
+        LLMediaCtrl* mBrowser;
+        bool mSpecificSumRequested;
+        std::string mMessage;
+        S32 mSum;
 };
 
 #endif  // LL_LLFLOATERBUYCURRENCYHTML_H

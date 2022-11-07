@@ -35,31 +35,31 @@ class LLVector3;
 class LLBitPack;
 class LLGroupHeader;
 
-const F32 WIND_SCALE_HACK		= 2.0f;	// hack to make wind speeds more realistic
+const F32 WIND_SCALE_HACK       = 2.0f; // hack to make wind speeds more realistic
 
 
 class LLWind  
 {
 public:
-	LLWind();
-	~LLWind();
-	void renderVectors();
-	LLVector3 getVelocity(const LLVector3 &location); // "location" is region-local
-	LLVector3 getVelocityNoisy(const LLVector3 &location, const F32 dim);	// "location" is region-local
+    LLWind();
+    ~LLWind();
+    void renderVectors();
+    LLVector3 getVelocity(const LLVector3 &location); // "location" is region-local
+    LLVector3 getVelocityNoisy(const LLVector3 &location, const F32 dim);   // "location" is region-local
 
-	void decompress(LLBitPack &bitpack, LLGroupHeader *group_headerp);
-	LLVector3 getAverage();
+    void decompress(LLBitPack &bitpack, LLGroupHeader *group_headerp);
+    LLVector3 getAverage();
 
-	void setOriginGlobal(const LLVector3d &origin_global);
+    void setOriginGlobal(const LLVector3d &origin_global);
 private:
-	S32 mSize;
-	F32 * mVelX;
-	F32 * mVelY;
+    S32 mSize;
+    F32 * mVelX;
+    F32 * mVelY;
 
-	LLVector3d mOriginGlobal;
-	void init();
+    LLVector3d mOriginGlobal;
+    void init();
 
-	LOG_CLASS(LLWind);
+    LOG_CLASS(LLWind);
 };
 
 #endif

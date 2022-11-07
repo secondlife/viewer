@@ -51,5 +51,5 @@ typedef boost::unique_lock<HttpMutex> HttpScopedLock;
 
 }
 
-#endif	// LLCOREINT_MUTEX_H
+#endif  // LLCOREINT_MUTEX_H
 

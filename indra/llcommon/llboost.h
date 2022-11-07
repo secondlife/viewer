@@ -31,12 +31,12 @@
 
 // boost_tokenizer typedef
 /* example usage:
-	boost_tokenizer tokens(input_string, boost::char_separator<char>(" \t\n"));
-	for (boost_tokenizer::iterator token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
-	{
-		std::string tok = *token_iter;
-		process_token_string( tok );
-	}
+    boost_tokenizer tokens(input_string, boost::char_separator<char>(" \t\n"));
+    for (boost_tokenizer::iterator token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
+    {
+        std::string tok = *token_iter;
+        process_token_string( tok );
+    }
 */
 typedef boost::tokenizer<boost::char_separator<char> > boost_tokenizer;
 
@@ -44,15 +44,15 @@ typedef boost::tokenizer<boost::char_separator<char> > boost_tokenizer;
 //  returns false if any of the callbacks return false
 struct boost_boolean_combiner
 {
-	typedef bool result_type;
-	template<typename InputIterator>
-	bool operator()(InputIterator first, InputIterator last) const
-	{
-		bool res = true;
-		while (first != last)
-			res &= *first++;
-		return res;
-	}
+    typedef bool result_type;
+    template<typename InputIterator>
+    bool operator()(InputIterator first, InputIterator last) const
+    {
+        bool res = true;
+        while (first != last)
+            res &= *first++;
+        return res;
+    }
 };
 
 #endif // LL_LLBOOST_H

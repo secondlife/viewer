@@ -39,21 +39,21 @@ class LLTexLayerSet;
 
 typedef enum e_avatar_render_pass
 {
-	AVATAR_RENDER_PASS_SINGLE,
-	AVATAR_RENDER_PASS_CLOTHING_INNER,
-	AVATAR_RENDER_PASS_CLOTHING_OUTER
+    AVATAR_RENDER_PASS_SINGLE,
+    AVATAR_RENDER_PASS_CLOTHING_INNER,
+    AVATAR_RENDER_PASS_CLOTHING_OUTER
 } EAvatarRenderPass;
 
 class LLSkinJoint
 {
 public:
-	LLSkinJoint();
-	~LLSkinJoint();
-	BOOL setupSkinJoint( LLAvatarJoint *joint);
+    LLSkinJoint();
+    ~LLSkinJoint();
+    BOOL setupSkinJoint( LLAvatarJoint *joint);
 
-	LLAvatarJoint	*mJoint;
-	LLVector3		mRootToJointSkinOffset;
-	LLVector3		mRootToParentJointSkinOffset;
+    LLAvatarJoint   *mJoint;
+    LLVector3       mRootToJointSkinOffset;
+    LLVector3       mRootToParentJointSkinOffset;
 };
 
 //-----------------------------------------------------------------------------
@@ -62,83 +62,83 @@ public:
 class LLAvatarJointMesh : public virtual LLAvatarJoint
 {
 protected:
-	LLColor4					mColor;			// color value
-// 	LLColor4					mSpecular;		// specular color (always white for now)
-	F32							mShiny;			// shiny value
-	LLPointer<LLGLTexture>		mTexture;		// ptr to a global texture
-	LLTexLayerSet*				mLayerSet;		// ptr to a layer set owned by the avatar
-	U32 						mTestImageName;		// handle to a temporary texture for previewing uploads
-	LLPolyMesh*					mMesh;			// ptr to a global polymesh
-	BOOL						mCullBackFaces;	// true by default
-	LLFace*						mFace;			// ptr to a face w/ AGP copy of mesh
+    LLColor4                    mColor;         // color value
+//  LLColor4                    mSpecular;      // specular color (always white for now)
+    F32                         mShiny;         // shiny value
+    LLPointer<LLGLTexture>      mTexture;       // ptr to a global texture
+    LLTexLayerSet*              mLayerSet;      // ptr to a layer set owned by the avatar
+    U32                         mTestImageName;     // handle to a temporary texture for previewing uploads
+    LLPolyMesh*                 mMesh;          // ptr to a global polymesh
+    BOOL                        mCullBackFaces; // true by default
+    LLFace*                     mFace;          // ptr to a face w/ AGP copy of mesh
 
-	U32							mFaceIndexCount;
+    U32                         mFaceIndexCount;
 
-	U32							mNumSkinJoints;
-	LLSkinJoint*				mSkinJoints;
-	S32							mMeshID;
-
-public:
-	static BOOL					sPipelineRender;
-	//RN: this is here for testing purposes
-	static U32					sClothingMaskImageName;
-	static LLColor4				sClothingInnerColor;
+    U32                         mNumSkinJoints;
+    LLSkinJoint*                mSkinJoints;
+    S32                         mMeshID;
 
 public:
-	// Constructor
-	LLAvatarJointMesh();
+    static BOOL                 sPipelineRender;
+    //RN: this is here for testing purposes
+    static U32                  sClothingMaskImageName;
+    static LLColor4             sClothingInnerColor;
 
-	// Destructor
-	virtual ~LLAvatarJointMesh();
+public:
+    // Constructor
+    LLAvatarJointMesh();
 
-	// Gets the shape color
-	void getColor( F32 *red, F32 *green, F32 *blue, F32 *alpha );
+    // Destructor
+    virtual ~LLAvatarJointMesh();
 
-	// Sets the shape color
-	void setColor( F32 red, F32 green, F32 blue, F32 alpha );
-	void setColor( const LLColor4& color );
+    // Gets the shape color
+    void getColor( F32 *red, F32 *green, F32 *blue, F32 *alpha );
 
-	// Sets the shininess
-	void setSpecular( const LLColor4& color, F32 shiny ) { /*mSpecular = color;*/ mShiny = shiny; };
+    // Sets the shape color
+    void setColor( F32 red, F32 green, F32 blue, F32 alpha );
+    void setColor( const LLColor4& color );
 
-	// Sets the shape texture
-	void setTexture( LLGLTexture *texture );
+    // Sets the shininess
+    void setSpecular( const LLColor4& color, F32 shiny ) { /*mSpecular = color;*/ mShiny = shiny; };
 
-	BOOL hasGLTexture() const;
+    // Sets the shape texture
+    void setTexture( LLGLTexture *texture );
 
-	void setTestTexture( U32 name ) { mTestImageName = name; }
+    BOOL hasGLTexture() const;
 
-	// Sets layer set responsible for a dynamic shape texture (takes precedence over normal texture)
-	void setLayerSet( LLTexLayerSet* layer_set );
+    void setTestTexture( U32 name ) { mTestImageName = name; }
 
-	BOOL hasComposite() const;
+    // Sets layer set responsible for a dynamic shape texture (takes precedence over normal texture)
+    void setLayerSet( LLTexLayerSet* layer_set );
 
-	// Gets the poly mesh
-	LLPolyMesh *getMesh();
+    BOOL hasComposite() const;
 
-	// Sets the poly mesh
-	void setMesh( LLPolyMesh *mesh );
+    // Gets the poly mesh
+    LLPolyMesh *getMesh();
 
-	// Sets up joint matrix data for rendering
-	void setupJoint(LLAvatarJoint* current_joint);
+    // Sets the poly mesh
+    void setMesh( LLPolyMesh *mesh );
 
-	// Render time method to upload batches of joint matrices
-	void uploadJointMatrices();
+    // Sets up joint matrix data for rendering
+    void setupJoint(LLAvatarJoint* current_joint);
 
-	// Sets ID for picking
-	void setMeshID( S32 id ) {mMeshID = id;}
+    // Render time method to upload batches of joint matrices
+    void uploadJointMatrices();
 
-	// Gets ID for picking
-	S32 getMeshID() { return mMeshID; }	
+    // Sets ID for picking
+    void setMeshID( S32 id ) {mMeshID = id;}
 
-	void setIsTransparent(BOOL is_transparent) { mIsTransparent = is_transparent; }
+    // Gets ID for picking
+    S32 getMeshID() { return mMeshID; } 
+
+    void setIsTransparent(BOOL is_transparent) { mIsTransparent = is_transparent; }
 
 private:
-	// Allocate skin data
-	BOOL allocateSkinData( U32 numSkinJoints );
+    // Allocate skin data
+    BOOL allocateSkinData( U32 numSkinJoints );
 
-	// Free skin data
-	void freeSkinData();
+    // Free skin data
+    void freeSkinData();
 };
 
 #endif // LL_LLAVATARJOINTMESH_H

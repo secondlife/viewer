@@ -43,37 +43,37 @@
 class LLDragAndDropButton : public LLButton
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLButton::Params> {};
+    struct Params : public LLInitParam::Block<Params, LLButton::Params> {};
 
-	LLDragAndDropButton(const Params& params);
+    LLDragAndDropButton(const Params& params);
 
-	typedef boost::function<bool (
-		S32 /*x*/, S32 /*y*/, MASK /*mask*/, BOOL /*drop*/,
-		EDragAndDropType /*cargo_type*/,
-		void* /*cargo_data*/,
-		EAcceptance* /*accept*/,
-		std::string& /*tooltip_msg*/)> drag_drop_handler_t;
-
-
-	/**
-	 * Sets a handler which should process Drag-And-Drop.
-	 */
-	void setDragAndDropHandler(drag_drop_handler_t handler) { mDragDropHandler = handler; }
+    typedef boost::function<bool (
+        S32 /*x*/, S32 /*y*/, MASK /*mask*/, BOOL /*drop*/,
+        EDragAndDropType /*cargo_type*/,
+        void* /*cargo_data*/,
+        EAcceptance* /*accept*/,
+        std::string& /*tooltip_msg*/)> drag_drop_handler_t;
 
 
-	/**
-	 * Process Drag-And-Drop by delegating the event to drag_drop_handler_t.
-	 * 
-	 * @return BOOL - value returned by drag_drop_handler_t if it is set, FALSE otherwise.
-	 */
-	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-		EDragAndDropType cargo_type,
-		void* cargo_data,
-		EAcceptance* accept,
-		std::string& tooltip_msg);
+    /**
+     * Sets a handler which should process Drag-And-Drop.
+     */
+    void setDragAndDropHandler(drag_drop_handler_t handler) { mDragDropHandler = handler; }
+
+
+    /**
+     * Process Drag-And-Drop by delegating the event to drag_drop_handler_t.
+     * 
+     * @return BOOL - value returned by drag_drop_handler_t if it is set, FALSE otherwise.
+     */
+    /*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+        EDragAndDropType cargo_type,
+        void* cargo_data,
+        EAcceptance* accept,
+        std::string& tooltip_msg);
 
 private:
-	drag_drop_handler_t mDragDropHandler;
+    drag_drop_handler_t mDragDropHandler;
 };
 
 

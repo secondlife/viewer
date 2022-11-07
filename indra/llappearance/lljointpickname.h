@@ -35,13 +35,13 @@ class LLAvatarJointMesh;
 // should be pushed/popped.
 enum LLJointPickName
 {
-	PN_DEFAULT = -1,
-	PN_0 = 0,
-	PN_1 = 1,
-	PN_2 = 2,
-	PN_3 = 3,
-	PN_4 = 4,
-	PN_5 = 5
+    PN_DEFAULT = -1,
+    PN_0 = 0,
+    PN_1 = 1,
+    PN_2 = 2,
+    PN_3 = 3,
+    PN_4 = 4,
+    PN_5 = 5
 };
 
 typedef std::vector<LLAvatarJointMesh*> avatar_joint_mesh_list_t;

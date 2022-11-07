@@ -38,12 +38,12 @@ class LLMessageSystem;
 class LLStoredMessage
 {
 public:
-	LLStoredMessage(const std::string& name, const LLSD& message);
+    LLStoredMessage(const std::string& name, const LLSD& message);
 private:
-	friend class LLMessageSystem;
+    friend class LLMessageSystem;
 
-	LLSD mMessage;
-	std::string mName;
+    LLSD mMessage;
+    std::string mName;
 };
 
 typedef boost::shared_ptr<LLStoredMessage> LLStoredMessagePtr;

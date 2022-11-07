@@ -32,32 +32,32 @@
 
 class LLRNGWriter : public LLInitParam::Parser
 {
-	LOG_CLASS(LLRNGWriter);
+    LOG_CLASS(LLRNGWriter);
 public:
-	void writeRNG(const std::string& name, LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const std::string& xml_namespace);
-	void addDefinition(const std::string& type_name, const LLInitParam::BaseBlock& block);
+    void writeRNG(const std::string& name, LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const std::string& xml_namespace);
+    void addDefinition(const std::string& type_name, const LLInitParam::BaseBlock& block);
 
-	/*virtual*/ std::string getCurrentElementName() { return LLStringUtil::null; }
+    /*virtual*/ std::string getCurrentElementName() { return LLStringUtil::null; }
 
-	LLRNGWriter();
+    LLRNGWriter();
 
 private:
-	LLXMLNodePtr createCardinalityNode(LLXMLNodePtr parent_node, S32 min_count, S32 max_count);
-	void addTypeNode(LLXMLNodePtr parent_node, const std::string& type, const std::vector<std::string>* possible_values);
+    LLXMLNodePtr createCardinalityNode(LLXMLNodePtr parent_node, S32 min_count, S32 max_count);
+    void addTypeNode(LLXMLNodePtr parent_node, const std::string& type, const std::vector<std::string>* possible_values);
 
-	void writeAttribute(const std::string& type, const Parser::name_stack_t&, S32 min_count, S32 max_count, const std::vector<std::string>* possible_values);
-	LLXMLNodePtr	mElementNode;
-	LLXMLNodePtr	mChildrenNode;
-	LLXMLNodePtr	mGrammarNode;
-	std::string		mDefinitionName;
+    void writeAttribute(const std::string& type, const Parser::name_stack_t&, S32 min_count, S32 max_count, const std::vector<std::string>* possible_values);
+    LLXMLNodePtr    mElementNode;
+    LLXMLNodePtr    mChildrenNode;
+    LLXMLNodePtr    mGrammarNode;
+    std::string     mDefinitionName;
 
-	typedef std::pair<LLXMLNodePtr, std::set<std::string> >  attribute_data_t;
-	typedef std::map<std::string, attribute_data_t> elements_map_t;
-	typedef std::set<std::string> defined_elements_t;
+    typedef std::pair<LLXMLNodePtr, std::set<std::string> >  attribute_data_t;
+    typedef std::map<std::string, attribute_data_t> elements_map_t;
+    typedef std::set<std::string> defined_elements_t;
 
-	defined_elements_t	mDefinedElements;
-	attribute_data_t	mAttributesWritten;
-	elements_map_t		mElementsWritten;
+    defined_elements_t  mDefinedElements;
+    attribute_data_t    mAttributesWritten;
+    elements_map_t      mElementsWritten;
 };
 
 #endif //LLRNGWRITER_H

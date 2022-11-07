@@ -45,32 +45,32 @@ class alignas(16) LLPolyMorphData
 {
     LL_ALIGN_NEW
 public:
-	LLPolyMorphData(const std::string& morph_name);
-	~LLPolyMorphData();
-	LLPolyMorphData(const LLPolyMorphData &rhs);
+    LLPolyMorphData(const std::string& morph_name);
+    ~LLPolyMorphData();
+    LLPolyMorphData(const LLPolyMorphData &rhs);
 
-	BOOL			loadBinary(LLFILE* fp, LLPolyMeshSharedData *mesh);
-	const std::string& getName() { return mName; }
+    BOOL            loadBinary(LLFILE* fp, LLPolyMeshSharedData *mesh);
+    const std::string& getName() { return mName; }
 
 public:
-	std::string			mName;
+    std::string         mName;
 
-	// morphology
-	U32					mNumIndices;
-	U32*				mVertexIndices;
-	U32					mCurrentIndex;
-	LLVector4a*			mCoords;
-	LLVector4a*			mNormals;
-	LLVector4a*			mBinormals;
-	LLVector2*			mTexCoords;
+    // morphology
+    U32                 mNumIndices;
+    U32*                mVertexIndices;
+    U32                 mCurrentIndex;
+    LLVector4a*         mCoords;
+    LLVector4a*         mNormals;
+    LLVector4a*         mBinormals;
+    LLVector2*          mTexCoords;
 
-	F32					mTotalDistortion;	// vertex distortion summed over entire morph
-	F32					mMaxDistortion;		// maximum single vertex distortion in a given morph
-	LLVector4a			mAvgDistortion;		// average vertex distortion, to infer directionality of the morph
-	LLPolyMeshSharedData*	mMesh;
+    F32                 mTotalDistortion;   // vertex distortion summed over entire morph
+    F32                 mMaxDistortion;     // maximum single vertex distortion in a given morph
+    LLVector4a          mAvgDistortion;     // average vertex distortion, to infer directionality of the morph
+    LLPolyMeshSharedData*   mMesh;
 
 private:
-	void freeData();
+    void freeData();
 } LL_ALIGN_POSTFIX(16);
 
 
@@ -80,18 +80,18 @@ private:
 class LLPolyVertexMask
 {
 public:
-	LLPolyVertexMask(LLPolyMorphData* morph_data);
-	LLPolyVertexMask(const LLPolyVertexMask& pOther);
-	~LLPolyVertexMask();
+    LLPolyVertexMask(LLPolyMorphData* morph_data);
+    LLPolyVertexMask(const LLPolyVertexMask& pOther);
+    ~LLPolyVertexMask();
 
-	void generateMask(U8 *maskData, S32 width, S32 height, S32 num_components, BOOL invert, LLVector4a *clothing_weights);
-	F32* getMorphMaskWeights();
+    void generateMask(U8 *maskData, S32 width, S32 height, S32 num_components, BOOL invert, LLVector4a *clothing_weights);
+    F32* getMorphMaskWeights();
 
 
 protected:
-	F32*		mWeights;
-	LLPolyMorphData *mMorphData;
-	BOOL			mWeightsGenerated;
+    F32*        mWeights;
+    LLPolyMorphData *mMorphData;
+    BOOL            mWeightsGenerated;
 
 };
 
@@ -100,22 +100,22 @@ protected:
 //-----------------------------------------------------------------------------
 struct LLPolyVolumeMorphInfo
 {
-	LLPolyVolumeMorphInfo(std::string &name, LLVector3 &scale, LLVector3 &pos)
-		: mName(name), mScale(scale), mPos(pos) {};
+    LLPolyVolumeMorphInfo(std::string &name, LLVector3 &scale, LLVector3 &pos)
+        : mName(name), mScale(scale), mPos(pos) {};
 
-	std::string						mName;
-	LLVector3						mScale;
-	LLVector3						mPos;
+    std::string                     mName;
+    LLVector3                       mScale;
+    LLVector3                       mPos;
 };
 
 struct LLPolyVolumeMorph
 {
-	LLPolyVolumeMorph(LLAvatarJointCollisionVolume* volume, LLVector3 scale, LLVector3 pos)
-		: mVolume(volume), mScale(scale), mPos(pos) {};
+    LLPolyVolumeMorph(LLAvatarJointCollisionVolume* volume, LLVector3 scale, LLVector3 pos)
+        : mVolume(volume), mScale(scale), mPos(pos) {};
 
-	LLAvatarJointCollisionVolume*	mVolume;
-	LLVector3						mScale;
-	LLVector3						mPos;
+    LLAvatarJointCollisionVolume*   mVolume;
+    LLVector3                       mScale;
+    LLVector3                       mPos;
 };
 
 //-----------------------------------------------------------------------------
@@ -124,18 +124,18 @@ struct LLPolyVolumeMorph
 //-----------------------------------------------------------------------------
 class LLPolyMorphTargetInfo : public LLViewerVisualParamInfo
 {
-	friend class LLPolyMorphTarget;
+    friend class LLPolyMorphTarget;
 public:
-	LLPolyMorphTargetInfo();
-	/*virtual*/ ~LLPolyMorphTargetInfo() {};
-	
-	/*virtual*/ BOOL parseXml(LLXmlTreeNode* node);
+    LLPolyMorphTargetInfo();
+    /*virtual*/ ~LLPolyMorphTargetInfo() {};
+    
+    /*virtual*/ BOOL parseXml(LLXmlTreeNode* node);
 
 protected:
-	std::string		mMorphName;
-	BOOL			mIsClothingMorph;
-	typedef std::vector<LLPolyVolumeMorphInfo> volume_info_list_t;
-	volume_info_list_t mVolumeInfoList;	
+    std::string     mMorphName;
+    BOOL            mIsClothingMorph;
+    typedef std::vector<LLPolyVolumeMorphInfo> volume_info_list_t;
+    volume_info_list_t mVolumeInfoList; 
 };
 
 //-----------------------------------------------------------------------------
@@ -148,45 +148,45 @@ class alignas(16) LLPolyMorphTarget : public LLViewerVisualParam
 {
     LL_ALIGN_NEW
 public:
-	LLPolyMorphTarget(LLPolyMesh *poly_mesh);
-	~LLPolyMorphTarget();
+    LLPolyMorphTarget(LLPolyMesh *poly_mesh);
+    ~LLPolyMorphTarget();
 
-	// Special: These functions are overridden by child classes
-	LLPolyMorphTargetInfo*	getInfo() const { return (LLPolyMorphTargetInfo*)mInfo; }
-	//   This sets mInfo and calls initialization functions
-	BOOL					setInfo(LLPolyMorphTargetInfo *info);
+    // Special: These functions are overridden by child classes
+    LLPolyMorphTargetInfo*  getInfo() const { return (LLPolyMorphTargetInfo*)mInfo; }
+    //   This sets mInfo and calls initialization functions
+    BOOL                    setInfo(LLPolyMorphTargetInfo *info);
 
-	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
+    /*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
 
-	// LLVisualParam Virtual functions
-	///*virtual*/ BOOL				parseData(LLXmlTreeNode* node);
-	/*virtual*/ void				apply( ESex sex );
-	
-	// LLViewerVisualParam Virtual functions
-	/*virtual*/ F32					getTotalDistortion();
-	/*virtual*/ const LLVector4a&	getAvgDistortion();
-	/*virtual*/ F32					getMaxDistortion();
-	/*virtual*/ LLVector4a			getVertexDistortion(S32 index, LLPolyMesh *poly_mesh);
-	/*virtual*/ const LLVector4a*	getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh);
-	/*virtual*/ const LLVector4a*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh);
+    // LLVisualParam Virtual functions
+    ///*virtual*/ BOOL              parseData(LLXmlTreeNode* node);
+    /*virtual*/ void                apply( ESex sex );
+    
+    // LLViewerVisualParam Virtual functions
+    /*virtual*/ F32                 getTotalDistortion();
+    /*virtual*/ const LLVector4a&   getAvgDistortion();
+    /*virtual*/ F32                 getMaxDistortion();
+    /*virtual*/ LLVector4a          getVertexDistortion(S32 index, LLPolyMesh *poly_mesh);
+    /*virtual*/ const LLVector4a*   getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh);
+    /*virtual*/ const LLVector4a*   getNextDistortion(U32 *index, LLPolyMesh **poly_mesh);
 
-	void	applyMask(U8 *maskData, S32 width, S32 height, S32 num_components, BOOL invert);
-	void	addPendingMorphMask() { mNumMorphMasksPending++; }
+    void    applyMask(U8 *maskData, S32 width, S32 height, S32 num_components, BOOL invert);
+    void    addPendingMorphMask() { mNumMorphMasksPending++; }
 
     void    applyVolumeChanges(F32 delta_weight); // SL-315 - for resetSkeleton()
 
 protected:
-	LLPolyMorphTarget(const LLPolyMorphTarget& pOther);
+    LLPolyMorphTarget(const LLPolyMorphTarget& pOther);
 
-	LLPolyMorphData*				mMorphData;
-	LLPolyMesh*						mMesh;
-	LLPolyVertexMask *				mVertMask;
-	ESex							mLastSex;
-	// number of morph masks that haven't been generated, must be 0 before this morph is applied
-	BOOL							mNumMorphMasksPending;	
+    LLPolyMorphData*                mMorphData;
+    LLPolyMesh*                     mMesh;
+    LLPolyVertexMask *              mVertMask;
+    ESex                            mLastSex;
+    // number of morph masks that haven't been generated, must be 0 before this morph is applied
+    BOOL                            mNumMorphMasksPending;  
 
-	typedef std::vector<LLPolyVolumeMorph> volume_list_t;
-	volume_list_t 					mVolumeMorphs;
+    typedef std::vector<LLPolyVolumeMorph> volume_list_t;
+    volume_list_t                   mVolumeMorphs;
 
 };
 

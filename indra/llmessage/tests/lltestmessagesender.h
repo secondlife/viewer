@@ -38,11 +38,11 @@
 class LLTestMessageSender : public LLMessageSenderInterface
 {
 public:
-	virtual ~LLTestMessageSender();
-	virtual S32 sendMessage(const LLHost& host, LLStoredMessagePtr message);
+    virtual ~LLTestMessageSender();
+    virtual S32 sendMessage(const LLHost& host, LLStoredMessagePtr message);
 
-	std::vector<LLHost> mSendHosts;
-	std::vector<LLStoredMessagePtr> mSendMessages;
+    std::vector<LLHost> mSendHosts;
+    std::vector<LLStoredMessagePtr> mSendMessages;
 };
 
 

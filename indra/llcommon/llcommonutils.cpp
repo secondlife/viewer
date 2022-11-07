@@ -28,29 +28,29 @@
 #include "llcommonutils.h"
 
 void LLCommonUtils::computeDifference(
-	const uuid_vec_t& vnew,
-	const uuid_vec_t& vcur,
-	uuid_vec_t& vadded,
-	uuid_vec_t& vremoved)
+    const uuid_vec_t& vnew,
+    const uuid_vec_t& vcur,
+    uuid_vec_t& vadded,
+    uuid_vec_t& vremoved)
 {
-	uuid_vec_t vnew_copy(vnew);
-	uuid_vec_t vcur_copy(vcur);
+    uuid_vec_t vnew_copy(vnew);
+    uuid_vec_t vcur_copy(vcur);
 
-	std::sort(vnew_copy.begin(), vnew_copy.end());
-	std::sort(vcur_copy.begin(), vcur_copy.end());
+    std::sort(vnew_copy.begin(), vnew_copy.end());
+    std::sort(vcur_copy.begin(), vcur_copy.end());
 
-	size_t maxsize = llmax(vnew_copy.size(), vcur_copy.size());
-	vadded.resize(maxsize);
-	vremoved.resize(maxsize);
+    size_t maxsize = llmax(vnew_copy.size(), vcur_copy.size());
+    vadded.resize(maxsize);
+    vremoved.resize(maxsize);
 
-	uuid_vec_t::iterator it;
-	// what was removed
-	it = set_difference(vcur_copy.begin(), vcur_copy.end(), vnew_copy.begin(), vnew_copy.end(), vremoved.begin());
-	vremoved.erase(it, vremoved.end());
+    uuid_vec_t::iterator it;
+    // what was removed
+    it = set_difference(vcur_copy.begin(), vcur_copy.end(), vnew_copy.begin(), vnew_copy.end(), vremoved.begin());
+    vremoved.erase(it, vremoved.end());
 
-	// what was added
-	it = set_difference(vnew_copy.begin(), vnew_copy.end(), vcur_copy.begin(), vcur_copy.end(), vadded.begin());
-	vadded.erase(it, vadded.end());
+    // what was added
+    it = set_difference(vnew_copy.begin(), vnew_copy.end(), vcur_copy.begin(), vcur_copy.end(), vadded.begin());
+    vadded.erase(it, vadded.end());
 }
 
 // EOF

@@ -33,50 +33,50 @@
 class LLXfer_File : public LLXfer
 {
  protected:
- 	LLFILE *mFp;
-	std::string mLocalFilename;
-	std::string mRemoteFilename;
-	ELLPath mRemotePath;
-	std::string mTempFilename;
+    LLFILE *mFp;
+    std::string mLocalFilename;
+    std::string mRemoteFilename;
+    ELLPath mRemotePath;
+    std::string mTempFilename;
 
-	BOOL mDeleteLocalOnCompletion;
-	BOOL mDeleteRemoteOnCompletion;
+    BOOL mDeleteLocalOnCompletion;
+    BOOL mDeleteRemoteOnCompletion;
 
  public:
-	LLXfer_File (S32 chunk_size);
-	LLXfer_File (const std::string& local_filename, BOOL delete_local_on_completion, S32 chunk_size);
-	virtual ~LLXfer_File();
+    LLXfer_File (S32 chunk_size);
+    LLXfer_File (const std::string& local_filename, BOOL delete_local_on_completion, S32 chunk_size);
+    virtual ~LLXfer_File();
 
-	virtual void init(const std::string& local_filename, BOOL delete_local_on_completion, S32 chunk_size);
-	virtual void cleanup();
+    virtual void init(const std::string& local_filename, BOOL delete_local_on_completion, S32 chunk_size);
+    virtual void cleanup();
 
-	virtual S32 initializeRequest(U64 xfer_id,
-								  const std::string& local_filename,
-								  const std::string& remote_filename,
-								  ELLPath remote_path,
-								  const LLHost& remote_host,
-								  BOOL delete_remote_on_completion,
-								  void (*callback)(void**,S32,LLExtStat),
-								  void** user_data);
-	virtual S32 startDownload();
+    virtual S32 initializeRequest(U64 xfer_id,
+                                  const std::string& local_filename,
+                                  const std::string& remote_filename,
+                                  ELLPath remote_path,
+                                  const LLHost& remote_host,
+                                  BOOL delete_remote_on_completion,
+                                  void (*callback)(void**,S32,LLExtStat),
+                                  void** user_data);
+    virtual S32 startDownload();
 
-	virtual S32 processEOF();
+    virtual S32 processEOF();
 
-	virtual S32 startSend(U64 xfer_id, const LLHost &remote_host);
-	virtual void closeFileHandle();
-	virtual S32 reopenFileHandle();
+    virtual S32 startSend(U64 xfer_id, const LLHost &remote_host);
+    virtual void closeFileHandle();
+    virtual S32 reopenFileHandle();
 
-	virtual S32 suck(S32 start_position);
-	virtual S32 flush();
+    virtual S32 suck(S32 start_position);
+    virtual S32 flush();
 
-	virtual BOOL matchesLocalFilename(const std::string& filename);
-	virtual BOOL matchesRemoteFilename(const std::string& filename, ELLPath remote_path);
+    virtual BOOL matchesLocalFilename(const std::string& filename);
+    virtual BOOL matchesRemoteFilename(const std::string& filename, ELLPath remote_path);
 
-	virtual S32  getMaxBufferSize();
+    virtual S32  getMaxBufferSize();
 
-	virtual U32 getXferTypeTag();
+    virtual U32 getXferTypeTag();
 
-	virtual std::string getFileName();
+    virtual std::string getFileName();
 };
 
 #endif

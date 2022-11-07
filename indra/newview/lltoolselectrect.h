@@ -31,33 +31,33 @@
 #include "lltoolselect.h"
 
 class LLToolSelectRect
-:	public LLToolSelect
+:   public LLToolSelect
 {
 public:
-	LLToolSelectRect( LLToolComposite* composite );
+    LLToolSelectRect( LLToolComposite* composite );
 
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual void	draw();							// draw the select rectangle
+    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual BOOL    handleHover(S32 x, S32 y, MASK mask);
+    virtual void    draw();                         // draw the select rectangle
 
-	void handlePick(const LLPickInfo& pick);
-
-protected:
-	void			handleRectangleSelection(S32 x, S32 y, MASK mask);	// true if you selected one
-	BOOL			outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y);
+    void handlePick(const LLPickInfo& pick);
 
 protected:
-	S32				mDragStartX;					// screen coords, from left
-	S32				mDragStartY;					// screen coords, from bottom
+    void            handleRectangleSelection(S32 x, S32 y, MASK mask);  // true if you selected one
+    BOOL            outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y);
 
-	S32				mDragEndX;
-	S32				mDragEndY;
+protected:
+    S32             mDragStartX;                    // screen coords, from left
+    S32             mDragStartY;                    // screen coords, from bottom
 
-	S32				mDragLastWidth;
-	S32				mDragLastHeight;
+    S32             mDragEndX;
+    S32             mDragEndY;
 
-	BOOL			mMouseOutsideSlop;		// has mouse ever gone outside slop region?
+    S32             mDragLastWidth;
+    S32             mDragLastHeight;
+
+    BOOL            mMouseOutsideSlop;      // has mouse ever gone outside slop region?
 };
 
 

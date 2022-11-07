@@ -41,70 +41,70 @@ class LLComboBox;
 
 
 class LLChatBar
-:	public LLPanel
+:   public LLPanel
 {
 public:
-	// constructor for inline chat-bars (e.g. hosted in chat history window)
-	LLChatBar();
-	~LLChatBar();
-	virtual BOOL postBuild();
+    // constructor for inline chat-bars (e.g. hosted in chat history window)
+    LLChatBar();
+    ~LLChatBar();
+    virtual BOOL postBuild();
 
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
+    virtual BOOL handleKeyHere(KEY key, MASK mask);
 
-	void		refresh();
-	void		refreshGestures();
+    void        refresh();
+    void        refreshGestures();
 
-	// Move cursor into chat input field.
-	void		setKeyboardFocus(BOOL b);
+    // Move cursor into chat input field.
+    void        setKeyboardFocus(BOOL b);
 
-	// Ignore arrow keys for chat bar
-	void		setIgnoreArrowKeys(BOOL b);
+    // Ignore arrow keys for chat bar
+    void        setIgnoreArrowKeys(BOOL b);
 
-	BOOL		inputEditorHasFocus();
-	std::string	getCurrentChat();
+    BOOL        inputEditorHasFocus();
+    std::string getCurrentChat();
 
-	// since chat bar logic is reused for chat history
-	// gesture combo box might not be a direct child
-	void		setGestureCombo(LLComboBox* combo);
+    // since chat bar logic is reused for chat history
+    // gesture combo box might not be a direct child
+    void        setGestureCombo(LLComboBox* combo);
 
-	// Send a chat (after stripping /20foo channel chats).
-	// "Animate" means the nodding animation for regular text.
-	void		sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
-	void		sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate);
+    // Send a chat (after stripping /20foo channel chats).
+    // "Animate" means the nodding animation for regular text.
+    void        sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
+    void        sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate);
 
-	// If input of the form "/20foo" or "/20 foo", returns "foo" and channel 20.
-	// Otherwise returns input and channel 0.
-	LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
+    // If input of the form "/20foo" or "/20 foo", returns "foo" and channel 20.
+    // Otherwise returns input and channel 0.
+    LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
 
-	// callbacks
-	void onClickSay(LLUICtrl* ctrl);
+    // callbacks
+    void onClickSay(LLUICtrl* ctrl);
 
-	static void	onTabClick( void* userdata );
-	static void	onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
-	static void	onInputEditorFocusLost();
-	static void	onInputEditorGainFocus();
+    static void onTabClick( void* userdata );
+    static void onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
+    static void onInputEditorFocusLost();
+    static void onInputEditorGainFocus();
 
-	void onCommitGesture(LLUICtrl* ctrl);
+    void onCommitGesture(LLUICtrl* ctrl);
 
-	static void startChat(const char* line);
-	static void stopChat();
-
-protected:
-	void sendChat(EChatType type);
-	void updateChat();
+    static void startChat(const char* line);
+    static void stopChat();
 
 protected:
-	LLLineEditor*	mInputEditor;
+    void sendChat(EChatType type);
+    void updateChat();
 
-	LLFrameTimer	mGestureLabelTimer;
+protected:
+    LLLineEditor*   mInputEditor;
 
-	// Which non-zero channel did we last chat on?
-	S32				mLastSpecialChatChannel;
+    LLFrameTimer    mGestureLabelTimer;
 
-	BOOL			mIsBuilt;
-	LLComboBox*		mGestureCombo;
+    // Which non-zero channel did we last chat on?
+    S32             mLastSpecialChatChannel;
 
-	LLChatBarGestureObserver* mObserver;
+    BOOL            mIsBuilt;
+    LLComboBox*     mGestureCombo;
+
+    LLChatBarGestureObserver* mObserver;
 };
 
 extern LLChatBar *gChatBar;

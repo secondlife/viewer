@@ -40,11 +40,11 @@ const S32 VPAD = 4;
 const S32 HPAD = 4;
 
 // Account History, how far to look into past
-const S32 SUMMARY_INTERVAL = 7;		// one week
-const S32 SUMMARY_MAX = 8;			// 
-const S32 DETAILS_INTERVAL = 1;		// one day
-const S32 DETAILS_MAX = 30;			// one month
+const S32 SUMMARY_INTERVAL = 7;     // one week
+const S32 SUMMARY_MAX = 8;          // 
+const S32 DETAILS_INTERVAL = 1;     // one day
+const S32 DETAILS_MAX = 30;         // one month
 const S32 TRANSACTIONS_INTERVAL = 1;// one day
-const S32 TRANSACTIONS_MAX = 30;	// one month
+const S32 TRANSACTIONS_MAX = 30;    // one month
 
 #endif

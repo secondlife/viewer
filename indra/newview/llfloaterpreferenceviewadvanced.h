@@ -31,20 +31,20 @@
 #include "llfloater.h"
 
 class LLFloaterPreferenceViewAdvanced
-:	public LLFloater
+:   public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 
 public:
-	LLFloaterPreferenceViewAdvanced(const LLSD& key);
-	virtual void draw();
+    LLFloaterPreferenceViewAdvanced(const LLSD& key);
+    virtual void draw();
 
-	void onCommitSettings();
-	void updateCameraControl(const LLVector3& vector);
-	void updateFocusControl(const LLVector3d& vector3d);
+    void onCommitSettings();
+    void updateCameraControl(const LLVector3& vector);
+    void updateFocusControl(const LLVector3d& vector3d);
 
 private:
-	virtual ~LLFloaterPreferenceViewAdvanced();
+    virtual ~LLFloaterPreferenceViewAdvanced();
 };
 
 #endif //LLFLOATERPREFERENCEVIEWADVANCED_H

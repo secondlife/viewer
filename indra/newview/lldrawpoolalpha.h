@@ -38,37 +38,37 @@ class LLGLSLShader;
 class LLDrawPoolAlpha: public LLRenderPass
 {
 public:
-	enum
-	{
-		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
-							LLVertexBuffer::MAP_NORMAL |
-							LLVertexBuffer::MAP_COLOR |
-							LLVertexBuffer::MAP_TEXCOORD0
-	};
-	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+    enum
+    {
+        VERTEX_DATA_MASK =  LLVertexBuffer::MAP_VERTEX |
+                            LLVertexBuffer::MAP_NORMAL |
+                            LLVertexBuffer::MAP_COLOR |
+                            LLVertexBuffer::MAP_TEXCOORD0
+    };
+    virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
 
-	LLDrawPoolAlpha(U32 type = LLDrawPool::POOL_ALPHA);
-	/*virtual*/ ~LLDrawPoolAlpha();
+    LLDrawPoolAlpha(U32 type = LLDrawPool::POOL_ALPHA);
+    /*virtual*/ ~LLDrawPoolAlpha();
 
-	/*virtual*/ S32 getNumPostDeferredPasses();
-	/*virtual*/ void renderPostDeferred(S32 pass);
-	/*virtual*/ S32	 getNumPasses() { return 1; }
+    /*virtual*/ S32 getNumPostDeferredPasses();
+    /*virtual*/ void renderPostDeferred(S32 pass);
+    /*virtual*/ S32  getNumPasses() { return 1; }
 
-	virtual void render(S32 pass = 0);
+    virtual void render(S32 pass = 0);
     void forwardRender(bool write_depth = false);
-	/*virtual*/ void prerender();
+    /*virtual*/ void prerender();
 
     void renderDebugAlpha();
 
-	void renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
-	void renderAlpha(U32 mask, bool depth_only = false, bool rigged = false);
-	void renderAlphaHighlight(U32 mask);
+    void renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
+    void renderAlpha(U32 mask, bool depth_only = false, bool rigged = false);
+    void renderAlphaHighlight(U32 mask);
     bool uploadMatrixPalette(const LLDrawInfo& params);
 
-	static BOOL sShowDebugAlpha;
+    static BOOL sShowDebugAlpha;
 
 private:
-	LLGLSLShader* target_shader;
+    LLGLSLShader* target_shader;
 
     // setup by beginFooPass, [0] is static variant, [1] is rigged variant
     LLGLSLShader* simple_shader = nullptr;
@@ -81,11 +81,11 @@ private:
     bool TexSetup(LLDrawInfo* draw, bool use_material);
     void RestoreTexSetup(bool tex_setup);
 
-	// our 'normal' alpha blend function for this pass
-	LLRender::eBlendFactor mColorSFactor;
-	LLRender::eBlendFactor mColorDFactor;	
-	LLRender::eBlendFactor mAlphaSFactor;
-	LLRender::eBlendFactor mAlphaDFactor;
+    // our 'normal' alpha blend function for this pass
+    LLRender::eBlendFactor mColorSFactor;
+    LLRender::eBlendFactor mColorDFactor;   
+    LLRender::eBlendFactor mAlphaSFactor;
+    LLRender::eBlendFactor mAlphaDFactor;
 
     // if true, we're executing a rigged render pass
     bool mRigged = false;
@@ -94,8 +94,8 @@ private:
 class LLDrawPoolAlphaPostWater : public LLDrawPoolAlpha
 {
 public:
-	LLDrawPoolAlphaPostWater();
-	virtual void render(S32 pass = 0);
+    LLDrawPoolAlphaPostWater();
+    virtual void render(S32 pass = 0);
 };
 
 #endif // LL_LLDRAWPOOLALPHA_H

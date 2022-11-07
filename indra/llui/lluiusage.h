@@ -35,23 +35,23 @@
 class LLUIUsage : public LLSingleton<LLUIUsage>
 {
 public:
-	LLSINGLETON(LLUIUsage);
-	~LLUIUsage();
+    LLSINGLETON(LLUIUsage);
+    ~LLUIUsage();
 public:
-	static std::string sanitized(const std::string& s);
-	static void setLLSDPath(LLSD& sd, const std::string& path, S32 max_elts, const LLSD& val);
-	static void setLLSDNested(LLSD& sd, const std::vector<std::string>& fields, const LLSD& val);
-	void logCommand(const std::string& command);
-	void logControl(const std::string& control);
-	void logFloater(const std::string& floater);
-	void logPanel(const std::string& p);
-	LLSD asLLSD() const;
-	void clear();
+    static std::string sanitized(const std::string& s);
+    static void setLLSDPath(LLSD& sd, const std::string& path, S32 max_elts, const LLSD& val);
+    static void setLLSDNested(LLSD& sd, const std::vector<std::string>& fields, const LLSD& val);
+    void logCommand(const std::string& command);
+    void logControl(const std::string& control);
+    void logFloater(const std::string& floater);
+    void logPanel(const std::string& p);
+    LLSD asLLSD() const;
+    void clear();
 private:
-	std::map<std::string,U32> mCommandCounts;
-	std::map<std::string,U32> mControlCounts;
-	std::map<std::string,U32> mFloaterCounts;
-	std::map<std::string,U32> mPanelCounts;
+    std::map<std::string,U32> mCommandCounts;
+    std::map<std::string,U32> mControlCounts;
+    std::map<std::string,U32> mFloaterCounts;
+    std::map<std::string,U32> mPanelCounts;
 };
 
 #endif // LLUIUIUSAGE.h

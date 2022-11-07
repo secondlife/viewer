@@ -44,14 +44,14 @@ tut::cpp_features_test_t tut_cpp_features_test("LLCPPFeatures");
 template<> template<>
 void cpp_features_test_object_t::test<1>()
 {
-	S32 explicit_val{3};
-	ensure(explicit_val==3);
+    S32 explicit_val{3};
+    ensure(explicit_val==3);
 
-	S32 default_val{};
-	ensure(default_val==0);
-	
-	std::vector<S32> fibs{1,1,2,3,5};
-	ensure(fibs[4]==5);
+    S32 default_val{};
+    ensure(default_val==0);
+    
+    std::vector<S32> fibs{1,1,2,3,5};
+    ensure(fibs[4]==5);
 }
 
 // auto
@@ -62,17 +62,17 @@ void cpp_features_test_object_t::test<1>()
 template<> template<>
 void cpp_features_test_object_t::test<2>()
 {
-	std::vector<S32> numbers{3,6,9};
+    std::vector<S32> numbers{3,6,9};
 
-	// auto element
-	auto& aval = numbers[1];
-	ensure("auto element", aval==6);
+    // auto element
+    auto& aval = numbers[1];
+    ensure("auto element", aval==6);
 
-	// auto iterator (non-const)
-	auto it = numbers.rbegin();
-	*it += 1;
-	S32 val = *it;
-	ensure("auto iterator", val==10);
+    // auto iterator (non-const)
+    auto it = numbers.rbegin();
+    *it += 1;
+    S32 val = *it;
+    ensure("auto iterator", val==10);
 }
 
 // range for
@@ -84,42 +84,42 @@ template<> template<>
 void cpp_features_test_object_t::test<3>()
 {
 
-	// Traditional iterator for with container
-	//
-	// Problems:
-	// * Have to create a new variable for the iterator, which is unrelated to the problem you're trying to solve.
-	// * Redundant and somewhat fragile. Have to make sure begin() and end() are both from the right container.
-	std::vector<S32> numbers{3,6,9};
-	for (auto it = numbers.begin(); it != numbers.end(); ++it)
-	{
-		auto& n = *it;
-		n *= 2;
-	}
-	ensure("iterator for vector", numbers[2]==18);
+    // Traditional iterator for with container
+    //
+    // Problems:
+    // * Have to create a new variable for the iterator, which is unrelated to the problem you're trying to solve.
+    // * Redundant and somewhat fragile. Have to make sure begin() and end() are both from the right container.
+    std::vector<S32> numbers{3,6,9};
+    for (auto it = numbers.begin(); it != numbers.end(); ++it)
+    {
+        auto& n = *it;
+        n *= 2;
+    }
+    ensure("iterator for vector", numbers[2]==18);
 
-	// Range for with container
-	//
-	// Under the hood, this is doing the same thing as the traditional
-	// for loop above. Still uses begin() and end() but you don't have
-	// to access them directly.
-	std::vector<S32> numbersb{3,6,9};
-	for (auto& n: numbersb)
-	{
-		n *= 2;
-	}
-	ensure("range for vector", numbersb[2]==18);
+    // Range for with container
+    //
+    // Under the hood, this is doing the same thing as the traditional
+    // for loop above. Still uses begin() and end() but you don't have
+    // to access them directly.
+    std::vector<S32> numbersb{3,6,9};
+    for (auto& n: numbersb)
+    {
+        n *= 2;
+    }
+    ensure("range for vector", numbersb[2]==18);
 
-	// Range for over a C-style array.
-	//
-	// This is handy because the language determines the range automatically.
-	// Getting this right manually is a little trickier.
-	S32 pows[] = {1,2,4,8,16};
-	S32 sum{};
-	for (const auto& v: pows)
-	{
-		sum += v;
-	}
-	ensure("for C-array", sum==31);
+    // Range for over a C-style array.
+    //
+    // This is handy because the language determines the range automatically.
+    // Getting this right manually is a little trickier.
+    S32 pows[] = {1,2,4,8,16};
+    S32 sum{};
+    for (const auto& v: pows)
+    {
+        sum += v;
+    }
+    ensure("for C-array", sum==31);
 }
 
 // override specifier
@@ -137,24 +137,24 @@ void cpp_features_test_object_t::test<3>()
 class Foo
 {
 public:
-	virtual bool is_happy() const = 0;
+    virtual bool is_happy() const = 0;
 };
 
 class Bar: public Foo
 {
 public:
-	bool is_happy() const override { return true; } 
-	// Override would fail: non-const declaration doesn't match parent 
-	// bool is_happy() override { return true; } 
-	// Override would fail: wrong name
-	// bool is_happx() override { return true; } 
+    bool is_happy() const override { return true; } 
+    // Override would fail: non-const declaration doesn't match parent 
+    // bool is_happy() override { return true; } 
+    // Override would fail: wrong name
+    // bool is_happx() override { return true; } 
 };
 
 template<> template<>
 void cpp_features_test_object_t::test<4>()
 {
-	Bar b;
-	ensure("override", b.is_happy());
+    Bar b;
+    ensure("override", b.is_happy());
 }
 
 // final
@@ -166,27 +166,27 @@ void cpp_features_test_object_t::test<4>()
 class Vehicle
 {
 public:
-	virtual bool has_wheels() const = 0;
+    virtual bool has_wheels() const = 0;
 };
 
 class WheeledVehicle: public Vehicle
 {
 public:
-	virtual bool has_wheels() const final override { return true; }
+    virtual bool has_wheels() const final override { return true; }
 };
 
 class Bicycle: public WheeledVehicle
 {
 public:
-	// Error: can't override final version in WheeledVehicle 
-	// virtual bool has_wheels() override const { return true; }
+    // Error: can't override final version in WheeledVehicle 
+    // virtual bool has_wheels() override const { return true; }
 };
 
 template<> template<>
 void cpp_features_test_object_t::test<5>()
 {
-	Bicycle bi;
-	ensure("final", bi.has_wheels());
+    Bicycle bi;
+    ensure("final", bi.has_wheels());
 }
 
 // deleted function declaration
@@ -206,16 +206,16 @@ void cpp_features_test_object_t::test<5>()
 class DoNotCopy
 {
 public:
-	DoNotCopy() {}
-	DoNotCopy(const DoNotCopy& ref) = delete;
+    DoNotCopy() {}
+    DoNotCopy(const DoNotCopy& ref) = delete;
 };
 
 template<> template<>
 void cpp_features_test_object_t::test<6>()
 {
-	DoNotCopy nc; // OK, default constructor
-	//DoNotCopy nc2(nc); // No, can't copy
-	//DoNotCopy nc3 = nc; // No, this also calls copy constructor (even though it looks like an assignment)
+    DoNotCopy nc; // OK, default constructor
+    //DoNotCopy nc2(nc); // No, can't copy
+    //DoNotCopy nc3 = nc; // No, this also calls copy constructor (even though it looks like an assignment)
 }
 
 // defaulted function declaration
@@ -229,22 +229,22 @@ void cpp_features_test_object_t::test<6>()
 class DefaultCopyOK
 {
 public:
-	DefaultCopyOK(): mVal(123) {}
-	DefaultCopyOK(const DefaultCopyOK&) = default;
-	S32 val() const { return mVal; }
+    DefaultCopyOK(): mVal(123) {}
+    DefaultCopyOK(const DefaultCopyOK&) = default;
+    S32 val() const { return mVal; }
 private:
-	S32 mVal;
+    S32 mVal;
 };
 
 template<> template<>
 void cpp_features_test_object_t::test<7>()
 {
-	DefaultCopyOK d; // OK
-	DefaultCopyOK d2(d); // OK
-	DefaultCopyOK d3 = d; // OK
-	ensure("default copy d", d.val()==123);
-	ensure("default copy d2", d.val()==d2.val());
-	ensure("default copy d3", d.val()==d3.val());
+    DefaultCopyOK d; // OK
+    DefaultCopyOK d2(d); // OK
+    DefaultCopyOK d3 = d; // OK
+    ensure("default copy d", d.val()==123);
+    ensure("default copy d2", d.val()==d2.val());
+    ensure("default copy d3", d.val()==d3.val());
 }
 
 // initialize class members inline
@@ -259,32 +259,32 @@ void cpp_features_test_object_t::test<7>()
 class InitInline
 {
 public:
-	S32 mFoo{10};
+    S32 mFoo{10};
 };
 
 class InitInlineWithConstructor
 {
 public:
-	// Here mFoo is not specified, so you will get the default value of 10.
-	// mBar is specified, so 25 will override the default value.
-	InitInlineWithConstructor():
-		mBar(25)
-	{}
+    // Here mFoo is not specified, so you will get the default value of 10.
+    // mBar is specified, so 25 will override the default value.
+    InitInlineWithConstructor():
+        mBar(25)
+    {}
 
-	// Default values set using two different styles, same effect.
-	S32 mFoo{10};
-	S32 mBar = 20;
+    // Default values set using two different styles, same effect.
+    S32 mFoo{10};
+    S32 mBar = 20;
 };
 
 template<> template<>
 void cpp_features_test_object_t::test<8>()
 {
-	InitInline ii;
-	ensure("init member inline 1", ii.mFoo==10);
+    InitInline ii;
+    ensure("init member inline 1", ii.mFoo==10);
 
-	InitInlineWithConstructor iici;
-	ensure("init member inline 2", iici.mFoo=10);
-	ensure("init member inline 3", iici.mBar==25);
+    InitInlineWithConstructor iici;
+    ensure("init member inline 2", iici.mFoo=10);
+    ensure("init member inline 3", iici.mBar==25);
 }
 
 // constexpr
@@ -296,25 +296,25 @@ constexpr S32 compute2() { return 2; }
 
 constexpr S32 ce_factorial(S32 n)
 {
-	if (n<=0)
-	{
-		return 1;
-	}
-	else
-	{
-		return n*ce_factorial(n-1);
-	}
+    if (n<=0)
+    {
+        return 1;
+    }
+    else
+    {
+        return n*ce_factorial(n-1);
+    }
 }
 
 template<> template<>
 void cpp_features_test_object_t::test<9>()
 {
-	S32 val = compute2();
-	ensure("constexpr 1", val==2);
+    S32 val = compute2();
+    ensure("constexpr 1", val==2);
 
-	// Compile-time factorial. You used to need complex templates to do something this useless.
-	S32 fac5 = ce_factorial(5);
-	ensure("constexpr 2", fac5==120);
+    // Compile-time factorial. You used to need complex templates to do something this useless.
+    S32 fac5 = ce_factorial(5);
+    ensure("constexpr 2", fac5==120);
 }
 
 // static assert
@@ -331,8 +331,8 @@ void cpp_features_test_object_t::test<9>()
 template<> template<>
 void cpp_features_test_object_t::test<10>()
 {
-	// static_assert(ce_factorial(6)==720); No, needs a flag we don't currently set.
-	static_assert(ce_factorial(6)==720, "bad factorial"); // OK
+    // static_assert(ce_factorial(6)==720); No, needs a flag we don't currently set.
+    static_assert(ce_factorial(6)==720, "bad factorial"); // OK
 }
 
 // type aliases
@@ -349,8 +349,8 @@ using stringmap = std::map<std::string, T>;
 template<> template<>
 void cpp_features_test_object_t::test<11>()
 {
-	stringmap<S32> name_counts{ {"alice", 3}, {"bob", 2} };
-	ensure("type alias", name_counts["bob"]==2);
+    stringmap<S32> name_counts{ {"alice", 3}, {"bob", 2} };
+    ensure("type alias", name_counts["bob"]==2);
 }
 
 // Other possibilities:

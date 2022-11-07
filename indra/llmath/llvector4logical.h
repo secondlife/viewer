@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	LL_VECTOR4LOGICAL_H
-#define	LL_VECTOR4LOGICAL_H
+#ifndef LL_VECTOR4LOGICAL_H
+#define LL_VECTOR4LOGICAL_H
 
 #include "llmemory.h"
 
@@ -41,86 +41,86 @@
 
 static LL_ALIGN_16(const U32 S_V4LOGICAL_MASK_TABLE[4*4]) =
 {
-	0xFFFFFFFF, 0x00000000, 0x00000000, 0x00000000,
-	0x00000000, 0xFFFFFFFF, 0x00000000, 0x00000000,
-	0x00000000, 0x00000000, 0xFFFFFFFF, 0x00000000,
-	0x00000000, 0x00000000, 0x00000000, 0xFFFFFFFF
+    0xFFFFFFFF, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0xFFFFFFFF, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0xFFFFFFFF, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0xFFFFFFFF
 };
 
 class LLVector4Logical
 {
 public:
-	
-	enum {
-		MASK_X = 1,
-		MASK_Y = 1 << 1,
-		MASK_Z = 1 << 2,
-		MASK_W = 1 << 3,
-		MASK_XYZ = MASK_X | MASK_Y | MASK_Z,
-		MASK_XYZW = MASK_XYZ | MASK_W
-	};
-	
-	// Empty default ctor
-	LLVector4Logical() {}
-	
-	LLVector4Logical( const LLQuad& quad )
-	{
-		mQ = quad;
-	}
-	
-	// Create and return a mask consisting of the lowest order bit of each element
-	inline U32 getGatheredBits() const
-	{
-		return _mm_movemask_ps(mQ);
-	};	
-	
-	// Invert this mask
-	inline LLVector4Logical& invert()
-	{
-		static const LL_ALIGN_16(U32 allOnes[4]) = { 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF };
-		ll_assert_aligned(allOnes,16);
-		mQ = _mm_andnot_ps( mQ, *(LLQuad*)(allOnes) );
-		return *this;
-	}
-	
-	inline LLBool32 areAllSet( U32 mask ) const
-	{
-		return ( getGatheredBits() & mask) == mask;
-	}
-	
-	inline LLBool32 areAllSet() const
-	{
-		return areAllSet( MASK_XYZW );
-	}
-		
-	inline LLBool32 areAnySet( U32 mask ) const
-	{
-		return getGatheredBits() & mask;
-	}
-	
-	inline LLBool32 areAnySet() const
-	{
-		return areAnySet( MASK_XYZW );
-	}
-	
-	inline operator LLQuad() const
-	{
-		return mQ;
-	}
+    
+    enum {
+        MASK_X = 1,
+        MASK_Y = 1 << 1,
+        MASK_Z = 1 << 2,
+        MASK_W = 1 << 3,
+        MASK_XYZ = MASK_X | MASK_Y | MASK_Z,
+        MASK_XYZW = MASK_XYZ | MASK_W
+    };
+    
+    // Empty default ctor
+    LLVector4Logical() {}
+    
+    LLVector4Logical( const LLQuad& quad )
+    {
+        mQ = quad;
+    }
+    
+    // Create and return a mask consisting of the lowest order bit of each element
+    inline U32 getGatheredBits() const
+    {
+        return _mm_movemask_ps(mQ);
+    };  
+    
+    // Invert this mask
+    inline LLVector4Logical& invert()
+    {
+        static const LL_ALIGN_16(U32 allOnes[4]) = { 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF };
+        ll_assert_aligned(allOnes,16);
+        mQ = _mm_andnot_ps( mQ, *(LLQuad*)(allOnes) );
+        return *this;
+    }
+    
+    inline LLBool32 areAllSet( U32 mask ) const
+    {
+        return ( getGatheredBits() & mask) == mask;
+    }
+    
+    inline LLBool32 areAllSet() const
+    {
+        return areAllSet( MASK_XYZW );
+    }
+        
+    inline LLBool32 areAnySet( U32 mask ) const
+    {
+        return getGatheredBits() & mask;
+    }
+    
+    inline LLBool32 areAnySet() const
+    {
+        return areAnySet( MASK_XYZW );
+    }
+    
+    inline operator LLQuad() const
+    {
+        return mQ;
+    }
 
-	inline void clear() 
-	{
-		mQ = _mm_setzero_ps();
-	}
+    inline void clear() 
+    {
+        mQ = _mm_setzero_ps();
+    }
 
-	template<int N> void setElement()
-	{
-		mQ = _mm_or_ps( mQ, *reinterpret_cast<const LLQuad*>(S_V4LOGICAL_MASK_TABLE + 4*N) );
-	}
-	
+    template<int N> void setElement()
+    {
+        mQ = _mm_or_ps( mQ, *reinterpret_cast<const LLQuad*>(S_V4LOGICAL_MASK_TABLE + 4*N) );
+    }
+    
 private:
-	
-	LLQuad mQ;
+    
+    LLQuad mQ;
 };
 
 #endif //LL_VECTOR4ALOGICAL_H

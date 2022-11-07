@@ -35,25 +35,25 @@ class LLSD;
 class LL_COMMON_API LLMetrics
 {
 public:
-	LLMetrics();
-	virtual ~LLMetrics();
+    LLMetrics();
+    virtual ~LLMetrics();
 
-	// Adds this event to aggregate totals and records details to syslog (LL_INFOS())
-	virtual void recordEventDetails(const std::string& location, 
-						const std::string& mesg, 
-						bool success, 
-						LLSD stats);
+    // Adds this event to aggregate totals and records details to syslog (LL_INFOS())
+    virtual void recordEventDetails(const std::string& location, 
+                        const std::string& mesg, 
+                        bool success, 
+                        LLSD stats);
 
-	// Adds this event to aggregate totals
-	virtual void recordEvent(const std::string& location, const std::string& mesg, bool success);
+    // Adds this event to aggregate totals
+    virtual void recordEvent(const std::string& location, const std::string& mesg, bool success);
 
-	// Prints aggregate totals and resets the counts.
-	virtual void printTotals(LLSD meta);
+    // Prints aggregate totals and resets the counts.
+    virtual void printTotals(LLSD meta);
 
 
 private:
-	
-	LLMetricsImpl* mImpl;
+    
+    LLMetricsImpl* mImpl;
 };
 
 #endif

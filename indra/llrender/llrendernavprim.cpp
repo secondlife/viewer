@@ -40,20 +40,20 @@ LLRenderNavPrim gRenderNav;
 //=============================================================================
 void LLRenderNavPrim::renderLLTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, const LLColor4U& color ) const
 {
-	LLColor4 cV(color);
-	gGL.color4fv( cV.mV );
-	gGL.begin(LLRender::TRIANGLES);
-	{
-		gGL.vertex3fv( a.mV );
-		gGL.vertex3fv( b.mV );
-		gGL.vertex3fv( c.mV );
-	}
-	gGL.end();		
+    LLColor4 cV(color);
+    gGL.color4fv( cV.mV );
+    gGL.begin(LLRender::TRIANGLES);
+    {
+        gGL.vertex3fv( a.mV );
+        gGL.vertex3fv( b.mV );
+        gGL.vertex3fv( c.mV );
+    }
+    gGL.end();      
 }
 //=============================================================================
 void LLRenderNavPrim::renderNavMeshVB( U32 mode, LLVertexBuffer* pVBO, int vertCnt )
-{	
-	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_NORMAL );
-	pVBO->drawArrays( mode, 0, vertCnt );	
+{   
+    pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_NORMAL );
+    pVBO->drawArrays( mode, 0, vertCnt );   
 }
 //=============================================================================

@@ -38,30 +38,30 @@ class LLSD;
 
 namespace LLNotificationsUtil
 {
-	LLNotificationPtr add(const std::string& name);
-	
-	LLNotificationPtr add(const std::string& name, 
-						  const LLSD& substitutions);
-	
-	LLNotificationPtr add(const std::string& name, 
-						  const LLSD& substitutions, 
-						  const LLSD& payload);
-	
-	LLNotificationPtr add(const std::string& name, 
-						  const LLSD& substitutions, 
-						  const LLSD& payload, 
-						  const std::string& functor_name);
+    LLNotificationPtr add(const std::string& name);
+    
+    LLNotificationPtr add(const std::string& name, 
+                          const LLSD& substitutions);
+    
+    LLNotificationPtr add(const std::string& name, 
+                          const LLSD& substitutions, 
+                          const LLSD& payload);
+    
+    LLNotificationPtr add(const std::string& name, 
+                          const LLSD& substitutions, 
+                          const LLSD& payload, 
+                          const std::string& functor_name);
 
-	LLNotificationPtr add(const std::string& name, 
-						  const LLSD& substitutions, 
-						  const LLSD& payload, 
-						  boost::function<void (const LLSD&, const LLSD&)> functor);
-	
-	S32 getSelectedOption(const LLSD& notification, const LLSD& response);
+    LLNotificationPtr add(const std::string& name, 
+                          const LLSD& substitutions, 
+                          const LLSD& payload, 
+                          boost::function<void (const LLSD&, const LLSD&)> functor);
+    
+    S32 getSelectedOption(const LLSD& notification, const LLSD& response);
 
-	void cancel(LLNotificationPtr pNotif);
+    void cancel(LLNotificationPtr pNotif);
 
-	LLNotificationPtr find(LLUUID uuid);
+    LLNotificationPtr find(LLUUID uuid);
 }
 
 #endif

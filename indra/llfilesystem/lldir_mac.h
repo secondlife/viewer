@@ -38,17 +38,17 @@
 class LLDir_Mac : public LLDir
 {
 public:
-	LLDir_Mac();
-	virtual ~LLDir_Mac();
+    LLDir_Mac();
+    virtual ~LLDir_Mac();
 
-	/*virtual*/ void initAppDirs(const std::string &app_name,
-		const std::string& app_read_only_data_dir);
+    /*virtual*/ void initAppDirs(const std::string &app_name,
+        const std::string& app_read_only_data_dir);
 
-	virtual std::string getCurPath();
-	virtual bool fileExists(const std::string &filename) const;
+    virtual std::string getCurPath();
+    virtual bool fileExists(const std::string &filename) const;
 
-	/*virtual*/ std::string getLLPluginLauncher();
-	/*virtual*/ std::string getLLPluginFilename(std::string base_name);
+    /*virtual*/ std::string getLLPluginLauncher();
+    /*virtual*/ std::string getLLPluginFilename(std::string base_name);
 };
 
 #endif // LL_LLDIR_MAC_H

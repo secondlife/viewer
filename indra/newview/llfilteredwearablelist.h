@@ -35,41 +35,41 @@ class LLInventoryItemsList;
 // Class that fills LLInventoryItemsList with filtered data (original items only (non-links)).
 class LLFilteredWearableListManager : public LLInventoryObserver
 {
-	LOG_CLASS(LLFilteredWearableListManager);
+    LOG_CLASS(LLFilteredWearableListManager);
 public:
 
-	LLFilteredWearableListManager(LLInventoryItemsList* list, LLInventoryCollectFunctor* collector);
-	~LLFilteredWearableListManager();
+    LLFilteredWearableListManager(LLInventoryItemsList* list, LLInventoryCollectFunctor* collector);
+    ~LLFilteredWearableListManager();
 
-	/** LLInventoryObserver implementation
-	 *
-	 */
-	/*virtual*/ void changed(U32 mask);
+    /** LLInventoryObserver implementation
+     *
+     */
+    /*virtual*/ void changed(U32 mask);
 
-	/**
-	 * Sets new collector and applies it immediately
-	 */
-	void setFilterCollector(LLInventoryCollectFunctor* collector);
+    /**
+     * Sets new collector and applies it immediately
+     */
+    void setFilterCollector(LLInventoryCollectFunctor* collector);
 
-	/**
-	* Populates wearable list with filtered data in case there were any updates.
-	*/
-	void populateIfNeeded();
+    /**
+    * Populates wearable list with filtered data in case there were any updates.
+    */
+    void populateIfNeeded();
 
-	/**
-	 * Drop operation
-	 */
-	void holdProgress();
+    /**
+     * Drop operation
+     */
+    void holdProgress();
 
 private:
-	/**
-	* Populates wearable list with filtered data.
-	*/
-	void populateList();
+    /**
+    * Populates wearable list with filtered data.
+    */
+    void populateList();
 
-	LLInventoryItemsList* mWearableList;
-	LLInventoryCollectFunctor* mCollector;
-	bool mListStale;
+    LLInventoryItemsList* mWearableList;
+    LLInventoryCollectFunctor* mCollector;
+    bool mListStale;
 };
 
 #endif //LL_LLFILTEREDWEARABLELIST_H

@@ -35,79 +35,79 @@
 class LLGesture
 {
 public:
-	LLGesture();
-	LLGesture(KEY key, MASK mask, const std::string &trigger, 
-		const LLUUID &sound_item_id, const std::string &animation, 
-		const std::string &output_string);
+    LLGesture();
+    LLGesture(KEY key, MASK mask, const std::string &trigger, 
+        const LLUUID &sound_item_id, const std::string &animation, 
+        const std::string &output_string);
 
-	LLGesture(U8 **buffer, S32 max_size); // deserializes, advances buffer
-	LLGesture(const LLGesture &gesture);
-	const LLGesture &operator=(const LLGesture &rhs);
+    LLGesture(U8 **buffer, S32 max_size); // deserializes, advances buffer
+    LLGesture(const LLGesture &gesture);
+    const LLGesture &operator=(const LLGesture &rhs);
 
-	virtual ~LLGesture() {};
+    virtual ~LLGesture() {};
 
-	// Accessors
-	KEY					getKey() const			{ return mKey; }
-	MASK				getMask() const			{ return mMask; }
-	const std::string&	getTrigger() const		{ return mTrigger; }
-	const LLUUID&		getSound() const		{ return mSoundItemID; }
-	const std::string&	getAnimation() const	{ return mAnimation; }
-	const std::string&	getOutputString() const	{ return mOutputString; }
+    // Accessors
+    KEY                 getKey() const          { return mKey; }
+    MASK                getMask() const         { return mMask; }
+    const std::string&  getTrigger() const      { return mTrigger; }
+    const LLUUID&       getSound() const        { return mSoundItemID; }
+    const std::string&  getAnimation() const    { return mAnimation; }
+    const std::string&  getOutputString() const { return mOutputString; }
 
-	// Triggers if a key/mask matches it
-	virtual BOOL trigger(KEY key, MASK mask);
+    // Triggers if a key/mask matches it
+    virtual BOOL trigger(KEY key, MASK mask);
 
-	// Triggers if case-insensitive substring matches (assumes string is lowercase)
-	virtual BOOL trigger(const std::string &string);
+    // Triggers if case-insensitive substring matches (assumes string is lowercase)
+    virtual BOOL trigger(const std::string &string);
 
-	// non-endian-neutral serialization
-	U8 *serialize(U8 *buffer) const;
-	U8 *deserialize(U8 *buffer, S32 max_size);
-	static S32 getMaxSerialSize();
+    // non-endian-neutral serialization
+    U8 *serialize(U8 *buffer) const;
+    U8 *deserialize(U8 *buffer, S32 max_size);
+    static S32 getMaxSerialSize();
 
 protected:
-	KEY				mKey;			// usually a function key
-	MASK			mMask;			// usually MASK_NONE, or MASK_SHIFT
-	std::string		mTrigger;		// string, no whitespace allowed
-	std::string		mTriggerLower;	// lowercase version of mTrigger
-	LLUUID			mSoundItemID;	// ItemID of sound to play, LLUUID::null if none
-	std::string		mAnimation;		// canonical name of animation or face animation
-	std::string		mOutputString;	// string to say
+    KEY             mKey;           // usually a function key
+    MASK            mMask;          // usually MASK_NONE, or MASK_SHIFT
+    std::string     mTrigger;       // string, no whitespace allowed
+    std::string     mTriggerLower;  // lowercase version of mTrigger
+    LLUUID          mSoundItemID;   // ItemID of sound to play, LLUUID::null if none
+    std::string     mAnimation;     // canonical name of animation or face animation
+    std::string     mOutputString;  // string to say
 
-	static const S32	MAX_SERIAL_SIZE;
+    static const S32    MAX_SERIAL_SIZE;
 };
 
 class LLGestureList
 {
 public:
-	LLGestureList();
-	virtual ~LLGestureList();
+    LLGestureList();
+    virtual ~LLGestureList();
 
-	// Triggers if a key/mask matches one in the list
-	BOOL trigger(KEY key, MASK mask);
+    // Triggers if a key/mask matches one in the list
+    BOOL trigger(KEY key, MASK mask);
 
-	// Triggers if substring matches and generates revised string.
-	BOOL triggerAndReviseString(const std::string &string, std::string* revised_string);
+    // Triggers if substring matches and generates revised string.
+    BOOL triggerAndReviseString(const std::string &string, std::string* revised_string);
 
-	// Used for construction from UI
-	S32 count() const						{ return mList.size(); }
-	virtual LLGesture* get(S32 i) const		{ return mList.at(i); }
-	virtual void put(LLGesture* gesture)	{ mList.push_back( gesture ); }
-	void deleteAll();
+    // Used for construction from UI
+    S32 count() const                       { return mList.size(); }
+    virtual LLGesture* get(S32 i) const     { return mList.at(i); }
+    virtual void put(LLGesture* gesture)    { mList.push_back( gesture ); }
+    void deleteAll();
 
-	// non-endian-neutral serialization
-	U8 *serialize(U8 *buffer) const;
-	U8 *deserialize(U8 *buffer, S32 max_size);
-	S32 getMaxSerialSize();
-
-protected:
-	// overridden by child class to use local LLGesture implementation
-	virtual LLGesture *create_gesture(U8 **buffer, S32 max_size);
+    // non-endian-neutral serialization
+    U8 *serialize(U8 *buffer) const;
+    U8 *deserialize(U8 *buffer, S32 max_size);
+    S32 getMaxSerialSize();
 
 protected:
-	std::vector<LLGesture*>	mList;
+    // overridden by child class to use local LLGesture implementation
+    virtual LLGesture *create_gesture(U8 **buffer, S32 max_size);
 
-	static const S32	SERIAL_HEADER_SIZE;
+protected:
+    std::vector<LLGesture*> mList;
+
+    static const S32    SERIAL_HEADER_SIZE;
 };
 
 #endif

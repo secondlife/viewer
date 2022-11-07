@@ -35,51 +35,51 @@ const F32 DEFAULT_CONFIG_FILE_REFRESH = 5.0f;
 class LLLiveFile::Impl
 {
 public:
-	Impl(const std::string& filename, const F32 refresh_period);
-	~Impl();
-	
-	bool check();
-	void changed();
-	
-	bool mForceCheck;
-	F32 mRefreshPeriod;
-	LLFrameTimer mRefreshTimer;
+    Impl(const std::string& filename, const F32 refresh_period);
+    ~Impl();
+    
+    bool check();
+    void changed();
+    
+    bool mForceCheck;
+    F32 mRefreshPeriod;
+    LLFrameTimer mRefreshTimer;
 
-	std::string mFilename;
-	time_t mLastModTime;
-	time_t mLastStatTime;
-	bool mLastExists;
-	
-	LLEventTimer* mEventTimer;
+    std::string mFilename;
+    time_t mLastModTime;
+    time_t mLastStatTime;
+    bool mLastExists;
+    
+    LLEventTimer* mEventTimer;
 private:
     LOG_CLASS(LLLiveFile);
 };
 
 LLLiveFile::Impl::Impl(const std::string& filename, const F32 refresh_period)
-	:
-	mForceCheck(true),
-	mRefreshPeriod(refresh_period),
-	mFilename(filename),
-	mLastModTime(0),
-	mLastStatTime(0),
-	mLastExists(false),
-	mEventTimer(NULL)
+    :
+    mForceCheck(true),
+    mRefreshPeriod(refresh_period),
+    mFilename(filename),
+    mLastModTime(0),
+    mLastStatTime(0),
+    mLastExists(false),
+    mEventTimer(NULL)
 {
 }
 
 LLLiveFile::Impl::~Impl()
 {
-	delete mEventTimer;
+    delete mEventTimer;
 }
 
 LLLiveFile::LLLiveFile(const std::string& filename, const F32 refresh_period)
-	: impl(* new Impl(filename, refresh_period))
+    : impl(* new Impl(filename, refresh_period))
 {
 }
 
 LLLiveFile::~LLLiveFile()
 {
-	delete &impl;
+    delete &impl;
 }
 
 
@@ -88,8 +88,8 @@ bool LLLiveFile::Impl::check()
     bool detected_change = false;
     // Skip the check if not enough time has elapsed and we're not
     // forcing a check of the file
-	if (mForceCheck || mRefreshTimer.getElapsedTimeF32() >= mRefreshPeriod)
-	{
+    if (mForceCheck || mRefreshTimer.getElapsedTimeF32() >= mRefreshPeriod)
+    {
         mForceCheck = false;   // force only forces one check
         mRefreshTimer.reset(); // don't check again until mRefreshPeriod has passed
 
@@ -102,7 +102,7 @@ bool LLLiveFile::Impl::check()
             if (mLastExists)
             {
                 mLastExists = false;
-                detected_change = true;	// no longer existing is a change!
+                detected_change = true; // no longer existing is a change!
                 LL_DEBUGS() << "detected deleted file '" << mFilename << "'" << LL_ENDL;
             }
         }
@@ -134,65 +134,65 @@ bool LLLiveFile::Impl::check()
 
 void LLLiveFile::Impl::changed()
 {
-	// we wanted to read this file, and we were successful.
-	mLastModTime = mLastStatTime;
+    // we wanted to read this file, and we were successful.
+    mLastModTime = mLastStatTime;
 }
 
 bool LLLiveFile::checkAndReload()
 {
-	bool changed = impl.check();
-	if (changed)
-	{
-		if(loadFile())
-		{
-			impl.changed();
-			this->changed();
-		}
-		else
-		{
-			changed = false;
-		}
-	}
-	return changed;
+    bool changed = impl.check();
+    if (changed)
+    {
+        if(loadFile())
+        {
+            impl.changed();
+            this->changed();
+        }
+        else
+        {
+            changed = false;
+        }
+    }
+    return changed;
 }
 
 std::string LLLiveFile::filename() const
 {
-	return impl.mFilename;
+    return impl.mFilename;
 }
 
 namespace
 {
-	class LiveFileEventTimer : public LLEventTimer
-	{
-	public:
-		LiveFileEventTimer(LLLiveFile& f, F32 refresh)
-			: LLEventTimer(refresh), mLiveFile(f)
-			{ }
-			
-		BOOL tick()
-		{ 
-			mLiveFile.checkAndReload(); 
-			return FALSE;
-		}
-	
-	private:
-		LLLiveFile& mLiveFile;
-	};
-	
+    class LiveFileEventTimer : public LLEventTimer
+    {
+    public:
+        LiveFileEventTimer(LLLiveFile& f, F32 refresh)
+            : LLEventTimer(refresh), mLiveFile(f)
+            { }
+            
+        BOOL tick()
+        { 
+            mLiveFile.checkAndReload(); 
+            return FALSE;
+        }
+    
+    private:
+        LLLiveFile& mLiveFile;
+    };
+    
 }
 
 void LLLiveFile::addToEventTimer()
 {
-	impl.mEventTimer = new LiveFileEventTimer(*this, impl.mRefreshPeriod);
+    impl.mEventTimer = new LiveFileEventTimer(*this, impl.mRefreshPeriod);
 }
 
 void LLLiveFile::setRefreshPeriod(F32 seconds)
 {
-	if (seconds < 0.f)
-	{
-		seconds = -seconds;
-	}
-	impl.mRefreshPeriod = seconds;
+    if (seconds < 0.f)
+    {
+        seconds = -seconds;
+    }
+    impl.mRefreshPeriod = seconds;
 }
 

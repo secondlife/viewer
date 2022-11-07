@@ -43,72 +43,72 @@
 #include "llviewerobject.h"
 
 LLBlockedListItem::LLBlockedListItem(const LLMute* item)
-:	LLPanel(),
-	mItemID(item->mID),
-	mItemName(item->mName),
-	mMuteType(item->mType)
+:   LLPanel(),
+    mItemID(item->mID),
+    mItemName(item->mName),
+    mMuteType(item->mType)
 {
-	buildFromFile("panel_blocked_list_item.xml");
+    buildFromFile("panel_blocked_list_item.xml");
 }
 
 BOOL LLBlockedListItem::postBuild()
 {
-	mTitleCtrl = getChild<LLTextBox>("item_name");
-	mTitleCtrl->setValue(mItemName);
+    mTitleCtrl = getChild<LLTextBox>("item_name");
+    mTitleCtrl->setValue(mItemName);
 
-	switch (mMuteType)
-	{
-	case LLMute::AGENT:
-	case LLMute::EXTERNAL:
-		{
-			LLAvatarIconCtrl* avatar_icon = getChild<LLAvatarIconCtrl>("avatar_icon");
-			avatar_icon->setVisible(TRUE);
-			avatar_icon->setValue(mItemID);
-		}
-		break;
-	case LLMute::GROUP:
-		{
-			LLGroupIconCtrl* group_icon = getChild<LLGroupIconCtrl>("group_icon");
-			group_icon->setVisible(TRUE);
-			group_icon->setValue(mItemID);
-		}
-		break;
-	case LLMute::OBJECT:
-	case LLMute::BY_NAME:
-		getChild<LLUICtrl>("object_icon")->setVisible(TRUE);
-		break;
+    switch (mMuteType)
+    {
+    case LLMute::AGENT:
+    case LLMute::EXTERNAL:
+        {
+            LLAvatarIconCtrl* avatar_icon = getChild<LLAvatarIconCtrl>("avatar_icon");
+            avatar_icon->setVisible(TRUE);
+            avatar_icon->setValue(mItemID);
+        }
+        break;
+    case LLMute::GROUP:
+        {
+            LLGroupIconCtrl* group_icon = getChild<LLGroupIconCtrl>("group_icon");
+            group_icon->setVisible(TRUE);
+            group_icon->setValue(mItemID);
+        }
+        break;
+    case LLMute::OBJECT:
+    case LLMute::BY_NAME:
+        getChild<LLUICtrl>("object_icon")->setVisible(TRUE);
+        break;
 
-	default:
-		break;
-	}
+    default:
+        break;
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
 void LLBlockedListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	getChildView("hovered_icon")->setVisible(true);
-	LLPanel::onMouseEnter(x, y, mask);
+    getChildView("hovered_icon")->setVisible(true);
+    LLPanel::onMouseEnter(x, y, mask);
 }
 
 void LLBlockedListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	getChildView("hovered_icon")->setVisible(false);
-	LLPanel::onMouseLeave(x, y, mask);
+    getChildView("hovered_icon")->setVisible(false);
+    LLPanel::onMouseLeave(x, y, mask);
 }
 
 void LLBlockedListItem::setValue(const LLSD& value)
 {
-	if (!value.isMap() || !value.has("selected"))
-	{
-		return;
-	}
+    if (!value.isMap() || !value.has("selected"))
+    {
+        return;
+    }
 
-	getChildView("selected_icon")->setVisible(value["selected"]);
+    getChildView("selected_icon")->setVisible(value["selected"]);
 }
 
 void LLBlockedListItem::highlightName(const std::string& highlited_text)
 {
-	LLStyle::Params params;
-	LLTextUtil::textboxSetHighlightedVal(mTitleCtrl, params, mItemName, highlited_text);
+    LLStyle::Params params;
+    LLTextUtil::textboxSetHighlightedVal(mTitleCtrl, params, mItemName, highlited_text);
 }

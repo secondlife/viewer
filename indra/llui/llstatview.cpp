@@ -37,25 +37,25 @@
 #include "llstatbar.h"
 
 LLStatView::LLStatView(const LLStatView::Params& p)
-:	LLContainerView(p),
-	mSetting(p.setting)
+:   LLContainerView(p),
+    mSetting(p.setting)
 {
-	BOOL isopen = getDisplayChildren();
-	if (mSetting.length() > 0)
-	{
-		isopen = LLUI::getInstance()->mSettingGroups["config"]->getBOOL(mSetting);
-	}
-	setDisplayChildren(isopen);
+    BOOL isopen = getDisplayChildren();
+    if (mSetting.length() > 0)
+    {
+        isopen = LLUI::getInstance()->mSettingGroups["config"]->getBOOL(mSetting);
+    }
+    setDisplayChildren(isopen);
 }
 
 LLStatView::~LLStatView()
 {
-	// Children all cleaned up by default view destructor.
-	if (mSetting.length() > 0)
-	{
-		BOOL isopen = getDisplayChildren();
-		LLUI::getInstance()->mSettingGroups["config"]->setBOOL(mSetting, isopen);
-	}
+    // Children all cleaned up by default view destructor.
+    if (mSetting.length() > 0)
+    {
+        BOOL isopen = getDisplayChildren();
+        LLUI::getInstance()->mSettingGroups["config"]->setBOOL(mSetting, isopen);
+    }
 }
 
 

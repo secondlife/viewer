@@ -33,22 +33,22 @@
 class LLLoginHandler : public LLCommandHandler
 {
  public:
-	// allow from external browsers
-	LLLoginHandler() : LLCommandHandler("login", UNTRUSTED_ALLOW) { }
-	/*virtual*/ bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web);
+    // allow from external browsers
+    LLLoginHandler() : LLCommandHandler("login", UNTRUSTED_ALLOW) { }
+    /*virtual*/ bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web);
 
-	// Fill in our internal fields from a SLURL like
-	// secondlife:///app/login?first=Bob&last=Dobbs
-	bool parseDirectLogin(std::string url);
+    // Fill in our internal fields from a SLURL like
+    // secondlife:///app/login?first=Bob&last=Dobbs
+    bool parseDirectLogin(std::string url);
 
-	// Web-based login unsupported
-	//LLUUID getWebLoginKey() const { return mWebLoginKey; }
+    // Web-based login unsupported
+    //LLUUID getWebLoginKey() const { return mWebLoginKey; }
 
-	LLPointer<LLCredential> loadSavedUserLoginInfo();  
-	LLPointer<LLCredential> initializeLoginInfo();
+    LLPointer<LLCredential> loadSavedUserLoginInfo();  
+    LLPointer<LLCredential> initializeLoginInfo();
 
 private:
-	void parse(const LLSD& queryMap);
+    void parse(const LLSD& queryMap);
 
 };
 

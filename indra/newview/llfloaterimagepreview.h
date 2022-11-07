@@ -43,102 +43,102 @@ class LLVolume;
 class LLImagePreviewSculpted : public LLViewerDynamicTexture
 {
 protected:
-	virtual ~LLImagePreviewSculpted();
+    virtual ~LLImagePreviewSculpted();
 
  public:
-	LLImagePreviewSculpted(S32 width, S32 height);	
+    LLImagePreviewSculpted(S32 width, S32 height);  
 
-	/*virtual*/ S8 getType() const ;
+    /*virtual*/ S8 getType() const ;
 
-	void setPreviewTarget(LLImageRaw *imagep, F32 distance);
-	void setTexture(U32 name) { mTextureName = name; }
+    void setPreviewTarget(LLImageRaw *imagep, F32 distance);
+    void setTexture(U32 name) { mTextureName = name; }
 
-	BOOL render();
-	void refresh();
-	void rotate(F32 yaw_radians, F32 pitch_radians);
-	void zoom(F32 zoom_amt);
-	void pan(F32 right, F32 up);
-	virtual BOOL needsRender() { return mNeedsUpdate; }
+    BOOL render();
+    void refresh();
+    void rotate(F32 yaw_radians, F32 pitch_radians);
+    void zoom(F32 zoom_amt);
+    void pan(F32 right, F32 up);
+    virtual BOOL needsRender() { return mNeedsUpdate; }
 
  protected:
-	BOOL        mNeedsUpdate;
-	U32         mTextureName;
-	F32			mCameraDistance;
-	F32			mCameraYaw;
-	F32			mCameraPitch;
-	F32			mCameraZoom;
-	LLVector3	mCameraOffset;
-	LLPointer<LLVolume> mVolume;
-	LLPointer<LLVertexBuffer> mVertexBuffer;
+    BOOL        mNeedsUpdate;
+    U32         mTextureName;
+    F32         mCameraDistance;
+    F32         mCameraYaw;
+    F32         mCameraPitch;
+    F32         mCameraZoom;
+    LLVector3   mCameraOffset;
+    LLPointer<LLVolume> mVolume;
+    LLPointer<LLVertexBuffer> mVertexBuffer;
 };
 
 
 class LLImagePreviewAvatar : public LLViewerDynamicTexture
 {
 protected:
-	virtual ~LLImagePreviewAvatar();
+    virtual ~LLImagePreviewAvatar();
 
 public:
-	LLImagePreviewAvatar(S32 width, S32 height);	
+    LLImagePreviewAvatar(S32 width, S32 height);    
 
-	/*virtual*/ S8 getType() const ;
+    /*virtual*/ S8 getType() const ;
 
-	void setPreviewTarget(const std::string& joint_name, const std::string& mesh_name, LLImageRaw* imagep, F32 distance, BOOL male);
-	void setTexture(U32 name) { mTextureName = name; }
-	void clearPreviewTexture(const std::string& mesh_name);
+    void setPreviewTarget(const std::string& joint_name, const std::string& mesh_name, LLImageRaw* imagep, F32 distance, BOOL male);
+    void setTexture(U32 name) { mTextureName = name; }
+    void clearPreviewTexture(const std::string& mesh_name);
 
-	BOOL	render();
-	void	refresh();
-	void	rotate(F32 yaw_radians, F32 pitch_radians);
-	void	zoom(F32 zoom_amt);
-	void	pan(F32 right, F32 up);
-	virtual BOOL needsRender() { return mNeedsUpdate; }
+    BOOL    render();
+    void    refresh();
+    void    rotate(F32 yaw_radians, F32 pitch_radians);
+    void    zoom(F32 zoom_amt);
+    void    pan(F32 right, F32 up);
+    virtual BOOL needsRender() { return mNeedsUpdate; }
 
 protected:
-	BOOL		mNeedsUpdate;
-	LLJoint*	mTargetJoint;
-	LLViewerJointMesh*	mTargetMesh;
-	F32			mCameraDistance;
-	F32			mCameraYaw;
-	F32			mCameraPitch;
-	F32			mCameraZoom;
-	LLVector3	mCameraOffset;
-	LLPointer<LLVOAvatar> mDummyAvatar;
-	U32			mTextureName;
+    BOOL        mNeedsUpdate;
+    LLJoint*    mTargetJoint;
+    LLViewerJointMesh*  mTargetMesh;
+    F32         mCameraDistance;
+    F32         mCameraYaw;
+    F32         mCameraPitch;
+    F32         mCameraZoom;
+    LLVector3   mCameraOffset;
+    LLPointer<LLVOAvatar> mDummyAvatar;
+    U32         mTextureName;
 };
 
 class LLFloaterImagePreview : public LLFloaterNameDesc
 {
 public:
-	LLFloaterImagePreview(const std::string& filename);
-	virtual ~LLFloaterImagePreview();
+    LLFloaterImagePreview(const std::string& filename);
+    virtual ~LLFloaterImagePreview();
 
-	virtual BOOL postBuild();
-	
-	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	BOOL handleHover(S32 x, S32 y, MASK mask);
-	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
+    virtual BOOL postBuild();
+    
+    BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+    BOOL handleHover(S32 x, S32 y, MASK mask);
+    BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
 
-	static void onMouseCaptureLostImagePreview(LLMouseHandler*);
+    static void onMouseCaptureLostImagePreview(LLMouseHandler*);
 
-	void clearAllPreviewTextures();
+    void clearAllPreviewTextures();
 
 protected:
-	static void		onPreviewTypeCommit(LLUICtrl*,void*);
-	void			draw();
-	bool			loadImage(const std::string& filename);
+    static void     onPreviewTypeCommit(LLUICtrl*,void*);
+    void            draw();
+    bool            loadImage(const std::string& filename);
 
-	LLPointer<LLImageRaw> mRawImagep;
-	LLPointer<LLImagePreviewAvatar> mAvatarPreview;
-	LLPointer<LLImagePreviewSculpted> mSculptedPreview;
-	S32				mLastMouseX;
-	S32				mLastMouseY;
-	LLRect			mPreviewRect;
-	LLRectf			mPreviewImageRect;
-	LLPointer<LLViewerTexture> mImagep ;
-	
-	std::string mImageLoadError;
+    LLPointer<LLImageRaw> mRawImagep;
+    LLPointer<LLImagePreviewAvatar> mAvatarPreview;
+    LLPointer<LLImagePreviewSculpted> mSculptedPreview;
+    S32             mLastMouseX;
+    S32             mLastMouseY;
+    LLRect          mPreviewRect;
+    LLRectf         mPreviewImageRect;
+    LLPointer<LLViewerTexture> mImagep ;
+    
+    std::string mImageLoadError;
 };
 
 #endif  // LL_LLFLOATERIMAGEPREVIEW_H

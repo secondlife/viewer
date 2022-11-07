@@ -30,7 +30,7 @@
 class LLViewerFloaterReg
 {
 public:
-	static void registerFloaters();
+    static void registerFloaters();
 };
 
 

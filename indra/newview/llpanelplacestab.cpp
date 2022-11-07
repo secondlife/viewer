@@ -42,35 +42,35 @@ LLButton* LLPanelPlacesTab::sRemoveBtn = NULL;
 
 bool LLPanelPlacesTab::isTabVisible()
 {
-	LLUICtrl* parent = getParentUICtrl();
-	if (!parent) return false;
-	if (!parent->getVisible()) return false;
-	return true;
+    LLUICtrl* parent = getParentUICtrl();
+    if (!parent) return false;
+    if (!parent->getVisible()) return false;
+    return true;
 }
 
 void LLPanelPlacesTab::onRegionResponse(const LLVector3d& landmark_global_pos,
-										U64 region_handle,
-										const std::string& url,
-										const LLUUID& snapshot_id,
-										bool teleport)
+                                        U64 region_handle,
+                                        const std::string& url,
+                                        const LLUUID& snapshot_id,
+                                        bool teleport)
 {
-	std::string sim_name;
-	bool gotSimName = LLWorldMap::getInstance()->simNameFromPosGlobal( landmark_global_pos, sim_name );
+    std::string sim_name;
+    bool gotSimName = LLWorldMap::getInstance()->simNameFromPosGlobal( landmark_global_pos, sim_name );
 
-	std::string sl_url;
-	if ( gotSimName )
-	{
-		sl_url = LLSLURL(sim_name, landmark_global_pos).getSLURLString();
-	}
-	else
-	{
-		sl_url = "";
-	}
+    std::string sl_url;
+    if ( gotSimName )
+    {
+        sl_url = LLSLURL(sim_name, landmark_global_pos).getSLURLString();
+    }
+    else
+    {
+        sl_url = "";
+    }
 
-	LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(sl_url));
-		
-	LLSD args;
-	args["SLURL"] = sl_url;
+    LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(sl_url));
+        
+    LLSD args;
+    args["SLURL"] = sl_url;
 
-	LLNotificationsUtil::add("CopySLURL", args);
+    LLNotificationsUtil::add("CopySLURL", args);
 }

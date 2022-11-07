@@ -38,65 +38,65 @@ class LLViewerDynamicTexture : public LLViewerTexture
     LL_ALIGN_NEW
 public:
 
-	enum
-	{
-		LL_VIEWER_DYNAMIC_TEXTURE = LLViewerTexture::DYNAMIC_TEXTURE,
-		LL_TEX_LAYER_SET_BUFFER = LLViewerTexture::INVALID_TEXTURE_TYPE + 1,
-		LL_VISUAL_PARAM_HINT,
-		LL_VISUAL_PARAM_RESET,
-		LL_PREVIEW_ANIMATION,
-		LL_IMAGE_PREVIEW_SCULPTED,
-		LL_IMAGE_PREVIEW_AVATAR,
-		INVALID_DYNAMIC_TEXTURE
-	};
+    enum
+    {
+        LL_VIEWER_DYNAMIC_TEXTURE = LLViewerTexture::DYNAMIC_TEXTURE,
+        LL_TEX_LAYER_SET_BUFFER = LLViewerTexture::INVALID_TEXTURE_TYPE + 1,
+        LL_VISUAL_PARAM_HINT,
+        LL_VISUAL_PARAM_RESET,
+        LL_PREVIEW_ANIMATION,
+        LL_IMAGE_PREVIEW_SCULPTED,
+        LL_IMAGE_PREVIEW_AVATAR,
+        INVALID_DYNAMIC_TEXTURE
+    };
 
 protected:
-	/*virtual*/ ~LLViewerDynamicTexture();
+    /*virtual*/ ~LLViewerDynamicTexture();
 
 public:
-	enum EOrder { ORDER_FIRST = 0, ORDER_MIDDLE = 1, ORDER_LAST = 2, ORDER_RESET = 3, ORDER_COUNT = 4 };
+    enum EOrder { ORDER_FIRST = 0, ORDER_MIDDLE = 1, ORDER_LAST = 2, ORDER_RESET = 3, ORDER_COUNT = 4 };
 
-	LLViewerDynamicTexture(S32 width,
-					 S32 height,
-					 S32 components,		// = 4,
-					 EOrder order,			// = ORDER_MIDDLE,
-					 BOOL clamp);
-	
-	/*virtual*/ S8 getType() const ;
+    LLViewerDynamicTexture(S32 width,
+                     S32 height,
+                     S32 components,        // = 4,
+                     EOrder order,          // = ORDER_MIDDLE,
+                     BOOL clamp);
+    
+    /*virtual*/ S8 getType() const ;
 
-	S32			getOriginX() const	{ return mOrigin.mX; }
-	S32			getOriginY() const	{ return mOrigin.mY; }
-	
-	S32			getSize()		{ return mFullWidth * mFullHeight * mComponents; }
+    S32         getOriginX() const  { return mOrigin.mX; }
+    S32         getOriginY() const  { return mOrigin.mY; }
+    
+    S32         getSize()       { return mFullWidth * mFullHeight * mComponents; }
 
-	virtual BOOL needsRender() { return TRUE; }
-	virtual void preRender(BOOL clear_depth = TRUE);
-	virtual BOOL render();
-	virtual void postRender(BOOL success);
+    virtual BOOL needsRender() { return TRUE; }
+    virtual void preRender(BOOL clear_depth = TRUE);
+    virtual BOOL render();
+    virtual void postRender(BOOL success);
 
-	virtual void restoreGLTexture() {}
-	virtual void destroyGLTexture() {}
+    virtual void restoreGLTexture() {}
+    virtual void destroyGLTexture() {}
 
-	static BOOL	updateAllInstances();
-	static void destroyGL() ;
-	static void restoreGL() ;
+    static BOOL updateAllInstances();
+    static void destroyGL() ;
+    static void restoreGL() ;
 
     void setBoundTarget(LLRenderTarget* target) { mBoundTarget = target; }
 
 protected:
-	void generateGLTexture();
-	void generateGLTexture(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format, BOOL swap_bytes = FALSE);
+    void generateGLTexture();
+    void generateGLTexture(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format, BOOL swap_bytes = FALSE);
 
 protected:
-	BOOL mClamp;
-	LLCoordGL mOrigin;
-	LL_ALIGN_16(LLCamera mCamera);
-	
+    BOOL mClamp;
+    LLCoordGL mOrigin;
+    LL_ALIGN_16(LLCamera mCamera);
+    
     LLRenderTarget* mBoundTarget;
 
-	typedef std::set<LLViewerDynamicTexture*> instance_list_t;
-	static instance_list_t sInstances[ LLViewerDynamicTexture::ORDER_COUNT ];
-	static S32 sNumRenders;
+    typedef std::set<LLViewerDynamicTexture*> instance_list_t;
+    static instance_list_t sInstances[ LLViewerDynamicTexture::ORDER_COUNT ];
+    static S32 sNumRenders;
 };
 
 #endif

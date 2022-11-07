@@ -37,89 +37,89 @@ struct LLWLParamKey;
 
 class LLWLDayCycle
 {
-	LOG_CLASS(LLWLDayCycle);
+    LOG_CLASS(LLWLDayCycle);
 public:
 
-	// lists what param sets are used when during the day
-	std::map<F32, LLWLParamKey> mTimeMap;
+    // lists what param sets are used when during the day
+    std::map<F32, LLWLParamKey> mTimeMap;
 
-	// how long is my day
-	F32 mDayRate;
+    // how long is my day
+    F32 mDayRate;
 
 public:
 
-	/// simple constructor
-	LLWLDayCycle();
+    /// simple constructor
+    LLWLDayCycle();
 
-	/// simple destructor
-	~LLWLDayCycle();
+    /// simple destructor
+    ~LLWLDayCycle();
 
-	/// load a day cycle
-	void loadDayCycle(const LLSD& llsd, LLEnvKey::EScope scope);
+    /// load a day cycle
+    void loadDayCycle(const LLSD& llsd, LLEnvKey::EScope scope);
 
-	/// load a day cycle
-	void loadDayCycleFromFile(const std::string & fileName);
+    /// load a day cycle
+    void loadDayCycleFromFile(const std::string & fileName);
 
-	/// save a day cycle
-	void saveDayCycle(const std::string & fileName);
+    /// save a day cycle
+    void saveDayCycle(const std::string & fileName);
 
-	/// save a day cycle
-	void save(const std::string& file_path);
+    /// save a day cycle
+    void save(const std::string& file_path);
 
-	/// load the LLSD data from a file (returns the undefined LLSD if not found)
-	static LLSD loadCycleDataFromFile(const std::string & fileName);
+    /// load the LLSD data from a file (returns the undefined LLSD if not found)
+    static LLSD loadCycleDataFromFile(const std::string & fileName);
 
-	/// load the LLSD data from a file specified by full path
-	static LLSD loadDayCycleFromPath(const std::string& file_path);
+    /// load the LLSD data from a file specified by full path
+    static LLSD loadDayCycleFromPath(const std::string& file_path);
 
-	/// get the LLSD data for this day cycle
-	LLSD asLLSD();
+    /// get the LLSD data for this day cycle
+    LLSD asLLSD();
 
-	// get skies referenced by this day cycle
-//	bool getSkyRefs(std::map<LLWLParamKey, LLWLParamSet>& refs) const;
+    // get skies referenced by this day cycle
+//  bool getSkyRefs(std::map<LLWLParamKey, LLWLParamSet>& refs) const;
 
-	// get referenced skies as LLSD
-	bool getSkyMap(LLSD& sky_map) const;
+    // get referenced skies as LLSD
+    bool getSkyMap(LLSD& sky_map) const;
 
-	/// clear keyframes
-	void clearKeyframes();
+    /// clear keyframes
+    void clearKeyframes();
 
-	/// Getters and Setters
-	/// add a new key frame to the day cycle
-	/// returns true if successful
-	/// no negative time
-	bool addKeyframe(F32 newTime, LLWLParamKey key);
+    /// Getters and Setters
+    /// add a new key frame to the day cycle
+    /// returns true if successful
+    /// no negative time
+    bool addKeyframe(F32 newTime, LLWLParamKey key);
 
-	/// adjust a keyframe's placement in the day cycle
-	/// returns true if successful
-	bool changeKeyframeTime(F32 oldTime, F32 newTime);
+    /// adjust a keyframe's placement in the day cycle
+    /// returns true if successful
+    bool changeKeyframeTime(F32 oldTime, F32 newTime);
 
-	/// adjust a keyframe's parameter used
-	/// returns true if successful
-	bool changeKeyframeParam(F32 time, LLWLParamKey key);
+    /// adjust a keyframe's parameter used
+    /// returns true if successful
+    bool changeKeyframeParam(F32 time, LLWLParamKey key);
 
-	/// remove a key frame from the day cycle
-	/// returns true if successful
-	bool removeKeyframe(F32 time);
+    /// remove a key frame from the day cycle
+    /// returns true if successful
+    bool removeKeyframe(F32 time);
 
-	/// get the first key time for a parameter
-	/// returns false if not there
-	bool getKeytime(LLWLParamKey keyFrame, F32& keyTime) const;
+    /// get the first key time for a parameter
+    /// returns false if not there
+    bool getKeytime(LLWLParamKey keyFrame, F32& keyTime) const;
 
-	/// get the param set at a given time
-	/// returns true if found one
-//	bool getKeyedParam(F32 time, LLWLParamSet& param);
+    /// get the param set at a given time
+    /// returns true if found one
+//  bool getKeyedParam(F32 time, LLWLParamSet& param);
 
-	/// get the name
-	/// returns true if it found one
-	bool getKeyedParamName(F32 time, std::string & name);
+    /// get the name
+    /// returns true if it found one
+    bool getKeyedParamName(F32 time, std::string & name);
 
-	/// @return true if there are references to the given sky
-	bool hasReferencesTo(const LLWLParamKey& keyframe) const;
+    /// @return true if there are references to the given sky
+    bool hasReferencesTo(const LLWLParamKey& keyframe) const;
 
-	/// removes all references to the sky (paramkey)
-	/// does nothing if the sky doesn't exist in the day
-	void removeReferencesTo(const LLWLParamKey& keyframe);
+    /// removes all references to the sky (paramkey)
+    /// does nothing if the sky doesn't exist in the day
+    void removeReferencesTo(const LLWLParamKey& keyframe);
 };
 
 

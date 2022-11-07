@@ -31,14 +31,14 @@
 class LLHelp
 {
  public:
-	virtual void showTopic(const std::string &topic) = 0;
-	virtual std::string getURL(const std::string &topic) = 0;
-	// return default (fallback) topic name suitable for showTopic()
-	virtual std::string defaultTopic() = 0;
-	// return topic to use before the user logs in
-	virtual std::string preLoginTopic() = 0;
-	// return topic to use for the top-level help, invoked by F1
-	virtual std::string f1HelpTopic() = 0;
+    virtual void showTopic(const std::string &topic) = 0;
+    virtual std::string getURL(const std::string &topic) = 0;
+    // return default (fallback) topic name suitable for showTopic()
+    virtual std::string defaultTopic() = 0;
+    // return topic to use before the user logs in
+    virtual std::string preLoginTopic() = 0;
+    // return topic to use for the top-level help, invoked by F1
+    virtual std::string f1HelpTopic() = 0;
 };
 
 #endif // headerguard

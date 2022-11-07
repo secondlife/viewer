@@ -39,23 +39,23 @@ class LLFloaterEvent : public LLFloater,
 
 {
 public:
-	LLFloaterEvent(const LLSD& key);
-	/*virtual*/ ~LLFloaterEvent();
+    LLFloaterEvent(const LLSD& key);
+    /*virtual*/ ~LLFloaterEvent();
 
-	/*virtual*/ BOOL postBuild();
+    /*virtual*/ BOOL postBuild();
 
-	void setEventID(const U32 event_id);
+    void setEventID(const U32 event_id);
 
-	U32 getEventID() { return mEventID; }
+    U32 getEventID() { return mEventID; }
 
 
 
 protected:
-	/*virtual*/ void handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event);	
-	
-	U32				mEventID;
+    /*virtual*/ void handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event); 
+    
+    U32             mEventID;
 
-	LLMediaCtrl*	mBrowser;
+    LLMediaCtrl*    mBrowser;
 
 };
 

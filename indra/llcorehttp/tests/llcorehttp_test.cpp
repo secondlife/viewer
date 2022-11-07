@@ -56,26 +56,26 @@
 void ssl_thread_id_callback(CRYPTO_THREADID*);
 void ssl_locking_callback(int mode, int type, const char * file, int line);
 
-#if 0	// lltut provides main and runner
+#if 0   // lltut provides main and runner
 
 namespace tut
 {
-	test_runner_singleton runner;
+    test_runner_singleton runner;
 }
 
 int main()
 {
-	curl_global_init(CURL_GLOBAL_ALL);
+    curl_global_init(CURL_GLOBAL_ALL);
 
-	// *FIXME:  Need threaded/SSL curl setup here.
-	
-	tut::reporter reporter;
+    // *FIXME:  Need threaded/SSL curl setup here.
+    
+    tut::reporter reporter;
 
-	tut::runner.get().set_callback(&reporter);
-	tut::runner.get().run_tests();
-	return !reporter.all_ok();
+    tut::runner.get().set_callback(&reporter);
+    tut::runner.get().run_tests();
+    return !reporter.all_ok();
 
-	curl_global_cleanup();
+    curl_global_cleanup();
 }
 
 #endif // 0
@@ -85,95 +85,95 @@ LLCoreInt::HttpMutex ** ssl_mutex_list = NULL;
 
 void init_curl()
 {
-	curl_global_init(CURL_GLOBAL_ALL);
+    curl_global_init(CURL_GLOBAL_ALL);
 
-	ssl_mutex_count = CRYPTO_num_locks();
-	if (ssl_mutex_count > 0)
-	{
-		ssl_mutex_list = new LLCoreInt::HttpMutex * [ssl_mutex_count];
-		
-		for (int i(0); i < ssl_mutex_count; ++i)
-		{
-			ssl_mutex_list[i] = new LLCoreInt::HttpMutex;
-		}
+    ssl_mutex_count = CRYPTO_num_locks();
+    if (ssl_mutex_count > 0)
+    {
+        ssl_mutex_list = new LLCoreInt::HttpMutex * [ssl_mutex_count];
+        
+        for (int i(0); i < ssl_mutex_count; ++i)
+        {
+            ssl_mutex_list[i] = new LLCoreInt::HttpMutex;
+        }
 
-		CRYPTO_set_locking_callback(ssl_locking_callback);
-		CRYPTO_THREADID_set_callback(ssl_thread_id_callback);
-	}
+        CRYPTO_set_locking_callback(ssl_locking_callback);
+        CRYPTO_THREADID_set_callback(ssl_thread_id_callback);
+    }
 
-	LLProxy::getInstance();
+    LLProxy::getInstance();
 }
 
 
 void term_curl()
 {
-	SUBSYSTEM_CLEANUP(LLProxy);
-	
-	CRYPTO_set_locking_callback(NULL);
-	for (int i(0); i < ssl_mutex_count; ++i)
-	{
-		delete ssl_mutex_list[i];
-	}
-	delete [] ssl_mutex_list;
+    SUBSYSTEM_CLEANUP(LLProxy);
+    
+    CRYPTO_set_locking_callback(NULL);
+    for (int i(0); i < ssl_mutex_count; ++i)
+    {
+        delete ssl_mutex_list[i];
+    }
+    delete [] ssl_mutex_list;
 }
 
 
 void ssl_thread_id_callback(CRYPTO_THREADID* pthreadid)
 {
 #if defined(WIN32)
-	CRYPTO_THREADID_set_pointer(pthreadid, GetCurrentThread());
+    CRYPTO_THREADID_set_pointer(pthreadid, GetCurrentThread());
 #else
-	CRYPTO_THREADID_set_pointer(pthreadid, pthread_self());
+    CRYPTO_THREADID_set_pointer(pthreadid, pthread_self());
 #endif
 }
 
 
 void ssl_locking_callback(int mode, int type, const char * /* file */, int /* line */)
 {
-	if (type >= 0 && type < ssl_mutex_count)
-	{
-		if (mode & CRYPTO_LOCK)
-		{
-			ssl_mutex_list[type]->lock();
-		}
-		else
-		{
-			ssl_mutex_list[type]->unlock();
-		}
-	}
+    if (type >= 0 && type < ssl_mutex_count)
+    {
+        if (mode & CRYPTO_LOCK)
+        {
+            ssl_mutex_list[type]->lock();
+        }
+        else
+        {
+            ssl_mutex_list[type]->unlock();
+        }
+    }
 }
 
 
 std::string get_base_url()
 {
-	const char * env(getenv("LL_TEST_PORT"));
+    const char * env(getenv("LL_TEST_PORT"));
 
-	if (! env)
-	{
-		std::cerr << "LL_TEST_PORT environment variable missing." << std::endl;
-		std::cerr << "Test expects to run in test_llcorehttp_peer.py script." << std::endl;
-		tut::ensure("LL_TEST_PORT set in environment", NULL != env);
-	}
+    if (! env)
+    {
+        std::cerr << "LL_TEST_PORT environment variable missing." << std::endl;
+        std::cerr << "Test expects to run in test_llcorehttp_peer.py script." << std::endl;
+        tut::ensure("LL_TEST_PORT set in environment", NULL != env);
+    }
 
-	int port(atoi(env));
-	std::ostringstream out;
-	out << "http://localhost:" << port << "/";
-	return out.str();
+    int port(atoi(env));
+    std::ostringstream out;
+    out << "http://localhost:" << port << "/";
+    return out.str();
 }
 
 
 void stop_thread(LLCore::HttpRequest * req)
 {
-	if (req)
-	{
-		req->requestStopThread(LLCore::HttpHandler::ptr_t());
-	
-		int count = 0;
-		int limit = 10;
-		while (count++ < limit && ! HttpService::isStopped())
-		{
-			req->update(1000);
-			usleep(100000);
-		}
-	}
+    if (req)
+    {
+        req->requestStopThread(LLCore::HttpHandler::ptr_t());
+    
+        int count = 0;
+        int limit = 10;
+        while (count++ < limit && ! HttpService::isStopped())
+        {
+            req->update(1000);
+            usleep(100000);
+        }
+    }
 }

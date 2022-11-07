@@ -24,8 +24,8 @@
 * $/LicenseInfo$
 */
 
-#ifndef	_LLHTTPSDHANDLER_H_
-#define	_LLHTTPSDHANDLER_H_
+#ifndef _LLHTTPSDHANDLER_H_
+#define _LLHTTPSDHANDLER_H_
 #include "httpcommon.h"
 #include "httphandler.h"
 #include "lluri.h"
@@ -41,13 +41,13 @@ class LLHttpSDHandler : public LLCore::HttpHandler //,
 {
 public:
 
-	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
-	
+    virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+    
 protected:
     LLHttpSDHandler();
 
-	virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content) = 0;
-	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status) = 0;
+    virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content) = 0;
+    virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status) = 0;
 
 
 };

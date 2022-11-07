@@ -38,57 +38,57 @@
  * If group data is not loaded yet it subscribes as LLGroupMgr observer and requests necessary data.
  */
 class LLGroupIconCtrl
-	: public LLIconCtrl, public LLGroupMgrObserver
+    : public LLIconCtrl, public LLGroupMgrObserver
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLIconCtrl::Params>
-	{
-		Optional <LLUUID> group_id;
-		Optional <bool> draw_tooltip;
-		Optional <std::string> default_icon_name;
-		Params();
-	};
+    struct Params : public LLInitParam::Block<Params, LLIconCtrl::Params>
+    {
+        Optional <LLUUID> group_id;
+        Optional <bool> draw_tooltip;
+        Optional <std::string> default_icon_name;
+        Params();
+    };
 
 protected:
-	LLGroupIconCtrl(const Params&);
-	friend class LLUICtrlFactory;
+    LLGroupIconCtrl(const Params&);
+    friend class LLUICtrlFactory;
 
 public:
-	virtual ~LLGroupIconCtrl();
+    virtual ~LLGroupIconCtrl();
 
-	/**
-	 * Determines group icon id by group id and sets it as icon value.
-	 *
-	 * Icon id is got from the appropriate LLGroupMgrGroupData specified by group UUID.
-	 * If necessary it requests necessary data from the LLGroupMgr.
-	 *
-	 * @params value - if LLUUID - it is processed as group id otherwise base method is called.
-	 */
-	virtual void setValue(const LLSD& value);
+    /**
+     * Determines group icon id by group id and sets it as icon value.
+     *
+     * Icon id is got from the appropriate LLGroupMgrGroupData specified by group UUID.
+     * If necessary it requests necessary data from the LLGroupMgr.
+     *
+     * @params value - if LLUUID - it is processed as group id otherwise base method is called.
+     */
+    virtual void setValue(const LLSD& value);
 
-	/**
-	 * Sets icon_id as icon value directly. Avoids LLGroupMgr cache checks for group id
-	 * Uses default icon in case id is null.
-	 *
-	 * @params icon_id - it is processed as icon id, default image will be used in case id is null.
-	 */
-	void setIconId(const LLUUID& icon_id);
+    /**
+     * Sets icon_id as icon value directly. Avoids LLGroupMgr cache checks for group id
+     * Uses default icon in case id is null.
+     *
+     * @params icon_id - it is processed as icon id, default image will be used in case id is null.
+     */
+    void setIconId(const LLUUID& icon_id);
 
-	// LLGroupMgrObserver observer trigger
-	virtual void changed(LLGroupChange gc);
+    // LLGroupMgrObserver observer trigger
+    virtual void changed(LLGroupChange gc);
 
-	const std::string&	getGroupName() const { return mGroupName; }
-	void setDrawTooltip(bool value) { mDrawTooltip = value;}
+    const std::string&  getGroupName() const { return mGroupName; }
+    void setDrawTooltip(bool value) { mDrawTooltip = value;}
 
-	const LLUUID&		getGroupId() const	{ return mGroupId; }
+    const LLUUID&       getGroupId() const  { return mGroupId; }
 
 protected:
-	LLUUID				mGroupId;
-	std::string			mGroupName;
-	bool				mDrawTooltip;
-	std::string			mDefaultIconName;
+    LLUUID              mGroupId;
+    std::string         mGroupName;
+    bool                mDrawTooltip;
+    std::string         mDefaultIconName;
 
-	bool updateFromCache();
+    bool updateFromCache();
 };
 
 #endif  // LL_LLGROUPICONCTRL_H

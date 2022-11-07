@@ -46,7 +46,7 @@ public:
     struct Params : public LLInitParam::Block<Params, LLPanel::Params>
     {
         LLUUID          notification_id;
-        LLUUID			transaction_id;
+        LLUUID          transaction_id;
         LLUUID          group_id;
         LLUUID          paid_from_id;
         LLUUID          paid_to_id;
@@ -80,8 +80,8 @@ public:
 
     // handlers
     virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
-	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
+    virtual void onMouseEnter(S32 x, S32 y, MASK mask);
+    virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 
     //callbacks
     typedef boost::function<void (LLNotificationListItem* item)> item_callback_t;
@@ -97,11 +97,11 @@ public:
     void reshapeNotification();
 
     typedef enum e_time_type
-	{
-		SLT = 1,
-		Local = 2,
-		UTC = 3,
-	}ETimeType;
+    {
+        SLT = 1,
+        Local = 2,
+        UTC = 3,
+    }ETimeType;
 
 protected:
     LLNotificationListItem(const Params& p);
@@ -137,7 +137,7 @@ class LLGroupNotificationListItem
     : public LLNotificationListItem, public LLGroupMgrObserver
 {
 public:
-	virtual ~LLGroupNotificationListItem();
+    virtual ~LLGroupNotificationListItem();
     virtual BOOL postBuild();
 
     void setGroupId(const LLUUID& value);
@@ -185,9 +185,9 @@ private:
     void onClickInfoBtn();
 
     LLPanel*        mInviteButtonPanel;
-    LLButton*		mJoinBtn;
-    LLButton*		mDeclineBtn;
-    LLButton*		mInfoBtn;
+    LLButton*       mJoinBtn;
+    LLButton*       mDeclineBtn;
+    LLButton*       mInfoBtn;
 };
 
 class LLGroupNoticeNotificationListItem

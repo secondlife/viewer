@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_POLICY_GLOBAL_H_
-#define	_LLCORE_HTTP_POLICY_GLOBAL_H_
+#ifndef _LLCORE_HTTP_POLICY_GLOBAL_H_
+#define _LLCORE_HTTP_POLICY_GLOBAL_H_
 
 
 #include "httprequest.h"
@@ -49,30 +49,30 @@ namespace LLCore
 class HttpPolicyGlobal
 {
 public:
-	HttpPolicyGlobal();
-	~HttpPolicyGlobal();
+    HttpPolicyGlobal();
+    ~HttpPolicyGlobal();
 
-	HttpPolicyGlobal & operator=(const HttpPolicyGlobal &);
-	
+    HttpPolicyGlobal & operator=(const HttpPolicyGlobal &);
+    
 private:
-	HttpPolicyGlobal(const HttpPolicyGlobal &);			// Not defined
+    HttpPolicyGlobal(const HttpPolicyGlobal &);         // Not defined
 
 public:
-	HttpStatus set(HttpRequest::EPolicyOption opt, long value);
-	HttpStatus set(HttpRequest::EPolicyOption opt, const std::string & value);
-	HttpStatus set(HttpRequest::EPolicyOption opt, HttpRequest::policyCallback_t value);
-	HttpStatus get(HttpRequest::EPolicyOption opt, long * value) const;
-	HttpStatus get(HttpRequest::EPolicyOption opt, std::string * value) const;
-	HttpStatus get(HttpRequest::EPolicyOption opt, HttpRequest::policyCallback_t * value) const;
-	
+    HttpStatus set(HttpRequest::EPolicyOption opt, long value);
+    HttpStatus set(HttpRequest::EPolicyOption opt, const std::string & value);
+    HttpStatus set(HttpRequest::EPolicyOption opt, HttpRequest::policyCallback_t value);
+    HttpStatus get(HttpRequest::EPolicyOption opt, long * value) const;
+    HttpStatus get(HttpRequest::EPolicyOption opt, std::string * value) const;
+    HttpStatus get(HttpRequest::EPolicyOption opt, HttpRequest::policyCallback_t * value) const;
+    
 public:
-	long				mConnectionLimit;
-	std::string			mCAPath;
-	std::string			mCAFile;
-	std::string			mHttpProxy;
-	long				mTrace;
-	long				mUseLLProxy;
-	HttpRequest::policyCallback_t	mSslCtxCallback;
+    long                mConnectionLimit;
+    std::string         mCAPath;
+    std::string         mCAFile;
+    std::string         mHttpProxy;
+    long                mTrace;
+    long                mUseLLProxy;
+    HttpRequest::policyCallback_t   mSslCtxCallback;
 };  // end class HttpPolicyGlobal
 
 }  // end namespace LLCore

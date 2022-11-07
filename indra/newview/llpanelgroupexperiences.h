@@ -34,20 +34,20 @@ class LLFlatListView;
 class LLPanelGroupExperiences : public LLPanelGroupTab
 {
 public:
-	LLPanelGroupExperiences();
-	virtual ~LLPanelGroupExperiences();
+    LLPanelGroupExperiences();
+    virtual ~LLPanelGroupExperiences();
 
-	// LLPanelGroupTab
-	virtual void activate();
-	
-	virtual BOOL postBuild();
-	
-	virtual void setGroupID(const LLUUID& id);
-	
+    // LLPanelGroupTab
+    virtual void activate();
+    
+    virtual BOOL postBuild();
+    
+    virtual void setGroupID(const LLUUID& id);
+    
     void setExperienceList(const LLSD& experiences);
 
 protected:
-	LLFlatListView* mExperiencesList;
+    LLFlatListView* mExperiencesList;
 
 private:
     static void groupExperiencesResults(LLHandle<LLPanelGroupExperiences>, const LLSD &);

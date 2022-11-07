@@ -33,19 +33,19 @@ class LLViewerObject;
 class LLPickInfo;
 
 class LLToolFace
-:	public LLTool, public LLSingleton<LLToolFace>
+:   public LLTool, public LLSingleton<LLToolFace>
 {
-	LLSINGLETON(LLToolFace);
-	virtual ~LLToolFace();
+    LLSINGLETON(LLToolFace);
+    virtual ~LLToolFace();
 public:
 
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
-	virtual void	handleSelect();
-	virtual void	handleDeselect();
-	virtual void	render();			// draw face highlights
+    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual BOOL    handleDoubleClick(S32 x, S32 y, MASK mask);
+    virtual void    handleSelect();
+    virtual void    handleDeselect();
+    virtual void    render();           // draw face highlights
 
-	static void pickCallback(const LLPickInfo& pick_info);
+    static void pickCallback(const LLPickInfo& pick_info);
 };
 
 #endif

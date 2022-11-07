@@ -45,8 +45,8 @@ class LLServiceCreator;
  */
 namespace boost
 {
-	void intrusive_ptr_add_ref(LLServiceCreator* p);
-	void intrusive_ptr_release(LLServiceCreator* p);
+    void intrusive_ptr_add_ref(LLServiceCreator* p);
+    void intrusive_ptr_release(LLServiceCreator* p);
 };
 #endif
 
@@ -63,37 +63,37 @@ namespace boost
 class LLServiceCreator
 {
 public:
-	typedef boost::intrusive_ptr<LLService> service_t;
-	virtual ~LLServiceCreator() {}
-	virtual service_t activate() = 0;
-	virtual void discard() = 0;
+    typedef boost::intrusive_ptr<LLService> service_t;
+    virtual ~LLServiceCreator() {}
+    virtual service_t activate() = 0;
+    virtual void discard() = 0;
 
 protected:
-	LLServiceCreator() : mReferenceCount(0)
-	{
-	}
+    LLServiceCreator() : mReferenceCount(0)
+    {
+    }
 
 private:
-	friend void boost::intrusive_ptr_add_ref(LLServiceCreator* p);
-	friend void boost::intrusive_ptr_release(LLServiceCreator* p);
-	U32 mReferenceCount;
+    friend void boost::intrusive_ptr_add_ref(LLServiceCreator* p);
+    friend void boost::intrusive_ptr_release(LLServiceCreator* p);
+    U32 mReferenceCount;
 };
 #endif
 
 #if 0
 namespace boost
 {
-	inline void intrusive_ptr_add_ref(LLServiceCreator* p)
-	{
-		++p->mReferenceCount;
-	}
-	inline void intrusive_ptr_release(LLServiceCreator* p)
-	{
-		if(p && 0 == --p->mReferenceCount)
-		{
-			delete p;
-		}
-	}
+    inline void intrusive_ptr_add_ref(LLServiceCreator* p)
+    {
+        ++p->mReferenceCount;
+    }
+    inline void intrusive_ptr_release(LLServiceCreator* p)
+    {
+        if(p && 0 == --p->mReferenceCount)
+        {
+            delete p;
+        }
+    }
 };
 #endif
 
@@ -114,71 +114,71 @@ namespace boost
 class LLService : public LLIOPipe
 {
 public:
-	//typedef boost::intrusive_ptr<LLServiceCreator> creator_t;
-	//typedef boost::intrusive_ptr<LLService> service_t;
-	typedef boost::shared_ptr<LLChainIOFactory> creator_t;
+    //typedef boost::intrusive_ptr<LLServiceCreator> creator_t;
+    //typedef boost::intrusive_ptr<LLService> service_t;
+    typedef boost::shared_ptr<LLChainIOFactory> creator_t;
 
-	/** 
-	 * @brief This method is used to register a protocol name with a
-	 * a functor that creates the service.
-	 *
-	 * THOROUGH_DESCRIPTION
-	 * @param aParameter A brief description of aParameter.
-	 * @return Returns true if a service was successfully registered.
-	 */
-	static bool registerCreator(const std::string& name, creator_t fn);
+    /** 
+     * @brief This method is used to register a protocol name with a
+     * a functor that creates the service.
+     *
+     * THOROUGH_DESCRIPTION
+     * @param aParameter A brief description of aParameter.
+     * @return Returns true if a service was successfully registered.
+     */
+    static bool registerCreator(const std::string& name, creator_t fn);
 
-	/** 
-	 * @brief This method connects to a service by name.
-	 *
-	 * @param name The name of the service to connect to.
-	 * @param chain The constructed chain including the service instance.
-	 * @param context Context for the activation.
-	 * @return An instance of the service for use or NULL on failure.
-	 */
-	static LLIOPipe* activate(
-		const std::string& name,
-		LLPumpIO::chain_t& chain,
-		LLSD context);
+    /** 
+     * @brief This method connects to a service by name.
+     *
+     * @param name The name of the service to connect to.
+     * @param chain The constructed chain including the service instance.
+     * @param context Context for the activation.
+     * @return An instance of the service for use or NULL on failure.
+     */
+    static LLIOPipe* activate(
+        const std::string& name,
+        LLPumpIO::chain_t& chain,
+        LLSD context);
 
-	/** 
-	 * @brief 
-	 *
-	 * @param name The name of the service to discard.
-	 * @return true if service creator was found and discarded.
-	 */
-	static bool discard(const std::string& name);
-
-protected:
-	// The creation factory static data.
-	typedef std::map<std::string, creator_t> creators_t;
-	static creators_t sCreatorFunctors;
+    /** 
+     * @brief 
+     *
+     * @param name The name of the service to discard.
+     * @return true if service creator was found and discarded.
+     */
+    static bool discard(const std::string& name);
 
 protected:
-	// construction & destruction. since this class is an abstract
-	// base class, it is up to Service implementations to actually
-	// deal with construction and not a public method. How that
-	// construction takes place will be handled by the service
-	// creators.
-	LLService();
-	virtual ~LLService();
+    // The creation factory static data.
+    typedef std::map<std::string, creator_t> creators_t;
+    static creators_t sCreatorFunctors;
 
 protected:
-	// This frame timer records how long this service has
-	// existed. Useful for derived services to give themselves a
-	// lifetime and expiration.
-	// *NOTE: Phoenix - This functionaity has been moved to the
-	// pump. 2005-12-13
-	//LLFrameTimer mTimer;
+    // construction & destruction. since this class is an abstract
+    // base class, it is up to Service implementations to actually
+    // deal with construction and not a public method. How that
+    // construction takes place will be handled by the service
+    // creators.
+    LLService();
+    virtual ~LLService();
 
-	// Since services are designed in an 'ask now, respond later'
-	// idiom which probably crosses thread boundaries, almost all
-	// services will need a handle to a response pipe. It will usually
-	// be the job of the service author to derive a useful
-	// implementation of response, and up to the service subscriber to
-	// further derive that class to do something useful when the
-	// response comes in.
-	LLIOPipe::ptr_t mResponse;
+protected:
+    // This frame timer records how long this service has
+    // existed. Useful for derived services to give themselves a
+    // lifetime and expiration.
+    // *NOTE: Phoenix - This functionaity has been moved to the
+    // pump. 2005-12-13
+    //LLFrameTimer mTimer;
+
+    // Since services are designed in an 'ask now, respond later'
+    // idiom which probably crosses thread boundaries, almost all
+    // services will need a handle to a response pipe. It will usually
+    // be the job of the service author to derive a useful
+    // implementation of response, and up to the service subscriber to
+    // further derive that class to do something useful when the
+    // response comes in.
+    LLIOPipe::ptr_t mResponse;
 };
 
 

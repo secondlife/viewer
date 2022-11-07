@@ -35,73 +35,73 @@ class LLVOAvatar;
 
 class LLViewerWearable : public LLWearable
 {
-	friend class LLWearableList;
+    friend class LLWearableList;
 
-	//--------------------------------------------------------------------
-	// Constructors and destructors
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
+    // Constructors and destructors
+    //--------------------------------------------------------------------
 private:
-	// Private constructors used by LLViewerWearableList
-	LLViewerWearable(const LLTransactionID& transactionID);
-	LLViewerWearable(const LLAssetID& assetID);
+    // Private constructors used by LLViewerWearableList
+    LLViewerWearable(const LLTransactionID& transactionID);
+    LLViewerWearable(const LLAssetID& assetID);
 public:
-	virtual ~LLViewerWearable();
+    virtual ~LLViewerWearable();
 
-	//--------------------------------------------------------------------
-	// Accessors
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
+    // Accessors
+    //--------------------------------------------------------------------
 public:
-	const LLUUID&				getItemID() const { return mItemID; }
-	const LLAssetID&			getAssetID() const { return mAssetID; }
-	const LLTransactionID&		getTransactionID() const { return mTransactionID; }
-	void						setItemID(const LLUUID& item_id);
+    const LLUUID&               getItemID() const { return mItemID; }
+    const LLAssetID&            getAssetID() const { return mAssetID; }
+    const LLTransactionID&      getTransactionID() const { return mTransactionID; }
+    void                        setItemID(const LLUUID& item_id);
 
 public:
 
-	BOOL				isDirty() const;
-	BOOL				isOldVersion() const;
+    BOOL                isDirty() const;
+    BOOL                isOldVersion() const;
 
-	/*virtual*/ void	writeToAvatar(LLAvatarAppearance *avatarp);
-	void				removeFromAvatar()	{ LLViewerWearable::removeFromAvatar( mType); }
-	static void			removeFromAvatar( LLWearableType::EType type); 
+    /*virtual*/ void    writeToAvatar(LLAvatarAppearance *avatarp);
+    void                removeFromAvatar()  { LLViewerWearable::removeFromAvatar( mType); }
+    static void         removeFromAvatar( LLWearableType::EType type); 
 
-	/*virtual*/ EImportResult	importStream( std::istream& input_stream, LLAvatarAppearance* avatarp );
-	
-	void				setParamsToDefaults();
-	void				setTexturesToDefaults();
-	void				setVolatile(BOOL is_volatile) { mVolatile = is_volatile; } // TRUE when doing preview renders, some updates will be suppressed.
-	BOOL				getVolatile() { return mVolatile; }
+    /*virtual*/ EImportResult   importStream( std::istream& input_stream, LLAvatarAppearance* avatarp );
+    
+    void                setParamsToDefaults();
+    void                setTexturesToDefaults();
+    void                setVolatile(BOOL is_volatile) { mVolatile = is_volatile; } // TRUE when doing preview renders, some updates will be suppressed.
+    BOOL                getVolatile() { return mVolatile; }
 
-	/*virtual*/ LLUUID	getDefaultTextureImageID(LLAvatarAppearanceDefines::ETextureIndex index) const;
+    /*virtual*/ LLUUID  getDefaultTextureImageID(LLAvatarAppearanceDefines::ETextureIndex index) const;
 
 
-	void				saveNewAsset() const;
-	static void			onSaveNewAssetComplete( const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status );
+    void                saveNewAsset() const;
+    static void         onSaveNewAssetComplete( const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status );
 
-	void				copyDataFrom(const LLViewerWearable* src);
+    void                copyDataFrom(const LLViewerWearable* src);
 
-	friend std::ostream& operator<<(std::ostream &s, const LLViewerWearable &w);
+    friend std::ostream& operator<<(std::ostream &s, const LLViewerWearable &w);
 
-	/*virtual*/ void	revertValues();
-	/*virtual*/ void	saveValues();
+    /*virtual*/ void    revertValues();
+    /*virtual*/ void    saveValues();
 
-	void 				revertValuesWithoutUpdate();
+    void                revertValuesWithoutUpdate();
 
-	// Something happened that requires the wearable's label to be updated (e.g. worn/unworn).
-	/*virtual*/void		setUpdated() const;
+    // Something happened that requires the wearable's label to be updated (e.g. worn/unworn).
+    /*virtual*/void     setUpdated() const;
 
-	// the wearable was worn. make sure the name of the wearable object matches the LLViewerInventoryItem,
-	// not the wearable asset itself.
-	void				refreshName();
-	/*virtual*/void		addToBakedTextureHash(LLMD5& hash) const {}
+    // the wearable was worn. make sure the name of the wearable object matches the LLViewerInventoryItem,
+    // not the wearable asset itself.
+    void                refreshName();
+    /*virtual*/void     addToBakedTextureHash(LLMD5& hash) const {}
 
 protected:
-	LLAssetID			mAssetID;
-	LLTransactionID		mTransactionID;
+    LLAssetID           mAssetID;
+    LLTransactionID     mTransactionID;
 
-	BOOL 				mVolatile; // True when rendering preview images. Can suppress some updates.
+    BOOL                mVolatile; // True when rendering preview images. Can suppress some updates.
 
-	LLUUID				mItemID;  // ID of the inventory item in the agent's inventory	
+    LLUUID              mItemID;  // ID of the inventory item in the agent's inventory  
 };
 
 

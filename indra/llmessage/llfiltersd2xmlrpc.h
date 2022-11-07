@@ -48,14 +48,14 @@
 class LLFilterSD2XMLRPC : public LLIOPipe
 {
 public:
-	LLFilterSD2XMLRPC();
-	virtual ~LLFilterSD2XMLRPC();
+    LLFilterSD2XMLRPC();
+    virtual ~LLFilterSD2XMLRPC();
 
 protected:
-	/** 
-	 * @brief helper method
-	 */
-	void streamOut(std::ostream& ostr, const LLSD& sd);
+    /** 
+     * @brief helper method
+     */
+    void streamOut(std::ostream& ostr, const LLSD& sd);
 };
 
 /** 
@@ -85,26 +85,26 @@ protected:
 class LLFilterSD2XMLRPCResponse : public LLFilterSD2XMLRPC
 {
 public:
-	// constructor
-	LLFilterSD2XMLRPCResponse();
+    // constructor
+    LLFilterSD2XMLRPCResponse();
 
-	// destructor
-	virtual ~LLFilterSD2XMLRPCResponse();
+    // destructor
+    virtual ~LLFilterSD2XMLRPCResponse();
 
-	/* @name LLIOPipe virtual implementations
-	 */
-	//@{
+    /* @name LLIOPipe virtual implementations
+     */
+    //@{
 protected:
-	/** 
-	 * @brief Process the data in buffer.
-	 */
-	virtual EStatus process_impl(
-		const LLChannelDescriptors& channels,
-		buffer_ptr_t& buffer,
-		bool& eos,
-		LLSD& context,
-		LLPumpIO* pump);
-	//@}
+    /** 
+     * @brief Process the data in buffer.
+     */
+    virtual EStatus process_impl(
+        const LLChannelDescriptors& channels,
+        buffer_ptr_t& buffer,
+        bool& eos,
+        LLSD& context,
+        LLPumpIO* pump);
+    //@}
 };
 
 /** 
@@ -141,33 +141,33 @@ protected:
 class LLFilterSD2XMLRPCRequest : public LLFilterSD2XMLRPC
 {
 public:
-	// constructor
-	LLFilterSD2XMLRPCRequest();
+    // constructor
+    LLFilterSD2XMLRPCRequest();
 
-	// constructor
-	LLFilterSD2XMLRPCRequest(const char* method);
+    // constructor
+    LLFilterSD2XMLRPCRequest(const char* method);
 
-	// destructor
-	virtual ~LLFilterSD2XMLRPCRequest();
+    // destructor
+    virtual ~LLFilterSD2XMLRPCRequest();
 
-	/* @name LLIOPipe virtual implementations
-	 */
-	//@{
+    /* @name LLIOPipe virtual implementations
+     */
+    //@{
 protected:
-	/** 
-	 * @brief Process the data in buffer.
-	 */
-	virtual EStatus process_impl(
-		const LLChannelDescriptors& channels,
-		buffer_ptr_t& buffer,
-		bool& eos,
-		LLSD& context,
-		LLPumpIO* pump);
-	//@}
+    /** 
+     * @brief Process the data in buffer.
+     */
+    virtual EStatus process_impl(
+        const LLChannelDescriptors& channels,
+        buffer_ptr_t& buffer,
+        bool& eos,
+        LLSD& context,
+        LLPumpIO* pump);
+    //@}
 
 protected:
-	// The method name of this request.
-	std::string mMethod;
+    // The method name of this request.
+    std::string mMethod;
 };
 
 /** 
@@ -188,26 +188,26 @@ protected:
 class LLFilterXMLRPCResponse2LLSD : public LLIOPipe
 {
 public:
-	// constructor
-	LLFilterXMLRPCResponse2LLSD();
+    // constructor
+    LLFilterXMLRPCResponse2LLSD();
 
-	// destructor
-	virtual ~LLFilterXMLRPCResponse2LLSD();
+    // destructor
+    virtual ~LLFilterXMLRPCResponse2LLSD();
 
-	/* @name LLIOPipe virtual implementations
-	 */
-	//@{
+    /* @name LLIOPipe virtual implementations
+     */
+    //@{
 protected:
-	/** 
-	 * @brief Process the data in buffer.
-	 */
-	virtual EStatus process_impl(
-		const LLChannelDescriptors& channels,
-		buffer_ptr_t& buffer,
-		bool& eos,
-		LLSD& context,
-		LLPumpIO* pump);
-	//@}
+    /** 
+     * @brief Process the data in buffer.
+     */
+    virtual EStatus process_impl(
+        const LLChannelDescriptors& channels,
+        buffer_ptr_t& buffer,
+        bool& eos,
+        LLSD& context,
+        LLPumpIO* pump);
+    //@}
 
 protected:
 };
@@ -231,26 +231,26 @@ protected:
 class LLFilterXMLRPCRequest2LLSD : public LLIOPipe
 {
 public:
-	// constructor
-	LLFilterXMLRPCRequest2LLSD();
+    // constructor
+    LLFilterXMLRPCRequest2LLSD();
 
-	// destructor
-	virtual ~LLFilterXMLRPCRequest2LLSD();
+    // destructor
+    virtual ~LLFilterXMLRPCRequest2LLSD();
 
-	/* @name LLIOPipe virtual implementations
-	 */
-	//@{
+    /* @name LLIOPipe virtual implementations
+     */
+    //@{
 protected:
-	/** 
-	 * @brief Process the data in buffer.
-	 */
-	virtual EStatus process_impl(
-		const LLChannelDescriptors& channels,
-		buffer_ptr_t& buffer,
-		bool& eos,
-		LLSD& context,
-		LLPumpIO* pump);
-	//@}
+    /** 
+     * @brief Process the data in buffer.
+     */
+    virtual EStatus process_impl(
+        const LLChannelDescriptors& channels,
+        buffer_ptr_t& buffer,
+        bool& eos,
+        LLSD& context,
+        LLPumpIO* pump);
+    //@}
 
 protected:
 };

@@ -38,21 +38,21 @@ class LLMediaCtrl;
  * Base class for web-based Home side tray
  */
 class LLPanelHome :
-	public LLPanel,
-	public LLViewerMediaObserver
+    public LLPanel,
+    public LLViewerMediaObserver
 {
 public:
-	LLPanelHome();
+    LLPanelHome();
 
     /*virtual*/ BOOL postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
 
 private:
-	// inherited from LLViewerMediaObserver
-	/*virtual*/ void handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event);
+    // inherited from LLViewerMediaObserver
+    /*virtual*/ void handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event);
 
     LLMediaCtrl *mBrowser;
-	bool         mFirstView;
+    bool         mFirstView;
 };
 
 #endif //LL_LLPANELHOME_H

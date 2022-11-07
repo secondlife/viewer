@@ -37,29 +37,29 @@ class LLLineEditor;
 class LLPanelLandSelectObserver;
 
 class LLPanelLandInfo
-:	public LLPanel
+:   public LLPanel
 {
 public:
-	LLPanelLandInfo();
-	virtual ~LLPanelLandInfo();
+    LLPanelLandInfo();
+    virtual ~LLPanelLandInfo();
 
-	void refresh();
-	static void refreshAll();
-	
-	LLCheckBoxCtrl	*mCheckShowOwners;
-
-protected:
-	static void onClickClaim();
-	static void onClickRelease();
-	static void onClickDivide();
-	static void onClickJoin();
-	static void onClickAbout();
+    void refresh();
+    static void refreshAll();
+    
+    LLCheckBoxCtrl  *mCheckShowOwners;
 
 protected:
-	virtual BOOL	postBuild();
+    static void onClickClaim();
+    static void onClickRelease();
+    static void onClickDivide();
+    static void onClickJoin();
+    static void onClickAbout();
 
-	static LLPanelLandSelectObserver* sObserver;
-	static LLPanelLandInfo* sInstance;
+protected:
+    virtual BOOL    postBuild();
+
+    static LLPanelLandSelectObserver* sObserver;
+    static LLPanelLandInfo* sInstance;
 };
 
 #endif

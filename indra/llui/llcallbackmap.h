@@ -34,25 +34,25 @@
 class LLCallbackMap
 {
 public:
-	// callback definition.
-	typedef boost::function<void* (void* data)> callback_t;
-	
-	typedef std::map<std::string, LLCallbackMap> map_t;
-	typedef map_t::iterator map_iter_t;
-	typedef map_t::const_iterator map_const_iter_t;
-	
-	template <class T>
-	static void* buildPanel(void* data)
-	{
-		T* panel = new T();
-		return (void*)panel;
-	}
-	
-	LLCallbackMap() : mCallback(NULL), mData(NULL) { }
-	LLCallbackMap(callback_t callback, void* data = NULL) : mCallback(callback), mData(data) { }
+    // callback definition.
+    typedef boost::function<void* (void* data)> callback_t;
+    
+    typedef std::map<std::string, LLCallbackMap> map_t;
+    typedef map_t::iterator map_iter_t;
+    typedef map_t::const_iterator map_const_iter_t;
+    
+    template <class T>
+    static void* buildPanel(void* data)
+    {
+        T* panel = new T();
+        return (void*)panel;
+    }
+    
+    LLCallbackMap() : mCallback(NULL), mData(NULL) { }
+    LLCallbackMap(callback_t callback, void* data = NULL) : mCallback(callback), mData(data) { }
 
-	callback_t	mCallback;
-	void*		mData;
+    callback_t  mCallback;
+    void*       mData;
 };
 
 #endif // LLCALLBACKMAP_H

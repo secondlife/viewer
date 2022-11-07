@@ -31,16 +31,16 @@ class LLBitPack;
 class LLGroupHeader;
 class LLPatchHeader;
 
-void	init_patch_coding(LLBitPack &bitpack);
-void	code_patch_group_header(LLBitPack &bitpack, LLGroupHeader *gopp);
-void	code_patch_header(LLBitPack &bitpack, LLPatchHeader *ph, S32 *patch);
-void	code_end_of_data(LLBitPack &bitpack);
-void	code_patch(LLBitPack &bitpack, S32 *patch, S32 postquant);
-void	end_patch_coding(LLBitPack &bitpack);
+void    init_patch_coding(LLBitPack &bitpack);
+void    code_patch_group_header(LLBitPack &bitpack, LLGroupHeader *gopp);
+void    code_patch_header(LLBitPack &bitpack, LLPatchHeader *ph, S32 *patch);
+void    code_end_of_data(LLBitPack &bitpack);
+void    code_patch(LLBitPack &bitpack, S32 *patch, S32 postquant);
+void    end_patch_coding(LLBitPack &bitpack);
 
-void	init_patch_decoding(LLBitPack &bitpack);
-void	decode_patch_group_header(LLBitPack &bitpack, LLGroupHeader *gopp);
-void	decode_patch_header(LLBitPack &bitpack, LLPatchHeader *ph);
-void	decode_patch(LLBitPack &bitpack, S32 *patches);
+void    init_patch_decoding(LLBitPack &bitpack);
+void    decode_patch_group_header(LLBitPack &bitpack, LLGroupHeader *gopp);
+void    decode_patch_header(LLBitPack &bitpack, LLPatchHeader *ph);
+void    decode_patch(LLBitPack &bitpack, S32 *patches);
 
 #endif

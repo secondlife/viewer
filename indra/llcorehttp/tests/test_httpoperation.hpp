@@ -41,11 +41,11 @@ namespace
 class TestHandler : public LLCore::HttpHandler
 {
 public:
-	virtual void onCompleted(HttpHandle, HttpResponse *)
-		{
-			std::cout << "TestHandler::onCompleted() invoked" << std::endl;
-		}
-	
+    virtual void onCompleted(HttpHandle, HttpResponse *)
+        {
+            std::cout << "TestHandler::onCompleted() invoked" << std::endl;
+        }
+    
 };
 
 
@@ -54,53 +54,53 @@ public:
 
 namespace tut
 {
-	struct HttpOperationTestData
-	{
-		// the test objects inherit from this so the member functions and variables
-		// can be referenced directly inside of the test functions.
-	};
+    struct HttpOperationTestData
+    {
+        // the test objects inherit from this so the member functions and variables
+        // can be referenced directly inside of the test functions.
+    };
 
-	typedef test_group<HttpOperationTestData> HttpOperationTestGroupType;
-	typedef HttpOperationTestGroupType::object HttpOperationTestObjectType;
-	HttpOperationTestGroupType HttpOperationTestGroup("HttpOperation Tests");
+    typedef test_group<HttpOperationTestData> HttpOperationTestGroupType;
+    typedef HttpOperationTestGroupType::object HttpOperationTestObjectType;
+    HttpOperationTestGroupType HttpOperationTestGroup("HttpOperation Tests");
 
-	template <> template <>
-	void HttpOperationTestObjectType::test<1>()
-	{
-		set_test_name("HttpOpNull construction");
+    template <> template <>
+    void HttpOperationTestObjectType::test<1>()
+    {
+        set_test_name("HttpOpNull construction");
 
-		// create a new ref counted object with an implicit reference
-		HttpOperation::ptr_t op (new HttpOpNull());
-		ensure(op.use_count() == 1);
+        // create a new ref counted object with an implicit reference
+        HttpOperation::ptr_t op (new HttpOpNull());
+        ensure(op.use_count() == 1);
 
-		// release the implicit reference, causing the object to be released
-		op.reset();
-	}
+        // release the implicit reference, causing the object to be released
+        op.reset();
+    }
 
-	template <> template <>
-	void HttpOperationTestObjectType::test<2>()
-	{
-		set_test_name("HttpOpNull construction with handlers");
+    template <> template <>
+    void HttpOperationTestObjectType::test<2>()
+    {
+        set_test_name("HttpOpNull construction with handlers");
 
-		// Get some handlers
-		LLCore::HttpHandler::ptr_t h1 (new TestHandler());
-		
-		// create a new ref counted object with an implicit reference
-		HttpOperation::ptr_t op (new HttpOpNull());
+        // Get some handlers
+        LLCore::HttpHandler::ptr_t h1 (new TestHandler());
+        
+        // create a new ref counted object with an implicit reference
+        HttpOperation::ptr_t op (new HttpOpNull());
 
-		// Add the handlers
-		op->setReplyPath(LLCore::HttpOperation::HttpReplyQueuePtr_t(), h1);
+        // Add the handlers
+        op->setReplyPath(LLCore::HttpOperation::HttpReplyQueuePtr_t(), h1);
 
-		// Check ref count
-		ensure(op.unique() == 1);
+        // Check ref count
+        ensure(op.unique() == 1);
 
-		// release the reference, releasing the operation but
-		// not the handlers.
-		op.reset();
+        // release the reference, releasing the operation but
+        // not the handlers.
+        op.reset();
 
-		// release the handlers
-		h1.reset();
-	}
+        // release the handlers
+        h1.reset();
+    }
 
 }
 

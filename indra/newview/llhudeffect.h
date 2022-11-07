@@ -40,38 +40,38 @@ class LLMessageSystem;
 class LLHUDEffect : public LLHUDObject
 {
 public:
-	void setNeedsSendToSim(const BOOL send_to_sim);
-	BOOL getNeedsSendToSim() const;
-	void setOriginatedHere(const BOOL orig_here);
-	BOOL getOriginatedHere() const;
+    void setNeedsSendToSim(const BOOL send_to_sim);
+    BOOL getNeedsSendToSim() const;
+    void setOriginatedHere(const BOOL orig_here);
+    BOOL getOriginatedHere() const;
 
-	void setDuration(const F32 duration);
-	void setColor(const LLColor4U &color);
-	void setID(const LLUUID &id);
-	const LLUUID &getID() const;
+    void setDuration(const F32 duration);
+    void setColor(const LLColor4U &color);
+    void setID(const LLUUID &id);
+    const LLUUID &getID() const;
 
-	BOOL isDead() const;
+    BOOL isDead() const;
 
-	friend class LLHUDManager;
+    friend class LLHUDManager;
 protected:
-	LLHUDEffect(const U8 type);
-	~LLHUDEffect();
+    LLHUDEffect(const U8 type);
+    ~LLHUDEffect();
 
-	/*virtual*/ void render();
+    /*virtual*/ void render();
 
-	virtual void packData(LLMessageSystem *mesgsys);
-	virtual void unpackData(LLMessageSystem *mesgsys, S32 blocknum);
-	virtual void update();
+    virtual void packData(LLMessageSystem *mesgsys);
+    virtual void unpackData(LLMessageSystem *mesgsys, S32 blocknum);
+    virtual void update();
 
-	static void getIDType(LLMessageSystem *mesgsys, S32 blocknum, LLUUID &uuid, U8 &type);
+    static void getIDType(LLMessageSystem *mesgsys, S32 blocknum, LLUUID &uuid, U8 &type);
 
 protected:
-	LLUUID		mID;
-	F32			mDuration;
-	LLColor4U	mColor;
+    LLUUID      mID;
+    F32         mDuration;
+    LLColor4U   mColor;
 
-	BOOL		mNeedsSendToSim;
-	BOOL		mOriginatedHere;
+    BOOL        mNeedsSendToSim;
+    BOOL        mOriginatedHere;
 };
 
 #endif // LL_LLHUDEFFECT_H

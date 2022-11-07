@@ -78,7 +78,7 @@ namespace tut
         float       f;
         double      d;
         std::string abc;
-		std::wstring def;
+        std::wstring def;
         LLSD        llsd;
     };
     typedef test_group<stringize_data> stringize_group;

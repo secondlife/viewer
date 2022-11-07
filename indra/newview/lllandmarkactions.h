@@ -39,57 +39,57 @@ class LLLandmark;
 class LLLandmarkActions
 {
 public:
-	typedef boost::function<void(std::string& slurl)> slurl_callback_t;
-	typedef boost::function<void(std::string& slurl, S32 x, S32 y, S32 z)> region_name_and_coords_callback_t;
+    typedef boost::function<void(std::string& slurl)> slurl_callback_t;
+    typedef boost::function<void(std::string& slurl, S32 x, S32 y, S32 z)> region_name_and_coords_callback_t;
 
-	/**
-	 * @brief Fetches landmark LLViewerInventoryItems for the given landmark name. 
-	 */
-	static LLInventoryModel::item_array_t fetchLandmarksByName(std::string& name, BOOL if_use_substring);
-	/**
-	 * @brief Checks whether landmark exists for current agent position.
-	 */
-	static bool landmarkAlreadyExists();
-	
-	/**
-	 * @brief Checks whether landmark exists for current agent parcel.
-	 */
-	static bool hasParcelLandmark();
+    /**
+     * @brief Fetches landmark LLViewerInventoryItems for the given landmark name. 
+     */
+    static LLInventoryModel::item_array_t fetchLandmarksByName(std::string& name, BOOL if_use_substring);
+    /**
+     * @brief Checks whether landmark exists for current agent position.
+     */
+    static bool landmarkAlreadyExists();
+    
+    /**
+     * @brief Checks whether landmark exists for current agent parcel.
+     */
+    static bool hasParcelLandmark();
 
-	/**
-	 * @brief Searches landmark for global position.
-	 * @return Returns landmark or NULL.
-	 * 
-	 * *TODO: dzaporozhan: There can be many landmarks for single parcel.
-	 */
-	static LLViewerInventoryItem* findLandmarkForGlobalPos(const LLVector3d &pos);
+    /**
+     * @brief Searches landmark for global position.
+     * @return Returns landmark or NULL.
+     * 
+     * *TODO: dzaporozhan: There can be many landmarks for single parcel.
+     */
+    static LLViewerInventoryItem* findLandmarkForGlobalPos(const LLVector3d &pos);
 
-	/**
-	 * @brief Searches landmark for agent global position.
-	 * @return Returns landmark or NULL.
-	 * 
-	 * *TODO: dzaporozhan: There can be many landmarks for single parcel.
-	 */
-	static LLViewerInventoryItem* findLandmarkForAgentPos();
+    /**
+     * @brief Searches landmark for agent global position.
+     * @return Returns landmark or NULL.
+     * 
+     * *TODO: dzaporozhan: There can be many landmarks for single parcel.
+     */
+    static LLViewerInventoryItem* findLandmarkForAgentPos();
 
-	/**
-	 * @brief Creates landmark for current parcel.
-	 */
-	static void createLandmarkHere();
+    /**
+     * @brief Creates landmark for current parcel.
+     */
+    static void createLandmarkHere();
 
-	/**
-	 * @brief Creates landmark for current parcel.
-	 */
-	static void createLandmarkHere(
-		const std::string& name, 
-		const std::string& desc, 
-		const LLUUID& folder_id);
-	/**
-	 * @brief Creates SLURL for given global position.
-	 */
-	static void getSLURLfromPosGlobal(const LLVector3d& global_pos, slurl_callback_t cb, bool escaped = true);
+    /**
+     * @brief Creates landmark for current parcel.
+     */
+    static void createLandmarkHere(
+        const std::string& name, 
+        const std::string& desc, 
+        const LLUUID& folder_id);
+    /**
+     * @brief Creates SLURL for given global position.
+     */
+    static void getSLURLfromPosGlobal(const LLVector3d& global_pos, slurl_callback_t cb, bool escaped = true);
 
-	static void getRegionNameAndCoordsFromPosGlobal(const LLVector3d& global_pos, region_name_and_coords_callback_t cb);
+    static void getRegionNameAndCoordsFromPosGlobal(const LLVector3d& global_pos, region_name_and_coords_callback_t cb);
 
     /**
      * @brief Gets landmark global position specified by inventory LLUUID.
@@ -111,7 +111,7 @@ public:
 
     /**
      * @brief  Performs standard action of copying of SLURL from landmark to user's clipboard.
-     * 	This action requires additional server request. The user will be notified  by info message, 
+     *  This action requires additional server request. The user will be notified  by info message, 
      *  when URL is copied .
      */
     static void copySLURLtoClipboard(const LLUUID& landmarkInventoryItemID);
@@ -120,13 +120,13 @@ private:
     LLLandmarkActions();
     LLLandmarkActions(const LLLandmarkActions&);
 
-	static void onRegionResponseSLURL(slurl_callback_t cb,
-								 const LLVector3d& global_pos,
-								 bool escaped,
-								 const std::string& url);
-	static void onRegionResponseNameAndCoords(region_name_and_coords_callback_t cb,
-								 const LLVector3d& global_pos,
-								 U64 region_handle);
+    static void onRegionResponseSLURL(slurl_callback_t cb,
+                                 const LLVector3d& global_pos,
+                                 bool escaped,
+                                 const std::string& url);
+    static void onRegionResponseNameAndCoords(region_name_and_coords_callback_t cb,
+                                 const LLVector3d& global_pos,
+                                 U64 region_handle);
 };
 
 #endif //LL_LLLANDMARKACTIONS_H

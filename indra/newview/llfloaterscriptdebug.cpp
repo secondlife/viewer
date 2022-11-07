@@ -53,11 +53,11 @@
 LLFloaterScriptDebug::LLFloaterScriptDebug(const LLSD& key)
   : LLMultiFloater(key)
 {
-	// avoid resizing of the window to match 
-	// the initial size of the tabbed-childs, whenever a tab is opened or closed
-	mAutoResize = FALSE;
-	// enabled autocous blocks controling focus via  LLFloaterReg::showInstance
-	setAutoFocus(FALSE);
+    // avoid resizing of the window to match 
+    // the initial size of the tabbed-childs, whenever a tab is opened or closed
+    mAutoResize = FALSE;
+    // enabled autocous blocks controling focus via  LLFloaterReg::showInstance
+    setAutoFocus(FALSE);
 }
 
 LLFloaterScriptDebug::~LLFloaterScriptDebug()
@@ -66,113 +66,113 @@ LLFloaterScriptDebug::~LLFloaterScriptDebug()
 
 void LLFloaterScriptDebug::show(const LLUUID& object_id)
 {
-	addOutputWindow(object_id);
+    addOutputWindow(object_id);
 }
 
 BOOL LLFloaterScriptDebug::postBuild()
 {
-	LLMultiFloater::postBuild();
+    LLMultiFloater::postBuild();
 
-	if (mTabContainer)
-	{
-		return TRUE;
-	}
+    if (mTabContainer)
+    {
+        return TRUE;
+    }
 
-	return FALSE;
+    return FALSE;
 }
 
 void LLFloaterScriptDebug::setVisible(BOOL visible)
 {
-	if(visible)
-	{
-		LLFloaterScriptDebugOutput* floater_output = LLFloaterReg::findTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", LLUUID::null);
-		if (floater_output == NULL)
-		{
-			floater_output = dynamic_cast<LLFloaterScriptDebugOutput*>(LLFloaterReg::showInstance("script_debug_output", LLUUID::null, FALSE));
-			if (floater_output)
-			{
-				addFloater(floater_output, false);
-			}
-		}
+    if(visible)
+    {
+        LLFloaterScriptDebugOutput* floater_output = LLFloaterReg::findTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", LLUUID::null);
+        if (floater_output == NULL)
+        {
+            floater_output = dynamic_cast<LLFloaterScriptDebugOutput*>(LLFloaterReg::showInstance("script_debug_output", LLUUID::null, FALSE));
+            if (floater_output)
+            {
+                addFloater(floater_output, false);
+            }
+        }
 
-	}
-	LLMultiFloater::setVisible(visible);
+    }
+    LLMultiFloater::setVisible(visible);
 }
 
 void LLFloaterScriptDebug::closeFloater(bool app_quitting/* = false*/)
 {
-	if(app_quitting)
-	{
-		LLMultiFloater::closeFloater(app_quitting);
-	}
-	else
-	{
-		setVisible(false);
-	}
+    if(app_quitting)
+    {
+        LLMultiFloater::closeFloater(app_quitting);
+    }
+    else
+    {
+        setVisible(false);
+    }
 }
 
 LLFloater* LLFloaterScriptDebug::addOutputWindow(const LLUUID &object_id)
 {
-	LLMultiFloater* host = LLFloaterReg::showTypedInstance<LLMultiFloater>("script_debug", LLSD());
-	if (!host)
-		return NULL;
+    LLMultiFloater* host = LLFloaterReg::showTypedInstance<LLMultiFloater>("script_debug", LLSD());
+    if (!host)
+        return NULL;
 
-	LLFloater::setFloaterHost(host);
-	// prevent stealing focus, see EXT-8040
-	LLFloater* floaterp = LLFloaterReg::showInstance("script_debug_output", object_id, FALSE);
-	LLFloater::setFloaterHost(NULL);
+    LLFloater::setFloaterHost(host);
+    // prevent stealing focus, see EXT-8040
+    LLFloater* floaterp = LLFloaterReg::showInstance("script_debug_output", object_id, FALSE);
+    LLFloater::setFloaterHost(NULL);
 
-	return floaterp;
+    return floaterp;
 }
 
 void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color, const LLUUID& source_id)
 {
-	LLViewerObject* objectp = gObjectList.findObject(source_id);
-	std::string floater_label;
+    LLViewerObject* objectp = gObjectList.findObject(source_id);
+    std::string floater_label;
 
-	// Handle /me messages.
-	std::string prefix = utf8mesg.substr(0, 4);
-	std::string message = (prefix == "/me " || prefix == "/me'") ? user_name + utf8mesg.substr(3) : utf8mesg;
+    // Handle /me messages.
+    std::string prefix = utf8mesg.substr(0, 4);
+    std::string message = (prefix == "/me " || prefix == "/me'") ? user_name + utf8mesg.substr(3) : utf8mesg;
 
-	if (objectp)
-	{
-		if(objectp->isHUDAttachment())
-		{
-			if (isAgentAvatarValid())
-			{
-				((LLViewerObject*)gAgentAvatarp)->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
-			}
-		}
-		else
-		{
-			objectp->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
-		}
-		floater_label = llformat("%s(%.0f, %.0f, %.0f)",
-						user_name.c_str(),
-						objectp->getPositionRegion().mV[VX],
-						objectp->getPositionRegion().mV[VY],
-						objectp->getPositionRegion().mV[VZ]);
-	}
-	else
-	{
-		floater_label = user_name;
-	}
+    if (objectp)
+    {
+        if(objectp->isHUDAttachment())
+        {
+            if (isAgentAvatarValid())
+            {
+                ((LLViewerObject*)gAgentAvatarp)->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
+            }
+        }
+        else
+        {
+            objectp->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
+        }
+        floater_label = llformat("%s(%.0f, %.0f, %.0f)",
+                        user_name.c_str(),
+                        objectp->getPositionRegion().mV[VX],
+                        objectp->getPositionRegion().mV[VY],
+                        objectp->getPositionRegion().mV[VZ]);
+    }
+    else
+    {
+        floater_label = user_name;
+    }
 
-	addOutputWindow(source_id);
+    addOutputWindow(source_id);
 
-	// add to "All" floater
-	LLFloaterScriptDebugOutput* floaterp = 	LLFloaterReg::getTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", LLUUID::null);
-	if (floaterp)
-	{
-		floaterp->addLine(message, user_name, color);
-	}
-	
-	// add to specific script instance floater
-	floaterp = LLFloaterReg::getTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", source_id);
-	if (floaterp)
-	{
-		floaterp->addLine(message, floater_label, color);
-	}
+    // add to "All" floater
+    LLFloaterScriptDebugOutput* floaterp =  LLFloaterReg::getTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", LLUUID::null);
+    if (floaterp)
+    {
+        floaterp->addLine(message, user_name, color);
+    }
+    
+    // add to specific script instance floater
+    floaterp = LLFloaterReg::getTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", source_id);
+    if (floaterp)
+    {
+        floaterp->addLine(message, floater_label, color);
+    }
 }
 
 //
@@ -181,17 +181,17 @@ void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std:
 
 LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput(const LLSD& object_id)
   : LLFloater(LLSD(object_id)),
-	mObjectID(object_id.asUUID())
+    mObjectID(object_id.asUUID())
 {
-	// enabled autocous blocks controling focus via  LLFloaterReg::showInstance
-	setAutoFocus(FALSE);
+    // enabled autocous blocks controling focus via  LLFloaterReg::showInstance
+    setAutoFocus(FALSE);
 }
 
 BOOL LLFloaterScriptDebugOutput::postBuild()
 {
-	LLFloater::postBuild();
-	mHistoryEditor = getChild<LLViewerTextEditor>("Chat History Editor");
-	return TRUE;
+    LLFloater::postBuild();
+    mHistoryEditor = getChild<LLViewerTextEditor>("Chat History Editor");
+    return TRUE;
 }
 
 LLFloaterScriptDebugOutput::~LLFloaterScriptDebugOutput()
@@ -200,18 +200,18 @@ LLFloaterScriptDebugOutput::~LLFloaterScriptDebugOutput()
 
 void LLFloaterScriptDebugOutput::addLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color)
 {
-	if (mObjectID.isNull())
-	{
-		setCanTearOff(FALSE);
-		setCanClose(FALSE);
-	}
-	else
-	{
-		setTitle(user_name);
-		setShortTitle(user_name);
-	}
+    if (mObjectID.isNull())
+    {
+        setCanTearOff(FALSE);
+        setCanClose(FALSE);
+    }
+    else
+    {
+        setTitle(user_name);
+        setShortTitle(user_name);
+    }
 
-	mHistoryEditor->appendText(utf8mesg, true, LLStyle::Params().color(color));
-	mHistoryEditor->blockUndo();
+    mHistoryEditor->appendText(utf8mesg, true, LLStyle::Params().color(color));
+    mHistoryEditor->blockUndo();
 }
 

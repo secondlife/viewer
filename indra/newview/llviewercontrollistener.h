@@ -37,14 +37,14 @@ class LLSD;
 class  LLViewerControlListener : public LLEventAPI
 {
 public:
-	LLViewerControlListener();
+    LLViewerControlListener();
 
 private:
-	static void set(LLSD const & event_data);
-	static void toggle(LLSD const & event_data);
-	static void get(LLSD const & event_data);
-	static void groups(LLSD const & event_data);
-	static void vars(LLSD const & event_data);
+    static void set(LLSD const & event_data);
+    static void toggle(LLSD const & event_data);
+    static void get(LLSD const & event_data);
+    static void groups(LLSD const & event_data);
+    static void vars(LLSD const & event_data);
 };
 
 #endif // LL_LLVIEWERCONTROLLISTENER_H

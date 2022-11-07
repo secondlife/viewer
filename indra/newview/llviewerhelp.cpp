@@ -42,27 +42,27 @@
 class LLHelpHandler : public LLCommandHandler
 {
 public:
-	// requests will be throttled from a non-trusted browser
-	LLHelpHandler() : LLCommandHandler("help", UNTRUSTED_THROTTLE) {}
+    // requests will be throttled from a non-trusted browser
+    LLHelpHandler() : LLCommandHandler("help", UNTRUSTED_THROTTLE) {}
 
-	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
-	{
-		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
-		if (! vhelp)
-		{
-			return false;
-		}
+    bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+    {
+        LLViewerHelp* vhelp = LLViewerHelp::getInstance();
+        if (! vhelp)
+        {
+            return false;
+        }
 
-		// get the requested help topic name, or use the fallback if none
-		std::string help_topic = vhelp->defaultTopic();
-		if (params.size() >= 1)
-		{
-			help_topic = params[0].asString();
-		}
+        // get the requested help topic name, or use the fallback if none
+        std::string help_topic = vhelp->defaultTopic();
+        if (params.size() >= 1)
+        {
+            help_topic = params[0].asString();
+        }
 
-		vhelp->showTopic(help_topic);
-		return true;
-	}
+        vhelp->showTopic(help_topic);
+        return true;
+    }
 };
 LLHelpHandler gHelpHandler;
 
@@ -71,49 +71,49 @@ LLHelpHandler gHelpHandler;
 
 std::string LLViewerHelp::getURL(const std::string &topic)
 {
-	// if the help topic is empty, use the default topic
-	std::string help_topic = topic;
-	if (help_topic.empty())
-	{
-		help_topic = defaultTopic();
-	}
+    // if the help topic is empty, use the default topic
+    std::string help_topic = topic;
+    if (help_topic.empty())
+    {
+        help_topic = defaultTopic();
+    }
 
-	// f1 help topic means: if the user is not logged in yet, show
-	// the pre-login topic instead of the default fallback topic,
-	// otherwise show help for the focused item
-	if (help_topic == f1HelpTopic())
-	{
-		help_topic = getTopicFromFocus();
-		if (help_topic == defaultTopic() && ! LLLoginInstance::getInstance()->authSuccess())
-		{
-			help_topic = preLoginTopic();
-		}
-	}
+    // f1 help topic means: if the user is not logged in yet, show
+    // the pre-login topic instead of the default fallback topic,
+    // otherwise show help for the focused item
+    if (help_topic == f1HelpTopic())
+    {
+        help_topic = getTopicFromFocus();
+        if (help_topic == defaultTopic() && ! LLLoginInstance::getInstance()->authSuccess())
+        {
+            help_topic = preLoginTopic();
+        }
+    }
 
-	return LLViewerHelpUtil::buildHelpURL( help_topic );
+    return LLViewerHelpUtil::buildHelpURL( help_topic );
 }
 
 void LLViewerHelp::showTopic(const std::string& topic)
 {
-	LLFloaterReg::showInstance("help_browser", topic);
+    LLFloaterReg::showInstance("help_browser", topic);
 }
 
 std::string LLViewerHelp::defaultTopic()
 {
-	// *hack: to be done properly
-	return "this_is_fallbacktopic";
+    // *hack: to be done properly
+    return "this_is_fallbacktopic";
 }
 
 std::string LLViewerHelp::preLoginTopic()
 {
-	// *hack: to be done properly
-	return "pre_login_help";
+    // *hack: to be done properly
+    return "pre_login_help";
 }
 
 std::string LLViewerHelp::f1HelpTopic()
 {
-	// *hack: to be done properly
-	return "f1_help";
+    // *hack: to be done properly
+    return "f1_help";
 }
 
 //////////////////////////////
@@ -121,20 +121,20 @@ std::string LLViewerHelp::f1HelpTopic()
 
 std::string LLViewerHelp::getTopicFromFocus()
 {
-	// use UI element with viewer's keyboard focus as basis for searching
-	LLUICtrl* focused = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
+    // use UI element with viewer's keyboard focus as basis for searching
+    LLUICtrl* focused = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
 
-	if (focused)
-	{
-		std::string topic;
-		if (focused->findHelpTopic(topic))
-		{
-			return topic;
-		}
-	}
+    if (focused)
+    {
+        std::string topic;
+        if (focused->findHelpTopic(topic))
+        {
+            return topic;
+        }
+    }
 
-	// didn't find a help topic in the UI hierarchy for focused
-	// element, return the fallback topic name instead.
-	return defaultTopic();
+    // didn't find a help topic in the UI hierarchy for focused
+    // element, return the fallback topic name instead.
+    return defaultTopic();
 }
 

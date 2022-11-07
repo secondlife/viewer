@@ -44,57 +44,57 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 LLLoadingIndicator::LLLoadingIndicator(const Params& p)
-:	LLUICtrl(p), 
-	mImagesPerSec(p.images_per_sec > 0 ? p.images_per_sec : 1.0f), 
-	mCurImageIdx(0)
+:   LLUICtrl(p), 
+    mImagesPerSec(p.images_per_sec > 0 ? p.images_per_sec : 1.0f), 
+    mCurImageIdx(0)
 {
 }
 
 void LLLoadingIndicator::initFromParams(const Params& p)
 {
-	BOOST_FOREACH(LLUIImage* image, p.images().image)
-	{
-		mImages.push_back(image);
-	}
+    BOOST_FOREACH(LLUIImage* image, p.images().image)
+    {
+        mImages.push_back(image);
+    }
 
-	// Start timer for switching images.
-	start();
+    // Start timer for switching images.
+    start();
 }
 
 void LLLoadingIndicator::draw()
 {
-	// Time to switch to the next image?
-	if (mImageSwitchTimer.getStarted() && mImageSwitchTimer.hasExpired())
-	{
-		// Switch to the next image.
-		if (!mImages.empty())
-		{
-			mCurImageIdx = (mCurImageIdx + 1) % mImages.size();
-		}
+    // Time to switch to the next image?
+    if (mImageSwitchTimer.getStarted() && mImageSwitchTimer.hasExpired())
+    {
+        // Switch to the next image.
+        if (!mImages.empty())
+        {
+            mCurImageIdx = (mCurImageIdx + 1) % mImages.size();
+        }
 
-		// Restart timer.
-		start();
-	}
+        // Restart timer.
+        start();
+    }
 
-	LLUIImagePtr cur_image = mImages.empty() ? LLUIImagePtr(NULL) : mImages[mCurImageIdx];
+    LLUIImagePtr cur_image = mImages.empty() ? LLUIImagePtr(NULL) : mImages[mCurImageIdx];
 
-	// Draw current image.
-	if( cur_image.notNull() )
-	{
-		cur_image->draw(getLocalRect(), LLColor4::white % getDrawContext().mAlpha);
-	}
+    // Draw current image.
+    if( cur_image.notNull() )
+    {
+        cur_image->draw(getLocalRect(), LLColor4::white % getDrawContext().mAlpha);
+    }
 
-	LLUICtrl::draw();
+    LLUICtrl::draw();
 }
 
 void LLLoadingIndicator::stop()
 {
-	mImageSwitchTimer.stop();
+    mImageSwitchTimer.stop();
 }
 
 void LLLoadingIndicator::start()
 {
-	mImageSwitchTimer.start();
-	F32 period = 1.0f / (mImages.size() * mImagesPerSec);
-	mImageSwitchTimer.setTimerExpirySec(period);
+    mImageSwitchTimer.start();
+    F32 period = 1.0f / (mImages.size() * mImagesPerSec);
+    mImageSwitchTimer.setTimerExpirySec(period);
 }

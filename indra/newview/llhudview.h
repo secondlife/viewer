@@ -36,13 +36,13 @@ class LLHUDView
 : public LLPanel
 {
 public:
-	LLHUDView(const LLRect& rect);
-	virtual ~LLHUDView();
+    LLHUDView(const LLRect& rect);
+    virtual ~LLHUDView();
 
-	virtual void draw();
+    virtual void draw();
 
 protected:
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 };
 
 extern LLHUDView *gHUDView;

@@ -44,12 +44,12 @@ extern const S32 gMaxRefCount;
 class LL_COMMON_API LLRefCount
 {
 protected:
-	LLRefCount(const LLRefCount& other);
-	LLRefCount& operator=(const LLRefCount&);
-	virtual ~LLRefCount(); // use unref()
-	
+    LLRefCount(const LLRefCount& other);
+    LLRefCount& operator=(const LLRefCount&);
+    virtual ~LLRefCount(); // use unref()
+    
 public:
-	LLRefCount();
+    LLRefCount();
 
     inline void validateRefCount() const
     {
@@ -57,33 +57,33 @@ public:
         llassert(mRef < gMaxRefCount); // ref count excessive, likely memory leak
     }
 
-	inline void ref() const
-	{ 
-		mRef++; 
+    inline void ref() const
+    { 
+        mRef++; 
         validateRefCount();
-	} 
+    } 
 
-	inline S32 unref() const
-	{
+    inline S32 unref() const
+    {
         validateRefCount();
-		if (0 == --mRef)
-		{
+        if (0 == --mRef)
+        {
             mRef = LL_REFCOUNT_FREE; // set to nonsense yet recognizable value to aid in debugging
-			delete this;
-			return 0;
-		}
-		return mRef;
-	}
+            delete this;
+            return 0;
+        }
+        return mRef;
+    }
 
-	//NOTE: when passing around a const LLRefCount object, this can return different results
-	// at different types, since mRef is mutable
-	S32 getNumRefs() const
-	{
-		return mRef;
-	}
+    //NOTE: when passing around a const LLRefCount object, this can return different results
+    // at different types, since mRef is mutable
+    S32 getNumRefs() const
+    {
+        return mRef;
+    }
 
 private: 
-	mutable S32	mRef; 
+    mutable S32 mRef; 
 };
 
 
@@ -94,50 +94,50 @@ private:
 class LL_COMMON_API LLThreadSafeRefCount
 {
 public:
-	static void initThreadSafeRefCount(); // creates sMutex
-	static void cleanupThreadSafeRefCount(); // destroys sMutex
+    static void initThreadSafeRefCount(); // creates sMutex
+    static void cleanupThreadSafeRefCount(); // destroys sMutex
 
 private:
-	static LLMutex* sMutex;
+    static LLMutex* sMutex;
 
 protected:
-	virtual ~LLThreadSafeRefCount(); // use unref()
+    virtual ~LLThreadSafeRefCount(); // use unref()
 
 public:
-	LLThreadSafeRefCount();
-	LLThreadSafeRefCount(const LLThreadSafeRefCount&);
-	LLThreadSafeRefCount& operator=(const LLThreadSafeRefCount& ref) 
-	{
-		mRef = 0;
-		return *this;
-	}
+    LLThreadSafeRefCount();
+    LLThreadSafeRefCount(const LLThreadSafeRefCount&);
+    LLThreadSafeRefCount& operator=(const LLThreadSafeRefCount& ref) 
+    {
+        mRef = 0;
+        return *this;
+    }
 
-	void ref()
-	{
-		mRef++; 
-	} 
+    void ref()
+    {
+        mRef++; 
+    } 
 
-	void unref()
-	{
-		llassert(mRef >= 1);
-		if ((--mRef) == 0)
-		{
-			// If we hit zero, the caller should be the only smart pointer owning the object and we can delete it.
-			// It is technically possible for a vanilla pointer to mess this up, or another thread to
-			// jump in, find this object, create another smart pointer and end up dangling, but if
-			// the code is that bad and not thread-safe, it's trouble already.
-			delete this;
-		}
-	}
+    void unref()
+    {
+        llassert(mRef >= 1);
+        if ((--mRef) == 0)
+        {
+            // If we hit zero, the caller should be the only smart pointer owning the object and we can delete it.
+            // It is technically possible for a vanilla pointer to mess this up, or another thread to
+            // jump in, find this object, create another smart pointer and end up dangling, but if
+            // the code is that bad and not thread-safe, it's trouble already.
+            delete this;
+        }
+    }
 
-	S32 getNumRefs() const
-	{
-		const S32 currentVal = mRef.CurrentValue();
-		return currentVal;
-	}
+    S32 getNumRefs() const
+    {
+        const S32 currentVal = mRef.CurrentValue();
+        return currentVal;
+    }
 
 private: 
-	LLAtomicS32 mRef; 
+    LLAtomicS32 mRef; 
 };
 
 /**
@@ -146,12 +146,12 @@ private:
  */
 inline void intrusive_ptr_add_ref(LLThreadSafeRefCount* p) 
 {
-	p->ref();
+    p->ref();
 }
 
 inline void intrusive_ptr_release(LLThreadSafeRefCount* p) 
 {
-	p->unref(); 
+    p->unref(); 
 }
 
 /**
@@ -160,12 +160,12 @@ inline void intrusive_ptr_release(LLThreadSafeRefCount* p)
  */
 inline void intrusive_ptr_add_ref(LLRefCount* p) 
 {
-	p->ref();
+    p->ref();
 }
 
 inline void intrusive_ptr_release(LLRefCount* p) 
 {
-	p->unref(); 
+    p->unref(); 
 }
 
 #endif

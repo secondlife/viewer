@@ -24,7 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_EVENTTIMER_H					
+#ifndef LL_EVENTTIMER_H                 
 #define LL_EVENTTIMER_H
 
 #include "stdtypes.h"
@@ -37,42 +37,42 @@ class LL_COMMON_API LLEventTimer : public LLInstanceTracker<LLEventTimer>
 {
 public:
 
-	LLEventTimer(F32 period);	// period is the amount of time between each call to tick() in seconds
-	LLEventTimer(const LLDate& time);
-	virtual ~LLEventTimer();
+    LLEventTimer(F32 period);   // period is the amount of time between each call to tick() in seconds
+    LLEventTimer(const LLDate& time);
+    virtual ~LLEventTimer();
 
-	//function to be called at the supplied frequency
-	// Normally return FALSE; TRUE will delete the timer after the function returns.
-	virtual BOOL tick() = 0;
+    //function to be called at the supplied frequency
+    // Normally return FALSE; TRUE will delete the timer after the function returns.
+    virtual BOOL tick() = 0;
 
-	static void updateClass();
+    static void updateClass();
 
-	/// Schedule recurring calls to generic callable every period seconds.
-	/// Returns a pointer; if you delete it, cancels the recurring calls.
-	template <typename CALLABLE>
-	static LLEventTimer* run_every(F32 period, const CALLABLE& callable);
+    /// Schedule recurring calls to generic callable every period seconds.
+    /// Returns a pointer; if you delete it, cancels the recurring calls.
+    template <typename CALLABLE>
+    static LLEventTimer* run_every(F32 period, const CALLABLE& callable);
 
-	/// Schedule a future call to generic callable. Returns a pointer.
-	/// CAUTION: The object referenced by that pointer WILL BE DELETED once
-	/// the callback has been called! LLEventTimer::getInstance(pointer) (NOT
-	/// pointer->getInstance(pointer)!) can be used to test whether the
-	/// pointer is still valid. If it is, deleting it will cancel the
-	/// callback.
-	template <typename CALLABLE>
-	static LLEventTimer* run_at(const LLDate& time, const CALLABLE& callable);
+    /// Schedule a future call to generic callable. Returns a pointer.
+    /// CAUTION: The object referenced by that pointer WILL BE DELETED once
+    /// the callback has been called! LLEventTimer::getInstance(pointer) (NOT
+    /// pointer->getInstance(pointer)!) can be used to test whether the
+    /// pointer is still valid. If it is, deleting it will cancel the
+    /// callback.
+    template <typename CALLABLE>
+    static LLEventTimer* run_at(const LLDate& time, const CALLABLE& callable);
 
-	/// Like run_at(), but after a time delta rather than at a timestamp.
-	/// Same CAUTION.
-	template <typename CALLABLE>
-	static LLEventTimer* run_after(F32 interval, const CALLABLE& callable);
+    /// Like run_at(), but after a time delta rather than at a timestamp.
+    /// Same CAUTION.
+    template <typename CALLABLE>
+    static LLEventTimer* run_after(F32 interval, const CALLABLE& callable);
 
 protected:
-	LLTimer mEventTimer;
-	F32 mPeriod;
+    LLTimer mEventTimer;
+    F32 mPeriod;
 
 private:
-	template <typename CALLABLE>
-	class Generic;
+    template <typename CALLABLE>
+    class Generic;
 };
 
 template <typename CALLABLE>

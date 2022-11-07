@@ -48,57 +48,57 @@
 class LLLoadingIndicator
 : public LLUICtrl
 {
-	LOG_CLASS(LLLoadingIndicator);
+    LOG_CLASS(LLLoadingIndicator);
 public:
 
-	struct Images : public LLInitParam::Block<Images>
-	{
-		Multiple<LLUIImage*>	image;
+    struct Images : public LLInitParam::Block<Images>
+    {
+        Multiple<LLUIImage*>    image;
 
-		Images()
-		:	image("image")
-		{}
-	};
+        Images()
+        :   image("image")
+        {}
+    };
 
-	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
-	{
-		Optional<F32>				images_per_sec;
-		Optional<Atomic<Images> >	images;
+    struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+    {
+        Optional<F32>               images_per_sec;
+        Optional<Atomic<Images> >   images;
 
-		Params()
-		:	images_per_sec("images_per_sec", 1.0f),
-			images("images")
-		{}
-	};
+        Params()
+        :   images_per_sec("images_per_sec", 1.0f),
+            images("images")
+        {}
+    };
 
-	virtual ~LLLoadingIndicator() {}
+    virtual ~LLLoadingIndicator() {}
 
-	// llview overrides
-	virtual void draw();
+    // llview overrides
+    virtual void draw();
 
-	/**
-	 * Stop spinning.
-	 */
-	void stop();
+    /**
+     * Stop spinning.
+     */
+    void stop();
 
-	/**
-	 * Start spinning.
-	 */
-	void start();
+    /**
+     * Start spinning.
+     */
+    void start();
 
-	void reset() { mCurImageIdx = 0; }
+    void reset() { mCurImageIdx = 0; }
 
 private:
-	LLLoadingIndicator(const Params&);
-	void initFromParams(const Params&);
+    LLLoadingIndicator(const Params&);
+    void initFromParams(const Params&);
 
-	friend class LLUICtrlFactory;
+    friend class LLUICtrlFactory;
 
-	F32						mImagesPerSec;
-	S8						mCurImageIdx;
-	LLFrameTimer			mImageSwitchTimer;
+    F32                     mImagesPerSec;
+    S8                      mCurImageIdx;
+    LLFrameTimer            mImageSwitchTimer;
 
-	std::vector<LLUIImagePtr> mImages;
+    std::vector<LLUIImagePtr> mImages;
 };
 
 #endif // LL_LLLOADINGINDICATOR_H

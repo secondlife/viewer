@@ -43,62 +43,62 @@ class LLViewerFetchedTexture;
 class LLDrawPoolBump : public LLRenderPass
 {
 protected :
-	LLDrawPoolBump(const U32 type):LLRenderPass(type) { mShiny = FALSE; }
+    LLDrawPoolBump(const U32 type):LLRenderPass(type) { mShiny = FALSE; }
 public:
-	static U32 sVertexMask;
-	BOOL mShiny;
-	
-	virtual U32 getVertexDataMask() override { return sVertexMask; }
+    static U32 sVertexMask;
+    BOOL mShiny;
+    
+    virtual U32 getVertexDataMask() override { return sVertexMask; }
 
-	LLDrawPoolBump();
+    LLDrawPoolBump();
 
-	virtual void render(S32 pass = 0) override;
-	virtual S32	 getNumPasses() override;
-	/*virtual*/ void prerender() override;
-	void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE) override;
+    virtual void render(S32 pass = 0) override;
+    virtual S32  getNumPasses() override;
+    /*virtual*/ void prerender() override;
+    void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE) override;
 
-	void renderBump(U32 type, U32 mask);
-	void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture) override;
-		
-	S32 numBumpPasses();
-	
-	void beginShiny();
-	void renderShiny();
-	void endShiny();
-	
-	void beginFullbrightShiny();
-	void renderFullbrightShiny();
-	void endFullbrightShiny();
+    void renderBump(U32 type, U32 mask);
+    void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture) override;
+        
+    S32 numBumpPasses();
+    
+    void beginShiny();
+    void renderShiny();
+    void endShiny();
+    
+    void beginFullbrightShiny();
+    void renderFullbrightShiny();
+    void endFullbrightShiny();
 
-	void beginBump();
-	void renderBump(U32 pass = LLRenderPass::PASS_BUMP);
-	void endBump(U32 pass = LLRenderPass::PASS_BUMP);
+    void beginBump();
+    void renderBump(U32 pass = LLRenderPass::PASS_BUMP);
+    void endBump(U32 pass = LLRenderPass::PASS_BUMP);
 
-	static void bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel);
-	static void unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel);
+    static void bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel);
+    static void unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel);
 
-	virtual S32 getNumDeferredPasses() override;
-	/*virtual*/ void renderDeferred(S32 pass) override;
+    virtual S32 getNumDeferredPasses() override;
+    /*virtual*/ void renderDeferred(S32 pass) override;
 
     virtual S32 getNumPostDeferredPasses() override { return 1; }
-	/*virtual*/ void renderPostDeferred(S32 pass) override;
+    /*virtual*/ void renderPostDeferred(S32 pass) override;
 
-	static BOOL bindBumpMap(LLDrawInfo& params, S32 channel = -2);
-	static BOOL bindBumpMap(LLFace* face, S32 channel = -2);
+    static BOOL bindBumpMap(LLDrawInfo& params, S32 channel = -2);
+    static BOOL bindBumpMap(LLFace* face, S32 channel = -2);
 
 private:
-	static BOOL bindBumpMap(U8 bump_code, LLViewerTexture* tex, F32 vsize, S32 channel);
+    static BOOL bindBumpMap(U8 bump_code, LLViewerTexture* tex, F32 vsize, S32 channel);
     bool mRigged = false; // if true, doing a rigged pass
 
 };
 
 enum EBumpEffect
 {
-	BE_NO_BUMP = 0,
-	BE_BRIGHTNESS = 1,
-	BE_DARKNESS = 2,
-	BE_STANDARD_0 = 3,  // Standard must always be the last one
-	BE_COUNT = 4
+    BE_NO_BUMP = 0,
+    BE_BRIGHTNESS = 1,
+    BE_DARKNESS = 2,
+    BE_STANDARD_0 = 3,  // Standard must always be the last one
+    BE_COUNT = 4
 };
 
 ////////////////////////////////////////////////////////////////
@@ -107,21 +107,21 @@ enum EBumpEffect
 class LLStandardBumpmap
 {
 public: 
-	LLStandardBumpmap() : mLabel() {} 
-	LLStandardBumpmap( const std::string& label ) : mLabel(label) {}
-	
-	std::string	mLabel;
-	LLPointer<LLViewerFetchedTexture> mImage;
+    LLStandardBumpmap() : mLabel() {} 
+    LLStandardBumpmap( const std::string& label ) : mLabel(label) {}
+    
+    std::string mLabel;
+    LLPointer<LLViewerFetchedTexture> mImage;
 
-	static	U32 sStandardBumpmapCount;  // Number of valid values in gStandardBumpmapList[]
+    static  U32 sStandardBumpmapCount;  // Number of valid values in gStandardBumpmapList[]
 
-	static void clear();
-	static void addstandard();
+    static void clear();
+    static void addstandard();
 
-	static void init();
-	static void shutdown();
-	static void restoreGL();
-	static void destroyGL();
+    static void init();
+    static void shutdown();
+    static void restoreGL();
+    static void destroyGL();
 };
 
 extern LLStandardBumpmap gStandardBumpmapList[TEM_BUMPMAP_COUNT];
@@ -134,33 +134,33 @@ struct LLBumpImageEntry;
 class LLBumpImageList
 {
 public:
-	LLBumpImageList() {}
-	~LLBumpImageList();
+    LLBumpImageList() {}
+    ~LLBumpImageList();
 
-	void		init();
-	void		shutdown();
-	void            clear();
-	void		destroyGL();
-	void		restoreGL();
-	void		updateImages();
-
-
-	LLViewerTexture*	getBrightnessDarknessImage(LLViewerFetchedTexture* src_image, U8 bump_code);
-	void		addTextureStats(U8 bump, const LLUUID& base_image_id, F32 virtual_size);
-
-	static void onSourceBrightnessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
-	static void onSourceDarknessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
-	static void onSourceStandardLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
-	static void generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nrm_image);
+    void        init();
+    void        shutdown();
+    void            clear();
+    void        destroyGL();
+    void        restoreGL();
+    void        updateImages();
 
 
-private:
-	static void onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLImageRaw* src, LLUUID& source_asset_id, EBumpEffect bump );
+    LLViewerTexture*    getBrightnessDarknessImage(LLViewerFetchedTexture* src_image, U8 bump_code);
+    void        addTextureStats(U8 bump, const LLUUID& base_image_id, F32 virtual_size);
+
+    static void onSourceBrightnessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
+    static void onSourceDarknessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
+    static void onSourceStandardLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
+    static void generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nrm_image);
+
 
 private:
-	typedef std::unordered_map<LLUUID, LLPointer<LLViewerTexture> > bump_image_map_t;
-	bump_image_map_t mBrightnessEntries;
-	bump_image_map_t mDarknessEntries;
+    static void onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLImageRaw* src, LLUUID& source_asset_id, EBumpEffect bump );
+
+private:
+    typedef std::unordered_map<LLUUID, LLPointer<LLViewerTexture> > bump_image_map_t;
+    bump_image_map_t mBrightnessEntries;
+    bump_image_map_t mDarknessEntries;
     static LL::WorkQueue::weak_t sMainQueue;
     static LL::WorkQueue::weak_t sTexUpdateQueue;
     static LLRenderTarget sRenderTarget;
@@ -171,21 +171,21 @@ extern LLBumpImageList gBumpImageList;
 class LLDrawPoolInvisible : public LLRenderPass
 {
 public:
-	LLDrawPoolInvisible() : LLRenderPass(LLDrawPool::POOL_INVISIBLE) { }
+    LLDrawPoolInvisible() : LLRenderPass(LLDrawPool::POOL_INVISIBLE) { }
 
-	enum
-	{
-		VERTEX_DATA_MASK = LLVertexBuffer::MAP_VERTEX
-	};
-	
-	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+    enum
+    {
+        VERTEX_DATA_MASK = LLVertexBuffer::MAP_VERTEX
+    };
+    
+    virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
 
-	virtual void prerender() { }
+    virtual void prerender() { }
 
-	virtual void render(S32 pass = 0);
-	virtual void beginRenderPass( S32 pass ) { }
-	virtual void endRenderPass( S32 pass ) { }
-	virtual S32	 getNumPasses() {return 1;}
+    virtual void render(S32 pass = 0);
+    virtual void beginRenderPass( S32 pass ) { }
+    virtual void endRenderPass( S32 pass ) { }
+    virtual S32  getNumPasses() {return 1;}
 };
 
 

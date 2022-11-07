@@ -44,12 +44,12 @@
 //-----------------------------------------------------------------------------
 LLEmote::LLEmote(const LLUUID &id) : LLMotion(id)
 {
-	mCharacter = NULL;
+    mCharacter = NULL;
 
-	//RN: flag face joint as highest priority for now, until we implement a proper animation track
-	mJointSignature[0][LL_FACE_JOINT_NUM] = 0xff;
-	mJointSignature[1][LL_FACE_JOINT_NUM] = 0xff;
-	mJointSignature[2][LL_FACE_JOINT_NUM] = 0xff;
+    //RN: flag face joint as highest priority for now, until we implement a proper animation track
+    mJointSignature[0][LL_FACE_JOINT_NUM] = 0xff;
+    mJointSignature[1][LL_FACE_JOINT_NUM] = 0xff;
+    mJointSignature[2][LL_FACE_JOINT_NUM] = 0xff;
 }
 
 
@@ -66,8 +66,8 @@ LLEmote::~LLEmote()
 //-----------------------------------------------------------------------------
 LLMotion::LLMotionInitStatus LLEmote::onInitialize(LLCharacter *character)
 {
-	mCharacter = character;
-	return STATUS_SUCCESS;
+    mCharacter = character;
+    return STATUS_SUCCESS;
 }
 
 
@@ -76,20 +76,20 @@ LLMotion::LLMotionInitStatus LLEmote::onInitialize(LLCharacter *character)
 //-----------------------------------------------------------------------------
 BOOL LLEmote::onActivate()
 {
-	LLVisualParam* default_param = mCharacter->getVisualParam( "Express_Closed_Mouth" );
-	if( default_param )
-	{
-		default_param->setWeight( default_param->getMaxWeight());
-	}
+    LLVisualParam* default_param = mCharacter->getVisualParam( "Express_Closed_Mouth" );
+    if( default_param )
+    {
+        default_param->setWeight( default_param->getMaxWeight());
+    }
 
-	mParam = mCharacter->getVisualParam(mName.c_str());
-	if (mParam)
-	{
-		mParam->setWeight(0.f);
-		mCharacter->updateVisualParams();
-	}
-	
-	return TRUE;
+    mParam = mCharacter->getVisualParam(mName.c_str());
+    if (mParam)
+    {
+        mParam->setWeight(0.f);
+        mCharacter->updateVisualParams();
+    }
+    
+    return TRUE;
 }
 
 
@@ -98,25 +98,25 @@ BOOL LLEmote::onActivate()
 //-----------------------------------------------------------------------------
 BOOL LLEmote::onUpdate(F32 time, U8* joint_mask)
 {
-	if( mParam )
-	{
-		F32 weight = mParam->getMinWeight() + mPose.getWeight() * (mParam->getMaxWeight() - mParam->getMinWeight());
-		mParam->setWeight(weight);
+    if( mParam )
+    {
+        F32 weight = mParam->getMinWeight() + mPose.getWeight() * (mParam->getMaxWeight() - mParam->getMinWeight());
+        mParam->setWeight(weight);
 
-		// Cross fade against the default parameter
-		LLVisualParam* default_param = mCharacter->getVisualParam( "Express_Closed_Mouth" );
-		if( default_param )
-		{
-			F32 default_param_weight = default_param->getMinWeight() + 
-				(1.f - mPose.getWeight()) * ( default_param->getMaxWeight() - default_param->getMinWeight() );
-			
-			default_param->setWeight( default_param_weight);
-		}
+        // Cross fade against the default parameter
+        LLVisualParam* default_param = mCharacter->getVisualParam( "Express_Closed_Mouth" );
+        if( default_param )
+        {
+            F32 default_param_weight = default_param->getMinWeight() + 
+                (1.f - mPose.getWeight()) * ( default_param->getMaxWeight() - default_param->getMinWeight() );
+            
+            default_param->setWeight( default_param_weight);
+        }
 
-		mCharacter->updateVisualParams();
-	}
+        mCharacter->updateVisualParams();
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
 
@@ -125,18 +125,18 @@ BOOL LLEmote::onUpdate(F32 time, U8* joint_mask)
 //-----------------------------------------------------------------------------
 void LLEmote::onDeactivate()
 {
-	if( mParam )
-	{
-		mParam->setWeight( mParam->getDefaultWeight());
-	}
+    if( mParam )
+    {
+        mParam->setWeight( mParam->getDefaultWeight());
+    }
 
-	LLVisualParam* default_param = mCharacter->getVisualParam( "Express_Closed_Mouth" );
-	if( default_param )
-	{
-		default_param->setWeight( default_param->getMaxWeight());
-	}
+    LLVisualParam* default_param = mCharacter->getVisualParam( "Express_Closed_Mouth" );
+    if( default_param )
+    {
+        default_param->setWeight( default_param->getMaxWeight());
+    }
 
-	mCharacter->updateVisualParams();
+    mCharacter->updateVisualParams();
 }
 
 

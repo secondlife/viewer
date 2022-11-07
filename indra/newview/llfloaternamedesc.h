@@ -39,46 +39,46 @@ class LLRadioGroup;
 class LLFloaterNameDesc : public LLFloater
 {
 public:
-	LLFloaterNameDesc(const LLSD& filename);
-	virtual ~LLFloaterNameDesc();
-	virtual BOOL postBuild();
-	
-	void		onBtnOK();
-	void		onBtnCancel();
-	void		doCommit();
+    LLFloaterNameDesc(const LLSD& filename);
+    virtual ~LLFloaterNameDesc();
+    virtual BOOL postBuild();
+    
+    void        onBtnOK();
+    void        onBtnCancel();
+    void        doCommit();
 
-	S32			getExpectedUploadCost() const;
-	
+    S32         getExpectedUploadCost() const;
+    
 protected:
-	virtual void		onCommit();
+    virtual void        onCommit();
 
 protected:
-	BOOL        mIsAudio;
-	bool		mIsText;
+    BOOL        mIsAudio;
+    bool        mIsText;
 
-	std::string		mFilenameAndPath;
-	std::string		mFilename;
+    std::string     mFilenameAndPath;
+    std::string     mFilename;
 };
 
 class LLFloaterSoundPreview : public LLFloaterNameDesc
 {
 public:
-	LLFloaterSoundPreview(const LLSD& filename );
-	virtual BOOL postBuild();
+    LLFloaterSoundPreview(const LLSD& filename );
+    virtual BOOL postBuild();
 };
 
 class LLFloaterAnimPreview : public LLFloaterNameDesc
 {
 public:
-	LLFloaterAnimPreview(const LLSD& filename );
-	virtual BOOL postBuild();
+    LLFloaterAnimPreview(const LLSD& filename );
+    virtual BOOL postBuild();
 };
 
 class LLFloaterScriptPreview : public LLFloaterNameDesc
 {
 public:
-	LLFloaterScriptPreview(const LLSD& filename );
-	virtual BOOL postBuild();
+    LLFloaterScriptPreview(const LLSD& filename );
+    virtual BOOL postBuild();
 };
 
 #endif  // LL_LLFLOATERNAMEDESC_H

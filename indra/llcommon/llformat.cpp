@@ -35,36 +35,36 @@
 // wrapper for vsnprintf to be called from llformatXXX functions.
 static void va_format(std::string& out, const char *fmt, va_list va)
 {
-	char tstr[1024];	/* Flawfinder: ignore */
+    char tstr[1024];    /* Flawfinder: ignore */
 #if LL_WINDOWS
-	_vsnprintf(tstr, 1024, fmt, va);
+    _vsnprintf(tstr, 1024, fmt, va);
 #else
-	vsnprintf(tstr, 1024, fmt, va);	/* Flawfinder: ignore */
+    vsnprintf(tstr, 1024, fmt, va); /* Flawfinder: ignore */
 #endif
-	out.assign(tstr);
+    out.assign(tstr);
 }
 
 std::string llformat(const char *fmt, ...)
 {
-	std::string res;
-	va_list va;
-	va_start(va, fmt);
-	va_format(res, fmt, va);
-	va_end(va);
-	return res;
+    std::string res;
+    va_list va;
+    va_start(va, fmt);
+    va_format(res, fmt, va);
+    va_end(va);
+    return res;
 }
 
 std::string llformat_to_utf8(const char *fmt, ...)
 {
-	std::string res;
-	va_list va;
-	va_start(va, fmt);
-	va_format(res, fmt, va);
-	va_end(va);
+    std::string res;
+    va_list va;
+    va_start(va, fmt);
+    va_format(res, fmt, va);
+    va_end(va);
 
 #if LL_WINDOWS
-	// made converting to utf8. See EXT-8318.
-	res = ll_convert_string_to_utf8_string(res);
+    // made converting to utf8. See EXT-8318.
+    res = ll_convert_string_to_utf8_string(res);
 #endif
-	return res;
+    return res;
 }

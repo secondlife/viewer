@@ -212,9 +212,9 @@ public:
 
     LLColor3  hazeColor;
     LLColor3  hazeColorBelowCloud;
-	LLColor3  cloudColorSun;
-	LLColor3  cloudColorAmbient;
-	F32       cloudDensity;
+    LLColor3  cloudColorSun;
+    LLColor3  cloudColorAmbient;
+    F32       cloudDensity;
     LLColor3  blue_density;
     LLColor3  blue_horizon;
     F32       haze_density;

@@ -28,7 +28,7 @@
 
 namespace LLInspectRemoteObjectUtil
 {
-	void registerFloater();
+    void registerFloater();
 }
 
 #endif

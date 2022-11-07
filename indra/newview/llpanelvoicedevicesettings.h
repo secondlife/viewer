@@ -33,37 +33,37 @@
 class LLPanelVoiceDeviceSettings : public LLPanel
 {
 public:
-	LLPanelVoiceDeviceSettings();
-	~LLPanelVoiceDeviceSettings();
+    LLPanelVoiceDeviceSettings();
+    ~LLPanelVoiceDeviceSettings();
 
-	/*virtual*/ void draw();
-	/*virtual*/ BOOL postBuild();
-	void apply();
-	void cancel();
-	void refresh();
-	void initialize();
-	void cleanup();
+    /*virtual*/ void draw();
+    /*virtual*/ BOOL postBuild();
+    void apply();
+    void cancel();
+    void refresh();
+    void initialize();
+    void cleanup();
 
-	/*virtual*/ void onVisibilityChange ( BOOL new_visibility );
+    /*virtual*/ void onVisibilityChange ( BOOL new_visibility );
 
-	void setUseTuningMode(bool use) { mUseTuningMode = use; };
-	
+    void setUseTuningMode(bool use) { mUseTuningMode = use; };
+    
 protected:
-	std::string getLocalizedDeviceName(const std::string& en_dev_name);
+    std::string getLocalizedDeviceName(const std::string& en_dev_name);
 
-	void onCommitInputDevice();
-	void onCommitOutputDevice();
-	void onOutputDevicesClicked();
-	void onInputDevicesClicked();
+    void onCommitInputDevice();
+    void onCommitOutputDevice();
+    void onOutputDevicesClicked();
+    void onInputDevicesClicked();
 
-	F32 mMicVolume;
-	std::string mInputDevice;
-	std::string mOutputDevice;
-	class LLComboBox		*mCtrlInputDevices;
-	class LLComboBox		*mCtrlOutputDevices;
-	BOOL mDevicesUpdated;
-	bool mUseTuningMode;
-	std::map<std::string, std::string> mLocalizedDeviceNames;
+    F32 mMicVolume;
+    std::string mInputDevice;
+    std::string mOutputDevice;
+    class LLComboBox        *mCtrlInputDevices;
+    class LLComboBox        *mCtrlOutputDevices;
+    BOOL mDevicesUpdated;
+    bool mUseTuningMode;
+    std::map<std::string, std::string> mLocalizedDeviceNames;
 };
 
 #endif // LL_LLPANELVOICEDEVICESETTINGS_H

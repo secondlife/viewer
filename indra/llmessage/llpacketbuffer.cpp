@@ -36,27 +36,27 @@
 
 LLPacketBuffer::LLPacketBuffer(const LLHost &host, const char *datap, const S32 size) : mHost(host)
 {
-	mSize = 0;
-	mData[0] = '!';
+    mSize = 0;
+    mData[0] = '!';
 
-	if (size > NET_BUFFER_SIZE)
-	{
-		LL_ERRS() << "Sending packet > " << NET_BUFFER_SIZE << " of size " << size << LL_ENDL;
-	}
-	else
-	{
-		if (datap != NULL)
-		{
-			memcpy(mData, datap, size);
-			mSize = size;
-		}
-	}
-	
+    if (size > NET_BUFFER_SIZE)
+    {
+        LL_ERRS() << "Sending packet > " << NET_BUFFER_SIZE << " of size " << size << LL_ENDL;
+    }
+    else
+    {
+        if (datap != NULL)
+        {
+            memcpy(mData, datap, size);
+            mSize = size;
+        }
+    }
+    
 }
 
 LLPacketBuffer::LLPacketBuffer (S32 hSocket)
 {
-	init(hSocket);
+    init(hSocket);
 }
 
 ///////////////////////////////////////////////////////////
@@ -69,8 +69,8 @@ LLPacketBuffer::~LLPacketBuffer ()
 
 void LLPacketBuffer::init (S32 hSocket)
 {
-	mSize = receive_packet(hSocket, mData);
-	mHost = ::get_sender();
-	mReceivingIF = ::get_receiving_interface();
+    mSize = receive_packet(hSocket, mData);
+    mHost = ::get_sender();
+    mReceivingIF = ::get_receiving_interface();
 }
 

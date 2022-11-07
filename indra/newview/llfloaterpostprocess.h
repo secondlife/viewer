@@ -47,29 +47,29 @@ class LLFloaterPostProcess : public LLFloater
 {
 public:
 
-	LLFloaterPostProcess(const LLSD& key);
-	virtual ~LLFloaterPostProcess();
-	/*virtual*/	BOOL	postBuild();
+    LLFloaterPostProcess(const LLSD& key);
+    virtual ~LLFloaterPostProcess();
+    /*virtual*/ BOOL    postBuild();
 
-	/// post process callbacks
-	static void onBoolToggle(LLUICtrl* ctrl, void* userData);
-	static void onFloatControlMoved(LLUICtrl* ctrl, void* userData);
-	static void onColorControlRMoved(LLUICtrl* ctrl, void* userData);
-	static void onColorControlGMoved(LLUICtrl* ctrl, void* userData);
-	static void onColorControlBMoved(LLUICtrl* ctrl, void* userData);
-	static void onColorControlIMoved(LLUICtrl* ctrl, void* userData);
-	void onLoadEffect(LLComboBox* comboBox);
-	void onSaveEffect(LLLineEditor* editBox);
-	void onChangeEffectName(LLUICtrl* ctrl);
+    /// post process callbacks
+    static void onBoolToggle(LLUICtrl* ctrl, void* userData);
+    static void onFloatControlMoved(LLUICtrl* ctrl, void* userData);
+    static void onColorControlRMoved(LLUICtrl* ctrl, void* userData);
+    static void onColorControlGMoved(LLUICtrl* ctrl, void* userData);
+    static void onColorControlBMoved(LLUICtrl* ctrl, void* userData);
+    static void onColorControlIMoved(LLUICtrl* ctrl, void* userData);
+    void onLoadEffect(LLComboBox* comboBox);
+    void onSaveEffect(LLLineEditor* editBox);
+    void onChangeEffectName(LLUICtrl* ctrl);
 
-	/// prompts a user when overwriting an effect
-	bool saveAlertCallback(const LLSD& notification, const LLSD& response);
+    /// prompts a user when overwriting an effect
+    bool saveAlertCallback(const LLSD& notification, const LLSD& response);
 
-	/// sync up sliders
-	void syncMenu();
+    /// sync up sliders
+    void syncMenu();
 
 /*
-	void refresh();
+    void refresh();
 */
 public:
 };

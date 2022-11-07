@@ -43,34 +43,34 @@ F32 pump_loop(LLPumpIO* pump, F32 seconds);
 class LLPipeStringInjector : public LLIOPipe
 {
 public:
-	LLPipeStringInjector(const std::string& string)
-		: mString(string)
-		{ }
-	  
+    LLPipeStringInjector(const std::string& string)
+        : mString(string)
+        { }
+      
 protected:
     virtual EStatus process_impl(
-		const LLChannelDescriptors& channels,
-		buffer_ptr_t& buffer,
-		bool& eos,
-		LLSD& context,
-		LLPumpIO* pump);
+        const LLChannelDescriptors& channels,
+        buffer_ptr_t& buffer,
+        bool& eos,
+        LLSD& context,
+        LLPumpIO* pump);
 
 private:
-	std::string mString;
+    std::string mString;
 };
 
 
 class LLPipeStringExtractor : public LLIOPipe
 {
 public:
-	LLPipeStringExtractor() : mDone(false) { }
-	
-	bool done() { return mDone; }
-	std::string string() { return mString; }
-	
+    LLPipeStringExtractor() : mDone(false) { }
+    
+    bool done() { return mDone; }
+    std::string string() { return mString; }
+    
 protected:
-	// LLIOPipe API implementation.
-	virtual EStatus process_impl(
+    // LLIOPipe API implementation.
+    virtual EStatus process_impl(
         const LLChannelDescriptors& channels,
         LLIOPipe::buffer_ptr_t& buffer,
         bool& eos,
@@ -78,8 +78,8 @@ protected:
         LLPumpIO* pump);
 
 private:
-	bool mDone;
-	std::string mString;
+    bool mDone;
+    std::string mString;
 };
 
 /**
@@ -88,18 +88,18 @@ private:
 class LLIOFuzz : public LLIOPipe
 {
 public:
-	LLIOFuzz(int byte_count) : mByteCount(byte_count) {}
-	  
+    LLIOFuzz(int byte_count) : mByteCount(byte_count) {}
+      
 protected:
     virtual EStatus process_impl(
-		const LLChannelDescriptors& channels,
-		buffer_ptr_t& buffer,
-		bool& eos,
-		LLSD& context,
-		LLPumpIO* pump);
+        const LLChannelDescriptors& channels,
+        buffer_ptr_t& buffer,
+        bool& eos,
+        LLSD& context,
+        LLPumpIO* pump);
 
 private:
-	int mByteCount;
+    int mByteCount;
 };
 
 /**
@@ -108,18 +108,18 @@ private:
 class LLIOASCIIFuzz : public LLIOPipe
 {
 public:
-	LLIOASCIIFuzz(int byte_count) : mByteCount(byte_count) {}
-	  
+    LLIOASCIIFuzz(int byte_count) : mByteCount(byte_count) {}
+      
 protected:
     virtual EStatus process_impl(
-		const LLChannelDescriptors& channels,
-		buffer_ptr_t& buffer,
-		bool& eos,
-		LLSD& context,
-		LLPumpIO* pump);
+        const LLChannelDescriptors& channels,
+        buffer_ptr_t& buffer,
+        bool& eos,
+        LLSD& context,
+        LLPumpIO* pump);
 
 private:
-	int mByteCount;
+    int mByteCount;
 };
 
 
@@ -129,15 +129,15 @@ private:
 class LLIONull : public LLIOPipe
 {
 public:
-	LLIONull() {}
-	  
+    LLIONull() {}
+      
 protected:
     virtual EStatus process_impl(
-		const LLChannelDescriptors& channels,
-		buffer_ptr_t& buffer,
-		bool& eos,
-		LLSD& context,
-		LLPumpIO* pump);
+        const LLChannelDescriptors& channels,
+        buffer_ptr_t& buffer,
+        bool& eos,
+        LLSD& context,
+        LLPumpIO* pump);
 };
 
 /**
@@ -146,17 +146,17 @@ protected:
 class LLIOSleeper : public LLIOPipe
 {
 public:
-	LLIOSleeper() : mRespond(false) {}
-	  
+    LLIOSleeper() : mRespond(false) {}
+      
 protected:
     virtual EStatus process_impl(
-		const LLChannelDescriptors& channels,
-		buffer_ptr_t& buffer,
-		bool& eos,
-		LLSD& context,
-		LLPumpIO* pump);
+        const LLChannelDescriptors& channels,
+        buffer_ptr_t& buffer,
+        bool& eos,
+        LLSD& context,
+        LLPumpIO* pump);
 private:
-	bool mRespond;
+    bool mRespond;
 
 };
 

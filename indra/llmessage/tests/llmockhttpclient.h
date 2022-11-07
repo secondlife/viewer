@@ -45,19 +45,19 @@ public:
 template<typename T>
 struct ResponderType
 {
-	bool operator()(LLCurl::ResponderPtr ptr) const
-	{
-		T* p = dynamic_cast<T*>(ptr.get());
-		return p != NULL;
-	}
+    bool operator()(LLCurl::ResponderPtr ptr) const
+    {
+        T* p = dynamic_cast<T*>(ptr.get());
+        return p != NULL;
+    }
 };
 
 inline bool operator==(const LLSD& l, const LLSD& r)
 {
-	std::ostringstream ls, rs;
-	ls << l;
-	rs << r;
-	return ls.str() == rs.str();
+    std::ostringstream ls, rs;
+    ls << l;
+    rs << r;
+    return ls.str() == rs.str();
 
 }
 

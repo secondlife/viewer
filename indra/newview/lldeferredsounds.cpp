@@ -33,16 +33,16 @@
 
 void LLDeferredSounds::deferSound(SoundData& sound)
 {
-	soundVector.push_back(sound);
+    soundVector.push_back(sound);
 }
 void LLDeferredSounds::playdeferredSounds()
 {
-	while(soundVector.size())
-	{
-		if (gAudiop)
-		{
-			gAudiop->triggerSound(soundVector.back());
-		}
-		soundVector.pop_back();
-	}
+    while(soundVector.size())
+    {
+        if (gAudiop)
+        {
+            gAudiop->triggerSound(soundVector.back());
+        }
+        soundVector.pop_back();
+    }
 }

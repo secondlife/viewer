@@ -33,48 +33,48 @@
 // necessarily the fastest way to implement.
 void matMulBoundBox(const LLMatrix4a &mat, const LLVector4a *in_extents, LLVector4a *out_extents)
 {
-		//get 8 corners of bounding box
-		LLVector4Logical mask[6];
+        //get 8 corners of bounding box
+        LLVector4Logical mask[6];
 
-		for (U32 i = 0; i < 6; ++i)
-		{
-			mask[i].clear();
-		}
+        for (U32 i = 0; i < 6; ++i)
+        {
+            mask[i].clear();
+        }
 
-		mask[0].setElement<2>(); //001
-		mask[1].setElement<1>(); //010
-		mask[2].setElement<1>(); //011
-		mask[2].setElement<2>();
-		mask[3].setElement<0>(); //100
-		mask[4].setElement<0>(); //101
-		mask[4].setElement<2>();
-		mask[5].setElement<0>(); //110
-		mask[5].setElement<1>();
+        mask[0].setElement<2>(); //001
+        mask[1].setElement<1>(); //010
+        mask[2].setElement<1>(); //011
+        mask[2].setElement<2>();
+        mask[3].setElement<0>(); //100
+        mask[4].setElement<0>(); //101
+        mask[4].setElement<2>();
+        mask[5].setElement<0>(); //110
+        mask[5].setElement<1>();
 
-		LLVector4a v[8];
+        LLVector4a v[8];
 
-		v[6] = in_extents[0];
-		v[7] = in_extents[1];
+        v[6] = in_extents[0];
+        v[7] = in_extents[1];
 
-		for (U32 i = 0; i < 6; ++i)
-		{
-			v[i].setSelectWithMask(mask[i], in_extents[0], in_extents[1]);
-		}
+        for (U32 i = 0; i < 6; ++i)
+        {
+            v[i].setSelectWithMask(mask[i], in_extents[0], in_extents[1]);
+        }
 
-		LLVector4a tv[8];
+        LLVector4a tv[8];
 
-		//transform bounding box into drawable space
-		for (U32 i = 0; i < 8; ++i)
-		{
-			mat.affineTransform(v[i], tv[i]);
-		}
-	
-		//find bounding box
-		out_extents[0] = out_extents[1] = tv[0];
+        //transform bounding box into drawable space
+        for (U32 i = 0; i < 8; ++i)
+        {
+            mat.affineTransform(v[i], tv[i]);
+        }
+    
+        //find bounding box
+        out_extents[0] = out_extents[1] = tv[0];
 
-		for (U32 i = 1; i < 8; ++i)
-		{
-			out_extents[0].setMin(out_extents[0], tv[i]);
-			out_extents[1].setMax(out_extents[1], tv[i]);
-		}
+        for (U32 i = 1; i < 8; ++i)
+        {
+            out_extents[0].setMin(out_extents[0], tv[i]);
+            out_extents[1].setMax(out_extents[1], tv[i]);
+        }
 }

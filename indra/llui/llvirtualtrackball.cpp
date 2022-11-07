@@ -316,7 +316,7 @@ void LLVirtualTrackball::onRotateRightMouseEnter()
 
 void LLVirtualTrackball::setValue(const LLSD& value)
 {
-	if (value.isArray() && value.size() == 4)
+    if (value.isArray() && value.size() == 4)
     {
         mValue.setValue(value);
     }
@@ -334,7 +334,7 @@ void LLVirtualTrackball::setValue(F32 x, F32 y, F32 z, F32 w)
 
 void LLVirtualTrackball::setValueAndCommit(const LLQuaternion &value)
 {
-	mValue = value;
+    mValue = value;
     onCommit();
 }
 
@@ -345,7 +345,7 @@ LLSD LLVirtualTrackball::getValue() const
 
 LLQuaternion LLVirtualTrackball::getRotation() const
 {
-	return mValue;
+    return mValue;
 }
 
 // static

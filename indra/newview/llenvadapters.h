@@ -139,11 +139,11 @@ public:
 
 private:
     LLColor4    mColor;         /// [3] is intensity, not alpha
-    std::string mName;			/// name to use to dereference params
-    std::string mSliderName;	/// name of the slider in menu
-    bool        mHasSliderName;			/// only set slider name for true color types
-    bool        mIsSunOrAmbientColor;			/// flag for if it's the sun or ambient color controller
-    bool        mIsBlueHorizonOrDensity;		/// flag for if it's the Blue Horizon or Density color controller
+    std::string mName;          /// name to use to dereference params
+    std::string mSliderName;    /// name of the slider in menu
+    bool        mHasSliderName;         /// only set slider name for true color types
+    bool        mIsSunOrAmbientColor;           /// flag for if it's the sun or ambient color controller
+    bool        mIsBlueHorizonOrDensity;        /// flag for if it's the Blue Horizon or Density color controller
 
 };
 

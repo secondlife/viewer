@@ -34,22 +34,22 @@ class LLSD;
 class LLURLHistory
 {
 public:
-	// Loads an xml file of URLs.  Currently only supports Parcel URL history
-	static bool loadFile(const std::string& filename);
+    // Loads an xml file of URLs.  Currently only supports Parcel URL history
+    static bool loadFile(const std::string& filename);
 
-	// Saves the current history to XML
-	static bool saveFile(const std::string& filename);
+    // Saves the current history to XML
+    static bool saveFile(const std::string& filename);
 
-	static LLSD getURLHistory(const std::string& collection);
+    static LLSD getURLHistory(const std::string& collection);
 
-	static void addURL(const std::string& collection, const std::string& url);
-	static void removeURL(const std::string& collection, const std::string& url);
-	static void clear(const std::string& collection);
+    static void addURL(const std::string& collection, const std::string& url);
+    static void removeURL(const std::string& collection, const std::string& url);
+    static void clear(const std::string& collection);
 
-	static void limitSize(const std::string& collection);
+    static void limitSize(const std::string& collection);
 
 private:
-	static LLSD sHistorySD;
+    static LLSD sHistorySD;
 };
 
 #endif // LLURLHISTORY_H

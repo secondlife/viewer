@@ -34,15 +34,15 @@
 class LLPanelPresetsCameraPulldown : public LLPanelPulldown
 {
  public:
-	LLPanelPresetsCameraPulldown();
-	/*virtual*/ BOOL postBuild();
-	void populatePanel();
-	
+    LLPanelPresetsCameraPulldown();
+    /*virtual*/ BOOL postBuild();
+    void populatePanel();
+    
  private:
-	void onViewButtonClick(const LLSD& user_data);
-	void onRowClick(const LLSD& user_data);
+    void onViewButtonClick(const LLSD& user_data);
+    void onRowClick(const LLSD& user_data);
 
-	std::list<std::string> mPresetNames;
+    std::list<std::string> mPresetNames;
     LOG_CLASS(LLPanelPresetsCameraPulldown);
 };
 

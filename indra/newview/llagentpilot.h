@@ -36,84 +36,84 @@
 class LLAgentPilot
 {
 public:
-	enum EActionType
-	{
-		STRAIGHT,
-		TURN
-	};
+    enum EActionType
+    {
+        STRAIGHT,
+        TURN
+    };
 
-	LLAgentPilot();
-	virtual ~LLAgentPilot();
+    LLAgentPilot();
+    virtual ~LLAgentPilot();
 
-	void load();
-	void loadTxt(const std::string& filename);
-	void loadXML(const std::string& filename);
-	void save();
-	void saveTxt(const std::string& filename);
-	void saveXML(const std::string& filename);
+    void load();
+    void loadTxt(const std::string& filename);
+    void loadXML(const std::string& filename);
+    void save();
+    void saveTxt(const std::string& filename);
+    void saveXML(const std::string& filename);
 
-	void startRecord();
-	void stopRecord();
-	void addAction(enum EActionType action);
+    void startRecord();
+    void stopRecord();
+    void addAction(enum EActionType action);
 
-	void startPlayback();
-	void stopPlayback();
+    void startPlayback();
+    void stopPlayback();
 
-	bool isRecording() { return mRecording; }
-	bool isPlaying() { return mPlaying; }
-	bool getOverrideCamera() { return mOverrideCamera; }
-	
-	void updateTarget();
+    bool isRecording() { return mRecording; }
+    bool isPlaying() { return mPlaying; }
+    bool getOverrideCamera() { return mOverrideCamera; }
+    
+    void updateTarget();
 
-	void addWaypoint();
-	void moveCamera();
+    void addWaypoint();
+    void moveCamera();
 
-	void setReplaySession(BOOL new_val) { mReplaySession = new_val; }
-	BOOL getReplaySession() { return mReplaySession; }
+    void setReplaySession(BOOL new_val) { mReplaySession = new_val; }
+    BOOL getReplaySession() { return mReplaySession; }
 
-	void setLoop(BOOL new_val) { mLoop = new_val; }
-	BOOL getLoop() { return mLoop; }
+    void setLoop(BOOL new_val) { mLoop = new_val; }
+    BOOL getLoop() { return mLoop; }
 
-	void setQuitAfterRuns(BOOL quit_val) { mQuitAfterRuns = quit_val; }
-	void setNumRuns(S32 num_runs) { mNumRuns = num_runs; }
-	
+    void setQuitAfterRuns(BOOL quit_val) { mQuitAfterRuns = quit_val; }
+    void setNumRuns(S32 num_runs) { mNumRuns = num_runs; }
+    
 private:
 
 
 
-	BOOL	mLoop;
-	BOOL 	mReplaySession;
+    BOOL    mLoop;
+    BOOL    mReplaySession;
 
-	S32		mNumRuns;
-	BOOL	mQuitAfterRuns;
+    S32     mNumRuns;
+    BOOL    mQuitAfterRuns;
 
-	void setAutopilotTarget(const S32 id);
+    void setAutopilotTarget(const S32 id);
 
-	BOOL	mRecording;
-	F32		mLastRecordTime;
+    BOOL    mRecording;
+    F32     mLastRecordTime;
 
-	BOOL	mStarted;
-	BOOL	mPlaying;
-	S32		mCurrentAction;
+    BOOL    mStarted;
+    BOOL    mPlaying;
+    S32     mCurrentAction;
 
-	BOOL	mOverrideCamera;
+    BOOL    mOverrideCamera;
 
-	class Action
-	{
-	public:
+    class Action
+    {
+    public:
 
-		EActionType		mType;
-		LLVector3d		mTarget;
-		F64				mTime;
-		F32				mCameraView;
-		LLVector3		mCameraOrigin;
-		LLVector3		mCameraXAxis;
-		LLVector3		mCameraYAxis;
-		LLVector3		mCameraZAxis;
-	};
+        EActionType     mType;
+        LLVector3d      mTarget;
+        F64             mTime;
+        F32             mCameraView;
+        LLVector3       mCameraOrigin;
+        LLVector3       mCameraXAxis;
+        LLVector3       mCameraYAxis;
+        LLVector3       mCameraZAxis;
+    };
 
-	std::vector<Action>	mActions;
-	LLTimer					mTimer;
+    std::vector<Action> mActions;
+    LLTimer                 mTimer;
 
 };
 

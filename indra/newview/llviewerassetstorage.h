@@ -37,43 +37,43 @@ class LLViewerAssetRequest;
 class LLViewerAssetStorage : public LLAssetStorage
 {
 public:
-	LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer, const LLHost &upstream_host);
+    LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer, const LLHost &upstream_host);
 
-	LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer);
+    LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer);
 
-	~LLViewerAssetStorage();
+    ~LLViewerAssetStorage();
 
-	void storeAssetData(
-		const LLTransactionID& tid,
-		LLAssetType::EType atype,
-		LLStoreAssetCallback callback,
-		void* user_data,
-		bool temp_file = false,
-		bool is_priority = false,
-		bool store_local = false,
-		bool user_waiting=FALSE,
-		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT) override;
+    void storeAssetData(
+        const LLTransactionID& tid,
+        LLAssetType::EType atype,
+        LLStoreAssetCallback callback,
+        void* user_data,
+        bool temp_file = false,
+        bool is_priority = false,
+        bool store_local = false,
+        bool user_waiting=FALSE,
+        F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT) override;
 
-	void storeAssetData(
-		const std::string& filename,
-		const LLTransactionID& tid,
-		LLAssetType::EType type,
-		LLStoreAssetCallback callback,
-		void* user_data,
-		bool temp_file = false,
-		bool is_priority = false,
-		bool user_waiting=FALSE,
-		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT) override;
+    void storeAssetData(
+        const std::string& filename,
+        const LLTransactionID& tid,
+        LLAssetType::EType type,
+        LLStoreAssetCallback callback,
+        void* user_data,
+        bool temp_file = false,
+        bool is_priority = false,
+        bool user_waiting=FALSE,
+        F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT) override;
 
     void checkForTimeouts() override;
 
 protected:
-	void _queueDataRequest(const LLUUID& uuid,
-						   LLAssetType::EType type,
+    void _queueDataRequest(const LLUUID& uuid,
+                           LLAssetType::EType type,
                            LLGetAssetCallback callback,
-						   void *user_data,
-						   BOOL duplicate,
-						   BOOL is_priority) override;
+                           void *user_data,
+                           BOOL duplicate,
+                           BOOL is_priority) override;
 
     void queueRequestHttp(const LLUUID& uuid,
                           LLAssetType::EType type,

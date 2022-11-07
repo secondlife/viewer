@@ -42,44 +42,44 @@
 class LLInventoryClipboard
 {
 public:
-	// calling this before main() is undefined
-	static LLInventoryClipboard& instance() { return sInstance; }
+    // calling this before main() is undefined
+    static LLInventoryClipboard& instance() { return sInstance; }
 
-	// this method adds to the current list.
-	void add(const LLUUID& object);
+    // this method adds to the current list.
+    void add(const LLUUID& object);
 
-	// this stores a single inventory object
-	void store(const LLUUID& object);
+    // this stores a single inventory object
+    void store(const LLUUID& object);
 
-	// this method stores an array of objects
-	void store(const LLDynamicArray<LLUUID>& inventory_objects);
+    // this method stores an array of objects
+    void store(const LLDynamicArray<LLUUID>& inventory_objects);
 
-	void cut(const LLUUID& object);
-	// this method gets the objects in the clipboard by copying them
-	// into the array provided.
-	void retrieve(LLDynamicArray<LLUUID>& inventory_objects) const;
+    void cut(const LLUUID& object);
+    // this method gets the objects in the clipboard by copying them
+    // into the array provided.
+    void retrieve(LLDynamicArray<LLUUID>& inventory_objects) const;
 
-	// this method empties out the clipboard
-	void reset();
+    // this method empties out the clipboard
+    void reset();
 
-	// returns true if the clipboard has something pasteable in it.
-	BOOL hasContents() const;
-	bool isCutMode() const { return mCutMode; }
+    // returns true if the clipboard has something pasteable in it.
+    BOOL hasContents() const;
+    bool isCutMode() const { return mCutMode; }
 
 protected:
-	static LLInventoryClipboard sInstance;
+    static LLInventoryClipboard sInstance;
 
-	LLDynamicArray<LLUUID> mObjects;
-	bool mCutMode;
+    LLDynamicArray<LLUUID> mObjects;
+    bool mCutMode;
 
 public:
-	// please don't actually call these
-	LLInventoryClipboard();
-	~LLInventoryClipboard();
+    // please don't actually call these
+    LLInventoryClipboard();
+    ~LLInventoryClipboard();
 private:
-	// please don't implement these
-	LLInventoryClipboard(const LLInventoryClipboard&);
-	LLInventoryClipboard& operator=(const LLInventoryClipboard&);
+    // please don't implement these
+    LLInventoryClipboard(const LLInventoryClipboard&);
+    LLInventoryClipboard& operator=(const LLInventoryClipboard&);
 };
 
 

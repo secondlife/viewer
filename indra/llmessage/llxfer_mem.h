@@ -36,37 +36,37 @@ class LLXfer_Mem : public LLXfer
 {
  private:
  protected:
-	void (*mCallback)(void *, S32, void **, S32, LLExtStat);	
-	std::string mRemoteFilename;
-	ELLPath mRemotePath;
-	BOOL mDeleteRemoteOnCompletion;
+    void (*mCallback)(void *, S32, void **, S32, LLExtStat);    
+    std::string mRemoteFilename;
+    ELLPath mRemotePath;
+    BOOL mDeleteRemoteOnCompletion;
 
  public:
 
  private:
  protected:
  public:
-	LLXfer_Mem ();
-	virtual ~LLXfer_Mem();
+    LLXfer_Mem ();
+    virtual ~LLXfer_Mem();
 
-	virtual void init();
-	virtual void cleanup();
+    virtual void init();
+    virtual void cleanup();
 
-	virtual S32 startSend (U64 xfer_id, const LLHost &remote_host);
-	virtual void setXferSize (S32 data_size);
+    virtual S32 startSend (U64 xfer_id, const LLHost &remote_host);
+    virtual void setXferSize (S32 data_size);
 
-	virtual S32 initializeRequest(U64 xfer_id,
-								  const std::string& remote_filename,
-								  ELLPath remote_path,
-								  const LLHost& remote_host,
-								  BOOL delete_remote_on_completion,
-								  void (*callback)(void*,S32,void**,S32,LLExtStat),
-								  void** user_data);
-	virtual S32 startDownload();
+    virtual S32 initializeRequest(U64 xfer_id,
+                                  const std::string& remote_filename,
+                                  ELLPath remote_path,
+                                  const LLHost& remote_host,
+                                  BOOL delete_remote_on_completion,
+                                  void (*callback)(void*,S32,void**,S32,LLExtStat),
+                                  void** user_data);
+    virtual S32 startDownload();
 
-	virtual S32 processEOF();
+    virtual S32 processEOF();
 
-	virtual U32 getXferTypeTag();
+    virtual U32 getXferTypeTag();
 };
 
 #endif

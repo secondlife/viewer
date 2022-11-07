@@ -67,11 +67,11 @@ LLVector3 totalSkinOffset(LLAvatarJoint *joint)
     LLVector3 totalOffset;
     while (joint)
     {
-		if (joint->getSupport() == LLJoint::SUPPORT_BASE)
-		{
-			totalOffset += joint->getSkinOffset();
-		}
-		joint = (LLAvatarJoint*)joint->getParent();
+        if (joint->getSupport() == LLJoint::SUPPORT_BASE)
+        {
+            totalOffset += joint->getSkinOffset();
+        }
+        joint = (LLAvatarJoint*)joint->getParent();
     }
     return totalOffset;
 }
@@ -87,7 +87,7 @@ LLVector3 totalSkinOffset(LLAvatarJoint *joint)
 //-----------------------------------------------------------------------------
 LLSkinJoint::LLSkinJoint()
 {
-	mJoint       = NULL;
+    mJoint       = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -95,7 +95,7 @@ LLSkinJoint::LLSkinJoint()
 //-----------------------------------------------------------------------------
 LLSkinJoint::~LLSkinJoint()
 {
-	mJoint = NULL;
+    mJoint = NULL;
 }
 
 
@@ -104,22 +104,22 @@ LLSkinJoint::~LLSkinJoint()
 //-----------------------------------------------------------------------------
 BOOL LLSkinJoint::setupSkinJoint( LLAvatarJoint *joint)
 {
-	// find the named joint
-	mJoint = joint;
-	if ( !mJoint )
-	{
-		LL_INFOS() << "Can't find joint" << LL_ENDL;
-	}
+    // find the named joint
+    mJoint = joint;
+    if ( !mJoint )
+    {
+        LL_INFOS() << "Can't find joint" << LL_ENDL;
+    }
 
-	// compute the inverse root skin matrix
-	mRootToJointSkinOffset = totalSkinOffset(joint);
+    // compute the inverse root skin matrix
+    mRootToJointSkinOffset = totalSkinOffset(joint);
     mRootToJointSkinOffset = -mRootToJointSkinOffset;
 
-	//mRootToParentJointSkinOffset = totalSkinOffset((LLAvatarJoint*)joint->getParent());
-	mRootToParentJointSkinOffset = totalSkinOffset(getBaseSkeletonAncestor(joint));
-	mRootToParentJointSkinOffset = -mRootToParentJointSkinOffset;
+    //mRootToParentJointSkinOffset = totalSkinOffset((LLAvatarJoint*)joint->getParent());
+    mRootToParentJointSkinOffset = totalSkinOffset(getBaseSkeletonAncestor(joint));
+    mRootToParentJointSkinOffset = -mRootToParentJointSkinOffset;
 
-	return TRUE;
+    return TRUE;
 }
 
 
@@ -137,33 +137,33 @@ LLColor4 LLAvatarJointMesh::sClothingInnerColor;
 // LLAvatarJointMesh()
 //-----------------------------------------------------------------------------
 LLAvatarJointMesh::LLAvatarJointMesh()
-	:
-	mTexture( NULL ),
-	mLayerSet( NULL ),
-	mTestImageName( 0 ),
-	mFaceIndexCount(0)
+    :
+    mTexture( NULL ),
+    mLayerSet( NULL ),
+    mTestImageName( 0 ),
+    mFaceIndexCount(0)
 {
 
-	mColor[0] = 1.0f;
-	mColor[1] = 1.0f;
-	mColor[2] = 1.0f;
-	mColor[3] = 1.0f;
-	mShiny = 0.0f;
-	mCullBackFaces = TRUE;
+    mColor[0] = 1.0f;
+    mColor[1] = 1.0f;
+    mColor[2] = 1.0f;
+    mColor[3] = 1.0f;
+    mShiny = 0.0f;
+    mCullBackFaces = TRUE;
 
-	mMesh = NULL;
+    mMesh = NULL;
 
-	mNumSkinJoints = 0;
-	mSkinJoints = NULL;
+    mNumSkinJoints = 0;
+    mSkinJoints = NULL;
 
-	mFace = NULL;
+    mFace = NULL;
 
-	mMeshID = 0;
-	mUpdateXform = FALSE;
+    mMeshID = 0;
+    mUpdateXform = FALSE;
 
-	mValid = FALSE;
+    mValid = FALSE;
 
-	mIsTransparent = FALSE;
+    mIsTransparent = FALSE;
 }
 
 
@@ -173,9 +173,9 @@ LLAvatarJointMesh::LLAvatarJointMesh()
 //-----------------------------------------------------------------------------
 LLAvatarJointMesh::~LLAvatarJointMesh()
 {
-	mMesh = NULL;
-	mTexture = NULL;
-	freeSkinData();
+    mMesh = NULL;
+    mTexture = NULL;
+    freeSkinData();
 }
 
 
@@ -184,9 +184,9 @@ LLAvatarJointMesh::~LLAvatarJointMesh()
 //-----------------------------------------------------------------------------
 BOOL LLAvatarJointMesh::allocateSkinData( U32 numSkinJoints )
 {
-	mSkinJoints = new LLSkinJoint[ numSkinJoints ];
-	mNumSkinJoints = numSkinJoints;
-	return TRUE;
+    mSkinJoints = new LLSkinJoint[ numSkinJoints ];
+    mNumSkinJoints = numSkinJoints;
+    return TRUE;
 }
 
 //-----------------------------------------------------------------------------
@@ -194,9 +194,9 @@ BOOL LLAvatarJointMesh::allocateSkinData( U32 numSkinJoints )
 //-----------------------------------------------------------------------------
 void LLAvatarJointMesh::freeSkinData()
 {
-	mNumSkinJoints = 0;
-	delete [] mSkinJoints;
-	mSkinJoints = NULL;
+    mNumSkinJoints = 0;
+    delete [] mSkinJoints;
+    mSkinJoints = NULL;
 }
 
 //--------------------------------------------------------------------
@@ -204,10 +204,10 @@ void LLAvatarJointMesh::freeSkinData()
 //--------------------------------------------------------------------
 void LLAvatarJointMesh::getColor( F32 *red, F32 *green, F32 *blue, F32 *alpha )
 {
-	*red   = mColor[0];
-	*green = mColor[1];
-	*blue  = mColor[2];
-	*alpha = mColor[3];
+    *red   = mColor[0];
+    *green = mColor[1];
+    *blue  = mColor[2];
+    *alpha = mColor[3];
 }
 
 //--------------------------------------------------------------------
@@ -215,15 +215,15 @@ void LLAvatarJointMesh::getColor( F32 *red, F32 *green, F32 *blue, F32 *alpha )
 //--------------------------------------------------------------------
 void LLAvatarJointMesh::setColor( F32 red, F32 green, F32 blue, F32 alpha )
 {
-	mColor[0] = red;
-	mColor[1] = green;
-	mColor[2] = blue;
-	mColor[3] = alpha;
+    mColor[0] = red;
+    mColor[1] = green;
+    mColor[2] = blue;
+    mColor[3] = alpha;
 }
 
 void LLAvatarJointMesh::setColor( const LLColor4& color )
 {
-	mColor = color;
+    mColor = color;
 }
 
 
@@ -232,7 +232,7 @@ void LLAvatarJointMesh::setColor( const LLColor4& color )
 //--------------------------------------------------------------------
 //LLViewerTexture *LLAvatarJointMesh::getTexture()
 //{
-//	return mTexture;
+//  return mTexture;
 //}
 
 //--------------------------------------------------------------------
@@ -240,21 +240,21 @@ void LLAvatarJointMesh::setColor( const LLColor4& color )
 //--------------------------------------------------------------------
 void LLAvatarJointMesh::setTexture( LLGLTexture *texture )
 {
-	mTexture = texture;
+    mTexture = texture;
 
-	// texture and dynamic_texture are mutually exclusive
-	if( texture )
-	{
-		mLayerSet = NULL;
-		//texture->bindTexture(0);
-		//texture->setClamp(TRUE, TRUE);
-	}
+    // texture and dynamic_texture are mutually exclusive
+    if( texture )
+    {
+        mLayerSet = NULL;
+        //texture->bindTexture(0);
+        //texture->setClamp(TRUE, TRUE);
+    }
 }
 
 
 BOOL LLAvatarJointMesh::hasGLTexture() const
 {
-	return mTexture.notNull() && mTexture->hasGLTexture();
+    return mTexture.notNull() && mTexture->hasGLTexture();
 }
 
 //--------------------------------------------------------------------
@@ -263,18 +263,18 @@ BOOL LLAvatarJointMesh::hasGLTexture() const
 //--------------------------------------------------------------------
 void LLAvatarJointMesh::setLayerSet( LLTexLayerSet* layer_set )
 {
-	mLayerSet = layer_set;
-	
-	// texture and dynamic_texture are mutually exclusive
-	if( layer_set )
-	{
-		mTexture = NULL;
-	}
+    mLayerSet = layer_set;
+    
+    // texture and dynamic_texture are mutually exclusive
+    if( layer_set )
+    {
+        mTexture = NULL;
+    }
 }
 
 BOOL LLAvatarJointMesh::hasComposite() const
 {
-	return (mLayerSet && mLayerSet->hasComposite());
+    return (mLayerSet && mLayerSet->hasComposite());
 }
 
 
@@ -283,7 +283,7 @@ BOOL LLAvatarJointMesh::hasComposite() const
 //--------------------------------------------------------------------
 LLPolyMesh *LLAvatarJointMesh::getMesh()
 {
-	return mMesh;
+    return mMesh;
 }
 
 //-----------------------------------------------------------------------------
@@ -291,46 +291,46 @@ LLPolyMesh *LLAvatarJointMesh::getMesh()
 //-----------------------------------------------------------------------------
 void LLAvatarJointMesh::setMesh( LLPolyMesh *mesh )
 {
-	// set the mesh pointer
-	mMesh = mesh;
+    // set the mesh pointer
+    mMesh = mesh;
 
-	// release any existing skin joints
-	freeSkinData();
+    // release any existing skin joints
+    freeSkinData();
 
-	if ( mMesh == NULL )
-	{
-		return;
-	}
+    if ( mMesh == NULL )
+    {
+        return;
+    }
 
-	// acquire the transform from the mesh object
+    // acquire the transform from the mesh object
     // SL-315
-	setPosition( mMesh->getPosition() );
-	setRotation( mMesh->getRotation() );
-	setScale( mMesh->getScale() );
+    setPosition( mMesh->getPosition() );
+    setRotation( mMesh->getRotation() );
+    setScale( mMesh->getScale() );
 
-	// create skin joints if necessary
-	if ( mMesh->hasWeights() && !mMesh->isLOD())
-	{
-		U32 numJointNames = mMesh->getNumJointNames();
-		
-		allocateSkinData( numJointNames );
-		std::string *jointNames = mMesh->getJointNames();
+    // create skin joints if necessary
+    if ( mMesh->hasWeights() && !mMesh->isLOD())
+    {
+        U32 numJointNames = mMesh->getNumJointNames();
+        
+        allocateSkinData( numJointNames );
+        std::string *jointNames = mMesh->getJointNames();
 
-		U32 jn;
-		for (jn = 0; jn < numJointNames; jn++)
-		{
-			//LL_INFOS() << "Setting up joint " << jointNames[jn] << LL_ENDL;
-			LLAvatarJoint* joint = (LLAvatarJoint*)(getRoot()->findJoint(jointNames[jn]) );
-			mSkinJoints[jn].setupSkinJoint( joint );
-		}
-	}
+        U32 jn;
+        for (jn = 0; jn < numJointNames; jn++)
+        {
+            //LL_INFOS() << "Setting up joint " << jointNames[jn] << LL_ENDL;
+            LLAvatarJoint* joint = (LLAvatarJoint*)(getRoot()->findJoint(jointNames[jn]) );
+            mSkinJoints[jn].setupSkinJoint( joint );
+        }
+    }
 
-	// setup joint array
-	if (!mMesh->isLOD())
-	{
-		setupJoint((LLAvatarJoint*)getRoot());
+    // setup joint array
+    if (!mMesh->isLOD())
+    {
+        setupJoint((LLAvatarJoint*)getRoot());
         LL_DEBUGS("Avatar") << getName() << " joint render entries: " << mMesh->mJointRenderData.size() << LL_ENDL;
-	}
+    }
 
 }
 
@@ -339,52 +339,52 @@ void LLAvatarJointMesh::setMesh( LLPolyMesh *mesh )
 //-----------------------------------------------------------------------------
 void LLAvatarJointMesh::setupJoint(LLAvatarJoint* current_joint)
 {
-	U32 sj;
+    U32 sj;
 
-	for (sj=0; sj<mNumSkinJoints; sj++)
-	{
-		LLSkinJoint &js = mSkinJoints[sj];
+    for (sj=0; sj<mNumSkinJoints; sj++)
+    {
+        LLSkinJoint &js = mSkinJoints[sj];
 
-		if (js.mJoint != current_joint)
-		{
-			continue;
-		}
+        if (js.mJoint != current_joint)
+        {
+            continue;
+        }
 
-		// we've found a skinjoint for this joint..
+        // we've found a skinjoint for this joint..
         LL_DEBUGS("Avatar") << "Mesh: " << getName() << " joint " << current_joint->getName() << " matches skinjoint " << sj << LL_ENDL;
 
-		// is the last joint in the array our parent?
+        // is the last joint in the array our parent?
 
-        std::vector<LLJointRenderData*>	&jrd = mMesh->mJointRenderData;
+        std::vector<LLJointRenderData*> &jrd = mMesh->mJointRenderData;
 
         // SL-287 - need to update this so the results are the same if
         // additional extended-skeleton joints lie between this joint
         // and the original parent.
         LLJoint *ancestor = getBaseSkeletonAncestor(current_joint);
-		if(jrd.size() && jrd.back()->mWorldMatrix == &ancestor->getWorldMatrix())
-		{
-			// ...then just add ourselves
-			LLAvatarJoint* jointp = js.mJoint;
-			jrd.push_back(new LLJointRenderData(&jointp->getWorldMatrix(), &js));
-			LL_DEBUGS("Avatar") << "add joint[" << (jrd.size()-1) << "] = " << js.mJoint->getName() << LL_ENDL;
-		}
-		// otherwise add our ancestor and ourselves
-		else
-		{
-			jrd.push_back(new LLJointRenderData(&ancestor->getWorldMatrix(), NULL));
-			LL_DEBUGS("Avatar") << "add2 ancestor joint[" << (jrd.size()-1) << "] = " << ancestor->getName() << LL_ENDL;
-			jrd.push_back(new LLJointRenderData(&current_joint->getWorldMatrix(), &js));
+        if(jrd.size() && jrd.back()->mWorldMatrix == &ancestor->getWorldMatrix())
+        {
+            // ...then just add ourselves
+            LLAvatarJoint* jointp = js.mJoint;
+            jrd.push_back(new LLJointRenderData(&jointp->getWorldMatrix(), &js));
+            LL_DEBUGS("Avatar") << "add joint[" << (jrd.size()-1) << "] = " << js.mJoint->getName() << LL_ENDL;
+        }
+        // otherwise add our ancestor and ourselves
+        else
+        {
+            jrd.push_back(new LLJointRenderData(&ancestor->getWorldMatrix(), NULL));
+            LL_DEBUGS("Avatar") << "add2 ancestor joint[" << (jrd.size()-1) << "] = " << ancestor->getName() << LL_ENDL;
+            jrd.push_back(new LLJointRenderData(&current_joint->getWorldMatrix(), &js));
             LL_DEBUGS("Avatar") << "add2 joint[" << (jrd.size()-1) << "] = " << current_joint->getName() << LL_ENDL;
-		}
-	}
+        }
+    }
 
-	// depth-first traversal
-	for (LLJoint::joints_t::iterator iter = current_joint->mChildren.begin();
-		 iter != current_joint->mChildren.end(); ++iter)
-	{
-		LLAvatarJoint* child_joint = (LLAvatarJoint*)(*iter);
-		setupJoint(child_joint);
-	}
+    // depth-first traversal
+    for (LLJoint::joints_t::iterator iter = current_joint->mChildren.begin();
+         iter != current_joint->mChildren.end(); ++iter)
+    {
+        LLAvatarJoint* child_joint = (LLAvatarJoint*)(*iter);
+        setupJoint(child_joint);
+    }
 }
 
 

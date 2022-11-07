@@ -42,18 +42,18 @@
  * fairly trivial operations to try to limit compiler optimizations,
  * so these numbers are only good for relative comparisons.
  *
- * usec/inter		algorithm
- * 0.21				boost::minstd_rand0
- * 0.039			boost:lagged_fibonacci19937
- * 0.036			boost:lagged_fibonacci607
- * 0.44				boost::hellekalek1995
- * 0.44				boost::ecuyer1988
- * 0.042			boost::rand48
- * 0.043			boost::mt11213b
- * 0.028			stdlib random() 
- * 0.05				stdlib lrand48()
- * 0.034			stdlib rand()
- * 0.020			the old & lame LLRand
+ * usec/inter       algorithm
+ * 0.21             boost::minstd_rand0
+ * 0.039            boost:lagged_fibonacci19937
+ * 0.036            boost:lagged_fibonacci607
+ * 0.44             boost::hellekalek1995
+ * 0.44             boost::ecuyer1988
+ * 0.042            boost::rand48
+ * 0.043            boost::mt11213b
+ * 0.028            stdlib random() 
+ * 0.05             stdlib lrand48()
+ * 0.034            stdlib rand()
+ * 0.020            the old & lame LLRand
  */
 
 /**

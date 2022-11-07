@@ -24,11 +24,11 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_OPCANCEL_H_
-#define	_LLCORE_HTTP_OPCANCEL_H_
+#ifndef _LLCORE_HTTP_OPCANCEL_H_
+#define _LLCORE_HTTP_OPCANCEL_H_
 
 
-#include "linden_common.h"		// Modifies curl/curl.h interfaces
+#include "linden_common.h"      // Modifies curl/curl.h interfaces
 
 #include "httpcommon.h"
 
@@ -52,22 +52,22 @@ namespace LLCore
 class HttpOpCancel : public HttpOperation
 {
 public:
-	/// @param	handle	Handle of previously-issued request to
-	///					be canceled.
-	HttpOpCancel(HttpHandle handle);
+    /// @param  handle  Handle of previously-issued request to
+    ///                 be canceled.
+    HttpOpCancel(HttpHandle handle);
 
-	virtual ~HttpOpCancel();							// Use release()
-	
+    virtual ~HttpOpCancel();                            // Use release()
+    
 public:
-	virtual void stageFromRequest(HttpService *);
-			
+    virtual void stageFromRequest(HttpService *);
+            
 public:
-	// Request data
-	HttpHandle			mHandle;
+    // Request data
+    HttpHandle          mHandle;
 };  // end class HttpOpCancel
 
 
 }   // end namespace LLCore
 
-#endif	// _LLCORE_HTTP_OPCANCEL_H_
+#endif  // _LLCORE_HTTP_OPCANCEL_H_
 

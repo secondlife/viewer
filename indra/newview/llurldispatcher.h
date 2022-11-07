@@ -31,29 +31,29 @@ class LLMediaCtrl;
 class LLURLDispatcher
 {
 public:
-	
-	static bool dispatch(const std::string& slurl,
-						 const std::string& nav_type,
-						 LLMediaCtrl* web,
-						 bool trusted_browser);	
-		// At startup time and on clicks in internal web browsers,
-		// teleport, open map, or run requested command.
-		// @param url
-		//   secondlife://RegionName/123/45/67/
-		//   secondlife:///app/agent/3d6181b0-6a4b-97ef-18d8-722652995cf1/show
-		//   sl://app/foo/bar
-		// @param nav_type
-		//   type of navigation type (see LLQtWebKit::LLWebPage::acceptNavigationRequest)
-		// @param web
-		//	 Pointer to LLMediaCtrl sending URL, can be NULL
-		// @param trusted_browser
-		//   True if coming inside the app AND from a brower instance
-		//   that navigates to trusted (Linden Lab) pages.
-		// Returns true if someone handled the URL.
+    
+    static bool dispatch(const std::string& slurl,
+                         const std::string& nav_type,
+                         LLMediaCtrl* web,
+                         bool trusted_browser); 
+        // At startup time and on clicks in internal web browsers,
+        // teleport, open map, or run requested command.
+        // @param url
+        //   secondlife://RegionName/123/45/67/
+        //   secondlife:///app/agent/3d6181b0-6a4b-97ef-18d8-722652995cf1/show
+        //   sl://app/foo/bar
+        // @param nav_type
+        //   type of navigation type (see LLQtWebKit::LLWebPage::acceptNavigationRequest)
+        // @param web
+        //   Pointer to LLMediaCtrl sending URL, can be NULL
+        // @param trusted_browser
+        //   True if coming inside the app AND from a brower instance
+        //   that navigates to trusted (Linden Lab) pages.
+        // Returns true if someone handled the URL.
 
-	static bool dispatchRightClick(const std::string& slurl);
+    static bool dispatchRightClick(const std::string& slurl);
 
-	static bool dispatchFromTextEditor(const std::string& slurl, bool trusted_content);
+    static bool dispatchFromTextEditor(const std::string& slurl, bool trusted_content);
 };
 
 #endif

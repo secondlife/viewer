@@ -31,7 +31,7 @@
 
 LLMemoryStreamBuf::LLMemoryStreamBuf(const U8* start, S32 length)
 {
-	reset(start, length);
+    reset(start, length);
 }
 
 LLMemoryStreamBuf::~LLMemoryStreamBuf()
@@ -40,17 +40,17 @@ LLMemoryStreamBuf::~LLMemoryStreamBuf()
 
 void LLMemoryStreamBuf::reset(const U8* start, S32 length)
 {
-	setg((char*)start, (char*)start, (char*)start + length);
+    setg((char*)start, (char*)start, (char*)start + length);
 }
 
 int LLMemoryStreamBuf::underflow()
 {
-	//LL_DEBUGS() << "LLMemoryStreamBuf::underflow()" << LL_ENDL;
-	if(gptr() < egptr())
-	{
-		return *gptr();
-	}
-	return EOF;
+    //LL_DEBUGS() << "LLMemoryStreamBuf::underflow()" << LL_ENDL;
+    if(gptr() < egptr())
+    {
+        return *gptr();
+    }
+    return EOF;
 }
 
 /** 
@@ -58,8 +58,8 @@ int LLMemoryStreamBuf::underflow()
  */
 
 LLMemoryStream::LLMemoryStream(const U8* start, S32 length) :
-	std::istream(&mStreamBuf),
-	mStreamBuf(start, length)
+    std::istream(&mStreamBuf),
+    mStreamBuf(start, length)
 {
 }
 

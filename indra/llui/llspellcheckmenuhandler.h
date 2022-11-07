@@ -30,17 +30,17 @@
 class LLSpellCheckMenuHandler
 {
 public:
-	virtual bool	getSpellCheck() const			{ return false; }
+    virtual bool    getSpellCheck() const           { return false; }
 
-	virtual const std::string& getSuggestion(U32 index) const	{ return LLStringUtil::null; }
-	virtual U32		getSuggestionCount() const		{ return 0; }
-	virtual void	replaceWithSuggestion(U32 index){}
+    virtual const std::string& getSuggestion(U32 index) const   { return LLStringUtil::null; }
+    virtual U32     getSuggestionCount() const      { return 0; }
+    virtual void    replaceWithSuggestion(U32 index){}
 
-	virtual void	addToDictionary()				{}
-	virtual bool	canAddToDictionary() const		{ return false; }
+    virtual void    addToDictionary()               {}
+    virtual bool    canAddToDictionary() const      { return false; }
 
-	virtual void	addToIgnore()					{}
-	virtual bool	canAddToIgnore() const			{ return false; }
+    virtual void    addToIgnore()                   {}
+    virtual bool    canAddToIgnore() const          { return false; }
 };
 
 #endif // LLSPELLCHECKMENUHANDLER_H

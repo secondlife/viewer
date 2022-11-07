@@ -36,8 +36,8 @@
 class LLAudioStreamManagerFMODSTUDIO;
 namespace FMOD
 {
-	class System;
-	class Channel;
+    class System;
+    class Channel;
 }
 
 //Interfaces

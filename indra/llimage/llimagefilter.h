@@ -37,24 +37,24 @@ class LLMatrix3;
 
 typedef enum e_stencil_blend_mode
 {
-	STENCIL_BLEND_MODE_BLEND = 0,
-	STENCIL_BLEND_MODE_ADD   = 1,
-	STENCIL_BLEND_MODE_ABACK = 2,
-	STENCIL_BLEND_MODE_FADE  = 3
+    STENCIL_BLEND_MODE_BLEND = 0,
+    STENCIL_BLEND_MODE_ADD   = 1,
+    STENCIL_BLEND_MODE_ABACK = 2,
+    STENCIL_BLEND_MODE_FADE  = 3
 } EStencilBlendMode;
 
 typedef enum e_stencil_shape
 {
-	STENCIL_SHAPE_UNIFORM    = 0,
-	STENCIL_SHAPE_GRADIENT   = 1,
-	STENCIL_SHAPE_VIGNETTE   = 2,
-	STENCIL_SHAPE_SCAN_LINES = 3
+    STENCIL_SHAPE_UNIFORM    = 0,
+    STENCIL_SHAPE_GRADIENT   = 1,
+    STENCIL_SHAPE_VIGNETTE   = 2,
+    STENCIL_SHAPE_SCAN_LINES = 3
 } EStencilShape;
 
 typedef enum e_screen_mode
 {
-	SCREEN_MODE_2DSINE   = 0,
-	SCREEN_MODE_LINE     = 1
+    SCREEN_MODE_2DSINE   = 0,
+    SCREEN_MODE_LINE     = 1
 } EScreenMode;
 
 //============================================================================

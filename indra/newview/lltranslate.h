@@ -50,53 +50,53 @@ class LLTranslationAPIHandler;
  */
 class LLTranslate
 {
-	LOG_CLASS(LLTranslate);
+    LOG_CLASS(LLTranslate);
 
 public :
 
-	typedef enum e_service {
-		SERVICE_BING,
-		SERVICE_GOOGLE,
-	} EService;
+    typedef enum e_service {
+        SERVICE_BING,
+        SERVICE_GOOGLE,
+    } EService;
 
     typedef boost::function<void(EService, bool)> KeyVerificationResult_fn;
     typedef boost::function<void(std::string , std::string )> TranslationSuccess_fn;
     typedef boost::function<void(int, std::string)> TranslationFailure_fn;
 
-	/**
-	 * Translate given text.
-	 *
-	 * @param receiver   Object to pass translation result to.
-	 * @param from_lang  Source language. Leave empty for auto-detection.
-	 * @param to_lang    Target language.
-	 * @param mesg       Text to translate.
-	 */
+    /**
+     * Translate given text.
+     *
+     * @param receiver   Object to pass translation result to.
+     * @param from_lang  Source language. Leave empty for auto-detection.
+     * @param to_lang    Target language.
+     * @param mesg       Text to translate.
+     */
     static void translateMessage(const std::string &from_lang, const std::string &to_lang, const std::string &mesg, TranslationSuccess_fn success, TranslationFailure_fn failure);
 
     /**
-	 * Verify given API key of a translation service.
-	 *
-	 * @param receiver  Object to pass verification result to.
-	 * @param key       Key to verify.
-	 */
+     * Verify given API key of a translation service.
+     *
+     * @param receiver  Object to pass verification result to.
+     * @param key       Key to verify.
+     */
     static void verifyKey(EService service, const std::string &key, KeyVerificationResult_fn fnc);
 
-	/**
-	 * @return translation target language
-	 */
-	static std::string getTranslateLanguage();
+    /**
+     * @return translation target language
+     */
+    static std::string getTranslateLanguage();
 
-	/**
-	 * @return true if translation is configured properly.
-	 */
-	static bool isTranslationConfigured();
+    /**
+     * @return true if translation is configured properly.
+     */
+    static bool isTranslationConfigured();
 
     static std::string addNoTranslateTags(std::string mesg);
     static std::string removeNoTranslateTags(std::string mesg);
 
 private:
-	static LLTranslationAPIHandler& getPreferredHandler();
-	static LLTranslationAPIHandler& getHandler(EService service);
+    static LLTranslationAPIHandler& getPreferredHandler();
+    static LLTranslationAPIHandler& getHandler(EService service);
 };
 
 #endif

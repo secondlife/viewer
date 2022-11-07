@@ -160,11 +160,11 @@ BOOL LLFloaterExperienceProfile::postBuild()
     childSetAction(BTN_FORGET, boost::bind(&LLFloaterExperienceProfile::onClickForget, this));
     childSetAction(BTN_BLOCK, boost::bind(&LLFloaterExperienceProfile::onClickPermission, this, "Block"));
     childSetAction(BTN_CANCEL, boost::bind(&LLFloaterExperienceProfile::onClickCancel, this));
-	childSetAction(BTN_SAVE, boost::bind(&LLFloaterExperienceProfile::onClickSave, this));
-	childSetAction(BTN_SET_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickLocation, this));
-	childSetAction(BTN_CLEAR_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickClear, this));
-	childSetAction(BTN_SET_GROUP, boost::bind(&LLFloaterExperienceProfile::onPickGroup, this));
-	childSetAction(BTN_REPORT, boost::bind(&LLFloaterExperienceProfile::onReportExperience, this));
+    childSetAction(BTN_SAVE, boost::bind(&LLFloaterExperienceProfile::onClickSave, this));
+    childSetAction(BTN_SET_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickLocation, this));
+    childSetAction(BTN_CLEAR_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickClear, this));
+    childSetAction(BTN_SET_GROUP, boost::bind(&LLFloaterExperienceProfile::onPickGroup, this));
+    childSetAction(BTN_REPORT, boost::bind(&LLFloaterExperienceProfile::onReportExperience, this));
 
     getChild<LLTextEditor>(EDIT TF_DESC)->setKeystrokeCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
     getChild<LLUICtrl>(EDIT TF_MATURITY)->setCommitCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
@@ -321,7 +321,7 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 
     LLTextBox* child = getChild<LLTextBox>(TF_NAME);
     //child->setText(experience[LLExperienceCache::NAME].asString());
-	child->setText(LLSLURL("experience", experience[LLExperienceCache::EXPERIENCE_ID], "profile").getSLURLString());
+    child->setText(LLSLURL("experience", experience[LLExperienceCache::EXPERIENCE_ID], "profile").getSLURLString());
     
     LLLineEditor* linechild = getChild<LLLineEditor>(EDIT TF_NAME);
     linechild->setText(experience[LLExperienceCache::NAME].asString());
@@ -361,15 +361,15 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 
 
     id = experience[LLExperienceCache::GROUP_ID].asUUID();
-	bool id_null = id.isNull();
+    bool id_null = id.isNull();
     child = getChild<LLTextBox>(TF_GROUP);
     value = LLSLURL("group", id, "inspect").getSLURLString();
     child->setText(value);
     getChild<LLLayoutPanel>(PNL_GROUP)->setVisible(!id_null);
 
-	setEditGroup(id);
+    setEditGroup(id);
 
-	getChild<LLButton>(BTN_SET_GROUP)->setEnabled(experience[LLExperienceCache::AGENT_ID].asUUID() == gAgent.getID());
+    getChild<LLButton>(BTN_SET_GROUP)->setEnabled(experience[LLExperienceCache::AGENT_ID].asUUID() == gAgent.getID());
     
     LLCheckBoxCtrl* enable = getChild<LLCheckBoxCtrl>(EDIT BTN_ENABLE);
     S32 properties = mExperienceDetails[LLExperienceCache::PROPERTIES].asInteger();
@@ -386,15 +386,15 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
     {
         child->setText(LLTrans::getString("Grid-Scope"));
     }
-	else 
-	{
+    else 
+    {
         child->setText(LLTrans::getString("Land-Scope"));
-	}
+    }
 
-	if(getChild<LLButton>(BTN_EDIT)->getVisible())
-	{
-		topPanel->setVisible(TRUE);
-	}
+    if(getChild<LLButton>(BTN_EDIT)->getVisible())
+    {
+        topPanel->setVisible(TRUE);
+    }
 
     if(properties & LLExperienceCache::PROPERTY_PRIVILEGED)
     {
@@ -508,10 +508,10 @@ void LLFloaterExperienceProfile::onFieldChanged()
 {
     updatePackage();
 
-	if(!getChild<LLButton>(BTN_EDIT)->getVisible())
-	{
-		return;
-	}
+    if(!getChild<LLButton>(BTN_EDIT)->getVisible())
+    {
+        return;
+    }
     LLSD::map_const_iterator st = mExperienceDetails.beginMap();
     LLSD::map_const_iterator dt = mPackage.beginMap();
 
@@ -596,34 +596,34 @@ void LLFloaterExperienceProfile::onSaveComplete( const LLSD& content )
 {
     LLUUID id = getExperienceId();
 
-	if(content.has("removed"))
-	{
-		const LLSD& removed = content["removed"];
-		LLSD::map_const_iterator it = removed.beginMap();
-		for(/**/; it != removed.endMap(); ++it)
-		{
-			const std::string& field = it->first;
-			if(field == LLExperienceCache::EXPERIENCE_ID)
-			{
-				//this message should be removed by the experience api
-				continue;
-			}
-			const LLSD& data = it->second;
-			std::string error_tag = data["error_tag"].asString()+ "ExperienceProfileMessage";
-			LLSD fields;
-			if( LLNotifications::instance().getTemplate(error_tag))
-			{
-				fields["field"] = field;
-				fields["extra_info"] = data["extra_info"];
-				LLNotificationsUtil::add(error_tag, fields);
-			}
-			else
-			{
-				fields["MESSAGE"]=data["en"];
-				LLNotificationsUtil::add("GenericAlert", fields);
-			}
-		}		
-	}
+    if(content.has("removed"))
+    {
+        const LLSD& removed = content["removed"];
+        LLSD::map_const_iterator it = removed.beginMap();
+        for(/**/; it != removed.endMap(); ++it)
+        {
+            const std::string& field = it->first;
+            if(field == LLExperienceCache::EXPERIENCE_ID)
+            {
+                //this message should be removed by the experience api
+                continue;
+            }
+            const LLSD& data = it->second;
+            std::string error_tag = data["error_tag"].asString()+ "ExperienceProfileMessage";
+            LLSD fields;
+            if( LLNotifications::instance().getTemplate(error_tag))
+            {
+                fields["field"] = field;
+                fields["extra_info"] = data["extra_info"];
+                LLNotificationsUtil::add(error_tag, fields);
+            }
+            else
+            {
+                fields["MESSAGE"]=data["en"];
+                LLNotificationsUtil::add("GenericAlert", fields);
+            }
+        }       
+    }
 
     if(!content.has("experience_keys"))
     {
@@ -690,7 +690,7 @@ void LLFloaterExperienceProfile::onClickLocation()
     if(region)
     {
         LLTextBox* child = getChild<LLTextBox>(EDIT TF_SLURL);
-		mLocationSLURL = LLSLURL(region->getName(), gAgent.getPositionGlobal()).getSLURLString();
+        mLocationSLURL = LLSLURL(region->getName(), gAgent.getPositionGlobal()).getSLURLString();
         child->setText(mLocationSLURL);
         onFieldChanged();
     }
@@ -699,7 +699,7 @@ void LLFloaterExperienceProfile::onClickLocation()
 void LLFloaterExperienceProfile::onClickClear()
 {
     LLTextBox* child = getChild<LLTextBox>(EDIT TF_SLURL);
-	mLocationSLURL = "";
+    mLocationSLURL = "";
     child->setText(getString("empty_slurl"));
     onFieldChanged();
 }
@@ -779,7 +779,7 @@ void LLFloaterExperienceProfile::updatePackage()
 {
     mPackage[LLExperienceCache::NAME] = getChild<LLLineEditor>(EDIT TF_NAME)->getText();
     mPackage[LLExperienceCache::DESCRIPTION] = getChild<LLTextEditor>(EDIT TF_DESC)->getText();
-	if(mLocationSLURL.empty())
+    if(mLocationSLURL.empty())
     {
         mPackage[LLExperienceCache::SLURL] = LLStringUtil::null;
     }
@@ -829,33 +829,33 @@ void LLFloaterExperienceProfile::updatePackage()
 
 void LLFloaterExperienceProfile::onPickGroup()
 {
-	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
+    LLFloater* parent_floater = gFloaterView->getParentFloater(this);
 
-	LLFloaterGroupPicker* widget = LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(gAgent.getID()));
-	if (widget)
-	{
-		widget->setSelectGroupCallback(boost::bind(&LLFloaterExperienceProfile::setEditGroup, this, _1));
-		if (parent_floater)
-		{
-			LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, widget);
-			widget->setOrigin(new_rect.mLeft, new_rect.mBottom);
-			parent_floater->addDependentFloater(widget);
-		}
-	}
+    LLFloaterGroupPicker* widget = LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(gAgent.getID()));
+    if (widget)
+    {
+        widget->setSelectGroupCallback(boost::bind(&LLFloaterExperienceProfile::setEditGroup, this, _1));
+        if (parent_floater)
+        {
+            LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, widget);
+            widget->setOrigin(new_rect.mLeft, new_rect.mBottom);
+            parent_floater->addDependentFloater(widget);
+        }
+    }
 }
 
 void LLFloaterExperienceProfile::setEditGroup( LLUUID group_id )
 {
-	LLTextBox* child = getChild<LLTextBox>(EDIT TF_GROUP);
-	std::string value = LLSLURL("group", group_id, "inspect").getSLURLString();
-	child->setText(value);
-	mPackage[LLExperienceCache::GROUP_ID] = group_id;
-	onFieldChanged();
+    LLTextBox* child = getChild<LLTextBox>(EDIT TF_GROUP);
+    std::string value = LLSLURL("group", group_id, "inspect").getSLURLString();
+    child->setText(value);
+    mPackage[LLExperienceCache::GROUP_ID] = group_id;
+    onFieldChanged();
 }
 
 void LLFloaterExperienceProfile::onReportExperience()
 {
-	LLFloaterReporter::showFromExperience(mExperienceId);
+    LLFloaterReporter::showFromExperience(mExperienceId);
 }
 
 /*static*/

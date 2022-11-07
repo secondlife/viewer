@@ -27,7 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "lluuid.h"
 #include "llmachineid.h"
-#if	LL_WINDOWS
+#if LL_WINDOWS
 #define _WIN32_DCOM
 #include <iostream>
 #include <comdef.h>
@@ -41,7 +41,7 @@ unsigned char static_legacy_id[] =  {0,0,0,0,0,0};
 bool static has_static_unique_id = false;
 bool static has_static_legacy_id = false;
 
-#if	LL_WINDOWS
+#if LL_WINDOWS
 
 class LLWMIMethods
 {
@@ -401,7 +401,7 @@ S32 LLMachineID::init()
     size_t len = sizeof(static_unique_id);
     memset(static_unique_id, 0, len);
     S32 ret_code = 0;
-#if	LL_WINDOWS
+#if LL_WINDOWS
 
     LLWMIMethods comInit;
 

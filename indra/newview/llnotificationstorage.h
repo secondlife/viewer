@@ -36,22 +36,22 @@ class LLSD;
 
 class LLNotificationStorage
 {
-	LOG_CLASS(LLNotificationStorage);
+    LOG_CLASS(LLNotificationStorage);
 public:
-	LLNotificationStorage(std::string pFileName);
-	~LLNotificationStorage();
+    LLNotificationStorage(std::string pFileName);
+    ~LLNotificationStorage();
 
 protected:
-	bool writeNotifications(const LLSD& pNotificationData) const;
-	bool readNotifications(LLSD& pNotificationData, bool is_new_filename = true) const;
-	void setFileName(std::string pFileName) {mFileName = pFileName;}
-	void setOldFileName(std::string pFileName) {mOldFileName = pFileName;}
+    bool writeNotifications(const LLSD& pNotificationData) const;
+    bool readNotifications(LLSD& pNotificationData, bool is_new_filename = true) const;
+    void setFileName(std::string pFileName) {mFileName = pFileName;}
+    void setOldFileName(std::string pFileName) {mOldFileName = pFileName;}
 
-	LLNotificationResponderInterface* createResponder(const std::string& pNotificationName, const LLSD& pParams) const;
+    LLNotificationResponderInterface* createResponder(const std::string& pNotificationName, const LLSD& pParams) const;
 
 private:
-	std::string mFileName;
-	std::string mOldFileName;
+    std::string mFileName;
+    std::string mOldFileName;
 };
 
 #endif // LL_NOTIFICATIONSTORAGE_H

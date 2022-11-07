@@ -83,7 +83,7 @@ public:
 
     /*virtual*/ BOOL postBuild();
     /*virtual*/ void onOpen(const LLSD& info);
-    /*virtual*/ void draw();	
+    /*virtual*/ void draw();    
     
     void onSelectPhoto(LLUUID selected_outfit_id);
     void onTakeSnapshot(LLUUID selected_outfit_id);
@@ -200,8 +200,8 @@ private:
     item_num_map_t                                      mItemIndexMap;
 
 
-    LLInventoryCategoriesObserver* 	mTexturesObserver;
-    LLInventoryCategoriesObserver* 	mOutfitsObserver;
+    LLInventoryCategoriesObserver*  mTexturesObserver;
+    LLInventoryCategoriesObserver*  mOutfitsObserver;
 };
 class LLOutfitGalleryContextMenu : public LLOutfitContextMenu
 {
@@ -223,7 +223,7 @@ protected:
     void onRemoveOutfit(const LLUUID& outfit_cat_id);
     void onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response, const LLUUID& outfit_cat_id);
 private:
-    LLOutfitListBase*	mOutfitList;
+    LLOutfitListBase*   mOutfitList;
 };
 
 
@@ -285,7 +285,7 @@ private:
     bool     mWorn;
     bool     mDefaultImage;
     bool     mImageUpdatePending;
-    bool	 mHidden;
+    bool     mHidden;
     std::string mOutfitName;
 };
 

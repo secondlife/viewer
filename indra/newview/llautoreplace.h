@@ -36,146 +36,146 @@ class LLAutoReplace;
 class LLAutoReplaceSettings
 {
   public:
-	LLAutoReplaceSettings();
-	~LLAutoReplaceSettings();
+    LLAutoReplaceSettings();
+    ~LLAutoReplaceSettings();
 
-	/// Constructor for creating a tempory copy of the current settings
-	LLAutoReplaceSettings(const LLAutoReplaceSettings& settings);
+    /// Constructor for creating a tempory copy of the current settings
+    LLAutoReplaceSettings(const LLAutoReplaceSettings& settings);
 
-	/// Replace the current settings with new ones and save them to the user settings file
-	void set(const LLAutoReplaceSettings& newSettings);
-	
-	/// Load the current settings read from an LLSD file
-	bool setFromLLSD(const LLSD& settingsFromLLSD);
-	///< @returns whether or not the settingsFromLLSD were valid
-	
-	// ================================================================
-	///@{ @name List Operations
-	// ================================================================
+    /// Replace the current settings with new ones and save them to the user settings file
+    void set(const LLAutoReplaceSettings& newSettings);
+    
+    /// Load the current settings read from an LLSD file
+    bool setFromLLSD(const LLSD& settingsFromLLSD);
+    ///< @returns whether or not the settingsFromLLSD were valid
+    
+    // ================================================================
+    ///@{ @name List Operations
+    // ================================================================
 
-	/// @returns the configured list names as an LLSD Array of strings
-	LLSD getListNames();
+    /// @returns the configured list names as an LLSD Array of strings
+    LLSD getListNames();
 
-	/// Status values returned from the addList method
-	typedef enum
-	{
-		AddListOk,
-		AddListDuplicateName,
-		AddListInvalidList,
-	} AddListResult;
-	
-	/// Inserts a new list at the end of the priority order
-	AddListResult addList(const LLSD& newList);
+    /// Status values returned from the addList method
+    typedef enum
+    {
+        AddListOk,
+        AddListDuplicateName,
+        AddListInvalidList,
+    } AddListResult;
+    
+    /// Inserts a new list at the end of the priority order
+    AddListResult addList(const LLSD& newList);
 
-	/// Inserts a list in place of an existing list of the same name
-	AddListResult replaceList(const LLSD& newList);
+    /// Inserts a list in place of an existing list of the same name
+    AddListResult replaceList(const LLSD& newList);
 
-	/// Removes the named list, @returns false if not found
-	bool removeReplacementList(std::string listName);
+    /// Removes the named list, @returns false if not found
+    bool removeReplacementList(std::string listName);
 
-	/// Move the named list up in the priority order 
-	bool increaseListPriority(std::string listName);
-	///< @returns false if the list is not found
+    /// Move the named list up in the priority order 
+    bool increaseListPriority(std::string listName);
+    ///< @returns false if the list is not found
 
-	/// Move the named list down in the priority order 
-	bool decreaseListPriority(std::string listName);
-	///< @returns false if the list is not found
+    /// Move the named list down in the priority order 
+    bool decreaseListPriority(std::string listName);
+    ///< @returns false if the list is not found
 
-	/// Get a copy of just one list (for saving to an export file)
-	const LLSD* exportList(std::string listName);
-	/// @returns an LLSD map 
+    /// Get a copy of just one list (for saving to an export file)
+    const LLSD* exportList(std::string listName);
+    /// @returns an LLSD map 
 
-	/// Checks for required elements, and that each has the correct type.
-	bool listIsValid(const LLSD& listSettings);
-	
-	/// Checks for required elements, and that each has the correct type.
-	bool listNameIs(const LLSD& listSettings);
-	
-	/// Checks to see if a new lists name conflicts with one in the settings
-	bool listNameIsUnique(const LLSD& newList);
-	/// @note must be called with LLSD that has passed listIsValid
-	
-	/// Initializes emptyList to an empty list named 'Empty'
-	static void createEmptyList(LLSD& emptyList);
+    /// Checks for required elements, and that each has the correct type.
+    bool listIsValid(const LLSD& listSettings);
+    
+    /// Checks for required elements, and that each has the correct type.
+    bool listNameIs(const LLSD& listSettings);
+    
+    /// Checks to see if a new lists name conflicts with one in the settings
+    bool listNameIsUnique(const LLSD& newList);
+    /// @note must be called with LLSD that has passed listIsValid
+    
+    /// Initializes emptyList to an empty list named 'Empty'
+    static void createEmptyList(LLSD& emptyList);
 
-	/// Resets the name of a list to a new value
-	static void setListName(LLSD& list, const std::string& newName);
+    /// Resets the name of a list to a new value
+    static void setListName(LLSD& list, const std::string& newName);
 
-	/// Gets the name of a list
-	static std::string getListName(LLSD& list);
+    /// Gets the name of a list
+    static std::string getListName(LLSD& list);
 
     ///@}
-	// ================================================================
-	///@{ @name Replacement Entry Operations
-	// ================================================================
-	
-	/// Get the replacements specified by a given list
-	const LLSD* getListEntries(std::string listName);
-	///< @returns an LLSD Map of keyword -> replacement test pairs
+    // ================================================================
+    ///@{ @name Replacement Entry Operations
+    // ================================================================
+    
+    /// Get the replacements specified by a given list
+    const LLSD* getListEntries(std::string listName);
+    ///< @returns an LLSD Map of keyword -> replacement test pairs
 
-	/// Get the replacement for the keyword from the specified list
-	std::string replacementFor(std::string keyword, std::string listName);
-	
-	/// Adds a keywword/replacement pair to the named list
-	bool addEntryToList(LLWString keyword, LLWString replacement, std::string listName);
+    /// Get the replacement for the keyword from the specified list
+    std::string replacementFor(std::string keyword, std::string listName);
+    
+    /// Adds a keywword/replacement pair to the named list
+    bool addEntryToList(LLWString keyword, LLWString replacement, std::string listName);
 
-	/// Removes the keywword and its replacement from the named list
-	bool removeEntryFromList(std::string keyword, std::string listName);
+    /// Removes the keywword and its replacement from the named list
+    bool removeEntryFromList(std::string keyword, std::string listName);
 
-	/** 
-	 * Look for currentWord in the lists in order, returning any substitution found
-	 * If no configured substitution is found, returns currentWord
-	 */
-	std::string replaceWord(const std::string currentWord /**< word to search for */ );
+    /** 
+     * Look for currentWord in the lists in order, returning any substitution found
+     * If no configured substitution is found, returns currentWord
+     */
+    std::string replaceWord(const std::string currentWord /**< word to search for */ );
 
-	/// Provides a hard-coded example of settings 
-	LLSD getExampleLLSD();
+    /// Provides a hard-coded example of settings 
+    LLSD getExampleLLSD();
 
-	/// Get the actual settings as LLSD
-	const LLSD& asLLSD();
-	///< @note for use only in AutoReplace::saveToUserSettings
-	
+    /// Get the actual settings as LLSD
+    const LLSD& asLLSD();
+    ///< @note for use only in AutoReplace::saveToUserSettings
+    
   private:
-	/// Efficiently and safely compare list names 
-	bool listNameMatches( const LLSD& list, const std::string name );
+    /// Efficiently and safely compare list names 
+    bool listNameMatches( const LLSD& list, const std::string name );
 
-	/// The actual llsd data structure
-	LLSD mLists;
+    /// The actual llsd data structure
+    LLSD mLists;
 
-	static const std::string AUTOREPLACE_LIST_NAME;    	 ///< key for looking up list names
-	static const std::string AUTOREPLACE_LIST_REPLACEMENTS; ///< key for looking up replacement map
-	
+    static const std::string AUTOREPLACE_LIST_NAME;      ///< key for looking up list names
+    static const std::string AUTOREPLACE_LIST_REPLACEMENTS; ///< key for looking up replacement map
+    
     /**<
-	 * LLSD structure of the lists
-	 * - The configuration is an array (mLists),
-	 * - Each entry in the array is a replacement list
-	 * - Each replacement list is a map with three keys:
-	 * @verbatim  
-	 *     "name"    	  String    the name of the list
-	 *     "replacements" Map       keyword -> replacement pairs
-	 * 
-	 * <llsd>
-	 *   <array> 
-	 *     <map>
-	 *       <key>name</key>    <string>List 1</string>
-	 *       <key>data</key>
-	 *         <map>
-	 *           <key>keyword1</key>  <string>replacement1</string>
-	 *           <key>keyword2</key>  <string>replacement2</string>
-	 *    	   </map>
-	 *     </map> 
-	 *     <map>
-	 *       <key>name</key>    <string>List 2</string>
-	 *       <key>data</key>
-	 *         <map>
-	 *           <key>keyword1</key>  <string>replacement1</string>
-	 *           <key>keyword2</key>  <string>replacement2</string>
-	 *    	   </map>
-	 *     </map>
-	 *   </array> 
-	 * </llsd>
-	 * @endverbatim
-	 */
+     * LLSD structure of the lists
+     * - The configuration is an array (mLists),
+     * - Each entry in the array is a replacement list
+     * - Each replacement list is a map with three keys:
+     * @verbatim  
+     *     "name"         String    the name of the list
+     *     "replacements" Map       keyword -> replacement pairs
+     * 
+     * <llsd>
+     *   <array> 
+     *     <map>
+     *       <key>name</key>    <string>List 1</string>
+     *       <key>data</key>
+     *         <map>
+     *           <key>keyword1</key>  <string>replacement1</string>
+     *           <key>keyword2</key>  <string>replacement2</string>
+     *         </map>
+     *     </map> 
+     *     <map>
+     *       <key>name</key>    <string>List 2</string>
+     *       <key>data</key>
+     *         <map>
+     *           <key>keyword1</key>  <string>replacement1</string>
+     *           <key>keyword2</key>  <string>replacement2</string>
+     *         </map>
+     *     </map>
+     *   </array> 
+     * </llsd>
+     * @endverbatim
+     */
 };
 
 /** Provides a facility to auto-replace text dynamically as it is entered.
@@ -206,7 +206,7 @@ private:
     /*virtual*/ void initSingleton();
 
     LLAutoReplaceSettings mSettings; ///< configuration information
-	
+    
     /// Read settings from persistent storage
     void loadFromSettings();
 

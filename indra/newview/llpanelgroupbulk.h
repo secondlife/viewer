@@ -38,36 +38,36 @@ class LLPanelGroupBulkImpl;
 class LLPanelGroupBulk : public LLPanel
 {
 public:
-	LLPanelGroupBulk(const LLUUID& group_id);
-	/*virtual*/ ~LLPanelGroupBulk();
+    LLPanelGroupBulk(const LLUUID& group_id);
+    /*virtual*/ ~LLPanelGroupBulk();
 
-public:	
-	static void callbackClickSubmit(void* userdata) {}
-	virtual void submit() = 0;
+public: 
+    static void callbackClickSubmit(void* userdata) {}
+    virtual void submit() = 0;
 
 public:
-	virtual void clear();
-	virtual void update();
-	virtual void draw();
+    virtual void clear();
+    virtual void update();
+    virtual void draw();
 
 protected:
-	virtual void updateGroupName();
-	virtual void updateGroupData();
+    virtual void updateGroupName();
+    virtual void updateGroupData();
 
 public:
-	// this callback is being used to add a user whose fullname isn't been loaded before invoking of addUsers().
-	virtual void addUserCallback(const LLUUID& id, const LLAvatarName& av_name);
-	virtual void setCloseCallback(void (*close_callback)(void*), void* data);
+    // this callback is being used to add a user whose fullname isn't been loaded before invoking of addUsers().
+    virtual void addUserCallback(const LLUUID& id, const LLAvatarName& av_name);
+    virtual void setCloseCallback(void (*close_callback)(void*), void* data);
 
-	virtual void addUsers(uuid_vec_t& agent_ids);
+    virtual void addUsers(uuid_vec_t& agent_ids);
 
 public:
-	LLPanelGroupBulkImpl* mImplementation;
+    LLPanelGroupBulkImpl* mImplementation;
 
 protected:
-	bool mPendingGroupPropertiesUpdate;
-	bool mPendingRoleDataUpdate;
-	bool mPendingMemberDataUpdate;
+    bool mPendingGroupPropertiesUpdate;
+    bool mPendingRoleDataUpdate;
+    bool mPendingMemberDataUpdate;
 };
 
 #endif // LL_LLPANELGROUPBULK_H

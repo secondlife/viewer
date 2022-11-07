@@ -37,11 +37,11 @@ LLDragAndDropButton::LLDragAndDropButton(const Params& params)
 
 BOOL LLDragAndDropButton::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept, std::string& tooltip_msg)
 {
-	if (mDragDropHandler)
-	{
-		return mDragDropHandler(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
-	}
-	return false;
+    if (mDragDropHandler)
+    {
+        return mDragDropHandler(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+    }
+    return false;
 }
 
 // EOF

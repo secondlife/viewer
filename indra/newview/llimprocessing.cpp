@@ -488,7 +488,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             LLPostponedNotification::add<LLPostponedIMSystemTipNotification>(params, from_id, false);
             break;
 
-        case IM_NOTHING_SPECIAL:	// p2p IM
+        case IM_NOTHING_SPECIAL:    // p2p IM
             // Don't show dialog, just do IM
             if (!gAgent.isGodlike()
                 && gAgent.getRegion()->isPrelude()
@@ -840,8 +840,8 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             {
                 struct offer_agent_bucket_t
                 {
-                    S8		asset_type;
-                    LLUUID	object_id;
+                    S8      asset_type;
+                    LLUUID  object_id;
                 }*bucketp;
 
                 if (sizeof(offer_agent_bucket_t) != binary_bucket_size)
@@ -1064,7 +1064,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
         }
         break;
 
-        case IM_SESSION_SEND:		// ad-hoc or group IMs
+        case IM_SESSION_SEND:       // ad-hoc or group IMs
 
             // Only show messages if we have a session open (which
             // should happen after you get an "invitation"

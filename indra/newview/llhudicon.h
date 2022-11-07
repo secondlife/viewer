@@ -47,47 +47,47 @@ class LLHUDIcon : public LLHUDObject
 friend class LLHUDObject;
 
 public:
-	/*virtual*/ void render();
-	/*virtual*/ void markDead();
-	/*virtual*/ F32 getDistance() const { return mDistance; }
+    /*virtual*/ void render();
+    /*virtual*/ void markDead();
+    /*virtual*/ F32 getDistance() const { return mDistance; }
 
-	void setImage(LLViewerTexture* imagep);
-	void setScale(F32 fraction_of_fov);
+    void setImage(LLViewerTexture* imagep);
+    void setScale(F32 fraction_of_fov);
 
-	void restartLifeTimer() { mLifeTimer.reset(); }
+    void restartLifeTimer() { mLifeTimer.reset(); }
 
-	static S32 generatePickIDs(S32 start_id, S32 step_size);
-	static LLHUDIcon* handlePick(S32 pick_id);
-	static LLHUDIcon* lineSegmentIntersectAll(const LLVector4a& start, const LLVector4a& end, LLVector4a* intersection);
+    static S32 generatePickIDs(S32 start_id, S32 step_size);
+    static LLHUDIcon* handlePick(S32 pick_id);
+    static LLHUDIcon* lineSegmentIntersectAll(const LLVector4a& start, const LLVector4a& end, LLVector4a* intersection);
 
-	static void updateAll();
-	static void cleanupDeadIcons();
-	static S32 getNumInstances();
+    static void updateAll();
+    static void cleanupDeadIcons();
+    static S32 getNumInstances();
 
-	static BOOL iconsNearby();
+    static BOOL iconsNearby();
 
-	BOOL getHidden() const { return mHidden; }
-	void setHidden( BOOL hide ) { mHidden = hide; }
+    BOOL getHidden() const { return mHidden; }
+    void setHidden( BOOL hide ) { mHidden = hide; }
 
-	BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, LLVector4a* intersection);
+    BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, LLVector4a* intersection);
 
 protected:
-	LLHUDIcon(const U8 type);
-	~LLHUDIcon();
+    LLHUDIcon(const U8 type);
+    ~LLHUDIcon();
 
-	void renderIcon(BOOL for_select); // common render code
+    void renderIcon(BOOL for_select); // common render code
 
 private:
-	LLPointer<LLViewerTexture> mImagep;
-	LLFrameTimer	mAnimTimer;
-	LLFrameTimer	mLifeTimer;
-	F32				mDistance;
-	S32				mPickID;
-	F32				mScale;
-	BOOL			mHidden;
+    LLPointer<LLViewerTexture> mImagep;
+    LLFrameTimer    mAnimTimer;
+    LLFrameTimer    mLifeTimer;
+    F32             mDistance;
+    S32             mPickID;
+    F32             mScale;
+    BOOL            mHidden;
 
-	typedef std::vector<LLPointer<LLHUDIcon> > icon_instance_t;
-	static icon_instance_t sIconInstances;
+    typedef std::vector<LLPointer<LLHUDIcon> > icon_instance_t;
+    static icon_instance_t sIconInstances;
 };
 
 #endif // LL_LLHUDICON_H

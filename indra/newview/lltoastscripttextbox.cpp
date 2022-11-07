@@ -38,34 +38,34 @@
 const S32 LLToastScriptTextbox::DEFAULT_MESSAGE_MAX_LINE_COUNT= 14;
 
 LLToastScriptTextbox::LLToastScriptTextbox(const LLNotificationPtr& notification)
-:	LLToastPanel(notification)
+:   LLToastPanel(notification)
 {
-	buildFromFile( "panel_notify_textbox.xml");
+    buildFromFile( "panel_notify_textbox.xml");
 
-	mInfoText = getChild<LLTextEditor>("text_editor_box");
-	mInfoText->setMaxTextLength(LLToastPanel::MAX_TEXT_LENGTH);
-	mInfoText->setValue(notification->getMessage());
+    mInfoText = getChild<LLTextEditor>("text_editor_box");
+    mInfoText->setMaxTextLength(LLToastPanel::MAX_TEXT_LENGTH);
+    mInfoText->setValue(notification->getMessage());
 
-	getChild<LLButton>("ignore_btn")->setClickedCallback(boost::bind(&LLToastScriptTextbox::onClickIgnore, this));
+    getChild<LLButton>("ignore_btn")->setClickedCallback(boost::bind(&LLToastScriptTextbox::onClickIgnore, this));
 
-	const LLSD& payload = notification->getPayload();
+    const LLSD& payload = notification->getPayload();
 
-	//message body
-	const std::string& message = payload["message"].asString();
+    //message body
+    const std::string& message = payload["message"].asString();
 
-	LLViewerTextEditor* pMessageText = getChild<LLViewerTextEditor>("message");
-	pMessageText->clear();
+    LLViewerTextEditor* pMessageText = getChild<LLViewerTextEditor>("message");
+    pMessageText->clear();
 
-	LLStyle::Params style;
-	style.font = pMessageText->getFont();
-	pMessageText->appendText(message, TRUE, style);
+    LLStyle::Params style;
+    style.font = pMessageText->getFont();
+    pMessageText->appendText(message, TRUE, style);
 
-	//submit button
-	LLButton* pSubmitBtn = getChild<LLButton>("btn_submit");
-	pSubmitBtn->setClickedCallback((boost::bind(&LLToastScriptTextbox::onClickSubmit, this)));
-	setDefaultBtn(pSubmitBtn);
+    //submit button
+    LLButton* pSubmitBtn = getChild<LLButton>("btn_submit");
+    pSubmitBtn->setClickedCallback((boost::bind(&LLToastScriptTextbox::onClickSubmit, this)));
+    setDefaultBtn(pSubmitBtn);
 
-	snapToMessageHeight();
+    snapToMessageHeight();
 }
 
 // virtual
@@ -75,58 +75,58 @@ LLToastScriptTextbox::~LLToastScriptTextbox()
 
 void LLToastScriptTextbox::close()
 {
-	die();
+    die();
 }
 
 void LLToastScriptTextbox::onClickSubmit()
 {
-	LLViewerTextEditor* pMessageText = getChild<LLViewerTextEditor>("message");
+    LLViewerTextEditor* pMessageText = getChild<LLViewerTextEditor>("message");
 
-	if (pMessageText)
-	{
-		LLSD response = mNotification->getResponseTemplate();
-		response[TEXTBOX_MAGIC_TOKEN] = pMessageText->getText();
-		if (response[TEXTBOX_MAGIC_TOKEN].asString().empty())
-		{
-			// so we can distinguish between a successfully
-			// submitted blank textbox, and an ignored toast
-			response[TEXTBOX_MAGIC_TOKEN] = true;
-		}
-		mNotification->respond(response);
-		close();
-		LL_WARNS() << response << LL_ENDL;
-	}
+    if (pMessageText)
+    {
+        LLSD response = mNotification->getResponseTemplate();
+        response[TEXTBOX_MAGIC_TOKEN] = pMessageText->getText();
+        if (response[TEXTBOX_MAGIC_TOKEN].asString().empty())
+        {
+            // so we can distinguish between a successfully
+            // submitted blank textbox, and an ignored toast
+            response[TEXTBOX_MAGIC_TOKEN] = true;
+        }
+        mNotification->respond(response);
+        close();
+        LL_WARNS() << response << LL_ENDL;
+    }
 }
 
 void LLToastScriptTextbox::onClickIgnore()
 {
-	LLSD response = mNotification->getResponseTemplate();
-	mNotification->respond(response);
-	close();
+    LLSD response = mNotification->getResponseTemplate();
+    mNotification->respond(response);
+    close();
 }
 
 void LLToastScriptTextbox::snapToMessageHeight()
 {
-	LLPanel* info_pan = getChild<LLPanel>("info_panel");
-	if (!info_pan)
-	{
-		return;
-	}
+    LLPanel* info_pan = getChild<LLPanel>("info_panel");
+    if (!info_pan)
+    {
+        return;
+    }
 
-	S32 maxLinesCount;
-	std::istringstream ss( getString("message_max_lines_count") );
-	if (!(ss >> maxLinesCount))
-	{
-		maxLinesCount = DEFAULT_MESSAGE_MAX_LINE_COUNT;
-	}
+    S32 maxLinesCount;
+    std::istringstream ss( getString("message_max_lines_count") );
+    if (!(ss >> maxLinesCount))
+    {
+        maxLinesCount = DEFAULT_MESSAGE_MAX_LINE_COUNT;
+    }
 
 
-	S32 maxTextHeight = (mInfoText->getFont()->getLineHeight() * maxLinesCount);
-	S32 oldTextHeight = mInfoText->getRect().getHeight();
-	S32 newTextHeight = llmin(mInfoText->getTextBoundingRect().getHeight(), maxTextHeight);
+    S32 maxTextHeight = (mInfoText->getFont()->getLineHeight() * maxLinesCount);
+    S32 oldTextHeight = mInfoText->getRect().getHeight();
+    S32 newTextHeight = llmin(mInfoText->getTextBoundingRect().getHeight(), maxTextHeight);
 
-	S32 heightDelta = newTextHeight - oldTextHeight;
+    S32 heightDelta = newTextHeight - oldTextHeight;
 
-	reshape( getRect().getWidth(), llmax(getRect().getHeight() + heightDelta, MIN_PANEL_HEIGHT));
-	info_pan->reshape(info_pan->getRect().getWidth(),newTextHeight);
+    reshape( getRect().getWidth(), llmax(getRect().getHeight() + heightDelta, MIN_PANEL_HEIGHT));
+    info_pan->reshape(info_pan->getRect().getWidth(),newTextHeight);
 }

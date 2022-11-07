@@ -29,8 +29,8 @@
 
 namespace LLFloaterDisplayNameUtil
 {
-	// Register with LLFloaterReg
-	void registerFloater();
+    // Register with LLFloaterReg
+    void registerFloater();
 }
 
 

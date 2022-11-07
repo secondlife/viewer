@@ -30,38 +30,38 @@
 
 template <class Object> class LLStrider
 {
-	union
-	{
-		Object* mObjectp;
-		U8*		mBytep;
-	};
-	U32     mSkip;
+    union
+    {
+        Object* mObjectp;
+        U8*     mBytep;
+    };
+    U32     mSkip;
 public:
 
-	LLStrider()  { mObjectp = NULL; mSkip = sizeof(Object); } 
-	~LLStrider() { } 
+    LLStrider()  { mObjectp = NULL; mSkip = sizeof(Object); } 
+    ~LLStrider() { } 
 
-	const LLStrider<Object>& operator =  (Object *first)    { mObjectp = first; return *this;}
-	void setStride (S32 skipBytes)	{ mSkip = (skipBytes ? skipBytes : sizeof(Object));}
+    const LLStrider<Object>& operator =  (Object *first)    { mObjectp = first; return *this;}
+    void setStride (S32 skipBytes)  { mSkip = (skipBytes ? skipBytes : sizeof(Object));}
 
-	LLStrider<Object> operator+(const S32& index) 
-	{
-		LLStrider<Object> ret;
-		ret.mBytep = mBytep + mSkip*index;
-		ret.mSkip = mSkip;
+    LLStrider<Object> operator+(const S32& index) 
+    {
+        LLStrider<Object> ret;
+        ret.mBytep = mBytep + mSkip*index;
+        ret.mSkip = mSkip;
 
-		return ret;
-	}
+        return ret;
+    }
 
-	void skip(const U32 index)     { mBytep += mSkip*index;}
-	U32 getSkip() const			   { return mSkip; }
-	Object* get()                  { return mObjectp; }
-	Object* operator->()           { return mObjectp; }
-	Object& operator *()           { return *mObjectp; }
-	Object* operator ++(int)       { Object* old = mObjectp; mBytep += mSkip; return old; }
-	Object* operator +=(int i)     { mBytep += mSkip*i; return mObjectp; }
+    void skip(const U32 index)     { mBytep += mSkip*index;}
+    U32 getSkip() const            { return mSkip; }
+    Object* get()                  { return mObjectp; }
+    Object* operator->()           { return mObjectp; }
+    Object& operator *()           { return *mObjectp; }
+    Object* operator ++(int)       { Object* old = mObjectp; mBytep += mSkip; return old; }
+    Object* operator +=(int i)     { mBytep += mSkip*i; return mObjectp; }
 
-	Object& operator[](U32 index)  { return *(Object*)(mBytep + (mSkip * index)); }
+    Object& operator[](U32 index)  { return *(Object*)(mBytep + (mSkip * index)); }
 };
 
 #endif // LL_LLSTRIDER_H

@@ -83,9 +83,9 @@
 
 #if LL_LINUX_NV_GL_HEADERS
 // Missing functions when using nvidia headers:
-extern PFNGLACTIVETEXTUREARBPROC	glActiveTextureARB;
-extern PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB;
-extern PFNGLDRAWRANGEELEMENTSPROC 	glDrawRangeElements;
+extern PFNGLACTIVETEXTUREARBPROC    glActiveTextureARB;
+extern PFNGLCLIENTACTIVETEXTUREARBPROC  glClientActiveTextureARB;
+extern PFNGLDRAWRANGEELEMENTSPROC   glDrawRangeElements;
 #endif // LL_LINUX_NV_GL_HEADERS
 
 // GL_ARB_vertex_array_object
@@ -95,49 +95,49 @@ extern PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
 extern PFNGLISVERTEXARRAYPROC glIsVertexArray;
 
 // GL_ARB_vertex_buffer_object
-extern PFNGLBINDBUFFERARBPROC		glBindBufferARB;
-extern PFNGLDELETEBUFFERSARBPROC	glDeleteBuffersARB;
-extern PFNGLGENBUFFERSARBPROC		glGenBuffersARB;
-extern PFNGLISBUFFERARBPROC			glIsBufferARB;
-extern PFNGLBUFFERDATAARBPROC		glBufferDataARB;
-extern PFNGLBUFFERSUBDATAARBPROC	glBufferSubDataARB;
+extern PFNGLBINDBUFFERARBPROC       glBindBufferARB;
+extern PFNGLDELETEBUFFERSARBPROC    glDeleteBuffersARB;
+extern PFNGLGENBUFFERSARBPROC       glGenBuffersARB;
+extern PFNGLISBUFFERARBPROC         glIsBufferARB;
+extern PFNGLBUFFERDATAARBPROC       glBufferDataARB;
+extern PFNGLBUFFERSUBDATAARBPROC    glBufferSubDataARB;
 extern PFNGLGETBUFFERSUBDATAARBPROC glGetBufferSubDataARB;
-extern PFNGLMAPBUFFERARBPROC		glMapBufferARB;
-extern PFNGLUNMAPBUFFERARBPROC		glUnmapBufferARB;
-extern PFNGLGETBUFFERPARAMETERIVARBPROC	glGetBufferParameterivARB;
-extern PFNGLGETBUFFERPOINTERVARBPROC	glGetBufferPointervARB;
+extern PFNGLMAPBUFFERARBPROC        glMapBufferARB;
+extern PFNGLUNMAPBUFFERARBPROC      glUnmapBufferARB;
+extern PFNGLGETBUFFERPARAMETERIVARBPROC glGetBufferParameterivARB;
+extern PFNGLGETBUFFERPOINTERVARBPROC    glGetBufferPointervARB;
 
 // GL_ARB_sync
-extern PFNGLFENCESYNCPROC				glFenceSync;
-extern PFNGLISSYNCPROC					glIsSync;
-extern PFNGLDELETESYNCPROC				glDeleteSync;
-extern PFNGLCLIENTWAITSYNCPROC			glClientWaitSync;
-extern PFNGLWAITSYNCPROC				glWaitSync;
-extern PFNGLGETINTEGER64VPROC			glGetInteger64v;
-extern PFNGLGETSYNCIVPROC				glGetSynciv;
+extern PFNGLFENCESYNCPROC               glFenceSync;
+extern PFNGLISSYNCPROC                  glIsSync;
+extern PFNGLDELETESYNCPROC              glDeleteSync;
+extern PFNGLCLIENTWAITSYNCPROC          glClientWaitSync;
+extern PFNGLWAITSYNCPROC                glWaitSync;
+extern PFNGLGETINTEGER64VPROC           glGetInteger64v;
+extern PFNGLGETSYNCIVPROC               glGetSynciv;
 
 // GL_APPLE_flush_buffer_range
-extern PFNGLBUFFERPARAMETERIAPPLEPROC	glBufferParameteriAPPLE;
+extern PFNGLBUFFERPARAMETERIAPPLEPROC   glBufferParameteriAPPLE;
 extern PFNGLFLUSHMAPPEDBUFFERRANGEAPPLEPROC glFlushMappedBufferRangeAPPLE;
 
 // GL_ARB_map_buffer_range
-extern PFNGLMAPBUFFERRANGEPROC			glMapBufferRange;
-extern PFNGLFLUSHMAPPEDBUFFERRANGEPROC	glFlushMappedBufferRange;
+extern PFNGLMAPBUFFERRANGEPROC          glMapBufferRange;
+extern PFNGLFLUSHMAPPEDBUFFERRANGEPROC  glFlushMappedBufferRange;
 
 // GL_ATI_vertex_array_object
-extern PFNGLNEWOBJECTBUFFERATIPROC			glNewObjectBufferATI;
-extern PFNGLISOBJECTBUFFERATIPROC			glIsObjectBufferATI;
-extern PFNGLUPDATEOBJECTBUFFERATIPROC		glUpdateObjectBufferATI;
-extern PFNGLGETOBJECTBUFFERFVATIPROC		glGetObjectBufferfvATI;
-extern PFNGLGETOBJECTBUFFERIVATIPROC		glGetObjectBufferivATI;
-extern PFNGLFREEOBJECTBUFFERATIPROC		    glFreeObjectBufferATI;
-extern PFNGLARRAYOBJECTATIPROC				glArrayObjectATI;
-extern PFNGLVERTEXATTRIBARRAYOBJECTATIPROC	glVertexAttribArrayObjectATI;
-extern PFNGLGETARRAYOBJECTFVATIPROC			glGetArrayObjectfvATI;
-extern PFNGLGETARRAYOBJECTIVATIPROC			glGetArrayObjectivATI;
-extern PFNGLVARIANTARRAYOBJECTATIPROC		glVariantObjectArrayATI;
-extern PFNGLGETVARIANTARRAYOBJECTFVATIPROC	glGetVariantArrayObjectfvATI;
-extern PFNGLGETVARIANTARRAYOBJECTIVATIPROC	glGetVariantArrayObjectivATI;
+extern PFNGLNEWOBJECTBUFFERATIPROC          glNewObjectBufferATI;
+extern PFNGLISOBJECTBUFFERATIPROC           glIsObjectBufferATI;
+extern PFNGLUPDATEOBJECTBUFFERATIPROC       glUpdateObjectBufferATI;
+extern PFNGLGETOBJECTBUFFERFVATIPROC        glGetObjectBufferfvATI;
+extern PFNGLGETOBJECTBUFFERIVATIPROC        glGetObjectBufferivATI;
+extern PFNGLFREEOBJECTBUFFERATIPROC         glFreeObjectBufferATI;
+extern PFNGLARRAYOBJECTATIPROC              glArrayObjectATI;
+extern PFNGLVERTEXATTRIBARRAYOBJECTATIPROC  glVertexAttribArrayObjectATI;
+extern PFNGLGETARRAYOBJECTFVATIPROC         glGetArrayObjectfvATI;
+extern PFNGLGETARRAYOBJECTIVATIPROC         glGetArrayObjectivATI;
+extern PFNGLVARIANTARRAYOBJECTATIPROC       glVariantObjectArrayATI;
+extern PFNGLGETVARIANTARRAYOBJECTFVATIPROC  glGetVariantArrayObjectfvATI;
+extern PFNGLGETVARIANTARRAYOBJECTIVATIPROC  glGetVariantArrayObjectivATI;
 
 // GL_ARB_occlusion_query
 extern PFNGLGENQUERIESARBPROC glGenQueriesARB;
@@ -333,17 +333,17 @@ extern PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
 extern PFNGLGETSTRINGIPROC glGetStringi;
 
 // GL_ARB_vertex_buffer_object
-extern PFNGLBINDBUFFERARBPROC		glBindBufferARB;
-extern PFNGLDELETEBUFFERSARBPROC	glDeleteBuffersARB;
-extern PFNGLGENBUFFERSARBPROC		glGenBuffersARB;
-extern PFNGLISBUFFERARBPROC			glIsBufferARB;
-extern PFNGLBUFFERDATAARBPROC		glBufferDataARB;
-extern PFNGLBUFFERSUBDATAARBPROC	glBufferSubDataARB;
+extern PFNGLBINDBUFFERARBPROC       glBindBufferARB;
+extern PFNGLDELETEBUFFERSARBPROC    glDeleteBuffersARB;
+extern PFNGLGENBUFFERSARBPROC       glGenBuffersARB;
+extern PFNGLISBUFFERARBPROC         glIsBufferARB;
+extern PFNGLBUFFERDATAARBPROC       glBufferDataARB;
+extern PFNGLBUFFERSUBDATAARBPROC    glBufferSubDataARB;
 extern PFNGLGETBUFFERSUBDATAARBPROC glGetBufferSubDataARB;
-extern PFNGLMAPBUFFERARBPROC		glMapBufferARB;
-extern PFNGLUNMAPBUFFERARBPROC		glUnmapBufferARB;
-extern PFNGLGETBUFFERPARAMETERIVARBPROC	glGetBufferParameterivARB;
-extern PFNGLGETBUFFERPOINTERVARBPROC	glGetBufferPointervARB;
+extern PFNGLMAPBUFFERARBPROC        glMapBufferARB;
+extern PFNGLUNMAPBUFFERARBPROC      glUnmapBufferARB;
+extern PFNGLGETBUFFERPARAMETERIVARBPROC glGetBufferParameterivARB;
+extern PFNGLGETBUFFERPOINTERVARBPROC    glGetBufferPointervARB;
 
 // GL_ARB_vertex_array_object
 extern PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
@@ -352,40 +352,40 @@ extern PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
 extern PFNGLISVERTEXARRAYPROC glIsVertexArray;
 
 // GL_ARB_sync
-extern PFNGLFENCESYNCPROC				glFenceSync;
-extern PFNGLISSYNCPROC					glIsSync;
-extern PFNGLDELETESYNCPROC				glDeleteSync;
-extern PFNGLCLIENTWAITSYNCPROC			glClientWaitSync;
-extern PFNGLWAITSYNCPROC				glWaitSync;
-extern PFNGLGETINTEGER64VPROC			glGetInteger64v;
-extern PFNGLGETSYNCIVPROC				glGetSynciv;
+extern PFNGLFENCESYNCPROC               glFenceSync;
+extern PFNGLISSYNCPROC                  glIsSync;
+extern PFNGLDELETESYNCPROC              glDeleteSync;
+extern PFNGLCLIENTWAITSYNCPROC          glClientWaitSync;
+extern PFNGLWAITSYNCPROC                glWaitSync;
+extern PFNGLGETINTEGER64VPROC           glGetInteger64v;
+extern PFNGLGETSYNCIVPROC               glGetSynciv;
 
 // GL_APPLE_flush_buffer_range
-extern PFNGLBUFFERPARAMETERIAPPLEPROC	glBufferParameteriAPPLE;
+extern PFNGLBUFFERPARAMETERIAPPLEPROC   glBufferParameteriAPPLE;
 extern PFNGLFLUSHMAPPEDBUFFERRANGEAPPLEPROC glFlushMappedBufferRangeAPPLE;
 
 // GL_ARB_map_buffer_range
-extern PFNGLMAPBUFFERRANGEPROC			glMapBufferRange;
-extern PFNGLFLUSHMAPPEDBUFFERRANGEPROC	glFlushMappedBufferRange;
+extern PFNGLMAPBUFFERRANGEPROC          glMapBufferRange;
+extern PFNGLFLUSHMAPPEDBUFFERRANGEPROC  glFlushMappedBufferRange;
 
 // GL_ATI_vertex_array_object
-extern PFNGLNEWOBJECTBUFFERATIPROC			glNewObjectBufferATI;
-extern PFNGLISOBJECTBUFFERATIPROC			glIsObjectBufferATI;
-extern PFNGLUPDATEOBJECTBUFFERATIPROC		glUpdateObjectBufferATI;
-extern PFNGLGETOBJECTBUFFERFVATIPROC		glGetObjectBufferfvATI;
-extern PFNGLGETOBJECTBUFFERIVATIPROC		glGetObjectBufferivATI;
-extern PFNGLFREEOBJECTBUFFERATIPROC		    glFreeObjectBufferATI;
-extern PFNGLARRAYOBJECTATIPROC				glArrayObjectATI;
-extern PFNGLVERTEXATTRIBARRAYOBJECTATIPROC	glVertexAttribArrayObjectATI;
-extern PFNGLGETARRAYOBJECTFVATIPROC			glGetArrayObjectfvATI;
-extern PFNGLGETARRAYOBJECTIVATIPROC			glGetArrayObjectivATI;
-extern PFNGLVARIANTARRAYOBJECTATIPROC		glVariantObjectArrayATI;
-extern PFNGLGETVARIANTARRAYOBJECTFVATIPROC	glGetVariantArrayObjectfvATI;
-extern PFNGLGETVARIANTARRAYOBJECTIVATIPROC	glGetVariantArrayObjectivATI;
+extern PFNGLNEWOBJECTBUFFERATIPROC          glNewObjectBufferATI;
+extern PFNGLISOBJECTBUFFERATIPROC           glIsObjectBufferATI;
+extern PFNGLUPDATEOBJECTBUFFERATIPROC       glUpdateObjectBufferATI;
+extern PFNGLGETOBJECTBUFFERFVATIPROC        glGetObjectBufferfvATI;
+extern PFNGLGETOBJECTBUFFERIVATIPROC        glGetObjectBufferivATI;
+extern PFNGLFREEOBJECTBUFFERATIPROC         glFreeObjectBufferATI;
+extern PFNGLARRAYOBJECTATIPROC              glArrayObjectATI;
+extern PFNGLVERTEXATTRIBARRAYOBJECTATIPROC  glVertexAttribArrayObjectATI;
+extern PFNGLGETARRAYOBJECTFVATIPROC         glGetArrayObjectfvATI;
+extern PFNGLGETARRAYOBJECTIVATIPROC         glGetArrayObjectivATI;
+extern PFNGLVARIANTARRAYOBJECTATIPROC       glVariantObjectArrayATI;
+extern PFNGLGETVARIANTARRAYOBJECTFVATIPROC  glGetVariantArrayObjectfvATI;
+extern PFNGLGETVARIANTARRAYOBJECTIVATIPROC  glGetVariantArrayObjectivATI;
 
-extern PFNWGLGETGPUIDSAMDPROC				wglGetGPUIDsAMD;
-extern PFNWGLGETGPUINFOAMDPROC				wglGetGPUInfoAMD;
-extern PFNWGLSWAPINTERVALEXTPROC			wglSwapIntervalEXT;
+extern PFNWGLGETGPUIDSAMDPROC               wglGetGPUIDsAMD;
+extern PFNWGLGETGPUINFOAMDPROC              wglGetGPUInfoAMD;
+extern PFNWGLSWAPINTERVALEXTPROC            wglSwapIntervalEXT;
 
 // GL_ARB_occlusion_query
 extern PFNGLGENQUERIESARBPROC glGenQueriesARB;
@@ -604,7 +604,7 @@ extern void glGenerateMipmapEXT(GLenum target) AVAILABLE_MAC_OS_X_VERSION_10_4_A
 
 #ifndef GL_ARB_framebuffer_object
 #define glGenerateMipmap glGenerateMipmapEXT
-#define GL_MAX_SAMPLES	0x8D57
+#define GL_MAX_SAMPLES  0x8D57
 #endif
 
 // GL_ARB_draw_buffers
@@ -689,7 +689,7 @@ extern "C" {
 #define GL_DYNAMIC_READ_ARB               0x88E9
 #define GL_DYNAMIC_COPY_ARB               0x88EA
 #endif
-	
+    
 
 
 #ifndef GL_ARB_vertex_buffer_object
@@ -709,7 +709,7 @@ typedef GLboolean (* glIsBufferARBProcPtr) (GLuint buffer);
 typedef void (* glBufferDataARBProcPtr) (GLenum target, GLsizeiptrARB size, const GLvoid *data, GLenum usage);
 typedef void (* glBufferSubDataARBProcPtr) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid *data);
 typedef void (* glGetBufferSubDataARBProcPtr) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, GLvoid *data);
-typedef GLvoid* (* glMapBufferARBProcPtr) (GLenum target, GLenum access);	/* Flawfinder: ignore */
+typedef GLvoid* (* glMapBufferARBProcPtr) (GLenum target, GLenum access);   /* Flawfinder: ignore */
 typedef GLboolean (* glUnmapBufferARBProcPtr) (GLenum target);
 typedef void (* glGetBufferParameterivARBProcPtr) (GLenum target, GLenum pname, GLint *params);
 typedef void (* glGetBufferPointervARBProcPtr) (GLenum target, GLenum pname, GLvoid* *params);
@@ -797,11 +797,11 @@ extern void glGetBufferPointervARB (GLenum, GLenum, GLvoid* *);
 //GL_NVX_gpu_memory_info constants
 #ifndef GL_NVX_gpu_memory_info
 #define GL_NVX_gpu_memory_info
-#define	GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          0x9047
-#define	GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX    0x9048
-#define	GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX  0x9049
-#define	GL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX            0x904A
-#define	GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            0x904B
+#define GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          0x9047
+#define GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX    0x9048
+#define GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX  0x9049
+#define GL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX            0x904A
+#define GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            0x904B
 #endif
 
 //GL_ATI_meminfo constants

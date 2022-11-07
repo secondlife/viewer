@@ -32,24 +32,24 @@
 #include "llsingleton.h"
 class VolumeCatcherImpl : public LLSingleton<VolumeCatcherImpl>
 {
-	LLSINGLETON(VolumeCatcherImpl);
-	// This is a singleton class -- both callers and the component implementation should use getInstance() to find the instance.
-	~VolumeCatcherImpl();
+    LLSINGLETON(VolumeCatcherImpl);
+    // This is a singleton class -- both callers and the component implementation should use getInstance() to find the instance.
+    ~VolumeCatcherImpl();
 
 public:
 
-	void setVolume(F32 volume);
-	void setPan(F32 pan);
-	
+    void setVolume(F32 volume);
+    void setPan(F32 pan);
+    
 private:
-	F32 	mVolume;
-	F32 	mPan;
-	bool mSystemIsVistaOrHigher;
+    F32     mVolume;
+    F32     mPan;
+    bool mSystemIsVistaOrHigher;
 };
 
 VolumeCatcherImpl::VolumeCatcherImpl()
-:	mVolume(1.0f),			// default volume is max
-	mPan(0.f)				// default pan is centered
+:   mVolume(1.0f),          // default volume is max
+    mPan(0.f)               // default pan is centered
 {
 }
 
@@ -59,37 +59,37 @@ VolumeCatcherImpl::~VolumeCatcherImpl()
 
 void VolumeCatcherImpl::setVolume(F32 volume)
 {
-	mVolume = volume;
+    mVolume = volume;
 }
 
 void VolumeCatcherImpl::setPan(F32 pan)
-{	// remember pan for calculating individual channel levels later
-	mPan = pan;
+{   // remember pan for calculating individual channel levels later
+    mPan = pan;
 }
 
 /////////////////////////////////////////////////////
 
 VolumeCatcher::VolumeCatcher()
 {
-	pimpl = VolumeCatcherImpl::getInstance();
+    pimpl = VolumeCatcherImpl::getInstance();
 }
 
 VolumeCatcher::~VolumeCatcher()
 {
-	// Let the instance persist until exit.
+    // Let the instance persist until exit.
 }
 
 void VolumeCatcher::setVolume(F32 volume)
 {
-	pimpl->setVolume(volume);
+    pimpl->setVolume(volume);
 }
 
 void VolumeCatcher::setPan(F32 pan)
 {
-	pimpl->setPan(pan);
+    pimpl->setPan(pan);
 }
 
 void VolumeCatcher::pump()
 {
-	// No periodic tasks are necessary for this implementation.
+    // No periodic tasks are necessary for this implementation.
 }

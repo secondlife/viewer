@@ -40,7 +40,7 @@ public:
 
     operator const Type() { return mData; }
 
-    Type	CurrentValue() const { return mData; }
+    Type    CurrentValue() const { return mData; }
 
     Type operator =(const Type& x) { mData.store(x); return mData; }
     void operator -=(Type x) { mData -= x; }

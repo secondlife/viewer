@@ -35,12 +35,12 @@ LLViewerShaderMgr::~LLViewerShaderMgr() {}
 LLViewerShaderMgr* stub_instance = NULL;
 
 LLViewerShaderMgr* LLViewerShaderMgr::instance() {
-	if(NULL == stub_instance)
-	{
-		stub_instance = new LLViewerShaderMgr();
-	}
+    if(NULL == stub_instance)
+    {
+        stub_instance = new LLViewerShaderMgr();
+    }
 
-	return stub_instance;
+    return stub_instance;
 }
 LLViewerShaderMgr::shader_iter fake_iter;
 LLViewerShaderMgr::shader_iter LLViewerShaderMgr::beginShaders() const {return fake_iter;}

@@ -44,22 +44,22 @@ class LLToast;
  */
 class LLNotificationManager : public LLSingleton<LLNotificationManager>
 {
-	LLSINGLETON(LLNotificationManager);
-	virtual ~LLNotificationManager();
-	typedef std::pair<std::string, LLEventHandler*> eventhandlers;
+    LLSINGLETON(LLNotificationManager);
+    virtual ~LLNotificationManager();
+    typedef std::pair<std::string, LLEventHandler*> eventhandlers;
 
 public:
-	//TODO: make private
-	// this method initialize handlers' map for different types of notifications
-	void init(void);
-	//TODO: combine processing and storage (*)
-	
-	// this method reacts on chat notifications and calls an appropriate handler
-	void onChat(const LLChat& msg, const LLSD &args);
+    //TODO: make private
+    // this method initialize handlers' map for different types of notifications
+    void init(void);
+    //TODO: combine processing and storage (*)
+    
+    // this method reacts on chat notifications and calls an appropriate handler
+    void onChat(const LLChat& msg, const LLSD &args);
 
 private:
-	std::shared_ptr<class LLFloaterIMNearbyChatHandler> mChatHandler;
-	std::vector<LLNotificationChannelPtr> mChannels;
+    std::shared_ptr<class LLFloaterIMNearbyChatHandler> mChatHandler;
+    std::vector<LLNotificationChannelPtr> mChannels;
 };
 
 }

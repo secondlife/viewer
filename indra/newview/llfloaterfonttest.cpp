@@ -37,7 +37,7 @@
 
 
 LLFloaterFontTest::LLFloaterFontTest(const LLSD& key)
-	:	LLFloater("floater_font_test")
+    :   LLFloater("floater_font_test")
 {
 }
 

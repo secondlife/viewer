@@ -34,45 +34,45 @@
 class LLWindowShade : public LLUICtrl
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
-	{
-		Optional<LLUIImage*>			bg_image;
-		Optional<LLUIColor>				text_color,
-										shade_color;
-		Optional<bool>					modal,
-										can_close;
+    struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+    {
+        Optional<LLUIImage*>            bg_image;
+        Optional<LLUIColor>             text_color,
+                                        shade_color;
+        Optional<bool>                  modal,
+                                        can_close;
 
-		Params();
-	};
+        Params();
+    };
 
-	void show(LLNotificationPtr);
-	/*virtual*/ void draw();
-	void hide();
-	
-	bool isShown() const;
+    void show(LLNotificationPtr);
+    /*virtual*/ void draw();
+    void hide();
+    
+    bool isShown() const;
 
-	void setBackgroundImage(LLUIImage* image);
-	void setTextColor(LLColor4 color);
-	void setCanClose(bool can_close);
+    void setBackgroundImage(LLUIImage* image);
+    void setTextColor(LLColor4 color);
+    void setCanClose(bool can_close);
 
 private:
-	void displayLatestNotification();
-	LLNotificationPtr getCurrentNotification();
-	friend class LLUICtrlFactory;
+    void displayLatestNotification();
+    LLNotificationPtr getCurrentNotification();
+    friend class LLUICtrlFactory;
 
-	LLWindowShade(const Params& p);
-	void initFromParams(const Params& params);
+    LLWindowShade(const Params& p);
+    void initFromParams(const Params& params);
 
-	void onCloseNotification();
-	void onClickNotificationButton(const std::string& name);
-	void onEnterNotificationText(LLUICtrl* ctrl, const std::string& name);
-	void onClickIgnore(LLUICtrl* ctrl);
+    void onCloseNotification();
+    void onClickNotificationButton(const std::string& name);
+    void onEnterNotificationText(LLUICtrl* ctrl, const std::string& name);
+    void onClickIgnore(LLUICtrl* ctrl);
 
-	std::vector<LLNotificationPtr>	mNotifications;
-	LLSD				mNotificationResponse;
-	bool				mModal;
-	S32					mFormHeight;
-	LLUIColor			mTextColor;
+    std::vector<LLNotificationPtr>  mNotifications;
+    LLSD                mNotificationResponse;
+    bool                mModal;
+    S32                 mFormHeight;
+    LLUIColor           mTextColor;
 };
 
 #endif // LL_LLWINDOWSHADE_H

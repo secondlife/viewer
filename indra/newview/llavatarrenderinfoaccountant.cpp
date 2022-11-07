@@ -48,20 +48,20 @@
 #include "httpoptions.h"
 #include "llcorehttputil.h"
 
-static	const std::string KEY_AGENTS = "agents";			// map
-static 	const std::string KEY_WEIGHT = "weight";			// integer
-static 	const std::string KEY_TOO_COMPLEX  = "tooComplex";  // bool
+static  const std::string KEY_AGENTS = "agents";            // map
+static  const std::string KEY_WEIGHT = "weight";            // integer
+static  const std::string KEY_TOO_COMPLEX  = "tooComplex";  // bool
 static  const std::string KEY_OVER_COMPLEXITY_LIMIT = "overlimit";  // integer
 static  const std::string KEY_REPORTING_COMPLEXITY_LIMIT = "reportinglimit";  // integer
 
-static	const std::string KEY_IDENTIFIER = "identifier";
-static	const std::string KEY_MESSAGE = "message";
-static	const std::string KEY_ERROR = "error";
+static  const std::string KEY_IDENTIFIER = "identifier";
+static  const std::string KEY_MESSAGE = "message";
+static  const std::string KEY_ERROR = "error";
 
-static const F32 SECS_BETWEEN_REGION_SCANS   =  5.f;		// Scan the region list every 5 seconds
-static const F32 SECS_BETWEEN_REGION_REQUEST = 15.0;		// Look for new avs every 15 seconds
-static const F32 SECS_BETWEEN_REGION_REPORTS = 60.0;		// Update each region every 60 seconds
-	
+static const F32 SECS_BETWEEN_REGION_SCANS   =  5.f;        // Scan the region list every 5 seconds
+static const F32 SECS_BETWEEN_REGION_REQUEST = 15.0;        // Look for new avs every 15 seconds
+static const F32 SECS_BETWEEN_REGION_REPORTS = 60.0;        // Update each region every 60 seconds
+    
 
 //=========================================================================
 LLAvatarRenderInfoAccountant::LLAvatarRenderInfoAccountant()
@@ -157,7 +157,7 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(std::string url, U64 
         {
             LL_WARNS("AvatarRenderInfo") << "malformed get response '" << KEY_AGENTS << "' is not map" << LL_ENDL;
         }
-    }	// has "agents"
+    }   // has "agents"
     else
     {
         LL_INFOS("AvatarRenderInfo") << "no '"<< KEY_AGENTS << "' key in get response" << LL_ENDL;
@@ -214,18 +214,18 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U
     U32 num_avs = 0;
     // Build the render info to POST to the region
     LLSD agents = LLSD::emptyMap();
-				
+                
     std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
     while( iter != LLCharacter::sInstances.end() )
     {
         LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*iter);
         if (avatar &&
-            avatar->getRezzedStatus() >= 2 &&					// Mostly rezzed (maybe without baked textures downloaded)
-            !avatar->isDead() &&								// Not dead yet
-            !avatar->isControlAvatar() &&						// Not part of an animated object
-            avatar->getObjectHost() == regionp->getHost())		// Ensure it's on the same region
+            avatar->getRezzedStatus() >= 2 &&                   // Mostly rezzed (maybe without baked textures downloaded)
+            !avatar->isDead() &&                                // Not dead yet
+            !avatar->isControlAvatar() &&                       // Not part of an animated object
+            avatar->getObjectHost() == regionp->getHost())      // Ensure it's on the same region
         {
-            avatar->calculateUpdateRenderComplexity();			// Make sure the numbers are up-to-date
+            avatar->calculateUpdateRenderComplexity();          // Make sure the numbers are up-to-date
 
             LLSD info = LLSD::emptyMap();
             U32 avatar_complexity = avatar->getVisualComplexity();
@@ -312,11 +312,11 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U
 // called when the mRenderInfoScanTimer expires (forced when entering a new region)
 void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regionp)
 {
-	std::string url = regionp->getCapability("AvatarRenderInfo");
-	if (   !url.empty() // we have the capability
+    std::string url = regionp->getCapability("AvatarRenderInfo");
+    if (   !url.empty() // we have the capability
         && regionp->getRenderInfoReportTimer().hasExpired() // Time to make request)
         )
-	{
+    {
         // make sure we won't re-report, coro will update timer with correct time later
         regionp->getRenderInfoReportTimer().resetWithExpiry(SECS_BETWEEN_REGION_REPORTS);
 
@@ -330,18 +330,18 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
         {
             LL_ERRS() << "LLCoros::launch() allocation failure" << LL_ENDL;
         }
-	}
+    }
 }
 
 // Send request for avatar weights in one region
 // called when the mRenderInfoScanTimer expires (forced when entering a new region)
 void LLAvatarRenderInfoAccountant::getRenderInfoFromRegion(LLViewerRegion * regionp)
 {
-	std::string url = regionp->getCapability("AvatarRenderInfo");
-	if (   !url.empty()
+    std::string url = regionp->getCapability("AvatarRenderInfo");
+    if (   !url.empty()
         && regionp->getRenderInfoRequestTimer().hasExpired()
         )
-	{
+    {
         LL_DEBUGS("AvatarRenderInfo")
             << "Requesting avatar render info for region " << regionp->getName() 
             << " from " << url
@@ -361,45 +361,45 @@ void LLAvatarRenderInfoAccountant::getRenderInfoFromRegion(LLViewerRegion * regi
         {
             LL_ERRS() << "LLCoros::launch() allocation failure" << LL_ENDL;
         }
-	}
+    }
 }
 
 // static
 // Called every frame - send render weight requests to every region
 void LLAvatarRenderInfoAccountant::idle()
 {
-	if (mRenderInfoScanTimer.hasExpired())
-	{
-		LL_DEBUGS("AvatarRenderInfo") << "Scanning regions for render info updates"
-									  << LL_ENDL;
+    if (mRenderInfoScanTimer.hasExpired())
+    {
+        LL_DEBUGS("AvatarRenderInfo") << "Scanning regions for render info updates"
+                                      << LL_ENDL;
 
-		// Check all regions
-		for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
-			 iter != LLWorld::getInstance()->getRegionList().end();
-			 ++iter)
-		{
-			LLViewerRegion* regionp = *iter;
-			if (   regionp
-				&& regionp->isAlive()
-				&& regionp->capabilitiesReceived())
-			{
-				// each of these is further governed by and resets its own timer
+        // Check all regions
+        for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+             iter != LLWorld::getInstance()->getRegionList().end();
+             ++iter)
+        {
+            LLViewerRegion* regionp = *iter;
+            if (   regionp
+                && regionp->isAlive()
+                && regionp->capabilitiesReceived())
+            {
+                // each of these is further governed by and resets its own timer
                 // Note: We can have multiple regions, each launches up to two coroutines,
                 // it likely is expensive
-				sendRenderInfoToRegion(regionp);
-				getRenderInfoFromRegion(regionp);
-			}
-		}
+                sendRenderInfoToRegion(regionp);
+                getRenderInfoFromRegion(regionp);
+            }
+        }
 
-		// We scanned all the regions, reset the request timer.
-		mRenderInfoScanTimer.resetWithExpiry(SECS_BETWEEN_REGION_SCANS);
-	}
+        // We scanned all the regions, reset the request timer.
+        mRenderInfoScanTimer.resetWithExpiry(SECS_BETWEEN_REGION_SCANS);
+    }
 }
 
 void LLAvatarRenderInfoAccountant::resetRenderInfoScanTimer()
 {
-	// this will force the next frame to rescan
-	mRenderInfoScanTimer.reset();
+    // this will force the next frame to rescan
+    mRenderInfoScanTimer.reset();
 }
 
 // static
@@ -407,21 +407,21 @@ void LLAvatarRenderInfoAccountant::resetRenderInfoScanTimer()
 // are returned for a new LLViewerRegion, and is the earliest time to get render info
 void LLAvatarRenderInfoAccountant::scanNewRegion(const LLUUID& region_id)
 {
-	LL_DEBUGS("AvatarRenderInfo") << region_id << LL_ENDL;
+    LL_DEBUGS("AvatarRenderInfo") << region_id << LL_ENDL;
 
-	// Reset the global timer so it will scan regions on the next call to ::idle
-	LLAvatarRenderInfoAccountant::getInstance()->resetRenderInfoScanTimer();
-	
-	LLViewerRegion* regionp = LLWorld::instance().getRegionFromID(region_id);
-	if (regionp)
-	{	// Reset the region's timers so we will:
-		//  * request render info from it immediately
-		//  * report on the following scan
-		regionp->getRenderInfoRequestTimer().reset();
-		regionp->getRenderInfoReportTimer().resetWithExpiry(SECS_BETWEEN_REGION_SCANS);
-	}
-	else
-	{
-		LL_WARNS("AvatarRenderInfo") << "unable to resolve region "<<region_id<<LL_ENDL;
-	}
+    // Reset the global timer so it will scan regions on the next call to ::idle
+    LLAvatarRenderInfoAccountant::getInstance()->resetRenderInfoScanTimer();
+    
+    LLViewerRegion* regionp = LLWorld::instance().getRegionFromID(region_id);
+    if (regionp)
+    {   // Reset the region's timers so we will:
+        //  * request render info from it immediately
+        //  * report on the following scan
+        regionp->getRenderInfoRequestTimer().reset();
+        regionp->getRenderInfoReportTimer().resetWithExpiry(SECS_BETWEEN_REGION_SCANS);
+    }
+    else
+    {
+        LL_WARNS("AvatarRenderInfo") << "unable to resolve region "<<region_id<<LL_ENDL;
+    }
 }

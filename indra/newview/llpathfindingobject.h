@@ -46,47 +46,47 @@ typedef boost::shared_ptr<LLPathfindingObject> LLPathfindingObjectPtr;
 class LLPathfindingObject
 {
 public:
-	LLPathfindingObject();
-	LLPathfindingObject(const std::string &pUUID, const LLSD &pObjectData);
-	LLPathfindingObject(const LLPathfindingObject& pOther);
-	virtual ~LLPathfindingObject();
+    LLPathfindingObject();
+    LLPathfindingObject(const std::string &pUUID, const LLSD &pObjectData);
+    LLPathfindingObject(const LLPathfindingObject& pOther);
+    virtual ~LLPathfindingObject();
 
-	LLPathfindingObject& operator =(const LLPathfindingObject& pOther);
+    LLPathfindingObject& operator =(const LLPathfindingObject& pOther);
 
-	inline const LLUUID&      getUUID() const        {return mUUID;};
-	inline const std::string& getName() const        {return mName;};
-	inline const std::string& getDescription() const {return mDescription;};
-	inline BOOL               hasOwner() const       {return mOwnerUUID.notNull();};
-	inline bool               hasOwnerName() const   {return mHasOwnerName;};
-	std::string               getOwnerName() const;
-	inline BOOL               isGroupOwned() const   {return mIsGroupOwned;};
-	inline const LLVector3&   getLocation() const    {return mLocation;};
+    inline const LLUUID&      getUUID() const        {return mUUID;};
+    inline const std::string& getName() const        {return mName;};
+    inline const std::string& getDescription() const {return mDescription;};
+    inline BOOL               hasOwner() const       {return mOwnerUUID.notNull();};
+    inline bool               hasOwnerName() const   {return mHasOwnerName;};
+    std::string               getOwnerName() const;
+    inline BOOL               isGroupOwned() const   {return mIsGroupOwned;};
+    inline const LLVector3&   getLocation() const    {return mLocation;};
 
-	typedef boost::function<void (const LLPathfindingObject *)>         name_callback_t;
-	typedef boost::signals2::signal<void (const LLPathfindingObject *)> name_signal_t;
-	typedef boost::signals2::connection                                 name_connection_t;
+    typedef boost::function<void (const LLPathfindingObject *)>         name_callback_t;
+    typedef boost::signals2::signal<void (const LLPathfindingObject *)> name_signal_t;
+    typedef boost::signals2::connection                                 name_connection_t;
 
-	name_connection_t registerOwnerNameListener(name_callback_t pOwnerNameCallback);
+    name_connection_t registerOwnerNameListener(name_callback_t pOwnerNameCallback);
 
 protected:
 
 private:
-	void parseObjectData(const LLSD &pObjectData);
+    void parseObjectData(const LLSD &pObjectData);
 
-	void fetchOwnerName();
-	void handleAvatarNameFetch(const LLUUID &pOwnerUUID, const LLAvatarName &pAvatarName);
-	void disconnectAvatarNameCacheConnection();
+    void fetchOwnerName();
+    void handleAvatarNameFetch(const LLUUID &pOwnerUUID, const LLAvatarName &pAvatarName);
+    void disconnectAvatarNameCacheConnection();
 
-	LLUUID                                   mUUID;
-	std::string                              mName;
-	std::string                              mDescription;
-	LLUUID                                   mOwnerUUID;
-	bool                                     mHasOwnerName;
-	LLAvatarName                             mOwnerName;
-	LLAvatarNameCache::callback_connection_t mAvatarNameCacheConnection;
-	BOOL                                     mIsGroupOwned;
-	LLVector3                                mLocation;
-	name_signal_t                            mOwnerNameSignal;
+    LLUUID                                   mUUID;
+    std::string                              mName;
+    std::string                              mDescription;
+    LLUUID                                   mOwnerUUID;
+    bool                                     mHasOwnerName;
+    LLAvatarName                             mOwnerName;
+    LLAvatarNameCache::callback_connection_t mAvatarNameCacheConnection;
+    BOOL                                     mIsGroupOwned;
+    LLVector3                                mLocation;
+    name_signal_t                            mOwnerNameSignal;
 };
 
 #endif // LL_LLPATHFINDINGOBJECT_H

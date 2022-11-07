@@ -46,11 +46,11 @@
 
 namespace LLMarketplaceInventoryNotifications
 {
-	void update();
+    void update();
 
-	typedef boost::function<void (const LLSD&)> NoCopyCallbackFunction;
-	
-	void addNoCopyNotification(const LLSD& payload, const NoCopyCallbackFunction& cb);
+    typedef boost::function<void (const LLSD&)> NoCopyCallbackFunction;
+    
+    void addNoCopyNotification(const LLSD& payload, const NoCopyCallbackFunction& cb);
 };
 
 

@@ -41,7 +41,7 @@
 //=========================================================================
 // Map of pool sizes for known pools
 static const std::map<std::string, U32> DefaultPoolSizes{
-	{std::string("Upload"),  1},
+    {std::string("Upload"),  1},
     {std::string("AIS"),     1},
     // *TODO: Rider for the moment keep AIS calls serialized otherwise the COF will tend to get out of sync.
 };

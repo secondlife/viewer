@@ -125,9 +125,9 @@ private:
     PermissionMask          mImmediateFilterPermMask;
 
     bool                    mActive;
-    bool				    mNoCopySettingsSelected;
+    bool                    mNoCopySettingsSelected;
 
-    LLSaveFolderState	    mSavedFolderState;
+    LLSaveFolderState       mSavedFolderState;
 
 //     boost::signals2::signal<void(LLUUID id)>                mCommitSignal;
     boost::signals2::signal<void()>                         mCloseSignal;

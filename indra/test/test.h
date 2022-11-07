@@ -31,14 +31,14 @@
 
 namespace tut
 {
-	// Source code directory from CMake, used for loading test data and
-	// configuration.  For example:
-	//
-	// loadMyConfig( sSourceDir + "config.dat" );
-	//
-	// Use sparingly, as hitting the file system slows down test execution
-	// and hence every compile. JC
-	extern std::string sSourceDir;
+    // Source code directory from CMake, used for loading test data and
+    // configuration.  For example:
+    //
+    // loadMyConfig( sSourceDir + "config.dat" );
+    //
+    // Use sparingly, as hitting the file system slows down test execution
+    // and hence every compile. JC
+    extern std::string sSourceDir;
 }
 
 #endif

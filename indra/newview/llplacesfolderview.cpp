@@ -70,12 +70,12 @@ BOOL LLPlacesFolderView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 void LLPlacesFolderView::updateMenu()
 {
-	LLFolderView::updateMenu();
-	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
-	if (menu && menu->getVisible())
-	{
-		mParentLandmarksPanel->updateMenuVisibility(menu);
-	}
+    LLFolderView::updateMenu();
+    LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
+    if (menu && menu->getVisible())
+    {
+        mParentLandmarksPanel->updateMenuVisibility(menu);
+    }
 }
 
 void LLPlacesFolderView::setupMenuHandle(LLInventoryType::EType asset_type, LLHandle<LLView> menu_handle)

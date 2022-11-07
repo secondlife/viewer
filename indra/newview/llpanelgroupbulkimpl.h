@@ -36,63 +36,63 @@ class LLTextBox;
 class LLComboBox;
 
 //////////////////////////////////////////////////////////////////////////
-//	Implementation found in llpanelgroupbulk.cpp
+//  Implementation found in llpanelgroupbulk.cpp
 //////////////////////////////////////////////////////////////////////////
 class LLPanelGroupBulkImpl
 {
 public:
-	LLPanelGroupBulkImpl(const LLUUID& group_id);
-	~LLPanelGroupBulkImpl();
+    LLPanelGroupBulkImpl(const LLUUID& group_id);
+    ~LLPanelGroupBulkImpl();
 
-	static void callbackClickAdd(void* userdata);
-	static void callbackClickRemove(void* userdata);
+    static void callbackClickAdd(void* userdata);
+    static void callbackClickRemove(void* userdata);
 
-	static void callbackClickCancel(void* userdata);
+    static void callbackClickCancel(void* userdata);
 
-	static void callbackSelect(LLUICtrl* ctrl, void* userdata);
-	static void callbackAddUsers(const uuid_vec_t& agent_ids, void* user_data);
+    static void callbackSelect(LLUICtrl* ctrl, void* userdata);
+    static void callbackAddUsers(const uuid_vec_t& agent_ids, void* user_data);
 
-	static void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name, void* user_data);
+    static void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name, void* user_data);
 
-	void handleRemove();
-	void handleSelection();
+    void handleRemove();
+    void handleSelection();
 
-	void addUsers(const std::vector<std::string>& names, const uuid_vec_t& agent_ids);
-	void setGroupName(std::string name);
+    void addUsers(const std::vector<std::string>& names, const uuid_vec_t& agent_ids);
+    void setGroupName(std::string name);
 
 
 public:
-	static const S32 MAX_GROUP_INVITES = 100;	// Max invites per request. 100 to match server cap.
-	
+    static const S32 MAX_GROUP_INVITES = 100;   // Max invites per request. 100 to match server cap.
+    
 
-	LLUUID				mGroupID;
+    LLUUID              mGroupID;
 
-	LLNameListCtrl*		mBulkAgentList;
-	LLButton*			mOKButton;
-	LLButton*			mRemoveButton;
-	LLTextBox*			mGroupName;
+    LLNameListCtrl*     mBulkAgentList;
+    LLButton*           mOKButton;
+    LLButton*           mRemoveButton;
+    LLTextBox*          mGroupName;
 
-	std::string			mLoadingText; 
-	std::string			mTooManySelected;
-	std::string			mBanNotPermitted;
-	std::string			mBanLimitFail;
-	std::string			mCannotBanYourself;
+    std::string         mLoadingText; 
+    std::string         mTooManySelected;
+    std::string         mBanNotPermitted;
+    std::string         mBanLimitFail;
+    std::string         mCannotBanYourself;
 
-	std::set<LLUUID>	mInviteeIDs;
+    std::set<LLUUID>    mInviteeIDs;
 
-	void (*mCloseCallback)(void* data);
-	void* mCloseCallbackUserData;
-	boost::signals2::connection mAvatarNameCacheConnection;
+    void (*mCloseCallback)(void* data);
+    void* mCloseCallbackUserData;
+    boost::signals2::connection mAvatarNameCacheConnection;
 
-	// The following are for the LLPanelGroupInvite subclass only.  
-	// These aren't needed for LLPanelGroupBulkBan, but if we have to add another 
-	// group bulk floater for some reason, we'll have these objects too.
+    // The following are for the LLPanelGroupInvite subclass only.  
+    // These aren't needed for LLPanelGroupBulkBan, but if we have to add another 
+    // group bulk floater for some reason, we'll have these objects too.
 public:
-	LLComboBox*		mRoleNames;
-	std::string		mOwnerWarning;
-	std::string		mAlreadyInGroup;
-	bool			mConfirmedOwnerInvite;
-	bool			mListFullNotificationSent;
+    LLComboBox*     mRoleNames;
+    std::string     mOwnerWarning;
+    std::string     mAlreadyInGroup;
+    bool            mConfirmedOwnerInvite;
+    bool            mListFullNotificationSent;
 };
 
 #endif // LL_LLPANELGROUPBULKIMPL_H

@@ -25,7 +25,7 @@
 #ifndef __dbus_glib_marshal_viewerapp_MARSHAL_H__
 #define __dbus_glib_marshal_viewerapp_MARSHAL_H__
 
-#include	<glib-object.h>
+#include    <glib-object.h>
 
 G_BEGIN_DECLS
 

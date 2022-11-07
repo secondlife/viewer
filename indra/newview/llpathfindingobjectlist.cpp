@@ -39,84 +39,84 @@
 //---------------------------------------------------------------------------
 
 LLPathfindingObjectList::LLPathfindingObjectList()
-	: mObjectMap()
+    : mObjectMap()
 {
 }
 
 LLPathfindingObjectList::~LLPathfindingObjectList()
 {
-	clear();
+    clear();
 }
 
 bool LLPathfindingObjectList::isEmpty() const
 {
-	return mObjectMap.empty();
+    return mObjectMap.empty();
 }
 
 void LLPathfindingObjectList::clear()
 {
-	for (LLPathfindingObjectMap::iterator objectIter = mObjectMap.begin(); objectIter != mObjectMap.end(); ++objectIter)
-	{
-		objectIter->second.reset();
-	}
-	mObjectMap.clear();
+    for (LLPathfindingObjectMap::iterator objectIter = mObjectMap.begin(); objectIter != mObjectMap.end(); ++objectIter)
+    {
+        objectIter->second.reset();
+    }
+    mObjectMap.clear();
 }
 
 void LLPathfindingObjectList::update(LLPathfindingObjectPtr pUpdateObjectPtr)
 {
-	if (pUpdateObjectPtr != NULL)
-	{
-		std::string updateObjectId = pUpdateObjectPtr->getUUID().asString();
+    if (pUpdateObjectPtr != NULL)
+    {
+        std::string updateObjectId = pUpdateObjectPtr->getUUID().asString();
 
-		LLPathfindingObjectMap::iterator foundObjectIter = mObjectMap.find(updateObjectId);
-		if (foundObjectIter == mObjectMap.end())
-		{
-			mObjectMap.insert(std::pair<std::string, LLPathfindingObjectPtr>(updateObjectId, pUpdateObjectPtr));
-		}
-		else
-		{
-			foundObjectIter->second = pUpdateObjectPtr;
-		}
-	}
+        LLPathfindingObjectMap::iterator foundObjectIter = mObjectMap.find(updateObjectId);
+        if (foundObjectIter == mObjectMap.end())
+        {
+            mObjectMap.insert(std::pair<std::string, LLPathfindingObjectPtr>(updateObjectId, pUpdateObjectPtr));
+        }
+        else
+        {
+            foundObjectIter->second = pUpdateObjectPtr;
+        }
+    }
 }
 
 void LLPathfindingObjectList::update(LLPathfindingObjectListPtr pUpdateObjectListPtr)
 {
-	if ((pUpdateObjectListPtr != NULL) && !pUpdateObjectListPtr->isEmpty())
-	{
-		for (LLPathfindingObjectMap::const_iterator updateObjectIter = pUpdateObjectListPtr->begin();
-			updateObjectIter != pUpdateObjectListPtr->end(); ++updateObjectIter)
-		{
-			const LLPathfindingObjectPtr updateObjectPtr = updateObjectIter->second;
-			update(updateObjectPtr);
-		}
-	}
+    if ((pUpdateObjectListPtr != NULL) && !pUpdateObjectListPtr->isEmpty())
+    {
+        for (LLPathfindingObjectMap::const_iterator updateObjectIter = pUpdateObjectListPtr->begin();
+            updateObjectIter != pUpdateObjectListPtr->end(); ++updateObjectIter)
+        {
+            const LLPathfindingObjectPtr updateObjectPtr = updateObjectIter->second;
+            update(updateObjectPtr);
+        }
+    }
 }
 
 LLPathfindingObjectPtr LLPathfindingObjectList::find(const std::string &pObjectId) const
 {
-	LLPathfindingObjectPtr objectPtr;
+    LLPathfindingObjectPtr objectPtr;
 
-	LLPathfindingObjectMap::const_iterator objectIter = mObjectMap.find(pObjectId);
-	if (objectIter != mObjectMap.end())
-	{
-		objectPtr = objectIter->second;
-	}
+    LLPathfindingObjectMap::const_iterator objectIter = mObjectMap.find(pObjectId);
+    if (objectIter != mObjectMap.end())
+    {
+        objectPtr = objectIter->second;
+    }
 
-	return objectPtr;
+    return objectPtr;
 }
 
 LLPathfindingObjectList::const_iterator LLPathfindingObjectList::begin() const
 {
-	return mObjectMap.begin();
+    return mObjectMap.begin();
 }
 
 LLPathfindingObjectList::const_iterator LLPathfindingObjectList::end() const
 {
-	return mObjectMap.end();
+    return mObjectMap.end();
 }
 
 LLPathfindingObjectMap &LLPathfindingObjectList::getObjectMap()
 {
-	return mObjectMap;
+    return mObjectMap;
 }

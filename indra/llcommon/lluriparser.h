@@ -35,52 +35,52 @@
 class LL_COMMON_API LLUriParser
 {
 public:
-	LLUriParser(const std::string& u);
-	~LLUriParser();
+    LLUriParser(const std::string& u);
+    ~LLUriParser();
 
-	const char * scheme() const;
-	void sheme (const std::string& s);
+    const char * scheme() const;
+    void sheme (const std::string& s);
 
-	const char * port() const;
-	void port (const std::string& s);
+    const char * port() const;
+    void port (const std::string& s);
 
-	const char * host() const;
-	void host (const std::string& s);
+    const char * host() const;
+    void host (const std::string& s);
 
-	const char * path() const;
-	void path (const std::string& s);
+    const char * path() const;
+    void path (const std::string& s);
 
-	const char * query() const;
-	void query (const std::string& s);
+    const char * query() const;
+    void query (const std::string& s);
 
-	const char * fragment() const;
-	void fragment (const std::string& s);
+    const char * fragment() const;
+    void fragment (const std::string& s);
 
-	const char * normalizedUri() const;
+    const char * normalizedUri() const;
 
-	void extractParts();
-	void glue(std::string& uri) const;
-	void glueFirst(std::string& uri, bool use_scheme = true) const;
-	void glueSecond(std::string& uri) const;
-	bool test() const;
-	S32 normalize();
+    void extractParts();
+    void glue(std::string& uri) const;
+    void glueFirst(std::string& uri, bool use_scheme = true) const;
+    void glueSecond(std::string& uri) const;
+    bool test() const;
+    S32 normalize();
 
 private:
-	S32 parse();
-	void textRangeToString(UriTextRangeA& textRange, std::string& str);
-	std::string mScheme;
-	std::string mHost;
-	std::string mPort;
-	std::string mPath;
-	std::string mQuery;
-	std::string mFragment;
-	std::string mNormalizedUri;
+    S32 parse();
+    void textRangeToString(UriTextRangeA& textRange, std::string& str);
+    std::string mScheme;
+    std::string mHost;
+    std::string mPort;
+    std::string mPath;
+    std::string mQuery;
+    std::string mFragment;
+    std::string mNormalizedUri;
 
-	UriUriA mUri;
+    UriUriA mUri;
 
-	S32 mRes;
-	bool mTmpScheme;
-	bool mNormalizedTmp;
+    S32 mRes;
+    bool mTmpScheme;
+    bool mNormalizedTmp;
 };
 
 #endif // LL_LLURIPARSER_H

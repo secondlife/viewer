@@ -48,14 +48,14 @@ namespace LLWebProfileResponders
  */
 class LLWebProfile
 {
-	LOG_CLASS(LLWebProfile);
+    LOG_CLASS(LLWebProfile);
 
 public:
-	typedef boost::function<void(bool ok)> status_callback_t;
+    typedef boost::function<void(bool ok)> status_callback_t;
 
-	static void uploadImage(LLPointer<LLImageFormatted> image, const std::string& caption, bool add_location);
-	static void setAuthCookie(const std::string& cookie);
-	static void setImageUploadResultCallback(status_callback_t cb) { mStatusCallback = cb; }
+    static void uploadImage(LLPointer<LLImageFormatted> image, const std::string& caption, bool add_location);
+    static void setAuthCookie(const std::string& cookie);
+    static void setImageUploadResultCallback(status_callback_t cb) { mStatusCallback = cb; }
 
 private:
     static LLCore::HttpHeaders::ptr_t buildDefaultHeaders();
@@ -63,11 +63,11 @@ private:
     static void uploadImageCoro(LLPointer<LLImageFormatted> image, std::string caption, bool add_location);
     static LLCore::BufferArray::ptr_t buildPostData(const LLSD &data, LLPointer<LLImageFormatted> &image, const std::string &boundary);
 
-	static void reportImageUploadStatus(bool ok);
-	static std::string getAuthCookie();
+    static void reportImageUploadStatus(bool ok);
+    static std::string getAuthCookie();
 
-	static std::string sAuthCookie;
-	static status_callback_t mStatusCallback;
+    static std::string sAuthCookie;
+    static status_callback_t mStatusCallback;
 };
 
 #endif // LL_LLWEBPROFILE_H

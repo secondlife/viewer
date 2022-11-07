@@ -30,7 +30,7 @@
 
 #if LL_WINDOWS
 
-#define	PSAPI_VERSION	1
+#define PSAPI_VERSION   1
 #include "windows.h"
 #include "psapi.h"
 
@@ -38,7 +38,7 @@
 
 #include <sys/resource.h>
 #include <mach/mach.h>
-	
+    
 #else
 
 #include <sys/time.h>
@@ -52,42 +52,42 @@ void LLProcInfo::getCPUUsage(time_type & user_time, time_type & system_time)
 {
 #if LL_WINDOWS
 
-	HANDLE self(GetCurrentProcess());			// Does not have to be closed
-	FILETIME ft_dummy, ft_system, ft_user;
+    HANDLE self(GetCurrentProcess());           // Does not have to be closed
+    FILETIME ft_dummy, ft_system, ft_user;
 
-	GetProcessTimes(self, &ft_dummy, &ft_dummy, &ft_system, &ft_user);
-	ULARGE_INTEGER uli;
-	uli.u.LowPart = ft_system.dwLowDateTime;
-	uli.u.HighPart = ft_system.dwHighDateTime;
-	system_time = uli.QuadPart / U64L(10);		// Convert to uS
-	uli.u.LowPart = ft_user.dwLowDateTime;
-	uli.u.HighPart = ft_user.dwHighDateTime;
-	user_time = uli.QuadPart / U64L(10);
-	
+    GetProcessTimes(self, &ft_dummy, &ft_dummy, &ft_system, &ft_user);
+    ULARGE_INTEGER uli;
+    uli.u.LowPart = ft_system.dwLowDateTime;
+    uli.u.HighPart = ft_system.dwHighDateTime;
+    system_time = uli.QuadPart / U64L(10);      // Convert to uS
+    uli.u.LowPart = ft_user.dwLowDateTime;
+    uli.u.HighPart = ft_user.dwHighDateTime;
+    user_time = uli.QuadPart / U64L(10);
+    
 #elif LL_DARWIN
 
-	struct rusage usage;
+    struct rusage usage;
 
-	if (getrusage(RUSAGE_SELF, &usage))
-	{
-		user_time = system_time = time_type(0U);
-		return;
-	}
-	user_time = U64(usage.ru_utime.tv_sec) * U64L(1000000) + usage.ru_utime.tv_usec;
-	system_time = U64(usage.ru_stime.tv_sec) * U64L(1000000) + usage.ru_stime.tv_usec;
+    if (getrusage(RUSAGE_SELF, &usage))
+    {
+        user_time = system_time = time_type(0U);
+        return;
+    }
+    user_time = U64(usage.ru_utime.tv_sec) * U64L(1000000) + usage.ru_utime.tv_usec;
+    system_time = U64(usage.ru_stime.tv_sec) * U64L(1000000) + usage.ru_stime.tv_usec;
 
 #else // Linux
 
-	struct rusage usage;
+    struct rusage usage;
 
-	if (getrusage(RUSAGE_SELF, &usage))
-	{
-		user_time = system_time = time_type(0U);
-		return;
-	}
-	user_time = U64(usage.ru_utime.tv_sec) * U64L(1000000) + usage.ru_utime.tv_usec;
-	system_time = U64(usage.ru_stime.tv_sec) * U64L(1000000) + usage.ru_stime.tv_usec;
-	
+    if (getrusage(RUSAGE_SELF, &usage))
+    {
+        user_time = system_time = time_type(0U);
+        return;
+    }
+    user_time = U64(usage.ru_utime.tv_sec) * U64L(1000000) + usage.ru_utime.tv_usec;
+    system_time = U64(usage.ru_stime.tv_sec) * U64L(1000000) + usage.ru_stime.tv_usec;
+    
 #endif // LL_WINDOWS/LL_DARWIN/Linux
 }
 

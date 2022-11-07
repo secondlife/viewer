@@ -33,10 +33,10 @@
 class LL_COMMON_API LLCommon
 {
 public:
-	static void initClass();
-	static void cleanupClass();
+    static void initClass();
+    static void cleanupClass();
 private:
-	static BOOL sAprInitialized;
+    static BOOL sAprInitialized;
 };
 
 #endif

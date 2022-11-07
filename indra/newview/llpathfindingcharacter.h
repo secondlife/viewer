@@ -36,28 +36,28 @@ class LLSD;
 class LLPathfindingCharacter : public LLPathfindingObject
 {
 public:
-	LLPathfindingCharacter(const std::string &pUUID, const LLSD &pCharacterData);
-	LLPathfindingCharacter(const LLPathfindingCharacter& pOther);
-	virtual ~LLPathfindingCharacter();
+    LLPathfindingCharacter(const std::string &pUUID, const LLSD &pCharacterData);
+    LLPathfindingCharacter(const LLPathfindingCharacter& pOther);
+    virtual ~LLPathfindingCharacter();
 
-	LLPathfindingCharacter& operator =(const LLPathfindingCharacter& pOther);
+    LLPathfindingCharacter& operator =(const LLPathfindingCharacter& pOther);
 
-	inline F32  getCPUTime() const   {return mCPUTime;};
+    inline F32  getCPUTime() const   {return mCPUTime;};
 
-	inline BOOL isHorizontal() const {return mIsHorizontal;};
-	inline F32  getLength() const    {return mLength;};
-	inline F32  getRadius() const    {return mRadius;};
+    inline BOOL isHorizontal() const {return mIsHorizontal;};
+    inline F32  getLength() const    {return mLength;};
+    inline F32  getRadius() const    {return mRadius;};
 
 protected:
 
 private:
-	void parseCharacterData(const LLSD &pCharacterData);
+    void parseCharacterData(const LLSD &pCharacterData);
 
-	F32  mCPUTime;
+    F32  mCPUTime;
 
-	BOOL mIsHorizontal;
-	F32  mLength;
-	F32  mRadius;
+    BOOL mIsHorizontal;
+    F32  mLength;
+    F32  mRadius;
 };
 
 #endif // LL_LLPATHFINDINGCHARACTER_H

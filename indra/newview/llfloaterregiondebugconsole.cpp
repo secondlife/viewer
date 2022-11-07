@@ -56,117 +56,117 @@
 
 namespace
 {
-	// Signal used to notify the floater of responses from the asynchronous
-	// API.
-	console_reply_signal_t sConsoleReplySignal;
+    // Signal used to notify the floater of responses from the asynchronous
+    // API.
+    console_reply_signal_t sConsoleReplySignal;
 
-	const std::string PROMPT("\n\n> ");
-	const std::string UNABLE_TO_SEND_COMMAND(
-		"ERROR: The last command was not received by the server.");
-	const std::string CONSOLE_UNAVAILABLE(
-		"ERROR: No console available for this region/simulator.");
-	const std::string CONSOLE_NOT_SUPPORTED(
-		"This region does not support the simulator console.");
+    const std::string PROMPT("\n\n> ");
+    const std::string UNABLE_TO_SEND_COMMAND(
+        "ERROR: The last command was not received by the server.");
+    const std::string CONSOLE_UNAVAILABLE(
+        "ERROR: No console available for this region/simulator.");
+    const std::string CONSOLE_NOT_SUPPORTED(
+        "This region does not support the simulator console.");
 
-	// This handles responses for console commands sent via the asynchronous
-	// API.
-	class ConsoleResponseNode : public LLHTTPNode
-	{
-	public:
-		/* virtual */
-		void post(
-			LLHTTPNode::ResponsePtr reponse,
-			const LLSD& context,
-			const LLSD& input) const
-		{
-			LL_INFOS() << "Received response from the debug console: "
-				<< input << LL_ENDL;
-			sConsoleReplySignal(input["body"].asString());
-		}
-	};
+    // This handles responses for console commands sent via the asynchronous
+    // API.
+    class ConsoleResponseNode : public LLHTTPNode
+    {
+    public:
+        /* virtual */
+        void post(
+            LLHTTPNode::ResponsePtr reponse,
+            const LLSD& context,
+            const LLSD& input) const
+        {
+            LL_INFOS() << "Received response from the debug console: "
+                << input << LL_ENDL;
+            sConsoleReplySignal(input["body"].asString());
+        }
+    };
 }
 
 boost::signals2::connection LLFloaterRegionDebugConsole::setConsoleReplyCallback(const console_reply_signal_t::slot_type& cb)
 {
-	return sConsoleReplySignal.connect(cb);
+    return sConsoleReplySignal.connect(cb);
 }
 
 LLFloaterRegionDebugConsole::LLFloaterRegionDebugConsole(LLSD const & key)
 : LLFloater(key), mOutput(NULL)
 {
-	mReplySignalConnection = sConsoleReplySignal.connect(
-		boost::bind(
-			&LLFloaterRegionDebugConsole::onReplyReceived,
-			this,
-			_1));
+    mReplySignalConnection = sConsoleReplySignal.connect(
+        boost::bind(
+            &LLFloaterRegionDebugConsole::onReplyReceived,
+            this,
+            _1));
 }
 
 LLFloaterRegionDebugConsole::~LLFloaterRegionDebugConsole()
 {
-	mReplySignalConnection.disconnect();
+    mReplySignalConnection.disconnect();
 }
 
 BOOL LLFloaterRegionDebugConsole::postBuild()
 {
-	LLLineEditor* input = getChild<LLLineEditor>("region_debug_console_input");
-	input->setEnableLineHistory(true);
-	input->setCommitCallback(boost::bind(&LLFloaterRegionDebugConsole::onInput, this, _1, _2));
-	input->setFocus(true);
-	input->setCommitOnFocusLost(false);
+    LLLineEditor* input = getChild<LLLineEditor>("region_debug_console_input");
+    input->setEnableLineHistory(true);
+    input->setCommitCallback(boost::bind(&LLFloaterRegionDebugConsole::onInput, this, _1, _2));
+    input->setFocus(true);
+    input->setCommitOnFocusLost(false);
 
-	mOutput = getChild<LLTextEditor>("region_debug_console_output");
+    mOutput = getChild<LLTextEditor>("region_debug_console_output");
 
-	std::string url = gAgent.getRegionCapability("SimConsoleAsync");
-	if (url.empty())
-	{
-		// Fall back to see if the old API is supported.
-		url = gAgent.getRegionCapability("SimConsole");
-		if (url.empty())
-		{
-			mOutput->appendText(
-				CONSOLE_NOT_SUPPORTED + PROMPT,
-				false);
-			return TRUE;
-		}
-	}
+    std::string url = gAgent.getRegionCapability("SimConsoleAsync");
+    if (url.empty())
+    {
+        // Fall back to see if the old API is supported.
+        url = gAgent.getRegionCapability("SimConsole");
+        if (url.empty())
+        {
+            mOutput->appendText(
+                CONSOLE_NOT_SUPPORTED + PROMPT,
+                false);
+            return TRUE;
+        }
+    }
 
-	mOutput->appendText("> ", false);
-	return TRUE;
+    mOutput->appendText("> ", false);
+    return TRUE;
 }
 
 void LLFloaterRegionDebugConsole::onInput(LLUICtrl* ctrl, const LLSD& param)
 {
-	LLLineEditor* input = static_cast<LLLineEditor*>(ctrl);
-	std::string text = input->getText() + "\n";
+    LLLineEditor* input = static_cast<LLLineEditor*>(ctrl);
+    std::string text = input->getText() + "\n";
 
-	std::string url = gAgent.getRegionCapability("SimConsoleAsync");
-	if (url.empty())
-	{
-		// Fall back to the old API
-		url = gAgent.getRegionCapability("SimConsole");
-		if (url.empty())
-		{
-			text += CONSOLE_UNAVAILABLE + PROMPT;
-		}
-		else
-		{
+    std::string url = gAgent.getRegionCapability("SimConsoleAsync");
+    if (url.empty())
+    {
+        // Fall back to the old API
+        url = gAgent.getRegionCapability("SimConsole");
+        if (url.empty())
+        {
+            text += CONSOLE_UNAVAILABLE + PROMPT;
+        }
+        else
+        {
             LLSD postData = LLSD(input->getText());
             LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url, postData,
                 boost::bind(&LLFloaterRegionDebugConsole::onConsoleSuccess, this, _1),
                 boost::bind(&LLFloaterRegionDebugConsole::onConsoleError, this, _1));
-		}
-	}
-	else
-	{
+        }
+    }
+    else
+    {
         LLSD postData = LLSD(input->getText());
         LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url, postData,
             NULL,
             boost::bind(&LLFloaterRegionDebugConsole::onAsyncConsoleError, this, _1));
 
-	}
+    }
 
-	mOutput->appendText(text, false);
-	input->clear();
+    mOutput->appendText(text, false);
+    input->clear();
 }
 
 void LLFloaterRegionDebugConsole::onAsyncConsoleError(LLSD result)
@@ -203,9 +203,9 @@ void LLFloaterRegionDebugConsole::onConsoleSuccess(LLSD result)
 
 void LLFloaterRegionDebugConsole::onReplyReceived(const std::string& output)
 {
-	mOutput->appendText(output + PROMPT, false);
+    mOutput->appendText(output + PROMPT, false);
 }
 
 LLHTTPRegistration<ConsoleResponseNode>
-	gHTTPRegistrationMessageDebugConsoleResponse(
-		"/message/SimConsoleResponse");
+    gHTTPRegistrationMessageDebugConsoleResponse(
+        "/message/SimConsoleResponse");

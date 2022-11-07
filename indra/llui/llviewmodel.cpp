@@ -37,13 +37,13 @@
 
 ///
 LLViewModel::LLViewModel()
-:	mDirty(false)
+:   mDirty(false)
 {
 }
 
 /// Instantiate an LLViewModel with an existing data value
 LLViewModel::LLViewModel(const LLSD& value)
-:	mDirty(false)
+:   mDirty(false)
 {
     setValue(value);
 }
@@ -65,22 +65,22 @@ LLSD LLViewModel::getValue() const
 ///
 LLTextViewModel::LLTextViewModel()
   : LLViewModel(false),
-	mUpdateFromDisplay(false)
+    mUpdateFromDisplay(false)
 {
 }
 
 /// Instantiate an LLViewModel with an existing data value
 LLTextViewModel::LLTextViewModel(const LLSD& value)
   : LLViewModel(value),
-	mUpdateFromDisplay(false)
+    mUpdateFromDisplay(false)
 {
 }
 
 /// Update the stored value
 void LLTextViewModel::setValue(const LLSD& value)
 {
-	// approximate LLSD storage usage
-	LLViewModel::setValue(value);
+    // approximate LLSD storage usage
+    LLViewModel::setValue(value);
     mDisplay = utf8str_to_wstring(value.asString());
 
     // mDisplay and mValue agree
@@ -93,8 +93,8 @@ void LLTextViewModel::setDisplay(const LLWString& value)
     // and do the utf8str_to_wstring() to get the corresponding mDisplay
     // value. But a text editor might want to edit the display string
     // directly, then convert back to UTF8 on commit.
-	mDisplay = value;
-	mDirty = true;
+    mDisplay = value;
+    mDirty = true;
     // Don't immediately convert to UTF8 -- do it lazily -- we expect many
     // more setDisplay() calls than getValue() calls. Just flag that it needs
     // doing.

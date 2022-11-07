@@ -32,12 +32,12 @@ class LLSD;
 
 class LLFloaterTestListView : public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 
 private:
-	// Construction handled by LLFloaterReg
-	LLFloaterTestListView(const LLSD& seed);
-	~LLFloaterTestListView();
+    // Construction handled by LLFloaterReg
+    LLFloaterTestListView(const LLSD& seed);
+    ~LLFloaterTestListView();
 };
 
 #endif

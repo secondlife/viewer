@@ -35,16 +35,16 @@
 #include "v4color.h"
 #include "llgl.h"
 
-void lat2xyz(LLVector3 * result, F32 lat, F32 lon);			// utility routine
+void lat2xyz(LLVector3 * result, F32 lat, F32 lon);         // utility routine
 
 class LLRenderSphere  
 {
 public:
-	void render();						// render at highest LOD
-	void renderGGL();                   // render using LLRender
+    void render();                      // render at highest LOD
+    void renderGGL();                   // render using LLRender
 
 private:
-	std::vector< std::vector<LLVector3> > mSpherePoints;
+    std::vector< std::vector<LLVector3> > mSpherePoints;
 };
 
 extern LLRenderSphere gSphere;

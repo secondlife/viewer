@@ -35,33 +35,33 @@
 
 
 LLTemplateMessageDispatcher::LLTemplateMessageDispatcher(LLTemplateMessageReader &template_message_reader) :
-	mTemplateMessageReader(template_message_reader)
+    mTemplateMessageReader(template_message_reader)
 {
 }
 
 void LLTemplateMessageDispatcher::dispatch(const std::string& msg_name,
-										   const LLSD& message,
-										   LLHTTPNode::ResponsePtr responsep)
+                                           const LLSD& message,
+                                           LLHTTPNode::ResponsePtr responsep)
 {
-	std::vector<U8> data = message["body"]["binary-template-data"].asBinary();
-	U32 size = data.size();
-	if(size == 0)
-	{
-		return;
-	}
+    std::vector<U8> data = message["body"]["binary-template-data"].asBinary();
+    U32 size = data.size();
+    if(size == 0)
+    {
+        return;
+    }
 
-	LLHost host;
-	host = gMessageSystem->getSender();
+    LLHost host;
+    host = gMessageSystem->getSender();
 
-	bool validate_message = mTemplateMessageReader.validateMessage(&(data[0]), data.size(), host, true);
+    bool validate_message = mTemplateMessageReader.validateMessage(&(data[0]), data.size(), host, true);
 
-	if (validate_message)
-	{
-		mTemplateMessageReader.readMessage(&(data[0]),host);
-	} 
-	else 
-	{
-		gMessageSystem->clearReceiveState();
-	}
+    if (validate_message)
+    {
+        mTemplateMessageReader.readMessage(&(data[0]),host);
+    } 
+    else 
+    {
+        gMessageSystem->clearReceiveState();
+    }
 }
 

@@ -44,7 +44,7 @@ const S32 LLToastPanel::MAX_TEXT_LENGTH = 512 + 20 + DB_FIRST_NAME_BUF_SIZE + DB
 
 LLToastPanel::LLToastPanel(const LLNotificationPtr& notification)
 {
-	mNotification = notification;
+    mNotification = notification;
 }
 
 LLToastPanel::~LLToastPanel() 
@@ -54,100 +54,100 @@ LLToastPanel::~LLToastPanel()
 //virtual
 std::string LLToastPanel::getTitle()
 {
-	// *TODO: create Title and localize it. If it will be required.
-	return mNotification->getMessage();
+    // *TODO: create Title and localize it. If it will be required.
+    return mNotification->getMessage();
 }
 
 //virtual
 const std::string& LLToastPanel::getNotificationName()
 {
-	return mNotification->getName();
+    return mNotification->getName();
 }
 
 //virtual
 const LLUUID& LLToastPanel::getID()
 {
-	return mNotification->id();
+    return mNotification->id();
 }
 
 S32 LLToastPanel::computeSnappedToMessageHeight(LLTextBase* message, S32 maxLineCount)
 {
-	S32 heightDelta = 0;
-	S32 maxTextHeight = message->getFont()->getLineHeight() * maxLineCount;
+    S32 heightDelta = 0;
+    S32 maxTextHeight = message->getFont()->getLineHeight() * maxLineCount;
 
-	LLRect messageRect = message->getRect();
-	S32 oldTextHeight = messageRect.getHeight();
+    LLRect messageRect = message->getRect();
+    S32 oldTextHeight = messageRect.getHeight();
 
-	//Knowing the height is set to max allowed, getTextPixelHeight returns needed text height
-	//Perhaps we need to pass maxLineCount as parameter to getTextPixelHeight to avoid previous reshape.
-	S32 requiredTextHeight = message->getTextBoundingRect().getHeight();
-	S32 newTextHeight = llmin(requiredTextHeight, maxTextHeight);
+    //Knowing the height is set to max allowed, getTextPixelHeight returns needed text height
+    //Perhaps we need to pass maxLineCount as parameter to getTextPixelHeight to avoid previous reshape.
+    S32 requiredTextHeight = message->getTextBoundingRect().getHeight();
+    S32 newTextHeight = llmin(requiredTextHeight, maxTextHeight);
 
-	heightDelta = newTextHeight - oldTextHeight;
-	S32 new_panel_height = llmax(getRect().getHeight() + heightDelta, MIN_PANEL_HEIGHT);
+    heightDelta = newTextHeight - oldTextHeight;
+    S32 new_panel_height = llmax(getRect().getHeight() + heightDelta, MIN_PANEL_HEIGHT);
 
-	return new_panel_height;
+    return new_panel_height;
 }
 
 //snap to the message height if it is visible
 void LLToastPanel::snapToMessageHeight(LLTextBase* message, S32 maxLineCount)
 {
-	if(!message)
-	{
-		return;
-	}
+    if(!message)
+    {
+        return;
+    }
 
-	//Add message height if it is visible
-	if (message->getVisible())
-	{
-		S32 new_panel_height = computeSnappedToMessageHeight(message, maxLineCount);
+    //Add message height if it is visible
+    if (message->getVisible())
+    {
+        S32 new_panel_height = computeSnappedToMessageHeight(message, maxLineCount);
 
-		//reshape the panel with new height
-		if (new_panel_height != getRect().getHeight())
-		{
-			reshape( getRect().getWidth(), new_panel_height);
-		}
-	}
+        //reshape the panel with new height
+        if (new_panel_height != getRect().getHeight())
+        {
+            reshape( getRect().getWidth(), new_panel_height);
+        }
+    }
 }
 
 // static
 LLToastPanel* LLToastPanel::buidPanelFromNotification(
-		const LLNotificationPtr& notification)
+        const LLNotificationPtr& notification)
 {
     LL_PROFILE_ZONE_SCOPED
     LLToastPanel* res = NULL;
 
-	//process tip toast panels
-	if ("notifytip" == notification->getType())
-	{
-		// if it is online/offline notification
-		if ("FriendOnlineOffline" == notification->getName())
-		{
-			res = new LLPanelOnlineStatus(notification);
-		}
-		// in all other case we use generic tip panel
-		else
-		{
-			res = new LLPanelGenericTip(notification);
-		}
-	}
-	else if("notify" == notification->getType())
-	{
-		if (notification->getPriority() == NOTIFICATION_PRIORITY_CRITICAL)
-		{
-			res = new LLToastScriptQuestion(notification);
-		}
-		else
-		{
-			res = new LLToastNotifyPanel(notification);
-		}
-	}
-	/*
-	 else if(...)
-	 create all other specific non-public toast panel
-	 */
+    //process tip toast panels
+    if ("notifytip" == notification->getType())
+    {
+        // if it is online/offline notification
+        if ("FriendOnlineOffline" == notification->getName())
+        {
+            res = new LLPanelOnlineStatus(notification);
+        }
+        // in all other case we use generic tip panel
+        else
+        {
+            res = new LLPanelGenericTip(notification);
+        }
+    }
+    else if("notify" == notification->getType())
+    {
+        if (notification->getPriority() == NOTIFICATION_PRIORITY_CRITICAL)
+        {
+            res = new LLToastScriptQuestion(notification);
+        }
+        else
+        {
+            res = new LLToastNotifyPanel(notification);
+        }
+    }
+    /*
+     else if(...)
+     create all other specific non-public toast panel
+     */
 
-	return res;
+    return res;
 }
 
 LLCheckBoxToastPanel::LLCheckBoxToastPanel(const LLNotificationPtr& p_ntf)

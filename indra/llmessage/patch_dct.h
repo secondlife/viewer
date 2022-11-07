@@ -30,12 +30,12 @@
 class LLVector3;
 
 // Code Values
-const U8 ZERO_CODE	= 0x0;
+const U8 ZERO_CODE  = 0x0;
 const U8 ZERO_EOB = 0x2;
 const U8 POSITIVE_VALUE = 0x6;
 const U8 NEGATIVE_VALUE = 0x7;
 
-const S8 NORMAL_PATCH_SIZE	= 16;
+const S8 NORMAL_PATCH_SIZE  = 16;
 const S8 LARGE_PATCH_SIZE = 32;
 
 const U8 END_OF_PATCHES = 97;
@@ -45,35 +45,35 @@ const U8 END_OF_PATCHES = 97;
 // Top level header for group of headers
 //typedef struct LL_Group_Header
 //{
-//	U16  stride;		// 2 = 2
-//	U8  patch_size;		// 1 = 3
-//	U8  layer_type;		// 1 = 4
+//  U16  stride;        // 2 = 2
+//  U8  patch_size;     // 1 = 3
+//  U8  layer_type;     // 1 = 4
 //} LLGroupHeader;
 
 class LLGroupHeader
 {
 public:
-	U16	stride;			// 2 = 2
-	U8	patch_size;		// 1 = 3
-	U8	layer_type;		// 1 = 4
+    U16 stride;         // 2 = 2
+    U8  patch_size;     // 1 = 3
+    U8  layer_type;     // 1 = 4
 };
 
 // Individual patch header
 
 //typedef struct LL_Patch_Header
 //{
-//	F32 dc_offset;		// 4 bytes
-//	U16 range;			// 2 = 7 ((S16) FP range (breaks if we need > 32K meters in 1 patch)
-//	U8  quant_wbits;	// 1 = 8 (upper 4 bits is quant - 2, lower 4 bits is word bits - 2)
-//	U16	patchids;		// 2 = 10 (actually only uses 10 bits, 5 for each)
+//  F32 dc_offset;      // 4 bytes
+//  U16 range;          // 2 = 7 ((S16) FP range (breaks if we need > 32K meters in 1 patch)
+//  U8  quant_wbits;    // 1 = 8 (upper 4 bits is quant - 2, lower 4 bits is word bits - 2)
+//  U16 patchids;       // 2 = 10 (actually only uses 10 bits, 5 for each)
 //} LLPatchHeader;
 class LLPatchHeader
 {
 public:
-	F32	dc_offset;		// 4 bytes
-	U16	range;			// 2 = 7 ((S16) FP range (breaks if we need > 32K meters in 1 patch)
-	U8	quant_wbits;	// 1 = 8 (upper 4 bits is quant - 2, lower 4 bits is word bits - 2)
-	U16	patchids;		// 2 = 10 (actually only uses 10 bits, 5 for each)
+    F32 dc_offset;      // 4 bytes
+    U16 range;          // 2 = 7 ((S16) FP range (breaks if we need > 32K meters in 1 patch)
+    U8  quant_wbits;    // 1 = 8 (upper 4 bits is quant - 2, lower 4 bits is word bits - 2)
+    U16 patchids;       // 2 = 10 (actually only uses 10 bits, 5 for each)
 };
 
 // Compression routines

@@ -51,17 +51,17 @@ LLFloaterBuildOptions::~LLFloaterBuildOptions()
 
 BOOL LLFloaterBuildOptions::postBuild()
 {
-	return TRUE;
+    return TRUE;
 }
 
 // virtual
 void LLFloaterBuildOptions::onOpen(const LLSD& key)
 {
-	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
+    mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 }
 
 // virtual
 void LLFloaterBuildOptions::onClose(bool app_quitting)
 {
-	mObjectSelection = NULL;
+    mObjectSelection = NULL;
 }

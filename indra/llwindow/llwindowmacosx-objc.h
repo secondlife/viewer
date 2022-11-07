@@ -40,8 +40,8 @@ typedef std::vector<int> segment_lengths;
 typedef std::vector<int> segment_standouts;
 
 struct attributedStringInfo {
-	segment_lengths seg_lengths;
-	segment_standouts seg_standouts;
+    segment_lengths seg_lengths;
+    segment_standouts seg_standouts;
 };
 
 // This will actually hold an NSCursor*, but that type is only available in objective C.

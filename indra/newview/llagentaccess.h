@@ -35,42 +35,42 @@ class LLControlGroup;
 class LLAgentAccess
 {
 public:
-	LLAgentAccess(LLControlGroup& savedSettings);
-	
-	bool getAdminOverride() const;
-	void setAdminOverride(bool b);
+    LLAgentAccess(LLControlGroup& savedSettings);
+    
+    bool getAdminOverride() const;
+    void setAdminOverride(bool b);
 
-	void setGodLevel(U8 god_level);
-	bool isGodlike() const;
-	bool isGodlikeWithoutAdminMenuFakery() const;
-	U8 getGodLevel() const;
-	
-	
-	// rather than just expose the preference setting, we're going to actually
-	// expose what the client code cares about -- what the user should see
-	// based on a combination of the is* and prefers* flags, combined with God bit.
-	bool wantsPGOnly() const;
-	bool canAccessMature() const;
-	bool canAccessAdult() const;
-	bool prefersPG() const;
-	bool prefersMature() const;
-	bool prefersAdult() const;
-	bool isTeen() const;
-	bool isMature() const;
-	bool isAdult() const;
-	
-	void setMaturity(char text);
-	
-	static int convertTextToMaturity(char text);
-	
-	bool canSetMaturity(S32 maturity);
-	
+    void setGodLevel(U8 god_level);
+    bool isGodlike() const;
+    bool isGodlikeWithoutAdminMenuFakery() const;
+    U8 getGodLevel() const;
+    
+    
+    // rather than just expose the preference setting, we're going to actually
+    // expose what the client code cares about -- what the user should see
+    // based on a combination of the is* and prefers* flags, combined with God bit.
+    bool wantsPGOnly() const;
+    bool canAccessMature() const;
+    bool canAccessAdult() const;
+    bool prefersPG() const;
+    bool prefersMature() const;
+    bool prefersAdult() const;
+    bool isTeen() const;
+    bool isMature() const;
+    bool isAdult() const;
+    
+    void setMaturity(char text);
+    
+    static int convertTextToMaturity(char text);
+    
+    bool canSetMaturity(S32 maturity);
+    
 private:
-	U8 mAccess;	// SIM_ACCESS_MATURE etc
-	U8 mGodLevel;
-	bool mAdminOverride;
-	
-	LLControlGroup& mSavedSettings;
+    U8 mAccess; // SIM_ACCESS_MATURE etc
+    U8 mGodLevel;
+    bool mAdminOverride;
+    
+    LLControlGroup& mSavedSettings;
 };
 
 #endif // LL_LLAGENTACCESS_H

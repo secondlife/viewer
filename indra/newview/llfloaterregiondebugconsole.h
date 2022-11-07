@@ -35,31 +35,31 @@
 class LLTextEditor;
 
 typedef boost::signals2::signal<
-	void (const std::string& output)> console_reply_signal_t;
+    void (const std::string& output)> console_reply_signal_t;
 
 class LLFloaterRegionDebugConsole : public LLFloater
 {
 public:
-	LLFloaterRegionDebugConsole(LLSD const & key);
-	virtual ~LLFloaterRegionDebugConsole();
+    LLFloaterRegionDebugConsole(LLSD const & key);
+    virtual ~LLFloaterRegionDebugConsole();
 
-	// virtual
-	BOOL postBuild();
-	
-	void onInput(LLUICtrl* ctrl, const LLSD& param);
+    // virtual
+    BOOL postBuild();
+    
+    void onInput(LLUICtrl* ctrl, const LLSD& param);
 
-	LLTextEditor * mOutput;
+    LLTextEditor * mOutput;
 
-	static boost::signals2::connection setConsoleReplyCallback(const console_reply_signal_t::slot_type& cb);
+    static boost::signals2::connection setConsoleReplyCallback(const console_reply_signal_t::slot_type& cb);
 
  private:
-	void onReplyReceived(const std::string& output);
+    void onReplyReceived(const std::string& output);
 
     void onAsyncConsoleError(LLSD result);
     void onConsoleError(LLSD result);
     void onConsoleSuccess(LLSD result);
 
-	boost::signals2::connection mReplySignalConnection;
+    boost::signals2::connection mReplySignalConnection;
 };
 
 #endif // LL_LLFLOATERREGIONDEBUGCONSOLE_H

@@ -35,44 +35,44 @@ class LLScrollListCtrl;
 class LLButton;
 
 class LLFloaterLandHoldings
-:	public LLFloater
+:   public LLFloater
 {
 public:
-	LLFloaterLandHoldings(const LLSD& key);
-	virtual ~LLFloaterLandHoldings();
-	
-	virtual BOOL postBuild();
-	virtual void onOpen(const LLSD& key);
-	virtual void draw();
+    LLFloaterLandHoldings(const LLSD& key);
+    virtual ~LLFloaterLandHoldings();
+    
+    virtual BOOL postBuild();
+    virtual void onOpen(const LLSD& key);
+    virtual void draw();
 
-	void refresh();
+    void refresh();
 
-	void buttonCore(S32 which);
+    void buttonCore(S32 which);
 
-	static void processPlacesReply(LLMessageSystem* msg, void**);
+    static void processPlacesReply(LLMessageSystem* msg, void**);
 
-	static void onClickTeleport(void*);
-	static void onClickMap(void*);
-	static void onClickLandmark(void*);
+    static void onClickTeleport(void*);
+    static void onClickMap(void*);
+    static void onClickLandmark(void*);
 
-	static void onGrantList(void* data);
+    static void onGrantList(void* data);
 
-	static bool sHasLindenHome;
-
-protected:
-	void refreshAggregates();
+    static bool sHasLindenHome;
 
 protected:
-	// Sum up as packets arrive the total holdings
-	S32 mActualArea;
-	S32 mBillableArea;
+    void refreshAggregates();
 
-	// Has a packet of data been received?
-	// Used to clear out the mParcelList's "Loading..." indicator
-	BOOL mFirstPacketReceived;
+protected:
+    // Sum up as packets arrive the total holdings
+    S32 mActualArea;
+    S32 mBillableArea;
 
-	std::string mSortColumn;
-	BOOL mSortAscending;
+    // Has a packet of data been received?
+    // Used to clear out the mParcelList's "Loading..." indicator
+    BOOL mFirstPacketReceived;
+
+    std::string mSortColumn;
+    BOOL mSortAscending;
 };
 
 #endif

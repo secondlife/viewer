@@ -40,42 +40,42 @@
 ///----------------------------------------------------------------------------
 /// Class LLFloaterHUD
 ///----------------------------------------------------------------------------
-#define super LLFloater	/* superclass */
+#define super LLFloater /* superclass */
 
 // Default constructor
 LLFloaterHUD::LLFloaterHUD(const LLSD& key)
-:	LLFloater(key),
-	mWebBrowser(0)
+:   LLFloater(key),
+    mWebBrowser(0)
 {
-	// do not build the floater if there the url is empty
-	if (gSavedSettings.getString("TutorialURL") == "")
-	{
-		LLNotificationsUtil::add("TutorialNotFound");
-		return;
-	}
-	
-	// Opaque background since we never get the focus
-	setBackgroundOpaque(TRUE);
+    // do not build the floater if there the url is empty
+    if (gSavedSettings.getString("TutorialURL") == "")
+    {
+        LLNotificationsUtil::add("TutorialNotFound");
+        return;
+    }
+    
+    // Opaque background since we never get the focus
+    setBackgroundOpaque(TRUE);
 }
 
 BOOL LLFloaterHUD::postBuild()
 {
-	mWebBrowser = getChild<LLMediaCtrl>("floater_hud_browser" );
-	if (mWebBrowser)
-	{
-		// This is a "chrome" floater, so we don't want anything to
-		// take focus (as the user needs to be able to walk with 
-		// arrow keys during tutorial).
-		mWebBrowser->setTakeFocusOnClick(false);
-		
-		std::string language = LLUI::getLanguage();
-		std::string base_url = gSavedSettings.getString("TutorialURL");
-		
-		std::string url = base_url + language + "/";
-		mWebBrowser->navigateTo(url);
-	}
-	
-	return TRUE;
+    mWebBrowser = getChild<LLMediaCtrl>("floater_hud_browser" );
+    if (mWebBrowser)
+    {
+        // This is a "chrome" floater, so we don't want anything to
+        // take focus (as the user needs to be able to walk with 
+        // arrow keys during tutorial).
+        mWebBrowser->setTakeFocusOnClick(false);
+        
+        std::string language = LLUI::getLanguage();
+        std::string base_url = gSavedSettings.getString("TutorialURL");
+        
+        std::string url = base_url + language + "/";
+        mWebBrowser->navigateTo(url);
+    }
+    
+    return TRUE;
 }
 
 // Destructor

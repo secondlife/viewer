@@ -43,32 +43,32 @@
 static LLDefaultChildRegistry::Register<LLProgressBar> r("progress_bar");
 
 LLProgressBar::Params::Params()
-:	image_bar("image_bar"),
-	image_fill("image_fill"),
-	color_bar("color_bar"),
-	color_bg("color_bg")
+:   image_bar("image_bar"),
+    image_fill("image_fill"),
+    color_bar("color_bar"),
+    color_bg("color_bg")
 {}
 
 
 LLProgressBar::LLProgressBar(const LLProgressBar::Params& p) 
-:	LLUICtrl(p),
-	mImageBar(p.image_bar),
-	mImageFill(p.image_fill),
-	mColorBackground(p.color_bg()),
-	mColorBar(p.color_bar()),
-	mPercentDone(0.f)
+:   LLUICtrl(p),
+    mImageBar(p.image_bar),
+    mImageFill(p.image_fill),
+    mColorBackground(p.color_bg()),
+    mColorBar(p.color_bar()),
+    mPercentDone(0.f)
 {}
 
 LLProgressBar::~LLProgressBar()
 {
-	gFocusMgr.releaseFocusIfNeeded( this );
+    gFocusMgr.releaseFocusIfNeeded( this );
 }
 
 void LLProgressBar::draw()
 {
-	static LLTimer timer;
-	F32 alpha = getDrawContext().mAlpha;
-	
+    static LLTimer timer;
+    F32 alpha = getDrawContext().mAlpha;
+    
     if (mImageBar) // optional according to parameters
     {
         LLColor4 image_bar_color = mColorBackground.get();
@@ -89,5 +89,5 @@ void LLProgressBar::draw()
 
 void LLProgressBar::setValue(const LLSD& value)
 {
-	mPercentDone = llclamp((F32)value.asReal(), 0.f, 100.f);
+    mPercentDone = llclamp((F32)value.asReal(), 0.f, 100.f);
 }

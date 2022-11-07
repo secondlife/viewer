@@ -70,12 +70,12 @@ protected:
     void onClickCancel();
     void onClickSave();
     void onClickLocation();
-	void onClickClear();
-	void onPickGroup();
-	void onFieldChanged();
-	void onReportExperience();
+    void onClickClear();
+    void onPickGroup();
+    void onFieldChanged();
+    void onReportExperience();
 
-	void setEditGroup(LLUUID group_id);
+    void setEditGroup(LLUUID group_id);
 
     void changeToView();
     void changeToEdit();
@@ -98,7 +98,7 @@ protected:
     LLUUID mExperienceId;
     LLSD mExperienceDetails;
     LLSD mPackage;
-	std::string mLocationSLURL;
+    std::string mLocationSLURL;
     int mSaveCompleteAction;
     bool mDirty;
     bool mForceClose;

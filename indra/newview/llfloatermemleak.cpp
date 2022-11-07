@@ -45,186 +45,186 @@ BOOL LLFloaterMemLeak::sbAllocationFailed = FALSE ;
 extern BOOL gSimulateMemLeak;
 
 LLFloaterMemLeak::LLFloaterMemLeak(const LLSD& key)
-	: LLFloater(key)
+    : LLFloater(key)
 {
-	setTitle("Memory Leaking Simulation Floater");
-	mCommitCallbackRegistrar.add("MemLeak.ChangeLeakingSpeed",	boost::bind(&LLFloaterMemLeak::onChangeLeakingSpeed, this));
-	mCommitCallbackRegistrar.add("MemLeak.ChangeMaxMemLeaking",	boost::bind(&LLFloaterMemLeak::onChangeMaxMemLeaking, this));
-	mCommitCallbackRegistrar.add("MemLeak.Start",	boost::bind(&LLFloaterMemLeak::onClickStart, this));
-	mCommitCallbackRegistrar.add("MemLeak.Stop",	boost::bind(&LLFloaterMemLeak::onClickStop, this));
-	mCommitCallbackRegistrar.add("MemLeak.Release",	boost::bind(&LLFloaterMemLeak::onClickRelease, this));
-	mCommitCallbackRegistrar.add("MemLeak.Close",	boost::bind(&LLFloaterMemLeak::onClickClose, this));
+    setTitle("Memory Leaking Simulation Floater");
+    mCommitCallbackRegistrar.add("MemLeak.ChangeLeakingSpeed",  boost::bind(&LLFloaterMemLeak::onChangeLeakingSpeed, this));
+    mCommitCallbackRegistrar.add("MemLeak.ChangeMaxMemLeaking", boost::bind(&LLFloaterMemLeak::onChangeMaxMemLeaking, this));
+    mCommitCallbackRegistrar.add("MemLeak.Start",   boost::bind(&LLFloaterMemLeak::onClickStart, this));
+    mCommitCallbackRegistrar.add("MemLeak.Stop",    boost::bind(&LLFloaterMemLeak::onClickStop, this));
+    mCommitCallbackRegistrar.add("MemLeak.Release", boost::bind(&LLFloaterMemLeak::onClickRelease, this));
+    mCommitCallbackRegistrar.add("MemLeak.Close",   boost::bind(&LLFloaterMemLeak::onClickClose, this));
 }
 //----------------------------------------------
 
 BOOL LLFloaterMemLeak::postBuild(void) 
-{	
-	F32 a, b ;
-	a = getChild<LLUICtrl>("leak_speed")->getValue().asReal();
-	if(a > (F32)(0xFFFFFFFF))
-	{
-		sMemLeakingSpeed = 0xFFFFFFFF ;
-	}
-	else
-	{
-		sMemLeakingSpeed = (U32)a ;
-	}
-	b = getChild<LLUICtrl>("max_leak")->getValue().asReal();
-	if(b > (F32)0xFFF)
-	{
-		sMaxLeakedMem = 0xFFFFFFFF ;
-	}
-	else
-	{
-		sMaxLeakedMem = ((U32)b) << 20 ;
-	}
-	
-	sbAllocationFailed = FALSE ;
-	return TRUE ;
+{   
+    F32 a, b ;
+    a = getChild<LLUICtrl>("leak_speed")->getValue().asReal();
+    if(a > (F32)(0xFFFFFFFF))
+    {
+        sMemLeakingSpeed = 0xFFFFFFFF ;
+    }
+    else
+    {
+        sMemLeakingSpeed = (U32)a ;
+    }
+    b = getChild<LLUICtrl>("max_leak")->getValue().asReal();
+    if(b > (F32)0xFFF)
+    {
+        sMaxLeakedMem = 0xFFFFFFFF ;
+    }
+    else
+    {
+        sMaxLeakedMem = ((U32)b) << 20 ;
+    }
+    
+    sbAllocationFailed = FALSE ;
+    return TRUE ;
 }
 LLFloaterMemLeak::~LLFloaterMemLeak()
 {
-	release() ;
-		
-	sMemLeakingSpeed = 0 ; //bytes leaked per frame
-	sMaxLeakedMem = 0 ; //maximum allowed leaked memory	
+    release() ;
+        
+    sMemLeakingSpeed = 0 ; //bytes leaked per frame
+    sMaxLeakedMem = 0 ; //maximum allowed leaked memory 
 }
 
 void LLFloaterMemLeak::release()
 {
-	if(mLeakedMem.empty())
-	{
-		return ;
-	}
+    if(mLeakedMem.empty())
+    {
+        return ;
+    }
 
-	for(S32 i = 0 ; i < (S32)mLeakedMem.size() ; i++)
-	{
-		delete[] mLeakedMem[i] ;
-	}
-	mLeakedMem.clear() ;
+    for(S32 i = 0 ; i < (S32)mLeakedMem.size() ; i++)
+    {
+        delete[] mLeakedMem[i] ;
+    }
+    mLeakedMem.clear() ;
 
-	sStatus = STOP ;
-	sTotalLeaked = 0 ;
-	sbAllocationFailed = FALSE ;
-	gSimulateMemLeak = FALSE;
+    sStatus = STOP ;
+    sTotalLeaked = 0 ;
+    sbAllocationFailed = FALSE ;
+    gSimulateMemLeak = FALSE;
 }
 
 void LLFloaterMemLeak::stop()
 {
-	sStatus = STOP ;
-	sbAllocationFailed = TRUE ;
+    sStatus = STOP ;
+    sbAllocationFailed = TRUE ;
 }
 
 void LLFloaterMemLeak::idle()
 {
-	if(STOP == sStatus)
-	{
-		return ;
-	}
+    if(STOP == sStatus)
+    {
+        return ;
+    }
 
-	sbAllocationFailed = FALSE ;
-	
-	if(RELEASE == sStatus)
-	{
-		release() ;
-		return ;
-	}
+    sbAllocationFailed = FALSE ;
+    
+    if(RELEASE == sStatus)
+    {
+        release() ;
+        return ;
+    }
 
-	char* p = NULL ;
-	if(sMemLeakingSpeed > 0 && sTotalLeaked < sMaxLeakedMem)
-	{
-		p = new char[sMemLeakingSpeed] ;
+    char* p = NULL ;
+    if(sMemLeakingSpeed > 0 && sTotalLeaked < sMaxLeakedMem)
+    {
+        p = new char[sMemLeakingSpeed] ;
 
-		if(p)
-		{
-			mLeakedMem.push_back(p) ;
-			sTotalLeaked += sMemLeakingSpeed ;
-		}
-	}
-	if(!p)
-	{
-		stop();
-	}
+        if(p)
+        {
+            mLeakedMem.push_back(p) ;
+            sTotalLeaked += sMemLeakingSpeed ;
+        }
+    }
+    if(!p)
+    {
+        stop();
+    }
 }
 
 //----------------------
 void LLFloaterMemLeak::onChangeLeakingSpeed()
 {
-	F32 tmp ;
-	tmp =getChild<LLUICtrl>("leak_speed")->getValue().asReal();
+    F32 tmp ;
+    tmp =getChild<LLUICtrl>("leak_speed")->getValue().asReal();
 
-	if(tmp > (F32)0xFFFFFFFF)
-	{
-		sMemLeakingSpeed = 0xFFFFFFFF ;
-	}
-	else
-	{
-		sMemLeakingSpeed = (U32)tmp ;
-	}
+    if(tmp > (F32)0xFFFFFFFF)
+    {
+        sMemLeakingSpeed = 0xFFFFFFFF ;
+    }
+    else
+    {
+        sMemLeakingSpeed = (U32)tmp ;
+    }
 
 }
 
 void LLFloaterMemLeak::onChangeMaxMemLeaking()
 {
 
-	F32 tmp ;
-	tmp =getChild<LLUICtrl>("max_leak")->getValue().asReal();
-	if(tmp > (F32)0xFFF)
-	{
-		sMaxLeakedMem = 0xFFFFFFFF ;
-	}
-	else
-	{
-		sMaxLeakedMem = ((U32)tmp) << 20 ;
-	}
-	
+    F32 tmp ;
+    tmp =getChild<LLUICtrl>("max_leak")->getValue().asReal();
+    if(tmp > (F32)0xFFF)
+    {
+        sMaxLeakedMem = 0xFFFFFFFF ;
+    }
+    else
+    {
+        sMaxLeakedMem = ((U32)tmp) << 20 ;
+    }
+    
 }
 
 void LLFloaterMemLeak::onClickStart()
 {
-	sStatus = START ;
-	gSimulateMemLeak = TRUE;
+    sStatus = START ;
+    gSimulateMemLeak = TRUE;
 }
 
 void LLFloaterMemLeak::onClickStop()
 {
-	sStatus = STOP ;
+    sStatus = STOP ;
 }
 
 void LLFloaterMemLeak::onClickRelease()
 {
-	sStatus = RELEASE ;
+    sStatus = RELEASE ;
 }
 
 void LLFloaterMemLeak::onClickClose()
 {
-	setVisible(FALSE);
+    setVisible(FALSE);
 }
 
 void LLFloaterMemLeak::draw()
 {
-	//show total memory leaked
-	if(sTotalLeaked > 0)
-	{
-		std::string bytes_string;
-		LLResMgr::getInstance()->getIntegerString(bytes_string, sTotalLeaked >> 10 );
-		getChild<LLUICtrl>("total_leaked_label")->setTextArg("[SIZE]", bytes_string);
-	}
-	else
-	{
-		getChild<LLUICtrl>("total_leaked_label")->setTextArg("[SIZE]", LLStringExplicit("0"));
-	}
+    //show total memory leaked
+    if(sTotalLeaked > 0)
+    {
+        std::string bytes_string;
+        LLResMgr::getInstance()->getIntegerString(bytes_string, sTotalLeaked >> 10 );
+        getChild<LLUICtrl>("total_leaked_label")->setTextArg("[SIZE]", bytes_string);
+    }
+    else
+    {
+        getChild<LLUICtrl>("total_leaked_label")->setTextArg("[SIZE]", LLStringExplicit("0"));
+    }
 
-	if(sbAllocationFailed)
-	{
-		getChild<LLUICtrl>("note_label_1")->setTextArg("[NOTE1]", LLStringExplicit("Memory leaking simulation stops. Reduce leaking speed or"));
-		getChild<LLUICtrl>("note_label_2")->setTextArg("[NOTE2]", LLStringExplicit("increase max leaked memory, then press Start to continue."));
-	}
-	else
-	{
-		getChild<LLUICtrl>("note_label_1")->setTextArg("[NOTE1]", LLStringExplicit(""));
-		getChild<LLUICtrl>("note_label_2")->setTextArg("[NOTE2]", LLStringExplicit(""));
-	}
+    if(sbAllocationFailed)
+    {
+        getChild<LLUICtrl>("note_label_1")->setTextArg("[NOTE1]", LLStringExplicit("Memory leaking simulation stops. Reduce leaking speed or"));
+        getChild<LLUICtrl>("note_label_2")->setTextArg("[NOTE2]", LLStringExplicit("increase max leaked memory, then press Start to continue."));
+    }
+    else
+    {
+        getChild<LLUICtrl>("note_label_1")->setTextArg("[NOTE1]", LLStringExplicit(""));
+        getChild<LLUICtrl>("note_label_2")->setTextArg("[NOTE2]", LLStringExplicit(""));
+    }
 
-	LLFloater::draw();
+    LLFloater::draw();
 }

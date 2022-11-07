@@ -33,7 +33,7 @@
 #include "llfloaterreg.h"
 
 LLFloaterPreviewTrash::LLFloaterPreviewTrash(const LLSD& key)
-:	LLFloater(key)
+:   LLFloater(key)
 {
 }
 
@@ -43,13 +43,13 @@ BOOL LLFloaterPreviewTrash::postBuild()
         boost::bind(&LLFloaterPreviewTrash::onClickEmpty, this));
     getChild<LLUICtrl>("cancel_btn")->setCommitCallback(
         boost::bind(&LLFloaterPreviewTrash::onClickCancel, this));
-	// Always center the dialog.  User can change the size,
-	// but purchases are important and should be center screen.
-	// This also avoids problems where the user resizes the application window
-	// mid-session and the saved rect is off-center.
-	center();
-	
-	return TRUE;
+    // Always center the dialog.  User can change the size,
+    // but purchases are important and should be center screen.
+    // This also avoids problems where the user resizes the application window
+    // mid-session and the saved rect is off-center.
+    center();
+    
+    return TRUE;
 }
 
 LLFloaterPreviewTrash::~LLFloaterPreviewTrash()
@@ -60,23 +60,23 @@ LLFloaterPreviewTrash::~LLFloaterPreviewTrash()
 // static
 void LLFloaterPreviewTrash::show()
 {
-	LLFloaterReg::showTypedInstance<LLFloaterPreviewTrash>("preview_trash", LLSD(), TRUE);
+    LLFloaterReg::showTypedInstance<LLFloaterPreviewTrash>("preview_trash", LLSD(), TRUE);
 }
 
 // static
 bool LLFloaterPreviewTrash::isVisible()
 {
-	return LLFloaterReg::instanceVisible("preview_trash");
+    return LLFloaterReg::instanceVisible("preview_trash");
 }
 
 
 void LLFloaterPreviewTrash::onClickEmpty()
 {
-	gInventory.emptyFolderType("PurgeSelectedItems", LLFolderType::FT_TRASH);
-	closeFloater();
+    gInventory.emptyFolderType("PurgeSelectedItems", LLFolderType::FT_TRASH);
+    closeFloater();
 }
 
 void LLFloaterPreviewTrash::onClickCancel()
 {
-	closeFloater();
+    closeFloater();
 }

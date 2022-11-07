@@ -36,23 +36,23 @@ class LLFloaterSavePrefPreset : public LLFloater
 {
 
 public:
-	LLFloaterSavePrefPreset(const LLSD &key);
+    LLFloaterSavePrefPreset(const LLSD &key);
 
-	/*virtual*/	BOOL	postBuild();
-	/*virtual*/ void	onOpen(const LLSD& key);
+    /*virtual*/ BOOL    postBuild();
+    /*virtual*/ void    onOpen(const LLSD& key);
 
-	void onBtnSave();
-	void onBtnCancel();
+    void onBtnSave();
+    void onBtnCancel();
 
 private:
 
-	LLComboBox*		mPresetCombo;
-	LLButton*		mSaveButton;
+    LLComboBox*     mPresetCombo;
+    LLButton*       mSaveButton;
 
-	void onPresetsListChange();
-	void onPresetNameEdited();
+    void onPresetsListChange();
+    void onPresetNameEdited();
 
-	std::string mSubdirectory;
+    std::string mSubdirectory;
 };
 
 #endif // LL_LLFLOATERSAVEPREFPRESET_H

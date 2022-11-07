@@ -75,20 +75,20 @@ extern const F32 HTTP_REQUEST_EXPIRY_SECS;
 /// the output LLSD object, out_llsd, is written with the
 /// result and true is returned.
 ///
-/// @arg	response	Response object as returned in
-///						in an HttpHandler onCompleted() callback.
-/// @arg	log			If true, LLSD parser will emit errors
-///						as LL_INFOS-level messages as it parses.
-///						Otherwise, it *should* be a quiet parse.
-/// @arg	out_llsd	Output LLSD object written only upon
-///						successful parse of the response object.
+/// @arg    response    Response object as returned in
+///                     in an HttpHandler onCompleted() callback.
+/// @arg    log         If true, LLSD parser will emit errors
+///                     as LL_INFOS-level messages as it parses.
+///                     Otherwise, it *should* be a quiet parse.
+/// @arg    out_llsd    Output LLSD object written only upon
+///                     successful parse of the response object.
 ///
-/// @return				Returns true (and writes to out_llsd) if
-///						parse was successful.  False otherwise.
+/// @return             Returns true (and writes to out_llsd) if
+///                     parse was successful.  False otherwise.
 ///
 bool responseToLLSD(LLCore::HttpResponse * response,
-					bool log,
-					LLSD & out_llsd);
+                    bool log,
+                    LLSD & out_llsd);
 
 /// Create a std::string representation of a response object
 /// suitable for logging.  Mainly intended for logging of
@@ -104,15 +104,15 @@ std::string responseToString(LLCore::HttpResponse * response);
 /// One will not be provided by this call.  You might look after
 /// the 'Accept:' header as well.
 ///
-/// @return				If request is successfully issued, the
-///						HttpHandle representing the request.
-///						On error, LLCORE_HTTP_HANDLE_INVALID
-///						is returned and caller can fetch detailed
-///						status with the getStatus() method on the
-///						request object.  In case of error, no
-///						request is queued and caller may need to
-///						perform additional cleanup such as freeing
-///						a now-useless HttpHandler object.
+/// @return             If request is successfully issued, the
+///                     HttpHandle representing the request.
+///                     On error, LLCORE_HTTP_HANDLE_INVALID
+///                     is returned and caller can fetch detailed
+///                     status with the getStatus() method on the
+///                     request object.  In case of error, no
+///                     request is queued and caller may need to
+///                     perform additional cleanup such as freeing
+///                     a now-useless HttpHandler object.
 ///
 LLCore::HttpHandle requestPostWithLLSD(LLCore::HttpRequest * request,
     LLCore::HttpRequest::policy_t policy_id,
@@ -124,12 +124,12 @@ LLCore::HttpHandle requestPostWithLLSD(LLCore::HttpRequest * request,
     const LLCore::HttpHandler::ptr_t &handler);
 
 inline LLCore::HttpHandle requestPostWithLLSD(LLCore::HttpRequest::ptr_t & request,
-	LLCore::HttpRequest::policy_t policy_id,
-	LLCore::HttpRequest::priority_t priority,
-	const std::string & url,
-	const LLSD & body,
-	const LLCore::HttpOptions::ptr_t & options,
-	const LLCore::HttpHeaders::ptr_t & headers,
+    LLCore::HttpRequest::policy_t policy_id,
+    LLCore::HttpRequest::priority_t priority,
+    const std::string & url,
+    const LLSD & body,
+    const LLCore::HttpOptions::ptr_t & options,
+    const LLCore::HttpHeaders::ptr_t & headers,
     const LLCore::HttpHandler::ptr_t & handler)
 {
     return requestPostWithLLSD(request.get(), policy_id, priority,
@@ -157,32 +157,32 @@ inline LLCore::HttpHandle requestPostWithLLSD(LLCore::HttpRequest::ptr_t & reque
 /// an HttpHeaders object with a correct 'Content-Type:' header.
 /// One will not be provided by this call.
 ///
-/// @return				If request is successfully issued, the
-///						HttpHandle representing the request.
-///						On error, LLCORE_HTTP_HANDLE_INVALID
-///						is returned and caller can fetch detailed
-///						status with the getStatus() method on the
-///						request object.  In case of error, no
-///						request is queued and caller may need to
-///						perform additional cleanup such as freeing
-///						a now-useless HttpHandler object.
+/// @return             If request is successfully issued, the
+///                     HttpHandle representing the request.
+///                     On error, LLCORE_HTTP_HANDLE_INVALID
+///                     is returned and caller can fetch detailed
+///                     status with the getStatus() method on the
+///                     request object.  In case of error, no
+///                     request is queued and caller may need to
+///                     perform additional cleanup such as freeing
+///                     a now-useless HttpHandler object.
 ///
 LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest * request,
-	LLCore::HttpRequest::policy_t policy_id,
-	LLCore::HttpRequest::priority_t priority,
-	const std::string & url,
-	const LLSD & body,
-	const LLCore::HttpOptions::ptr_t &options,
-	const LLCore::HttpHeaders::ptr_t &headers,
+    LLCore::HttpRequest::policy_t policy_id,
+    LLCore::HttpRequest::priority_t priority,
+    const std::string & url,
+    const LLSD & body,
+    const LLCore::HttpOptions::ptr_t &options,
+    const LLCore::HttpHeaders::ptr_t &headers,
     const LLCore::HttpHandler::ptr_t &handler);
 
 inline LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest::ptr_t & request,
-	LLCore::HttpRequest::policy_t policy_id,
-	LLCore::HttpRequest::priority_t priority,
-	const std::string & url,
-	const LLSD & body,
-	const LLCore::HttpOptions::ptr_t & options,
-	const LLCore::HttpHeaders::ptr_t & headers,
+    LLCore::HttpRequest::policy_t policy_id,
+    LLCore::HttpRequest::priority_t priority,
+    const std::string & url,
+    const LLSD & body,
+    const LLCore::HttpOptions::ptr_t & options,
+    const LLCore::HttpHeaders::ptr_t & headers,
     LLCore::HttpHandler::ptr_t handler)
 {
     return requestPutWithLLSD(request.get(), policy_id, priority,
@@ -209,15 +209,15 @@ inline LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest::ptr_t & reques
 /// an HttpHeaders object with a correct 'Content-Type:' header.
 /// One will not be provided by this call.
 ///
-/// @return				If request is successfully issued, the
-///						HttpHandle representing the request.
-///						On error, LLCORE_HTTP_HANDLE_INVALID
-///						is returned and caller can fetch detailed
-///						status with the getStatus() method on the
-///						request object.  In case of error, no
-///						request is queued and caller may need to
-///						perform additional cleanup such as freeing
-///						a now-useless HttpHandler object.
+/// @return             If request is successfully issued, the
+///                     HttpHandle representing the request.
+///                     On error, LLCORE_HTTP_HANDLE_INVALID
+///                     is returned and caller can fetch detailed
+///                     status with the getStatus() method on the
+///                     request object.  In case of error, no
+///                     request is queued and caller may need to
+///                     perform additional cleanup such as freeing
+///                     a now-useless HttpHandler object.
 ///
 LLCore::HttpHandle requestPatchWithLLSD(LLCore::HttpRequest * request,
     LLCore::HttpRequest::policy_t policy_id,

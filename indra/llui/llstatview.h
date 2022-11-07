@@ -36,34 +36,34 @@ class LLStatBar;
 // widget registrars
 struct StatViewRegistry : public LLChildRegistry<StatViewRegistry>
 {
-	LLSINGLETON_EMPTY_CTOR(StatViewRegistry);
+    LLSINGLETON_EMPTY_CTOR(StatViewRegistry);
 };
 
 class LLStatView : public LLContainerView
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLContainerView::Params>
-	{
-		Optional<std::string> setting;
-		Params() 
-		:	setting("setting")
-		{
-			changeDefault(follows.flags, FOLLOWS_TOP | FOLLOWS_LEFT | FOLLOWS_RIGHT);
-			changeDefault(show_label, true);
-		}
-	};
+    struct Params : public LLInitParam::Block<Params, LLContainerView::Params>
+    {
+        Optional<std::string> setting;
+        Params() 
+        :   setting("setting")
+        {
+            changeDefault(follows.flags, FOLLOWS_TOP | FOLLOWS_LEFT | FOLLOWS_RIGHT);
+            changeDefault(show_label, true);
+        }
+    };
 
-	// my valid children are stored in this registry
-	typedef StatViewRegistry child_registry_t;
+    // my valid children are stored in this registry
+    typedef StatViewRegistry child_registry_t;
 
-	~LLStatView();
-
-protected:
-	LLStatView(const Params&);
-	friend class LLUICtrlFactory;
+    ~LLStatView();
 
 protected:
-	std::string mSetting;
+    LLStatView(const Params&);
+    friend class LLUICtrlFactory;
+
+protected:
+    std::string mSetting;
 
 };
 #endif // LL_STATVIEW_

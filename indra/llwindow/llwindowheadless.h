@@ -32,23 +32,23 @@
 class LLWindowHeadless : public LLWindow
 {
 public:
-	/*virtual*/ void show() {};
-	/*virtual*/ void hide() {};
-	/*virtual*/ void close() {};
-	/*virtual*/ BOOL getVisible() {return FALSE;};
-	/*virtual*/ BOOL getMinimized() {return FALSE;};
-	/*virtual*/ BOOL getMaximized() {return FALSE;};
-	/*virtual*/ BOOL maximize() {return FALSE;};
-	/*virtual*/ void minimize() {};
-	/*virtual*/ void restore() {};
-	/*virtual*/ BOOL getFullscreen() {return FALSE;};
-	/*virtual*/ BOOL getPosition(LLCoordScreen *position) {return FALSE;};
-	/*virtual*/ BOOL getSize(LLCoordScreen *size) {return FALSE;};
-	/*virtual*/ BOOL getSize(LLCoordWindow *size) {return FALSE;};
-	/*virtual*/ BOOL setPosition(LLCoordScreen position) {return FALSE;};
-	/*virtual*/ BOOL setSizeImpl(LLCoordScreen size) {return FALSE;};
-	/*virtual*/ BOOL setSizeImpl(LLCoordWindow size) {return FALSE;};
-	/*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL enable_vsync, const LLCoordScreen * const posp = NULL) {return FALSE;};
+    /*virtual*/ void show() {};
+    /*virtual*/ void hide() {};
+    /*virtual*/ void close() {};
+    /*virtual*/ BOOL getVisible() {return FALSE;};
+    /*virtual*/ BOOL getMinimized() {return FALSE;};
+    /*virtual*/ BOOL getMaximized() {return FALSE;};
+    /*virtual*/ BOOL maximize() {return FALSE;};
+    /*virtual*/ void minimize() {};
+    /*virtual*/ void restore() {};
+    /*virtual*/ BOOL getFullscreen() {return FALSE;};
+    /*virtual*/ BOOL getPosition(LLCoordScreen *position) {return FALSE;};
+    /*virtual*/ BOOL getSize(LLCoordScreen *size) {return FALSE;};
+    /*virtual*/ BOOL getSize(LLCoordWindow *size) {return FALSE;};
+    /*virtual*/ BOOL setPosition(LLCoordScreen position) {return FALSE;};
+    /*virtual*/ BOOL setSizeImpl(LLCoordScreen size) {return FALSE;};
+    /*virtual*/ BOOL setSizeImpl(LLCoordWindow size) {return FALSE;};
+    /*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL enable_vsync, const LLCoordScreen * const posp = NULL) {return FALSE;};
     void* createSharedContext()  { return nullptr; }
     void makeContextCurrent(void*)  {}
     void destroySharedContext(void*)  {}
@@ -58,54 +58,54 @@ public:
 #if LL_WINDOWS
     /*virtual*/ BOOL getCursorDelta(LLCoordCommon* delta) { return FALSE; }
 #endif
-	/*virtual*/ void showCursor() {};
-	/*virtual*/ void hideCursor() {};
-	/*virtual*/ void showCursorFromMouseMove() {};
-	/*virtual*/ void hideCursorUntilMouseMove() {};
-	/*virtual*/ BOOL isCursorHidden() {return FALSE;};
-	/*virtual*/ void updateCursor() {};
-	//virtual ECursorType getCursor() { return mCurrentCursor; };
-	/*virtual*/ void captureMouse() {};
-	/*virtual*/ void releaseMouse() {};
-	/*virtual*/ void setMouseClipping( BOOL b ) {};
-	/*virtual*/ BOOL isClipboardTextAvailable() {return FALSE; };
-	/*virtual*/ BOOL pasteTextFromClipboard(LLWString &dst) {return FALSE; };
-	/*virtual*/ BOOL copyTextToClipboard(const LLWString &src) {return FALSE; };
-	/*virtual*/ void flashIcon(F32 seconds) {};
-	/*virtual*/ F32 getGamma() {return 1.0f; };
-	/*virtual*/ BOOL setGamma(const F32 gamma) {return FALSE; }; // Set the gamma
-	/*virtual*/ void setFSAASamples(const U32 fsaa_samples) { }
-	/*virtual*/ U32 getFSAASamples() { return 0; }
-	/*virtual*/ BOOL restoreGamma() {return FALSE; };	// Restore original gamma table (before updating gamma)
-	//virtual ESwapMethod getSwapMethod() { return mSwapMethod; }
-	/*virtual*/ void gatherInput() {};
-	/*virtual*/ void delayInputProcessing() {};
-	/*virtual*/ void swapBuffers();
+    /*virtual*/ void showCursor() {};
+    /*virtual*/ void hideCursor() {};
+    /*virtual*/ void showCursorFromMouseMove() {};
+    /*virtual*/ void hideCursorUntilMouseMove() {};
+    /*virtual*/ BOOL isCursorHidden() {return FALSE;};
+    /*virtual*/ void updateCursor() {};
+    //virtual ECursorType getCursor() { return mCurrentCursor; };
+    /*virtual*/ void captureMouse() {};
+    /*virtual*/ void releaseMouse() {};
+    /*virtual*/ void setMouseClipping( BOOL b ) {};
+    /*virtual*/ BOOL isClipboardTextAvailable() {return FALSE; };
+    /*virtual*/ BOOL pasteTextFromClipboard(LLWString &dst) {return FALSE; };
+    /*virtual*/ BOOL copyTextToClipboard(const LLWString &src) {return FALSE; };
+    /*virtual*/ void flashIcon(F32 seconds) {};
+    /*virtual*/ F32 getGamma() {return 1.0f; };
+    /*virtual*/ BOOL setGamma(const F32 gamma) {return FALSE; }; // Set the gamma
+    /*virtual*/ void setFSAASamples(const U32 fsaa_samples) { }
+    /*virtual*/ U32 getFSAASamples() { return 0; }
+    /*virtual*/ BOOL restoreGamma() {return FALSE; };   // Restore original gamma table (before updating gamma)
+    //virtual ESwapMethod getSwapMethod() { return mSwapMethod; }
+    /*virtual*/ void gatherInput() {};
+    /*virtual*/ void delayInputProcessing() {};
+    /*virtual*/ void swapBuffers();
 
-	
+    
     // handy coordinate space conversion routines
-	/*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordWindow *to) { return FALSE; };
-	/*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordScreen *to) { return FALSE; };
-	/*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordGL *to) { return FALSE; };
-	/*virtual*/ BOOL convertCoords(LLCoordGL from, LLCoordWindow *to) { return FALSE; };
-	/*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordGL *to) { return FALSE; };
-	/*virtual*/ BOOL convertCoords(LLCoordGL from, LLCoordScreen *to) { return FALSE; };
+    /*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordWindow *to) { return FALSE; };
+    /*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordScreen *to) { return FALSE; };
+    /*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordGL *to) { return FALSE; };
+    /*virtual*/ BOOL convertCoords(LLCoordGL from, LLCoordWindow *to) { return FALSE; };
+    /*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordGL *to) { return FALSE; };
+    /*virtual*/ BOOL convertCoords(LLCoordGL from, LLCoordScreen *to) { return FALSE; };
 
-	/*virtual*/ LLWindowResolution* getSupportedResolutions(S32 &num_resolutions) { return NULL; };
-	/*virtual*/ F32	getNativeAspectRatio() { return 1.0f; };
-	/*virtual*/ F32 getPixelAspectRatio() { return 1.0f; };
-	/*virtual*/ void setNativeAspectRatio(F32 ratio) {}
+    /*virtual*/ LLWindowResolution* getSupportedResolutions(S32 &num_resolutions) { return NULL; };
+    /*virtual*/ F32 getNativeAspectRatio() { return 1.0f; };
+    /*virtual*/ F32 getPixelAspectRatio() { return 1.0f; };
+    /*virtual*/ void setNativeAspectRatio(F32 ratio) {}
 
-	/*virtual*/ void *getPlatformWindow() { return 0; };
-	/*virtual*/ void bringToFront() {};
-	
-	LLWindowHeadless(LLWindowCallbacks* callbacks,
-		const std::string& title, const std::string& name,
-		S32 x, S32 y, 
-		S32 width, S32 height,
-		U32 flags,  BOOL fullscreen, BOOL clear_background,
-		BOOL enable_vsync, BOOL use_gl, BOOL ignore_pixel_depth);
-	virtual ~LLWindowHeadless();
+    /*virtual*/ void *getPlatformWindow() { return 0; };
+    /*virtual*/ void bringToFront() {};
+    
+    LLWindowHeadless(LLWindowCallbacks* callbacks,
+        const std::string& title, const std::string& name,
+        S32 x, S32 y, 
+        S32 width, S32 height,
+        U32 flags,  BOOL fullscreen, BOOL clear_background,
+        BOOL enable_vsync, BOOL use_gl, BOOL ignore_pixel_depth);
+    virtual ~LLWindowHeadless();
 
 private:
 };
@@ -113,12 +113,12 @@ private:
 class LLSplashScreenHeadless : public LLSplashScreen
 {
 public:
-	LLSplashScreenHeadless() {};
-	virtual ~LLSplashScreenHeadless() {};
+    LLSplashScreenHeadless() {};
+    virtual ~LLSplashScreenHeadless() {};
 
-	/*virtual*/ void showImpl() {};
-	/*virtual*/ void updateImpl(const std::string& mesg) {};
-	/*virtual*/ void hideImpl() {};
+    /*virtual*/ void showImpl() {};
+    /*virtual*/ void updateImpl(const std::string& mesg) {};
+    /*virtual*/ void hideImpl() {};
 
 };
 

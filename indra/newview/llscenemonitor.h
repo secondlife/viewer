@@ -39,88 +39,88 @@ class LLViewerTexture;
 
 class LLSceneMonitor : public LLSingleton<LLSceneMonitor>
 {
-	LLSINGLETON(LLSceneMonitor);
-	~LLSceneMonitor();
-	LOG_CLASS(LLSceneMonitor);
+    LLSINGLETON(LLSceneMonitor);
+    ~LLSceneMonitor();
+    LOG_CLASS(LLSceneMonitor);
 public:
 
-	void freezeAvatar(LLCharacter* avatarp);
-	void setDebugViewerVisible(bool visible);
+    void freezeAvatar(LLCharacter* avatarp);
+    void setDebugViewerVisible(bool visible);
 
-	void capture(); //capture the main frame buffer
-	void compare(); //compare the stored two buffers.	
-	void fetchQueryResult();
-	void calcDiffAggregate();
-	void setDiffTolerance(F32 tol) {mDiffTolerance = tol;}
+    void capture(); //capture the main frame buffer
+    void compare(); //compare the stored two buffers.   
+    void fetchQueryResult();
+    void calcDiffAggregate();
+    void setDiffTolerance(F32 tol) {mDiffTolerance = tol;}
 
-	const LLRenderTarget* getDiffTarget() const {return mDiff;}
-	F32  getDiffTolerance() const {return mDiffTolerance;}
-	F32  getDiffResult() const { return mDiffResult;}
-	F32  getDiffPixelRatio() const { return mDiffPixelRatio;}
-	bool isEnabled()const {return mEnabled;}
-	bool needsUpdate() const;
-	
-	const LLTrace::ExtendablePeriodicRecording* getRecording() const {return &mSceneLoadRecording;}
-	void dumpToFile(std::string file_name);
-	bool hasResults() const { return mSceneLoadRecording.getResults().getDuration() != S32Seconds(0);}
+    const LLRenderTarget* getDiffTarget() const {return mDiff;}
+    F32  getDiffTolerance() const {return mDiffTolerance;}
+    F32  getDiffResult() const { return mDiffResult;}
+    F32  getDiffPixelRatio() const { return mDiffPixelRatio;}
+    bool isEnabled()const {return mEnabled;}
+    bool needsUpdate() const;
+    
+    const LLTrace::ExtendablePeriodicRecording* getRecording() const {return &mSceneLoadRecording;}
+    void dumpToFile(std::string file_name);
+    bool hasResults() const { return mSceneLoadRecording.getResults().getDuration() != S32Seconds(0);}
 
-	void reset();
-
-private:
-	void freezeScene();
-	void unfreezeScene();
-
-	LLRenderTarget& getCaptureTarget();
-	void generateDitheringTexture(S32 width, S32 height);
+    void reset();
 
 private:
-	bool									mEnabled,
-											mDebugViewerVisible;
+    void freezeScene();
+    void unfreezeScene();
 
-	enum EDiffState
-	{
-		WAITING_FOR_NEXT_DIFF,
-		NEED_DIFF,
-		EXECUTE_DIFF,
-		WAIT_ON_RESULT,
-		VIEWER_QUITTING
-	}										mDiffState;
+    LLRenderTarget& getCaptureTarget();
+    void generateDitheringTexture(S32 width, S32 height);
 
-	LLRenderTarget*							mFrames[2];
-	LLRenderTarget*							mDiff;
+private:
+    bool                                    mEnabled,
+                                            mDebugViewerVisible;
 
-	GLuint									mQueryObject; //used for glQuery
-	F32										mDiffResult,  //aggregate results of mDiff.
-											mDiffTolerance, //pixels are filtered out when R+G+B < mDiffTolerance
-											mDiffPixelRatio; //ratio of pixels used for comparison against the original mDiff size along one dimension
+    enum EDiffState
+    {
+        WAITING_FOR_NEXT_DIFF,
+        NEED_DIFF,
+        EXECUTE_DIFF,
+        WAIT_ON_RESULT,
+        VIEWER_QUITTING
+    }                                       mDiffState;
 
-	LLPointer<LLViewerTexture>				mDitheringTexture;
-	S32										mDitherMatrixWidth;
-	F32										mDitherScale,
-											mDitherScaleS,
-											mDitherScaleT;
+    LLRenderTarget*                         mFrames[2];
+    LLRenderTarget*                         mDiff;
 
-	std::vector<LLAnimPauseRequest>			mAvatarPauseHandles;
+    GLuint                                  mQueryObject; //used for glQuery
+    F32                                     mDiffResult,  //aggregate results of mDiff.
+                                            mDiffTolerance, //pixels are filtered out when R+G+B < mDiffTolerance
+                                            mDiffPixelRatio; //ratio of pixels used for comparison against the original mDiff size along one dimension
 
-	LLTimer									mRecordingTimer;
-	LLTrace::ExtendablePeriodicRecording	mSceneLoadRecording;
-	LLTrace::Recording						mMonitorRecording;
+    LLPointer<LLViewerTexture>              mDitheringTexture;
+    S32                                     mDitherMatrixWidth;
+    F32                                     mDitherScale,
+                                            mDitherScaleS,
+                                            mDitherScaleT;
+
+    std::vector<LLAnimPauseRequest>         mAvatarPauseHandles;
+
+    LLTimer                                 mRecordingTimer;
+    LLTrace::ExtendablePeriodicRecording    mSceneLoadRecording;
+    LLTrace::Recording                      mMonitorRecording;
 };
 
 class LLSceneMonitorView : public LLFloater
 {
 public:
-	LLSceneMonitorView(const LLRect& rect);
-	~LLSceneMonitorView();
-	virtual void draw();
+    LLSceneMonitorView(const LLRect& rect);
+    ~LLSceneMonitorView();
+    virtual void draw();
 
-	virtual void onVisibilityChange(BOOL visible);
+    virtual void onVisibilityChange(BOOL visible);
 
 protected:
-	virtual void onClose(bool app_quitting=false);
-	virtual void onClickCloseBtn(bool app_quitting=false);
-	void onTeleportFinished();
-	boost::signals2::connection sTeleportFinishConnection;
+    virtual void onClose(bool app_quitting=false);
+    virtual void onClickCloseBtn(bool app_quitting=false);
+    void onTeleportFinished();
+    boost::signals2::connection sTeleportFinishConnection;
 };
 
 extern LLSceneMonitorView* gSceneMonitorView;

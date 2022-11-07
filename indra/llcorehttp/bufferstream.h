@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_BUFFER_STREAM_H_
-#define	_LLCORE_BUFFER_STREAM_H_
+#ifndef _LLCORE_BUFFER_STREAM_H_
+#define _LLCORE_BUFFER_STREAM_H_
 
 
 #include <sstream>
@@ -85,38 +85,38 @@ namespace LLCore
 class BufferArrayStreamBuf : public std::streambuf
 {
 public:
-	/// Constructor increments the reference count on the
-	/// BufferArray argument and calls release() on destruction.
-	BufferArrayStreamBuf(BufferArray * array);
-	virtual ~BufferArrayStreamBuf();
+    /// Constructor increments the reference count on the
+    /// BufferArray argument and calls release() on destruction.
+    BufferArrayStreamBuf(BufferArray * array);
+    virtual ~BufferArrayStreamBuf();
 
 private:
-	BufferArrayStreamBuf(const BufferArrayStreamBuf &);	// Not defined
-	void operator=(const BufferArrayStreamBuf &);		// Not defined
+    BufferArrayStreamBuf(const BufferArrayStreamBuf &); // Not defined
+    void operator=(const BufferArrayStreamBuf &);       // Not defined
 
 public:
-	// Input interfaces from std::streambuf
-	int_type underflow();
-	int_type uflow();
-	int_type pbackfail(int_type ch);
-	std::streamsize showmanyc();
+    // Input interfaces from std::streambuf
+    int_type underflow();
+    int_type uflow();
+    int_type pbackfail(int_type ch);
+    std::streamsize showmanyc();
 
-	// Output interfaces from std::streambuf
-	int_type overflow(int c);
-	std::streamsize xsputn(const char * src, std::streamsize count);
+    // Output interfaces from std::streambuf
+    int_type overflow(int c);
+    std::streamsize xsputn(const char * src, std::streamsize count);
 
-	// Common/misc interfaces from std::streambuf
-	std::streampos seekoff(std::streamoff off, std::ios_base::seekdir way, std::ios_base::openmode which);
-	
+    // Common/misc interfaces from std::streambuf
+    std::streampos seekoff(std::streamoff off, std::ios_base::seekdir way, std::ios_base::openmode which);
+    
 protected:
-	BufferArray *		mBufferArray;			// Ref counted
-	size_t				mReadCurPos;
-	int					mReadCurBlock;
-	const char *		mReadBegin;
-	const char *		mReadCur;
-	const char *		mReadEnd;
-	size_t				mWriteCurPos;
-	
+    BufferArray *       mBufferArray;           // Ref counted
+    size_t              mReadCurPos;
+    int                 mReadCurBlock;
+    const char *        mReadBegin;
+    const char *        mReadCur;
+    const char *        mReadEnd;
+    size_t              mWriteCurPos;
+    
 }; // end class BufferArrayStreamBuf
 
 
@@ -134,20 +134,20 @@ protected:
 class BufferArrayStream : public std::iostream
 {
 public:
-	/// Constructor increments the reference count on the
-	/// BufferArray argument and calls release() on destruction.
-	BufferArrayStream(BufferArray * ba);
-	~BufferArrayStream();
+    /// Constructor increments the reference count on the
+    /// BufferArray argument and calls release() on destruction.
+    BufferArrayStream(BufferArray * ba);
+    ~BufferArrayStream();
 
 protected:
-	BufferArrayStream(const BufferArrayStream &);
-	void operator=(const BufferArrayStream &);
+    BufferArrayStream(const BufferArrayStream &);
+    void operator=(const BufferArrayStream &);
 
 protected:
-	BufferArrayStreamBuf		mStreamBuf;
+    BufferArrayStreamBuf        mStreamBuf;
 }; // end class BufferArrayStream
 
 
 }  // end namespace LLCore
 
-#endif	// _LLCORE_BUFFER_STREAM_H_
+#endif  // _LLCORE_BUFFER_STREAM_H_

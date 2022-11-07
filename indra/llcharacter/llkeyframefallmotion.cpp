@@ -36,7 +36,7 @@
 //-----------------------------------------------------------------------------
 // Macros
 //-----------------------------------------------------------------------------
-#define GO_TO_KEY_POSE	1
+#define GO_TO_KEY_POSE  1
 #define MIN_TRACK_SPEED 0.01f
 
 //-----------------------------------------------------------------------------
@@ -45,8 +45,8 @@
 //-----------------------------------------------------------------------------
 LLKeyframeFallMotion::LLKeyframeFallMotion(const LLUUID &id) : LLKeyframeMotion(id)
 {
-	mVelocityZ = 0.f;
-	mCharacter = NULL;
+    mVelocityZ = 0.f;
+    mCharacter = NULL;
 }
 
 
@@ -64,28 +64,28 @@ LLKeyframeFallMotion::~LLKeyframeFallMotion()
 //-----------------------------------------------------------------------------
 LLMotion::LLMotionInitStatus LLKeyframeFallMotion::onInitialize(LLCharacter *character)
 {
-	// save character pointer for later use
-	mCharacter = character;
+    // save character pointer for later use
+    mCharacter = character;
 
-	// load keyframe data, setup pose and joint states
-	LLMotion::LLMotionInitStatus result = LLKeyframeMotion::onInitialize(character);
+    // load keyframe data, setup pose and joint states
+    LLMotion::LLMotionInitStatus result = LLKeyframeMotion::onInitialize(character);
 
-	if (result != LLMotion::STATUS_SUCCESS)
-	{
-		return result;
-	}
+    if (result != LLMotion::STATUS_SUCCESS)
+    {
+        return result;
+    }
 
-	for (U32 jm=0; jm<mJointMotionList->getNumJointMotions(); jm++)
-	{
-		if (!mJointStates[jm]->getJoint())
-			continue;
-		if (mJointStates[jm]->getJoint()->getName() == std::string("mPelvis"))
-		{
-			mPelvisState = mJointStates[jm];
-		}
-	}
+    for (U32 jm=0; jm<mJointMotionList->getNumJointMotions(); jm++)
+    {
+        if (!mJointStates[jm]->getJoint())
+            continue;
+        if (mJointStates[jm]->getJoint()->getName() == std::string("mPelvis"))
+        {
+            mPelvisState = mJointStates[jm];
+        }
+    }
 
-	return result;
+    return result;
 }
 
 //-----------------------------------------------------------------------------
@@ -93,27 +93,27 @@ LLMotion::LLMotionInitStatus LLKeyframeFallMotion::onInitialize(LLCharacter *cha
 //-----------------------------------------------------------------------------
 BOOL LLKeyframeFallMotion::onActivate()
 {
-	LLVector3 ground_pos;
-	LLVector3 ground_normal;
-	LLQuaternion inverse_pelvis_rot;
-	LLVector3 fwd_axis(1.f, 0.f, 0.f);
+    LLVector3 ground_pos;
+    LLVector3 ground_normal;
+    LLQuaternion inverse_pelvis_rot;
+    LLVector3 fwd_axis(1.f, 0.f, 0.f);
 
-	mVelocityZ = -mCharacter->getCharacterVelocity().mV[VZ];
-	mCharacter->getGround( mCharacter->getCharacterPosition(), ground_pos, ground_normal);
-	ground_normal.normVec();
+    mVelocityZ = -mCharacter->getCharacterVelocity().mV[VZ];
+    mCharacter->getGround( mCharacter->getCharacterPosition(), ground_pos, ground_normal);
+    ground_normal.normVec();
 
-	inverse_pelvis_rot = mCharacter->getCharacterRotation();
-	inverse_pelvis_rot.transQuat();
+    inverse_pelvis_rot = mCharacter->getCharacterRotation();
+    inverse_pelvis_rot.transQuat();
 
-	// find ground normal in pelvis space
-	ground_normal = ground_normal * inverse_pelvis_rot;
+    // find ground normal in pelvis space
+    ground_normal = ground_normal * inverse_pelvis_rot;
 
-	// calculate new foward axis
-	fwd_axis = fwd_axis - (ground_normal * (ground_normal * fwd_axis));
-	fwd_axis.normVec();
-	mRotationToGroundNormal = LLQuaternion(fwd_axis, ground_normal % fwd_axis, ground_normal);
+    // calculate new foward axis
+    fwd_axis = fwd_axis - (ground_normal * (ground_normal * fwd_axis));
+    fwd_axis.normVec();
+    mRotationToGroundNormal = LLQuaternion(fwd_axis, ground_normal % fwd_axis, ground_normal);
 
-	return LLKeyframeMotion::onActivate();
+    return LLKeyframeMotion::onActivate();
 }
 
 //-----------------------------------------------------------------------------
@@ -122,15 +122,15 @@ BOOL LLKeyframeFallMotion::onActivate()
 BOOL LLKeyframeFallMotion::onUpdate(F32 activeTime, U8* joint_mask)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
-	BOOL result = LLKeyframeMotion::onUpdate(activeTime, joint_mask);
-	F32  slerp_amt = clamp_rescale(activeTime / getDuration(), 0.5f, 0.75f, 0.f, 1.f);
+    BOOL result = LLKeyframeMotion::onUpdate(activeTime, joint_mask);
+    F32  slerp_amt = clamp_rescale(activeTime / getDuration(), 0.5f, 0.75f, 0.f, 1.f);
 
-	if (mPelvisState.notNull())
-	{
-		mPelvisState->setRotation(mPelvisState->getRotation() * slerp(slerp_amt, mRotationToGroundNormal, LLQuaternion()));
-	}
-	
-	return result;
+    if (mPelvisState.notNull())
+    {
+        mPelvisState->setRotation(mPelvisState->getRotation() * slerp(slerp_amt, mRotationToGroundNormal, LLQuaternion()));
+    }
+    
+    return result;
 }
 
 //-----------------------------------------------------------------------------
@@ -138,13 +138,13 @@ BOOL LLKeyframeFallMotion::onUpdate(F32 activeTime, U8* joint_mask)
 //-----------------------------------------------------------------------------
 F32 LLKeyframeFallMotion::getEaseInDuration()
 {
-	if (mVelocityZ == 0.f)
-	{
-		// we've already hit the ground
-		return 0.4f;
-	}
+    if (mVelocityZ == 0.f)
+    {
+        // we've already hit the ground
+        return 0.4f;
+    }
 
-	return mCharacter->getPreferredPelvisHeight() / mVelocityZ;
+    return mCharacter->getPreferredPelvisHeight() / mVelocityZ;
 }
 
 // End

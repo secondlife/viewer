@@ -35,37 +35,37 @@ public:
     //adding blank params to work around registration issue
     //where LLToggleableMenu was owning the LLMenuGL param
     //and menu.xml was never loaded
-	struct Params : public LLInitParam::Block<Params, LLMenuGL::Params>
-	{};
+    struct Params : public LLInitParam::Block<Params, LLMenuGL::Params>
+    {};
 protected:
-	LLToggleableMenu(const Params&);
-	friend class LLUICtrlFactory;
+    LLToggleableMenu(const Params&);
+    friend class LLUICtrlFactory;
 public:
-	~LLToggleableMenu();
+    ~LLToggleableMenu();
 
-	boost::signals2::connection setVisibilityChangeCallback( const commit_signal_t::slot_type& cb );
+    boost::signals2::connection setVisibilityChangeCallback( const commit_signal_t::slot_type& cb );
 
-	virtual void onVisibilityChange (BOOL curVisibilityIn);
+    virtual void onVisibilityChange (BOOL curVisibilityIn);
 
-	virtual bool addChild (LLView* view, S32 tab_group = 0);
+    virtual bool addChild (LLView* view, S32 tab_group = 0);
 
-	const LLRect& getButtonRect() const { return mButtonRect; }
+    const LLRect& getButtonRect() const { return mButtonRect; }
 
-	// Converts the given local button rect to a screen rect
-	void setButtonRect(const LLRect& rect, LLView* current_view);
-	void setButtonRect(LLView* current_view);
+    // Converts the given local button rect to a screen rect
+    void setButtonRect(const LLRect& rect, LLView* current_view);
+    void setButtonRect(LLView* current_view);
 
-	// Returns "true" if menu was not closed by button click
-	// and is not still visible. If menu is visible toggles
-	// its visibility off.
-	bool toggleVisibility();
-	
-	LLHandle<LLToggleableMenu> getHandle() { return getDerivedHandle<LLToggleableMenu>(); }
+    // Returns "true" if menu was not closed by button click
+    // and is not still visible. If menu is visible toggles
+    // its visibility off.
+    bool toggleVisibility();
+    
+    LLHandle<LLToggleableMenu> getHandle() { return getDerivedHandle<LLToggleableMenu>(); }
 
 protected:
-	bool mClosedByButtonClick;
-	LLRect mButtonRect;
-	commit_signal_t*	mVisibilityChangeSignal;
+    bool mClosedByButtonClick;
+    LLRect mButtonRect;
+    commit_signal_t*    mVisibilityChangeSignal;
 };
 
 #endif // LL_LLTOGGLEABLEMENU_H

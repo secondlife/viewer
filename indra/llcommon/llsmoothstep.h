@@ -31,15 +31,15 @@ template <class LLDATATYPE>
 inline LLDATATYPE llsmoothstep(const LLDATATYPE& edge0, const LLDATATYPE& edge1, const LLDATATYPE& value)
 {
     if (value < edge0)
-		return (LLDATATYPE)0;
+        return (LLDATATYPE)0;
 
-	if (value >= edge1)
-		return (LLDATATYPE)1;
+    if (value >= edge1)
+        return (LLDATATYPE)1;
 
-	// Scale/bias into [0..1] range
-	LLDATATYPE scaled_value = (value - edge0) / (edge1 - edge0);
+    // Scale/bias into [0..1] range
+    LLDATATYPE scaled_value = (value - edge0) / (edge1 - edge0);
 
-	return scaled_value * scaled_value * (3 - 2 * scaled_value);
+    return scaled_value * scaled_value * (3 - 2 * scaled_value);
 }
 
 #endif // LL_LLSMOOTHSTEP_H

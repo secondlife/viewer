@@ -49,9 +49,9 @@ namespace {
         F32 cosPhi   = cos(altitude);
 
         LLVector3 dir;
-        // +x right, +z up, +y at...	
+        // +x right, +z up, +y at...    
         dir.mV[0] = cosTheta * cosPhi;
-        dir.mV[1] = sinTheta * cosPhi;	
+        dir.mV[1] = sinTheta * cosPhi;  
         dir.mV[2] = sinPhi;
 
         LLVector3 axis = LLVector3::x_axis % dir;
@@ -1227,9 +1227,9 @@ LLColor3 LLSettingsSky::gammaCorrect(const LLColor3& in,const F32 &gamma) const
     }
 
     LLColor3 color = in * 2.0f;
-	color = smear(1.f) - componentSaturate(color); // clamping after mul seems wrong, but prevents negative colors...
-	componentPow(color, gamma);
-	color = smear(1.f) - color;
+    color = smear(1.f) - componentSaturate(color); // clamping after mul seems wrong, but prevents negative colors...
+    componentPow(color, gamma);
+    color = smear(1.f) - color;
     return color;
 }
 

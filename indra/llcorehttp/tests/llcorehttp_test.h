@@ -26,9 +26,9 @@
 
 
 #ifndef _LLCOREHTTP_TEST_H_
-#define	_LLCOREHTTP_TEST_H_
+#define _LLCOREHTTP_TEST_H_
 
-#include "linden_common.h"		// Modifies curl interfaces
+#include "linden_common.h"      // Modifies curl interfaces
 
 #include <curl/curl.h>
 #include <openssl/crypto.h>
@@ -49,16 +49,16 @@ extern void stop_thread(LLCore::HttpRequest * req);
 class ScopedCurlInit
 {
 public:
-	ScopedCurlInit()
-		{
-			init_curl();
-		}
+    ScopedCurlInit()
+        {
+            init_curl();
+        }
 
-	~ScopedCurlInit()
-		{
-			term_curl();
-		}
+    ~ScopedCurlInit()
+        {
+            term_curl();
+        }
 };
-	
+    
 
-#endif	// _LLCOREHTTP_TEST_H_
+#endif  // _LLCOREHTTP_TEST_H_

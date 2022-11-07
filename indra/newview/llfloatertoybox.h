@@ -37,26 +37,26 @@ class LLToolBar;
 class LLFloaterToybox : public LLFloater
 {
 public:
-	LLFloaterToybox(const LLSD& key);
-	virtual ~LLFloaterToybox();
+    LLFloaterToybox(const LLSD& key);
+    virtual ~LLFloaterToybox();
 
-	// virtuals
-	BOOL postBuild();
-	void draw();
-	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-		EDragAndDropType cargo_type,
-		void* cargo_data,
-		EAcceptance* accept,
-		std::string& tooltip_msg);
+    // virtuals
+    BOOL postBuild();
+    void draw();
+    /*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+        EDragAndDropType cargo_type,
+        void* cargo_data,
+        EAcceptance* accept,
+        std::string& tooltip_msg);
 
 protected:
-	void onBtnClearAll();
-	void onBtnRestoreDefaults();
+    void onBtnClearAll();
+    void onBtnRestoreDefaults();
 
-	void onToolBarButtonEnter(LLView* button);
+    void onToolBarButtonEnter(LLView* button);
 
 public:
-	LLToolBar *	mToolBar;
+    LLToolBar * mToolBar;
 };
 
 #endif // LL_LLFLOATERTOYBOX_H

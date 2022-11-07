@@ -32,37 +32,37 @@
 class LLFloaterSpellCheckerSettings : public LLFloater
 {
 public:
-	LLFloaterSpellCheckerSettings(const LLSD& key);
+    LLFloaterSpellCheckerSettings(const LLSD& key);
 
-	/*virtual*/ void draw();
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
+    /*virtual*/ void draw();
+    /*virtual*/ BOOL postBuild();
+    /*virtual*/ void onOpen(const LLSD& key);
+    /*virtual*/ void onClose(bool app_quitting);
 
 protected:
-	void onBtnImport();
-	void onBtnMove(const std::string& from, const std::string& to);
-	void onBtnRemove();
-	void onSpellCheckSettingsChange();
-	void refreshDictionaries(bool from_settings);
+    void onBtnImport();
+    void onBtnMove(const std::string& from, const std::string& to);
+    void onBtnRemove();
+    void onSpellCheckSettingsChange();
+    void refreshDictionaries(bool from_settings);
 };
 
 class LLFloaterSpellCheckerImport : public LLFloater
 {
 public:
-	LLFloaterSpellCheckerImport(const LLSD& key);
+    LLFloaterSpellCheckerImport(const LLSD& key);
 
-	/*virtual*/ BOOL postBuild();
+    /*virtual*/ BOOL postBuild();
 
 protected:
-	void onBtnBrowse();
-	void onBtnCancel();
-	void onBtnOK();
-	void importSelectedDictionary(const std::vector<std::string>& filenames);
-	std::string parseXcuFile(const std::string& file_path) const;
+    void onBtnBrowse();
+    void onBtnCancel();
+    void onBtnOK();
+    void importSelectedDictionary(const std::vector<std::string>& filenames);
+    std::string parseXcuFile(const std::string& file_path) const;
 
-	std::string mDictionaryDir;
-	std::string mDictionaryBasename;
+    std::string mDictionaryDir;
+    std::string mDictionaryBasename;
 };
 
 #endif  // LLFLOATERSPELLCHECKERSETTINGS_H

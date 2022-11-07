@@ -35,7 +35,7 @@
  */
 class LLNotificationListView : public LLFlatListView
 {
-	LOG_CLASS(LLNotificationListView);
+    LOG_CLASS(LLNotificationListView);
 public:
     struct Params : public LLInitParam::Block<Params, LLFlatListView::Params> {};
 

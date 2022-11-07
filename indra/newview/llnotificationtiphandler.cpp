@@ -42,14 +42,14 @@ using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
 LLTipHandler::LLTipHandler()
-:	LLSystemNotificationHandler("NotificationTips", "notifytip")
+:   LLSystemNotificationHandler("NotificationTips", "notifytip")
 {
-	// Getting a Channel for our notifications
-	LLScreenChannel* channel = LLChannelManager::getInstance()->createNotificationChannel();
-	if(channel)
-	{
-		mChannel = channel->getHandle();
-	}
+    // Getting a Channel for our notifications
+    LLScreenChannel* channel = LLChannelManager::getInstance()->createNotificationChannel();
+    if(channel)
+    {
+        mChannel = channel->getHandle();
+    }
 }
 
 //--------------------------------------------------------------------------
@@ -60,78 +60,78 @@ LLTipHandler::~LLTipHandler()
 //--------------------------------------------------------------------------
 void LLTipHandler::initChannel()
 {
-	S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
-	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
-	mChannel.get()->init(channel_right_bound - channel_width, channel_right_bound);
+    S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
+    S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
+    mChannel.get()->init(channel_right_bound - channel_width, channel_right_bound);
 }
 
 //--------------------------------------------------------------------------
 bool LLTipHandler::processNotification(const LLNotificationPtr& notification, bool should_log)
 {
-	if(mChannel.isDead())
-	{
-		return false;
-	}
+    if(mChannel.isDead())
+    {
+        return false;
+    }
 
-	// arrange a channel on a screen
-	if(!mChannel.get()->getVisible())
-	{
-		initChannel();
-	}
+    // arrange a channel on a screen
+    if(!mChannel.get()->getVisible())
+    {
+        initChannel();
+    }
 
-		// archive message in nearby chat
-	if (notification->canLogToChat())
-	{
-		LLHandlerUtil::logToNearbyChat(notification, CHAT_SOURCE_SYSTEM);
-	}
+        // archive message in nearby chat
+    if (notification->canLogToChat())
+    {
+        LLHandlerUtil::logToNearbyChat(notification, CHAT_SOURCE_SYSTEM);
+    }
 
-	std::string session_name = notification->getPayload()["SESSION_NAME"];
-	const std::string name = LLHandlerUtil::getSubstitutionOriginalName(notification);
-	if (session_name.empty())
-	{
-		session_name = name;
-	}
-	LLUUID from_id = notification->getPayload()["from_id"];
-	if (notification->canLogToIM())
-	{
-		LLHandlerUtil::logToIM(IM_NOTHING_SPECIAL, session_name, name,
-				notification->getMessage(), from_id, from_id);
-	}
+    std::string session_name = notification->getPayload()["SESSION_NAME"];
+    const std::string name = LLHandlerUtil::getSubstitutionOriginalName(notification);
+    if (session_name.empty())
+    {
+        session_name = name;
+    }
+    LLUUID from_id = notification->getPayload()["from_id"];
+    if (notification->canLogToIM())
+    {
+        LLHandlerUtil::logToIM(IM_NOTHING_SPECIAL, session_name, name,
+                notification->getMessage(), from_id, from_id);
+    }
 
-	if (notification->canLogToIM() && notification->hasFormElements())
-	{
-		LLHandlerUtil::spawnIMSession(name, from_id);
-	}
+    if (notification->canLogToIM() && notification->hasFormElements())
+    {
+        LLHandlerUtil::spawnIMSession(name, from_id);
+    }
 
-	if (notification->canLogToIM() && LLHandlerUtil::isIMFloaterOpened(notification))
-	{
-		return false;
-	}
+    if (notification->canLogToIM() && LLHandlerUtil::isIMFloaterOpened(notification))
+    {
+        return false;
+    }
 
-	LLToastPanel* notify_box = LLToastPanel::buidPanelFromNotification(notification);
+    LLToastPanel* notify_box = LLToastPanel::buidPanelFromNotification(notification);
 
-	LLToast::Params p;
-	p.notif_id = notification->getID();
-	p.notification = notification;
-	p.panel = notify_box;
-	p.is_tip = true;
-	p.can_be_stored = false;
+    LLToast::Params p;
+    p.notif_id = notification->getID();
+    p.notification = notification;
+    p.panel = notify_box;
+    p.is_tip = true;
+    p.can_be_stored = false;
 
-	LLDate cur_time = LLDate::now();
-	LLDate exp_time = notification->getExpiration();
-	if (exp_time > cur_time)
-	{
-		// we have non-default expiration time - keep visible until expires
-		p.lifetime_secs = exp_time.secondsSinceEpoch() - cur_time.secondsSinceEpoch();
-	}
-	else
-	{
-		// use default time
-		p.lifetime_secs = gSavedSettings.getS32("NotificationTipToastLifeTime");
-	}
+    LLDate cur_time = LLDate::now();
+    LLDate exp_time = notification->getExpiration();
+    if (exp_time > cur_time)
+    {
+        // we have non-default expiration time - keep visible until expires
+        p.lifetime_secs = exp_time.secondsSinceEpoch() - cur_time.secondsSinceEpoch();
+    }
+    else
+    {
+        // use default time
+        p.lifetime_secs = gSavedSettings.getS32("NotificationTipToastLifeTime");
+    }
 
-	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
-	if(channel)
-		channel->addToast(p);
-	return false;
+    LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
+    if(channel)
+        channel->addToast(p);
+    return false;
 }

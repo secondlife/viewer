@@ -103,17 +103,17 @@ extern const std::string HTTP_VERB_OPTIONS;
 
 enum EHTTPMethod
 {
-	HTTP_INVALID = 0,
-	HTTP_HEAD,
-	HTTP_GET,
-	HTTP_PUT,
-	HTTP_POST,
-	HTTP_DELETE,
-	HTTP_MOVE, // Caller will need to set 'Destination' header
-	HTTP_OPTIONS,
-	HTTP_PATCH,
-	HTTP_COPY,
-	HTTP_METHOD_COUNT
+    HTTP_INVALID = 0,
+    HTTP_HEAD,
+    HTTP_GET,
+    HTTP_PUT,
+    HTTP_POST,
+    HTTP_DELETE,
+    HTTP_MOVE, // Caller will need to set 'Destination' header
+    HTTP_OPTIONS,
+    HTTP_PATCH,
+    HTTP_COPY,
+    HTTP_METHOD_COUNT
 };
 
 // Parses 'Retry-After' header contents and returns seconds until retry should occur.

@@ -54,15 +54,15 @@ const S32 SLOP_RADIUS = 5;
 //
 
 LLToolSelectRect::LLToolSelectRect( LLToolComposite* composite )
-	:
-	LLToolSelect( composite ),
-	mDragStartX(0),
-	mDragStartY(0),
-	mDragEndX(0),
-	mDragEndY(0),
-	mDragLastWidth(0),
-	mDragLastHeight(0),
-	mMouseOutsideSlop(FALSE)
+    :
+    LLToolSelect( composite ),
+    mDragStartX(0),
+    mDragStartY(0),
+    mDragEndX(0),
+    mDragEndY(0),
+    mDragLastWidth(0),
+    mDragLastHeight(0),
+    mMouseOutsideSlop(FALSE)
 
 { }
 
@@ -72,133 +72,133 @@ void dialog_refresh_all(void);
 BOOL LLToolSelectRect::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     BOOL pick_rigged = false; //gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
-	handlePick(gViewerWindow->pickImmediate(x, y, TRUE /* pick_transparent */, pick_rigged));
+    handlePick(gViewerWindow->pickImmediate(x, y, TRUE /* pick_transparent */, pick_rigged));
 
-	LLTool::handleMouseDown(x, y, mask);
+    LLTool::handleMouseDown(x, y, mask);
 
-	return mPick.getObject().notNull();
+    return mPick.getObject().notNull();
 }
 
 void LLToolSelectRect::handlePick(const LLPickInfo& pick)
 {
-	mPick = pick;
+    mPick = pick;
 
-	// start dragging rectangle
-	setMouseCapture( TRUE );
+    // start dragging rectangle
+    setMouseCapture( TRUE );
 
-	mDragStartX = pick.mMousePt.mX;
-	mDragStartY = pick.mMousePt.mY;
-	mDragEndX = pick.mMousePt.mX;
-	mDragEndY = pick.mMousePt.mY;
+    mDragStartX = pick.mMousePt.mX;
+    mDragStartY = pick.mMousePt.mY;
+    mDragEndX = pick.mMousePt.mX;
+    mDragEndY = pick.mMousePt.mY;
 
-	mMouseOutsideSlop = FALSE;
+    mMouseOutsideSlop = FALSE;
 }
 
 
 BOOL LLToolSelectRect::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	setMouseCapture( FALSE );
+    setMouseCapture( FALSE );
 
-	if(	mMouseOutsideSlop )
-	{
-		mDragLastWidth = 0;
-		mDragLastHeight = 0;
+    if( mMouseOutsideSlop )
+    {
+        mDragLastWidth = 0;
+        mDragLastHeight = 0;
 
-		mMouseOutsideSlop = FALSE;
-		
-		if (mask == MASK_CONTROL)
-		{
-			LLSelectMgr::getInstance()->deselectHighlightedObjects();
-		}
-		else
-		{
-			LLSelectMgr::getInstance()->selectHighlightedObjects();
-		}
-		return TRUE;
-	}
-	else
-	{
-		return LLToolSelect::handleMouseUp(x, y, mask);
-	}
+        mMouseOutsideSlop = FALSE;
+        
+        if (mask == MASK_CONTROL)
+        {
+            LLSelectMgr::getInstance()->deselectHighlightedObjects();
+        }
+        else
+        {
+            LLSelectMgr::getInstance()->selectHighlightedObjects();
+        }
+        return TRUE;
+    }
+    else
+    {
+        return LLToolSelect::handleMouseUp(x, y, mask);
+    }
 }
 
 
 BOOL LLToolSelectRect::handleHover(S32 x, S32 y, MASK mask)
 {
-	if(	hasMouseCapture() )
-	{
-		if (mMouseOutsideSlop || outsideSlop(x, y, mDragStartX, mDragStartY))
-		{
-			if (!mMouseOutsideSlop && !(mask & MASK_SHIFT) && !(mask & MASK_CONTROL))
-			{
-				// just started rect select, and not adding to current selection
-				LLSelectMgr::getInstance()->deselectAll();
-			}
-			mMouseOutsideSlop = TRUE;
-			mDragEndX = x;
-			mDragEndY = y;
+    if( hasMouseCapture() )
+    {
+        if (mMouseOutsideSlop || outsideSlop(x, y, mDragStartX, mDragStartY))
+        {
+            if (!mMouseOutsideSlop && !(mask & MASK_SHIFT) && !(mask & MASK_CONTROL))
+            {
+                // just started rect select, and not adding to current selection
+                LLSelectMgr::getInstance()->deselectAll();
+            }
+            mMouseOutsideSlop = TRUE;
+            mDragEndX = x;
+            mDragEndY = y;
 
-			handleRectangleSelection(x, y, mask);
-		}
-		else
-		{
-			return LLToolSelect::handleHover(x, y, mask);
-		}
+            handleRectangleSelection(x, y, mask);
+        }
+        else
+        {
+            return LLToolSelect::handleHover(x, y, mask);
+        }
 
-		LL_DEBUGS("UserInput") << "hover handled by LLToolSelectRect (active)" << LL_ENDL;		
-	}
-	else
-	{
-		LL_DEBUGS("UserInput") << "hover handled by LLToolSelectRect (inactive)" << LL_ENDL;		
-	}
+        LL_DEBUGS("UserInput") << "hover handled by LLToolSelectRect (active)" << LL_ENDL;      
+    }
+    else
+    {
+        LL_DEBUGS("UserInput") << "hover handled by LLToolSelectRect (inactive)" << LL_ENDL;        
+    }
 
-	gViewerWindow->setCursor(UI_CURSOR_ARROW);
-	return TRUE;
+    gViewerWindow->setCursor(UI_CURSOR_ARROW);
+    return TRUE;
 }
 
 
 void LLToolSelectRect::draw()
 {
-	if(	hasMouseCapture() && mMouseOutsideSlop)
-	{
-		if (gKeyboard->currentMask(TRUE) == MASK_CONTROL)
-		{
-			gGL.color4f(1.f, 0.f, 0.f, 1.f);
-		}
-		else
-		{
-			gGL.color4f(1.f, 1.f, 0.f, 1.f);
-		}
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gl_rect_2d(
-			llmin(mDragStartX, mDragEndX),
-			llmax(mDragStartY, mDragEndY),
-			llmax(mDragStartX, mDragEndX),
-			llmin(mDragStartY, mDragEndY),
-			FALSE);
-		if (gKeyboard->currentMask(TRUE) == MASK_CONTROL)
-		{
-			gGL.color4f(1.f, 0.f, 0.f, 0.1f);
-		}
-		else
-		{
-			gGL.color4f(1.f, 1.f, 0.f, 0.1f);
-		}
-		gl_rect_2d(
-			llmin(mDragStartX, mDragEndX),
-			llmax(mDragStartY, mDragEndY),
-			llmax(mDragStartX, mDragEndX),
-			llmin(mDragStartY, mDragEndY));
-	}
+    if( hasMouseCapture() && mMouseOutsideSlop)
+    {
+        if (gKeyboard->currentMask(TRUE) == MASK_CONTROL)
+        {
+            gGL.color4f(1.f, 0.f, 0.f, 1.f);
+        }
+        else
+        {
+            gGL.color4f(1.f, 1.f, 0.f, 1.f);
+        }
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gl_rect_2d(
+            llmin(mDragStartX, mDragEndX),
+            llmax(mDragStartY, mDragEndY),
+            llmax(mDragStartX, mDragEndX),
+            llmin(mDragStartY, mDragEndY),
+            FALSE);
+        if (gKeyboard->currentMask(TRUE) == MASK_CONTROL)
+        {
+            gGL.color4f(1.f, 0.f, 0.f, 0.1f);
+        }
+        else
+        {
+            gGL.color4f(1.f, 1.f, 0.f, 0.1f);
+        }
+        gl_rect_2d(
+            llmin(mDragStartX, mDragEndX),
+            llmax(mDragStartY, mDragEndY),
+            llmax(mDragStartX, mDragEndX),
+            llmin(mDragStartY, mDragEndY));
+    }
 }
 
 // true if x,y outside small box around start_x,start_y
 BOOL LLToolSelectRect::outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y)
 {
-	S32 dx = x - start_x;
-	S32 dy = y - start_y;
+    S32 dx = x - start_x;
+    S32 dy = y - start_y;
 
-	return (dx <= -SLOP_RADIUS || SLOP_RADIUS <= dx || dy <= -SLOP_RADIUS || SLOP_RADIUS <= dy);
+    return (dx <= -SLOP_RADIUS || SLOP_RADIUS <= dx || dy <= -SLOP_RADIUS || SLOP_RADIUS <= dy);
 }
 
 

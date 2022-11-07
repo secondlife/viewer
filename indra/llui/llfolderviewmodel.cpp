@@ -31,19 +31,19 @@
 
 bool LLFolderViewModelCommon::needsSort(LLFolderViewModelItem* item)
 {
-	return item->getSortVersion() < mTargetSortVersion;
+    return item->getSortVersion() < mTargetSortVersion;
 }
 
 std::string LLFolderViewModelCommon::getStatusText()
 {
-	if (!contentsReady() || mFolderView->getViewModelItem()->getLastFilterGeneration() < getFilter().getCurrentGeneration())
-	{
-		return LLTrans::getString("Searching");
-	}
-	else
-	{
-		return getFilter().getEmptyLookupMessage();
-	}
+    if (!contentsReady() || mFolderView->getViewModelItem()->getLastFilterGeneration() < getFilter().getCurrentGeneration())
+    {
+        return LLTrans::getString("Searching");
+    }
+    else
+    {
+        return getFilter().getEmptyLookupMessage();
+    }
 }
 
 void LLFolderViewModelCommon::filter()
@@ -55,15 +55,15 @@ void LLFolderViewModelCommon::filter()
 
 bool LLFolderViewModelItemCommon::hasFilterStringMatch()
 {
-	return mStringMatchOffsetFilter != std::string::npos;
+    return mStringMatchOffsetFilter != std::string::npos;
 }
 
 std::string::size_type LLFolderViewModelItemCommon::getFilterStringOffset()
 {
-	return mStringMatchOffsetFilter;
+    return mStringMatchOffsetFilter;
 }
 
 std::string::size_type LLFolderViewModelItemCommon::getFilterStringSize()
 {
-	return mRootViewModel.getFilter().getFilterStringSize();
+    return mRootViewModel.getFilter().getFilterStringSize();
 }

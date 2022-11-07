@@ -47,18 +47,18 @@ public:
 
 class LLDoNotDisturbNotificationStorage : public LLParamSingleton<LLDoNotDisturbNotificationStorage>, public LLNotificationStorage
 {
-	LLSINGLETON(LLDoNotDisturbNotificationStorage);
-	~LLDoNotDisturbNotificationStorage();
+    LLSINGLETON(LLDoNotDisturbNotificationStorage);
+    ~LLDoNotDisturbNotificationStorage();
 
-	LOG_CLASS(LLDoNotDisturbNotificationStorage);
+    LOG_CLASS(LLDoNotDisturbNotificationStorage);
 public:
     static const char * toastName;
     static const char * offerName;
 
     bool getDirty();
     void resetDirty();
-	void saveNotifications();
-	void loadNotifications();
+    void saveNotifications();
+    void loadNotifications();
     void updateNotifications();
     void removeNotification(const char * name, const LLUUID& id);
     void reset();
@@ -71,8 +71,8 @@ private:
     bool mDirty;
     LLDoNotDisturbNotificationStorageTimer mTimer;
 
-	LLNotificationChannelPtr getCommunicationChannel() const;
-	bool                     onChannelChanged(const LLSD& pPayload);
+    LLNotificationChannelPtr getCommunicationChannel() const;
+    bool                     onChannelChanged(const LLSD& pPayload);
     std::map<std::string, std::string> nameToPayloadParameterMap;
 };
 

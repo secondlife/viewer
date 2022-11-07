@@ -32,27 +32,27 @@
 
 class LLUrlWhiteList : public LLSingleton<LLUrlWhiteList>
 {
-	LLSINGLETON(LLUrlWhiteList);
-	~LLUrlWhiteList();
-	public:
-		bool load ();
-		bool save ();
+    LLSINGLETON(LLUrlWhiteList);
+    ~LLUrlWhiteList();
+    public:
+        bool load ();
+        bool save ();
 
-		bool clear ();
-		bool addItem ( const std::string& itemIn, bool saveAfterAdd );
+        bool clear ();
+        bool addItem ( const std::string& itemIn, bool saveAfterAdd );
 
-		bool containsMatch ( const std::string& patternIn );
+        bool containsMatch ( const std::string& patternIn );
 
-		bool getFirst ( std::string& valueOut );
-		bool getNext ( std::string& valueOut );
+        bool getFirst ( std::string& valueOut );
+        bool getNext ( std::string& valueOut );
 
-	private:
-		typedef std::vector < std::string > string_list_t ;
+    private:
+        typedef std::vector < std::string > string_list_t ;
 
-		bool mLoaded;
-		const std::string mFilename;
-		string_list_t mUrlList;
-		U32 mCurIndex;
+        bool mLoaded;
+        const std::string mFilename;
+        string_list_t mUrlList;
+        U32 mCurIndex;
 };
 
 #endif  // LL_LLURLWHITELIST_H

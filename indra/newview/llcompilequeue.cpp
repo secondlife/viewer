@@ -165,14 +165,14 @@ private:
 
 struct LLScriptQueueData
 {
-	LLUUID mQueueID;
-	LLUUID mTaskId;
-	LLPointer<LLInventoryItem> mItem;
-	LLHost mHost;
-	LLUUID mExperienceId;
-	std::string mExperiencename;
-	LLScriptQueueData(const LLUUID& q_id, const LLUUID& task_id, LLInventoryItem* item) :
-		mQueueID(q_id), mTaskId(task_id), mItem(new LLInventoryItem(item)) {}
+    LLUUID mQueueID;
+    LLUUID mTaskId;
+    LLPointer<LLInventoryItem> mItem;
+    LLHost mHost;
+    LLUUID mExperienceId;
+    std::string mExperiencename;
+    LLScriptQueueData(const LLUUID& q_id, const LLUUID& task_id, LLInventoryItem* item) :
+        mQueueID(q_id), mTaskId(task_id), mItem(new LLInventoryItem(item)) {}
 
 };
 
@@ -182,11 +182,11 @@ struct LLScriptQueueData
 
 // Default constructor
 LLFloaterScriptQueue::LLFloaterScriptQueue(const LLSD& key) :
-	LLFloater(key),
-	mDone(false),
-	mMono(false)
+    LLFloater(key),
+    mDone(false),
+    mMono(false)
 {
-	
+    
 }
 
 // Destroys the object
@@ -196,17 +196,17 @@ LLFloaterScriptQueue::~LLFloaterScriptQueue()
 
 BOOL LLFloaterScriptQueue::postBuild()
 {
-	childSetAction("close",onCloseBtn,this);
-	getChildView("close")->setEnabled(FALSE);
-	setVisible(true);
-	return TRUE;
+    childSetAction("close",onCloseBtn,this);
+    getChildView("close")->setEnabled(FALSE);
+    setVisible(true);
+    return TRUE;
 }
 
 // static
 void LLFloaterScriptQueue::onCloseBtn(void* user_data)
 {
-	LLFloaterScriptQueue* self = (LLFloaterScriptQueue*)user_data;
-	self->closeFloater();
+    LLFloaterScriptQueue* self = (LLFloaterScriptQueue*)user_data;
+    self->closeFloater();
 }
 
 void LLFloaterScriptQueue::addObject(const LLUUID& id, std::string name)
@@ -217,16 +217,16 @@ void LLFloaterScriptQueue::addObject(const LLUUID& id, std::string name)
 
 BOOL LLFloaterScriptQueue::start()
 {
-	std::string buffer;
+    std::string buffer;
 
-	LLStringUtil::format_map_t args;
-	args["[START]"] = mStartString;
-	args["[COUNT]"] = llformat ("%d", mObjectList.size());
-	buffer = getString ("Starting", args);
-	
-	getChild<LLScrollListCtrl>("queue output")->addSimpleElement(buffer, ADD_BOTTOM);
+    LLStringUtil::format_map_t args;
+    args["[START]"] = mStartString;
+    args["[COUNT]"] = llformat ("%d", mObjectList.size());
+    buffer = getString ("Starting", args);
+    
+    getChild<LLScrollListCtrl>("queue output")->addSimpleElement(buffer, ADD_BOTTOM);
 
-	return startQueue();
+    return startQueue();
 }
 
 void LLFloaterScriptQueue::addProcessingMessage(const std::string &message, const LLSD &args)
@@ -244,7 +244,7 @@ void LLFloaterScriptQueue::addStringMessage(const std::string &message)
 
 BOOL LLFloaterScriptQueue::isDone() const
 {
-	return (mCurrentObjectID.isNull() && (mObjectList.size() == 0));
+    return (mCurrentObjectID.isNull() && (mObjectList.size() == 0));
 }
 
 ///----------------------------------------------------------------------------
@@ -253,9 +253,9 @@ BOOL LLFloaterScriptQueue::isDone() const
 LLFloaterCompileQueue::LLFloaterCompileQueue(const LLSD& key)
   : LLFloaterScriptQueue(key)
 {
-	setTitle(LLTrans::getString("CompileQueueTitle"));
-	setStartString(LLTrans::getString("CompileQueueStart"));
-														 															 
+    setTitle(LLTrans::getString("CompileQueueTitle"));
+    setStartString(LLTrans::getString("CompileQueueStart"));
+                                                                                                                     
 }
 
 LLFloaterCompileQueue::~LLFloaterCompileQueue()
@@ -264,15 +264,15 @@ LLFloaterCompileQueue::~LLFloaterCompileQueue()
 
 void LLFloaterCompileQueue::experienceIdsReceived( const LLSD& content )
 {
-	for(LLSD::array_const_iterator it  = content.beginArray(); it != content.endArray(); ++it)
-	{
-		mExperienceIds.insert(it->asUUID());
-	}
+    for(LLSD::array_const_iterator it  = content.beginArray(); it != content.endArray(); ++it)
+    {
+        mExperienceIds.insert(it->asUUID());
+    }
 }
 
 BOOL LLFloaterCompileQueue::hasExperience( const LLUUID& id ) const
 {
-	return mExperienceIds.find(id) != mExperienceIds.end();
+    return mExperienceIds.find(id) != mExperienceIds.end();
 }
 
 // //Attempt to record this asset ID.  If it can not be inserted into the set 
@@ -552,8 +552,8 @@ bool LLFloaterCompileQueue::startQueue()
 LLFloaterResetQueue::LLFloaterResetQueue(const LLSD& key)
   : LLFloaterScriptQueue(key)
 {
-	setTitle(LLTrans::getString("ResetQueueTitle"));
-	setStartString(LLTrans::getString("ResetQueueStart"));
+    setTitle(LLTrans::getString("ResetQueueTitle"));
+    setStartString(LLTrans::getString("ResetQueueStart"));
 }
 
 LLFloaterResetQueue::~LLFloaterResetQueue()
@@ -609,8 +609,8 @@ bool LLFloaterResetQueue::startQueue()
 LLFloaterRunQueue::LLFloaterRunQueue(const LLSD& key)
   : LLFloaterScriptQueue(key)
 {
-	setTitle(LLTrans::getString("RunQueueTitle"));
-	setStartString(LLTrans::getString("RunQueueStart"));
+    setTitle(LLTrans::getString("RunQueueTitle"));
+    setStartString(LLTrans::getString("RunQueueStart"));
 }
 
 LLFloaterRunQueue::~LLFloaterRunQueue()
@@ -666,8 +666,8 @@ bool LLFloaterRunQueue::startQueue()
 LLFloaterNotRunQueue::LLFloaterNotRunQueue(const LLSD& key)
   : LLFloaterScriptQueue(key)
 {
-	setTitle(LLTrans::getString("NotRunQueueTitle"));
-	setStartString(LLTrans::getString("NotRunQueueStart"));
+    setTitle(LLTrans::getString("NotRunQueueTitle"));
+    setStartString(LLTrans::getString("NotRunQueueStart"));
 }
 
 LLFloaterNotRunQueue::~LLFloaterNotRunQueue()

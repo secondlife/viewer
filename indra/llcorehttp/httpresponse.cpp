@@ -34,41 +34,41 @@ namespace LLCore
 
 
 HttpResponse::HttpResponse()
-	: LLCoreInt::RefCounted(true),
-	  mReplyOffset(0U),
-	  mReplyLength(0U),
-	  mReplyFullLength(0U),
-	  mBufferArray(NULL),
-	  mHeaders(),
-	  mRetries(0U),
-	  m503Retries(0U),
+    : LLCoreInt::RefCounted(true),
+      mReplyOffset(0U),
+      mReplyLength(0U),
+      mReplyFullLength(0U),
+      mBufferArray(NULL),
+      mHeaders(),
+      mRetries(0U),
+      m503Retries(0U),
       mRequestUrl()
 {}
 
 
 HttpResponse::~HttpResponse()
 {
-	setBody(NULL);
-	//setHeaders();
+    setBody(NULL);
+    //setHeaders();
 }
 
 
 void HttpResponse::setBody(BufferArray * ba)
 {
-	if (mBufferArray == ba)
-		return;
-	
-	if (mBufferArray)
-	{
-		mBufferArray->release();
-	}
+    if (mBufferArray == ba)
+        return;
+    
+    if (mBufferArray)
+    {
+        mBufferArray->release();
+    }
 
-	if (ba)
-	{
-		ba->addRef();
-	}
-	
-	mBufferArray = ba;
+    if (ba)
+    {
+        ba->addRef();
+    }
+    
+    mBufferArray = ba;
 }
 
 
@@ -79,7 +79,7 @@ void HttpResponse::setHeaders(HttpHeaders::ptr_t &headers)
 
 size_t HttpResponse::getBodySize() const
 {
-	return (mBufferArray) ? mBufferArray->size() : 0;
+    return (mBufferArray) ? mBufferArray->size() : 0;
 }
 
 }   // end namespace LLCore

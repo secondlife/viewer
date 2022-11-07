@@ -23,7 +23,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-										
+                                        
 #ifndef LL_RETRYPOLICY_H
 #define LL_RETRYPOLICY_H
 
@@ -41,20 +41,20 @@
 class LLHTTPRetryPolicy: public LLThreadSafeRefCount
 {
 public:
-	LLHTTPRetryPolicy() {}
+    LLHTTPRetryPolicy() {}
 
-	virtual ~LLHTTPRetryPolicy() {}
-	// Call after a sucess to reset retry state.
+    virtual ~LLHTTPRetryPolicy() {}
+    // Call after a sucess to reset retry state.
 
-	virtual void onSuccess() = 0;
-	// Call once after an HTTP failure to update state.
-	virtual void onFailure(S32 status, const LLSD& headers) = 0;
+    virtual void onSuccess() = 0;
+    // Call once after an HTTP failure to update state.
+    virtual void onFailure(S32 status, const LLSD& headers) = 0;
 
-	virtual void onFailure(const LLCore::HttpResponse *response) = 0;
+    virtual void onFailure(const LLCore::HttpResponse *response) = 0;
 
-	virtual bool shouldRetry(F32& seconds_to_wait) const = 0;
+    virtual bool shouldRetry(F32& seconds_to_wait) const = 0;
 
-	virtual void reset() = 0;
+    virtual void reset() = 0;
 };
 
 // Very general policy with geometric back-off after failures,
@@ -62,39 +62,39 @@ public:
 class LLAdaptiveRetryPolicy: public LLHTTPRetryPolicy
 {
 public:
-	LLAdaptiveRetryPolicy(F32 min_delay, F32 max_delay, F32 backoff_factor, U32 max_retries, bool retry_on_4xx = false);
+    LLAdaptiveRetryPolicy(F32 min_delay, F32 max_delay, F32 backoff_factor, U32 max_retries, bool retry_on_4xx = false);
 
-	// virtual
-	void onSuccess();
+    // virtual
+    void onSuccess();
 
-	void reset();
-	
-	// virtual
-	void onFailure(S32 status, const LLSD& headers);
-	// virtual
-	void onFailure(const LLCore::HttpResponse *response);
-	// virtual
-	bool shouldRetry(F32& seconds_to_wait) const;
+    void reset();
+    
+    // virtual
+    void onFailure(S32 status, const LLSD& headers);
+    // virtual
+    void onFailure(const LLCore::HttpResponse *response);
+    // virtual
+    bool shouldRetry(F32& seconds_to_wait) const;
 
     static bool getSecondsUntilRetryAfter(const std::string& retry_after, F32& seconds_to_wait);
 
 protected:
-	void init();
-	bool getRetryAfter(const LLSD& headers, F32& retry_header_time);
-	bool getRetryAfter(const LLCore::HttpHeaders::ptr_t &headers, F32& retry_header_time);
-	void onFailureCommon(S32 status, bool has_retry_header_time, F32 retry_header_time);
+    void init();
+    bool getRetryAfter(const LLSD& headers, F32& retry_header_time);
+    bool getRetryAfter(const LLCore::HttpHeaders::ptr_t &headers, F32& retry_header_time);
+    void onFailureCommon(S32 status, bool has_retry_header_time, F32 retry_header_time);
 
 private:
 
-	const F32 mMinDelay; // delay never less than this value
-	const F32 mMaxDelay; // delay never exceeds this value
-	const F32 mBackoffFactor; // delay increases by this factor after each retry, up to mMaxDelay.
-	const U32 mMaxRetries; // maximum number of times shouldRetry will return true.
-	F32 mDelay; // current default delay.
-	U32 mRetryCount; // number of times shouldRetry has been called.
-	LLTimer mRetryTimer; // time until next retry.
-	bool mShouldRetry; // Becomes false after too many retries, or the wrong sort of status received, etc.
-	bool mRetryOn4xx; // Normally only retry on 5xx server errors.
+    const F32 mMinDelay; // delay never less than this value
+    const F32 mMaxDelay; // delay never exceeds this value
+    const F32 mBackoffFactor; // delay increases by this factor after each retry, up to mMaxDelay.
+    const U32 mMaxRetries; // maximum number of times shouldRetry will return true.
+    F32 mDelay; // current default delay.
+    U32 mRetryCount; // number of times shouldRetry has been called.
+    LLTimer mRetryTimer; // time until next retry.
+    bool mShouldRetry; // Becomes false after too many retries, or the wrong sort of status received, etc.
+    bool mRetryOn4xx; // Normally only retry on 5xx server errors.
 };
 
 #endif

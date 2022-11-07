@@ -34,31 +34,31 @@
 class LLMediaCtrl;
 
 class LLFloaterHelpBrowser : 
-	public LLFloater, 
-	public LLViewerMediaObserver
+    public LLFloater, 
+    public LLViewerMediaObserver
 {
  public:
-	LLFloaterHelpBrowser(const LLSD& key);
+    LLFloaterHelpBrowser(const LLSD& key);
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onClose(bool app_quitting);
-	/*virtual*/ void onOpen(const LLSD& key);
+    /*virtual*/ BOOL postBuild();
+    /*virtual*/ void onClose(bool app_quitting);
+    /*virtual*/ void onOpen(const LLSD& key);
 
-	// inherited from LLViewerMediaObserver
-	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
+    // inherited from LLViewerMediaObserver
+    /*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 
-	void openMedia(const std::string& media_url);
-	
+    void openMedia(const std::string& media_url);
+    
  private:
-	void buildURLHistory();
-	void setCurrentURL(const std::string& url);
+    void buildURLHistory();
+    void setCurrentURL(const std::string& url);
 
-	static void onClickClose(void* user_data);
-	static void onClickOpenWebBrowser(void* user_data);
+    static void onClickClose(void* user_data);
+    static void onClickOpenWebBrowser(void* user_data);
 
  private:
-	LLMediaCtrl* mBrowser;
-	std::string mCurrentURL;
+    LLMediaCtrl* mBrowser;
+    std::string mCurrentURL;
 };
 
 #endif  // LL_LLFLOATERHELPBROWSER_H

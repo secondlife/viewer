@@ -43,51 +43,51 @@ LLURLLineEditor::LLURLLineEditor(const LLLineEditor::Params& p)
 // copy selection to clipboard
 void LLURLLineEditor::copy()
 {
-	if( canCopy() )
-	{
-		copyEscapedURLToClipboard();
-	}
+    if( canCopy() )
+    {
+        copyEscapedURLToClipboard();
+    }
 }
 
 // cut selection to clipboard
 void LLURLLineEditor::cut()
 {
-	if( canCut() )
-	{
-		// Prepare for possible rollback
-		LLURLLineEditorRollback rollback( this );
+    if( canCut() )
+    {
+        // Prepare for possible rollback
+        LLURLLineEditorRollback rollback( this );
 
-		copyEscapedURLToClipboard();
+        copyEscapedURLToClipboard();
 
-		deleteSelection();
+        deleteSelection();
 
-		// Validate new string and rollback the if needed.
-		BOOL need_to_rollback = ( mPrevalidateFunc && !mPrevalidateFunc( mText.getWString() ) );
-		if( need_to_rollback )
-		{
-			rollback.doRollback( this );
-			LLUI::getInstance()->reportBadKeystroke();
-		}
-		else
-		if( mKeystrokeCallback )
-		{
-			mKeystrokeCallback( this );
-		}
-	}
+        // Validate new string and rollback the if needed.
+        BOOL need_to_rollback = ( mPrevalidateFunc && !mPrevalidateFunc( mText.getWString() ) );
+        if( need_to_rollback )
+        {
+            rollback.doRollback( this );
+            LLUI::getInstance()->reportBadKeystroke();
+        }
+        else
+        if( mKeystrokeCallback )
+        {
+            mKeystrokeCallback( this );
+        }
+    }
 }
 // Copies escaped URL to clipboard
 void LLURLLineEditor::copyEscapedURLToClipboard()
 {
-	S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
-	S32 length = llabs( mSelectionStart - mSelectionEnd );
+    S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
+    S32 length = llabs( mSelectionStart - mSelectionEnd );
 
-	const std::string unescaped_text = wstring_to_utf8str(mText.getWString().substr(left_pos, length));
-	LLWString text_to_copy;
-	// *HACK: Because LLSLURL is currently broken we cannot use it to check if unescaped_text is a valid SLURL (see EXT-8335).
-	if (LLStringUtil::startsWith(unescaped_text, "http://") || LLStringUtil::startsWith(unescaped_text, "secondlife://")) // SLURL
-		text_to_copy = utf8str_to_wstring(LLWeb::escapeURL(unescaped_text));
-	else // human-readable location
-		text_to_copy = utf8str_to_wstring(unescaped_text);
-		
-	LLClipboard::instance().copyToClipboard(text_to_copy, 0, text_to_copy.size());
+    const std::string unescaped_text = wstring_to_utf8str(mText.getWString().substr(left_pos, length));
+    LLWString text_to_copy;
+    // *HACK: Because LLSLURL is currently broken we cannot use it to check if unescaped_text is a valid SLURL (see EXT-8335).
+    if (LLStringUtil::startsWith(unescaped_text, "http://") || LLStringUtil::startsWith(unescaped_text, "secondlife://")) // SLURL
+        text_to_copy = utf8str_to_wstring(LLWeb::escapeURL(unescaped_text));
+    else // human-readable location
+        text_to_copy = utf8str_to_wstring(unescaped_text);
+        
+    LLClipboard::instance().copyToClipboard(text_to_copy, 0, text_to_copy.size());
 }

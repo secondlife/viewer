@@ -34,26 +34,26 @@
 
 namespace LLTextValidate
 {
-	typedef boost::function<BOOL (const LLWString &wstr)> validate_func_t;
+    typedef boost::function<BOOL (const LLWString &wstr)> validate_func_t;
 
-	struct ValidateTextNamedFuncs
-	:	public LLInitParam::TypeValuesHelper<validate_func_t, ValidateTextNamedFuncs>
-	{
-		static void declareValues();
-	};
+    struct ValidateTextNamedFuncs
+    :   public LLInitParam::TypeValuesHelper<validate_func_t, ValidateTextNamedFuncs>
+    {
+        static void declareValues();
+    };
 
-	bool	validateFloat(const LLWString &str );
-	bool	validateInt(const LLWString &str );
-	bool	validatePositiveS32(const LLWString &str);
-	bool	validateNonNegativeS32(const LLWString &str);
-	bool 	validateNonNegativeS32NoSpace(const LLWString &str);
-	bool	validateAlphaNum(const LLWString &str );
-	bool	validateAlphaNumSpace(const LLWString &str );
-	bool	validateASCIIPrintableNoPipe(const LLWString &str); 
-	bool	validateASCIIPrintableNoSpace(const LLWString &str);
-	bool	validateASCII(const LLWString &str);
-	bool	validateASCIINoLeadingSpace(const LLWString &str);
-	bool	validateASCIIWithNewLine(const LLWString &str);
+    bool    validateFloat(const LLWString &str );
+    bool    validateInt(const LLWString &str );
+    bool    validatePositiveS32(const LLWString &str);
+    bool    validateNonNegativeS32(const LLWString &str);
+    bool    validateNonNegativeS32NoSpace(const LLWString &str);
+    bool    validateAlphaNum(const LLWString &str );
+    bool    validateAlphaNumSpace(const LLWString &str );
+    bool    validateASCIIPrintableNoPipe(const LLWString &str); 
+    bool    validateASCIIPrintableNoSpace(const LLWString &str);
+    bool    validateASCII(const LLWString &str);
+    bool    validateASCIINoLeadingSpace(const LLWString &str);
+    bool    validateASCIIWithNewLine(const LLWString &str);
 }
 
 

@@ -37,12 +37,12 @@ class LLMessageSystem;
 class LLClassifiedInfo
 {
 public:
-	LLClassifiedInfo() {}
+    LLClassifiedInfo() {}
 
-	static void loadCategories(const LLSD& options);
+    static void loadCategories(const LLSD& options);
 
-	typedef std::map<U32, std::string> cat_map;
-	static	cat_map sCategories;
+    typedef std::map<U32, std::string> cat_map;
+    static  cat_map sCategories;
 };
 
 #endif // LL_LLCLASSIFIEDINFO_H

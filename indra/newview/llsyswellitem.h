@@ -37,43 +37,43 @@
 class LLSysWellItem : public LLPanel
 {
 public:
-	struct Params :	public LLInitParam::Block<Params, LLPanel::Params>
-	{
-		LLUUID        	notification_id;
-		std::string		title;
+    struct Params : public LLInitParam::Block<Params, LLPanel::Params>
+    {
+        LLUUID          notification_id;
+        std::string     title;
         Params()        {};
-	};
+    };
 
 
-	LLSysWellItem(const Params& p);
-	virtual	~LLSysWellItem();
+    LLSysWellItem(const Params& p);
+    virtual ~LLSysWellItem();
 
-	// title
-	void setTitle( std::string title );
+    // title
+    void setTitle( std::string title );
 
-	// get item's ID
-	LLUUID getID() { return mID; }
+    // get item's ID
+    LLUUID getID() { return mID; }
 
-	// handlers
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
-	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
+    // handlers
+    virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual void onMouseEnter(S32 x, S32 y, MASK mask);
+    virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 
-	//callbacks
-	typedef boost::function<void (LLSysWellItem* item)> syswell_item_callback_t;
-	typedef boost::signals2::signal<void (LLSysWellItem* item)> syswell_item_signal_t;
-	syswell_item_signal_t mOnItemClose;	
-	syswell_item_signal_t mOnItemClick;	
-	boost::signals2::connection setOnItemCloseCallback(syswell_item_callback_t cb) { return mOnItemClose.connect(cb); }
-	boost::signals2::connection setOnItemClickCallback(syswell_item_callback_t cb) { return mOnItemClick.connect(cb); }
+    //callbacks
+    typedef boost::function<void (LLSysWellItem* item)> syswell_item_callback_t;
+    typedef boost::signals2::signal<void (LLSysWellItem* item)> syswell_item_signal_t;
+    syswell_item_signal_t mOnItemClose; 
+    syswell_item_signal_t mOnItemClick; 
+    boost::signals2::connection setOnItemCloseCallback(syswell_item_callback_t cb) { return mOnItemClose.connect(cb); }
+    boost::signals2::connection setOnItemClickCallback(syswell_item_callback_t cb) { return mOnItemClick.connect(cb); }
 
 private:
 
-	void onClickCloseBtn();
+    void onClickCloseBtn();
 
-	LLTextBox*	mTitle;
-	LLButton*	mCloseBtn;
-	LLUUID		mID;
+    LLTextBox*  mTitle;
+    LLButton*   mCloseBtn;
+    LLUUID      mID;
 };
 
 #endif // LL_LLSYSWELLITEM_H

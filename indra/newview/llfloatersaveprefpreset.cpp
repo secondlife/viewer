@@ -37,79 +37,79 @@
 #include "lltrans.h"
 
 LLFloaterSavePrefPreset::LLFloaterSavePrefPreset(const LLSD &key)
-	: LLFloater(key)
+    : LLFloater(key)
 {
 }
 
 // virtual
 BOOL LLFloaterSavePrefPreset::postBuild()
 {
-	LLFloaterPreference* preferences = LLFloaterReg::getTypedInstance<LLFloaterPreference>("preferences");
-	if (preferences)
-	{
-		preferences->addDependentFloater(this);
-	}
-	
-	getChild<LLComboBox>("preset_combo")->setTextEntryCallback(boost::bind(&LLFloaterSavePrefPreset::onPresetNameEdited, this));
-	getChild<LLComboBox>("preset_combo")->setCommitCallback(boost::bind(&LLFloaterSavePrefPreset::onPresetNameEdited, this));
-	getChild<LLButton>("save")->setCommitCallback(boost::bind(&LLFloaterSavePrefPreset::onBtnSave, this));
+    LLFloaterPreference* preferences = LLFloaterReg::getTypedInstance<LLFloaterPreference>("preferences");
+    if (preferences)
+    {
+        preferences->addDependentFloater(this);
+    }
+    
+    getChild<LLComboBox>("preset_combo")->setTextEntryCallback(boost::bind(&LLFloaterSavePrefPreset::onPresetNameEdited, this));
+    getChild<LLComboBox>("preset_combo")->setCommitCallback(boost::bind(&LLFloaterSavePrefPreset::onPresetNameEdited, this));
+    getChild<LLButton>("save")->setCommitCallback(boost::bind(&LLFloaterSavePrefPreset::onBtnSave, this));
 
-	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterSavePrefPreset::onBtnCancel, this));
+    getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterSavePrefPreset::onBtnCancel, this));
 
-	LLPresetsManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterSavePrefPreset::onPresetsListChange, this));
-	
-	mSaveButton = getChild<LLButton>("save");
-	mPresetCombo = getChild<LLComboBox>("preset_combo");
+    LLPresetsManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterSavePrefPreset::onPresetsListChange, this));
+    
+    mSaveButton = getChild<LLButton>("save");
+    mPresetCombo = getChild<LLComboBox>("preset_combo");
 
-	return TRUE;
+    return TRUE;
 }
 
 void LLFloaterSavePrefPreset::onPresetNameEdited()
 {
-	// Disable saving a preset having empty name.
-	std::string name = mPresetCombo->getSimple();
+    // Disable saving a preset having empty name.
+    std::string name = mPresetCombo->getSimple();
 
-	mSaveButton->setEnabled(!name.empty());
+    mSaveButton->setEnabled(!name.empty());
 }
 
 void LLFloaterSavePrefPreset::onOpen(const LLSD& key)
 {
-	mSubdirectory = key.asString();
+    mSubdirectory = key.asString();
 
-	EDefaultOptions option = DEFAULT_HIDE;
-	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, mPresetCombo, option);
+    EDefaultOptions option = DEFAULT_HIDE;
+    LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, mPresetCombo, option);
 
-	onPresetNameEdited();
+    onPresetNameEdited();
 }
 
 void LLFloaterSavePrefPreset::onBtnSave()
 {
-	std::string name = mPresetCombo->getSimple();
+    std::string name = mPresetCombo->getSimple();
 
-	std::string upper_name(name);
-	LLStringUtil::toUpper(upper_name);
+    std::string upper_name(name);
+    LLStringUtil::toUpper(upper_name);
 
-	if ((name == LLTrans::getString(PRESETS_DEFAULT)) || (upper_name == PRESETS_DEFAULT_UPPER))
-	{
-		LLNotificationsUtil::add("DefaultPresetNotSaved");
-	}
-	else if (!LLPresetsManager::getInstance()->savePreset(mSubdirectory, name))
-	{
-		LLSD args;
-		args["NAME"] = name;
-		LLNotificationsUtil::add("PresetNotSaved", args);
-	}
+    if ((name == LLTrans::getString(PRESETS_DEFAULT)) || (upper_name == PRESETS_DEFAULT_UPPER))
+    {
+        LLNotificationsUtil::add("DefaultPresetNotSaved");
+    }
+    else if (!LLPresetsManager::getInstance()->savePreset(mSubdirectory, name))
+    {
+        LLSD args;
+        args["NAME"] = name;
+        LLNotificationsUtil::add("PresetNotSaved", args);
+    }
 
-	closeFloater();
+    closeFloater();
 }
 
 void LLFloaterSavePrefPreset::onPresetsListChange()
 {
-	EDefaultOptions option = DEFAULT_HIDE;
-	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, mPresetCombo, option);
+    EDefaultOptions option = DEFAULT_HIDE;
+    LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, mPresetCombo, option);
 }
 
 void LLFloaterSavePrefPreset::onBtnCancel()
 {
-	closeFloater();
+    closeFloater();
 }

@@ -37,104 +37,104 @@
  */
 class LLSearchHistory : public LLSingleton<LLSearchHistory>, private LLDestroyClass<LLSearchHistory>
 {
-	LLSINGLETON(LLSearchHistory);
-	friend class LLDestroyClass<LLSearchHistory>;
+    LLSINGLETON(LLSearchHistory);
+    friend class LLDestroyClass<LLSearchHistory>;
 public:
 
-	// Forward declaration
-	class LLSearchHistoryItem;
+    // Forward declaration
+    class LLSearchHistoryItem;
 
-	// Search history container
-	typedef std::list<LLSearchHistoryItem>	search_history_list_t;
+    // Search history container
+    typedef std::list<LLSearchHistoryItem>  search_history_list_t;
 
-	/**
-	 * Saves search history to file
-	 */
-	bool save();
+    /**
+     * Saves search history to file
+     */
+    bool save();
 
-	/**
-	 * loads search history from file
-	 */
-	bool load();
+    /**
+     * loads search history from file
+     */
+    bool load();
 
-	/**
-	 * Returns search history list
-	 */
-	search_history_list_t& getSearchHistoryList() { return mSearchHistory; }
+    /**
+     * Returns search history list
+     */
+    search_history_list_t& getSearchHistoryList() { return mSearchHistory; }
 
-	/**
-	 * Deletes all search history queries from list.
-	 */
-	void clearHistory() { mSearchHistory.clear(); }
+    /**
+     * Deletes all search history queries from list.
+     */
+    void clearHistory() { mSearchHistory.clear(); }
 
-	/**
-	 * Adds unique entry to front of search history list, case insensitive
-	 * If entry is already in list, it will be deleted and added to front.
-	 */
-	void addEntry(const std::string& search_text);
+    /**
+     * Adds unique entry to front of search history list, case insensitive
+     * If entry is already in list, it will be deleted and added to front.
+     */
+    void addEntry(const std::string& search_text);
 
 
-	/**
-	 * Class for storing data about single search request.
-	 */
-	class LLSearchHistoryItem
-	{
-	public:
+    /**
+     * Class for storing data about single search request.
+     */
+    class LLSearchHistoryItem
+    {
+    public:
 
-		LLSearchHistoryItem()
-		{}
+        LLSearchHistoryItem()
+        {}
 
-		LLSearchHistoryItem(const std::string& query)
-			: search_query(query)
-		{}
+        LLSearchHistoryItem(const std::string& query)
+            : search_query(query)
+        {}
 
-		LLSearchHistoryItem(const LLSD& item)
-		{
-			if(item.has(SEARCH_QUERY))
-				search_query = item[SEARCH_QUERY].asString();
-		}
+        LLSearchHistoryItem(const LLSD& item)
+        {
+            if(item.has(SEARCH_QUERY))
+                search_query = item[SEARCH_QUERY].asString();
+        }
 
-		std::string search_query;
+        std::string search_query;
 
-		/**
-		 * Allows std::list sorting
-		 */
-		bool operator < (const LLSearchHistory::LLSearchHistoryItem& right) const;
+        /**
+         * Allows std::list sorting
+         */
+        bool operator < (const LLSearchHistory::LLSearchHistoryItem& right) const;
 
-		/**
-		 * Allows std::list sorting
-		 */
-		bool operator > (const LLSearchHistory::LLSearchHistoryItem& right) const;
+        /**
+         * Allows std::list sorting
+         */
+        bool operator > (const LLSearchHistory::LLSearchHistoryItem& right) const;
 
-		bool operator==(const LLSearchHistoryItem& right) const;
+        bool operator==(const LLSearchHistoryItem& right) const;
 
-		bool operator==(const std::string& right) const;
+        bool operator==(const std::string& right) const;
 
-		/**
-		 * Serializes search history item to LLSD
-		 */
-		LLSD toLLSD() const;
-	};
+        /**
+         * Serializes search history item to LLSD
+         */
+        LLSD toLLSD() const;
+    };
 
 protected:
 
-	/**
-	 * Returns path to search history file.
-	 */
-	std::string getHistoryFilePath();
+    /**
+     * Returns path to search history file.
+     */
+    std::string getHistoryFilePath();
 
-	static std::string SEARCH_HISTORY_FILE_NAME;
-	static std::string SEARCH_QUERY;
+    static std::string SEARCH_HISTORY_FILE_NAME;
+    static std::string SEARCH_QUERY;
 
 private:
 
-	// Implementation of LLDestroyClass<LLSearchHistory>
-	static void destroyClass()
-	{
-		LLSearchHistory::getInstance()->save();
-	}
+    // Implementation of LLDestroyClass<LLSearchHistory>
+    static void destroyClass()
+    {
+        LLSearchHistory::getInstance()->save();
+    }
 
-	search_history_list_t mSearchHistory;
+    search_history_list_t mSearchHistory;
 };
 
 class LLSearchComboBox;

@@ -44,23 +44,23 @@
 class LLIOFlush : public LLIOPipe
 {
 public:
-	LLIOFlush() {}
-	virtual ~LLIOFlush() {}
+    LLIOFlush() {}
+    virtual ~LLIOFlush() {}
 
 protected:
-	/* @name LLIOPipe virtual implementations
-	 */
-	//@{
-	/** 
-	 * @brief Process the data in buffer
-	 */
-	EStatus process_impl(
-		const LLChannelDescriptors& channels,
-		buffer_ptr_t& buffer,
-		bool& eos,
-		LLSD& context,
-		LLPumpIO* pump);
-	//@}
+    /* @name LLIOPipe virtual implementations
+     */
+    //@{
+    /** 
+     * @brief Process the data in buffer
+     */
+    EStatus process_impl(
+        const LLChannelDescriptors& channels,
+        buffer_ptr_t& buffer,
+        bool& eos,
+        LLSD& context,
+        LLPumpIO* pump);
+    //@}
 protected:
 };
 
@@ -73,25 +73,25 @@ protected:
 class LLIOSleep : public LLIOPipe
 {
 public:
-	LLIOSleep(F64 sleep_seconds) : mSeconds(sleep_seconds) {}
-	virtual ~LLIOSleep() {}
+    LLIOSleep(F64 sleep_seconds) : mSeconds(sleep_seconds) {}
+    virtual ~LLIOSleep() {}
 
 protected:
-	/* @name LLIOPipe virtual implementations
-	 */
-	//@{
-	/** 
-	 * @brief Process the data in buffer
-	 */
-	EStatus process_impl(
-		const LLChannelDescriptors& channels,
-		buffer_ptr_t& buffer,
-		bool& eos,
-		LLSD& context,
-		LLPumpIO* pump);
-	//@}
+    /* @name LLIOPipe virtual implementations
+     */
+    //@{
+    /** 
+     * @brief Process the data in buffer
+     */
+    EStatus process_impl(
+        const LLChannelDescriptors& channels,
+        buffer_ptr_t& buffer,
+        bool& eos,
+        LLSD& context,
+        LLPumpIO* pump);
+    //@}
 protected:
-	F64 mSeconds;
+    F64 mSeconds;
 };
 
 /** 
@@ -102,30 +102,30 @@ protected:
 class LLIOAddChain : public LLIOPipe
 {
 public:
-	LLIOAddChain(const LLPumpIO::chain_t& chain, F32 timeout) :
-		mChain(chain),
-		mTimeout(timeout)
-	{}
-	virtual ~LLIOAddChain() {}
+    LLIOAddChain(const LLPumpIO::chain_t& chain, F32 timeout) :
+        mChain(chain),
+        mTimeout(timeout)
+    {}
+    virtual ~LLIOAddChain() {}
 
 protected:
-	/* @name LLIOPipe virtual implementations
-	 */
-	//@{
-	/** 
-	 * @brief Process the data in buffer
-	 */
-	EStatus process_impl(
-		const LLChannelDescriptors& channels,
-		buffer_ptr_t& buffer,
-		bool& eos,
-		LLSD& context,
-		LLPumpIO* pump);
-	//@}
+    /* @name LLIOPipe virtual implementations
+     */
+    //@{
+    /** 
+     * @brief Process the data in buffer
+     */
+    EStatus process_impl(
+        const LLChannelDescriptors& channels,
+        buffer_ptr_t& buffer,
+        bool& eos,
+        LLSD& context,
+        LLPumpIO* pump);
+    //@}
 
 protected:
-	LLPumpIO::chain_t mChain;
-	F32 mTimeout;
+    LLPumpIO::chain_t mChain;
+    F32 mTimeout;
 };
 
 /** 
@@ -150,22 +150,22 @@ protected:
 class LLChangeChannel //: public unary_function<T, void>
 {
 public:
-	/** 
-	 * @brief Constructor for iterating over a segment range to change channel.
-	 *
-	 * @param is The channel to match when looking at a segment.
-	 * @param becomes The channel to set the segment when a match is found.
-	 */
-	LLChangeChannel(S32 is, S32 becomes);
+    /** 
+     * @brief Constructor for iterating over a segment range to change channel.
+     *
+     * @param is The channel to match when looking at a segment.
+     * @param becomes The channel to set the segment when a match is found.
+     */
+    LLChangeChannel(S32 is, S32 becomes);
 
-	/** 
-	 * @brief Do the work of changing the channel
-	 */
-	void operator()(LLSegment& segment);
+    /** 
+     * @brief Do the work of changing the channel
+     */
+    void operator()(LLSegment& segment);
 
 protected:
-	S32 mIs;
-	S32 mBecomes;
+    S32 mIs;
+    S32 mBecomes;
 };
 
 

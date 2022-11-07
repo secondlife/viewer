@@ -34,22 +34,22 @@ class LLUUID;
 
 namespace LLViewerDisplayName
 {
-	typedef boost::signals2::signal<
-		void (bool success, const std::string& reason, const LLSD& content)>
-			set_name_signal_t;
-	typedef set_name_signal_t::slot_type set_name_slot_t;
-	
-	typedef boost::signals2::signal<void (void)> name_changed_signal_t;
-	typedef name_changed_signal_t::slot_type name_changed_slot_t;
+    typedef boost::signals2::signal<
+        void (bool success, const std::string& reason, const LLSD& content)>
+            set_name_signal_t;
+    typedef set_name_signal_t::slot_type set_name_slot_t;
+    
+    typedef boost::signals2::signal<void (void)> name_changed_signal_t;
+    typedef name_changed_signal_t::slot_type name_changed_slot_t;
 
-	// Sends an update to the server to change a display name
-	// and call back when done.  May not succeed due to service
-	// unavailable or name not available.
-	void set(const std::string& display_name, const set_name_slot_t& slot);
+    // Sends an update to the server to change a display name
+    // and call back when done.  May not succeed due to service
+    // unavailable or name not available.
+    void set(const std::string& display_name, const set_name_slot_t& slot);
 
     void setDisplayNameCoro(const std::string& cap_url, const LLSD& body);
 
-	void addNameChangedCallback(const name_changed_signal_t::slot_type& cb);
+    void addNameChangedCallback(const name_changed_signal_t::slot_type& cb);
 }
 
 #endif // LLVIEWERDISPLAYNAME_H

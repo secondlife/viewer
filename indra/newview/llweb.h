@@ -40,29 +40,29 @@
 class LLWeb
 {
 public:
-	enum PreferredBrowser
-	{
-		BROWSER_EXTERNAL_ONLY = 0,
-		BROWSER_INT_LL_EXT_OTHERS = 1,
-		BROWSER_INTERNAL_ONLY = 2
-	};
-	
-	/// Load the given url in the operating system's web browser, async if we want to return immediately
-	/// before browser has spawned
-	static void loadURLExternal(const std::string& url) {loadURLExternal(url, LLStringUtil::null);}
-	static void loadURLExternal(const std::string& url, const std::string& uuid);
-	static void loadURLExternal(const std::string& url, bool async, const std::string& uuid = LLStringUtil::null);
+    enum PreferredBrowser
+    {
+        BROWSER_EXTERNAL_ONLY = 0,
+        BROWSER_INT_LL_EXT_OTHERS = 1,
+        BROWSER_INTERNAL_ONLY = 2
+    };
+    
+    /// Load the given url in the operating system's web browser, async if we want to return immediately
+    /// before browser has spawned
+    static void loadURLExternal(const std::string& url) {loadURLExternal(url, LLStringUtil::null);}
+    static void loadURLExternal(const std::string& url, const std::string& uuid);
+    static void loadURLExternal(const std::string& url, bool async, const std::string& uuid = LLStringUtil::null);
 
-	static void loadURL(const std::string& url, const std::string& target = LLStringUtil::null, const std::string& uuid = LLStringUtil::null);
-	// load content using built-in browser
-	static void loadURLInternal(const std::string &url, const std::string& target = LLStringUtil::null, const std::string& uuid = LLStringUtil::null, bool dev_mode = false);
+    static void loadURL(const std::string& url, const std::string& target = LLStringUtil::null, const std::string& uuid = LLStringUtil::null);
+    // load content using built-in browser
+    static void loadURLInternal(const std::string &url, const std::string& target = LLStringUtil::null, const std::string& uuid = LLStringUtil::null, bool dev_mode = false);
 
-	/// Returns escaped url (eg, " " to "%20") - used by all loadURL methods
-	static std::string escapeURL(const std::string& url);
-	/// Expands various strings like [LANG], [VERSION], etc. in a URL
-	static std::string expandURLSubstitutions(const std::string &url,
-											  const LLSD &default_subs);
-	static bool useExternalBrowser(const std::string &url);
+    /// Returns escaped url (eg, " " to "%20") - used by all loadURL methods
+    static std::string escapeURL(const std::string& url);
+    /// Expands various strings like [LANG], [VERSION], etc. in a URL
+    static std::string expandURLSubstitutions(const std::string &url,
+                                              const LLSD &default_subs);
+    static bool useExternalBrowser(const std::string &url);
 };
 
 #endif

@@ -40,11 +40,11 @@ class LLTrustedMessageService
 {
 public:
 
-	bool validate(const std::string& name, LLSD& context) const;
-	
-	void post(LLHTTPNode::ResponsePtr response,
-			  const LLSD& context,
-			  const LLSD& input) const;
+    bool validate(const std::string& name, LLSD& context) const;
+    
+    void post(LLHTTPNode::ResponsePtr response,
+              const LLSD& context,
+              const LLSD& input) const;
 };
 
 #endif // LLTRUSTEDMESSAGESERVICE_H

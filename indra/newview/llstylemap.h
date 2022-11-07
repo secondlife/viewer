@@ -39,14 +39,14 @@ typedef std::map<LLUUID, LLStyle::Params> style_map_t;
 
 class LLStyleMap : public LLSingleton<LLStyleMap>
 {
-	LLSINGLETON_EMPTY_CTOR(LLStyleMap);
+    LLSINGLETON_EMPTY_CTOR(LLStyleMap);
 public:
-	// Just like the [] accessor but it will add the entry in if it doesn't exist.
-	const LLStyle::Params &lookupAgent(const LLUUID &source); 
-	const LLStyle::Params &lookup(const LLUUID &source, const std::string& link); 
+    // Just like the [] accessor but it will add the entry in if it doesn't exist.
+    const LLStyle::Params &lookupAgent(const LLUUID &source); 
+    const LLStyle::Params &lookup(const LLUUID &source, const std::string& link); 
 
 private:
-	style_map_t mMap;
+    style_map_t mMap;
 };
 
 #endif  // LL_LLSTYLE_MAP_H

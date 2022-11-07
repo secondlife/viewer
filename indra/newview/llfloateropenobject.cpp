@@ -51,211 +51,211 @@
 
 
 LLFloaterOpenObject::LLFloaterOpenObject(const LLSD& key)
-:	LLFloater(key),
-	mPanelInventoryObject(NULL),
-	mDirty(TRUE)
+:   LLFloater(key),
+    mPanelInventoryObject(NULL),
+    mDirty(TRUE)
 {
-	mCommitCallbackRegistrar.add("OpenObject.MoveToInventory",	boost::bind(&LLFloaterOpenObject::onClickMoveToInventory, this));
-	mCommitCallbackRegistrar.add("OpenObject.MoveAndWear",		boost::bind(&LLFloaterOpenObject::onClickMoveAndWear, this));
-	mCommitCallbackRegistrar.add("OpenObject.ReplaceOutfit",	boost::bind(&LLFloaterOpenObject::onClickReplace, this));
-	mCommitCallbackRegistrar.add("OpenObject.Cancel",			boost::bind(&LLFloaterOpenObject::onClickCancel, this));
+    mCommitCallbackRegistrar.add("OpenObject.MoveToInventory",  boost::bind(&LLFloaterOpenObject::onClickMoveToInventory, this));
+    mCommitCallbackRegistrar.add("OpenObject.MoveAndWear",      boost::bind(&LLFloaterOpenObject::onClickMoveAndWear, this));
+    mCommitCallbackRegistrar.add("OpenObject.ReplaceOutfit",    boost::bind(&LLFloaterOpenObject::onClickReplace, this));
+    mCommitCallbackRegistrar.add("OpenObject.Cancel",           boost::bind(&LLFloaterOpenObject::onClickCancel, this));
 }
 
 LLFloaterOpenObject::~LLFloaterOpenObject()
 {
-//	sInstance = NULL;
+//  sInstance = NULL;
 }
 
 // virtual
 BOOL LLFloaterOpenObject::postBuild()
 {
-	getChild<LLUICtrl>("object_name")->setTextArg("[DESC]", std::string("Object") ); // *Note: probably do not want to translate this
-	mPanelInventoryObject = getChild<LLPanelObjectInventory>("object_contents");
-	
-	refresh();
-	return TRUE;
+    getChild<LLUICtrl>("object_name")->setTextArg("[DESC]", std::string("Object") ); // *Note: probably do not want to translate this
+    mPanelInventoryObject = getChild<LLPanelObjectInventory>("object_contents");
+    
+    refresh();
+    return TRUE;
 }
 
 void LLFloaterOpenObject::onOpen(const LLSD& key)
 {
-	LLObjectSelectionHandle object_selection = LLSelectMgr::getInstance()->getSelection();
-	if (object_selection->getRootObjectCount() != 1)
-	{
-		LLNotificationsUtil::add("UnableToViewContentsMoreThanOne");
-		closeFloater();
-		return;
-	}
-	if(!(object_selection->getPrimaryObject())) 
-	{
-		closeFloater();
-		return;
-	}
-	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
-	refresh();
+    LLObjectSelectionHandle object_selection = LLSelectMgr::getInstance()->getSelection();
+    if (object_selection->getRootObjectCount() != 1)
+    {
+        LLNotificationsUtil::add("UnableToViewContentsMoreThanOne");
+        closeFloater();
+        return;
+    }
+    if(!(object_selection->getPrimaryObject())) 
+    {
+        closeFloater();
+        return;
+    }
+    mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
+    refresh();
 }
 
 void LLFloaterOpenObject::refresh()
 {
-	mPanelInventoryObject->refresh();
+    mPanelInventoryObject->refresh();
 
-	std::string name = "";
-	BOOL enabled = FALSE;
+    std::string name = "";
+    BOOL enabled = FALSE;
 
-	LLSelectNode* node = mObjectSelection->getFirstRootNode();
-	if (node) 
-	{
-		name = node->mName;
-		enabled = TRUE;
-	}
-	else
-	{
-		name = "";
-		enabled = FALSE;
-	}
-	
-	getChild<LLUICtrl>("object_name")->setTextArg("[DESC]", name);
-	getChildView("copy_to_inventory_button")->setEnabled(enabled);
-	getChildView("copy_and_wear_button")->setEnabled(enabled);
-	getChildView("copy_and_replace_button")->setEnabled(enabled);
+    LLSelectNode* node = mObjectSelection->getFirstRootNode();
+    if (node) 
+    {
+        name = node->mName;
+        enabled = TRUE;
+    }
+    else
+    {
+        name = "";
+        enabled = FALSE;
+    }
+    
+    getChild<LLUICtrl>("object_name")->setTextArg("[DESC]", name);
+    getChildView("copy_to_inventory_button")->setEnabled(enabled);
+    getChildView("copy_and_wear_button")->setEnabled(enabled);
+    getChildView("copy_and_replace_button")->setEnabled(enabled);
 
 }
 
 void LLFloaterOpenObject::draw()
 {
-	if (mDirty)
-	{
-		refresh();
-		mDirty = FALSE;
-	}
-	LLFloater::draw();
+    if (mDirty)
+    {
+        refresh();
+        mDirty = FALSE;
+    }
+    LLFloater::draw();
 }
 
 void LLFloaterOpenObject::dirty()
 {
-	mDirty = TRUE;
+    mDirty = TRUE;
 }
 
 
 
 void LLFloaterOpenObject::moveToInventory(bool wear, bool replace)
 {
-	if (mObjectSelection->getRootObjectCount() != 1)
-	{
-		LLNotificationsUtil::add("OnlyCopyContentsOfSingleItem");
-		return;
-	}
+    if (mObjectSelection->getRootObjectCount() != 1)
+    {
+        LLNotificationsUtil::add("OnlyCopyContentsOfSingleItem");
+        return;
+    }
 
-	LLSelectNode* node = mObjectSelection->getFirstRootNode();
-	if (!node) return;
-	LLViewerObject* object = node->getObject();
-	if (!object) return;
+    LLSelectNode* node = mObjectSelection->getFirstRootNode();
+    if (!node) return;
+    LLViewerObject* object = node->getObject();
+    if (!object) return;
 
-	LLUUID object_id = object->getID();
-	std::string name = node->mName;
+    LLUUID object_id = object->getID();
+    std::string name = node->mName;
 
-	// Either create a sub-folder of clothing, or of the root folder.
-	LLUUID parent_category_id;
-	if (wear)
-	{
-		parent_category_id = gInventory.findCategoryUUIDForType(
-			LLFolderType::FT_CLOTHING);
-	}
-	else
-	{
-		parent_category_id = gInventory.getRootFolderID();
-	}
+    // Either create a sub-folder of clothing, or of the root folder.
+    LLUUID parent_category_id;
+    if (wear)
+    {
+        parent_category_id = gInventory.findCategoryUUIDForType(
+            LLFolderType::FT_CLOTHING);
+    }
+    else
+    {
+        parent_category_id = gInventory.getRootFolderID();
+    }
 
-	inventory_func_type func = boost::bind(LLFloaterOpenObject::callbackCreateInventoryCategory,_1,object_id,wear,replace);
-	LLUUID category_id = gInventory.createNewCategory(parent_category_id, 
-													  LLFolderType::FT_NONE, 
-													  name,
-													  func);
+    inventory_func_type func = boost::bind(LLFloaterOpenObject::callbackCreateInventoryCategory,_1,object_id,wear,replace);
+    LLUUID category_id = gInventory.createNewCategory(parent_category_id, 
+                                                      LLFolderType::FT_NONE, 
+                                                      name,
+                                                      func);
 
-	//If we get a null category ID, we are using a capability in createNewCategory and we will
-	//handle the following in the callbackCreateInventoryCategory routine.
-	if ( category_id.notNull() )
-	{
-		LLCatAndWear* data = new LLCatAndWear;
-		data->mCatID = category_id;
-		data->mWear = wear;
-		data->mFolderResponded = false;
-		data->mReplace = replace;
+    //If we get a null category ID, we are using a capability in createNewCategory and we will
+    //handle the following in the callbackCreateInventoryCategory routine.
+    if ( category_id.notNull() )
+    {
+        LLCatAndWear* data = new LLCatAndWear;
+        data->mCatID = category_id;
+        data->mWear = wear;
+        data->mFolderResponded = false;
+        data->mReplace = replace;
 
-		// Copy and/or move the items into the newly created folder.
-		// Ignore any "you're going to break this item" messages.
-		BOOL success = move_inv_category_world_to_agent(object_id, category_id, TRUE,
-														callbackMoveInventory, 
-														(void*)data);
-		if (!success)
-		{
-			delete data;
-			data = NULL;
+        // Copy and/or move the items into the newly created folder.
+        // Ignore any "you're going to break this item" messages.
+        BOOL success = move_inv_category_world_to_agent(object_id, category_id, TRUE,
+                                                        callbackMoveInventory, 
+                                                        (void*)data);
+        if (!success)
+        {
+            delete data;
+            data = NULL;
 
-			LLNotificationsUtil::add("OpenObjectCannotCopy");
-		}
-	}
+            LLNotificationsUtil::add("OpenObjectCannotCopy");
+        }
+    }
 }
 
 // static
 void LLFloaterOpenObject::callbackCreateInventoryCategory(const LLUUID& category_id, LLUUID object_id, bool wear, bool replace)
 {
-	LLCatAndWear* wear_data = new LLCatAndWear;
+    LLCatAndWear* wear_data = new LLCatAndWear;
 
-	wear_data->mCatID = category_id;
-	wear_data->mWear = wear;
-	wear_data->mFolderResponded = true;
-	wear_data->mReplace = replace;
-	
-	// Copy and/or move the items into the newly created folder.
-	// Ignore any "you're going to break this item" messages.
-	BOOL success = move_inv_category_world_to_agent(object_id, category_id, TRUE,
-													callbackMoveInventory, 
-													(void*)wear_data);
-	if (!success)
-	{
-		delete wear_data;
-		wear_data = NULL;
-		
-		LLNotificationsUtil::add("OpenObjectCannotCopy");
-	}
+    wear_data->mCatID = category_id;
+    wear_data->mWear = wear;
+    wear_data->mFolderResponded = true;
+    wear_data->mReplace = replace;
+    
+    // Copy and/or move the items into the newly created folder.
+    // Ignore any "you're going to break this item" messages.
+    BOOL success = move_inv_category_world_to_agent(object_id, category_id, TRUE,
+                                                    callbackMoveInventory, 
+                                                    (void*)wear_data);
+    if (!success)
+    {
+        delete wear_data;
+        wear_data = NULL;
+        
+        LLNotificationsUtil::add("OpenObjectCannotCopy");
+    }
 }
 
 // static
 void LLFloaterOpenObject::callbackMoveInventory(S32 result, void* data)
 {
-	LLCatAndWear* cat = (LLCatAndWear*)data;
+    LLCatAndWear* cat = (LLCatAndWear*)data;
 
-	if (result == 0)
-	{
-		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
-		if (active_panel)
-		{
-			active_panel->setSelection(cat->mCatID, TAKE_FOCUS_NO);
-		}
-	}
+    if (result == 0)
+    {
+        LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+        if (active_panel)
+        {
+            active_panel->setSelection(cat->mCatID, TAKE_FOCUS_NO);
+        }
+    }
 
-	delete cat;
+    delete cat;
 }
 
 void LLFloaterOpenObject::onClickMoveToInventory()
 {
-	moveToInventory(false);
-	closeFloater();
+    moveToInventory(false);
+    closeFloater();
 }
 
 void LLFloaterOpenObject::onClickMoveAndWear()
 {
-	moveToInventory(true, false);
-	closeFloater();
+    moveToInventory(true, false);
+    closeFloater();
 }
 
 void LLFloaterOpenObject::onClickReplace()
 {
-	moveToInventory(true, true);
-	closeFloater();
+    moveToInventory(true, true);
+    closeFloater();
 }
 
 void LLFloaterOpenObject::onClickCancel()
 {
-	closeFloater();
+    closeFloater();
 }

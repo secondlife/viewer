@@ -43,8 +43,8 @@ namespace LLCore
 
 
 HttpOpCancel::HttpOpCancel(HttpHandle handle)
-	: HttpOperation(),
-	  mHandle(handle)
+    : HttpOperation(),
+      mHandle(handle)
 {}
 
 
@@ -59,15 +59,15 @@ HttpOpCancel::~HttpOpCancel()
 // its handler.
 void HttpOpCancel::stageFromRequest(HttpService * service)
 {
-	if (! service->cancel(mHandle))
-	{
-		mStatus = HttpStatus(HttpStatus::LLCORE, HE_HANDLE_NOT_FOUND);
-	}
-	
-	addAsReply();
+    if (! service->cancel(mHandle))
+    {
+        mStatus = HttpStatus(HttpStatus::LLCORE, HE_HANDLE_NOT_FOUND);
+    }
+    
+    addAsReply();
 }
 
 
 }   // end namespace LLCore
 
-		
+        

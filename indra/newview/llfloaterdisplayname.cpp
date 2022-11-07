@@ -43,150 +43,150 @@
 class LLFloaterDisplayName : public LLFloater
 {
 public:
-	LLFloaterDisplayName(const LLSD& key);
-	virtual ~LLFloaterDisplayName() { }
-	/*virtual*/	BOOL	postBuild();
-	void onSave();
-	void onCancel();
-	/*virtual*/ void onOpen(const LLSD& key);
-	
+    LLFloaterDisplayName(const LLSD& key);
+    virtual ~LLFloaterDisplayName() { }
+    /*virtual*/ BOOL    postBuild();
+    void onSave();
+    void onCancel();
+    /*virtual*/ void onOpen(const LLSD& key);
+    
 private:
-	
-	void onCacheSetName(bool success,
-										  const std::string& reason,
-										  const LLSD& content);
+    
+    void onCacheSetName(bool success,
+                                          const std::string& reason,
+                                          const LLSD& content);
 };
 
 LLFloaterDisplayName::LLFloaterDisplayName(const LLSD& key) :
-	LLFloater(key)
+    LLFloater(key)
 {
 }
 
 void LLFloaterDisplayName::onOpen(const LLSD& key)
 {
-	getChild<LLUICtrl>("display_name_editor")->clear();
-	getChild<LLUICtrl>("display_name_confirm")->clear();
+    getChild<LLUICtrl>("display_name_editor")->clear();
+    getChild<LLUICtrl>("display_name_confirm")->clear();
 
-	LLAvatarName av_name;
-	LLAvatarNameCache::get(gAgent.getID(), &av_name);
+    LLAvatarName av_name;
+    LLAvatarNameCache::get(gAgent.getID(), &av_name);
 
-	F64 now_secs = LLDate::now().secondsSinceEpoch();
+    F64 now_secs = LLDate::now().secondsSinceEpoch();
 
-	if (now_secs < av_name.mNextUpdate)
-	{
-		// ...can't update until some time in the future
-		F64 next_update_local_secs =
-			av_name.mNextUpdate - LLStringOps::getLocalTimeOffset();
-		LLDate next_update_local(next_update_local_secs);
-		// display as "July 18 12:17 PM"
-		std::string next_update_string =
-		next_update_local.toHTTPDateString("%B %d %I:%M %p");
-		getChild<LLUICtrl>("lockout_text")->setTextArg("[TIME]", next_update_string);
-		getChild<LLUICtrl>("lockout_text")->setVisible(true);
-		getChild<LLUICtrl>("save_btn")->setEnabled(false);
-		getChild<LLUICtrl>("display_name_editor")->setEnabled(false);
-		getChild<LLUICtrl>("display_name_confirm")->setEnabled(false);
-		getChild<LLUICtrl>("cancel_btn")->setFocus(TRUE);
-		
-	}
-	else
-	{
-		getChild<LLUICtrl>("lockout_text")->setVisible(false);
-		getChild<LLUICtrl>("save_btn")->setEnabled(true);
-		getChild<LLUICtrl>("display_name_editor")->setEnabled(true);
-		getChild<LLUICtrl>("display_name_confirm")->setEnabled(true);
+    if (now_secs < av_name.mNextUpdate)
+    {
+        // ...can't update until some time in the future
+        F64 next_update_local_secs =
+            av_name.mNextUpdate - LLStringOps::getLocalTimeOffset();
+        LLDate next_update_local(next_update_local_secs);
+        // display as "July 18 12:17 PM"
+        std::string next_update_string =
+        next_update_local.toHTTPDateString("%B %d %I:%M %p");
+        getChild<LLUICtrl>("lockout_text")->setTextArg("[TIME]", next_update_string);
+        getChild<LLUICtrl>("lockout_text")->setVisible(true);
+        getChild<LLUICtrl>("save_btn")->setEnabled(false);
+        getChild<LLUICtrl>("display_name_editor")->setEnabled(false);
+        getChild<LLUICtrl>("display_name_confirm")->setEnabled(false);
+        getChild<LLUICtrl>("cancel_btn")->setFocus(TRUE);
+        
+    }
+    else
+    {
+        getChild<LLUICtrl>("lockout_text")->setVisible(false);
+        getChild<LLUICtrl>("save_btn")->setEnabled(true);
+        getChild<LLUICtrl>("display_name_editor")->setEnabled(true);
+        getChild<LLUICtrl>("display_name_confirm")->setEnabled(true);
 
-	}
+    }
 }
 
 BOOL LLFloaterDisplayName::postBuild()
 {
-	getChild<LLUICtrl>("cancel_btn")->setCommitCallback(boost::bind(&LLFloaterDisplayName::onCancel, this));	
-	getChild<LLUICtrl>("save_btn")->setCommitCallback(boost::bind(&LLFloaterDisplayName::onSave, this));	
-	
-	center();
+    getChild<LLUICtrl>("cancel_btn")->setCommitCallback(boost::bind(&LLFloaterDisplayName::onCancel, this));    
+    getChild<LLUICtrl>("save_btn")->setCommitCallback(boost::bind(&LLFloaterDisplayName::onSave, this));    
+    
+    center();
 
-	return TRUE;
+    return TRUE;
 }
 
 void LLFloaterDisplayName::onCacheSetName(bool success,
-										  const std::string& reason,
-										  const LLSD& content)
+                                          const std::string& reason,
+                                          const LLSD& content)
 {
-	if (success)
-	{
-		// Inform the user that the change took place, but will take a while
-		// to percolate.
-		LLSD args;
-		args["DISPLAY_NAME"] = content["display_name"];
-		LLNotificationsUtil::add("SetDisplayNameSuccess", args);
-		return;
-	}
+    if (success)
+    {
+        // Inform the user that the change took place, but will take a while
+        // to percolate.
+        LLSD args;
+        args["DISPLAY_NAME"] = content["display_name"];
+        LLNotificationsUtil::add("SetDisplayNameSuccess", args);
+        return;
+    }
 
-	// Request failed, notify the user
-	std::string error_tag = content["error_tag"].asString();
-	LL_INFOS() << "set name failure error_tag " << error_tag << LL_ENDL;
+    // Request failed, notify the user
+    std::string error_tag = content["error_tag"].asString();
+    LL_INFOS() << "set name failure error_tag " << error_tag << LL_ENDL;
 
-	// We might have a localized string for this message
-	// error_args will usually be empty from the server.
-	if (!error_tag.empty()
-		&& LLNotifications::getInstance()->templateExists(error_tag))
-	{
-		LLNotificationsUtil::add(error_tag);
-		return;
-	}
+    // We might have a localized string for this message
+    // error_args will usually be empty from the server.
+    if (!error_tag.empty()
+        && LLNotifications::getInstance()->templateExists(error_tag))
+    {
+        LLNotificationsUtil::add(error_tag);
+        return;
+    }
 
-	// The server error might have a localized message for us
-	std::string lang_code = LLUI::getLanguage();
-	LLSD error_desc = content["error_description"];
-	if (error_desc.has( lang_code ))
-	{
-		LLSD args;
-		args["MESSAGE"] = error_desc[lang_code].asString();
-		LLNotificationsUtil::add("GenericAlert", args);
-		return;
-	}
+    // The server error might have a localized message for us
+    std::string lang_code = LLUI::getLanguage();
+    LLSD error_desc = content["error_description"];
+    if (error_desc.has( lang_code ))
+    {
+        LLSD args;
+        args["MESSAGE"] = error_desc[lang_code].asString();
+        LLNotificationsUtil::add("GenericAlert", args);
+        return;
+    }
 
-	// No specific error, throw a generic one
-	LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
+    // No specific error, throw a generic one
+    LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
 }
 
 void LLFloaterDisplayName::onCancel()
 {
-	setVisible(false);
+    setVisible(false);
 }
 
 void LLFloaterDisplayName::onSave()
 {
-	std::string display_name_utf8 = getChild<LLUICtrl>("display_name_editor")->getValue().asString();
-	std::string display_name_confirm = getChild<LLUICtrl>("display_name_confirm")->getValue().asString();
+    std::string display_name_utf8 = getChild<LLUICtrl>("display_name_editor")->getValue().asString();
+    std::string display_name_confirm = getChild<LLUICtrl>("display_name_confirm")->getValue().asString();
 
-	if (display_name_utf8.compare(display_name_confirm))
-	{
-		LLNotificationsUtil::add("SetDisplayNameMismatch");
-		return;
-	}
+    if (display_name_utf8.compare(display_name_confirm))
+    {
+        LLNotificationsUtil::add("SetDisplayNameMismatch");
+        return;
+    }
 
-	const U32 DISPLAY_NAME_MAX_LENGTH = 31; // characters, not bytes
-	LLWString display_name_wstr = utf8string_to_wstring(display_name_utf8);
-	if (display_name_wstr.size() > DISPLAY_NAME_MAX_LENGTH)
-	{
-		LLSD args;
-		args["LENGTH"] = llformat("%d", DISPLAY_NAME_MAX_LENGTH);
-		LLNotificationsUtil::add("SetDisplayNameFailedLength", args);
-		return;
-	}
-	
+    const U32 DISPLAY_NAME_MAX_LENGTH = 31; // characters, not bytes
+    LLWString display_name_wstr = utf8string_to_wstring(display_name_utf8);
+    if (display_name_wstr.size() > DISPLAY_NAME_MAX_LENGTH)
+    {
+        LLSD args;
+        args["LENGTH"] = llformat("%d", DISPLAY_NAME_MAX_LENGTH);
+        LLNotificationsUtil::add("SetDisplayNameFailedLength", args);
+        return;
+    }
+    
     if (LLAvatarNameCache::getInstance()->hasNameLookupURL())
-	{
-		LLViewerDisplayName::set(display_name_utf8,boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));	
-	}
-	else
-	{
-		LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
-	}
+    {
+        LLViewerDisplayName::set(display_name_utf8,boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));   
+    }
+    else
+    {
+        LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
+    }
 
-	setVisible(false);
+    setVisible(false);
 }
 
 
@@ -195,6 +195,6 @@ void LLFloaterDisplayName::onSave()
 //////////////////////////////////////////////////////////////////////////////
 void LLFloaterDisplayNameUtil::registerFloater()
 {
-	LLFloaterReg::add("display_name", "floater_display_name.xml",
-					  &LLFloaterReg::build<LLFloaterDisplayName>);
+    LLFloaterReg::add("display_name", "floater_display_name.xml",
+                      &LLFloaterReg::build<LLFloaterDisplayName>);
 }

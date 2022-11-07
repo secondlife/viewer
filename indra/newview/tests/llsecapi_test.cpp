@@ -46,7 +46,7 @@ LLControlVariable* LLControlGroup::declareString(const std::string& name,
 void LLControlGroup::setString(const std::string& name, const std::string& val){}
 std::string LLControlGroup::getString(const std::string& name)
 {
-	return "";
+    return "";
 }
 
 
@@ -83,51 +83,51 @@ void LLSecAPIBasicHandler::removeCredentialMap(const std::string& storage, const
 // -------------------------------------------------------------------------------------------
 namespace tut
 {
-	// Test wrapper declaration : wrapping nothing for the moment
-	struct secapiTest
-	{
-		
-		secapiTest()
-		{
-		}
-		~secapiTest()
-		{
-		}
-	};
-	
-	// Tut templating thingamagic: test group, object and test instance
-	typedef test_group<secapiTest> secapiTestFactory;
-	typedef secapiTestFactory::object secapiTestObject;
-	tut::secapiTestFactory tut_test("LLSecAPI");
-	
-	// ---------------------------------------------------------------------------------------
-	// Test functions 
-	// ---------------------------------------------------------------------------------------
-	// registration
-	template<> template<>
-	void secapiTestObject::test<1>()
-	{
-		// retrieve an unknown handler
+    // Test wrapper declaration : wrapping nothing for the moment
+    struct secapiTest
+    {
+        
+        secapiTest()
+        {
+        }
+        ~secapiTest()
+        {
+        }
+    };
+    
+    // Tut templating thingamagic: test group, object and test instance
+    typedef test_group<secapiTest> secapiTestFactory;
+    typedef secapiTestFactory::object secapiTestObject;
+    tut::secapiTestFactory tut_test("LLSecAPI");
+    
+    // ---------------------------------------------------------------------------------------
+    // Test functions 
+    // ---------------------------------------------------------------------------------------
+    // registration
+    template<> template<>
+    void secapiTestObject::test<1>()
+    {
+        // retrieve an unknown handler
 
-		ensure("'Unknown' handler should be NULL", !(BOOL)getSecHandler("unknown"));
-		LLPointer<LLSecAPIHandler> test1_handler =  new LLSecAPIBasicHandler();
-		registerSecHandler("sectest1", test1_handler);
-		ensure("'Unknown' handler should be NULL", !(BOOL)getSecHandler("unknown"));
-		LLPointer<LLSecAPIHandler> retrieved_test1_handler = getSecHandler("sectest1");
-		ensure("Retrieved sectest1 handler should be the same", 
-			   retrieved_test1_handler == test1_handler);
-		
-		// insert a second handler
-		LLPointer<LLSecAPIHandler> test2_handler =  new LLSecAPIBasicHandler();
-		registerSecHandler("sectest2", test2_handler);
-		ensure("'Unknown' handler should be NULL", !(BOOL)getSecHandler("unknown"));
-		retrieved_test1_handler = getSecHandler("sectest1");
-		ensure("Retrieved sectest1 handler should be the same", 
-			   retrieved_test1_handler == test1_handler);
+        ensure("'Unknown' handler should be NULL", !(BOOL)getSecHandler("unknown"));
+        LLPointer<LLSecAPIHandler> test1_handler =  new LLSecAPIBasicHandler();
+        registerSecHandler("sectest1", test1_handler);
+        ensure("'Unknown' handler should be NULL", !(BOOL)getSecHandler("unknown"));
+        LLPointer<LLSecAPIHandler> retrieved_test1_handler = getSecHandler("sectest1");
+        ensure("Retrieved sectest1 handler should be the same", 
+               retrieved_test1_handler == test1_handler);
+        
+        // insert a second handler
+        LLPointer<LLSecAPIHandler> test2_handler =  new LLSecAPIBasicHandler();
+        registerSecHandler("sectest2", test2_handler);
+        ensure("'Unknown' handler should be NULL", !(BOOL)getSecHandler("unknown"));
+        retrieved_test1_handler = getSecHandler("sectest1");
+        ensure("Retrieved sectest1 handler should be the same", 
+               retrieved_test1_handler == test1_handler);
 
-		LLPointer<LLSecAPIHandler> retrieved_test2_handler = getSecHandler("sectest2");
-		ensure("Retrieved sectest1 handler should be the same", 
-			   retrieved_test2_handler == test2_handler);
-		
-	}
+        LLPointer<LLSecAPIHandler> retrieved_test2_handler = getSecHandler("sectest2");
+        ensure("Retrieved sectest1 handler should be the same", 
+               retrieved_test2_handler == test2_handler);
+        
+    }
 }

@@ -29,9 +29,9 @@
 
 #include <map>
 
-#include "llmemory.h"			// LLPointer
-#include "indra_constants.h"	// REGION_WIDTH_UNITS
-#include "llregionhandle.h"		// to_region_handle()
+#include "llmemory.h"           // LLPointer
+#include "indra_constants.h"    // REGION_WIDTH_UNITS
+#include "llregionhandle.h"     // to_region_handle()
 
 class LLViewerFetchedTexture;
 
@@ -52,43 +52,43 @@ class LLViewerFetchedTexture;
 class LLWorldMipmap
 {
 public:
-	// Parameters of the mipmap
-	static const S32 MAP_LEVELS = 8;		// Number of subresolution levels computed by the mapserver
-	static const S32 MAP_TILE_SIZE = 256;	// Width in pixels of the tiles computed by the mapserver
+    // Parameters of the mipmap
+    static const S32 MAP_LEVELS = 8;        // Number of subresolution levels computed by the mapserver
+    static const S32 MAP_TILE_SIZE = 256;   // Width in pixels of the tiles computed by the mapserver
 
-	LLWorldMipmap();
-	~LLWorldMipmap();
+    LLWorldMipmap();
+    ~LLWorldMipmap();
 
-	// Clear up the maps and release all image handles
-	void	reset();
-	// Manage the boost levels between loops (typically draw() loops)
-	void	equalizeBoostLevels();
-	// Drop the boost levels to none (used when hiding the map)
-	void	dropBoostLevels();
-	// Get the tile smart pointer, does the loading if necessary
-	LLPointer<LLViewerFetchedTexture> getObjectsTile(U32 grid_x, U32 grid_y, S32 level, bool load = true);
+    // Clear up the maps and release all image handles
+    void    reset();
+    // Manage the boost levels between loops (typically draw() loops)
+    void    equalizeBoostLevels();
+    // Drop the boost levels to none (used when hiding the map)
+    void    dropBoostLevels();
+    // Get the tile smart pointer, does the loading if necessary
+    LLPointer<LLViewerFetchedTexture> getObjectsTile(U32 grid_x, U32 grid_y, S32 level, bool load = true);
 
-	// Helper functions: those are here as they depend solely on the topology of the mipmap though they don't access it
-	// Convert sim scale (given in sim width in display pixels) into a mipmap level
-	static S32  scaleToLevel(F32 scale);
-	// Convert world coordinates to mipmap grid coordinates at a given level
-	static void globalToMipmap(F64 global_x, F64 global_y, S32 level, U32* grid_x, U32* grid_y);
+    // Helper functions: those are here as they depend solely on the topology of the mipmap though they don't access it
+    // Convert sim scale (given in sim width in display pixels) into a mipmap level
+    static S32  scaleToLevel(F32 scale);
+    // Convert world coordinates to mipmap grid coordinates at a given level
+    static void globalToMipmap(F64 global_x, F64 global_y, S32 level, U32* grid_x, U32* grid_y);
 
 private:
-	// Get a handle (key) from grid coordinates
-	U64		convertGridToHandle(U32 grid_x, U32 grid_y) { return to_region_handle(grid_x * REGION_WIDTH_UNITS, grid_y * REGION_WIDTH_UNITS); }
-	// Load the relevant tile from S3
-	LLPointer<LLViewerFetchedTexture> loadObjectsTile(U32 grid_x, U32 grid_y, S32 level);
-	// Clear a level from its "missing" tiles
-	void cleanMissedTilesFromLevel(S32 level);
+    // Get a handle (key) from grid coordinates
+    U64     convertGridToHandle(U32 grid_x, U32 grid_y) { return to_region_handle(grid_x * REGION_WIDTH_UNITS, grid_y * REGION_WIDTH_UNITS); }
+    // Load the relevant tile from S3
+    LLPointer<LLViewerFetchedTexture> loadObjectsTile(U32 grid_x, U32 grid_y, S32 level);
+    // Clear a level from its "missing" tiles
+    void cleanMissedTilesFromLevel(S32 level);
 
-	// The mipmap is organized by resolution level (MAP_LEVELS of them). Each resolution level is an std::map
-	// using a region_handle as a key and storing a smart pointer to the image as a value.
-	typedef std::map<U64, LLPointer<LLViewerFetchedTexture> > sublevel_tiles_t;
-	sublevel_tiles_t mWorldObjectsMipMap[MAP_LEVELS];
-//	sublevel_tiles_t mWorldTerrainMipMap[MAP_LEVELS];
+    // The mipmap is organized by resolution level (MAP_LEVELS of them). Each resolution level is an std::map
+    // using a region_handle as a key and storing a smart pointer to the image as a value.
+    typedef std::map<U64, LLPointer<LLViewerFetchedTexture> > sublevel_tiles_t;
+    sublevel_tiles_t mWorldObjectsMipMap[MAP_LEVELS];
+//  sublevel_tiles_t mWorldTerrainMipMap[MAP_LEVELS];
 
-	S32 mCurrentLevel;		// The level last accessed by a getObjectsTile()
+    S32 mCurrentLevel;      // The level last accessed by a getObjectsTile()
 };
 
 #endif // LL_LLWORLDMIPMAP_H

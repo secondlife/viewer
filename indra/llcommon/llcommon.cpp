@@ -101,32 +101,32 @@ static LLTrace::ThreadRecorder* sMasterThreadRecorder = NULL;
 //static
 void LLCommon::initClass()
 {
-	if (!sAprInitialized)
-	{
-		ll_init_apr();
-		sAprInitialized = TRUE;
-	}
-	LLTimer::initClass();
-	LLThreadSafeRefCount::initThreadSafeRefCount();
-	assert_main_thread();		// Make sure we record the main thread
-	if (!sMasterThreadRecorder)
-	{
-		sMasterThreadRecorder = new LLTrace::ThreadRecorder();
-		LLTrace::set_master_thread_recorder(sMasterThreadRecorder);
-	}
+    if (!sAprInitialized)
+    {
+        ll_init_apr();
+        sAprInitialized = TRUE;
+    }
+    LLTimer::initClass();
+    LLThreadSafeRefCount::initThreadSafeRefCount();
+    assert_main_thread();       // Make sure we record the main thread
+    if (!sMasterThreadRecorder)
+    {
+        sMasterThreadRecorder = new LLTrace::ThreadRecorder();
+        LLTrace::set_master_thread_recorder(sMasterThreadRecorder);
+    }
 }
 
 //static
 void LLCommon::cleanupClass()
 {
-	delete sMasterThreadRecorder;
-	sMasterThreadRecorder = NULL;
-	LLTrace::set_master_thread_recorder(NULL);
-	LLThreadSafeRefCount::cleanupThreadSafeRefCount();
-	SUBSYSTEM_CLEANUP_DBG(LLTimer);
-	if (sAprInitialized)
-	{
-		ll_cleanup_apr();
-		sAprInitialized = FALSE;
-	}
+    delete sMasterThreadRecorder;
+    sMasterThreadRecorder = NULL;
+    LLTrace::set_master_thread_recorder(NULL);
+    LLThreadSafeRefCount::cleanupThreadSafeRefCount();
+    SUBSYSTEM_CLEANUP_DBG(LLTimer);
+    if (sAprInitialized)
+    {
+        ll_cleanup_apr();
+        sAprInitialized = FALSE;
+    }
 }

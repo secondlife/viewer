@@ -356,7 +356,7 @@ namespace tut
 
         // Create a script file in a temporary place.
         NamedTempFile script("py",
-			"from __future__ import print_function" EOL
+            "from __future__ import print_function" EOL
             "import sys" EOL
             "import time" EOL
             EOL

@@ -33,18 +33,18 @@ class LLMediaCtrl;
 
 class LLFloaterHUD : public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 public:
 
-	BOOL postBuild();
-	
+    BOOL postBuild();
+    
 private:
-	// Handles its own construction and destruction, so private.
-	LLFloaterHUD(const LLSD& key);
-	/*virtual*/ ~LLFloaterHUD();
+    // Handles its own construction and destruction, so private.
+    LLFloaterHUD(const LLSD& key);
+    /*virtual*/ ~LLFloaterHUD();
 
 private:
-	LLMediaCtrl* mWebBrowser; ///< the actual web browser control
+    LLMediaCtrl* mWebBrowser; ///< the actual web browser control
 };
 
 #endif // LL_LLFLOATERHUD_H

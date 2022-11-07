@@ -35,33 +35,33 @@ class LLVOVolume;
 class LLViewerTextureAnim : public LLTextureAnim
 {
 private:
-	static std::vector<LLViewerTextureAnim*> sInstanceList;
-	S32 mInstanceIndex;
+    static std::vector<LLViewerTextureAnim*> sInstanceList;
+    S32 mInstanceIndex;
 
 public:
-	static void updateClass();
+    static void updateClass();
 
-	LLViewerTextureAnim(LLVOVolume* vobj);
-	virtual ~LLViewerTextureAnim();
+    LLViewerTextureAnim(LLVOVolume* vobj);
+    virtual ~LLViewerTextureAnim();
 
-	/*virtual*/ void reset();
+    /*virtual*/ void reset();
 
-	S32 animateTextures(F32 &off_s, F32 &off_t, F32 &scale_s, F32 &scale_t, F32 &rotate);
-	enum
-	{
-		TRANSLATE = 0x01 // Result code JUST for animateTextures
-	};
+    S32 animateTextures(F32 &off_s, F32 &off_t, F32 &scale_s, F32 &scale_t, F32 &rotate);
+    enum
+    {
+        TRANSLATE = 0x01 // Result code JUST for animateTextures
+    };
 
-	F32 mOffS;
-	F32 mOffT;
-	F32 mScaleS;
-	F32 mScaleT;
-	F32 mRot;
+    F32 mOffS;
+    F32 mOffT;
+    F32 mScaleS;
+    F32 mScaleT;
+    F32 mRot;
 
 protected:
-	LLVOVolume* mVObj;
-	LLFrameTimer mTimer;
-	F64 mLastTime;
-	F32 mLastFrame;
+    LLVOVolume* mVObj;
+    LLFrameTimer mTimer;
+    F64 mLastTime;
+    F32 mLastFrame;
 };
 #endif

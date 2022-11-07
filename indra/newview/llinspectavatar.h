@@ -28,8 +28,8 @@
 
 namespace LLInspectAvatarUtil
 {
-	// Register with LLFloaterReg
-	void registerFloater();
+    // Register with LLFloaterReg
+    void registerFloater();
 }
 
 #endif

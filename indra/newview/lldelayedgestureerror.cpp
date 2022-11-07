@@ -42,82 +42,82 @@ LLDelayedGestureError::ErrorQueue LLDelayedGestureError::sQueue;
 //static
 void LLDelayedGestureError::gestureMissing(const LLUUID &id)
 {
-	LLErrorEntry ent("GestureMissing", id);
-	if ( ! doDialog(ent) )
-	{
-		enqueue(ent);
-	}
+    LLErrorEntry ent("GestureMissing", id);
+    if ( ! doDialog(ent) )
+    {
+        enqueue(ent);
+    }
 }
 
 //static
 void LLDelayedGestureError::gestureFailedToLoad(const LLUUID &id)
 {
-	LLErrorEntry ent("UnableToLoadGesture", id);
+    LLErrorEntry ent("UnableToLoadGesture", id);
 
-	if ( ! doDialog(ent) )
-	{
-		enqueue(ent);
-	}
+    if ( ! doDialog(ent) )
+    {
+        enqueue(ent);
+    }
 }
 
 //static
 void LLDelayedGestureError::enqueue(const LLErrorEntry &ent)
 {
-	if ( sQueue.empty() )
-	{
-		gIdleCallbacks.addFunction(onIdle, NULL);
-	}
+    if ( sQueue.empty() )
+    {
+        gIdleCallbacks.addFunction(onIdle, NULL);
+    }
 
-	sQueue.push_back(ent);
+    sQueue.push_back(ent);
 }
 
 //static 
 void LLDelayedGestureError::onIdle(void *userdata)
 {
-	if ( ! sQueue.empty() )
-	{
-		LLErrorEntry ent = sQueue.front();
-		sQueue.pop_front();
+    if ( ! sQueue.empty() )
+    {
+        LLErrorEntry ent = sQueue.front();
+        sQueue.pop_front();
 
-		if ( ! doDialog(ent, false ) )
-		{
-			enqueue(ent);
-		}
-	}
-	else
-	{
-		// Nothing to do anymore
-		gIdleCallbacks.deleteFunction(onIdle, NULL);
-	}
+        if ( ! doDialog(ent, false ) )
+        {
+            enqueue(ent);
+        }
+    }
+    else
+    {
+        // Nothing to do anymore
+        gIdleCallbacks.deleteFunction(onIdle, NULL);
+    }
 }
 
 //static 
 bool LLDelayedGestureError::doDialog(const LLErrorEntry &ent, bool uuid_ok)
 {
-	LLSD args;
-	LLInventoryItem *item = gInventory.getItem( ent.mItemID );
+    LLSD args;
+    LLInventoryItem *item = gInventory.getItem( ent.mItemID );
 
-	if ( item )
-	{
-		args["NAME"] = item->getName();
-	}
-	else
-	{
-		if ( uuid_ok || ent.mTimer.getElapsedTimeF32() > MAX_NAME_WAIT_TIME )
-		{
-			args["NAME"] = ent.mItemID.asString();
-		}
-		else
-		{
-			return false;
-		}
-	}
-	 
-	if(!LLApp::isExiting())
-	{
-		LLNotificationsUtil::add(ent.mNotifyName, args);
-	}
-	
-	return true;
+    if ( item )
+    {
+        args["NAME"] = item->getName();
+    }
+    else
+    {
+        if ( uuid_ok || ent.mTimer.getElapsedTimeF32() > MAX_NAME_WAIT_TIME )
+        {
+            args["NAME"] = ent.mItemID.asString();
+        }
+        else
+        {
+            return false;
+        }
+    }
+     
+    if(!LLApp::isExiting())
+    {
+        LLNotificationsUtil::add(ent.mNotifyName, args);
+    }
+    
+    return true;
 }
 

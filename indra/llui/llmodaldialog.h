@@ -39,45 +39,45 @@ class LLModalDialog;
 class LLModalDialog : public LLFloater
 {
 public:
-	LLModalDialog( const LLSD& key, BOOL modal = true );
-	virtual		~LLModalDialog();
-	
-	/*virtual*/ BOOL 	postBuild();
-	
-	/*virtual*/ void	openFloater(const LLSD& key = LLSD());
-	/*virtual*/ void	onOpen(const LLSD& key);
-	
-	/*virtual*/ void 	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-	
-	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask );
+    LLModalDialog( const LLSD& key, BOOL modal = true );
+    virtual     ~LLModalDialog();
+    
+    /*virtual*/ BOOL    postBuild();
+    
+    /*virtual*/ void    openFloater(const LLSD& key = LLSD());
+    /*virtual*/ void    onOpen(const LLSD& key);
+    
+    /*virtual*/ void    reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    
+    /*virtual*/ BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL    handleHover(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL    handleScrollWheel(S32 x, S32 y, S32 clicks);
+    /*virtual*/ BOOL    handleDoubleClick(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL    handleRightMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL    handleKeyHere(KEY key, MASK mask );
 
-	/*virtual*/ void	setVisible(BOOL visible);
-	/*virtual*/ void	draw();
+    /*virtual*/ void    setVisible(BOOL visible);
+    /*virtual*/ void    draw();
 
-	BOOL 			isModal() const { return mModal; }
-	void			stopModal();
+    BOOL            isModal() const { return mModal; }
+    void            stopModal();
 
-	static void		onAppFocusLost();
-	static void		onAppFocusGained();
+    static void     onAppFocusLost();
+    static void     onAppFocusGained();
 
-	static S32		activeCount() { return sModalStack.size(); }
-	static void		shutdownModals();
+    static S32      activeCount() { return sModalStack.size(); }
+    static void     shutdownModals();
 
 protected:
-	void			centerOnScreen();
+    void            centerOnScreen();
 
 private:
-	
-	LLFrameTimer 	mVisibleTime;
-	const BOOL		mModal;
+    
+    LLFrameTimer    mVisibleTime;
+    const BOOL      mModal;
 
-	static std::list<LLModalDialog*> sModalStack;  // Top of stack is currently being displayed
+    static std::list<LLModalDialog*> sModalStack;  // Top of stack is currently being displayed
 };
 
 #endif  // LL_LLMODALDIALOG_H

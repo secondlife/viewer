@@ -38,217 +38,217 @@
 
 void LLRegionInfoModel::reset()
 {
-	mSimAccess			= 0;
-	mAgentLimit			= 0;
-	mHardAgentLimit		= 100;
+    mSimAccess          = 0;
+    mAgentLimit         = 0;
+    mHardAgentLimit     = 100;
 
-	mRegionFlags		= 0;
-	mEstateID			= 0;
-	mParentEstateID		= 0;
+    mRegionFlags        = 0;
+    mEstateID           = 0;
+    mParentEstateID     = 0;
 
-	mPricePerMeter		= 0;
-	mRedirectGridX		= 0;
-	mRedirectGridY		= 0;
+    mPricePerMeter      = 0;
+    mRedirectGridX      = 0;
+    mRedirectGridY      = 0;
 
-	mBillableFactor		= 0.0f;
-	mObjectBonusFactor	= 0.0f;
-	mWaterHeight		= 0.0f;
-	mTerrainRaiseLimit	= 0.0f;
-	mTerrainLowerLimit	= 0.0f;
-	mSunHour			= 0.0f;
+    mBillableFactor     = 0.0f;
+    mObjectBonusFactor  = 0.0f;
+    mWaterHeight        = 0.0f;
+    mTerrainRaiseLimit  = 0.0f;
+    mTerrainLowerLimit  = 0.0f;
+    mSunHour            = 0.0f;
 
-	mUseEstateSun		= false;
+    mUseEstateSun       = false;
 
-	mSimType.clear();
-	mSimName.clear();
+    mSimType.clear();
+    mSimName.clear();
 }
 
 LLRegionInfoModel::LLRegionInfoModel()
 {
-	reset();
+    reset();
 }
 
 boost::signals2::connection LLRegionInfoModel::setUpdateCallback(const update_signal_t::slot_type& cb)
 {
-	return mUpdateSignal.connect(cb);
+    return mUpdateSignal.connect(cb);
 }
 
 void LLRegionInfoModel::sendRegionTerrain(const LLUUID& invoice) const
 {
-	std::string buffer;
-	std::vector<std::string> strings;
+    std::string buffer;
+    std::vector<std::string> strings;
 
-	// ==========================================
-	// Assemble and send setregionterrain message
-	// "setregionterrain"
-	// strings[0] = float water height
-	// strings[1] = float terrain raise
-	// strings[2] = float terrain lower
-	// strings[3] = 'Y' use estate time
-	// strings[4] = 'Y' fixed sun
-	// strings[5] = float sun_hour
-	// strings[6] = from estate, 'Y' use global time
-	// strings[7] = from estate, 'Y' fixed sun
-	// strings[8] = from estate, float sun_hour
+    // ==========================================
+    // Assemble and send setregionterrain message
+    // "setregionterrain"
+    // strings[0] = float water height
+    // strings[1] = float terrain raise
+    // strings[2] = float terrain lower
+    // strings[3] = 'Y' use estate time
+    // strings[4] = 'Y' fixed sun
+    // strings[5] = float sun_hour
+    // strings[6] = from estate, 'Y' use global time
+    // strings[7] = from estate, 'Y' fixed sun
+    // strings[8] = from estate, float sun_hour
 
-	// *NOTE: this resets estate sun info.
-	BOOL estate_global_time = true;
-	BOOL estate_fixed_sun = false;
-	F32 estate_sun_hour = 0.f;
+    // *NOTE: this resets estate sun info.
+    BOOL estate_global_time = true;
+    BOOL estate_fixed_sun = false;
+    F32 estate_sun_hour = 0.f;
 
-	buffer = llformat("%f", mWaterHeight);
-	strings.push_back(buffer);
-	buffer = llformat("%f", mTerrainRaiseLimit);
-	strings.push_back(buffer);
-	buffer = llformat("%f", mTerrainLowerLimit);
-	strings.push_back(buffer);
-	buffer = llformat("%s", (mUseEstateSun ? "Y" : "N"));
-	strings.push_back(buffer);
-	buffer = llformat("%s", (getUseFixedSun() ? "Y" : "N"));
-	strings.push_back(buffer);
-	buffer = llformat("%f", mSunHour);
-	strings.push_back(buffer);
-	buffer = llformat("%s", (estate_global_time ? "Y" : "N") );
-	strings.push_back(buffer);
-	buffer = llformat("%s", (estate_fixed_sun ? "Y" : "N") );
-	strings.push_back(buffer);
-	buffer = llformat("%f", estate_sun_hour);
-	strings.push_back(buffer);
+    buffer = llformat("%f", mWaterHeight);
+    strings.push_back(buffer);
+    buffer = llformat("%f", mTerrainRaiseLimit);
+    strings.push_back(buffer);
+    buffer = llformat("%f", mTerrainLowerLimit);
+    strings.push_back(buffer);
+    buffer = llformat("%s", (mUseEstateSun ? "Y" : "N"));
+    strings.push_back(buffer);
+    buffer = llformat("%s", (getUseFixedSun() ? "Y" : "N"));
+    strings.push_back(buffer);
+    buffer = llformat("%f", mSunHour);
+    strings.push_back(buffer);
+    buffer = llformat("%s", (estate_global_time ? "Y" : "N") );
+    strings.push_back(buffer);
+    buffer = llformat("%s", (estate_fixed_sun ? "Y" : "N") );
+    strings.push_back(buffer);
+    buffer = llformat("%f", estate_sun_hour);
+    strings.push_back(buffer);
 
-	sendEstateOwnerMessage(gMessageSystem, "setregionterrain", invoice, strings);
+    sendEstateOwnerMessage(gMessageSystem, "setregionterrain", invoice, strings);
 }
 
 bool LLRegionInfoModel::getUseFixedSun() const
 {
-	return ((mRegionFlags & REGION_FLAGS_SUN_FIXED) != 0);
+    return ((mRegionFlags & REGION_FLAGS_SUN_FIXED) != 0);
 }
 
 void LLRegionInfoModel::setUseFixedSun(bool fixed)
 {
-	if (fixed)
-	{
-		mRegionFlags |= REGION_FLAGS_SUN_FIXED;
-	}
-	else
-	{
-		mRegionFlags &= ~REGION_FLAGS_SUN_FIXED;
-	}
+    if (fixed)
+    {
+        mRegionFlags |= REGION_FLAGS_SUN_FIXED;
+    }
+    else
+    {
+        mRegionFlags &= ~REGION_FLAGS_SUN_FIXED;
+    }
 }
 
 void LLRegionInfoModel::update(LLMessageSystem* msg)
 {
-	reset();
+    reset();
 
-	msg->getStringFast(_PREHASH_RegionInfo, _PREHASH_SimName, mSimName);
-	msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_EstateID, mEstateID);
-	msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_ParentEstateID, mParentEstateID);
-	msg->getU8Fast(_PREHASH_RegionInfo, _PREHASH_SimAccess, mSimAccess);
-	msg->getU8Fast(_PREHASH_RegionInfo, _PREHASH_MaxAgents, mAgentLimit);
+    msg->getStringFast(_PREHASH_RegionInfo, _PREHASH_SimName, mSimName);
+    msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_EstateID, mEstateID);
+    msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_ParentEstateID, mParentEstateID);
+    msg->getU8Fast(_PREHASH_RegionInfo, _PREHASH_SimAccess, mSimAccess);
+    msg->getU8Fast(_PREHASH_RegionInfo, _PREHASH_MaxAgents, mAgentLimit);
 
-	msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_ObjectBonusFactor, mObjectBonusFactor);
-	msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_BillableFactor, mBillableFactor);
-	msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_WaterHeight, mWaterHeight);
-	msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_TerrainRaiseLimit, mTerrainRaiseLimit);
-	msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_TerrainLowerLimit, mTerrainLowerLimit);
-	msg->getS32Fast(_PREHASH_RegionInfo, _PREHASH_PricePerMeter, mPricePerMeter);
-	msg->getS32Fast(_PREHASH_RegionInfo, _PREHASH_RedirectGridX, mRedirectGridX);
-	msg->getS32Fast(_PREHASH_RegionInfo, _PREHASH_RedirectGridY, mRedirectGridY);
+    msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_ObjectBonusFactor, mObjectBonusFactor);
+    msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_BillableFactor, mBillableFactor);
+    msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_WaterHeight, mWaterHeight);
+    msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_TerrainRaiseLimit, mTerrainRaiseLimit);
+    msg->getF32Fast(_PREHASH_RegionInfo, _PREHASH_TerrainLowerLimit, mTerrainLowerLimit);
+    msg->getS32Fast(_PREHASH_RegionInfo, _PREHASH_PricePerMeter, mPricePerMeter);
+    msg->getS32Fast(_PREHASH_RegionInfo, _PREHASH_RedirectGridX, mRedirectGridX);
+    msg->getS32Fast(_PREHASH_RegionInfo, _PREHASH_RedirectGridY, mRedirectGridY);
 
-	msg->getBOOL(_PREHASH_RegionInfo, _PREHASH_UseEstateSun, mUseEstateSun);
+    msg->getBOOL(_PREHASH_RegionInfo, _PREHASH_UseEstateSun, mUseEstateSun);
 
-	// actually the "last set" sun hour, not the current sun hour. JC
-	msg->getF32(_PREHASH_RegionInfo, _PREHASH_SunHour, mSunHour);
-	LL_DEBUGS("WindlightSync") << "Got region sun hour: " << mSunHour << LL_ENDL;
+    // actually the "last set" sun hour, not the current sun hour. JC
+    msg->getF32(_PREHASH_RegionInfo, _PREHASH_SunHour, mSunHour);
+    LL_DEBUGS("WindlightSync") << "Got region sun hour: " << mSunHour << LL_ENDL;
 
-	msg->getS32Fast(_PREHASH_RegionInfo2, _PREHASH_HardMaxAgents, mHardAgentLimit);
+    msg->getS32Fast(_PREHASH_RegionInfo2, _PREHASH_HardMaxAgents, mHardAgentLimit);
 
-	if (msg->has(_PREHASH_RegionInfo3))
-	{
-		msg->getU64Fast(_PREHASH_RegionInfo3, _PREHASH_RegionFlagsExtended, mRegionFlags);
-	}
-	else
-	{
-		U32 flags = 0;
-		msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_RegionFlags, flags);
-		mRegionFlags = flags;
-	}
+    if (msg->has(_PREHASH_RegionInfo3))
+    {
+        msg->getU64Fast(_PREHASH_RegionInfo3, _PREHASH_RegionFlagsExtended, mRegionFlags);
+    }
+    else
+    {
+        U32 flags = 0;
+        msg->getU32Fast(_PREHASH_RegionInfo, _PREHASH_RegionFlags, flags);
+        mRegionFlags = flags;
+    }
 
-	if (msg->has(_PREHASH_RegionInfo5))
-	{
-		F32 chat_whisper_range;
-		F32 chat_normal_range;
-		F32 chat_shout_range;
-		F32 chat_whisper_offset;
-		F32 chat_normal_offset;
-		F32 chat_shout_offset;
-		U32 chat_flags;
+    if (msg->has(_PREHASH_RegionInfo5))
+    {
+        F32 chat_whisper_range;
+        F32 chat_normal_range;
+        F32 chat_shout_range;
+        F32 chat_whisper_offset;
+        F32 chat_normal_offset;
+        F32 chat_shout_offset;
+        U32 chat_flags;
 
-		msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatWhisperRange, chat_whisper_range);
-		msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatNormalRange, chat_normal_range);
-		msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatShoutRange, chat_shout_range);
-		msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatWhisperOffset, chat_whisper_offset);
-		msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatNormalOffset, chat_normal_offset);
-		msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatShoutOffset, chat_shout_offset);
-		msg->getU32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatFlags, chat_flags);
+        msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatWhisperRange, chat_whisper_range);
+        msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatNormalRange, chat_normal_range);
+        msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatShoutRange, chat_shout_range);
+        msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatWhisperOffset, chat_whisper_offset);
+        msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatNormalOffset, chat_normal_offset);
+        msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatShoutOffset, chat_shout_offset);
+        msg->getU32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatFlags, chat_flags);
 
-		LL_INFOS() << "Whisper range: " << chat_whisper_range << " normal range: " << chat_normal_range << " shout range: " << chat_shout_range
-			<< " whisper offset: " << chat_whisper_offset << " normal offset: " << chat_normal_offset << " shout offset: " << chat_shout_offset
-			<< " chat flags: " << chat_flags << LL_ENDL;
-	}
+        LL_INFOS() << "Whisper range: " << chat_whisper_range << " normal range: " << chat_normal_range << " shout range: " << chat_shout_range
+            << " whisper offset: " << chat_whisper_offset << " normal offset: " << chat_normal_offset << " shout offset: " << chat_shout_offset
+            << " chat flags: " << chat_flags << LL_ENDL;
+    }
 
-	// the only reasonable way to decide if we actually have any data is to
-	// check to see if any of these fields have nonzero sizes
-	if (msg->getSize(_PREHASH_RegionInfo2, _PREHASH_ProductSKU) > 0 ||
-		msg->getSize(_PREHASH_RegionInfo2, "ProductName") > 0)
-	{
-		msg->getString(_PREHASH_RegionInfo2, "ProductName", mSimType);
-	}
+    // the only reasonable way to decide if we actually have any data is to
+    // check to see if any of these fields have nonzero sizes
+    if (msg->getSize(_PREHASH_RegionInfo2, _PREHASH_ProductSKU) > 0 ||
+        msg->getSize(_PREHASH_RegionInfo2, "ProductName") > 0)
+    {
+        msg->getString(_PREHASH_RegionInfo2, "ProductName", mSimType);
+    }
 
-	// Let interested parties know that region info has been updated.
-	mUpdateSignal();
+    // Let interested parties know that region info has been updated.
+    mUpdateSignal();
 }
 
 // static
 void LLRegionInfoModel::sendEstateOwnerMessage(
-	LLMessageSystem* msg,
-	const std::string& request,
-	const LLUUID& invoice,
-	const std::vector<std::string>& strings)
+    LLMessageSystem* msg,
+    const std::string& request,
+    const LLUUID& invoice,
+    const std::vector<std::string>& strings)
 {
-	LLViewerRegion* cur_region = gAgent.getRegion();
+    LLViewerRegion* cur_region = gAgent.getRegion();
 
-	if (!cur_region)
-	{
-		LL_WARNS() << "Agent region not set" << LL_ENDL;
-		return;
-	}
+    if (!cur_region)
+    {
+        LL_WARNS() << "Agent region not set" << LL_ENDL;
+        return;
+    }
 
-	LL_INFOS() << "Sending estate request '" << request << "'" << LL_ENDL;
-	msg->newMessage("EstateOwnerMessage");
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null); //not used
-	msg->nextBlock("MethodData");
-	msg->addString("Method", request);
-	msg->addUUID("Invoice", invoice);
+    LL_INFOS() << "Sending estate request '" << request << "'" << LL_ENDL;
+    msg->newMessage("EstateOwnerMessage");
+    msg->nextBlockFast(_PREHASH_AgentData);
+    msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+    msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+    msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null); //not used
+    msg->nextBlock("MethodData");
+    msg->addString("Method", request);
+    msg->addUUID("Invoice", invoice);
 
-	if (strings.empty())
-	{
-		msg->nextBlock("ParamList");
-		msg->addString("Parameter", NULL);
-	}
-	else
-	{
-		std::vector<std::string>::const_iterator it = strings.begin();
-		std::vector<std::string>::const_iterator end = strings.end();
-		for (unsigned i = 0; it != end; ++it, ++i)
-		{
-			LL_DEBUGS() << "- [" << i << "] " << (*it) << LL_ENDL;
-			msg->nextBlock("ParamList");
-			msg->addString("Parameter", *it);
-		}
-	}
+    if (strings.empty())
+    {
+        msg->nextBlock("ParamList");
+        msg->addString("Parameter", NULL);
+    }
+    else
+    {
+        std::vector<std::string>::const_iterator it = strings.begin();
+        std::vector<std::string>::const_iterator end = strings.end();
+        for (unsigned i = 0; it != end; ++it, ++i)
+        {
+            LL_DEBUGS() << "- [" << i << "] " << (*it) << LL_ENDL;
+            msg->nextBlock("ParamList");
+            msg->addString("Parameter", *it);
+        }
+    }
 
-	msg->sendReliable(cur_region->getHost());
+    msg->sendReliable(cur_region->getHost());
 }

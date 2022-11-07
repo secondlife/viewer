@@ -116,7 +116,7 @@ void LLViewerEventRecorder::updateMouseEventInfo(S32 local_x, S32 local_y, S32 g
 
   // ONLY record deepest xui path for hierarchy searches - or first/only xui for floaters/panels reached via mouse captor - and llmousehandler
   if (mName!="" &&  mName!="/" && xui=="") { 
-    //	xui=std::string("/")+mName+xui; 
+    //  xui=std::string("/")+mName+xui; 
     //xui=mName+xui; 
     xui = mName; // TODO review confirm we never call with partial path - also cAN REMOVE CHECK FOR "" - ON OTHER HAND IT'S PRETTY HARMLESS
   }
@@ -246,8 +246,8 @@ void LLViewerEventRecorder::logKeyUnicodeEvent(llwchar uni_char) {
   LL_DEBUGS() << "Wrapped in conversion to wstring " <<  wstring_to_utf8str(LLWString( 1, uni_char)) << "\n" << LL_ENDL;
   
   event.insert("char",
-	       LLSD(  wstring_to_utf8str(LLWString( 1,uni_char))  )
-	       ); 
+           LLSD(  wstring_to_utf8str(LLWString( 1,uni_char))  )
+           ); 
 
   // path (optional) - for now we are not recording path for key events during record - should not be needed for full record and playback of recorded steps
   // as a vita script - it does become useful if you edit the resulting vita script and wish to remove some steps leading to a key event - that sort of edit might

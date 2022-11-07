@@ -31,45 +31,45 @@
 
 class LLFloaterMemLeak : public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 public:
-	/// initialize all the callbacks for the menu
+    /// initialize all the callbacks for the menu
 
-	virtual BOOL postBuild() ;
-	virtual void draw() ;
-	
-	void onChangeLeakingSpeed();
-	void onChangeMaxMemLeaking();
-	void onClickStart();
-	void onClickStop();
-	void onClickRelease();
-	void onClickClose();
+    virtual BOOL postBuild() ;
+    virtual void draw() ;
+    
+    void onChangeLeakingSpeed();
+    void onChangeMaxMemLeaking();
+    void onClickStart();
+    void onClickStop();
+    void onClickRelease();
+    void onClickClose();
 
 public:
-	void idle() ;
-	void stop() ;
+    void idle() ;
+    void stop() ;
 
 private:
-	
-	LLFloaterMemLeak(const LLSD& key);
-	virtual ~LLFloaterMemLeak();
-	void release() ;
+    
+    LLFloaterMemLeak(const LLSD& key);
+    virtual ~LLFloaterMemLeak();
+    void release() ;
 
 private:
-	enum 
-	{
-		RELEASE = -1 ,
-		STOP,
-		START
-	} ;
+    enum 
+    {
+        RELEASE = -1 ,
+        STOP,
+        START
+    } ;
 
-	static U32 sMemLeakingSpeed ; //bytes leaked per frame
-	static U32 sMaxLeakedMem ; //maximum allowed leaked memory
-	static U32 sTotalLeaked ;
-	static S32 sStatus ; //0: stop ; >0: start ; <0: release
-	static BOOL sbAllocationFailed ;
+    static U32 sMemLeakingSpeed ; //bytes leaked per frame
+    static U32 sMaxLeakedMem ; //maximum allowed leaked memory
+    static U32 sTotalLeaked ;
+    static S32 sStatus ; //0: stop ; >0: start ; <0: release
+    static BOOL sbAllocationFailed ;
 
-	std::vector<char*> mLeakedMem ;	
+    std::vector<char*> mLeakedMem ; 
 };
 
 #endif // LL_LLFLOATERMEMLEAK_H

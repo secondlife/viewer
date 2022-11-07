@@ -82,13 +82,13 @@ class StatusMapper: public StatusMapperBase<LLXMLRPCTransaction::EStatus>
 public:
     StatusMapper(): StatusMapperBase<LLXMLRPCTransaction::EStatus>("Status")
     {
-		mMap[LLXMLRPCTransaction::StatusNotStarted]  = "NotStarted";
-		mMap[LLXMLRPCTransaction::StatusStarted]     = "Started";
-		mMap[LLXMLRPCTransaction::StatusDownloading] = "Downloading";
-		mMap[LLXMLRPCTransaction::StatusComplete]    = "Complete";
-		mMap[LLXMLRPCTransaction::StatusCURLError]   = "CURLError";
-		mMap[LLXMLRPCTransaction::StatusXMLRPCError] = "XMLRPCError";
-		mMap[LLXMLRPCTransaction::StatusOtherError]  = "OtherError";
+        mMap[LLXMLRPCTransaction::StatusNotStarted]  = "NotStarted";
+        mMap[LLXMLRPCTransaction::StatusStarted]     = "Started";
+        mMap[LLXMLRPCTransaction::StatusDownloading] = "Downloading";
+        mMap[LLXMLRPCTransaction::StatusComplete]    = "Complete";
+        mMap[LLXMLRPCTransaction::StatusCURLError]   = "CURLError";
+        mMap[LLXMLRPCTransaction::StatusXMLRPCError] = "XMLRPCError";
+        mMap[LLXMLRPCTransaction::StatusOtherError]  = "OtherError";
     }
 };
 
@@ -279,7 +279,7 @@ public:
         XMLRPC_RequestSetData(request, xparams);
 
         mTransaction.reset(new LLXMLRPCTransaction(mUri, request, true, command.has("http_params")? LLSD(command["http_params"]) : LLSD()));
-		mPreviousStatus = mTransaction->status(NULL);
+        mPreviousStatus = mTransaction->status(NULL);
 
         // Free the XMLRPC_REQUEST object and the attached data values.
         XMLRPC_RequestFree(request, 1);
@@ -317,40 +317,40 @@ public:
         data["error"] = "";
         data["transfer_rate"] = 0.0;
         LLEventPump& replyPump(LLEventPumps::instance().obtain(mReplyPump));
-		if (! done)
+        if (! done)
         {
             // Not done yet, carry on.
-			if (status == LLXMLRPCTransaction::StatusDownloading
-				&& status != mPreviousStatus)
-			{
-				// If a response has been received, send the 
-				// 'downloading' status if it hasn't been sent.
-				replyPump.post(data);
-			}
+            if (status == LLXMLRPCTransaction::StatusDownloading
+                && status != mPreviousStatus)
+            {
+                // If a response has been received, send the 
+                // 'downloading' status if it hasn't been sent.
+                replyPump.post(data);
+            }
 
-			mPreviousStatus = status;
+            mPreviousStatus = status;
             return false;
         }
 
         // Here the transaction is complete. Check status.
         data["error"] = mTransaction->statusMessage();
-		data["transfer_rate"] = mTransaction->transferRate();
+        data["transfer_rate"] = mTransaction->transferRate();
         LL_INFOS("LLXMLRPCListener") << mMethod << " result from " << mUri << ": status "
                                      << data["status"].asString() << ", errorcode "
                                      << data["errorcode"].asString()
                                      << " (" << data["error"].asString() << ")"
                                      << LL_ENDL;
-		
-		switch (curlcode)
-		{
-			case CURLE_SSL_PEER_CERTIFICATE:
-			case CURLE_SSL_CACERT:
+        
+        switch (curlcode)
+        {
+            case CURLE_SSL_PEER_CERTIFICATE:
+            case CURLE_SSL_CACERT:
                 data["certificate"] = mTransaction->getErrorCertData();
-				break;
+                break;
 
-			default:
-				break;
-		}
+            default:
+                break;
+        }
         // values of 'curlcode':
         // CURLE_COULDNT_RESOLVE_HOST,
         // CURLE_SSL_PEER_CERTIFICATE,
@@ -537,7 +537,7 @@ private:
     const std::string mReplyPump;
     LLTempBoundListener mBoundListener;
     boost::scoped_ptr<LLXMLRPCTransaction> mTransaction;
-	LLXMLRPCTransaction::EStatus mPreviousStatus; // To detect state changes.
+    LLXMLRPCTransaction::EStatus mPreviousStatus; // To detect state changes.
 };
 
 bool LLXMLRPCListener::process(const LLSD& command)

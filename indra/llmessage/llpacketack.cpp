@@ -38,45 +38,45 @@
 #include "message.h"
 
 LLReliablePacket::LLReliablePacket(
-	S32 socket,
-	U8* buf_ptr,
-	S32 buf_len,
-	LLReliablePacketParams* params) :
-	mBuffer(NULL),
-	mBufferLength(0)
+    S32 socket,
+    U8* buf_ptr,
+    S32 buf_len,
+    LLReliablePacketParams* params) :
+    mBuffer(NULL),
+    mBufferLength(0)
 {
-	if (params)
-	{
-		mHost = params->mHost;
-		mRetries = params->mRetries;
-		mPingBasedRetry = params->mPingBasedRetry;
-		mTimeout = F32Seconds(params->mTimeout);
-		mCallback = params->mCallback;
-		mCallbackData = params->mCallbackData;
-		mMessageName = params->mMessageName;
-	}
-	else
-	{
-		mRetries = 0;
-		mPingBasedRetry = TRUE;
-		mTimeout = F32Seconds(0.f);
-		mCallback = NULL;
-		mCallbackData = NULL;
-		mMessageName = NULL;
-	}
+    if (params)
+    {
+        mHost = params->mHost;
+        mRetries = params->mRetries;
+        mPingBasedRetry = params->mPingBasedRetry;
+        mTimeout = F32Seconds(params->mTimeout);
+        mCallback = params->mCallback;
+        mCallbackData = params->mCallbackData;
+        mMessageName = params->mMessageName;
+    }
+    else
+    {
+        mRetries = 0;
+        mPingBasedRetry = TRUE;
+        mTimeout = F32Seconds(0.f);
+        mCallback = NULL;
+        mCallbackData = NULL;
+        mMessageName = NULL;
+    }
 
-	mExpirationTime = (F64Seconds)totalTime() + mTimeout;
-	mPacketID = ntohl(*((U32*)(&buf_ptr[PHL_PACKET_ID])));
+    mExpirationTime = (F64Seconds)totalTime() + mTimeout;
+    mPacketID = ntohl(*((U32*)(&buf_ptr[PHL_PACKET_ID])));
 
-	mSocket = socket;
-	if (mRetries)
-	{
-		mBuffer = new U8[buf_len];
-		if (mBuffer != NULL)
-		{
-			memcpy(mBuffer,buf_ptr,buf_len);	/*Flawfinder: ignore*/
-			mBufferLength = buf_len;
-		}
-			
-	}
+    mSocket = socket;
+    if (mRetries)
+    {
+        mBuffer = new U8[buf_len];
+        if (mBuffer != NULL)
+        {
+            memcpy(mBuffer,buf_ptr,buf_len);    /*Flawfinder: ignore*/
+            mBufferLength = buf_len;
+        }
+            
+    }
 }

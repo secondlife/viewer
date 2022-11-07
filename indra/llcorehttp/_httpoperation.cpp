@@ -55,7 +55,7 @@ namespace LLCore
 // ==================================
 /*static*/ 
 HttpOperation::handleMap_t  HttpOperation::mHandleMap;
-LLCoreInt::HttpMutex	    HttpOperation::mOpMutex;
+LLCoreInt::HttpMutex        HttpOperation::mOpMutex;
 
 HttpOperation::HttpOperation():
     boost::enable_shared_from_this<HttpOperation>(),
@@ -66,7 +66,7 @@ HttpOperation::HttpOperation():
     mTracing(HTTP_TRACE_OFF),
     mMyHandle(LLCORE_HTTP_HANDLE_INVALID)
 {
-	mMetricCreated = totalTime();
+    mMetricCreated = totalTime();
 }
 
 
@@ -79,63 +79,63 @@ HttpOperation::~HttpOperation()
 
 
 void HttpOperation::setReplyPath(HttpReplyQueue::ptr_t reply_queue,
-								 HttpHandler::ptr_t user_handler)
+                                 HttpHandler::ptr_t user_handler)
 {
     mReplyQueue.swap(reply_queue);
-	mUserHandler.swap(user_handler);
+    mUserHandler.swap(user_handler);
 }
 
 
 
 void HttpOperation::stageFromRequest(HttpService *)
 {
-	// Default implementation should never be called.  This
-	// indicates an operation making a transition that isn't
-	// defined.
-	LL_ERRS(LOG_CORE) << "Default stageFromRequest method may not be called."
-					  << LL_ENDL;
+    // Default implementation should never be called.  This
+    // indicates an operation making a transition that isn't
+    // defined.
+    LL_ERRS(LOG_CORE) << "Default stageFromRequest method may not be called."
+                      << LL_ENDL;
 }
 
 
 void HttpOperation::stageFromReady(HttpService *)
 {
-	// Default implementation should never be called.  This
-	// indicates an operation making a transition that isn't
-	// defined.
-	LL_ERRS(LOG_CORE) << "Default stageFromReady method may not be called."
-					  << LL_ENDL;
+    // Default implementation should never be called.  This
+    // indicates an operation making a transition that isn't
+    // defined.
+    LL_ERRS(LOG_CORE) << "Default stageFromReady method may not be called."
+                      << LL_ENDL;
 }
 
 
 void HttpOperation::stageFromActive(HttpService *)
 {
-	// Default implementation should never be called.  This
-	// indicates an operation making a transition that isn't
-	// defined.
-	LL_ERRS(LOG_CORE) << "Default stageFromActive method may not be called."
-					  << LL_ENDL;
+    // Default implementation should never be called.  This
+    // indicates an operation making a transition that isn't
+    // defined.
+    LL_ERRS(LOG_CORE) << "Default stageFromActive method may not be called."
+                      << LL_ENDL;
 }
 
 
 void HttpOperation::visitNotifier(HttpRequest *)
 {
-	if (mUserHandler)
-	{
-		HttpResponse * response = new HttpResponse();
+    if (mUserHandler)
+    {
+        HttpResponse * response = new HttpResponse();
 
-		response->setStatus(mStatus);
-		mUserHandler->onCompleted(getHandle(), response);
+        response->setStatus(mStatus);
+        mUserHandler->onCompleted(getHandle(), response);
 
-		response->release();
-	}
+        response->release();
+    }
 }
 
 
 HttpStatus HttpOperation::cancel()
 {
-	HttpStatus status;
+    HttpStatus status;
 
-	return status;
+    return status;
 }
 
 // Handle methods
@@ -204,18 +204,18 @@ HttpOperation::ptr_t HttpOperation::findByHandle(HttpHandle handle)
 
 void HttpOperation::addAsReply()
 {
-	if (mTracing > HTTP_TRACE_OFF)
-	{
-		LL_INFOS(LOG_CORE) << "TRACE, ToReplyQueue, Handle:  "
-						   << getHandle()
-						   << LL_ENDL;
-	}
-	
-	if (mReplyQueue)
-	{
+    if (mTracing > HTTP_TRACE_OFF)
+    {
+        LL_INFOS(LOG_CORE) << "TRACE, ToReplyQueue, Handle:  "
+                           << getHandle()
+                           << LL_ENDL;
+    }
+    
+    if (mReplyQueue)
+    {
         HttpOperation::ptr_t op = shared_from_this();
-		mReplyQueue->addOp(op);
-	}
+        mReplyQueue->addOp(op);
+    }
 }
 
 
@@ -225,7 +225,7 @@ void HttpOperation::addAsReply()
 
 
 HttpOpStop::HttpOpStop()
-	: HttpOperation()
+    : HttpOperation()
 {}
 
 
@@ -235,11 +235,11 @@ HttpOpStop::~HttpOpStop()
 
 void HttpOpStop::stageFromRequest(HttpService * service)
 {
-	// Do operations
-	service->stopRequested();
-	
-	// Prepare response if needed
-	addAsReply();
+    // Do operations
+    service->stopRequested();
+    
+    // Prepare response if needed
+    addAsReply();
 }
 
 
@@ -249,7 +249,7 @@ void HttpOpStop::stageFromRequest(HttpService * service)
 
 
 HttpOpNull::HttpOpNull()
-	: HttpOperation()
+    : HttpOperation()
 {}
 
 
@@ -259,13 +259,13 @@ HttpOpNull::~HttpOpNull()
 
 void HttpOpNull::stageFromRequest(HttpService * service)
 {
-	// Perform op
-	// Nothing to perform.  This doesn't fall into the libcurl
-	// ready/active queues, it just bounces over to the reply
-	// queue directly.
-	
-	// Prepare response if needed
-	addAsReply();
+    // Perform op
+    // Nothing to perform.  This doesn't fall into the libcurl
+    // ready/active queues, it just bounces over to the reply
+    // queue directly.
+    
+    // Prepare response if needed
+    addAsReply();
 }
 
 
@@ -275,8 +275,8 @@ void HttpOpNull::stageFromRequest(HttpService * service)
 
 
 HttpOpSpin::HttpOpSpin(int mode)
-	: HttpOperation(),
-	  mMode(mode)
+    : HttpOperation(),
+      mMode(mode)
 {}
 
 
@@ -286,20 +286,20 @@ HttpOpSpin::~HttpOpSpin()
 
 void HttpOpSpin::stageFromRequest(HttpService * service)
 {
-	if (0 == mMode)
-	{
-		// Spin forever
-		while (true)
-		{
-			ms_sleep(100);
-		}
-	}
-	else
-	{
-		ms_sleep(1);			// backoff interlock plumbing a bit
+    if (0 == mMode)
+    {
+        // Spin forever
+        while (true)
+        {
+            ms_sleep(100);
+        }
+    }
+    else
+    {
+        ms_sleep(1);            // backoff interlock plumbing a bit
         HttpOperation::ptr_t opptr = shared_from_this();
         service->getRequestQueue().addOp(opptr);
-	}
+    }
 }
 
 

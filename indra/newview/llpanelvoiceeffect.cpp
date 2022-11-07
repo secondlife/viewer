@@ -40,45 +40,45 @@
 static LLPanelInjector<LLPanelVoiceEffect> t_panel_voice_effect("panel_voice_effect");
 
 LLPanelVoiceEffect::LLPanelVoiceEffect()
-	: mVoiceEffectCombo(NULL)
+    : mVoiceEffectCombo(NULL)
 {
-	mCommitCallbackRegistrar.add("Voice.CommitVoiceEffect", boost::bind(&LLPanelVoiceEffect::onCommitVoiceEffect, this));
+    mCommitCallbackRegistrar.add("Voice.CommitVoiceEffect", boost::bind(&LLPanelVoiceEffect::onCommitVoiceEffect, this));
 }
 
 LLPanelVoiceEffect::~LLPanelVoiceEffect()
 {
-	LLView* combo_list_view = mVoiceEffectCombo->getChildView("ComboBox");
-	LLTransientFloaterMgr::getInstance()->removeControlView(combo_list_view);
+    LLView* combo_list_view = mVoiceEffectCombo->getChildView("ComboBox");
+    LLTransientFloaterMgr::getInstance()->removeControlView(combo_list_view);
 
-	if(LLVoiceClient::instanceExists())
-	{
-		LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
-		if (effect_interface)
-		{
-			effect_interface->removeObserver(this);
-		}
-	}
+    if(LLVoiceClient::instanceExists())
+    {
+        LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
+        if (effect_interface)
+        {
+            effect_interface->removeObserver(this);
+        }
+    }
 }
 
 // virtual
 BOOL LLPanelVoiceEffect::postBuild()
 {
-	mVoiceEffectCombo = getChild<LLComboBox>("voice_effect");
+    mVoiceEffectCombo = getChild<LLComboBox>("voice_effect");
 
-	// Need to tell LLTransientFloaterMgr about the combo list, otherwise it can't
-	// be clicked while in a docked floater as it extends outside the floater area.
-	LLView* combo_list_view = mVoiceEffectCombo->getChildView("ComboBox");
-	LLTransientFloaterMgr::getInstance()->addControlView(combo_list_view);
+    // Need to tell LLTransientFloaterMgr about the combo list, otherwise it can't
+    // be clicked while in a docked floater as it extends outside the floater area.
+    LLView* combo_list_view = mVoiceEffectCombo->getChildView("ComboBox");
+    LLTransientFloaterMgr::getInstance()->addControlView(combo_list_view);
 
-	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
-	if (effect_interface)
-	{
-		effect_interface->addObserver(this);
-	}
+    LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
+    if (effect_interface)
+    {
+        effect_interface->addObserver(this);
+    }
 
-	update(true);
+    update(true);
 
-	return TRUE;
+    return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -87,79 +87,79 @@ BOOL LLPanelVoiceEffect::postBuild()
 
 void LLPanelVoiceEffect::onCommitVoiceEffect()
 {
-	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
-	if (!effect_interface)
-	{
-		mVoiceEffectCombo->setEnabled(false);
-		return;
-	}
+    LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
+    if (!effect_interface)
+    {
+        mVoiceEffectCombo->setEnabled(false);
+        return;
+    }
 
-	LLSD value = mVoiceEffectCombo->getValue();
-	if (value.asInteger() == PREVIEW_VOICE_EFFECTS)
-	{
-		// Open the Voice Morph preview floater
-		LLFloaterReg::showInstance("voice_effect");
-	}
-	else if (value.asInteger() == GET_VOICE_EFFECTS)
-	{
-		// Open the voice morphing info web page
-		LLWeb::loadURL(LLTrans::getString("voice_morphing_url"));
-	}
-	else
-	{
-		effect_interface->setVoiceEffect(value.asUUID());
-	}
+    LLSD value = mVoiceEffectCombo->getValue();
+    if (value.asInteger() == PREVIEW_VOICE_EFFECTS)
+    {
+        // Open the Voice Morph preview floater
+        LLFloaterReg::showInstance("voice_effect");
+    }
+    else if (value.asInteger() == GET_VOICE_EFFECTS)
+    {
+        // Open the voice morphing info web page
+        LLWeb::loadURL(LLTrans::getString("voice_morphing_url"));
+    }
+    else
+    {
+        effect_interface->setVoiceEffect(value.asUUID());
+    }
 
-	mVoiceEffectCombo->setValue(effect_interface->getVoiceEffect());
+    mVoiceEffectCombo->setValue(effect_interface->getVoiceEffect());
 }
 
 // virtual
 void LLPanelVoiceEffect::onVoiceEffectChanged(bool effect_list_updated)
 {
-	update(effect_list_updated);
+    update(effect_list_updated);
 }
 
 void LLPanelVoiceEffect::update(bool list_updated)
 {
-	if (mVoiceEffectCombo)
-	{
-		LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
-		if (!effect_interface) return;
-		if (list_updated)
-		{
-			// Add the default "No Voice Morph" entry.
-			mVoiceEffectCombo->removeall();
-			mVoiceEffectCombo->add(getString("no_voice_effect"), LLUUID::null);
-			mVoiceEffectCombo->addSeparator();
+    if (mVoiceEffectCombo)
+    {
+        LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
+        if (!effect_interface) return;
+        if (list_updated)
+        {
+            // Add the default "No Voice Morph" entry.
+            mVoiceEffectCombo->removeall();
+            mVoiceEffectCombo->add(getString("no_voice_effect"), LLUUID::null);
+            mVoiceEffectCombo->addSeparator();
 
-			// Add entries for each Voice Morph.
-			const voice_effect_list_t& effect_list = effect_interface->getVoiceEffectList();
-			if (!effect_list.empty())
-			{
-				for (voice_effect_list_t::const_iterator it = effect_list.begin(); it != effect_list.end(); ++it)
-				{
-					mVoiceEffectCombo->add(it->first, it->second, ADD_BOTTOM);
-				}
+            // Add entries for each Voice Morph.
+            const voice_effect_list_t& effect_list = effect_interface->getVoiceEffectList();
+            if (!effect_list.empty())
+            {
+                for (voice_effect_list_t::const_iterator it = effect_list.begin(); it != effect_list.end(); ++it)
+                {
+                    mVoiceEffectCombo->add(it->first, it->second, ADD_BOTTOM);
+                }
 
-				mVoiceEffectCombo->addSeparator();
-			}
+                mVoiceEffectCombo->addSeparator();
+            }
 
-			// Add the fixed entries to go to the preview floater or marketing page.
-			mVoiceEffectCombo->add(getString("preview_voice_effects"), PREVIEW_VOICE_EFFECTS);
-			mVoiceEffectCombo->add(getString("get_voice_effects"), GET_VOICE_EFFECTS);
-		}
+            // Add the fixed entries to go to the preview floater or marketing page.
+            mVoiceEffectCombo->add(getString("preview_voice_effects"), PREVIEW_VOICE_EFFECTS);
+            mVoiceEffectCombo->add(getString("get_voice_effects"), GET_VOICE_EFFECTS);
+        }
 
-		if (effect_interface && LLVoiceClient::instance().isVoiceWorking())
-		{
-			// Select the current Voice Morph.
-			mVoiceEffectCombo->setValue(effect_interface->getVoiceEffect());
-			mVoiceEffectCombo->setEnabled(true);
-		}
-		else
-		{
-			// If voice isn't working or Voice Effects are not supported disable the control.
-			mVoiceEffectCombo->setValue(LLUUID::null);
-			mVoiceEffectCombo->setEnabled(false);
-		}
-	}
+        if (effect_interface && LLVoiceClient::instance().isVoiceWorking())
+        {
+            // Select the current Voice Morph.
+            mVoiceEffectCombo->setValue(effect_interface->getVoiceEffect());
+            mVoiceEffectCombo->setEnabled(true);
+        }
+        else
+        {
+            // If voice isn't working or Voice Effects are not supported disable the control.
+            mVoiceEffectCombo->setValue(LLUUID::null);
+            mVoiceEffectCombo->setEnabled(false);
+        }
+    }
 }

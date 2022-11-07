@@ -42,7 +42,7 @@ bool LLURLHistory::loadFile(const std::string& filename)
 {
     bool dataloaded = false;
     sHistorySD = LLSD();
-	LLSD data;
+    LLSD data;
 
     std::string user_filename(gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter() + filename);
 
@@ -65,60 +65,60 @@ bool LLURLHistory::loadFile(const std::string& filename)
     {
         LL_INFOS() << "Unable to open history file at " << user_filename << LL_ENDL;
     }
-	return dataloaded;
+    return dataloaded;
 }
 
 // static
 bool LLURLHistory::saveFile(const std::string& filename)
-{	
-	std::string temp_str = gDirUtilp->getLindenUserDir();
-	if( temp_str.empty() )
-	{
-		LL_INFOS() << "Can't save URL history - no user directory set yet." << LL_ENDL;
-		return false;
-	}
+{   
+    std::string temp_str = gDirUtilp->getLindenUserDir();
+    if( temp_str.empty() )
+    {
+        LL_INFOS() << "Can't save URL history - no user directory set yet." << LL_ENDL;
+        return false;
+    }
 
-	temp_str += gDirUtilp->getDirDelimiter() + filename;
-	llofstream out(temp_str.c_str());
-	if (!out.good())
-	{
-		LL_WARNS() << "Unable to open " << temp_str << " for output." << LL_ENDL;
-		return false;
-	}
+    temp_str += gDirUtilp->getDirDelimiter() + filename;
+    llofstream out(temp_str.c_str());
+    if (!out.good())
+    {
+        LL_WARNS() << "Unable to open " << temp_str << " for output." << LL_ENDL;
+        return false;
+    }
 
-	LLSDSerialize::toXML(sHistorySD, out);
+    LLSDSerialize::toXML(sHistorySD, out);
 
-	out.close();
-	return true;
+    out.close();
+    return true;
 }
 // static
 // This function returns a portion of the history llsd that contains the collected
 // url history
 LLSD LLURLHistory::getURLHistory(const std::string& collection)
 {
-	if(sHistorySD.has(collection))
-	{
-		return sHistorySD[collection];
-	}
-	return LLSD();
+    if(sHistorySD.has(collection))
+    {
+        return sHistorySD[collection];
+    }
+    return LLSD();
 }
 
 // static
 void LLURLHistory::addURL(const std::string& collection, const std::string& url)
 {
-	if(!url.empty())
-	{
+    if(!url.empty())
+    {
         LLURI u(url);
         std::string simplified_url = u.scheme() + "://" + u.authority() + u.path();
-		sHistorySD[collection].insert(0, simplified_url);
-		LLURLHistory::limitSize(collection);
-	}
+        sHistorySD[collection].insert(0, simplified_url);
+        LLURLHistory::limitSize(collection);
+    }
 }
 // static
 void LLURLHistory::removeURL(const std::string& collection, const std::string& url)
 {
-	if(!url.empty())
-	{
+    if(!url.empty())
+    {
         LLURI u(url);
         std::string simplified_url = u.scheme() + "://" + u.authority() + u.path();
         for(int index = 0; index < sHistorySD[collection].size(); index++)
@@ -134,14 +134,14 @@ void LLURLHistory::removeURL(const std::string& collection, const std::string& u
 // static
 void LLURLHistory::clear(const std::string& collection)
 {
-	sHistorySD[ collection ] = LLSD();
+    sHistorySD[ collection ] = LLSD();
 }
 
 void LLURLHistory::limitSize(const std::string& collection)
 {
-	while(sHistorySD[collection].size() > MAX_URL_COUNT)
-	{
-		sHistorySD[collection].erase(MAX_URL_COUNT);
-	}
+    while(sHistorySD[collection].size() > MAX_URL_COUNT)
+    {
+        sHistorySD[collection].erase(MAX_URL_COUNT);
+    }
 }
 

@@ -46,15 +46,15 @@ public:
 };
 
 class LLPanelExperiences
-	: public LLPanel 
+    : public LLPanel 
 {
 public:
     LLPanelExperiences();
 
     static LLPanelExperiences* create(const std::string& name);
 
-	/*virtual*/ BOOL postBuild(void);
-	/*virtual*/ void onClosePanel();
+    /*virtual*/ BOOL postBuild(void);
+    /*virtual*/ void onClosePanel();
 
     void setExperienceList(const LLSD& experiences);
     void getExperienceIdsList(std::vector<LLUUID>& result);
@@ -65,35 +65,35 @@ public:
     void removeExperiences( const LLSD& ids );
     void removeExperience( const LLUUID& id);
     void addExperience( const LLUUID& id);
-	void setButtonAction(const std::string& label, const commit_signal_t::slot_type& cb);
-	void enableButton(bool enable);
+    void setButtonAction(const std::string& label, const commit_signal_t::slot_type& cb);
+    void enableButton(bool enable);
 protected:
 
 private:
-	LLFlatListView* mExperiencesList;
+    LLFlatListView* mExperiencesList;
 };
 
 class LLExperienceItemComparator : public LLFlatListView::ItemComparator
 {
-	LOG_CLASS(LLExperienceItemComparator);
+    LOG_CLASS(LLExperienceItemComparator);
 
 public:
-	LLExperienceItemComparator() {};
-	virtual ~LLExperienceItemComparator() {};
-	
-	virtual bool compare(const LLPanel* item1, const LLPanel* item2) const;
+    LLExperienceItemComparator() {};
+    virtual ~LLExperienceItemComparator() {};
+    
+    virtual bool compare(const LLPanel* item1, const LLPanel* item2) const;
 };
 
 class LLExperienceItem 
-	: public LLPanel
+    : public LLPanel
 {
 public:
-	LLExperienceItem();
-	~LLExperienceItem();
+    LLExperienceItem();
+    ~LLExperienceItem();
 
-	void init(const LLUUID& experience_id);
-	std::string getExperienceName() const;
+    void init(const LLUUID& experience_id);
+    std::string getExperienceName() const;
 protected:
-	LLUICtrl* mName;
+    LLUICtrl* mName;
 };
 #endif // LL_LLPANELEXPERIENCES_H

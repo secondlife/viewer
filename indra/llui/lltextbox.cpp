@@ -39,14 +39,14 @@ static LLDefaultChildRegistry::Register<LLTextBox> r("text");
 
 // Compiler optimization, generate extern template
 template class LLTextBox* LLView::getChild<class LLTextBox>(
-	const std::string& name, BOOL recurse) const;
+    const std::string& name, BOOL recurse) const;
 
 LLTextBox::LLTextBox(const LLTextBox::Params& p)
-:	LLTextBase(p),
-	mClickedCallback(NULL),
-	mShowCursorHand(true)
+:   LLTextBase(p),
+    mClickedCallback(NULL),
+    mShowCursorHand(true)
 {
-	mSkipTripleClick = true;
+    mSkipTripleClick = true;
 }
 
 LLTextBox::~LLTextBox()
@@ -54,129 +54,129 @@ LLTextBox::~LLTextBox()
 
 BOOL LLTextBox::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = LLTextBase::handleMouseDown(x, y, mask);
+    BOOL    handled = LLTextBase::handleMouseDown(x, y, mask);
 
-	if (getSoundFlags() & MOUSE_DOWN)
-	{
-		make_ui_sound("UISndClick");
-	}
+    if (getSoundFlags() & MOUSE_DOWN)
+    {
+        make_ui_sound("UISndClick");
+    }
 
-	if (!handled && mClickedCallback)
-	{
-		handled = TRUE;
-	}
+    if (!handled && mClickedCallback)
+    {
+        handled = TRUE;
+    }
 
-	if (handled)
-	{
-		// Route future Mouse messages here preemptively.  (Release on mouse up.)
-		gFocusMgr.setMouseCapture( this );
-	}
+    if (handled)
+    {
+        // Route future Mouse messages here preemptively.  (Release on mouse up.)
+        gFocusMgr.setMouseCapture( this );
+    }
 
-	return handled;
+    return handled;
 }
 
 BOOL LLTextBox::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = LLTextBase::handleMouseUp(x, y, mask);
+    BOOL    handled = LLTextBase::handleMouseUp(x, y, mask);
 
-	if (getSoundFlags() & MOUSE_UP)
-	{
-		make_ui_sound("UISndClickRelease");
-	}
+    if (getSoundFlags() & MOUSE_UP)
+    {
+        make_ui_sound("UISndClickRelease");
+    }
 
-	// We only handle the click if the click both started and ended within us
-	if (hasMouseCapture())
-	{
-		// Release the mouse
-		gFocusMgr.setMouseCapture( NULL );
+    // We only handle the click if the click both started and ended within us
+    if (hasMouseCapture())
+    {
+        // Release the mouse
+        gFocusMgr.setMouseCapture( NULL );
 
-		// DO THIS AT THE VERY END to allow the button  to be destroyed
-		// as a result of being clicked.  If mouseup in the widget,
-		// it's been clicked
-		if (mClickedCallback && !handled)
-		{
-			mClickedCallback();
-			handled = TRUE;
-		}
-	}
+        // DO THIS AT THE VERY END to allow the button  to be destroyed
+        // as a result of being clicked.  If mouseup in the widget,
+        // it's been clicked
+        if (mClickedCallback && !handled)
+        {
+            mClickedCallback();
+            handled = TRUE;
+        }
+    }
 
-	return handled;
+    return handled;
 }
 
 BOOL LLTextBox::handleHover(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = LLTextBase::handleHover(x, y, mask);
-	if (!handled && mClickedCallback && mShowCursorHand)
-	{
-		// Clickable text boxes change the cursor to a hand
-		LLUI::getInstance()->getWindow()->setCursor(UI_CURSOR_HAND);
-		return TRUE;
-	}
-	return handled;
+    BOOL handled = LLTextBase::handleHover(x, y, mask);
+    if (!handled && mClickedCallback && mShowCursorHand)
+    {
+        // Clickable text boxes change the cursor to a hand
+        LLUI::getInstance()->getWindow()->setCursor(UI_CURSOR_HAND);
+        return TRUE;
+    }
+    return handled;
 }
 
 void LLTextBox::setEnabled(BOOL enabled)
 {
-	// just treat enabled as read-only flag
-	bool read_only = !enabled;
-	if (read_only != mReadOnly)
-	{
-		LLTextBase::setReadOnly(read_only);
-		updateSegments();
-	}
-	LLTextBase::setEnabled(enabled);
+    // just treat enabled as read-only flag
+    bool read_only = !enabled;
+    if (read_only != mReadOnly)
+    {
+        LLTextBase::setReadOnly(read_only);
+        updateSegments();
+    }
+    LLTextBase::setEnabled(enabled);
 }
 
 void LLTextBox::setText(const LLStringExplicit& text , const LLStyle::Params& input_params )
 {
-	// does string argument insertion
-	mText.assign(text);
-	
-	LLTextBase::setText(mText.getString(), input_params );
+    // does string argument insertion
+    mText.assign(text);
+    
+    LLTextBase::setText(mText.getString(), input_params );
 }
 
 void LLTextBox::setClickedCallback( boost::function<void (void*)> cb, void* userdata /*= NULL */ )
 {
-	mClickedCallback = boost::bind(cb, userdata);
+    mClickedCallback = boost::bind(cb, userdata);
 }
 
 S32 LLTextBox::getTextPixelWidth()
 {
-	return getTextBoundingRect().getWidth();
+    return getTextBoundingRect().getWidth();
 }
 
 S32 LLTextBox::getTextPixelHeight()
 {
-	return getTextBoundingRect().getHeight();
+    return getTextBoundingRect().getHeight();
 }
 
 
 LLSD LLTextBox::getValue() const
 {
-	return getViewModel()->getValue();
+    return getViewModel()->getValue();
 }
 
 BOOL LLTextBox::setTextArg( const std::string& key, const LLStringExplicit& text )
 {
-	mText.setArg(key, text);
-	LLTextBase::setText(mText.getString());
+    mText.setArg(key, text);
+    LLTextBase::setText(mText.getString());
 
-	return TRUE;
+    return TRUE;
 }
 
 
 void LLTextBox::reshapeToFitText(BOOL called_from_parent)
 {
-	reflow();
+    reflow();
 
-	S32 width = getTextPixelWidth();
-	S32 height = getTextPixelHeight();
-	reshape( width + 2 * mHPad, height + 2 * mVPad, called_from_parent );
+    S32 width = getTextPixelWidth();
+    S32 height = getTextPixelHeight();
+    reshape( width + 2 * mHPad, height + 2 * mVPad, called_from_parent );
 }
 
 
 void LLTextBox::onUrlLabelUpdated(const std::string &url, const std::string &label)
 {
-	needsReflow();
+    needsReflow();
 }
 

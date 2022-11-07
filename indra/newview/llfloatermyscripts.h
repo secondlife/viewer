@@ -33,30 +33,30 @@
 class LLFloaterMyScripts : public LLFloater
 {
 public:
-	LLFloaterMyScripts(const LLSD& seed);
+    LLFloaterMyScripts(const LLSD& seed);
 
-	BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
-	void setAttachmentDetails(LLSD content);
-	void setAttachmentSummary(LLSD content);
-	bool requestAttachmentDetails();
-	void clearList();
+    BOOL postBuild();
+    /*virtual*/ void onOpen(const LLSD& key);
+    void setAttachmentDetails(LLSD content);
+    void setAttachmentSummary(LLSD content);
+    bool requestAttachmentDetails();
+    void clearList();
 
 private:
-	void getAttachmentLimitsCoro(std::string url);
+    void getAttachmentLimitsCoro(std::string url);
 
-	bool mGotAttachmentMemoryUsed;
-	bool mAttachmentDetailsRequested;
-	S32 mAttachmentMemoryMax;
-	S32 mAttachmentMemoryUsed;
+    bool mGotAttachmentMemoryUsed;
+    bool mAttachmentDetailsRequested;
+    S32 mAttachmentMemoryMax;
+    S32 mAttachmentMemoryUsed;
 
-	bool mGotAttachmentURLsUsed;
-	S32 mAttachmentURLsMax;
-	S32 mAttachmentURLsUsed;
+    bool mGotAttachmentURLsUsed;
+    S32 mAttachmentURLsMax;
+    S32 mAttachmentURLsUsed;
 
 protected:
-	
-	static void onClickRefresh(void* userdata);
+    
+    static void onClickRefresh(void* userdata);
 };
 
 #endif

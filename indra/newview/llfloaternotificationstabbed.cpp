@@ -190,7 +190,7 @@ void LLFloaterNotificationsTabbed::setVisible(BOOL visible)
 
     LLTransientDockableFloater::setVisible(visible);
 
-    // update notification channel state	
+    // update notification channel state    
     initChannel(); // make sure the channel still exists
     if(mChannel)
     {
@@ -379,7 +379,7 @@ void LLFloaterNotificationsTabbed::clearScreenChannels()
 //---------------------------------------------------------------------------------
 void LLFloaterNotificationsTabbed::onStoreToast(LLPanel* info_panel, LLUUID id)
 {
-    LLNotificationListItem::Params p;	
+    LLNotificationListItem::Params p;   
     p.notification_id = id;
     p.title = static_cast<LLToastPanel*>(info_panel)->getTitle();
     LLNotificationPtr notify = mChannel->getToastByNotificationID(id)->getNotification();

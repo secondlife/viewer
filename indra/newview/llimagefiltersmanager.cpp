@@ -33,7 +33,7 @@
 
 std::string get_sys_dir()
 {
-	return gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "filters", "");
+    return gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "filters", "");
 }
 
 //---------------------------------------------------------------------------
@@ -51,39 +51,39 @@ LLImageFiltersManager::~LLImageFiltersManager()
 // virtual
 void LLImageFiltersManager::initSingleton()
 {
-	loadAllFilters();
+    loadAllFilters();
 }
 
 void LLImageFiltersManager::loadAllFilters()
 {
-	// Load system (coming out of the box) filters
-	loadFiltersFromDir(get_sys_dir());
+    // Load system (coming out of the box) filters
+    loadFiltersFromDir(get_sys_dir());
 }
 
 void LLImageFiltersManager::loadFiltersFromDir(const std::string& dir)
 {
-	mFiltersList.clear();
+    mFiltersList.clear();
 
-	LLDirIterator dir_iter(dir, "*.xml");
-	while (1)
-	{
-		std::string file_name;
-		if (!dir_iter.next(file_name))
-		{
-			break; // no more files
-		}
-		
-		// Get the ".xml" out of the file name to get the filter name. That's the one known in strings.xml
-		std::string filter_name_untranslated = file_name.substr(0,file_name.length()-4);
+    LLDirIterator dir_iter(dir, "*.xml");
+    while (1)
+    {
+        std::string file_name;
+        if (!dir_iter.next(file_name))
+        {
+            break; // no more files
+        }
+        
+        // Get the ".xml" out of the file name to get the filter name. That's the one known in strings.xml
+        std::string filter_name_untranslated = file_name.substr(0,file_name.length()-4);
         
         // Get the localized name for the filter
-        std::string	filter_name_translated;
+        std::string filter_name_translated;
         bool translated = LLTrans::findString(filter_name_translated, filter_name_untranslated);
-        std::string	filter_name = (translated ? filter_name_translated: filter_name_untranslated);
+        std::string filter_name = (translated ? filter_name_translated: filter_name_untranslated);
         
         // Store the filter in the list with its associated file name
         mFiltersList[filter_name] = file_name;
-	}
+    }
 }
 
 // Note : That method is a bit heavy handed but the list of filters is always small (10 or so)

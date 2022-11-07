@@ -32,18 +32,18 @@
 
 class LLFloaterBeacons : public LLFloater
 {
-	friend class LLFloaterReg;
-	
+    friend class LLFloaterReg;
+    
 public:
 
-	/*virtual*/ BOOL postBuild();
-	
-	// Needed to make the floater visibility toggle the beacons.
-	// Too bad we can't just add control_name="BeaconAlwaysOn" to the XML.
-	void onClickUICheck(LLUICtrl *ctrl);
+    /*virtual*/ BOOL postBuild();
+    
+    // Needed to make the floater visibility toggle the beacons.
+    // Too bad we can't just add control_name="BeaconAlwaysOn" to the XML.
+    void onClickUICheck(LLUICtrl *ctrl);
 
 private:
-	LLFloaterBeacons(const LLSD& seed);
+    LLFloaterBeacons(const LLSD& seed);
 };
 
 #endif

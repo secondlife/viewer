@@ -37,44 +37,44 @@ class LLPanelMarketplaceInbox : public LLPanel
 {
 public:
 
-	struct Params :	public LLInitParam::Block<Params, LLPanel::Params>
-	{};
+    struct Params : public LLInitParam::Block<Params, LLPanel::Params>
+    {};
 
-	LOG_CLASS(LLPanelMarketplaceInbox);
+    LOG_CLASS(LLPanelMarketplaceInbox);
 
-	// RN: for some reason you can't just use LLUICtrlFactory::getDefaultParams as a default argument in VC8
-	static const LLPanelMarketplaceInbox::Params& getDefaultParams();
+    // RN: for some reason you can't just use LLUICtrlFactory::getDefaultParams as a default argument in VC8
+    static const LLPanelMarketplaceInbox::Params& getDefaultParams();
 
-	LLPanelMarketplaceInbox(const Params& p = getDefaultParams());
-	~LLPanelMarketplaceInbox();
+    LLPanelMarketplaceInbox(const Params& p = getDefaultParams());
+    ~LLPanelMarketplaceInbox();
 
-	/*virtual*/ BOOL postBuild();
-	
-	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg);
+    /*virtual*/ BOOL postBuild();
+    
+    /*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg);
 
-	/*virtual*/ void draw();
-	
-	LLInventoryPanel * setupInventoryPanel();
+    /*virtual*/ void draw();
+    
+    LLInventoryPanel * setupInventoryPanel();
 
-	void onClearSearch();
-	void onFilterEdit(const std::string& search_string);
+    void onClearSearch();
+    void onFilterEdit(const std::string& search_string);
 
-	U32 getFreshItemCount() const;
-	U32 getTotalItemCount() const;
+    U32 getFreshItemCount() const;
+    U32 getTotalItemCount() const;
 
-	std::string getBadgeString() const;
-
-private:
-
-	void onSelectionChange();
-
-	void onFocusReceived();
+    std::string getBadgeString() const;
 
 private:
-	LLUICtrl *			mFreshCountCtrl;
-	LLButton *			mInboxButton;
-	LLInventoryPanel *	mInventoryPanel;
-	LLSaveFolderState*			mSavedFolderState;
+
+    void onSelectionChange();
+
+    void onFocusReceived();
+
+private:
+    LLUICtrl *          mFreshCountCtrl;
+    LLButton *          mInboxButton;
+    LLInventoryPanel *  mInventoryPanel;
+    LLSaveFolderState*          mSavedFolderState;
 };
 
 

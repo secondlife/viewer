@@ -38,40 +38,40 @@ const S32 MAX_SPAWNPOINTS_PER_TELEHUB = 16;
 class LLFloaterTelehub : public LLFloater
 {
 public:
-	LLFloaterTelehub(const LLSD& key);
-	~LLFloaterTelehub();
-	
-	/*virtual*/	BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+    LLFloaterTelehub(const LLSD& key);
+    ~LLFloaterTelehub();
+    
+    /*virtual*/ BOOL postBuild();
+    /*virtual*/ void onOpen(const LLSD& key);
 
-	/*virtual*/ void draw();
-	
-	static BOOL renderBeacons();
-	static void addBeacons();
+    /*virtual*/ void draw();
+    
+    static BOOL renderBeacons();
+    static void addBeacons();
 
-	void refresh();
-	void sendTelehubInfoRequest();
+    void refresh();
+    void sendTelehubInfoRequest();
 
-	void onClickConnect();
-	void onClickDisconnect();
-	void onClickAddSpawnPoint();
-	void onClickRemoveSpawnPoint();
+    void onClickConnect();
+    void onClickDisconnect();
+    void onClickAddSpawnPoint();
+    void onClickRemoveSpawnPoint();
 
-	static void processTelehubInfo(LLMessageSystem* msg, void**);
-	void unpackTelehubInfo(LLMessageSystem* msg);
+    static void processTelehubInfo(LLMessageSystem* msg, void**);
+    void unpackTelehubInfo(LLMessageSystem* msg);
 
 private:
-	LLUUID mTelehubObjectID;	// null if no telehub
-	std::string mTelehubObjectName;
-	LLVector3 mTelehubPos;	// region local, fallback if viewer can't see the object
-	LLQuaternion mTelehubRot;
+    LLUUID mTelehubObjectID;    // null if no telehub
+    std::string mTelehubObjectName;
+    LLVector3 mTelehubPos;  // region local, fallback if viewer can't see the object
+    LLQuaternion mTelehubRot;
 
-	S32 mNumSpawn;
-	LLVector3 mSpawnPointPos[MAX_SPAWNPOINTS_PER_TELEHUB];
-	
-	LLSafeHandle<LLObjectSelection> mObjectSelection;
+    S32 mNumSpawn;
+    LLVector3 mSpawnPointPos[MAX_SPAWNPOINTS_PER_TELEHUB];
+    
+    LLSafeHandle<LLObjectSelection> mObjectSelection;
 
-	static LLFloaterTelehub* sInstance;
+    static LLFloaterTelehub* sInstance;
 };
 
 #endif

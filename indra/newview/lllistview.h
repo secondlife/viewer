@@ -27,34 +27,34 @@
 #ifndef LLLISTVIEW_H
 #define LLLISTVIEW_H
 
-#include "llui.h"		// for LLUIColor, *TODO: use more specific header
+#include "llui.h"       // for LLUIColor, *TODO: use more specific header
 #include "lluictrl.h"
 
 class LLTextBox;
 
 class LLListView
-:	public LLUICtrl
+:   public LLUICtrl
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
-	{
-		Optional<LLUIColor>	bg_color,
-							fg_selected_color,
-							bg_selected_color;
-		Params();
-	};
-	LLListView(const Params& p);
-	virtual ~LLListView();
+    struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+    {
+        Optional<LLUIColor> bg_color,
+                            fg_selected_color,
+                            bg_selected_color;
+        Params();
+    };
+    LLListView(const Params& p);
+    virtual ~LLListView();
 
-	// placeholder for setting a property
-	void setString(const std::string& s);
+    // placeholder for setting a property
+    void setString(const std::string& s);
 
 private:
-	// TODO: scroll container?
-	LLTextBox*	mLabel;		// just for testing
-	LLUIColor	mBgColor;
-	LLUIColor	mFgSelectedColor;
-	LLUIColor	mBgSelectedColor;
+    // TODO: scroll container?
+    LLTextBox*  mLabel;     // just for testing
+    LLUIColor   mBgColor;
+    LLUIColor   mFgSelectedColor;
+    LLUIColor   mBgSelectedColor;
 };
 
 #endif // LLLISTVIEW_H

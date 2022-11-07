@@ -34,33 +34,33 @@
 class LLPanelGroupLandMoney : public LLPanelGroupTab
 {
 public:
-	LLPanelGroupLandMoney();
-	virtual ~LLPanelGroupLandMoney();
-	virtual BOOL postBuild();
-	virtual BOOL isVisibleByAgent(LLAgent* agentp);
+    LLPanelGroupLandMoney();
+    virtual ~LLPanelGroupLandMoney();
+    virtual BOOL postBuild();
+    virtual BOOL isVisibleByAgent(LLAgent* agentp);
 
-	virtual void activate();
-	virtual bool needsApply(std::string& mesg);
-	virtual bool apply(std::string& mesg);
-	virtual void cancel();
-	virtual void update(LLGroupChange gc);
+    virtual void activate();
+    virtual bool needsApply(std::string& mesg);
+    virtual bool apply(std::string& mesg);
+    virtual void cancel();
+    virtual void update(LLGroupChange gc);
 
-	static void processPlacesReply(LLMessageSystem* msg, void**);
+    static void processPlacesReply(LLMessageSystem* msg, void**);
 
-	typedef std::map<LLUUID, LLPanelGroupLandMoney*> group_id_map_t;
-	static group_id_map_t sGroupIDs;
+    typedef std::map<LLUUID, LLPanelGroupLandMoney*> group_id_map_t;
+    static group_id_map_t sGroupIDs;
 
-	static void processGroupAccountDetailsReply(LLMessageSystem* msg,  void** data);
-	static void processGroupAccountTransactionsReply(LLMessageSystem* msg, void** data);
-	static void processGroupAccountSummaryReply(LLMessageSystem* msg, void** data);
+    static void processGroupAccountDetailsReply(LLMessageSystem* msg,  void** data);
+    static void processGroupAccountTransactionsReply(LLMessageSystem* msg, void** data);
+    static void processGroupAccountSummaryReply(LLMessageSystem* msg, void** data);
 
-	virtual void setGroupID(const LLUUID& id);
+    virtual void setGroupID(const LLUUID& id);
 
-	virtual void onLandSelectionChanged();
-	
+    virtual void onLandSelectionChanged();
+    
 protected:
-	class impl;
-	impl* mImplementationp;
+    class impl;
+    impl* mImplementationp;
 };
 
 #endif // LL_PANEL_GROUP_LAND_MONEY_H

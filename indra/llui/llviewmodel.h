@@ -62,7 +62,7 @@ typedef LLPointer<LLListViewModel> LLListViewModelPtr;
  * last referencing widget is destroyed.
  */
 class LLViewModel 
-:	public LLRefCount
+:   public LLRefCount
 {
 public:
     LLViewModel();
@@ -79,7 +79,7 @@ public:
     /// Once the value has been saved to a file, or otherwise consumed by the
     /// app, we no longer need to enable the Save button
     void resetDirty() { mDirty = false; }
-	// 
+    // 
     void setDirty() { mDirty = true; }
 
 protected:
@@ -96,15 +96,15 @@ public:
     LLTextViewModel();
     /// Instantiate an LLViewModel with an existing data value
     LLTextViewModel(const LLSD& value);
-	
-	// LLViewModel functions
+    
+    // LLViewModel functions
     virtual void setValue(const LLSD& value);
     virtual LLSD getValue() const;
 
-	// New functions
+    // New functions
     /// Get the stored value in string form
     const LLWString& getDisplay() const { return mDisplay; }
-	LLWString& getEditableDisplay() { mDirty = true; mUpdateFromDisplay = true; return mDisplay; }
+    LLWString& getEditableDisplay() { mDirty = true; mUpdateFromDisplay = true; return mDisplay; }
 
     /**
      * Set the display string directly (see LLTextEditor). What the user is
@@ -112,7 +112,7 @@ public:
      * UTF-8 value.
      */
     void setDisplay(const LLWString& value);
-	
+    
 private:
     /// To avoid converting every widget's stored value from LLSD to LLWString
     /// every frame, cache the converted value
@@ -145,73 +145,73 @@ public:
 
 //namespace LLViewModel
 //{
-//	class Value
-//	{
-//	public:
-//		Value(const LLSD& value = LLSD());
+//  class Value
+//  {
+//  public:
+//      Value(const LLSD& value = LLSD());
 //
-//		LLSD getValue() const { return mValue; }
-//		void setValue(const LLSD& value) { mValue = value; }
+//      LLSD getValue() const { return mValue; }
+//      void setValue(const LLSD& value) { mValue = value; }
 //
-//		bool isAvailable() const { return false; }
-//		bool isReadOnly() const { return false; }
+//      bool isAvailable() const { return false; }
+//      bool isReadOnly() const { return false; }
 //
-//		bool undo() { return false; }
-//		bool redo() { return false; }
+//      bool undo() { return false; }
+//      bool redo() { return false; }
 //
-//	    /// Has the value been changed since last time we checked?
-//		bool isDirty() const { return mDirty; }
-//		/// Once the value has been saved to a file, or otherwise consumed by the
-//		/// app, we no longer need to enable the Save button
-//		void resetDirty() { mDirty = false; }
-//		// 
-//		void setDirty() { mDirty = true; }
+//      /// Has the value been changed since last time we checked?
+//      bool isDirty() const { return mDirty; }
+//      /// Once the value has been saved to a file, or otherwise consumed by the
+//      /// app, we no longer need to enable the Save button
+//      void resetDirty() { mDirty = false; }
+//      // 
+//      void setDirty() { mDirty = true; }
 //
-//	protected:
-//		LLSD	mValue;
-//		bool mDirty;
-//	};
+//  protected:
+//      LLSD    mValue;
+//      bool mDirty;
+//  };
 //
-//	class Numeric : public Value
-//	{
-//	public:
-//		Numeric(S32 value = 0);
-//		Numeric(F32 value);
+//  class Numeric : public Value
+//  {
+//  public:
+//      Numeric(S32 value = 0);
+//      Numeric(F32 value);
 //
-//		F32 getPrecision();
-//		F32 getMin();
-//		F32 getMax();
+//      F32 getPrecision();
+//      F32 getMin();
+//      F32 getMax();
 //
-//		void increment();
-//		void decrement();
-//	};
+//      void increment();
+//      void decrement();
+//  };
 //
-//	class MultipleValues : public Value
-//	{
-//		class Selector
-//		{};
+//  class MultipleValues : public Value
+//  {
+//      class Selector
+//      {};
 //
-//		MultipleValues();
-//		virtual S32 numElements();
-//	};
+//      MultipleValues();
+//      virtual S32 numElements();
+//  };
 //
-//	class Tuple : public MultipleValues
-//	{
-//		Tuple(S32 size);
-//		LLSD getValue(S32 which) const;
-//		void setValue(S32 which, const LLSD& value);
-//	};
+//  class Tuple : public MultipleValues
+//  {
+//      Tuple(S32 size);
+//      LLSD getValue(S32 which) const;
+//      void setValue(S32 which, const LLSD& value);
+//  };
 //
-//	class List : public MultipleValues
-//	{
-//		List();
+//  class List : public MultipleValues
+//  {
+//      List();
 //
-//		void add(const ValueModel& value);
-//		bool remove(const Selector& item);
+//      void add(const ValueModel& value);
+//      bool remove(const Selector& item);
 //
-//		void setSortElement(const Selector& element);
-//		void sort();
-//	};
+//      void setSortElement(const Selector& element);
+//      void sort();
+//  };
 //
 //};
 #endif /* ! defined(LL_LLVIEWMODEL_H) */

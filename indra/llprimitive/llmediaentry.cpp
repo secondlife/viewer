@@ -157,9 +157,9 @@ void LLMediaEntry::asLLSD(LLSD& sd) const
 
     // "security" fields
     sd[WHITELIST_ENABLE_KEY] = mWhiteListEnable;
-	sd.erase(WHITELIST_KEY);
+    sd.erase(WHITELIST_KEY);
     for (U32 i=0; i<mWhiteList.size(); i++) 
-	{
+    {
         sd[WHITELIST_KEY].append(mWhiteList[i]);
     }
 
@@ -364,7 +364,7 @@ U32 LLMediaEntry::setWhiteList( const std::vector<std::string> &whitelist )
         size += entry.length() + 1; // Include one for \0
         count ++;
         if (size > MAX_WHITELIST_SIZE || count > MAX_WHITELIST_COUNT) 
-		{
+        {
             return LSL_STATUS_BOUNDS_ERROR;
         }
     }
@@ -384,10 +384,10 @@ U32 LLMediaEntry::setWhiteList( const LLSD &whitelist )
 {
     // If whitelist is undef, the whitelist is cleared
     if (whitelist.isUndefined()) 
-	{
-		mWhiteList.clear();
-		return LSL_STATUS_OK;
-	}
+    {
+        mWhiteList.clear();
+        return LSL_STATUS_OK;
+    }
 
     // However, if the whitelist is an empty array, erase it.
     if (whitelist.isArray()) 
@@ -405,7 +405,7 @@ U32 LLMediaEntry::setWhiteList( const LLSD &whitelist )
             size += entry.length() + 1; // Include one for \0
             count ++;
             if (size > MAX_WHITELIST_SIZE || count > MAX_WHITELIST_COUNT) 
-			{
+            {
                 return LSL_STATUS_BOUNDS_ERROR;
             }
         }
@@ -421,7 +421,7 @@ U32 LLMediaEntry::setWhiteList( const LLSD &whitelist )
         return LSL_STATUS_OK;
     }
     else 
-	{
+    {
         return LSL_STATUS_MALFORMED_PARAMS;
     }
 }
@@ -465,7 +465,7 @@ bool LLMediaEntry::checkCandidateUrl(const std::string& url) const
         return checkUrlAgainstWhitelist(url, getWhiteList());
     }
     else 
-	{
+    {
         return true;
     }
 }
@@ -513,11 +513,11 @@ bool LLMediaEntry::checkUrlAgainstWhitelist(const std::string& url,
 U32 LLMediaEntry::setStringFieldWithLimit( std::string &field, const std::string &value, U32 limit )
 {
     if ( value.length() > limit ) 
-	{
+    {
         return LSL_STATUS_BOUNDS_ERROR;
     }
     else 
-	{
+    {
         field = value;
         return LSL_STATUS_OK;
     }
@@ -558,7 +558,7 @@ U32 LLMediaEntry::setCurrentURLInternal(const std::string& current_url, bool che
         return setStringFieldWithLimit( mCurrentURL, current_url, MAX_URL_LENGTH );
     }
     else 
-	{
+    {
         return LSL_STATUS_WHITELIST_FAILED;
     }
 }

@@ -35,29 +35,29 @@ class LLPickInfo;
 
 class LLToolObjPicker : public LLTool, public LLSingleton<LLToolObjPicker>
 {
-	LLSINGLETON(LLToolObjPicker);
+    LLSINGLETON(LLToolObjPicker);
 public:
 
-	virtual BOOL		handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL		handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL		handleHover(S32 x, S32 y, MASK mask);
+    virtual BOOL        handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual BOOL        handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual BOOL        handleHover(S32 x, S32 y, MASK mask);
 
-	virtual void 		handleSelect();
-	virtual void 		handleDeselect();
+    virtual void        handleSelect();
+    virtual void        handleDeselect();
 
-	virtual void		onMouseCaptureLost();
+    virtual void        onMouseCaptureLost();
 
-	virtual void 		setExitCallback(void (*callback)(void *), void *callback_data);
+    virtual void        setExitCallback(void (*callback)(void *), void *callback_data);
 
-	LLUUID				getObjectID() const { return mHitObjectID; }
+    LLUUID              getObjectID() const { return mHitObjectID; }
 
-	static void			pickCallback(const LLPickInfo& pick_info);
+    static void         pickCallback(const LLPickInfo& pick_info);
 
 protected:
-	BOOL				mPicked;
-	LLUUID				mHitObjectID;
-	void 				(*mExitCallback)(void *callback_data);
-	void 				*mExitCallbackData;
+    BOOL                mPicked;
+    LLUUID              mHitObjectID;
+    void                (*mExitCallback)(void *callback_data);
+    void                *mExitCallbackData;
 };
 
 

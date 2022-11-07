@@ -41,84 +41,84 @@ class LLScrollListCtrl;
 class LLPanelGroupNotices : public LLPanelGroupTab
 {
 public:
-	LLPanelGroupNotices();
-	virtual ~LLPanelGroupNotices();
+    LLPanelGroupNotices();
+    virtual ~LLPanelGroupNotices();
 
-	// LLPanelGroupTab
-	virtual void activate();
-	//virtual bool needsApply(std::string& mesg);
-	//virtual bool apply(std::string& mesg);
-	//virtual void update();
-	
-	virtual BOOL postBuild();
-	virtual BOOL isVisibleByAgent(LLAgent* agentp);
+    // LLPanelGroupTab
+    virtual void activate();
+    //virtual bool needsApply(std::string& mesg);
+    //virtual bool apply(std::string& mesg);
+    //virtual void update();
+    
+    virtual BOOL postBuild();
+    virtual BOOL isVisibleByAgent(LLAgent* agentp);
 
-	void setItem(LLPointer<LLInventoryItem> inv_item);
+    void setItem(LLPointer<LLInventoryItem> inv_item);
 
-	static void processGroupNoticesListReply(LLMessageSystem* msg, void** data);
+    static void processGroupNoticesListReply(LLMessageSystem* msg, void** data);
 
-	void showNotice(const std::string& subject,
-					const std::string& message,
-					const bool& has_inventory,
-					const std::string& inventory_name,
-					LLOfferInfo* inventory_offer);
+    void showNotice(const std::string& subject,
+                    const std::string& message,
+                    const bool& has_inventory,
+                    const std::string& inventory_name,
+                    LLOfferInfo* inventory_offer);
 
-	void refreshNotices();
+    void refreshNotices();
 
-	void clearNoticeList();
+    void clearNoticeList();
 
-	virtual void setGroupID(const LLUUID& id);
+    virtual void setGroupID(const LLUUID& id);
 
 private:
-	static void onClickRemoveAttachment(void* data);
-	static void onClickOpenAttachment(void* data);
-	static void onClickSendMessage(void* data);
-	static void onClickNewMessage(void* data);
-	static void onClickRefreshNotices(void* data);
+    static void onClickRemoveAttachment(void* data);
+    static void onClickOpenAttachment(void* data);
+    static void onClickSendMessage(void* data);
+    static void onClickNewMessage(void* data);
+    static void onClickRefreshNotices(void* data);
 
-	void processNotices(LLMessageSystem* msg);
-	static void onSelectNotice(LLUICtrl* ctrl, void* data);
+    void processNotices(LLMessageSystem* msg);
+    static void onSelectNotice(LLUICtrl* ctrl, void* data);
 
-	enum ENoticeView
-	{
-		VIEW_PAST_NOTICE,
-		CREATE_NEW_NOTICE
-	};
+    enum ENoticeView
+    {
+        VIEW_PAST_NOTICE,
+        CREATE_NEW_NOTICE
+    };
 
-	void arrangeNoticeView(ENoticeView view_type);
+    void arrangeNoticeView(ENoticeView view_type);
 
-	LLPointer<LLInventoryItem>	mInventoryItem;
-	
-	LLLineEditor		*mCreateSubject;
-    LLLineEditor		*mCreateInventoryName;
-	LLTextEditor		*mCreateMessage;
+    LLPointer<LLInventoryItem>  mInventoryItem;
+    
+    LLLineEditor        *mCreateSubject;
+    LLLineEditor        *mCreateInventoryName;
+    LLTextEditor        *mCreateMessage;
 
-	LLLineEditor		*mViewSubject;
-    LLLineEditor		*mViewInventoryName;
-	LLTextEditor		*mViewMessage;
-	
-	LLButton			*mBtnSendMessage;
-	LLButton			*mBtnNewMessage;
-	LLButton			*mBtnRemoveAttachment;
-	LLButton			*mBtnOpenAttachment;
-	LLButton			*mBtnGetPastNotices;
+    LLLineEditor        *mViewSubject;
+    LLLineEditor        *mViewInventoryName;
+    LLTextEditor        *mViewMessage;
+    
+    LLButton            *mBtnSendMessage;
+    LLButton            *mBtnNewMessage;
+    LLButton            *mBtnRemoveAttachment;
+    LLButton            *mBtnOpenAttachment;
+    LLButton            *mBtnGetPastNotices;
 
-	LLPanel				*mPanelCreateNotice;
-	LLPanel				*mPanelViewNotice;
+    LLPanel             *mPanelCreateNotice;
+    LLPanel             *mPanelViewNotice;
 
-	LLIconCtrl		 *mCreateInventoryIcon;
-	LLIconCtrl		 *mViewInventoryIcon;
-	
-	LLScrollListCtrl *mNoticesList;
+    LLIconCtrl       *mCreateInventoryIcon;
+    LLIconCtrl       *mViewInventoryIcon;
+    
+    LLScrollListCtrl *mNoticesList;
     std::set<LLUUID>  mKnownNoticeIds; // Dupplicate avoidance, to avoid searching and inserting dupplciates into mNoticesList
 
-	std::string		mNoNoticesStr;
+    std::string     mNoNoticesStr;
 
-	LLOfferInfo* mInventoryOffer;
+    LLOfferInfo* mInventoryOffer;
 
-	LLUUID mPrevSelectedNotice;
+    LLUUID mPrevSelectedNotice;
 
-	static std::map<LLUUID,LLPanelGroupNotices*>	sInstances;
+    static std::map<LLUUID,LLPanelGroupNotices*>    sInstances;
 };
 
 #endif

@@ -32,19 +32,19 @@
 class LLLineEditor;
 
 class LLFloaterWhiteListEntry : 
-	public LLFloater
+    public LLFloater
 {
-	public:
-		LLFloaterWhiteListEntry(const LLSD& key);
-		~LLFloaterWhiteListEntry();
-	
-		BOOL postBuild();
+    public:
+        LLFloaterWhiteListEntry(const LLSD& key);
+        ~LLFloaterWhiteListEntry();
+    
+        BOOL postBuild();
 
-	private:
-		LLLineEditor* mWhiteListEdit;
+    private:
+        LLLineEditor* mWhiteListEdit;
 
-		static void onBtnOK(void*);
-		static void onBtnCancel(void*);
+        static void onBtnOK(void*);
+        static void onBtnCancel(void*);
 };
 
 #endif  // LL_LLFLOATERWHITELISTENTRY_H

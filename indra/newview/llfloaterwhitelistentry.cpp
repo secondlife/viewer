@@ -39,7 +39,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 LLFloaterWhiteListEntry::LLFloaterWhiteListEntry( const LLSD& key ) :
-	LLFloater(key)
+    LLFloater(key)
 {
 }
 
@@ -53,39 +53,39 @@ LLFloaterWhiteListEntry::~LLFloaterWhiteListEntry()
 //
 BOOL LLFloaterWhiteListEntry::postBuild()
 {
-	mWhiteListEdit = getChild<LLLineEditor>("whitelist_entry");
+    mWhiteListEdit = getChild<LLLineEditor>("whitelist_entry");
 
-	childSetAction("cancel_btn", onBtnCancel, this);
-	childSetAction("ok_btn", onBtnOK, this);
+    childSetAction("cancel_btn", onBtnCancel, this);
+    childSetAction("ok_btn", onBtnOK, this);
 
-	setDefaultBtn("ok_btn");
+    setDefaultBtn("ok_btn");
 
-	return TRUE;
+    return TRUE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // static
 void LLFloaterWhiteListEntry::onBtnOK( void* userdata )
 {
-	LLFloaterWhiteListEntry *self =(LLFloaterWhiteListEntry *)userdata;
+    LLFloaterWhiteListEntry *self =(LLFloaterWhiteListEntry *)userdata;
 
-	LLPanelMediaSettingsSecurity* panel = LLFloaterReg::getTypedInstance<LLFloaterMediaSettings>("media_settings")->getPanelSecurity();
-	if ( panel )
-	{
-		std::string white_list_item = self->mWhiteListEdit->getText();
+    LLPanelMediaSettingsSecurity* panel = LLFloaterReg::getTypedInstance<LLFloaterMediaSettings>("media_settings")->getPanelSecurity();
+    if ( panel )
+    {
+        std::string white_list_item = self->mWhiteListEdit->getText();
 
-		panel->addWhiteListEntry( white_list_item );
-		panel->updateWhitelistEnableStatus();
-	};
-	
-	self->closeFloater();	
+        panel->addWhiteListEntry( white_list_item );
+        panel->updateWhitelistEnableStatus();
+    };
+    
+    self->closeFloater();   
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // static
 void LLFloaterWhiteListEntry::onBtnCancel( void* userdata )
 {
-	LLFloaterWhiteListEntry *self =(LLFloaterWhiteListEntry *)userdata;
-	
-	self->closeFloater();
+    LLFloaterWhiteListEntry *self =(LLFloaterWhiteListEntry *)userdata;
+    
+    self->closeFloater();
 }

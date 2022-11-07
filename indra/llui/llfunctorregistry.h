@@ -53,87 +53,87 @@
 template <typename FUNCTOR_TYPE>
 class LLFunctorRegistry : public LLSingleton<LLFunctorRegistry<FUNCTOR_TYPE> >
 {
-	LLSINGLETON(LLFunctorRegistry);
-	LOG_CLASS(LLFunctorRegistry);
+    LLSINGLETON(LLFunctorRegistry);
+    LOG_CLASS(LLFunctorRegistry);
 
 public:
-	typedef FUNCTOR_TYPE ResponseFunctor;
-	typedef typename std::map<std::string, FUNCTOR_TYPE> FunctorMap;
-	
-	bool registerFunctor(const std::string& name, ResponseFunctor f)
-	{
-		bool retval = true;
-		if (mMap.count(name) == 0)
-		{
-			mMap[name] = f;
-		}
-		else
-		{
-			LL_ERRS() << "attempt to store duplicate name '" << name << "' in LLFunctorRegistry. NOT ADDED." << LL_ENDL;
-			retval = false;
-		}
-		
-		return retval;
-	}
+    typedef FUNCTOR_TYPE ResponseFunctor;
+    typedef typename std::map<std::string, FUNCTOR_TYPE> FunctorMap;
+    
+    bool registerFunctor(const std::string& name, ResponseFunctor f)
+    {
+        bool retval = true;
+        if (mMap.count(name) == 0)
+        {
+            mMap[name] = f;
+        }
+        else
+        {
+            LL_ERRS() << "attempt to store duplicate name '" << name << "' in LLFunctorRegistry. NOT ADDED." << LL_ENDL;
+            retval = false;
+        }
+        
+        return retval;
+    }
 
-	bool unregisterFunctor(const std::string& name)
-	{
-		if (mMap.count(name) == 0)
-		{
-			LL_WARNS() << "trying to remove '" << name << "' from LLFunctorRegistry but it's not there." << LL_ENDL;
-			return false;
-		}
-		mMap.erase(name);
-		return true;
-	}
+    bool unregisterFunctor(const std::string& name)
+    {
+        if (mMap.count(name) == 0)
+        {
+            LL_WARNS() << "trying to remove '" << name << "' from LLFunctorRegistry but it's not there." << LL_ENDL;
+            return false;
+        }
+        mMap.erase(name);
+        return true;
+    }
 
-	FUNCTOR_TYPE getFunctor(const std::string& name)
-	{
-		if (mMap.count(name) != 0)
-		{
-			return mMap[name];
-		}
-		else
-		{
-			LL_DEBUGS() << "tried to find '" << name << "' in LLFunctorRegistry, but it wasn't there." << LL_ENDL;
-			return mMap[LOGFUNCTOR];
-		}
-	}
+    FUNCTOR_TYPE getFunctor(const std::string& name)
+    {
+        if (mMap.count(name) != 0)
+        {
+            return mMap[name];
+        }
+        else
+        {
+            LL_DEBUGS() << "tried to find '" << name << "' in LLFunctorRegistry, but it wasn't there." << LL_ENDL;
+            return mMap[LOGFUNCTOR];
+        }
+    }
 
-	const std::string LOGFUNCTOR;
-	const std::string DONOTHING;
-	
+    const std::string LOGFUNCTOR;
+    const std::string DONOTHING;
+    
 private:
 
-	static void log_functor(const LLSD& notification, const LLSD& payload)
-	{
-		LL_DEBUGS() << "log_functor called with payload: " << payload << LL_ENDL;
-	}
+    static void log_functor(const LLSD& notification, const LLSD& payload)
+    {
+        LL_DEBUGS() << "log_functor called with payload: " << payload << LL_ENDL;
+    }
 
-	static void do_nothing(const LLSD& notification, const LLSD& payload)
-	{
-		// what the sign sez
-	}
+    static void do_nothing(const LLSD& notification, const LLSD& payload)
+    {
+        // what the sign sez
+    }
 
-	FunctorMap mMap;
+    FunctorMap mMap;
 };
 
 template <typename FUNCTOR_TYPE>
 LLFunctorRegistry<FUNCTOR_TYPE>::LLFunctorRegistry() :
-	LOGFUNCTOR("LogFunctor"), DONOTHING("DoNothing")
+    LOGFUNCTOR("LogFunctor"), DONOTHING("DoNothing")
 {
-	mMap[LOGFUNCTOR] = log_functor;
-	mMap[DONOTHING] = do_nothing;
+    mMap[LOGFUNCTOR] = log_functor;
+    mMap[DONOTHING] = do_nothing;
 }
 
 template <typename FUNCTOR_TYPE>
 class LLFunctorRegistration
 {
 public:
-	LLFunctorRegistration(const std::string& name, FUNCTOR_TYPE functor) 
-	{
-		LLFunctorRegistry<FUNCTOR_TYPE>::instance().registerFunctor(name, functor);
-	}
+    LLFunctorRegistration(const std::string& name, FUNCTOR_TYPE functor) 
+    {
+        LLFunctorRegistry<FUNCTOR_TYPE>::instance().registerFunctor(name, functor);
+    }
 };
 
 #endif//LL_LLFUNCTORREGISTRY_H

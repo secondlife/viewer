@@ -59,7 +59,7 @@ private:
         static LLFloaterGotoLine*       sInstance;
 
 protected:
-	LLLineEditor*			mGotoBox;
+    LLLineEditor*           mGotoBox;
         void onGotoBoxCommit();
 };
 

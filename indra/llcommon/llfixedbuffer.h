@@ -38,27 +38,27 @@
 class LL_COMMON_API LLFixedBuffer : public LLLineBuffer
 {
 public:
-	LLFixedBuffer(const U32 max_lines = 20);
-	~LLFixedBuffer();
+    LLFixedBuffer(const U32 max_lines = 20);
+    ~LLFixedBuffer();
 
-	LLTimer	mTimer;
-	U32		mMaxLines;
-	std::deque<LLWString>	mLines;
-	std::deque<F32>			mAddTimes;
-	std::deque<S32>			mLineLengths;
+    LLTimer mTimer;
+    U32     mMaxLines;
+    std::deque<LLWString>   mLines;
+    std::deque<F32>         mAddTimes;
+    std::deque<S32>         mLineLengths;
 
-	/*virtual*/ void clear(); // Clear the buffer, and reset it.
+    /*virtual*/ void clear(); // Clear the buffer, and reset it.
 
-	/*virtual*/ void addLine(const std::string& utf8line);
+    /*virtual*/ void addLine(const std::string& utf8line);
 
-	void setMaxLines(S32 max_lines);
-	
+    void setMaxLines(S32 max_lines);
+    
 protected:
-	void removeExtraLines();
-	void addWLine(const LLWString& line);
+    void removeExtraLines();
+    void addWLine(const LLWString& line);
 
 protected:
-	LLMutex mMutex ;
+    LLMutex mMutex ;
 };
 
 #endif //LL_FIXED_BUFFER_H

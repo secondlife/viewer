@@ -48,13 +48,13 @@
 //-----------------------------------------------------------------------------
 LLKeyframeMotionParam::LLKeyframeMotionParam( const LLUUID &id) : LLMotion(id)
 {
-	mDefaultKeyframeMotion = NULL;
-	mCharacter = NULL;
+    mDefaultKeyframeMotion = NULL;
+    mCharacter = NULL;
 
-	mEaseInDuration = 0.f;
-	mEaseOutDuration = 0.f;
-	mDuration = 0.f;
-	mPriority = LLJoint::LOW_PRIORITY;
+    mEaseInDuration = 0.f;
+    mEaseOutDuration = 0.f;
+    mDuration = 0.f;
+    mPriority = LLJoint::LOW_PRIORITY;
 }
 
 
@@ -64,18 +64,18 @@ LLKeyframeMotionParam::LLKeyframeMotionParam( const LLUUID &id) : LLMotion(id)
 //-----------------------------------------------------------------------------
 LLKeyframeMotionParam::~LLKeyframeMotionParam()
 {
-	for (motion_map_t::iterator iter = mParameterizedMotions.begin();
-		 iter != mParameterizedMotions.end(); ++iter)
-	{
-		motion_list_t& motionList = iter->second;
-		for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
-		{
-			const ParameterizedMotion& paramMotion = *iter2;
-			delete paramMotion.mMotion;
-		}
-		motionList.clear();
-	}
-	mParameterizedMotions.clear();
+    for (motion_map_t::iterator iter = mParameterizedMotions.begin();
+         iter != mParameterizedMotions.end(); ++iter)
+    {
+        motion_list_t& motionList = iter->second;
+        for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
+        {
+            const ParameterizedMotion& paramMotion = *iter2;
+            delete paramMotion.mMotion;
+        }
+        motionList.clear();
+    }
+    mParameterizedMotions.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -83,55 +83,55 @@ LLKeyframeMotionParam::~LLKeyframeMotionParam()
 //-----------------------------------------------------------------------------
 LLMotion::LLMotionInitStatus LLKeyframeMotionParam::onInitialize(LLCharacter *character)
 {
-	mCharacter = character;
+    mCharacter = character;
 
-	if (!loadMotions())
-	{
-		return STATUS_FAILURE;	
-	}
-	
-	for (motion_map_t::iterator iter = mParameterizedMotions.begin();
-		 iter != mParameterizedMotions.end(); ++iter)
-	{
-		motion_list_t& motionList = iter->second;
-		for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
-		{
-			const ParameterizedMotion& paramMotion = *iter2;
-			LLMotion* motion = paramMotion.mMotion;
-			motion->onInitialize(character);
+    if (!loadMotions())
+    {
+        return STATUS_FAILURE;  
+    }
+    
+    for (motion_map_t::iterator iter = mParameterizedMotions.begin();
+         iter != mParameterizedMotions.end(); ++iter)
+    {
+        motion_list_t& motionList = iter->second;
+        for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
+        {
+            const ParameterizedMotion& paramMotion = *iter2;
+            LLMotion* motion = paramMotion.mMotion;
+            motion->onInitialize(character);
 
-			if (motion->getDuration() > mEaseInDuration)
-			{
-				mEaseInDuration = motion->getEaseInDuration();
-			}
+            if (motion->getDuration() > mEaseInDuration)
+            {
+                mEaseInDuration = motion->getEaseInDuration();
+            }
 
-			if (motion->getEaseOutDuration() > mEaseOutDuration)
-			{
-				mEaseOutDuration = motion->getEaseOutDuration();
-			}
+            if (motion->getEaseOutDuration() > mEaseOutDuration)
+            {
+                mEaseOutDuration = motion->getEaseOutDuration();
+            }
 
-			if (motion->getDuration() > mDuration)
-			{
-				mDuration = motion->getDuration();
-			}
+            if (motion->getDuration() > mDuration)
+            {
+                mDuration = motion->getDuration();
+            }
 
-			if (motion->getPriority() > mPriority)
-			{
-				mPriority = motion->getPriority();
-			}
+            if (motion->getPriority() > mPriority)
+            {
+                mPriority = motion->getPriority();
+            }
 
-			LLPose *pose = motion->getPose();
+            LLPose *pose = motion->getPose();
 
-			mPoseBlender.addMotion(motion);
-			for (LLJointState *jsp = pose->getFirstJointState(); jsp; jsp = pose->getNextJointState())
-			{
-				LLPose *blendedPose = mPoseBlender.getBlendedPose();
-				blendedPose->addJointState(jsp);
-			}
-		}
-	}
+            mPoseBlender.addMotion(motion);
+            for (LLJointState *jsp = pose->getFirstJointState(); jsp; jsp = pose->getNextJointState())
+            {
+                LLPose *blendedPose = mPoseBlender.getBlendedPose();
+                blendedPose->addJointState(jsp);
+            }
+        }
+    }
 
-	return STATUS_SUCCESS;
+    return STATUS_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------
@@ -139,17 +139,17 @@ LLMotion::LLMotionInitStatus LLKeyframeMotionParam::onInitialize(LLCharacter *ch
 //-----------------------------------------------------------------------------
 BOOL LLKeyframeMotionParam::onActivate()
 {
-	for (motion_map_t::iterator iter = mParameterizedMotions.begin();
-		 iter != mParameterizedMotions.end(); ++iter)
-	{
-		motion_list_t& motionList = iter->second;
-		for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
-		{
-			const ParameterizedMotion& paramMotion = *iter2;
-			paramMotion.mMotion->activate(mActivationTimestamp);
-		}
-	}
-	return TRUE;
+    for (motion_map_t::iterator iter = mParameterizedMotions.begin();
+         iter != mParameterizedMotions.end(); ++iter)
+    {
+        motion_list_t& motionList = iter->second;
+        for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
+        {
+            const ParameterizedMotion& paramMotion = *iter2;
+            paramMotion.mMotion->activate(mActivationTimestamp);
+        }
+    }
+    return TRUE;
 }
 
 
@@ -159,120 +159,120 @@ BOOL LLKeyframeMotionParam::onActivate()
 BOOL LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
 {
     LL_PROFILE_ZONE_SCOPED;
-	F32 weightFactor = 1.f / (F32)mParameterizedMotions.size();
+    F32 weightFactor = 1.f / (F32)mParameterizedMotions.size();
 
-	// zero out all pose weights
-	for (motion_map_t::iterator iter = mParameterizedMotions.begin();
-		 iter != mParameterizedMotions.end(); ++iter)
-	{
-		motion_list_t& motionList = iter->second;
-		for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
-		{
-			const ParameterizedMotion& paramMotion = *iter2;
-//			LL_INFOS() << "Weight for pose " << paramMotion.mMotion->getName() << " is " << paramMotion.mMotion->getPose()->getWeight() << LL_ENDL;
-			paramMotion.mMotion->getPose()->setWeight(0.f);
-		}
-	}
+    // zero out all pose weights
+    for (motion_map_t::iterator iter = mParameterizedMotions.begin();
+         iter != mParameterizedMotions.end(); ++iter)
+    {
+        motion_list_t& motionList = iter->second;
+        for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
+        {
+            const ParameterizedMotion& paramMotion = *iter2;
+//          LL_INFOS() << "Weight for pose " << paramMotion.mMotion->getName() << " is " << paramMotion.mMotion->getPose()->getWeight() << LL_ENDL;
+            paramMotion.mMotion->getPose()->setWeight(0.f);
+        }
+    }
 
 
-	for (motion_map_t::iterator iter = mParameterizedMotions.begin();
-		 iter != mParameterizedMotions.end(); ++iter)
-	{
-		const std::string& paramName = iter->first;
-		F32* paramValue = (F32 *)mCharacter->getAnimationData(paramName);
-		if (NULL == paramValue) // unexpected, but...
-		{
-			LL_WARNS() << "paramValue == NULL" << LL_ENDL;
-			continue;
-		}
+    for (motion_map_t::iterator iter = mParameterizedMotions.begin();
+         iter != mParameterizedMotions.end(); ++iter)
+    {
+        const std::string& paramName = iter->first;
+        F32* paramValue = (F32 *)mCharacter->getAnimationData(paramName);
+        if (NULL == paramValue) // unexpected, but...
+        {
+            LL_WARNS() << "paramValue == NULL" << LL_ENDL;
+            continue;
+        }
 
-		// DANGER! Do not modify mParameterizedMotions while using these pointers!
-		const ParameterizedMotion* firstMotion = NULL;
-		const ParameterizedMotion* secondMotion = NULL;
+        // DANGER! Do not modify mParameterizedMotions while using these pointers!
+        const ParameterizedMotion* firstMotion = NULL;
+        const ParameterizedMotion* secondMotion = NULL;
 
-		motion_list_t& motionList = iter->second;
-		for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
-		{
-			const ParameterizedMotion& paramMotion = *iter2;
-			paramMotion.mMotion->onUpdate(time, joint_mask);
-			
-			F32 distToParam = paramMotion.mParam - *paramValue;
-			
-			if ( distToParam <= 0.f)
-			{
-				// keep track of the motion closest to the parameter value
-				firstMotion = &paramMotion;
-			}
-			else
-			{
-				// we've passed the parameter value
-				// so store the first motion we find as the second one we want to blend...
-				if (firstMotion && !secondMotion )
-				{
-					secondMotion = &paramMotion;
-				}
-				//...or, if we've seen no other motion so far, make sure we blend to this only
-				else if (!firstMotion)
-				{
-					firstMotion = &paramMotion;
-					secondMotion = &paramMotion;
-				}
-			}
-		}
+        motion_list_t& motionList = iter->second;
+        for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
+        {
+            const ParameterizedMotion& paramMotion = *iter2;
+            paramMotion.mMotion->onUpdate(time, joint_mask);
+            
+            F32 distToParam = paramMotion.mParam - *paramValue;
+            
+            if ( distToParam <= 0.f)
+            {
+                // keep track of the motion closest to the parameter value
+                firstMotion = &paramMotion;
+            }
+            else
+            {
+                // we've passed the parameter value
+                // so store the first motion we find as the second one we want to blend...
+                if (firstMotion && !secondMotion )
+                {
+                    secondMotion = &paramMotion;
+                }
+                //...or, if we've seen no other motion so far, make sure we blend to this only
+                else if (!firstMotion)
+                {
+                    firstMotion = &paramMotion;
+                    secondMotion = &paramMotion;
+                }
+            }
+        }
 
-		LLPose *firstPose;
-		LLPose *secondPose;
+        LLPose *firstPose;
+        LLPose *secondPose;
 
-		if (firstMotion)
-			firstPose = firstMotion->mMotion->getPose();
-		else
-			firstPose = NULL;
+        if (firstMotion)
+            firstPose = firstMotion->mMotion->getPose();
+        else
+            firstPose = NULL;
 
-		if (secondMotion)
-			secondPose = secondMotion->mMotion->getPose();
-		else
-			secondPose = NULL;
-		
-		// now modify weight of the subanim (only if we are blending between two motions)
-		if (firstMotion && secondMotion)
-		{
-			if (firstMotion == secondMotion)
-			{
-				firstPose->setWeight(weightFactor);
-			}
-			else if (firstMotion->mParam == secondMotion->mParam)
-			{
-				firstPose->setWeight(0.5f * weightFactor);
-				secondPose->setWeight(0.5f * weightFactor);
-			}
-			else
-			{
-				F32 first_weight = 1.f - 
-					((llclamp(*paramValue - firstMotion->mParam, 0.f, (secondMotion->mParam - firstMotion->mParam))) / 
-						(secondMotion->mParam - firstMotion->mParam));
-				first_weight = llclamp(first_weight, 0.f, 1.f);
-				
-				F32 second_weight = 1.f - first_weight;
-				
-				firstPose->setWeight(first_weight * weightFactor);
-				secondPose->setWeight(second_weight * weightFactor);
+        if (secondMotion)
+            secondPose = secondMotion->mMotion->getPose();
+        else
+            secondPose = NULL;
+        
+        // now modify weight of the subanim (only if we are blending between two motions)
+        if (firstMotion && secondMotion)
+        {
+            if (firstMotion == secondMotion)
+            {
+                firstPose->setWeight(weightFactor);
+            }
+            else if (firstMotion->mParam == secondMotion->mParam)
+            {
+                firstPose->setWeight(0.5f * weightFactor);
+                secondPose->setWeight(0.5f * weightFactor);
+            }
+            else
+            {
+                F32 first_weight = 1.f - 
+                    ((llclamp(*paramValue - firstMotion->mParam, 0.f, (secondMotion->mParam - firstMotion->mParam))) / 
+                        (secondMotion->mParam - firstMotion->mParam));
+                first_weight = llclamp(first_weight, 0.f, 1.f);
+                
+                F32 second_weight = 1.f - first_weight;
+                
+                firstPose->setWeight(first_weight * weightFactor);
+                secondPose->setWeight(second_weight * weightFactor);
 
-//				LL_INFOS() << "Parameter " << *paramName << ": " << *paramValue << LL_ENDL;
-//				LL_INFOS() << "Weights " << firstPose->getWeight() << " " << secondPose->getWeight() << LL_ENDL;
-			}
-		}
-		else if (firstMotion && !secondMotion)
-		{
-			firstPose->setWeight(weightFactor);
-		}
-	}
+//              LL_INFOS() << "Parameter " << *paramName << ": " << *paramValue << LL_ENDL;
+//              LL_INFOS() << "Weights " << firstPose->getWeight() << " " << secondPose->getWeight() << LL_ENDL;
+            }
+        }
+        else if (firstMotion && !secondMotion)
+        {
+            firstPose->setWeight(weightFactor);
+        }
+    }
 
-	// blend poses
-	mPoseBlender.blendAndApply();
+    // blend poses
+    mPoseBlender.blendAndApply();
 
-	LL_INFOS() << "Param Motion weight " << mPoseBlender.getBlendedPose()->getWeight() << LL_ENDL;
+    LL_INFOS() << "Param Motion weight " << mPoseBlender.getBlendedPose()->getWeight() << LL_ENDL;
 
-	return TRUE;
+    return TRUE;
 }
 
 //-----------------------------------------------------------------------------
@@ -280,16 +280,16 @@ BOOL LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
 //-----------------------------------------------------------------------------
 void LLKeyframeMotionParam::onDeactivate()
 {
-	for (motion_map_t::iterator iter = mParameterizedMotions.begin();
-		 iter != mParameterizedMotions.end(); ++iter)
-	{
-		motion_list_t& motionList = iter->second;
-		for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
-		{
-			const ParameterizedMotion& paramMotion = *iter2;
-			paramMotion.mMotion->onDeactivate();
-		}
-	}
+    for (motion_map_t::iterator iter = mParameterizedMotions.begin();
+         iter != mParameterizedMotions.end(); ++iter)
+    {
+        motion_list_t& motionList = iter->second;
+        for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
+        {
+            const ParameterizedMotion& paramMotion = *iter2;
+            paramMotion.mMotion->onDeactivate();
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -297,19 +297,19 @@ void LLKeyframeMotionParam::onDeactivate()
 //-----------------------------------------------------------------------------
 BOOL LLKeyframeMotionParam::addKeyframeMotion(char *name, const LLUUID &id, char *param, F32 value)
 {
-	LLMotion *newMotion = mCharacter->createMotion( id );
-	
-	if (!newMotion)
-	{
-		return FALSE;
-	}
-	
-	newMotion->setName(name);
+    LLMotion *newMotion = mCharacter->createMotion( id );
+    
+    if (!newMotion)
+    {
+        return FALSE;
+    }
+    
+    newMotion->setName(name);
 
-	// now add motion to this list
-	mParameterizedMotions[param].insert(ParameterizedMotion(newMotion, value));
+    // now add motion to this list
+    mParameterizedMotions[param].insert(ParameterizedMotion(newMotion, value));
 
-	return TRUE;
+    return TRUE;
 }
 
 
@@ -318,19 +318,19 @@ BOOL LLKeyframeMotionParam::addKeyframeMotion(char *name, const LLUUID &id, char
 //-----------------------------------------------------------------------------
 void LLKeyframeMotionParam::setDefaultKeyframeMotion(char *name)
 {
-	for (motion_map_t::iterator iter = mParameterizedMotions.begin();
-		 iter != mParameterizedMotions.end(); ++iter)
-	{
-		motion_list_t& motionList = iter->second;
-		for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
-		{
-			const ParameterizedMotion& paramMotion = *iter2;
-			if (paramMotion.mMotion->getName() == name)
-			{
-				mDefaultKeyframeMotion = paramMotion.mMotion;
-			}
-		}
-	}
+    for (motion_map_t::iterator iter = mParameterizedMotions.begin();
+         iter != mParameterizedMotions.end(); ++iter)
+    {
+        motion_list_t& motionList = iter->second;
+        for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
+        {
+            const ParameterizedMotion& paramMotion = *iter2;
+            if (paramMotion.mMotion->getName() == name)
+            {
+                mDefaultKeyframeMotion = paramMotion.mMotion;
+            }
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -338,113 +338,113 @@ void LLKeyframeMotionParam::setDefaultKeyframeMotion(char *name)
 //-----------------------------------------------------------------------------
 BOOL LLKeyframeMotionParam::loadMotions()
 {
-	//-------------------------------------------------------------------------
-	// Load named file by concatenating the character prefix with the motion name.
-	// Load data into a buffer to be parsed.
-	//-------------------------------------------------------------------------
-	//std::string path = gDirUtilp->getExpandedFilename(LL_PATH_MOTIONS,mCharacter->getAnimationPrefix())
-	//	+ "_" + getName() + ".llp";
-	//RN: deprecated unused reference to "motion" directory
-	std::string path;
+    //-------------------------------------------------------------------------
+    // Load named file by concatenating the character prefix with the motion name.
+    // Load data into a buffer to be parsed.
+    //-------------------------------------------------------------------------
+    //std::string path = gDirUtilp->getExpandedFilename(LL_PATH_MOTIONS,mCharacter->getAnimationPrefix())
+    //  + "_" + getName() + ".llp";
+    //RN: deprecated unused reference to "motion" directory
+    std::string path;
 
 
-	//-------------------------------------------------------------------------
-	// open the file
-	//-------------------------------------------------------------------------
-	S32 fileSize = 0;
-	LLAPRFile infile ;
-	infile.open(path, LL_APR_R, NULL, &fileSize);
-	apr_file_t* fp = infile.getFileHandle() ;
-	if (!fp || fileSize == 0)
-	{
-		LL_INFOS() << "ERROR: can't open: " << path << LL_ENDL;
-		return FALSE;
-	}
+    //-------------------------------------------------------------------------
+    // open the file
+    //-------------------------------------------------------------------------
+    S32 fileSize = 0;
+    LLAPRFile infile ;
+    infile.open(path, LL_APR_R, NULL, &fileSize);
+    apr_file_t* fp = infile.getFileHandle() ;
+    if (!fp || fileSize == 0)
+    {
+        LL_INFOS() << "ERROR: can't open: " << path << LL_ENDL;
+        return FALSE;
+    }
 
-	// allocate a text buffer
-	std::vector<char> text(fileSize+1);
+    // allocate a text buffer
+    std::vector<char> text(fileSize+1);
 
-	//-------------------------------------------------------------------------
-	// load data from file into buffer
-	//-------------------------------------------------------------------------
-	bool error = false;
-	char *p = &text[0];
-	while ( 1 )
-	{
-		if (apr_file_eof(fp) == APR_EOF)
-		{
-			break;
-		}
-		if (apr_file_gets(p, 1024, fp) != APR_SUCCESS)
-		{
-			error = true;
-			break;
-		}
-		while ( *(++p) )
-			;
-	}
+    //-------------------------------------------------------------------------
+    // load data from file into buffer
+    //-------------------------------------------------------------------------
+    bool error = false;
+    char *p = &text[0];
+    while ( 1 )
+    {
+        if (apr_file_eof(fp) == APR_EOF)
+        {
+            break;
+        }
+        if (apr_file_gets(p, 1024, fp) != APR_SUCCESS)
+        {
+            error = true;
+            break;
+        }
+        while ( *(++p) )
+            ;
+    }
 
-	//-------------------------------------------------------------------------
-	// close the file
-	//-------------------------------------------------------------------------
-	infile.close();
+    //-------------------------------------------------------------------------
+    // close the file
+    //-------------------------------------------------------------------------
+    infile.close();
 
-	//-------------------------------------------------------------------------
-	// check for error
-	//-------------------------------------------------------------------------
-	llassert( p <= (&text[0] + fileSize) );
+    //-------------------------------------------------------------------------
+    // check for error
+    //-------------------------------------------------------------------------
+    llassert( p <= (&text[0] + fileSize) );
 
-	if ( error )
-	{
-		LL_INFOS() << "ERROR: error while reading from " << path << LL_ENDL;
-		return FALSE;
-	}
+    if ( error )
+    {
+        LL_INFOS() << "ERROR: error while reading from " << path << LL_ENDL;
+        return FALSE;
+    }
 
-	LL_INFOS() << "Loading parametric keyframe data for: " << getName() << LL_ENDL;
+    LL_INFOS() << "Loading parametric keyframe data for: " << getName() << LL_ENDL;
 
-	//-------------------------------------------------------------------------
-	// parse the text and build keyframe data structures
-	//-------------------------------------------------------------------------
-	p = &text[0];
-	S32 num;
-	char strA[80]; /* Flawfinder: ignore */
-	char strB[80]; /* Flawfinder: ignore */
-	F32 floatA = 0.0f;
+    //-------------------------------------------------------------------------
+    // parse the text and build keyframe data structures
+    //-------------------------------------------------------------------------
+    p = &text[0];
+    S32 num;
+    char strA[80]; /* Flawfinder: ignore */
+    char strB[80]; /* Flawfinder: ignore */
+    F32 floatA = 0.0f;
 
 
-	//-------------------------------------------------------------------------
-	// get priority
-	//-------------------------------------------------------------------------
-	BOOL isFirstMotion = TRUE;
-	num = sscanf(p, "%79s %79s %f", strA, strB, &floatA);	/* Flawfinder: ignore */
+    //-------------------------------------------------------------------------
+    // get priority
+    //-------------------------------------------------------------------------
+    BOOL isFirstMotion = TRUE;
+    num = sscanf(p, "%79s %79s %f", strA, strB, &floatA);   /* Flawfinder: ignore */
 
-	while(1)
-	{
-		if (num == 0 || num == EOF) break;
-		if ((num != 3))
-		{
-			LL_INFOS() << "WARNING: can't read parametric motion" << LL_ENDL;
-			return FALSE;
-		}
+    while(1)
+    {
+        if (num == 0 || num == EOF) break;
+        if ((num != 3))
+        {
+            LL_INFOS() << "WARNING: can't read parametric motion" << LL_ENDL;
+            return FALSE;
+        }
 
-		addKeyframeMotion(strA, gAnimLibrary.stringToAnimState(std::string(strA)), strB, floatA);
-		if (isFirstMotion)
-		{
-			isFirstMotion = FALSE;
-			setDefaultKeyframeMotion(strA);
-		}
-		
-		p = strstr(p, "\n");
-		if (!p)
-		{
-			break;
-		}
-			
-		p++;
-		num = sscanf(p, "%79s %79s %f", strA, strB, &floatA);	/* Flawfinder: ignore */
-	}
+        addKeyframeMotion(strA, gAnimLibrary.stringToAnimState(std::string(strA)), strB, floatA);
+        if (isFirstMotion)
+        {
+            isFirstMotion = FALSE;
+            setDefaultKeyframeMotion(strA);
+        }
+        
+        p = strstr(p, "\n");
+        if (!p)
+        {
+            break;
+        }
+            
+        p++;
+        num = sscanf(p, "%79s %79s %f", strA, strB, &floatA);   /* Flawfinder: ignore */
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
 // End

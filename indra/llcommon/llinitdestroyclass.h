@@ -50,21 +50,21 @@
 class LLCallbackRegistry
 {
 public:
-	typedef boost::function<void()> func_t;
+    typedef boost::function<void()> func_t;
 
-	void registerCallback(const std::string& name, const func_t& func)
-	{
-		mCallbacks.push_back(FuncList::value_type(name, func));
-	}
+    void registerCallback(const std::string& name, const func_t& func)
+    {
+        mCallbacks.push_back(FuncList::value_type(name, func));
+    }
 
-	void fireCallbacks() const;
+    void fireCallbacks() const;
 
 private:
-	// Arguably this should be a boost::signals2::signal, which is, after all,
-	// a sequence of callables. We manage it by hand so we can log a name for
-	// each registered function we call.
-	typedef std::vector< std::pair<std::string, func_t> > FuncList;
-	FuncList mCallbacks;
+    // Arguably this should be a boost::signals2::signal, which is, after all,
+    // a sequence of callables. We manage it by hand so we can log a name for
+    // each registered function we call.
+    typedef std::vector< std::pair<std::string, func_t> > FuncList;
+    FuncList mCallbacks;
 };
 
 /**
@@ -75,10 +75,10 @@ private:
  * demand regardless of module initialization order.
  */
 class LLInitClassList : 
-	public LLCallbackRegistry, 
-	public LLSingleton<LLInitClassList>
+    public LLCallbackRegistry, 
+    public LLSingleton<LLInitClassList>
 {
-	LLSINGLETON_EMPTY_CTOR(LLInitClassList);
+    LLSINGLETON_EMPTY_CTOR(LLInitClassList);
 };
 
 /**
@@ -89,10 +89,10 @@ class LLInitClassList :
  * on demand regardless of module initialization order.
  */
 class LLDestroyClassList : 
-	public LLCallbackRegistry, 
-	public LLSingleton<LLDestroyClassList>
+    public LLCallbackRegistry, 
+    public LLSingleton<LLDestroyClassList>
 {
-	LLSINGLETON_EMPTY_CTOR(LLDestroyClassList);
+    LLSINGLETON_EMPTY_CTOR(LLDestroyClassList);
 };
 
 /**
@@ -105,19 +105,19 @@ template<typename T>
 class LLRegisterWith
 {
 public:
-	LLRegisterWith(const std::string& name, const LLCallbackRegistry::func_t& func)
-	{
-		T::instance().registerCallback(name, func);
-	}
+    LLRegisterWith(const std::string& name, const LLCallbackRegistry::func_t& func)
+    {
+        T::instance().registerCallback(name, func);
+    }
 
-	// this avoids a MSVC bug where non-referenced static members are "optimized" away
-	// even if their constructors have side effects
-	S32 reference()
-	{
-		S32 dummy;
-		dummy = 0;
-		return dummy;
-	}
+    // this avoids a MSVC bug where non-referenced static members are "optimized" away
+    // even if their constructors have side effects
+    S32 reference()
+    {
+        S32 dummy;
+        dummy = 0;
+        return dummy;
+    }
 };
 
 /**
@@ -133,11 +133,11 @@ template<typename T>
 class LLInitClass
 {
 public:
-	LLInitClass() { sRegister.reference(); }
+    LLInitClass() { sRegister.reference(); }
 
-	// When this static member is initialized, the subclass initClass() method
-	// is registered on LLInitClassList. See sRegister definition below.
-	static LLRegisterWith<LLInitClassList> sRegister;
+    // When this static member is initialized, the subclass initClass() method
+    // is registered on LLInitClassList. See sRegister definition below.
+    static LLRegisterWith<LLInitClassList> sRegister;
 };
 
 /**
@@ -153,23 +153,23 @@ template<typename T>
 class LLDestroyClass
 {
 public:
-	LLDestroyClass() { sRegister.reference(); }
+    LLDestroyClass() { sRegister.reference(); }
 
-	// When this static member is initialized, the subclass destroyClass()
-	// method is registered on LLInitClassList. See sRegister definition
-	// below.
-	static LLRegisterWith<LLDestroyClassList> sRegister;
+    // When this static member is initialized, the subclass destroyClass()
+    // method is registered on LLInitClassList. See sRegister definition
+    // below.
+    static LLRegisterWith<LLDestroyClassList> sRegister;
 };
 
 // Here's where LLInitClass<T> specifies the subclass initClass() method.
 template <typename T>
 LLRegisterWith<LLInitClassList>
 LLInitClass<T>::sRegister(std::string(typeid(T).name()) + "::initClass",
-						  &T::initClass);
+                          &T::initClass);
 // Here's where LLDestroyClass<T> specifies the subclass destroyClass() method.
 template <typename T>
 LLRegisterWith<LLDestroyClassList>
 LLDestroyClass<T>::sRegister(std::string(typeid(T).name()) + "::destroyClass",
-							 &T::destroyClass);
+                             &T::destroyClass);
 
 #endif /* ! defined(LL_LLINITDESTROYCLASS_H) */

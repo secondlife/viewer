@@ -47,19 +47,19 @@ BOOL is_tf_owner_group(TransactionFlags flags);
 // stupid helper functions which should be replaced with some kind of
 // internationalizeable message.
 std::string build_transfer_message_to_source(
-	S32 amount,
-	const LLUUID& source_id,
-	const LLUUID& dest_id,
-	const std::string& dest_name,
-	S32 transaction_type,
-	const std::string& description);
+    S32 amount,
+    const LLUUID& source_id,
+    const LLUUID& dest_id,
+    const std::string& dest_name,
+    S32 transaction_type,
+    const std::string& description);
 
 std::string build_transfer_message_to_destination(
-	S32 amount,
-	const LLUUID& dest_id,
-	const LLUUID& source_id,
-	const std::string& source_name,
-	S32 transaction_type,
-	const std::string& description);
+    S32 amount,
+    const LLUUID& dest_id,
+    const LLUUID& source_id,
+    const std::string& source_name,
+    S32 transaction_type,
+    const std::string& description);
 
 #endif // LL_LLTRANSACTIONFLAGS_H

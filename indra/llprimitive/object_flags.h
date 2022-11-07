@@ -73,12 +73,12 @@ const U32   FLAGS_WORLD                = FLAGS_USE_PHYSICS | FLAGS_PHANTOM | FLA
 
 typedef enum e_havok_joint_type
 {
-	HJT_INVALID = 0,
-	HJT_HINGE  	= 1,
-	HJT_POINT 	= 2,
-//	HJT_LPOINT 	= 3,
-//	HJT_WHEEL 	= 4,
-	HJT_EOF 	= 3
+    HJT_INVALID = 0,
+    HJT_HINGE   = 1,
+    HJT_POINT   = 2,
+//  HJT_LPOINT  = 3,
+//  HJT_WHEEL   = 4,
+    HJT_EOF     = 3
 } EHavokJointType;
 
 #endif

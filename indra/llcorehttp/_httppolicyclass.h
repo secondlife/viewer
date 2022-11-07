@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_POLICY_CLASS_H_
-#define	_LLCORE_HTTP_POLICY_CLASS_H_
+#ifndef _LLCORE_HTTP_POLICY_CLASS_H_
+#define _LLCORE_HTTP_POLICY_CLASS_H_
 
 
 #include "httprequest.h"
@@ -49,21 +49,21 @@ namespace LLCore
 class HttpPolicyClass
 {
 public:
-	HttpPolicyClass();
-	~HttpPolicyClass();
+    HttpPolicyClass();
+    ~HttpPolicyClass();
 
-	HttpPolicyClass & operator=(const HttpPolicyClass &);
-	HttpPolicyClass(const HttpPolicyClass &);			// Not defined
+    HttpPolicyClass & operator=(const HttpPolicyClass &);
+    HttpPolicyClass(const HttpPolicyClass &);           // Not defined
 
 public:
-	HttpStatus set(HttpRequest::EPolicyOption opt, long value);
-	HttpStatus get(HttpRequest::EPolicyOption opt, long * value) const;
-	
+    HttpStatus set(HttpRequest::EPolicyOption opt, long value);
+    HttpStatus get(HttpRequest::EPolicyOption opt, long * value) const;
+    
 public:
-	long						mConnectionLimit;
-	long						mPerHostConnectionLimit;
-	long						mPipelining;
-	long						mThrottleRate;
+    long                        mConnectionLimit;
+    long                        mPerHostConnectionLimit;
+    long                        mPipelining;
+    long                        mThrottleRate;
 };  // end class HttpPolicyClass
 
 }  // end namespace LLCore

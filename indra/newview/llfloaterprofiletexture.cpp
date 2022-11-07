@@ -68,13 +68,13 @@ BOOL LLFloaterProfileTexture::postBuild()
     mCloseButton = getChild<LLButton>("close_btn");
     mCloseButton->setCommitCallback([this](LLUICtrl*, void*) { closeFloater(); }, nullptr);
 
-	return TRUE;
+    return TRUE;
 }
 
 // virtual
 void LLFloaterProfileTexture::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	LLFloater::reshape(width, height, called_from_parent);
+    LLFloater::reshape(width, height, called_from_parent);
 }
 
 // It takes a while until we get height and width information.

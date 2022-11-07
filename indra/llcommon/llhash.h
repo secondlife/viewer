@@ -36,17 +36,17 @@
 
 inline size_t llhash( const char * value )
 {
-	// boost::hash is defined for std::string and for char, but there's no
-	// special overload for const char*. The lazy approach would be to
-	// instantiate a std::string and take its hash, but that might be more
-	// overhead than our callers want. Or we could use boost::hash_range() --
-	// but that would require a preliminary pass over the value to determine
-	// the end iterator. Instead, use boost::hash_combine() to hash individual
-	// characters.
-	std::size_t seed = 0;
-	for ( ; *value; ++value)
-		boost::hash_combine(seed, *value);
-	return seed;
+    // boost::hash is defined for std::string and for char, but there's no
+    // special overload for const char*. The lazy approach would be to
+    // instantiate a std::string and take its hash, but that might be more
+    // overhead than our callers want. Or we could use boost::hash_range() --
+    // but that would require a preliminary pass over the value to determine
+    // the end iterator. Instead, use boost::hash_combine() to hash individual
+    // characters.
+    std::size_t seed = 0;
+    for ( ; *value; ++value)
+        boost::hash_combine(seed, *value);
+    return seed;
 }
 
 #endif

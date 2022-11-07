@@ -37,16 +37,16 @@ namespace LLNotificationsUI{
 class LLFloaterIMNearbyChatHandler : public LLChatHandler
 {
 public:
-	LLFloaterIMNearbyChatHandler();
-	virtual ~LLFloaterIMNearbyChatHandler();
+    LLFloaterIMNearbyChatHandler();
+    virtual ~LLFloaterIMNearbyChatHandler();
 
 
-	virtual void processChat(const LLChat& chat_msg, const LLSD &args);
+    virtual void processChat(const LLChat& chat_msg, const LLSD &args);
 
 protected:
-	virtual void initChannel();
+    virtual void initChannel();
 
-	static boost::scoped_ptr<LLEventPump> sChatWatcher;
+    static boost::scoped_ptr<LLEventPump> sChatWatcher;
 };
 
 }

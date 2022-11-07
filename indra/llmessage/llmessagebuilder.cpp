@@ -31,6 +31,6 @@
 //virtual
 LLMessageBuilder::~LLMessageBuilder()
 {
-	// even abstract base classes need a concrete destructor
+    // even abstract base classes need a concrete destructor
 }
 

@@ -31,7 +31,7 @@
 #error "Please include llmath.h before this file."
 #endif
 
-typedef __m128	LLQuad;
+typedef __m128  LLQuad;
 
 
 #if LL_WINDOWS
@@ -50,17 +50,17 @@ __forceinline const __m128i _mm_castps_si128( const __m128 a ) { return reinterp
 class LLBool32
 {
 public:
-	inline LLBool32() {}
-	inline LLBool32(int rhs) : m_bool(rhs) {}
-	inline LLBool32(unsigned int rhs) : m_bool(rhs) {}
-	inline LLBool32(bool rhs) { m_bool = static_cast<const int>(rhs); }
-	inline LLBool32& operator= (bool rhs) { m_bool = (int)rhs; return *this; }
-	inline bool operator== (bool rhs) const { return static_cast<const bool&>(m_bool) == rhs; }
-	inline bool operator!= (bool rhs) const { return !operator==(rhs); }
-	inline operator bool() const { return static_cast<const bool&>(m_bool); }
+    inline LLBool32() {}
+    inline LLBool32(int rhs) : m_bool(rhs) {}
+    inline LLBool32(unsigned int rhs) : m_bool(rhs) {}
+    inline LLBool32(bool rhs) { m_bool = static_cast<const int>(rhs); }
+    inline LLBool32& operator= (bool rhs) { m_bool = (int)rhs; return *this; }
+    inline bool operator== (bool rhs) const { return static_cast<const bool&>(m_bool) == rhs; }
+    inline bool operator!= (bool rhs) const { return !operator==(rhs); }
+    inline operator bool() const { return static_cast<const bool&>(m_bool); }
 
 private:
-	int m_bool;
+    int m_bool;
 };
 
 #if LL_WINDOWS
@@ -70,55 +70,55 @@ private:
 class LLSimdScalar
 {
 public:
-	inline LLSimdScalar() {}
-	inline LLSimdScalar(LLQuad q) 
-	{ 
-		mQ = q; 
-	}
+    inline LLSimdScalar() {}
+    inline LLSimdScalar(LLQuad q) 
+    { 
+        mQ = q; 
+    }
 
-	inline LLSimdScalar(F32 f) 
-	{ 
-		mQ = _mm_set_ss(f); 
-	}
+    inline LLSimdScalar(F32 f) 
+    { 
+        mQ = _mm_set_ss(f); 
+    }
 
-	static inline const LLSimdScalar& getZero()
-	{
-		extern const LLQuad F_ZERO_4A;
-		return reinterpret_cast<const LLSimdScalar&>(F_ZERO_4A);
-	}
+    static inline const LLSimdScalar& getZero()
+    {
+        extern const LLQuad F_ZERO_4A;
+        return reinterpret_cast<const LLSimdScalar&>(F_ZERO_4A);
+    }
 
-	inline F32 getF32() const;
+    inline F32 getF32() const;
 
-	inline LLBool32 isApproximatelyEqual(const LLSimdScalar& rhs, F32 tolerance = F_APPROXIMATELY_ZERO) const;
+    inline LLBool32 isApproximatelyEqual(const LLSimdScalar& rhs, F32 tolerance = F_APPROXIMATELY_ZERO) const;
 
-	inline LLSimdScalar getAbs() const;
+    inline LLSimdScalar getAbs() const;
 
-	inline void setMax( const LLSimdScalar& a, const LLSimdScalar& b );
-	
-	inline void setMin( const LLSimdScalar& a, const LLSimdScalar& b );
+    inline void setMax( const LLSimdScalar& a, const LLSimdScalar& b );
+    
+    inline void setMin( const LLSimdScalar& a, const LLSimdScalar& b );
 
-	inline LLSimdScalar& operator=(F32 rhs);
+    inline LLSimdScalar& operator=(F32 rhs);
 
-	inline LLSimdScalar& operator+=(const LLSimdScalar& rhs);
+    inline LLSimdScalar& operator+=(const LLSimdScalar& rhs);
 
-	inline LLSimdScalar& operator-=(const LLSimdScalar& rhs);
+    inline LLSimdScalar& operator-=(const LLSimdScalar& rhs);
 
-	inline LLSimdScalar& operator*=(const LLSimdScalar& rhs);
+    inline LLSimdScalar& operator*=(const LLSimdScalar& rhs);
 
-	inline LLSimdScalar& operator/=(const LLSimdScalar& rhs);
+    inline LLSimdScalar& operator/=(const LLSimdScalar& rhs);
 
-	inline operator LLQuad() const
-	{ 
-		return mQ; 
-	}
-	
-	inline const LLQuad& getQuad() const 
-	{ 
-		return mQ; 
-	}
+    inline operator LLQuad() const
+    { 
+        return mQ; 
+    }
+    
+    inline const LLQuad& getQuad() const 
+    { 
+        return mQ; 
+    }
 
 private:
-	LLQuad mQ;
+    LLQuad mQ;
 };
 
 #endif //LL_SIMD_TYPES_H

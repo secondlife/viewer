@@ -33,18 +33,18 @@
 class LLDrawPoolGround : public LLFacePool
 {
 public:
-	enum
-	{
-		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
-							LLVertexBuffer::MAP_TEXCOORD0
-	};
+    enum
+    {
+        VERTEX_DATA_MASK =  LLVertexBuffer::MAP_VERTEX |
+                            LLVertexBuffer::MAP_TEXCOORD0
+    };
 
-	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+    virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
 
-	LLDrawPoolGround();
+    LLDrawPoolGround();
 
-	/*virtual*/ void prerender();
-	/*virtual*/ void render(S32 pass = 0);
+    /*virtual*/ void prerender();
+    /*virtual*/ void render(S32 pass = 0);
 };
 
 #endif // LL_LLDRAWPOOLGROUND_H

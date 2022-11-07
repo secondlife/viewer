@@ -43,10 +43,10 @@ class LLSD;
 class LLTransTemplate
 {
 public:
-	LLTransTemplate(const std::string& name = LLStringUtil::null, const std::string& text = LLStringUtil::null) : mName(name), mText(text) {}
+    LLTransTemplate(const std::string& name = LLStringUtil::null, const std::string& text = LLStringUtil::null) : mName(name), mText(text) {}
 
-	std::string mName;
-	std::string mText;
+    std::string mName;
+    std::string mText;
 };
 
 /**
@@ -58,80 +58,80 @@ public:
 class LLTrans
 {
 public:
-	LLTrans();
+    LLTrans();
 
-	/**
-	 * @brief Parses the xml root that holds the strings. Used once on startup
-// *FIXME	 * @param xml_filename Filename to parse
-	 * @param default_args Set of strings (expected to be in the file) to use as default replacement args, e.g. "SECOND_LIFE"
-	 * @returns true if the file was parsed successfully, true if something went wrong
-	 */
-	static bool parseStrings(LLPointer<LLXMLNode> & root, const std::set<std::string>& default_args);
+    /**
+     * @brief Parses the xml root that holds the strings. Used once on startup
+// *FIXME    * @param xml_filename Filename to parse
+     * @param default_args Set of strings (expected to be in the file) to use as default replacement args, e.g. "SECOND_LIFE"
+     * @returns true if the file was parsed successfully, true if something went wrong
+     */
+    static bool parseStrings(LLPointer<LLXMLNode> & root, const std::set<std::string>& default_args);
 
-	static bool parseLanguageStrings(LLPointer<LLXMLNode> & root);
+    static bool parseLanguageStrings(LLPointer<LLXMLNode> & root);
 
-	/**
-	 * @brief Returns a translated string
-	 * @param xml_desc String's description
-	 * @param args A list of substrings to replace in the string
-	 * @returns Translated string
-	 */
-	static std::string getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args, bool def_string = false);
-	static std::string getDefString(const std::string &xml_desc, const LLStringUtil::format_map_t& args);
-	static std::string getString(const std::string &xml_desc, const LLSD& args, bool def_string = false);
-	static std::string getDefString(const std::string &xml_desc, const LLSD& args);
-	static bool findString(std::string &result, const std::string &xml_desc, const LLStringUtil::format_map_t& args);
-	static bool findString(std::string &result, const std::string &xml_desc, const LLSD& args);
+    /**
+     * @brief Returns a translated string
+     * @param xml_desc String's description
+     * @param args A list of substrings to replace in the string
+     * @returns Translated string
+     */
+    static std::string getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args, bool def_string = false);
+    static std::string getDefString(const std::string &xml_desc, const LLStringUtil::format_map_t& args);
+    static std::string getString(const std::string &xml_desc, const LLSD& args, bool def_string = false);
+    static std::string getDefString(const std::string &xml_desc, const LLSD& args);
+    static bool findString(std::string &result, const std::string &xml_desc, const LLStringUtil::format_map_t& args);
+    static bool findString(std::string &result, const std::string &xml_desc, const LLSD& args);
 
-	// Returns translated string with [COUNT] replaced with a number, following
-	// special per-language logic for plural nouns.  For example, some languages
-	// may have different plurals for 0, 1, 2 and > 2.
-	// See "AgeWeeksA", "AgeWeeksB", etc. in strings.xml for examples.
-	static std::string getCountString(const std::string& language, const std::string& xml_desc, S32 count);
+    // Returns translated string with [COUNT] replaced with a number, following
+    // special per-language logic for plural nouns.  For example, some languages
+    // may have different plurals for 0, 1, 2 and > 2.
+    // See "AgeWeeksA", "AgeWeeksB", etc. in strings.xml for examples.
+    static std::string getCountString(const std::string& language, const std::string& xml_desc, S32 count);
 
-	/**
-	 * @brief Returns a translated string
-	 * @param xml_desc String's description
-	 * @returns Translated string
-	 */
-	static std::string getString(const std::string &xml_desc, bool def_string = false)
-	{
-		LLStringUtil::format_map_t empty;
-		return getString(xml_desc, empty);
-	}
+    /**
+     * @brief Returns a translated string
+     * @param xml_desc String's description
+     * @returns Translated string
+     */
+    static std::string getString(const std::string &xml_desc, bool def_string = false)
+    {
+        LLStringUtil::format_map_t empty;
+        return getString(xml_desc, empty);
+    }
 
-	static bool findString(std::string &result, const std::string &xml_desc)
-	{
-		LLStringUtil::format_map_t empty;
-		return findString(result, xml_desc, empty);
-	}
+    static bool findString(std::string &result, const std::string &xml_desc)
+    {
+        LLStringUtil::format_map_t empty;
+        return findString(result, xml_desc, empty);
+    }
 
-	static std::string getKeyboardString(const char* keystring)
-	{
-		std::string key_str(keystring);
-		std::string trans_str;
-		return findString(trans_str, key_str) ? trans_str : key_str; 
-	}
+    static std::string getKeyboardString(const char* keystring)
+    {
+        std::string key_str(keystring);
+        std::string trans_str;
+        return findString(trans_str, key_str) ? trans_str : key_str; 
+    }
 
-	// get the default args
-	static const LLStringUtil::format_map_t& getDefaultArgs()
-	{
-		return sDefaultArgs;
-	}
+    // get the default args
+    static const LLStringUtil::format_map_t& getDefaultArgs()
+    {
+        return sDefaultArgs;
+    }
 
-	static void setDefaultArg(const std::string& name, const std::string& value);
+    static void setDefaultArg(const std::string& name, const std::string& value);
 
-	// insert default args into an arg list
-	static void getArgs(LLStringUtil::format_map_t& args)
-	{
-		args.insert(sDefaultArgs.begin(), sDefaultArgs.end());
-	}
-	
+    // insert default args into an arg list
+    static void getArgs(LLStringUtil::format_map_t& args)
+    {
+        args.insert(sDefaultArgs.begin(), sDefaultArgs.end());
+    }
+    
 private:
-	typedef std::map<std::string, LLTransTemplate > template_map_t;
-	static template_map_t sStringTemplates;
-	static template_map_t sDefaultStringTemplates;
-	static LLStringUtil::format_map_t sDefaultArgs;
+    typedef std::map<std::string, LLTransTemplate > template_map_t;
+    static template_map_t sStringTemplates;
+    static template_map_t sDefaultStringTemplates;
+    static LLStringUtil::format_map_t sDefaultArgs;
 };
 
 #endif

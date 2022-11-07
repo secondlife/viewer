@@ -34,75 +34,75 @@
 class LLSlider : public LLF32UICtrl
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLF32UICtrl::Params>
-	{
-		Optional<std::string> orientation;
+    struct Params : public LLInitParam::Block<Params, LLF32UICtrl::Params>
+    {
+        Optional<std::string> orientation;
 
-		Optional<LLUIColor>	thumb_outline_color,
-							thumb_center_color;
+        Optional<LLUIColor> thumb_outline_color,
+                            thumb_center_color;
 
-		Optional<LLUIImage*>	thumb_image,
-								thumb_image_pressed,
-								thumb_image_disabled,
-								track_image_horizontal,
-								track_image_vertical,
-								track_highlight_horizontal_image,
-								track_highlight_vertical_image;
+        Optional<LLUIImage*>    thumb_image,
+                                thumb_image_pressed,
+                                thumb_image_disabled,
+                                track_image_horizontal,
+                                track_image_vertical,
+                                track_highlight_horizontal_image,
+                                track_highlight_vertical_image;
 
-		Optional<CommitCallbackParam>	mouse_down_callback,
-										mouse_up_callback;
+        Optional<CommitCallbackParam>   mouse_down_callback,
+                                        mouse_up_callback;
 
 
-		Params();
-	};
+        Params();
+    };
 protected:
-	LLSlider(const Params&);
-	friend class LLUICtrlFactory;
+    LLSlider(const Params&);
+    friend class LLUICtrlFactory;
 public:
-	virtual ~LLSlider();
-	void			setValue( F32 value, BOOL from_event = FALSE );
+    virtual ~LLSlider();
+    void            setValue( F32 value, BOOL from_event = FALSE );
     // overrides for LLF32UICtrl methods
-	virtual void	setValue(const LLSD& value )	{ setValue((F32)value.asReal(), TRUE); }
-	
-	virtual void 	setMinValue(const LLSD& min_value) { setMinValue((F32)min_value.asReal()); }
-	virtual void 	setMaxValue(const LLSD& max_value) { setMaxValue((F32)max_value.asReal()); }
-	virtual void	setMinValue(F32 min_value) { LLF32UICtrl::setMinValue(min_value); updateThumbRect(); }
-	virtual void	setMaxValue(F32 max_value) { LLF32UICtrl::setMaxValue(max_value); updateThumbRect(); }
+    virtual void    setValue(const LLSD& value )    { setValue((F32)value.asReal(), TRUE); }
+    
+    virtual void    setMinValue(const LLSD& min_value) { setMinValue((F32)min_value.asReal()); }
+    virtual void    setMaxValue(const LLSD& max_value) { setMaxValue((F32)max_value.asReal()); }
+    virtual void    setMinValue(F32 min_value) { LLF32UICtrl::setMinValue(min_value); updateThumbRect(); }
+    virtual void    setMaxValue(F32 max_value) { LLF32UICtrl::setMaxValue(max_value); updateThumbRect(); }
 
-	boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb );
-	boost::signals2::connection setMouseUpCallback(	const commit_signal_t::slot_type& cb );
+    boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb );
+    boost::signals2::connection setMouseUpCallback( const commit_signal_t::slot_type& cb );
 
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleKeyHere(KEY key, MASK mask);
-	virtual BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
-	virtual void	draw();
+    virtual BOOL    handleHover(S32 x, S32 y, MASK mask);
+    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual BOOL    handleKeyHere(KEY key, MASK mask);
+    virtual BOOL    handleScrollWheel(S32 x, S32 y, S32 clicks);
+    virtual void    draw();
 
 private:
-	void			setValueAndCommit(F32 value);
-	void			updateThumbRect();
+    void            setValueAndCommit(F32 value);
+    void            updateThumbRect();
 
-	BOOL			mVolumeSlider;
-	S32				mMouseOffset;
-	LLRect			mDragStartThumbRect;
+    BOOL            mVolumeSlider;
+    S32             mMouseOffset;
+    LLRect          mDragStartThumbRect;
 
-	LLPointer<LLUIImage>	mThumbImage;
-	LLPointer<LLUIImage>	mThumbImagePressed;
-	LLPointer<LLUIImage>	mThumbImageDisabled;
-	LLPointer<LLUIImage>	mTrackImageHorizontal;
-	LLPointer<LLUIImage>	mTrackImageVertical;
-	LLPointer<LLUIImage>	mTrackHighlightHorizontalImage;
-	LLPointer<LLUIImage>	mTrackHighlightVerticalImage;
+    LLPointer<LLUIImage>    mThumbImage;
+    LLPointer<LLUIImage>    mThumbImagePressed;
+    LLPointer<LLUIImage>    mThumbImageDisabled;
+    LLPointer<LLUIImage>    mTrackImageHorizontal;
+    LLPointer<LLUIImage>    mTrackImageVertical;
+    LLPointer<LLUIImage>    mTrackHighlightHorizontalImage;
+    LLPointer<LLUIImage>    mTrackHighlightVerticalImage;
 
-	const EOrientation	mOrientation;
+    const EOrientation  mOrientation;
 
-	LLRect		mThumbRect;
-	LLUIColor	mThumbOutlineColor;
-	LLUIColor	mThumbCenterColor;
-	
-	commit_signal_t*	mMouseDownSignal;
-	commit_signal_t*	mMouseUpSignal;
+    LLRect      mThumbRect;
+    LLUIColor   mThumbOutlineColor;
+    LLUIColor   mThumbCenterColor;
+    
+    commit_signal_t*    mMouseDownSignal;
+    commit_signal_t*    mMouseUpSignal;
 };
 
 #endif  // LL_LLSLIDER_H

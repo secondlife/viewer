@@ -41,78 +41,78 @@
 #include "llviewershadermgr.h"
 
 LLDrawPoolSky::LLDrawPoolSky()
-:	LLFacePool(POOL_SKY),
-	
-	mSkyTex(NULL),
-	mShader(NULL)
+:   LLFacePool(POOL_SKY),
+    
+    mSkyTex(NULL),
+    mShader(NULL)
 {
 }
 
 void LLDrawPoolSky::prerender()
 {
-	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT); 
-	gSky.mVOSkyp->updateGeometry(gSky.mVOSkyp->mDrawable);
+    mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT); 
+    gSky.mVOSkyp->updateGeometry(gSky.mVOSkyp->mDrawable);
 }
 
 void LLDrawPoolSky::render(S32 pass)
 {
-	gGL.flush();
+    gGL.flush();
 
-	if (mDrawFace.empty())
-	{
-		return;
-	}
+    if (mDrawFace.empty())
+    {
+        return;
+    }
 
-	// Don't draw the sky box if we can and are rendering the WL sky dome.
-	if (gPipeline.canUseWindLightShaders())
-	{
-		return;
-	}
-	
-	// don't render sky under water (background just gets cleared to fog color)
-	if(mShaderLevel > 0 && LLPipeline::sUnderWaterRender)
-	{
-		return;
-	}
+    // Don't draw the sky box if we can and are rendering the WL sky dome.
+    if (gPipeline.canUseWindLightShaders())
+    {
+        return;
+    }
+    
+    // don't render sky under water (background just gets cleared to fog color)
+    if(mShaderLevel > 0 && LLPipeline::sUnderWaterRender)
+    {
+        return;
+    }
 
 
     //just use the UI shader (generic single texture no lighting)
-	gOneTextureNoColorProgram.bind();
+    gOneTextureNoColorProgram.bind();
 
-	LLGLSPipelineDepthTestSkyBox gls_skybox(true, false);
+    LLGLSPipelineDepthTestSkyBox gls_skybox(true, false);
 
-	LLGLEnable fog_enable( (mShaderLevel < 1 && LLViewerCamera::getInstance()->cameraUnderWater()) ? GL_FOG : 0);
-	
-	gGL.pushMatrix();
-	LLVector3 origin = LLViewerCamera::getInstance()->getOrigin();
-	gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
+    LLGLEnable fog_enable( (mShaderLevel < 1 && LLViewerCamera::getInstance()->cameraUnderWater()) ? GL_FOG : 0);
+    
+    gGL.pushMatrix();
+    LLVector3 origin = LLViewerCamera::getInstance()->getOrigin();
+    gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
-	S32 face_count = (S32)mDrawFace.size();
+    S32 face_count = (S32)mDrawFace.size();
 
-	LLVertexBuffer::unbind();
-	gGL.diffuseColor4f(1,1,1,1);
+    LLVertexBuffer::unbind();
+    gGL.diffuseColor4f(1,1,1,1);
 
-	for (S32 i = 0; i < face_count; ++i)
-	{
-		renderSkyFace(i);
-	}
+    for (S32 i = 0; i < face_count; ++i)
+    {
+        renderSkyFace(i);
+    }
 
-	gGL.popMatrix();
+    gGL.popMatrix();
 }
 
 void LLDrawPoolSky::renderSkyFace(U8 index)
 {
-	LLFace* face = mDrawFace[index];
+    LLFace* face = mDrawFace[index];
 
-	if (!face || !face->getGeomCount())
-	{
-		return;
-	}
+    if (!face || !face->getGeomCount())
+    {
+        return;
+    }
 
     if (index < 6) // sky tex...interp
     {
         llassert(mSkyTex);
-	    mSkyTex[index].bindTexture(true); // bind the current tex
+        mSkyTex[index].bindTexture(true); // bind the current tex
 
         face->renderIndexed();
     }

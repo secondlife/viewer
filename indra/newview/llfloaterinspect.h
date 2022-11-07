@@ -39,38 +39,38 @@ class LLUICtrl;
 
 class LLFloaterInspect : public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 public:
 
-//	static void show(void* ignored = NULL);
-	void onOpen(const LLSD& key);
-	virtual BOOL postBuild();
-	void dirty();
-	LLUUID getSelectedUUID();
-	virtual void draw();
-	virtual void refresh();
-//	static BOOL isVisible();
-	virtual void onFocusReceived();
-	void onClickCreatorProfile();
-	void onClickOwnerProfile();
-	void onSelectObject();
+//  static void show(void* ignored = NULL);
+    void onOpen(const LLSD& key);
+    virtual BOOL postBuild();
+    void dirty();
+    LLUUID getSelectedUUID();
+    virtual void draw();
+    virtual void refresh();
+//  static BOOL isVisible();
+    virtual void onFocusReceived();
+    void onClickCreatorProfile();
+    void onClickOwnerProfile();
+    void onSelectObject();
 
-	LLScrollListCtrl* mObjectList;
+    LLScrollListCtrl* mObjectList;
 protected:
-	// protected members
-	void setDirty() { mDirty = TRUE; }
-	bool mDirty;
+    // protected members
+    void setDirty() { mDirty = TRUE; }
+    bool mDirty;
 
 private:
-	void onGetOwnerNameCallback();
-	void onGetCreatorNameCallback();
-	
-	LLFloaterInspect(const LLSD& key);
-	virtual ~LLFloaterInspect(void);
+    void onGetOwnerNameCallback();
+    void onGetCreatorNameCallback();
+    
+    LLFloaterInspect(const LLSD& key);
+    virtual ~LLFloaterInspect(void);
 
-	LLSafeHandle<LLObjectSelection> mObjectSelection;
-	boost::signals2::connection mOwnerNameCacheConnection;
-	boost::signals2::connection mCreatorNameCacheConnection;
+    LLSafeHandle<LLObjectSelection> mObjectSelection;
+    boost::signals2::connection mOwnerNameCacheConnection;
+    boost::signals2::connection mCreatorNameCacheConnection;
 };
 
 #endif //LL_LLFLOATERINSPECT_H

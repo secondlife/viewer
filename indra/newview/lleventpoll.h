@@ -40,14 +40,14 @@ namespace Details
 
 
 class LLEventPoll
-	///< implements the viewer side of server-to-viewer pushed events.
+    ///< implements the viewer side of server-to-viewer pushed events.
 {
 public:
-	LLEventPoll(const std::string& pollURL, const LLHost& sender);
-		///< Start polling the URL.
+    LLEventPoll(const std::string& pollURL, const LLHost& sender);
+        ///< Start polling the URL.
 
-	virtual ~LLEventPoll();
-		///< will stop polling, canceling any poll in progress.
+    virtual ~LLEventPoll();
+        ///< will stop polling, canceling any poll in progress.
 
 
 private:

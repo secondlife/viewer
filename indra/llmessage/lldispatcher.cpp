@@ -48,55 +48,55 @@ LLDispatcher::~LLDispatcher()
 
 bool LLDispatcher::isHandlerPresent(const key_t& name) const
 {
-	if(mHandlers.find(name) != mHandlers.end())
-	{
-		return true;
-	}
-	return false;
+    if(mHandlers.find(name) != mHandlers.end())
+    {
+        return true;
+    }
+    return false;
 }
 
 void LLDispatcher::copyAllHandlerNames(keys_t& names) const
 {
-	// copy the names onto the vector we are given
-	std::transform(
-		mHandlers.begin(),
-		mHandlers.end(),
-		std::back_insert_iterator<keys_t>(names),
-		llselect1st<dispatch_map_t::value_type>());
+    // copy the names onto the vector we are given
+    std::transform(
+        mHandlers.begin(),
+        mHandlers.end(),
+        std::back_insert_iterator<keys_t>(names),
+        llselect1st<dispatch_map_t::value_type>());
 }
 
 bool LLDispatcher::dispatch(
-	const key_t& name,
-	const LLUUID& invoice,
-	const sparam_t& strings) const
+    const key_t& name,
+    const LLUUID& invoice,
+    const sparam_t& strings) const
 {
-	dispatch_map_t::const_iterator it = mHandlers.find(name);
-	if(it != mHandlers.end())
-	{
-		LLDispatchHandler* func = (*it).second;
-		return (*func)(this, name, invoice, strings);
-	}
-	LL_WARNS() << "Unable to find handler for Generic message: " << name << LL_ENDL;
-	return false;
+    dispatch_map_t::const_iterator it = mHandlers.find(name);
+    if(it != mHandlers.end())
+    {
+        LLDispatchHandler* func = (*it).second;
+        return (*func)(this, name, invoice, strings);
+    }
+    LL_WARNS() << "Unable to find handler for Generic message: " << name << LL_ENDL;
+    return false;
 }
 
 LLDispatchHandler* LLDispatcher::addHandler(
-	const key_t& name, LLDispatchHandler* func)
+    const key_t& name, LLDispatchHandler* func)
 {
-	dispatch_map_t::iterator it = mHandlers.find(name);
-	LLDispatchHandler* old_handler = NULL;
-	if(it != mHandlers.end())
-	{
-		old_handler = (*it).second;
-		mHandlers.erase(it);
-	}
-	if(func)
-	{
-		// only non-null handlers so that we don't have to worry about
-		// it later.
-		mHandlers.insert(dispatch_map_t::value_type(name, func));
-	}
-	return old_handler;
+    dispatch_map_t::iterator it = mHandlers.find(name);
+    LLDispatchHandler* old_handler = NULL;
+    if(it != mHandlers.end())
+    {
+        old_handler = (*it).second;
+        mHandlers.erase(it);
+    }
+    if(func)
+    {
+        // only non-null handlers so that we don't have to worry about
+        // it later.
+        mHandlers.insert(dispatch_map_t::value_type(name, func));
+    }
+    return old_handler;
 }
 
 // static
@@ -106,7 +106,7 @@ bool LLDispatcher::unpackMessage(
     LLUUID& invoice,
     LLDispatcher::sparam_t& parameters)
 {
-    char buf[MAX_STRING];	/*Flawfinder: ignore*/
+    char buf[MAX_STRING];   /*Flawfinder: ignore*/
     msg->getStringFast(_PREHASH_MethodData, _PREHASH_Method, method);
     msg->getUUIDFast(_PREHASH_MethodData, _PREHASH_Invoice, invoice);
     S32 size;

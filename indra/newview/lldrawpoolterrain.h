@@ -31,63 +31,63 @@
 
 class LLDrawPoolTerrain : public LLFacePool
 {
-	LLPointer<LLViewerTexture> mTexturep;
+    LLPointer<LLViewerTexture> mTexturep;
 public:
-	enum
-	{
-		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
-							LLVertexBuffer::MAP_NORMAL |
-							LLVertexBuffer::MAP_TEXCOORD0 |
-							LLVertexBuffer::MAP_TEXCOORD1 |
-							LLVertexBuffer::MAP_TEXCOORD2 |
-							LLVertexBuffer::MAP_TEXCOORD3
-	};
+    enum
+    {
+        VERTEX_DATA_MASK =  LLVertexBuffer::MAP_VERTEX |
+                            LLVertexBuffer::MAP_NORMAL |
+                            LLVertexBuffer::MAP_TEXCOORD0 |
+                            LLVertexBuffer::MAP_TEXCOORD1 |
+                            LLVertexBuffer::MAP_TEXCOORD2 |
+                            LLVertexBuffer::MAP_TEXCOORD3
+    };
 
-	virtual U32 getVertexDataMask();
-	static S32 getDetailMode();
+    virtual U32 getVertexDataMask();
+    static S32 getDetailMode();
 
-	LLDrawPoolTerrain(LLViewerTexture *texturep);
-	virtual ~LLDrawPoolTerrain();
+    LLDrawPoolTerrain(LLViewerTexture *texturep);
+    virtual ~LLDrawPoolTerrain();
 
-	/*virtual*/ S32 getNumDeferredPasses() { return 1; }
-	/*virtual*/ void beginDeferredPass(S32 pass);
-	/*virtual*/ void endDeferredPass(S32 pass);
-	/*virtual*/ void renderDeferred(S32 pass);
+    /*virtual*/ S32 getNumDeferredPasses() { return 1; }
+    /*virtual*/ void beginDeferredPass(S32 pass);
+    /*virtual*/ void endDeferredPass(S32 pass);
+    /*virtual*/ void renderDeferred(S32 pass);
 
-	/*virtual*/ S32 getNumShadowPasses() { return 1; }
-	/*virtual*/ void beginShadowPass(S32 pass);
-	/*virtual*/ void endShadowPass(S32 pass);
-	/*virtual*/ void renderShadow(S32 pass);
+    /*virtual*/ S32 getNumShadowPasses() { return 1; }
+    /*virtual*/ void beginShadowPass(S32 pass);
+    /*virtual*/ void endShadowPass(S32 pass);
+    /*virtual*/ void renderShadow(S32 pass);
 
-	/*virtual*/ void render(S32 pass = 0);
-	/*virtual*/ void prerender();
-	/*virtual*/ void beginRenderPass( S32 pass );
-	/*virtual*/ void endRenderPass( S32 pass );
-	/*virtual*/ void dirtyTextures(const std::set<LLViewerFetchedTexture*>& textures);
-	/*virtual*/ LLViewerTexture *getTexture();
-	/*virtual*/ LLViewerTexture *getDebugTexture();
-	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
+    /*virtual*/ void render(S32 pass = 0);
+    /*virtual*/ void prerender();
+    /*virtual*/ void beginRenderPass( S32 pass );
+    /*virtual*/ void endRenderPass( S32 pass );
+    /*virtual*/ void dirtyTextures(const std::set<LLViewerFetchedTexture*>& textures);
+    /*virtual*/ LLViewerTexture *getTexture();
+    /*virtual*/ LLViewerTexture *getDebugTexture();
+    /*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
 
-	LLPointer<LLViewerTexture> mAlphaRampImagep;
-	LLPointer<LLViewerTexture> m2DAlphaRampImagep;
-	LLPointer<LLViewerTexture> mAlphaNoiseImagep;
+    LLPointer<LLViewerTexture> mAlphaRampImagep;
+    LLPointer<LLViewerTexture> m2DAlphaRampImagep;
+    LLPointer<LLViewerTexture> mAlphaNoiseImagep;
 
-	static S32 sDetailMode;
-	static F32 sDetailScale; // meters per texture
+    static S32 sDetailMode;
+    static F32 sDetailScale; // meters per texture
 
 protected:
     void boostTerrainDetailTextures();
 
-	void renderSimple();
-	void renderOwnership();
+    void renderSimple();
+    void renderOwnership();
 
-	void renderFull2TU();
-	void renderFull4TU();
-	void renderFullShader();
-	void drawLoop();
+    void renderFull2TU();
+    void renderFull4TU();
+    void renderFullShader();
+    void drawLoop();
 
 private:
-	void hilightParcelOwners(bool deferred);
+    void hilightParcelOwners(bool deferred);
 };
 
 #endif // LL_LLDRAWPOOLSIMPLE_H

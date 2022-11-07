@@ -60,8 +60,8 @@ class LLPanelSettingsSkyAtmosTab : public LLPanelSettingsSky
 public:
                             LLPanelSettingsSkyAtmosTab();
 
-    virtual BOOL	        postBuild() override;
-    virtual void	        setEnabled(BOOL enabled) override;
+    virtual BOOL            postBuild() override;
+    virtual void            setEnabled(BOOL enabled) override;
 
 protected:
     virtual void            refresh() override;
@@ -89,8 +89,8 @@ class LLPanelSettingsSkyCloudTab : public LLPanelSettingsSky
 public:
                             LLPanelSettingsSkyCloudTab();
 
-    virtual BOOL	        postBuild() override;
-    void	                setEnabled(BOOL enabled) override;
+    virtual BOOL            postBuild() override;
+    void                    setEnabled(BOOL enabled) override;
 
 protected:
     virtual void            refresh() override;
@@ -113,8 +113,8 @@ class LLPanelSettingsSkySunMoonTab : public LLPanelSettingsSky
 public:
                             LLPanelSettingsSkySunMoonTab();
 
-    virtual BOOL	        postBuild() override;
-    virtual void	        setEnabled(BOOL enabled) override;
+    virtual BOOL            postBuild() override;
+    virtual void            setEnabled(BOOL enabled) override;
 
 protected:
     virtual void            refresh() override;

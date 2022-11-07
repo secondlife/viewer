@@ -38,65 +38,65 @@
 #include "stdtypes.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-//	templatized emitter class
+//  templatized emitter class
 template < class T >
 class eventEmitter
 {
-	public:
-		typedef typename T::EventType EventType;
-		typedef std::list< T* > ObserverContainer;
-		typedef void ( T::*observerMethod )( const EventType& );
+    public:
+        typedef typename T::EventType EventType;
+        typedef std::list< T* > ObserverContainer;
+        typedef void ( T::*observerMethod )( const EventType& );
 
-	protected:
-		ObserverContainer observers;
+    protected:
+        ObserverContainer observers;
 
-	public:
-		eventEmitter () { };
+    public:
+        eventEmitter () { };
 
-		~eventEmitter () { };
+        ~eventEmitter () { };
 
-		///////////////////////////////////////////////////////////////////////////////
-		//
-		BOOL addObserver ( T* observerIn )
-		{
-			if ( ! observerIn )
-				return FALSE;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        BOOL addObserver ( T* observerIn )
+        {
+            if ( ! observerIn )
+                return FALSE;
 
-			// check if observer already exists
-			if ( std::find ( observers.begin (), observers.end (), observerIn ) != observers.end () )
-				return FALSE;
+            // check if observer already exists
+            if ( std::find ( observers.begin (), observers.end (), observerIn ) != observers.end () )
+                return FALSE;
 
-			// save it
-			observers.push_back ( observerIn );
+            // save it
+            observers.push_back ( observerIn );
 
-			return true;
-		};
+            return true;
+        };
 
-		///////////////////////////////////////////////////////////////////////////////
-		//
-		BOOL remObserver ( T* observerIn )
-		{
-			if ( ! observerIn )
-				return FALSE;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        BOOL remObserver ( T* observerIn )
+        {
+            if ( ! observerIn )
+                return FALSE;
 
-			observers.remove ( observerIn );
+            observers.remove ( observerIn );
 
-			return TRUE;
-		};
+            return TRUE;
+        };
 
-		///////////////////////////////////////////////////////////////////////////////
-		//
-		void update ( observerMethod method, const EventType& msgIn )
-		{
-			typename std::list< T* >::iterator iter = observers.begin ();
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        void update ( observerMethod method, const EventType& msgIn )
+        {
+            typename std::list< T* >::iterator iter = observers.begin ();
 
-			while ( iter != observers.end () )
-			{
-				( ( *iter )->*method ) ( msgIn );
+            while ( iter != observers.end () )
+            {
+                ( ( *iter )->*method ) ( msgIn );
 
-				++iter;
-			};
-		};
+                ++iter;
+            };
+        };
 };
 
 #endif // lleventemitter_h

@@ -46,97 +46,97 @@ class LLVector3;
 class LLFloaterPathfindingLinksets : public LLFloaterPathfindingObjects
 {
 public:
-	static void  openLinksetsWithSelectedObjects();
+    static void  openLinksetsWithSelectedObjects();
 
 protected:
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 
-	LLFloaterPathfindingLinksets(const LLSD& pSeed);
-	virtual ~LLFloaterPathfindingLinksets();
+    LLFloaterPathfindingLinksets(const LLSD& pSeed);
+    virtual ~LLFloaterPathfindingLinksets();
 
-	virtual BOOL                       postBuild();
+    virtual BOOL                       postBuild();
 
-	virtual void                       requestGetObjects();
+    virtual void                       requestGetObjects();
 
-	virtual void                       buildObjectsScrollList(const LLPathfindingObjectListPtr pObjectListPtr);
+    virtual void                       buildObjectsScrollList(const LLPathfindingObjectListPtr pObjectListPtr);
 
-	virtual void                       updateControlsOnScrollListChange();
+    virtual void                       updateControlsOnScrollListChange();
 
-	virtual S32                        getNameColumnIndex() const;
-	virtual S32                        getOwnerNameColumnIndex() const;
-	virtual std::string                getOwnerName(const LLPathfindingObject *pObject) const;
-	virtual const LLColor4             &getBeaconColor() const;
+    virtual S32                        getNameColumnIndex() const;
+    virtual S32                        getOwnerNameColumnIndex() const;
+    virtual std::string                getOwnerName(const LLPathfindingObject *pObject) const;
+    virtual const LLColor4             &getBeaconColor() const;
 
-	virtual LLPathfindingObjectListPtr getEmptyObjectList() const;
+    virtual LLPathfindingObjectListPtr getEmptyObjectList() const;
 
 private:
-	void requestSetLinksets(LLPathfindingObjectListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD);
+    void requestSetLinksets(LLPathfindingObjectListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD);
 
-	void onApplyAllFilters();
-	void onClearFiltersClicked();
-	void onWalkabilityCoefficientEntered(LLUICtrl *pUICtrl, LLSD &pPreviousValue);
-	void onApplyChangesClicked();
+    void onApplyAllFilters();
+    void onClearFiltersClicked();
+    void onWalkabilityCoefficientEntered(LLUICtrl *pUICtrl, LLSD &pPreviousValue);
+    void onApplyChangesClicked();
 
-	void clearFilters();
+    void clearFilters();
 
-	void updateEditFieldValues();
-	LLSD buildLinksetScrollListItemData(const LLPathfindingLinkset *pLinksetPtr, const LLVector3 &pAvatarPosition) const;
-	LLSD buildLinksetUseScrollListData(const std::string &pLabel, S32 pValue) const;
+    void updateEditFieldValues();
+    LLSD buildLinksetScrollListItemData(const LLPathfindingLinkset *pLinksetPtr, const LLVector3 &pAvatarPosition) const;
+    LLSD buildLinksetUseScrollListData(const std::string &pLabel, S32 pValue) const;
 
-	bool isShowUnmodifiablePhantomWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
-	bool isShowPhantomToggleWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
-	bool isShowCannotBeVolumeWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
+    bool isShowUnmodifiablePhantomWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
+    bool isShowPhantomToggleWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
+    bool isShowCannotBeVolumeWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
 
-	void updateStateOnEditFields();
-	void updateStateOnEditLinksetUse();
+    void updateStateOnEditFields();
+    void updateStateOnEditLinksetUse();
 
-	void applyEdit();
-	void handleApplyEdit(const LLSD &pNotification, const LLSD &pResponse);
-	void doApplyEdit();
+    void applyEdit();
+    void handleApplyEdit(const LLSD &pNotification, const LLSD &pResponse);
+    void doApplyEdit();
 
-	std::string getLinksetUseString(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
+    std::string getLinksetUseString(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
 
-	LLPathfindingLinkset::ELinksetUse getFilterLinksetUse() const;
-	void                              setFilterLinksetUse(LLPathfindingLinkset::ELinksetUse pLinksetUse);
+    LLPathfindingLinkset::ELinksetUse getFilterLinksetUse() const;
+    void                              setFilterLinksetUse(LLPathfindingLinkset::ELinksetUse pLinksetUse);
 
-	LLPathfindingLinkset::ELinksetUse getEditLinksetUse() const;
-	void                              setEditLinksetUse(LLPathfindingLinkset::ELinksetUse pLinksetUse);
+    LLPathfindingLinkset::ELinksetUse getEditLinksetUse() const;
+    void                              setEditLinksetUse(LLPathfindingLinkset::ELinksetUse pLinksetUse);
 
-	LLPathfindingLinkset::ELinksetUse convertToLinksetUse(LLSD pXuiValue) const;
-	LLSD                              convertToXuiValue(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
+    LLPathfindingLinkset::ELinksetUse convertToLinksetUse(LLSD pXuiValue) const;
+    LLSD                              convertToXuiValue(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
 
-	LLLineEditor     *mFilterByName;
-	LLLineEditor     *mFilterByDescription;
-	LLComboBox       *mFilterByLinksetUse;
-	LLComboBox       *mEditLinksetUse;
-	LLScrollListItem *mEditLinksetUseUnset;
-	LLScrollListItem *mEditLinksetUseWalkable;
-	LLScrollListItem *mEditLinksetUseStaticObstacle;
-	LLScrollListItem *mEditLinksetUseDynamicObstacle;
-	LLScrollListItem *mEditLinksetUseMaterialVolume;
-	LLScrollListItem *mEditLinksetUseExclusionVolume;
-	LLScrollListItem *mEditLinksetUseDynamicPhantom;
-	LLTextBase       *mLabelWalkabilityCoefficients;
-	LLTextBase       *mLabelEditA;
-	LLTextBase       *mLabelSuggestedUseA;
-	LLLineEditor     *mEditA;
-	LLTextBase       *mLabelEditB;
-	LLTextBase       *mLabelSuggestedUseB;
-	LLLineEditor     *mEditB;
-	LLTextBase       *mLabelEditC;
-	LLTextBase       *mLabelSuggestedUseC;
-	LLLineEditor     *mEditC;
-	LLTextBase       *mLabelEditD;
-	LLTextBase       *mLabelSuggestedUseD;
-	LLLineEditor     *mEditD;
-	LLButton         *mApplyEditsButton;
+    LLLineEditor     *mFilterByName;
+    LLLineEditor     *mFilterByDescription;
+    LLComboBox       *mFilterByLinksetUse;
+    LLComboBox       *mEditLinksetUse;
+    LLScrollListItem *mEditLinksetUseUnset;
+    LLScrollListItem *mEditLinksetUseWalkable;
+    LLScrollListItem *mEditLinksetUseStaticObstacle;
+    LLScrollListItem *mEditLinksetUseDynamicObstacle;
+    LLScrollListItem *mEditLinksetUseMaterialVolume;
+    LLScrollListItem *mEditLinksetUseExclusionVolume;
+    LLScrollListItem *mEditLinksetUseDynamicPhantom;
+    LLTextBase       *mLabelWalkabilityCoefficients;
+    LLTextBase       *mLabelEditA;
+    LLTextBase       *mLabelSuggestedUseA;
+    LLLineEditor     *mEditA;
+    LLTextBase       *mLabelEditB;
+    LLTextBase       *mLabelSuggestedUseB;
+    LLLineEditor     *mEditB;
+    LLTextBase       *mLabelEditC;
+    LLTextBase       *mLabelSuggestedUseC;
+    LLLineEditor     *mEditC;
+    LLTextBase       *mLabelEditD;
+    LLTextBase       *mLabelSuggestedUseD;
+    LLLineEditor     *mEditD;
+    LLButton         *mApplyEditsButton;
 
-	LLColor4         mBeaconColor;
+    LLColor4         mBeaconColor;
 
-	LLSD             mPreviousValueA;
-	LLSD             mPreviousValueB;
-	LLSD             mPreviousValueC;
-	LLSD             mPreviousValueD;
+    LLSD             mPreviousValueA;
+    LLSD             mPreviousValueB;
+    LLSD             mPreviousValueC;
+    LLSD             mPreviousValueD;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGLINKSETS_H

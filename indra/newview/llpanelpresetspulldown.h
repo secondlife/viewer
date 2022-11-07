@@ -35,15 +35,15 @@
 class LLPanelPresetsPulldown : public LLPanelPulldown
 {
  public:
-	LLPanelPresetsPulldown();
-	/*virtual*/ BOOL postBuild();
-	void populatePanel();
-	
+    LLPanelPresetsPulldown();
+    /*virtual*/ BOOL postBuild();
+    void populatePanel();
+    
  private:
-	void onGraphicsButtonClick(const LLSD& user_data);
-	void onRowClick(const LLSD& user_data);
+    void onGraphicsButtonClick(const LLSD& user_data);
+    void onRowClick(const LLSD& user_data);
 
-	std::list<std::string> mPresetNames;
+    std::list<std::string> mPresetNames;
     LOG_CLASS(LLPanelPresetsPulldown);
 };
 

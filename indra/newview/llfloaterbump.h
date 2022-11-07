@@ -37,42 +37,42 @@ class LLScrollListCtrl;
 class LLFloaterBump 
 : public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 protected:
-	void add(LLScrollListCtrl* list, LLMeanCollisionData *mcd);
-	void onScrollListRightClicked(LLUICtrl* ctrl, S32 x, S32 y);
+    void add(LLScrollListCtrl* list, LLMeanCollisionData *mcd);
+    void onScrollListRightClicked(LLUICtrl* ctrl, S32 x, S32 y);
 
 public:
-	/*virtual*/	BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
-	
-	static LLFloaterBump* getInstance();
+    /*virtual*/ BOOL postBuild();
+    /*virtual*/ void onOpen(const LLSD& key);
+    
+    static LLFloaterBump* getInstance();
 
-	void populateCollisionList();
+    void populateCollisionList();
 
-	void startIM();
-	void startCall();
-	void reportAbuse();
-	void showProfile();
-	void addFriend();
-	void inviteToGroup();
-	bool enableAddFriend();
-	void muteAvatar();
-	void payAvatar();
-	void zoomInAvatar();
-	bool enableMute();
+    void startIM();
+    void startCall();
+    void reportAbuse();
+    void showProfile();
+    void addFriend();
+    void inviteToGroup();
+    bool enableAddFriend();
+    void muteAvatar();
+    void payAvatar();
+    void zoomInAvatar();
+    bool enableMute();
 
 private:
-	
-	LLFloaterBump(const LLSD& key);
-	virtual ~LLFloaterBump();
+    
+    LLFloaterBump(const LLSD& key);
+    virtual ~LLFloaterBump();
 
-	LLScrollListCtrl* mList;
-	LLMenuGL* mPopupMenu;
-	LLUUID mItemUUID;
+    LLScrollListCtrl* mList;
+    LLMenuGL* mPopupMenu;
+    LLUUID mItemUUID;
 
-	typedef std::map<LLUUID, std::string> uuid_map_t;
-	uuid_map_t mNames;
+    typedef std::map<LLUUID, std::string> uuid_map_t;
+    uuid_map_t mNames;
 
 };
 

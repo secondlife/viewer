@@ -36,45 +36,45 @@ class LLStaticHashedString
 {
 public:
 
-	LLStaticHashedString(const std::string& s)
-	{
-		string_hash = makehash(s);
-		string		= s;
-	}
+    LLStaticHashedString(const std::string& s)
+    {
+        string_hash = makehash(s);
+        string      = s;
+    }
 
-	const std::string&	String() const { return string;		}
-	size_t				Hash()	 const { return string_hash;  }
+    const std::string&  String() const { return string;     }
+    size_t              Hash()   const { return string_hash;  }
 
-	bool operator==(const LLStaticHashedString& b) const { return Hash() == b.Hash(); }
+    bool operator==(const LLStaticHashedString& b) const { return Hash() == b.Hash(); }
 
 protected:
 
-	size_t makehash(const std::string& s)
-	{
-		size_t len = s.size();
-		const char* c = s.c_str();
-		size_t hashval = 0;
-		for (size_t i=0; i<len; i++)
-		{
-			hashval = ((hashval<<5) + hashval) + *c++;
-		}
-		return hashval;
-	}
+    size_t makehash(const std::string& s)
+    {
+        size_t len = s.size();
+        const char* c = s.c_str();
+        size_t hashval = 0;
+        for (size_t i=0; i<len; i++)
+        {
+            hashval = ((hashval<<5) + hashval) + *c++;
+        }
+        return hashval;
+    }
 
-	std::string string;
-	size_t		string_hash;
+    std::string string;
+    size_t      string_hash;
 };
 
 struct LLStaticStringHasher
 {
-	enum { bucket_size = 8 };
-	size_t operator()(const LLStaticHashedString& key_value) const { return key_value.Hash(); }
-	bool   operator()(const LLStaticHashedString& left, const LLStaticHashedString& right) const { return left.Hash() < right.Hash(); }
+    enum { bucket_size = 8 };
+    size_t operator()(const LLStaticHashedString& key_value) const { return key_value.Hash(); }
+    bool   operator()(const LLStaticHashedString& left, const LLStaticHashedString& right) const { return left.Hash() < right.Hash(); }
 };
 
 template< typename MappedObject >
 class LL_COMMON_API LLStaticStringTable
-	: public boost::unordered_map< LLStaticHashedString, MappedObject, LLStaticStringHasher >
+    : public boost::unordered_map< LLStaticHashedString, MappedObject, LLStaticStringHasher >
 {
 };
 

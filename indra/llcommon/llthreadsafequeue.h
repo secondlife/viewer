@@ -44,14 +44,14 @@
 // A general queue exception.
 //
 class LL_COMMON_API LLThreadSafeQueueError:
-	public LLException
+    public LLException
 {
 public:
-	LLThreadSafeQueueError(std::string const & message):
-		LLException(message)
-	{
-		; // No op.
-	}
+    LLThreadSafeQueueError(std::string const & message):
+        LLException(message)
+    {
+        ; // No op.
+    }
 };
 
 
@@ -59,14 +59,14 @@ public:
 // An exception raised when blocking operations are interrupted.
 //
 class LL_COMMON_API LLThreadSafeQueueInterrupt:
-	public LLThreadSafeQueueError
+    public LLThreadSafeQueueError
 {
 public:
-	LLThreadSafeQueueInterrupt(void):
-		LLThreadSafeQueueError("queue operation interrupted")
-	{
-		; // No op.
-	}
+    LLThreadSafeQueueInterrupt(void):
+        LLThreadSafeQueueError("queue operation interrupted")
+    {
+        ; // No op.
+    }
 };
 
 /**
@@ -78,138 +78,138 @@ template<typename ElementT, typename QueueT=std::queue<ElementT>>
 class LLThreadSafeQueue
 {
 public:
-	typedef ElementT value_type;
+    typedef ElementT value_type;
 
-	// Limiting the number of pending items prevents unbounded growth of the
-	// underlying queue.
-	LLThreadSafeQueue(U32 capacity = 1024);
-	virtual ~LLThreadSafeQueue() {}
+    // Limiting the number of pending items prevents unbounded growth of the
+    // underlying queue.
+    LLThreadSafeQueue(U32 capacity = 1024);
+    virtual ~LLThreadSafeQueue() {}
 
-	// Add an element to the queue (will block if the queue has reached
-	// capacity).
-	//
-	// This call will raise an interrupt error if the queue is closed while
-	// the caller is blocked.
-	template <typename T>
-	void push(T&& element);
-	// legacy name
-	void pushFront(ElementT const & element) { return push(element); }
+    // Add an element to the queue (will block if the queue has reached
+    // capacity).
+    //
+    // This call will raise an interrupt error if the queue is closed while
+    // the caller is blocked.
+    template <typename T>
+    void push(T&& element);
+    // legacy name
+    void pushFront(ElementT const & element) { return push(element); }
 
-	// Add an element to the queue (will block if the queue has reached
-	// capacity). Return false if the queue is closed before push is possible.
-	template <typename T>
-	bool pushIfOpen(T&& element);
+    // Add an element to the queue (will block if the queue has reached
+    // capacity). Return false if the queue is closed before push is possible.
+    template <typename T>
+    bool pushIfOpen(T&& element);
 
-	// Try to add an element to the queue without blocking. Returns
-	// true only if the element was actually added.
-	template <typename T>
-	bool tryPush(T&& element);
-	// legacy name
-	bool tryPushFront(ElementT const & element) { return tryPush(element); }
+    // Try to add an element to the queue without blocking. Returns
+    // true only if the element was actually added.
+    template <typename T>
+    bool tryPush(T&& element);
+    // legacy name
+    bool tryPushFront(ElementT const & element) { return tryPush(element); }
 
-	// Try to add an element to the queue, blocking if full but with timeout
-	// after specified duration. Returns true if the element was added.
-	// There are potentially two different timeouts involved: how long to try
-	// to lock the mutex, versus how long to wait for the queue to stop being
-	// full. Careful settings for each timeout might be orders of magnitude
-	// apart. However, this method conflates them.
-	template <typename Rep, typename Period, typename T>
-	bool tryPushFor(const std::chrono::duration<Rep, Period>& timeout,
-					T&& element);
-	// legacy name
-	template <typename Rep, typename Period>
-	bool tryPushFrontFor(const std::chrono::duration<Rep, Period>& timeout,
-						 ElementT const & element) { return tryPushFor(timeout, element); }
+    // Try to add an element to the queue, blocking if full but with timeout
+    // after specified duration. Returns true if the element was added.
+    // There are potentially two different timeouts involved: how long to try
+    // to lock the mutex, versus how long to wait for the queue to stop being
+    // full. Careful settings for each timeout might be orders of magnitude
+    // apart. However, this method conflates them.
+    template <typename Rep, typename Period, typename T>
+    bool tryPushFor(const std::chrono::duration<Rep, Period>& timeout,
+                    T&& element);
+    // legacy name
+    template <typename Rep, typename Period>
+    bool tryPushFrontFor(const std::chrono::duration<Rep, Period>& timeout,
+                         ElementT const & element) { return tryPushFor(timeout, element); }
 
-	// Try to add an element to the queue, blocking if full but with
-	// timeout at specified time_point. Returns true if the element was added.
-	template <typename Clock, typename Duration, typename T>
-	bool tryPushUntil(const std::chrono::time_point<Clock, Duration>& until,
-					  T&& element);
-	// no legacy name because this is a newer method
+    // Try to add an element to the queue, blocking if full but with
+    // timeout at specified time_point. Returns true if the element was added.
+    template <typename Clock, typename Duration, typename T>
+    bool tryPushUntil(const std::chrono::time_point<Clock, Duration>& until,
+                      T&& element);
+    // no legacy name because this is a newer method
 
-	// Pop the element at the head of the queue (will block if the queue is
-	// empty).
-	//
-	// This call will raise an interrupt error if the queue is closed while
-	// the caller is blocked.
-	ElementT pop(void);
-	// legacy name
-	ElementT popBack(void) { return pop(); }
+    // Pop the element at the head of the queue (will block if the queue is
+    // empty).
+    //
+    // This call will raise an interrupt error if the queue is closed while
+    // the caller is blocked.
+    ElementT pop(void);
+    // legacy name
+    ElementT popBack(void) { return pop(); }
 
-	// Pop an element from the head of the queue if there is one available.
-	// Returns true only if an element was popped.
-	bool tryPop(ElementT & element);
-	// legacy name
-	bool tryPopBack(ElementT & element) { return tryPop(element); }
+    // Pop an element from the head of the queue if there is one available.
+    // Returns true only if an element was popped.
+    bool tryPop(ElementT & element);
+    // legacy name
+    bool tryPopBack(ElementT & element) { return tryPop(element); }
 
-	// Pop the element at the head of the queue, blocking if empty, with
-	// timeout after specified duration. Returns true if an element was popped.
-	template <typename Rep, typename Period>
-	bool tryPopFor(const std::chrono::duration<Rep, Period>& timeout, ElementT& element);
-	// no legacy name because this is a newer method
+    // Pop the element at the head of the queue, blocking if empty, with
+    // timeout after specified duration. Returns true if an element was popped.
+    template <typename Rep, typename Period>
+    bool tryPopFor(const std::chrono::duration<Rep, Period>& timeout, ElementT& element);
+    // no legacy name because this is a newer method
 
-	// Pop the element at the head of the queue, blocking if empty, with
-	// timeout at specified time_point. Returns true if an element was popped.
-	template <typename Clock, typename Duration>
-	bool tryPopUntil(const std::chrono::time_point<Clock, Duration>& until,
-					 ElementT& element);
-	// no legacy name because this is a newer method
+    // Pop the element at the head of the queue, blocking if empty, with
+    // timeout at specified time_point. Returns true if an element was popped.
+    template <typename Clock, typename Duration>
+    bool tryPopUntil(const std::chrono::time_point<Clock, Duration>& until,
+                     ElementT& element);
+    // no legacy name because this is a newer method
 
-	// Returns the size of the queue.
-	size_t size();
+    // Returns the size of the queue.
+    size_t size();
 
     //Returns the capacity of the queue.
     U32 capacity() { return mCapacity; }
 
-	// closes the queue:
-	// - every subsequent push() call will throw LLThreadSafeQueueInterrupt
-	// - every subsequent tryPush() call will return false
-	// - pop() calls will return normally until the queue is drained, then
-	//   every subsequent pop() will throw LLThreadSafeQueueInterrupt
-	// - tryPop() calls will return normally until the queue is drained,
-	//   then every subsequent tryPop() call will return false
-	void close();
+    // closes the queue:
+    // - every subsequent push() call will throw LLThreadSafeQueueInterrupt
+    // - every subsequent tryPush() call will return false
+    // - pop() calls will return normally until the queue is drained, then
+    //   every subsequent pop() will throw LLThreadSafeQueueInterrupt
+    // - tryPop() calls will return normally until the queue is drained,
+    //   then every subsequent tryPop() call will return false
+    void close();
 
-	// producer end: are we prevented from pushing any additional items?
-	bool isClosed();
-	// consumer end: are we done, is the queue entirely drained?
-	bool done();
+    // producer end: are we prevented from pushing any additional items?
+    bool isClosed();
+    // consumer end: are we done, is the queue entirely drained?
+    bool done();
 
 protected:
-	typedef QueueT queue_type;
-	QueueT mStorage;
-	U32 mCapacity;
-	bool mClosed;
+    typedef QueueT queue_type;
+    QueueT mStorage;
+    U32 mCapacity;
+    bool mClosed;
 
-	boost::fibers::timed_mutex mLock;
-	typedef std::unique_lock<decltype(mLock)> lock_t;
-	boost::fibers::condition_variable_any mCapacityCond;
-	boost::fibers::condition_variable_any mEmptyCond;
+    boost::fibers::timed_mutex mLock;
+    typedef std::unique_lock<decltype(mLock)> lock_t;
+    boost::fibers::condition_variable_any mCapacityCond;
+    boost::fibers::condition_variable_any mEmptyCond;
 
-	enum pop_result { EMPTY, DONE, WAITING, POPPED };
-	// implementation logic, suitable for passing to tryLockUntil()
-	template <typename Clock, typename Duration>
-	pop_result tryPopUntil_(lock_t& lock,
-							const std::chrono::time_point<Clock, Duration>& until,
-							ElementT& element);
-	// if we're able to lock immediately, do so and run the passed callable,
-	// which must accept lock_t& and return bool
-	template <typename CALLABLE>
-	bool tryLock(CALLABLE&& callable);
-	// if we're able to lock before the passed time_point, do so and run the
-	// passed callable, which must accept lock_t& and return bool
-	template <typename Clock, typename Duration, typename CALLABLE>
-	bool tryLockUntil(const std::chrono::time_point<Clock, Duration>& until,
-					  CALLABLE&& callable);
-	// while lock is locked, really push the passed element, if we can
-	template <typename T>
-	bool push_(lock_t& lock, T&& element);
-	// while lock is locked, really pop the head element, if we can
-	pop_result pop_(lock_t& lock, ElementT& element);
-	// Is the current head element ready to pop? We say yes; subclass can
-	// override as needed.
-	virtual bool canPop(const ElementT& head) const { return true; }
+    enum pop_result { EMPTY, DONE, WAITING, POPPED };
+    // implementation logic, suitable for passing to tryLockUntil()
+    template <typename Clock, typename Duration>
+    pop_result tryPopUntil_(lock_t& lock,
+                            const std::chrono::time_point<Clock, Duration>& until,
+                            ElementT& element);
+    // if we're able to lock immediately, do so and run the passed callable,
+    // which must accept lock_t& and return bool
+    template <typename CALLABLE>
+    bool tryLock(CALLABLE&& callable);
+    // if we're able to lock before the passed time_point, do so and run the
+    // passed callable, which must accept lock_t& and return bool
+    template <typename Clock, typename Duration, typename CALLABLE>
+    bool tryLockUntil(const std::chrono::time_point<Clock, Duration>& until,
+                      CALLABLE&& callable);
+    // while lock is locked, really push the passed element, if we can
+    template <typename T>
+    bool push_(lock_t& lock, T&& element);
+    // while lock is locked, really pop the head element, if we can
+    pop_result pop_(lock_t& lock, ElementT& element);
+    // Is the current head element ready to pop? We say yes; subclass can
+    // override as needed.
+    virtual bool canPop(const ElementT& head) const { return true; }
 };
 
 /*****************************************************************************

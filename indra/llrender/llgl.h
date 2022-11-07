@@ -64,110 +64,110 @@ class LLSD;
 class LLGLManager
 {
 public:
-	LLGLManager();
+    LLGLManager();
 
-	bool initGL();
-	void shutdownGL();
+    bool initGL();
+    void shutdownGL();
 
-	void initWGL(); // Initializes stupid WGL extensions
+    void initWGL(); // Initializes stupid WGL extensions
 
-	std::string getRawGLString(); // For sending to simulator
+    std::string getRawGLString(); // For sending to simulator
 
-	BOOL mInited;
-	BOOL mIsDisabled;
+    BOOL mInited;
+    BOOL mIsDisabled;
 
-	// Extensions used by everyone
-	BOOL mHasMultitexture;
-	BOOL mHasATIMemInfo;
-	BOOL mHasAMDAssociations;
-	BOOL mHasNVXMemInfo;
-	S32	 mNumTextureUnits;
-	BOOL mHasMipMapGeneration;
-	BOOL mHasCompressedTextures;
-	BOOL mHasFramebufferObject;
-	S32 mMaxSamples;
-	BOOL mHasBlendFuncSeparate;
-		
-	// ARB Extensions
-	BOOL mHasVertexBufferObject;
-	BOOL mHasVertexArrayObject;
-	BOOL mHasSync;
-	BOOL mHasMapBufferRange;
-	BOOL mHasFlushBufferRange;
-	BOOL mHasPBuffer;
-	S32  mNumTextureImageUnits;
-	BOOL mHasOcclusionQuery;
-	BOOL mHasTimerQuery;
-	BOOL mHasOcclusionQuery2;
-	BOOL mHasPointParameters;
-	BOOL mHasDrawBuffers;
-	BOOL mHasDepthClamp;
-	BOOL mHasTextureRectangle;
-	BOOL mHasTextureMultisample;
-	BOOL mHasTransformFeedback;
-	S32 mMaxSampleMaskWords;
-	S32 mMaxColorTextureSamples;
-	S32 mMaxDepthTextureSamples;
-	S32 mMaxIntegerSamples;
+    // Extensions used by everyone
+    BOOL mHasMultitexture;
+    BOOL mHasATIMemInfo;
+    BOOL mHasAMDAssociations;
+    BOOL mHasNVXMemInfo;
+    S32  mNumTextureUnits;
+    BOOL mHasMipMapGeneration;
+    BOOL mHasCompressedTextures;
+    BOOL mHasFramebufferObject;
+    S32 mMaxSamples;
+    BOOL mHasBlendFuncSeparate;
+        
+    // ARB Extensions
+    BOOL mHasVertexBufferObject;
+    BOOL mHasVertexArrayObject;
+    BOOL mHasSync;
+    BOOL mHasMapBufferRange;
+    BOOL mHasFlushBufferRange;
+    BOOL mHasPBuffer;
+    S32  mNumTextureImageUnits;
+    BOOL mHasOcclusionQuery;
+    BOOL mHasTimerQuery;
+    BOOL mHasOcclusionQuery2;
+    BOOL mHasPointParameters;
+    BOOL mHasDrawBuffers;
+    BOOL mHasDepthClamp;
+    BOOL mHasTextureRectangle;
+    BOOL mHasTextureMultisample;
+    BOOL mHasTransformFeedback;
+    S32 mMaxSampleMaskWords;
+    S32 mMaxColorTextureSamples;
+    S32 mMaxDepthTextureSamples;
+    S32 mMaxIntegerSamples;
 
-	// Other extensions.
-	BOOL mHasAnisotropic;
-	BOOL mHasARBEnvCombine;
-	BOOL mHasCubeMap;
-	BOOL mHasDebugOutput;
-	BOOL mHassRGBTexture;
-	BOOL mHassRGBFramebuffer;
+    // Other extensions.
+    BOOL mHasAnisotropic;
+    BOOL mHasARBEnvCombine;
+    BOOL mHasCubeMap;
+    BOOL mHasDebugOutput;
+    BOOL mHassRGBTexture;
+    BOOL mHassRGBFramebuffer;
     BOOL mHasTexturesRGBDecode;
 
-	// Vendor-specific extensions
-	BOOL mIsAMD;
-	BOOL mIsNVIDIA;
-	BOOL mIsIntel;
+    // Vendor-specific extensions
+    BOOL mIsAMD;
+    BOOL mIsNVIDIA;
+    BOOL mIsIntel;
 
 #if LL_DARWIN
-	// Needed to distinguish problem cards on older Macs that break with Materials
-	BOOL mIsMobileGF;
+    // Needed to distinguish problem cards on older Macs that break with Materials
+    BOOL mIsMobileGF;
 #endif
-	
-	// Whether this version of GL is good enough for SL to use
-	BOOL mHasRequirements;
+    
+    // Whether this version of GL is good enough for SL to use
+    BOOL mHasRequirements;
 
-	// Misc extensions
-	BOOL mHasSeparateSpecularColor;
+    // Misc extensions
+    BOOL mHasSeparateSpecularColor;
 
-	S32 mDriverVersionMajor;
-	S32 mDriverVersionMinor;
-	S32 mDriverVersionRelease;
-	F32 mGLVersion; // e.g = 1.4
-	S32 mGLSLVersionMajor;
-	S32 mGLSLVersionMinor;
-	std::string mDriverVersionVendorString;
-	std::string mGLVersionString;
+    S32 mDriverVersionMajor;
+    S32 mDriverVersionMinor;
+    S32 mDriverVersionRelease;
+    F32 mGLVersion; // e.g = 1.4
+    S32 mGLSLVersionMajor;
+    S32 mGLSLVersionMinor;
+    std::string mDriverVersionVendorString;
+    std::string mGLVersionString;
 
-	S32 mVRAM; // VRAM in MB
-	S32 mGLMaxVertexRange;
-	S32 mGLMaxIndexRange;
-	S32 mGLMaxTextureSize;
-	
-	void getPixelFormat(); // Get the best pixel format
+    S32 mVRAM; // VRAM in MB
+    S32 mGLMaxVertexRange;
+    S32 mGLMaxIndexRange;
+    S32 mGLMaxTextureSize;
+    
+    void getPixelFormat(); // Get the best pixel format
 
-	std::string getGLInfoString();
-	void printGLInfoString();
-	void getGLInfo(LLSD& info);
+    std::string getGLInfoString();
+    void printGLInfoString();
+    void getGLInfo(LLSD& info);
 
-	void asLLSD(LLSD& info);
+    void asLLSD(LLSD& info);
 
-	// In ALL CAPS
-	std::string mGLVendor;
-	std::string mGLVendorShort;
+    // In ALL CAPS
+    std::string mGLVendor;
+    std::string mGLVendorShort;
 
-	// In ALL CAPS
-	std::string mGLRenderer;
+    // In ALL CAPS
+    std::string mGLRenderer;
 
 private:
-	void initExtensions();
-	void initGLStates();
-	void initGLImages();
+    void initExtensions();
+    void initGLStates();
+    void initGLImages();
 };
 
 extern LLGLManager gGLManager;
@@ -202,51 +202,51 @@ void clear_glerror();
 // This is a class for GL state management
 
 /*
-	GL STATE MANAGEMENT DESCRIPTION
+    GL STATE MANAGEMENT DESCRIPTION
 
-	LLGLState and its two subclasses, LLGLEnable and LLGLDisable, manage the current 
-	enable/disable states of the GL to prevent redundant setting of state within a 
-	render path or the accidental corruption of what state the next path expects.
+    LLGLState and its two subclasses, LLGLEnable and LLGLDisable, manage the current 
+    enable/disable states of the GL to prevent redundant setting of state within a 
+    render path or the accidental corruption of what state the next path expects.
 
-	Essentially, wherever you would call glEnable set a state and then
-	subsequently reset it by calling glDisable (or vice versa), make an instance of 
-	LLGLEnable with the state you want to set, and assume it will be restored to its
-	original state when that instance of LLGLEnable is destroyed.  It is good practice
-	to exploit stack frame controls for optimal setting/unsetting and readability of 
-	code.  In llglstates.h, there are a collection of helper classes that define groups
-	of enables/disables that can cause multiple states to be set with the creation of
-	one instance.  
+    Essentially, wherever you would call glEnable set a state and then
+    subsequently reset it by calling glDisable (or vice versa), make an instance of 
+    LLGLEnable with the state you want to set, and assume it will be restored to its
+    original state when that instance of LLGLEnable is destroyed.  It is good practice
+    to exploit stack frame controls for optimal setting/unsetting and readability of 
+    code.  In llglstates.h, there are a collection of helper classes that define groups
+    of enables/disables that can cause multiple states to be set with the creation of
+    one instance.  
 
-	Sample usage:
+    Sample usage:
 
-	//disable lighting for rendering hud objects
-	//INCORRECT USAGE
-	LLGLEnable lighting(GL_LIGHTING);
-	renderHUD();
-	LLGLDisable lighting(GL_LIGHTING);
+    //disable lighting for rendering hud objects
+    //INCORRECT USAGE
+    LLGLEnable lighting(GL_LIGHTING);
+    renderHUD();
+    LLGLDisable lighting(GL_LIGHTING);
 
-	//CORRECT USAGE
-	{
-		LLGLEnable lighting(GL_LIGHTING);
-		renderHUD();
-	}
+    //CORRECT USAGE
+    {
+        LLGLEnable lighting(GL_LIGHTING);
+        renderHUD();
+    }
 
-	If a state is to be set on a conditional, the following mechanism
-	is useful:
+    If a state is to be set on a conditional, the following mechanism
+    is useful:
 
-	{
-		LLGLEnable lighting(light_hud ? GL_LIGHTING : 0);
-		renderHUD();
-	}
+    {
+        LLGLEnable lighting(light_hud ? GL_LIGHTING : 0);
+        renderHUD();
+    }
 
-	A LLGLState initialized with a parameter of 0 does nothing.
+    A LLGLState initialized with a parameter of 0 does nothing.
 
-	LLGLState works by maintaining a map of the current GL states, and ignoring redundant
-	enables/disables.  If a redundant call is attempted, it becomes a noop, otherwise,
-	it is set in the constructor and reset in the destructor.  
+    LLGLState works by maintaining a map of the current GL states, and ignoring redundant
+    enables/disables.  If a redundant call is attempted, it becomes a noop, otherwise,
+    it is set in the constructor and reset in the destructor.  
 
-	For debugging GL state corruption, running with debug enabled will trigger asserts
-	if the existing GL state does not match the expected GL state.
+    For debugging GL state corruption, running with debug enabled will trigger asserts
+    if the existing GL state does not match the expected GL state.
 
 */
 
@@ -255,69 +255,69 @@ void clear_glerror();
 class LLGLState
 {
 public:
-	static void initClass();
-	static void restoreGL();
+    static void initClass();
+    static void restoreGL();
 
-	static void resetTextureStates();
-	static void dumpStates();
-	static void checkStates(const std::string& msg = "");
-	static void checkTextureChannels(const std::string& msg = "");
-	
+    static void resetTextureStates();
+    static void dumpStates();
+    static void checkStates(const std::string& msg = "");
+    static void checkTextureChannels(const std::string& msg = "");
+    
 protected:
-	static boost::unordered_map<LLGLenum, LLGLboolean> sStateMap;
-	
+    static boost::unordered_map<LLGLenum, LLGLboolean> sStateMap;
+    
 public:
-	enum { CURRENT_STATE = -2 };
-	LLGLState(LLGLenum state, S32 enabled = CURRENT_STATE);
-	~LLGLState();
-	void setEnabled(S32 enabled);
-	void enable() { setEnabled(TRUE); }
-	void disable() { setEnabled(FALSE); }
+    enum { CURRENT_STATE = -2 };
+    LLGLState(LLGLenum state, S32 enabled = CURRENT_STATE);
+    ~LLGLState();
+    void setEnabled(S32 enabled);
+    void enable() { setEnabled(TRUE); }
+    void disable() { setEnabled(FALSE); }
 protected:
-	LLGLenum mState;
-	BOOL mWasEnabled;
-	BOOL mIsEnabled;
+    LLGLenum mState;
+    BOOL mWasEnabled;
+    BOOL mIsEnabled;
 };
 
 // New LLGLState class wrappers that don't depend on actual GL flags.
 class LLGLEnableBlending : public LLGLState
 {
 public:
-	LLGLEnableBlending(bool enable);
+    LLGLEnableBlending(bool enable);
 };
 
 class LLGLEnableAlphaReject : public LLGLState
 {
 public:
-	LLGLEnableAlphaReject(bool enable);
+    LLGLEnableAlphaReject(bool enable);
 };
 
 // Enable with functor
 class LLGLEnableFunc : LLGLState
 {
 public:
-	LLGLEnableFunc(LLGLenum state, bool enable, boost::function<void()> func)
-		: LLGLState(state, enable)
-	{
-		if (enable)
-		{
-			func();
-		}
-	}
+    LLGLEnableFunc(LLGLenum state, bool enable, boost::function<void()> func)
+        : LLGLState(state, enable)
+    {
+        if (enable)
+        {
+            func();
+        }
+    }
 };
 
 /// TODO: Being deprecated.
 class LLGLEnable : public LLGLState
 {
 public:
-	LLGLEnable(LLGLenum state) : LLGLState(state, TRUE) {}
+    LLGLEnable(LLGLenum state) : LLGLState(state, TRUE) {}
 };
 
 /// TODO: Being deprecated.
 class LLGLDisable : public LLGLState
 {
 public:
-	LLGLDisable(LLGLenum state) : LLGLState(state, FALSE) {}
+    LLGLDisable(LLGLenum state) : LLGLState(state, FALSE) {}
 };
 
 /*
@@ -335,18 +335,18 @@ public:
 class LLGLUserClipPlane 
 {
 public:
-	
-	LLGLUserClipPlane(const LLPlane& plane, const glh::matrix4f& modelview, const glh::matrix4f& projection, bool apply = true);
-	~LLGLUserClipPlane();
+    
+    LLGLUserClipPlane(const LLPlane& plane, const glh::matrix4f& modelview, const glh::matrix4f& projection, bool apply = true);
+    ~LLGLUserClipPlane();
 
-	void setPlane(F32 a, F32 b, F32 c, F32 d);
+    void setPlane(F32 a, F32 b, F32 c, F32 d);
     void disable();
 
 private:
-	bool mApply;
+    bool mApply;
 
-	glh::matrix4f mProjection;
-	glh::matrix4f mModelview;
+    glh::matrix4f mProjection;
+    glh::matrix4f mModelview;
 };
 
 /*
@@ -360,40 +360,40 @@ class LLGLSquashToFarClip
 {
 public:
     LLGLSquashToFarClip();
-	LLGLSquashToFarClip(glh::matrix4f& projection, U32 layer = 0);
+    LLGLSquashToFarClip(glh::matrix4f& projection, U32 layer = 0);
 
     void setProjectionMatrix(glh::matrix4f& projection, U32 layer);
 
-	~LLGLSquashToFarClip();
+    ~LLGLSquashToFarClip();
 };
 
 /*
-	Interface for objects that need periodic GL updates applied to them.
-	Used to synchronize GL updates with GL thread.
+    Interface for objects that need periodic GL updates applied to them.
+    Used to synchronize GL updates with GL thread.
 */
 class LLGLUpdate
 {
 public:
 
-	static std::list<LLGLUpdate*> sGLQ;
+    static std::list<LLGLUpdate*> sGLQ;
 
-	BOOL mInQ;
-	LLGLUpdate()
-		: mInQ(FALSE)
-	{
-	}
-	virtual ~LLGLUpdate()
-	{
-		if (mInQ)
-		{
-			std::list<LLGLUpdate*>::iterator iter = std::find(sGLQ.begin(), sGLQ.end(), this);
-			if (iter != sGLQ.end())
-			{
-				sGLQ.erase(iter);
-			}
-		}
-	}
-	virtual void updateGL() = 0;
+    BOOL mInQ;
+    LLGLUpdate()
+        : mInQ(FALSE)
+    {
+    }
+    virtual ~LLGLUpdate()
+    {
+        if (mInQ)
+        {
+            std::list<LLGLUpdate*>::iterator iter = std::find(sGLQ.begin(), sGLQ.end(), this);
+            if (iter != sGLQ.end())
+            {
+                sGLQ.erase(iter);
+            }
+        }
+    }
+    virtual void updateGL() = 0;
 };
 
 const U32 FENCE_WAIT_TIME_NANOSECONDS = 1000;  //1 ms
@@ -401,28 +401,28 @@ const U32 FENCE_WAIT_TIME_NANOSECONDS = 1000;  //1 ms
 class LLGLFence
 {
 public:
-	virtual ~LLGLFence()
-	{
-	}
+    virtual ~LLGLFence()
+    {
+    }
 
-	virtual void placeFence() = 0;
-	virtual bool isCompleted() = 0;
-	virtual void wait() = 0;
+    virtual void placeFence() = 0;
+    virtual bool isCompleted() = 0;
+    virtual void wait() = 0;
 };
 
 class LLGLSyncFence : public LLGLFence
 {
 public:
 #ifdef GL_ARB_sync
-	GLsync mSync;
+    GLsync mSync;
 #endif
-	
-	LLGLSyncFence();
-	virtual ~LLGLSyncFence();
+    
+    LLGLSyncFence();
+    virtual ~LLGLSyncFence();
 
-	void placeFence();
-	bool isCompleted();
-	void wait();
+    void placeFence();
+    bool isCompleted();
+    void wait();
 };
 
 extern LLMatrix4 gGLObliqueProjectionInverse;

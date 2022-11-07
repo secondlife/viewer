@@ -35,47 +35,47 @@
 
 class LLWearableType : public LLParamSingleton<LLWearableType>
 {
-	LLSINGLETON(LLWearableType, LLTranslationBridge::ptr_t &trans);
-	~LLWearableType();
-	void initSingleton();
+    LLSINGLETON(LLWearableType, LLTranslationBridge::ptr_t &trans);
+    ~LLWearableType();
+    void initSingleton();
 public: 
-	enum EType
-	{
-		WT_SHAPE	  = 0,
-		WT_SKIN		  = 1,
-		WT_HAIR		  = 2,
-		WT_EYES		  = 3,
-		WT_SHIRT	  = 4,
-		WT_PANTS	  = 5,
-		WT_SHOES	  = 6,
-		WT_SOCKS	  = 7,
-		WT_JACKET	  = 8,
-		WT_GLOVES	  = 9,
-		WT_UNDERSHIRT = 10,
-		WT_UNDERPANTS = 11,
-		WT_SKIRT	  = 12,
-		WT_ALPHA	  = 13,
-		WT_TATTOO	  = 14,
-		WT_PHYSICS	  = 15,
-		WT_UNIVERSAL  = 16,
-		WT_COUNT	  = 17,
+    enum EType
+    {
+        WT_SHAPE      = 0,
+        WT_SKIN       = 1,
+        WT_HAIR       = 2,
+        WT_EYES       = 3,
+        WT_SHIRT      = 4,
+        WT_PANTS      = 5,
+        WT_SHOES      = 6,
+        WT_SOCKS      = 7,
+        WT_JACKET     = 8,
+        WT_GLOVES     = 9,
+        WT_UNDERSHIRT = 10,
+        WT_UNDERPANTS = 11,
+        WT_SKIRT      = 12,
+        WT_ALPHA      = 13,
+        WT_TATTOO     = 14,
+        WT_PHYSICS    = 15,
+        WT_UNIVERSAL  = 16,
+        WT_COUNT      = 17,
 
-		WT_INVALID	  = 255,
-		WT_NONE		  = -1,
-	};
+        WT_INVALID    = 255,
+        WT_NONE       = -1,
+    };
 
-	// Most methods are wrappers for dictionary, but if LLWearableType is not initialized,
-	// they will crash. Whole LLWearableType is just wrapper for convinient calls.
-	const std::string& 					getTypeName(EType type);
-	const std::string& 					getTypeDefaultNewName(EType type);
-	const std::string& 					getTypeLabel(EType type);
-	LLAssetType::EType 					getAssetType(EType type);
-	EType 								typeNameToType(const std::string& type_name);
-	LLInventoryType::EIconName 			getIconName(EType type);
-	BOOL 								getDisableCameraSwitch(EType type);
-	BOOL 								getAllowMultiwear(EType type);
+    // Most methods are wrappers for dictionary, but if LLWearableType is not initialized,
+    // they will crash. Whole LLWearableType is just wrapper for convinient calls.
+    const std::string&                  getTypeName(EType type);
+    const std::string&                  getTypeDefaultNewName(EType type);
+    const std::string&                  getTypeLabel(EType type);
+    LLAssetType::EType                  getAssetType(EType type);
+    EType                               typeNameToType(const std::string& type_name);
+    LLInventoryType::EIconName          getIconName(EType type);
+    BOOL                                getDisableCameraSwitch(EType type);
+    BOOL                                getAllowMultiwear(EType type);
 
-	static EType						inventoryFlagsToWearableType(U32 flags);
+    static EType                        inventoryFlagsToWearableType(U32 flags);
 
 private:
     struct WearableEntry : public LLDictionaryEntry

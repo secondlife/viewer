@@ -37,16 +37,16 @@
 // LLViewerVisualParamInfo()
 //-----------------------------------------------------------------------------
 LLViewerVisualParamInfo::LLViewerVisualParamInfo()
-	:
-	mWearableType( LLWearableType::WT_INVALID ),
-	mCrossWearable(FALSE),
-	mCamDist( 0.5f ),
-	mCamAngle( 0.f ),
-	mCamElevation( 0.f ),
-	mEditGroupDisplayOrder( 0 ),
-	mShowSimple(FALSE),
-	mSimpleMin(0.f),
-	mSimpleMax(100.f)
+    :
+    mWearableType( LLWearableType::WT_INVALID ),
+    mCrossWearable(FALSE),
+    mCamDist( 0.5f ),
+    mCamAngle( 0.f ),
+    mCamElevation( 0.f ),
+    mEditGroupDisplayOrder( 0 ),
+    mShowSimple(FALSE),
+    mSimpleMin(0.f),
+    mSimpleMax(100.f)
 {
 }
 
@@ -59,71 +59,71 @@ LLViewerVisualParamInfo::~LLViewerVisualParamInfo()
 //-----------------------------------------------------------------------------
 BOOL LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
 {
-	llassert( node->hasName( "param" ) );
+    llassert( node->hasName( "param" ) );
 
-	if (!LLVisualParamInfo::parseXml(node))
-		return FALSE;
-	
-	// VIEWER SPECIFIC PARAMS
-	
-	std::string wearable;
-	static LLStdStringHandle wearable_string = LLXmlTree::addAttributeString("wearable");
-	if( node->getFastAttributeString( wearable_string, wearable) )
-	{
-		mWearableType = LLWearableType::getInstance()->typeNameToType( wearable );
-	}
+    if (!LLVisualParamInfo::parseXml(node))
+        return FALSE;
+    
+    // VIEWER SPECIFIC PARAMS
+    
+    std::string wearable;
+    static LLStdStringHandle wearable_string = LLXmlTree::addAttributeString("wearable");
+    if( node->getFastAttributeString( wearable_string, wearable) )
+    {
+        mWearableType = LLWearableType::getInstance()->typeNameToType( wearable );
+    }
 
-	static LLStdStringHandle edit_group_string = LLXmlTree::addAttributeString("edit_group");
-	if (!node->getFastAttributeString( edit_group_string, mEditGroup))
-	{
-		mEditGroup = "";
-	}
+    static LLStdStringHandle edit_group_string = LLXmlTree::addAttributeString("edit_group");
+    if (!node->getFastAttributeString( edit_group_string, mEditGroup))
+    {
+        mEditGroup = "";
+    }
 
-	static LLStdStringHandle cross_wearable_string = LLXmlTree::addAttributeString("cross_wearable");
-	if (!node->getFastAttributeBOOL(cross_wearable_string, mCrossWearable))
-	{
-		mCrossWearable = FALSE;
-	}
+    static LLStdStringHandle cross_wearable_string = LLXmlTree::addAttributeString("cross_wearable");
+    if (!node->getFastAttributeBOOL(cross_wearable_string, mCrossWearable))
+    {
+        mCrossWearable = FALSE;
+    }
 
-	// Optional camera offsets from the current joint center.  Used for generating "hints" (thumbnails).
-	static LLStdStringHandle camera_distance_string = LLXmlTree::addAttributeString("camera_distance");
-	node->getFastAttributeF32( camera_distance_string, mCamDist );
-	static LLStdStringHandle camera_angle_string = LLXmlTree::addAttributeString("camera_angle");
-	node->getFastAttributeF32( camera_angle_string, mCamAngle );	// in degrees
-	static LLStdStringHandle camera_elevation_string = LLXmlTree::addAttributeString("camera_elevation");
-	node->getFastAttributeF32( camera_elevation_string, mCamElevation );
+    // Optional camera offsets from the current joint center.  Used for generating "hints" (thumbnails).
+    static LLStdStringHandle camera_distance_string = LLXmlTree::addAttributeString("camera_distance");
+    node->getFastAttributeF32( camera_distance_string, mCamDist );
+    static LLStdStringHandle camera_angle_string = LLXmlTree::addAttributeString("camera_angle");
+    node->getFastAttributeF32( camera_angle_string, mCamAngle );    // in degrees
+    static LLStdStringHandle camera_elevation_string = LLXmlTree::addAttributeString("camera_elevation");
+    node->getFastAttributeF32( camera_elevation_string, mCamElevation );
 
-	mCamAngle += 180;
+    mCamAngle += 180;
 
-	static S32 params_loaded = 0;
+    static S32 params_loaded = 0;
 
-	// By default, parameters are displayed in the order in which they appear in the xml file.
-	// "edit_group_order" overriddes.
-	static LLStdStringHandle edit_group_order_string = LLXmlTree::addAttributeString("edit_group_order");
-	if( !node->getFastAttributeF32( edit_group_order_string, mEditGroupDisplayOrder ) )
-	{
-		mEditGroupDisplayOrder = (F32)params_loaded;
-	}
+    // By default, parameters are displayed in the order in which they appear in the xml file.
+    // "edit_group_order" overriddes.
+    static LLStdStringHandle edit_group_order_string = LLXmlTree::addAttributeString("edit_group_order");
+    if( !node->getFastAttributeF32( edit_group_order_string, mEditGroupDisplayOrder ) )
+    {
+        mEditGroupDisplayOrder = (F32)params_loaded;
+    }
 
-	params_loaded++;
-	
-	return TRUE;
+    params_loaded++;
+    
+    return TRUE;
 }
 
 /*virtual*/ void LLViewerVisualParamInfo::toStream(std::ostream &out)
 {
-	LLVisualParamInfo::toStream(out);
+    LLVisualParamInfo::toStream(out);
 
-	out << mWearableType << "\t";
-	out << mEditGroup << "\t";
-	out << mEditGroupDisplayOrder << "\t";
+    out << mWearableType << "\t";
+    out << mEditGroup << "\t";
+    out << mEditGroupDisplayOrder << "\t";
 }
 
 //-----------------------------------------------------------------------------
 // LLViewerVisualParam()
 //-----------------------------------------------------------------------------
 LLViewerVisualParam::LLViewerVisualParam()
-	: LLVisualParam()
+    : LLVisualParam()
 {
 }
 
@@ -131,7 +131,7 @@ LLViewerVisualParam::LLViewerVisualParam()
 // LLViewerVisualParam()
 //-----------------------------------------------------------------------------
 LLViewerVisualParam::LLViewerVisualParam(const LLViewerVisualParam& pOther)
-	: LLVisualParam(pOther)
+    : LLVisualParam(pOther)
 {
 }
 
@@ -148,13 +148,13 @@ LLViewerVisualParam::~LLViewerVisualParam()
 
 BOOL LLViewerVisualParam::setInfo(LLViewerVisualParamInfo *info)
 {
-	llassert(mInfo == NULL);
-	if (info->mID < 0)
-		return FALSE;
-	mInfo = info;
-	mID = info->mID;
-	setWeight(getDefaultWeight());
-	return TRUE;
+    llassert(mInfo == NULL);
+    if (info->mID < 0)
+        return FALSE;
+    mInfo = info;
+    mID = info->mID;
+    setWeight(getDefaultWeight());
+    return TRUE;
 }
 
 /*
@@ -168,12 +168,12 @@ BOOL LLViewerVisualParam::setInfo(LLViewerVisualParamInfo *info)
 //-----------------------------------------------------------------------------
 BOOL LLViewerVisualParam::parseData(LLXmlTreeNode *node)
 {
-	LLViewerVisualParamInfo* info = new LLViewerVisualParamInfo;
+    LLViewerVisualParamInfo* info = new LLViewerVisualParamInfo;
 
-	info->parseXml(node);
-	if (!setInfo(info))
-		return FALSE;
-	
-	return TRUE;
+    info->parseXml(node);
+    if (!setInfo(info))
+        return FALSE;
+    
+    return TRUE;
 }
 */

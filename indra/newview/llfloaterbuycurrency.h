@@ -35,15 +35,15 @@ class LLFloater;
 class LLFetchAvatarPaymentInfo : public LLAvatarPropertiesObserver
 {
 public:
-	LLFetchAvatarPaymentInfo(bool has_target, const std::string& name = std::string(), S32 price = 0);
-	~LLFetchAvatarPaymentInfo();
+    LLFetchAvatarPaymentInfo(bool has_target, const std::string& name = std::string(), S32 price = 0);
+    ~LLFetchAvatarPaymentInfo();
 
-	void processProperties(void* data, EAvatarProcessorType type);
+    void processProperties(void* data, EAvatarProcessorType type);
 
 private:
-	LLUUID mAvatarID;
-	bool mHasTarget;
-	std::string mName;
+    LLUUID mAvatarID;
+    bool mHasTarget;
+    std::string mName;
     S32 mPrice;
 };
 
@@ -51,20 +51,20 @@ private:
 class LLFloaterBuyCurrency
 {
 public:
-	static void buyCurrency();
-	static void buyCurrency(const std::string& name, S32 price);
+    static void buyCurrency();
+    static void buyCurrency(const std::string& name, S32 price);
 
-		static void handleBuyCurrency(bool has_piof, bool has_target, const std::string name, S32 price);
-		/* name should be a noun phrase of the object or service being bought:
-				"That object costs"
-				"Trying to give"
-				"Uploading costs"
-			a space and the price will be appended
-		*/
-	
-	static LLFloater* buildFloater(const LLSD& key);
+        static void handleBuyCurrency(bool has_piof, bool has_target, const std::string name, S32 price);
+        /* name should be a noun phrase of the object or service being bought:
+                "That object costs"
+                "Trying to give"
+                "Uploading costs"
+            a space and the price will be appended
+        */
+    
+    static LLFloater* buildFloater(const LLSD& key);
 
-	static LLFetchAvatarPaymentInfo* sPropertiesRequest;
+    static LLFetchAvatarPaymentInfo* sPropertiesRequest;
 };
 
 #endif

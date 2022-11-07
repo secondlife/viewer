@@ -30,22 +30,22 @@
 #include "llfloater.h"
 
 class LLFloaterAddPaymentMethod:
-	public LLFloater
+    public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 public:
-	/*virtual*/	BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+    /*virtual*/ BOOL postBuild();
+    /*virtual*/ void onOpen(const LLSD& key);
 
 private:
-	LLFloaterAddPaymentMethod(const LLSD& key);
+    LLFloaterAddPaymentMethod(const LLSD& key);
 
-	void centerOnScreen();
+    void centerOnScreen();
 
-	void onCloseBtn();
-	void onContinueBtn();
-	
-	/*virtual*/	~LLFloaterAddPaymentMethod();
+    void onCloseBtn();
+    void onContinueBtn();
+    
+    /*virtual*/ ~LLFloaterAddPaymentMethod();
 
 };
 

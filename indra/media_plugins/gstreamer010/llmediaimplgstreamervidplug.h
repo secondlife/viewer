@@ -55,43 +55,43 @@ typedef struct _GstSLVideo      GstSLVideo;
 typedef struct _GstSLVideoClass GstSLVideoClass;
 
 typedef enum {
-	SLV_PF_UNKNOWN = 0,
-	SLV_PF_RGBX    = 1,
-	SLV_PF_BGRX    = 2,
-	SLV__END       = 3
+    SLV_PF_UNKNOWN = 0,
+    SLV_PF_RGBX    = 1,
+    SLV_PF_BGRX    = 2,
+    SLV__END       = 3
 } SLVPixelFormat;
 const int SLVPixelFormatBytes[SLV__END] = {1, 4, 4};
 
 struct _GstSLVideo
 {
-	GstVideoSink video_sink;
+    GstVideoSink video_sink;
 
-	GstCaps *caps;
+    GstCaps *caps;
 
-	int fps_n, fps_d;
-	int par_n, par_d;
-	int height, width;
-	SLVPixelFormat format;
+    int fps_n, fps_d;
+    int par_n, par_d;
+    int height, width;
+    SLVPixelFormat format;
 
-	// SHARED WITH APPLICATION:
-	// Access to the following should be protected by GST_OBJECT_LOCK() on
-	// the GstSLVideo object, and should be totally consistent upon UNLOCK
-	// (i.e. all written at once to reflect the current retained frame info
-	// when the retained frame is updated.)
-	bool retained_frame_ready; // new frame ready since flag last reset. (*TODO: could get the writer to wait on a semaphore instead of having the reader poll, potentially making dropped frames somewhat cheaper.)
-	unsigned char*  retained_frame_data;
-	int retained_frame_allocbytes;
-	int retained_frame_width, retained_frame_height;
-	SLVPixelFormat retained_frame_format;
-	// sticky resize info
-	bool resize_forced_always;
-	int resize_try_width;
-	int resize_try_height;
+    // SHARED WITH APPLICATION:
+    // Access to the following should be protected by GST_OBJECT_LOCK() on
+    // the GstSLVideo object, and should be totally consistent upon UNLOCK
+    // (i.e. all written at once to reflect the current retained frame info
+    // when the retained frame is updated.)
+    bool retained_frame_ready; // new frame ready since flag last reset. (*TODO: could get the writer to wait on a semaphore instead of having the reader poll, potentially making dropped frames somewhat cheaper.)
+    unsigned char*  retained_frame_data;
+    int retained_frame_allocbytes;
+    int retained_frame_width, retained_frame_height;
+    SLVPixelFormat retained_frame_format;
+    // sticky resize info
+    bool resize_forced_always;
+    int resize_try_width;
+    int resize_try_height;
 };
 
 struct _GstSLVideoClass 
 {
-	GstVideoSinkClass parent_class;
+    GstVideoSinkClass parent_class;
 };
 
 GType gst_slvideo_get_type (void);
