@@ -124,6 +124,7 @@ set(viewer_SOURCE_FILES
     llagentlistener.cpp
     llagentpicksinfo.cpp
     llagentpilot.cpp
+    llagentiomodule.cpp
     llagentui.cpp
     llagentwearables.cpp
     llanimstatelabels.cpp
@@ -765,6 +766,7 @@ set(viewer_HEADER_FILES
     llagentlistener.h
     llagentpicksinfo.h
     llagentpilot.h
+    llagentiomodule.h
     llagentui.h
     llagentwearables.h
     llanimstatelabels.h
