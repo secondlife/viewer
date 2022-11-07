@@ -57,7 +57,8 @@ bool LLEmojiHelper::isActive(const LLUICtrl* ctrl_p) const
 // static
 bool LLEmojiHelper::isCursorInEmojiCode(const LLWString& wtext, S32 cursorPos, S32* pShortCodePos)
 {
-	S32 shortCodePos = cursorPos;
+	// If the cursor is currently on a colon start the check one character further back
+	S32 shortCodePos = (cursorPos == 0 || L':' != wtext[cursorPos - 1]) ? cursorPos : cursorPos - 1;
 
 	auto isPartOfShortcode = [](llwchar ch) {
 		switch (ch)

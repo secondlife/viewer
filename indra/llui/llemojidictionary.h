@@ -66,8 +66,8 @@ private:
 
 private:
 	std::list<LLEmojiDescriptor> mEmojis;
-	std::map<llwchar, const LLEmojiDescriptor&> mEmoji2Descr;
-	std::map<std::string, const LLEmojiDescriptor&> mShortCode2Descr;
+	std::map<llwchar, const LLEmojiDescriptor*> mEmoji2Descr;
+	std::map<std::string, const LLEmojiDescriptor*> mShortCode2Descr;
 };
 
 // ============================================================================

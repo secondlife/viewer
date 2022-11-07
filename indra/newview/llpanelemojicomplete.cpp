@@ -146,9 +146,9 @@ void LLPanelEmojiComplete::reshape(S32 width, S32 height, BOOL called_from_paren
 void LLPanelEmojiComplete::setEmojiHint(const std::string& hint)
 {
 	llwchar curEmoji = (mCurSelected < mEmojis.size()) ? mEmojis.at(mCurSelected) : 0;
-	size_t curEmojiIdx = (curEmoji) ? mEmojis.find(curEmoji) : std::string::npos;
 
 	mEmojis = LLEmojiDictionary::instance().findMatchingEmojis(hint);
+	size_t curEmojiIdx = (curEmoji) ? mEmojis.find(curEmoji) : std::string::npos;
 	mCurSelected = (std::string::npos != curEmojiIdx) ? curEmojiIdx : 0;
 
 	if (mAutoSize)
@@ -168,7 +168,7 @@ size_t LLPanelEmojiComplete::posToIndex(S32 x, S32 y) const
 {
 	if (mRenderRect.pointInRect(x, y))
 	{
-		return llmin((size_t)x / mEmojiWidth, mEmojis.size() - 1);
+		return mScrollPos + llmin((size_t)x / mEmojiWidth, mEmojis.size() - 1);
 	}
 	return npos;
 }

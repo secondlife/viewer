@@ -178,22 +178,22 @@ LLWString LLEmojiDictionary::findMatchingEmojis(const std::string& needle) const
 const LLEmojiDescriptor* LLEmojiDictionary::getDescriptorFromShortCode(const std::string& short_code) const
 {
 	const auto it = mShortCode2Descr.find(short_code);
-	return (mShortCode2Descr.end() != it) ? &it->second : nullptr;
+	return (mShortCode2Descr.end() != it) ? it->second : nullptr;
 }
 
 std::string LLEmojiDictionary::getNameFromEmoji(llwchar ch) const
 {
 	const auto it = mEmoji2Descr.find(ch);
-	return (mEmoji2Descr.end() != it) ? it->second.Name : LLStringUtil::null;
+	return (mEmoji2Descr.end() != it) ? it->second->Name : LLStringUtil::null;
 }
 
 void LLEmojiDictionary::addEmoji(LLEmojiDescriptor&& descr)
 {
 	mEmojis.push_back(descr);
-	mEmoji2Descr.insert(std::make_pair(descr.Character, mEmojis.back()));
+	mEmoji2Descr.insert(std::make_pair(descr.Character, &mEmojis.back()));
 	for (const std::string& shortCode : descr.ShortCodes)
 	{
-		mShortCode2Descr.insert(std::make_pair(shortCode, mEmojis.back()));
+		mShortCode2Descr.insert(std::make_pair(shortCode, &mEmojis.back()));
 	}
 }
 
