@@ -56,6 +56,9 @@ public:
 	void draw() override;
 	BOOL handleHover(S32 x, S32 y, MASK mask) override;
 	BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent) override;
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL handleMouseUp(S32 x, S32 y, MASK mask) override;
+	void onCommit() override;
 	void reshape(S32 width, S32 height, BOOL called_from_parent) override;
 
 public:

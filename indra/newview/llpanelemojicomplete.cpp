@@ -120,9 +120,6 @@ BOOL LLPanelEmojiComplete::handleKey(KEY key, MASK mask, BOOL called_from_parent
 			case KEY_RETURN:
 				if (!mEmojis.empty())
 				{
-					LLWString wstr;
-					wstr.push_back(mEmojis.at(mCurSelected));
-					setValue(wstring_to_utf8str(wstr));
 					onCommit();
 					handled = true;
 				}
@@ -135,6 +132,33 @@ BOOL LLPanelEmojiComplete::handleKey(KEY key, MASK mask, BOOL called_from_parent
 		return TRUE;
 	}
 	return LLUICtrl::handleKey(key, mask, called_from_parent);
+}
+
+BOOL LLPanelEmojiComplete::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	mCurSelected = posToIndex(x, y);
+	mLastHover = LLVector2(x, y);
+
+	return TRUE;
+}
+
+BOOL LLPanelEmojiComplete::handleMouseUp(S32 x, S32 y, MASK mask)
+{
+	mCurSelected = posToIndex(x, y);
+	onCommit();
+
+	return TRUE;
+}
+
+void LLPanelEmojiComplete::onCommit()
+{
+	if (npos != mCurSelected)
+	{
+		LLWString wstr;
+		wstr.push_back(mEmojis.at(mCurSelected));
+		setValue(wstring_to_utf8str(wstr));
+		LLUICtrl::onCommit();
+	}
 }
 
 void LLPanelEmojiComplete::reshape(S32 width, S32 height, BOOL called_from_parent)
