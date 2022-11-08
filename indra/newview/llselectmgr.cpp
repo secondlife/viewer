@@ -2000,9 +2000,13 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
                 {
                     object->setHasRenderMaterialParams(false);
                 }
-                else
+                else if (object->hasRenderMaterialParams())
                 {
                     object->parameterChanged(LLNetworkData::PARAMS_RENDER_MATERIAL, true);
+                }
+                else
+                {
+                    object->setHasRenderMaterialParams(true);
                 }
             }
 
@@ -2262,9 +2266,13 @@ void LLSelectMgr::selectionRevertGLTFMaterials()
                 {
                     object->setHasRenderMaterialParams(false);
                 }
-                else
+                else if (object->hasRenderMaterialParams())
                 {
                     object->parameterChanged(LLNetworkData::PARAMS_RENDER_MATERIAL, true);
+                }
+                else
+                {
+                    object->setHasRenderMaterialParams(true);
                 }
             }
 

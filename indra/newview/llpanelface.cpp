@@ -3716,6 +3716,7 @@ struct LLPanelFaceUpdateFunctor : public LLSelectedObjectFunctor
     {
         if (mUpdatePbr)
         {
+            // setRenderMaterialId is supposed to create it
             LLRenderMaterialParams* param_block = (LLRenderMaterialParams*)object->getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
             if (param_block)
             {
@@ -3723,9 +3724,13 @@ struct LLPanelFaceUpdateFunctor : public LLSelectedObjectFunctor
                 {
                     object->setHasRenderMaterialParams(false);
                 }
-                else
+                else if (object->hasRenderMaterialParams())
                 {
                     object->parameterChanged(LLNetworkData::PARAMS_RENDER_MATERIAL, true);
+                }
+                else
+                {
+                    object->setHasRenderMaterialParams(true);
                 }
             }
         }
@@ -3984,6 +3989,10 @@ void LLPanelFace::onCopyTexture()
                 te_data["te"]["bumpshiny"] = tep->getBumpShiny();
                 te_data["te"]["bumpfullbright"] = tep->getBumpShinyFullbright();
                 te_data["te"]["pbr"] = objectp->getRenderMaterialID(te);
+                if (tep->getGLTFMaterialOverride() != nullptr)
+                {
+                    te_data["te"]["pbr_override"] = tep->getGLTFMaterialOverride()->asJSON();
+                }
 
                 if (te_data["te"].has("imageid"))
                 {
@@ -4371,21 +4380,32 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
             {
                 objectp->setTEBumpShinyFullbright(te, (U8)te_data["te"]["bumpfullbright"].asInteger());
             }
+            // PBR/GLTF
             if (te_data["te"].has("pbr"))
             {
-                objectp->setRenderMaterialID(te, te_data["te"]["pbr"].asUUID(), false);
+                objectp->setRenderMaterialID(te, te_data["te"]["pbr"].asUUID(), false /*send in bulk later*/);
+                tep->setGLTFRenderMaterial(nullptr);
+                tep->setGLTFMaterialOverride(nullptr);
 
-                // todo: provide copied overrides here
+                LLSD override_data;
+                override_data["object_id"] = objectp->getID();
+                override_data["side"] = te;
+                if (te_data["te"].has("pbr_override"))
+                {
+                    override_data["gltf_json"] = te_data["te"]["pbr_override"];
+                }
+
                 LLCoros::instance().launch("modifyMaterialCoro",
                     std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
                         gAgent.getRegionCapability("ModifyMaterialParams"),
-                        llsd::map(
-                            "object_id", objectp->getID(),
-                            "side", te), nullptr));
+                        override_data,
+                        nullptr));
             }
             else
             {
-                objectp->setRenderMaterialID(te, LLUUID::null, false);
+                objectp->setRenderMaterialID(te, LLUUID::null, false /*send in bulk later*/ );
+                tep->setGLTFRenderMaterial(nullptr);
+                tep->setGLTFMaterialOverride(nullptr);
 
                 // blank out any override data on the server
                 LLCoros::instance().launch("modifyMaterialCoro",
