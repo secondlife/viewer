@@ -144,43 +144,6 @@ F32 compute_clamped_angle(F32 angle, F32 min_angle, F32 max_angle)
     return angle;
 }
 
-/*
-LLIK::Joint::Config::Target() :
-        mPos(0.0f, 0.0f, 0.0f), mRot()
-{
-}
-
-void LLIK::Target::setPos(const LLVector3& pos, bool local)
-{
-    mPos = pos;
-    if (local)
-    {
-        mMask |= LLIK::FLAG_LOCAL_POS;
-        mMask &= ~LLIK::FLAG_WORLD_POS;
-    }
-    else
-    {
-        mMask |= LLIK::FLAG_WORLD_POS;
-        mMask &= ~LLIK::FLAG_LOCAL_POS;
-    }
-}
-
-void LLIK::Target::setRot(const LLQuaternion& rot, bool local)
-{
-    mRot = rot;
-    if (local)
-    {
-        mMask |= LLIK::FLAG_LOCAL_ROT;
-        mMask &= ~LLIK::FLAG_WORLD_ROT;
-    }
-    else
-    {
-        mMask |= LLIK::FLAG_WORLD_ROT;
-        mMask &= ~LLIK::FLAG_LOCAL_ROT;
-    }
-}
-*/
-
 void LLIK::Joint::Config::setLocalPos(const LLVector3& pos)
 {
     mLocalPos = pos;

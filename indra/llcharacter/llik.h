@@ -74,41 +74,6 @@ constexpr U8 MASK_TARGET = FLAG_TARGET_POS | FLAG_TARGET_ROT;
 
 constexpr F32 IK_DEFAULT_ACCEPTABLE_ERROR = 5.0e-4f; // half millimeter
 
-constexpr U8 HARVEST_FLAG_ACTIVE = 1 << 0;
-//constexpr U8 HARVEST_FLAG_POS = 1 << 1;
-//constexpr U8 HARVEST_FLAG_ROT = 1 << 2;
-
-
-/*
-class Target
-{
-public:
-    Target();
-
-    bool hasWorldPos() const { return (mMask & FLAG_WORLD_POS) > 0; }
-    bool hasWorldRot() const { return (mMask & FLAG_WORLD_ROT) > 0; }
-    bool hasLocalPos() const { return (mMask & FLAG_LOCAL_POS) > 0; }
-    bool hasLocalRot() const { return (mMask & FLAG_LOCAL_ROT) > 0; }
-
-    void setPos(const LLVector3& pos, bool local=false);
-    void setRot(const LLQuaternion& rot, bool local=false);
-
-    const LLVector3& getPos() const { return mPos; }
-    const LLQuaternion& getRot() const { return mRot; }
-
-    // EXPERIMENTAL: keep the "delegate" stuff for now
-    void delegate() { mMask |= FLAG_HAS_DELEGATED; }
-    bool hasDelegated() const { return (mMask & FLAG_HAS_DELEGATED) > 0; }
-
-    void disableConstraint() { mMask |= FLAG_DISABLE_CONSTRAINT; }
-    bool hasDisabledConstraint() const { return (mMask & FLAG_DISABLE_CONSTRAINT) > 0; }
-private:
-    LLVector3 mPos;
-    LLQuaternion mRot;
-    U8 mMask = 0; // per-feature bits
-};
-*/
-
 // A Constraint exists at the tip of Joint
 // and limits the range of Joint.mLocalRot.
 class Constraint
