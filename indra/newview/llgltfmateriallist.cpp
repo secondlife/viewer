@@ -38,6 +38,8 @@
 #include "llviewergenericmessage.h"
 #include "llviewerobjectlist.h"
 #include "llcorehttputil.h"
+#include "llagent.h"
+
 #include "tinygltf/tiny_gltf.h"
 #include <strstream>
 
@@ -47,6 +49,8 @@
 #include <unordered_set>
 
 LLGLTFMaterialList gGLTFMaterialList;
+
+LLGLTFMaterialList::modify_queue_t LLGLTFMaterialList::sModifyQueue;
 
 const LLUUID LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID("968cbad0-4dad-d64e-71b5-72bf13ad051a");
 
@@ -223,6 +227,48 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
 
         mQueuedOverrides.erase(iter);
     }
+}
+
+void LLGLTFMaterialList::queueModifyMaterial(const LLUUID& id, S32 side, const LLGLTFMaterial& mat)
+{
+    sModifyQueue.push_back({ id, side, mat, LLUUID::null, true, false });
+}
+
+void LLGLTFMaterialList::flushModifyMaterialQueue(void(*done_callback)(bool))
+{
+    LLSD data = LLSD::emptyArray();
+
+    S32 i = 0;
+    for (auto& e : sModifyQueue)
+    {
+        data[i]["object_id"] = e.object_id;
+        data[i]["side"] = e.side;
+         
+        if (e.has_asset_id)
+        {
+            data[i]["asset_id"] = e.asset_id;
+        }
+
+        if (e.has_override)
+        {
+            data[i]["gltf_json"] = e.override_data.asJSON();
+        }
+
+        ++i;
+    }
+
+    std::stringstream str;
+
+    LLSDSerialize::serialize(data, str, LLSDSerialize::LLSD_NOTATION, LLSDFormatter::OPTIONS_PRETTY);
+    LL_INFOS() << "\n" << str.str() << LL_ENDL;
+
+    LLCoros::instance().launch("modifyMaterialCoro",
+        std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
+            gAgent.getRegionCapability("ModifyMaterialParams"),
+            data,
+            done_callback));
+
+    sModifyQueue.clear();
 }
 
 LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)

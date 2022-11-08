@@ -51,6 +51,12 @@ public:
 
     static void registerCallbacks();
 
+    // save an override update that we want to send to the simulator for later
+    static void  queueModifyMaterial(const LLUUID& id, S32 side, const LLGLTFMaterial& mat);
+
+    // flush pending material updates to the simulator
+    static void  flushModifyMaterialQueue(void(*done_callback)(bool));
+    
     // apply given override data via given cap url
     //  cap_url -- should be gAgent.getRegionCapability("ModifyMaterialParams")
     //  overrides -- LLSD map in the format
@@ -58,11 +64,11 @@ public:
     //    "side": integer - index of face to be modified
     //    "gltf_json" : string - GLTF compliant json of override data (optional, if omitted any existing override data will be cleared)
     static void modifyMaterialCoro(std::string cap_url, LLSD overrides, void(*done_callback)(bool));
-    // save an override update for later (for example, if an override arrived for an unknown object)
+    
+    // save an override update that we got from the simulator for later (for example, if an override arrived for an unknown object)
     void queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFMaterial* override_data);
 
     void applyQueuedOverrides(LLViewerObject* obj);
-
 private:
     typedef std::unordered_map<LLUUID, LLPointer<LLFetchedGLTFMaterial > > uuid_mat_map_t;
     uuid_mat_map_t mList;
@@ -72,6 +78,21 @@ private:
     queued_override_map_t mQueuedOverrides;
 
     LLUUID mLastUpdateKey;
+
+    struct ModifyMaterialData
+    {
+        LLUUID object_id;
+        S32 side = -1;
+        LLGLTFMaterial override_data;
+        LLUUID asset_id;
+
+        bool has_override = false;
+        bool has_asset_id = false;
+    };
+
+    typedef std::list<ModifyMaterialData> modify_queue_t;
+    static modify_queue_t sModifyQueue;
+
 };
 
 extern LLGLTFMaterialList gGLTFMaterialList;

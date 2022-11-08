@@ -2275,14 +2275,16 @@ public:
                 material->setAlphaCutoff(mEditor->getAlphaCutoff(), true);
             }
 
-            std::string overrides_json = material->asJSON();
-            
 #if 1
-            // debug
-            std::string err, warn;
-            LLGLTFMaterial debug;
-            debug.fromJSON(overrides_json, warn, err);
-#endif
+            if (mObjectTE == te
+                && mObjectId == objectp->getID())
+            {
+                mSuccess = true;
+            }
+            LLGLTFMaterialList::queueModifyMaterial(objectp->getID(), te, *material);
+#else
+
+            std::string overrides_json = material->asJSON();
 
             LLSD overrides = llsd::map(
                 "object_id", objectp->getID(),
@@ -2300,6 +2302,7 @@ public:
                 done_callback = modifyCallback;
             }
             LLCoros::instance().launch("modifyMaterialCoro", std::bind(&LLGLTFMaterialList::modifyMaterialCoro, mCapUrl, overrides, done_callback));
+#endif
         }
         return true;
     }
@@ -2347,6 +2350,11 @@ void LLMaterialEditor::applyToSelection()
             LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
             LLRenderMaterialOverrideFunctor override_func(this, url, mOverrideObjectId, mOverrideObjectTE);
             selected_objects->applyToTEs(&override_func);
+
+            void(*done_callback)(bool) = LLRenderMaterialOverrideFunctor::modifyCallback;
+
+            LLGLTFMaterialList::flushModifyMaterialQueue(done_callback);
+
             if (!override_func.getResult())
             {
                 // OverrideFunctor didn't find expected object or face
