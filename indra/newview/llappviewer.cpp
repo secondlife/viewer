@@ -3024,15 +3024,9 @@ void LLAppViewer::initStrings()
 	}
 }
 
-//
-// This function decides whether the client machine meets the minimum requirements to
-// run in a maximized window, per the consensus of davep, boa and nyx on 3/30/2011.
-//
 bool LLAppViewer::meetsRequirementsForMaximizedStart()
 {
-	bool maximizedOk = (LLFeatureManager::getInstance()->getGPUClass() >= GPU_CLASS_2);
-
-	maximizedOk &= (gSysMemory.getPhysicalMemoryKB() >= U32Gigabytes(1));
+    bool maximizedOk = (gSysMemory.getPhysicalMemoryKB() >= U32Gigabytes(1));
 
 	return maximizedOk;
 }
