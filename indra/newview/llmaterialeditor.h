@@ -31,10 +31,11 @@
 #include "llimagej2c.h"
 #include "llviewertexture.h"
 
-class LLTextureCtrl;
-class LLGLTFMaterial;
 class LLButton;
+class LLColorSwatchCtrl;
 class LLComboBox;
+class LLGLTFMaterial;
+class LLTextureCtrl;
 class LLTextBox;
 
 namespace tinygltf
@@ -218,15 +219,15 @@ public:
     void setCanSave(bool value);
     void setEnableEditing(bool can_modify);
 
-    void onCommitBaseColorTexture(LLUICtrl* ctrl, const LLSD& data);
-    void onCommitMetallicTexture(LLUICtrl* ctrl, const LLSD& data);
-    void onCommitEmissiveTexture(LLUICtrl* ctrl, const LLSD& data);
-    void onCommitNormalTexture(LLUICtrl* ctrl, const LLSD& data);
+    void onCommitTexture(LLUICtrl* ctrl, const LLSD& data, S32 dirty_flag);
+    void onCancelCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_flag);
+    void onSelectCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_flag);
 
     // initialize the UI from a default GLTF material
     void loadDefaults();
 
     U32 getUnsavedChangesFlags() { return mUnsavedChanges; }
+    U32 getRevertedChangesFlags() { return mRevertedChanges; }
 
     bool capabilitiesAvalaible();
 
@@ -247,6 +248,8 @@ private:
     LLTextureCtrl* mMetallicTextureCtrl;
     LLTextureCtrl* mEmissiveTextureCtrl;
     LLTextureCtrl* mNormalTextureCtrl;
+    LLColorSwatchCtrl* mBaseColorCtrl;
+    LLColorSwatchCtrl* mEmissiveColorCtrl;
 
     // 'Default' texture, unless it's null or from inventory is the one with the fee
     LLUUID mBaseColorTextureUploadId;
@@ -284,6 +287,7 @@ private:
     void markChangesUnsaved(U32 dirty_flag);
 
     U32 mUnsavedChanges; // flags to indicate individual changed parameters
+    U32 mRevertedChanges; // flags to indicate individual reverted parameters
     S32 mUploadingTexturesCount;
     S32 mExpectedUploadCost;
     std::string mMaterialNameShort;

@@ -47,11 +47,7 @@ namespace LLTinyGLTFHelper
         const std::string& filename,
         S32 mat_index,
         LLPointer < LLFetchedGLTFMaterial> material,
-        std::string& material_name,
-        LLPointer<LLViewerFetchedTexture>& base_color_tex,
-        LLPointer<LLViewerFetchedTexture>& normal_tex,
-        LLPointer<LLViewerFetchedTexture>& mr_tex,
-        LLPointer<LLViewerFetchedTexture>& emissive_tex);
+        std::string& material_name);
 
     void initFetchedTextures(tinygltf::Material& material,
         LLPointer<LLImageRaw>& base_color_img,

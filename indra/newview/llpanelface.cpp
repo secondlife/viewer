@@ -4374,10 +4374,26 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
             if (te_data["te"].has("pbr"))
             {
                 objectp->setRenderMaterialID(te, te_data["te"]["pbr"].asUUID(), false);
+
+                // todo: provide copied overrides here
+                LLCoros::instance().launch("modifyMaterialCoro",
+                    std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
+                        gAgent.getRegionCapability("ModifyMaterialParams"),
+                        llsd::map(
+                            "object_id", objectp->getID(),
+                            "side", te), nullptr));
             }
             else
             {
                 objectp->setRenderMaterialID(te, LLUUID::null, false);
+
+                // blank out any override data on the server
+                LLCoros::instance().launch("modifyMaterialCoro",
+                    std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
+                        gAgent.getRegionCapability("ModifyMaterialParams"),
+                        llsd::map(
+                            "object_id", objectp->getID(),
+                            "side", te), nullptr));
             }
 
             // Texture map

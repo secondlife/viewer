@@ -186,11 +186,7 @@ bool LLTinyGLTFHelper::getMaterialFromFile(
     const std::string& filename,
     S32 mat_index,
     LLPointer < LLFetchedGLTFMaterial> material,
-    std::string& material_name,
-    LLPointer<LLViewerFetchedTexture>& base_color_tex,
-    LLPointer<LLViewerFetchedTexture>& normal_tex,
-    LLPointer<LLViewerFetchedTexture>& mr_tex,
-    LLPointer<LLViewerFetchedTexture>& emissive_tex)
+    std::string& material_name)
 {
     tinygltf::TinyGLTF loader;
     std::string        error_msg;
@@ -248,6 +244,11 @@ bool LLTinyGLTFHelper::getMaterialFromFile(
     {
         occlusion_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.occlusionTexture.index);
     }
+
+    LLPointer<LLViewerFetchedTexture> base_color_tex;
+    LLPointer<LLViewerFetchedTexture> normal_tex;
+    LLPointer<LLViewerFetchedTexture> mr_tex;
+    LLPointer<LLViewerFetchedTexture> emissive_tex;
 
     // todo: pass it into local bitmaps?
     LLTinyGLTFHelper::initFetchedTextures(material_in,
