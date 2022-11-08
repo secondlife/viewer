@@ -73,14 +73,8 @@ public:
     void interpolate(F32 del, const LLPuppetJointEvent& A, const LLPuppetJointEvent& B);
 
     bool isEmpty() const { return mMask == 0; }
-    //bool hasRotation() const { return (mMask & LLIK::MASK_ROT) > 0; }
-    //bool hasPosition() const { return (mMask & LLIK::MASK_POS) > 0; }
-    //bool hasScale() const { return (mMask & LLIK::FLAG_LOCAL_SCALE) > 0; }
-    //bool hasDisabledConstraint() const { return (mMask & LLIK::FLAG_DISABLE_CONSTRAINT) > 0; }
 
     U8 getMask() const { return mMask; }
-    //bool rotationIsParentLocal() const { return (mMask & LLIK::FLAG_LOCAL_ROT) > 0; }
-    //bool positionIsParentLocal() const { return (mMask & LLIK::FLAG_LOCAL_POS) > 0; }
 
 private:
     E_REFERENCE_FRAME mRefFrame = ROOT_FRAME;
