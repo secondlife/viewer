@@ -95,7 +95,6 @@ constexpr S16 HAND_THUMB_RIGHT_2_ID = 94;
 constexpr S16 HAND_THUMB_RIGHT_3_ID = 95;
 #endif //ENABLE_RIGHT_CONSTRAINTS
 
-// TODO: in onUpdate() - combine the two event maps into one vector of targets
 // TODO: implement "allow incremental updates" policy
 // TODO: figure out how to handle scale of local_pos changes
 
