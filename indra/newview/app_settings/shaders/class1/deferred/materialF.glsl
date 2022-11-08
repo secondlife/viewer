@@ -227,7 +227,7 @@ void main()
     vec4 diffcol = texture2D(diffuseMap, vary_texcoord0.xy);
 	diffcol.rgb *= vertex_color.rgb;
 
-#ifdef HAS_ALPHA_MASK
+#if HAS_ALPHA_MASK && (DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_EMISSIVE)
 #if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND
     if (diffcol.a*vertex_color.a < minimum_alpha)
 #else
