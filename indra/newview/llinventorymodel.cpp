@@ -73,7 +73,7 @@
 
 // Increment this if the inventory contents change in a non-backwards-compatible way.
 // For viewer 2, the addition of link items makes a pre-viewer-2 cache incorrect.
-const S32 LLInventoryModel::sCurrentInvCacheVersion = 2;
+const S32 LLInventoryModel::sCurrentInvCacheVersion = 3;
 BOOL LLInventoryModel::sFirstTimeInViewer2 = TRUE;
 
 ///----------------------------------------------------------------------------

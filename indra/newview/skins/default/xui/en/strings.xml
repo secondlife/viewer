@@ -2474,6 +2474,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="InvFolder Received Items">Received Items</string>
 	<string name="InvFolder Merchant Outbox">Merchant Outbox</string>
   <string name="InvFolder Settings">Settings</string>
+  <string name="InvFolder Material">Materials</string>
   <string name="InvFolder Materials">Materials</string>
 
   <!-- are used for Friends and Friends/All folders in Inventory "Calling cards" folder. See EXT-694-->
