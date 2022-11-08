@@ -71,6 +71,10 @@ public:
 	void addRequestAtFront(const LLUUID & id, BOOL recursive, bool is_category);
 	void addRequestAtBack(const LLUUID & id, BOOL recursive, bool is_category);
 
+    bool removeFromQueue(const LLUUID cat_id);
+    void emptyQueue();
+    void setPenaltyBox(bool penalty_box);
+
 protected:
 	void bulkFetch();
 
@@ -105,6 +109,8 @@ private:
 	};
 	typedef std::deque<FetchQueueInfo> fetch_queue_t;
 	fetch_queue_t mFetchQueue;
+
+    bool mPenaltyBox;
 };
 
 #endif // LL_LLINVENTORYMODELBACKGROUNDFETCH_H

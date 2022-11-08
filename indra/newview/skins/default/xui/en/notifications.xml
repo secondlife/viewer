@@ -11914,4 +11914,12 @@ Unpacking: [UNPACK_TIME]s [USIZE]KB
       yestext="OK"/>
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="InventoryOversize"
+   type="alertmodal">
+      Your inventory could not be fully loaded. Please contact Support for help.
+   <tag>fail</tag>
+  </notification>
+
 </notifications>
