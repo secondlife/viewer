@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include "llassettype.h"
+#include "llextendedstatus.h"
 #include "llfetchedgltfmaterial.h"
 #include "llgltfmaterial.h"
 #include "llpointer.h"
@@ -89,6 +91,15 @@ private:
     // save an override update that we got from the simulator for later (for example, if an override arrived for an unknown object)
     // NOTE: this is NOT for applying overrides from the UI, see queueModifyMaterial above
     void queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFMaterial* override_data);
+
+
+protected:
+    static void onAssetLoadComplete(
+        const LLUUID& asset_uuid,
+        LLAssetType::EType type,
+        void* user_data,
+        S32 status,
+        LLExtStat ext_status);
 
     typedef std::unordered_map<LLUUID, LLPointer<LLFetchedGLTFMaterial > > uuid_mat_map_t;
     uuid_mat_map_t mList;
