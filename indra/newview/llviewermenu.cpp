@@ -2571,7 +2571,7 @@ void launch_leap(const std::vector<std::string>& filenames)
             command.end(),
             { filename,
               "--camera",
-              std::to_string(LLPuppetModule::instance().getCameraNumber()) });    
+              std::to_string(LLPuppetModule::instance().getCameraNumber()) });
         std::string command_string{ boost::algorithm::join(command, " ") };
 
         // on a developer windows box:

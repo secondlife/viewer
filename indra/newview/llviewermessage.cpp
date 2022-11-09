@@ -3745,8 +3745,7 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 				{
 					LLColor4 color(0.f,1.f,0.f,1.f);
 					gPipeline.addDebugBlip(objectp->getPositionAgent(), color);
-                    LL_DEBUGS("MessageBlip") << "Kill blip for local " << local_id << " at " << objectp->getPositionAgent() << LL_ENDL;
-
+					LL_DEBUGS("MessageBlip") << "Kill blip for local " << local_id << " at " << objectp->getPositionAgent() << LL_ENDL;
 				}
 
 				// Do the kill
@@ -3866,10 +3865,7 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 	{
 		return;
 	}
-    if (LLMaterialTable::basic.isCollisionSound(sound_id) && !gSavedSettings.getBOOL("EnableCollisionSounds"))
-    {
-        return;
-    }
+
 	gAudiop->triggerSound(sound_id, owner_id, gain, LLAudioEngine::AUDIO_TYPE_SFX, pos_global);
 }
 
@@ -4085,8 +4081,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationList);
 	S32 num_source_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationSourceList);
-    S32 num_physav_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_PhysicalAvatarEventList);
-    
+	S32 num_physav_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_PhysicalAvatarEventList);
 
 	LL_DEBUGS("Messaging", "Motion") << "Processing " << num_blocks << " Animations" << LL_ENDL;
 
@@ -4151,23 +4146,23 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 			}
 		}
 
-        if (LLPuppetModule::instance().getEcho())
-        {
-            // Extract and process puppetry data from message
-            handle_puppetry_data(mesgsys, avatarp, num_physav_blocks);
-        }
+		if (LLPuppetModule::instance().getEcho())
+		{
+			// Extract and process puppetry data from message
+			handle_puppetry_data(mesgsys, avatarp, num_physav_blocks);
+		}
 	}
-    else
-    {
-        for (S32 i = 0; i < num_blocks; i++)
-        {
-            mesgsys->getUUIDFast(_PREHASH_AnimationList, _PREHASH_AnimID, animation_id, i);
-            mesgsys->getS32Fast(_PREHASH_AnimationList, _PREHASH_AnimSequenceID, anim_sequence_id, i);
-            avatarp->mSignaledAnimations[animation_id] = anim_sequence_id;
-        }
+	else
+	{
+		for( S32 i = 0; i < num_blocks; i++ )
+		{
+			mesgsys->getUUIDFast(_PREHASH_AnimationList, _PREHASH_AnimID, animation_id, i);
+			mesgsys->getS32Fast(_PREHASH_AnimationList, _PREHASH_AnimSequenceID, anim_sequence_id, i);
+			avatarp->mSignaledAnimations[animation_id] = anim_sequence_id;
+		}
 
-        // Extract and process puppetry data from message
-        handle_puppetry_data(mesgsys, avatarp, num_physav_blocks);
+		// Extract and process puppetry data from message
+		handle_puppetry_data(mesgsys, avatarp, num_physav_blocks);
 	}
 
 	if (num_blocks)
@@ -6476,8 +6471,8 @@ void process_user_info_reply(LLMessageSystem* msg, void**)
 	std::string dir_visibility;
 	msg->getString( "UserData", "DirectoryVisibility", dir_visibility);
 
-    LLFloaterPreference::updateUserInfo(dir_visibility);
-    LLFloaterSnapshot::setAgentEmail(email);
+	LLFloaterPreference::updateUserInfo(dir_visibility);   
+	LLFloaterSnapshot::setAgentEmail(email);
 }
 
 
@@ -6896,15 +6891,14 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 }
 
 void onCovenantLoadComplete(const LLUUID& asset_uuid,
-                            LLAssetType::EType type,
-                            void* user_data, S32 status, LLExtStat ext_status)
-
+							LLAssetType::EType type,
+							void* user_data, S32 status, LLExtStat ext_status)
 {
 	LL_DEBUGS("Messaging") << "onCovenantLoadComplete()" << LL_ENDL;
 	std::string covenant_text;
 	if(0 == status)
 	{
-        LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
+		LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
 		
 		S32 file_length = file.getSize();
 		

@@ -33,9 +33,6 @@
 
 class LLTextBox;
 
-class LLMotion;
-class LLTextBox;
-
 class LLPreviewAnim : public LLPreview
 {
 public:
