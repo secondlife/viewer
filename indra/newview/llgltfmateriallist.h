@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include "llassettype.h"
+#include "llextendedstatus.h"
 #include "llfetchedgltfmaterial.h"
 #include "llgltfmaterial.h"
 #include "llpointer.h"
@@ -69,6 +71,15 @@ public:
     void queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFMaterial* override_data);
 
     void applyQueuedOverrides(LLViewerObject* obj);
+
+protected:
+    static void onAssetLoadComplete(
+        const LLUUID& asset_uuid,
+        LLAssetType::EType type,
+        void* user_data,
+        S32 status,
+        LLExtStat ext_status);
+
 private:
     typedef std::unordered_map<LLUUID, LLPointer<LLFetchedGLTFMaterial > > uuid_mat_map_t;
     uuid_mat_map_t mList;
