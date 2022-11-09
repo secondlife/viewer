@@ -7205,19 +7205,15 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
 
     if (update_server)
     {
-        // blank out any override data on the ser
+        // update via ModifyMaterialParams cap (server will echo back changes)
         for (S32 te = start_idx; te < end_idx; ++te)
         {
-            LLCoros::instance().launch("modifyMaterialCoro",
-                std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
-                    gAgent.getRegionCapability("ModifyMaterialParams"),
-                    llsd::map(
-                        "object_id", getID(),
-                        "side", te), nullptr));
+            LLGLTFMaterialList::queueApplyMaterialAsset(getID(), te, id);
         }
+        LLGLTFMaterialList::flushUpdates();
     }
 
-    // update and send LLRenderMaterialParams
+    // predictively update LLRenderMaterialParams (don't wait for server)
     LLRenderMaterialParams* param_block = (LLRenderMaterialParams*)getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
     if (!param_block && id.notNull())
     { // block doesn't exist, but it will need to
@@ -7229,18 +7225,6 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
         for (S32 te = start_idx; te < end_idx; ++te)
         {
             param_block->setMaterial(te, id);
-        }
-
-        if (update_server)
-        {
-            // If 'in use' changes, it will send an update itself.
-            bool in_use_changed = setParameterEntryInUse(LLNetworkData::PARAMS_RENDER_MATERIAL, !param_block->isEmpty(), true);
-
-            if (!in_use_changed)
-            {
-                // In use didn't change, but the parameter did, send an update
-                parameterChanged(LLNetworkData::PARAMS_RENDER_MATERIAL, param_block, !param_block->isEmpty(), true);
-            }
         }
     }
 }

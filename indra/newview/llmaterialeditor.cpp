@@ -2526,7 +2526,7 @@ public:
             {
                 mSuccess = true;
             }
-            LLGLTFMaterialList::queueModifyMaterial(objectp->getID(), te, *material);
+            LLGLTFMaterialList::queueModifyMaterial(objectp->getID(), te, material);
 #else
 
             std::string overrides_json = material->asJSON();
@@ -2598,7 +2598,7 @@ void LLMaterialEditor::applyToSelection()
 
             void(*done_callback)(bool) = LLRenderMaterialOverrideFunctor::modifyCallback;
 
-            LLGLTFMaterialList::flushModifyMaterialQueue(done_callback);
+            LLGLTFMaterialList::flushUpdates(done_callback);
 
             if (!override_func.getResult())
             {
