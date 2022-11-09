@@ -551,7 +551,8 @@ void LLWorldMapView::draw()
 					S32_MAX, //max_chars
 					mMapScale, //max_pixels
 					NULL,
-					TRUE); //use ellipses
+					/*use_ellipses*/TRUE,
+					/*use_color*/FALSE);
 			}
 		}
 	}

@@ -87,7 +87,7 @@ public:
 
 	void destroyGL();
 
-	BOOL loadFace(const std::string& filename, F32 point_size, const F32 vert_dpi, const F32 horz_dpi, const S32 components, BOOL is_fallback, S32 face_n = 0);
+	BOOL loadFace(const std::string& filename, F32 point_size, const F32 vert_dpi, const F32 horz_dpi, bool is_fallback, S32 face_n);
 
 	S32 getNumFaces(const std::string& filename);
 
@@ -98,7 +98,8 @@ public:
 				U8 style = NORMAL, ShadowType shadow = NO_SHADOW, 
 				S32 max_chars = S32_MAX,
 				F32* right_x=NULL, 
-				BOOL use_ellipses = FALSE) const;
+				BOOL use_ellipses = FALSE,
+				BOOL use_color = FALSE) const;
 
 	S32 render(const LLWString &text, S32 begin_offset, 
 				const LLRectf& rect, 
@@ -107,7 +108,8 @@ public:
 				U8 style = NORMAL, ShadowType shadow = NO_SHADOW, 
 				S32 max_chars = S32_MAX,
 				F32* right_x=NULL, 
-				BOOL use_ellipses = FALSE) const;
+				BOOL use_ellipses = FALSE,
+				BOOL use_color = FALSE) const;
 
 	S32 render(const LLWString &text, S32 begin_offset, 
 				F32 x, F32 y, 
@@ -116,12 +118,13 @@ public:
 				U8 style = NORMAL, ShadowType shadow = NO_SHADOW, 
 				S32 max_chars = S32_MAX, S32 max_pixels = S32_MAX, 
 				F32* right_x=NULL, 
-				BOOL use_ellipses = FALSE) const;
+				BOOL use_ellipses = FALSE,
+				BOOL use_color = FALSE) const;
 
 	S32 render(const LLWString &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color) const;
 
 	// renderUTF8 does a conversion, so is slower!
-	S32 renderUTF8(const std::string &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign,  VAlign valign, U8 style, ShadowType shadow, S32 max_chars, S32 max_pixels,  F32* right_x, BOOL use_ellipses) const;
+	S32 renderUTF8(const std::string &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign,  VAlign valign, U8 style, ShadowType shadow, S32 max_chars, S32 max_pixels,  F32* right_x, BOOL use_ellipses, BOOL use_color) const;
 	S32 renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y, const LLColor4 &color) const;
 	S32 renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style = NORMAL, ShadowType shadow = NO_SHADOW) const;
 
@@ -165,6 +168,10 @@ public:
 
 	static void initClass(F32 screen_dpi, F32 x_scale, F32 y_scale, const std::string& app_dir, bool create_gl_textures = true);
 
+	       void dumpTextures();
+	static void dumpFonts();
+	static void dumpFontTextures();
+
 	// Load sans-serif, sans-serif-small, etc.
 	// Slow, requires multiple seconds to load fonts.
 	static bool loadDefaultFonts();
@@ -187,6 +194,7 @@ public:
 
 	static void setFontDisplay(BOOL flag) { sDisplayFont = flag; }
 		
+	static LLFontGL* getFontEmoji();
 	static LLFontGL* getFontMonospace();
 	static LLFontGL* getFontSansSerifSmall();
 	static LLFontGL* getFontSansSerif();

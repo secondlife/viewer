@@ -43,6 +43,7 @@
 #include "llmath.h"
 
 #include "llclipboard.h"
+#include "llemojihelper.h"
 #include "llscrollbar.h"
 #include "llstl.h"
 #include "llstring.h"
@@ -238,6 +239,7 @@ LLTextEditor::Params::Params()
 	default_color("default_color"),
     commit_on_focus_lost("commit_on_focus_lost", false),
 	show_context_menu("show_context_menu"),
+	show_emoji_helper("show_emoji_helper"),
 	enable_tooltip_paste("enable_tooltip_paste")
 {
 	addSynonym(prevalidate_callback, "text_type");
@@ -259,6 +261,7 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
 	mPrevalidateFunc(p.prevalidate_callback()),
 	mContextMenu(NULL),
 	mShowContextMenu(p.show_context_menu),
+	mShowEmojiHelper(p.show_emoji_helper),
 	mEnableTooltipPaste(p.enable_tooltip_paste),
 	mPassDelete(FALSE),
 	mKeepSelectionOnReturn(false)
@@ -501,6 +504,15 @@ void LLTextEditor::getSegmentsInRange(LLTextEditor::segment_vec_t& segments_out,
 	}
 }
 
+void LLTextEditor::setShowEmojiHelper(bool show) {
+	if (!mShowEmojiHelper)
+	{
+		LLEmojiHelper::instance().hideHelper(this);
+	}
+
+	mShowEmojiHelper = show;
+}
+
 BOOL LLTextEditor::selectionContainsLineBreaks()
 {
 	if (hasSelection())
@@ -662,6 +674,21 @@ void LLTextEditor::selectByCursorPosition(S32 prev_cursor_pos, S32 next_cursor_p
 	startSelection();
 	setCursorPos(next_cursor_pos);
 	endSelection();
+}
+
+void LLTextEditor::handleEmojiCommit(const LLWString& wstr)
+{
+	LLWString wtext(getWText()); S32 shortCodePos;
+	if (LLEmojiHelper::isCursorInEmojiCode(wtext, mCursorPos, &shortCodePos))
+	{
+		remove(shortCodePos, mCursorPos - shortCodePos, true);
+
+		auto styleParams = LLStyle::Params();
+		styleParams.font = LLFontGL::getFontEmoji();
+		insert(shortCodePos, wstr, false, new LLEmojiTextSegment(new LLStyle(styleParams), shortCodePos, shortCodePos + wstr.size(), *this));
+
+		setCursorPos(shortCodePos + 1);
+	}
 }
 
 BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -930,6 +957,12 @@ BOOL LLTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 S32 LLTextEditor::execute( TextCmd* cmd )
 {
+	if (!mReadOnly && mShowEmojiHelper)
+	{
+		// Any change to our contents should always hide the helper
+		LLEmojiHelper::instance().hideHelper(this);
+	}
+
 	S32 delta = 0;
 	if( cmd->execute(this, &delta) )
 	{
@@ -1123,6 +1156,17 @@ void LLTextEditor::addChar(llwchar wc)
 	}
 
 	setCursorPos(mCursorPos + addChar( mCursorPos, wc ));
+
+	if (!mReadOnly && mShowEmojiHelper)
+	{
+		LLWString wtext(getWText()); S32 shortCodePos;
+		if (LLEmojiHelper::isCursorInEmojiCode(wtext, mCursorPos, &shortCodePos))
+		{
+			const LLRect cursorRect = getLocalRectFromDocIndex(mCursorPos - 1);
+			const LLWString shortCode = wtext.substr(shortCodePos, mCursorPos - shortCodePos);
+			LLEmojiHelper::instance().showHelper(this, cursorRect.mLeft, cursorRect.mTop, wstring_to_utf8str(shortCode), std::bind(&LLTextEditor::handleEmojiCommit, this, std::placeholders::_1));
+		}
+	}
 
 	if (!mReadOnly && mAutoreplaceCallback != NULL)
 	{
@@ -1774,6 +1818,11 @@ BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask )
 	}
 	else 
 	{
+		if (!mReadOnly && mShowEmojiHelper && LLEmojiHelper::instance().handleKey(this, key, mask))
+		{
+			return TRUE;
+		}
+
 		if (mEnableTooltipPaste &&
 			LLToolTipMgr::instance().toolTipVisible() && 
 			KEY_TAB == key)
@@ -1815,6 +1864,12 @@ BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask )
 	{
 		resetCursorBlink();
 		needsScroll();
+
+		if (mShowEmojiHelper)
+		{
+			// Dismiss the helper whenever we handled a key that it didn't
+			LLEmojiHelper::instance().hideHelper(this);
+		}
 	}
 
 	return handled;
