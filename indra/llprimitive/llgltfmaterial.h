@@ -48,8 +48,6 @@ public:
 
     // default material for reference
     static const LLGLTFMaterial sDefault;
-    // default material override for reference
-    static const LLGLTFMaterial sOverrideDefault;
 
     struct TextureTransform
     {
@@ -68,7 +66,6 @@ public:
     };
 
     LLGLTFMaterial() {}
-    LLGLTFMaterial(bool for_override);
     LLGLTFMaterial(const LLGLTFMaterial& rhs);
 
     LLGLTFMaterial& operator=(const LLGLTFMaterial& rhs);
