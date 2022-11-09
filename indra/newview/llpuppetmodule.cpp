@@ -278,6 +278,7 @@ void processSetRequest(const LLSD& data)
             LLPuppetModule& puppet_module = LLPuppetModule::instance();
             puppet_module.setCameraNumber_(camera_num);
             puppet_module.sendCameraNumber(); //Notify the leap module of the updated camera choice.
+            continue;
         }
 
         const LLSD& joint_data = it->second;
