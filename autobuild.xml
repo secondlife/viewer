@@ -1080,9 +1080,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8fc61ee230e63db756e14415573f604d</string>
+              <string>e60373858787f9939f2128fc24b2f84e</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/106176/928492/icu4c-4.8.1-darwin64-575914.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/55242/513651/icu4c-4.8.1-darwin64-539138.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1092,9 +1092,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9898b1f45bc92d4fc75b1d1a68c59514</string>
+              <string>984bef5ad98e2fdd8592c6075aee78ab</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/106438/930144/icu4c-4.8.1-windows-575914.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/55244/513665/icu4c-4.8.1-windows-539138.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1104,9 +1104,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8ad662698b5d99ce169517ce11cf2bef</string>
+              <string>340980c10153446b678625ec7af047c2</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/106439/930151/icu4c-4.8.1-windows64-575914.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/55243/513658/icu4c-4.8.1-windows64-539138.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
