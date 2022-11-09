@@ -198,8 +198,7 @@ public:
     // Ids get applied and restored by tools floater,
     // overrides get applied in live material editor
     void saveGLTFMaterialIds(const uuid_vec_t& materials);
-    void saveGLTFRenderMaterials(const gltf_materials_vec_t& materials);
-    LLGLTFMaterial* getSavedGLTFRenderMaterial(S32 te);
+    void saveGLTFOverrideMaterials(const gltf_materials_vec_t& materials);
 
 	BOOL allowOperationOnNode(PermissionBit op, U64 group_proxy_power) const;
 
@@ -237,7 +236,7 @@ public:
 	std::vector<LLColor4>	mSavedShinyColors;
 	uuid_vec_t		mSavedTextures;
     uuid_vec_t		mSavedGLTFMaterialIds;
-    gltf_materials_vec_t mSavedGLTFRenderMaterials;
+    gltf_materials_vec_t mSavedGLTFOverrideMaterials;
 	std::vector<LLVector3>  mTextureScaleRatios;
 	std::vector<LLVector3>	mSilhouetteVertices;	// array of vertices to render silhouette of object
 	std::vector<LLVector3>	mSilhouetteNormals;	// array of normals to render silhouette of object

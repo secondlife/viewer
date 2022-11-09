@@ -908,29 +908,35 @@ void LLMaterialEditor::onSelectCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_
             S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces()); // avatars have TEs but no faces
             for (S32 te = 0; te < num_tes; ++te)
             {
-                if (nodep->isTESelected(te) && nodep->mSavedGLTFRenderMaterials.size() > te)
+                if (nodep->isTESelected(te) && nodep->mSavedGLTFOverrideMaterials.size() > te)
                 {
+                    if (nodep->mSavedGLTFOverrideMaterials[te].isNull())
+                    {
+                        // populate with default values, default values basically mean 'not in use'
+                        nodep->mSavedGLTFOverrideMaterials[te] = new LLGLTFMaterial();
+                    }
+
                     switch (mDirtyFlag)
                     {
                     //Textures
                     case MATERIAL_BASE_COLOR_TEX_DIRTY:
                     {
-                        nodep->mSavedGLTFRenderMaterials[te]->mBaseColorId = mCtrl->getValue().asUUID();
+                        nodep->mSavedGLTFOverrideMaterials[te]->mBaseColorId = mCtrl->getValue().asUUID();
                         break;
                     }
                     case MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY:
                     {
-                        nodep->mSavedGLTFRenderMaterials[te]->mMetallicRoughnessId = mCtrl->getValue().asUUID();
+                        nodep->mSavedGLTFOverrideMaterials[te]->mMetallicRoughnessId = mCtrl->getValue().asUUID();
                         break;
                     }
                     case MATERIAL_EMISIVE_TEX_DIRTY:
                     {
-                        nodep->mSavedGLTFRenderMaterials[te]->mEmissiveId = mCtrl->getValue().asUUID();
+                        nodep->mSavedGLTFOverrideMaterials[te]->mEmissiveId = mCtrl->getValue().asUUID();
                         break;
                     }
                     case MATERIAL_NORMAL_TEX_DIRTY:
                     {
-                        nodep->mSavedGLTFRenderMaterials[te]->mNormalId = mCtrl->getValue().asUUID();
+                        nodep->mSavedGLTFOverrideMaterials[te]->mNormalId = mCtrl->getValue().asUUID();
                         break;
                     }
                     // Colors
@@ -938,13 +944,13 @@ void LLMaterialEditor::onSelectCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_
                     {
                         LLColor4 ret = linearColor4(LLColor4(mCtrl->getValue()));
                         // except transparency
-                        ret.mV[3] = nodep->mSavedGLTFRenderMaterials[te]->mBaseColor.mV[3];
-                        nodep->mSavedGLTFRenderMaterials[te]->mBaseColor = ret;
+                        ret.mV[3] = nodep->mSavedGLTFOverrideMaterials[te]->mBaseColor.mV[3];
+                        nodep->mSavedGLTFOverrideMaterials[te]->mBaseColor = ret;
                         break;
                     }
                     case MATERIAL_EMISIVE_COLOR_DIRTY:
                     {
-                        nodep->mSavedGLTFRenderMaterials[te]->mEmissiveColor = LLColor4(mCtrl->getValue());
+                        nodep->mSavedGLTFOverrideMaterials[te]->mEmissiveColor = LLColor4(mCtrl->getValue());
                         break;
                     }
                     default:
@@ -2379,29 +2385,40 @@ public:
             {
                 continue;
             }
-            
 
             // Get material from object
             // Selection can cover multiple objects, and live editor is
             // supposed to overwrite changed values only
             LLTextureEntry* tep = objectp->getTE(te);
-            LLPointer<LLGLTFMaterial> material = tep->getGLTFRenderMaterial();
 
-            if (material.isNull())
+            if (tep->getGLTFMaterial() == nullptr)
             {
                 // overrides are not supposed to work or apply if
                 // there is no base material to work from
                 return false;
             }
 
-
+            LLPointer<LLGLTFMaterial> material = tep->getGLTFMaterialOverride();
             // make a copy to not invalidate existing
             // material for multiple objects
-            material = new LLGLTFMaterial(*material);
+            if (material.isNull())
+            {
+                // Start with a material override which does not make any changes
+                material = new LLGLTFMaterial();
+            }
+            else
+            {
+                material = new LLGLTFMaterial(*material);
+            }
 
             U32 changed_flags = mEditor->getUnsavedChangesFlags();
             U32 reverted_flags = mEditor->getRevertedChangesFlags();
-            bool can_revert = nodep->mSavedGLTFRenderMaterials.size() > te;
+
+            LLPointer<LLGLTFMaterial> revert_mat;
+            // mSavedGLTFOverrideMaterials[te] being null
+            // means we need to use a default value 
+            bool can_revert = (nodep->mSavedGLTFOverrideMaterials.size() > te)
+                               && nodep->mSavedGLTFOverrideMaterials[te].notNull();
 
             // Override object's values with values from editor where appropriate
             if (changed_flags & MATERIAL_BASE_COLOR_DIRTY)
@@ -2410,7 +2427,7 @@ public:
             }
             else if ((reverted_flags & MATERIAL_BASE_COLOR_DIRTY) && can_revert)
             {
-                material->setBaseColorFactor(nodep->mSavedGLTFRenderMaterials[te]->mBaseColor, true);
+                material->setBaseColorFactor(nodep->mSavedGLTFOverrideMaterials[te]->mBaseColor, true);
             }
 
             if (changed_flags & MATERIAL_BASE_COLOR_TEX_DIRTY)
@@ -2419,7 +2436,7 @@ public:
             }
             else if ((reverted_flags & MATERIAL_BASE_COLOR_TEX_DIRTY) && can_revert)
             {
-                material->setBaseColorId(nodep->mSavedGLTFRenderMaterials[te]->mBaseColorId, true);
+                material->setBaseColorId(nodep->mSavedGLTFOverrideMaterials[te]->mBaseColorId, true);
             }
 
             if (changed_flags & MATERIAL_NORMAL_TEX_DIRTY)
@@ -2428,7 +2445,7 @@ public:
             }
             else if ((reverted_flags & MATERIAL_NORMAL_TEX_DIRTY) && can_revert)
             {
-                material->setNormalId(nodep->mSavedGLTFRenderMaterials[te]->mNormalId, true);
+                material->setNormalId(nodep->mSavedGLTFOverrideMaterials[te]->mNormalId, true);
             }
 
             if (changed_flags & MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY)
@@ -2437,7 +2454,7 @@ public:
             }
             else if ((reverted_flags & MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY) && can_revert)
             {
-                material->setMetallicRoughnessId(nodep->mSavedGLTFRenderMaterials[te]->mMetallicRoughnessId, true);
+                material->setMetallicRoughnessId(nodep->mSavedGLTFOverrideMaterials[te]->mMetallicRoughnessId, true);
             }
 
             if (changed_flags & MATERIAL_METALLIC_ROUGHTNESS_METALNESS_DIRTY)
@@ -2446,7 +2463,7 @@ public:
             }
             else if ((reverted_flags & MATERIAL_METALLIC_ROUGHTNESS_METALNESS_DIRTY) && can_revert)
             {
-                material->setMetallicFactor(nodep->mSavedGLTFRenderMaterials[te]->mMetallicFactor, true);
+                material->setMetallicFactor(nodep->mSavedGLTFOverrideMaterials[te]->mMetallicFactor, true);
             }
 
             if (changed_flags & MATERIAL_METALLIC_ROUGHTNESS_ROUGHNESS_DIRTY)
@@ -2455,7 +2472,7 @@ public:
             }
             else if ((reverted_flags & MATERIAL_METALLIC_ROUGHTNESS_ROUGHNESS_DIRTY) && can_revert)
             {
-                material->setRoughnessFactor(nodep->mSavedGLTFRenderMaterials[te]->mRoughnessFactor, true);
+                material->setRoughnessFactor(nodep->mSavedGLTFOverrideMaterials[te]->mRoughnessFactor, true);
             }
 
             if (changed_flags & MATERIAL_EMISIVE_COLOR_DIRTY)
@@ -2464,7 +2481,7 @@ public:
             }
             else if ((reverted_flags & MATERIAL_EMISIVE_COLOR_DIRTY) && can_revert)
             {
-                material->setEmissiveColorFactor(nodep->mSavedGLTFRenderMaterials[te]->mEmissiveColor, true);
+                material->setEmissiveColorFactor(nodep->mSavedGLTFOverrideMaterials[te]->mEmissiveColor, true);
             }
 
             if (changed_flags & MATERIAL_EMISIVE_TEX_DIRTY)
@@ -2473,7 +2490,7 @@ public:
             }
             else if ((reverted_flags & MATERIAL_EMISIVE_TEX_DIRTY) && can_revert)
             {
-                material->setEmissiveId(nodep->mSavedGLTFRenderMaterials[te]->mEmissiveId, true);
+                material->setEmissiveId(nodep->mSavedGLTFOverrideMaterials[te]->mEmissiveId, true);
             }
 
             if (changed_flags & MATERIAL_DOUBLE_SIDED_DIRTY)
@@ -2482,7 +2499,7 @@ public:
             }
             else if ((reverted_flags & MATERIAL_DOUBLE_SIDED_DIRTY) && can_revert)
             {
-                material->setDoubleSided(nodep->mSavedGLTFRenderMaterials[te]->mDoubleSided, true);
+                material->setDoubleSided(nodep->mSavedGLTFOverrideMaterials[te]->mDoubleSided, true);
             }
 
             if (changed_flags & MATERIAL_ALPHA_MODE_DIRTY)
@@ -2491,7 +2508,7 @@ public:
             }
             else if ((reverted_flags & MATERIAL_ALPHA_MODE_DIRTY) && can_revert)
             {
-                material->setAlphaMode(nodep->mSavedGLTFRenderMaterials[te]->mAlphaMode, true);
+                material->setAlphaMode(nodep->mSavedGLTFOverrideMaterials[te]->mAlphaMode, true);
             }
 
             if (changed_flags & MATERIAL_ALPHA_CUTOFF_DIRTY)
@@ -2500,7 +2517,7 @@ public:
             }
             else if ((reverted_flags & MATERIAL_ALPHA_CUTOFF_DIRTY) && can_revert)
             {
-                material->setAlphaCutoff(nodep->mSavedGLTFRenderMaterials[te]->mAlphaCutoff, true);
+                material->setAlphaCutoff(nodep->mSavedGLTFOverrideMaterials[te]->mAlphaCutoff, true);
             }
 
 #if 1
