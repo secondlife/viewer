@@ -61,29 +61,6 @@ LLMatrix3 LLGLTFMaterial::TextureTransform::asMatrix()
     return offset * rotation * scale;
 }
 
-LLGLTFMaterial::LLGLTFMaterial(bool for_override)
-: LLGLTFMaterial()
-{
-    if (for_override)
-    {
-        setBaseColorId(mBaseColorId, for_override);
-        setNormalId(mNormalId, for_override);
-        setMetallicRoughnessId(mMetallicRoughnessId, for_override);
-        setEmissiveId(mEmissiveId, for_override);
-
-        setBaseColorFactor(mBaseColor, for_override);
-        setAlphaCutoff(mAlphaCutoff, for_override);
-        setEmissiveColorFactor(mEmissiveColor, for_override);
-        setMetallicFactor(mMetallicFactor, for_override);
-        setRoughnessFactor(mRoughnessFactor, for_override);
-        setAlphaMode(mAlphaMode, for_override);
-        setDoubleSided(mDoubleSided, for_override);
-
-        // *NOTE: Texture offsets only exist in overrides, so there is no need
-        // to hack in the override value here.
-    }
-}
-
 LLGLTFMaterial::LLGLTFMaterial(const LLGLTFMaterial& rhs)
 {
     *this = rhs;
@@ -610,9 +587,6 @@ void LLGLTFMaterial::applyOverrideUUID(LLUUID& dst_id, const LLUUID& override_id
         dst_id = LLUUID::null;
     }
 }
-
-// Make a static default material override for editing materials
-const LLGLTFMaterial LLGLTFMaterial::sOverrideDefault{true};
 
 void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
 {

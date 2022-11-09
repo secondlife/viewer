@@ -2385,26 +2385,19 @@ public:
             // Selection can cover multiple objects, and live editor is
             // supposed to overwrite changed values only
             LLTextureEntry* tep = objectp->getTE(te);
+            LLPointer<LLGLTFMaterial> material = tep->getGLTFRenderMaterial();
 
-            if (tep->getGLTFMaterial().isNull())
+            if (material.isNull())
             {
                 // overrides are not supposed to work or apply if
                 // there is no base material to work from
                 return false;
             }
 
-            LLPointer<LLGLTFMaterial> material = tep->getGLTFMaterialOverride();
+
             // make a copy to not invalidate existing
             // material for multiple objects
-            if (material.isNull())
-            {
-                // Start with a material override which does not make any changes
-                material = new LLGLTFMaterial(LLGLTFMaterial::sOverrideDefault);
-            }
-            else
-            {
-                material = new LLGLTFMaterial(*material);
-            }
+            material = new LLGLTFMaterial(*material);
 
             U32 changed_flags = mEditor->getUnsavedChangesFlags();
             U32 reverted_flags = mEditor->getRevertedChangesFlags();
