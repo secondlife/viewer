@@ -2219,10 +2219,6 @@ void LLSelectMgr::selectionRevertGLTFMaterials()
                 LLUUID asset_id = nodep->mSavedGLTFMaterialIds[te];
                 objectp->setRenderMaterialID(te, asset_id, false /*wait for bulk update*/);
 
-                // Restore overrides
-                LLSD overrides;
-                overrides["object_id"] = objectp->getID();
-                overrides["side"] = te;
 
                 // todo: make sure this does not cause race condition with setRenderMaterialID
                 // when we are reverting from null id to non null plus override
@@ -2230,10 +2226,20 @@ void LLSelectMgr::selectionRevertGLTFMaterials()
                     && nodep->mSavedGLTFOverrideMaterials[te].notNull()
                     && asset_id.notNull())
                 {
-                    overrides["gltf_json"] = nodep->mSavedGLTFOverrideMaterials[te]->asJSON();
-                } // else nothing to blank override out
+                    // Restore overrides
+                    LLSD overrides;
+                    overrides["object_id"] = objectp->getID();
+                    overrides["side"] = te;
 
-                LLGLTFMaterialList::queueUpdate(overrides);
+                    overrides["gltf_json"] = nodep->mSavedGLTFOverrideMaterials[te]->asJSON();
+                    LLGLTFMaterialList::queueUpdate(overrides);
+                } 
+                else
+                {
+                    //blank override out
+                    LLGLTFMaterialList::queueApply(objectp->getID(), te, asset_id);
+                }
+
             }
             return true;
         }
