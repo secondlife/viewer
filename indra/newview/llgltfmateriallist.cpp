@@ -56,6 +56,7 @@ LLSD LLGLTFMaterialList::sUpdates;
 
 const LLUUID LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID("968cbad0-4dad-d64e-71b5-72bf13ad051a");
 
+#ifdef SHOW_ASSERT
 // return true if given data is (probably) valid update message for ModifyMaterialParams capability
 static bool is_valid_update(const LLSD& data)
 {
@@ -132,6 +133,7 @@ static bool is_valid_update(const LLSD& data)
 
     return true;
 }
+#endif
 
 class LLGLTFMaterialOverrideDispatchHandler : public LLDispatchHandler
 {
