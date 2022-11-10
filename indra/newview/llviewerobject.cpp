@@ -7225,6 +7225,18 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
         {
             param_block->setMaterial(te, id);
         }
+
+        if (update_server)
+        {
+            // If 'in use' changes, it will send an update itself.
+            bool in_use_changed = setParameterEntryInUse(LLNetworkData::PARAMS_RENDER_MATERIAL, !param_block->isEmpty(), true);
+
+            if (!in_use_changed)
+            {
+                // In use didn't change, but the parameter did, send an update
+                parameterChanged(LLNetworkData::PARAMS_RENDER_MATERIAL, param_block, !param_block->isEmpty(), true);
+            }
+        }
     }
 }
 
