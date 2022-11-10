@@ -107,6 +107,7 @@
 #include "llscenemonitor.h"
 #include "llavatarrenderinfoaccountant.h"
 #include "lllocalbitmaps.h"
+#include "llgltfmateriallist.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -4704,6 +4705,8 @@ void LLAppViewer::idle()
 	LLFilePickerThread::clearDead();  //calls LLFilePickerThread::notify()
 	LLDirPickerThread::clearDead();
 	F32 dt_raw = idle_timer.getElapsedTimeAndResetF32();
+
+    LLGLTFMaterialList::flushUpdates();
 
 	// Service the WorkQueue we use for replies from worker threads.
 	// Use function statics for the timeslice setting so we only have to fetch

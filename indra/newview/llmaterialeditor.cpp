@@ -2353,11 +2353,9 @@ class LLRenderMaterialOverrideFunctor : public LLSelectedNodeFunctor
 public:
     LLRenderMaterialOverrideFunctor(
         LLMaterialEditor * me,
-        std::string const & url,
         const LLUUID &report_on_object_id,
         S32 report_on_te)
     : mEditor(me)
-    , mCapUrl(url)
     , mSuccess(false)
     , mObjectId(report_on_object_id)
     , mObjectTE(report_on_te)
@@ -2530,34 +2528,12 @@ public:
                 material->setAlphaCutoff(revert_mat->mAlphaCutoff, false);
             }
 
-#if 1
             if (mObjectTE == te
                 && mObjectId == objectp->getID())
             {
                 mSuccess = true;
             }
-            LLGLTFMaterialList::queueModifyMaterial(objectp->getID(), te, material);
-#else
-
-            std::string overrides_json = material->asJSON();
-
-            LLSD overrides = llsd::map(
-                "object_id", objectp->getID(),
-                "side", te,
-                "gltf_json", overrides_json
-            );
-
-            void(*done_callback)(bool) = nullptr;
-            if (mObjectTE == te
-                && mObjectId == objectp->getID())
-            {
-                mSuccess = true;
-                // We only want callback for face we are displayig material from
-                // even if we are setting all of them
-                done_callback = modifyCallback;
-            }
-            LLCoros::instance().launch("modifyMaterialCoro", std::bind(&LLGLTFMaterialList::modifyMaterialCoro, mCapUrl, overrides, done_callback));
-#endif
+            LLGLTFMaterialList::queueModify(objectp->getID(), te, material);
         }
         return true;
     }
@@ -2576,7 +2552,6 @@ public:
 
 private:
     LLMaterialEditor * mEditor;
-    std::string mCapUrl;
     LLUUID mObjectId;
     S32 mObjectTE;
     bool mSuccess;
@@ -2603,7 +2578,7 @@ void LLMaterialEditor::applyToSelection()
         {
             mOverrideInProgress = true;
             LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
-            LLRenderMaterialOverrideFunctor override_func(this, url, mOverrideObjectId, mOverrideObjectTE);
+            LLRenderMaterialOverrideFunctor override_func(this, mOverrideObjectId, mOverrideObjectTE);
             selected_objects->applyToNodes(&override_func);
 
             void(*done_callback)(bool) = LLRenderMaterialOverrideFunctor::modifyCallback;

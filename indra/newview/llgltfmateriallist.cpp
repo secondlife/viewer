@@ -52,8 +52,86 @@ LLGLTFMaterialList gGLTFMaterialList;
 
 LLGLTFMaterialList::modify_queue_t LLGLTFMaterialList::sModifyQueue;
 LLGLTFMaterialList::apply_queue_t LLGLTFMaterialList::sApplyQueue;
+LLSD LLGLTFMaterialList::sUpdates;
 
 const LLUUID LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID("968cbad0-4dad-d64e-71b5-72bf13ad051a");
+
+// return true if given data is (probably) valid update message for ModifyMaterialParams capability
+static bool is_valid_update(const LLSD& data)
+{
+    llassert(data.isMap());
+
+    U32 count = 0;
+
+    if (data.has("object_id"))
+    {
+        if (!data["object_id"].isUUID())
+        {
+            LL_WARNS() << "object_id is not a UUID" << LL_ENDL;
+            return false;
+        }
+        ++count;
+    }
+    else
+    { 
+        LL_WARNS() << "Missing required parameter: object_id" << LL_ENDL;
+        return false;
+    }
+
+    if (data.has("side"))
+    {
+        if (!data["side"].isInteger())
+        {
+            LL_WARNS() << "side is not an integer" << LL_ENDL;
+            return false;
+        }
+
+        if (data["side"].asInteger() < -1)
+        {
+            LL_WARNS() << "side is invalid" << LL_ENDL;
+        }
+        ++count;
+    }
+    else
+    { 
+        LL_WARNS() << "Missing required parameter: side" << LL_ENDL;
+        return false;
+    }
+
+    if (data.has("gltf_json"))
+    {
+        if (!data["gltf_json"].isString())
+        {
+            LL_WARNS() << "gltf_json is not a string" << LL_ENDL;
+            return false;
+        }
+        ++count;
+    }
+
+    if (data.has("asset_id"))
+    {
+        if (!data["asset_id"].isUUID())
+        {
+            LL_WARNS() << "asset_id is not a UUID" << LL_ENDL;
+            return false;
+        }
+        ++count;
+    }
+
+    if (count < 3)
+    { 
+        LL_WARNS() << "Only specified object_id and side, update won't actually change anything and is just noise" << LL_ENDL;
+        return false;
+    }
+
+    if (data.size() != count)
+    {
+        LL_WARNS() << "update data contains unrecognized parameters" << LL_ENDL;
+        return false;
+    }
+
+    return true;
+}
 
 class LLGLTFMaterialOverrideDispatchHandler : public LLDispatchHandler
 {
@@ -231,7 +309,7 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
     }
 }
 
-void LLGLTFMaterialList::queueModifyMaterial(const LLUUID& id, S32 side, const LLGLTFMaterial* mat)
+void LLGLTFMaterialList::queueModify(const LLUUID& id, S32 side, const LLGLTFMaterial* mat)
 {
     if (mat == nullptr)
     {
@@ -243,16 +321,29 @@ void LLGLTFMaterialList::queueModifyMaterial(const LLUUID& id, S32 side, const L
     }
 }
 
-void LLGLTFMaterialList::queueApplyMaterialAsset(const LLUUID& object_id, S32 side, const LLUUID& asset_id)
+void LLGLTFMaterialList::queueApply(const LLUUID& object_id, S32 side, const LLUUID& asset_id)
 {
     sApplyQueue.push_back({ object_id, side, asset_id});
 }
 
+void LLGLTFMaterialList::queueUpdate(const LLSD& data)
+{
+    llassert(is_valid_update(data));
+
+    if (!sUpdates.isArray())
+    {
+        sUpdates = LLSD::emptyArray();
+    }
+    
+    sUpdates[sUpdates.size()] = data;
+}
+
 void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
 {
-    LLSD data = LLSD::emptyArray();
+    LLSD& data = sUpdates;
 
-    S32 i = 0;
+    S32 i = data.size();
+
     for (auto& e : sModifyQueue)
     {
         data[i]["object_id"] = e.object_id;
@@ -263,6 +354,7 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
             data[i]["gltf_json"] = e.override_data.asJSON();
         }
 
+        llassert(is_valid_update(data[i]));
         ++i;
     }
     sModifyQueue.clear();
@@ -273,6 +365,8 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
         data[i]["side"] = e.side;
         data[i]["asset_id"] = e.asset_id;
         data[i]["gltf_json"] = ""; // null out any existing overrides when applying a material asset
+
+        llassert(is_valid_update(data[i]));
         ++i;
     }
     sApplyQueue.clear();
@@ -283,11 +377,18 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
     LL_INFOS() << "\n" << str.str() << LL_ENDL;
 #endif
 
-    LLCoros::instance().launch("modifyMaterialCoro",
-        std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
-            gAgent.getRegionCapability("ModifyMaterialParams"),
-            data,
-            done_callback));
+    if (sUpdates.size() > 0)
+    {
+        LLCoros::instance().launch("modifyMaterialCoro",
+            std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
+                gAgent.getRegionCapability("ModifyMaterialParams"),
+                sUpdates,
+                done_callback));
+
+        sUpdates = LLSD::emptyArray();
+    }
+
+    
 }
 
 class AssetLoadUserData

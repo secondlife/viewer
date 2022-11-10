@@ -53,13 +53,13 @@ public:
 
     static void registerCallbacks();
 
-    // Queue an override update that we want to send to the simulator.  Call "flushUpdates" to flush pending updates.
+    // Queue an modification of a material that we want to send to the simulator.  Call "flushUpdates" to flush pending updates.
     //  id - ID of object to modify
     //  side - TexureEntry index to modify, or -1 for all sides
     //  mat - material to apply as override, or nullptr to remove existing overrides and revert to asset
     //
     // NOTE: do not use to revert to asset when applying a new asset id, use queueApplyMaterialAsset below
-    static void queueModifyMaterial(const LLUUID& id, S32 side, const LLGLTFMaterial* mat);
+    static void queueModify(const LLUUID& id, S32 side, const LLGLTFMaterial* mat);
 
     // Queue an application of a material asset we want to send to the simulator.  Call "flushUpdates" to flush pending updates.
     //  object_id - ID of object to apply material asset to
@@ -67,23 +67,26 @@ public:
     //  asset_id - ID of material asset to apply, or LLUUID::null to disassociate current material asset
     //
     // NOTE: implicitly removes any override data if present
-    static void queueApplyMaterialAsset(const LLUUID& object_id, S32 side, const LLUUID& asset_id);
+    static void queueApply(const LLUUID& object_id, S32 side, const LLUUID& asset_id);
 
     // flush pending material updates to the simulator
-    static void  flushUpdates(void(*done_callback)(bool) = nullptr);
+    // Automatically called once per frame, but may be called explicitly
+    // for cases that care about the done_callback forwarded to LLCoros::instance().launch
+    static void flushUpdates(void(*done_callback)(bool) = nullptr);
     
-    // apply given override data via given cap url
-    //  cap_url -- should be gAgent.getRegionCapability("ModifyMaterialParams")
+    // Queue an explicit LLSD ModifyMaterialParams update apply given override data
     //  overrides -- LLSD map (or array of maps) in the format:
     //      object_id   UUID(required)      id of object
     //      side        integer(required)   TE index of face to set, or -1 for all faces
     //      gltf_json   string(optional)    override data to set, empty string nulls out override data, omissions of this parameter keeps existing data
     //      asset_id    UUID(optional)      id of material asset to set, omission of this parameter keeps existing material asset id
     //    
-    // NOTE: if you're calling this from outside of flushUpdates, you're probably doing it wrong.  Use the "queue"/"flush" API above.
+    // NOTE: Unless you already have a gltf_json string you want to send, strongly prefer using queueModify
     // If the queue/flush API is insufficient, extend it.
-    static void modifyMaterialCoro(std::string cap_url, LLSD overrides, void(*done_callback)(bool));
+    static void queueUpdate(const LLSD& data);
 
+    // Called by batch builder to give LLGLTMaterialList an opportunity to apply
+    // any override data that arrived before the object was ready to receive it
     void applyQueuedOverrides(LLViewerObject* obj);
 
 private:
@@ -92,6 +95,7 @@ private:
     // NOTE: this is NOT for applying overrides from the UI, see queueModifyMaterial above
     void queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFMaterial* override_data);
 
+    static void modifyMaterialCoro(std::string cap_url, LLSD overrides, void(*done_callback)(bool));
 
 protected:
     static void onAssetLoadComplete(
@@ -132,6 +136,8 @@ protected:
     typedef std::list<ApplyMaterialAssetData> apply_queue_t;
     static apply_queue_t sApplyQueue;
 
+    // data to be flushed to ModifyMaterialParams capability
+    static LLSD    sUpdates;
 };
 
 extern LLGLTFMaterialList gGLTFMaterialList;

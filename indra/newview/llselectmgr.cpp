@@ -1814,7 +1814,7 @@ void LLObjectSelection::applyNoCopyPbrMaterialToTEs(LLViewerInventoryItem* item)
                 object->setRenderMaterialID(te, asset_id, false /*will be sent later*/);
 
                 // blank out any override data on the server
-                LLGLTFMaterialList::queueApplyMaterialAsset(object->getID(), te, asset_id);
+                LLGLTFMaterialList::queueApply(object->getID(), te, asset_id);
             }
         }
     }
@@ -1954,7 +1954,7 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
             objectp->setRenderMaterialID(te, asset_id, false /*prevent an update to prevent a race condition*/);
 
             // blank out any override data on the server
-            LLGLTFMaterialList::queueApplyMaterialAsset(objectp->getID(), te, asset_id);
+            LLGLTFMaterialList::queueApply(objectp->getID(), te, asset_id);
 
             return true;
         }
@@ -2229,11 +2229,7 @@ void LLSelectMgr::selectionRevertGLTFMaterials()
                     overrides["gltf_json"] = nodep->mSavedGLTFOverrideMaterials[te]->asJSON();
                 } // else nothing to blank override out
 
-                LLCoros::instance().launch("modifyMaterialCoro",
-                    std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
-                        gAgent.getRegionCapability("ModifyMaterialParams"),
-                        overrides,
-                        nullptr));
+                LLGLTFMaterialList::queueUpdate(overrides);
             }
             return true;
         }

@@ -7208,9 +7208,8 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
         // update via ModifyMaterialParams cap (server will echo back changes)
         for (S32 te = start_idx; te < end_idx; ++te)
         {
-            LLGLTFMaterialList::queueApplyMaterialAsset(getID(), te, id);
+            LLGLTFMaterialList::queueApply(getID(), te, id);
         }
-        LLGLTFMaterialList::flushUpdates();
     }
 
     // predictively update LLRenderMaterialParams (don't wait for server)

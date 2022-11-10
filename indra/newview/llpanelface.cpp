@@ -4383,7 +4383,7 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
             // PBR/GLTF
             if (te_data["te"].has("pbr"))
             {
-                objectp->setRenderMaterialID(te, te_data["te"]["pbr"].asUUID(), false /*send in bulk later*/);
+                objectp->setRenderMaterialID(te, te_data["te"]["pbr"].asUUID(), false /*managing our own update*/);
                 tep->setGLTFRenderMaterial(nullptr);
                 tep->setGLTFMaterialOverride(nullptr);
 
@@ -4394,12 +4394,14 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
                 {
                     override_data["gltf_json"] = te_data["te"]["pbr_override"];
                 }
+                else
+                {
+                    override_data["gltf_json"] = "";
+                }
 
-                LLCoros::instance().launch("modifyMaterialCoro",
-                    std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
-                        gAgent.getRegionCapability("ModifyMaterialParams"),
-                        override_data,
-                        nullptr));
+                override_data["asset_id"] = te_data["te"]["pbr"].asUUID();
+
+                LLGLTFMaterialList::queueUpdate(override_data);
             }
             else
             {
@@ -4408,7 +4410,7 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
                 tep->setGLTFMaterialOverride(nullptr);
 
                 // blank out any override data on the server
-                LLGLTFMaterialList::queueApplyMaterialAsset(objectp->getID(), te, LLUUID::null);
+                LLGLTFMaterialList::queueApply(objectp->getID(), te, LLUUID::null);
             }
 
             // Texture map
