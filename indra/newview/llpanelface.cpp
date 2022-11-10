@@ -997,9 +997,9 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
             color_swatch->setOriginal(color);
             color_swatch->set(color, force_set_values || (prev_color != color) || !editable);
 
-            color_swatch->setValid(editable);
-            color_swatch->setEnabled( editable );
-            color_swatch->setCanApplyImmediately( editable );
+            color_swatch->setValid(editable && !has_pbr_material);
+            color_swatch->setEnabled( editable && !has_pbr_material);
+            color_swatch->setCanApplyImmediately( editable && !has_pbr_material);
 		}
 
 		// Color transparency
@@ -1501,7 +1501,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			LLSelectedTE::getFullbright(fullbright_flag,identical_fullbright);
 
 			getChild<LLUICtrl>("checkbox fullbright")->setValue((S32)(fullbright_flag != 0));
-			getChildView("checkbox fullbright")->setEnabled(editable);
+			getChildView("checkbox fullbright")->setEnabled(editable && !has_pbr_material);
 			getChild<LLUICtrl>("checkbox fullbright")->setTentative(!identical_fullbright);
 		}
 		
