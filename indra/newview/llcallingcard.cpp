@@ -719,11 +719,12 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 				// we were tracking someone who went offline
 				deleteTrackingData();
 			}
-		}
-		if(chat_notify)
-		{
-			// Look up the name of this agent for the notification
-			LLAvatarNameCache::get(agent_id,boost::bind(&on_avatar_name_cache_notify,_1, _2, online, payload));
+
+            if(chat_notify)
+            {
+                // Look up the name of this agent for the notification
+                LLAvatarNameCache::get(agent_id,boost::bind(&on_avatar_name_cache_notify,_1, _2, online, payload));
+            }
 		}
 
 		mModifyMask |= LLFriendObserver::ONLINE;
