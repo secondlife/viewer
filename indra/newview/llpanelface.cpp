@@ -4408,12 +4408,7 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
                 tep->setGLTFMaterialOverride(nullptr);
 
                 // blank out any override data on the server
-                LLCoros::instance().launch("modifyMaterialCoro",
-                    std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
-                        gAgent.getRegionCapability("ModifyMaterialParams"),
-                        llsd::map(
-                            "object_id", objectp->getID(),
-                            "side", te), nullptr));
+                LLGLTFMaterialList::queueApplyMaterialAsset(objectp->getID(), te, LLUUID::null);
             }
 
             // Texture map

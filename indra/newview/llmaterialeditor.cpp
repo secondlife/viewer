@@ -921,22 +921,22 @@ void LLMaterialEditor::onSelectCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_
                     //Textures
                     case MATERIAL_BASE_COLOR_TEX_DIRTY:
                     {
-                        nodep->mSavedGLTFOverrideMaterials[te]->mBaseColorId = mCtrl->getValue().asUUID();
+                        nodep->mSavedGLTFOverrideMaterials[te]->setBaseColorId(mCtrl->getValue().asUUID(), true);
                         break;
                     }
                     case MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY:
                     {
-                        nodep->mSavedGLTFOverrideMaterials[te]->mMetallicRoughnessId = mCtrl->getValue().asUUID();
+                        nodep->mSavedGLTFOverrideMaterials[te]->setMetallicRoughnessId(mCtrl->getValue().asUUID(), true);
                         break;
                     }
                     case MATERIAL_EMISIVE_TEX_DIRTY:
                     {
-                        nodep->mSavedGLTFOverrideMaterials[te]->mEmissiveId = mCtrl->getValue().asUUID();
+                        nodep->mSavedGLTFOverrideMaterials[te]->setEmissiveId(mCtrl->getValue().asUUID(), true);
                         break;
                     }
                     case MATERIAL_NORMAL_TEX_DIRTY:
                     {
-                        nodep->mSavedGLTFOverrideMaterials[te]->mNormalId = mCtrl->getValue().asUUID();
+                        nodep->mSavedGLTFOverrideMaterials[te]->setNormalId(mCtrl->getValue().asUUID(), true);
                         break;
                     }
                     // Colors
@@ -945,12 +945,12 @@ void LLMaterialEditor::onSelectCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_
                         LLColor4 ret = linearColor4(LLColor4(mCtrl->getValue()));
                         // except transparency
                         ret.mV[3] = nodep->mSavedGLTFOverrideMaterials[te]->mBaseColor.mV[3];
-                        nodep->mSavedGLTFOverrideMaterials[te]->mBaseColor = ret;
+                        nodep->mSavedGLTFOverrideMaterials[te]->setBaseColorFactor(ret, true);
                         break;
                     }
                     case MATERIAL_EMISIVE_COLOR_DIRTY:
                     {
-                        nodep->mSavedGLTFOverrideMaterials[te]->mEmissiveColor = LLColor4(mCtrl->getValue());
+                        nodep->mSavedGLTFOverrideMaterials[te]->setEmissiveColorFactor(LLColor3(mCtrl->getValue()), true);
                         break;
                     }
                     default:
@@ -2415,109 +2415,119 @@ public:
             U32 reverted_flags = mEditor->getRevertedChangesFlags();
 
             LLPointer<LLGLTFMaterial> revert_mat;
-            // mSavedGLTFOverrideMaterials[te] being null
-            // means we need to use a default value 
-            bool can_revert = (nodep->mSavedGLTFOverrideMaterials.size() > te)
-                               && nodep->mSavedGLTFOverrideMaterials[te].notNull();
+            if (nodep->mSavedGLTFOverrideMaterials.size() > te)
+            {
+                if (nodep->mSavedGLTFOverrideMaterials[te].notNull())
+                {
+                    revert_mat = nodep->mSavedGLTFOverrideMaterials[te];
+                }
+                else
+                {
+                    // mSavedGLTFOverrideMaterials[te] being present but null
+                    // means we need to use a default value 
+                    revert_mat = new LLGLTFMaterial();
+                }
+            }
+            // else can not revert at all
 
             // Override object's values with values from editor where appropriate
             if (changed_flags & MATERIAL_BASE_COLOR_DIRTY)
             {
                 material->setBaseColorFactor(mEditor->getBaseColor(), true);
             }
-            else if ((reverted_flags & MATERIAL_BASE_COLOR_DIRTY) && can_revert)
+            else if ((reverted_flags & MATERIAL_BASE_COLOR_DIRTY) && revert_mat.notNull())
             {
-                material->setBaseColorFactor(nodep->mSavedGLTFOverrideMaterials[te]->mBaseColor, true);
+                material->setBaseColorFactor(revert_mat->mBaseColor, false);
             }
 
             if (changed_flags & MATERIAL_BASE_COLOR_TEX_DIRTY)
             {
                 material->setBaseColorId(mEditor->getBaseColorId(), true);
             }
-            else if ((reverted_flags & MATERIAL_BASE_COLOR_TEX_DIRTY) && can_revert)
+            else if ((reverted_flags & MATERIAL_BASE_COLOR_TEX_DIRTY) && revert_mat.notNull())
             {
-                material->setBaseColorId(nodep->mSavedGLTFOverrideMaterials[te]->mBaseColorId, true);
+                material->setBaseColorId(revert_mat->mBaseColorId, false);
             }
 
             if (changed_flags & MATERIAL_NORMAL_TEX_DIRTY)
             {
                 material->setNormalId(mEditor->getNormalId(), true);
             }
-            else if ((reverted_flags & MATERIAL_NORMAL_TEX_DIRTY) && can_revert)
+            else if ((reverted_flags & MATERIAL_NORMAL_TEX_DIRTY) && revert_mat.notNull())
             {
-                material->setNormalId(nodep->mSavedGLTFOverrideMaterials[te]->mNormalId, true);
+                material->setNormalId(revert_mat->mNormalId, false);
             }
 
             if (changed_flags & MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY)
             {
                 material->setMetallicRoughnessId(mEditor->getMetallicRoughnessId(), true);
             }
-            else if ((reverted_flags & MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY) && can_revert)
+            else if ((reverted_flags & MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY) && revert_mat.notNull())
             {
-                material->setMetallicRoughnessId(nodep->mSavedGLTFOverrideMaterials[te]->mMetallicRoughnessId, true);
+                material->setMetallicRoughnessId(revert_mat->mMetallicRoughnessId, false);
             }
 
             if (changed_flags & MATERIAL_METALLIC_ROUGHTNESS_METALNESS_DIRTY)
             {
                 material->setMetallicFactor(mEditor->getMetalnessFactor(), true);
             }
-            else if ((reverted_flags & MATERIAL_METALLIC_ROUGHTNESS_METALNESS_DIRTY) && can_revert)
+            else if ((reverted_flags & MATERIAL_METALLIC_ROUGHTNESS_METALNESS_DIRTY) && revert_mat.notNull())
             {
-                material->setMetallicFactor(nodep->mSavedGLTFOverrideMaterials[te]->mMetallicFactor, true);
+                material->setMetallicFactor(revert_mat->mMetallicFactor, false);
             }
 
             if (changed_flags & MATERIAL_METALLIC_ROUGHTNESS_ROUGHNESS_DIRTY)
             {
                 material->setRoughnessFactor(mEditor->getRoughnessFactor(), true);
             }
-            else if ((reverted_flags & MATERIAL_METALLIC_ROUGHTNESS_ROUGHNESS_DIRTY) && can_revert)
+            else if ((reverted_flags & MATERIAL_METALLIC_ROUGHTNESS_ROUGHNESS_DIRTY) && revert_mat.notNull())
             {
-                material->setRoughnessFactor(nodep->mSavedGLTFOverrideMaterials[te]->mRoughnessFactor, true);
+                material->setRoughnessFactor(revert_mat->mRoughnessFactor, false);
             }
 
             if (changed_flags & MATERIAL_EMISIVE_COLOR_DIRTY)
             {
                 material->setEmissiveColorFactor(LLColor3(mEditor->getEmissiveColor()), true);
             }
-            else if ((reverted_flags & MATERIAL_EMISIVE_COLOR_DIRTY) && can_revert)
+            else if ((reverted_flags & MATERIAL_EMISIVE_COLOR_DIRTY) && revert_mat.notNull())
             {
-                material->setEmissiveColorFactor(nodep->mSavedGLTFOverrideMaterials[te]->mEmissiveColor, true);
+                material->setEmissiveColorFactor(revert_mat->mEmissiveColor, false);
             }
 
             if (changed_flags & MATERIAL_EMISIVE_TEX_DIRTY)
             {
                 material->setEmissiveId(mEditor->getEmissiveId(), true);
             }
-            else if ((reverted_flags & MATERIAL_EMISIVE_TEX_DIRTY) && can_revert)
+            else if ((reverted_flags & MATERIAL_EMISIVE_TEX_DIRTY) && revert_mat.notNull())
             {
-                material->setEmissiveId(nodep->mSavedGLTFOverrideMaterials[te]->mEmissiveId, true);
+                material->setEmissiveId(revert_mat->mEmissiveId, false);
             }
 
             if (changed_flags & MATERIAL_DOUBLE_SIDED_DIRTY)
             {
                 material->setDoubleSided(mEditor->getDoubleSided(), true);
             }
-            else if ((reverted_flags & MATERIAL_DOUBLE_SIDED_DIRTY) && can_revert)
+            else if ((reverted_flags & MATERIAL_DOUBLE_SIDED_DIRTY) && revert_mat.notNull())
             {
-                material->setDoubleSided(nodep->mSavedGLTFOverrideMaterials[te]->mDoubleSided, true);
+                material->setDoubleSided(revert_mat->mDoubleSided, false);
             }
 
             if (changed_flags & MATERIAL_ALPHA_MODE_DIRTY)
             {
                 material->setAlphaMode(mEditor->getAlphaMode(), true);
             }
-            else if ((reverted_flags & MATERIAL_ALPHA_MODE_DIRTY) && can_revert)
+            else if ((reverted_flags & MATERIAL_ALPHA_MODE_DIRTY) && revert_mat.notNull())
             {
-                material->setAlphaMode(nodep->mSavedGLTFOverrideMaterials[te]->mAlphaMode, true);
+                material->setAlphaMode(revert_mat->mAlphaMode, false);
             }
 
             if (changed_flags & MATERIAL_ALPHA_CUTOFF_DIRTY)
             {
                 material->setAlphaCutoff(mEditor->getAlphaCutoff(), true);
             }
-            else if ((reverted_flags & MATERIAL_ALPHA_CUTOFF_DIRTY) && can_revert)
+            else if ((reverted_flags & MATERIAL_ALPHA_CUTOFF_DIRTY) && revert_mat.notNull())
             {
-                material->setAlphaCutoff(nodep->mSavedGLTFOverrideMaterials[te]->mAlphaCutoff, true);
+                material->setAlphaCutoff(revert_mat->mAlphaCutoff, false);
             }
 
 #if 1
