@@ -184,9 +184,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e363322d49472626b70e200f54c229da</string>
+              <string>0d41c7c2e563b5abd972d61661c03a51</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107294/936114/bugsplat-1.0.7.576506-darwin64-576506.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107318/936265/bugsplat-1.0.7.576517-darwin64-576517.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -196,9 +196,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>659eaacc67895bb0795f7e278baebd17</string>
+              <string>5ede19a3a5fc906ccce23f008faf09d6</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107293/936109/bugsplat-4.0.3.0.576506-windows-576506.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107317/936259/bugsplat-4.0.3.0.576517-windows-576517.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -208,16 +208,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>31cd0ae9c60bd1b885825d5394afe8dd</string>
+              <string>2f0ae3c5e10347c1ef2d0d1ccc22232b</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107290/936097/bugsplat-.576506-windows64-576506.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107313/936242/bugsplat-.576517-windows64-576517.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.0.3.0.576506</string>
+        <string>4.0.3.0.576517</string>
       </map>
       <key>colladadom</key>
       <map>
