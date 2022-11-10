@@ -1984,6 +1984,74 @@
         <key>version</key>
         <string>3.0.2.569217</string>
       </map>
+      <key>nanosvg</key>
+      <map>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/lindenlab/3p-nanosvg</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2013-14 Mikko Mononen</string>
+        <key>description</key>
+        <string>NanoSVG is a simple single-header-file SVG parser and rasterizer</string>
+        <key>license</key>
+        <string>Zlib</string>
+        <key>license_file</key>
+        <string>LICENSES/LICENSE.txt</string>
+        <key>name</key>
+        <string>nanosvg</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>94b8670d171700f24af2fcfc8bf7d608</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107183/935568/nanosvg-2022.09.27-darwin64-576467.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>c5a2ae5ecc8ade5a85b674e4426d6403</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107186/935576/nanosvg-2022.09.27-linux-576467.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>8fa416e04ca768c1d8fa4ad3a0104b24</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107184/935580/nanosvg-2022.09.27-windows-576467.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>08ea3f1d23cf78d1eb65597cef5913b4</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107182/935563/nanosvg-2022.09.27-windows64-576467.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>2022.09.27</string>
+      </map>
       <key>nghttp2</key>
       <map>
         <key>copyright</key>
