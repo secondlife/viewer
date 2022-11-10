@@ -4249,6 +4249,8 @@ void LLPanelFace::onPasteTexture()
     LLPanelFaceUpdateFunctor sendfunc(true, true);
     selected_objects->applyToObjects(&sendfunc);
 
+    LLGLTFMaterialList::flushUpdates();
+
     LLPanelFaceNavigateHomeFunctor navigate_home_func;
     selected_objects->applyToTEs(&navigate_home_func);
 }

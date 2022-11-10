@@ -1818,6 +1818,8 @@ void LLObjectSelection::applyNoCopyPbrMaterialToTEs(LLViewerInventoryItem* item)
             }
         }
     }
+
+    LLGLTFMaterialList::flushUpdates();
 }
 
 
@@ -2016,6 +2018,8 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
         }
     } sendfunc(item);
     getSelection()->applyToObjects(&sendfunc);
+
+    LLGLTFMaterialList::flushUpdates();
 }
 
 //-----------------------------------------------------------------------------
