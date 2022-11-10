@@ -108,9 +108,12 @@ const S32 MATTYPE_SPECULAR = 2;		// Specular map
 const S32 ALPHAMODE_MASK = 2;		// Alpha masking mode
 const S32 BUMPY_TEXTURE = 18;		// use supplied normal map
 const S32 SHINY_TEXTURE = 4;		// use supplied specular map
-const S32 PBRTYPE_BASE_COLOR = 0;		// PBR Base Color
-const S32 PBRTYPE_NORMAL = 1;		// PBR Normal
-const S32 PBRTYPE_METALLIC = 2;		// PBR Metallic
+const S32 PBRTYPE_RENDER_MATERIAL_ID = 0;  // Render Material ID
+const S32 PBRTYPE_BASE_COLOR = 1;   // PBR Base Color
+const S32 PBRTYPE_NORMAL = 2;       // PBR Normal
+const S32 PBRTYPE_METALLIC_ROUGHNESS = 3; // PBR Metallic
+const S32 PBRTYPE_EMISSIVE = 4;     // PBR Emissive
+const S32 PBRTYPE_DEFAULT = PBRTYPE_RENDER_MATERIAL_ID;
 
 BOOST_STATIC_ASSERT(MATTYPE_DIFFUSE == LLRender::DIFFUSE_MAP && MATTYPE_NORMAL == LLRender::NORMAL_MAP && MATTYPE_SPECULAR == LLRender::SPECULAR_MAP);
 
@@ -198,6 +201,13 @@ BOOL	LLPanelFace::postBuild()
 	childSetCommitCallback("maskcutoff",&LLPanelFace::onCommitMaterialMaskCutoff, this);
     childSetCommitCallback("add_media", &LLPanelFace::onClickBtnAddMedia, this);
     childSetCommitCallback("delete_media", &LLPanelFace::onClickBtnDeleteMedia, this);
+
+    // TODO: Add the children
+    childSetCommitCallback("gltfTextureScaleU", &LLPanelFace::onCommitGLTFTextureScaleU, this);
+    childSetCommitCallback("gltfTextureScaleV", &LLPanelFace::onCommitGLTFTextureScaleV, this);
+    childSetCommitCallback("gltfRotation", &LLPanelFace::onCommitGLTFRotation, this);
+    childSetCommitCallback("gltfTextureTranslationU", &LLPanelFace::onCommitGLTFTextureTranslationU, this);
+    childSetCommitCallback("gltfTextureTranslationV", &LLPanelFace::onCommitGLTFTextureTranslationV, this);
 
 	childSetAction("button align",&LLPanelFace::onClickAutoFix,this);
 	childSetAction("button align textures", &LLPanelFace::onAlignTexture, this);
@@ -363,7 +373,7 @@ BOOL	LLPanelFace::postBuild()
     if (radio_pbr_type)
     {
         radio_pbr_type->setCommitCallback(LLPanelFace::onCommitPbrType, this);
-        radio_pbr_type->selectNthItem(PBRTYPE_BASE_COLOR);
+        radio_pbr_type->selectNthItem(PBRTYPE_RENDER_MATERIAL_ID);
     }
 
 	mCtrlGlow = getChild<LLSpinCtrl>("glow");
@@ -537,41 +547,21 @@ struct LLPanelFaceSetTEFunctor : public LLSelectedTEFunctor
 		BOOL valid;
 		F32 value;
         std::string prefix;
-        U32 materials_media = mPanel->getChild<LLComboBox>("combobox matmedia")->getCurrentIndex();
 
-        if (MATMEDIA_PBR == materials_media)
+        // Effectively the same as MATMEDIA_PBR sans using different radio,
+        // separate for the sake of clarity
+        LLRadioGroup * radio_mat_type = mPanel->getChild<LLRadioGroup>("radio_material_type");
+        switch (radio_mat_type->getSelectedIndex())
         {
-            LLRadioGroup * radio_pbr_type = mPanel->getChild<LLRadioGroup>("radio_pbr_type");
-            switch (radio_pbr_type->getSelectedIndex())
-            {
-            case PBRTYPE_BASE_COLOR:
-                prefix = "Tex";
-                break;
-            case PBRTYPE_NORMAL:
-                prefix = "bumpy";
-                break;
-            case PBRTYPE_METALLIC:
-                prefix = "shiny";
-                break;
-            }
-        }
-        else
-        {
-            // Effectively the same as MATMEDIA_PBR sans using different radio,
-            // separate for the sake of clarity
-            LLRadioGroup * radio_mat_type = mPanel->getChild<LLRadioGroup>("radio_material_type");
-            switch (radio_mat_type->getSelectedIndex())
-            {
-            case MATTYPE_DIFFUSE:
-                prefix = "Tex";
-                break;
-            case MATTYPE_NORMAL:
-                prefix = "bumpy";
-                break;
-            case MATTYPE_SPECULAR:
-                prefix = "shiny";
-                break;
-            }
+        case MATTYPE_DIFFUSE:
+            prefix = "Tex";
+            break;
+        case MATTYPE_NORMAL:
+            prefix = "bumpy";
+            break;
+        case MATTYPE_SPECULAR:
+            prefix = "shiny";
+            break;
         }
         
         LLSpinCtrl * ctrlTexScaleS = mPanel->getChild<LLSpinCtrl>(prefix + "ScaleU");
@@ -921,6 +911,12 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 	{
 		BOOL editable = objectp->permModify() && !objectp->isPermanentEnforced();
 
+        bool has_pbr_material;
+        updateUIGLTF(objectp, has_pbr_material, force_set_values);
+
+        const bool has_prepbr_material = !has_pbr_material;
+        const bool pbr_material_mode = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR;
+
 		// only turn on auto-adjust button if there is a media renderer and the media is loaded
         childSetEnabled("button align", editable);
 		
@@ -938,39 +934,24 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         radio_mat_type->setEnabled(editable);
 
         LLRadioGroup* radio_pbr_type = getChild<LLRadioGroup>("radio_pbr_type");
-        if (radio_pbr_type->getSelectedIndex() < PBRTYPE_BASE_COLOR)
+        if (radio_pbr_type->getSelectedIndex() < PBRTYPE_RENDER_MATERIAL_ID)
         {
-            radio_pbr_type->selectNthItem(PBRTYPE_BASE_COLOR);
+            radio_pbr_type->selectNthItem(PBRTYPE_DEFAULT);
         }
         radio_pbr_type->setEnabled(editable);
 
 		getChildView("checkbox_sync_settings")->setEnabled(editable);
 		childSetValue("checkbox_sync_settings", gSavedSettings.getBOOL("SyncMaterialSettings"));
+
 		updateVisibility();
 
+        // *NOTE: The "identical" variable is currently only used to decide if
+        // the texgen control should be tentative - this is not used by GLTF
+        // materials. -Cosmic;2022-11-09
 		bool identical				= true;	// true because it is anded below
         bool identical_diffuse	= false;
         bool identical_norm		= false;
         bool identical_spec		= false;
-
-        // pbr material
-        bool has_pbr_material = false;
-        LLTextureCtrl*	pbr_ctrl = findChild<LLTextureCtrl>("pbr_control");
-        if (pbr_ctrl)
-        {
-            LLUUID pbr_id;
-            bool identical_pbr;
-            LLSelectedTE::getPbrMaterialId(pbr_id, identical_pbr);
-            identical &= identical_pbr;
-
-            pbr_ctrl->setTentative(identical_pbr ? FALSE : TRUE);
-            pbr_ctrl->setEnabled(editable);
-            pbr_ctrl->setImageAssetID(pbr_id);
-            has_pbr_material = pbr_id.notNull();
-        }
-        getChildView("pbr_from_inventory")->setEnabled(editable);
-        getChildView("edit_selected_pbr")->setEnabled(editable && has_pbr_material);
-        getChildView("save_selected_pbr")->setEnabled(objectp->permCopy() && has_pbr_material);
 
 		LLTextureCtrl*	texture_ctrl = getChild<LLTextureCtrl>("texture control");
 		LLTextureCtrl*	shinytexture_ctrl = getChild<LLTextureCtrl>("shinytexture control");
@@ -982,7 +963,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		
 		// Color swatch
 		{
-			getChildView("color label")->setEnabled(editable && !has_pbr_material);
+			getChildView("color label")->setEnabled(editable);
 		}
 		LLColorSwatchCtrl*	color_swatch = findChild<LLColorSwatchCtrl>("colorswatch");
 
@@ -1003,11 +984,11 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		}
 
 		// Color transparency
-		getChildView("color trans")->setEnabled(editable && !has_pbr_material);
+		getChildView("color trans")->setEnabled(editable);
 
 		F32 transparency = (1.f - color.mV[VALPHA]) * 100.f;
 		getChild<LLUICtrl>("ColorTrans")->setValue(editable ? transparency : 0);
-		getChildView("ColorTrans")->setEnabled(editable && !has_pbr_material);
+		getChildView("ColorTrans")->setEnabled(editable);
 
 		// Specular map
 		LLSelectedTEMaterial::getSpecularID(specmap_id, identical_spec);
@@ -1266,18 +1247,9 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			getChild<LLUICtrl>("shinyScaleU")->setValue(spec_scale_s);
 			getChild<LLUICtrl>("bumpyScaleU")->setValue(norm_scale_s);
 
-            if (mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR)
-            {
-                getChildView("TexScaleU")->setEnabled(editable && has_pbr_material);
-                getChildView("shinyScaleU")->setEnabled(editable && has_pbr_material);
-                getChildView("bumpyScaleU")->setEnabled(editable && has_pbr_material);
-            }
-            else
-            {
-                getChildView("TexScaleU")->setEnabled(editable);
-                getChildView("shinyScaleU")->setEnabled(editable && specmap_id.notNull());
-                getChildView("bumpyScaleU")->setEnabled(editable && normmap_id.notNull());
-            }
+            getChildView("TexScaleU")->setEnabled(editable && has_prepbr_material);
+            getChildView("shinyScaleU")->setEnabled(editable && has_prepbr_material && specmap_id.notNull());
+            getChildView("bumpyScaleU")->setEnabled(editable && has_prepbr_material && normmap_id.notNull());
 
 			BOOL diff_scale_tentative = !(identical && identical_diff_scale_s);
 			BOOL norm_scale_tentative = !(identical && identical_norm_scale_s);
@@ -1314,18 +1286,9 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			BOOL norm_scale_tentative = !identical_norm_scale_t;
 			BOOL spec_scale_tentative = !identical_spec_scale_t;
 
-            if (mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR)
-            {
-                getChildView("TexScaleV")->setEnabled(editable && has_pbr_material);
-                getChildView("shinyScaleV")->setEnabled(editable && has_pbr_material);
-                getChildView("bumpyScaleV")->setEnabled(editable && has_pbr_material);
-            }
-            else
-            {
-                getChildView("TexScaleV")->setEnabled(editable);
-                getChildView("shinyScaleV")->setEnabled(editable && specmap_id.notNull());
-                getChildView("bumpyScaleV")->setEnabled(editable && normmap_id.notNull());
-            }
+            getChildView("TexScaleV")->setEnabled(editable && has_prepbr_material);
+            getChildView("shinyScaleV")->setEnabled(editable && has_prepbr_material && specmap_id.notNull());
+            getChildView("bumpyScaleV")->setEnabled(editable && has_prepbr_material && normmap_id.notNull());
 
 			if (force_set_values)
 			{
@@ -1369,18 +1332,9 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			getChild<LLUICtrl>("shinyOffsetU")->setTentative(LLSD(norm_offset_u_tentative));
 			getChild<LLUICtrl>("bumpyOffsetU")->setTentative(LLSD(spec_offset_u_tentative));
 
-            if (mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR)
-            {
-                getChildView("TexOffsetU")->setEnabled(editable && has_pbr_material);
-                getChildView("shinyOffsetU")->setEnabled(editable && has_pbr_material);
-                getChildView("bumpyOffsetU")->setEnabled(editable && has_pbr_material);
-            }
-            else
-            {
-                getChildView("TexOffsetU")->setEnabled(editable);
-                getChildView("shinyOffsetU")->setEnabled(editable && specmap_id.notNull());
-                getChildView("bumpyOffsetU")->setEnabled(editable && normmap_id.notNull());
-            }
+            getChildView("TexOffsetU")->setEnabled(editable && has_prepbr_material);
+            getChildView("shinyOffsetU")->setEnabled(editable && has_prepbr_material && specmap_id.notNull());
+            getChildView("bumpyOffsetU")->setEnabled(editable && has_prepbr_material && normmap_id.notNull());
 		}
 
 		{
@@ -1408,18 +1362,9 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			getChild<LLUICtrl>("shinyOffsetV")->setTentative(LLSD(norm_offset_v_tentative));
 			getChild<LLUICtrl>("bumpyOffsetV")->setTentative(LLSD(spec_offset_v_tentative));
 
-            if (mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR)
-            {
-                getChildView("TexOffsetV")->setEnabled(editable && has_pbr_material);
-                getChildView("shinyOffsetV")->setEnabled(editable && has_pbr_material);
-                getChildView("bumpyOffsetV")->setEnabled(editable && has_pbr_material);
-            }
-            else
-            {
-                getChildView("TexOffsetV")->setEnabled(editable);
-                getChildView("shinyOffsetV")->setEnabled(editable && specmap_id.notNull());
-                getChildView("bumpyOffsetV")->setEnabled(editable && normmap_id.notNull());
-            }
+            getChildView("TexOffsetV")->setEnabled(editable && has_prepbr_material);
+            getChildView("shinyOffsetV")->setEnabled(editable && has_prepbr_material && specmap_id.notNull());
+            getChildView("bumpyOffsetV")->setEnabled(editable && has_prepbr_material && normmap_id.notNull());
 		}
 
 		// Texture rotation
@@ -1444,18 +1389,9 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			F32 norm_rot_deg = norm_rotation * RAD_TO_DEG;
 			F32 spec_rot_deg = spec_rotation * RAD_TO_DEG;
 
-            if (mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR)
-            {
-                getChildView("TexRot")->setEnabled(editable && has_pbr_material);
-                getChildView("shinyRot")->setEnabled(editable && has_pbr_material);
-                getChildView("bumpyRot")->setEnabled(editable && has_pbr_material);
-            }
-            else
-            {
-                getChildView("TexRot")->setEnabled(editable);
-                getChildView("shinyRot")->setEnabled(editable && specmap_id.notNull());
-                getChildView("bumpyRot")->setEnabled(editable && normmap_id.notNull());
-            }
+            getChildView("TexRot")->setEnabled(editable && has_prepbr_material);
+            getChildView("shinyRot")->setEnabled(editable && has_prepbr_material && specmap_id.notNull());
+            getChildView("bumpyRot")->setEnabled(editable && has_prepbr_material && normmap_id.notNull());
 
 			getChild<LLUICtrl>("TexRot")->setTentative(diff_rot_tentative);
 			getChild<LLUICtrl>("shinyRot")->setTentative(LLSD(norm_rot_tentative));
@@ -1579,7 +1515,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
 				BOOL repeats_tentative = !identical_repeats;
 
-				getChildView("rptctrl")->setEnabled(identical_planar_texgen ? FALSE : enabled);
 				LLSpinCtrl* rpt_ctrl = getChild<LLSpinCtrl>("rptctrl");
 				if (force_set_values)
 				{
@@ -1591,6 +1526,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 					rpt_ctrl->setValue(editable ? repeats : 1.0f);
 				}
 				rpt_ctrl->setTentative(LLSD(repeats_tentative));
+                rpt_ctrl->setEnabled(has_prepbr_material && !identical_planar_texgen && enabled);
 			}
 		}
 
@@ -1767,6 +1703,60 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 	}
 }
 
+void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, bool force_set_values)
+{
+    has_pbr_material = false;
+
+    BOOL editable = objectp->permModify() && !objectp->isPermanentEnforced(); // TODO: Remove if unused
+
+    // TODO: Some stuff had has_pbr_material stripped from the base updateUI function. Some should definitely be removed. For others, it's less clear. (are they in a different... oohhhh yea, stuff should probably be disabled if has_pbr_material is true
+    // TODO
+
+    // pbr material
+    LLTextureCtrl* pbr_ctrl = findChild<LLTextureCtrl>("pbr_control");
+    if (pbr_ctrl)
+    {
+        LLUUID pbr_id;
+        bool identical_pbr;
+        LLSelectedTE::getPbrMaterialId(pbr_id, identical_pbr);
+
+        pbr_ctrl->setTentative(identical_pbr ? FALSE : TRUE);
+        pbr_ctrl->setEnabled(editable);
+        pbr_ctrl->setImageAssetID(pbr_id);
+        has_pbr_material = pbr_id.notNull();
+    }
+    getChildView("pbr_from_inventory")->setEnabled(editable);
+    getChildView("edit_selected_pbr")->setEnabled(editable && has_pbr_material);
+    getChildView("save_selected_pbr")->setEnabled(objectp->permCopy() && has_pbr_material);
+}
+
+void LLPanelFace::updateVisibilityGLTF()
+{
+    const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
+
+    LLRadioGroup* radio_pbr_type = findChild<LLRadioGroup>("radio_pbr_type");
+    radio_pbr_type->setVisible(show_pbr);
+
+    const U32 pbr_type = radio_pbr_type->getSelectedIndex();
+    const bool show_pbr_render_material_id = show_pbr && (pbr_type == PBRTYPE_RENDER_MATERIAL_ID);
+    const bool show_pbr_base_color = show_pbr && (pbr_type == PBRTYPE_BASE_COLOR);
+    const bool show_pbr_normal = show_pbr && (pbr_type == PBRTYPE_NORMAL);
+    const bool show_pbr_metallic_roughness = show_pbr && (pbr_type == PBRTYPE_METALLIC_ROUGHNESS);
+    const bool show_pbr_emissive = show_pbr && (pbr_type == PBRTYPE_EMISSIVE);
+    const bool show_pbr_transform = show_pbr_base_color || show_pbr_normal || show_pbr_metallic_roughness || show_pbr_emissive;
+
+    getChildView("pbr_control")->setVisible(show_pbr_render_material_id);
+
+    getChildView("pbr_from_inventory")->setVisible(show_pbr_render_material_id);
+    getChildView("edit_selected_pbr")->setVisible(show_pbr_render_material_id);
+    getChildView("save_selected_pbr")->setVisible(show_pbr_render_material_id);
+
+    getChildView("gltfTextureScaleU")->setVisible(show_pbr_transform);
+    getChildView("gltfTextureScaleV")->setVisible(show_pbr_transform);
+    getChildView("gltfTextureRotation")->setVisible(show_pbr_transform);
+    getChildView("gltfTextureTranslationU")->setVisible(show_pbr_transform);
+    getChildView("gltfTextureTranslationV")->setVisible(show_pbr_transform);
+}
 
 void LLPanelFace::updateCopyTexButton()
 {
@@ -2608,19 +2598,19 @@ void LLPanelFace::updateVisibility()
 	}
 	U32 materials_media = mComboMatMedia->getCurrentIndex();
 	U32 material_type = radio_mat_type->getSelectedIndex();
-    U32 pbr_type = radio_pbr_type->getSelectedIndex();
 	bool show_media = (materials_media == MATMEDIA_MEDIA) && mComboMatMedia->getEnabled();
     bool show_material = materials_media == MATMEDIA_MATERIAL;
-    bool show_pbr = materials_media == MATMEDIA_PBR;
 	bool show_texture = (show_media || (show_material && (material_type == MATTYPE_DIFFUSE) && mComboMatMedia->getEnabled()));
 	bool show_bumpiness = show_material && (material_type == MATTYPE_NORMAL) && mComboMatMedia->getEnabled();
 	bool show_shininess = show_material && (material_type == MATTYPE_SPECULAR) && mComboMatMedia->getEnabled();
-    bool show_pbr_base_color = show_pbr && (pbr_type == PBRTYPE_BASE_COLOR) && mComboMatMedia->getEnabled();
-    bool show_pbr_normal = show_pbr && (pbr_type == PBRTYPE_NORMAL) && mComboMatMedia->getEnabled();
-    bool show_pbr_metallic = show_pbr && (pbr_type == PBRTYPE_METALLIC) && mComboMatMedia->getEnabled();
 
     radio_mat_type->setVisible(show_material);
-    radio_pbr_type->setVisible(show_pbr);
+
+    // Shared material controls
+    getChildView("checkbox_sync_settings")->setVisible(show_material || show_media);
+    getChildView("tex gen")->setVisible(show_material || show_media);
+    getChildView("combobox texgen")->setVisible(show_material || show_media);
+    getChildView("button align textures")->setVisible(show_material || show_media);
 
 	// Media controls
     mTitleMediaText->setVisible(show_media);
@@ -2634,16 +2624,16 @@ void LLPanelFace::updateVisibility()
 	getChildView("combobox alphamode")->setVisible(show_texture && show_material);
 	getChildView("label maskcutoff")->setVisible(false);
 	getChildView("maskcutoff")->setVisible(false);
-	if ((show_texture && show_material) || show_pbr)
+	if ((show_texture && show_material))
 	{
 		updateAlphaControls();
 	}
-    // texture scale and position controls are shared between bpr and non-pbr textures
-	getChildView("TexScaleU")->setVisible(show_texture || show_pbr_base_color);
-	getChildView("TexScaleV")->setVisible(show_texture || show_pbr_base_color);
-	getChildView("TexRot")->setVisible(show_texture || show_pbr_base_color);
-	getChildView("TexOffsetU")->setVisible(show_texture || show_pbr_base_color);
-	getChildView("TexOffsetV")->setVisible(show_texture || show_pbr_base_color);
+    // texture scale and position controls
+	getChildView("TexScaleU")->setVisible(show_texture);
+	getChildView("TexScaleV")->setVisible(show_texture);
+	getChildView("TexRot")->setVisible(show_texture);
+	getChildView("TexOffsetU")->setVisible(show_texture);
+	getChildView("TexOffsetV")->setVisible(show_texture);
 
 	// Specular map controls
 	getChildView("shinytexture control")->setVisible(show_shininess);
@@ -2659,11 +2649,11 @@ void LLPanelFace::updateVisibility()
 	{
 		updateShinyControls();
 	}
-	getChildView("shinyScaleU")->setVisible(show_shininess || show_pbr_metallic);
-	getChildView("shinyScaleV")->setVisible(show_shininess || show_pbr_metallic);
-	getChildView("shinyRot")->setVisible(show_shininess || show_pbr_metallic);
-	getChildView("shinyOffsetU")->setVisible(show_shininess || show_pbr_metallic);
-	getChildView("shinyOffsetV")->setVisible(show_shininess || show_pbr_metallic);
+	getChildView("shinyScaleU")->setVisible(show_shininess);
+	getChildView("shinyScaleV")->setVisible(show_shininess);
+	getChildView("shinyRot")->setVisible(show_shininess);
+	getChildView("shinyOffsetU")->setVisible(show_shininess);
+	getChildView("shinyOffsetV")->setVisible(show_shininess);
 
 	// Normal map controls
 	if (show_bumpiness)
@@ -2673,17 +2663,16 @@ void LLPanelFace::updateVisibility()
 	getChildView("bumpytexture control")->setVisible(show_bumpiness);
 	getChildView("combobox bumpiness")->setVisible(show_bumpiness);
 	getChildView("label bumpiness")->setVisible(show_bumpiness);
-	getChildView("bumpyScaleU")->setVisible(show_bumpiness || show_pbr_normal);
-	getChildView("bumpyScaleV")->setVisible(show_bumpiness || show_pbr_normal);
-	getChildView("bumpyRot")->setVisible(show_bumpiness || show_pbr_normal);
-	getChildView("bumpyOffsetU")->setVisible(show_bumpiness || show_pbr_normal);
-	getChildView("bumpyOffsetV")->setVisible(show_bumpiness || show_pbr_normal);
+	getChildView("bumpyScaleU")->setVisible(show_bumpiness);
+	getChildView("bumpyScaleV")->setVisible(show_bumpiness);
+	getChildView("bumpyRot")->setVisible(show_bumpiness);
+	getChildView("bumpyOffsetU")->setVisible(show_bumpiness);
+	getChildView("bumpyOffsetV")->setVisible(show_bumpiness);
+
+    getChild<LLSpinCtrl>("rptctrl")->setVisible(show_material || show_media);
 
     // PBR controls
-    getChildView("pbr_control")->setVisible(show_pbr);
-    getChildView("pbr_from_inventory")->setVisible(show_pbr);
-    getChildView("edit_selected_pbr")->setVisible(show_pbr);
-    getChildView("save_selected_pbr")->setVisible(show_pbr);
+    updateVisibilityGLTF();
 }
 
 // static
@@ -4554,6 +4543,56 @@ void LLPanelFace::onCommitPlanarAlign(LLUICtrl* ctrl, void* userdata)
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	self->getState();
 	self->sendTextureInfo();
+}
+
+// static
+void LLPanelFace::onCommitGLTFTextureScaleU(LLUICtrl* ctrl, void* userdata)
+{
+#if 0
+	LLPanelFace* self = (LLPanelFace*)userdata;
+    LL_WARNS() << ctrl->getValue().asReal() << LL_ENDL; // TODO: Remove
+    // TODO
+#endif
+}
+
+// static
+void LLPanelFace::onCommitGLTFTextureScaleV(LLUICtrl* ctrl, void* userdata)
+{
+#if 0
+	LLPanelFace* self = (LLPanelFace*)userdata;
+    LL_WARNS() << ctrl->getValue().asReal() << LL_ENDL; // TODO: Remove
+    // TODO
+#endif
+}
+
+// static
+void LLPanelFace::onCommitGLTFRotation(LLUICtrl* ctrl, void* userdata)
+{
+#if 0
+	LLPanelFace* self = (LLPanelFace*)userdata;
+    LL_WARNS() << ctrl->getValue().asReal() << LL_ENDL; // TODO: Remove
+    // TODO
+#endif
+}
+
+// static
+void LLPanelFace::onCommitGLTFTextureTranslationU(LLUICtrl* ctrl, void* userdata)
+{
+#if 0
+	LLPanelFace* self = (LLPanelFace*)userdata;
+    LL_WARNS() << ctrl->getValue().asReal() << LL_ENDL; // TODO: Remove
+    // TODO
+#endif
+}
+
+// static
+void LLPanelFace::onCommitGLTFTextureTranslationV(LLUICtrl* ctrl, void* userdata)
+{
+#if 0
+	LLPanelFace* self = (LLPanelFace*)userdata;
+    LL_WARNS() << ctrl->getValue().asReal() << LL_ENDL; // TODO: Remove
+    // TODO
+#endif
 }
 
 void LLPanelFace::onTextureSelectionChanged(LLInventoryItem* itemp)
