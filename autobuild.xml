@@ -196,9 +196,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f5936eceb6a33ff0f1cc31996a40f29c</string>
+              <string>a0caae0b60f28b6069af14a59b6aec86</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/72774/702905/bugsplat-3.6.0.8.552580-windows-552580.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107209/935717/bugsplat-3.6.0.8.576475-windows-576475.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -208,16 +208,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9cd940754e53e0670030b3da5ba8f373</string>
+              <string>95acec938171d4e754146604e03b8bdf</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/72775/702906/bugsplat-3.6.0.8.552580-windows64-552580.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107210/935718/bugsplat-.576475-windows64-576475.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>3.6.0.8.552580</string>
+        <string>3.6.0.8.576475</string>
       </map>
       <key>colladadom</key>
       <map>
