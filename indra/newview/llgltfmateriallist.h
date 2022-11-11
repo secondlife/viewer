@@ -89,6 +89,11 @@ public:
     // any override data that arrived before the object was ready to receive it
     void applyQueuedOverrides(LLViewerObject* obj);
 
+    // takes both the parsed message and its raw text to avoid unnecessary re serialization
+    static void writeCacheOverrides(LLSD const & message, std::string const & llsdRaw);
+
+    static void loadCacheOverrides(std::string const & message_raw);
+
 private:
     friend class LLGLTFMaterialOverrideDispatchHandler;
     // save an override update that we got from the simulator for later (for example, if an override arrived for an unknown object)

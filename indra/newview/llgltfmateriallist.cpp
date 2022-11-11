@@ -27,6 +27,7 @@
 
 #include "llgltfmateriallist.h"
 
+#include "llagent.h"
 #include "llassetstorage.h"
 #include "lldispatcher.h"
 #include "llfetchedgltfmaterial.h"
@@ -37,9 +38,11 @@
 #include "llviewercontrol.h"
 #include "llviewergenericmessage.h"
 #include "llviewerobjectlist.h"
+#include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llcorehttputil.h"
 #include "llagent.h"
+#include "llworld.h"
 
 #include "tinygltf/tiny_gltf.h"
 #include <strstream>
@@ -163,8 +166,14 @@ public:
             {
                 LL_WARNS() << "LLGLTFMaterialOverrideDispatchHandler: Attempted to read parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
             }
+            LLGLTFMaterialList::writeCacheOverrides(message, llsdRaw);
         }
-        
+        else
+        {
+            // malformed message, nothing we can do to handle it
+            return false;
+        }
+
         LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
         LL::WorkQueue::ptr_t general_queue = LL::WorkQueue::getInstance("General");
 
@@ -675,4 +684,41 @@ void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides,
     {
         done_callback(success);
     }
+}
+
+void LLGLTFMaterialList::writeCacheOverrides(LLSD const & message, std::string const & llsdRaw)
+{
+    LL_DEBUGS() << "material overrides cache" << LL_ENDL;
+
+    // default to main region if message doesn't specify
+    LLViewerRegion * region = gAgent.getRegion();;
+
+    if (message.has("region_handle"))
+    {
+        // TODO start requiring this once server sends this for all messages
+        std::vector<U8> const & buffer = message["region_handle"].asBinary();
+        if (buffer.size() == sizeof(U64))
+        {
+            U64 region_handle = ntohll(*reinterpret_cast<U64 const *>(&buffer[0]));
+            region = LLWorld::instance().getRegionFromHandle(region_handle);
+        }
+        else
+        {
+            LL_WARNS() << "bad region_handle in material override message" << LL_ENDL;
+            llassert(false);
+        }
+    }
+
+    if (region) {
+        region->cacheFullUpdateExtras(message, llsdRaw);
+    } else {
+        LL_WARNS() << "could not access region for material overrides message cache, region_handle: " << LL_ENDL;
+    }
+}
+
+void LLGLTFMaterialList::loadCacheOverrides(std::string const & message)
+{
+    std::vector<std::string> strings(1, message);
+
+    handle_gltf_override_message(nullptr, "", LLUUID::null, strings);
 }
