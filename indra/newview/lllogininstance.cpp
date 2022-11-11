@@ -451,26 +451,8 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 
         LLSD args(llsd::map( "MESSAGE", LLTrans::getString(response["message_id"]) ));
         LLSD payload;
-        LLNotificationsUtil::add("PromptMFAToken", args, payload, [=](LLSD const & notif, LLSD const & response) {
-            bool continue_clicked = response["continue"].asBoolean();
-            std::string token = response["token"].asString();
-            LL_DEBUGS("LLLogin") << "PromptMFAToken: response: " << response << " continue_clicked" << continue_clicked << LL_ENDL;
-
-            // strip out whitespace - SL-17034/BUG-231938
-            token = boost::regex_replace(token, boost::regex("\\s"), "");
-
-            if (continue_clicked && !token.empty())
-            {
-                LL_INFOS("LLLogin") << "PromptMFAToken: token submitted" << LL_ENDL;
-
-                // Set the request data to true and retry login.
-                mRequestData["params"]["token"] = token;
-                reconnect();
-            } else {
-                LL_INFOS("LLLogin") << "PromptMFAToken: no token, attemptComplete" << LL_ENDL;
-                attemptComplete();
-            }
-        });
+        LLNotificationsUtil::add("PromptMFAToken", args, payload,
+            boost::bind(&LLLoginInstance::handleMFAChallenge, this, _1, _2));
     }
     else if(   reason_response == "key"
             || reason_response == "presence"
@@ -547,23 +529,59 @@ void LLLoginInstance::handleIndeterminate(const LLSD& event)
 
 bool LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)
 {
-	if(accepted)
-	{	
-		LL_INFOS("LLLogin") << "LLLoginInstance::handleTOSResponse: accepted" << LL_ENDL;
+    if(accepted)
+    {
+        LL_INFOS("LLLogin") << "LLLoginInstance::handleTOSResponse: accepted " << LL_ENDL;
 
-		// Set the request data to true and retry login.
-		mRequestData["params"][key] = true; 
-		reconnect();
-	}
-	else
-	{
-		LL_INFOS("LLLogin") << "LLLoginInstance::handleTOSResponse: attemptComplete" << LL_ENDL;
+        // Set the request data to true and retry login.
+        mRequestData["params"][key] = true;
 
-		attemptComplete();
-	}
+        if (!mRequestData["params"]["token"].asString().empty())
+        {
+            // SL-18511 this TOS failure happened while we are in the middle of an MFA challenge/response.
+            // the previously entered token is very likely expired, so prompt again
+            LLSD args(llsd::map( "MESSAGE", LLTrans::getString("LoginFailedAuthenticationMFARequired") ));
+            LLSD payload;
+            LLNotificationsUtil::add("PromptMFAToken", args, payload,
+                boost::bind(&LLLoginInstance::handleMFAChallenge, this, _1, _2));
+        }
+        else
+        {
+            reconnect();
+        }
+    }
+    else
+    {
+        LL_INFOS("LLLogin") << "LLLoginInstance::handleTOSResponse: attemptComplete" << LL_ENDL;
 
-	LLEventPumps::instance().obtain(TOS_REPLY_PUMP).stopListening(TOS_LISTENER_NAME);
-	return true;
+        attemptComplete();
+    }
+
+    LLEventPumps::instance().obtain(TOS_REPLY_PUMP).stopListening(TOS_LISTENER_NAME);
+    return true;
+}
+
+bool LLLoginInstance::handleMFAChallenge(LLSD const & notif, LLSD const & response)
+{
+    bool continue_clicked = response["continue"].asBoolean();
+    std::string token = response["token"].asString();
+    LL_DEBUGS("LLLogin") << "PromptMFAToken: response: " << response << " continue_clicked" << continue_clicked << LL_ENDL;
+
+    // strip out whitespace - SL-17034/BUG-231938
+    token = boost::regex_replace(token, boost::regex("\\s"), "");
+
+    if (continue_clicked && !token.empty())
+    {
+        LL_INFOS("LLLogin") << "PromptMFAToken: token submitted" << LL_ENDL;
+
+        // Set the request data to true and retry login.
+        mRequestData["params"]["token"] = token;
+        reconnect();
+    } else {
+        LL_INFOS("LLLogin") << "PromptMFAToken: no token, attemptComplete" << LL_ENDL;
+        attemptComplete();
+    }
+    return true;
 }
 
 std::string construct_start_string()

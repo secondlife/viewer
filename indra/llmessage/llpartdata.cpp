@@ -311,8 +311,9 @@ BOOL LLPartSysData::unpack(LLDataPacker &dp)
 std::ostream& operator<<(std::ostream& s, const LLPartSysData &data)
 {
 	s << "Flags: " << std::hex << data.mFlags;
-	s << " Pattern: " << std::hex << (U32) data.mPattern << "\n";
-	s << "Age: [" << data.mStartAge << ", " << data.mMaxAge << "]\n";
+	s << "Pattern: " << std::hex << (U32) data.mPattern << "\n";
+	s << "Source Age: [" << data.mStartAge << ", " << data.mMaxAge << "]\n";
+    s << "Particle Age: " << data.mPartData.mMaxAge << "\n";
 	s << "Angle: [" << data.mInnerAngle << ", " << data.mOuterAngle << "]\n";
 	s << "Burst Rate: " << data.mBurstRate << "\n";
 	s << "Burst Radius: " << data.mBurstRadius << "\n";

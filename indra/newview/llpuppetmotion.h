@@ -54,7 +54,7 @@ public:
     using state_map_t = std::map <S16, LLPointer<LLJointState>>;
     using jointid_vec_t = std::vector<S16>;
     using update_deq_t = std::deque<LLPuppetEvent>;
-    using express_map_t = std::map <S16, LLPuppetJointEvent>;
+    using joint_events_t = std::vector<LLPuppetJointEvent>;
     using ptr_t = std::shared_ptr<LLPuppetMotion>;
     using Timestamp = S32;
 
@@ -93,7 +93,7 @@ public:
     virtual ~LLPuppetMotion() {}
 
     void collectJoints(LLJoint* joint);
-    void addExpressionEvent(const LLPuppetJointEvent& event, LLPuppetJointEvent::E_REFERENCE_FRAME ref_frame);
+    void addExpressionEvent(const LLPuppetJointEvent& event);
     void queueOutgoingEvent(const LLPuppetEvent& event);
     void unpackEvents(LLMessageSystem *mesgsys,int blocknum);
 
@@ -164,12 +164,12 @@ public:
 private:
     void measureArmSpan();
     void queueEvent(const LLPuppetEvent& event);
-    void applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::Solver::target_map_t& targets);
+    void applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::Solver::joint_config_map_t& targets);
     void applyBroadcastEvent(const LLPuppetJointEvent& event, Timestamp now, bool local_puppetry);
     void packEvents();
     void pumpOutgoingEvents();
-    void solveForTargetsAndHarvestResults(LLIK::Solver::target_map_t& targets, Timestamp now, bool something_changed=false);
-    void updateFromExpression(Timestamp now, express_map_t& event_map);
+    void solveIKAndHarvestResults(const LLIK::Solver::joint_config_map_t& configs, Timestamp now);
+    void updateFromExpression(Timestamp now);
     void updateFromBroadcast(Timestamp now);
     void rememberPosedJoint(S16 joint_id, LLPointer<LLJointState> joint_state, Timestamp now);
 
@@ -182,15 +182,13 @@ private:
     std::vector< LLPointer<LLJointState> > mJointsToRemoveFromPose;
     LLFrameTimer            mBroadcastTimer;   // When to broadcast events.
     LLFrameTimer            mPlaybackTimer;    // Playback what was broadcast
-    express_map_t           mIKExpressionEvents; // IK Data from the expression controller.
-    express_map_t           mJSExpressionEvents; // JS Data from the expression controller.
+    joint_events_t          mExpressionEvents;
     LLIK::Solver            mIKSolver;
     LLVOAvatar*             mAvatar = nullptr;
     Timestamp               mNextJointStateExpiry = DISTANT_FUTURE_TIMESTAMP;
     F32                     mRemoteToLocalClockOffset; // msec
     F32                     mArmSpan = 2.0f;
     bool                    mIsSelf = false;
-    bool                    mNeedsUpdate = false;
 
     LLJoint::JointPriority  mMotionPriority = LLJoint::PUPPET_PRIORITY;
 

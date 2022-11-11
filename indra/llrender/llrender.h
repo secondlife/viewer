@@ -354,7 +354,9 @@ public:
 
 	LLRender();
 	~LLRender();
-	void init() ;
+    void init(bool needs_vertex_buffer);
+    void initVertexBuffer();
+    void resetVertexBuffer();
 	void shutdown();
 	
 	// Refreshes renderer state to the cached values

@@ -125,7 +125,7 @@ void LLViewerDynamicTexture::preRender(BOOL clear_depth)
 		llassert(mFullHeight <= static_cast<S32>(gPipeline.mPhysicsDisplay.getHeight()));
 	}
 
-	if (gGLManager.mHasFramebufferObject && gPipeline.mPhysicsDisplay.isComplete() && !gGLManager.mIsAMD)
+	if (gPipeline.mPhysicsDisplay.isComplete() && !gGLManager.mIsAMD)
 	{ //using offscreen render target, just use the bottom left corner
 		mOrigin.set(0, 0);
 	}
@@ -212,7 +212,7 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 		return TRUE;
 	}
 
-	bool use_fbo = gGLManager.mHasFramebufferObject && gPipeline.mBake.isComplete() && !gGLManager.mIsAMD;
+	bool use_fbo = gPipeline.mBake.isComplete() && !gGLManager.mIsAMD;
 
 	if (use_fbo)
 	{

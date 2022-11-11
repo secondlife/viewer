@@ -1698,7 +1698,7 @@ version 2.0
 // AgentAnimation - Update animation state
 // viewer --> simulator
 {
-	AgentAnimation High 5 NotTrusted Unencoded 
+	AgentAnimation High 5 NotTrusted Unencoded
 	{
 		AgentData			Single
 		{	AgentID			LLUUID		}
@@ -3561,7 +3561,7 @@ version 2.0
 // AvatarAnimation - Update animation state
 // simulator --> viewer 
 {
-	AvatarAnimation High 20 Trusted Unencoded 
+	AvatarAnimation High 20 Trusted Unencoded
 	{
 		Sender			Single
 		{	ID			LLUUID	}
@@ -3581,7 +3581,6 @@ version 2.0
 	}
 
 }
-
 // AvatarAppearance - Update visual params
 {
 	AvatarAppearance Low 158 Trusted Zerocoded

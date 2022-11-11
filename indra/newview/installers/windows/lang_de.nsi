@@ -73,6 +73,10 @@ LangString CloseSecondLifeUnInstMB ${LANG_GERMAN} "Second Life kann nicht entfer
 ; CheckNetworkConnection
 LangString CheckNetworkConnectionDP ${LANG_GERMAN} "Prüfe Netzwerkverbindung..."
 
+; error during installation
+LangString ErrorSecondLifeInstallRetry ${LANG_GERMAN} "Second Life konnte nicht korrekt installiert werden, einige Dateien wurden eventuell nicht korrekt von der Installationroutine kopiert."
+LangString ErrorSecondLifeInstallSupport ${LANG_GERMAN} "Bitte laden Sie den Viewer erneut von https://secondlife.com/support/downloads/ und versuchen Sie die Installation erneut. Sollte das Problem weiterhin bestehen, dann kontaktieren Sie unseren Support unter https://support.secondlife.com."
+
 ; ask to remove user's data files
 LangString RemoveDataFilesMB ${LANG_GERMAN} "Möchten Sie alle anderen zu Second Life gehörigen Dateien ebenfalls ENTFERNEN?$\n$\nWir empfehlen, die Einstellungen und Cache-Dateien zu behalten, wenn Sie andere Versionen von Second Life installiert haben oder eine Deinstallation durchführen, um Second Life auf eine neuere Version zu aktualisieren."
 

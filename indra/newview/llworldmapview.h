@@ -67,12 +67,22 @@ public:
 	bool			checkItemHit(S32 x, S32 y, LLItemInfo& item, LLUUID* id, bool track);
 	void			handleClick(S32 x, S32 y, MASK mask, S32* hit_type, LLUUID* id);
 
-	// Scale and pan are shared across all instances! (i.e. Terrain and Objects maps are always registered)
-	static void		setScale( F32 scale );
-	static void		translatePan( S32 delta_x, S32 delta_y );
-	static void		setPan( S32 x, S32 y, BOOL snap = TRUE );
+    // Scale, aka zoom, is shared across all instances! (i.e. Terrain and Objects maps are always registered)
+    // Zoom is used for UI and will interpolate the map scale over multiple frames.
+    void zoom(F32 zoom);
+    void zoomWithPivot(F32 zoom, S32 x, S32 y);
+    F32 getZoom();
+    // Scale is a linear scaling factor of in-world coordinates
+    F32 getScale();
+    // setScaleSetting/getScaleSetting are for the default map setting on login
+    static void setScaleSetting(F32 scaleSetting);
+    static F32 getScaleSetting();
+    // Pan is in pixels relative to the center of the map.
+	void translatePan( S32 delta_x, S32 delta_y );
+    void setPan( S32 x, S32 y, BOOL snap = TRUE );
+    void setPanWithInterpTime(S32 x, S32 y, BOOL snap, F32 interp_time);
 	// Return true if the current scale level is above the threshold for accessing region info
-	static bool		showRegionInfo();
+    bool showRegionInfo();
 
 	LLVector3		globalPosToView(const LLVector3d& global_pos);
 	LLVector3d		viewPosToGlobal(S32 x,S32 y);
@@ -153,14 +163,12 @@ public:
 	static LLUIImagePtr	sForSaleImage;
 	static LLUIImagePtr	sForSaleAdultImage;
 
-	static F32		sMapScale;				// scale = size of a region in pixels
-
 	BOOL			mItemPicked;
 
-	static F32		sPanX;		// in pixels
-	static F32		sPanY;		// in pixels
-	static F32		sTargetPanX;		// in pixels
-	static F32		sTargetPanY;		// in pixels
+    F32 mPanX; // in pixels
+    F32 mPanY; // in pixels
+    F32 mTargetPanX; // in pixels
+    F32 mTargetPanY; // in pixels
 	static S32		sTrackingArrowX;
 	static S32		sTrackingArrowY;
 	static bool		sVisibleTilesLoaded;
@@ -194,6 +202,19 @@ public:
 
 private:
 	void drawTileOutline(S32 level, F32 top, F32 left, F32 bottom, F32 right);
+
+    void setScale(F32 scale, bool snap = true);
+
+    static F32 scaleFromZoom(F32 zoom);
+    static F32 zoomFromScale(F32 scale);
+
+    F32 mMapScale;
+    F32 mTargetMapScale;
+    static F32 sMapScaleSetting;
+    static LLVector2 sZoomPivot;
+    static LLFrameTimer sZoomTimer;
+
+    F32 mMapIterpTime;
 };
 
 #endif

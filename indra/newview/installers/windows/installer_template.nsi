@@ -351,10 +351,28 @@ DeleteRegValue HKEY_CLASSES_ROOT "Applications\$VIEWER_EXE" "IsHostApp"
 DeleteRegValue HKEY_CLASSES_ROOT "Applications\$VIEWER_EXE" "NoStartPage"
 ClearErrors
 
+INSTALL_FILES_START:
+
 Call RemoveProgFilesOnInst		# Remove existing files to prevent certain errors when running the new version of the viewer
 
 # This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
 %%INSTALL_FILES%%
+
+IfErrors 0 INSTALL_FILES_DONE
+  StrCmp $SKIP_DIALOGS "true" INSTALL_FILES_DONE
+	MessageBox MB_ABORTRETRYIGNORE $(ErrorSecondLifeInstallRetry) IDABORT INSTALL_FILES_CANCEL IDRETRY INSTALL_FILES_START
+    # MB_ABORTRETRYIGNORE does not accept IDIGNORE
+    Goto INSTALL_FILES_DONE
+
+INSTALL_FILES_CANCEL:
+  # We are quiting, cleanup.
+  # Silence warnings from RemoveProgFilesOnInst.
+  StrCpy $SKIP_DIALOGS "true"
+  Call RemoveProgFilesOnInst
+  MessageBox MB_OK $(ErrorSecondLifeInstallSupport)
+  Quit
+
+INSTALL_FILES_DONE:
 
 # Pass the installer's language to the client to use as a default
 StrCpy $SHORTCUT_LANG_PARAM "--set InstallLanguage $(LanguageCode)"
@@ -622,7 +640,9 @@ Function RemoveProgFilesOnInst
 Push $0
 StrCpy $0 0
 
-PREINSTALLREMOVE:
+ClearErrors
+
+PREINSTALL_REMOVE:
 
 # Remove old SecondLife.exe to invalidate any old shortcuts to it that may be in non-standard locations. See MAINT-3575
 Delete "$INSTDIR\$INSTEXE"
@@ -642,17 +662,17 @@ RMDir /r "$INSTDIR\llplugin"
 
 IntOp $0 $0 + 1
 
-IfErrors 0 PREINSTALLDONE
-  IntCmp $0 1 PREINSTALLREMOVE #try again once
-    StrCmp $SKIP_DIALOGS "true" PREINSTALLDONE
-      MessageBox MB_ABORTRETRYIGNORE $(CloseSecondLifeInstRM) IDABORT PREINSTALLFAIL IDRETRY PREINSTALLREMOVE
+IfErrors 0 PREINSTALL_DONE
+  IntCmp $0 1 PREINSTALL_REMOVE #try again once
+    StrCmp $SKIP_DIALOGS "true" PREINSTALL_DONE
+      MessageBox MB_ABORTRETRYIGNORE $(CloseSecondLifeInstRM) IDABORT PREINSTALL_FAIL IDRETRY PREINSTALL_REMOVE
       # MB_ABORTRETRYIGNORE does not accept IDIGNORE
-      Goto PREINSTALLDONE
+      Goto PREINSTALL_DONE
 
-PREINSTALLFAIL:
+PREINSTALL_FAIL:
     Quit
 
-PREINSTALLDONE:
+PREINSTALL_DONE:
 
 # We are no longer including release notes with the viewer, so remove them.
 Delete "$SMPROGRAMS\$INSTSHORTCUT\SL Release Notes.lnk"

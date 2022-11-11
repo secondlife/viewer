@@ -39,8 +39,9 @@
 #include "v3math.h"
 #include "llquaternion.h"
 
+
 #ifdef DEBUG_LLIK_UNIT_TESTS
-    // If there is a error in the IK Sovler logic you will probably not be able
+    // If there is a error in the IK Solver logic you will probably not be able
     // to find it by code inspection or by looking at the final output of the
     // Solver.  You won't be able to make sense out of debug printouts of
     // positions and orientations of the various joints: there will just be too
@@ -143,24 +144,62 @@ F32 compute_clamped_angle(F32 angle, F32 min_angle, F32 max_angle)
     return angle;
 }
 
-LLIK::Target::Target() :
-        mPos(0.0f, 0.0f, 0.0f), mRot()
+void LLIK::Joint::Config::setLocalPos(const LLVector3& pos)
 {
+    mLocalPos = pos;
+    mFlags |= FLAG_LOCAL_POS;
 }
 
-void LLIK::Target::setPos(const LLVector3& pos)
+void LLIK::Joint::Config::setLocalRot(const LLQuaternion& rot)
 {
-    mPos = pos;
-    mMask |= HAS_POS;
+    mLocalRot = rot;
+    mLocalRot.normalize();
+    mFlags |= FLAG_LOCAL_ROT;
 }
 
-void LLIK::Target::setRot(const LLQuaternion& rot, bool is_parent_local)
+void LLIK::Joint::Config::setTargetPos(const LLVector3& pos)
 {
-    mRot = rot;
-    mMask |= HAS_ROT;
-    if (is_parent_local)
+    mTargetPos = pos;
+    mFlags |= FLAG_TARGET_POS;
+}
+
+void LLIK::Joint::Config::setTargetRot(const LLQuaternion& rot)
+{
+    mTargetRot = rot;
+    mTargetRot.normalize();
+    mFlags |= FLAG_TARGET_ROT;
+}
+
+void LLIK::Joint::Config::updateFrom(const Config& other_config)
+{
+    if (mFlags == other_config.mFlags)
     {
-        mMask |= ROT_IS_LOCAL;
+        // other_config updates everything
+        *this = other_config;
+    }
+    else
+    {
+        // find and apply all parameters in other_config
+        if (other_config.hasLocalPos())
+        {
+            setLocalPos(other_config.getLocalPos());
+        }
+        if (other_config.hasLocalRot())
+        {
+            setLocalRot(other_config.getLocalRot());
+        }
+        if (other_config.hasTargetPos())
+        {
+            setTargetPos(other_config.getTargetPos());
+        }
+        if (other_config.hasTargetRot())
+        {
+            setTargetRot(other_config.getTargetRot());
+        }
+        if (other_config.constraintIsDisabled())
+        {
+            disableConstraint();
+        }
     }
 }
 
@@ -818,8 +857,9 @@ void LLIK::DoubleLimitedHinge::dumpConfig() const
 #endif
 
 LLIK::Joint::Joint(S16 id, const LLVector3& local_pos, const LLVector3& bone)
-    :   mLocalPos(local_pos), mBone(bone), mID(id)
+    :   mDefaultLocalPos(local_pos), mBone(bone), mID(id)
 {
+    mLocalPos = mDefaultLocalPos;
     mLocalPosLength = mLocalPos.length();
 }
 
@@ -833,11 +873,11 @@ void LLIK::Joint::addChild(const ptr_t& child)
 
 void LLIK::Joint::setTargetPos(const LLVector3& pos)
 {
-    if (mTarget)
+    if (hasPosTarget())
     {
-        // HACK: cast mTarget to non-const pointer so we can modify it
-        Target* target = const_cast<Target*>(mTarget);
-        target->setPos(pos);
+        // HACK: cast mConfig to non-const pointer so we can modify it
+        Config* config = const_cast<Config*>(mConfig);
+        config->setTargetPos(pos);
     }
 }
 
@@ -846,18 +886,20 @@ void LLIK::Joint::setParent(const ptr_t& parent)
     mParent = parent;
     if (!mParent)
     {
-        // As a matter of policy we don't allow root Joints to change mLocalRot.
-        // Setting mLocalRotIsLocked to 'true' on roots helps simplify logic
-        // that enforces this policy.
-        mLocalRotIsLocked = true;
+        // The root's local orientation is never updated by the IK algorithm.
+        // Whatever orientation it has at the start of IK will be its final,
+        // which is why we flag it as "locked".  This also simplifies logic
+        // elsewhere: in a few places we assume any non-locked Joint has a parent.
+        mConfigFlags = FLAG_LOCAL_ROT;
     }
-    resetRot();
+    reset();
 }
 
-void LLIK::Joint::resetRot()
+void LLIK::Joint::reset()
 {
-    // Note: we don't bother to enforce mLocalRotIsLocked here because any call
-    // to resetRot() is expected to be outside the Solver IK iterations.
+    mLocalPos = mDefaultLocalPos;
+    // Note: we don't bother to enforce localRotLocked() here because any call
+    // to reset() is expected to be outside the Solver IK iterations.
     mLocalRot = LLQuaternion::DEFAULT;
     if (mParent)
     {
@@ -866,28 +908,37 @@ void LLIK::Joint::resetRot()
     }
     else
     {
-        mPos = LLVector3::zero;
+        mPos = mLocalPos;
         mRot = mLocalRot;
     }
 }
 
 void LLIK::Joint::relaxRot(F32 blend_factor)
 {
-    if (!mLocalRotIsLocked)
+    if (!localRotLocked())
     {
         mLocalRot = lerp(blend_factor, mLocalRot, LLQuaternion::DEFAULT);
-        mPos = mParent->mPos + mLocalPos * mParent->mRot;
+    }
+    if (mParent)
+    {
+        // we always recompute world-frame transform because parent may have relaxed
         mRot = mLocalRot * mParent->mRot;
         mRot.normalize();
+        mPos = mParent->mPos + mLocalPos * mParent->mRot;
+    }
+    else
+    {
+        mRot = mLocalRot;
+        mPos = mLocalPos;
     }
 }
 
-void LLIK::Joint::resetRotationsRecursively()
+void LLIK::Joint::resetRecursively()
 {
-    resetRot();
+    reset();
     for (auto& child: mChildren)
     {
-        child->resetRotationsRecursively();
+        child->resetRecursively();
     }
 }
 
@@ -928,6 +979,7 @@ F32 LLIK::Joint::recursiveComputeLongestChainLength(F32 length) const
 
 void LLIK::Joint::reconfigure(const LLVector3& local_pos, const LLVector3& bone)
 {
+    mDefaultLocalPos = local_pos;
     mLocalPos = local_pos;
     mBone = bone;
     mLocalPosLength = mLocalPos.length();
@@ -935,17 +987,17 @@ void LLIK::Joint::reconfigure(const LLVector3& local_pos, const LLVector3& bone)
 
 LLVector3 LLIK::Joint::computeEndTargetPos() const
 {
-    // Note: it is expected this Joint has either: a target,
+    // Note: we expect this Joint has either: a target,
     // or at least one active child
-    if (hasWorldPosTarget())
+    if (hasPosTarget())
     {
-        return mTarget->getPos();
+        return mConfig->getTargetPos();
     }
     LLVector3 target_pos = LLVector3::zero;
     S32 num_active_children = 0;
     for (const auto& child : mChildren)
     {
-        if (child->mIsActive)
+        if (child->isActive())
         {
             target_pos += child->mPos;
             ++num_active_children;
@@ -968,12 +1020,12 @@ void LLIK::Joint::updateEndInward()
 {
     // Note: during FABRIK we DO NOT enforce constraints.
     DEBUG_SET_CONTEXT(inward);
-    if (hasWorldRotTarget())
+    if (hasRotTarget())
     {
-        mRot = mTarget->getRot();
-        if (hasWorldPosTarget())
+        mRot = mConfig->getTargetRot();
+        if (hasPosTarget())
         {
-            mPos = mTarget->getPos() - mBone * mRot;
+            mPos = mConfig->getTargetPos() - mBone * mRot;
         }
     }
     else
@@ -1056,19 +1108,19 @@ void LLIK::Joint::updateEndOutward()
     mPos = mParent->mPos + mLocalPos * mParent->mRot;
 
     // mRot
-    if (mLocalRotIsLocked)
+    if (localRotLocked())
     {
         mRot = mLocalRot * mParent->mRot;
         DEBUG_LOG_EVENT_DETAIL(lock_local);
         return;
     }
 
-    if (hasWorldRotTarget())
+    if (hasRotTarget())
     {
-        mRot = mTarget->getRot();
-        if (hasWorldPosTarget())
+        mRot = mConfig->getTargetRot();
+        if (hasPosTarget())
         {
-            mPos = mTarget->getPos() - mBone * mRot;
+            mPos = mConfig->getTargetPos() - mBone * mRot;
         }
     }
     else
@@ -1174,12 +1226,12 @@ void LLIK::Joint::applyLocalRot()
 {
     if (mParent)
     {
-        if (hasWorldRotTarget())
+        if (hasRotTarget())
         {
             // apply backpressure by lerping toward new_rot
             LLQuaternion new_rot = mLocalRot * mParent->mRot;
             constexpr F32 WORLD_ROT_TARGET_BACKPRESSURE_COEF = 0.5f;
-            mRot = lerp(WORLD_ROT_TARGET_BACKPRESSURE_COEF, mTarget->getRot(), new_rot);
+            mRot = lerp(WORLD_ROT_TARGET_BACKPRESSURE_COEF, mConfig->getTargetRot(), new_rot);
 
             // recompute mLocalRot
             LLQuaternion inv_parentRot = mParent->mRot;
@@ -1198,7 +1250,7 @@ void LLIK::Joint::applyLocalRot()
 
 void LLIK::Joint::updateLocalRot()
 {
-    if (!mLocalRotIsLocked)
+    if (!localRotLocked())
     {
         // mPos and mRot are expected to be correct
         // and mParent is expected to be valid
@@ -1245,60 +1297,39 @@ void LLIK::Joint::shiftPos(const LLVector3& shift)
     DEBUG_LOG_EVENT;
 }
 
-void LLIK::Joint::setTarget(const Target& target)
+void LLIK::Joint::setConfig(const Config& config)
 {
-    mTarget = &target;
-    if (mTarget)
-    {
-        if (mTarget->hasWorldPos())
-        {
-            mHasWorldPosTarget = true;
-        }
-        if (mTarget->hasWorldRot())
-        {
-            mHasWorldRotTarget = true;
-        }
-    }
+    mConfig = &config;
+    mConfigFlags = mConfig ? mConfig->getFlags() : 0;
 }
 
-void LLIK::Joint::clearAllFlags()
+void LLIK::Joint::resetFlags()
 {
-    mTarget = nullptr;
-    mIsActive = false;
-    mHasWorldPosTarget = false;
-    mHasWorldRotTarget = false;
-    if (mParent)
-    {
-        mLocalRotIsLocked = false;
-    }
-    else
-    {
-        // we don't allow root Joint to move as a matter of policy
-        mLocalRotIsLocked = true;
-    }
+    mConfig = nullptr;
+    // root Joint always has FLAG_LOCAL_ROT bit set
+    mConfigFlags = mParent ? 0 : FLAG_LOCAL_ROT;
 }
 
 void LLIK::Joint::lockLocalRot(const LLQuaternion& local_rot)
 {
     mLocalRot = local_rot;
-    if (mConstraint && !(mTarget && !mTarget->usesIK()))
+    activate();
+    if (!mParent)
     {
-        mConstraint->enforce(*this);
+        mRot = local_rot;
     }
-    mLocalRotIsLocked = true;
-    mIsActive = true;
 }
 
 bool LLIK::Joint::enforceConstraint()
 {
-    if (mLocalRotIsLocked)
+    if (localRotLocked())
     {
         // A fixed mLocalRot is effectively like a fixed Constraint so we
         // always return 'true' here: the Constraint is in effect and mRot may
         // have been optimistically modified but mLocalRot was not.
         return true;
     }
-    if (mConstraint && !(mTarget && !mTarget->usesIK()))
+    if (mConstraint && !(hasDisabledConstraint()))
     {
         return mConstraint->enforce(*this);
     }
@@ -1324,7 +1355,7 @@ LLIK::Joint::ptr_t LLIK::Joint::getSingleActiveChild()
     Joint::ptr_t active_child;
     for (Joint::ptr_t& child: mChildren)
     {
-        if (child->mIsActive)
+        if (child->isActive())
         {
             if (active_child)
             {
@@ -1349,6 +1380,17 @@ void LLIK::Joint::setWorldPos(const LLVector3& pos)
     DEBUG_LOG_EVENT;
 }
 
+// only call this if you know what you're doing
+// this should only be called once before starting IK algorithm iterations
+void LLIK::Joint::setLocalPos(const LLVector3& pos)
+{
+    mLocalPos = pos;
+    if (!mParent)
+    {
+        mPos = mLocalPos;
+    }
+}
+
 void LLIK::Joint::setWorldRot(const LLQuaternion& rot)
 {
     mRot = rot;
@@ -1357,7 +1399,7 @@ void LLIK::Joint::setWorldRot(const LLQuaternion& rot)
 
 void LLIK::Joint::setLocalRot(const LLQuaternion& new_local_rot)
 {
-    if (!mLocalRotIsLocked)
+    if (!localRotLocked())
     {
         constexpr F32 BLEND_COEF = 0.25f;
         mLocalRot = lerp(BLEND_COEF, mLocalRot, new_local_rot);
@@ -1385,10 +1427,10 @@ void LLIK::Joint::collectTargetPositions(std::vector<LLVector3>& local_targets, 
     // Note: it is expected this Joint has either: a target,
     // or at least one active child
     //
-    if (hasWorldPosTarget())
+    if (hasPosTarget())
     {
         local_targets.push_back(mBone);
-        world_targets.push_back(mTarget->getPos());
+        world_targets.push_back(mConfig->getTargetPos());
     }
     else
     {
@@ -1397,7 +1439,7 @@ void LLIK::Joint::collectTargetPositions(std::vector<LLVector3>& local_targets, 
         // the logic which consumes this info.
         for (const auto& child : mChildren)
         {
-            if (child->mIsActive)
+            if (child->isActive())
             {
                 local_targets.push_back(child->mLocalPos);
                 world_targets.push_back(child->mPos);
@@ -1448,18 +1490,18 @@ void LLIK::Joint::transformTargetsToParentLocal(std::vector<LLVector3>& local_ta
 
 bool LLIK::Joint::swingTowardTargets(const std::vector<LLVector3>& local_targets, const std::vector<LLVector3>& world_targets)
 {
-    if (mLocalRotIsLocked)
+    if (localRotLocked())
     {
         // nothing to do
-        // but we assume targets are not yet aligned and return 'true'
+        // but we assume targets are not yet reached and return 'true'
         return true;
     }
 
     constexpr F32 MIN_SWING_ANGLE = 0.001f * F_PI;
     bool something_changed = false;
-    if (hasWorldRotTarget())
+    if (hasRotTarget())
     {
-        mRot = mTarget->getRot();
+        mRot = mConfig->getTargetRot();
         something_changed = true;
     }
     else
@@ -1656,17 +1698,17 @@ void LLIK::Joint::twistTowardTargets(const std::vector<LLVector3>& local_targets
 
 void LLIK::Joint::untwist()
 {
-    if (mHasWorldRotTarget)
+    if (hasRotTarget())
     {
-        mRot = mTarget->getRot();
+        mRot = mConfig->getTargetRot();
         updateLocalRot();
         DEBUG_LOG_EVENT;
     }
-    else if (!mLocalRotIsLocked)
+    else if (!localRotLocked())
     {
         // compute new_local_rot
         LLQuaternion new_local_rot = LLQuaternion::DEFAULT;
-        if (mConstraint && !(mTarget && !mTarget->usesIK()))
+        if (mConstraint && !(hasDisabledConstraint()))
         {
             new_local_rot = mConstraint->minimizeTwist(mLocalRot);
         }
@@ -1695,7 +1737,7 @@ void LLIK::Joint::untwist()
 
         // apply new mLocalRot
         LLQuaternion new_rot = mLocalRot * mParent->mRot;
-        if (!mParent->mLocalRotIsLocked)
+        if (!mParent->localRotLocked())
         {
             // check to see if new mLocalRot would change world-frame bone
             // (which only happens for some Constraints)
@@ -1770,9 +1812,9 @@ LLIK::Solver::Solver() : mRootID(-1)
 #endif
 }
 
-void LLIK::Solver::resetRotations()
+void LLIK::Solver::resetSkeleton()
 {
-    mSkeleton.begin()->second->resetRotationsRecursively();
+    mSkeleton.begin()->second->resetRecursively();
 }
 
 // compute the offset from the "tip" of from_id to the "end" of to_id
@@ -1872,8 +1914,9 @@ void LLIK::Solver::addWristID(S16 wrist_id)
     mWristJoints.push_back(joint_itr->second);
 }
 
+/*
 // EXPERIMENTAL: keep this
-void LLIK::Solver::adjustTargets(target_map_t& targets)
+void LLIK::Solver::adjustTargets(joint_config_map_t& targets)
 {
     // When an end-effector has both target_position and target_orientation
     // the IK problem can be reduced by giving the parent a target_position.
@@ -1881,8 +1924,9 @@ void LLIK::Solver::adjustTargets(target_map_t& targets)
     // parent's Target with target_position.
     for (auto& data_pair : targets)
     {
-        Target& target = data_pair.second;
-        if (!target.hasWorldPos() || target.fixesLocalRot() || !target.hasWorldRot())
+        Joint::Config& target = data_pair.second;
+        U8 mask = target.getFlags();
+        if (!target.hasWorldPos() || target.hasLocalRot() || !target.hasWorldRot())
         {
             // target does not match our needs
             continue;
@@ -1919,7 +1963,7 @@ void LLIK::Solver::adjustTargets(target_map_t& targets)
         else
         {
             // parent doesn't have a target yet --> give it one
-            Target parent_target;
+            Joint::Config parent_target;
             parent_target.setPos(parent_target_pos);
             targets.insert({parent->getID(), parent_target});
         }
@@ -1930,6 +1974,7 @@ void LLIK::Solver::adjustTargets(target_map_t& targets)
         joint->activate();
     }
 }
+*/
 
 // The Skeleton relaxes toward the T-pose and the IK solution will tend to put
 // the elbows higher than normal for a humanoid character.  The dropElbow()
@@ -1939,7 +1984,7 @@ void LLIK::Solver::dropElbow(const Joint::ptr_t& wrist_joint)
 {
     const Joint::ptr_t& elbow_joint = wrist_joint->getParent();
     const Joint::ptr_t& shoulder_joint = elbow_joint->getParent();
-    if (shoulder_joint->hasWorldPosTarget())
+    if (shoulder_joint->hasPosTarget())
     {
         // remember: end-of-shoulder is tip-of-elbow
         // Assume whoever is setting the shoulder's target position
@@ -1982,29 +2027,45 @@ void LLIK::Solver::dropElbow(const Joint::ptr_t& wrist_joint)
     }
 }
 
-bool LLIK::Solver::updateTargets(const target_map_t& targets)
+bool LLIK::Solver::updateJointConfigs(const joint_config_map_t& configs)
 {
     bool something_changed = false;
-    //Check to see if targets changed since last iteration.
-    if (targets.size() == mTargets.size())
+    //Check to see if configs changed since last iteration.
+    if (configs.size() == mJointConfigs.size())
     {
-        for (const auto& data_pair : mTargets)
+        for (const auto& data_pair : mJointConfigs)
         {
-            target_map_t::const_iterator itr = targets.find(data_pair.first);
-            if (itr != targets.end())
-            { //Found old target in current targets.
-                const Target& old_target = data_pair.second;
-                const Target& new_target = itr->second;
-                if (old_target.hasWorldPos() != new_target.hasWorldPos()
-                        || (old_target.hasWorldPos()
-                            && std::abs(dist_vec(old_target.getPos(), new_target.getPos())) > mAcceptableError))
+            joint_config_map_t::const_iterator itr = configs.find(data_pair.first);
+            if (itr != configs.end())
+            { //Found old target in current configs.
+                const Joint::Config& old_target = data_pair.second;
+                const Joint::Config& new_target = itr->second;
+                U8 mask = old_target.getFlags();
+                if (mask != new_target.getFlags())
                 {
                     something_changed = true;
                     break;
                 }
-                else if (old_target.fixesLocalRot() != new_target.fixesLocalRot()
-                        || (old_target.fixesLocalRot()
-                            && !LLQuaternion::almost_equal(old_target.getRot(), new_target.getRot())))
+                if ((mask & FLAG_TARGET_POS) > 0
+                        && std::abs(dist_vec(old_target.getTargetPos(), new_target.getTargetPos())) > mAcceptableError)
+                {
+                    something_changed = true;
+                    break;
+                }
+                if ((mask & FLAG_TARGET_ROT) > 0
+                            && !LLQuaternion::almost_equal(old_target.getTargetRot(), new_target.getTargetRot()))
+                {
+                    something_changed = true;
+                    break;
+                }
+                if ((mask & FLAG_LOCAL_POS) > 0
+                        && std::abs(dist_vec(old_target.getLocalPos(), new_target.getLocalPos())) > mAcceptableError)
+                {
+                    something_changed = true;
+                    break;
+                }
+                if ((mask & FLAG_LOCAL_ROT) > 0
+                            && !LLQuaternion::almost_equal(old_target.getLocalRot(), new_target.getLocalRot()))
                 {
                     something_changed = true;
                     break;
@@ -2023,7 +2084,7 @@ bool LLIK::Solver::updateTargets(const target_map_t& targets)
     }
     if (something_changed)
     {
-        mTargets = targets;
+        mJointConfigs = configs;
         rebuildAllChains();
     }
     return something_changed;
@@ -2034,13 +2095,14 @@ void LLIK::Solver::rebuildAllChains()
     // before recompute chains: clear active status on old chains
     for (const auto& data_pair : mChainMap)
     {
-        const chain_t& chain = data_pair.second;
+        const joint_list_t& chain = data_pair.second;
         for (const Joint::ptr_t& joint : chain)
         {
-            joint->clearAllFlags();
+            joint->resetFlags();
         }
     }
     mChainMap.clear();
+    mActiveRoots.clear();
 
     // makeChains
     //
@@ -2100,9 +2162,9 @@ void LLIK::Solver::rebuildAllChains()
     //
 
     std::set<S16> sub_bases;
-    // mTargets is sorted by joint_id low-to-high
+    // mJointConfigs is sorted by joint_id low-to-high
     // and we rely on this in buildChain().
-    for (auto& data_pair : mTargets)
+    for (auto& data_pair : mJointConfigs)
     {
         // make sure joint_id is valid
         S16 joint_id = data_pair.first;
@@ -2115,26 +2177,62 @@ void LLIK::Solver::rebuildAllChains()
 
         // Joint caches a pointer to the Target.
         // This is OK because both Joint and Target are managed by this Solver
-        // and the Target will remain valid for the duration of the IK iterations.
-        Target& target = data_pair.second;
-        joint->setTarget(target);
+        // and the Joint::Config will remain valid for the duration of the IK iterations.
+        Joint::Config& config = data_pair.second;
+        joint->setConfig(config);
 
-        if (target.fixesLocalRot())
+        if (joint->getID() == mRootID)
         {
-            joint->lockLocalRot(target.getRot());
+            // for root: world-frame == local-frame
+            U8 flags = joint->getConfigFlags();
+            if (flags & MASK_ROT)
+            {
+                LLQuaternion q;
+                if (flags & FLAG_LOCAL_ROT)
+                {
+                    q = config.getLocalRot();
+                }
+                else
+                {
+                    q = config.getTargetRot();
+                }
+                joint->lockLocalRot(q);
+                joint->activate();
+                mActiveRoots.insert(joint);
+            }
+            if (flags & MASK_POS)
+            {
+                LLVector3 p;
+                if (flags & FLAG_LOCAL_POS)
+                {
+                    p = config.getLocalPos();
+                }
+                else
+                {
+                    p = config.getTargetPos();
+                }
+                joint->setLocalPos(p);
+                joint->activate();
+            }
+            continue;
+        }
+
+        if (config.hasLocalRot())
+        {
+            joint->lockLocalRot(config.getLocalRot());
         }
 
         // EXPERIMENTAL: keep this
-        if (target.hasDelegated())
+        if (config.hasDelegated())
         {
             // don't build chain for delegated Target
             continue;
         }
 
-        if (target.hasWorldPos())
+        if (config.hasTargetPos())
         {
             // add and build chain
-            mChainMap[joint_id] = chain_t();
+            mChainMap[joint_id] = joint_list_t();
             buildChain(joint, mChainMap[joint_id], sub_bases);
 
             //HACK or FIX?  If we have sequential end effectors, we are not guaranteed the expression
@@ -2143,19 +2241,22 @@ void LLIK::Solver::rebuildAllChains()
             //parent's target to the exact bone length.
             //TODO:  Will not work correctly for a parent with multiple direct children with effector targets.
             //Because we create the targets form low to high we will know if the parent is an end-effector.
-            Joint::ptr_t djoint = itr->second;
-            Joint::ptr_t parent = djoint->getParent();
-            if (parent->hasWorldPosTarget())
+            Joint::ptr_t parent = joint->getParent();
+            if (parent->hasPosTarget())
             { //Sequential targets detected
-                LLVector3 child_target_pos = target.getPos();
+                LLVector3 child_target_pos = config.getTargetPos();
                 LLVector3 parent_target_pos = parent->getTargetPos();
-                F32 p_len = djoint->getLocalPosLength();
                 LLVector3 direction = parent_target_pos - child_target_pos;
                 direction.normalize();
-                direction *= p_len;
+                direction *= joint->getLocalPosLength();
                 parent_target_pos = child_target_pos + direction;
                 parent->setTargetPos(parent_target_pos);
             }
+        }
+        else if (config.hasLocalPos())
+        {
+            joint->setLocalPos(config.getLocalPos());
+            joint->activate();
         }
     }
 
@@ -2167,7 +2268,7 @@ void LLIK::Solver::rebuildAllChains()
         {
             // add and build chain
             Joint::ptr_t joint = mSkeleton[joint_id];
-            mChainMap[joint_id] = chain_t();
+            mChainMap[joint_id] = joint_list_t();
             buildChain(joint, mChainMap[joint_id], new_sub_bases);
         }
         sub_bases = std::move(new_sub_bases);
@@ -2179,7 +2280,7 @@ void LLIK::Solver::rebuildAllChains()
     for (const auto& data_pair : mChainMap)
     {
         const Joint::ptr_t& outer_end = data_pair.second[0];
-        if (!outer_end->hasWorldPosTarget()
+        if (!outer_end->hasPosTarget()
                 && !isSubBase(outer_end->getID()))
         {
             Joint::ptr_t active_child = outer_end->getSingleActiveChild();
@@ -2214,7 +2315,6 @@ void LLIK::Solver::rebuildAllChains()
     }
 
     // cache the set of active branch roots
-    mActiveRoots.clear();
     for (auto& data_pair : mChainMap)
     {
         auto& chain = data_pair.second;
@@ -2230,21 +2330,31 @@ void LLIK::Solver::rebuildAllChains()
 #ifdef DEBUG_LLIK_UNIT_TESTS
     if (mDebugEnabled)
     {
-        std::cout << "targets=[" << std::endl;
-        for (const auto& data_pair : mTargets)
+        std::cout << "joint_configs=[" << std::endl;
+        for (const auto& data_pair : mJointConfigs)
         {
-            const Target& target = data_pair.second;
+            const Joint::Config& config = data_pair.second;
             std::cout << "    {";
             std::cout << "'id':" << data_pair.first;
-            if (target.hasWorldPos())
+            if (config.hasTargetPos())
             {
-                const LLVector3& p = target.getPos();
+                const LLVector3& p = config.getTargetPos();
                 std::cout << ",'p':(" << p.mV[VX] << "," << p.mV[VY] << "," << p.mV[VZ] << ")";
             }
-            if (target.hasRot())
+            else if (config.hasLocalPos())
             {
-                const LLQuaternion& q = target.getRot();
+                const LLVector3& p = config.getLocalPos();
+                std::cout << ",'P':(" << p.mV[VX] << "," << p.mV[VY] << "," << p.mV[VZ] << ")";
+            }
+            if (config.hasTargetRot())
+            {
+                const LLQuaternion& q = config.getTargetRot();
                 std::cout << ",'q':(" << q.mQ[VX] << "," << q.mQ[VY] << "," << q.mQ[VZ] << "," << q.mQ[VW] << ")";
+            }
+            else if (config.hasLocalRot())
+            {
+                const LLQuaternion& q = config.getLocalRot();
+                std::cout << ",'Q':(" << q.mQ[VX] << "," << q.mQ[VY] << "," << q.mQ[VZ] << "," << q.mQ[VW] << ")";
             }
             std::cout << "},\n";
         }
@@ -2253,12 +2363,12 @@ void LLIK::Solver::rebuildAllChains()
 #endif
 
     // cache the list of all active joints
-    mActiveIDs.clear();
+    mActiveJoints.clear();
     for (auto& data_pair : mSkeleton)
     {
         if (data_pair.second->isActive())
         {
-            mActiveIDs.push_back(data_pair.first);
+            mActiveJoints.push_back(data_pair.second);
         }
     }
 }
@@ -2266,9 +2376,9 @@ void LLIK::Solver::rebuildAllChains()
 ////////////////////////////////////LLIK::Solver/////////////////////////////
 //////////////////////////////////// Solvers /////////////////////////////
 
-F32 LLIK::Solver::solveForTargets(target_map_t& targets)
+F32 LLIK::Solver::configureAndSolve(const joint_config_map_t& configs)
 {
-    if (!updateTargets(targets))
+    if (!updateJointConfigs(configs))
     {
         // nothing changed --> nothing to do
         return mLastError;
@@ -2288,9 +2398,7 @@ F32 LLIK::Solver::solveForTargets(target_map_t& targets)
     {
         if (!gConfigLogged)
         {
-            LL_INFOS("debug") << "skeleton = [" << LL_ENDL;
             dumpConfig();
-            LL_INFOS("debug") << "]" << LL_ENDL;
             gConfigLogged = true;
         }
         std::cout << "initial_data = [" << std::endl;
@@ -2303,12 +2411,12 @@ F32 LLIK::Solver::solveForTargets(target_map_t& targets)
         F32 Z = std::numeric_limits<F32>::max();
         mMinPos= LLVector3(Z, Z, Z);
         mMaxPos = LLVector3(A, A, A);
-        for (const auto& data_pair : mTargets)
+        for (const auto& data_pair : mJointConfigs)
         {
-            const Target& target = data_pair.second;
-            if (target.hasWorldPos())
+            const Joint::Config& target = data_pair.second;
+            if (target.hasTargetPos())
             {
-                updateBounds(target.getPos());
+                updateBounds(target.getTargetPos());
             }
         }
         for (const auto& data_pair : mSkeleton)
@@ -2349,7 +2457,7 @@ F32 LLIK::Solver::solveForTargets(target_map_t& targets)
         // drift within the twist-limits of their constraints.
         for (const auto& data_pair : mChainMap)
         {
-            const chain_t& chain = data_pair.second;
+            const joint_list_t& chain = data_pair.second;
             untwistChain(chain);
         }
 
@@ -2376,26 +2484,27 @@ F32 LLIK::Solver::solveForTargets(target_map_t& targets)
     return mLastError;
 }
 
-LLQuaternion LLIK::Solver::getJointLocalRot(S16 joint_id) const
+LLVector3 LLIK::Solver::getJointLocalPos(S16 joint_id) const
 {
-    LLQuaternion rot;
+    LLVector3 pos;
     auto itr = mSkeleton.find(joint_id);
     if (itr != mSkeleton.end())
     {
-        rot = itr->second->getLocalRot();
-    }
-    return rot;
-}
-
-LLVector3 LLIK::Solver::getJointWorldTipPos(S16 joint_id) const
-{
-    LLVector3 pos;
-    joint_map_t::const_iterator itr = mSkeleton.find(joint_id);
-    if (itr != mSkeleton.end())
-    {
-        pos = itr->second->getWorldTipPos();
+        pos = itr->second->getLocalPos();
     }
     return pos;
+}
+
+bool LLIK::Solver::getJointLocalTransform(S16 joint_id, LLVector3& pos, LLQuaternion& rot) const
+{
+    auto itr = mSkeleton.find(joint_id);
+    if (itr != mSkeleton.end())
+    {
+        pos = itr->second->getLocalPos();
+        rot = itr->second->getLocalRot();
+        return true;
+    }
+    return false;
 }
 
 LLVector3 LLIK::Solver::getJointWorldEndPos(S16 joint_id) const
@@ -2434,7 +2543,7 @@ void LLIK::Solver::reconfigureJoint(S16 joint_id, const LLVector3& local_pos, co
     // Note: will need to call computeEffectorNormal() after all Joints are reconfigured.
 }
 
-void LLIK::Solver::buildChain(Joint::ptr_t joint, chain_t& chain, std::set<S16>& sub_bases)
+void LLIK::Solver::buildChain(Joint::ptr_t joint, joint_list_t& chain, std::set<S16>& sub_bases)
 {
     // Builds a Chain in descending order (inward) from end-effector or
     // sub-base.  Stops at next end-effector (has target), sub-base (more than
@@ -2463,7 +2572,7 @@ void LLIK::Solver::buildChain(Joint::ptr_t joint, chain_t& chain, std::set<S16>&
         {
             break;
         }
-        if (joint->hasWorldPosTarget())
+        if (joint->hasPosTarget())
         {
             // truncate this chain at targeted ancestor joint
             break;
@@ -2478,7 +2587,7 @@ void LLIK::Solver::buildChain(Joint::ptr_t joint, chain_t& chain, std::set<S16>&
     }
 }
 
-void LLIK::Solver::executeFabrikInward(const chain_t& chain)
+void LLIK::Solver::executeFabrikInward(const joint_list_t& chain)
 {
     DEBUG_SET_CONTEXT(inward);
     // chain starts at end-effector or sub-base.
@@ -2501,7 +2610,7 @@ void LLIK::Solver::executeFabrikInward(const chain_t& chain)
     }
 }
 
-void LLIK::Solver::executeFabrikOutward(const chain_t& chain)
+void LLIK::Solver::executeFabrikOutward(const joint_list_t& chain)
 {
     DEBUG_SET_CONTEXT(outward);
     // chain starts at a end-effector or sub-base.
@@ -2523,7 +2632,7 @@ void LLIK::Solver::executeFabrikOutward(const chain_t& chain)
     chain[0]->updateEndOutward();
 }
 
-void LLIK::Solver::shiftChainToBase(const chain_t& chain)
+void LLIK::Solver::shiftChainToBase(const joint_list_t& chain)
 {
     S32 last_index = (S32)(chain.size()) - 1;
     const Joint::ptr_t& inner_end_child = chain[last_index - 1];
@@ -2562,7 +2671,7 @@ void LLIK::Solver::executeFabrikPass()
     DEBUG_SET_CONTEXT(outward);
     for (const auto& data_pair : mChainMap)
     {
-        const chain_t& chain = data_pair.second;
+        const joint_list_t& chain = data_pair.second;
         executeFabrikOutward(chain);
     }
 }
@@ -2571,7 +2680,7 @@ void LLIK::Solver::enforceConstraintsOutward()
 {
     for (const auto& data_pair : mChainMap)
     {
-        const chain_t& chain = data_pair.second;
+        const joint_list_t& chain = data_pair.second;
 
         // chain starts at a end-effector or sub-base.
         // Don't forget: chain is organized in descending order:
@@ -2624,7 +2733,7 @@ void LLIK::Solver::executeCcdPass()
     }
 }
 
-void LLIK::Solver::executeCcdInward(const chain_t& chain)
+void LLIK::Solver::executeCcdInward(const joint_list_t& chain)
 {
     // 'chain' starts at a end-effector or sub-base.
     // Don't forget: 'chain' is organized in descending order:
@@ -2675,7 +2784,7 @@ void LLIK::Solver::executeCcdInward(const chain_t& chain)
     outer_end->updateChildLocalRots();
 }
 
-void LLIK::Solver::untwistChain(const chain_t& chain)
+void LLIK::Solver::untwistChain(const joint_list_t& chain)
 {
     DEBUG_SET_CONTEXT(untwist);
     S32 last_index = (S32)(chain.size()) - 1;
@@ -2692,14 +2801,19 @@ void LLIK::Solver::untwistChain(const chain_t& chain)
 F32 LLIK::Solver::measureMaxError()
 {
     F32 max_error = 0.0f;
-    for (auto& data_pair : mTargets)
+    for (auto& data_pair : mJointConfigs)
     {
-        Target& target = data_pair.second;
-        if (target.hasWorldPos() && !target.hasDelegated())
+        S16 joint_id = data_pair.first;
+        if (joint_id == mRootID)
         {
-            S16 joint_id = data_pair.first;
+            // skip error measure of root joint: should always be zero
+            continue;
+        }
+        Joint::Config& target = data_pair.second;
+        if (target.hasTargetPos() && !target.hasDelegated())
+        {
             LLVector3 end_pos = mSkeleton[joint_id]->computeWorldEndPos();
-            F32 dist = dist_vec(end_pos, target.getPos());
+            F32 dist = dist_vec(end_pos, target.getTargetPos());
             if (dist > max_error)
             {
                 max_error = dist;
@@ -2721,22 +2835,20 @@ F32 LLIK::Solver::measureMaxError()
     return max_error;
 }
 
-#ifdef DEBUG_LLIK_UNIT_TESTS
-void LLIK::Solver::enableDebug()
+void LLIK::Solver::enableDebugIfPossible()
 {
+#ifdef DEBUG_LLIK_UNIT_TESTS
     mDebugEnabled = true;
     gDebugEnabled = true;
+#endif
 }
 
+#ifdef DEBUG_LLIK_UNIT_TESTS
 void LLIK::Solver::dumpConfig() const
 {
-    for (auto id : mActiveIDs)
+    for (auto joint : mActiveJoints)
     {
-        joint_map_t::const_iterator itr = mSkeleton.find(id);
-        if (itr != mSkeleton.end())
-        {
-            itr->second->dumpConfig();
-        }
+        joint->dumpConfig();
     }
 }
 

@@ -45,11 +45,11 @@ class LLViewerOctreeGroup;
 class LLViewerOctreeEntry;
 class LLViewerOctreePartition;
 
-typedef LLOctreeListener<LLViewerOctreeEntry>	OctreeListener;
-typedef LLTreeNode<LLViewerOctreeEntry>			TreeNode;
-typedef LLOctreeNode<LLViewerOctreeEntry>		OctreeNode;
-typedef LLOctreeRoot<LLViewerOctreeEntry>		OctreeRoot;
-typedef LLOctreeTraveler<LLViewerOctreeEntry>	OctreeTraveler;
+typedef LLOctreeListener<LLViewerOctreeEntry, LLPointer<LLViewerOctreeEntry>> OctreeListener;
+typedef LLTreeNode<LLViewerOctreeEntry> TreeNode;
+typedef LLOctreeNode<LLViewerOctreeEntry, LLPointer<LLViewerOctreeEntry>> OctreeNode;
+typedef LLOctreeRoot<LLViewerOctreeEntry, LLPointer<LLViewerOctreeEntry>> OctreeRoot;
+typedef LLOctreeTraveler<LLViewerOctreeEntry, LLPointer<LLViewerOctreeEntry>> OctreeTraveler;
 
 #if LL_OCTREE_PARANOIA_CHECK
 #define assert_octree_valid(x) x->validate()
@@ -179,7 +179,7 @@ protected:
 //defines an octree group for an octree node, which contains multiple entries.
 //LL_ALIGN_PREFIX(16)
 class LLViewerOctreeGroup
-:	public LLOctreeListener<LLViewerOctreeEntry>
+:	public OctreeListener
 {
     LL_ALIGN_NEW
 	friend class LLViewerOctreeCull;
@@ -198,8 +198,8 @@ public:
 	};
 
 public:
-	typedef LLOctreeNode<LLViewerOctreeEntry>::element_iter element_iter;
-	typedef LLOctreeNode<LLViewerOctreeEntry>::element_list element_list;
+	typedef OctreeNode::element_iter element_iter;
+	typedef OctreeNode::element_list element_list;
 
 	LLViewerOctreeGroup(OctreeNode* node);
 	LLViewerOctreeGroup(const LLViewerOctreeGroup& rhs)
@@ -245,7 +245,6 @@ public:
 	const LLVector4a* getObjectExtents() const {return mObjectExtents;}
 
 	//octree wrappers to make code more readable
-	element_list& getData() { return mOctreeNode->getData(); }
 	element_iter getDataBegin() { return mOctreeNode->getDataBegin(); }
 	element_iter getDataEnd() { return mOctreeNode->getDataEnd(); }
 	U32 getElementCount() const { return mOctreeNode->getElementCount(); }

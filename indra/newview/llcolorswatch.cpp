@@ -290,9 +290,14 @@ void LLColorSwatchCtrl::onColorChanged ( void* data, EColorPickOp pick_op )
 									pickerp->getCurG (), 
 									pickerp->getCurB (), 
 									subject->mColor.mV[VALPHA] ); // keep current alpha
-			subject->mColor = updatedColor;
-			subject->setControlValue(updatedColor.getValue());
-			pickerp->setRevertOnCancel(TRUE);
+
+            bool color_changed = subject->mColor != updatedColor;
+            if (color_changed)
+            {
+                subject->mColor = updatedColor;
+                subject->setControlValue(updatedColor.getValue());
+            }
+
 			if (pick_op == COLOR_CANCEL && subject->mOnCancelCallback)
 			{
 				subject->mOnCancelCallback( subject, LLSD());
@@ -306,6 +311,13 @@ void LLColorSwatchCtrl::onColorChanged ( void* data, EColorPickOp pick_op )
 				// just commit change
 				subject->onCommit ();
 			}
+
+            if (pick_op == COLOR_CANCEL || pick_op == COLOR_SELECT)
+            {
+                // both select and cancel close LLFloaterColorPicker
+                // but COLOR_CHANGE does not
+                subject->setFocus(TRUE);
+            }
 		}
 	}
 }

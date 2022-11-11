@@ -2058,17 +2058,6 @@ EMeshProcessingResult LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_
 
 		if (volume->unpackVolumeFaces(stream, data_size))
 		{
-			//load volume faces into decomposition buffer
-			//S32 vertex_count = 0;
-			//S32 index_count = 0;
-
-			//for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
-			//{
-				//const LLVolumeFace& face = volume->getVolumeFace(i);
-				//vertex_count += face.mNumVertices;
-				//index_count += face.mNumIndices;
-			//}
-
 			d->mPhysicsShapeMesh.clear();
 
 			std::vector<LLVector3>& pos = d->mPhysicsShapeMesh.mPositions;
