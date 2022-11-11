@@ -37,6 +37,7 @@
 #include "llviewercontrol.h"
 #include "llviewergenericmessage.h"
 #include "llviewerobjectlist.h"
+#include "llviewerstats.h"
 #include "llcorehttputil.h"
 #include "llagent.h"
 
@@ -625,6 +626,11 @@ void LLGLTFMaterialList::flushMaterials()
     else
     {
         mLastUpdateKey.setNull();
+    }
+
+    {
+        using namespace LLStatViewer;
+        sample(NUM_MATERIALS, mList.size());
     }
 }
 

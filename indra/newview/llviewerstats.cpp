@@ -139,6 +139,7 @@ SimMeasurement<LLUnit<F64, LLUnits::Percent> >
 LLTrace::SampleStatHandle<>	FPS_SAMPLE("fpssample"),
 							NUM_IMAGES("numimagesstat"),
 							NUM_RAW_IMAGES("numrawimagesstat"),
+							NUM_MATERIALS("nummaterials"),
 							NUM_OBJECTS("numobjectsstat"),
 							NUM_ACTIVE_OBJECTS("numactiveobjectsstat"),
 							ENABLE_VBO("enablevbo", "Vertex Buffers Enabled"),

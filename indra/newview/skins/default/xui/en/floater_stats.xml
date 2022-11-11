@@ -133,6 +133,12 @@
                     label="Bound Mem"
                     stat="glboundmemstat"/>
         </stat_view>
+       <stat_view name="material"
+                  label="Material">
+         <stat_bar name="nummaterials"
+                   label="Count"
+                   stat="nummaterials"/>
+       </stat_view>
 			 <stat_view name="memory"
 									label="Memory Usage">
 				 <stat_bar name="LLTrace"
