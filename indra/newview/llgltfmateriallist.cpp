@@ -163,65 +163,100 @@ public:
                 LL_WARNS() << "LLGLTFMaterialOverrideDispatchHandler: Attempted to read parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
             }
         }
+        
+        LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+        LL::WorkQueue::ptr_t general_queue = LL::WorkQueue::getInstance("General");
 
-        LLUUID object_id = message["object_id"].asUUID();
-            
-        LLViewerObject * obj = gObjectList.findObject(object_id); // NOTE: null object here does NOT mean nothing to do, parse message and queue results for later
-        bool clear_all = true;
-
-        if (message.has("sides") && message.has("gltf_json"))
+        struct ReturnData
         {
-            LLSD& sides = message["sides"];
-            LLSD& gltf_json = message["gltf_json"];
+        public:
+            std::vector<LLPointer<LLGLTFMaterial> > mMaterialVector;
+            std::vector<bool> mResults;
+        };
 
-            if (sides.isArray() && gltf_json.isArray() &&
-                sides.size() != 0 &&
-                sides.size() == gltf_json.size())
+        // fromJson() is performance heavy offload to a thread.
+        main_queue->postTo(
+            general_queue,
+            [message]() // Work done on general queue
+        {
+            ReturnData result;
+
+            if (message.has("sides") && message.has("gltf_json"))
             {
-                clear_all = false;
+                LLSD& sides = message.get("sides");
+                LLSD& gltf_json = message.get("gltf_json");
 
-                // message should be interpreted thusly:
-                ///  sides is a list of face indices
-                //   gltf_json is a list of corresponding json
-                //   any side not represented in "sides" has no override
-
-                // parse json
-                std::unordered_set<S32> side_set;
-
-                for (int i = 0; i < sides.size(); ++i)
+                if (sides.isArray() && gltf_json.isArray() &&
+                    sides.size() != 0 &&
+                    sides.size() == gltf_json.size())
                 {
-                    LLPointer<LLGLTFMaterial> override_data = new LLGLTFMaterial();
-                        
-                    std::string gltf_json = message["gltf_json"][i].asString();
+                    // message should be interpreted thusly:
+                    ///  sides is a list of face indices
+                    //   gltf_json is a list of corresponding json
+                    //   any side not represented in "sides" has no override
+                    result.mResults.resize(sides.size());
+                    result.mMaterialVector.resize(sides.size());
 
-                    std::string warn_msg, error_msg;
-                        
-                    bool success = override_data->fromJSON(gltf_json, warn_msg, error_msg);
-
-                    if (!success)
+                    // parse json
+                    for (int i = 0; i < sides.size(); ++i)
                     {
-                        LL_WARNS() << "failed to parse GLTF override data.  errors: " << error_msg << " | warnings: " << warn_msg << LL_ENDL;
+                        LLPointer<LLGLTFMaterial> override_data = new LLGLTFMaterial();
 
-                        // unblock material editor
-                        if (obj && obj->isAnySelected())
+                        std::string gltf_json_str = gltf_json[i].asString();
+
+                        std::string warn_msg, error_msg;
+
+                        bool success = override_data->fromJSON(gltf_json_str, warn_msg, error_msg);
+
+                        result.mResults[i] = success;
+
+                        if (success)
                         {
-                            LLMaterialEditor::updateLive(object_id, sides[i].asInteger());
+                            result.mMaterialVector[i] = override_data;
+                        }
+                        else
+                        {
+                            LL_WARNS() << "failed to parse GLTF override data.  errors: " << error_msg << " | warnings: " << warn_msg << LL_ENDL;
                         }
                     }
-                    else
+                }
+            }
+            return result;
+        },
+            [message](ReturnData result) // Callback to main thread
+            mutable {
+
+            LLUUID object_id = message["object_id"].asUUID();
+            LLSD& sides = message["sides"];
+            LLViewerObject * obj = gObjectList.findObject(object_id);
+            std::unordered_set<S32> side_set;
+
+            if (result.mResults.size() > 0 )
+            {
+                for (int i = 0; i < result.mResults.size(); ++i)
+                {
+                    if (result.mResults[i])
                     {
                         S32 side = sides[i].asInteger();
                         // flag this side to not be nulled out later
                         side_set.insert(sides[i]);
 
-                        if (!obj || !obj->setTEGLTFMaterialOverride(side, override_data))
+                        if (!obj || !obj->setTEGLTFMaterialOverride(side, result.mMaterialVector[i]))
                         {
                             // object not ready to receive override data, queue for later
-                            gGLTFMaterialList.queueOverrideUpdate(object_id, side, override_data);
+                            gGLTFMaterialList.queueOverrideUpdate(object_id, side, result.mMaterialVector[i]);
                         }
                         else if (obj && obj->isAnySelected())
                         {
                             LLMaterialEditor::updateLive(object_id, side);
+                        }
+                    }
+                    else
+                    {
+                        // unblock material editor
+                        if (obj && obj->isAnySelected())
+                        {
+                            LLMaterialEditor::updateLive(object_id, sides[i].asInteger());
                         }
                     }
                 }
@@ -242,24 +277,20 @@ public:
                     }
                 }
             }
-            else
-            {
-                LL_WARNS() << "Malformed GLTF override message data: " << message << LL_ENDL;
-            }
-        }
-            
-        if (clear_all && obj)
-        { // override list was empty or an error occurred, null out all overrides for this object
-            bool object_has_selection = obj->isAnySelected();
-            for (int i = 0; i < obj->getNumTEs(); ++i)
-            {
-                obj->setTEGLTFMaterialOverride(i, nullptr);
-                if (object_has_selection)
+            else if (obj)
+            { // override list was empty or an error occurred, null out all overrides for this object
+                bool object_has_selection = obj->isAnySelected();
+                for (int i = 0; i < obj->getNumTEs(); ++i)
                 {
-                    LLMaterialEditor::updateLive(obj->getID(), i);
+                    obj->setTEGLTFMaterialOverride(i, nullptr);
+                    if (object_has_selection)
+                    {
+                        LLMaterialEditor::updateLive(obj->getID(), i);
+                    }
                 }
             }
-        }
+        });
+
         return true;
     }
 };
