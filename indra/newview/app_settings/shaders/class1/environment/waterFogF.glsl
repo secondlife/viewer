@@ -68,7 +68,6 @@ vec4 applyWaterFogView(vec3 pos, vec4 color)
     float D = pow(0.98, l*kd);
     
     color.rgb = color.rgb * D + kc.rgb * L;
-    color.a = kc.a + color.a;
 
     return color;
 }
@@ -114,7 +113,6 @@ vec4 applyWaterFogViewLinear(vec3 pos, vec4 color)
     float D = pow(0.98, l * kd);
 
     color.rgb = color.rgb * D + kc.rgb * L;
-    color.a = kc.a + color.a;
 
     return color;
 }
@@ -122,6 +120,6 @@ vec4 applyWaterFogViewLinear(vec3 pos, vec4 color)
 vec4 applyWaterFog(vec4 color)
 {
     //normalize view vector
-    return applyWaterFogView(getPositionEye(), color);
+    return applyWaterFogViewLinear(getPositionEye(), color);
 }
 
