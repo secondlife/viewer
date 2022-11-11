@@ -979,9 +979,9 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
             }
             else
             {
-                regionp->setCapabilitiesReceivedCallback([](const LLUUID &region_id, LLViewerRegion* regionp) 
+                regionp->setCapabilitiesReceivedCallback([](const LLUUID &region_id, LLViewerRegion* regionp)
                     {
-                        LLAppViewer::instance()->updateNameLookupUrl(regionp); 
+                        LLAppViewer::instance()->updateNameLookupUrl(regionp);
                         LLPuppetMotion::RequestPuppetryStatus(regionp);
                     });
             }

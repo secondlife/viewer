@@ -3051,7 +3051,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("ParcelVoiceInfoRequest");
 	capabilityNames.append("ProductInfoRequest");
 	capabilityNames.append("ProvisionVoiceAccountRequest");
-    capabilityNames.append("Puppetry");        
+	capabilityNames.append("Puppetry");
 	capabilityNames.append("ReadOfflineMsgs"); // Requires to respond reliably: AcceptFriendship, AcceptGroupInvite, DeclineFriendship, DeclineGroupInvite
 	capabilityNames.append("RegionObjects");
 	capabilityNames.append("RemoteParcelRequest");

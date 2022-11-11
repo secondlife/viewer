@@ -55,56 +55,24 @@ namespace LLIK
 class Solver;
 class Joint;
 
+// local flags
+constexpr U8 FLAG_LOCAL_POS = 1 << 0;
+constexpr U8 FLAG_LOCAL_ROT = 1 << 1;
+constexpr U8 FLAG_LOCAL_SCALE = 1 << 2;
+constexpr U8 FLAG_DISABLE_CONSTRAINT = 1 << 3;
+
+// target flags
+constexpr U8 FLAG_TARGET_POS = 1 << 4;
+constexpr U8 FLAG_TARGET_ROT = 1 << 5;
+constexpr U8 FLAG_HAS_DELEGATED = 1 << 6; // EXPERIMENTAL
+
+constexpr U8 MASK_POS = FLAG_TARGET_POS | FLAG_LOCAL_POS;
+constexpr U8 MASK_ROT = FLAG_TARGET_ROT | FLAG_LOCAL_ROT;
+constexpr U8 MASK_TRANSFORM = MASK_POS | MASK_ROT;
+constexpr U8 MASK_LOCAL = FLAG_LOCAL_POS | FLAG_LOCAL_ROT | FLAG_DISABLE_CONSTRAINT;
+constexpr U8 MASK_TARGET = FLAG_TARGET_POS | FLAG_TARGET_ROT;
+
 constexpr F32 IK_DEFAULT_ACCEPTABLE_ERROR = 5.0e-4f; // half millimeter
-
-// A Target represents the final position, or position+orientation of an
-// end-effector Joint.  Also typically called the "goal" of the end-effector
-// in IK parlance.
-class Target
-{
-public:
-    Target();
-
-    // Note: we currently support Targets in three modes:
-    // (a) mRot in parent-frame
-    // (b) mPos in root-frame
-    // (c) mPos and mRot in root-frame
-    //
-    // Modes (a) and (b) are independent of each other and can coexist.
-    // Mode (c) obviates the other two.
-
-    bool hasWorldPos() const { return (mMask & HAS_POS) > 0; }
-    bool hasRot() const { return (mMask & HAS_ROT) > 0; }
-    bool hasWorldRot() const { return (mMask & (HAS_ROT | ROT_IS_LOCAL)) == HAS_ROT; }
-    bool fixesLocalRot() const { return (mMask & ROT_IS_LOCAL) > 0; }
-
-    void setPos(const LLVector3& pos);
-    void setRot(const LLQuaternion& rot, bool is_parent_local=false);
-
-    const LLVector3& getPos() const { return mPos; }
-    const LLQuaternion& getRot() const { return mRot; }
-
-    // EXPERIMENTAL: keep the "delegate" stuff for now
-    void delegate() { mMask |= HAS_DELEGATED; }
-    bool hasDelegated() const { return (mMask & HAS_DELEGATED) > 0; }
-
-    void useIK() { return; }
-    bool usesIK() const { return true; }
-private:
-    LLVector3 mPos;
-    LLQuaternion mRot;
-
-    enum TargetBits
-    {
-        HAS_POS = 1 << 0,
-        HAS_ROT = 1 << 1,
-        POS_IS_LOCAL = 1 << 2, // not yet used
-        ROT_IS_LOCAL = 1 << 3,
-        USE_IK = 1 << 6,
-        HAS_DELEGATED = 1 << 7 // EXPERIMENTAL
-    };
-    U8 mMask = 0; // per-feature bits
-};
 
 // A Constraint exists at the tip of Joint
 // and limits the range of Joint.mLocalRot.
@@ -358,7 +326,7 @@ private:
 // in its own local-frame.  A summary of its important data members
 // is as follows:
 //
-//     mLocalPos = invarient tip position in parent's local-frame
+//     mLocalPos = tip position in parent's local-frame
 //     mLocalRot = orientation of Joint's tip relative to parent's local-frame
 //     mBone = invarient end position in local-frame
 //     mPos = tip position in world-frame (we call it 'world-frame'
@@ -377,6 +345,42 @@ private:
 class Joint
 {
 public:
+    class Config
+    {
+    public:
+        // local info is in parent-frame
+        bool hasLocalPos() const { return (mFlags & FLAG_LOCAL_POS) > 0; }
+        bool hasLocalRot() const { return (mFlags & FLAG_LOCAL_ROT) > 0; }
+        bool constraintIsDisabled() const { return (mFlags & FLAG_DISABLE_CONSTRAINT) > 0; }
+        void setLocalPos(const LLVector3& pos);
+        void setLocalRot(const LLQuaternion& rot);
+        void disableConstraint() { mFlags |= FLAG_DISABLE_CONSTRAINT; }
+        const LLVector3& getLocalPos() const { return mLocalPos; }
+        const LLQuaternion& getLocalRot() const { return mLocalRot; }
+
+        // target info is in skeleton root-frame
+        bool hasTargetPos() const { return (mFlags & FLAG_TARGET_POS) > 0; }
+        bool hasTargetRot() const { return (mFlags & FLAG_TARGET_ROT) > 0; }
+        void setTargetPos(const LLVector3& pos);
+        void setTargetRot(const LLQuaternion& rot);
+        const LLVector3& getTargetPos() const { return mTargetPos; }
+        const LLQuaternion& getTargetRot() const { return mTargetRot; }
+
+        void delegate() { mFlags |= FLAG_HAS_DELEGATED; } // EXPERIMENTAL
+        bool hasDelegated() const { return (mFlags & FLAG_HAS_DELEGATED) > 0; } // EXPERIMENTAL
+
+        U8 getFlags() const { return mFlags; }
+
+        void updateFrom(const Config& other_config);
+
+    private:
+        LLVector3 mLocalPos;
+        LLQuaternion mLocalRot;
+        LLVector3 mTargetPos;
+        LLQuaternion mTargetRot;
+        U8 mFlags = 0; // per-feature bits
+    };
+
     using ptr_t = std::shared_ptr<Joint>;
     using child_vec_t = std::vector<ptr_t>;
 
@@ -384,7 +388,7 @@ public:
 
     void addChild(const ptr_t& child);
     void setParent(const ptr_t& parent);
-    void resetRotationsRecursively();
+    void resetRecursively();
     void relaxRotationsRecursively(F32 blend_factor);
     F32 recursiveComputeLongestChainLength(F32 length) const;
 
@@ -408,18 +412,22 @@ public:
     const LLQuaternion& getWorldRot() const { return mRot; }
     LLVector3 computeWorldEndPos() const;
     void setWorldPos(const LLVector3& pos);
+    void setLocalPos(const LLVector3& pos);
     void setWorldRot(const LLQuaternion& rot);
     void setLocalRot(const LLQuaternion& new_local_rot);
     void adjustWorldRot(const LLQuaternion& adjustment);
     void shiftPos(const LLVector3& shift);
 
-    void setTarget(const Target& target);
+    void setConfig(const Config& config);
+
     void setTargetPos(const LLVector3& pos);
-    LLVector3 getTargetPos() { return mTarget->getPos(); }
-    const Target* getTarget() const { return mTarget; }
-    bool hasWorldPosTarget() const { return mHasWorldPosTarget; }
-    bool hasWorldRotTarget() const { return mHasWorldRotTarget; }
-    void clearAllFlags();
+    LLVector3 getTargetPos() const { return mConfig->getTargetPos(); }
+
+    const Config* getConfig() const { return mConfig; }
+    bool hasPosTarget() const { return (mConfigFlags & FLAG_TARGET_POS) > 0; }
+    bool hasRotTarget() const { return (mConfigFlags & FLAG_TARGET_ROT) > 0; }
+    U8 getConfigFlags() const { return mConfigFlags; }
+    void resetFlags();
     void lockLocalRot(const LLQuaternion& local_rot);
 
     void setConstraint(std::shared_ptr<Constraint> constraint) { mConstraint = constraint; }
@@ -437,6 +445,10 @@ public:
     ptr_t getParent() { return mParent; }
     void activate() { mIsActive = true; }
     bool isActive() const { return mIsActive; }
+    bool hasDisabledConstraint() const { return (mConfigFlags & FLAG_DISABLE_CONSTRAINT) > 0; }
+
+    // Joint::mLocalRot is considered "locked" when its mConfigFlag's FLAG_LOCAL_ROT bit is set
+    bool localRotLocked() const { return (mConfigFlags & FLAG_LOCAL_ROT) > 0; }
 
     size_t getNumChildren() const { return mChildren.size(); }
 
@@ -453,17 +465,19 @@ public:
     void collectTargetPositions(std::vector<LLVector3>& local_targets, std::vector<LLVector3>& world_targets) const;
 
 protected:
-    void resetRot();
+    void reset();
     void relaxRot(F32 blend_factor);
 
 protected:
     std::vector<ptr_t> mChildren;      //List of joint_ids attached to this one.
 
-    LLVector3 mLocalPos; // pos in parent-frame
+    LLVector3 mDefaultLocalPos; // default pos in parent-frame
+    LLVector3 mLocalPos; // current pos in parent-frame
     LLVector3 mPos; // pos in world-frame
     // The fundamental position formula is:
     //     mPos = mParent->mPos + mLocalPos * mParent->mRot;
 
+    // Note: there is no mDefaultLocalRot because it is understood to be identity
     LLQuaternion mLocalRot; // orientations in parent-frame
     LLQuaternion mRot;
     // The fundamental orientations formula is:
@@ -478,14 +492,10 @@ protected:
     F32 mLocalPosLength = 0.0f; // cached copy of mLocalPos.length()
     S16 mID = -1;
 
-    // pointer into Target list managed by Solver
-    const Target* mTarget = nullptr;
+    const Config* mConfig = nullptr; // pointer into Solver::mJointConfigs
 
-    // mIsActive = set true by Solver when this joint is on a "chain".
-    bool mIsActive = false;
-    bool mLocalRotIsLocked = false; // Note: always 'true' for root Joints
-    bool mHasWorldPosTarget = false;
-    bool mHasWorldRotTarget = false;
+    U8 mConfigFlags = 0; // cache of mConfig->mFlags
+    bool mIsActive;
 };
 
 
@@ -497,16 +507,16 @@ class Solver
 public:
     using joint_map_t = std::map<S16, Joint::ptr_t>;
     using S16_vec_t = std::vector<S16>;
-    using target_map_t = std::map<S16, Target>;
-    using chain_t = std::vector<Joint::ptr_t>;
-    using chain_map_t = std::map<S16, chain_t>;
+    using joint_config_map_t = std::map<S16, Joint::Config>;
+    using joint_list_t = std::vector<Joint::ptr_t>;
+    using chain_map_t = std::map<S16, joint_list_t>;
 
 public:
     Solver();
 
     // Put skeleton back into default orientation
     // (e.g. T-Pose for humanoid character)
-    void resetRotations();
+    void resetSkeleton();
 
     // compute the offset from the "tip" of from_id to the "end" of to_id
     // or the negative when from_id > to_id
@@ -515,9 +525,9 @@ public:
     // Add a Joint to the skeleton.
     void addJoint(S16 joint_id, S16 parent_id, const LLVector3& local_pos, const LLVector3& bone, const Constraint::ptr_t& constraint);
 
-    // Solve the IK problem for the given targets
+    // Solve the IK problem for the given list of Joint Configurations
     // return max_error of result
-    F32 solveForTargets(target_map_t& targets);
+    F32 configureAndSolve(const joint_config_map_t& configs);
 
     // Specify a joint as a 'wrist'.  Will be used to help 'drop the elbow'
     // of the arm to achieve a more realistic solution.
@@ -526,7 +536,7 @@ public:
     void setRootID(S16 root_id) { mRootID = root_id; }
     S16 getRootID() const { return mRootID; }
 
-    const S16_vec_t getActiveIDs() const { return mActiveIDs; }
+    const joint_list_t getActiveJoints() const { return mActiveJoints; }
 
     // Specify list of joint ids that should be considered as sub-bases
     // e.g. joints that are known to have multipe child chains,
@@ -541,15 +551,18 @@ public:
 
     // per-Joint property accessors from outside Solver
     LLQuaternion getJointLocalRot(S16 joint_id) const;
+    LLVector3 getJointLocalPos(S16 joint_id) const;
+    bool getJointLocalTransform(S16 joint_id, LLVector3& pos, LLQuaternion& rot) const;
     LLVector3 getJointWorldTipPos(S16 joint_id) const;
     LLVector3 getJointWorldEndPos(S16 joint_id) const;
     LLQuaternion getJointWorldRot(S16 joint_id) const;
 
     void reconfigureJoint(S16 joint_id, const LLVector3& local_pos, const LLVector3& bone, const Constraint::ptr_t& constraint);
 
+    void enableDebugIfPossible(); // will be possible when DEBUG_LLIK_UNIT_TESTS defined
+
 #ifdef DEBUG_LLIK_UNIT_TESTS
     size_t getNumJoints() const { return mSkeleton.size(); }
-    void enableDebug();
     void dumpConfig() const;
     void dumpActiveState() const;
     F32 getMaxError() const { return mLastError; }
@@ -561,31 +574,31 @@ public:
 private:
     bool isSubBase(S16 joint_id) const;
     bool isSubRoot(S16 joint_id) const;
-    bool updateTargets(const target_map_t& targets);
-    void adjustTargets(target_map_t& targets);
+    bool updateJointConfigs(const joint_config_map_t& configs);
+    //void adjustTargets(joint_config_map_t& targets); // EXPERIMENTAL: keep this
     void dropElbow(const Joint::ptr_t& wrist_joint);
     void rebuildAllChains();
-    void buildChain(Joint::ptr_t joint, chain_t& chain, std::set<S16>& sub_bases);
-    void executeFabrikInward(const chain_t& chain);
-    void executeFabrikOutward(const chain_t& chain);
-    void shiftChainToBase(const chain_t& chain);
+    void buildChain(Joint::ptr_t joint, joint_list_t& chain, std::set<S16>& sub_bases);
+    void executeFabrikInward(const joint_list_t& chain);
+    void executeFabrikOutward(const joint_list_t& chain);
+    void shiftChainToBase(const joint_list_t& chain);
     void executeFabrikPass();
     void enforceConstraintsOutward();
     void executeCcdPass(); // EXPERIMENTAL
-    void executeCcdInward(const chain_t& chain);
-    void untwistChain(const chain_t& chain);
+    void executeCcdInward(const joint_list_t& chain);
+    void untwistChain(const joint_list_t& chain);
     F32 measureMaxError();
 
 private:
     joint_map_t mSkeleton;
-    target_map_t mTargets;
+    joint_config_map_t mJointConfigs;
 
     chain_map_t mChainMap;
     std::set<S16> mSubBaseIds; // HACK: whitelist of sub-bases
     std::set<S16> mSubRootIds; // HACK: whitelist of sub-roots
     std::set<Joint::ptr_t> mActiveRoots;
-    S16_vec_t mActiveIDs;
-    chain_t mWristJoints;
+    std::vector<Joint::ptr_t> mActiveJoints; // Joints with non-default local-pos
+    joint_list_t mWristJoints;
     F32 mAcceptableError = IK_DEFAULT_ACCEPTABLE_ERROR;
     F32 mLastError = 0.0f;
     S16 mRootID;                //ID number of the root joint for this skeleton

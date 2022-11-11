@@ -34,9 +34,9 @@
 // HOW TO DEBUG an LLIK unit test:
 // (1) Uncomment #define DEBUG_LLIK_UNIT_TESTS in llik.h
 // (2) Add line like this to the particular test
-//        solver.enableDebug();
+//        solver.enableDebugIfPossible();
 //     right before a line like:
-//        solver.solveForTargets();
+//        solver.configureAndSolve();
 // (3) Compile and link
 // (5) Run the test from the CLI and pipe the output to a file:
 //        ./PROJECT_llcharacter_TEST_llik.exe > /tmp/test_data
@@ -785,16 +785,17 @@ namespace tut
         LLIK::Constraint::Info info;
         LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(info);
 
-        // root joint has zero bone
-        solver.addJoint(root_joint_id, root_joint_id-1, LLVector3::zero, LLVector3::zero, null_constraint);
-
-        S16 joint_id = root_joint_id + 1;
-
         constexpr F32 BONE_LENGTH = 1.234f;
         constexpr F32 POS_LENGTH = 2.345f;
         S32 num_joints = 3;
         LLVector3 local_pos = POS_LENGTH * LLVector3::y_axis;
         LLVector3 bone = BONE_LENGTH * LLVector3::y_axis;
+
+        // Note: root joint should always have zero bone length,
+        // because IK will target its "end" not its "tip".
+        solver.addJoint(root_joint_id, root_joint_id-1, LLVector3::zero, LLVector3::zero, null_constraint);
+        S16 joint_id = root_joint_id + 1;
+
         for (S32 i = 0; i < num_joints; ++i)
         {
             solver.addJoint(joint_id, joint_id-1, local_pos, bone, null_constraint);
@@ -804,7 +805,7 @@ namespace tut
 
         F32 reach = solver.computeReach(root_joint_id, last_joint_id).length();
         F32 expected_reach = num_joints * POS_LENGTH + BONE_LENGTH;
-        ensure_equals("LLIK::Solver effectorNormal", reach, expected_reach);
+        ensure_equals("LLIK::Solver computeReach", reach, expected_reach);
 
         LLVector3 end_direction = LLVector3::y_axis + 0.1f * LLVector3::z_axis;
         end_direction.normalize();
@@ -816,27 +817,41 @@ namespace tut
             // Here we test the reachable edge and allow max_error
             // to be 10X ACCEPTABLE_ERROR.
             F32 allowable_error = 10.0f * ACCEPTABLE_ERROR;
-            LLIK::Target target;
+            LLIK::Joint::Config config;
             F32 reachable = 0.99f * reach;
-            target.setPos(reachable * end_direction);
-            LLIK::Solver::target_map_t targets;
-            targets.insert({last_joint_id, target});
+            config.setTargetPos(reachable * end_direction);
+            LLIK::Solver::joint_config_map_t configs;
+            configs.insert({last_joint_id, config});
 
-            F32 max_error = solver.solveForTargets(targets);
+            F32 max_error = solver.configureAndSolve(configs);
             ensure("LLIK::Solver reachable target sans-constraints should have low error", max_error < allowable_error);
         }
 
         // unreachable end-effector target
         {
-            // Test against nearby but unreachable point
-            LLIK::Target target;
+            LLIK::Joint::Config config;
             F32 unreachable = reach + ACCEPTABLE_ERROR;
-            target.setPos(unreachable * end_direction);
-            LLIK::Solver::target_map_t targets;
-            targets.insert({last_joint_id, target});
+            config.setTargetPos(unreachable * end_direction);
+            LLIK::Solver::joint_config_map_t configs;
+            configs.insert({last_joint_id, config});
 
-            F32 max_error = solver.solveForTargets(targets);
+            F32 max_error = solver.configureAndSolve(configs);
             ensure("LLIK::Solver unreachable target is expected to have high error", max_error > ACCEPTABLE_ERROR);
+        }
+
+        // move root so end-effector target is easily reachable again
+        {
+            LLIK::Joint::Config config;
+            F32 unreachable = reach + ACCEPTABLE_ERROR;
+            config.setTargetPos(unreachable * end_direction);
+            LLIK::Solver::joint_config_map_t configs;
+            configs.insert({last_joint_id, config});
+            config.setTargetPos(1.0f * LLVector3::y_axis);
+            configs.insert({root_joint_id, config});
+
+            //solver.enableDebugIfPossible();
+            F32 max_error = solver.configureAndSolve(configs);
+            ensure("LLIK::Solver reachable target sans-constraints after moving root", max_error < ACCEPTABLE_ERROR);
         }
 	}
 
@@ -846,7 +861,7 @@ namespace tut
 	{
         LLIKConstraintFactory factory;
         S16 joint_id = 0;
-        constexpr F32 ACCEPTABLE_ERROR = 3.0e-3f; // one mm
+        constexpr F32 ACCEPTABLE_ERROR = 3.0e-3f;
 
         // Consider the following chain of Joints:
         //
@@ -905,12 +920,12 @@ namespace tut
 
             S16 last_joint_id = joint_id - 1;
 
-            LLIK::Target target;
-            target.setPos(3.0f * LLVector3::x_axis - 1.0f * LLVector3::y_axis);
-            LLIK::Solver::target_map_t targets;
-            targets.insert({last_joint_id, target});
+            LLIK::Joint::Config config;
+            config.setTargetPos(3.0f * LLVector3::x_axis - 1.0f * LLVector3::y_axis);
+            LLIK::Solver::joint_config_map_t configs;
+            configs.insert({last_joint_id, config});
 
-            F32 max_error = solver.solveForTargets(targets);
+            F32 max_error = solver.configureAndSolve(configs);
             ensure("LLIK::Solver reachable target sans-constraints should have low error", max_error < ACCEPTABLE_ERROR);
         }
 
@@ -959,15 +974,13 @@ namespace tut
 
             S16 last_joint_id = joint_id - 1;
 
-            LLIK::Target target;
-            target.setPos(3.0f * LLVector3::x_axis - 1.0f * LLVector3::y_axis);
-            LLIK::Solver::target_map_t targets;
-            targets.insert({last_joint_id, target});
+            LLIK::Joint::Config config;
+            config.setTargetPos(3.0f * LLVector3::x_axis - 1.0f * LLVector3::y_axis);
+            LLIK::Solver::joint_config_map_t configs;
+            configs.insert({last_joint_id, config});
 
-#ifdef DEBUG_LLIK_UNIT_TESTS
-            //solver.enableDebug();
-#endif
-            F32 max_error = solver.solveForTargets(targets);
+            //solver.enableDebugIfPossible();
+            F32 max_error = solver.configureAndSolve(configs);
             ensure("LLIK::Solver reachable target with constraints should have low error", max_error < ACCEPTABLE_ERROR);
         }
 	}
@@ -1069,27 +1082,26 @@ namespace tut
         LLVector3 right_hand_pos = bone_length * LLVector3(2.0f, -1.0f, 0.0f);
         LLVector3 left_hand_pos = bone_length * LLVector3(2.0f, 5.0f, 0.0f);
 
-        // build the targets
-        LLIK::Target neck_target, right_hand_target, left_hand_target;
-        neck_target.setPos(neck_pos);
-        right_hand_target.setPos(right_hand_pos);
-        left_hand_target.setPos(left_hand_pos);
+        // build the configs
+        LLIK::Joint::Config neck_config, right_hand_config, left_hand_config;
+        neck_config.setTargetPos(neck_pos);
+        right_hand_config.setTargetPos(right_hand_pos);
+        left_hand_config.setTargetPos(left_hand_pos);
 
         {
-            // assemble list of all targets
-            LLIK::Solver::target_map_t targets;
-            targets.insert({neck_id, neck_target});
-            targets.insert({right_hand_id, right_hand_target});
-            targets.insert({left_hand_id, left_hand_target});
+            // assemble list of all configs
+            LLIK::Solver::joint_config_map_t configs;
+            configs.insert({neck_id, neck_config});
+            configs.insert({right_hand_id, right_hand_config});
+            configs.insert({left_hand_id, left_hand_config});
 
             // Unfortunately FABRIK can be slow to converge for the reachable edge
             // which is what this scenario presents, so we relax to "allowable_error".
             F32 allowable_error = 0.03f;
 
-#ifdef DEBUG_LLIK_UNIT_TESTS
-        //solver.enableDebug();
-#endif
-            F32 max_error = solver.solveForTargets(targets);
+            //solver.enableDebugIfPossible();
+
+            F32 max_error = solver.configureAndSolve(configs);
             ensure("LLIK::Solver reachable multi-targets (3) are expected to have low error", max_error < allowable_error);
             F32 error = dist_vec(solver.getJointWorldEndPos(neck_id), neck_pos);
             ensure("LLIK::Solver Neck should reach target", error < ACCEPTABLE_ERROR);
@@ -1099,17 +1111,17 @@ namespace tut
             ensure("LLIK::Solver LeftHand should reach target", error < allowable_error);
         }
         {
-            // assemble list of targets
+            // assemble list of configs
             // but this time only target the hands but not the neck
-            LLIK::Solver::target_map_t targets;
-            targets.insert({right_hand_id, right_hand_target});
-            targets.insert({left_hand_id, left_hand_target});
+            LLIK::Solver::joint_config_map_t configs;
+            configs.insert({right_hand_id, right_hand_config});
+            configs.insert({left_hand_id, left_hand_config});
 
-            // This time we expect the accuracy to be worse since only two targets
+            // This time we expect the accuracy to be worse since only two configs
             // are pulling the skeleton into place.
             F32 allowable_error = 0.03f;
 
-            F32 max_error = solver.solveForTargets(targets);
+            F32 max_error = solver.configureAndSolve(configs);
             ensure("LLIK::Solver reachable multi-targets (2) are expected to have low error", max_error < allowable_error);
             F32 error = dist_vec(solver.getJointWorldEndPos(right_hand_id), right_hand_pos);
             ensure("LLIK::Solver RightHand should reach target", error < allowable_error);
@@ -1360,20 +1372,18 @@ namespace tut
             finger_target_positions.push_back(elbow_tip + finger_offsets[i] * Q);
         }
 
-        // build the targets
-        LLIK::Solver::target_map_t targets;
+        // build the configs
+        LLIK::Solver::joint_config_map_t configs;
         for (size_t i = 0; i < fingertip_indices.size(); ++i)
         {
-            LLIK::Target target;
-            target.setPos(finger_target_positions[i]);
-            targets.insert({fingertip_indices[i], target});
+            LLIK::Joint::Config config;
+            config.setTargetPos(finger_target_positions[i]);
+            configs.insert({fingertip_indices[i], config});
         }
 
         // solve
-#ifdef DEBUG_LLIK_UNIT_TESTS
-        //solver.enableDebug();
-#endif
-        solver.solveForTargets(targets);
+        //solver.enableDebugIfPossible();
+        solver.configureAndSolve(configs);
 
         // check results
         // Note; this test does not quite reach ACCEPTABLE_ERROR after 16 iterations
@@ -1792,7 +1802,7 @@ namespace tut
         solver.addWristID(WRIST_INDEX);
 
         // here are some potentially bad targets for constrained left arm:
-        LLIK::Target target;
+        LLIK::Joint::Config config;
         //LLVector3 target_position(-0.139651f,  0.25808f,  0.191372f);
         //LLVector3 target_position(-0.122246f,  0.258118f, 0.179148f);
         //LLVector3 target_position(-0.103941f,  0.25815f,  0.168989f);
@@ -1804,18 +1814,16 @@ namespace tut
         F32 EFFECTOR_NORMAL = 1.7f;
         target_position *= EFFECTOR_NORMAL;
 
-        target.setPos(target_position);
+        config.setTargetPos(target_position);
 
-        // build the targets
-        LLIK::Solver::target_map_t targets;
+        // build the configs
+        LLIK::Solver::joint_config_map_t configs;
         constexpr S16 ELBOW_INDEX = 5;
-        targets.insert({ELBOW_INDEX, target});
+        configs.insert({ELBOW_INDEX, config});
 
         // solve
-#ifdef DEBUG_LLIK_UNIT_TESTS
-        //solver.enableDebug();
-#endif
-        solver.solveForTargets(targets);
+        //solver.enableDebugIfPossible();
+        solver.configureAndSolve(configs);
         F32 error = dist_vec(solver.getJointWorldEndPos(ELBOW_INDEX), target_position);
         ensure("LLIK::Solver elbow should reach target", error < ACCEPTABLE_ERROR);
     }
@@ -1855,20 +1863,18 @@ namespace tut
         finger_target_positions.push_back(LLVector3(0.15f,0.62f,0.425f)); // pinky
         finger_target_positions.push_back(LLVector3(0.10f,0.44f,0.42f)); // thumb
 
-        // build the targets
-        LLIK::Solver::target_map_t targets;
+        // build the configs
+        LLIK::Solver::joint_config_map_t configs;
         for (size_t i = 0; i < target_indices.size(); ++i)
         {
-            LLIK::Target target;
-            target.setPos(finger_target_positions[i]);
-            targets.insert({target_indices[i], target});
+            LLIK::Joint::Config config;
+            config.setTargetPos(finger_target_positions[i]);
+            configs.insert({target_indices[i], config});
         }
 
         // solve
-#ifdef DEBUG_LLIK_UNIT_TESTS
-        //solver.enableDebug();
-#endif
-        solver.solveForTargets(targets);
+        //solver.enableDebugIfPossible();
+        solver.configureAndSolve(configs);
 
         // check results
         // Note; this test does not quite reach ACCEPTABLE_ERROR after 16 iterations
@@ -2047,7 +2053,7 @@ namespace tut
         LLIKConstraintFactory factory;
 
         LLIK::Solver solver;
-        constexpr F32 ACCEPTABLE_ERROR = 2.0e-2f; // one mm
+        constexpr F32 ACCEPTABLE_ERROR = 2.0e-2f;
         solver.setAcceptableError(ACCEPTABLE_ERROR);
 
         build_skeleton_with_head_and_arm(factory, solver);
@@ -2060,19 +2066,17 @@ namespace tut
         LLVector3 target_position(0.00834371f, 0.49807f, 0.470742f);
         LLQuaternion target_orientation(-0.00999829f, 0.0f, -0.0167486f, 0.99981f);
 
-        LLIK::Target target;
-        target.setPos(target_position);
-        target.setRot(target_orientation);
+        LLIK::Joint::Config config;
+        config.setTargetPos(target_position);
+        config.setTargetRot(target_orientation);
 
-        // build the targets
-        LLIK::Solver::target_map_t targets;
-        targets.insert({WRIST_INDEX, target});
+        // build the configs
+        LLIK::Solver::joint_config_map_t configs;
+        configs.insert({WRIST_INDEX, config});
 
         // solve
-#ifdef DEBUG_LLIK_UNIT_TESTS
-        solver.enableDebug();
-#endif
-        solver.solveForTargets(targets);
+        //solver.enableDebugIfPossible();
+        solver.configureAndSolve(configs);
 
         LLVector3 actual_position = solver.getJointWorldEndPos(WRIST_INDEX);
         F32 position_error = dist_vec(target_position, actual_position);

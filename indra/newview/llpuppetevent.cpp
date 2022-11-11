@@ -167,47 +167,39 @@ void LLPuppetJointEvent::interpolate(F32 del, const LLPuppetJointEvent& A, const
 
     // interpolate
     del = std::max(0.0f, std::min(1.0f, del)); // keep del in range [0,1]
-    if (mMask & EF_ROTATION && B.mMask & EF_ROTATION)
+    U8 mask = mMask & LLIK::MASK_ROT;
+    if (mask && ((mMask & LLIK::MASK_ROT) == (B.mMask & LLIK::MASK_ROT)))
     {
         mRotation = slerp(del, A.mRotation, B.mRotation);
     }
-    if (mMask & EF_POSITION && B.mMask & EF_POSITION)
+    mask = mMask & LLIK::MASK_POS;
+    if (mask && ((mMask & LLIK::MASK_POS) == (B.mMask & LLIK::MASK_POS)))
     {
         mPosition = (1.0f - del) * A.mPosition + del * B.mPosition;
     }
-    if (mMask & EF_SCALE && B.mMask & EF_SCALE)
+    if ((mMask & LLIK::FLAG_LOCAL_SCALE) && (B.mMask & LLIK::FLAG_LOCAL_SCALE))
     {
         mScale = (1.0f - del) * A.mScale + del * B.mScale;
     }
 }
 
-void LLPuppetJointEvent::setRotation(const LLQuaternion& rotation, E_REFERENCE_FRAME frame)
+void LLPuppetJointEvent::setRotation(const LLQuaternion& rotation)
 {
     mRotation = rotation;
     mRotation.normalize();
-    mMask |= EF_ROTATION;
-    if (frame == PARENT_FRAME)
-    {
-        mMask |= EF_ROTATION_IN_PARENT_FRAME;
-    }
+    mMask |= (mRefFrame == PARENT_FRAME ? LLIK::FLAG_LOCAL_ROT : LLIK::FLAG_TARGET_ROT);
 }
 
-void LLPuppetJointEvent::setPosition(const LLVector3& position, E_REFERENCE_FRAME frame)
+void LLPuppetJointEvent::setPosition(const LLVector3& position)
 {
     mPosition = position;
-    mMask |= EF_POSITION;
-    /* Not yet supported
-    if (frame == PARENT_FRAME)
-    {
-        mMask |= EF_POSITION_IN_PARENT_FRAME;
-    }
-    */
+    mMask |= (mRefFrame == PARENT_FRAME ? LLIK::FLAG_LOCAL_POS : LLIK::FLAG_TARGET_POS);
 }
 
 void LLPuppetJointEvent::setScale(const LLVector3& scale)
 {
     mScale = scale;
-    mMask |= EF_SCALE;
+    mMask |= LLIK::FLAG_LOCAL_SCALE;
 }
 
 void LLPuppetJointEvent::setJointID(S32 id)
@@ -218,15 +210,11 @@ void LLPuppetJointEvent::setJointID(S32 id)
 size_t LLPuppetJointEvent::getSize() const
 {
     constexpr U32 BYTES_PER_VEC_3(3 * sizeof(F32));
-
     size_t num_bytes(0);
-
     num_bytes += sizeof(S16) + sizeof(S8);  // mJointID, mMask
-
-    num_bytes += (mMask & EF_ROTATION) ? BYTES_PER_VEC_3 : 0;
-    num_bytes += (mMask & EF_POSITION) ? BYTES_PER_VEC_3 : 0;
-    num_bytes += (mMask & EF_SCALE) ? BYTES_PER_VEC_3 : 0;
-
+    num_bytes += (mMask & LLIK::MASK_ROT) ? BYTES_PER_VEC_3 : 0;
+    num_bytes += (mMask & LLIK::MASK_POS) ? BYTES_PER_VEC_3 : 0;
+    num_bytes += (mMask & LLIK::FLAG_LOCAL_SCALE) ? BYTES_PER_VEC_3 : 0;
     return num_bytes;
 }
 
@@ -242,25 +230,25 @@ size_t LLPuppetJointEvent::pack(U8* wptr)
     offset += sizeof(U8);
 
     //Pack these into the buffer in the same order as the flags.
-    if (mMask & EF_ROTATION)
+    if (mMask & LLIK::MASK_ROT)
     {
         offset += pack_quat(wptr + offset, mRotation);
     }
-    if (mMask & EF_POSITION)
+    if (mMask & LLIK::MASK_POS)
     {
         offset += pack_vec3(wptr+offset, mPosition);
     }
-    if (mMask & EF_SCALE)
+    if (mMask & LLIK::FLAG_LOCAL_SCALE)
     {
         offset += pack_vec3(wptr+offset, mScale);
     }
 
     LL_DEBUGS("PUPPET_SPAM_PACK") << "Packed event for joint " << mJointID << " with flags 0x" << std::hex << static_cast<S32>(mMask) << std::dec << " into " << offset << " bytes.";
-    if (mMask & EF_ROTATION)
+    if (mMask & LLIK::MASK_ROT)
         LL_CONT << " rot=" << mRotation;
-    if (mMask & EF_POSITION)
+    if (mMask & LLIK::MASK_POS)
         LL_CONT << " pos=" << mPosition;
-    if (mMask & EF_SCALE)
+    if (mMask & LLIK::FLAG_LOCAL_SCALE)
         LL_CONT << " scale=" << mScale;
     LL_CONT << " raw=" << LLError::arraylogger(wptr, offset) << " in frame " << (S32)gFrameCount << LL_ENDL;
 
@@ -276,25 +264,25 @@ size_t LLPuppetJointEvent::unpack(U8* wptr)
     offset += sizeof(U8);
 
     //Unpack in the same order as the flags.
-    if (mMask & EF_ROTATION)
+    if (mMask & LLIK::MASK_ROT)
     {
         offset += unpack_quat(wptr+offset, mRotation);
     }
-    if (mMask & EF_POSITION)
+    if (mMask & LLIK::MASK_POS)
     {
         offset += unpack_vec3(wptr+offset, mPosition);
     }
-    if (mMask & EF_SCALE)
+    if (mMask & LLIK::FLAG_LOCAL_SCALE)
     {
         offset += unpack_vec3(wptr+offset, mScale);
     }
 
     LL_DEBUGS("PUPPET_SPAM_UNPACK") << "Unpacked event for joint " << mJointID << " with flags 0x" << std::hex << static_cast<S32>(mMask) << std::dec << " from " << offset << " bytes.";
-    if (mMask & EF_ROTATION)
+    if (mMask & LLIK::MASK_ROT)
         LL_CONT << " rot=" << mRotation;
-    if (mMask & EF_POSITION)
+    if (mMask & LLIK::MASK_POS)
         LL_CONT << " pos=" << mPosition;
-    if (mMask & EF_SCALE)
+    if (mMask & LLIK::FLAG_LOCAL_SCALE)
         LL_CONT << " scale=" << mScale;
     LL_CONT << " raw=" << LLError::arraylogger(wptr, offset) << " in frame " << (S32)gFrameCount << LL_ENDL;
 

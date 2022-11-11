@@ -504,20 +504,6 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
 		is.close();
 	}
 
-	//get time domain
-	/*LLSD::Real cur_total_time = 0.0;
-
-	for (U32 i = 0; i < cur_data.size(); ++i)
-	{
-		cur_total_time += cur_data[i]["Total"]["Time"].asReal();
-	}
-
-	LLSD::Real base_total_time = 0.0;
-	for (U32 i = 0; i < base_data.size(); ++i)
-	{
-		base_total_time += base_data[i]["Total"]["Time"].asReal();
-	}*/
-
 	//allocate raw scratch space
 	LLPointer<LLImageRaw> scratch = new LLImageRaw(1024, 512, 3);
 
