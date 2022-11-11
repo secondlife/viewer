@@ -88,7 +88,7 @@ LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
     mTextureTransform = rhs.mTextureTransform;
 
     mOverrideDoubleSided = rhs.mOverrideDoubleSided;
-    mOverrideAlphaMode = rhs.mOverrideDoubleSided;
+    mOverrideAlphaMode = rhs.mOverrideAlphaMode;
 
     return *this;
 }
