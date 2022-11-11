@@ -180,10 +180,10 @@ LLKeyBind::LLKeyBind(const LLSD &key_bind)
 
 bool LLKeyBind::operator==(const LLKeyBind& rhs)
 {
-    U32 size = mData.size();
+    auto size = mData.size();
     if (size != rhs.mData.size()) return false;
 
-    for (U32 i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
     {
         if (mData[i] != rhs.mData[i]) return false;
     }
@@ -193,7 +193,7 @@ bool LLKeyBind::operator==(const LLKeyBind& rhs)
 
 bool LLKeyBind::operator!=(const LLKeyBind& rhs)
 {
-    U32 size = mData.size();
+    auto size = mData.size();
     if (size != rhs.mData.size()) return true;
 
     for (U32 i = 0; i < size; i++)
@@ -215,7 +215,7 @@ bool LLKeyBind::isEmpty() const
 
 LLSD LLKeyBind::asLLSD() const
 {
-    S32 last = mData.size() - 1;
+    auto last = mData.size() - 1;
     while (mData[last].empty())
     {
         last--;
@@ -380,7 +380,7 @@ void LLKeyBind::resetKeyData(S32 index)
 
 void LLKeyBind::trimEmpty()
 {
-    S32 last = mData.size() - 1;
+    auto last = mData.size() - 1;
     while (last >= 0 && mData[last].empty())
     {
         mData.erase(mData.begin() + last);
@@ -388,7 +388,7 @@ void LLKeyBind::trimEmpty()
     }
 }
 
-U32 LLKeyBind::getDataCount()
+size_t LLKeyBind::getDataCount()
 {
     return mData.size();
 }

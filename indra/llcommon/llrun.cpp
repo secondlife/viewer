@@ -47,7 +47,7 @@ LLRunner::~LLRunner()
 	mRunEvery.clear();
 }
 
-S32 LLRunner::run()
+size_t LLRunner::run()
 {
 	// We collect all of the runnables which should be run. Since the
 	// runnables are allowed to adjust the run list, we need to copy
