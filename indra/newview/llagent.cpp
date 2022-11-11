@@ -97,6 +97,7 @@
 #include "stringize.h"
 #include "boost/foreach.hpp"
 #include "llcorehttputil.h"
+#include "lluiusage.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -575,6 +576,8 @@ void LLAgent::ageChat()
 //-----------------------------------------------------------------------------
 void LLAgent::moveAt(S32 direction, bool reset)
 {
+	LLUIUsage::instance().logCommand("Agent.MoveAt");
+	
 	mMoveTimer.reset();
 	LLFirstUse::notMoving(false);
 
@@ -4034,6 +4037,7 @@ void LLAgent::startTeleportRequest()
     }
 	if (hasPendingTeleportRequest())
 	{
+		LLUIUsage::instance().logCommand("Agent.StartTeleportRequest");
         mTeleportCanceled.reset();
 		if  (!isMaturityPreferenceSyncedWithServer())
 		{

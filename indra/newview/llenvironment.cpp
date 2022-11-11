@@ -2641,7 +2641,7 @@ void LLEnvironment::setExperienceEnvironment(LLUUID experience_id, LLSD data, F3
 
     if (!water.isUndefined())
     {
-        environment->injectWaterSettings(sky, experience_id, LLSettingsBase::Seconds(transition_time));
+        environment->injectWaterSettings(water, experience_id, LLSettingsBase::Seconds(transition_time));
     }
 
     if (updateenvironment)

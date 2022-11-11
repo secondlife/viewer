@@ -47,8 +47,8 @@ const F32 LL_WIND_UNDERWATER_CENTER_FREQ = 20.f;
 const F32 ATTACHED_OBJECT_TIMEOUT = 5.0f;
 const F32 DEFAULT_MIN_DISTANCE = 2.0f;
 
-#define MAX_CHANNELS 30
-#define MAX_BUFFERS 40	// Some extra for preloading, maybe?
+#define LL_MAX_AUDIO_CHANNELS 30
+#define LL_MAX_AUDIO_BUFFERS 40 // Some extra for preloading, maybe?
 
 class LLAudioSource;
 class LLAudioData;
@@ -88,7 +88,7 @@ public:
 	virtual ~LLAudioEngine();
 
 	// initialization/startup/shutdown
-	virtual bool init(const S32 num_channels, void *userdata, const std::string &app_title);
+	virtual bool init(void *userdata, const std::string &app_title);
 	virtual std::string getDriverName(bool verbose) = 0;
 	virtual void shutdown();
 
@@ -96,7 +96,7 @@ public:
 	//virtual void processQueue(const LLUUID &sound_guid);
 	virtual void setListener(LLVector3 pos,LLVector3 vel,LLVector3 up,LLVector3 at);
 	virtual void updateWind(LLVector3 direction, F32 camera_height_above_water) = 0;
-	virtual void idle(F32 max_decode_time = 0.f);
+	virtual void idle();
 	virtual void updateChannels();
 
 	//
@@ -209,7 +209,6 @@ protected:
 
 	S32 mLastStatus;
 	
-	S32 mNumChannels;
 	bool mEnableWind;
 
 	LLUUID mCurrentTransfer; // Audio file currently being transferred by the system
@@ -224,11 +223,11 @@ protected:
 	source_map mAllSources;
 	data_map mAllData;
 
-	LLAudioChannel *mChannels[MAX_CHANNELS];
+    std::array<LLAudioChannel*, LL_MAX_AUDIO_CHANNELS> mChannels;
 
 	// Buffers needs to change into a different data structure, as the number of buffers
 	// that we have active should be limited by RAM usage, not count.
-	LLAudioBuffer *mBuffers[MAX_BUFFERS];
+    std::array<LLAudioBuffer*, LL_MAX_AUDIO_BUFFERS> mBuffers;
 	
 	F32 mMasterGain;
 	F32 mInternalGain;			// Actual gain set; either mMasterGain or 0 when mMuted is true.
@@ -360,32 +359,36 @@ protected:
 
 class LLAudioData
 {
-public:
-	LLAudioData(const LLUUID &uuid);
-	bool load();
+  public:
+    LLAudioData(const LLUUID &uuid);
+    bool load();
 
-	LLUUID getID() const				{ return mID; }
-	LLAudioBuffer *getBuffer() const	{ return mBufferp; }
+    LLUUID         getID() const { return mID; }
+    LLAudioBuffer *getBuffer() const { return mBufferp; }
 
-	bool	hasLocalData() const		{ return mHasLocalData; }
-	bool	hasDecodedData() const		{ return mHasDecodedData; }
-	bool	hasCompletedDecode() const	{ return mHasCompletedDecode; }
-	bool	hasValidData() const		{ return mHasValidData; }
+    bool hasLocalData() const { return mHasLocalData; }
+    bool hasDecodedData() const { return mHasDecodedData; }
+    bool hasCompletedDecode() const { return mHasCompletedDecode; }
+    bool hasDecodeFailed() const { return mHasDecodeFailed; }
+    bool hasWAVLoadFailed() const { return mHasWAVLoadFailed; }
 
-	void	setHasLocalData(const bool hld)		{ mHasLocalData = hld; }
-	void	setHasDecodedData(const bool hdd)	{ mHasDecodedData = hdd; }
-	void	setHasCompletedDecode(const bool hcd)	{ mHasCompletedDecode = hcd; }
-	void	setHasValidData(const bool hvd)		{ mHasValidData = hvd; }
+    void setHasLocalData(const bool hld) { mHasLocalData = hld; }
+    void setHasDecodedData(const bool hdd) { mHasDecodedData = hdd; }
+    void setHasCompletedDecode(const bool hcd) { mHasCompletedDecode = hcd; }
+    void setHasDecodeFailed(const bool hdf) { mHasDecodeFailed = hdf; }
+    void setHasWAVLoadFailed(const bool hwlf) { mHasWAVLoadFailed = hwlf; }
 
-	friend class LLAudioEngine; // Severe laziness, bad.
+    friend class LLAudioEngine;  // Severe laziness, bad.
 
-protected:
-	LLUUID mID;
-	LLAudioBuffer *mBufferp;	// If this data is being used by the audio system, a pointer to the buffer will be set here.
-	bool mHasLocalData;			// Set true if the sound asset file is available locally
-	bool mHasDecodedData;		// Set true if the sound file has been decoded
-	bool mHasCompletedDecode;	// Set true when the sound is decoded
-	bool mHasValidData;			// Set false if decoding failed, meaning the sound asset is bad
+  protected:
+    LLUUID         mID;
+    LLAudioBuffer *mBufferp;             // If this data is being used by the audio system, a pointer to the buffer will be set here.
+    bool           mHasLocalData;        // Set true if the encoded sound asset file is available locally
+    bool           mHasDecodedData;      // Set true if the decoded sound file is available on disk
+    bool           mHasCompletedDecode;  // Set true when the sound is decoded
+    bool           mHasDecodeFailed;     // Set true if decoding failed, meaning the sound asset is bad
+    bool mHasWAVLoadFailed;  // Set true if loading the decoded WAV file failed, meaning the sound asset should be decoded instead if
+                             // possible
 };
 
 

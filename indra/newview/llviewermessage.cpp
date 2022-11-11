@@ -33,6 +33,7 @@
 #include "llavataractions.h"
 #include "llavatarnamecache.h"		// IDEVO HACK
 #include "lleventtimer.h"
+#include "llfloatercreatelandmark.h"
 #include "llfloaterreg.h"
 #include "llfolderview.h"
 #include "llfollowcamparams.h"
@@ -124,6 +125,7 @@
 #include "llexperiencecache.h"
 
 #include "llexperiencecache.h"
+#include "lluiusage.h"
 
 extern void on_new_message(const LLSD& msg);
 
@@ -263,6 +265,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 	    {
 	    case 0:
 	    {
+			LLUIUsage::instance().logCommand("Agent.AcceptFriendship");
 		    // accept
 		    LLAvatarTracker::formFriendship(payload["from_id"]);
 
@@ -305,6 +308,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 	    // fall-through
 	    case 2: // Send IM - decline and start IM session
 		    {
+				LLUIUsage::instance().logCommand("Agent.DeclineFriendship");
 			    // decline
 			    // We no longer notify other viewers, but we DO still send
                 // the rejection to the simulator to delete the pending userop.
@@ -834,6 +838,11 @@ void send_join_group_response(LLUUID group_id, LLUUID transaction_id, bool accep
         LL_DEBUGS("GroupInvite") << "Replying to group invite via IM message" << LL_ENDL;
 
         EInstantMessage type = accept_invite ? IM_GROUP_INVITATION_ACCEPT : IM_GROUP_INVITATION_DECLINE;
+
+		if (accept_invite)
+		{
+			LLUIUsage::instance().logCommand("Group.Join");
+		}
 
         send_improved_im(group_id,
             std::string("name"),
@@ -1561,6 +1570,17 @@ bool highlight_offered_object(const LLUUID& obj_id)
 			}
 		}
 	}
+
+    if (obj->getType() == LLAssetType::AT_LANDMARK)
+    {
+        LLFloaterCreateLandmark *floater = LLFloaterReg::findTypedInstance<LLFloaterCreateLandmark>("add_landmark");
+        if (floater && floater->getItem() && floater->getItem()->getUUID() == obj_id)
+        {
+            // LLFloaterCreateLandmark is supposed to handle this,
+            // keep landmark creation floater at the front
+            return false;
+        }
+    }
 
 	return true;
 }

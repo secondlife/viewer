@@ -1148,7 +1148,7 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 			total_update_count--;
 		}
 	}
-	
+
 	size_t min_update_count = llmin(MIN_UPDATE_COUNT,(S32)(entries.size()-max_priority_count));
 	S32 min_count = max_priority_count + min_update_count;
 	for (entries_list_t::iterator iter3 = entries.begin();

@@ -84,6 +84,7 @@ private:
 	void syncWithUpdater(ResponsePtr resp, const LLSD& notification, const LLSD& response);
 
 	bool handleTOSResponse(bool v, const std::string& key);
+    bool handleMFAChallenge(LLSD const & notif, LLSD const & response);
 
 	void attemptComplete() { mAttemptComplete = true; } // In the future an event?
 

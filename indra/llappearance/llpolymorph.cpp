@@ -156,7 +156,9 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 
 		if (mVertexIndices[v] > 10000)
 		{
-			LL_ERRS() << "Bad morph index: " << mVertexIndices[v] << LL_ENDL;
+            // Bad install? These are usually .llm files from 'character' fodler
+			LL_WARNS() << "Bad morph index " << v << ": " << mVertexIndices[v] << LL_ENDL;
+            return FALSE;
 		}
 
 
