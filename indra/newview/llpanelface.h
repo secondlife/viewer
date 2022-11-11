@@ -229,11 +229,11 @@ protected:
 	static void    onCommitGlow(				LLUICtrl* ctrl, void *userdata);
 	static void		onCommitPlanarAlign(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitRepeatsPerMeter(	LLUICtrl* ctrl, void* userinfo);
-    static void     onCommitGLTFTextureScaleU(LLUICtrl* ctrl, void* userinfo);
-    static void     onCommitGLTFTextureScaleV(LLUICtrl* ctrl, void* userinfo);
-    static void     onCommitGLTFRotation(LLUICtrl* ctrl, void* userinfo);
-    static void     onCommitGLTFTextureTranslationU(LLUICtrl* ctrl, void* userinfo);
-    static void     onCommitGLTFTextureTranslationV(LLUICtrl* ctrl, void* userinfo);
+    void            onCommitGLTFTextureScaleU(LLUICtrl* ctrl);
+    void            onCommitGLTFTextureScaleV(LLUICtrl* ctrl);
+    void            onCommitGLTFRotation(LLUICtrl* ctrl);
+    void            onCommitGLTFTextureOffsetU(LLUICtrl* ctrl);
+    void            onCommitGLTFTextureOffsetV(LLUICtrl* ctrl);
 	static void		onClickAutoFix(void*);
     static void		onAlignTexture(void*);
     static void 	onClickBtnLoadInvPBR(void* userdata);
