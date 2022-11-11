@@ -3918,7 +3918,7 @@ void LLPipeline::postSort(LLCamera& camera)
 
 	LL_PUSH_CALLSTACKS();
 	// only render if the flag is set. The flag is only set if we are in edit mode or the toggle is set in the menus
-	if (LLFloaterReg::instanceVisible("beacons") && !sShadowRender)
+	if (LLFloaterReg::instanceVisible("beacons") && !sShadowRender && !gCubeSnapshot)
 	{
 		if (sRenderScriptedTouchBeacons)
 		{
@@ -3971,12 +3971,12 @@ void LLPipeline::postSort(LLCamera& camera)
 	}
 	LL_PUSH_CALLSTACKS();
 	// If managing your telehub, draw beacons at telehub and currently selected spawnpoint.
-	if (LLFloaterTelehub::renderBeacons() && !sShadowRender)
+	if (LLFloaterTelehub::renderBeacons() && !sShadowRender && !gCubeSnapshot)
 	{
 		LLFloaterTelehub::addBeacons();
 	}
 
-	if (!sShadowRender)
+	if (!sShadowRender && !gCubeSnapshot)
 	{
 		mSelectedFaces.clear();
 
@@ -7645,14 +7645,6 @@ void LLPipeline::renderFinalize()
         gGL.popMatrix();
 
         LLVertexBuffer::unbind();
-
-        if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
-        {
-            // Render debugging beacons.
-            gObjectList.renderObjectBeacons();
-            gObjectList.resetObjectBeacons();
-            gSky.addSunMoonBeacons();
-        }
     }
 
     if (sRenderGlow)

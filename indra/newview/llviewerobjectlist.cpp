@@ -1812,12 +1812,15 @@ void LLViewerObjectList::renderObjectBounds(const LLVector3 &center)
 {
 }
 
+extern BOOL gCubeSnapshot;
+
 void LLViewerObjectList::addDebugBeacon(const LLVector3 &pos_agent,
 										const std::string &string,
 										const LLColor4 &color,
 										const LLColor4 &text_color,
 										S32 line_width)
 {
+    llassert(!gCubeSnapshot);
 	LLDebugBeacon beacon;
 	beacon.mPositionAgent = pos_agent;
 	beacon.mString = string;

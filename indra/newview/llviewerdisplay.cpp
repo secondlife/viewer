@@ -1562,6 +1562,15 @@ void render_ui_3d()
 	}
 
 	gViewerWindow->renderSelections(FALSE, FALSE, TRUE); // Non HUD call in render_hud_elements
+
+    if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+    {
+        // Render debugging beacons.
+        gObjectList.renderObjectBeacons();
+        gObjectList.resetObjectBeacons();
+        gSky.addSunMoonBeacons();
+    }
+
 	stop_glerror();
 }
 
