@@ -320,6 +320,8 @@ public:
 		// overload to disambiguate [0], [1] et al.
 		const LLSD& operator[](Integer i) const { return (*this)[size_t(i)]; }
 		LLSD& operator[](Integer i) { return (*this)[size_t(i)]; }
+		const LLSD& operator[](U32 i) const { return (*this)[size_t(i)]; }
+		LLSD& operator[](U32 i) { return (*this)[size_t(i)]; }
 	//@}
 
 	/** @name Iterators */
