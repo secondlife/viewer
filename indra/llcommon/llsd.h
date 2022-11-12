@@ -208,6 +208,7 @@ public:
 		
 		LLSD& operator=(Boolean v)			{ assign(v); return *this; }
 		LLSD& operator=(Integer v)			{ assign(v); return *this; }
+		LLSD& operator=(size_t v)			{ assign(Integer(v)); return *this; }
 		LLSD& operator=(Real v)				{ assign(v); return *this; }
 		LLSD& operator=(const String& v)	{ assign(v); return *this; }
 		LLSD& operator=(const UUID& v)		{ assign(v); return *this; }
