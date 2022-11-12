@@ -273,7 +273,7 @@ LLOSInfo::LLOSInfo() :
 	{
 		const char * DARWIN_PRODUCT_NAME = "Mac OS X";
 		
-		S32 major_version, minor_version, bugfix_version = 0;
+		int64_t major_version, minor_version, bugfix_version = 0;
 
 		if (LLGetDarwinOSInfo(major_version, minor_version, bugfix_version))
 		{

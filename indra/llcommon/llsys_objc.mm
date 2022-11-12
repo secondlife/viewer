@@ -32,7 +32,7 @@ static NSInteger intAtStringIndex(NSArray *array, int index)
     return [(NSString *)[array objectAtIndex:index] integerValue];
 }
 
-bool LLGetDarwinOSInfo(NSInteger &major, NSInteger &minor, NSInteger &patch)
+bool LLGetDarwinOSInfo(int64_t &major, int64_t &minor, int64_t &patch)
 {
     if (NSAppKitVersionNumber > NSAppKitVersionNumber10_8)
     {
