@@ -27,7 +27,9 @@
 #ifndef LL_LLSYS_OBJC_H
 #define LL_LLSYS_OBJC_H
 
-bool LLGetDarwinOSInfo(int &major, int &minor, int &patch);
+#include <cstdint>
+
+bool LLGetDarwinOSInfo(int64_t &major, int64_t &minor, int64_t &patch);
 
 
 #endif // LL_LLSYS_OBJC_H
