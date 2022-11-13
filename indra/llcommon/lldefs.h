@@ -212,16 +212,15 @@ inline auto llmin(T1 d1, T2 d2, T3 d3, T4 d4)
 }
 
 template <typename A, typename MIN, typename MAX> 
-inline typename std::common_type<A, MIN, MAX>::type
-llclamp(A a, MIN minval, MAX maxval)
+inline A llclamp(A a, MIN minval, MAX maxval)
 {
 	if ( a < minval )
 	{
-		return minval;
+		return static_cast<A>(minval);
 	}
 	else if ( a > maxval )
 	{
-		return maxval;
+		return static_cast<A>(maxval);
 	}
 	return a;
 }

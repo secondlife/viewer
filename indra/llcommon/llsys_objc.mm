@@ -27,19 +27,19 @@
 #import "llsys_objc.h"
 #import <AppKit/AppKit.h>
 
-static NSInteger intAtStringIndex(NSArray *array, int index)
+static int intAtStringIndex(NSArray *array, int index)
 {
-    return [(NSString *)[array objectAtIndex:index] integerValue];
+    return int([(NSString *)[array objectAtIndex:index] integerValue]);
 }
 
-bool LLGetDarwinOSInfo(NSInteger &major, NSInteger &minor, NSInteger &patch)
+bool LLGetDarwinOSInfo(int &major, int &minor, int &patch)
 {
     if (NSAppKitVersionNumber > NSAppKitVersionNumber10_8)
     {
         NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
-        major = osVersion.majorVersion;
-        minor = osVersion.minorVersion;
-        patch = osVersion.patchVersion;
+        major = int(osVersion.majorVersion);
+        minor = int(osVersion.minorVersion);
+        patch = int(osVersion.patchVersion);
     }
     else
     {
