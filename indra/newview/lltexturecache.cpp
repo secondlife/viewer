@@ -859,7 +859,7 @@ LLTextureCache::~LLTextureCache()
 //////////////////////////////////////////////////////////////////////////////
 
 //virtual
-S32 LLTextureCache::update(F32 max_time_ms)
+size_t LLTextureCache::update(F32 max_time_ms)
 {
 	static LLFrameTimer timer ;
 	static const F32 MAX_TIME_INTERVAL = 300.f ; //seconds.
