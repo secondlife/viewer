@@ -606,7 +606,8 @@ void PeriodicRecording::nextPeriod()
 	mCurPeriod = (mCurPeriod + 1) % mRecordingPeriods.size();
 	old_recording.splitTo(getCurRecording());
 
-	mNumRecordedPeriods = llmin(mRecordingPeriods.size() - 1, mNumRecordedPeriods + 1);
+	mNumRecordedPeriods = mRecordingPeriods.empty()? 0 :
+		llmin(mRecordingPeriods.size() - 1, mNumRecordedPeriods + 1);
 }
 
 void PeriodicRecording::appendRecording(Recording& recording)
@@ -652,8 +653,8 @@ void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
 			mRecordingPeriods.push_back(other.mRecordingPeriods[other_current_recording_index]);
 		}
 
-		mCurPeriod = mRecordingPeriods.size() - 1;
-		mNumRecordedPeriods = mRecordingPeriods.size() - 1;
+		mCurPeriod = mRecordingPeriods.empty()? 0 : mRecordingPeriods.size() - 1;
+		mNumRecordedPeriods = mCurPeriod;
 	}
 	else
 	{
