@@ -184,8 +184,8 @@ public:
 
             if (message.has("sides") && message.has("gltf_json"))
             {
-                LLSD& sides = message.get("sides");
-                LLSD& gltf_json = message.get("gltf_json");
+                LLSD const& sides = message.get("sides");
+                LLSD const& gltf_json = message.get("gltf_json");
 
                 if (sides.isArray() && gltf_json.isArray() &&
                     sides.size() != 0 &&
