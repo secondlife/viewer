@@ -3195,7 +3195,7 @@ size_t LLTextureFetch::update(F32 max_time_ms)
 		mNetworkQueueMutex.unlock();									// -Mfnq
 	}
 
-	S32 res = LLWorkerThread::update(max_time_ms);
+	size_t res = LLWorkerThread::update(max_time_ms);
 	
 	if (!mDebugPause)
 	{
