@@ -35,7 +35,7 @@ uniform float roughnessFactor;
 uniform vec3 emissiveColor;
 
 #if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
-uniform sampler2DRect lightMap;
+uniform sampler2D lightMap;
 #endif
 
 uniform int sun_up_factor;
@@ -189,7 +189,6 @@ void main()
 
 #ifdef HAS_SUN_SHADOW
     vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
-    frag *= screen_res;
     scol = sampleDirectionalShadow(pos.xyz, norm.xyz, frag);
 #endif
 

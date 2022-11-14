@@ -1087,13 +1087,20 @@ void LLRender::syncMatrices()
 		{ //update projection matrix, normal, and MVP
 			glh::matrix4f& mat = mMatrix[MM_PROJECTION][mMatIdx[MM_PROJECTION]];
 
-            // it would be nice to have this automatically track the state of the proj matrix
-            // but certain render paths (deferred lighting) require it to be mismatched *sigh*
-            //if (shader->getUniformLocation(LLShaderMgr::INVERSE_PROJECTION_MATRIX))
-            //{
-	        //    glh::matrix4f inv_proj = mat.inverse();
-	        //    shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, FALSE, inv_proj.m);
-            //}
+            // GZ: This was previously disabled seemingly due to a bug involving the deferred renderer's regular pushing and popping of mats.
+			// We're reenabling this and cleaning up the code around that - that would've been the appropriate course initially.
+			// Anything beyond the standard proj and inv proj mats are special cases.  Please setup special uniforms accordingly in the future.
+            if (shader->getUniformLocation(LLShaderMgr::INVERSE_PROJECTION_MATRIX))
+            {
+	            glh::matrix4f inv_proj = mat.inverse();
+	            shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, FALSE, inv_proj.m);
+            }
+
+			// Used by some full screen effects - such as full screen lights, glow, etc.
+            if (shader->getUniformLocation(LLShaderMgr::IDENTITY_MATRIX))
+            {
+                shader->uniformMatrix4fv(LLShaderMgr::IDENTITY_MATRIX, 1, GL_FALSE, glh::matrix4f::identity().m);
+            }
 
 			shader->uniformMatrix4fv(name[MM_PROJECTION], 1, GL_FALSE, mat.m);
 			shader->mMatHash[MM_PROJECTION] = mMatHash[MM_PROJECTION];

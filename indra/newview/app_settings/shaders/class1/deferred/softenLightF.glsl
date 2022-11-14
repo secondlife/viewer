@@ -34,11 +34,11 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2DRect diffuseRect;
-uniform sampler2DRect specularRect;
-uniform sampler2DRect normalMap;
-uniform sampler2DRect lightMap;
-uniform sampler2DRect depthMap;
+uniform sampler2D diffuseRect;
+uniform sampler2D specularRect;
+uniform sampler2D normalMap;
+uniform sampler2D lightMap;
+uniform sampler2D depthMap;
 uniform samplerCube environmentMap;
 uniform sampler2D     lightFunc;
 
@@ -58,6 +58,7 @@ uniform vec2 screen_res;
 
 vec3 getNorm(vec2 pos_screen);
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
+float getDepth(vec2 pos_screen);
 
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
 float getAmbientClamp();
@@ -76,9 +77,9 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 void main() 
 {
     vec2 tc = vary_fragcoord.xy;
-    float depth = texture2DRect(depthMap, tc.xy).r;
+    float depth = getDepth(tc);
     vec4 pos = getPositionWithDepth(tc, depth);
-    vec4 norm = texture2DRect(normalMap, tc);
+    vec4 norm = texture2D(normalMap, tc);
     float envIntensity = norm.z;
     norm.xyz = getNorm(tc);
     
@@ -87,12 +88,12 @@ void main()
     float light_gamma = 1.0/1.3;
     da = pow(da, light_gamma);
     
-    vec4 diffuse = texture2DRect(diffuseRect, tc);
+    vec4 diffuse = texture2D(diffuseRect, tc);
 
     //convert to gamma space
     diffuse.rgb = linear_to_srgb(diffuse.rgb); // SL-14035
 
-    vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
+    vec4 spec = texture2D(specularRect, vary_fragcoord.xy);
     vec3 color = vec3(0);
     float bloom = 0.0;
     {

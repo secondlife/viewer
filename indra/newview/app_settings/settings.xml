@@ -9133,6 +9133,17 @@
       <real>0.00</real>
     </array>
   </map>
+  <key>RenderScreenSpaceReflections</key>
+  <map>
+    <key>Comment</key>
+    <string>Renders screen space reflections to better account for dynamic objects with reflection probes.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderBumpmapMinDistanceSquared</key>
     <map>
       <key>Comment</key>

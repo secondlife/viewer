@@ -92,6 +92,7 @@ LLGLSLShader	gDownsampleDepthProgram;
 LLGLSLShader	gDownsampleDepthRectProgram;
 LLGLSLShader	gAlphaMaskProgram;
 LLGLSLShader	gBenchmarkProgram;
+LLGLSLShader    gScreenSpaceReflectionProgram;
 
 
 //object shaders
@@ -178,7 +179,8 @@ LLGLSLShader            gWLMoonProgram;
 LLGLSLShader			gGlowProgram;
 LLGLSLShader			gGlowExtractProgram;
 LLGLSLShader			gPostColorFilterProgram;
-LLGLSLShader			gPostNightVisionProgram;
+LLGLSLShader            gPostNightVisionProgram;
+LLGLSLShader			gPostScreenSpaceReflectionProgram;
 
 // Deferred rendering shaders
 LLGLSLShader			gDeferredImpostorProgram;
@@ -698,6 +700,7 @@ void LLViewerShaderMgr::unloadShaders()
 	gOneTextureFilterProgram.unload();
 	gOneTextureNoColorProgram.unload();
 	gSolidColorProgram.unload();
+    gScreenSpaceReflectionProgram.unload();
 
 	gObjectFullbrightNoColorProgram.unload();
 	gObjectFullbrightNoColorWaterProgram.unload();
@@ -770,6 +773,7 @@ void LLViewerShaderMgr::unloadShaders()
 
 	gPostColorFilterProgram.unload();
 	gPostNightVisionProgram.unload();
+    gPostScreenSpaceReflectionProgram.unload();
 
 	gDeferredDiffuseProgram.unload();
 	gDeferredDiffuseAlphaMaskProgram.unload();
@@ -912,6 +916,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/shadowUtil.glsl",                      1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/aoUtil.glsl",                          1) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/reflectionProbeF.glsl",                has_reflection_probes ? 3 : 2) );
+    index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/screenSpaceReflUtil.glsl",				3) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightNonIndexedF.glsl",                    mShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightAlphaMaskNonIndexedF.glsl",                   mShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightFullbrightNonIndexedF.glsl",          mShaderLevel[SHADER_LIGHTING] ) );
@@ -2872,6 +2877,16 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         success = gDeferredGenBrdfLutProgram.createShader(NULL, NULL);
     }
 
+	if (success) {
+        gPostScreenSpaceReflectionProgram.mName = "Screen Space Reflection Post";
+        gPostScreenSpaceReflectionProgram.mShaderFiles.clear();
+        gPostScreenSpaceReflectionProgram.mShaderFiles.push_back(make_pair("deferred/screenSpaceReflPostV.glsl", GL_VERTEX_SHADER));
+        gPostScreenSpaceReflectionProgram.mShaderFiles.push_back(make_pair("deferred/screenSpaceReflPostF.glsl", GL_FRAGMENT_SHADER));
+        gPostScreenSpaceReflectionProgram.mFeatures.hasScreenSpaceReflections = true;
+        gPostScreenSpaceReflectionProgram.mFeatures.isDeferred                = true;
+        gPostScreenSpaceReflectionProgram.mShaderLevel = 3;
+        success = gPostScreenSpaceReflectionProgram.createShader(NULL, NULL);
+	}
 
 	return success;
 }

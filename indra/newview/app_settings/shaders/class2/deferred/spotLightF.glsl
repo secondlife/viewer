@@ -34,12 +34,12 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2DRect diffuseRect;
-uniform sampler2DRect specularRect;
-uniform sampler2DRect depthMap;
-uniform sampler2DRect normalMap;
+uniform sampler2D diffuseRect;
+uniform sampler2D specularRect;
+uniform sampler2D depthMap;
+uniform sampler2D normalMap;
 uniform samplerCube environmentMap;
-uniform sampler2DRect lightMap;
+uniform sampler2D lightMap;
 uniform sampler2D noiseMap;
 uniform sampler2D projectionMap;
 uniform sampler2D lightFunc;
@@ -138,7 +138,6 @@ void main()
 	vec4 frag = vary_fragcoord;
 	frag.xyz /= frag.w;
 	frag.xyz = frag.xyz*0.5+0.5;
-	frag.xy *= screen_res;
 	
 	vec3 pos = getPosition(frag.xy).xyz;
 	vec3 lv = trans_center.xyz-pos.xyz;
@@ -154,13 +153,13 @@ void main()
 	
 	if (proj_shadow_idx >= 0)
 	{
-		vec4 shd = texture2DRect(lightMap, frag.xy);
+		vec4 shd = texture2D(lightMap, frag.xy);
         shadow = (proj_shadow_idx == 0) ? shd.b : shd.a;
         shadow += shadow_fade;
 		shadow = clamp(shadow, 0.0, 1.0);        
 	}
 	
-	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
+	vec3 norm = texture2D(normalMap, frag.xy).xyz;
 	float envIntensity = norm.z;
 	norm = getNorm(frag.xy);
 	
@@ -189,8 +188,8 @@ void main()
 	lv = normalize(lv);
 	float da = dot(norm, lv);
 		
-	vec3 diff_tex = texture2DRect(diffuseRect, frag.xy).rgb;
-	vec4 spec = texture2DRect(specularRect, frag.xy);
+	vec3 diff_tex = texture2D(diffuseRect, frag.xy).rgb;
+	vec4 spec = texture2D(specularRect, frag.xy);
 	vec3 dlit = vec3(0, 0, 0);
 
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;

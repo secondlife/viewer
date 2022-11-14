@@ -54,6 +54,7 @@ public:
 	bool hasSrgb;
     bool encodesNormal; // include: shaders\class1\environment\encodeNormF.glsl
     bool isDeferred;
+    bool hasScreenSpaceReflections;
     bool hasIndirect;
 	S32 mIndexedTextureChannels;
 	bool disableTextureIndex;

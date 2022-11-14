@@ -88,7 +88,7 @@ void LLReflectionMapManager::update()
         const bool use_depth_buffer = true;
         const bool use_stencil_buffer = false;
         U32 targetRes = LL_REFLECTION_PROBE_RESOLUTION * 2; // super sample
-        mRenderTarget.allocate(targetRes, targetRes, color_fmt, use_depth_buffer, use_stencil_buffer, LLTexUnit::TT_RECT_TEXTURE);
+        mRenderTarget.allocate(targetRes, targetRes, color_fmt, use_depth_buffer, use_stencil_buffer, LLTexUnit::TT_TEXTURE);
     }
 
     if (mMipChain.empty())
@@ -99,7 +99,7 @@ void LLReflectionMapManager::update()
         mMipChain.resize(count);
         for (int i = 0; i < count; ++i)
         {
-            mMipChain[i].allocate(res, res, GL_RGBA16F, false, false, LLTexUnit::TT_RECT_TEXTURE);
+            mMipChain[i].allocate(res, res, GL_RGBA16F, false, false, LLTexUnit::TT_TEXTURE);
             res /= 2;
         }
     }
@@ -437,8 +437,8 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
 
         S32 mips = log2((F32)LL_REFLECTION_PROBE_RESOLUTION) + 0.5f;
 
-        S32 diffuseChannel = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_RECT_TEXTURE);
-        S32 depthChannel = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DEPTH, LLTexUnit::TT_RECT_TEXTURE);
+        S32 diffuseChannel = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
+        S32 depthChannel   = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DEPTH, LLTexUnit::TT_TEXTURE);
 
         LLRenderTarget* screen_rt = &gPipeline.mAuxillaryRT.screen;
         LLRenderTarget* depth_rt = &gPipeline.mAuxillaryRT.deferredScreen;
@@ -472,13 +472,13 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
             gGL.texCoord2f(0, 0);
             gGL.vertex2f(-1, -1);
 
-            gGL.texCoord2f(res, 0);
+            gGL.texCoord2f(1.f, 0);
             gGL.vertex2f(1, -1);
 
-            gGL.texCoord2f(res, res);
+            gGL.texCoord2f(1.f, 1.f);
             gGL.vertex2f(1, 1);
 
-            gGL.texCoord2f(0, res);
+            gGL.texCoord2f(0, 1.f);
             gGL.vertex2f(-1, 1);
             gGL.end();
             gGL.flush();
@@ -506,8 +506,8 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         gGL.matrixMode(gGL.MM_MODELVIEW);
         gGL.popMatrix();
 
-        gGL.getTexUnit(diffuseChannel)->unbind(LLTexUnit::TT_RECT_TEXTURE);
-        gGL.getTexUnit(depthChannel)->unbind(LLTexUnit::TT_RECT_TEXTURE);
+        gGL.getTexUnit(diffuseChannel)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(depthChannel)->unbind(LLTexUnit::TT_TEXTURE);
         gReflectionMipProgram.unbind();
     }
 

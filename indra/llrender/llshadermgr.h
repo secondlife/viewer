@@ -44,6 +44,7 @@ public:
         INVERSE_PROJECTION_MATRIX,          //  "inv_proj"
         MODELVIEW_PROJECTION_MATRIX,        //  "modelview_projection_matrix"
         INVERSE_MODELVIEW_MATRIX,           //  "inv_modelview"
+        IDENTITY_MATRIX,                    //  "identity_matrix"
         NORMAL_MATRIX,                      //  "normal_matrix"
         TEXTURE_MATRIX0,                    //  "texture_matrix0"
         TEXTURE_MATRIX1,                    //  "texture_matrix1"

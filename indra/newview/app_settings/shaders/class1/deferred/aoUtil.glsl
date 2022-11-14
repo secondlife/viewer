@@ -24,8 +24,8 @@
  */
 
 uniform sampler2D       noiseMap;
-uniform sampler2DRect   normalMap;
-uniform sampler2DRect   depthMap;
+uniform sampler2D   normalMap;
+uniform sampler2D   depthMap;
 
 uniform float ssao_radius;
 uniform float ssao_max_radius;
@@ -38,23 +38,19 @@ uniform vec2 screen_res;
 vec2 getScreenCoordinateAo(vec2 screenpos)
 {
     vec2 sc = screenpos.xy * 2.0;
-    if (screen_res.x > 0 && screen_res.y > 0)
-    {
-       sc /= screen_res;
-    }
     return sc - vec2(1.0, 1.0);
 }
 
 float getDepthAo(vec2 pos_screen)
 {
-    float depth = texture2DRect(depthMap, pos_screen).r;
+    float depth = texture2D(depthMap, pos_screen).r;
     return depth;
 }
 
 vec4 getPositionAo(vec2 pos_screen)
 {
     float depth = getDepthAo(pos_screen);
-    vec2 sc = getScreenCoordinateAo(pos_screen);
+    vec2 sc = (pos_screen);
     vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
     vec4 pos = inv_proj * ndc;
     pos /= pos.w;
@@ -83,7 +79,7 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm, vec2 pos_screen)
 {
     float ret = 1.0;
     vec3 pos_world = pos.xyz;
-    vec2 noise_reflect = texture2D(noiseMap, pos_screen.xy/128.0).xy;
+    vec2 noise_reflect = texture2D(noiseMap, pos_screen.xy).xy;
         
     float angle_hidden = 0.0;
     float points = 0;

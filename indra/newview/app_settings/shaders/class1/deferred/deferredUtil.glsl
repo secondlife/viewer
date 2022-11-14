@@ -48,8 +48,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-uniform sampler2DRect   normalMap;
-uniform sampler2DRect   depthMap;
+uniform sampler2D   normalMap;
+uniform sampler2D   depthMap;
 uniform sampler2D projectionMap; // rgba
 uniform sampler2D brdfLut;
 
@@ -138,10 +138,6 @@ bool clipProjectedLightVars(vec3 light_center, vec3 pos, out float dist, out flo
 vec2 getScreenCoordinate(vec2 screenpos)
 {
     vec2 sc = screenpos.xy * 2.0;
-    if (screen_res.x > 0 && screen_res.y > 0)
-    {
-       sc /= screen_res;
-    }
     return sc - vec2(1.0, 1.0);
 }
 
@@ -149,7 +145,7 @@ vec2 getScreenCoordinate(vec2 screenpos)
 //      Method #4: Spheremap Transform, Lambert Azimuthal Equal-Area projection
 vec3 getNorm(vec2 screenpos)
 {
-   vec2 enc = texture2DRect(normalMap, screenpos.xy).xy;
+   vec2 enc = texture2D(normalMap, screenpos.xy).xy;
    vec2 fenc = enc*4-2;
    float f = dot(fenc,fenc);
    float g = sqrt(1-f/4);
@@ -175,7 +171,7 @@ vec3 getNormalFromPacked(vec4 packedNormalEnvIntensityFlags)
 // See: C++: addDeferredAttachments(), GLSL: softenLightF
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity)
 {
-    vec4 packedNormalEnvIntensityFlags = texture2DRect(normalMap, screenpos.xy);
+    vec4 packedNormalEnvIntensityFlags = texture2D(normalMap, screenpos.xy);
     n = getNormalFromPacked( packedNormalEnvIntensityFlags );
     envIntensity = packedNormalEnvIntensityFlags.z;
     return packedNormalEnvIntensityFlags;
@@ -188,9 +184,14 @@ float linearDepth(float d, float znear, float zfar)
     return znear * 2.0 * zfar / (zfar + znear - d * (zfar - znear));
 }
 
+float linearDepth01(float d, float znear, float zfar)
+{
+    return linearDepth(d, znear, zfar) / zfar;
+}
+
 float getDepth(vec2 pos_screen)
 {
-    float depth = texture2DRect(depthMap, pos_screen).r;
+    float depth = texture2D(depthMap, pos_screen).r;
     return depth;
 }
 
@@ -333,6 +334,14 @@ vec4 getPositionWithDepth(vec2 pos_screen, float depth)
     return vec4(getPositionWithNDC(ndc), 1.0);
 }
 
+vec2 getScreenCoord(vec4 clip)
+{
+    vec4 ndc = clip;
+         ndc.xyz /= clip.w;
+    vec2 screen = vec2( ndc.xy * 0.5 );
+         screen += 0.5;
+    return screen;
+}
 
 vec2 getScreenXY(vec4 clip)
 {

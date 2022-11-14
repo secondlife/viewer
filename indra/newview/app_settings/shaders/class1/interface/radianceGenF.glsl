@@ -36,6 +36,7 @@ VARYING vec3 vary_dir;
 //uniform float roughness;
 
 uniform float mipLevel;
+uniform int u_width; 
 
 // =============================================================================================================
 // Parts of this file are (c) 2018 Sascha Willems
@@ -124,7 +125,7 @@ vec4 prefilterEnvMap(vec3 R)
 	vec3 V = R;
 	vec4 color = vec4(0.0);
 	float totalWeight = 0.0;
-	float envMapDim = 128.0;
+	float envMapDim = u_width;
     int numSamples = 4;
     
     float numMips = 6.0;

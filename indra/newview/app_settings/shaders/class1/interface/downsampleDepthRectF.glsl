@@ -33,7 +33,7 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2DRect depthMap;
+uniform sampler2D depthMap;
 
 VARYING vec2 tc0;
 VARYING vec2 tc1;
@@ -48,22 +48,22 @@ VARYING vec2 tc8;
 void main() 
 {
 	vec4 depth1 = 
-		vec4(texture2DRect(depthMap, tc0).r,
-			texture2DRect(depthMap, tc1).r,
-			texture2DRect(depthMap, tc2).r,
-			texture2DRect(depthMap, tc3).r);
+		vec4(texture2D(depthMap, tc0).r,
+			texture2D(depthMap, tc1).r,
+			texture2D(depthMap, tc2).r,
+			texture2D(depthMap, tc3).r);
 
 	vec4 depth2 = 
-		vec4(texture2DRect(depthMap, tc4).r,
-			texture2DRect(depthMap, tc5).r,
-			texture2DRect(depthMap, tc6).r,
-			texture2DRect(depthMap, tc7).r);
+		vec4(texture2D(depthMap, tc4).r,
+			texture2D(depthMap, tc5).r,
+			texture2D(depthMap, tc6).r,
+			texture2D(depthMap, tc7).r);
 
 	depth1 = min(depth1, depth2);
 	float depth = min(depth1.x, depth1.y);
 	depth = min(depth, depth1.z);
 	depth = min(depth, depth1.w);
-	depth = min(depth, texture2DRect(depthMap, tc8).r);
+	depth = min(depth, texture2D(depthMap, tc8).r);
 
 	gl_FragDepth = depth;
 }

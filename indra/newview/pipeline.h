@@ -1026,6 +1026,7 @@ public:
 	static F32 CameraMaxCoF;
 	static F32 CameraDoFResScale;
 	static F32 RenderAutoHideSurfaceAreaLimit;
+	static bool RenderScreenSpaceReflections;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);

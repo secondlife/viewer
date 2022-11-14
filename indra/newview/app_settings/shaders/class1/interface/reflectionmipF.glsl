@@ -35,8 +35,8 @@ out vec4 frag_color;
 
 // NOTE screenMap should always be texture channel 0 and 
 // depthmap should always be channel 1
-uniform sampler2DRect diffuseRect;
-uniform sampler2DRect depthMap;
+uniform sampler2D diffuseRect;
+uniform sampler2D depthMap;
 
 uniform float resScale;
 uniform float znear;
@@ -76,26 +76,25 @@ void main()
 
     for (int i = 0; i < 9; ++i)
     {
-        color += texture2DRect(screenMap, vary_texcoord0.xy+tc[i]).rgb * w[i];
-        //color += texture2DRect(screenMap, vary_texcoord0.xy+tc[i]*2.0).rgb * w[i]*0.5;
+        color += texture2D(screenMap, vary_texcoord0.xy+tc[i]).rgb * w[i];
+        //color += texture2D(screenMap, vary_texcoord0.xy+tc[i]*2.0).rgb * w[i]*0.5;
     }
 
     //color /= wsum;
 
     frag_color = vec4(color, 1.0);
 #else
-    vec2 depth_tc = vary_texcoord0.xy * resScale;
-    float depth = texture(depthMap, depth_tc).r;
+    float depth = texture(depthMap, vary_texcoord0.xy).r;
     float dist = linearDepth(depth, znear, zfar);
 
     // convert linear depth to distance
     vec3 v;
-    v.xy = depth_tc / 256.0 * 2.0 - 1.0;
+    v.xy = vary_texcoord0.xy / 512.0 * 2.0 - 1.0;
     v.z = 1.0;
     v = normalize(v);
     dist /= v.z;
 
-    vec3 col = texture2DRect(diffuseRect, vary_texcoord0.xy).rgb;
+    vec3 col = texture2D(diffuseRect, vary_texcoord0.xy).rgb;
     frag_color = vec4(col, dist/256.0); 
 #endif
 }

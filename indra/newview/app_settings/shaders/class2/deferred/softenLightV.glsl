@@ -23,8 +23,6 @@
  * $/LicenseInfo$
  */
 
-uniform mat4 modelview_projection_matrix;
-
 ATTRIBUTE vec3 position;
 
 uniform vec2 screen_res;
@@ -38,12 +36,12 @@ void setAdditiveColor(vec3 c);
 void main()
 {
 	//transform vertex
-	vec4 pos = modelview_projection_matrix * vec4(position.xyz, 1.0);
+	vec4 pos = vec4(position.xyz, 1.0);
 	gl_Position = pos; 
 
     // appease OSX GLSL compiler/linker by touching all the varyings we said we would
     setAtmosAttenuation(vec3(1));
     setAdditiveColor(vec3(0));
 
-	vary_fragcoord = (pos.xy*0.5+0.5)*screen_res;
+	vary_fragcoord = (pos.xy*0.5+0.5);
 }

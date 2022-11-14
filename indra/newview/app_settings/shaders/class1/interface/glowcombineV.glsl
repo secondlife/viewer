@@ -34,7 +34,7 @@ VARYING vec2 vary_texcoord1;
 
 void main()
 {
-	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
+	gl_Position = vec4(position.xyz, 1.0);
 	vary_texcoord0 = texcoord0;
 	vary_texcoord1 = texcoord1;
 }
