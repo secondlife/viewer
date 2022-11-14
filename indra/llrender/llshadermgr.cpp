@@ -1163,10 +1163,6 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedAttribs.push_back("weight4");
 	mReservedAttribs.push_back("clothing");
 	mReservedAttribs.push_back("texture_index");
-    mReservedAttribs.push_back("basecolor_texcoord"); // GLTF
-    mReservedAttribs.push_back("normal_texcoord"); // GLTF
-    mReservedAttribs.push_back("metallic_roughness_texcoord"); // GLTF
-    mReservedAttribs.push_back("emissive_texcoord"); // GLTF
 	
 	//matrix state
 	mReservedUniforms.push_back("modelview_matrix");
