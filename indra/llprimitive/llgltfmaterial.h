@@ -56,6 +56,8 @@ public:
         F32 mRotation = 0.f;
 
         LLMatrix3 asMatrix();
+
+        bool operator==(const TextureTransform& other) const;
     };
 
     enum AlphaMode
@@ -149,14 +151,14 @@ public:
     static LLVector2 getDefaultTextureScale();
     static F32 getDefaultTextureRotation();
 
-    
+
     static void hackOverrideUUID(LLUUID& id);
     static void applyOverrideUUID(LLUUID& dst_id, const LLUUID& override_id);
 
     // set mAlphaMode from string.
     // Anything otherthan "MASK" or "BLEND" sets mAlphaMode to ALPHA_MODE_OPAQUE
     void setAlphaMode(const std::string& mode, bool for_override = false);
-   
+
     const char* getAlphaMode() const;
     
     // set the contents of this LLGLTFMaterial from the given json
@@ -185,6 +187,6 @@ private:
     void setFromTexture(const tinygltf::Model& model, const T& texture_info, TextureInfo texture_info_id, LLUUID& texture_id_out);
 
     template<typename T>
-    void writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, const LLUUID& texture_id, bool is_override, const LLUUID& base_texture_id) const;
+    void writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, const LLUUID& texture_id) const;
 };
 
