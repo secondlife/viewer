@@ -153,7 +153,7 @@
                  value="Media" />
             </combo_box>
             <radio_group
-            height="50"
+            height="84"
             layout="topleft"
             left_pad="5"
             top_delta="-10"
@@ -183,7 +183,7 @@
                 value="2"/>
             </radio_group>
             <radio_group
-            height="50"
+            height="84"
             layout="topleft"
             left_delta="0"
             top_delta="0"
@@ -191,26 +191,40 @@
             visible = "false"
             name="radio_pbr_type">
                 <radio_item
-                label="Color/emissive"
-                name="Color/emissive"
-                top="0" 
+                label="Complete material"
+                name="Complete material"
+                top="0"
                 layout="topleft"
-                height="16" 
+                height="16"
                 value="0"/>
+                <radio_item
+                label="Base color"
+                name="Base color"
+                layout="topleft"
+                top_pad="1" 
+                height="16" 
+                value="1"/>
                 <radio_item
                 label="Normal"
                 layout="topleft"
                 top_pad="1" 
                 height="16" 
                 name="Normal"
-                value="1"/>
+                value="2"/>
                 <radio_item
                 label="Metallic/roughness"
                 name="Metallic/roughness"
                 height="16"
                 layout="topleft"
                 top_pad="1"
-                value="2"/>
+                value="3"/>
+                <radio_item
+                label="Emissive"
+                name="Emissive"
+                layout="topleft"
+                top_pad="1" 
+                height="16" 
+                value="4"/>
             </radio_group>
             <menu_button
                 menu_filename="menu_copy_paste_texture.xml"
@@ -228,7 +242,7 @@
             <check_box
              control_name="SyncMaterialSettings"
              follows="top|left"
-             height="20"
+             height="47"
              initial_value="false"
              label="Lock repeat"
              layout="topleft"
@@ -877,6 +891,59 @@
              max_val="1"
              name="shinyOffsetV"
              width="265" />
+            <!-- BEGIN PBR Material texture transform parameters -->
+            <spinner
+             follows="left|top"
+             height="19"
+             initial_value="1"
+             label="ScaleU"
+             label_width="205"
+             layout="topleft"
+             left="10"
+             name="gltfTextureScaleU"
+             top_delta="-115"
+             width="265" />
+            <spinner
+             follows="left|top"
+             height="19"
+             initial_value="1"
+             label="ScaleV"
+             label_width="205"
+             layout="topleft"
+             left="10"
+             name="gltfTextureScaleV"
+             width="265" />
+            <spinner
+             follows="left|top"
+             height="19"
+             initial_value="0"
+             label="Rotation"
+             label_width="205"
+             layout="topleft"
+             left="10"
+             name="gltfTextureRotation"
+             width="265" />
+            <spinner
+             follows="left|top"
+             height="19"
+             initial_value="0"
+             label="TranslationU"
+             label_width="205"
+             layout="topleft"
+             left="10"
+             name="gltfTextureTranslationU"
+             width="265" />
+            <spinner
+             follows="left|top"
+             height="19"
+             initial_value="0"
+             label="TranslationV"
+             label_width="205"
+             layout="topleft"
+             left="10"
+             name="gltfTextureTranslationV"
+             width="265" />
+            <!-- END PBR Material texture transform parameters -->
             <check_box
              follows="top|left"
              height="16"
@@ -889,10 +956,10 @@
              top_delta="16"
              width="260" />
 			<button
-       follows="left|top"
-       layout="topleft"
+             follows="left|top"
+             layout="topleft"
 			 left="9"
-			 top="204"
+			 top="231"
 			 height="20"
 			 label="Align"
 			 label_selected="Align current texture layers"
