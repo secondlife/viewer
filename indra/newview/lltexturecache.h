@@ -94,7 +94,7 @@ public:
 	{
 	public:
 		ReadResponder();
-		void setData(U8* data, S32 datasize, S32 imagesize, S32 imageformat, BOOL imagelocal);
+		void setData(U8* data, S32 datasize, S32 imagesize, S32 imageformat, BOOL imagelocal) override;
 		void setImage(LLImageFormatted* image) { mFormattedImage = image; }
 	protected:
 		LLPointer<LLImageFormatted> mFormattedImage;
@@ -104,14 +104,14 @@ public:
 
 	class WriteResponder : public Responder
 	{
-		void setData(U8* data, S32 datasize, S32 imagesize, S32 imageformat, BOOL imagelocal)
+		void setData(U8* data, S32 datasize, S32 imagesize, S32 imageformat, BOOL imagelocal) override
 		{
 			// not used
 		}
 	};
 	
 	LLTextureCache(bool threaded);
-	~LLTextureCache();
+	~LLTextureCache() override;
 
 	/*virtual*/ size_t update(F32 max_time_ms) override;
 	
