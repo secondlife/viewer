@@ -693,20 +693,13 @@ void LLGLTFMaterialList::writeCacheOverrides(LLSD const & message, std::string c
     // default to main region if message doesn't specify
     LLViewerRegion * region = gAgent.getRegion();;
 
-    if (message.has("region_handle"))
+    if (message.has("region_handle_low") && message.has("region_handle_high"))
     {
         // TODO start requiring this once server sends this for all messages
-        std::vector<U8> const & buffer = message["region_handle"].asBinary();
-        if (buffer.size() == sizeof(U64))
-        {
-            U64 region_handle = ntohll(*reinterpret_cast<U64 const *>(&buffer[0]));
-            region = LLWorld::instance().getRegionFromHandle(region_handle);
-        }
-        else
-        {
-            LL_WARNS() << "bad region_handle in material override message" << LL_ENDL;
-            llassert(false);
-        }
+        U64 region_handle_low = message["region_handle_low"].asInteger();
+        U64 region_handle_high = message["region_handle_high"].asInteger();
+        U64 region_handle = (region_handle_low & 0x00000000ffffffffUL) || (region_handle_high << 32);
+        region = LLWorld::instance().getRegionFromHandle(region_handle);
     }
 
     if (region) {
