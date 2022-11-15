@@ -65,7 +65,7 @@ public:
 	class TFRequest;
 	
     // Threads:  Tmain
-	/*virtual*/ size_t update(F32 max_time_ms);
+	/*virtual*/ size_t update(F32 max_time_ms) override;
 	
 	// called in the main thread after the TextureCacheThread shuts down.
     // Threads:  Tmain
@@ -137,7 +137,7 @@ public:
 	U32 getTotalNumHTTPRequests();
 	
     // Threads:  T*
-    size_t getPending();
+    size_t getPending() override;
 
     // Threads:  T*
 	void lockQueue() { mQueueMutex.lock(); }
@@ -248,20 +248,20 @@ protected:
 	
 	// Overrides from the LLThread tree
 	// Locks:  Ct
-	bool runCondition();
+	bool runCondition() override;
 
 private:
     // Threads:  Tmain
 	void sendRequestListToSimulators();
 	
 	// Threads:  Ttf
-	/*virtual*/ void startThread(void);
+	/*virtual*/ void startThread(void) override;
 	
 	// Threads:  Ttf
-	/*virtual*/ void endThread(void);
+	/*virtual*/ void endThread(void) override;
 	
 	// Threads:  Ttf
-	/*virtual*/ void threadedUpdate(void);
+	/*virtual*/ void threadedUpdate(void) override;
 
 	// Threads:  Ttf
 	void commonUpdate();
