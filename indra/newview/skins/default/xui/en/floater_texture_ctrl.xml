@@ -19,7 +19,15 @@
     </floater.string>
     <floater.string
      name="pick title">
-        Pick:
+Pick:
+    </floater.string>
+    <floater.string
+     name="pick_material">
+PICK: MATERIAL
+    </floater.string>
+    <floater.string
+     name="pick_texture">
+PICK: TEXTURE
     </floater.string>
 
     <view
