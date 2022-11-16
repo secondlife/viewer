@@ -52,28 +52,28 @@ vec2 generateProjectedPosition(vec3 pos){
 
 bool isBinarySearchEnabled = true;
 bool isAdaptiveStepEnabled = true;
-bool isExponentialStepEnabled = false;
+bool isExponentialStepEnabled = true;
 bool debugDraw = false;
-int iterationCount = 100;
-float rayStep = 0.2;
-float distanceBias = 0.05;
+int iterationCount = 40;
+float rayStep = 0.1;
+float distanceBias = 0.02;
 float depthRejectBias = 0.001;
 float epsilon = 0.1;
 
-bool traceScreenRay(vec3 position, vec3 reflection, out vec3 hitColor, out float hitDepth, float depth, sampler2D textureFrame) {
+bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float hitDepth, float depth, sampler2D textureFrame) {
 	vec3 step = rayStep * reflection;
 	vec3 marchingPosition = position + step;
 	float delta;
 	float depthFromScreen;
 	vec2 screenPosition;
     bool hit = false;
-    hitColor = vec3(0);
+    hitColor = vec4(0);
 	
 	int i = 0;
 	if (depth > depthRejectBias) {
 		for (; i < iterationCount && !hit; i++) {
 			screenPosition = generateProjectedPosition(marchingPosition);
-			depthFromScreen = abs(getPositionWithDepth(screenPosition, linearDepth(getDepth(screenPosition), zNear, zFar)).z);
+				depthFromScreen = linearDepth(getDepth(screenPosition), zNear, zFar);
 			delta = abs(marchingPosition.z) - depthFromScreen;
 			
 			if (depth < depthFromScreen + epsilon && depth > depthFromScreen - epsilon) {
@@ -81,10 +81,10 @@ bool traceScreenRay(vec3 position, vec3 reflection, out vec3 hitColor, out float
 			}
 
 			if (abs(delta) < distanceBias) {
-				vec3 color = vec3(1);
+				vec4 color = vec4(1);
 				if(debugDraw)
-					color = vec3( 0.5+ sign(delta)/2,0.3,0.5- sign(delta)/2);
-				hitColor = texture(textureFrame, screenPosition).xyz * color;
+					color = vec4( 0.5+ sign(delta)/2,0.3,0.5- sign(delta)/2, 0);
+				hitColor = texture(textureFrame, screenPosition) * color;
 				hitDepth = depthFromScreen;
 				hit = true;
 				break;
@@ -114,7 +114,7 @@ bool traceScreenRay(vec3 position, vec3 reflection, out vec3 hitColor, out float
 				marchingPosition = marchingPosition - step * sign(delta);
 				
 				screenPosition = generateProjectedPosition(marchingPosition);
-				depthFromScreen = abs(getPositionWithDepth(screenPosition, getDepth(screenPosition)).z);
+				depthFromScreen = linearDepth(getDepth(screenPosition), zNear, zFar);
 				delta = abs(marchingPosition.z) - depthFromScreen;
 
 				if (depth < depthFromScreen + epsilon && depth > depthFromScreen - epsilon) {
@@ -122,10 +122,10 @@ bool traceScreenRay(vec3 position, vec3 reflection, out vec3 hitColor, out float
 				}
 
 				if (abs(delta) < distanceBias && depthFromScreen != (depth - distanceBias)) {
-					vec3 color = vec3(1);
+					vec4 color = vec4(1);
 					if(debugDraw)
-						color = vec3( 0.5+ sign(delta)/2,0.3,0.5- sign(delta)/2);
-					hitColor = texture(textureFrame, screenPosition).xyz * color;
+						color = vec4( 0.5+ sign(delta)/2,0.3,0.5- sign(delta)/2, 0);
+					hitColor = texture(textureFrame, screenPosition) * color;
 					hitDepth = depthFromScreen;
 					hit = true;
 					break;

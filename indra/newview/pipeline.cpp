@@ -7616,7 +7616,7 @@ void LLPipeline::renderFinalize()
             LLRenderTarget *screen_target = &mRT->screen;
 
             screen_target->bindTarget();
-            S32 channel = gPostScreenSpaceReflectionProgram.enableTexture(LLShaderMgr::DIFFUSE_MAP, mRT->fxaaBuffer.getUsage());
+            S32 channel = gPostScreenSpaceReflectionProgram.enableTexture(LLShaderMgr::DIFFUSE_MAP, screen_target->getUsage());
             if (channel > -1)
             {
                 screen_target->bindTexture(0, channel, LLTexUnit::TFO_POINT);
@@ -7624,8 +7624,9 @@ void LLPipeline::renderFinalize()
             }
 
             {
-                LLGLDisable   blend(GL_BLEND);
+                LLGLDisable blend(GL_BLEND);
                 LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
+
                 stop_glerror();
                 mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
                 stop_glerror();

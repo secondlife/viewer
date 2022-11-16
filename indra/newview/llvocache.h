@@ -33,6 +33,8 @@
 #include "llvieweroctree.h"
 #include "llapr.h"
 
+#include <unordered_map>
+
 //---------------------------------------------------------------------------
 // Cache entries
 class LLCamera;
@@ -79,6 +81,13 @@ public:
 			}			
 		}
 	};
+
+    struct ExtrasEntry
+    {
+        LLSD extras;
+        std::string extras_raw;
+    };
+
 protected:
 	~LLVOCacheEntry();
 public:
@@ -142,7 +151,8 @@ private:
 public:
 	typedef std::map<U32, LLPointer<LLVOCacheEntry> >	   vocache_entry_map_t;
 	typedef std::set<LLVOCacheEntry*>                      vocache_entry_set_t;
-	typedef std::set<LLVOCacheEntry*, CompareVOCacheEntry> vocache_entry_priority_list_t;	
+	typedef std::set<LLVOCacheEntry*, CompareVOCacheEntry> vocache_entry_priority_list_t;
+    typedef std::unordered_map<U32, ExtrasEntry>  vocache_extras_entry_map_t;
 
 	S32                         mLastCameraUpdated;
 protected:
@@ -265,7 +275,10 @@ public:
 	void removeCache(ELLPath location, bool started = false) ;
 
 	void readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) ;
+    void readGenericExtrasFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_extras_entry_map_t& cache_extras_entry_map);
+
 	void writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache, bool removal_enabled);
+    void writeGenericExtrasToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_extras_entry_map_t& cache_extras_entry_map, BOOL dirty_cache, bool removal_enabled);
 	void removeEntry(U64 handle) ;
 
 	U32 getCacheEntries() { return mNumEntries; }

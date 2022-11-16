@@ -61,6 +61,11 @@ LLMatrix3 LLGLTFMaterial::TextureTransform::asMatrix()
     return offset * rotation * scale;
 }
 
+bool LLGLTFMaterial::TextureTransform::operator==(const TextureTransform& other) const
+{
+    return mOffset == other.mOffset && mScale == other.mScale && mRotation == other.mRotation;
+}
+
 LLGLTFMaterial::LLGLTFMaterial(const LLGLTFMaterial& rhs)
 {
     *this = rhs;
@@ -268,16 +273,14 @@ void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
 
     tinygltf::Material& material_out = model.materials[mat_index];
 
-    constexpr bool is_override = false;
-
     // set base color texture
-    writeToTexture(model, material_out.pbrMetallicRoughness.baseColorTexture, GLTF_TEXTURE_INFO_BASE_COLOR, mBaseColorId, is_override, LLUUID());
+    writeToTexture(model, material_out.pbrMetallicRoughness.baseColorTexture, GLTF_TEXTURE_INFO_BASE_COLOR, mBaseColorId);
     // set normal texture
-    writeToTexture(model, material_out.normalTexture, GLTF_TEXTURE_INFO_NORMAL, mNormalId, is_override, LLUUID());
+    writeToTexture(model, material_out.normalTexture, GLTF_TEXTURE_INFO_NORMAL, mNormalId);
     // set metallic-roughness texture
-    writeToTexture(model, material_out.pbrMetallicRoughness.metallicRoughnessTexture, GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS, mMetallicRoughnessId, is_override, LLUUID());
+    writeToTexture(model, material_out.pbrMetallicRoughness.metallicRoughnessTexture, GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS, mMetallicRoughnessId);
     // set emissive texture
-    writeToTexture(model, material_out.emissiveTexture, GLTF_TEXTURE_INFO_EMISSIVE, mEmissiveId, is_override, LLUUID());
+    writeToTexture(model, material_out.emissiveTexture, GLTF_TEXTURE_INFO_EMISSIVE, mEmissiveId);
 
     material_out.alphaMode = getAlphaMode();
     material_out.alphaCutoff = mAlphaCutoff;
@@ -338,10 +341,11 @@ void gltf_allocate_texture_image(tinygltf::Model& model, T& texture_info, const 
 }
 
 template<typename T>
-void LLGLTFMaterial::writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, const LLUUID& texture_id, bool is_override, const LLUUID& base_texture_id) const
+void LLGLTFMaterial::writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, const LLUUID& texture_id) const
 {
     LL_PROFILE_ZONE_SCOPED;
-    if (texture_id.isNull() || (is_override && texture_id == base_texture_id))
+    const TextureTransform& transform = mTextureTransform[texture_info_id];
+    if (texture_id.isNull() && transform == sDefault.mTextureTransform[0])
     {
         return;
     }
@@ -349,7 +353,6 @@ void LLGLTFMaterial::writeToTexture(tinygltf::Model& model, T& texture_info, Tex
     gltf_allocate_texture_image(model, texture_info, texture_id.asString());
 
     tinygltf::Value::Object transform_map;
-    const TextureTransform& transform = mTextureTransform[texture_info_id];
     transform_map[GLTF_FILE_EXTENSION_TRANSFORM_OFFSET] = tinygltf::Value(tinygltf::Value::Array({
         tinygltf::Value(transform.mOffset.mV[VX]),
         tinygltf::Value(transform.mOffset.mV[VY])
