@@ -179,10 +179,10 @@ public:
     {
         // The reason we skip the
         // assert(value >= std::numeric_limits<TO>::lowest());
-        // in the overload below is that to perform the above comparison, the
-        // compiler promotes the signed lowest() to the unsigned FROM type,
-        // making it hugely positive -- so a reasonable 'value' will always
-        // fail the assert().
+        // like the overload below is that to perform the above comparison,
+        // the compiler promotes the signed lowest() to the unsigned FROM
+        // type, making it hugely positive -- so a reasonable 'value' will
+        // always fail the assert().
         assert(mValue <= std::numeric_limits<TO>::max());
         return static_cast<TO>(mValue);
     }
