@@ -378,6 +378,20 @@ BOOL LLMaterialEditor::postBuild()
     mBaseColorCtrl = getChild<LLColorSwatchCtrl>("base color");
     mEmissiveColorCtrl = getChild<LLColorSwatchCtrl>("emissive color");
 
+    if (!gAgent.isGodlike())
+    {
+        // Only allow fully permissive textures
+        mBaseColorTextureCtrl->setImmediateFilterPermMask(PERM_ITEM_UNRESTRICTED);
+        mBaseColorTextureCtrl->setNonImmediateFilterPermMask(PERM_ITEM_UNRESTRICTED);
+        mMetallicTextureCtrl->setImmediateFilterPermMask(PERM_ITEM_UNRESTRICTED);
+        mMetallicTextureCtrl->setNonImmediateFilterPermMask(PERM_ITEM_UNRESTRICTED);
+        mEmissiveTextureCtrl->setImmediateFilterPermMask(PERM_ITEM_UNRESTRICTED);
+        mEmissiveTextureCtrl->setNonImmediateFilterPermMask(PERM_ITEM_UNRESTRICTED);
+        mNormalTextureCtrl->setImmediateFilterPermMask(PERM_ITEM_UNRESTRICTED);
+        mNormalTextureCtrl->setNonImmediateFilterPermMask(PERM_ITEM_UNRESTRICTED);
+    }
+
+    // Texture callback
     mBaseColorTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_BASE_COLOR_TEX_DIRTY));
     mMetallicTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY));
     mEmissiveTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_EMISIVE_TEX_DIRTY));

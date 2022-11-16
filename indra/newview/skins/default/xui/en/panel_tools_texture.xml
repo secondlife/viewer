@@ -896,10 +896,12 @@
              follows="left|top"
              height="19"
              initial_value="1"
-             label="ScaleU"
+             label="Scale u"
              label_width="205"
              layout="topleft"
              left="10"
+             min_val="-100"
+             max_val="100"
              name="gltfTextureScaleU"
              top_delta="-115"
              width="265" />
@@ -907,10 +909,12 @@
              follows="left|top"
              height="19"
              initial_value="1"
-             label="ScaleV"
+             label="Scale v"
              label_width="205"
              layout="topleft"
              left="10"
+             min_val="-100"
+             max_val="100"
              name="gltfTextureScaleV"
              width="265" />
             <spinner
@@ -921,27 +925,33 @@
              label_width="205"
              layout="topleft"
              left="10"
+             min_val="-360"
+             max_val="360"
              name="gltfTextureRotation"
              width="265" />
             <spinner
              follows="left|top"
              height="19"
              initial_value="0"
-             label="TranslationU"
+             label="Offset u"
              label_width="205"
              layout="topleft"
              left="10"
-             name="gltfTextureTranslationU"
+             min_val="-999"
+             max_val="999"
+             name="gltfTextureOffsetU"
              width="265" />
             <spinner
              follows="left|top"
              height="19"
              initial_value="0"
-             label="TranslationV"
+             label="Offset v"
              label_width="205"
              layout="topleft"
              left="10"
-             name="gltfTextureTranslationV"
+             min_val="-999"
+             max_val="999"
+             name="gltfTextureOffsetV"
              width="265" />
             <!-- END PBR Material texture transform parameters -->
             <check_box
@@ -953,7 +963,7 @@
              left="7"
              name="checkbox planar align"
              tool_tip="Align textures on all selected faces with the last selected face. Requires Planar texture mapping."
-             top_delta="16"
+             top_delta="43"
              width="260" />
 			<button
              follows="left|top"

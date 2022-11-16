@@ -301,8 +301,24 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 	BOOL handled = FALSE;
 
 	bool is_mesh = cargo_type == DAD_MESH;
+    bool is_texture = cargo_type == DAD_TEXTURE;
+    bool is_material = cargo_type == DAD_MATERIAL;
 
-	if ((cargo_type == DAD_TEXTURE) || is_mesh)
+    bool allow_dnd = false;
+    if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    {
+        allow_dnd = is_material;
+    }
+    else if (mInventoryPickType == LLTextureCtrl::PICK_TEXTURE)
+    {
+        allow_dnd = is_texture || is_mesh;
+    }
+    else
+    {
+        allow_dnd = is_texture || is_mesh || is_material;
+    }
+
+	if (allow_dnd)
 	{
 		LLInventoryItem *item = (LLInventoryItem *)cargo_data;
 
@@ -1246,6 +1262,21 @@ void LLFloaterTexturePicker::setInventoryPickType(LLTextureCtrl::EPickInventoryT
         S32 index = mModeSelector->getValue().asInteger();
         getChild<LLButton>("Pipette")->setVisible(index == 0);
     }
+
+    if (!mLabel.empty())
+    {
+        std::string pick = getString("pick title");
+
+        setTitle(pick + mLabel);
+    }
+    else if(mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    {
+        setTitle(getString("pick_material"));
+    }
+    else
+    {
+        setTitle(getString("pick_texture"));
+    }
 }
 
 void LLFloaterTexturePicker::onPickerCallback(const std::vector<std::string>& filenames, LLHandle<LLFloater> handle)
@@ -1770,11 +1801,26 @@ BOOL LLTextureCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
 	// returns true, then the cast was valid, and we can perform
 	// the third test without problems.
 	LLInventoryItem* item = (LLInventoryItem*)cargo_data; 
-	bool is_mesh = cargo_type == DAD_MESH;
 
-	if (getEnabled() &&
-		((cargo_type == DAD_TEXTURE) || is_mesh) &&
-		 allowDrop(item))
+    bool is_mesh = cargo_type == DAD_MESH;
+    bool is_texture = cargo_type == DAD_TEXTURE;
+    bool is_material = cargo_type == DAD_MATERIAL;
+
+    bool allow_dnd = false;
+    if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+    {
+        allow_dnd = is_material;
+    }
+    else if (mInventoryPickType == LLTextureCtrl::PICK_TEXTURE)
+    {
+        allow_dnd = is_texture || is_mesh;
+    }
+    else
+    {
+        allow_dnd = is_texture || is_mesh || is_material;
+    }
+
+	if (getEnabled() && allow_dnd && allowDrop(item))
 	{
 		if (drop)
 		{
