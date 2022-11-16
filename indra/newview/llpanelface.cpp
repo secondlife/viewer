@@ -1003,6 +1003,8 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
             radio_pbr_type->selectNthItem(PBRTYPE_RENDER_MATERIAL_ID);
         }
         radio_pbr_type->setEnabled(editable);
+        const bool pbr_selected = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR;
+        const bool texture_info_selected = pbr_selected && radio_pbr_type->getSelectedIndex() != PBRTYPE_RENDER_MATERIAL_ID;
 
 		getChildView("checkbox_sync_settings")->setEnabled(editable);
 		childSetValue("checkbox_sync_settings", gSavedSettings.getBOOL("SyncMaterialSettings"));
@@ -1251,9 +1253,9 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			LLCheckBoxCtrl*	cb_planar_align = getChild<LLCheckBoxCtrl>("checkbox planar align");
 			align_planar = (cb_planar_align && cb_planar_align->get());
 
-			bool enabled = (editable && isIdenticalPlanarTexgen());
+			bool enabled = (editable && isIdenticalPlanarTexgen() && (!pbr_selected || texture_info_selected));
 			childSetValue("checkbox planar align", align_planar && enabled);
-			childSetVisible("checkbox planar align", enabled);
+            childSetVisible("checkbox planar align", enabled);
 			childSetEnabled("checkbox planar align", enabled);
 			childSetEnabled("button align textures", enabled && LLSelectMgr::getInstance()->getSelection()->getObjectCount() > 1);
 
@@ -2737,8 +2739,8 @@ void LLPanelFace::updateVisibility()
 
     // Shared material controls
     getChildView("checkbox_sync_settings")->setVisible(show_material || show_media || show_texture_info);
-    getChildView("tex gen")->setVisible(show_material || show_media);
-    getChildView("combobox texgen")->setVisible(show_material || show_media);
+    getChildView("tex gen")->setVisible(show_material || show_media || show_texture_info);
+    getChildView("combobox texgen")->setVisible(show_material || show_media || show_texture_info);
     getChildView("button align textures")->setVisible(show_material || show_media);
 
 	// Media controls
