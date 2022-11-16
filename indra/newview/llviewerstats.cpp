@@ -319,6 +319,8 @@ extern U32  gVisTested;
 
 void update_statistics()
 {
+    LL_PROFILE_ZONE_SCOPED;
+
 	gTotalWorldData += gVLManager.getTotalBytes();
 	gTotalObjectData += gObjectData;
 
@@ -350,16 +352,8 @@ void update_statistics()
 
 	typedef LLTrace::StatType<LLTrace::TimeBlockAccumulator>::instance_tracker_t stat_type_t;
 
-	F64Seconds idle_secs = last_frame_recording.getSum(*stat_type_t::getInstance("Idle"));
-	F64Seconds network_secs = last_frame_recording.getSum(*stat_type_t::getInstance("Network"));
-
 	record(LLStatViewer::FRAME_STACKTIME, last_frame_recording.getSum(*stat_type_t::getInstance("Frame")));
-	record(LLStatViewer::UPDATE_STACKTIME, idle_secs - network_secs);
-	record(LLStatViewer::NETWORK_STACKTIME, network_secs);
-	record(LLStatViewer::IMAGE_STACKTIME, last_frame_recording.getSum(*stat_type_t::getInstance("Update Images")));
-	record(LLStatViewer::REBUILD_STACKTIME, last_frame_recording.getSum(*stat_type_t::getInstance("Sort Draw State")));
-	record(LLStatViewer::RENDER_STACKTIME, last_frame_recording.getSum(*stat_type_t::getInstance("Render Geometry")));
-		
+
 	if (gAgent.getRegion() && isAgentAvatarValid())
 	{
 		LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(gAgent.getRegion()->getHost());

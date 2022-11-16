@@ -689,7 +689,6 @@ void settings_setup_listeners()
 	setting_setup_signal_listener(gSavedSettings, "OctreeAlphaDistanceFactor", handleRepartition);
 	setting_setup_signal_listener(gSavedSettings, "OctreeAttachmentSizeFactor", handleRepartition);
 	setting_setup_signal_listener(gSavedSettings, "RenderMaxTextureIndex", handleSetShaderChanged);
-	setting_setup_signal_listener(gSavedSettings, "RenderUseTriStrips", handleResetVertexBuffersChanged);
 	setting_setup_signal_listener(gSavedSettings, "RenderUIBuffer", handleWindowResized);
 	setting_setup_signal_listener(gSavedSettings, "RenderDepthOfField", handleReleaseGLBufferChanged);
 	setting_setup_signal_listener(gSavedSettings, "RenderFSAASamples", handleReleaseGLBufferChanged);

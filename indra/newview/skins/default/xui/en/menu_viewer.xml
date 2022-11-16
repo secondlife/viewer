@@ -2744,15 +2744,6 @@ function="World.EnvPreset"
                  function="Advanced.TogglePeriodicSlowFrame"
                  parameter="points" />
             </menu_item_check>
-            <menu_item_check
-             label="Frame Test"
-             name="Frame Test">
-                <menu_item_check.on_check
-                 function="Advanced.CheckFrameTest"
-                 parameter="Frame Test" />
-                <menu_item_check.on_click
-                 function="Advanced.ToggleFrameTest" />
-            </menu_item_check>
           <menu_item_call
              label="Frame Profile"
              name="Frame Profile">

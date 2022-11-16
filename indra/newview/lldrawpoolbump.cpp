@@ -562,8 +562,7 @@ void LLDrawPoolBump::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL
 			params.mGroup->rebuildMesh();
 		}
 		params.mVertexBuffer->setBuffer(mask);
-		params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-		gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
+		params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 	}
 }
 
@@ -1439,7 +1438,7 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL 
 		params.mGroup->rebuildMesh();
 	}
 	params.mVertexBuffer->setBufferFast(mask);
-	params.mVertexBuffer->drawRangeFast(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
+	params.mVertexBuffer->drawRangeFast(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 
     if (tex_setup)
 	{

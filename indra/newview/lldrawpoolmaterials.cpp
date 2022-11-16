@@ -263,7 +263,7 @@ void LLDrawPoolMaterials::pushMaterialsBatch(LLDrawInfo& params, U32 mask, bool 
 	//LLGLEnableFunc stencil_test(GL_STENCIL_TEST, params.mSelected, &LLGLCommonFunc::selected_stencil_test);
 
 	params.mVertexBuffer->setBufferFast(mask);
-	params.mVertexBuffer->drawRangeFast(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
+	params.mVertexBuffer->drawRangeFast(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 
 	if (tex_setup)
 	{

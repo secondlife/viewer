@@ -204,7 +204,7 @@ public:
 		NUM_RENDER_TYPES,
 	};
 
-	#ifdef LL_PROFILER_ENABLE_TRACY_OPENGL
+	#ifdef LL_PROFILER_ENABLE_RENDER_DOC
     static inline const char* lookupPassName(U32 pass)
     {
         switch (pass)

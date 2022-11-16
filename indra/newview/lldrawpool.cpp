@@ -566,17 +566,13 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 		}
 	}
 	
-    if (params.mGroup)
-    {
-        params.mGroup->rebuildMesh();
-    }
-
-    LLGLDisable cull(params.mGLTFMaterial && params.mGLTFMaterial->mDoubleSided ? GL_CULL_FACE : 0);
-
-    //LLGLEnableFunc stencil_test(GL_STENCIL_TEST, params.mSelected, &LLGLCommonFunc::selected_stencil_test);
+    //if (params.mGroup) // TOO LATE!
+    //{
+    //    params.mGroup->rebuildMesh();
+    //}
 
     params.mVertexBuffer->setBufferFast(mask);
-    params.mVertexBuffer->drawRangeFast(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
+    params.mVertexBuffer->drawRangeFast(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 
 	if (tex_setup)
 	{

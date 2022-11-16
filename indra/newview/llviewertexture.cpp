@@ -1792,68 +1792,6 @@ void LLViewerFetchedTexture::processTextureStats()
 void LLViewerFetchedTexture::updateVirtualSize() 
 {	
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	if(!mMaxVirtualSizeResetCounter)
-	{
-		addTextureStats(0.f, FALSE);//reset
-	}
-
-    if (getBoostLevel() >= LLViewerTexture::BOOST_HIGH)
-    { //always load boosted textures at highest priority full res
-        addTextureStats(sMaxVirtualSize);
-        return;
-    }
-
-    if (sDesiredDiscardBias > 0.f)
-    {
-        // running out of video memory, don't hold onto high res textures in the background
-        mMaxVirtualSize = 0.f;
-    }
-
-	for (U32 ch = 0; ch < LLRender::NUM_TEXTURE_CHANNELS; ++ch)
-	{				
-		llassert(mNumFaces[ch] <= mFaceList[ch].size());
-
-		for(U32 i = 0; i < mNumFaces[ch]; i++)
-		{				
-			LLFace* facep = mFaceList[ch][i];
-		if( facep )
-		{
-			LLDrawable* drawable = facep->getDrawable();
-			if (drawable)
-			{
-				if(drawable->isRecentlyVisible())
-				{
-					if ((getBoostLevel() == LLViewerTexture::BOOST_NONE || getBoostLevel() == LLViewerTexture::BOOST_ALM)
-						&& drawable->getVObj()
-						&& drawable->getVObj()->isSelected())
-					{
-						setBoostLevel(LLViewerTexture::BOOST_SELECTED);
-					}
-					addTextureStats(facep->getVirtualSize());
-                    //drawable->getVObj()->setDebugText(llformat("%d:%d", (S32)sqrtf(facep->getVirtualSize()), (S32)sqrtf(getMaxVirtualSize())));
-				}
-                else
-                {
-                    //drawable->getVObj()->setDebugText("");
-                }
-			}
-		}
-	}
-	}
-	//reset whether or not a face was selected after 10 seconds
-	const F32 SELECTION_RESET_TIME = 10.f;
-
-	if (getBoostLevel() ==  LLViewerTexture::BOOST_SELECTED && 
-		gFrameTimeSeconds - mSelectedTime > SELECTION_RESET_TIME)
-	{
-		// Could have been BOOST_ALM, but if user was working with this texture, better keep it as NONE
-		setBoostLevel(LLViewerTexture::BOOST_NONE);
-	}
-
-	if(mMaxVirtualSizeResetCounter > 0)
-	{
-		mMaxVirtualSizeResetCounter--;
-	}
 	reorganizeFaceList();
 	reorganizeVolumeList();
 }

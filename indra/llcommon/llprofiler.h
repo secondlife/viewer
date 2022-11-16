@@ -86,8 +86,12 @@ extern thread_local bool gProfilerEnabled;
         #define TRACY_ONLY_IPV4      1
         #include "Tracy.hpp"
 
-        // Disable memory tracing when enabled, but enabled 
+        // Enable OpenGL profiling
         #define LL_PROFILER_ENABLE_TRACY_OPENGL 1
+
+        // Enable RenderDoc labeling
+        #define LL_PROFILER_ENABLE_RENDER_DOC 0
+
     #endif
 
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY
@@ -153,8 +157,6 @@ extern thread_local bool gProfilerEnabled;
 // disable memory tracking (incompatible with GPU tracing
 #define LL_PROFILE_ALLOC(ptr, size)             (void)(ptr); (void)(size);
 #define LL_PROFILE_FREE(ptr)                    (void)(ptr);
-
-#define LL_LABEL_OBJECT_GL(type, name, length, label) glObjectLabel(type, name, length, label)
 #else
 #define LL_PROFILE_GPU_ZONE(name)        (void)name;
 #define LL_PROFILE_GPU_ZONEC(name,color) (void)name;(void)color;
@@ -171,6 +173,12 @@ extern thread_local bool gProfilerEnabled;
 #define LL_PROFILE_FREE(ptr)                    (void)(ptr);
 #endif
 
+#endif
+
+#if LL_PROFILER_ENABLE_RENDER_DOC
+#define LL_LABEL_OBJECT_GL(type, name, length, label) glObjectLabel(type, name, length, label)
+#else
+#define LL_LABEL_OBJECT_GL(type, name, length, label)
 #endif
 
 #include "llprofilercategories.h"

@@ -97,7 +97,6 @@ public:
     // used to update the decode priority of textures in this DrawInfo
     std::vector<F32> mTextureListVSize;
 
-	S32 mDebugColor;
 	const LLMatrix4* mTextureMatrix;
 	const LLMatrix4* mModelMatrix;
 	U16 mStart;
@@ -107,13 +106,14 @@ public:
 	BOOL mFullbright;
 	U8 mBump;
 	U8 mShiny;
+    U8 mTextureTimer = 0;
 	BOOL mParticle;
 	F32 mPartSize;
 	F32 mVSize;
 	LLSpatialGroup* mGroup;
 	LL_ALIGN_16(LLFace* mFace); //associated face
 	F32 mDistance;
-	U32 mDrawMode;
+    S32 mDebugColor;
 
     // Material pointer here is likely for debugging only and are immaterial (zing!)
     LLMaterialPtr mMaterial; 
@@ -136,10 +136,8 @@ public:
 	F32  mEnvIntensity;
 	F32  mAlphaMaskCutoff;
 	U8   mDiffuseAlphaMode;
-	bool mSelected;
     LLPointer<LLVOAvatar> mAvatar = nullptr;
     LLMeshSkinInfo* mSkinInfo = nullptr;
-
 
 	struct CompareTexture
 	{

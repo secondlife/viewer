@@ -1048,8 +1048,8 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
     U32 update_count = 0;
     static const S32 MIN_UPDATE_COUNT = gSavedSettings.getS32("TextureFetchUpdateMinCount");       // default: 32
     // WIP -- dumb code here
-    //update MIN_UPDATE_COUNT or 10% of other textures, whichever is greater
-    update_count = llmax((U32) MIN_UPDATE_COUNT, (U32) mUUIDMap.size()/10);
+    //update MIN_UPDATE_COUNT or 5% of other textures, whichever is greater
+    update_count = llmax((U32) MIN_UPDATE_COUNT, (U32) mUUIDMap.size()/20);
     update_count = llmin(update_count, (U32) mUUIDMap.size());
     
     {

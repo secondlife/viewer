@@ -354,8 +354,8 @@ public:
     LLCullResult::sg_iterator beginRiggedAlphaGroups();
     LLCullResult::sg_iterator endRiggedAlphaGroups();
 	
-
-	void addTrianglesDrawn(S32 index_count, U32 render_type = LLRender::TRIANGLES);
+	void addTrianglesDrawn(S32 index_count);
+    void recordTrianglesDrawn();
 
 	bool hasRenderDebugFeatureMask(const U32 mask) const	{ return bool(mRenderDebugFeatureMask & mask); }
 	bool hasRenderDebugMask(const U64 mask) const			{ return bool(mRenderDebugMask & mask); }
@@ -631,7 +631,6 @@ public:
 	static bool				sRenderBump;
 	static bool				sBakeSunlight;
 	static bool				sNoAlpha;
-	static bool				sUseTriStrips;
 	static bool				sUseFarClip;
 	static bool				sShadowRender;
 	static bool				sDynamicLOD;
@@ -643,7 +642,6 @@ public:
 	static bool				sUnderWaterRender;
 	static bool				sRenderGlow;
 	static bool				sTextureBindTest;
-	static bool				sRenderFrameTest;
 	static bool				sRenderAttachedLights;
 	static bool				sRenderAttachedParticles;
 	static bool				sRenderDeferred;

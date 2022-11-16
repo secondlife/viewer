@@ -304,7 +304,7 @@ void LLVOWLSky::drawFsSky(void)
 
 	mFsSkyVerts->setBuffer(LLDrawPoolWLSky::ADV_ATMO_SKY_VERTEX_DATA_MASK);
 	mFsSkyVerts->drawRange(LLRender::TRIANGLES, 0, mFsSkyVerts->getNumVerts() - 1, mFsSkyVerts->getNumIndices(), 0);
-	gPipeline.addTrianglesDrawn(mFsSkyVerts->getNumIndices(), LLRender::TRIANGLES);
+	gPipeline.addTrianglesDrawn(mFsSkyVerts->getNumIndices());
 	LLVertexBuffer::unbind();
 }
 
@@ -331,7 +331,7 @@ void LLVOWLSky::drawDome(void)
 			LLRender::TRIANGLE_STRIP, 
 			0, strips_segment->getNumVerts()-1, strips_segment->getNumIndices(), 
 			0);
-		gPipeline.addTrianglesDrawn(strips_segment->getNumIndices(), LLRender::TRIANGLE_STRIP);
+		gPipeline.addTrianglesDrawn(strips_segment->getNumIndices());
 	}
 
 	LLVertexBuffer::unbind();

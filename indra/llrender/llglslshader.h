@@ -300,7 +300,7 @@ public:
     // this pointer should be set to whichever shader represents this shader's rigged variant
     LLGLSLShader* mRiggedVariant = nullptr;
 
-	#ifdef LL_PROFILER_ENABLE_TRACY_OPENGL
+	#ifdef LL_PROFILER_ENABLE_RENDER_DOC
     void setLabel(const char* label);
 	#endif
 
@@ -315,7 +315,7 @@ extern LLGLSLShader			gSolidColorProgram;
 //Alpha mask shader (declared here so llappearance can access properly)
 extern LLGLSLShader			gAlphaMaskProgram;
 
-#ifdef LL_PROFILER_ENABLE_TRACY_OPENGL
+#ifdef LL_PROFILER_ENABLE_RENDER_DOC
 #define LL_SET_SHADER_LABEL(shader) shader.setLabel(#shader)
 #else
 #define LL_SET_SHADER_LABEL(shader, label)

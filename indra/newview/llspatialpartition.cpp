@@ -4049,7 +4049,6 @@ LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
 	mGroup(NULL),
 	mFace(NULL),
 	mDistance(0.f),
-	mDrawMode(LLRender::TRIANGLES),
 	mMaterial(NULL),
 	mShaderMask(0),
 	mSpecColor(1.0f, 1.0f, 1.0f, 0.5f),
@@ -4058,8 +4057,7 @@ LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
 	mHasGlow(FALSE),
 	mEnvIntensity(0.0f),
 	mAlphaMaskCutoff(0.5f),
-	mDiffuseAlphaMode(0),
-	mSelected(selected)
+	mDiffuseAlphaMode(0)
 {
 	mVertexBuffer->validateRange(mStart, mEnd, mCount, mOffset);
 	

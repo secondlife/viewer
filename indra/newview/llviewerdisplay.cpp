@@ -184,11 +184,9 @@ void display_startup()
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_CAMERA("Update Camera");
-
 void display_update_camera()
 {
-	LL_RECORD_BLOCK_TIME(FTM_UPDATE_CAMERA);
+    LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Update Camera");
 	// TODO: cut draw distance down if customizing avatar?
 	// TODO: cut draw distance on per-parcel basis?
 
@@ -246,32 +244,15 @@ void display_stats()
     }
 }
 
-static LLTrace::BlockTimerStatHandle FTM_PICK("Picking");
-static LLTrace::BlockTimerStatHandle FTM_RENDER("Render");
-static LLTrace::BlockTimerStatHandle FTM_RENDER_HUD("Render HUD");
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_SKY("Update Sky");
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_DYNAMIC_TEXTURES("Update Dynamic Textures");
-static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE("Update Images");
-static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_CLASS("Class");
-static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_BUMP("Image Update Bump");
-static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_LIST("List");
-static LLTrace::BlockTimerStatHandle FTM_MATERIALS_FLUSH("GLTF Materials Cleanup");
-static LLTrace::BlockTimerStatHandle FTM_RESIZE_WINDOW("Resize Window");
-static LLTrace::BlockTimerStatHandle FTM_HUD_UPDATE("HUD Update");
-static LLTrace::BlockTimerStatHandle FTM_DISPLAY_UPDATE_GEOM("Update Geom");
-static LLTrace::BlockTimerStatHandle FTM_TEXTURE_UNBIND("Texture Unbind");
-static LLTrace::BlockTimerStatHandle FTM_TELEPORT_DISPLAY("Teleport Display");
-static LLTrace::BlockTimerStatHandle FTM_EEP_UPDATE("Env Update");
-
 // Paint the display!
 void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 {
-	LL_RECORD_BLOCK_TIME(FTM_RENDER);
+    LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Render");
 
 	if (gWindowResized)
 	{ //skip render on frames where window has been resized
 		LL_DEBUGS("Window") << "Resizing window" << LL_ENDL;
-		LL_RECORD_BLOCK_TIME(FTM_RESIZE_WINDOW);
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Resize Window");
 		gGL.flush();
 		glClear(GL_COLOR_BUFFER_BIT);
 		gViewerWindow->getWindow()->swapBuffers();
@@ -291,11 +272,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	if (LLPipeline::sRenderDeferred)
 	{ //hack to make sky show up in deferred snapshots
 		for_snapshot = FALSE;
-	}
-
-	if (LLPipeline::sRenderFrameTest)
-	{
-		send_agent_pause();
 	}
 
 	gSnapshot = for_snapshot;
@@ -342,8 +318,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	gViewerWindow->checkSettings();
 	
 	{
-		LL_RECORD_BLOCK_TIME(FTM_PICK);
-		LLAppViewer::instance()->pingMainloopTimeout("Display:Pick");
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Picking");
 		gViewerWindow->performPick();
 	}
 	
@@ -421,7 +396,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 	if (gTeleportDisplay)
 	{
-		LL_RECORD_BLOCK_TIME(FTM_TELEPORT_DISPLAY);
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Teleport Display");
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Teleport");
 		static LLCachedControl<F32> teleport_arrival_delay(gSavedSettings, "TeleportArrivalDelay");
 		static LLCachedControl<F32> teleport_local_delay(gSavedSettings, "TeleportLocalDelay");
@@ -633,7 +608,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_DYNAMIC_TEXTURES))
 	{
 		LLAppViewer::instance()->pingMainloopTimeout("Display:DynamicTextures");
-		LL_RECORD_BLOCK_TIME(FTM_UPDATE_DYNAMIC_TEXTURES);
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Update Dynamic Textures");
 		if (LLViewerDynamicTexture::updateAllInstances())
 		{
 			gGL.setColorMask(true, true);
@@ -664,21 +639,21 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		stop_glerror();
 				
 		{
-			LL_RECORD_BLOCK_TIME(FTM_EEP_UPDATE);
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Env Update");
             // update all the sky/atmospheric/water settings
             LLEnvironment::instance().update(LLViewerCamera::getInstance());
 		}
 
 		// *TODO: merge these two methods
 		{
-			LL_RECORD_BLOCK_TIME(FTM_HUD_UPDATE);
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("HUD Update");
 			LLHUDManager::getInstance()->updateEffects();
 			LLHUDObject::updateAll();
 			stop_glerror();
 		}
 
 		{
-			LL_RECORD_BLOCK_TIME(FTM_DISPLAY_UPDATE_GEOM);
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Update Geom");
 			const F32 max_geom_update_time = 0.005f*10.f*gFrameIntervalSeconds.value(); // 50 ms/second update time
 			gPipeline.createObjects(max_geom_update_time);
 			gPipeline.processPartitionQ();
@@ -789,27 +764,27 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLAppViewer::instance()->pingMainloopTimeout("Display:UpdateImages");
 		
 		{
-			LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE);
+            LL_PROFILE_ZONE_NAMED("Update Images");
 			
 			{
-				LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE_CLASS);
+                LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Class");
 				LLViewerTexture::updateClass();
 			}
 
 			{
-				LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE_BUMP);
+                LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Image Update Bump");
 				gBumpImageList.updateImages();  // must be called before gTextureList version so that it's textures are thrown out first.
 			}
 
 			{
-				LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE_LIST);
+                LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("List");
 				F32 max_image_decode_time = 0.050f*gFrameIntervalSeconds.value(); // 50 ms/second decode time
 				max_image_decode_time = llclamp(max_image_decode_time, 0.002f, 0.005f ); // min 2ms/frame, max 5ms/frame)
 				gTextureList.updateImages(max_image_decode_time);
 			}
 
 			{
-				LL_RECORD_BLOCK_TIME(FTM_MATERIALS_FLUSH);
+                LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("GLTF Materials Cleanup");
 				//remove dead gltf materials
                 gGLTFMaterialList.flushMaterials();
 			}
@@ -988,7 +963,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		}
 
 		{
-			LL_RECORD_BLOCK_TIME(FTM_TEXTURE_UNBIND);
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Texture Unbind");
 			for (U32 i = 0; i < gGLManager.mNumTextureImageUnits; i++)
 			{ //dummy cleanup of any currently bound textures
 				if (gGL.getTexUnit(i)->getCurrType() != LLTexUnit::TT_NONE)
@@ -1041,12 +1016,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	
 	stop_glerror();
 
-	if (LLPipeline::sRenderFrameTest)
-	{
-		send_agent_resume();
-		LLPipeline::sRenderFrameTest = FALSE;
-	}
-
 	display_stats();
 				
 	LLAppViewer::instance()->pingMainloopTimeout("Display:Done");
@@ -1063,7 +1032,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 // WIP simplified copy of display() that does minimal work
 void display_cube_face()
 {
-    LL_RECORD_BLOCK_TIME(FTM_RENDER);
+    LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Render Cube Face");
     LL_PROFILE_GPU_ZONE("display cube face");
 
     llassert(!gSnapshot);
@@ -1451,11 +1420,9 @@ void render_ui(F32 zoom_factor, int subfield)
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_SWAP("Swap");
-
 void swap()
 {
-	LL_RECORD_BLOCK_TIME(FTM_SWAP);
+    LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Swap");
     LL_PROFILE_GPU_ZONE("swap");
 	if (gDisplaySwapBuffers)
 	{

@@ -5502,7 +5502,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec[idx]->mTextureMatrix == tex_mat &&
 		draw_vec[idx]->mModelMatrix == model_mat &&
 		draw_vec[idx]->mShaderMask == shader_mask &&
-		draw_vec[idx]->mSelected == selected &&
         draw_vec[idx]->mAvatar == facep->mAvatar &&
         draw_vec[idx]->getSkinHash() == facep->getSkinHash())
 	{
@@ -5600,11 +5599,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		}
 		draw_info->mExtents[0] = facep->mExtents[0];
 		draw_info->mExtents[1] = facep->mExtents[1];
-
-		if (LLPipeline::sUseTriStrips)
-		{
-			draw_info->mDrawMode = LLRender::TRIANGLE_STRIP;
-		}
 
 		if (index < FACE_DO_NOT_BATCH_TEXTURES)
 		{ //initialize texture list for texture batching

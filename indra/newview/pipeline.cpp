@@ -313,7 +313,6 @@ bool	LLPipeline::sRenderTransparentWater = true;
 bool	LLPipeline::sRenderBump = true;
 bool	LLPipeline::sBakeSunlight = false;
 bool	LLPipeline::sNoAlpha = false;
-bool	LLPipeline::sUseTriStrips = true;
 bool	LLPipeline::sUseFarClip = true;
 bool	LLPipeline::sShadowRender = false;
 bool	LLPipeline::sRenderGlow = false;
@@ -323,7 +322,6 @@ bool	LLPipeline::sImpostorRender = false;
 bool	LLPipeline::sImpostorRenderAlphaDepthPass = false;
 bool	LLPipeline::sUnderWaterRender = false;
 bool	LLPipeline::sTextureBindTest = false;
-bool	LLPipeline::sRenderFrameTest = false;
 bool	LLPipeline::sRenderAttachedLights = true;
 bool	LLPipeline::sRenderAttachedParticles = true;
 bool	LLPipeline::sRenderDeferred = false;
@@ -406,7 +404,6 @@ void LLPipeline::init()
 	gOctreeMinSize = gSavedSettings.getF32("OctreeMinimumNodeSize");
 	sDynamicLOD = gSavedSettings.getBOOL("RenderDynamicLOD");
     sRenderBump = TRUE; // DEPRECATED -- gSavedSettings.getBOOL("RenderObjectBump");
-	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
 	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
 	LLVertexBuffer::sUseVAO = gSavedSettings.getBOOL("RenderUseVAO");
 	LLVertexBuffer::sPreferStreamDraw = gSavedSettings.getBOOL("RenderPreferStreamDraw");
@@ -3716,31 +3713,40 @@ void LLPipeline::touchTexture(LLViewerTexture* tex, F32 vsize)
             tex->addTextureStats(vsize);
         }
     }
-
-
 }
+
 void LLPipeline::touchTextures(LLDrawInfo* info)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+    if (--info->mTextureTimer == 0)
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+        // reset texture timer in a noisy fashion to avoid clumping of updates
+        const U32 MIN_WAIT_TIME = 8;
+        const U32 MAX_WAIT_TIME = 16;
 
-    auto& mat = info->mGLTFMaterial;
-    if (mat.notNull())
-    {
-        touchTexture(mat->mBaseColorTexture, info->mVSize);
-        touchTexture(mat->mNormalTexture, info->mVSize);
-        touchTexture(mat->mMetallicRoughnessTexture, info->mVSize);
-        touchTexture(mat->mEmissiveTexture, info->mVSize);
-    }
-    else
-    {
-        for (int i = 0; i < info->mTextureList.size(); ++i)
+        info->mTextureTimer = ll_rand() % (MAX_WAIT_TIME - MIN_WAIT_TIME) + MIN_WAIT_TIME;
+
+        auto& mat = info->mGLTFMaterial;
+        if (mat.notNull())
         {
-            touchTexture(info->mTextureList[i], info->mTextureListVSize[i]);
+            touchTexture(mat->mBaseColorTexture, info->mVSize);
+            touchTexture(mat->mNormalTexture, info->mVSize);
+            touchTexture(mat->mMetallicRoughnessTexture, info->mVSize);
+            touchTexture(mat->mEmissiveTexture, info->mVSize);
         }
+        else
+        {
+            info->mTextureTimer += (U8) info->mTextureList.size();
 
-        touchTexture(info->mTexture, info->mVSize);
-        touchTexture(info->mSpecularMap, info->mVSize);
-        touchTexture(info->mNormalMap, info->mVSize);
+            for (int i = 0; i < info->mTextureList.size(); ++i)
+            {
+                touchTexture(info->mTextureList[i], info->mTextureListVSize[i]);
+            }
+
+            touchTexture(info->mTexture, info->mVSize);
+            touchTexture(info->mSpecularMap, info->mVSize);
+            touchTexture(info->mNormalMap, info->mVSize);
+        }
     }
 }
 
@@ -3829,7 +3835,7 @@ void LLPipeline::postSort(LLCamera& camera)
                 if (!sShadowRender && !sReflectionRender && !gCubeSnapshot)
                 {
                     touchTextures(info);
-                    addTrianglesDrawn(info->mCount, info->mDrawMode);
+                    addTrianglesDrawn(info->mCount);
                 }
             }
 		}
@@ -4831,28 +4837,19 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 }
 
 
-void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_type)
+static U32 sIndicesDrawnCount = 0;
+
+void LLPipeline::addTrianglesDrawn(S32 index_count)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-	assertInitialized();
-	S32 count = 0;
-	if (render_type == LLRender::TRIANGLE_STRIP)
-	{
-		count = index_count-2;
-	}
-	else
-	{
-		count = index_count/3;
-	}
+    sIndicesDrawnCount += index_count;
+}
 
-	record(sStatBatchSize, count);
-	add(LLStatViewer::TRIANGLES_DRAWN, LLUnits::Triangles::fromValue(count));
-
-	if (LLPipeline::sRenderFrameTest)
-	{
-		gViewerWindow->getWindow()->swapBuffers();
-		ms_sleep(16);
-	}
+void LLPipeline::recordTrianglesDrawn()
+{
+    assertInitialized();
+    U32 count = sIndicesDrawnCount / 3;
+    sIndicesDrawnCount = 0;
+    add(LLStatViewer::TRIANGLES_DRAWN, LLUnits::Triangles::fromValue(count));
 }
 
 void LLPipeline::renderPhysicsDisplay()
@@ -7385,7 +7382,6 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 	updateRenderBump();
 	updateRenderDeferred();
 
-	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
 	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
 	LLVertexBuffer::sUseVAO = gSavedSettings.getBOOL("RenderUseVAO");
 	LLVertexBuffer::sPreferStreamDraw = gSavedSettings.getBOOL("RenderPreferStreamDraw");
@@ -8246,6 +8242,9 @@ void LLPipeline::renderFinalize()
 
     LLGLState::checkStates();
     LLGLState::checkTextureChannels();
+
+    // flush calls made to "addTrianglesDrawn" so far to stats machinery
+    recordTrianglesDrawn();
 }
 
 void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_target)
