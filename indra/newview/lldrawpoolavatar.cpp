@@ -386,7 +386,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	LLVOAvatar::AvatarOverallAppearance oa = avatarp->getOverallAppearance();
 	BOOL impostor = !LLPipeline::sImpostorRender && avatarp->isImpostor();    
     // no shadows if the shadows are causing this avatar to breach the limit.
-    if (avatarp->isTooSlowWithShadows() || impostor || (oa == LLVOAvatar::AOA_INVISIBLE))
+    if (avatarp->isTooSlow() || impostor || (oa == LLVOAvatar::AOA_INVISIBLE))
 	{
         // No shadows for impostored (including jellydolled) or invisible avs.
 		return;

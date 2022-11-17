@@ -3137,7 +3137,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 																 LLPartData::LL_PART_TARGET_POS_MASK );
 			
 			// do not generate particles for dummy or overly-complex avatars
-			if (!mIsDummy && !isTooComplex() && !isTooSlowWithShadows())
+			if (!mIsDummy && !isTooComplex() && !isTooSlow())
 			{
 				setParticleSource(particle_parameters, getID());
 			}
@@ -3718,7 +3718,7 @@ bool LLVOAvatar::isVisuallyMuted()
         }
 		else 
 		{
-			muted = isTooComplex() || isTooSlowWithShadows();
+			muted = isTooComplex() || isTooSlow();
 		}
 	}
 
@@ -8288,6 +8288,18 @@ bool LLVOAvatar::isTooComplex() const
 	return too_complex;
 }
 
+bool LLVOAvatar::isTooSlow() const
+{
+    static LLCachedControl<bool> always_render_friends(gSavedSettings, "AlwaysRenderFriends");
+    bool render_friend =  (LLAvatarTracker::instance().isBuddy(getID()) && always_render_friends);
+
+    if (render_friend || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
+    {
+        return false;
+    }
+    return mTooSlow;
+}
+
 // use Avatar Render Time as complexity metric
 // markARTStale - Mark stale and set the frameupdate to now so that we can wait at least one frame to get a revised number.
 void LLVOAvatar::markARTStale()
@@ -11189,7 +11201,7 @@ LLVOAvatar::AvatarOverallAppearance LLVOAvatar::getOverallAppearance() const
 		{	// Always want to see this AV as an impostor
 			result = AOA_JELLYDOLL;
 		}
-		else if (isTooComplex() || isTooSlowWithShadows())
+		else if (isTooComplex() || isTooSlow())
 		{
 			result = AOA_JELLYDOLL;
 		}
@@ -11216,7 +11228,7 @@ void LLVOAvatar::calcMutedAVColor()
         new_color = LLColor4::grey4;
         change_msg = " blocked: color is grey4";
     }
-    else if (!isTooComplex() && !isTooSlowWithShadows())
+    else if (!isTooComplex() && !isTooSlow())
     {
         new_color = LLColor4::white;
         change_msg = " simple imposter ";

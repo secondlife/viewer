@@ -5993,7 +5993,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 			LLDrawable* drawable = light->drawable;
             const LLViewerObject *vobj = light->drawable->getVObj();
             if(vobj && vobj->getAvatar() 
-               && (vobj->getAvatar()->isTooComplex() || vobj->getAvatar()->isInMuteList() || vobj->getAvatar()->isTooSlowWithShadows())
+               && (vobj->getAvatar()->isTooComplex() || vobj->getAvatar()->isInMuteList() || vobj->getAvatar()->isTooSlow())
                )
             {
                 drawable->clearState(LLDrawable::NEARBY_LIGHT);
@@ -6072,7 +6072,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 				continue;
 			}
             LLVOAvatar * av = light->getAvatar();
-            if (av && (av->isTooComplex() || av->isInMuteList() || av->isTooSlowWithShadows()))
+            if (av && (av->isTooComplex() || av->isInMuteList() || av->isTooSlow()))
             {
                 // avatars that are already in the list will be removed by removeMutedAVsLights
                 continue;
@@ -10856,7 +10856,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
                               << " is " << ( too_complex ? "" : "not ") << "too complex"
                               << LL_ENDL;
 
-    bool too_slow = avatar->isTooSlowWithShadows();
+    bool too_slow = avatar->isTooSlow();
 
     pushRenderTypeMask();
 

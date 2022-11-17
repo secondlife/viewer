@@ -372,7 +372,7 @@ void LLFloaterPerformance::populateNearbyList()
             auto render_av_raw  = LLPerfStats::StatsRecorder::get(AvType, avatar->getID(),LLPerfStats::StatType_t::RENDER_COMBINED);
             LLPerfStats::bufferToggleLock.unlock();
 
-            auto is_slow = avatar->isTooSlowWithShadows();
+            auto is_slow = avatar->isTooSlow();
             LLSD item;
             item["id"] = avatar->getID();
             LLSD& row = item["columns"];
