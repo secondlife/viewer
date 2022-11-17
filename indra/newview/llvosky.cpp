@@ -525,6 +525,11 @@ void LLVOSky::calc()
 
 void LLVOSky::initCubeMap()
 {
+    if (LLPipeline::sReflectionProbesEnabled)
+    {
+        return;
+    }
+
 	std::vector<LLPointer<LLImageRaw> > images;
 	for (S32 side = 0; side < NUM_CUBEMAP_FACES; side++)
 	{
@@ -715,7 +720,7 @@ bool LLVOSky::updateSky()
             mForceUpdate = FALSE;
 		}
 	}
-    else if (mCubeMapUpdateStage == NUM_CUBEMAP_FACES)
+    else if (mCubeMapUpdateStage == NUM_CUBEMAP_FACES && !LLPipeline::sReflectionProbesEnabled)
 	{
         LL_PROFILE_ZONE_NAMED("updateSky - forced");
         LLSkyTex::stepCurrent();
@@ -776,7 +781,7 @@ bool LLVOSky::updateSky()
         mCubeMapUpdateStage = -1;
     }
     // run 0 to 5 faces, each face in own frame
-    else if (mCubeMapUpdateStage >= 0 && mCubeMapUpdateStage < NUM_CUBEMAP_FACES)
+    else if (mCubeMapUpdateStage >= 0 && mCubeMapUpdateStage < NUM_CUBEMAP_FACES && !LLPipeline::sReflectionProbesEnabled)
 	{
         LL_PROFILE_ZONE_NAMED("updateSky - create");
         S32 side = mCubeMapUpdateStage;

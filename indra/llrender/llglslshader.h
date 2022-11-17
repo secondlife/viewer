@@ -181,6 +181,7 @@ public:
 	void mapUniform(GLint index, const std::vector<LLStaticHashedString> *);
 	void uniform1i(U32 index, GLint i);
 	void uniform1f(U32 index, GLfloat v);
+    void fastUniform1f(U32 index, GLfloat v);
 	void uniform2f(U32 index, GLfloat x, GLfloat y);
 	void uniform3f(U32 index, GLfloat x, GLfloat y, GLfloat z);
 	void uniform4f(U32 index, GLfloat x, GLfloat y, GLfloat z, GLfloat w);

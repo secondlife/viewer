@@ -65,11 +65,6 @@ public:
 	void beginDeferredPass(S32 pass) override;
 	void endDeferredPass(S32 pass) override;
 	void renderDeferred(S32 pass) override;
-	
-	void bindSpecularMap(LLViewerTexture* tex);
-	void bindNormalMap(LLViewerTexture* tex);
-	
-	void pushMaterialsBatch(LLDrawInfo& params, U32 mask, bool rigged);
 };
 
 #endif //LL_LLDRAWPOOLMATERIALS_H

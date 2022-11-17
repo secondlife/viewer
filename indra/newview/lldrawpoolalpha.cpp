@@ -459,13 +459,11 @@ bool LLDrawPoolAlpha::TexSetup(LLDrawInfo* draw, bool use_material)
         {
             if (draw->mNormalMap)
             {
-                draw->mNormalMap->addTextureStats(draw->mVSize);
                 current_shader->bindTexture(LLShaderMgr::BUMP_MAP, draw->mNormalMap);
             }
 
             if (draw->mSpecularMap)
             {
-                draw->mSpecularMap->addTextureStats(draw->mVSize);
                 current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, draw->mSpecularMap);
             }
         }

@@ -438,6 +438,47 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	//MAINT-516 -- force a load of opengl32.dll just in case windows went sideways 
 	LoadLibrary(L"opengl32.dll");
 
+#if 0 // this is probably a bad idea, but keep it in your back pocket if you see what looks like
+        // process deprioritization during profiles
+    // force high thread priority
+    HANDLE hProcess = GetCurrentProcess();
+    HANDLE hThread = GetCurrentThread();
+
+    if (hProcess)
+    {
+        int priority = GetPriorityClass(hProcess);
+        if (priority < REALTIME_PRIORITY_CLASS)
+        {
+            if (SetPriorityClass(hProcess, REALTIME_PRIORITY_CLASS))
+            {
+                LL_INFOS() << "Set process priority to REALTIME_PRIORITY_CLASS" << LL_ENDL;
+            }
+            else
+            {
+                LL_INFOS() << "Failed to set process priority: " << std::hex << GetLastError() << LL_ENDL;
+            }
+        }
+    }
+
+    if (hThread)
+    {
+        int priority = GetThreadPriority(hThread);
+
+        if (priority < THREAD_PRIORITY_TIME_CRITICAL)
+        {
+            if (SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL))
+            {
+                LL_INFOS() << "Set thread priority to THREAD_PRIORITY_TIME_CRITICAL" << LL_ENDL;
+            }
+            else
+            {
+                LL_INFOS() << "Failed to set thread priority: " << std::hex << GetLastError() << LL_ENDL;
+            }
+        }
+    }
+#endif
+
+
 	mFSAASamples = fsaa_samples;
 	mIconResource = gIconResource;
 	mOverrideAspectRatio = 0.f;
@@ -3554,7 +3595,7 @@ BOOL LLWindowWin32::setDisplayResolution(S32 width, S32 height, S32 bits, S32 re
 	// Don't change anything if we don't have to
 	if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode))
 	{
-		if (dev_mode.dmPelsWidth        == width &&
+		if (dev_mode.dmPelsWidth        == width && 
 			dev_mode.dmPelsHeight       == height &&
 			dev_mode.dmBitsPerPel       == bits &&
 			dev_mode.dmDisplayFrequency == refresh )
@@ -3620,15 +3661,15 @@ BOOL LLWindowWin32::resetDisplayResolution()
 
 void LLWindowWin32::swapBuffers()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
-    ASSERT_MAIN_THREAD();
     {
-        LL_PROFILE_GPU_ZONE("flush");
-        glFlush(); //superstitious flush for maybe frame stall removal?
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
+        SwapBuffers(mhDC);
     }
-	SwapBuffers(mhDC);
 
-    LL_PROFILER_GPU_COLLECT;
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("GPU Collect");
+        LL_PROFILER_GPU_COLLECT;
+    }
 }
 
 
