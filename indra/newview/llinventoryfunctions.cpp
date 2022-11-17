@@ -791,7 +791,7 @@ void show_item_original(const LLUUID& item_uuid)
         LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
         if (main_inventory)
         {
-            main_inventory->resetFilters();
+            main_inventory->resetAllItemsFilters();
         }
         reset_inventory_filter();
 
