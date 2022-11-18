@@ -183,10 +183,10 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     LLGLSLShader* materialShader = LLPipeline::sUnderWaterRender ? gDeferredMaterialWaterProgram : gDeferredMaterialProgram;
     for (int i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
     {
-        prepare_alpha_shader(&materialShader[i], false, false, water_sign);
+        prepare_alpha_shader(&materialShader[i], false, true, water_sign);
     }
 
-    prepare_alpha_shader(&gDeferredPBRAlphaProgram, false, false, water_sign);
+    prepare_alpha_shader(&gDeferredPBRAlphaProgram, false, true, water_sign);
 
     // first pass, render rigged objects only and render to depth buffer
     forwardRender(true);
@@ -674,10 +674,10 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                         target_shader = target_shader->mRiggedVariant;
                     }
 
+                    // shader must be bound before LLGLTFMaterial::bind
                     if (current_shader != target_shader)
                     {
-                        target_shader->bind();
-                        //gPipeline.bindDeferredShader(*target_shader);
+                        gPipeline.bindDeferredShaderFast(*target_shader);
                     }
 
                     params.mGLTFMaterial->bind(target_shader);
@@ -725,12 +725,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                             llassert(target_shader->mRiggedVariant != nullptr);
                             target_shader = target_shader->mRiggedVariant;
                         }
-
-                        if (current_shader != target_shader)
-                        {
-                            //gPipeline.bindDeferredShader(*target_shader);
-                            target_shader->bind();
-                        }
                     }
                     else if (!params.mFullbright)
                     {
@@ -750,8 +744,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                     if (current_shader != target_shader)
                     {// If we need shaders, and we're not ALREADY using the proper shader, then bind it
                     // (this way we won't rebind shaders unnecessarily).
-                        //gPipeline.bindDeferredShader(*target_shader);
-                        target_shader->bind();
+                        gPipeline.bindDeferredShaderFast(*target_shader);
                     }
 
                     LLVector4 spec_color(1, 1, 1, 1);

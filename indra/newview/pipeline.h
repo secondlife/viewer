@@ -293,6 +293,12 @@ public:
 	void renderGeomDeferred(LLCamera& camera, bool do_occlusion = false);
 	void renderGeomPostDeferred(LLCamera& camera);
 	void renderGeomShadow(LLCamera& camera);
+    void bindLightFunc(LLGLSLShader& shader);
+
+    // bind shadow maps
+    // if setup is true, wil lset texture compare mode function and filtering options
+    void bindShadowMaps(LLGLSLShader& shader);
+    void bindDeferredShaderFast(LLGLSLShader& shader);
 	void bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_target = nullptr);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
