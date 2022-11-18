@@ -36,7 +36,7 @@
 // (2) Add line like this to the particular test
 //        solver.enableDebugIfPossible();
 //     right before a line like:
-//        solver.configureAndSolve();
+//        solver.solve();
 // (3) Compile and link
 // (5) Run the test from the CLI and pipe the output to a file:
 //        ./PROJECT_llcharacter_TEST_llik.exe > /tmp/test_data
@@ -823,7 +823,8 @@ namespace tut
             LLIK::Solver::joint_config_map_t configs;
             configs.insert({last_joint_id, config});
 
-            F32 max_error = solver.configureAndSolve(configs);
+            solver.updateJointConfigs(configs);
+            F32 max_error = solver.solve();
             ensure("LLIK::Solver reachable target sans-constraints should have low error", max_error < allowable_error);
         }
 
@@ -835,7 +836,8 @@ namespace tut
             LLIK::Solver::joint_config_map_t configs;
             configs.insert({last_joint_id, config});
 
-            F32 max_error = solver.configureAndSolve(configs);
+            solver.updateJointConfigs(configs);
+            F32 max_error = solver.solve();
             ensure("LLIK::Solver unreachable target is expected to have high error", max_error > ACCEPTABLE_ERROR);
         }
 
@@ -850,7 +852,8 @@ namespace tut
             configs.insert({root_joint_id, config});
 
             //solver.enableDebugIfPossible();
-            F32 max_error = solver.configureAndSolve(configs);
+            solver.updateJointConfigs(configs);
+            F32 max_error = solver.solve();
             ensure("LLIK::Solver reachable target sans-constraints after moving root", max_error < ACCEPTABLE_ERROR);
         }
 	}
@@ -925,7 +928,8 @@ namespace tut
             LLIK::Solver::joint_config_map_t configs;
             configs.insert({last_joint_id, config});
 
-            F32 max_error = solver.configureAndSolve(configs);
+            solver.updateJointConfigs(configs);
+            F32 max_error = solver.solve();
             ensure("LLIK::Solver reachable target sans-constraints should have low error", max_error < ACCEPTABLE_ERROR);
         }
 
@@ -980,7 +984,8 @@ namespace tut
             configs.insert({last_joint_id, config});
 
             //solver.enableDebugIfPossible();
-            F32 max_error = solver.configureAndSolve(configs);
+            solver.updateJointConfigs(configs);
+            F32 max_error = solver.solve();
             ensure("LLIK::Solver reachable target with constraints should have low error", max_error < ACCEPTABLE_ERROR);
         }
 	}
@@ -1101,7 +1106,8 @@ namespace tut
 
             //solver.enableDebugIfPossible();
 
-            F32 max_error = solver.configureAndSolve(configs);
+            solver.updateJointConfigs(configs);
+            F32 max_error = solver.solve();
             ensure("LLIK::Solver reachable multi-targets (3) are expected to have low error", max_error < allowable_error);
             F32 error = dist_vec(solver.getJointWorldEndPos(neck_id), neck_pos);
             ensure("LLIK::Solver Neck should reach target", error < ACCEPTABLE_ERROR);
@@ -1121,7 +1127,8 @@ namespace tut
             // are pulling the skeleton into place.
             F32 allowable_error = 0.03f;
 
-            F32 max_error = solver.configureAndSolve(configs);
+            solver.updateJointConfigs(configs);
+            F32 max_error = solver.solve();
             ensure("LLIK::Solver reachable multi-targets (2) are expected to have low error", max_error < allowable_error);
             F32 error = dist_vec(solver.getJointWorldEndPos(right_hand_id), right_hand_pos);
             ensure("LLIK::Solver RightHand should reach target", error < allowable_error);
@@ -1383,7 +1390,8 @@ namespace tut
 
         // solve
         //solver.enableDebugIfPossible();
-        solver.configureAndSolve(configs);
+        solver.updateJointConfigs(configs);
+        F32 max_error = solver.solve();
 
         // check results
         // Note; this test does not quite reach ACCEPTABLE_ERROR after 16 iterations
@@ -1823,7 +1831,8 @@ namespace tut
 
         // solve
         //solver.enableDebugIfPossible();
-        solver.configureAndSolve(configs);
+        solver.updateJointConfigs(configs);
+        solver.solve();
         F32 error = dist_vec(solver.getJointWorldEndPos(ELBOW_INDEX), target_position);
         ensure("LLIK::Solver elbow should reach target", error < ACCEPTABLE_ERROR);
     }
@@ -1874,7 +1883,8 @@ namespace tut
 
         // solve
         //solver.enableDebugIfPossible();
-        solver.configureAndSolve(configs);
+        solver.updateJointConfigs(configs);
+        solver.solve();
 
         // check results
         // Note; this test does not quite reach ACCEPTABLE_ERROR after 16 iterations
@@ -2076,7 +2086,8 @@ namespace tut
 
         // solve
         //solver.enableDebugIfPossible();
-        solver.configureAndSolve(configs);
+        solver.updateJointConfigs(configs);
+        solver.solve();
 
         LLVector3 actual_position = solver.getJointWorldEndPos(WRIST_INDEX);
         F32 position_error = dist_vec(target_position, actual_position);

@@ -165,7 +165,7 @@ private:
     void measureArmSpan();
     void queueEvent(const LLPuppetEvent& event);
     void applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::Solver::joint_config_map_t& targets);
-    void applyBroadcastEvent(const LLPuppetJointEvent& event, Timestamp now, bool local_puppetry);
+    void applyBroadcastEvent(const LLPuppetJointEvent& event, Timestamp now);
     void packEvents();
     void pumpOutgoingEvents();
     void solveIKAndHarvestResults(const LLIK::Solver::joint_config_map_t& configs, Timestamp now);
