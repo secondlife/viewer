@@ -175,12 +175,10 @@ public:
             return false;
         }
 
-        if (!message.has("sides")
-            || !message.has("gltf_json")
-            || !message.has("object_id"))
+        if (!message.has("object_id"))
         {
             // malformed message, nothing we can do to handle it
-            LL_DEBUGS("GLTF") << "Malformed message:" << message << LL_ENDL;
+            LL_DEBUGS("GLTF") << "Message without id:" << message << LL_ENDL;
             return false;
         }
 
@@ -247,12 +245,13 @@ public:
             {
 
             LLUUID object_id = message.get("object_id").asUUID();
-            LLSD const& sides = message.get("sides");
             LLViewerObject * obj = gObjectList.findObject(object_id);
-            std::unordered_set<S32> side_set;
 
             if (result.mResults.size() > 0 )
             {
+                LLSD const& sides = message.get("sides");
+                std::unordered_set<S32> side_set;
+
                 for (int i = 0; i < result.mResults.size(); ++i)
                 {
                     if (result.mResults[i])
