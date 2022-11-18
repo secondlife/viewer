@@ -171,6 +171,16 @@ public:
         else
         {
             // malformed message, nothing we can do to handle it
+            LL_DEBUGS("GLTF") << "Empty message" << LL_ENDL;
+            return false;
+        }
+
+        if (!message.has("sides")
+            || !message.has("gltf_json")
+            || !message.has("object_id"))
+        {
+            // malformed message, nothing we can do to handle it
+            LL_DEBUGS("GLTF") << "Malformed message:" << message << LL_ENDL;
             return false;
         }
 
@@ -226,7 +236,7 @@ public:
                         }
                         else
                         {
-                            LL_WARNS() << "failed to parse GLTF override data.  errors: " << error_msg << " | warnings: " << warn_msg << LL_ENDL;
+                            LL_WARNS("GLTF") << "failed to parse GLTF override data.  errors: " << error_msg << " | warnings: " << warn_msg << LL_ENDL;
                         }
                     }
                 }
@@ -234,10 +244,10 @@ public:
             return result;
         },
             [message](ReturnData result) // Callback to main thread
-            mutable {
+            {
 
-            LLUUID object_id = message["object_id"].asUUID();
-            LLSD& sides = message["sides"];
+            LLUUID object_id = message.get("object_id").asUUID();
+            LLSD const& sides = message.get("sides");
             LLViewerObject * obj = gObjectList.findObject(object_id);
             std::unordered_set<S32> side_set;
 
@@ -449,7 +459,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
 
     if (status != LL_ERR_NOERR)
     {
-        LL_WARNS() << "Error getting material asset data: " << LLAssetStorage::getErrorString(status) << " (" << status << ")" << LL_ENDL;
+        LL_WARNS("GLTF") << "Error getting material asset data: " << LLAssetStorage::getErrorString(status) << " (" << status << ")" << LL_ENDL;
         asset_data->mMaterial->mFetching = false;
         delete asset_data;
     }
@@ -504,7 +514,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
 
                                 if (!gltf.LoadASCIIFromString(&asset_data->mModelIn, &error_msg, &warn_msg, data.c_str(), data.length(), ""))
                                 {
-                                    LL_WARNS() << "Failed to decode material asset: "
+                                    LL_WARNS("GLTF") << "Failed to decode material asset: "
                                         << LL_NEWLINE
                                         << warn_msg
                                         << LL_NEWLINE
@@ -519,14 +529,14 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
                 }
                 else
                 {
-                    LL_WARNS() << "Failed to deserialize material LLSD" << LL_ENDL;
+                    LL_WARNS("GLTF") << "Failed to deserialize material LLSD" << LL_ENDL;
                 }
             }
 
             return false;
         },
             [id, asset_data](bool result) // Callback to main thread
-            mutable {
+            {
 
             if (result)
             {
@@ -534,7 +544,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
             }
             else
             {
-                LL_DEBUGS() << "Failed to get material " << id << LL_ENDL;
+                LL_DEBUGS("GLTF") << "Failed to get material " << id << LL_ENDL;
             }
             asset_data->mMaterial->mFetching = false;
             delete asset_data;
@@ -661,7 +671,7 @@ void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides,
 
     httpOpts->setFollowRedirects(true);
 
-    LL_DEBUGS() << "Applying override via ModifyMaterialParams cap: " << overrides << LL_ENDL;
+    LL_DEBUGS("GLTF") << "Applying override via ModifyMaterialParams cap: " << overrides << LL_ENDL;
 
     LLSD result = httpAdapter->postAndSuspend(httpRequest, cap_url, overrides, httpOpts, httpHeaders);
 
@@ -671,12 +681,12 @@ void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides,
     bool success = true;
     if (!status)
     {
-        LL_WARNS() << "Failed to modify material." << LL_ENDL;
+        LL_WARNS("GLTF") << "Failed to modify material." << LL_ENDL;
         success = false;
     }
     else if (!result["success"].asBoolean())
     {
-        LL_WARNS() << "Failed to modify material: " << result["message"] << LL_ENDL;
+        LL_WARNS("GLTF") << "Failed to modify material: " << result["message"] << LL_ENDL;
         success = false;
     }
 
@@ -688,7 +698,7 @@ void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides,
 
 void LLGLTFMaterialList::writeCacheOverrides(LLSD const & message, std::string const & llsdRaw)
 {
-    LL_DEBUGS() << "material overrides cache" << LL_ENDL;
+    LL_DEBUGS("GLTF") << "material overrides cache" << LL_ENDL;
 
     // default to main region if message doesn't specify
     LLViewerRegion * region = gAgent.getRegion();;
@@ -705,7 +715,7 @@ void LLGLTFMaterialList::writeCacheOverrides(LLSD const & message, std::string c
     if (region) {
         region->cacheFullUpdateExtras(message, llsdRaw);
     } else {
-        LL_WARNS() << "could not access region for material overrides message cache, region_handle: " << LL_ENDL;
+        LL_WARNS("GLTF") << "could not access region for material overrides message cache, region_handle: " << LL_ENDL;
     }
 }
 
