@@ -104,6 +104,8 @@
               <menu_item_call.on_click
                function="Inventory.DoCreate"
                parameter="material" />
+              <menu_item_call.on_enable
+                      function="Inventory.MaterialsEnabled" />
             </menu_item_call>
             <menu
              height="175"

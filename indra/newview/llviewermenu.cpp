@@ -2807,6 +2807,11 @@ struct LLSelectedTEGetmatIdAndPermissions : public LLSelectedTEFunctor
 
 bool enable_object_edit_gltf_material()
 {
+    if (!LLMaterialEditor::capabilitiesAvalaible())
+    {
+        return false;
+    }
+
     LLSelectedTEGetmatIdAndPermissions func;
     LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
     return func.mCanModify && func.mMaterialId.notNull();
@@ -2814,6 +2819,11 @@ bool enable_object_edit_gltf_material()
 
 bool enable_object_save_gltf_material()
 {
+    if (!LLMaterialEditor::capabilitiesAvalaible())
+    {
+        return false;
+    }
+
     LLSelectedTEGetmatIdAndPermissions func;
     LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
     return func.mCanCopy && func.mMaterialId.notNull();

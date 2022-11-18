@@ -127,6 +127,7 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 	mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars, this));
 
     mEnableCallbackRegistrar.add("Inventory.EnvironmentEnabled", [](LLUICtrl *, const LLSD &) { return LLPanelMainInventory::hasSettingsInventory(); });
+    mEnableCallbackRegistrar.add("Inventory.MaterialsEnabled", [](LLUICtrl *, const LLSD &) { return LLPanelMainInventory::hasMaterialsInventory(); });
 
 
 	mSavedFolderState = new LLSaveFolderState();
@@ -1593,6 +1594,14 @@ void LLPanelMainInventory::setUploadCostIfNeeded()
 bool LLPanelMainInventory::hasSettingsInventory()
 {
     return LLEnvironment::instance().isInventoryEnabled();
+}
+
+bool LLPanelMainInventory::hasMaterialsInventory()
+{
+    std::string agent_url = gAgent.getRegionCapability("UpdateMaterialAgentInventory");
+    std::string task_url = gAgent.getRegionCapability("UpdateMaterialTaskInventory");
+
+    return (!agent_url.empty() && !task_url.empty());
 }
 
 // List Commands                                                              //

@@ -2652,7 +2652,7 @@ void LLViewerRegion::cacheFullUpdateExtras(LLSD const & extras, std::string cons
     }
     else
     {
-        LL_WARNS() << "got material override for unknown object_id, cannot cache it" << LL_ENDL;
+        LL_WARNS("GLTF") << "got material override for unknown object_id, cannot cache it" << LL_ENDL;
     }
 }
 

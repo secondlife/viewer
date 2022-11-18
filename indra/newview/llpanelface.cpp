@@ -1774,6 +1774,7 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
     has_pbr_material = false;
 
     BOOL editable = objectp->permModify() && !objectp->isPermanentEnforced();
+    bool has_pbr_capabilities = LLMaterialEditor::capabilitiesAvalaible();
 
     // pbr material
     LLTextureCtrl* pbr_ctrl = findChild<LLTextureCtrl>("pbr_control");
@@ -1784,13 +1785,14 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
         LLSelectedTE::getPbrMaterialId(pbr_id, identical_pbr);
 
         pbr_ctrl->setTentative(identical_pbr ? FALSE : TRUE);
-        pbr_ctrl->setEnabled(editable);
+        pbr_ctrl->setEnabled(editable && has_pbr_capabilities);
         pbr_ctrl->setImageAssetID(pbr_id);
         has_pbr_material = pbr_id.notNull();
     }
-    getChildView("pbr_from_inventory")->setEnabled(editable);
-    getChildView("edit_selected_pbr")->setEnabled(editable && has_pbr_material);
-    getChildView("save_selected_pbr")->setEnabled(objectp->permCopy() && has_pbr_material);
+
+    getChildView("pbr_from_inventory")->setEnabled(editable && has_pbr_capabilities);
+    getChildView("edit_selected_pbr")->setEnabled(editable && has_pbr_material && has_pbr_capabilities);
+    getChildView("save_selected_pbr")->setEnabled(objectp->permCopy() && has_pbr_material && has_pbr_capabilities);
 
     const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
     if (show_pbr)
@@ -1806,11 +1808,11 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
         LLUICtrl* gltfCtrlTextureOffsetU = getChild<LLUICtrl>("gltfTextureOffsetU");
         LLUICtrl* gltfCtrlTextureOffsetV = getChild<LLUICtrl>("gltfTextureOffsetV");
 
-        gltfCtrlTextureScaleU->setEnabled(show_texture_info);
-        gltfCtrlTextureScaleV->setEnabled(show_texture_info);
-        gltfCtrlTextureRotation->setEnabled(show_texture_info);
-        gltfCtrlTextureOffsetU->setEnabled(show_texture_info);
-        gltfCtrlTextureOffsetV->setEnabled(show_texture_info);
+        gltfCtrlTextureScaleU->setEnabled(show_texture_info && has_pbr_capabilities);
+        gltfCtrlTextureScaleV->setEnabled(show_texture_info && has_pbr_capabilities);
+        gltfCtrlTextureRotation->setEnabled(show_texture_info && has_pbr_capabilities);
+        gltfCtrlTextureOffsetU->setEnabled(show_texture_info && has_pbr_capabilities);
+        gltfCtrlTextureOffsetV->setEnabled(show_texture_info && has_pbr_capabilities);
 
         if (show_texture_info)
         {
@@ -1823,23 +1825,23 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
 
             readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
             {
-                return mat->mTextureTransform[texture_info].mScale[VX];
+                return mat ? mat->mTextureTransform[texture_info].mScale[VX] : 0.f;
             }, transform.mScale[VX], scale_u_same, true, 1e-3f);
             readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
             {
-                return mat->mTextureTransform[texture_info].mScale[VY];
+                return mat ? mat->mTextureTransform[texture_info].mScale[VY] : 0.f;
             }, transform.mScale[VY], scale_v_same, true, 1e-3f);
             readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
             {
-                return mat->mTextureTransform[texture_info].mRotation;
+                return mat ? mat->mTextureTransform[texture_info].mRotation : 0.f;
             }, transform.mRotation, rotation_same, true, 1e-3f);
             readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
             {
-                return mat->mTextureTransform[texture_info].mOffset[VX];
+                return mat ? mat->mTextureTransform[texture_info].mOffset[VX] : 0.f;
             }, transform.mOffset[VX], offset_u_same, true, 1e-3f);
             readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
             {
-                return mat->mTextureTransform[texture_info].mOffset[VY];
+                return mat ? mat->mTextureTransform[texture_info].mOffset[VY] : 0.f;
             }, transform.mOffset[VY], offset_v_same, true, 1e-3f);
 
             gltfCtrlTextureScaleU->setValue(transform.mScale[VX]);
