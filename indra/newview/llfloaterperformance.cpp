@@ -262,7 +262,7 @@ void LLFloaterPerformance::populateHUDList()
 
         row[1]["column"] = "complex_value";
         row[1]["type"] = "text";
-        row[1]["value"] = llformat( "%.f",LLPerfStats::raw_to_us(hud_render_time_raw) );
+        row[1]["value"] = llformat( "%.f", llmax(LLPerfStats::raw_to_us(hud_render_time_raw), (double)1));
         row[1]["font"]["name"] = "SANSSERIF";
  
         row[2]["column"] = "name";
@@ -321,7 +321,7 @@ void LLFloaterPerformance::populateObjectList()
 
             row[1]["column"] = "complex_value";
             row[1]["type"] = "text";
-            row[1]["value"] = llformat("%.f", LLPerfStats::raw_to_us(attach_render_time_raw));
+            row[1]["value"] = llformat("%.f", llmax(LLPerfStats::raw_to_us(attach_render_time_raw), (double)1));
             row[1]["font"]["name"] = "SANSSERIF";
 
             row[2]["column"] = "name";
