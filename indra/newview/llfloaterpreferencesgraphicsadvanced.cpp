@@ -58,6 +58,7 @@ LLFloaterPreferenceGraphicsAdvanced::LLFloaterPreferenceGraphicsAdvanced(const L
 LLFloaterPreferenceGraphicsAdvanced::~LLFloaterPreferenceGraphicsAdvanced()
 {
     mComplexityChangedSignal.disconnect();
+    mLODFactorChangedSignal.disconnect();
 }
 
 BOOL LLFloaterPreferenceGraphicsAdvanced::postBuild()
@@ -77,8 +78,8 @@ BOOL LLFloaterPreferenceGraphicsAdvanced::postBuild()
     use_HiDPI->setVisible(FALSE);
 #endif
 
-    mComplexityChangedSignal = gSavedSettings.getControl("RenderAvatarMaxComplexity")->getCommitSignal()->connect(boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateComplexityText, this));
-
+    mComplexityChangedSignal = gSavedSettings.getControl("RenderAvatarMaxComplexity")->getCommitSignal()->connect(boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateComplexityText, this)); 
+    mLODFactorChangedSignal = gSavedSettings.getControl("RenderVolumeLODFactor")->getCommitSignal()->connect(boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateObjectMeshDetailText, this));
     return TRUE;
 }
 
@@ -162,6 +163,11 @@ void LLFloaterPreferenceGraphicsAdvanced::updateComplexityText()
 {
     LLAvatarComplexityControls::setText(gSavedSettings.getU32("RenderAvatarMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText", true));
+}
+
+void LLFloaterPreferenceGraphicsAdvanced::updateObjectMeshDetailText()
+{
+    updateSliderText(getChild<LLSliderCtrl>("ObjectMeshDetail", true), getChild<LLTextBox>("ObjectMeshDetailText", true));
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box)
