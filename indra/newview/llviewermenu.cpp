@@ -2633,7 +2633,7 @@ class LLAdvancedPuppetryLaunchLeap : public view_listener_t
         }
         if (userdata.asString() == std::string("pick"))
         {   // pick a file
-            (new LLFilePickerReplyThread([](auto filenames, auto, auto) { launch_leap(filenames); }))->getFile();
+            (new LLFilePickerReplyThread([](auto filenames, auto, auto) { launch_leap(filenames); }, LLFilePicker::FFLOAD_EXE, false ))->getFile();
         }
         else if (userdata.asString() == std::string("start"))
         {   // normal pre-determined module name
