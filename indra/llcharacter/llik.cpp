@@ -2085,7 +2085,6 @@ bool LLIK::Solver::updateJointConfigs(const joint_config_map_t& configs)
     if (something_changed)
     {
         mJointConfigs = configs;
-        rebuildAllChains();
     }
     return something_changed;
 }
@@ -2376,13 +2375,9 @@ void LLIK::Solver::rebuildAllChains()
 ////////////////////////////////////LLIK::Solver/////////////////////////////
 //////////////////////////////////// Solvers /////////////////////////////
 
-F32 LLIK::Solver::configureAndSolve(const joint_config_map_t& configs)
+F32 LLIK::Solver::solve()
 {
-    if (!updateJointConfigs(configs))
-    {
-        // nothing changed --> nothing to do
-        return mLastError;
-    }
+    rebuildAllChains();
 
     // Before each solve: we relax a fraction toward the reset pose.
     // This provides return pressure that removes floating-point drift that would
