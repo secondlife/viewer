@@ -172,7 +172,7 @@ void main()
 		discard;
 	}
 	
-	float noise = texture2D(noiseMap, frag.xy/128.0).b;
+	float noise = texture2D(noiseMap, frag.xy).b;
 	dist_atten *= noise;
 
 	lv = proj_origin-pos.xyz;

@@ -126,7 +126,7 @@ void main()
         diffuse = srgb_to_linear(diffuse);
         spec.rgb = srgb_to_linear(spec.rgb);
 
-        float noise = texture2D(noiseMap, tc/128.0).b;
+        float noise = texture2D(noiseMap, tc).b;
         float lit = nl * dist_atten * noise;
 
         final_color = color.rgb*lit*diffuse;

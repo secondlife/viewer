@@ -133,7 +133,7 @@ void main()
     else
     {
 
-        float noise = texture2D(noiseMap, tc/128.0).b;
+        float noise = texture2D(noiseMap, tc).b;
 
         diffuse = srgb_to_linear(diffuse);
         spec.rgb = srgb_to_linear(spec.rgb);

@@ -195,7 +195,7 @@ void main()
 
     vec3 dlit = vec3(0, 0, 0);
 
-    float noise = texture2D(noiseMap, frag.xy/128.0).b;
+    float noise = texture2D(noiseMap, frag.xy).b;
     if (proj_tc.z > 0.0 &&
         proj_tc.x < 1.0 &&
         proj_tc.y < 1.0 &&

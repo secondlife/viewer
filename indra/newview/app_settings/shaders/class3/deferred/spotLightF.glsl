@@ -193,7 +193,7 @@ void main()
         diffuse = srgb_to_linear(diffuse);
         spec.rgb = srgb_to_linear(spec.rgb);
         
-        float noise = texture2D(noiseMap, tc/128.0).b;
+        float noise = texture2D(noiseMap, tc).b;
         if (proj_tc.z > 0.0 &&
             proj_tc.x < 1.0 &&
             proj_tc.y < 1.0 &&

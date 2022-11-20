@@ -76,7 +76,7 @@ void main()
     vec4 spec = texture2D(specularRect, frag.xy);
     vec3 diff = texture2D(diffuseRect, frag.xy).rgb;
 
-    float noise = texture2D(noiseMap, frag.xy / 128.0).b;
+    float noise = texture2D(noiseMap, frag.xy).b;
     vec3  npos  = normalize(-pos);
 
     // As of OSX 10.6.7 ATI Apple's crash when using a variable size loop

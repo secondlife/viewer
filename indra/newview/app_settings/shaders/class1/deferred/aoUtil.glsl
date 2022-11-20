@@ -50,7 +50,7 @@ float getDepthAo(vec2 pos_screen)
 vec4 getPositionAo(vec2 pos_screen)
 {
     float depth = getDepthAo(pos_screen);
-    vec2 sc = (pos_screen);
+    vec2 sc = getScreenCoordinateAo(pos_screen);
     vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
     vec4 pos = inv_proj * ndc;
     pos /= pos.w;
@@ -71,7 +71,7 @@ vec2 getKern(int i)
     kern[6] = vec2(-0.7071, 0.7071) * 0.875*0.875;
     kern[7] = vec2(0.7071, -0.7071) * 1.000*1.000;
        
-    return kern[i];
+    return kern[i] / screen_res;
 }
 
 //calculate decreases in ambient lighting when crowded out (SSAO)
@@ -79,8 +79,8 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm, vec2 pos_screen)
 {
     float ret = 1.0;
     vec3 pos_world = pos.xyz;
-    vec2 noise_reflect = texture2D(noiseMap, pos_screen.xy).xy;
-        
+    vec2 noise_reflect = texture2D(noiseMap, pos_screen.xy * (screen_res / 128)).xy;
+
     float angle_hidden = 0.0;
     float points = 0;
         
@@ -91,7 +91,7 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm, vec2 pos_screen)
     {
         vec2 samppos_screen = pos_screen + scale * reflect(getKern(i), noise_reflect);
         vec3 samppos_world = getPositionAo(samppos_screen).xyz; 
-        
+
         vec3 diff = pos_world - samppos_world;
         float dist2 = dot(diff, diff);
             

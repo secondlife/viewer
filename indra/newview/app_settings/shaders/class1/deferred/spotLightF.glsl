@@ -181,7 +181,7 @@ void main()
 
 	vec4 spec = texture2D(specularRect, frag.xy);
 
-	float noise = texture2D(noiseMap, frag.xy/128.0).b;
+	float noise = texture2D(noiseMap, frag.xy).b;
 	vec3 dlit = vec3(0, 0, 0);
 	
 	if (proj_tc.z > 0.0 &&
