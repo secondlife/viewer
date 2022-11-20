@@ -79,7 +79,7 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm, vec2 pos_screen)
 {
     float ret = 1.0;
     vec3 pos_world = pos.xyz;
-    vec2 noise_reflect = texture2D(noiseMap, pos_screen.xy * (screen_res / 128)).xy;
+    vec2 noise_reflect = texture2D(noiseMap, pos_screen.xy * 128).xy;
 
     float angle_hidden = 0.0;
     float points = 0;

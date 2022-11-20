@@ -1360,6 +1360,8 @@ void render_ui(F32 zoom_factor, int subfield)
 	}
 
 	{
+		// Apply post effects before gamma correction and HUD.
+        gPipeline.renderPostProcess();
         // draw hud and 3D ui elements into screen render target so they'll be able to use 
         // the depth buffer (avoids extra copy of depth buffer per frame)
         gPipeline.mRT->screen.bindTarget();
@@ -1398,7 +1400,7 @@ void render_ui(F32 zoom_factor, int subfield)
 
         gPipeline.mRT->screen.flush();
 
-        // apply gamma correction and post effects before rendering 2D UI
+        // apply gamma correction
         gPipeline.renderFinalize();
 
         if (render_ui)

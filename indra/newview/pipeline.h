@@ -138,6 +138,7 @@ public:
 	void resetVertexBuffers(LLDrawable* drawable);
 	void generateImpostor(LLVOAvatar* avatar, bool preview_avatar = false);
 	void bindScreenToTexture();
+    void renderPostProcess();
 	void renderFinalize();
 
 	void init();
