@@ -2917,6 +2917,7 @@ void reset_login()
 	gAgentWearables.cleanup();
 	gAgentCamera.cleanup();
 	gAgent.cleanup();
+    gSky.cleanup(); // mVOSkyp is an inworld object.
 	LLWorld::getInstance()->resetClass();
 
 	if ( gViewerWindow )
