@@ -788,11 +788,18 @@ void LLPuppetMotion::solveIKAndHarvestResults(const LLIK::Solver::joint_config_m
     }
 
     bool config_changed = mIKSolver.updateJointConfigs(configs);
-    if (!config_changed)
+    if (config_changed)
     {
-        return;
+        mIKSolver.solve();
     }
-    mIKSolver.solve();
+    else
+    {
+        // ATM we still need to constantly re-send unchanged Puppetry data
+        // so we DO NOT bail early here... yet.
+        //return;
+        // TODO: figure out how to send partial updates, and how to
+        // explicitly clear joint settings in the Puppetry stream.
+    }
 
 	LLPuppetEvent broadcast_event;
     const LLIK::Solver::joint_list_t& active_joints = mIKSolver.getActiveJoints();
@@ -1224,6 +1231,10 @@ void LLPuppetMotion::onDeactivate()
 {
     // LLMotionController calls this when it removes
     // this motion from its active list.
+    mPose.removeAllJointStates();
+    mJointsToRemoveFromPose.clear();
+    LLIK::Solver::joint_config_map_t empty_configs;
+    mIKSolver.updateJointConfigs(empty_configs); // clear solver memory
 }
 
 void LLPuppetMotion::collectJoints(LLJoint* joint)
