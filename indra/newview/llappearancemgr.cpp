@@ -1701,6 +1701,7 @@ void LLAppearanceMgr::shallowCopyCategory(const LLUUID& src_id, const LLUUID& ds
 	{
 		parent_id = gInventory.getRootFolderID();
 	}
+	// USES UDP PATH
 	LLUUID subfolder_id = gInventory.createNewCategory( parent_id,
 														LLFolderType::FT_NONE,
 														src_cat->getName());
@@ -2725,7 +2726,8 @@ void LLAppearanceMgr::wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool ap
 		{
 			pid = gInventory.getRootFolderID();
 		}
-		
+
+		// UDP PATH
 		LLUUID new_cat_id = gInventory.createNewCategory(
 			pid,
 			LLFolderType::FT_NONE,
@@ -3994,7 +3996,8 @@ void LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, boo
 			func);
 	}
 	else
-	{		
+	{
+		// UDP PATH
 		LLUUID folder_id = gInventory.createNewCategory(
 			parent_id,
 			LLFolderType::FT_OUTFIT,

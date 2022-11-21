@@ -664,24 +664,25 @@ const LLUUID LLInventoryModel::findLibraryCategoryUUIDForType(LLFolderType::ETyp
 // updateCategory() with a newly generated UUID category, but this
 // version will take care of details like what the name should be
 // based on preferred type. Returns the UUID of the new category.
+//
+// On failure, returns a null UUID.
+// FIXME: callers do not check for or handle a null results currently.
 LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 										   LLFolderType::EType preferred_type,
 										   const std::string& pname,
 										   inventory_func_type callback)
 {
-	LLUUID id;
+	LLUUID id; // Initially null.
 	if (!isInventoryUsable())
 	{
 		LL_WARNS(LOG_INV) << "Inventory is not usable; can't create requested category of type "
 						  << preferred_type << LL_ENDL;
-		// FIXME failing but still returning an id?
 		return id;
 	}
 
 	if(LLFolderType::lookup(preferred_type) == LLFolderType::badLookup())
 	{
 		LL_DEBUGS(LOG_INV) << "Attempt to create undefined category." << LL_ENDL;
-		// FIXME failing but still returning an id?
 		return id;
 	}
 
@@ -708,7 +709,7 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	std::string url;
 	if ( viewer_region )
 		url = viewer_region->getCapability("CreateInventoryCategory");
-	
+
 	if (!url.empty() && callback)
 	{
 		//Let's use the new capability.
