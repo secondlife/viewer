@@ -1,4 +1,8 @@
-![Second Life Logo](doc/sl-logo.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="doc/sl-logo-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="doc/sl-logo.png">
+  <img alt="Second Life Logo" src="doc/sl-logo.png">
+</picture>
 
 **[Second Life][] is a free 3D virtual world where users can create, connect and chat with others from around the
 world.** This repository contains the source code for the official client.
