@@ -172,7 +172,10 @@ void readSelectedGLTFMaterial(std::function<T(const LLGLTFMaterial*)> func, T& v
         {
             const LLTextureEntry* tep = object->getTE(face);
             const LLGLTFMaterial* render_material = tep->getGLTFRenderMaterial();
-            
+            if (!render_material)
+            {
+                return mFunc(&LLGLTFMaterial::sDefault);
+            }
             return mFunc(render_material);
         }
 
