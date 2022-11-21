@@ -124,6 +124,8 @@ void processJointData(const std::string& key, const LLSD& data)
     else
     {
         // invalid key
+        LL_WARNS("Puppet") << "Invalid key inside processJointData:  " << key
+                            << ", expected i/inverse_kinematics, j/joint_state etc" << LL_ENDL;
         return;
     }
 
@@ -133,13 +135,15 @@ void processJointData(const std::string& key, const LLSD& data)
             joint_itr != data.endMap();
             ++joint_itr)
     {
+        std::string joint_name = joint_itr->first;
         const LLSD& params = joint_itr->second;
         if (!params.isMap())
         {
+            LL_WARNS("Puppet") << "Invalid data for joint data key " << joint_name
+                << ", expected map but got " << params << LL_ENDL;
             continue;
         }
 
-        std::string joint_name = joint_itr->first;
         LLJoint* joint;
         S32 joint_index = -1;
         try
@@ -258,14 +262,14 @@ void processSetRequest(const LLSD& data)
         data_key = "data";
         if (!data.has(data_key))
         {
-            LL_WARNS("Puppet") << "malformed SET: map no 'set' key" << LL_ENDL;
+            LL_WARNS("Puppet") << "malformed SET: map no 'd' or 'data' key" << LL_ENDL;
             return;
         }
     }
     const LLSD& sd = data[data_key];
     if (!sd.isMap())
     {
-        LL_WARNS("Puppet") << "malformed SET: 'set' value not map" << LL_ENDL;
+        LL_WARNS("Puppet") << "malformed SET: 'data' value not map" << LL_ENDL;
         return;
     }
 
