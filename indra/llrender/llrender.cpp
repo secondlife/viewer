@@ -2071,6 +2071,11 @@ void LLRender::diffuseColor4ub(U8 r, U8 g, U8 b, U8 a)
 	}
 }
 
+void LLRender::viewport(S32 x, S32 y, S32 width, S32 height)
+{
+	glViewport(x, y, width, height);
+}
+
 
 void LLRender::debugTexUnits(void)
 {

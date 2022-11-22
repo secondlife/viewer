@@ -423,6 +423,8 @@ public:
 	void diffuseColor4ubv(const U8* c);
 	void diffuseColor4ub(U8 r, U8 g, U8 b, U8 a);
 
+	void viewport(S32 x, S32 y, S32 width, S32 height);
+
 	void vertexBatchPreTransformed(LLVector3* verts, S32 vert_count);
 	void vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, S32 vert_count);
 	void vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, LLColor4U*, S32 vert_count);

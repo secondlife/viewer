@@ -7609,21 +7609,23 @@ void LLPipeline::renderPostProcess() {
     gGL.setColorMask(true, true);
     glClearColor(0, 0, 0, 0);
 
+    LLStrider<LLVector3> vert;
+    mDeferredVB->getVertexStrider(vert);
+
+    vert[0].set(-1, 1, 0);
+    vert[1].set(-1, -3, 0);
+    vert[2].set(3, 1, 0);
+
+    mDeferredVB->getVertexStrider(vert);
+
     if (!gCubeSnapshot)
     {
         if (RenderScreenSpaceReflections)
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("renderDeferredLighting - screen space reflections");
             LL_PROFILE_GPU_ZONE("screen space reflections");
-            LLStrider<LLVector3> vert;
-            mDeferredVB->getVertexStrider(vert);
-
-            vert[0].set(-1, 1, 0);
-            vert[1].set(-1, -3, 0);
-            vert[2].set(3, 1, 0);
 
             // Make sure the deferred VB is a full screen triangle.
-            mDeferredVB->getVertexStrider(vert);
 
             bindDeferredShader(gPostScreenSpaceReflectionProgram, NULL);
             mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
@@ -7783,16 +7785,8 @@ void LLPipeline::renderPostProcess() {
         mGlow[1].clear();
         mGlow[1].flush();
     }
-
-    gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
-    gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
-    gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
-    gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
-    glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
-
+	
     tc2.setVec((F32) mRT->screen.getWidth(), (F32) mRT->screen.getHeight());
-
-    gGL.flush();
 
     LLVertexBuffer::unbind();
 
@@ -7931,17 +7925,8 @@ void LLPipeline::renderPostProcess() {
                 shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
                 shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
 
-                gGL.begin(LLRender::TRIANGLE_STRIP);
-                gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
-                gGL.vertex2f(-1, -1);
-
-                gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
-                gGL.vertex2f(-1, 3);
-
-                gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
-                gGL.vertex2f(3, -1);
-
-                gGL.end();
+				mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+                mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
                 unbindDeferredShader(*shader);
                 mRT->deferredLight.flush();
@@ -7966,17 +7951,8 @@ void LLPipeline::renderPostProcess() {
                 shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
                 shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
 
-                gGL.begin(LLRender::TRIANGLE_STRIP);
-                gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
-                gGL.vertex2f(-1, -1);
-
-                gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
-                gGL.vertex2f(-1, 3);
-
-                gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
-                gGL.vertex2f(3, -1);
-
-                gGL.end();
+				mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+                mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
                 unbindDeferredShader(*shader);
                 mRT->screen.flush();
@@ -7987,15 +7963,16 @@ void LLPipeline::renderPostProcess() {
                 if (multisample)
                 {
                     mRT->deferredLight.bindTarget();
-                    glViewport(0, 0, mRT->deferredScreen.getWidth(), mRT->deferredScreen.getHeight());
+                    //glViewport(0, 0, mRT->deferredScreen.getWidth(), mRT->deferredScreen.getHeight());
                 }
                 else
                 {
+					/*
                     gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
                     gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
                     gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
                     gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
-                    glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
+                    glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);*/
                 }
 
                 shader = &gDeferredDoFCombineProgram;
@@ -8012,17 +7989,8 @@ void LLPipeline::renderPostProcess() {
                 shader->uniform1f(LLShaderMgr::DOF_WIDTH, (dof_width - 1) / (F32) mRT->screen.getWidth());
                 shader->uniform1f(LLShaderMgr::DOF_HEIGHT, (dof_height - 1) / (F32) mRT->screen.getHeight());
 
-                gGL.begin(LLRender::TRIANGLE_STRIP);
-                gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
-                gGL.vertex2f(-1, -1);
-
-                gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
-                gGL.vertex2f(-1, 3);
-
-                gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
-                gGL.vertex2f(3, -1);
-
-                gGL.end();
+				mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+                mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
                 unbindDeferredShader(*shader);
 
@@ -8049,17 +8017,8 @@ void LLPipeline::renderPostProcess() {
                 mRT->screen.bindTexture(0, channel);
             }
 
-            gGL.begin(LLRender::TRIANGLE_STRIP);
-            gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
-            gGL.vertex2f(-1, -1);
-
-            gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
-            gGL.vertex2f(-1, 3);
-
-            gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
-            gGL.vertex2f(3, -1);
-
-            gGL.end();
+			mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+            mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
             unbindDeferredShader(*shader);
 
@@ -8090,13 +8049,8 @@ void LLPipeline::renderPostProcess() {
                 mRT->deferredLight.bindTexture(0, channel);
             }
 
-            gGL.begin(LLRender::TRIANGLE_STRIP);
-            gGL.vertex2f(-1, -1);
-            gGL.vertex2f(-1, 3);
-            gGL.vertex2f(3, -1);
-            gGL.end();
-
-            gGL.flush();
+			mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+            mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
             shader->disableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mRT->deferredLight.getUsage());
             shader->unbind();
@@ -8112,12 +8066,6 @@ void LLPipeline::renderPostProcess() {
                 mRT->fxaaBuffer.bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
             }
 
-            gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
-            gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
-            gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
-            gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
-            glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
-
             F32 scale_x = (F32) width / mRT->fxaaBuffer.getWidth();
             F32 scale_y = (F32) height / mRT->fxaaBuffer.getHeight();
             shader->uniform2f(LLShaderMgr::FXAA_TC_SCALE, scale_x, scale_y);
@@ -8127,36 +8075,24 @@ void LLPipeline::renderPostProcess() {
             shader->uniform4f(LLShaderMgr::FXAA_RCP_FRAME_OPT2, -2.f / width * scale_x, -2.f / height * scale_y, 2.f / width * scale_x,
                               2.f / height * scale_y);
 
-            gGL.begin(LLRender::TRIANGLE_STRIP);
-            gGL.vertex2f(-1, -1);
-            gGL.vertex2f(-1, 3);
-            gGL.vertex2f(3, -1);
-            gGL.end();
+			mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+            mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
-            gGL.flush();
             shader->unbind();
         }
     }
-
-    LLVertexBuffer::unbind();
-
-    LLGLState::checkStates();
-    LLGLState::checkTextureChannels();
-
-    // flush calls made to "addTrianglesDrawn" so far to stats machinery
-    recordTrianglesDrawn();
 }
 
 void LLPipeline::renderFinalize()
 {
-    LLVertexBuffer::unbind();
-    LLGLState::checkStates();
-    LLGLState::checkTextureChannels();
+    //LLVertexBuffer::unbind();
+    //LLGLState::checkStates();
+    //LLGLState::checkTextureChannels();
 
-    assertInitialized();
+    //assertInitialized();
 
-    LLVector2 tc1(0, 0);
-    LLVector2 tc2((F32) mRT->screen.getWidth() * 2, (F32) mRT->screen.getHeight() * 2);
+    //LLVector2 tc1(0, 0);
+    //LLVector2 tc2((F32) mRT->screen.getWidth() * 2, (F32) mRT->screen.getHeight() * 2);
 
     LL_RECORD_BLOCK_TIME(FTM_RENDER_BLOOM);
     LL_PROFILE_GPU_ZONE("renderFinalize");
@@ -8182,7 +8118,7 @@ void LLPipeline::renderFinalize()
 
             LLGLDepthTest depth(GL_FALSE, GL_FALSE);
 
-            LLRenderTarget* screen_target = &mRT->screen;
+            LLRenderTarget* screen_target = &mRT->deferredLight;
 
             LLVector2 tc1(0, 0);
             LLVector2 tc2((F32)screen_target->getWidth() * 2, (F32)screen_target->getHeight() * 2);
@@ -8224,16 +8160,6 @@ void LLPipeline::renderFinalize()
         LLVertexBuffer::unbind();
     }
 
-    gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
-    gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
-    gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
-    gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
-    glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
-
-    tc2.setVec((F32) mRT->screen.getWidth(), (F32) mRT->screen.getHeight());
-
-    gGL.flush();
-
     LLVertexBuffer::unbind();
 
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
@@ -8264,7 +8190,6 @@ void LLPipeline::renderFinalize()
         gGL.vertex2f(3, -1);
 
         gGL.end();
-        gGL.flush();
 
         gSplatTextureRectProgram.unbind();
     }
