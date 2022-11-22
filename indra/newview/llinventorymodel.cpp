@@ -694,38 +694,20 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 		LL_WARNS(LOG_INV) << "Creating new system folder, type " << preferred_type << LL_ENDL;
 	}
 
-	id.generate();
 	std::string name = pname;
-	if(!pname.empty())
-	{
-		name.assign(pname);
-	}
-	else
+	if (pname.empty())
 	{
 		name.assign(LLViewerFolderType::lookupNewCategoryName(preferred_type));
 	}
 	
-	LLViewerRegion* viewer_region = gAgent.getRegion();
-	std::string url;
-	if ( viewer_region )
-		url = viewer_region->getCapability("CreateInventoryCategory");
-
-	if (!url.empty() && callback)
+	if (callback)
 	{
-		//Let's use the new capability.
-		
-		LLSD request, body;
-		body["folder_id"] = id;
-		body["parent_id"] = parent_id;
-		body["type"] = (LLSD::Integer) preferred_type;
-		body["name"] = name;
-		
-		request["message"] = "CreateInventoryCategory";
-		request["payload"] = body;
-
-		LL_DEBUGS(LOG_INV) << "Creating category via request: " << ll_pretty_print_sd(request) << LL_ENDL;
-        LLCoros::instance().launch("LLInventoryModel::createNewCategoryCoro",
-            boost::bind(&LLInventoryModel::createNewCategoryCoro, this, url, body, callback));
+		LLSD new_inventory = LLSD::emptyMap();
+		new_inventory["categories"] = LLSD::emptyArray();
+		LLViewerInventoryCategory cat(LLUUID::null, parent_id, preferred_type, name, gAgent.getID());
+		LLSD cat_sd = cat.asLLSD();
+		new_inventory["categories"].append(cat_sd);
+		AISAPI::CreateInventory(parent_id, new_inventory, callback);
 
 		return LLUUID::null;
 	}
@@ -740,6 +722,7 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	// assuming instant success.
 
 	// Add the category to the internal representation
+	id.generate();
 	LLPointer<LLViewerInventoryCategory> cat =
 		new LLViewerInventoryCategory(id, parent_id, preferred_type, name, gAgent.getID());
 	cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL - 1); // accountForUpdate() will icrease version by 1
