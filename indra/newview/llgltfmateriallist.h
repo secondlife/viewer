@@ -74,6 +74,8 @@ public:
     // Automatically called once per frame, but may be called explicitly
     // for cases that care about the done_callback forwarded to LLCoros::instance().launch
     static void flushUpdates(void(*done_callback)(bool) = nullptr);
+
+    static void addUpdateCallback(void(*update_callback)(const LLUUID& object_id, S32 side));
     
     // Queue an explicit LLSD ModifyMaterialParams update apply given override data
     //  overrides -- LLSD map (or array of maps) in the format:

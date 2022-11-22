@@ -147,6 +147,11 @@ public:
     LLGLTFMaterialOverrideDispatchHandler() = default;
     ~LLGLTFMaterialOverrideDispatchHandler() override = default;
 
+    void addCallback(void(*callback)(const LLUUID& object_id, S32 side))
+    {
+        mCallbacks.push_back(callback);
+    }
+
     bool operator()(const LLDispatcher* dispatcher, const std::string& key, const LLUUID& invoice, const sparam_t& strings) override
     {
         LL_PROFILE_ZONE_SCOPED;
@@ -210,7 +215,7 @@ public:
         return true;
     }
 
-    static void applyData(const LLGLTFOverrideCacheEntry &object_override)
+    void applyData(const LLGLTFOverrideCacheEntry &object_override)
     {
         // Parse the data
 
@@ -224,6 +229,8 @@ public:
             S32 mSide;
             bool mSuccess;
         };
+
+        std::vector<void(*)(const LLUUID& object_id, S32 side)> callbacks = mCallbacks;
 
         // fromJson() is performance heavy offload to a thread.
         main_queue->postTo(
@@ -264,7 +271,7 @@ public:
             }
             return results;
         },
-            [object_override](std::vector<ReturnData> results) // Callback to main thread
+            [object_override, callbacks](std::vector<ReturnData> results) // Callback to main thread
             {
 
             LLViewerObject * obj = gObjectList.findObject(object_override.mObjectId);
@@ -288,6 +295,10 @@ public:
                         else if (obj && obj->isAnySelected())
                         {
                             LLMaterialEditor::updateLive(object_override.mObjectId, results[i].mSide);
+                            for (auto& override_update_callback : callbacks)
+                            {
+                                override_update_callback(object_override.mObjectId, results[i].mSide);
+                            }
                         }
                     }
                     else
@@ -296,6 +307,10 @@ public:
                         if (obj && obj->isAnySelected())
                         {
                             LLMaterialEditor::updateLive(object_override.mObjectId, results[i].mSide);
+                            for (auto& override_update_callback : callbacks)
+                            {
+                                override_update_callback(object_override.mObjectId, results[i].mSide);
+                            }
                         }
                     }
                 }
@@ -311,6 +326,10 @@ public:
                             if (object_has_selection)
                             {
                                 LLMaterialEditor::updateLive(object_override.mObjectId, i);
+                                for (auto& override_update_callback : callbacks)
+                                {
+                                    override_update_callback(object_override.mObjectId, i);
+                                }
                             }
                         }
                     }
@@ -325,11 +344,17 @@ public:
                     if (object_has_selection)
                     {
                         LLMaterialEditor::updateLive(obj->getID(), i);
+                        for (auto& override_update_callback : callbacks)
+                        {
+                            override_update_callback(obj->getID(), i);
+                        }
                     }
                 }
             }
         });
     }
+
+    std::vector<void(*)(const LLUUID& object_id, S32 side)> mCallbacks;
 };
 
 namespace
@@ -371,6 +396,10 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
                 if (object_has_selection)
                 {
                     LLMaterialEditor::updateLive(id, i);
+                    for (auto& override_update_callback : handle_gltf_override_message.mCallbacks)
+                    {
+                        override_update_callback(id, i);
+                    }
                 }
             }
         }
@@ -457,6 +486,11 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
 
         sUpdates = LLSD::emptyArray();
     }
+}
+
+void LLGLTFMaterialList::addUpdateCallback(void(*update_callback)(const LLUUID& object_id, S32 side))
+{
+    handle_gltf_override_message.addCallback(update_callback);
 }
 
 class AssetLoadUserData
@@ -713,5 +747,5 @@ void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides,
 
 void LLGLTFMaterialList::loadCacheOverrides(const LLGLTFOverrideCacheEntry& override)
 {
-    LLGLTFMaterialOverrideDispatchHandler::applyData(override);
+    handle_gltf_override_message.applyData(override);
 }

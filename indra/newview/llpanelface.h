@@ -49,6 +49,8 @@ class LLFloater;
 class LLMaterialID;
 class LLMediaCtrl;
 class LLMenuButton;
+class LLGLTFMaterial;
+struct LLGLTFMaterial::TextureTransform;
 
 // Represents an edit for use in replicating the op across one or more materials in the selection set.
 //
@@ -102,7 +104,7 @@ public:
     void			refreshMedia();
     void			unloadMedia();
 
-    static void onGLTFMaterialUpdate(const LLUUID& object_id, S32 side);
+    static void onMaterialOverrideReceived(const LLUUID& object_id, S32 side);
 
     /*virtual*/ void draw();
 
@@ -176,7 +178,6 @@ protected:
 	//
 	// @param force_set_values forces spinners to set value even if they are focused
 	void updateUI(bool force_set_values = false);
-    void updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, bool force_set_values);
 
 	// Convenience func to determine if all faces in selection have
 	// identical planar texgen settings during edits
@@ -229,11 +230,13 @@ protected:
 	static void    onCommitGlow(				LLUICtrl* ctrl, void *userdata);
 	static void		onCommitPlanarAlign(		LLUICtrl* ctrl, void* userdata);
 	static void		onCommitRepeatsPerMeter(	LLUICtrl* ctrl, void* userinfo);
+
     void            onCommitGLTFTextureScaleU(LLUICtrl* ctrl);
     void            onCommitGLTFTextureScaleV(LLUICtrl* ctrl);
     void            onCommitGLTFRotation(LLUICtrl* ctrl);
     void            onCommitGLTFTextureOffsetU(LLUICtrl* ctrl);
     void            onCommitGLTFTextureOffsetV(LLUICtrl* ctrl);
+
 	static void		onClickAutoFix(void*);
     static void		onAlignTexture(void*);
     static void 	onClickBtnLoadInvPBR(void* userdata);
@@ -291,7 +294,6 @@ private:
 	// Do NOT call updateUI from within this function.
 	//
 	void updateVisibility();
-    void updateVisibilityGLTF();
 
 	// Hey look everyone, a type-safe alternative to copy and paste! :)
 	//
@@ -451,28 +453,61 @@ private:
     void onTextureSelectionChanged(LLInventoryItem* itemp);
     void onPbrSelectionChanged(LLInventoryItem* itemp);
 
+    void updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, bool force_set_values);
+    void updateVisibilityGLTF();
+
+    void updateSelectedGLTFMaterials(std::function<void(LLGLTFMaterial*)> func);
+    void updateGLTFTextureTransform(float value, U32 pbr_type, std::function<void(LLGLTFMaterial::TextureTransform*)> edit);
+
+    void setMaterialOverridesFromSelection();
+
     LLMenuButton*   mMenuClipboardColor;
     LLMenuButton*   mMenuClipboardTexture;
 
 	bool mIsAlpha;
 	
-	/* These variables interlock processing of materials updates sent to
-	 * the sim.  mUpdateInFlight is set to flag that an update has been
-	 * sent to the sim and not acknowledged yet, and cleared when an
-	 * update is received from the sim.  mUpdatePending is set when
-	 * there's an update in flight and another UI change has been made
-	 * that needs to be sent as a materials update, and cleared when the
-	 * update is sent.  This prevents the sim from getting spammed with
-	 * update messages when, for example, the user holds down the
-	 * up-arrow on a spinner, and avoids running afoul of its throttle.
-	 */
-	bool mUpdateInFlight;
-    bool mUpdatePending;
-
     LLSD            mClipboardParams;
 
     LLSD mMediaSettings;
     bool mNeedMediaTitle;
+
+    class Selection
+    {
+    public:
+        void connect();
+
+        // Returns true if the selected objects or sides have changed since
+        // this was last called, and no object update is pending
+        bool update();
+
+        // Prevents update() returning true until the provided object is
+        // updated. Necessary to prevent controls updating when the mouse is
+        // held down.
+        void setObjectUpdatePending(const LLUUID &object_id, S32 side);
+
+        // Callbacks
+        void onSelectionChanged() { mNeedsSelectionCheck = true; }
+        void onObjectUpdated(const LLUUID &object_id, S32 side);
+
+    protected:
+        void clearObjectUpdatePending();
+        bool isObjectUpdatePending() { return mPendingSide != -1; }
+
+        bool compareSelection();
+
+        bool mChanged = false;
+
+        boost::signals2::scoped_connection mSelectConnection;
+        bool mNeedsSelectionCheck = true;
+        S32 mSelectedObjectCount = 0;
+        LLUUID mSelectedObjectID;
+        S32 mSelectedSide = -1;
+
+        LLUUID mPendingObjectID;
+        S32 mPendingSide = -1;
+    };
+
+    static Selection sMaterialOverrideSelection;
 
 public:
 	#if defined(DEF_GET_MAT_STATE)

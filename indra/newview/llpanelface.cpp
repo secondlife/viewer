@@ -32,7 +32,6 @@
 // library includes
 #include "llcalc.h"
 #include "llerror.h"
-#include "llfocusmgr.h"
 #include "llrect.h"
 #include "llstring.h"
 #include "llfontgl.h"
@@ -95,6 +94,8 @@
 
 using namespace std::literals;
 
+LLPanelFace::Selection LLPanelFace::sMaterialOverrideSelection;
+
 //
 // Constant definitions for comboboxes
 // Must match the commbobox definitions in panel_tools_texture.xml
@@ -136,7 +137,7 @@ LLGLTFMaterial::TextureInfo texture_info_from_pbrtype(S32 pbr_type)
     }
 }
 
-void updateSelectedGLTFMaterials(std::function<void(LLGLTFMaterial*)> func)
+void LLPanelFace::updateSelectedGLTFMaterials(std::function<void(LLGLTFMaterial*)> func)
 {
     struct LLSelectedTEGLTFMaterialFunctor : public LLSelectedTEFunctor
     {
@@ -158,6 +159,7 @@ void updateSelectedGLTFMaterials(std::function<void(LLGLTFMaterial*)> func)
 
 		std::function<void(LLGLTFMaterial*)> mFunc;
     } select_func(func);
+
     LLSelectMgr::getInstance()->getSelection()->applyToTEs(&select_func);
 }
 
@@ -268,11 +270,14 @@ BOOL	LLPanelFace::postBuild()
     childSetCommitCallback("add_media", &LLPanelFace::onClickBtnAddMedia, this);
     childSetCommitCallback("delete_media", &LLPanelFace::onClickBtnDeleteMedia, this);
 
-    childSetCommitCallback("gltfTextureScaleU", boost::bind(&LLPanelFace::onCommitGLTFTextureScaleU, this, _1), nullptr);
-    childSetCommitCallback("gltfTextureScaleV", boost::bind(&LLPanelFace::onCommitGLTFTextureScaleV, this, _1), nullptr);
-    childSetCommitCallback("gltfTextureRotation", boost::bind(&LLPanelFace::onCommitGLTFRotation, this, _1), nullptr);
-    childSetCommitCallback("gltfTextureOffsetU", boost::bind(&LLPanelFace::onCommitGLTFTextureOffsetU, this, _1), nullptr);
-    childSetCommitCallback("gltfTextureOffsetV", boost::bind(&LLPanelFace::onCommitGLTFTextureOffsetV, this, _1), nullptr);
+    getChild<LLUICtrl>("gltfTextureScaleU")->setCommitCallback(boost::bind(&LLPanelFace::onCommitGLTFTextureScaleU, this, _1), nullptr);
+    getChild<LLUICtrl>("gltfTextureScaleV")->setCommitCallback(boost::bind(&LLPanelFace::onCommitGLTFTextureScaleV, this, _1), nullptr);
+    getChild<LLUICtrl>("gltfTextureRotation")->setCommitCallback(boost::bind(&LLPanelFace::onCommitGLTFRotation, this, _1), nullptr);
+    getChild<LLUICtrl>("gltfTextureOffsetU")->setCommitCallback(boost::bind(&LLPanelFace::onCommitGLTFTextureOffsetU, this, _1), nullptr);
+    getChild<LLUICtrl>("gltfTextureOffsetV")->setCommitCallback(boost::bind(&LLPanelFace::onCommitGLTFTextureOffsetV, this, _1), nullptr);
+
+    LLGLTFMaterialList::addUpdateCallback(&LLPanelFace::onMaterialOverrideReceived);
+    sMaterialOverrideSelection.connect();
 
 	childSetAction("button align",&LLPanelFace::onClickAutoFix,this);
 	childSetAction("button align textures", &LLPanelFace::onAlignTexture, this);
@@ -486,6 +491,11 @@ void LLPanelFace::draw()
     updateMediaTitle();
 
     LLPanel::draw();
+
+    if (sMaterialOverrideSelection.update())
+    {
+        setMaterialOverridesFromSelection();
+    }
 }
 
 void LLPanelFace::sendTexture()
@@ -1773,7 +1783,7 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
 {
     has_pbr_material = false;
 
-    BOOL editable = objectp->permModify() && !objectp->isPermanentEnforced();
+    const bool editable = objectp->permModify() && !objectp->isPermanentEnforced();
     bool has_pbr_capabilities = LLMaterialEditor::capabilitiesAvailable();
 
     // pbr material
@@ -1784,10 +1794,11 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
         bool identical_pbr;
         LLSelectedTE::getPbrMaterialId(pbr_id, identical_pbr);
 
+        has_pbr_material = pbr_id.notNull();
+
         pbr_ctrl->setTentative(identical_pbr ? FALSE : TRUE);
         pbr_ctrl->setEnabled(editable && has_pbr_capabilities);
         pbr_ctrl->setImageAssetID(pbr_id);
-        has_pbr_material = pbr_id.notNull();
     }
 
     getChildView("pbr_from_inventory")->setEnabled(editable && has_pbr_capabilities);
@@ -1797,14 +1808,13 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
     const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
     if (show_pbr)
     {
-
         const U32 pbr_type = findChild<LLRadioGroup>("radio_pbr_type")->getSelectedIndex();
         const LLGLTFMaterial::TextureInfo texture_info = texture_info_from_pbrtype(pbr_type);
         const bool show_texture_info = texture_info != LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT;
 
         LLUICtrl* gltfCtrlTextureScaleU = getChild<LLUICtrl>("gltfTextureScaleU");
-		LLUICtrl* gltfCtrlTextureScaleV = getChild<LLUICtrl>("gltfTextureScaleV");
-		LLUICtrl* gltfCtrlTextureRotation = getChild<LLUICtrl>("gltfTextureRotation");
+        LLUICtrl* gltfCtrlTextureScaleV = getChild<LLUICtrl>("gltfTextureScaleV");
+        LLUICtrl* gltfCtrlTextureRotation = getChild<LLUICtrl>("gltfTextureRotation");
         LLUICtrl* gltfCtrlTextureOffsetU = getChild<LLUICtrl>("gltfTextureOffsetU");
         LLUICtrl* gltfCtrlTextureOffsetV = getChild<LLUICtrl>("gltfTextureOffsetV");
 
@@ -1814,48 +1824,7 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
         gltfCtrlTextureOffsetU->setEnabled(show_texture_info && has_pbr_capabilities);
         gltfCtrlTextureOffsetV->setEnabled(show_texture_info && has_pbr_capabilities);
 
-        if (show_texture_info)
-        {
-            LLGLTFMaterial::TextureTransform transform;
-            bool scale_u_same = true;
-            bool scale_v_same = true;
-            bool rotation_same = true;
-            bool offset_u_same = true;
-            bool offset_v_same = true;
-
-            readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
-            {
-                return mat ? mat->mTextureTransform[texture_info].mScale[VX] : 0.f;
-            }, transform.mScale[VX], scale_u_same, true, 1e-3f);
-            readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
-            {
-                return mat ? mat->mTextureTransform[texture_info].mScale[VY] : 0.f;
-            }, transform.mScale[VY], scale_v_same, true, 1e-3f);
-            readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
-            {
-                return mat ? mat->mTextureTransform[texture_info].mRotation : 0.f;
-            }, transform.mRotation, rotation_same, true, 1e-3f);
-            readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
-            {
-                return mat ? mat->mTextureTransform[texture_info].mOffset[VX] : 0.f;
-            }, transform.mOffset[VX], offset_u_same, true, 1e-3f);
-            readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
-            {
-                return mat ? mat->mTextureTransform[texture_info].mOffset[VY] : 0.f;
-            }, transform.mOffset[VY], offset_v_same, true, 1e-3f);
-
-            gltfCtrlTextureScaleU->setValue(transform.mScale[VX]);
-			gltfCtrlTextureScaleV->setValue(transform.mScale[VY]);
-            gltfCtrlTextureRotation->setValue(transform.mRotation * RAD_TO_DEG);
-            gltfCtrlTextureOffsetU->setValue(transform.mOffset[VX]);
-			gltfCtrlTextureOffsetV->setValue(transform.mOffset[VY]);
-
-            gltfCtrlTextureScaleU->setTentative(!scale_u_same);
-            gltfCtrlTextureScaleV->setTentative(!scale_v_same);
-            gltfCtrlTextureRotation->setTentative(!rotation_same);
-            gltfCtrlTextureOffsetU->setTentative(!offset_u_same);
-            gltfCtrlTextureOffsetV->setTentative(!offset_v_same);
-        }
+        // Control values are set in setMaterialOverridesFromSelection
     }
 }
 
@@ -2082,6 +2051,12 @@ void LLPanelFace::unloadMedia()
     // destroy media source used to grab media title
     if (mTitleMedia)
         mTitleMedia->unloadMediaSource();
+}
+
+// static
+void LLPanelFace::onMaterialOverrideReceived(const LLUUID& object_id, S32 side)
+{
+    sMaterialOverrideSelection.onObjectUpdated(object_id, side);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -4677,7 +4652,7 @@ void LLPanelFace::onCommitPlanarAlign(LLUICtrl* ctrl, void* userdata)
 	self->sendTextureInfo();
 }
 
-void updateGLTFTextureTransform(float value, U32 pbr_type, std::function<void(LLGLTFMaterial::TextureTransform*)> edit)
+void LLPanelFace::updateGLTFTextureTransform(float value, U32 pbr_type, std::function<void(LLGLTFMaterial::TextureTransform*)> edit)
 {
     U32 texture_info_start;
     U32 texture_info_end;
@@ -4699,6 +4674,148 @@ void updateGLTFTextureTransform(float value, U32 pbr_type, std::function<void(LL
             edit(&new_transform);
         }
     });
+
+    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+    if (node)
+    {
+        LLViewerObject* object = node->getObject();
+        sMaterialOverrideSelection.setObjectUpdatePending(object->getID(), node->getLastSelectedTE());
+    }
+}
+
+void LLPanelFace::setMaterialOverridesFromSelection()
+{
+    const U32 pbr_type = findChild<LLRadioGroup>("radio_pbr_type")->getSelectedIndex();
+    const LLGLTFMaterial::TextureInfo texture_info = texture_info_from_pbrtype(pbr_type);
+    if (texture_info == LLGLTFMaterial::TextureInfo::GLTF_TEXTURE_INFO_COUNT)
+    {
+        return;
+    }
+
+    LLGLTFMaterial::TextureTransform transform;
+    bool scale_u_same = true;
+    bool scale_v_same = true;
+    bool rotation_same = true;
+    bool offset_u_same = true;
+    bool offset_v_same = true;
+
+    readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
+    {
+        return mat ? mat->mTextureTransform[texture_info].mScale[VX] : 0.f;
+    }, transform.mScale[VX], scale_u_same, true, 1e-3f);
+    readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
+    {
+        return mat ? mat->mTextureTransform[texture_info].mScale[VY] : 0.f;
+    }, transform.mScale[VY], scale_v_same, true, 1e-3f);
+    readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
+    {
+        return mat ? mat->mTextureTransform[texture_info].mRotation : 0.f;
+    }, transform.mRotation, rotation_same, true, 1e-3f);
+    readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
+    {
+        return mat ? mat->mTextureTransform[texture_info].mOffset[VX] : 0.f;
+    }, transform.mOffset[VX], offset_u_same, true, 1e-3f);
+    readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
+    {
+        return mat ? mat->mTextureTransform[texture_info].mOffset[VY] : 0.f;
+    }, transform.mOffset[VY], offset_v_same, true, 1e-3f);
+
+    LLUICtrl* gltfCtrlTextureScaleU = getChild<LLUICtrl>("gltfTextureScaleU");
+    LLUICtrl* gltfCtrlTextureScaleV = getChild<LLUICtrl>("gltfTextureScaleV");
+    LLUICtrl* gltfCtrlTextureRotation = getChild<LLUICtrl>("gltfTextureRotation");
+    LLUICtrl* gltfCtrlTextureOffsetU = getChild<LLUICtrl>("gltfTextureOffsetU");
+    LLUICtrl* gltfCtrlTextureOffsetV = getChild<LLUICtrl>("gltfTextureOffsetV");
+
+    gltfCtrlTextureScaleU->setValue(transform.mScale[VX]);
+    gltfCtrlTextureScaleV->setValue(transform.mScale[VY]);
+    gltfCtrlTextureRotation->setValue(transform.mRotation * RAD_TO_DEG);
+    gltfCtrlTextureOffsetU->setValue(transform.mOffset[VX]);
+    gltfCtrlTextureOffsetV->setValue(transform.mOffset[VY]);
+
+    gltfCtrlTextureScaleU->setTentative(!scale_u_same);
+    gltfCtrlTextureScaleV->setTentative(!scale_v_same);
+    gltfCtrlTextureRotation->setTentative(!rotation_same);
+    gltfCtrlTextureOffsetU->setTentative(!offset_u_same);
+    gltfCtrlTextureOffsetV->setTentative(!offset_v_same);
+}
+
+void LLPanelFace::Selection::connect()
+{
+    if (!mSelectConnection.connected())
+    {
+        mSelectConnection = LLSelectMgr::instance().mUpdateSignal.connect(boost::bind(&LLPanelFace::Selection::onSelectionChanged, this));
+    }
+}
+
+bool LLPanelFace::Selection::update()
+{
+    const bool selection_changed = compareSelection();
+    if (selection_changed)
+    {
+        clearObjectUpdatePending();
+    }
+    else if (isObjectUpdatePending())
+    {
+        return false;
+    }
+
+    const bool changed = mChanged;
+    mChanged = false;
+    return changed;
+}
+
+void LLPanelFace::Selection::setObjectUpdatePending(const LLUUID &object_id, S32 side)
+{
+    mPendingObjectID = object_id;
+    mPendingSide = side;
+}
+
+void LLPanelFace::Selection::onObjectUpdated(const LLUUID& object_id, S32 side)
+{
+    if (object_id == mSelectedObjectID && side == mSelectedSide)
+    {
+        mChanged = true;
+        clearObjectUpdatePending();
+    }
+}
+
+void LLPanelFace::Selection::clearObjectUpdatePending()
+{
+    mPendingObjectID = LLUUID::null;
+    mPendingSide = -1;
+}
+
+bool LLPanelFace::Selection::compareSelection()
+{
+    if (!mNeedsSelectionCheck)
+    {
+        return false;
+    }
+    mNeedsSelectionCheck = false;
+
+    const S32 old_object_count = mSelectedObjectCount;
+    const LLUUID old_object_id = mSelectedObjectID;
+    const S32 old_side = mSelectedSide;
+
+    LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+    LLSelectNode* node = selection->getFirstNode();
+    if (node)
+    {
+        LLViewerObject* object = node->getObject();
+        mSelectedObjectCount = selection->getObjectCount();
+        mSelectedObjectID = object->getID();
+        mSelectedSide = node->getLastSelectedTE();
+    }
+    else
+    {
+        mSelectedObjectCount = 0;
+        mSelectedObjectID = LLUUID::null;
+        mSelectedSide = -1;
+    }
+
+    const bool selection_changed = old_object_count != mSelectedObjectCount || old_object_id != mSelectedObjectID || old_side != mSelectedSide;
+    mChanged = mChanged || selection_changed;
+    return selection_changed;
 }
 
 void LLPanelFace::onCommitGLTFTextureScaleU(LLUICtrl* ctrl)
