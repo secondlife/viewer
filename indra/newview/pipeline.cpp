@@ -7672,7 +7672,7 @@ void LLPipeline::renderPostProcess() {
 
         LLVertexBuffer::unbind();
     }
-
+	
     if (sRenderGlow)
     {
         LL_PROFILE_GPU_ZONE("glow");
@@ -7789,7 +7789,7 @@ void LLPipeline::renderPostProcess() {
     tc2.setVec((F32) mRT->screen.getWidth(), (F32) mRT->screen.getHeight());
 
     LLVertexBuffer::unbind();
-
+	
     if (LLPipeline::sRenderDeferred)
     {
         bool dof_enabled = !LLViewerCamera::getInstance()->cameraUnderWater() &&
@@ -7965,16 +7965,6 @@ void LLPipeline::renderPostProcess() {
                     mRT->deferredLight.bindTarget();
                     //glViewport(0, 0, mRT->deferredScreen.getWidth(), mRT->deferredScreen.getHeight());
                 }
-                else
-                {
-					/*
-                    gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
-                    gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
-                    gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
-                    gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
-                    glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);*/
-                }
-
                 shader = &gDeferredDoFCombineProgram;
                 bindDeferredShader(*shader);
 
@@ -8000,96 +7990,16 @@ void LLPipeline::renderPostProcess() {
                 }
             }
         }
-        else
-        {
-            LL_PROFILE_GPU_ZONE("no dof");
-            if (multisample)
-            {
-                mRT->deferredLight.bindTarget();
-            }
-            LLGLSLShader *shader = &gDeferredPostNoDoFProgram;
-
-            bindDeferredShader(*shader);
-
-            S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mRT->screen.getUsage());
-            if (channel > -1)
-            {
-                mRT->screen.bindTexture(0, channel);
-            }
-
-			mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
-            mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-
-            unbindDeferredShader(*shader);
-
-            if (multisample)
-            {
-                mRT->deferredLight.flush();
-            }
-        }
-
-        if (multisample)
-        {
-            LL_PROFILE_GPU_ZONE("aa");
-            // bake out texture2D with RGBL for FXAA shader
-            mRT->fxaaBuffer.bindTarget();
-
-            S32 width  = mRT->screen.getWidth();
-            S32 height = mRT->screen.getHeight();
-            glViewport(0, 0, width, height);
-
-            LLGLSLShader *shader = &gGlowCombineFXAAProgram;
-
-            shader->bind();
-            shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, width, height);
-
-            S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mRT->deferredLight.getUsage());
-            if (channel > -1)
-            {
-                mRT->deferredLight.bindTexture(0, channel);
-            }
-
-			mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
-            mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-
-            shader->disableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mRT->deferredLight.getUsage());
-            shader->unbind();
-
-            mRT->fxaaBuffer.flush();
-
-            shader = &gFXAAProgram;
-            shader->bind();
-
-            channel = shader->enableTexture(LLShaderMgr::DIFFUSE_MAP, mRT->fxaaBuffer.getUsage());
-            if (channel > -1)
-            {
-                mRT->fxaaBuffer.bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
-            }
-
-            F32 scale_x = (F32) width / mRT->fxaaBuffer.getWidth();
-            F32 scale_y = (F32) height / mRT->fxaaBuffer.getHeight();
-            shader->uniform2f(LLShaderMgr::FXAA_TC_SCALE, scale_x, scale_y);
-            shader->uniform2f(LLShaderMgr::FXAA_RCP_SCREEN_RES, 1.f / width * scale_x, 1.f / height * scale_y);
-            shader->uniform4f(LLShaderMgr::FXAA_RCP_FRAME_OPT, -0.5f / width * scale_x, -0.5f / height * scale_y, 0.5f / width * scale_x,
-                              0.5f / height * scale_y);
-            shader->uniform4f(LLShaderMgr::FXAA_RCP_FRAME_OPT2, -2.f / width * scale_x, -2.f / height * scale_y, 2.f / width * scale_x,
-                              2.f / height * scale_y);
-
-			mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
-            mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-
-            shader->unbind();
-        }
     }
 }
 
 void LLPipeline::renderFinalize()
 {
-    //LLVertexBuffer::unbind();
-    //LLGLState::checkStates();
-    //LLGLState::checkTextureChannels();
+    LLVertexBuffer::unbind();
+    LLGLState::checkStates();
+    LLGLState::checkTextureChannels();
 
-    //assertInitialized();
+    assertInitialized();
 
     //LLVector2 tc1(0, 0);
     //LLVector2 tc2((F32) mRT->screen.getWidth() * 2, (F32) mRT->screen.getHeight() * 2);
@@ -8109,8 +8019,19 @@ void LLPipeline::renderFinalize()
     gGL.setColorMask(true, true);
     glClearColor(0, 0, 0, 0);
 
+    LLStrider<LLVector3> vert;
+    mDeferredVB->getVertexStrider(vert);
+
+    vert[0].set(-1, 1, 0);
+    vert[1].set(-1, -3, 0);
+    vert[2].set(3, 1, 0);
+
+    mDeferredVB->getVertexStrider(vert);
+
     if (!gCubeSnapshot)
     {
+        bool multisample = RenderFSAASamples > 1 && mRT->fxaaBuffer.isComplete();
+
         // gamma correct lighting
 
         {
@@ -8118,7 +8039,7 @@ void LLPipeline::renderFinalize()
 
             LLGLDepthTest depth(GL_FALSE, GL_FALSE);
 
-            LLRenderTarget* screen_target = &mRT->deferredLight;
+            LLRenderTarget *screen_target = &mRT->screen;
 
             LLVector2 tc1(0, 0);
             LLVector2 tc2((F32)screen_target->getWidth() * 2, (F32)screen_target->getHeight() * 2);
@@ -8157,6 +8078,87 @@ void LLPipeline::renderFinalize()
             screen_target->flush();
         }
 
+		// Handle our combines.
+        if (!RenderDepthOfField)
+		{
+            LL_PROFILE_GPU_ZONE("no dof");
+            if (multisample)
+            {
+                mRT->deferredLight.bindTarget();
+            }
+            LLGLSLShader *shader = &gDeferredPostNoDoFProgram;
+
+            bindDeferredShader(*shader);
+
+            S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mRT->screen.getUsage());
+            if (channel > -1)
+            {
+                mRT->screen.bindTexture(0, channel);
+            }
+
+            mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+            mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+            unbindDeferredShader(*shader);
+
+            if (multisample)
+            {
+                mRT->deferredLight.flush();
+            }
+        }
+
+        if (multisample)
+        {
+            LL_PROFILE_GPU_ZONE("aa");
+            // bake out texture2D with RGBL for FXAA shader
+            mRT->fxaaBuffer.bindTarget();
+
+            S32 width  = mRT->screen.getWidth();
+            S32 height = mRT->screen.getHeight();
+            glViewport(0, 0, width, height);
+
+            LLGLSLShader *shader = &gGlowCombineFXAAProgram;
+
+            shader->bind();
+            shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, width, height);
+
+            S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mRT->deferredLight.getUsage());
+            if (channel > -1)
+            {
+                mRT->deferredLight.bindTexture(0, channel);
+            }
+
+            mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+            mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+            shader->disableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mRT->deferredLight.getUsage());
+            shader->unbind();
+
+            mRT->fxaaBuffer.flush();
+
+            shader = &gFXAAProgram;
+            shader->bind();
+
+            channel = shader->enableTexture(LLShaderMgr::DIFFUSE_MAP, mRT->fxaaBuffer.getUsage());
+            if (channel > -1)
+            {
+                mRT->fxaaBuffer.bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
+            }
+
+            F32 scale_x = (F32) width / mRT->fxaaBuffer.getWidth();
+            F32 scale_y = (F32) height / mRT->fxaaBuffer.getHeight();
+            shader->uniform2f(LLShaderMgr::FXAA_TC_SCALE, scale_x, scale_y);
+            shader->uniform2f(LLShaderMgr::FXAA_RCP_SCREEN_RES, 1.f / width * scale_x, 1.f / height * scale_y);
+            shader->uniform4f(LLShaderMgr::FXAA_RCP_FRAME_OPT, -0.5f / width * scale_x, -0.5f / height * scale_y, 0.5f / width * scale_x,
+                              0.5f / height * scale_y);
+            shader->uniform4f(LLShaderMgr::FXAA_RCP_FRAME_OPT2, -2.f / width * scale_x, -2.f / height * scale_y, 2.f / width * scale_x,
+                              2.f / height * scale_y);
+
+            mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+            mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+            shader->unbind();
+        }
         LLVertexBuffer::unbind();
     }
 
