@@ -41,8 +41,8 @@
 #include "llviewermedia.h"
 #include "llviewernetwork.h"
 #include "llviewerregion.h"
-#include "reader.h" // JSON
-#include "writer.h" // JSON
+#include "json/reader.h" // JSON
+#include "json/writer.h" // JSON
 #include "lleventcoro.h"
 #include "llcoros.h"
 #include "llcorehttputil.h"

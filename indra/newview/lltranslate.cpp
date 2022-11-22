@@ -36,7 +36,7 @@
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
 #include "llcoros.h"
-#include "reader.h"
+#include "json/reader.h"
 #include "llcorehttputil.h"
 #include "llurlregistry.h"
 

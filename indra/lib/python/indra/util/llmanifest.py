@@ -125,7 +125,7 @@ BASE_ARGUMENTS=[
          but not application name (used internally)""",
          default=None),
     dict(name='configuration',
-         description="""The build configuration used.""",
+         description="""The build configurations sub directory used.""",
          default="Release"),
     dict(name='dest', description='Destination directory.', default=DEFAULT_SRCTREE),
     dict(name='grid',
