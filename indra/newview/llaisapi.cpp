@@ -100,7 +100,7 @@ void AISAPI::CreateInventory(const LLUUID& parentId, const LLSD& newInventory, c
     tid.generate();
 
     std::string url = cap + std::string("/category/") + parentId.asString() + "?tid=" + tid.asString();
-    LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
+    LL_DEBUGS("Inventory") << "url: " << url << " parentID " << parentId << " newInventory " << newInventory << LL_ENDL;
 
     // I may be suffering from golden hammer here, but the first part of this bind 
     // is actually a static cast for &HttpCoroutineAdapter::postAndSuspend so that 
@@ -124,7 +124,7 @@ void AISAPI::CreateInventory(const LLUUID& parentId, const LLSD& newInventory, c
         (&LLCoreHttpUtil::HttpCoroutineAdapter::postAndSuspend), _1, _2, _3, _4, _5, _6);
 
     LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
-        _1, postFn, url, parentId, newInventory, callback, COPYINVENTORY));
+        _1, postFn, url, parentId, newInventory, callback, CREATEINVENTORY));
     EnqueueAISCommand("CreateInventory", proc);
 }
 
@@ -478,6 +478,7 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
         LL_WARNS("Inventory") << ll_pretty_print_sd(result) << LL_ENDL;
     }
 
+	LL_DEBUGS("Inventory") << result << LL_ENDL;
     gInventory.onAISUpdateReceived("AISCommand", result);
 
     if (callback && !callback.empty())
@@ -487,9 +488,32 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
         if (result.has("category_id") && (type == COPYLIBRARYCATEGORY))
 	    {
 		    id = result["category_id"];
+			callback(id);
 	    }
+		if (type == CREATEINVENTORY)
+		{
+			if (result.has("_created_categories"))
+			{
+				LLSD& cats = result["_created_categories"];
+				LLSD::array_const_iterator cat_iter;
+				for (cat_iter = cats.beginArray(); cat_iter != cats.endArray(); ++cat_iter)
+				{
+					LLUUID cat_id = *cat_iter;
+					callback(cat_id);
+				}
+			}
+			if (result.has("_created_items"))
+			{
+				LLSD& items = result["_created_items"];
+				LLSD::array_const_iterator item_iter;
+				for (item_iter = items.beginArray(); item_iter != items.endArray(); ++item_iter)
+				{
+					LLUUID item_id = *item_iter;
+					callback(item_id);
+				}
+			}
+		}
 
-        callback(id);
     }
 
 }

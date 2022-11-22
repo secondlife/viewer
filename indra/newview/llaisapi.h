@@ -61,7 +61,8 @@ private:
         PURGEDESCENDENTS,
         UPDATECATEGORY,
         UPDATEITEM,
-        COPYLIBRARYCATEGORY
+        COPYLIBRARYCATEGORY,
+        CREATEINVENTORY
     } COMMAND_TYPE;
 
     static const std::string INVENTORY_CAP_NAME;
