@@ -33,8 +33,6 @@
 #include "llglcommonfunc.h"
 #include "llvoavatar.h"
 
-S32 diffuse_channel = -1;
-
 LLDrawPoolMaterials::LLDrawPoolMaterials()
 :  LLRenderPass(LLDrawPool::POOL_MATERIALS)
 {
@@ -98,7 +96,8 @@ void LLDrawPoolMaterials::beginDeferredPass(S32 pass)
         llassert(mShader->mRiggedVariant != nullptr);
         mShader = mShader->mRiggedVariant;
     }
-	mShader->bind();
+
+    gPipeline.bindDeferredShader(*mShader);
 
     if (LLPipeline::sRenderingHUDs)
     {
@@ -108,8 +107,6 @@ void LLDrawPoolMaterials::beginDeferredPass(S32 pass)
     {
         mShader->uniform1i(LLShaderMgr::NO_ATMO, 0);
     }
-
-	diffuse_channel = mShader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
 }
 
 void LLDrawPoolMaterials::endDeferredPass(S32 pass)
@@ -174,14 +171,15 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
     GLint minAlpha = mShader->getUniformLocation(LLShaderMgr::MINIMUM_ALPHA);
     GLint specular = mShader->getUniformLocation(LLShaderMgr::SPECULAR_COLOR);
 
-    GLint specChannel = mShader->getUniformLocation(LLShaderMgr::SPECULAR_MAP);
-    GLint normChannel = mShader->getUniformLocation(LLShaderMgr::BUMP_MAP);
+    GLint diffuseChannel = mShader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
+    GLint specChannel = mShader->enableTexture(LLShaderMgr::SPECULAR_MAP);
+    GLint normChannel = mShader->enableTexture(LLShaderMgr::BUMP_MAP);
 
     LLTexture* lastNormalMap = nullptr;
     LLTexture* lastSpecMap = nullptr;
     LLTexture* lastDiffuse = nullptr;
 
-    gGL.getTexUnit(diffuse_channel)->unbindFast(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(diffuseChannel)->unbindFast(LLTexUnit::TT_TEXTURE);
 
     if (intensity > -1)
     {
@@ -254,11 +252,11 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
             lastDiffuse = params.mTexture;
             if (lastDiffuse)
             {
-                gGL.getTexUnit(diffuse_channel)->bindFast(lastDiffuse);
+                gGL.getTexUnit(diffuseChannel)->bindFast(lastDiffuse);
             }
             else
             {
-                gGL.getTexUnit(diffuse_channel)->unbindFast(LLTexUnit::TT_TEXTURE);
+                gGL.getTexUnit(diffuseChannel)->unbindFast(LLTexUnit::TT_TEXTURE);
             }
         }
 
