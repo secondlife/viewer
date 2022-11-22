@@ -271,7 +271,8 @@ BOOL	LLPanelFace::postBuild()
     childSetCommitCallback("delete_media", &LLPanelFace::onClickBtnDeleteMedia, this);
 
     getChild<LLUICtrl>("gltfTextureScaleU")->setCommitCallback(boost::bind(&LLPanelFace::onCommitGLTFTextureScaleU, this, _1), nullptr);
-    getChild<LLUICtrl>("gltfTextureScaleV")->setCommitCallback(boost::bind(&LLPanelFace::onCommitGLTFTextureScaleV, this, _1), nullptr);
+    // TODO: Restore
+    //getChild<LLUICtrl>("gltfTextureScaleV")->setCommitCallback(boost::bind(&LLPanelFace::onCommitGLTFTextureScaleV, this, _1), nullptr);
     getChild<LLUICtrl>("gltfTextureRotation")->setCommitCallback(boost::bind(&LLPanelFace::onCommitGLTFRotation, this, _1), nullptr);
     getChild<LLUICtrl>("gltfTextureOffsetU")->setCommitCallback(boost::bind(&LLPanelFace::onCommitGLTFTextureOffsetU, this, _1), nullptr);
     getChild<LLUICtrl>("gltfTextureOffsetV")->setCommitCallback(boost::bind(&LLPanelFace::onCommitGLTFTextureOffsetV, this, _1), nullptr);
@@ -292,6 +293,7 @@ BOOL	LLPanelFace::postBuild()
 	LLColorSwatchCtrl*	mShinyColorSwatch;
 
 	LLComboBox*		mComboTexGen;
+    LLComboBox*     mGLTFComboTexGen;
 
 	LLCheckBoxCtrl	*mCheckFullbright;
 	
@@ -424,6 +426,34 @@ BOOL	LLPanelFace::postBuild()
 		mComboTexGen->setCommitCallback(LLPanelFace::onCommitTexGen, this);
 		mComboTexGen->setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);	
 	}
+
+    mGLTFComboTexGen = getChild<LLComboBox>("gltf combobox texgen");
+    if(mGLTFComboTexGen)
+	{
+        mGLTFComboTexGen->setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);    
+	}
+    
+    // TODO: Remove
+    {
+        LLUICtrl* gltfCtrlTextureScaleU = getChild<LLUICtrl>("gltfTextureScaleU");
+        LLUICtrl* gltfCtrlTextureScaleV = getChild<LLUICtrl>("gltfTextureScaleV");
+        gltfCtrlTextureScaleU->propagateCommits(gltfCtrlTextureScaleV);
+        gltfCtrlTextureScaleV->propagateCommits(gltfCtrlTextureScaleU);
+    }
+
+    if (mComboTexGen && mGLTFComboTexGen)
+    {
+        mComboTexGen->propagateCommits(mGLTFComboTexGen);
+        mGLTFComboTexGen->propagateCommits(mComboTexGen);
+    }
+
+    LLUICtrl* mCheckboxPlanarAlign = getChild<LLCheckBoxCtrl>("checkbox planar align");
+    LLUICtrl* mGLTFCheckboxPlanarAlign = getChild<LLCheckBoxCtrl>("gltf checkbox planar align");
+    if (mCheckboxPlanarAlign && mGLTFCheckboxPlanarAlign)
+    {
+        mCheckboxPlanarAlign->propagateCommits(mGLTFCheckboxPlanarAlign);
+        mGLTFCheckboxPlanarAlign->propagateCommits(mCheckboxPlanarAlign);
+    }
 
     mComboMatMedia = getChild<LLComboBox>("combobox matmedia");
 	if(mComboMatMedia)
@@ -1014,7 +1044,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         }
         radio_pbr_type->setEnabled(editable);
         const bool pbr_selected = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR;
-        const bool texture_info_selected = pbr_selected && radio_pbr_type->getSelectedIndex() != PBRTYPE_RENDER_MATERIAL_ID;
 
 		getChildView("checkbox_sync_settings")->setEnabled(editable);
 		childSetValue("checkbox_sync_settings", gSavedSettings.getBOOL("SyncMaterialSettings"));
@@ -1263,7 +1292,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			LLCheckBoxCtrl*	cb_planar_align = getChild<LLCheckBoxCtrl>("checkbox planar align");
 			align_planar = (cb_planar_align && cb_planar_align->get());
 
-			bool enabled = (editable && isIdenticalPlanarTexgen() && (!pbr_selected || texture_info_selected));
+			bool enabled = (editable && isIdenticalPlanarTexgen() && !pbr_selected);
 			childSetValue("checkbox planar align", align_planar && enabled);
             childSetVisible("checkbox planar align", enabled);
 			childSetEnabled("checkbox planar align", enabled);
@@ -1805,7 +1834,15 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
     getChildView("edit_selected_pbr")->setEnabled(editable && has_pbr_material && has_pbr_capabilities);
     getChildView("save_selected_pbr")->setEnabled(objectp->permCopy() && has_pbr_material && has_pbr_capabilities);
 
-    const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
+    // TODO: Implement gltf variants of these fields:
+    //       - "tex gen" - Should be easy; is just text
+    //       - "combobox texgen" - ...
+    //       - "checkbox planar align" - ...
+    //       ... We can now treat these as connected to the GLTF counterparts for the purposes of values and commits
+    // TODO: Control visibility here or on updateVisibility ish function?
+
+    const bool show_pbr = editable && mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
+
     if (show_pbr)
     {
         const U32 pbr_type = findChild<LLRadioGroup>("radio_pbr_type")->getSelectedIndex();
@@ -1830,18 +1867,16 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
 
 void LLPanelFace::updateVisibilityGLTF()
 {
-    const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
+    const LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+    const bool editable = objectp && objectp->getPCode() == LL_PCODE_VOLUME && objectp->permModify() && !objectp->isPermanentEnforced();
+    const bool show_pbr = editable && mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
 
     LLRadioGroup* radio_pbr_type = findChild<LLRadioGroup>("radio_pbr_type");
     radio_pbr_type->setVisible(show_pbr);
 
     const U32 pbr_type = radio_pbr_type->getSelectedIndex();
-    const bool show_pbr_render_material_id = show_pbr && (pbr_type == PBRTYPE_RENDER_MATERIAL_ID);
-    const bool show_pbr_base_color = show_pbr && (pbr_type == PBRTYPE_BASE_COLOR);
-    const bool show_pbr_normal = show_pbr && (pbr_type == PBRTYPE_NORMAL);
-    const bool show_pbr_metallic_roughness = show_pbr && (pbr_type == PBRTYPE_METALLIC_ROUGHNESS);
-    const bool show_pbr_emissive = show_pbr && (pbr_type == PBRTYPE_EMISSIVE);
-    const bool show_pbr_transform = show_pbr_base_color || show_pbr_normal || show_pbr_metallic_roughness || show_pbr_emissive;
+    const bool show_pbr_render_material_id = show_pbr && pbr_type == PBRTYPE_RENDER_MATERIAL_ID;
+    const bool show_texture_info = show_pbr && pbr_type != PBRTYPE_RENDER_MATERIAL_ID;
 
     getChildView("pbr_control")->setVisible(show_pbr_render_material_id);
 
@@ -1849,11 +1884,15 @@ void LLPanelFace::updateVisibilityGLTF()
     getChildView("edit_selected_pbr")->setVisible(show_pbr_render_material_id);
     getChildView("save_selected_pbr")->setVisible(show_pbr_render_material_id);
 
-    getChildView("gltfTextureScaleU")->setVisible(show_pbr_transform);
-    getChildView("gltfTextureScaleV")->setVisible(show_pbr_transform);
-    getChildView("gltfTextureRotation")->setVisible(show_pbr_transform);
-    getChildView("gltfTextureOffsetU")->setVisible(show_pbr_transform);
-    getChildView("gltfTextureOffsetV")->setVisible(show_pbr_transform);
+    getChildView("gltfTextureScaleU")->setVisible(show_texture_info);
+    getChildView("gltfTextureScaleV")->setVisible(show_texture_info);
+    getChildView("gltfTextureRotation")->setVisible(show_texture_info);
+    getChildView("gltfTextureOffsetU")->setVisible(show_texture_info);
+    getChildView("gltfTextureOffsetV")->setVisible(show_texture_info);
+
+    getChildView("tex gen gltf")->setVisible(show_texture_info);
+    getChildView("combobox texgen gltf")->setVisible(show_texture_info);
+    getChildView("checkbox planar align gltf")->setVisible(isIdenticalPlanarTexgen() && show_texture_info);
 }
 
 void LLPanelFace::updateCopyTexButton()
@@ -2716,8 +2755,8 @@ void LLPanelFace::updateVisibility()
 
     // Shared material controls
     getChildView("checkbox_sync_settings")->setVisible(show_material || show_media || show_texture_info);
-    getChildView("tex gen")->setVisible(show_material || show_media || show_texture_info);
-    getChildView("combobox texgen")->setVisible(show_material || show_media || show_texture_info);
+    getChildView("tex gen")->setVisible(show_material || show_media);
+    getChildView("combobox texgen")->setVisible(show_material || show_media);
     getChildView("button align textures")->setVisible(show_material || show_media);
 
 	// Media controls
@@ -4728,7 +4767,8 @@ void LLPanelFace::setMaterialOverridesFromSelection()
     LLUICtrl* gltfCtrlTextureOffsetV = getChild<LLUICtrl>("gltfTextureOffsetV");
 
     gltfCtrlTextureScaleU->setValue(transform.mScale[VX]);
-    gltfCtrlTextureScaleV->setValue(transform.mScale[VY]);
+    // TODO: Restore
+    //gltfCtrlTextureScaleV->setValue(transform.mScale[VY]);
     gltfCtrlTextureRotation->setValue(transform.mRotation * RAD_TO_DEG);
     gltfCtrlTextureOffsetU->setValue(transform.mOffset[VX]);
     gltfCtrlTextureOffsetV->setValue(transform.mOffset[VY]);

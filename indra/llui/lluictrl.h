@@ -48,6 +48,7 @@ class LLUICtrl
 public:
 	typedef boost::function<void (LLUICtrl* ctrl, const LLSD& param)> commit_callback_t;
 	typedef boost::signals2::signal<void (LLUICtrl* ctrl, const LLSD& param)> commit_signal_t;
+    typedef boost::signals2::signal<void (LLUICtrl* ctrl, const LLSD& param, bool tentative)> value_signal_t;
 	// *TODO: add xml support for this type of signal in the future
 	typedef boost::signals2::signal<void (LLUICtrl* ctrl, S32 x, S32 y, MASK mask)> mouse_signal_t;
 	
@@ -204,6 +205,9 @@ public:
 	virtual void	resetDirty(); //Defaults to no-op
 	
 	// Call appropriate callback
+    virtual void    onValue();
+
+	// Call appropriate callback
 	virtual void	onCommit();
 	
 	// Default to no-op:
@@ -243,6 +247,7 @@ public:
 
 	boost::signals2::connection setCommitCallback( const commit_signal_t::slot_type& cb );
 	boost::signals2::connection setValidateCallback( const enable_signal_t::slot_type& cb );
+    boost::signals2::connection setValueCallback( const value_signal_t::slot_type& cb );
 
 	boost::signals2::connection setMouseEnterCallback( const commit_signal_t::slot_type& cb );
 	boost::signals2::connection setMouseLeaveCallback( const commit_signal_t::slot_type& cb );
@@ -257,6 +262,9 @@ public:
 	// *TODO: Deprecate; for backwards compatability only:
 	boost::signals2::connection setCommitCallback( boost::function<void (LLUICtrl*,void*)> cb, void* data);	
 	boost::signals2::connection setValidateBeforeCommit( boost::function<bool (const LLSD& data)> cb );
+
+    // Propagates value changes and commits from this control to the receiver control
+    void propagateCommits(LLUICtrl* receiver);
 
 	LLUICtrl* findRootMostFocusRoot();
 
@@ -288,6 +296,7 @@ protected:
 
 	commit_signal_t*		mCommitSignal;
 	enable_signal_t*		mValidateSignal;
+    value_signal_t*         mValueSignal;
 
 	commit_signal_t*		mMouseEnterSignal;
 	commit_signal_t*		mMouseLeaveSignal;

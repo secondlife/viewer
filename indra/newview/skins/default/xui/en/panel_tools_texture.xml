@@ -953,6 +953,49 @@
              max_val="999"
              name="gltfTextureOffsetV"
              width="265" />
+            <!-- TODO: Rename "tex gen gltf" -->
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="10"
+             layout="topleft"
+             left="10"
+             name="tex gen gltf"
+             text_readonly_color="LabelDisabledColor"
+             top_pad="46"
+             width="140">
+                Mapping gltf
+            </text>
+            <!-- TODO: Rename "combobox texgen gltf" -->
+            <combo_box
+             height="23"
+             layout="topleft"
+             left_pad="0"
+             name="combobox texgen gltf"
+             top_pad="-13"
+             width="125">
+                <combo_box.item
+                 label="Default gltf"
+                 name="Default"
+                 value="Default" />
+                <combo_box.item
+                 label="Planar gltf"
+                 name="Planar"
+                 value="Planar" />
+            </combo_box>
+            <!-- TODO: Rename "checkbox planar align gltf" -->
+            <check_box
+             follows="top|left"
+             height="16"
+             initial_value="false"
+             label="Align planar faces gltf"
+             layout="topleft"
+             left="7"
+             name="checkbox planar align gltf"
+             tool_tip="Align textures on all selected faces with the last selected face. Requires Planar texture mapping."
+             top_delta="43"
+             width="260" />
             <!-- END PBR Material texture transform parameters -->
             <check_box
              follows="top|left"
