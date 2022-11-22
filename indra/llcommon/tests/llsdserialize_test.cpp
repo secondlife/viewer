@@ -60,6 +60,7 @@ using namespace boost::phoenix;
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
 #include "stringize.h"
+#include <functional>
 
 std::vector<U8> string_to_vector(const std::string& str)
 {
@@ -112,7 +113,7 @@ namespace tut
 		mSD = LLUUID::null;
 		expected = "<llsd><uuid /></llsd>\n";
 		xml_test("null uuid", expected);
-		
+
 		mSD = LLUUID("c96f9b1e-f589-4100-9774-d98643ce0bed");
 		expected = "<llsd><uuid>c96f9b1e-f589-4100-9774-d98643ce0bed</uuid></llsd>\n";
 		xml_test("uuid", expected);
@@ -136,7 +137,7 @@ namespace tut
 		expected = "<llsd><binary encoding=\"base64\">aGVsbG8=</binary></llsd>\n";
 		xml_test("binary", expected);
 	}
-	
+
 	template<> template<>
 	void sd_xml_object::test<2>()
 	{
@@ -225,7 +226,7 @@ namespace tut
 		expected = "<llsd><map><key>baz</key><undef /><key>foo</key><string>bar</string></map></llsd>\n";
 		xml_test("2 element map", expected);
 	}
-	
+
 	template<> template<>
 	void sd_xml_object::test<6>()
 	{
@@ -241,7 +242,7 @@ namespace tut
 		expected = "<llsd><binary encoding=\"base64\">Nnw2fGFzZGZoYXBweWJveHw2MGU0NGVjNS0zMDVjLTQzYzItOWExOS1iNGI4OWIxYWUyYTZ8NjBlNDRlYzUtMzA1Yy00M2MyLTlhMTktYjRiODliMWFlMmE2fDYwZTQ0ZWM1LTMwNWMtNDNjMi05YTE5LWI0Yjg5YjFhZTJhNnwwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDB8N2ZmZmZmZmZ8N2ZmZmZmZmZ8MHwwfDgyMDAwfDQ1MGZlMzk0LTI5MDQtYzlhZC0yMTRjLWEwN2ViN2ZlZWMyOXwoTm8gRGVzY3JpcHRpb24pfDB8MTB8MA==</binary></llsd>\n";
 		xml_test("binary", expected);
 	}
-	
+
 	class TestLLSDSerializeData
 	{
 	public:
@@ -250,9 +251,34 @@ namespace tut
 
 		void doRoundTripTests(const std::string&);
 		void checkRoundTrip(const std::string&, const LLSD& v);
-		
-		LLPointer<LLSDFormatter> mFormatter;
-		LLPointer<LLSDParser> mParser;
+
+		void setFormatterParser(LLPointer<LLSDFormatter> formatter, LLPointer<LLSDParser> parser)
+		{
+			mFormatter = [formatter](const LLSD& data, std::ostream& str)
+			{
+				formatter->format(data, str);
+			};
+			// this lambda must be mutable since otherwise the bound 'parser'
+			// is assumed to point to a const LLSDParser
+			mParser = [parser](std::istream& istr, LLSD& data, size_t max_bytes) mutable
+			{
+				// reset() call is needed since test code re-uses parser object
+				parser->reset();
+				return (parser->parse(istr, data, max_bytes) > 0);
+			};
+		}
+
+		void setParser(bool (*parser)(LLSD&, std::istream&, size_t))
+		{
+			// why does LLSDSerialize::deserialize() reverse the parse() params??
+			mParser = [parser](std::istream& istr, LLSD& data, size_t max_bytes)
+			{
+				return (parser(data, istr, max_bytes) > 0);
+			};
+		}
+
+		std::function<void(const LLSD& data, std::ostream& str)> mFormatter;
+		std::function<bool(std::istream& istr, LLSD& data, size_t max_bytes)> mParser;
 	};
 
 	TestLLSDSerializeData::TestLLSDSerializeData()
@@ -265,12 +291,11 @@ namespace tut
 
 	void TestLLSDSerializeData::checkRoundTrip(const std::string& msg, const LLSD& v)
 	{
-		std::stringstream stream;	
-		mFormatter->format(v, stream);
+		std::stringstream stream;
+		mFormatter(v, stream);
 		//LL_INFOS() << "checkRoundTrip: length " << stream.str().length() << LL_ENDL;
 		LLSD w;
-		mParser->reset();	// reset() call is needed since test code re-uses mParser
-		mParser->parse(stream, w, stream.str().size());
+		mParser(stream, w, stream.str().size());
 
 		try
 		{
@@ -299,52 +324,52 @@ namespace tut
 			fillmap(root[key], width, depth - 1);
 		}
 	}
-	
+
 	void TestLLSDSerializeData::doRoundTripTests(const std::string& msg)
 	{
 		LLSD v;
 		checkRoundTrip(msg + " undefined", v);
-		
+
 		v = true;
 		checkRoundTrip(msg + " true bool", v);
-		
+
 		v = false;
 		checkRoundTrip(msg + " false bool", v);
-		
+
 		v = 1;
 		checkRoundTrip(msg + " positive int", v);
-		
+
 		v = 0;
 		checkRoundTrip(msg + " zero int", v);
-		
+
 		v = -1;
 		checkRoundTrip(msg + " negative int", v);
-		
+
 		v = 1234.5f;
 		checkRoundTrip(msg + " positive float", v);
-		
+
 		v = 0.0f;
 		checkRoundTrip(msg + " zero float", v);
-		
+
 		v = -1234.5f;
 		checkRoundTrip(msg + " negative float", v);
-		
+
 		// FIXME: need a NaN test
-		
+
 		v = LLUUID::null;
 		checkRoundTrip(msg + " null uuid", v);
-		
+
 		LLUUID newUUID;
 		newUUID.generate();
 		v = newUUID;
 		checkRoundTrip(msg + " new uuid", v);
-		
+
 		v = "";
 		checkRoundTrip(msg + " empty string", v);
-		
+
 		v = "some string";
 		checkRoundTrip(msg + " non-empty string", v);
-		
+
 		v =
 "Second Life is a 3-D virtual world entirely built and owned by its residents. "
 "Since opening to the public in 2003, it has grown explosively and today is "
@@ -372,7 +397,7 @@ namespace tut
 		for (U32 block = 0x000000; block <= 0x10ffff; block += block_size)
 		{
 			std::ostringstream out;
-			
+
 			for (U32 c = block; c < block + block_size; ++c)
 			{
 				if (c <= 0x000001f
@@ -386,7 +411,7 @@ namespace tut
 				if (0x00fdd0 <= c  &&  c <= 0x00fdef) { continue; }
 				if ((c & 0x00fffe) == 0x00fffe) { continue; }		
 					// see Unicode standard, section 15.8 
-				
+
 				if (c <= 0x00007f)
 				{
 					out << (char)(c & 0x7f);
@@ -410,55 +435,55 @@ namespace tut
 					out << (char)(0x80 | ((c >>  0) & 0x3f));
 				}
 			}
-			
+
 			v = out.str();
 
 			std::ostringstream blockmsg;
 			blockmsg << msg << " unicode string block 0x" << std::hex << block; 
 			checkRoundTrip(blockmsg.str(), v);
 		}
-		
+
 		LLDate epoch;
 		v = epoch;
 		checkRoundTrip(msg + " epoch date", v);
-		
+
 		LLDate aDay("2002-12-07T05:07:15.00Z");
 		v = aDay;
 		checkRoundTrip(msg + " date", v);
-		
+
 		LLURI path("http://slurl.com/secondlife/Ambleside/57/104/26/");
 		v = path;
 		checkRoundTrip(msg + " url", v);
-		
+
 		const char source[] = "it must be a blue moon again";
 		std::vector<U8> data;
 		// note, includes terminating '\0'
 		copy(&source[0], &source[sizeof(source)], back_inserter(data));
-		
+
 		v = data;
 		checkRoundTrip(msg + " binary", v);
-		
+
 		v = LLSD::emptyMap();
 		checkRoundTrip(msg + " empty map", v);
-		
+
 		v = LLSD::emptyMap();
 		v["name"] = "luke";		//v.insert("name", "luke");
 		v["age"] = 3;			//v.insert("age", 3);
 		checkRoundTrip(msg + " map", v);
-		
+
 		v.clear();
 		v["a"]["1"] = true;
 		v["b"]["0"] = false;
 		checkRoundTrip(msg + " nested maps", v);
-		
+
 		v = LLSD::emptyArray();
 		checkRoundTrip(msg + " empty array", v);
-		
+
 		v = LLSD::emptyArray();
 		v.append("ali");
 		v.append(28);
 		checkRoundTrip(msg + " array", v);
-		
+
 		v.clear();
 		v[0][0] = true;
 		v[1][0] = false;
@@ -468,7 +493,7 @@ namespace tut
 		fillmap(v, 10, 3); // 10^6 maps
 		checkRoundTrip(msg + " many nested maps", v);
 	}
-	
+
 	typedef tut::test_group<TestLLSDSerializeData> TestLLSDSerializeGroup;
 	typedef TestLLSDSerializeGroup::object TestLLSDSerializeObject;
 	TestLLSDSerializeGroup gTestLLSDSerializeGroup("llsd serialization");
@@ -476,35 +501,78 @@ namespace tut
 	template<> template<> 
 	void TestLLSDSerializeObject::test<1>()
 	{
-		mFormatter = new LLSDNotationFormatter(false, "", LLSDFormatter::OPTIONS_PRETTY_BINARY);
-		mParser = new LLSDNotationParser();
+		setFormatterParser(new LLSDNotationFormatter(false, "", LLSDFormatter::OPTIONS_PRETTY_BINARY),
+						   new LLSDNotationParser());
 		doRoundTripTests("pretty binary notation serialization");
 	}
 
 	template<> template<> 
 	void TestLLSDSerializeObject::test<2>()
 	{
-		mFormatter = new LLSDNotationFormatter(false, "", LLSDFormatter::OPTIONS_NONE);
-		mParser = new LLSDNotationParser();
+		setFormatterParser(new LLSDNotationFormatter(false, "", LLSDFormatter::OPTIONS_NONE),
+						   new LLSDNotationParser());
 		doRoundTripTests("raw binary notation serialization");
 	}
 
 	template<> template<> 
 	void TestLLSDSerializeObject::test<3>()
 	{
-		mFormatter = new LLSDXMLFormatter();
-		mParser = new LLSDXMLParser();
+		setFormatterParser(new LLSDXMLFormatter(), new LLSDXMLParser());
 		doRoundTripTests("xml serialization");
 	}
 
 	template<> template<> 
 	void TestLLSDSerializeObject::test<4>()
 	{
-		mFormatter = new LLSDBinaryFormatter();
-		mParser = new LLSDBinaryParser();
+		setFormatterParser(new LLSDBinaryFormatter(), new LLSDBinaryParser());
 		doRoundTripTests("binary serialization");
 	}
 
+	template<> template<>
+	void TestLLSDSerializeObject::test<5>()
+	{
+		mFormatter = [](const LLSD& sd, std::ostream& str)
+		{
+			LLSDSerialize::serialize(sd, str, LLSDSerialize::LLSD_BINARY);
+		};
+		setParser(LLSDSerialize::deserialize);
+		doRoundTripTests("serialize(LLSD_BINARY)");
+	};
+
+	template<> template<>
+	void TestLLSDSerializeObject::test<6>()
+	{
+		mFormatter = [](const LLSD& sd, std::ostream& str)
+		{
+			LLSDSerialize::serialize(sd, str, LLSDSerialize::LLSD_XML);
+		};
+		setParser(LLSDSerialize::deserialize);
+		doRoundTripTests("serialize(LLSD_XML)");
+	};
+
+	template<> template<>
+	void TestLLSDSerializeObject::test<7>()
+	{
+		mFormatter = [](const LLSD& sd, std::ostream& str)
+		{
+			LLSDSerialize::serialize(sd, str, LLSDSerialize::LLSD_NOTATION);
+		};
+		setParser(LLSDSerialize::deserialize);
+		// In this test, serialize(LLSD_NOTATION) emits a header recognized by
+		// deserialize().
+		doRoundTripTests("serialize(LLSD_NOTATION)");
+	};
+
+	template<> template<>
+	void TestLLSDSerializeObject::test<8>()
+	{
+		setFormatterParser(new LLSDNotationFormatter(false, "", LLSDFormatter::OPTIONS_NONE),
+						   new LLSDNotationParser());
+		setParser(LLSDSerialize::deserialize);
+		// This is an interesting test because LLSDNotationFormatter does not
+		// emit an llsd/notation header.
+		doRoundTripTests("LLSDNotationFormatter -> deserialize");
+	};
 
 	/**
 	 * @class TestLLSDParsing
@@ -555,7 +623,7 @@ namespace tut
 	public:
 		TestLLSDXMLParsing() {}
 	};
-	
+
 	typedef tut::test_group<TestLLSDXMLParsing> TestLLSDXMLParsingGroup;
 	typedef TestLLSDXMLParsingGroup::object TestLLSDXMLParsingObject;
 	TestLLSDXMLParsingGroup gTestLLSDXMLParsingGroup("llsd XML parsing");
@@ -586,8 +654,8 @@ namespace tut
 			LLSD(),
 			LLSDParser::PARSE_FAILURE);
 	}
-	
-	
+
+
 	template<> template<> 
 	void TestLLSDXMLParsingObject::test<2>()
 	{
@@ -596,7 +664,7 @@ namespace tut
 		v["amy"] = 23;
 		v["bob"] = LLSD();
 		v["cam"] = 1.23;
-		
+
 		ensureParse(
 			"unknown data type",
 			"<llsd><map>"
@@ -607,16 +675,16 @@ namespace tut
 			v,
 			v.size() + 1);
 	}
-	
+
 	template<> template<> 
 	void TestLLSDXMLParsingObject::test<3>()
 	{
 		// test handling of nested bad data
-		
+
 		LLSD v;
 		v["amy"] = 23;
 		v["cam"] = 1.23;
-		
+
 		ensureParse(
 			"map with html",
 			"<llsd><map>"
@@ -626,7 +694,7 @@ namespace tut
 			"</map></llsd>",
 			v,
 			v.size() + 1);
-			
+
 		v.clear();
 		v["amy"] = 23;
 		v["cam"] = 1.23;
@@ -639,7 +707,7 @@ namespace tut
 			"</map></llsd>",
 			v,
 			v.size() + 1);
-			
+
 		v.clear();
 		v["amy"] = 23;
 		v["bob"] = LLSD::emptyMap();
@@ -661,7 +729,7 @@ namespace tut
 		v[0] = 23;
 		v[1] = LLSD();
 		v[2] = 1.23;
-		
+
 		ensureParse(
 			"array value of html",
 			"<llsd><array>"
@@ -671,7 +739,7 @@ namespace tut
 			"</array></llsd>",
 			v,
 			v.size() + 1);
-			
+
 		v.clear();
 		v[0] = 23;
 		v[1] = LLSD::emptyMap();
@@ -1225,7 +1293,7 @@ namespace tut
 		vec[0] = 'a'; vec[1] = 'b'; vec[2] = 'c';
 		vec[3] = '3'; vec[4] = '2'; vec[5] = '1';
 		LLSD value = vec;
-		
+
 		vec.resize(11);
 		vec[0] = 'b';  // for binary
 		vec[5] = 'a'; vec[6] = 'b'; vec[7] = 'c';
@@ -1909,6 +1977,6 @@ namespace tut
                       "This string\n"
                       "has several\n"
                       "lines.");
-        
+
     }
 }
