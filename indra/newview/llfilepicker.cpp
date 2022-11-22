@@ -611,8 +611,6 @@ std::vector<std::string>* LLFilePicker::navOpenFilterProc(ELoadFilter filter) //
             allowedv->push_back("png");
             break;
         case FFLOAD_EXE:
-            allowedv->push_back("app");
-            allowedv->push_back("exe");
             break;
         case FFLOAD_WAV:
             allowedv->push_back("wav");

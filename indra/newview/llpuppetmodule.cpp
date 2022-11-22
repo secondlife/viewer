@@ -58,29 +58,29 @@ void processGetRequest(const LLSD& data)
     // Puppetry GET requests are processed here.
     // Expected data format:
     // data = 'command'
-    // data = {command:get, get:[thing_one, thing_two, ...]}
-    // data = {command:get, g:[thing_one, thing_two, ...]}
+    // data = {command:get, data:[thing_one, thing_two, ...]}
+    // data = {command:get, d:[thing_one, thing_two, ...]}
 
     // always check for short format first...
-    std::string verb="g";
-    if (!data.has(verb))
+    std::string get_key="d";
+    if (!data.has(get_key))
     {
         // ... and long format second
-        verb = "get";
-        if (!data.has(verb))
+        get_key = "data";
+        if (!data.has(get_key))
         {
             LL_WARNS("Puppet") << "malformed GET: map no 'get' key" << LL_ENDL;
             return;
         }
     }
-    const LLSD& payload = data[verb];
-    if (!payload.isArray())
+    const LLSD& sd = data[get_key];
+    if (!sd.isArray())
     {
         LL_WARNS("Puppet") << "malformed GET: 'get' value not array" << LL_ENDL;
         return;
     }
 
-    for (auto itr = payload.beginArray(); itr != payload.endArray(); ++itr)
+    for (auto itr = sd.beginArray(); itr != sd.endArray(); ++itr)
     {
         std::string key = itr->asString();
         if ( *itr == "c" || *itr == "camera" )
@@ -124,6 +124,8 @@ void processJointData(const std::string& key, const LLSD& data)
     else
     {
         // invalid key
+        LL_WARNS("Puppet") << "Invalid key inside processJointData:  " << key
+                            << ", expected i/inverse_kinematics, j/joint_state etc" << LL_ENDL;
         return;
     }
 
@@ -133,13 +135,15 @@ void processJointData(const std::string& key, const LLSD& data)
             joint_itr != data.endMap();
             ++joint_itr)
     {
+        std::string joint_name = joint_itr->first;
         const LLSD& params = joint_itr->second;
         if (!params.isMap())
         {
+            LL_WARNS("Puppet") << "Invalid data for joint data key " << joint_name
+                << ", expected map but got " << params << LL_ENDL;
             continue;
         }
 
-        std::string joint_name = joint_itr->first;
         LLJoint* joint;
         S32 joint_index = -1;
         try
@@ -240,8 +244,8 @@ void processSetRequest(const LLSD& data)
 {
     // Puppetry SET requests are processed here.
     // Expected data format:
-    // data = {command:set, set:{inverse_kinematics:{...},joint_state:{...}}
-    // data = {command:set, s:{i:{...},j:{...}}
+    // data = {command:set, data:{inverse_kinematics:{...},joint_state:{...}}
+    // data = {command:set, d:{i:{...},j:{...}}
     LL_DEBUGS("LLLeapData") << "puppet data: " << data << LL_ENDL;
 
     if (!isAgentAvatarValid())
@@ -251,25 +255,25 @@ void processSetRequest(const LLSD& data)
     }
 
     // always check for short format first...
-    std::string verb="s";
-    if (!data.has(verb))
+    std::string data_key = "d";
+    if (!data.has(data_key))
     {
         // ... and long format second
-        verb = "set";
-        if (!data.has(verb))
+        data_key = "data";
+        if (!data.has(data_key))
         {
-            LL_WARNS("Puppet") << "malformed SET: map no 'set' key" << LL_ENDL;
+            LL_WARNS("Puppet") << "malformed SET: map no 'd' or 'data' key" << LL_ENDL;
             return;
         }
     }
-    const LLSD& payload = data[verb];
-    if (!payload.isMap())
+    const LLSD& sd = data[data_key];
+    if (!sd.isMap())
     {
-        LL_WARNS("Puppet") << "malformed SET: 'set' value not map" << LL_ENDL;
+        LL_WARNS("Puppet") << "malformed SET: 'data' value not map" << LL_ENDL;
         return;
     }
 
-    for (auto it = payload.beginMap(); it != payload.endMap(); ++it)
+    for (auto it = sd.beginMap(); it != sd.endMap(); ++it)
     {
         const std::string& key = it->first;
         if (key == "c" || key == "camera")

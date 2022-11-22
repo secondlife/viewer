@@ -525,9 +525,12 @@ public:
     // Add a Joint to the skeleton.
     void addJoint(S16 joint_id, S16 parent_id, const LLVector3& local_pos, const LLVector3& bone, const Constraint::ptr_t& constraint);
 
+    // apply configs and return 'true' if something changed
+    bool updateJointConfigs(const joint_config_map_t& configs);
+
     // Solve the IK problem for the given list of Joint Configurations
     // return max_error of result
-    F32 configureAndSolve(const joint_config_map_t& configs);
+    F32 solve();
 
     // Specify a joint as a 'wrist'.  Will be used to help 'drop the elbow'
     // of the arm to achieve a more realistic solution.
@@ -574,7 +577,6 @@ public:
 private:
     bool isSubBase(S16 joint_id) const;
     bool isSubRoot(S16 joint_id) const;
-    bool updateJointConfigs(const joint_config_map_t& configs);
     //void adjustTargets(joint_config_map_t& targets); // EXPERIMENTAL: keep this
     void dropElbow(const Joint::ptr_t& wrist_joint);
     void rebuildAllChains();

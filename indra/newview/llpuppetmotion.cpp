@@ -772,21 +772,34 @@ void LLPuppetMotion::rememberPosedJoint(S16 joint_id, LLPointer<LLJointState> jo
 
 void LLPuppetMotion::solveIKAndHarvestResults(const LLIK::Solver::joint_config_map_t& configs, Timestamp now)
 {
+    // Note: this only ever called when mIsSelf is true and configs not empty
     bool local_puppetry = !LLPuppetModule::instance().getEcho();
-    if (mIsSelf && local_puppetry)
+    if (local_puppetry)
     {
         // don't apply Puppetry when local agent is in mouselook
         auto camera_mode = gAgentCamera.getCameraMode();
         local_puppetry = camera_mode != CAMERA_MODE_MOUSELOOK && camera_mode != CAMERA_MODE_CUSTOMIZE_AVATAR;
     }
 
-	bool remote_puppetry = LLPuppetModule::instance().isSending();
-    if (!local_puppetry && !remote_puppetry)
+	bool is_sending = LLPuppetModule::instance().isSending();
+    if (!local_puppetry && !is_sending)
     {
         return;
     }
 
-    bool something_changed = mIKSolver.configureAndSolve(configs);
+    bool config_changed = mIKSolver.updateJointConfigs(configs);
+    if (config_changed)
+    {
+        mIKSolver.solve();
+    }
+    else
+    {
+        // ATM we still need to constantly re-send unchanged Puppetry data
+        // so we DO NOT bail early here... yet.
+        //return;
+        // TODO: figure out how to send partial updates, and how to
+        // explicitly clear joint settings in the Puppetry stream.
+    }
 
 	LLPuppetEvent broadcast_event;
     const LLIK::Solver::joint_list_t& active_joints = mIKSolver.getActiveJoints();
@@ -811,7 +824,7 @@ void LLPuppetMotion::solveIKAndHarvestResults(const LLIK::Solver::joint_config_m
             }
             rememberPosedJoint(id, joint_state, now);
         }
-        if (remote_puppetry)
+        if (is_sending)
         {
 			LLPuppetJointEvent joint_event;
 			joint_event.setJointID(id);
@@ -832,17 +845,11 @@ void LLPuppetMotion::solveIKAndHarvestResults(const LLIK::Solver::joint_config_m
         }
     }
 
-    if (remote_puppetry)
+    if (is_sending)
     {
 	    broadcast_event.updateTimestamp();
 		queueOutgoingEvent(broadcast_event);
     }
-
-	if (something_changed &&
-        LLPuppetModule::instance().isSending())
-	{
-		queueOutgoingEvent(broadcast_event);
-	}
 }
 
 void LLPuppetMotion::applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::Solver::joint_config_map_t& configs)
@@ -895,6 +902,7 @@ void LLPuppetMotion::applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::
 
 void LLPuppetMotion::updateFromExpression(Timestamp now)
 {
+    // Note: if we get here: mIsSelf must be true
     LLIK::Solver::joint_config_map_t configs;
     for(const auto& event: mExpressionEvents)
     {
@@ -959,13 +967,8 @@ void LLPuppetMotion::updateFromExpression(Timestamp now)
     }
 }
 
-void LLPuppetMotion::applyBroadcastEvent(const LLPuppetJointEvent& event, Timestamp now, bool local_puppetry)
+void LLPuppetMotion::applyBroadcastEvent(const LLPuppetJointEvent& event, Timestamp now)
 {
-    if (mIsSelf && local_puppetry)
-    {
-        return;
-    }
-
     S16 joint_id = event.getJointID();
     state_map_t::iterator state_iter = mJointStates.find(joint_id);
     if (state_iter != mJointStates.end())
@@ -987,13 +990,17 @@ void LLPuppetMotion::applyBroadcastEvent(const LLPuppetJointEvent& event, Timest
 
 void LLPuppetMotion::updateFromBroadcast(Timestamp now)
 {
-    if (!LLPuppetModule::instance().isReceiving())
-    {   // If receiving is disabled, just drop all the data and don't apply it
+    bool accept_broadcast = LLPuppetModule::instance().isReceiving();
+    if (accept_broadcast && mIsSelf)
+    {
+        auto camera_mode = gAgentCamera.getCameraMode();
+        accept_broadcast = (camera_mode != CAMERA_MODE_MOUSELOOK) && (camera_mode != CAMERA_MODE_CUSTOMIZE_AVATAR);
+    }
+    if (!accept_broadcast)
+    {   // drop unapplied data
         mEventQueues.clear();
         return;
     }
-
-    bool local_puppetry = !LLPuppetModule::instance().getEcho();
 
     // We walk the queue looking for the two bounding events: the last previous
     // and the next pending: we will interpolate between them.  If we don't
@@ -1011,7 +1018,7 @@ void LLPuppetMotion::updateFromBroadcast(Timestamp now)
             {
                 // first available event is in the future
                 // we have no choice but to apply what we have
-                applyBroadcastEvent(event, now, local_puppetry);
+                applyBroadcastEvent(event, now);
                 break;
             }
 
@@ -1031,7 +1038,7 @@ void LLPuppetMotion::updateFromBroadcast(Timestamp now)
                 {
                     // presumeably we already interpolated close to this event
                     // but just in case we didn't quite reach it yet: apply
-                    applyBroadcastEvent(event, now, local_puppetry);
+                    applyBroadcastEvent(event, now);
                 }
                 break;
             }
@@ -1052,7 +1059,7 @@ void LLPuppetMotion::updateFromBroadcast(Timestamp now)
             LLPuppetJointEvent interpolated_event;
             const LLPuppetJointEvent& next_event = event_itr->second;
             interpolated_event.interpolate(del, event, next_event);
-            applyBroadcastEvent(interpolated_event, now, local_puppetry);
+            applyBroadcastEvent(interpolated_event, now);
             break;
         }
         if (queue.empty())
@@ -1224,6 +1231,10 @@ void LLPuppetMotion::onDeactivate()
 {
     // LLMotionController calls this when it removes
     // this motion from its active list.
+    mPose.removeAllJointStates();
+    mJointsToRemoveFromPose.clear();
+    LLIK::Solver::joint_config_map_t empty_configs;
+    mIKSolver.updateJointConfigs(empty_configs); // clear solver memory
 }
 
 void LLPuppetMotion::collectJoints(LLJoint* joint)
