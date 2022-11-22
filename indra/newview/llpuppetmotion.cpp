@@ -814,11 +814,15 @@ void LLPuppetMotion::solveIKAndHarvestResults(const LLIK::Solver::joint_config_m
         if (local_puppetry)
         {
             LLPointer<LLJointState> joint_state = mJointStates[id];
-            if (flags | LLIK::FLAG_LOCAL_POS)
+            if (flags & LLIK::FLAG_LOCAL_POS)
             {
                 joint_state->setPosition(pos);
             }
-            if (flags | LLIK::FLAG_LOCAL_ROT)
+            else
+            {
+                joint_state->setPosition(joint->getDefaultLocalPos());
+            }
+            if (flags & LLIK::FLAG_LOCAL_ROT)
             {
                 joint_state->setRotation(rot);
             }
@@ -829,15 +833,15 @@ void LLPuppetMotion::solveIKAndHarvestResults(const LLIK::Solver::joint_config_m
 			LLPuppetJointEvent joint_event;
 			joint_event.setJointID(id);
             joint_event.setReferenceFrame(LLPuppetJointEvent::PARENT_FRAME);
-            if (flags | LLIK::FLAG_LOCAL_POS)
+            if (flags & LLIK::FLAG_LOCAL_POS)
             {
                 joint_event.setPosition(pos);
             }
-            if (flags | LLIK::FLAG_LOCAL_ROT)
+            if (flags & LLIK::FLAG_LOCAL_ROT)
             {
                 joint_event.setRotation(rot);
             }
-            if (flags | LLIK::FLAG_DISABLE_CONSTRAINT)
+            if (flags & LLIK::FLAG_DISABLE_CONSTRAINT)
             {
                 joint_event.disableConstraint();
             }

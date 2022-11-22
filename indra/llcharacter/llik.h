@@ -439,6 +439,7 @@ public:
     ptr_t getSingleActiveChild();
     const LLVector3& getBone() const { return mBone; }
     const LLVector3& getLocalPos() const { return mLocalPos; }
+    const LLVector3& getDefaultLocalPos() const { return mDefaultLocalPos; }
     F32 getBoneLength() const { return mBone.length(); }
     F32 getLocalPosLength() const { return mLocalPosLength; }
 
