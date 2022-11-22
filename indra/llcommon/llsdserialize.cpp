@@ -45,6 +45,7 @@
 #endif
 
 #include "lldate.h"
+#include "llmemorystream.h"
 #include "llsd.h"
 #include "llstring.h"
 #include "lluri.h"
@@ -60,6 +61,23 @@ const std::string LLSD_NOTATION_HEADER("llsd/notation");
 //used to deflate a gzipped asset (currently used for navmeshes)
 #define windowBits 15
 #define ENABLE_ZLIB_GZIP 32
+
+// If we published this in llsdserialize.h, we could use it in the
+// implementation of LLSDOStreamer's operator<<().
+template <class Formatter>
+void format_using(const LLSD& data, std::ostream& ostr,
+                  LLSDFormatter::EFormatterOptions options=LLSDFormatter::OPTIONS_PRETTY_BINARY)
+{
+    LLPointer<Formatter> f{ new Formatter };
+    f->format(data, ostr, options);
+}
+
+template <class Parser>
+S32 parse_using(std::istream& istr, LLSD& data, size_t max_bytes, S32 max_depth=-1)
+{
+    LLPointer<Parser> p{ new Parser };
+    return p->parse(istr, data, max_bytes, max_depth);
+}
 
 /**
  * LLSDSerialize
@@ -83,10 +101,10 @@ void LLSDSerialize::serialize(const LLSD& sd, std::ostream& str, ELLSD_Serialize
 		f = new LLSDXMLFormatter;
 		break;
 
-    case LLSD_NOTATION:
-        str << "<? " << LLSD_NOTATION_HEADER << " ?>\n";
-        f = new LLSDNotationFormatter;
-        break;
+	case LLSD_NOTATION:
+		str << "<? " << LLSD_NOTATION_HEADER << " ?>\n";
+		f = new LLSDNotationFormatter;
+		break;
 
 	default:
 		LL_WARNS() << "serialize request for unknown ELLSD_Serialize" << LL_ENDL;
@@ -101,10 +119,7 @@ void LLSDSerialize::serialize(const LLSD& sd, std::ostream& str, ELLSD_Serialize
 // static
 bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, size_t max_bytes)
 {
-	LLPointer<LLSDParser> p = NULL;
 	char hdr_buf[MAX_HDR_LEN + 1] = ""; /* Flawfinder: ignore */
-	int i;
-	int inbuf = 0;
 	bool legacy_no_header = false;
 	bool fail_if_not_legacy = false;
 	std::string header;
@@ -112,7 +127,10 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, size_t max_bytes)
 	/*
 	 * Get the first line before anything.
 	 */
-	str.get(hdr_buf, MAX_HDR_LEN, '\n');
+	// Remember str's original input position: if there's no header, we'll
+	// want to back up and retry.
+	str.get(hdr_buf, sizeof(hdr_buf), '\n');
+	auto inbuf = str.gcount();
 	if (str.fail())
 	{
 		str.clear();
@@ -122,16 +140,18 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, size_t max_bytes)
 	if (!strncasecmp(LEGACY_NON_HEADER, hdr_buf, strlen(LEGACY_NON_HEADER))) /* Flawfinder: ignore */
 	{
 		legacy_no_header = true;
-		inbuf = (int)str.gcount();
 	}
 	else
 	{
 		if (fail_if_not_legacy)
-			goto fail;
+		{
+			LL_WARNS() << "deserialize LLSD parse failure" << LL_ENDL;
+			return false;
+		}
 		/*
 		* Remove the newline chars
 		*/
-		for (i = 0; i < MAX_HDR_LEN; i++)
+		for (size_t i = 0; i < sizeof(hdr_buf); i++)
 		{
 			if (hdr_buf[i] == 0 || hdr_buf[i] == '\r' ||
 				hdr_buf[i] == '\n')
@@ -149,50 +169,47 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, size_t max_bytes)
 		{
 			end = header.find_first_of(" ?", start);
 		}
-		if ((start == std::string::npos) || (end == std::string::npos))
-			goto fail;
-
-		header = header.substr(start, end - start);
-		ws(str);
+		if (! (start == std::string::npos) || (end == std::string::npos))
+		{
+			header = header.substr(start, end - start);
+			ws(str);
+		}
 	}
 	/*
 	 * Create the parser as appropriate
 	 */
 	if (legacy_no_header)
 	{	// Create a LLSD XML parser, and parse the first chunk read above
-		LLSDXMLParser* x = new LLSDXMLParser();
-		x->parsePart(hdr_buf, inbuf);	// Parse the first part that was already read
-		x->parseLines(str, sd);			// Parse the rest of it
-		delete x;
-		return true;
+		LLSDXMLParser x;
+		x.parsePart(hdr_buf, inbuf);	// Parse the first part that was already read
+		auto parsed = x.parseLines(str, sd); // Parse the rest of it
+		// Formally we should probably check (parsed != PARSE_FAILURE &&
+		// parsed > 0), but since PARSE_FAILURE is -1, this suffices.
+		return (parsed > 0);
 	}
 
 	if (header == LLSD_BINARY_HEADER)
 	{
-		p = new LLSDBinaryParser;
+		return (parse_using<LLSDBinaryParser>(str, sd, max_bytes) > 0);
 	}
 	else if (header == LLSD_XML_HEADER)
 	{
-		p = new LLSDXMLParser;
+		return (parse_using<LLSDXMLParser>(str, sd, max_bytes) > 0);
 	}
 	else if (header == LLSD_NOTATION_HEADER)
 	{
-		p = new LLSDNotationParser;
+		return (parse_using<LLSDNotationParser>(str, sd, max_bytes) > 0);
 	}
 	else
 	{
-		LL_WARNS() << "deserialize request for unknown ELLSD_Serialize" << LL_ENDL;
+		LL_DEBUGS() << "deserialize request with no header, assuming notation" << LL_ENDL;
+		// Since we've already read 'inbuf' bytes into 'hdr_buf', prepend that
+		// data to whatever remains in 'str'.
+		LLMemoryStreamBuf already(reinterpret_cast<const U8*>(hdr_buf), inbuf);
+		cat_streambuf prebuff(&already, str.rdbuf());
+		std::istream  prepend(&prebuff);
+		return (parse_using<LLSDNotationParser>(prepend, sd, max_bytes) > 0);
 	}
-
-	if (p.notNull())
-	{
-		p->parse(str, sd, max_bytes);
-		return true;
-	}
-
-fail:
-	LL_WARNS() << "deserialize LLSD parse failure" << LL_ENDL;
-	return false;
 }
 
 /**
