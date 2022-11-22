@@ -767,10 +767,10 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                     }
                 }
 
-				if (params.mGroup)
-				{
-					params.mGroup->rebuildMesh();
-				}
+				//if (params.mGroup) // TOO LATE
+				//{
+				//	params.mGroup->rebuildMesh();
+				//}
 
                 if (params.mAvatar != nullptr)
                 {

@@ -916,7 +916,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 
 		BOOL fullbright = facep->isState(LLFace::FULLBRIGHT);
 		F32 vsize = facep->getVirtualSize();
-
+        
 		bool batched = false;
 	
 		U32 bf_src = LLRender::BF_SOURCE_ALPHA;
@@ -961,7 +961,6 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 			U32 offset = facep->getIndicesStart();
 			U32 count = facep->getIndicesCount();
 			LLDrawInfo* info = new LLDrawInfo(start,end,count,offset,facep->getTexture(), 
-				//facep->getTexture(),
 				buffer, object->isSelected(), fullbright);
 
 			const LLVector4a* exts = group->getObjectExtents();

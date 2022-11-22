@@ -106,7 +106,7 @@ public:
 	BOOL mFullbright;
 	U8 mBump;
 	U8 mShiny;
-    U8 mTextureTimer = 0;
+    U8 mTextureTimer = 1;
 	BOOL mParticle;
 	F32 mPartSize;
 	F32 mVSize;
