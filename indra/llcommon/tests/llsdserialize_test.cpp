@@ -574,6 +574,34 @@ namespace tut
 		doRoundTripTests("LLSDNotationFormatter -> deserialize");
 	};
 
+	template<> template<>
+	void TestLLSDSerializeObject::test<9>()
+	{
+		setFormatterParser(new LLSDXMLFormatter(false, "", LLSDFormatter::OPTIONS_NONE),
+						   new LLSDXMLParser());
+		setParser(LLSDSerialize::deserialize);
+		// This is an interesting test because LLSDXMLFormatter does not
+		// emit an LLSD/XML header.
+		doRoundTripTests("LLSDXMLFormatter -> deserialize");
+	};
+
+/*==========================================================================*|
+	// We do not expect this test to succeed. Without a header, neither
+	// notation LLSD nor binary LLSD reliably start with a distinct character,
+	// the way XML LLSD starts with '<'. By convention, we default to notation
+	// rather than binary.
+	template<> template<>
+	void TestLLSDSerializeObject::test<10>()
+	{
+		setFormatterParser(new LLSDBinaryFormatter(false, "", LLSDFormatter::OPTIONS_NONE),
+						   new LLSDBinaryParser());
+		setParser(LLSDSerialize::deserialize);
+		// This is an interesting test because LLSDBinaryFormatter does not
+		// emit an LLSD/Binary header.
+		doRoundTripTests("LLSDBinaryFormatter -> deserialize");
+	};
+|*==========================================================================*/
+
 	/**
 	 * @class TestLLSDParsing
 	 * @brief Base class for of a parse tester.

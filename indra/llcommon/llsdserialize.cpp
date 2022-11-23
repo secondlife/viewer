@@ -120,9 +120,7 @@ void LLSDSerialize::serialize(const LLSD& sd, std::ostream& str, ELLSD_Serialize
 bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, size_t max_bytes)
 {
 	char hdr_buf[MAX_HDR_LEN + 1] = ""; /* Flawfinder: ignore */
-	bool legacy_no_header = false;
 	bool fail_if_not_legacy = false;
-	std::string header;
 
 	/*
 	 * Get the first line before anything.
@@ -131,6 +129,7 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, size_t max_bytes)
 	// want to back up and retry.
 	str.get(hdr_buf, sizeof(hdr_buf), '\n');
 	auto inbuf = str.gcount();
+	std::string header{ hdr_buf, inbuf };
 	if (str.fail())
 	{
 		str.clear();
@@ -138,38 +137,36 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, size_t max_bytes)
 	}
 
 	if (!strncasecmp(LEGACY_NON_HEADER, hdr_buf, strlen(LEGACY_NON_HEADER))) /* Flawfinder: ignore */
-	{
-		legacy_no_header = true;
+	{	// Create a LLSD XML parser, and parse the first chunk read above.
+		LLSDXMLParser x;
+		x.parsePart(hdr_buf, inbuf);	// Parse the first part that was already read
+		auto parsed = x.parse(str, sd, max_bytes - inbuf); // Parse the rest of it
+		// Formally we should probably check (parsed != PARSE_FAILURE &&
+		// parsed > 0), but since PARSE_FAILURE is -1, this suffices.
+		return (parsed > 0);
 	}
-	else
-	{
-		if (fail_if_not_legacy)
-		{
-			LL_WARNS() << "deserialize LLSD parse failure" << LL_ENDL;
-			return false;
-		}
-		/*
-		* Remove the newline chars
-		*/
-		for (size_t i = 0; i < sizeof(hdr_buf); i++)
-		{
-			if (hdr_buf[i] == 0 || hdr_buf[i] == '\r' ||
-				hdr_buf[i] == '\n')
-			{
-				hdr_buf[i] = 0;
-				break;
-			}
-		}
-		header = hdr_buf;
 
-		std::string::size_type start = std::string::npos;
-		std::string::size_type end = std::string::npos;
-		start = header.find_first_not_of("<? ");
-		if (start != std::string::npos)
-		{
-			end = header.find_first_of(" ?", start);
-		}
-		if (! (start == std::string::npos) || (end == std::string::npos))
+	if (fail_if_not_legacy)
+	{
+		LL_WARNS() << "deserialize LLSD parse failure" << LL_ENDL;
+		return false;
+	}
+
+	/*
+	* Remove the newline chars
+	*/
+	auto lastchar = header.find_last_not_of("\r\n");
+	if (lastchar != std::string::npos)
+	{
+		header.erase(lastchar+1);
+	}
+
+	// trim off the <? ... ?> header syntax
+	auto start = header.find_first_not_of("<? ");
+	if (start != std::string::npos)
+	{
+		auto end = header.find_first_of(" ?", start);
+		if (end != std::string::npos)
 		{
 			header = header.substr(start, end - start);
 			ws(str);
@@ -178,16 +175,6 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, size_t max_bytes)
 	/*
 	 * Create the parser as appropriate
 	 */
-	if (legacy_no_header)
-	{	// Create a LLSD XML parser, and parse the first chunk read above
-		LLSDXMLParser x;
-		x.parsePart(hdr_buf, inbuf);	// Parse the first part that was already read
-		auto parsed = x.parseLines(str, sd); // Parse the rest of it
-		// Formally we should probably check (parsed != PARSE_FAILURE &&
-		// parsed > 0), but since PARSE_FAILURE is -1, this suffices.
-		return (parsed > 0);
-	}
-
 	if (header == LLSD_BINARY_HEADER)
 	{
 		return (parse_using<LLSDBinaryParser>(str, sd, max_bytes) > 0);
@@ -200,15 +187,27 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, size_t max_bytes)
 	{
 		return (parse_using<LLSDNotationParser>(str, sd, max_bytes) > 0);
 	}
-	else
+	else // no header we recognize
 	{
-		LL_DEBUGS() << "deserialize request with no header, assuming notation" << LL_ENDL;
+		LLPointer<LLSDParser> p;
+		if (inbuf && hdr_buf[0] == '<')
+		{
+			// looks like XML
+			LL_DEBUGS() << "deserialize request with no header, assuming XML" << LL_ENDL;
+			p = new LLSDXMLParser;
+		}
+		else
+		{
+			// assume notation
+			LL_DEBUGS() << "deserialize request with no header, assuming notation" << LL_ENDL;
+			p = new LLSDNotationParser;
+		}
 		// Since we've already read 'inbuf' bytes into 'hdr_buf', prepend that
 		// data to whatever remains in 'str'.
 		LLMemoryStreamBuf already(reinterpret_cast<const U8*>(hdr_buf), inbuf);
 		cat_streambuf prebuff(&already, str.rdbuf());
 		std::istream  prepend(&prebuff);
-		return (parse_using<LLSDNotationParser>(prepend, sd, max_bytes) > 0);
+		return (p->parse(prepend, sd, max_bytes) > 0);
 	}
 }
 
@@ -2411,5 +2410,3 @@ U8* unzip_llsdNavMesh( bool& valid, unsigned int& outsize, std::istream& is, S32
 
 	return result;
 }
-
-
