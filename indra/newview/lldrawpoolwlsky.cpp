@@ -451,11 +451,13 @@ void LLDrawPoolWLSky::renderSkyClouds(const LLVector3& camPosLocal, F32 camHeigh
 
 void LLDrawPoolWLSky::renderHeavenlyBodies()
 {
+    if (!gSky.mVOSkyp) return;
+
 	LLGLSPipelineBlendSkyBox gls_skybox(true, false);
 
     LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
 	gGL.pushMatrix();
-	gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);	        
+	gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
 	LLFace * face = gSky.mVOSkyp->mFace[LLVOSky::FACE_SUN];
 
