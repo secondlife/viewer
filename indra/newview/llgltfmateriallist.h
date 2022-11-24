@@ -35,6 +35,7 @@
 #include <unordered_map>
 
 class LLFetchedGLTFMaterial;
+class LLGLTFOverrideCacheEntry;
 
 class LLGLTFMaterialList
 {
@@ -89,10 +90,7 @@ public:
     // any override data that arrived before the object was ready to receive it
     void applyQueuedOverrides(LLViewerObject* obj);
 
-    // takes both the parsed message and its raw text to avoid unnecessary re serialization
-    static void writeCacheOverrides(LLSD const & message, std::string const & llsdRaw);
-
-    static void loadCacheOverrides(std::string const & message_raw);
+    static void loadCacheOverrides(const LLGLTFOverrideCacheEntry& override);
 
 private:
     friend class LLGLTFMaterialOverrideDispatchHandler;

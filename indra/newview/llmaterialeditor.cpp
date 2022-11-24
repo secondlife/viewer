@@ -1008,7 +1008,7 @@ static U32 write_texture(const LLUUID& id, tinygltf::Model& model)
 
 void LLMaterialEditor::onClickSave()
 {
-    if (!capabilitiesAvalaible())
+    if (!capabilitiesAvailable())
     {
         LLNotificationsUtil::add("MissingMaterialCaps");
         return;
@@ -3067,7 +3067,7 @@ void LLMaterialEditor::loadDefaults()
     setFromGltfModel(model_in, 0, true);
 }
 
-bool LLMaterialEditor::capabilitiesAvalaible()
+bool LLMaterialEditor::capabilitiesAvailable()
 {
     const LLViewerRegion* region = gAgent.getRegion();
     if (!region)

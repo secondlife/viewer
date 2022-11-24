@@ -229,7 +229,7 @@ public:
     U32 getUnsavedChangesFlags() { return mUnsavedChanges; }
     U32 getRevertedChangesFlags() { return mRevertedChanges; }
 
-    static bool capabilitiesAvalaible();
+    static bool capabilitiesAvailable();
 
 private:
     static bool updateInventoryItem(const std::string &buffer, const LLUUID &item_id, const LLUUID &task_id);

@@ -68,6 +68,7 @@ class LLHost;
 class LLBBox;
 class LLSpatialGroup;
 class LLDrawable;
+class LLGLTFOverrideCacheEntry;
 class LLViewerRegionImpl;
 class LLViewerOctreeGroup;
 class LLVOCachePartition;
@@ -349,7 +350,8 @@ public:
 	// handle a full update message
 	eCacheUpdateResult cacheFullUpdate(LLDataPackerBinaryBuffer &dp, U32 flags);
 	eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp, U32 flags);
-    void cacheFullUpdateExtras(LLSD const & extras, std::string const & extras_raw);
+
+    void cacheFullUpdateGLTFOverride(const LLGLTFOverrideCacheEntry &override_data);
 
 	LLVOCacheEntry* getCacheEntryForOctree(U32 local_id);
 	LLVOCacheEntry* getCacheEntry(U32 local_id, bool valid = true);

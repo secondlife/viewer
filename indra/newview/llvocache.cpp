@@ -57,6 +57,75 @@ BOOL check_write(LLAPRFile* apr_file, void* src, S32 n_bytes)
 	return apr_file->write(src, n_bytes) == n_bytes ;
 }
 
+bool LLGLTFOverrideCacheEntry::fromLLSD(const LLSD& data)
+{
+    if (!data.has("object_id"))
+    {
+        mObjectId.setNull();
+        return false;
+    }
+
+    if (data.has("region_handle_low") && data.has("region_handle_high"))
+    {
+        // TODO start requiring this once server sends this for all messages
+        U64 region_handle_low = data["region_handle_low"].asInteger();
+        U64 region_handle_high = data["region_handle_high"].asInteger();
+        mRegionHandle = (region_handle_low & 0x00000000ffffffffUL) || (region_handle_high << 32);
+        mHasRegionHandle = true;
+    }
+    else
+    {
+        mHasRegionHandle = false;
+    }
+
+    mObjectId = data["object_id"];
+
+    // message should be interpreted thusly:
+    ///  sides is a list of face indices
+    //   gltf_json is a list of corresponding json
+    //   any side not represented in "sides" has no override
+    if (data.has("sides") && data.has("gltf_json"))
+    {
+        LLSD const& sides = data.get("sides");
+        LLSD const& gltf_json = data.get("gltf_json");
+
+        if (sides.isArray() && gltf_json.isArray() &&
+            sides.size() != 0 &&
+            sides.size() == gltf_json.size())
+        {
+            for (int i = 0; i < sides.size(); ++i)
+            {
+                S32 side_idx = sides[i].asInteger();
+                mSides[side_idx] = gltf_json[i].asString();
+            }
+        }
+    }
+    return true;
+}
+
+LLSD LLGLTFOverrideCacheEntry::toLLSD()
+{
+    llassert(false); // "Function not tested!!!
+
+    LLSD data;
+    if (mHasRegionHandle)
+    {
+        data["region_handle_low"] = LLSD::Integer(mRegionHandle & 0x00000000ffffffffUL);
+        data["region_handle_high"] = LLSD::Integer(mRegionHandle >> 32);
+    }
+
+    data["object_id"] = mObjectId;
+
+    std::map<S32, std::string>::const_iterator iter = mSides.begin();
+    std::map<S32, std::string>::const_iterator end = mSides.end();
+    while (iter != end)
+    {
+        data["sides"].append(LLSD::Integer(iter->first));
+        data["sides"].append(iter->second);
+    }
+
+    return data;
+}
 
 //---------------------------------------------------------------------------
 // LLVOCacheEntry
@@ -1436,7 +1505,7 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 	return ;
 }
 
-void LLVOCache::readGenericExtrasFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_extras_entry_map_t& cache_extras_entry_map)
+void LLVOCache::readGenericExtrasFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_gltf_overrides_map_t& cache_extras_entry_map)
 {
     LL_DEBUGS() << "TODO" << LL_ENDL;
 }
@@ -1578,6 +1647,6 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	return ;
 }
 
-void LLVOCache::writeGenericExtrasToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_extras_entry_map_t& cache_extras_entry_map, BOOL dirty_cache, bool removal_enabled)
+void LLVOCache::writeGenericExtrasToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_gltf_overrides_map_t& cache_extras_entry_map, BOOL dirty_cache, bool removal_enabled)
 {
 }

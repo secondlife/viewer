@@ -215,7 +215,7 @@ public:
 	LLVOCacheEntry::vocache_entry_set_t   mVisibleEntries; //must-be-created visible entries wait for objects creation.	
 	LLVOCacheEntry::vocache_entry_priority_list_t mWaitingList; //transient list storing sorted visible entries waiting for object creation.
 	std::set<U32>                          mNonCacheableCreatedList; //list of local ids of all non-cacheable objects
-    LLVOCacheEntry::vocache_extras_entry_map_t mCacheExtraJson; // for materials
+    LLVOCacheEntry::vocache_gltf_overrides_map_t mGLTFOverridesJson; // for materials
 
 	// time?
 	// LRU info?
@@ -786,7 +786,7 @@ void LLViewerRegion::loadObjectCache()
 	{
         LLVOCache & vocache = LLVOCache::instance();
 		vocache.readFromCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap)  ;
-        vocache.readGenericExtrasFromCache(mHandle, mImpl->mCacheID, mImpl->mCacheExtraJson);
+        vocache.readGenericExtrasFromCache(mHandle, mImpl->mCacheID, mImpl->mGLTFOverridesJson);
 
 		if (mImpl->mCacheMap.empty())
 		{
@@ -815,7 +815,7 @@ void LLViewerRegion::saveObjectCache()
 
         LLVOCache & instance = LLVOCache::instance();
 		instance.writeToCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap, mCacheDirty, removal_enabled)  ;
-        instance.writeGenericExtrasToCache(mHandle, mImpl->mCacheID, mImpl->mCacheExtraJson, mCacheDirty, removal_enabled);
+        instance.writeGenericExtrasToCache(mHandle, mImpl->mCacheID, mImpl->mGLTFOverridesJson, mCacheDirty, removal_enabled);
 		mCacheDirty = FALSE;
 	}
 
@@ -2640,15 +2640,15 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObjec
 	return result;
 }
 
-void LLViewerRegion::cacheFullUpdateExtras(LLSD const & extras, std::string const & extras_raw)
+void LLViewerRegion::cacheFullUpdateGLTFOverride(const LLGLTFOverrideCacheEntry &override_data)
 {
-    LLUUID object_id = extras["object_id"].asUUID();
+    LLUUID object_id = override_data.mObjectId;
     LLViewerObject * obj = gObjectList.findObject(object_id);
     if (obj != nullptr)
     {
         U32 local_id = obj->getLocalID();
 
-        mImpl->mCacheExtraJson[local_id] = LLVOCacheEntry::ExtrasEntry{extras, extras_raw};
+        mImpl->mGLTFOverridesJson[local_id] = override_data;
     }
     else
     {
@@ -3542,9 +3542,9 @@ std::string LLViewerRegion::getSimHostName()
 
 void LLViewerRegion::loadCacheMiscExtras(U32 local_id, LLVOCacheEntry * entry, U32 crc)
 {
-    auto iter = mImpl->mCacheExtraJson.find(local_id);
-    if (iter != mImpl->mCacheExtraJson.end())
+    auto iter = mImpl->mGLTFOverridesJson.find(local_id);
+    if (iter != mImpl->mGLTFOverridesJson.end())
     {
-        LLGLTFMaterialList::loadCacheOverrides(iter->second.extras_raw);
+        LLGLTFMaterialList::loadCacheOverrides(iter->second);
     }
 }

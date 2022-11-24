@@ -2807,7 +2807,7 @@ struct LLSelectedTEGetmatIdAndPermissions : public LLSelectedTEFunctor
 
 bool enable_object_edit_gltf_material()
 {
-    if (!LLMaterialEditor::capabilitiesAvalaible())
+    if (!LLMaterialEditor::capabilitiesAvailable())
     {
         return false;
     }
@@ -2819,7 +2819,7 @@ bool enable_object_edit_gltf_material()
 
 bool enable_object_save_gltf_material()
 {
-    if (!LLMaterialEditor::capabilitiesAvalaible())
+    if (!LLMaterialEditor::capabilitiesAvailable())
     {
         return false;
     }

@@ -1774,7 +1774,7 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
     has_pbr_material = false;
 
     BOOL editable = objectp->permModify() && !objectp->isPermanentEnforced();
-    bool has_pbr_capabilities = LLMaterialEditor::capabilitiesAvalaible();
+    bool has_pbr_capabilities = LLMaterialEditor::capabilitiesAvailable();
 
     // pbr material
     LLTextureCtrl* pbr_ctrl = findChild<LLTextureCtrl>("pbr_control");
