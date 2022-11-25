@@ -4100,6 +4100,10 @@ void LLWindowWin32::handleStartCompositionMessage()
 
 void LLWindowWin32::handleCompositionMessage(const U32 indexes)
 {
+    if (!mPreeditor)
+    {
+        return;
+    }
 	BOOL needs_update = FALSE;
 	LLWString result_string;
 	LLWString preedit_string;
