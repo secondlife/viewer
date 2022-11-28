@@ -48,6 +48,7 @@
 #include "llui.h"
 #include "llviewerinventory.h"
 #include "llpermissions.h"
+#include "llpreviewtexture.h"
 #include "llsaleinfo.h"
 #include "llassetstorage.h"
 #include "lltextbox.h"
@@ -79,6 +80,67 @@ static const S32 LOCAL_TRACKING_ID_COLUMN = 1;
 //static const char CURRENT_IMAGE_NAME[] = "Current Texture";
 //static const char WHITE_IMAGE_NAME[] = "Blank Texture";
 //static const char NO_IMAGE_NAME[] = "None";
+
+
+
+//static
+bool get_is_predefined_texture(LLUUID asset_id)
+{
+    if (asset_id == LLUUID(gSavedSettings.getString("DefaultObjectTexture"))
+        || asset_id == LLUUID(gSavedSettings.getString("UIImgWhiteUUID"))
+        || asset_id == LLUUID(gSavedSettings.getString("UIImgInvisibleUUID"))
+        || asset_id == LLUUID(SCULPT_DEFAULT_TEXTURE))
+    {
+        return true;
+    }
+    return false;
+}
+
+LLUUID get_copy_free_item_by_asset_id(LLUUID asset_id, bool no_trans_perm)
+{
+    LLViewerInventoryCategory::cat_array_t cats;
+    LLViewerInventoryItem::item_array_t items;
+    LLAssetIDMatches asset_id_matches(asset_id);
+    gInventory.collectDescendentsIf(LLUUID::null,
+        cats,
+        items,
+        LLInventoryModel::INCLUDE_TRASH,
+        asset_id_matches);
+    
+    LLUUID res;
+    if (items.size())
+    {
+        for (S32 i = 0; i < items.size(); i++)
+        {
+            LLViewerInventoryItem* itemp = items[i];
+            if (itemp)
+            {
+                LLPermissions item_permissions = itemp->getPermissions();
+                if (item_permissions.allowOperationBy(PERM_COPY,
+                    gAgent.getID(),
+                    gAgent.getGroupID()))
+                {
+                    bool allow_trans = item_permissions.allowOperationBy(PERM_TRANSFER, gAgent.getID(), gAgent.getGroupID());
+                    if (allow_trans != no_trans_perm)
+                    {
+                        return itemp->getUUID();
+                    }
+                    res = itemp->getUUID();
+                }
+            }
+        }
+    }
+    return res;
+}
+
+bool get_can_copy_texture(LLUUID asset_id)
+{
+    // User is allowed to copy a texture if:
+    // library asset or default texture,
+    // or copy perm asset exists in user's inventory
+
+    return get_is_predefined_texture(asset_id) || get_copy_free_item_by_asset_id(asset_id).notNull();
+}
 
 LLFloaterTexturePicker::LLFloaterTexturePicker(	
 	LLView* owner,
@@ -1154,6 +1216,7 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 	mNeedsRawImageData( FALSE ),
 	mValid( TRUE ),
 	mShowLoadingPlaceholder( TRUE ),
+	mOpenTexPreview(false),
 	mImageAssetID(p.image_id),
 	mDefaultImageAssetID(p.default_image_id),
 	mDefaultImageName(p.default_image_name),
@@ -1410,12 +1473,31 @@ BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 
 	if (!handled && mBorder->parentPointInView(x, y))
 	{
-		showPicker(FALSE);
-		//grab textures first...
-		LLInventoryModelBackgroundFetch::instance().start(gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE));
-		//...then start full inventory fetch.
-		LLInventoryModelBackgroundFetch::instance().start();
-		handled = TRUE;
+		if (!mOpenTexPreview)
+		{
+			showPicker(FALSE);
+			//grab textures first...
+			LLInventoryModelBackgroundFetch::instance().start(gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE));
+			//...then start full inventory fetch.
+			LLInventoryModelBackgroundFetch::instance().start();
+			handled = TRUE;
+		}
+		else
+		{
+			if (getImageAssetID().notNull())
+			{
+				LLPreviewTexture* preview_texture = LLFloaterReg::showTypedInstance<LLPreviewTexture>("preview_texture", getValue());
+				if (preview_texture && !preview_texture->isDependent())
+				{
+					LLFloater* root_floater = gFloaterView->getParentFloater(this);
+					if (root_floater)
+					{
+						root_floater->addDependentFloater(preview_texture);
+						preview_texture->hideCtrlButtons();
+					}
+				}
+			}
+		}
 	}
 
 	return handled;

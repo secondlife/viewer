@@ -67,8 +67,6 @@ with the same filename but different name
   <texture name="Audio_Off" file_name="icons/Audio_Off.png" preload="false" />
   <texture name="Audio_Press" file_name="icons/Audio_Press.png" preload="false" />
 
-  <texture name="Avaline_Icon" file_name="icons/avaline_default_icon.jpg" preload="true" />
-
   <texture name="BackArrow_Off" file_name="icons/BackArrow_Off.png" preload="false" />
 
   <texture name="BackButton_Off" file_name="icons/back_arrow_off.png" preload="false" scale.left="22" scale.top="12" scale.right="25" scale.bottom="12" />
@@ -191,6 +189,7 @@ with the same filename but different name
   <texture name="Conv_log_inbox" file_name="icons/Conv_log_inbox.png" preload="false" />
 
   <texture name="Copy" file_name="icons/Copy.png" preload="false" />
+  <texture name="CopyBright" file_name="icons/CopyBright.png" preload="false" />
   
   <texture name="DisclosureArrow_Opened_Off" file_name="widgets/DisclosureArrow_Opened_Off.png" preload="true" />
 
@@ -447,6 +446,13 @@ with the same filename but different name
   <texture name="OptionsMenu_Off" file_name="icons/OptionsMenu_Off.png" preload="false" />
   <texture name="OptionsMenu_Press" file_name="icons/OptionsMenu_Press.png" preload="false" />
 
+  <texture name="ClipboardSmallMenu_Disabled" file_name="icons/ClipboardSmallMenu_Disabled.png" preload="false" />
+  <texture name="ClipboardSmallMenu_Off" file_name="icons/ClipboardSmallMenu_Off.png" preload="false" />
+  <texture name="ClipboardSmallMenu_Press" file_name="icons/ClipboardSmallMenu_Press.png" preload="false" />
+  <texture name="ClipboardMenu_Disabled" file_name="icons/ClipboardMenu_Disabled.png" preload="false" />
+  <texture name="ClipboardMenu_Off" file_name="icons/ClipboardMenu_Off.png" preload="false" />
+  <texture name="ClipboardMenu_Press" file_name="icons/ClipboardMenu_Press.png" preload="false" />
+
   <texture name="OutboxStatus_Success" file_name="green_checkmark.png" preload="false" />
   <texture name="OutboxStatus_Warning" file_name="icons/pop_up_caution.png" preload="false" />
   <texture name="OutboxStatus_Error" file_name="red_x.png" preload="false" />
@@ -504,6 +510,19 @@ with the same filename but different name
   <texture name="Play_Off" file_name="icons/Play_Off.png" preload="false" />
   <texture name="Play_Over" file_name="icons/Play_Over.png" preload="false" />
   <texture name="Play_Press" file_name="icons/Play_Press.png" preload="false" />
+  
+  <texture name="Profile_Group_Visibility_Off" file_name="icons/profile_group_visibility_eye_off.png" preload="true"/>
+  <texture name="Profile_Group_Visibility_Off_Pressed" file_name="icons/profile_group_visibility_eye_off_pressed.png" preload="true"/>
+  <texture name="Profile_Group_Visibility_On" file_name="icons/profile_group_visibility_eye_on.png" preload="true"/>
+  <texture name="Profile_Group_Visibility_On_Pressed" file_name="icons/profile_group_visibility_eye_on_pressed.png" preload="true"/>
+  <texture name="Profile_Friend_Offline" file_name="icons/Profile_Friend_Offline.png" preload="true"/>
+  <texture name="Profile_Friend_Online" file_name="icons/Profile_Friend_Online.png" preload="true"/>
+  <texture name="Profile_Perm_Find_Disabled" file_name="icons/Profile_Perm_Find_Disabled.png" preload="true"/>
+  <texture name="Profile_Perm_Find_Enabled" file_name="icons/Profile_Perm_Find_Enabled.png" preload="true"/>
+  <texture name="Profile_Perm_Objects_Disabled" file_name="icons/Profile_Perm_Objects_Disabled.png" preload="true"/>
+  <texture name="Profile_Perm_Objects_Enabled" file_name="icons/Profile_Perm_Objects_Enabled.png" preload="true"/>
+  <texture name="Profile_Perm_Online_Disabled" file_name="icons/Profile_Perm_Online_Disabled.png" preload="true"/>
+  <texture name="Profile_Perm_Online_Enabled" file_name="icons/Profile_Perm_Online_Enabled.png" preload="true"/>
   
   <texture name="ProgressBar" file_name="widgets/ProgressBar.png" preload="true" scale.left="4" scale.top="11" scale.right="48" scale.bottom="3" />
   <texture name="ProgressBarSolid" file_name="widgets/ProgressBarSolid.png" preload="true" scale.left="4" scale.top="11" scale.right="48" scale.bottom="3" />
@@ -803,6 +822,8 @@ with the same filename but different name
   <texture name="map_infohub.tga" />
   <texture name="map_telehub.tga" />
   <texture name="map_track_16.tga" />
+  <texture name="map_ui_collapse_icon.png" />
+  <texture name="map_ui_expand_icon.png" />
 
   <texture name="notify_caution_icon.tga" />
 

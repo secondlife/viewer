@@ -6,42 +6,23 @@
 	<floater.string name="Copy">
 		Копировать в инвентарь
 	</floater.string>
-	<text name="desc txt">
-		Описание:
-	</text>
-	<text name="dimensions">
-		[WIDTH]пикселей x [HEIGHT]пикселей
-	</text>
-	<text name="aspect_ratio">
-		Просмотр изображения с соотношением сторон
-	</text>
-	<combo_box name="combo_aspect_ratio" tool_tip="Просмотр изображения с фиксированным соотношением сторон">
-		<combo_item name="Unconstrained">
-			Без ограничения
-		</combo_item>
-		<combo_item name="1:1" tool_tip="Символ группы или профиль в реальном мире">
-			1:1
-		</combo_item>
-		<combo_item name="4:3" tool_tip="Профиль для [SECOND_LIFE]">
-			4:3
-		</combo_item>
-		<combo_item name="10:7" tool_tip="Реклама, поиск и закладки">
-			10:7
-		</combo_item>
-		<combo_item name="3:2" tool_tip="О земле">
-			3:2
-		</combo_item>
-		<combo_item name="16:10">
-			16:10
-		</combo_item>
-		<combo_item name="16:9" tool_tip="Профиль подборки">
-			16:9
-		</combo_item>
-		<combo_item name="2:1">
-			2:1
-		</combo_item>
-	</combo_box>
-	<button label="OK" name="Keep"/>
-	<button label="Отменить" name="Discard"/>
-	<button label="Сохранить как" name="save_tex_btn"/>
+	<layout_stack name="preview_stack">
+		<layout_panel name="texture_panel">
+			<text name="desc txt">
+				Описание:
+			</text>
+			<text name="dimensions">
+				[WIDTH]пикселей x [HEIGHT]пикселей
+			</text>
+			<text name="aspect_ratio">
+				Предварительный просмотр соотношения сторон
+			</text>
+			<combo_box name="combo_aspect_ratio" tool_tip="Просмотр изображения с фиксированным соотношением сторон"/>
+		</layout_panel>
+		<layout_panel name="buttons_panel">
+			<button label="OK" name="Keep"/>
+			<button label="Сбросить" name="Discard"/>
+			<button label="Сохранить как" name="save_tex_btn"/>
+		</layout_panel>
+	</layout_stack>
 </floater>

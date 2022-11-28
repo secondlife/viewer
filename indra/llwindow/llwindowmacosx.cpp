@@ -621,8 +621,6 @@ void LLWindowMacOSX::getMouseDeltas(float* delta)
 
 BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits, BOOL fullscreen, BOOL enable_vsync)
 {
-	BOOL			glNeedsInit = FALSE;
-
 	mFullscreen = fullscreen;
 	
 	if (mWindow == NULL)
@@ -636,9 +634,6 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		// Get the view instead.
 		mGLView = createOpenGLView(mWindow, mFSAASamples, enable_vsync);
 		mContext = getCGLContextObj(mGLView);
-		
-		// Since we just created the context, it needs to be set up.
-		glNeedsInit = TRUE;
 		
 		gGLManager.mVRAM = getVramSize(mGLView);
 	}
@@ -1666,7 +1661,7 @@ void LLWindowMacOSX::hideCursor()
 
 void LLWindowMacOSX::showCursor()
 {
-	if(mCursorHidden)
+	if(mCursorHidden || !isCGCursorVisible())
 	{
 		//		LL_INFOS() << "showCursor: showing" << LL_ENDL;
 		mCursorHidden = FALSE;
@@ -1721,9 +1716,7 @@ void LLSplashScreenMacOSX::updateImpl(const std::string& mesg)
 {
 	if(mWindow != NULL)
 	{
-		CFStringRef string = NULL;
-
-		string = CFStringCreateWithCString(NULL, mesg.c_str(), kCFStringEncodingUTF8);
+		CFStringCreateWithCString(NULL, mesg.c_str(), kCFStringEncodingUTF8);
 	}
 }
 

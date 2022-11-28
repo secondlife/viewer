@@ -96,6 +96,7 @@
 #include "stringize.h"
 #include "boost/foreach.hpp"
 #include "llcorehttputil.h"
+#include "lluiusage.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -574,6 +575,8 @@ void LLAgent::ageChat()
 //-----------------------------------------------------------------------------
 void LLAgent::moveAt(S32 direction, bool reset)
 {
+	LLUIUsage::instance().logCommand("Agent.MoveAt");
+	
 	mMoveTimer.reset();
 	LLFirstUse::notMoving(false);
 
@@ -716,6 +719,9 @@ void LLAgent::moveYaw(F32 mag, bool reset_view)
     U32 mask = AGENT_CONTROL_YAW_POS | AGENT_CONTROL_YAW_NEG;
     if ((getControlFlags() & mask) == mask)
     {
+        // Rotation into both directions should cancel out
+        // But keep sending controls to simulator,
+        // it's needed for script based controls
         gAgentCamera.setYawKey(0);
     }
 
@@ -4023,6 +4029,7 @@ void LLAgent::startTeleportRequest()
     }
 	if (hasPendingTeleportRequest())
 	{
+		LLUIUsage::instance().logCommand("Agent.StartTeleportRequest");
         mTeleportCanceled.reset();
 		if  (!isMaturityPreferenceSyncedWithServer())
 		{

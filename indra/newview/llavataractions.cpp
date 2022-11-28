@@ -48,6 +48,7 @@
 #include "llfloatergroups.h"
 #include "llfloaterreg.h"
 #include "llfloaterpay.h"
+#include "llfloaterprofile.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterwebcontent.h"
 #include "llfloaterworldmap.h"
@@ -62,11 +63,14 @@
 #include "llnotificationsutil.h"	// for LLNotificationsUtil
 #include "llpaneloutfitedit.h"
 #include "llpanelprofile.h"
+#include "llparcel.h"
 #include "llrecentpeople.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "llviewermessage.h"	// for handle_lure
+#include "llviewernetwork.h" //LLGridManager
+#include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "lltrans.h"
 #include "llcallingcard.h"
@@ -74,11 +78,25 @@
 #include "llsidepanelinventory.h"
 #include "llavatarname.h"
 #include "llagentui.h"
+#include "lluiusage.h"
 
 // Flags for kick message
 const U32 KICK_FLAGS_DEFAULT	= 0x0;
 const U32 KICK_FLAGS_FREEZE		= 1 << 0;
 const U32 KICK_FLAGS_UNFREEZE	= 1 << 1;
+
+
+std::string getProfileURL(const std::string& agent_name, bool feed_only)
+{
+    std::string url = "[WEB_PROFILE_URL][AGENT_NAME][FEED_ONLY]";
+	LLSD subs;
+	subs["WEB_PROFILE_URL"] = LLGridManager::getInstance()->getWebProfileURL();
+	subs["AGENT_NAME"] = agent_name;
+    subs["FEED_ONLY"] = feed_only ? "/?feed_only=true" : "";
+	url = LLWeb::expandURLSubstitutions(url, subs);
+	LLStringUtil::toLower(url);
+	return url;
+}
 
 
 // static
@@ -96,7 +114,7 @@ void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::strin
 	payload["id"] = id;
 	payload["name"] = name;
     
-    	LLNotificationsUtil::add("AddFriendWithMessage", args, payload, &callbackAddFriendWithMessage);
+	LLNotificationsUtil::add("AddFriendWithMessage", args, payload, &callbackAddFriendWithMessage);
 
 	// add friend to recent people list
 	LLRecentPeople::instance().add(id);
@@ -316,57 +334,144 @@ void LLAvatarActions::startConference(const uuid_vec_t& ids, const LLUUID& float
 	make_ui_sound("UISndStartIM");
 }
 
-static const char* get_profile_floater_name(const LLUUID& avatar_id)
-{
-	// Use different floater XML for our profile to be able to save its rect.
-	return avatar_id == gAgentID ? "my_profile" : "profile";
-}
-
-static void on_avatar_name_show_profile(const LLUUID& agent_id, const LLAvatarName& av_name)
-{
-	std::string url = getProfileURL(av_name.getAccountName());
-
-	// PROFILES: open in webkit window
-	LLFloaterWebContent::Params p;
-	p.url(url).id(agent_id.asString());
-	LLFloaterReg::showInstance(get_profile_floater_name(agent_id), p);
-}
-
 // static
-void LLAvatarActions::showProfile(const LLUUID& id)
+void LLAvatarActions::showProfile(const LLUUID& avatar_id)
 {
-	if (id.notNull())
+	if (avatar_id.notNull())
 	{
-		LLAvatarNameCache::get(id, boost::bind(&on_avatar_name_show_profile, _1, _2));
+		LLFloaterReg::showInstance("profile", LLSD().with("id", avatar_id));
 	}
 }
 
+// static
+void LLAvatarActions::showPicks(const LLUUID& avatar_id)
+{
+	if (avatar_id.notNull())
+	{
+        LLFloaterProfile* profilefloater = dynamic_cast<LLFloaterProfile*>(LLFloaterReg::showInstance("profile", LLSD().with("id", avatar_id)));
+        if (profilefloater)
+        {
+            profilefloater->showPick();
+        }
+	}
+}
+
+// static
+void LLAvatarActions::showPick(const LLUUID& avatar_id, const LLUUID& pick_id)
+{
+	if (avatar_id.notNull())
+	{
+        LLFloaterProfile* profilefloater = dynamic_cast<LLFloaterProfile*>(LLFloaterReg::showInstance("profile", LLSD().with("id", avatar_id)));
+        if (profilefloater)
+        {
+            profilefloater->showPick(pick_id);
+        }
+	}
+}
+
+// static
+void LLAvatarActions::createPick()
+{
+    LLFloaterProfile* profilefloater = dynamic_cast<LLFloaterProfile*>(LLFloaterReg::showInstance("profile", LLSD().with("id", gAgent.getID())));
+    LLViewerRegion* region = gAgent.getRegion();
+    if (profilefloater && region)
+    {
+        LLPickData data;
+        data.pos_global = gAgent.getPositionGlobal();
+        data.sim_name = region->getName();
+
+        LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+        if (parcel)
+        {
+            data.name = parcel->getName();
+            data.desc = parcel->getDesc();
+            data.snapshot_id = parcel->getSnapshotID();
+            data.parcel_id = parcel->getID();
+        }
+        else
+        {
+            data.name = region->getName();
+        }
+
+        profilefloater->createPick(data);
+    }
+}
+
+// static
+bool LLAvatarActions::isPickTabSelected(const LLUUID& avatar_id)
+{
+    if (avatar_id.notNull())
+    {
+        LLFloaterProfile* profilefloater = LLFloaterReg::findTypedInstance<LLFloaterProfile>("profile", LLSD().with("id", avatar_id));
+        if (profilefloater)
+        {
+            return profilefloater->isPickTabSelected();
+        }
+    }
+    return false;
+}
+
+// static
+void LLAvatarActions::showClassifieds(const LLUUID& avatar_id)
+{
+	if (avatar_id.notNull())
+	{
+        LLFloaterProfile* profilefloater = dynamic_cast<LLFloaterProfile*>(LLFloaterReg::showInstance("profile", LLSD().with("id", avatar_id)));
+        if (profilefloater)
+        {
+            profilefloater->showClassified();
+        }
+	}
+}
+
+// static
+void LLAvatarActions::showClassified(const LLUUID& avatar_id, const LLUUID& classified_id, bool edit)
+{
+	if (avatar_id.notNull())
+	{
+        LLFloaterProfile* profilefloater = dynamic_cast<LLFloaterProfile*>(LLFloaterReg::showInstance("profile", LLSD().with("id", avatar_id)));
+        if (profilefloater)
+        {
+            profilefloater->showClassified(classified_id, edit);
+        }
+	}
+}
+
+// static
+void LLAvatarActions::createClassified()
+{
+    LLFloaterProfile* profilefloater = dynamic_cast<LLFloaterProfile*>(LLFloaterReg::showInstance("profile", LLSD().with("id", gAgent.getID())));
+    if (profilefloater)
+    {
+        profilefloater->createClassified();
+    }
+}
+
 //static 
-bool LLAvatarActions::profileVisible(const LLUUID& id)
+bool LLAvatarActions::profileVisible(const LLUUID& avatar_id)
 {
 	LLSD sd;
-	sd["id"] = id;
-	LLFloater* browser = getProfileFloater(id);
-	return browser && browser->isShown();
+	sd["id"] = avatar_id;
+	LLFloater* floater = getProfileFloater(avatar_id);
+	return floater && floater->isShown();
 }
 
 //static
-LLFloater* LLAvatarActions::getProfileFloater(const LLUUID& id)
+LLFloater* LLAvatarActions::getProfileFloater(const LLUUID& avatar_id)
 {
-	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*>
-		(LLFloaterReg::findInstance(get_profile_floater_name(id), LLSD().with("id", id)));
-	return browser;
+    LLFloaterProfile* floater = LLFloaterReg::findTypedInstance<LLFloaterProfile>("profile", LLSD().with("id", avatar_id));
+    return floater;
 }
 
 //static 
-void LLAvatarActions::hideProfile(const LLUUID& id)
+void LLAvatarActions::hideProfile(const LLUUID& avatar_id)
 {
 	LLSD sd;
-	sd["id"] = id;
-	LLFloater* browser = getProfileFloater(id);
-	if (browser)
+	sd["id"] = avatar_id;
+	LLFloater* floater = getProfileFloater(avatar_id);
+	if (floater)
 	{
-		browser->closeFloater();
+		floater->closeFloater();
 	}
 }
 
@@ -990,7 +1095,7 @@ bool LLAvatarActions::canShareSelectedItems(LLInventoryPanel* inv_panel /* = NUL
 }
 
 // static
-void LLAvatarActions::toggleBlock(const LLUUID& id)
+bool LLAvatarActions::toggleBlock(const LLUUID& id)
 {
 	LLAvatarName av_name;
 	LLAvatarNameCache::get(id, &av_name);
@@ -1000,10 +1105,12 @@ void LLAvatarActions::toggleBlock(const LLUUID& id)
 	if (LLMuteList::getInstance()->isMuted(mute.mID, mute.mName))
 	{
 		LLMuteList::getInstance()->remove(mute);
+		return false;
 	}
 	else
 	{
 		LLMuteList::getInstance()->add(mute);
+		return true;
 	}
 }
 
@@ -1312,6 +1419,8 @@ bool LLAvatarActions::handleUnfreeze(const LLSD& notification, const LLSD& respo
 void LLAvatarActions::requestFriendship(const LLUUID& target_id, const std::string& target_name, const std::string& message)
 {
 	const LLUUID calling_card_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
+	LLUIUsage::instance().logCommand("Agent.SendFriendRequest");
+
 	send_improved_im(target_id,
 					 target_name,
 					 message,

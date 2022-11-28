@@ -163,12 +163,16 @@ void LLPersistentNotificationStorage::loadNotifications()
 	LL_INFOS("LLPersistentNotificationStorage") << "finished loading notifications" << LL_ENDL;
 }
 
+void LLPersistentNotificationStorage::reset()
+{
+    std::string file_name = "open_notifications_" + LLGridManager::getInstance()->getGrid() + ".xml";
+    setFileName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, file_name));
+    setOldFileName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "open_notifications.xml"));
+}
+
 void LLPersistentNotificationStorage::initialize()
 {
-	std::string file_name = "open_notifications_" + LLGridManager::getInstance()->getGrid() + ".xml";
-	setFileName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, file_name));
-	setOldFileName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "open_notifications.xml"));
-
+    reset();
 	LLNotifications::instance().getChannel("Persistent")->
 		connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
 }

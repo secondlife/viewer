@@ -467,22 +467,25 @@ void LLFloaterModelPreview::loadHighLodModel()
 	loadModel(3);
 }
 
-void LLFloaterModelPreview::loadModel(S32 lod)
+void LLFloaterModelPreview::prepareToLoadModel(S32 lod)
 {
 	mModelPreview->mLoading = true;
 	if (lod == LLModel::LOD_PHYSICS)
 	{
 		// loading physics from file
 		mModelPreview->mPhysicsSearchLOD = lod;
+		mModelPreview->mWarnOfUnmatchedPhyicsMeshes = false;
 	}
-
+}
+void LLFloaterModelPreview::loadModel(S32 lod)
+{
+	prepareToLoadModel(lod);
 	(new LLMeshFilePicker(mModelPreview, lod))->getFile();
 }
 
 void LLFloaterModelPreview::loadModel(S32 lod, const std::string& file_name, bool force_disable_slm)
 {
-	mModelPreview->mLoading = true;
-
+	prepareToLoadModel(lod);
 	mModelPreview->loadModel(file_name, lod, force_disable_slm);
 }
 
@@ -507,6 +510,15 @@ void LLFloaterModelPreview::onClickCalculateBtn()
 
 	toggleCalculateButton(false);
 	mUploadBtn->setEnabled(false);
+ 
+    //disable "simplification" UI
+    LLPanel* simplification_panel = getChild<LLPanel>("physics simplification");
+    LLView* child = simplification_panel->getFirstChild();
+    while (child)
+    {
+        child->setEnabled(false);
+        child = simplification_panel->findNextSibling(child);
+    }
 }
 
 // Modified cell_params, make sure to clear values if you have to reuse cell_params outside of this function
@@ -741,7 +753,7 @@ void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
     {
     case LLModelPreview::MESH_OPTIMIZER_AUTO:
     case LLModelPreview::MESH_OPTIMIZER_SLOPPY:
-    case LLModelPreview::MESH_OPTIMIZER_COMBINE:
+    case LLModelPreview::MESH_OPTIMIZER_PRECISE:
         mModelPreview->onLODMeshOptimizerParamCommit(lod, enforce_tri_limit, mode);
         break;
     default:
@@ -1063,10 +1075,17 @@ void LLFloaterModelPreview::onPhysicsUseLOD(LLUICtrl* ctrl, void* userdata)
 	}
 
 	S32 file_mode = iface->getItemCount() - 1;
-	if (which_mode < file_mode)
+	S32 cube_mode = file_mode - 1;
+	if (which_mode < cube_mode)
 	{
 		S32 which_lod = num_lods - which_mode;
 		sInstance->mModelPreview->setPhysicsFromLOD(which_lod);
+	}
+	else if (which_mode == cube_mode)
+	{
+		std::string path = gDirUtilp->getAppRODataDir();
+		gDirUtilp->append(path, "cube.dae");
+		sInstance->loadModel(LLModel::LOD_PHYSICS, path);
 	}
 
 	LLModelPreview *model_preview = sInstance->mModelPreview;
@@ -1662,15 +1681,15 @@ LLFloaterModelPreview::DecompRequest::DecompRequest(const std::string& stage, LL
 void LLFloaterModelPreview::setCtrlLoadFromFile(S32 lod)
 {
     if (lod == LLModel::LOD_PHYSICS)
-    {
+	{
         LLComboBox* lod_combo = findChild<LLComboBox>("physics_lod_combo");
         if (lod_combo)
         {
-            lod_combo->setCurrentByIndex(5);
+            lod_combo->setCurrentByIndex(lod_combo->getItemCount() - 1);
         }
     }
     else
-{
+	{
         LLComboBox* lod_combo = findChild<LLComboBox>("lod_source_" + lod_name[lod]);
         if (lod_combo)
 	{
@@ -1745,7 +1764,7 @@ void LLFloaterModelPreview::onLoDSourceCommit(S32 lod)
     S32 index = lod_source_combo->getCurrentIndex();
 	if (index == LLModelPreview::MESH_OPTIMIZER_AUTO
         || index == LLModelPreview::MESH_OPTIMIZER_SLOPPY
-        || index == LLModelPreview::MESH_OPTIMIZER_COMBINE)
+        || index == LLModelPreview::MESH_OPTIMIZER_PRECISE)
 	{ //rebuild LoD to update triangle counts
 		onLODParamCommit(lod, true);
 	}

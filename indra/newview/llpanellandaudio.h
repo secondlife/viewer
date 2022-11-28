@@ -53,6 +53,7 @@ private:
 	LLLineEditor*	mMusicURLEdit;
 	LLCheckBoxCtrl* mCheckAVSoundAny;
 	LLCheckBoxCtrl* mCheckAVSoundGroup;
+    LLCheckBoxCtrl* mCheckObscureMOAP;
 
 	LLSafeHandle<LLParcelSelection>&	mParcel;
 };

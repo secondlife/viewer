@@ -103,7 +103,6 @@
 #include "llfilepicker.h"
 #include "llfirstuse.h"
 #include "llfloater.h"
-#include "llfloaterbuildoptions.h"
 #include "llfloaterbuyland.h"
 #include "llfloatercamera.h"
 #include "llfloaterland.h"
@@ -773,6 +772,12 @@ public:
 				ypos += y_inc;
 
 				addText(xpos, ypos, llformat("%.3f/%.3f MB Mesh Cache Read/Write ", LLMeshRepository::sCacheBytesRead/(1024.f*1024.f), LLMeshRepository::sCacheBytesWritten/(1024.f*1024.f)));
+                ypos += y_inc;
+
+                addText(xpos, ypos, llformat("%.3f/%.3f MB Mesh Skins/Decompositions Memory", LLMeshRepository::sCacheBytesSkins / (1024.f*1024.f), LLMeshRepository::sCacheBytesDecomps / (1024.f*1024.f)));
+                ypos += y_inc;
+
+                addText(xpos, ypos, llformat("%.3f MB Mesh Headers Memory", LLMeshRepository::sCacheBytesHeaders / (1024.f*1024.f)));
 
 				ypos += y_inc;
 			}
@@ -1568,9 +1573,11 @@ void LLViewerWindow::handleFocusLost(LLWindow *window)
 	showCursor();
 	getWindow()->setMouseClipping(FALSE);
 
-	// If losing focus while keys are down, reset them.
+	// If losing focus while keys are down, handle them as
+    // an 'up' to correctly release states, then reset states
 	if (gKeyboard)
 	{
+        gKeyboard->resetKeyDownAndHandle();
 		gKeyboard->resetKeys();
 	}
 
@@ -1998,7 +2005,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	}
 	LLVertexBuffer::initClass(gSavedSettings.getBOOL("RenderVBOEnable"), gSavedSettings.getBOOL("RenderVBOMappingDisable"));
 	LL_INFOS("RenderInit") << "LLVertexBuffer initialization done." << LL_ENDL ;
-	gGL.init() ;
+	gGL.init(true);
 
 	if (LLFeatureManager::getInstance()->isSafe()
 		|| (gSavedSettings.getS32("LastFeatureVersion") != LLFeatureManager::getInstance()->getVersion())
@@ -2511,10 +2518,11 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 
 		//glViewport(0, 0, width, height );
 
-		if (height > 0)
+        LLViewerCamera * camera = LLViewerCamera::getInstance(); // simpleton, might not exist
+		if (height > 0 && camera)
 		{ 
-			LLViewerCamera::getInstance()->setViewHeightInPixels( mWorldViewRectRaw.getHeight() );
-			LLViewerCamera::getInstance()->setAspect( getWorldViewAspectRatio() );
+            camera->setViewHeightInPixels( mWorldViewRectRaw.getHeight() );
+            camera->setAspect( getWorldViewAspectRatio() );
 		}
 
 		calcDisplayScale();

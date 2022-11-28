@@ -67,6 +67,7 @@
 #include "llsdserialize.h"
 #include "llcallstack.h"
 #include "llcorehttputil.h"
+#include "lluiusage.h"
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -2663,6 +2664,7 @@ void LLVOAvatarSelf::onCustomizeStart(bool disable_camera_switch)
 {
 	if (isAgentAvatarValid())
 	{
+		LLUIUsage::instance().logCommand("Avatar.CustomizeStart");
 		if (!gAgentAvatarp->mEndCustomizeCallback.get())
 		{
 			gAgentAvatarp->mEndCustomizeCallback = new LLUpdateAppearanceOnDestroy;

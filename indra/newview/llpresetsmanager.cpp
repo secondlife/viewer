@@ -332,7 +332,6 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 	else
 	{
 		ECameraPreset new_camera_preset = (ECameraPreset)gSavedSettings.getU32("CameraPresetType");
-		bool new_camera_offsets = false;
 		if (IS_CAMERA)
 		{
 			if (isDefaultCameraPreset(name))
@@ -354,7 +353,6 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 			{
 				new_camera_preset = CAMERA_PRESET_CUSTOM;
 			}
-			new_camera_offsets = (!isDefaultCameraPreset(name) || (ECameraPreset)gSavedSettings.getU32("CameraPresetType") != new_camera_preset);
 		}
 		for (std::vector<std::string>::iterator it = name_list.begin(); it != name_list.end(); ++it)
 		{

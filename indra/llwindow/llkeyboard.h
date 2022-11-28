@@ -58,7 +58,8 @@ public:
 	LLKeyboard();
 	virtual ~LLKeyboard();
 
-	void			resetKeys();
+    void			resetKeyDownAndHandle();
+    void			resetKeys();
 
 
 	F32				getCurKeyElapsedTime()	{ return getKeyDown(mCurScanKey) ? getKeyElapsedTime( mCurScanKey ) : 0.f; }

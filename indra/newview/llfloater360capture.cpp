@@ -114,6 +114,11 @@ BOOL LLFloater360Capture::postBuild()
     // by default each time vs restoring the last value
     mQualityRadioGroup->setSelectedIndex(0);
 
+    return true;
+}
+
+void LLFloater360Capture::onOpen(const LLSD& key)
+{
     // Construct a URL pointing to the first page to load. Although
     // we do not use this page for anything (after some significant
     // design changes), we retain the code to load the start page
@@ -154,8 +159,6 @@ BOOL LLFloater360Capture::postBuild()
     // We do an initial capture when the floater is opened, albeit at a 'preview'
     // quality level (really low resolution, but really fast)
     onCapture360ImagesBtn();
-
-    return true;
 }
 
 // called when the user choose a quality level using

@@ -1,6 +1,6 @@
 /**
- * @file llpanelavatar.cpp
- * @brief LLPanelAvatar and related class implementations
+ * @file llpanelimcontrolpanel.cpp
+ * @brief LLPanelIMControlPanel and related class implementations
  *
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code

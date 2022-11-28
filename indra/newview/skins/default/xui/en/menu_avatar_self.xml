@@ -290,4 +290,11 @@
     <menu_item_call.on_visible
      function="EnableMuteParticle" />
   </menu_item_call>
+  <menu_item_separator/>
+  <menu_item_call label="View Profile"
+       layout="topleft"
+       name="show_avatar_profile">
+    <menu_item_call.on_click
+     function="Avatar.ToggleMyProfile" />
+  </menu_item_call>
 </context_menu>

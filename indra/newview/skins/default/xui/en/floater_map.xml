@@ -16,11 +16,35 @@
  width="200">
     <floater.string
      name="ToolTipMsg">
-        [REGION](Double-click to open Map, shift-drag to pan)
+        [PARCEL_NAME_MSG][PARCEL_SALE_PRICE_MSG][PARCEL_SALE_AREA_MSG][PARCEL_OWNER_MSG][REGION_NAME_MSG][TOOL_TIP_HINT_MSG]
+    </floater.string>
+    <floater.string
+     name="ParcelNameMsg">
+        [PARCEL_NAME]
+    </floater.string>
+    <floater.string
+     name="ParcelSalePriceMsg">
+        Price: L$[PRICE] (L$[PRICE_PER_SQM]/m²)
+    </floater.string>
+    <floater.string
+     name="ParcelSaleAreaMsg">
+        Area: [AREA]m²
+    </floater.string>
+    <floater.string
+     name="ParcelOwnerMsg">
+        Owner: [PARCEL_OWNER]
+    </floater.string>
+    <floater.string
+     name="RegionNameMsg">
+        Region: [REGION_NAME]
     </floater.string>
 	<floater.string
-     name="AltToolTipMsg">
-		[REGION](Double-click to teleport, shift-drag to pan)
+     name="ToolTipHintMsg">
+        Double-click to open map
+	</floater.string>
+	<floater.string
+     name="AltToolTipHintMsg">
+        Double-click to teleport
 	</floater.string>
 	<floater.string name="mini_map_caption">
 	Mini-map
@@ -37,105 +61,73 @@
     <text
      type="string"
      length="1"
-     bottom="218"
      label="N"
      layout="topleft"
-     left="0"
      name="floater_map_north"
-     right="10"
-     text_color="1 1 1 0.7"
-     top="189">
+     text_color="1 1 1 0.7">
         N
     </text>
     <text
      type="string"
      length="1"
-     bottom="218"
      label="E"
      layout="topleft"
-     left="0"
      name="floater_map_east"
-     right="10"
-     text_color="1 1 1 0.7"
-     top="189">
+     text_color="1 1 1 0.7">
         E
     </text>
     <text
      type="string"
      length="1"
-     bottom="205"
      label="W"
      layout="topleft"
-     left="0"
      name="floater_map_west"
-     right="11"
-     text_color="1 1 1 0.7"
-     top="175">
+     text_color="1 1 1 0.7">
         W
     </text>
     <text
      type="string"
      length="1"
-     bottom="218"
      label="S"
      layout="topleft"
-     left="0"
      name="floater_map_south"
-     right="10"
-     text_color="1 1 1 0.7"
-     top="189">
+     text_color="1 1 1 0.7">
         S
     </text>
     <text
      type="string"
      length="1"
-     bottom="218"
      label="SE"
      layout="topleft"
-     left="0"
      name="floater_map_southeast"
-     right="20"
-     text_color="1 1 1 0.7"
-     top="189">
+     text_color="1 1 1 0.7">
         SE
     </text>
     <text
      type="string"
      length="1"
-     bottom="218"
      label="NE"
      layout="topleft"
-     left="0"
      name="floater_map_northeast"
-     right="20"
-     text_color="1 1 1 0.7"
-     top="189">
+     text_color="1 1 1 0.7">
         NE
     </text>
     <text
      type="string"
      length="1"
-     bottom="218"
      label="SW"
      layout="topleft"
-     left="0"
      name="floater_map_southwest"
-     right="20"
-     text_color="1 1 1 0.7"
-     top="189">
+     text_color="1 1 1 0.7">
         SW
     </text>
     <text
      type="string"
      length="1"
-     bottom="218"
      label="NW"
      layout="topleft"
-     left="0"
      name="floater_map_northwest"
-     right="20"
-     text_color="1 1 1 0.7"
-     top="189">
+     text_color="1 1 1 0.7">
         NW
     </text>
 </floater>

@@ -557,7 +557,7 @@ static void settings_to_globals()
 
 	gDebugWindowProc = gSavedSettings.getBOOL("DebugWindowProc");
 	gShowObjectUpdates = gSavedSettings.getBOOL("ShowObjectUpdates");
-	LLWorldMapView::sMapScale = gSavedSettings.getF32("MapScale");
+    LLWorldMapView::setScaleSetting(gSavedSettings.getF32("MapScale"));
 	
 #if LL_DARWIN
 	gHiDPISupport = gSavedSettings.getBOOL("RenderHiDPI");
@@ -1450,6 +1450,8 @@ bool LLAppViewer::doFrame()
 			LL_PROFILE_ZONE_NAMED_CATEGORY_APP( "df suspend" )
 		// give listeners a chance to run
 		llcoro::suspend();
+		// if one of our coroutines threw an uncaught exception, rethrow it now
+		LLCoros::instance().rethrow();
 		}
 
 		if (!LLApp::isExiting())
@@ -2490,10 +2492,24 @@ bool LLAppViewer::initConfiguration()
 	//Load settings files list
 	std::string settings_file_list = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "settings_files.xml");
 	LLXMLNodePtr root;
-	BOOL success  = LLXMLNode::parseFile(settings_file_list, root, NULL);
+	BOOL success = LLXMLNode::parseFile(settings_file_list, root, NULL);
 	if (!success)
 	{
-        LL_ERRS() << "Cannot load default configuration file " << settings_file_list << LL_ENDL;
+        LL_WARNS() << "Cannot load default configuration file " << settings_file_list << LL_ENDL;
+        if (gDirUtilp->fileExists(settings_file_list))
+        {
+            LL_ERRS() << "Cannot load default configuration file settings_files.xml. "
+                << "Please reinstall viewer from https://secondlife.com/support/downloads/ "
+                << "and contact https://support.secondlife.com if issue persists after reinstall."
+                << LL_ENDL;
+        }
+        else
+        {
+            LL_ERRS() << "Default configuration file settings_files.xml not found. "
+                << "Please reinstall viewer from https://secondlife.com/support/downloads/ "
+                << "and contact https://support.secondlife.com if issue persists after reinstall."
+                << LL_ENDL;
+        }
 	}
 
 	mSettingsLocationList = new SettingsFiles();
@@ -2716,19 +2732,14 @@ bool LLAppViewer::initConfiguration()
 
 	if (clp.hasOption("graphicslevel"))
 	{
-		// User explicitly requested --graphicslevel on the command line. We
-		// expect this switch has already set RenderQualityPerformance. Check
-		// that value for validity.
-		U32 graphicslevel = gSavedSettings.getU32("RenderQualityPerformance");
-		if (LLFeatureManager::instance().isValidGraphicsLevel(graphicslevel))
-        {
-			// graphicslevel is valid: save it and engage it later. Capture
-			// the requested value separately from the settings variable
-			// because, if this is the first run, LLViewerWindow's constructor
-			// will call LLFeatureManager::applyRecommendedSettings(), which
-			// overwrites this settings variable!
-			mForceGraphicsLevel = graphicslevel;
-        }
+        // User explicitly requested --graphicslevel on the command line. We
+        // expect this switch has already set RenderQualityPerformance. Check
+        // that value for validity later.
+        // Capture the requested value separately from the settings variable
+        // because, if this is the first run, LLViewerWindow's constructor
+        // will call LLFeatureManager::applyRecommendedSettings(), which
+        // overwrites this settings variable!
+        mForceGraphicsLevel = gSavedSettings.getU32("RenderQualityPerformance");
 	}
 
 	LLFastTimerView::sAnalyzePerformance = gSavedSettings.getBOOL("AnalyzePerformance");
@@ -3086,7 +3097,7 @@ bool LLAppViewer::initWindow()
 	// Initialize GL stuff
 	//
 
-	if (mForceGraphicsLevel)
+	if (mForceGraphicsLevel && (LLFeatureManager::instance().isValidGraphicsLevel(*mForceGraphicsLevel)))
 	{
 		LLFeatureManager::getInstance()->setGraphicsLevel(*mForceGraphicsLevel, false);
 		gSavedSettings.setU32("RenderQualityPerformance", *mForceGraphicsLevel);
@@ -3296,9 +3307,18 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["AUDIO_DRIVER_VERSION"] = gAudiop ? LLSD(gAudiop->getDriverName(want_fullname)) : "Undefined";
 	if(LLVoiceClient::getInstance()->voiceEnabled())
 	{
-		LLVoiceVersionInfo version = LLVoiceClient::getInstance()->getVersion();
+        LLVoiceVersionInfo version = LLVoiceClient::getInstance()->getVersion();
+        const std::string build_version = version.mBuildVersion;
 		std::ostringstream version_string;
-		version_string << version.serverType << " " << version.serverVersion << std::endl;
+        if (std::equal(build_version.begin(), build_version.begin() + version.serverVersion.size(),
+                       version.serverVersion.begin()))
+        {  // Normal case: Show type and build version.
+            version_string << version.serverType << " " << build_version << std::endl;
+        }
+        else
+        {  // Mismatch: Show both versions.
+            version_string << version.serverVersion << "/" << build_version << std::endl;
+        }
 		info["VOICE_VERSION"] = version_string.str();
 	}
 	else
@@ -3491,7 +3511,7 @@ void LLAppViewer::cleanupSavedSettings()
 		}
 	}
 
-	gSavedSettings.setF32("MapScale", LLWorldMapView::sMapScale );
+    gSavedSettings.setF32("MapScale", LLWorldMapView::getScaleSetting());
 
 	// Some things are cached in LLAgent.
 	if (gAgent.isInitialized())
@@ -4262,6 +4282,15 @@ U32 LLAppViewer::getTextureCacheVersion()
 }
 
 //static
+U32 LLAppViewer::getDiskCacheVersion()
+{
+    // Viewer disk cache version intorduced in Simple Cache Viewer, change if the cache format changes.
+    const U32 DISK_CACHE_VERSION = 1;
+
+    return DISK_CACHE_VERSION ;
+}
+
+//static
 U32 LLAppViewer::getObjectCacheVersion()
 {
 	// Viewer object cache version, change if object update
@@ -4281,21 +4310,30 @@ bool LLAppViewer::initCache()
 	// initialize the new disk cache using saved settings
 	const std::string cache_dir_name = gSavedSettings.getString("DiskCacheDirName");
 
+	const U32 MB = 1024 * 1024;
+    const uintmax_t MIN_CACHE_SIZE = 256 * MB;
+	const uintmax_t MAX_CACHE_SIZE = 9984ll * MB;
+    const uintmax_t setting_cache_total_size = uintmax_t(gSavedSettings.getU32("CacheSize")) * MB;
+    const uintmax_t cache_total_size = llclamp(setting_cache_total_size, MIN_CACHE_SIZE, MAX_CACHE_SIZE);
+    const F64 disk_cache_percent = gSavedSettings.getF32("DiskCachePercentOfTotal");
+    const F64 texture_cache_percent = 100.0 - disk_cache_percent;
+
     // note that the maximum size of this cache is defined as a percentage of the 
     // total cache size - the 'CacheSize' pref - for all caches. 
-    const unsigned int cache_total_size_mb = gSavedSettings.getU32("CacheSize");
-    const double disk_cache_percent = gSavedSettings.getF32("DiskCachePercentOfTotal");
-    const unsigned int disk_cache_mb = cache_total_size_mb * disk_cache_percent / 100;
-    const uintmax_t disk_cache_bytes = disk_cache_mb * 1024 * 1024;
+    const uintmax_t disk_cache_size = uintmax_t(cache_total_size * disk_cache_percent / 100);
 	const bool enable_cache_debug_info = gSavedSettings.getBOOL("EnableDiskCacheDebugInfo");
 
 	bool texture_cache_mismatch = false;
+    bool remove_vfs_files = false;
 	if (gSavedSettings.getS32("LocalCacheVersion") != LLAppViewer::getTextureCacheVersion())
 	{
 		texture_cache_mismatch = true;
 		if(!read_only)
 		{
 			gSavedSettings.setS32("LocalCacheVersion", LLAppViewer::getTextureCacheVersion());
+
+            //texture cache version was bumped up in Simple Cache Viewer, and at this point old vfs files are not needed
+            remove_vfs_files = true;   
 		}
 	}
 
@@ -4337,11 +4375,23 @@ bool LLAppViewer::initCache()
 	}
 
 	const std::string cache_dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, cache_dir_name);
-	LLDiskCache::initParamSingleton(cache_dir, disk_cache_bytes, enable_cache_debug_info);
+    LLDiskCache::initParamSingleton(cache_dir, disk_cache_size, enable_cache_debug_info);
 
 	if (!read_only)
 	{
-		if (mPurgeCache)
+        if (gSavedSettings.getS32("DiskCacheVersion") != LLAppViewer::getDiskCacheVersion())
+        {
+            LLDiskCache::getInstance()->clearCache();
+            remove_vfs_files = true;
+            gSavedSettings.setS32("DiskCacheVersion", LLAppViewer::getDiskCacheVersion());
+        }
+
+        if (remove_vfs_files)
+        {
+            LLDiskCache::getInstance()->removeOldVFSFiles();
+        }
+        
+        if (mPurgeCache)
 		{
 			LLSplashScreen::update(LLTrans::getString("StartupClearingCache"));
 			purgeCache();
@@ -4360,18 +4410,10 @@ bool LLAppViewer::initCache()
 	LLSplashScreen::update(LLTrans::getString("StartupInitializingTextureCache"));
 
 	// Init the texture cache
-	// Allocate 80% of the cache size for textures
-	const S32 MB = 1024 * 1024;
-	const S64 MIN_CACHE_SIZE = 256 * MB;
-	const S64 MAX_CACHE_SIZE = 9984ll * MB;
+    // Allocate the remaining percent which is not allocated to the disk cache
+    const S64 texture_cache_size = S64(cache_total_size * texture_cache_percent / 100);
 
-	S64 cache_size = (S64)(gSavedSettings.getU32("CacheSize")) * MB;
-	cache_size = llclamp(cache_size, MIN_CACHE_SIZE, MAX_CACHE_SIZE);
-
-	S64 texture_cache_size = cache_size;
-
-	S64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, texture_cache_mismatch);
-	texture_cache_size -= extra;
+    LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, texture_cache_mismatch);
 
 	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion());
 
@@ -5061,8 +5103,7 @@ void LLAppViewer::idle()
 			audio_update_wind(false);
 
 			// this line actually commits the changes we've made to source positions, etc.
-			const F32 max_audio_decode_time = 0.002f; // 2 ms decode time
-			gAudiop->idle(max_audio_decode_time);
+			gAudiop->idle();
 		}
 	}
 
@@ -5423,7 +5464,7 @@ void LLAppViewer::disconnectViewer()
 		gFloaterView->restoreAll();
 	}
 
-	if (LLSelectMgr::getInstance())
+	if (LLSelectMgr::instanceExists())
 	{
 		LLSelectMgr::getInstance()->deselectAll();
 	}

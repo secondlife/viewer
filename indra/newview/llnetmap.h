@@ -62,9 +62,12 @@ protected:
 public:
 	virtual ~LLNetMap();
 
-	static const F32 MAP_SCALE_MIN;
-	static const F32 MAP_SCALE_MID;
-	static const F32 MAP_SCALE_MAX;
+    static const F32 MAP_SCALE_MIN;
+    static const F32 MAP_SCALE_FAR;
+    static const F32 MAP_SCALE_MEDIUM;
+    static const F32 MAP_SCALE_CLOSE;
+    static const F32 MAP_SCALE_VERY_CLOSE;
+    static const F32 MAP_SCALE_MAX;
 
 	/*virtual*/ void	draw();
 	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
@@ -79,8 +82,17 @@ public:
 	/*virtual*/ BOOL	handleClick(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleDoubleClick( S32 x, S32 y, MASK mask );
 
-	void			setScale( F32 scale );
-	void			setToolTipMsg(const std::string& msg) { mToolTipMsg = msg; }
+    void            setScale(F32 scale);
+
+    void            setToolTipMsg(const std::string& msg) { mToolTipMsg = msg; }
+    void            setParcelNameMsg(const std::string& msg) { mParcelNameMsg = msg; }
+    void            setParcelSalePriceMsg(const std::string& msg) { mParcelSalePriceMsg = msg; }
+    void            setParcelSaleAreaMsg(const std::string& msg) { mParcelSaleAreaMsg = msg; }
+    void            setParcelOwnerMsg(const std::string& msg) { mParcelOwnerMsg = msg; }
+    void            setRegionNameMsg(const std::string& msg) { mRegionNameMsg = msg; }
+    void            setToolTipHintMsg(const std::string& msg) { mToolTipHintMsg = msg; }
+    void            setAltToolTipHintMsg(const std::string& msg) { mAltToolTipHintMsg = msg; }
+
 	void			renderScaledPointGlobal( const LLVector3d& pos, const LLColor4U &color, F32 radius );
 
 private:
@@ -94,11 +106,14 @@ private:
 	void			drawTracking( const LLVector3d& pos_global, 
 								  const LLColor4& color,
 								  BOOL draw_arrow = TRUE);
+    bool            isMouseOnPopupMenu();
+    void            updateAboutLandPopupButton();
 	BOOL			handleToolTipAgent(const LLUUID& avatar_id);
 	static void		showAvatarInspector(const LLUUID& avatar_id);
 
 	void			createObjectImage();
 
+    F32             getScaleForName(std::string scale_name);
 	static bool		outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y, S32 slop);
 
 private:
@@ -112,11 +127,12 @@ private:
 	F32				mObjectMapPixels;		// Width of object map in pixels
 	F32				mDotRadius;				// Size of avatar markers
 
-	bool			mPanning;			// map is being dragged
-	LLVector2		mTargetPan;
-	LLVector2		mCurPan;
-	LLVector2		mStartPan;		// pan offset at start of drag
-	LLCoordGL		mMouseDown;			// pointer position at start of drag
+    bool            mPanning; // map is being dragged
+    bool            mCentering; // map is being re-centered around the agent
+    LLVector2       mCurPan;
+    LLVector2       mStartPan; // pan offset at start of drag
+    LLVector3d      mPopupWorldPos; // world position picked under mouse when context menu is opened
+    LLCoordGL       mMouseDown; // pointer position at start of drag
 
 	LLVector3d		mObjectImageCenterGlobal;
 	LLPointer<LLImageRaw> mObjectRawImagep;
@@ -125,14 +141,26 @@ private:
 	LLUUID			mClosestAgentToCursor;
 	LLUUID			mClosestAgentAtLastRightClick;
 
-	std::string		mToolTipMsg;
+    std::string     mToolTipMsg;
+    std::string     mParcelNameMsg;
+    std::string     mParcelSalePriceMsg;
+    std::string     mParcelSaleAreaMsg;
+    std::string     mParcelOwnerMsg;
+    std::string     mRegionNameMsg;
+    std::string     mToolTipHintMsg;
+    std::string     mAltToolTipHintMsg;
 
 public:
 	void			setSelected(uuid_vec_t uuids) { gmSelected=uuids; };
 
 private:
-	void handleZoom(const LLSD& userdata);
-	void handleStopTracking (const LLSD& userdata);
+    bool isZoomChecked(const LLSD& userdata);
+    void setZoom(const LLSD& userdata);
+    void handleStopTracking(const LLSD& userdata);
+    void activateCenterMap(const LLSD& userdata);
+    bool isMapOrientationChecked(const LLSD& userdata);
+    void setMapOrientation(const LLSD& userdata);
+    void popupShowAboutLand(const LLSD& userdata);
 
 	LLMenuGL*		mPopupMenu;
 	uuid_vec_t		gmSelected;

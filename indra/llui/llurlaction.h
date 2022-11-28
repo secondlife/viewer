@@ -82,6 +82,7 @@ public:
 	static void sendIM(std::string url);
 	static void addFriend(std::string url);
 	static void removeFriend(std::string url);
+    static void reportAbuse(std::string url);
 	static void blockObject(std::string url);
 	static void unblockObject(std::string url);
 

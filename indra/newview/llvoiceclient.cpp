@@ -37,6 +37,7 @@
 #include "llui.h"
 #include "llkeyboard.h"
 #include "llagent.h"
+#include "lluiusage.h"
 
 const F32 LLVoiceClient::OVERDRIVEN_POWER_LEVEL = 0.7f;
 
@@ -200,6 +201,7 @@ const LLVoiceVersionInfo LLVoiceClient::getVersion()
 		LLVoiceVersionInfo result;
 		result.serverVersion = std::string();
 		result.serverType = std::string();
+		result.mBuildVersion = std::string();
 		return result;
 	}
 }
@@ -602,6 +604,10 @@ void LLVoiceClient::setMuteMic(bool muted)
 
 void LLVoiceClient::setUserPTTState(bool ptt)
 {
+	if (ptt)
+	{
+		LLUIUsage::instance().logCommand("Agent.EnableMicrophone");
+	}
 	mUserPTTState = ptt;
 	updateMicMuteLogic();
 	mMicroChangedSignal();
