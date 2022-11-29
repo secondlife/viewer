@@ -2962,7 +2962,7 @@ void handle_object_edit_gltf_material()
 
 void handle_object_save_gltf_material()
 {
-    LLMaterialEditor::saveObjectsMaterialAs();
+    LLMaterialEditor::savePickedMaterialAs();
 }
 
 void handle_attachment_edit(const LLUUID& inv_item_id)

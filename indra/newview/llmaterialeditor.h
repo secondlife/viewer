@@ -35,6 +35,7 @@ class LLButton;
 class LLColorSwatchCtrl;
 class LLComboBox;
 class LLGLTFMaterial;
+class LLLocalGLTFMaterial;
 class LLTextureCtrl;
 class LLTextBox;
 
@@ -111,6 +112,7 @@ public:
     static void loadLive();
 
     static void saveObjectsMaterialAs();
+    static void savePickedMaterialAs();
     static void onSaveObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response);
 
     static void loadFromGLTFMaterial(LLUUID &asset_id);
@@ -232,6 +234,8 @@ public:
     static bool capabilitiesAvailable();
 
 private:
+    static void saveMaterialAs(const LLGLTFMaterial *render_material, const LLLocalGLTFMaterial *local_material);
+
     static bool updateInventoryItem(const std::string &buffer, const LLUUID &item_id, const LLUUID &task_id);
     static void createInventoryItem(const std::string &buffer, const std::string &name, const std::string &desc);
 
