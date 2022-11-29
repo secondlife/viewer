@@ -233,7 +233,7 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
 
     if (mLastWeight != effective_weight && !mIsAnimating)
     {
-        mAvatar->setSkeletonSerialNum(mAvatar->getSkeletonSerialNum() + 1);
+        mAvatar->bumpSkeletonSerialNum();
     }
     mLastWeight = effective_weight;
 }

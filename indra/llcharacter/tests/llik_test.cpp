@@ -27,6 +27,7 @@
  */
 
 #include "../llik.h"
+#include "../lljoint.h"
 #include "../test/lltut.h"
 #include <iostream>
 #include <cmath>
@@ -762,14 +763,6 @@ namespace tut
 	template<> template<>
 	void llik_object::test<7>()
 	{
-        LLIKConstraintFactory factory;
-        S16 root_joint_id = 7;
-        LLIK::Solver solver;
-        constexpr F32 ACCEPTABLE_ERROR = 1.0e-3f; // one mm
-        solver.setAcceptableError(ACCEPTABLE_ERROR);
-        solver.setRootID(root_joint_id);
-        ensure_equals("LLIK::Solver::getRootID", solver.getRootID(), root_joint_id);
-
         // Make a simple skeleton along the y-axis, where each child joint's local_pos
         // is a unit-vector from it's parent's origin.
         //
@@ -782,26 +775,60 @@ namespace tut
         //       x
         //
 
-        LLIK::Constraint::Info info;
-        LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(info);
-
         constexpr F32 BONE_LENGTH = 1.234f;
         constexpr F32 POS_LENGTH = 2.345f;
         S32 num_joints = 3;
         LLVector3 local_pos = POS_LENGTH * LLVector3::y_axis;
         LLVector3 bone = BONE_LENGTH * LLVector3::y_axis;
 
-        // Note: root joint should always have zero bone length,
-        // because IK will target its "end" not its "tip".
-        solver.addJoint(root_joint_id, root_joint_id-1, LLVector3::zero, LLVector3::zero, null_constraint);
-        S16 joint_id = root_joint_id + 1;
+        // build LLJoint skeleton
+        std::vector<LLVector3> local_positions;
+        local_positions.push_back(LLVector3());
+        local_positions.push_back(local_pos);
+        local_positions.push_back(local_pos);
+        local_positions.push_back(local_pos);
 
-        for (S32 i = 0; i < num_joints; ++i)
+        std::vector<LLVector3> local_ends;
+        local_ends.push_back(LLVector3());
+        local_ends.push_back(bone);
+        local_ends.push_back(bone);
+        local_ends.push_back(bone);
+
+        std::vector<LLJoint*> joints;
+        LLJoint* parent_joint = nullptr;
+        S32 joint_id = 7;
+        for (S32 i = 0; i < S32(local_positions.size()); ++i)
         {
-            solver.addJoint(joint_id, joint_id-1, local_pos, bone, null_constraint);
+            LLJoint* joint = new LLJoint("foo", parent_joint);
+            joints.push_back(joint);
+            joints[i]->setIsBone(true);
+            joints[i]->setJointNum(joint_id);
+            joints[i]->setPosition(local_positions[i]);
+            joints[i]->setEnd(local_ends[i]);
+            parent_joint = joints[i];
             ++joint_id;
         }
-        S16 last_joint_id = joint_id - 1;
+
+        LLIKConstraintFactory factory;
+        S16 root_joint_id = 7;
+        LLIK::Solver solver;
+        constexpr F32 ACCEPTABLE_ERROR = 1.0e-3f; // one mm
+        solver.setAcceptableError(ACCEPTABLE_ERROR);
+        solver.setRootID(root_joint_id);
+        ensure_equals("LLIK::Solver::getRootID", solver.getRootID(), root_joint_id);
+
+        // build solver skeleton
+        LLIK::Constraint::Info info;
+        LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(info);
+        S16 ik_joint_id = root_joint_id;
+        S16 parent_ik_joint_id = -1;
+        for (S16 i = 0; i < S16(joints.size()); ++i)
+        {
+            solver.addJoint(ik_joint_id, parent_ik_joint_id, joints[i], null_constraint);
+            parent_ik_joint_id = ik_joint_id;
+            ++ik_joint_id;
+        }
+        S16 last_joint_id = ik_joint_id - 1;
 
         F32 reach = solver.computeReach(root_joint_id, last_joint_id).length();
         F32 expected_reach = num_joints * POS_LENGTH + BONE_LENGTH;
@@ -856,6 +883,11 @@ namespace tut
             F32 max_error = solver.solve();
             ensure("LLIK::Solver reachable target sans-constraints after moving root", max_error < ACCEPTABLE_ERROR);
         }
+        // cleanup LLJoints
+        for (auto joint: joints)
+        {
+            delete joint;
+        }
 	}
 
     // LLIK::Solver : unconstrained vs constrained
@@ -863,7 +895,6 @@ namespace tut
 	void llik_object::test<8>()
 	{
         LLIKConstraintFactory factory;
-        S16 joint_id = 0;
         constexpr F32 ACCEPTABLE_ERROR = 3.0e-3f;
 
         // Consider the following chain of Joints:
@@ -899,36 +930,54 @@ namespace tut
         //             3--.   Z
         // We will test each case.
 
+        // build LLJoint skeleton
+        std::vector<LLVector3> local_positions;
+        local_positions.push_back(LLVector3());
+        local_positions.push_back(LLVector3::y_axis);
+        local_positions.push_back(2.0f * LLVector3::y_axis);
+        local_positions.push_back(2.0f * LLVector3::y_axis);
+
+        std::vector<LLVector3> local_ends;
+        local_ends.push_back(LLVector3());
+        local_ends.push_back(2.0f * LLVector3::y_axis);
+        local_ends.push_back(2.0f * LLVector3::y_axis);
+        local_ends.push_back(LLVector3::y_axis);
+
+        std::vector<LLJoint*> joints;
+        LLJoint* parent_joint = nullptr;
+        for (S32 i = 0; i < S32(local_positions.size()); ++i)
+        {
+            LLJoint* joint = new LLJoint("foo", parent_joint);
+            joint->setIsBone(true);
+            joint->setJointNum(i);
+            joint->setPosition(local_positions[i]);
+            joint->setEnd(local_ends[i]);
+            parent_joint = joint;
+            joints.push_back(joint);
+        }
+
         {   // unconstrained
             LLIK::Solver solver;
             solver.setAcceptableError(ACCEPTABLE_ERROR);
-            solver.setRootID(joint_id);
+            solver.setRootID(0);
 
+            // build solver skeleton
             LLIK::Constraint::Info info;
             LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(info);
+            for (S16 i = 0; i < S16(joints.size()); ++i)
+            {
+                solver.addJoint(i, i-1, joints[i], null_constraint);
+            }
+            S16 last_joint_id = joints.size() - 1;
 
-            // Note: addJoint() API is:
-            // Solver::addJoint(joint_id, parent_id, local_pos, bone, constraint)
-
-            // root joint has zero local_pos
-            solver.addJoint(joint_id, joint_id-1, 0.0f * LLVector3::y_axis, 1.0f * LLVector3::y_axis, null_constraint);
-            ++joint_id;
-
-            solver.addJoint(joint_id, joint_id-1, 1.0f * LLVector3::y_axis, 2.0f * LLVector3::y_axis, null_constraint);
-            ++joint_id;
-            solver.addJoint(joint_id, joint_id-1, 2.0f * LLVector3::y_axis, 2.0f * LLVector3::y_axis, null_constraint);
-            ++joint_id;
-            solver.addJoint(joint_id, joint_id-1, 2.0f * LLVector3::y_axis, 1.0f * LLVector3::y_axis, null_constraint);
-            ++joint_id;
-
-            S16 last_joint_id = joint_id - 1;
-
+            // configure a target for end-effector
             LLIK::Joint::Config config;
             config.setTargetPos(3.0f * LLVector3::x_axis - 1.0f * LLVector3::y_axis);
             LLIK::Solver::joint_config_map_t configs;
             configs.insert({last_joint_id, config});
-
             solver.updateJointConfigs(configs);
+
+            // solve
             F32 max_error = solver.solve();
             ensure("LLIK::Solver reachable target sans-constraints should have low error", max_error < ACCEPTABLE_ERROR);
         }
@@ -941,15 +990,16 @@ namespace tut
             //               Z
             LLIK::Solver solver;
             solver.setAcceptableError(ACCEPTABLE_ERROR);
-            solver.setRootID(joint_id);
+            solver.setRootID(0);
 
             LLIK::Constraint::Info info;
             F32 del = 0.2f;
 
-            // root joint doesn't move
+            // build solver skeleton
             LLIK::Constraint::Info info_A;
             LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, 0.0f * LLVector3::y_axis, 1.0f * LLVector3::y_axis, null_constraint);
+            S16 joint_id = 0;
+            solver.addJoint(joint_id, joint_id-1, joints[joint_id], null_constraint);
             ++joint_id;
 
             LLIK::Constraint::Info info_CW;
@@ -959,11 +1009,10 @@ namespace tut
             info_CW.mFloats.push_back(-0.5f * F_PI - del); // min_bend
             info_CW.mFloats.push_back(-0.5f * F_PI + del); // max_bend
             LLIK::Constraint::ptr_t right_turn_CW = factory.getConstraint(info_CW);
-            solver.addJoint(joint_id, joint_id-1, 1.0f * LLVector3::y_axis, 2.0f * LLVector3::y_axis, right_turn_CW);
+            solver.addJoint(joint_id, joint_id-1, joints[joint_id], right_turn_CW);
             ++joint_id;
 
-            LLIK::Constraint::Info info_C;
-            solver.addJoint(joint_id, joint_id-1, 2.0f * LLVector3::y_axis, 2.0f * LLVector3::y_axis, right_turn_CW);
+            solver.addJoint(joint_id, joint_id-1, joints[joint_id], right_turn_CW);
             ++joint_id;
 
             LLIK::Constraint::Info info_CCW;
@@ -973,20 +1022,25 @@ namespace tut
             info_CCW.mFloats.push_back(0.5f * F_PI - del); // min_bend
             info_CCW.mFloats.push_back(0.5f * F_PI + del); // max_bend
             LLIK::Constraint::ptr_t right_turn_CCW = factory.getConstraint(info_CCW);
-            solver.addJoint(joint_id, joint_id-1, 2.0f * LLVector3::y_axis, 1.0f * LLVector3::y_axis, right_turn_CCW);
-            ++joint_id;
+            solver.addJoint(joint_id, joint_id-1, joints[joint_id], right_turn_CCW);
 
-            S16 last_joint_id = joint_id - 1;
-
+            // configure a target for end-effector
             LLIK::Joint::Config config;
             config.setTargetPos(3.0f * LLVector3::x_axis - 1.0f * LLVector3::y_axis);
             LLIK::Solver::joint_config_map_t configs;
-            configs.insert({last_joint_id, config});
-
+            configs.insert({joint_id, config});
             //solver.enableDebugIfPossible();
             solver.updateJointConfigs(configs);
+
+            // solve
             F32 max_error = solver.solve();
             ensure("LLIK::Solver reachable target with constraints should have low error", max_error < ACCEPTABLE_ERROR);
+
+        }
+        // cleanup LLJoints
+        for (auto joint: joints)
+        {
+            delete joint;
         }
 	}
 
@@ -994,19 +1048,9 @@ namespace tut
 	template<> template<>
 	void llik_object::test<9>()
 	{
-        LLIKConstraintFactory factory;
-        LLIK::Constraint::Info info;
-        LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(info);
-
-        S16 joint_id = 0;
-        LLIK::Solver solver;
-        constexpr F32 ACCEPTABLE_ERROR = 1.0e-3f; // one mm
-        solver.setAcceptableError(ACCEPTABLE_ERROR);
-        solver.setRootID(joint_id);
-
         // We'll start with a simple skeleton like this: two "arms"
         // joined at a "neck" and a "spine" to the "root",
-        // where each joint local_pos/bone is equal length...
+        // where each joint local_pos/bone is of equal length...
         //
         //  <---(9)<--(8)<--(7,4)-->(5)-->(6)--->
         //                    ^
@@ -1025,56 +1069,109 @@ namespace tut
         // ... and we'll specify reachable endpoints for (3), (6) and (9)
         // to see if it can reach a solution.
 
-        F32 bone_length = 1.0f;
-
-        // spine
         S32 num_spine_joints = 4;
+        S32 num_arm_joints = 3;
+
+        // build LLJoint skeleton
+        F32 bone_length = 1.0f;
+        std::vector<LLVector3> local_positions;
+        local_positions.push_back(LLVector3());
+        local_positions.push_back(bone_length * LLVector3::y_axis); // 1
+        local_positions.push_back(bone_length * LLVector3::y_axis);
+        local_positions.push_back(bone_length * LLVector3::y_axis);
+        local_positions.push_back(bone_length * LLVector3::y_axis); // 4
+        local_positions.push_back(bone_length * LLVector3::x_axis);
+        local_positions.push_back(bone_length * LLVector3::x_axis); // 6
+        local_positions.push_back(bone_length * LLVector3::y_axis); // 7
+        local_positions.push_back(-bone_length * LLVector3::x_axis);
+        local_positions.push_back(-bone_length * LLVector3::x_axis); // 9
+
+        std::vector<LLVector3> local_ends;
+        local_ends.push_back(LLVector3());
+        local_ends.push_back(bone_length * LLVector3::y_axis); // 1
+        local_ends.push_back(bone_length * LLVector3::y_axis);
+        local_ends.push_back(bone_length * LLVector3::y_axis); // 3
+        local_ends.push_back(bone_length * LLVector3::x_axis); // 4
+        local_ends.push_back(bone_length * LLVector3::x_axis);
+        local_ends.push_back(bone_length * LLVector3::x_axis); // 6
+        local_ends.push_back(-bone_length * LLVector3::x_axis); // 7
+        local_ends.push_back(-bone_length * LLVector3::x_axis);
+        local_ends.push_back(-bone_length * LLVector3::x_axis); // 9
+
+        S16 joint_id = 0;
+        std::vector<LLJoint*> joints;
+        LLJoint* parent_joint = nullptr;
+        // spine
         for (S32 i = 0; i < num_spine_joints; ++i)
         {
-            LLVector3 local_pos = bone_length * LLVector3::y_axis;
-            LLVector3 bone = local_pos;
-            solver.addJoint(joint_id, joint_id-1, local_pos, bone, null_constraint);
+            LLJoint* joint = new LLJoint("foo", parent_joint);
+            joint->setIsBone(true);
+            joint->setJointNum(joint_id);
+            joint->setPosition(local_positions[joint_id]);
+            joint->setEnd(local_ends[joint_id]);
+            parent_joint = joint;
+            joints.push_back(joint);
             ++joint_id;
         }
-
-        S16 neck_id = joint_id - 1;
-        S16 parent_joint_id = neck_id;
-
         // right arm
-        S32 num_arm_joints = 3;
+        LLJoint* neck_joint = parent_joint;
+        for (S32 i = 0; i < num_arm_joints; ++i)
         {
-            // first joint is special
-            LLVector3 local_pos = bone_length * LLVector3::y_axis;
-            LLVector3 bone = bone_length * LLVector3::x_axis;
-            solver.addJoint(joint_id, parent_joint_id, local_pos, bone, null_constraint);
-            parent_joint_id = joint_id;
+            LLJoint* joint = new LLJoint("foo", parent_joint);
+            joint->setIsBone(true);
+            joint->setJointNum(joint_id);
+            joint->setPosition(local_positions[joint_id]);
+            joint->setEnd(local_ends[joint_id]);
+            parent_joint = joint;
+            joints.push_back(joint);
             ++joint_id;
         }
-        for (S32 i = 1; i < num_arm_joints; ++i)
+        // left arm
+        parent_joint = neck_joint;
+        for (S32 i = 0; i < num_arm_joints; ++i)
         {
-            LLVector3 local_pos = bone_length * LLVector3::x_axis;
-            LLVector3 bone = local_pos;
-            solver.addJoint(joint_id, parent_joint_id, local_pos, bone, null_constraint);
+            LLJoint* joint = new LLJoint("foo", parent_joint);
+            joint->setIsBone(true);
+            joint->setJointNum(joint_id);
+            joint->setPosition(local_positions[joint_id]);
+            joint->setEnd(local_ends[joint_id]);
+            parent_joint = joint;
+            joints.push_back(joint);
+            ++joint_id;
+        }
+
+        LLIKConstraintFactory factory;
+        LLIK::Constraint::Info info;
+        LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(info);
+
+        LLIK::Solver solver;
+        constexpr F32 ACCEPTABLE_ERROR = 1.0e-3f; // one mm
+        solver.setAcceptableError(ACCEPTABLE_ERROR);
+        solver.setRootID(joint_id);
+
+        // build solver skeleton
+        // spine
+        joint_id = 0;
+        for (S32 i = 0; i < num_spine_joints; ++i)
+        {
+            solver.addJoint(joint_id, joint_id-1, joints[joint_id], null_constraint);
+            ++joint_id;
+        }
+        S16 neck_id = joint_id - 1;
+        // right arm
+        S16 parent_joint_id = neck_id;
+        for (S32 i = 0; i < num_arm_joints; ++i)
+        {
+            solver.addJoint(joint_id, parent_joint_id, joints[joint_id], null_constraint);
             parent_joint_id = joint_id;
             ++joint_id;
         }
         S16 right_hand_id = joint_id - 1;
-
         // left-arm
         parent_joint_id = neck_id;
+        for (S32 i = 0; i < num_arm_joints; ++i)
         {
-            // first joint is special
-            LLVector3 local_pos = bone_length * LLVector3::y_axis;
-            LLVector3 bone = - bone_length * LLVector3::x_axis;
-            solver.addJoint(joint_id, parent_joint_id, local_pos, bone, null_constraint);
-            parent_joint_id = joint_id;
-            ++joint_id;
-        }
-        for (S32 i = 1; i < num_arm_joints; ++i)
-        {
-            LLVector3 local_pos = - bone_length * LLVector3::x_axis;
-            LLVector3 bone = local_pos;
-            solver.addJoint(joint_id, parent_joint_id, local_pos, bone, null_constraint);
+            solver.addJoint(joint_id, parent_joint_id, joints[joint_id], null_constraint);
             parent_joint_id = joint_id;
             ++joint_id;
         }
@@ -1134,6 +1231,11 @@ namespace tut
             ensure("LLIK::Solver RightHand should reach target", error < allowable_error);
             error = dist_vec(solver.getJointWorldEndPos(left_hand_id), left_hand_pos);
             ensure("LLIK::Solver LeftHand should reach target", error < allowable_error);
+        }
+        // cleanup LLJoints
+        for (auto joint: joints)
+        {
+            delete joint;
         }
     }
 
@@ -1405,7 +1507,7 @@ namespace tut
     }
 #endif // ENABLE_FAILING_UNIT_TESTS
 
-    void build_skeleton_arm(LLIKConstraintFactory& factory, LLIK::Solver& solver, bool with_fingers=true)
+    void build_skeleton_arm(std::vector<LLJoint*>& joints, LLIKConstraintFactory& factory, LLIK::Solver& solver, bool with_fingers=true)
 	{
         // This builds arm+hand+fingers skeleton based on the default SL avatar.
 
@@ -1428,8 +1530,17 @@ namespace tut
         {
             LLVector3 local_position = LLVector3::zero;
             LLVector3 bone(0.0f,0.0f,0.08757f);
+
+            LLJoint* joint = new LLJoint("Pelvis", nullptr);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(LLIK::Constraint::Info());
-            solver.addJoint(joint_id, -1, local_position, bone, null_constraint);
+
+            solver.addJoint(joint_id, -1, joint, null_constraint);
         }
         ++joint_id;
 
@@ -1437,6 +1548,14 @@ namespace tut
         {
             LLVector3 local_position(0.0f,0.0f,0.08757f);
             LLVector3 bone(-0.014445f,0.0f,0.213712f);
+
+            LLJoint* joint = new LLJoint("Torso", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
@@ -1444,7 +1563,8 @@ namespace tut
             info.mFloats.push_back(-0.0628319f); // min_twist
             info.mFloats.push_back(0.0628319f); // max_twist
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -1452,6 +1572,14 @@ namespace tut
         {
             LLVector3 local_position(-0.015318f,0.0f,0.213712f);
             LLVector3 bone(-0.01f,0.0f,0.2151);
+
+            LLJoint* joint = new LLJoint("Chest", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
@@ -1459,7 +1587,8 @@ namespace tut
             info.mFloats.push_back(-0.0628319f); // min_twist
             info.mFloats.push_back(0.0628319f); // max_twist
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -1467,12 +1596,21 @@ namespace tut
         {
             LLVector3 local_position(-0.021f,0.123583f,0.165f);
             LLVector3 bone(0.0f,0.10349f,0.0f);
+
+            LLJoint* joint = new LLJoint("Collar", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::SIMPLE_CONE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
             info.mFloats.push_back(0.15708f); // cone_angle
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -1480,6 +1618,14 @@ namespace tut
         {
             LLVector3 local_position(0.0f,0.10349f,0.0f);
             LLVector3 bone(0.0f,0.260152f,0.0f);
+
+            LLJoint* joint = new LLJoint("Shoulder", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
@@ -1488,7 +1634,8 @@ namespace tut
             info.mFloats.push_back(-1.25664f); // min_twist
             info.mFloats.push_back(1.7952f); // max_twist
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -1496,6 +1643,14 @@ namespace tut
         {
             LLVector3 local_position(0.0f,0.260152f,0.0f);
             LLVector3 bone(0.0f,0.2009f,0.0f);
+
+            LLJoint* joint = new LLJoint("Elbow", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::ELBOW_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
@@ -1505,7 +1660,8 @@ namespace tut
             info.mFloats.push_back(-0.785398f); // min_twist
             info.mFloats.push_back(2.35619f); // max_twist
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         //S16 ELBOW_INDEX = joint_id;
         ++joint_id;
@@ -1514,6 +1670,14 @@ namespace tut
         {
             LLVector3 local_position(0.0f,0.2009f,0.0f);
             LLVector3 bone(0.01274f,0.09898f,0.0147f);
+
+            LLJoint* joint = new LLJoint("Wrist", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
@@ -1521,9 +1685,10 @@ namespace tut
             info.mFloats.push_back(-0.05f); // min_twist
             info.mFloats.push_back(0.05f); // max_twist
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
-        S16 WRIST_INDEX = joint_id;
+        //S16 WRIST_INDEX = joint_id;
         ++joint_id;
 
         if (!with_fingers)
@@ -1535,6 +1700,14 @@ namespace tut
         {
             LLVector3 local_position(0.01274f,0.09898f,0.0147f);
             LLVector3 bone(-0.00098f,0.0392f,-0.00588f);
+
+            LLJoint* joint = new LLJoint("Middle1", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
@@ -1544,7 +1717,8 @@ namespace tut
             info.mFloats.push_back(0.0f); // min_pitch
             info.mFloats.push_back(0.942478f); // max_pitch
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, WRIST_INDEX, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -1552,6 +1726,14 @@ namespace tut
         {
             LLVector3 local_position(-0.00098f,0.0392f,-0.00588f);
             LLVector3 bone(-0.00098,0.04802,-0.00784);
+
+            LLJoint* joint = new LLJoint("Middle2", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
             LLVector3 forward_axis = local_position;
@@ -1561,7 +1743,8 @@ namespace tut
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.5708f); // max_bend
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -1569,6 +1752,14 @@ namespace tut
         {
             LLVector3 local_position(-0.00098f,0.04802f,-0.00784f);
             LLVector3 bone(-0.00196f,0.03234f,-0.00588f);
+
+            LLJoint* joint = new LLJoint("Middle3", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
             LLVector3 forward_axis = local_position;
@@ -1578,7 +1769,8 @@ namespace tut
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.25664f); // max_bend
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         //S16 MIDDLE_END_INDEX = joint_id;
         ++joint_id;
@@ -1587,6 +1779,14 @@ namespace tut
         {
             LLVector3 local_position(0.03724f,0.09506f,0.0147f);
             LLVector3 bone(0.01666f,0.03528f,-0.00588f);
+
+            LLJoint* joint = new LLJoint("Index1", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
@@ -1596,7 +1796,8 @@ namespace tut
             info.mFloats.push_back(0.0f); // min_pitch
             info.mFloats.push_back(1.39626f); // max_pitch
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, WRIST_INDEX, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -1604,6 +1805,14 @@ namespace tut
         {
             LLVector3 local_position(0.01666f,0.03528f,-0.00588f);
             LLVector3 bone(0.01372f,0.03136f,-0.00588f);
+
+            LLJoint* joint = new LLJoint("Index2", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
             LLVector3 forward_axis = local_position;
@@ -1613,7 +1822,8 @@ namespace tut
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.5708f); // max_bend
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -1621,6 +1831,14 @@ namespace tut
         {
             LLVector3 local_position(0.01372f,0.03136f,-0.00588f);
             LLVector3 bone(0.01078f,0.0245f,-0.00392f);
+
+            LLJoint* joint = new LLJoint("Index3", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
             LLVector3 forward_axis = local_position;
@@ -1630,7 +1848,8 @@ namespace tut
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.25664f); // max_bend
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         //S16 INDEX_END_INDEX = joint_id;
         ++joint_id;
@@ -1639,6 +1858,14 @@ namespace tut
         {
             LLVector3 local_position(-0.0098f,0.09702f,0.00882f);
             LLVector3 bone(-0.01274f,0.03724f,-0.00784f);
+
+            LLJoint* joint = new LLJoint("Ring1", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
@@ -1648,7 +1875,8 @@ namespace tut
             info.mFloats.push_back(0.0f); // min_pitch
             info.mFloats.push_back(1.39626f); // max_pitch
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, WRIST_INDEX, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -1656,6 +1884,14 @@ namespace tut
         {
             LLVector3 local_position(-0.01274f,0.03724f,-0.00784f);
             LLVector3 bone(-0.01274f,0.0392f,-0.00882f);
+
+            LLJoint* joint = new LLJoint("Ring2", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
             LLVector3 forward_axis = local_position;
@@ -1665,7 +1901,8 @@ namespace tut
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.5708f); // max_bend
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -1673,6 +1910,14 @@ namespace tut
         {
             LLVector3 local_position(-0.01274f,0.0392f,-0.00882f);
             LLVector3 bone(-0.0098f,0.02744f,-0.00588f);
+
+            LLJoint* joint = new LLJoint("Ring3", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
             LLVector3 forward_axis = local_position;
@@ -1682,7 +1927,8 @@ namespace tut
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.25664f); // max_bend
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         //S16 RING_END_INDEX = joint_id;
         ++joint_id;
@@ -1691,6 +1937,14 @@ namespace tut
         {
             LLVector3 local_position(-0.03038f,0.0931f,0.00294f);
             LLVector3 bone(-0.02352f,0.0245f,-0.00588f);
+
+            LLJoint* joint = new LLJoint("Pinky1", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
@@ -1700,7 +1954,8 @@ namespace tut
             info.mFloats.push_back(0.0f); // min_pitch
             info.mFloats.push_back(1.39626f); // max_pitch
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, WRIST_INDEX, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -1708,6 +1963,14 @@ namespace tut
         {
             LLVector3 local_position(-0.02352f,0.0245f,-0.00588f);
             LLVector3 bone(-0.0147f,0.01764f,-0.00392f);
+
+            LLJoint* joint = new LLJoint("Pinky2", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
             LLVector3 forward_axis = local_position;
@@ -1717,7 +1980,8 @@ namespace tut
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.5708f); // max_bend
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -1725,6 +1989,14 @@ namespace tut
         {
             LLVector3 local_position(-0.0147f,0.01764f,-0.00392f);
             LLVector3 bone(-0.01274f,0.01568f,-0.00392f);
+
+            LLJoint* joint = new LLJoint("Pinky3", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
             LLVector3 forward_axis = local_position;
@@ -1734,7 +2006,8 @@ namespace tut
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.25664f); // max_bend
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         //S16 PINKY_END_INDEX = joint_id;
         ++joint_id;
@@ -1743,6 +2016,14 @@ namespace tut
         {
             LLVector3 local_position(0.03038f,0.02548f,0.00392f);
             LLVector3 bone(0.02744f,0.03136f,-0.00098f);
+
+            LLJoint* joint = new LLJoint("Thumb1", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
@@ -1752,7 +2033,8 @@ namespace tut
             info.mFloats.push_back(-0.1f); // min_pitch
             info.mFloats.push_back(0.785398f); // max_pitch
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, WRIST_INDEX, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -1760,6 +2042,14 @@ namespace tut
         {
             LLVector3 local_position(0.02744f,0.03136f,-0.00098f);
             LLVector3 bone(0.02254f,0.03038f,-0.00098f);
+
+            LLJoint* joint = new LLJoint("Thumb2", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
             LLVector3 forward_axis = local_position;
@@ -1770,7 +2060,8 @@ namespace tut
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(0.942478f); // max_bend
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -1778,6 +2069,14 @@ namespace tut
         {
             LLVector3 local_position(0.02254f,0.03038f,-0.00098f);
             LLVector3 bone(0.0147f,0.0245f,0.0f);
+
+            LLJoint* joint = new LLJoint("Thumb3", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
             LLVector3 forward_axis = local_position;
@@ -1788,7 +2087,8 @@ namespace tut
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.25664f); // max_bend
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         //S16 THUMB_END_INDEX = joint_id;
     }
@@ -1805,7 +2105,8 @@ namespace tut
         solver.setAcceptableError(ACCEPTABLE_ERROR);
 
         bool with_fingers = false;
-        build_skeleton_arm(factory, solver, with_fingers);
+        std::vector<LLJoint*> joints;
+        build_skeleton_arm(joints, factory, solver, with_fingers);
         constexpr S16 WRIST_INDEX = 6;
         solver.addWristID(WRIST_INDEX);
 
@@ -1835,7 +2136,14 @@ namespace tut
         solver.solve();
         F32 error = dist_vec(solver.getJointWorldEndPos(ELBOW_INDEX), target_position);
         ensure("LLIK::Solver elbow should reach target", error < ACCEPTABLE_ERROR);
+
+        // cleanup LLJoints
+        for (auto joint: joints)
+        {
+            delete joint;
+        }
     }
+
 
 #ifdef ENABLE_FAILING_UNIT_TESTS
     // LLIK::Solver : wrist position and fingers
@@ -1898,7 +2206,7 @@ namespace tut
     }
 #endif // ENABLE_FAILING_UNIT_TESTS
 
-    void build_skeleton_with_head_and_arm(LLIKConstraintFactory& factory, LLIK::Solver& solver)
+    void build_skeleton_with_head_and_arm(std::vector<LLJoint*>& joints, LLIKConstraintFactory& factory, LLIK::Solver& solver)
 	{
         // This builds spine, head, and left arm based on the default SL avatar.
         //
@@ -1920,8 +2228,17 @@ namespace tut
         {
             LLVector3 local_position = LLVector3::zero;
             LLVector3 bone(0.0f,0.0f,0.08757f);
+
+            LLJoint* joint = new LLJoint("Pelvis", nullptr);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(LLIK::Constraint::Info());
-            solver.addJoint(joint_id, -1, local_position, bone, null_constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, null_constraint);
         }
         ++joint_id;
 
@@ -1929,6 +2246,14 @@ namespace tut
         {
             LLVector3 local_position(0.0f,0.0f,0.08757f);
             LLVector3 bone(-0.014445f,0.0f,0.213712f);
+
+            LLJoint* joint = new LLJoint("Torso", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
@@ -1936,7 +2261,8 @@ namespace tut
             info.mFloats.push_back(-0.0628319f); // min_twist
             info.mFloats.push_back(0.0628319f); // max_twist
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -1944,6 +2270,14 @@ namespace tut
         {
             LLVector3 local_position(-0.015318f,0.0f,0.213712f);
             LLVector3 bone(-0.01f,0.0f,0.2151);
+
+            LLJoint* joint = new LLJoint("Chest", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
@@ -1951,7 +2285,8 @@ namespace tut
             info.mFloats.push_back(-0.0628319f); // min_twist
             info.mFloats.push_back(0.0628319f); // max_twist
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         S16 CHEST_ID = joint_id;
         ++joint_id;
@@ -1960,6 +2295,14 @@ namespace tut
         {
             LLVector3 local_position(-0.01f, 0.0, 0.251f);
             LLVector3 bone(0.0f, 0.0f, 0.077f);
+
+            LLJoint* joint = new LLJoint("Neck", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
@@ -1967,7 +2310,8 @@ namespace tut
             info.mFloats.push_back(-0.0628319f); // min_twist
             info.mFloats.push_back(0.0628319f); // max_twist
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -1975,6 +2319,14 @@ namespace tut
         {
             LLVector3 local_position(0.0f, 0.0f, 0.076);
             LLVector3 bone(0.0f, 0.0f,0.079f);
+
+            LLJoint* joint = new LLJoint("Head", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
@@ -1982,7 +2334,8 @@ namespace tut
             info.mFloats.push_back(-0.0628319f); // min_twist
             info.mFloats.push_back(0.0628319f); // max_twist
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -1990,12 +2343,21 @@ namespace tut
         {
             LLVector3 local_position(-0.021f,0.123583f,0.165f);
             LLVector3 bone(0.0f,0.10349f,0.0f);
+
+            LLJoint* joint = new LLJoint("Collar", joints[CHEST_ID]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::SIMPLE_CONE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
             info.mFloats.push_back(0.15708f); // cone_angle
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, CHEST_ID, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -2003,6 +2365,14 @@ namespace tut
         {
             LLVector3 local_position(0.0f,0.10349f,0.0f);
             LLVector3 bone(0.0f,0.260152f,0.0f);
+
+            LLJoint* joint = new LLJoint("Shoulder", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
@@ -2011,7 +2381,8 @@ namespace tut
             info.mFloats.push_back(-0.5f * F_PI); // min_twist
             info.mFloats.push_back(0.5f * F_PI); // max_twist
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         ++joint_id;
 
@@ -2019,6 +2390,14 @@ namespace tut
         {
             LLVector3 local_position(0.0f,0.260152f,0.0f);
             LLVector3 bone(0.0f,0.2009f,0.0f);
+
+            LLJoint* joint = new LLJoint("Elbow", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::ELBOW_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
@@ -2028,7 +2407,8 @@ namespace tut
             info.mFloats.push_back(-0.785398f); // min_twist
             info.mFloats.push_back(2.35619f); // max_twist
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         //S16 ELBOW_INDEX = joint_id;
         ++joint_id;
@@ -2037,6 +2417,14 @@ namespace tut
         {
             LLVector3 local_position(0.0f,0.2009f,0.0f);
             LLVector3 bone(0.01274f,0.09898f,0.0147f);
+
+            LLJoint* joint = new LLJoint("Wrist", joints[joint_id-1]);
+            joint->setIsBone(true);
+            joint->setJointNum(S32(joint_id));
+            joint->setPosition(local_position);
+            joint->setEnd(bone);
+            joints.push_back(joint);
+
             LLIK::Constraint::Info info;
             info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
@@ -2044,7 +2432,8 @@ namespace tut
             info.mFloats.push_back(-0.05f); // min_twist
             info.mFloats.push_back(0.05f); // max_twist
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(joint_id, joint_id-1, local_position, bone, constraint);
+
+            solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
         S16 WRIST_ID = joint_id;
 
@@ -2066,7 +2455,8 @@ namespace tut
         constexpr F32 ACCEPTABLE_ERROR = 2.0e-2f;
         solver.setAcceptableError(ACCEPTABLE_ERROR);
 
-        build_skeleton_with_head_and_arm(factory, solver);
+        std::vector<LLJoint*> joints;
+        build_skeleton_with_head_and_arm(joints, factory, solver);
         constexpr U16 WRIST_INDEX = 8;
         solver.addWristID(WRIST_INDEX);
 
@@ -2095,5 +2485,11 @@ namespace tut
         ensure("LLIK::Solver wrist should reach target position", position_error < ACCEPTABLE_ERROR);
         constexpr F32 MIN_ANGLE_ERROR = 0.005f * F_PI;
         ensure("LLIK::Solver wrist should reach target orientation", LLQuaternion::almost_equal(target_orientation, actual_orientation, MIN_ANGLE_ERROR));
+
+        // cleanup LLJoints
+        for (auto joint: joints)
+        {
+            delete joint;
+        }
     }
 }

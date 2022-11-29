@@ -713,19 +713,13 @@ LLSD LLPuppetMotion::getSkeletonData()
     return skeleton_sd;
 }
 
-void LLPuppetMotion::reconfigureJoints()
+void LLPuppetMotion::updateSkeletonGeometry()
 {
-    LLSD skeleton_sd;
     for (state_map_t::iterator iter=mJointStates.begin(); iter!=mJointStates.end(); ++iter)
     {
         S16 joint_id = iter->first;
-        LLPointer<LLJointState> joint_state = iter->second;
-        LLJoint* joint = joint_state->getJoint();
-        LLVector3 local_pos_in_parent_frame = joint->getPosition().scaledVec(joint->getScale());
-        LLVector3 bone_in_local_frame = joint->getEnd().scaledVec(joint->getScale());
         LLIK::Constraint::ptr_t constraint = get_constraint_by_joint_id(joint_id);
-        mIKSolver.reconfigureJoint(joint_id, local_pos_in_parent_frame, bone_in_local_frame, constraint);
-        addJointToSkeletonData(skeleton_sd, joint, local_pos_in_parent_frame, bone_in_local_frame);
+        mIKSolver.resetJointGeometry(joint_id, constraint);
     }
     measureArmSpan();
 }
@@ -803,28 +797,26 @@ void LLPuppetMotion::solveIKAndHarvestResults(const LLIK::Solver::joint_config_m
 
 	LLPuppetEvent broadcast_event;
     const LLIK::Solver::joint_list_t& active_joints = mIKSolver.getActiveJoints();
-    LLVector3 pos;
-    LLQuaternion rot;
     for (auto joint: active_joints)
     {
         S16 id = joint->getID();
-        U8 flags = joint->getConfigFlags();
-        pos = joint->getLocalPos();
-        rot = joint->getLocalRot();
+        U8 flags = joint->getHarvestFlags();
         if (local_puppetry)
         {
             LLPointer<LLJointState> joint_state = mJointStates[id];
-            if (flags & LLIK::FLAG_LOCAL_POS)
+            U32 usage = U32(flags & LLIK::MASK_JOINT_STATE_USAGE);
+            joint_state->setUsage(usage);
+            if (flags & LLIK::CONFIG_FLAG_LOCAL_POS)
             {
-                joint_state->setPosition(pos);
+                joint_state->setPosition(joint->getPreScaledLocalPos());
             }
-            else
+            if (flags & LLIK::CONFIG_FLAG_LOCAL_ROT)
             {
-                joint_state->setPosition(joint->getDefaultLocalPos());
+                joint_state->setRotation(joint->getLocalRot());
             }
-            if (flags & LLIK::FLAG_LOCAL_ROT)
+            if (flags & LLIK::CONFIG_FLAG_LOCAL_SCALE)
             {
-                joint_state->setRotation(rot);
+                joint_state->setScale(joint->getLocalScale());
             }
             rememberPosedJoint(id, joint_state, now);
         }
@@ -833,15 +825,21 @@ void LLPuppetMotion::solveIKAndHarvestResults(const LLIK::Solver::joint_config_m
 			LLPuppetJointEvent joint_event;
 			joint_event.setJointID(id);
             joint_event.setReferenceFrame(LLPuppetJointEvent::PARENT_FRAME);
-            if (flags & LLIK::FLAG_LOCAL_POS)
+            if (flags & LLIK::CONFIG_FLAG_LOCAL_POS)
             {
-                joint_event.setPosition(pos);
+                // we send positions with correct scale
+                // so they can be applied on the receiving end without modification
+                joint_event.setPosition(joint->getPreScaledLocalPos());
             }
-            if (flags & LLIK::FLAG_LOCAL_ROT)
+            if (flags & LLIK::CONFIG_FLAG_LOCAL_ROT)
             {
-                joint_event.setRotation(rot);
+                joint_event.setRotation(joint->getLocalRot());
             }
-            if (flags & LLIK::FLAG_DISABLE_CONSTRAINT)
+            if (flags & LLIK::CONFIG_FLAG_LOCAL_SCALE)
+            {
+                joint_event.setScale(joint->getLocalScale());
+            }
+            if (flags & LLIK::CONFIG_FLAG_DISABLE_CONSTRAINT)
             {
                 joint_event.disableConstraint();
             }
@@ -865,7 +863,7 @@ void LLPuppetMotion::applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::
         LLIK::Joint::Config config;
         bool something_changed = false;
         U8 mask = event.getMask();
-        bool local = (bool)(mask & LLIK::FLAG_LOCAL_ROT);
+        bool local = (bool)(mask & LLIK::CONFIG_FLAG_LOCAL_ROT);
         if (mask & LLIK::MASK_ROT)
         {
             if (local)
@@ -880,19 +878,18 @@ void LLPuppetMotion::applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::
         }
         if (mask & LLIK::MASK_POS)
         {
-            // don't forget to scale by 0.5*mArmSpan
             if (local)
             {
-                // TODO: figure out what to do about scale of local positions
                 config.setLocalPos(event.getPosition());
             }
             else
             {
-                config.setTargetPos(event.getPosition() * 0.5f * mArmSpan);
+                // don't forget to scale by 0.5*mArmSpan
+                config.setTargetPos(event.getPosition() * (0.5f * mArmSpan));
             }
             something_changed = true;
         }
-        if (mask & LLIK::FLAG_DISABLE_CONSTRAINT)
+        if (mask & LLIK::CONFIG_FLAG_DISABLE_CONSTRAINT)
         {
             config.disableConstraint();
             something_changed = true;
@@ -906,7 +903,7 @@ void LLPuppetMotion::applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::
 
 void LLPuppetMotion::updateFromExpression(Timestamp now)
 {
-    // Note: if we get here: mIsSelf must be true
+    // Note: if we get here mIsSelf must be true
     LLIK::Solver::joint_config_map_t configs;
     for(const auto& event: mExpressionEvents)
     {
@@ -922,7 +919,7 @@ void LLPuppetMotion::updateFromExpression(Timestamp now)
         U8 mask = event.getMask();
         if (mask & LLIK::MASK_ROT)
         {
-            if (mask & LLIK::FLAG_LOCAL_ROT)
+            if (mask & LLIK::CONFIG_FLAG_LOCAL_ROT)
             {
                 config.setLocalRot(event.getRotation());
             }
@@ -934,19 +931,18 @@ void LLPuppetMotion::updateFromExpression(Timestamp now)
         }
         if (mask & LLIK::MASK_POS)
         {
-            // don't forget to scale by 0.5*mArmSpan
-            if (mask & LLIK::FLAG_LOCAL_POS)
+            if (mask & LLIK::CONFIG_FLAG_LOCAL_POS)
             {
-                // TODO: figure out what to do about scale of local positions
                 config.setLocalPos(event.getPosition());
             }
             else
             {
-                config.setTargetPos(event.getPosition() * 0.5f * mArmSpan);
+                // don't forget to scale by 0.5*mArmSpan
+                config.setTargetPos(event.getPosition() * (0.5f * mArmSpan));
             }
             something_changed = true;
         }
-        if (mask & LLIK::FLAG_DISABLE_CONSTRAINT)
+        if (mask & LLIK::CONFIG_FLAG_DISABLE_CONSTRAINT)
         {
             config.disableConstraint();
             something_changed = true;
@@ -977,18 +973,26 @@ void LLPuppetMotion::applyBroadcastEvent(const LLPuppetJointEvent& event, Timest
     state_map_t::iterator state_iter = mJointStates.find(joint_id);
     if (state_iter != mJointStates.end())
     {
-        U8 mask = event.getMask();
-        llassert((mask & LLIK::MASK_TARGET) == 0); // broadcast event always in parent-frame
-        if (mask & LLIK::MASK_ROT)
+        LLPointer<LLJointState> joint_state = state_iter->second;
+        U8 flags = event.getMask();
+        // Note: we assume broadcast event always in parent-frame
+        // e.g. (flags & LLIK::MASK_TARGET) == 0
+        if (flags & LLIK::CONFIG_FLAG_LOCAL_POS)
         {
-            state_iter->second->setRotation(event.getRotation());
+            // we expect received position to be scaled correctly
+            // so it can be applied without modification
+            joint_state->setPosition(event.getPosition());
         }
-        if (mask & LLIK::MASK_POS)
+        if (flags & LLIK::CONFIG_FLAG_LOCAL_ROT)
         {
-            // Note: scale already set by broadcaster (e.g. 1.0 = 0.5*mArmSpan)
-            state_iter->second->setPosition(event.getPosition());
+            joint_state->setRotation(event.getRotation());
         }
-        rememberPosedJoint(joint_id, state_iter->second, now);
+        if (flags & LLIK::CONFIG_FLAG_LOCAL_SCALE)
+        {
+            joint_state->setScale(event.getScale());
+        }
+        joint_state->setUsage((U32)(flags & LLIK::MASK_JOINT_STATE_USAGE));
+        rememberPosedJoint(joint_id, joint_state, now);
     }
 }
 
@@ -1284,15 +1288,12 @@ void LLPuppetMotion::collectJoints(LLJoint* joint)
     }
     // END HACK
 
-    LLPointer<LLJointState> joint_state = new LLJointState;
-    joint_state->setJoint(joint);
-    joint_state->setUsage(LLJointState::ROT | LLJointState::POS);
+    LLPointer<LLJointState> joint_state = new LLJointState(joint);
     S16 joint_id = joint->getJointNum();
     mJointStates[joint_id] = joint_state;
-    LLVector3 local_pos_in_parent_frame = joint->getPosition().scaledVec(joint->getScale());
-    LLVector3 bone_in_local_frame = joint->getEnd().scaledVec(joint->getScale());
+
     LLIK::Constraint::ptr_t constraint = get_constraint_by_joint_id(joint_id);
-    mIKSolver.addJoint(joint_id, parent_id, local_pos_in_parent_frame, bone_in_local_frame, constraint);
+    mIKSolver.addJoint(joint_id, parent_id, joint, constraint);
 
     // Recurse through the children of this joint and add them to our joint control list
     for (LLJoint::joints_t::iterator itr = joint->mChildren.begin();
