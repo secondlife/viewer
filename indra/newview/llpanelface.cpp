@@ -276,7 +276,7 @@ BOOL	LLPanelFace::postBuild()
     getChild<LLUICtrl>("gltfTextureOffsetU")->setCommitCallback(boost::bind(&LLPanelFace::onCommitGLTFTextureOffsetU, this, _1), nullptr);
     getChild<LLUICtrl>("gltfTextureOffsetV")->setCommitCallback(boost::bind(&LLPanelFace::onCommitGLTFTextureOffsetV, this, _1), nullptr);
 
-    LLGLTFMaterialList::addUpdateCallback(&LLPanelFace::onMaterialOverrideReceived);
+    LLGLTFMaterialList::addSelectionUpdateCallback(&LLPanelFace::onMaterialOverrideReceived);
     sMaterialOverrideSelection.connect();
 
 	childSetAction("button align",&LLPanelFace::onClickAutoFix,this);
@@ -2056,7 +2056,7 @@ void LLPanelFace::unloadMedia()
 // static
 void LLPanelFace::onMaterialOverrideReceived(const LLUUID& object_id, S32 side)
 {
-    sMaterialOverrideSelection.onObjectUpdated(object_id, side);
+    sMaterialOverrideSelection.onSelectedObjectUpdated(object_id, side);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -4771,7 +4771,7 @@ void LLPanelFace::Selection::setObjectUpdatePending(const LLUUID &object_id, S32
     mPendingSide = side;
 }
 
-void LLPanelFace::Selection::onObjectUpdated(const LLUUID& object_id, S32 side)
+void LLPanelFace::Selection::onSelectedObjectUpdated(const LLUUID& object_id, S32 side)
 {
     if (object_id == mSelectedObjectID && side == mSelectedSide)
     {

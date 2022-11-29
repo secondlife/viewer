@@ -487,7 +487,7 @@ private:
 
         // Callbacks
         void onSelectionChanged() { mNeedsSelectionCheck = true; }
-        void onObjectUpdated(const LLUUID &object_id, S32 side);
+        void onSelectedObjectUpdated(const LLUUID &object_id, S32 side);
 
     protected:
         void clearObjectUpdatePending();
