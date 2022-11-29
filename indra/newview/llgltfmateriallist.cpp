@@ -229,8 +229,6 @@ public:
             bool mSuccess;
         };
 
-        std::vector<void(*)(const LLUUID& object_id, S32 side)> callbacks = mCallbacks;
-
         // fromJson() is performance heavy offload to a thread.
         main_queue->postTo(
             general_queue,
@@ -270,7 +268,7 @@ public:
             }
             return results;
         },
-            [object_override, callbacks](std::vector<ReturnData> results) // Callback to main thread
+            [object_override, this](std::vector<ReturnData> results) // Callback to main thread
             {
 
             LLViewerObject * obj = gObjectList.findObject(object_override.mObjectId);
@@ -293,7 +291,7 @@ public:
                         }
                         else if (obj && obj->isAnySelected())
                         {
-                            for (auto& override_update_callback : callbacks)
+                            for (auto& override_update_callback : mCallbacks)
                             {
                                 override_update_callback(object_override.mObjectId, results[i].mSide);
                             }
@@ -304,7 +302,7 @@ public:
                         // unblock material editor
                         if (obj && obj->isAnySelected())
                         {
-                            for (auto& override_update_callback : callbacks)
+                            for (auto& override_update_callback : mCallbacks)
                             {
                                 override_update_callback(object_override.mObjectId, results[i].mSide);
                             }
@@ -322,7 +320,7 @@ public:
                             obj->setTEGLTFMaterialOverride(i, nullptr);
                             if (object_has_selection)
                             {
-                                for (auto& override_update_callback : callbacks)
+                                for (auto& override_update_callback : mCallbacks)
                                 {
                                     override_update_callback(object_override.mObjectId, i);
                                 }
@@ -339,7 +337,7 @@ public:
                     obj->setTEGLTFMaterialOverride(i, nullptr);
                     if (object_has_selection)
                     {
-                        for (auto& override_update_callback : callbacks)
+                        for (auto& override_update_callback : mCallbacks)
                         {
                             override_update_callback(obj->getID(), i);
                         }
