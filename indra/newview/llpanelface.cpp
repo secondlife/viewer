@@ -2803,6 +2803,7 @@ void LLPanelFace::onCommitPbrType(LLUICtrl* ctrl, void* userdata)
     // and generally reflecting old state when switching tabs or objects
     //
     self->updateUI();
+    self->setMaterialOverridesFromSelection();
 }
 
 // static
