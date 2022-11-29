@@ -32,7 +32,6 @@
 #include "lldispatcher.h"
 #include "llfetchedgltfmaterial.h"
 #include "llfilesystem.h"
-#include "llmaterialeditor.h"
 #include "llsdserialize.h"
 #include "lltinygltfhelper.h"
 #include "llviewercontrol.h"
@@ -294,7 +293,6 @@ public:
                         }
                         else if (obj && obj->isAnySelected())
                         {
-                            LLMaterialEditor::updateLive(object_override.mObjectId, results[i].mSide);
                             for (auto& override_update_callback : callbacks)
                             {
                                 override_update_callback(object_override.mObjectId, results[i].mSide);
@@ -306,7 +304,6 @@ public:
                         // unblock material editor
                         if (obj && obj->isAnySelected())
                         {
-                            LLMaterialEditor::updateLive(object_override.mObjectId, results[i].mSide);
                             for (auto& override_update_callback : callbacks)
                             {
                                 override_update_callback(object_override.mObjectId, results[i].mSide);
@@ -325,7 +322,6 @@ public:
                             obj->setTEGLTFMaterialOverride(i, nullptr);
                             if (object_has_selection)
                             {
-                                LLMaterialEditor::updateLive(object_override.mObjectId, i);
                                 for (auto& override_update_callback : callbacks)
                                 {
                                     override_update_callback(object_override.mObjectId, i);
@@ -343,7 +339,6 @@ public:
                     obj->setTEGLTFMaterialOverride(i, nullptr);
                     if (object_has_selection)
                     {
-                        LLMaterialEditor::updateLive(obj->getID(), i);
                         for (auto& override_update_callback : callbacks)
                         {
                             override_update_callback(obj->getID(), i);
@@ -395,7 +390,6 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
                 obj->setTEGLTFMaterialOverride(i, overrides[i]);
                 if (object_has_selection)
                 {
-                    LLMaterialEditor::updateLive(id, i);
                     for (auto& override_update_callback : handle_gltf_override_message.mCallbacks)
                     {
                         override_update_callback(id, i);
