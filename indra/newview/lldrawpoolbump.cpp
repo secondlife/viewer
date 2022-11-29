@@ -535,7 +535,6 @@ void LLDrawPoolBump::endFullbrightShiny()
 	if( cube_map )
 	{
 		cube_map->disable();
-        cube_map->restoreMatrix();
         if (shader->mFeatures.hasReflectionProbes)
         {
             gPipeline.unbindReflectionProbes(*shader);

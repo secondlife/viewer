@@ -800,7 +800,13 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 		{
 			continue;
 		}
-		
+
+        // clear out boost selected periodically
+        if (imagep->getBoostLevel() == LLGLTexture::BOOST_SELECTED)
+        {
+            imagep->setBoostLevel(LLGLTexture::BOOST_NONE);
+        }
+
 		F32 vsize;
 		F32 old_size = face->getVirtualSize();
 

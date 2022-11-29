@@ -4062,7 +4062,7 @@ void LLViewerObject::updateTextures()
 
 void LLViewerObject::boostTexturePriority(BOOL boost_children /* = TRUE */)
 {
-	if (isDead())
+	if (isDead() || !getVolume())
 	{
 		return;
 	}

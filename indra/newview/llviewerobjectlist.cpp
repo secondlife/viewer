@@ -789,7 +789,33 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 		max_value = llmin((S32) mObjects.size(), mCurLazyUpdateIndex + num_updates);
 	}
 
-#if 0
+	// Iterate through some of the objects and lazy update their texture priorities
+	for (i = mCurLazyUpdateIndex; i < max_value; i++)
+	{
+		objectp = mObjects[i];
+		if (!objectp->isDead())
+		{
+			num_objects++;
+
+			//  Update distance & gpw 
+			objectp->setPixelAreaAndAngle(agent); // Also sets the approx. pixel area
+			objectp->updateTextures();	// Update the image levels of textures for this object.
+		}
+	}
+
+	mCurLazyUpdateIndex = max_value;
+	if (mCurLazyUpdateIndex == mObjects.size())
+	{
+		// restart
+		mCurLazyUpdateIndex = 0;
+		mCurBin = 0; // keep in sync with index (mObjects.size() could have changed)
+	}
+	else
+	{
+		mCurBin = (mCurBin + 1) % NUM_BINS;
+	}
+
+#if 1
 	// Slam priorities for textures that we care about (hovered, selected, and focused)
 	// Hovered
 	// Assumes only one level deep of parenting
@@ -821,32 +847,6 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	} func;
 	LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func);
 #endif
-
-	// Iterate through some of the objects and lazy update their texture priorities
-	for (i = mCurLazyUpdateIndex; i < max_value; i++)
-	{
-		objectp = mObjects[i];
-		if (!objectp->isDead())
-		{
-			num_objects++;
-
-			//  Update distance & gpw 
-			objectp->setPixelAreaAndAngle(agent); // Also sets the approx. pixel area
-			objectp->updateTextures();	// Update the image levels of textures for this object.
-		}
-	}
-
-	mCurLazyUpdateIndex = max_value;
-	if (mCurLazyUpdateIndex == mObjects.size())
-	{
-		// restart
-		mCurLazyUpdateIndex = 0;
-		mCurBin = 0; // keep in sync with index (mObjects.size() could have changed)
-	}
-	else
-	{
-		mCurBin = (mCurBin + 1) % NUM_BINS;
-	}
 
 	LLVOAvatar::cullAvatarsByPixelArea();
 }

@@ -1215,6 +1215,16 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	ctrl_shadow->setEnabled(enabled);
 	shadow_text->setEnabled(enabled);
 
+    if (!LLFeatureManager::instance().isFeatureAvailable("RenderFSAASamples"))
+    {
+        getChildView("fsaa")->setEnabled(FALSE);
+    }
+
+    if (!LLFeatureManager::instance().isFeatureAvailable("RenderReflectionProbeDetail"))
+    {
+        getChildView("ReflectionDetail")->setEnabled(FALSE);
+    }
+
 	// Hardware settings
 	
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderCompressTextures"))
