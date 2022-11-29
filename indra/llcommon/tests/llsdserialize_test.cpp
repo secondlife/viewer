@@ -46,7 +46,6 @@ typedef U32 uint32_t;
 
 #include "boost/range.hpp"
 #include "boost/foreach.hpp"
-#include "boost/function.hpp"
 #include "boost/bind.hpp"
 #include "boost/phoenix/bind/bind_function.hpp"
 #include "boost/phoenix/core/argument.hpp"
@@ -61,6 +60,9 @@ using namespace boost::phoenix;
 #include "../test/namedtempfile.h"
 #include "stringize.h"
 #include <functional>
+
+typedef std::function<void(const LLSD& data, std::ostream& str)> FormatterFunction;
+typedef std::function<bool(std::istream& istr, LLSD& data, size_t max_bytes)> ParserFunction;
 
 std::vector<U8> string_to_vector(const std::string& str)
 {
@@ -277,8 +279,8 @@ namespace tut
 			};
 		}
 
-		std::function<void(const LLSD& data, std::ostream& str)> mFormatter;
-		std::function<bool(std::istream& istr, LLSD& data, size_t max_bytes)> mParser;
+		FormatterFunction mFormatter;
+		ParserFunction mParser;
 	};
 
 	TestLLSDSerializeData::TestLLSDSerializeData()
@@ -1790,85 +1792,83 @@ namespace tut
 		ensureBinaryAndXML("map", test);
 	}
 
-    struct TestPythonCompatible
+    // helper for TestPythonCompatible
+    static std::string import_llsd("import os.path\n"
+                                   "import sys\n"
+                                   "try:\n"
+                                   // new freestanding llsd package
+                                   "    import llsd\n"
+                                   "except ImportError:\n"
+                                   // older llbase.llsd module
+                                   "    from llbase import llsd\n");
+
+    // helper for TestPythonCompatible
+    template <typename CONTENT>
+    void python(const std::string& desc, const CONTENT& script, int expect=0)
     {
-        TestPythonCompatible():
-            // Note the peculiar insertion of __FILE__ into this string. Since
-            // this script is being written into a platform-dependent temp
-            // directory, we can't locate indra/lib/python relative to
-            // Python's __file__. Use __FILE__ instead, navigating relative
-            // to this C++ source file. Use Python raw-string syntax so
-            // Windows pathname backslashes won't mislead Python's string
-            // scanner.
-            import_llsd("import os.path\n"
-                        "import sys\n"
-                        "from llbase import llsd\n")
-        {}
-        ~TestPythonCompatible() {}
+        auto PYTHON(LLStringUtil::getenv("PYTHON"));
+        ensure("Set $PYTHON to the Python interpreter", !PYTHON.empty());
 
-        std::string import_llsd;
-
-        template <typename CONTENT>
-        void python(const std::string& desc, const CONTENT& script, int expect=0)
-        {
-            auto PYTHON(LLStringUtil::getenv("PYTHON"));
-            ensure("Set $PYTHON to the Python interpreter", !PYTHON.empty());
-
-            NamedTempFile scriptfile("py", script);
+        NamedTempFile scriptfile("py", script);
 
 #if LL_WINDOWS
-            std::string q("\"");
-            std::string qPYTHON(q + PYTHON + q);
-            std::string qscript(q + scriptfile.getName() + q);
-            int rc = _spawnl(_P_WAIT, PYTHON.c_str(), qPYTHON.c_str(), qscript.c_str(), NULL);
-            if (rc == -1)
-            {
-                char buffer[256];
-                strerror_s(buffer, errno); // C++ can infer the buffer size!  :-O
-                ensure(STRINGIZE("Couldn't run Python " << desc << "script: " << buffer), false);
-            }
-            else
-            {
-                ensure_equals(STRINGIZE(desc << " script terminated with rc " << rc), rc, expect);
-            }
+        std::string q("\"");
+        std::string qPYTHON(q + PYTHON + q);
+        std::string qscript(q + scriptfile.getName() + q);
+        int rc = _spawnl(_P_WAIT, PYTHON.c_str(), qPYTHON.c_str(), qscript.c_str(), NULL);
+        if (rc == -1)
+        {
+            char buffer[256];
+            strerror_s(buffer, errno); // C++ can infer the buffer size!  :-O
+            ensure(STRINGIZE("Couldn't run Python " << desc << "script: " << buffer), false);
+        }
+        else
+        {
+            ensure_equals(STRINGIZE(desc << " script terminated with rc " << rc), rc, expect);
+        }
 
 #else  // LL_DARWIN, LL_LINUX
-            LLProcess::Params params;
-            params.executable = PYTHON;
-            params.args.add(scriptfile.getName());
-            LLProcessPtr py(LLProcess::create(params));
-            ensure(STRINGIZE("Couldn't launch " << desc << " script"), bool(py));
-            // Implementing timeout would mean messing with alarm() and
-            // catching SIGALRM... later maybe...
-            int status(0);
-            if (waitpid(py->getProcessID(), &status, 0) == -1)
+        LLProcess::Params params;
+        params.executable = PYTHON;
+        params.args.add(scriptfile.getName());
+        LLProcessPtr py(LLProcess::create(params));
+        ensure(STRINGIZE("Couldn't launch " << desc << " script"), bool(py));
+        // Implementing timeout would mean messing with alarm() and
+        // catching SIGALRM... later maybe...
+        int status(0);
+        if (waitpid(py->getProcessID(), &status, 0) == -1)
+        {
+            int waitpid_errno(errno);
+            ensure_equals(STRINGIZE("Couldn't retrieve rc from " << desc << " script: "
+                                    "waitpid() errno " << waitpid_errno),
+                          waitpid_errno, ECHILD);
+        }
+        else
+        {
+            if (WIFEXITED(status))
             {
-                int waitpid_errno(errno);
-                ensure_equals(STRINGIZE("Couldn't retrieve rc from " << desc << " script: "
-                                        "waitpid() errno " << waitpid_errno),
-                              waitpid_errno, ECHILD);
+                int rc(WEXITSTATUS(status));
+                ensure_equals(STRINGIZE(desc << " script terminated with rc " << rc),
+                              rc, expect);
+            }
+            else if (WIFSIGNALED(status))
+            {
+                ensure(STRINGIZE(desc << " script terminated by signal " << WTERMSIG(status)),
+                       false);
             }
             else
             {
-                if (WIFEXITED(status))
-                {
-                    int rc(WEXITSTATUS(status));
-                    ensure_equals(STRINGIZE(desc << " script terminated with rc " << rc),
-                                  rc, expect);
-                }
-                else if (WIFSIGNALED(status))
-                {
-                    ensure(STRINGIZE(desc << " script terminated by signal " << WTERMSIG(status)),
-                           false);
-                }
-                else
-                {
-                    ensure(STRINGIZE(desc << " script produced impossible status " << status),
-                           false);
-                }
+                ensure(STRINGIZE(desc << " script produced impossible status " << status),
+                       false);
             }
-#endif
         }
+#endif
+    }
+
+    struct TestPythonCompatible
+    {
+        TestPythonCompatible() {}
+        ~TestPythonCompatible() {}
     };
 
     typedef tut::test_group<TestPythonCompatible> TestPythonCompatibleGroup;
@@ -1894,12 +1894,13 @@ namespace tut
                "print('Running on', sys.platform)\n");
     }
 
-    // helper for test<3>
-    static void writeLLSDArray(std::ostream& out, const LLSD& array)
+    // helper for test<3> - test<7>
+    static void writeLLSDArray(const FormatterFunction& serialize,
+                               std::ostream& out, const LLSD& array)
     {
         BOOST_FOREACH(LLSD item, llsd::inArray(array))
         {
-            LLSDSerialize::toNotation(item, out);
+            serialize(item, out);
             // It's important to separate with newlines because Python's llsd
             // module doesn't support parsing from a file stream, only from a
             // string, so we have to know how much of the file to read into a
@@ -1908,11 +1909,10 @@ namespace tut
         }
     }
 
-    template<> template<>
-    void TestPythonCompatibleObject::test<3>()
+    // helper for test<3> - test<7>
+    static void toPythonUsing(const std::string& desc,
+                              const FormatterFunction& serialize)
     {
-        set_test_name("verify sequence to Python");
-
         LLSD cdata(LLSDArray(17)(3.14)
                   ("This string\n"
                    "has several\n"
@@ -1941,9 +1941,11 @@ namespace tut
                            // takes a callable. To this callable it passes the
                            // std::ostream with which it's writing the
                            // NamedTempFile.
-                           boost::bind(writeLLSDArray, _1, cdata));
+                           [serialize, cdata]
+                           (std::ostream& out)
+                           { writeLLSDArray(serialize, out, cdata); });
 
-        python("read C++ notation",
+        python("read C++ " + desc,
                placeholders::arg1 <<
                import_llsd <<
                "def parse_each(iterable):\n"
@@ -1955,16 +1957,69 @@ namespace tut
     }
 
     template<> template<>
+    void TestPythonCompatibleObject::test<3>()
+    {
+        set_test_name("to Python using LLSDSerialize::serialize(LLSD_XML)");
+        toPythonUsing("LLSD_XML",
+                      [](const LLSD& sd, std::ostream& out)
+        { LLSDSerialize::serialize(sd, out, LLSDSerialize::LLSD_XML); });
+    }
+
+    template<> template<>
     void TestPythonCompatibleObject::test<4>()
     {
-        set_test_name("verify sequence from Python");
+        set_test_name("to Python using LLSDSerialize::serialize(LLSD_NOTATION)");
+        toPythonUsing("LLSD_NOTATION",
+                      [](const LLSD& sd, std::ostream& out)
+        { LLSDSerialize::serialize(sd, out, LLSDSerialize::LLSD_NOTATION); });
+    }
 
+    template<> template<>
+    void TestPythonCompatibleObject::test<5>()
+    {
+        set_test_name("to Python using LLSDSerialize::serialize(LLSD_BINARY)");
+        toPythonUsing("LLSD_BINARY",
+                      [](const LLSD& sd, std::ostream& out)
+        { LLSDSerialize::serialize(sd, out, LLSDSerialize::LLSD_BINARY); });
+    }
+
+    template<> template<>
+    void TestPythonCompatibleObject::test<6>()
+    {
+        set_test_name("to Python using LLSDSerialize::toXML()");
+        toPythonUsing("toXML()", LLSDSerialize::toXML);
+    }
+
+    template<> template<>
+    void TestPythonCompatibleObject::test<7>()
+    {
+        set_test_name("to Python using LLSDSerialize::toNotation()");
+        toPythonUsing("toNotation()", LLSDSerialize::toNotation);
+    }
+
+/*==========================================================================*|
+    template<> template<>
+    void TestPythonCompatibleObject::test<8>()
+    {
+        set_test_name("to Python using LLSDSerialize::toBinary()");
+        // We don't expect this to work because, without a header,
+        // llsd.parse() will assume notation rather than binary.
+        toPythonUsing("toBinary()", LLSDSerialize::toBinary);
+    }
+|*==========================================================================*/
+
+    // helper for test<8> - test<12>
+    void fromPythonUsing(const std::string& pyformatter,
+                         const ParserFunction& parse=
+                         [](std::istream& istr, LLSD& data, size_t max_bytes)
+                         { return LLSDSerialize::deserialize(data, istr, max_bytes); })
+    {
         // Create an empty data file. This is just a placeholder for our
         // script to write into. Create it to establish a unique name that
         // we know.
         NamedTempFile file("llsd", "");
 
-        python("write Python notation",
+        python("Python " + pyformatter,
                placeholders::arg1 <<
                import_llsd <<
                "DATA = [\n"
@@ -1977,9 +2032,9 @@ namespace tut
                "]\n"
                // Don't forget raw-string syntax for Windows pathnames.
                // N.B. Using 'print' implicitly adds newlines.
-               "with open(r'" << file.getName() << "', 'w') as f:\n"
+               "with open(r'" << file.getName() << "', 'wb') as f:\n"
                "    for item in DATA:\n"
-               "        print(llsd.format_notation(item).decode(), file=f)\n");
+               "        print(llsd." << pyformatter << "(item), file=f)\n");
 
         std::ifstream inf(file.getName().c_str());
         LLSD item;
@@ -1989,22 +2044,71 @@ namespace tut
         // want to ensure that notation-separated-by-newlines works in both
         // directions -- since in practice, a given file might be read by
         // either language.
-        ensure_equals("Failed to read LLSD::Integer from Python",
-                      LLSDSerialize::fromNotation(item, inf, LLSDSerialize::SIZE_UNLIMITED),
-                      1);
+        ensure("Failed to read LLSD::Integer from Python",
+               parse(inf, item, LLSDSerialize::SIZE_UNLIMITED));
         ensure_equals(item.asInteger(), 17);
-        ensure_equals("Failed to read LLSD::Real from Python",
-                      LLSDSerialize::fromNotation(item, inf, LLSDSerialize::SIZE_UNLIMITED),
-                      1);
+        ensure("Failed to read LLSD::Real from Python",
+               parse(inf, item, LLSDSerialize::SIZE_UNLIMITED));
         ensure_approximately_equals("Bad LLSD::Real value from Python",
                                     item.asReal(), 3.14, 7); // 7 bits ~= 0.01
-        ensure_equals("Failed to read LLSD::String from Python",
-                      LLSDSerialize::fromNotation(item, inf, LLSDSerialize::SIZE_UNLIMITED),
-                      1);
+        ensure("Failed to read LLSD::String from Python",
+               parse(inf, item, LLSDSerialize::SIZE_UNLIMITED));
         ensure_equals(item.asString(), 
                       "This string\n"
                       "has several\n"
                       "lines.");
-
     }
+
+    template<> template<>
+    void TestPythonCompatibleObject::test<8>()
+    {
+        set_test_name("from Python XML using LLSDSerialize::deserialize()");
+        fromPythonUsing("format_xml");
+    }
+
+    template<> template<>
+    void TestPythonCompatibleObject::test<9>()
+    {
+        set_test_name("from Python notation using LLSDSerialize::deserialize()");
+        fromPythonUsing("format_notation");
+    }
+
+    template<> template<>
+    void TestPythonCompatibleObject::test<10>()
+    {
+        set_test_name("from Python binary using LLSDSerialize::deserialize()");
+        fromPythonUsing("format_binary");
+    }
+
+    template<> template<>
+    void TestPythonCompatibleObject::test<11>()
+    {
+        set_test_name("from Python XML using fromXML()");
+        // fromXML()'s optional 3rd param isn't max_bytes, it's emit_errors
+        fromPythonUsing("format_xml",
+                        [](std::istream& istr, LLSD& data, size_t)
+                        { return LLSDSerialize::fromXML(data, istr) > 0; });
+    }
+
+    template<> template<>
+    void TestPythonCompatibleObject::test<12>()
+    {
+        set_test_name("from Python notation using fromNotation()");
+        fromPythonUsing("format_notation",
+                        [](std::istream& istr, LLSD& data, size_t max_bytes)
+                        { return LLSDSerialize::fromNotation(data, istr, max_bytes) > 0; });
+    }
+
+/*==========================================================================*|
+    template<> template<>
+    void TestPythonCompatibleObject::test<13>()
+    {
+        set_test_name("from Python binary using fromBinary()");
+        // We don't expect this to work because format_binary() emits a
+        // header, but fromBinary() won't recognize a header.
+        fromPythonUsing("format_binary",
+                        [](std::istream& istr, LLSD& data, size_t max_bytes)
+                        { return LLSDSerialize::fromBinary(data, istr, max_bytes) > 0; });
+    }
+|*==========================================================================*/
 }
