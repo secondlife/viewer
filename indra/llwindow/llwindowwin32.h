@@ -139,7 +139,7 @@ protected:
 	LLWindowWin32(LLWindowCallbacks* callbacks,
 		const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags, 
 		BOOL fullscreen, BOOL clearBg, BOOL enable_vsync, BOOL use_gl,
-		BOOL ignore_pixel_depth, U32 fsaa_samples);
+		BOOL ignore_pixel_depth, U32 fsaa_samples, U32 max_cores, U32 max_vram, F32 max_gl_version);
 	~LLWindowWin32();
 
 	void	initCursors();
@@ -210,6 +210,8 @@ protected:
 
 	F32			mCurrentGamma;
 	U32			mFSAASamples;
+    U32         mMaxCores; // for debugging only -- maximum number of CPU cores to use, or 0 for no limit
+    F32         mMaxGLVersion; // maximum OpenGL version to attempt to use (clamps to 3.2 - 4.6)
 	WORD		mPrevGammaRamp[3][256];
 	WORD		mCurrentGammaRamp[3][256];
 	BOOL		mCustomGammaSet;

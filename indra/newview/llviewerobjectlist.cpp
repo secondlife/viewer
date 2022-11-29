@@ -789,7 +789,7 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 		max_value = llmin((S32) mObjects.size(), mCurLazyUpdateIndex + num_updates);
 	}
 
-
+#if 0
 	// Slam priorities for textures that we care about (hovered, selected, and focused)
 	// Hovered
 	// Assumes only one level deep of parenting
@@ -820,6 +820,7 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 		}
 	} func;
 	LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func);
+#endif
 
 	// Iterate through some of the objects and lazy update their texture priorities
 	for (i = mCurLazyUpdateIndex; i < max_value; i++)

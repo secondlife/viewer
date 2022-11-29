@@ -9221,6 +9221,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>RenderMaxOpenGLVersion</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum OpenGL version to attempt use (minimum 3.2 maximum 4.6).  Requires restart.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>4.6</real>
+  </map>
+  <key>RenderMaxVRAMBudget</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum amount of texture memory to budget for, or 0 for autodetect.  Requires restart.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderMaxTextureIndex</key>
   <map>
     <key>Comment</key>
@@ -16900,6 +16922,17 @@
     <string>String</string>
     <key>Value</key>
     <string></string>
+  </map>
+  <key>EmulateCoreCount</key>
+  <map>
+    <key>Comment</key>
+    <string>For debugging -- number of cores to restrict the main process to, or 0 for no limit.  Requires restart.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
   </map>
 </map>
 </llsd>

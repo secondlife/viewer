@@ -302,7 +302,10 @@ public:
 		BOOL enable_vsync = FALSE,
 		BOOL use_gl = TRUE,
 		BOOL ignore_pixel_depth = FALSE,
-		U32 fsaa_samples = 0);
+		U32 fsaa_samples = 0,
+        U32 max_cores = 0,
+        U32 max_vram = 0,
+        F32 max_gl_version = 4.6f);
 	static BOOL destroyWindow(LLWindow* window);
 	static BOOL isWindowValid(LLWindow *window);
 };
