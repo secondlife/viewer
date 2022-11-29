@@ -46,8 +46,13 @@ float twinkle(){
     return abs(d);
 }
 
+// See:
+// ALM off: class1/environment/starsF.glsl
+// ALM on : class1/deferred/starsF.glsl
 void main() 
 {
+	// camera above water: class1\deferred\starsF.glsl
+	// camera below water: class1\environment\starsF.glsl
     vec4 col_a = texture2D(diffuseMap, vary_texcoord0.xy);
     vec4 col_b = texture2D(diffuseMap, vary_texcoord0.xy);
     vec4 col = mix(col_b, col_a, blend_factor);
@@ -62,6 +67,6 @@ void main()
     frag_data[1] = vec4(0.0f);
     frag_data[2] = vec4(0.0, 1.0, 0.0, GBUFFER_FLAG_SKIP_ATMOS);
 
-    gl_FragDepth = 0.99995f;
+    gl_FragDepth = LL_SHADER_CONST_STAR_DEPTH; // SL-14113 Moon Haze -- Stars need to depth test behind the moon
 }
 

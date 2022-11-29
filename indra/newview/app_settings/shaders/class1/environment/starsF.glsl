@@ -1,9 +1,9 @@
 /** 
- * @file shadowAlphaMaskV.glsl
+ * @file class1/environment/starsF.glsl
  *
- * $LicenseInfo:firstyear=2011&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2011, Linden Research, Inc.
+ * Copyright (C) 2021, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,45 +23,29 @@
  * $/LicenseInfo$
  */
 
-uniform mat4 texture_matrix0;
-uniform mat4 modelview_projection_matrix;
-uniform float shadow_target_width;
-
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec4 diffuse_color;
-ATTRIBUTE vec2 texcoord0;
-
-#if !defined(DEPTH_CLAMP)
-VARYING float pos_zd2;
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
 #endif
 
-VARYING float pos_w;
+uniform sampler2D diffuseMap;
 
-VARYING float target_pos_x;
+uniform float custom_alpha;
+
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
-void passTextureIndex();
-
-void main()
+// See:
+// ALM off: class1/environment/starsF.glsl
+// ALM on : class1/deferred/starsF.glsl
+void main() 
 {
-	//transform vertex
-	vec4 pre_pos = vec4(position.xyz, 1.0);
-	vec4 pos = modelview_projection_matrix * pre_pos;
-	target_pos_x = 0.5 * (shadow_target_width - 1.0) * pos.x;
+    vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
+    color.rgb = pow(color.rgb, vec3(0.45));
+    color.rgb *= vertex_color.rgb;
+    color.a *= max(custom_alpha, vertex_color.a);
 
-	pos_w = pos.w;
-
-#if !defined(DEPTH_CLAMP)
-	pos_zd2 = pos.z * 0.5;
-	
-	gl_Position = vec4(pos.x, pos.y, pos.w*0.5, pos.w);
-#else
-	gl_Position = pos;
-#endif
-	
-	passTextureIndex();
-
-	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-	vertex_color = diffuse_color;
+    frag_color = color;
+    gl_FragDepth = LL_SHADER_CONST_STAR_DEPTH; // SL-14113 Moon Haze -- Stars need to depth test behind the moon
 }

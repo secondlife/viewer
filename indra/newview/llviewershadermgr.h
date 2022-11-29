@@ -211,6 +211,8 @@ extern LLGLSLShader			gObjectShinyProgram;
 extern LLGLSLShader			gObjectShinyWaterProgram;
 
 //environment shaders
+extern LLGLSLShader			gMoonProgram;
+extern LLGLSLShader			gStarsProgram;
 extern LLGLSLShader			gTerrainProgram;
 extern LLGLSLShader			gTerrainWaterProgram;
 extern LLGLSLShader			gWaterProgram;
