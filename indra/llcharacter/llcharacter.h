@@ -254,9 +254,9 @@ public:
 
 	U32				getAppearanceSerialNum() const		{ return mAppearanceSerialNum; }
 	void			setAppearanceSerialNum( U32 num )	{ mAppearanceSerialNum = num; }
-	
+
 	U32				getSkeletonSerialNum() const		{ return mSkeletonSerialNum; }
-	void			bumpSkeletonSerialNum()	{ mSkeletonSerialNum++; }
+	void			bumpSkeletonSerialNum()	{ ++mSkeletonSerialNum; }
 
 	static std::vector< LLCharacter* > sInstances;
 	static BOOL sAllowInstancesChange ; //debug use
