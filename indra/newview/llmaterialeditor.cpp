@@ -391,13 +391,9 @@ BOOL LLMaterialEditor::postBuild()
     {
         // Only allow fully permissive textures
         mBaseColorTextureCtrl->setImmediateFilterPermMask(PERM_ITEM_UNRESTRICTED);
-        mBaseColorTextureCtrl->setNonImmediateFilterPermMask(PERM_ITEM_UNRESTRICTED);
         mMetallicTextureCtrl->setImmediateFilterPermMask(PERM_ITEM_UNRESTRICTED);
-        mMetallicTextureCtrl->setNonImmediateFilterPermMask(PERM_ITEM_UNRESTRICTED);
         mEmissiveTextureCtrl->setImmediateFilterPermMask(PERM_ITEM_UNRESTRICTED);
-        mEmissiveTextureCtrl->setNonImmediateFilterPermMask(PERM_ITEM_UNRESTRICTED);
         mNormalTextureCtrl->setImmediateFilterPermMask(PERM_ITEM_UNRESTRICTED);
-        mNormalTextureCtrl->setNonImmediateFilterPermMask(PERM_ITEM_UNRESTRICTED);
     }
 
     // Texture callback
