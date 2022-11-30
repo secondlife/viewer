@@ -92,6 +92,7 @@ U32 micro_sleep(U64 us, U32 max_yields)
 U32 micro_sleep(U64 us, U32 max_yields)
 {
     LL_PROFILE_ZONE_SCOPED
+#if 0
     LARGE_INTEGER ft;
     ft.QuadPart = -static_cast<S64>(us * 10);  // '-' using relative time
 
@@ -99,6 +100,9 @@ U32 micro_sleep(U64 us, U32 max_yields)
     SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
     WaitForSingleObject(timer, INFINITE);
     CloseHandle(timer);
+#else
+    Sleep(us / 1000);
+#endif
 
     return 0;
 }

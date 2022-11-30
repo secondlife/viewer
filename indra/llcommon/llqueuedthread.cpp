@@ -477,9 +477,14 @@ void LLQueuedThread::processRequest(LLQueuedThread::QueuedRequest* req)
                 mRequestQueue.post([=]
                     {
                         LL_PROFILE_ZONE_NAMED("processRequest - retry");
-                        while (LL::WorkQueue::TimePoint::clock::now() < retry_time)
+                        if (LL::WorkQueue::TimePoint::clock::now() < retry_time)
                         {
-                            std::this_thread::yield(); //note: don't use LLThread::yield here to avoid 
+                            auto sleep_time = std::chrono::duration_cast<std::chrono::milliseconds>(retry_time - LL::WorkQueue::TimePoint::clock::now());
+                            
+                            if (sleep_time.count() > 0) 
+                            {
+                                ms_sleep(sleep_time.count());
+                            }
                         }
                         processRequest(req);
                     });

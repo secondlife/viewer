@@ -2181,6 +2181,12 @@ bool LLAppViewer::initThreads()
     // get the number of concurrent threads that can run
     S32 cores = std::thread::hardware_concurrency();
 
+    U32 max_cores = gSavedSettings.getU32("EmulateCoreCount");
+    if (max_cores != 0)
+    {
+        cores = llmin(cores, (S32) max_cores);
+    }
+
     // The only configurable thread count right now is ImageDecode
     // The viewer typically starts around 8 threads not including image decode, 
     // so try to leave at least one core free
