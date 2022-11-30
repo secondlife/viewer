@@ -151,6 +151,7 @@ elseif(DARWIN)
     set(SHARED_LIB_STAGING_DIR_DEBUG            "${SHARED_LIB_STAGING_DIR}/Debug/Resources")
     set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/Resources")
     set(SHARED_LIB_STAGING_DIR_RELEASE          "${SHARED_LIB_STAGING_DIR}/Release/Resources")
+    file(MAKE_DIRECTORY "${SHARED_LIB_STAGING_DIR}")
     # Support our "@executable_path/../Resources" load path for executables
     # that end up in any of the above SHARED_LIB_STAGING_DIR_MUMBLE
     # directories.
