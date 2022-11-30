@@ -408,6 +408,9 @@ BOOL LLMaterialEditor::postBuild()
 
     if (mIsOverride)
     {
+        // Material override change success callback
+        LLGLTFMaterialList::addSelectionUpdateCallback(&LLMaterialEditor::updateLive);
+
         // Live editing needs a recovery mechanism on cancel
         mBaseColorTextureCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_BASE_COLOR_TEX_DIRTY));
         mMetallicTextureCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY));
