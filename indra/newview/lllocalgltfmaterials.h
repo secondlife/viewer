@@ -42,11 +42,11 @@ public: /* main */
     virtual ~LLLocalGLTFMaterial();
 
 public: /* accessors */
-    std::string	getFilename();
-    std::string	getShortName();
-    LLUUID		getTrackingID();
-    LLUUID		getWorldID();
-    S32			getIndexInFile();
+    std::string	getFilename() const;
+    std::string	getShortName() const;
+    LLUUID		getTrackingID() const;
+    LLUUID		getWorldID() const;
+    S32			getIndexInFile() const;
 
 public:
     bool updateSelf();

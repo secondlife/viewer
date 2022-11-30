@@ -46,6 +46,7 @@
 #include "llsdutil.h"
 #include "llselectmgr.h"
 #include "llstatusbar.h"	// can_afford_transaction()
+#include "lltoolpie.h"
 #include "llviewerinventory.h"
 #include "llinventory.h"
 #include "llviewerregion.h"
@@ -322,9 +323,17 @@ bool LLSelectedTEGetMatData::apply(LLViewerObject* objectp, S32 te_index)
                 mLocalMaterial = local_mat;
             }
             mMaterial = tep->getGLTFRenderMaterial();
+
+            if (mMaterial.isNull())
+            {
+                // Shouldn't be possible?
+                LL_WARNS("MaterialEditor") << "Object has material id, but no material" << LL_ENDL;
+                mMaterial = gGLTFMaterialList.getMaterial(mat_id);
+            }
         }
+        return true;
     }
-    return true;
+    return false;
 }
 
 ///----------------------------------------------------------------------------
@@ -399,6 +408,9 @@ BOOL LLMaterialEditor::postBuild()
 
     if (mIsOverride)
     {
+        // Material override change success callback
+        LLGLTFMaterialList::addSelectionUpdateCallback(&LLMaterialEditor::updateLive);
+
         // Live editing needs a recovery mechanism on cancel
         mBaseColorTextureCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_BASE_COLOR_TEX_DIRTY));
         mMetallicTextureCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY));
@@ -1816,58 +1828,95 @@ void LLMaterialEditor::loadLive()
 
 void LLMaterialEditor::saveObjectsMaterialAs()
 {
-
-    // Find an applicable material.
-    // Do this before showing message, because
-    // message is going to drop selection.
     LLSelectedTEGetMatData func(false);
     LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func, true /*first applicable*/);
+    saveMaterialAs(func.mMaterial, func.mLocalMaterial);
+}
+void LLMaterialEditor::savePickedMaterialAs()
+{
+    LLPickInfo pick = LLToolPie::getInstance()->getPick();
+    if (pick.mPickType != LLPickInfo::PICK_OBJECT || !pick.getObject())
+    {
+        return;
+    }
 
-    if (func.mLocalMaterial.notNull())
+    LLPointer<LLGLTFMaterial> render_material;
+    LLPointer<LLLocalGLTFMaterial> local_material;
+
+    LLViewerObject *objectp = pick.getObject();
+    LLUUID mat_id = objectp->getRenderMaterialID(pick.mObjectFace);
+    if (mat_id.notNull() && objectp->permCopy())
+    {
+        // Try a face user picked first
+        // (likely the only method we need, but in such case
+        // enable_object_save_gltf_material will need to check this)
+        LLTextureEntry *tep = objectp->getTE(pick.mObjectFace);
+        LLGLTFMaterial *mat = tep->getGLTFMaterial();
+        LLLocalGLTFMaterial *local_mat = dynamic_cast<LLLocalGLTFMaterial*>(mat);
+
+        if (local_mat)
+        {
+            local_material = local_mat;
+        }
+        render_material = tep->getGLTFRenderMaterial();
+    }
+    else
+    {
+        // Find an applicable material.
+        // Do this before showing message, because
+        // message is going to drop selection.
+        LLSelectedTEGetMatData func(false);
+        LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func, true /*first applicable*/);
+        local_material = func.mLocalMaterial;
+        render_material = func.mMaterial;
+    }
+
+    saveMaterialAs(render_material, local_material);
+}
+
+void LLMaterialEditor::saveMaterialAs(const LLGLTFMaterial* render_material, const LLLocalGLTFMaterial *local_material)
+{
+    if (local_material)
     {
         // This is a local material, reload it from file
         // so that user won't end up with grey textures
         // on next login.
-        LLMaterialEditor::loadMaterialFromFile(func.mLocalMaterial->getFilename(), func.mLocalMaterial->getIndexInFile());
+        LLMaterialEditor::loadMaterialFromFile(local_material->getFilename(), local_material->getIndexInFile());
 
         LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
         if (me)
         {
-            // apply differences on top
-            LLGLTFMaterial* local_mat = func.mLocalMaterial.get();
-            // don't use override mat here, it has 'hacked ids'
-            // and values, use end result.
-            LLGLTFMaterial* cmp_mat = func.mMaterial.get();
-
-            me->setBaseColor(cmp_mat->mBaseColor);
-            me->setMetalnessFactor(cmp_mat->mMetallicFactor);
-            me->setRoughnessFactor(cmp_mat->mRoughnessFactor);
-            me->setEmissiveColor(cmp_mat->mEmissiveColor);
-            me->setDoubleSided(cmp_mat->mDoubleSided);
-            me->setAlphaMode(cmp_mat->getAlphaMode());
-            me->setAlphaCutoff(cmp_mat->mAlphaCutoff);
+            // don't use override material here, it has 'hacked ids'
+            // and values, use end result, apply it on top of local.
+            me->setBaseColor(render_material->mBaseColor);
+            me->setMetalnessFactor(render_material->mMetallicFactor);
+            me->setRoughnessFactor(render_material->mRoughnessFactor);
+            me->setEmissiveColor(render_material->mEmissiveColor);
+            me->setDoubleSided(render_material->mDoubleSided);
+            me->setAlphaMode(render_material->getAlphaMode());
+            me->setAlphaCutoff(render_material->mAlphaCutoff);
 
             // most things like colors we can apply without verifying
             // but texture ids are going to be different from both, base and override
             // so only apply override id if there is actually a difference
-            if (local_mat->mBaseColorId != cmp_mat->mBaseColorId)
+            if (local_material->mBaseColorId != render_material->mBaseColorId)
             {
-                me->setBaseColorId(cmp_mat->mBaseColorId);
+                me->setBaseColorId(render_material->mBaseColorId);
                 me->childSetValue("base_color_upload_fee", me->getString("no_upload_fee_string"));
             }
-            if (local_mat->mNormalId != cmp_mat->mNormalId)
+            if (local_material->mNormalId != render_material->mNormalId)
             {
-                me->setNormalId(cmp_mat->mNormalId);
+                me->setNormalId(render_material->mNormalId);
                 me->childSetValue("normal_upload_fee", me->getString("no_upload_fee_string"));
             }
-            if (local_mat->mMetallicRoughnessId != cmp_mat->mMetallicRoughnessId)
+            if (local_material->mMetallicRoughnessId != render_material->mMetallicRoughnessId)
             {
-                me->setMetallicRoughnessId(cmp_mat->mMetallicRoughnessId);
+                me->setMetallicRoughnessId(render_material->mMetallicRoughnessId);
                 me->childSetValue("metallic_upload_fee", me->getString("no_upload_fee_string"));
             }
-            if (local_mat->mEmissiveId != cmp_mat->mEmissiveId)
+            if (local_material->mEmissiveId != render_material->mEmissiveId)
             {
-                me->setEmissiveId(cmp_mat->mEmissiveId);
+                me->setEmissiveId(render_material->mEmissiveId);
                 me->childSetValue("emissive_upload_fee", me->getString("no_upload_fee_string"));
             }
 
@@ -1879,9 +1928,9 @@ void LLMaterialEditor::saveObjectsMaterialAs()
     }
 
     LLSD payload;
-    if (func.mMaterial.notNull())
+    if (render_material)
     {
-        payload["data"] = func.mMaterial->asJSON();
+        payload["data"] = render_material->asJSON();
     }
     else
     {

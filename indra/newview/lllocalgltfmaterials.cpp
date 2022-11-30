@@ -93,27 +93,27 @@ LLLocalGLTFMaterial::~LLLocalGLTFMaterial()
 }
 
 /* accessors */
-std::string LLLocalGLTFMaterial::getFilename()
+std::string LLLocalGLTFMaterial::getFilename() const
 {
     return mFilename;
 }
 
-std::string LLLocalGLTFMaterial::getShortName()
+std::string LLLocalGLTFMaterial::getShortName() const
 {
     return mShortName;
 }
 
-LLUUID LLLocalGLTFMaterial::getTrackingID()
+LLUUID LLLocalGLTFMaterial::getTrackingID() const
 {
     return mTrackingID;
 }
 
-LLUUID LLLocalGLTFMaterial::getWorldID()
+LLUUID LLLocalGLTFMaterial::getWorldID() const
 {
     return mWorldID;
 }
 
-S32 LLLocalGLTFMaterial::getIndexInFile()
+S32 LLLocalGLTFMaterial::getIndexInFile() const
 {
     return mMaterialIndex;
 }

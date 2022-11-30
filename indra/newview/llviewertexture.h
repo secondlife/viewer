@@ -177,10 +177,7 @@ protected:
 	void cleanup() ;
 	void init(bool firstinit) ;
 	void reorganizeFaceList() ;
-	void reorganizeVolumeList() ;
-
-	void notifyAboutMissingAsset();
-	void notifyAboutCreatingTexture();
+	void reorganizeVolumeList();
 
 private:
 	friend class LLBumpImageList;

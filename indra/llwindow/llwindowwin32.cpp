@@ -418,6 +418,8 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     // best guess at available video memory in MB
     std::atomic<U32> mAvailableVRAM;
 
+    U32 mMaxVRAM = 0; // maximum amount of vram to allow in the "budget", or 0 for no maximum (see updateVRAMUsage)
+
     IDXGIAdapter3* mDXGIAdapter = nullptr;
     LPDIRECT3D9 mD3D = nullptr;
     LPDIRECT3DDEVICE9 mD3DDevice = nullptr;
@@ -430,13 +432,36 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 							 BOOL fullscreen, BOOL clearBg,
 							 BOOL enable_vsync, BOOL use_gl,
 							 BOOL ignore_pixel_depth,
-							 U32 fsaa_samples)
-	: LLWindow(callbacks, fullscreen, flags)
+							 U32 fsaa_samples,
+                             U32 max_cores,
+                             U32 max_vram,
+                             F32 max_gl_version)
+	: 
+    LLWindow(callbacks, fullscreen, flags), 
+    mMaxGLVersion(max_gl_version), 
+    mMaxCores(max_cores)
 {
     sMainThreadId = LLThread::currentID();
     mWindowThread = new LLWindowWin32Thread();
+    mWindowThread->mMaxVRAM = max_vram;
+
 	//MAINT-516 -- force a load of opengl32.dll just in case windows went sideways 
 	LoadLibrary(L"opengl32.dll");
+    
+    
+    if (mMaxCores != 0)
+    {
+        HANDLE hProcess = GetCurrentProcess();
+        mMaxCores = llmin(mMaxCores, (U32) 64);
+        DWORD_PTR mask = 0;
+
+        for (int i = 0; i < mMaxCores; ++i)
+        {
+            mask |= ((DWORD_PTR) 1) << i;
+        }
+
+        SetProcessAffinityMask(hProcess, mask);
+    }
 
 #if 0 // this is probably a bad idea, but keep it in your back pocket if you see what looks like
         // process deprioritization during profiles
@@ -1833,10 +1858,15 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
 
 void* LLWindowWin32::createSharedContext()
 {
+    mMaxGLVersion = llclamp(mMaxGLVersion, 3.2f, 4.6f);
+
+    S32 version_major = llfloor(mMaxGLVersion);
+    S32 version_minor = llround((mMaxGLVersion-version_major)*10);
+
     S32 attribs[] =
     {
-        WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-        WGL_CONTEXT_MINOR_VERSION_ARB, 6,
+        WGL_CONTEXT_MAJOR_VERSION_ARB, version_major,
+        WGL_CONTEXT_MINOR_VERSION_ARB, version_minor,
         WGL_CONTEXT_PROFILE_MASK_ARB,  LLRender::sGLCoreProfile ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
         WGL_CONTEXT_FLAGS_ARB, gDebugGL ? WGL_CONTEXT_DEBUG_BIT_ARB : 0,
         0
@@ -4815,6 +4845,11 @@ void LLWindowWin32::LLWindowWin32Thread::updateVRAMUsage()
             budget_mb = llclamp(afr_mb, (U32) 512, (U32) 2048);
         }
 
+        if ( mMaxVRAM != 0)
+        {
+            budget_mb = llmin(budget_mb, mMaxVRAM);
+        }
+
         U32 cu_mb = info.CurrentUsage / 1024 / 1024;
 
         // get an estimated usage based on texture bytes allocated
@@ -4826,7 +4861,7 @@ void LLWindowWin32::LLWindowWin32Thread::updateVRAMUsage()
         }
         F32 eu_error = (F32)((S32)eu_mb - (S32)cu_mb) / (F32)cu_mb;
 
-        U32 target_mb = info.Budget / 1024 / 1024;
+        U32 target_mb = budget_mb;
 
         if (target_mb > 4096)  // if 4GB are installed, try to leave 2GB free 
         {
