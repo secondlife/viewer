@@ -135,7 +135,6 @@ bool anyone_copy_selection(LLSelectNode* nodep);
 // *TODO: Move to separate file
 bool for_sale_selection(LLSelectNode* nodep);
 
-void handle_save_snapshot(void *);
 void handle_toggle_flycam();
 
 void handle_object_sit_or_stand();

@@ -51,6 +51,12 @@ void main()
         fade = clamp( moon_dir.z*moon_dir.z*4.0, 0.0, 1.0 );
 
     vec4 c     = texture2D(diffuseMap, vary_texcoord0.xy);
+
+    // SL-14113 Don't write to depth; prevent moon's quad from hiding stars which should be visible
+    // Moon texture has transparent pixels <0x55,0x55,0x55,0x00>
+    if (c.a <= 2./255.) // 0.00784
+        discard;
+
 //       c.rgb = pow(c.rgb, vec3(0.7f)); // can't use "srgb_to_linear(color.rgb)" as that is a deferred only function
          c.rgb *= moonlight_color.rgb;
          c.rgb *= moon_brightness;
@@ -61,5 +67,6 @@ void main()
          c.rgb  = scaleSoftClip(c.rgb);
 
     frag_color = vec4(c.rgb, c.a);
+    gl_FragDepth = LL_SHADER_CONST_CLOUD_MOON_DEPTH; // SL-14113
 }
 

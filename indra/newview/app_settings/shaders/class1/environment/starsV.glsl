@@ -1,9 +1,9 @@
 /** 
- * @file fullbrightF.glsl
+ * @file class1/environment/starsV.glsl
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2021, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,12 +22,20 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
- 
 
+uniform mat4 modelview_projection_matrix;
 
-void main() 
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec4 diffuse_color;
+ATTRIBUTE vec2 texcoord0;
+
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
+
+void main()
 {
-	fullbright_lighting();
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
+	vary_texcoord0 = texcoord0;
+	vertex_color = diffuse_color;
 }
 

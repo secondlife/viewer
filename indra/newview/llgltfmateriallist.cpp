@@ -32,7 +32,6 @@
 #include "lldispatcher.h"
 #include "llfetchedgltfmaterial.h"
 #include "llfilesystem.h"
-#include "llmaterialeditor.h"
 #include "llsdserialize.h"
 #include "lltinygltfhelper.h"
 #include "llviewercontrol.h"
@@ -147,6 +146,11 @@ public:
     LLGLTFMaterialOverrideDispatchHandler() = default;
     ~LLGLTFMaterialOverrideDispatchHandler() override = default;
 
+    void addCallback(void(*callback)(const LLUUID& object_id, S32 side))
+    {
+        mSelectionCallbacks.push_back(callback);
+    }
+
     bool operator()(const LLDispatcher* dispatcher, const std::string& key, const LLUUID& invoice, const sparam_t& strings) override
     {
         LL_PROFILE_ZONE_SCOPED;
@@ -210,7 +214,15 @@ public:
         return true;
     }
 
-    static void applyData(const LLGLTFOverrideCacheEntry &object_override)
+    void doSelectionCallbacks(const LLUUID& object_id, S32 side)
+    {
+        for (auto& callback : mSelectionCallbacks)
+        {
+            callback(object_id, side);
+        }
+    }
+
+    void applyData(const LLGLTFOverrideCacheEntry &object_override)
     {
         // Parse the data
 
@@ -264,7 +276,7 @@ public:
             }
             return results;
         },
-            [object_override](std::vector<ReturnData> results) // Callback to main thread
+            [object_override, this](std::vector<ReturnData> results) // Callback to main thread
             {
 
             LLViewerObject * obj = gObjectList.findObject(object_override.mObjectId);
@@ -285,32 +297,31 @@ public:
                             // object not ready to receive override data, queue for later
                             gGLTFMaterialList.queueOverrideUpdate(object_override.mObjectId, results[i].mSide, results[i].mMaterial);
                         }
-                        else if (obj && obj->isAnySelected())
+                        else if (obj && obj->getTE(i) && obj->getTE(i)->isSelected())
                         {
-                            LLMaterialEditor::updateLive(object_override.mObjectId, results[i].mSide);
+                            doSelectionCallbacks(object_override.mObjectId, results[i].mSide);
                         }
                     }
                     else
                     {
                         // unblock material editor
-                        if (obj && obj->isAnySelected())
+                        if (obj && obj->getTE(i) && obj->getTE(i)->isSelected())
                         {
-                            LLMaterialEditor::updateLive(object_override.mObjectId, results[i].mSide);
+                            doSelectionCallbacks(object_override.mObjectId, results[i].mSide);
                         }
                     }
                 }
 
                 if (obj && side_set.size() != obj->getNumTEs())
                 { // object exists and at least one texture entry needs to have its override data nulled out
-                    bool object_has_selection = obj->isAnySelected();
                     for (int i = 0; i < obj->getNumTEs(); ++i)
                     {
                         if (side_set.find(i) == side_set.end())
                         {
                             obj->setTEGLTFMaterialOverride(i, nullptr);
-                            if (object_has_selection)
+                            if (obj->getTE(i) && obj->getTE(i)->isSelected())
                             {
-                                LLMaterialEditor::updateLive(object_override.mObjectId, i);
+                                doSelectionCallbacks(object_override.mObjectId, i);
                             }
                         }
                     }
@@ -318,18 +329,21 @@ public:
             }
             else if (obj)
             { // override list was empty or an error occurred, null out all overrides for this object
-                bool object_has_selection = obj->isAnySelected();
                 for (int i = 0; i < obj->getNumTEs(); ++i)
                 {
                     obj->setTEGLTFMaterialOverride(i, nullptr);
-                    if (object_has_selection)
+                    if (obj->getTE(i) && obj->getTE(i)->isSelected())
                     {
-                        LLMaterialEditor::updateLive(obj->getID(), i);
+                        doSelectionCallbacks(obj->getID(), i);
                     }
                 }
             }
         });
     }
+
+private:
+
+    std::vector<void(*)(const LLUUID& object_id, S32 side)> mSelectionCallbacks;
 };
 
 namespace
@@ -357,20 +371,19 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
 
     if (iter != mQueuedOverrides.end())
     {
-        bool object_has_selection = obj->isAnySelected();
         override_list_t& overrides = iter->second;
         for (int i = 0; i < overrides.size(); ++i)
         {
             if (overrides[i].notNull())
             {
-                if (!obj->getTE(i)->getGLTFMaterial())
+                if (!obj->getTE(i) || !obj->getTE(i)->getGLTFMaterial())
                 { // object doesn't have its base GLTF material yet, don't apply override (yet)
                     return;
                 }
                 obj->setTEGLTFMaterialOverride(i, overrides[i]);
-                if (object_has_selection)
+                if (obj->getTE(i)->isSelected())
                 {
-                    LLMaterialEditor::updateLive(id, i);
+                    handle_gltf_override_message.doSelectionCallbacks(id, i);
                 }
             }
         }
@@ -457,6 +470,11 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
 
         sUpdates = LLSD::emptyArray();
     }
+}
+
+void LLGLTFMaterialList::addSelectionUpdateCallback(void(*update_callback)(const LLUUID& object_id, S32 side))
+{
+    handle_gltf_override_message.addCallback(update_callback);
 }
 
 class AssetLoadUserData
@@ -713,5 +731,5 @@ void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides,
 
 void LLGLTFMaterialList::loadCacheOverrides(const LLGLTFOverrideCacheEntry& override)
 {
-    LLGLTFMaterialOverrideDispatchHandler::applyData(override);
+    handle_gltf_override_message.applyData(override);
 }

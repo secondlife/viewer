@@ -228,9 +228,6 @@ public:
 	LLVertexBuffer* getVertexBuffer()	const	{ return mVertexBuffer; }
 	S32 getRiggedIndex(U32 type) const;
 
-	void	notifyAboutCreatingTexture(LLViewerTexture *texture);
-	void	notifyAboutMissingAsset(LLViewerTexture *texture);
-
     // used to preserve draw order of faces that are batched together. 
     // Allows content creators to manipulate linked sets and face ordering 
     // for consistent alpha sorting results, particularly for rigged attachments
