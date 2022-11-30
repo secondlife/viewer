@@ -29,6 +29,7 @@
 
 #include "v4color.h"
 #include "llpanel.h"
+#include "llgltfmaterial.h"
 #include "llmaterial.h"
 #include "llmaterialmgr.h"
 #include "lltextureentry.h"
@@ -49,8 +50,6 @@ class LLFloater;
 class LLMaterialID;
 class LLMediaCtrl;
 class LLMenuButton;
-class LLGLTFMaterial;
-struct LLGLTFMaterial::TextureTransform;
 
 // Represents an edit for use in replicating the op across one or more materials in the selection set.
 //
