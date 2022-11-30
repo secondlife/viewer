@@ -918,3 +918,26 @@ void LLReflectionMapManager::initReflectionMaps()
         mVertexBuffer = buff;
     }
 }
+
+void LLReflectionMapManager::cleanup() 
+{ 
+    mVertexBuffer = nullptr;
+    mRenderTarget.release();
+
+    mMipChain.clear();
+
+    mTexture = nullptr;
+    mIrradianceMaps = nullptr;
+
+    mProbes.clear();
+    mKillList.clear();
+    mCreateList.clear();
+
+    mReflectionMaps.clear();
+    mUpdatingFace = 0;
+    
+    mDefaultProbe = nullptr;
+
+    glDeleteBuffers(1, &mUBO);
+    mUBO = 0;
+}

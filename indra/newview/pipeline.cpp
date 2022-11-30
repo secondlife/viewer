@@ -659,6 +659,8 @@ void LLPipeline::cleanup()
 	mDeferredVB = NULL;
 
 	mCubeVB = NULL;
+
+    mReflectionMapManager.cleanup();
 }
 
 //============================================================================

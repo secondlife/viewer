@@ -58,6 +58,9 @@ public:
     // allocate an environment map of the given resolution 
     LLReflectionMapManager();
 
+    // release any GL state 
+    void cleanup();
+
     // maintain reflection probes
     void update();
 
