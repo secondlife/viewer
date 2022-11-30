@@ -38,6 +38,8 @@
 #include "v4math.h"
 #include "xform.h"
 
+class LLJoint;
+
 //#define DEBUG_LLIK_UNIT_TESTS
 
 namespace LLIK
@@ -55,22 +57,27 @@ namespace LLIK
 class Solver;
 class Joint;
 
-// local flags
-constexpr U8 FLAG_LOCAL_POS = 1 << 0;
-constexpr U8 FLAG_LOCAL_ROT = 1 << 1;
-constexpr U8 FLAG_LOCAL_SCALE = 1 << 2;
-constexpr U8 FLAG_DISABLE_CONSTRAINT = 1 << 3;
+// config flags
+constexpr U8 CONFIG_FLAG_LOCAL_POS = 1 << 0;
+constexpr U8 CONFIG_FLAG_LOCAL_ROT = 1 << 1;
+constexpr U8 CONFIG_FLAG_LOCAL_SCALE = 1 << 2;
+constexpr U8 CONFIG_FLAG_DISABLE_CONSTRAINT = 1 << 3;
+constexpr U8 CONFIG_FLAG_TARGET_POS = 1 << 4;
+constexpr U8 CONFIG_FLAG_TARGET_ROT = 1 << 5;
+constexpr U8 CONFIG_FLAG_HAS_DELEGATED = 1 << 6; // EXPERIMENTAL
 
-// target flags
-constexpr U8 FLAG_TARGET_POS = 1 << 4;
-constexpr U8 FLAG_TARGET_ROT = 1 << 5;
-constexpr U8 FLAG_HAS_DELEGATED = 1 << 6; // EXPERIMENTAL
+constexpr U8 IK_FLAG_LOCAL_ROT = 1 << 1; // IK has adjusted local_rot
+constexpr U8 IK_FLAG_ACTIVE = 1 << 5;
+constexpr U8 IK_FLAG_LOCAL_ROT_LOCKED = 1 << 7; // local_rot is locked during IK
 
-constexpr U8 MASK_POS = FLAG_TARGET_POS | FLAG_LOCAL_POS;
-constexpr U8 MASK_ROT = FLAG_TARGET_ROT | FLAG_LOCAL_ROT;
+constexpr U8 MASK_POS = CONFIG_FLAG_TARGET_POS | CONFIG_FLAG_LOCAL_POS;
+constexpr U8 MASK_ROT = CONFIG_FLAG_TARGET_ROT | CONFIG_FLAG_LOCAL_ROT;
 constexpr U8 MASK_TRANSFORM = MASK_POS | MASK_ROT;
-constexpr U8 MASK_LOCAL = FLAG_LOCAL_POS | FLAG_LOCAL_ROT | FLAG_DISABLE_CONSTRAINT;
-constexpr U8 MASK_TARGET = FLAG_TARGET_POS | FLAG_TARGET_ROT;
+constexpr U8 MASK_LOCAL = CONFIG_FLAG_LOCAL_POS | CONFIG_FLAG_LOCAL_ROT | CONFIG_FLAG_DISABLE_CONSTRAINT;
+constexpr U8 MASK_TARGET = CONFIG_FLAG_TARGET_POS | CONFIG_FLAG_TARGET_ROT;
+
+// this mask relates to LLJointState::Usage enum
+constexpr U8 MASK_JOINT_STATE_USAGE = CONFIG_FLAG_LOCAL_POS | CONFIG_FLAG_LOCAL_ROT | CONFIG_FLAG_LOCAL_SCALE;
 
 constexpr F32 IK_DEFAULT_ACCEPTABLE_ERROR = 5.0e-4f; // half millimeter
 
@@ -349,25 +356,28 @@ public:
     {
     public:
         // local info is in parent-frame
-        bool hasLocalPos() const { return (mFlags & FLAG_LOCAL_POS) > 0; }
-        bool hasLocalRot() const { return (mFlags & FLAG_LOCAL_ROT) > 0; }
-        bool constraintIsDisabled() const { return (mFlags & FLAG_DISABLE_CONSTRAINT) > 0; }
+        bool hasLocalPos() const { return (mFlags & CONFIG_FLAG_LOCAL_POS) > 0; }
+        bool hasLocalRot() const { return (mFlags & CONFIG_FLAG_LOCAL_ROT) > 0; }
+        bool hasLocalScale() const { return (mFlags & CONFIG_FLAG_LOCAL_SCALE) > 0; }
+        bool constraintIsDisabled() const { return (mFlags & CONFIG_FLAG_DISABLE_CONSTRAINT) > 0; }
         void setLocalPos(const LLVector3& pos);
         void setLocalRot(const LLQuaternion& rot);
-        void disableConstraint() { mFlags |= FLAG_DISABLE_CONSTRAINT; }
+        void setLocalScale(const LLVector3& scale);
+        void disableConstraint() { mFlags |= CONFIG_FLAG_DISABLE_CONSTRAINT; }
         const LLVector3& getLocalPos() const { return mLocalPos; }
         const LLQuaternion& getLocalRot() const { return mLocalRot; }
+        const LLVector3& getLocalScale() const { return mLocalScale; }
 
         // target info is in skeleton root-frame
-        bool hasTargetPos() const { return (mFlags & FLAG_TARGET_POS) > 0; }
-        bool hasTargetRot() const { return (mFlags & FLAG_TARGET_ROT) > 0; }
+        bool hasTargetPos() const { return (mFlags & CONFIG_FLAG_TARGET_POS) > 0; }
+        bool hasTargetRot() const { return (mFlags & CONFIG_FLAG_TARGET_ROT) > 0; }
         void setTargetPos(const LLVector3& pos);
         void setTargetRot(const LLQuaternion& rot);
         const LLVector3& getTargetPos() const { return mTargetPos; }
         const LLQuaternion& getTargetRot() const { return mTargetRot; }
 
-        void delegate() { mFlags |= FLAG_HAS_DELEGATED; } // EXPERIMENTAL
-        bool hasDelegated() const { return (mFlags & FLAG_HAS_DELEGATED) > 0; } // EXPERIMENTAL
+        void delegate() { mFlags |= CONFIG_FLAG_HAS_DELEGATED; } // EXPERIMENTAL
+        bool hasDelegated() const { return (mFlags & CONFIG_FLAG_HAS_DELEGATED) > 0; } // EXPERIMENTAL
 
         U8 getFlags() const { return mFlags; }
 
@@ -376,6 +386,7 @@ public:
     private:
         LLVector3 mLocalPos;
         LLQuaternion mLocalRot;
+        LLVector3 mLocalScale;
         LLVector3 mTargetPos;
         LLQuaternion mTargetRot;
         U8 mFlags = 0; // per-feature bits
@@ -384,7 +395,8 @@ public:
     using ptr_t = std::shared_ptr<Joint>;
     using child_vec_t = std::vector<ptr_t>;
 
-    Joint(S16 id, const LLVector3& local_pos, const LLVector3& bone);
+    Joint(LLJoint* info);
+    void resetFromInfo();
 
     void addChild(const ptr_t& child);
     void setParent(const ptr_t& parent);
@@ -392,7 +404,7 @@ public:
     void relaxRotationsRecursively(F32 blend_factor);
     F32 recursiveComputeLongestChainLength(F32 length) const;
 
-    void reconfigure(const LLVector3& local_pos, const LLVector3& bone);
+    void updateGeometry(const LLVector3& local_pos, const LLVector3& bone);
 
     LLVector3 computeEndTargetPos() const;
     LLVector3 computeWorldTipOffset() const;
@@ -415,6 +427,8 @@ public:
     void setLocalPos(const LLVector3& pos);
     void setWorldRot(const LLQuaternion& rot);
     void setLocalRot(const LLQuaternion& new_local_rot);
+    void setLocalScale(const LLVector3& scale);
+    LLVector3 getPreScaledLocalPos() const;
     void adjustWorldRot(const LLQuaternion& adjustment);
     void shiftPos(const LLVector3& shift);
 
@@ -424,9 +438,10 @@ public:
     LLVector3 getTargetPos() const { return mConfig->getTargetPos(); }
 
     const Config* getConfig() const { return mConfig; }
-    bool hasPosTarget() const { return (mConfigFlags & FLAG_TARGET_POS) > 0; }
-    bool hasRotTarget() const { return (mConfigFlags & FLAG_TARGET_ROT) > 0; }
+    bool hasPosTarget() const { return (mConfigFlags & CONFIG_FLAG_TARGET_POS) > 0; }
+    bool hasRotTarget() const { return (mConfigFlags & CONFIG_FLAG_TARGET_ROT) > 0; }
     U8 getConfigFlags() const { return mConfigFlags; }
+    U8 getHarvestFlags() const { return (mConfigFlags | mIkFlags) & MASK_LOCAL; }
     void resetFlags();
     void lockLocalRot(const LLQuaternion& local_rot);
 
@@ -439,16 +454,17 @@ public:
     ptr_t getSingleActiveChild();
     const LLVector3& getBone() const { return mBone; }
     const LLVector3& getLocalPos() const { return mLocalPos; }
+    const LLVector3& getLocalScale() const { return mLocalScale; }
     F32 getBoneLength() const { return mBone.length(); }
     F32 getLocalPosLength() const { return mLocalPosLength; }
 
     ptr_t getParent() { return mParent; }
-    void activate() { mIsActive = true; }
-    bool isActive() const { return mIsActive; }
-    bool hasDisabledConstraint() const { return (mConfigFlags & FLAG_DISABLE_CONSTRAINT) > 0; }
+    void activate() { mIkFlags |= IK_FLAG_ACTIVE; }
+    bool isActive() const { return mIkFlags & IK_FLAG_ACTIVE; }
+    bool hasDisabledConstraint() const { return (mConfigFlags & CONFIG_FLAG_DISABLE_CONSTRAINT) > 0; }
 
     // Joint::mLocalRot is considered "locked" when its mConfigFlag's FLAG_LOCAL_ROT bit is set
-    bool localRotLocked() const { return (mConfigFlags & FLAG_LOCAL_ROT) > 0; }
+    bool localRotLocked() const { return (mIkFlags & IK_FLAG_LOCAL_ROT_LOCKED) > 0; }
 
     size_t getNumChildren() const { return mChildren.size(); }
 
@@ -456,6 +472,10 @@ public:
     bool swingTowardTargets(const std::vector<LLVector3>& local_targets, const std::vector<LLVector3>& world_targets);
     void twistTowardTargets(const std::vector<LLVector3>& local_targets, const std::vector<LLVector3>& world_targets);
     void untwist();
+
+    // We call flagForHarvest() when we expect the joint to be updated by IK
+    // so we know to harvest its mLocalRot later.
+    void flagForHarvest() { mIkFlags |= IK_FLAG_LOCAL_ROT; }
 
 #ifdef DEBUG_LLIK_UNIT_TESTS
     void dumpConfig() const;
@@ -471,7 +491,6 @@ protected:
 protected:
     std::vector<ptr_t> mChildren;      //List of joint_ids attached to this one.
 
-    LLVector3 mDefaultLocalPos; // default pos in parent-frame
     LLVector3 mLocalPos; // current pos in parent-frame
     LLVector3 mPos; // pos in world-frame
     // The fundamental position formula is:
@@ -483,6 +502,8 @@ protected:
     // The fundamental orientations formula is:
     //     mRot = mLocalRot * mParent->mRot
 
+    LLVector3 mLocalScale;
+
     LLVector3 mBone;
     // There is another fundamental formula:
     //    world_end_pos = mPos + mBone * mRot
@@ -492,10 +513,17 @@ protected:
     F32 mLocalPosLength = 0.0f; // cached copy of mLocalPos.length()
     S16 mID = -1;
 
+    // From LLIK::Joint's prespective the LLJoint stores the default
+    // non-animated geometry of the Joint, which occasionally needs to
+    // be known during IK calculations.  LLJoint was implemented way back,
+    // when we were adding raw pointers and we haven't rewritten that logic
+    // yet, so to make its raw-pointer nature more clear we call it mInfoPtr.
+    const LLJoint* mInfoPtr;
+
     const Config* mConfig = nullptr; // pointer into Solver::mJointConfigs
 
     U8 mConfigFlags = 0; // cache of mConfig->mFlags
-    bool mIsActive;
+    U8 mIkFlags = 0; // flags for IK calculations
 };
 
 
@@ -523,7 +551,11 @@ public:
     LLVector3 computeReach(S16 to_id, S16 from_id) const;
 
     // Add a Joint to the skeleton.
-    void addJoint(S16 joint_id, S16 parent_id, const LLVector3& local_pos, const LLVector3& bone, const Constraint::ptr_t& constraint);
+    void addJoint(
+            S16 joint_id,
+            S16 parent_id,
+            LLJoint* info_ptr,
+            const Constraint::ptr_t& constraint);
 
     // apply configs and return 'true' if something changed
     bool updateJointConfigs(const joint_config_map_t& configs);
@@ -560,7 +592,7 @@ public:
     LLVector3 getJointWorldEndPos(S16 joint_id) const;
     LLQuaternion getJointWorldRot(S16 joint_id) const;
 
-    void reconfigureJoint(S16 joint_id, const LLVector3& local_pos, const LLVector3& bone, const Constraint::ptr_t& constraint);
+    void resetJointGeometry(S16 joint_id, const Constraint::ptr_t& constraint);
 
     void enableDebugIfPossible(); // will be possible when DEBUG_LLIK_UNIT_TESTS defined
 

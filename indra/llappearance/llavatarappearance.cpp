@@ -728,7 +728,7 @@ BOOL LLAvatarAppearance::buildSkeleton(const LLAvatarSkeletonInfo *info)
 		LL_ERRS() << "Can't allocate " << info->mNumBones << " joints" << LL_ENDL;
 		return FALSE;
 	}
-	
+
 	// allocate volumes
 	if (info->mNumCollisionVolumes)
 	{
