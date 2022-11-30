@@ -2274,7 +2274,7 @@ void LLIK::Solver::rebuildAllChains()
             }
             if (flags & CONFIG_FLAG_LOCAL_SCALE)
             {
-                joint->setLocalScale(config.getLocalPos());
+                joint->setLocalScale(config.getLocalScale());
             }
             continue;
         }
