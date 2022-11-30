@@ -4587,7 +4587,7 @@ void LLInventoryModel::FetchItemHttpHandler::processData(LLSD & content, LLCore:
 	{
 		gInventory.updateItem(*it);
 	}
-	
+
 	gInventory.notifyObservers();
 	gViewerWindow->getWindow()->decBusyCount();
 }
