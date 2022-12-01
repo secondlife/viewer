@@ -1064,7 +1064,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
 		F32 transparency = (1.f - color.mV[VALPHA]) * 100.f;
 		getChild<LLUICtrl>("ColorTrans")->setValue(editable ? transparency : 0);
-		getChildView("ColorTrans")->setEnabled(editable);
+		getChildView("ColorTrans")->setEnabled(editable && has_material);
 
 		// Specular map
 		LLSelectedTEMaterial::getSpecularID(specmap_id, identical_spec);
