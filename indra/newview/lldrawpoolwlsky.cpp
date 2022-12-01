@@ -166,6 +166,11 @@ void LLDrawPoolWLSky::renderDome(const LLVector3& camPosLocal, F32 camHeightLoca
 
 void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 camHeightLocal) const
 {
+    if (!gSky.mVOSkyp)
+    {
+        return;
+    }
+
     LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
 
 	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))

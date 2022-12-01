@@ -1400,8 +1400,6 @@ void LLMaterialEditor::createInventoryItem(const std::string &buffer, const std:
             LLNotificationsUtil::add("MaterialCreated", params);
         });
 
-        // todo: apply permissions from textures here if server doesn't
-        // if any texture is 'no transfer', material should be 'no transfer' as well
         const LLViewerRegion* region = gAgent.getRegion();
         if (region)
         {
@@ -1683,6 +1681,59 @@ static void pack_textures(
         LL_DEBUGS("MaterialEditor") << "Emissive: " << emissive_j2c->getDataSize() << LL_ENDL;
     }
 }
+
+void LLMaterialEditor::uploadMaterialFromFile(const std::string& filename, S32 index)
+{
+    if (index < 0)
+    {
+        return;
+    }
+
+    tinygltf::TinyGLTF loader;
+    std::string        error_msg;
+    std::string        warn_msg;
+
+    bool loaded = false;
+    tinygltf::Model model_in;
+
+    std::string filename_lc = filename;
+    LLStringUtil::toLower(filename_lc);
+
+    // Load a tinygltf model fom a file. Assumes that the input filename has already been
+    // been sanitized to one of (.gltf , .glb) extensions, so does a simple find to distinguish.
+    if (std::string::npos == filename_lc.rfind(".gltf"))
+    {  // file is binary
+        loaded = loader.LoadBinaryFromFile(&model_in, &error_msg, &warn_msg, filename);
+    }
+    else
+    {  // file is ascii
+        loaded = loader.LoadASCIIFromFile(&model_in, &error_msg, &warn_msg, filename);
+    }
+
+    if (!loaded)
+    {
+        LLNotificationsUtil::add("CannotUploadMaterial");
+        return;
+    }
+
+    if (model_in.materials.empty())
+    {
+        // materials are missing
+        return;
+    }
+
+    if (index >= 0 && model_in.materials.size() <= index)
+    {
+        // material is missing
+        return;
+    }
+
+    // Todo: no point in loading whole editor
+    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", LLSD().with("filename", filename).with("index", LLSD::Integer(index)));
+    me->loadMaterial(model_in, filename_lc, index, false);
+    me->saveIfNeeded();
+}
+
 
 void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 index)
 {
@@ -1976,7 +2027,7 @@ void LLMaterialEditor::loadFromGLTFMaterial(LLUUID &asset_id)
     me->setFocus(TRUE);
 }
 
-void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::string &filename_lc, S32 index)
+void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::string &filename_lc, S32 index, bool open_floater)
 {
     if (model_in.materials.size() <= index)
     {
@@ -2074,10 +2125,13 @@ void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::
 
     markChangesUnsaved(U32_MAX);
 
-    openFloater();
-    setFocus(TRUE);
+    if (open_floater)
+    {
+        openFloater(getKey());
+        setFocus(TRUE);
 
-    applyToSelection();
+        applyToSelection();
+    }
 }
 
 bool LLMaterialEditor::setFromGltfModel(const tinygltf::Model& model, S32 index, bool set_textures)

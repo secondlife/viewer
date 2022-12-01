@@ -103,6 +103,7 @@ public:
     void loadAsset() override;
     // @index if -1 and file contains more than one material,
     // will promt to select specific one
+    static void uploadMaterialFromFile(const std::string& filename, S32 index);
     static void loadMaterialFromFile(const std::string& filename, S32 index = -1);
 
     void onSelectionChanged(); // live overrides selection changes
@@ -242,7 +243,7 @@ private:
     void setFromGLTFMaterial(LLGLTFMaterial* mat);
     bool setFromSelection();
 
-    void loadMaterial(const tinygltf::Model &model, const std::string &filename_lc, S32 index);
+    void loadMaterial(const tinygltf::Model &model, const std::string &filename_lc, S32 index, bool open_floater = true);
 
     friend class LLMaterialFilePicker;
 
