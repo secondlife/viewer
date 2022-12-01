@@ -197,6 +197,7 @@ protected:
 	virtual BOOL handleToolTip( S32 x, S32 y, MASK mask);
 
 	const LLUUID mInventoryItemUUID;
+    bool mHovered;
 
 private:
 
@@ -221,7 +222,6 @@ private:
 	LLUIImagePtr	mSelectedImage;
 	LLUIImagePtr	mSeparatorImage;
 
-	bool			mHovered;
 	bool			mSelected;
 	bool			mSeparatorVisible;
 
