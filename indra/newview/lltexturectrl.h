@@ -223,7 +223,7 @@ public:
     EPickInventoryType getInventoryPickType() { return mInventoryPickType; };
 
 private:
-	BOOL allowDrop(LLInventoryItem* item);
+	BOOL allowDrop(LLInventoryItem* item, EDragAndDropType cargo_type, std::string& tooltip_msg);
 	BOOL doDrop(LLInventoryItem* item);
 
 private:
