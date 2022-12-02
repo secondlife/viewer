@@ -38,6 +38,7 @@
 #include "llfloatermap.h"
 #include "llfloatermodelpreview.h"
 #include "llmaterialeditor.h"
+#include "llfloaterperms.h"
 #include "llfloatersnapshot.h"
 #include "llfloateroutfitsnapshot.h"
 #include "llimage.h"
@@ -49,9 +50,9 @@
 #include "llinventorymodel.h"	// gInventory
 #include "llpluginclassmedia.h"
 #include "llresourcedata.h"
-#include "lltoast.h"
-#include "llfloaterperms.h"
 #include "llstatusbar.h"
+#include "lltinygltfhelper.h"
+#include "lltoast.h"
 #include "llviewercontrol.h"	// gSavedSettings
 #include "llviewertexturelist.h"
 #include "lluictrlfactory.h"
@@ -471,19 +472,33 @@ void do_bulk_upload(std::vector<std::string> filenames, const LLSD& notification
 		if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec) &&
 			LLAgentBenefitsMgr::current().findUploadCost(asset_type, expected_upload_cost))
 		{
-		LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
-			filename,
-			asset_name,
-			asset_name, 0,
-			LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
-			LLFloaterPerms::getNextOwnerPerms("Uploads"),
-			LLFloaterPerms::getGroupPerms("Uploads"),
-			LLFloaterPerms::getEveryonePerms("Uploads"),
-			expected_upload_cost));
+            LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
+                filename,
+                asset_name,
+                asset_name, 0,
+                LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+                LLFloaterPerms::getNextOwnerPerms("Uploads"),
+                LLFloaterPerms::getGroupPerms("Uploads"),
+                LLFloaterPerms::getEveryonePerms("Uploads"),
+                expected_upload_cost));
 
-		upload_new_resource(uploadInfo);
-	}
-}
+            upload_new_resource(uploadInfo);
+        }
+
+        // gltf does not use normal upload procedure
+        if (ext == "gltf" || ext == "glb")
+        {
+            S32 materials_in_file = LLTinyGLTFHelper::getMaterialCountFromFile(filename);
+
+            for (S32 i = 0; i < materials_in_file; i++)
+            {
+                // Todo:
+                // 1. Decouple bulk upload from material editor
+                // 2. Take into account possiblity of identical textures
+                LLMaterialEditor::uploadMaterialFromFile(filename, i);
+            }
+        }
+    }
 }
 
 bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S32& total_cost, S32& file_count, S32& bvh_count)
@@ -511,6 +526,44 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
 			total_cost += cost;
 			file_count++;
 		}
+
+        if (ext == "gltf" || ext == "glb")
+        {
+            S32 texture_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
+            S32 materials_in_file = LLTinyGLTFHelper::getMaterialCountFromFile(filename);
+
+            for (S32 i = 0; i < materials_in_file; i++)
+            {
+                LLPointer<LLFetchedGLTFMaterial> material = new LLFetchedGLTFMaterial();
+                std::string material_name;
+                bool decode_successful = LLTinyGLTFHelper::getMaterialFromFile(filename, i, material.get(), material_name);
+
+                if (decode_successful)
+                {
+                    // Todo: make it account for possibility of same texture in different
+                    // materials and even in scope of same material
+                    S32 texture_count = 0;
+                    if (material->mBaseColorId.notNull())
+                    {
+                        texture_count++;
+                    }
+                    if (material->mMetallicRoughnessId.notNull())
+                    {
+                        texture_count++;
+                    }
+                    if (material->mNormalId.notNull())
+                    {
+                        texture_count++;
+                    }
+                    if (material->mEmissiveId.notNull())
+                    {
+                        texture_count++;
+                    }
+                    total_cost += texture_count * texture_upload_cost;
+                    file_count++;
+                }
+            }
+        }
 	}
 	
     return file_count > 0;

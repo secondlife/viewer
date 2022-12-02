@@ -891,6 +891,40 @@
              max_val="1"
              name="shinyOffsetV"
              width="265" />
+            <check_box
+             follows="top|left"
+             height="16"
+             initial_value="false"
+             label="Align planar faces"
+             layout="topleft"
+             left="7"
+             name="checkbox planar align"
+             tool_tip="Align textures on all selected faces with the last selected face. Requires Planar texture mapping."
+             top_delta="20"
+             width="260" />
+			<button
+             follows="left|top"
+             layout="topleft"
+			 left="9"
+			 top="231"
+			 height="20"
+			 label="Align"
+			 label_selected="Align current texture layers"
+			 name="button align textures"
+			 tool_tip="Align current texture layers"
+			 width="66" />
+            <web_browser
+             visible="false"
+             enabled="false"
+             border_visible="true"
+             bottom_delta="0"
+             follows="top|left"
+             left="0"
+             name="title_media"
+             width="4"
+             height="4"
+             start_url="about:blank"
+             decouple_texture_size="true" />
             <!-- BEGIN PBR Material texture transform parameters -->
             <spinner
              follows="left|top"
@@ -903,7 +937,7 @@
              min_val="-100"
              max_val="100"
              name="gltfTextureScaleU"
-             top_delta="-115"
+             top_delta="34"
              width="265" />
             <spinner
              follows="left|top"
@@ -954,38 +988,4 @@
              name="gltfTextureOffsetV"
              width="265" />
             <!-- END PBR Material texture transform parameters -->
-            <check_box
-             follows="top|left"
-             height="16"
-             initial_value="false"
-             label="Align planar faces"
-             layout="topleft"
-             left="7"
-             name="checkbox planar align"
-             tool_tip="Align textures on all selected faces with the last selected face. Requires Planar texture mapping."
-             top_delta="43"
-             width="260" />
-			<button
-             follows="left|top"
-             layout="topleft"
-			 left="9"
-			 top="231"
-			 height="20"
-			 label="Align"
-			 label_selected="Align current texture layers"
-			 name="button align textures"
-			 tool_tip="Align current texture layers"
-			 width="66" />
-            <web_browser
-             visible="false"
-             enabled="false"
-             border_visible="true"
-             bottom_delta="0"
-             follows="top|left"
-             left="0"
-             name="title_media"
-             width="4"
-             height="4"
-             start_url="about:blank"
-             decouple_texture_size="true" />
 </panel>

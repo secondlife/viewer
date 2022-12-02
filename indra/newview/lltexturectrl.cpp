@@ -1800,7 +1800,7 @@ BOOL LLTextureCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
         allow_dnd = is_texture || is_mesh || is_material;
     }
 
-	if (getEnabled() && allow_dnd && allowDrop(item))
+	if (getEnabled() && allow_dnd && allowDrop(item, cargo_type, tooltip_msg))
 	{
 		if (drop)
 		{
@@ -1952,7 +1952,7 @@ void LLTextureCtrl::draw()
 	LLUICtrl::draw();
 }
 
-BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item)
+BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item, EDragAndDropType cargo_type, std::string& tooltip_msg)
 {
 	BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
 	BOOL mod = item->getPermissions().allowModifyBy(gAgent.getID());
@@ -1978,6 +1978,12 @@ BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item)
 	}
 	else
 	{
+        PermissionMask mask = PERM_COPY | PERM_TRANSFER;
+        if ((filter_perm_mask & mask) == mask
+            && cargo_type == DAD_TEXTURE)
+        {
+            tooltip_msg.assign(LLTrans::getString("TooltipTextureRestrictedDrop"));
+        }
 		return FALSE;
 	}
 }
