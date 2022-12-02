@@ -1958,6 +1958,7 @@ namespace tut
                placeholders::arg1 <<
                import_llsd <<
                "from functools import partial\n"
+               "import io\n"
                "import struct\n"
                "lenformat = struct.Struct('i')\n"
                "def parse_each(inf):\n"
@@ -1968,11 +1969,16 @@ namespace tut
                // into a distinct bytes object and parse that.
                "        data = inf.read(len)\n"
                "        try:\n"
-               "            yield llsd.parse(data)\n"
+               "            frombytes = llsd.parse(data)\n"
                "        except llsd.LLSDParseError as err:\n"
                "            print(f'*** {err}')\n"
                "            print(f'Bad content:\\n{data!r}')\n"
                "            raise\n"
+               // Also try parsing from a distinct stream.
+               "        stream = io.BytesIO(data)\n"
+               "        fromstream = llsd.parse(stream)\n"
+               "        assert frombytes == fromstream\n"
+               "        yield frombytes\n"
                << pydata <<
                // Don't forget raw-string syntax for Windows pathnames.
                "verify(parse_each(open(r'" << file.getName() << "', 'rb')))\n");
