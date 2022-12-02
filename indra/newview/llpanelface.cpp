@@ -996,8 +996,18 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		
         if (mComboMatMedia->getCurrentIndex() < MATMEDIA_MATERIAL)
         {
-            mComboMatMedia->selectNthItem(MATMEDIA_MATERIAL);
+            // When selecting an object with a pbr and UI combo is not set,
+            // set to pbr option, otherwise to a texture (material)
+            if (has_pbr_material)
+            {
+                mComboMatMedia->selectNthItem(MATMEDIA_PBR);
+            }
+            else
+            {
+                mComboMatMedia->selectNthItem(MATMEDIA_MATERIAL);
+            }
         }
+
         mComboMatMedia->setEnabled(editable);
 
 		LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
