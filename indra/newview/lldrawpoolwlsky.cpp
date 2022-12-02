@@ -283,6 +283,11 @@ void LLDrawPoolWLSky::renderStars(const LLVector3& camPosLocal) const
 
 void LLDrawPoolWLSky::renderStarsDeferred(const LLVector3& camPosLocal) const
 {
+    if (!gSky.mVOSkyp)
+    {
+        return;
+    }
+
 	LLGLSPipelineBlendSkyBox gls_sky(true, false);
 
 	gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
