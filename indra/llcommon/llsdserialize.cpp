@@ -123,12 +123,26 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, S32 max_bytes)
 	bool fail_if_not_legacy = false;
 
 	/*
-	 * Get the first line before anything.
+	 * Get the first line before anything. Don't read more than max_bytes:
+	 * this get() overload reads no more than (count-1) bytes into the
+	 * specified buffer. In the usual case when max_bytes exceeds
+	 * sizeof(hdr_buf), get() will read no more than sizeof(hdr_buf)-2.
 	 */
-	// Remember str's original input position: if there's no header, we'll
-	// want to back up and retry.
-	str.get(hdr_buf, sizeof(hdr_buf), '\n');
+	str.get(hdr_buf, std::min(max_bytes+1, sizeof(hdr_buf)-1), '\n');
 	auto inbuf = str.gcount();
+	// https://en.cppreference.com/w/cpp/io/basic_istream/get
+	// When the get() above sees the specified delimiter '\n', it stops there
+	// without pulling it from the stream. If it turns out that the stream
+	// does NOT contain a header, and the content includes meaningful '\n',
+	// it's important to pull that into hdr_buf too.
+	if (inbuf < max_bytes && str.get(hdr_buf[inbuf]))
+	{
+		// got the delimiting '\n'
+		++inbuf;
+		// None of the following requires that hdr_buf contain a final '\0'
+		// byte. We could store one if needed, since even the incremented
+		// inbuf won't exceed sizeof(hdr_buf)-1, but there's no need.
+	}
 	std::string header{ hdr_buf, inbuf };
 	if (str.fail())
 	{
@@ -175,17 +189,17 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, S32 max_bytes)
 	/*
 	 * Create the parser as appropriate
 	 */
-	if (header == LLSD_BINARY_HEADER)
+	if (0 == LLStringUtil::compareInsensitive(header, LLSD_BINARY_HEADER))
 	{
-		return (parse_using<LLSDBinaryParser>(str, sd, max_bytes) > 0);
+		return (parse_using<LLSDBinaryParser>(str, sd, max_bytes-inbuf) > 0);
 	}
-	else if (header == LLSD_XML_HEADER)
+	else if (0 == LLStringUtil::compareInsensitive(header, LLSD_XML_HEADER))
 	{
-		return (parse_using<LLSDXMLParser>(str, sd, max_bytes) > 0);
+		return (parse_using<LLSDXMLParser>(str, sd, max_bytes-inbuf) > 0);
 	}
-	else if (header == LLSD_NOTATION_HEADER)
+	else if (0 == LLStringUtil::compareInsensitive(header, LLSD_NOTATION_HEADER))
 	{
-		return (parse_using<LLSDNotationParser>(str, sd, max_bytes) > 0);
+		return (parse_using<LLSDNotationParser>(str, sd, max_bytes-inbuf) > 0);
 	}
 	else // no header we recognize
 	{
@@ -207,7 +221,22 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, S32 max_bytes)
 		LLMemoryStreamBuf already(reinterpret_cast<const U8*>(hdr_buf), inbuf);
 		cat_streambuf prebuff(&already, str.rdbuf());
 		std::istream  prepend(&prebuff);
+#if 1
 		return (p->parse(prepend, sd, max_bytes) > 0);
+#else
+		// debugging the reconstituted 'prepend' stream
+		// allocate a buffer that we hope is big enough for the whole thing
+		std::vector<char> wholemsg((max_bytes == size_t(SIZE_UNLIMITED))? 1024 : max_bytes);
+		prepend.read(wholemsg.data(), std::min(max_bytes, wholemsg.size()));
+		LLMemoryStream replay(reinterpret_cast<const U8*>(wholemsg.data()), prepend.gcount());
+		auto success{ p->parse(replay, sd, prepend.gcount()) > 0 };
+		{
+			LL_DEBUGS() << (success? "parsed: $$" : "failed: '")
+						<< std::string(wholemsg.data(), llmin(prepend.gcount(), 100)) << "$$"
+						<< LL_ENDL;
+		}
+		return success;
+#endif
 	}
 }
 

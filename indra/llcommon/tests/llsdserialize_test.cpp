@@ -51,10 +51,11 @@ typedef U32 uint32_t;
 #include "boost/phoenix/core/argument.hpp"
 using namespace boost::phoenix;
 
-#include "../llsd.h"
-#include "../llsdserialize.h"
+#include "llsd.h"
+#include "llsdserialize.h"
 #include "llsdutil.h"
-#include "../llformat.h"
+#include "llformat.h"
+#include "llmemorystream.h"
 
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
@@ -1898,14 +1899,22 @@ namespace tut
     static void writeLLSDArray(const FormatterFunction& serialize,
                                std::ostream& out, const LLSD& array)
     {
-        BOOST_FOREACH(LLSD item, llsd::inArray(array))
+        for (const LLSD& item : llsd::inArray(array))
         {
-            serialize(item, out);
-            // It's important to separate with newlines because Python's llsd
-            // module doesn't support parsing from a file stream, only from a
-            // string, so we have to know how much of the file to read into a
-            // string.
-            out << '\n';
+            // It's important to delimit the entries in this file somehow
+            // because, although Python's llsd.parse() can accept a file
+            // stream, the XML parser expects EOF after a single outer element
+            // -- it doesn't just stop. So we must extract a sequence of bytes
+            // strings from the file. But since one of the serialization
+            // formats we want to test is binary, we can't pick any single
+            // byte value as a delimiter! Use a binary integer length prefix
+            // instead.
+            std::ostringstream buffer;
+            serialize(item, buffer);
+            auto buffstr{ buffer.str() };
+            int bufflen{ static_cast<int>(buffstr.length()) };
+            out.write(reinterpret_cast<const char*>(&bufflen), sizeof(bufflen));
+            out.write(buffstr.c_str(), buffstr.length());
         }
     }
 
@@ -1932,7 +1941,7 @@ namespace tut
             "    except StopIteration:\n"
             "        pass\n"
             "    else:\n"
-            "        assert False, 'Too many data items'\n";
+            "        raise AssertionError('Too many data items')\n";
 
         // Create an llsdXXXXXX file containing 'data' serialized to
         // notation.
@@ -1948,10 +1957,23 @@ namespace tut
         python("read C++ " + desc,
                placeholders::arg1 <<
                import_llsd <<
-               "def parse_each(iterable):\n"
-               "    for item in iterable:\n"
-               "        yield llsd.parse(item)\n" <<
-               pydata <<
+               "from functools import partial\n"
+               "import struct\n"
+               "lenformat = struct.Struct('i')\n"
+               "def parse_each(inf):\n"
+               "    for rawlen in iter(partial(inf.read, lenformat.size), b''):\n"
+               "        len = lenformat.unpack(rawlen)[0]\n"
+               // Since llsd.parse() has no max_bytes argument, instead of
+               // passing the input stream directly to parse(), read the item
+               // into a distinct bytes object and parse that.
+               "        data = inf.read(len)\n"
+               "        try:\n"
+               "            yield llsd.parse(data)\n"
+               "        except llsd.LLSDParseError as err:\n"
+               "            print(f'*** {err}')\n"
+               "            print(f'Bad content:\\n{data!r}')\n"
+               "            raise\n"
+               << pydata <<
                // Don't forget raw-string syntax for Windows pathnames.
                "verify(parse_each(open(r'" << file.getName() << "', 'rb')))\n");
     }
@@ -2009,6 +2031,26 @@ namespace tut
 |*==========================================================================*/
 
     // helper for test<8> - test<12>
+    bool itemFromStream(std::istream& istr, LLSD& item, const ParserFunction& parse)
+    {
+        // reset the output value for debugging clarity
+        item.clear();
+        // We use an int length prefix as a foolproof delimiter even for
+        // binary serialized streams.
+        int length{ 0 };
+        istr.read(reinterpret_cast<char*>(&length), sizeof(length));
+//      return parse(istr, item, length);
+        // Sadly, as of 2022-12-01 it seems we can't really trust our LLSD
+        // parsers to honor max_bytes: this test works better when we read
+        // each item into its own distinct LLMemoryStream, instead of passing
+        // the original istr with a max_bytes constraint.
+        std::vector<U8> buffer(length);
+        istr.read(reinterpret_cast<char*>(buffer.data()), length);
+        LLMemoryStream stream(buffer.data(), length);
+        return parse(stream, item, length);
+    }
+
+    // helper for test<8> - test<12>
     void fromPythonUsing(const std::string& pyformatter,
                          const ParserFunction& parse=
                          [](std::istream& istr, LLSD& data, size_t max_bytes)
@@ -2022,6 +2064,8 @@ namespace tut
         python("Python " + pyformatter,
                placeholders::arg1 <<
                import_llsd <<
+               "import struct\n"
+               "lenformat = struct.Struct('i')\n"
                "DATA = [\n"
                "    17,\n"
                "    3.14,\n"
@@ -2034,29 +2078,33 @@ namespace tut
                // N.B. Using 'print' implicitly adds newlines.
                "with open(r'" << file.getName() << "', 'wb') as f:\n"
                "    for item in DATA:\n"
-               "        print(llsd." << pyformatter << "(item), file=f)\n");
+               "        serialized = llsd." << pyformatter << "(item)\n"
+               "        f.write(lenformat.pack(len(serialized)))\n"
+               "        f.write(serialized)\n");
 
         std::ifstream inf(file.getName().c_str());
         LLSD item;
-        // Notice that we're not doing anything special to parse out the
-        // newlines: LLSDSerialize::fromNotation ignores them. While it would
-        // seem they're not strictly necessary, going in this direction, we
-        // want to ensure that notation-separated-by-newlines works in both
-        // directions -- since in practice, a given file might be read by
-        // either language.
-        ensure("Failed to read LLSD::Integer from Python",
-               parse(inf, item, LLSDSerialize::SIZE_UNLIMITED));
-        ensure_equals(item.asInteger(), 17);
-        ensure("Failed to read LLSD::Real from Python",
-               parse(inf, item, LLSDSerialize::SIZE_UNLIMITED));
-        ensure_approximately_equals("Bad LLSD::Real value from Python",
-                                    item.asReal(), 3.14, 7); // 7 bits ~= 0.01
-        ensure("Failed to read LLSD::String from Python",
-               parse(inf, item, LLSDSerialize::SIZE_UNLIMITED));
-        ensure_equals(item.asString(), 
-                      "This string\n"
-                      "has several\n"
-                      "lines.");
+        try
+        {
+            ensure("Failed to read LLSD::Integer from Python",
+                   itemFromStream(inf, item, parse));
+            ensure_equals(item.asInteger(), 17);
+            ensure("Failed to read LLSD::Real from Python",
+                   itemFromStream(inf, item, parse));
+            ensure_approximately_equals("Bad LLSD::Real value from Python",
+                                        item.asReal(), 3.14, 7); // 7 bits ~= 0.01
+            ensure("Failed to read LLSD::String from Python",
+                   itemFromStream(inf, item, parse));
+            ensure_equals(item.asString(), 
+                          "This string\n"
+                          "has several\n"
+                          "lines.");
+        }
+        catch (const tut::failure& err)
+        {
+            std::cout << "for " << err.what() << ", item = " << item << std::endl;
+            throw;
+        }
     }
 
     template<> template<>

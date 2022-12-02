@@ -317,8 +317,17 @@ public:
             LL_DEBUGS("LLLeap") << "needed " << mExpect << " bytes, got "
                                 << childout.size() << ", parsing LLSD" << LL_ENDL;
             LLSD data;
+#if 1
+            // specifically require notation LLSD from child
+            LLPointer<LLSDParser> parser(new LLSDNotationParser());
+            S32 parse_status(parser->parse(childout.get_istream(), data, mExpect));
+            if (parse_status == LLSDParser::PARSE_FAILURE)
+#else
+            // SL-18330: accept any valid LLSD serialization format from child
+            // Unfortunately this runs into trouble we have not yet debugged.
             bool parse_status(LLSDSerialize::deserialize(data, childout.get_istream(), mExpect));
             if (! parse_status)
+#endif
             {
                 bad_protocol("unparseable LLSD data");
             }
