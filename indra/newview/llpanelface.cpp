@@ -1818,11 +1818,11 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
         LLUICtrl* gltfCtrlTextureOffsetU = getChild<LLUICtrl>("gltfTextureOffsetU");
         LLUICtrl* gltfCtrlTextureOffsetV = getChild<LLUICtrl>("gltfTextureOffsetV");
 
-        gltfCtrlTextureScaleU->setEnabled(show_texture_info && has_pbr_capabilities);
-        gltfCtrlTextureScaleV->setEnabled(show_texture_info && has_pbr_capabilities);
-        gltfCtrlTextureRotation->setEnabled(show_texture_info && has_pbr_capabilities);
-        gltfCtrlTextureOffsetU->setEnabled(show_texture_info && has_pbr_capabilities);
-        gltfCtrlTextureOffsetV->setEnabled(show_texture_info && has_pbr_capabilities);
+        gltfCtrlTextureScaleU->setEnabled(show_texture_info && has_pbr_capabilities && has_pbr_material);
+        gltfCtrlTextureScaleV->setEnabled(show_texture_info && has_pbr_capabilities && has_pbr_material);
+        gltfCtrlTextureRotation->setEnabled(show_texture_info && has_pbr_capabilities && has_pbr_material);
+        gltfCtrlTextureOffsetU->setEnabled(show_texture_info && has_pbr_capabilities && has_pbr_material);
+        gltfCtrlTextureOffsetV->setEnabled(show_texture_info && has_pbr_capabilities && has_pbr_material);
 
         // Control values are set in setMaterialOverridesFromSelection
     }
