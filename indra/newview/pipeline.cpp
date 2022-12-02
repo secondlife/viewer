@@ -3587,166 +3587,161 @@ void renderScriptedBeacons(LLDrawable* drawablep)
 	}
 }
 
-void renderScriptedTouchBeacons(LLDrawable* drawablep)
+void renderScriptedTouchBeacons(LLDrawable *drawablep)
 {
-	LLViewerObject *vobj = drawablep->getVObj();
-	if (vobj 
-		&& !vobj->isAvatar() 
-		&& !vobj->getParent()
-		&& vobj->flagScripted()
-		&& vobj->flagHandleTouch())
-	{
-		if (gPipeline.sRenderBeacons)
-		{
-			gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", LLColor4(1.f, 0.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f), LLPipeline::DebugBeaconLineWidth);
-		}
+    LLViewerObject *vobj = drawablep->getVObj();
+    if (vobj && !vobj->isAvatar() && !vobj->getParent() && vobj->flagScripted() && vobj->flagHandleTouch())
+    {
+        if (gPipeline.sRenderBeacons)
+        {
+            gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", LLColor4(1.f, 0.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f),
+                                       LLPipeline::DebugBeaconLineWidth);
+        }
 
-		if (gPipeline.sRenderHighlight)
-		{
-			S32 face_id;
-			S32 count = drawablep->getNumFaces();
-			for (face_id = 0; face_id < count; face_id++)
-			{
-				LLFace * facep = drawablep->getFace(face_id);
-				if (facep)
-				{
-					gPipeline.mHighlightFaces.push_back(facep);
-			}
-		}
-	}
-}
+        if (gPipeline.sRenderHighlight)
+        {
+            S32 face_id;
+            S32 count = drawablep->getNumFaces();
+            for (face_id = 0; face_id < count; face_id++)
+            {
+                LLFace *facep = drawablep->getFace(face_id);
+                if (facep)
+                {
+                    gPipeline.mHighlightFaces.push_back(facep);
+                }
+            }
+        }
+    }
 }
 
-void renderPhysicalBeacons(LLDrawable* drawablep)
+void renderPhysicalBeacons(LLDrawable *drawablep)
 {
-	LLViewerObject *vobj = drawablep->getVObj();
-	if (vobj 
-		&& !vobj->isAvatar() 
-		//&& !vobj->getParent()
-		&& vobj->flagUsePhysics())
-	{
-		if (gPipeline.sRenderBeacons)
-		{
-			gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", LLColor4(0.f, 1.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f), LLPipeline::DebugBeaconLineWidth);
-		}
+    LLViewerObject *vobj = drawablep->getVObj();
+    if (vobj &&
+        !vobj->isAvatar()
+        //&& !vobj->getParent()
+        && vobj->flagUsePhysics())
+    {
+        if (gPipeline.sRenderBeacons)
+        {
+            gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", LLColor4(0.f, 1.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f),
+                                       LLPipeline::DebugBeaconLineWidth);
+        }
 
-		if (gPipeline.sRenderHighlight)
-		{
-			S32 face_id;
-			S32 count = drawablep->getNumFaces();
-			for (face_id = 0; face_id < count; face_id++)
-			{
-				LLFace * facep = drawablep->getFace(face_id);
-				if (facep)
-				{
-					gPipeline.mHighlightFaces.push_back(facep);
-			}
-		}
-	}
-}
+        if (gPipeline.sRenderHighlight)
+        {
+            S32 face_id;
+            S32 count = drawablep->getNumFaces();
+            for (face_id = 0; face_id < count; face_id++)
+            {
+                LLFace *facep = drawablep->getFace(face_id);
+                if (facep)
+                {
+                    gPipeline.mHighlightFaces.push_back(facep);
+                }
+            }
+        }
+    }
 }
 
-void renderMOAPBeacons(LLDrawable* drawablep)
+void renderMOAPBeacons(LLDrawable *drawablep)
 {
-	LLViewerObject *vobj = drawablep->getVObj();
+    LLViewerObject *vobj = drawablep->getVObj();
 
-	if(!vobj || vobj->isAvatar())
-		return;
+    if (!vobj || vobj->isAvatar())
+        return;
 
-	bool beacon=false;
-	U8 tecount=vobj->getNumTEs();
-	for(int x=0;x<tecount;x++)
-	{
-		if(vobj->getTE(x)->hasMedia())
-		{
-			beacon=true;
-			break;
-		}
-	}
-	if(beacon)
-	{
-		if (gPipeline.sRenderBeacons)
-		{
-			gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", LLColor4(1.f, 1.f, 1.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f), LLPipeline::DebugBeaconLineWidth);
-		}
+    bool beacon  = false;
+    U8   tecount = vobj->getNumTEs();
+    for (int x = 0; x < tecount; x++)
+    {
+        if (vobj->getTE(x)->hasMedia())
+        {
+            beacon = true;
+            break;
+        }
+    }
+    if (beacon)
+    {
+        if (gPipeline.sRenderBeacons)
+        {
+            gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", LLColor4(1.f, 1.f, 1.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f),
+                                       LLPipeline::DebugBeaconLineWidth);
+        }
 
-		if (gPipeline.sRenderHighlight)
-		{
-			S32 face_id;
-			S32 count = drawablep->getNumFaces();
-			for (face_id = 0; face_id < count; face_id++)
-			{
-				LLFace * facep = drawablep->getFace(face_id);
-				if (facep)
-				{
-					gPipeline.mHighlightFaces.push_back(facep);
-			}
-		}
-	}
+        if (gPipeline.sRenderHighlight)
+        {
+            S32 face_id;
+            S32 count = drawablep->getNumFaces();
+            for (face_id = 0; face_id < count; face_id++)
+            {
+                LLFace *facep = drawablep->getFace(face_id);
+                if (facep)
+                {
+                    gPipeline.mHighlightFaces.push_back(facep);
+                }
+            }
+        }
+    }
 }
-}
 
-void renderParticleBeacons(LLDrawable* drawablep)
+void renderParticleBeacons(LLDrawable *drawablep)
 {
-	// Look for attachments, objects, etc.
-	LLViewerObject *vobj = drawablep->getVObj();
-	if (vobj 
-		&& vobj->isParticleSource())
-	{
-		if (gPipeline.sRenderBeacons)
-		{
-			LLColor4 light_blue(0.5f, 0.5f, 1.f, 0.5f);
-			gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", light_blue, LLColor4(1.f, 1.f, 1.f, 0.5f), LLPipeline::DebugBeaconLineWidth);
-		}
+    // Look for attachments, objects, etc.
+    LLViewerObject *vobj = drawablep->getVObj();
+    if (vobj && vobj->isParticleSource())
+    {
+        if (gPipeline.sRenderBeacons)
+        {
+            LLColor4 light_blue(0.5f, 0.5f, 1.f, 0.5f);
+            gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", light_blue, LLColor4(1.f, 1.f, 1.f, 0.5f),
+                                       LLPipeline::DebugBeaconLineWidth);
+        }
 
-		if (gPipeline.sRenderHighlight)
-		{
-			S32 face_id;
-			S32 count = drawablep->getNumFaces();
-			for (face_id = 0; face_id < count; face_id++)
-			{
-				LLFace * facep = drawablep->getFace(face_id);
-				if (facep)
-				{
-					gPipeline.mHighlightFaces.push_back(facep);
-			}
-		}
-	}
-}
+        if (gPipeline.sRenderHighlight)
+        {
+            S32 face_id;
+            S32 count = drawablep->getNumFaces();
+            for (face_id = 0; face_id < count; face_id++)
+            {
+                LLFace *facep = drawablep->getFace(face_id);
+                if (facep)
+                {
+                    gPipeline.mHighlightFaces.push_back(facep);
+                }
+            }
+        }
+    }
 }
 
-void renderSoundHighlights(LLDrawable* drawablep)
+void renderSoundHighlights(LLDrawable *drawablep)
 {
-	// Look for attachments, objects, etc.
-	LLViewerObject *vobj = drawablep->getVObj();
-	if (vobj && vobj->isAudioSource())
-	{
-		if (gPipeline.sRenderHighlight)
-		{
-			S32 face_id;
-			S32 count = drawablep->getNumFaces();
-			for (face_id = 0; face_id < count; face_id++)
-			{
-				LLFace * facep = drawablep->getFace(face_id);
-				if (facep)
-				{
-					gPipeline.mHighlightFaces.push_back(facep);
-			}
-		}
-	}
-}
+    // Look for attachments, objects, etc.
+    LLViewerObject *vobj = drawablep->getVObj();
+    if (vobj && vobj->isAudioSource())
+    {
+        if (gPipeline.sRenderHighlight)
+        {
+            S32 face_id;
+            S32 count = drawablep->getNumFaces();
+            for (face_id = 0; face_id < count; face_id++)
+            {
+                LLFace *facep = drawablep->getFace(face_id);
+                if (facep)
+                {
+                    gPipeline.mHighlightFaces.push_back(facep);
+                }
+            }
+        }
+    }
 }
 
 void LLPipeline::touchTexture(LLViewerTexture* tex, F32 vsize)
 {
     if (tex)
     {
-        LLImageGL* gl_tex = tex->getGLTexture();
-        if (gl_tex && gl_tex->updateBindStats())
-        {
-            tex->setActive();
-            tex->addTextureStats(vsize);
-        }
+        tex->setActive();
+        tex->addTextureStats(vsize);
     }
 }
 
@@ -3785,56 +3780,53 @@ void LLPipeline::touchTextures(LLDrawInfo* info)
     }
 }
 
-void LLPipeline::postSort(LLCamera& camera)
+void LLPipeline::postSort(LLCamera &camera)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
 
-	assertInitialized();
+    assertInitialized();
 
-	LL_PUSH_CALLSTACKS();
+    LL_PUSH_CALLSTACKS();
 
     if (!gCubeSnapshot)
     {
-        //rebuild drawable geometry
+        // rebuild drawable geometry
         for (LLCullResult::sg_iterator i = sCull->beginDrawableGroups(); i != sCull->endDrawableGroups(); ++i)
         {
-            LLSpatialGroup* group = *i;
-            if (!sUseOcclusion ||
-                !group->isOcclusionState(LLSpatialGroup::OCCLUDED))
+            LLSpatialGroup *group = *i;
+            if (!sUseOcclusion || !group->isOcclusionState(LLSpatialGroup::OCCLUDED))
             {
                 group->rebuildGeom();
             }
         }
         LL_PUSH_CALLSTACKS();
-        //rebuild groups
+        // rebuild groups
         sCull->assertDrawMapsEmpty();
 
         rebuildPriorityGroups();
     }
 
-	LL_PUSH_CALLSTACKS();
+    LL_PUSH_CALLSTACKS();
 
-	
-	//build render map
-	for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
-	{
-		LLSpatialGroup* group = *i;
-		if ((sUseOcclusion && 
-			group->isOcclusionState(LLSpatialGroup::OCCLUDED)) ||
-			(RenderAutoHideSurfaceAreaLimit > 0.f && 
-			group->mSurfaceArea > RenderAutoHideSurfaceAreaLimit*llmax(group->mObjectBoxSize, 10.f)))
-		{
-			continue;
-		}
+    // build render map
+    for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
+    {
+        LLSpatialGroup *group = *i;
+        if ((sUseOcclusion && group->isOcclusionState(LLSpatialGroup::OCCLUDED)) ||
+            (RenderAutoHideSurfaceAreaLimit > 0.f &&
+             group->mSurfaceArea > RenderAutoHideSurfaceAreaLimit * llmax(group->mObjectBoxSize, 10.f)))
+        {
+            continue;
+        }
 
-		if (group->hasState(LLSpatialGroup::NEW_DRAWINFO) && group->hasState(LLSpatialGroup::GEOM_DIRTY) && !gCubeSnapshot)
-		{ //no way this group is going to be drawable without a rebuild
-			group->rebuildGeom();
-		}
+        if (group->hasState(LLSpatialGroup::NEW_DRAWINFO) && group->hasState(LLSpatialGroup::GEOM_DIRTY) && !gCubeSnapshot)
+        {  // no way this group is going to be drawable without a rebuild
+            group->rebuildGeom();
+        }
 
         for (LLSpatialGroup::draw_map_t::iterator j = group->mDrawMap.begin(); j != group->mDrawMap.end(); ++j)
         {
-            LLSpatialGroup::drawmap_elem_t& src_vec = j->second;
+            LLSpatialGroup::drawmap_elem_t &src_vec = j->second;
             if (!hasRenderType(j->first))
             {
                 continue;
@@ -3864,7 +3856,7 @@ void LLPipeline::postSort(LLCamera& camera)
 
             for (LLSpatialGroup::drawmap_elem_t::iterator k = src_vec.begin(); k != src_vec.end(); ++k)
             {
-                LLDrawInfo* info = *k;
+                LLDrawInfo *info = *k;
 
                 sCull->pushDrawInfo(j->first, info);
                 if (!sShadowRender && !sReflectionRender && !gCubeSnapshot)
@@ -3873,186 +3865,186 @@ void LLPipeline::postSort(LLCamera& camera)
                     addTrianglesDrawn(info->mCount);
                 }
             }
-		}
+        }
 
-		if (hasRenderType(LLPipeline::RENDER_TYPE_PASS_ALPHA))
-		{
-			LLSpatialGroup::draw_map_t::iterator alpha = group->mDrawMap.find(LLRenderPass::PASS_ALPHA);
-			
-			if (alpha != group->mDrawMap.end())
-			{ //store alpha groups for sorting
-				LLSpatialBridge* bridge = group->getSpatialPartition()->asBridge();
-				if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD && !gCubeSnapshot)
-				{
-					if (bridge)
-					{
-						LLCamera trans_camera = bridge->transformCamera(camera);
-						group->updateDistance(trans_camera);
-					}
-					else
-					{
-						group->updateDistance(camera);
-					}
-				}
-							
-				if (hasRenderType(LLDrawPool::POOL_ALPHA))
-				{
-					sCull->pushAlphaGroup(group);
-				}
-			}
+        if (hasRenderType(LLPipeline::RENDER_TYPE_PASS_ALPHA))
+        {
+            LLSpatialGroup::draw_map_t::iterator alpha = group->mDrawMap.find(LLRenderPass::PASS_ALPHA);
+
+            if (alpha != group->mDrawMap.end())
+            {  // store alpha groups for sorting
+                LLSpatialBridge *bridge = group->getSpatialPartition()->asBridge();
+                if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD && !gCubeSnapshot)
+                {
+                    if (bridge)
+                    {
+                        LLCamera trans_camera = bridge->transformCamera(camera);
+                        group->updateDistance(trans_camera);
+                    }
+                    else
+                    {
+                        group->updateDistance(camera);
+                    }
+                }
+
+                if (hasRenderType(LLDrawPool::POOL_ALPHA))
+                {
+                    sCull->pushAlphaGroup(group);
+                }
+            }
 
             LLSpatialGroup::draw_map_t::iterator rigged_alpha = group->mDrawMap.find(LLRenderPass::PASS_ALPHA_RIGGED);
 
             if (rigged_alpha != group->mDrawMap.end())
-            { //store rigged alpha groups for LLDrawPoolAlpha prepass (skip distance update, rigged attachments use depth buffer)
+            {  // store rigged alpha groups for LLDrawPoolAlpha prepass (skip distance update, rigged attachments use depth buffer)
                 if (hasRenderType(LLDrawPool::POOL_ALPHA))
                 {
                     sCull->pushRiggedAlphaGroup(group);
                 }
             }
-		}
-	}
-	
-	//flush particle VB
-	if (LLVOPartGroup::sVB)
-	{
-		LLVOPartGroup::sVB->flush();
-	}
-	else
-	{
-		LL_WARNS_ONCE() << "Missing particle buffer" << LL_ENDL;
-	}
+        }
+    }
 
-	/*bool use_transform_feedback = gTransformPositionProgram.mProgramObject && !mMeshDirtyGroup.empty();
+    // flush particle VB
+    if (LLVOPartGroup::sVB)
+    {
+        LLVOPartGroup::sVB->flush();
+    }
+    else
+    {
+        LL_WARNS_ONCE() << "Missing particle buffer" << LL_ENDL;
+    }
 
-	if (use_transform_feedback)
-	{ //place a query around potential transform feedback code for synchronization
-		mTransformFeedbackPrimitives = 0;
+    /*bool use_transform_feedback = gTransformPositionProgram.mProgramObject && !mMeshDirtyGroup.empty();
 
-		if (!mMeshDirtyQueryObject)
-		{
-			glGenQueries(1, &mMeshDirtyQueryObject);
-		}
+    if (use_transform_feedback)
+    { //place a query around potential transform feedback code for synchronization
+        mTransformFeedbackPrimitives = 0;
 
-		
-		glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, mMeshDirtyQueryObject);
-	}*/
+        if (!mMeshDirtyQueryObject)
+        {
+            glGenQueries(1, &mMeshDirtyQueryObject);
+        }
 
-	//pack vertex buffers for groups that chose to delay their updates
-	for (LLSpatialGroup::sg_vector_t::iterator iter = mMeshDirtyGroup.begin(); iter != mMeshDirtyGroup.end(); ++iter)
-	{
-		(*iter)->rebuildMesh();
-	}
 
-	/*if (use_transform_feedback)
-	{
-		glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
-	}*/
-	
-	mMeshDirtyGroup.clear();
+        glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, mMeshDirtyQueryObject);
+    }*/
 
-	if (!sShadowRender)
-	{
+    // pack vertex buffers for groups that chose to delay their updates
+    for (LLSpatialGroup::sg_vector_t::iterator iter = mMeshDirtyGroup.begin(); iter != mMeshDirtyGroup.end(); ++iter)
+    {
+        (*iter)->rebuildMesh();
+    }
+
+    /*if (use_transform_feedback)
+    {
+        glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
+    }*/
+
+    mMeshDirtyGroup.clear();
+
+    if (!sShadowRender)
+    {
         // order alpha groups by distance
-		std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareDepthGreater());
+        std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareDepthGreater());
 
         // order rigged alpha groups by avatar attachment order
         std::sort(sCull->beginRiggedAlphaGroups(), sCull->endRiggedAlphaGroups(), LLSpatialGroup::CompareRenderOrder());
-	}
+    }
 
-	LL_PUSH_CALLSTACKS();
-	// only render if the flag is set. The flag is only set if we are in edit mode or the toggle is set in the menus
-	if (LLFloaterReg::instanceVisible("beacons") && !sShadowRender && !gCubeSnapshot)
-	{
-		if (sRenderScriptedTouchBeacons)
-		{
-			// Only show the beacon on the root object.
-			forAllVisibleDrawables(renderScriptedTouchBeacons);
-		}
-		else
-		if (sRenderScriptedBeacons)
-		{
-			// Only show the beacon on the root object.
-			forAllVisibleDrawables(renderScriptedBeacons);
-		}
+    LL_PUSH_CALLSTACKS();
+    // only render if the flag is set. The flag is only set if we are in edit mode or the toggle is set in the menus
+    if (LLFloaterReg::instanceVisible("beacons") && !sShadowRender && !gCubeSnapshot)
+    {
+        if (sRenderScriptedTouchBeacons)
+        {
+            // Only show the beacon on the root object.
+            forAllVisibleDrawables(renderScriptedTouchBeacons);
+        }
+        else if (sRenderScriptedBeacons)
+        {
+            // Only show the beacon on the root object.
+            forAllVisibleDrawables(renderScriptedBeacons);
+        }
 
-		if (sRenderPhysicalBeacons)
-		{
-			// Only show the beacon on the root object.
-			forAllVisibleDrawables(renderPhysicalBeacons);
-		}
+        if (sRenderPhysicalBeacons)
+        {
+            // Only show the beacon on the root object.
+            forAllVisibleDrawables(renderPhysicalBeacons);
+        }
 
-		if(sRenderMOAPBeacons)
-		{
-			forAllVisibleDrawables(renderMOAPBeacons);
-		}
+        if (sRenderMOAPBeacons)
+        {
+            forAllVisibleDrawables(renderMOAPBeacons);
+        }
 
-		if (sRenderParticleBeacons)
-		{
-			forAllVisibleDrawables(renderParticleBeacons);
-		}
+        if (sRenderParticleBeacons)
+        {
+            forAllVisibleDrawables(renderParticleBeacons);
+        }
 
-		// If god mode, also show audio cues
-		if (sRenderSoundBeacons && gAudiop)
-		{
-			// Walk all sound sources and render out beacons for them. Note, this isn't done in the ForAllVisibleDrawables function, because some are not visible.
-			LLAudioEngine::source_map::iterator iter;
-			for (iter = gAudiop->mAllSources.begin(); iter != gAudiop->mAllSources.end(); ++iter)
-			{
-				LLAudioSource *sourcep = iter->second;
+        // If god mode, also show audio cues
+        if (sRenderSoundBeacons && gAudiop)
+        {
+            // Walk all sound sources and render out beacons for them. Note, this isn't done in the ForAllVisibleDrawables function, because
+            // some are not visible.
+            LLAudioEngine::source_map::iterator iter;
+            for (iter = gAudiop->mAllSources.begin(); iter != gAudiop->mAllSources.end(); ++iter)
+            {
+                LLAudioSource *sourcep = iter->second;
 
-				LLVector3d pos_global = sourcep->getPositionGlobal();
-				LLVector3 pos = gAgent.getPosAgentFromGlobal(pos_global);
-				if (gPipeline.sRenderBeacons)
-				{
-					//pos += LLVector3(0.f, 0.f, 0.2f);
-					gObjectList.addDebugBeacon(pos, "", LLColor4(1.f, 1.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f), DebugBeaconLineWidth);
-				}
-			}
-			// now deal with highlights for all those seeable sound sources
-			forAllVisibleDrawables(renderSoundHighlights);
-		}
-	}
-	LL_PUSH_CALLSTACKS();
-	// If managing your telehub, draw beacons at telehub and currently selected spawnpoint.
-	if (LLFloaterTelehub::renderBeacons() && !sShadowRender && !gCubeSnapshot)
-	{
-		LLFloaterTelehub::addBeacons();
-	}
+                LLVector3d pos_global = sourcep->getPositionGlobal();
+                LLVector3  pos        = gAgent.getPosAgentFromGlobal(pos_global);
+                if (gPipeline.sRenderBeacons)
+                {
+                    // pos += LLVector3(0.f, 0.f, 0.2f);
+                    gObjectList.addDebugBeacon(pos, "", LLColor4(1.f, 1.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f), DebugBeaconLineWidth);
+                }
+            }
+            // now deal with highlights for all those seeable sound sources
+            forAllVisibleDrawables(renderSoundHighlights);
+        }
+    }
+    LL_PUSH_CALLSTACKS();
+    // If managing your telehub, draw beacons at telehub and currently selected spawnpoint.
+    if (LLFloaterTelehub::renderBeacons() && !sShadowRender && !gCubeSnapshot)
+    {
+        LLFloaterTelehub::addBeacons();
+    }
 
-	if (!sShadowRender && !gCubeSnapshot)
-	{
-		mSelectedFaces.clear();
+    if (!sShadowRender && !gCubeSnapshot)
+    {
+        mSelectedFaces.clear();
 
-		if (!gNonInteractive)
-		{
-			LLPipeline::setRenderHighlightTextureChannel(gFloaterTools->getPanelFace()->getTextureChannelToEdit());
-		}
+        if (!gNonInteractive)
+        {
+            LLPipeline::setRenderHighlightTextureChannel(gFloaterTools->getPanelFace()->getTextureChannelToEdit());
+        }
 
-		// Draw face highlights for selected faces.
-		if (LLSelectMgr::getInstance()->getTEMode())
-		{
-			struct f : public LLSelectedTEFunctor
-			{
-				virtual bool apply(LLViewerObject* object, S32 te)
-				{
-					if (object->mDrawable)
-					{
-						LLFace * facep = object->mDrawable->getFace(te);
-						if (facep)
-						{
-							gPipeline.mSelectedFaces.push_back(facep);
-					}
-					}
-					return true;
-				}
-			} func;
-			LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
-		}
-	}
+        // Draw face highlights for selected faces.
+        if (LLSelectMgr::getInstance()->getTEMode())
+        {
+            struct f : public LLSelectedTEFunctor
+            {
+                virtual bool apply(LLViewerObject *object, S32 te)
+                {
+                    if (object->mDrawable)
+                    {
+                        LLFace *facep = object->mDrawable->getFace(te);
+                        if (facep)
+                        {
+                            gPipeline.mSelectedFaces.push_back(facep);
+                        }
+                    }
+                    return true;
+                }
+            } func;
+            LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
+        }
+    }
 
-	//LLSpatialGroup::sNoDelete = FALSE;
-	LL_PUSH_CALLSTACKS();
+    // LLSpatialGroup::sNoDelete = FALSE;
+    LL_PUSH_CALLSTACKS();
 }
 
 
