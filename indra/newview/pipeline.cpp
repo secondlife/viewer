@@ -7405,6 +7405,8 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 	LLVOPartGroup::destroyGL();
     gGL.resetVertexBuffer();
 
+    mReflectionMapManager.cleanup();
+
 	SUBSYSTEM_CLEANUP(LLVertexBuffer);
 	
 	if (LLVertexBuffer::sGLCount != 0)

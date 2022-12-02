@@ -41,6 +41,11 @@ extern BOOL gTeleportDisplay;
 
 LLReflectionMapManager::LLReflectionMapManager()
 {
+    initCubeFree();
+}
+
+void LLReflectionMapManager::initCubeFree()
+{
     for (int i = 1; i < LL_MAX_REFLECTION_PROBE_COUNT; ++i)
     {
         mCubeFree[i] = true;
@@ -49,12 +54,6 @@ LLReflectionMapManager::LLReflectionMapManager()
     // cube index 0 is reserved for the fallback probe
     mCubeFree[0] = false;
 }
-
-struct CompareReflectionMapDistance
-{
-
-};
-
 
 struct CompareProbeDistance
 {
@@ -79,7 +78,6 @@ void LLReflectionMapManager::update()
         return;
     }
 
-    // =============== TODO -- move to an init function  =================
     initReflectionMaps();
 
     if (!mRenderTarget.isComplete())
@@ -937,7 +935,11 @@ void LLReflectionMapManager::cleanup()
     mUpdatingFace = 0;
     
     mDefaultProbe = nullptr;
+    mUpdatingProbe = nullptr;
 
     glDeleteBuffers(1, &mUBO);
     mUBO = 0;
+
+    // note: also called on teleport (not just shutdown), so make sure we're in a good "starting" state
+    initCubeFree();
 }

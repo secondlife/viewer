@@ -97,6 +97,9 @@ public:
 private:
     friend class LLPipeline;
 
+    // initialize mCubeFree array to default values
+    void initCubeFree();
+
     // delete the probe with the given index in mProbes
     void deleteProbe(U32 i);
 
