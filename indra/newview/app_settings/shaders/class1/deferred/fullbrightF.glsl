@@ -54,35 +54,44 @@ vec3 fullbrightScaleSoftClip(vec3 light);
 uniform float minimum_alpha;
 #endif
 
+#ifdef IS_ALPHA
+void waterClip(vec3 pos);
+#endif
+
 void main() 
 {
-#ifdef HAS_DIFFUSE_LOOKUP
-	vec4 color = diffuseLookup(vary_texcoord0.xy);
-#else
-	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
+
+#ifdef IS_ALPHA
+    waterClip(vary_position.xyz);
 #endif
 
-	float final_alpha = color.a * vertex_color.a;
+#ifdef HAS_DIFFUSE_LOOKUP
+    vec4 color = diffuseLookup(vary_texcoord0.xy);
+#else
+    vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
+#endif
+
+    float final_alpha = color.a * vertex_color.a;
 
 #ifdef HAS_ALPHA_MASK
-	if (color.a < minimum_alpha)
-	{
-		discard;
-	}
+    if (color.a < minimum_alpha)
+    {
+        discard;
+    }
 #endif
 
-	color.rgb *= vertex_color.rgb;
+    color.rgb *= vertex_color.rgb;
 
 #ifdef WATER_FOG
-	vec3 pos = vary_position;
-	vec4 fogged = applyWaterFogView(pos, vec4(color.rgb, final_alpha));
-	color.rgb = fogged.rgb;
-	color.a   = fogged.a;
+    vec3 pos = vary_position;
+    vec4 fogged = applyWaterFogView(pos, vec4(color.rgb, final_alpha));
+    color.rgb = fogged.rgb;
+    color.a   = fogged.a;
 #else
     color.a   = final_alpha;
 #endif
 
-	frag_color.rgb = srgb_to_linear(color.rgb);
-	frag_color.a   = color.a;
+    frag_color.rgb = srgb_to_linear(color.rgb);
+    frag_color.a   = color.a;
 }
 
