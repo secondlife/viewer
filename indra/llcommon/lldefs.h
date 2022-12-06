@@ -214,13 +214,14 @@ inline auto llmin(T1 d1, T2 d2, T3 d3, T4 d4)
 template <typename A, typename MIN, typename MAX> 
 inline A llclamp(A a, MIN minval, MAX maxval)
 {
-	if ( a < minval )
+	A aminval{ static_cast<A>(minval) }, amaxval{ static_cast<A>(maxval) };
+	if ( a < aminval )
 	{
-		return static_cast<A>(minval);
+		return aminval;
 	}
-	else if ( a > maxval )
+	else if ( a > amaxval )
 	{
-		return static_cast<A>(maxval);
+		return amaxval;
 	}
 	return a;
 }
