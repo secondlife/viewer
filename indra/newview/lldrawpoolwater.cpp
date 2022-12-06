@@ -300,7 +300,7 @@ void LLDrawPoolWater::render(S32 pass)
 
 	stop_glerror();
 	
-	if (gSky.mVOSkyp->getCubeMap())
+	if (gSky.mVOSkyp->getCubeMap() && !LLPipeline::sReflectionProbesEnabled)
 	{
 		gSky.mVOSkyp->getCubeMap()->enable(0);
 		gSky.mVOSkyp->getCubeMap()->bind();

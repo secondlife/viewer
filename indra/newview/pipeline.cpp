@@ -8489,24 +8489,27 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
 
 	stop_glerror();
 
-	channel = shader.enableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
-	if (channel > -1)
-	{
-		LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
-		if (cube_map)
-		{
-			cube_map->enable(channel);
-			cube_map->bind();
-		}
+    if (!LLPipeline::sReflectionProbesEnabled)
+    {
+        channel = shader.enableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
+        if (channel > -1)
+        {
+            LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
+            if (cube_map)
+            {
+                cube_map->enable(channel);
+                cube_map->bind();
+            }
 
-        F32* m = gGLModelView;
+            F32* m = gGLModelView;
 
-        F32 mat[] = { m[0], m[1], m[2],
-                      m[4], m[5], m[6],
-                      m[8], m[9], m[10] };
+            F32 mat[] = { m[0], m[1], m[2],
+                          m[4], m[5], m[6],
+                          m[8], m[9], m[10] };
 
-        shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, 1, TRUE, mat);
-	}
+            shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, 1, TRUE, mat);
+        }
+    }
 
     bindReflectionProbes(shader);
 
@@ -9346,15 +9349,18 @@ void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
 	shader.disableTexture(LLShaderMgr::DEFERRED_NOISE);
 	shader.disableTexture(LLShaderMgr::DEFERRED_LIGHTFUNC);
 
-	S32 channel = shader.disableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
-	if (channel > -1)
-	{
-		LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
-		if (cube_map)
-		{
-			cube_map->disable();
-		}
-	}
+    if (!LLPipeline::sReflectionProbesEnabled)
+    {
+        S32 channel = shader.disableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
+        if (channel > -1)
+        {
+            LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
+            if (cube_map)
+            {
+                cube_map->disable();
+            }
+        }
+    }
 
     unbindReflectionProbes(shader);
 

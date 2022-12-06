@@ -299,7 +299,7 @@ void LLDrawPoolBump::beginShiny()
 void LLDrawPoolBump::bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel)
 {
 	LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
-	if( cube_map )
+	if( cube_map && !LLPipeline::sReflectionProbesEnabled )
 	{
 		if (shader )
 		{
@@ -346,7 +346,7 @@ void LLDrawPoolBump::renderShiny()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_SHINY);
 	
-	if( gSky.mVOSkyp->getCubeMap() )
+	if( gSky.mVOSkyp->getCubeMap() && !LLPipeline::sReflectionProbesEnabled )
 	{
 		LLGLEnable blend_enable(GL_BLEND);
 		if (mShaderLevel > 1)
@@ -378,7 +378,7 @@ void LLDrawPoolBump::renderShiny()
 void LLDrawPoolBump::unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel)
 {
 	LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
-	if( cube_map )
+	if( cube_map && !LLPipeline::sReflectionProbesEnabled)
 	{
 		if (shader_level > 1)
 		{
@@ -446,7 +446,7 @@ void LLDrawPoolBump::beginFullbrightShiny()
 
 	LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
 	
-    if (cube_map)
+    if (cube_map && !LLPipeline::sReflectionProbesEnabled)
     {
         // Make sure that texture coord generation happens for tex unit 1, as that's the one we use for 
 		// the cube map in the one pass shiny shaders
@@ -534,7 +534,7 @@ void LLDrawPoolBump::endFullbrightShiny()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_SHINY);
 
 	LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
-	if( cube_map )
+	if( cube_map && !LLPipeline::sReflectionProbesEnabled )
 	{
 		cube_map->disable();
         if (shader->mFeatures.hasReflectionProbes)

@@ -652,7 +652,7 @@
     control_name="RenderReflectionsEnabled"
     height="16"
     initial_value="true"
-    label="Reflections (requires restart)"
+    label="Reflections"
     layout="topleft"
     left="420"
     name="ReflectionsEnabled"

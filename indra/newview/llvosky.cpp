@@ -525,11 +525,6 @@ void LLVOSky::calc()
 
 void LLVOSky::initCubeMap()
 {
-    if (LLPipeline::sReflectionProbesEnabled)
-    {
-        return;
-    }
-
 	std::vector<LLPointer<LLImageRaw> > images;
 	for (S32 side = 0; side < NUM_CUBEMAP_FACES; side++)
 	{
@@ -697,7 +692,7 @@ bool LLVOSky::updateSky()
 	LLHeavenBody::setInterpVal( mInterpVal );
 	updateDirections(psky);
 
-    if (!mCubeMap)
+    if (!mCubeMap || LLPipeline::sReflectionProbesEnabled)
 	{
         mCubeMapUpdateStage = NUM_CUBEMAP_FACES;
         mForceUpdate = FALSE;
