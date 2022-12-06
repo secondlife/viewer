@@ -63,7 +63,7 @@ using namespace boost::phoenix;
 #include <functional>
 
 typedef std::function<void(const LLSD& data, std::ostream& str)> FormatterFunction;
-typedef std::function<bool(std::istream& istr, LLSD& data, size_t max_bytes)> ParserFunction;
+typedef std::function<bool(std::istream& istr, LLSD& data, llssize max_bytes)> ParserFunction;
 
 std::vector<U8> string_to_vector(const std::string& str)
 {
@@ -263,7 +263,7 @@ namespace tut
 			};
 			// this lambda must be mutable since otherwise the bound 'parser'
 			// is assumed to point to a const LLSDParser
-			mParser = [parser](std::istream& istr, LLSD& data, size_t max_bytes) mutable
+			mParser = [parser](std::istream& istr, LLSD& data, llssize max_bytes) mutable
 			{
 				// reset() call is needed since test code re-uses parser object
 				parser->reset();
@@ -271,10 +271,10 @@ namespace tut
 			};
 		}
 
-		void setParser(bool (*parser)(LLSD&, std::istream&, size_t))
+		void setParser(bool (*parser)(LLSD&, std::istream&, llssize))
 		{
 			// why does LLSDSerialize::deserialize() reverse the parse() params??
-			mParser = [parser](std::istream& istr, LLSD& data, size_t max_bytes)
+			mParser = [parser](std::istream& istr, LLSD& data, llssize max_bytes)
 			{
 				return (parser(data, istr, max_bytes) > 0);
 			};
@@ -2059,7 +2059,7 @@ namespace tut
     // helper for test<8> - test<12>
     void fromPythonUsing(const std::string& pyformatter,
                          const ParserFunction& parse=
-                         [](std::istream& istr, LLSD& data, size_t max_bytes)
+                         [](std::istream& istr, LLSD& data, llssize max_bytes)
                          { return LLSDSerialize::deserialize(data, istr, max_bytes); })
     {
         // Create an empty data file. This is just a placeholder for our
@@ -2140,7 +2140,7 @@ namespace tut
         set_test_name("from Python XML using fromXML()");
         // fromXML()'s optional 3rd param isn't max_bytes, it's emit_errors
         fromPythonUsing("format_xml",
-                        [](std::istream& istr, LLSD& data, size_t)
+                        [](std::istream& istr, LLSD& data, llssize)
                         { return LLSDSerialize::fromXML(data, istr) > 0; });
     }
 
@@ -2149,7 +2149,7 @@ namespace tut
     {
         set_test_name("from Python notation using fromNotation()");
         fromPythonUsing("format_notation",
-                        [](std::istream& istr, LLSD& data, size_t max_bytes)
+                        [](std::istream& istr, LLSD& data, llssize max_bytes)
                         { return LLSDSerialize::fromNotation(data, istr, max_bytes) > 0; });
     }
 
@@ -2161,7 +2161,7 @@ namespace tut
         // We don't expect this to work because format_binary() emits a
         // header, but fromBinary() won't recognize a header.
         fromPythonUsing("format_binary",
-                        [](std::istream& istr, LLSD& data, size_t max_bytes)
+                        [](std::istream& istr, LLSD& data, llssize max_bytes)
                         { return LLSDSerialize::fromBinary(data, istr, max_bytes) > 0; });
     }
 |*==========================================================================*/

@@ -128,7 +128,7 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, S32 max_bytes)
 	 * specified buffer. In the usual case when max_bytes exceeds
 	 * sizeof(hdr_buf), get() will read no more than sizeof(hdr_buf)-2.
 	 */
-	str.get(hdr_buf, std::min(max_bytes+1, sizeof(hdr_buf)-1), '\n');
+	str.get(hdr_buf, llmin(max_bytes+1, sizeof(hdr_buf)-1), '\n');
 	auto inbuf = str.gcount();
 	// https://en.cppreference.com/w/cpp/io/basic_istream/get
 	// When the get() above sees the specified delimiter '\n', it stops there
