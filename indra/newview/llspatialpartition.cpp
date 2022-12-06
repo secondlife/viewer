@@ -2328,7 +2328,7 @@ S32 get_physics_detail(const LLVolumeParams& volume_params, const LLVector3& sca
 	return detail;
 }
 
-void renderMeshBaseHull(LLVOVolume* volume, U32 data_mask, LLColor4& color, LLColor4& line_color)
+void renderMeshBaseHull(LLVOVolume* volume, U32 data_mask, LLColor4& color)
 {
 	LLUUID mesh_id = volume->getVolume()->getParams().getSculptID();
 	LLModel::Decomposition* decomp = gMeshRepo.getDecomposition(mesh_id);
@@ -2340,13 +2340,8 @@ void renderMeshBaseHull(LLVOVolume* volume, U32 data_mask, LLColor4& color, LLCo
 	{		
 		if (!decomp->mBaseHullMesh.empty())
 		{
-			gGL.diffuseColor4fv(color.mV);
+            gGL.diffuseColor4fv(color.mV);
 			LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mBaseHullMesh.mPositions);
-
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            gGL.diffuseColor4fv(line_color.mV);
-            LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mBaseHullMesh.mPositions);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 		else
 		{
@@ -2363,19 +2358,13 @@ void renderMeshBaseHull(LLVOVolume* volume, U32 data_mask, LLColor4& color, LLCo
 	}
 }
 
-void render_hull(LLModel::PhysicsMesh& mesh, const LLColor4& color, const LLColor4& line_color)
+void render_hull(LLModel::PhysicsMesh& mesh, const LLColor4& color)
 {
-	gGL.diffuseColor4fv(color.mV);
+    gGL.diffuseColor4fv(color.mV);
 	LLVertexBuffer::drawArrays(LLRender::TRIANGLES, mesh.mPositions);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glLineWidth(3.f);
-	gGL.diffuseColor4fv(line_color.mV);
-	LLVertexBuffer::drawArrays(LLRender::TRIANGLES, mesh.mPositions);
-	glLineWidth(1.f);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
+void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume, bool wireframe)
 {
 	U8 physics_type = volume->getPhysicsShapeType();
 
@@ -2405,7 +2394,10 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 		color = lerp( mid, high, 2.f * ( normalizedCost - 0.5f ) );
 	}
 
-	LLColor4 line_color = color*0.5f;
+    if (wireframe)
+    {
+        color = color * 0.5f;
+    }
 
 	U32 data_mask = LLVertexBuffer::MAP_VERTEX;
 
@@ -2425,9 +2417,6 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 	gGL.pushMatrix();
 	gGL.multMatrix((F32*) volume->getRelativeXform().mMatrix);
 		
-    LLGLEnable(GL_POLYGON_OFFSET_LINE);
-    glPolygonOffset(3.f, 3.f);
-
 	if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::USER_MESH)
 	{
 		LLUUID mesh_id = volume->getVolume()->getParams().getSculptID();
@@ -2448,23 +2437,19 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 
 				for (U32 i = 0; i < decomp->mMesh.size(); ++i)
 				{		
-					render_hull(decomp->mMesh[i], color, line_color);
+					render_hull(decomp->mMesh[i], color);
 				}
 			}
 			else if (!decomp->mPhysicsShapeMesh.empty())
 			{ 
 				//decomp has physics mesh, render that mesh
-				gGL.diffuseColor4fv(color.mV);
-				LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mPhysicsShapeMesh.mPositions);
-								
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				gGL.diffuseColor4fv(line_color.mV);
+                gGL.diffuseColor4fv(color.mV);
+
                 LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mPhysicsShapeMesh.mPositions);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
 			else
 			{ //no mesh or decomposition, render base hull
-				renderMeshBaseHull(volume, data_mask, color, line_color);
+				renderMeshBaseHull(volume, data_mask, color);
 
 				if (decomp->mPhysicsShapeMesh.empty())
 				{
@@ -2484,7 +2469,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 	{
 		if (volume->isMesh())
 		{
-			renderMeshBaseHull(volume, data_mask, color, line_color);
+			renderMeshBaseHull(volume, data_mask, color);
 		}
 		else
 		{
@@ -2580,20 +2565,10 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 			if (phys_volume->mHullPoints)
 			{
 				//render hull
-			
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				
-				gGL.diffuseColor4fv(line_color.mV);
-				LLVertexBuffer::unbind();
+                gGL.diffuseColor4fv(color.mV);
 
-				llassert(LLGLSLShader::sCurBoundShader != 0);
-				
-                LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
-				
-				gGL.diffuseColor4fv(color.mV);
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                LLVertexBuffer::unbind();
 				LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
-				
 			}
 			else
 			{
@@ -2606,41 +2581,50 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 	}
 	else if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::BOX)
 	{
-		LLVector3 center = physics_spec.getCenter();
-		LLVector3 scale = physics_spec.getScale();
-		LLVector3 vscale = volume->getScale()*2.f;
-		scale.set(scale[0]/vscale[0], scale[1]/vscale[1], scale[2]/vscale[2]);
-		
-		gGL.diffuseColor4fv(color.mV);
-		drawBox(center, scale);
+        if (!wireframe)
+        {
+            LLVector3 center = physics_spec.getCenter();
+            LLVector3 scale = physics_spec.getScale();
+            LLVector3 vscale = volume->getScale() * 2.f;
+            scale.set(scale[0] / vscale[0], scale[1] / vscale[1], scale[2] / vscale[2]);
+
+            gGL.diffuseColor4fv(color.mV);
+            drawBox(center, scale);
+        }
 	}
 	else if	(type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::SPHERE)
 	{
-		LLVolumeParams volume_params;
-		volume_params.setType( LL_PCODE_PROFILE_CIRCLE_HALF, LL_PCODE_PATH_CIRCLE );
-		volume_params.setBeginAndEndS( 0.f, 1.f );
-		volume_params.setBeginAndEndT( 0.f, 1.f );
-		volume_params.setRatio	( 1, 1 );
-		volume_params.setShear	( 0, 0 );
-		LLVolume* sphere = LLPrimitive::sVolumeManager->refVolume(volume_params, 3);
-		
-		gGL.diffuseColor4fv(color.mV);
-		pushVerts(sphere);
-		LLPrimitive::sVolumeManager->unrefVolume(sphere);
+        if (!wireframe)
+        {
+            LLVolumeParams volume_params;
+            volume_params.setType(LL_PCODE_PROFILE_CIRCLE_HALF, LL_PCODE_PATH_CIRCLE);
+            volume_params.setBeginAndEndS(0.f, 1.f);
+            volume_params.setBeginAndEndT(0.f, 1.f);
+            volume_params.setRatio(1, 1);
+            volume_params.setShear(0, 0);
+            LLVolume* sphere = LLPrimitive::sVolumeManager->refVolume(volume_params, 3);
+
+            gGL.diffuseColor4fv(color.mV);
+            pushVerts(sphere);
+            LLPrimitive::sVolumeManager->unrefVolume(sphere);
+        }
 	}
 	else if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::CYLINDER)
 	{
-		LLVolumeParams volume_params;
-		volume_params.setType( LL_PCODE_PROFILE_CIRCLE, LL_PCODE_PATH_LINE );
-		volume_params.setBeginAndEndS( 0.f, 1.f );
-		volume_params.setBeginAndEndT( 0.f, 1.f );
-		volume_params.setRatio	( 1, 1 );
-		volume_params.setShear	( 0, 0 );
-		LLVolume* cylinder = LLPrimitive::sVolumeManager->refVolume(volume_params, 3);
-		
-		gGL.diffuseColor4fv(color.mV);
-		pushVerts(cylinder);
-		LLPrimitive::sVolumeManager->unrefVolume(cylinder);
+        if (!wireframe)
+        {
+            LLVolumeParams volume_params;
+            volume_params.setType(LL_PCODE_PROFILE_CIRCLE, LL_PCODE_PATH_LINE);
+            volume_params.setBeginAndEndS(0.f, 1.f);
+            volume_params.setBeginAndEndT(0.f, 1.f);
+            volume_params.setRatio(1, 1);
+            volume_params.setShear(0, 0);
+            LLVolume* cylinder = LLPrimitive::sVolumeManager->refVolume(volume_params, 3);
+
+            gGL.diffuseColor4fv(color.mV);
+            pushVerts(cylinder);
+            LLPrimitive::sVolumeManager->unrefVolume(cylinder);
+        }
 	}
 	else if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::PRIM_MESH)
 	{
@@ -2648,14 +2632,10 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 		S32 detail = get_physics_detail(volume_params, volume->getScale());
 
 		LLVolume* phys_volume = LLPrimitive::sVolumeManager->refVolume(volume_params, detail);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		
-		gGL.diffuseColor4fv(line_color.mV);
+
+        gGL.diffuseColor4fv(color.mV);
 		pushVerts(phys_volume);
-		
-		gGL.diffuseColor4fv(color.mV);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		pushVerts(phys_volume);
+
 		LLPrimitive::sVolumeManager->unrefVolume(phys_volume);
 	}
 	else if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::PRIM_CONVEX)
@@ -2667,21 +2647,15 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 
 		if (phys_volume->mHullPoints && phys_volume->mHullIndices)
 		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			
 			llassert(LLGLSLShader::sCurBoundShader != 0);
 			LLVertexBuffer::unbind();
 			glVertexPointer(3, GL_FLOAT, 16, phys_volume->mHullPoints);
-			gGL.diffuseColor4fv(line_color.mV);
-			gGL.syncMatrices();
-			{
-				glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
-			}
-			
-			gGL.diffuseColor4fv(color.mV);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			{
-				glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
-			}
+
+            gGL.diffuseColor4fv(color.mV);
+
+            gGL.syncMatrices();
+			glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
 		}
 		else
 		{
@@ -2703,7 +2677,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 	gGL.popMatrix();
 }
 
-void renderPhysicsShapes(LLSpatialGroup* group)
+void renderPhysicsShapes(LLSpatialGroup* group, bool wireframe)
 {
 	for (OctreeNode::const_element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 	{
@@ -2721,7 +2695,7 @@ void renderPhysicsShapes(LLSpatialGroup* group)
 			{
 				gGL.pushMatrix();
 				gGL.multMatrix((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
-				bridge->renderPhysicsShapes();
+				bridge->renderPhysicsShapes(wireframe);
 				gGL.popMatrix();
 			}
 		}
@@ -2735,16 +2709,17 @@ void renderPhysicsShapes(LLSpatialGroup* group)
 					gGL.pushMatrix();
 					LLVector3 trans = drawable->getRegion()->getOriginAgent();
 					gGL.translatef(trans.mV[0], trans.mV[1], trans.mV[2]);
-					renderPhysicsShape(drawable, volume);
+					renderPhysicsShape(drawable, volume, wireframe);
 					gGL.popMatrix();
 				}
 				else
 				{
-					renderPhysicsShape(drawable, volume);
+					renderPhysicsShape(drawable, volume, wireframe);
 				}
 			}
 			else
 			{
+#if 0 
 				LLViewerObject* object = drawable->getVObj();
 				if (object && object->getPCode() == LLViewerObject::LL_VO_SURFACE_PATCH)
 				{
@@ -2762,10 +2737,10 @@ void renderPhysicsShapes(LLSpatialGroup* group)
 								glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 								buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
-								gGL.diffuseColor3f(0.2f, 0.5f, 0.3f);
+								gGL.diffuseColor4f(0.2f, 0.5f, 0.3f, 0.5f);
 								buff->draw(LLRender::TRIANGLES, buff->getNumIndices(), 0);
 									
-								gGL.diffuseColor3f(0.2f, 1.f, 0.3f);
+								gGL.diffuseColor4f(0.2f, 1.f, 0.3f, 0.75f);
 								glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 								buff->draw(LLRender::TRIANGLES, buff->getNumIndices(), 0);
 							}
@@ -2773,6 +2748,7 @@ void renderPhysicsShapes(LLSpatialGroup* group)
 					}
 					gGL.popMatrix();
 				}
+#endif
 			}
 		}
 	}
@@ -3573,7 +3549,9 @@ class LLOctreeRenderPhysicsShapes : public OctreeTraveler
 {
 public:
 	LLCamera* mCamera;
-	LLOctreeRenderPhysicsShapes(LLCamera* camera): mCamera(camera) {}
+    bool mWireframe;
+
+	LLOctreeRenderPhysicsShapes(LLCamera* camera, bool wireframe): mCamera(camera), mWireframe(wireframe) {}
 	
 	virtual void traverse(const OctreeNode* node)
 	{
@@ -3594,7 +3572,7 @@ public:
 			group->rebuildGeom();
 			group->rebuildMesh();
 
-			renderPhysicsShapes(group);
+			renderPhysicsShapes(group, mWireframe);
 		}
 	}
 
@@ -3727,7 +3705,7 @@ public:
 };
 
 
-void LLSpatialPartition::renderPhysicsShapes()
+void LLSpatialPartition::renderPhysicsShapes(bool wireframe)
 {
 	LLSpatialBridge* bridge = asBridge();
 	LLCamera* camera = LLViewerCamera::getInstance();
@@ -3739,11 +3717,9 @@ void LLSpatialPartition::renderPhysicsShapes()
 
 	gGL.flush();
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	glLineWidth(3.f);
-	LLOctreeRenderPhysicsShapes render_physics(camera);
+	LLOctreeRenderPhysicsShapes render_physics(camera, wireframe);
 	render_physics.traverse(mOctree);
 	gGL.flush();
-	glLineWidth(1.f);
 }
 
 void LLSpatialPartition::renderDebug()

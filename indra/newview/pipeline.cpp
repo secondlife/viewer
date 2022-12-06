@@ -725,17 +725,6 @@ void LLPipeline::resizeScreenTexture()
 	}
 }
 
-void LLPipeline::allocatePhysicsBuffer()
-{
-	GLuint resX = gViewerWindow->getWorldViewWidthRaw();
-	GLuint resY = gViewerWindow->getWorldViewHeightRaw();
-
-	if (mPhysicsDisplay.getWidth() != resX || mPhysicsDisplay.getHeight() != resY)
-	{
-		mPhysicsDisplay.allocate(resX, resY, GL_RGBA, TRUE, FALSE, LLTexUnit::TT_TEXTURE, FALSE);
-	}
-}
-
 bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
@@ -1143,7 +1132,6 @@ void LLPipeline::releaseGLBuffers()
 	mWaterRef.release();
 	mWaterDis.release();
     mBake.release();
-	mHighlight.release();
 	
 	for (U32 i = 0; i < 3; i++)
 	{
@@ -1178,7 +1166,6 @@ void LLPipeline::releaseScreenBuffers()
 	mRT->uiScreen.release();
 	mRT->screen.release();
 	mRT->fxaaBuffer.release();
-	mPhysicsDisplay.release();
 	mRT->deferredScreen.release();
 	mRT->deferredDepth.release();
 	mRT->deferredLight.release();
@@ -1228,8 +1215,6 @@ void LLPipeline::createGLBuffers()
 
     // Use FBO for bake tex
     mBake.allocate(512, 512, GL_RGBA, TRUE, FALSE, LLTexUnit::TT_TEXTURE, true); // SL-12781 Build > Upload > Model; 3D Preview
-
-	mHighlight.allocate(256,256,GL_RGBA, FALSE, FALSE);
 
 	stop_glerror();
 
@@ -1760,14 +1745,6 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 			mNearbyLights.erase(iter);
 			break;
 		}
-	}
-
-	HighlightItem item(drawablep);
-	mHighlightSet.erase(item);
-
-	if (mHighlightObject == drawablep)
-	{
-		mHighlightObject = NULL;
 	}
 
 	for (U32 i = 0; i < 2; ++i)
@@ -4105,107 +4082,6 @@ void LLPipeline::renderHighlights()
 	LLGLEnable color_mat(GL_COLOR_MATERIAL);
 	disableLights();
 
-	if (!hasRenderType(LLPipeline::RENDER_TYPE_HUD) && !mHighlightSet.empty())
-	{ //draw blurry highlight image over screen
-		LLGLEnable blend(GL_BLEND);
-		LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
-		LLGLDisable test(GL_ALPHA_TEST);
-
-		//LLGLEnable stencil(GL_STENCIL_TEST);
-		gGL.flush();
-        // stencil ops are deprecated
-		//glStencilMask(0xFFFFFFFF);
-		//glClearStencil(1);
-		//glClear(GL_STENCIL_BUFFER_BIT);
-
-		//glStencilFunc(GL_ALWAYS, 0, 0xFFFFFFFF);
-		//glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
-
-		gGL.setColorMask(false, false);
-
-        gHighlightProgram.bind();
-
-		for (std::set<HighlightItem>::iterator iter = mHighlightSet.begin(); iter != mHighlightSet.end(); ++iter)
-		{
-			renderHighlight(iter->mItem->getVObj(), 1.f);
-		}
-		gGL.setColorMask(true, false);
-
-		//glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP); // deprecated
-		//glStencilFunc(GL_NOTEQUAL, 0, 0xFFFFFFFF);
-		
-		//gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
-
-		gGL.pushMatrix();
-		gGL.loadIdentity();
-		gGL.matrixMode(LLRender::MM_PROJECTION);
-		gGL.pushMatrix();
-		gGL.loadIdentity();
-
-		gGL.getTexUnit(0)->bind(&mHighlight);
-
-		LLVector2 tc1;
-		LLVector2 tc2;
-
-		tc1.setVec(0,0);
-		tc2.setVec(2,2);
-
-		gGL.begin(LLRender::TRIANGLES);
-				
-		F32 scale = RenderHighlightBrightness;
-		LLColor4 color = RenderHighlightColor;
-		F32 thickness = RenderHighlightThickness;
-
-		for (S32 pass = 0; pass < 2; ++pass)
-		{
-			if (pass == 0)
-			{
-				gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
-			}
-			else
-			{
-				gGL.setSceneBlendType(LLRender::BT_ALPHA);
-			}
-
-			for (S32 i = 0; i < 8; ++i)
-			{
-				for (S32 j = 0; j < 8; ++j)
-				{
-					LLVector2 tc(i-4+0.5f, j-4+0.5f);
-
-					F32 dist = 1.f-(tc.length()/sqrtf(32.f));
-					dist *= scale/64.f;
-
-					tc *= thickness;
-					tc.mV[0] = (tc.mV[0])/mHighlight.getWidth();
-					tc.mV[1] = (tc.mV[1])/mHighlight.getHeight();
-
-					gGL.color4f(color.mV[0],
-								color.mV[1],
-								color.mV[2],
-								color.mV[3]*dist);
-					
-					gGL.texCoord2f(tc.mV[0]+tc1.mV[0], tc.mV[1]+tc2.mV[1]);
-					gGL.vertex2f(-1,3);
-					
-					gGL.texCoord2f(tc.mV[0]+tc1.mV[0], tc.mV[1]+tc1.mV[1]);
-					gGL.vertex2f(-1,-1);
-					
-					gGL.texCoord2f(tc.mV[0]+tc2.mV[0], tc.mV[1]+tc1.mV[1]);
-					gGL.vertex2f(3,-1);
-				}
-			}
-		}
-
-		gGL.end();
-
-		gGL.popMatrix();
-		gGL.matrixMode(LLRender::MM_MODELVIEW);
-		gGL.popMatrix();
-		
-		//gGL.setSceneBlendType(LLRender::BT_ALPHA);
-	}
-
 	if ((LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
 	{
 		gHighlightProgram.bind();
@@ -4886,40 +4762,56 @@ void LLPipeline::renderPhysicsDisplay()
 		return;
 	}
 
-	allocatePhysicsBuffer();
+    gGL.flush();
+    gDebugProgram.bind();
 
-	gGL.flush();
-	mPhysicsDisplay.bindTarget();
-	glClearColor(0,0,0,1);
-	gGL.setColorMask(true, true);
-	mPhysicsDisplay.clear();
-	glClearColor(0,0,0,0);
+    LLGLEnable(GL_POLYGON_OFFSET_LINE);
+    glPolygonOffset(3.f, 3.f);
+    glLineWidth(3.f);
+    LLGLEnable blend(GL_BLEND);
+    gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
-	gGL.setColorMask(true, false);
+    for (int pass = 0; pass < 3; ++pass)
+    {
+        // pass 0 - depth write enabled, color write disabled, fill
+        // pass 1 - depth write disabled, color write enabled, fill
+        // pass 2 - depth write disabled, color write enabled, wireframe
+        gGL.setColorMask(pass >= 1, false);
+        LLGLDepthTest depth(GL_TRUE, pass == 0);
 
-	gDebugProgram.bind();
+        bool wireframe = (pass == 2);
 
-	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
-			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
-	{
-		LLViewerRegion* region = *iter;
-		for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
-		{
-			LLSpatialPartition* part = region->getSpatialPartition(i);
-			if (part)
-			{
-				if (hasRenderType(part->mDrawableType))
-				{
-					part->renderPhysicsShapes();
-				}
-			}
-		}
-	}
+        if (wireframe)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
 
-	gGL.flush();
+        for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+            iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+        {
+            LLViewerRegion* region = *iter;
+            for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
+            {
+                LLSpatialPartition* part = region->getSpatialPartition(i);
+                if (part)
+                {
+                    if (hasRenderType(part->mDrawableType))
+                    {
+                        part->renderPhysicsShapes(wireframe);
+                    }
+                }
+            }
+        }
+        gGL.flush();
 
+        if (wireframe)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+    }
+    glLineWidth(1.f);
 	gDebugProgram.unbind();
-	mPhysicsDisplay.flush();
+
 }
 
 extern std::set<LLSpatialGroup*> visible_selected_groups;
@@ -8230,33 +8122,7 @@ void LLPipeline::renderFinalize()
 
     if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES))
     {
-        gSplatTextureRectProgram.bind();
-
-        gGL.setColorMask(true, false);
-
-        LLVector2 tc1(0, 0);
-        LLVector2 tc2((F32) gViewerWindow->getWorldViewWidthRaw() * 2,
-                      (F32) gViewerWindow->getWorldViewHeightRaw() * 2);
-
-        LLGLEnable blend(GL_BLEND);
-        gGL.color4f(1, 1, 1, 0.75f);
-
-        gGL.getTexUnit(0)->bind(&mPhysicsDisplay);
-
-        gGL.begin(LLRender::TRIANGLES);
-        gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
-        gGL.vertex2f(-1, -1);
-
-        gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
-        gGL.vertex2f(-1, 3);
-
-        gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
-        gGL.vertex2f(3, -1);
-
-        gGL.end();
-        gGL.flush();
-
-        gSplatTextureRectProgram.unbind();
+        renderPhysicsDisplay();
     }
 
     /*if (LLRenderTarget::sUseFBO && !gCubeSnapshot)
@@ -9913,61 +9779,6 @@ void LLPipeline::renderHighlight(const LLViewerObject* obj, F32 fade)
 	}
 }
 
-void LLPipeline::generateHighlight(LLCamera& camera)
-{
-	//render highlighted object as white into offscreen render target
-	if (mHighlightObject.notNull())
-	{
-		mHighlightSet.insert(HighlightItem(mHighlightObject));
-	}
-    llassert(!gCubeSnapshot);
-
-	if (!mHighlightSet.empty())
-	{
-		F32 transition = gFrameIntervalSeconds.value()/RenderHighlightFadeTime;
-
-		LLGLDisable test(GL_ALPHA_TEST);
-		LLGLDepthTest depth(GL_FALSE);
-		mHighlight.bindTarget();
-		disableLights();
-		gGL.setColorMask(true, true);
-		mHighlight.clear();
-
-        gHighlightProgram.bind();
-
-		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
-		for (std::set<HighlightItem>::iterator iter = mHighlightSet.begin(); iter != mHighlightSet.end(); )
-		{
-			std::set<HighlightItem>::iterator cur_iter = iter++;
-
-			if (cur_iter->mItem.isNull())
-			{
-				mHighlightSet.erase(cur_iter);
-				continue;
-			}
-
-			if (cur_iter->mItem == mHighlightObject)
-			{
-				cur_iter->incrFade(transition); 
-			}
-			else
-			{
-				cur_iter->incrFade(-transition);
-				if (cur_iter->mFade <= 0.f)
-				{
-					mHighlightSet.erase(cur_iter);
-					continue;
-				}
-			}
-
-			renderHighlight(cur_iter->mItem->getVObj(), cur_iter->mFade);
-		}
-
-		mHighlight.flush();
-		gGL.setColorMask(true, false);
-		gViewerWindow->setup3DViewport();
-	}
-}
 
 LLRenderTarget* LLPipeline::getSunShadowTarget(U32 i)
 {

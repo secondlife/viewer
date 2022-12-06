@@ -133,8 +133,6 @@ public:
 	bool allocateScreenBuffer(U32 resX, U32 resY, U32 samples);
     bool allocateShadowBuffer(U32 resX, U32 resY);
 
-	void allocatePhysicsBuffer();
-	
 	void resetVertexBuffers(LLDrawable* drawable);
 	void generateImpostor(LLVOAvatar* avatar, bool preview_avatar = false);
 	void bindScreenToTexture();
@@ -319,11 +317,8 @@ public:
     LLRenderTarget* getSunShadowTarget(U32 i);
     LLRenderTarget* getSpotShadowTarget(U32 i);
 
-	void generateHighlight(LLCamera& camera);
 	void renderHighlight(const LLViewerObject* obj, F32 fade);
-	void setHighlightObject(LLDrawable* obj) { mHighlightObject = obj; }
-
-
+	
 	void renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& camera, LLCullResult& result, bool use_shader, bool use_occlusion, U32 target_width);
 	void renderHighlights();
 	void renderDebug();
@@ -692,8 +687,6 @@ public:
     LLRenderTarget          mSpotShadow[2];
     LLRenderTarget          mSpotShadowOcclusion[2];
 
-    LLRenderTarget			mHighlight;
-    LLRenderTarget			mPhysicsDisplay;
     LLRenderTarget          mPbrBrdfLut;
 
     LLCullResult            mSky;
@@ -858,9 +851,6 @@ protected:
 			mFade = llclamp(mFade+val, 0.f, 1.f);
 		}
 	};
-
-	std::set<HighlightItem> mHighlightSet;
-	LLPointer<LLDrawable> mHighlightObject;
 
 	//////////////////////////////////////////////////
 	//

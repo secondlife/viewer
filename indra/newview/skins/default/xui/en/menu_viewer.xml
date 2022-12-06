@@ -3247,16 +3247,6 @@ function="World.EnvPreset"
                  function="Advanced.HandleAttachedLightParticles"
                  parameter="RenderAttachedParticles" />
             </menu_item_check>
-            <menu_item_check
-             label="Hover Glow Objects"
-             name="Hover Glow Objects">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="RenderHoverGlowEnable" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="RenderHoverGlowEnable" />
-            </menu_item_check>
             <menu_item_call
               enabled="true"
               label="Rebuild Reflection Probes"

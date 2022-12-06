@@ -823,15 +823,6 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 		LLViewerMediaFocus::getInstance()->clearHover();
 	}
 
-	static LLCachedControl<bool> enable_highlight(
-		gSavedSettings, "RenderHoverGlowEnable", false);
-	LLDrawable* drawable = NULL;
-	if (enable_highlight && show_highlight && object)
-	{
-		drawable = object->mDrawable;
-	}
-	gPipeline.setHighlightObject(drawable);
-
 	return TRUE;
 }
 
