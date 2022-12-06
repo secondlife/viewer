@@ -30,6 +30,7 @@
 
 #include "llsd.h"
 #include "llsdutil.h"
+#include <algorithm>
 
 LLKeyData::LLKeyData()
     :
@@ -213,19 +214,23 @@ bool LLKeyBind::isEmpty() const
     return true;
 }
 
+LLKeyBind::data_vector_t::const_iterator LLKeyBind::endNonEmpty() const
+{
+    // search backwards for last non-empty entry, then turn back into forwards
+    // iterator (.base() call)
+    return std::find_if_not(mData.rbegin(), mData.rend(),
+                            [](const auto& kdata){ return kdata.empty(); }).base();
+}
+
 LLSD LLKeyBind::asLLSD() const
 {
-    auto last = mData.size() - 1;
-    while (mData[last].empty())
-    {
-        last--;
-    }
-
     LLSD data;
-    for (S32 i = 0; i <= last; ++i)
+    auto end{ endNonEmpty() };
+    for (auto it = mData.begin(); it < end; ++it)
     {
-        // append even if empty to not affect visual representation
-        data.append(mData[i].asLLSD());
+        // append intermediate entries even if empty to not affect visual
+        // representation
+        data.append(it->asLLSD());
     }
     return data;
 }
@@ -380,16 +385,10 @@ void LLKeyBind::resetKeyData(S32 index)
 
 void LLKeyBind::trimEmpty()
 {
-    auto last = mData.size() - 1;
-    while (last >= 0 && mData[last].empty())
-    {
-        mData.erase(mData.begin() + last);
-        last--;
-    }
+    mData.erase(endNonEmpty(), mData.end());
 }
 
 size_t LLKeyBind::getDataCount()
 {
     return mData.size();
 }
-

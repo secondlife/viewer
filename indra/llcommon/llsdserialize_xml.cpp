@@ -260,7 +260,7 @@ public:
 	S32 parse(std::istream& input, LLSD& data);
 	S32 parseLines(std::istream& input, LLSD& data);
 
-	void parsePart(const char *buf, int len);
+	void parsePart(const char *buf, llssize len);
 	
 	void reset();
 
@@ -542,7 +542,7 @@ LLSDXMLParser::Impl::findAttribute(const XML_Char* name, const XML_Char** pairs)
 	return NULL;
 }
 
-void LLSDXMLParser::Impl::parsePart(const char* buf, int len)
+void LLSDXMLParser::Impl::parsePart(const char* buf, llssize len)
 {
 	if ( buf != NULL 
 		&& len > 0 )
@@ -915,7 +915,7 @@ LLSDXMLParser::~LLSDXMLParser()
 	delete &impl;
 }
 
-void LLSDXMLParser::parsePart(const char *buf, int len)
+void LLSDXMLParser::parsePart(const char *buf, llssize len)
 {
 	impl.parsePart(buf, len);
 }
