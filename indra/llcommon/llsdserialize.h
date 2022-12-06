@@ -194,7 +194,7 @@ protected:
 	 * Conceptually const since it only modifies mutable members.
 	 * @param bytes The number of bytes read.
 	 */
-	void account(S32 bytes) const;
+	void account(llssize bytes) const;
 
 protected:
 	/**
@@ -336,7 +336,7 @@ private:
 	class Impl;
 	Impl& impl;
 
-	void parsePart(const char* buf, int len);
+	void parsePart(const char* buf, llssize len);
 	friend class LLSDSerialize;
 };
 
@@ -867,5 +867,5 @@ public:
 LL_COMMON_API std::string zip_llsd(LLSD& data);
 
 
-LL_COMMON_API U8* unzip_llsdNavMesh( bool& valid, unsigned int& outsize,std::istream& is, S32 size);
+LL_COMMON_API U8* unzip_llsdNavMesh( bool& valid, size_t& outsize,std::istream& is, S32 size);
 #endif // LL_LLSDSERIALIZE_H
