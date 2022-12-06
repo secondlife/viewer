@@ -796,8 +796,8 @@ void LLVertexBuffer::cleanupClass()
 
     llassert(0 == LLVBOPool::sBytesPooled);
     llassert(0 == LLVBOPool::sIndexBytesPooled);
-    llassert(0 == sAllocatedBytes);
-    llassert(0 == sAllocatedIndexBytes);
+    //llassert(0 == sAllocatedBytes);
+    //llassert(0 == sAllocatedIndexBytes);
 }
 
 //----------------------------------------------------------------------------

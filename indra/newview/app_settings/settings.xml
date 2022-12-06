@@ -10327,7 +10327,8 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>RenderReflectionDetail</key>
+  
+  <key>RenderReflectionDetail</key>
     <map>
       <key>Comment</key>
       <string>DEPRECATED -- use RenderTransparentWater and RenderReflectionProbeDetail -- Detail of reflection render pass.</string>
@@ -10349,6 +10350,17 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
+  <key>RenderReflectionsEnabled</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable/disable reflection probes</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>RenderReflectionProbeDetail</key>
   <map>
     <key>Comment</key>

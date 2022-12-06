@@ -1220,10 +1220,19 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
         getChildView("fsaa")->setEnabled(FALSE);
     }
 
-    if (!LLFeatureManager::instance().isFeatureAvailable("RenderReflectionProbeDetail"))
+    enabled = false;
+    if (!LLFeatureManager::instance().isFeatureAvailable("RenderReflectionsEnabled"))
     {
-        getChildView("ReflectionDetail")->setEnabled(FALSE);
+        getChildView("ReflectionsEnabled")->setEnabled(FALSE);
     }
+    else 
+    {
+        enabled = gSavedSettings.getBOOL("RenderReflectionsEnabled");
+    }
+
+    getChildView("ReflectionDetail")->setEnabled(enabled);
+    getChildView("ReflectionDetailText")->setEnabled(enabled);
+    getChildView("ScreenSpaceReflections")->setEnabled(enabled);
 
 	// Hardware settings
 	

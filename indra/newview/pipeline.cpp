@@ -410,7 +410,7 @@ void LLPipeline::init()
 	sRenderAttachedLights = gSavedSettings.getBOOL("RenderAttachedLights");
 	sRenderAttachedParticles = gSavedSettings.getBOOL("RenderAttachedParticles");
 
-	mInitialized = true;
+    mInitialized = true;
 	
 	stop_glerror();
 
@@ -1019,8 +1019,6 @@ void LLPipeline::updateRenderBump()
 void LLPipeline::updateRenderDeferred()
 {
     sRenderPBR = sRenderDeferred;
-    static LLCachedControl<S32> sProbeDetail(gSavedSettings, "RenderReflectionProbeDetail", -1);
-    sReflectionProbesEnabled = sProbeDetail >= 0 && gGLManager.mGLVersion > 3.99f;
 }
 
 // static
@@ -1112,7 +1110,9 @@ void LLPipeline::refreshCachedSettings()
 	CameraDoFResScale = gSavedSettings.getF32("CameraDoFResScale");
 	RenderAutoHideSurfaceAreaLimit = gSavedSettings.getF32("RenderAutoHideSurfaceAreaLimit");
     RenderScreenSpaceReflections = gSavedSettings.getBOOL("RenderScreenSpaceReflections");
+    sReflectionProbesEnabled = gSavedSettings.getBOOL("RenderReflectionsEnabled");
 	RenderSpotLight = nullptr;
+
 	updateRenderDeferred();
 
 	if (gNonInteractive)
@@ -7396,8 +7396,6 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 	}
 	LLVOPartGroup::destroyGL();
     gGL.resetVertexBuffer();
-
-    mReflectionMapManager.cleanup();
 
 	SUBSYSTEM_CLEANUP(LLVertexBuffer);
 	
