@@ -100,6 +100,8 @@ public:
 private:
     typedef std::vector<LLKeyData> data_vector_t;
     data_vector_t mData;
+
+    data_vector_t::const_iterator endNonEmpty() const;
 };
 
 
