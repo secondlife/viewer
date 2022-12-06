@@ -331,8 +331,7 @@ bool remove_last_char(char c, std::string& line)
 void unescape_string(std::string& line)
 {
 	auto line_size = line.size();
-	size_t index = 0;
-	while (index < line_size - 1)
+	for (size_t index = 0; line_size >= 1 && index < line_size - 1; ++index)
 	{
 		if ('\\' == line[index])
 		{
@@ -347,7 +346,6 @@ void unescape_string(std::string& line)
 				line_size--;
 			}
 		}
-		index++;
 	}
 }
 
@@ -357,8 +355,7 @@ void unescape_string(std::string& line)
 void escape_string(std::string& line)
 {
 	auto line_size = line.size();
-	size_t index = 0;
-	while (index < line_size)
+	for (size_t index = 0; index < line_size; ++index)
 	{
 		if ('\\' == line[index])
 		{
@@ -372,7 +369,6 @@ void escape_string(std::string& line)
 			line_size++;
 			index++;
 		}
-		index++;
 	}
 }
 
@@ -380,23 +376,20 @@ void escape_string(std::string& line)
 void replace_newlines_with_whitespace(std::string& line)
 {
 	auto line_size = line.size();
-	size_t index = 0;
-	while (index < line_size)
+	for (size_t index = 0; index < line_size; ++index)
 	{
 		if ('\n' == line[index])
 		{
 			line.replace(index, 1, " ");
 		}
-		index++;
 	}
 }
 
 // erases any double-quote characters in 'line'
 void remove_double_quotes(std::string& line)
 {
-	size_t index = 0;
 	auto line_size = line.size();
-	while (index < line_size)
+	for (size_t index = 0; index < line_size; )
 	{
 		if ('"' == line[index])
 		{
@@ -427,19 +420,18 @@ void get_keyword_and_value(std::string& keyword,
 	auto line_size = line.size();
 	size_t line_index = 0;
 	char c;
-	while (line_index < line_size)
+	for ( ; line_index < line_size; ++line_index)
 	{
 		c = line[line_index];
 		if (!LLStringOps::isSpace(c))
 		{
 			break;
 		}
-		line_index++;
 	}
 
 	// get the keyword
 	keyword.clear();
-	while (line_index < line_size)
+	for ( ; line_index < line_size; ++line_index)
 	{
 		c = line[line_index];
 		if (LLStringOps::isSpace(c) || '\r' == c || '\n' == c)
@@ -447,7 +439,6 @@ void get_keyword_and_value(std::string& keyword,
 			break;
 		}
 		keyword += c;
-		line_index++;
 	}
 
 	// get the value
@@ -465,7 +456,7 @@ void get_keyword_and_value(std::string& keyword,
 			line_index++;
 		}
 
-		while (line_index < line_size)
+		for ( ; line_index < line_size; ++line_index)
 		{
 			c = line[line_index];
 			if ('\r' == c || '\n' == c)
@@ -473,7 +464,6 @@ void get_keyword_and_value(std::string& keyword,
 				break;
 			}
 			value += c;
-			line_index++;
 		}
 	}
 }
