@@ -193,17 +193,30 @@ void processJointData(const std::string& key, const LLSD& data)
                 v.mV[VY] = value.get(1).asReal();
                 v.mV[VZ] = value.get(2).asReal();
 
+                // sanity check Puppetry input
+                constexpr F32 MAX_PUPPETRY_INPUT = 10.0f;
+                constexpr F32 MIN_PUPPETRY_INPUT = -MAX_PUPPETRY_INPUT;
+                v.clamp(MIN_PUPPETRY_INPUT, MAX_PUPPETRY_INPUT);
+
+                // Note: LLVector3::clamp() doesn't protect against NaN input
+                // so we explicitly check it here
+                F32 v_length_squared = v.lengthSquared();
+                if (llisnan(v_length_squared))
+                {
+                    continue;
+                }
+
                 if ( param_name == "r" || param_name == "rotation" )
                 {
                     LLQuaternion q;
                     // Packed quaternions have the imaginary part (xyz)
                     // copy the imaginary part
                     memcpy(q.mQ, v.mV, 3 * sizeof(F32));
+
                     // compute the real part
-                    F32 imaginary_length_squared = q.mQ[VX] * q.mQ[VX] + q.mQ[VY] * q.mQ[VY] + q.mQ[VZ] * q.mQ[VZ];
-                    if (imaginary_length_squared > 1.0f)
+                    if (v_length_squared > 1.0f)
                     {
-                        F32 imaginary_length = sqrtf(imaginary_length_squared);
+                        F32 imaginary_length = sqrtf(v_length_squared);
                         q.mQ[VX] /= imaginary_length;
                         q.mQ[VY] /= imaginary_length;
                         q.mQ[VZ] /= imaginary_length;
@@ -211,7 +224,7 @@ void processJointData(const std::string& key, const LLSD& data)
                     }
                     else
                     {
-                        q.mQ[VW] = sqrtf(1.0f - imaginary_length_squared);
+                        q.mQ[VW] = sqrtf(1.0f - v_length_squared);
                     }
                     joint_event.setRotation(q);
                 }

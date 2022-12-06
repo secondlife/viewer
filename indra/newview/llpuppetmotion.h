@@ -159,7 +159,7 @@ public:
     BOOL canDeprecate() override { return FALSE; }
     void addJointToSkeletonData(LLSD& skeleton_sd, LLJoint* joint, const LLVector3& parent_rel_pos, const LLVector3& tip_rel_end_pos);
     LLSD getSkeletonData();
-    void reconfigureJoints();
+    void updateSkeletonGeometry();
 
 private:
     void measureArmSpan();

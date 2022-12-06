@@ -35,6 +35,7 @@
 
 #include "llik.h"
 
+#include "lljoint.h"
 #include "llmath.h"
 #include "v3math.h"
 #include "llquaternion.h"
@@ -147,27 +148,33 @@ F32 compute_clamped_angle(F32 angle, F32 min_angle, F32 max_angle)
 void LLIK::Joint::Config::setLocalPos(const LLVector3& pos)
 {
     mLocalPos = pos;
-    mFlags |= FLAG_LOCAL_POS;
+    mFlags |= CONFIG_FLAG_LOCAL_POS;
 }
 
 void LLIK::Joint::Config::setLocalRot(const LLQuaternion& rot)
 {
     mLocalRot = rot;
     mLocalRot.normalize();
-    mFlags |= FLAG_LOCAL_ROT;
+    mFlags |= CONFIG_FLAG_LOCAL_ROT;
+}
+
+void LLIK::Joint::Config::setLocalScale(const LLVector3& scale)
+{
+    mLocalScale = scale;
+    mFlags |= CONFIG_FLAG_LOCAL_SCALE;
 }
 
 void LLIK::Joint::Config::setTargetPos(const LLVector3& pos)
 {
     mTargetPos = pos;
-    mFlags |= FLAG_TARGET_POS;
+    mFlags |= CONFIG_FLAG_TARGET_POS;
 }
 
 void LLIK::Joint::Config::setTargetRot(const LLQuaternion& rot)
 {
     mTargetRot = rot;
     mTargetRot.normalize();
-    mFlags |= FLAG_TARGET_ROT;
+    mFlags |= CONFIG_FLAG_TARGET_ROT;
 }
 
 void LLIK::Joint::Config::updateFrom(const Config& other_config)
@@ -182,19 +189,23 @@ void LLIK::Joint::Config::updateFrom(const Config& other_config)
         // find and apply all parameters in other_config
         if (other_config.hasLocalPos())
         {
-            setLocalPos(other_config.getLocalPos());
+            setLocalPos(other_config.mLocalPos);
         }
         if (other_config.hasLocalRot())
         {
-            setLocalRot(other_config.getLocalRot());
+            setLocalRot(other_config.mLocalRot);
         }
         if (other_config.hasTargetPos())
         {
-            setTargetPos(other_config.getTargetPos());
+            setTargetPos(other_config.mTargetPos);
         }
         if (other_config.hasTargetRot())
         {
-            setTargetRot(other_config.getTargetRot());
+            setTargetRot(other_config.mTargetRot);
+        }
+        if (other_config.hasLocalScale())
+        {
+            setLocalScale(other_config.mLocalScale);
         }
         if (other_config.constraintIsDisabled())
         {
@@ -856,11 +867,22 @@ void LLIK::DoubleLimitedHinge::dumpConfig() const
 }
 #endif
 
-LLIK::Joint::Joint(S16 id, const LLVector3& local_pos, const LLVector3& bone)
-    :   mDefaultLocalPos(local_pos), mBone(bone), mID(id)
+LLIK::Joint::Joint(LLJoint* info_ptr) : mInfoPtr(info_ptr)
 {
-    mLocalPos = mDefaultLocalPos;
+    assert(info_ptr != nullptr);
+    mID = mInfoPtr->getJointNum();
+    resetFromInfo();
+}
+
+void LLIK::Joint::resetFromInfo()
+{
+    LLVector3 scale = mInfoPtr->getScale();
+    mLocalPos = mInfoPtr->getPosition().scaledVec(scale);
+    mBone = mInfoPtr->getEnd().scaledVec(scale);
     mLocalPosLength = mLocalPos.length();
+    // This is Correct: we do NOT store info scale in mLocalScale.
+    // mLocalScale represents Puppetry's tweak on  top of whatever is set in the info.
+    mLocalScale.set(1.0f, 1.0f, 1.0f);
 }
 
 void LLIK::Joint::addChild(const ptr_t& child)
@@ -890,14 +912,14 @@ void LLIK::Joint::setParent(const ptr_t& parent)
         // Whatever orientation it has at the start of IK will be its final,
         // which is why we flag it as "locked".  This also simplifies logic
         // elsewhere: in a few places we assume any non-locked Joint has a parent.
-        mConfigFlags = FLAG_LOCAL_ROT;
+        mIkFlags = IK_FLAG_LOCAL_ROT_LOCKED;
     }
     reset();
 }
 
 void LLIK::Joint::reset()
 {
-    mLocalPos = mDefaultLocalPos;
+    resetFromInfo();
     // Note: we don't bother to enforce localRotLocked() here because any call
     // to reset() is expected to be outside the Solver IK iterations.
     mLocalRot = LLQuaternion::DEFAULT;
@@ -975,14 +997,6 @@ F32 LLIK::Joint::recursiveComputeLongestChainLength(F32 length) const
         }
     }
     return longest_length;
-}
-
-void LLIK::Joint::reconfigure(const LLVector3& local_pos, const LLVector3& bone)
-{
-    mDefaultLocalPos = local_pos;
-    mLocalPos = local_pos;
-    mBone = bone;
-    mLocalPosLength = mLocalPos.length();
 }
 
 LLVector3 LLIK::Joint::computeEndTargetPos() const
@@ -1299,6 +1313,8 @@ void LLIK::Joint::shiftPos(const LLVector3& shift)
 
 void LLIK::Joint::setConfig(const Config& config)
 {
+    // we only remember the config here
+    // it gets applied later when we build the chains
     mConfig = &config;
     mConfigFlags = mConfig ? mConfig->getFlags() : 0;
 }
@@ -1306,13 +1322,15 @@ void LLIK::Joint::setConfig(const Config& config)
 void LLIK::Joint::resetFlags()
 {
     mConfig = nullptr;
-    // root Joint always has FLAG_LOCAL_ROT bit set
-    mConfigFlags = mParent ? 0 : FLAG_LOCAL_ROT;
+    mConfigFlags = 0;
+    // root Joint always has IK_FLAG_LOCAL_ROT_LOCKED set
+    mIkFlags = mParent ? 0 : IK_FLAG_LOCAL_ROT_LOCKED;
 }
 
 void LLIK::Joint::lockLocalRot(const LLQuaternion& local_rot)
 {
     mLocalRot = local_rot;
+    mIkFlags |= IK_FLAG_LOCAL_ROT_LOCKED;
     activate();
     if (!mParent)
     {
@@ -1384,7 +1402,8 @@ void LLIK::Joint::setWorldPos(const LLVector3& pos)
 // this should only be called once before starting IK algorithm iterations
 void LLIK::Joint::setLocalPos(const LLVector3& pos)
 {
-    mLocalPos = pos;
+    mLocalPos = pos.scaledVec(mLocalScale);
+    mLocalPosLength = mLocalPos.length();
     if (!mParent)
     {
         mPos = mLocalPos;
@@ -1405,6 +1424,46 @@ void LLIK::Joint::setLocalRot(const LLQuaternion& new_local_rot)
         mLocalRot = lerp(BLEND_COEF, mLocalRot, new_local_rot);
         //mLocalRot = new_local_rot;
     }
+}
+
+// only call this if you know what you're doing
+// this should only be called once before starting IK algorithm iterations
+void LLIK::Joint::setLocalScale(const LLVector3& scale)
+{
+    // compute final scale adustment to applly to mLocalPos and mBone
+    constexpr F32 MIN_INVERTABLE_SCALE = 1.0e-15f;
+    LLVector3 re_scale;
+    for (S32 i = 0; i < 3; ++i)
+    {
+        // verify mLocalScale component to avoid introducing NaN
+        re_scale[i] = (mLocalScale[i] > MIN_INVERTABLE_SCALE) ?  scale[i] / mLocalScale[i] : 0.0f;
+    }
+    // We remember the final scale adjustment for later...
+    mLocalScale = scale;
+    // ...and apply it immediately onto mLocalPos and mBone.
+    mBone.scaleVec(re_scale);
+    mLocalPos.scaleVec(re_scale);
+    mLocalPosLength = mLocalPos.length();
+}
+
+// returns local_pos with any non-uniform scale from the "info" removed.
+LLVector3 LLIK::Joint::getPreScaledLocalPos() const
+{
+    LLVector3 pos = mLocalPos;
+    // We inverse-scale mLocalPos because we already applied the info's scale
+    // to mLocalPos so we could perform IK without constantly recomputing it,
+    // and now we're being asked for mLocalPos in the info's pre-scaled frame.
+
+    // Note: mInfoPtr will not be nullptr as per assert() in LLIK::Joint::ctor
+    LLVector3 inv_scale = mInfoPtr->getScale();
+    constexpr F32 MIN_INVERTABLE_SCALE = 1.0e-15f;
+    for (S32 i = 0; i < 3; ++i)
+    {
+        // verify scale component to avoid introducing NaN
+        inv_scale[i] = (inv_scale[i] > MIN_INVERTABLE_SCALE) ?  1.0f / inv_scale[i] : 0.0f;
+    }
+    pos.scaleVec(inv_scale);
+    return pos;
 }
 
 void LLIK::Joint::adjustWorldRot(const LLQuaternion& adjustment)
@@ -1861,10 +1920,10 @@ LLVector3 LLIK::Solver::computeReach(S16 to_id, S16 from_id) const
 void LLIK::Solver::addJoint(
         S16 joint_id,
         S16 parent_id,
-        const LLVector3& local_pos,
-        const LLVector3& bone,
+        LLJoint* joint_info,
         const Constraint::ptr_t& constraint)
 {
+    llassert(joint_info);
     // Note: parent Joints must be added BEFORE their children.
     if (joint_id < 0)
     {
@@ -1892,7 +1951,7 @@ void LLIK::Solver::addJoint(
     {
         parent = itr->second;
     }
-    Joint::ptr_t joint = std::make_shared<Joint>(joint_id, local_pos, bone);
+    Joint::ptr_t joint = std::make_shared<Joint>(joint_info);
     joint->setParent(parent);
     if (parent)
     {
@@ -2046,25 +2105,25 @@ bool LLIK::Solver::updateJointConfigs(const joint_config_map_t& configs)
                     something_changed = true;
                     break;
                 }
-                if ((mask & FLAG_TARGET_POS) > 0
+                if ((mask & CONFIG_FLAG_TARGET_POS) > 0
                         && std::abs(dist_vec(old_target.getTargetPos(), new_target.getTargetPos())) > mAcceptableError)
                 {
                     something_changed = true;
                     break;
                 }
-                if ((mask & FLAG_TARGET_ROT) > 0
+                if ((mask & CONFIG_FLAG_TARGET_ROT) > 0
                             && !LLQuaternion::almost_equal(old_target.getTargetRot(), new_target.getTargetRot()))
                 {
                     something_changed = true;
                     break;
                 }
-                if ((mask & FLAG_LOCAL_POS) > 0
+                if ((mask & CONFIG_FLAG_LOCAL_POS) > 0
                         && std::abs(dist_vec(old_target.getLocalPos(), new_target.getLocalPos())) > mAcceptableError)
                 {
                     something_changed = true;
                     break;
                 }
-                if ((mask & FLAG_LOCAL_ROT) > 0
+                if ((mask & CONFIG_FLAG_LOCAL_ROT) > 0
                             && !LLQuaternion::almost_equal(old_target.getLocalRot(), new_target.getLocalRot()))
                 {
                     something_changed = true;
@@ -2187,7 +2246,7 @@ void LLIK::Solver::rebuildAllChains()
             if (flags & MASK_ROT)
             {
                 LLQuaternion q;
-                if (flags & FLAG_LOCAL_ROT)
+                if (flags & CONFIG_FLAG_LOCAL_ROT)
                 {
                     q = config.getLocalRot();
                 }
@@ -2202,7 +2261,7 @@ void LLIK::Solver::rebuildAllChains()
             if (flags & MASK_POS)
             {
                 LLVector3 p;
-                if (flags & FLAG_LOCAL_POS)
+                if (flags & CONFIG_FLAG_LOCAL_POS)
                 {
                     p = config.getLocalPos();
                 }
@@ -2212,6 +2271,10 @@ void LLIK::Solver::rebuildAllChains()
                 }
                 joint->setLocalPos(p);
                 joint->activate();
+            }
+            if (flags & CONFIG_FLAG_LOCAL_SCALE)
+            {
+                joint->setLocalScale(config.getLocalScale());
             }
             continue;
         }
@@ -2255,6 +2318,11 @@ void LLIK::Solver::rebuildAllChains()
         else if (config.hasLocalPos())
         {
             joint->setLocalPos(config.getLocalPos());
+            joint->activate();
+        }
+        if (config.hasLocalScale())
+        {
+            joint->setLocalScale(config.getLocalScale());
             joint->activate();
         }
     }
@@ -2368,6 +2436,7 @@ void LLIK::Solver::rebuildAllChains()
         if (data_pair.second->isActive())
         {
             mActiveJoints.push_back(data_pair.second);
+            data_pair.second->flagForHarvest();
         }
     }
 }
@@ -2524,18 +2593,18 @@ LLQuaternion LLIK::Solver::getJointWorldRot(S16 joint_id) const
     return rot;
 }
 
-void LLIK::Solver::reconfigureJoint(S16 joint_id, const LLVector3& local_pos, const LLVector3& bone, const Constraint::ptr_t& constraint)
+void LLIK::Solver::resetJointGeometry(S16 joint_id, const Constraint::ptr_t& constraint)
 {
     joint_map_t::iterator itr = mSkeleton.find(joint_id);
     if (itr == mSkeleton.end())
     {
-        LL_WARNS("Puppet") << "failed reconfigure unknown joint_id=" << joint_id << LL_ENDL;
+        LL_WARNS("Puppet") << "failed update unknown joint_id=" << joint_id << LL_ENDL;
         return;
     }
     const Joint::ptr_t& joint = itr->second;
-    joint->reconfigure(local_pos, bone);
+    joint->resetFromInfo();
     joint->setConstraint(constraint);
-    // Note: will need to call computeEffectorNormal() after all Joints are reconfigured.
+    // Note: will need to call computeReach() after all Joint geometries are reset.
 }
 
 void LLIK::Solver::buildChain(Joint::ptr_t joint, joint_list_t& chain, std::set<S16>& sub_bases)

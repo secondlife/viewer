@@ -59,7 +59,7 @@ public:
     void setPosition(const LLVector3& position);
     void setScale(const LLVector3& scale);
     void setJointID(S32 id);
-    void disableConstraint() { mMask |= LLIK::FLAG_DISABLE_CONSTRAINT; }
+    void disableConstraint() { mMask |= LLIK::CONFIG_FLAG_DISABLE_CONSTRAINT; }
 
     S16 getJointID() const { return mJointID; }
     LLQuaternion getRotation() const { return mRotation; }

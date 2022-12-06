@@ -177,7 +177,7 @@ void LLPuppetJointEvent::interpolate(F32 del, const LLPuppetJointEvent& A, const
     {
         mPosition = (1.0f - del) * A.mPosition + del * B.mPosition;
     }
-    if ((mMask & LLIK::FLAG_LOCAL_SCALE) && (B.mMask & LLIK::FLAG_LOCAL_SCALE))
+    if ((mMask & LLIK::CONFIG_FLAG_LOCAL_SCALE) && (B.mMask & LLIK::CONFIG_FLAG_LOCAL_SCALE))
     {
         mScale = (1.0f - del) * A.mScale + del * B.mScale;
     }
@@ -187,19 +187,19 @@ void LLPuppetJointEvent::setRotation(const LLQuaternion& rotation)
 {
     mRotation = rotation;
     mRotation.normalize();
-    mMask |= (mRefFrame == PARENT_FRAME ? LLIK::FLAG_LOCAL_ROT : LLIK::FLAG_TARGET_ROT);
+    mMask |= (mRefFrame == PARENT_FRAME ? LLIK::CONFIG_FLAG_LOCAL_ROT : LLIK::CONFIG_FLAG_TARGET_ROT);
 }
 
 void LLPuppetJointEvent::setPosition(const LLVector3& position)
 {
     mPosition = position;
-    mMask |= (mRefFrame == PARENT_FRAME ? LLIK::FLAG_LOCAL_POS : LLIK::FLAG_TARGET_POS);
+    mMask |= (mRefFrame == PARENT_FRAME ? LLIK::CONFIG_FLAG_LOCAL_POS : LLIK::CONFIG_FLAG_TARGET_POS);
 }
 
 void LLPuppetJointEvent::setScale(const LLVector3& scale)
 {
     mScale = scale;
-    mMask |= LLIK::FLAG_LOCAL_SCALE;
+    mMask |= LLIK::CONFIG_FLAG_LOCAL_SCALE;
 }
 
 void LLPuppetJointEvent::setJointID(S32 id)
@@ -214,7 +214,7 @@ size_t LLPuppetJointEvent::getSize() const
     num_bytes += sizeof(S16) + sizeof(S8);  // mJointID, mMask
     num_bytes += (mMask & LLIK::MASK_ROT) ? BYTES_PER_VEC_3 : 0;
     num_bytes += (mMask & LLIK::MASK_POS) ? BYTES_PER_VEC_3 : 0;
-    num_bytes += (mMask & LLIK::FLAG_LOCAL_SCALE) ? BYTES_PER_VEC_3 : 0;
+    num_bytes += (mMask & LLIK::CONFIG_FLAG_LOCAL_SCALE) ? BYTES_PER_VEC_3 : 0;
     return num_bytes;
 }
 
@@ -238,7 +238,7 @@ size_t LLPuppetJointEvent::pack(U8* wptr)
     {
         offset += pack_vec3(wptr+offset, mPosition);
     }
-    if (mMask & LLIK::FLAG_LOCAL_SCALE)
+    if (mMask & LLIK::CONFIG_FLAG_LOCAL_SCALE)
     {
         offset += pack_vec3(wptr+offset, mScale);
     }
@@ -248,7 +248,7 @@ size_t LLPuppetJointEvent::pack(U8* wptr)
         LL_CONT << " rot=" << mRotation;
     if (mMask & LLIK::MASK_POS)
         LL_CONT << " pos=" << mPosition;
-    if (mMask & LLIK::FLAG_LOCAL_SCALE)
+    if (mMask & LLIK::CONFIG_FLAG_LOCAL_SCALE)
         LL_CONT << " scale=" << mScale;
     LL_CONT << " raw=" << LLError::arraylogger(wptr, offset) << " in frame " << (S32)gFrameCount << LL_ENDL;
 
@@ -272,7 +272,7 @@ size_t LLPuppetJointEvent::unpack(U8* wptr)
     {
         offset += unpack_vec3(wptr+offset, mPosition);
     }
-    if (mMask & LLIK::FLAG_LOCAL_SCALE)
+    if (mMask & LLIK::CONFIG_FLAG_LOCAL_SCALE)
     {
         offset += unpack_vec3(wptr+offset, mScale);
     }
@@ -282,7 +282,7 @@ size_t LLPuppetJointEvent::unpack(U8* wptr)
         LL_CONT << " rot=" << mRotation;
     if (mMask & LLIK::MASK_POS)
         LL_CONT << " pos=" << mPosition;
-    if (mMask & LLIK::FLAG_LOCAL_SCALE)
+    if (mMask & LLIK::CONFIG_FLAG_LOCAL_SCALE)
         LL_CONT << " scale=" << mScale;
     LL_CONT << " raw=" << LLError::arraylogger(wptr, offset) << " in frame " << (S32)gFrameCount << LL_ENDL;
 

@@ -104,6 +104,11 @@ if (LL_TESTS)
     PROPERTIES
     LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_THREAD_LIBRARY}"
   )
+  set_source_files_properties(
+    llik.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_SOURCE_FILES lljoint.cpp
+  )
   LL_ADD_PROJECT_UNIT_TESTS(llcharacter "${llcharacter_TEST_SOURCE_FILES}")
 endif (LL_TESTS)
 

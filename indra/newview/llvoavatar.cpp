@@ -2034,7 +2034,7 @@ void LLVOAvatar::buildCharacter()
     // Currently disabled for control avatars (animated objects), enabled for all others.
     if (mEnableDefaultMotions)
     {
-	startDefaultMotions();
+		startDefaultMotions();
     }
 
 	//-------------------------------------------------------------------------
@@ -8273,7 +8273,7 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 	    LLPuppetMotion::ptr_t puppet_motion = getPuppetMotion();
         if (puppet_motion)
         {
-            puppet_motion->reconfigureJoints();
+            puppet_motion->updateSkeletonGeometry();
             LLEventPumps::instance().obtain("SkeletonUpdate").post(LLSD());
         }
     }
@@ -8289,7 +8289,7 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 		// Fix for jellydoll initially invisible
 		mNeedsImpostorUpdate = TRUE;
 		mLastImpostorUpdateReason = 6;
-	}	
+	}
 	return changed;
 }
 
@@ -10996,28 +10996,27 @@ void LLVOAvatar::setOverallAppearanceNormal()
 void LLVOAvatar::setOverallAppearanceJellyDoll()
 {
 	if (isControlAvatar())
+	{
 		return;
+	}
 
 	// stop current animations
+	for ( LLVOAvatar::AnimIterator anim_it= mPlayingAnimations.begin();
+		  anim_it != mPlayingAnimations.end();
+		  ++anim_it)
 	{
-		for ( LLVOAvatar::AnimIterator anim_it= mPlayingAnimations.begin();
-			  anim_it != mPlayingAnimations.end();
-			  ++anim_it)
 		{
-			{
-				stopMotion(anim_it->first, TRUE);
-			}
+			stopMotion(anim_it->first, TRUE);
 		}
 	}
 	processAnimationStateChanges();
 
 	// Start any needed anims for jellydoll
 	updateOverallAppearanceAnimations();
-	
+
     LLVector3 pelvis_pos = getJoint("mPelvis")->getPosition();
 	resetSkeleton(false);
     getJoint("mPelvis")->setPosition(pelvis_pos);
-
 }
 
 void LLVOAvatar::setOverallAppearanceInvisible()
