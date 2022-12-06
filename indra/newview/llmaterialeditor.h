@@ -116,14 +116,13 @@ public:
     static void savePickedMaterialAs();
     static void onSaveObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response);
 
-    static void loadFromGLTFMaterial(LLUUID &asset_id);
-
     static void onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType type, void* user_data, S32 status, LLExtStat ext_status);
 
     void inventoryChanged(LLViewerObject* object, LLInventoryObject::object_list_t* inventory, S32 serial_num, void* user_data) override;
 
     typedef std::function<void(LLUUID newAssetId, LLSD response)> upload_callback_f;
     void saveTexture(LLImageJ2C* img, const std::string& name, const LLUUID& asset_id, upload_callback_f cb);
+    void setFailedToUploadTexture();
 
     // save textures to inventory if needed
     // returns amount of scheduled uploads
@@ -295,6 +294,7 @@ private:
     U32 mRevertedChanges; // flags to indicate individual reverted parameters
     S32 mUploadingTexturesCount;
     S32 mExpectedUploadCost;
+    bool mUploadingTexturesFailure;
     std::string mMaterialNameShort;
     std::string mMaterialName;
 
