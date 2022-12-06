@@ -2506,7 +2506,7 @@ public:
             {
                 // overrides are not supposed to work or apply if
                 // there is no base material to work from
-                return false;
+                continue;
             }
 
             LLPointer<LLGLTFMaterial> material = tep->getGLTFMaterialOverride();
