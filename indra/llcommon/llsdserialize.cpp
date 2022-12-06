@@ -99,7 +99,7 @@ void LLSDSerialize::serialize(const LLSD& sd, std::ostream& str, ELLSD_Serialize
 }
 
 // static
-bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, size_t max_bytes)
+bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, llssize max_bytes)
 {
 	LLPointer<LLSDParser> p = NULL;
 	char hdr_buf[MAX_HDR_LEN + 1] = ""; /* Flawfinder: ignore */
@@ -252,7 +252,7 @@ F64 ll_ntohd(F64 netdouble)
  * @return Returns number of bytes read off of the stream. Returns
  * PARSE_FAILURE (-1) on failure.
  */
-int deserialize_string(std::istream& istr, std::string& value, size_t max_bytes);
+int deserialize_string(std::istream& istr, std::string& value, llssize max_bytes);
 
 /**
  * @brief Parse a delimited string. 
@@ -280,7 +280,7 @@ int deserialize_string_delim(std::istream& istr, std::string& value, char d);
 int deserialize_string_raw(
 	std::istream& istr,
 	std::string& value,
-	size_t max_bytes);
+	llssize max_bytes);
 
 /**
  * @brief helper method for dealing with the different notation boolean format.
@@ -329,7 +329,7 @@ LLSDParser::LLSDParser()
 LLSDParser::~LLSDParser()
 { }
 
-S32 LLSDParser::parse(std::istream& istr, LLSD& data, size_t max_bytes, S32 max_depth)
+S32 LLSDParser::parse(std::istream& istr, LLSD& data, llssize max_bytes, S32 max_depth)
 {
 	mCheckLimits = (LLSDSerialize::SIZE_UNLIMITED == max_bytes) ? false : true;
 	mMaxBytesLeft = max_bytes;
@@ -1592,7 +1592,7 @@ void LLSDBinaryFormatter::formatString(
 /**
  * local functions
  */
-int deserialize_string(std::istream& istr, std::string& value, size_t max_bytes)
+int deserialize_string(std::istream& istr, std::string& value, llssize max_bytes)
 {
 	int c = istr.get();
 	if(istr.fail())
@@ -1728,7 +1728,7 @@ int deserialize_string_delim(
 int deserialize_string_raw(
 	std::istream& istr,
 	std::string& value,
-	size_t max_bytes)
+	llssize max_bytes)
 {
 	int count = 0;
 	const S32 BUF_LEN = 20;
@@ -2173,7 +2173,7 @@ std::string zip_llsd(LLSD& data)
 LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, std::istream& is, S32 size)
 {
 	U8* result = NULL;
-	size_t cur_size = 0;
+	llssize cur_size = 0;
 	z_stream strm;
 		
 	const U32 CHUNK = 65536;
