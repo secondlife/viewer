@@ -2914,7 +2914,7 @@ bool LLAgent::requestPostCapability(const std::string &capName, LLSD &postData, 
 {
     std::string url;
 
-    url = getRegion()->getCapability(capName);
+    url = getRegionCapability(capName);
 
     if (url.empty())
     {
