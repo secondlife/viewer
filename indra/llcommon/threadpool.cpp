@@ -23,6 +23,37 @@
 #include "llsd.h"
 #include "stringize.h"
 
+#include <boost/fiber/algo/round_robin.hpp>
+
+/*****************************************************************************
+*   Custom fiber scheduler for worker threads
+*****************************************************************************/
+// As of 2022-12-06, each of our worker threads only runs a single (default)
+// fiber: we don't launch explicit fibers within worker threads, nor do we
+// anticipate doing so. So a worker thread that's simply waiting for incoming
+// tasks should really sleep a little. Override the default fiber scheduler to
+// implement that.
+struct sleepy_robin: public boost::fibers::algo::round_robin
+{
+    virtual void suspend_until( std::chrono::steady_clock::time_point const&) noexcept
+    {
+        // round_robin holds a std::condition_variable, and
+        // round_robin::suspend_until() calls
+        // std::condition_variable::wait_until(). On Windows, that call seems
+        // busier than it ought to be. Try just sleeping.
+        Sleep(1);
+    }
+
+    virtual void notify() noexcept
+    {
+        // Since our Sleep() call above will wake up on its own, we need not
+        // take any special action to wake it.
+    }
+};
+
+/*****************************************************************************
+*   ThreadPool
+*****************************************************************************/
 LL::ThreadPool::ThreadPool(const std::string& name, size_t threads, size_t capacity):
     super(name),
     mQueue(name, capacity),
@@ -80,6 +111,11 @@ void LL::ThreadPool::close()
 
 void LL::ThreadPool::run(const std::string& name)
 {
+#if LL_WINDOWS
+    // Try using sleepy_robin fiber scheduler.
+    boost::fibers::use_scheduling_algorithm<sleepy_robin>();
+#endif // LL_WINDOWS
+
     LL_DEBUGS("ThreadPool") << name << " starting" << LL_ENDL;
     run();
     LL_DEBUGS("ThreadPool") << name << " stopping" << LL_ENDL;
