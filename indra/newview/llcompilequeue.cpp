@@ -124,7 +124,7 @@ public:
     LLQueuedScriptAssetUpload(LLUUID taskId, LLUUID itemId, LLUUID assetId, TargetType_t targetType,
             bool isRunning, std::string scriptName, LLUUID queueId, LLUUID exerienceId, taskUploadFinish_f finish) :
         LLScriptAssetUpload(taskId, itemId, targetType, isRunning, 
-            exerienceId, std::string(), finish),
+            exerienceId, std::string(), finish, nullptr),
         mScriptName(scriptName),
         mQueueId(queueId)
     {

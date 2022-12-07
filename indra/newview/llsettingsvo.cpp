@@ -234,9 +234,11 @@ void LLSettingsVOBase::updateInventoryItem(const LLSettingsBase::ptr_t &settings
     LLSDSerialize::serialize(settingdata, buffer, LLSDSerialize::LLSD_NOTATION);
 
     LLResourceUploadInfo::ptr_t uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(inv_item_id, LLAssetType::AT_SETTINGS, buffer.str(), 
-        [settings, callback](LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response) {
+        [settings, callback](LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response)
+        {
             LLSettingsVOBase::onAgentAssetUploadComplete(itemId, newAssetId, newItemId, response, settings, callback);
-        });
+        },
+        nullptr);
 
     LLViewerAssetUpload::EnqueueInventoryUpload(agent_url, uploadInfo);
 }
@@ -265,9 +267,11 @@ void LLSettingsVOBase::updateInventoryItem(const LLSettingsBase::ptr_t &settings
     LLSDSerialize::serialize(settingdata, buffer, LLSDSerialize::LLSD_NOTATION);
 
     LLResourceUploadInfo::ptr_t uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(object_id, inv_item_id, LLAssetType::AT_SETTINGS, buffer.str(),
-        [settings, callback](LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response) {
-        LLSettingsVOBase::onTaskAssetUploadComplete(itemId, taskId, newAssetId, response, settings, callback);
-    });
+        [settings, callback](LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response)
+        {
+            LLSettingsVOBase::onTaskAssetUploadComplete(itemId, taskId, newAssetId, response, settings, callback);
+        },
+        nullptr);
 
     LLViewerAssetUpload::EnqueueInventoryUpload(agent_url, uploadInfo);
 }

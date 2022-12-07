@@ -34,7 +34,6 @@
 #include "lluuid.h"
 #include "llvorbisencode.h"
 #include "lluploaddialog.h"
-#include "llpreviewscript.h"
 #include "llnotificationsutil.h"
 #include "llagent.h"
 #include "llfloaterreg.h"
@@ -568,12 +567,14 @@ LLNewBufferedResourceUploadInfo::LLNewBufferedResourceUploadInfo(
     U32 everyonePerms,
     S32 expectedCost,
     bool show_inventory,
-    uploadFinish_f finish)
+    uploadFinish_f finish,
+    uploadFailure_f failure)
     : LLResourceUploadInfo(name, description, compressionInfo,
         destinationType, inventoryType,
         nextOWnerPerms, groupPerms, everyonePerms, expectedCost, show_inventory)
     , mBuffer(buffer)
     , mFinishFn(finish)
+    , mFailureFn(failure)
 {
     setAssetType(assetType);
     setAssetId(asset_id);
@@ -614,8 +615,18 @@ LLUUID LLNewBufferedResourceUploadInfo::finishUpload(LLSD &result)
     return newItemId;
 }
 
+bool LLNewBufferedResourceUploadInfo::failedUpload(LLSD &result, std::string &reason)
+{
+    if (mFailureFn)
+    {
+        return mFailureFn(getAssetId(), result, reason);
+    }
+
+    return false; // Not handled
+}
+
 //=========================================================================
-LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType::EType assetType, std::string buffer, invnUploadFinish_f finish) :
+LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType::EType assetType, std::string buffer, invnUploadFinish_f finish, uploadFailed_f failed) :
     LLResourceUploadInfo(std::string(), std::string(), 0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
         0, 0, 0, 0),
     mTaskUpload(false),
@@ -623,6 +634,7 @@ LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType:
     mContents(buffer),
     mInvnFinishFn(finish),
     mTaskFinishFn(nullptr),
+    mFailureFn(failed),
     mStoredToCache(false)
 {
     setItemId(itemId);
@@ -637,6 +649,7 @@ LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLPointer<LL
     mContents(),
     mInvnFinishFn(finish),
     mTaskFinishFn(nullptr),
+    mFailureFn(nullptr),
     mStoredToCache(false)
 {
     setItemId(itemId);
@@ -663,7 +676,7 @@ LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLPointer<LL
     mContents.assign((char *)image->getData(), imageSize);
 }
 
-LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID taskId, LLUUID itemId, LLAssetType::EType assetType, std::string buffer, taskUploadFinish_f finish) :
+LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID taskId, LLUUID itemId, LLAssetType::EType assetType, std::string buffer, taskUploadFinish_f finish, uploadFailed_f failed) :
     LLResourceUploadInfo(std::string(), std::string(), 0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
         0, 0, 0, 0),
     mTaskUpload(true),
@@ -671,6 +684,7 @@ LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID taskId, LLUUID itemI
     mContents(buffer),
     mInvnFinishFn(nullptr),
     mTaskFinishFn(finish),
+    mFailureFn(failed),
     mStoredToCache(false)
 {
     setItemId(itemId);
@@ -760,10 +774,19 @@ LLUUID LLBufferedAssetUploadInfo::finishUpload(LLSD &result)
     return newAssetId;
 }
 
+bool LLBufferedAssetUploadInfo::failedUpload(LLSD &result, std::string &reason)
+{
+    if (mFailureFn)
+    {
+        return mFailureFn(getItemId(), getTaskId(), result, reason);
+    }
+    return false;
+}
+
 //=========================================================================
 
-LLScriptAssetUpload::LLScriptAssetUpload(LLUUID itemId, std::string buffer, invnUploadFinish_f finish):
-    LLBufferedAssetUploadInfo(itemId, LLAssetType::AT_LSL_TEXT, buffer, finish),
+LLScriptAssetUpload::LLScriptAssetUpload(LLUUID itemId, std::string buffer, invnUploadFinish_f finish, uploadFailed_f failed):
+    LLBufferedAssetUploadInfo(itemId, LLAssetType::AT_LSL_TEXT, buffer, finish, failed),
     mExerienceId(),
     mTargetType(LSL2),
     mIsRunning(false)
@@ -771,8 +794,8 @@ LLScriptAssetUpload::LLScriptAssetUpload(LLUUID itemId, std::string buffer, invn
 }
 
 LLScriptAssetUpload::LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, TargetType_t targetType,
-        bool isRunning, LLUUID exerienceId, std::string buffer, taskUploadFinish_f finish):
-    LLBufferedAssetUploadInfo(taskId, itemId, LLAssetType::AT_LSL_TEXT, buffer, finish),
+        bool isRunning, LLUUID exerienceId, std::string buffer, taskUploadFinish_f finish, uploadFailed_f failed):
+    LLBufferedAssetUploadInfo(taskId, itemId, LLAssetType::AT_LSL_TEXT, buffer, finish, failed),
     mExerienceId(exerienceId),
     mTargetType(targetType),
     mIsRunning(isRunning)
@@ -986,18 +1009,14 @@ void LLViewerAssetUpload::HandleUploadError(LLCore::HttpStatus status, LLSD &res
 
     LLNotificationsUtil::add(label, args);
 
-    // unfreeze script preview
-    if (uploadInfo->getAssetType() == LLAssetType::AT_LSL_TEXT)
+    if (uploadInfo->failedUpload(result, reason))
     {
-        LLPreviewLSL* preview = LLFloaterReg::findTypedInstance<LLPreviewLSL>("preview_script", 
-            uploadInfo->getItemId());
-        if (preview)
-        {
-            LLSD errors;
-            errors.append(LLTrans::getString("UploadFailed") + reason);
-            preview->callbackLSLCompileFailed(errors);
-        }
+        // no further action required, already handled by a callback
+        // ex: do not trigger snapshot floater when failing material texture
+        return;
     }
+
+    // Todo: move these floater specific actions into proper callbacks
 
     // Let the Snapshot floater know we have failed uploading.
     LLFloaterSnapshot* floater_snapshot = LLFloaterSnapshot::findInstance();
