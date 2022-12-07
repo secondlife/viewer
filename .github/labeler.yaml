@@ -1,0 +1,78 @@
+llappearance:
+  - indra/llappearance/**/*
+  
+llaudio:
+  - indra/llaudio/**/*
+
+llcharacter:
+  - indra/llcharacter/**/*
+
+llcommon:
+  - indra/llcommon/**/*
+
+llcorehttp:
+  - indra/llcorehttp/**/*
+
+llcrashlogger:
+  - indra/llcrashlogger/**/*
+
+llfilesystem:
+  - indra/llfilesystem/**/*
+
+llimage:
+  - indra/llimage/**/*
+
+llimagej2coj:
+  - indra/llimagej2coj/**/*
+
+llinventory:
+  - indra/llinventory/**/*
+
+llkdu:
+  - indra/llkdu/**/*
+
+llmath:
+  - indra/llmath/**/*
+
+llmeshoptimizer:
+  - indra/llmeshoptimizer/**/*
+
+llmessage:
+  - indra/llmessage/**/*
+
+llplugin:
+  - indra/llplugin/**/*
+
+llprimitive:
+  - indra/llprimitive/**/*
+
+llrender:
+  - indra/llrender/**/*
+
+llui:
+  - indra/llui/**/*
+
+llwindow:
+  - indra/llwindow/**/*
+
+llxml:
+  - indra/llxml/**/*
+
+cmake:
+  - '**/*.cmake'
+  - '**/*/cmake/*'
+  - '**/CMakeLists.txt'
+
+python:
+  - '**/*.py'
+
+c/cpp:
+  - '**/*.c'
+  - '**/*.cpp'
+  - '**/*.cxx'
+  - '**/*.h'
+  - '**/*.hpp'
+  - '**/*.hxx'
+  - '**/*.i'
+  - '**/*.inl'
+  - '**/*.y'
