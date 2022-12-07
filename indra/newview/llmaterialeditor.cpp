@@ -1559,6 +1559,12 @@ void LLMaterialEditor::refreshFromInventory(const LLUUID& new_item_id)
 
 void LLMaterialEditor::onClickSaveAs()
 {
+    if (!LLMaterialEditor::capabilitiesAvailable())
+    {
+        LLNotificationsUtil::add("MissingMaterialCaps");
+        return;
+    }
+
     if (!can_afford_transaction(mExpectedUploadCost))
     {
         LLSD args;
@@ -1709,7 +1715,7 @@ static void pack_textures(
 
 void LLMaterialEditor::uploadMaterialFromFile(const std::string& filename, S32 index)
 {
-    if (index < 0)
+    if (index < 0 || !LLMaterialEditor::capabilitiesAvailable())
     {
         return;
     }
