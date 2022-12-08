@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Notlar ve Gizlilik" name="panel_notes">
+	<text name="status_message" value="Bu avatar ile ilgili özel notlar:"/>
+	<text name="status_message2" value="Bu avatar için şunlara izin ver:"/>
+	<check_box label="Çevrimiçi olduğumu görme" name="status_check"/>
+	<check_box label="Beni dünya haritasında bulma" name="map_check"/>
+	<check_box label="Nesnelerimi düzenleme, silme veya alma" name="objects_check"/>
+</panel>

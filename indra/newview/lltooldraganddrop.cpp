@@ -60,6 +60,7 @@
 #include "llvoavatarself.h"
 #include "llworld.h"
 #include "llpanelface.h"
+#include "lluiusage.h"
 
 // syntactic sugar
 #define callMemberFunction(object,ptrToMember)  ((object).*(ptrToMember))
@@ -1100,7 +1101,8 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 										   S32 hit_face,
 										   LLInventoryItem* item,
 										   LLToolDragAndDrop::ESource source,
-										   const LLUUID& src_id)
+										   const LLUUID& src_id,
+                                           S32 tex_channel)
 {
 	if (hit_face == -1) return;
 	if (!item)
@@ -1124,7 +1126,8 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 
 	if (gFloaterTools->getVisible() && panel_face)
 	{
-		switch (LLSelectMgr::getInstance()->getTextureChannel())
+        tex_channel = (tex_channel > -1) ? tex_channel : LLSelectMgr::getInstance()->getTextureChannel();
+        switch (tex_channel)
 		{
 
 		case 0:
@@ -1303,10 +1306,12 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	LLMessageSystem* msg = gMessageSystem;
 	if (mSource == SOURCE_NOTECARD)
 	{
+		LLUIUsage::instance().logCommand("Object.RezObjectFromNotecard");
 		msg->newMessageFast(_PREHASH_RezObjectFromNotecard);
 	}
 	else
 	{
+		LLUIUsage::instance().logCommand("Object.RezObject");
 		msg->newMessageFast(_PREHASH_RezObject);
 	}
 	msg->nextBlockFast(_PREHASH_AgentData);

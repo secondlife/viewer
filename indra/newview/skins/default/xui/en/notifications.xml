@@ -1496,7 +1496,19 @@ Insufficient funds to create classified.
 
   <notification
    icon="alertmodal.tga"
-   name="DeleteAvatarPick"
+   name="ProfileDeleteClassified"
+   type="alertmodal">
+Delete classified &lt;nolink&gt;[CLASSIFIED]&lt;/nolink&gt;?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ProfileDeletePick"
    type="alertmodal">
 Delete pick &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
     <tag>confirm</tag>
@@ -1504,6 +1516,32 @@ Delete pick &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
      name="okcancelbuttons"
      notext="Cancel"
      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   name="ProfileUnpublishedClassified"
+   type="alertmodal">
+    You have unpublished classifieds. They will be lost if you close the window.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   name="ProfileUnsavedChanges"
+   type="alertmodal">
+    You have usaved changes.
+    <tag>confirm</tag>
+    <tag>save</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="Discard"
+     yestext="Save"/>
   </notification>
 
   <notification
@@ -3907,7 +3945,7 @@ Are you sure you want to return objects owned by [USER_NAME]?
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] has an invalid bit depth of [TEXTURE_BIT_DEPTH].
 
-Replace texture [TEXTURE_NUM] with a 24-bit 512x512 or smaller image then click &quot;Apply&quot; again.
+Replace texture [TEXTURE_NUM] with a 24-bit [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
   <tag>fail</tag>
   </notification>
 
@@ -3918,7 +3956,7 @@ Replace texture [TEXTURE_NUM] with a 24-bit 512x512 or smaller image then click 
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] is too large at [TEXTURE_SIZE_X]x[TEXTURE_SIZE_Y].
 
-Replace texture [TEXTURE_NUM] with a 24-bit 512x512 or smaller image then click &quot;Apply&quot; again.
+Replace texture [TEXTURE_NUM] with a 24-bit [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
   </notification>
 
   <notification
@@ -9040,6 +9078,29 @@ We cannot display a preview of this texture because it is no-copy and/or no-tran
 
   <notification
    icon="alertmodal.tga"
+   name="FacePasteFailed"
+   type="alertmodal">
+Paste failed. [REASON]
+   <usetemplate
+    name="okbutton"
+    yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="FacePasteTexturePermissions"
+   type="alertmodal">
+    You applied a texture with limited permissions, object will inherit permissions from texture.
+    <usetemplate
+     ignoretext="Paste: You applied a texture with limited permissions"
+     name="notifyignore"/>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="ConfirmLeaveCall"
    type="alertmodal">
 Are you sure you want to leave this call?
@@ -11640,7 +11701,7 @@ This Region does not support environmental settings.
  
   <notification
    icon="alertmodal.tga"
-   label="Save Outfit"
+   label="Save Environmental Settings"
    name="SaveSettingAs"
    type="alertmodal">
     <unique/>
@@ -11817,6 +11878,40 @@ Unpacking: [UNPACK_TIME]s [USIZE]KB
        name="cancel"
        text="Cancel"/>
     </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   label="Create subfolder"
+   name="CreateSubfolder"
+   type="alertmodal">
+    <unique/>
+    Name the new folder:
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="message" type="text">
+        [DESC]
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+  <notification
+   icon="alertmodal.tga"
+   name="SameFolderRequired"
+   type="alert">
+    Selected items must be in the same folder.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
   </notification>
 
 </notifications>

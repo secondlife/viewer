@@ -47,6 +47,7 @@
 
 #include "llagent.h"
 #include "llappviewer.h"
+#include "llavataractions.h"
 #include "llavatarname.h"
 #include "llfloateravatarpicker.h"
 #include "llbutton.h" 
@@ -1322,6 +1323,7 @@ void LLPanelRegionDebugInfo::onClickDebugConsole(void* data)
 
 BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 {
+    static const S32 MAX_TERRAIN_TEXTURE_SIZE = 1024;
 	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
 	{
 		std::string buffer;
@@ -1343,17 +1345,19 @@ BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 			LLSD args;
 			args["TEXTURE_NUM"] = i+1;
 			args["TEXTURE_BIT_DEPTH"] = llformat("%d",components * 8);
+            args["MAX_SIZE"] = MAX_TERRAIN_TEXTURE_SIZE;
 			LLNotificationsUtil::add("InvalidTerrainBitDepth", args);
 			return FALSE;
 		}
 
-		if (width > 512 || height > 512)
+		if (width > MAX_TERRAIN_TEXTURE_SIZE || height > MAX_TERRAIN_TEXTURE_SIZE)
 		{
 
 			LLSD args;
 			args["TEXTURE_NUM"] = i+1;
 			args["TEXTURE_SIZE_X"] = width;
 			args["TEXTURE_SIZE_Y"] = height;
+            args["MAX_SIZE"] = MAX_TERRAIN_TEXTURE_SIZE;
 			LLNotificationsUtil::add("InvalidTerrainSize", args);
 			return FALSE;
 			
@@ -1826,7 +1830,7 @@ void LLPanelEstateInfo::updateControls(LLViewerRegion* region)
 	setCtrlsEnabled(god || owner || manager);
 	
 	getChildView("apply_btn")->setEnabled(FALSE);
-
+    getChildView("estate_owner")->setEnabled(TRUE);
 	getChildView("message_estate_btn")->setEnabled(god || owner || manager);
 	getChildView("kick_user_from_estate_btn")->setEnabled(god || owner || manager);
 
@@ -1887,6 +1891,8 @@ BOOL LLPanelEstateInfo::postBuild()
 	getChild<LLUICtrl>("parcel_access_override")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeAccessOverride, this));
 
 	getChild<LLUICtrl>("externally_visible_radio")->setFocus(TRUE);
+
+    getChild<LLTextBox>("estate_owner")->setIsFriendCallback(LLAvatarActions::isFriend);
 
 	return LLPanelRegionInfo::postBuild();
 }
@@ -2108,6 +2114,8 @@ bool LLPanelEstateCovenant::refreshFromRegion(LLViewerRegion* region)
 	
 	LLTextBox* region_landtype = getChild<LLTextBox>("region_landtype_text");
 	region_landtype->setText(region->getLocalizedSimProductName());
+
+    getChild<LLButton>("reset_covenant")->setEnabled(gAgent.isGodlike() || (region && region->canManageEstate()));
 	
 	// let the parent class handle the general data collection. 
 	bool rv = LLPanelRegionInfo::refreshFromRegion(region);
@@ -2132,6 +2140,7 @@ BOOL LLPanelEstateCovenant::postBuild()
 {
 	mEstateNameText = getChild<LLTextBox>("estate_name_text");
 	mEstateOwnerText = getChild<LLTextBox>("estate_owner_text");
+    mEstateOwnerText->setIsFriendCallback(LLAvatarActions::isFriend);
 	mLastModifiedText = getChild<LLTextBox>("covenant_timestamp_text");
 	mEditor = getChild<LLViewerTextEditor>("covenant_editor");
 	LLButton* reset_button = getChild<LLButton>("reset_covenant");
@@ -3681,7 +3690,7 @@ void LLPanelEstateAccess::searchAgent(LLNameListCtrl* listCtrl, const std::strin
 	if (!search_string.empty())
 	{
 		listCtrl->setSearchColumn(0); // name column
-		listCtrl->selectItemByPrefix(search_string, FALSE);
+		listCtrl->searchItems(search_string, false, true);
 	}
 	else
 	{

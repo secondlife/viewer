@@ -133,7 +133,7 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, boo
 	mUsage = usage;
 	mUseDepth = depth;
 
-	if ((sUseFBO || use_fbo) && gGLManager.mHasFramebufferObject)
+	if (sUseFBO || use_fbo)
 	{
 		if (depth)
 		{

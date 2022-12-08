@@ -34,6 +34,7 @@
 #include "llplugininstance.h"
 #include "llpluginmessage.h"
 #include "llpluginmessageclasses.h"
+#include "llstring.h"
 #include "volume_catcher.h"
 #include "media_plugin_base.h"
 
@@ -55,7 +56,7 @@ private:
 	bool init();
 
 	void onPageChangedCallback(const unsigned char* pixels, int x, int y, const int width, const int height);
-	void onCustomSchemeURLCallback(std::string url);
+	void onCustomSchemeURLCallback(std::string url, bool user_gesture, bool is_redirect);
 	void onConsoleMessageCallback(std::string message, std::string source, int line);
 	void onStatusMessageCallback(std::string value);
 	void onTitleChangeCallback(std::string title);
@@ -299,11 +300,18 @@ void MediaPluginCEF::onOpenPopupCallback(std::string url, std::string target)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void MediaPluginCEF::onCustomSchemeURLCallback(std::string url)
+void MediaPluginCEF::onCustomSchemeURLCallback(std::string url, bool user_gesture, bool is_redirect)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "click_nofollow");
-	message.setValue("uri", url);
-	message.setValue("nav_type", "clicked");	// TODO: differentiate between click and navigate to
+    message.setValue("uri", url);
+
+    // indicate if this interaction was from a user click (okay on a SLAPP) or 
+    // via a navigation (e.g. a data URL - see SL-18151) (not okay on a SLAPP)
+    const std::string nav_type = user_gesture ? "clicked" : "navigated";
+
+	message.setValue("nav_type", nav_type);
+    message.setValueBoolean("is_redirect", is_redirect);
+
 	sendMessage(message);
 }
 
@@ -592,7 +600,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
             {
                 // event callbacks from Dullahan
                 mCEFLib->setOnPageChangedCallback(std::bind(&MediaPluginCEF::onPageChangedCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
-                mCEFLib->setOnCustomSchemeURLCallback(std::bind(&MediaPluginCEF::onCustomSchemeURLCallback, this, std::placeholders::_1));
+                mCEFLib->setOnCustomSchemeURLCallback(std::bind(&MediaPluginCEF::onCustomSchemeURLCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
                 mCEFLib->setOnConsoleMessageCallback(std::bind(&MediaPluginCEF::onConsoleMessageCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
                 mCEFLib->setOnStatusMessageCallback(std::bind(&MediaPluginCEF::onStatusMessageCallback, this, std::placeholders::_1));
                 mCEFLib->setOnTitleChangeCallback(std::bind(&MediaPluginCEF::onTitleChangeCallback, this, std::placeholders::_1));
@@ -616,9 +624,9 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 // dir as the executable that loaded it (SLPlugin.exe). The code in 
                 // Dullahan that tried to figure out the location automatically uses 
                 // the location of the exe which isn't helpful so we tell it explicitly.
-                char cur_dir_str[MAX_PATH];
-                GetCurrentDirectoryA(MAX_PATH, cur_dir_str);
-                settings.host_process_path = std::string(cur_dir_str);
+                std::vector<wchar_t> buffer(MAX_PATH + 1);
+                GetCurrentDirectoryW(MAX_PATH, &buffer[0]);
+                settings.host_process_path = ll_convert_wide_to_string(&buffer[0]);
 #endif
                 settings.accept_language_list = mHostLanguage;
 

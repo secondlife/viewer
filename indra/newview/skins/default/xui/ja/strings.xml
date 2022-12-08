@@ -186,7 +186,7 @@ LOD 係数: [LOD_FACTOR]
 	<string name="LoginFailedNoNetwork">
 		ネットワークエラー：接続を確立できませんでした。お使いのネットワーク接続をご確認ください。
 	</string>
-	<string name="LoginFailed">
+	<string name="LoginFailedHeader">
 		ログインに失敗しました。
 	</string>
 	<string name="Quit">
@@ -355,6 +355,24 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="TestingDisconnect">
 		ビューワの接続を切るテスト中
+	</string>
+	<string name="SocialFacebookConnecting">
+		Facebook に接続中...
+	</string>
+	<string name="SocialFacebookPosting">
+		投稿中...
+	</string>
+	<string name="SocialFacebookDisconnecting">
+		Facebook から切断中...
+	</string>
+	<string name="SocialFacebookErrorConnecting">
+		Facebook への接続時のエラー
+	</string>
+	<string name="SocialFacebookErrorPosting">
+		Facebook への投稿時のエラー
+	</string>
+	<string name="SocialFacebookErrorDisconnecting">
+		Facebook からの切断時のエラー
 	</string>
 	<string name="SocialFlickrConnecting">
 		Flickr に接続中...
@@ -672,9 +690,6 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="GroupNameNone">
 		（なし）
-	</string>
-	<string name="AvalineCaller">
-		Avaline コール [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		エラーなし
@@ -2577,8 +2592,20 @@ support@secondlife.com にお問い合わせください。
 	<string name="NoPicksClassifiedsText">
 		ピックやクラシファイド広告を作成していません。 作成するには、下にある「プラス」ボタンをクリックします。
 	</string>
+	<string name="NoPicksText">
+		ピックを作成していません。[新規] ボタンをクリックしてピックを作成する。
+	</string>
+	<string name="NoClassifiedsText">
+		クラシファイド広告を作成していません。[新規] ボタンをクリックしてクラシファイド広告を作成する。
+	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		ピック、またはクラシファイド広告がありません
+	</string>
+	<string name="NoAvatarPicksText">
+		ピックがありません
+	</string>
+	<string name="NoAvatarClassifiedsText">
+		クラシファイド広告がありません
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		ローディング...
@@ -4556,6 +4583,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="share_alert">
 		インベントリからここにアイテムをドラッグします
+	</string>
+	<string name="facebook_post_success">
+		Facebook に投稿しました。
 	</string>
 	<string name="flickr_post_success">
 		Flickr に投稿しました。

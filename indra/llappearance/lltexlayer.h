@@ -220,8 +220,6 @@ public:
 
 	static BOOL					sHasCaches;
 
-	virtual void				asLLSD(LLSD& sd) const;
-
 protected:
 	typedef std::vector<LLTexLayerInterface *> layer_list_t;
 	layer_list_t				mLayerList;

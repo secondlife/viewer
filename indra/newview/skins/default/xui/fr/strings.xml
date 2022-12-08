@@ -187,7 +187,7 @@ Voice Server Version: [VOICE_VERSION]
 	<string name="LoginFailedNoNetwork">
 		Erreur réseau : impossible d&apos;établir la connexion. Veuillez vérifier votre connexion réseau.
 	</string>
-	<string name="LoginFailed">
+	<string name="LoginFailedHeader">
 		Échec de la connexion.
 	</string>
 	<string name="Quit">
@@ -356,6 +356,24 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="TestingDisconnect">
 		Test de déconnexion du client
+	</string>
+	<string name="SocialFacebookConnecting">
+		Connexion à Facebook…
+	</string>
+	<string name="SocialFacebookPosting">
+		Publication…
+	</string>
+	<string name="SocialFacebookDisconnecting">
+		Déconnexion de Facebook…
+	</string>
+	<string name="SocialFacebookErrorConnecting">
+		Un problème est survenu lors de la connexion à Facebook.
+	</string>
+	<string name="SocialFacebookErrorPosting">
+		Un problème est survenu lors de la publication sur Facebook.
+	</string>
+	<string name="SocialFacebookErrorDisconnecting">
+		Un problème est survenu lors de la déconnexion à Facebook.
 	</string>
 	<string name="SocialFlickrConnecting">
 		Connexion à Flickr...
@@ -673,9 +691,6 @@ peuvent être joints aux notes.
 	</string>
 	<string name="GroupNameNone">
 		(aucun)
-	</string>
-	<string name="AvalineCaller">
-		Appelant Avaline [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		Aucune erreur
@@ -2579,8 +2594,20 @@ Si vous continuez de recevoir ce message, contactez l’assistance Second Life �
 	<string name="NoPicksClassifiedsText">
 		Vous n&apos;avez pas créé de favoris ni de petites annonces Cliquez sur le bouton Plus pour créer un favori ou une petite annonce.
 	</string>
+	<string name="NoPicksText">
+		Vous n&apos;avez pas créé de favoris Cliquer sur le bouton Nouveau pour créer un favori
+	</string>
+	<string name="NoClassifiedsText">
+		Vous n&apos;avez pas créé de petites annonces Cliquer sur le bouton Nouveau pour créer une petite annonce.
+	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		L&apos;utilisateur n&apos;a ni favoris ni petites annonces.
+	</string>
+	<string name="NoAvatarPicksText">
+		L&apos;utilisateur n&apos;a pas de favoris
+	</string>
+	<string name="NoAvatarClassifiedsText">
+		L&apos;utilisateur n&apos;a pas de petites annonces
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Chargement...
@@ -4558,6 +4585,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="share_alert">
 		Faire glisser les objets de l&apos;inventaire ici
+	</string>
+	<string name="facebook_post_success">
+		Vous avez publié sur Facebook.
 	</string>
 	<string name="flickr_post_success">
 		Vous avez publié sur Flickr.

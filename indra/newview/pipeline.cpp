@@ -3939,7 +3939,7 @@ void LLPipeline::postSort(LLCamera& camera)
 	}
 	LL_PUSH_CALLSTACKS();
 	// If managing your telehub, draw beacons at telehub and currently selected spawnpoint.
-	if (LLFloaterTelehub::renderBeacons())
+	if (LLFloaterTelehub::renderBeacons() && !sShadowRender)
 	{
 		LLFloaterTelehub::addBeacons();
 	}
@@ -7238,6 +7238,7 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 	mResetVertexBuffers = false;
 
 	mCubeVB = NULL;
+    mDeferredVB = NULL;
 
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
@@ -7271,10 +7272,11 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 		LLPathingLib::getInstance()->cleanupVBOManager();
 	}
 	LLVOPartGroup::destroyGL();
+    gGL.resetVertexBuffer();
 
 	SUBSYSTEM_CLEANUP(LLVertexBuffer);
 	
-	if (LLVertexBuffer::sGLCount > 0)
+	if (LLVertexBuffer::sGLCount != 0)
 	{
 		LL_WARNS() << "VBO wipe failed -- " << LLVertexBuffer::sGLCount << " buffers remaining." << LL_ENDL;
 	}
@@ -7295,6 +7297,10 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 	LLPipeline::sTextureBindTest = gSavedSettings.getBOOL("RenderDebugTextureBind");
 
 	LLVertexBuffer::initClass(LLVertexBuffer::sEnableVBOs, LLVertexBuffer::sDisableVBOMapping);
+    gGL.initVertexBuffer();
+
+    mDeferredVB = new LLVertexBuffer(DEFERRED_VB_MASK, 0);
+    mDeferredVB->allocateBuffer(8, 0, true);
 
 	LLVOPartGroup::restoreGL();
 }
@@ -10897,22 +10903,47 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
 	{
 		markVisible(avatar->mDrawable, *viewer_camera);
 
-		LLVOAvatar::attachment_map_t::iterator iter;
-		for (iter = avatar->mAttachmentPoints.begin();
-			iter != avatar->mAttachmentPoints.end();
-			++iter)
-		{
-			LLViewerJointAttachment *attachment = iter->second;
-			for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-				 attachment_iter != attachment->mAttachedObjects.end();
-				 ++attachment_iter)
-			{
-				if (LLViewerObject* attached_object = attachment_iter->get())
-				{
-					markVisible(attached_object->mDrawable->getSpatialBridge(), *viewer_camera);
-				}
-			}
-		}
+        if (preview_avatar)
+        {
+            // Only show rigged attachments for preview
+            LLVOAvatar::attachment_map_t::iterator iter;
+            for (iter = avatar->mAttachmentPoints.begin();
+                iter != avatar->mAttachmentPoints.end();
+                ++iter)
+            {
+                LLViewerJointAttachment *attachment = iter->second;
+                for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+                    attachment_iter != attachment->mAttachedObjects.end();
+                    ++attachment_iter)
+                {
+                    LLViewerObject* attached_object = attachment_iter->get();
+                    if (attached_object && attached_object->isRiggedMesh())
+                    {
+                        markVisible(attached_object->mDrawable->getSpatialBridge(), *viewer_camera);
+                    }
+                }
+            }
+        }
+        else
+        {
+            LLVOAvatar::attachment_map_t::iterator iter;
+            for (iter = avatar->mAttachmentPoints.begin();
+                iter != avatar->mAttachmentPoints.end();
+                ++iter)
+            {
+                LLViewerJointAttachment *attachment = iter->second;
+                for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+                    attachment_iter != attachment->mAttachedObjects.end();
+                    ++attachment_iter)
+                {
+                    LLViewerObject* attached_object = attachment_iter->get();
+                    if (attached_object)
+                    {
+                        markVisible(attached_object->mDrawable->getSpatialBridge(), *viewer_camera);
+                    }
+                }
+            }
+        }
 	}
 
 	stateSort(*LLViewerCamera::getInstance(), result);

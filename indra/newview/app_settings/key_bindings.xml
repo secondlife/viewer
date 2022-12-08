@@ -85,7 +85,6 @@
     <binding key="DOWN" mask="CTL_ALT_SHIFT" command="pan_down"/>
 
     <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
-    <binding key="" mask="NONE" mouse="LMB" command="walk_to"/>
 
     <binding key="" mask="NONE" mouse="LMB" command="script_trigger_lbutton"/>
   </third_person>

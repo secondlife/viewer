@@ -6,6 +6,9 @@
 	<string name="postcard_progress_str">
 		Enviando e-mail
 	</string>
+	<string name="facebook_progress_str">
+		Como publicar no Facebook
+	</string>
 	<string name="profile_progress_str">
 		Postando
 	</string>
@@ -14,6 +17,9 @@
 	</string>
 	<string name="local_progress_str">
 		Salvo no computador
+	</string>
+	<string name="facebook_succeeded_str">
+		Imagem carregada
 	</string>
 	<string name="profile_succeeded_str">
 		Imagem carregada
@@ -26,6 +32,9 @@
 	</string>
 	<string name="local_succeeded_str">
 		Salvo no computador!
+	</string>
+	<string name="facebook_failed_str">
+		Falha ao carregar a imagem na sua linha do tempo no Facebook.
 	</string>
 	<string name="profile_failed_str">
 		Falha ao carregar a imagem no feed do seu perfil.

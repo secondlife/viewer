@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Anmerkungen &amp; Privatsphäre" name="panel_notes">
+	<text name="status_message" value="Private Anmerkungen zu diesem Avatar:"/>
+	<text name="status_message2" value="Dieser Avatar darf:"/>
+	<check_box label="Sehen, wenn ich online bin" name="status_check"/>
+	<check_box label="Mich auf der Weltkarte sehen" name="map_check"/>
+	<check_box label="Meine Objekte bearbeiten, löschen oder nehmen" name="objects_check"/>
+</panel>

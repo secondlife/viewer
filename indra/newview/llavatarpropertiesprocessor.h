@@ -56,8 +56,20 @@ enum EAvatarProcessorType
 	APT_PICKS,
 	APT_PICK_INFO,
 	APT_TEXTURES,
+    APT_INTERESTS_INFO,
 	APT_CLASSIFIEDS,
 	APT_CLASSIFIED_INFO
+};
+
+struct LLInterestsData
+{
+    LLUUID      agent_id;
+    LLUUID      avatar_id; //target id
+    U32         want_to_mask;
+    std::string want_to_text;
+    U32         skills_mask;
+    std::string skills_text;
+    std::string languages_text;
 };
 
 struct LLAvatarData
@@ -223,6 +235,8 @@ public:
 
 	void sendClassifiedDelete(const LLUUID& classified_id);
 
+    void sendInterestsInfoUpdate(const LLInterestsData* interests_data);
+
 	// Returns translated, human readable string for account type, such
 	// as "Resident" or "Linden Employee".  Used for profiles, inspectors.
 	static std::string accountType(const LLAvatarData* avatar_data);
@@ -233,6 +247,8 @@ public:
 	static std::string paymentInfo(const LLAvatarData* avatar_data);
 
 	static bool hasPaymentInfoOnFile(const LLAvatarData* avatar_data);
+
+    static void requestAvatarPropertiesCoro(std::string cap_url, LLUUID agent_id);
 
 	static void processAvatarPropertiesReply(LLMessageSystem* msg, void**);
 
@@ -252,7 +268,10 @@ public:
 
 protected:
 
-	void sendGenericRequest(const LLUUID& avatar_id, EAvatarProcessorType type, const std::string method);
+	void sendRequest(const LLUUID& avatar_id, EAvatarProcessorType type, const std::string &method);
+    void sendGenericRequest(const LLUUID& avatar_id, EAvatarProcessorType type, const std::string &method);
+    void sendAvatarPropertiesRequestMessage(const LLUUID& avatar_id);
+    void initAgentProfileCapRequest(const LLUUID& avatar_id, const std::string& cap_url);
 
 	void notifyObservers(const LLUUID& id,void* data, EAvatarProcessorType type);
 

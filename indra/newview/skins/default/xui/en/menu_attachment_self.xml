@@ -33,6 +33,13 @@
          function="Object.EnableTouch"
          name="EnableTouch"/>
     </menu_item_call>
+    <menu_item_call
+     label="Show in inventory"
+     layout="topleft"
+     name="Show original">
+      <menu_item_call.on_click
+       function="Object.ShowOriginal" />
+    </menu_item_call>
     <menu_item_separator
      layout="topleft" />
 

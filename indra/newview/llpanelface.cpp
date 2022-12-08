@@ -38,6 +38,7 @@
 #include "llfontgl.h"
 
 // project includes
+#include "llagent.h"
 #include "llagentdata.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
@@ -45,10 +46,18 @@
 #include "llcombobox.h"
 #include "lldrawpoolbump.h"
 #include "llface.h"
+#include "llinventoryfunctions.h"
+#include "llinventorymodel.h" // gInventory
+#include "llinventorymodelbackgroundfetch.h"
+#include "llfloatermediasettings.h"
+#include "llfloaterreg.h"
 #include "lllineeditor.h"
 #include "llmaterialmgr.h"
+#include "llmediactrl.h"
 #include "llmediaentry.h"
+#include "llmenubutton.h"
 #include "llnotificationsutil.h"
+#include "llpanelcontents.h"
 #include "llradiogroup.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
@@ -57,6 +66,8 @@
 #include "lltexturectrl.h"
 #include "lltextureentry.h"
 #include "lltooldraganddrop.h"
+#include "lltoolface.h"
+#include "lltoolmgr.h"
 #include "lltrans.h"
 #include "llui.h"
 #include "llviewercontrol.h"
@@ -92,10 +103,9 @@ std::string USE_TEXTURE;
 
 LLRender::eTexIndex LLPanelFace::getTextureChannelToEdit()
 {
-	LLComboBox* combobox_matmedia = getChild<LLComboBox>("combobox matmedia");
 	LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
 
-	LLRender::eTexIndex channel_to_edit = (combobox_matmedia && combobox_matmedia->getCurrentIndex() == MATMEDIA_MATERIAL) ?
+	LLRender::eTexIndex channel_to_edit = (mComboMatMedia && mComboMatMedia->getCurrentIndex() == MATMEDIA_MATERIAL) ?
 	                                                    (radio_mat_type ? (LLRender::eTexIndex)radio_mat_type->getSelectedIndex() : LLRender::DIFFUSE_MAP) : LLRender::DIFFUSE_MAP;
 
 	channel_to_edit = (channel_to_edit == LLRender::NORMAL_MAP)		? (getCurrentNormalMap().isNull()		? LLRender::DIFFUSE_MAP : channel_to_edit) : channel_to_edit;
@@ -154,6 +164,8 @@ BOOL	LLPanelFace::postBuild()
 	childSetCommitCallback("glossiness",&LLPanelFace::onCommitMaterialGloss, this);
 	childSetCommitCallback("environment",&LLPanelFace::onCommitMaterialEnv, this);
 	childSetCommitCallback("maskcutoff",&LLPanelFace::onCommitMaterialMaskCutoff, this);
+    childSetCommitCallback("add_media", &LLPanelFace::onClickBtnAddMedia, this);
+    childSetCommitCallback("delete_media", &LLPanelFace::onClickBtnDeleteMedia, this);
 
 	childSetAction("button align",&LLPanelFace::onClickAutoFix,this);
 	childSetAction("button align textures", &LLPanelFace::onAlignTexture, this);
@@ -165,7 +177,6 @@ BOOL	LLPanelFace::postBuild()
 	LLColorSwatchCtrl*	mShinyColorSwatch;
 
 	LLComboBox*		mComboTexGen;
-	LLComboBox*		mComboMatMedia;
 
 	LLCheckBoxCtrl	*mCheckFullbright;
 	
@@ -298,7 +309,12 @@ BOOL	LLPanelFace::postBuild()
 	{
 		mCtrlGlow->setCommitCallback(LLPanelFace::onCommitGlow, this);
 	}
-	
+
+    mMenuClipboardColor = getChild<LLMenuButton>("clipboard_color_params_btn");
+    mMenuClipboardTexture = getChild<LLMenuButton>("clipboard_texture_params_btn");
+    
+    mTitleMedia = getChild<LLMediaCtrl>("title_media");
+    mTitleMediaText = getChild<LLTextBox>("media_info");
 
 	clearCtrls();
 
@@ -307,17 +323,33 @@ BOOL	LLPanelFace::postBuild()
 
 LLPanelFace::LLPanelFace()
 :	LLPanel(),
-	mIsAlpha(false)
+    mIsAlpha(false),
+    mComboMatMedia(NULL),
+    mTitleMedia(NULL),
+    mTitleMediaText(NULL),
+    mNeedMediaTitle(true)
 {
-	USE_TEXTURE = LLTrans::getString("use_texture");
+    USE_TEXTURE = LLTrans::getString("use_texture");
+    mCommitCallbackRegistrar.add("PanelFace.menuDoToSelected", boost::bind(&LLPanelFace::menuDoToSelected, this, _2));
+    mEnableCallbackRegistrar.add("PanelFace.menuEnable", boost::bind(&LLPanelFace::menuEnableItem, this, _2));
 }
-
 
 LLPanelFace::~LLPanelFace()
 {
-	// Children all cleaned up by default view destructor.
+    unloadMedia();
 }
 
+void LLPanelFace::draw()
+{
+    updateCopyTexButton();
+
+    // grab media name/title and update the UI widget
+    // Todo: move it, it's preferable not to update
+    // labels inside draw
+    updateMediaTitle();
+
+    LLPanel::draw();
+}
 
 void LLPanelFace::sendTexture()
 {
@@ -806,21 +838,20 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		BOOL editable = objectp->permModify() && !objectp->isPermanentEnforced();
 
 		// only turn on auto-adjust button if there is a media renderer and the media is loaded
-		getChildView("button align")->setEnabled(editable);
+        childSetEnabled("button align", editable);
 		
-		LLComboBox* combobox_matmedia = getChild<LLComboBox>("combobox matmedia");
-		if (combobox_matmedia)
+		if (mComboMatMedia)
 		{
-			if (combobox_matmedia->getCurrentIndex() < MATMEDIA_MATERIAL)
+			if (mComboMatMedia->getCurrentIndex() < MATMEDIA_MATERIAL)
 			{
-				combobox_matmedia->selectNthItem(MATMEDIA_MATERIAL);
+                mComboMatMedia->selectNthItem(MATMEDIA_MATERIAL);
 			}
+            mComboMatMedia->setEnabled(editable);
 		}
 		else
 		{
 			LL_WARNS() << "failed getChild for 'combobox matmedia'" << LL_ENDL;
 		}
-		getChildView("combobox matmedia")->setEnabled(editable);
 
 		LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
 		if(radio_mat_type)
@@ -829,7 +860,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		    {
 		        radio_mat_type->selectNthItem(MATTYPE_DIFFUSE);
 		    }
-
 		}
 		else
 		{
@@ -858,22 +888,22 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		{
 			getChildView("color label")->setEnabled(editable);
 		}
-		LLColorSwatchCtrl*	mColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
+		LLColorSwatchCtrl*	color_swatch = findChild<LLColorSwatchCtrl>("colorswatch");
 
 		LLColor4 color					= LLColor4::white;
 		bool		identical_color	= false;
 
-		if(mColorSwatch)
+		if(color_swatch)
 		{
 			LLSelectedTE::getColor(color, identical_color);
-			LLColor4 prev_color = mColorSwatch->get();
+			LLColor4 prev_color = color_swatch->get();
 
-			mColorSwatch->setOriginal(color);
-			mColorSwatch->set(color, force_set_values || (prev_color != color) || !editable);
+            color_swatch->setOriginal(color);
+            color_swatch->set(color, force_set_values || (prev_color != color) || !editable);
 
-			mColorSwatch->setValid(editable);
-			mColorSwatch->setEnabled( editable );
-			mColorSwatch->setCanApplyImmediately( editable );
+            color_swatch->setValid(editable);
+            color_swatch->setEnabled( editable );
+            color_swatch->setCanApplyImmediately( editable );
 		}
 
 		// Color transparency
@@ -1356,7 +1386,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 				BOOL identical_repeats = true;
 				F32  repeats = 1.0f;
 
-				U32 material_type = (combobox_matmedia->getCurrentIndex() == MATMEDIA_MATERIAL) ? radio_mat_type->getSelectedIndex() : MATTYPE_DIFFUSE;
+				U32 material_type = (mComboMatMedia->getCurrentIndex() == MATMEDIA_MATERIAL) ? radio_mat_type->getSelectedIndex() : MATTYPE_DIFFUSE;
 				LLSelectMgr::getInstance()->setTextureChannel(LLRender::eTexIndex(material_type));
 
 				switch (material_type)
@@ -1508,6 +1538,9 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 				}
 			}
 		}
+        S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
+        BOOL single_volume = (selected_count == 1);
+        mMenuClipboardColor->setEnabled(editable && single_volume);
 
 		// Set variable values for numeric expressions
 		LLCalc* calcp = LLCalc::getInstance();
@@ -1568,10 +1601,770 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 }
 
 
+void LLPanelFace::updateCopyTexButton()
+{
+    LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+    mMenuClipboardTexture->setEnabled(objectp && objectp->getPCode() == LL_PCODE_VOLUME && objectp->permModify() 
+                                                    && !objectp->isPermanentEnforced() && !objectp->isInventoryPending() 
+                                                    && (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1));
+    std::string tooltip = (objectp && objectp->isInventoryPending()) ? LLTrans::getString("LoadingContents") : getString("paste_options");
+    mMenuClipboardTexture->setToolTip(tooltip);
+
+}
+
 void LLPanelFace::refresh()
 {
 	LL_DEBUGS("Materials") << LL_ENDL;
 	getState();
+}
+
+void LLPanelFace::refreshMedia()
+{
+    LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
+    LLViewerObject* first_object = selected_objects->getFirstObject();
+
+    if (!(first_object
+        && first_object->getPCode() == LL_PCODE_VOLUME
+        && first_object->permModify()
+        ))
+    {
+        getChildView("add_media")->setEnabled(FALSE);
+        mTitleMediaText->clear();
+        clearMediaSettings();
+        return;
+    }
+
+    std::string url = first_object->getRegion()->getCapability("ObjectMedia");
+    bool has_media_capability = (!url.empty());
+
+    if (!has_media_capability)
+    {
+        getChildView("add_media")->setEnabled(FALSE);
+        LL_WARNS("LLFloaterToolsMedia") << "Media not enabled (no capability) in this region!" << LL_ENDL;
+        clearMediaSettings();
+        return;
+    }
+
+    BOOL is_nonpermanent_enforced = (LLSelectMgr::getInstance()->getSelection()->getFirstRootNode()
+        && LLSelectMgr::getInstance()->selectGetRootsNonPermanentEnforced())
+        || LLSelectMgr::getInstance()->selectGetNonPermanentEnforced();
+    bool editable = is_nonpermanent_enforced && (first_object->permModify() || selectedMediaEditable());
+
+    // Check modify permissions and whether any selected objects are in
+    // the process of being fetched.  If they are, then we're not editable
+    if (editable)
+    {
+        LLObjectSelection::iterator iter = selected_objects->begin();
+        LLObjectSelection::iterator end = selected_objects->end();
+        for (; iter != end; ++iter)
+        {
+            LLSelectNode* node = *iter;
+            LLVOVolume* object = dynamic_cast<LLVOVolume*>(node->getObject());
+            if (NULL != object)
+            {
+                if (!object->permModify())
+                {
+                    LL_INFOS("LLFloaterToolsMedia")
+                        << "Selection not editable due to lack of modify permissions on object id "
+                        << object->getID() << LL_ENDL;
+
+                    editable = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    // Media settings
+    bool bool_has_media = false;
+    struct media_functor : public LLSelectedTEGetFunctor<bool>
+    {
+        bool get(LLViewerObject* object, S32 face)
+        {
+            LLTextureEntry *te = object->getTE(face);
+            if (te)
+            {
+                return te->hasMedia();
+            }
+            return false;
+        }
+    } func;
+
+
+    // check if all faces have media(or, all dont have media)
+    LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo = selected_objects->getSelectedTEValue(&func, bool_has_media);
+
+    const LLMediaEntry default_media_data;
+
+    struct functor_getter_media_data : public LLSelectedTEGetFunctor< LLMediaEntry>
+    {
+        functor_getter_media_data(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        LLMediaEntry get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return *(object->getTE(face)->getMediaData());
+            return mMediaEntry;
+        };
+
+        const LLMediaEntry& mMediaEntry;
+
+    } func_media_data(default_media_data);
+
+    LLMediaEntry media_data_get;
+    LLFloaterMediaSettings::getInstance()->mMultipleMedia = !(selected_objects->getSelectedTEValue(&func_media_data, media_data_get));
+
+    std::string multi_media_info_str = LLTrans::getString("Multiple Media");
+    std::string media_title = "";
+    // update UI depending on whether "object" (prim or face) has media
+    // and whether or not you are allowed to edit it.
+
+    getChildView("add_media")->setEnabled(editable);
+    // IF all the faces have media (or all dont have media)
+    if (LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo)
+    {
+        // TODO: get media title and set it.
+        mTitleMediaText->clear();
+        // if identical is set, all faces are same (whether all empty or has the same media)
+        if (!(LLFloaterMediaSettings::getInstance()->mMultipleMedia))
+        {
+            // Media data is valid
+            if (media_data_get != default_media_data)
+            {
+                // initial media title is the media URL (until we get the name)
+                media_title = media_data_get.getHomeURL();
+            }
+            // else all faces might be empty. 
+        }
+        else // there' re Different Medias' been set on on the faces.
+        {
+            media_title = multi_media_info_str;
+        }
+
+        getChildView("delete_media")->setEnabled(bool_has_media && editable);
+        // TODO: display a list of all media on the face - use 'identical' flag
+    }
+    else // not all face has media but at least one does.
+    {
+        // seleted faces have not identical value
+        LLFloaterMediaSettings::getInstance()->mMultipleValidMedia = selected_objects->isMultipleTEValue(&func_media_data, default_media_data);
+
+        if (LLFloaterMediaSettings::getInstance()->mMultipleValidMedia)
+        {
+            media_title = multi_media_info_str;
+        }
+        else
+        {
+            // Media data is valid
+            if (media_data_get != default_media_data)
+            {
+                // initial media title is the media URL (until we get the name)
+                media_title = media_data_get.getHomeURL();
+            }
+        }
+
+        getChildView("delete_media")->setEnabled(TRUE);
+    }
+
+    U32 materials_media = mComboMatMedia->getCurrentIndex();
+    if (materials_media == MATMEDIA_MEDIA)
+    {
+        // currently displaying media info, navigateTo and update title
+        navigateToTitleMedia(media_title);
+    }
+    else
+    {
+        // Media can be heavy, don't keep it around
+        // MAC specific: MAC doesn't support setVolume(0) so if  not
+        // unloaded, it might keep playing audio until user closes editor
+        unloadMedia();
+        mNeedMediaTitle = false;
+    }
+
+    mTitleMediaText->setText(media_title);
+
+    // load values for media settings
+    updateMediaSettings();
+
+    LLFloaterMediaSettings::initValues(mMediaSettings, editable);
+}
+
+void LLPanelFace::unloadMedia()
+{
+    // destroy media source used to grab media title
+    if (mTitleMedia)
+        mTitleMedia->unloadMediaSource();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+void LLPanelFace::navigateToTitleMedia( const std::string url )
+{
+	std::string multi_media_info_str = LLTrans::getString("Multiple Media");
+	if (url.empty() || multi_media_info_str == url)
+	{
+		// nothing to show
+		mNeedMediaTitle = false;
+	}
+	else if (mTitleMedia)
+	{
+		LLPluginClassMedia* media_plugin = mTitleMedia->getMediaPlugin();
+		// check if url changed or if we need a new media source
+		if (mTitleMedia->getCurrentNavUrl() != url || media_plugin == NULL)
+		{
+			mTitleMedia->navigateTo( url );
+
+            LLViewerMediaImpl* impl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(mTitleMedia->getTextureID());
+            if (impl)
+            {
+                // if it's a page with a movie, we don't want to hear it
+                impl->setVolume(0);
+            };
+		}
+
+		// flag that we need to update the title (even if no request were made)
+		mNeedMediaTitle = true;
+	}
+}
+
+bool LLPanelFace::selectedMediaEditable()
+{
+    U32 owner_mask_on;
+    U32 owner_mask_off;
+    U32 valid_owner_perms = LLSelectMgr::getInstance()->selectGetPerm(PERM_OWNER,
+        &owner_mask_on, &owner_mask_off);
+    U32 group_mask_on;
+    U32 group_mask_off;
+    U32 valid_group_perms = LLSelectMgr::getInstance()->selectGetPerm(PERM_GROUP,
+        &group_mask_on, &group_mask_off);
+    U32 everyone_mask_on;
+    U32 everyone_mask_off;
+    S32 valid_everyone_perms = LLSelectMgr::getInstance()->selectGetPerm(PERM_EVERYONE,
+        &everyone_mask_on, &everyone_mask_off);
+
+    bool selected_Media_editable = false;
+
+    // if perms we got back are valid
+    if (valid_owner_perms &&
+        valid_group_perms &&
+        valid_everyone_perms)
+    {
+
+        if ((owner_mask_on & PERM_MODIFY) ||
+            (group_mask_on & PERM_MODIFY) ||
+            (everyone_mask_on & PERM_MODIFY))
+        {
+            selected_Media_editable = true;
+        }
+        else
+            // user is NOT allowed to press the RESET button
+        {
+            selected_Media_editable = false;
+        };
+    };
+
+    return selected_Media_editable;
+}
+
+void LLPanelFace::clearMediaSettings()
+{
+    LLFloaterMediaSettings::clearValues(false);
+}
+
+void LLPanelFace::updateMediaSettings()
+{
+    bool identical(false);
+    std::string base_key("");
+    std::string value_str("");
+    int value_int = 0;
+    bool value_bool = false;
+    LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
+    // TODO: (CP) refactor this using something clever or boost or both !!
+
+    const LLMediaEntry default_media_data;
+
+    // controls 
+    U8 value_u8 = default_media_data.getControls();
+    struct functor_getter_controls : public LLSelectedTEGetFunctor< U8 >
+    {
+        functor_getter_controls(const LLMediaEntry &entry) : mMediaEntry(entry) {}
+
+        U8 get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return object->getTE(face)->getMediaData()->getControls();
+            return mMediaEntry.getControls();
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_controls(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_controls, value_u8);
+    base_key = std::string(LLMediaEntry::CONTROLS_KEY);
+    mMediaSettings[base_key] = value_u8;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+    // First click (formerly left click)
+    value_bool = default_media_data.getFirstClickInteract();
+    struct functor_getter_first_click : public LLSelectedTEGetFunctor< bool >
+    {
+        functor_getter_first_click(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        bool get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return object->getTE(face)->getMediaData()->getFirstClickInteract();
+            return mMediaEntry.getFirstClickInteract();
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_first_click(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_first_click, value_bool);
+    base_key = std::string(LLMediaEntry::FIRST_CLICK_INTERACT_KEY);
+    mMediaSettings[base_key] = value_bool;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+    // Home URL
+    value_str = default_media_data.getHomeURL();
+    struct functor_getter_home_url : public LLSelectedTEGetFunctor< std::string >
+    {
+        functor_getter_home_url(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        std::string get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return object->getTE(face)->getMediaData()->getHomeURL();
+            return mMediaEntry.getHomeURL();
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_home_url(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_home_url, value_str);
+    base_key = std::string(LLMediaEntry::HOME_URL_KEY);
+    mMediaSettings[base_key] = value_str;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+    // Current URL
+    value_str = default_media_data.getCurrentURL();
+    struct functor_getter_current_url : public LLSelectedTEGetFunctor< std::string >
+    {
+        functor_getter_current_url(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        std::string get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return object->getTE(face)->getMediaData()->getCurrentURL();
+            return mMediaEntry.getCurrentURL();
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_current_url(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_current_url, value_str);
+    base_key = std::string(LLMediaEntry::CURRENT_URL_KEY);
+    mMediaSettings[base_key] = value_str;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+    // Auto zoom
+    value_bool = default_media_data.getAutoZoom();
+    struct functor_getter_auto_zoom : public LLSelectedTEGetFunctor< bool >
+    {
+
+        functor_getter_auto_zoom(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        bool get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return object->getTE(face)->getMediaData()->getAutoZoom();
+            return mMediaEntry.getAutoZoom();
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_auto_zoom(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_auto_zoom, value_bool);
+    base_key = std::string(LLMediaEntry::AUTO_ZOOM_KEY);
+    mMediaSettings[base_key] = value_bool;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+    // Auto play
+    //value_bool = default_media_data.getAutoPlay();
+    // set default to auto play TRUE -- angela  EXT-5172
+    value_bool = true;
+    struct functor_getter_auto_play : public LLSelectedTEGetFunctor< bool >
+    {
+        functor_getter_auto_play(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        bool get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return object->getTE(face)->getMediaData()->getAutoPlay();
+            //return mMediaEntry.getAutoPlay(); set default to auto play TRUE -- angela  EXT-5172
+            return true;
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_auto_play(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_auto_play, value_bool);
+    base_key = std::string(LLMediaEntry::AUTO_PLAY_KEY);
+    mMediaSettings[base_key] = value_bool;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+
+    // Auto scale
+    // set default to auto scale TRUE -- angela  EXT-5172
+    //value_bool = default_media_data.getAutoScale();
+    value_bool = true;
+    struct functor_getter_auto_scale : public LLSelectedTEGetFunctor< bool >
+    {
+        functor_getter_auto_scale(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        bool get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return object->getTE(face)->getMediaData()->getAutoScale();
+            // return mMediaEntry.getAutoScale();  set default to auto scale TRUE -- angela  EXT-5172
+            return true;
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_auto_scale(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_auto_scale, value_bool);
+    base_key = std::string(LLMediaEntry::AUTO_SCALE_KEY);
+    mMediaSettings[base_key] = value_bool;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+    // Auto loop
+    value_bool = default_media_data.getAutoLoop();
+    struct functor_getter_auto_loop : public LLSelectedTEGetFunctor< bool >
+    {
+        functor_getter_auto_loop(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        bool get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return object->getTE(face)->getMediaData()->getAutoLoop();
+            return mMediaEntry.getAutoLoop();
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_auto_loop(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_auto_loop, value_bool);
+    base_key = std::string(LLMediaEntry::AUTO_LOOP_KEY);
+    mMediaSettings[base_key] = value_bool;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+    // width pixels (if not auto scaled)
+    value_int = default_media_data.getWidthPixels();
+    struct functor_getter_width_pixels : public LLSelectedTEGetFunctor< int >
+    {
+        functor_getter_width_pixels(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        int get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return object->getTE(face)->getMediaData()->getWidthPixels();
+            return mMediaEntry.getWidthPixels();
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_width_pixels(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_width_pixels, value_int);
+    base_key = std::string(LLMediaEntry::WIDTH_PIXELS_KEY);
+    mMediaSettings[base_key] = value_int;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+    // height pixels (if not auto scaled)
+    value_int = default_media_data.getHeightPixels();
+    struct functor_getter_height_pixels : public LLSelectedTEGetFunctor< int >
+    {
+        functor_getter_height_pixels(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        int get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return object->getTE(face)->getMediaData()->getHeightPixels();
+            return mMediaEntry.getHeightPixels();
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_height_pixels(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_height_pixels, value_int);
+    base_key = std::string(LLMediaEntry::HEIGHT_PIXELS_KEY);
+    mMediaSettings[base_key] = value_int;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+    // Enable Alt image
+    value_bool = default_media_data.getAltImageEnable();
+    struct functor_getter_enable_alt_image : public LLSelectedTEGetFunctor< bool >
+    {
+        functor_getter_enable_alt_image(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        bool get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return object->getTE(face)->getMediaData()->getAltImageEnable();
+            return mMediaEntry.getAltImageEnable();
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_enable_alt_image(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_enable_alt_image, value_bool);
+    base_key = std::string(LLMediaEntry::ALT_IMAGE_ENABLE_KEY);
+    mMediaSettings[base_key] = value_bool;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+    // Perms - owner interact
+    value_bool = 0 != (default_media_data.getPermsInteract() & LLMediaEntry::PERM_OWNER);
+    struct functor_getter_perms_owner_interact : public LLSelectedTEGetFunctor< bool >
+    {
+        functor_getter_perms_owner_interact(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        bool get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return (0 != (object->getTE(face)->getMediaData()->getPermsInteract() & LLMediaEntry::PERM_OWNER));
+            return 0 != (mMediaEntry.getPermsInteract() & LLMediaEntry::PERM_OWNER);
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_perms_owner_interact(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_perms_owner_interact, value_bool);
+    base_key = std::string(LLPanelContents::PERMS_OWNER_INTERACT_KEY);
+    mMediaSettings[base_key] = value_bool;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+    // Perms - owner control
+    value_bool = 0 != (default_media_data.getPermsControl() & LLMediaEntry::PERM_OWNER);
+    struct functor_getter_perms_owner_control : public LLSelectedTEGetFunctor< bool >
+    {
+        functor_getter_perms_owner_control(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        bool get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return (0 != (object->getTE(face)->getMediaData()->getPermsControl() & LLMediaEntry::PERM_OWNER));
+            return 0 != (mMediaEntry.getPermsControl() & LLMediaEntry::PERM_OWNER);
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_perms_owner_control(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_perms_owner_control, value_bool);
+    base_key = std::string(LLPanelContents::PERMS_OWNER_CONTROL_KEY);
+    mMediaSettings[base_key] = value_bool;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+    // Perms - group interact
+    value_bool = 0 != (default_media_data.getPermsInteract() & LLMediaEntry::PERM_GROUP);
+    struct functor_getter_perms_group_interact : public LLSelectedTEGetFunctor< bool >
+    {
+        functor_getter_perms_group_interact(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        bool get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return (0 != (object->getTE(face)->getMediaData()->getPermsInteract() & LLMediaEntry::PERM_GROUP));
+            return 0 != (mMediaEntry.getPermsInteract() & LLMediaEntry::PERM_GROUP);
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_perms_group_interact(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_perms_group_interact, value_bool);
+    base_key = std::string(LLPanelContents::PERMS_GROUP_INTERACT_KEY);
+    mMediaSettings[base_key] = value_bool;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+    // Perms - group control
+    value_bool = 0 != (default_media_data.getPermsControl() & LLMediaEntry::PERM_GROUP);
+    struct functor_getter_perms_group_control : public LLSelectedTEGetFunctor< bool >
+    {
+        functor_getter_perms_group_control(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        bool get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return (0 != (object->getTE(face)->getMediaData()->getPermsControl() & LLMediaEntry::PERM_GROUP));
+            return 0 != (mMediaEntry.getPermsControl() & LLMediaEntry::PERM_GROUP);
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_perms_group_control(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_perms_group_control, value_bool);
+    base_key = std::string(LLPanelContents::PERMS_GROUP_CONTROL_KEY);
+    mMediaSettings[base_key] = value_bool;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+    // Perms - anyone interact
+    value_bool = 0 != (default_media_data.getPermsInteract() & LLMediaEntry::PERM_ANYONE);
+    struct functor_getter_perms_anyone_interact : public LLSelectedTEGetFunctor< bool >
+    {
+        functor_getter_perms_anyone_interact(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        bool get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return (0 != (object->getTE(face)->getMediaData()->getPermsInteract() & LLMediaEntry::PERM_ANYONE));
+            return 0 != (mMediaEntry.getPermsInteract() & LLMediaEntry::PERM_ANYONE);
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_perms_anyone_interact(default_media_data);
+    identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func_perms_anyone_interact, value_bool);
+    base_key = std::string(LLPanelContents::PERMS_ANYONE_INTERACT_KEY);
+    mMediaSettings[base_key] = value_bool;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+    // Perms - anyone control
+    value_bool = 0 != (default_media_data.getPermsControl() & LLMediaEntry::PERM_ANYONE);
+    struct functor_getter_perms_anyone_control : public LLSelectedTEGetFunctor< bool >
+    {
+        functor_getter_perms_anyone_control(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        bool get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return (0 != (object->getTE(face)->getMediaData()->getPermsControl() & LLMediaEntry::PERM_ANYONE));
+            return 0 != (mMediaEntry.getPermsControl() & LLMediaEntry::PERM_ANYONE);
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_perms_anyone_control(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_perms_anyone_control, value_bool);
+    base_key = std::string(LLPanelContents::PERMS_ANYONE_CONTROL_KEY);
+    mMediaSettings[base_key] = value_bool;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+    // security - whitelist enable
+    value_bool = default_media_data.getWhiteListEnable();
+    struct functor_getter_whitelist_enable : public LLSelectedTEGetFunctor< bool >
+    {
+        functor_getter_whitelist_enable(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        bool get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return object->getTE(face)->getMediaData()->getWhiteListEnable();
+            return mMediaEntry.getWhiteListEnable();
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_whitelist_enable(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_whitelist_enable, value_bool);
+    base_key = std::string(LLMediaEntry::WHITELIST_ENABLE_KEY);
+    mMediaSettings[base_key] = value_bool;
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+
+    // security - whitelist URLs
+    std::vector<std::string> value_vector_str = default_media_data.getWhiteList();
+    struct functor_getter_whitelist_urls : public LLSelectedTEGetFunctor< std::vector<std::string> >
+    {
+        functor_getter_whitelist_urls(const LLMediaEntry& entry) : mMediaEntry(entry) {}
+
+        std::vector<std::string> get(LLViewerObject* object, S32 face)
+        {
+            if (object)
+                if (object->getTE(face))
+                    if (object->getTE(face)->getMediaData())
+                        return object->getTE(face)->getMediaData()->getWhiteList();
+            return mMediaEntry.getWhiteList();
+        };
+
+        const LLMediaEntry &mMediaEntry;
+
+    } func_whitelist_urls(default_media_data);
+    identical = selected_objects->getSelectedTEValue(&func_whitelist_urls, value_vector_str);
+    base_key = std::string(LLMediaEntry::WHITELIST_KEY);
+    mMediaSettings[base_key].clear();
+    std::vector< std::string >::iterator iter = value_vector_str.begin();
+    while (iter != value_vector_str.end())
+    {
+        std::string white_list_url = *iter;
+        mMediaSettings[base_key].append(white_list_url);
+        ++iter;
+    };
+
+    mMediaSettings[base_key + std::string(LLPanelContents::TENTATIVE_SUFFIX)] = !identical;
+}
+
+void LLPanelFace::updateMediaTitle()
+{
+    // only get the media name if we need it
+    if (!mNeedMediaTitle)
+        return;
+
+    // get plugin impl
+    LLPluginClassMedia* media_plugin = mTitleMedia->getMediaPlugin();
+    if (media_plugin && mTitleMedia->getCurrentNavUrl() == media_plugin->getNavigateURI())
+    {
+        // get the media name (asynchronous - must call repeatedly)
+        std::string media_title = media_plugin->getMediaName();
+
+        // only replace the title if what we get contains something
+        if (!media_title.empty())
+        {
+            // update the UI widget
+            if (mTitleMediaText)
+            {
+                mTitleMediaText->setText(media_title);
+
+                // stop looking for a title when we get one
+                mNeedMediaTitle = false;
+            };
+        };
+    };
 }
 
 //
@@ -1632,30 +2425,29 @@ void LLPanelFace::onCommitMaterialsMedia(LLUICtrl* ctrl, void* userdata)
 	self->updateShinyControls(false,true);
 	self->updateBumpyControls(false,true);
 	self->updateUI();
+	self->refreshMedia();
 }
 
-// static
 void LLPanelFace::updateVisibility()
 {	
-	LLComboBox* combo_matmedia = getChild<LLComboBox>("combobox matmedia");
 	LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
 	LLComboBox* combo_shininess = getChild<LLComboBox>("combobox shininess");
 	LLComboBox* combo_bumpiness = getChild<LLComboBox>("combobox bumpiness");
-	if (!radio_mat_type || !combo_matmedia || !combo_shininess || !combo_bumpiness)
+	if (!radio_mat_type || !mComboMatMedia || !combo_shininess || !combo_bumpiness)
 	{
 		LL_WARNS("Materials") << "Combo box not found...exiting." << LL_ENDL;
 		return;
 	}
-	U32 materials_media = combo_matmedia->getCurrentIndex();
+	U32 materials_media = mComboMatMedia->getCurrentIndex();
 	U32 material_type = radio_mat_type->getSelectedIndex();
-	bool show_media = (materials_media == MATMEDIA_MEDIA) && combo_matmedia->getEnabled();
-	bool show_texture = (show_media || ((material_type == MATTYPE_DIFFUSE) && combo_matmedia->getEnabled()));
-	bool show_bumpiness = (!show_media) && (material_type == MATTYPE_NORMAL) && combo_matmedia->getEnabled();
-	bool show_shininess = (!show_media) && (material_type == MATTYPE_SPECULAR) && combo_matmedia->getEnabled();
+	bool show_media = (materials_media == MATMEDIA_MEDIA) && mComboMatMedia->getEnabled();
+	bool show_texture = (show_media || ((material_type == MATTYPE_DIFFUSE) && mComboMatMedia->getEnabled()));
+	bool show_bumpiness = (!show_media) && (material_type == MATTYPE_NORMAL) && mComboMatMedia->getEnabled();
+	bool show_shininess = (!show_media) && (material_type == MATTYPE_SPECULAR) && mComboMatMedia->getEnabled();
 	getChildView("radio_material_type")->setVisible(!show_media);
 
 	// Media controls
-	getChildView("media_info")->setVisible(show_media);
+    mTitleMediaText->setVisible(show_media);
 	getChildView("add_media")->setVisible(show_media);
 	getChildView("delete_media")->setVisible(show_media);
 	getChildView("button align")->setVisible(show_media);
@@ -1787,12 +2579,11 @@ void LLPanelFace::updateShinyControls(bool is_setting_texture, bool mess_with_sh
 	}
 
 
-	LLComboBox* combo_matmedia = getChild<LLComboBox>("combobox matmedia");
 	LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
-	U32 materials_media = combo_matmedia->getCurrentIndex();
+	U32 materials_media = mComboMatMedia->getCurrentIndex();
 	U32 material_type = radio_mat_type->getSelectedIndex();
-	bool show_media = (materials_media == MATMEDIA_MEDIA) && combo_matmedia->getEnabled();
-	bool show_shininess = (!show_media) && (material_type == MATTYPE_SPECULAR) && combo_matmedia->getEnabled();
+	bool show_media = (materials_media == MATMEDIA_MEDIA) && mComboMatMedia->getEnabled();
+	bool show_shininess = (!show_media) && (material_type == MATTYPE_SPECULAR) && mComboMatMedia->getEnabled();
 	U32 shiny_value = comboShiny->getCurrentIndex();
 	bool show_shinyctrls = (shiny_value == SHINY_TEXTURE) && show_shininess; // Use texture
 	getChildView("label glossiness")->setVisible(show_shinyctrls);
@@ -1866,11 +2657,10 @@ void LLPanelFace::updateAlphaControls()
 	U32 alpha_value = comboAlphaMode->getCurrentIndex();
 	bool show_alphactrls = (alpha_value == ALPHAMODE_MASK); // Alpha masking
     
-    LLComboBox* combobox_matmedia = getChild<LLComboBox>("combobox matmedia");
     U32 mat_media = MATMEDIA_MATERIAL;
-    if (combobox_matmedia)
+    if (mComboMatMedia)
     {
-        mat_media = combobox_matmedia->getCurrentIndex();
+        mat_media = mComboMatMedia->getCurrentIndex();
     }
     
     U32 mat_type = MATTYPE_DIFFUSE;
@@ -2025,6 +2815,77 @@ void LLPanelFace::onSelectNormalTexture(const LLSD& data)
 	LL_DEBUGS("Materials") << data << LL_ENDL;
 	LLUUID nmap_id = getCurrentNormalMap();
 	sendBump(nmap_id.isNull() ? 0 : BUMPY_TEXTURE);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// called when a user wants to edit existing media settings on a prim or prim face
+// TODO: test if there is media on the item and only allow editing if present
+void LLPanelFace::onClickBtnEditMedia(LLUICtrl* ctrl, void* userdata)
+{
+    LLPanelFace* self = (LLPanelFace*)userdata;
+    self->refreshMedia();
+    LLFloaterReg::showInstance("media_settings");
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// called when a user wants to delete media from a prim or prim face
+void LLPanelFace::onClickBtnDeleteMedia(LLUICtrl* ctrl, void* userdata)
+{
+    LLNotificationsUtil::add("DeleteMedia", LLSD(), LLSD(), deleteMediaConfirm);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// called when a user wants to add media to a prim or prim face
+void LLPanelFace::onClickBtnAddMedia(LLUICtrl* ctrl, void* userdata)
+{
+    // check if multiple faces are selected
+    if (LLSelectMgr::getInstance()->getSelection()->isMultipleTESelected())
+    {
+        LLPanelFace* self = (LLPanelFace*)userdata;
+        self->refreshMedia();
+        LLNotificationsUtil::add("MultipleFacesSelected", LLSD(), LLSD(), multipleFacesSelectedConfirm);
+    }
+    else
+    {
+        onClickBtnEditMedia(ctrl, userdata);
+    }
+}
+
+// static
+bool LLPanelFace::deleteMediaConfirm(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    switch (option)
+    {
+    case 0:  // "Yes"
+        LLSelectMgr::getInstance()->selectionSetMedia(0, LLSD());
+        if (LLFloaterReg::instanceVisible("media_settings"))
+        {
+            LLFloaterReg::hideInstance("media_settings");
+        }
+        break;
+
+    case 1:  // "No"
+    default:
+        break;
+    }
+    return false;
+}
+
+// static
+bool LLPanelFace::multipleFacesSelectedConfirm(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    switch (option)
+    {
+    case 0:  // "Yes"
+        LLFloaterReg::showInstance("media_settings");
+        break;
+    case 1:  // "No"
+    default:
+        break;
+    }
+    return false;
 }
 
 //static
@@ -2404,10 +3265,9 @@ void LLPanelFace::onCommitRepeatsPerMeter(LLUICtrl* ctrl, void* userdata)
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	
 	LLUICtrl*	repeats_ctrl	= self->getChild<LLUICtrl>("rptctrl");
-	LLComboBox* combo_matmedia = self->getChild<LLComboBox>("combobox matmedia");
 	LLRadioGroup* radio_mat_type = self->getChild<LLRadioGroup>("radio_material_type");
 	
-	U32 materials_media = combo_matmedia->getCurrentIndex();
+	U32 materials_media = self->mComboMatMedia->getCurrentIndex();
 
 	U32 material_type           = (materials_media == MATMEDIA_MATERIAL) ? radio_mat_type->getSelectedIndex() : 0;
 	F32 repeats_per_meter	= repeats_ctrl->getValue().asReal();
@@ -2538,14 +3398,810 @@ void LLPanelFace::onAlignTexture(void* userdata)
     self->alignTestureLayer();
 }
 
+enum EPasteMode
+{
+    PASTE_COLOR,
+    PASTE_TEXTURE
+};
 
-// TODO: I don't know who put these in or what these are for???
-void LLPanelFace::setMediaURL(const std::string& url)
+struct LLPanelFacePasteTexFunctor : public LLSelectedTEFunctor
 {
-}
-void LLPanelFace::setMediaType(const std::string& mime_type)
+    LLPanelFacePasteTexFunctor(LLPanelFace* panel, EPasteMode mode) :
+        mPanelFace(panel), mMode(mode) {}
+
+    virtual bool apply(LLViewerObject* objectp, S32 te)
+    {
+        switch (mMode)
+        {
+        case PASTE_COLOR:
+            mPanelFace->onPasteColor(objectp, te);
+            break;
+        case PASTE_TEXTURE:
+            mPanelFace->onPasteTexture(objectp, te);
+            break;
+        }
+        return true;
+    }
+private:
+    LLPanelFace *mPanelFace;
+    EPasteMode mMode;
+};
+
+struct LLPanelFaceUpdateFunctor : public LLSelectedObjectFunctor
 {
+    LLPanelFaceUpdateFunctor(bool update_media) : mUpdateMedia(update_media) {}
+    virtual bool apply(LLViewerObject* object)
+    {
+        object->sendTEUpdate();
+        if (mUpdateMedia)
+        {
+            LLVOVolume *vo = dynamic_cast<LLVOVolume*>(object);
+            if (vo && vo->hasMedia())
+            {
+                vo->sendMediaDataUpdate();
+            }
+        }
+        return true;
+    }
+private:
+    bool mUpdateMedia;
+};
+
+struct LLPanelFaceNavigateHomeFunctor : public LLSelectedTEFunctor
+{
+    virtual bool apply(LLViewerObject* objectp, S32 te)
+    {
+        if (objectp && objectp->getTE(te))
+        {
+            LLTextureEntry* tep = objectp->getTE(te);
+            const LLMediaEntry *media_data = tep->getMediaData();
+            if (media_data)
+            {
+                if (media_data->getCurrentURL().empty() && media_data->getAutoPlay())
+                {
+                    viewer_media_t media_impl =
+                        LLViewerMedia::getInstance()->getMediaImplFromTextureID(tep->getMediaData()->getMediaID());
+                    if (media_impl)
+                    {
+                        media_impl->navigateHome();
+                    }
+                }
+            }
+        }
+        return true;
+    }
+};
+
+void LLPanelFace::onCopyColor()
+{
+    LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+    S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
+    if (!objectp || !node
+        || objectp->getPCode() != LL_PCODE_VOLUME
+        || !objectp->permModify()
+        || objectp->isPermanentEnforced()
+        || selected_count > 1)
+    {
+        return;
+    }
+
+    if (mClipboardParams.has("color"))
+    {
+        mClipboardParams["color"].clear();
+    }
+    else
+    {
+        mClipboardParams["color"] = LLSD::emptyArray();
+    }
+
+    std::map<LLUUID, LLUUID> asset_item_map;
+
+    // a way to resolve situations where source and target have different amount of faces
+    S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+    mClipboardParams["color_all_tes"] = (num_tes != 1) || (LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool());
+    for (S32 te = 0; te < num_tes; ++te)
+    {
+        if (node->isTESelected(te))
+        {
+            LLTextureEntry* tep = objectp->getTE(te);
+            if (tep)
+            {
+                LLSD te_data;
+
+                // asLLSD() includes media
+                te_data["te"] = tep->asLLSD(); // Note: includes a lot more than just color/alpha/glow
+
+                mClipboardParams["color"].append(te_data);
+            }
+        }
+    }
 }
+
+void LLPanelFace::onPasteColor()
+{
+    if (!mClipboardParams.has("color"))
+    {
+        return;
+    }
+
+    LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+    S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
+    if (!objectp || !node
+        || objectp->getPCode() != LL_PCODE_VOLUME
+        || !objectp->permModify()
+        || objectp->isPermanentEnforced()
+        || selected_count > 1)
+    {
+        // not supposed to happen
+        LL_WARNS() << "Failed to paste color due to missing or wrong selection" << LL_ENDL;
+        return;
+    }
+
+    bool face_selection_mode = LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool();
+    LLSD &clipboard = mClipboardParams["color"]; // array
+    S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+    S32 compare_tes = num_tes;
+
+    if (face_selection_mode)
+    {
+        compare_tes = 0;
+        for (S32 te = 0; te < num_tes; ++te)
+        {
+            if (node->isTESelected(te))
+            {
+                compare_tes++;
+            }
+        }
+    }
+
+    // we can copy if single face was copied in edit face mode or if face count matches
+    if (!((clipboard.size() == 1) && mClipboardParams["color_all_tes"].asBoolean())
+        && compare_tes != clipboard.size())
+    {
+        LLSD notif_args;
+        if (face_selection_mode)
+        {
+            static std::string reason = getString("paste_error_face_selection_mismatch");
+            notif_args["REASON"] = reason;
+        }
+        else
+        {
+            static std::string reason = getString("paste_error_object_face_count_mismatch");
+            notif_args["REASON"] = reason;
+        }
+        LLNotificationsUtil::add("FacePasteFailed", notif_args);
+        return;
+    }
+
+    LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
+
+    LLPanelFacePasteTexFunctor paste_func(this, PASTE_COLOR);
+    selected_objects->applyToTEs(&paste_func);
+
+    LLPanelFaceUpdateFunctor sendfunc(false);
+    selected_objects->applyToObjects(&sendfunc);
+}
+
+void LLPanelFace::onPasteColor(LLViewerObject* objectp, S32 te)
+{
+    LLSD te_data;
+    LLSD &clipboard = mClipboardParams["color"]; // array
+    if ((clipboard.size() == 1) && mClipboardParams["color_all_tes"].asBoolean())
+    {
+        te_data = *(clipboard.beginArray());
+    }
+    else if (clipboard[te])
+    {
+        te_data = clipboard[te];
+    }
+    else
+    {
+        return;
+    }
+
+    LLTextureEntry* tep = objectp->getTE(te);
+    if (tep)
+    {
+        if (te_data.has("te"))
+        {
+            // Color / Alpha
+            if (te_data["te"].has("colors"))
+            {
+                LLColor4 color = tep->getColor();
+
+                LLColor4 clip_color;
+                clip_color.setValue(te_data["te"]["colors"]);
+
+                // Color
+                color.mV[VRED] = clip_color.mV[VRED];
+                color.mV[VGREEN] = clip_color.mV[VGREEN];
+                color.mV[VBLUE] = clip_color.mV[VBLUE];
+
+                // Alpha
+                color.mV[VALPHA] = clip_color.mV[VALPHA];
+
+                objectp->setTEColor(te, color);
+            }
+
+            // Color/fullbright
+            if (te_data["te"].has("fullbright"))
+            {
+                objectp->setTEFullbright(te, te_data["te"]["fullbright"].asInteger());
+            }
+
+            // Glow
+            if (te_data["te"].has("glow"))
+            {
+                objectp->setTEGlow(te, (F32)te_data["te"]["glow"].asReal());
+            }
+        }
+    }
+}
+
+void LLPanelFace::onCopyTexture()
+{
+    LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+    S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
+    if (!objectp || !node
+        || objectp->getPCode() != LL_PCODE_VOLUME
+        || !objectp->permModify()
+        || objectp->isPermanentEnforced()
+        || selected_count > 1)
+    {
+        return;
+    }
+
+    if (mClipboardParams.has("texture"))
+    {
+        mClipboardParams["texture"].clear();
+    }
+    else
+    {
+        mClipboardParams["texture"] = LLSD::emptyArray();
+    }
+
+    std::map<LLUUID, LLUUID> asset_item_map;
+
+    // a way to resolve situations where source and target have different amount of faces
+    S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+    mClipboardParams["texture_all_tes"] = (num_tes != 1) || (LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool());
+    for (S32 te = 0; te < num_tes; ++te)
+    {
+        if (node->isTESelected(te))
+        {
+            LLTextureEntry* tep = objectp->getTE(te);
+            if (tep)
+            {
+                LLSD te_data;
+
+                // asLLSD() includes media
+                te_data["te"] = tep->asLLSD();
+                te_data["te"]["shiny"] = tep->getShiny();
+                te_data["te"]["bumpmap"] = tep->getBumpmap();
+                te_data["te"]["bumpshiny"] = tep->getBumpShiny();
+                te_data["te"]["bumpfullbright"] = tep->getBumpShinyFullbright();
+
+                if (te_data["te"].has("imageid"))
+                {
+                    LLUUID item_id;
+                    LLUUID id = te_data["te"]["imageid"].asUUID();
+                    bool from_library = get_is_predefined_texture(id);
+                    bool full_perm = from_library;
+
+                    if (!full_perm
+                        && objectp->permCopy()
+                        && objectp->permTransfer()
+                        && objectp->permModify())
+                    {
+                        // If agent created this object and nothing is limiting permissions, mark as full perm
+                        // If agent was granted permission to edit objects owned and created by somebody else, mark full perm
+                        // This check is not perfect since we can't figure out whom textures belong to so this ended up restrictive
+                        std::string creator_app_link;
+                        LLUUID creator_id;
+                        LLSelectMgr::getInstance()->selectGetCreator(creator_id, creator_app_link);
+                        full_perm = objectp->mOwnerID == creator_id;
+                    }
+
+                    if (id.notNull() && !full_perm)
+                    {
+                        std::map<LLUUID, LLUUID>::iterator iter = asset_item_map.find(id);
+                        if (iter != asset_item_map.end())
+                        {
+                            item_id = iter->second;
+                        }
+                        else
+                        {
+                            // What this does is simply searches inventory for item with same asset id,
+                            // as result it is Hightly unreliable, leaves little control to user, borderline hack
+                            // but there are little options to preserve permissions - multiple inventory
+                            // items might reference same asset and inventory search is expensive.
+                            bool no_transfer = false;
+                            if (objectp->getInventoryItemByAsset(id))
+                            {
+                                no_transfer = !objectp->getInventoryItemByAsset(id)->getIsFullPerm();
+                            }
+                            item_id = get_copy_free_item_by_asset_id(id, no_transfer);
+                            // record value to avoid repeating inventory search when possible
+                            asset_item_map[id] = item_id;
+                        }
+                    }
+
+                    if (item_id.notNull() && gInventory.isObjectDescendentOf(item_id, gInventory.getLibraryRootFolderID()))
+                    {
+                        full_perm = true;
+                        from_library = true;
+                    }
+
+                    {
+                        te_data["te"]["itemfullperm"] = full_perm;
+                        te_data["te"]["fromlibrary"] = from_library; 
+
+                        // If full permission object, texture is free to copy,
+                        // but otherwise we need to check inventory and extract permissions
+                        //
+                        // Normally we care only about restrictions for current user and objects
+                        // don't inherit any 'next owner' permissions from texture, so there is
+                        // no need to record item id if full_perm==true
+                        if (!full_perm && !from_library && item_id.notNull())
+                        {
+                            LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
+                            if (itemp)
+                            {
+                                LLPermissions item_permissions = itemp->getPermissions();
+                                if (item_permissions.allowOperationBy(PERM_COPY,
+                                    gAgent.getID(),
+                                    gAgent.getGroupID()))
+                                {
+                                    te_data["te"]["imageitemid"] = item_id;
+                                    te_data["te"]["itemfullperm"] = itemp->getIsFullPerm();
+                                    if (!itemp->isFinished())
+                                    {
+                                        // needed for dropTextureAllFaces
+                                        LLInventoryModelBackgroundFetch::instance().start(item_id, false);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                LLMaterialPtr material_ptr = tep->getMaterialParams();
+                if (!material_ptr.isNull())
+                {
+                    LLSD mat_data;
+
+                    mat_data["NormMap"] = material_ptr->getNormalID();
+                    mat_data["SpecMap"] = material_ptr->getSpecularID();
+
+                    mat_data["NormRepX"] = material_ptr->getNormalRepeatX();
+                    mat_data["NormRepY"] = material_ptr->getNormalRepeatY();
+                    mat_data["NormOffX"] = material_ptr->getNormalOffsetX();
+                    mat_data["NormOffY"] = material_ptr->getNormalOffsetY();
+                    mat_data["NormRot"] = material_ptr->getNormalRotation();
+
+                    mat_data["SpecRepX"] = material_ptr->getSpecularRepeatX();
+                    mat_data["SpecRepY"] = material_ptr->getSpecularRepeatY();
+                    mat_data["SpecOffX"] = material_ptr->getSpecularOffsetX();
+                    mat_data["SpecOffY"] = material_ptr->getSpecularOffsetY();
+                    mat_data["SpecRot"] = material_ptr->getSpecularRotation();
+
+                    mat_data["SpecColor"] = material_ptr->getSpecularLightColor().getValue();
+                    mat_data["SpecExp"] = material_ptr->getSpecularLightExponent();
+                    mat_data["EnvIntensity"] = material_ptr->getEnvironmentIntensity();
+                    mat_data["AlphaMaskCutoff"] = material_ptr->getAlphaMaskCutoff();
+                    mat_data["DiffuseAlphaMode"] = material_ptr->getDiffuseAlphaMode();
+
+                    // Replace no-copy textures, destination texture will get used instead if available
+                    if (mat_data.has("NormMap"))
+                    {
+                        LLUUID id = mat_data["NormMap"].asUUID();
+                        if (id.notNull() && !get_can_copy_texture(id))
+                        {
+                            mat_data["NormMap"] = LLUUID(gSavedSettings.getString("DefaultObjectTexture"));
+                            mat_data["NormMapNoCopy"] = true;
+                        }
+
+                    }
+                    if (mat_data.has("SpecMap"))
+                    {
+                        LLUUID id = mat_data["SpecMap"].asUUID();
+                        if (id.notNull() && !get_can_copy_texture(id))
+                        {
+                            mat_data["SpecMap"] = LLUUID(gSavedSettings.getString("DefaultObjectTexture"));
+                            mat_data["SpecMapNoCopy"] = true;
+                        }
+
+                    }
+
+                    te_data["material"] = mat_data;
+                }
+
+                mClipboardParams["texture"].append(te_data);
+            }
+        }
+    }
+}
+
+void LLPanelFace::onPasteTexture()
+{
+    if (!mClipboardParams.has("texture"))
+    {
+        return;
+    }
+
+    LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+    S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
+    if (!objectp || !node
+        || objectp->getPCode() != LL_PCODE_VOLUME
+        || !objectp->permModify()
+        || objectp->isPermanentEnforced()
+        || selected_count > 1)
+    {
+        // not supposed to happen
+        LL_WARNS() << "Failed to paste texture due to missing or wrong selection" << LL_ENDL;
+        return;
+    }
+
+    bool face_selection_mode = LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool();
+    LLSD &clipboard = mClipboardParams["texture"]; // array
+    S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+    S32 compare_tes = num_tes;
+
+    if (face_selection_mode)
+    {
+        compare_tes = 0;
+        for (S32 te = 0; te < num_tes; ++te)
+        {
+            if (node->isTESelected(te))
+            {
+                compare_tes++;
+            }
+        }
+    }
+
+    // we can copy if single face was copied in edit face mode or if face count matches
+    if (!((clipboard.size() == 1) && mClipboardParams["texture_all_tes"].asBoolean()) 
+        && compare_tes != clipboard.size())
+    {
+        LLSD notif_args;
+        if (face_selection_mode)
+        {
+            static std::string reason = getString("paste_error_face_selection_mismatch");
+            notif_args["REASON"] = reason;
+        }
+        else
+        {
+            static std::string reason = getString("paste_error_object_face_count_mismatch");
+            notif_args["REASON"] = reason;
+        }
+        LLNotificationsUtil::add("FacePasteFailed", notif_args);
+        return;
+    }
+
+    bool full_perm_object = true;
+    LLSD::array_const_iterator iter = clipboard.beginArray();
+    LLSD::array_const_iterator end = clipboard.endArray();
+    for (; iter != end; ++iter)
+    {
+        const LLSD& te_data = *iter;
+        if (te_data.has("te") && te_data["te"].has("imageid"))
+        {
+            bool full_perm = te_data["te"].has("itemfullperm") && te_data["te"]["itemfullperm"].asBoolean();
+            full_perm_object &= full_perm;
+            if (!full_perm)
+            {
+                if (te_data["te"].has("imageitemid"))
+                {
+                    LLUUID item_id = te_data["te"]["imageitemid"].asUUID();
+                    if (item_id.notNull())
+                    {
+                        LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
+                        if (!itemp)
+                        {
+                            // image might be in object's inventory, but it can be not up to date
+                            LLSD notif_args;
+                            static std::string reason = getString("paste_error_inventory_not_found");
+                            notif_args["REASON"] = reason;
+                            LLNotificationsUtil::add("FacePasteFailed", notif_args);
+                            return;
+                        }
+                    }
+                }
+                else
+                {
+                    // Item was not found on 'copy' stage
+                    // Since this happened at copy, might be better to either show this
+                    // at copy stage or to drop clipboard here
+                    LLSD notif_args;
+                    static std::string reason = getString("paste_error_inventory_not_found");
+                    notif_args["REASON"] = reason;
+                    LLNotificationsUtil::add("FacePasteFailed", notif_args);
+                    return;
+                }
+            }
+        }
+    }
+
+    if (!full_perm_object)
+    {
+        LLNotificationsUtil::add("FacePasteTexturePermissions");
+    }
+
+    LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
+
+    LLPanelFacePasteTexFunctor paste_func(this, PASTE_TEXTURE);
+    selected_objects->applyToTEs(&paste_func);
+
+    LLPanelFaceUpdateFunctor sendfunc(true);
+    selected_objects->applyToObjects(&sendfunc);
+
+    LLPanelFaceNavigateHomeFunctor navigate_home_func;
+    selected_objects->applyToTEs(&navigate_home_func);
+}
+
+void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
+{
+    LLSD te_data;
+    LLSD &clipboard = mClipboardParams["texture"]; // array
+    if ((clipboard.size() == 1) && mClipboardParams["texture_all_tes"].asBoolean())
+    {
+        te_data = *(clipboard.beginArray());
+    }
+    else if (clipboard[te])
+    {
+        te_data = clipboard[te];
+    }
+    else
+    {
+        return;
+    }
+
+    LLTextureEntry* tep = objectp->getTE(te);
+    if (tep)
+    {
+        if (te_data.has("te"))
+        {
+            // Texture
+            bool full_perm = te_data["te"].has("itemfullperm") && te_data["te"]["itemfullperm"].asBoolean();
+            bool from_library = te_data["te"].has("fromlibrary") && te_data["te"]["fromlibrary"].asBoolean();
+            if (te_data["te"].has("imageid"))
+            {
+                const LLUUID& imageid = te_data["te"]["imageid"].asUUID(); //texture or asset id
+                LLViewerInventoryItem* itemp_res = NULL;
+
+                if (te_data["te"].has("imageitemid"))
+                {
+                    LLUUID item_id = te_data["te"]["imageitemid"].asUUID();
+                    if (item_id.notNull())
+                    {
+                        LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
+                        if (itemp && itemp->isFinished())
+                        {
+                            // dropTextureAllFaces will fail if incomplete
+                            itemp_res = itemp;
+                        }
+                        else
+                        {
+                            // Theoretically shouldn't happend, but if it does happen, we
+                            // might need to add a notification to user that paste will fail
+                            // since inventory isn't fully loaded
+                            LL_WARNS() << "Item " << item_id << " is incomplete, paste might fail silently." << LL_ENDL;
+                        }
+                    }
+                }
+                // for case when item got removed from inventory after we pressed 'copy'
+                // or texture got pasted into previous object
+                if (!itemp_res && !full_perm)
+                {
+                    // Due to checks for imageitemid in LLPanelFace::onPasteTexture() this should no longer be reachable.
+                    LL_INFOS() << "Item " << te_data["te"]["imageitemid"].asUUID() << " no longer in inventory." << LL_ENDL;
+                    // Todo: fix this, we are often searching same texture multiple times (equal to number of faces)
+                    // Perhaps just mPanelFace->onPasteTexture(objectp, te, &asset_to_item_id_map); ? Not pretty, but will work
+                    LLViewerInventoryCategory::cat_array_t cats;
+                    LLViewerInventoryItem::item_array_t items;
+                    LLAssetIDMatches asset_id_matches(imageid);
+                    gInventory.collectDescendentsIf(LLUUID::null,
+                        cats,
+                        items,
+                        LLInventoryModel::INCLUDE_TRASH,
+                        asset_id_matches);
+
+                    // Extremely unreliable and perfomance unfriendly.
+                    // But we need this to check permissions and it is how texture control finds items
+                    for (S32 i = 0; i < items.size(); i++)
+                    {
+                        LLViewerInventoryItem* itemp = items[i];
+                        if (itemp && itemp->isFinished())
+                        {
+                            // dropTextureAllFaces will fail if incomplete
+                            LLPermissions item_permissions = itemp->getPermissions();
+                            if (item_permissions.allowOperationBy(PERM_COPY,
+                                gAgent.getID(),
+                                gAgent.getGroupID()))
+                            {
+                                itemp_res = itemp;
+                                break; // first match
+                            }
+                        }
+                    }
+                }
+
+                if (itemp_res)
+                {
+                    if (te == -1) // all faces
+                    {
+                        LLToolDragAndDrop::dropTextureAllFaces(objectp,
+                            itemp_res,
+                            from_library ? LLToolDragAndDrop::SOURCE_LIBRARY : LLToolDragAndDrop::SOURCE_AGENT,
+                            LLUUID::null);
+                    }
+                    else // one face
+                    {
+                        LLToolDragAndDrop::dropTextureOneFace(objectp,
+                            te,
+                            itemp_res,
+                            from_library ? LLToolDragAndDrop::SOURCE_LIBRARY : LLToolDragAndDrop::SOURCE_AGENT,
+                            LLUUID::null,
+                            0);
+                    }
+                }
+                // not an inventory item or no complete items
+                else if (full_perm)
+                {
+                    // Either library, local or existed as fullperm when user made a copy
+                    LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(imageid, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+                    objectp->setTEImage(U8(te), image);
+                }
+            }
+
+            if (te_data["te"].has("bumpmap"))
+            {
+                objectp->setTEBumpmap(te, (U8)te_data["te"]["bumpmap"].asInteger());
+            }
+            if (te_data["te"].has("bumpshiny"))
+            {
+                objectp->setTEBumpShiny(te, (U8)te_data["te"]["bumpshiny"].asInteger());
+            }
+            if (te_data["te"].has("bumpfullbright"))
+            {
+                objectp->setTEBumpShinyFullbright(te, (U8)te_data["te"]["bumpfullbright"].asInteger());
+            }
+
+            // Texture map
+            if (te_data["te"].has("scales") && te_data["te"].has("scalet"))
+            {
+                objectp->setTEScale(te, (F32)te_data["te"]["scales"].asReal(), (F32)te_data["te"]["scalet"].asReal());
+            }
+            if (te_data["te"].has("offsets") && te_data["te"].has("offsett"))
+            {
+                objectp->setTEOffset(te, (F32)te_data["te"]["offsets"].asReal(), (F32)te_data["te"]["offsett"].asReal());
+            }
+            if (te_data["te"].has("imagerot"))
+            {
+                objectp->setTERotation(te, (F32)te_data["te"]["imagerot"].asReal());
+            }
+
+            // Media
+            if (te_data["te"].has("media_flags"))
+            {
+                U8 media_flags = te_data["te"]["media_flags"].asInteger();
+                objectp->setTEMediaFlags(te, media_flags);
+                LLVOVolume *vo = dynamic_cast<LLVOVolume*>(objectp);
+                if (vo && te_data["te"].has(LLTextureEntry::TEXTURE_MEDIA_DATA_KEY))
+                {
+                    vo->syncMediaData(te, te_data["te"][LLTextureEntry::TEXTURE_MEDIA_DATA_KEY], true/*merge*/, true/*ignore_agent*/);
+                }
+            }
+            else
+            {
+                // Keep media flags on destination unchanged
+            }
+        }
+
+        if (te_data.has("material"))
+        {
+            LLUUID object_id = objectp->getID();
+
+            LLSelectedTEMaterial::setAlphaMaskCutoff(this, (U8)te_data["material"]["SpecRot"].asInteger(), te, object_id);
+
+            // Normal
+            // Replace placeholders with target's
+            if (te_data["material"].has("NormMapNoCopy"))
+            {
+                LLMaterialPtr material = tep->getMaterialParams();
+                if (material.notNull())
+                {
+                    LLUUID id = material->getNormalID();
+                    if (id.notNull())
+                    {
+                        te_data["material"]["NormMap"] = id;
+                    }
+                }
+            }
+            LLSelectedTEMaterial::setNormalID(this, te_data["material"]["NormMap"].asUUID(), te, object_id);
+            LLSelectedTEMaterial::setNormalRepeatX(this, (F32)te_data["material"]["NormRepX"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setNormalRepeatY(this, (F32)te_data["material"]["NormRepY"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setNormalOffsetX(this, (F32)te_data["material"]["NormOffX"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setNormalOffsetY(this, (F32)te_data["material"]["NormOffY"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setNormalRotation(this, (F32)te_data["material"]["NormRot"].asReal(), te, object_id);
+
+            // Specular
+                // Replace placeholders with target's
+            if (te_data["material"].has("SpecMapNoCopy"))
+            {
+                LLMaterialPtr material = tep->getMaterialParams();
+                if (material.notNull())
+                {
+                    LLUUID id = material->getSpecularID();
+                    if (id.notNull())
+                    {
+                        te_data["material"]["SpecMap"] = id;
+                    }
+                }
+            }
+            LLSelectedTEMaterial::setSpecularID(this, te_data["material"]["SpecMap"].asUUID(), te, object_id);
+            LLSelectedTEMaterial::setSpecularRepeatX(this, (F32)te_data["material"]["SpecRepX"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setSpecularRepeatY(this, (F32)te_data["material"]["SpecRepY"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setSpecularOffsetX(this, (F32)te_data["material"]["SpecOffX"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setSpecularOffsetY(this, (F32)te_data["material"]["SpecOffY"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setSpecularRotation(this, (F32)te_data["material"]["SpecRot"].asReal(), te, object_id);
+            LLColor4 spec_color(te_data["material"]["SpecColor"]);
+            LLSelectedTEMaterial::setSpecularLightColor(this, spec_color, te);
+            LLSelectedTEMaterial::setSpecularLightExponent(this, (U8)te_data["material"]["SpecExp"].asInteger(), te, object_id);
+            LLSelectedTEMaterial::setEnvironmentIntensity(this, (U8)te_data["material"]["EnvIntensity"].asInteger(), te, object_id);
+            LLSelectedTEMaterial::setDiffuseAlphaMode(this, (U8)te_data["material"]["SpecRot"].asInteger(), te, object_id);
+            if (te_data.has("te") && te_data["te"].has("shiny"))
+            {
+                objectp->setTEShiny(te, (U8)te_data["te"]["shiny"].asInteger());
+            }
+        }
+    }
+}
+
+void LLPanelFace::menuDoToSelected(const LLSD& userdata)
+{
+    std::string command = userdata.asString();
+
+    // paste
+    if (command == "color_paste")
+    {
+        onPasteColor();
+    }
+    else if (command == "texture_paste")
+    {
+        onPasteTexture();
+    }
+    // copy
+    else if (command == "color_copy")
+    {
+        onCopyColor();
+    }
+    else if (command == "texture_copy")
+    {
+        onCopyTexture();
+    }
+}
+
+bool LLPanelFace::menuEnableItem(const LLSD& userdata)
+{
+    std::string command = userdata.asString();
+
+    // paste options
+    if (command == "color_paste")
+    {
+        return mClipboardParams.has("color");
+    }
+    else if (command == "texture_paste")
+    {
+        return mClipboardParams.has("texture");
+    }
+    return false;
+}
+
 
 // static
 void LLPanelFace::onCommitPlanarAlign(LLUICtrl* ctrl, void* userdata)

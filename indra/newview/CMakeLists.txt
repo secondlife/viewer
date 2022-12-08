@@ -56,7 +56,7 @@ include(UnixInstall)
 include(ViewerMiscLibs)
 include(ViewerManager)
 include(VisualLeakDetector)
-include(ZLIB)
+include(ZLIBNG)
 include(URIPARSER)
 
 if (NOT HAVOK_TPV)
@@ -234,12 +234,14 @@ set(viewer_SOURCE_FILES
     llfloatercamera.cpp
     llfloatercamerapresets.cpp
     llfloaterchatvoicevolume.cpp
+    llfloaterclassified.cpp
     llfloatercolorpicker.cpp
     llfloaterconversationlog.cpp
     llfloaterconversationpreview.cpp
     llfloatercreatelandmark.cpp
     llfloaterdeleteprefpreset.cpp
     llfloaterdestinations.cpp
+    llfloaterdisplayname.cpp
     llfloatereditenvironmentbase.cpp
     llfloatereditextdaycycle.cpp
     llfloaterenvironmentadjust.cpp
@@ -295,9 +297,11 @@ set(viewer_SOURCE_FILES
     llfloaterpay.cpp
     llfloaterperms.cpp
     llfloaterpostprocess.cpp
+    llfloaterprofile.cpp
     llfloaterpreference.cpp
     llfloaterpreferenceviewadvanced.cpp
     llfloaterpreviewtrash.cpp
+    llfloaterprofiletexture.cpp
     llfloaterproperties.cpp
     llfloaterregiondebugconsole.cpp
     llfloaterregioninfo.cpp
@@ -330,7 +334,6 @@ set(viewer_SOURCE_FILES
     llfloatervoiceeffect.cpp
     llfloatervoicevolume.cpp
     llfloaterwebcontent.cpp
-    llfloaterwebprofile.cpp
     llfloaterwhitelistentry.cpp
     llfloaterwindowsize.cpp
     llfloaterworldmap.cpp
@@ -476,7 +479,6 @@ set(viewer_SOURCE_FILES
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingspermissions.cpp
     llpanelmediasettingssecurity.cpp
-    llpanelme.cpp
     llpanelnearbymedia.cpp
     llpanelobject.cpp
     llpanelobjectinventory.cpp
@@ -486,8 +488,6 @@ set(viewer_SOURCE_FILES
     llpanelpeople.cpp
     llpanelpeoplemenus.cpp
     llpanelpermissions.cpp
-    llpanelpick.cpp
-    llpanelpicks.cpp
     llpanelplaceinfo.cpp
     llpanelplaceprofile.cpp
     llpanelplaces.cpp
@@ -496,6 +496,8 @@ set(viewer_SOURCE_FILES
     llpanelpresetspulldown.cpp
     llpanelprimmediacontrols.cpp
     llpanelprofile.cpp
+    llpanelprofileclassifieds.cpp
+    llpanelprofilepicks.cpp
     llpanelsnapshot.cpp
     llpanelsnapshotinventory.cpp
     llpanelsnapshotlocal.cpp
@@ -657,6 +659,7 @@ set(viewer_SOURCE_FILES
     llviewercontrol.cpp
     llviewercontrollistener.cpp
     llviewerdisplay.cpp
+    llviewerdisplayname.cpp
     llviewerfloaterreg.cpp
     llviewerfoldertype.cpp
     llviewergenericmessage.cpp
@@ -870,12 +873,14 @@ set(viewer_HEADER_FILES
     llfloatercamerapresets.h
     llfloatercamera.h
     llfloaterchatvoicevolume.h
+    llfloaterclassified.h
     llfloatercolorpicker.h
     llfloaterconversationlog.h
     llfloaterconversationpreview.h
     llfloatercreatelandmark.h
     llfloaterdeleteprefpreset.h
     llfloaterdestinations.h
+    llfloaterdisplayname.h
     llfloatereditenvironmentbase.h
     llfloatereditextdaycycle.h
     llfloaterenvironmentadjust.h
@@ -934,9 +939,11 @@ set(viewer_HEADER_FILES
     llfloaterpay.h
     llfloaterperms.h
     llfloaterpostprocess.h
+    llfloaterprofile.h
     llfloaterpreference.h
     llfloaterpreferenceviewadvanced.h
     llfloaterpreviewtrash.h
+    llfloaterprofiletexture.h
     llfloaterproperties.h
     llfloaterregiondebugconsole.h
     llfloaterregioninfo.h
@@ -969,7 +976,6 @@ set(viewer_HEADER_FILES
     llfloatervoiceeffect.h
     llfloatervoicevolume.h
     llfloaterwebcontent.h
-    llfloaterwebprofile.h
     llfloaterwhitelistentry.h
     llfloaterwindowsize.h
     llfloaterworldmap.h
@@ -1105,7 +1111,6 @@ set(viewer_HEADER_FILES
     llpanelmediasettingsgeneral.h
     llpanelmediasettingspermissions.h
     llpanelmediasettingssecurity.h
-    llpanelme.h
     llpanelnearbymedia.h
     llpanelobject.h
     llpanelobjectinventory.h
@@ -1115,8 +1120,6 @@ set(viewer_HEADER_FILES
     llpanelpeople.h
     llpanelpeoplemenus.h
     llpanelpermissions.h
-    llpanelpick.h
-    llpanelpicks.h
     llpanelplaceinfo.h
     llpanelplaceprofile.h
     llpanelplaces.h
@@ -1125,6 +1128,8 @@ set(viewer_HEADER_FILES
     llpanelpresetspulldown.h
     llpanelprimmediacontrols.h
     llpanelprofile.h
+    llpanelprofileclassifieds.h
+    llpanelprofilepicks.h
     llpanelsnapshot.h
     llpanelteleporthistory.h
     llpaneltiptoast.h
@@ -1287,6 +1292,7 @@ set(viewer_HEADER_FILES
     llviewercontrol.h
     llviewercontrollistener.h
     llviewerdisplay.h
+    llviewerdisplayname.h
     llviewerfloaterreg.h
     llviewerfoldertype.h
     llviewergenericmessage.h
@@ -1843,10 +1849,6 @@ if (WINDOWS)
       winmm_shim
       )
 
-    if (NOT USE_BUGSPLAT)
-        LIST(APPEND COPY_INPUT_DEPENDENCIES windows-crash-logger)
-    endif (NOT USE_BUGSPLAT)
-
     if (ADDRESS_SIZE EQUAL 64)
         list(APPEND COPY_INPUT_DEPENDENCIES
             ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxsdk_x64.dll
@@ -2011,14 +2013,14 @@ endif (WINDOWS)
 #
 # We generally want the newest version of the library to provide all symbol
 # resolution.  To that end, when using static archives, the *_PRELOAD_ARCHIVES
-# variables, PNG_PRELOAD_ARCHIVES and ZLIB_PRELOAD_ARCHIVES, get the archives
+# variables, PNG_PRELOAD_ARCHIVES and ZLIBNG_PRELOAD_ARCHIVES, get the archives
 # dumped into the target binary and runtime lookup will find the most
 # modern version.
 
 target_link_libraries(${VIEWER_BINARY_NAME}
     ${LEGACY_STDIO_LIBS}
     ${PNG_PRELOAD_ARCHIVES}
-    ${ZLIB_PRELOAD_ARCHIVES}
+    ${ZLIBNG_PRELOAD_ARCHIVES}
     ${URIPARSER_PRELOAD_ARCHIVES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     ${LLAUDIO_LIBRARIES}

@@ -143,7 +143,7 @@ Wersja serwera głosu (Voice Server): [VOICE_VERSION]
 	<string name="LoginFailedNoNetwork">
 		Błąd sieci: Brak połączenia z siecią, sprawdź status swojego połączenia internetowego.
 	</string>
-	<string name="LoginFailed">
+	<string name="LoginFailedHeader">
 		Logowanie nie powiodło się.
 	</string>
 	<string name="Quit">
@@ -595,9 +595,6 @@ Spróbuj zalogować się ponownie za minutę.
 	</string>
 	<string name="GroupNameNone">
 		(brak danych)
-	</string>
-	<string name="AvalineCaller">
-		Avaline [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		Brak błędu

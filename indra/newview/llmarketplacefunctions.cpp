@@ -758,7 +758,14 @@ void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& 
     if (mMarketPlaceStatus != MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
     {
         // If already initialized, just confirm the status so the callback gets called
-        setSLMStatus(mMarketPlaceStatus);
+        if (mMarketPlaceFailureReason.empty())
+        {
+            setSLMStatus(mMarketPlaceStatus);
+        }
+        else
+        {
+            setSLMConnectionFailure(mMarketPlaceFailureReason);
+        }
     }
     else
     {
@@ -799,28 +806,27 @@ void LLMarketplaceData::getMerchantStatusCoro()
         if (httpCode == HTTP_NOT_FOUND)
         {
             log_SLM_infos("Get /merchant", httpCode, std::string("User is not a merchant"));
-            setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
+            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
         }
         else if (httpCode == HTTP_SERVICE_UNAVAILABLE)
         {
             log_SLM_infos("Get /merchant", httpCode, std::string("Merchant is not migrated"));
-            setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT);
+            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT);
         }
-        else if (httpCode == HTTP_INTERNAL_ERROR)
+        else
         {
-            // 499 includes timeout and ssl error - marketplace is down or having issues, we do not show it in this request according to MAINT-5938
             LL_WARNS("SLM") << "SLM Merchant Request failed with status: " << httpCode
                                     << ", reason : " << status.toString()
                                     << ", code : " << result["error_code"].asString()
                                     << ", description : " << result["error_description"].asString() << LL_ENDL;
-            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
-        }
-        else
-        {
-            std::string err_code = result["error_code"].asString();
-            //std::string err_description = result["error_description"].asString();
-            log_SLM_warning("Get /merchant", httpCode, status.toString(), err_code, result["error_description"]);
-            setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
+            std::string reason = status.toString();
+            if (reason.empty())
+            {
+                reason = result["error_code"].asString();
+            }
+            // Since user might not even have a marketplace, there is no reason to report the error
+            // to the user, instead write it down into listings' floater
+            LLMarketplaceData::instance().setSLMConnectionFailure(reason);
         }
         return;
     }
@@ -1298,6 +1304,17 @@ std::string LLMarketplaceData::getSLMConnectURL(const std::string& route)
 void LLMarketplaceData::setSLMStatus(U32 status)
 {
     mMarketPlaceStatus = status;
+    mMarketPlaceFailureReason.clear();
+    if (mStatusUpdatedSignal)
+    {
+        (*mStatusUpdatedSignal)();
+    }
+}
+
+void LLMarketplaceData::setSLMConnectionFailure(const std::string& reason)
+{
+    mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE;
+    mMarketPlaceFailureReason = reason;
     if (mStatusUpdatedSignal)
     {
         (*mStatusUpdatedSignal)();

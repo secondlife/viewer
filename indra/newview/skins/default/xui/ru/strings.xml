@@ -187,7 +187,7 @@ SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 	<string name="LoginFailedNoNetwork">
 		Ошибка сети: не удалось установить соединение. Проверьте подключение к сети.
 	</string>
-	<string name="LoginFailed">
+	<string name="LoginFailedHeader">
 		Ошибка входа.
 	</string>
 	<string name="Quit">
@@ -356,6 +356,24 @@ support@secondlife.com.
 	</string>
 	<string name="TestingDisconnect">
 		Тестирование отключения клиента
+	</string>
+	<string name="SocialFacebookConnecting">
+		Подключение к Facebook...
+	</string>
+	<string name="SocialFacebookPosting">
+		Публикация...
+	</string>
+	<string name="SocialFacebookDisconnecting">
+		Отключение от Facebook...
+	</string>
+	<string name="SocialFacebookErrorConnecting">
+		Проблема с подключением к Facebook
+	</string>
+	<string name="SocialFacebookErrorPosting">
+		Проблемы при публикации в Facebook
+	</string>
+	<string name="SocialFacebookErrorDisconnecting">
+		Проблема с отключением от Facebook
 	</string>
 	<string name="SocialFlickrConnecting">
 		Подключение к Flickr...
@@ -670,9 +688,6 @@ support@secondlife.com.
 	</string>
 	<string name="GroupNameNone">
 		(нет)
-	</string>
-	<string name="AvalineCaller">
-		[ORDER] абонента Avaline
 	</string>
 	<string name="AssetErrorNone">
 		Ошибок нет
@@ -2576,8 +2591,20 @@ support@secondlife.com.
 	<string name="NoPicksClassifiedsText">
 		Вы не создали подборки или рекламы. Нажмите кнопку со знаком «плюс» ниже, чтобы создать подборку или рекламу
 	</string>
+	<string name="NoPicksText">
+		Вы не сделали никакой подборки. Нажмите кнопку Создать, чтобы сделать подборку.
+	</string>
+	<string name="NoClassifiedsText">
+		Вы не сделали никакой рекламы. Нажмите кнопку Создать, чтобы сделать рекламу.
+	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		У жителя нет подборки или рекламы
+	</string>
+	<string name="NoAvatarPicksText">
+		У пользователя нет подборки
+	</string>
+	<string name="NoAvatarClassifiedsText">
+		У пользователя нет объявлений
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Загрузка...
@@ -4552,6 +4579,9 @@ support@secondlife.com.
 	</string>
 	<string name="share_alert">
 		Перетаскивайте вещи из инвентаря сюда
+	</string>
+	<string name="facebook_post_success">
+		Вы опубликовали сообщение в Facebook.
 	</string>
 	<string name="flickr_post_success">
 		Вы опубликовали сообщение в Flickr.

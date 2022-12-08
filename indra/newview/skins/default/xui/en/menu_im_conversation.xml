@@ -79,6 +79,13 @@
     </menu_item_call>
     <menu_item_separator
      layout="topleft"/>
+    <menu_item_call
+     label="Report Abuse"
+     layout="topleft"
+     name="Report Abuse">
+       <on_click function="Avatar.GearDoToSelected" parameter="report_abuse" />
+       <on_enable function="Avatar.EnableGearItem" parameter="report_abuse" />
+    </menu_item_call>
     <menu_item_check
      label="Block Voice"
      layout="topleft"

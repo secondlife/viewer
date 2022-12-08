@@ -106,7 +106,7 @@
 	<string name="LoginFailedNoNetwork">
 		Netværksfejl: Kunne ikke etablere forbindelse, check venligst din netværksforbindelse.
 	</string>
-	<string name="LoginFailed">
+	<string name="LoginFailedHeader">
 		Login fejlede.
 	</string>
 	<string name="Quit">
@@ -442,9 +442,6 @@ Prøv venligst om lidt igen.
 	</string>
 	<string name="GroupNameNone">
 		(ingen)
-	</string>
-	<string name="AvalineCaller">
-		Avaline opkalder [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		Ingen fejl

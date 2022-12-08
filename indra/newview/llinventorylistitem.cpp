@@ -298,31 +298,41 @@ LLPanelInventoryListItemBase::LLPanelInventoryListItemBase(LLViewerInventoryItem
 	applyXUILayout(icon_params, this);
 
 	mIconCtrl = LLUICtrlFactory::create<LLIconCtrl>(icon_params);
-	if (mIconCtrl)
-	{
-		addChild(mIconCtrl);
-	}
-	else
+    if (!mIconCtrl)
 	{
 		LLIconCtrl::Params icon_params;
 		icon_params.name = "item_icon";
 		mIconCtrl = LLUICtrlFactory::create<LLIconCtrl>(icon_params);
 	}
 
+    if (mIconCtrl)
+    {
+        addChild(mIconCtrl);
+    }
+    else
+    {
+        LL_ERRS() << "Failed to create mIconCtrl" << LL_ENDL;
+    }
+
 	LLTextBox::Params text_params(params.item_name);
 	applyXUILayout(text_params, this);
 
 	mTitleCtrl = LLUICtrlFactory::create<LLTextBox>(text_params);
-	if (mTitleCtrl)
+	if (!mTitleCtrl)
 	{
-		addChild(mTitleCtrl);
-	}
-	else
-	{
-		LLTextBox::Params text_aprams;
+		LLTextBox::Params text_params;
 		text_params.name = "item_title";
 		mTitleCtrl = LLUICtrlFactory::create<LLTextBox>(text_params);
 	}
+
+    if (mTitleCtrl)
+    {
+        addChild(mTitleCtrl);
+    }
+    else
+    {
+        LL_ERRS() << "Failed to create mTitleCtrl" << LL_ENDL;
+    }
 }
 
 class WidgetVisibilityChanger

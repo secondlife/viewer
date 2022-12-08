@@ -125,7 +125,7 @@ public:
     {
         LOD_FROM_FILE = 0,
         MESH_OPTIMIZER_AUTO, // automatically selects method based on model or face
-        MESH_OPTIMIZER_COMBINE, // combines faces into a single model, simplifies, then splits back into faces
+        MESH_OPTIMIZER_PRECISE, // combines faces into a single model, simplifies, then splits back into faces
         MESH_OPTIMIZER_SLOPPY, // uses sloppy method, works per face
         USE_LOD_ABOVE,
     } eLoDMode;
@@ -224,14 +224,39 @@ private:
     LLVOAvatar* getPreviewAvatar(void) { return mPreviewAvatar; }
     // Count amount of original models, excluding sub-models
     static U32 countRootModels(LLModelLoader::model_list models);
+    LLVector3   mGroundPlane[4];
+	void		renderGroundPlane(float z_offset = 0.0f);
+    /// Indicates whether we should warn of high-lod meshes that do not have a corresponding physics mesh.
+    /// Reset when resetting the modelpreview (i.e., when the uploader dialog is created or reset), and when
+    /// about to process a physics file. Set to true immediately after the file is loaded (before rebuildUploadData()).
+    ///
+    /// (The rules for mapping the correspondence of high-lod meshes to physics meshes are complex. When
+    /// lod rendering meshes are used, there is never an unmatched mesh. Nor is there a mismatch when
+    /// the high-lod file and physics file have ony one mesh each. In these cases, this value is moot.
+    /// When there are multiple meshes in each file, they are matched by name or order, and some meshes
+    /// are broken up by limitations into multiple objects, and thus there can be mismatches.)
+    bool mWarnOfUnmatchedPhyicsMeshes{false};
+    /// A mesh to use as the default physics shape in only those cases where the physics shape is not otherwise specified.
+    /// It is set only when the user chooses a physics shape file that contains a mesh with a name that matches DEFAULT_PHYSICS_MESH_NAME.
+    /// It is reset when such a name is not found, and when resetting the modelpreview.
+    /// Not read unless mWarnOfUnmatchedPhyicsMeshes is true.
+    LLModel* mDefaultPhysicsShapeP{};
+
+    typedef enum
+    {
+        MESH_OPTIMIZER_FULL,
+        MESH_OPTIMIZER_NO_NORMALS,
+        MESH_OPTIMIZER_NO_UVS,
+        MESH_OPTIMIZER_NO_TOPOLOGY,
+    } eSimplificationMode;
 
     // Merges faces into single mesh, simplifies using mesh optimizer,
     // then splits back into faces.
     // Returns reached simplification ratio. -1 in case of a failure.
-    F32 genMeshOptimizerPerModel(LLModel *base_model, LLModel *target_model, F32 indices_ratio, F32 error_threshold, bool sloppy);
+    F32 genMeshOptimizerPerModel(LLModel *base_model, LLModel *target_model, F32 indices_ratio, F32 error_threshold, eSimplificationMode simplification_mode);
     // Simplifies specified face using mesh optimizer.
     // Returns reached simplification ratio. -1 in case of a failure.
-    F32 genMeshOptimizerPerFace(LLModel *base_model, LLModel *target_model, U32 face_idx, F32 indices_ratio, F32 error_threshold, bool sloppy);
+    F32 genMeshOptimizerPerFace(LLModel *base_model, LLModel *target_model, U32 face_idx, F32 indices_ratio, F32 error_threshold, eSimplificationMode simplification_mode);
 
 protected:
     friend class LLModelLoader;

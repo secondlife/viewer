@@ -183,7 +183,7 @@ Versione server voce: [VOICE_VERSION]
 	<string name="LoginFailedNoNetwork">
 		Errore di rete: Non è stato possibile stabilire un collegamento, controlla la tua connessione.
 	</string>
-	<string name="LoginFailed">
+	<string name="LoginFailedHeader">
 		Accesso non riuscito.
 	</string>
 	<string name="Quit">
@@ -352,6 +352,24 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="TestingDisconnect">
 		Verifica scollegamento viewer
+	</string>
+	<string name="SocialFacebookConnecting">
+		Connessione a Facebook in corso...
+	</string>
+	<string name="SocialFacebookPosting">
+		Caricamento post...
+	</string>
+	<string name="SocialFacebookDisconnecting">
+		Disconnessione da Facebook in corso...
+	</string>
+	<string name="SocialFacebookErrorConnecting">
+		Problemi con la connessione a Facebook
+	</string>
+	<string name="SocialFacebookErrorPosting">
+		Problemi con la connessione a Facebook
+	</string>
+	<string name="SocialFacebookErrorDisconnecting">
+		Problemi con la disconnessione da Facebook
 	</string>
 	<string name="SocialFlickrConnecting">
 		Collegamento a Flickr...
@@ -666,9 +684,6 @@ possono essere allegati ai biglietti.
 	</string>
 	<string name="GroupNameNone">
 		(nessuno)
-	</string>
-	<string name="AvalineCaller">
-		Chiamante Avaline [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		Nessun errore
@@ -2557,8 +2572,20 @@ Se continui a ricevere questo messaggio, contatta l&apos;assistenza Second Life 
 	<string name="NoPicksClassifiedsText">
 		Non hai creato luoghi preferiti né inserzioni. Clicca il pulsante + qui sotto per creare un luogo preferito o un&apos;inserzione.
 	</string>
+	<string name="NoPicksText">
+		Non hai creato Luoghi preferiti. Fai clic sul pulsante Nuovo per creare un Luogo preferito.
+	</string>
+	<string name="NoClassifiedsText">
+		Non hai creato Annunci. Fai clic sul pulsante Nuovo per creare un Annuncio.
+	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		L&apos;utente non ha luoghi preferiti né inserzioni
+	</string>
+	<string name="NoAvatarPicksText">
+		L&apos;utente non ha luoghi preferiti
+	</string>
+	<string name="NoAvatarClassifiedsText">
+		L&apos;utente non ha annunci
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Caricamento in corso...
@@ -4473,6 +4500,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="inventory_folder_offered-im">
 		Offerta cartella di inventario &quot;[ITEM_NAME]&quot;
+	</string>
+	<string name="facebook_post_success">
+		Hai pubblicato su Facebook.
 	</string>
 	<string name="flickr_post_success">
 		Hai pubblicato su Flickr.

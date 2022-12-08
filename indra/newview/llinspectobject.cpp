@@ -28,16 +28,17 @@
 #include "llinspectobject.h"
 
 // Viewer
+#include "llagent.h"            // To standup
 #include "llfloatersidepanelcontainer.h"
 #include "llinspect.h"
 #include "llmediaentry.h"
-#include "llnotificationsutil.h"	// *TODO: Eliminate, add LLNotificationsUtil wrapper
 #include "llselectmgr.h"
 #include "llslurl.h"
 #include "llviewermenu.h"		// handle_object_touch(), handle_buy()
 #include "llviewermedia.h"
 #include "llviewermediafocus.h"
 #include "llviewerobjectlist.h"	// to select the requested object
+#include "llvoavatarself.h"
 
 // Linden libraries
 #include "llbutton.h"			// setLabel(), not virtual!
@@ -49,7 +50,6 @@
 #include "lltextbox.h"			// for description truncation
 #include "lltoggleablemenu.h"
 #include "lltrans.h"
-#include "llui.h"				// positionViewNearMouse()
 #include "lluictrl.h"
 
 class LLViewerObject;
@@ -197,17 +197,8 @@ void LLInspectObject::onOpen(const LLSD& data)
 	{
 		mObjectFace = data["object_face"];
 	}
-	// Position the inspector relative to the mouse cursor
-	// Similar to how tooltips are positioned
-	// See LLToolTipMgr::createToolTip
-	if (data.has("pos"))
-	{
-		LLUI::getInstance()->positionViewNearMouse(this, data["pos"]["x"].asInteger(), data["pos"]["y"].asInteger());
-	}
-	else
-	{
-		LLUI::getInstance()->positionViewNearMouse(this);
-	}
+
+	LLInspect::repositionInspector(data);
 
 	// Promote hovered object to a complete selection, which will also force
 	// a request for selected object data off the network
@@ -635,7 +626,31 @@ void LLInspectObject::onClickTouch()
 
 void LLInspectObject::onClickSit()
 {
-	handle_object_sit_or_stand();
+    bool is_sitting = false;
+    if (mObjectSelection)
+    {
+        LLSelectNode* node = mObjectSelection->getFirstRootNode();
+        if (node && node->mValid)
+        {
+            LLViewerObject* root_object = node->getObject();
+            if (root_object
+                && isAgentAvatarValid()
+                && gAgentAvatarp->isSitting()
+                && gAgentAvatarp->getRoot() == root_object)
+            {
+                is_sitting = true;
+            }
+        }
+    }
+
+    if (is_sitting)
+    {
+        gAgent.standUp();
+    }
+    else
+    {
+        handle_object_sit(mObjectID);
+    }
 	closeFloater();
 }
 

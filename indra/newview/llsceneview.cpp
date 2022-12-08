@@ -266,14 +266,11 @@ void LLSceneView::draw()
 
 			U32 count = triangles[idx].size();
 
-			U32 total = 0;
-
 			gGL.begin(LLRender::LINE_STRIP);
 			//plot triangles
 			for (U32 i = 0; i < count; ++i)
 			{
 				U32 tri_count = triangles[idx][i];
-				total += tri_count;	
 				F32 y = (F32) (tri_count-tri_domain[0])/triangle_range*tri_rect.getHeight()+tri_rect.mBottom;
 				F32 x = (F32) i / count * tri_rect.getWidth() + tri_rect.mLeft;
 
@@ -290,14 +287,7 @@ void LLSceneView::draw()
 			gGL.end();
 			gGL.flush();
 
-			U32 total_visible = 0;
 			count = visible_triangles[idx].size();
-
-			for (U32 i = 0; i < count; ++i)
-			{
-				U32 tri_count = visible_triangles[idx][i];
-				total_visible += tri_count;	
-			}
 
 			std::string label = llformat("%s Object Triangle Counts (Ktris) -- Visible: %.2f/%.2f (%.2f KB Visible)",
 				category[idx], total_visible_triangles[idx]/1024.f, total_triangles[idx]/1024.f, total_visible_bytes[idx]/1024.f);

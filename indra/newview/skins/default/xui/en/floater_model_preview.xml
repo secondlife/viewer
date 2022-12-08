@@ -830,6 +830,7 @@
                         <combo_item name="physics_medium"> Medium </combo_item>
                         <combo_item name="physics_low">    Low    </combo_item>
                         <combo_item name="physics_lowest"> Lowest </combo_item>
+                        <combo_item name="physics_bounding_box"> Bounding Box </combo_item>
                         <combo_item name="load_from_file"> From file   </combo_item>
                     </combo_box>
                     <line_editor

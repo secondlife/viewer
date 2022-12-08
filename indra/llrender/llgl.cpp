@@ -60,11 +60,11 @@
 
 
 BOOL gDebugSession = FALSE;
+BOOL gDebugGLSession = FALSE;
 BOOL gClothRipple = FALSE;
 BOOL gHeadlessClient = FALSE;
 BOOL gNonInteractive = FALSE;
 BOOL gGLActive = FALSE;
-BOOL gGLDebugLoggingEnabled = TRUE;
 
 static const std::string HEADLESS_VENDOR_STRING("Linden Lab");
 static const std::string HEADLESS_RENDERER_STRING("Headless");
@@ -86,34 +86,30 @@ void APIENTRY gl_debug_callback(GLenum source,
                                 const GLchar* message,
                                 GLvoid* userParam)
 {
-	if (gGLDebugLoggingEnabled)
-	{
-
-        if (severity != GL_DEBUG_SEVERITY_HIGH_ARB &&
-            severity != GL_DEBUG_SEVERITY_MEDIUM_ARB &&
-            severity != GL_DEBUG_SEVERITY_LOW_ARB)
-        { //suppress out-of-spec messages sent by nvidia driver (mostly vertexbuffer hints)
-            return;
-        }
-
-	    if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
-	    {
-		    LL_WARNS() << "----- GL ERROR --------" << LL_ENDL;
-	    }
-	    else
-	    {
-		    LL_WARNS() << "----- GL WARNING -------" << LL_ENDL;
-	    }
-	    LL_WARNS() << "Type: " << std::hex << type << LL_ENDL;
-	    LL_WARNS() << "ID: " << std::hex << id << LL_ENDL;
-	    LL_WARNS() << "Severity: " << std::hex << severity << LL_ENDL;
-	    LL_WARNS() << "Message: " << message << LL_ENDL;
-	    LL_WARNS() << "-----------------------" << LL_ENDL;
-	    if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
-	    {
-		    LL_ERRS() << "Halting on GL Error" << LL_ENDL;
-	    }
+    if (severity != GL_DEBUG_SEVERITY_HIGH_ARB &&
+        severity != GL_DEBUG_SEVERITY_MEDIUM_ARB &&
+        severity != GL_DEBUG_SEVERITY_LOW_ARB)
+    { //suppress out-of-spec messages sent by nvidia driver (mostly vertexbuffer hints)
+        return;
     }
+
+	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
+	{
+		LL_WARNS() << "----- GL ERROR --------" << LL_ENDL;
+	}
+	else
+	{
+		LL_WARNS() << "----- GL WARNING -------" << LL_ENDL;
+	}
+	LL_WARNS() << "Type: " << std::hex << type << LL_ENDL;
+	LL_WARNS() << "ID: " << std::hex << id << LL_ENDL;
+	LL_WARNS() << "Severity: " << std::hex << severity << LL_ENDL;
+	LL_WARNS() << "Message: " << message << LL_ENDL;
+	LL_WARNS() << "-----------------------" << LL_ENDL;
+	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
+	{
+		LL_ERRS() << "Halting on GL Error" << LL_ENDL;
+	}
 }
 #endif
 
@@ -747,6 +743,14 @@ bool LLGLManager::initGL()
 		LL_WARNS("RenderInit") << "GL Drivers do not support GL_ARB_multitexture" << LL_ENDL;
 		return false;
 	}
+
+    if (!mHasFramebufferObject)
+    {
+        mHasRequirements = FALSE;
+
+        LL_WARNS("RenderInit") << "GL Drivers do not support GL_ARB_framebuffer_object" << LL_ENDL;
+        return false;
+    }
 	
 	stop_glerror();
 
@@ -762,12 +766,6 @@ bool LLGLManager::initGL()
 
 	//HACK always disable texture multisample, use FXAA instead
 	mHasTextureMultisample = FALSE;
-#if LL_WINDOWS
-	if (mIsIntel && mGLVersion <= 3.f)
-	{ //never try to use framebuffer objects on older intel drivers (crashy)
-		mHasFramebufferObject = FALSE;
-	}
-#endif
 
 	if (mHasFramebufferObject)
 	{
