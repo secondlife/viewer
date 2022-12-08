@@ -37,11 +37,17 @@ struct sleepy_robin: public boost::fibers::algo::round_robin
 {
     virtual void suspend_until( std::chrono::steady_clock::time_point const&) noexcept
     {
+#if LL_WINDOWS
         // round_robin holds a std::condition_variable, and
         // round_robin::suspend_until() calls
         // std::condition_variable::wait_until(). On Windows, that call seems
         // busier than it ought to be. Try just sleeping.
         Sleep(1);
+#else
+        // currently unused other than windows, but might as well have something here
+        // different units than Sleep(), but we actually just want to sleep for any de-minimis duration
+        usleep(1);
+#endif
     }
 
     virtual void notify() noexcept
