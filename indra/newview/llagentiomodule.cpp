@@ -126,9 +126,9 @@ LLAgentIOModule::module_ptr_t LLAgentIOModule::getLeapModule() const
 
 void LLAgentIOModule::sendCommand(const std::string& command, const LLSD& args) const
 {
-    /*module_ptr_t mod = getLeapModule();
+    module_ptr_t mod = getLeapModule();
     if (mod)
-    {*/
+    {
         LLSD data;
         data["command"] = command;
         // args is optional
@@ -138,12 +138,11 @@ void LLAgentIOModule::sendCommand(const std::string& command, const LLSD& args) 
         }
         LL_DEBUGS("AgentIO") << "Posting " << command << " to Leap module" << LL_ENDL;
         LLEventPumps::instance().post("agentio.controller", data);
-/*    }
+    }
     else
     {
         LL_WARNS("AgentIO") << "AgentIO module not loaded, dropping " << command << " command" << LL_ENDL;
     }
- */
 }
 
 LLAgentIORegistrar::LLAgentIORegistrar() :
