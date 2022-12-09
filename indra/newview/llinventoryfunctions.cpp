@@ -799,6 +799,7 @@ void show_item_original(const LLUUID& item_uuid)
         {
             LLFloaterReg::toggleInstanceOrBringToFront("inventory");
         }
+        sidepanel_inventory->showInventoryPanel();
 
         const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX);
         if (gInventory.isObjectDescendentOf(gInventory.getLinkedItemID(item_uuid), inbox_id))
