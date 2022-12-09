@@ -1,6 +1,6 @@
 /** 
  * @file llagentiomodule.h
- * @brief Implementation of llpuppetmodule class.
+ * @brief Implementation of llagentiomodule class.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -51,7 +51,7 @@ class LLAgentIOModule : public LLSingleton<LLAgentIOModule>,
 
     // Singleton to manage a pointer to the LLLeap module that provides agentio functions
 public:
-	LLAgentIOModule(const LL::LazyEventAPIParams& params);
+    LLAgentIOModule(const LL::LazyEventAPIParams& params);
     typedef std::shared_ptr<LLLeap> module_ptr_t;
 
     void setLeapModule(std::weak_ptr<LLLeap> mod, const std::string & module_name);
@@ -61,6 +61,7 @@ public:
     void sendCommand(const std::string& command, const LLSD& args = LLSD()) const;
 
     const std::string & getModuleName() const { return mModuleName; };
+    void sendLookAt();
 
 private:
 

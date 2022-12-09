@@ -715,6 +715,7 @@ LLDispatchListener::LLDispatchListener(const std::string& pumpname, const std::s
 
 bool LLDispatchListener::process(const LLSD& event)
 {
+    LL_INFOS("SPATTERS") << "Received event: " << ll_pretty_print_sd(event) << LL_ENDL;
     (*this)(event);
     return false;
 }

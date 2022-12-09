@@ -39,8 +39,10 @@
 #include "llevents.h"
 #include "llleap.h"
 #include "llsdutil.h"
+#include "llsdutil_math.h"
 
-static LLAgentIORegistrar AgentIOReg();
+static LLAgentIORegistrar AgentIOReg;
+static LLAgentIOModule* AgentIOModule;
 
 void processAgentIOGetRequest(const LLSD& data)
 {
@@ -52,18 +54,14 @@ void processAgentIOGetRequest(const LLSD& data)
 
     // always check for short format first...
     LL_INFOS("SPATTERS") << "Got to here.  Sweet!" << LL_ENDL;
-    std::string verb="g";
-    if (!data.has(verb))
+
+    if (!data.has("data"))
     {
-        // ... and long format second
-        verb = "get";
-        if (!data.has(verb))
-        {
-            LL_WARNS("AgentIO") << "malformed GET: map no 'get' key" << LL_ENDL;
-            return;
-        }
+        LL_WARNS("AgentIO") << "malformed GET: map no 'get' key" << LL_ENDL;
+        return;
     }
-    const LLSD& payload = data[verb];
+    
+    const LLSD& payload = data["data"];
     if (!payload.isArray())
     {
         LL_WARNS("AgentIO") << "malformed GET: 'get' value not array" << LL_ENDL;
@@ -81,6 +79,7 @@ void processAgentIOGetRequest(const LLSD& data)
         else if ( *itr == "l" || *itr == "look_at" )
         {
             //TODO:  Return lookat target ...  What to do if no target?
+            AgentIOModule->sendLookAt();
         }
         else if ( *itr == "a" || *itr == "agent" )
         {
@@ -93,10 +92,22 @@ void processAgentIOGetRequest(const LLSD& data)
     }
 }
 
+void LLAgentIOModule::sendLookAt()
+{
+    LLSD dat = LLSD::emptyMap();
+    LLVector3 direction(1.0f, 0.3f, 0.4f);
+    dat["SPATTERS"]="it me";
+    dat["direction"]=ll_sd_from_vector3(direction);
+    sendCommand("look_at", dat);
+}
+
 LLAgentIOModule::LLAgentIOModule(const LL::LazyEventAPIParams& params) :
     LLEventAPI(params),
     mLeapModule()
 {
+    //NOTE: This debug line ensures the module gets linked.
+    LL_DEBUGS("LeapAgentIO") << "Initialized." << LL_ENDL;
+    AgentIOModule = this;
 }
 
 
@@ -115,9 +126,9 @@ LLAgentIOModule::module_ptr_t LLAgentIOModule::getLeapModule() const
 
 void LLAgentIOModule::sendCommand(const std::string& command, const LLSD& args) const
 {
-    module_ptr_t mod = getLeapModule();
+    /*module_ptr_t mod = getLeapModule();
     if (mod)
-    {
+    {*/
         LLSD data;
         data["command"] = command;
         // args is optional
@@ -127,18 +138,13 @@ void LLAgentIOModule::sendCommand(const std::string& command, const LLSD& args) 
         }
         LL_DEBUGS("AgentIO") << "Posting " << command << " to Leap module" << LL_ENDL;
         LLEventPumps::instance().post("agentio.controller", data);
-    }
+/*    }
     else
     {
         LL_WARNS("AgentIO") << "AgentIO module not loaded, dropping " << command << " command" << LL_ENDL;
     }
+ */
 }
-
-/*
-LLAgentIOModule::LLAgentIOModule(const LL::LazyEventAPIParams& params) :
-	mLeapModule()
-{
-}*/
 
 LLAgentIORegistrar::LLAgentIORegistrar() :
 	LazyEventAPI("agentio",
@@ -162,11 +168,11 @@ LLAgentIORegistrar::LLAgentIORegistrar() :
 		&processAgentIOGetRequest);
 
 	//This function defines viewer-internal API endpoints for this event handler.
-//    mPlugin = LLEventPumps::instance().obtain("SkeletonUpdate").listen(
-//                    "LLAgentIOModule",
-//                    [](const LLSD& unused)
-//                    {
-//                        LLAgentIOModule::instance().send_skeleton();
-//                        return false;
-//                    });
+    /*mPlugin = LLEventPumps::instance().obtain("look_at").listen(
+                    "LLAgentIOModule",
+                    [](const LLSD& unused)
+                   {
+                        LLAgentIOModule::instance().sendLookAt();
+                        return false;
+                    });*/
 }
