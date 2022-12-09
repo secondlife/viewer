@@ -2587,9 +2587,13 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 		LLFloater::setFloaterHost(multi_propertiesp);
 	}
 
-	std::set<LLUUID> selected_uuid_set = LLAvatarActions::getInventorySelectedUUIDs();
     uuid_vec_t ids;
-    std::copy(selected_uuid_set.begin(), selected_uuid_set.end(), std::back_inserter(ids));
+    for (std::set<LLFolderViewItem*>::iterator it = selected_items.begin(), end_it = selected_items.end();
+        it != end_it;
+        ++it)
+    {
+        ids.push_back(static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID());
+    }
     // Check for actions that get handled in bulk
     if (action == "wear")
     {
@@ -2648,7 +2652,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     }
     else if ("ungroup_folder_items" == action)
     {
-        if (selected_uuid_set.size() == 1)
+        if (ids.size() == 1)
         {
             LLInventoryCategory* inv_cat = gInventory.getCategory(*ids.begin());
             if (!inv_cat || LLFolderType::lookupIsProtectedType(inv_cat->getPreferredType()))
