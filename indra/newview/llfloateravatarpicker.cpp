@@ -680,7 +680,12 @@ void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& 
         // clear "Searching" label on first results
         search_results->deleteAllItems();
 
-        if (content.has("agents"))
+        if (content.has("failure_reason"))
+        {
+            getChild<LLScrollListCtrl>("SearchResults")->setCommentText(content["failure_reason"].asString());
+            getChildView("ok_btn")->setEnabled(false);
+        }
+        else
         {
             LLSD agents = content["agents"];
 
@@ -732,10 +737,6 @@ void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& 
                 onList();
                 search_results->setFocus(TRUE);
             }
-        }
-        else if (content.has("failure_reason"))
-        {
-            getChild<LLScrollListCtrl>("SearchResults")->setCommentText(content["failure_reason"].asString());
         }
 	}
 }
