@@ -245,6 +245,7 @@ protected:
 	static void* createScriptEdPanel(void* userdata);
 
     static void finishedLSLUpload(LLUUID itemId, LLSD response);
+    static bool failedLSLUpload(LLUUID itemId, LLUUID taskId, LLSD response, std::string reason);
 protected:
 
 	// Can safely close only after both text and bytecode are uploaded

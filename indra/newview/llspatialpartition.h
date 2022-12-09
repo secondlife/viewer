@@ -434,7 +434,7 @@ public:
 	LLSpatialBridge* asBridge() { return mBridge; }
 	BOOL isBridge() { return asBridge() != NULL; }
 
-	void renderPhysicsShapes();
+	void renderPhysicsShapes(bool depth_only);
 	void renderDebug();
 	void renderIntersectingBBoxes(LLCamera* camera);
 	void restoreGL();

@@ -1,4 +1,4 @@
-version 41
+version 42
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -71,6 +71,7 @@ RenderFSAASamples			1	16
 RenderMaxTextureIndex		1	16
 RenderGLContextCoreProfile         1   1
 RenderGLMultiThreaded       1   0
+RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	2
 
 //
@@ -97,7 +98,8 @@ RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	0
-RenderReflectionProbeDetail	1	-1
+RenderReflectionsEnabled    1   0
+RenderReflectionProbeDetail	1	0
 
 //
 // Medium Low Graphics Settings
@@ -122,7 +124,8 @@ RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	0
-RenderReflectionProbeDetail	1	-1
+RenderReflectionsEnabled    1   0
+RenderReflectionProbeDetail	1	0
 
 //
 // Medium Graphics Settings (standard)
@@ -147,6 +150,7 @@ RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	2
+RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 
 //
@@ -172,6 +176,7 @@ RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	2
+RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 
 //
@@ -197,6 +202,7 @@ RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	2
+RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
 
 //
@@ -222,6 +228,7 @@ RenderShadowDetail			1	2
 RenderUseAdvancedAtmospherics 1 0
 WLSkyDetail					1	48
 RenderFSAASamples			1	2
+RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
 
 //
@@ -247,6 +254,7 @@ RenderDeferredSSAO			1	1
 RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	2
 RenderFSAASamples			1	2
+RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
 
 //
@@ -291,4 +299,5 @@ RenderFSAASamples			1	0
 
 list GL3
 RenderFSAASamples           0   0
-RenderReflectionProbeDetail	0	-1
+RenderReflectionProbeDetail	0	0
+RenderReflectionsEnabled    0   0

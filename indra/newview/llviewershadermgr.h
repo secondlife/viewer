@@ -211,6 +211,8 @@ extern LLGLSLShader			gObjectShinyProgram;
 extern LLGLSLShader			gObjectShinyWaterProgram;
 
 //environment shaders
+extern LLGLSLShader			gMoonProgram;
+extern LLGLSLShader			gStarsProgram;
 extern LLGLSLShader			gTerrainProgram;
 extern LLGLSLShader			gTerrainWaterProgram;
 extern LLGLSLShader			gWaterProgram;
@@ -292,8 +294,10 @@ extern LLGLSLShader			gDeferredAlphaProgram;
 extern LLGLSLShader			gDeferredAlphaImpostorProgram;
 extern LLGLSLShader			gDeferredFullbrightProgram;
 extern LLGLSLShader			gDeferredFullbrightAlphaMaskProgram;
+extern LLGLSLShader			gDeferredFullbrightAlphaMaskAlphaProgram;
 extern LLGLSLShader			gDeferredAlphaWaterProgram;
 extern LLGLSLShader			gDeferredFullbrightWaterProgram;
+extern LLGLSLShader			gDeferredFullbrightWaterAlphaProgram;
 extern LLGLSLShader			gDeferredFullbrightAlphaMaskWaterProgram;
 extern LLGLSLShader			gDeferredEmissiveProgram;
 extern LLGLSLShader			gDeferredAvatarEyesProgram;

@@ -182,12 +182,62 @@ LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tiny
     return rawImage;
 }
 
+S32 LLTinyGLTFHelper::getMaterialCountFromFile(const std::string& filename)
+{
+    std::string exten = gDirUtilp->getExtension(filename);
+    S32 materials_in_file = 0;
+
+    if (exten == "gltf" || exten == "glb")
+    {
+        tinygltf::TinyGLTF loader;
+        std::string        error_msg;
+        std::string        warn_msg;
+
+        tinygltf::Model model_in;
+
+        std::string filename_lc = filename;
+        LLStringUtil::toLower(filename_lc);
+
+        // Load a tinygltf model fom a file. Assumes that the input filename has already been
+        // been sanitized to one of (.gltf , .glb) extensions, so does a simple find to distinguish.
+        bool decode_successful = false;
+        if (std::string::npos == filename_lc.rfind(".gltf"))
+        {  // file is binary
+            decode_successful = loader.LoadBinaryFromFile(&model_in, &error_msg, &warn_msg, filename_lc);
+        }
+        else
+        {  // file is ascii
+            decode_successful = loader.LoadASCIIFromFile(&model_in, &error_msg, &warn_msg, filename_lc);
+        }
+
+        if (!decode_successful)
+        {
+            LL_WARNS("GLTF") << "Cannot load, error: Failed to decode" << error_msg
+                << ", warning:" << warn_msg
+                << " file: " << filename
+                << LL_ENDL;
+            return 0;
+        }
+
+        if (model_in.materials.empty())
+        {
+            // materials are missing
+            LL_WARNS("GLTF") << "Cannot load. File has no materials " << filename << LL_ENDL;
+            return 0;
+        }
+        materials_in_file = model_in.materials.size();
+    }
+    return materials_in_file;
+}
+
 bool LLTinyGLTFHelper::getMaterialFromFile(
     const std::string& filename,
     S32 mat_index,
-    LLPointer < LLFetchedGLTFMaterial> material,
+    LLFetchedGLTFMaterial* material,
     std::string& material_name)
 {
+    llassert(material);
+
     tinygltf::TinyGLTF loader;
     std::string        error_msg;
     std::string        warn_msg;
@@ -304,5 +354,4 @@ bool LLTinyGLTFHelper::getMaterialFromFile(
     }
 
     return true;
-
 }

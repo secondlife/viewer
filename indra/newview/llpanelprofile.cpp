@@ -1864,7 +1864,6 @@ void LLPanelProfileSecondLife::onShowTexturePicker()
                 "SELECT PHOTO",
                 PERM_NONE,
                 PERM_NONE,
-                PERM_NONE,
                 FALSE,
                 NULL);
 
@@ -2203,7 +2202,6 @@ void LLPanelProfileFirstLife::onChangePhoto()
                 FALSE,
                 FALSE,
                 "SELECT PHOTO",
-                PERM_NONE,
                 PERM_NONE,
                 PERM_NONE,
                 FALSE,

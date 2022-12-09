@@ -1686,6 +1686,32 @@ void LLPreviewLSL::finishedLSLUpload(LLUUID itemId, LLSD response)
     }
 }
 
+bool LLPreviewLSL::failedLSLUpload(LLUUID itemId, LLUUID taskId, LLSD response, std::string reason)
+{
+    LLSD floater_key;
+    if (taskId.notNull())
+    {
+        floater_key["taskid"] = taskId;
+        floater_key["itemid"] = itemId;
+    }
+    else
+    {
+        floater_key = LLSD(itemId);
+    }
+
+    LLPreviewLSL* preview = LLFloaterReg::findTypedInstance<LLPreviewLSL>("preview_script", floater_key);
+    if (preview)
+    {
+        // unfreeze floater
+        LLSD errors;
+        errors.append(LLTrans::getString("UploadFailed") + reason);
+        preview->callbackLSLCompileFailed(errors);
+        return true;
+    }
+
+    return false;
+}
+
 // Save needs to compile the text in the buffer. If the compile
 // succeeds, then save both assets out to the database. If the compile
 // fails, go ahead and save the text anyway.
@@ -1723,7 +1749,8 @@ void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
                 [old_asset_id](LLUUID itemId, LLUUID, LLUUID, LLSD response) {
                     LLFileSystem::removeFile(old_asset_id, LLAssetType::AT_LSL_TEXT);
                     LLPreviewLSL::finishedLSLUpload(itemId, response);
-                }));
+                },
+                LLPreviewLSL::failedLSLUpload));
 
             LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
         }
@@ -2282,7 +2309,8 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
                 [isRunning, old_asset_id](LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response) { 
                         LLFileSystem::removeFile(old_asset_id, LLAssetType::AT_LSL_TEXT);
                         LLLiveLSLEditor::finishLSLUpload(itemId, taskId, newAssetId, response, isRunning);
-                }));
+                },
+                nullptr)); // needs failure handling?
 
         LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
     }

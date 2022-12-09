@@ -74,10 +74,12 @@ U32 vbo_block_size(U32 size)
 
 U32 vbo_block_index(U32 size)
 {
-	return vbo_block_size(size)/LL_VBO_BLOCK_SIZE;
+    U32 blocks = vbo_block_size(size)/LL_VBO_BLOCK_SIZE;   // block count reqd
+    llassert(blocks > 0);
+    return blocks - 1;  // Adj index, i.e. single-block allocations are at index 0, etc
 }
 
-const U32 LL_VBO_POOL_SEED_COUNT = vbo_block_index(LL_VBO_POOL_MAX_SEED_SIZE);
+const U32 LL_VBO_POOL_SEED_COUNT = vbo_block_index(LL_VBO_POOL_MAX_SEED_SIZE) + 1;
 
 
 //============================================================================
@@ -120,7 +122,6 @@ bool LLVertexBuffer::sUseStreamDraw = true;
 bool LLVertexBuffer::sUseVAO = false;
 bool LLVertexBuffer::sPreferStreamDraw = false;
 
-
 U32 LLVBOPool::genBuffer()
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX
@@ -151,8 +152,9 @@ void LLVBOPool::deleteBuffer(U32 name)
 
 
 LLVBOPool::LLVBOPool(U32 vboUsage, U32 vboType)
-: mUsage(vboUsage), mType(vboType)
+: mUsage(vboUsage), mType(vboType), mMissCountDirty(true)
 {
+    mFreeList.resize(LL_VBO_POOL_SEED_COUNT);
 	mMissCount.resize(LL_VBO_POOL_SEED_COUNT);
 	std::fill(mMissCount.begin(), mMissCount.end(), 0);
 }
@@ -181,6 +183,7 @@ U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 		if (!for_seed && i < LL_VBO_POOL_SEED_COUNT)
 		{ //record this miss
 			mMissCount[i]++;	
+            mMissCountDirty = true;  // signal to ::seedPool()
 		}
 
 		if (mType == GL_ARRAY_BUFFER)
@@ -200,13 +203,13 @@ U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 				ret = (U8*) ll_aligned_malloc<64>(size);
 				if (!ret)
 				{
-					LL_ERRS() << "Failed to allocate "<< size << " bytes for LLVBOPool buffer " << name <<"." << LL_NEWLINE
-							  << "Free list size: " << mFreeList.size() // this happens if we are out of memory so a solution might be to clear some from freelist
+                    LL_ERRS()
+                        << "Failed to allocate " << size << " bytes for LLVBOPool buffer " << name << "." << LL_NEWLINE
+                        << "Free list size: "
+                        << mFreeList.size()  // this happens if we are out of memory so a solution might be to clear some from freelist
 							  << " Allocated Bytes: " << LLVertexBuffer::sAllocatedBytes
-							  << " Allocated Index Bytes: " << LLVertexBuffer::sAllocatedIndexBytes
-							  << " Pooled Bytes: " << sBytesPooled
-							  << " Pooled Index Bytes: " << sIndexBytesPooled
-							  << LL_ENDL;
+                        << " Allocated Index Bytes: " << LLVertexBuffer::sAllocatedIndexBytes << " Pooled Bytes: " << sBytesPooled
+                        << " Pooled Index Bytes: " << sIndexBytesPooled << LL_ENDL;
 				}
 			}
 		}
@@ -234,6 +237,7 @@ U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 				sIndexBytesPooled += size;
 			}
 			mFreeList[i].push_back(rec);
+            mMissCountDirty = true;  // signal to ::seedPool()
 		}
 	}
 	else
@@ -251,6 +255,7 @@ U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 		}
 
 		mFreeList[i].pop_front();
+        mMissCountDirty = true;  // signal to ::seedPool()
 	}
 
 	return ret;
@@ -276,30 +281,26 @@ void LLVBOPool::release(U32 name, U8* buffer, U32 size)
 void LLVBOPool::seedPool()
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX
-	U32 dummy_name = 0;
-
-	if (mFreeList.size() < LL_VBO_POOL_SEED_COUNT)
+    if (mMissCountDirty)
 	{
-		LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("VBOPool Resize");
-		mFreeList.resize(LL_VBO_POOL_SEED_COUNT);
-	}
+	U32 dummy_name = 0;
+        U32 size       = LL_VBO_BLOCK_SIZE;
 
 	for (U32 i = 0; i < LL_VBO_POOL_SEED_COUNT; i++)
 	{
 		if (mMissCount[i] > mFreeList[i].size())
 		{ 
-			U32 size = i*LL_VBO_BLOCK_SIZE;
-		
 			S32 count = mMissCount[i] - mFreeList[i].size();
 			for (U32 j = 0; j < count; ++j)
 			{
 				allocate(dummy_name, size, true);
 			}
 		}
+            size += LL_VBO_BLOCK_SIZE;
+        }
+        mMissCountDirty = false;
 	}
 }
-
-
 
 void LLVBOPool::cleanup()
 {
@@ -478,7 +479,7 @@ void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos)
     }
     gGL.end();
     gGL.flush();
-}
+		}
 
 //static
 void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, S32 num_indices, const U16* indicesp)
@@ -514,7 +515,7 @@ void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVecto
             U16 idx = indicesp[i];
             gGL.vertex3fv(pos[idx].getF32ptr());
         }
-    }
+}
     gGL.end();
     gGL.flush();
 }
@@ -709,10 +710,10 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
     llassert(mNumVerts >= 0);
-    if (first >= (U32)mNumVerts ||
-        first + count > (U32)mNumVerts)
+	if (first >= (U32) mNumVerts ||
+	    first + count > (U32) mNumVerts)
     {
-        LL_ERRS() << "Bad vertex buffer draw range: [" << first << ", " << first + count << "]" << LL_ENDL;
+		LL_ERRS() << "Bad vertex buffer draw range: [" << first << ", " << first+count << "]" << LL_ENDL;
     }
 
     if (mGLArray)
@@ -792,6 +793,11 @@ void LLVertexBuffer::cleanupClass()
 	sStreamVBOPool.cleanup();
 	sDynamicVBOPool.cleanup();
 	sDynamicCopyVBOPool.cleanup();
+
+    llassert(0 == LLVBOPool::sBytesPooled);
+    llassert(0 == LLVBOPool::sIndexBytesPooled);
+    //llassert(0 == sAllocatedBytes);
+    //llassert(0 == sAllocatedIndexBytes);
 }
 
 //----------------------------------------------------------------------------
@@ -2381,10 +2387,10 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
 	}	
 
 	llglassertok();
-}
+	}	
 
 void LLVertexBuffer::setupVertexBufferFast(U32 data_mask)
-{
+	{
     U8* base = (U8*)mAlignedOffset;
 
     if (data_mask & MAP_NORMAL)
@@ -2472,7 +2478,7 @@ void LLVertexBuffer::setupVertexBufferFast(U32 data_mask)
         void* ptr = (void*)(base + mOffsets[TYPE_VERTEX]);
         glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
     }
-}
+	}
 
 LLVertexBuffer::MappedRegion::MappedRegion(S32 type, S32 index, S32 count)
 : mType(type), mIndex(index), mCount(count)

@@ -319,6 +319,11 @@ Only items with unrestricted
 'next owner' permissions
 can be attached to notecards.
 	</string>
+	<string name="TooltipTextureRestrictedDrop">
+Only textures with unrestricted
+copy and transfer permissions
+are allowed.
+	</string>
 
 	<!-- searching - generic -->
 	<string name="Searching">Searching...</string>

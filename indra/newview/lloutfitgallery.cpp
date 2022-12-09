@@ -1360,7 +1360,6 @@ void LLOutfitGallery::onSelectPhoto(LLUUID selected_outfit_id)
                 "SELECT PHOTO",
                 PERM_NONE,
                 PERM_NONE,
-                PERM_NONE,
                 FALSE,
                 NULL);
 

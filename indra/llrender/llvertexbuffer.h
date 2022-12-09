@@ -88,6 +88,7 @@ public:
 	typedef std::list<Record> record_list_t;
 	std::vector<record_list_t> mFreeList;
 	std::vector<U32> mMissCount;
+    bool mMissCountDirty;   // flag any changes to mFreeList or mMissCount
 
 	//used to avoid calling glGenBuffers for every VBO creation
 	static U32 sNamePool[1024];

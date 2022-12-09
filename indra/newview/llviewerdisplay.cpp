@@ -742,18 +742,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
             glClear(GL_DEPTH_BUFFER_BIT); // | GL_STENCIL_BUFFER_BIT);
 		}
 
-		LLGLState::checkStates();
-
-		//if (!for_snapshot)
-		{
-			LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("display - 3")
-			LLAppViewer::instance()->pingMainloopTimeout("Display:Imagery");
-			gPipeline.generateHighlight(*LLViewerCamera::getInstance());
-			gPipeline.renderPhysicsDisplay();
-		}
-
-		LLGLState::checkStates();
-
 		//////////////////////////////////////
 		//
 		// Update images, using the image stats generated during object update/culling

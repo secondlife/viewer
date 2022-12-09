@@ -103,6 +103,7 @@ public:
     void loadAsset() override;
     // @index if -1 and file contains more than one material,
     // will promt to select specific one
+    static void uploadMaterialFromFile(const std::string& filename, S32 index);
     static void loadMaterialFromFile(const std::string& filename, S32 index = -1);
 
     void onSelectionChanged(); // live overrides selection changes
@@ -115,14 +116,13 @@ public:
     static void savePickedMaterialAs();
     static void onSaveObjectsMaterialAsMsgCallback(const LLSD& notification, const LLSD& response);
 
-    static void loadFromGLTFMaterial(LLUUID &asset_id);
-
     static void onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType type, void* user_data, S32 status, LLExtStat ext_status);
 
     void inventoryChanged(LLViewerObject* object, LLInventoryObject::object_list_t* inventory, S32 serial_num, void* user_data) override;
 
     typedef std::function<void(LLUUID newAssetId, LLSD response)> upload_callback_f;
     void saveTexture(LLImageJ2C* img, const std::string& name, const LLUUID& asset_id, upload_callback_f cb);
+    void setFailedToUploadTexture();
 
     // save textures to inventory if needed
     // returns amount of scheduled uploads
@@ -242,7 +242,7 @@ private:
     void setFromGLTFMaterial(LLGLTFMaterial* mat);
     bool setFromSelection();
 
-    void loadMaterial(const tinygltf::Model &model, const std::string &filename_lc, S32 index);
+    void loadMaterial(const tinygltf::Model &model, const std::string &filename_lc, S32 index, bool open_floater = true);
 
     friend class LLMaterialFilePicker;
 
@@ -294,6 +294,7 @@ private:
     U32 mRevertedChanges; // flags to indicate individual reverted parameters
     S32 mUploadingTexturesCount;
     S32 mExpectedUploadCost;
+    bool mUploadingTexturesFailure;
     std::string mMaterialNameShort;
     std::string mMaterialName;
 

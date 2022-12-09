@@ -148,7 +148,6 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	const std::string& label,
 	PermissionMask immediate_filter_perm_mask,
 	PermissionMask dnd_filter_perm_mask,
-	PermissionMask non_immediate_filter_perm_mask,
 	BOOL can_apply_immediately,
 	LLUIImagePtr fallback_image)
 :	LLFloater(LLSD()),
@@ -167,7 +166,6 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mFilterEdit(NULL),
 	mImmediateFilterPermMask(immediate_filter_perm_mask),
 	mDnDFilterPermMask(dnd_filter_perm_mask),
-	mNonImmediateFilterPermMask(non_immediate_filter_perm_mask),
 	mContextConeOpacity(0.f),
 	mSelectedItemPinned( FALSE ),
 	mCanApply(true),
@@ -254,7 +252,6 @@ void LLFloaterTexturePicker::setCanApplyImmediately(BOOL b)
 	mCanApplyImmediately = b;
 
 	getChild<LLUICtrl>("apply_immediate_check")->setValue(mCanApplyImmediately);
-	updateFilterPermMask();
 }
 
 void LLFloaterTexturePicker::stopUsingPipette()
@@ -332,7 +329,6 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 		if (mod)  item_perm_mask |= PERM_MODIFY;
 		if (xfer) item_perm_mask |= PERM_TRANSFER;
 		
-		//PermissionMask filter_perm_mask = getFilterPermMask();  Commented out due to no-copy texture loss.
 		PermissionMask filter_perm_mask = mDnDFilterPermMask;
 		if ( (item_perm_mask & filter_perm_mask) == filter_perm_mask )
 		{
@@ -488,8 +484,6 @@ BOOL LLFloaterTexturePicker::postBuild()
 	childSetAction("Cancel", LLFloaterTexturePicker::onBtnCancel,this);
 	childSetAction("Select", LLFloaterTexturePicker::onBtnSelect,this);
 
-	// update permission filter once UI is fully initialized
-	updateFilterPermMask();
 	mSavedFolderState.setApply(FALSE);
 
 	LLToolPipette::getInstance()->setToolSelectCallback(boost::bind(&LLFloaterTexturePicker::onTextureSelect, this, _1));
@@ -665,12 +659,6 @@ const LLUUID& LLFloaterTexturePicker::findItemID(const LLUUID& asset_id, BOOL co
 	}
 
 	return LLUUID::null;
-}
-
-PermissionMask LLFloaterTexturePicker::getFilterPermMask()
-{
-	bool apply_immediate = getChild<LLUICtrl>("apply_immediate_check")->getValue().asBoolean();
-	return apply_immediate ? mImmediateFilterPermMask : mNonImmediateFilterPermMask;
 }
 
 void LLFloaterTexturePicker::commitIfImmediateSet()
@@ -1051,7 +1039,6 @@ void LLFloaterTexturePicker::onApplyImmediateCheck(LLUICtrl* ctrl, void *user_da
 	LLCheckBoxCtrl* check_box = (LLCheckBoxCtrl*)ctrl;
 	gSavedSettings.setBOOL("TextureLivePreview", check_box->get());
 
-	picker->updateFilterPermMask();
 	picker->commitIfImmediateSet();
 }
 
@@ -1126,11 +1113,6 @@ void LLFloaterTexturePicker::onBakeTextureSelect(LLUICtrl* ctrl, void *user_data
 		// only commit intentional selections, not implicit ones
 		self->commitIfImmediateSet();
 	}
-}
-
-void LLFloaterTexturePicker::updateFilterPermMask()
-{
-	//mInventoryPanel->setFilterPermMask( getFilterPermMask() );  Commented out due to no-copy texture loss.
 }
 
 void LLFloaterTexturePicker::setCanApply(bool can_preview, bool can_apply)
@@ -1372,7 +1354,6 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 	mAllowNoTexture( p.allow_no_texture ),
 	mAllowLocalTexture( TRUE ),
 	mImmediateFilterPermMask( PERM_NONE ),
-	mNonImmediateFilterPermMask( PERM_NONE ),
 	mCanApplyImmediately( FALSE ),
 	mNeedsRawImageData( FALSE ),
 	mValid( TRUE ),
@@ -1552,7 +1533,6 @@ void LLTextureCtrl::showPicker(BOOL take_focus)
 			mLabel,
 			mImmediateFilterPermMask,
 			mDnDFilterPermMask,
-			mNonImmediateFilterPermMask,
 			mCanApplyImmediately,
 			mFallbackImage);
 		mFloaterHandle = floaterp->getHandle();
@@ -1635,8 +1615,16 @@ BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 		if (!mOpenTexPreview)
 		{
 			showPicker(FALSE);
-			//grab textures first...
-			LLInventoryModelBackgroundFetch::instance().start(gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE));
+            if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+            {
+                //grab materials first...
+                LLInventoryModelBackgroundFetch::instance().start(gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL));
+            }
+            else
+            {
+                //grab textures first...
+                LLInventoryModelBackgroundFetch::instance().start(gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE));
+            }
 			//...then start full inventory fetch.
 			LLInventoryModelBackgroundFetch::instance().start();
 			handled = TRUE;
@@ -1820,7 +1808,7 @@ BOOL LLTextureCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
         allow_dnd = is_texture || is_mesh || is_material;
     }
 
-	if (getEnabled() && allow_dnd && allowDrop(item))
+	if (getEnabled() && allow_dnd && allowDrop(item, cargo_type, tooltip_msg))
 	{
 		if (drop)
 		{
@@ -1972,7 +1960,7 @@ void LLTextureCtrl::draw()
 	LLUICtrl::draw();
 }
 
-BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item)
+BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item, EDragAndDropType cargo_type, std::string& tooltip_msg)
 {
 	BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
 	BOOL mod = item->getPermissions().allowModifyBy(gAgent.getID());
@@ -1984,8 +1972,6 @@ BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item)
 	if (mod)  item_perm_mask |= PERM_MODIFY;
 	if (xfer) item_perm_mask |= PERM_TRANSFER;
 	
-//	PermissionMask filter_perm_mask = mCanApplyImmediately ?			commented out due to no-copy texture loss.
-//			mImmediateFilterPermMask : mNonImmediateFilterPermMask;
 	PermissionMask filter_perm_mask = mImmediateFilterPermMask;
 	if ( (item_perm_mask & filter_perm_mask) == filter_perm_mask )
 	{
@@ -2000,6 +1986,12 @@ BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item)
 	}
 	else
 	{
+        PermissionMask mask = PERM_COPY | PERM_TRANSFER;
+        if ((filter_perm_mask & mask) == mask
+            && cargo_type == DAD_TEXTURE)
+        {
+            tooltip_msg.assign(LLTrans::getString("TooltipTextureRestrictedDrop"));
+        }
 		return FALSE;
 	}
 }

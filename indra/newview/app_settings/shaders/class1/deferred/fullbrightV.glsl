@@ -38,9 +38,7 @@ void calcAtmospherics(vec3 inPositionEye);
 vec3 atmosAmbient();
 vec3 atmosAffectDirectionalLight(float lightIntensity);
 
-#ifdef WATER_FOG
 VARYING vec3 vary_position;
-#endif
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
@@ -66,9 +64,7 @@ void main()
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 #endif
 
-#ifdef WATER_FOG
 	vary_position = pos.xyz;
-#endif
 
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	

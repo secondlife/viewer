@@ -23,6 +23,43 @@
 #include "llsd.h"
 #include "stringize.h"
 
+#include <boost/fiber/algo/round_robin.hpp>
+
+/*****************************************************************************
+*   Custom fiber scheduler for worker threads
+*****************************************************************************/
+// As of 2022-12-06, each of our worker threads only runs a single (default)
+// fiber: we don't launch explicit fibers within worker threads, nor do we
+// anticipate doing so. So a worker thread that's simply waiting for incoming
+// tasks should really sleep a little. Override the default fiber scheduler to
+// implement that.
+struct sleepy_robin: public boost::fibers::algo::round_robin
+{
+    virtual void suspend_until( std::chrono::steady_clock::time_point const&) noexcept
+    {
+#if LL_WINDOWS
+        // round_robin holds a std::condition_variable, and
+        // round_robin::suspend_until() calls
+        // std::condition_variable::wait_until(). On Windows, that call seems
+        // busier than it ought to be. Try just sleeping.
+        Sleep(1);
+#else
+        // currently unused other than windows, but might as well have something here
+        // different units than Sleep(), but we actually just want to sleep for any de-minimis duration
+        usleep(1);
+#endif
+    }
+
+    virtual void notify() noexcept
+    {
+        // Since our Sleep() call above will wake up on its own, we need not
+        // take any special action to wake it.
+    }
+};
+
+/*****************************************************************************
+*   ThreadPoolBase
+*****************************************************************************/
 LL::ThreadPoolBase::ThreadPoolBase(const std::string& name, size_t threads,
                                    WorkQueueBase* queue):
     super(name),
@@ -81,6 +118,11 @@ void LL::ThreadPoolBase::close()
 
 void LL::ThreadPoolBase::run(const std::string& name)
 {
+#if LL_WINDOWS
+    // Try using sleepy_robin fiber scheduler.
+    boost::fibers::use_scheduling_algorithm<sleepy_robin>();
+#endif // LL_WINDOWS
+
     LL_DEBUGS("ThreadPool") << name << " starting" << LL_ENDL;
     run();
     LL_DEBUGS("ThreadPool") << name << " stopping" << LL_ENDL;

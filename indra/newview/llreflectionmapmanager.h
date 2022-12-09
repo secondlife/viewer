@@ -58,6 +58,9 @@ public:
     // allocate an environment map of the given resolution 
     LLReflectionMapManager();
 
+    // release any GL state 
+    void cleanup();
+
     // maintain reflection probes
     void update();
 
@@ -93,6 +96,9 @@ public:
 
 private:
     friend class LLPipeline;
+
+    // initialize mCubeFree array to default values
+    void initCubeFree();
 
     // delete the probe with the given index in mProbes
     void deleteProbe(U32 i);

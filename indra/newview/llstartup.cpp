@@ -325,6 +325,8 @@ void set_flags_and_update_appearance()
 {
 	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
 	LLAppearanceMgr::instance().updateAppearanceFromCOF(true, true, no_op);
+
+    LLInventoryModelBackgroundFetch::instance().start();
 }
 
 // Returns false to skip other idle processing. Should only return
@@ -1434,6 +1436,9 @@ bool idle_startup()
         // These textures are not warrantied to be cached, so needs
         // to hapen with caps granted
         gTextureList.doPrefetchImages();
+
+        // will init images, should be done with caps, but before gSky.init()
+        LLEnvironment::getInstance()->initSingleton();
 
         display_startup();
 		update_texture_fetch();
@@ -2918,6 +2923,7 @@ void reset_login()
 	gAgentWearables.cleanup();
 	gAgentCamera.cleanup();
 	gAgent.cleanup();
+    gSky.cleanup(); // mVOSkyp is an inworld object.
 	LLWorld::getInstance()->resetClass();
 
 	if ( gViewerWindow )

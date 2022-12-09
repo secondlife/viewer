@@ -45,6 +45,7 @@
 #include "llxmltree.h"
 #include "message.h"
 
+#include "lldrawpoolbump.h" // to init bumpmap images
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
 #include "llviewercontrol.h"
@@ -135,9 +136,6 @@ void LLViewerTextureList::doPreloadImages()
 	//uv_test->setClamp(FALSE, FALSE);
 	//uv_test->setMipFilterNearest(TRUE, TRUE);
 
-	// prefetch specific UUIDs
-	LLViewerTextureManager::getFetchedTexture(IMG_SHOT);
-	LLViewerTextureManager::getFetchedTexture(IMG_SMOKE_POOF);
 	LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTextureFromFile("silhouette.j2c", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
 	if (image) 
 	{
@@ -206,12 +204,25 @@ void LLViewerTextureList::doPrefetchImages()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
-    LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTexture(DEFAULT_WATER_NORMAL, FTT_DEFAULT, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
-    if (imagep)
+    // todo: do not load without getViewerAssetUrl()
+    // either fail login without caps or provide this
+    // in some other way, textures won't load otherwise
+    LLViewerFetchedTexture *imagep = findImage(DEFAULT_WATER_NORMAL, TEX_LIST_STANDARD);
+    if (!imagep)
     {
-        imagep->setAddressMode(LLTexUnit::TAM_WRAP);
-        mImagePreloads.insert(imagep);
+        // add it to mImagePreloads only once
+        imagep = LLViewerTextureManager::getFetchedTexture(DEFAULT_WATER_NORMAL, FTT_DEFAULT, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
+        if (imagep)
+        {
+            imagep->setAddressMode(LLTexUnit::TAM_WRAP);
+            mImagePreloads.insert(imagep);
+        }
     }
+
+    LLViewerTextureManager::getFetchedTexture(IMG_SHOT);
+    LLViewerTextureManager::getFetchedTexture(IMG_SMOKE_POOF);
+
+    LLStandardBumpmap::addstandard();
 
     if (LLAppViewer::instance()->getPurgeCache())
 	{
