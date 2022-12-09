@@ -23,14 +23,15 @@
 #include "llsd.h"
 #include "stringize.h"
 
-LL::ThreadPool::ThreadPool(const std::string& name, size_t threads, size_t capacity):
+LL::ThreadPoolBase::ThreadPoolBase(const std::string& name, size_t threads,
+                                   WorkQueueBase* queue):
     super(name),
-    mQueue(name, capacity),
     mName("ThreadPool:" + name),
-    mThreadCount(getConfiguredWidth(name, threads))
+    mThreadCount(getConfiguredWidth(name, threads)),
+    mQueue(queue)
 {}
 
-void LL::ThreadPool::start()
+void LL::ThreadPoolBase::start()
 {
     for (size_t i = 0; i < mThreadCount; ++i)
     {
@@ -58,17 +59,17 @@ void LL::ThreadPool::start()
         });
 }
 
-LL::ThreadPool::~ThreadPool()
+LL::ThreadPoolBase::~ThreadPoolBase()
 {
     close();
 }
 
-void LL::ThreadPool::close()
+void LL::ThreadPoolBase::close()
 {
-    if (! mQueue.isClosed())
+    if (! mQueue->isClosed())
     {
         LL_DEBUGS("ThreadPool") << mName << " closing queue and joining threads" << LL_ENDL;
-        mQueue.close();
+        mQueue->close();
         for (auto& pair: mThreads)
         {
             LL_DEBUGS("ThreadPool") << mName << " waiting on thread " << pair.first << LL_ENDL;
@@ -78,20 +79,20 @@ void LL::ThreadPool::close()
     }
 }
 
-void LL::ThreadPool::run(const std::string& name)
+void LL::ThreadPoolBase::run(const std::string& name)
 {
     LL_DEBUGS("ThreadPool") << name << " starting" << LL_ENDL;
     run();
     LL_DEBUGS("ThreadPool") << name << " stopping" << LL_ENDL;
 }
 
-void LL::ThreadPool::run()
+void LL::ThreadPoolBase::run()
 {
-    mQueue.runUntilClose();
+    mQueue->runUntilClose();
 }
 
 //static
-size_t LL::ThreadPool::getConfiguredWidth(const std::string& name, size_t dft)
+size_t LL::ThreadPoolBase::getConfiguredWidth(const std::string& name, size_t dft)
 {
     LLSD poolSizes;
     try
@@ -132,7 +133,7 @@ size_t LL::ThreadPool::getConfiguredWidth(const std::string& name, size_t dft)
 }
 
 //static
-size_t LL::ThreadPool::getWidth(const std::string& name, size_t dft)
+size_t LL::ThreadPoolBase::getWidth(const std::string& name, size_t dft)
 {
     auto instance{ getInstance(name) };
     if (instance)

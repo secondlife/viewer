@@ -49,6 +49,7 @@
 #include "llsys.h"			// for LLOSInfo
 #include "lltimer.h"
 #include "llappcorehttp.h"
+#include "threadpool_fwd.h"
 
 #include <boost/signals2.hpp>
 
@@ -62,11 +63,6 @@ class LLWatchdogTimeout;
 class LLViewerJoystick;
 class LLPurgeDiskCacheThread;
 class LLViewerRegion;
-
-namespace LL
-{
-    class ThreadPool;
-}
 
 extern LLTrace::BlockTimerStatHandle FTM_FRAME;
 

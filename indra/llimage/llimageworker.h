@@ -29,11 +29,7 @@
 
 #include "llimage.h"
 #include "llpointer.h"
-
-namespace LL
-{
-    class ThreadPool;
-} // namespace LL
+#include "threadpool_fwd.h"
 
 class LLImageDecodeThread
 {

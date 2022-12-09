@@ -262,6 +262,7 @@ set(llcommon_HEADER_FILES
     stdtypes.h
     stringize.h
     threadpool.h
+    threadpool_fwd.h
     threadsafeschedule.h
     timer.h
     tuple.h
