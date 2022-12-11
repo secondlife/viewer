@@ -40,6 +40,11 @@
 #include "llleap.h"
 #include "llsdutil.h"
 #include "llsdutil_math.h"
+#include "llagent.h"
+#include "llagentcamera.h"
+#include "llphysicsmotion.h"
+#include "llvoavatar.h"
+#include "llvoavatarself.h"
 
 static LLAgentIORegistrar AgentIOReg;
 static LLAgentIOModule* AgentIOModule;
@@ -49,22 +54,18 @@ void processAgentIOGetRequest(const LLSD& data)
     // Agent GET requests are processed here.
     // Expected data format:
     // data = 'command'
-    // data = {command:get, get:[thing_one, thing_two, ...]}
-    // data = {command:get, g:[thing_one, thing_two, ...]}
-
-    // always check for short format first...
-    LL_INFOS("SPATTERS") << "Got to here.  Sweet!" << LL_ENDL;
+    // data = {command:get, data:[thing_one, thing_two, ...]}
 
     if (!data.has("data"))
     {
-        LL_WARNS("AgentIO") << "malformed GET: map no 'get' key" << LL_ENDL;
+        LL_WARNS("AgentIO") << "malformed GET: map no 'data' key" << LL_ENDL;
         return;
     }
     
     const LLSD& payload = data["data"];
     if (!payload.isArray())
     {
-        LL_WARNS("AgentIO") << "malformed GET: 'get' value not array" << LL_ENDL;
+        LL_WARNS("AgentIO") << "malformed GET: 'get' data not array" << LL_ENDL;
         return;
     }
 
@@ -92,12 +93,110 @@ void processAgentIOGetRequest(const LLSD& data)
     }
 }
 
+void processAgentIOSetRequest(const LLSD& data)
+{
+    // Agent SET requests are processed here.
+    // Expected data format:
+    // data = 'command'
+    // data = {command:set, data:[thing_one, thing_two, ...]}
+
+    if (!data.has("data"))
+    {
+        LL_WARNS("AgentIO") << "malformed SET: map no 'data' key" << LL_ENDL;
+        return;
+    }
+    
+    const LLSD& payload = data["data"];
+    if (!payload.isArray())
+    {
+        LL_WARNS("AgentIO") << "malformed SET: 'data' not array" << LL_ENDL;
+        return;
+    }
+
+    for (auto itr = payload.beginArray(); itr != payload.endArray(); ++itr)
+    {
+        std::string key = itr->asString();
+        if ( *itr == "c" || *itr == "camera" )
+        {
+            AgentIOModule->setCamera(data["data"]);
+        }
+    }
+}
+
+void LLAgentIOModule::setCamera(const LLSD& data)
+{
+    //Camera and target position are expected as
+    //world-space coordinates in the viewer-standard
+    //coordinate frame.
+    if (data.has("camera") && data.has("target"))
+    {
+        LLUUID target_id = LLUUID::null;
+        
+        if (data.has("target_id"))
+        {
+            target_id = data["target_id"].asUUID();
+        }
+        
+        gAgentCamera.setCameraPosAndFocusGlobal(
+            ll_vector3d_from_sd ( data["camera"] ),
+            ll_vector3d_from_sd ( data["target"] ),
+            target_id);
+    }
+}
+
+void LLAgentIOModule::sendAgentOrientation()
+{
+    /*Find the agent's position and rotation in world and send it out*/
+    LLVector3 pos = LLVector3(gAgent.getPositionGlobal());
+    LLQuaternion rot = gAgent.getFrameAgent().getQuaternion();
+    
+    LLSD dat = LLSD::emptyMap();
+    dat["position"] = ll_sd_from_vector3(pos);
+    dat["rotation"] = ll_sd_from_quaternion(rot);
+
+    sendCommand("agent_orientation", dat);
+}
+
+void LLAgentIOModule::sendCameraOrientation()
+{
+    /*Send camera position and facing relative the agent's
+     position and facing.*/
+    LLVector3 camera_pos= gAgentCamera.getCurrentCameraOffset();
+    LLVector3 target_pos = LLVector3(gAgentCamera.getCurrentFocusOffset());
+    
+    LLSD dat = LLSD::emptyMap();
+    dat["camera"] = ll_sd_from_vector3(camera_pos);
+    dat["target"] = ll_sd_from_vector3(target_pos);
+
+    sendCommand("viewer_camera", dat);
+}
+
 void LLAgentIOModule::sendLookAt()
 {
+    //Send what the agent is looking at to the leap module.
+    //If the agent isn't looking at anything, sends empty map
+    //Otherwise, sends the direction relative the avatar's
+    //facing and the distance to the look target.
+    LLPhysicsMotionController::ptr_t motion(std::static_pointer_cast<LLPhysicsMotionController>(gAgentAvatarp->findMotion(ANIM_AGENT_PHYSICS_MOTION)));
+    
+    if (!motion)
+    {
+        LL_WARNS("AgentIO") << "Agent has no physics motion" << LL_ENDL;
+        return;
+    }
+        
+    LLVector3* targetPos = (LLVector3*)motion->getCharacter()->getAnimationData("LookAtPoint");
+
     LLSD dat = LLSD::emptyMap();
-    LLVector3 direction(1.0f, 0.3f, 0.4f);
-    dat["SPATTERS"]="it me";
-    dat["direction"]=ll_sd_from_vector3(direction);
+
+    if (targetPos)
+    {
+        LLVector3 headLookAt = *targetPos;
+        
+        dat["direction"] = ll_sd_from_vector3(headLookAt);
+        dat["distance"] = (F32)headLookAt.normVec();
+    }
+
     sendCommand("look_at", dat);
 }
 
@@ -126,9 +225,9 @@ LLAgentIOModule::module_ptr_t LLAgentIOModule::getLeapModule() const
 
 void LLAgentIOModule::sendCommand(const std::string& command, const LLSD& args) const
 {
-    module_ptr_t mod = getLeapModule();
+    /*module_ptr_t mod = getLeapModule();
     if (mod)
-    {
+    {*/
         LLSD data;
         data["command"] = command;
         // args is optional
@@ -138,11 +237,12 @@ void LLAgentIOModule::sendCommand(const std::string& command, const LLSD& args) 
         }
         LL_DEBUGS("AgentIO") << "Posting " << command << " to Leap module" << LL_ENDL;
         LLEventPumps::instance().post("agentio.controller", data);
-    }
+/*    }
     else
     {
         LL_WARNS("AgentIO") << "AgentIO module not loaded, dropping " << command << " command" << LL_ENDL;
     }
+ */
 }
 
 LLAgentIORegistrar::LLAgentIORegistrar() :
@@ -153,20 +253,22 @@ LLAgentIORegistrar::LLAgentIORegistrar() :
 {
 	//This section defines the external API targets for this event handler, created with the add routine.
 	add("get",
-		"Puppetry plugin module has requested information from the viewer\n"
+		"A plugin module has requested information from the viewer\n"
 		"Requested data may be a simple string.  EX:\n"
 		"  camera\n"
 		"  look_at\n"
 		"  position\n"
-		"  touch_target\n"
 		"Or a key and dict"
 		"Response will be a set issued to the plugin module. EX:\n"
 		"  camera_id: <integer>\n"
 		"  skeleton: <llsd>\n"
 		"multiple items may be requested in a single get",
 		&processAgentIOGetRequest);
+    add("set",
+        "A plugin module wishes to set agent data in the viewer",
+        &processAgentIOSetRequest);
 
-	//This function defines viewer-internal API endpoints for this event handler.
+	//Example of defining viewer-internal API endpoints for this event handler if we wanted the viewer to trigger an update.
     /*mPlugin = LLEventPumps::instance().obtain("look_at").listen(
                     "LLAgentIOModule",
                     [](const LLSD& unused)

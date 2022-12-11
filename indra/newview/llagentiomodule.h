@@ -62,6 +62,10 @@ public:
 
     const std::string & getModuleName() const { return mModuleName; };
     void sendLookAt();
+    void sendAgentOrientation();
+    void sendCameraOrientation();
+    void setCamera(const LLSD& data);
+
 
 private:
 
