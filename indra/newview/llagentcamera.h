@@ -167,7 +167,6 @@ private:
 	// Follow
 	//--------------------------------------------------------------------
 public:
-	void			setUsingFollowCam(bool using_follow_cam);
 	bool 			isfollowCamLocked();
 private:
 	LLFollowCam 	mFollowCam; 			// Ventrella
