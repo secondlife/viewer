@@ -36,6 +36,7 @@ mat4 getObjectSkinnedTransform();
 uniform mat3 normal_matrix;
 uniform mat4 modelview_projection_matrix;
 #endif
+uniform mat4 texture_matrix0;
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
   #if !defined(HAS_SKIN)
@@ -92,10 +93,10 @@ void main()
     vary_fragcoord.xyz = vert.xyz + vec3(0,0,near_clip);
 #endif
 
-	basecolor_texcoord = (texture_basecolor_matrix * vec3(texcoord0,1)).xy;
-	normal_texcoord = (texture_normal_matrix * vec3(texcoord0,1)).xy;
-	metallic_roughness_texcoord = (texture_metallic_roughness_matrix * vec3(texcoord0,1)).xy;
-	emissive_texcoord = (texture_emissive_matrix * vec3(texcoord0,1)).xy;
+	basecolor_texcoord = (texture_matrix0 * vec4(texture_basecolor_matrix * vec3(texcoord0,1), 1)).xy;
+	normal_texcoord = (texture_matrix0 * vec4(texture_normal_matrix * vec3(texcoord0,1), 1)).xy;
+	metallic_roughness_texcoord = (texture_matrix0 * vec4(texture_metallic_roughness_matrix * vec3(texcoord0,1), 1)).xy;
+	emissive_texcoord = (texture_matrix0 * vec4(texture_emissive_matrix * vec3(texcoord0,1), 1)).xy;
 
 #ifdef HAS_SKIN
 	vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
