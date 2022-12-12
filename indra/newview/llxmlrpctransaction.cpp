@@ -45,6 +45,12 @@
 
 // Have to include these last to avoid queue redefinition!
 #include <xmlrpc-epi/xmlrpc.h>
+// <xmlrpc-epi/queue.h> contains a harmful #define queue xmlrpc_queue. This
+// breaks any use of std::queue. Ditch that #define: if any of our code wants
+// to reference xmlrpc_queue, let it reference it directly.
+#if defined(queue)
+#undef queue
+#endif
 
 #include "llappviewer.h"
 #include "lltrans.h"

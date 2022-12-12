@@ -2404,7 +2404,7 @@ void LLImageGL::checkActiveThread()
 
 LLImageGLThread::LLImageGLThread(LLWindow* window)
     // We want exactly one thread.
-    : ThreadPool("LLImageGL", 1)
+    : LL::ThreadPool("LLImageGL", 1)
     , mWindow(window)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
@@ -2412,7 +2412,7 @@ LLImageGLThread::LLImageGLThread(LLWindow* window)
     mFinished = false;
 
     mContext = mWindow->createSharedContext();
-    ThreadPool::start();
+    LL::ThreadPool::start();
 }
 
 void LLImageGLThread::run()
@@ -2422,7 +2422,7 @@ void LLImageGLThread::run()
     // WorkQueue, likewise cleanup afterwards.
     mWindow->makeContextCurrent(mContext);
     gGL.init(false);
-    ThreadPool::run();
+    LL::ThreadPool::run();
     gGL.shutdown();
     mWindow->destroySharedContext(mContext);
 }

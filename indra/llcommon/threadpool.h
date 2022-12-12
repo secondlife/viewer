@@ -13,7 +13,9 @@
 #if ! defined(LL_THREADPOOL_H)
 #define LL_THREADPOOL_H
 
+#include "threadpool_fwd.h"
 #include "workqueue.h"
+#include <memory>                   // std::unique_ptr
 #include <string>
 #include <thread>
 #include <utility>                  // std::pair
@@ -22,26 +24,24 @@
 namespace LL
 {
 
-    class ThreadPool: public LLInstanceTracker<ThreadPool, std::string>
+    class ThreadPoolBase: public LLInstanceTracker<ThreadPoolBase, std::string>
     {
     private:
-        using super = LLInstanceTracker<ThreadPool, std::string>;
+        using super = LLInstanceTracker<ThreadPoolBase, std::string>;
+
     public:
         /**
-         * Pass ThreadPool a string name. This can be used to look up the
+         * Pass ThreadPoolBase a string name. This can be used to look up the
          * relevant WorkQueue.
          *
          * The number of threads you pass sets the compile-time default. But
          * if the user has overridden the LLSD map in the "ThreadPoolSizes"
          * setting with a key matching this ThreadPool name, that setting
          * overrides this parameter.
-         *
-         * Pass an explicit capacity to limit the size of the queue.
-         * Constraining the queue can cause a submitter to block. Do not
-         * constrain any ThreadPool accepting work from the main thread.
          */
-        ThreadPool(const std::string& name, size_t threads=1, size_t capacity=1024*1024);
-        virtual ~ThreadPool();
+        ThreadPoolBase(const std::string& name, size_t threads,
+                       WorkQueueBase* queue);
+        virtual ~ThreadPoolBase();
 
         /**
          * Launch the ThreadPool. Until this call, a constructed ThreadPool
@@ -59,8 +59,6 @@ namespace LL
 
         std::string getName() const { return mName; }
         size_t getWidth() const { return mThreads.size(); }
-        /// obtain a non-const reference to the WorkQueue to post work to it
-        WorkQueue& getQueue() { return mQueue; }
 
         /**
          * Override run() if you need special processing. The default run()
@@ -87,14 +85,52 @@ namespace LL
         static
         size_t getWidth(const std::string& name, size_t dft);
 
+    protected:
+        std::unique_ptr<WorkQueueBase> mQueue;
+
     private:
         void run(const std::string& name);
 
-        WorkQueue mQueue;
         std::string mName;
         size_t mThreadCount;
         std::vector<std::pair<std::string, std::thread>> mThreads;
     };
+
+    /**
+     * Specialize with WorkQueue or, for timestamped tasks, WorkSchedule
+     */
+    template <class QUEUE>
+    struct ThreadPoolUsing: public ThreadPoolBase
+    {
+        using queue_t = QUEUE;
+
+        /**
+         * Pass ThreadPoolUsing a string name. This can be used to look up the
+         * relevant WorkQueue.
+         *
+         * The number of threads you pass sets the compile-time default. But
+         * if the user has overridden the LLSD map in the "ThreadPoolSizes"
+         * setting with a key matching this ThreadPool name, that setting
+         * overrides this parameter.
+         *
+         * Pass an explicit capacity to limit the size of the queue.
+         * Constraining the queue can cause a submitter to block. Do not
+         * constrain any ThreadPool accepting work from the main thread.
+         */
+        ThreadPoolUsing(const std::string& name, size_t threads=1, size_t capacity=1024*1024):
+            ThreadPoolBase(name, threads, new queue_t(name, capacity))
+        {}
+        ~ThreadPoolUsing() override {}
+
+        /**
+         * obtain a non-const reference to the specific WorkQueue subclass to
+         * post work to it
+         */
+        queue_t& getQueue() { return static_cast<queue_t&>(*mQueue); }
+    };
+
+    /// ThreadPool is shorthand for using the simpler WorkQueue
+    using ThreadPool = ThreadPoolUsing<WorkQueue>;
 
 } // namespace LL
 

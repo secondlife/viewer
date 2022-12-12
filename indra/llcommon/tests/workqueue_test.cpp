@@ -38,7 +38,7 @@ namespace tut
 {
     struct workqueue_data
     {
-        WorkQueue queue{"queue"};
+        WorkSchedule queue{"queue"};
     };
     typedef test_group<workqueue_data> workqueue_group;
     typedef workqueue_group::object object;
@@ -49,8 +49,8 @@ namespace tut
     {
         set_test_name("name");
         ensure_equals("didn't capture name", queue.getKey(), "queue");
-        ensure("not findable", WorkQueue::getInstance("queue") == queue.getWeak().lock());
-        WorkQueue q2;
+        ensure("not findable", WorkSchedule::getInstance("queue") == queue.getWeak().lock());
+        WorkSchedule q2;
         ensure("has no name", LLStringUtil::startsWith(q2.getKey(), "WorkQueue"));
     }
 
@@ -73,16 +73,16 @@ namespace tut
     {
         set_test_name("postEvery");
         // record of runs
-        using Shared = std::deque<WorkQueue::TimePoint>;
+        using Shared = std::deque<WorkSchedule::TimePoint>;
         // This is an example of how to share data between the originator of
-        // postEvery(work) and the work item itself, since usually a WorkQueue
+        // postEvery(work) and the work item itself, since usually a WorkSchedule
         // is used to dispatch work to a different thread. Neither of them
         // should call any of LLCond's wait methods: you don't want to stall
         // either the worker thread or the originating thread (conventionally
         // main). Use LLCond or a subclass even if all you want to do is
         // signal the work item that it can quit; consider LLOneShotCond.
         LLCond<Shared> data;
-        auto start = WorkQueue::TimePoint::clock::now();
+        auto start = WorkSchedule::TimePoint::clock::now();
         auto interval = 100ms;
         queue.postEvery(
             interval,
@@ -93,7 +93,7 @@ namespace tut
                 data.update_one(
                     [](Shared& data)
                     {
-                        data.push_back(WorkQueue::TimePoint::clock::now());
+                        data.push_back(WorkSchedule::TimePoint::clock::now());
                     });
                 // by the 3rd call, return false to stop
                 return (++count < 3);
@@ -102,7 +102,7 @@ namespace tut
         // postEvery() running, so run until we have exhausted the iterations
         // or we time out waiting
         for (auto finish = start + 10*interval;
-             WorkQueue::TimePoint::clock::now() < finish &&
+             WorkSchedule::TimePoint::clock::now() < finish &&
              data.get([](const Shared& data){ return data.size(); }) < 3; )
         {
             queue.runPending();
@@ -139,8 +139,8 @@ namespace tut
     void object::test<4>()
     {
         set_test_name("postTo");
-        WorkQueue main("main");
-        auto qptr = WorkQueue::getInstance("queue");
+        WorkSchedule main("main");
+        auto qptr = WorkSchedule::getInstance("queue");
         int result = 0;
         main.postTo(
             qptr,
@@ -171,8 +171,8 @@ namespace tut
     void object::test<5>()
     {
         set_test_name("postTo with void return");
-        WorkQueue main("main");
-        auto qptr = WorkQueue::getInstance("queue");
+        WorkSchedule main("main");
+        auto qptr = WorkSchedule::getInstance("queue");
         std::string observe;
         main.postTo(
             qptr,
@@ -194,7 +194,7 @@ namespace tut
         std::string stored;
         // Try to call waitForResult() on this thread's main coroutine. It
         // should throw because the main coroutine must service the queue.
-        auto what{ catch_what<WorkQueue::Error>(
+        auto what{ catch_what<WorkSchedule::Error>(
                 [this, &stored](){ stored = queue.waitForResult(
                         [](){ return "should throw"; }); }) };
         ensure("lambda should not have run", stored.empty());
