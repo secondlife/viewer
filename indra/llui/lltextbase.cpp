@@ -355,95 +355,113 @@ void LLTextBase::onValueChange(S32 start, S32 end)
 {
 }
 
+std::vector<LLRect> LLTextBase::getSelctionRects()
+{
+    // Nor supposed to be called without selection
+    llassert(hasSelection());
+    llassert(!mLineInfoList.empty());
+
+    std::vector<LLRect> selection_rects;
+
+    S32 selection_left = llmin(mSelectionStart, mSelectionEnd);
+    S32 selection_right = llmax(mSelectionStart, mSelectionEnd);
+
+    // Skip through the lines we aren't drawing.
+    LLRect content_display_rect = getVisibleDocumentRect();
+
+    // binary search for line that starts before top of visible buffer
+    line_list_t::const_iterator line_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), content_display_rect.mTop, compare_bottom());
+    line_list_t::const_iterator end_iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), content_display_rect.mBottom, compare_top());
+
+    bool done = false;
+
+    // Find the coordinates of the selected area
+    for (; line_iter != end_iter && !done; ++line_iter)
+    {
+        // is selection visible on this line?
+        if (line_iter->mDocIndexEnd > selection_left && line_iter->mDocIndexStart < selection_right)
+        {
+            segment_set_t::iterator segment_iter;
+            S32 segment_offset;
+            getSegmentAndOffset(line_iter->mDocIndexStart, &segment_iter, &segment_offset);
+
+            // Use F32 otherwise a string of multiple segments
+            // will accumulate a large error
+            F32 left_precise = line_iter->mRect.mLeft;
+            F32 right_precise = line_iter->mRect.mLeft;
+
+            for (; segment_iter != mSegments.end(); ++segment_iter, segment_offset = 0)
+            {
+                LLTextSegmentPtr segmentp = *segment_iter;
+
+                S32 segment_line_start = segmentp->getStart() + segment_offset;
+                S32 segment_line_end = llmin(segmentp->getEnd(), line_iter->mDocIndexEnd);
+
+                if (segment_line_start > segment_line_end) break;
+
+                F32 segment_width = 0;
+                S32 segment_height = 0;
+
+                // if selection after beginning of segment
+                if (selection_left >= segment_line_start)
+                {
+                    S32 num_chars = llmin(selection_left, segment_line_end) - segment_line_start;
+                    segmentp->getDimensionsF32(segment_offset, num_chars, segment_width, segment_height);
+                    left_precise += segment_width;
+                }
+
+                // if selection_right == segment_line_end then that means we are the first character of the next segment
+                // or first character of the next line, in either case we want to add the length of the current segment
+                // to the selection rectangle and continue.
+                // if selection right > segment_line_end then selection spans end of current segment...
+                if (selection_right >= segment_line_end)
+                {
+                    // extend selection slightly beyond end of line
+                    // to indicate selection of newline character (use "n" character to determine width)
+                    S32 num_chars = segment_line_end - segment_line_start;
+                    segmentp->getDimensionsF32(segment_offset, num_chars, segment_width, segment_height);
+                    right_precise += segment_width;
+                }
+                // else if selection ends on current segment...
+                else
+                {
+                    S32 num_chars = selection_right - segment_line_start;
+                    segmentp->getDimensionsF32(segment_offset, num_chars, segment_width, segment_height);
+                    right_precise += segment_width;
+
+                    break;
+                }
+            }
+
+            LLRect selection_rect;
+            selection_rect.mLeft = left_precise;
+            selection_rect.mRight = right_precise;
+            selection_rect.mBottom = line_iter->mRect.mBottom;
+            selection_rect.mTop = line_iter->mRect.mTop;
+
+            selection_rects.push_back(selection_rect);
+        }
+    }
+
+    return selection_rects;
+}
 
 // Draws the black box behind the selected text
 void LLTextBase::drawSelectionBackground()
 {
-	// Draw selection even if we don't have keyboard focus for search/replace
-	if( hasSelection() && !mLineInfoList.empty())
-	{
-		std::vector<LLRect> selection_rects;
-
-		S32 selection_left		= llmin( mSelectionStart, mSelectionEnd );
-		S32 selection_right		= llmax( mSelectionStart, mSelectionEnd );
-
-		// Skip through the lines we aren't drawing.
-		LLRect content_display_rect = getVisibleDocumentRect();
-
-		// binary search for line that starts before top of visible buffer
-		line_list_t::const_iterator line_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), content_display_rect.mTop, compare_bottom());
-		line_list_t::const_iterator end_iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), content_display_rect.mBottom, compare_top());
-
-		bool done = false;
-
-		// Find the coordinates of the selected area
-		for (;line_iter != end_iter && !done; ++line_iter)
-		{
-			// is selection visible on this line?
-			if (line_iter->mDocIndexEnd > selection_left && line_iter->mDocIndexStart < selection_right)
-			{
-				segment_set_t::iterator segment_iter;
-				S32 segment_offset;
-				getSegmentAndOffset(line_iter->mDocIndexStart, &segment_iter, &segment_offset);
-				
-				LLRect selection_rect;
-				selection_rect.mLeft = line_iter->mRect.mLeft;
-				selection_rect.mRight = line_iter->mRect.mLeft;
-				selection_rect.mBottom = line_iter->mRect.mBottom;
-				selection_rect.mTop = line_iter->mRect.mTop;
-					
-				for(;segment_iter != mSegments.end(); ++segment_iter, segment_offset = 0)
-				{
-					LLTextSegmentPtr segmentp = *segment_iter;
-
-					S32 segment_line_start = segmentp->getStart() + segment_offset;
-					S32 segment_line_end = llmin(segmentp->getEnd(), line_iter->mDocIndexEnd);
-
-					if (segment_line_start > segment_line_end) break;
-
-					S32 segment_width = 0;
-					S32 segment_height = 0;
-
-					// if selection after beginning of segment
-					if(selection_left >= segment_line_start)
-					{
-						S32 num_chars = llmin(selection_left, segment_line_end) - segment_line_start;
-						segmentp->getDimensions(segment_offset, num_chars, segment_width, segment_height);
-						selection_rect.mLeft += segment_width;
-					}
-
-					// if selection_right == segment_line_end then that means we are the first character of the next segment
-					// or first character of the next line, in either case we want to add the length of the current segment
-					// to the selection rectangle and continue.
-					// if selection right > segment_line_end then selection spans end of current segment...
-					if (selection_right >= segment_line_end)
-					{
-						// extend selection slightly beyond end of line
-						// to indicate selection of newline character (use "n" character to determine width)
-						S32 num_chars = segment_line_end - segment_line_start;
-						segmentp->getDimensions(segment_offset, num_chars, segment_width, segment_height);
-						selection_rect.mRight += segment_width;
-					}
-					// else if selection ends on current segment...
-					else
-					{
-						S32 num_chars = selection_right - segment_line_start;
-						segmentp->getDimensions(segment_offset, num_chars, segment_width, segment_height);
-						selection_rect.mRight += segment_width;
-
-						break;
-					}
-				}
-				selection_rects.push_back(selection_rect);
-			}
-		}
+    // Draw selection even if we don't have keyboard focus for search/replace
+    if (hasSelection() && !mLineInfoList.empty())
+    {
+        std::vector<LLRect> selection_rects = getSelctionRects();
 		
 		// Draw the selection box (we're using a box instead of reversing the colors on the selected text).
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		const LLColor4& color = mSelectedBGColor;
 		F32 alpha = hasFocus() ? 0.7f : 0.3f;
 		alpha *= getDrawContext().mAlpha;
+
 		LLColor4 selection_color(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], alpha);
+        LLRect content_display_rect = getVisibleDocumentRect();
 
 		for (std::vector<LLRect>::iterator rect_it = selection_rects.begin();
 			rect_it != selection_rects.end();
@@ -2551,7 +2569,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 	}
 	
 	S32 pos = getLength();
-	S32 start_x = line_iter->mRect.mLeft + doc_rect.mLeft;
+	F32 start_x = line_iter->mRect.mLeft + doc_rect.mLeft;
 
 	segment_set_t::iterator line_seg_iter;
 	S32 line_seg_offset;
@@ -2563,8 +2581,9 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 
 		S32 segment_line_start = segmentp->getStart() + line_seg_offset;
 		S32 segment_line_length = llmin(segmentp->getEnd(), line_iter->mDocIndexEnd) - segment_line_start;
-		S32 text_width, text_height;
-		bool newline = segmentp->getDimensions(line_seg_offset, segment_line_length, text_width, text_height);
+        F32 text_width;
+        S32 text_height;
+		bool newline = segmentp->getDimensionsF32(line_seg_offset, segment_line_length, text_width, text_height);
 
 		if(newline)
 		{
@@ -2584,8 +2603,9 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 			S32 offset;
 			if (!segmentp->canEdit())
 			{
-				S32 segment_width, segment_height;
-				segmentp->getDimensions(0, segmentp->getEnd() - segmentp->getStart(), segment_width, segment_height);
+                F32 segment_width;
+                S32 segment_height;
+				segmentp->getDimensionsF32(0, segmentp->getEnd() - segmentp->getStart(), segment_width, segment_height);
 				if (round && local_x - start_x > segment_width / 2)
 				{
 					offset = segment_line_length;
@@ -2632,16 +2652,10 @@ LLRect LLTextBase::getDocRectFromDocIndex(S32 pos) const
 		return LLRect();
 	}
 
-	LLRect doc_rect;
-
 	// clamp pos to valid values
 	pos = llclamp(pos, 0, mLineInfoList.back().mDocIndexEnd - 1);
 
 	line_list_t::const_iterator line_iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), pos, line_end_compare());
-
-	doc_rect.mLeft = line_iter->mRect.mLeft; 
-	doc_rect.mBottom = line_iter->mRect.mBottom;
-	doc_rect.mTop = line_iter->mRect.mTop;
 
 	segment_set_t::iterator line_seg_iter;
 	S32 line_seg_offset;
@@ -2650,6 +2664,8 @@ LLRect LLTextBase::getDocRectFromDocIndex(S32 pos) const
 	getSegmentAndOffset(line_iter->mDocIndexStart, &line_seg_iter, &line_seg_offset);
 	getSegmentAndOffset(pos, &cursor_seg_iter, &cursor_seg_offset);
 
+    F32 doc_left_precise = line_iter->mRect.mLeft;
+
 	while(line_seg_iter != mSegments.end())
 	{
 		const LLTextSegmentPtr segmentp = *line_seg_iter;
@@ -2657,24 +2673,31 @@ LLRect LLTextBase::getDocRectFromDocIndex(S32 pos) const
 		if (line_seg_iter == cursor_seg_iter)
 		{
 			// cursor advanced to right based on difference in offset of cursor to start of line
-			S32 segment_width, segment_height;
-			segmentp->getDimensions(line_seg_offset, cursor_seg_offset - line_seg_offset, segment_width, segment_height);
-			doc_rect.mLeft += segment_width;
+            F32 segment_width;
+            S32 segment_height;
+			segmentp->getDimensionsF32(line_seg_offset, cursor_seg_offset - line_seg_offset, segment_width, segment_height);
+            doc_left_precise += segment_width;
 
 			break;
 		}
 		else
 		{
 			// add remainder of current text segment to cursor position
-			S32 segment_width, segment_height;
-			segmentp->getDimensions(line_seg_offset, (segmentp->getEnd() - segmentp->getStart()) - line_seg_offset, segment_width, segment_height);
-			doc_rect.mLeft += segment_width;
+            F32 segment_width;
+            S32 segment_height;
+			segmentp->getDimensionsF32(line_seg_offset, (segmentp->getEnd() - segmentp->getStart()) - line_seg_offset, segment_width, segment_height);
+            doc_left_precise += segment_width;
 			// offset will be 0 for all segments after the first
 			line_seg_offset = 0;
 			// go to next text segment on this line
 			++line_seg_iter;
 		}
 	}
+
+    LLRect doc_rect;
+    doc_rect.mLeft = doc_left_precise;
+    doc_rect.mBottom = line_iter->mRect.mBottom;
+    doc_rect.mTop = line_iter->mRect.mTop;
 
 	// set rect to 0 width
 	doc_rect.mRight = doc_rect.mLeft; 

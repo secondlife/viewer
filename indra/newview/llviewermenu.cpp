@@ -4334,6 +4334,10 @@ class LLLandSit : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
+        if (gAgent.isSitting())
+        {
+            gAgent.standUp();
+        }
         LLVector3d posGlobal = LLToolPie::getInstance()->getPick().mPosGlobal;
 
         LLQuaternion target_rot;
