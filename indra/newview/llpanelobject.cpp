@@ -93,6 +93,8 @@ enum {
 	MI_HOLE_COUNT
 };
 
+const F32 MAX_ATTACHMENT_DIST = 3.5f; // meters
+
 //static const std::string LEGACY_FULLBRIGHT_DESC =LLTrans::getString("Fullbright");
 
 BOOL	LLPanelObject::postBuild()
@@ -1685,6 +1687,16 @@ void LLPanelObject::sendPosition(BOOL btn_down)
 			mCtrlPosZ->set(LLWorld::getInstance()->resolveLandHeightAgent(newpos) + 1.f);
 		}
 	}
+    else
+    {
+        if (newpos.length() > MAX_ATTACHMENT_DIST)
+        {
+            newpos.clampLength(MAX_ATTACHMENT_DIST);
+            mCtrlPosX->set(newpos.mV[VX]);
+            mCtrlPosY->set(newpos.mV[VY]);
+            mCtrlPosZ->set(newpos.mV[VZ]);
+        }
+    }
 
 	// Make sure new position is in a valid region, so the object
 	// won't get dumped by the simulator.
@@ -2190,6 +2202,10 @@ void LLPanelObject::onPastePos()
         mClipboardPos.mV[VX] = llclamp(mClipboardPos.mV[VX], 0.f, max_width);
         mClipboardPos.mV[VY] = llclamp(mClipboardPos.mV[VY], 0.f, max_width);
         //height will get properly clamped by sendPosition
+    }
+    else
+    {
+        mClipboardPos.clampLength(MAX_ATTACHMENT_DIST);
     }
 
     mCtrlPosX->set( mClipboardPos.mV[VX] );

@@ -419,6 +419,8 @@ public:
 	void			setNeedsSort(bool val = true) { mSorted = !val; }
 	void			dirtyColumns(); // some operation has potentially affected column layout or ordering
 
+    bool highlightMatchingItems(const std::string& filter_str);
+
 	boost::signals2::connection setSortCallback(sort_signal_t::slot_type cb )
 	{
 		if (!mSortCallback) mSortCallback = new sort_signal_t();

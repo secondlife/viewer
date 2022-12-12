@@ -242,6 +242,7 @@ public:
     void setUpdating(const LLUUID& folder_id, bool isUpdating);
     
     // Used to decide when to run a validation on listing folders
+    bool hasValidationWaiting() { return mValidationWaitingList.size() > 0; }
     void setValidationWaiting(const LLUUID& folder_id, S32 count);
     void decrementValidationWaiting(const LLUUID& folder_id, S32 count = 1);
 

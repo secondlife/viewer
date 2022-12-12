@@ -632,7 +632,7 @@ public:
 
 	void showInspector()
 	{
-		if (mAvatarID.isNull() && CHAT_SOURCE_SYSTEM != mSourceType) return;
+		if (mAvatarID.isNull() && CHAT_SOURCE_SYSTEM != mSourceType && CHAT_SOURCE_REGION != mSourceType) return;
 		
 		if (mSourceType == CHAT_SOURCE_OBJECT)
 		{
@@ -780,6 +780,7 @@ public:
 				icon->setValue(LLSD("OBJECT_Icon"));
 				break;
 			case CHAT_SOURCE_SYSTEM:
+			case CHAT_SOURCE_REGION:
 				icon->setValue(LLSD("SL_Logo"));
 				break;
 			case CHAT_SOURCE_TELEPORT:
@@ -969,7 +970,7 @@ protected:
 
 	void showInfoCtrl()
 	{
-		const bool isVisible = !mAvatarID.isNull() && !mFrom.empty() && CHAT_SOURCE_SYSTEM != mSourceType;
+		const bool isVisible = !mAvatarID.isNull() && !mFrom.empty() && CHAT_SOURCE_SYSTEM != mSourceType && CHAT_SOURCE_REGION != mSourceType;
 		if (isVisible)
 		{
 			const LLRect sticky_rect = mUserNameTextBox->getRect();
@@ -1362,7 +1363,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				mEditor->appendText(chat.mFromName + delimiter, prependNewLineState, link_params);
 				prependNewLineState = false;
 			}
-			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
+			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log && chat.mSourceType != CHAT_SOURCE_REGION)
 			{
 				LLStyle::Params link_params(body_message_params);
 				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));

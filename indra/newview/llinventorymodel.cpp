@@ -1851,9 +1851,13 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
             mChangedItemIDs.insert(referent);
         }
 
-        // Fix me: From DD-81, probably shouldn't be here, instead
-        // should be somewhere in an observer
-        update_marketplace_category(referent, false);
+        if (mask != LLInventoryObserver::LABEL)
+        {
+            // Fix me: From DD-81, probably shouldn't be here, instead
+            // should be somewhere in an observer or in
+            // LLMarketplaceInventoryObserver::onIdleProcessQueue
+            update_marketplace_category(referent, false);
+        }
 
         if (mask & LLInventoryObserver::ADD)
         {

@@ -253,7 +253,6 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mGearBtn = getChild<LLButton>("gear_btn");
     mAddBtn = getChild<LLButton>("add_btn");
 	mVoiceButton = getChild<LLButton>("voice_call_btn");
-    mTranslationCheckBox = getChild<LLUICtrl>("translate_chat_checkbox_lp");
     
 	mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
 	mRightPartPanel = getChild<LLLayoutPanel>("right_part_holder");
@@ -812,8 +811,6 @@ void LLFloaterIMSessionTab::updateHeaderAndToolbar()
 	mCloseBtn->setVisible(is_not_torn_off && !mIsNearbyChat);
 
 	enableDisableCallBtn();
-
-	showTranslationCheckbox();
 }
  
 void LLFloaterIMSessionTab::forceReshape()
@@ -828,11 +825,6 @@ void LLFloaterIMSessionTab::forceReshape()
 void LLFloaterIMSessionTab::reshapeChatLayoutPanel()
 {
 	mChatLayoutPanel->reshape(mChatLayoutPanel->getRect().getWidth(), mInputEditor->getRect().getHeight() + mInputEditorPad, FALSE);
-}
-
-void LLFloaterIMSessionTab::showTranslationCheckbox(BOOL show)
-{
-	mTranslationCheckBox->setVisible(mIsNearbyChat && show);
 }
 
 // static

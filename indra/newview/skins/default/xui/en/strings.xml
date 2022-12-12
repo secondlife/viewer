@@ -4300,6 +4300,10 @@ name="Command_360_Capture_Tooltip">Capture a 360 equirectangular image</string>
   <string name="Mav_Details_MAV_CONFIRMATION_DATA_MISMATCH">
       The physics shape contains bad confirmation data. Try to correct the physics model.
   </string>
+  <!-- MAV_BLOCK_MISSING means server didn't get and couldn't substitute physics_convex, high_lod or BoundingVerts-->
+  <string name="Mav_Details_MAV_BLOCK_MISSING">
+    Missing data. Make sure high lod is present and valid. Set the physics model if not set.
+  </string>
   <string name="Mav_Details_MAV_UNKNOWN_VERSION">
       The physics shape does not have correct version. Set the correct version for the physics model.
   </string>
