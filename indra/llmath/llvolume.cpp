@@ -5013,6 +5013,17 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 	{
 		U16 index = mIndices[i];
 
+        if (index >= mNumVertices)
+        {
+            // invalid index
+            // replace with a valid index to avoid crashes
+            index = mNumVertices - 1;
+            mIndices[i] = index;
+
+            // Needs better logging
+            LL_DEBUGS_ONCE("LLVOLUME") << "Invalid index, substituting" << LL_ENDL;
+        }
+
 		LLVolumeFace::VertexData cv;
 		getVertexData(index, cv);
 		
@@ -5384,6 +5395,17 @@ bool LLVolumeFace::cacheOptimize()
         { //populate vertex data and triangle data arrays
             U16 idx = mIndices[i];
             U32 tri_idx = i / 3;
+
+            if (idx >= mNumVertices)
+            {
+                // invalid index
+                // replace with a valid index to avoid crashes
+                idx = mNumVertices - 1;
+                mIndices[i] = idx;
+
+                // Needs better logging
+                LL_DEBUGS_ONCE("LLVOLUME") << "Invalid index, substituting" << LL_ENDL;
+            }
 
             vertex_data[idx].mTriangles.push_back(&(triangle_data[tri_idx]));
             vertex_data[idx].mIdx = idx;

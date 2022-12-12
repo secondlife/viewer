@@ -45,11 +45,13 @@
 #include "llxmltree.h"
 #include "message.h"
 
+#include "lldrawpoolbump.h" // to init bumpmap images
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
 #include "llviewercontrol.h"
 #include "llviewertexture.h"
 #include "llviewermedia.h"
+#include "llviewernetwork.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "pipeline.h"
@@ -139,9 +141,6 @@ void LLViewerTextureList::doPreloadImages()
 	//uv_test->setClamp(FALSE, FALSE);
 	//uv_test->setMipFilterNearest(TRUE, TRUE);
 
-	// prefetch specific UUIDs
-	LLViewerTextureManager::getFetchedTexture(IMG_SHOT);
-	LLViewerTextureManager::getFetchedTexture(IMG_SMOKE_POOF);
 	LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTextureFromFile("silhouette.j2c", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
 	if (image) 
 	{
@@ -158,12 +157,6 @@ void LLViewerTextureList::doPreloadImages()
 	if (image) 
 	{
 		image->setAddressMode(LLTexUnit::TAM_WRAP);
-		mImagePreloads.insert(image);
-	}
-	image = LLViewerTextureManager::getFetchedTexture(DEFAULT_WATER_NORMAL, FTT_DEFAULT, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
-	if (image) 
-	{
-		image->setAddressMode(LLTexUnit::TAM_WRAP);	
 		mImagePreloads.insert(image);
 	}
 	image = LLViewerTextureManager::getFetchedTextureFromFile("transparent.j2c", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI, LLViewerTexture::FETCHED_TEXTURE,
@@ -198,7 +191,18 @@ void LLViewerTextureList::doPreloadImages()
 
 static std::string get_texture_list_name()
 {
-	return gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "texture_list_" + gSavedSettings.getString("LoginLocation") + "." + gDirUtilp->getUserName() + ".xml");
+    if (LLGridManager::getInstance()->isInProductionGrid())
+    {
+        return gDirUtilp->getExpandedFilename(LL_PATH_CACHE,
+            "texture_list_" + gSavedSettings.getString("LoginLocation") + "." + gDirUtilp->getUserName() + ".xml");
+    }
+    else
+    {
+        const std::string& grid_id_str = LLGridManager::getInstance()->getGridId();
+        const std::string& grid_id_lower = utf8str_tolower(grid_id_str);
+        return gDirUtilp->getExpandedFilename(LL_PATH_CACHE,
+            "texture_list_" + gSavedSettings.getString("LoginLocation") + "." + gDirUtilp->getUserName() + "." + grid_id_lower + ".xml");
+    }
 }
 
 void LLViewerTextureList::doPrefetchImages()
@@ -206,6 +210,26 @@ void LLViewerTextureList::doPrefetchImages()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	gTextureTimer.start();
 	gTextureTimer.pause();
+
+    // todo: do not load without getViewerAssetUrl()
+    // either fail login without caps or provide this
+    // in some other way, textures won't load otherwise
+    LLViewerFetchedTexture *imagep = findImage(DEFAULT_WATER_NORMAL, TEX_LIST_STANDARD);
+    if (!imagep)
+    {
+        // add it to mImagePreloads only once
+        imagep = LLViewerTextureManager::getFetchedTexture(DEFAULT_WATER_NORMAL, FTT_DEFAULT, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
+        if (imagep)
+        {
+            imagep->setAddressMode(LLTexUnit::TAM_WRAP);
+            mImagePreloads.insert(imagep);
+        }
+    }
+
+    LLViewerTextureManager::getFetchedTexture(IMG_SHOT);
+    LLViewerTextureManager::getFetchedTexture(IMG_SMOKE_POOF);
+
+    LLStandardBumpmap::addstandard();
 
 	if (LLAppViewer::instance()->getPurgeCache())
 	{
@@ -1500,152 +1524,6 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-// static
-void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_data)
-{
-	static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic", false) ;
-
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-
-	// Receive image header, copy into image object and decompresses 
-	// if this is a one-packet image. 
-	
-	LLUUID id;
-	
-	char ip_string[256];
-	u32_to_ip_string(msg->getSenderIP(),ip_string);
-	
-	U32Bytes received_size ;
-	if (msg->getReceiveCompressedSize())
-	{
-		received_size = (U32Bytes)msg->getReceiveCompressedSize() ;		
-	}
-	else
-	{
-		received_size = (U32Bytes)msg->getReceiveSize() ;		
-	}
-	add(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED, received_size);
-	add(LLStatViewer::TEXTURE_PACKETS, 1);
-	
-	U8 codec;
-	U16 packets;
-	U32 totalbytes;
-	msg->getUUIDFast(_PREHASH_ImageID, _PREHASH_ID, id);
-	msg->getU8Fast(_PREHASH_ImageID, _PREHASH_Codec, codec);
-	msg->getU16Fast(_PREHASH_ImageID, _PREHASH_Packets, packets);
-	msg->getU32Fast(_PREHASH_ImageID, _PREHASH_Size, totalbytes);
-	
-	S32 data_size = msg->getSizeFast(_PREHASH_ImageData, _PREHASH_Data); 
-	if (!data_size)
-	{
-		return;
-	}
-	if (data_size < 0)
-	{
-		// msg->getSizeFast() is probably trying to tell us there
-		// was an error.
-		LL_ERRS() << "image header chunk size was negative: "
-		<< data_size << LL_ENDL;
-		return;
-	}
-	
-	// this buffer gets saved off in the packet list
-	U8 *data = new U8[data_size];
-	msg->getBinaryDataFast(_PREHASH_ImageData, _PREHASH_Data, data, data_size);
-	
-	LLViewerFetchedTexture *image = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-	if (!image)
-	{
-		delete [] data;
-		return;
-	}
-	if(log_texture_traffic)
-	{
-		gTotalTextureBytesPerBoostLevel[image->getBoostLevel()] += received_size ;
-	}
-
-	//image->getLastPacketTimer()->reset();
-	bool res = LLAppViewer::getTextureFetch()->receiveImageHeader(msg->getSender(), id, codec, packets, totalbytes, data_size, data);
-	if (!res)
-	{
-		delete[] data;
-	}
-}
-
-// static
-void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_data)
-{
-	static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic", false) ;
-
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	
-	// Receives image packet, copy into image object,
-	// checks if all packets received, decompresses if so. 
-	
-	LLUUID id;
-	U16 packet_num;
-	
-	char ip_string[256];
-	u32_to_ip_string(msg->getSenderIP(),ip_string);
-	
-	U32Bytes received_size ;
-	if (msg->getReceiveCompressedSize())
-	{
-		received_size = (U32Bytes)msg->getReceiveCompressedSize() ;
-	}
-	else
-	{
-		received_size = (U32Bytes)msg->getReceiveSize() ;		
-	}
-
-	add(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED, F64Bytes(received_size));
-	add(LLStatViewer::TEXTURE_PACKETS, 1);
-	
-	//llprintline("Start decode, image header...");
-	msg->getUUIDFast(_PREHASH_ImageID, _PREHASH_ID, id);
-	msg->getU16Fast(_PREHASH_ImageID, _PREHASH_Packet, packet_num);
-	S32 data_size = msg->getSizeFast(_PREHASH_ImageData, _PREHASH_Data); 
-	
-	if (!data_size)
-	{
-		return;
-	}
-	if (data_size < 0)
-	{
-		// msg->getSizeFast() is probably trying to tell us there
-		// was an error.
-		LL_ERRS() << "image data chunk size was negative: "
-		<< data_size << LL_ENDL;
-		return;
-	}
-	if (data_size > MTUBYTES)
-	{
-		LL_ERRS() << "image data chunk too large: " << data_size << " bytes" << LL_ENDL;
-		return;
-	}
-	U8 *data = new U8[data_size];
-	msg->getBinaryDataFast(_PREHASH_ImageData, _PREHASH_Data, data, data_size);
-	
-	LLViewerFetchedTexture *image = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-	if (!image)
-	{
-		delete [] data;
-		return;
-	}
-	if(log_texture_traffic)
-	{
-		gTotalTextureBytesPerBoostLevel[image->getBoostLevel()] += received_size ;
-	}
-
-	//image->getLastPacketTimer()->reset();
-	bool res = LLAppViewer::getTextureFetch()->receiveImagePacket(msg->getSender(), id, packet_num, data_size, data);
-	if (!res)
-	{
-		delete[] data;
-	}
-}
-
 
 // We've been that the asset server does not contain the requested image id.
 // static
