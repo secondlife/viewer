@@ -4661,9 +4661,9 @@ U32 LLWindowWin32::getAvailableVRAMMegabytes()
 #endif // LL_WINDOWS
 
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
-    : ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE)
+    : LL::ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE)
 {
-    ThreadPool::start();
+    LL::ThreadPool::start();
 }
 
 /**
