@@ -196,12 +196,12 @@ S32 LLSDXMLFormatter::format_impl(const LLSD& data, std::ostream& ostr,
 			// *FIX: memory inefficient.
 			// *TODO: convert to use LLBase64
 			ostr << pre << "<binary encoding=\"base64\">";
-			int b64_buffer_length = apr_base64_encode_len(buffer.size());
+			int b64_buffer_length = apr_base64_encode_len(narrow(buffer.size()));
 			char* b64_buffer = new char[b64_buffer_length];
 			b64_buffer_length = apr_base64_encode_binary(
 				b64_buffer,
 				&buffer[0],
-				buffer.size());
+				narrow(buffer.size()));
 			ostr.write(b64_buffer, b64_buffer_length - 1);
 			delete[] b64_buffer;
 			ostr << "</binary>" << post;
@@ -260,7 +260,7 @@ public:
 	S32 parse(std::istream& input, LLSD& data);
 	S32 parseLines(std::istream& input, LLSD& data);
 
-	void parsePart(const char *buf, int len);
+	void parsePart(const char *buf, llssize len);
 	
 	void reset();
 
@@ -542,7 +542,7 @@ LLSDXMLParser::Impl::findAttribute(const XML_Char* name, const XML_Char** pairs)
 	return NULL;
 }
 
-void LLSDXMLParser::Impl::parsePart(const char* buf, int len)
+void LLSDXMLParser::Impl::parsePart(const char* buf, llssize len)
 {
 	if ( buf != NULL 
 		&& len > 0 )
@@ -915,7 +915,7 @@ LLSDXMLParser::~LLSDXMLParser()
 	delete &impl;
 }
 
-void LLSDXMLParser::parsePart(const char *buf, int len)
+void LLSDXMLParser::parsePart(const char *buf, llssize len)
 {
 	impl.parsePart(buf, len);
 }

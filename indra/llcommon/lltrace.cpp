@@ -65,7 +65,7 @@ void TimeBlockTreeNode::setParent( BlockTimerStatHandle* parent )
 	llassert_always(parent != mBlock);
 	llassert_always(parent != NULL);
 
-	TimeBlockTreeNode* parent_tree_node = get_thread_recorder()->getTimeBlockTreeNode(parent->getIndex());
+	TimeBlockTreeNode* parent_tree_node = get_thread_recorder()->getTimeBlockTreeNode(narrow(parent->getIndex()));
 	if (!parent_tree_node) return;
 
 	if (mParent)
