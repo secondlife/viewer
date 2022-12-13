@@ -4527,8 +4527,8 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
                 tep->setGLTFRenderMaterial(nullptr);
                 tep->setGLTFMaterialOverride(nullptr);
 
-                // blank out any override data on the server
-                LLGLTFMaterialList::queueApply(objectp->getID(), te, LLUUID::null);
+                // blank out most override data on the server
+                LLGLTFMaterialList::queueApply(objectp, te, LLUUID::null);
             }
 
             // Texture map

@@ -404,9 +404,19 @@ void LLGLTFMaterialList::queueModify(const LLUUID& id, S32 side, const LLGLTFMat
     }
 }
 
-void LLGLTFMaterialList::queueApply(const LLUUID& object_id, S32 side, const LLUUID& asset_id)
+void LLGLTFMaterialList::queueApply(const LLViewerObject* obj, S32 side, const LLUUID& asset_id)
 {
-    sApplyQueue.push_back({ object_id, side, asset_id});
+    const LLGLTFMaterial* material_override = obj->getTE(side)->getGLTFMaterialOverride();
+    if (material_override)
+    {
+        LLGLTFMaterial* cleared_override = new LLGLTFMaterial(*material_override);
+        cleared_override->setBaseMaterial();
+        sApplyQueue.push_back({ obj->getID(), side, asset_id, cleared_override });
+    }
+    else
+    {
+        sApplyQueue.push_back({ obj->getID(), side, asset_id, nullptr });
+    }
 }
 
 void LLGLTFMaterialList::queueUpdate(const LLSD& data)
@@ -436,6 +446,11 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
         {
             data[i]["gltf_json"] = e.override_data.asJSON();
         }
+        else
+        {
+            // Clear all overrides
+            data[i]["gltf_json"] = "";
+        }
 
         llassert(is_valid_update(data[i]));
         ++i;
@@ -447,7 +462,15 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
         data[i]["object_id"] = e.object_id;
         data[i]["side"] = e.side;
         data[i]["asset_id"] = e.asset_id;
-        data[i]["gltf_json"] = ""; // null out any existing overrides when applying a material asset
+        if (e.override_data)
+        {
+            data[i]["gltf_json"] = e.override_data->asJSON();
+        }
+        else
+        {
+            // Clear all overrides
+            data[i]["gltf_json"] = "";
+        }
 
         llassert(is_valid_update(data[i]));
         ++i;

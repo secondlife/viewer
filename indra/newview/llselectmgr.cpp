@@ -1806,11 +1806,9 @@ void LLObjectSelection::applyNoCopyPbrMaterialToTEs(LLViewerInventoryItem* item)
                 }
 
                 // apply texture for the selected faces
+                // blank out most override data on the server
                 //add(LLStatViewer::EDIT_TEXTURE, 1);
-                object->setRenderMaterialID(te, asset_id, false /*will be sent later*/);
-
-                // blank out any override data on the server
-                LLGLTFMaterialList::queueApply(object->getID(), te, asset_id);
+                object->setRenderMaterialID(te, asset_id);
             }
         }
     }
@@ -1949,10 +1947,8 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
                 objectp->setParameterEntryInUse(LLNetworkData::PARAMS_RENDER_MATERIAL, TRUE, false /*prevent an update*/);
             }
 
-            objectp->setRenderMaterialID(te, asset_id, false /*prevent an update to prevent a race condition*/);
-
-            // blank out any override data on the server
-            LLGLTFMaterialList::queueApply(objectp->getID(), te, asset_id);
+            // Blank out most override data on the object and send to server
+            objectp->setRenderMaterialID(te, asset_id);
 
             return true;
         }
@@ -2223,17 +2219,12 @@ void LLSelectMgr::selectionRevertGLTFMaterials()
                     && asset_id.notNull())
                 {
                     // Restore overrides
-                    LLSD overrides;
-                    overrides["object_id"] = objectp->getID();
-                    overrides["side"] = te;
-
-                    overrides["gltf_json"] = nodep->mSavedGLTFOverrideMaterials[te]->asJSON();
-                    LLGLTFMaterialList::queueUpdate(overrides);
+                    LLGLTFMaterialList::queueModify(objectp->getID(), te, nodep->mSavedGLTFOverrideMaterials[te]);
                 } 
                 else
                 {
                     //blank override out
-                    LLGLTFMaterialList::queueApply(objectp->getID(), te, asset_id);
+                    LLGLTFMaterialList::queueApply(objectp, te, asset_id);
                 }
 
             }

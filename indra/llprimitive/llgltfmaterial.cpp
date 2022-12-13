@@ -392,9 +392,21 @@ bool LLGLTFMaterial::setBaseMaterial()
 {
     const LLGLTFMaterial old_override = *this;
     *this = sDefault;
-    // Preserve the texture transforms
-    mTextureTransform = old_override.mTextureTransform;
+    setBaseMaterial(old_override);
     return *this != old_override;
+}
+
+bool LLGLTFMaterial::isClearedForBaseMaterial()
+{
+    LLGLTFMaterial cleared_override = sDefault;
+    cleared_override.setBaseMaterial(*this);
+    return *this == cleared_override;
+}
+
+// For material overrides only. Copies transforms from the old override.
+void LLGLTFMaterial::setBaseMaterial(const LLGLTFMaterial& old_override_mat)
+{
+    mTextureTransform = old_override_mat.mTextureTransform;
 }
 
 

@@ -185,6 +185,8 @@ public:
     // For material overrides only. Clears most properties to
     // default/fallthrough, but preserves the transforms.
     bool setBaseMaterial();
+    // True if setBaseMaterial() was just called
+    bool isClearedForBaseMaterial();
 
 private:
 
@@ -193,5 +195,7 @@ private:
 
     template<typename T>
     void writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, const LLUUID& texture_id) const;
+
+    void setBaseMaterial(const LLGLTFMaterial& old_override_mat);
 };
 

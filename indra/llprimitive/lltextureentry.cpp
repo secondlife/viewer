@@ -514,15 +514,15 @@ S32 LLTextureEntry::setBumpShiny(U8 bump_shiny)
 	return TEM_CHANGE_NONE;
 }
 
-void LLTextureEntry::setGLTFMaterial(LLGLTFMaterial* material)
+void LLTextureEntry::setGLTFMaterial(LLGLTFMaterial* material, bool local_origin)
 { 
     if (material != getGLTFMaterial())
     {
         // assert on precondtion:
-        // whether or not mGLTFMaterial is null, any existing override should have been nulled out 
+        // whether or not mGLTFMaterial is null, any existing override should have been cleared
         // before calling setGLTFMaterial
         // NOTE: if you're hitting this assert, try to make sure calling code is using LLViewerObject::setRenderMaterialID
-        llassert(getGLTFMaterialOverride() == nullptr);
+        llassert(!local_origin || getGLTFMaterialOverride() == nullptr || getGLTFMaterialOverride()->isClearedForBaseMaterial());
 
         mGLTFMaterial = material;
         if (mGLTFMaterial == nullptr)
@@ -538,6 +538,27 @@ void LLTextureEntry::setGLTFMaterialOverride(LLGLTFMaterial* mat)
     mGLTFMaterialOverrides = mat; 
 }
 
+S32 LLTextureEntry::setBaseMaterial()
+{
+    S32 changed = TEM_CHANGE_NONE;
+
+    if (mGLTFMaterialOverrides)
+    {
+        if (mGLTFMaterialOverrides->setBaseMaterial())
+        {
+            changed = TEM_CHANGE_TEXTURE;
+        }
+
+        if (LLGLTFMaterial::sDefault == *mGLTFMaterialOverrides)
+        {
+            mGLTFMaterialOverrides = nullptr;
+            changed = TEM_CHANGE_TEXTURE;
+        }
+    }
+
+    return changed;
+}
+
 LLGLTFMaterial* LLTextureEntry::getGLTFRenderMaterial() const
 { 
     if (mGLTFRenderMaterial.notNull())
@@ -545,7 +566,7 @@ LLGLTFMaterial* LLTextureEntry::getGLTFRenderMaterial() const
         return mGLTFRenderMaterial;
     }
     
-    llassert(getGLTFMaterialOverride() == nullptr);
+    llassert(getGLTFMaterialOverride() == nullptr || getGLTFMaterialOverride()->isClearedForBaseMaterial());
     return getGLTFMaterial();
 }
 
