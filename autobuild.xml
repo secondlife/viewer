@@ -3007,6 +3007,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-configuration</string>
                   <string>RelWithDebInfo</string>
+                  <string>-parallelizeTargets</string>
+                  <string>-jobs</string>
+                  <string>${AUTOBUILD_CPU_COUNT}</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                 </array>
@@ -3038,6 +3041,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-configuration</string>
                   <string>RelWithDebInfo</string>
+                  <string>-parallelizeTargets</string>
+                  <string>-jobs</string>
+                  <string>${AUTOBUILD_CPU_COUNT}</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                 </array>
@@ -3063,6 +3069,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-configuration</string>
                   <string>Release</string>
+                  <string>-parallelizeTargets</string>
+                  <string>-jobs</string>
+                  <string>${AUTOBUILD_CPU_COUNT}</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                 </array>
@@ -3092,6 +3101,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-configuration</string>
                   <string>Release</string>
+                  <string>-parallelizeTargets</string>
+                  <string>-jobs</string>
+                  <string>${AUTOBUILD_CPU_COUNT}</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                 </array>
@@ -3126,11 +3138,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>SecondLife.sln</string>
                 </array>
                 <key>command</key>
-                <string>devenv</string>
+                <string>msbuild.exe</string>
                 <key>options</key>
                 <array>
-                  <string>/build</string>
-                  <string>RelWithDebInfo|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
+                  <string>/p:Configuration=RelWithDebInfo</string>
+                  <string>/p:Platform=${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
+                  <string>/t:Build</string>
+                  <string>/p:useenv=true</string>
+                  <string>/verbosity:minimal</string>
+                  <string>/p:VCBuildAdditionalOptions= /incremental</string>
+                  <string>/m:${AUTOBUILD_CPU_COUNT}</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3197,11 +3214,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>SecondLife.sln</string>
                 </array>
                 <key>command</key>
-                <string>devenv</string>
+                <string>msbuild.exe</string>
                 <key>options</key>
                 <array>
-                  <string>/build</string>
-                  <string>Release|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
+                  <string>/p:Configuration=Release</string>
+                  <string>/p:Platform=${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
+                  <string>/t:Build</string>
+                  <string>/p:useenv=true</string>
+                  <string>/verbosity:minimal</string>
+                  <string>/p:VCBuildAdditionalOptions= /incremental</string>
+                  <string>/m:${AUTOBUILD_CPU_COUNT}</string>
                 </array>
               </map>
               <key>configure</key>
