@@ -28,7 +28,6 @@ $/LicenseInfo$
 """
 import errno
 import glob
-import itertools
 import json
 import os
 import os.path
@@ -36,12 +35,9 @@ import plistlib
 import random
 import re
 import shutil
-import stat
 import subprocess
 import sys
-import tarfile
 import time
-import zipfile
 
 viewer_dir = os.path.dirname(__file__)
 # Add indra/lib/python to our path so we don't have to muck with PYTHONPATH.
@@ -49,7 +45,7 @@ viewer_dir = os.path.dirname(__file__)
 # indra.util.llmanifest under their system Python!
 sys.path.insert(0, os.path.join(viewer_dir, os.pardir, "lib", "python"))
 from indra.util.llmanifest import LLManifest, main, path_ancestors, CHANNEL_VENDOR_BASE, RELEASE_CHANNEL, ManifestError, MissingError
-from llbase import llsd
+import llsd
 
 class ViewerManifest(LLManifest):
     def is_packaging_viewer(self):

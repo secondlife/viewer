@@ -28,7 +28,7 @@ $/LicenseInfo$
 
 import argparse
 from lxml import etree
-from llbase import llsd
+import llsd
 
 def get_metrics_record(infiles):
     for filename in args.infiles:
