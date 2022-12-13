@@ -167,19 +167,19 @@ private:
 protected:
 	handle_t generateHandle();
 	bool addRequest(QueuedRequest* req);
-	S32  processNextRequest(void);
+	size_t  processNextRequest(void);
 	void incQueue();
 
 public:
 	bool waitForResult(handle_t handle, bool auto_complete = true);
 
-	virtual S32 update(F32 max_time_ms);
-	S32 updateQueue(F32 max_time_ms);
-	
+	virtual size_t update(F32 max_time_ms);
+	size_t updateQueue(F32 max_time_ms);
+
 	void waitOnPending();
 	void printQueueStats();
 
-	virtual S32 getPending();
+	virtual size_t getPending();
 	bool getThreaded() { return mThreaded ? true : false; }
 
 	// Request accessors

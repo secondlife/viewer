@@ -123,7 +123,7 @@ U32 micro_sleep(U64 us, U32 max_yields)
     // interrupts at 250 Hz (every 4,000 microseconds).
     const U64 KERNEL_SLEEP_INTERVAL_US = 4000;
 
-    S32 num_sleep_intervals = (us - (KERNEL_SLEEP_INTERVAL_US >> 1)) / KERNEL_SLEEP_INTERVAL_US;
+    auto num_sleep_intervals = (us - (KERNEL_SLEEP_INTERVAL_US >> 1)) / KERNEL_SLEEP_INTERVAL_US;
     if (num_sleep_intervals > 0)
     {
         U64 sleep_time = (num_sleep_intervals * KERNEL_SLEEP_INTERVAL_US) - (KERNEL_SLEEP_INTERVAL_US >> 1);
