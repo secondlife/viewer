@@ -44,6 +44,7 @@
 #include "llagent.h"  // HACK for destinations guide on startup
 #include "llfloaterreg.h"  // HACK for destinations guide on startup
 #include "llviewercontrol.h"  // HACK for destinations guide on startup
+#include "llinventorymodel.h" // HACK to disable starter avatars button for NUX
 
 #include <boost/foreach.hpp>
 
@@ -319,6 +320,22 @@ bool LLToolBarView::loadToolbars(bool force_default)
 			}
 		}
 	}
+
+    // SL-18581: Don't show the starter avatar toolbar button for NUX users
+    LLViewerInventoryCategory* my_outfits_cat = gInventory.getCategory(gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS));
+    if (gAgent.isFirstLogin()
+        && my_outfits_cat != NULL
+        && my_outfits_cat->getDescendentCount() > 0)
+    {
+        for (S32 i = LLToolBarEnums::TOOLBAR_FIRST; i <= LLToolBarEnums::TOOLBAR_LAST; i++)
+        {
+            if (mToolbars[i])
+            {
+                mToolbars[i]->removeCommand(LLCommandId("avatar"));
+            }
+        }
+    }
+
 	mToolbarsLoaded = true;
 	return true;
 }

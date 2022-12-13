@@ -317,7 +317,8 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mLastUpdateType(OUT_UNKNOWN),
 	mLastUpdateCached(FALSE),
 	mCachedMuteListUpdateTime(0),
-	mCachedOwnerInMuteList(false)
+	mCachedOwnerInMuteList(false),
+	mRiggedAttachedWarned(false)
 {
 	if (!is_global)
 	{

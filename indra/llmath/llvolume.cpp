@@ -5070,6 +5070,17 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 	{
 		U16 index = mIndices[i];
 
+        if (index >= mNumVertices)
+        {
+            // invalid index
+            // replace with a valid index to avoid crashes
+            index = mNumVertices - 1;
+            mIndices[i] = index;
+
+            // Needs better logging
+            LL_DEBUGS_ONCE("LLVOLUME") << "Invalid index, substituting" << LL_ENDL;
+        }
+
 		LLVolumeFace::VertexData cv;
 		getVertexData(index, cv);
 		
@@ -5451,6 +5462,17 @@ struct MikktData
             n[i].scaleVec(inv_scale);
             n[i].normalize();
             tc[i].set(face->mTexCoords[idx]);
+
+            if (idx >= face->mNumVertices)
+            {
+                // invalid index
+                // replace with a valid index to avoid crashes
+                idx = face->mNumVertices - 1;
+                face->mIndices[i] = idx;
+
+                // Needs better logging
+                LL_DEBUGS_ONCE("LLVOLUME") << "Invalid index, substituting" << LL_ENDL;
+            }
 
             if (face->mWeights)
             {
