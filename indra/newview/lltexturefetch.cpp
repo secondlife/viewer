@@ -2555,8 +2555,6 @@ S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const L
 					   << " Discard: " << desired_discard << " size " << desired_size << LL_ENDL;
 	return desired_discard;
 }
-
-
 // Threads:  T*
 //
 // protected
