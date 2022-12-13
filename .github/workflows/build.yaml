@@ -66,8 +66,8 @@ jobs:
             installer_path=$(find ./build-*/newview/ | grep '\.dmg')
             installer_name="$(basename $installer_path)"
           fi
-          echo "::set-output name=installer_path::$installer_path"
-          echo "::set-output name=installer_name::$installer_name"
+          echo "installer_path=$installer_path" >> $GITHUB_OUTPUT
+          echo "installer_name=$installer_name" >> $GITHUB_OUTPUT
       
       - name: Upload installer
         uses: actions/upload-artifact@v3
