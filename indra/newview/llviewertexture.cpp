@@ -408,9 +408,6 @@ void LLViewerTextureManager::init()
 	LLViewerFetchedTexture::sDefaultImagep->dontDiscard();
 	LLViewerFetchedTexture::sDefaultImagep->setCategory(LLGLTexture::OTHER);
 
- 	LLViewerFetchedTexture::sSmokeImagep = LLViewerTextureManager::getFetchedTexture(IMG_SMOKE, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-	LLViewerFetchedTexture::sSmokeImagep->setNoDelete();
-
 	image_raw = new LLImageRaw(32,32,3);
 	data = image_raw->getData();
 
@@ -1012,6 +1009,19 @@ const std::string& fttype_to_string(const FTType& fttype)
 //----------------------------------------------------------------------------------------------
 //start of LLViewerFetchedTexture
 //----------------------------------------------------------------------------------------------
+
+//static 
+LLViewerFetchedTexture* LLViewerFetchedTexture::getSmokeImage()
+{
+    if (sSmokeImagep.isNull())
+    {
+        sSmokeImagep = LLViewerTextureManager::getFetchedTexture(IMG_SMOKE);
+    }
+
+    gPipeline.touchTexture(sSmokeImagep, 1024.f * 1024.f);
+
+    return sSmokeImagep;
+}
 
 LLViewerFetchedTexture::LLViewerFetchedTexture(const LLUUID& id, FTType f_type, const LLHost& host, BOOL usemipmaps)
 	: LLViewerTexture(id, usemipmaps),
