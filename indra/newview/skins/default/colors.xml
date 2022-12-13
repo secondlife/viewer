@@ -988,4 +988,10 @@
   <color
     name="PerformanceMid"
     value="1 0.8 0 1" />
+  <color
+    name="OutfitSnapshotMacMask"
+    value="0.115 0.115 0.115 1"/>
+  <color
+    name="OutfitSnapshotMacMask2"
+    value="0.1 0.1 0.1 1"/>
 </colors>

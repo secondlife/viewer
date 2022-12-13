@@ -262,6 +262,8 @@ static const F32 MIN_UI_SCALE = 0.75f;
 static const F32 MAX_UI_SCALE = 7.0f;
 static const F32 MIN_DISPLAY_SCALE = 0.75f;
 
+static const char KEY_MOUSELOOK = 'M';
+
 static LLCachedControl<std::string>	sSnapshotBaseName(LLCachedControl<std::string>(gSavedPerAccountSettings, "SnapshotBaseName", "Snapshot"));
 static LLCachedControl<std::string>	sSnapshotDir(LLCachedControl<std::string>(gSavedPerAccountSettings, "SnapshotBaseDir", ""));
 
@@ -2232,31 +2234,36 @@ void LLViewerWindow::initWorldUI()
 	// Force gFloaterTools to initialize
 	LLFloaterReg::getInstance("build");
 
-
 	// Status bar
 	LLPanel* status_bar_container = getRootView()->getChild<LLPanel>("status_bar_container");
 	gStatusBar = new LLStatusBar(status_bar_container->getLocalRect());
-	gStatusBar->setFollowsAll();
+	gStatusBar->setFollows(FOLLOWS_LEFT | FOLLOWS_TOP | FOLLOWS_RIGHT);
 	gStatusBar->setShape(status_bar_container->getLocalRect());
 	// sync bg color with menu bar
 	gStatusBar->setBackgroundColor( gMenuBarView->getBackgroundColor().get() );
     // add InBack so that gStatusBar won't be drawn over menu
-	status_bar_container->addChildInBack(gStatusBar);
-	status_bar_container->setVisible(TRUE);
+    status_bar_container->addChildInBack(gStatusBar, 2/*tab order, after menu*/);
+    status_bar_container->setVisible(TRUE);
 
 	// Navigation bar
-	LLPanel* nav_bar_container = getRootView()->getChild<LLPanel>("nav_bar_container");
+	LLView* nav_bar_container = getRootView()->getChild<LLView>("nav_bar_container");
 
 	LLNavigationBar* navbar = LLNavigationBar::getInstance();
 	navbar->setShape(nav_bar_container->getLocalRect());
 	navbar->setBackgroundColor(gMenuBarView->getBackgroundColor().get());
 	nav_bar_container->addChild(navbar);
 	nav_bar_container->setVisible(TRUE);
-	
+
+
 	if (!gSavedSettings.getBOOL("ShowNavbarNavigationPanel"))
 	{
 		navbar->setVisible(FALSE);
 	}
+    else
+    {
+        reshapeStatusBarContainer();
+    }
+
 
 	// Top Info bar
 	LLPanel* topinfo_bar_container = getRootView()->getChild<LLPanel>("topinfo_bar_container");
@@ -2883,6 +2890,13 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
     if (keyboard_focus
         && !gFocusMgr.getKeystrokesOnly())
     {
+        //Most things should fall through, but mouselook is an exception,
+        //don't switch to mouselook if any floater has focus
+        if ((key == KEY_MOUSELOOK) && !(mask & (MASK_CONTROL | MASK_ALT)))
+        {
+            return TRUE;
+        }
+
         LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(keyboard_focus);
         if (cur_focus && cur_focus->acceptsTextInput())
         {
@@ -5841,6 +5855,27 @@ LLRect LLViewerWindow::getChatConsoleRect()
 	}
 
 	return console_rect;
+}
+
+void LLViewerWindow::reshapeStatusBarContainer()
+{
+    LLPanel* status_bar_container = getRootView()->getChild<LLPanel>("status_bar_container");
+    LLView* nav_bar_container = getRootView()->getChild<LLView>("nav_bar_container");
+
+    S32 new_height = status_bar_container->getRect().getHeight();
+    S32 new_width = status_bar_container->getRect().getWidth();
+
+    if (gSavedSettings.getBOOL("ShowNavbarNavigationPanel"))
+    {
+        // Navigation bar is outside visible area, expand status_bar_container to show it
+        new_height += nav_bar_container->getRect().getHeight();
+    }
+    else
+    {
+        // collapse status_bar_container
+        new_height -= nav_bar_container->getRect().getHeight();
+    }
+    status_bar_container->reshape(new_width, new_height, TRUE);
 }
 //----------------------------------------------------------------------------
 

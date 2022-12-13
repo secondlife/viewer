@@ -84,7 +84,7 @@ LLFloater360Capture::~LLFloater360Capture()
     // Tell the Simulator not to send us everything anymore
     // and revert to the regular "keyhole" frustum of interest
     // list updates.
-    if (gSavedSettings.getBOOL("360CaptureUseInterestListCap"))
+    if (!LLApp::isExiting() && gSavedSettings.getBOOL("360CaptureUseInterestListCap"))
     {
         const bool send_everything = false;
         changeInterestListMode(send_everything);
