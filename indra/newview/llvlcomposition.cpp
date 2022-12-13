@@ -287,7 +287,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 			BOOL delete_raw = (mDetailTextures[i]->reloadRawImage(ddiscard) != NULL) ;
 			if(mDetailTextures[i]->getRawImageLevel() != ddiscard)//raw iamge is not ready, will enter here again later.
 			{
-                if (mDetailTextures[i]->getDecodePriority() <= 0.0f && !mDetailTextures[i]->hasSavedRawImage())
+                if (mDetailTextures[i]->getFetchPriority() <= 0.0f && !mDetailTextures[i]->hasSavedRawImage())
                 {
                     mDetailTextures[i]->setBoostLevel(LLGLTexture::BOOST_MAP);
                     mDetailTextures[i]->forceToRefetchTexture(ddiscard);
