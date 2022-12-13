@@ -48,6 +48,7 @@
 #include "lltexturectrl.h"
 #include "llcombobox.h"
 //#include "llfirstuse.h"
+#include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llmanipscale.h"
 #include "llinventorymodel.h"
@@ -378,7 +379,7 @@ void LLPanelVolume::getState( )
     // Reflection Probe
     BOOL is_probe = volobjp && volobjp->isReflectionProbe();
     getChild<LLUICtrl>("Reflection Probe")->setValue(is_probe);
-    getChildView("Reflection Probe")->setEnabled(editable && single_volume && volobjp);
+    getChildView("Reflection Probe")->setEnabled(editable && single_volume && volobjp && !volobjp->isMesh());
 
     bool probe_enabled = is_probe && editable && single_volume;
 
@@ -746,8 +747,30 @@ void LLPanelVolume::sendIsReflectionProbe()
     LLVOVolume* volobjp = (LLVOVolume*)objectp;
 
     BOOL value = getChild<LLUICtrl>("Reflection Probe")->getValue();
+    BOOL old_value = volobjp->isReflectionProbe();
+
     volobjp->setIsReflectionProbe(value);
     LL_INFOS() << "update reflection probe sent" << LL_ENDL;
+
+    if (value && !old_value)
+    { // has become a reflection probe, slam to a 10m sphere and pop up a message
+        // warning people about the pitfalls of reflection probes
+        auto* select_mgr = LLSelectMgr::getInstance();
+
+        mObject->setScale(LLVector3(10.f, 10.f, 10.f));
+        select_mgr->sendMultipleUpdate(UPD_ROTATION | UPD_POSITION | UPD_SCALE);
+
+        select_mgr->selectionUpdatePhantom(true);
+        select_mgr->selectionSetGLTFMaterial(LLUUID::null);
+        select_mgr->selectionSetAlphaOnly(0.f);
+        
+        LLVolumeParams params;
+        params.getPathParams().setCurveType(LL_PCODE_PATH_CIRCLE);
+        params.getProfileParams().setCurveType(LL_PCODE_PROFILE_CIRCLE_HALF);
+        mObject->updateVolume(params);
+
+        LLNotificationsUtil::add("ReflectionProbeApplied");
+    }
 }
 
 void LLPanelVolume::sendIsFlexible()
@@ -1309,14 +1332,40 @@ void LLPanelVolume::onCommitProbe(LLUICtrl* ctrl, void* userdata)
     }
     LLVOVolume* volobjp = (LLVOVolume*)objectp;
 
-
     volobjp->setReflectionProbeAmbiance((F32)self->getChild<LLUICtrl>("Probe Ambiance")->getValue().asReal());
     volobjp->setReflectionProbeNearClip((F32)self->getChild<LLUICtrl>("Probe Near Clip")->getValue().asReal());
     volobjp->setReflectionProbeIsDynamic(self->getChild<LLUICtrl>("Probe Dynamic")->getValue().asBoolean());
 
     std::string shape_type = self->getChild<LLUICtrl>("Probe Volume Type")->getValue().asString();
 
-    volobjp->setReflectionProbeIsBox(shape_type == "Box");
+    bool is_box = shape_type == "Box";
+
+    if (volobjp->setReflectionProbeIsBox(is_box))
+    {
+        // make the volume match the probe
+        U8 profile, path;
+
+        if (!is_box)
+        {
+            profile = LL_PCODE_PROFILE_CIRCLE_HALF;
+            path = LL_PCODE_PATH_CIRCLE;
+
+            F32 scale = volobjp->getScale().mV[0];
+            volobjp->setScale(LLVector3(scale, scale, scale), FALSE);
+            LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_ROTATION | UPD_POSITION | UPD_SCALE);
+        }
+        else
+        {
+            profile = LL_PCODE_PROFILE_SQUARE;
+            path = LL_PCODE_PATH_LINE;
+        }
+        
+        LLVolumeParams params;
+        params.getProfileParams().setCurveType(profile);
+        params.getPathParams().setCurveType(path);
+        objectp->updateVolume(params);
+    }
+
 }
 
 // static

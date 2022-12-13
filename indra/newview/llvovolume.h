@@ -295,11 +295,11 @@ public:
 	F32 getLightCutoff() const;
 
     // Reflection Probes
-    void setIsReflectionProbe(BOOL is_probe);
-    void setReflectionProbeAmbiance(F32 ambiance);
-    void setReflectionProbeNearClip(F32 near_clip);
-    void setReflectionProbeIsBox(bool is_box);
-    void setReflectionProbeIsDynamic(bool is_dynamic);
+    bool setIsReflectionProbe(BOOL is_probe);
+    bool setReflectionProbeAmbiance(F32 ambiance);
+    bool setReflectionProbeNearClip(F32 near_clip);
+    bool setReflectionProbeIsBox(bool is_box);
+    bool setReflectionProbeIsDynamic(bool is_dynamic);
 
     BOOL isReflectionProbe() const override;
     F32 getReflectionProbeAmbiance() const;

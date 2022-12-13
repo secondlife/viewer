@@ -12019,4 +12019,16 @@ Unpacking: [UNPACK_TIME]s [USIZE]KB
  type="notifytip">
 Material successfully created.  Asset ID: [ASSET_ID]
 </notification>
+
+  <notification
+    icon="notifytip.tga"
+    name="ReflectionProbeApplied"
+    persist="true"
+    type="alertmodal">
+    Your object has been set to the default Reflection Probe state, which is an invisible, phantom, 5m sphere.  To learn more about Reflection Probes and how to use them, see the Knowledge Base.
+    <usetemplate ignoretext="Reflection Probe tips"
+                 name="okignore"
+                 yestext="OK"/>
+  </notification>
+  
 </notifications>
