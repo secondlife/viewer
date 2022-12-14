@@ -122,7 +122,7 @@ namespace tut
             try
             {
                 ensure(STRINGIZE("call " << i << " too soon"), diff >= interval);
-                ensure(STRINGIZE("call " << i << " too late"), diff < interval*1.5);
+                ensure(STRINGIZE("call " << i << " too late"), diff < interval*1.8);
             }
             catch (const tut::failure&)
             {
