@@ -83,7 +83,7 @@ namespace tut
         // signal the work item that it can quit; consider LLOneShotCond.
         LLCond<Shared> data;
         auto start = WorkQueue::TimePoint::clock::now();
-        auto interval = 100ms;
+        auto interval = 1000ms;
         queue.postEvery(
             interval,
             [&data, count = 0]
