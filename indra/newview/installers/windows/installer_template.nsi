@@ -521,6 +521,7 @@ FunctionEnd
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Make sure the user can uninstall
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+/*
 Function un.CheckIfAdministrator
     DetailPrint $(CheckAdministratorUnInstDP)
     UserInfo::GetAccountType
@@ -532,6 +533,7 @@ lbl_is_admin:
     Return
 
 FunctionEnd
+*/
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function CheckWillUninstallV2               
