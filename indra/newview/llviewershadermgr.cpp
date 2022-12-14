@@ -92,8 +92,7 @@ LLGLSLShader	gDownsampleDepthProgram;
 LLGLSLShader	gDownsampleDepthRectProgram;
 LLGLSLShader	gAlphaMaskProgram;
 LLGLSLShader	gBenchmarkProgram;
-LLGLSLShader    gScreenSpaceReflectionProgram;
-
+LLGLSLShader    gReflectionProbeDisplayProgram;
 
 //object shaders
 LLGLSLShader		gObjectSimpleProgram;
@@ -694,6 +693,7 @@ void LLViewerShaderMgr::unloadShaders()
 	gDownsampleDepthProgram.unload();
 	gDownsampleDepthRectProgram.unload();
 	gBenchmarkProgram.unload();
+    gReflectionProbeDisplayProgram.unload();
 	gAlphaMaskProgram.unload();
 	gUIProgram.unload();
 	gPathfindingProgram.unload();
@@ -710,7 +710,6 @@ void LLViewerShaderMgr::unloadShaders()
 	gOneTextureFilterProgram.unload();
 	gOneTextureNoColorProgram.unload();
 	gSolidColorProgram.unload();
-    gScreenSpaceReflectionProgram.unload();
 
 	gObjectFullbrightNoColorProgram.unload();
 	gObjectFullbrightNoColorWaterProgram.unload();
@@ -3888,6 +3887,18 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		success = gBenchmarkProgram.createShader(NULL, NULL);
 	}
 
+    if (success)
+    {
+        gReflectionProbeDisplayProgram.mName = "Reflection Probe Display Shader";
+        gReflectionProbeDisplayProgram.mFeatures.hasReflectionProbes = true;
+        gReflectionProbeDisplayProgram.mShaderFiles.clear();
+        gReflectionProbeDisplayProgram.mShaderFiles.push_back(make_pair("interface/reflectionprobeV.glsl", GL_VERTEX_SHADER));
+        gReflectionProbeDisplayProgram.mShaderFiles.push_back(make_pair("interface/reflectionprobeF.glsl", GL_FRAGMENT_SHADER));
+        gReflectionProbeDisplayProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
+        success = gReflectionProbeDisplayProgram.createShader(NULL, NULL);
+    }
+
+    
 	if (success)
 	{
 		gDownsampleDepthRectProgram.mName = "DownsampleDepthRect Shader";

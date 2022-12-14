@@ -38,6 +38,12 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
         pos, norm, glossiness, false);
 }
 
+vec4 sampleReflectionProbesDebug(vec3 pos)
+{
+    //output green to debug display
+    return vec4(0, 1, 0, 0.5);
+}
+
 void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv, 
         vec3 pos, vec3 norm, float glossiness, float envIntensity)
 {

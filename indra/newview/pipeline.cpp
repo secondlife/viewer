@@ -338,6 +338,18 @@ static LLCullResult* sCull = NULL;
 
 void validate_framebuffer_object();
 
+// override the projection_matrix uniform on the given shader to that which would be set by the main camera
+void set_camera_projection_matrix(LLGLSLShader& shader)
+{
+    auto          camProj = LLViewerCamera::getInstance()->getProjection();
+    glh::matrix4f projection = get_current_projection();
+    projection.set_row(0, glh::vec4f(camProj.mMatrix[0][0], camProj.mMatrix[0][1], camProj.mMatrix[0][2], camProj.mMatrix[0][3]));
+    projection.set_row(0, glh::vec4f(camProj.mMatrix[1][0], camProj.mMatrix[1][1], camProj.mMatrix[1][2], camProj.mMatrix[1][3]));
+    projection.set_row(0, glh::vec4f(camProj.mMatrix[2][0], camProj.mMatrix[2][1], camProj.mMatrix[2][2], camProj.mMatrix[2][3]));
+    projection.set_row(0, glh::vec4f(camProj.mMatrix[3][0], camProj.mMatrix[3][1], camProj.mMatrix[3][2], camProj.mMatrix[3][3]));
+    shader.uniformMatrix4fv(LLShaderMgr::PROJECTION_MATRIX, 1, FALSE, projection.m);
+}
+
 // Add color attachments for deferred rendering
 // target -- RenderTarget to add attachments to
 bool addDeferredAttachments(LLRenderTarget& target, bool for_impostor = false)
@@ -491,7 +503,21 @@ void LLPipeline::init()
 
 	mDeferredVB = new LLVertexBuffer(DEFERRED_VB_MASK, 0);
 	mDeferredVB->allocateBuffer(8, 0, true);
-	setLightingDetail(-1);
+
+    {
+        mScreenTriangleVB = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX, GL_STATIC_DRAW);
+        mScreenTriangleVB->allocateBuffer(3, 0, true);
+        LLStrider<LLVector3> vert;
+        mScreenTriangleVB->getVertexStrider(vert);
+
+        vert[0].set(-1, 1, 0);
+        vert[1].set(-1, -3, 0);
+        vert[2].set(3, 1, 0);
+
+        mScreenTriangleVB->flush();
+    }
+
+    setLightingDetail(-1);
 	
 	//
 	// Update all settings to trigger a cached settings refresh
@@ -659,6 +685,7 @@ void LLPipeline::cleanup()
 	mInitialized = false;
 
 	mDeferredVB = NULL;
+    mScreenTriangleVB = nullptr;
 
 	mCubeVB = NULL;
 
@@ -5210,6 +5237,21 @@ void LLPipeline::renderDebug()
     if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_REFLECTION_PROBES) && !hud_only)
     {
         mReflectionMapManager.renderDebug();
+
+        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("probe debug display");
+
+        bindDeferredShader(gReflectionProbeDisplayProgram, NULL);
+        mScreenTriangleVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+
+        // Provide our projection matrix.
+        set_camera_projection_matrix(gReflectionProbeDisplayProgram);
+
+        LLGLEnable blend(GL_BLEND);
+        LLGLDepthTest depth(GL_FALSE);
+
+        mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+        unbindDeferredShader(gReflectionProbeDisplayProgram);
     }
 
 	gUIProgram.bind();
@@ -7513,31 +7555,18 @@ void LLPipeline::renderFinalize()
 
     if (!gCubeSnapshot)
     {
+        LLRenderTarget* screen_target = &mRT->screen;
+        screen_target->bindTarget();
+
         if (RenderScreenSpaceReflections)
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("renderDeferredLighting - screen space reflections");
             LL_PROFILE_GPU_ZONE("screen space reflections");
-            LLStrider<LLVector3> vert;
-            mDeferredVB->getVertexStrider(vert);
-
-            vert[0].set(-1, 1, 0);
-            vert[1].set(-1, -3, 0);
-            vert[2].set(3, 1, 0);
-
-            // Make sure the deferred VB is a full screen triangle.
-            mDeferredVB->getVertexStrider(vert);
 
             bindDeferredShader(gPostScreenSpaceReflectionProgram, NULL);
-            mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+            mScreenTriangleVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 
-            // Provide our projection matrix.
-            auto          camProj    = LLViewerCamera::getInstance()->getProjection();
-            glh::matrix4f projection = get_current_projection();
-            projection.set_row(0, glh::vec4f(camProj.mMatrix[0][0], camProj.mMatrix[0][1], camProj.mMatrix[0][2], camProj.mMatrix[0][3]));
-            projection.set_row(0, glh::vec4f(camProj.mMatrix[1][0], camProj.mMatrix[1][1], camProj.mMatrix[1][2], camProj.mMatrix[1][3]));
-            projection.set_row(0, glh::vec4f(camProj.mMatrix[2][0], camProj.mMatrix[2][1], camProj.mMatrix[2][2], camProj.mMatrix[2][3]));
-            projection.set_row(0, glh::vec4f(camProj.mMatrix[3][0], camProj.mMatrix[3][1], camProj.mMatrix[3][2], camProj.mMatrix[3][3]));
-            gPostScreenSpaceReflectionProgram.uniformMatrix4fv(LLShaderMgr::PROJECTION_MATRIX, 1, FALSE, projection.m);
+            set_camera_projection_matrix(gPostScreenSpaceReflectionProgram);
 
             // We need linear depth.
             static LLStaticHashedString zfar("zFar");
@@ -7547,14 +7576,10 @@ void LLPipeline::renderFinalize()
             gPostScreenSpaceReflectionProgram.uniform1f(zfar, farClip);
             gPostScreenSpaceReflectionProgram.uniform1f(znear, nearClip);
 
-            LLRenderTarget *screen_target = &mRT->screen;
-
-            screen_target->bindTarget();
             S32 channel = gPostScreenSpaceReflectionProgram.enableTexture(LLShaderMgr::DIFFUSE_MAP, screen_target->getUsage());
             if (channel > -1)
             {
                 screen_target->bindTexture(0, channel, LLTexUnit::TFO_POINT);
-				
             }
 
             {
@@ -7567,23 +7592,17 @@ void LLPipeline::renderFinalize()
             }
 
             unbindDeferredShader(gPostScreenSpaceReflectionProgram);
-
-            screen_target->flush();
         }
 
         // gamma correct lighting
-
         {
             LL_PROFILE_GPU_ZONE("gamma correct");
 
             LLGLDepthTest depth(GL_FALSE, GL_FALSE);
 
-            LLRenderTarget* screen_target = &mRT->screen;
-
             LLVector2 tc1(0, 0);
             LLVector2 tc2((F32)screen_target->getWidth() * 2, (F32)screen_target->getHeight() * 2);
 
-            screen_target->bindTarget();
             // Apply gamma correction to the frame here.
             gDeferredPostGammaCorrectProgram.bind();
             // mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
@@ -7614,8 +7633,9 @@ void LLPipeline::renderFinalize()
 
             gGL.getTexUnit(channel)->unbind(screen_target->getUsage());
             gDeferredPostGammaCorrectProgram.unbind();
-            screen_target->flush();
         }
+
+        screen_target->flush();
 
         LLVertexBuffer::unbind();
     }

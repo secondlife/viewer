@@ -518,12 +518,20 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
     glossenv = sampleProbes(pos, normalize(refnormpersp), lod, errorCorrect);
 }
 
+vec4 sampleReflectionProbesDebug(vec3 pos)
+{
+    preProbeSample(pos);
+
+    return vec4(probeInfluences*0.25, 0, 0, probeInfluences*0.25);
+}
+
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
     vec3 pos, vec3 norm, float glossiness)
 {
     sampleReflectionProbes(ambenv, glossenv,
         pos, norm, glossiness, false);
 }
+
 
 void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
         vec3 pos, vec3 norm, float glossiness, float envIntensity)

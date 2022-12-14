@@ -693,8 +693,11 @@ public:
     LLCullResult            mReflectedObjects;
     LLCullResult            mRefractedObjects;
 
-	//utility buffer for rendering post effects, gets abused by renderDeferredLighting
+	//utility buffers for rendering post effects
 	LLPointer<LLVertexBuffer> mDeferredVB;
+
+    // a single triangle that covers the whole screen
+    LLPointer<LLVertexBuffer> mScreenTriangleVB;
 
 	//utility buffer for rendering cubes, 8 vertices are corners of a cube [-1, 1]
 	LLPointer<LLVertexBuffer> mCubeVB;
