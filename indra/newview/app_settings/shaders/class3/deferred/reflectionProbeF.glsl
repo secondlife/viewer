@@ -262,6 +262,40 @@ vec3 sphereIntersect(vec3 origin, vec3 dir, vec3 center, float radius2)
         return v; 
 } 
 
+void swap(inout float a, inout float b)
+{
+    float t = a;
+    a = b;
+    b = a;
+}
+
+// debug implementation, make no assumptions about origin
+bool sphereIntersectDebug(vec3 origin, vec3 dir, vec3 center, float radius2, out float t)
+{
+        float t0, t1; // solutions for t if the ray intersects 
+
+        // geometric solution
+        vec3 L = center - origin; 
+        float tca = dot(L, dir);
+        // if (tca < 0) return false;
+        float d2 = dot(L, L) - tca * tca; 
+        if (d2 > radius2) return false; 
+        float thc = sqrt(radius2 - d2); 
+        t0 = tca - thc; 
+        t1 = tca + thc; 
+
+        if (t0 > t1) swap(t0, t1); 
+ 
+        if (t0 < 0) { 
+            t0 = t1; // if t0 is negative, let's use t1 instead 
+            if (t0 < 0) return false; // both t0 and t1 are negative 
+        } 
+ 
+        t = t0; 
+ 
+        return true; 
+}
+
 // from https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
 /*
 vec3 DirectionWS = normalize(PositionWS - CameraWS);
@@ -310,6 +344,48 @@ vec3 boxIntersect(vec3 origin, vec3 dir, int i)
     return IntersectPositionCS;
 }
 
+// cribbed from https://iquilezles.org/articles/intersectors/
+// axis aligned box centered at the origin, with size boxSize
+bool boxIntersectionDebug( in vec3 ro, in vec3 p, vec3 boxSize, out bool behind) 
+{
+    vec3 rd = normalize(p-ro);
+
+    vec3 m = 1.0/rd; // can precompute if traversing a set of aligned boxes
+    vec3 n = m*ro;   // can precompute if traversing a set of aligned boxes
+    vec3 k = abs(m)*boxSize;
+    vec3 t1 = -n - k;
+    vec3 t2 = -n + k;
+    float tN = max( max( t1.x, t1.y ), t1.z );
+    float tF = min( min( t2.x, t2.y ), t2.z );
+    if( tN>tF || tF<0.0) return false; // no intersection
+    
+    float t = tN < 0 ? tF : tN;
+    
+    vec3 v = ro + rd * t;
+
+    v -= ro;
+    vec3 pos = p - ro;
+
+    behind = dot(v,v) > dot(pos,pos);
+
+    return true;
+}
+
+bool boxIntersectDebug(vec3 origin, vec3 pos, int i, out bool behind)
+{
+    mat4 clipToLocal = refBox[i];
+    
+    // transform into unit cube space
+    origin = (clipToLocal * vec4(origin, 1.0)).xyz;
+    pos = (clipToLocal * vec4(pos, 1.0)).xyz;
+
+    if (boxIntersectionDebug(origin, pos, vec3(1), behind))
+    {
+        return true;
+    }
+
+    return false;
+}
 
 
 // Tap a reflection probe
@@ -518,11 +594,76 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
     glossenv = sampleProbes(pos, normalize(refnormpersp), lod, errorCorrect);
 }
 
+void debugTapRefMap(vec3 pos, vec3 dir, float depth, int i, inout vec4 col)
+{
+    vec3 origin = vec3(0,0,0);
+
+    bool manual_probe = abs(refIndex[i].w) > 2;
+
+    if (refIndex[i].w < 0)
+    {
+        vec3 v;
+        bool behind;
+
+        if (boxIntersectDebug(origin, pos, i, behind))
+        {
+            float w = 0.5;
+            if (behind) 
+            {
+                w *= 0.5;
+                col += vec4(0,0,w,w);
+            }
+            else
+            {
+                col += vec4(w,w,0,w);
+            }
+        }
+    }
+    else
+    {
+        float r = refSphere[i].w; // radius of sphere volume
+        float rr = r * r; // radius squared
+
+        float t = 0.0;
+
+        if (sphereIntersectDebug(origin, dir, refSphere[i].xyz, rr, t))
+        {
+            if (t > depth)
+            {
+                float w = 0.25/((t-depth)*0.125 + 1.0);
+
+                if (manual_probe)
+                {
+                    col += vec4(0, 0, w, w);
+                }
+            }
+            else
+            {
+                if (manual_probe)
+                {
+                    float w = 0.5;
+
+                    col += vec4(w,w,0,w);
+                }
+            }
+        }
+    }
+}
+
 vec4 sampleReflectionProbesDebug(vec3 pos)
 {
-    preProbeSample(pos);
+    vec4 col = vec4(0,0,0,0);
 
-    return vec4(probeInfluences*0.25, 0, 0, probeInfluences*0.25);
+    vec3 dir = normalize(pos);
+
+    float d = length(pos);
+
+    for (int i = 1; i < refmapCount; ++i)
+    {
+        debugTapRefMap(pos, dir, d, i, col);
+    }
+
+    return col;
 }
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,

@@ -1465,6 +1465,15 @@ function="World.EnvPreset"
                      function="Tools.ShowSelectionLightRadius" />
                 </menu_item_check>
                 <menu_item_check
+                       label="Show Reflection Probe Volumes"
+                       name="Show Reflection Probe Volumes">
+                  <menu_item_check.on_check
+                   control="RenderReflectionProbeVolumes" />
+                  <menu_item_check.on_click
+                     function="ToggleControl"
+                     parameter="RenderReflectionProbeVolumes" />
+                </menu_item_check>
+                <menu_item_check
                  label="Show Selection Beam"
                  name="Show Selection Beam">
                     <menu_item_check.on_check

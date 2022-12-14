@@ -5237,7 +5237,10 @@ void LLPipeline::renderDebug()
     if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_REFLECTION_PROBES) && !hud_only)
     {
         mReflectionMapManager.renderDebug();
+    }
 
+    if (gSavedSettings.getBOOL("RenderReflectionProbeVolumes"))
+    {
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("probe debug display");
 
         bindDeferredShader(gReflectionProbeDisplayProgram, NULL);
