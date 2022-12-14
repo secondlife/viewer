@@ -129,7 +129,10 @@ public:
 	static void setDPIAwareness();
 
     /*virtual*/ void* getDirectInput8();
-    /*virtual*/ bool getInputDevices(U32 device_type_filter, void * di8_devices_callback, void* userdata);
+    /*virtual*/ bool getInputDevices(U32 device_type_filter,
+                                     std::function<void(std::string&, LLSD::Binary&, void*)> osx_callback,
+                                     void* win_callback,
+                                     void* userdata);
 
     U32 getRawWParam() { return mRawWParam; }
 

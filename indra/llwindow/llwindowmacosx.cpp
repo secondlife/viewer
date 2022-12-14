@@ -43,6 +43,13 @@
 #include <CoreServices/CoreServices.h>
 #include <CoreGraphics/CGDisplayConfiguration.h>
 
+#include <IOKit/IOCFPlugIn.h>
+#include <IOKit/IOKitLib.h>
+#include <IOKit/IOMessage.h>
+#include <IOKit/hid/IOHIDUsageTables.h>
+#include <IOKit/hid/IOHIDLib.h>
+#include <IOKit/usb/IOUSBLib.h>
+
 extern BOOL gDebugWindowProc;
 BOOL gHiDPISupport = TRUE;
 
@@ -212,13 +219,16 @@ bool callKeyUp(NSKeyEventRef event, unsigned short key, unsigned int mask)
 
 bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask, wchar_t character)
 {
-    if((key == gKeyboard->inverseTranslateKey('Z')) && (character == 'y'))
+    //if (mask!=MASK_NONE)
     {
-        key = gKeyboard->inverseTranslateKey('Y');
-    }
-    else if ((key == gKeyboard->inverseTranslateKey('Y')) && (character == 'z'))
-    {
-        key = gKeyboard->inverseTranslateKey('Z');
+        if((key == gKeyboard->inverseTranslateKey('Z')) && (character == 'y'))
+        {
+            key = gKeyboard->inverseTranslateKey('Y');
+        }
+        else if ((key == gKeyboard->inverseTranslateKey('Y')) && (character == 'z'))
+        {
+            key = gKeyboard->inverseTranslateKey('Z');
+        }
     }
 
     mRawKeyEvent = event;
@@ -1801,6 +1811,299 @@ void LLWindowMacOSX::spawnWebBrowser(const std::string& escaped_url, bool async)
 	{
 		LL_INFOS() << "Error: couldn't create URL." << LL_ENDL;
 	}
+}
+
+
+// Device and Element Interfaces
+
+typedef enum HIDElementTypeMask
+{
+    kHIDElementTypeInput                = 1 << 1,
+    kHIDElementTypeOutput          = 1 << 2,
+    kHIDElementTypeFeature          = 1 << 3,
+    kHIDElementTypeCollection        = 1 << 4,
+    kHIDElementTypeIO                    = kHIDElementTypeInput | kHIDElementTypeOutput | kHIDElementTypeFeature,
+    kHIDElementTypeAll                    = kHIDElementTypeIO | kHIDElementTypeCollection
+}HIDElementTypeMask;
+
+struct hu_element_t
+{
+    unsigned long type;                        // the type defined by IOHIDElementType in IOHIDKeys.h
+    long usage;                                // usage within above page from IOUSBHIDParser.h which defines specific usage
+    long usagePage;                            // usage page from IOUSBHIDParser.h which defines general usage
+    void* cookie;                             // unique value( within device of specific vendorID and productID ) which identifies element, will NOT change
+    long min;                                // reported min value possible
+    long max;                                // reported max value possible
+    long scaledMin;                            // reported scaled min value possible
+    long scaledMax;                            // reported scaled max value possible
+    long size;                                // size in bits of data return from element
+    unsigned char relative;                    // are reports relative to last report( deltas )
+    unsigned char wrapping;                    // does element wrap around( one value higher than max is min )
+    unsigned char nonLinear;                // are the values reported non-linear relative to element movement
+    unsigned char preferredState;            // does element have a preferred state( such as a button )
+    unsigned char nullState;                // does element have null state
+    long units;                                // units value is reported in( not used very often )
+    long unitExp;                            // exponent for units( also not used very often )
+    char name[256];                            // name of element( c string )
+
+    // runtime variables
+    long initialCenter;                     // center value at start up
+    unsigned char hasCenter;                 // whether or not to use center for calibration
+    long minReport;                         // min returned value
+    long maxReport;                         // max returned value( calibrate call )
+    long userMin;                             // user set value to scale to( scale call )
+    long userMax;
+
+    struct hu_element_t* pPrevious;            // previous element( NULL at list head )
+    struct hu_element_t* pChild;            // next child( only of collections )
+    struct hu_element_t* pSibling;            // next sibling( for elements and collections )
+
+    long depth;
+};
+
+struct HidDevice
+{                    // interface to device, NULL = no interface
+    char mProduct[256];                        // name of product
+    long mlocalID;                                // long representing location in USB( or other I/O ) chain which device is pluged into, can identify specific device on machine
+    long mUsage;                                // usage page from IOUSBHID Parser.h which defines general usage
+    long mUsagePage;                            // usage within above page from IOUSBHID Parser.h which defines specific usage
+};
+
+/*************************************************************************
+*
+* hu_BuildDevice( inHIDDevice )
+*
+* Purpose:  given a IO device object build a flat device record including device info and all elements
+*
+* Notes:    handles NULL lists properly
+*
+* Inputs:   inHIDDevice        - the I/O device object
+*
+* Returns:  hu_device_t*    - the address of the new device record
+*/
+
+
+static void populate_device_info( io_object_t io_obj_p, CFDictionaryRef device_dic, HidDevice* devicep )
+{
+    CFMutableDictionaryRef io_properties = nil;
+    io_registry_entry_t entry1;
+    io_registry_entry_t entry2;
+    kern_return_t rc;
+
+    // Mac OS X currently is not mirroring all USB properties to HID page so need to look at USB device page also
+    // get dictionary for usb properties: step up two levels and get CF dictionary for USB properties
+    // try to get parent1
+    rc = IORegistryEntryGetParentEntry( io_obj_p, kIOServicePlane, &entry1 );
+    if ( KERN_SUCCESS == rc )
+    {
+        rc = IORegistryEntryGetParentEntry( entry1, kIOServicePlane, &entry2 );
+        
+        IOObjectRelease( entry1 );
+        
+        if ( KERN_SUCCESS == rc )
+        {
+            rc = IORegistryEntryCreateCFProperties( entry2, &io_properties, kCFAllocatorDefault, kNilOptions );
+            // either way, release parent2
+            IOObjectRelease( entry2 );
+        }
+    }
+    if ( KERN_SUCCESS == rc )
+    {
+        // IORegistryEntryCreateCFProperties() succeeded
+        if ( io_properties != nil )
+        {
+            CFTypeRef dict_element = 0;
+            // get device info
+            // try hid dictionary first, if fail then go to usb dictionary
+            
+            
+            dict_element = CFDictionaryGetValue( device_dic, CFSTR(kIOHIDProductKey) );
+            if ( !dict_element )
+            {
+                dict_element = CFDictionaryGetValue( io_properties, CFSTR( "USB Product Name" ) );
+            }
+            if ( dict_element )
+            {
+                bool res = CFStringGetCString((CFStringRef)dict_element, devicep->mProduct, 256, kCFStringEncodingUTF8);
+                if ( !res )
+                {
+                    LL_WARNS("Joystick") << "Failed to populate mProduct" << LL_ENDL;
+                }
+            }
+            
+            dict_element = CFDictionaryGetValue( device_dic, CFSTR( kIOHIDLocationIDKey ) );
+            if ( !dict_element )
+            {
+                dict_element = CFDictionaryGetValue( io_properties, CFSTR( "locationID" ) );
+            }
+            if ( dict_element )
+            {
+                bool res = CFNumberGetValue( (CFNumberRef)dict_element, kCFNumberLongType, &devicep->mlocalID );
+                if ( !res )
+                {
+                    LL_WARNS("Joystick") << "Failed to populate mLocalID" << LL_ENDL;
+                }
+            }
+            
+            dict_element = CFDictionaryGetValue( device_dic, CFSTR( kIOHIDPrimaryUsagePageKey ) );
+            if ( dict_element )
+            {
+                bool res = CFNumberGetValue( (CFNumberRef)dict_element, kCFNumberLongType, &devicep->mUsagePage );
+                if ( !res )
+                {
+                    LL_WARNS("Joystick") << "Failed to populate mUsagePage" << LL_ENDL;
+                }
+                dict_element = CFDictionaryGetValue( device_dic, CFSTR( kIOHIDPrimaryUsageKey ) );
+                if ( dict_element )
+                {
+                    if ( !CFNumberGetValue( (CFNumberRef)dict_element, kCFNumberLongType, &devicep->mUsage ) )
+                    {
+                        LL_WARNS("Joystick") << "Failed to populate mUsage" << LL_ENDL;
+                    }
+                }
+            }
+            CFRelease(io_properties);
+        }
+        else
+        {
+            LL_WARNS("Joystick") << "Failed to populate fields" << LL_ENDL;
+        }
+    }
+}
+
+HidDevice populate_device( io_object_t io_obj )
+{
+    void* interfacep = nullptr;
+    HidDevice device;
+    memset( &device, 0, sizeof( HidDevice ) );
+    CFMutableDictionaryRef device_dic = 0;
+    kern_return_t result = IORegistryEntryCreateCFProperties( io_obj, &device_dic, kCFAllocatorDefault, kNilOptions );
+    
+    if ( KERN_SUCCESS == result
+        && device_dic )
+    {
+        IOReturn io_result = kIOReturnSuccess;
+        HRESULT query_result = S_OK;
+        SInt32 the_score = 0;
+        IOCFPlugInInterface **the_interface = NULL;
+        
+        
+        io_result = IOCreatePlugInInterfaceForService( io_obj, kIOHIDDeviceUserClientTypeID,
+                                                        kIOCFPlugInInterfaceID, &the_interface, &the_score );
+        if ( io_result == kIOReturnSuccess )
+        {
+            query_result = ( *the_interface )->QueryInterface( the_interface, CFUUIDGetUUIDBytes( kIOHIDDeviceInterfaceID ), ( LPVOID * ) & ( interfacep ) );
+            if ( query_result != S_OK )
+            {
+                LL_WARNS("Joystick") << "QueryInterface failed" << LL_ENDL;
+            }
+            IODestroyPlugInInterface( the_interface );
+        }
+        else
+        {
+            LL_WARNS("Joystick") << "IOCreatePlugInInterfaceForService failed" << LL_ENDL;
+        }
+        
+        if ( interfacep )
+        {
+            result = ( *( IOHIDDeviceInterface** )interfacep )->open( interfacep, 0 );
+            
+            if ( result != kIOReturnSuccess)
+            {
+                LL_WARNS("Joystick") << "open failed" << LL_ENDL;
+            }
+        }
+        // extract needed fields
+        populate_device_info( io_obj, device_dic, &device );
+        
+        // Release interface
+        if ( interfacep )
+        {
+            ( *( IOHIDDeviceInterface** ) interfacep )->close( interfacep );
+            
+            ( *( IOHIDDeviceInterface** ) interfacep )->Release( interfacep );
+
+            interfacep = NULL;
+        }
+        
+        CFRelease( device_dic );
+    }
+    else
+    {
+        LL_WARNS("Joystick") << "populate_device failed" << LL_ENDL;
+    }
+    
+    return device;
+}
+
+static void get_devices(std::list<HidDevice> &list_of_devices,
+                          io_iterator_t inIODeviceIterator)
+{
+    IOReturn result = kIOReturnSuccess;    // assume success( optimist! )
+    io_object_t io_obj = 0;
+    
+    while ( 0 != (io_obj = IOIteratorNext( inIODeviceIterator ) ) )
+    {
+        HidDevice device = populate_device( io_obj );
+        
+        list_of_devices.push_back(device);
+        
+        // release the device object, it is no longer needed
+        result = IOObjectRelease( io_obj );
+        if ( KERN_SUCCESS != result )
+        {
+            LL_WARNS("Joystick") << "IOObjectRelease failed" << LL_ENDL;
+        }
+    }
+}
+
+bool LLWindowMacOSX::getInputDevices(U32 device_type_filter,
+                                     std::function<void(std::string&, LLSD::Binary&, void*)> osx_callback,
+                                     void* win_callback,
+                                     void* userdata)
+{
+    CFMutableDictionaryRef device_dict_ref;
+    IOReturn result = kIOReturnSuccess;    // assume success( optimist! )
+    
+    // Set up matching dictionary to search the I/O Registry for HID devices we are interested in. Dictionary reference is NULL if error.
+    
+    // A dictionary to match devices to?
+    device_dict_ref = IOServiceMatching( kIOHIDDeviceKey );
+    
+    // BUG FIX! one reference is consumed by IOServiceGetMatchingServices
+    CFRetain( device_dict_ref );
+    io_iterator_t io_iter = 0;
+    
+    // create an IO object iterator
+    result = IOServiceGetMatchingServices( kIOMasterPortDefault, device_dict_ref, &io_iter );
+    if ( kIOReturnSuccess != result )
+    {
+        LL_WARNS("Joystick") << "IOServiceGetMatchingServices failed" << LL_ENDL;
+    }
+    
+    if ( io_iter )
+    {
+        // add all existing devices
+        std::list<HidDevice> device_list;
+        
+        get_devices(device_list, io_iter);
+        
+        std::list<HidDevice>::iterator iter;
+        
+        for (iter = device_list.begin(); iter != device_list.end(); ++iter)
+        {
+            S32 size = sizeof(long);
+            LLSD::Binary data; //just an std::vector
+            data.resize(size);
+            memcpy(&data[0], &iter->mlocalID, size);
+            std::string label(iter->mProduct);
+            
+            osx_callback(label, data, userdata);
+        }
+    }
+        
+    CFRelease( device_dict_ref );
+    return false; // todo: should be true once UI part gets done
 }
 
 LLSD LLWindowMacOSX::getNativeKeyData()

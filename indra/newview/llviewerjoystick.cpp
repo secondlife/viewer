@@ -227,7 +227,16 @@ std::string string_from_guid(const GUID &guid)
 
     return res;
 }
+#elif LL_DARWIN
+
+bool macos_devices_callback(std::string &product, LLSD::Binary &data, void* userdata)
+{
+    //LLViewerJoystick::getInstance()->initDevice(&device, product_name, data);
+    return false;
+}
+
 #endif
+
 
 // -----------------------------------------------------------------------------
 void LLViewerJoystick::updateEnabled(bool autoenable)
@@ -365,19 +374,21 @@ void LLViewerJoystick::init(bool autoenable)
 	{
 		if (mNdofDev)
         {
+            void* win_callback = nullptr;
+            std::function<void(std::string&, LLSD::Binary&, void*)> osx_callback;
             // di8_devices_callback callback is immediate and happens in scope of getInputDevices()
 #if LL_WINDOWS && !LL_MESA_HEADLESS
             // space navigator is marked as DI8DEVCLASS_GAMECTRL in ndof lib
             U32 device_type = DI8DEVCLASS_GAMECTRL;
-            void* callback = &di8_devices_callback;
+            win_callback = &di8_devices_callback;
 #else
             // MAC doesn't support device search yet
             // On MAC there is an ndof_idsearch and it is possible to specify product
             // and manufacturer in NDOF_Device for ndof_init_first to pick specific one
             U32 device_type = 0;
-            void* callback = NULL;
+            osx_callback = macos_devices_callback;
 #endif
-            if (!gViewerWindow->getWindow()->getInputDevices(device_type, callback, NULL))
+            if (!gViewerWindow->getWindow()->getInputDevices(device_type, osx_callback, win_callback, NULL))
             {
                 LL_INFOS("Joystick") << "Failed to gather devices from window. Falling back to ndof's init" << LL_ENDL;
                 // Failed to gather devices from windows, init first suitable one
@@ -438,21 +449,23 @@ void LLViewerJoystick::initDevice(LLSD &guid)
 {
 #if LIB_NDOF
     mLastDeviceUUID = guid;
+    void* win_callback = nullptr;
+    std::function<void(std::string&, LLSD::Binary&, void*)> osx_callback;
 
 #if LL_WINDOWS && !LL_MESA_HEADLESS
     // space navigator is marked as DI8DEVCLASS_GAMECTRL in ndof lib
     U32 device_type = DI8DEVCLASS_GAMECTRL;
-    void* callback = &di8_devices_callback;
+    win_callback = &di8_devices_callback;
 #else
     // MAC doesn't support device search yet
     // On MAC there is an ndof_idsearch and it is possible to specify product
     // and manufacturer in NDOF_Device for ndof_init_first to pick specific one
     U32 device_type = 0;
-    void* callback = NULL;
+    osx_callback = macos_devices_callback;
 #endif
 
     mDriverState = JDS_INITIALIZING; 
-    if (!gViewerWindow->getWindow()->getInputDevices(device_type, callback, NULL))
+    if (!gViewerWindow->getWindow()->getInputDevices(device_type, osx_callback, win_callback, NULL))
     {
         LL_INFOS("Joystick") << "Failed to gather devices from window. Falling back to ndof's init" << LL_ENDL;
         // Failed to gather devices from windows, init first suitable one

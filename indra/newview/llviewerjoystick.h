@@ -103,7 +103,11 @@ private:
 	bool					mCameraUpdated;
 	bool 					mOverrideCamera;
 	U32						mJoystickRun;
-	LLSD					mLastDeviceUUID; // _GUID as U8 binary map, integer 1 for no device/ndof's device
+    
+    // Windows: _GUID as U8 binary map
+    // MacOS: long as an U8 binary map
+    // Else: integer 1 for no device/ndof's default device
+	LLSD					mLastDeviceUUID;
 	
 	static F32				sLastDelta[7];
 	static F32				sDelta[7];
