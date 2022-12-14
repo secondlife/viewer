@@ -419,8 +419,8 @@ namespace LL
                 // moved-from.
                 try
                 {
-                    std::dynamic_pointer_cast<WorkSchedule>(mTarget.lock())->
-                        post(std::move(*this), mStart);
+                    auto target{ std::dynamic_pointer_cast<WorkSchedule>(mTarget.lock()) };
+                    target->post(std::move(*this), mStart);
                 }
                 catch (const Closed&)
                 {
