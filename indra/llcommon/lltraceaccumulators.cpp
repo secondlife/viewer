@@ -93,7 +93,7 @@ void AccumulatorBufferGroup::makeCurrent()
 	mStackTimers.makeCurrent();
 	mMemStats.makeCurrent();
 
-	ThreadRecorder* thread_recorder = get_thread_recorder().get();
+	ThreadRecorder* thread_recorder = get_thread_recorder();
 	AccumulatorBuffer<TimeBlockAccumulator>& timer_accumulator_buffer = mStackTimers;
 	// update stacktimer parent pointers
 	for (S32 i = 0, end_i = mStackTimers.size(); i < end_i; i++)

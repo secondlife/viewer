@@ -143,6 +143,9 @@ public:
 	// cancel() can restore them.	
 	void saveSettings();
 
+	void saveIgnoredNotifications();
+	void restoreIgnoredNotifications();
+
 	void setCacheLocation(const LLStringExplicit& location);
 
 	void onClickSetCache();
@@ -224,6 +227,9 @@ private:
 
 	void onUpdateFilterTerm( bool force = false );
 	void collectSearchableItems();
+    void filterIgnorableNotifications();
+
+    std::map<std::string, bool> mIgnorableNotifs;
 };
 
 class LLPanelPreference : public LLPanel

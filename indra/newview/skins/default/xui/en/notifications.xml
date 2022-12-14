@@ -9779,7 +9779,7 @@ Do you wish to continue?
     The selected object affects the navmesh.  Changing it to a Flexible Path will remove it from the navmesh.
     <tag>confirm</tag>
     <usetemplate
-     ignoretext="The selected object affects the navmesh.  Changing it to a Flexible Path will remove it from the navmesh."
+     ignoretext="The selected object affects the navmesh. Changing it to a Flexible Path will remove it from the navmesh."
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
@@ -12013,10 +12013,38 @@ Unpacking: [UNPACK_TIME]s [USIZE]KB
       yestext="OK"/>
   </notification>
 
+  <notification
+    icon="alertmodal.tga"
+    name="RiggedMeshAttachedToHUD"
+    type="alertmodal">
+    An object "[NAME]" attached to HUD point "[POINT]" contains rigged mesh.
+
+Rigged mesh objects are designed for attachment to the avatar. You will see this object but no one else will.
+
+If you want others to see this object, remove it and re-attach it to an avatar attachment point.
+    <tag>confirm</tag>
+    <usetemplate
+        ignoretext="Warn me when rigged mesh is attached to HUD point."
+        name="okignore"
+        yestext="OK"/>
+  </notification>
+
 <notification
  icon="notifytip.tga"
  name="MaterialCreated"
  type="notifytip">
 Material successfully created.  Asset ID: [ASSET_ID]
 </notification>
+
+  <notification
+    icon="notifytip.tga"
+    name="ReflectionProbeApplied"
+    persist="true"
+    type="alertmodal">
+    Your object has been set to the default Reflection Probe state, which is an invisible, phantom, 5m sphere.  To learn more about Reflection Probes and how to use them, see the Knowledge Base.
+    <usetemplate ignoretext="Reflection Probe tips"
+                 name="okignore"
+                 yestext="OK"/>
+  </notification>
+  
 </notifications>

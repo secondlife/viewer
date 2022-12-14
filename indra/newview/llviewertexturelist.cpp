@@ -224,7 +224,7 @@ void LLViewerTextureList::doPrefetchImages()
 
     LLStandardBumpmap::addstandard();
 
-    if (LLAppViewer::instance()->getPurgeCache())
+	if (LLAppViewer::instance()->getPurgeCache())
 	{
 		// cache was purged, no point
 		return;

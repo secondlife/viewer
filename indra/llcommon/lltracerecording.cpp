@@ -95,7 +95,7 @@ Recording::~Recording()
 	// allow recording destruction without thread recorder running, 
 	// otherwise thread shutdown could crash if a recording outlives the thread recorder
 	// besides, recording construction and destruction is fine without a recorder...just don't attempt to start one
-	if (isStarted() && LLTrace::get_thread_recorder().notNull())
+	if (isStarted() && LLTrace::get_thread_recorder() != NULL)
 	{
 		LLTrace::get_thread_recorder()->deactivate(mBuffers.write());
 	}
@@ -112,9 +112,9 @@ void Recording::update()
 
 		// must have 
 		llassert(mActiveBuffers != NULL 
-				&& LLTrace::get_thread_recorder().notNull());
+				&& LLTrace::get_thread_recorder() != NULL);
 
-		if(!mActiveBuffers->isCurrent())
+		if(!mActiveBuffers->isCurrent() && LLTrace::get_thread_recorder() != NULL)
 		{
 			AccumulatorBufferGroup* buffers = mBuffers.write();
 			LLTrace::get_thread_recorder()->deactivate(buffers);
@@ -144,7 +144,7 @@ void Recording::handleStart()
 	mSamplingTimer.reset();
 	mBuffers.setStayUnique(true);
 	// must have thread recorder running on this thread
-	llassert(LLTrace::get_thread_recorder().notNull());
+	llassert(LLTrace::get_thread_recorder() != NULL);
 	mActiveBuffers = LLTrace::get_thread_recorder()->activate(mBuffers.write());
 #endif
 }
@@ -155,7 +155,7 @@ void Recording::handleStop()
 #if LL_TRACE_ENABLED
 	mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
 	// must have thread recorder running on this thread
-	llassert(LLTrace::get_thread_recorder().notNull());
+	llassert(LLTrace::get_thread_recorder() != NULL);
 	LLTrace::get_thread_recorder()->deactivate(mBuffers.write());
 	mActiveBuffers = NULL;
 	mBuffers.setStayUnique(false);
@@ -1181,8 +1181,8 @@ void ExtendablePeriodicRecording::handleSplitTo(ExtendablePeriodicRecording& oth
 
 PeriodicRecording& get_frame_recording()
 {
-	static LLThreadLocalPointer<PeriodicRecording> sRecording(new PeriodicRecording(200, PeriodicRecording::STARTED));
-	return *sRecording;
+	static thread_local PeriodicRecording sRecording(200, PeriodicRecording::STARTED);
+	return sRecording;
 }
 
 }
