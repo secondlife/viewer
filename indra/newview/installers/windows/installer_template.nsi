@@ -64,14 +64,12 @@ RequestExecutionLevel admin	# For when we write to Program Files
 !include "%%SOURCE%%\installers\windows\lang_zh.nsi"
 
 # *TODO: Move these into the language files themselves
-##LangString LanguageCode ${LANG_DANISH}   "da"
 LangString LanguageCode ${LANG_GERMAN}   "de"
 LangString LanguageCode ${LANG_ENGLISH}  "en"
 LangString LanguageCode ${LANG_SPANISH}  "es"
 LangString LanguageCode ${LANG_FRENCH}   "fr"
 LangString LanguageCode ${LANG_JAPANESE} "ja"
 LangString LanguageCode ${LANG_ITALIAN}  "it"
-##LangString LanguageCode ${LANG_POLISH}   "pl"
 LangString LanguageCode ${LANG_PORTUGUESEBR} "pt"
 LangString LanguageCode ${LANG_RUSSIAN}  "ru"
 LangString LanguageCode ${LANG_TURKISH}  "tr"
