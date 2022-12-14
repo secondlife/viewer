@@ -47,9 +47,8 @@
 #include "llvoavatarself.h"
 
 static LLAgentIORegistrar AgentIOReg;
-static LLAgentIOModule* AgentIOModule;
 
-void processAgentIOGetRequest(const LLSD& data)
+void LLAgentIOModule::processAgentIOGetRequest(const LLSD& data)
 {
     // Agent GET requests are processed here.
     // Expected data format:
@@ -74,26 +73,24 @@ void processAgentIOGetRequest(const LLSD& data)
         std::string key = itr->asString();
         if ( *itr == "c" || *itr == "camera" )
         {
-            //TODO:  Return camera position and target
-            //LLAgentIOModule::instance().getCameraNumber_(data);
+            sendCameraOrientation();
         }
         else if ( *itr == "l" || *itr == "look_at" )
         {
-            //TODO:  Return lookat target ...  What to do if no target?
-            AgentIOModule->sendLookAt();
+            sendLookAt();
         }
         else if ( *itr == "a" || *itr == "agent" )
         {
-            //TODO:  Return avatar position and rotation in world space.
+            sendAgentOrientation();
         }
-        else if ( *itr == "t" || *itr == "touch_target" )
+        /*else if ( *itr == "m" || *itr == "manipulator" )
         {
-            //TODO:  Return touch-target or a none type answer.
-        }
+            //TODO:  Return manipulator-target or a none type answer.
+        }*/
     }
 }
 
-void processAgentIOSetRequest(const LLSD& data)
+void LLAgentIOModule::processAgentIOSetRequest(const LLSD& data)
 {
     // Agent SET requests are processed here.
     // Expected data format:
@@ -118,7 +115,7 @@ void processAgentIOSetRequest(const LLSD& data)
         std::string key = itr->asString();
         if ( *itr == "c" || *itr == "camera" )
         {
-            AgentIOModule->setCamera(data["data"]);
+            setCamera(data["data"]);
         }
     }
 }
@@ -206,7 +203,6 @@ LLAgentIOModule::LLAgentIOModule(const LL::LazyEventAPIParams& params) :
 {
     //NOTE: This debug line ensures the module gets linked.
     LL_DEBUGS("LeapAgentIO") << "Initialized." << LL_ENDL;
-    AgentIOModule = this;
 }
 
 
@@ -263,10 +259,10 @@ LLAgentIORegistrar::LLAgentIORegistrar() :
 		"  camera_id: <integer>\n"
 		"  skeleton: <llsd>\n"
 		"multiple items may be requested in a single get",
-		&processAgentIOGetRequest);
+		&LLAgentIOModule::processAgentIOGetRequest);
     add("set",
         "A plugin module wishes to set agent data in the viewer",
-        &processAgentIOSetRequest);
+        &LLAgentIOModule::processAgentIOSetRequest);
 
 	//Example of defining viewer-internal API endpoints for this event handler if we wanted the viewer to trigger an update.
     /*mPlugin = LLEventPumps::instance().obtain("look_at").listen(

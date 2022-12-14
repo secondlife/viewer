@@ -66,7 +66,8 @@ public:
     void sendCameraOrientation();
     void setCamera(const LLSD& data);
 
-
+    void processAgentIOGetRequest(const LLSD& data);
+    void processAgentIOSetRequest(const LLSD& data);
 private:
 
     virtual ~LLAgentIOModule()
