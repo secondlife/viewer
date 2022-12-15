@@ -270,30 +270,37 @@ void swap(inout float a, inout float b)
 }
 
 // debug implementation, make no assumptions about origin
-bool sphereIntersectDebug(vec3 origin, vec3 dir, vec3 center, float radius2, out float t)
+void sphereIntersectDebug(vec3 origin, vec3 dir, vec3 center, float radius2, float depth, inout vec4 col)
 {
-        float t0, t1; // solutions for t if the ray intersects 
+    float t[2]; // solutions for t if the ray intersects 
 
-        // geometric solution
-        vec3 L = center - origin; 
-        float tca = dot(L, dir);
-        // if (tca < 0) return false;
-        float d2 = dot(L, L) - tca * tca; 
-        if (d2 > radius2) return false; 
-        float thc = sqrt(radius2 - d2); 
-        t0 = tca - thc; 
-        t1 = tca + thc; 
+    // geometric solution
+    vec3 L = center - origin; 
+    float tca = dot(L, dir);
+    // if (tca < 0) return false;
+    float d2 = dot(L, L) - tca * tca; 
+    if (d2 > radius2) return; 
+    float thc = sqrt(radius2 - d2); 
+    t[0] = tca - thc; 
+    t[1] = tca + thc; 
 
-        if (t0 > t1) swap(t0, t1); 
- 
-        if (t0 < 0) { 
-            t0 = t1; // if t0 is negative, let's use t1 instead 
-            if (t0 < 0) return false; // both t0 and t1 are negative 
-        } 
- 
-        t = t0; 
- 
-        return true; 
+    for (int i = 0; i < 2; ++i)
+    {
+        if (t[i] > 0)
+        {
+            if (t[i] > depth)
+            {
+                float w = 0.125/((t[i]-depth)*0.125 + 1.0);
+                col += vec4(0, 0, w, w)*(1.0-min(col.a, 1.0));
+            }
+            else
+            {
+                float w = 0.25;
+                col += vec4(w,w,0,w)*(1.0-min(col.a, 1.0));
+            }
+        }
+    }
+
 }
 
 // from https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
@@ -344,9 +351,33 @@ vec3 boxIntersect(vec3 origin, vec3 dir, int i)
     return IntersectPositionCS;
 }
 
+void debugBoxCol(vec3 ro, vec3 rd, float t, vec3 p, inout vec4 col)
+{
+    vec3 v = ro + rd * t;
+
+    v -= ro;
+    vec3 pos = p - ro;
+
+
+    bool behind = dot(v,v) > dot(pos,pos);
+
+    float w = 0.25;
+   
+    if (behind) 
+    {
+        w *= 0.5;
+        w /= (length(v)-length(pos))*0.5+1.0;
+        col += vec4(0,0,w,w)*(1.0-min(col.a, 1.0));
+    }
+    else
+    {
+        col += vec4(w,w,0,w)*(1.0-min(col.a, 1.0));
+    }
+}
+
 // cribbed from https://iquilezles.org/articles/intersectors/
 // axis aligned box centered at the origin, with size boxSize
-bool boxIntersectionDebug( in vec3 ro, in vec3 p, vec3 boxSize, out bool behind) 
+void boxIntersectionDebug( in vec3 ro, in vec3 p, vec3 boxSize, inout vec4 col) 
 {
     vec3 rd = normalize(p-ro);
 
@@ -357,21 +388,20 @@ bool boxIntersectionDebug( in vec3 ro, in vec3 p, vec3 boxSize, out bool behind)
     vec3 t2 = -n + k;
     float tN = max( max( t1.x, t1.y ), t1.z );
     float tF = min( min( t2.x, t2.y ), t2.z );
-    if( tN>tF || tF<0.0) return false; // no intersection
-    
+    if( tN>tF || tF<0.0) return ; // no intersection
+
     float t = tN < 0 ? tF : tN;
-    
-    vec3 v = ro + rd * t;
 
-    v -= ro;
-    vec3 pos = p - ro;
+    debugBoxCol(ro, rd, t, p, col);
 
-    behind = dot(v,v) > dot(pos,pos);
-
-    return true;
+    if (tN > 0) // eye is outside box, check backside, too
+    {
+        debugBoxCol(ro, rd, tF, p, col);
+    }
 }
 
-bool boxIntersectDebug(vec3 origin, vec3 pos, int i, out bool behind)
+
+void boxIntersectDebug(vec3 origin, vec3 pos, int i, inout vec4 col)
 {
     mat4 clipToLocal = refBox[i];
     
@@ -379,12 +409,7 @@ bool boxIntersectDebug(vec3 origin, vec3 pos, int i, out bool behind)
     origin = (clipToLocal * vec4(origin, 1.0)).xyz;
     pos = (clipToLocal * vec4(pos, 1.0)).xyz;
 
-    if (boxIntersectionDebug(origin, pos, vec3(1), behind))
-    {
-        return true;
-    }
-
-    return false;
+    boxIntersectionDebug(origin, pos, vec3(1), col);
 }
 
 
@@ -600,52 +625,20 @@ void debugTapRefMap(vec3 pos, vec3 dir, float depth, int i, inout vec4 col)
 
     bool manual_probe = abs(refIndex[i].w) > 2;
 
-    if (refIndex[i].w < 0)
+    if (manual_probe)
     {
-        vec3 v;
-        bool behind;
-
-        if (boxIntersectDebug(origin, pos, i, behind))
+        if (refIndex[i].w < 0)
         {
-            float w = 0.5;
-            if (behind) 
-            {
-                w *= 0.5;
-                col += vec4(0,0,w,w);
-            }
-            else
-            {
-                col += vec4(w,w,0,w);
-            }
+            boxIntersectDebug(origin, pos, i, col);
         }
-    }
-    else
-    {
-        float r = refSphere[i].w; // radius of sphere volume
-        float rr = r * r; // radius squared
-
-        float t = 0.0;
-
-        if (sphereIntersectDebug(origin, dir, refSphere[i].xyz, rr, t))
+        else
         {
-            if (t > depth)
-            {
-                float w = 0.25/((t-depth)*0.125 + 1.0);
+            float r = refSphere[i].w; // radius of sphere volume
+            float rr = r * r; // radius squared
 
-                if (manual_probe)
-                {
-                    col += vec4(0, 0, w, w);
-                }
-            }
-            else
-            {
-                if (manual_probe)
-                {
-                    float w = 0.5;
+            float t = 0.0;
 
-                    col += vec4(w,w,0,w);
-                }
-            }
+            sphereIntersectDebug(origin, dir, refSphere[i].xyz, rr, depth, col);
         }
     }
 }
