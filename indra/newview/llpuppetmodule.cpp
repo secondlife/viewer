@@ -53,7 +53,7 @@
 static const std::string current_camera_setting("puppetry_current_camera");
 static const std::string puppetry_parts_setting("puppetry_enabled_parts");
 
-void processGetRequest(const LLSD& data)
+void LLPuppetModule::processGetRequest(const LLSD& data)
 {
     // Puppetry GET requests are processed here.
     // Expected data format:
@@ -86,16 +86,16 @@ void processGetRequest(const LLSD& data)
         if ( *itr == "c" || *itr == "camera" )
         {
             //getCameraNumber returns results immediately as a Response.
-            LLPuppetModule::instance().getCameraNumber_(data);
+            getCameraNumber_(data);
         }
         else if ( *itr == "s" || *itr == "skeleton" )
         {
-            LLPuppetModule::instance().send_skeleton(data);
+            send_skeleton(data);
         }
     }
 }
 
-void processJointData(const std::string& key, const LLSD& data)
+void LLPuppetModule::processJointData(const std::string& key, const LLSD& data)
 {
     LLVOAvatar* voa = static_cast<LLVOAvatar*>(gObjectList.findObject(gAgentID));
     if (!voa)
@@ -128,8 +128,6 @@ void processJointData(const std::string& key, const LLSD& data)
                             << ", expected i/inverse_kinematics, j/joint_state etc" << LL_ENDL;
         return;
     }
-
-    LLPuppetModule& puppet_module = LLPuppetModule::instance();
 
     for (LLSD::map_const_iterator joint_itr = data.beginMap();
             joint_itr != data.endMap();
@@ -170,11 +168,11 @@ void processJointData(const std::string& key, const LLSD& data)
 
         if (joint_name == "mHead")
         {   // If the head is animated, stop looking at the mouse
-            puppet_module.disableHeadMotion();
+            disableHeadMotion();
         }
 
         // Record that we've seen this joint name
-        puppet_module.addActiveJoint(joint_name);
+        addActiveJoint(joint_name);
 
         LLVector3 v;
         LLPuppetJointEvent joint_event;
@@ -253,7 +251,7 @@ void processJointData(const std::string& key, const LLSD& data)
     }
 }
 
-void processSetRequest(const LLSD& data)
+void LLPuppetModule::processSetRequest(const LLSD& data)
 {
     // Puppetry SET requests are processed here.
     // Expected data format:
@@ -292,9 +290,8 @@ void processSetRequest(const LLSD& data)
         if (key == "c" || key == "camera")
         {
             S32 camera_num = it->second;
-            LLPuppetModule& puppet_module = LLPuppetModule::instance();
-            puppet_module.setCameraNumber_(camera_num);
-            puppet_module.sendCameraNumber(); //Notify the leap module of the updated camera choice.
+            setCameraNumber_(camera_num);
+            sendCameraNumber(); //Notify the leap module of the updated camera choice.
             continue;
         }
 
@@ -330,7 +327,7 @@ LLPuppetModule::LLPuppetModule() :
         "  camera_id: <integer>\n"
         "  skeleton: <llsd>\n"
         "multiple items may be requested in a single get",
-        &processGetRequest);
+        &LLPuppetModule::processGetRequest);
     add("set",
         "Puppetry plugin module request to apply settings to the viewer.\n"
         "Set data is a structure following the form\n"
@@ -340,14 +337,14 @@ LLPuppetModule::LLPuppetModule() :
         "  joint: {<name>:inverse_kinematics:position[<float>,<float>,<float>]}\n"
         "A set may trigger a set to be issued back to the plugin.\n"
         "multiple pieces of data may be set in a single set.",
-        &processSetRequest);
+        &LLPuppetModule::processSetRequest);
 
     //This function defines viewer-internal API endpoints for this event handler.
     mPlugin = LLEventPumps::instance().obtain("SkeletonUpdate").listen(
                     "LLPuppetModule",
-                    [](const LLSD& unused)
+                    [this](const LLSD&)
                     {
-                        LLPuppetModule::instance().send_skeleton();
+                        send_skeleton();
                         return false;
                     });
 }
@@ -572,7 +569,8 @@ void LLPuppetModule::setPuppetryOptions(LLSD options)
         }
 
         LLCoros::instance().launch("SetPuppetryOptionsCoro",
-            [cap, options]() { LLPuppetModule::SetPuppetryOptionsCoro(cap, options); });
+                                   [this, cap, options]()
+                                   { SetPuppetryOptionsCoro(cap, options); });
     }
     else
     {
@@ -647,5 +645,5 @@ void LLPuppetModule::SetPuppetryOptionsCoro(const std::string& capurl, LLSD opti
         break;
     } while (true);
 
-    LLPuppetModule::instance().parsePuppetryResponse(result);
+    parsePuppetryResponse(result);
 }

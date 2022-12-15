@@ -2582,11 +2582,14 @@ void launch_leap(const std::vector<std::string>& filenames)
             command.push_back("pythonw");
         }
 #endif
+
+        LLPuppetModule& puppetModule{ LLPuppetModule::instance() };
+
         command.insert(
             command.end(),
             { filename,
               "--camera",
-              std::to_string(LLPuppetModule::instance().getCameraNumber()) });
+              std::to_string(puppetModule.getCameraNumber()) });
         std::string command_string{ boost::algorithm::join(command, " ") };
 
         // on a developer windows box:
@@ -2601,11 +2604,11 @@ void launch_leap(const std::vector<std::string>& filenames)
             LLLeap * module = LLLeap::create(description, command, throw_exception_on_failure);
             if (module != NULL)
             {
-                LLPuppetModule::instance().setLeapModule(module->getWeak(), filename);
+                puppetModule.setLeapModule(module->getWeak(), filename);
                 LL_INFOS() << "Puppetry module " << filename << " created ok, description: " << description << LL_ENDL;
-                LLPuppetModule::instance().setSending(true);        // Defaults sending on
-                LLPuppetModule::instance().sendCameraNumber();
-				LLPuppetModule::instance().send_skeleton();
+                puppetModule.setSending(true);        // Defaults sending on
+                puppetModule.sendCameraNumber();
+                puppetModule.send_skeleton();
             }
             else
             {
@@ -2685,16 +2688,17 @@ class LLAdvancedPuppetryCloseLeap : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata) override
     {
-        if (!LLPuppetModule::instance().havePuppetModule())
+        LLPuppetModule& puppetModule{ LLPuppetModule::instance() };
+        if (!puppetModule.havePuppetModule())
         {
             LL_WARNS("PuppetMenu") << "No active Leap module to close" << LL_ENDL;
             return false;
         }
         // Close down Leap plugin
         LL_INFOS("PuppetMenu") << "Closing down puppetry Leap module" << LL_ENDL;
-        LLPuppetModule::instance().setSending(false);
-        LLPuppetModule::instance().setEcho(false);
-        LLPuppetModule::instance().clearLeapModule();
+        puppetModule.setSending(false);
+        puppetModule.setEcho(false);
+        puppetModule.clearLeapModule();
         return true;
     }
 };
@@ -2720,9 +2724,10 @@ class LLAdvancedPuppetryToggleSend : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata) override
     {
-        if (LLPuppetModule::instance().havePuppetModule())
+        LLPuppetModule& puppetModule{ LLPuppetModule::instance() };
+        if (puppetModule.havePuppetModule())
         {   // Must have a loaded module
-            LLPuppetModule::instance().setSending( !LLPuppetModule::instance().isSending() );
+            puppetModule.setSending( !puppetModule.isSending() );
             return true;
         }
         return false;
@@ -2735,7 +2740,7 @@ class LLAdvancedPuppetryEnableSend : public view_listener_t
     {   // Must have a loaded module
         bool have_module = LLPuppetModule::instance().havePuppetModule();
         LL_DEBUGS("PuppetMenu") << "Enable send " << (have_module ? "true" : "false") << LL_ENDL;
-        return (LLPuppetModule::instance().havePuppetModule());
+        return have_module;
     }
 };
 
@@ -2752,7 +2757,8 @@ class LLAdvancedPuppetryToggleReceive : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata) override
     {   // can always toggle receive from simulator
-        LLPuppetModule::instance().setReceiving(!LLPuppetModule::instance().isReceiving());
+        LLPuppetModule& puppetModule{ LLPuppetModule::instance() };
+        puppetModule.setReceiving(!puppetModule.isReceiving());
         return true;
     }
 };
@@ -2777,13 +2783,14 @@ class LLAdvancedPuppetryToggleEcho : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata) override
     {
-        if (LLPuppetModule::instance().havePuppetModule())
+        LLPuppetModule& puppetModule{ LLPuppetModule::instance() };
+        if (puppetModule.havePuppetModule())
         {
-            bool new_echo = !LLPuppetModule::instance().getEcho();
-            LLPuppetModule::instance().setEcho(new_echo);
+            bool new_echo = !puppetModule.getEcho();
+            puppetModule.setEcho(new_echo);
             if (new_echo)
             {   // If we want echo from the server, we need to have receiving on
-                LLPuppetModule::instance().setReceiving(true);
+                puppetModule.setReceiving(true);
             }
             return true;
         }
@@ -2834,8 +2841,9 @@ class LLAdvancedPuppetrySelectPart : public view_listener_t
         }
 
         // Toggle that bit
-        bool enabled = LLPuppetModule::instance().getEnabledPart(part_num);
-        LLPuppetModule::instance().setEnabledPart(part_num, !enabled);
+        LLPuppetModule& puppetModule{ LLPuppetModule::instance() };
+        bool enabled = puppetModule.getEnabledPart(part_num);
+        puppetModule.setEnabledPart(part_num, !enabled);
         return true;
     }
 };
@@ -2868,15 +2876,16 @@ class LLAdvancedPuppetrySelectCamera : public view_listener_t
 
         std::string camera_num_str = userdata.asString();
         S32 camera_num = 0;
+        LLPuppetModule& puppetModule{ LLPuppetModule::instance() };
         if (sscanf(camera_num_str.c_str(), "%d", &camera_num) != 1)
         {
             LL_WARNS("PuppetMenu") << "Invalid camera number from menu parameter: " << camera_num_str << LL_ENDL;
         }
         else if (camera_num >= 0 && camera_num < 4 &&
-                 camera_num != LLPuppetModule::instance().getCameraNumber())
+                 camera_num != puppetModule.getCameraNumber())
         {
-            LLPuppetModule::instance().setCameraNumber(camera_num);
-            LL_INFOS("PuppetMenu") << "Set current camera to " << LLPuppetModule::instance().getCameraNumber() << LL_ENDL;
+            puppetModule.setCameraNumber(camera_num);
+            LL_INFOS("PuppetMenu") << "Set current camera to " << puppetModule.getCameraNumber() << LL_ENDL;
             return true;
         }
         return false;

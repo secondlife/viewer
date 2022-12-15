@@ -64,6 +64,9 @@ class LLPuppetModule : public LLSingleton<LLPuppetModule>,
 public:
     typedef std::shared_ptr<LLLeap> puppet_module_ptr_t;
 
+    void processGetRequest(const LLSD& data);
+    void processSetRequest(const LLSD& data);
+    void processJointData(const std::string& key, const LLSD& data);
     void setLeapModule(std::weak_ptr<LLLeap> mod, const std::string & module_name);
     puppet_module_ptr_t getLeapModule() const;
     bool havePuppetModule() const; // True if module is loaded
@@ -111,7 +114,7 @@ private:
     };
 
     void setPuppetryOptions(LLSD options);
-    static void SetPuppetryOptionsCoro(const std::string& capurl, LLSD options);
+    void SetPuppetryOptionsCoro(const std::string& capurl, LLSD options);
 
     mutable std::weak_ptr<LLLeap> mLeapModule; // weak pointer to module
     std::string mModuleName;
