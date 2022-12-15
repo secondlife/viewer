@@ -652,7 +652,6 @@ void LLPuppetMotion::setAvatar(LLVOAvatar* avatar)
 
 void LLPuppetMotion::clearAll()
 {
-    //mJointStates.clear();   This kills puppetry - need a correct way to reset joint data when module restarts
     mEventQueues.clear();
     mOutgoingEvents.clear();
     mJointStateExpiries.clear();
@@ -701,10 +700,9 @@ void LLPuppetMotion::addJointToSkeletonData(LLSD& skeleton_sd, LLJoint* joint, c
 LLSD LLPuppetMotion::getSkeletonData()
 {
     LLSD skeleton_sd;
-    for (state_map_t::iterator iter=mJointStates.begin(); iter!=mJointStates.end(); ++iter)
+    for (auto& data_pair : mJointStates)
     {
-        LLPointer<LLJointState> joint_state = iter->second;
-        LLJoint* joint = joint_state->getJoint();
+        LLJoint* joint = data_pair.second->getJoint();
         LLVector3 local_pos_in_parent_frame = joint->getPosition().scaledVec(joint->getScale());
         LLVector3 bone_in_local_frame = joint->getEnd().scaledVec(joint->getScale());
         addJointToSkeletonData(skeleton_sd, joint, local_pos_in_parent_frame, bone_in_local_frame);
@@ -715,9 +713,9 @@ LLSD LLPuppetMotion::getSkeletonData()
 
 void LLPuppetMotion::updateSkeletonGeometry()
 {
-    for (state_map_t::iterator iter=mJointStates.begin(); iter!=mJointStates.end(); ++iter)
+    for (auto& data_pair : mJointStates)
     {
-        S16 joint_id = iter->first;
+        S16 joint_id = data_pair.first;
         LLIK::Constraint::ptr_t constraint = get_constraint_by_joint_id(joint_id);
         mIKSolver.resetJointGeometry(joint_id, constraint);
     }
@@ -804,8 +802,7 @@ void LLPuppetMotion::solveIKAndHarvestResults(const LLIK::Solver::joint_config_m
         if (local_puppetry)
         {
             LLPointer<LLJointState> joint_state = mJointStates[id];
-            U32 usage = U32(flags & LLIK::MASK_JOINT_STATE_USAGE);
-            joint_state->setUsage(usage);
+            joint_state->setUsage(U32(flags & LLIK::MASK_JOINT_STATE_USAGE));
             if (flags & LLIK::CONFIG_FLAG_LOCAL_POS)
             {
                 joint_state->setPosition(joint->getPreScaledLocalPos());
@@ -975,6 +972,7 @@ void LLPuppetMotion::applyBroadcastEvent(const LLPuppetJointEvent& event, Timest
     {
         LLPointer<LLJointState> joint_state = state_iter->second;
         U8 flags = event.getMask();
+        joint_state->setUsage((U32)(flags & LLIK::MASK_JOINT_STATE_USAGE));
         // Note: we assume broadcast event always in parent-frame
         // e.g. (flags & LLIK::MASK_TARGET) == 0
         if (flags & LLIK::CONFIG_FLAG_LOCAL_POS)
@@ -991,7 +989,6 @@ void LLPuppetMotion::applyBroadcastEvent(const LLPuppetJointEvent& event, Timest
         {
             joint_state->setScale(event.getScale());
         }
-        joint_state->setUsage((U32)(flags & LLIK::MASK_JOINT_STATE_USAGE));
         rememberPosedJoint(joint_id, joint_state, now);
     }
 }
@@ -1175,11 +1172,12 @@ BOOL LLPuppetMotion::onUpdate(F32 time, U8* joint_mask)
 
     if (mJointsToRemoveFromPose.size() > 0)
     {
-        for (auto& joint_ptr : mJointsToRemoveFromPose)
+        for (auto& joint_state : mJointsToRemoveFromPose)
         {
-            if (joint_ptr)
+            if (joint_state)
             {
-                mPose.removeJointState(joint_ptr);
+                joint_state->setUsage(0);
+                mPose.removeJointState(joint_state);
             }
         }
         mJointsToRemoveFromPose.clear();
@@ -1241,6 +1239,10 @@ void LLPuppetMotion::onDeactivate()
     // this motion from its active list.
     mPose.removeAllJointStates();
     mJointsToRemoveFromPose.clear();
+    for (auto& data_pair : mJointStates)
+    {
+        data_pair.second->setUsage(0);
+    }
     LLIK::Solver::joint_config_map_t empty_configs;
     mIKSolver.updateJointConfigs(empty_configs); // clear solver memory
 }
