@@ -39,7 +39,6 @@
 class LLViewerCamera;
 
 class LLVOWLSky;
-class LLVOWLClouds;
 
 
 class LLSky  

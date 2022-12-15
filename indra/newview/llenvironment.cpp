@@ -874,26 +874,37 @@ void LLEnvironment::initSingleton()
 
     requestRegion();
 
-    gAgent.addParcelChangedCallback([this]() { onParcelChange(); });
+    if (!mParcelCallbackConnection.connected())
+    {
+        mParcelCallbackConnection = gAgent.addParcelChangedCallback([this]() { onParcelChange(); });
 
-    //TODO: This frequently results in one more request than we need.  It isn't breaking, but should be nicer.
-    // We need to know new env version to fix this, without it we can only do full re-request
-    // Happens: on updates, on opening LLFloaterRegionInfo, on region crossing if info floater is open
-    LLRegionInfoModel::instance().setUpdateCallback([this]() { requestRegion(); });
-    gAgent.addRegionChangedCallback([this]() { onRegionChange(); });
+        //TODO: This frequently results in one more request than we need.  It isn't breaking, but should be nicer.
+        // We need to know new env version to fix this, without it we can only do full re-request
+        // Happens: on updates, on opening LLFloaterRegionInfo, on region crossing if info floater is open
+        mRegionUpdateCallbackConnection = LLRegionInfoModel::instance().setUpdateCallback([this]() { requestRegion(); });
+        mRegionChangeCallbackConnection = gAgent.addRegionChangedCallback([this]() { onRegionChange(); });
 
-    gAgent.whenPositionChanged([this](const LLVector3 &localpos, const LLVector3d &) { onAgentPositionHasChanged(localpos); });
+        mPositionCallbackConnection = gAgent.whenPositionChanged([this](const LLVector3 &localpos, const LLVector3d &) { onAgentPositionHasChanged(localpos); });
+    }
 
     if (!gGenericDispatcher.isHandlerPresent(MESSAGE_PUSHENVIRONMENT))
     {
         gGenericDispatcher.addHandler(MESSAGE_PUSHENVIRONMENT, &environment_push_dispatch_handler);
     }
 
+    LLEventPumps::instance().obtain(PUMP_EXPERIENCE).stopListening(LISTENER_NAME);
     LLEventPumps::instance().obtain(PUMP_EXPERIENCE).listen(LISTENER_NAME, [this](LLSD message) { listenExperiencePump(message); return false; });
 }
 
 void LLEnvironment::cleanupSingleton()
 {
+    if (mParcelCallbackConnection.connected())
+    {
+        mParcelCallbackConnection.disconnect();
+        mRegionUpdateCallbackConnection.disconnect();
+        mRegionChangeCallbackConnection.disconnect();
+        mPositionCallbackConnection.disconnect();
+    }
     LLEventPumps::instance().obtain(PUMP_EXPERIENCE).stopListening(LISTENER_NAME);
 }
 

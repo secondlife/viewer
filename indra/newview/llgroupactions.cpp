@@ -175,7 +175,6 @@ public:
     virtual void processGroupData() = 0;
 protected:
     LLUUID mGroupId;
-private:
     bool mRequestProcessed;
 };
 
@@ -188,6 +187,22 @@ public:
      void processGroupData()
      {
          LLGroupActions::processLeaveGroupDataResponse(mGroupId);
+     }
+     void changed(LLGroupChange gc)
+     {
+         if (gc == GC_PROPERTIES && !mRequestProcessed)
+         {
+             LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupId);
+             if (!gdatap)
+             {
+                 LL_WARNS() << "GroupData was NULL" << LL_ENDL;
+             } 
+             else
+             {
+                 processGroupData();
+                 mRequestProcessed = true;
+             }
+         }
      }
 };
 

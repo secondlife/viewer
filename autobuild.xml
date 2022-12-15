@@ -184,9 +184,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ae90d19cdcddf539f6d0b41cab12f918</string>
+              <string>7b4aceaed511d44c4d1354b2162b59c7</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/72773/702861/bugsplat-1.0.7.552580-darwin64-552580.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107398/936936/bugsplat-1.0.7.576560-darwin64-576560.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -196,9 +196,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f5936eceb6a33ff0f1cc31996a40f29c</string>
+              <string>53918c7c74b943cdc0bb90caf9657a84</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/72774/702905/bugsplat-3.6.0.8.552580-windows-552580.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107400/936949/bugsplat-4.0.3.0.576560-windows-576560.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -208,16 +208,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9cd940754e53e0670030b3da5ba8f373</string>
+              <string>19d6a55db101f02e7eb531daf3e8cfd1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/72775/702906/bugsplat-3.6.0.8.552580-windows64-552580.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107401/936948/bugsplat-.576560-windows64-576560.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>3.6.0.8.552580</string>
+        <string>4.0.3.0.576560</string>
       </map>
       <key>colladadom</key>
       <map>
@@ -602,9 +602,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2c619c1bef969dc42b4f44a4651b314e</string>
+              <string>8de71c518c248d77f70f87ab5e9de732</string>
               <key>url</key>
-              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/98369/869141/fmodstudio-2.02.06.570913-darwin64-570913.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/105828/925920/fmodstudio-2.02.06.575716-darwin64-575716.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -626,9 +626,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>875ccd8c1feec8ff03438d453371044b</string>
+              <string>2eea946ee7a572b748cec0c623ade3ef</string>
               <key>url</key>
-              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/98371/869153/fmodstudio-2.02.06.570913-windows-570913.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/105830/925932/fmodstudio-2.02.06.575716-windows-575716.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -638,16 +638,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5e402f4828741bce942e2ced318cd02a</string>
+              <string>483d6fd5d057b0a681bffef9b8b9d927</string>
               <key>url</key>
-              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/98372/869154/fmodstudio-2.02.06.570913-windows64-570913.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/105829/925931/fmodstudio-2.02.06.575716-windows64-575716.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.02.06.570913</string>
+        <string>2.02.06.575716</string>
       </map>
       <key>fontconfig</key>
       <map>
@@ -2671,9 +2671,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1dda5fb3bb649b0ab5a93f22df7cb11e</string>
+              <string>2e8d817e7837dd6f4284b13fa3f5c15e</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/96998/862110/viewer_manager-3.0.569958-darwin64-569958.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104765/917714/viewer_manager-3.0.575083-darwin64-575083.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2683,9 +2683,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>30d1386d0a6883d898fc56757a789b8b</string>
+              <string>3efa80faaf537e39a77218cd6efa9409</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/97002/862130/viewer_manager-3.0.569958-windows-569958.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104766/917721/viewer_manager-3.0.575083-windows-575083.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2696,7 +2696,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>3.0.569958</string>
+        <string>3.0.575083</string>
       </map>
       <key>vlc-bin</key>
       <map>
