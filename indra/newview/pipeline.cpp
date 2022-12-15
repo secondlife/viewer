@@ -7590,7 +7590,7 @@ void LLPipeline::renderFinalize()
                 LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
 
                 stop_glerror();
-                mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+                mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
                 stop_glerror();
             }
 
