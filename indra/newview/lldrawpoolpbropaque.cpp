@@ -48,7 +48,7 @@ void LLDrawPoolGLTFPBR::renderDeferred(S32 pass)
     for (int i = 0; i < 2; ++i)
     {
         bool rigged = (i == 1);
-        LLGLSLShader* shader = LLPipeline::sShadowRender ? &gDeferredShadowAlphaMaskProgram : &gDeferredPBROpaqueProgram;
+        LLGLSLShader* shader = LLPipeline::sShadowRender ? &gDeferredShadowGLTFAlphaMaskProgram : &gDeferredPBROpaqueProgram;
         U32 vertex_data_mask = getVertexDataMask();
 
         if (rigged)

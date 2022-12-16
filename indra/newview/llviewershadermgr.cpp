@@ -215,6 +215,7 @@ LLGLSLShader			gDeferredShadowProgram;
 LLGLSLShader            gDeferredSkinnedShadowProgram;
 LLGLSLShader			gDeferredShadowCubeProgram;
 LLGLSLShader			gDeferredShadowAlphaMaskProgram;
+LLGLSLShader			gDeferredShadowGLTFAlphaMaskProgram;
 LLGLSLShader            gDeferredSkinnedShadowAlphaMaskProgram;
 LLGLSLShader			gDeferredShadowFullbrightAlphaMaskProgram;
 LLGLSLShader            gDeferredSkinnedShadowFullbrightAlphaMaskProgram;
@@ -1263,6 +1264,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSkinnedShadowProgram.unload();
 		gDeferredShadowCubeProgram.unload();
         gDeferredShadowAlphaMaskProgram.unload();
+        gDeferredShadowGLTFAlphaMaskProgram.unload();
         gDeferredSkinnedShadowAlphaMaskProgram.unload();
         gDeferredShadowFullbrightAlphaMaskProgram.unload();
         gDeferredSkinnedShadowFullbrightAlphaMaskProgram.unload();
@@ -2584,6 +2586,22 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		success = gDeferredShadowAlphaMaskProgram.createShader(NULL, NULL);
 		llassert(success);
 	}
+    
+
+    if (success)
+    {
+        gDeferredShadowGLTFAlphaMaskProgram.mName = "Deferred Shadow Alpha Mask Shader";
+        gDeferredShadowGLTFAlphaMaskProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
+        gDeferredShadowGLTFAlphaMaskProgram.mShaderFiles.clear();
+        gDeferredShadowGLTFAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskV.glsl", GL_VERTEX_SHADER));
+        gDeferredShadowGLTFAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskF.glsl", GL_FRAGMENT_SHADER));
+        gDeferredShadowGLTFAlphaMaskProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        gDeferredShadowGLTFAlphaMaskProgram.clearPermutations();
+        gDeferredShadowGLTFAlphaMaskProgram.addPermutation("GLTF", "1");
+        gDeferredShadowGLTFAlphaMaskProgram.mRiggedVariant = &gDeferredSkinnedShadowAlphaMaskProgram;
+        success = gDeferredShadowGLTFAlphaMaskProgram.createShader(NULL, NULL);
+        llassert(success);
+    }
 
     if (success)
     {
