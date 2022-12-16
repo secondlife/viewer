@@ -8363,7 +8363,14 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     channel = shader.enableTexture(LLShaderMgr::DEFERRED_LIGHT, light_target->getUsage());
 	if (channel > -1)
 	{
-        light_target->bindTexture(0, channel, LLTexUnit::TFO_POINT);
+        if (light_target->isComplete())
+        {
+            light_target->bindTexture(0, channel, LLTexUnit::TFO_POINT);
+        }
+        else
+        {
+            gGL.getTexUnit(channel)->bindFast(LLViewerFetchedTexture::sWhiteImagep);
+        }
 	}
 
 	channel = shader.enableTexture(LLShaderMgr::DEFERRED_BLOOM);
