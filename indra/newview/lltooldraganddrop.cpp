@@ -1047,6 +1047,20 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 		LL_WARNS() << "LLToolDragAndDrop::dropTextureAllFaces no texture item." << LL_ENDL;
 		return;
 	}
+    S32 num_faces = hit_obj->getNumTEs();
+    bool has_non_pbr_faces = false;
+    for (S32 face = 0; face < num_faces; face++)
+    {
+        if (hit_obj->getRenderMaterialID(face).isNull())
+        {
+            has_non_pbr_faces = true;
+            break;
+        }
+    }
+    if (!has_non_pbr_faces)
+    {
+        return;
+    }
 	LLUUID asset_id = item->getAssetUUID();
 	BOOL success = handleDropMaterialProtections(hit_obj, item, source, src_id);
 	if (!success)
@@ -1055,13 +1069,14 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 	}
 	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(asset_id);
 	add(LLStatViewer::EDIT_TEXTURE, 1);
-	S32 num_faces = hit_obj->getNumTEs();
 	for( S32 face = 0; face < num_faces; face++ )
 	{
-
-		// update viewer side image in anticipation of update from simulator
-		hit_obj->setTEImage(face, image);
-		dialog_refresh_all();
+        if (hit_obj->getRenderMaterialID(face).isNull())
+        {
+            // update viewer side image in anticipation of update from simulator
+            hit_obj->setTEImage(face, image);
+            dialog_refresh_all();
+        }
 	}
 	// send the update to the simulator
 	hit_obj->sendTEUpdate();
@@ -1167,6 +1182,10 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 		LL_WARNS() << "LLToolDragAndDrop::dropTextureOneFace no texture item." << LL_ENDL;
 		return;
 	}
+    if (hit_obj->getRenderMaterialID(hit_face).notNull())
+    {
+        return;
+    }
 	LLUUID asset_id = item->getAssetUUID();
 	BOOL success = handleDropMaterialProtections(hit_obj, item, source, src_id);
 	if (!success)
@@ -2031,6 +2050,31 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
 	{
 		return ACCEPT_NO;
 	}
+
+    if (cargo_type == DAD_TEXTURE)
+    {
+        if ((mask & MASK_SHIFT))
+        {
+            S32 num_faces = obj->getNumTEs();
+            bool has_non_pbr_faces = false;
+            for (S32 face = 0; face < num_faces; face++)
+            {
+                if (obj->getRenderMaterialID(face).isNull())
+                {
+                    has_non_pbr_faces = true;
+                    break;
+                }
+            }
+            if (!has_non_pbr_faces)
+            {
+                return ACCEPT_NO;
+            }
+        }
+        else if (obj->getRenderMaterialID(face).notNull())
+        {
+            return ACCEPT_NO;
+        }
+    }
 
 	if(drop && (ACCEPT_YES_SINGLE <= rv))
 	{
