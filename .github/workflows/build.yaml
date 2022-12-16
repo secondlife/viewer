@@ -45,6 +45,9 @@ jobs:
         with:
           path: .autobuild-installables
           key: ${{ runner.os }}-${{ matrix.addrsize }}-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.addrsize }}-${{ matrix.configuration }}-
+            ${{ runner.os }}-${{ matrix.addrsize }}-
 
       - name: Install windows dependencies
         if: runner.os == 'Windows'
