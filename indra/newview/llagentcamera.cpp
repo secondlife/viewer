@@ -2359,6 +2359,11 @@ void LLAgentCamera::changeCameraToCustomizeAvatar()
 	gAgent.standUp(); // force stand up
 	gViewerWindow->getWindow()->resetBusyCount();
 
+    if (LLSelectMgr::getInstance()->getSelection()->isAttachment())
+    {
+        LLSelectMgr::getInstance()->deselectAll();
+    }
+
 	if (gFaceEditToolset)
 	{
 		LLToolMgr::getInstance()->setCurrentToolset(gFaceEditToolset);
