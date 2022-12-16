@@ -208,6 +208,10 @@ public:
 	void clear(U8 r=0, U8 g=0, U8 b=0, U8 a=255);
 
 	void verticalFlip();
+    
+    // if the alpha channel is all 100% opaque, delete it
+    // returns true if alpha channel was deleted
+    bool optimizeAwayAlpha();
 
     static S32 biasedDimToPowerOfTwo(S32 curr_dim, S32 max_dim = MAX_IMAGE_SIZE);
     static S32 expandDimToPowerOfTwo(S32 curr_dim, S32 max_dim = MAX_IMAGE_SIZE);

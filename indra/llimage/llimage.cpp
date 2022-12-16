@@ -989,6 +989,43 @@ void LLImageRaw::verticalFlip()
 }
 
 
+bool LLImageRaw::optimizeAwayAlpha()
+{
+    if (getComponents() == 4)
+    {
+        U8* data = getData();
+        U32 pixels = getWidth() * getHeight();
+
+        // check alpha channel for all 255
+        for (U32 i = 0; i < pixels; ++i)
+        {
+            if (data[i * 4 + 3] != 255)
+            {
+                return false;
+            }
+        }
+
+        // alpha channel is all 255, make a new copy of data without alpha channel
+        U8* new_data = (U8*) ll_aligned_malloc_16(getWidth() * getHeight() * 3);
+
+        for (U32 i = 0; i < pixels; ++i)
+        {
+            U32 di = i * 3;
+            U32 si = i * 4;
+            for (U32 j = 0; j < 3; ++j)
+            {
+                new_data[di+j] = data[si+j];
+            }
+        }
+
+        setDataAndSize(new_data, getWidth(), getHeight(), 3);
+
+        return true;
+    }
+
+    return false;
+}
+
 void LLImageRaw::expandToPowerOfTwo(S32 max_dim, bool scale_image)
 {
 	// Find new sizes

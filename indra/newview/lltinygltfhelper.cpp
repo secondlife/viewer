@@ -160,6 +160,7 @@ LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tiny
         name = image->name;
         rawImage = new LLImageRaw(&image->image[0], image->width, image->height, image->component);
         rawImage->verticalFlip();
+        rawImage->optimizeAwayAlpha();
     }
 
     return rawImage;
