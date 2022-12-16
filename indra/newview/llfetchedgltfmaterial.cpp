@@ -46,11 +46,13 @@ LLFetchedGLTFMaterial::~LLFetchedGLTFMaterial()
     
 }
 
-void LLFetchedGLTFMaterial::bind(LLGLSLShader* shader)
+void LLFetchedGLTFMaterial::bind()
 {
     // glTF 2.0 Specification 3.9.4. Alpha Coverage
     // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK
     F32 min_alpha = -1.0;
+
+    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
     if (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
     {

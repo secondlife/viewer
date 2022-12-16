@@ -9437,7 +9437,8 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
         LLRenderPass::PASS_NORMMAP,
         LLRenderPass::PASS_NORMMAP_EMISSIVE,
         LLRenderPass::PASS_NORMSPEC,
-        LLRenderPass::PASS_NORMSPEC_EMISSIVE
+        LLRenderPass::PASS_NORMSPEC_EMISSIVE,
+        LLRenderPass::PASS_GLTF_PBR
     };
 
     LLGLEnable cull(GL_CULL_FACE);
@@ -9538,6 +9539,12 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow alpha");
         LL_PROFILE_GPU_ZONE("shadow alpha");
+
+        U32 mask = LLVertexBuffer::MAP_VERTEX |
+            LLVertexBuffer::MAP_TEXCOORD0 |
+            LLVertexBuffer::MAP_COLOR |
+            LLVertexBuffer::MAP_TEXTURE_INDEX;
+
         for (int i = 0; i < 2; ++i)
         {
             bool rigged = i == 1;
@@ -9545,11 +9552,6 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
             gDeferredShadowAlphaMaskProgram.bind(rigged);
             LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
             LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
-
-            U32 mask = LLVertexBuffer::MAP_VERTEX |
-                LLVertexBuffer::MAP_TEXCOORD0 |
-                LLVertexBuffer::MAP_COLOR |
-                LLVertexBuffer::MAP_TEXTURE_INDEX;
 
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow alpha masked");
@@ -9562,7 +9564,6 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
                 renderAlphaObjects(mask, TRUE, TRUE, rigged);
             }
 
-
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow fullbright alpha masked");
                 gDeferredShadowFullbrightAlphaMaskProgram.bind(rigged);
@@ -9570,7 +9571,6 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
                 renderFullbrightMaskedObjects(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, mask, TRUE, TRUE, rigged);
             }
-
 
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow alpha grass");
@@ -9588,9 +9588,32 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
                 renderMaskedObjects(LLRenderPass::PASS_NORMMAP_MASK, no_idx_mask, true, false, rigged);
             }
         }
-    }
 
-    //glCullFace(GL_BACK);
+        for (int i = 0; i < 2; ++i)
+        {
+            bool rigged = i == 1;
+            gDeferredShadowGLTFAlphaMaskProgram.bind(rigged);
+            LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
+            LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
+            
+            gGL.loadMatrix(gGLModelView);
+            gGLLastMatrix = NULL;
+
+            U32 type = LLRenderPass::PASS_GLTF_PBR_ALPHA_MASK;
+
+            if (rigged)
+            {
+                mAlphaMaskPool->pushRiggedGLTFBatches(type + 1, mask);
+            }
+            else
+            {
+                mAlphaMaskPool->pushGLTFBatches(type, mask);
+            }
+
+            gGL.loadMatrix(gGLModelView);
+            gGLLastMatrix = NULL;
+        }
+    }
 
     gDeferredShadowCubeProgram.bind();
     gGLLastMatrix = NULL;
@@ -9929,6 +9952,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                     LLPipeline::RENDER_TYPE_PASS_NORMSPEC_EMISSIVE_RIGGED,
                     LLPipeline::RENDER_TYPE_PASS_GLTF_PBR,
                     LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_RIGGED,
+                    LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK,
+                    LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK_RIGGED,
 					END_RENDER_TYPES);
 
 	gGL.setColorMask(false, false);

@@ -38,79 +38,18 @@ LLDrawPoolGLTFPBR::LLDrawPoolGLTFPBR() :
 
 void LLDrawPoolGLTFPBR::renderDeferred(S32 pass)
 {
-    const U32 type = LLPipeline::RENDER_TYPE_PASS_GLTF_PBR;
+    const U32 types[] = { LLPipeline::RENDER_TYPE_PASS_GLTF_PBR, LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK };
 
-    gGL.flush();
-
-    LLVOAvatar* lastAvatar = nullptr;
-    U64 lastMeshId = 0;
-
-    for (int i = 0; i < 2; ++i)
+    for (U32 type : types)
     {
-        bool rigged = (i == 1);
-        LLGLSLShader* shader = LLPipeline::sShadowRender ? &gDeferredShadowGLTFAlphaMaskProgram : &gDeferredPBROpaqueProgram;
-        U32 vertex_data_mask = getVertexDataMask();
-
-        if (rigged)
-        {
-            shader = shader->mRiggedVariant;
-            vertex_data_mask |= LLVertexBuffer::MAP_WEIGHT4;
-        }
-
-        shader->bind();
-
-        LLCullResult::drawinfo_iterator begin = gPipeline.beginRenderMap(type+i);
-        LLCullResult::drawinfo_iterator end = gPipeline.endRenderMap(type+i);
-
-        for (LLCullResult::drawinfo_iterator i = begin; i != end; ++i)
-        {
-            LLDrawInfo* pparams = *i;
-            auto& mat = pparams->mGLTFMaterial;
-            
-            mat->bind(shader);
-            
-            LLGLDisable cull_face(mat->mDoubleSided ? GL_CULL_FACE : 0);
-
-            bool tex_setup = false;
-            if (pparams->mTextureMatrix)
-            { //special case implementation of texture animation here because of special handling of textures for PBR batches
-                tex_setup = true;
-                gGL.getTexUnit(0)->activate();
-                gGL.matrixMode(LLRender::MM_TEXTURE);
-                gGL.loadMatrix((GLfloat*)pparams->mTextureMatrix->mMatrix);
-                gPipeline.mTextureMatrixOps++;
-            }
-
-            if (rigged)
-            {
-                if (pparams->mAvatar.notNull() && (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash))
-                {
-                    uploadMatrixPalette(*pparams);
-                    lastAvatar = pparams->mAvatar;
-                    lastMeshId = pparams->mSkinInfo->mHash;
-                }
-
-                pushBatch(*pparams, vertex_data_mask, FALSE, FALSE);
-            }
-            else
-            {
-                pushBatch(*pparams, vertex_data_mask, FALSE, FALSE);
-            }
-
-            if (tex_setup)
-            {
-                gGL.matrixMode(LLRender::MM_TEXTURE0);
-                gGL.loadIdentity();
-                gGL.matrixMode(LLRender::MM_MODELVIEW);
-            }
-        }
+        gDeferredPBROpaqueProgram.bind();
+        pushGLTFBatches(type, getVertexDataMask());
+        
+        gDeferredPBROpaqueProgram.bind(true);
+        pushRiggedGLTFBatches(type+1, getVertexDataMask());
     }
 
     LLGLSLShader::sCurBoundShaderPtr->unbind();
 }
 
-void LLDrawPoolGLTFPBR::renderShadow(S32 pass)
-{
-    renderDeferred(pass);
-}
 

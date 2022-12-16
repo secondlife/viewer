@@ -425,6 +425,85 @@ void LLRenderPass::renderRiggedGroup(LLSpatialGroup* group, U32 type, U32 mask, 
     }
 }
 
+void setup_texture_matrix(LLDrawInfo& params)
+{
+    if (params.mTextureMatrix)
+    { //special case implementation of texture animation here because of special handling of textures for PBR batches
+        gGL.getTexUnit(0)->activate();
+        gGL.matrixMode(LLRender::MM_TEXTURE);
+        gGL.loadMatrix((GLfloat*)params.mTextureMatrix->mMatrix);
+        gPipeline.mTextureMatrixOps++;
+    }
+}
+
+void teardown_texture_matrix(LLDrawInfo& params)
+{
+    if (params.mTextureMatrix)
+    {
+        gGL.matrixMode(LLRender::MM_TEXTURE0);
+        gGL.loadIdentity();
+        gGL.matrixMode(LLRender::MM_MODELVIEW);
+    }
+}
+
+void LLRenderPass::pushGLTFBatches(U32 type, U32 mask)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    for (LLCullResult::drawinfo_iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushGLTFBatch");
+        LLDrawInfo& params = **i;
+        auto& mat = params.mGLTFMaterial;
+
+        mat->bind();
+
+        LLGLDisable cull_face(mat->mDoubleSided ? GL_CULL_FACE : 0);
+
+        setup_texture_matrix(params);
+        
+        applyModelMatrix(params);
+
+        params.mVertexBuffer->setBufferFast(mask);
+        params.mVertexBuffer->drawRangeFast(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+
+        teardown_texture_matrix(params);
+    }
+}
+
+void LLRenderPass::pushRiggedGLTFBatches(U32 type, U32 mask)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    LLVOAvatar* lastAvatar = nullptr;
+    U64 lastMeshId = 0;
+    mask |= LLVertexBuffer::MAP_WEIGHT4;
+    for (LLCullResult::drawinfo_iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushRiggedGLTFBatch");
+        LLDrawInfo& params = **i;
+        auto& mat = params.mGLTFMaterial;
+
+        mat->bind();
+
+        LLGLDisable cull_face(mat->mDoubleSided ? GL_CULL_FACE : 0);
+
+        setup_texture_matrix(params);
+
+        applyModelMatrix(params);
+
+        if (params.mAvatar.notNull() && (lastAvatar != params.mAvatar || lastMeshId != params.mSkinInfo->mHash))
+        {
+            uploadMatrixPalette(params);
+            lastAvatar = params.mAvatar;
+            lastMeshId = params.mSkinInfo->mHash;
+        }
+
+        params.mVertexBuffer->setBufferFast(mask);
+        params.mVertexBuffer->drawRangeFast(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+
+        teardown_texture_matrix(params);
+    }
+}
+
 void LLRenderPass::pushBatches(U32 type, U32 mask, BOOL texture, BOOL batch_textures)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;

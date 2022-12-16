@@ -6570,9 +6570,17 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
                 if (gltf_mat)
                 { // all other parameters ignored if gltf material is present
                     if (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
+                    {
                         registerFace(group, facep, LLRenderPass::PASS_ALPHA);
+                    }
+                    else if (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
+                    {
+                        registerFace(group, facep, LLRenderPass::PASS_GLTF_PBR_ALPHA_MASK);
+                    }
                     else
+                    {
                         registerFace(group, facep, LLRenderPass::PASS_GLTF_PBR);
+                    }
                 }
                 else
 				// do NOT use 'fullbright' for this logic or you risk sending

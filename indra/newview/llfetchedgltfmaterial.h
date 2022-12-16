@@ -40,7 +40,7 @@ public:
     virtual ~LLFetchedGLTFMaterial();
 
     // bind this material for rendering
-    void bind(LLGLSLShader* shader);
+    void bind();
 
     // Textures used for fetching/rendering
     LLPointer<LLViewerFetchedTexture> mBaseColorTexture;

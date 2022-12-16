@@ -50,11 +50,6 @@ public:
 
     S32 getNumDeferredPasses() override { return 1; }
     void renderDeferred(S32 pass) override;
-
-    S32 getNumShadowPasses() override { return 1; }
-    void renderShadow(S32 pass) override;
-
-    
 };
 
 #endif // LL_LLDRAWPOOLPBROPAQUE_H

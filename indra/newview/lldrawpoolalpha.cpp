@@ -317,39 +317,42 @@ void LLDrawPoolAlpha::renderDebugAlpha()
         gGL.diffuseColor4f(1, 0, 0, 1);
         gGL.getTexUnit(0)->bindFast(LLViewerFetchedTexture::getSmokeImage());
 
-        renderAlphaHighlight(LLVertexBuffer::MAP_VERTEX |
-            LLVertexBuffer::MAP_TEXCOORD0);
+        U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0;
 
-		pushBatches(LLRenderPass::PASS_ALPHA_MASK, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
-		pushBatches(LLRenderPass::PASS_ALPHA_INVISIBLE, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
+        renderAlphaHighlight(mask);
+
+		pushBatches(LLRenderPass::PASS_ALPHA_MASK, mask, FALSE);
+		pushBatches(LLRenderPass::PASS_ALPHA_INVISIBLE, mask, FALSE);
 
 		// Material alpha mask
 		gGL.diffuseColor4f(0, 0, 1, 1);
-		pushBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
-		pushBatches(LLRenderPass::PASS_NORMMAP_MASK, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
-		pushBatches(LLRenderPass::PASS_SPECMAP_MASK, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
-		pushBatches(LLRenderPass::PASS_NORMSPEC_MASK, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
-		pushBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
+		pushBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, mask, FALSE);
+		pushBatches(LLRenderPass::PASS_NORMMAP_MASK, mask, FALSE);
+		pushBatches(LLRenderPass::PASS_SPECMAP_MASK, mask, FALSE);
+		pushBatches(LLRenderPass::PASS_NORMSPEC_MASK, mask, FALSE);
+		pushBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, mask, FALSE);
+        pushBatches(LLRenderPass::PASS_GLTF_PBR_ALPHA_MASK, mask, FALSE);
 
 		gGL.diffuseColor4f(0, 1, 0, 1);
-		pushBatches(LLRenderPass::PASS_INVISIBLE, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
+		pushBatches(LLRenderPass::PASS_INVISIBLE, mask, FALSE);
 
         gHighlightProgram.mRiggedVariant->bind();
         gGL.diffuseColor4f(1, 0, 0, 1);
 
-        pushRiggedBatches(LLRenderPass::PASS_ALPHA_MASK_RIGGED, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
-        pushRiggedBatches(LLRenderPass::PASS_ALPHA_INVISIBLE_RIGGED, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
+        pushRiggedBatches(LLRenderPass::PASS_ALPHA_MASK_RIGGED, mask, FALSE);
+        pushRiggedBatches(LLRenderPass::PASS_ALPHA_INVISIBLE_RIGGED, mask, FALSE);
 
         // Material alpha mask
         gGL.diffuseColor4f(0, 0, 1, 1);
-        pushRiggedBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK_RIGGED, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
-        pushRiggedBatches(LLRenderPass::PASS_NORMMAP_MASK_RIGGED, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
-        pushRiggedBatches(LLRenderPass::PASS_SPECMAP_MASK_RIGGED, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
-        pushRiggedBatches(LLRenderPass::PASS_NORMSPEC_MASK_RIGGED, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
-        pushRiggedBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK_RIGGED, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
+        pushRiggedBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK_RIGGED, mask, FALSE);
+        pushRiggedBatches(LLRenderPass::PASS_NORMMAP_MASK_RIGGED, mask, FALSE);
+        pushRiggedBatches(LLRenderPass::PASS_SPECMAP_MASK_RIGGED, mask, FALSE);
+        pushRiggedBatches(LLRenderPass::PASS_NORMSPEC_MASK_RIGGED, mask, FALSE);
+        pushRiggedBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK_RIGGED, mask, FALSE);
+        pushRiggedBatches(LLRenderPass::PASS_GLTF_PBR_ALPHA_MASK_RIGGED, mask, FALSE);
 
         gGL.diffuseColor4f(0, 1, 0, 1);
-        pushRiggedBatches(LLRenderPass::PASS_INVISIBLE_RIGGED, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
+        pushRiggedBatches(LLRenderPass::PASS_INVISIBLE_RIGGED, mask, FALSE);
         LLGLSLShader::sCurBoundShaderPtr->unbind();
 	}
 }
@@ -679,7 +682,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                         gPipeline.bindDeferredShaderFast(*target_shader);
                     }
 
-                    params.mGLTFMaterial->bind(target_shader);
+                    params.mGLTFMaterial->bind();
                 }
                 else
                 {

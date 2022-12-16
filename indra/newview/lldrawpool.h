@@ -201,6 +201,8 @@ public:
         PASS_ALPHA_INVISIBLE_RIGGED,
         PASS_GLTF_PBR,
         PASS_GLTF_PBR_RIGGED,
+        PASS_GLTF_PBR_ALPHA_MASK,
+        PASS_GLTF_PBR_ALPHA_MASK_RIGGED,
 		NUM_RENDER_TYPES,
 	};
 
@@ -350,6 +352,8 @@ public:
 	static void applyModelMatrix(const LLDrawInfo& params);
 	virtual void pushBatches(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);
     virtual void pushRiggedBatches(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);
+    void pushGLTFBatches(U32 type, U32 mask);
+    void pushRiggedGLTFBatches(U32 type, U32 mask);
 	virtual void pushMaskBatches(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);
     virtual void pushRiggedMaskBatches(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);
 	virtual void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE);
