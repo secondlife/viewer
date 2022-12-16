@@ -1437,6 +1437,16 @@ F32 LLSettingsSky::getReflectionProbeAmbiance() const
     return mSettings[SETTING_REFLECTION_PROBE_AMBIANCE].asReal();
 }
 
+F32 LLSettingsSky::getTotalReflectionProbeAmbiance() const
+{
+    // feed cloud shadow back into reflection probe ambiance to mimic pre-reflection-probe behavior 
+    // without brightening dark/interior spaces
+    F32 probe_ambiance = getReflectionProbeAmbiance();
+    probe_ambiance += (1.f - probe_ambiance) * getCloudShadow()*0.5f;
+
+    return probe_ambiance;
+}
+
 F32 LLSettingsSky::getSkyBottomRadius() const
 {
     return mSettings[SETTING_SKY_BOTTOM_RADIUS].asReal();

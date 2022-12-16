@@ -133,7 +133,11 @@ public:
     F32 getSkyDropletRadius() const;
     F32 getSkyIceLevel() const;
 
+    // get the probe ambiance setting as stored in the sky settings asset
     F32 getReflectionProbeAmbiance() const;
+
+    // get the probe ambiance setting to use for rendering (adjusted by cloud shadow, aka cloud coverage)
+    F32 getTotalReflectionProbeAmbiance() const;
 
     // Return first (only) profile layer represented in LLSD
     LLSD getRayleighConfig() const;

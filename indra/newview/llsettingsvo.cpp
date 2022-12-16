@@ -717,7 +717,8 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     shader->uniform3fv(LLShaderMgr::AMBIENT_LINEAR, linearColor3v(getAmbientColor()/3.f)); // note magic number 3.f comes from SLIDER_SCALE_SUN_AMBIENT
     shader->uniform3fv(LLShaderMgr::SUNLIGHT_LINEAR, linearColor3v(getSunlightColor()));
     shader->uniform3fv(LLShaderMgr::MOONLIGHT_LINEAR,linearColor3v(getMoonlightColor()));
-    shader->uniform1f(LLShaderMgr::REFLECTION_PROBE_AMBIANCE, getReflectionProbeAmbiance());
+
+    shader->uniform1f(LLShaderMgr::REFLECTION_PROBE_AMBIANCE, getTotalReflectionProbeAmbiance());
 
     shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, getIsSunUp() ? 1 : 0);
     shader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, getSunMoonGlowFactor());

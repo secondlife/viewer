@@ -695,7 +695,7 @@ void LLReflectionMapManager::updateUniforms()
     LLEnvironment& environment = LLEnvironment::instance();
     LLSettingsSky::ptr_t psky = environment.getCurrentSky();
 
-    F32 minimum_ambiance = psky->getReflectionProbeAmbiance();
+    F32 minimum_ambiance = psky->getTotalReflectionProbeAmbiance();
 
     for (auto* refmap : mReflectionMaps)
     {
