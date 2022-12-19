@@ -31,6 +31,7 @@
 
 #include "llsd.h"
 #include <boost/functional/hash.hpp>
+#include <cassert>
 
 // U32
 LL_COMMON_API LLSD ll_sd_from_U32(const U32);
@@ -402,6 +403,31 @@ private:
 };
 
 /**
+ * LLSDParam<LLSD> is for when you don't already have the target parameter
+ * type in hand. Instantiate LLSDParam<LLSD>(your LLSD object), and the
+ * templated conversion operator will try to select a more specific LLSDParam
+ * specialization.
+ */
+template <>
+class LLSDParam<LLSD>
+{
+private:
+    LLSD value_;
+
+public:
+    LLSDParam(const LLSD& value): value_(value) {}
+
+    /// if we're literally being asked for an LLSD parameter, avoid infinite
+    /// recursion
+    operator LLSD() const { return value_; }
+
+    /// otherwise, instantiate a more specific LLSDParam<T> to convert; that
+    /// preserves the existing customization mechanism
+    template <typename T>
+    operator T() const { return LLSDParam<T>(value_); }
+};
+
+/**
  * Turns out that several target types could accept an LLSD param using any of
  * a few different conversions, e.g. LLUUID's constructor can accept LLUUID or
  * std::string. Therefore, the compiler can't decide which LLSD conversion
@@ -419,7 +445,7 @@ class LLSDParam<T>                              \
 {                                               \
 public:                                         \
     LLSDParam(const LLSD& value):               \
-        _value((T)value.AS())                      \
+        _value((T)value.AS())                   \
     {}                                          \
                                                 \
     operator T() const { return _value; }       \
@@ -624,4 +650,57 @@ struct hash<LLSD>
     }
 };
 }
+
+namespace LL
+{
+
+/*****************************************************************************
+*   apply(function, LLSD array)
+*****************************************************************************/
+// Derived from https://stackoverflow.com/a/20441189
+// and https://en.cppreference.com/w/cpp/utility/apply .
+// We can't simply make a tuple from the LLSD array and then apply() that
+// tuple to the function -- how would make_tuple() deduce the correct
+// parameter type for each entry? We must go directly to the target function.
+template <typename CALLABLE, std::size_t... I>
+auto apply_impl(CALLABLE&& func, const LLSD& array, std::index_sequence<I...>)
+{
+    // call func(unpacked args), using generic LLSDParam<LLSD> to convert each
+    // entry in 'array' to the target parameter type
+    return std::forward<CALLABLE>(func)(LLSDParam<LLSD>(array[I])...);
+}
+
+template <typename CALLABLE>
+auto apply(CALLABLE&& func, const LLSD& args)
+{
+    LLSD array;
+    constexpr auto arity = boost::function_traits<CALLABLE>::arity;
+    // LLSD supports a number of types, two of which are aggregates: Map and
+    // Array. We don't try to support Map: supporting Map would seem to
+    // promise that we could somehow match the string key to 'func's parameter
+    // names. Uh sorry, maybe in some future version of C++ with reflection.
+    assert(! args.isMap());
+    // We expect an LLSD array, but what the heck, treat isUndefined() as a
+    // zero-length array for calling a nullary 'func'.
+    if (args.isUndefined() || args.isArray())
+    {
+        // this works because LLSD().size() == 0
+        assert(args.size() == arity);
+        array = args;
+    }
+    else                            // args is one of the scalar types
+    {
+        // scalar_LLSD.size() == 0, so don't test that here.
+        // You can pass a scalar LLSD only to a unary 'func'.
+        assert(arity == 1);
+        // make an array of it
+        array = llsd::array(args);
+    }
+    return apply_impl(std::forward<CALLABLE>(func),
+                      array,
+                      std::make_index_sequence<arity>());
+}
+
+} // namespace LL
+
 #endif // LL_LLSDUTIL_H
