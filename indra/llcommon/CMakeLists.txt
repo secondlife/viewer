@@ -293,6 +293,8 @@ if (LL_TESTS)
 
   #set(TEST_DEBUG on)
   set(test_libs llcommon)
+  LL_ADD_INTEGRATION_TEST(apply "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(classic_callback "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lazyeventapi "" "${test_libs}")
