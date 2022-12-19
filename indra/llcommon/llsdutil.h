@@ -31,6 +31,7 @@
 
 #include "llsd.h"
 #include <boost/functional/hash.hpp>
+#include <boost/type_traits.hpp>
 #include <cassert>
 
 // U32
@@ -670,6 +671,11 @@ auto apply_impl(CALLABLE&& func, const LLSD& array, std::index_sequence<I...>)
     return std::forward<CALLABLE>(func)(LLSDParam<LLSD>(array[I])...);
 }
 
+/**
+ * apply(function, LLSD) goes beyond C++17 std::apply(). For this case
+ * @a function @emph cannot be variadic: the compiler must know at compile
+ * time how many arguments to pass. This isn't Python.
+ */
 template <typename CALLABLE>
 auto apply(CALLABLE&& func, const LLSD& args)
 {
