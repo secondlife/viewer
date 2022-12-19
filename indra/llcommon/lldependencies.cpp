@@ -42,7 +42,7 @@
 // other Linden headers
 #include "llexception.h"
 
-LLDependenciesBase::VertexList LLDependenciesBase::topo_sort(int vertices, const EdgeList& edges) const
+LLDependenciesBase::VertexList LLDependenciesBase::topo_sort(size_t vertices, const EdgeList& edges) const
 {
     // Construct a Boost Graph Library graph according to the constraints
     // we've collected. It seems as though we ought to be able to capture

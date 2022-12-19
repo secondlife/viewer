@@ -82,7 +82,7 @@ public:
 
 	// Limiting the number of pending items prevents unbounded growth of the
 	// underlying queue.
-	LLThreadSafeQueue(U32 capacity = 1024);
+	LLThreadSafeQueue(size_t capacity = 1024);
 	virtual ~LLThreadSafeQueue() {}
 
 	// Add an element to the queue (will block if the queue has reached
@@ -179,7 +179,7 @@ public:
 protected:
 	typedef QueueT queue_type;
 	QueueT mStorage;
-	U32 mCapacity;
+	size_t mCapacity;
 	bool mClosed;
 
 	boost::fibers::timed_mutex mLock;
@@ -262,7 +262,7 @@ namespace LL
 *   LLThreadSafeQueue implementation
 *****************************************************************************/
 template<typename ElementT, typename QueueT>
-LLThreadSafeQueue<ElementT, QueueT>::LLThreadSafeQueue(U32 capacity) :
+LLThreadSafeQueue<ElementT, QueueT>::LLThreadSafeQueue(size_t capacity) :
     mCapacity(capacity),
     mClosed(false)
 {

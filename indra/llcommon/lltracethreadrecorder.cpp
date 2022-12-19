@@ -125,7 +125,7 @@ ThreadRecorder::~ThreadRecorder()
 #endif
 }
 
-TimeBlockTreeNode* ThreadRecorder::getTimeBlockTreeNode( S32 index )
+TimeBlockTreeNode* ThreadRecorder::getTimeBlockTreeNode( size_t index )
 {
 #if LL_TRACE_ENABLED
 	if (0 <= index && index < mNumTimeBlockTreeNodes)

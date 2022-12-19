@@ -165,12 +165,12 @@ public:
      * When calling this name, pass an LLSD::Array. Each entry in turn will be
      * converted to the corresponding parameter type using LLSDParam.
      */
-    template<typename Function>
-    typename std::enable_if<
-        boost::function_types::is_nonmember_callable_builtin<Function>::value
-        >::type add(const std::string& name,
-                    const std::string& desc,
-                    Function f);
+    // enable_if usage per https://stackoverflow.com/a/39913395/5533635
+    template<typename Function,
+             typename = typename std::enable_if<
+                 boost::function_types::is_nonmember_callable_builtin<Function>::value
+             >::type>
+    void add(const std::string& name, const std::string& desc, Function f);
 
     /**
      * Register a nonstatic class method with arbitrary parameters.
@@ -189,14 +189,13 @@ public:
      * When calling this name, pass an LLSD::Array. Each entry in turn will be
      * converted to the corresponding parameter type using LLSDParam.
      */
-    template<typename Method, typename InstanceGetter>
-    typename std::enable_if<
-        boost::function_types::is_member_function_pointer<Method>::value &&
-        ! std::is_convertible<InstanceGetter, LLSD>::value
-        >::type add(const std::string& name,
-                    const std::string& desc,
-                    Method f,
-                    const InstanceGetter& getter);
+    template<typename Method, typename InstanceGetter,
+             typename = typename std::enable_if<
+                 boost::function_types::is_member_function_pointer<Method>::value &&
+                 ! std::is_convertible<InstanceGetter, LLSD>::value
+             >::type>
+    void add(const std::string& name, const std::string& desc, Method f,
+             const InstanceGetter& getter);
 
     /**
      * Register a free function with arbitrary parameters. (This also works
@@ -213,14 +212,12 @@ public:
      * an LLSD::Array using LLSDArgsMapper and then convert each entry in turn
      * to the corresponding parameter type using LLSDParam.
      */
-    template<typename Function>
-    typename std::enable_if<
-        boost::function_types::is_nonmember_callable_builtin<Function>::value
-        >::type add(const std::string& name,
-                    const std::string& desc,
-                    Function f,
-                    const LLSD& params,
-                    const LLSD& defaults=LLSD());
+    template<typename Function,
+             typename = typename std::enable_if<
+                 boost::function_types::is_nonmember_callable_builtin<Function>::value
+             >::type>
+    void add(const std::string& name, const std::string& desc, Function f,
+             const LLSD& params, const LLSD& defaults=LLSD());
 
     /**
      * Register a nonstatic class method with arbitrary parameters.
@@ -243,16 +240,14 @@ public:
      * an LLSD::Array using LLSDArgsMapper and then convert each entry in turn
      * to the corresponding parameter type using LLSDParam.
      */
-    template<typename Method, typename InstanceGetter>
-    typename std::enable_if<
-        boost::function_types::is_member_function_pointer<Method>::value &&
-        ! std::is_convertible<InstanceGetter, LLSD>::value
-        >::type add(const std::string& name,
-                    const std::string& desc,
-                    Method f,
-                    const InstanceGetter& getter,
-                    const LLSD& params,
-                    const LLSD& defaults=LLSD());
+    template<typename Method, typename InstanceGetter,
+             typename = typename std::enable_if<
+                 boost::function_types::is_member_function_pointer<Method>::value &&
+                 ! std::is_convertible<InstanceGetter, LLSD>::value
+             >::type>
+    void add(const std::string& name, const std::string& desc, Method f,
+             const InstanceGetter& getter, const LLSD& params,
+             const LLSD& defaults=LLSD());
 
     //@}    
 
@@ -334,17 +329,9 @@ private:
     void addMethod(const std::string& name, const std::string& desc,
                    const METHOD& method, const LLSD& required)
     {
-        CLASS* downcast = dynamic_cast<CLASS*>(this);
-        if (! downcast)
-        {
-            addFail(name, typeid(CLASS).name());
-        }
-        else
-        {
-            add(name, desc, boost::bind(method, downcast, _1), required);
-        }
+        CLASS* downcast = static_cast<CLASS*>(this);
+        add(name, desc, boost::bind(method, downcast, _1), required);
     }
-    void addFail(const std::string& name, const std::string& classname) const;
     std::string try_call_log(const std::string& key, const std::string& name,
                              const LLSD& event) const;
     std::string try_call(const std::string& key, const std::string& name,
@@ -476,9 +463,8 @@ struct LLEventDispatcher::invoker<Function,To,To>
     }
 };
 
-template<typename Function>
-typename std::enable_if< boost::function_types::is_nonmember_callable_builtin<Function>::value >::type
-LLEventDispatcher::add(const std::string& name, const std::string& desc, Function f)
+template<typename Function, typename>
+void LLEventDispatcher::add(const std::string& name, const std::string& desc, Function f)
 {
     // Construct an invoker_function, a callable accepting const args_source&.
     // Add to DispatchMap an ArrayParamsDispatchEntry that will handle the
@@ -487,13 +473,9 @@ LLEventDispatcher::add(const std::string& name, const std::string& desc, Functio
                                 boost::function_types::function_arity<Function>::value);
 }
 
-template<typename Method, typename InstanceGetter>
-typename std::enable_if<
-    boost::function_types::is_member_function_pointer<Method>::value &&
-    ! std::is_convertible<InstanceGetter, LLSD>::value
->::type
-LLEventDispatcher::add(const std::string& name, const std::string& desc, Method f,
-                       const InstanceGetter& getter)
+template<typename Method, typename InstanceGetter, typename>
+void LLEventDispatcher::add(const std::string& name, const std::string& desc, Method f,
+                            const InstanceGetter& getter)
 {
     // Subtract 1 from the compile-time arity because the getter takes care of
     // the first parameter. We only need (arity - 1) additional arguments.
@@ -501,23 +483,18 @@ LLEventDispatcher::add(const std::string& name, const std::string& desc, Method 
                                 boost::function_types::function_arity<Method>::value - 1);
 }
 
-template<typename Function>
-typename std::enable_if< boost::function_types::is_nonmember_callable_builtin<Function>::value >::type
-LLEventDispatcher::add(const std::string& name, const std::string& desc, Function f,
-                       const LLSD& params, const LLSD& defaults)
+template<typename Function, typename>
+void LLEventDispatcher::add(const std::string& name, const std::string& desc, Function f,
+                            const LLSD& params, const LLSD& defaults)
 {
     // See comments for previous is_nonmember_callable_builtin add().
     addMapParamsDispatchEntry(name, desc, make_invoker(f), params, defaults);
 }
 
-template<typename Method, typename InstanceGetter>
-typename std::enable_if<
-    boost::function_types::is_member_function_pointer<Method>::value &&
-    ! std::is_convertible<InstanceGetter, LLSD>::value
->::type
-LLEventDispatcher::add(const std::string& name, const std::string& desc, Method f,
-                       const InstanceGetter& getter,
-                       const LLSD& params, const LLSD& defaults)
+template<typename Method, typename InstanceGetter, typename>
+void LLEventDispatcher::add(const std::string& name, const std::string& desc, Method f,
+                            const InstanceGetter& getter,
+                            const LLSD& params, const LLSD& defaults)
 {
     addMapParamsDispatchEntry(name, desc, make_invoker(f, getter), params, defaults);
 }
@@ -560,17 +537,21 @@ LLEventDispatcher::make_invoker(Method f, const InstanceGetter& getter)
  * LLEventPump name and dispatch key, and add() its methods. Incoming events
  * will automatically be dispatched.
  */
-class LL_COMMON_API LLDispatchListener: public LLEventDispatcher
+// Instead of containing an LLEventStream, LLDispatchListener derives from it.
+// This allows an LLEventPumps::PumpFactory to return a pointer to an
+// LLDispatchListener (subclass) instance, and still have ~LLEventPumps()
+// properly clean it up.
+class LL_COMMON_API LLDispatchListener:
+    public LLEventDispatcher,
+    public LLEventStream
 {
 public:
     LLDispatchListener(const std::string& pumpname, const std::string& key);
-
-    std::string getPumpName() const { return mPump.getName(); }
+    virtual ~LLDispatchListener() {}
 
 private:
     bool process(const LLSD& event);
 
-    LLEventStream mPump;
     LLTempBoundListener mBoundListener;
 };
 

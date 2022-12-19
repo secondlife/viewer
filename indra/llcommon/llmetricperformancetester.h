@@ -67,12 +67,12 @@ public:
 	/**
 	 * @return Returns the number of the test metrics in this tester instance.
 	 */
-	S32 getNumberOfMetrics() const { return mMetricStrings.size() ;}
+	auto getNumberOfMetrics() const { return mMetricStrings.size() ;}
 	/**
 	 * @return Returns the metric name at index
 	 * @param[in] index - Index on the list of metrics managed by this tester instance.
 	 */
-	std::string getMetricName(S32 index) const { return mMetricStrings[index] ;}
+	std::string getMetricName(size_t index) const { return mMetricStrings[index] ;}
 
 protected:
 	/**

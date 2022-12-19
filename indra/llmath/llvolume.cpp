@@ -2398,7 +2398,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 
 		mVolumeFaces.resize(face_count);
 
-		for (U32 i = 0; i < face_count; ++i)
+		for (size_t i = 0; i < face_count; ++i)
 		{
 			LLVolumeFace& face = mVolumeFaces[i];
 

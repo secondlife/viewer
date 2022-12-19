@@ -58,7 +58,7 @@ namespace LLTrace
 		void pullFromChildren();
 		void pushToParent();
 
-		TimeBlockTreeNode* getTimeBlockTreeNode(S32 index);
+		TimeBlockTreeNode* getTimeBlockTreeNode(size_t index);
 
 	protected:
 		void init();

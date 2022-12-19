@@ -35,12 +35,20 @@
 // external library headers
 // other Linden headers
 #include "llerror.h"
+#include "lazyeventapi.h"
 
 LLEventAPI::LLEventAPI(const std::string& name, const std::string& desc, const std::string& field):
     lbase(name, field),
     ibase(name),
     mDesc(desc)
 {
+}
+
+LLEventAPI::LLEventAPI(const LL::LazyEventAPIParams& params):
+    LLEventAPI(params.name, params.desc, params.field)
+{
+    // call initialization functions with our brand-new instance pointer
+    params.init(this);
 }
 
 LLEventAPI::~LLEventAPI()

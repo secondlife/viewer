@@ -42,7 +42,7 @@ std::string LLBase64::encode(const U8* input, size_t input_size)
 		&& input_size > 0)
 	{
 		// Yes, it returns int.
-		int b64_buffer_length = apr_base64_encode_len(input_size);
+		int b64_buffer_length = apr_base64_encode_len(narrow(input_size));
 		char* b64_buffer = new char[b64_buffer_length];
 		
 		// This is faster than apr_base64_encode() if you know
@@ -52,7 +52,7 @@ std::string LLBase64::encode(const U8* input, size_t input_size)
 		b64_buffer_length = apr_base64_encode_binary(
 			b64_buffer,
 			input,
-			input_size);
+			narrow(input_size));
 		output.assign(b64_buffer);
 		delete[] b64_buffer;
 	}

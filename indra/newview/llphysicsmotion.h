@@ -45,6 +45,8 @@ class LLPhysicsMotionController :
 	public LLMotion
 {
 public:
+    using ptr_t = std::shared_ptr<LLPhysicsMotionController>;
+
 	// Constructor
 	LLPhysicsMotionController(const LLUUID &id);
 

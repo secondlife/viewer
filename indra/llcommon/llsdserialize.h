@@ -77,7 +77,7 @@ public:
 	 * @return Returns the number of LLSD objects parsed into
 	 * data. Returns PARSE_FAILURE (-1) on parse failure.
 	 */
-	S32 parse(std::istream& istr, LLSD& data, S32 max_bytes, S32 max_depth = -1);
+	S32 parse(std::istream& istr, LLSD& data, size_t max_bytes, S32 max_depth = -1);
 
 	/** Like parse(), but uses a different call (istream.getline()) to read by lines
 	 *  This API is better suited for XML, where the parse cannot tell
@@ -205,7 +205,7 @@ protected:
 	/**
 	 * @brief The maximum number of bytes left to be parsed.
 	 */
-	mutable S32 mMaxBytesLeft;
+	mutable size_t mMaxBytesLeft;
 	
 	/**
 	 * @brief Use line-based reading to get text
@@ -756,7 +756,7 @@ public:
 	 * @param max_bytes the maximum number of bytes to parse
 	 * @return Returns true if the stream appears to contain valid data
 	 */
-	static bool deserialize(LLSD& sd, std::istream& str, S32 max_bytes);
+	static bool deserialize(LLSD& sd, std::istream& str, size_t max_bytes);
 
 	/*
 	 * Notation Methods
@@ -778,12 +778,12 @@ public:
 						 LLSDFormatter::EFormatterOptions(LLSDFormatter::OPTIONS_PRETTY | 
 														  LLSDFormatter::OPTIONS_PRETTY_BINARY));
 	}
-	static S32 fromNotation(LLSD& sd, std::istream& str, S32 max_bytes)
+	static S32 fromNotation(LLSD& sd, std::istream& str, size_t max_bytes)
 	{
 		LLPointer<LLSDNotationParser> p = new LLSDNotationParser;
 		return p->parse(str, sd, max_bytes);
 	}
-	static LLSD fromNotation(std::istream& str, S32 max_bytes)
+	static LLSD fromNotation(std::istream& str, size_t max_bytes)
 	{
 		LLPointer<LLSDNotationParser> p = new LLSDNotationParser;
 		LLSD sd;
@@ -834,12 +834,12 @@ public:
 		LLPointer<LLSDBinaryFormatter> f = new LLSDBinaryFormatter;
 		return f->format(sd, str, LLSDFormatter::OPTIONS_NONE);
 	}
-	static S32 fromBinary(LLSD& sd, std::istream& str, S32 max_bytes, S32 max_depth = -1)
+	static S32 fromBinary(LLSD& sd, std::istream& str, size_t max_bytes, S32 max_depth = -1)
 	{
 		LLPointer<LLSDBinaryParser> p = new LLSDBinaryParser;
 		return p->parse(str, sd, max_bytes, max_depth);
 	}
-	static LLSD fromBinary(std::istream& str, S32 max_bytes, S32 max_depth = -1)
+	static LLSD fromBinary(std::istream& str, size_t max_bytes, S32 max_depth = -1)
 	{
 		LLPointer<LLSDBinaryParser> p = new LLSDBinaryParser;
 		LLSD sd;
