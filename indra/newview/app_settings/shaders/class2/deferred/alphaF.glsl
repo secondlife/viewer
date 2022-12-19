@@ -72,7 +72,7 @@ uniform vec3 light_diffuse[8];
 void waterClip(vec3 pos);
 
 #ifdef WATER_FOG
-vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
+vec4 applyWaterFogViewLinear(vec3 pos, vec4 color, vec3 sunlit);
 #endif
 
 vec3 srgb_to_linear(vec3 c);
@@ -226,7 +226,7 @@ void main()
 
     vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
 
-    vec3 light_dir = (sun_up_factor == 1) ? sun_dir: moon_dir;
+    vec3 light_dir = (sun_up_factor == 1) ? sun_dir: moon_dir; // TODO -- factor out "sun_up_factor" and just send in the appropriate light vector
 
     float final_alpha = diffuse_linear.a;
 
@@ -295,7 +295,7 @@ void main()
 #endif // !defined(LOCAL_LIGHT_KILL)
 
 #ifdef WATER_FOG
-    color = applyWaterFogViewLinear(pos.xyz, color);
+    color = applyWaterFogViewLinear(pos.xyz, color, sunlit);
 #endif // WATER_FOG
 
 #endif // #else // FOR_IMPOSTOR

@@ -72,7 +72,7 @@ vec4 applyWaterFogView(vec3 pos, vec4 color)
     return color;
 }
 
-vec4 applyWaterFogViewLinear(vec3 pos, vec4 color)
+vec4 applyWaterFogViewLinear(vec3 pos, vec4 color, vec3 sunlit)
 {
     if (dot(pos, waterPlane.xyz) + waterPlane.w > 0.0)
     {
@@ -101,6 +101,7 @@ vec4 applyWaterFogViewLinear(vec3 pos, vec4 color)
     float ks = waterFogKS;
     vec4 kc = waterFogColor;
     kc.rgb = srgb_to_linear(kc.rgb); // TODO -- pass in waterFogColor linear
+    kc.rgb *= sunlit;
 
     float F = 0.98;
 
@@ -115,6 +116,11 @@ vec4 applyWaterFogViewLinear(vec3 pos, vec4 color)
     color.rgb = color.rgb * D + kc.rgb * L;
 
     return color;
+}
+
+vec4 applyWaterFogViewLinear(vec3 pos, vec4 color)
+{
+    return applyWaterFogViewLinear(pos, color, vec3(1));
 }
 
 vec4 applyWaterFog(vec4 color)
