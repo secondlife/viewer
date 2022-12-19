@@ -15,11 +15,26 @@
 #include "apply.h"
 // STL headers
 // std headers
+#include <iomanip>
 // external library headers
 // other Linden headers
-#include "../test/lltut.h"
 #include "llsd.h"
 #include "llsdutil.h"
+
+// for ensure_equals
+std::ostream& operator<<(std::ostream& out, const std::vector<std::string>& stringvec)
+{
+    const char* delim = "[";
+    for (const auto& str : stringvec)
+    {
+        out << delim << std::quoted(str);
+        delim = ", ";
+    }
+    return out << ']';
+}
+
+// the above must be declared BEFORE ensure_equals(std::vector<std::string>)
+#include "../test/lltut.h"
 
 /*****************************************************************************
 *   TUT
@@ -54,6 +69,8 @@ namespace tut
         // ensure that apply() actually reaches the target method --
         // lack of ensure_equals() failure could be due to no-op apply()
         bool called{ false };
+        // capture calls from collect()
+        std::vector<std::string> collected;
 
         /*------------------------- test functions -------------------------*/
         void various(LLSD::Boolean b, LLSD::Integer i, LLSD::Real f, const LLSD::String& s,
@@ -101,6 +118,20 @@ namespace tut
         {
             called = true;
         }
+
+        // recursion tail
+        void collect()
+        {
+            called = true;
+        }
+
+        // collect(arbitrary)
+        template <typename... ARGS>
+        void collect(const std::string& first, ARGS&&... rest)
+        {
+            statics::collected.push_back(first);
+            collect(std::forward<ARGS>(rest)...);
+        }
     } // namespace statics
 
     struct apply_data
@@ -109,6 +140,7 @@ namespace tut
         {
             // reset called before each test
             statics::called = false;
+            statics::collected.clear();
         }
     };
     typedef test_group<apply_data> apply_group;
@@ -167,5 +199,23 @@ namespace tut
                   llsd::array(statics::b, statics::i, statics::f, statics::s,
                               statics::uu, statics::dt, statics::uri, statics::bin));
         ensure("apply(LLSD array) failed", statics::called);
+    }
+
+    template<> template<>
+    void object::test<7>()
+    {
+        set_test_name("VAPPLY()");
+        // Make a std::array<std::string> from statics::quick. We can't call a
+        // variadic function with a data structure of dynamic length.
+        std::array<std::string, 5> strray;
+        for (size_t i = 0; i < strray.size(); ++i)
+            strray[i] = statics::quick[i];
+        // This doesn't work: the compiler doesn't know which overload of
+        // collect() to pass to LL::apply().
+        // LL::apply(statics::collect, strray);
+        // That's what VAPPLY() is for.
+        VAPPLY(statics::collect, strray);
+        ensure("VAPPLY() failed", statics::called);
+        ensure_equals("collected mismatch", statics::collected, statics::quick);
     }
 } // namespace tut
