@@ -108,7 +108,11 @@ auto apply_impl(CALLABLE&& func, const std::vector<T>& args, std::index_sequence
                  std::make_tuple(args[I]...));
 }
 
-// this goes beyond C++17 std::apply()
+/**
+ * apply(function, std::vector) goes beyond C++17 std::apply(). For this case
+ * @a function @emph cannot be variadic: the compiler must know at compile
+ * time how many arguments to pass. This isn't Python.
+ */
 template <typename CALLABLE, typename T>
 auto apply(CALLABLE&& func, const std::vector<T>& args)
 {
