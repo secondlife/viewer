@@ -61,13 +61,10 @@ public:
     void sendCommand(const std::string& command, const LLSD& args = LLSD()) const;
 
     const std::string & getModuleName() const { return mModuleName; };
-    void sendLookAt();
-    void sendAgentOrientation();
-    void sendCameraOrientation();
     void setCamera(const LLSD& data);
-
-    void processAgentIOGetRequest(const LLSD& data);
-    void processAgentIOSetRequest(const LLSD& data);
+    void getCamera(const LLSD& data);
+    void getLookAt(const LLSD& data);
+    void getAgentOrientation(const LLSD& data);
 private:
 
     virtual ~LLAgentIOModule()

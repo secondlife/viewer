@@ -48,76 +48,16 @@
 
 static LLAgentIORegistrar AgentIOReg;
 
-void LLAgentIOModule::processAgentIOGetRequest(const LLSD& data)
+bool arrayOK(const LLSD& data, S32 num_elements)
 {
-    // Agent GET requests are processed here.
-    // Expected data format:
-    // data = 'command'
-    // data = {command:get, data:[thing_one, thing_two, ...]}
-
-    if (!data.has("data"))
+    if (data.isArray())
     {
-        LL_WARNS("AgentIO") << "malformed GET: map no 'data' key" << LL_ENDL;
-        return;
-    }
-    
-    const LLSD& payload = data["data"];
-    if (!payload.isArray())
-    {
-        LL_WARNS("AgentIO") << "malformed GET: 'get' data not array" << LL_ENDL;
-        return;
-    }
-
-    for (auto itr = payload.beginArray(); itr != payload.endArray(); ++itr)
-    {
-        std::string key = itr->asString();
-        if ( *itr == "c" || *itr == "camera" )
+        if (data.size() == num_elements)
         {
-            sendCameraOrientation();
-        }
-        else if ( *itr == "l" || *itr == "look_at" )
-        {
-            sendLookAt();
-        }
-        else if ( *itr == "a" || *itr == "agent" )
-        {
-            sendAgentOrientation();
-        }
-        /*else if ( *itr == "m" || *itr == "manipulator" )
-        {
-            //TODO:  Return manipulator-target or a none type answer.
-        }*/
-    }
-}
-
-void LLAgentIOModule::processAgentIOSetRequest(const LLSD& data)
-{
-    // Agent SET requests are processed here.
-    // Expected data format:
-    // data = 'command'
-    // data = {command:set, data:[thing_one, thing_two, ...]}
-
-    if (!data.has("data"))
-    {
-        LL_WARNS("AgentIO") << "malformed SET: map no 'data' key" << LL_ENDL;
-        return;
-    }
-    
-    const LLSD& payload = data["data"];
-    if (!payload.isArray())
-    {
-        LL_WARNS("AgentIO") << "malformed SET: 'data' not array" << LL_ENDL;
-        return;
-    }
-
-    for (auto itr = payload.beginArray(); itr != payload.endArray(); ++itr)
-    {
-        std::string key = itr->asString();
-        if ( *itr == "c" || *itr == "camera" )
-        {
-            setCamera(data["data"]);
+            return true;
         }
     }
+    return false;
 }
 
 void LLAgentIOModule::setCamera(const LLSD& data)
@@ -125,23 +65,35 @@ void LLAgentIOModule::setCamera(const LLSD& data)
     //Camera and target position are expected as
     //world-space coordinates in the viewer-standard
     //coordinate frame.
+    
+    bool success=false;
+    
     if (data.has("camera") && data.has("target"))
     {
-        LLUUID target_id = LLUUID::null;
-        
-        if (data.has("target_id"))
+        if (arrayOK(data["camera"], 3) &&
+            arrayOK(data["target"], 3))
         {
-            target_id = data["target_id"].asUUID();
+            LLUUID target_id = LLUUID::null;
+            
+            if (data.has("target_id"))
+            {
+                target_id = data["target_id"].asUUID();
+            }
+            gAgentCamera.setCameraPosAndFocusGlobal(
+                ll_vector3d_from_sd ( data["camera"] ),
+                ll_vector3d_from_sd ( data["target"] ),
+                target_id);
+            success = true;
         }
-        
-        gAgentCamera.setCameraPosAndFocusGlobal(
-            ll_vector3d_from_sd ( data["camera"] ),
-            ll_vector3d_from_sd ( data["target"] ),
-            target_id);
+    }
+    
+    if (!success)
+    {
+        LL_WARNS("AgentIO") << "Malformed set_camera request.  Ignoring." << LL_ENDL;
     }
 }
 
-void LLAgentIOModule::sendAgentOrientation()
+void LLAgentIOModule::getAgentOrientation(const LLSD& data)
 {
     /*Find the agent's position and rotation in world and send it out*/
     LLVector3 pos = LLVector3(gAgent.getPositionGlobal());
@@ -154,7 +106,7 @@ void LLAgentIOModule::sendAgentOrientation()
     sendCommand("agent_orientation", dat);
 }
 
-void LLAgentIOModule::sendCameraOrientation()
+void LLAgentIOModule::getCamera(const LLSD& data)
 {
     /*Send camera position and facing relative the agent's
      position and facing.*/
@@ -168,7 +120,7 @@ void LLAgentIOModule::sendCameraOrientation()
     sendCommand("viewer_camera", dat);
 }
 
-void LLAgentIOModule::sendLookAt()
+void LLAgentIOModule::getLookAt(const LLSD& data)
 {
     //Send what the agent is looking at to the leap module.
     //If the agent isn't looking at anything, sends empty map
@@ -248,21 +200,21 @@ LLAgentIORegistrar::LLAgentIORegistrar() :
 		"command")
 {
 	//This section defines the external API targets for this event handler, created with the add routine.
-	add("get",
-		"A plugin module has requested information from the viewer\n"
-		"Requested data may be a simple string.  EX:\n"
-		"  camera\n"
-		"  look_at\n"
-		"  position\n"
-		"Or a key and dict"
-		"Response will be a set issued to the plugin module. EX:\n"
-		"  camera_id: <integer>\n"
-		"  skeleton: <llsd>\n"
-		"multiple items may be requested in a single get",
-		&LLAgentIOModule::processAgentIOGetRequest);
-    add("set",
-        "A plugin module wishes to set agent data in the viewer",
-        &LLAgentIOModule::processAgentIOSetRequest);
+	    
+    add("set_camera",
+        "Allows a leap module to set the agent's camera position and/or camera's focus point position in the world coordinate frame. target_id is an optional parameter specifying the UUID of the item to focus on\n"
+        "EX:  { 'camera': (x,y,z), 'target': (x,y,z), 'target_id':<UUID> }",
+        &LLAgentIOModule::setCamera);
+    
+    add("get_camera",
+        "Plugin request for camera data. Returns the position and focus point of the agent's camera in world space.",
+        &LLAgentIOModule::getCamera);
+    add("get_lookat",
+        "Handles request for the agent's look_at target.  Returns the position in world space.",
+        &LLAgentIOModule::getLookAt);
+    add("get_orientation",
+        "Returns the agent's position and rotation in world space",
+        &LLAgentIOModule::getAgentOrientation);
 
 	//Example of defining viewer-internal API endpoints for this event handler if we wanted the viewer to trigger an update.
     /*mPlugin = LLEventPumps::instance().obtain("look_at").listen(
