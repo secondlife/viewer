@@ -13,6 +13,7 @@
 #define LL_APPLY_H
 
 #include <boost/type_traits/function_traits.hpp>
+#include <cassert>
 #include <tuple>
 
 namespace LL
@@ -54,6 +55,9 @@ namespace LL
         },                                                          \
         (ARGS))
 
+/*****************************************************************************
+*   apply(function, tuple)
+*****************************************************************************/
 #if __cplusplus >= 201703L
 
 // C++17 implementation
@@ -63,8 +67,8 @@ using std::apply;
 
 // Derived from https://stackoverflow.com/a/20441189
 // and https://en.cppreference.com/w/cpp/utility/apply
-template <typename CALLABLE, typename TUPLE, std::size_t... I>
-auto apply_impl(CALLABLE&& func, TUPLE&& args, std::index_sequence<I...>)
+template <typename CALLABLE, typename... ARGS, std::size_t... I>
+auto apply_impl(CALLABLE&& func, const std::tuple<ARGS...>& args, std::index_sequence<I...>)
 {
     // call func(unpacked args)
     return std::forward<CALLABLE>(func)(std::move(std::get<I>(args))...);
@@ -81,6 +85,11 @@ auto apply(CALLABLE&& func, const std::tuple<ARGS...>& args)
                       std::index_sequence_for<ARGS...>{});
 }
 
+#endif // C++14
+
+/*****************************************************************************
+*   apply(function, std::array)
+*****************************************************************************/
 // per https://stackoverflow.com/a/57510428/5533635
 template <typename CALLABLE, typename T, size_t SIZE>
 auto apply(CALLABLE&& func, const std::array<T, SIZE>& args)
@@ -88,13 +97,15 @@ auto apply(CALLABLE&& func, const std::array<T, SIZE>& args)
     return apply(std::forward<CALLABLE>(func), std::tuple_cat(args));
 }
 
+/*****************************************************************************
+*   apply(function, std::vector)
+*****************************************************************************/
 // per https://stackoverflow.com/a/28411055/5533635
 template <typename CALLABLE, typename T, std::size_t... I>
 auto apply_impl(CALLABLE&& func, const std::vector<T>& args, std::index_sequence<I...>)
 {
-    return apply_impl(std::forward<CALLABLE>(func),
-                      std::make_tuple(std::forward<T>(args[I])...),
-                      I...);
+    return apply(std::forward<CALLABLE>(func),
+                 std::make_tuple(args[I]...));
 }
 
 // this goes beyond C++17 std::apply()
@@ -107,8 +118,6 @@ auto apply(CALLABLE&& func, const std::vector<T>& args)
                       args,
                       std::make_index_sequence<arity>());
 }
-
-#endif // C++14
 
 } // namespace LL
 
