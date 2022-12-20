@@ -700,8 +700,17 @@ LLSD LLEventDispatcher::getMetadata(const std::string& name) const
 
 LLDispatchListener::LLDispatchListener(const std::string& pumpname, const std::string& key):
     LLEventDispatcher(pumpname, key),
-    mPump(pumpname, true),          // allow tweaking for uniqueness
-    mBoundListener(mPump.listen("self", boost::bind(&LLDispatchListener::process, this, _1)))
+    // Do NOT tweak the passed pumpname. In practice, when someone
+    // instantiates a subclass of our LLEventAPI subclass, they intend to
+    // claim that LLEventPump name in the global LLEventPumps namespace. It
+    // would be mysterious and distressing if we allowed name tweaking, and
+    // someone else claimed pumpname first for a completely unrelated
+    // LLEventPump. Posted events would never reach our subclass listener
+    // because we would have silently changed its name; meanwhile listeners
+    // (if any) on that other LLEventPump would be confused by the events
+    // intended for our subclass.
+    LLEventStream(pumpname, false),
+    mBoundListener(listen("self", [this](const LLSD& event){ return process(event); }))
 {
 }
 
