@@ -56,9 +56,6 @@ static const auto nil_(nil);
 static const auto& nil(nil_);
 #endif
 
-#include <string>
-#include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/utility/enable_if.hpp>
@@ -74,6 +71,9 @@ static const auto& nil(nil_);
 #include <boost/mpl/end.hpp>
 #include <boost/mpl/next.hpp>
 #include <boost/mpl/deref.hpp>
+#include <functional>               // std::function
+#include <memory>                   // std::unique_ptr
+#include <string>
 #include <typeinfo>
 #include "llevents.h"
 #include "llsdutil.h"
@@ -97,7 +97,7 @@ public:
 
     /// Accept any C++ callable with the right signature, typically a
     /// boost::bind() expression
-    typedef boost::function<void(const LLSD&)> Callable;
+    typedef std::function<void(const LLSD&)> Callable;
 
     /**
      * Register a @a callable by @a name. The passed @a callable accepts a
@@ -293,14 +293,7 @@ private:
         virtual void call(const std::string& desc, const LLSD& event) const = 0;
         virtual LLSD addMetadata(LLSD) const = 0;
     };
-    // Tried using boost::ptr_map<std::string, DispatchEntry>, but ptr_map<>
-    // wants its value type to be "clonable," even just to dereference an
-    // iterator. I don't want to clone entries -- if I have to copy an entry
-    // around, I want it to continue pointing to the same DispatchEntry
-    // subclass object. However, I definitely want DispatchMap to destroy
-    // DispatchEntry if no references are outstanding at the time an entry is
-    // removed. This looks like a job for boost::shared_ptr.
-    typedef std::map<std::string, boost::shared_ptr<DispatchEntry> > DispatchMap;
+    typedef std::map<std::string, std::unique_ptr<DispatchEntry> > DispatchMap;
 
 public:
     /// We want the flexibility to redefine what data we store per name,
@@ -364,10 +357,10 @@ private:
     struct invoker;
 
     // deliver LLSD arguments one at a time
-    typedef boost::function<LLSD()> args_source;
+    typedef std::function<LLSD()> args_source;
     // obtain args from an args_source to build param list and call target
     // function
-    typedef boost::function<void(const args_source&)> invoker_function;
+    typedef std::function<void(const args_source&)> invoker_function;
 
     template <typename Function>
     invoker_function make_invoker(Function f);
