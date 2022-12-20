@@ -561,9 +561,7 @@ void LLEventDispatcher::addArrayParamsDispatchEntry(const std::string& name,
                                                     const invoker_function& invoker,
                                                     LLSD::Integer arity)
 {
-    mDispatch.insert(
-        DispatchMap::value_type(name, DispatchMap::mapped_type(
-                                    new ArrayParamsDispatchEntry(desc, invoker, arity))));
+    mDispatch.emplace(name, new ArrayParamsDispatchEntry(desc, invoker, arity));
 }
 
 void LLEventDispatcher::addMapParamsDispatchEntry(const std::string& name,
@@ -572,18 +570,14 @@ void LLEventDispatcher::addMapParamsDispatchEntry(const std::string& name,
                                                   const LLSD& params,
                                                   const LLSD& defaults)
 {
-    mDispatch.insert(
-        DispatchMap::value_type(name, DispatchMap::mapped_type(
-                                    new MapParamsDispatchEntry(name, desc, invoker, params, defaults))));
+    mDispatch.emplace(name, new MapParamsDispatchEntry(name, desc, invoker, params, defaults));
 }
 
 /// Register a callable by name
 void LLEventDispatcher::add(const std::string& name, const std::string& desc,
                             const Callable& callable, const LLSD& required)
 {
-    mDispatch.insert(
-        DispatchMap::value_type(name, DispatchMap::mapped_type(
-                                    new LLSDDispatchEntry(desc, callable, required))));
+    mDispatch.emplace(name, new LLSDDispatchEntry(desc, callable, required));
 }
 
 /// Unregister a callable
