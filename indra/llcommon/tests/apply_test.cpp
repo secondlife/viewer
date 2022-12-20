@@ -108,6 +108,12 @@ namespace tut
             ensure_equals("i4 mismatch", i4, statics::fibs[4]);
         }
 
+        void sdfunc(const LLSD& sd)
+        {
+            called = true;
+            ensure_equals("sd mismatch", sd.asInteger(), statics::i);
+        }
+
         void intfunc(int i)
         {
             called = true;
@@ -186,13 +192,23 @@ namespace tut
     template<> template<>
     void object::test<5>()
     {
-        set_test_name("apply(LLSD scalar)");
+        set_test_name("apply(fn(int), LLSD scalar)");
         LL::apply(statics::intfunc, LLSD(statics::i));
-        ensure("apply(LLSD scalar) failed", statics::called);
+        ensure("apply(fn(int), LLSD scalar) failed", statics::called);
     }
 
     template<> template<>
     void object::test<6>()
+    {
+        set_test_name("apply(fn(LLSD), LLSD scalar)");
+        // This test verifies that LLSDParam<LLSD> doesn't send the compiler
+        // into infinite recursion when the target is itself LLSD.
+        LL::apply(statics::sdfunc, LLSD(statics::i));
+        ensure("apply(fn(LLSD), LLSD scalar) failed", statics::called);
+    }
+
+    template<> template<>
+    void object::test<7>()
     {
         set_test_name("apply(LLSD array)");
         LL::apply(statics::various,
@@ -202,7 +218,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<7>()
+    void object::test<8>()
     {
         set_test_name("VAPPLY()");
         // Make a std::array<std::string> from statics::quick. We can't call a
