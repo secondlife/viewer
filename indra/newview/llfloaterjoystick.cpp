@@ -250,10 +250,11 @@ void LLFloaterJoystick::refresh()
 	initFromSettings();
 }
 
-void LLFloaterJoystick::addDeviceCallback(std::string &name, LLSD::Binary& value, void* userdata)
+bool LLFloaterJoystick::addDeviceCallback(std::string &name, LLSD::Binary& value, void* userdata)
 {
     LLFloaterJoystick * floater = (LLFloaterJoystick*)userdata;
     floater->mJoysticksCombo->add(name, value, ADD_BOTTOM, 1);
+    return false; // keep searching
 }
 
 void LLFloaterJoystick::addDevice(std::string &name, LLSD& value)
