@@ -229,9 +229,17 @@ std::string string_from_guid(const GUID &guid)
 }
 #elif LL_DARWIN
 
-bool macos_devices_callback(std::string &product, LLSD::Binary &data, void* userdata)
+bool macos_devices_callback(std::string &product_name, LLSD::Binary &data, void* userdata)
 {
-    //LLViewerJoystick::getInstance()->initDevice(&device, product_name, data);
+    S32 size = sizeof(long);
+    long id;
+    memcpy(&id, &data[0], size);
+    
+    NDOF_Device *device = ndof_idsearch(id);
+    if (device)
+    {
+        return LLViewerJoystick::getInstance()->initDevice(device, data);
+    }
     return false;
 }
 
@@ -374,27 +382,50 @@ void LLViewerJoystick::init(bool autoenable)
 	{
 		if (mNdofDev)
         {
+            U32 device_type = 0;
             void* win_callback = nullptr;
-            std::function<void(std::string&, LLSD::Binary&, void*)> osx_callback;
+            std::function<bool(std::string&, LLSD::Binary&, void*)> osx_callback;
             // di8_devices_callback callback is immediate and happens in scope of getInputDevices()
 #if LL_WINDOWS && !LL_MESA_HEADLESS
             // space navigator is marked as DI8DEVCLASS_GAMECTRL in ndof lib
-            U32 device_type = DI8DEVCLASS_GAMECTRL;
+            device_type = DI8DEVCLASS_GAMECTRL;
             win_callback = &di8_devices_callback;
-#else
-            // MAC doesn't support device search yet
-            // On MAC there is an ndof_idsearch and it is possible to specify product
-            // and manufacturer in NDOF_Device for ndof_init_first to pick specific one
-            U32 device_type = 0;
+#elif LL_DARWIN
             osx_callback = macos_devices_callback;
-#endif
-            if (!gViewerWindow->getWindow()->getInputDevices(device_type, osx_callback, win_callback, NULL))
+            
+            if (mLastDeviceUUID.isBinary())
             {
-                LL_INFOS("Joystick") << "Failed to gather devices from window. Falling back to ndof's init" << LL_ENDL;
-                // Failed to gather devices from windows, init first suitable one
-                mLastDeviceUUID = LLSD();
-                void *preffered_device = NULL;
-                initDevice(preffered_device);
+                S32 size = sizeof(long);
+                long id;
+                memcpy(&id, &mLastDeviceUUID[0], size);
+                
+                NDOF_Device *device = ndof_idsearch(id);
+                if (device)
+                {
+                    if (ndof_init_first(device, nullptr))
+                    {
+                        mDriverState = JDS_INITIALIZING;
+                        // Saved device no longer exist
+                        LL_WARNS() << "ndof_init_first FAILED" << LL_ENDL;
+                    }
+                    else
+                    {
+                        mNdofDev = device;
+                        mDriverState = JDS_INITIALIZED;
+                    }
+                }
+            }
+#endif
+            if (mDriverState != JDS_INITIALIZED)
+            {
+                if (!gViewerWindow->getWindow()->getInputDevices(device_type, osx_callback, win_callback, NULL))
+                {
+                    LL_INFOS("Joystick") << "Failed to gather input devices. Falling back to ndof's init" << LL_ENDL;
+                    // Failed to gather devices, init first suitable one
+                    mLastDeviceUUID = LLSD();
+                    void *preffered_device = NULL;
+                    initDevice(preffered_device);
+                }
             }
 
             if (mDriverState == JDS_INITIALIZING)
@@ -449,29 +480,51 @@ void LLViewerJoystick::initDevice(LLSD &guid)
 {
 #if LIB_NDOF
     mLastDeviceUUID = guid;
+    U32 device_type = 0;
     void* win_callback = nullptr;
-    std::function<void(std::string&, LLSD::Binary&, void*)> osx_callback;
-
+    std::function<bool(std::string&, LLSD::Binary&, void*)> osx_callback;
+    mDriverState = JDS_INITIALIZING;
+    
 #if LL_WINDOWS && !LL_MESA_HEADLESS
     // space navigator is marked as DI8DEVCLASS_GAMECTRL in ndof lib
-    U32 device_type = DI8DEVCLASS_GAMECTRL;
+    device_type = DI8DEVCLASS_GAMECTRL;
     win_callback = &di8_devices_callback;
-#else
-    // MAC doesn't support device search yet
-    // On MAC there is an ndof_idsearch and it is possible to specify product
-    // and manufacturer in NDOF_Device for ndof_init_first to pick specific one
-    U32 device_type = 0;
+#elif LL_DARWIN
     osx_callback = macos_devices_callback;
+    if (mLastDeviceUUID.isBinary())
+    {
+        S32 size = sizeof(long);
+        long id;
+        memcpy(&id, &mLastDeviceUUID[0], size);
+        
+        NDOF_Device *device = ndof_idsearch(id);
+        if (device)
+        {
+            if (ndof_init_first(device, nullptr))
+            {
+                mDriverState = JDS_INITIALIZING;
+                // Saved device no longer exist
+                LL_WARNS() << "ndof_init_first FAILED" << LL_ENDL;
+            }
+            else
+            {
+                mNdofDev = device;
+                mDriverState = JDS_INITIALIZED;
+            }
+        }
+    }
 #endif
 
-    mDriverState = JDS_INITIALIZING; 
-    if (!gViewerWindow->getWindow()->getInputDevices(device_type, osx_callback, win_callback, NULL))
+    if (mDriverState != JDS_INITIALIZED)
     {
-        LL_INFOS("Joystick") << "Failed to gather devices from window. Falling back to ndof's init" << LL_ENDL;
-        // Failed to gather devices from windows, init first suitable one
-        void *preffered_device = NULL;
-        mLastDeviceUUID = LLSD();
-        initDevice(preffered_device);
+        if (!gViewerWindow->getWindow()->getInputDevices(device_type, osx_callback, win_callback, NULL))
+        {
+            LL_INFOS("Joystick") << "Failed to gather input devices. Falling back to ndof's init" << LL_ENDL;
+            // Failed to gather devices from windows, init first suitable one
+            void *preffered_device = NULL;
+            mLastDeviceUUID = LLSD();
+            initDevice(preffered_device);
+        }
     }
 
     if (mDriverState == JDS_INITIALIZING)
@@ -526,6 +579,25 @@ void LLViewerJoystick::initDevice(void * preffered_device /* LPDIRECTINPUTDEVICE
         mDriverState = JDS_INITIALIZED;
     }
 #endif
+}
+
+bool LLViewerJoystick::initDevice(NDOF_Device * ndof_device, LLSD::Binary &data)
+{
+    mLastDeviceUUID = data;
+#if LIB_NDOF
+    if (ndof_init_first(ndof_device, nullptr))
+    {
+        mDriverState = JDS_UNINITIALIZED;
+        LL_WARNS() << "ndof_init_first FAILED" << LL_ENDL;
+    }
+    else
+    {
+        mNdofDev = ndof_device;
+        mDriverState = JDS_INITIALIZED;
+        return true;
+    }
+#endif
+    return false;
 }
 
 // -----------------------------------------------------------------------------
@@ -1359,9 +1431,21 @@ std::string LLViewerJoystick::getDeviceUUIDString()
     {
         return std::string();
     }
+#elif LL_DARWIN
+    if (mLastDeviceUUID.isBinary())
+    {
+        S32 size = sizeof(long);
+        LLSD::Binary data = mLastDeviceUUID.asBinary();
+        long id;
+        memcpy(&id, &data[0], size);
+        return std::to_string(id);
+    }
+    else
+    {
+        return std::string();
+    }
 #else
     return std::string();
-    // return mLastDeviceUUID;
 #endif
 }
 
@@ -1385,8 +1469,24 @@ void LLViewerJoystick::loadDeviceIdFromSettings()
         LLSD::Binary data; //just an std::vector
         data.resize(size);
         memcpy(&data[0], &guid /*POD _GUID*/, size);
-        // We store this data in LLSD since LLSD is versatile and will be able to handle both GUID2
-        // and any data MAC will need for device selection
+        // We store this data in LLSD since it can handle both GUID2 and long
+        mLastDeviceUUID = LLSD(data);
+    }
+#elif LL_DARWIN
+    std::string device_string = gSavedSettings.getString("JoystickDeviceUUID");
+    if (device_string.empty())
+    {
+        mLastDeviceUUID = LLSD();
+    }
+    else
+    {
+        LL_DEBUGS("Joystick") << "Looking for device by id: " << device_string << LL_ENDL;
+        long id = std::stol(device_string);
+        S32 size = sizeof(long);
+        LLSD::Binary data; //just an std::vector
+        data.resize(size);
+        memcpy(&data[0], &id, size);
+        // We store this data in LLSD since it can handle both GUID2 and long
         mLastDeviceUUID = LLSD(data);
     }
 #else

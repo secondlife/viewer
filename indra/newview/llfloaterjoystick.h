@@ -46,7 +46,7 @@ public:
 	virtual void draw();
 	static  void setSNDefaults();
 
-    static void addDeviceCallback(std::string &name, LLSD::Binary& value, void* userdata);
+    static bool addDeviceCallback(std::string &name, LLSD::Binary& value, void* userdata);
     void addDevice(std::string &name, LLSD& value);
 
 protected:

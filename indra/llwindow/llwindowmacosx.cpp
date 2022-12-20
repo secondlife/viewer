@@ -2058,10 +2058,11 @@ static void get_devices(std::list<HidDevice> &list_of_devices,
 }
 
 bool LLWindowMacOSX::getInputDevices(U32 device_type_filter,
-                                     std::function<void(std::string&, LLSD::Binary&, void*)> osx_callback,
+                                     std::function<bool(std::string&, LLSD::Binary&, void*)> osx_callback,
                                      void* win_callback,
                                      void* userdata)
 {
+    bool return_value = false;
     CFMutableDictionaryRef device_dict_ref;
     IOReturn result = kIOReturnSuccess;    // assume success( optimist! )
     
@@ -2098,12 +2099,16 @@ bool LLWindowMacOSX::getInputDevices(U32 device_type_filter,
             memcpy(&data[0], &iter->mlocalID, size);
             std::string label(iter->mProduct);
             
-            osx_callback(label, data, userdata);
+            if (osx_callback(label, data, userdata))
+            {
+                break; //found device
+            }
         }
+        return_value = true;
     }
         
     CFRelease( device_dict_ref );
-    return false; // todo: should be true once UI part gets done
+    return return_value;
 }
 
 LLSD LLWindowMacOSX::getNativeKeyData()

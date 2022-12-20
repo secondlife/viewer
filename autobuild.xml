@@ -1384,9 +1384,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a487fff84208a45844602c4a1f68c974</string>
+              <string>69c3e7c8cbf47d6f840011d1fa34cd8b</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/76356/727333/libndofdev-0.1.555523-darwin64-555523.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/108791/947410/libndofdev-0.1.577357-darwin64-577357.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1417,7 +1417,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>0.1.555523</string>
+        <string>0.1.577357</string>
       </map>
       <key>libpng</key>
       <map>
