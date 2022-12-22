@@ -16,6 +16,7 @@ include(Tracy)
 
 
 set(llcommon_SOURCE_FILES
+    apply.cpp
     indra_constants.cpp
     lazyeventapi.cpp
     llallocator.cpp
