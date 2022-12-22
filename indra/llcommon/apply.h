@@ -12,9 +12,11 @@
 #if ! defined(LL_APPLY_H)
 #define LL_APPLY_H
 
+#include "llexception.h"
 #include <boost/type_traits/function_traits.hpp>
-#include <cassert>
+#include <functional>               // std::mem_fn()
 #include <tuple>
+#include <type_traits>              // std::is_member_pointer
 
 namespace LL
 {
@@ -56,9 +58,39 @@ namespace LL
         (ARGS))
 
 /*****************************************************************************
-*   apply(function, tuple)
+*   invoke()
 *****************************************************************************/
-#if __cplusplus >= 201703L
+#if __cpp_lib_invoke >= 201411L
+
+// C++17 implementation
+using std::invoke;
+
+#else  // no std::invoke
+
+// Use invoke() to handle pointer-to-method:
+// derived from https://stackoverflow.com/a/38288251
+template<typename Fn, typename... Args, 
+         typename std::enable_if<std::is_member_pointer<typename std::decay<Fn>::type>::value,
+                                 int>::type = 0 >
+auto invoke(Fn&& f, Args&&... args)
+{
+    return std::mem_fn(f)(std::forward<Args>(args)...);
+}
+
+template<typename Fn, typename... Args, 
+         typename std::enable_if<!std::is_member_pointer<typename std::decay<Fn>::type>::value,
+                                 int>::type = 0 >
+auto invoke(Fn&& f, Args&&... args)
+{
+    return std::forward<Fn>(f)(std::forward<Args>(args)...);
+}
+
+#endif // no std::invoke
+
+/*****************************************************************************
+*   apply(function, tuple); apply(function, array)
+*****************************************************************************/
+#if __cpp_lib_apply >= 201603L
 
 // C++17 implementation
 using std::apply;
@@ -71,7 +103,7 @@ template <typename CALLABLE, typename... ARGS, std::size_t... I>
 auto apply_impl(CALLABLE&& func, const std::tuple<ARGS...>& args, std::index_sequence<I...>)
 {
     // call func(unpacked args)
-    return std::forward<CALLABLE>(func)(std::move(std::get<I>(args))...);
+    return invoke(std::forward<CALLABLE>(func), std::get<I>(args)...);
 }
 
 template <typename CALLABLE, typename... ARGS>
@@ -85,17 +117,56 @@ auto apply(CALLABLE&& func, const std::tuple<ARGS...>& args)
                       std::index_sequence_for<ARGS...>{});
 }
 
-#endif // C++14
-
-/*****************************************************************************
-*   apply(function, std::array)
-*****************************************************************************/
 // per https://stackoverflow.com/a/57510428/5533635
 template <typename CALLABLE, typename T, size_t SIZE>
 auto apply(CALLABLE&& func, const std::array<T, SIZE>& args)
 {
     return apply(std::forward<CALLABLE>(func), std::tuple_cat(args));
 }
+
+#endif // C++14
+
+/*****************************************************************************
+*   bind_front()
+*****************************************************************************/
+// To invoke a non-static member function with a tuple, you need a callable
+// that binds your member function with an instance pointer or reference.
+// std::bind_front() is perfect: std::bind_front(&cls::method, instance).
+// Unfortunately bind_front() only enters the standard library in C++20.
+#if __cpp_lib_bind_front >= 201907L
+
+// C++20 implementation
+using std::bind_front;
+
+#else  // no std::bind_front()
+
+template<typename Fn, typename... Args, 
+         typename std::enable_if<!std::is_member_pointer<typename std::decay<Fn>::type>::value,
+                                 int>::type = 0 >
+auto bind_front(Fn&& f, Args&&... args)
+{
+    // Don't use perfect forwarding for f or args: we must bind them for later.
+    return [f, pfx_args=std::make_tuple(args...)]
+        (auto&&... sfx_args)
+    {
+        // Use perfect forwarding for sfx_args because we use them as soon as
+        // we receive them.
+        return apply(
+            f,
+            std::tuple_cat(pfx_args,
+                           std::make_tuple(std::forward<decltype(sfx_args)>(sfx_args)...)));
+    };
+}
+
+template<typename Fn, typename... Args, 
+         typename std::enable_if<std::is_member_pointer<typename std::decay<Fn>::type>::value,
+                                 int>::type = 0 >
+auto bind_front(Fn&& f, Args&&... args)
+{
+    return bind_front(std::mem_fn(std::forward<Fn>(f)), std::forward<Args>(args)...);
+}
+
+#endif // C++20 with std::bind_front()
 
 /*****************************************************************************
 *   apply(function, std::vector)
@@ -108,6 +179,15 @@ auto apply_impl(CALLABLE&& func, const std::vector<T>& args, std::index_sequence
                  std::make_tuple(args[I]...));
 }
 
+// produce suitable error if apply(func, vector) is the wrong size for func()
+void apply_validate_size(size_t size, size_t arity);
+
+/// possible exception from apply() validation
+struct apply_error: public LLException
+{
+    apply_error(const std::string& what): LLException(what) {}
+};
+
 /**
  * apply(function, std::vector) goes beyond C++17 std::apply(). For this case
  * @a function @emph cannot be variadic: the compiler must know at compile
@@ -117,7 +197,7 @@ template <typename CALLABLE, typename T>
 auto apply(CALLABLE&& func, const std::vector<T>& args)
 {
     constexpr auto arity = boost::function_traits<CALLABLE>::arity;
-    assert(args.size() == arity);
+    apply_validate_size(args.size(), arity);
     return apply_impl(std::forward<CALLABLE>(func),
                       args,
                       std::make_index_sequence<arity>());

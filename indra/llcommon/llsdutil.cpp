@@ -1047,3 +1047,38 @@ LLSD llsd_shallow(LLSD value, LLSD filter)
 
     return shallow;
 }
+
+LLSD LL::apply_llsd_fix(size_t arity, const LLSD& args)
+{
+    // LLSD supports a number of types, two of which are aggregates: Map and
+    // Array. We don't try to support Map: supporting Map would seem to
+    // promise that we could somehow match the string key to 'func's parameter
+    // names. Uh sorry, maybe in some future version of C++ with reflection.
+    if (args.isMap())
+    {
+        LLTHROW(LL::apply_error("LL::apply(function, Map LLSD) unsupported"));
+    }
+    // We expect an LLSD array, but what the heck, treat isUndefined() as a
+    // zero-length array for calling a nullary 'func'.
+    if (args.isUndefined() || args.isArray())
+    {
+        // this works because LLSD().size() == 0
+        if (args.size() != arity)
+        {
+            LLTHROW(LL::apply_error(stringize("LL::apply(function(", arity, " args), ",
+                                              args.size(), "-entry LLSD array)")));
+        }
+        return args;
+    }
+
+    // args is one of the scalar types
+    // scalar_LLSD.size() == 0, so don't test that here.
+    // You can pass a scalar LLSD only to a unary 'func'.
+    if (arity != 1)
+    {
+        LLTHROW(LL::apply_error(stringize("LL::apply(function(", arity, " args), "
+                                          "LLSD ", LLSD::typeString(args.type()), ")")));
+    }
+    // make an array of it
+    return llsd::array(args);
+}

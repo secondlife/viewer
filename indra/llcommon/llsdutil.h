@@ -29,10 +29,12 @@
 #ifndef LL_LLSDUTIL_H
 #define LL_LLSDUTIL_H
 
+#include "apply.h"                  // LL::invoke()
 #include "llsd.h"
 #include <boost/functional/hash.hpp>
-#include <boost/type_traits.hpp>
+#include <boost/function_types/function_arity.hpp>
 #include <cassert>
+#include <type_traits>
 
 // U32
 LL_COMMON_API LLSD ll_sd_from_U32(const U32);
@@ -658,6 +660,10 @@ namespace LL
 /*****************************************************************************
 *   apply(function, LLSD array)
 *****************************************************************************/
+// validate incoming LLSD blob, and return an LLSD array suitable to pass to
+// apply_impl()
+LLSD apply_llsd_fix(size_t arity, const LLSD& args);
+
 // Derived from https://stackoverflow.com/a/20441189
 // and https://en.cppreference.com/w/cpp/utility/apply .
 // We can't simply make a tuple from the LLSD array and then apply() that
@@ -671,6 +677,16 @@ auto apply_impl(CALLABLE&& func, const LLSD& array, std::index_sequence<I...>)
     return std::forward<CALLABLE>(func)(LLSDParam<LLSD>(array[I])...);
 }
 
+// use apply_n<ARITY>(function, LLSD) to call a specific arity of a variadic
+// function with (that many) items from the passed LLSD array
+template <size_t ARITY, typename CALLABLE>
+auto apply_n(CALLABLE&& func, const LLSD& args)
+{
+    return apply_impl(std::forward<CALLABLE>(func),
+                      apply_llsd_fix(ARITY, args),
+                      std::make_index_sequence<ARITY>());
+}
+
 /**
  * apply(function, LLSD) goes beyond C++17 std::apply(). For this case
  * @a function @emph cannot be variadic: the compiler must know at compile
@@ -679,32 +695,11 @@ auto apply_impl(CALLABLE&& func, const LLSD& array, std::index_sequence<I...>)
 template <typename CALLABLE>
 auto apply(CALLABLE&& func, const LLSD& args)
 {
-    LLSD array;
-    constexpr auto arity = boost::function_traits<CALLABLE>::arity;
-    // LLSD supports a number of types, two of which are aggregates: Map and
-    // Array. We don't try to support Map: supporting Map would seem to
-    // promise that we could somehow match the string key to 'func's parameter
-    // names. Uh sorry, maybe in some future version of C++ with reflection.
-    assert(! args.isMap());
-    // We expect an LLSD array, but what the heck, treat isUndefined() as a
-    // zero-length array for calling a nullary 'func'.
-    if (args.isUndefined() || args.isArray())
-    {
-        // this works because LLSD().size() == 0
-        assert(args.size() == arity);
-        array = args;
-    }
-    else                            // args is one of the scalar types
-    {
-        // scalar_LLSD.size() == 0, so don't test that here.
-        // You can pass a scalar LLSD only to a unary 'func'.
-        assert(arity == 1);
-        // make an array of it
-        array = llsd::array(args);
-    }
-    return apply_impl(std::forward<CALLABLE>(func),
-                      array,
-                      std::make_index_sequence<arity>());
+    // infer arity from the definition of func
+    constexpr auto arity = boost::function_types::function_arity<
+        typename std::remove_reference<CALLABLE>::type>::value;
+    // now that we have a compile-time arity, apply_n() works
+    return apply_n<arity>(std::forward<CALLABLE>(func), args);
 }
 
 } // namespace LL
