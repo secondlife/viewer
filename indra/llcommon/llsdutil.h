@@ -690,7 +690,8 @@ auto apply_n(CALLABLE&& func, const LLSD& args)
 /**
  * apply(function, LLSD) goes beyond C++17 std::apply(). For this case
  * @a function @emph cannot be variadic: the compiler must know at compile
- * time how many arguments to pass. This isn't Python.
+ * time how many arguments to pass. This isn't Python. (But see apply_n() to
+ * pass a specific number of args to a variadic function.)
  */
 template <typename CALLABLE>
 auto apply(CALLABLE&& func, const LLSD& args)
