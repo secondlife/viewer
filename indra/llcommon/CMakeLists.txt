@@ -29,6 +29,7 @@ include_directories(
 #     ${LLCOMMON_LIBRARIES})
 
 set(llcommon_SOURCE_FILES
+    apply.cpp
     indra_constants.cpp
     lazyeventapi.cpp
     llallocator.cpp
