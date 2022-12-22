@@ -188,19 +188,28 @@ struct apply_error: public LLException
     apply_error(const std::string& what): LLException(what) {}
 };
 
+template <size_t ARITY, typename CALLABLE, typename T>
+auto apply_n(CALLABLE&& func, const std::vector<T>& args)
+{
+    apply_validate_size(args.size(), ARITY);
+    return apply_impl(std::forward<CALLABLE>(func),
+                      args,
+                      std::make_index_sequence<ARITY>());
+}
+
 /**
  * apply(function, std::vector) goes beyond C++17 std::apply(). For this case
  * @a function @emph cannot be variadic: the compiler must know at compile
- * time how many arguments to pass. This isn't Python.
+ * time how many arguments to pass. This isn't Python. (But see apply_n() to
+ * pass a specific number of args to a variadic function.)
  */
 template <typename CALLABLE, typename T>
 auto apply(CALLABLE&& func, const std::vector<T>& args)
 {
+    // infer arity from the definition of func
     constexpr auto arity = boost::function_traits<CALLABLE>::arity;
-    apply_validate_size(args.size(), arity);
-    return apply_impl(std::forward<CALLABLE>(func),
-                      args,
-                      std::make_index_sequence<arity>());
+    // now that we have a compile-time arity, apply_n() works
+    return apply_n<arity>(std::forward<CALLABLE>(func), args);
 }
 
 } // namespace LL
