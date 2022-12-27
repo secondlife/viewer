@@ -399,6 +399,7 @@ void LLViewerJoystick::init(bool autoenable)
                 long id;
                 memcpy(&id, &mLastDeviceUUID[0], size);
                 
+                // todo: search by manufcturer instead, locid might have changed
                 NDOF_Device *device = ndof_idsearch(id);
                 if (device)
                 {
@@ -500,6 +501,7 @@ void LLViewerJoystick::initDevice(LLSD &guid)
         NDOF_Device *device = ndof_idsearch(id);
         if (device)
         {
+            // todo: search by manufcturer instead, locid might have changed
             if (ndof_init_first(device, nullptr))
             {
                 mDriverState = JDS_INITIALIZING;
