@@ -1862,11 +1862,13 @@ struct hu_element_t
 };
 
 struct HidDevice
-{                    // interface to device, NULL = no interface
-    char mProduct[256];                        // name of product
-    long mlocalID;                                // long representing location in USB( or other I/O ) chain which device is pluged into, can identify specific device on machine
-    long mUsage;                                // usage page from IOUSBHID Parser.h which defines general usage
-    long mUsagePage;                            // usage within above page from IOUSBHID Parser.h which defines specific usage
+{
+    long mAxis;
+    long mLocalID;
+    char mProduct[256];
+    char mManufacturer[256];
+    long mUsage;
+    long mUsagePage;
 };
 
 /*************************************************************************
@@ -1931,6 +1933,20 @@ static void populate_device_info( io_object_t io_obj_p, CFDictionaryRef device_d
                 }
             }
             
+            dict_element = CFDictionaryGetValue( device_dic, CFSTR( kIOHIDManufacturerKey ) );
+            if ( !dict_element )
+            {
+                dict_element = CFDictionaryGetValue( io_properties, CFSTR( "USB Vendor Name" ) );
+            }
+            if ( dict_element )
+            {
+                bool res = CFStringGetCString( (CFStringRef)dict_element, devicep->mManufacturer, 256, kCFStringEncodingUTF8 );
+                if ( !res )
+                {
+                    LL_WARNS("Joystick") << "Failed to populate mManufacturer" << LL_ENDL;
+                }
+            }
+            
             dict_element = CFDictionaryGetValue( device_dic, CFSTR( kIOHIDLocationIDKey ) );
             if ( !dict_element )
             {
@@ -1938,7 +1954,7 @@ static void populate_device_info( io_object_t io_obj_p, CFDictionaryRef device_d
             }
             if ( dict_element )
             {
-                bool res = CFNumberGetValue( (CFNumberRef)dict_element, kCFNumberLongType, &devicep->mlocalID );
+                bool res = CFNumberGetValue( (CFNumberRef)dict_element, kCFNumberLongType, &devicep->mLocalID );
                 if ( !res )
                 {
                     LL_WARNS("Joystick") << "Failed to populate mLocalID" << LL_ENDL;
@@ -1962,6 +1978,59 @@ static void populate_device_info( io_object_t io_obj_p, CFDictionaryRef device_d
                     }
                 }
             }
+            
+            //Add axis, because ndof lib checks sutability by axises as well as other elements
+            devicep->mAxis = 0;
+            CFTypeRef hid_elements = CFDictionaryGetValue( device_dic, CFSTR( kIOHIDElementKey ) );
+            if ( hid_elements && CFGetTypeID( hid_elements ) == CFArrayGetTypeID( ) )
+            {
+                long count = CFArrayGetCount( (CFArrayRef) hid_elements );
+                for (int i = 0; i < count; ++i)
+                {
+                    CFTypeRef element = CFArrayGetValueAtIndex((CFArrayRef) hid_elements, i);
+                    if (element && CFGetTypeID( element ) == CFDictionaryGetTypeID( ))
+                    {
+                        long type = 0, usage_page = 0, usage = 0;
+                        
+                        CFTypeRef ref_value = CFDictionaryGetValue( (CFDictionaryRef) element, CFSTR( kIOHIDElementTypeKey ) );
+                        if ( ref_value )
+                        {
+                            CFNumberGetValue( (CFNumberRef)ref_value, kCFNumberLongType, &type );
+                        }
+                        
+                        ref_value = CFDictionaryGetValue( (CFDictionaryRef) element, CFSTR( kIOHIDElementUsagePageKey ) );
+                        if ( ref_value )
+                        {
+                             CFNumberGetValue( (CFNumberRef)ref_value, kCFNumberLongType, &usage_page );
+                        }
+                        
+                        ref_value = CFDictionaryGetValue( (CFDictionaryRef) element, CFSTR( kIOHIDElementUsageKey ) );
+                        if ( ref_value )
+                        {
+                            CFNumberGetValue( (CFNumberRef)ref_value, kCFNumberLongType, &usage );
+                        }
+                        if ( type != 0
+                            && type != kIOHIDElementTypeCollection
+                            && usage_page == kHIDPage_GenericDesktop)
+                        {
+                            switch( usage )
+                            {
+                                case kHIDUsage_GD_X:
+                                case kHIDUsage_GD_Y:
+                                case kHIDUsage_GD_Z:
+                                case kHIDUsage_GD_Rx:
+                                case kHIDUsage_GD_Ry:
+                                case kHIDUsage_GD_Rz:
+                                    devicep->mAxis++;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+            
             CFRelease(io_properties);
         }
         else
@@ -2046,7 +2115,17 @@ static void get_devices(std::list<HidDevice> &list_of_devices,
     {
         HidDevice device = populate_device( io_obj );
         
-        list_of_devices.push_back(device);
+        if (device.mAxis >= 3
+            || (device.mUsagePage == kHIDPage_GenericDesktop
+                && (device.mUsage == kHIDUsage_GD_MultiAxisController
+                    || device.mUsage == kHIDUsage_GD_GamePad
+                    || device.mUsage == kHIDUsage_GD_Joystick))
+            || (device.mUsagePage == kHIDPage_Game
+                && (device.mUsage == kHIDUsage_Game_3DGameController))
+            || strstr(device.mManufacturer, "3Dconnexion"))
+        {
+            list_of_devices.push_back(device);
+        }
         
         // release the device object, it is no longer needed
         result = IOObjectRelease( io_obj );
@@ -2096,7 +2175,7 @@ bool LLWindowMacOSX::getInputDevices(U32 device_type_filter,
             S32 size = sizeof(long);
             LLSD::Binary data; //just an std::vector
             data.resize(size);
-            memcpy(&data[0], &iter->mlocalID, size);
+            memcpy(&data[0], &iter->mLocalID, size);
             std::string label(iter->mProduct);
             
             if (osx_callback(label, data, userdata))
