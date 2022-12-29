@@ -1510,6 +1510,22 @@ BOOL LLFolderView::handleHover( S32 x, S32 y, MASK mask )
 	return LLView::handleHover( x, y, mask );
 }
 
+LLFolderViewItem* LLFolderView::getHoveredItem() const
+{
+	return dynamic_cast<LLFolderViewItem*>(mHoveredItem.get());
+}
+
+void LLFolderView::setHoveredItem(LLFolderViewItem* itemp)
+{
+	if (mHoveredItem.get() != itemp)
+	{
+		if (itemp)
+			mHoveredItem = itemp->getHandle();
+		else
+			mHoveredItem.markDead();
+	}
+}
+
 BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									 EDragAndDropType cargo_type,
 									 void* cargo_data, 

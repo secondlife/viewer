@@ -624,11 +624,14 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 			getWindow()->setCursor(UI_CURSOR_NOLOCKED);
 		}
 
+		root->clearHoveredItem();
 		return TRUE;
 	}
 	else
 	{
-		getRoot()->setShowSelectionContext(FALSE);
+		LLFolderView* pRoot = getRoot();
+		pRoot->setHoveredItem(this);
+		pRoot->setShowSelectionContext(FALSE);
 		getWindow()->setCursor(UI_CURSOR_ARROW);
 		// let parent handle this then...
 		return FALSE;
@@ -683,6 +686,13 @@ BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
 void LLFolderViewItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	mIsMouseOverTitle = false;
+
+	// NOTE: LLViewerWindow::updateUI() calls "enter" before "leave"; if the mouse moved to another item, we can't just outright clear it
+	LLFolderView* pRoot = getRoot();
+	if (this == pRoot->getHoveredItem())
+	{
+		pRoot->clearHoveredItem();
+	}
 }
 
 BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,

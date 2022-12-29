@@ -168,6 +168,7 @@ public:
 								   void* cargo_data,
 								   EAcceptance* accept,
 								   std::string& tooltip_msg);
+	            BOOL handleToolTip(S32 x, S32 y, MASK mask) override;
 	// LLUICtrl methods
 	 /*virtual*/ void onFocusLost();
 	 /*virtual*/ void onFocusReceived();

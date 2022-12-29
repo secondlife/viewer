@@ -425,6 +425,31 @@ void LLInventoryModel::getDirectDescendentsOf(const LLUUID& cat_id,
 	items = get_ptr_in_map(mParentChildItemTree, cat_id);
 }
 
+void LLInventoryModel::getDirectDescendentsOf(const LLUUID& cat_id, cat_array_t& categories, item_array_t& items, LLInventoryCollectFunctor& f) const
+{
+    if (cat_array_t* categoriesp = get_ptr_in_map(mParentChildCategoryTree, cat_id))
+    {
+        for (LLViewerInventoryCategory* pFolder : *categoriesp)
+        {
+			if (f(pFolder, nullptr))
+			{
+				categories.push_back(pFolder);
+			}
+        }
+    }
+
+    if (item_array_t* itemsp = get_ptr_in_map(mParentChildItemTree, cat_id))
+    {
+        for (LLViewerInventoryItem* pItem : *itemsp)
+        {
+			if (f(nullptr, pItem))
+			{
+				items.push_back(pItem);
+			}
+        }
+    }
+}
+
 LLMD5 LLInventoryModel::hashDirectDescendentNames(const LLUUID& cat_id) const
 {
 	LLInventoryModel::cat_array_t* cat_array;
