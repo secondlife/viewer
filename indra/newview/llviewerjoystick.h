@@ -55,9 +55,8 @@ class LLViewerJoystick : public LLSingleton<LLViewerJoystick>
 public:
 	void init(bool autoenable);
 	void initDevice(LLSD &guid);
-	void initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/);
-	void initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, std::string &name, LLSD &guid);
-    bool initDevice(NDOF_Device * ndof_device, LLSD::Binary &guid);
+	bool initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/);
+	bool initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, std::string &name, LLSD &guid);
 	void terminate();
 
 	void updateStatus();
@@ -80,6 +79,7 @@ public:
 	LLSD getDeviceUUID(); //unconverted, OS dependent value wrapped into LLSD, for comparison/search
 	std::string getDeviceUUIDString(); // converted readable value for settings
 	std::string getDescription();
+    void saveDeviceIdToSettings();
 
 protected:
 	void updateEnabled(bool autoenable);

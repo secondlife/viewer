@@ -1813,53 +1813,158 @@ void LLWindowMacOSX::spawnWebBrowser(const std::string& escaped_url, bool async)
 	}
 }
 
-
-// Device and Element Interfaces
-
-typedef enum HIDElementTypeMask
+// String should match ndof, so string mapping code was copied as is
+static char mapChar( char c )
 {
-    kHIDElementTypeInput                = 1 << 1,
-    kHIDElementTypeOutput          = 1 << 2,
-    kHIDElementTypeFeature          = 1 << 3,
-    kHIDElementTypeCollection        = 1 << 4,
-    kHIDElementTypeIO                    = kHIDElementTypeInput | kHIDElementTypeOutput | kHIDElementTypeFeature,
-    kHIDElementTypeAll                    = kHIDElementTypeIO | kHIDElementTypeCollection
-}HIDElementTypeMask;
+    unsigned char uc = ( unsigned char ) c;
+    
+    switch( uc )
+    {
+        case '/': return '-'; // use dash instead of slash
+            
+        case 0x7F: return ' ';
+        case 0x80: return 'A';
+        case 0x81: return 'A';
+        case 0x82: return 'C';
+        case 0x83: return 'E';
+        case 0x84: return 'N';
+        case 0x85: return 'O';
+        case 0x86: return 'U';
+        case 0x87: return 'a';
+        case 0x88: return 'a';
+        case 0x89: return 'a';
+        case 0x8A: return 'a';
+        case 0x8B: return 'a';
+        case 0x8C: return 'a';
+        case 0x8D: return 'c';
+        case 0x8E: return 'e';
+        case 0x8F: return 'e';
+        case 0x90: return ' ';
+        case 0x91: return ' '; // ? '
+        case 0x92: return ' '; // ? '
+        case 0x93: return ' '; // ? "
+        case 0x94: return ' '; // ? "
+        case 0x95: return ' ';
+        case 0x96: return ' ';
+        case 0x97: return ' ';
+        case 0x98: return ' ';
+        case 0x99: return ' ';
+        case 0x9A: return ' ';
+        case 0x9B: return 0x27;
+        case 0x9C: return 0x22;
+        case 0x9D: return ' ';
+        case 0x9E: return ' ';
+        case 0x9F: return ' ';
+        case 0xA0: return ' ';
+        case 0xA1: return ' ';
+        case 0xA2: return ' ';
+        case 0xA3: return ' ';
+        case 0xA4: return ' ';
+        case 0xA5: return ' ';
+        case 0xA6: return ' ';
+        case 0xA7: return ' ';
+        case 0xA8: return ' ';
+        case 0xA9: return ' ';
+        case 0xAA: return ' ';
+        case 0xAB: return ' ';
+        case 0xAC: return ' ';
+        case 0xAD: return ' ';
+        case 0xAE: return ' ';
+        case 0xAF: return ' ';
+        case 0xB0: return ' ';
+        case 0xB1: return ' ';
+        case 0xB2: return ' ';
+        case 0xB3: return ' ';
+        case 0xB4: return ' ';
+        case 0xB5: return ' ';
+        case 0xB6: return ' ';
+        case 0xB7: return ' ';
+        case 0xB8: return ' ';
+        case 0xB9: return ' ';
+        case 0xBA: return ' ';
+        case 0xBB: return ' ';
+        case 0xBC: return ' ';
+        case 0xBD: return ' ';
+        case 0xBE: return ' ';
+        case 0xBF: return ' ';
+        case 0xC0: return ' ';
+        case 0xC1: return ' ';
+        case 0xC2: return ' ';
+        case 0xC3: return ' ';
+        case 0xC4: return ' ';
+        case 0xC5: return ' ';
+        case 0xC6: return ' ';
+        case 0xC7: return ' ';
+        case 0xC8: return ' ';
+        case 0xC9: return ' ';
+        case 0xCA: return ' ';
+        case 0xCB: return 'A';
+        case 0xCC: return 'A';
+        case 0xCD: return 'O';
+        case 0xCE: return ' ';
+        case 0xCF: return ' ';
+        case 0xD0: return '-';
+        case 0xD1: return '-';
+        case 0xD2: return 0x22;
+        case 0xD3: return 0x22;
+        case 0xD4: return 0x27;
+        case 0xD5: return 0x27;
+        case 0xD6: return '-'; // use dash instead of slash
+        case 0xD7: return ' ';
+        case 0xD8: return 'y';
+        case 0xD9: return 'Y';
+        case 0xDA: return '-'; // use dash instead of slash
+        case 0xDB: return ' ';
+        case 0xDC: return '<';
+        case 0xDD: return '>';
+        case 0xDE: return ' ';
+        case 0xDF: return ' ';
+        case 0xE0: return ' ';
+        case 0xE1: return ' ';
+        case 0xE2: return ',';
+        case 0xE3: return ',';
+        case 0xE4: return ' ';
+        case 0xE5: return 'A';
+        case 0xE6: return 'E';
+        case 0xE7: return 'A';
+        case 0xE8: return 'E';
+        case 0xE9: return 'E';
+        case 0xEA: return 'I';
+        case 0xEB: return 'I';
+        case 0xEC: return 'I';
+        case 0xED: return 'I';
+        case 0xEE: return 'O';
+        case 0xEF: return 'O';
+        case 0xF0: return ' ';
+        case 0xF1: return 'O';
+        case 0xF2: return 'U';
+        case 0xF3: return 'U';
+        case 0xF4: return 'U';
+        case 0xF5: return '|';
+        case 0xF6: return ' ';
+        case 0xF7: return ' ';
+        case 0xF8: return ' ';
+        case 0xF9: return ' ';
+        case 0xFA: return '.';
+        case 0xFB: return ' ';
+        case 0xFC: return ' ';
+        case 0xFD: return 0x22;
+        case 0xFE: return ' ';
+        case 0xFF: return ' ';
+    }
+    return c;
+}
 
-struct hu_element_t
+// String should match ndof for manufacturer based search to work
+static void sanitizeString( char* inCStr )
 {
-    unsigned long type;                        // the type defined by IOHIDElementType in IOHIDKeys.h
-    long usage;                                // usage within above page from IOUSBHIDParser.h which defines specific usage
-    long usagePage;                            // usage page from IOUSBHIDParser.h which defines general usage
-    void* cookie;                             // unique value( within device of specific vendorID and productID ) which identifies element, will NOT change
-    long min;                                // reported min value possible
-    long max;                                // reported max value possible
-    long scaledMin;                            // reported scaled min value possible
-    long scaledMax;                            // reported scaled max value possible
-    long size;                                // size in bits of data return from element
-    unsigned char relative;                    // are reports relative to last report( deltas )
-    unsigned char wrapping;                    // does element wrap around( one value higher than max is min )
-    unsigned char nonLinear;                // are the values reported non-linear relative to element movement
-    unsigned char preferredState;            // does element have a preferred state( such as a button )
-    unsigned char nullState;                // does element have null state
-    long units;                                // units value is reported in( not used very often )
-    long unitExp;                            // exponent for units( also not used very often )
-    char name[256];                            // name of element( c string )
-
-    // runtime variables
-    long initialCenter;                     // center value at start up
-    unsigned char hasCenter;                 // whether or not to use center for calibration
-    long minReport;                         // min returned value
-    long maxReport;                         // max returned value( calibrate call )
-    long userMin;                             // user set value to scale to( scale call )
-    long userMax;
-
-    struct hu_element_t* pPrevious;            // previous element( NULL at list head )
-    struct hu_element_t* pChild;            // next child( only of collections )
-    struct hu_element_t* pSibling;            // next sibling( for elements and collections )
-
-    long depth;
-};
+    char* charIt = inCStr;
+    while ( *charIt )
+    {
+        *charIt = mapChar( *charIt );
+        charIt++;
+    }
+}
 
 struct HidDevice
 {
@@ -1870,20 +1975,6 @@ struct HidDevice
     long mUsage;
     long mUsagePage;
 };
-
-/*************************************************************************
-*
-* hu_BuildDevice( inHIDDevice )
-*
-* Purpose:  given a IO device object build a flat device record including device info and all elements
-*
-* Notes:    handles NULL lists properly
-*
-* Inputs:   inHIDDevice        - the I/O device object
-*
-* Returns:  hu_device_t*    - the address of the new device record
-*/
-
 
 static void populate_device_info( io_object_t io_obj_p, CFDictionaryRef device_dic, HidDevice* devicep )
 {
@@ -1927,6 +2018,7 @@ static void populate_device_info( io_object_t io_obj_p, CFDictionaryRef device_d
             if ( dict_element )
             {
                 bool res = CFStringGetCString((CFStringRef)dict_element, devicep->mProduct, 256, kCFStringEncodingUTF8);
+                sanitizeString(devicep->mProduct);
                 if ( !res )
                 {
                     LL_WARNS("Joystick") << "Failed to populate mProduct" << LL_ENDL;
@@ -1941,6 +2033,7 @@ static void populate_device_info( io_object_t io_obj_p, CFDictionaryRef device_d
             if ( dict_element )
             {
                 bool res = CFStringGetCString( (CFStringRef)dict_element, devicep->mManufacturer, 256, kCFStringEncodingUTF8 );
+                sanitizeString(devicep->mManufacturer);
                 if ( !res )
                 {
                     LL_WARNS("Joystick") << "Failed to populate mManufacturer" << LL_ENDL;
@@ -2115,17 +2208,30 @@ static void get_devices(std::list<HidDevice> &list_of_devices,
     {
         HidDevice device = populate_device( io_obj );
         
-        if (device.mAxis >= 3
-            || (device.mUsagePage == kHIDPage_GenericDesktop
-                && (device.mUsage == kHIDUsage_GD_MultiAxisController
-                    || device.mUsage == kHIDUsage_GD_GamePad
-                    || device.mUsage == kHIDUsage_GD_Joystick))
-            || (device.mUsagePage == kHIDPage_Game
-                && (device.mUsage == kHIDUsage_Game_3DGameController))
-            || strstr(device.mManufacturer, "3Dconnexion"))
+        if (debugLoggingEnabled("Joystick"))
         {
             list_of_devices.push_back(device);
+            LL_DEBUGS("Joystick") << "Device axises: " << (S32)device.mAxis
+                                  << "Device HIDUsepage: " << (S32)device.mUsagePage
+                                  << "Device HIDUsage: " << (S32)device.mUsage
+                                  << LL_ENDL;
         }
+        else
+        {
+            //  Should match ndof
+            if (device.mAxis >= 3
+                || (device.mUsagePage == kHIDPage_GenericDesktop
+                    && (device.mUsage == kHIDUsage_GD_MultiAxisController
+                        || device.mUsage == kHIDUsage_GD_GamePad
+                        || device.mUsage == kHIDUsage_GD_Joystick))
+                || (device.mUsagePage == kHIDPage_Game
+                    && device.mUsage == kHIDUsage_Game_3DGameController)
+                || strstr(device.mManufacturer, "3Dconnexion"))
+            {
+                list_of_devices.push_back(device);
+            }
+        }
+        
         
         // release the device object, it is no longer needed
         result = IOObjectRelease( io_obj );
@@ -2137,7 +2243,7 @@ static void get_devices(std::list<HidDevice> &list_of_devices,
 }
 
 bool LLWindowMacOSX::getInputDevices(U32 device_type_filter,
-                                     std::function<bool(std::string&, LLSD::Binary&, void*)> osx_callback,
+                                     std::function<bool(std::string&, LLSD&, void*)> osx_callback,
                                      void* win_callback,
                                      void* userdata)
 {
@@ -2172,11 +2278,10 @@ bool LLWindowMacOSX::getInputDevices(U32 device_type_filter,
         
         for (iter = device_list.begin(); iter != device_list.end(); ++iter)
         {
-            S32 size = sizeof(long);
-            LLSD::Binary data; //just an std::vector
-            data.resize(size);
-            memcpy(&data[0], &iter->mLocalID, size);
             std::string label(iter->mProduct);
+            LLSD data;
+            data["manufacturer"] = std::string(iter->mManufacturer);
+            data["product"] = label;
             
             if (osx_callback(label, data, userdata))
             {

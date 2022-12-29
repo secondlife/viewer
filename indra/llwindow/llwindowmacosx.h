@@ -114,7 +114,7 @@ public:
 	F32 getSystemUISize() override;
     
     bool getInputDevices(U32 device_type_filter,
-                         std::function<bool(std::string&, LLSD::Binary&, void*)> osx_callback,
+                         std::function<bool(std::string&, LLSD&, void*)> osx_callback,
                          void* win_callback,
                          void* userdata) override;
 
