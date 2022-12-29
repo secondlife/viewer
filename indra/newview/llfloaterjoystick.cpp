@@ -250,7 +250,7 @@ void LLFloaterJoystick::refresh()
 	initFromSettings();
 }
 
-bool LLFloaterJoystick::addDeviceCallback(std::string &name, LLSD::Binary& value, void* userdata)
+bool LLFloaterJoystick::addDeviceCallback(std::string &name, LLSD& value, void* userdata)
 {
     LLFloaterJoystick * floater = (LLFloaterJoystick*)userdata;
     floater->mJoysticksCombo->add(name, value, ADD_BOTTOM, 1);
@@ -280,9 +280,9 @@ void LLFloaterJoystick::refreshListOfDevices()
 #elif LL_DARWIN
     U32 device_type = 0;
 #else
-    // MAC doesn't support device search yet
-    // On MAC there is an ndof_idsearch and it is possible to specify product
-    // and manufacturer in NDOF_Device for ndof_init_first to pick specific one
+    // On MAC it is possible to specify product
+    // and manufacturer in NDOF_Device for
+    // ndof_init_first to pick specific device
     U32 device_type = 0;
 #endif
     if (gViewerWindow->getWindow()->getInputDevices(device_type, addDeviceCallback, win_calback, this))
@@ -427,10 +427,11 @@ void LLFloaterJoystick::onCommitJoystickEnabled(LLUICtrl*, void *joy_panel)
 			joystick->toggleFlycam();
 		}
 	}
-
-    std::string device_id = LLViewerJoystick::getInstance()->getDeviceUUIDString();
-    gSavedSettings.setString("JoystickDeviceUUID", device_id);
-    LL_DEBUGS("Joystick") << "Selected " << device_id << " as joystick." << LL_ENDL;
+    
+    LLViewerJoystick::getInstance()->saveDeviceIdToSettings();
+    
+    std::string device_string = LLViewerJoystick::getInstance()->getDeviceUUIDString();
+    LL_DEBUGS("Joystick") << "Selected " << device_string << " as joystick." << LL_ENDL;
 
     self->refreshListOfDevices();
 }
