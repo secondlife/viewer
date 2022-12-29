@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater
+ legacy_header_height="25"
+ bevel_style="in"
+ bg_opaque_image="Inspector_Background" 
+ can_close="false"
+ can_minimize="false"
+ height="295"
+ layout="topleft"
+ name="inspect_texture"
+ single_instance="true"
+ sound_flags="0"
+ visible="true"
+ width="250">
+  <texture_picker
+   enabled="false"
+   fallback_image="default_land_picture.j2c"
+   follows="all"
+   height="262"
+   layout="topleft"
+   left="5"
+   name="texture_ctrl"
+   top_pad="5"
+   width="240" />
+  <text
+   follows="top|left"
+   font="SansSerifSmall"
+   height="16"
+   left="7"
+   name="texture_name"
+   parse_urls="false"
+   right="-7"
+   top_delta="244"
+   text_color="White"
+   translate="false"
+   use_ellipses="true"
+   word_wrap="true"
+   value="Name of the texture goes here" />
+  <button
+   bottom="-5"
+   follows="bottom|left"
+   height="23"
+   label="Open"
+   left="7"
+   name="open_btn"
+   width="115"
+   commit_callback.function="InspectTexture.Open"
+   enable_callback.function="InspectTexture.CanOpen" />
+  <button
+   bottom="-5"
+   follows="bottom|left"
+   height="23"
+   label="Copy to Inventory"
+   left_pad="5"
+   name="copy_btn"
+   width="115"
+   commit_callback.function="InspectTexture.CopyToInv"
+   enable_callback.function="InspectTexture.CanCopyToInv" />
+</floater>

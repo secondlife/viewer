@@ -36,6 +36,7 @@
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "llfocusmgr.h"
+#include "llinspecttexture.h"
 #include "llinventorybridge.h"
 #include "llinventorydefines.h"
 #include "llinventorymodel.h"
@@ -245,6 +246,16 @@ public:
 	}
 	virtual BOOL				handleToolTip(S32 x, S32 y, MASK mask )
 	{ 
+		if (LLAssetType::AT_TEXTURE == mItem->getType())
+		{
+			LLToolTipMgr::instance().show(LLToolTip::Params()
+					.message(mToolTip)
+					.create_callback(boost::bind(&LLInspectTextureUtil::createInventoryToolTip, _1))
+					.create_params(LLSD().with("inv_type", mItem->getInventoryType()).with("asset_id", mItem->getAssetUUID())));
+
+			return TRUE;
+		}
+
 		if (!mToolTip.empty())
 		{
 			LLToolTipMgr::instance().show(mToolTip);
