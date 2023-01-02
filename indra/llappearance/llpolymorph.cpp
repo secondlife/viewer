@@ -156,7 +156,9 @@ BOOL LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 
 		if (mVertexIndices[v] > 10000)
 		{
-			LL_ERRS() << "Bad morph index: " << mVertexIndices[v] << LL_ENDL;
+            // Bad install? These are usually .llm files from 'character' fodler
+			LL_WARNS() << "Bad morph index " << v << ": " << mVertexIndices[v] << LL_ENDL;
+            return FALSE;
 		}
 
 
@@ -539,8 +541,6 @@ F32	LLPolyMorphTarget::getMaxDistortion()
 //-----------------------------------------------------------------------------
 // apply()
 //-----------------------------------------------------------------------------
-static LLTrace::BlockTimerStatHandle FTM_APPLY_MORPH_TARGET("Apply Morph");
-
 void LLPolyMorphTarget::apply( ESex avatar_sex )
 {
 	if (!mMorphData || mNumMorphMasksPending > 0)
@@ -548,7 +548,7 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 		return;
 	}
 
-	LL_RECORD_BLOCK_TIME(FTM_APPLY_MORPH_TARGET);
+    LL_PROFILE_ZONE_SCOPED;
 
 	mLastSex = avatar_sex;
 

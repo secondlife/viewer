@@ -1363,6 +1363,9 @@ public:
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 	
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
+    
+    virtual void onFocusLost();
+    virtual void setFocus(BOOL b);
 };
 
 LLMenuItemBranchDownGL::LLMenuItemBranchDownGL( const Params& p) :
@@ -1516,6 +1519,21 @@ BOOL LLMenuItemBranchDownGL::handleAcceleratorKey(KEY key, MASK mask)
 	}
 
 	return handled;
+}
+void LLMenuItemBranchDownGL::onFocusLost()
+{
+    // needed for tab-based selection
+    LLMenuItemBranchGL::onFocusLost();
+    LLMenuGL::setKeyboardMode(FALSE);
+    setHighlight(FALSE);
+}
+
+void LLMenuItemBranchDownGL::setFocus(BOOL b)
+{
+    // needed for tab-based selection
+    LLMenuItemBranchGL::setFocus(b);
+    LLMenuGL::setKeyboardMode(b);
+    setHighlight(b);
 }
 
 BOOL LLMenuItemBranchDownGL::handleKeyHere(KEY key, MASK mask)
@@ -2362,6 +2380,16 @@ void LLMenuGL::arrange( void )
 				(*item_iter)->setRect( rect );
 			}
 		}
+
+
+        if (getTornOff())
+        {
+            LLTearOffMenu * torn_off_menu = dynamic_cast<LLTearOffMenu*>(getParent());
+            if (torn_off_menu)
+            {
+                torn_off_menu->updateSize();
+            }
+        }
 	}
 	if (mKeepFixedSize)
 	{
@@ -3879,7 +3907,8 @@ void LLMenuHolderGL::setActivatedItem(LLMenuItemGL* item)
 /// Class LLTearOffMenu
 ///============================================================================
 LLTearOffMenu::LLTearOffMenu(LLMenuGL* menup) : 
-	LLFloater(LLSD())
+	LLFloater(LLSD()),
+    mQuitRequested(false)
 {
 	S32 floater_header_size = getHeaderHeight();
 
@@ -3894,7 +3923,7 @@ LLTearOffMenu::LLTearOffMenu(LLMenuGL* menup) :
 	LLRect rect;
 	menup->localRectToOtherView(LLRect(-1, menup->getRect().getHeight(), menup->getRect().getWidth() + 3, 0), &rect, gFloaterView);
 	// make sure this floater is big enough for menu
-	mTargetHeight = (F32)(rect.getHeight() + floater_header_size);
+	mTargetHeight = rect.getHeight() + floater_header_size;
 	reshape(rect.getWidth(), rect.getHeight());
 	setRect(rect);
 
@@ -3926,19 +3955,24 @@ LLTearOffMenu::~LLTearOffMenu()
 void LLTearOffMenu::draw()
 {
 	mMenu->setBackgroundVisible(isBackgroundOpaque());
-	mMenu->needsArrange();
 
 	if (getRect().getHeight() != mTargetHeight)
 	{
 		// animate towards target height
-		reshape(getRect().getWidth(), llceil(lerp((F32)getRect().getHeight(), mTargetHeight, LLSmoothInterpolation::getInterpolant(0.05f))));
+        reshape(getRect().getWidth(), llceil(lerp((F32)getRect().getHeight(), (F32)mTargetHeight, LLSmoothInterpolation::getInterpolant(0.05f))));
 	}
+	mMenu->needsArrange();
 	LLFloater::draw();
 }
 
 void LLTearOffMenu::onFocusReceived()
 {
-	// if nothing is highlighted, just highlight first item
+    if (mQuitRequested)
+    {
+        return;
+    }
+ 
+    // if nothing is highlighted, just highlight first item
 	if (!mMenu->getHighlightedItem())
 	{
 		mMenu->highlightNextItem(NULL);
@@ -4014,6 +4048,31 @@ LLTearOffMenu* LLTearOffMenu::create(LLMenuGL* menup)
 	return tearoffp;
 }
 
+void LLTearOffMenu::updateSize()
+{
+    if (mMenu)
+    {
+        S32 floater_header_size = getHeaderHeight();
+        const LLRect &floater_rect = getRect();
+        LLRect new_rect;
+        mMenu->localRectToOtherView(LLRect(-1, mMenu->getRect().getHeight() + floater_header_size, mMenu->getRect().getWidth() + 3, 0), &new_rect, gFloaterView);
+
+        if (floater_rect.getWidth() != new_rect.getWidth()
+            || mTargetHeight != new_rect.getHeight())
+        {
+            // make sure this floater is big enough for menu
+            mTargetHeight = new_rect.getHeight();
+            reshape(new_rect.getWidth(), mTargetHeight);
+
+            // Restore menu position
+            LLRect menu_rect = mMenu->getRect();
+            menu_rect.setOriginAndSize(1, 1,
+                menu_rect.getWidth(), menu_rect.getHeight());
+            mMenu->setRect(menu_rect);
+        }
+    }
+}
+
 void LLTearOffMenu::closeTearOff()
 {
 	removeChild(mMenu);
@@ -4024,6 +4083,7 @@ void LLTearOffMenu::closeTearOff()
 	mMenu->setVisible(FALSE);
 	mMenu->setTornOff(FALSE);
 	mMenu->setDropShadowed(TRUE);
+    mQuitRequested = true;
 }
 
 LLContextMenuBranch::LLContextMenuBranch(const LLContextMenuBranch::Params& p) 

@@ -306,10 +306,9 @@ LLVector3 LLVOPartGroup::getCameraPosition() const
 	return gAgentCamera.getCameraPositionAgent();
 }
 
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_PARTICLES("Update Particles");
 BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 {
-	LL_RECORD_BLOCK_TIME(FTM_UPDATE_PARTICLES);
+    LL_PROFILE_ZONE_SCOPED;
 
 	dirtySpatialGroup();
 	
@@ -754,10 +753,9 @@ LLHUDParticlePartition::LLHUDParticlePartition(LLViewerRegion* regionp) :
 	mPartitionType = LLViewerRegion::PARTITION_HUD_PARTICLE;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_REBUILD_PARTICLE_VBO("Particle VBO");
-
 void LLParticlePartition::rebuildGeom(LLSpatialGroup* group)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (group->isDead() || !group->hasState(LLSpatialGroup::GEOM_DIRTY))
 	{
 		return;
@@ -769,8 +767,6 @@ void LLParticlePartition::rebuildGeom(LLSpatialGroup* group)
 		group->mLastUpdateViewAngle = group->mViewAngle;
 	}
 	
-	LL_RECORD_BLOCK_TIME(FTM_REBUILD_PARTICLE_VBO);	
-
 	group->clearDrawMap();
 	
 	//get geometry count
@@ -843,16 +839,11 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 }
 
 
-static LLTrace::BlockTimerStatHandle FTM_REBUILD_PARTICLE_GEOM("Particle Geom");
-
 void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 {
-	LL_RECORD_BLOCK_TIME(FTM_REBUILD_PARTICLE_GEOM);
+    LL_PROFILE_ZONE_SCOPED;
 
 	std::sort(mFaceList.begin(), mFaceList.end(), LLFace::CompareDistanceGreater());
-
-	U32 index_count = 0;
-	U32 vertex_count = 0;
 
 	group->clearDrawMap();
 
@@ -918,9 +909,6 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 		llassert(facep->getGeomCount() == 4);
 		llassert(facep->getIndicesCount() == 6);
 
-
-		vertex_count += facep->getGeomCount();
-		index_count += facep->getIndicesCount();
 
 		S32 idx = draw_vec.size()-1;
 

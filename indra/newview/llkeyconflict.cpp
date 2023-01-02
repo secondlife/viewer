@@ -411,8 +411,16 @@ void LLKeyConflictHandler::loadFromSettings(ESourceMode load_mode)
         filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename_default);
         if (!gDirUtilp->fileExists(filename) || !loadFromSettings(load_mode, filename, &mControlsMap))
         {
-            // mind placeholders
-            mControlsMap.insert(mDefaultsMap.begin(), mDefaultsMap.end());
+            // Mind placeholders
+            // Do not use mControlsMap.insert(mDefaultsMap) since mControlsMap has
+            // placeholders that won't be added over(to) by insert.
+            // Or instead move generatePlaceholders call to be after copying
+            control_map_t::iterator iter = mDefaultsMap.begin();
+            while (iter != mDefaultsMap.end())
+            {
+                mControlsMap[iter->first].mKeyBind = iter->second.mKeyBind;
+                iter++;
+            }
         }
     }
     mLoadMode = load_mode;
@@ -575,6 +583,8 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
                 break;
             }
 
+            keys.xml_version.set(keybindings_xml_version, true);
+
             if (temporary)
             {
                 // write to temporary xml and use it for gViewerInput
@@ -667,13 +677,19 @@ void LLKeyConflictHandler::resetToDefault(const std::string &control_name, U32 i
     {
         return;
     }
+    LLKeyConflict &type_data = mControlsMap[control_name];
+    if (!type_data.mAssignable)
+    {
+        return;
+    }
     LLKeyData data = getDefaultControl(control_name, index);
 
-    if (data != mControlsMap[control_name].getKeyData(index))
+    if (data != type_data.getKeyData(index))
     {
         // reset controls that might have been switched to our current control
         removeConflicts(data, mControlsMap[control_name].mConflictMask);
         mControlsMap[control_name].setKeyData(data, index);
+        mHasUnsavedChanges = true;
     }
 }
 
@@ -730,9 +746,9 @@ void LLKeyConflictHandler::resetToDefault(const std::string &control_name)
     resetToDefaultAndResolve(control_name, false);
 }
 
-void LLKeyConflictHandler::resetToDefaults(ESourceMode mode)
+void LLKeyConflictHandler::resetToDefaultsAndResolve()
 {
-    if (mode == MODE_SAVED_SETTINGS)
+    if (mLoadMode == MODE_SAVED_SETTINGS)
     {
         control_map_t::iterator iter = mControlsMap.begin();
         control_map_t::iterator end = mControlsMap.end();
@@ -745,8 +761,16 @@ void LLKeyConflictHandler::resetToDefaults(ESourceMode mode)
     else
     {
         mControlsMap.clear();
-        generatePlaceholders(mode);
+
+        // Set key combinations.
+        // Copy from mDefaultsMap before doing generatePlaceholders, otherwise
+        // insert() will fail to add some keys into pre-existing values from
+        // generatePlaceholders()
         mControlsMap.insert(mDefaultsMap.begin(), mDefaultsMap.end());
+
+        // Set conflict masks and mark functions (un)assignable
+        generatePlaceholders(mLoadMode);
+
     }
 
     mHasUnsavedChanges = true;
@@ -756,7 +780,7 @@ void LLKeyConflictHandler::resetToDefaults()
 {
     if (!empty())
     {
-        resetToDefaults(mLoadMode);
+        resetToDefaultsAndResolve();
     }
     else
     {
@@ -766,7 +790,7 @@ void LLKeyConflictHandler::resetToDefaults()
         // 3. We are loading 'current' only to replace it
         // but it is reliable and works Todo: consider optimizing.
         loadFromSettings(mLoadMode);
-        resetToDefaults(mLoadMode);
+        resetToDefaultsAndResolve();
     }
 }
 
@@ -799,7 +823,7 @@ void LLKeyConflictHandler::resetKeyboardBindings()
 
 void LLKeyConflictHandler::generatePlaceholders(ESourceMode load_mode)
 {
-    // These controls are meant to cause conflicts when user tries to assign same control somewhere else
+    // These placeholders are meant to cause conflict resolution when user tries to assign same control somewhere else
     // also this can be used to pre-record controls that should not conflict or to assign conflict groups/masks
 
     if (load_mode == MODE_FIRST_PERSON)
@@ -859,24 +883,60 @@ void LLKeyConflictHandler::generatePlaceholders(ESourceMode load_mode)
         registerTemporaryControl("spin_around_ccw_sitting");
         registerTemporaryControl("spin_around_cw_sitting");
     }
+
+
+    // Special case, mouse clicks passed to scripts have 'lowest' piority
+    // thus do not conflict, everything else has a chance before them
+    // also in ML they have highest priority, but only when script-grabbed,
+    // thus do not conflict
+    // (see AGENT_CONTROL_ML_LBUTTON_DOWN and CONTROL_LBUTTON_DOWN_INDEX)
+    LLKeyConflict *type_data = &mControlsMap[script_mouse_handler_name];
+    type_data->mAssignable = true;
+    type_data->mConflictMask = U32_MAX - CONFLICT_LMOUSE;
 }
 
-bool LLKeyConflictHandler::removeConflicts(const LLKeyData &data, const U32 &conlict_mask)
+bool LLKeyConflictHandler::removeConflicts(const LLKeyData &data, U32 conlict_mask)
 {
     if (conlict_mask == CONFLICT_NOTHING)
     {
         // Can't conflict
         return true;
     }
+
+    if (data.mMouse == CLICK_LEFT
+        && data.mMask == MASK_NONE
+        && data.mKey == KEY_NONE)
+    {
+        if ((conlict_mask & CONFLICT_LMOUSE) == 0)
+        {
+            // Can't conflict
+            return true;
+        }
+        else
+        {
+            // simplify conflict mask
+            conlict_mask = CONFLICT_LMOUSE;
+        }
+    }
+    else
+    {
+        // simplify conflict mask
+        conlict_mask &= ~CONFLICT_LMOUSE;
+    }
+
     std::map<std::string, S32> conflict_list;
     control_map_t::iterator cntrl_iter = mControlsMap.begin();
     control_map_t::iterator cntrl_end = mControlsMap.end();
     for (; cntrl_iter != cntrl_end; ++cntrl_iter)
     {
+        const U32 cmp_mask = cntrl_iter->second.mConflictMask;
+        if ((cmp_mask & conlict_mask) == 0)
+        {
+            // can't conflict
+            continue;
+        }
         S32 index = cntrl_iter->second.mKeyBind.findKeyData(data);
-        if (index >= 0
-            && cntrl_iter->second.mConflictMask != CONFLICT_NOTHING
-            && (cntrl_iter->second.mConflictMask & conlict_mask) != 0)
+        if (index >= 0)
         {
             if (cntrl_iter->second.mAssignable)
             {

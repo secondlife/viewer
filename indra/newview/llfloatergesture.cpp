@@ -122,7 +122,7 @@ LLFloaterGesture::LLFloaterGesture(const LLSD& key)
 	mObserver = new LLFloaterGestureObserver(this);
 	LLGestureMgr::instance().addObserver(mObserver);
 
-	mCommitCallbackRegistrar.add("Gesture.Action.ToogleActiveState", boost::bind(&LLFloaterGesture::onActivateBtnClick, this));
+	mCommitCallbackRegistrar.add("Gesture.Action.ToggleActiveState", boost::bind(&LLFloaterGesture::onActivateBtnClick, this));
 	mCommitCallbackRegistrar.add("Gesture.Action.ShowPreview", boost::bind(&LLFloaterGesture::onClickEdit, this));
 	mCommitCallbackRegistrar.add("Gesture.Action.CopyPaste", boost::bind(&LLFloaterGesture::onCopyPasteAction, this, _2));
 	mCommitCallbackRegistrar.add("Gesture.Action.SaveToCOF", boost::bind(&LLFloaterGesture::addToCurrentOutFit, this));
@@ -582,8 +582,7 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 			LLInventoryItem* item = gInventory.getItem(*it);
 			if(item  && item->getInventoryType() == LLInventoryType::IT_GESTURE)
 			{
-				LLWString item_name = utf8str_to_wstring(item->getName());
-				LLClipboard::instance().addToClipboard(item_name, 0, item_name.size());
+				LLClipboard::instance().addToClipboard(*it);
 			}
 		}
 	}

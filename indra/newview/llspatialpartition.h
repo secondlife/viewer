@@ -40,7 +40,10 @@
 #include "llface.h"
 #include "llviewercamera.h"
 #include "llvector4a.h"
+#include "llvoavatar.h"
+
 #include <queue>
+#include <unordered_map>
 
 #define SG_STATE_INHERIT_MASK (OCCLUDED)
 #define SG_INITIAL_STATE_MASK (DIRTY | GEOM_DIRTY)
@@ -49,20 +52,18 @@ class LLViewerOctreePartition;
 class LLSpatialPartition;
 class LLSpatialBridge;
 class LLSpatialGroup;
-class LLTextureAtlas;
-class LLTextureAtlasSlot;
 class LLViewerRegion;
 
 void pushVerts(LLFace* face, U32 mask);
 
-class LLDrawInfo : public LLRefCount, public LLTrace::MemTrackableNonVirtual<LLDrawInfo, 16>
+class LLDrawInfo : public LLRefCount
 {
+    LL_ALIGN_NEW;
 protected:
 	~LLDrawInfo();	
 	
 public:
 	LLDrawInfo(const LLDrawInfo& rhs)
-	:	LLTrace::MemTrackableNonVirtual<LLDrawInfo, 16>("LLDrawInfo")
 	{
 		*this = rhs;
 	}
@@ -81,11 +82,18 @@ public:
 
 	void validate();
 
+    // return mSkinHash->mHash, or 0 if mSkinHash is null
+    U64 getSkinHash();
+
 	LLVector4a mExtents[2];
 	
 	LLPointer<LLVertexBuffer> mVertexBuffer;
 	LLPointer<LLViewerTexture>     mTexture;
 	std::vector<LLPointer<LLViewerTexture> > mTextureList;
+
+    // virtual size of mTexture and mTextureList textures
+    // used to update the decode priority of textures in this DrawInfo
+    std::vector<F32> mTextureListVSize;
 
 	S32 mDebugColor;
 	const LLMatrix4* mTextureMatrix;
@@ -119,6 +127,8 @@ public:
 	F32  mAlphaMaskCutoff;
 	U8   mDiffuseAlphaMode;
 	bool mSelected;
+    LLPointer<LLVOAvatar> mAvatar = nullptr;
+    LLMeshSkinInfo* mSkinInfo = nullptr;
 
 
 	struct CompareTexture
@@ -216,10 +226,10 @@ public:
 	typedef std::vector<LLPointer<LLSpatialGroup> > sg_vector_t;
 	typedef std::vector<LLPointer<LLSpatialBridge> > bridge_list_t;
 	typedef std::vector<LLPointer<LLDrawInfo> > drawmap_elem_t; 
-	typedef std::map<U32, drawmap_elem_t > draw_map_t;	
+	typedef std::unordered_map<U32, drawmap_elem_t > draw_map_t;	
 	typedef std::vector<LLPointer<LLVertexBuffer> > buffer_list_t;
-	typedef std::map<LLFace*, buffer_list_t> buffer_texture_map_t;
-	typedef std::map<U32, buffer_texture_map_t> buffer_map_t;
+	typedef std::unordered_map<LLFace*, buffer_list_t> buffer_texture_map_t;
+	typedef std::unordered_map<U32, buffer_texture_map_t> buffer_map_t;
 
 	struct CompareDistanceGreater
 	{
@@ -244,6 +254,19 @@ public:
 			return lhs->mDepth > rhs->mDepth;
 		}
 	};
+
+    struct CompareRenderOrder
+    {
+        bool operator()(const LLSpatialGroup* const& lhs, const LLSpatialGroup* const& rhs)
+        {
+            if (lhs->mAvatarp != rhs->mAvatarp)
+            {
+                return lhs->mAvatarp < rhs->mAvatarp;
+            }
+
+            return lhs->mRenderOrder > rhs->mRenderOrder;
+        }
+    };
 
 	typedef enum
 	{
@@ -298,48 +321,14 @@ public:
 	virtual void handleDestruction(const TreeNode* node);
 	virtual void handleChildAddition(const OctreeNode* parent, OctreeNode* child);
 
-//-------------------
-//for atlas use
-//-------------------
-	//atlas	
-	void setCurUpdatingTime(U32 t) {mCurUpdatingTime = t ;}
-	U32  getCurUpdatingTime() const { return mCurUpdatingTime ;}
-	
-	void setCurUpdatingSlot(LLTextureAtlasSlot* slotp) ;
-	LLTextureAtlasSlot* getCurUpdatingSlot(LLViewerTexture* imagep, S8 recursive_level = 3) ;
-
-	void setCurUpdatingTexture(LLViewerTexture* tex){ mCurUpdatingTexture = tex ;}
-	LLViewerTexture* getCurUpdatingTexture() const { return mCurUpdatingTexture ;}
-	
-	BOOL hasAtlas(LLTextureAtlas* atlasp) ;
-	LLTextureAtlas* getAtlas(S8 ncomponents, S8 to_be_reserved, S8 recursive_level = 3) ;
-	void addAtlas(LLTextureAtlas* atlasp, S8 recursive_level = 3) ;
-	void removeAtlas(LLTextureAtlas* atlasp, BOOL remove_group = TRUE, S8 recursive_level = 3) ;
-	void clearAtlasList() ;
-
 public:
-
 	LL_ALIGN_16(LLVector4a mViewAngle);
 	LL_ALIGN_16(LLVector4a mLastUpdateViewAngle);
 
 	F32 mObjectBoxSize; //cached mObjectBounds[1].getLength3()
-		
-private:
-	U32                     mCurUpdatingTime ;
-	//do not make the below two to use LLPointer
-	//because mCurUpdatingTime invalidates them automatically.
-	LLTextureAtlasSlot* mCurUpdatingSlotp ;
-	LLViewerTexture*          mCurUpdatingTexture ;
-
-	std::vector< std::list<LLTextureAtlas*> > mAtlasList ; 
-//-------------------
-//end for atlas use
-//-------------------
 
 protected:
 	virtual ~LLSpatialGroup();
-
-	static S32 sLODSeed;
 
 public:
 	bridge_list_t mBridgeList;
@@ -362,6 +351,10 @@ public:
 	
 	F32 mPixelArea;
 	F32 mRadius;
+
+    //used by LLVOAVatar to set render order in alpha draw pool to preserve legacy render order behavior
+    LLVOAvatar* mAvatarp = nullptr;
+    U32 mRenderOrder = 0; 
 } LL_ALIGN_POSTFIX(64);
 
 class LLGeometryManager
@@ -465,8 +458,11 @@ public:
 	virtual void cleanupReferences();
 	virtual LLSpatialPartition* asPartition()		{ return this; }
 		
+    //transform agent space camera into this Spatial Bridge's coordinate frame
 	virtual LLCamera transformCamera(LLCamera& camera);
-	
+
+    //transform agent space bounding box into this Spatial Bridge's coordinate frame
+    void transformExtents(const LLVector4a* src, LLVector4a* dst);
 	LLDrawable* mDrawable;
 };
 
@@ -493,6 +489,9 @@ public:
 	sg_iterator beginAlphaGroups();
 	sg_iterator endAlphaGroups();
 
+    sg_iterator beginRiggedAlphaGroups();
+    sg_iterator endRiggedAlphaGroups();
+
 	bool hasOcclusionGroups() { return mOcclusionGroupsSize > 0; }
 	sg_iterator beginOcclusionGroups();
 	sg_iterator endOcclusionGroups();
@@ -511,6 +510,7 @@ public:
 
 	void pushVisibleGroup(LLSpatialGroup* group);
 	void pushAlphaGroup(LLSpatialGroup* group);
+    void pushRiggedAlphaGroup(LLSpatialGroup* group);
 	void pushOcclusionGroup(LLSpatialGroup* group);
 	void pushDrawableGroup(LLSpatialGroup* group);
 	void pushDrawable(LLDrawable* drawable);
@@ -519,6 +519,7 @@ public:
 	
 	U32 getVisibleGroupsSize()		{ return mVisibleGroupsSize; }
 	U32	getAlphaGroupsSize()		{ return mAlphaGroupsSize; }
+    U32	getRiggedAlphaGroupsSize() { return mRiggedAlphaGroupsSize; }
 	U32	getDrawableGroupsSize()		{ return mDrawableGroupsSize; }
 	U32	getVisibleListSize()		{ return mVisibleListSize; }
 	U32	getVisibleBridgeSize()		{ return mVisibleBridgeSize; }
@@ -532,6 +533,7 @@ private:
 
 	U32					mVisibleGroupsSize;
 	U32					mAlphaGroupsSize;
+    U32                 mRiggedAlphaGroupsSize;
 	U32					mOcclusionGroupsSize;
 	U32					mDrawableGroupsSize;
 	U32					mVisibleListSize;
@@ -539,6 +541,7 @@ private:
 
 	U32					mVisibleGroupsAllocated;
 	U32					mAlphaGroupsAllocated;
+    U32                 mRiggedAlphaGroupsAllocated;
 	U32					mOcclusionGroupsAllocated;
 	U32					mDrawableGroupsAllocated;
 	U32					mVisibleListAllocated;
@@ -550,6 +553,8 @@ private:
 	sg_iterator			mVisibleGroupsEnd;
 	sg_list_t			mAlphaGroups;
 	sg_iterator			mAlphaGroupsEnd;
+    sg_list_t           mRiggedAlphaGroups;
+    sg_iterator         mRiggedAlphaGroupsEnd;
 	sg_list_t			mOcclusionGroups;
 	sg_iterator			mOcclusionGroupsEnd;
 	sg_list_t			mDrawableGroups;
@@ -646,7 +651,8 @@ class LLVolumeGeometryManager: public LLGeometryManager
 	virtual void rebuildGeom(LLSpatialGroup* group);
 	virtual void rebuildMesh(LLSpatialGroup* group);
 	virtual void getGeometry(LLSpatialGroup* group);
-	U32 genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, BOOL distance_sort = FALSE, BOOL batch_textures = FALSE, BOOL no_materials = FALSE);
+    virtual void addGeometryCount(LLSpatialGroup* group, U32& vertex_count, U32& index_count);
+	U32 genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, BOOL distance_sort = FALSE, BOOL batch_textures = FALSE, BOOL rigged = FALSE);
 	void registerFace(LLSpatialGroup* group, LLFace* facep, U32 type);
 
 private:
@@ -654,13 +660,13 @@ private:
 	void freeFaces();
 
 	static int32_t sInstanceCount;
-	static LLFace** sFullbrightFaces;
-	static LLFace** sBumpFaces;
-	static LLFace** sSimpleFaces;
-	static LLFace** sNormFaces;
-	static LLFace** sSpecFaces;
-	static LLFace** sNormSpecFaces;
-	static LLFace** sAlphaFaces;
+	static LLFace** sFullbrightFaces[2];
+	static LLFace** sBumpFaces[2];
+	static LLFace** sSimpleFaces[2];
+	static LLFace** sNormFaces[2];
+	static LLFace** sSpecFaces[2];
+	static LLFace** sNormSpecFaces[2];
+	static LLFace** sAlphaFaces[2];
 };
 
 //spatial partition that uses volume geometry manager (implemented in LLVOVolume.cpp)

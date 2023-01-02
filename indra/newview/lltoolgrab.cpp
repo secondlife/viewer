@@ -51,6 +51,7 @@
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
 #include "llviewercamera.h"
+#include "llviewerinput.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h" 
 #include "llviewerregion.h"
@@ -140,7 +141,6 @@ BOOL LLToolGrabBase::handleMouseDown(S32 x, S32 y, MASK mask)
 		LL_INFOS() << "LLToolGrab handleMouseDown" << LL_ENDL;
 	}
 
-	// call the base class to propogate info to sim
 	LLTool::handleMouseDown(x, y, mask);
 
 	// leftButtonGrabbed() checks if controls are reserved by scripts, but does not take masks into account
@@ -150,6 +150,19 @@ BOOL LLToolGrabBase::handleMouseDown(S32 x, S32 y, MASK mask)
 		gViewerWindow->pickAsync(x, y, mask, pickCallback, /*BOOL pick_transparent*/ TRUE);
 	}
 	mClickedInMouselook = gAgentCamera.cameraMouselook();
+
+    if (mClickedInMouselook && gViewerInput.isLMouseHandlingDefault(MODE_FIRST_PERSON))
+    {
+        // LLToolCompGun::handleMouseDown handles the event if ML controls are grabed,
+        // but LLToolGrabBase is often the end point for mouselook clicks if ML controls
+        // are not grabbed and LLToolGrabBase::handleMouseDown consumes the event,
+        // so send clicks from here.
+        // We are sending specifically CONTROL_LBUTTON_DOWN instead of _ML_ version.
+        gAgent.setControlFlags(AGENT_CONTROL_LBUTTON_DOWN);
+
+        // Todo: LLToolGrabBase probably shouldn't consume the event if there is nothing
+        // to grab in Mouselook, it intercepts handling in scanMouse
+    }
 	return TRUE;
 }
 
@@ -529,8 +542,8 @@ void LLToolGrabBase::handleHoverActive(S32 x, S32 y, MASK mask)
 	const F32 RADIANS_PER_PIXEL_X = 0.01f;
 	const F32 RADIANS_PER_PIXEL_Y = 0.01f;
 
-	S32 dx = x - (gViewerWindow->getWorldViewWidthScaled() / 2);
-	S32 dy = y - (gViewerWindow->getWorldViewHeightScaled() / 2);
+    S32 dx = gViewerWindow->getCurrentMouseDX();
+    S32 dy = gViewerWindow->getCurrentMouseDY();
 
 	if (dx != 0 || dy != 0)
 	{
@@ -953,8 +966,17 @@ void LLToolGrabBase::handleHoverFailed(S32 x, S32 y, MASK mask)
 
 BOOL LLToolGrabBase::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	// call the base class to propogate info to sim
 	LLTool::handleMouseUp(x, y, mask);
+
+    if (gAgentCamera.cameraMouselook() && gViewerInput.isLMouseHandlingDefault(MODE_FIRST_PERSON))
+    {
+        // LLToolCompGun::handleMouseUp handles the event if ML controls are grabed,
+        // but LLToolGrabBase is often the end point for mouselook clicks if ML controls
+        // are not grabbed and LToolGrabBase::handleMouseUp consumes the event,
+        // so send clicks from here.
+        // We are sending specifically CONTROL_LBUTTON_UP instead of _ML_ version.
+        gAgent.setControlFlags(AGENT_CONTROL_LBUTTON_UP);
+    }
 
 	if( hasMouseCapture() )
 	{

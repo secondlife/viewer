@@ -6,6 +6,9 @@
 	<string name="postcard_progress_str">
 		E-posta Gönderiliyor
 	</string>
+	<string name="facebook_progress_str">
+		Facebook&apos;ta yayınlanıyor
+	</string>
 	<string name="profile_progress_str">
 		Yayınlanıyor
 	</string>
@@ -14,6 +17,9 @@
 	</string>
 	<string name="local_progress_str">
 		Bilgisayara Kaydediliyor
+	</string>
+	<string name="facebook_succeeded_str">
+		Görüntü yüklendi
 	</string>
 	<string name="profile_succeeded_str">
 		Görüntü yüklendi
@@ -26,6 +32,9 @@
 	</string>
 	<string name="local_succeeded_str">
 		Bilgisayara Kaydedildi!
+	</string>
+	<string name="facebook_failed_str">
+		Görüntü Facebook zaman tünelinize yüklenemedi.
 	</string>
 	<string name="profile_failed_str">
 		Görüntü Profil Akışınıza yüklenemedi.

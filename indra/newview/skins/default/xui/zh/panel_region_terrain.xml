@@ -10,7 +10,7 @@
 	<spinner label="地形提升限制" name="terrain_raise_spin"/>
 	<spinner label="地形降低限制" name="terrain_lower_spin"/>
 	<text name="detail_texture_text">
-		地形材質（須 512x512，24 位元 .tga 檔格式）
+		地形材質（須 1024x1024，24 位元 .tga 檔格式）
 	</text>
 	<text name="height_text_lbl">
 		1（低）

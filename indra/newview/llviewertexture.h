@@ -27,6 +27,7 @@
 #ifndef LL_LLVIEWERTEXTURE_H					
 #define LL_LLVIEWERTEXTURE_H
 
+#include "llatomic.h"
 #include "llgltexture.h"
 #include "lltimer.h"
 #include "llframetimer.h"
@@ -35,6 +36,7 @@
 #include "llrender.h"
 #include "llmetricperformancetester.h"
 #include "httpcommon.h"
+#include "workqueue.h"
 
 #include <map>
 #include <list>
@@ -114,7 +116,7 @@ protected:
 
 public:	
 	static void initClass();
-	static void updateClass(const F32 velocity, const F32 angular_velocity) ;
+	static void updateClass();
 	
 	LLViewerTexture(BOOL usemipmaps = TRUE);
 	LLViewerTexture(const LLUUID& id, BOOL usemipmaps) ;
@@ -212,6 +214,9 @@ protected:
 
 	//do not use LLPointer here.
 	LLViewerMediaTexture* mParcelMedia ;
+
+	LL::WorkQueue::weak_t mMainQueue;
+	LL::WorkQueue::weak_t mImageQueue;
 
 	static F32 sTexelPixelRatio;
 public:
@@ -321,9 +326,13 @@ public:
 
 	void addToCreateTexture();
 
-
-	 // ONLY call from LLViewerTextureList
+    //call to determine if createTexture is necessary
+    BOOL preCreateTexture(S32 usename = 0);
+	 // ONLY call from LLViewerTextureList or ImageGL background thread
 	BOOL createTexture(S32 usename = 0);
+    void postCreateTexture();
+    void scheduleCreateTexture();
+
 	void destroyTexture() ;
 
 	virtual void processTextureStats() ;
@@ -520,7 +529,9 @@ protected:
 	LLFrameTimer mStopFetchingTimer;	// Time since mDecodePriority == 0.f.
 
 	BOOL  mInImageList;				// TRUE if image is in list (in which case don't reset priority!)
-	BOOL  mNeedsCreateTexture;	
+	// This needs to be atomic, since it is written both in the main thread
+	// and in the GL image worker thread... HB
+	LLAtomicBool  mNeedsCreateTexture;	
 
 	BOOL   mForSculpt ; //a flag if the texture is used as sculpt data.
 	BOOL   mIsFetched ; //is loaded from remote or from cache, not generated locally.

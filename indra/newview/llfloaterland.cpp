@@ -452,7 +452,8 @@ BOOL LLPanelLandGeneral::postBuild()
 
 	mEditDesc = getChild<LLTextEditor>("Description");
 	mEditDesc->setCommitOnFocusLost(TRUE);
-	mEditDesc->setCommitCallback(onCommitAny, this);	
+	mEditDesc->setCommitCallback(onCommitAny, this);
+    mEditDesc->setContentTrusted(false);
 	// No prevalidate function - historically the prevalidate function was broken,
 	// allowing residents to put in characters like U+2661 WHITE HEART SUIT, so
 	// preserve that ability.
@@ -749,6 +750,7 @@ void LLPanelLandGeneral::refresh()
 		BOOL can_edit_identity = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_CHANGE_IDENTITY);
 		mEditName->setEnabled(can_edit_identity);
 		mEditDesc->setEnabled(can_edit_identity);
+        mEditDesc->setParseURLs(!can_edit_identity);
 
 		BOOL can_edit_agent_only = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_NO_POWERS);
 		mBtnSetGroup->setEnabled(can_edit_agent_only && !parcel->getIsGroupOwned());
@@ -3054,7 +3056,8 @@ BOOL LLPanelLandCovenant::postBuild()
 {
 	mLastRegionID = LLUUID::null;
 	mNextUpdateTime = 0;
-
+    mTextEstateOwner = getChild<LLTextBox>("estate_owner_text");
+    mTextEstateOwner->setIsFriendCallback(LLAvatarActions::isFriend);
 	return TRUE;
 }
 
@@ -3162,8 +3165,7 @@ void LLPanelLandCovenant::updateEstateOwnerName(const std::string& name)
 	LLPanelLandCovenant* self = LLFloaterLand::getCurrentPanelLandCovenant();
 	if (self)
 	{
-		LLTextBox* editor = self->getChild<LLTextBox>("estate_owner_text");
-		if (editor) editor->setText(name);
+		self->mTextEstateOwner->setText(name);
 	}
 }
 

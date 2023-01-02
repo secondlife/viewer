@@ -10,7 +10,6 @@ set(cmake_SOURCE_FILES
     00-Common.cmake
     APR.cmake
     Audio.cmake
-    BerkeleyDB.cmake
     Boost.cmake
     bugsplat.cmake
     BuildVersion.cmake
@@ -26,7 +25,6 @@ set(cmake_SOURCE_FILES
     EXPAT.cmake
     FindAPR.cmake
     FindAutobuild.cmake
-    FindBerkeleyDB.cmake
     FindGLH.cmake
     FindHUNSPELL.cmake
     FindJsonCpp.cmake
@@ -35,12 +33,11 @@ set(cmake_SOURCE_FILES
     FindSCP.cmake
     FindURIPARSER.cmake
     FindXmlRpcEpi.cmake
-    FindZLIB.cmake
+    FindZLIBNG.cmake
     FMODSTUDIO.cmake
     FreeType.cmake
     GLEXT.cmake
     GLH.cmake
-    GLOD.cmake
 ##  GStreamer010Plugin.cmake
     GoogleMock.cmake
     Havok.cmake
@@ -59,6 +56,7 @@ set(cmake_SOURCE_FILES
     LLKDU.cmake
     LLLogin.cmake
     LLMath.cmake
+    LLMeshOptimizer.cmake
     LLMessage.cmake
     LLPhysicsExtensions.cmake
     LLPlugin.cmake
@@ -72,6 +70,7 @@ set(cmake_SOURCE_FILES
     LLXML.cmake
     Linking.cmake
     MediaPluginBase.cmake
+    MESHOPTIMIZER.cmake
     NDOF.cmake
     OPENAL.cmake
     OpenGL.cmake
@@ -92,7 +91,7 @@ set(cmake_SOURCE_FILES
     VisualLeakDetector.cmake
     LibVLCPlugin.cmake
     XmlRpcEpi.cmake
-    ZLIB.cmake
+    ZLIBNG.cmake
     )
 
 source_group("Shared Rules" FILES ${cmake_SOURCE_FILES})

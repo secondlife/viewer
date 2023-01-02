@@ -82,7 +82,15 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(std::string url, U64 
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
-    LLViewerRegion * regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+    LLWorld *world_inst = LLWorld::getInstance();
+    if (!world_inst)
+    {
+        LL_WARNS("AvatarRenderInfoAccountant") << "Avatar render weight info received but world no longer exists "
+            << regionHandle << LL_ENDL;
+        return;
+    }
+
+    LLViewerRegion * regionp = world_inst->getRegionFromHandle(regionHandle);
     if (!regionp)
     {
         LL_WARNS("AvatarRenderInfoAccountant") << "Avatar render weight info received but region not found for " 
@@ -183,7 +191,15 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("AvatarRenderInfoAccountant", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLViewerRegion * regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+    LLWorld *world_inst = LLWorld::getInstance();
+    if (!world_inst)
+    {
+        LL_WARNS("AvatarRenderInfoAccountant") << "Avatar render weight calculation but world no longer exists "
+            << regionHandle << LL_ENDL;
+        return;
+    }
+
+    LLViewerRegion * regionp = world_inst->getRegionFromHandle(regionHandle);
     if (!regionp)
     {
         LL_WARNS("AvatarRenderInfoAccountant") << "Avatar render weight calculation but region not found for "
@@ -239,9 +255,18 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U
     report[KEY_AGENTS] = agents;
 
     regionp = NULL;
+    world_inst = NULL;
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, report);
 
-    regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+    world_inst = LLWorld::getInstance();
+    if (!world_inst)
+    {
+        LL_WARNS("AvatarRenderInfoAccountant") << "Avatar render weight POST result but world no longer exists "
+            << regionHandle << LL_ENDL;
+        return;
+    }
+
+    regionp = world_inst->getRegionFromHandle(regionHandle);
     if (!regionp)
     {
         LL_INFOS("AvatarRenderInfoAccountant") << "Avatar render weight POST result received but region not found for "
@@ -295,9 +320,16 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
         // make sure we won't re-report, coro will update timer with correct time later
         regionp->getRenderInfoReportTimer().resetWithExpiry(SECS_BETWEEN_REGION_REPORTS);
 
-        std::string coroname =
-            LLCoros::instance().launch("LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro",
-            boost::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro, url, regionp->getHandle()));
+        try
+        {
+            std::string coroname =
+                LLCoros::instance().launch("LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro",
+                    boost::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro, url, regionp->getHandle()));
+        }
+        catch (std::bad_alloc&)
+        {
+            LL_ERRS() << "LLCoros::launch() allocation failure" << LL_ENDL;
+        }
 	}
 }
 
@@ -318,10 +350,17 @@ void LLAvatarRenderInfoAccountant::getRenderInfoFromRegion(LLViewerRegion * regi
         // make sure we won't re-request, coro will update timer with correct time later
         regionp->getRenderInfoRequestTimer().resetWithExpiry(SECS_BETWEEN_REGION_REQUEST);
 
-		// First send a request to get the latest data
-        std::string coroname =
-            LLCoros::instance().launch("LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro",
-            boost::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro, url, regionp->getHandle()));
+        try
+        {
+            // First send a request to get the latest data
+            std::string coroname =
+                LLCoros::instance().launch("LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro",
+                    boost::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro, url, regionp->getHandle()));
+        }
+        catch (std::bad_alloc&)
+        {
+            LL_ERRS() << "LLCoros::launch() allocation failure" << LL_ENDL;
+        }
 	}
 }
 
@@ -345,6 +384,8 @@ void LLAvatarRenderInfoAccountant::idle()
 				&& regionp->capabilitiesReceived())
 			{
 				// each of these is further governed by and resets its own timer
+                // Note: We can have multiple regions, each launches up to two coroutines,
+                // it likely is expensive
 				sendRenderInfoToRegion(regionp);
 				getRenderInfoFromRegion(regionp);
 			}

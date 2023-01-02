@@ -96,6 +96,7 @@
 #include "stringize.h"
 #include "boost/foreach.hpp"
 #include "llcorehttputil.h"
+#include "lluiusage.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -574,6 +575,8 @@ void LLAgent::ageChat()
 //-----------------------------------------------------------------------------
 void LLAgent::moveAt(S32 direction, bool reset)
 {
+	LLUIUsage::instance().logCommand("Agent.MoveAt");
+	
 	mMoveTimer.reset();
 	LLFirstUse::notMoving(false);
 
@@ -712,6 +715,15 @@ void LLAgent::moveYaw(F32 mag, bool reset_view)
 	{
 		setControlFlags(AGENT_CONTROL_YAW_NEG);
 	}
+
+    U32 mask = AGENT_CONTROL_YAW_POS | AGENT_CONTROL_YAW_NEG;
+    if ((getControlFlags() & mask) == mask)
+    {
+        // Rotation into both directions should cancel out
+        // But keep sending controls to simulator,
+        // it's needed for script based controls
+        gAgentCamera.setYawKey(0);
+    }
 
     if (reset_view)
 	{
@@ -1481,7 +1493,7 @@ void LLAgent::resetControlFlags()
 //-----------------------------------------------------------------------------
 void LLAgent::setAFK()
 {
-	if (!gAgent.getRegion())
+	if (gNonInteractive || !gAgent.getRegion())
 	{
 		// Don't set AFK if we're not talking to a region yet.
 		return;
@@ -1988,7 +2000,8 @@ void LLAgent::propagate(const F32 dt)
 //-----------------------------------------------------------------------------
 void LLAgent::updateAgentPosition(const F32 dt, const F32 yaw_radians, const S32 mouse_x, const S32 mouse_y)
 {
-	if (mMoveTimer.getStarted() && mMoveTimer.getElapsedTimeF32() > gSavedSettings.getF32("NotMovingHintTimeout"))
+    static LLCachedControl<F32> hint_timeout(gSavedSettings, "NotMovingHintTimeout");
+	if (mMoveTimer.getStarted() && mMoveTimer.getElapsedTimeF32() > hint_timeout)
 	{
 		LLFirstUse::notMoving();
 	}
@@ -2004,6 +2017,27 @@ void LLAgent::updateAgentPosition(const F32 dt, const F32 yaw_radians, const S32
 	//
 
 	gAgentCamera.updateLookAt(mouse_x, mouse_y);
+
+    // When agent has no parents, position updates come from setPositionAgent()
+    // But when agent has a parent (ex: is seated), position remains unchanged
+    // relative to parent and no parent's position update trigger
+    // setPositionAgent().
+    // But EEP's sky track selection still needs an update if agent has a parent
+    // and parent moves (ex: vehicles).
+    if (isAgentAvatarValid()
+        && gAgentAvatarp->getParent()
+        && !mOnPositionChanged.empty()
+        )
+    {
+        LLVector3d new_position = getPositionGlobal();
+        if ((mLastTestGlobal - new_position).lengthSquared() > 1.0)
+        {
+            // If the position has changed by more than 1 meter since the last time we triggered.
+            // filters out some noise. 
+            mLastTestGlobal = new_position;
+            mOnPositionChanged(mFrameAgent.getOrigin(), new_position);
+        }
+    }
 }
 
 // friends and operators
@@ -2159,7 +2193,8 @@ void LLAgent::endAnimationUpdateUI()
 		LLNavigationBar::getInstance()->setVisible(TRUE && gSavedSettings.getBOOL("ShowNavbarNavigationPanel"));
 		gStatusBar->setVisibleForMouselook(true);
 
-		if (gSavedSettings.getBOOL("ShowMiniLocationPanel"))
+        static LLCachedControl<bool> show_mini_location_panel(gSavedSettings, "ShowMiniLocationPanel");
+		if (show_mini_location_panel)
 		{
 			LLPanelTopInfoBar::getInstance()->setVisible(TRUE);
 		}
@@ -3901,10 +3936,6 @@ bool LLAgent::teleportCore(bool is_local)
 	// yet if the teleport will succeed.  Look in 
 	// process_teleport_location_reply
 
-	// close the map panel so we can see our destination.
-	// we don't close search floater, see EXT-5840.
-	LLFloaterReg::hideInstance("world_map");
-
 	// hide land floater too - it'll be out of date
 	LLFloaterReg::hideInstance("about_land");
 
@@ -3998,6 +4029,7 @@ void LLAgent::startTeleportRequest()
     }
 	if (hasPendingTeleportRequest())
 	{
+		LLUIUsage::instance().logCommand("Agent.StartTeleportRequest");
         mTeleportCanceled.reset();
 		if  (!isMaturityPreferenceSyncedWithServer())
 		{

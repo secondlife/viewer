@@ -197,9 +197,7 @@ protected:
 	std::map<std::string, bool> mViewOptionDisabled;
 	
 	//store which lod mode each LOD is using
-	// 0 - load from file
-	// 1 - auto generate
-	// 2 - use LoD above
+	// See eLoDMode
 	S32 mLODMode[4];
 
 	LLMutex* mStatusLock;
@@ -223,6 +221,7 @@ private:
 
 	void resetUploadOptions();
 	void clearLogTab();
+	void prepareToLoadModel(S32 lod);
 
 	void createSmoothComboBox(LLComboBox* combo_box, float min, float max);
 

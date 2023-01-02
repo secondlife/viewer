@@ -47,9 +47,6 @@ static const F32 SEC_PER_FLEXI_FRAME = 1.f / 60.f; // 60 flexi updates per secon
 /*static*/ F32 LLVolumeImplFlexible::sUpdateFactor = 1.0f;
 std::vector<LLVolumeImplFlexible*> LLVolumeImplFlexible::sInstanceList;
 
-static LLTrace::BlockTimerStatHandle FTM_FLEXIBLE_REBUILD("Rebuild");
-static LLTrace::BlockTimerStatHandle FTM_DO_FLEXIBLE_UPDATE("Flexible Update");
-
 // LLFlexibleObjectData::pack/unpack now in llprimitive.cpp
 
 //-----------------------------------------------
@@ -95,7 +92,7 @@ LLVolumeImplFlexible::~LLVolumeImplFlexible()
 //static
 void LLVolumeImplFlexible::updateClass()
 {
-	LL_RECORD_BLOCK_TIME(FTM_DO_FLEXIBLE_UPDATE);
+    LL_PROFILE_ZONE_SCOPED;
 
 	U64 virtual_frame_num = LLTimer::getElapsedSeconds() / SEC_PER_FLEXI_FRAME;
 	for (std::vector<LLVolumeImplFlexible*>::iterator iter = sInstanceList.begin();
@@ -389,7 +386,8 @@ void LLVolumeImplFlexible::doIdleUpdate()
 						U64 throttling_delay = (virtual_frame_num + id) % update_period;
 
 						if ((throttling_delay == 0 && mLastFrameNum < virtual_frame_num) //one or more virtual frames per frame
-							|| (mLastFrameNum + update_period < virtual_frame_num)) // missed virtual frame
+							|| (mLastFrameNum + update_period < virtual_frame_num) // missed virtual frame
+							|| mLastFrameNum > virtual_frame_num) // overflow
 						{
 							// We need mLastFrameNum to compensate for 'unreliable time' and to filter 'duplicate' frames
 							// If happened too late, subtract throttling_delay (it is zero otherwise)
@@ -429,7 +427,7 @@ inline S32 log2(S32 x)
 
 void LLVolumeImplFlexible::doFlexibleUpdate()
 {
-	LL_RECORD_BLOCK_TIME(FTM_DO_FLEXIBLE_UPDATE);
+    LL_PROFILE_ZONE_SCOPED;
 	LLVolume* volume = mVO->getVolume();
 	LLPath *path = &volume->getPath();
 	if ((mSimulateRes == 0 || !mInitialized) && mVO->mDrawable->isVisible()) 
@@ -720,13 +718,12 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	mLastSegmentRotation = parentSegmentRotation;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_FLEXI_PREBUILD("Flexi Prebuild");
 
 void LLVolumeImplFlexible::preRebuild()
 {
 	if (!mUpdated)
 	{
-		LL_RECORD_BLOCK_TIME(FTM_FLEXI_PREBUILD);
+        LL_PROFILE_ZONE_SCOPED;
 		doFlexibleRebuild(false);
 	}
 }
@@ -755,6 +752,7 @@ void LLVolumeImplFlexible::onSetScale(const LLVector3& scale, BOOL damped)
 
 BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LLVOVolume *volume = (LLVOVolume*)mVO;
 
 	if (mVO->isAttachment())
@@ -790,11 +788,7 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 
 	volume->updateRelativeXform();
 
-	if (mRenderRes > -1)
-	{
-		LL_RECORD_BLOCK_TIME(FTM_DO_FLEXIBLE_UPDATE);
-		doFlexibleUpdate();
-	}
+	doFlexibleUpdate();
 	
 	// Object may have been rotated, which means it needs a rebuild.  See SL-47220
 	BOOL	rotated = FALSE;
@@ -812,7 +806,6 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 		volume->mDrawable->setState(LLDrawable::REBUILD_VOLUME);
 		volume->dirtySpatialGroup();
 		{
-			LL_RECORD_BLOCK_TIME(FTM_FLEXIBLE_REBUILD);
 			doFlexibleRebuild(volume->mVolumeChanged);
 		}
 		volume->genBBoxes(isVolumeGlobal());

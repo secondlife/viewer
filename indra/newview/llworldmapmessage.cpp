@@ -150,6 +150,10 @@ void LLWorldMapMessage::sendMapBlockRequest(U16 min_x, U16 min_y, U16 max_x, U16
 // public static
 void LLWorldMapMessage::processMapBlockReply(LLMessageSystem* msg, void**)
 {
+	if (gNonInteractive)
+	{
+		return;
+	}
 	U32 agent_flags;
 	msg->getU32Fast(_PREHASH_AgentData, _PREHASH_Flags, agent_flags);
 

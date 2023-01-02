@@ -47,7 +47,7 @@ Placa de vídeo: [GRAPHICS_CARD_VENDOR]
 Placa gráfica: [GRAPHICS_CARD]
 	</string>
 	<string name="AboutDriver">
-		Versão do driver de vídeo Windows: [GRAPHICS_CARD_VENDOR]
+		Versão do driver de vídeo Windows: [GRAPHICS_DRIVER_VERSION]
 	</string>
 	<string name="AboutOGL">
 		Versão do OpenGL: [OPENGL_VERSION]
@@ -178,7 +178,7 @@ Versão do servidor de voz: [VOICE_VERSION]
 	<string name="LoginFailedNoNetwork">
 		Erro de rede: Falha de conexão: verifique sua conexão à internet.
 	</string>
-	<string name="LoginFailed">
+	<string name="LoginFailedHeader">
 		Falha do login.
 	</string>
 	<string name="Quit">
@@ -312,6 +312,24 @@ Aguarde um minuto antes que tentar logar-se novamente.
 	</string>
 	<string name="TestingDisconnect">
 		Teste de desconexão
+	</string>
+	<string name="SocialFacebookConnecting">
+		Conectando ao Facebook...
+	</string>
+	<string name="SocialFacebookPosting">
+		Publicando...
+	</string>
+	<string name="SocialFacebookDisconnecting">
+		Desconectando do Facebook...
+	</string>
+	<string name="SocialFacebookErrorConnecting">
+		Problema ao conectar ao Facebook
+	</string>
+	<string name="SocialFacebookErrorPosting">
+		Problema ao publicar no Facebook
+	</string>
+	<string name="SocialFacebookErrorDisconnecting">
+		Problema ao desconectar do Facebook
 	</string>
 	<string name="SocialFlickrConnecting">
 		Conectando ao Flickr...
@@ -626,9 +644,6 @@ ser anexado às anotações.
 	</string>
 	<string name="GroupNameNone">
 		(nenhum)
-	</string>
-	<string name="AvalineCaller">
-		Interlocutor Avaline [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		Nenhum erro
@@ -2517,8 +2532,20 @@ Se você continuar a receber essa mensagem, entre em contato com o suporte do Se
 	<string name="NoPicksClassifiedsText">
 		Você não criou nenhum Destaque ou Anúncio.  Clique no botão &quot;+&quot; para criar um Destaque ou Anúncio.
 	</string>
+	<string name="NoPicksText">
+		Você não criou nenhuma Escolha. Clique em Novo Botão para criar um Escolher
+	</string>
+	<string name="NoClassifiedsText">
+		Você criou nenhum Anúncio. Clique em Novo Botão para criar um Classificado
+	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		O usuário não tem nenhum destaque ou anúncio
+	</string>
+	<string name="NoAvatarPicksText">
+		Usuário não tem escolha
+	</string>
+	<string name="NoAvatarClassifiedsText">
+		Usuário não tem anúncio
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Carregando...
@@ -4432,6 +4459,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="inventory_folder_offered-im">
 		Pasta do inventário &apos;[ITEM_NAME]&apos; oferecida
+	</string>
+	<string name="facebook_post_success">
+		Você publicou no Facebook.
 	</string>
 	<string name="flickr_post_success">
 		Você publicou no Flickr.

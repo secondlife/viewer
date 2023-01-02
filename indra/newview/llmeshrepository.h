@@ -27,6 +27,7 @@
 #ifndef LL_MESH_REPOSITORY_H
 #define LL_MESH_REPOSITORY_H
 
+#include <unordered_map>
 #include "llassettype.h"
 #include "llmodel.h"
 #include "lluuid.h"
@@ -553,6 +554,9 @@ public:
 	static U32 sLODProcessing;
 	static U32 sCacheBytesRead;
 	static U32 sCacheBytesWritten;
+    static U32 sCacheBytesHeaders;
+    static U32 sCacheBytesSkins;
+    static U32 sCacheBytesDecomps;
 	static U32 sCacheReads;						
 	static U32 sCacheWrites;
 	static U32 sMaxLockHoldoffs;				// Maximum sequential locking failures
@@ -584,7 +588,7 @@ public:
 
 	S32 getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
 	static S32 getActualMeshLOD(LLSD& header, S32 lod);
-	const LLMeshSkinInfo* getSkinInfo(const LLUUID& mesh_id, const LLVOVolume* requesting_obj);
+	const LLMeshSkinInfo* getSkinInfo(const LLUUID& mesh_id, const LLVOVolume* requesting_obj = nullptr);
 	LLModel::Decomposition* getDecomposition(const LLUUID& mesh_id);
 	void fetchPhysicsShape(const LLUUID& mesh_id);
 	bool hasPhysicsShape(const LLUUID& mesh_id);
@@ -612,7 +616,7 @@ public:
 	typedef std::map<LLVolumeParams, std::set<LLUUID> > mesh_load_map;
 	mesh_load_map mLoadingMeshes[4];
 	
-	typedef std::map<LLUUID, LLMeshSkinInfo> skin_map;
+	typedef std::unordered_map<LLUUID, LLMeshSkinInfo> skin_map;
 	skin_map mSkinMap;
 
 	typedef std::map<LLUUID, LLModel::Decomposition*> decomposition_map;
@@ -642,8 +646,6 @@ public:
 	std::queue<LLUUID> mPendingPhysicsShapeRequests;
 	
 	U32 mMeshThreadCount;
-
-	void cacheOutgoingMesh(LLMeshUploadData& data, LLSD& header);
 	
 	LLMeshRepoThread* mThread;
 	std::vector<LLMeshUploadThread*> mUploads;

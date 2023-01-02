@@ -41,6 +41,7 @@
 #include "lliconctrl.h"
 #include "llmatrix4a.h"
 #include "llmeshrepository.h"
+#include "llmeshoptimizer.h"
 #include "llrender.h"
 #include "llsdutil_math.h"
 #include "llskinningutil.h"
@@ -66,7 +67,6 @@
 #include "lltabcontainer.h"
 #include "lltextbox.h"
 
-#include "glod/glod.h"
 #include <boost/algorithm/string.hpp>
 
 bool LLModelPreview::sIgnoreLoadedCallback = false;
@@ -86,21 +86,9 @@ static const LLColor4 PREVIEW_DEG_FILL_COL(1.f, 0.f, 0.f, 0.5f);
 static const F32 PREVIEW_DEG_EDGE_WIDTH(3.f);
 static const F32 PREVIEW_DEG_POINT_SIZE(8.f);
 static const F32 PREVIEW_ZOOM_LIMIT(10.f);
+static const std::string DEFAULT_PHYSICS_MESH_NAME = "default_physics_shape";
 
 const F32 SKIN_WEIGHT_CAMERA_DISTANCE = 16.f;
-
-BOOL stop_gloderror()
-{
-    GLuint error = glodGetError();
-
-    if (error != GLOD_NO_ERROR)
-    {
-        LL_WARNS() << "GLOD error detected, cannot generate LOD: " << std::hex << error << LL_ENDL;
-        return TRUE;
-    }
-
-    return FALSE;
-}
 
 LLViewerFetchedTexture* bindMaterialDiffuseTexture(const LLImportMaterial& material)
 {
@@ -200,10 +188,6 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
     mLoadState = LLModelLoader::STARTING;
     mGroup = 0;
     mLODFrozen = false;
-    mBuildShareTolerance = 0.f;
-    mBuildQueueMode = GLOD_QUEUE_GREEDY;
-    mBuildBorderMode = GLOD_BORDER_UNLOCK;
-    mBuildOperator = GLOD_OPERATOR_EDGE_COLLAPSE;
 
     for (U32 i = 0; i < LLModel::NUM_LODS; ++i)
     {
@@ -211,10 +195,6 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
         mRequestedCreaseAngle[i] = -1.f;
         mRequestedLoDMode[i] = 0;
         mRequestedErrorThreshold[i] = 0.f;
-        mRequestedBuildOperator[i] = 0;
-        mRequestedQueueMode[i] = 0;
-        mRequestedBorderMode[i] = 0;
-        mRequestedShareTolerance[i] = 0.f;
     }
 
     mViewOption["show_textures"] = false;
@@ -224,23 +204,11 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
     mHasPivot = false;
     mModelPivot = LLVector3(0.0f, 0.0f, 0.0f);
 
-    glodInit();
-
     createPreviewAvatar();
 }
 
 LLModelPreview::~LLModelPreview()
 {
-    // glod apparently has internal mem alignment issues that are angering
-    // the heap-check code in windows, these should be hunted down in that
-    // TP code, if possible
-    //
-    // kernel32.dll!HeapFree()  + 0x14 bytes	
-    // msvcr100.dll!free(void * pBlock)  Line 51	C
-    // glod.dll!glodGetGroupParameteriv()  + 0x119 bytes	
-    // glod.dll!glodShutdown()  + 0x77 bytes	
-    //
-    //glodShutdown();
     if (mModelLoader)
     {
         mModelLoader->shutdown();
@@ -465,6 +433,20 @@ void LLModelPreview::rebuildUploadData()
                         LLFloaterModelPreview::addStringToLog(out, false);
                     }
                 }
+                if (mWarnOfUnmatchedPhyicsMeshes && !lod_model && (i == LLModel::LOD_PHYSICS))
+                {
+                    // Despite the various strategies above, if we don't now have a physics model, we're going to end up with decomposition.
+                    // That's ok, but might not what they wanted. Use default_physics_shape if found.
+                    std::ostringstream out;
+                    out << "No physics model specified for " << instance.mLabel;
+                    if (mDefaultPhysicsShapeP)
+                    {
+                        out << " - using: " << DEFAULT_PHYSICS_MESH_NAME;
+                        lod_model = mDefaultPhysicsShapeP;
+                    }
+                    LL_WARNS() << out.str() << LL_ENDL;
+                    LLFloaterModelPreview::addStringToLog(out, !mDefaultPhysicsShapeP); // Flash log tab if no default.
+                }
 
                 if (lod_model)
                 {
@@ -527,7 +509,7 @@ void LLModelPreview::rebuildUploadData()
                 bool upload_skinweights = fmp && fmp->childGetValue("upload_skin").asBoolean();
                 if (upload_skinweights && high_lod_model->mSkinInfo.mJointNames.size() > 0)
                 {
-                    LLQuaternion bind_rot = LLSkinningUtil::getUnscaledQuaternion(high_lod_model->mSkinInfo.mBindShapeMatrix);
+                    LLQuaternion bind_rot = LLSkinningUtil::getUnscaledQuaternion(LLMatrix4(high_lod_model->mSkinInfo.mBindShapeMatrix));
                     LLQuaternion identity;
                     if (!bind_rot.isEqualEps(identity, 0.01))
                     {
@@ -762,11 +744,6 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 
     mLODFile[lod] = filename;
 
-    if (lod == LLModel::LOD_HIGH)
-    {
-        clearGLODGroup();
-    }
-
     std::map<std::string, std::string> joint_alias_map;
     getJointAliases(joint_alias_map);
 
@@ -854,8 +831,10 @@ void LLModelPreview::clearIncompatible(S32 lod)
     // at this point we don't care about sub-models,
     // different amount of sub-models means face count mismatch, not incompatibility
     U32 lod_size = countRootModels(mModel[lod]);
+    bool replaced_base_model = (lod == LLModel::LOD_HIGH);
     for (U32 i = 0; i <= LLModel::LOD_HIGH; i++)
-    { //clear out any entries that aren't compatible with this model
+    {
+        // Clear out any entries that aren't compatible with this model
         if (i != lod)
         {
             if (countRootModels(mModel[i]) != lod_size)
@@ -867,29 +846,49 @@ void LLModelPreview::clearIncompatible(S32 lod)
                 if (i == LLModel::LOD_HIGH)
                 {
                     mBaseModel = mModel[lod];
-                    clearGLODGroup();
                     mBaseScene = mScene[lod];
                     mVertexBuffer[5].clear();
+                    replaced_base_model = true;
                 }
             }
         }
     }
-}
 
-void LLModelPreview::clearGLODGroup()
-{
-    if (mGroup)
+    if (replaced_base_model && !mGenLOD)
     {
-        for (std::map<LLPointer<LLModel>, U32>::iterator iter = mObject.begin(); iter != mObject.end(); ++iter)
-        {
-            glodDeleteObject(iter->second);
-            stop_gloderror();
-        }
-        mObject.clear();
+        // In case base was replaced, we might need to restart generation
 
-        glodDeleteGroup(mGroup);
-        stop_gloderror();
-        mGroup = 0;
+        // Check if already started
+        bool subscribe_for_generation = mLodsQuery.empty();
+        
+        // Remove previously scheduled work
+        mLodsQuery.clear();
+
+        LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
+        if (!fmp) return;
+
+        // Schedule new work
+        for (S32 i = LLModel::LOD_HIGH; i >= 0; --i)
+        {
+            if (mModel[i].empty())
+            {
+                // Base model was replaced, regenerate this lod if applicable
+                LLComboBox* lod_combo = mFMP->findChild<LLComboBox>("lod_source_" + lod_name[i]);
+                if (!lod_combo) return;
+
+                S32 lod_mode = lod_combo->getCurrentIndex();
+                if (lod_mode != LOD_FROM_FILE)
+                {
+                    mLodsQuery.push_back(i);
+                }
+            }
+        }
+
+        // Subscribe if we have pending work and not subscribed yet
+        if (!mLodsQuery.empty() && subscribe_for_generation)
+        {
+            doOnIdleRepeating(lodQueryCallback);
+        }
     }
 }
 
@@ -1044,13 +1043,19 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
             }
 
             mBaseModel = mModel[loaded_lod];
-            clearGLODGroup();
 
             mBaseScene = mScene[loaded_lod];
             mVertexBuffer[5].clear();
         }
         else
         {
+            if (loaded_lod == LLModel::LOD_PHYSICS)
+            {   // Explicitly loading physics. See if there is a default mesh.
+                LLMatrix4 ignored_transform; // Each mesh that uses this will supply their own.
+                mDefaultPhysicsShapeP = nullptr;
+                FindModel(mScene[loaded_lod], DEFAULT_PHYSICS_MESH_NAME + getLodSuffix(loaded_lod), mDefaultPhysicsShapeP, ignored_transform);
+                mWarnOfUnmatchedPhyicsMeshes = true;
+            }
             BOOL legacyMatching = gSavedSettings.getBOOL("ImporterLegacyMatching");
             if (!legacyMatching)
             {
@@ -1121,7 +1126,6 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
                                     LL_WARNS() << out.str() << LL_ENDL;
                                     LLFloaterModelPreview::addStringToLog(out, false);
                                 }
-
                                 mModel[loaded_lod][idx]->mLabel = name;
                             }
                         }
@@ -1275,8 +1279,435 @@ void LLModelPreview::restoreNormals()
     updateStatusMessages();
 }
 
-void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_limit)
+// Runs per object, but likely it is a better way to run per model+submodels
+// returns a ratio of base model indices to resulting indices
+// returns -1 in case of failure
+F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *target_model, F32 indices_decimator, F32 error_threshold, eSimplificationMode simplification_mode)
 {
+    // I. Weld faces together
+    // Figure out buffer size
+    S32 size_indices = 0;
+    S32 size_vertices = 0;
+
+    for (U32 face_idx = 0; face_idx < base_model->getNumVolumeFaces(); ++face_idx)
+    {
+        const LLVolumeFace &face = base_model->getVolumeFace(face_idx);
+        size_indices += face.mNumIndices;
+        size_vertices += face.mNumVertices;
+    }
+
+    if (size_indices < 3)
+    {
+        return -1;
+    }
+
+    // Allocate buffers, note that we are using U32 buffer instead of U16
+    U32* combined_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
+    U32* output_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
+
+    // extra space for normals and text coords
+    S32 tc_bytes_size = ((size_vertices * sizeof(LLVector2)) + 0xF) & ~0xF;
+    LLVector4a* combined_positions = (LLVector4a*)ll_aligned_malloc<64>(sizeof(LLVector4a) * 2 * size_vertices + tc_bytes_size);
+    LLVector4a* combined_normals = combined_positions + size_vertices;
+    LLVector2* combined_tex_coords = (LLVector2*)(combined_normals + size_vertices);
+
+    // copy indices and vertices into new buffers
+    S32 combined_positions_shift = 0;
+    S32 indices_idx_shift = 0;
+    S32 combined_indices_shift = 0;
+    for (U32 face_idx = 0; face_idx < base_model->getNumVolumeFaces(); ++face_idx)
+    {
+        const LLVolumeFace &face = base_model->getVolumeFace(face_idx);
+
+        // Vertices
+        S32 copy_bytes = face.mNumVertices * sizeof(LLVector4a);
+        LLVector4a::memcpyNonAliased16((F32*)(combined_positions + combined_positions_shift), (F32*)face.mPositions, copy_bytes);
+
+        // Normals
+        LLVector4a::memcpyNonAliased16((F32*)(combined_normals + combined_positions_shift), (F32*)face.mNormals, copy_bytes);
+
+        // Tex coords
+        copy_bytes = face.mNumVertices * sizeof(LLVector2);
+        memcpy((void*)(combined_tex_coords + combined_positions_shift), (void*)face.mTexCoords, copy_bytes);
+
+        combined_positions_shift += face.mNumVertices;
+
+        // Indices
+        // Sadly can't do dumb memcpy for indices, need to adjust each value
+        for (S32 i = 0; i < face.mNumIndices; ++i)
+        {
+            U16 idx = face.mIndices[i];
+
+            combined_indices[combined_indices_shift] = idx + indices_idx_shift;
+            combined_indices_shift++;
+        }
+        indices_idx_shift += face.mNumVertices;
+    }
+
+    // II. Generate a shadow buffer if nessesary.
+    // Welds together vertices if possible
+
+    U32* shadow_indices = NULL;
+    // if MESH_OPTIMIZER_FULL, just leave as is, since generateShadowIndexBufferU32
+    // won't do anything new, model was remaped on a per face basis.
+    // Similar for MESH_OPTIMIZER_NO_TOPOLOGY, it's pointless
+    // since 'simplifySloppy' ignores all topology, including normals and uvs.
+    // Note: simplifySloppy can affect UVs significantly.
+    if (simplification_mode == MESH_OPTIMIZER_NO_NORMALS)
+    {
+        // strip normals, reflections should restore relatively correctly
+        shadow_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
+        LLMeshOptimizer::generateShadowIndexBufferU32(shadow_indices, combined_indices, size_indices, combined_positions, NULL, combined_tex_coords, size_vertices);
+    }
+    if (simplification_mode == MESH_OPTIMIZER_NO_UVS)
+    {
+        // strip uvs, can heavily affect textures
+        shadow_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
+        LLMeshOptimizer::generateShadowIndexBufferU32(shadow_indices, combined_indices, size_indices, combined_positions, NULL, NULL, size_vertices);
+    }
+
+    U32* source_indices = NULL;
+    if (shadow_indices)
+    {
+        source_indices = shadow_indices;
+    }
+    else
+    {
+        source_indices = combined_indices;
+    }
+
+    // III. Simplify
+    S32 target_indices = 0;
+    F32 result_error = 0; // how far from original the model is, 1 == 100%
+    S32 size_new_indices = 0;
+
+    if (indices_decimator > 0)
+    {
+        target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, (S32)size_indices); // leave at least one triangle
+    }
+    else // indices_decimator can be zero for error_threshold based calculations
+    {
+        target_indices = 3;
+    }
+
+    size_new_indices = LLMeshOptimizer::simplifyU32(
+        output_indices,
+        source_indices,
+        size_indices,
+        combined_positions,
+        size_vertices,
+        LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_VERTEX],
+        target_indices,
+        error_threshold,
+        simplification_mode == MESH_OPTIMIZER_NO_TOPOLOGY,
+        &result_error);
+
+    if (result_error < 0)
+    {
+        LL_WARNS() << "Negative result error from meshoptimizer for model " << target_model->mLabel
+            << " target Indices: " << target_indices
+            << " new Indices: " << size_new_indices
+            << " original count: " << size_indices << LL_ENDL;
+    }
+
+    // free unused buffers
+    ll_aligned_free_32(combined_indices);
+    ll_aligned_free_32(shadow_indices);
+    combined_indices = NULL;
+    shadow_indices = NULL;
+
+    if (size_new_indices < 3)
+    {
+        // Model should have at least one visible triangle
+        ll_aligned_free<64>(combined_positions);
+        ll_aligned_free_32(output_indices);
+
+        return -1;
+    }
+
+    // IV. Repack back into individual faces
+
+    LLVector4a* buffer_positions = (LLVector4a*)ll_aligned_malloc<64>(sizeof(LLVector4a) * 2 * size_vertices + tc_bytes_size);
+    LLVector4a* buffer_normals = buffer_positions + size_vertices;
+    LLVector2* buffer_tex_coords = (LLVector2*)(buffer_normals + size_vertices);
+    S32 buffer_idx_size = (size_indices * sizeof(U16) + 0xF) & ~0xF;
+    U16* buffer_indices = (U16*)ll_aligned_malloc_16(buffer_idx_size);
+    S32* old_to_new_positions_map = new S32[size_vertices];
+
+    S32 buf_positions_copied = 0;
+    S32 buf_indices_copied = 0;
+    indices_idx_shift = 0;
+    S32 valid_faces = 0;
+
+    // Crude method to copy indices back into face
+    for (U32 face_idx = 0; face_idx < base_model->getNumVolumeFaces(); ++face_idx)
+    {
+        const LLVolumeFace &face = base_model->getVolumeFace(face_idx);
+
+        // reset data for new run
+        buf_positions_copied = 0;
+        buf_indices_copied = 0;
+        bool copy_triangle = false;
+        S32 range = indices_idx_shift + face.mNumVertices;
+
+        for (S32 i = 0; i < size_vertices; i++)
+        {
+            old_to_new_positions_map[i] = -1;
+        }
+
+        // Copy relevant indices and vertices
+        for (S32 i = 0; i < size_new_indices; ++i)
+        {
+            U32 idx = output_indices[i];
+
+            if ((i % 3) == 0)
+            {
+                copy_triangle = idx >= indices_idx_shift && idx < range;
+            }
+
+            if (copy_triangle)
+            {
+                if (old_to_new_positions_map[idx] == -1)
+                {
+                    // New position, need to copy it
+                    // Validate size
+                    if (buf_positions_copied >= U16_MAX)
+                    {
+                        // Normally this shouldn't happen since the whole point is to reduce amount of vertices
+                        // but it might happen if user tries to run optimization with too large triangle or error value
+                        // so fallback to 'per face' mode or verify requested limits and copy base model as is.
+                        LL_WARNS() << "Over triangle limit. Failed to optimize in 'per object' mode, falling back to per face variant for"
+                            << " model " << target_model->mLabel
+                            << " target Indices: " << target_indices
+                            << " new Indices: " << size_new_indices
+                            << " original count: " << size_indices
+                            << " error treshold: " << error_threshold
+                            << LL_ENDL;
+
+                        // U16 vertices overflow shouldn't happen, but just in case
+                        size_new_indices = 0;
+                        valid_faces = 0;
+                        for (U32 face_idx = 0; face_idx < base_model->getNumVolumeFaces(); ++face_idx)
+                        {
+                            genMeshOptimizerPerFace(base_model, target_model, face_idx, indices_decimator, error_threshold, simplification_mode);
+                            const LLVolumeFace &face = target_model->getVolumeFace(face_idx);
+                            size_new_indices += face.mNumIndices;
+                            if (face.mNumIndices >= 3)
+                            {
+                                valid_faces++;
+                            }
+                        }
+                        if (valid_faces)
+                        {
+                            return (F32)size_indices / (F32)size_new_indices;
+                        }
+                        else
+                        {
+                            return -1;
+                        }
+                    }
+
+                    // Copy vertice, normals, tcs
+                    buffer_positions[buf_positions_copied] = combined_positions[idx];
+                    buffer_normals[buf_positions_copied] = combined_normals[idx];
+                    buffer_tex_coords[buf_positions_copied] = combined_tex_coords[idx];
+
+                    old_to_new_positions_map[idx] = buf_positions_copied;
+
+                    buffer_indices[buf_indices_copied] = (U16)buf_positions_copied;
+                    buf_positions_copied++;
+                }
+                else
+                {
+                    // existing position
+                    buffer_indices[buf_indices_copied] = (U16)old_to_new_positions_map[idx];
+                }
+                buf_indices_copied++;
+            }
+        }
+
+        if (buf_positions_copied >= U16_MAX)
+        {
+            break;
+        }
+
+        LLVolumeFace &new_face = target_model->getVolumeFace(face_idx);
+        //new_face = face; //temp
+
+        if (buf_indices_copied < 3)
+        {
+            // face was optimized away
+            new_face.resizeIndices(3);
+            new_face.resizeVertices(1);
+            memset(new_face.mIndices, 0, sizeof(U16) * 3);
+            new_face.mPositions[0].clear(); // set first vertice to 0
+            new_face.mNormals[0].clear();
+            new_face.mTexCoords[0].setZero();
+        }
+        else
+        {
+            new_face.resizeIndices(buf_indices_copied);
+            new_face.resizeVertices(buf_positions_copied);
+
+            S32 idx_size = (buf_indices_copied * sizeof(U16) + 0xF) & ~0xF;
+            LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)buffer_indices, idx_size);
+
+            LLVector4a::memcpyNonAliased16((F32*)new_face.mPositions, (F32*)buffer_positions, buf_positions_copied * sizeof(LLVector4a));
+            LLVector4a::memcpyNonAliased16((F32*)new_face.mNormals, (F32*)buffer_normals, buf_positions_copied * sizeof(LLVector4a));
+
+            U32 tex_size = (buf_positions_copied * sizeof(LLVector2) + 0xF)&~0xF;
+            LLVector4a::memcpyNonAliased16((F32*)new_face.mTexCoords, (F32*)buffer_tex_coords, tex_size);
+
+            valid_faces++;
+        }
+
+        indices_idx_shift += face.mNumVertices;
+    }
+
+    delete[]old_to_new_positions_map;
+    ll_aligned_free<64>(combined_positions);
+    ll_aligned_free<64>(buffer_positions);
+    ll_aligned_free_32(output_indices);
+    ll_aligned_free_16(buffer_indices);
+
+    if (size_new_indices < 3 || valid_faces == 0)
+    {
+        // Model should have at least one visible triangle
+        return -1;
+    }
+
+    return (F32)size_indices / (F32)size_new_indices;
+}
+
+F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target_model, U32 face_idx, F32 indices_decimator, F32 error_threshold, eSimplificationMode simplification_mode)
+{
+    const LLVolumeFace &face = base_model->getVolumeFace(face_idx);
+    S32 size_indices = face.mNumIndices;
+    if (size_indices < 3)
+    {
+        return -1;
+    }
+
+    S32 size = (size_indices * sizeof(U16) + 0xF) & ~0xF;
+    U16* output_indices = (U16*)ll_aligned_malloc_16(size);
+
+    U16* shadow_indices = NULL;
+    // if MESH_OPTIMIZER_FULL, just leave as is, since generateShadowIndexBufferU32
+    // won't do anything new, model was remaped on a per face basis.
+    // Similar for MESH_OPTIMIZER_NO_TOPOLOGY, it's pointless
+    // since 'simplifySloppy' ignores all topology, including normals and uvs.
+    if (simplification_mode == MESH_OPTIMIZER_NO_NORMALS)
+    {
+        U16* shadow_indices = (U16*)ll_aligned_malloc_16(size);
+        LLMeshOptimizer::generateShadowIndexBufferU16(shadow_indices, face.mIndices, size_indices, face.mPositions, NULL, face.mTexCoords, face.mNumVertices);
+    }
+    if (simplification_mode == MESH_OPTIMIZER_NO_UVS)
+    {
+        U16* shadow_indices = (U16*)ll_aligned_malloc_16(size);
+        LLMeshOptimizer::generateShadowIndexBufferU16(shadow_indices, face.mIndices, size_indices, face.mPositions, NULL, NULL, face.mNumVertices);
+    }
+    // Don't run ShadowIndexBuffer for MESH_OPTIMIZER_NO_TOPOLOGY, it's pointless
+
+    U16* source_indices = NULL;
+    if (shadow_indices)
+    {
+        source_indices = shadow_indices;
+    }
+    else
+    {
+        source_indices = face.mIndices;
+    }
+
+    S32 target_indices = 0;
+    F32 result_error = 0; // how far from original the model is, 1 == 100%
+    S32 size_new_indices = 0;
+
+    if (indices_decimator > 0)
+    {
+        target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, (S32)size_indices); // leave at least one triangle
+    }
+    else
+    {
+        target_indices = 3;
+    }
+
+    size_new_indices = LLMeshOptimizer::simplify(
+        output_indices,
+        source_indices,
+        size_indices,
+        face.mPositions,
+        face.mNumVertices,
+        LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_VERTEX],
+        target_indices,
+        error_threshold,
+        simplification_mode == MESH_OPTIMIZER_NO_TOPOLOGY,
+        &result_error);
+
+    if (result_error < 0)
+    {
+        LL_WARNS() << "Negative result error from meshoptimizer for face " << face_idx
+            << " of model " << target_model->mLabel
+            << " target Indices: " << target_indices
+            << " new Indices: " << size_new_indices
+            << " original count: " << size_indices
+            << " error treshold: " << error_threshold
+            << LL_ENDL;
+    }
+
+    LLVolumeFace &new_face = target_model->getVolumeFace(face_idx);
+
+    // Copy old values
+    new_face = face;
+
+    if (size_new_indices < 3)
+    {
+        if (simplification_mode != MESH_OPTIMIZER_NO_TOPOLOGY)
+        {
+            // meshopt_optimizeSloppy() can optimize triangles away even if target_indices is > 2,
+            // but optimize() isn't supposed to
+            LL_INFOS() << "No indices generated by meshoptimizer for face " << face_idx
+                << " of model " << target_model->mLabel
+                << " target Indices: " << target_indices
+                << " original count: " << size_indices
+                << " error treshold: " << error_threshold
+                << LL_ENDL;
+        }
+
+        // Face got optimized away
+        // Generate empty triangle
+        new_face.resizeIndices(3);
+        new_face.resizeVertices(1);
+        memset(new_face.mIndices, 0, sizeof(U16) * 3);
+        new_face.mPositions[0].clear(); // set first vertice to 0
+        new_face.mNormals[0].clear();
+        new_face.mTexCoords[0].setZero();
+    }
+    else
+    {
+        // Assign new values
+        new_face.resizeIndices(size_new_indices); // will wipe out mIndices, so new_face can't substitute output
+        S32 idx_size = (size_new_indices * sizeof(U16) + 0xF) & ~0xF;
+        LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)output_indices, idx_size);
+
+        // Clear unused values
+        new_face.optimize();
+    }
+
+    ll_aligned_free_16(output_indices);
+    ll_aligned_free_16(shadow_indices);
+     
+    if (size_new_indices < 3)
+    {
+        // At least one triangle is needed
+        return -1;
+    }
+
+    return (F32)size_indices / (F32)size_new_indices;
+}
+
+void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 decimation, bool enforce_tri_limit)
+{
+    LL_INFOS() << "Generating lod " << which_lod << " using meshoptimizer" << LL_ENDL;
     // Allow LoD from -1 to LLModel::LOD_PHYSICS
     if (which_lod < -1 || which_lod > LLModel::NUM_LODS - 1)
     {
@@ -1284,7 +1715,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
         out << "Invalid level of detail: " << which_lod;
         LL_WARNS() << out.str() << LL_ENDL;
         LLFloaterModelPreview::addStringToLog(out, false);
-        assert(which_lod >= -1 && which_lod < LLModel::NUM_LODS);
+        assert(lod >= -1 && lod < LLModel::NUM_LODS);
         return;
     }
 
@@ -1293,57 +1724,22 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
         return;
     }
 
-    LLVertexBuffer::unbind();
-
-    bool no_ff = LLGLSLShader::sNoFixedFunction;
-    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-    LLGLSLShader::sNoFixedFunction = false;
-
-    if (shader)
+    //get the triangle count for all base models
+    S32 base_triangle_count = 0;
+    for (S32 i = 0; i < mBaseModel.size(); ++i)
     {
-        shader->unbind();
+        base_triangle_count += mBaseModel[i]->getNumTriangles();
     }
 
-    stop_gloderror();
-    static U32 cur_name = 1;
+    // Urgh...
+    // TODO: add interface to mFMP to get error treshold or let mFMP write one into LLModelPreview
+    // We should not be accesing views from other class!
+    U32 lod_mode = LIMIT_TRIANGLES;
+    F32 indices_decimator = 0;
+    F32 triangle_limit = 0;
+    F32 lod_error_threshold = 1; //100%
 
-    S32 limit = -1;
-
-    U32 triangle_count = 0;
-
-    U32 instanced_triangle_count = 0;
-
-    //get the triangle count for the whole scene
-    for (LLModelLoader::scene::iterator iter = mBaseScene.begin(), endIter = mBaseScene.end(); iter != endIter; ++iter)
-    {
-        for (LLModelLoader::model_instance_list::iterator instance = iter->second.begin(), end_instance = iter->second.end(); instance != end_instance; ++instance)
-        {
-            LLModel* mdl = instance->mModel;
-            if (mdl)
-            {
-                instanced_triangle_count += mdl->getNumTriangles();
-            }
-        }
-    }
-
-    //get the triangle count for the non-instanced set of models
-    for (U32 i = 0; i < mBaseModel.size(); ++i)
-    {
-        triangle_count += mBaseModel[i]->getNumTriangles();
-    }
-
-    //get ratio of uninstanced triangles to instanced triangles
-    F32 triangle_ratio = (F32)triangle_count / (F32)instanced_triangle_count;
-
-    U32 base_triangle_count = triangle_count;
-
-    U32 type_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
-
-    U32 lod_mode = 0;
-
-    F32 lod_error_threshold = 0;
-
-    // The LoD should be in range from Lowest to High
+    // If requesting a single lod
     if (which_lod > -1 && which_lod < NUM_LOD)
     {
         LLCtrlSelectionInterface* iface = mFMP->childGetSelectionInterface("lod_mode_" + lod_name[which_lod]);
@@ -1352,162 +1748,77 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
             lod_mode = iface->getFirstSelectedIndex();
         }
 
-        lod_error_threshold = mFMP->childGetValue("lod_error_threshold_" + lod_name[which_lod]).asReal();
-    }
-
-    if (which_lod != -1)
-    {
-        mRequestedLoDMode[which_lod] = lod_mode;
-    }
-
-    if (lod_mode == 0)
-    {
-        lod_mode = GLOD_TRIANGLE_BUDGET;
-
-        // The LoD should be in range from Lowest to High
-        if (which_lod > -1 && which_lod < NUM_LOD)
+        if (lod_mode == LIMIT_TRIANGLES)
         {
-            limit = mFMP->childGetValue("lod_triangle_limit_" + lod_name[which_lod]).asInteger();
-            //convert from "scene wide" to "non-instanced" triangle limit
-            limit = (S32)((F32)limit*triangle_ratio);
+            if (!enforce_tri_limit)
+            {
+                triangle_limit = base_triangle_count;
+                // reset to default value for this lod
+                F32 pw = pow((F32)decimation, (F32)(LLModel::LOD_HIGH - which_lod));
+
+                triangle_limit /= pw; //indices_ratio can be 1/pw
+            }
+            else
+            {
+
+                // UI spacifies limit for all models of single lod
+                triangle_limit = mFMP->childGetValue("lod_triangle_limit_" + lod_name[which_lod]).asInteger();
+
+            }
+            // meshoptimizer doesn't use triangle limit, it uses indices limit, so convert it to aproximate ratio
+            // triangle_limit can be 0.
+            indices_decimator = (F32)base_triangle_count / llmax(triangle_limit, 1.f);
+        }
+        else
+        {
+            // UI shows 0 to 100%, but meshoptimizer works with 0 to 1
+            lod_error_threshold = mFMP->childGetValue("lod_error_threshold_" + lod_name[which_lod]).asReal() / 100.f;
         }
     }
     else
     {
-        lod_mode = GLOD_ERROR_THRESHOLD;
+        // we are genrating all lods and each lod will get own indices_decimator
+        indices_decimator = 1;
+        triangle_limit = base_triangle_count;
     }
 
-    bool object_dirty = false;
+    mMaxTriangleLimit = base_triangle_count;
 
-    if (mGroup == 0)
-    {
-        object_dirty = true;
-        mGroup = cur_name++;
-        glodNewGroup(mGroup);
-    }
-
-    if (object_dirty)
-    {
-        for (LLModelLoader::model_list::iterator iter = mBaseModel.begin(); iter != mBaseModel.end(); ++iter)
-        { //build GLOD objects for each model in base model list
-            LLModel* mdl = *iter;
-
-            if (mObject[mdl] != 0)
-            {
-                glodDeleteObject(mObject[mdl]);
-            }
-
-            mObject[mdl] = cur_name++;
-
-            glodNewObject(mObject[mdl], mGroup, GLOD_DISCRETE);
-            stop_gloderror();
-
-            if (iter == mBaseModel.begin() && !mdl->mSkinWeights.empty())
-            { //regenerate vertex buffer for skinned models to prevent animation feedback during LOD generation
-                mVertexBuffer[5].clear();
-            }
-
-            if (mVertexBuffer[5].empty())
-            {
-                genBuffers(5, false);
-            }
-
-            U32 tri_count = 0;
-            for (U32 i = 0; i < mVertexBuffer[5][mdl].size(); ++i)
-            {
-                LLVertexBuffer* buff = mVertexBuffer[5][mdl][i];
-                buff->setBuffer(type_mask & buff->getTypeMask());
-
-                U32 num_indices = mVertexBuffer[5][mdl][i]->getNumIndices();
-                if (num_indices > 2)
-                {
-                    glodInsertElements(mObject[mdl], i, GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, (U8*)mVertexBuffer[5][mdl][i]->getIndicesPointer(), 0, 0.f);
-                }
-                tri_count += num_indices / 3;
-                stop_gloderror();
-            }
-
-            glodBuildObject(mObject[mdl]);
-            stop_gloderror();
-        }
-    }
-
+    // Build models
 
     S32 start = LLModel::LOD_HIGH;
     S32 end = 0;
 
     if (which_lod != -1)
     {
-        start = end = which_lod;
+        start = which_lod;
+        end = which_lod;
     }
-
-    mMaxTriangleLimit = base_triangle_count;
 
     for (S32 lod = start; lod >= end; --lod)
     {
         if (which_lod == -1)
         {
+            // we are genrating all lods and each lod gets own indices_ratio
             if (lod < start)
             {
-                triangle_count /= decimation;
+                indices_decimator *= decimation;
+                triangle_limit /= decimation;
             }
         }
-        else
-        {
-            if (enforce_tri_limit)
-            {
-                triangle_count = limit;
-            }
-            else
-            {
-                for (S32 j = LLModel::LOD_HIGH; j>which_lod; --j)
-                {
-                    triangle_count /= decimation;
-                }
-            }
-        }
+
+        mRequestedTriangleCount[lod] = triangle_limit;
+        mRequestedErrorThreshold[lod] = lod_error_threshold * 100;
+        mRequestedLoDMode[lod] = lod_mode;
 
         mModel[lod].clear();
         mModel[lod].resize(mBaseModel.size());
         mVertexBuffer[lod].clear();
 
-        U32 actual_tris = 0;
-        U32 actual_verts = 0;
-        U32 submeshes = 0;
-
-        mRequestedTriangleCount[lod] = (S32)((F32)triangle_count / triangle_ratio);
-        mRequestedErrorThreshold[lod] = lod_error_threshold;
-
-        glodGroupParameteri(mGroup, GLOD_ADAPT_MODE, lod_mode);
-        stop_gloderror();
-
-        glodGroupParameteri(mGroup, GLOD_ERROR_MODE, GLOD_OBJECT_SPACE_ERROR);
-        stop_gloderror();
-
-        glodGroupParameterf(mGroup, GLOD_OBJECT_SPACE_ERROR_THRESHOLD, lod_error_threshold);
-        stop_gloderror();
-
-        if (lod_mode != GLOD_TRIANGLE_BUDGET)
-        {
-            glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, 0);
-        }
-        else
-        {
-            //SH-632: always add 1 to desired amount to avoid decimating below desired amount
-            glodGroupParameteri(mGroup, GLOD_MAX_TRIANGLES, triangle_count + 1);
-        }
-
-        stop_gloderror();
-        glodAdaptGroup(mGroup);
-        stop_gloderror();
 
         for (U32 mdl_idx = 0; mdl_idx < mBaseModel.size(); ++mdl_idx)
         {
             LLModel* base = mBaseModel[mdl_idx];
-
-            GLint patch_count = 0;
-            glodGetObjectParameteriv(mObject[base], GLOD_NUM_PATCHES, &patch_count);
-            stop_gloderror();
 
             LLVolumeParams volume_params;
             volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
@@ -1517,74 +1828,173 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 
             mModel[lod][mdl_idx]->mLabel = name;
             mModel[lod][mdl_idx]->mSubmodelID = base->mSubmodelID;
-
-            GLint* sizes = new GLint[patch_count * 2];
-            glodGetObjectParameteriv(mObject[base], GLOD_PATCH_SIZES, sizes);
-            stop_gloderror();
-
-            GLint* names = new GLint[patch_count];
-            glodGetObjectParameteriv(mObject[base], GLOD_PATCH_NAMES, names);
-            stop_gloderror();
-
-            mModel[lod][mdl_idx]->setNumVolumeFaces(patch_count);
+            mModel[lod][mdl_idx]->setNumVolumeFaces(base->getNumVolumeFaces());
 
             LLModel* target_model = mModel[lod][mdl_idx];
 
-            for (GLint i = 0; i < patch_count; ++i)
+            S32 model_meshopt_mode = meshopt_mode;
+
+            // Ideally this should run not per model,
+            // but combine all submodels with origin model as well
+            if (model_meshopt_mode == MESH_OPTIMIZER_PRECISE)
             {
-                type_mask = mVertexBuffer[5][base][i]->getTypeMask();
-
-                LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(type_mask, 0);
-
-                if (sizes[i * 2 + 1] > 0 && sizes[i * 2] > 0)
+                // Run meshoptimizer for each face
+                for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
                 {
-                    if (!buff->allocateBuffer(sizes[i * 2 + 1], sizes[i * 2], true))
+                    F32 res = genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_FULL);
+                    if (res < 0)
                     {
-                        // Todo: find a way to stop preview in this case instead of crashing
-                        LL_ERRS() << "Failed buffer allocation during preview LOD generation."
-                            << " Vertices: " << sizes[i * 2 + 1]
-                            << " Indices: " << sizes[i * 2] << LL_ENDL;
+                        // Mesh optimizer failed and returned an invalid model
+                        const LLVolumeFace &face = base->getVolumeFace(face_idx);
+                        LLVolumeFace &new_face = target_model->getVolumeFace(face_idx);
+                        new_face = face;
                     }
-                    buff->setBuffer(type_mask);
-                    glodFillElements(mObject[base], names[i], GL_UNSIGNED_SHORT, (U8*)buff->getIndicesPointer());
-                    stop_gloderror();
+                }
+            }
+
+            if (model_meshopt_mode == MESH_OPTIMIZER_SLOPPY)
+            {
+                // Run meshoptimizer for each face
+                for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
+                {
+                    if (genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_TOPOLOGY) < 0)
+                    {
+                        // Sloppy failed and returned an invalid model
+                        genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_FULL);
+                    }
+                }
+            }
+
+            if (model_meshopt_mode == MESH_OPTIMIZER_AUTO)
+            {
+                // Remove progressively more data if we can't reach the target.
+                F32 allowed_ratio_drift = 1.8f;
+                F32 precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_FULL);
+
+                if (precise_ratio < 0 || (precise_ratio * allowed_ratio_drift < indices_decimator))
+                {
+                    precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_NORMALS);
+                }
+
+                if (precise_ratio < 0 || (precise_ratio * allowed_ratio_drift < indices_decimator))
+                {
+                    precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_UVS);
+                }
+                
+                if (precise_ratio < 0 || (precise_ratio * allowed_ratio_drift < indices_decimator))
+                {
+                    // Try sloppy variant if normal one failed to simplify model enough.
+                    // Sloppy variant can fail entirely and has issues with precision,
+                    // so code needs to do multiple attempts with different decimators.
+                    // Todo: this is a bit of a mess, needs to be refined and improved
+
+                    F32 last_working_decimator = 0.f;
+                    F32 last_working_ratio = F32_MAX;
+
+                    F32 sloppy_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_TOPOLOGY);
+
+                    if (sloppy_ratio > 0)
+                    {
+                        // Would be better to do a copy of target_model here, but if
+                        // we need to use sloppy decimation, model should be cheap
+                        // and fast to generate and it won't affect end result
+                        last_working_decimator = indices_decimator;
+                        last_working_ratio = sloppy_ratio;
+                    }
+
+                    // Sloppy has a tendecy to error into lower side, so a request for 100
+                    // triangles turns into ~70, so check for significant difference from target decimation
+                    F32 sloppy_ratio_drift = 1.4f;
+                    if (lod_mode == LIMIT_TRIANGLES
+                        && (sloppy_ratio > indices_decimator * sloppy_ratio_drift || sloppy_ratio < 0))
+                    {
+                        // Apply a correction to compensate.
+
+                        // (indices_decimator / res_ratio) by itself is likely to overshoot to a differend
+                        // side due to overal lack of precision, and we don't need an ideal result, which
+                        // likely does not exist, just a better one, so a partial correction is enough.
+                        F32 sloppy_decimator = indices_decimator * (indices_decimator / sloppy_ratio + 1) / 2;
+                        sloppy_ratio = genMeshOptimizerPerModel(base, target_model, sloppy_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_TOPOLOGY);
+                    }
+
+                    if (last_working_decimator > 0 && sloppy_ratio < last_working_ratio)
+                    {
+                        // Compensation didn't work, return back to previous decimator
+                        sloppy_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_TOPOLOGY);
+                    }
+
+                    if (sloppy_ratio < 0)
+                    {
+                        // Sloppy method didn't work, try with smaller decimation values
+                        S32 size_vertices = 0;
+
+                        for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
+                        {
+                            const LLVolumeFace &face = base->getVolumeFace(face_idx);
+                            size_vertices += face.mNumVertices;
+                        }
+
+                        // Complex models aren't supposed to get here, they are supposed
+                        // to work on a first try of sloppy due to having more viggle room.
+                        // If they didn't, something is likely wrong, no point locking the
+                        // thread in a long calculation that will fail.
+                        const U32 too_many_vertices = 27000;
+                        if (size_vertices > too_many_vertices)
+                        {
+                            LL_WARNS() << "Sloppy optimization method failed for a complex model " << target_model->getName() << LL_ENDL;
+                        }
+                        else
+                        {
+                            // Find a decimator that does work
+                            F32 sloppy_decimation_step = sqrt((F32)decimation); // example: 27->15->9->5->3
+                            F32 sloppy_decimator = indices_decimator / sloppy_decimation_step;
+
+                            while (sloppy_ratio < 0
+                                && sloppy_decimator > precise_ratio
+                                && sloppy_decimator > 1)// precise_ratio isn't supposed to be below 1, but check just in case
+                            {
+                                sloppy_ratio = genMeshOptimizerPerModel(base, target_model, sloppy_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_TOPOLOGY);
+                                sloppy_decimator = sloppy_decimator / sloppy_decimation_step;
+                            }
+                        }
+                    }
+
+                    if (sloppy_ratio < 0 || sloppy_ratio < precise_ratio)
+                    {
+                        // Sloppy variant failed to generate triangles or is worse.
+                        // Can happen with models that are too simple as is.
+
+                        if (precise_ratio < 0)
+                        {
+                            // Precise method failed as well, just copy face over
+                            target_model->copyVolumeFaces(base);
+                            precise_ratio = 1.f;
+                        }
+                        else
+                        {
+                            // Fallback to normal method
+                            precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_FULL);
+                        }
+
+                        LL_INFOS() << "Model " << target_model->getName()
+                            << " lod " << which_lod
+                            << " resulting ratio " << precise_ratio
+                            << " simplified using per model method." << LL_ENDL;
+                    }
+                    else
+                    {
+                        LL_INFOS() << "Model " << target_model->getName()
+                            << " lod " << which_lod
+                            << " resulting ratio " << sloppy_ratio
+                            << " sloppily simplified using per model method." << LL_ENDL;
+                    }
                 }
                 else
                 {
-                    // This face was eliminated or we failed to allocate buffer,
-                    // attempt to create a dummy triangle (one vertex, 3 indices, all 0)
-                    buff->allocateBuffer(1, 3, true);
-                    memset((U8*)buff->getMappedData(), 0, buff->getSize());
-                    memset((U8*)buff->getIndicesPointer(), 0, buff->getIndicesSize());
-                }
-
-                buff->validateRange(0, buff->getNumVerts() - 1, buff->getNumIndices(), 0);
-
-                LLStrider<LLVector3> pos;
-                LLStrider<LLVector3> norm;
-                LLStrider<LLVector2> tc;
-                LLStrider<U16> index;
-
-                buff->getVertexStrider(pos);
-                if (type_mask & LLVertexBuffer::MAP_NORMAL)
-                {
-                    buff->getNormalStrider(norm);
-                }
-                if (type_mask & LLVertexBuffer::MAP_TEXCOORD0)
-                {
-                    buff->getTexCoord0Strider(tc);
-                }
-
-                buff->getIndexStrider(index);
-
-                target_model->setVolumeFaceData(names[i], pos, norm, tc, index, buff->getNumVerts(), buff->getNumIndices());
-                actual_tris += buff->getNumIndices() / 3;
-                actual_verts += buff->getNumVerts();
-                ++submeshes;
-
-                if (!validate_face(target_model->getVolumeFace(names[i])))
-                {
-                    LL_ERRS() << "Invalid face generated during LOD generation." << LL_ENDL;
+                    LL_INFOS() << "Model " << target_model->getName()
+                        << " lod " << which_lod
+                        << " resulting ratio " << precise_ratio
+                        << " simplified using per model method." << LL_ENDL;
                 }
             }
 
@@ -1594,6 +2004,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
             target_model->mPosition = base->mPosition;
             target_model->mSkinWeights = base->mSkinWeights;
             target_model->mSkinInfo = base->mSkinInfo;
+
             //copy material list
             target_model->mMaterialList = base->mMaterialList;
 
@@ -1601,9 +2012,6 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
             {
                 LL_ERRS() << "Invalid model generated when creating LODs" << LL_ENDL;
             }
-
-            delete[] sizes;
-            delete[] names;
         }
 
         //rebuild scene based on mBaseScene
@@ -1628,13 +2036,6 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
                 }
             }
         }
-    }
-
-    LLVertexBuffer::unbind();
-    LLGLSLShader::sNoFixedFunction = no_ff;
-    if (shader)
-    {
-        shader->bind();
     }
 }
 
@@ -2198,7 +2599,7 @@ void LLModelPreview::updateLodControls(S32 lod)
     S32 lod_mode = lod_combo->getCurrentIndex();
     if (lod_mode == LOD_FROM_FILE) // LoD from file
     {
-        fmp->mLODMode[lod] = 0;
+        fmp->mLODMode[lod] = LOD_FROM_FILE;
         for (U32 i = 0; i < num_file_controls; ++i)
         {
             mFMP->childSetVisible(file_controls[i] + lod_name[lod], true);
@@ -2211,7 +2612,7 @@ void LLModelPreview::updateLodControls(S32 lod)
     }
     else if (lod_mode == USE_LOD_ABOVE) // use LoD above
     {
-        fmp->mLODMode[lod] = 2;
+        fmp->mLODMode[lod] = USE_LOD_ABOVE;
         for (U32 i = 0; i < num_file_controls; ++i)
         {
             mFMP->childSetVisible(file_controls[i] + lod_name[lod], false);
@@ -2237,7 +2638,7 @@ void LLModelPreview::updateLodControls(S32 lod)
     }
     else // auto generate, the default case for all LoDs except High
     {
-        fmp->mLODMode[lod] = 1;
+        fmp->mLODMode[lod] = MESH_OPTIMIZER_AUTO;
 
         //don't actually regenerate lod when refreshing UI
         mLODFrozen = true;
@@ -2269,7 +2670,7 @@ void LLModelPreview::updateLodControls(S32 lod)
             threshold->setVisible(false);
 
             limit->setMaxValue(mMaxTriangleLimit);
-            limit->setIncrement(mMaxTriangleLimit / 32);
+            limit->setIncrement(llmax((U32)1, mMaxTriangleLimit / 32));
         }
         else
         {
@@ -2300,8 +2701,6 @@ void LLModelPreview::clearBuffers()
 
 void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 {
-    U32 tri_count = 0;
-    U32 vertex_count = 0;
     U32 mesh_count = 0;
 
 
@@ -2334,7 +2733,6 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
             continue;
         }
 
-        LLModel* base_mdl = *base_iter;
         base_iter++;
 
         S32 num_faces = mdl->getNumVolumeFaces();
@@ -2409,7 +2807,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
                     //find closest weight to vf.mVertices[i].mPosition
                     LLVector3 pos(vf.mPositions[i].getF32ptr());
 
-                    const LLModel::weight_list& weight_list = base_mdl->getJointInfluences(pos);
+                    const LLModel::weight_list& weight_list = mdl->getJointInfluences(pos);
                     llassert(weight_list.size()>0 && weight_list.size() <= 4); // LLModel::loadModel() should guarantee this
 
                     LLVector4 w(0, 0, 0, 0);
@@ -2433,12 +2831,11 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
                 *(index_strider++) = vf.mIndices[i];
             }
 
+            vb->flush();
+
             mVertexBuffer[lod][mdl].push_back(vb);
 
-            vertex_count += num_vertices;
-            tri_count += num_indices / 3;
             ++mesh_count;
-
         }
     }
 }
@@ -2534,6 +2931,20 @@ void LLModelPreview::loadedCallback(
         {
             pPreview->lookupLODModelFiles(lod);
         }
+
+        const LLVOAvatar* avatarp = pPreview->getPreviewAvatar();
+        if (avatarp) { // set up ground plane for possible rendering
+            const LLVector3 root_pos = avatarp->mRoot->getPosition();
+            const LLVector4a* ext = avatarp->mDrawable->getSpatialExtents();
+            const LLVector4a min = ext[0], max = ext[1];
+            const F32 center = (max[2] - min[2]) * 0.5f;
+            const F32 ground = root_pos[2] - center;
+            auto plane = pPreview->mGroundPlane;
+            plane[0] = {min[0], min[1], ground};
+            plane[1] = {max[0], min[1], ground};
+            plane[2] = {max[0], max[1], ground};
+            plane[3] = {min[0], max[1], ground};
+        }
     }
 
 }
@@ -2549,7 +2960,9 @@ void LLModelPreview::lookupLODModelFiles(S32 lod)
 
     std::string lod_filename = mLODFile[LLModel::LOD_HIGH];
     std::string ext = ".dae";
-    std::string::size_type i = lod_filename.rfind(ext);
+    std::string lod_filename_lower(lod_filename);
+    LLStringUtil::toLower(lod_filename_lower);
+    std::string::size_type i = lod_filename_lower.rfind(ext);
     if (i != std::string::npos)
     {
         lod_filename.replace(i, lod_filename.size() - ext.size(), getLodSuffix(next_lod) + ext);
@@ -2657,8 +3070,6 @@ BOOL LLModelPreview::render()
     LLMutexLock lock(this);
     mNeedsUpdate = FALSE;
 
-    bool use_shaders = LLGLSLShader::sNoFixedFunction;
-
     bool edges = mViewOption["show_edges"];
     bool joint_overrides = mViewOption["show_joint_overrides"];
     bool joint_positions = mViewOption["show_joint_positions"];
@@ -2676,10 +3087,8 @@ BOOL LLModelPreview::render()
     LLGLDisable fog(GL_FOG);
 
     {
-        if (use_shaders)
-        {
-            gUIProgram.bind();
-        }
+        gUIProgram.bind();
+
         //clear background to grey
         gGL.matrixMode(LLRender::MM_PROJECTION);
         gGL.pushMatrix();
@@ -2698,10 +3107,7 @@ BOOL LLModelPreview::render()
 
         gGL.matrixMode(LLRender::MM_MODELVIEW);
         gGL.popMatrix();
-        if (use_shaders)
-        {
-            gUIProgram.unbind();
-        }
+        gUIProgram.unbind();
     }
 
     LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
@@ -2746,6 +3152,9 @@ BOOL LLModelPreview::render()
                     // (note: all these UI updates need to be somewhere that is not render)
                     fmp->childSetValue("upload_skin", true);
                     mFirstSkinUpdate = false;
+                    upload_skin = true;
+                    skin_weight = true;
+                    mViewOption["show_skin_weight"] = true;
                 }
 
                 fmp->enableViewOption("show_skin_weight");
@@ -2852,10 +3261,7 @@ BOOL LLModelPreview::render()
         refresh();
     }
 
-    if (use_shaders)
-    {
-        gObjectPreviewProgram.bind();
-    }
+    gObjectPreviewProgram.bind();
 
     gGL.loadIdentity();
     gPipeline.enableLightsPreview();
@@ -2888,7 +3294,6 @@ BOOL LLModelPreview::render()
     {
         genBuffers(-1, skin_weight);
         //genBuffers(3);
-        //genLODs();
     }
 
     if (!mModel[mPreviewLOD].empty())
@@ -2914,6 +3319,11 @@ BOOL LLModelPreview::render()
         if (regen)
         {
             genBuffers(mPreviewLOD, skin_weight);
+        }
+
+        if (physics && mVertexBuffer[LLModel::LOD_PHYSICS].empty())
+        {
+            genBuffers(LLModel::LOD_PHYSICS, false);
         }
 
         if (!skin_weight)
@@ -2977,6 +3387,7 @@ BOOL LLModelPreview::render()
                         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                         glLineWidth(1.f);
                     }
+                    buffer->flush();
                 }
                 gGL.popMatrix();
             }
@@ -3037,6 +3448,14 @@ BOOL LLModelPreview::render()
 
                                 if (!physics.mMesh.empty())
                                 { //render hull instead of mesh
+                                    // SL-16993 physics.mMesh[i].mNormals were being used to light the exploded
+                                    // analyzed physics shape but the drawArrays() interface changed
+                                    //  causing normal data <0,0,0> to be passed to the shader.
+                                    // The Phyics Preview shader uses plain vertex coloring so the physics hull is full lit.
+                                    // We could also use interface/ui shaders.
+                                    gObjectPreviewProgram.unbind();
+                                    gPhysicsPreviewProgram.bind();
+
                                     for (U32 i = 0; i < physics.mMesh.size(); ++i)
                                     {
                                         if (explode > 0.f)
@@ -3057,24 +3476,22 @@ BOOL LLModelPreview::render()
                                         }
 
                                         gGL.diffuseColor4ubv(hull_colors[i].mV);
-                                        LLVertexBuffer::drawArrays(LLRender::TRIANGLES, physics.mMesh[i].mPositions, physics.mMesh[i].mNormals);
+                                        LLVertexBuffer::drawArrays(LLRender::TRIANGLES, physics.mMesh[i].mPositions);
 
                                         if (explode > 0.f)
                                         {
                                             gGL.popMatrix();
                                         }
                                     }
+
+                                    gPhysicsPreviewProgram.unbind();
+                                    gObjectPreviewProgram.bind();
                                 }
                             }
                         }
 
                         if (render_mesh)
                         {
-                            if (mVertexBuffer[LLModel::LOD_PHYSICS].empty())
-                            {
-                                genBuffers(LLModel::LOD_PHYSICS, false);
-                            }
-
                             U32 num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
                             if (pass > 0){
                                 for (U32 i = 0; i < num_models; ++i)
@@ -3094,6 +3511,8 @@ BOOL LLModelPreview::render()
 
                                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                                     glLineWidth(1.f);
+
+                                    buffer->flush();
                                 }
                             }
                         }
@@ -3138,11 +3557,6 @@ BOOL LLModelPreview::render()
 
                                 if (physics.mHull.empty())
                                 {
-                                    if (mVertexBuffer[LLModel::LOD_PHYSICS].empty())
-                                    {
-                                        genBuffers(LLModel::LOD_PHYSICS, false);
-                                    }
-
                                     U32 num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
                                     for (U32 v = 0; v < num_models; ++v)
                                     {
@@ -3169,6 +3583,8 @@ BOOL LLModelPreview::render()
                                                 buffer->draw(LLRender::POINTS, 3, i);
                                             }
                                         }
+
+                                        buffer->flush();
                                     }
                                 }
                             }
@@ -3229,7 +3645,7 @@ BOOL LLModelPreview::render()
                                 LLJoint *joint = getPreviewAvatar()->getJoint(skin->mJointNums[j]);
                                 if (joint)
                                 {
-                                    const LLVector3& jointPos = skin->mAlternateBindMatrix[j].getTranslation();
+                                    const LLVector3& jointPos = LLVector3(skin->mAlternateBindMatrix[j].getTranslation());
                                     if (joint->aboveJointPosThreshold(jointPos))
                                     {
                                         bool override_changed;
@@ -3271,11 +3687,10 @@ BOOL LLModelPreview::render()
                             //build matrix palette
 
                             LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
-                            LLSkinningUtil::initSkinningMatrixPalette((LLMatrix4*)mat, joint_count,
+                            LLSkinningUtil::initSkinningMatrixPalette(mat, joint_count,
                                 skin, getPreviewAvatar());
 
-                            LLMatrix4a bind_shape_matrix;
-                            bind_shape_matrix.loadu(skin->mBindShapeMatrix);
+                            const LLMatrix4a& bind_shape_matrix = skin->mBindShapeMatrix;
                             U32 max_joints = LLSkinningUtil::getMaxJointCount();
                             for (U32 j = 0; j < buffer->getNumVerts(); ++j)
                             {
@@ -3344,6 +3759,7 @@ BOOL LLModelPreview::render()
                 {
                     getPreviewAvatar()->renderBones();
                 }
+                renderGroundPlane(mPelvisZOffset);
                 if (shader)
                 {
                     shader->bind();
@@ -3358,15 +3774,34 @@ BOOL LLModelPreview::render()
         }
     }
 
-    if (use_shaders)
-    {
-        gObjectPreviewProgram.unbind();
-    }
+    gObjectPreviewProgram.unbind();
 
     gGL.popMatrix();
 
     return TRUE;
 }
+
+void LLModelPreview::renderGroundPlane(float z_offset)
+{   // Not necesarilly general - beware - but it seems to meet the needs of LLModelPreview::render
+
+	gGL.diffuseColor3f( 1.0f, 0.0f, 1.0f );
+
+	gGL.begin(LLRender::LINES);
+	gGL.vertex3fv(mGroundPlane[0].mV);
+	gGL.vertex3fv(mGroundPlane[1].mV);
+
+	gGL.vertex3fv(mGroundPlane[1].mV);
+	gGL.vertex3fv(mGroundPlane[2].mV);
+
+	gGL.vertex3fv(mGroundPlane[2].mV);
+	gGL.vertex3fv(mGroundPlane[3].mV);
+
+	gGL.vertex3fv(mGroundPlane[3].mV);
+	gGL.vertex3fv(mGroundPlane[0].mV);
+
+	gGL.end();
+}
+
 
 //-----------------------------------------------------------------------------
 // refresh()
@@ -3475,7 +3910,7 @@ bool LLModelPreview::lodQueryCallback()
         {
             S32 lod = preview->mLodsQuery.back();
             preview->mLodsQuery.pop_back();
-            preview->genLODs(lod);
+            preview->genMeshOptimizerLODs(lod, MESH_OPTIMIZER_AUTO);
 
             if (preview->mLookUpLodFiles && (lod == LLModel::LOD_HIGH))
             {
@@ -3483,19 +3918,20 @@ bool LLModelPreview::lodQueryCallback()
             }
 
             // return false to continue cycle
-            return false;
+            return preview->mLodsQuery.empty();
         }
     }
     // nothing to process
     return true;
 }
 
-void LLModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
+void LLModelPreview::onLODMeshOptimizerParamCommit(S32 requested_lod, bool enforce_tri_limit, S32 mode)
 {
     if (!mLODFrozen)
     {
-        genLODs(lod, 3, enforce_tri_limit);
+        genMeshOptimizerLODs(requested_lod, mode, 3, enforce_tri_limit);
         refresh();
+        mDirty = true;
     }
 }
 

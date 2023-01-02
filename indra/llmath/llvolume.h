@@ -35,7 +35,8 @@ class LLVolumeParams;
 class LLProfile;
 class LLPath;
 
-template <class T> class LLOctreeNode;
+template<class T> class LLPointer;
+template <class T, typename T_PTR> class LLOctreeNode;
 
 class LLVolumeFace;
 class LLVolume;
@@ -902,10 +903,17 @@ public:
 		typedef std::map<LLVector3, std::vector<VertexMapData>, VertexMapData::ComparePosition > PointMap;
 	};
 
+    // Eliminates non unique triangles, takes positions,
+    // normals and texture coordinates into account.
+    void remap();
+
 	void optimize(F32 angle_cutoff = 2.f);
 	bool cacheOptimize();
 
 	void createOctree(F32 scaler = 0.25f, const LLVector4a& center = LLVector4a(0,0,0), const LLVector4a& size = LLVector4a(0.5f,0.5f,0.5f));
+    void destroyOctree();
+    // Get a reference to the octree, which may be null
+    const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* getOctree() const;
 
 	enum
 	{
@@ -936,17 +944,23 @@ public:
 	LLVector4a* mCenter;
 	LLVector2   mTexCoordExtents[2]; //minimum and maximum of texture coordinates of the face.
 
-	S32 mNumVertices;
+	S32 mNumVertices; // num vertices == num normals == num texcoords
 	S32 mNumAllocatedVertices;
 	S32 mNumIndices;
 
-	LLVector4a* mPositions;
-	LLVector4a* mNormals;
+	LLVector4a* mPositions; // Contains vertices, nortmals and texcoords
+	LLVector4a* mNormals; // pointer into mPositions
 	LLVector4a* mTangents;
-	LLVector2*  mTexCoords;
+	LLVector2*  mTexCoords; // pointer into mPositions
+
+	// mIndices contains mNumIndices amount of elements.
+	// It contains triangles, each 3 indices describe one triangle.
+    // If mIndices contains {0, 2, 3, 1, 2, 4}, it means there
+    // are two triangles {0, 2, 3} and {1, 2, 4} with values being
+    // indexes for mPositions/mNormals/mTexCoords
 	U16* mIndices;
 
-	//vertex buffer filled in by LLFace to cache this volume face geometry in vram 
+	// vertex buffer filled in by LLFace to cache this volume face geometry in vram 
 	// (declared as a LLPointer to LLRefCount to avoid dependency on LLVertexBuffer)
 	mutable LLPointer<LLRefCount> mVertexBuffer; 
 
@@ -967,13 +981,14 @@ public:
     // Which joints are rigged to, and the bounding box of any rigged
     // vertices per joint.
     LLJointRiggingInfoTab mJointRiggingInfoTab;
-    
-	LLOctreeNode<LLVolumeTriangle>* mOctree;
 
 	//whether or not face has been cache optimized
 	BOOL mOptimized;
 
 private:
+    LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* mOctree;
+    LLVolumeTriangle* mOctreeTriangles;
+
 	BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);
 	BOOL createCap(LLVolume* volume, BOOL partial_build = FALSE);
 	BOOL createSide(LLVolume* volume, BOOL partial_build = FALSE);

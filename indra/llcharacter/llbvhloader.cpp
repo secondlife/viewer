@@ -44,6 +44,14 @@ using namespace std;
 
 #define INCHES_TO_METERS 0.02540005f
 
+/// The .bvh does not have a formal spec, and different readers interpret things in their own way.
+/// In OUR usage, frame 0 is used in optimization and is not considered to be part of the animation.
+const S32 NUMBER_OF_IGNORED_FRAMES_AT_START = 1;
+/// In our usage, the last frame is used only to indicate what the penultimate frame should be interpolated towards.
+///  I.e., the animation only plays up to the start of the last frame. There is no hold or exptrapolation past that point..
+/// Thus there are two frame of the total that do not contribute to the total running time of the animation.
+const S32 NUMBER_OF_UNPLAYED_FRAMES = NUMBER_OF_IGNORED_FRAMES_AT_START + 1;
+
 const F32 POSITION_KEYFRAME_THRESHOLD_SQUARED = 0.03f * 0.03f;
 const F32 ROTATION_KEYFRAME_THRESHOLD = 0.01f;
 
@@ -865,7 +873,10 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 		return E_ST_NO_FRAME_TIME;
 	}
 
-	mDuration = (F32)mNumFrames * mFrameTime;
+	// If the user only supplies one animation frame (after the ignored reference frame 0), hold for mFrameTime.
+	// If the user supples exactly one total frame, it isn't clear if that is a pose or reference frame, and the
+	// behavior is not defined. In this case, retain historical undefined behavior.
+	mDuration = llmax((F32)(mNumFrames - NUMBER_OF_UNPLAYED_FRAMES), 1.0f) * mFrameTime;
 	if (!mLoop)
 	{
 		mLoopOutPoint = mDuration;
@@ -1355,12 +1366,13 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 
 		LLQuaternion::Order order = bvhStringToOrder( joint->mOrder );
 		S32 outcount = 0;
-		S32 frame = 1;
+		S32 frame = 0;
 		for (	ki = joint->mKeys.begin();
 				ki != joint->mKeys.end();
 				++ki )
 		{
-			if ((frame == 1) && joint->mRelativeRotationKey)
+
+			if ((frame == 0) && joint->mRelativeRotationKey)
 			{
 				first_frame_rot = mayaQ( ki->mRot[0], ki->mRot[1], ki->mRot[2], order);
 				
@@ -1373,7 +1385,7 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 				continue;
 			}
 
-			time = (F32)frame * mFrameTime;
+			time = llmax((F32)(frame - NUMBER_OF_IGNORED_FRAMES_AT_START), 0.0f) * mFrameTime; // Time elapsed before this frame starts.
 
 			if (mergeParent)
 			{
@@ -1433,12 +1445,12 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 			LLVector3 relPos = joint->mRelativePosition;
 			LLVector3 relKey;
 
-			frame = 1;
+			frame = 0;
 			for (	ki = joint->mKeys.begin();
 					ki != joint->mKeys.end();
 					++ki )
 			{
-				if ((frame == 1) && joint->mRelativePositionKey)
+				if ((frame == 0) && joint->mRelativePositionKey)
 				{
 					relKey.setVec(ki->mPos);
 				}
@@ -1449,7 +1461,7 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 					continue;
 				}
 
-				time = (F32)frame * mFrameTime;
+				time = llmax((F32)(frame - NUMBER_OF_IGNORED_FRAMES_AT_START), 0.0f) * mFrameTime; // Time elapsed before this frame starts.
 
 				LLVector3 inPos = (LLVector3(ki->mPos) - relKey) * ~first_frame_rot;// * fixup_rot;
 				LLVector3 outPos = inPos * frameRot * offsetRot;

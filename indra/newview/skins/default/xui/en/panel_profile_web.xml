@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ name="panel_profile_web"
+ label="Web"
+ top="0"
+ left="0"
+ height="480"
+ width="420"
+ follows="all"
+ layout="topleft"
+>
+    <panel.string
+     name="LoadTime"
+     value="Load Time: [TIME] seconds"
+    />
+    <web_browser
+     name="profile_html"
+     top="10"
+     bottom="-18"
+     left="10"
+     right="-10"
+     follows="all"
+     layout="topleft"
+     start_url=""
+    />
+    <text
+     name="status_text"
+     bottom="-4"
+     left="110"
+     right="-110"
+     follows="bottom|left|right"
+     layout="topleft"
+     halign="center"
+     parse_urls="false"
+    />
+</panel>

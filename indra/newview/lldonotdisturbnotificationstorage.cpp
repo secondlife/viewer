@@ -80,9 +80,14 @@ LLDoNotDisturbNotificationStorage::~LLDoNotDisturbNotificationStorage()
 {
 }
 
+void LLDoNotDisturbNotificationStorage::reset()
+{
+    setFileName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "dnd_notifications.xml"));
+}
+
 void LLDoNotDisturbNotificationStorage::initialize()
 {
-	setFileName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "dnd_notifications.xml"));
+    reset();
 	getCommunicationChannel()->connectFailedFilter(boost::bind(&LLDoNotDisturbNotificationStorage::onChannelChanged, this, _1));
 }
 
@@ -96,11 +101,9 @@ void LLDoNotDisturbNotificationStorage::resetDirty()
     mDirty = false;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_SAVE_DND_NOTIFICATIONS("Save DND Notifications");
-
 void LLDoNotDisturbNotificationStorage::saveNotifications()
 {
-	LL_RECORD_BLOCK_TIME(FTM_SAVE_DND_NOTIFICATIONS);
+    LL_PROFILE_ZONE_SCOPED;
 
 	LLNotificationChannelPtr channelPtr = getCommunicationChannel();
 	const LLCommunicationChannel *commChannel = dynamic_cast<LLCommunicationChannel*>(channelPtr.get());

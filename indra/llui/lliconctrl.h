@@ -48,7 +48,8 @@ public:
 	{
 		Optional<LLUIImage*>	image;
 		Optional<LLUIColor>		color;
-		Optional<bool>			use_draw_context_alpha;
+		Optional<bool>			use_draw_context_alpha,
+                                interactable;
 		Optional<S32>			min_width,
 								min_height;
 		Ignored					scale_image;
@@ -66,6 +67,9 @@ public:
 
 	// llview overrides
 	virtual void	draw();
+
+    // llview overrides
+    virtual BOOL handleHover(S32 x, S32 y, MASK mask);
 
 	// lluictrl overrides
 	virtual void	setValue(const LLSD& value );
@@ -88,6 +92,7 @@ protected:
 	// If set to true (default), use the draw context transparency.
 	// If false, will use transparency returned by getCurrentTransparency(). See STORM-698.
 	bool mUseDrawContextAlpha;
+    bool mInteractable;
 
 private:
 	LLUIColor mColor;

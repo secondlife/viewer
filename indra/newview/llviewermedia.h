@@ -197,7 +197,7 @@ public:
 		U8 media_loop);
 
 	~LLViewerMediaImpl();
-	
+
 	// Override inherited version from LLViewerMediaEventEmitter 
 	virtual void emitEvent(LLPluginClassMedia* self, LLViewerMediaObserver::EMediaEvent event);
 
@@ -266,6 +266,8 @@ public:
 	void scaleTextureCoords(const LLVector2& texture_coords, S32 *x, S32 *y);
 
 	void update();
+    bool preMediaTexUpdate(LLViewerMediaTexture*& media_tex, U8*& data, S32& data_width, S32& data_height, S32& x_pos, S32& y_pos, S32& width, S32& height);
+    void doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* data, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, bool sync);
 	void updateImagesMediaStreams();
 	LLUUID getMediaTextureID() const;
 	
@@ -409,6 +411,8 @@ public:
 	
 	void cancelMimeTypeProbe();
 	
+    bool isAttachedToHUD() const;
+
 	// Is this media attached to an avatar *not* self
 	bool isAttachedToAnotherAvatar() const;
 	
@@ -421,12 +425,14 @@ public:
 private:
 	bool isAutoPlayable() const;
 	bool shouldShowBasedOnClass() const;
+	bool isObscured() const;
 	static bool isObjectAttachedToAnotherAvatar(LLVOVolume *obj);
 	static bool isObjectInAgentParcel(LLVOVolume *obj);
 	
 private:
 	// a single media url with some data and an impl.
 	boost::shared_ptr<LLPluginClassMedia> mMediaSource;
+    LLMutex mLock;
 	F64		mZoomFactor;
 	LLUUID mTextureId;
 	bool  mMovieImageHasMips;
@@ -446,6 +452,7 @@ private:
 	S32 mTextureUsedWidth;
 	S32 mTextureUsedHeight;
 	bool mSuspendUpdates;
+    bool mTextureUpdatePending = false;
 	bool mVisible;
 	ECursorType mLastSetCursor;
 	EMediaNavState mMediaNavState;
@@ -479,7 +486,7 @@ private:
 	LLNotificationPtr mNotification;
     bool mCleanBrowser;     // force the creation of a clean browsing target with full options enabled
     static std::vector<std::string> sMimeTypesFailed;
-
+    LLPointer<LLImageRaw> mRawImage; //backing buffer for texture updates
 private:
 	BOOL mIsUpdated ;
 	std::list< LLVOVolume* > mObjectList ;
@@ -489,7 +496,10 @@ private:
     bool mCanceling;
 
 private:
-	LLViewerMediaTexture *updatePlaceholderImage();
+	LLViewerMediaTexture *updateMediaImage();
+    LL::WorkQueue::weak_t mMainQueue;
+    LL::WorkQueue::weak_t mTexUpdateQueue;
+
 };
 
 #endif	// LLVIEWERMEDIA_H

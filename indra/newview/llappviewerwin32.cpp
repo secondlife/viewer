@@ -329,6 +329,11 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
                      PWSTR     pCmdLine,
                      int       nCmdShow)
 {
+    // Call Tracy first thing to have it allocate memory
+    // https://github.com/wolfpld/tracy/issues/196
+    LL_PROFILER_FRAME_END;
+    LL_PROFILER_SET_THREAD_NAME("App");
+
 	const S32 MAX_HEAPS = 255;
 	DWORD heap_enable_lfh_error[MAX_HEAPS];
 	S32 num_heaps = 0;

@@ -44,6 +44,7 @@ class LLInventoryObserver;
 class LLItemInfo;
 class LLLineEditor;
 class LLTabContainer;
+class LLWorldMapView;
 
 class LLFloaterWorldMap : public LLFloater
 {
@@ -107,7 +108,8 @@ public:
 	// teleport to the tracked item, if there is one
 	void			teleport();
 	void			onChangeMaturity();
-	
+
+	void			onClearBtn();
 	
 	//Slapp instigated avatar tracking
 	void			avatarTrackFromSlapp( const LLUUID& id ); 
@@ -124,11 +126,12 @@ protected:
 	void			onComboTextEntry( );
 	void			onSearchTextEntry( );
 
-	void			onClearBtn();
 	void			onClickTeleportBtn();
 	void			onShowTargetBtn();
 	void			onShowAgentBtn();
 	void			onCopySLURL();
+
+    void            onExpandCollapseBtn();
 
 	void			centerOnTarget(BOOL animate);
 	void			updateLocation();
@@ -151,14 +154,10 @@ protected:
 	void			onCoordinatesCommit();
 	void		    onCommitSearchResult();
 
-	void			cacheLandmarkPosition();
+    void            onTeleportFinished();
 
 private:
-	LLPanel*			mPanel;		// Panel displaying the map
-
-	// Ties to LLWorldMapView::sMapScale, in pixels per region
-	F32						mCurZoomVal;
-	LLFrameTimer			mZoomTimer;
+    LLWorldMapView* mMapView; // Panel displaying the map
 
 	// update display of teleport destination coordinates - pos is in global coordinates
 	void updateTeleportCoordsDisplay( const LLVector3d& pos );
@@ -195,9 +194,31 @@ private:
 	LLCtrlListInterface *	mListFriendCombo;
 	LLCtrlListInterface *	mListLandmarkCombo;
 	LLCtrlListInterface *	mListSearchResults;
+
+    boost::signals2::connection mTeleportFinishConnection;
 };
 
 extern LLFloaterWorldMap* gFloaterWorldMap;
+
+
+class LLPanelHideBeacon : public LLPanel
+{
+public:
+	static LLPanelHideBeacon* getInstance();
+
+	LLPanelHideBeacon();
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void setVisible(BOOL visible);
+	/*virtual*/ void draw();
+
+private:
+	static LLPanelHideBeacon* getPanelHideBeacon();
+	void onHideButtonClick();
+	void updatePosition();
+
+	LLButton* mHideButton;
+
+};
 
 #endif
 

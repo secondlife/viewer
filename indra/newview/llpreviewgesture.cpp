@@ -347,9 +347,6 @@ BOOL LLPreviewGesture::postBuild()
 	LLTextBox* text;
 	LLCheckBoxCtrl* check;
 
-	edit = getChild<LLLineEditor>("name");
-	edit->setKeystrokeCallback(onKeystrokeCommit, this);
-
 	edit = getChild<LLLineEditor>("desc");
 	edit->setKeystrokeCallback(onKeystrokeCommit, this);
 
@@ -482,9 +479,6 @@ BOOL LLPreviewGesture::postBuild()
 	{
 		getChild<LLUICtrl>("desc")->setValue(item->getDescription());
 		getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
-		
-		getChild<LLUICtrl>("name")->setValue(item->getName());
-		getChild<LLLineEditor>("name")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
 	}
 
 	return LLPreview::postBuild();
@@ -1029,7 +1023,6 @@ void LLPreviewGesture::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId)
     // active map with the new pointer.				
     if (LLGestureMgr::instance().isGestureActive(itemId))
     {
-        //*TODO: This is crashing for some reason.  Fix it.
         // Active gesture edited from menu.
         LLGestureMgr::instance().replaceGesture(itemId, newAssetId);
         gInventory.notifyObservers();

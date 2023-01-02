@@ -45,6 +45,7 @@
 //#include "llfirstuse.h"
 #include "llfloaterreg.h"		// getTypedInstance()
 #include "llfocusmgr.h"
+#include "lliconctrl.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -56,10 +57,12 @@
 #include "llscrolllistctrl.h"
 #include "llslurl.h"
 #include "lltextbox.h"
+#include "lltoolbarview.h"
 #include "lltracker.h"
 #include "lltrans.h"
 #include "llviewerinventory.h"	// LLViewerInventoryItem
 #include "llviewermenu.h"
+#include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewertexture.h"
@@ -79,13 +82,15 @@
 //---------------------------------------------------------------------------
 // Constants
 //---------------------------------------------------------------------------
-static const F32 MAP_ZOOM_TIME = 0.2f;
 
 // Merov: we switched from using the "world size" (which varies depending where the user went) to a fixed
 // width of 512 regions max visible at a time. This makes the zoom slider works in a consistent way across
 // sessions and doesn't prevent the user to pan the world if it was to grow a lot beyond that limit.
 // Currently (01/26/09), this value allows the whole grid to be visible in a 1024x1024 window.
 static const S32 MAX_VISIBLE_REGIONS = 512;
+
+
+const S32 HIDE_BEACON_PAD = 133;
 
 // It would be more logical to have this inside the method where it is used but to compile under gcc this
 // struct has to be here.
@@ -279,7 +284,7 @@ void* LLFloaterWorldMap::createWorldMapView(void* data)
 
 BOOL LLFloaterWorldMap::postBuild()
 {
-	mPanel = getChild<LLPanel>("objects_mapview");
+    mMapView = dynamic_cast<LLWorldMapView*>(getChild<LLPanel>("objects_mapview"));
 	
 	LLComboBox *avatar_combo = getChild<LLComboBox>("friend combo");
 	avatar_combo->selectFirstItem();
@@ -300,12 +305,12 @@ BOOL LLFloaterWorldMap::postBuild()
 	landmark_combo->setTextChangedCallback( boost::bind(&LLFloaterWorldMap::onComboTextEntry, this) );
 	mListLandmarkCombo = dynamic_cast<LLCtrlListInterface *>(landmark_combo);
 	
-	mCurZoomVal = log(LLWorldMapView::sMapScale/256.f)/log(2.f);
-	getChild<LLUICtrl>("zoom slider")->setValue(mCurZoomVal);
+    F32 slider_zoom = mMapView->getZoom();
+    getChild<LLUICtrl>("zoom slider")->setValue(slider_zoom);
+    
+    getChild<LLPanel>("expand_btn_panel")->setMouseDownCallback(boost::bind(&LLFloaterWorldMap::onExpandCollapseBtn, this));
 	
 	setDefaultBtn(NULL);
-	
-	mZoomTimer.stop();
 	
 	onChangeMaturity();
 	
@@ -316,7 +321,7 @@ BOOL LLFloaterWorldMap::postBuild()
 LLFloaterWorldMap::~LLFloaterWorldMap()
 {
 	// All cleaned up by LLView destructor
-	mPanel = NULL;
+    mMapView = NULL;
 	
 	// Inventory deletes all observers on shutdown
 	mInventory = NULL;
@@ -326,6 +331,8 @@ LLFloaterWorldMap::~LLFloaterWorldMap()
 	mFriendObserver = NULL;
 	
 	gFloaterWorldMap = NULL;
+
+    mTeleportFinishConnection.disconnect();
 }
 
 //static
@@ -339,26 +346,28 @@ void LLFloaterWorldMap::onClose(bool app_quitting)
 {
 	// While we're not visible, discard the overlay images we're using
 	LLWorldMap::getInstance()->clearImageRefs();
+    mTeleportFinishConnection.disconnect();
 }
 
 // virtual
 void LLFloaterWorldMap::onOpen(const LLSD& key)
 {
-	bool center_on_target = (key.asString() == "center");
+    mTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
+        setTeleportFinishedCallback(boost::bind(&LLFloaterWorldMap::onTeleportFinished, this));
+ 
+    bool center_on_target = (key.asString() == "center");
 	
 	mIsClosing = FALSE;
 	
-	LLWorldMapView* map_panel;
-	map_panel = (LLWorldMapView*)gFloaterWorldMap->mPanel;
-	map_panel->clearLastClick();
+    mMapView->clearLastClick();
 	
 	{
 		// reset pan on show, so it centers on you again
 		if (!center_on_target)
 		{
-			LLWorldMapView::setPan(0, 0, TRUE);
+            mMapView->setPan(0, 0, true);
 		}
-		map_panel->updateVisibleBlocks();
+        mMapView->updateVisibleBlocks();
 		
 		// Reload items as they may have changed
 		LLWorldMap::getInstance()->reloadItems();
@@ -406,18 +415,21 @@ BOOL LLFloaterWorldMap::handleHover(S32 x, S32 y, MASK mask)
 
 BOOL LLFloaterWorldMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	if (!isMinimized() && isFrontmost())
-	{
-		if(mPanel->pointInView(x, y))
-		{
-			F32 slider_value = (F32)getChild<LLUICtrl>("zoom slider")->getValue().asReal();
-			slider_value += ((F32)clicks * -0.3333f);
-			getChild<LLUICtrl>("zoom slider")->setValue(LLSD(slider_value));
-			return TRUE;
-		}
-	}
-	
-	return LLFloater::handleScrollWheel(x, y, clicks);
+    if (!isMinimized() && isFrontmost())
+    {
+        S32 map_x = x - mMapView->getRect().mLeft;
+        S32 map_y = y - mMapView->getRect().mBottom;
+        if (mMapView->pointInView(map_x, map_y))
+        {
+            F32 old_slider_zoom = (F32) getChild<LLUICtrl>("zoom slider")->getValue().asReal();
+            F32 slider_zoom     = old_slider_zoom + ((F32) clicks * -0.3333f);
+            getChild<LLUICtrl>("zoom slider")->setValue(LLSD(slider_zoom));
+            mMapView->zoomWithPivot(slider_zoom, map_x, map_y);
+            return true;
+        }
+    }
+
+    return LLFloater::handleScrollWheel(x, y, clicks);
 }
 
 
@@ -496,26 +508,13 @@ void LLFloaterWorldMap::draw()
 	
 	setMouseOpaque(TRUE);
 	getDragHandle()->setMouseOpaque(TRUE);
-	
-	//RN: snaps to zoom value because interpolation caused jitter in the text rendering
-	if (!mZoomTimer.getStarted() && mCurZoomVal != (F32)getChild<LLUICtrl>("zoom slider")->getValue().asReal())
-	{
-		mZoomTimer.start();
-	}
-	F32 interp = mZoomTimer.getElapsedTimeF32() / MAP_ZOOM_TIME;
-	if (interp > 1.f)
-	{
-		interp = 1.f;
-		mZoomTimer.stop();
-	}
-	mCurZoomVal = lerp(mCurZoomVal, (F32)getChild<LLUICtrl>("zoom slider")->getValue().asReal(), interp);
-	F32 map_scale = 256.f*pow(2.f, mCurZoomVal);
-	LLWorldMapView::setScale( map_scale );
+
+    mMapView->zoom((F32)getChild<LLUICtrl>("zoom slider")->getValue().asReal());
 	
 	// Enable/disable checkboxes depending on the zoom level
 	// If above threshold level (i.e. low res) -> Disable all checkboxes
 	// If under threshold level (i.e. high res) -> Enable all checkboxes
-	bool enable = LLWorldMapView::showRegionInfo();
+    bool enable = mMapView->showRegionInfo();
 	getChildView("people_chk")->setEnabled(enable);
 	getChildView("infohub_chk")->setEnabled(enable);
 	getChildView("telehub_chk")->setEnabled(enable);
@@ -994,7 +993,7 @@ void LLFloaterWorldMap::clearAvatarSelection(BOOL clear_ui)
 	{
 		mTrackedStatus = LLTracker::TRACKING_NOTHING;
 		LLCtrlListInterface *list = mListFriendCombo;
-		if (list)
+		if (list && list->getSelectedValue().asString() != "None")
 		{
 			list->selectByValue( "None" );
 		}
@@ -1014,9 +1013,7 @@ void LLFloaterWorldMap::adjustZoomSliderBounds()
 	S32 world_height_regions = MAX_VISIBLE_REGIONS;
 	
 	// Find how much space we have to display the world
-	LLWorldMapView* map_panel;
-	map_panel = (LLWorldMapView*)mPanel;
-	LLRect view_rect = map_panel->getRect();
+    LLRect view_rect = mMapView->getRect();
 	
 	// View size in pixels
 	S32 view_width = view_rect.getWidth();
@@ -1284,9 +1281,9 @@ void LLFloaterWorldMap::onShowTargetBtn()
 
 void LLFloaterWorldMap::onShowAgentBtn()
 {
-	LLWorldMapView::setPan( 0, 0, FALSE); // FALSE == animate
-	// Set flag so user's location will be displayed if not tracking anything else
-	mSetToUserPosition = TRUE;	
+    mMapView->setPanWithInterpTime(0, 0, false, 0.1f);  // false == animate
+    // Set flag so user's location will be displayed if not tracking anything else
+    mSetToUserPosition = true;
 }
 
 void LLFloaterWorldMap::onClickTeleportBtn()
@@ -1302,6 +1299,22 @@ void LLFloaterWorldMap::onCopySLURL()
 	args["SLURL"] = mSLURL.getSLURLString();
 	
 	LLNotificationsUtil::add("CopySLURL", args);
+}
+
+void LLFloaterWorldMap::onExpandCollapseBtn()
+{
+    LLLayoutStack* floater_stack = getChild<LLLayoutStack>("floater_map_stack");
+    LLLayoutPanel* controls_panel = getChild<LLLayoutPanel>("controls_lp");
+    
+    bool toggle_collapse = !controls_panel->isCollapsed();
+    floater_stack->collapsePanel(controls_panel, toggle_collapse);
+    floater_stack->updateLayout();
+   
+    std::string image_name = getString(toggle_collapse ? "expand_icon" : "collapse_icon");
+    std::string tooltip = getString(toggle_collapse ? "expand_tooltip" : "collapse_tooltip");
+    getChild<LLIconCtrl>("expand_collapse_icon")->setImage(LLUI::getUIImage(image_name));
+    getChild<LLIconCtrl>("expand_collapse_icon")->setToolTip(tooltip);
+    getChild<LLPanel>("expand_btn_panel")->setToolTip(tooltip);
 }
 
 // protected
@@ -1338,9 +1351,10 @@ void LLFloaterWorldMap::centerOnTarget(BOOL animate)
 		pos_global.clearVec();
 	}
 	
-	LLWorldMapView::setPan( -llfloor((F32)(pos_global.mdV[VX] * (F64)LLWorldMapView::sMapScale / REGION_WIDTH_METERS)), 
-						   -llfloor((F32)(pos_global.mdV[VY] * (F64)LLWorldMapView::sMapScale / REGION_WIDTH_METERS)),
-						   !animate);
+    F64 map_scale = (F64)mMapView->getScale();
+    mMapView->setPanWithInterpTime(-llfloor((F32)(pos_global.mdV[VX] * map_scale / REGION_WIDTH_METERS)),
+                           -llfloor((F32)(pos_global.mdV[VY] * map_scale / REGION_WIDTH_METERS)),
+                           !animate, 0.1f);
 	mWaitingForTracker = FALSE;
 }
 
@@ -1566,6 +1580,13 @@ void LLFloaterWorldMap::updateSims(bool found_null_sim)
 	}
 }
 
+void LLFloaterWorldMap::onTeleportFinished()
+{
+    if(isInVisibleChain())
+    {
+        mMapView->setPan(0, 0, TRUE);
+    }
+}
 
 void LLFloaterWorldMap::onCommitSearchResult()
 {
@@ -1638,7 +1659,106 @@ void LLFloaterWorldMap::onChangeMaturity()
 
 void LLFloaterWorldMap::onFocusLost()
 {
-	gViewerWindow->showCursor();
-	LLWorldMapView* map_panel = (LLWorldMapView*)gFloaterWorldMap->mPanel;
-	map_panel->mPanning = FALSE;
+    gViewerWindow->showCursor();
+    mMapView->mPanning = false;
+}
+
+LLPanelHideBeacon::LLPanelHideBeacon() :
+	mHideButton(NULL)
+{
+}
+
+// static
+LLPanelHideBeacon* LLPanelHideBeacon::getInstance()
+{
+	static LLPanelHideBeacon* panel = getPanelHideBeacon();
+	return panel;
+}
+
+
+BOOL LLPanelHideBeacon::postBuild()
+{
+	mHideButton = getChild<LLButton>("hide_beacon_btn");
+	mHideButton->setCommitCallback(boost::bind(&LLPanelHideBeacon::onHideButtonClick, this));
+
+	gViewerWindow->setOnWorldViewRectUpdated(boost::bind(&LLPanelHideBeacon::updatePosition, this));
+
+	return TRUE;
+}
+
+//virtual
+void LLPanelHideBeacon::draw()
+{
+	if (!LLTracker::isTracking(NULL))
+	{
+        mHideButton->setVisible(false);
+        return;
+	}
+    mHideButton->setVisible(true);
+	updatePosition(); 
+	LLPanel::draw();
+}
+
+//virtual
+void LLPanelHideBeacon::setVisible(BOOL visible)
+{
+	if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK) visible = false;
+
+	if (visible)
+	{
+		updatePosition();
+	}
+
+	LLPanel::setVisible(visible);
+}
+
+
+//static
+LLPanelHideBeacon* LLPanelHideBeacon::getPanelHideBeacon()
+{
+	LLPanelHideBeacon* panel = new LLPanelHideBeacon();
+	panel->buildFromFile("panel_hide_beacon.xml");
+
+	LL_INFOS() << "Build LLPanelHideBeacon panel" << LL_ENDL;
+
+	panel->updatePosition();
+	return panel;
+}
+
+void LLPanelHideBeacon::onHideButtonClick()
+{
+	LLFloaterWorldMap* instance = LLFloaterWorldMap::getInstance();
+	if (instance)
+	{
+		instance->onClearBtn();
+	}
+}
+
+/**
+* Updates position of the panel (similar to Stand & Stop Flying panel).
+*/
+void LLPanelHideBeacon::updatePosition()
+{
+	S32 bottom_tb_center = 0;
+	if (LLToolBar* toolbar_bottom = gToolBarView->getToolbar(LLToolBarEnums::TOOLBAR_BOTTOM))
+	{
+		bottom_tb_center = toolbar_bottom->getRect().getCenterX();
+	}
+
+	S32 left_tb_width = 0;
+	if (LLToolBar* toolbar_left = gToolBarView->getToolbar(LLToolBarEnums::TOOLBAR_LEFT))
+	{
+		left_tb_width = toolbar_left->getRect().getWidth();
+	}
+
+	if (gToolBarView != NULL && gToolBarView->getToolbar(LLToolBarEnums::TOOLBAR_LEFT)->hasButtons())
+	{
+		S32 x_pos = bottom_tb_center - getRect().getWidth() / 2 - left_tb_width;
+		setOrigin( x_pos + HIDE_BEACON_PAD, 0);
+	}
+	else 
+	{
+		S32 x_pos = bottom_tb_center - getRect().getWidth() / 2;
+		setOrigin( x_pos + HIDE_BEACON_PAD, 0);
+	}
 }

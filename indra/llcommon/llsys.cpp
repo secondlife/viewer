@@ -36,7 +36,7 @@
 #ifdef LL_USESYSTEMLIBS
 # include <zlib.h>
 #else
-# include "zlib/zlib.h"
+# include "zlib-ng/zlib.h"
 #endif
 
 #include "llprocessor.h"
@@ -64,6 +64,7 @@ using namespace llsd;
 #   include <psapi.h>               // GetPerformanceInfo() et al.
 #	include <VersionHelpers.h>
 #elif LL_DARWIN
+#   include "llsys_objc.h"
 #	include <errno.h>
 #	include <sys/sysctl.h>
 #	include <sys/utsname.h>
@@ -74,12 +75,6 @@ using namespace llsd;
 #	include <mach/mach_host.h>
 #	include <mach/task.h>
 #	include <mach/task_info.h>
-
-// disable warnings about Gestalt calls being deprecated
-// until Apple get's on the ball and provides an alternative
-//
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-
 #elif LL_LINUX
 #	include <errno.h>
 #	include <sys/utsname.h>
@@ -195,18 +190,6 @@ LLOSInfo::LLOSInfo() :
 		GetSystemInfo(&si); //if it fails get regular system info 
 	//(Warning: If GetSystemInfo it may result in incorrect information in a WOW64 machine, if the kernel fails to load)
 
-	//msdn microsoft finds 32 bit and 64 bit flavors this way..
-	//http://msdn.microsoft.com/en-us/library/ms724429(VS.85).aspx (example code that contains quite a few more flavors
-	//of windows than this code does (in case it is needed for the future)
-	if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) //check for 64 bit
-	{
-		mOSStringSimple += "64-bit ";
-	}
-	else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
-	{
-		mOSStringSimple += "32-bit ";
-	}
-
 	// Try calling GetVersionEx using the OSVERSIONINFOEX structure.
 	OSVERSIONINFOEX osvi;
 	ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
@@ -253,9 +236,21 @@ LLOSInfo::LLOSInfo() :
             // Query WMI's Win32_OperatingSystem for OS string. Slow
             // and likely to return 'compatibility' string.
             // Check presence of dlls/libs or may be their version.
-            mOSStringSimple = "Microsoft Windows 10/11";
+            mOSStringSimple = "Microsoft Windows 10/11 ";
         }
-	}
+    }
+
+    //msdn microsoft finds 32 bit and 64 bit flavors this way..
+    //http://msdn.microsoft.com/en-us/library/ms724429(VS.85).aspx (example code that contains quite a few more flavors
+    //of windows than this code does (in case it is needed for the future)
+    if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) //check for 64 bit
+    {
+        mOSStringSimple += "64-bit ";
+    }
+    else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
+    {
+        mOSStringSimple += "32-bit ";
+    }
 
 	mOSString = mOSStringSimple;
 	if (mBuild > 0)
@@ -278,12 +273,9 @@ LLOSInfo::LLOSInfo() :
 	{
 		const char * DARWIN_PRODUCT_NAME = "Mac OS X";
 		
-		SInt32 major_version, minor_version, bugfix_version;
-		OSErr r1 = Gestalt(gestaltSystemVersionMajor, &major_version);
-		OSErr r2 = Gestalt(gestaltSystemVersionMinor, &minor_version);
-		OSErr r3 = Gestalt(gestaltSystemVersionBugFix, &bugfix_version);
+		S32 major_version, minor_version, bugfix_version = 0;
 
-		if((r1 == noErr) && (r2 == noErr) && (r3 == noErr))
+		if (LLGetDarwinOSInfo(major_version, minor_version, bugfix_version))
 		{
 			mMajorVer = major_version;
 			mMinorVer = minor_version;
@@ -456,6 +448,8 @@ LLOSInfo::LLOSInfo() :
 	dotted_version_string << mMajorVer << "." << mMinorVer << "." << mBuild;
 	mOSVersionString.append(dotted_version_string.str());
 
+	mOSBitness = is64Bit() ? 64 : 32;
+	LL_INFOS("LLOSInfo") << "OS bitness: " << mOSBitness << LL_ENDL;
 }
 
 #ifndef LL_WINDOWS
@@ -511,6 +505,11 @@ const std::string& LLOSInfo::getOSVersionString() const
 	return mOSVersionString;
 }
 
+const S32 LLOSInfo::getOSBitness() const
+{
+	return mOSBitness;
+}
+
 //static
 U32 LLOSInfo::getProcessVirtualSizeKB()
 {
@@ -564,6 +563,25 @@ U32 LLOSInfo::getProcessResidentSizeKB()
 	return resident_size;
 }
 
+//static
+bool LLOSInfo::is64Bit()
+{
+#if LL_WINDOWS
+#if defined(_WIN64)
+    return true;
+#elif defined(_WIN32)
+    // 32-bit viewer may be run on both 32-bit and 64-bit Windows, need to elaborate
+    BOOL f64 = FALSE;
+    return IsWow64Process(GetCurrentProcess(), &f64) && f64;
+#else
+    return false;
+#endif
+#else // ! LL_WINDOWS
+    // we only build a 64-bit mac viewer and currently we don't build for linux at all
+    return true; 
+#endif
+}
+
 LLCPUInfo::LLCPUInfo()
 {
 	std::ostringstream out;
@@ -571,6 +589,11 @@ LLCPUInfo::LLCPUInfo()
 	// proc.WriteInfoTextFile("procInfo.txt");
 	mHasSSE = proc.hasSSE();
 	mHasSSE2 = proc.hasSSE2();
+    mHasSSE3 = proc.hasSSE3();
+    mHasSSE3S = proc.hasSSE3S();
+    mHasSSE41 = proc.hasSSE41();
+    mHasSSE42 = proc.hasSSE42();
+    mHasSSE4a = proc.hasSSE4a();
 	mHasAltivec = proc.hasAltivec();
 	mCPUMHz = (F64)proc.getCPUFrequency();
 	mFamily = proc.getCPUFamilyName();
@@ -583,6 +606,35 @@ LLCPUInfo::LLCPUInfo()
 	}
 	mCPUString = out.str();
 	LLStringUtil::trim(mCPUString);
+
+    if (mHasSSE)
+    {
+        mSSEVersions.append("1");
+    }
+    if (mHasSSE2)
+    {
+        mSSEVersions.append("2");
+    }
+    if (mHasSSE3)
+    {
+        mSSEVersions.append("3");
+    }
+    if (mHasSSE3S)
+    {
+        mSSEVersions.append("3S");
+    }
+    if (mHasSSE41)
+    {
+        mSSEVersions.append("4.1");
+    }
+    if (mHasSSE42)
+    {
+        mSSEVersions.append("4.2");
+    }
+    if (mHasSSE4a)
+    {
+        mSSEVersions.append("4a");
+    }
 }
 
 bool LLCPUInfo::hasAltivec() const
@@ -600,6 +652,31 @@ bool LLCPUInfo::hasSSE2() const
 	return mHasSSE2;
 }
 
+bool LLCPUInfo::hasSSE3() const
+{
+    return mHasSSE3;
+}
+
+bool LLCPUInfo::hasSSE3S() const
+{
+    return mHasSSE3S;
+}
+
+bool LLCPUInfo::hasSSE41() const
+{
+    return mHasSSE41;
+}
+
+bool LLCPUInfo::hasSSE42() const
+{
+    return mHasSSE42;
+}
+
+bool LLCPUInfo::hasSSE4a() const
+{
+    return mHasSSE4a;
+}
+
 F64 LLCPUInfo::getMHz() const
 {
 	return mCPUMHz;
@@ -608,6 +685,11 @@ F64 LLCPUInfo::getMHz() const
 std::string LLCPUInfo::getCPUString() const
 {
 	return mCPUString;
+}
+
+const LLSD& LLCPUInfo::getSSEVersions() const
+{
+    return mSSEVersions;
 }
 
 void LLCPUInfo::stream(std::ostream& s) const
@@ -619,6 +701,11 @@ void LLCPUInfo::stream(std::ostream& s) const
 	// CPU's attributes regardless of platform
 	s << "->mHasSSE:     " << (U32)mHasSSE << std::endl;
 	s << "->mHasSSE2:    " << (U32)mHasSSE2 << std::endl;
+    s << "->mHasSSE3:    " << (U32)mHasSSE3 << std::endl;
+    s << "->mHasSSE3S:    " << (U32)mHasSSE3S << std::endl;
+    s << "->mHasSSE41:    " << (U32)mHasSSE41 << std::endl;
+    s << "->mHasSSE42:    " << (U32)mHasSSE42 << std::endl;
+    s << "->mHasSSE4a:    " << (U32)mHasSSE4a << std::endl;
 	s << "->mHasAltivec: " << (U32)mHasAltivec << std::endl;
 	s << "->mCPUMHz:     " << mCPUMHz << std::endl;
 	s << "->mCPUString:  " << mCPUString << std::endl;
@@ -843,6 +930,7 @@ LLSD LLMemoryInfo::getStatsMap() const
 
 LLMemoryInfo& LLMemoryInfo::refresh()
 {
+	LL_PROFILE_ZONE_SCOPED
 	mStatsMap = loadStatsMap();
 
 	LL_DEBUGS("LLMemoryInfo") << "Populated mStatsMap:\n";
@@ -852,11 +940,9 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 	return *this;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_MEMINFO_LOAD_STATS("MemInfo Load Stats");
-
 LLSD LLMemoryInfo::loadStatsMap()
 {
-	LL_RECORD_BLOCK_TIME(FTM_MEMINFO_LOAD_STATS);
+    LL_PROFILE_ZONE_SCOPED;
 
 	// This implementation is derived from stream() code (as of 2011-06-29).
 	Stats stats;
@@ -1316,10 +1402,3 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	if (dst != NULL) gzclose(dst);
 	return retval;
 }
-
-#if LL_DARWIN
-// disable warnings about Gestalt calls being deprecated
-// until Apple get's on the ball and provides an alternative
-//
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif

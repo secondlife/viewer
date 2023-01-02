@@ -178,7 +178,7 @@ Versión del servidor de voz: [VOICE_VERSION]
 	<string name="LoginFailedNoNetwork">
 		Error de red: no se ha podido conectar; por favor, revisa tu conexión a internet.
 	</string>
-	<string name="LoginFailed">
+	<string name="LoginFailedHeader">
 		Error en el inicio de sesión.
 	</string>
 	<string name="Quit">
@@ -347,6 +347,24 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="TestingDisconnect">
 		Probando la desconexión del visor
+	</string>
+	<string name="SocialFacebookConnecting">
+		Conectando con Facebook...
+	</string>
+	<string name="SocialFacebookPosting">
+		Publicando...
+	</string>
+	<string name="SocialFacebookDisconnecting">
+		Desconectando de Facebook...
+	</string>
+	<string name="SocialFacebookErrorConnecting">
+		Problema al conectar con Facebook
+	</string>
+	<string name="SocialFacebookErrorPosting">
+		Problema al publicar en Facebook
+	</string>
+	<string name="SocialFacebookErrorDisconnecting">
+		Problema al desconectar de Facebook
 	</string>
 	<string name="SocialFlickrConnecting">
 		Conectándose a Flickr...
@@ -661,9 +679,6 @@ pueden adjuntarse a las notas.
 	</string>
 	<string name="GroupNameNone">
 		(ninguno)
-	</string>
-	<string name="AvalineCaller">
-		Avaline: [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		No hay ningún error
@@ -2549,8 +2564,20 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 	<string name="NoPicksClassifiedsText">
 		No has creado destacados ni clasificados. Pulsa el botón Más para crear uno.
 	</string>
+	<string name="NoPicksText">
+		No has creado destacados. Haz clic en el botón Más para crear uno.
+	</string>
+	<string name="NoClassifiedsText">
+		No has creado clasificados. Haz clic en el botón Nuevo para crear un anuncio clasificado.
+	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		El usuario no tiene clasificados ni destacados
+	</string>
+	<string name="NoAvatarPicksText">
+		El usuario no tiene destacados
+	</string>
+	<string name="NoAvatarClassifiedsText">
+		El usuario no tiene clasificados
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Cargando...
@@ -4468,6 +4495,9 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	</string>
 	<string name="share_alert">
 		Arrastra los ítems desde el invenbtario hasta aquí
+	</string>
+	<string name="facebook_post_success">
+		Has publicado en Facebook.
 	</string>
 	<string name="flickr_post_success">
 		Has publicado en Flickr.

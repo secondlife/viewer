@@ -1868,6 +1868,86 @@ void change_item_parent(const LLUUID& item_id, const LLUUID& new_parent_id)
 	}
 }
 
+void move_items_to_folder(const LLUUID& new_cat_uuid, const uuid_vec_t& selected_uuids)
+{
+    for (uuid_vec_t::const_iterator it = selected_uuids.begin(); it != selected_uuids.end(); ++it)
+    {
+        LLInventoryItem* inv_item = gInventory.getItem(*it);
+        if (inv_item)
+        {
+            change_item_parent(*it, new_cat_uuid);
+        }
+        else
+        {
+            LLInventoryCategory* inv_cat = gInventory.getCategory(*it);
+            if (inv_cat && !LLFolderType::lookupIsProtectedType(inv_cat->getPreferredType()))
+            {
+                gInventory.changeCategoryParent((LLViewerInventoryCategory*)inv_cat, new_cat_uuid, false);
+            }
+        }
+    }
+
+    LLFloater* floater_inventory = LLFloaterReg::getInstance("inventory");
+    if (!floater_inventory)
+    {
+        LL_WARNS() << "Could not find My Inventory floater" << LL_ENDL;
+        return;
+    }
+    LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+    if (sidepanel_inventory)
+    {
+        if (sidepanel_inventory->getActivePanel())
+        {
+            sidepanel_inventory->getActivePanel()->setSelection(new_cat_uuid, TAKE_FOCUS_YES);
+            LLFolderViewItem* fv_folder = sidepanel_inventory->getActivePanel()->getItemByID(new_cat_uuid);
+            if (fv_folder)
+            {
+                fv_folder->setOpen(TRUE);
+            }
+        }
+    }
+}
+
+bool is_only_cats_selected(const uuid_vec_t& selected_uuids)
+{
+    for (uuid_vec_t::const_iterator it = selected_uuids.begin(); it != selected_uuids.end(); ++it)
+    {
+        LLInventoryCategory* inv_cat = gInventory.getCategory(*it);
+        if (!inv_cat)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool is_only_items_selected(const uuid_vec_t& selected_uuids)
+{
+    for (uuid_vec_t::const_iterator it = selected_uuids.begin(); it != selected_uuids.end(); ++it)
+    {
+        LLViewerInventoryItem* inv_item = gInventory.getItem(*it);
+        if (!inv_item)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+void move_items_to_new_subfolder(const uuid_vec_t& selected_uuids, const std::string& folder_name)
+{
+    LLInventoryObject* first_item = gInventory.getObject(*selected_uuids.begin());
+    if (!first_item)
+    {
+        return;
+    }
+
+    inventory_func_type func = boost::bind(&move_items_to_folder, _1, selected_uuids);
+    gInventory.createNewCategory(first_item->getParentUUID(), LLFolderType::FT_NONE, folder_name, func);
+
+}
+
 ///----------------------------------------------------------------------------
 /// LLInventoryCollectFunctor implementations
 ///----------------------------------------------------------------------------
@@ -2521,6 +2601,81 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     else if ("save_selected_as" == action)
     {
         (new LLDirPickerThread(boost::bind(&LLInventoryAction::saveMultipleTextures, _1, selected_items, model), std::string()))->getFile();
+    }
+    else if ("new_folder_from_selected" == action)
+    {
+
+        LLInventoryObject* first_item = gInventory.getObject(*ids.begin());
+        if (!first_item)
+        {
+            return;
+        }
+        const LLUUID& parent_uuid = first_item->getParentUUID();
+        for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
+        {
+            LLInventoryObject *item = gInventory.getObject(*it);
+            if (!item || item->getParentUUID() != parent_uuid)
+            {
+                LLNotificationsUtil::add("SameFolderRequired");
+                return;
+            }
+        }
+        
+        LLSD args;
+        args["DESC"] = LLTrans::getString("New Folder");
+ 
+        LLNotificationsUtil::add("CreateSubfolder", args, LLSD(),
+            [ids](const LLSD& notification, const LLSD& response)
+        {
+            S32 opt = LLNotificationsUtil::getSelectedOption(notification, response);
+            if (opt == 0)
+            {
+                std::string settings_name = response["message"].asString();
+
+                LLInventoryObject::correctInventoryName(settings_name);
+                if (settings_name.empty())
+                {
+                    settings_name = LLTrans::getString("New Folder");
+                }
+                move_items_to_new_subfolder(ids, settings_name);
+            }
+        });
+    }
+    else if ("ungroup_folder_items" == action)
+    {
+        if (selected_uuid_set.size() == 1)
+        {
+            LLInventoryCategory* inv_cat = gInventory.getCategory(*ids.begin());
+            if (!inv_cat || LLFolderType::lookupIsProtectedType(inv_cat->getPreferredType()))
+            {
+                return;
+            }
+            const LLUUID &new_cat_uuid = inv_cat->getParentUUID();
+            LLInventoryModel::cat_array_t* cat_array;
+            LLInventoryModel::item_array_t* item_array;
+            gInventory.getDirectDescendentsOf(inv_cat->getUUID(), cat_array, item_array);
+            LLInventoryModel::cat_array_t cats = *cat_array;
+            LLInventoryModel::item_array_t items = *item_array;
+
+            for (LLInventoryModel::cat_array_t::const_iterator cat_iter = cats.begin(); cat_iter != cats.end(); ++cat_iter)
+            {
+                LLViewerInventoryCategory* cat = *cat_iter;
+                if (cat)
+                {
+                    gInventory.changeCategoryParent(cat, new_cat_uuid, false);
+                }
+            }
+            for (LLInventoryModel::item_array_t::const_iterator item_iter = items.begin(); item_iter != items.end(); ++item_iter)
+            {
+                LLViewerInventoryItem* item = *item_iter;
+                if(item)
+                {
+                    gInventory.changeItemParent(item, new_cat_uuid, false);
+                }
+            }
+            gInventory.removeCategory(inv_cat->getUUID());
+            gInventory.notifyObservers();
+        }
     }
     else
     {

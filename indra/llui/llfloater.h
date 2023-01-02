@@ -346,6 +346,8 @@ public:
 	// handle refocusing.
 	static void		closeFrontmostFloater();
 
+    static bool     isQuitRequested() { return sQuitting; }
+
 //	LLNotification::Params contextualNotification(const std::string& name) 
 //	{ 
 //	    return LLNotification::Params(name).context(mNotificationContext); 
@@ -452,6 +454,7 @@ public:
 
 protected:
 	bool			mSaveRect;
+	bool			mDefaultRectForGroup;
 	std::string		mRectControl;
 	std::string		mPosXControl;
 	std::string		mPosYControl;

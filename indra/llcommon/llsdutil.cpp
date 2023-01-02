@@ -29,6 +29,7 @@
 #include "linden_common.h"
 
 #include "llsdutil.h"
+#include <sstream>
 
 #if LL_WINDOWS
 #	define WIN32_LEAN_AND_MEAN
@@ -214,6 +215,8 @@ BOOL compare_llsd_with_template(
 	const LLSD& template_llsd,
 	LLSD& resultant_llsd)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (
 		llsd_to_test.isUndefined() &&
 		template_llsd.isDefined() )
@@ -335,6 +338,8 @@ bool filter_llsd_with_template(
 	const LLSD & template_llsd,
 	LLSD & resultant_llsd)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (llsd_to_test.isUndefined() && template_llsd.isDefined())
 	{
 		resultant_llsd = template_llsd;
@@ -529,6 +534,8 @@ class TypeLookup
 public:
     TypeLookup()
     {
+        LL_PROFILE_ZONE_SCOPED
+
         for (const Data *di(boost::begin(typedata)), *dend(boost::end(typedata)); di != dend; ++di)
         {
             mMap[di->type] = di->name;
@@ -537,6 +544,8 @@ public:
 
     std::string lookup(LLSD::Type type) const
     {
+        LL_PROFILE_ZONE_SCOPED
+
         MapType::const_iterator found = mMap.find(type);
         if (found != mMap.end())
         {
@@ -587,6 +596,8 @@ static std::string match_types(LLSD::Type expect, // prototype.type()
                                LLSD::Type actual,        // type we're checking
                                const std::string& pfx)   // as for llsd_matches
 {
+    LL_PROFILE_ZONE_SCOPED
+
     // Trivial case: if the actual type is exactly what we expect, we're good.
     if (actual == expect)
         return "";
@@ -624,6 +635,8 @@ static std::string match_types(LLSD::Type expect, // prototype.type()
 // see docstring in .h file
 std::string llsd_matches(const LLSD& prototype, const LLSD& data, const std::string& pfx)
 {
+    LL_PROFILE_ZONE_SCOPED
+
     // An undefined prototype means that any data is valid.
     // An undefined slot in an array or map prototype means that any data
     // may fill that slot.
@@ -756,6 +769,8 @@ std::string llsd_matches(const LLSD& prototype, const LLSD& data, const std::str
 
 bool llsd_equals(const LLSD& lhs, const LLSD& rhs, int bits)
 {
+    LL_PROFILE_ZONE_SCOPED
+
     // We're comparing strict equality of LLSD representation rather than
     // performing any conversions. So if the types aren't equal, the LLSD
     // values aren't equal.
@@ -862,8 +877,10 @@ bool llsd_equals(const LLSD& lhs, const LLSD& rhs, int bits)
 namespace llsd
 {
 
-LLSD& drill(LLSD& blob, const LLSD& rawPath)
+LLSD& drill_ref(LLSD& blob, const LLSD& rawPath)
 {
+    LL_PROFILE_ZONE_SCOPED
+
     // Treat rawPath uniformly as an array. If it's not already an array,
     // store it as the only entry in one. (But let's say Undefined means an
     // empty array.)
@@ -889,6 +906,8 @@ LLSD& drill(LLSD& blob, const LLSD& rawPath)
     // path entry that's bad.
     for (LLSD::Integer i = 0; i < path.size(); ++i)
     {
+        LL_PROFILE_ZONE_NUM( i )
+
         const LLSD& key{path[i]};
         if (key.isString())
         {
@@ -917,9 +936,11 @@ LLSD& drill(LLSD& blob, const LLSD& rawPath)
 
 LLSD drill(const LLSD& blob, const LLSD& path)
 {
-    // non-const drill() does exactly what we want. Temporarily cast away
+    LL_PROFILE_ZONE_SCOPED
+
+    // drill_ref() does exactly what we want. Temporarily cast away
     // const-ness and use that.
-    return drill(const_cast<LLSD&>(blob), path);
+    return drill_ref(const_cast<LLSD&>(blob), path);
 }
 
 } // namespace llsd
@@ -929,6 +950,8 @@ LLSD drill(const LLSD& blob, const LLSD& path)
 // filter may be include to exclude/include keys in a map. 
 LLSD llsd_clone(LLSD value, LLSD filter)
 {
+    LL_PROFILE_ZONE_SCOPED
+
     LLSD clone;
     bool has_filter(filter.isMap());
 

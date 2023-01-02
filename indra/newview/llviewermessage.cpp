@@ -33,6 +33,7 @@
 #include "llavataractions.h"
 #include "llavatarnamecache.h"		// IDEVO HACK
 #include "lleventtimer.h"
+#include "llfloatercreatelandmark.h"
 #include "llfloaterreg.h"
 #include "llfolderview.h"
 #include "llfollowcamparams.h"
@@ -122,6 +123,7 @@
 #include "llexperiencecache.h"
 
 #include "llexperiencecache.h"
+#include "lluiusage.h"
 
 extern void on_new_message(const LLSD& msg);
 
@@ -261,6 +263,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 	    {
 	    case 0:
 	    {
+			LLUIUsage::instance().logCommand("Agent.AcceptFriendship");
 		    // accept
 		    LLAvatarTracker::formFriendship(payload["from_id"]);
 
@@ -303,6 +306,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 	    // fall-through
 	    case 2: // Send IM - decline and start IM session
 		    {
+				LLUIUsage::instance().logCommand("Agent.DeclineFriendship");
 			    // decline
 			    // We no longer notify other viewers, but we DO still send
                 // the rejection to the simulator to delete the pending userop.
@@ -832,6 +836,11 @@ void send_join_group_response(LLUUID group_id, LLUUID transaction_id, bool accep
         LL_DEBUGS("GroupInvite") << "Replying to group invite via IM message" << LL_ENDL;
 
         EInstantMessage type = accept_invite ? IM_GROUP_INVITATION_ACCEPT : IM_GROUP_INVITATION_DECLINE;
+
+		if (accept_invite)
+		{
+			LLUIUsage::instance().logCommand("Group.Join");
+		}
 
         send_improved_im(group_id,
             std::string("name"),
@@ -1560,6 +1569,17 @@ bool highlight_offered_object(const LLUUID& obj_id)
 		}
 	}
 
+    if (obj->getType() == LLAssetType::AT_LANDMARK)
+    {
+        LLFloaterCreateLandmark *floater = LLFloaterReg::findTypedInstance<LLFloaterCreateLandmark>("add_landmark");
+        if (floater && floater->getItem() && floater->getItem()->getUUID() == obj_id)
+        {
+            // LLFloaterCreateLandmark is supposed to handle this,
+            // keep landmark creation floater at the front
+            return false;
+        }
+    }
+
 	return true;
 }
 
@@ -2219,11 +2239,9 @@ protected:
 	}
 };
 
-static LLTrace::BlockTimerStatHandle FTM_PROCESS_IMPROVED_IM("Process IM");
-
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
-    LL_RECORD_BLOCK_TIME(FTM_PROCESS_IMPROVED_IM);
+    LL_PROFILE_ZONE_SCOPED;
 
     LLUUID from_id;
     BOOL from_group;
@@ -2423,6 +2441,10 @@ void translateFailure(LLChat chat, LLSD toastArgs, int status, const std::string
 
 void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 {
+	if (gNonInteractive)
+	{
+		return;
+	}
 	LLChat	chat;
 	std::string		mesg;
 	std::string		from_name;
@@ -3263,10 +3285,9 @@ const F32 THRESHOLD_HEAD_ROT_QDOT = 0.9997f;	// ~= 2.5 degrees -- if its less th
 const F32 MAX_HEAD_ROT_QDOT = 0.99999f;			// ~= 0.5 degrees -- if its greater than this then no need to update head_rot
 												// between these values we delay the updates (but no more than one second)
 
-static LLTrace::BlockTimerStatHandle FTM_AGENT_UPDATE_SEND("Send Message");
-
 void send_agent_update(BOOL force_send, BOOL send_reliable)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
 	{
 		// We don't care if they want to send an agent update, they're not allowed to until the simulator
@@ -3447,7 +3468,6 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 		}
 		*/
 
-		LL_RECORD_BLOCK_TIME(FTM_AGENT_UPDATE_SEND);
 		// Build the message
 		msg->newMessageFast(_PREHASH_AgentUpdate);
 		msg->nextBlockFast(_PREHASH_AgentData);
@@ -3697,11 +3717,9 @@ void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_PROCESS_OBJECTS("Process Kill Objects");
-
 void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 {
-	LL_RECORD_BLOCK_TIME(FTM_PROCESS_OBJECTS);
+    LL_PROFILE_ZONE_SCOPED;
 
 	LLUUID		id;
 
@@ -3989,8 +4007,8 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 		F32 stat_value;
 		msg->getU32("Stat", "StatID", stat_id, i);
 		msg->getF32("Stat", "StatValue", stat_value, i);
-		LLStatViewer::SimMeasurementSampler* measurementp = LLStatViewer::SimMeasurementSampler::getInstance((ESimStatID)stat_id);
-		
+		auto measurementp = LLStatViewer::SimMeasurementSampler::getInstance((ESimStatID)stat_id);
+
 		if (measurementp )
 		{
 			measurementp->sample(stat_value);
@@ -5807,15 +5825,15 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 				if (("ScriptTakeMoney" == script_perm.question) && has_not_only_debit)
 					continue;
 
-                if (script_perm.question == "JoinAnExperience")
-                { // Some experience only permissions do not have an explicit permission bit.  Add them here.
-                    script_question += "    " + LLTrans::getString("ForceSitAvatar") + "\n";
+                if (LLTrans::getString(script_perm.question).empty())
+                {
+                    continue;
                 }
 
 				script_question += "    " + LLTrans::getString(script_perm.question) + "\n";
 			}
 		}
-	
+
 		args["QUESTIONS"] = script_question;
 
 		if (known_questions != questions)

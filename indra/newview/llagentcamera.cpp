@@ -210,9 +210,6 @@ void LLAgentCamera::init()
 	
 	mCameraPreset = (ECameraPreset) gSavedSettings.getU32("CameraPresetType");
 
-	mCameraOffsetInitial = gSavedSettings.getControl("CameraOffsetRearView");
-	mFocusOffsetInitial = gSavedSettings.getControl("FocusOffsetRearView");
-
 	mCameraCollidePlane.clearVec();
 	mCurrentCameraDistance = getCameraOffsetInitial().magVec() * gSavedSettings.getF32("CameraOffsetScale");
 	mTargetCameraDistance = mCurrentCameraDistance;
@@ -404,10 +401,9 @@ LLVector3 LLAgentCamera::calcFocusOffset(LLViewerObject *object, LLVector3 origi
 	LLQuaternion obj_rot = object->getRenderRotation();
 	LLVector3 obj_pos = object->getRenderPosition();
 
-	BOOL is_avatar = object->isAvatar();
 	// if is avatar - don't do any funk heuristics to position the focal point
 	// see DEV-30589
-	if (is_avatar)
+	if (object->isAvatar() || (object->isAnimatedObject() && object->getControlAvatar()))
 	{
 		return original_focus_point - obj_pos;
 	}
@@ -532,7 +528,6 @@ LLVector3 LLAgentCamera::calcFocusOffset(LLViewerObject *object, LLVector3 origi
 	// or keep the focus point in the object middle when (relatively) far
 	// NOTE: leave focus point in middle of avatars, since the behavior you want when alt-zooming on avatars
 	// is almost always "tumble about middle" and not "spin around surface point"
-	if (!is_avatar) 
 	{
 		LLVector3 obj_rel = original_focus_point - object->getRenderPosition();
 		
@@ -1420,7 +1415,7 @@ void LLAgentCamera::updateCamera()
 			
 			F32 smoothing = LLSmoothInterpolation::getInterpolant(gSavedSettings.getF32("CameraPositionSmoothing") * SMOOTHING_HALF_LIFE, FALSE);
 					
-			if (!mFocusObject)  // we differentiate on avatar mode 
+			if (mFocusOnAvatar && !mFocusObject) // we differentiate on avatar mode 
 			{
 				// for avatar-relative focus, we smooth in avatar space -
 				// the avatar moves too jerkily w/r/t global space to smooth there.
@@ -1672,8 +1667,8 @@ LLVector3d LLAgentCamera::calcThirdPersonFocusOffset()
 		agent_rot *= ((LLViewerObject*)(gAgentAvatarp->getParent()))->getRenderRotation();
 	}
 
-	focus_offset = convert_from_llsd<LLVector3d>(mFocusOffsetInitial->get(), TYPE_VEC3D, "");
-	return focus_offset * agent_rot;
+    static LLCachedControl<LLVector3d> focus_offset_initial(gSavedSettings, "FocusOffsetRearView", LLVector3d());
+	return focus_offset_initial * agent_rot;
 }
 
 void LLAgentCamera::setupSitCamera()
@@ -1810,8 +1805,9 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 		}
 		else
 		{
-			local_camera_offset = mCameraZoomFraction * getCameraOffsetInitial() * gSavedSettings.getF32("CameraOffsetScale");
-			
+            static LLCachedControl<F32> camera_offset_scale(gSavedSettings, "CameraOffsetScale");
+            local_camera_offset = mCameraZoomFraction * getCameraOffsetInitial() * camera_offset_scale;
+
 			// are we sitting down?
 			if (isAgentAvatarValid() && gAgentAvatarp->getParent())
 			{
@@ -2028,12 +2024,15 @@ bool LLAgentCamera::isJoystickCameraUsed()
 
 LLVector3 LLAgentCamera::getCameraOffsetInitial()
 {
-	return convert_from_llsd<LLVector3>(mCameraOffsetInitial->get(), TYPE_VEC3, "");
+    // getCameraOffsetInitial and getFocusOffsetInitial can be called on update from idle before init()
+    static LLCachedControl<LLVector3> camera_offset_initial (gSavedSettings, "CameraOffsetRearView", LLVector3());
+	return camera_offset_initial;
 }
 
 LLVector3d LLAgentCamera::getFocusOffsetInitial()
 {
-	return convert_from_llsd<LLVector3d>(mFocusOffsetInitial->get(), TYPE_VEC3D, "");
+    static LLCachedControl<LLVector3d> focus_offset_initial(gSavedSettings, "FocusOffsetRearView", LLVector3d());
+	return focus_offset_initial;
 }
 
 F32 LLAgentCamera::getCameraMaxZoomDistance()

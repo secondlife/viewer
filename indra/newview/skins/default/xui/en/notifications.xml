@@ -1496,7 +1496,19 @@ Insufficient funds to create classified.
 
   <notification
    icon="alertmodal.tga"
-   name="DeleteAvatarPick"
+   name="ProfileDeleteClassified"
+   type="alertmodal">
+Delete classified &lt;nolink&gt;[CLASSIFIED]&lt;/nolink&gt;?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ProfileDeletePick"
    type="alertmodal">
 Delete pick &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
     <tag>confirm</tag>
@@ -1504,6 +1516,32 @@ Delete pick &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
      name="okcancelbuttons"
      notext="Cancel"
      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   name="ProfileUnpublishedClassified"
+   type="alertmodal">
+    You have unpublished classifieds. They will be lost if you close the window.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   name="ProfileUnsavedChanges"
+   type="alertmodal">
+    You have usaved changes.
+    <tag>confirm</tag>
+    <tag>save</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="Discard"
+     yestext="Save"/>
   </notification>
 
   <notification
@@ -2309,6 +2347,7 @@ Please try again later.
   <notification
    icon="notifytip.tga"
    name="LandmarkCreated"
+   log_to_chat="false"
    type="notifytip">
 You have added "[LANDMARK_NAME]" to your [FOLDER_NAME] folder.
   </notification>
@@ -3906,7 +3945,7 @@ Are you sure you want to return objects owned by [USER_NAME]?
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] has an invalid bit depth of [TEXTURE_BIT_DEPTH].
 
-Replace texture [TEXTURE_NUM] with a 24-bit 512x512 or smaller image then click &quot;Apply&quot; again.
+Replace texture [TEXTURE_NUM] with a 24-bit [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
   <tag>fail</tag>
   </notification>
 
@@ -3917,7 +3956,7 @@ Replace texture [TEXTURE_NUM] with a 24-bit 512x512 or smaller image then click 
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] is too large at [TEXTURE_SIZE_X]x[TEXTURE_SIZE_Y].
 
-Replace texture [TEXTURE_NUM] with a 24-bit 512x512 or smaller image then click &quot;Apply&quot; again.
+Replace texture [TEXTURE_NUM] with a 24-bit [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
   </notification>
 
   <notification
@@ -8786,13 +8825,6 @@ See SecondLife.log for details
     type="alert">
     Error while requesting mesh upload permissons.
   </notification>
-
-  <notification
-    name="MeshUploadProfilerError"
-    icon="alert.tga"
-    type="alert">
-Mesh uploader is incompatible with RenderGLCoreProfile, please turn RenderGLCoreProfile off in debug settings and restart the viewer.
-  </notification>
   
   <notification
     name="RegionCapabilityRequestError"
@@ -9042,6 +9074,29 @@ We cannot display a preview of this texture because it is no-copy and/or no-tran
     ignoretext="Warn me that Live Preview mode is not available for no-copy and/or no-transfer textures"
     name="okignore"
     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="FacePasteFailed"
+   type="alertmodal">
+Paste failed. [REASON]
+   <usetemplate
+    name="okbutton"
+    yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="FacePasteTexturePermissions"
+   type="alertmodal">
+    You applied a texture with limited permissions, object will inherit permissions from texture.
+    <usetemplate
+     ignoretext="Paste: You applied a texture with limited permissions"
+     name="notifyignore"/>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification
@@ -9639,18 +9694,6 @@ Do you wish to continue?
      notext="Cancel"
      yestext="OK"/>
   </notification>
-
-  <global name="UnsupportedShaderRequirements">
-You do not appear to meet the hardware requirements for [APP_NAME]. [APP_NAME] requires OpenGL 2.0 or later shader support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
-
-If you continue to have problems, please visit the [SUPPORT_SITE].
-  </global>
-
-  <global name="UnsupportedGLRequirements">
-You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
-
-If you continue to have problems, please visit the [SUPPORT_SITE].
-  </global>
 
   <global name="UnsupportedIntelDriver">
 The installed Intel graphics driver for [GPUNAME], version [VERSION], is significantly out of date and is known to cause excessive rates of program crashes. You are strongly advised to update to a current Intel driver
@@ -11658,7 +11701,7 @@ This Region does not support environmental settings.
  
   <notification
    icon="alertmodal.tga"
-   label="Save Outfit"
+   label="Save Environmental Settings"
    name="SaveSettingAs"
    type="alertmodal">
     <unique/>
@@ -11816,4 +11859,59 @@ Unpacking: [UNPACK_TIME]s [USIZE]KB
     <tag>fail</tag>
   </notification>
   
+  <notification
+   icon="alertmodal.tga"
+   label="Prompt for MFA Token"
+   name="PromptMFAToken"
+   type="alertmodal">
+    [MESSAGE]
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="token" type="text" width="400" />
+      <button
+       default="true"
+       index="0"
+       name="continue"
+       text="Continue"/>
+      <button
+       index="1"
+       name="cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   label="Create subfolder"
+   name="CreateSubfolder"
+   type="alertmodal">
+    <unique/>
+    Name the new folder:
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="message" type="text">
+        [DESC]
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+  <notification
+   icon="alertmodal.tga"
+   name="SameFolderRequired"
+   type="alert">
+    Selected items must be in the same folder.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
 </notifications>

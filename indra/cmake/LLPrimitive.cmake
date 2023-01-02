@@ -5,6 +5,7 @@ include(Prebuilt)
 include(Boost)
 
 use_prebuilt_binary(colladadom)
+use_prebuilt_binary(minizip-ng) # needed for colladadom
 use_prebuilt_binary(pcre)
 use_prebuilt_binary(libxml2)
 
@@ -22,6 +23,8 @@ if (WINDOWS)
         optimized pcrecpp
         debug pcred
         optimized pcre
+        debug libminizip
+        optimized libminizip
         ${BOOST_SYSTEM_LIBRARIES}
         )
 elseif (DARWIN)
@@ -29,7 +32,7 @@ elseif (DARWIN)
         llprimitive
         debug collada14dom-d
         optimized collada14dom
-        minizip
+        minizip           # for collada libminizip.a
         xml2
         pcrecpp
         pcre

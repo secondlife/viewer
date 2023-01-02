@@ -133,11 +133,9 @@ void LLInventoryItemsList::idle(void* user_data)
 	}
 }
 
-LLTrace::BlockTimerStatHandle FTM_INVENTORY_ITEMS_REFRESH("Inventory List Refresh");
-
 void LLInventoryItemsList::refresh()
 {
-    LL_RECORD_BLOCK_TIME(FTM_INVENTORY_ITEMS_REFRESH);
+    LL_PROFILE_ZONE_SCOPED;
 
     switch (mRefreshState)
     {

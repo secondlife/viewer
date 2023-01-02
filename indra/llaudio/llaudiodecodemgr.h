@@ -32,24 +32,23 @@
 
 #include "llassettype.h"
 #include "llframetimer.h"
+#include "llsingleton.h"
 
+template<class T> class LLPointer;
 class LLVorbisDecodeState;
 
-class LLAudioDecodeMgr
+class LLAudioDecodeMgr : public LLSingleton<LLAudioDecodeMgr>
 {
+    LLSINGLETON(LLAudioDecodeMgr);
+    ~LLAudioDecodeMgr();
 public:
-	LLAudioDecodeMgr();
-	~LLAudioDecodeMgr();
-
-	void processQueue(const F32 num_secs = 0.005);
+	void processQueue();
 	BOOL addDecodeRequest(const LLUUID &uuid);
 	void addAudioRequest(const LLUUID &uuid);
 	
 protected:
 	class Impl;
-	Impl* mImpl;
+    Impl* mImpl;
 };
-
-extern LLAudioDecodeMgr *gAudioDecodeMgrp;
 
 #endif

@@ -113,7 +113,7 @@ LLWorld::LLWorld() :
 }
 
 
-void LLWorld::destroyClass()
+void LLWorld::resetClass()
 {
 	mHoleWaterObjects.clear();
 	gObjectList.destroy();
@@ -763,14 +763,13 @@ void LLWorld::updateParticles()
 void LLWorld::renderPropertyLines()
 {
 	S32 region_count = 0;
-	S32 vertex_count = 0;
 
 	for (region_list_t::iterator iter = mVisibleRegionList.begin();
 		 iter != mVisibleRegionList.end(); ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
 		region_count++;
-		vertex_count += regionp->renderPropertyLines();
+		regionp->renderPropertyLines();
 	}
 }
 
@@ -778,7 +777,6 @@ void LLWorld::renderPropertyLines()
 void LLWorld::updateNetStats()
 {
 	F64Bits bits;
-	U32 packets = 0;
 
 	for (region_list_t::iterator iter = mActiveRegionList.begin();
 		 iter != mActiveRegionList.end(); ++iter)
@@ -786,7 +784,6 @@ void LLWorld::updateNetStats()
 		LLViewerRegion* regionp = *iter;
 		regionp->updateNetStats();
 		bits += regionp->mBitsReceived;
-		packets += llfloor( regionp->mPacketsReceived );
 		regionp->mBitsReceived = (F32Bits)0.f;
 		regionp->mPacketsReceived = 0.f;
 	}
@@ -884,6 +881,7 @@ void LLWorld::waterHeightRegionInfo(std::string const& sim_name, F32 water_heigh
 
 void LLWorld::precullWaterObjects(LLCamera& camera, LLCullResult* cull, bool include_void_water)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
 	if (!gAgent.getRegion())
 	{
 		return;
@@ -1077,6 +1075,7 @@ void LLWorld::updateWaterObjects()
 
 void LLWorld::shiftRegions(const LLVector3& offset)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
 	for (region_list_t::const_iterator i = getRegionList().begin(); i != getRegionList().end(); ++i)
 	{
 		LLViewerRegion* region = *i;
@@ -1147,11 +1146,9 @@ void LLWorld::disconnectRegions()
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_ENABLE_SIMULATOR("Enable Sim");
-
 void process_enable_simulator(LLMessageSystem *msg, void **user_data)
 {
-	LL_RECORD_BLOCK_TIME(FTM_ENABLE_SIMULATOR);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	// enable the appropriate circuit for this simulator and 
 	// add its values into the gSimulator structure
 	U64		handle;
@@ -1199,6 +1196,16 @@ public:
             return;
         }
 
+        if (gDisconnected)
+        {
+            return;
+        }
+
+        if (!LLWorld::instanceExists())
+        {
+            return;
+        }
+
 		if (!input["body"].has("agent-id") ||
 			!input["body"].has("sim-ip-and-port") ||
 			!input["body"].has("seed-capability"))
@@ -1207,8 +1214,13 @@ public:
             return;
 		}
 
-		LLHost sim(input["body"]["sim-ip-and-port"].asString());
-	
+        LLHost sim(input["body"]["sim-ip-and-port"].asString());
+        if (sim.isInvalid())
+        {
+            LL_WARNS() << "Got EstablishAgentCommunication with invalid host" << LL_ENDL;
+            return;
+        }
+
 		LLViewerRegion* regionp = LLWorld::getInstance()->getRegion(sim);
 		if (!regionp)
 		{
@@ -1217,17 +1229,16 @@ public:
 			return;
 		}
 		LL_DEBUGS("CrossingCaps") << "Calling setSeedCapability from LLEstablishAgentCommunication::post. Seed cap == "
-				<< input["body"]["seed-capability"] << LL_ENDL;
+				<< input["body"]["seed-capability"] << " for region " << regionp->getRegionID() << LL_ENDL;
 		regionp->setSeedCapability(input["body"]["seed-capability"]);
 	}
 };
 
-static LLTrace::BlockTimerStatHandle FTM_DISABLE_REGION("Disable Region");
 // disable the circuit to this simulator
 // Called in response to "DisableSimulator" message.
 void process_disable_simulator(LLMessageSystem *mesgsys, void **user_data)
 {
-    LL_RECORD_BLOCK_TIME(FTM_DISABLE_REGION);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 
     LLHost host = mesgsys->getSender();
 
@@ -1289,6 +1300,7 @@ void send_agent_pause()
 
 void send_agent_resume()
 {
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK
 	// Note: used to check for LLWorld initialization before it became a singleton.
 	// Rather than just remove this check I'm changing it to assure that the message 
 	// system has been initialized. -MG

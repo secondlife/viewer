@@ -35,6 +35,7 @@
 #include "llui.h"
 #include "lluictrlfactory.h"
 #include "lluiimage.h"
+#include "llwindow.h"
 
 static LLDefaultChildRegistry::Register<LLIconCtrl> r("icon");
 
@@ -42,6 +43,7 @@ LLIconCtrl::Params::Params()
 :	image("image_name"),
 	color("color"),
 	use_draw_context_alpha("use_draw_context_alpha", true),
+    interactable("interactable", false),
 	scale_image("scale_image"),
 	min_width("min_width", 0),
 	min_height("min_height", 0)
@@ -52,6 +54,7 @@ LLIconCtrl::LLIconCtrl(const LLIconCtrl::Params& p)
 	mColor(p.color()),
 	mImagep(p.image),
 	mUseDrawContextAlpha(p.use_draw_context_alpha),
+    mInteractable(p.interactable),
 	mPriority(0),
 	mMinWidth(p.min_width),
 	mMinHeight(p.min_height),
@@ -79,6 +82,16 @@ void LLIconCtrl::draw()
 	}
 
 	LLUICtrl::draw();
+}
+
+BOOL LLIconCtrl::handleHover(S32 x, S32 y, MASK mask)
+{
+    if (mInteractable && getEnabled())
+    {
+        getWindow()->setCursor(UI_CURSOR_HAND);
+        return TRUE;
+    }
+    return LLUICtrl::handleHover(x, y, mask);
 }
 
 // virtual

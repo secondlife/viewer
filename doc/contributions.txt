@@ -223,6 +223,7 @@ Ansariel Hiller
 	MAINT-8723
 	SL-10385
 	SL-10891
+	SL-10675
 	SL-13364
 	SL-13858
 	SL-13697
@@ -235,6 +236,7 @@ Ansariel Hiller
 	SL-15226
 	SL-15227
 	SL-15398
+	SL-18432
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
@@ -278,6 +280,7 @@ Beq Janus
 	SL-14766
 	SL-14927
 	SL-11300
+	SL-15709
 	SL-16021
 Beth Walcher
 Bezilon Kasei
@@ -399,6 +402,7 @@ Cinder Roxley
     STORM-2127
     STORM-2144
     SL-3404
+    SL-17634
 Clara Young
 Coaldust Numbers
     VWR-1095
@@ -819,6 +823,7 @@ Jonathan Yap
 Kadah Coba
 	STORM-1060
     STORM-1843
+    SL-10675
 Jondan Lundquist
 Joosten Briebers
     MAINT-7074
@@ -1107,16 +1112,19 @@ Nicky Dasmijn
 	STORM-1937
 	OPEN-187
 	SL-15234
-    STORM-2010
+	STORM-2010
 	STORM-2082
 	MAINT-6665
 	SL-10291
 	SL-10293
 	SL-11061
-    SL-11072
+	SL-11072
 	SL-13141
 	SL-13642
+	SL-14541
 	SL-16438
+	SL-17218
+	SL-17585
 Nicky Perian
 	OPEN-1
 	STORM-1087
@@ -1370,7 +1378,7 @@ Sovereign Engineer
     MAINT-7343
     SL-11079
     OPEN-343
-    SL-11625
+	SL-11625
     BUG-229030
 	SL-14705
 	SL-14706
@@ -1378,6 +1386,7 @@ Sovereign Engineer
 	SL-14731
 	SL-14732
 	SL-15096
+	SL-16127
 SpacedOut Frye
 	VWR-34
 	VWR-45

@@ -47,8 +47,7 @@
        label="Picks..."
        name="Picks">
         <menu_item_call.on_click
-         function="Floater.ToggleOrBringToFront"
-         parameter="picks" />
+         function="ShowAgentProfilePicks" />
       </menu_item_call>
       <menu_item_call
         label="Experiences..."
@@ -423,7 +422,9 @@
         </menu_item_call>       
         <menu_item_call
          label="Stop animations"
-         name="Stop Animating My Avatar">
+         name="Stop Animating My Avatar"
+         allow_key_repeat="true"
+         shortcut="alt|shift|A">
           <menu_item_call.on_click
            function="Tools.StopAllAnimations" />
         </menu_item_call>
@@ -471,7 +472,7 @@
        layout="topleft"
        name="Reset Skeleton And Animations">
         <menu_item_call.on_click
-         function="Avatar.ResetSkeletonAndAnimations" />
+         function="Avatar.ResetSelfSkeletonAndAnimations" />
       </menu_item_call>
       <menu_item_call
        label="Attachment scripts..."
@@ -2647,6 +2648,12 @@ function="World.EnvPreset"
                  function="Advanced.ForceErrorBadMemoryAccess" />
             </menu_item_call>
             <menu_item_call
+             label="Force Bad Memory Access in Coroutine"
+             name="Force Bad Memory Access in Coroutine">
+                <menu_item_call.on_click
+                 function="Advanced.ForceErrorBadMemoryAccessCoro" />
+            </menu_item_call>
+            <menu_item_call
              label="Force Infinite Loop"
              name="Force Infinite Loop">
                 <menu_item_call.on_click
@@ -3121,14 +3128,14 @@ function="World.EnvPreset"
           <menu_item_separator />
 
           <menu_item_check
-             label="Debug GL"
+             label="Start Debug GL on next run"
              name="Debug GL">
                 <menu_item_check.on_check
                  function="CheckControl"
-                 parameter="RenderDebugGL" />
+                 parameter="RenderDebugGLSession" />
                 <menu_item_check.on_click
                  function="ToggleControl"
-                 parameter="RenderDebugGL" />
+                 parameter="RenderDebugGLSession" />
             </menu_item_check>
             <menu_item_check
              label="Debug Pipeline"
@@ -3324,6 +3331,18 @@ function="World.EnvPreset"
              shortcut="control|alt|L">
                 <menu_item_call.on_click
                  function="Advanced.DropPacket" />
+            </menu_item_call>
+        </menu>
+        <menu
+         create_jump_keys="true"
+         label="Cache"
+         name="Cache"
+         tear_off="true">
+            <menu_item_call
+             label="Purge Disk Cache"
+             name="Purge Disk Cache">
+                <menu_item_call.on_click
+                 function="Advanced.PurgeDiskCache" />
             </menu_item_call>
         </menu>
         <menu_item_call

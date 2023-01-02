@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Круг интересов" name="panel_profile_interests">
+	<text name="I Want To:">
+		Я собираюсь:
+	</text>
+	<check_box label="Построить" name="chk0"/>
+	<check_box label="Просмотреть" name="chk1"/>
+	<check_box label="Встретить" name="chk2"/>
+	<check_box label="Получить работу" name="chk6"/>
+	<check_box label="Группа" name="chk3"/>
+	<check_box label="Купить" name="chk4"/>
+	<check_box label="Продать" name="chk5"/>
+	<check_box label="Нанять" name="chk7"/>
+	<line_editor name="want_to_edit">
+		(загрузка…)
+	</line_editor>
+	<text name="Skills:">
+		Навыки:
+	</text>
+	<check_box label="Текстуры" name="schk0"/>
+	<check_box label="Архитектура" name="schk1"/>
+	<check_box label="Моделирование" name="schk3"/>
+	<check_box label="Планирование мероприятия" name="schk2"/>
+	<check_box label="Создавать сценарии" name="schk4"/>
+	<check_box label="Пользовательские символы" name="schk5"/>
+	<line_editor name="skills_edit">
+		(загрузка…)
+	</line_editor>
+	<text name="Languages:">
+		Языки:
+	</text>
+	<line_editor name="languages_edit">
+		(загрузка…)
+	</line_editor>
+</panel>

@@ -63,8 +63,7 @@ BOOL check_write(LLAPRFile* apr_file, void* src, S32 n_bytes)
 //---------------------------------------------------------------------------
 
 LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &dp)
-:	LLTrace::MemTrackable<LLVOCacheEntry, 16>("LLVOCacheEntry"),
-	LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY),
+:	LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY),
 	mLocalID(local_id),
 	mCRC(crc),
 	mUpdateFlags(-1),
@@ -83,8 +82,7 @@ LLVOCacheEntry::LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &
 }
 
 LLVOCacheEntry::LLVOCacheEntry()
-:	LLTrace::MemTrackable<LLVOCacheEntry, 16>("LLVOCacheEntry"),
-	LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY),
+:	LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY),
 	mLocalID(0),
 	mCRC(0),
 	mUpdateFlags(-1),
@@ -102,8 +100,7 @@ LLVOCacheEntry::LLVOCacheEntry()
 }
 
 LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
-:	LLTrace::MemTrackable<LLVOCacheEntry, 16>("LLVOCacheEntry"),
-	LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY), 
+:	LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY), 
 	mBuffer(NULL),
 	mUpdateFlags(-1),
 	mState(INACTIVE),
@@ -369,15 +366,6 @@ void LLVOCacheEntry::updateDebugSettings()
 	}
 	timer.reset();
 
-	//the number of frames invisible objects stay in memory
-	static LLCachedControl<U32> inv_obj_time(gSavedSettings,"NonvisibleObjectsInMemoryTime");
-	sMinFrameRange = inv_obj_time - 1; //make 0 to be the maximum 
-
-	//min radius: all objects within this radius remain loaded in memory
-	static LLCachedControl<F32> min_radius(gSavedSettings,"SceneLoadMinRadius");
-	sNearRadius = llmin((F32)min_radius, gAgentCamera.mDrawDistance); //can not exceed the draw distance
-	sNearRadius = llmax(sNearRadius, 1.f); //minimum value is 1.0m
-
 	//objects within the view frustum whose visible area is greater than this threshold will be loaded
 	static LLCachedControl<F32> front_pixel_threshold(gSavedSettings,"SceneLoadFrontPixelThreshold");
 	sFrontPixelThreshold = front_pixel_threshold;
@@ -387,29 +375,38 @@ void LLVOCacheEntry::updateDebugSettings()
 	sRearPixelThreshold = rear_pixel_threshold;
 	sRearPixelThreshold = llmax(sRearPixelThreshold, sFrontPixelThreshold); //can not be smaller than sFrontPixelThreshold.
 
-	// a percentage of draw distance beyond which all objects outside of view frustum will be unloaded, regardless of pixel threshold
-	static LLCachedControl<F32> rear_max_radius_frac(gSavedSettings,"SceneLoadRearMaxRadiusFraction");
-	sRearFarRadius = llmax(rear_max_radius_frac * gAgentCamera.mDrawDistance / 100.f, 1.0f); //minimum value is 1.0m
-	sRearFarRadius = llmax(sRearFarRadius, (F32)min_radius); //can not be less than "SceneLoadMinRadius".
-	sRearFarRadius = llmin(sRearFarRadius, gAgentCamera.mDrawDistance); //can not be more than the draw distance.
-
-	//make the above parameters adaptive to memory usage
+	//make parameters adaptive to memory usage
 	//starts to put restrictions from low_mem_bound_MB, apply tightest restrictions when hits high_mem_bound_MB
 	static LLCachedControl<U32> low_mem_bound_MB(gSavedSettings,"SceneLoadLowMemoryBound");
 	static LLCachedControl<U32> high_mem_bound_MB(gSavedSettings,"SceneLoadHighMemoryBound");
 	
 	LLMemory::updateMemoryInfo() ;
 	U32 allocated_mem = LLMemory::getAllocatedMemKB().value();
-	allocated_mem /= 1024; //convert to MB.
-	if(allocated_mem < low_mem_bound_MB)
-	{
-		return; 
-	}
-	F32 adjust_factor = llmax(0.f, (F32)(high_mem_bound_MB - allocated_mem) / (high_mem_bound_MB - low_mem_bound_MB));
+    static const F32 KB_to_MB = 1.f / 1024.f;
+	U32 clamped_memory = llclamp(allocated_mem * KB_to_MB, (F32) low_mem_bound_MB, (F32) high_mem_bound_MB);
+    const F32 adjust_range = high_mem_bound_MB - low_mem_bound_MB;
+    const F32 adjust_factor = (high_mem_bound_MB - clamped_memory) / adjust_range; // [0, 1]
 
-	sRearFarRadius = llmin(adjust_factor * sRearFarRadius, 96.f);  //[0.f, 96.f]
-	sMinFrameRange = (U32)llclamp(adjust_factor * sMinFrameRange, 10.f, 64.f);  //[10, 64]
-	sNearRadius    = llmax(adjust_factor * sNearRadius, 1.0f);
+    //min radius: all objects within this radius remain loaded in memory
+    static LLCachedControl<F32> min_radius(gSavedSettings,"SceneLoadMinRadius");
+    static const F32 MIN_RADIUS = 1.0f;
+    const F32 draw_radius = gAgentCamera.mDrawDistance;
+    const F32 clamped_min_radius = llclamp((F32) min_radius, MIN_RADIUS, draw_radius); // [1, mDrawDistance]
+    sNearRadius = MIN_RADIUS + ((clamped_min_radius - MIN_RADIUS) * adjust_factor);
+
+    // a percentage of draw distance beyond which all objects outside of view frustum will be unloaded, regardless of pixel threshold
+    static LLCachedControl<F32> rear_max_radius_frac(gSavedSettings,"SceneLoadRearMaxRadiusFraction");
+    const F32 min_radius_plus_one = sNearRadius + 1.f;
+    const F32 max_radius = rear_max_radius_frac * gAgentCamera.mDrawDistance;
+    const F32 clamped_max_radius = llclamp(max_radius, min_radius_plus_one, draw_radius); // [sNearRadius, mDrawDistance]
+    sRearFarRadius = min_radius_plus_one + ((clamped_max_radius - min_radius_plus_one) * adjust_factor);
+
+    //the number of frames invisible objects stay in memory
+    static LLCachedControl<U32> inv_obj_time(gSavedSettings,"NonvisibleObjectsInMemoryTime");
+    static const U32 MIN_FRAMES = 10;
+    static const U32 MAX_FRAMES = 64;
+    const U32 clamped_frames = inv_obj_time ? llclamp((U32) inv_obj_time, MIN_FRAMES, MAX_FRAMES) : MAX_FRAMES; // [10, 64], with zero => 64
+    sMinFrameRange = MIN_FRAMES + ((clamped_frames - MIN_FRAMES) * adjust_factor);
 }
 
 //static 
@@ -619,7 +616,6 @@ void LLVOCacheGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* c
 }
 
 LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
-:	LLTrace::MemTrackable<LLVOCachePartition>("LLVOCachePartition")
 {
 	mLODPeriod = 16;
 	mRegionp = regionp;
@@ -634,6 +630,13 @@ LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
 	mCullHistory = -1;
 
 	new LLVOCacheGroup(mOctree, this);
+}
+
+LLVOCachePartition::~LLVOCachePartition()
+{
+    // SL-17276 make sure to do base class cleanup while this instance
+    // can still be treated as an LLVOCachePartition 
+    cleanup();
 }
 
 bool LLVOCachePartition::addEntry(LLViewerOctreeEntry* entry)

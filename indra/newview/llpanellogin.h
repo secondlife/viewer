@@ -107,6 +107,7 @@ private:
 	static void onUserNameTextEnty(void*);
 	static void onUserListCommit(void*);
 	static void onRememberUserCheck(void*);
+    static void onRememberPasswordCheck(void*);
 	static void onPassKey(LLLineEditor* caller, void* user_data);
 	static void updateServerCombo();
 

@@ -47,11 +47,9 @@ LLPersistentNotificationStorage::~LLPersistentNotificationStorage()
 {
 }
 
-static LLTrace::BlockTimerStatHandle FTM_SAVE_NOTIFICATIONS("Save Notifications");
-
 void LLPersistentNotificationStorage::saveNotifications()
 {
-	LL_RECORD_BLOCK_TIME(FTM_SAVE_NOTIFICATIONS);
+    LL_PROFILE_ZONE_SCOPED;
 
 	boost::intrusive_ptr<LLPersistentNotificationChannel> history_channel = boost::dynamic_pointer_cast<LLPersistentNotificationChannel>(LLNotifications::instance().getChannel("Persistent"));
 	if (!history_channel)
@@ -90,11 +88,9 @@ void LLPersistentNotificationStorage::saveNotifications()
 	writeNotifications(output);
 }
 
-static LLTrace::BlockTimerStatHandle FTM_LOAD_NOTIFICATIONS("Load Notifications");
-
 void LLPersistentNotificationStorage::loadNotifications()
 {
-	LL_RECORD_BLOCK_TIME(FTM_LOAD_NOTIFICATIONS);
+    LL_PROFILE_ZONE_SCOPED;
 
 	LL_INFOS("LLPersistentNotificationStorage") << "start loading notifications" << LL_ENDL;
 
@@ -167,12 +163,16 @@ void LLPersistentNotificationStorage::loadNotifications()
 	LL_INFOS("LLPersistentNotificationStorage") << "finished loading notifications" << LL_ENDL;
 }
 
+void LLPersistentNotificationStorage::reset()
+{
+    std::string file_name = "open_notifications_" + LLGridManager::getInstance()->getGrid() + ".xml";
+    setFileName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, file_name));
+    setOldFileName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "open_notifications.xml"));
+}
+
 void LLPersistentNotificationStorage::initialize()
 {
-	std::string file_name = "open_notifications_" + LLGridManager::getInstance()->getGrid() + ".xml";
-	setFileName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, file_name));
-	setOldFileName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "open_notifications.xml"));
-
+    reset();
 	LLNotifications::instance().getChannel("Persistent")->
 		connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
 }

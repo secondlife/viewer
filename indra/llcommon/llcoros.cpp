@@ -35,6 +35,7 @@
 // STL headers
 // std headers
 #include <atomic>
+#include <stdexcept>
 // external library headers
 #include <boost/bind.hpp>
 #include <boost/fiber/fiber.hpp>
@@ -214,6 +215,22 @@ std::string LLCoros::logname()
     return data.mName.empty()? data.getKey() : data.mName;
 }
 
+void LLCoros::saveException(const std::string& name, std::exception_ptr exc)
+{
+    mExceptionQueue.emplace(name, exc);
+}
+
+void LLCoros::rethrow()
+{
+    if (! mExceptionQueue.empty())
+    {
+        ExceptionData front = mExceptionQueue.front();
+        mExceptionQueue.pop();
+        LL_WARNS("LLCoros") << "Rethrowing exception from coroutine " << front.name << LL_ENDL;
+        std::rethrow_exception(front.exception);
+    }
+}
+
 void LLCoros::setStackSize(S32 stacksize)
 {
     LL_DEBUGS("LLCoros") << "Setting coroutine stack size to " << stacksize << LL_ENDL;
@@ -249,14 +266,25 @@ std::string LLCoros::launch(const std::string& prefix, const callable_t& callabl
     // protected_fixedsize_stack sets a guard page past the end of the new
     // stack so that stack underflow will result in an access violation
     // instead of weird, subtle, possibly undiagnosed memory stomps.
-    boost::fibers::fiber newCoro(boost::fibers::launch::dispatch,
-                                 std::allocator_arg,
-                                 boost::fibers::protected_fixedsize_stack(mStackSize),
-                                 [this, &name, &callable](){ toplevel(name, callable); });
-    // You have two choices with a fiber instance: you can join() it or you
-    // can detach() it. If you try to destroy the instance before doing
-    // either, the program silently terminates. We don't need this handle.
-    newCoro.detach();
+
+    try
+    {
+        boost::fibers::fiber newCoro(boost::fibers::launch::dispatch,
+            std::allocator_arg,
+            boost::fibers::protected_fixedsize_stack(mStackSize),
+            [this, &name, &callable]() { toplevel(name, callable); });
+
+        // You have two choices with a fiber instance: you can join() it or you
+        // can detach() it. If you try to destroy the instance before doing
+        // either, the program silently terminates. We don't need this handle.
+        newCoro.detach();
+    }
+    catch (std::bad_alloc&)
+    {
+        // Out of memory on stack allocation?
+        LL_ERRS("LLCoros") << "Bad memory allocation in LLCoros::launch(" << prefix << ")!" << LL_ENDL;
+    }
+
     return name;
 }
 
@@ -291,11 +319,11 @@ U32 cpp_exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop, 
     }
 }
 
-void LLCoros::winlevel(const std::string& name, const callable_t& callable)
+void LLCoros::sehHandle(const std::string& name, const LLCoros::callable_t& callable)
 {
     __try
     {
-        toplevelTryWrapper(name, callable);
+        LLCoros::toplevelTryWrapper(name, callable);
     }
     __except (cpp_exception_filter(GetExceptionCode(), GetExceptionInformation(), name))
     {
@@ -310,7 +338,6 @@ void LLCoros::winlevel(const std::string& name, const callable_t& callable)
         throw std::exception(integer_string);
     }
 }
-
 #endif
 
 void LLCoros::toplevelTryWrapper(const std::string& name, const callable_t& callable)
@@ -339,11 +366,19 @@ void LLCoros::toplevelTryWrapper(const std::string& name, const callable_t& call
     }
     catch (...)
     {
+#if LL_WINDOWS
         // Any OTHER kind of uncaught exception will cause the viewer to
-        // crash, hopefully informatively.
+        // crash, SEH handling should catch it and report to bugsplat.
         LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << name));
         // to not modify callstack
         throw;
+#else
+        // Stash any OTHER kind of uncaught exception in the rethrow() queue
+        // to be rethrown by the main fiber.
+        LL_WARNS("LLCoros") << "Capturing uncaught exception in coroutine "
+                            << name << LL_ENDL;
+        LLCoros::instance().saveException(name, std::current_exception());
+#endif
     }
 }
 
@@ -353,8 +388,9 @@ void LLCoros::toplevelTryWrapper(const std::string& name, const callable_t& call
 void LLCoros::toplevel(std::string name, callable_t callable)
 {
 #if LL_WINDOWS
-    // Can not use __try in functions that require unwinding, so use one more wrapper
-    winlevel(name, callable);
+    // Because SEH can's have unwinding, need to call a wrapper
+    // 'try' is inside SEH handling to not catch LLContinue
+    sehHandle(name, callable);
 #else
     toplevelTryWrapper(name, callable);
 #endif

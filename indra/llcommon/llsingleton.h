@@ -455,6 +455,7 @@ public:
 
     static DERIVED_TYPE* getInstance()
     {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
         // We know the viewer has LLSingleton dependency circularities. If you
         // feel strongly motivated to eliminate them, cheers and good luck.
         // (At that point we could consider a much simpler locking mechanism.)
@@ -837,5 +838,37 @@ private:                                                                \
 #define LLSINGLETON_EMPTY_CTOR_C11(DERIVED_CLASS)                       \
     /* LLSINGLETON() is carefully implemented to permit exactly this */ \
     LLSINGLETON_C11(DERIVED_CLASS) {}
+
+// Relatively unsafe singleton implementation that is much faster
+// and simpler than LLSingleton, but has no dependency tracking
+// or inherent thread safety and requires manual invocation of 
+// createInstance before first use.
+template<class T>
+class LLSimpleton
+{
+public:
+    template <typename... ARGS>
+    static void createInstance(ARGS&&... args)
+    {
+        llassert(sInstance == nullptr);
+        sInstance = new T(std::forward<ARGS>(args)...);
+    }
+
+    static inline T* getInstance() { return sInstance; }
+    static inline T& instance() { return *getInstance(); }
+    static inline bool instanceExists() { return sInstance != nullptr; }
+
+    static void deleteSingleton()
+    {
+        delete sInstance;
+        sInstance = nullptr;
+    }
+
+private:
+    static T* sInstance;
+};
+
+template <class T>
+T* LLSimpleton<T>::sInstance{ nullptr };
 
 #endif

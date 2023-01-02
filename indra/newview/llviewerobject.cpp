@@ -107,6 +107,7 @@
 #include "llcleanup.h"
 #include "llcallstack.h"
 #include "llmeshrepository.h"
+#include "llgl.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -145,21 +146,35 @@ const S32 MAX_OBJECT_BINARY_DATA_SIZE = 60 + 16;
 const F64 INVENTORY_UPDATE_WAIT_TIME_DESYNC = 5; // seconds
 const F64 INVENTORY_UPDATE_WAIT_TIME_OUTDATED = 1;
 
-static LLTrace::BlockTimerStatHandle FTM_CREATE_OBJECT("Create Object");
-
 // static
 LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, S32 flags)
 {
+    LL_PROFILE_ZONE_SCOPED;
     LL_DEBUGS("ObjectUpdate") << "creating " << id << LL_ENDL;
     dumpStack("ObjectUpdateStack");
     
 	LLViewerObject *res = NULL;
-	LL_RECORD_BLOCK_TIME(FTM_CREATE_OBJECT);
-	
+
+	if (gNonInteractive
+		&& pcode != LL_PCODE_LEGACY_AVATAR
+		&& pcode != LL_VO_SURFACE_PATCH
+		&& pcode != LL_VO_WATER
+		&& pcode != LL_VO_VOID_WATER
+		&& pcode != LL_VO_WL_SKY
+		&& pcode != LL_VO_SKY
+		&& pcode != LL_VO_GROUND
+		&& pcode != LL_VO_PART_GROUP
+		)
+	{
+		return res;
+	}
 	switch (pcode)
 	{
 	case LL_PCODE_VOLUME:
-	  res = new LLVOVolume(id, pcode, regionp); break;
+	{
+		res = new LLVOVolume(id, pcode, regionp); break;
+		break;
+	}
 	case LL_PCODE_LEGACY_AVATAR:
 	{
 		if (id == gAgentID)
@@ -235,8 +250,7 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 }
 
 LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, BOOL is_global)
-:	LLTrace::MemTrackable<LLViewerObject>("LLViewerObject"),
-	LLPrimitive(),
+:	LLPrimitive(),
 	mChildList(),
 	mID(id),
 	mLocalID(0),
@@ -341,6 +355,13 @@ LLViewerObject::~LLViewerObject()
 		mPartSourcep->setDead();
 		mPartSourcep = NULL;
 	}
+
+    if (mText)
+    {
+        // something recovered LLHUDText when object was already dead
+        mText->markDead();
+        mText = NULL;
+    }
 
 	// Delete memory associated with extra parameters.
 	std::map<U16, ExtraParameter*>::iterator iter;
@@ -1264,6 +1285,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_ObjectData, data, length, block_num, MAX_OBJECT_BINARY_DATA_SIZE);
 
 				mTotalCRC = crc;
+                // Might need to update mSourceMuted here to properly pick up new radius
 				mSoundCutOffRadius = cutoff;
 
 				// Owner ID used for sound muting or particle system muting
@@ -2442,11 +2464,19 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		needs_refresh = needs_refresh || child->mUserSelected;
 	}
 
+    static LLCachedControl<bool> allow_select_avatar(gSavedSettings, "AllowSelectAvatar", FALSE);
 	if (needs_refresh)
 	{
 		LLSelectMgr::getInstance()->updateSelectionCenter();
 		dialog_refresh_all();
-	} 
+	}
+    else if (allow_select_avatar && asAvatar())
+    {
+        // Override any avatar position updates received
+        // Works only if avatar was repositioned using build
+        // tools and build floater is visible
+        LLSelectMgr::getInstance()->overrideAvatarUpdates();
+    }
 
 
 	// Mark update time as approx. now, with the ping delay.
@@ -2501,9 +2531,6 @@ void LLViewerObject::loadFlags(U32 flags)
 
 void LLViewerObject::idleUpdate(LLAgent &agent, const F64 &frame_time)
 {
-	//static LLTrace::BlockTimerStatHandle ftm("Viewer Object");
-	//LL_RECORD_BLOCK_TIME(ftm);
-
 	if (!mDead)
 	{
 		if (!mStatic && sVelocityInterpolate && !isSelected())
@@ -5873,7 +5900,7 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 		else if (flags & LL_SOUND_FLAG_STOP)
         {
 			// Just shut off the sound
-			mAudioSourcep->play(LLUUID::null);
+			mAudioSourcep->stop();
 		}
 		return;
 	}
@@ -5912,7 +5939,7 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 		mAudioSourcep->setQueueSounds(queue);
 		if(!queue) // stop any current sound first to avoid "farts of doom" (SL-1541) -MG
 		{
-			mAudioSourcep->play(LLUUID::null);
+			mAudioSourcep->stop();
 		}
 		
 		// Play this sound if region maturity permits

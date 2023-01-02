@@ -137,6 +137,7 @@ void LLFloaterFixedEnvironment::onClose(bool app_quitting)
     doCloseInventoryFloater(app_quitting);
 
     LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+    LLEnvironment::instance().setCurrentEnvironmentSelection(LLEnvironment::ENV_LOCAL);
     LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_EDIT);
 
     mSettings.reset();
@@ -295,6 +296,7 @@ void LLFloaterFixedEnvironment::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
     if (ctrl_action == ACTION_SAVE)
     {
         doApplyUpdateInventory(setting_clone);
+        clearDirtyFlag();
     }
     else if (ctrl_action == ACTION_SAVEAS)
     {

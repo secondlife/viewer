@@ -504,20 +504,6 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
 		is.close();
 	}
 
-	//get time domain
-	LLSD::Real cur_total_time = 0.0;
-
-	for (U32 i = 0; i < cur_data.size(); ++i)
-	{
-		cur_total_time += cur_data[i]["Total"]["Time"].asReal();
-	}
-
-	LLSD::Real base_total_time = 0.0;
-	for (U32 i = 0; i < base_data.size(); ++i)
-	{
-		base_total_time += base_data[i]["Total"]["Time"].asReal();
-	}
-
 	//allocate raw scratch space
 	LLPointer<LLImageRaw> scratch = new LLImageRaw(1024, 512, 3);
 
@@ -715,7 +701,6 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
 		// execution
 		//======================================
 		buffer.clear();
-
 
 		gGL.color3fv(base_col.mV);
 		U32 count = 0;
@@ -1019,11 +1004,9 @@ void LLFastTimerView::printLineStats()
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_DRAW_LINE_GRAPH("Draw line graph");
-
 void LLFastTimerView::drawLineGraph()
 {
-	LL_RECORD_BLOCK_TIME(FTM_DRAW_LINE_GRAPH);
+    LL_PROFILE_ZONE_SCOPED;
 	//draw line graph history
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLLocalClipRect clip(mGraphRect);
@@ -1062,6 +1045,7 @@ void LLFastTimerView::drawLineGraph()
 
 	F32Seconds cur_max(0);
 	U32 cur_max_calls = 0;
+
 	for(block_timer_tree_df_iterator_t it = LLTrace::begin_block_timer_tree_df(FTM_FRAME);
 		it != LLTrace::end_block_timer_tree_df();
 		++it)
@@ -1096,6 +1080,7 @@ void LLFastTimerView::drawLineGraph()
 		F32 call_scale_factor = (F32)mGraphRect.getHeight() / (F32)max_calls;
 		F32 time_scale_factor = (F32)mGraphRect.getHeight() / max_time.value();
 		F32 hz_scale_factor = (F32) mGraphRect.getHeight() / (1.f / max_time.value());
+        
 		for (U32 j = mRecording.getNumRecordedPeriods();
 			j > 0;
 			j--)
@@ -1103,7 +1088,7 @@ void LLFastTimerView::drawLineGraph()
 			LLTrace::Recording& recording = mRecording.getPrevRecording(j);
 			F32Seconds time = llmax(recording.getSum(*idp), F64Seconds(0.000001));
 			U32 calls = recording.getSum(idp->callCount());
-
+            
 			if (is_hover_timer)
 			{ 
 				//normalize to highlighted timer
@@ -1450,6 +1435,7 @@ void LLFastTimerView::updateTotalTime()
 
 void LLFastTimerView::drawBars()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LLLocalClipRect clip(mBarRect);
 
 	S32 bar_height = mBarRect.getHeight() / (MAX_VISIBLE_HISTORY + 2);
@@ -1527,11 +1513,9 @@ void LLFastTimerView::drawBars()
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 }
 
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_TIMER_BAR_WIDTHS("Update timer bar widths");
-
 F32Seconds LLFastTimerView::updateTimerBarWidths(LLTrace::BlockTimerStatHandle* time_block, TimerBarRow& row, S32 history_index, U32& bar_index)
 {
-	LL_RECORD_BLOCK_TIME(FTM_UPDATE_TIMER_BAR_WIDTHS);
+    LL_PROFILE_ZONE_SCOPED;
 	const F32Seconds self_time = history_index == -1
 										? mRecording.getPeriodMean(time_block->selfTime(), RUNNING_AVERAGE_WIDTH) 
 										: mRecording.getPrevRecording(history_index).getSum(time_block->selfTime());
@@ -1555,11 +1539,9 @@ F32Seconds LLFastTimerView::updateTimerBarWidths(LLTrace::BlockTimerStatHandle* 
 	return full_time;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_TIMER_BAR_FRACTIONS("Update timer bar fractions");
-
 S32 LLFastTimerView::updateTimerBarOffsets(LLTrace::BlockTimerStatHandle* time_block, TimerBarRow& row, S32 timer_bar_index)
 {
-	LL_RECORD_BLOCK_TIME(FTM_UPDATE_TIMER_BAR_FRACTIONS);
+    LL_PROFILE_ZONE_SCOPED;
 
 	TimerBar& timer_bar = row.mBars[timer_bar_index];
 	const F32Seconds bar_time = timer_bar.mTotalTime - timer_bar.mSelfTime;
@@ -1620,6 +1602,7 @@ S32 LLFastTimerView::updateTimerBarOffsets(LLTrace::BlockTimerStatHandle* time_b
 
 S32 LLFastTimerView::drawBar(LLRect bar_rect, TimerBarRow& row, S32 image_width, S32 image_height, bool hovered, bool visible, S32 bar_index)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	TimerBar& timer_bar = row.mBars[bar_index];
 	LLTrace::BlockTimerStatHandle* time_block = timer_bar.mTimeBlock;
 

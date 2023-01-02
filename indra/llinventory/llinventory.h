@@ -44,7 +44,7 @@ class LLMessageSystem;
 //   Base class for anything in the user's inventory.   Handles the common code 
 //   between items and categories. 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLInventoryObject : public LLRefCount, public LLTrace::MemTrackable<LLInventoryObject>
+class LLInventoryObject : public LLRefCount
 {
 public:
 	typedef std::list<LLPointer<LLInventoryObject> > object_list_t;

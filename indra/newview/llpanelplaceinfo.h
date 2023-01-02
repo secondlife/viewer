@@ -38,7 +38,6 @@ class LLAvatarName;
 class LLExpandableTextBox;
 class LLIconCtrl;
 class LLInventoryItem;
-class LLPanelPickEdit;
 class LLParcel;
 class LLScrollContainer;
 class LLTextBox;
@@ -94,7 +93,7 @@ public:
 
 	// Create a pick for the location specified
 	// by global_pos.
-	void createPick(const LLVector3d& pos_global, LLPanelPickEdit* pick_panel);
+	void createPick(const LLVector3d& pos_global);
 
 protected:
 	static void onNameCache(LLTextBox* text, const std::string& full_name);

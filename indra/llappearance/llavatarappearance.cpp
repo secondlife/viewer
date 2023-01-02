@@ -927,6 +927,9 @@ BOOL LLAvatarAppearance::loadAvatar()
 		return FALSE;
 	}
 
+	// initialize mJointAliasMap
+	getJointAliases();
+
 	// avatar_lad.xml : <skeleton>
 	if( !loadSkeletonNode() )
 	{
@@ -1047,7 +1050,6 @@ BOOL LLAvatarAppearance::loadAvatar()
 			return FALSE;
 		}
 	}
-
 	
 	return TRUE;
 }
@@ -1590,7 +1592,7 @@ BOOL LLAvatarAppearance::allocateCollisionVolumes( U32 num )
         delete_and_clear_array(mCollisionVolumes);
         mNumCollisionVolumes = 0;
 
-        mCollisionVolumes = new(std::nothrow) LLAvatarJointCollisionVolume[num];
+        mCollisionVolumes = new LLAvatarJointCollisionVolume[num];
         if (!mCollisionVolumes)
         {
             LL_WARNS() << "Failed to allocate collision volumes" << LL_ENDL;

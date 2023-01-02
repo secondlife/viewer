@@ -259,6 +259,7 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mMinHeight(p.min_height),
 	mHeaderHeight(p.header_height),
 	mLegacyHeaderHeight(p.legacy_header_height),
+	mDefaultRectForGroup(true),
 	mMinimized(FALSE),
 	mForeground(FALSE),
 	mFirstLook(TRUE),
@@ -761,17 +762,13 @@ void LLFloater::closeFloater(bool app_quitting)
 		for(handle_set_iter_t dependent_it = mDependents.begin();
 			dependent_it != mDependents.end(); )
 		{
-			
 			LLFloater* floaterp = dependent_it->get();
-			if (floaterp)
-			{
-				++dependent_it;
-				floaterp->closeFloater(app_quitting);
-			}
-			else
-			{
-				mDependents.erase(dependent_it++);
-			}
+            dependent_it = mDependents.erase(dependent_it);
+            if (floaterp)
+            {
+                floaterp->mDependeeHandle = LLHandle<LLFloater>();
+                floaterp->closeFloater(app_quitting);
+            }
 		}
 		
 		cleanupHandles();
@@ -906,7 +903,10 @@ bool LLFloater::applyRectControl()
 	if (last_in_group && last_in_group != this)
 	{
 		// other floaters in our group, position ourselves relative to them and don't save the rect
-		mRectControl.clear();
+		if (mDefaultRectForGroup)
+		{
+			mRectControl.clear();
+		}
 		mPositioning = LLFloaterEnums::POSITIONING_CASCADE_GROUP;
 	}
 	else
@@ -1439,7 +1439,7 @@ void LLFloater::cleanupHandles()
 		LLFloater* floaterp = dependent_it->get();
 		if (!floaterp)
 		{
-			mDependents.erase(dependent_it++);
+            dependent_it = mDependents.erase(dependent_it);
 		}
 		else
 		{
@@ -3268,11 +3268,9 @@ boost::signals2::connection LLFloater::setCloseCallback( const commit_signal_t::
 	return mCloseSignal.connect(cb);
 }
 
-LLTrace::BlockTimerStatHandle POST_BUILD("Floater Post Build");
-static LLTrace::BlockTimerStatHandle FTM_EXTERNAL_FLOATER_LOAD("Load Extern Floater Reference");
-
 bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	Params default_params(LLUICtrlFactory::getDefaultParams<LLFloater>());
 	Params params(default_params);
 
@@ -3299,7 +3297,6 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 
 		LLUICtrlFactory::instance().pushFileName(xml_filename);
 
-		LL_RECORD_BLOCK_TIME(FTM_EXTERNAL_FLOATER_LOAD);
 		if (!LLUICtrlFactory::getLayeredXMLNode(xml_filename, referenced_xml))
 		{
 			LL_WARNS() << "Couldn't parse panel from: " << xml_filename << LL_ENDL;
@@ -3375,12 +3372,8 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 	}
 
 	BOOL result;
-	{
-		LL_RECORD_BLOCK_TIME(POST_BUILD);
-
-		result = postBuild();
-	}
-
+	result = postBuild();
+	
 	if (!result)
 	{
 		LL_ERRS() << "Failed to construct floater " << getName() << LL_ENDL;
@@ -3424,11 +3417,9 @@ bool LLFloater::isVisible(const LLFloater* floater)
     return floater && floater->getVisible();
 }
 
-static LLTrace::BlockTimerStatHandle FTM_BUILD_FLOATERS("Build Floaters");
-
 bool LLFloater::buildFromFile(const std::string& filename)
 {
-	LL_RECORD_BLOCK_TIME(FTM_BUILD_FLOATERS);
+    LL_PROFILE_ZONE_SCOPED;
 	LLXMLNodePtr root;
 
 	if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
@@ -3490,8 +3481,15 @@ void LLFloater::stackWith(LLFloater& other)
 	}
 	next_rect.translate(floater_offset, -floater_offset);
 
-	next_rect.setLeftTopAndSize(next_rect.mLeft, next_rect.mTop, getRect().getWidth(), getRect().getHeight());
-	
+	const LLRect& rect = getControlGroup()->getRect(mRectControl);
+	if (rect.notEmpty() && !mDefaultRectForGroup && mResizable)
+	{
+		next_rect.setLeftTopAndSize(next_rect.mLeft, next_rect.mTop, llmax(mMinWidth, rect.getWidth()), llmax(mMinHeight, rect.getHeight()));
+	}
+	else
+	{
+		next_rect.setLeftTopAndSize(next_rect.mLeft, next_rect.mTop, getRect().getWidth(), getRect().getHeight());
+	}
 	setShape(next_rect);
 
 	if (!other.getHost())

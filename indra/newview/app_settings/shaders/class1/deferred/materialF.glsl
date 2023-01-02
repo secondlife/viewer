@@ -91,6 +91,14 @@ float getAmbientClamp();
 
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, inout float glare, float ambiance)
 {
+    // SL-14895 inverted attenuation work-around
+    // This routine is tweaked to match deferred lighting, but previously used an inverted la value. To reconstruct
+    // that previous value now that the inversion is corrected, we reverse the calculations in LLPipeline::setupHWLights()
+    // to recover the `adjusted_radius` value previously being sent as la.
+    float falloff_factor = (12.0 * fa) - 9.0;
+    float inverted_la = falloff_factor / la;
+    // Yes, it makes me want to cry as well. DJH
+    
     vec3 col = vec3(0);
 
     //get light vector
@@ -100,9 +108,9 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
     float dist = length(lv);
     float da = 1.0;
 
-    dist /= la;
+    dist /= inverted_la;
 
-    if (dist > 0.0 && la > 0.0)
+    if (dist > 0.0 && inverted_la > 0.0)
     {
         //normalize light vector
         lv = normalize(lv);
@@ -194,7 +202,7 @@ VARYING vec2 vary_texcoord2;
 uniform float env_intensity;
 uniform vec4 specular_color;  // specular color RGB and specular exponent (glossiness) in alpha
 
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK)
+#ifdef HAS_ALPHA_MASK
 uniform float minimum_alpha;
 #endif
 
@@ -219,11 +227,12 @@ void main()
     vec4 diffcol = texture2D(diffuseMap, vary_texcoord0.xy);
 	diffcol.rgb *= vertex_color.rgb;
 
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK)
-
-    // Comparing floats cast from 8-bit values, produces acne right at the 8-bit transition points
-    float bias = 0.001953125; // 1/512, or half an 8-bit quantization
-    if (diffcol.a < minimum_alpha-bias)
+#ifdef HAS_ALPHA_MASK
+#if DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND
+    if (diffcol.a*vertex_color.a < minimum_alpha)
+#else
+    if (diffcol.a < minimum_alpha)
+#endif
     {
         discard;
     }

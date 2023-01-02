@@ -45,15 +45,26 @@ VARYING vec3 vary_position;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
+#ifdef HAS_SKIN
+mat4 getObjectSkinnedTransform();
+uniform mat4 projection_matrix;
+#endif
 
 void main()
 {
 	//transform vertex
 	vec4 vert = vec4(position.xyz, 1.0);
-	vec4 pos = (modelview_matrix * vert);
 	passTextureIndex();
 
+#ifdef HAS_SKIN
+    mat4 mat = getObjectSkinnedTransform();
+    mat = modelview_matrix * mat;
+    vec4 pos = mat * vert;
+    gl_Position = projection_matrix * pos;
+#else
+	vec4 pos = (modelview_matrix * vert);
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
+#endif
 
 #ifdef WATER_FOG
 	vary_position = pos.xyz;

@@ -9,7 +9,7 @@ include(LLMath)
 include(LLFileSystem)
 include(LLKDU)
 include(LLImageJ2COJ)
-include(ZLIB)
+include(ZLIBNG)
 include(LLAddBuildTest)
 include(bugsplat)
 include(Tut)
@@ -20,7 +20,7 @@ include_directories(
     ${LLMATH_INCLUDE_DIRS}
     ${LLFILESYSTEM_INCLUDE_DIRS}
     ${PNG_INCLUDE_DIRS}
-    ${ZLIB_INCLUDE_DIRS}
+    ${ZLIBNG_INCLUDE_DIRS}
     )
 
 set(llimage_SOURCE_FILES
@@ -74,7 +74,7 @@ target_link_libraries(llimage
     ${LLCOMMON_LIBRARIES}
     ${JPEG_LIBRARIES}
     ${PNG_LIBRARIES}
-    ${ZLIB_LIBRARIES}
+    ${ZLIBNG_LIBRARIES}
     )
 
 # Add tests
