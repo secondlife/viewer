@@ -35,7 +35,7 @@ VARYING vec2 vary_texcoord1;
 void main()
 {
 	gl_Position = vec4(position.xyz, 1.0);
-	vary_texcoord0 = texcoord0;
-	vary_texcoord1 = texcoord1;
+	vary_texcoord0 = position.xy * 0.5 + 0.5;
+	vary_texcoord1 = vary_texcoord0;
 }
 

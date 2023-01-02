@@ -1348,9 +1348,12 @@ void render_ui(F32 zoom_factor, int subfield)
 	}
 
 	{
+		// Render our post process prior to the HUD, UI, etc.
+		gPipeline.renderPostProcess();
+
         // draw hud and 3D ui elements into screen render target so they'll be able to use 
         // the depth buffer (avoids extra copy of depth buffer per frame)
-        gPipeline.mRT->screen.bindTarget();
+        gPipeline.screenTarget()->bindTarget();
 		// SL-15709
 		// NOTE: Tracy only allows one ZoneScoped per function.
 		// Solutions are:
@@ -1384,7 +1387,7 @@ void render_ui(F32 zoom_factor, int subfield)
             }
         }
 
-        gPipeline.mRT->screen.flush();
+        gPipeline.screenTarget()->flush();
 
         // apply gamma correction and post effects before rendering 2D UI
         gPipeline.renderFinalize();

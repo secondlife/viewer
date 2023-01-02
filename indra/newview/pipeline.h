@@ -137,6 +137,8 @@ public:
 	void generateImpostor(LLVOAvatar* avatar, bool preview_avatar = false);
 	void bindScreenToTexture();
 	void renderFinalize();
+	void renderPostProcess();
+	LLRenderTarget* screenTarget();
 
 	void init();
 	void cleanup();
