@@ -387,10 +387,9 @@ protected:
 			LLAvatarMeshInfo() : mLOD(0), mMinPixelArea(.1f) {}
 			~LLAvatarMeshInfo()
 			{
-				morph_info_list_t::iterator iter;
-				for (iter = mPolyMorphTargetInfoList.begin(); iter != mPolyMorphTargetInfoList.end(); iter++)
+				for (auto& pair : mPolyMorphTargetInfoList)
 				{
-					delete iter->first;
+					delete pair.first;
 				}
 				mPolyMorphTargetInfoList.clear();
 			}
