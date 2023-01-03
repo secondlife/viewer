@@ -264,7 +264,59 @@ void LLFloaterTexturePicker::stopUsingPipette()
 
 void LLFloaterTexturePicker::updateImageStats()
 {
-	if (mTexturep.notNull())
+    if (mGLTFMaterial.notNull())
+    {
+        S32 width = 0;
+        S32 height = 0;
+
+        bool has_texture = false;
+
+        if (mGLTFMaterial->mBaseColorTexture)
+        {
+            width = llmax(width, mGLTFMaterial->mBaseColorTexture->getFullWidth());
+            height = llmax(height, mGLTFMaterial->mBaseColorTexture->getFullHeight());
+            has_texture = true;
+        }
+        if (mGLTFMaterial->mNormalTexture)
+        {
+            width = llmax(width, mGLTFMaterial->mNormalTexture->getFullWidth());
+            height = llmax(height, mGLTFMaterial->mNormalTexture->getFullHeight());
+            has_texture = true;
+        }
+        if (mGLTFMaterial->mMetallicRoughnessTexture)
+        {
+            width = llmax(width, mGLTFMaterial->mMetallicRoughnessTexture->getFullWidth());
+            height = llmax(height, mGLTFMaterial->mMetallicRoughnessTexture->getFullHeight());
+            has_texture = true;
+        }
+        if (mGLTFMaterial->mEmissiveTexture)
+        {
+            width = llmax(width, mGLTFMaterial->mEmissiveTexture->getFullWidth());
+            height = llmax(height, mGLTFMaterial->mEmissiveTexture->getFullHeight());
+            has_texture = true;
+        }
+
+        if (width > 0 && height > 0)
+        {
+            std::string formatted_dims = llformat("%d x %d", width, height);
+            mResolutionLabel->setTextArg("[DIMENSIONS]", formatted_dims);
+            if (mOnUpdateImageStatsCallback)
+            {
+                mOnUpdateImageStatsCallback(mTexturep);
+            }
+        }
+        else if (has_texture)
+        {
+            // unknown resolution
+            mResolutionLabel->setTextArg("[DIMENSIONS]", std::string("[? x ?]"));
+        }
+        else
+        {
+            // No textures - no applicable resolution (may be show some max value instead?)
+            mResolutionLabel->setTextArg("[DIMENSIONS]", std::string(""));
+        }
+    }
+	else if (mTexturep.notNull())
 	{
 		//RN: have we received header data for this image?
 		if (mTexturep->getFullWidth() > 0 && mTexturep->getFullHeight() > 0)
@@ -500,6 +552,8 @@ void LLFloaterTexturePicker::draw()
     static LLCachedControl<F32> max_opacity(gSavedSettings, "PickerContextOpacity", 0.4f);
     drawConeToOwner(mContextConeOpacity, max_opacity, mOwner);
 
+    // This is going to spam mOnUpdateImageStatsCallback,
+    // either move elsewhere or fix to cause update once per image
 	updateImageStats();
 
 	// if we're inactive, gray out "apply immediate" checkbox
@@ -511,30 +565,38 @@ void LLFloaterTexturePicker::draw()
 	if( mOwner ) 
 	{
 		mTexturep = NULL;
-		if(mImageAssetID.notNull())
-		{
-			LLPointer<LLViewerFetchedTexture> texture = NULL;
+        mGLTFMaterial = NULL;
+        if (mImageAssetID.notNull())
+        {
+            if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
+            {
+                mGLTFMaterial = (LLFetchedGLTFMaterial*) gGLTFMaterialList.getMaterial(mImageAssetID);
+            }
+            else
+            {
+                LLPointer<LLViewerFetchedTexture> texture = NULL;
 
-			if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
-			{
-                // TODO: Fix this! Picker is not warrantied to be connected to a selection
-                // LLSelectMgr shouldn't be used in texture picker
-				LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
-				if (obj)
-				{
-					LLViewerTexture* viewerTexture = obj->getBakedTextureForMagicId(mImageAssetID);
-					texture = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : NULL;
-				}
-			}
+                if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
+                {
+                    // TODO: Fix this! Picker is not warrantied to be connected to a selection
+                    // LLSelectMgr shouldn't be used in texture picker
+                    LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+                    if (obj)
+                    {
+                        LLViewerTexture* viewerTexture = obj->getBakedTextureForMagicId(mImageAssetID);
+                        texture = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : NULL;
+                    }
+                }
 
-			if (texture.isNull())
-			{
-				texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID);
-			}
+                if (texture.isNull())
+                {
+                    texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID);
+                }
 
-			mTexturep = texture;
-			mTexturep->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
-		}
+                mTexturep = texture;
+                mTexturep->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+            }
+        }
 
 		if (mTentativeLabel)
 		{
