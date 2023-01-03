@@ -832,55 +832,69 @@ LLSD LLModel::writeModel(
 
 				if (skinning)
 				{
-					//write out skin weights
+                    if (!model[idx]->mSkinWeights.empty())
+                    {
+                        //write out skin weights
 
-					//each influence list entry is up to 4 24-bit values
-					// first 8 bits is bone index
-					// last 16 bits is bone influence weight
-					// a bone index of 0xFF signifies no more influences for this vertex
+                        //each influence list entry is up to 4 24-bit values
+                        // first 8 bits is bone index
+                        // last 16 bits is bone influence weight
+                        // a bone index of 0xFF signifies no more influences for this vertex
 
-					std::stringstream ostr;
+                        std::stringstream ostr;
+                        for (U32 j = 0; j < face.mNumVertices; ++j)
+                        {
+                            LLVector3 pos(face.mPositions[j].getF32ptr());
 
-					for (U32 j = 0; j < face.mNumVertices; ++j)
-					{
-						LLVector3 pos(face.mPositions[j].getF32ptr());
+                            weight_list& weights = model[idx]->getJointInfluences(pos);
 
-						weight_list& weights = model[idx]->getJointInfluences(pos);
+                            S32 count = 0;
+                            for (weight_list::iterator iter = weights.begin(); iter != weights.end(); ++iter)
+                            {
+                                // Note joint index cannot exceed 255.
+                                if (iter->mJointIdx < 255 && iter->mJointIdx >= 0)
+                                {
+                                    U8 idx = (U8)iter->mJointIdx;
+                                    ostr.write((const char*)&idx, 1);
 
-						S32 count = 0;
-						for (weight_list::iterator iter = weights.begin(); iter != weights.end(); ++iter)
-						{
-							// Note joint index cannot exceed 255.
-							if (iter->mJointIdx < 255 && iter->mJointIdx >= 0)
-							{
-								U8 idx = (U8) iter->mJointIdx;
-								ostr.write((const char*) &idx, 1);
+                                    U16 influence = (U16)(iter->mWeight * 65535);
+                                    ostr.write((const char*)&influence, 2);
 
-								U16 influence = (U16) (iter->mWeight*65535);
-								ostr.write((const char*) &influence, 2);
+                                    ++count;
+                                }
+                            }
+                            U8 end_list = 0xFF;
+                            if (count < 4)
+                            {
+                                ostr.write((const char*)&end_list, 1);
+                            }
+                        }
 
-								++count;
-							}		
-						}
-						U8 end_list = 0xFF;
-						if (count < 4)
-						{
-							ostr.write((const char*) &end_list, 1);
-						}
-					}
+                        //copy ostr to binary buffer
+                        std::string data = ostr.str();
+                        const U8* buff = (U8*)data.data();
+                        U32 bytes = data.size();
 
-					//copy ostr to binary buffer
-					std::string data = ostr.str();
-					const U8* buff = (U8*) data.data();
-					U32 bytes = data.size();
+                        LLSD::Binary w(bytes);
+                        for (U32 j = 0; j < bytes; ++j)
+                        {
+                            w[j] = buff[j];
+                        }
 
-					LLSD::Binary w(bytes);
-					for (U32 j = 0; j < bytes; ++j)
-					{
-						w[j] = buff[j];
-					}
-
-					mdl[model_names[idx]][i]["Weights"] = w;
+                        mdl[model_names[idx]][i]["Weights"] = w;
+                    }
+                    else
+                    {
+                        if (idx == LLModel::LOD_PHYSICS)
+                        {
+                            // Ex: using "bounding box"
+                            LL_DEBUGS("MESHSKININFO") << "Using physics model without skin weights" << LL_ENDL;
+                        }
+                        else
+                        {
+                            LL_WARNS("MESHSKININFO") << "Attempting to use skinning without having skin weights" << LL_ENDL;
+                        }
+                    }
 				}
 			}
 		}
@@ -982,6 +996,8 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 	//1. If a vertex has been weighted then we'll find it via pos and return its weight list
 	weight_map::iterator iterPos = mSkinWeights.begin();
 	weight_map::iterator iterEnd = mSkinWeights.end();
+
+    llassert(!mSkinWeights.empty());
 	
 	for ( ; iterPos!=iterEnd; ++iterPos )
 	{
