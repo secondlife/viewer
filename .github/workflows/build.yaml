@@ -61,10 +61,11 @@ jobs:
         run: |
           pip install llbase
 
-          # Locate default python
-          export PYTHON="$(which python)"
+          # On windows we need to point the build to the correct python
+          # as neither CMake's FindPython nor our custom Python.cmake module
+          # will resolve the correct interpreter location.
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            export PYTHON="$(cygpath -w $PYTHON)"
+            export PYTHON="$(cygpath -m "$(which python)")"
           fi
 
           autobuild configure
