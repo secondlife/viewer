@@ -60,6 +60,13 @@ jobs:
           RUNNER_OS: ${{ runner.os }}
         run: |
           pip install llbase
+
+          # Locate default python
+          export PYTHON="$(which python)"
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            export PYTHON="$(cygpath -w $PYTHON)"
+          fi
+
           autobuild configure
           autobuild build --no-configure
 
