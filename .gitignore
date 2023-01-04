@@ -11,8 +11,7 @@
 
 # Specific paths and/or names
 LICENSES
-build-darwin-*
-build-linux-*
+build-*
 debian/files
 debian/secondlife-appearance-utility*
 debian/secondlife-viewer*
