@@ -82,7 +82,7 @@ else (ADDRESS_SIZE EQUAL 32)
   # you're running 32-bit cygwin or 64-bit cygwin! But even 32-bit Python will
   # report a 64-bit processor.
   execute_process(COMMAND
-                  "${Python_EXECUTABLE}" "-c"
+                  "${PYTHON_EXECUTABLE}" "-c"
                   "import platform; print platform.machine()"
                   OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
   # We expect values of the form i386, i686, x86_64, AMD64.
