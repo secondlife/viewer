@@ -619,11 +619,6 @@ public:
 	void saveSelectedShinyColors();
 	void saveSelectedObjectTextures();
 
-	// Sets which texture channel to query for scale and rot of display
-	// and depends on UI state of LLPanelFace when editing
-	void setTextureChannel(LLRender::eTexIndex texIndex) { mTextureChannel = texIndex; }
-	LLRender::eTexIndex getTextureChannel() { return mTextureChannel; }
-
 	void selectionUpdatePhysics(BOOL use_physics);
 	void selectionUpdateTemporary(BOOL is_temporary);
 	void selectionUpdatePhantom(BOOL is_ghost);

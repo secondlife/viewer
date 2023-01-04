@@ -1202,7 +1202,7 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 
 	if (gFloaterTools->getVisible() && panel_face)
 	{
-        tex_channel = (tex_channel > -1) ? tex_channel : LLSelectMgr::getInstance()->getTextureChannel();
+        tex_channel = (tex_channel > -1) ? tex_channel : panel_face->getTextureDropChannel();
         switch (tex_channel)
 		{
 

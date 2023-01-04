@@ -193,8 +193,6 @@ std::string USE_TEXTURE;
 
 LLRender::eTexIndex LLPanelFace::getTextureChannelToEdit()
 {
-
-
     LLRender::eTexIndex channel_to_edit = LLRender::DIFFUSE_MAP;
     if (mComboMatMedia)
     {
@@ -214,6 +212,17 @@ LLRender::eTexIndex LLPanelFace::getTextureChannelToEdit()
 	channel_to_edit = (channel_to_edit == LLRender::NORMAL_MAP)		? (getCurrentNormalMap().isNull()		? LLRender::DIFFUSE_MAP : channel_to_edit) : channel_to_edit;
 	channel_to_edit = (channel_to_edit == LLRender::SPECULAR_MAP)	? (getCurrentSpecularMap().isNull()		? LLRender::DIFFUSE_MAP : channel_to_edit) : channel_to_edit;
 	return channel_to_edit;
+}
+
+LLRender::eTexIndex LLPanelFace::getTextureDropChannel()
+{
+    if (mComboMatMedia && mComboMatMedia->getCurrentIndex() == MATMEDIA_MATERIAL)
+    {
+        LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
+        return LLRender::eTexIndex(radio_mat_type->getSelectedIndex());
+    }
+
+    return LLRender::eTexIndex(MATTYPE_DIFFUSE);
 }
 
 // Things the UI provides...
@@ -1560,7 +1569,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
                     enabled = editable && has_pbr_material;
                     material_type = radio_pbr_type->getSelectedIndex();
                 }
-				LLSelectMgr::getInstance()->setTextureChannel(LLRender::eTexIndex(material_type));
 
                 switch (material_type)
                 {

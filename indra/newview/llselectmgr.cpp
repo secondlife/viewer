@@ -1039,10 +1039,6 @@ void LLSelectMgr::addAsIndividual(LLViewerObject *objectp, S32 face, BOOL undoab
 	// check to see if object is already in list
 	LLSelectNode *nodep = mSelectedObjects->findNode(objectp);
 
-	// Reset (in anticipation of being set to an appropriate value by panel refresh, if they're up)
-	//
-	setTextureChannel(LLRender::DIFFUSE_MAP);
-
 	// if not in list, add it
 	if (!nodep)
 	{

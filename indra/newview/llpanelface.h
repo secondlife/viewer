@@ -119,6 +119,7 @@ public:
 	}
 
 	LLRender::eTexIndex getTextureChannelToEdit();
+    LLRender::eTexIndex getTextureDropChannel();
 
 protected:
     void			navigateToTitleMedia(const std::string url);
