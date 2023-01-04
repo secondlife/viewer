@@ -59,11 +59,7 @@ jobs:
         env:
           RUNNER_OS: ${{ runner.os }}
         run: |
-          which python
-          which pip
-          which pip3
-          which python3
-          exit 1
+          pip install llbase
           autobuild configure
           autobuild build --no-configure
 

@@ -4,14 +4,14 @@ MACRO(LL_TEST_COMMAND OUTVAR LD_LIBRARY_PATH)
   # cannot return a value. And yet, variables you set inside a FUNCTION are
   # local. Try a MACRO instead.
   SET(value
-    ${PYTHON_EXECUTABLE}
+    ${Python_EXECUTABLE}
     "${CMAKE_SOURCE_DIR}/cmake/run_build_test.py")
   FOREACH(dir ${LD_LIBRARY_PATH})
     LIST(APPEND value "-l${dir}")
   ENDFOREACH(dir)
-  # Enough different tests want to be able to find CMake's PYTHON_EXECUTABLE
+  # Enough different tests want to be able to find CMake's Python_EXECUTABLE
   # that we should just pop it into the environment for everybody.
-  LIST(APPEND value "-DPYTHON=${PYTHON_EXECUTABLE}")
+  LIST(APPEND value "-DPYTHON=${Python_EXECUTABLE}")
   LIST(APPEND value ${ARGN})
   SET(${OUTVAR} ${value})
 ##IF(LL_TEST_VERBOSE)

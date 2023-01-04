@@ -1882,7 +1882,7 @@ if (WINDOWS)
 
     add_custom_command(
       OUTPUT  ${CMAKE_CFG_INTDIR}/copy_touched.bat
-      COMMAND ${PYTHON_EXECUTABLE}
+      COMMAND ${Python_EXECUTABLE}
       ARGS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         --actions=copy
@@ -1929,7 +1929,7 @@ if (WINDOWS)
     if (PACKAGE)
       add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2
-        COMMAND ${PYTHON_EXECUTABLE}
+        COMMAND ${Python_EXECUTABLE}
         ARGS
           ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
           ${CMAKE_CURRENT_SOURCE_DIR}/..
@@ -1943,7 +1943,7 @@ if (WINDOWS)
 
       add_custom_command(
         OUTPUT ${CMAKE_CFG_INTDIR}/touched.bat
-        COMMAND ${PYTHON_EXECUTABLE}
+        COMMAND ${Python_EXECUTABLE}
         ARGS
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
           --arch=${ARCH}
@@ -2095,7 +2095,7 @@ if (LINUX)
 
   add_custom_command(
       OUTPUT ${product}.tar.bz2
-      COMMAND ${PYTHON_EXECUTABLE}
+      COMMAND ${Python_EXECUTABLE}
       ARGS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         --arch=${ARCH}
@@ -2122,7 +2122,7 @@ if (LINUX)
 
   add_custom_command(
     OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched
-    COMMAND ${PYTHON_EXECUTABLE}
+    COMMAND ${Python_EXECUTABLE}
     ARGS
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       --actions=copy
@@ -2200,7 +2200,7 @@ if (DARWIN)
 
   add_custom_command(
     TARGET ${VIEWER_BINARY_NAME} POST_BUILD
-    COMMAND ${PYTHON_EXECUTABLE}
+    COMMAND ${Python_EXECUTABLE}
     ARGS
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       --actions=copy
@@ -2236,7 +2236,7 @@ if (DARWIN)
 
       add_custom_command(
         TARGET llpackage POST_BUILD
-        COMMAND ${PYTHON_EXECUTABLE}
+        COMMAND ${Python_EXECUTABLE}
         ARGS
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
           --arch=${ARCH}
