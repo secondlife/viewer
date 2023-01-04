@@ -608,6 +608,8 @@ std::vector<std::string>* LLFilePicker::navOpenFilterProc(ELoadFilter filter) //
             allowedv->push_back("dic");
             allowedv->push_back("xcu");
             allowedv->push_back("gif");
+            allowedv->push_back("gltf");
+            allowedv->push_back("glb");
         case FFLOAD_IMAGE:
             allowedv->push_back("jpg");
             allowedv->push_back("jpeg");

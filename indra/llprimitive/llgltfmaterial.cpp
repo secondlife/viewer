@@ -646,11 +646,6 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
             mTextureTransform[i].mScale = override_mat.mTextureTransform[i].mScale;
         }
 
-        if (override_mat.mTextureTransform[i].mScale != getDefaultTextureScale())
-        {
-            mTextureTransform[i].mScale = override_mat.mTextureTransform[i].mScale;
-        }
-
         if (override_mat.mTextureTransform[i].mRotation != getDefaultTextureRotation())
         {
             mTextureTransform[i].mRotation = override_mat.mTextureTransform[i].mRotation;
