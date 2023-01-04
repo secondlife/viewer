@@ -1174,6 +1174,9 @@ Ollie Kubrick
 Orenj Marat
 Orion Delphis
 Oryx Tempel
+PanteraPolnocy
+	SL-18891
+	SL-18904
 Parvati Silverweb
 Patric Mills
 	VWR-2645
