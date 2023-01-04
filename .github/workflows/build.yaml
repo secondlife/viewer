@@ -36,8 +36,8 @@ jobs:
           ref: viewer
           path: .build-variables
       
-      - name: Install autobuild, python dependencies
-        run: pip3 install autobuild llbase
+      - name: Install autobuild
+        run: pip3 install autobuild
 
       - name: Cache autobuild packages
         uses: actions/cache@v3
@@ -59,6 +59,11 @@ jobs:
         env:
           RUNNER_OS: ${{ runner.os }}
         run: |
+          which python
+          which pip
+          which pip3
+          which python3
+          exit 1
           autobuild configure
           autobuild build --no-configure
 
