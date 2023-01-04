@@ -490,6 +490,8 @@ Evangelista Emerald
 Faelon Swordthain
 Farallon Greyskin
 	VWR-2036
+Fawrsk
+	SL-18893
 Feep Larsson
 	VWR-447
 	VWR-1314
