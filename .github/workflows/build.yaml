@@ -36,8 +36,8 @@ jobs:
           ref: viewer
           path: .build-variables
       
-      - name: Install autobuild 
-        run: pip3 install autobuild
+      - name: Install autobuild, python dependencies
+        run: pip3 install autobuild llbase
 
       - name: Cache autobuild packages
         uses: actions/cache@v3
@@ -59,7 +59,6 @@ jobs:
         env:
           RUNNER_OS: ${{ runner.os }}
         run: |
-          pip install llbase # Required by viewer tests
           autobuild configure
           autobuild build --no-configure
 
