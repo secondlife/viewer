@@ -208,7 +208,16 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
         getChild<LLTextBox>("setting_name_txt")->setToolTip(controlp->getName());
         mComment->setVisible(true);
 
-		mComment->setText(controlp->getComment());
+        std::string old_text = mComment->getText();
+        std::string new_text = controlp->getComment();
+        // Don't setText if not nessesary, it will reset scroll
+        // This is a debug UI that reads from xml, there might
+        // be use cases where comment changes, but not the name
+        if (old_text != new_text)
+        {
+            mComment->setText(controlp->getComment());
+        }
+
 		spinner1->setMaxValue(F32_MAX);
 		spinner2->setMaxValue(F32_MAX);
 		spinner3->setMaxValue(F32_MAX);
