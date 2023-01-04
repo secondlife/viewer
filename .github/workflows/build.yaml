@@ -59,7 +59,7 @@ jobs:
         env:
           RUNNER_OS: ${{ runner.os }}
         run: |
-          pip install llsd # Required by viewer tests
+          pip install llbase # Required by viewer tests
           autobuild configure
           autobuild build --no-configure
 
