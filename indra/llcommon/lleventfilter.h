@@ -435,14 +435,59 @@ public:
         // generic type-appropriate store through mTarget, construct an
         // LLSDParam<T> and store that, thus engaging LLSDParam's custom
         // conversions.
-        mTarget = LLSDParam<T>(llsd::drill(event, mPath));
+        storeTarget(LLSDParam<T>(llsd::drill(event, mPath)));
         return mConsume;
     }
 
 private:
+    // This method disambiguates LLStoreListener<LLSD>. Directly assigning
+    // some_LLSD_var = LLSDParam<LLSD>(some_LLSD_value);
+    // is problematic because the compiler has too many choices: LLSD has
+    // multiple assignment operator overloads, and LLSDParam<LLSD> has a
+    // templated conversion operator. But LLSDParam<LLSD> can convert to a
+    // (const LLSD&) parameter, and LLSD::operator=(const LLSD&) works.
+    void storeTarget(const T& value)
+    {
+        mTarget = value;
+    }
+
     T& mTarget;
     const LLSD mPath;
     const bool mConsume;
+};
+
+/**
+ * LLVarHolder bundles a target variable of the specified type. We use it as a
+ * base class so the target variable will be fully constructed by the time a
+ * subclass constructor tries to pass a reference to some other base class.
+ */
+template <typename T>
+struct LLVarHolder
+{
+    T mVar;
+};
+
+/**
+ * LLCaptureListener isa LLStoreListener that bundles the target variable of
+ * interest.
+ */
+template <typename T>
+class LLCaptureListener: public LLVarHolder<T>,
+                         public LLStoreListener<T>
+{
+private:
+    using holder = LLVarHolder<T>;
+    using super = LLStoreListener<T>;
+
+public:
+    LLCaptureListener(const LLSD& path=LLSD(), bool consume=false):
+        super(*this, holder::mVar, path, consume)
+    {}
+
+    void set(T&& newval=T()) { holder::mVar = std::forward<T>(newval); }
+
+    const T& get() const { return holder::mVar; }
+    operator const T&() { return holder::mVar; }
 };
 
 /*****************************************************************************
