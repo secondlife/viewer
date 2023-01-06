@@ -62,6 +62,7 @@ namespace
     const std::string FIELD_SKY_MOON_ROTATION("moon_rotation");
     const std::string FIELD_SKY_MOON_AZIMUTH("moon_azimuth");
     const std::string FIELD_SKY_MOON_ELEVATION("moon_elevation");
+    const std::string FIELD_REFLECTION_PROBE_AMBIANCE("probe_ambiance");
     const std::string BTN_RESET("btn_reset");
 
     const F32 SLIDER_SCALE_SUN_AMBIENT(3.0f);
@@ -117,6 +118,8 @@ BOOL LLFloaterEnvironmentAdjust::postBuild()
     getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setBlankImageAssetID(LLUUID(gSavedSettings.getString("DefaultBlankNormalTexture")));
     getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onWaterMapChanged(); });
 
+    getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onReflectionProbeAmbianceChanged(); });
+
     refresh();
     return TRUE;
 }
@@ -170,6 +173,8 @@ void LLFloaterEnvironmentAdjust::refresh()
 
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setValue(mLiveSky->getCloudNoiseTextureId());
     getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setValue(mLiveWater->getNormalMapID());
+
+    getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setValue(mLiveSky->getReflectionProbeAmbiance());
 
     LLColor3 glow(mLiveSky->getGlow());
 
@@ -468,6 +473,13 @@ void LLFloaterEnvironmentAdjust::onSunColorChanged()
     mLiveSky->update();
 }
 
+void LLFloaterEnvironmentAdjust::onReflectionProbeAmbianceChanged()
+{
+    if (!mLiveSky) return;
+    F32 ambiance = getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->getValue().asReal();
+    mLiveSky->setReflectionProbeAmbiance(ambiance);
+    mLiveSky->update();
+}
 
 void LLFloaterEnvironmentAdjust::onEnvironmentUpdated(LLEnvironment::EnvSelection_t env, S32 version)
 {

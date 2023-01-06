@@ -82,6 +82,8 @@ private:
     void                        onCloudMapChanged();
     void                        onWaterMapChanged();
 
+    void                        onReflectionProbeAmbianceChanged();
+
     void                        onButtonReset();
 
     void                        onEnvironmentUpdated(LLEnvironment::EnvSelection_t env, S32 version);
