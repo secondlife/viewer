@@ -89,7 +89,7 @@ BOOL LLFloaterLandHoldings::postBuild()
 		LLUIString areastr = getString("area_string");
 		areastr.setArg("[AREA]", llformat("%d", gAgent.mGroups.at(i).mContribution));
 		element["columns"][1]["column"] = "area";
-		element["columns"][1]["value"] = areastr;
+		element["columns"][1]["value"] = areastr.getString();
 		element["columns"][1]["font"] = "SANSSERIF";
 
 		grant_list->addElement(element);
