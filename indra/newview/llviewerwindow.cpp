@@ -4188,13 +4188,10 @@ void LLViewerWindow::pickAsync( S32 x,
 {
 	// "Show Debug Alpha" means no object actually transparent
     BOOL in_build_mode = LLFloaterReg::instanceVisible("build");
-    if (LLDrawPoolAlpha::sShowDebugAlpha)
+    if (LLDrawPoolAlpha::sShowDebugAlpha
+        || (in_build_mode && gSavedSettings.getBOOL("SelectInvisibleObjects")))
     {
         pick_transparent = TRUE;
-    }
-    else if (in_build_mode && !gSavedSettings.getBOOL("SelectInvisibleObjects"))
-    {
-        pick_transparent = FALSE;
     }
 
 	LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, pick_rigged, FALSE, TRUE, pick_unselectable, callback);
