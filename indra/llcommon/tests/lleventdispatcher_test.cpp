@@ -18,6 +18,7 @@
 // external library headers
 // other Linden headers
 #include "../test/lltut.h"
+#include "lleventfilter.h"
 #include "llsd.h"
 #include "llsdutil.h"
 #include "llevents.h"
@@ -640,42 +641,38 @@ namespace tut
 
         std::string call_exc(const std::string& func, const LLSD& args, const std::string& exc_frag)
         {
-            // This method was written when LLEventDispatcher responded to
-            // name or argument errors with LL_ERRS, hence the name: we used
-            // to have to intercept LL_ERRS by making it throw. Now we set up
-            // to catch an error response instead. But -- for that we need to
-            // be able to sneak a "reply" key into args, which must be a Map.
-            if (! (args.isUndefined() or args.isMap()))
-                fail(stringize("can't test call_exc() with ", args));
-            LLEventStream replypump("reply");
-            LLSD reply;
-            LLTempBoundListener bound{
-                replypump.listen(
-                    "listener",
-                    [&reply](const LLSD& event)
-                    {
-                        reply = event;
-                        return false;
-                    }) };
-            LLSD modargs{ args };
-            modargs["reply"] = replypump.getName();
-            if (func.empty())
+            std::string what;
+            try
             {
-                work(modargs);
+                if (func.empty())
+                {
+                    work(args);
+                }
+                else
+                {
+                    work(func, args);
+                }
             }
-            else
+            catch (const LLEventDispatcher::DispatchError& err)
             {
-                work(func, modargs);
+                what = err.what();
             }
-            ensure("no error response", reply.has("error"));
-            ensure_has(reply["error"], exc_frag);
-            return reply["error"];
+            ensure_has(what, exc_frag);
+            return what;
         }
 
         void call_logerr(const std::string& func, const LLSD& args, const std::string& frag)
         {
             CaptureLog capture;
-            work(func, args);
+            try
+            {
+                work(func, args);
+            }
+            catch (const LLEventDispatcher::DispatchError& err)
+            {
+                // the error should also have been logged; we just need to
+                // stop the exception propagating
+            }
             capture.messageWith(frag);
         }
 
@@ -1196,7 +1193,7 @@ namespace tut
     template<> template<>
     void object::test<20>()
     {
-        set_test_name("call array-style functions with (just right | too long) arrays");
+        set_test_name("call array-style functions with right-size arrays");
         std::vector<U8> binary;
         for (size_t h(0x01), i(0); i < 5; h+= 0x22, ++i)
         {
@@ -1325,5 +1322,74 @@ namespace tut
                 }
             }
         }
+    }
+
+    struct DispatchResult: public LLEventDispatcher
+    {
+        using DR = DispatchResult;
+
+        DispatchResult(): LLEventDispatcher("expect result", "op")
+        {
+            // As of 2022-12-22, LLEventDispatcher's shorthand add() methods
+            // for pointer-to-method of same instance only support methods
+            // with signature void(const LLSD&). The generic add(pointer-to-
+            // method) requires an instance getter.
+            add("strfunc",   "return string",       &DR::strfunc,   [this](){ return this; });
+            add("voidfunc",  "void function",       &DR::voidfunc,  [this](){ return this; });
+            add("intfunc",   "return Integer LLSD", &DR::intfunc,   [this](){ return this; });
+            add("mapfunc",   "return map LLSD",     &DR::mapfunc,   [this](){ return this; });
+            add("arrayfunc", "return array LLSD",   &DR::arrayfunc, [this](){ return this; });
+        }
+
+        std::string strfunc(const LLSD&) const { return "a string"; }
+        void voidfunc()                  const {}
+        int  intfunc(const LLSD&)        const { return 17; }
+        LLSD mapfunc(const LLSD&)        const { return llsd::map("key", "value"); }
+        LLSD arrayfunc(const LLSD&)      const { return llsd::array("a", "b", "c"); }
+    };
+
+    template<> template<>
+    void object::test<23>()
+    {
+        set_test_name("string result");
+        DispatchResult service;
+        LLSD result{ service("strfunc", "ignored") };
+        ensure_equals("strfunc() mismatch", result.asString(), "a string");
+    }
+
+    template<> template<>
+    void object::test<24>()
+    {
+        set_test_name("void result");
+        DispatchResult service;
+        LLSD result{ service("voidfunc", LLSD()) };
+        ensure("voidfunc() returned defined", result.isUndefined());
+    }
+
+    template<> template<>
+    void object::test<25>()
+    {
+        set_test_name("Integer result");
+        DispatchResult service;
+        LLSD result{ service("intfunc", "ignored") };
+        ensure_equals("intfunc() mismatch", result.asInteger(), 17);
+    }
+
+    template<> template<>
+    void object::test<26>()
+    {
+        set_test_name("map LLSD result");
+        DispatchResult service;
+        LLSD result{ service("mapfunc", "ignored") };
+        ensure_equals("mapfunc() mismatch", result, llsd::map("key", "value"));
+    }
+
+    template<> template<>
+    void object::test<27>()
+    {
+        set_test_name("array LLSD result");
+        DispatchResult service;
+        LLSD result{ service("arrayfunc", "ignored") };
+        ensure_equals("arrayfunc() mismatch", result, llsd::array("a", "b", "c"));
     }
 } // namespace tut
