@@ -57,7 +57,20 @@ class LLSD;
 class LL_COMMON_API LLEventDispatcher
 {
 public:
+    /**
+     * Pass description and the LLSD key used by try_call(const LLSD&) and
+     * operator()(const LLSD&) to extract the name of the registered callable
+     * to invoke.
+     */
     LLEventDispatcher(const std::string& desc, const std::string& key);
+    /**
+     * Pass description, the LLSD key used by try_call(const LLSD&) and
+     * operator()(const LLSD&) to extract the name of the registered callable
+     * to invoke, and the LLSD key used by try_call(const LLSD&) and
+     * operator()(const LLSD&) to extract arguments LLSD.
+     */
+    LLEventDispatcher(const std::string& desc, const std::string& key,
+                      const std::string& argskey);
     virtual ~LLEventDispatcher();
 
     /// @name Register functions accepting(const LLSD&)
@@ -146,6 +159,8 @@ public:
      * boost::lambda::var(instance) or boost::lambda::constant(instance_ptr)
      * produce suitable callables.
      *
+     * TODO: variant accepting a method of the containing class, no getter.
+     *
      * When calling this name, pass an LLSD::Array. Each entry in turn will be
      * converted to the corresponding parameter type using LLSDParam.
      */
@@ -185,6 +200,8 @@ public:
      * boost::lambda::var(instance) or boost::lambda::constant(instance_ptr)
      * produce suitable callables.
      *
+     * TODO: variant accepting a method of the containing class, no getter.
+     *
      * Pass an LLSD::Array of parameter names, and optionally another
      * LLSD::Array of default parameter values, a la LLSDArgsMapper.
      *
@@ -206,28 +223,82 @@ public:
     /// Unregister a callable
     bool remove(const std::string& name);
 
-    /// Call a registered callable with an explicitly-specified name. It is an
-    /// error if no such callable exists. It is an error if the @a event fails
-    /// to match the @a required prototype specified at add() time.
-    void operator()(const std::string& name, const LLSD& event) const;
+    /// Exception if an attempted call fails for any reason
+    struct DispatchError: public LLException
+    {
+        DispatchError(const std::string& what): LLException(what) {}
+    };
 
-    /// Call a registered callable with an explicitly-specified name and
-    /// return <tt>true</tt>. If no such callable exists, return
-    /// <tt>false</tt>. It is an error if the @a event fails to match the @a
-    /// required prototype specified at add() time.
+    /// Specific exception for an attempt to call a nonexistent name
+    struct DispatchMissing: public DispatchError
+    {
+        DispatchMissing(const std::string& what): DispatchError(what) {}
+    };
+
+    /**
+     * Call a registered callable with an explicitly-specified name,
+     * converting its return value to LLSD (undefined for a void callable).
+     * It is an error if no such callable exists. It is an error if the @a
+     * event fails to match the @a required prototype specified at add()
+     * time.
+     *
+     * @a event must be an LLSD array for a callable registered to accept its
+     * arguments from such an array. It must be an LLSD map for a callable
+     * registered to accept its arguments from such a map.
+     */
+    LLSD operator()(const std::string& name, const LLSD& event) const;
+
+    /**
+     * Call a registered callable with an explicitly-specified name and
+     * return <tt>true</tt>. If no such callable exists, return
+     * <tt>false</tt>. It is an error if the @a event fails to match the @a
+     * required prototype specified at add() time.
+     *
+     * @a event must be an LLSD array for a callable registered to accept its
+     * arguments from such an array. It must be an LLSD map for a callable
+     * registered to accept its arguments from such a map.
+     */
     bool try_call(const std::string& name, const LLSD& event) const;
 
-    /// Extract the @a key value from the incoming @a event, and call the
-    /// callable whose name is specified by that map @a key. It is an error if
-    /// no such callable exists. It is an error if the @a event fails to match
-    /// the @a required prototype specified at add() time.
-    void operator()(const LLSD& event) const;
+    /**
+     * Extract the @a key specified to our constructor from the incoming LLSD
+     * map @a event, and call the callable whose name is specified by that @a
+     * key's value, converting its return value to LLSD (undefined for a void
+     * callable). It is an error if no such callable exists. It is an error if
+     * the @a event fails to match the @a required prototype specified at
+     * add() time.
+     *
+     * For a (non-nullary) callable registered to accept its arguments from an
+     * LLSD array, the @a event map must contain the key @a argskey specified to
+     * our constructor. The value of the @a argskey key must be an LLSD array
+     * containing the arguments to pass to the callable named by @a key.
+     *
+     * For a callable registered to accept its arguments from an LLSD map, if
+     * the @a event map contains the key @a argskey specified our constructor,
+     * extract the value of the @a argskey key and use it as the arguments map.
+     * If @a event contains no @a argskey key, use the whole @a event as the
+     * arguments map.
+     */
+    LLSD operator()(const LLSD& event) const;
 
-    /// Extract the @a key value from the incoming @a event, call the callable
-    /// whose name is specified by that map @a key and return <tt>true</tt>.
-    /// If no such callable exists, return <tt>false</tt>. It is an error if
-    /// the @a event fails to match the @a required prototype specified at
-    /// add() time.
+    /**
+     * Extract the @a key specified to our constructor from the incoming LLSD
+     * map @a event, call the callable whose name is specified by that @a
+     * key's value and return <tt>true</tt>. If no such callable exists,
+     * return <tt>false</tt>. It is an error if the @a event fails to match
+     * the @a required prototype specified at add() time.
+     *
+     * For a (non-nullary) callable registered to accept its arguments from an
+     * LLSD array, the @a event map must contain the key @a argskey specified to
+     * our constructor. The value of the @a argskey key must be an LLSD array
+     * containing the arguments to pass to the callable named by @a key.
+     *
+     * For a callable registered to accept its arguments from an LLSD map, if
+     * the @a event map contains the key @a argskey specified our constructor,
+     * extract the value of the @a argskey key and use it as the arguments map.
+     * If @a event contains no @a argskey key, use the whole @a event as the
+     * arguments map.
+     */
     bool try_call(const LLSD& event) const;
 
     /// @name Iterate over defined names
@@ -242,7 +313,8 @@ private:
 
         std::string mDesc;
 
-        virtual LLSD call(const std::string& desc, const LLSD& event) const = 0;
+        virtual LLSD call(const std::string& desc, const LLSD& event,
+                          bool fromMap, const std::string& argskey) const = 0;
         virtual LLSD addMetadata(LLSD) const = 0;
     };
     typedef std::map<std::string, std::unique_ptr<DispatchEntry> > DispatchMap;
@@ -269,6 +341,9 @@ public:
     /// Retrieve the LLSD key we use for one-arg <tt>operator()</tt> method
     std::string getDispatchKey() const { return mKey; }
 
+    /// description of this instance's leaf class and description
+    friend std::ostream& operator<<(std::ostream&, const LLEventDispatcher&);
+
 private:
     template <class CLASS, typename METHOD>
     void addMethod(const std::string& name, const std::string& desc,
@@ -285,19 +360,16 @@ private:
         }
     }
     void addFail(const std::string& name, const std::string& classname) const;
-    std::string try_call_log(const std::string& key, const LLSD& name,
-                             const LLSD& event) const;
-    std::string try_call(const std::string& key, const LLSD& name,
-                         const LLSD& event) const;
-    // returns either (empty string, LLSD) or (error message, isUndefined)
-    std::pair<std::string, LLSD>
-    try_call_one(const std::string& key, const std::string& name, const LLSD& event) const;
-    // Implement "it is an error" semantics for attempted call operations: if
-    // the incoming event includes a "reply" key, log and send an error reply.
-    void callFail(const LLSD& event, const std::string& msg) const;
-    void reply(const LLSD& response, const LLSD& event) const;
+    LLSD try_call(const std::string& key, const std::string& name,
+                  const LLSD& event) const;
+    // raise specified EXCEPTION with specified stringize(ARGS)
+    template <typename EXCEPTION, typename... ARGS>
+    void callFail(ARGS&&... args) const;
+    template <typename EXCEPTION, typename... ARGS>
+    static
+    void sCallFail(ARGS&&... args);
 
-    std::string mDesc, mKey;
+    std::string mDesc, mKey, mArgskey;
     DispatchMap mDispatch;
 
     static NameDesc makeNameDesc(const DispatchMap::value_type& item)
@@ -305,6 +377,7 @@ private:
         return NameDesc(item.first, item.second->mDesc);
     }
 
+    class LLSDArgsMapper;
     struct LLSDDispatchEntry;
     struct ParamsDispatchEntry;
     struct ArrayParamsDispatchEntry;
@@ -459,13 +532,36 @@ class LL_COMMON_API LLDispatchListener:
     public LLEventStream
 {
 public:
-    LLDispatchListener(const std::string& pumpname, const std::string& key);
+    template <typename... ARGS>
+    LLDispatchListener(const std::string& pumpname, const std::string& key,
+                       ARGS&&... args);
     virtual ~LLDispatchListener() {}
 
 private:
-    bool process(const LLSD& event);
+    bool process(const LLSD& event) const;
+    void reply(const LLSD& reply, const LLSD& request) const;
 
     LLTempBoundListener mBoundListener;
+    static std::string mReplyKey;
 };
+
+template <typename... ARGS>
+LLDispatchListener::LLDispatchListener(const std::string& pumpname, const std::string& key,
+                                       ARGS&&... args):
+    // pass through any additional arguments to LLEventDispatcher ctor
+    LLEventDispatcher(pumpname, key, std::forward<ARGS>(args)...),
+    // Do NOT tweak the passed pumpname. In practice, when someone
+    // instantiates a subclass of our LLEventAPI subclass, they intend to
+    // claim that LLEventPump name in the global LLEventPumps namespace. It
+    // would be mysterious and distressing if we allowed name tweaking, and
+    // someone else claimed pumpname first for a completely unrelated
+    // LLEventPump. Posted events would never reach our subclass listener
+    // because we would have silently changed its name; meanwhile listeners
+    // (if any) on that other LLEventPump would be confused by the events
+    // intended for our subclass.
+    LLEventStream(pumpname, false),
+    mBoundListener(listen("self", [this](const LLSD& event){ return process(event); }))
+{
+}
 
 #endif /* ! defined(LL_LLEVENTDISPATCHER_H) */
