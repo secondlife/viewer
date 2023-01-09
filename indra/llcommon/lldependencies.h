@@ -514,7 +514,7 @@ public:
             // former broken behavior has finally been fixed -- and our builds
             // treat warnings as errors.
             {
-                for (typename const DepNodeMap::value_type nm_pair : mNodes)
+                for (typename const DepNodeMap::value_type& nm_pair : mNodes)
                 {
                     vmap.insert(typename VertexMap::value_type(nm_pair.first, vmap.size()));
                     for (typename const KEY& after_k : nm_pair.second.after)
@@ -531,7 +531,7 @@ public:
             // all the known key dependencies to integer pairs.
             EdgeList edges;
             {
-                for (typename const DepNodeMap::value_type nm_pair : mNodes)
+                for (typename const DepNodeMap::value_type& nm_pair : mNodes)
                 {
                     auto thisnode = vmap[nm_pair.first];
                     // after dependencies: build edges from the named node to this one
@@ -555,7 +555,7 @@ public:
             // and we're certain that the associated int values are distinct
             // indexes. The fact that they're not in order is irrelevant.
             KeyList vkeys(vmap.size());
-            for (typename const VertexMap::value_type vm_pair : vmap)
+            for (typename const VertexMap::value_type& vm_pair : vmap)
             {
                 vkeys[vm_pair.second] = vm_pair.first;
             }

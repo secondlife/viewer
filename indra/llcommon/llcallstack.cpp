@@ -154,7 +154,7 @@ bool LLContextStrings::contains(const std::string& str)
 {
     const std::map<std::string,S32>& strings =
         LLThreadLocalSingletonPointer<LLContextStrings>::getInstance()->m_contextStrings;
-    for (const std::map<std::string,S32>::value_type str_pair : strings)
+    for (const std::map<std::string,S32>::value_type& str_pair : strings)
     {
         if (str_pair.first.find(str) != std::string::npos)
         {
@@ -169,7 +169,7 @@ void LLContextStrings::output(std::ostream& os)
 {
     const std::map<std::string,S32>& strings =
         LLThreadLocalSingletonPointer<LLContextStrings>::getInstance()->m_contextStrings;
-    for (const std::map<std::string,S32>::value_type str_pair : strings)
+    for (const std::map<std::string,S32>::value_type& str_pair : strings)
     {
         os << str_pair.first << "[" << str_pair.second << "]" << "\n";
     }

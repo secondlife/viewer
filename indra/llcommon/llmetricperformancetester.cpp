@@ -42,7 +42,7 @@ LLMetricPerformanceTesterBasic::name_tester_map_t LLMetricPerformanceTesterBasic
 /*static*/ 
 void LLMetricPerformanceTesterBasic::cleanupClass() 
 {
-	for (name_tester_map_t::value_type pair : sTesterMap)
+	for (name_tester_map_t::value_type& pair : sTesterMap)
 	{
 		delete pair.second;
 	}
@@ -154,7 +154,7 @@ void LLMetricPerformanceTesterBasic::doAnalysisMetrics(std::string baseline, std
 	llofstream os(output.c_str());
 	
 	os << "Label, Metric, Base(B), Target(T), Diff(T-B), Percentage(100*T/B)\n"; 
-	for (LLMetricPerformanceTesterBasic::name_tester_map_t::value_type pair : LLMetricPerformanceTesterBasic::sTesterMap)
+	for (LLMetricPerformanceTesterBasic::name_tester_map_t::value_type& pair : LLMetricPerformanceTesterBasic::sTesterMap)
 	{
 		LLMetricPerformanceTesterBasic* tester = ((LLMetricPerformanceTesterBasic*)pair.second);
 		tester->analyzePerformance(&os, &base, &current) ;

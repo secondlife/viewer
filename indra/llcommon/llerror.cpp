@@ -1222,7 +1222,7 @@ namespace
         std::string escaped_message;
 
         LLMutexLock lock(&s->mRecorderMutex);
-		for (LLError::RecorderPtr r : s->mRecorders)
+		for (LLError::RecorderPtr& r : s->mRecorders)
 		{
             if (!r->enabled())
             {

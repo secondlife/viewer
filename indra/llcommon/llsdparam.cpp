@@ -113,7 +113,7 @@ void LLParamSDParser::writeSDImpl(LLSD& sd, const LLInitParam::BaseBlock& block,
 /*virtual*/ std::string LLParamSDParser::getCurrentElementName()
 {
 	std::string full_name = "sd";
-	for (name_stack_t::value_type stack_pair : mNameStack)
+	for (name_stack_t::value_type& stack_pair : mNameStack)
 	{
 		full_name += llformat("[%s]", stack_pair.first.c_str());
 	}

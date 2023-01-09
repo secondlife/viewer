@@ -325,7 +325,7 @@ namespace LLInitParam
 		std::string calcValueName(const value_t& value) const
 		{
 			value_name_map_t* map = getValueNames();
-			for (typename value_name_map_t::value_type map_pair : *map)
+			for (typename value_name_map_t::value_type& map_pair : *map)
 			{
 				if (ParamCompare<T>::equals(map_pair.second, value))
 				{
@@ -374,7 +374,7 @@ namespace LLInitParam
 			static std::vector<std::string> sValues;
 
 			value_name_map_t* map = getValueNames();
-			for (typename value_name_map_t::value_type map_pair : *map)
+			for (typename value_name_map_t::value_type& map_pair : *map)
 			{
 				sValues.push_back(map_pair.first);
 			}
