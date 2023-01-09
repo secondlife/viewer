@@ -166,8 +166,7 @@ public:
 	// 4 - modify LLVertexBuffer::setupVertexBuffer
     // 5 - modify LLVertexBuffer::setupVertexBufferFast
 	// 6 - modify LLViewerShaderMgr::mReservedAttribs
-	// 7 - update LLVertexBuffer::setupVertexArray
-
+	
     // clang-format off
     enum {                      // Shader attribute name, set in LLShaderMgr::initAttribsAndUniforms()
         TYPE_VERTEX = 0,        //  "position"
@@ -212,15 +211,12 @@ protected:
 	virtual void setupVertexBuffer(U32 data_mask);
     void setupVertexBufferFast(U32 data_mask);
 
-	void setupVertexArray();
-	
 	void	genBuffer(U32 size);
 	void	genIndices(U32 size);
 	bool	bindGLBuffer(bool force_bind = false);
     bool	bindGLBufferFast();
 	bool	bindGLIndices(bool force_bind = false);
     bool    bindGLIndicesFast();
-	bool	bindGLArray();
 	void	releaseBuffer();
 	void	releaseIndices();
 	bool	createGLBuffer(U32 size);
@@ -282,8 +278,8 @@ public:
 	S32 getNumVerts() const					{ return mNumVerts; }
 	S32 getNumIndices() const				{ return mNumIndices; }
 	
-	U8* getIndicesPointer() const			{ return useVBOs() ? (U8*) mAlignedIndexOffset : mMappedIndexData; }
-	U8* getVerticesPointer() const			{ return useVBOs() ? (U8*) mAlignedOffset : mMappedData; }
+	U8* getIndicesPointer() const			{ return useVBOs() ? nullptr : mMappedIndexData; }
+	U8* getVerticesPointer() const			{ return useVBOs() ? nullptr : mMappedData; }
 	U32 getTypeMask() const					{ return mTypeMask; }
 	bool hasDataType(S32 type) const		{ return ((1 << type) & getTypeMask()); }
 	S32 getSize() const;
@@ -292,7 +288,7 @@ public:
 	U8* getMappedIndices() const			{ return mMappedIndexData; }
 	S32 getOffset(S32 type) const			{ return mOffsets[type]; }
 	S32 getUsage() const					{ return mUsage; }
-	bool isWriteable() const				{ return (mMappable || mUsage == GL_STREAM_DRAW) ? true : false; }
+	bool isWriteable() const				{ return (mUsage == GL_STREAM_DRAW) ? true : false; }
 
 	void draw(U32 mode, U32 count, U32 indices_offset) const;
 	void drawArrays(U32 mode, U32 offset, U32 count) const;
@@ -310,21 +306,19 @@ public:
 	
 
 protected:	
+    U32		mGLBuffer;		// GL VBO handle
+    U32		mGLIndices;		// GL IBO handle
+
+    U32		mTypeMask;
+
 	S32		mNumVerts;		// Number of vertices allocated
 	S32		mNumIndices;	// Number of indices allocated
-	
-	ptrdiff_t mAlignedOffset;
-	ptrdiff_t mAlignedIndexOffset;
+    
 	S32		mSize;
 	S32		mIndicesSize;
-	U32		mTypeMask;
 
 	const S32		mUsage;			// GL usage
-	
-	U32		mGLBuffer;		// GL VBO handle
-	U32		mGLIndices;		// GL IBO handle
-	U32		mGLArray;		// GL VAO handle
-	
+
 	U8* mMappedData;	// pointer to currently mapped data (NULL if unmapped)
 	U8* mMappedIndexData;	// pointer to currently mapped indices (NULL if unmapped)
 
@@ -335,17 +329,10 @@ protected:
 	U32		mFinal : 1;			// if true, buffer can not be mapped again
 	U32		mEmpty : 1;			// if true, client buffer is empty (or NULL). Old values have been discarded.	
 	
-	mutable bool	mMappable;     // if true, use memory mapping to upload data (otherwise doublebuffer and use glBufferSubData)
-
 	S32		mOffsets[TYPE_MAX];
 
 	std::vector<MappedRegion> mMappedVertexRegions;
 	std::vector<MappedRegion> mMappedIndexRegions;
-
-	mutable LLGLFence* mFence;
-
-	void placeFence() const;
-	void waitFence() const;
 
 	static S32 determineUsage(S32 usage);
 

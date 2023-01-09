@@ -272,6 +272,8 @@ public:
 	void forAllVisibleDrawables(void (*func)(LLDrawable*));
 
     void renderObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false, bool rigged = false);
+    void renderShadowSimple(U32 type);
+
     void renderAlphaObjects(U32 mask, bool texture = true, bool batch_texture = false, bool rigged = false);
 	void renderMaskedObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false, bool rigged = false);
     void renderFullbrightMaskedObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false, bool rigged = false);

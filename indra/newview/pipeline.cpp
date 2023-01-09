@@ -7396,6 +7396,49 @@ void LLPipeline::renderObjects(U32 type, U32 mask, bool texture, bool batch_text
 	gGLLastMatrix = NULL;		
 }
 
+void LLPipeline::renderShadowSimple(U32 type)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+    assertInitialized();
+    gGL.loadMatrix(gGLModelView);
+    gGLLastMatrix = NULL;
+
+    LLVertexBuffer* last_vb = nullptr;
+
+    LLCullResult::drawinfo_iterator begin = gPipeline.beginRenderMap(type);
+    LLCullResult::drawinfo_iterator end = gPipeline.endRenderMap(type);
+
+    for (LLCullResult::drawinfo_iterator i = begin; i != end; )
+    {
+        LLDrawInfo& params = **i;
+
+        ++i;
+
+        if (i != end)
+        {
+            _mm_prefetch((char*) (*i)->mVertexBuffer.get(), _MM_HINT_NTA);
+
+            auto* ni = i + 1;
+            if (ni != end)
+            {
+                _mm_prefetch((char*)*ni, _MM_HINT_NTA);
+            }
+        }
+
+        LLVertexBuffer* vb = params.mVertexBuffer;
+        if (vb != last_vb)
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("push shadow simple");
+            mSimplePool->applyModelMatrix(params);
+            vb->setBufferFast(LLVertexBuffer::MAP_VERTEX);
+            vb->drawRangeFast(LLRender::TRIANGLES, 0, vb->getNumVerts()-1, vb->getNumIndices(), 0);
+            vb = last_vb;
+        }
+    }
+    gGL.loadMatrix(gGLModelView);
+    gGLLastMatrix = NULL;
+}
+
 void LLPipeline::renderAlphaObjects(U32 mask, bool texture, bool batch_texture, bool rigged)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
@@ -9561,8 +9604,16 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 
     LLEnvironment& environment = LLEnvironment::instance();
 
-    LLVertexBuffer::unbind();
+    struct CompareVertexBuffer
+    {
+        bool operator()(const LLDrawInfo* const& lhs, const LLDrawInfo* const& rhs)
+        {
+            return lhs->mVertexBuffer > rhs->mVertexBuffer;
+        }
+    };
 
+
+    LLVertexBuffer::unbind();
     for (int j = 0; j < 2; ++j) // 0 -- static, 1 -- rigged
     {
         bool rigged = j == 1;
@@ -9589,17 +9640,29 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow simple"); //LL_RECORD_BLOCK_TIME(FTM_SHADOW_SIMPLE);
         LL_PROFILE_GPU_ZONE("shadow simple");
         gGL.getTexUnit(0)->disable();
-        for (U32 i = 0; i < sizeof(types) / sizeof(U32); ++i)
+
+        for (U32 type : types)
         {
-            renderObjects(types[i], LLVertexBuffer::MAP_VERTEX, FALSE, FALSE, rigged);
+            if (rigged)
+            {
+                renderObjects(type, LLVertexBuffer::MAP_VERTEX, FALSE, FALSE, rigged);
+            }
+            else
+            {
+                //{  sort should not be necessary because each entry in sCull should already 
+                // be sorted by vertex buffer
+                //    LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("sort shadow simple");
+                //    std::sort(sCull->beginRenderMap(type), sCull->endRenderMap(type), CompareVertexBuffer());
+                //}
+                renderShadowSimple(type);
+            }
         }
+
         gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
         if (!use_shader)
         {
             gOcclusionProgram.unbind();
         }
-
-
     }
 
     if (use_shader)
