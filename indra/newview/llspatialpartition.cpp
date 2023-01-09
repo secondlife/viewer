@@ -2872,42 +2872,6 @@ void renderBatchSize(LLDrawInfo* params)
     }
 }
 
-void renderShadowFrusta(LLDrawInfo* params)
-{
-	LLGLEnable blend(GL_BLEND);
-	gGL.setSceneBlendType(LLRender::BT_ADD);
-
-	LLVector4a center;
-	center.setAdd(params->mExtents[1], params->mExtents[0]);
-	center.mul(0.5f);
-	LLVector4a size;
-	size.setSub(params->mExtents[1],params->mExtents[0]);
-	size.mul(0.5f);
-
-	if (gPipeline.mShadowCamera[4].AABBInFrustum(center, size))
-	{
-		gGL.diffuseColor3f(1,0,0);
-		pushVerts(params, LLVertexBuffer::MAP_VERTEX);
-	}
-	if (gPipeline.mShadowCamera[5].AABBInFrustum(center, size))
-	{
-		gGL.diffuseColor3f(0,1,0);
-		pushVerts(params, LLVertexBuffer::MAP_VERTEX);
-	}
-	if (gPipeline.mShadowCamera[6].AABBInFrustum(center, size))
-	{
-		gGL.diffuseColor3f(0,0,1);
-		pushVerts(params, LLVertexBuffer::MAP_VERTEX);
-	}
-	if (gPipeline.mShadowCamera[7].AABBInFrustum(center, size))
-	{
-		gGL.diffuseColor3f(1,0,1);
-		pushVerts(params, LLVertexBuffer::MAP_VERTEX);
-	}
-
-	gGL.setSceneBlendType(LLRender::BT_ALPHA);
-}
-
 void renderTexelDensity(LLDrawable* drawable)
 {
 	if (LLViewerTexture::sDebugTexelsMode == LLViewerTexture::DEBUG_TEXELS_OFF
@@ -3491,10 +3455,6 @@ public:
 				if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BATCH_SIZE))
 				{
 					renderBatchSize(draw_info);
-				}
-				if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
-				{
-					renderShadowFrusta(draw_info);
 				}
 			}
 		}

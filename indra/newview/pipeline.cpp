@@ -2863,6 +2863,8 @@ void LLPipeline::clearRebuildDrawables()
 void LLPipeline::rebuildPriorityGroups()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+    LL_PROFILE_GPU_ZONE("rebuildPriorityGroups");
+
 	LLTimer update_timer;
 	assertInitialized();
 
@@ -7412,18 +7414,7 @@ void LLPipeline::renderShadowSimple(U32 type)
     {
         LLDrawInfo& params = **i;
 
-        ++i;
-
-        if (i != end)
-        {
-            _mm_prefetch((char*) (*i)->mVertexBuffer.get(), _MM_HINT_NTA);
-
-            auto* ni = i + 1;
-            if (ni != end)
-            {
-                _mm_prefetch((char*)*ni, _MM_HINT_NTA);
-            }
-        }
+        LLCullResult::increment_iterator(i, end);
 
         LLVertexBuffer* vb = params.mVertexBuffer;
         if (vb != last_vb)
@@ -7448,11 +7439,16 @@ void LLPipeline::renderAlphaObjects(U32 mask, bool texture, bool batch_texture, 
     U32 type = LLRenderPass::PASS_ALPHA;
     LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
-    for (LLCullResult::drawinfo_iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)
+    auto* begin = gPipeline.beginRenderMap(type);
+    auto* end = gPipeline.endRenderMap(type);
+
+    for (LLCullResult::drawinfo_iterator i = begin; i != end; )
     {
         LLDrawInfo* pparams = *i;
         if (pparams)
         {
+            LLCullResult::increment_iterator(i, end);
+
             if (rigged)
             {
                 if (pparams->mAvatar != nullptr)

@@ -449,10 +449,14 @@ void teardown_texture_matrix(LLDrawInfo& params)
 void LLRenderPass::pushGLTFBatches(U32 type, U32 mask)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-    for (LLCullResult::drawinfo_iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)
+    auto* begin = gPipeline.beginRenderMap(type);
+    auto* end = gPipeline.endRenderMap(type);
+    for (LLCullResult::drawinfo_iterator i = begin; i != end; )
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushGLTFBatch");
         LLDrawInfo& params = **i;
+        LLCullResult::increment_iterator(i, end);
+
         auto& mat = params.mGLTFMaterial;
 
         mat->bind();
@@ -476,10 +480,14 @@ void LLRenderPass::pushRiggedGLTFBatches(U32 type, U32 mask)
     LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
     mask |= LLVertexBuffer::MAP_WEIGHT4;
-    for (LLCullResult::drawinfo_iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)
+    auto* begin = gPipeline.beginRenderMap(type);
+    auto* end = gPipeline.endRenderMap(type);
+    for (LLCullResult::drawinfo_iterator i = begin; i != end; )
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushRiggedGLTFBatch");
         LLDrawInfo& params = **i;
+        LLCullResult::increment_iterator(i, end);
+
         auto& mat = params.mGLTFMaterial;
 
         mat->bind();
@@ -507,13 +515,14 @@ void LLRenderPass::pushRiggedGLTFBatches(U32 type, U32 mask)
 void LLRenderPass::pushBatches(U32 type, U32 mask, BOOL texture, BOOL batch_textures)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-	for (LLCullResult::drawinfo_iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)	
-	{
-		LLDrawInfo* pparams = *i;
-		if (pparams) 
-		{
-			pushBatch(*pparams, mask, texture, batch_textures);
-		}
+    auto* begin = gPipeline.beginRenderMap(type);
+    auto* end = gPipeline.endRenderMap(type);
+    for (LLCullResult::drawinfo_iterator i = begin; i != end; )
+    {
+        LLDrawInfo* pparams = *i;
+        LLCullResult::increment_iterator(i, end);
+
+		pushBatch(*pparams, mask, texture, batch_textures);
 	}
 }
 
@@ -523,34 +532,35 @@ void LLRenderPass::pushRiggedBatches(U32 type, U32 mask, BOOL texture, BOOL batc
     LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
     mask |= LLVertexBuffer::MAP_WEIGHT4;
-    for (LLCullResult::drawinfo_iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)
+    auto* begin = gPipeline.beginRenderMap(type);
+    auto* end = gPipeline.endRenderMap(type);
+    for (LLCullResult::drawinfo_iterator i = begin; i != end; )
     {
         LLDrawInfo* pparams = *i;
-        if (pparams)
-        {
-            if (pparams->mAvatar.notNull() && (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash))
-            {
-                uploadMatrixPalette(*pparams);
-                lastAvatar = pparams->mAvatar;
-                lastMeshId = pparams->mSkinInfo->mHash;
-            }
+        LLCullResult::increment_iterator(i, end);
 
-            pushBatch(*pparams, mask, texture, batch_textures);
+        if (pparams->mAvatar.notNull() && (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash))
+        {
+            uploadMatrixPalette(*pparams);
+            lastAvatar = pparams->mAvatar;
+            lastMeshId = pparams->mSkinInfo->mHash;
         }
+
+        pushBatch(*pparams, mask, texture, batch_textures);
     }
 }
 
 void LLRenderPass::pushMaskBatches(U32 type, U32 mask, BOOL texture, BOOL batch_textures)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-	for (LLCullResult::drawinfo_iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)	
+    auto* begin = gPipeline.beginRenderMap(type);
+    auto* end = gPipeline.endRenderMap(type);
+	for (LLCullResult::drawinfo_iterator i = begin; i != end; )
 	{
-		LLDrawInfo* pparams = *i;
-		if (pparams) 
-		{
-			LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(pparams->mAlphaMaskCutoff);
-			pushBatch(*pparams, mask, texture, batch_textures);
-		}
+        LLDrawInfo* pparams = *i;
+        LLCullResult::increment_iterator(i, end);
+		LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(pparams->mAlphaMaskCutoff);
+		pushBatch(*pparams, mask, texture, batch_textures);
 	}
 }
 
@@ -559,29 +569,31 @@ void LLRenderPass::pushRiggedMaskBatches(U32 type, U32 mask, BOOL texture, BOOL 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
-    for (LLCullResult::drawinfo_iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)
+    auto* begin = gPipeline.beginRenderMap(type);
+    auto* end = gPipeline.endRenderMap(type);
+    for (LLCullResult::drawinfo_iterator i = begin; i != end; )
     {
         LLDrawInfo* pparams = *i;
-        if (pparams)
+
+        LLCullResult::increment_iterator(i, end);
+
+        if (LLGLSLShader::sCurBoundShaderPtr)
         {
-            if (LLGLSLShader::sCurBoundShaderPtr)
-            {
-                LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(pparams->mAlphaMaskCutoff);
-            }
-            else
-            {
-                gGL.flush();
-            }
-
-            if (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash)
-            {
-                uploadMatrixPalette(*pparams);
-                lastAvatar = pparams->mAvatar;
-                lastMeshId = pparams->mSkinInfo->mHash;
-            }
-
-            pushBatch(*pparams, mask | LLVertexBuffer::MAP_WEIGHT4, texture, batch_textures);
+            LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(pparams->mAlphaMaskCutoff);
         }
+        else
+        {
+            gGL.flush();
+        }
+
+        if (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash)
+        {
+            uploadMatrixPalette(*pparams);
+            lastAvatar = pparams->mAvatar;
+            lastMeshId = pparams->mSkinInfo->mHash;
+        }
+
+        pushBatch(*pparams, mask | LLVertexBuffer::MAP_WEIGHT4, texture, batch_textures);
     }
 }
 

@@ -963,9 +963,6 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 			LLDrawInfo* info = new LLDrawInfo(start,end,count,offset,facep->getTexture(), 
 				buffer, object->isSelected(), fullbright);
 
-			const LLVector4a* exts = group->getObjectExtents();
-			info->mExtents[0] = exts[0];
-			info->mExtents[1] = exts[1];
 			info->mVSize = vsize;
 			info->mBlendFuncDst = bf_dst;
 			info->mBlendFuncSrc = bf_src;

@@ -203,11 +203,13 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 
     LLVOAvatar* lastAvatar = nullptr;
 
-	for (LLCullResult::drawinfo_iterator i = begin; i != end; ++i)
+	for (LLCullResult::drawinfo_iterator i = begin; i != end; )
 	{
         LL_PROFILE_ZONE_NAMED_CATEGORY_MATERIAL("materials draw loop");
 		LLDrawInfo& params = **i;
 		
+        LLCullResult::increment_iterator(i, end);
+
         if (specular > -1 && params.mSpecColor != lastSpecular)
         {
             lastSpecular = params.mSpecColor;

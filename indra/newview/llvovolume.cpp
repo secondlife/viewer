@@ -5305,8 +5305,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
             draw_vec[idx]->mTextureListVSize[index] = vsize;
 		}
 		draw_vec[idx]->validate();
-		update_min_max(draw_vec[idx]->mExtents[0], draw_vec[idx]->mExtents[1], facep->mExtents[0]);
-		update_min_max(draw_vec[idx]->mExtents[0], draw_vec[idx]->mExtents[1], facep->mExtents[1]);
 	}
 	else
 	{
@@ -5385,8 +5383,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		{ //for alpha sorting
 			facep->setDrawInfo(draw_info);
 		}
-		draw_info->mExtents[0] = facep->mExtents[0];
-		draw_info->mExtents[1] = facep->mExtents[1];
 
 		if (index < FACE_DO_NOT_BATCH_TEXTURES)
 		{ //initialize texture list for texture batching

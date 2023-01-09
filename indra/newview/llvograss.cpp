@@ -731,9 +731,6 @@ void LLGrassPartition::getGeometry(LLSpatialGroup* group)
 				//facep->getTexture(),
 				buffer, object->isSelected(), fullbright);
 
-			const LLVector4a* exts = group->getObjectExtents();
-			info->mExtents[0] = exts[0];
-			info->mExtents[1] = exts[1];
 			info->mVSize = vsize;
 			draw_vec.push_back(info);
 			//for alpha sorting

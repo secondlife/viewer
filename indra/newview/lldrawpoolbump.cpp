@@ -724,9 +724,11 @@ void LLDrawPoolBump::renderDeferred(S32 pass)
         LLVOAvatar* avatar = nullptr;
         U64 skin = 0;
 
-        for (LLCullResult::drawinfo_iterator i = begin; i != end; ++i)
+        for (LLCullResult::drawinfo_iterator i = begin; i != end; )
         {
             LLDrawInfo& params = **i;
+
+            LLCullResult::increment_iterator(i, end);
 
             LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(params.mAlphaMaskCutoff);
             LLDrawPoolBump::bindBumpMap(params, bump_channel);

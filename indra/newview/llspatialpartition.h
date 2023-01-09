@@ -87,8 +87,6 @@ public:
     // return mSkinHash->mHash, or 0 if mSkinHash is null
     U64 getSkinHash();
 
-	LLVector4a mExtents[2];
-	
 	LLPointer<LLVertexBuffer> mVertexBuffer;
 	LLPointer<LLViewerTexture>     mTexture;
 	std::vector<LLPointer<LLViewerTexture> > mTextureList;
@@ -504,6 +502,23 @@ public:
 	typedef LLSpatialBridge** bridge_iterator;
 	typedef LLDrawInfo** drawinfo_iterator;
 	typedef LLDrawable** drawable_iterator;
+
+    // Helper function for taking advantage of _mm_prefetch when iterating over cull results
+    static inline void increment_iterator(LLCullResult::drawinfo_iterator& i, const LLCullResult::drawinfo_iterator& end)
+    {
+        ++i;
+
+        if (i != end)
+        {
+            _mm_prefetch((char*)(*i)->mVertexBuffer.get(), _MM_HINT_NTA);
+
+            auto* ni = i + 1;
+            if (ni != end)
+            {
+                _mm_prefetch((char*)*ni, _MM_HINT_NTA);
+            }
+        }
+    }
 
 	void clear();
 	
