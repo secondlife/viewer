@@ -40,9 +40,11 @@
 ///----------------------------------------------------------------------------
 /// Exported functions
 ///----------------------------------------------------------------------------
+// FIXME D567 - what's the point of these, especially if we don't even use them consistently?
 static const std::string INV_ITEM_ID_LABEL("item_id");
 static const std::string INV_FOLDER_ID_LABEL("cat_id");
 static const std::string INV_PARENT_ID_LABEL("parent_id");
+static const std::string INV_THUMBNAIL_ID_LABEL("thumbnail_id");
 static const std::string INV_ASSET_TYPE_LABEL("type");
 static const std::string INV_PREFERRED_TYPE_LABEL("preferred_type");
 static const std::string INV_INVENTORY_TYPE_LABEL("inv_type");
@@ -99,6 +101,7 @@ void LLInventoryObject::copyObject(const LLInventoryObject* other)
 	mParentUUID = other->mParentUUID;
 	mType = other->mType;
 	mName = other->mName;
+	mThumbnailUUID = other->mThumbnailUUID;
 }
 
 const LLUUID& LLInventoryObject::getUUID() const
@@ -109,6 +112,11 @@ const LLUUID& LLInventoryObject::getUUID() const
 const LLUUID& LLInventoryObject::getParentUUID() const
 {
 	return mParentUUID;
+}
+
+const LLUUID& LLInventoryObject::getThumbnailUUID() const
+{
+	return mThumbnailUUID;
 }
 
 const std::string& LLInventoryObject::getName() const
@@ -158,6 +166,11 @@ void LLInventoryObject::rename(const std::string& n)
 void LLInventoryObject::setParent(const LLUUID& new_parent)
 {
 	mParentUUID = new_parent;
+}
+
+void LLInventoryObject::setThumbnailUUID(const LLUUID& thumbnail_uuid)
+{
+	mThumbnailUUID = thumbnail_uuid;
 }
 
 void LLInventoryObject::setType(LLAssetType::EType type)
@@ -972,135 +985,6 @@ fail:
 
 }
 
-// Deleted LLInventoryItem::exportFileXML() and LLInventoryItem::importXML()
-// because I can't find any non-test code references to it. 2009-05-04 JC
-
-S32 LLInventoryItem::packBinaryBucket(U8* bin_bucket, LLPermissions* perm_override) const
-{
-	// Figure out which permissions to use.
-	LLPermissions perm;
-	if (perm_override)
-	{
-		// Use the permissions override.
-		perm = *perm_override;
-	}
-	else
-	{
-		// Use the current permissions.
-		perm = getPermissions();
-	}
-
-	// describe the inventory item
-	char* buffer = (char*) bin_bucket;
-	std::string creator_id_str;
-
-	perm.getCreator().toString(creator_id_str);
-	std::string owner_id_str;
-	perm.getOwner().toString(owner_id_str);
-	std::string last_owner_id_str;
-	perm.getLastOwner().toString(last_owner_id_str);
-	std::string group_id_str;
-	perm.getGroup().toString(group_id_str);
-	std::string asset_id_str;
-	getAssetUUID().toString(asset_id_str);
-	S32 size = sprintf(buffer,	/* Flawfinder: ignore */
-					   "%d|%d|%s|%s|%s|%s|%s|%x|%x|%x|%x|%x|%s|%s|%d|%d|%x",
-					   getType(),
-					   getInventoryType(),
-					   getName().c_str(),
-					   creator_id_str.c_str(),
-					   owner_id_str.c_str(),
-					   last_owner_id_str.c_str(),
-					   group_id_str.c_str(),
-					   perm.getMaskBase(),
-					   perm.getMaskOwner(),
-					   perm.getMaskGroup(),
-					   perm.getMaskEveryone(),
-					   perm.getMaskNextOwner(),
-					   asset_id_str.c_str(),
-					   getDescription().c_str(),
-					   getSaleInfo().getSaleType(),
-					   getSaleInfo().getSalePrice(),
-					   getFlags()) + 1;
-
-	return size;
-}
-
-void LLInventoryItem::unpackBinaryBucket(U8* bin_bucket, S32 bin_bucket_size)
-{	
-	// Early exit on an empty binary bucket.
-	if (bin_bucket_size <= 1) return;
-
-	if (NULL == bin_bucket)
-	{
-		LL_ERRS() << "unpackBinaryBucket failed.  bin_bucket is NULL." << LL_ENDL;
-		return;
-	}
-
-	// Convert the bin_bucket into a string.
-	std::vector<char> item_buffer(bin_bucket_size+1);
-	memcpy(&item_buffer[0], bin_bucket, bin_bucket_size);	/* Flawfinder: ignore */
-	item_buffer[bin_bucket_size] = '\0';
-	std::string str(&item_buffer[0]);
-
-	LL_DEBUGS() << "item buffer: " << str << LL_ENDL;
-
-	// Tokenize the string.
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-	boost::char_separator<char> sep("|", "", boost::keep_empty_tokens);
-	tokenizer tokens(str, sep);
-	tokenizer::iterator iter = tokens.begin();
-
-	// Extract all values.
-	LLUUID item_id;
-	item_id.generate();
-	setUUID(item_id);
-
-	LLAssetType::EType type;
-	type = (LLAssetType::EType)(atoi((*(iter++)).c_str()));
-	setType( type );
-	
-	LLInventoryType::EType inv_type;
-	inv_type = (LLInventoryType::EType)(atoi((*(iter++)).c_str()));
-	setInventoryType( inv_type );
-
-	std::string name((*(iter++)).c_str());
-	rename( name );
-	
-	LLUUID creator_id((*(iter++)).c_str());
-	LLUUID owner_id((*(iter++)).c_str());
-	LLUUID last_owner_id((*(iter++)).c_str());
-	LLUUID group_id((*(iter++)).c_str());
-	PermissionMask mask_base = strtoul((*(iter++)).c_str(), NULL, 16);
-	PermissionMask mask_owner = strtoul((*(iter++)).c_str(), NULL, 16);
-	PermissionMask mask_group = strtoul((*(iter++)).c_str(), NULL, 16);
-	PermissionMask mask_every = strtoul((*(iter++)).c_str(), NULL, 16);
-	PermissionMask mask_next = strtoul((*(iter++)).c_str(), NULL, 16);
-	LLPermissions perm;
-	perm.init(creator_id, owner_id, last_owner_id, group_id);
-	perm.initMasks(mask_base, mask_owner, mask_group, mask_every, mask_next);
-	setPermissions(perm);
-	//LL_DEBUGS() << "perm: " << perm << LL_ENDL;
-
-	LLUUID asset_id((*(iter++)).c_str());
-	setAssetUUID(asset_id);
-
-	std::string desc((*(iter++)).c_str());
-	setDescription(desc);
-	
-	LLSaleInfo::EForSale sale_type;
-	sale_type = (LLSaleInfo::EForSale)(atoi((*(iter++)).c_str()));
-	S32 price = atoi((*(iter++)).c_str());
-	LLSaleInfo sale_info(sale_type, price);
-	setSaleInfo(sale_info);
-	
-	U32 flags = strtoul((*(iter++)).c_str(), NULL, 16);
-	setFlags(flags);
-
-	time_t now = time(NULL);
-	setCreationDate(now);
-}
-
 ///----------------------------------------------------------------------------
 /// Class LLInventoryCategory
 ///----------------------------------------------------------------------------
@@ -1152,6 +1036,7 @@ LLSD LLInventoryCategory::asLLSD() const
     LLSD sd = LLSD();
     sd["item_id"] = mUUID;
     sd["parent_id"] = mParentUUID;
+    sd["thumbnail_id"] = mThumbnailUUID;
     S8 type = static_cast<S8>(mPreferredType);
     sd["type"]      = type;
     sd["name"] = mName;
@@ -1183,6 +1068,11 @@ bool LLInventoryCategory::fromLLSD(const LLSD& sd)
     if (sd.has(w))
     {
         mParentUUID = sd[w];
+    }
+    w = INV_THUMBNAIL_ID_LABEL;
+    if (sd.has(w))
+    {
+        mThumbnailUUID = sd[w];
     }
     w = INV_ASSET_TYPE_LABEL;
     if (sd.has(w))
