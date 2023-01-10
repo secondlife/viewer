@@ -2338,6 +2338,7 @@ static LLTrace::BlockTimerStatHandle FTM_CULL("Object Culling");
 void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE; //LL_RECORD_BLOCK_TIME(FTM_CULL);
+    LL_PROFILE_GPU_ZONE("updateCull"); // should always be zero GPU time, but drop a timer to flush stuff out
 
     bool water_clip = !sRenderTransparentWater;
 
@@ -2648,10 +2649,6 @@ void LLPipeline::updateGL()
 			glu->mInQ = FALSE;
 			LLGLUpdate::sGLQ.pop_front();
 		}
-	}
-
-	{ //seed VBO Pools
-		LLVertexBuffer::seedPools();
 	}
 }
 
@@ -3229,6 +3226,7 @@ void LLPipeline::markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags f
 void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+    LL_PROFILE_GPU_ZONE("stateSort");
 
 	if (hasAnyRenderType(LLPipeline::RENDER_TYPE_AVATAR,
 					  LLPipeline::RENDER_TYPE_CONTROL_AV,
@@ -3837,6 +3835,7 @@ void LLPipeline::postSort(LLCamera &camera)
     // flush particle VB
     if (LLVOPartGroup::sVB)
     {
+        LL_PROFILE_GPU_ZONE("flush particle vb");
         LLVOPartGroup::sVB->flush();
     }
     else
@@ -3860,9 +3859,12 @@ void LLPipeline::postSort(LLCamera &camera)
     }*/
 
     // pack vertex buffers for groups that chose to delay their updates
-    for (LLSpatialGroup::sg_vector_t::iterator iter = mMeshDirtyGroup.begin(); iter != mMeshDirtyGroup.end(); ++iter)
     {
-        (*iter)->rebuildMesh();
+        LL_PROFILE_GPU_ZONE("rebuildMesh");
+        for (LLSpatialGroup::sg_vector_t::iterator iter = mMeshDirtyGroup.begin(); iter != mMeshDirtyGroup.end(); ++iter)
+        {
+            (*iter)->rebuildMesh();
+        }
     }
 
     /*if (use_transform_feedback)
@@ -7259,8 +7261,6 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 	LLVOPartGroup::destroyGL();
     gGL.resetVertexBuffer();
 
-	SUBSYSTEM_CLEANUP(LLVertexBuffer);
-	
 	if (LLVertexBuffer::sGLCount != 0)
 	{
 		LL_WARNS() << "VBO wipe failed -- " << LLVertexBuffer::sGLCount << " buffers remaining." << LL_ENDL;
@@ -7280,7 +7280,6 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 	sNoAlpha = gSavedSettings.getBOOL("RenderNoAlpha");
 	LLPipeline::sTextureBindTest = gSavedSettings.getBOOL("RenderDebugTextureBind");
 
-	LLVertexBuffer::initClass(LLVertexBuffer::sEnableVBOs, LLVertexBuffer::sDisableVBOMapping);
     gGL.initVertexBuffer();
 
     mDeferredVB = new LLVertexBuffer(DEFERRED_VB_MASK, 0);

@@ -51,66 +51,15 @@
 
 
 //============================================================================
-// gl name pools for dynamic and streaming buffers
-class LLVBOPool
-{
-public:
-	static U32 sBytesPooled;
-	static U32 sIndexBytesPooled;
-	
-	LLVBOPool(U32 vboUsage, U32 vboType);
-		
-	const U32 mUsage;
-	const U32 mType;
-
-	//size MUST be a power of 2
-	U8* allocate(U32& name, U32 size, bool for_seed = false);
-	
-	//size MUST be the size provided to allocate that returned the given name
-	void release(U32 name, U8* buffer, U32 size);
-	
-	//batch allocate buffers to be provided to the application on demand
-	void seedPool();
-
-	//destroy all records in mFreeList
-	void cleanup();
-
-	U32 genBuffer();
-	void deleteBuffer(U32 name);
-
-	class Record
-	{
-	public:
-		U32 mGLName;
-		U8* mClientData;
-	};
-
-	typedef std::list<Record> record_list_t;
-	std::vector<record_list_t> mFreeList;
-	std::vector<U32> mMissCount;
-    bool mMissCountDirty;   // flag any changes to mFreeList or mMissCount
-
-	//used to avoid calling glGenBuffers for every VBO creation
-	static U32 sNamePool[1024];
-	static U32 sNameIdx;
-};
-
-
-//============================================================================
 // base class 
 class LLPrivateMemoryPool;
 class LLVertexBuffer : public LLRefCount
 {
 public:
-	class MappedRegion
+	struct MappedRegion
 	{
-	public:
-		S32 mType;
-		S32 mIndex;
-		S32 mCount;
-		S32 mEnd;
-		
-		MappedRegion(S32 type, S32 index, S32 count);
+        S32 mStart;
+        S32 mEnd;
 	};
 
 	LLVertexBuffer(const LLVertexBuffer& rhs)
@@ -125,12 +74,6 @@ public:
 		return *this;
 	}
 
-	static LLVBOPool sStreamVBOPool;
-	static LLVBOPool sDynamicVBOPool;
-	static LLVBOPool sDynamicCopyVBOPool;
-	static LLVBOPool sStreamIBOPool;
-	static LLVBOPool sDynamicIBOPool;
-
 	static std::list<U32> sAvailableVAOName;
 	static U32 sCurVAOName;
 
@@ -138,12 +81,10 @@ public:
 	static bool sUseVAO;
 	static bool	sPreferStreamDraw;
 
-	static void seedPools();
-
 	static U32 getVAOName();
 	static void releaseVAOName(U32 name);
 
-	static void initClass(bool use_vbo, bool no_vbo_mapping);
+	static void initClass(LLWindow* window);
 	static void cleanupClass();
 	static void setupClientArrays(U32 data_mask);
 	static void drawArrays(U32 mode, const std::vector<LLVector3>& pos);
@@ -240,7 +181,7 @@ public:
 	virtual void	setBuffer(U32 data_mask); 	// calls  setupVertexBuffer() if data_mask is not 0
     void	setBufferFast(U32 data_mask); 	// calls setupVertexBufferFast(), assumes data_mask is not 0 among other assumptions
 
-	void flush(); //flush pending data to GL memory
+    void flush(bool discard = false); //flush pending data to GL memory, if discard is true, discard previous VBO
 	// allocate buffer
 	bool	allocateBuffer(S32 nverts, S32 nindices, bool create);
 	virtual bool resizeBuffer(S32 newnverts, S32 newnindices);
