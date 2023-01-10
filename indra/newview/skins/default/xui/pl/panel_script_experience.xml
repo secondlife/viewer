@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<panel name="script_experience" title="PRZYGODA">
+	<button name="Expand Experience" label="Przygoda" />
+	<check_box label="Używa przygody" name="enable_xp" />
+	<layout_stack name="xp_details">
+		<layout_panel>
+			<text>
+				Skrypt:
+			</text>
+			<text>
+				Powiązane z:
+			</text>
+			<text>
+				Możesz uczestniczyć:
+			</text>
+			<text>
+				Powiąż z:
+			</text>
+		</layout_panel>
+		<layout_panel>
+			<combo_box label="Wybierz przygodę..." name="Experiences..." />
+		</layout_panel>
+	</layout_stack>
+	<text name="No Experiences">
+		Nie uczestniczysz w żadnych przygodach.
+	</text>
+</panel>
