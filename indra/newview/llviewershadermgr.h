@@ -164,6 +164,8 @@ extern LLGLSLShader			gDownsampleDepthProgram;
 extern LLGLSLShader			gDownsampleDepthRectProgram;
 extern LLGLSLShader			gBenchmarkProgram;
 extern LLGLSLShader         gReflectionProbeDisplayProgram;
+extern LLGLSLShader         gCopyProgram;
+extern LLGLSLShader         gCopyDepthProgram;
 
 //output tex0[tc0] + tex1[tc1]
 extern LLGLSLShader			gTwoTextureAddProgram;

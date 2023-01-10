@@ -173,7 +173,6 @@ public:
 	// if source's depth buffer cannot be bound for reading, a scratch space depth buffer must be provided
 	void		downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space = NULL);
 
-	void		doOcclusion(LLCamera& camera, LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space = NULL);
 	void		doOcclusion(LLCamera& camera);
 	void		markNotCulled(LLSpatialGroup* group, LLCamera &camera);
 	void        markMoved(LLDrawable *drawablep, bool damped_motion = false);
@@ -673,12 +672,10 @@ public:
         LLRenderTarget			fxaaBuffer;
         LLRenderTarget			edgeMap;
         LLRenderTarget			deferredDepth;
-        LLRenderTarget			occlusionDepth;
         LLRenderTarget			deferredLight;
 
         //sun shadow map
         LLRenderTarget			shadow[4];
-        LLRenderTarget			shadowOcclusion[4];
     };
 
     // main full resoltuion render target
@@ -691,7 +688,6 @@ public:
     RenderTargetPack* mRT;
 
     LLRenderTarget          mSpotShadow[2];
-    LLRenderTarget          mSpotShadowOcclusion[2];
 
     LLRenderTarget          mPbrBrdfLut;
 

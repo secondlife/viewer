@@ -67,9 +67,8 @@ LLRenderTarget::LLRenderTarget() :
 	mPreviousResX(0),
 	mPreviousResY(0),
 	mDepth(0),
-	mStencil(0),
 	mUseDepth(false),
-	mRenderDepth(false),
+    mSampleDepth(false),
 	mUsage(LLTexUnit::TT_TEXTURE)
 {
 }
@@ -98,11 +97,11 @@ void LLRenderTarget::resize(U32 resx, U32 resy)
 
 	if (mDepth)
 	{ //resize depth attachment
-		if (mStencil)
+		if (!mSampleDepth)
 		{
 			//use render buffers where stencil buffers are in play
 			glBindRenderbuffer(GL_RENDERBUFFER, mDepth);
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, mResX, mResY);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mResX, mResY);
 			glBindRenderbuffer(GL_RENDERBUFFER, 0);
 		}
 		else
@@ -117,7 +116,7 @@ void LLRenderTarget::resize(U32 resx, U32 resy)
 }
 	
 
-bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool stencil, LLTexUnit::eTextureType usage, bool use_fbo, S32 samples)
+bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool sample_depth, LLTexUnit::eTextureType usage, bool use_fbo, S32 samples)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 	resx = llmin(resx, (U32) gGLManager.mGLMaxTextureSize);
@@ -130,9 +129,9 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, boo
 	mResX = resx;
 	mResY = resy;
 
-	mStencil = stencil;
 	mUsage = usage;
-	mUseDepth = depth;
+    mUseDepth = depth;
+    mSampleDepth = sample_depth;
 
 	if ((sUseFBO || use_fbo))
 	{
@@ -150,13 +149,10 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, boo
 		if (mDepth)
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
-            llassert(!mStencil); // use of stencil buffer is deprecated (performance penalty)
-			if (mStencil)
+            
+			if (!canSampleDepth())
 			{
 				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepth);
-				stop_glerror();
-				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepth);
-				stop_glerror();
 			}
 			else
 			{
@@ -315,14 +311,12 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 bool LLRenderTarget::allocateDepth()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
-	if (mStencil)
+	if (!mSampleDepth)
 	{
-		//use render buffers where stencil buffers are in play
+		//use render buffers if depth buffer won't be sampled
 		glGenRenderbuffers(1, (GLuint *) &mDepth);
 		glBindRenderbuffer(GL_RENDERBUFFER, mDepth);
-		stop_glerror();
-		clear_glerror();
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, mResX, mResY);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mResX, mResY);
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	}
 	else
@@ -367,23 +361,15 @@ void LLRenderTarget::shareDepthBuffer(LLRenderTarget& target)
 
 	if (mDepth)
 	{
-		stop_glerror();
 		glBindFramebuffer(GL_FRAMEBUFFER, target.mFBO);
-		stop_glerror();
-
-        llassert(!mStencil); // deprecated -- performance penalty
-		if (mStencil)
+		
+		if (!mSampleDepth)
 		{
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepth);
-			stop_glerror();
-			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepth);			
-			stop_glerror();
-			target.mStencil = true;
 		}
 		else
 		{
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, LLTexUnit::getInternalType(mUsage), mDepth, 0);
-			stop_glerror();
 		}
 
 		check_framebuffer_status();
@@ -399,15 +385,13 @@ void LLRenderTarget::release()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 	if (mDepth)
 	{
-		if (mStencil)
+		if (!mSampleDepth)
 		{
 			glDeleteRenderbuffers(1, (GLuint*) &mDepth);
-			stop_glerror();
 		}
 		else
 		{
 			LLImageGL::deleteTextures(1, &mDepth);
-			stop_glerror();
 		}
 		mDepth = 0;
 
@@ -419,12 +403,10 @@ void LLRenderTarget::release()
 
 		if (mUseDepth)
 		{ //detach shared depth buffer
-            llassert(!mStencil); //deprecated, performance penalty
-			if (mStencil)
+            if (!mSampleDepth)
 			{ //attached as a renderbuffer
-				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
 				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-				mStencil = false;
+                mSampleDepth = false;
 			}
 			else
 			{ //attached as a texture
@@ -620,84 +602,6 @@ void LLRenderTarget::flush(bool fetch_depth)
 			sCurResY = gGLViewport[3];
 		}
 						
-		stop_glerror();
-	}
-}
-
-void LLRenderTarget::copyContents(LLRenderTarget& source, S32 srcX0, S32 srcY0, S32 srcX1, S32 srcY1,
-						S32 dstX0, S32 dstY0, S32 dstX1, S32 dstY1, U32 mask, U32 filter)
-{
-    LL_PROFILE_GPU_ZONE("LLRenderTarget::copyContents");
-
-	GLboolean write_depth = mask & GL_DEPTH_BUFFER_BIT ? TRUE : FALSE;
-
-	LLGLDepthTest depth(write_depth, write_depth);
-
-	gGL.flush();
-	if (!source.mFBO || !mFBO)
-	{
-		LL_WARNS() << "Cannot copy framebuffer contents for non FBO render targets." << LL_ENDL;
-		return;
-	}
-
-	
-	if (mask == GL_DEPTH_BUFFER_BIT && source.mStencil != mStencil)
-	{
-		stop_glerror();
-		
-		glBindFramebuffer(GL_FRAMEBUFFER, source.mFBO);
-		check_framebuffer_status();
-		gGL.getTexUnit(0)->bind(this, true);
-		stop_glerror();
-		glCopyTexSubImage2D(LLTexUnit::getInternalType(mUsage), 0, srcX0, srcY0, dstX0, dstY0, dstX1, dstY1);
-		stop_glerror();
-		glBindFramebuffer(GL_FRAMEBUFFER, sCurFBO);
-		stop_glerror();
-	}
-	else
-	{
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, source.mFBO);
-		stop_glerror();
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mFBO);
-		stop_glerror();
-		check_framebuffer_status();
-		stop_glerror();
-		glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
-		stop_glerror();
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-		stop_glerror();
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		stop_glerror();
-		glBindFramebuffer(GL_FRAMEBUFFER, sCurFBO);
-		stop_glerror();
-	}
-}
-
-//static
-void LLRenderTarget::copyContentsToFramebuffer(LLRenderTarget& source, S32 srcX0, S32 srcY0, S32 srcX1, S32 srcY1,
-						S32 dstX0, S32 dstY0, S32 dstX1, S32 dstY1, U32 mask, U32 filter)
-{
-	if (!source.mFBO)
-	{
-		LL_WARNS() << "Cannot copy framebuffer contents for non FBO render targets." << LL_ENDL;
-		return;
-	}
-
-	{
-        LL_PROFILE_GPU_ZONE("copyContentsToFramebuffer");
-		GLboolean write_depth = mask & GL_DEPTH_BUFFER_BIT ? TRUE : FALSE;
-
-		LLGLDepthTest depth(write_depth, write_depth);
-		
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, source.mFBO);
-		stop_glerror();
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		stop_glerror();
-		check_framebuffer_status();
-		stop_glerror();
-		glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
-		stop_glerror();
-		glBindFramebuffer(GL_FRAMEBUFFER, sCurFBO);
 		stop_glerror();
 	}
 }

@@ -93,6 +93,8 @@ LLGLSLShader	gDownsampleDepthRectProgram;
 LLGLSLShader	gAlphaMaskProgram;
 LLGLSLShader	gBenchmarkProgram;
 LLGLSLShader    gReflectionProbeDisplayProgram;
+LLGLSLShader    gCopyProgram;
+LLGLSLShader    gCopyDepthProgram;
 
 //object shaders
 LLGLSLShader		gObjectSimpleProgram;
@@ -3916,6 +3918,27 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
         success = gReflectionProbeDisplayProgram.createShader(NULL, NULL);
     }
 
+    if (success)
+    {
+        gCopyProgram.mName = "Copy Shader";
+        gCopyProgram.mShaderFiles.clear();
+        gCopyProgram.mShaderFiles.push_back(make_pair("interface/copyV.glsl", GL_VERTEX_SHADER));
+        gCopyProgram.mShaderFiles.push_back(make_pair("interface/copyF.glsl", GL_FRAGMENT_SHADER));
+        gCopyProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
+        success = gCopyProgram.createShader(NULL, NULL);
+    }
+
+    if (success)
+    {
+        gCopyDepthProgram.mName = "Copy Depth Shader";
+        gCopyDepthProgram.mShaderFiles.clear();
+        gCopyDepthProgram.mShaderFiles.push_back(make_pair("interface/copyV.glsl", GL_VERTEX_SHADER));
+        gCopyDepthProgram.mShaderFiles.push_back(make_pair("interface/copyF.glsl", GL_FRAGMENT_SHADER));
+        gCopyDepthProgram.clearPermutations();
+        gCopyDepthProgram.addPermutation("COPY_DEPTH", "1");
+        gCopyDepthProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
+        success = gCopyDepthProgram.createShader(NULL, NULL);
+    }
     
 	if (success)
 	{

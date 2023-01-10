@@ -133,11 +133,28 @@ void LLDrawPoolWater::beginPostDeferredPass(S32 pass)
         // reflections and refractions
         LLRenderTarget& src = gPipeline.mRT->screen;
         LLRenderTarget& dst = gPipeline.mWaterDis;
+
+#if 0
         dst.copyContents(src,
             0, 0, src.getWidth(), src.getHeight(),
             0, 0, dst.getWidth(), dst.getHeight(),
             GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
             GL_NEAREST);
+#else
+        dst.bindTarget();
+        gCopyDepthProgram.bind();
+
+        S32 diff_map = gCopyDepthProgram.enableTexture(LLShaderMgr::DIFFUSE_MAP);
+        S32 depth_map = gCopyDepthProgram.enableTexture(LLShaderMgr::DEFERRED_DEPTH);
+
+        gGL.getTexUnit(diff_map)->bind(&src);
+        gGL.getTexUnit(depth_map)->bind(&src, true);
+
+        gPipeline.mScreenTriangleVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+        gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+        dst.flush();
+#endif
     }
 }
 

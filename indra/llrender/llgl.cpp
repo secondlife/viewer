@@ -2413,7 +2413,7 @@ void LLGLState::checkStates(const std::string& msg)
 
 	BOOL error = FALSE;
 
-	if (src != GL_SRC_ALPHA || dst != GL_ONE_MINUS_SRC_ALPHA)
+	/*if (src != GL_SRC_ALPHA || dst != GL_ONE_MINUS_SRC_ALPHA)
 	{
 		if (gDebugSession)
 		{
@@ -2424,7 +2424,7 @@ void LLGLState::checkStates(const std::string& msg)
 		{
 			LL_GL_ERRS << "Blend function corrupted: " << std::hex << src << " " << std::hex << dst << "  " << msg << std::dec << LL_ENDL;
 		}
-	}
+	}*/
 	
 	for (boost::unordered_map<LLGLenum, LLGLboolean>::iterator iter = sStateMap.begin();
 		 iter != sStateMap.end(); ++iter)

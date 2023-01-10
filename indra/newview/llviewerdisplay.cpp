@@ -967,13 +967,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
         LLRenderTarget &rt = (gPipeline.sRenderDeferred ? gPipeline.mRT->deferredScreen : gPipeline.mRT->screen);
         rt.flush();
 
-        /*if (rt.sUseFBO)
-        {
-            LLRenderTarget::copyContentsToFramebuffer(rt, 0, 0, rt.getWidth(), rt.getHeight(), 0, 0, rt.getWidth(),
-                                                      rt.getHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,
-                                                      GL_NEAREST);
-        }*/
-
         if (LLPipeline::sRenderDeferred)
         {
 			gPipeline.renderDeferredLighting();
@@ -1364,6 +1357,8 @@ void render_ui(F32 zoom_factor, int subfield)
 		render_hud_elements();
 		render_hud_attachments();
 
+        LLGLState::checkStates();
+
 		LLGLSDefault gls_default;
 		LLGLSUIDefault gls_ui;
 		{
@@ -1378,6 +1373,7 @@ void render_ui(F32 zoom_factor, int subfield)
             if (!gDisconnected)
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_UI("UI 3D"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_3D);
+                LLGLState::checkStates();
                 render_ui_3d();
                 LLGLState::checkStates();
             }

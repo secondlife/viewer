@@ -370,9 +370,10 @@ bool LLTexUnit::bind(LLRenderTarget* renderTarget, bool bindDepth)
 
 	if (bindDepth)
 	{
-		if (renderTarget->hasStencil())
+
+		if (renderTarget->getDepth() && !renderTarget->canSampleDepth())
 		{
-			LL_ERRS() << "Cannot bind a render buffer for sampling.  Allocate render target without a stencil buffer if sampling of depth buffer is required." << LL_ENDL;
+			LL_ERRS() << "Cannot bind a render buffer for sampling.  Allocate render target with depth buffer sampling enabled." << LL_ENDL;
 		}
 
 		bindManual(renderTarget->getUsage(), renderTarget->getDepth());

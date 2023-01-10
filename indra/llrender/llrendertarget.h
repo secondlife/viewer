@@ -73,7 +73,7 @@ public:
 	//allocate resources for rendering
 	//must be called before use
 	//multiple calls will release previously allocated resources
-	bool allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool stencil, LLTexUnit::eTextureType usage = LLTexUnit::TT_TEXTURE, bool use_fbo = false, S32 samples = 0);
+	bool allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool sample_depth, LLTexUnit::eTextureType usage = LLTexUnit::TT_TEXTURE, bool use_fbo = false, S32 samples = 0);
 
 	//resize existing attachments to use new resolution and color format
 	// CAUTION: if the GL runs out of memory attempting to resize, this render target will be undefined
@@ -136,7 +136,7 @@ public:
 	U32 getNumTextures() const;
 
 	U32 getDepth(void) const { return mDepth; }
-	bool hasStencil() const { return mStencil; }
+	bool canSampleDepth() const { return mSampleDepth; }
 
 	void bindTexture(U32 index, S32 channel, LLTexUnit::eTextureFilterOptions filter_options = LLTexUnit::TFO_BILINEAR);
 
@@ -147,12 +147,6 @@ public:
 	// if fetch_depth is TRUE, every effort will be made to copy the depth buffer into 
 	// the current depth texture.  A depth texture will be allocated if needed.
 	void flush(bool fetch_depth = FALSE);
-
-	void copyContents(LLRenderTarget& source, S32 srcX0, S32 srcY0, S32 srcX1, S32 srcY1,
-						S32 dstX0, S32 dstY0, S32 dstX1, S32 dstY1, U32 mask, U32 filter);
-
-	static void copyContentsToFramebuffer(LLRenderTarget& source, S32 srcX0, S32 srcY0, S32 srcX1, S32 srcY1,
-						S32 dstX0, S32 dstY0, S32 dstX1, S32 dstY1, U32 mask, U32 filter);
 
 	//Returns TRUE if target is ready to be rendered into.
 	//That is, if the target has been allocated with at least
@@ -172,9 +166,9 @@ protected:
 	U32 mPreviousResY;
 
 	U32 mDepth;
-	bool mStencil;
-	bool mUseDepth;
-	bool mRenderDepth;
+    bool mUseDepth;
+    bool mSampleDepth;
+
 	LLTexUnit::eTextureType mUsage;
 	
 	static LLRenderTarget* sBoundTarget;
