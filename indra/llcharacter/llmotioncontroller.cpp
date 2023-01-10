@@ -1053,7 +1053,7 @@ LLMotion* LLMotionController::findMotion(const LLUUID& id) const
 void LLMotionController::dumpMotions()
 {
 	LL_INFOS() << "=====================================" << LL_ENDL;
-	for (motion_map_t::value_type motion_pair : mAllMotions)
+	for (motion_map_t::value_type& motion_pair : mAllMotions)
 	{
 		LLUUID id = motion_pair.first;
 		std::string state_string;
@@ -1076,7 +1076,7 @@ void LLMotionController::dumpMotions()
 //-----------------------------------------------------------------------------
 void LLMotionController::deactivateAllMotions()
 {
-	for (motion_map_t::value_type motion_pair : mAllMotions)
+	for (motion_map_t::value_type& motion_pair : mAllMotions)
 	{
 		LLMotion* motionp = motion_pair.second;
 		deactivateMotionInstance(motionp);
@@ -1110,7 +1110,7 @@ void LLMotionController::flushAllMotions()
 	mCharacter->removeAnimationData("Hand Pose");
 
 	// restart motions
-	for (std::vector<std::pair<LLUUID,F32> >::value_type motion_pair : active_motions)
+	for (std::vector<std::pair<LLUUID,F32> >::value_type& motion_pair : active_motions)
 	{
 		startMotion(motion_pair.first, motion_pair.second);
 	}

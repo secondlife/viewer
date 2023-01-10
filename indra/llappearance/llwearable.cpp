@@ -60,7 +60,7 @@ LLWearable::LLWearable()
 // virtual
 LLWearable::~LLWearable()
 {
-	for (auto& vp_pair : mVisualParamIndexMap)
+	for (visual_param_index_map_t::value_type& vp_pair : mVisualParamIndexMap)
 	{
 		LLVisualParam* vp = vp_pair.second;
 		vp->clearNextParam();
@@ -122,7 +122,7 @@ BOOL LLWearable::exportStream( std::ostream& output_stream ) const
 	// parameters
 	output_stream << "parameters " << mVisualParamIndexMap.size() << "\n";
 
-	for (auto& vp_pair : mVisualParamIndexMap)
+	for (const visual_param_index_map_t::value_type& vp_pair : mVisualParamIndexMap)
 	{
 		S32 param_id = vp_pair.first;
 		const LLVisualParam* param = vp_pair.second;
@@ -133,7 +133,7 @@ BOOL LLWearable::exportStream( std::ostream& output_stream ) const
 	// texture entries
 	output_stream << "textures " << mTEMap.size() << "\n";
 
-	for (auto& te_pair : mTEMap)
+	for (const te_map_t::value_type& te_pair : mTEMap)
 	{
 		S32 te = te_pair.first;
 		const LLUUID& image_id = te_pair.second->getID();
@@ -158,7 +158,7 @@ void LLWearable::createVisualParams(LLAvatarAppearance *avatarp)
 	}
 
 	// resync driver parameters to point to the newly cloned driven parameters
-	for (auto& param_pair : mVisualParamIndexMap)
+	for (visual_param_index_map_t::value_type& param_pair : mVisualParamIndexMap)
 	{
 		LLVisualParam* param = param_pair.second;
 		LLVisualParam*(LLWearable::*wearable_function)(S32)const = &LLWearable::getVisualParam; 
@@ -519,7 +519,7 @@ std::vector<LLLocalTextureObject*> LLWearable::getLocalTextureListSeq()
 {
 	std::vector<LLLocalTextureObject*> result;
 
-	for(auto& te_pair : mTEMap)
+	for(te_map_t::value_type& te_pair : mTEMap)
 	{
 		LLLocalTextureObject* lto = te_pair.second;
 		result.push_back(lto);
@@ -543,7 +543,7 @@ void LLWearable::revertValues()
 
 	//update saved settings so wearable is no longer dirty
 	// One loop should be necessary here
-	for (auto& vp_pair : mSavedVisualParamMap)
+	for (param_map_t::value_type& vp_pair : mSavedVisualParamMap)
 	{
 		S32 id = vp_pair.first;
 		LLVisualParam *param = getVisualParam(id);
@@ -562,7 +562,7 @@ void LLWearable::saveValues()
 {
 	//update saved settings so wearable is no longer dirty
 	mSavedVisualParamMap.clear();
-	for (auto& vp_pair : mVisualParamIndexMap)
+	for (const visual_param_index_map_t::value_type& vp_pair : mVisualParamIndexMap)
 	{
 		S32 id = vp_pair.first;
 		LLVisualParam *wearable_param = vp_pair.second;
@@ -680,7 +680,7 @@ LLVisualParam* LLWearable::getVisualParam(S32 index) const
 void LLWearable::getVisualParams(visual_param_vec_t &list)
 {
 	// add all visual params to the passed-in vector
-	for(auto& vp_pair : mVisualParamIndexMap)
+	for(visual_param_index_map_t::value_type& vp_pair : mVisualParamIndexMap)
 	{
 		list.push_back(vp_pair.second);
 	}
@@ -688,7 +688,7 @@ void LLWearable::getVisualParams(visual_param_vec_t &list)
 
 void LLWearable::animateParams(F32 delta)
 {
-	for(auto& vp_pair : mVisualParamIndexMap)
+	for(visual_param_index_map_t::value_type& vp_pair : mVisualParamIndexMap)
 	{
 		LLVisualParam *param = (LLVisualParam*)vp_pair.second;
 		param->animate(delta);

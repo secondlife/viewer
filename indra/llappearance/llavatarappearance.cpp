@@ -214,7 +214,7 @@ void LLAvatarAppearance::initInstance()
 	mRoot = createAvatarJoint();
 	mRoot->setName( "mRoot" );
 
-	for (const auto& mesh_pair : sAvatarDictionary->getMeshEntries())
+	for (const LLAvatarAppearanceDictionary::MeshEntries::value_type& mesh_pair : sAvatarDictionary->getMeshEntries())
 	{
 		const EMeshIndex mesh_index = mesh_pair.first;
 		const LLAvatarAppearanceDictionary::MeshEntry *mesh_dict = mesh_pair.second;
@@ -258,7 +258,7 @@ void LLAvatarAppearance::initInstance()
 	//-------------------------------------------------------------------------
 	// associate baked textures with meshes
 	//-------------------------------------------------------------------------
-	for (const auto& mesh_pair : sAvatarDictionary->getMeshEntries())
+	for (const LLAvatarAppearanceDictionary::MeshEntries::value_type& mesh_pair : sAvatarDictionary->getMeshEntries())
 	{
 		const EMeshIndex mesh_index = mesh_pair.first;
 		const LLAvatarAppearanceDictionary::MeshEntry *mesh_dict = mesh_pair.second;
@@ -266,7 +266,7 @@ void LLAvatarAppearance::initInstance()
 		// Skip it if there's no associated baked texture.
 		if (baked_texture_index == BAKED_NUM_INDICES) continue;
 		
-		for (auto mesh : mMeshLOD[mesh_index]->mMeshParts)
+		for (LLAvatarJointMesh* mesh : mMeshLOD[mesh_index]->mMeshParts)
 		{
 			mBakedTextureDatas[(S32)baked_texture_index].mJointMeshes.push_back(mesh);
 		}
@@ -290,7 +290,7 @@ LLAvatarAppearance::~LLAvatarAppearance()
 		delete_and_clear(mBakedTextureDatas[i].mTexLayerSet);
 		mBakedTextureDatas[i].mJointMeshes.clear();
 
-		for (auto masked_morph : mBakedTextureDatas[i].mMaskedMorphs)
+		for (LLMaskedMorph* masked_morph : mBakedTextureDatas[i].mMaskedMorphs)
 		{
 			delete masked_morph;
 		}
@@ -305,7 +305,7 @@ LLAvatarAppearance::~LLAvatarAppearance()
 	std::for_each(mPolyMeshes.begin(), mPolyMeshes.end(), DeletePairedPointer());
 	mPolyMeshes.clear();
 
-	for (auto joint : mMeshLOD)
+	for (LLAvatarJoint* joint : mMeshLOD)
 	{
 		std::for_each(joint->mMeshParts.begin(), joint->mMeshParts.end(), DeletePointer());
 		joint->mMeshParts.clear();
@@ -460,7 +460,7 @@ void LLAvatarAppearance::compareJointStateMaps(joint_state_map_t& last_state,
     if (!last_state.empty() && (last_state != curr_state))
     {
         S32 diff_count = 0;
-        for (auto& pair : last_state)
+        for (joint_state_map_t::value_type& pair : last_state)
         {
             const std::string& key = pair.first;
             if (last_state[key] != curr_state[key])
@@ -672,7 +672,7 @@ BOOL LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
 
 
 	// setup children
-	for (auto child_info : info->mChildren)
+	for (LLAvatarBoneInfo* child_info : info->mChildren)
 	{
 		if (!setupBone(child_info, joint, volume_num, joint_num))
 		{
@@ -725,7 +725,7 @@ BOOL LLAvatarAppearance::buildSkeleton(const LLAvatarSkeletonInfo *info)
 
 	S32 current_joint_num = 0;
 	S32 current_volume_num = 0;
-	for (auto bone_info : info->mBoneInfoList)
+	for (LLAvatarBoneInfo* bone_info : info->mBoneInfoList)
 	{
 		if (!setupBone(bone_info, NULL, current_volume_num, current_joint_num))
 		{
@@ -804,9 +804,9 @@ void LLAvatarAppearance::buildCharacter()
 	//-------------------------------------------------------------------------
 	// clear mesh data
 	//-------------------------------------------------------------------------
-	for (auto joint : mMeshLOD)
+	for (LLAvatarJoint* joint : mMeshLOD)
 	{
-		for (auto mesh : joint->mMeshParts)
+		for (LLAvatarJointMesh* mesh : joint->mMeshParts)
 		{
 			mesh->setMesh(NULL);
 		}
@@ -981,7 +981,7 @@ BOOL LLAvatarAppearance::loadAvatar()
 	}
 
 	// avatar_lad.xml : <morph_masks>
-	for (auto info : sAvatarXmlInfo->mMorphMaskInfoList)
+	for (LLAvatarXmlInfo::LLAvatarMorphInfo* info : sAvatarXmlInfo->mMorphMaskInfoList)
 	{
 		EBakedTextureIndex baked = sAvatarDictionary->findBakedByRegionName(info->mRegion);
 		if (baked != BAKED_NUM_INDICES)
@@ -1001,7 +1001,7 @@ BOOL LLAvatarAppearance::loadAvatar()
 	loadLayersets();
 	
 	// avatar_lad.xml : <driver_parameters>
-	for (auto info : sAvatarXmlInfo->mDriverInfoList)
+	for (LLDriverParamInfo* info : sAvatarXmlInfo->mDriverInfoList)
 	{
 		LLDriverParam* driver_param = new LLDriverParam( this );
 		if (driver_param->setInfo(info))
@@ -1034,7 +1034,7 @@ BOOL LLAvatarAppearance::loadSkeletonNode ()
 	mRoot->addChild( mSkeleton[0] );
 
 	// make meshes children before calling parent version of the function
-	for (auto joint : mMeshLOD)
+	for (LLAvatarJoint* joint : mMeshLOD)
 	{
 		joint->mUpdateXform = FALSE;
 		joint->setMeshesToChildren();
@@ -1068,7 +1068,7 @@ BOOL LLAvatarAppearance::loadSkeletonNode ()
 	// SKELETAL DISTORTIONS
 	{
 		LLAvatarXmlInfo::skeletal_distortion_info_list_t::iterator iter;
-		for (auto visual_param_info : sAvatarXmlInfo->mSkeletalDistortionInfoList)
+		for (LLViewerVisualParamInfo* visual_param_info : sAvatarXmlInfo->mSkeletalDistortionInfoList)
 		{
 			LLPolySkeletalDistortionInfo *info = (LLPolySkeletalDistortionInfo*)visual_param_info;
 			LLPolySkeletalDistortion *param = new LLPolySkeletalDistortion(this);
@@ -1094,7 +1094,7 @@ BOOL LLAvatarAppearance::loadSkeletonNode ()
 //-----------------------------------------------------------------------------
 BOOL LLAvatarAppearance::loadMeshNodes()
 {
-	for (const auto info : sAvatarXmlInfo->mMeshInfoList)
+	for (const LLAvatarXmlInfo::LLAvatarMeshInfo* info : sAvatarXmlInfo->mMeshInfoList)
 	{
 		const std::string &type = info->mType;
 		S32 lod = info->mLOD;
@@ -1107,7 +1107,7 @@ BOOL LLAvatarAppearance::loadMeshNodes()
 			switch(lod)
 			  case 0:
 				mesh = &mHairMesh0; */
-		for (const auto& mesh_pair : sAvatarDictionary->getMeshEntries())
+		for (const LLAvatarAppearanceDictionary::MeshEntries::value_type& mesh_pair : sAvatarDictionary->getMeshEntries())
 		{
 			const EMeshIndex mesh_index = mesh_pair.first;
 			const LLAvatarAppearanceDictionary::MeshEntry *mesh_dict = mesh_pair.second;
@@ -1178,7 +1178,7 @@ BOOL LLAvatarAppearance::loadMeshNodes()
 		mesh->setMesh( poly_mesh );
 		mesh->setLOD( info->mMinPixelArea );
 
-		for (const auto& info_pair : info->mPolyMorphTargetInfoList)
+		for (const LLAvatarXmlInfo::LLAvatarMeshInfo::morph_info_pair_t& info_pair : info->mPolyMorphTargetInfoList)
 		{
 			LLPolyMorphTarget *param = new LLPolyMorphTarget(mesh->getMesh());
 			if (!param->setInfo((LLPolyMorphTargetInfo*)info_pair.first))
@@ -1211,7 +1211,7 @@ BOOL LLAvatarAppearance::loadMeshNodes()
 BOOL LLAvatarAppearance::loadLayersets()
 {
 	BOOL success = TRUE;
-	for (auto layerset_info : sAvatarXmlInfo->mLayerInfoList)
+	for (LLTexLayerSetInfo* layerset_info : sAvatarXmlInfo->mLayerInfoList)
 	{
 		if (isSelf())
 		{
@@ -1228,7 +1228,7 @@ BOOL LLAvatarAppearance::loadLayersets()
 
 			// scan baked textures and associate the layerset with the appropriate one
 			EBakedTextureIndex baked_index = BAKED_NUM_INDICES;
-			for (const auto& baked_pair : sAvatarDictionary->getBakedTextures())
+			for (const LLAvatarAppearanceDictionary::BakedTextures::value_type& baked_pair : sAvatarDictionary->getBakedTextures())
 			{
 				const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = baked_pair.second;
 				if (layer_set->isBodyRegion(baked_dict->mName))
@@ -1249,7 +1249,7 @@ BOOL LLAvatarAppearance::loadLayersets()
 			}
 
 			// scan morph masks and let any affected layers know they have an associated morph
-			for (auto morph : mBakedTextureDatas[baked_index].mMaskedMorphs)
+			for (LLMaskedMorph* morph : mBakedTextureDatas[baked_index].mMaskedMorphs)
 			{
 				LLTexLayerInterface* layer = layer_set->findLayerByName(morph->mLayer);
 				if (layer)
@@ -1692,7 +1692,7 @@ void LLAvatarAppearance::makeJointAliases(LLAvatarBoneInfo *bone_info)
     
     boost::char_separator<char> sep(" ");
     boost::tokenizer<boost::char_separator<char> > tok(aliases, sep);
-    for(auto& i : tok)
+    for(const std::string& i : tok)
     {
         if ( mJointAliasMap.find(i) != mJointAliasMap.end() )
         {
@@ -1713,13 +1713,13 @@ const LLAvatarAppearance::joint_alias_map_t& LLAvatarAppearance::getJointAliases
     if (mJointAliasMap.empty())
     {
         
-        for (auto bone_info : sAvatarSkeletonInfo->mBoneInfoList)
+        for (LLAvatarBoneInfo* bone_info : sAvatarSkeletonInfo->mBoneInfoList)
         {
             //LLAvatarBoneInfo *bone_info = *iter;
             makeJointAliases(bone_info);
         }
 
-        for (auto info : sAvatarXmlInfo->mAttachmentInfoList)
+        for (LLAvatarXmlInfo::LLAvatarAttachmentInfo* info : sAvatarXmlInfo->mAttachmentInfoList)
         {
             std::string bone_name = info->mName;
             

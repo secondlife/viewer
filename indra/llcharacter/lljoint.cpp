@@ -67,7 +67,7 @@ void LLVector3OverrideMap::showJointVector3Overrides( std::ostringstream& os ) c
 	map_type::const_iterator max_it = std::max_element(m_map.begin(),
 													   m_map.end(),
 													   attachment_map_iter_compare_key<map_type::value_type>);
-	for (const map_type::value_type pos_pair : m_map)
+	for (const map_type::value_type& pos_pair : m_map)
 	{
 		const LLVector3& pos = pos_pair.second;
 		os << " " << "[" << pos_pair.first <<": " << pos << "]" << ((pos_pair==(*max_it)) ? "*" : "");
@@ -509,7 +509,7 @@ void LLJoint::getAllAttachmentPosOverrides(S32& num_pos_overrides,
                                            std::set<LLVector3>& distinct_pos_overrides) const
 {
     num_pos_overrides = m_attachmentPosOverrides.count();
-    for (LLVector3OverrideMap::map_type::value_type pos_override_pair : m_attachmentPosOverrides.getMap())
+    for (const LLVector3OverrideMap::map_type::value_type& pos_override_pair : m_attachmentPosOverrides.getMap())
     {
         distinct_pos_overrides.insert(pos_override_pair.second);
     }
@@ -522,7 +522,7 @@ void LLJoint::getAllAttachmentScaleOverrides(S32& num_scale_overrides,
                                              std::set<LLVector3>& distinct_scale_overrides) const
 {
     num_scale_overrides = m_attachmentScaleOverrides.count();
-    for (LLVector3OverrideMap::map_type::value_type scale_override_pair : m_attachmentScaleOverrides.getMap())
+    for (const LLVector3OverrideMap::map_type::value_type& scale_override_pair : m_attachmentScaleOverrides.getMap())
     {
         distinct_scale_overrides.insert(scale_override_pair.second);
     }
@@ -549,7 +549,7 @@ void LLJoint::showAttachmentPosOverrides(const std::string& av_info) const
     {
         LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " has " << count << " attachment pos overrides" << LL_ENDL;
 		std::set<LLVector3> distinct_offsets;
-        for (LLVector3OverrideMap::map_type::value_type pos_override_pair : m_attachmentPosOverrides.getMap())
+        for (const LLVector3OverrideMap::map_type::value_type& pos_override_pair : m_attachmentPosOverrides.getMap())
         {
             distinct_offsets.insert(pos_override_pair.second);
         }
@@ -708,7 +708,7 @@ void LLJoint::showAttachmentScaleOverrides(const std::string& av_info) const
     {
         LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " has " << count << " attachment scale overrides" << LL_ENDL;
 		std::set<LLVector3> distinct_offsets;
-        for (LLVector3OverrideMap::map_type::value_type scale_override_pair : m_attachmentScaleOverrides.getMap())
+        for (const LLVector3OverrideMap::map_type::value_type& scale_override_pair : m_attachmentScaleOverrides.getMap())
         {
             distinct_offsets.insert(scale_override_pair.second);
         }

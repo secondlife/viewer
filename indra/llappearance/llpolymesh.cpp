@@ -890,7 +890,7 @@ void LLPolyMesh::dumpDiagInfo()
         LL_INFOS() << "-----------------------------------------------------" << LL_ENDL;
 
         // print each loaded mesh, and it's memory usage
-        for(const auto& mesh_pair : sGlobalSharedMeshList)
+        for(const LLPolyMeshSharedDataTable::value_type& mesh_pair : sGlobalSharedMeshList)
         {
                 const std::string& mesh_name = mesh_pair.first;
                 LLPolyMeshSharedData* mesh = mesh_pair.second;
@@ -996,7 +996,7 @@ LLPolyMorphData*        LLPolyMesh::getMorphData(const std::string& morph_name)
 {
         if (!mSharedData)
                 return NULL;
-        for (auto morph_data : mSharedData->mMorphData)
+        for (LLPolyMorphData* morph_data : mSharedData->mMorphData)
         {
             if (morph_data->getName() == morph_name)
             {
