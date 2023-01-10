@@ -2335,13 +2335,34 @@ bool LLPipeline::getVisibleExtents(LLCamera& camera, LLVector3& min, LLVector3& 
 
 static LLTrace::BlockTimerStatHandle FTM_CULL("Object Culling");
 
-void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, LLPlane* planep)
+void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE; //LL_RECORD_BLOCK_TIME(FTM_CULL);
 
-    if (planep != nullptr)
+    bool water_clip = !sRenderTransparentWater;
+
+    if (water_clip)
     {
-        camera.setUserClipPlane(*planep);
+        
+        LLVector3 pnorm;
+
+        F32 water_height = LLEnvironment::instance().getWaterHeight();
+
+        if (sUnderWaterRender)
+        {
+            //camera is below water, cull above water
+            pnorm.setVec(0, 0, 1);
+        }
+        else
+        {
+            //camera is above water, cull below water
+            pnorm = LLVector3(0, 0, -1);
+        }
+        
+        LLPlane plane;
+        plane.setVec(LLVector3(0, 0, water_height), pnorm);
+
+        camera.setUserClipPlane(plane);
     }
     else
     {
