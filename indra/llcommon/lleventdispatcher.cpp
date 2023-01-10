@@ -461,7 +461,13 @@ struct LLEventDispatcher::ArrayParamsDispatchEntry: public LLEventDispatcher::Pa
         LLSD args{ event };
         if (fromMap)
         {
-            if (mArity)
+            if (! mArity)
+            {
+                // When the target function is nullary, and we're called from
+                // an (event) method, just ignore the rest of the map entries.
+                args.clear();
+            }
+            else
             {
                 // We only require/retrieve argskey if the target function
                 // isn't nullary. For all others, since we require an LLSD

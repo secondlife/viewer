@@ -23,6 +23,7 @@
 #include "llsdutil.h"
 #include "llevents.h"
 #include "stringize.h"
+#include "StringVec.h"
 #include "tests/wrapllerrs.h"
 #include "../test/catch_and_store_what_in.h"
 #include "../test/debug.h"
@@ -315,6 +316,31 @@ void freenb(NPARAMSb)
 *****************************************************************************/
 namespace tut
 {
+    void ensure_has(const std::string& outer, const std::string& inner)
+    {
+        ensure(stringize("'", outer, "' does not contain '", inner, "'"),
+               outer.find(inner) != std::string::npos);
+    }
+
+    template <typename CALLABLE>
+    std::string call_exc(CALLABLE&& func, const std::string& exc_frag)
+    {
+        std::string what =
+            catch_what<LLEventDispatcher::DispatchError>(std::forward<CALLABLE>(func));
+        ensure_has(what, exc_frag);
+        return what;
+    }
+
+    template <typename CALLABLE>
+    void call_logerr(CALLABLE&& func, const std::string& frag)
+    {
+        CaptureLog capture;
+        // the error should be logged; we just need to stop the exception
+        // propagating
+        catch_what<LLEventDispatcher::DispatchError>(std::forward<CALLABLE>(func));
+        capture.messageWith(frag);
+    }
+
     struct lleventdispatcher_data
     {
         Debug debug{"test"};
@@ -633,47 +659,26 @@ namespace tut
             return found->second;
         }
 
-        void ensure_has(const std::string& outer, const std::string& inner)
-        {
-            ensure(stringize("'", outer, "' does not contain '", inner, "'").c_str(),
-                   outer.find(inner) != std::string::npos);
-        }
-
         std::string call_exc(const std::string& func, const LLSD& args, const std::string& exc_frag)
         {
-            std::string what;
-            try
-            {
-                if (func.empty())
+            return tut::call_exc(
+                [this, func, args]()
                 {
-                    work(args);
-                }
-                else
-                {
-                    work(func, args);
-                }
-            }
-            catch (const LLEventDispatcher::DispatchError& err)
-            {
-                what = err.what();
-            }
-            ensure_has(what, exc_frag);
-            return what;
+                    if (func.empty())
+                    {
+                        work(args);
+                    }
+                    else
+                    {
+                        work(func, args);
+                    }
+                },
+                exc_frag);
         }
 
         void call_logerr(const std::string& func, const LLSD& args, const std::string& frag)
         {
-            CaptureLog capture;
-            try
-            {
-                work(func, args);
-            }
-            catch (const LLEventDispatcher::DispatchError& err)
-            {
-                // the error should also have been logged; we just need to
-                // stop the exception propagating
-            }
-            capture.messageWith(frag);
+            tut::call_logerr([this, func, args](){ work(func, args); }, frag);
         }
 
         LLSD getMetadata(const std::string& name)
@@ -1324,11 +1329,11 @@ namespace tut
         }
     }
 
-    struct DispatchResult: public LLEventDispatcher
+    struct DispatchResult: public LLDispatchListener
     {
         using DR = DispatchResult;
 
-        DispatchResult(): LLEventDispatcher("expect result", "op")
+        DispatchResult(): LLDispatchListener("results", "op")
         {
             // As of 2022-12-22, LLEventDispatcher's shorthand add() methods
             // for pointer-to-method of same instance only support methods
@@ -1336,6 +1341,7 @@ namespace tut
             // method) requires an instance getter.
             add("strfunc",   "return string",       &DR::strfunc,   [this](){ return this; });
             add("voidfunc",  "void function",       &DR::voidfunc,  [this](){ return this; });
+            add("emptyfunc", "return empty LLSD",   &DR::emptyfunc, [this](){ return this; });
             add("intfunc",   "return Integer LLSD", &DR::intfunc,   [this](){ return this; });
             add("mapfunc",   "return map LLSD",     &DR::mapfunc,   [this](){ return this; });
             add("arrayfunc", "return array LLSD",   &DR::arrayfunc, [this](){ return this; });
@@ -1343,6 +1349,7 @@ namespace tut
 
         std::string strfunc(const LLSD&) const { return "a string"; }
         void voidfunc()                  const {}
+        LLSD emptyfunc()                 const { return {}; }
         int  intfunc(const LLSD&)        const { return 17; }
         LLSD mapfunc(const LLSD&)        const { return llsd::map("key", "value"); }
         LLSD arrayfunc(const LLSD&)      const { return llsd::array("a", "b", "c"); }
@@ -1391,5 +1398,78 @@ namespace tut
         DispatchResult service;
         LLSD result{ service("arrayfunc", "ignored") };
         ensure_equals("arrayfunc() mismatch", result, llsd::array("a", "b", "c"));
+    }
+
+    template<> template<>
+    void object::test<28>()
+    {
+        set_test_name("listener error, no reply");
+        DispatchResult service;
+        tut::call_exc(
+            [&service]()
+            { service.post(llsd::map("op", "nosuchfunc", "reqid", 17)); },
+            "nosuchfunc");
+    }
+
+    template<> template<>
+    void object::test<29>()
+    {
+        set_test_name("listener error with reply");
+        DispatchResult service;
+        LLCaptureListener<LLSD> result;
+        service.post(llsd::map("op", "nosuchfunc", "reqid", 17, "reply", result.getName()));
+        LLSD reply{ result.get() };
+        ensure("no reply", reply.isDefined());
+        ensure_equals("reqid not echoed", reply["reqid"].asInteger(), 17);
+        ensure_has(reply["error"].asString(), "nosuchfunc");
+    }
+
+    template<> template<>
+    void object::test<30>()
+    {
+        set_test_name("listener call to void function");
+        DispatchResult service;
+        LLCaptureListener<LLSD> result;
+        result.set("non-empty");
+        for (const auto& func: StringVec{ "voidfunc", "emptyfunc" })
+        {
+            service.post(llsd::map(
+                             "op", func,
+                             "reqid", 17,
+                             "reply", result.getName()));
+            ensure_equals("reply from " + func, result.get().asString(), "non-empty");
+        }
+    }
+
+    template<> template<>
+    void object::test<31>()
+    {
+        set_test_name("listener call to string function");
+        DispatchResult service;
+        LLCaptureListener<LLSD> result;
+        service.post(llsd::map(
+                         "op", "strfunc",
+                         "args", llsd::array(LLSD()),
+                         "reqid", 17,
+                         "reply", result.getName()));
+        LLSD reply{ result.get() };
+        ensure_equals("reqid not echoed", reply["reqid"].asInteger(), 17);
+        ensure_equals("bad reply from strfunc", reply["data"].asString(), "a string");
+    }
+
+    template<> template<>
+    void object::test<32>()
+    {
+        set_test_name("listener call to map function");
+        DispatchResult service;
+        LLCaptureListener<LLSD> result;
+        service.post(llsd::map(
+                         "op", "mapfunc",
+                         "args", llsd::array(LLSD()),
+                         "reqid", 17,
+                         "reply", result.getName()));
+        LLSD reply{ result.get() };
+        ensure_equals("reqid not echoed", reply["reqid"].asInteger(), 17);
+        ensure_equals("bad reply from mapfunc", reply["key"], "value");
     }
 } // namespace tut
