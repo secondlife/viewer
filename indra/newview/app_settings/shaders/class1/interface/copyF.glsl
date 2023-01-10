@@ -33,7 +33,7 @@ out vec4 frag_color;
 void main() 
 {
     frag_color = texture(diffuseMap, tc);
-#if COPY_DEPTH
+#if defined(COPY_DEPTH)
     gl_FragDepth = texture(depthMap, tc).r;
 #endif
 }
