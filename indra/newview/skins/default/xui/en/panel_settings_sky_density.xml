@@ -9,6 +9,7 @@
         name="panel_settings_sky_density"
         top="0">
     <layout_stack 
+            name="main_ls"
             follows="all"
             layout="topleft"
             left="5"
@@ -17,6 +18,7 @@
             bottom="-5"
             orientation="vertical">
         <layout_panel
+                name="lp_1"
                 border="true"
                 bevel_style="in"
                 auto_resize="true"
@@ -96,6 +98,7 @@
                     can_edit_text="true"/>
         </layout_panel>
         <layout_panel
+                name="lp_2"
                 border="true"
                 bevel_style="in"
                 auto_resize="true"
@@ -190,6 +193,7 @@
                     can_edit_text="true"/>
         </layout_panel>
         <layout_panel
+                name="lp_3"
                 border="true"
                 bevel_style="in"
                 auto_resize="true"
