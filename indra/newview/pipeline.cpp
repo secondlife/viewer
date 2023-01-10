@@ -855,8 +855,6 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		S32 shadow_detail = RenderShadowDetail;
 		bool ssao = RenderDeferredSSAO;
 		
-		const U32 occlusion_divisor = 3;
-
 		//allocate deferred rendering color buffers
 		if (!mRT->deferredScreen.allocate(resX, resY, GL_RGBA, true, true, LLTexUnit::TT_TEXTURE, false, samples)) return false;
 		if (!addDeferredAttachments(mRT->deferredScreen)) return false;
@@ -2494,10 +2492,10 @@ void LLPipeline::downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& d
 
 	if (scratch_space)
 	{
+#if 0  // TODO -- restore occlusion culling functionality
         GLint bits = 0;
         bits = GL_DEPTH_BUFFER_BIT;
-#if 0  // TODO -- restore occlusion culling functionality
-		scratch_space->copyContents(source, 
+		scratch_space->copyContents(source,
 									0, 0, source.getWidth(), source.getHeight(), 
 									0, 0, scratch_space->getWidth(), scratch_space->getHeight(), bits, GL_NEAREST);
 #endif
