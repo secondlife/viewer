@@ -5862,7 +5862,6 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 
 				if (can_copy && can_transfer)
 				{
-					// this should be the only place that saved textures is called
 					node->saveTextures(texture_ids);
 				}
 
