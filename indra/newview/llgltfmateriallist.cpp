@@ -297,7 +297,7 @@ public:
                             // object not ready to receive override data, queue for later
                             gGLTFMaterialList.queueOverrideUpdate(object_override.mObjectId, results[i].mSide, results[i].mMaterial);
                         }
-                        else if (obj && obj->getTE(i) && obj->getTE(i)->isSelected())
+                        else if (obj && obj->getTE(results[i].mSide) && obj->getTE(results[i].mSide)->isSelected())
                         {
                             doSelectionCallbacks(object_override.mObjectId, results[i].mSide);
                         }
@@ -305,7 +305,7 @@ public:
                     else
                     {
                         // unblock material editor
-                        if (obj && obj->getTE(i) && obj->getTE(i)->isSelected())
+                        if (obj && obj->getTE(results[i].mSide) && obj->getTE(results[i].mSide)->isSelected())
                         {
                             doSelectionCallbacks(object_override.mObjectId, results[i].mSide);
                         }
