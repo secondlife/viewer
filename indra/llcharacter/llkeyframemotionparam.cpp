@@ -64,7 +64,7 @@ LLKeyframeMotionParam::LLKeyframeMotionParam( const LLUUID &id) : LLMotion(id)
 //-----------------------------------------------------------------------------
 LLKeyframeMotionParam::~LLKeyframeMotionParam()
 {
-	for (motion_map_t::value_type motion_pair& : mParameterizedMotions)
+	for (motion_map_t::value_type& motion_pair : mParameterizedMotions)
 	{
 		motion_list_t& motionList = motion_pair.second;
 		for (const ParameterizedMotion& paramMotion : motionList)
@@ -88,7 +88,7 @@ LLMotion::LLMotionInitStatus LLKeyframeMotionParam::onInitialize(LLCharacter *ch
 		return STATUS_FAILURE;	
 	}
 	
-	for (motion_map_t::value_type motion_pair& : mParameterizedMotions)
+	for (motion_map_t::value_type& motion_pair : mParameterizedMotions)
 	{
 		motion_list_t& motionList = motion_pair.second;
 		for (const ParameterizedMotion& paramMotion : motionList)

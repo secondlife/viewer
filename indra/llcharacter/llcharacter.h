@@ -218,7 +218,7 @@ public:
 	S32 getVisualParamCountInGroup(const EVisualParamGroup group) const
 	{
 		S32 rtn = 0;
-		for (visual_param_index_map_t::value_type& index_pair : mVisualParamIndexMap)
+		for (const visual_param_index_map_t::value_type& index_pair : mVisualParamIndexMap)
 		{
 			if (index_pair.second->getGroup() == group)
 			{
