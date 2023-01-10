@@ -148,7 +148,7 @@ LLJointState* LLPose::findJointState(const std::string &name)
 void LLPose::setWeight(F32 weight)
 {
 	joint_map_iterator iter;
-	for (joint_map_value_type joint_pair : mJointMap)
+	for (joint_map_value_type& joint_pair : mJointMap)
 	{
 		joint_pair.second->setWeight(weight);
 	}

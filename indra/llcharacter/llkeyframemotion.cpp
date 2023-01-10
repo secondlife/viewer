@@ -1999,7 +1999,7 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 		success &= dp.packS32(joint_motionp->mRotationCurve.mNumKeys, "num_rot_keys");
 
 		LL_DEBUGS("BVH") << "Joint " << joint_motionp->mJointName << LL_ENDL;
-		for (RotationCurve::key_map_t::value_type rot_pair : joint_motionp->mRotationCurve.mKeys)
+		for (RotationCurve::key_map_t::value_type& rot_pair : joint_motionp->mRotationCurve.mKeys)
 		{
 			RotationKey& rot_key = rot_pair.second;
 			U16 time_short = F32_to_U16(rot_key.mTime, 0.f, mJointMotionList->mDuration);
@@ -2020,7 +2020,7 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 		}
 
 		success &= dp.packS32(joint_motionp->mPositionCurve.mNumKeys, "num_pos_keys");
-		for (PositionCurve::key_map_t::value_type pos_pair : joint_motionp->mPositionCurve.mKeys)
+		for (PositionCurve::key_map_t::value_type& pos_pair : joint_motionp->mPositionCurve.mKeys)
 		{
 			PositionKey& pos_key = pos_pair.second;
 			U16 time_short = F32_to_U16(pos_key.mTime, 0.f, mJointMotionList->mDuration);
@@ -2394,7 +2394,7 @@ void LLKeyframeDataCache::dumpDiagInfo()
 	LL_INFOS() << "-----------------------------------------------------" << LL_ENDL;
 
 	// print each loaded mesh, and it's memory usage
-	for (keyframe_data_map_t::value_type data_pair : sKeyframeDataMap)
+	for (keyframe_data_map_t::value_type& data_pair : sKeyframeDataMap)
 	{
 		U32 joint_motion_kb;
 

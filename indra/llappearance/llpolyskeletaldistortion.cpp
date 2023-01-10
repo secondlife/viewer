@@ -144,7 +144,7 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
     setWeight(getDefaultWeight());
 
     LLPolySkeletalDistortionInfo::bone_info_list_t::iterator iter;
-    for (auto& bone_info : getInfo()->mBoneInfoList)
+    for (LLPolySkeletalBoneInfo& bone_info : getInfo()->mBoneInfoList)
     {
         LLJoint* joint = mAvatar->getJoint(bone_info.mBoneName);
         if (!joint)
@@ -159,7 +159,7 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
         mJointScales[joint] = bone_info.mScaleDeformation;
 
         // apply to children that need to inherit it
-        for (auto joint : joint->mChildren)
+        for (LLJoint* joint : joint->mChildren)
         {
             LLAvatarJoint* child_joint = (LLAvatarJoint*)joint;
             if (child_joint->inheritScale())
@@ -194,7 +194,7 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
 
     LLJoint* joint;
 
-    for (auto& scale_pair : mJointScales)
+    for (joint_vec_map_t::value_type& scale_pair : mJointScales)
     {
         joint = scale_pair.first;
         LLVector3 newScale = joint->getScale();
@@ -213,7 +213,7 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
         joint->setScale(newScale, true);
     }
 
-    for (auto& offset_pair : mJointOffsets)
+    for (joint_vec_map_t::value_type& offset_pair : mJointOffsets)
     {
         joint = offset_pair.first;
         LLVector3 newPosition = joint->getPosition();

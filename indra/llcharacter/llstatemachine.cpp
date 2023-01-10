@@ -169,7 +169,7 @@ void LLStateDiagram::setDefaultState(LLFSMState& default_state)
 S32 LLStateDiagram::numDeadendStates()
 {
 	S32 numDeadends = 0;
-	for (StateMap::value_type state_pair : mStates)
+	for (StateMap::value_type& state_pair : mStates)
 	{
 		if (state_pair.second.size() == 0)
 		{
@@ -190,7 +190,7 @@ BOOL LLStateDiagram::stateIsValid(LLFSMState& state)
 
 LLFSMState* LLStateDiagram::getState(U32 state_id)
 {
-	for (StateMap::value_type state_pair : mStates)
+	for (StateMap::value_type& state_pair : mStates)
 	{
 		if (state_pair.first->getID() == state_id)
 		{
@@ -213,13 +213,13 @@ BOOL LLStateDiagram::saveDotFile(const std::string& filename)
 	}
 	apr_file_printf(dot_file, "digraph StateMachine {\n\tsize=\"100,100\";\n\tfontsize=40;\n\tlabel=\"Finite State Machine\";\n\torientation=landscape\n\tratio=.77\n");
 	
-	for (StateMap::value_type state_pair : mStates)
+	for (StateMap::value_type& state_pair : mStates)
 	{
 		apr_file_printf(dot_file, "\t\"%s\" [fontsize=28,shape=box]\n", state_pair.first->getName().c_str());
 	}
 	apr_file_printf(dot_file, "\t\"All States\" [fontsize=30,style=bold,shape=box]\n");
 
-	for (Transitions::value_type transition_pair : mDefaultTransitions)
+	for (Transitions::value_type& transition_pair : mDefaultTransitions)
 	{
 		apr_file_printf(dot_file, "\t\"All States\" -> \"%s\" [label = \"%s\",fontsize=24];\n", transition_pair.second->getName().c_str(),
 			transition_pair.second->getName().c_str());
@@ -231,11 +231,11 @@ BOOL LLStateDiagram::saveDotFile(const std::string& filename)
 	}
 
 	
-	for (StateMap::value_type state_pair : mStates)
+	for (StateMap::value_type& state_pair : mStates)
 	{
 		LLFSMState *state = state_pair.first;
 
-		for (Transitions::value_type transition_pair : state_pair.second)
+		for (Transitions::value_type& transition_pair : state_pair.second)
 		{
 			std::string state_name = state->getName();
 			std::string target_name = transition_pair.second->getName();
@@ -258,15 +258,15 @@ std::ostream& operator<<(std::ostream &s, LLStateDiagram &FSM)
 		s << "Default State: " << FSM.mDefaultState->getName() << "\n";
 	}
 
-	for (LLStateDiagram::Transitions::value_type transition_pair : FSM.mDefaultTransitions)
+	for (LLStateDiagram::Transitions::value_type& transition_pair : FSM.mDefaultTransitions)
 	{
 		s << "Any State -- " << transition_pair.first->getName()
 			<< " --> " << transition_pair.second->getName() << "\n";
 	}
 
-	for (LLStateDiagram::StateMap::value_type state_pair : FSM.mStates)
+	for (LLStateDiagram::StateMap::value_type& state_pair : FSM.mStates)
 	{
-		for (LLStateDiagram::Transitions::value_type transition_pair : state_pair.second)
+		for (LLStateDiagram::Transitions::value_type& transition_pair : state_pair.second)
 		{
 			s << state_pair.first->getName() << " -- " << transition_pair.first->getName()
 				<< " --> " << transition_pair.second->getName() << "\n";

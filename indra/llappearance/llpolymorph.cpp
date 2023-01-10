@@ -364,7 +364,7 @@ BOOL LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
 
 	LLAvatarAppearance* avatarp = mMesh->getAvatar();
 	LLPolyMorphTargetInfo::volume_info_list_t::iterator iter;
-	for (auto& volume_info : getInfo()->mVolumeInfoList)
+	for (LLPolyVolumeMorphInfo& volume_info : getInfo()->mVolumeInfoList)
 	{
 		for (S32 i = 0; i < avatarp->mNumCollisionVolumes; i++)
 		{
@@ -640,7 +640,7 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 		}
 
 		// now apply volume changes
-		for(auto& volume_morph : mVolumeMorphs)
+		for(LLPolyVolumeMorph& volume_morph : mVolumeMorphs)
 		{
 			LLVector3 scale_delta = volume_morph.mScale * delta_weight;
 			LLVector3 pos_delta = volume_morph.mPos * delta_weight;
@@ -733,7 +733,7 @@ void	LLPolyMorphTarget::applyMask(U8 *maskTextureData, S32 width, S32 height, S3
 void LLPolyMorphTarget::applyVolumeChanges(F32 delta_weight)
 {
     // now apply volume changes
-    for(auto& volume_morph : mVolumeMorphs)
+    for(LLPolyVolumeMorph& volume_morph : mVolumeMorphs)
     {
         LLVector3 scale_delta = volume_morph.mScale * delta_weight;
         LLVector3 pos_delta = volume_morph.mPos * delta_weight;

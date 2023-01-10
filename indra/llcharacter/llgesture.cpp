@@ -200,7 +200,7 @@ BOOL LLGestureList::triggerAndReviseString(const std::string &string, std::strin
 	boost::char_separator<char> sep(" ");
 	tokenizer tokens(string, sep);
 
-	for(std::string cur_token : tokens)
+	for(const std::string& cur_token : tokens)
 	{
 		LLGesture* gesture = NULL;
 

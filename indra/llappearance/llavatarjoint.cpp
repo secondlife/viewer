@@ -100,7 +100,7 @@ void LLAvatarJoint::setValid( BOOL valid, BOOL recursive )
 	//----------------------------------------------------------------
 	if (recursive)
 	{
-		for (auto child : mChildren)
+		for (LLJoint* child : mChildren)
 		{
 			LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
 			joint->setValid(valid, TRUE);
@@ -131,7 +131,7 @@ void LLAvatarJoint::setVisible(BOOL visible, BOOL recursive)
 
 	if (recursive)
 	{
-		for (auto child : mChildren)
+		for (LLJoint* child : mChildren)
 		{
 			LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
 			joint->setVisible(visible, recursive);
@@ -141,7 +141,7 @@ void LLAvatarJoint::setVisible(BOOL visible, BOOL recursive)
 
 void LLAvatarJoint::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area)
 {
-	for (auto child : mChildren)
+	for (LLJoint* child : mChildren)
 	{
 		LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
 		joint->updateFaceSizes(num_vertices, num_indices, pixel_area);
@@ -150,7 +150,7 @@ void LLAvatarJoint::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pix
 
 void LLAvatarJoint::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind, bool terse_update)
 {
-	for (auto child : mChildren)
+	for (LLJoint* child : mChildren)
 	{
 		LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
 		joint->updateFaceData(face, pixel_area, damp_wind, terse_update);
@@ -159,7 +159,7 @@ void LLAvatarJoint::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind,
 
 void LLAvatarJoint::updateJointGeometry()
 {
-	for (auto child : mChildren)
+	for (LLJoint* child : mChildren)
 	{
 		LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
 		joint->updateJointGeometry();
@@ -172,7 +172,7 @@ BOOL LLAvatarJoint::updateLOD(F32 pixel_area, BOOL activate)
 	BOOL lod_changed = FALSE;
 	BOOL found_lod = FALSE;
 
-	for (auto child : mChildren)
+	for (LLJoint* child : mChildren)
 	{
 		LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
 		F32 jointLOD = joint->getLOD();
@@ -200,7 +200,7 @@ BOOL LLAvatarJoint::updateLOD(F32 pixel_area, BOOL activate)
 
 void LLAvatarJoint::dump()
 {
-	for (auto child : mChildren)
+	for (LLJoint* child : mChildren)
 	{
 		LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
 		joint->dump();
@@ -211,7 +211,7 @@ void LLAvatarJoint::dump()
 void LLAvatarJoint::setMeshesToChildren()
 {
 	removeAllChildren();
-	for (auto mesh : mMeshParts)
+	for (LLAvatarJointMesh* mesh : mMeshParts)
 	{
 		addChild(mesh);
 	}
