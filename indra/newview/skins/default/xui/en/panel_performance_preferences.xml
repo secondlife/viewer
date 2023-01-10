@@ -47,14 +47,23 @@
     Graphics settings
   </text>
   <button
-    follows="top|left"
-    height="23"
-    label="Open Advanced Settings"
-    layout="topleft"
-    left="360"
-    name="advanced_btn"
-    top_delta="0"
-    width="200"/>
+   follows="top|left"
+   height="23"
+   label="Open Advanced Settings"
+   layout="topleft"
+   left="360"
+   name="advanced_btn"
+   top_delta="-35"
+   width="200"/>
+  <button
+   follows="top|left"
+   height="23"
+   label="Reset to recommended settings"
+   layout="topleft"
+   left="350"
+   name="defaults_btn"
+   top_pad="10"
+   width="210"/>
   <view_border
    bevel_style="in"
    height="0"

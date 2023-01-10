@@ -199,6 +199,8 @@ public:
 	void saveCameraPreset(std::string& preset);
 	void saveGraphicsPreset(std::string& preset);
 
+    void setRecommendedSettings();
+
 private:
 
 	void onDeleteTranscripts();

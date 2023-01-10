@@ -788,6 +788,12 @@ void LLFloaterPreference::setHardwareDefaults()
 		saveGraphicsPreset(preset_graphic_active);
 		saveSettings(); // save here to be able to return to the previous preset by Cancel
 	}
+    setRecommendedSettings();
+}
+
+void LLFloaterPreference::setRecommendedSettings()
+{
+    gSavedSettings.setBOOL("AutoTuneFPS", FALSE);
 
 	LLFeatureManager::getInstance()->applyRecommendedSettings();
 
