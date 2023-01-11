@@ -188,7 +188,7 @@ public:
     // set the RenderMaterialID for the given TextureEntry
     // te - TextureEntry index to set, or -1 for all TEs
     // id - asset id of material asset
-    // update_server - if true, will send updates to server
+    // update_server - if true, will send updates to server and clear most overrides
     void setRenderMaterialID(S32 te, const LLUUID& id, bool update_server = true);
     void setRenderMaterialIDs(const LLUUID& id);
 

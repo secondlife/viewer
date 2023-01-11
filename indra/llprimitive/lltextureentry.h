@@ -195,12 +195,16 @@ public:
 	enum { MF_NONE = 0x0, MF_HAS_MEDIA = 0x1 };
 
     // GLTF asset
-    void setGLTFMaterial(LLGLTFMaterial* material);
+    void setGLTFMaterial(LLGLTFMaterial* material, bool local_origin = true);
     LLGLTFMaterial* getGLTFMaterial() const { return mGLTFMaterial; }
 
     // GLTF override
     LLGLTFMaterial* getGLTFMaterialOverride() const { return mGLTFMaterialOverrides; }
     void setGLTFMaterialOverride(LLGLTFMaterial* mat);
+    // Clear most overrides so the render material better matches the material
+    // ID (preserve transforms). If the overrides become passthrough, set the
+    // overrides to nullptr.
+    S32 setBaseMaterial();
 
     // GLTF render material
     // nuanced behavior here -- if there is no render material, fall back to getGLTFMaterial, but ONLY for the getter, not the setter

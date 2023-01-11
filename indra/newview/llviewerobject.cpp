@@ -7163,11 +7163,11 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
 {
     // implementation is delicate
 
-    // if update is bound for server, should always null out GLTFRenderMaterial and GLTFMaterialOverride even if ids haven't changed
+    // if update is bound for server, should always null out GLTFRenderMaterial and clear GLTFMaterialOverride even if ids haven't changed
     //  (the case where ids haven't changed indicates the user has reapplied the original material, in which case overrides should be dropped)
-    // otherwise, should only null out where ids have changed 
+    // otherwise, should only null out the render material where ids or overrides have changed
     //  (the case where ids have changed but overrides are still present is from unsynchronized updates from the simulator)
-    
+
     S32 start_idx = 0;
     S32 end_idx = getNumTEs();
 
@@ -7179,6 +7179,13 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
 
     start_idx = llmax(start_idx, 0);
     end_idx = llmin(end_idx, (S32) getNumTEs());
+
+    LLRenderMaterialParams* param_block = (LLRenderMaterialParams*)getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
+    if (!param_block && id.notNull())
+    { // block doesn't exist, but it will need to
+        param_block = (LLRenderMaterialParams*)createNewParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL)->data;
+    }
+
 
     // update local state
     for (S32 te = start_idx; te < end_idx; ++te)
@@ -7192,17 +7199,27 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
             new_material = gGLTFMaterialList.getMaterial(id);
         }
         
-        bool material_changed = tep->getGLTFMaterial() != new_material;
+        bool material_changed = !param_block || id != param_block->getMaterial(te);
+
+        if (update_server)
+        { 
+            // Clear most overrides so the render material better matches the material
+            // ID (preserve transforms). If overrides become passthrough, set the overrides
+            // to nullptr.
+            if (tep->setBaseMaterial())
+            {
+                material_changed = true;
+            }
+        }
 
         if (update_server || material_changed)
         { 
             tep->setGLTFRenderMaterial(nullptr);
-            tep->setGLTFMaterialOverride(nullptr);
         }
 
         if (new_material != tep->getGLTFMaterial())
         {
-            tep->setGLTFMaterial(new_material);
+            tep->setGLTFMaterial(new_material, !update_server);
         }
     }
 
@@ -7215,17 +7232,14 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
         // update via ModifyMaterialParams cap (server will echo back changes)
         for (S32 te = start_idx; te < end_idx; ++te)
         {
-            LLGLTFMaterialList::queueApply(getID(), te, id);
+            // This sends a cleared version of this object's current material
+            // override, but the override should already be cleared due to
+            // calling setBaseMaterial above.
+            LLGLTFMaterialList::queueApply(this, te, id);
         }
     }
 
     // predictively update LLRenderMaterialParams (don't wait for server)
-    LLRenderMaterialParams* param_block = (LLRenderMaterialParams*)getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
-    if (!param_block && id.notNull())
-    { // block doesn't exist, but it will need to
-        param_block = (LLRenderMaterialParams*)createNewParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL)->data;
-    }
-
     if (param_block)
     { // update existing parameter block
         for (S32 te = start_idx; te < end_idx; ++te)

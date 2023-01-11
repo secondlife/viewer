@@ -98,6 +98,29 @@ LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
     return *this;
 }
 
+bool LLGLTFMaterial::operator==(const LLGLTFMaterial& rhs) const
+{
+    return mBaseColorId == rhs.mBaseColorId &&
+        mNormalId == rhs.mNormalId &&
+        mMetallicRoughnessId == rhs.mMetallicRoughnessId &&
+        mEmissiveId == rhs.mEmissiveId &&
+
+        mBaseColor == rhs.mBaseColor &&
+        mEmissiveColor == rhs.mEmissiveColor &&
+        
+        mMetallicFactor == rhs.mMetallicFactor &&
+        mRoughnessFactor == rhs.mRoughnessFactor &&
+        mAlphaCutoff == rhs.mAlphaCutoff &&
+
+        mDoubleSided == rhs.mDoubleSided &&
+        mAlphaMode == rhs.mAlphaMode &&
+
+        mTextureTransform == rhs.mTextureTransform &&
+
+        mOverrideDoubleSided == rhs.mOverrideDoubleSided &&
+        mOverrideAlphaMode == rhs.mOverrideAlphaMode;
+}
+
 bool LLGLTFMaterial::fromJSON(const std::string& json, std::string& warn_msg, std::string& error_msg)
 {
     LL_PROFILE_ZONE_SCOPED;
@@ -364,6 +387,28 @@ void LLGLTFMaterial::writeToTexture(tinygltf::Model& model, T& texture_info, Tex
     transform_map[GLTF_FILE_EXTENSION_TRANSFORM_ROTATION] = tinygltf::Value(transform.mRotation);
     texture_info.extensions[GLTF_FILE_EXTENSION_TRANSFORM] = tinygltf::Value(transform_map);
 }
+
+bool LLGLTFMaterial::setBaseMaterial()
+{
+    const LLGLTFMaterial old_override = *this;
+    *this = sDefault;
+    setBaseMaterial(old_override);
+    return *this != old_override;
+}
+
+bool LLGLTFMaterial::isClearedForBaseMaterial()
+{
+    LLGLTFMaterial cleared_override = sDefault;
+    cleared_override.setBaseMaterial(*this);
+    return *this == cleared_override;
+}
+
+// For material overrides only. Copies transforms from the old override.
+void LLGLTFMaterial::setBaseMaterial(const LLGLTFMaterial& old_override_mat)
+{
+    mTextureTransform = old_override_mat.mTextureTransform;
+}
+
 
 // static
 void LLGLTFMaterial::hackOverrideUUID(LLUUID& id)

@@ -59,7 +59,7 @@ public:
     //  side - TexureEntry index to modify, or -1 for all sides
     //  mat - material to apply as override, or nullptr to remove existing overrides and revert to asset
     //
-    // NOTE: do not use to revert to asset when applying a new asset id, use queueApplyMaterialAsset below
+    // NOTE: do not use to revert to asset when applying a new asset id, use queueApply below
     static void queueModify(const LLUUID& id, S32 side, const LLGLTFMaterial* mat);
 
     // Queue an application of a material asset we want to send to the simulator.  Call "flushUpdates" to flush pending updates.
@@ -67,8 +67,8 @@ public:
     //  side - TextureEntry index to apply material to, or -1 for all sides
     //  asset_id - ID of material asset to apply, or LLUUID::null to disassociate current material asset
     //
-    // NOTE: implicitly removes any override data if present
-    static void queueApply(const LLUUID& object_id, S32 side, const LLUUID& asset_id);
+    // NOTE: Implicitly clears most override data if present
+    static void queueApply(const LLViewerObject* obj, S32 side, const LLUUID& asset_id);
 
     // flush pending material updates to the simulator
     // Automatically called once per frame, but may be called explicitly
@@ -136,6 +136,7 @@ protected:
         LLUUID object_id;
         S32 side = -1;
         LLUUID asset_id;
+        LLPointer<LLGLTFMaterial> override_data;
     };
 
     typedef std::list<ApplyMaterialAssetData> apply_queue_t;

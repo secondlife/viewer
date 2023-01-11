@@ -1324,7 +1324,16 @@ bool LLMaterialEditor::updateInventoryItem(const std::string &buffer, const LLUU
                     // done callback
                     LLMaterialEditor::finishInventoryUpload(itemId, newAssetId, newItemId);
                 },
-                nullptr // failure callback
+                [](LLUUID itemId, LLUUID taskId, LLSD response, std::string reason)
+                {
+                    // failure callback
+                    LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", LLSD(itemId));
+                    if (me)
+                    {
+                        me->setEnabled(true);
+                    }
+                    return true;
+                }
                 );
             url = agent_url;
         }
