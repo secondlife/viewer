@@ -1180,7 +1180,6 @@ bool expand_region(LLVertexBuffer::MappedRegion& region, S32 start, S32 end)
 U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_range)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
-	bindGLBuffer(true);
 	if (mFinal)
 	{
 		LL_ERRS() << "LLVertexBuffer::mapVeretxBuffer() called on a finalized buffer." << LL_ENDL;
@@ -1256,7 +1255,6 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
-	bindGLIndices(true);
 	if (mFinal)
 	{
 		LL_ERRS() << "LLVertexBuffer::mapIndexBuffer() called on a finalized buffer." << LL_ENDL;
@@ -2070,6 +2068,24 @@ void LLVertexBuffer::setupVertexBufferFast(U32 data_mask)
         void* ptr = (void*)(base + mOffsets[TYPE_VERTEX]);
         glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
     }
-	}
+}
+
+void LLVertexBuffer::setPositionData(const LLVector4a* data)
+{
+    bindGLBuffer();
+    flush_vbo(GL_ARRAY_BUFFER, 0, sizeof(LLVector4a) * getNumVerts(), (U8*) data);
+}
+
+void LLVertexBuffer::setTexCoordData(const LLVector2* data)
+{
+    bindGLBuffer();
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TEXCOORD0], mOffsets[TYPE_TEXCOORD0] + sTypeSize[TYPE_TEXCOORD0] * getNumVerts(), (U8*)data);
+}
+
+void LLVertexBuffer::setColorData(const LLColor4U* data)
+{
+    bindGLBuffer();
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_COLOR], mOffsets[TYPE_COLOR] + sTypeSize[TYPE_COLOR] * getNumVerts(), (U8*) data);
+}
 
 

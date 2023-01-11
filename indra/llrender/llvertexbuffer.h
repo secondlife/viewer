@@ -212,6 +212,10 @@ public:
     bool getMetallicRoughnessTexcoordStrider(LLStrider<LLVector2>& strider, S32 index=0, S32 count = -1, bool map_range = false);
     bool getEmissiveTexcoordStrider(LLStrider<LLVector2>& strider, S32 index=0, S32 count = -1, bool map_range = false);
 	
+    void setPositionData(const LLVector4a* data);
+    void setTexCoordData(const LLVector2* data);
+    void setColorData(const LLColor4U* data);
+
 
 	bool useVBOs() const;
 	bool isEmpty() const					{ return mEmpty; }
