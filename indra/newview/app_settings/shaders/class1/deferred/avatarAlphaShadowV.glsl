@@ -34,9 +34,6 @@ ATTRIBUTE vec3 position;
 ATTRIBUTE vec3 normal;
 ATTRIBUTE vec2 texcoord0;
 
-#if !defined(DEPTH_CLAMP)
-VARYING vec4 post_pos;
-#endif
 VARYING float pos_w;
 VARYING float target_pos_x;
 VARYING vec2 vary_texcoord0;
@@ -66,13 +63,7 @@ void main()
 
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 
-#if !defined(DEPTH_CLAMP)
-	post_pos = pos;
-
-	gl_Position = vec4(pos.x, pos.y, pos.w*0.5, pos.w);
-#else
 	gl_Position = pos;
-#endif
 
 	passTextureIndex();
 }

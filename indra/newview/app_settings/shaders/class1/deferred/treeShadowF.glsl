@@ -25,18 +25,14 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
+
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform float minimum_alpha;
 
 uniform sampler2D diffuseMap;
 
-VARYING vec4 post_pos;
-VARYING vec2 vary_texcoord0;
+in vec2 vary_texcoord0;
 
 void main() 
 {
@@ -48,5 +44,4 @@ void main()
 	}
 
 	frag_color = vec4(1,1,1,1);
-	
 }

@@ -47,11 +47,7 @@ void main()
 
 	post_pos = pos;
 
-#if !defined(DEPTH_CLAMP)
-	gl_Position = vec4(pos.x, pos.y, pos.w*0.5, pos.w);
-#else
 	gl_Position = pos;
-#endif
 	
 	passTextureIndex();
 

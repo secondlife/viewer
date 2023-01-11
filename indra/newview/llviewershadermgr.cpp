@@ -224,9 +224,6 @@ LLGLSLShader            gDeferredSkinnedShadowFullbrightAlphaMaskProgram;
 LLGLSLShader			gDeferredAvatarShadowProgram;
 LLGLSLShader			gDeferredAvatarAlphaShadowProgram;
 LLGLSLShader			gDeferredAvatarAlphaMaskShadowProgram;
-LLGLSLShader			gDeferredAttachmentShadowProgram;
-LLGLSLShader			gDeferredAttachmentAlphaShadowProgram;
-LLGLSLShader			gDeferredAttachmentAlphaMaskShadowProgram;
 LLGLSLShader			gDeferredAlphaProgram;
 LLGLSLShader            gDeferredSkinnedAlphaProgram;
 LLGLSLShader			gDeferredAlphaImpostorProgram;
@@ -1273,9 +1270,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarShadowProgram.unload();
         gDeferredAvatarAlphaShadowProgram.unload();
         gDeferredAvatarAlphaMaskShadowProgram.unload();
-		gDeferredAttachmentShadowProgram.unload();
-        gDeferredAttachmentAlphaShadowProgram.unload();
-        gDeferredAttachmentAlphaMaskShadowProgram.unload();
 		gDeferredAvatarProgram.unload();
 		gDeferredAvatarAlphaProgram.unload();
 		gDeferredAlphaProgram.unload();
@@ -2642,7 +2636,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		success = gDeferredAvatarAlphaShadowProgram.createShader(NULL, NULL);
         llassert(success);
 	}
-
     if (success)
 	{
 		gDeferredAvatarAlphaMaskShadowProgram.mName = "Deferred Avatar Alpha Mask Shadow Shader";
@@ -2652,43 +2645,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarAlphaMaskShadowProgram.mShaderFiles.push_back(make_pair("deferred/avatarAlphaMaskShadowF.glsl", GL_FRAGMENT_SHADER));
 		gDeferredAvatarAlphaMaskShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		success = gDeferredAvatarAlphaMaskShadowProgram.createShader(NULL, NULL);
-        llassert(success);
-	}
-
-	if (success)
-	{
-		gDeferredAttachmentShadowProgram.mName = "Deferred Attachment Shadow Shader";
-		gDeferredAttachmentShadowProgram.mFeatures.hasObjectSkinning = true;
-
-		gDeferredAttachmentShadowProgram.mShaderFiles.clear();
-		gDeferredAttachmentShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentShadowV.glsl", GL_VERTEX_SHADER));
-		gDeferredAttachmentShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentShadowF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredAttachmentShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-		success = gDeferredAttachmentShadowProgram.createShader(NULL, NULL);
-		llassert(success);
-	}
-
-	if (success)
-	{
-		gDeferredAttachmentAlphaShadowProgram.mName = "Deferred Attachment Alpha Shadow Shader";
-		gDeferredAttachmentAlphaShadowProgram.mFeatures.hasObjectSkinning = true;
-		gDeferredAttachmentAlphaShadowProgram.mShaderFiles.clear();
-		gDeferredAttachmentAlphaShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentAlphaShadowV.glsl", GL_VERTEX_SHADER));
-		gDeferredAttachmentAlphaShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentAlphaShadowF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredAttachmentAlphaShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-		success = gDeferredAttachmentAlphaShadowProgram.createShader(NULL, NULL);
-        llassert(success);
-	}
-
-    if (success)
-	{
-		gDeferredAttachmentAlphaMaskShadowProgram.mName = "Deferred Attachment Alpha Mask Shadow Shader";
-		gDeferredAttachmentAlphaMaskShadowProgram.mFeatures.hasObjectSkinning = true;
-		gDeferredAttachmentAlphaMaskShadowProgram.mShaderFiles.clear();
-		gDeferredAttachmentAlphaMaskShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentAlphaShadowV.glsl", GL_VERTEX_SHADER));
-		gDeferredAttachmentAlphaMaskShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentAlphaMaskShadowF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredAttachmentAlphaMaskShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-		success = gDeferredAttachmentAlphaMaskShadowProgram.createShader(NULL, NULL);
         llassert(success);
 	}
 

@@ -7350,30 +7350,28 @@ void LLPipeline::renderAlphaObjects(U32 mask, bool texture, bool batch_texture, 
     for (LLCullResult::drawinfo_iterator i = begin; i != end; )
     {
         LLDrawInfo* pparams = *i;
-        if (pparams)
+        LLCullResult::increment_iterator(i, end);
+
+        if (rigged)
         {
-            LLCullResult::increment_iterator(i, end);
-
-            if (rigged)
+            if (pparams->mAvatar != nullptr)
             {
-                if (pparams->mAvatar != nullptr)
+                if (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash)
                 {
-                    if (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash)
-                    {
-                        mSimplePool->uploadMatrixPalette(*pparams);
-                        lastAvatar = pparams->mAvatar;
-                        lastMeshId = pparams->mSkinInfo->mHash;
-                    }
-
-                    mSimplePool->pushBatch(*pparams, mask | LLVertexBuffer::MAP_WEIGHT4, texture, batch_texture);
+                    mSimplePool->uploadMatrixPalette(*pparams);
+                    lastAvatar = pparams->mAvatar;
+                    lastMeshId = pparams->mSkinInfo->mHash;
                 }
-            }
-            else if (pparams->mAvatar == nullptr)
-            {
-                mSimplePool->pushBatch(*pparams, mask, texture, batch_texture);
+
+                mSimplePool->pushBatch(*pparams, mask | LLVertexBuffer::MAP_WEIGHT4, texture, batch_texture);
             }
         }
+        else if (pparams->mAvatar == nullptr)
+        {
+            mSimplePool->pushBatch(*pparams, mask, texture, batch_texture);
+        }
     }
+
     gGL.loadMatrix(gGLModelView);
     gGLLastMatrix = NULL;
 }

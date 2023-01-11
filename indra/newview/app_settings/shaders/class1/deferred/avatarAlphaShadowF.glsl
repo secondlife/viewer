@@ -33,10 +33,6 @@ uniform float minimum_alpha;
 
 uniform sampler2D diffuseMap;
 
-#if !defined(DEPTH_CLAMP)
-VARYING vec4 post_pos;
-#endif
-
 VARYING float pos_w;
 VARYING float target_pos_x;
 VARYING vec2 vary_texcoord0;
