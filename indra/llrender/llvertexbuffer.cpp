@@ -560,10 +560,8 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 
 	U16* idx = ((U16*) getIndicesPointer())+indices_offset;
 
-	stop_glerror();
 	glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT, 
 		idx);
-	stop_glerror();
 }
 
 void LLVertexBuffer::drawRangeFast(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const
@@ -605,10 +603,8 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 		return;
 	}
 
-	stop_glerror();
-	glDrawElements(sGLMode[mode], count, GL_UNSIGNED_SHORT,
+    glDrawElements(sGLMode[mode], count, GL_UNSIGNED_SHORT,
 		((U16*) getIndicesPointer()) + indices_offset);
-	stop_glerror();
 }
 
 
@@ -888,6 +884,7 @@ void LLVertexBuffer::genBuffer(U32 size)
     glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
     glBufferData(GL_ARRAY_BUFFER, mSize, nullptr, mUsage);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    sGLRenderBuffer = 0;
 
     sGLCount++;
 }
@@ -904,6 +901,7 @@ void LLVertexBuffer::genIndices(U32 size)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndicesSize, nullptr, mUsage);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    sGLRenderIndices = 0;
 
 	sGLCount++;
 }
@@ -1293,17 +1291,6 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 			sMappedCount++;
 			stop_glerror();	
 
-			if (gDebugGL && useVBOs())
-			{
-				GLint elem = 0;
-				glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &elem);
-
-				if (elem != mGLIndices)
-				{
-					LL_ERRS() << "Wrong index buffer bound!" << LL_ENDL;
-				}
-			}
-
 			map_range = false;
 		}
 
@@ -1337,6 +1324,7 @@ static void flush_vbo(GLenum target, S32 start, S32 end, void* data)
         for (S32 i = start; i < end; i += block_size)
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("glBufferSubData block");
+            LL_PROFILE_GPU_ZONE("glBufferSubData");
             S32 tend = llmin(i + block_size, end);
             glBufferSubData(target, i, tend - i, (U8*) data + (i-start));
         }

@@ -998,7 +998,6 @@ void LLGLSLShader::bind()
         sCurBoundShader = mProgramObject;
         sCurBoundShaderPtr = this;
         placeProfileQuery();
-        LLVertexBuffer::setupClientArrays(mAttributeMask);
     }
 
     if (mUniformsDirty)

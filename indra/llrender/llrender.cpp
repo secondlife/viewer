@@ -1733,7 +1733,7 @@ void LLRender::flush()
                 }
             }
 
-            vb->setBuffer(immediate_mask);
+            vb->setBuffer(attribute_mask);
 
             if (mMode == LLRender::QUADS && sGLCoreProfile)
             {
