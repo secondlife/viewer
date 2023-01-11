@@ -816,6 +816,12 @@ LLVOAvatar::~LLVOAvatar()
 		debugAvatarRezTime("AvatarRezLeftNotification","left sometime after declouding");
 	}
 
+    if(mTuned)
+    {
+        LLPerfStats::tunedAvatars--;
+        mTuned = false;
+    }
+
 	logPendingPhases();
 	
 	LL_DEBUGS("Avatar") << "LLVOAvatar Destructor (0x" << this << ") id:" << mID << LL_ENDL;
@@ -8382,9 +8388,15 @@ void LLVOAvatar::updateTooSlow()
         mTooSlow = false;
         mTooSlowWithoutShadows = false;	
     }
-    if(mTooSlow)
+    if(mTooSlow && !mTuned)
     {
         LLPerfStats::tunedAvatars++; // increment the number of avatars that have been tweaked.
+        mTuned = true;
+    }
+    else if(!mTooSlow && mTuned)
+    {
+        LLPerfStats::tunedAvatars--;
+        mTuned = false;
     }
 }
 

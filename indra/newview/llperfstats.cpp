@@ -446,7 +446,7 @@ namespace LLPerfStats
                     // turn off if we are not locked.
                     tunables.updateUserAutoTuneEnabled(false);
                 }
-                if( LLPerfStats::tunedAvatars > 0 )
+                if(renderAvatarMaxART_ns != 0 && LLPerfStats::tunedAvatars > 0 )
                 {
                     // if we have more time to spare let's shift up little in the hope we'll restore an avatar.
                     renderAvatarMaxART_ns += LLPerfStats::ART_MIN_ADJUST_UP_NANOS;
