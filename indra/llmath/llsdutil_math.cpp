@@ -60,6 +60,7 @@ LLSD ll_sd_from_vector3(const LLVector3& vec)
 
 LLVector3 ll_vector3_from_sd(const LLSD& sd, S32 start_index)
 {
+    llassert(sd.isArray() && sd.size() >= start_index + 3);
 	LLVector3 rv;
 	rv.mV[VX] = (F32)sd[start_index].asReal();
 	rv.mV[VY] = (F32)sd[++start_index].asReal();
@@ -80,6 +81,7 @@ LLSD ll_sd_from_vector4(const LLVector4& vec)
 
 LLVector4 ll_vector4_from_sd(const LLSD& sd, S32 start_index)
 {
+    llassert(sd.isArray() && sd.size() >= start_index + 4);
 	LLVector4 rv;
 	rv.mV[VX] = (F32)sd[start_index].asReal();
 	rv.mV[VY] = (F32)sd[++start_index].asReal();
@@ -100,6 +102,7 @@ LLSD ll_sd_from_vector3d(const LLVector3d& vec)
 
 LLVector3d ll_vector3d_from_sd(const LLSD& sd, S32 start_index)
 {
+    llassert(sd.isArray() && sd.size() >= start_index + 3);
 	LLVector3d rv;
 	rv.mdV[VX] = sd[start_index].asReal();
 	rv.mdV[VY] = sd[++start_index].asReal();
@@ -118,6 +121,7 @@ LLSD ll_sd_from_vector2(const LLVector2& vec)
 
 LLVector2 ll_vector2_from_sd(const LLSD& sd)
 {
+    llassert(sd.isArray() && sd.size() >= 2);
 	LLVector2 rv;
 	rv.mV[VX] = (F32)sd[0].asReal();
 	rv.mV[VY] = (F32)sd[1].asReal();
@@ -137,6 +141,7 @@ LLSD ll_sd_from_quaternion(const LLQuaternion& quat)
 
 LLQuaternion ll_quaternion_from_sd(const LLSD& sd)
 {
+    llassert(sd.isArray() && sd.size() >= 4);
 	LLQuaternion quat;
 	quat.mQ[VX] = (F32)sd[0].asReal();
 	quat.mQ[VY] = (F32)sd[1].asReal();
