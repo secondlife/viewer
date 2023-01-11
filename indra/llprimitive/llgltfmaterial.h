@@ -71,6 +71,8 @@ public:
     LLGLTFMaterial(const LLGLTFMaterial& rhs);
 
     LLGLTFMaterial& operator=(const LLGLTFMaterial& rhs);
+    bool operator==(const LLGLTFMaterial& rhs) const;
+    bool operator!=(const LLGLTFMaterial& rhs) const { return !(*this == rhs); }
 
     LLUUID mBaseColorId;
     LLUUID mNormalId;
@@ -101,7 +103,6 @@ public:
         md5.finalize();
         LLUUID id;
         md5.raw_digest(id.mData);
-        // *TODO: Hash the overrides
         return id;
     }
 
@@ -181,6 +182,12 @@ public:
 
     void applyOverride(const LLGLTFMaterial& override_mat);
 
+    // For material overrides only. Clears most properties to
+    // default/fallthrough, but preserves the transforms.
+    bool setBaseMaterial();
+    // True if setBaseMaterial() was just called
+    bool isClearedForBaseMaterial();
+
 private:
 
     template<typename T>
@@ -188,5 +195,7 @@ private:
 
     template<typename T>
     void writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, const LLUUID& texture_id) const;
+
+    void setBaseMaterial(const LLGLTFMaterial& old_override_mat);
 };
 
