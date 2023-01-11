@@ -9470,7 +9470,9 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
     LLGLEnable cull(GL_CULL_FACE);
 
     //enable depth clamping if available
-    //LLGLEnable depth_clamp(GL_DEPTH_CLAMP);
+    LLGLEnable depth_clamp(GL_DEPTH_CLAMP);
+
+    LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_LESS);
 
     if (use_shader)
     {
@@ -9513,15 +9515,8 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
     for (int j = 0; j < 2; ++j) // 0 -- static, 1 -- rigged
     {
         bool rigged = j == 1;
-        if (!use_shader)
-        { //occlusion program is general purpose depth-only no-textures
-            gOcclusionProgram.bind(rigged);
-        }
-        else
-        {
-            gDeferredShadowProgram.bind(rigged);
-            LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
-        }
+        gDeferredShadowProgram.bind(rigged);
+        LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
 
         gGL.diffuseColor4f(1, 1, 1, 1);
 
@@ -9555,10 +9550,6 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
         }
 
         gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-        if (!use_shader)
-        {
-            gOcclusionProgram.unbind();
-        }
     }
 
     if (occlude > 1)

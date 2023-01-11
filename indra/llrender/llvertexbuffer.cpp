@@ -561,10 +561,8 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 	U16* idx = ((U16*) getIndicesPointer())+indices_offset;
 
 	stop_glerror();
-	LLGLSLShader::startProfile();
 	glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT, 
 		idx);
-	LLGLSLShader::stopProfile(count, mode);
 	stop_glerror();
 }
 
@@ -608,10 +606,8 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 	}
 
 	stop_glerror();
-	LLGLSLShader::startProfile();
-    glDrawElements(sGLMode[mode], count, GL_UNSIGNED_SHORT,
+	glDrawElements(sGLMode[mode], count, GL_UNSIGNED_SHORT,
 		((U16*) getIndicesPointer()) + indices_offset);
-	LLGLSLShader::stopProfile(count, mode);
 	stop_glerror();
 }
 
@@ -642,13 +638,7 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
     }
 #endif
 
-    LLGLSLShader::startProfile();
-    {
-            glDrawArrays(sGLMode[mode], first, count);
-    }
-    LLGLSLShader::stopProfile(count, mode);
-
-    stop_glerror();
+    glDrawArrays(sGLMode[mode], first, count);
 }
 
 //static
@@ -1347,7 +1337,6 @@ static void flush_vbo(GLenum target, S32 start, S32 end, void* data)
         for (S32 i = start; i < end; i += block_size)
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("glBufferSubData block");
-            LL_PROFILE_GPU_ZONE("glBufferSubData");
             S32 tend = llmin(i + block_size, end);
             glBufferSubData(target, i, tend - i, (U8*) data + (i-start));
         }
