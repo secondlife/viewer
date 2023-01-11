@@ -98,6 +98,17 @@ public:
 	typedef std::vector<LLPointer<LLViewerObject> > attachedobjs_vec_t;
 	attachedobjs_vec_t mAttachedObjects;
 
+    bool    hasChanged(const LLVector3 &pos, const LLQuaternion &rot) const
+    {
+        return (!(pos - mLastTrackedPos).isNull() || !LLQuaternion::almost_equal(rot, mLastTrackedRot));
+    }
+
+    void    setLastTracked(const LLVector3 &tracked_pos, const LLQuaternion &tracked_rot)
+    {
+        mLastTrackedPos = tracked_pos;
+        mLastTrackedRot = tracked_rot;
+    }
+
 protected:
 	void calcLOD();
 	void setupDrawable(LLViewerObject *object);
@@ -108,6 +119,8 @@ private:
 	S32				mGroup;
 	BOOL			mIsHUDAttachment;
 	S32				mPieSlice;
+    LLVector3       mLastTrackedPos;
+    LLQuaternion    mLastTrackedRot;
 };
 
 #endif // LL_LLVIEWERJOINTATTACHMENT_H

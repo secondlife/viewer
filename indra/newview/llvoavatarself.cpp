@@ -1288,6 +1288,50 @@ U32 LLVOAvatarSelf::getNumWearables(LLAvatarAppearanceDefines::ETextureIndex i) 
 	return gAgentWearables.getWearableCount(type);
 }
 
+void LLVOAvatarSelf::postMotionUpdate() 
+{
+    S32 count(0);
+
+    LLVector3 agent_pos(getPositionRegion());
+    LLQuaternion agent_inv_rot(~getWorldRotation());
+
+    gMessageSystem->newMessageFast(_PREHASH_AgentAnimationTracking);
+    gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+    gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+    gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+
+    for (auto const &info : mAttachmentPoints)
+    {
+        if (!info.second->getIsHUDAttachment()) 
+        {
+            LLVector3 pos(info.second->getWorldPosition() - agent_pos);
+            LLQuaternion rot(info.second->getWorldRotation() * agent_inv_rot);
+
+            /*note, using isNull, which flags very small lengths rather than isExactlyZero */
+            //bool has_value = !pos.isNull() || !LLQuaternion::almost_equal(rot, LLQuaternion::DEFAULT);
+            //bool has_value = info.second->mDirtyFlags & (LLJoint::ROTATION_DIRTY | LLJoint::POSITION_DIRTY);
+            bool has_value = info.second->hasChanged(pos, rot);
+            if (has_value)
+            {
+                ++count;
+                gMessageSystem->nextBlockFast(_PREHASH_AttachmentPointUpdate);
+                gMessageSystem->addU8Fast(_PREHASH_AttachmentPoint, info.first);
+                gMessageSystem->addVector3Fast(_PREHASH_Position, pos);
+                gMessageSystem->addQuatFast(_PREHASH_Rotation, rot);
+                gMessageSystem->addF32Fast(_PREHASH_Radius, 0.0);  // 
+                info.second->setLastTracked(pos, rot);
+            }
+        }
+    }
+    if (count)
+    {   // just send.  If we drop a couple frames, we're fine with that. 
+        gMessageSystem->sendMessage(gAgent.getRegionHost());
+    }
+    //else
+    //{        
+    //}
+}
+
 // virtual
 void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src_raw, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
 {	
