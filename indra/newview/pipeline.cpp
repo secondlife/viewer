@@ -7328,7 +7328,7 @@ void LLPipeline::renderShadowSimple(U32 type)
             mSimplePool->applyModelMatrix(params);
             vb->setBufferFast(LLVertexBuffer::MAP_VERTEX);
             vb->drawRangeFast(LLRender::TRIANGLES, 0, vb->getNumVerts()-1, vb->getNumIndices(), 0);
-            vb = last_vb;
+            last_vb = vb;
         }
     }
     gGL.loadMatrix(gGLModelView);
@@ -9538,11 +9538,6 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
             }
             else
             {
-                //{  sort should not be necessary because each entry in sCull should already 
-                // be sorted by vertex buffer
-                //    LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("sort shadow simple");
-                //    std::sort(sCull->beginRenderMap(type), sCull->endRenderMap(type), CompareVertexBuffer());
-                //}
                 renderShadowSimple(type);
             }
         }

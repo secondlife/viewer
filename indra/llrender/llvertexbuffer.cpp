@@ -273,7 +273,189 @@ static GLWorkQueue* sQueue = nullptr;
 #endif
 
 //============================================================================
+// Pool of reusable VertexBuffer state
 
+// batch calls to glGenBuffers
+static GLuint gen_buffer()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+    constexpr U32 pool_size = 4096;
+
+    thread_local static GLuint sNamePool[pool_size];
+    thread_local static U32 sIndex = 0;
+
+    if (sIndex == 0)
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("gen buffer");
+        sIndex = pool_size;
+        glGenBuffers(pool_size, sNamePool);
+    }
+
+    return sNamePool[--sIndex];
+}
+
+class LLVBOPool
+{
+public:
+    typedef std::chrono::steady_clock::time_point Time;
+
+    struct Entry
+    {
+        U8* mData;
+        GLuint mGLName;
+        Time mAge;
+    };
+
+    ~LLVBOPool()
+    {
+        clear();
+    }
+
+    typedef std::unordered_map<U32, std::list<Entry>> Pool;
+
+    Pool mVBOPool;
+    Pool mIBOPool;
+
+    U32 mMissCount = 0;
+
+    void allocate(GLenum type, U32 size, GLuint& name, U8*& data)
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+
+        size = nhpo2(size);
+
+        auto& pool = type == GL_ELEMENT_ARRAY_BUFFER ? mIBOPool : mVBOPool;
+
+        auto& iter = pool.find(size);
+        if (iter == pool.end())
+        { // cache miss, allocate a new buffer
+            LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vbo pool miss");
+            LL_PROFILE_GPU_ZONE("vbo alloc");
+
+            ++mMissCount;
+            if (mMissCount > 1024)
+            { //clean cache on every 1024 misses
+                mMissCount = 0;
+                clean();
+            }
+
+            name = gen_buffer();
+            glBindBuffer(type, name);
+            glBufferData(type, size, nullptr, GL_DYNAMIC_DRAW);
+            if (type == GL_ELEMENT_ARRAY_BUFFER)
+            {
+                LLVertexBuffer::sGLRenderIndices = name;
+            }
+            else
+            {
+                LLVertexBuffer::sGLRenderBuffer = name;
+            }
+
+            data = (U8*)ll_aligned_malloc_16(size);
+        }
+        else
+        {
+            std::list<Entry>& entries = iter->second;
+            Entry& entry = entries.back();
+            name = entry.mGLName;
+            data = entry.mData;
+
+            entries.pop_back();
+            if (entries.empty())
+            {
+                pool.erase(iter);
+            }
+        }
+    }
+
+    void free(GLenum type, U32 size, GLuint name, U8* data)
+    {
+        size = nhpo2(size);
+
+        auto& pool = type == GL_ELEMENT_ARRAY_BUFFER ? mIBOPool : mVBOPool;
+
+        auto& iter = pool.find(size);
+
+        if (iter == pool.end())
+        {
+            std::list<Entry> newlist;
+            newlist.push_front({ data, name, std::chrono::steady_clock::now() });
+            pool[size] = newlist;
+        }
+        else
+        {
+            iter->second.push_front({ data, name, std::chrono::steady_clock::now() });
+        }
+    }
+
+    void clean()
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+
+        std::unordered_map<U32, std::list<Entry>>* pools[] = { &mVBOPool, &mIBOPool };
+
+        using namespace std::chrono_literals;
+
+        Time cutoff = std::chrono::steady_clock::now() - 5s;
+
+        for (auto* pool : pools)
+        {
+            for (Pool::iterator iter = pool->begin(); iter != pool->end(); )
+            {
+                auto& entries = iter->second;
+
+                while (!entries.empty() && entries.back().mAge < cutoff)
+                {
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vbo cache timeout");
+                    auto& entry = entries.back();
+                    ll_aligned_free_16(entry.mData);
+                    glDeleteBuffers(1, &entry.mGLName);
+                    entries.pop_back();
+                }
+
+                if (entries.empty())
+                {
+                    iter = pool->erase(iter);
+                }
+                else
+                {
+                    ++iter;
+                }
+            }
+        }
+    }
+
+    void clear()
+    {
+        for (auto& entries : mIBOPool)
+        {
+            for (auto& entry : entries.second)
+            {
+                ll_aligned_free_16(entry.mData);
+                glDeleteBuffers(1, &entry.mGLName);
+            }
+        }
+
+        for (auto& entries : mVBOPool)
+        {
+            for (auto& entry : entries.second)
+            {
+                ll_aligned_free_16(entry.mData);
+                glDeleteBuffers(1, &entry.mGLName);
+            }
+        }
+
+        mIBOPool.clear();
+        mVBOPool.clear();
+    }
+
+
+};
+
+static LLVBOPool* sVBOPool = nullptr;
+
+//============================================================================
+// 
 //static
 std::list<U32> LLVertexBuffer::sAvailableVAOName;
 U32 LLVertexBuffer::sCurVAOName = 1;
@@ -643,6 +825,8 @@ void LLVertexBuffer::initClass(LLWindow* window)
     sEnableVBOs = true;
     sDisableVBOMapping = true;
 
+    sVBOPool = new LLVBOPool();
+
 #if ENABLE_GL_WORK_QUEUE
     sQueue = new GLWorkQueue();
 
@@ -687,6 +871,9 @@ void LLVertexBuffer::cleanupClass()
 {
 	unbind();
 	
+    delete sVBOPool;
+    sVBOPool = nullptr;
+
 #if ENABLE_GL_WORK_QUEUE
     sQueue->close();
     for (int i = 0; i < THREAD_COUNT; ++i)
@@ -720,15 +907,8 @@ S32 LLVertexBuffer::determineUsage(S32 usage)
 		ret_usage = 0;
 	}
 	
-	if (ret_usage == GL_DYNAMIC_DRAW && sPreferStreamDraw)
-	{
-		ret_usage = GL_STREAM_DRAW;
-	}
-	
-	if (ret_usage == 0 && LLRender::sGLCoreProfile)
-	{ //MUST use VBOs for all rendering
-		ret_usage = GL_STREAM_DRAW;
-	}
+    // dynamic draw or nothing
+    ret_usage = GL_DYNAMIC_DRAW;
 	
 	return ret_usage;
 }
@@ -830,62 +1010,17 @@ LLVertexBuffer::~LLVertexBuffer()
 
 //----------------------------------------------------------------------------
 
-// batch glGenBuffers
-static GLuint gen_buffer()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
-    constexpr U32 pool_size = 4096;
-
-    thread_local static GLuint sNamePool[pool_size];
-    thread_local static U32 sIndex = 0;
-
-    if (sIndex == 0)
-    {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("gen ibo");
-        sIndex = pool_size;
-        glGenBuffers(pool_size, sNamePool);
-    }
-
-    return sNamePool[--sIndex];
-}
-
-// batch glDeleteBuffers
-static void release_buffer(U32 buff)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
-#if 0
-
-    constexpr U32 pool_size = 4096;
-
-    thread_local static GLuint sNamePool[pool_size];
-    thread_local static U32 sIndex = 0;
-
-    if (sIndex == pool_size)
-    {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("gen ibo");
-        sIndex = 0;
-        glDeleteBuffers(pool_size, sNamePool);
-    }
-
-    sNamePool[sIndex++] = buff;
-#else
-    glDeleteBuffers(1, &buff);
-#endif
-}
-
 void LLVertexBuffer::genBuffer(U32 size)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
 
     mSize = size;
-    mMappedData = (U8*) ll_aligned_malloc_16(size);
-    mGLBuffer = gen_buffer();
 
-    glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
-    glBufferData(GL_ARRAY_BUFFER, mSize, nullptr, mUsage);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    sGLRenderBuffer = 0;
-
+    if (sVBOPool)
+    {
+        sVBOPool->allocate(GL_ARRAY_BUFFER, size, mGLBuffer, mMappedData);
+    }
+    
     sGLCount++;
 }
 
@@ -894,25 +1029,24 @@ void LLVertexBuffer::genIndices(U32 size)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
 
     mIndicesSize = size;
-    mMappedIndexData = (U8*) ll_aligned_malloc_16(size);
 
-    mGLIndices = gen_buffer();
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndicesSize, nullptr, mUsage);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    sGLRenderIndices = 0;
-
+    if (sVBOPool)
+    {
+        sVBOPool->allocate(GL_ELEMENT_ARRAY_BUFFER, size, mGLIndices, mMappedIndexData);
+    }
 	sGLCount++;
 }
 
 void LLVertexBuffer::releaseBuffer()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
-    release_buffer(mGLBuffer);
-    mGLBuffer = 0;
 
-    ll_aligned_free_16(mMappedData);
+    if (sVBOPool)
+    {
+        sVBOPool->free(GL_ARRAY_BUFFER, mSize, mGLBuffer, mMappedData);
+    }
+
+    mGLBuffer = 0;
     mMappedData = nullptr;
 	
 	sGLCount--;
@@ -921,10 +1055,12 @@ void LLVertexBuffer::releaseBuffer()
 void LLVertexBuffer::releaseIndices()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
-    release_buffer(mGLIndices);
-    mGLIndices = 0;
+    
+    if (sVBOPool)
+    {
+        sVBOPool->free(GL_ELEMENT_ARRAY_BUFFER, mIndicesSize, mGLIndices, mMappedIndexData);
+    }
 
-    ll_aligned_free_16(mMappedIndexData);
     mMappedIndexData = nullptr;
 
 	sGLCount--;
@@ -1604,49 +1740,7 @@ void LLVertexBuffer::flush(bool discard)
 {
 	if (useVBOs())
 	{
-        if (discard)
-        { // discard existing VBO data if the buffer must be updated
-            
-            if (!mMappedVertexRegions.empty())
-            {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("flush discard vbo");
-                LL_PROFILE_ZONE_NUM(mSize);
-                release_buffer(mGLBuffer);
-                mGLBuffer = gen_buffer();
-                bindGLBuffer();
-                {
-                    LL_PROFILE_GPU_ZONE("glBufferData");
-                    glBufferData(GL_ARRAY_BUFFER, mSize, nullptr, mUsage);
-
-                    for (int i = 0; i < mSize; i += 65536)
-                    {
-                        LL_PROFILE_GPU_ZONE("glBufferSubData");
-                        S32 end = llmin(i + 65536, mSize);
-                        S32 count = end - i;
-                        glBufferSubData(GL_ARRAY_BUFFER, i, count, mMappedData + i);
-                    }
-                }
-                mMappedVertexRegions.clear();
-            }
-            if (!mMappedIndexRegions.empty())
-            {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("flush discard ibo");
-                LL_PROFILE_ZONE_NUM(mIndicesSize);
-                release_buffer(mGLIndices);
-                mGLIndices = gen_buffer();
-                bindGLIndices();
-                {
-                    LL_PROFILE_GPU_ZONE("glBufferData (ibo)");
-                    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndicesSize, mMappedIndexData, mUsage);
-                }
-                mMappedIndexRegions.clear();
-            }
-        }
-        else
-        {
-            unmapBuffer();
-        }
-
+        unmapBuffer();
 	}
 }
 
