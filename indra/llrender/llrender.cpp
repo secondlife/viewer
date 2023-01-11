@@ -1677,7 +1677,7 @@ void LLRender::flush()
             // To leverage this, we maintain a running hash of the vertex stream being
             // built up before a flush, and then check that hash against a VB 
             // cache just before creating a vertex buffer in VRAM
-            auto& cache = sVBCache.find(vhash[0]);
+            std::unordered_map<std::size_t, LLVBCache>::iterator cache = sVBCache.find(vhash[0]);
 
             LLPointer<LLVertexBuffer> vb;
 
@@ -1719,7 +1719,7 @@ void LLRender::flush()
 
                     using namespace std::chrono_literals;
                     // every 1024 misses, clean the cache of any VBs that haven't been touched in the last second
-                    for (auto& iter = sVBCache.begin(); iter != sVBCache.end(); )
+                    for (std::unordered_map<std::size_t, LLVBCache>::iterator iter = sVBCache.begin(); iter != sVBCache.end(); )
                     {
                         if (now - iter->second.touched > 1s)
                         {
