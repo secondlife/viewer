@@ -1244,7 +1244,7 @@ void LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
 void LLIMModel::processAddingMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id,
     const std::string& utf8_text, bool log2file /* = true */, bool is_region_msg /* = false */)
 {
-    LLIMSession* session = addMessageSilently(session_id, from, from_id, utf8_text, log2file);
+    LLIMSession* session = addMessageSilently(session_id, from, from_id, utf8_text, log2file, is_region_msg);
     if (!session) return;
 
     //good place to add some1 to recent list
