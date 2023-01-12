@@ -1224,7 +1224,7 @@ void LLIMModel::proccessOnlineOfflineNotification(
 }
 
 void LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, 
-						   const std::string& utf8_text, bool log2file /* = true */) { 
+						   const std::string& utf8_text, bool log2file /* = true */, bool is_region_msg /* = false */) {
 
     if (gSavedSettings.getBOOL("TranslateChat") && (from != SYSTEM_FROM))
     {
@@ -1237,12 +1237,12 @@ void LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
     }
     else
     {
-        processAddingMessage(session_id, from, from_id, utf8_text, log2file);
+        processAddingMessage(session_id, from, from_id, utf8_text, log2file, is_region_msg);
     }
 }
 
 void LLIMModel::processAddingMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id,
-    const std::string& utf8_text, bool log2file /* = true */)
+    const std::string& utf8_text, bool log2file /* = true */, bool is_region_msg /* = false */)
 {
     LLIMSession* session = addMessageSilently(session_id, from, from_id, utf8_text, log2file);
     if (!session) return;
@@ -1263,6 +1263,7 @@ void LLIMModel::processAddingMessage(const LLUUID& session_id, const std::string
     arg["from_id"] = from_id;
     arg["time"] = LLLogChat::timestamp(false);
     arg["session_type"] = session->mSessionType;
+    arg["is_region_msg"] = is_region_msg;
 
     mNewMsgSignal(arg);
 }

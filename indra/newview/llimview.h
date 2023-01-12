@@ -208,8 +208,8 @@ public:
 	 * and also saved into a file if log2file is specified.
 	 * It sends new message signal for each added message.
 	 */
-	void addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& other_participant_id, const std::string& utf8_text, bool log2file = true, bool is_region_msg = false);
-    void processAddingMessage(const LLUUID& session_id, const std::string& from, const LLUUID& other_participant_id, const std::string& utf8_text, bool log2file = true);
+	void addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text, bool log2file = true, bool is_region_msg = false);
+    void processAddingMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text, bool log2file = true, bool is_region_msg = false);
 
 	/**
 	 * Similar to addMessage(...) above but won't send a signal about a new message added
