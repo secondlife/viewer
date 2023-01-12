@@ -749,6 +749,8 @@ std::ostream& operator<<(std::ostream& out, const LLEventDispatcher& self)
 /*****************************************************************************
 *   LLDispatchListener
 *****************************************************************************/
+std::string LLDispatchListener::mReplyKey{ "reply" };
+
 /*==========================================================================*|
   TODO:
 * When process() finds name.isArray(), construct response array from
@@ -759,33 +761,27 @@ std::ostream& operator<<(std::ostream& out, const LLEventDispatcher& self)
   note, caller can't care about order
 * Possible future transactional behavior: look up all names before calling any
 |*==========================================================================*/
-std::string LLDispatchListener::mReplyKey{ "reply" };
-
 bool LLDispatchListener::process(const LLSD& event) const
 {
-    LLSD result;
-    try
-    {
-        result = (*this)(event);
-    }
-    catch (const DispatchError& err)
-    {
-        // If the incoming event contains a "reply" key, we'll respond to the
-        // invoker with an error message (below). But if not -- silently
-        // ignoring an invocation request would be confusing at best. Escalate.
-        if (! event.has(mReplyKey))
-        {
-            throw;
-        }
+    // Collecting errors is only meaningful with a reply key. Without one, if
+    // an error occurs, let the exception propagate.
+    auto returned = call("", event, (! event.has(mReplyKey)));
+    std::string& error{ returned.first };
+    LLSD& result{ returned.second };
 
-        // reply with a map containing an "error" key explaining the problem
-        reply(llsd::map("error", err.what()), event);
+    if (! error.empty())
+    {
+        // Here there was an error and the incoming event has mReplyKey --
+        // else DispatchError would already have propagated out of the call()
+        // above. Reply with a map containing an "error" key explaining the
+        // problem.
+        reply(llsd::map("error", error), event);
         return false;
     }
 
     // We seem to have gotten a valid result. But we don't know whether the
     // registered callable is void or non-void. If it's void,
-    // LLEventDispatcher will return isUndefined(). Otherwise, try to send it
+    // LLEventDispatcher returned isUndefined(). Otherwise, try to send it
     // back to our invoker.
     if (result.isDefined())
     {
@@ -797,6 +793,39 @@ bool LLDispatchListener::process(const LLSD& event) const
         reply(result, event);
     }
     return false;
+}
+
+// Pass empty name to call LLEventDispatcher::operator()(const LLSD&),
+// non-empty name to call operator()(const std::string&, const LLSD&).
+// Returns (empty string, return value) on successful call.
+// Returns (error message, undefined) if error and 'exception' is false.
+// Throws DispatchError if error and 'exception' is true.
+std::pair<std::string, LLSD> LLDispatchListener::call(const std::string& name, const LLSD& event,
+                                                      bool exception) const
+{
+    try
+    {
+        if (name.empty())
+        {
+            // unless this throws, return (empty string, real return value)
+            return { {}, (*this)(event) };
+        }
+        else
+        {
+            // unless this throws, return (empty string, real return value)
+            return { {}, (*this)(name, event) };
+        }
+    }
+    catch (const DispatchError& err)
+    {
+        if (exception)
+        {
+            // Caller asked for an exception on error. Oblige.
+            throw;
+        }
+        // Caller does NOT want an exception: return (error message, undefined)
+        return { err.what(), LLSD() };
+    }
 }
 
 void LLDispatchListener::reply(const LLSD& reply, const LLSD& request) const

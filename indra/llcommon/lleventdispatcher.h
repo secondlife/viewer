@@ -42,6 +42,7 @@
 #include <string>
 #include <typeinfo>
 #include <type_traits>
+#include <utility>                  // std::pair
 #include "llevents.h"
 #include "llptrto.h"
 #include "llsdutil.h"
@@ -522,6 +523,33 @@ LLEventDispatcher::make_invoker(Method f, const InstanceGetter& getter)
  * that contains (or derives from) LLDispatchListener need only specify the
  * LLEventPump name and dispatch key, and add() its methods. Incoming events
  * will automatically be dispatched.
+ *
+ * If the incoming event contains a "reply" key specifying the LLSD::String
+ * name of an LLEventPump to which to respond, LLDispatchListener will attempt
+ * to send a response to that LLEventPump.
+ *
+ * If some error occurs (e.g. nonexistent callable name, wrong params) and
+ * "reply" is present, LLDispatchListener will send a response map to the
+ * specified LLEventPump containing an "error" key whose value is the relevant
+ * error message. If "reply" is not present, the DispatchError exception will
+ * propagate.
+ *
+ * If LLDispatchListener successfully calls the target callable, but no
+ * "reply" key is present, any value returned by that callable is discarded.
+ * If a "reply" key is present, but the target callable is void -- or it
+ * returns LLSD::isUndefined() -- no response is sent. If a void callable
+ * wants to send a response, it must do so explicitly.
+ *
+ * If the target callable returns a type convertible to LLSD (and, if it
+ * directly returns LLSD, the return value isDefined()), and if a "reply" key
+ * is present in the incoming event, LLDispatchListener will post the returned
+ * value to the "reply" LLEventPump. If the returned value is an LLSD map, it
+ * will merge the echoed "reqid" key into the map and send that. Otherwise, it
+ * will send an LLSD map containing "reqid" and a "data" key whose value is
+ * the value returned by the target callable.
+ *
+ * (It is inadvisable for a target callable to return an LLSD map containing
+ * keys "reqid" or "error", as that will confuse the invoker.)
  */
 // Instead of containing an LLEventStream, LLDispatchListener derives from it.
 // This allows an LLEventPumps::PumpFactory to return a pointer to an
@@ -532,6 +560,7 @@ class LL_COMMON_API LLDispatchListener:
     public LLEventStream
 {
 public:
+    /// LLEventPump name, dispatch key [, arguments key (see LLEventDispatcher)]
     template <typename... ARGS>
     LLDispatchListener(const std::string& pumpname, const std::string& key,
                        ARGS&&... args);
@@ -539,6 +568,13 @@ public:
 
 private:
     bool process(const LLSD& event) const;
+    // Pass empty name to call LLEventDispatcher::operator()(const LLSD&),
+    // non-empty name to call operator()(const std::string&, const LLSD&).
+    // Returns (empty string, return value) on successful call.
+    // Returns (error message, undefined) if error and 'exception' is false.
+    // Throws DispatchError if error and 'exception' is true.
+    std::pair<std::string, LLSD> call(const std::string& name, const LLSD& event,
+                                      bool exception) const;
     void reply(const LLSD& reply, const LLSD& request) const;
 
     LLTempBoundListener mBoundListener;
