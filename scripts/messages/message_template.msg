@@ -1715,6 +1715,30 @@ version 2.0
 	}
 }
 
+// AgentAnimationTrack Viewer reports post animation 
+//      location of attachment points
+// --------------------
+//      One AttachmentPointUpdate block for any tracked attachment point, 
+//      The viewer reports the location of all tracked attachment points 
+//      relative to the avatar position after the animation frame has been 
+//      applied.
+// viewer --> simulator
+{
+    AgentAnimationTracking Low 431 NotTrusted Zerocoded
+    {
+        AgentData           Single
+        {   AgentID         LLUUID  }
+        {   SessionID       LLUUID  }
+    }
+    {
+        AttachmentPointUpdate Variable
+        {   AttachmentPoint U8              }
+        {   Position        LLVector3       }
+        {   Rotation        LLQuaternion    }
+        {   Radius          F32             }
+    }
+}
+
 // AgentRequestSit - Try to sit on an object
 {
 	AgentRequestSit		High 6  NotTrusted Zerocoded
