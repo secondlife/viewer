@@ -51,6 +51,7 @@ void LLPanelPulldown::onMouseEnter(S32 x, S32 y, MASK mask)
 /*virtual*/
 void LLPanelPulldown::onTopLost()
 {
+    setFocus(FALSE); // drop focus to prevent transfer to parent
     setVisible(FALSE);
 }
 
@@ -113,6 +114,7 @@ void LLPanelPulldown::draw()
 
     if (alpha == 0.f)
     {
+        setFocus(FALSE); // drop focus to prevent transfer to parent
         setVisible(FALSE);
     }
 }

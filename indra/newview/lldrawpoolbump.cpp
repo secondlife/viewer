@@ -41,6 +41,7 @@
 #include "lldrawable.h"
 #include "llface.h"
 #include "llsky.h"
+#include "llstartup.h"
 #include "lltextureentry.h"
 #include "llviewercamera.h"
 #include "llviewertexturelist.h"
@@ -81,11 +82,6 @@ static S32 bump_channel = -1;
 // LLAtomicBool; this should work just fine, now. HB
 #define LL_BUMPLIST_MULTITHREADED 1
 
-// static 
-void LLStandardBumpmap::init()
-{
-	LLStandardBumpmap::restoreGL();
-}
 
 // static 
 void LLStandardBumpmap::shutdown()
@@ -96,7 +92,7 @@ void LLStandardBumpmap::shutdown()
 // static 
 void LLStandardBumpmap::restoreGL()
 {
-	addstandard();
+    addstandard();
 }
 
 // static
@@ -108,6 +104,12 @@ void LLStandardBumpmap::addstandard()
 		//But it is safe to return here because bump images will be reloaded during initialization later.
 		return ;
 	}
+
+    if (LLStartUp::getStartupState() < STATE_SEED_CAP_GRANTED)
+    {
+        // Not ready, need caps for images
+        return;
+    }
 
 	// can't assert; we destroyGL and restoreGL a lot during *first* startup, which populates this list already, THEN we explicitly init the list as part of *normal* startup.  Sigh.  So clear the list every time before we (re-)add the standard bumpmaps.
 	//llassert( LLStandardBumpmap::sStandardBumpmapCount == 0 );
@@ -770,8 +772,6 @@ void LLBumpImageList::init()
 {
 	llassert( mBrightnessEntries.size() == 0 );
 	llassert( mDarknessEntries.size() == 0 );
-
-	LLStandardBumpmap::init();
 
 	LLStandardBumpmap::restoreGL();
     sMainQueue = LL::WorkQueue::getInstance("mainloop");
