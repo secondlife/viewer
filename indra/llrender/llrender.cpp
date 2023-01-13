@@ -189,7 +189,7 @@ void LLTexUnit::disable(void)
 void LLTexUnit::bindFast(LLTexture* texture)
 {
     LLImageGL* gl_tex = texture->getGLTexture();
-
+    texture->setActive();
     glActiveTexture(GL_TEXTURE0 + mIndex);
     gGL.mCurrTextureUnitIndex = mIndex;
     mCurrTexture = gl_tex->getTexName();

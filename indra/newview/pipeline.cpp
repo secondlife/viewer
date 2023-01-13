@@ -3645,49 +3645,6 @@ void renderSoundHighlights(LLDrawable *drawablep)
     }
 }
 
-void LLPipeline::touchTexture(LLViewerTexture* tex)
-{
-    if (tex)
-    {
-        tex->setActive();
-    }
-}
-
-void LLPipeline::touchTextures(LLDrawInfo* info)
-{
-    if (--info->mTextureTimer == 0)
-    {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-        // reset texture timer in a noisy fashion to avoid clumping of updates
-        const U32 MIN_WAIT_TIME = 8;
-        const U32 MAX_WAIT_TIME = 16;
-
-        info->mTextureTimer = ll_rand() % (MAX_WAIT_TIME - MIN_WAIT_TIME) + MIN_WAIT_TIME;
-
-        auto& mat = info->mGLTFMaterial;
-        if (mat.notNull())
-        {
-            touchTexture(mat->mBaseColorTexture);
-            touchTexture(mat->mNormalTexture);
-            touchTexture(mat->mMetallicRoughnessTexture);
-            touchTexture(mat->mEmissiveTexture);
-        }
-        else
-        {
-            info->mTextureTimer += (U8) info->mTextureList.size();
-
-            for (int i = 0; i < info->mTextureList.size(); ++i)
-            {
-                touchTexture(info->mTextureList[i]);
-            }
-
-            touchTexture(info->mTexture);
-            touchTexture(info->mSpecularMap);
-            touchTexture(info->mNormalMap);
-        }
-    }
-}
-
 void LLPipeline::postSort(LLCamera &camera)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
@@ -3740,28 +3697,6 @@ void LLPipeline::postSort(LLCamera &camera)
                 continue;
             }
 
-            // DEBUG -- force a texture virtual size update every frame
-            /*if (group->getSpatialPartition()->mDrawableType == LLPipeline::RENDER_TYPE_VOLUME)
-            {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("plps - update vsize");
-                auto& entries = group->getData();
-                for (auto& entry : entries)
-                {
-                    if (entry)
-                    {
-                        auto* data = entry->getDrawable();
-                        if (data)
-                        {
-                            LLVOVolume* volume = ((LLDrawable*)data)->getVOVolume();
-                            if (volume)
-                            {
-                                volume->updateTextureVirtualSize(true);
-                            }
-                        }
-                    }
-                }
-            }*/
-
             for (LLSpatialGroup::drawmap_elem_t::iterator k = src_vec.begin(); k != src_vec.end(); ++k)
             {
                 LLDrawInfo *info = *k;
@@ -3769,7 +3704,6 @@ void LLPipeline::postSort(LLCamera &camera)
                 sCull->pushDrawInfo(j->first, info);
                 if (!sShadowRender && !sReflectionRender && !gCubeSnapshot)
                 {
-                    touchTextures(info);
                     addTrianglesDrawn(info->mCount);
                 }
             }

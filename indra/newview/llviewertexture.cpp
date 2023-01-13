@@ -1018,7 +1018,6 @@ LLViewerFetchedTexture* LLViewerFetchedTexture::getSmokeImage()
         sSmokeImagep = LLViewerTextureManager::getFetchedTexture(IMG_SMOKE);
     }
 
-    gPipeline.touchTexture(sSmokeImagep);
     sSmokeImagep->addTextureStats(1024.f * 1024.f);
 
     return sSmokeImagep;

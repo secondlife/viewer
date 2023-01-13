@@ -93,7 +93,6 @@ void LLDrawPoolTree::render(S32 pass)
 	LLGLState test(GL_ALPHA_TEST, 0);
 
 	gGL.getTexUnit(sDiffTex)->bindFast(mTexturep);
-    gPipeline.touchTexture(mTexturep);
     mTexturep->addTextureStats(1024.f * 1024.f); // <=== keep Linden tree textures at full res
 
 	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();

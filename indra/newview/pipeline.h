@@ -266,10 +266,6 @@ public:
 	void stateSort(LLDrawable* drawablep, LLCamera& camera);
 	void postSort(LLCamera& camera);
     
-    //let image list know we're using these textures
-    void touchTextures(LLDrawInfo* info);
-    void touchTexture(LLViewerTexture* tex);
-
 	void forAllVisibleDrawables(void (*func)(LLDrawable*));
 
     void renderObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);

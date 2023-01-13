@@ -136,7 +136,6 @@ public:
     U8   mShiny = 0;
     bool mFullbright = false;
     bool mHasGlow = false;
-    U8 mTextureTimer = 1;
 
 	struct CompareTexture
 	{
