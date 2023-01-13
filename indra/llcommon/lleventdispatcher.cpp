@@ -751,32 +751,44 @@ std::ostream& operator<<(std::ostream& out, const LLEventDispatcher& self)
 *****************************************************************************/
 std::string LLDispatchListener::mReplyKey{ "reply" };
 
-/*==========================================================================*|
-  TODO:
-* When process() finds name.isArray(), construct response array from
-  dispatching each call -- args must also be (array of args structures)
-  (could also construct response map, IF array contains unique names)
-* When process() finds name.isMap(), construct response map from dispatching
-  each call -- value of each key is its args struct -- argskey ignored --
-  note, caller can't care about order
-* Possible future transactional behavior: look up all names before calling any
-|*==========================================================================*/
 bool LLDispatchListener::process(const LLSD& event) const
 {
-    // Collecting errors is only meaningful with a reply key. Without one, if
-    // an error occurs, let the exception propagate.
-    auto returned = call("", event, (! event.has(mReplyKey)));
-    std::string& error{ returned.first };
-    LLSD& result{ returned.second };
-
-    if (! error.empty())
+    // Decide what to do based on the incoming value of the specified dispatch
+    // key.
+    LLSD name{ event[getDispatchKey()] };
+    if (name.isMap())
     {
-        // Here there was an error and the incoming event has mReplyKey --
-        // else DispatchError would already have propagated out of the call()
-        // above. Reply with a map containing an "error" key explaining the
-        // problem.
-        reply(llsd::map("error", error), event);
-        return false;
+        call_map(name, event);
+    }
+    else if (name.isArray())
+    {
+        call_array(name, event);
+    }
+    else
+    {
+        call_one(name, event);
+    }
+    return false;
+}
+
+void LLDispatchListener::call_one(const LLSD& name, const LLSD& event) const
+{
+    LLSD result;
+    try
+    {
+        result = (*this)(event);
+    }
+    catch (const DispatchError& err)
+    {
+        if (! event.has(mReplyKey))
+        {
+            // Without a reply key, let the exception propagate.
+            throw;
+        }
+
+        // Here there was an error and the incoming event has mReplyKey. Reply
+        // with a map containing an "error" key explaining the problem.
+        return reply(llsd::map("error", err.what()), event);
     }
 
     // We seem to have gotten a valid result. But we don't know whether the
@@ -792,40 +804,127 @@ bool LLDispatchListener::process(const LLSD& event) const
         }
         reply(result, event);
     }
-    return false;
 }
 
-// Pass empty name to call LLEventDispatcher::operator()(const LLSD&),
-// non-empty name to call operator()(const std::string&, const LLSD&).
-// Returns (empty string, return value) on successful call.
-// Returns (error message, undefined) if error and 'exception' is false.
-// Throws DispatchError if error and 'exception' is true.
-std::pair<std::string, LLSD> LLDispatchListener::call(const std::string& name, const LLSD& event,
-                                                      bool exception) const
+void LLDispatchListener::call_map(const LLSD& reqmap, const LLSD& event) const
 {
-    try
+    // LLSD map containing returned values
+    LLSD result;
+    // collect any error messages here
+    std::ostringstream errors;
+    const char* delim = "";
+
+    for (const auto& pair : llsd::inMap(reqmap))
     {
-        if (name.empty())
+        const LLSD::String& name{ pair.first };
+        const LLSD& args{ pair.second };
+        try
         {
-            // unless this throws, return (empty string, real return value)
-            return { {}, (*this)(event) };
+            // With this form, capture return value even if undefined:
+            // presence of the key in the response map can be used to detect
+            // which request keys succeeded.
+            result[name] = (*this)(name, args);
+        }
+        catch (const DispatchError& err)
+        {
+            // collect message in 'errors', with hint as to which request map
+            // entry failed
+            errors << delim << err.what() << " (" << getDispatchKey()
+                   << '[' << name << "])";
+            delim = "\n";
+        }
+    }
+
+    // so, were there any errors?
+    std::string error = errors.str();
+    if (! error.empty())
+    {
+        if (! event.has(mReplyKey))
+        {
+            // can't send reply, throw
+            sCallFail<DispatchError>(error);
         }
         else
         {
-            // unless this throws, return (empty string, real return value)
-            return { {}, (*this)(name, event) };
+            // reply key present
+            result["error"] = error;
         }
     }
-    catch (const DispatchError& err)
+
+    reply(result, event);
+}
+
+void LLDispatchListener::call_array(const LLSD& reqarray, const LLSD& event) const
+{
+    // LLSD array containing returned values
+    LLSD results;
+    // arguments array, if present -- const because, if it's shorter than
+    // reqarray, we don't want to grow it
+    const LLSD argsarray{ event[getArgsKey()] };
+    // error message, if any
+    std::string error;
+
+    // classic index loop because we need the index
+    for (size_t i = 0, size = reqarray.size(); i < size; ++i)
     {
-        if (exception)
+        const auto& reqentry{ reqarray[i] };
+        std::string name;
+        LLSD args;
+        if (reqentry.isString())
         {
-            // Caller asked for an exception on error. Oblige.
-            throw;
+            name = reqentry.asString();
+            args = argsarray[i];
         }
-        // Caller does NOT want an exception: return (error message, undefined)
-        return { err.what(), LLSD() };
+        else if (reqentry.isArray() && reqentry.size() == 2 && reqentry[0].isString())
+        {
+            name = reqentry[0].asString();
+            args = reqentry[1];
+        }
+        else
+        {
+            // reqentry isn't in either of the documented forms
+            error = stringize(*this, ": ", getDispatchKey(), '[', i, "] ",
+                              reqentry, " unsupported");
+            break;
+        }
+
+        // reqentry is one of the valid forms, got name and args
+        try
+        {
+            // With this form, capture return value even if undefined
+            results.append((*this)(name, args));
+        }
+        catch (const DispatchError& err)
+        {
+            // append hint as to which requentry produced the error
+            error = stringize(err.what(), " (", getDispatchKey(), '[', i, ']');
+            break;
+        }
     }
+
+    LLSD result;
+    // was there an error?
+    if (! error.empty())
+    {
+        if (! event.has(mReplyKey))
+        {
+            // can't send reply, throw
+            sCallFail<DispatchError>(error);
+        }
+        else
+        {
+            // reply key present
+            result["error"] = error;
+        }
+    }
+
+    // wrap the results array as response map "data" key, as promised
+    if (results.isDefined())
+    {
+        result["data"] = results;
+    }
+
+    reply(result, event);
 }
 
 void LLDispatchListener::reply(const LLSD& reply, const LLSD& request) const
