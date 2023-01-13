@@ -95,7 +95,6 @@ const F32 FORCE_CULL_AREA = 8.f;
 U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG = 1;
 
 BOOL gAnimateTextures = TRUE;
-//extern BOOL gHideSelectedObjects;
 
 F32 LLVOVolume::sLODFactor = 1.f;
 F32	LLVOVolume::sLODSlopDistanceFactor = 0.5f; //Changing this to zero, effectively disables the LOD transition slop 
@@ -526,6 +525,10 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 				if (result & teDirtyBits)
 				{
 					updateTEData();
+                    if (mDrawable)
+                    { //on the fly TE updates break batches, isolate in octree
+                        shrinkWrap();
+                    }
 				}
 				if (result & TEM_CHANGE_MEDIA)
 				{
@@ -585,6 +588,7 @@ void LLVOVolume::animateTextures()
 {
 	if (!mDead)
 	{
+        shrinkWrap();
 		F32 off_s = 0.f, off_t = 0.f, scale_s = 1.f, scale_t = 1.f, rot = 0.f;
 		S32 result = mTextureAnimp->animateTextures(off_s, off_t, scale_s, scale_t, rot);
 	
@@ -976,6 +980,11 @@ void LLVOVolume::setScale(const LLVector3 &scale, BOOL damped)
 		//since drawable transforms do not include scale, changing volume scale
 		//requires an immediate rebuild of volume verts.
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_POSITION, TRUE);
+
+        if (mDrawable)
+        {
+            shrinkWrap();
+        }
 	}
 }
 
@@ -2197,7 +2206,12 @@ S32 LLVOVolume::setTETexture(const U8 te, const LLUUID &uuid)
 	S32 res = LLViewerObject::setTETexture(te, uuid);
 	if (res)
 	{
-		gPipeline.markTextured(mDrawable);
+        if (mDrawable)
+        {
+            // dynamic texture changes break batches, isolate in octree
+            shrinkWrap();
+            gPipeline.markTextured(mDrawable);
+        }
 		mFaceMappingChanged = TRUE;
 	}
 	return res;
@@ -2232,6 +2246,7 @@ S32 LLVOVolume::setTEColor(const U8 te, const LLColor4& color)
 			// These should only happen on updates which are not the initial update.
             mColorChanged = TRUE;
 			mDrawable->setState(LLDrawable::REBUILD_COLOR);
+            shrinkWrap();
 			dirtyMesh();
 		}
 	}
@@ -2321,7 +2336,11 @@ S32 LLVOVolume::setTEGlow(const U8 te, const F32 glow)
 	S32 res = LLViewerObject::setTEGlow(te, glow);
 	if (res)
 	{
-		gPipeline.markTextured(mDrawable);
+        if (mDrawable)
+        {
+            gPipeline.markTextured(mDrawable);
+            shrinkWrap();
+        }
 		mFaceMappingChanged = TRUE;
 	}
 	return  res;
@@ -4359,83 +4378,62 @@ void LLVOVolume::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 F32 LLVOVolume::getBinRadius()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
-	F32 radius;
-	
-	F32 scale = 1.f;
+    F32 radius;
 
-	static LLCachedControl<S32> octree_size_factor(gSavedSettings, "OctreeStaticObjectSizeFactor", 3);
-	static LLCachedControl<S32> octree_attachment_size_factor(gSavedSettings, "OctreeAttachmentSizeFactor", 4);
-	static LLCachedControl<LLVector3> octree_distance_factor(gSavedSettings, "OctreeDistanceFactor", LLVector3(0.01f, 0.f, 0.f));
-	static LLCachedControl<LLVector3> octree_alpha_distance_factor(gSavedSettings, "OctreeAlphaDistanceFactor", LLVector3(0.1f, 0.f, 0.f));
+    static LLCachedControl<S32> octree_size_factor(gSavedSettings, "OctreeStaticObjectSizeFactor", 3);
+    static LLCachedControl<S32> octree_attachment_size_factor(gSavedSettings, "OctreeAttachmentSizeFactor", 4);
+    static LLCachedControl<LLVector3> octree_distance_factor(gSavedSettings, "OctreeDistanceFactor", LLVector3(0.01f, 0.f, 0.f));
+    static LLCachedControl<LLVector3> octree_alpha_distance_factor(gSavedSettings, "OctreeAlphaDistanceFactor", LLVector3(0.1f, 0.f, 0.f));
 
-	S32 size_factor = llmax((S32)octree_size_factor, 1);
-	S32 attachment_size_factor = llmax((S32)octree_attachment_size_factor, 1);
-	LLVector3 distance_factor = octree_distance_factor;
-	LLVector3 alpha_distance_factor = octree_alpha_distance_factor;
+    S32 size_factor = llmax((S32)octree_size_factor, 1);
+    LLVector3 distance_factor = octree_distance_factor;
+    LLVector3 alpha_distance_factor = octree_alpha_distance_factor;
 
-	const LLVector4a* ext = mDrawable->getSpatialExtents();
-	
-	BOOL shrink_wrap = mDrawable->isAnimating();
-	BOOL alpha_wrap = FALSE;
+    //const LLVector4a* ext = mDrawable->getSpatialExtents();
 
-	if (!isHUDAttachment())
-	{
-		for (S32 i = 0; i < mDrawable->getNumFaces(); i++)
-		{
-			LLFace* face = mDrawable->getFace(i);
-			if (!face) continue;
-			if (face->isInAlphaPool() &&
-			    !face->canRenderAsMask())
-			{
-				alpha_wrap = TRUE;
-				break;
-			}
-		}
-	}
-	else
-	{
-		shrink_wrap = FALSE;
-	}
+    bool shrink_wrap = mShouldShrinkWrap || mDrawable->isAnimating();
+    bool alpha_wrap = FALSE;
 
-	if (alpha_wrap)
-	{
-		LLVector3 bounds = getScale();
-		radius = llmin(bounds.mV[1], bounds.mV[2]);
-		radius = llmin(radius, bounds.mV[0]);
-		radius *= 0.5f;
-		radius *= 1.f+mDrawable->mDistanceWRTCamera*alpha_distance_factor[1];
-		radius += mDrawable->mDistanceWRTCamera*alpha_distance_factor[0];
-	}
-	else if (shrink_wrap)
-	{
-		LLVector4a rad;
-		rad.setSub(ext[1], ext[0]);
-		
-		radius = rad.getLength3().getF32()*0.5f;
-	}
-	else if (mDrawable->isStatic())
-	{
-		F32 szf = size_factor;
+    if (!isHUDAttachment() && mDrawable->mDistanceWRTCamera < alpha_distance_factor[2])
+    {
+        for (S32 i = 0; i < mDrawable->getNumFaces(); i++)
+        {
+            LLFace* face = mDrawable->getFace(i);
+            if (!face) continue;
+            if (face->isInAlphaPool() &&
+                !face->canRenderAsMask())
+            {
+                alpha_wrap = TRUE;
+                break;
+            }
+        }
+    }
+    else
+    {
+        shrink_wrap = FALSE;
+    }
 
-		radius = llmax(mDrawable->getRadius(), szf);
-		
-		radius = powf(radius, 1.f+szf/radius);
+    if (alpha_wrap)
+    {
+        LLVector3 bounds = getScale();
+        radius = llmin(bounds.mV[1], bounds.mV[2]);
+        radius = llmin(radius, bounds.mV[0]);
+        radius *= 0.5f;
+        //radius *= 1.f+mDrawable->mDistanceWRTCamera*alpha_distance_factor[1];
+        //radius += mDrawable->mDistanceWRTCamera*alpha_distance_factor[0];
+    }
+    else if (shrink_wrap)
+    {
+        radius = mDrawable->getRadius() * 0.25f;
+    }
+    else
+    {
+        F32 szf = size_factor;
+        radius = llmax(mDrawable->getRadius(), szf);
+        //radius = llmax(radius, mDrawable->mDistanceWRTCamera * distance_factor[0]);
+    }
 
-		radius *= 1.f + mDrawable->mDistanceWRTCamera * distance_factor[1];
-		radius += mDrawable->mDistanceWRTCamera * distance_factor[0];
-	}
-	else if (mDrawable->getVObj()->isAttachment())
-	{
-		radius = llmax((S32) mDrawable->getRadius(),1)*attachment_size_factor;
-	}
-	else
-	{
-		radius = mDrawable->getRadius();
-		radius *= 1.f + mDrawable->mDistanceWRTCamera * distance_factor[1];
-		radius += mDrawable->mDistanceWRTCamera * distance_factor[0];
-	}
-
-	return llclamp(radius*scale, 0.5f, 256.f);
+    return llclamp(radius, 0.5f, 256.f);
 }
 
 const LLVector3 LLVOVolume::getPivotPositionAgent() const
@@ -4476,6 +4474,11 @@ void LLVOVolume::markForUpdate(BOOL priority)
             F32 est_tris = getEstTrianglesMax();
             LL_DEBUGS("AnimatedObjectsLinkset") << vobj_name << " markForUpdate, tris " << est_tris << LL_ENDL; 
         }
+    }
+
+    if (mDrawable)
+    {
+        shrinkWrap();
     }
 
     LLViewerObject::markForUpdate(priority); 
@@ -4990,7 +4993,7 @@ U32 LLVOVolume::getPartitionType() const
 }
 
 LLVolumePartition::LLVolumePartition(LLViewerRegion* regionp)
-: LLSpatialPartition(LLVOVolume::VERTEX_DATA_MASK, TRUE, GL_DYNAMIC_DRAW, regionp),
+: LLSpatialPartition(LLVOVolume::VERTEX_DATA_MASK, TRUE, regionp),
 LLVolumeGeometryManager()
 {
 	mLODPeriod = 32;
@@ -4998,7 +5001,6 @@ LLVolumeGeometryManager()
 	mDrawableType = LLPipeline::RENDER_TYPE_VOLUME;
 	mPartitionType = LLViewerRegion::PARTITION_VOLUME;
 	mSlopRatio = 0.25f;
-	mBufferUsage = GL_DYNAMIC_DRAW;
 }
 
 LLVolumeBridge::LLVolumeBridge(LLDrawable* drawablep, LLViewerRegion* regionp)
@@ -5010,8 +5012,6 @@ LLVolumeGeometryManager()
 	mDrawableType = LLPipeline::RENDER_TYPE_VOLUME;
 	mPartitionType = LLViewerRegion::PARTITION_BRIDGE;
 	
-	mBufferUsage = GL_DYNAMIC_DRAW;
-
 	mSlopRatio = 0.25f;
 }
 
@@ -5164,7 +5164,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	S32 idx = draw_vec.size()-1;
 
-	BOOL fullbright = (type == LLRenderPass::PASS_FULLBRIGHT) ||
+	bool fullbright = (type == LLRenderPass::PASS_FULLBRIGHT) ||
 		(type == LLRenderPass::PASS_INVISIBLE) ||
 		(type == LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK) ||
 		(type == LLRenderPass::PASS_ALPHA && facep->isState(LLFace::FULLBRIGHT)) ||
@@ -5227,7 +5227,8 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         mat = facep->getTextureEntry()->getMaterialParams().get();
         if (mat)
         {
-            mat_id = facep->getTextureEntry()->getMaterialID().asUUID();
+            //mat_id = facep->getTextureEntry()->getMaterialID().asUUID();
+            mat_id = facep->getTextureEntry()->getMaterialParams()->getHash();
         }
     }
 
@@ -5247,8 +5248,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		}
 	}
 
-    F32 vsize = facep->getVirtualSize(); //TODO -- adjust by texture scale?
-
 	if (index < FACE_DO_NOT_BATCH_TEXTURES && idx >= 0)
 	{
 		if (mat || gltf_mat || draw_vec[idx]->mMaterial)
@@ -5261,12 +5260,10 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 			{
 				batchable = true;
 				draw_vec[idx]->mTextureList[index] = tex;
-                draw_vec[idx]->mTextureListVSize[index] = vsize;
 			}
 			else if (draw_vec[idx]->mTextureList[index] == tex)
 			{ //this face's texture index can be used with this batch
 				batchable = true;
-                draw_vec[idx]->mTextureListVSize[index] = llmax(vsize, draw_vec[idx]->mTextureListVSize[index]);
 			}
 		}
 		else
@@ -5295,14 +5292,11 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	{
 		draw_vec[idx]->mCount += facep->getIndicesCount();
 		draw_vec[idx]->mEnd += facep->getGeomCount();
-		draw_vec[idx]->mVSize = llmax(draw_vec[idx]->mVSize, vsize);
 
 		if (index < FACE_DO_NOT_BATCH_TEXTURES && index >= draw_vec[idx]->mTextureList.size())
 		{
 			draw_vec[idx]->mTextureList.resize(index+1);
 			draw_vec[idx]->mTextureList[index] = tex;
-            draw_vec[idx]->mTextureListVSize.resize(index + 1);
-            draw_vec[idx]->mTextureListVSize[index] = vsize;
 		}
 		draw_vec[idx]->validate();
 	}
@@ -5312,10 +5306,8 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		U32 end = start + facep->getGeomCount()-1;
 		U32 offset = facep->getIndicesStart();
 		U32 count = facep->getIndicesCount();
-		LLPointer<LLDrawInfo> draw_info = new LLDrawInfo(start,end,count,offset, tex, 
-			facep->getVertexBuffer(), selected, fullbright, bump);
-		draw_info->mGroup = group;
-		draw_info->mVSize = vsize;
+		LLPointer<LLDrawInfo> draw_info = new LLDrawInfo(start,end,count,offset, tex,
+			facep->getVertexBuffer(), fullbright, bump);
 		draw_vec.push_back(draw_info);
 		draw_info->mTextureMatrix = tex_mat;
 		draw_info->mModelMatrix = model_mat;
@@ -5388,8 +5380,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		{ //initialize texture list for texture batching
 			draw_info->mTextureList.resize(index+1);
 			draw_info->mTextureList[index] = tex;
-            draw_info->mTextureListVSize.resize(index + 1);
-            draw_info->mTextureListVSize[index] = vsize;
 		}
 		draw_info->validate();
 	}
@@ -5551,8 +5541,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	U32 spec_count[2] = { 0 };
 	U32 normspec_count[2] = { 0 };
 
-	U32 useage = group->getSpatialPartition()->mBufferUsage;
-
 	static LLCachedControl<S32> max_vbo_size(gSavedSettings, "RenderMaxVBOSize", 512);
 	static LLCachedControl<S32> max_node_size(gSavedSettings, "RenderMaxNodeSize", 65536);
 	U32 max_vertices = (max_vbo_size * 1024)/LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
@@ -5584,11 +5572,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				continue;
 			}
 	
-			if (drawablep->isAnimating())
-			{ //fall back to stream draw for animating verts
-				useage = GL_STREAM_DRAW;
-			}
-
 			LLVOVolume* vobj = drawablep->getVOVolume();
             
 			if (!vobj)
@@ -5928,8 +5911,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		}
 	}
 
-	group->mBufferUsage = useage;
-
 	//PROCESS NON-ALPHA FACES
 	U32 simple_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR;
 	U32 alpha_mask = simple_mask | 0x80000000; //hack to give alpha verts their own VBO
@@ -6022,8 +6003,6 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 
             group->mBuilt = 1.f;
 		
-			S32 num_mapped_vertex_buffer = LLVertexBuffer::sMappedCount ;
-
 			const U32 MAX_BUFFER_COUNT = 4096;
 			LLVertexBuffer* locked_buffer[MAX_BUFFER_COUNT];
 
@@ -6074,11 +6053,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 									gPipeline.markRebuild(group, TRUE);
 								}
 
-
-								if (buff->isLocked() && buffer_count < MAX_BUFFER_COUNT)
-								{
-									locked_buffer[buffer_count++] = buff;
-								}
+                                buff->unmapBuffer();
 							}
 						}
 					}
@@ -6096,44 +6071,17 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
                 LL_PROFILE_ZONE_NAMED("rebuildMesh - flush");
 				for (LLVertexBuffer** iter = locked_buffer, ** end_iter = locked_buffer+buffer_count; iter != end_iter; ++iter)
 				{
-					(*iter)->flush();
+					(*iter)->unmapBuffer();
 				}
 
 				// don't forget alpha
 				if(group != NULL &&
-				   !group->mVertexBuffer.isNull() &&
-				   group->mVertexBuffer->isLocked())
+				   !group->mVertexBuffer.isNull())
 				{
-					group->mVertexBuffer->flush();
+					group->mVertexBuffer->unmapBuffer();
 				}
 			}
-
-			//if not all buffers are unmapped
-			if(num_mapped_vertex_buffer != LLVertexBuffer::sMappedCount)
-			{
-				LL_WARNS() << "Not all mapped vertex buffers are unmapped!" << LL_ENDL ;
-				for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
-				{
-					LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
-					if(!drawablep)
-					{
-						continue;
-					}
-					for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
-					{
-						LLFace* face = drawablep->getFace(i);
-						if (face)
-						{
-							LLVertexBuffer* buff = face->getVertexBuffer();
-							if (buff && buff->isLocked())
-							{
-								buff->flush();
-							}
-						}
-					}
-				}
-			}
-
+			
 			group->clearState(LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
 		}
 	} 
@@ -6200,7 +6148,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
 	U32 geometryBytes = 0;
-	U32 buffer_usage = group->mBufferUsage;
 	
 #if LL_DARWIN
 	// HACK from Leslie:
@@ -6428,19 +6375,13 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 			}
 		}
 
-
-		if (flexi && buffer_usage && buffer_usage != GL_STREAM_DRAW)
-		{
-			buffer_usage = GL_STREAM_DRAW;
-		}
-
 		//create vertex buffer
 		LLPointer<LLVertexBuffer> buffer;
 
 		{
             LL_PROFILE_ZONE_NAMED("genDrawInfo - allocate");
-			buffer = createVertexBuffer(mask, buffer_usage);
-			if(!buffer->allocateBuffer(geom_count, index_count, TRUE))
+			buffer = new LLVertexBuffer(mask);
+			if(!buffer->allocateBuffer(geom_count, index_count))
 			{
 				LL_WARNS() << "Failed to allocate group Vertex Buffer to "
 					<< geom_count << " vertices and "
@@ -6830,7 +6771,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 
 		if (buffer)
 		{
-			buffer->flush();
+			buffer->unmapBuffer();
 		}
 	}
 
@@ -6845,9 +6786,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 
 void LLVolumeGeometryManager::addGeometryCount(LLSpatialGroup* group, U32& vertex_count, U32& index_count)
 {
-    //initialize to default usage for this partition
-    U32 usage = group->getSpatialPartition()->mBufferUsage;
-
     //for each drawable
     for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
     {
@@ -6857,23 +6795,13 @@ void LLVolumeGeometryManager::addGeometryCount(LLSpatialGroup* group, U32& verte
         {
             continue;
         }
-
-        if (drawablep->isAnimating())
-        { //fall back to stream draw for animating verts
-            usage = GL_STREAM_DRAW;
-        }
     }
-
-    group->mBufferUsage = usage;
 }
 
 void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_count, U32 &index_count)
 {	
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
-	//initialize to default usage for this partition
-	U32 usage = group->getSpatialPartition()->mBufferUsage;
-	
     //clear off any old faces
     mFaceList.clear();
 
@@ -6887,11 +6815,6 @@ void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_coun
 			continue;
 		}
 	
-		if (drawablep->isAnimating())
-		{ //fall back to stream draw for animating verts
-			usage = GL_STREAM_DRAW;
-		}
-
 		//for each face
 		for (S32 i = 0; i < drawablep->getNumFaces(); i++)
 		{
@@ -6916,8 +6839,6 @@ void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_coun
 			}
 		}
 	}
-	
-	group->mBufferUsage = usage;
 }
 
 LLHUDPartition::LLHUDPartition(LLViewerRegion* regionp) : LLBridgePartition(regionp)

@@ -99,7 +99,7 @@ public:
 
 	void updateFaceSize(S32 idx) { }
 	F32 getPartSize(S32 idx);
-	void getBlendFunc(S32 idx, U32& src, U32& dst);
+	void getBlendFunc(S32 idx, LLRender::eBlendFactor& src, LLRender::eBlendFactor& dst);
 	LLUUID getPartOwner(S32 idx);
 	LLUUID getPartSource(S32 idx);
 

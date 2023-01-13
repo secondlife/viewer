@@ -287,8 +287,6 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
 	}
 	
-	U32 mask = sRenderMask;
-
 	U32 start = mMesh->mFaceVertexOffset;
 	U32 end = start + mMesh->mFaceVertexCount - 1;
 	U32 count = mMesh->mFaceIndexCount;
@@ -304,14 +302,9 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 			{
 				uploadJointMatrices();
 			}
-			mask = mask | LLVertexBuffer::MAP_WEIGHT;
-			if (mFace->getPool()->getShaderLevel() > 1)
-			{
-				mask = mask | LLVertexBuffer::MAP_CLOTHWEIGHT;
-			}
 		}
 		
-		buff->setBuffer(mask);
+		buff->setBuffer();
 		buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
 	}
 	else
@@ -319,7 +312,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		gGL.pushMatrix();
 		LLMatrix4 jointToWorld = getWorldMatrix();
 		gGL.multMatrix((GLfloat*)jointToWorld.mMatrix);
-		buff->setBuffer(mask);
+		buff->setBuffer();
 		buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
 		gGL.popMatrix();
 	}
@@ -506,7 +499,7 @@ void LLViewerJointMesh::updateGeometry(LLFace *mFace, LLPolyMesh *mMesh)
 		}
 	}
 
-	buffer->flush();
+	buffer->unmapBuffer();
 }
 
 void LLViewerJointMesh::updateJointGeometry()

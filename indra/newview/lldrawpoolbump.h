@@ -55,10 +55,10 @@ public:
 	virtual void render(S32 pass = 0) override;
 	virtual S32	 getNumPasses() override;
 	/*virtual*/ void prerender() override;
-	void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE) override;
+	void pushBatch(LLDrawInfo& params, bool texture, bool batch_textures = false) override;
 
-	void renderBump(U32 type, U32 mask);
-	void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture) override;
+	void pushBumpBatches(U32 type);
+	void renderGroup(LLSpatialGroup* group, U32 type, bool texture) override;
 		
 	S32 numBumpPasses();
 	
@@ -87,7 +87,7 @@ public:
 	static BOOL bindBumpMap(LLFace* face, S32 channel = -2);
 
 private:
-	static BOOL bindBumpMap(U8 bump_code, LLViewerTexture* tex, F32 vsize, S32 channel);
+	static BOOL bindBumpMap(U8 bump_code, LLViewerTexture* tex, S32 channel);
     bool mRigged = false; // if true, doing a rigged pass
 
 };

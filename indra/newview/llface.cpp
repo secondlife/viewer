@@ -539,6 +539,7 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 	
 		if (mDrawablep->isState(LLDrawable::RIGGED))
 		{
+#if 0 // TODO --  there is no way this won't destroy our GL machine as implemented, rewrite it to not rely on software skinning
 			LLVOVolume* volume = mDrawablep->getVOVolume();
 			if (volume)
 			{
@@ -562,12 +563,13 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 				}
 			}
+#endif
 		}
 		else
 		{
 			// cheaters sometimes prosper...
 			//
-			mVertexBuffer->setBuffer(mVertexBuffer->getTypeMask());
+			mVertexBuffer->setBuffer();
 			mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
 		}
 
@@ -654,54 +656,8 @@ void LLFace::renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wirefram
     }
 }
 
-/* removed in lieu of raycast uv detection
-void LLFace::renderSelectedUV()
-{
-	LLViewerTexture* red_blue_imagep = LLViewerTextureManager::getFetchedTextureFromFile("uv_test1.j2c", TRUE, LLGLTexture::BOOST_UI);
-	LLViewerTexture* green_imagep = LLViewerTextureManager::getFetchedTextureFromFile("uv_test2.tga", TRUE, LLGLTexture::BOOST_UI);
-
-	LLGLSUVSelect object_select;
-
-	// use red/blue gradient to get coarse UV coordinates
-	renderSelected(red_blue_imagep, LLColor4::white);
-	
-	static F32 bias = 0.f;
-	static F32 factor = -10.f;
-	glPolygonOffset(factor, bias);
-
-	// add green dither pattern on top of red/blue gradient
-	gGL.blendFunc(LLRender::BF_ONE, LLRender::BF_ONE);
-	gGL.matrixMode(LLRender::MM_TEXTURE);
-	gGL.pushMatrix();
-	// make green pattern repeat once per texel in red/blue texture
-	gGL.scalef(256.f, 256.f, 1.f);
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
-
-	renderSelected(green_imagep, LLColor4::white);
-
-	gGL.matrixMode(LLRender::MM_TEXTURE);
-	gGL.popMatrix();
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
-	gGL.blendFunc(LLRender::BF_SOURCE_ALPHA, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
-}
-*/
-
 void LLFace::setDrawInfo(LLDrawInfo* draw_info)
 {
-	if (draw_info)
-	{
-		if (draw_info->mFace)
-		{
-			draw_info->mFace->setDrawInfo(NULL);
-		}
-		draw_info->mFace = this;
-	}
-	
-	if (mDrawInfo)
-	{
-		mDrawInfo->mFace = NULL;
-	}
-
 	mDrawInfo = draw_info;
 }
 
@@ -1225,10 +1181,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		updateRebuildFlags();
 	}
 
-
-	//don't use map range (generates many redundant unmap calls)
-	bool map_range = false;
-
 	if (mVertexBuffer.notNull())
 	{
 		if (num_indices + (S32) mIndicesIndex > mVertexBuffer->getNumIndices())
@@ -1355,7 +1307,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	if (full_rebuild)
 	{
         LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("getGeometryVolume - indices");
-		mVertexBuffer->getIndexStrider(indicesp, mIndicesIndex, mIndicesCount, map_range);
+		mVertexBuffer->getIndexStrider(indicesp, mIndicesIndex, mIndicesCount);
 
 		volatile __m128i* dst = (__m128i*) indicesp.get();
 		__m128i* src = (__m128i*) vf.mIndices;
@@ -1377,11 +1329,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			{
 				*idx++ = vf.mIndices[i]+index_offset;
 			}
-		}
-
-		if (map_range)
-		{
-			mVertexBuffer->flush();
 		}
 	}
 	
@@ -1694,11 +1641,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 						}
 					}
 				}
-
-				if (map_range)
-				{
-					mVertexBuffer->flush();
-				}
 			}
 			else
 			{ //bump mapped or has material, just do the whole expensive loop
@@ -1718,12 +1660,12 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					switch (ch)
 					{
 						case 0: 
-							mVertexBuffer->getTexCoord0Strider(dst, mGeomIndex, mGeomCount, map_range); 
+							mVertexBuffer->getTexCoord0Strider(dst, mGeomIndex, mGeomCount); 
 							break;
 						case 1:
 							if (mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1))
 							{
-								mVertexBuffer->getTexCoord1Strider(dst, mGeomIndex, mGeomCount, map_range);
+								mVertexBuffer->getTexCoord1Strider(dst, mGeomIndex, mGeomCount);
 								if (mat && !tex_anim)
 								{
 									r  = mat->getNormalRotation();
@@ -1743,7 +1685,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 						case 2:
 							if (mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD2))
 							{
-								mVertexBuffer->getTexCoord2Strider(dst, mGeomIndex, mGeomCount, map_range);
+								mVertexBuffer->getTexCoord2Strider(dst, mGeomIndex, mGeomCount);
 								if (mat && !tex_anim)
 								{
 									r  = mat->getSpecularRotation();
@@ -1802,14 +1744,9 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				}
 				}
 
-				if (map_range)
-				{
-					mVertexBuffer->flush();
-				}
-
 				if ((!mat && !gltf_mat) && do_bump)
 				{
-					mVertexBuffer->getTexCoord1Strider(tex_coords1, mGeomIndex, mGeomCount, map_range);
+					mVertexBuffer->getTexCoord1Strider(tex_coords1, mGeomIndex, mGeomCount);
 		
                     mVObjp->getVolume()->genTangents(f);
 
@@ -1844,11 +1781,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					
 						*tex_coords1++ = tc;
 					}
-
-					if (map_range)
-					{
-						mVertexBuffer->flush();
-					}
 				}
 			}
 		}
@@ -1864,7 +1796,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 			llassert(num_vertices > 0);
 		
-			mVertexBuffer->getVertexStrider(vert, mGeomIndex, mGeomCount, map_range);
+			mVertexBuffer->getVertexStrider(vert, mGeomIndex, mGeomCount);
 			
 			
 			F32* dst = (F32*) vert.get();
@@ -1910,18 +1842,13 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				res0.store4a((F32*) dst);
 				dst += 4;
 			}
-
-			if (map_range)
-			{
-				mVertexBuffer->flush();
-			}
 		}
 
 		if (rebuild_normal)
 		{
             LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("getGeometryVolume - normal");
 
-			mVertexBuffer->getNormalStrider(norm, mGeomIndex, mGeomCount, map_range);
+			mVertexBuffer->getNormalStrider(norm, mGeomIndex, mGeomCount);
 			F32* normals = (F32*) norm.get();
 			LLVector4a* src = vf.mNormals;
 			LLVector4a* end = src+num_vertices;
@@ -1933,17 +1860,12 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				normal.store4a(normals);
 				normals += 4;
 			}
-
-			if (map_range)
-			{
-				mVertexBuffer->flush();
-			}
 		}
 		
 		if (rebuild_tangent)
 		{
             LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("getGeometryVolume - tangent");
-			mVertexBuffer->getTangentStrider(tangent, mGeomIndex, mGeomCount, map_range);
+			mVertexBuffer->getTangentStrider(tangent, mGeomIndex, mGeomCount);
 			F32* tangents = (F32*) tangent.get();
 			
             mVObjp->getVolume()->genTangents(f);
@@ -1965,29 +1887,20 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				src++;
 				tangents += 4;
 			}
-
-			if (map_range)
-			{
-				mVertexBuffer->flush();
-			}
 		}
 	
 		if (rebuild_weights && vf.mWeights)
 		{
             LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("getGeometryVolume - weight");
-			mVertexBuffer->getWeight4Strider(wght, mGeomIndex, mGeomCount, map_range);
+			mVertexBuffer->getWeight4Strider(wght, mGeomIndex, mGeomCount);
 			F32* weights = (F32*) wght.get();
 			LLVector4a::memcpyNonAliased16(weights, (F32*) vf.mWeights, num_vertices*4*sizeof(F32));
-			if (map_range)
-			{
-				mVertexBuffer->flush();
-			}
 		}
 
 		if (rebuild_color && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_COLOR) )
 		{
             LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("getGeometryVolume - color");
-			mVertexBuffer->getColorStrider(colors, mGeomIndex, mGeomCount, map_range);
+			mVertexBuffer->getColorStrider(colors, mGeomIndex, mGeomCount);
 
 			LLVector4a src;
 
@@ -2008,18 +1921,13 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				src.store4a(dst);
 				dst += 4;
 			}
-
-			if (map_range)
-			{
-				mVertexBuffer->flush();
-			}
 		}
 
 		if (rebuild_emissive)
 		{
             LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("getGeometryVolume - emissive");
 			LLStrider<LLColor4U> emissive;
-			mVertexBuffer->getEmissiveStrider(emissive, mGeomIndex, mGeomCount, map_range);
+			mVertexBuffer->getEmissiveStrider(emissive, mGeomIndex, mGeomCount);
 
 			U8 glow = (U8) llclamp((S32) (getTextureEntry()->getGlow()*255), 0, 255);
 
@@ -2047,11 +1955,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				src.store4a(dst);
 				dst += 4;
 			}
-
-			if (map_range)
-			{
-				mVertexBuffer->flush();
-			}
 		}
 	}
 
@@ -2072,6 +1975,15 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 
 	return TRUE;
+}
+
+void LLFace::renderIndexed()
+{
+    if (mVertexBuffer.notNull())
+    {
+        mVertexBuffer->setBuffer();
+        mVertexBuffer->drawRange(LLRender::TRIANGLES, getGeomIndex(), getGeomIndex() + getGeomCount()-1, getIndicesCount(), getIndicesStart());
+    }
 }
 
 //check if the face has a media
@@ -2405,90 +2317,10 @@ void LLFace::setViewerObject(LLViewerObject* objp)
 	mVObjp = objp;
 }
 
-const LLColor4& LLFace::getRenderColor() const
-{
-	if (isState(USE_FACE_COLOR))
-	{
-		  return mFaceColor; // Face Color
-	}
-	else
-	{
-		const LLTextureEntry* tep = getTextureEntry();
-		return (tep ? tep->getColor() : LLColor4::white);
-	}
-}
-	
-void LLFace::renderSetColor() const
-{
-	if (!LLFacePool::LLOverrideFaceColor::sOverrideFaceColor)
-	{
-		const LLColor4* color = &(getRenderColor());
-		
-		gGL.diffuseColor4fv(color->mV);
-	}
-}
-
-S32 LLFace::pushVertices(const U16* index_array) const
-{
-	if (mIndicesCount)
-	{
-		mVertexBuffer->drawRange(LLRender::TRIANGLES, mGeomIndex, mGeomIndex+mGeomCount-1, mIndicesCount, mIndicesIndex);
-		gPipeline.addTrianglesDrawn(mIndicesCount);
-	}
-
-	return mIndicesCount;
-}
 
 const LLMatrix4& LLFace::getRenderMatrix() const
 {
 	return mDrawablep->getRenderMatrix();
-}
-
-S32 LLFace::renderElements(const U16 *index_array) const
-{
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE
-
-	S32 ret = 0;
-	
-	if (isState(GLOBAL))
-	{	
-		ret = pushVertices(index_array);
-	}
-	else
-	{
-		gGL.pushMatrix();
-		gGL.multMatrix((float*)getRenderMatrix().mMatrix);
-		ret = pushVertices(index_array);
-		gGL.popMatrix();
-	}
-	
-	return ret;
-}
-
-S32 LLFace::renderIndexed()
-{
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE
-
-	if(mDrawablep == NULL || mDrawPoolp == NULL)
-	{
-		return 0;
-	}
-	
-	return renderIndexed(mDrawPoolp->getVertexDataMask());
-}
-
-S32 LLFace::renderIndexed(U32 mask)
-{
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE
-
-	if (mVertexBuffer.isNull())
-	{
-		return 0;
-	}
-
-	mVertexBuffer->setBuffer(mask);
-	U16* index_array = (U16*) mVertexBuffer->getIndicesPointer();
-	return renderElements(index_array);
 }
 
 //============================================================================

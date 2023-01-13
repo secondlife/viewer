@@ -168,7 +168,6 @@ void display_startup()
 
 	if (gViewerWindow)
 	gViewerWindow->setup2DRender();
-	gGL.color4f(1,1,1,1);
 	if (gViewerWindow)
 	gViewerWindow->draw();
 	gGL.flush();
@@ -1364,8 +1363,6 @@ void render_ui(F32 zoom_factor, int subfield)
 			gPipeline.disableLights();
 		}
 
-        gGL.color4f(1,1,1,1);
-
         bool render_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
         if (render_ui)
         {
@@ -1507,6 +1504,7 @@ void render_ui_3d()
 	stop_glerror();
 	
 	gUIProgram.bind();
+    gGL.color4f(1, 1, 1, 1);
 
 	// Coordinate axes
 	if (gSavedSettings.getBOOL("ShowAxes"))

@@ -93,8 +93,8 @@ BOOL LLVOGround::updateGeometry(LLDrawable *drawable)
 	if (!face->getVertexBuffer())
 	{
 		face->setSize(5, 12);
-		LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolGround::VERTEX_DATA_MASK, GL_STREAM_DRAW);
-		if (!buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE))
+		LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolGround::VERTEX_DATA_MASK);
+		if (!buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount()))
 		{
 			LL_WARNS() << "Failed to allocate Vertex Buffer for VOGround to "
 				<< face->getGeomCount() << " vertices and "
@@ -160,7 +160,7 @@ BOOL LLVOGround::updateGeometry(LLDrawable *drawable)
 	*(texCoordsp++) = LLVector2(0.f, 1.f);
 	*(texCoordsp++) = LLVector2(0.5f, 0.5f);
 	
-	face->getVertexBuffer()->flush();
+	face->getVertexBuffer()->unmapBuffer();
 	LLPipeline::sCompiles++;
 	return TRUE;
 }

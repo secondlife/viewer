@@ -985,6 +985,8 @@ void LLGLSLShader::bind()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
+    llassert(mProgramObject != 0);
+
     gGL.flush();
 
     if (sCurBoundShader != mProgramObject)  // Don't re-bind current shader
@@ -998,6 +1000,7 @@ void LLGLSLShader::bind()
         sCurBoundShader = mProgramObject;
         sCurBoundShaderPtr = this;
         placeProfileQuery();
+        LLVertexBuffer::setupClientArrays(mAttributeMask);
     }
 
     if (mUniformsDirty)

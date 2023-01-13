@@ -65,9 +65,9 @@ void LLVOPartGroup::restoreGL()
 {
 
 	//TODO: optimize out binormal mask here.  Specular and normal coords as well.
-	sVB = new LLVertexBuffer(VERTEX_DATA_MASK | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2, GL_STREAM_DRAW);
+	sVB = new LLVertexBuffer(VERTEX_DATA_MASK | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2);
 	U32 count = LL_MAX_PARTICLE_COUNT;
-	if (!sVB->allocateBuffer(count*4, count*6, true))
+	if (!sVB->allocateBuffer(count*4, count*6))
 	{
 		LL_WARNS() << "Failed to allocate Vertex Buffer to "
 			<< count*4 << " vertices and "
@@ -117,7 +117,7 @@ void LLVOPartGroup::restoreGL()
 		*texcoordsp++ = LLVector2(1.f, 0.f);
 	}
 
-	sVB->flush();
+	sVB->unmapBuffer();
 
 }
 
@@ -291,13 +291,13 @@ F32 LLVOPartGroup::getPartSize(S32 idx)
 	return 0.f;
 }
 
-void LLVOPartGroup::getBlendFunc(S32 idx, U32& src, U32& dst)
+void LLVOPartGroup::getBlendFunc(S32 idx, LLRender::eBlendFactor& src, LLRender::eBlendFactor& dst)
 {
 	if (idx < (S32) mViewerPartGroupp->mParticles.size())
 	{
 		LLViewerPart* part = mViewerPartGroupp->mParticles[idx];
-		src = part->mBlendFuncSource;
-		dst = part->mBlendFuncDest;
+		src = (LLRender::eBlendFactor) part->mBlendFuncSource;
+		dst = (LLRender::eBlendFactor) part->mBlendFuncDest;
 	}
 }
 
@@ -738,7 +738,7 @@ U32 LLVOPartGroup::getPartitionType() const
 }
 
 LLParticlePartition::LLParticlePartition(LLViewerRegion* regionp)
-: LLSpatialPartition(LLDrawPoolAlpha::VERTEX_DATA_MASK | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, GL_STREAM_DRAW, regionp)
+: LLSpatialPartition(LLDrawPoolAlpha::VERTEX_DATA_MASK | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, regionp)
 {
 	mRenderPass = LLRenderPass::PASS_ALPHA;
 	mDrawableType = LLPipeline::RENDER_TYPE_PARTICLES;
@@ -797,8 +797,6 @@ void LLParticlePartition::rebuildGeom(LLSpatialGroup* group)
 
 void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_count, U32& index_count)
 {
-	group->mBufferUsage = mBufferUsage;
-
 	mFaceList.clear();
 
 	LLViewerCamera* camera = LLViewerCamera::getInstance();
@@ -901,11 +899,11 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 
 		object->getGeometry(facep->getTEOffset(), cur_vert, cur_norm, cur_tc, cur_col, cur_glow, cur_idx);
 		
-		BOOL has_glow = FALSE;
+		bool has_glow = FALSE;
 
 		if (cur_glow.get() != start_glow)
 		{
-			has_glow = TRUE;
+			has_glow = true;
 		}
 
 		llassert(facep->getGeomCount() == 4);
@@ -914,13 +912,12 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 
 		S32 idx = draw_vec.size()-1;
 
-		BOOL fullbright = facep->isState(LLFace::FULLBRIGHT);
-		F32 vsize = facep->getVirtualSize();
+		bool fullbright = facep->isState(LLFace::FULLBRIGHT);
         
 		bool batched = false;
 	
-		U32 bf_src = LLRender::BF_SOURCE_ALPHA;
-		U32 bf_dst = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;
+		LLRender::eBlendFactor bf_src = LLRender::BF_SOURCE_ALPHA;
+        LLRender::eBlendFactor bf_dst = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;
 
 		object->getBlendFunc(facep->getTEOffset(), bf_src, bf_dst);
 
@@ -940,7 +937,6 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 					batched = true;
 					info->mCount += facep->getIndicesCount();
 					info->mEnd += facep->getGeomCount();
-					info->mVSize = llmax(draw_vec[idx]->mVSize, vsize);
 				}
 				else if (draw_vec[idx]->mStart == facep->getGeomIndex()+facep->getGeomCount()+1)
 				{
@@ -948,7 +944,6 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 					info->mCount += facep->getIndicesCount();
 					info->mStart -= facep->getGeomCount();
 					info->mOffset = facep->getIndicesStart();
-					info->mVSize = llmax(draw_vec[idx]->mVSize, vsize);
 				}
 			}
 		}
@@ -963,11 +958,9 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 			LLDrawInfo* info = new LLDrawInfo(start,end,count,offset,facep->getTexture(), 
 				buffer, object->isSelected(), fullbright);
 
-			info->mVSize = vsize;
 			info->mBlendFuncDst = bf_dst;
 			info->mBlendFuncSrc = bf_src;
 			info->mHasGlow = has_glow;
-			info->mParticle = TRUE;
 			draw_vec.push_back(info);
 			//for alpha sorting
 			facep->setDrawInfo(info);

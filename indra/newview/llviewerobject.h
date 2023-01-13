@@ -602,6 +602,14 @@ public:
 	virtual void parameterChanged(U16 param_type, bool local_origin);
 	virtual void parameterChanged(U16 param_type, LLNetworkData* data, BOOL in_use, bool local_origin);
 	
+    bool isShrinkWrapped() const { return mShouldShrinkWrap; }
+
+    // Used to improve performance.  If an object is likely to rebuild its vertex buffer often
+    // as a side effect of some update (color update, scale, etc), setting this to true
+    // will cause it to be pushed deeper into the octree and isolate it from other nodes
+    // so that nearby objects won't attempt to share a vertex buffer with this object.
+    void shrinkWrap();
+
 	friend class LLViewerObjectList;
 	friend class LLViewerMediaList;
 
@@ -866,6 +874,9 @@ protected:
 	F32 mPhysicsCost;
 	F32 mLinksetPhysicsCost;
     
+    // If true, "shrink wrap" this volume in its spatial partition.  See "shrinkWrap"
+    bool mShouldShrinkWrap = false;
+
 	bool mCostStale;
 	mutable bool mPhysicsShapeUnknown;
 
@@ -978,7 +989,7 @@ public:
 								LLStrider<LLColor4U>& emissivep,
 								LLStrider<U16>& indicesp) = 0;
 
-	virtual void getBlendFunc(S32 face, U32& src, U32& dst);
+	virtual void getBlendFunc(S32 face, LLRender::eBlendFactor& src, LLRender::eBlendFactor& dst);
 
 	F32 mDepth;
 };

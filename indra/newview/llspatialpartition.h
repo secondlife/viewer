@@ -56,9 +56,15 @@ class LLSpatialGroup;
 class LLViewerRegion;
 class LLReflectionMap;
 
-void pushVerts(LLFace* face, U32 mask);
+void pushVerts(LLFace* face);
 
-class LLDrawInfo : public LLRefCount
+/*
+    Class that represents a single Draw Call
+
+    Make every effort to keep size minimal.
+    Member ordering is important for cache coherency
+*/
+class LLDrawInfo final : public LLRefCount
 {
     LL_ALIGN_NEW;
 protected:
@@ -75,11 +81,13 @@ public:
 		LL_ERRS() << "Illegal operation!" << LL_ENDL;
 		return *this;
 	}
+    
+    // return a hash of this LLDrawInfo as a debug color
+    LLColor4U getDebugColor() const;
 
 	LLDrawInfo(U16 start, U16 end, U32 count, U32 offset, 
-				LLViewerTexture* image, LLVertexBuffer* buffer, 
-				bool selected,
-				BOOL fullbright = FALSE, U8 bump = 0, BOOL particle = FALSE, F32 part_size = 0);
+				LLViewerTexture* image, LLVertexBuffer* buffer,
+				bool fullbright = false, U8 bump = 0);
 	
 
 	void validate();
@@ -88,54 +96,47 @@ public:
     U64 getSkinHash();
 
 	LLPointer<LLVertexBuffer> mVertexBuffer;
+    U16 mStart = 0;
+    U16 mEnd = 0;
+    U32 mCount = 0;
+    U32 mOffset = 0;
+
 	LLPointer<LLViewerTexture>     mTexture;
-	std::vector<LLPointer<LLViewerTexture> > mTextureList;
+    LLPointer<LLViewerTexture> mSpecularMap;
+    LLPointer<LLViewerTexture> mNormalMap;
 
-    // virtual size of mTexture and mTextureList textures
-    // used to update the decode priority of textures in this DrawInfo
-    std::vector<F32> mTextureListVSize;
+    const LLMatrix4* mSpecularMapMatrix = nullptr;
+    const LLMatrix4* mNormalMapMatrix = nullptr;
+    const LLMatrix4* mTextureMatrix = nullptr;
+    const LLMatrix4* mModelMatrix = nullptr;
 
-	const LLMatrix4* mTextureMatrix;
-	const LLMatrix4* mModelMatrix;
-	U16 mStart;
-	U16 mEnd;
-	U32 mCount;
-	U32 mOffset;
-	BOOL mFullbright;
-	U8 mBump;
-	U8 mShiny;
-    U8 mTextureTimer = 1;
-	BOOL mParticle;
-	F32 mPartSize;
-	F32 mVSize;
-	LLSpatialGroup* mGroup;
-	LL_ALIGN_16(LLFace* mFace); //associated face
-	F32 mDistance;
-    S32 mDebugColor;
-
-    // Material pointer here is likely for debugging only and are immaterial (zing!)
-    LLMaterialPtr mMaterial; 
-    
-    // PBR material parameters
-    LLPointer<LLFetchedGLTFMaterial> mGLTFMaterial;
-	
-    LLUUID mMaterialID; // id of LLGLTFMaterial or LLMaterial applied to this draw info
-
-    U32 mShaderMask;
-	U32 mBlendFuncSrc;
-	U32 mBlendFuncDst;
-	BOOL mHasGlow;
-	LLPointer<LLViewerTexture> mSpecularMap;
-	const LLMatrix4* mSpecularMapMatrix;
-	LLPointer<LLViewerTexture> mNormalMap;
-	const LLMatrix4* mNormalMapMatrix;
-
-	LLVector4 mSpecColor; // XYZ = Specular RGB, W = Specular Exponent
-	F32  mEnvIntensity;
-	F32  mAlphaMaskCutoff;
-	U8   mDiffuseAlphaMode;
     LLPointer<LLVOAvatar> mAvatar = nullptr;
     LLMeshSkinInfo* mSkinInfo = nullptr;
+
+    // Material pointer here is likely for debugging only and are immaterial (zing!)
+    LLPointer<LLMaterial> mMaterial;
+
+    // PBR material parameters
+    LLPointer<LLFetchedGLTFMaterial> mGLTFMaterial;
+
+    LLVector4 mSpecColor = LLVector4(1.f, 1.f, 1.f, 0.5f); // XYZ = Specular RGB, W = Specular Exponent
+
+	std::vector<LLPointer<LLViewerTexture> > mTextureList;
+
+    LLUUID mMaterialID; // id of LLGLTFMaterial or LLMaterial applied to this draw info
+
+    U32 mShaderMask = 0;
+    F32  mEnvIntensity = 0.f;
+	F32  mAlphaMaskCutoff = 0.5f;
+
+    LLRender::eBlendFactor mBlendFuncSrc = LLRender::BF_SOURCE_ALPHA;
+    LLRender::eBlendFactor  mBlendFuncDst = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;
+	U8   mDiffuseAlphaMode = 0;
+    U8   mBump = 0;
+    U8   mShiny = 0;
+    bool mFullbright = false;
+    bool mHasGlow = false;
+    U8 mTextureTimer = 1;
 
 	struct CompareTexture
 	{
@@ -196,19 +197,9 @@ public:
 						&& (lhs.isNull() || (rhs.notNull() && lhs->mBump > rhs->mBump));
 		}
 	};
-
-	struct CompareDistanceGreater
-	{
-		bool operator()(const LLPointer<LLDrawInfo>& lhs, const LLPointer<LLDrawInfo>& rhs) 
-		{
-			// sort by mBump value, sort NULL down to the end
-			return lhs.get() != rhs.get() 
-						&& (lhs.isNull() || (rhs.notNull() && lhs->mDistance > rhs->mDistance));
-		}
-	};
 };
 
-LL_ALIGN_PREFIX(64)
+LL_ALIGN_PREFIX(16)
 class LLSpatialGroup : public LLOcclusionCullingGroup
 {
 	friend class LLSpatialPartition;
@@ -227,7 +218,7 @@ public:
 	}
 
 	static U32 sNodeCount;
-	static BOOL sNoDelete; //deletion of spatial groups and draw info not allowed if TRUE
+	static bool sNoDelete; //deletion of spatial groups and draw info not allowed if TRUE
 
 	typedef std::vector<LLPointer<LLSpatialGroup> > sg_vector_t;
 	typedef std::vector<LLPointer<LLSpatialBridge> > bridge_list_t;
@@ -343,24 +334,20 @@ public:
 	LL_ALIGN_16(LLVector4a mViewAngle);
 	LL_ALIGN_16(LLVector4a mLastUpdateViewAngle);
 
-	F32 mObjectBoxSize; //cached mObjectBounds[1].getLength3()
-
 protected:
 	virtual ~LLSpatialGroup();
 
 public:
+    LLPointer<LLVertexBuffer> mVertexBuffer;
+    draw_map_t mDrawMap;
+
 	bridge_list_t mBridgeList;
 	buffer_map_t mBufferMap; //used by volume buffers to attempt to reuse vertex buffers
 
+    F32 mObjectBoxSize; //cached mObjectBounds[1].getLength3()
 	U32 mGeometryBytes; //used by volumes to track how many bytes of geometry data are in this node
 	F32 mSurfaceArea; //used by volumes to track estimated surface area of geometry in this node
-
 	F32 mBuilt;
-	
-	LLPointer<LLVertexBuffer> mVertexBuffer;
-
-	U32 mBufferUsage;
-	draw_map_t mDrawMap;
 	
 	F32 mDistance;
 	F32 mDepth;
@@ -375,8 +362,7 @@ public:
     U32 mRenderOrder = 0; 
     // Reflection Probe associated with this node (if any)
     LLPointer<LLReflectionMap> mReflectionProbe = nullptr;
-
-} LL_ALIGN_POSTFIX(64);
+} LL_ALIGN_POSTFIX(16);
 
 class LLGeometryManager
 {
@@ -387,14 +373,12 @@ public:
 	virtual void rebuildMesh(LLSpatialGroup* group) = 0;
 	virtual void getGeometry(LLSpatialGroup* group) = 0;
 	virtual void addGeometryCount(LLSpatialGroup* group, U32 &vertex_count, U32 &index_count);
-	
-	virtual LLVertexBuffer* createVertexBuffer(U32 type_mask, U32 usage);
 };
 
 class LLSpatialPartition: public LLViewerOctreePartition, public LLGeometryManager
 {
 public:
-	LLSpatialPartition(U32 data_mask,  BOOL render_by_group, U32 mBufferUsage, LLViewerRegion* regionp);
+	LLSpatialPartition(U32 data_mask,  BOOL render_by_group, LLViewerRegion* regionp);
 	virtual ~LLSpatialPartition();
 
 	LLSpatialGroup *put(LLDrawable *drawablep, BOOL was_visible = FALSE);
@@ -445,14 +429,13 @@ public:
 							// use a pointer instead of making "isBridge" and "asBridge" virtual so it's safe
 							// to call asBridge() from the destructor
 	
-	BOOL mInfiniteFarClip; // if TRUE, frustum culling ignores far clip plane
-	U32 mBufferUsage;
-	const BOOL mRenderByGroup;
+	bool mInfiniteFarClip; // if TRUE, frustum culling ignores far clip plane
+	const bool mRenderByGroup;
 	U32 mVertexDataMask;
 	F32 mSlopRatio; //percentage distance must change before drawables receive LOD update (default is 0.25);
-	BOOL mDepthMask; //if TRUE, objects in this partition will be written to depth during alpha rendering
+    bool mDepthMask; //if TRUE, objects in this partition will be written to depth during alpha rendering
 
-	static BOOL sTeleportRequested; //started to issue a teleport request
+	static bool sTeleportRequested; //started to issue a teleport request
 };
 
 // class for creating bridges between spatial partitions
@@ -631,7 +614,6 @@ class LLTerrainPartition : public LLSpatialPartition
 public:
 	LLTerrainPartition(LLViewerRegion* regionp);
 	virtual void getGeometry(LLSpatialGroup* group);
-	virtual LLVertexBuffer* createVertexBuffer(U32 type_mask, U32 usage);
 };
 
 //spatial partition for trees

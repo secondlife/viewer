@@ -379,11 +379,6 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
                 {
                     LLDrawInfo& params = **k;
 
-                    if (params.mParticle)
-                    {
-                        continue;
-                    }
-
                     bool rigged = (params.mAvatar != nullptr);
                     gHighlightProgram.bind(rigged);
                     gGL.diffuseColor4f(1, 0, 0, 1);
@@ -403,12 +398,8 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
                     }
 
                     LLRenderPass::applyModelMatrix(params);
-                    if (params.mGroup)
-                    {
-                        params.mGroup->rebuildMesh();
-                    }
-                    params.mVertexBuffer->setBufferFast(rigged ? mask | LLVertexBuffer::MAP_WEIGHT4 : mask);
-                    params.mVertexBuffer->drawRangeFast(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+                    params.mVertexBuffer->setBuffer();
+                    params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
                 }
             }
         }
@@ -435,9 +426,9 @@ inline bool IsEmissive(LLDrawInfo& params)
 
 inline void Draw(LLDrawInfo* draw, U32 mask)
 {
-    draw->mVertexBuffer->setBufferFast(mask);
+    draw->mVertexBuffer->setBuffer();
     LLRenderPass::applyModelMatrix(*draw);
-	draw->mVertexBuffer->drawRangeFast(LLRender::TRIANGLES, draw->mStart, draw->mEnd, draw->mCount, draw->mOffset);                    
+	draw->mVertexBuffer->drawRange(LLRender::TRIANGLES, draw->mStart, draw->mEnd, draw->mCount, draw->mOffset);                    
 }
 
 bool LLDrawPoolAlpha::TexSetup(LLDrawInfo* draw, bool use_material)
@@ -530,8 +521,8 @@ void LLDrawPoolAlpha::RestoreTexSetup(bool tex_setup)
 void LLDrawPoolAlpha::drawEmissive(U32 mask, LLDrawInfo* draw)
 {
     LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, 1.f);
-    draw->mVertexBuffer->setBufferFast((mask & ~LLVertexBuffer::MAP_COLOR) | LLVertexBuffer::MAP_EMISSIVE);
-	draw->mVertexBuffer->drawRangeFast(LLRender::TRIANGLES, draw->mStart, draw->mEnd, draw->mCount, draw->mOffset);
+    draw->mVertexBuffer->setBuffer();
+	draw->mVertexBuffer->drawRange(LLRender::TRIANGLES, draw->mStart, draw->mEnd, draw->mCount, draw->mOffset);
 }
 
 
@@ -672,21 +663,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 									<< " present: " << have_mask
 									<< ". Skipping render batch." << LL_ENDL;
 					continue;
-				}
-
-				if(depth_only)
-				{
-                    // when updating depth buffer, discard faces that are more than 90% transparent
-					LLFace*	face = params.mFace;
-					if(face)
-					{
-						const LLTextureEntry* tep = face->getTextureEntry();
-						if(tep)
-						{ // don't render faces that are more than 90% transparent
-							if(tep->getColor().mV[3] < MINIMUM_IMPOSTOR_ALPHA)
-								continue;
-						}
-					}
 				}
 
                 LLRenderPass::applyModelMatrix(params);
@@ -835,18 +811,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                         reset_minimum_alpha = true;
                     }
                     
-                    U32 drawMask = mask;
-                    if (params.mFullbright)
-                    {
-                        drawMask &= ~(LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2);
-                    }
-                    if (params.mAvatar != nullptr)
-                    {
-                        drawMask |= LLVertexBuffer::MAP_WEIGHT4;
-                    }
-
-                    params.mVertexBuffer->setBufferFast(drawMask);
-                    params.mVertexBuffer->drawRangeFast(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+                    params.mVertexBuffer->setBuffer();
+                    params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 
                     if (reset_minimum_alpha)
                     {

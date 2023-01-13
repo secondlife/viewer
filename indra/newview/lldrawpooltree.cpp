@@ -93,7 +93,8 @@ void LLDrawPoolTree::render(S32 pass)
 	LLGLState test(GL_ALPHA_TEST, 0);
 
 	gGL.getTexUnit(sDiffTex)->bindFast(mTexturep);
-    gPipeline.touchTexture(mTexturep, 1024.f * 1024.f); // <=== keep Linden tree textures at full res
+    gPipeline.touchTexture(mTexturep);
+    mTexturep->addTextureStats(1024.f * 1024.f); // <=== keep Linden tree textures at full res
 
 	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
 		 iter != mDrawFace.end(); iter++)
@@ -117,8 +118,8 @@ void LLDrawPoolTree::render(S32 pass)
 				gPipeline.mMatrixOpCount++;
 			}
 
-			buff->setBufferFast(LLDrawPoolTree::VERTEX_DATA_MASK);
-			buff->drawRangeFast(LLRender::TRIANGLES, 0, buff->getNumVerts()-1, buff->getNumIndices(), 0); 
+			buff->setBuffer();
+			buff->drawRange(LLRender::TRIANGLES, 0, buff->getNumVerts()-1, buff->getNumIndices(), 0); 
 		}
 	}
 }

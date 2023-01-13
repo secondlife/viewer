@@ -43,13 +43,11 @@ void LLDrawPoolGLTFPBR::renderDeferred(S32 pass)
     for (U32 type : types)
     {
         gDeferredPBROpaqueProgram.bind();
-        pushGLTFBatches(type, getVertexDataMask());
+        pushGLTFBatches(type);
         
         gDeferredPBROpaqueProgram.bind(true);
-        pushRiggedGLTFBatches(type+1, getVertexDataMask());
+        pushRiggedGLTFBatches(type+1);
     }
-
-    LLGLSLShader::sCurBoundShaderPtr->unbind();
 }
 
 

@@ -150,7 +150,7 @@ void LLDrawPoolWater::beginPostDeferredPass(S32 pass)
         gGL.getTexUnit(diff_map)->bind(&src);
         gGL.getTexUnit(depth_map)->bind(&src, true);
 
-        gPipeline.mScreenTriangleVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+        gPipeline.mScreenTriangleVB->setBuffer();
         gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
         dst.flush();

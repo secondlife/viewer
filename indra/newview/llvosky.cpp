@@ -1010,8 +1010,8 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 			face->setSize(4, 6);
 			face->setGeomIndex(0);
 			face->setIndicesIndex(0);
-			LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolSky::VERTEX_DATA_MASK, GL_STREAM_DRAW);
-			buff->allocateBuffer(4, 6, TRUE);
+			LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolSky::VERTEX_DATA_MASK);
+			buff->allocateBuffer(4, 6);
 			face->setVertexBuffer(buff);
 
 			index_offset = face->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
@@ -1046,7 +1046,7 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 			*indicesp++ = index_offset + 3;
 			*indicesp++ = index_offset + 2;
 
-			buff->flush();
+			buff->unmapBuffer();
 		}
 	}
 
@@ -1139,8 +1139,8 @@ bool LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, F32 scale, const 
 	if (!facep->getVertexBuffer())
 	{
 		facep->setSize(4, 6);
-		LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolSky::VERTEX_DATA_MASK, GL_STREAM_DRAW);
-		if (!buff->allocateBuffer(facep->getGeomCount(), facep->getIndicesCount(), TRUE))
+		LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolSky::VERTEX_DATA_MASK);
+		if (!buff->allocateBuffer(facep->getGeomCount(), facep->getIndicesCount()))
 		{
 			LL_WARNS() << "Failed to allocate Vertex Buffer for vosky to "
 				<< facep->getGeomCount() << " vertices and "
@@ -1179,7 +1179,7 @@ bool LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, F32 scale, const 
 	*indicesp++ = index_offset + 2;
 	*indicesp++ = index_offset + 3;
 
-	facep->getVertexBuffer()->flush();
+	facep->getVertexBuffer()->unmapBuffer();
 
 	return TRUE;
 }
@@ -1379,8 +1379,8 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 	if (!face->getVertexBuffer() || quads*4 != face->getGeomCount())
 	{
 		face->setSize(quads * 4, quads * 6);
-		LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_STREAM_DRAW);
-		if (!buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE))
+		LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK);
+		if (!buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount()))
 		{
 			LL_WARNS() << "Failed to allocate Vertex Buffer for vosky to "
 				<< face->getGeomCount() << " vertices and "
@@ -1523,7 +1523,7 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 		}
 	}
 
-	face->getVertexBuffer()->flush();
+	face->getVertexBuffer()->unmapBuffer();
 }
 }
 
