@@ -192,7 +192,6 @@ void LLFace::destroy()
 	
 	if (isState(LLFace::PARTICLE))
 	{
-		LLVOPartGroup::freeVBSlot(getGeomIndex()/4);
 		clearState(LLFace::PARTICLE);
 	}
 

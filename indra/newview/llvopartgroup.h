@@ -40,16 +40,9 @@ class LLVOPartGroup : public LLAlphaObject
 {
 public:
 
-	//vertex buffer for holding all particles
-	static LLPointer<LLVertexBuffer> sVB;
-	static S32 sVBSlotFree[LL_MAX_PARTICLE_COUNT];
-	static S32 *sVBSlotCursor;
-
 	static void initClass();
 	static void restoreGL();
 	static void destroyGL();
-	static S32 findAvailableVBSlot();
-	static void freeVBSlot(S32 idx);
 
 	enum
 	{

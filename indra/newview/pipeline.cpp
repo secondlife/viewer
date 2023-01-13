@@ -3747,17 +3747,6 @@ void LLPipeline::postSort(LLCamera &camera)
         }
     }
 
-    // flush particle VB
-    if (LLVOPartGroup::sVB)
-    {
-        LL_PROFILE_GPU_ZONE("flush particle vb");
-        LLVOPartGroup::sVB->unmapBuffer();
-    }
-    else
-    {
-        LL_WARNS_ONCE() << "Missing particle buffer" << LL_ENDL;
-    }
-
     /*bool use_transform_feedback = gTransformPositionProgram.mProgramObject && !mMeshDirtyGroup.empty();
 
     if (use_transform_feedback)
