@@ -1308,8 +1308,6 @@ void LLVOAvatarSelf::postMotionUpdate()
             LLQuaternion rot(info.second->getWorldRotation() * agent_inv_rot);
 
             /*note, using isNull, which flags very small lengths rather than isExactlyZero */
-            //bool has_value = !pos.isNull() || !LLQuaternion::almost_equal(rot, LLQuaternion::DEFAULT);
-            //bool has_value = info.second->mDirtyFlags & (LLJoint::ROTATION_DIRTY | LLJoint::POSITION_DIRTY);
             bool has_value = info.second->hasChanged(pos, rot);
             if (has_value)
             {

@@ -100,7 +100,17 @@ public:
 
     bool    hasChanged(const LLVector3 &pos, const LLQuaternion &rot) const
     {
-        return (!(pos - mLastTrackedPos).isNull() || !LLQuaternion::almost_equal(rot, mLastTrackedRot));
+        static constexpr F32 SMALL_CHANGE(0.05 * 0.05);
+
+        LLVector3 unit_vec(LLVector3::x_axis * rot);
+        F32 unit_cos(0);
+        if (!mLastTrackedUnit.isNull())
+        {
+            unit_cos = unit_vec * mLastTrackedUnit;
+        }
+        mLastTrackedUnit = unit_vec;
+
+        return (((pos - mLastTrackedPos).magVecSquared() > SMALL_CHANGE) || (unit_cos < 0.9));
     }
 
     void    setLastTracked(const LLVector3 &tracked_pos, const LLQuaternion &tracked_rot)
@@ -114,13 +124,14 @@ protected:
 	void setupDrawable(LLViewerObject *object);
 
 private:
-	BOOL			mVisibleInFirst;
-	LLVector3		mOriginalPos;
-	S32				mGroup;
-	BOOL			mIsHUDAttachment;
-	S32				mPieSlice;
-    LLVector3       mLastTrackedPos;
-    LLQuaternion    mLastTrackedRot;
+	BOOL			    mVisibleInFirst;
+	LLVector3		    mOriginalPos;
+	S32				    mGroup;
+	BOOL			    mIsHUDAttachment;
+	S32				    mPieSlice;
+    LLVector3           mLastTrackedPos;
+    LLQuaternion        mLastTrackedRot;
+    mutable LLVector3   mLastTrackedUnit;
 };
 
 #endif // LL_LLVIEWERJOINTATTACHMENT_H
