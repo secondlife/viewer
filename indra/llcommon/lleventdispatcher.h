@@ -341,6 +341,8 @@ public:
 
     /// Retrieve the LLSD key we use for one-arg <tt>operator()</tt> method
     std::string getDispatchKey() const { return mKey; }
+    /// Retrieve the LLSD key we use for non-map arguments
+    std::string getArgsKey() const { return mArgskey; }
 
     /// description of this instance's leaf class and description
     friend std::ostream& operator<<(std::ostream&, const LLEventDispatcher&);
@@ -363,6 +365,8 @@ private:
     void addFail(const std::string& name, const std::string& classname) const;
     LLSD try_call(const std::string& key, const std::string& name,
                   const LLSD& event) const;
+
+protected:
     // raise specified EXCEPTION with specified stringize(ARGS)
     template <typename EXCEPTION, typename... ARGS>
     void callFail(ARGS&&... args) const;
@@ -370,6 +374,7 @@ private:
     static
     void sCallFail(ARGS&&... args);
 
+private:
     std::string mDesc, mKey, mArgskey;
     DispatchMap mDispatch;
 
@@ -521,12 +526,12 @@ LLEventDispatcher::make_invoker(Method f, const InstanceGetter& getter)
 /**
  * Bundle an LLEventPump and a listener with an LLEventDispatcher. A class
  * that contains (or derives from) LLDispatchListener need only specify the
- * LLEventPump name and dispatch key, and add() its methods. Incoming events
- * will automatically be dispatched.
+ * LLEventPump name and dispatch key, and add() its methods. Each incoming
+ * event ("request") will automatically be dispatched.
  *
- * If the incoming event contains a "reply" key specifying the LLSD::String
- * name of an LLEventPump to which to respond, LLDispatchListener will attempt
- * to send a response to that LLEventPump.
+ * If the request contains a "reply" key specifying the LLSD::String name of
+ * an LLEventPump to which to respond, LLDispatchListener will attempt to send
+ * a response to that LLEventPump.
  *
  * If some error occurs (e.g. nonexistent callable name, wrong params) and
  * "reply" is present, LLDispatchListener will send a response map to the
@@ -542,14 +547,70 @@ LLEventDispatcher::make_invoker(Method f, const InstanceGetter& getter)
  *
  * If the target callable returns a type convertible to LLSD (and, if it
  * directly returns LLSD, the return value isDefined()), and if a "reply" key
- * is present in the incoming event, LLDispatchListener will post the returned
- * value to the "reply" LLEventPump. If the returned value is an LLSD map, it
- * will merge the echoed "reqid" key into the map and send that. Otherwise, it
- * will send an LLSD map containing "reqid" and a "data" key whose value is
- * the value returned by the target callable.
+ * is present in the request, LLDispatchListener will post the returned value
+ * to the "reply" LLEventPump. If the returned value is an LLSD map, it will
+ * merge the echoed "reqid" key into the map and send that. Otherwise, it will
+ * send an LLSD map containing "reqid" and a "data" key whose value is the
+ * value returned by the target callable.
  *
  * (It is inadvisable for a target callable to return an LLSD map containing
- * keys "reqid" or "error", as that will confuse the invoker.)
+ * keys "data", "reqid" or "error", as that will confuse the invoker.)
+ *
+ * Normally the request will specify the value of the dispatch key as an
+ * LLSD::String naming the target callable. Alternatively, several such calls
+ * may be "batched" as described below.
+ *
+ * If the value of the dispatch key is itself an LLSD map (a "request map"),
+ * each map key must name a target callable, and the value of that key must
+ * contain the parameters to pass to that callable. If a "reply" key is
+ * present in the request, the response map will contain a key for each of the
+ * keys in the request map. The value of every such key is the value returned
+ * by the target callable.
+ *
+ * (Avoid naming any target callable in the LLDispatchListener "data", "reqid"
+ * or "error" to avoid confusion.)
+ *
+ * Since LLDispatchListener calls the target callables specified by a request
+ * map in arbitrary order, this form assumes that the batched operations are
+ * independent of each other. LLDispatchListener will attempt every call, even
+ * if some attempts produce errors. If any keys in the request map produce
+ * errors, LLDispatchListener builds a composite error message string
+ * collecting the relevant messages. The corresponding keys will be missing
+ * from the response map. As in the single-callable case, absent a "reply" key
+ * in the request, this error message will be thrown as a DispatchError. With
+ * a "reply" key, it will be returned as the value of the "error" key. This
+ * form can indicate partial success: some request keys might have
+ * return-value keys in the response, others might have message text in the
+ * "error" key.
+ *
+ * If a specific call sequence is required, the value of the dispatch key may
+ * instead be an LLSD array (a "request array"). Each entry in the request
+ * array ("request entry") names a target callable, to be called in
+ * array-index sequence. Arguments for that callable may be specified in
+ * either of two ways.
+ *
+ * The request entry may itself be a two-element array, whose [0] is an
+ * LLSD::String naming the target callable and whose [1] contains the
+ * arguments to pass to that callable.
+ *
+ * Alternatively, the request entry may be an LLSD::String naming the target
+ * callable, in which case the request must contain an arguments key (optional
+ * third constructor argument) whose value is an array matching the request
+ * array. The arguments for the request entry's target callable are found at
+ * the same index in the arguments key array.
+ *
+ * If a "reply" key is present in the request, the response map will contain a
+ * "data" key whose value is an array. Each entry in that response array will
+ * contain the result from the corresponding request entry.
+ *
+ * This form assumes that any of the batched operations might depend on the
+ * success of a previous operation in the same batch. The @emph first error
+ * encountered will terminate the sequence. The error message might either be
+ * thrown as DispatchError or, given a "reply" key, returned as the "error"
+ * key in the response map. This form can indicate partial success: the first
+ * few request entries might have return-value entries in the "data" response
+ * array, along with an "error" key whose value is the error message that
+ * stopped the sequence.
  */
 // Instead of containing an LLEventStream, LLDispatchListener derives from it.
 // This allows an LLEventPumps::PumpFactory to return a pointer to an
@@ -568,13 +629,9 @@ public:
 
 private:
     bool process(const LLSD& event) const;
-    // Pass empty name to call LLEventDispatcher::operator()(const LLSD&),
-    // non-empty name to call operator()(const std::string&, const LLSD&).
-    // Returns (empty string, return value) on successful call.
-    // Returns (error message, undefined) if error and 'exception' is false.
-    // Throws DispatchError if error and 'exception' is true.
-    std::pair<std::string, LLSD> call(const std::string& name, const LLSD& event,
-                                      bool exception) const;
+    void call_one(const LLSD& name, const LLSD& event) const;
+    void call_map(const LLSD& reqmap, const LLSD& event) const;
+    void call_array(const LLSD& reqarray, const LLSD& event) const;
     void reply(const LLSD& reply, const LLSD& request) const;
 
     LLTempBoundListener mBoundListener;
