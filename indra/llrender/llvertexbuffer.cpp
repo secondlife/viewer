@@ -1025,7 +1025,7 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count)
     }
 
     S32 start = mOffsets[type] + sTypeSize[type] * index;
-    S32 end = start + sTypeSize[type] * count;
+    S32 end = start + sTypeSize[type] * count-1;
 
 	bool flagged = false;
 	// flag region as mapped
@@ -1059,7 +1059,7 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count)
 	}
 
     S32 start = sizeof(U16) * index;
-    S32 end = start + sizeof(U16) * count;
+    S32 end = start + sizeof(U16) * count-1;
 
     bool flagged = false;
     // flag region as mapped
@@ -1082,6 +1082,11 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count)
     return mMappedIndexData + sizeof(U16)*index;
 }
 
+// flush the given byte range
+//  target -- "targret" parameter for glBufferSubData
+//  start -- first byte to copy
+//  end -- last byte to copy (NOT last byte + 1)
+//  data -- mMappedData or mMappedIndexData
 static void flush_vbo(GLenum target, S32 start, S32 end, void* data)
 {
     if (end != 0)
@@ -1091,14 +1096,14 @@ static void flush_vbo(GLenum target, S32 start, S32 end, void* data)
         LL_PROFILE_ZONE_NUM(end);
         LL_PROFILE_ZONE_NUM(end-start);
 
-        constexpr S32 block_size = 65536;
+        constexpr S32 block_size = 4096;
 
-        for (S32 i = start; i < end; i += block_size)
+        for (S32 i = start; i <= end; i += block_size)
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("glBufferSubData block");
-            LL_PROFILE_GPU_ZONE("glBufferSubData");
+            //LL_PROFILE_GPU_ZONE("glBufferSubData");
             S32 tend = llmin(i + block_size, end);
-            glBufferSubData(target, i, tend - i, (U8*) data + (i-start));
+            glBufferSubData(target, i, tend - i+1, (U8*) data + (i-start));
         }
     }
 }
@@ -1106,16 +1111,27 @@ static void flush_vbo(GLenum target, S32 start, S32 end, void* data)
 void LLVertexBuffer::unmapBuffer()
 {
     {
+        struct SortMappedRegion
+        {
+            bool operator()(const MappedRegion& lhs, const MappedRegion& rhs)
+            {
+                return lhs.mStart < rhs.mStart;
+            }
+        };
+
 		if (!mMappedVertexRegions.empty())
 		{
             LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("unmapBuffer - vertex");
             if (sGLRenderBuffer != mGLBuffer)
             {
                 glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
+                sGLRenderBuffer = mGLBuffer;
             }
             
             S32 start = 0;
             S32 end = 0;
+
+            std::sort(mMappedVertexRegions.begin(), mMappedVertexRegions.end(), SortMappedRegion());
 
 			for (U32 i = 0; i < mMappedVertexRegions.size(); ++i)
 			{
@@ -1135,10 +1151,6 @@ void LLVertexBuffer::unmapBuffer()
             flush_vbo(GL_ARRAY_BUFFER, start, end, (U8*)mMappedData + start);
 
 			mMappedVertexRegions.clear();
-            if (mGLBuffer != sGLRenderBuffer)
-            {
-                glBindBuffer(GL_ARRAY_BUFFER, sGLRenderBuffer);
-            }
 		}
 	}
 	
@@ -1150,6 +1162,7 @@ void LLVertexBuffer::unmapBuffer()
             if (mGLIndices != sGLRenderIndices)
             {
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
+                sGLRenderIndices = mGLIndices;
             }
             S32 start = 0;
             S32 end = 0;
@@ -1172,11 +1185,6 @@ void LLVertexBuffer::unmapBuffer()
             flush_vbo(GL_ELEMENT_ARRAY_BUFFER, start, end, (U8*)mMappedIndexData + start);
 
 			mMappedIndexRegions.clear();
-
-            if (mGLIndices != sGLRenderIndices)
-            {
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sGLRenderIndices);
-            }
 		}
 	}
 }
