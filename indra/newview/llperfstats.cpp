@@ -29,7 +29,9 @@
 #include "llcontrol.h"
 #include "pipeline.h"
 #include "llagentcamera.h"
+#include "llviewerwindow.h"
 #include "llvoavatar.h"
+#include "llwindow.h"
 #include "llworld.h"
 #include <llthread.h>
 
@@ -41,9 +43,11 @@ namespace LLPerfStats
     std::atomic<U64> renderAvatarMaxART_ns{(U64)(ART_UNLIMITED_NANOS)}; // highest render time we'll allow without culling features
     bool belowTargetFPS{false};
     U32 lastGlobalPrefChange{0}; 
+    U32 lastSleepedFrame{0};
     std::mutex bufferToggleLock{};
 
     F64 cpu_hertz{0.0};
+    U32 vsync_max_fps{60};
 
     Tunables tunables;
 
@@ -115,6 +119,7 @@ namespace LLPerfStats
         LLPerfStats::tunables.userImpostorDistanceTuningEnabled = gSavedSettings.getBOOL("AutoTuneImpostorByDistEnabled");
         LLPerfStats::tunables.userFPSTuningStrategy = gSavedSettings.getU32("TuningFPSStrategy");
         LLPerfStats::tunables.userTargetFPS = gSavedSettings.getU32("TargetFPS");
+        LLPerfStats::tunables.vsyncEnabled = gSavedSettings.getBOOL("RenderVSyncEnable");
         LLPerfStats::tunables.userTargetReflections = gSavedSettings.getS32("UserTargetReflections");
         LLPerfStats::tunables.userAutoTuneEnabled = gSavedSettings.getBOOL("AutoTuneFPS");
         LLPerfStats::tunables.userAutoTuneLock = gSavedSettings.getBOOL("AutoTuneLock");
@@ -129,7 +134,7 @@ namespace LLPerfStats
         // create a thread to consume from the queue
         tunables.initialiseFromSettings();
         LLPerfStats::cpu_hertz = (F64)LLTrace::BlockTimer::countsPerSecond();
-
+        LLPerfStats::vsync_max_fps = gViewerWindow->getWindow()->getRefreshRate();
         t.detach();
     }
 
@@ -332,8 +337,25 @@ namespace LLPerfStats
             // if at some point we need to, the averaging will need to take this into account or 
             // we forever think we're in the background due to residuals.
             LL_DEBUGS() << "No tuning when not in focus" << LL_ENDL;
+            LLPerfStats::lastSleepedFrame = gFrameCount;
             return;
         }
+
+        U32 target_fps = tunables.vsyncEnabled ? std::min(LLPerfStats::vsync_max_fps, tunables.userTargetFPS) : tunables.userTargetFPS;
+
+        if(LLPerfStats::lastSleepedFrame != 0)
+        {
+            // wait a short time after viewer regains focus
+            if((gFrameCount - LLPerfStats::lastSleepedFrame) > target_fps * 5)
+            {
+                LLPerfStats::lastSleepedFrame = 0;
+            }
+            else
+            {
+                return;
+            }
+        }
+        
 
         // The frametime budget we have based on the target FPS selected
         auto target_frame_time_raw = (U64)llround(LLPerfStats::cpu_hertz/(tunables.userTargetFPS==0?1:tunables.userTargetFPS));

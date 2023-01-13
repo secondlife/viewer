@@ -61,6 +61,7 @@ namespace LLPerfStats
     extern std::atomic<U64> renderAvatarMaxART_ns;
     extern bool belowTargetFPS;
     extern U32 lastGlobalPrefChange;
+    extern U32 lastSleepedFrame;
     extern std::mutex bufferToggleLock;
 
     enum class ObjType_t{
@@ -133,6 +134,7 @@ namespace LLPerfStats
         U32 userTargetFPS{0};
         F32 userARTCutoffSliderValue{0};
         S32 userTargetReflections{0};
+        bool vsyncEnabled{true};
 
         void updateNonImposters(U32 nv){nonImpostors=nv; tuningFlag |= NonImpostors;};
         void updateReflectionDetail(S32 nv){reflectionDetail=nv; tuningFlag |= ReflectionDetail;};

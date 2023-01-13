@@ -267,6 +267,7 @@ static bool handleAnisotropicChanged(const LLSD& newvalue)
 
 static bool handleVSyncChanged(const LLSD& newvalue)
 {
+    LLPerfStats::tunables.vsyncEnabled = newvalue.asBoolean();
     gViewerWindow->getWindow()->toggleVSync(newvalue.asBoolean());
 
     return true;
