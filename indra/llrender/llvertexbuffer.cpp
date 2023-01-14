@@ -1096,7 +1096,7 @@ static void flush_vbo(GLenum target, S32 start, S32 end, void* data)
         LL_PROFILE_ZONE_NUM(end);
         LL_PROFILE_ZONE_NUM(end-start);
 
-        constexpr S32 block_size = 4096;
+        constexpr S32 block_size = 8192;
 
         for (S32 i = start; i <= end; i += block_size)
         {

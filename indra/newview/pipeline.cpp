@@ -2536,6 +2536,8 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     LL_PROFILE_GPU_ZONE("doOcclusion");
+    llassert(!gCubeSnapshot);
+
     if (LLPipeline::sUseOcclusion > 1 && !LLSpatialPartition::sTeleportRequested &&
 		(sCull->hasOcclusionGroups() || LLVOCachePartition::sNeedsOcclusionCheck))
 	{
@@ -2556,19 +2558,7 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 
 		LLGLDisable cull(GL_CULL_FACE);
 
-		
-		bool bind_shader = (LLGLSLShader::sCurBoundShader == 0);
-		if (bind_shader)
-		{
-			if (LLPipeline::sShadowRender)
-			{
-				gDeferredShadowCubeProgram.bind();
-			}
-			else
-			{
-				gOcclusionCubeProgram.bind();
-			}
-		}
+        gOcclusionCubeProgram.bind();
 
 		if (mCubeVB.isNull())
 		{ //cube VB will be used for issuing occlusion queries
@@ -2591,18 +2581,6 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 			if(vo_part)
 			{
 				vo_part->processOccluders(&camera);
-			}
-		}
-
-		if (bind_shader)
-		{
-			if (LLPipeline::sShadowRender)
-			{
-				gDeferredShadowCubeProgram.unbind();
-			}
-			else
-			{
-				gOcclusionCubeProgram.unbind();
 			}
 		}
 
@@ -4369,7 +4347,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
                 occlude = false;
                 gGLLastMatrix = NULL;
                 gGL.loadMatrix(gGLModelView);
-                LLGLSLShader::bindNoShader();
                 doOcclusion(camera);
                 gGL.setColorMask(true, false);
             }
@@ -8194,7 +8171,6 @@ void LLPipeline::bindDeferredShaderFast(LLGLSLShader& shader)
 void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_target)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-    LL_PROFILE_GPU_ZONE("bindDeferredShader");
     LLRenderTarget* deferred_target       = &mRT->deferredScreen;
     //LLRenderTarget* deferred_depth_target = &mRT->deferredDepth;
     LLRenderTarget* deferred_light_target = &mRT->deferredLight;
@@ -9766,7 +9742,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	bool skip_avatar_update = false;
 	if (!isAgentAvatarValid() || gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK || !LLVOAvatar::sVisibleInFirstPerson)
 	{
-
 		skip_avatar_update = true;
 	}
 
@@ -9879,12 +9854,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 	clip = RenderShadowOrthoClipPlanes;
 	mSunOrthoClipPlanes = LLVector4(clip, clip.mV[2]*clip.mV[2]/clip.mV[1]);
-
-    //if (gCubeSnapshot)
-    { //always do a single 64m shadow in reflection maps
-        mSunClipPlanes.set(64.f, 128.f, 256.f);
-        mSunOrthoClipPlanes.set(64.f, 128.f, 256.f);
-    }
 
 	//currently used for amount to extrude frusta corners for constructing shadow frusta
 	//LLVector3 n = RenderShadowNearDist;
@@ -10390,7 +10359,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 			{
 				static LLCullResult result[4];
-				renderShadow(view[j], proj[j], shadow_cam, result[j], TRUE, FALSE, target_width);
+				renderShadow(view[j], proj[j], shadow_cam, result[j], true, true, target_width);
 			}
 
 			mRT->shadow[j].flush();
@@ -10545,7 +10514,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
                 RenderSpotLight = drawable;
 
-                renderShadow(view[i + 4], proj[i + 4], shadow_cam, result[i], FALSE, FALSE, target_width);
+                renderShadow(view[i + 4], proj[i + 4], shadow_cam, result[i], false, true, target_width);
 
                 RenderSpotLight = nullptr;
 

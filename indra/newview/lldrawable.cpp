@@ -1255,8 +1255,8 @@ LLSpatialBridge::LLSpatialBridge(LLDrawable* root, BOOL render_by_group, U32 dat
 	LLDrawable(root->getVObj(), true),
 	LLSpatialPartition(data_mask, render_by_group, regionp)
 {
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE
-
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
+    mOcclusionEnabled = false;
 	mBridge = this;
 	mDrawable = root;
 	root->setSpatialBridge(this);

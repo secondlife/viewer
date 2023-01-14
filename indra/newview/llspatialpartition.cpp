@@ -553,6 +553,7 @@ void LLSpatialGroup::updateDistance(LLCamera &camera)
 	if (LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
 	{
 		LL_WARNS() << "Attempted to update distance for camera other than world camera!" << LL_ENDL;
+        llassert(false);
 		return;
 	}
 
