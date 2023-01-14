@@ -1479,4 +1479,179 @@ namespace tut
         ensure_equals("bad i from mapfunc", reply["i"].asInteger(), 7);
         ensure_equals("bad str from mapfunc", reply["str"], "got value");
     }
+
+    template<> template<>
+    void object::test<33>()
+    {
+        set_test_name("batched map success");
+        DispatchResult service;
+        LLCaptureListener<LLSD> result;
+        service.post(llsd::map(
+                         "op", llsd::map(
+                             "strfunc", "some string",
+                             "intfunc", 2,
+                             "voidfunc", LLSD(),
+                             "arrayfunc", llsd::array(-5, "other string")),
+                         "reqid", 17,
+                         "reply", result.getName()));
+        LLSD reply{ result.get() };
+        ensure_equals("reqid not echoed", reply["reqid"].asInteger(), 17);
+        reply.erase("reqid");
+        ensure_equals(
+            "bad map batch",
+            reply,
+            llsd::map(
+                "strfunc", "got some string",
+                "intfunc", -2,
+                "voidfunc", LLSD(),
+                "arrayfunc", llsd::array(5, "got other string")));
+    }
+
+    template<> template<>
+    void object::test<34>()
+    {
+        set_test_name("batched map error");
+        DispatchResult service;
+        LLCaptureListener<LLSD> result;
+        service.post(llsd::map(
+                         "op", llsd::map(
+                             "badfunc", 34, // !
+                             "strfunc", "some string",
+                             "intfunc", 2,
+                             "missing", LLSD(), // !
+                             "voidfunc", LLSD(),
+                             "arrayfunc", llsd::array(-5, "other string")),
+                         "reqid", 17,
+                         "reply", result.getName()));
+        LLSD reply{ result.get() };
+        ensure_equals("reqid not echoed", reply["reqid"].asInteger(), 17);
+        reply.erase("reqid");
+        auto error{ reply["error"].asString() };
+        reply.erase("error");
+        ensure_has(error, "badfunc");
+        ensure_has(error, "missing");
+        ensure_equals(
+            "bad partial batch",
+            reply,
+            llsd::map(
+                "strfunc", "got some string",
+                "intfunc", -2,
+                "voidfunc", LLSD(),
+                "arrayfunc", llsd::array(5, "got other string")));
+    }
+
+    template<> template<>
+    void object::test<35>()
+    {
+        set_test_name("batched map exception");
+        DispatchResult service;
+        auto error = tut::call_exc(
+            [&service]()
+            {
+                service.post(llsd::map(
+                                 "op", llsd::map(
+                                     "badfunc", 34, // !
+                                     "strfunc", "some string",
+                                     "intfunc", 2,
+                                     "missing", LLSD(), // !
+                                     "voidfunc", LLSD(),
+                                     "arrayfunc", llsd::array(-5, "other string")),
+                                 "reqid", 17));
+                // no "reply"
+            },
+            "badfunc");
+        ensure_has(error, "missing");
+    }
+
+    template<> template<>
+    void object::test<36>()
+    {
+        set_test_name("batched array success");
+        DispatchResult service;
+        LLCaptureListener<LLSD> result;
+        service.post(llsd::map(
+                         "op", llsd::array(
+                             llsd::array("strfunc", "some string"),
+                             llsd::array("intfunc", 2),
+                             "arrayfunc",
+                             "voidfunc"),
+                         "args", llsd::array(
+                             LLSD(),
+                             LLSD(),
+                             llsd::array(-5, "other string")),
+                         // args array deliberately short, since the default
+                         // [3] is undefined, which should work for voidfunc
+                         "reqid", 17,
+                         "reply", result.getName()));
+        LLSD reply{ result.get() };
+        ensure_equals("reqid not echoed", reply["reqid"].asInteger(), 17);
+        reply.erase("reqid");
+        ensure_equals(
+            "bad array batch",
+            reply,
+            llsd::map(
+                "data", llsd::array(
+                    "got some string",
+                    -2,
+                    llsd::array(5, "got other string"),
+                    LLSD())));
+    }
+
+    template<> template<>
+    void object::test<37>()
+    {
+        set_test_name("batched array error");
+        DispatchResult service;
+        LLCaptureListener<LLSD> result;
+        service.post(llsd::map(
+                         "op", llsd::array(
+                             llsd::array("strfunc", "some string"),
+                             llsd::array("intfunc", 2, "whoops"), // bad form
+                             "arrayfunc",
+                             "voidfunc"),
+                         "args", llsd::array(
+                             LLSD(),
+                             LLSD(),
+                             llsd::array(-5, "other string")),
+                         // args array deliberately short, since the default
+                         // [3] is undefined, which should work for voidfunc
+                         "reqid", 17,
+                         "reply", result.getName()));
+        LLSD reply{ result.get() };
+        ensure_equals("reqid not echoed", reply["reqid"].asInteger(), 17);
+        reply.erase("reqid");
+        auto error{ reply["error"] };
+        reply.erase("error");
+        ensure_has(error, "[1]");
+        ensure_has(error, "unsupported");
+        ensure_equals("bad array batch", reply,
+                      llsd::map("data", llsd::array("got some string")));
+    }
+
+    template<> template<>
+    void object::test<38>()
+    {
+        set_test_name("batched array exception");
+        DispatchResult service;
+        auto error = tut::call_exc(
+            [&service]()
+            {
+                service.post(llsd::map(
+                                 "op", llsd::array(
+                                     llsd::array("strfunc", "some string"),
+                                     llsd::array("intfunc", 2, "whoops"), // bad form
+                                     "arrayfunc",
+                                     "voidfunc"),
+                                 "args", llsd::array(
+                                     LLSD(),
+                                     LLSD(),
+                                     llsd::array(-5, "other string")),
+                                 // args array deliberately short, since the default
+                                 // [3] is undefined, which should work for voidfunc
+                                 "reqid", 17));
+                // no "reply"
+            },
+            "[1]");
+        ensure_has(error, "unsupported");
+    }
 } // namespace tut
