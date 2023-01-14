@@ -1347,12 +1347,18 @@ namespace tut
             add("arrayfunc", "return array LLSD",   &DR::arrayfunc, [this](){ return this; });
         }
 
-        std::string strfunc(const LLSD&) const { return "a string"; }
+        std::string strfunc(const std::string& str) const { return "got " + str; }
         void voidfunc()                  const {}
         LLSD emptyfunc()                 const { return {}; }
-        int  intfunc(const LLSD&)        const { return 17; }
-        LLSD mapfunc(const LLSD&)        const { return llsd::map("key", "value"); }
-        LLSD arrayfunc(const LLSD&)      const { return llsd::array("a", "b", "c"); }
+        int  intfunc(int i)              const { return -i; }
+        LLSD mapfunc(int i, const std::string& str) const
+        {
+            return llsd::map("i", intfunc(i), "str", strfunc(str));
+        }
+        LLSD arrayfunc(int i, const std::string& str) const
+        {
+            return llsd::array(intfunc(i), strfunc(str));
+        }
     };
 
     template<> template<>
@@ -1360,8 +1366,8 @@ namespace tut
     {
         set_test_name("string result");
         DispatchResult service;
-        LLSD result{ service("strfunc", "ignored") };
-        ensure_equals("strfunc() mismatch", result.asString(), "a string");
+        LLSD result{ service("strfunc", "a string") };
+        ensure_equals("strfunc() mismatch", result.asString(), "got a string");
     }
 
     template<> template<>
@@ -1378,7 +1384,7 @@ namespace tut
     {
         set_test_name("Integer result");
         DispatchResult service;
-        LLSD result{ service("intfunc", "ignored") };
+        LLSD result{ service("intfunc", -17) };
         ensure_equals("intfunc() mismatch", result.asInteger(), 17);
     }
 
@@ -1387,8 +1393,8 @@ namespace tut
     {
         set_test_name("map LLSD result");
         DispatchResult service;
-        LLSD result{ service("mapfunc", "ignored") };
-        ensure_equals("mapfunc() mismatch", result, llsd::map("key", "value"));
+        LLSD result{ service("mapfunc", llsd::array(-12, "value")) };
+        ensure_equals("mapfunc() mismatch", result, llsd::map("i", 12, "str", "got value"));
     }
 
     template<> template<>
@@ -1396,8 +1402,8 @@ namespace tut
     {
         set_test_name("array LLSD result");
         DispatchResult service;
-        LLSD result{ service("arrayfunc", "ignored") };
-        ensure_equals("arrayfunc() mismatch", result, llsd::array("a", "b", "c"));
+        LLSD result{ service("arrayfunc", llsd::array(-8, "word")) };
+        ensure_equals("arrayfunc() mismatch", result, llsd::array(8, "got word"));
     }
 
     template<> template<>
@@ -1449,12 +1455,12 @@ namespace tut
         LLCaptureListener<LLSD> result;
         service.post(llsd::map(
                          "op", "strfunc",
-                         "args", llsd::array(LLSD()),
+                         "args", llsd::array("a string"),
                          "reqid", 17,
                          "reply", result.getName()));
         LLSD reply{ result.get() };
         ensure_equals("reqid not echoed", reply["reqid"].asInteger(), 17);
-        ensure_equals("bad reply from strfunc", reply["data"].asString(), "a string");
+        ensure_equals("bad reply from strfunc", reply["data"].asString(), "got a string");
     }
 
     template<> template<>
@@ -1465,11 +1471,12 @@ namespace tut
         LLCaptureListener<LLSD> result;
         service.post(llsd::map(
                          "op", "mapfunc",
-                         "args", llsd::array(LLSD()),
+                         "args", llsd::array(-7, "value"),
                          "reqid", 17,
                          "reply", result.getName()));
         LLSD reply{ result.get() };
         ensure_equals("reqid not echoed", reply["reqid"].asInteger(), 17);
-        ensure_equals("bad reply from mapfunc", reply["key"], "value");
+        ensure_equals("bad i from mapfunc", reply["i"].asInteger(), 7);
+        ensure_equals("bad str from mapfunc", reply["str"], "got value");
     }
 } // namespace tut
