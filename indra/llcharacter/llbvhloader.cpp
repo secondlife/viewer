@@ -949,7 +949,6 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 //------------------------------------------------------------------------
 void LLBVHLoader::applyTranslations()
 {
-	JointVector::iterator ji;
 	for (Joint* joint : mJoints)
 	{
 		//----------------------------------------------------------------
@@ -1064,7 +1063,6 @@ void LLBVHLoader::optimize()
 		mEaseOut *= factor;
 	}
 
-	JointVector::iterator ji;
 	for (Joint* joint : mJoints)
 	{
 		BOOL pos_changed = FALSE;

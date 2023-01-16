@@ -514,16 +514,21 @@ public:
             // former broken behavior has finally been fixed -- and our builds
             // treat warnings as errors.
             {
-                for (typename const DepNodeMap::value_type& nm_pair : mNodes)
+                for (typename DepNodeMap::const_iterator nmi = mNodes.begin(), nmend = mNodes.end();
+                     nmi != nmend; ++nmi)
                 {
-                    vmap.insert(typename VertexMap::value_type(nm_pair.first, vmap.size()));
-                    for (typename const KEY& after_k : nm_pair.second.after)
+                    vmap.insert(typename VertexMap::value_type(nmi->first, vmap.size()));
+                    for (typename DepNode::dep_set::const_iterator ai = nmi->second.after.begin(),
+                                                                   aend = nmi->second.after.end();
+                         ai != aend; ++ai)
                     {
-                        vmap.insert(typename VertexMap::value_type(after_k, vmap.size()));
+                        vmap.insert(typename VertexMap::value_type(*ai, vmap.size()));
                     }
-                    for (typename const KEY& before_k : nm_pair.second.before)
+                    for (typename DepNode::dep_set::const_iterator bi = nmi->second.before.begin(),
+                                                                   bend = nmi->second.before.end();
+                         bi != bend; ++bi)
                     {
-                        vmap.insert(typename VertexMap::value_type(before_k, vmap.size()));
+                        vmap.insert(typename VertexMap::value_type(*bi, vmap.size()));
                     }
                 }
             }
@@ -531,19 +536,24 @@ public:
             // all the known key dependencies to integer pairs.
             EdgeList edges;
             {
-                for (typename const DepNodeMap::value_type& nm_pair : mNodes)
+                for (typename DepNodeMap::const_iterator nmi = mNodes.begin(), nmend = mNodes.end();
+                     nmi != nmend; ++nmi)
                 {
-                    auto thisnode = vmap[nm_pair.first];
+                    auto thisnode = vmap[nmi->first];
                     // after dependencies: build edges from the named node to this one
-                    for (typename const KEY& after_k : nm_pair.second.after)
+                    for (typename DepNode::dep_set::const_iterator ai = nmi->second.after.begin(),
+                                                                   aend = nmi->second.after.end();
+                         ai != aend; ++ai)
                     {
-                        edges.push_back(EdgeList::value_type(vmap[after_k], thisnode));
+                        edges.push_back(EdgeList::value_type(vmap[*ai], thisnode));
                     }
                     // before dependencies: build edges from this node to the
                     // named one
-                    for (typename const KEY& before_k : nm_pair.second.before)
+                    for (typename DepNode::dep_set::const_iterator bi = nmi->second.before.begin(),
+                                                                   bend = nmi->second.before.end();
+                         bi != bend; ++bi)
                     {
-                        edges.push_back(EdgeList::value_type(thisnode, vmap[before_k]));
+                        edges.push_back(EdgeList::value_type(thisnode, vmap[*bi]));
                     }
                 }
             }
@@ -555,19 +565,21 @@ public:
             // and we're certain that the associated int values are distinct
             // indexes. The fact that they're not in order is irrelevant.
             KeyList vkeys(vmap.size());
-            for (typename const VertexMap::value_type& vm_pair : vmap)
+            for (typename VertexMap::const_iterator vmi = vmap.begin(), vmend = vmap.end();
+                 vmi != vmend; ++vmi)
             {
-                vkeys[vm_pair.second] = vm_pair.first;
+                vkeys[vmi->second] = vmi->first;
             }
             // Walk the sorted output list, building the result into mCache so
             // we'll have it next time someone asks.
             mCache.clear();
-            for (const size_t sv : sorted)
+            for (VertexList::const_iterator svi = sorted.begin(), svend = sorted.end();
+                 svi != svend; ++svi)
             {
-                // We're certain that vkeys[sv] exists. However, there might not
+                // We're certain that vkeys[*svi] exists. However, there might not
                 // yet be a corresponding entry in mNodes.
                 self_type* non_const_this(const_cast<self_type*>(this));
-                typename DepNodeMap::iterator found = non_const_this->mNodes.find(vkeys[sv]);
+                typename DepNodeMap::iterator found = non_const_this->mNodes.find(vkeys[*svi]);
                 if (found != non_const_this->mNodes.end())
                 {
                     // Make an iterator of appropriate type.

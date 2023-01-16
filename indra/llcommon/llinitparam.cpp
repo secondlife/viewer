@@ -316,7 +316,7 @@ namespace LLInitParam
 			{
 				// Ensure this param has not already been inspected
 				bool duplicate = false;
-				for (const ParamDescriptorPtr ptr : block_data.mUnnamedParams)
+                for (const ParamDescriptorPtr &ptr : block_data.mUnnamedParams)
 				{
 					if (param_handle == ptr->mParamHandle)
 					{
