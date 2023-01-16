@@ -720,7 +720,6 @@ void LLJoint::showAttachmentScaleOverrides(const std::string& av_info) const
         {
             LL_DEBUGS("Avatar") << "no conflicts" << LL_ENDL;
         }
-        std::set<LLVector3>::iterator dit = distinct_offsets.begin();
         for (const LLVector3& offset : distinct_offsets)
         {
             std::string highlight = (has_active_override && offset == active_override) ? "*" : "";

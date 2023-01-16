@@ -1067,7 +1067,6 @@ BOOL LLAvatarAppearance::loadSkeletonNode ()
 
 	// SKELETAL DISTORTIONS
 	{
-		LLAvatarXmlInfo::skeletal_distortion_info_list_t::iterator iter;
 		for (LLViewerVisualParamInfo* visual_param_info : sAvatarXmlInfo->mSkeletalDistortionInfoList)
 		{
 			LLPolySkeletalDistortionInfo *info = (LLPolySkeletalDistortionInfo*)visual_param_info;
