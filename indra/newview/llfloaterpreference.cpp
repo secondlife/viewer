@@ -793,7 +793,8 @@ void LLFloaterPreference::setHardwareDefaults()
 
 void LLFloaterPreference::setRecommendedSettings()
 {
-    gSavedSettings.setBOOL("AutoTuneFPS", FALSE);
+    resetAutotuneSettings();
+    gSavedSettings.getControl("RenderVSyncEnable")->resetToDefault(true);
 
 	LLFeatureManager::getInstance()->applyRecommendedSettings();
 
@@ -816,6 +817,27 @@ void LLFloaterPreference::setRecommendedSettings()
 			panel->setHardwareDefaults();
 		}
 	}
+}
+
+void LLFloaterPreference::resetAutotuneSettings()
+{
+    gSavedSettings.setBOOL("AutoTuneFPS", FALSE);
+
+    const std::string autotune_settings[] = {
+        "AutoTuneLock",
+        "TargetFPS",
+        "TuningFPSStrategy",
+        "AutoTuneImpostorByDistEnabled",
+        "AutoTuneImpostorFarAwayDistance" ,
+        "AutoTuneRenderFarClipMin",
+        "AutoTuneRenderFarClipTarget",
+        "RenderAvatarMaxART"
+    };
+
+    for (auto it : autotune_settings)
+    {
+        gSavedSettings.getControl(it)->resetToDefault(true);
+    }
 }
 
 void LLFloaterPreference::getControlNames(std::vector<std::string>& names)

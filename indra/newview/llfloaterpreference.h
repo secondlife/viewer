@@ -200,6 +200,7 @@ public:
 	void saveGraphicsPreset(std::string& preset);
 
     void setRecommendedSettings();
+    void resetAutotuneSettings();
 
 private:
 
