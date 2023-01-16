@@ -6284,7 +6284,7 @@ bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 		// More than OFFER_RECIPIENT_LIMIT targets will overload the message
 		// producing an llerror.
 		LLSD args;
-		args["OFFERS"] = notification["payload"]["ids"].size();
+		args["OFFERS"] = LLSD::Integer(notification["payload"]["ids"].size());
 		args["LIMIT"] = static_cast<int>(OFFER_RECIPIENT_LIMIT);
 		LLNotificationsUtil::add("TooManyTeleportOffers", args);
 		return false;
