@@ -246,10 +246,8 @@ void LLCharacter::dumpCharacter( LLJoint* joint )
 	LL_INFOS() << "DEBUG: " << joint->getName() << " (" << (joint->getParent()?joint->getParent()->getName():std::string("ROOT")) << ")" << LL_ENDL;
 
 	// recurse
-	for (LLJoint::joints_t::iterator iter = joint->mChildren.begin();
-		 iter != joint->mChildren.end(); ++iter)
+	for (LLJoint* child_joint : joint->mChildren)
 	{
-		LLJoint* child_joint = *iter;
 		dumpCharacter(child_joint);
 	}
 }

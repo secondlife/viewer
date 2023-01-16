@@ -96,10 +96,10 @@ LLMD5::LLMD5()
 // operation, processing another message block, and updating the
 // context.
 
-void LLMD5::update (const uint1 *input, const uint4 input_length) {
+void LLMD5::update (const uint1 *input, const size_t input_length) {
 
-  uint4 input_index, buffer_index;
-  uint4 buffer_space;                // how much space is left in buffer
+  size_t input_index, buffer_index;
+  size_t buffer_space;                // how much space is left in buffer
 
   if (finalized){  // so we can't update!
 	  std::cerr << "LLMD5::update:  Can't update a finalized digest!" << std::endl;
@@ -107,14 +107,10 @@ void LLMD5::update (const uint1 *input, const uint4 input_length) {
   }
 
   // Compute number of bytes mod 64
-  buffer_index = (unsigned int)((count[0] >> 3) & 0x3F);
+  buffer_index = size_t((count >> 3) & 0x3F);
 
   // Update number of bits
-  if (  (count[0] += ((uint4) input_length << 3))<((uint4) input_length << 3) )
-    count[1]++;
-
-  count[1] += ((uint4)input_length >> 29);
-
+  count += input_length << 3;
 
   buffer_space = 64 - buffer_index;  // how much space is left in buffer
 
@@ -192,7 +188,7 @@ void  LLMD5::update(const std::string& s)
 void LLMD5::finalize (){
 
   unsigned char bits[8];		/* Flawfinder: ignore */
-  unsigned int index, padLen;
+  size_t index, padLen;
   static uint1 PADDING[64]={
     0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -204,11 +200,12 @@ void LLMD5::finalize (){
     return;
   }
 
-  // Save number of bits
-  encode (bits, count, 8);
+  // Save number of bits.
+  // Treat count, a uint64_t, as uint4[2].
+  encode (bits, reinterpret_cast<uint4*>(&count), 8);
 
   // Pad out to 56 mod 64.
-  index = (uint4) ((count[0] >> 3) & 0x3f);
+  index = size_t((count >> 3) & 0x3f);
   padLen = (index < 56) ? (56 - index) : (120 - index);
   update (PADDING, padLen);
 
@@ -340,8 +337,7 @@ void LLMD5::init(){
   finalized=0;  // we just started!
 
   // Nothing counted, so count=0
-  count[0] = 0;
-  count[1] = 0;
+  count = 0;
 
   // Load magic initialization constants.
   state[0] = 0x67452301;
@@ -508,9 +504,9 @@ void LLMD5::transform (const U8 block[64]){
 
 // Encodes input (UINT4) into output (unsigned char). Assumes len is
 // a multiple of 4.
-void LLMD5::encode (uint1 *output, const uint4 *input, const uint4 len) {
+void LLMD5::encode (uint1 *output, const uint4 *input, const size_t len) {
 
-  unsigned int i, j;
+  size_t i, j;
 
   for (i = 0, j = 0; j < len; i++, j += 4) {
     output[j]   = (uint1)  (input[i] & 0xff);
@@ -525,9 +521,9 @@ void LLMD5::encode (uint1 *output, const uint4 *input, const uint4 len) {
 
 // Decodes input (unsigned char) into output (UINT4). Assumes len is
 // a multiple of 4.
-void LLMD5::decode (uint4 *output, const uint1 *input, const uint4 len){
+void LLMD5::decode (uint4 *output, const uint1 *input, const size_t len){
 
-  unsigned int i, j;
+  size_t i, j;
 
   for (i = 0, j = 0; j < len; i++, j += 4)
     output[i] = ((uint4)input[j]) | (((uint4)input[j+1]) << 8) |
