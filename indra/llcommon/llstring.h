@@ -1668,13 +1668,13 @@ std::basic_string<T> LLStringUtilBase<T>::quote(const string_type& str,
 	// For whatever reason, we must quote this string.
 	string_type result;
 	result.push_back('"');
-	for (typename const S8 c : str)
+	for (typename string_type::const_iterator ci(str.begin()), cend(str.end()); ci != cend; ++ci)
 	{
-		if (c == '"')
+		if (*ci == '"')
 		{
 			result.append(escape);
 		}
-		result.push_back(c);
+		result.push_back(*ci);
 	}
 	result.push_back('"');
 	return result;
