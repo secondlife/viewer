@@ -130,7 +130,6 @@ void LLAllocatorHeapProfile::parse(std::string const & prof_text)
 
 void LLAllocatorHeapProfile::dump(std::ostream & out) const
 {
-    lines_t::const_iterator i;
 	for (const LLAllocatorHeapProfile::line& line : mLines)
     {
         out << line.mLiveCount << ": " << line.mLiveSize << '[' << line.mTotalCount << ": " << line.mTotalSize << "] @";
