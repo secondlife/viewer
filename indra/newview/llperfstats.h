@@ -203,6 +203,7 @@ namespace LLPerfStats
         StatsRecorder();
 
         static int countNearbyAvatars(S32 distance);
+        static U64 getMeanTotalFrameTime(U64 tot_frame_time_raw);
 // StatsArray is a uint64_t for each possible statistic type.
         using StatsArray    = std::array<uint64_t, static_cast<size_t>(LLPerfStats::StatType_t::STATS_COUNT)>;
         using StatsMap      = std::unordered_map<LLUUID, StatsArray, boost::hash<LLUUID>>;

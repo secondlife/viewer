@@ -302,6 +302,23 @@ namespace LLPerfStats
         return positions.size();
 	}
 
+    const U32 NUM_PERIODS = 50;
+    U64 StatsRecorder::getMeanTotalFrameTime(U64 cur_frame_time_raw)
+    {
+        static std::deque<U64> frame_time_deque;
+        frame_time_deque.push_front(cur_frame_time_raw);
+        if (frame_time_deque.size() > NUM_PERIODS)
+        {
+            frame_time_deque.pop_back();
+        }
+        
+        std::vector<U64> buf(frame_time_deque.begin(), frame_time_deque.end());
+        std::sort(buf.begin(), buf.end());
+
+        U64 mean = (buf.size() % 2 == 0) ? (buf[buf.size() / 2 - 1] + buf[buf.size() / 2]) / 2 : buf[buf.size() / 2];
+        return mean;
+    }
+
     // static
     void StatsRecorder::updateAvatarParams()
     {
@@ -358,7 +375,7 @@ namespace LLPerfStats
         
 
         // The frametime budget we have based on the target FPS selected
-        auto target_frame_time_raw = (U64)llround(LLPerfStats::cpu_hertz/(tunables.userTargetFPS==0?1:tunables.userTargetFPS));
+        auto target_frame_time_raw = (U64)llround(LLPerfStats::cpu_hertz / (target_fps == 0 ? 1 : target_fps));
         // LL_INFOS() << "Effective FPS(raw):" << tot_frame_time_raw << " Target:" << target_frame_time_raw << LL_ENDL;
         auto inferredFPS{1000/(U32)std::max(raw_to_ms(tot_frame_time_raw),1.0)};
         U32 settingsChangeFrequency{inferredFPS > 25?inferredFPS:25};
@@ -367,9 +384,19 @@ namespace LLPerfStats
             // This could be problematic.
             tot_frame_time_raw -= tot_limit_time_raw;
         }*/
+        
+        F64 time_buf = target_frame_time_raw * 0.1;
+
         // 1) Is the target frame time lower than current?
-        if( target_frame_time_raw <= tot_frame_time_raw )
+        if ((target_frame_time_raw + time_buf) <= tot_frame_time_raw)
         {
+            if (target_frame_time_raw - time_buf >= getMeanTotalFrameTime(tot_frame_time_raw))
+            {
+                belowTargetFPS = false;
+                LLPerfStats::lastGlobalPrefChange = gFrameCount;
+                return;
+            }
+
             if(belowTargetFPS == false)
             {
                 // this is the first frame under. hold fire to add a little hysteresis
