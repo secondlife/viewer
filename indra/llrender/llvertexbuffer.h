@@ -244,7 +244,19 @@ protected:
 	std::vector<MappedRegion> mMappedIndexRegions;
 
 private:
-	static LLPrivateMemoryPool* sPrivatePoolp;
+    // DEPRECATED
+    // These function signatures are deprecated, but for some reason 
+    // there are classes in an external package that depend on LLVertexBuffer
+    
+    // TODO: move these classes into viewer repository
+    friend class LLNavShapeVBOManager;
+    friend class LLNavMeshVBOManager;
+    
+    LLVertexBuffer(U32 typemask, U32 usage)
+        : LLVertexBuffer(typemask)
+    {}
+
+    bool	allocateBuffer(S32 nverts, S32 nindices, BOOL create) { return allocateBuffer(nverts, nindices); }
 
 public:
 	static const S32 sTypeSize[TYPE_MAX];
