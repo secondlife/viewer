@@ -326,7 +326,7 @@ public:
 
         auto& pool = type == GL_ELEMENT_ARRAY_BUFFER ? mIBOPool : mVBOPool;
 
-        auto& iter = pool.find(size);
+        Pool::iterator iter = pool.find(size);
         if (iter == pool.end())
         { // cache miss, allocate a new buffer
             LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vbo pool miss");
@@ -374,7 +374,7 @@ public:
 
         auto& pool = type == GL_ELEMENT_ARRAY_BUFFER ? mIBOPool : mVBOPool;
 
-        auto& iter = pool.find(size);
+        Pool::iterator iter = pool.find(size);
 
         if (iter == pool.end())
         {

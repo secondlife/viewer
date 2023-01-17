@@ -2899,19 +2899,14 @@ void LLMaterialEditor::loadAsset()
 
                 setEnableEditing(false); // wait for it to load
 
-                // request the asset.
-                gAssetStorage->getInvItemAsset(source_sim,
-                    gAgent.getID(),
-                    gAgent.getSessionID(),
-                    item->getPermissions().getOwner(),
-                    mObjectUUID,
-                    item->getUUID(),
-                    item->getAssetUUID(),
-                    item->getType(),
+                mAssetStatus = PREVIEW_ASSET_LOADING;
+
+                // May callback immediately
+                gAssetStorage->getAssetData(item->getAssetUUID(),
+                    LLAssetType::AT_MATERIAL,
                     &onLoadComplete,
                     (void*)user_data,
                     TRUE);
-                mAssetStatus = PREVIEW_ASSET_LOADING;
             }
         }
     }
@@ -2962,7 +2957,7 @@ void LLMaterialEditor::onLoadComplete(const LLUUID& asset_uuid,
     {
         if (asset_uuid != editor->mAssetID)
         {
-            LL_WARNS() << "Asset id mismatch, expected: " << editor->mAssetID << " got: " << asset_uuid << LL_ENDL;
+            LL_WARNS("MaterialEditor") << "Asset id mismatch, expected: " << editor->mAssetID << " got: " << asset_uuid << LL_ENDL;
         }
         if (0 == status)
         {
@@ -2991,6 +2986,8 @@ void LLMaterialEditor::onLoadComplete(const LLUUID& asset_uuid,
             }
             else if (LL_ERR_INSUFFICIENT_PERMISSIONS == status)
             {
+                // Not supposed to happen?
+                LL_WARNS("MaterialEditor") << "No permission to view material " << asset_uuid << LL_ENDL;
                 LLNotificationsUtil::add("MaterialNoPermissions");
             }
             else
@@ -2999,7 +2996,7 @@ void LLMaterialEditor::onLoadComplete(const LLUUID& asset_uuid,
             }
             editor->setEnableEditing(false);
 
-            LL_WARNS() << "Problem loading material: " << status << LL_ENDL;
+            LL_WARNS("MaterialEditor") << "Problem loading material: " << status << LL_ENDL;
             editor->mAssetStatus = PREVIEW_ASSET_ERROR;
         }
     }
