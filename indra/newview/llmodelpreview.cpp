@@ -3316,8 +3316,6 @@ BOOL LLModelPreview::render()
     gGL.pushMatrix();
     gGL.color4fv(PREVIEW_EDGE_COL.mV);
 
-    const U32 type_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
-
     LLGLEnable normalize(GL_NORMALIZE);
 
     if (!mBaseModel.empty() && mVertexBuffer[5].empty())
