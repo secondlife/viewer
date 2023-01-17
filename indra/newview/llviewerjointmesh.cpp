@@ -1,4 +1,4 @@
-/** 
+ /** 
  * @file llviewerjointmesh.cpp
  * @brief Implementation of LLViewerJointMesh class
  *
@@ -61,10 +61,6 @@ extern PFNGLWEIGHTPOINTERARBPROC glWeightPointerARB;
 extern PFNGLWEIGHTFVARBPROC glWeightfvARB;
 extern PFNGLVERTEXBLENDARBPROC glVertexBlendARB;
 #endif
-
-static const U32 sRenderMask = LLVertexBuffer::MAP_VERTEX |
-							   LLVertexBuffer::MAP_NORMAL |
-							   LLVertexBuffer::MAP_TEXCOORD0;
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
