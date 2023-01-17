@@ -4438,7 +4438,7 @@ BOOL LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
 				LLWString context = find_context(wtext, preedit, preedit_length, &context_offset);
 				preedit -= context_offset;
 				preedit_length = llmin(preedit_length, (S32)context.length() - preedit);
-				if (preedit_length && preedit >= 0)
+				if (preedit_length > 0 && preedit >= 0)
 				{
 					// IMR_DOCUMENTFEED may be called when we have an active preedit.
 					// We should pass the context string *excluding* the preedit string.
