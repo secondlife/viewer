@@ -4386,7 +4386,6 @@ F32 LLVOVolume::getBinRadius()
     static LLCachedControl<LLVector3> octree_alpha_distance_factor(gSavedSettings, "OctreeAlphaDistanceFactor", LLVector3(0.1f, 0.f, 0.f));
 
     S32 size_factor = llmax((S32)octree_size_factor, 1);
-    LLVector3 distance_factor = octree_distance_factor;
     LLVector3 alpha_distance_factor = octree_alpha_distance_factor;
 
     //const LLVector4a* ext = mDrawable->getSpatialExtents();
@@ -6148,17 +6147,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
 	U32 geometryBytes = 0;
-	
-#if LL_DARWIN
-	// HACK from Leslie:
-	// Disable VBO usage for alpha on Mac OS X because it kills the framerate
-	// due to implicit calls to glTexSubImage that are beyond our control.
-	// (this works because the only calls here that sort by distance are alpha)
-	if (distance_sort)
-	{
-		buffer_usage = 0x0;
-	}
-#endif
 	
 	//calculate maximum number of vertices to store in a single buffer
 	static LLCachedControl<S32> max_vbo_size(gSavedSettings, "RenderMaxVBOSize", 512);
