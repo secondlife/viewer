@@ -2584,7 +2584,7 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 			}
 		}
 
-		gGL.setColorMask(true, false);
+		gGL.setColorMask(true, true);
 	}
 }
 	
@@ -4034,261 +4034,6 @@ void LLPipeline::renderHighlights()
 //debug use
 U32 LLPipeline::sCurRenderPoolType = 0 ;
 
-void LLPipeline::renderGeom(LLCamera& camera, bool forceVBOUpdate)
-{
-#if 0
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE; //LL_RECORD_BLOCK_TIME(FTM_RENDER_GEOMETRY);
-    LL_PROFILE_GPU_ZONE("renderGeom");
-	assertInitialized();
-
-	F32 saved_modelview[16];
-	F32 saved_projection[16];
-
-	//HACK: preserve/restore matrices around HUD render
-	if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
-	{
-		for (U32 i = 0; i < 16; i++)
-		{
-			saved_modelview[i] = gGLModelView[i];
-			saved_projection[i] = gGLProjection[i];
-		}
-	}
-
-	///////////////////////////////////////////
-	//
-	// Sync and verify GL state
-	//
-	//
-
-	stop_glerror();
-
-	LLVertexBuffer::unbind();
-
-	// Do verification of GL state
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-	if (mRenderDebugMask & RENDER_DEBUG_VERIFY)
-	{
-		if (!verify())
-		{
-			LL_ERRS() << "Pipeline verification failed!" << LL_ENDL;
-		}
-	}
-
-	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:ForceVBO");
-	
-	// Initialize lots of GL state to "safe" values
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.matrixMode(LLRender::MM_TEXTURE);
-	gGL.loadIdentity();
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
-
-	LLGLSPipeline gls_pipeline;
-	LLGLEnable multisample(RenderFSAASamples > 0 ? GL_MULTISAMPLE : 0);
-
-	LLGLState gls_color_material(GL_COLOR_MATERIAL, mLightingDetail < 2);
-				
-	// Toggle backface culling for debugging
-	LLGLEnable cull_face(mBackfaceCull ? GL_CULL_FACE : 0);
-	// Set fog
-	bool use_fog = hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FOG);
-	LLGLEnable fog_enable(use_fog &&
-						  !gPipeline.canUseWindLightShadersOnObjects() ? GL_FOG : 0);
-	gSky.updateFog(camera.getFar());
-	if (!use_fog)
-	{
-		sUnderWaterRender = false;
-	}
-
-	gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sDefaultImagep);
-	LLViewerFetchedTexture::sDefaultImagep->setAddressMode(LLTexUnit::TAM_WRAP);
-	
-
-	//////////////////////////////////////////////
-	//
-	// Actually render all of the geometry
-	//
-	//	
-	stop_glerror();
-	
-	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderDrawPools");
-
-	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
-	{
-		LLDrawPool *poolp = *iter;
-		if (hasRenderType(poolp->getType()))
-		{
-			poolp->prerender();
-		}
-	}
-
-	{
-        bool occlude = sUseOcclusion > 1;
-#if 1 // DEPRECATED -- requires forward rendering
-		LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pools"); //LL_RECORD_BLOCK_TIME(FTM_POOLS);
-		
-		// HACK: don't calculate local lights if we're rendering the HUD!
-		//    Removing this check will cause bad flickering when there are 
-		//    HUD elements being rendered AND the user is in flycam mode  -nyx
-		if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
-		{
-			calcNearbyLights(camera);
-			setupHWLights(NULL);
-		}
-
-		U32 cur_type = 0;
-
-		pool_set_t::iterator iter1 = mPools.begin();
-		while ( iter1 != mPools.end() )
-		{
-			LLDrawPool *poolp = *iter1;
-			
-			cur_type = poolp->getType();
-
-			//debug use
-			sCurRenderPoolType = cur_type ;
-
-			if (occlude && cur_type >= LLDrawPool::POOL_GRASS)
-			{
-				occlude = false;
-				gGLLastMatrix = NULL;
-				gGL.loadMatrix(gGLModelView);
-				LLGLSLShader::bindNoShader();
-				doOcclusion(camera);
-			}
-
-
-			pool_set_t::iterator iter2 = iter1;
-			if (hasRenderType(poolp->getType()) && poolp->getNumPasses() > 0)
-			{
-				LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pool render"); //LL_RECORD_BLOCK_TIME(FTM_POOLRENDER);
-
-				gGLLastMatrix = NULL;
-				gGL.loadMatrix(gGLModelView);
-			
-				for( S32 i = 0; i < poolp->getNumPasses(); i++ )
-				{
-					LLVertexBuffer::unbind();
-					poolp->beginRenderPass(i);
-					for (iter2 = iter1; iter2 != mPools.end(); iter2++)
-					{
-						LLDrawPool *p = *iter2;
-						if (p->getType() != cur_type)
-						{
-							break;
-						}
-						
-						if ( !p->getSkipRenderFlag() ) { p->render(i); }
-					}
-					poolp->endRenderPass(i);
-					LLVertexBuffer::unbind();
-					if (gDebugGL)
-					{
-						std::string msg = llformat("pass %d", i);
-						LLGLState::checkStates(msg);
-						//LLGLState::checkTextureChannels(msg);
-						//LLGLState::checkClientArrays(msg);
-					}
-				}
-			}
-			else
-			{
-				// Skip all pools of this type
-				for (iter2 = iter1; iter2 != mPools.end(); iter2++)
-				{
-					LLDrawPool *p = *iter2;
-					if (p->getType() != cur_type)
-					{
-						break;
-					}
-				}
-			}
-			iter1 = iter2;
-			stop_glerror();
-
-		}
-		
-		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderDrawPoolsEnd");
-
-		LLVertexBuffer::unbind();
-#endif			
-		gGLLastMatrix = NULL;
-		gGL.loadMatrix(gGLModelView);
-
-		if (occlude)
-		{ // catch uncommon condition where pools at drawpool grass and later are disabled
-			occlude = false;
-			gGLLastMatrix = NULL;
-			gGL.loadMatrix(gGLModelView);
-			LLGLSLShader::bindNoShader();
-			doOcclusion(camera);
-		}
-	}
-
-	LLVertexBuffer::unbind();
-	LLGLState::checkStates();
-
-	if (!LLPipeline::sImpostorRender)
-	{
-		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderHighlights");
-
-		if (!sReflectionRender)
-		{
-			renderHighlights();
-		}
-
-		// Contains a list of the faces of objects that are physical or
-		// have touch-handlers.
-		mHighlightFaces.clear();
-
-		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderDebug");
-	
-		renderDebug();
-
-		LLVertexBuffer::unbind();
-	
-		if (!LLPipeline::sReflectionRender && !LLPipeline::sRenderDeferred)
-		{
-			if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
-			{
-				// Render debugging beacons.
-				gObjectList.renderObjectBeacons();
-				gObjectList.resetObjectBeacons();
-                gSky.addSunMoonBeacons();
-			}
-			else
-			{
-				// Make sure particle effects disappear
-				LLHUDObject::renderAllForTimer();
-			}
-		}
-		else
-		{
-			// Make sure particle effects disappear
-			LLHUDObject::renderAllForTimer();
-		}
-
-		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomEnd");
-
-		//HACK: preserve/restore matrices around HUD render
-		if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
-		{
-			for (U32 i = 0; i < 16; i++)
-			{
-				gGLModelView[i] = saved_modelview[i];
-				gGLProjection[i] = saved_projection[i];
-			}
-		}
-	}
-
-	LLVertexBuffer::unbind();
-
-	LLGLState::checkStates();
-//	LLGLState::checkTextureChannels();
-//	LLGLState::checkClientArrays();
-#endif
-}
-
 void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 {
 	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomDeferred");
@@ -4321,7 +4066,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 		LLVertexBuffer::unbind();
 
 		LLGLState::checkStates();
-		LLGLState::checkTextureChannels();
 
         if (LLViewerShaderMgr::instance()->mShaderLevel[LLViewerShaderMgr::SHADER_DEFERRED] > 1)
         {
@@ -4348,7 +4092,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
                 gGLLastMatrix = NULL;
                 gGL.loadMatrix(gGLModelView);
                 doOcclusion(camera);
-                gGL.setColorMask(true, false);
             }
 
 			pool_set_t::iterator iter2 = iter1;
@@ -4468,7 +4211,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 
 				if (gDebugGL || gDebugPipeline)
 				{
-					LLGLState::checkStates();
+					LLGLState::checkStates(GL_FALSE);
 				}
 			}
 		}
@@ -4549,8 +4292,6 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 				}
 				poolp->endShadowPass(i);
 				LLVertexBuffer::unbind();
-
-				LLGLState::checkStates();
 			}
 		}
 		else
@@ -7347,7 +7088,6 @@ void LLPipeline::renderPostProcess()
 {
 	LLVertexBuffer::unbind();
 	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
 
 	assertInitialized();
 
@@ -7475,6 +7215,7 @@ void LLPipeline::renderPostProcess()
 		}
 
 		gGlowProgram.unbind();
+        gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	}
 	else // !sRenderGlow, skip the glow ping-pong and just clear the result target
 	{
@@ -7790,7 +7531,6 @@ void LLPipeline::renderFinalize()
 {
     LLVertexBuffer::unbind();
     LLGLState::checkStates();
-    LLGLState::checkTextureChannels();
 
     assertInitialized();
 
@@ -8060,7 +7800,6 @@ void LLPipeline::renderFinalize()
     LLVertexBuffer::unbind();
 
     LLGLState::checkStates();
-    LLGLState::checkTextureChannels();
 
     // flush calls made to "addTrianglesDrawn" so far to stats machinery
     recordTrianglesDrawn();
@@ -8947,6 +8686,8 @@ void LLPipeline::renderDeferredLighting()
     }
 
     screen_target->flush();
+
+    gGL.setColorMask(true, true);
 }
 
 void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
@@ -10542,7 +10283,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		gGL.loadMatrix(proj[1].m);
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
 	}
-	gGL.setColorMask(true, false);
+	gGL.setColorMask(true, true);
 
 	for (U32 i = 0; i < 16; i++)
 	{
@@ -10595,7 +10336,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
     LL_RECORD_BLOCK_TIME(FTM_GENERATE_IMPOSTOR);
     LL_PROFILE_GPU_ZONE("generateImpostor");
 	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
 
 	static LLCullResult result;
 	result.clear();
@@ -10821,17 +10561,10 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
     if (preview_avatar)
     {
         // previews don't care about imposters
-        if (LLPipeline::sRenderDeferred)
-        {
-            renderGeomDeferred(camera);
-            renderGeomPostDeferred(camera);
-        }
-        else
-        {
-            renderGeom(camera);
-        }
+        renderGeomDeferred(camera);
+        renderGeomPostDeferred(camera);
     }
-    else if (LLPipeline::sRenderDeferred)
+    else
 	{
 		avatar->mImpostor.clear();
 		renderGeomDeferred(camera);
@@ -10852,28 +10585,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
 
 		sImpostorRenderAlphaDepthPass = false;
 
-	}
-	else
-	{
-		LLGLEnable scissor(GL_SCISSOR_TEST);
-		glScissor(0, 0, resX, resY);
-		avatar->mImpostor.clear();
-		renderGeom(camera);
-
-		// Shameless hack time: render it all again,
-		// this time writing the depth
-		// values we need to generate the alpha mask below
-		// while preserving the alpha-sorted color rendering
-		// from the previous pass
-		//
-		sImpostorRenderAlphaDepthPass = true;
-
-		// depth-only here...
-		//
-		gGL.setColorMask(false,false);
-		renderGeom(camera);
-
-		sImpostorRenderAlphaDepthPass = false;
 	}
 
 	LLDrawPoolAvatar::sMinimumAlpha = old_alpha;
@@ -10965,7 +10676,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
 
 	LLVertexBuffer::unbind();
 	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
 }
 
 bool LLPipeline::hasRenderBatches(const U32 type) const

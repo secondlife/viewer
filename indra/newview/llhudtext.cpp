@@ -573,7 +573,6 @@ void LLHUDText::markDead()
 void LLHUDText::renderAllHUD()
 {
 	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
 
 	{
 		LLGLEnable color_mat(GL_COLOR_MATERIAL);
@@ -590,7 +589,6 @@ void LLHUDText::renderAllHUD()
 	LLVertexBuffer::unbind();
 
 	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
 }
 
 void LLHUDText::shiftAll(const LLVector3& offset)

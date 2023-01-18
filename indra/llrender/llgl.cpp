@@ -2395,234 +2395,39 @@ void LLGLState::dumpStates()
 	}
 }
 
-void LLGLState::checkStates(const std::string& msg)  
+void LLGLState::checkStates(GLboolean writeAlpha)
 {
 	if (!gDebugGL)
 	{
 		return;
 	}
 
-	stop_glerror();
-
 	GLint src;
 	GLint dst;
 	glGetIntegerv(GL_BLEND_SRC, &src);
 	glGetIntegerv(GL_BLEND_DST, &dst);
-	
-	stop_glerror();
-
-	BOOL error = FALSE;
-
-	/*if (src != GL_SRC_ALPHA || dst != GL_ONE_MINUS_SRC_ALPHA)
-	{
-		if (gDebugSession)
-		{
-			gFailLog << "Blend function corrupted: " << std::hex << src << " " << std::hex << dst << "  " << msg << std::dec << std::endl;
-			error = TRUE;
-		}
-		else
-		{
-			LL_GL_ERRS << "Blend function corrupted: " << std::hex << src << " " << std::hex << dst << "  " << msg << std::dec << LL_ENDL;
-		}
-	}*/
+    llassert_always(src == GL_SRC_ALPHA);
+    llassert_always(dst == GL_ONE_MINUS_SRC_ALPHA);
+  
+    GLboolean colorMask[4];
+    glGetBooleanv(GL_COLOR_WRITEMASK, colorMask);
+    llassert_always(colorMask[0]);
+    llassert_always(colorMask[1]);
+    llassert_always(colorMask[2]);
+    llassert_always(colorMask[3] == writeAlpha);
 	
 	for (boost::unordered_map<LLGLenum, LLGLboolean>::iterator iter = sStateMap.begin();
 		 iter != sStateMap.end(); ++iter)
 	{
 		LLGLenum state = iter->first;
 		LLGLboolean cur_state = iter->second;
-		stop_glerror();
 		LLGLboolean gl_state = glIsEnabled(state);
-		stop_glerror();
 		if(cur_state != gl_state)
 		{
 			dumpStates();
-			if (gDebugSession)
-			{
-				gFailLog << llformat("LLGLState error. State: 0x%04x",state) << std::endl;
-				error = TRUE;
-			}
-			else
-			{
-				LL_GL_ERRS << llformat("LLGLState error. State: 0x%04x",state) << LL_ENDL;
-			}
+			LL_GL_ERRS << llformat("LLGLState error. State: 0x%04x",state) << LL_ENDL;
 		}
 	}
-	
-	if (error)
-	{
-		ll_fail("LLGLState::checkStates failed.");
-	}
-	stop_glerror();
-}
-
-void LLGLState::checkTextureChannels(const std::string& msg)
-{
-#if 0
-	if (!gDebugGL)
-	{
-		return;
-	}
-	stop_glerror();
-
-	GLint activeTexture;
-	glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTexture);
-	stop_glerror();
-
-	BOOL error = FALSE;
-
-	if (activeTexture == GL_TEXTURE0)
-	{
-		GLint tex_env_mode = 0;
-
-		glGetTexEnviv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, &tex_env_mode);
-		stop_glerror();
-
-		if (tex_env_mode != GL_MODULATE)
-		{
-			error = TRUE;
-			LL_WARNS("RenderState") << "GL_TEXTURE_ENV_MODE invalid: " << std::hex << tex_env_mode << std::dec << LL_ENDL;
-			if (gDebugSession)
-			{
-				gFailLog << "GL_TEXTURE_ENV_MODE invalid: " << std::hex << tex_env_mode << std::dec << std::endl;
-			}
-		}
-	}
-
-	static const char* label[] =
-	{
-		"GL_TEXTURE_2D",
-		"GL_TEXTURE_COORD_ARRAY",
-		"GL_TEXTURE_1D",
-		"GL_TEXTURE_CUBE_MAP",
-		"GL_TEXTURE_GEN_S",
-		"GL_TEXTURE_GEN_T",
-		"GL_TEXTURE_GEN_Q",
-		"GL_TEXTURE_GEN_R",
-		"GL_TEXTURE_RECTANGLE",
-		"GL_TEXTURE_2D_MULTISAMPLE"
-	};
-
-	static GLint value[] =
-	{
-		GL_TEXTURE_2D,
-		GL_TEXTURE_COORD_ARRAY,
-		GL_TEXTURE_1D,
-		GL_TEXTURE_CUBE_MAP,
-		GL_TEXTURE_GEN_S,
-		GL_TEXTURE_GEN_T,
-		GL_TEXTURE_GEN_Q,
-		GL_TEXTURE_GEN_R,
-		GL_TEXTURE_RECTANGLE,
-		GL_TEXTURE_2D_MULTISAMPLE
-	};
-
-	GLint stackDepth = 0;
-
-	glh::matrix4f mat;
-	glh::matrix4f identity;
-	identity.identity();
-
-	for (GLint i = 1; i < gGLManager.mNumTextureImageUnits; i++)
-	{
-		gGL.getTexUnit(i)->activate();
-
-		if (i < gGLManager.mNumTextureUnits)
-		{
-			glClientActiveTexture(GL_TEXTURE0+i);
-			stop_glerror();
-			glGetIntegerv(GL_TEXTURE_STACK_DEPTH, &stackDepth);
-			stop_glerror();
-
-			if (stackDepth != 1)
-			{
-				error = TRUE;
-				LL_WARNS("RenderState") << "Texture matrix stack corrupted." << LL_ENDL;
-
-				if (gDebugSession)
-				{
-					gFailLog << "Texture matrix stack corrupted." << std::endl;
-				}
-			}
-
-			glGetFloatv(GL_TEXTURE_MATRIX, (GLfloat*) mat.m);
-			stop_glerror();
-
-			if (mat != identity)
-			{
-				error = TRUE;
-				LL_WARNS("RenderState") << "Texture matrix in channel " << i << " corrupt." << LL_ENDL;
-				if (gDebugSession)
-				{
-					gFailLog << "Texture matrix in channel " << i << " corrupt." << std::endl;
-				}
-			}
-				
-			for (S32 j = (i == 0 ? 1 : 0); 
-				j < 9; j++)
-			{
-				if (glIsEnabled(value[j]))
-				{
-					error = TRUE;
-					LL_WARNS("RenderState") << "Texture channel " << i << " still has " << label[j] << " enabled." << LL_ENDL;
-					if (gDebugSession)
-					{
-						gFailLog << "Texture channel " << i << " still has " << label[j] << " enabled." << std::endl;
-					}
-				}
-				stop_glerror();
-			}
-
-			glGetFloatv(GL_TEXTURE_MATRIX, mat.m);
-			stop_glerror();
-
-			if (mat != identity)
-			{
-				error = TRUE;
-				LL_WARNS("RenderState") << "Texture matrix " << i << " is not identity." << LL_ENDL;
-				if (gDebugSession)
-				{
-					gFailLog << "Texture matrix " << i << " is not identity." << std::endl;
-				}
-			}
-		}
-
-		{
-			GLint tex = 0;
-			stop_glerror();
-			glGetIntegerv(GL_TEXTURE_BINDING_2D, &tex);
-			stop_glerror();
-
-			if (tex != 0)
-			{
-				error = TRUE;
-				LL_WARNS("RenderState") << "Texture channel " << i << " still has texture " << tex << " bound." << LL_ENDL;
-
-				if (gDebugSession)
-				{
-					gFailLog << "Texture channel " << i << " still has texture " << tex << " bound." << std::endl;
-				}
-			}
-		}
-	}
-
-	stop_glerror();
-	gGL.getTexUnit(0)->activate();
-	glClientActiveTexture(GL_TEXTURE0);
-	stop_glerror();
-
-	if (error)
-	{
-		if (gDebugSession)
-		{
-			ll_fail("LLGLState::checkTextureChannels failed.");
-		}
-		else
-		{
-			LL_GL_ERRS << "GL texture state corruption detected.  " << msg << LL_ENDL;
-		}
-	}
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////

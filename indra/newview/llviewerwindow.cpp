@@ -5675,7 +5675,6 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 				
 		gSky.restoreGL();
 		gPipeline.restoreGL();
-		LLDrawPoolWater::restoreGL();
 		LLManipTranslate::restoreGL();
 		
 		gBumpImageList.restoreGL();

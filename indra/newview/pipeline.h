@@ -286,9 +286,7 @@ public:
 	void checkReferences(LLDrawable* drawable);
 	void checkReferences(LLDrawInfo* draw_info);
 	void checkReferences(LLSpatialGroup* group);
-
-
-	void renderGeom(LLCamera& camera, bool forceVBOUpdate = false);
+	
 	void renderGeomDeferred(LLCamera& camera, bool do_occlusion = false);
 	void renderGeomPostDeferred(LLCamera& camera);
 	void renderGeomShadow(LLCamera& camera);
