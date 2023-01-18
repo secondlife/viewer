@@ -1051,16 +1051,19 @@ BOOL LLWindowWin32::maximize()
 	BOOL success = FALSE;
 	if (!mWindowHandle) return success;
 
-	WINDOWPLACEMENT placement;
-	placement.length = sizeof(WINDOWPLACEMENT);
+    mWindowThread->post([=]
+        {
+            WINDOWPLACEMENT placement;
+            placement.length = sizeof(WINDOWPLACEMENT);
 
-	success = GetWindowPlacement(mWindowHandle, &placement);
-	if (!success) return success;
+            if (GetWindowPlacement(mWindowHandle, &placement))
+            {
+                placement.showCmd = SW_MAXIMIZE;
+                SetWindowPlacement(mWindowHandle, &placement);
+            }
+        });
 
-	placement.showCmd = SW_MAXIMIZE;
-
-	success = SetWindowPlacement(mWindowHandle, &placement);
-	return success;
+    return TRUE;
 }
 
 BOOL LLWindowWin32::getFullscreen()

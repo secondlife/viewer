@@ -192,7 +192,6 @@ LLGLSLShader			gDeferredUnderWaterProgram;
 LLGLSLShader			gDeferredDiffuseProgram;
 LLGLSLShader			gDeferredDiffuseAlphaMaskProgram;
 LLGLSLShader            gDeferredSkinnedDiffuseAlphaMaskProgram;
-LLGLSLShader			gDeferredNonIndexedDiffuseProgram;
 LLGLSLShader			gDeferredNonIndexedDiffuseAlphaMaskProgram;
 LLGLSLShader			gDeferredNonIndexedDiffuseAlphaMaskNoColorProgram;
 LLGLSLShader			gDeferredSkinnedDiffuseProgram;
@@ -435,6 +434,7 @@ S32 LLViewerShaderMgr::getShaderLevel(S32 type)
 
 void LLViewerShaderMgr::setShaders()
 {
+    LL_PROFILE_ZONE_SCOPED;
     //setShaders might be called redundantly by gSavedSettings, so return on reentrance
     static bool reentrance = false;
     
@@ -792,7 +792,6 @@ void LLViewerShaderMgr::unloadShaders()
     gDeferredSkinnedDiffuseAlphaMaskProgram.unload();
 	gDeferredNonIndexedDiffuseAlphaMaskProgram.unload();
 	gDeferredNonIndexedDiffuseAlphaMaskNoColorProgram.unload();
-	gDeferredNonIndexedDiffuseProgram.unload();
 	gDeferredSkinnedDiffuseProgram.unload();
 	gDeferredSkinnedBumpProgram.unload();
 	
@@ -969,6 +968,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 
 BOOL LLViewerShaderMgr::loadShadersEnvironment()
 {
+    LL_PROFILE_ZONE_SCOPED;
 #if 1 // DEPRECATED -- forward rendering is deprecated
 	BOOL success = TRUE;
 
@@ -1039,6 +1039,7 @@ BOOL LLViewerShaderMgr::loadShadersEnvironment()
 
 BOOL LLViewerShaderMgr::loadShadersWater()
 {
+    LL_PROFILE_ZONE_SCOPED;
 #if 1 // DEPRECATED -- forward rendering is deprecated
 	BOOL success = TRUE;
 	BOOL terrainWaterSuccess = TRUE;
@@ -1179,6 +1180,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 
 BOOL LLViewerShaderMgr::loadShadersEffects()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	BOOL success = TRUE;
 
 	if (mShaderLevel[SHADER_EFFECT] == 0)
@@ -1224,6 +1226,7 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 
 BOOL LLViewerShaderMgr::loadShadersDeferred()
 {
+    LL_PROFILE_ZONE_SCOPED;
     bool use_sun_shadow = mShaderLevel[SHADER_DEFERRED] > 1 && 
         gSavedSettings.getS32("RenderShadowDetail") > 0;
 
@@ -1237,14 +1240,13 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredTreeShadowProgram.unload();
         gDeferredSkinnedTreeShadowProgram.unload();
 		gDeferredDiffuseProgram.unload();
+        gDeferredSkinnedDiffuseProgram.unload();
 		gDeferredDiffuseAlphaMaskProgram.unload();
         gDeferredSkinnedDiffuseAlphaMaskProgram.unload();
 		gDeferredNonIndexedDiffuseAlphaMaskProgram.unload();
 		gDeferredNonIndexedDiffuseAlphaMaskNoColorProgram.unload();
-		gDeferredNonIndexedDiffuseProgram.unload();
-		gDeferredSkinnedDiffuseProgram.unload();
-		gDeferredSkinnedBumpProgram.unload();
 		gDeferredBumpProgram.unload();
+        gDeferredSkinnedBumpProgram.unload();
 		gDeferredImpostorProgram.unload();
 		gDeferredTerrainProgram.unload();
 		gDeferredTerrainWaterProgram.unload();
@@ -1408,19 +1410,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredNonIndexedDiffuseAlphaMaskNoColorProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		success = gDeferredNonIndexedDiffuseAlphaMaskNoColorProgram.createShader(NULL, NULL);
 		llassert(success);
-	}
-
-	if (success)
-	{
-		gDeferredNonIndexedDiffuseProgram.mName = "Non Indexed Deferred Diffuse Shader";
-		gDeferredNonIndexedDiffuseProgram.mShaderFiles.clear();
-        gDeferredNonIndexedDiffuseProgram.mFeatures.encodesNormal = true;
-        gDeferredNonIndexedDiffuseProgram.mFeatures.hasSrgb = true;
-		gDeferredNonIndexedDiffuseProgram.mShaderFiles.push_back(make_pair("deferred/diffuseV.glsl", GL_VERTEX_SHADER));
-		gDeferredNonIndexedDiffuseProgram.mShaderFiles.push_back(make_pair("deferred/diffuseF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredNonIndexedDiffuseProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-		success = gDeferredNonIndexedDiffuseProgram.createShader(NULL, NULL);
-        llassert(success);
 	}
 
 	if (success)
@@ -2961,6 +2950,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 BOOL LLViewerShaderMgr::loadShadersObject()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	BOOL success = TRUE;
 
     if (success)
@@ -3487,6 +3477,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 
 BOOL LLViewerShaderMgr::loadShadersAvatar()
 {
+    LL_PROFILE_ZONE_SCOPED;
 #if 1 // DEPRECATED -- forward rendering is deprecated
 	BOOL success = TRUE;
 
@@ -3585,6 +3576,7 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
 
 BOOL LLViewerShaderMgr::loadShadersInterface()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	BOOL success = TRUE;
 
 	if (success)
@@ -3964,6 +3956,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 
 BOOL LLViewerShaderMgr::loadShadersWindLight()
 {	
+    LL_PROFILE_ZONE_SCOPED;
 	BOOL success = TRUE;
 #if 1 // DEPRECATED -- forward rendering is deprecated
 	if (mShaderLevel[SHADER_WINDLIGHT] < 2)
