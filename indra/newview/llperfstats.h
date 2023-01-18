@@ -45,7 +45,7 @@ namespace LLPerfStats
 // Note if changing these, they should correspond with the log range of the correpsonding sliders
     static constexpr U64 ART_UNLIMITED_NANOS{50000000};
     static constexpr U64 ART_MINIMUM_NANOS{100000};
-    static constexpr U64 ART_MIN_ADJUST_UP_NANOS{20000};
+    static constexpr U64 ART_MIN_ADJUST_UP_NANOS{5000};
     static constexpr U64 ART_MIN_ADJUST_DOWN_NANOS{10000}; 
 
     static constexpr F32 PREFERRED_DD{180};
@@ -62,6 +62,7 @@ namespace LLPerfStats
     extern bool belowTargetFPS;
     extern U32 lastGlobalPrefChange;
     extern U32 lastSleepedFrame;
+    extern U64 meanFrameTime;
     extern std::mutex bufferToggleLock;
 
     enum class ObjType_t{
@@ -203,7 +204,8 @@ namespace LLPerfStats
         StatsRecorder();
 
         static int countNearbyAvatars(S32 distance);
-        static U64 getMeanTotalFrameTime(U64 tot_frame_time_raw);
+        static U64 getMeanTotalFrameTime();
+        static void updateMeanFrameTime(U64 tot_frame_time_raw);
 // StatsArray is a uint64_t for each possible statistic type.
         using StatsArray    = std::array<uint64_t, static_cast<size_t>(LLPerfStats::StatType_t::STATS_COUNT)>;
         using StatsMap      = std::unordered_map<LLUUID, StatsArray, boost::hash<LLUUID>>;

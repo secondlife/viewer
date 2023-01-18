@@ -44,6 +44,7 @@ namespace LLPerfStats
     bool belowTargetFPS{false};
     U32 lastGlobalPrefChange{0}; 
     U32 lastSleepedFrame{0};
+    U64 meanFrameTime{0};
     std::mutex bufferToggleLock{};
 
     F64 cpu_hertz{0.0};
@@ -303,7 +304,7 @@ namespace LLPerfStats
 	}
 
     const U32 NUM_PERIODS = 50;
-    U64 StatsRecorder::getMeanTotalFrameTime(U64 cur_frame_time_raw)
+    void StatsRecorder::updateMeanFrameTime(U64 cur_frame_time_raw)
     {
         static std::deque<U64> frame_time_deque;
         frame_time_deque.push_front(cur_frame_time_raw);
@@ -315,8 +316,11 @@ namespace LLPerfStats
         std::vector<U64> buf(frame_time_deque.begin(), frame_time_deque.end());
         std::sort(buf.begin(), buf.end());
 
-        U64 mean = (buf.size() % 2 == 0) ? (buf[buf.size() / 2 - 1] + buf[buf.size() / 2]) / 2 : buf[buf.size() / 2];
-        return mean;
+        LLPerfStats::meanFrameTime = (buf.size() % 2 == 0) ? (buf[buf.size() / 2 - 1] + buf[buf.size() / 2]) / 2 : buf[buf.size() / 2];
+    }
+    U64 StatsRecorder::getMeanTotalFrameTime()
+    {
+        return LLPerfStats::meanFrameTime;
     }
 
     // static
@@ -372,13 +376,13 @@ namespace LLPerfStats
                 return;
             }
         }
-        
+        updateMeanFrameTime(tot_frame_time_raw);
 
         // The frametime budget we have based on the target FPS selected
         auto target_frame_time_raw = (U64)llround(LLPerfStats::cpu_hertz / (target_fps == 0 ? 1 : target_fps));
         // LL_INFOS() << "Effective FPS(raw):" << tot_frame_time_raw << " Target:" << target_frame_time_raw << LL_ENDL;
         auto inferredFPS{1000/(U32)std::max(raw_to_ms(tot_frame_time_raw),1.0)};
-        U32 settingsChangeFrequency{inferredFPS > 25?inferredFPS:25};
+        U32 settingsChangeFrequency{inferredFPS > 50?inferredFPS:50};
         /*if( tot_limit_time_raw != 0)
         {
             // This could be problematic.
@@ -390,7 +394,7 @@ namespace LLPerfStats
         // 1) Is the target frame time lower than current?
         if ((target_frame_time_raw + time_buf) <= tot_frame_time_raw)
         {
-            if (target_frame_time_raw - time_buf >= getMeanTotalFrameTime(tot_frame_time_raw))
+            if (target_frame_time_raw - time_buf >= getMeanTotalFrameTime())
             {
                 belowTargetFPS = false;
                 LLPerfStats::lastGlobalPrefChange = gFrameCount;
@@ -498,7 +502,8 @@ namespace LLPerfStats
                 if(renderAvatarMaxART_ns != 0 && LLPerfStats::tunedAvatars > 0 )
                 {
                     // if we have more time to spare let's shift up little in the hope we'll restore an avatar.
-                    renderAvatarMaxART_ns += LLPerfStats::ART_MIN_ADJUST_UP_NANOS;
+                    U64 up_step = LLPerfStats::tunedAvatars > 2 ? LLPerfStats::ART_MIN_ADJUST_UP_NANOS : LLPerfStats::ART_MIN_ADJUST_UP_NANOS * 2;
+                    renderAvatarMaxART_ns += up_step;
                     tunables.updateSettingsFromRenderCostLimit();
                     return;
                 }
