@@ -1428,6 +1428,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
             {
             case GL_UNSIGNED_BYTE:
             case GL_BYTE:
+            case GL_UNSIGNED_INT_8_8_8_8_REV:
                 type_width = 1;
                 break;
             case GL_UNSIGNED_SHORT:

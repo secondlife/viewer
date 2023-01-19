@@ -267,11 +267,7 @@ void LLManipTranslate::restoreGL()
 				}
 			}
 		}
-#ifdef LL_WINDOWS
 		LLImageGL::setManualImage(GL_TEXTURE_2D, mip, GL_RGBA, rez, rez, GL_RGBA, GL_UNSIGNED_BYTE, d);
-#else
-		LLImageGL::setManualImage(GL_TEXTURE_2D, mip, GL_RGBA, rez, rez, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, d);
-#endif
 		rez = rez >> 1;
 		mip++;
 	}
