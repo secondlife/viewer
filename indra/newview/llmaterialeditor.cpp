@@ -2156,6 +2156,7 @@ void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::
     {
         openFloater(getKey());
         setFocus(TRUE);
+        setCanSave(true);
 
         applyToSelection();
     }
