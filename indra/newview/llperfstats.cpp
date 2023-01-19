@@ -55,6 +55,7 @@ namespace LLPerfStats
     std::atomic<int> 	StatsRecorder::writeBuffer{0};
     bool 	            StatsRecorder::collectionEnabled{true};
     LLUUID              StatsRecorder::focusAv{LLUUID::null};
+    bool                StatsRecorder::autotuneInit{false};
 	std::array<StatsRecorder::StatsTypeMatrix,2>  StatsRecorder::statsDoubleBuffer{ {} };
     std::array<StatsRecorder::StatsSummaryArray,2> StatsRecorder::max{ {} };
     std::array<StatsRecorder::StatsSummaryArray,2> StatsRecorder::sum{ {} };
@@ -239,7 +240,7 @@ namespace LLPerfStats
         }
 
         // and now adjust the proxy vars so that the main thread can adjust the visuals.
-        if(tunables.userAutoTuneEnabled)
+        if(autotuneInit && tunables.userAutoTuneEnabled)
         {
             updateAvatarParams();
         }
@@ -326,24 +327,13 @@ namespace LLPerfStats
     // static
     void StatsRecorder::updateAvatarParams()
     {
-
-        if(tunables.userImpostorDistanceTuningEnabled)
+        if(tunables.autoTuneTimeout)
         {
-            // if we have less than the user's "max Non-Impostors" avatars within the desired range then adjust the limit.
-            // also adjusts back up again for nearby crowds.
-            auto count = countNearbyAvatars(std::min(LLPipeline::RenderFarClip, tunables.userImpostorDistance));
-            if( count != tunables.nonImpostors )
-            {
-                tunables.updateNonImposters( (count < LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER)?count : LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER );
-                LL_DEBUGS("AutoTune") << "There are " << count << "avatars within " << std::min(LLPipeline::RenderFarClip, tunables.userImpostorDistance) << "m of the camera" << LL_ENDL;
-            }
+            LLPerfStats::lastSleepedFrame = gFrameCount;
+            tunables.autoTuneTimeout = false;
+            return;
         }
-
-        auto av_render_max_raw = LLPerfStats::StatsRecorder::getMax(ObjType_t::OT_AVATAR, LLPerfStats::StatType_t::RENDER_COMBINED);
-        // Is our target frame time lower than current? If so we need to take action to reduce draw overheads.
-        // cumulative avatar time (includes idle processing, attachments and base av)
-        auto tot_avatar_time_raw = LLPerfStats::StatsRecorder::getSum(ObjType_t::OT_AVATAR, LLPerfStats::StatType_t::RENDER_COMBINED);
-        // sleep time is basically forced sleep when window out of focus 
+        // sleep time is basically forced sleep when window out of focus
         auto tot_sleep_time_raw = LLPerfStats::StatsRecorder::getSceneStat(LLPerfStats::StatType_t::RENDER_SLEEP);
         // similar to sleep time, induced by FPS limit
         //auto tot_limit_time_raw = LLPerfStats::StatsRecorder::getSceneStat(LLPerfStats::StatType_t::RENDER_FPSLIMIT);
@@ -377,6 +367,23 @@ namespace LLPerfStats
             }
         }
         updateMeanFrameTime(tot_frame_time_raw);
+
+        if(tunables.userImpostorDistanceTuningEnabled)
+        {
+            // if we have less than the user's "max Non-Impostors" avatars within the desired range then adjust the limit.
+            // also adjusts back up again for nearby crowds.
+            auto count = countNearbyAvatars(std::min(LLPipeline::RenderFarClip, tunables.userImpostorDistance));
+            if( count != tunables.nonImpostors )
+            {
+                tunables.updateNonImposters( (count < LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER)?count : LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER );
+                LL_DEBUGS("AutoTune") << "There are " << count << "avatars within " << std::min(LLPipeline::RenderFarClip, tunables.userImpostorDistance) << "m of the camera" << LL_ENDL;
+            }
+        }
+
+        auto av_render_max_raw = LLPerfStats::StatsRecorder::getMax(ObjType_t::OT_AVATAR, LLPerfStats::StatType_t::RENDER_COMBINED);
+        // Is our target frame time lower than current? If so we need to take action to reduce draw overheads.
+        // cumulative avatar time (includes idle processing, attachments and base av)
+        auto tot_avatar_time_raw = LLPerfStats::StatsRecorder::getSum(ObjType_t::OT_AVATAR, LLPerfStats::StatType_t::RENDER_COMBINED);
 
         // The frametime budget we have based on the target FPS selected
         auto target_frame_time_raw = (U64)llround(LLPerfStats::cpu_hertz / (target_fps == 0 ? 1 : target_fps));

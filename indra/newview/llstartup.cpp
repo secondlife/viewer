@@ -2351,6 +2351,8 @@ bool idle_startup()
 
 		LLUIUsage::instance().clear();
 
+        LLPerfStats::StatsRecorder::setAutotuneInit();
+
 		return TRUE;
 	}
 

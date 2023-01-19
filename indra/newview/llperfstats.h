@@ -135,6 +135,7 @@ namespace LLPerfStats
         U32 userTargetFPS{0};
         F32 userARTCutoffSliderValue{0};
         S32 userTargetReflections{0};
+        bool autoTuneTimeout{true};
         bool vsyncEnabled{true};
 
         void updateNonImposters(U32 nv){nonImpostors=nv; tuningFlag |= NonImpostors;};
@@ -171,6 +172,7 @@ namespace LLPerfStats
         }
         static inline void setFocusAv(const LLUUID& avID){focusAv = avID;};
         static inline const LLUUID& getFocusAv(){return focusAv;};
+        static inline void setAutotuneInit(){autotuneInit = true;};
         static inline void send(StatsRecord && upd){StatsRecorder::getInstance().q.pushFront(std::move(upd));};
         static void endFrame(){StatsRecorder::getInstance().q.pushFront(StatsRecord{StatType_t::RENDER_DONE, ObjType_t::OT_GENERAL, LLUUID::null, LLUUID::null, 0});};
         static void clearStats(){StatsRecorder::getInstance().q.pushFront(StatsRecord{StatType_t::RENDER_DONE, ObjType_t::OT_GENERAL, LLUUID::null, LLUUID::null, 1});};
@@ -214,6 +216,7 @@ namespace LLPerfStats
 
         static std::atomic<int> writeBuffer;
         static LLUUID focusAv;
+        static bool autotuneInit;
         static std::array<StatsTypeMatrix,2> statsDoubleBuffer;
         static std::array<StatsSummaryArray,2> max;
         static std::array<StatsSummaryArray,2> sum;
