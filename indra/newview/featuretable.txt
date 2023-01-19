@@ -1,4 +1,4 @@
-version 44
+version 45
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -72,7 +72,7 @@ RenderUseStreamVBO			1	1
 RenderFSAASamples			1	16
 RenderMaxTextureIndex		1	16
 RenderGLContextCoreProfile         1   1
-RenderGLMultiThreaded       1   1
+RenderGLMultiThreaded       1   0
 
 
 //
@@ -290,12 +290,10 @@ RenderReflectionProbeDetail	0	-1
 list Intel
 RenderAnisotropic			1	0
 RenderFSAASamples			1	0
-RenderGLMultiThreaded       1   0
 RenderGLContextCoreProfile  1   0
 
 list GL3
 RenderFSAASamples           0   0
 RenderReflectionsEnabled    0   0
 RenderReflectionProbeDetail	0	0
-RenderGLMultiThreaded       0   0
 

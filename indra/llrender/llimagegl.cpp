@@ -1404,9 +1404,53 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
     stop_glerror();
     {
         LL_PROFILE_ZONE_NAMED("glTexImage2D");
+        LL_PROFILE_ZONE_NUM(width);
+        LL_PROFILE_ZONE_NUM(height);
 
         free_cur_tex_image();
+#if 0
         glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, use_scratch ? scratch : pixels);
+#else
+        // break up calls to a manageable size for the GL command buffer
+        {
+            LL_PROFILE_ZONE_NAMED("glTexImage2D alloc");
+            glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, nullptr);
+        }
+
+        U8* src = (U8*)(use_scratch ? scratch : pixels);
+        if (src)
+        {
+            LL_PROFILE_ZONE_NAMED("glTexImage2D copy");
+            U32 components = dataFormatComponents(pixformat);
+            U32 type_width = 0;
+
+            switch (pixtype)
+            {
+            case GL_UNSIGNED_BYTE:
+            case GL_BYTE:
+                type_width = 1;
+                break;
+            case GL_UNSIGNED_SHORT:
+            case GL_SHORT:
+                type_width = 2;
+                break;
+            case GL_UNSIGNED_INT:
+            case GL_INT:
+            case GL_FLOAT:
+                type_width = 4;
+                break;
+            default:
+                LL_ERRS() << "Unknown type: " << pixtype << LL_ENDL;
+            }
+
+            U32 line_width = width * components * type_width;
+            for (U32 y = 0; y < height; ++y)
+            {
+                glTexSubImage2D(target, miplevel, 0, y, width, 1, pixformat, pixtype, src);
+                src += line_width;
+            }
+        }
+#endif
         alloc_tex_image(width, height, pixformat);
     }
     stop_glerror();
