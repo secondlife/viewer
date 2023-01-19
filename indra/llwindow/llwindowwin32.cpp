@@ -1051,16 +1051,19 @@ BOOL LLWindowWin32::maximize()
 	BOOL success = FALSE;
 	if (!mWindowHandle) return success;
 
-	WINDOWPLACEMENT placement;
-	placement.length = sizeof(WINDOWPLACEMENT);
+    mWindowThread->post([=]
+        {
+            WINDOWPLACEMENT placement;
+            placement.length = sizeof(WINDOWPLACEMENT);
 
-	success = GetWindowPlacement(mWindowHandle, &placement);
-	if (!success) return success;
+            if (GetWindowPlacement(mWindowHandle, &placement))
+            {
+                placement.showCmd = SW_MAXIMIZE;
+                SetWindowPlacement(mWindowHandle, &placement);
+            }
+        });
 
-	placement.showCmd = SW_MAXIMIZE;
-
-	success = SetWindowPlacement(mWindowHandle, &placement);
-	return success;
+    return TRUE;
 }
 
 BOOL LLWindowWin32::getFullscreen()
@@ -1408,14 +1411,6 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 		return FALSE;
 	}
 
-	if (pfd.cAlphaBits < 8)
-	{
-		OSMessageBox(mCallbacks->translateString("MBAlpha"),
-			mCallbacks->translateString("MBError"), OSMB_OK);
-        close();
-		return FALSE;
-	}
-
 	if (!SetPixelFormat(mhDC, pixel_format, &pfd))
 	{
 		OSMessageBox(mCallbacks->translateString("MBPixelFmtSetErr"),
@@ -1474,7 +1469,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 		attrib_list[cur_attrib++] = 24;
 
 		attrib_list[cur_attrib++] = WGL_ALPHA_BITS_ARB;
-		attrib_list[cur_attrib++] = 8;
+		attrib_list[cur_attrib++] = 0;
 
 		U32 end_attrib = 0;
 		if (mFSAASamples > 0)
@@ -1701,13 +1696,6 @@ const	S32   max_format  = (S32)num_formats - 1;
 	if (pfd.cColorBits < 32 || GetDeviceCaps(mhDC, BITSPIXEL) < 32)
 	{
 		OSMessageBox(mCallbacks->translateString("MBTrueColorWindow"), mCallbacks->translateString("MBError"), OSMB_OK);
-		close();
-		return FALSE;
-	}
-
-	if (pfd.cAlphaBits < 8)
-	{
-		OSMessageBox(mCallbacks->translateString("MBAlpha"), mCallbacks->translateString("MBError"), OSMB_OK);
 		close();
 		return FALSE;
 	}

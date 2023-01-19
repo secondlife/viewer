@@ -505,7 +505,7 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, vec3 c, int i)
     v -= c;
     v = env_mat * v;
     {
-        return texture(irradianceProbes, vec4(v.xyz, refIndex[i].x)).rgb * refParams[i].x;
+        return textureLod(irradianceProbes, vec4(v.xyz, refIndex[i].x), 0).rgb * refParams[i].x;
     }
 }
 
@@ -676,14 +676,15 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
+    
     ambenv = sampleProbeAmbient(pos, norm);
-
+    
     if (glossiness > 0.0)
     {
         float lod = (1.0-glossiness)*reflection_lods;
         glossenv = sampleProbes(pos, normalize(refnormpersp), lod, false);
     }
-
+    
     if (envIntensity > 0.0)
     {
         legacyenv = sampleProbes(pos, normalize(refnormpersp), 0.0, false);

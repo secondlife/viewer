@@ -150,10 +150,14 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 				  indices_per_quad * num_quads);
 	
 	LLVertexBuffer* buff = face->getVertexBuffer();
-	if (!buff || !buff->isWriteable())
+	if (!buff || 
+        buff->getNumIndices() != face->getIndicesCount() || 
+        buff->getNumVerts() != face->getGeomCount() ||
+        face->getIndicesStart() != 0 ||
+        face->getGeomIndex() != 0)
 	{
-		buff = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_DYNAMIC_DRAW);
-		if (!buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE))
+		buff = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK);
+		if (!buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount()))
 		{
 			LL_WARNS() << "Failed to allocate Vertex Buffer on water update to "
 				<< face->getGeomCount() << " vertices and "
@@ -162,13 +166,6 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 		face->setIndicesIndex(0);
 		face->setGeomIndex(0);
 		face->setVertexBuffer(buff);
-	}
-	else
-	{
-		if (!buff->resizeBuffer(face->getGeomCount(), face->getIndicesCount()))
-		{
-			LL_WARNS() << "Failed to resize Vertex Buffer" << LL_ENDL;
-		}
 	}
 		
 	index_offset = face->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
@@ -230,7 +227,7 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 		}
 	}
 	
-	buff->flush();
+	buff->unmapBuffer();
 
 	mDrawable->movePartition();
 	LLPipeline::sCompiles++;
@@ -295,7 +292,7 @@ U32 LLVOVoidWater::getPartitionType() const
 }
 
 LLWaterPartition::LLWaterPartition(LLViewerRegion* regionp)
-: LLSpatialPartition(0, FALSE, GL_DYNAMIC_DRAW, regionp)
+: LLSpatialPartition(0, FALSE, regionp)
 {
 	mInfiniteFarClip = TRUE;
 	mDrawableType = LLPipeline::RENDER_TYPE_WATER;

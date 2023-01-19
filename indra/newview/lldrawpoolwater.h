@@ -61,24 +61,14 @@ public:
 	LLDrawPoolWater();
 	/*virtual*/ ~LLDrawPoolWater();
 
-	static void restoreGL();
-	
-    
     S32 getNumPostDeferredPasses() override;
     void beginPostDeferredPass(S32 pass) override;
     void renderPostDeferred(S32 pass) override;
-    S32 getNumDeferredPasses() override;
-	void renderDeferred(S32 pass = 0) override;
 
-	S32 getNumPasses() override;
-	void render(S32 pass = 0) override;
 	void prerender() override;
 
 	LLViewerTexture *getDebugTexture() override;
 	LLColor3 getDebugColor() const; // For AGP debug display
-
-	void renderReflection(LLFace* face);
-	void renderWater();
 
     void setTransparentTextures(const LLUUID& transparentTextureId, const LLUUID& nextTransparentTextureId);
     void setOpaqueTexture(const LLUUID& opaqueTextureId);

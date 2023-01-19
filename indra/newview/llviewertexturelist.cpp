@@ -861,6 +861,14 @@ void LLViewerTextureList::clearFetchingRequests()
 	}
 }
 
+static void touch_texture(LLViewerFetchedTexture* tex, F32 vsize)
+{
+    if (tex)
+    {
+        tex->addTextureStats(vsize);
+    }
+}
+
 void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imagep)
 {
     if (imagep->isInDebug() || imagep->isUnremovable())
@@ -869,6 +877,39 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         return; //is in debug, ignore.
     }
 
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE
+    {
+        for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
+        {
+            for (U32 fi = 0; fi < imagep->getNumFaces(i); ++fi)
+            {
+                const LLFace* face = (*(imagep->getFaceList(i)))[fi];
+
+                if (face && face->getViewerObject() && face->getTextureEntry())
+                {
+                    F32 vsize = face->getVirtualSize();
+
+                    // if a GLTF material is present, ignore that face
+                    // as far as this texture stats go, but update the GLTF material 
+                    // stats
+                    const LLTextureEntry* te = face->getTextureEntry();
+                    LLFetchedGLTFMaterial* mat = te ? (LLFetchedGLTFMaterial*)te->getGLTFRenderMaterial() : nullptr;
+                    if (mat)
+                    {
+                        touch_texture(mat->mBaseColorTexture, vsize);
+                        touch_texture(mat->mNormalTexture, vsize);
+                        touch_texture(mat->mMetallicRoughnessTexture, vsize);
+                        touch_texture(mat->mEmissiveTexture, vsize);
+                    }
+                    else
+                    {
+                        imagep->addTextureStats(vsize);
+                    }
+                }
+            }
+        }
+    }
+    
     F32 lazy_flush_timeout = 30.f; // stop decoding
     F32 max_inactive_time = 20.f; // actually delete
     S32 min_refs = 3; // 1 for mImageList, 1 for mUUIDMap, 1 for local reference

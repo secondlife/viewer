@@ -148,7 +148,7 @@ void LLDrawPoolTerrain::boostTerrainDetailTextures()
 	for (S32 i = 0; i < 4; i++)
 	{
 		compp->mDetailTextures[i]->setBoostLevel(LLGLTexture::BOOST_TERRAIN);
-        gPipeline.touchTexture(compp->mDetailTextures[i], 1024.f * 1024.f);
+        compp->mDetailTextures[i]->addTextureStats(1024.f * 1024.f);
 	}
 }
 
@@ -821,8 +821,7 @@ void LLDrawPoolTerrain::renderOwnership()
 		 iter != mDrawFace.end(); iter++)
 	{
 		LLFace *facep = *iter;
-		facep->renderIndexed(LLVertexBuffer::MAP_VERTEX |
-							LLVertexBuffer::MAP_TEXCOORD0);
+		facep->renderIndexed();
 	}
 
 	gGL.matrixMode(LLRender::MM_TEXTURE);

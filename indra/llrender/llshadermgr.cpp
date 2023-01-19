@@ -590,6 +590,7 @@ static std::string get_shader_log(GLuint ret)
 
 static std::string get_program_log(GLuint ret)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     std::string res;
 
     //get log length 
@@ -1113,16 +1114,24 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 BOOL LLShaderMgr::linkProgramObject(GLuint obj, BOOL suppress_errors)
 {
 	//check for errors
-	glLinkProgram(obj);
-	GLint success = GL_TRUE;
-    glGetProgramiv(obj, GL_LINK_STATUS, &success);
-	if (!suppress_errors && success == GL_FALSE) 
-	{
-		//an error occured, print log
-		LL_SHADER_LOADING_WARNS() << "GLSL Linker Error:" << LL_ENDL;
-        dumpObjectLog(obj, TRUE, "linker");
-        return success;
-	}
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_SHADER("glLinkProgram");
+        glLinkProgram(obj);
+    }
+
+    GLint success = GL_TRUE;
+
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_SHADER("glsl check link status");
+        glGetProgramiv(obj, GL_LINK_STATUS, &success);
+        if (!suppress_errors && success == GL_FALSE)
+        {
+            //an error occured, print log
+            LL_SHADER_LOADING_WARNS() << "GLSL Linker Error:" << LL_ENDL;
+            dumpObjectLog(obj, TRUE, "linker");
+            return success;
+        }
+    }
 
 	std::string log = get_program_log(obj);
 	LLStringUtil::toLower(log);

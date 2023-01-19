@@ -45,26 +45,6 @@
 
 F32 LLVOSurfacePatch::sLODFactor = 1.f;
 
-//============================================================================
-
-class LLVertexBufferTerrain : public LLVertexBuffer
-{
-public:
-	LLVertexBufferTerrain() :
-		LLVertexBuffer(MAP_VERTEX | MAP_NORMAL | MAP_TEXCOORD0 | MAP_TEXCOORD1 | MAP_COLOR, GL_DYNAMIC_DRAW)
-	{
-		//texture coordinates 2 and 3 exist, but use the same data as texture coordinate 1
-	};
-
-	// virtual
-	void setupVertexBuffer(U32 data_mask)
-	{	
-		LLVertexBuffer::setupVertexBuffer(data_mask & ~(MAP_TEXCOORD2 | MAP_TEXCOORD3));
-	}
-};
-
-//============================================================================
-
 LLVOSurfacePatch::LLVOSurfacePatch(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	:	LLStaticViewerObject(id, pcode, regionp),
 		mDirtiedPatch(FALSE),
@@ -1001,17 +981,12 @@ U32 LLVOSurfacePatch::getPartitionType() const
 }
 
 LLTerrainPartition::LLTerrainPartition(LLViewerRegion* regionp)
-: LLSpatialPartition(LLDrawPoolTerrain::VERTEX_DATA_MASK, FALSE, GL_DYNAMIC_DRAW, regionp)
+: LLSpatialPartition(LLDrawPoolTerrain::VERTEX_DATA_MASK, FALSE, regionp)
 {
 	mOcclusionEnabled = FALSE;
 	mInfiniteFarClip = TRUE;
 	mDrawableType = LLPipeline::RENDER_TYPE_TERRAIN;
 	mPartitionType = LLViewerRegion::PARTITION_TERRAIN;
-}
-
-LLVertexBuffer* LLTerrainPartition::createVertexBuffer(U32 type_mask, U32 usage)
-{
-	return new LLVertexBufferTerrain();
 }
 
 void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
@@ -1051,7 +1026,7 @@ void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
 		index_offset += facep->getGeomCount();
 	}
 
-	buffer->flush();
+	buffer->unmapBuffer();
 	mFaceList.clear();
 }
 

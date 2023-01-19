@@ -164,13 +164,10 @@ void LLTexUnit::enable(eTextureType type)
 
 	if ( (mCurrTexType != type || gGL.mDirty) && (type != TT_NONE) )
 	{
-		stop_glerror();
 		activate();
-		stop_glerror();
 		if (mCurrTexType != TT_NONE && !gGL.mDirty)
 		{
 			disable(); // Force a disable of a previous texture type if it's enabled.
-			stop_glerror();
 		}
 		mCurrTexType = type;
 
@@ -184,11 +181,7 @@ void LLTexUnit::disable(void)
 
 	if (mCurrTexType != TT_NONE)
 	{
-		activate();
 		unbind(mCurrTexType);
-		gGL.flush();
-        setTextureColorSpace(TCS_LINEAR);
-		
 		mCurrTexType = TT_NONE;
 	}
 }
@@ -196,7 +189,7 @@ void LLTexUnit::disable(void)
 void LLTexUnit::bindFast(LLTexture* texture)
 {
     LLImageGL* gl_tex = texture->getGLTexture();
-
+    texture->setActive();
     glActiveTexture(GL_TEXTURE0 + mIndex);
     gGL.mCurrTextureUnitIndex = mIndex;
     mCurrTexture = gl_tex->getTexName();
@@ -889,12 +882,11 @@ void LLRender::init(bool needs_vertex_buffer)
     // necessary for reflection maps
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
-	if (sGLCoreProfile && !LLVertexBuffer::sUseVAO)
-	{ //bind a dummy vertex array object so we're core profile compliant
-		U32 ret;
-		glGenVertexArrays(1, &ret);
-		glBindVertexArray(ret);
-	}
+    { //bind a dummy vertex array object so we're core profile compliant
+        U32 ret;
+        glGenVertexArrays(1, &ret);
+        glBindVertexArray(ret);
+    }
 
     if (needs_vertex_buffer)
     {
@@ -906,8 +898,8 @@ void LLRender::initVertexBuffer()
 {
     llassert_always(mBuffer.isNull());
     stop_glerror();
-    mBuffer = new LLVertexBuffer(immediate_mask, 0);
-    mBuffer->allocateBuffer(4096, 0, TRUE);
+    mBuffer = new LLVertexBuffer(immediate_mask);
+    mBuffer->allocateBuffer(4096, 0);
     mBuffer->getVertexStrider(mVerticesp);
     mBuffer->getTexCoord0Strider(mTexcoordsp);
     mBuffer->getColorStrider(mColorsp);
@@ -1604,6 +1596,7 @@ void LLRender::flush()
 	if (mCount > 0)
 	{
         LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+        llassert(LLGLSLShader::sCurBoundShaderPtr != nullptr);
 		if (!mUIOffset.empty())
 		{
 			sUICalls++;
@@ -1691,8 +1684,11 @@ void LLRender::flush()
             else
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache miss");
-                vb = new LLVertexBuffer(attribute_mask, GL_STATIC_DRAW);
-                vb->allocateBuffer(count, 0, true);
+                vb = new LLVertexBuffer(attribute_mask);
+                vb->allocateBuffer(count, 0);
+
+                vb->setBuffer();
+
                 vb->setPositionData((LLVector4a*) mVerticesp.get());
 
                 if (attribute_mask & LLVertexBuffer::MAP_TEXCOORD0)
@@ -1733,7 +1729,7 @@ void LLRender::flush()
                 }
             }
 
-            vb->setBuffer(attribute_mask);
+            vb->setBuffer();
 
             if (mMode == LLRender::QUADS && sGLCoreProfile)
             {
@@ -2034,8 +2030,7 @@ void LLRender::texCoord2fv(const GLfloat* tc)
 
 void LLRender::color4ub(const GLubyte& r, const GLubyte& g, const GLubyte& b, const GLubyte& a)
 {
-	if (!LLGLSLShader::sCurBoundShaderPtr ||
-		LLGLSLShader::sCurBoundShaderPtr->mAttributeMask & LLVertexBuffer::MAP_COLOR)
+	if (!LLGLSLShader::sCurBoundShaderPtr || LLGLSLShader::sCurBoundShaderPtr->mAttributeMask & LLVertexBuffer::MAP_COLOR)
 	{
 		mColorsp[mCount] = LLColor4U(r,g,b,a);
 	}

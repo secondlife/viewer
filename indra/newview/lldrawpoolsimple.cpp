@@ -99,12 +99,12 @@ void LLDrawPoolGlow::render(LLGLSLShader* shader)
 
     //first pass -- static objects
     setup_glow_shader(shader);
-    pushBatches(LLRenderPass::PASS_GLOW, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+    pushBatches(LLRenderPass::PASS_GLOW, true, true);
         
     // second pass -- rigged objects
     shader = shader->mRiggedVariant;
     setup_glow_shader(shader);
-    pushRiggedBatches(LLRenderPass::PASS_GLOW_RIGGED, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+    pushRiggedBatches(LLRenderPass::PASS_GLOW_RIGGED, true, true);
  
     gGL.setColorMask(true, false);
     gGL.setSceneBlendType(LLRender::BT_ALPHA);	
@@ -161,21 +161,19 @@ void LLDrawPoolSimple::render(S32 pass)
 	
 		gPipeline.enableLightsDynamic();
 
-		U32 mask = getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX;
-
         // first pass -- static objects
         {
             setup_simple_shader(shader);
-            pushBatches(LLRenderPass::PASS_SIMPLE, mask, TRUE, TRUE);
+            pushBatches(LLRenderPass::PASS_SIMPLE, true, true);
 
             if (LLPipeline::sRenderDeferred)
             { //if deferred rendering is enabled, bump faces aren't registered as simple
                 //render bump faces here as simple so bump faces will appear under water
-                pushBatches(LLRenderPass::PASS_BUMP, mask, TRUE, TRUE);
-                pushBatches(LLRenderPass::PASS_MATERIAL, mask, TRUE, TRUE);
-                pushBatches(LLRenderPass::PASS_SPECMAP, mask, TRUE, TRUE);
-                pushBatches(LLRenderPass::PASS_NORMMAP, mask, TRUE, TRUE);
-                pushBatches(LLRenderPass::PASS_NORMSPEC, mask, TRUE, TRUE);
+                pushBatches(LLRenderPass::PASS_BUMP, true, true);
+                pushBatches(LLRenderPass::PASS_MATERIAL, true, true);
+                pushBatches(LLRenderPass::PASS_SPECMAP, true, true);
+                pushBatches(LLRenderPass::PASS_NORMMAP, true, true);
+                pushBatches(LLRenderPass::PASS_NORMSPEC, true, true);
             }
         }
         
@@ -183,16 +181,16 @@ void LLDrawPoolSimple::render(S32 pass)
         {
             shader = shader->mRiggedVariant;
             setup_simple_shader(shader);
-            pushRiggedBatches(LLRenderPass::PASS_SIMPLE_RIGGED, mask, TRUE, TRUE);
+            pushRiggedBatches(LLRenderPass::PASS_SIMPLE_RIGGED, true, true);
 
             if (LLPipeline::sRenderDeferred)
             { //if deferred rendering is enabled, bump faces aren't registered as simple
                 //render bump faces here as simple so bump faces will appear under water
-                pushRiggedBatches(LLRenderPass::PASS_BUMP_RIGGED, mask, TRUE, TRUE);
-                pushRiggedBatches(LLRenderPass::PASS_MATERIAL_RIGGED, mask, TRUE, TRUE);
-                pushRiggedBatches(LLRenderPass::PASS_SPECMAP_RIGGED, mask, TRUE, TRUE);
-                pushRiggedBatches(LLRenderPass::PASS_NORMMAP_RIGGED, mask, TRUE, TRUE);
-                pushRiggedBatches(LLRenderPass::PASS_NORMSPEC_RIGGED, mask, TRUE, TRUE);
+                pushRiggedBatches(LLRenderPass::PASS_BUMP_RIGGED, true, true);
+                pushRiggedBatches(LLRenderPass::PASS_MATERIAL_RIGGED, true, true);
+                pushRiggedBatches(LLRenderPass::PASS_SPECMAP_RIGGED, true, true);
+                pushRiggedBatches(LLRenderPass::PASS_NORMMAP_RIGGED, true, true);
+                pushRiggedBatches(LLRenderPass::PASS_NORMSPEC_RIGGED, true, true);
             }
         }
 	}
@@ -228,19 +226,19 @@ void LLDrawPoolAlphaMask::render(S32 pass)
 
     // render static
     setup_simple_shader(shader);
-    pushMaskBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
-	pushMaskBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
-	pushMaskBatches(LLRenderPass::PASS_SPECMAP_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
-	pushMaskBatches(LLRenderPass::PASS_NORMMAP_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
-	pushMaskBatches(LLRenderPass::PASS_NORMSPEC_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+    pushMaskBatches(LLRenderPass::PASS_ALPHA_MASK, true, true);
+	pushMaskBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, true, true);
+	pushMaskBatches(LLRenderPass::PASS_SPECMAP_MASK, true, true);
+	pushMaskBatches(LLRenderPass::PASS_NORMMAP_MASK, true, true);
+	pushMaskBatches(LLRenderPass::PASS_NORMSPEC_MASK, true, true);
 
     // render rigged
     setup_simple_shader(shader->mRiggedVariant);
-    pushRiggedMaskBatches(LLRenderPass::PASS_ALPHA_MASK_RIGGED, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
-    pushRiggedMaskBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK_RIGGED, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
-    pushRiggedMaskBatches(LLRenderPass::PASS_SPECMAP_MASK_RIGGED, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
-    pushRiggedMaskBatches(LLRenderPass::PASS_NORMMAP_MASK_RIGGED, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
-    pushRiggedMaskBatches(LLRenderPass::PASS_NORMSPEC_MASK_RIGGED, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+    pushRiggedMaskBatches(LLRenderPass::PASS_ALPHA_MASK_RIGGED, true, true);
+    pushRiggedMaskBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK_RIGGED, true, true);
+    pushRiggedMaskBatches(LLRenderPass::PASS_SPECMAP_MASK_RIGGED, true, true);
+    pushRiggedMaskBatches(LLRenderPass::PASS_NORMMAP_MASK_RIGGED, true, true);
+    pushRiggedMaskBatches(LLRenderPass::PASS_NORMSPEC_MASK_RIGGED, true, true);
 }
 
 LLDrawPoolFullbrightAlphaMask::LLDrawPoolFullbrightAlphaMask() :
@@ -269,11 +267,11 @@ void LLDrawPoolFullbrightAlphaMask::render(S32 pass)
 
     // render static
     setup_fullbright_shader(shader);
-    pushMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+    pushMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, true, true);
 
     // render rigged
     setup_fullbright_shader(shader->mRiggedVariant);
-    pushRiggedMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK_RIGGED, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+    pushRiggedMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK_RIGGED, true, true);
 }
 
 //===============================
@@ -293,11 +291,11 @@ void LLDrawPoolSimple::renderDeferred(S32 pass)
 
 	//render static
     setup_simple_shader(&gDeferredDiffuseProgram);
-	pushBatches(LLRenderPass::PASS_SIMPLE, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+	pushBatches(LLRenderPass::PASS_SIMPLE, true, true);
 	
     //render rigged
     setup_simple_shader(gDeferredDiffuseProgram.mRiggedVariant);
-    pushRiggedBatches(LLRenderPass::PASS_SIMPLE_RIGGED, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+    pushRiggedBatches(LLRenderPass::PASS_SIMPLE_RIGGED, true, true);
 }
 
 static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_MASK_DEFERRED("Deferred Alpha Mask");
@@ -310,11 +308,11 @@ void LLDrawPoolAlphaMask::renderDeferred(S32 pass)
 
     //render static
     setup_simple_shader(shader);
-    pushMaskBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+    pushMaskBatches(LLRenderPass::PASS_ALPHA_MASK, true, true);
 
     //render rigged
     setup_simple_shader(shader->mRiggedVariant);
-    pushRiggedMaskBatches(LLRenderPass::PASS_ALPHA_MASK_RIGGED, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+    pushRiggedMaskBatches(LLRenderPass::PASS_ALPHA_MASK_RIGGED, true, true);
 }
 
 // grass drawpool
@@ -453,15 +451,14 @@ void LLDrawPoolFullbright::renderPostDeferred(S32 pass)
     }
 
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
-	U32 fullbright_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TEXTURE_INDEX;
     
     // render static
     setup_fullbright_shader(shader);
-    pushBatches(LLRenderPass::PASS_FULLBRIGHT, fullbright_mask, TRUE, TRUE);
+    pushBatches(LLRenderPass::PASS_FULLBRIGHT, true, true);
     
     // render rigged
     setup_fullbright_shader(shader->mRiggedVariant);
-    pushRiggedBatches(LLRenderPass::PASS_FULLBRIGHT_RIGGED, fullbright_mask, TRUE, TRUE);
+    pushRiggedBatches(LLRenderPass::PASS_FULLBRIGHT_RIGGED, true, true);
 }
 
 void LLDrawPoolFullbright::render(S32 pass)
@@ -480,24 +477,21 @@ void LLDrawPoolFullbright::render(S32 pass)
         shader = &gObjectFullbrightProgram;
     }
 
-
-	U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TEXTURE_INDEX;
-
     // render static
     setup_fullbright_shader(shader);
-    pushBatches(LLRenderPass::PASS_FULLBRIGHT, mask, TRUE, TRUE);
-    pushBatches(LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE, mask, TRUE, TRUE);
-    pushBatches(LLRenderPass::PASS_SPECMAP_EMISSIVE, mask, TRUE, TRUE);
-    pushBatches(LLRenderPass::PASS_NORMMAP_EMISSIVE, mask, TRUE, TRUE);
-    pushBatches(LLRenderPass::PASS_NORMSPEC_EMISSIVE, mask, TRUE, TRUE);
+    pushBatches(LLRenderPass::PASS_FULLBRIGHT, true, true);
+    pushBatches(LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE, true, true);
+    pushBatches(LLRenderPass::PASS_SPECMAP_EMISSIVE, true, true);
+    pushBatches(LLRenderPass::PASS_NORMMAP_EMISSIVE, true, true);
+    pushBatches(LLRenderPass::PASS_NORMSPEC_EMISSIVE, true, true);
  
     // render rigged
     setup_fullbright_shader(shader->mRiggedVariant);
-    pushRiggedBatches(LLRenderPass::PASS_FULLBRIGHT_RIGGED, mask, TRUE, TRUE);
-    pushRiggedBatches(LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE_RIGGED, mask, TRUE, TRUE);
-    pushRiggedBatches(LLRenderPass::PASS_SPECMAP_EMISSIVE_RIGGED, mask, TRUE, TRUE);
-    pushRiggedBatches(LLRenderPass::PASS_NORMMAP_EMISSIVE_RIGGED, mask, TRUE, TRUE);
-    pushRiggedBatches(LLRenderPass::PASS_NORMSPEC_EMISSIVE_RIGGED, mask, TRUE, TRUE);
+    pushRiggedBatches(LLRenderPass::PASS_FULLBRIGHT_RIGGED, true, true);
+    pushRiggedBatches(LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE_RIGGED, true, true);
+    pushRiggedBatches(LLRenderPass::PASS_SPECMAP_EMISSIVE_RIGGED, true, true);
+    pushRiggedBatches(LLRenderPass::PASS_NORMMAP_EMISSIVE_RIGGED, true, true);
+    pushRiggedBatches(LLRenderPass::PASS_NORMSPEC_EMISSIVE_RIGGED, true, true);
 }
 
 S32 LLDrawPoolFullbright::getNumPasses()
@@ -531,14 +525,13 @@ void LLDrawPoolFullbrightAlphaMask::renderPostDeferred(S32 pass)
     }
 
 	LLGLDisable blend(GL_BLEND);
-	U32 fullbright_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TEXTURE_INDEX;
-    
+	
     // render static
     setup_fullbright_shader(shader);
-    pushMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, fullbright_mask, TRUE, TRUE);
+    pushMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, true, true);
     
     // render rigged
     setup_fullbright_shader(shader->mRiggedVariant);
-    pushRiggedMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK_RIGGED, fullbright_mask, TRUE, TRUE);
+    pushRiggedMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK_RIGGED, true, true);
 }
 

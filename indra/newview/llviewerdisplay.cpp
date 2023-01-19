@@ -148,7 +148,6 @@ void display_startup()
 	static S32 frame_count = 0;
 
 	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
 
 	if (frame_count++ > 1) // make sure we have rendered a frame first
 	{
@@ -160,7 +159,6 @@ void display_startup()
     }
 
 	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
 
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); // | GL_STENCIL_BUFFER_BIT);
 	LLGLSUIDefault gls_ui;
@@ -168,7 +166,6 @@ void display_startup()
 
 	if (gViewerWindow)
 	gViewerWindow->setup2DRender();
-	gGL.color4f(1,1,1,1);
 	if (gViewerWindow)
 	gViewerWindow->draw();
 	gGL.flush();
@@ -176,7 +173,6 @@ void display_startup()
 	LLVertexBuffer::unbind();
 
 	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
 
 	if (gViewerWindow && gViewerWindow->getWindow())
 	gViewerWindow->getWindow()->swapBuffers();
@@ -282,7 +278,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	LLVertexBuffer::unbind();
 
 	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
 	
 	stop_glerror();
 
@@ -324,7 +319,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	
 	LLAppViewer::instance()->pingMainloopTimeout("Display:CheckStates");
 	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
 	
 	//////////////////////////////////////////////////////////
 	//
@@ -681,7 +675,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		gDepthDirty = FALSE;
 
 		LLGLState::checkStates();
-		LLGLState::checkTextureChannels();
 
 		static LLCullResult result;
 		LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
@@ -690,7 +683,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		stop_glerror();
 
 		LLGLState::checkStates();
-		LLGLState::checkTextureChannels();
 		
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Swap");
 		
@@ -706,7 +698,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			glClearColor(0,0,0,0);
 
 			LLGLState::checkStates();
-			LLGLState::checkTextureChannels();
 
 			if (!for_snapshot)
 			{
@@ -719,7 +710,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				LLVertexBuffer::unbind();
 
 				LLGLState::checkStates();
-				LLGLState::checkTextureChannels();
 
 				glh::matrix4f proj = get_current_projection();
 				glh::matrix4f mod = get_current_modelview();
@@ -736,10 +726,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				gViewerWindow->setup3DViewport();
 
 				LLGLState::checkStates();
-				LLGLState::checkTextureChannels();
-
 			}
-            glClear(GL_DEPTH_BUFFER_BIT); // | GL_STENCIL_BUFFER_BIT);
+            glClear(GL_DEPTH_BUFFER_BIT);
 		}
 
 		//////////////////////////////////////
@@ -925,19 +913,11 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				}
 
 				gOcclusionProgram.unbind();
+
 			}
 
-
-			gGL.setColorMask(true, false);
-			if (LLPipeline::sRenderDeferred)
-			{
-				gPipeline.renderGeomDeferred(*LLViewerCamera::getInstance(), true);
-			}
-			else
-			{
-				gPipeline.renderGeom(*LLViewerCamera::getInstance(), TRUE);
-			}			
 			gGL.setColorMask(true, true);
+			gPipeline.renderGeomDeferred(*LLViewerCamera::getInstance(), true);
 
 			//store this frame's modelview matrix for use
 			//when rendering next frame's occlusion queries
@@ -1099,13 +1079,9 @@ void display_cube_face()
     }
     gPipeline.mRT->deferredScreen.clear();
         
-    gGL.setColorMask(true, false);
-
     LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 
     gPipeline.renderGeomDeferred(*LLViewerCamera::getInstance());
-
-    gGL.setColorMask(true, true);
 
     gPipeline.mRT->deferredScreen.flush();
        
@@ -1340,9 +1316,12 @@ void render_ui(F32 zoom_factor, int subfield)
 	}
 
 	{
+        LLGLState::checkStates();
+
 		// Render our post process prior to the HUD, UI, etc.
 		gPipeline.renderPostProcess();
 
+        LLGLState::checkStates();
         // draw hud and 3D ui elements into screen render target so they'll be able to use 
         // the depth buffer (avoids extra copy of depth buffer per frame)
         gPipeline.screenTarget()->bindTarget();
@@ -1354,6 +1333,7 @@ void render_ui(F32 zoom_factor, int subfield)
 		// 3. Use transient zones
 		LL_PROFILE_ZONE_NAMED_CATEGORY_UI("HUD"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_HUD);
 		render_hud_elements();
+        LLGLState::checkStates();
 		render_hud_attachments();
 
         LLGLState::checkStates();
@@ -1363,8 +1343,6 @@ void render_ui(F32 zoom_factor, int subfield)
 		{
 			gPipeline.disableLights();
 		}
-
-        gGL.color4f(1,1,1,1);
 
         bool render_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
         if (render_ui)
@@ -1507,6 +1485,7 @@ void render_ui_3d()
 	stop_glerror();
 	
 	gUIProgram.bind();
+    gGL.color4f(1, 1, 1, 1);
 
 	// Coordinate axes
 	if (gSavedSettings.getBOOL("ShowAxes"))

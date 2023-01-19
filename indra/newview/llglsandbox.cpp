@@ -1083,9 +1083,9 @@ F32 gpu_benchmark()
     delete [] pixels;
 
 	//make a dummy triangle to draw with
-	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX, GL_STREAM_DRAW);
+	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX);
 
-	if (!buff->allocateBuffer(3, 0, true))
+	if (!buff->allocateBuffer(3, 0))
 	{
 		LL_WARNS("Benchmark") << "Failed to allocate buffer during benchmark." << LL_ENDL;
 		// abandon the benchmark test
@@ -1109,12 +1109,12 @@ F32 gpu_benchmark()
 	v[1].set(-1, -3, 0);
 	v[2].set(3, 1, 0);
 
-	buff->flush();
+	buff->unmapBuffer();
 
 	// ensure matched pair of bind() and unbind() calls
 	ShaderBinder binder(gBenchmarkProgram);
 
-	buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
+	buff->setBuffer();
 	glFinish();
 
 	F32 time_passed = 0; // seconds

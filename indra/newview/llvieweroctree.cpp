@@ -103,11 +103,11 @@ U8* get_box_fan_indices_ptr(LLCamera* camera, const LLVector4a& center)
 }
 
 //create a vertex buffer for efficiently rendering cubes
-LLVertexBuffer* ll_create_cube_vb(U32 type_mask, U32 usage)
+LLVertexBuffer* ll_create_cube_vb(U32 type_mask)
 {
-	LLVertexBuffer* ret = new LLVertexBuffer(type_mask, usage);
+	LLVertexBuffer* ret = new LLVertexBuffer(type_mask);
 
-	ret->allocateBuffer(8, 64, true);
+	ret->allocateBuffer(8, 64);
 
 	LLStrider<LLVector3> pos;
 	LLStrider<U16> idx;
@@ -129,7 +129,7 @@ LLVertexBuffer* ll_create_cube_vb(U32 type_mask, U32 usage)
 		idx[i] = sOcclusionIndices[i];
 	}
 
-	ret->flush();
+	ret->unmapBuffer();
 
 	return ret;
 }

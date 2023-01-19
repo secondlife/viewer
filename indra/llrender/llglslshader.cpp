@@ -154,15 +154,33 @@ void LLGLSLShader::finishProfile(bool emit_report)
 
         std::sort(sorted.begin(), sorted.end(), LLGLSLShaderCompareTimeElapsed());
 
+        bool unbound = false;
         for (std::vector<LLGLSLShader*>::iterator iter = sorted.begin(); iter != sorted.end(); ++iter)
         {
             (*iter)->dumpStats();
+            if ((*iter)->mBinds == 0)
+            {
+                unbound = true;
+            }
         }
 
         LL_INFOS() << "-----------------------------------" << LL_ENDL;
         LL_INFOS() << "Total rendering time: " << llformat("%.4f ms", sTotalTimeElapsed / 1000000.f) << LL_ENDL;
         LL_INFOS() << "Total samples drawn: " << llformat("%.4f million", sTotalSamplesDrawn / 1000000.f) << LL_ENDL;
         LL_INFOS() << "Total triangles drawn: " << llformat("%.3f million", sTotalTrianglesDrawn / 1000000.f) << LL_ENDL;
+        LL_INFOS() << "-----------------------------------" << LL_ENDL;
+
+        if (unbound)
+        {
+            LL_INFOS() << "The following shaders were unused: " << LL_ENDL;
+            for (std::vector<LLGLSLShader*>::iterator iter = sorted.begin(); iter != sorted.end(); ++iter)
+            {
+                if ((*iter)->mBinds == 0)
+                {
+                    LL_INFOS() << (*iter)->mName << LL_ENDL;
+                }
+            }
+        }
     }
 }
 
@@ -985,6 +1003,8 @@ void LLGLSLShader::bind()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
+    llassert(mProgramObject != 0);
+
     gGL.flush();
 
     if (sCurBoundShader != mProgramObject)  // Don't re-bind current shader
@@ -998,6 +1018,7 @@ void LLGLSLShader::bind()
         sCurBoundShader = mProgramObject;
         sCurBoundShaderPtr = this;
         placeProfileQuery();
+        LLVertexBuffer::setupClientArrays(mAttributeMask);
     }
 
     if (mUniformsDirty)

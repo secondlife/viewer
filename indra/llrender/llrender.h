@@ -277,7 +277,7 @@ class LLRender
 	friend class LLTexUnit;
 public:
 
-	enum eTexIndex
+	enum eTexIndex : U8
 	{
 		DIFFUSE_MAP           = 0,
         ALTERNATE_DIFFUSE_MAP = 1,
@@ -286,14 +286,15 @@ public:
 		NUM_TEXTURE_CHANNELS  = 3,
 	};
 
-	enum eVolumeTexIndex
+	enum eVolumeTexIndex : U8
 	{
 		LIGHT_TEX = 0,
 		SCULPT_TEX,
 		NUM_VOLUME_TEXTURE_CHANNELS,
 	};
 	
-	typedef enum {
+	enum eGeomModes : U8
+    {
 		TRIANGLES = 0,
 		TRIANGLE_STRIP,
 		TRIANGLE_FAN,
@@ -303,9 +304,9 @@ public:
 		QUADS,
 		LINE_LOOP,
 		NUM_MODES
-	} eGeomModes;
+	};
 
-	typedef enum 
+	enum eCompareFunc : U8
 	{
 		CF_NEVER = 0,
 		CF_ALWAYS,
@@ -316,9 +317,9 @@ public:
 		CF_GREATER_EQUAL,
 		CF_GREATER,
 		CF_DEFAULT
-	}  eCompareFunc;
+	};
 
-	typedef enum 
+	enum eBlendType : U8
 	{
 		BT_ALPHA = 0,
 		BT_ADD,
@@ -327,25 +328,26 @@ public:
 		BT_MULT_ALPHA,
 		BT_MULT_X2,
 		BT_REPLACE
-	} eBlendType;
+	};
 
-	typedef enum 
+    // WARNING:  this MUST match the LL_PART_BF enum in LLPartData, so set values explicitly in case someone 
+    // decides to add more or reorder them
+	enum eBlendFactor : U8
 	{
 		BF_ONE = 0,
-		BF_ZERO,
-		BF_DEST_COLOR,
-		BF_SOURCE_COLOR,
-		BF_ONE_MINUS_DEST_COLOR,
-		BF_ONE_MINUS_SOURCE_COLOR,
-		BF_DEST_ALPHA,
-		BF_SOURCE_ALPHA,
-		BF_ONE_MINUS_DEST_ALPHA, 
-		BF_ONE_MINUS_SOURCE_ALPHA,
-
+		BF_ZERO = 1,
+		BF_DEST_COLOR = 2,
+		BF_SOURCE_COLOR = 3,
+		BF_ONE_MINUS_DEST_COLOR = 4,
+		BF_ONE_MINUS_SOURCE_COLOR = 5,
+		BF_DEST_ALPHA = 6,
+		BF_SOURCE_ALPHA = 7,
+		BF_ONE_MINUS_DEST_ALPHA = 8, 
+		BF_ONE_MINUS_SOURCE_ALPHA = 9,
 		BF_UNDEF
-	} eBlendFactor;
+	};
 
-	typedef enum
+	enum eMatrixMode : U8
 	{
 		MM_MODELVIEW = 0,
 		MM_PROJECTION,
@@ -355,7 +357,7 @@ public:
 		MM_TEXTURE3,
 		NUM_MATRIX_MODES,
 		MM_TEXTURE
-	} eMatrixMode;
+	};
 
 	LLRender();
 	~LLRender();

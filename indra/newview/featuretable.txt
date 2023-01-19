@@ -1,4 +1,4 @@
-version 43
+version 44
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -55,7 +55,7 @@ RenderVBOEnable				1	1
 RenderVBOMappingDisable		1	1
 RenderVolumeLODFactor		1	2.0
 UseStartScreen				1	1
-UseOcclusion				1	0
+UseOcclusion				1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
 Disregard128DefaultDrawDistance	1	1

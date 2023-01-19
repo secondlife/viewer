@@ -2788,9 +2788,9 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
                 mask |= LLVertexBuffer::MAP_WEIGHT4;
             }
 
-            vb = new LLVertexBuffer(mask, 0);
+            vb = new LLVertexBuffer(mask);
 
-            if (!vb->allocateBuffer(num_vertices, num_indices, TRUE))
+            if (!vb->allocateBuffer(num_vertices, num_indices))
             {
                 // We are likely to crash due this failure, if this happens, find a way to gracefully stop preview
                 std::ostringstream out;
@@ -2861,7 +2861,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
                 *(index_strider++) = vf.mIndices[i];
             }
 
-            vb->flush();
+            vb->unmapBuffer();
 
             mVertexBuffer[lod][mdl].push_back(vb);
 
@@ -3055,11 +3055,11 @@ void LLModelPreview::addEmptyFace(LLModel* pTarget)
 {
     U32 type_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
 
-    LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(type_mask, 0);
+    LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(type_mask);
 
-    buff->allocateBuffer(1, 3, true);
+    buff->allocateBuffer(1, 3);
     memset((U8*)buff->getMappedData(), 0, buff->getSize());
-    memset((U8*)buff->getIndicesPointer(), 0, buff->getIndicesSize());
+    memset((U8*)buff->getMappedIndices(), 0, buff->getIndicesSize());
 
     buff->validateRange(0, buff->getNumVerts() - 1, buff->getNumIndices(), 0);
 
@@ -3316,8 +3316,6 @@ BOOL LLModelPreview::render()
     gGL.pushMatrix();
     gGL.color4fv(PREVIEW_EDGE_COL.mV);
 
-    const U32 type_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
-
     LLGLEnable normalize(GL_NORMALIZE);
 
     if (!mBaseModel.empty() && mVertexBuffer[5].empty())
@@ -3380,7 +3378,7 @@ BOOL LLModelPreview::render()
                 {
                     LLVertexBuffer* buffer = mVertexBuffer[mPreviewLOD][model][i];
 
-                    buffer->setBuffer(type_mask & buffer->getTypeMask());
+                    buffer->setBuffer();
 
                     if (textures)
                     {
@@ -3417,7 +3415,7 @@ BOOL LLModelPreview::render()
                         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                         glLineWidth(1.f);
                     }
-                    buffer->flush();
+                    buffer->unmapBuffer();
                 }
                 gGL.popMatrix();
             }
@@ -3531,7 +3529,7 @@ BOOL LLModelPreview::render()
                                     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
                                     gGL.diffuseColor4fv(PREVIEW_PSYH_FILL_COL.mV);
 
-                                    buffer->setBuffer(type_mask & buffer->getTypeMask());
+                                    buffer->setBuffer();
                                     buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts() - 1, buffer->getNumIndices(), 0);
 
                                     gGL.diffuseColor4fv(PREVIEW_PSYH_EDGE_COL.mV);
@@ -3542,7 +3540,7 @@ BOOL LLModelPreview::render()
                                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                                     glLineWidth(1.f);
 
-                                    buffer->flush();
+                                    buffer->unmapBuffer();
                                 }
                             }
                         }
@@ -3592,7 +3590,7 @@ BOOL LLModelPreview::render()
                                     {
                                         LLVertexBuffer* buffer = mVertexBuffer[LLModel::LOD_PHYSICS][model][v];
 
-                                        buffer->setBuffer(type_mask & buffer->getTypeMask());
+                                        buffer->setBuffer();
 
                                         LLStrider<LLVector3> pos_strider;
                                         buffer->getVertexStrider(pos_strider, 0);
@@ -3614,7 +3612,7 @@ BOOL LLModelPreview::render()
                                             }
                                         }
 
-                                        buffer->flush();
+                                        buffer->unmapBuffer();
                                     }
                                 }
                             }
@@ -3745,7 +3743,7 @@ BOOL LLModelPreview::render()
                             const std::string& binding = instance.mModel->mMaterialList[i];
                             const LLImportMaterial& material = instance.mMaterial[binding];
 
-                            buffer->setBuffer(type_mask & buffer->getTypeMask());
+                            buffer->setBuffer();
                             gGL.diffuseColor4fv(material.mDiffuseColor.mV);
                             gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 

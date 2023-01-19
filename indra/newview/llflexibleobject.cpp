@@ -399,6 +399,7 @@ void LLVolumeImplFlexible::doIdleUpdate()
 
 							updateRenderRes();
 
+                            mVO->shrinkWrap();
 							gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
 						}
 					}

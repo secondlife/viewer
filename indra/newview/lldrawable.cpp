@@ -702,7 +702,8 @@ F32 LLDrawable::updateXform(BOOL undamped)
 			((dist_vec_squared(old_pos, target_pos) > 0.f)
 			|| (1.f - dot(old_rot, target_rot)) > 0.f))
 	{ //fix for BUG-840, MAINT-2275, MAINT-1742, MAINT-2247
-			gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
+        mVObjp->shrinkWrap();
+		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
 	}
 	else if (!getVOVolume() && !isAvatar())
 	{
@@ -1252,10 +1253,10 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 
 LLSpatialBridge::LLSpatialBridge(LLDrawable* root, BOOL render_by_group, U32 data_mask, LLViewerRegion* regionp) : 
 	LLDrawable(root->getVObj(), true),
-	LLSpatialPartition(data_mask, render_by_group, GL_STREAM_DRAW, regionp)
+	LLSpatialPartition(data_mask, render_by_group, regionp)
 {
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE
-
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
+    mOcclusionEnabled = false;
 	mBridge = this;
 	mDrawable = root;
 	root->setSpatialBridge(this);
@@ -1758,7 +1759,7 @@ LLDrawable* LLDrawable::getRoot()
 }
 
 LLBridgePartition::LLBridgePartition(LLViewerRegion* regionp)
-: LLSpatialPartition(0, FALSE, 0, regionp) 
+: LLSpatialPartition(0, false, regionp) 
 { 
 	mDrawableType = LLPipeline::RENDER_TYPE_VOLUME; 
 	mPartitionType = LLViewerRegion::PARTITION_BRIDGE;

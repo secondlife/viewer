@@ -2348,15 +2348,15 @@ void LLVOAvatar::updateMeshData()
 			LLVertexBuffer* buff = facep->getVertexBuffer();
 			if(!facep->getVertexBuffer())
 			{
-				buff = new LLVertexBufferAvatar();
-				if (!buff->allocateBuffer(num_vertices, num_indices, TRUE))
+                buff = new LLVertexBuffer(LLDrawPoolAvatar::VERTEX_DATA_MASK);
+				if (!buff->allocateBuffer(num_vertices, num_indices))
 				{
 					LL_WARNS() << "Failed to allocate Vertex Buffer for Mesh to "
 						<< num_vertices << " vertices and "
 						<< num_indices << " indices" << LL_ENDL;
 					// Attempt to create a dummy triangle (one vertex, 3 indices, all 0)
 					facep->setSize(1, 3);
-					buff->allocateBuffer(1, 3, true);
+					buff->allocateBuffer(1, 3);
 					memset((U8*) buff->getMappedData(), 0, buff->getSize());
 					memset((U8*) buff->getMappedIndices(), 0, buff->getIndicesSize());
 				}
@@ -2371,12 +2371,13 @@ void LLVOAvatar::updateMeshData()
 				}
 				else
 				{
-					if (!buff->resizeBuffer(num_vertices, num_indices))
-					{
+                    buff = new LLVertexBuffer(buff->getTypeMask());
+                    if (!buff->allocateBuffer(num_vertices, num_indices))
+                    {
 						LL_WARNS() << "Failed to allocate vertex buffer for Mesh, Substituting" << LL_ENDL;
 						// Attempt to create a dummy triangle (one vertex, 3 indices, all 0)
 						facep->setSize(1, 3);
-						buff->resizeBuffer(1, 3);
+						buff->allocateBuffer(1, 3);
 						memset((U8*) buff->getMappedData(), 0, buff->getSize());
 						memset((U8*) buff->getMappedIndices(), 0, buff->getIndicesSize());
 					}
@@ -2413,7 +2414,7 @@ void LLVOAvatar::updateMeshData()
 			}
 
 			stop_glerror();
-			buff->flush();
+			buff->unmapBuffer();
 
 			if(!f_num)
 			{
@@ -5039,7 +5040,7 @@ U32 LLVOAvatar::renderSkinned()
 				LLVertexBuffer* vb = face->getVertexBuffer();
 				if (vb)
 				{
-					vb->flush();
+					vb->unmapBuffer();
 				}
 			}
 		}

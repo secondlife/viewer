@@ -266,21 +266,17 @@ public:
 	void stateSort(LLDrawable* drawablep, LLCamera& camera);
 	void postSort(LLCamera& camera);
     
-    //update stats for textures in given DrawInfo
-    void touchTextures(LLDrawInfo* info);
-    void touchTexture(LLViewerTexture* tex, F32 vsize);
-
 	void forAllVisibleDrawables(void (*func)(LLDrawable*));
 
-    void renderObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false, bool rigged = false);
+    void renderObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
     void renderShadowSimple(U32 type);
 
-    void renderAlphaObjects(U32 mask, bool texture = true, bool batch_texture = false, bool rigged = false);
-	void renderMaskedObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false, bool rigged = false);
-    void renderFullbrightMaskedObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false, bool rigged = false);
+    void renderAlphaObjects(bool texture = true, bool batch_texture = false, bool rigged = false);
+	void renderMaskedObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
+    void renderFullbrightMaskedObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
 
-	void renderGroups(LLRenderPass* pass, U32 type, U32 mask, bool texture);
-    void renderRiggedGroups(LLRenderPass* pass, U32 type, U32 mask, bool texture);
+	void renderGroups(LLRenderPass* pass, U32 type, bool texture);
+    void renderRiggedGroups(LLRenderPass* pass, U32 type, bool texture);
 
 	void grabReferences(LLCullResult& result);
 	void clearReferences();
@@ -290,9 +286,7 @@ public:
 	void checkReferences(LLDrawable* drawable);
 	void checkReferences(LLDrawInfo* draw_info);
 	void checkReferences(LLSpatialGroup* group);
-
-
-	void renderGeom(LLCamera& camera, bool forceVBOUpdate = false);
+	
 	void renderGeomDeferred(LLCamera& camera, bool do_occlusion = false);
 	void renderGeomPostDeferred(LLCamera& camera);
 	void renderGeomShadow(LLCamera& camera);

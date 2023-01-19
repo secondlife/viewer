@@ -513,7 +513,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
     {
         //generate radiance map
         gRadianceGenProgram.bind();
-        mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX);
+        mVertexBuffer->setBuffer();
 
         S32 channel = gRadianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
         mTexture->bind(channel);
@@ -563,7 +563,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         mTexture->bind(channel);
 
         gIrradianceGenProgram.uniform1i(sSourceIdx, targetIdx);
-        mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX);
+        mVertexBuffer->setBuffer();
         int start_mip = 0;
         // find the mip target to start with based on irradiance map resolution
         for (start_mip = 0; start_mip < mMipChain.size(); ++start_mip)
@@ -900,8 +900,8 @@ void LLReflectionMapManager::initReflectionMaps()
     if (mVertexBuffer.isNull())
     {
         U32 mask = LLVertexBuffer::MAP_VERTEX;
-        LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(mask, GL_STATIC_DRAW);
-        buff->allocateBuffer(4, 0, TRUE);
+        LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(mask);
+        buff->allocateBuffer(4, 0);
 
         LLStrider<LLVector3> v;
         
@@ -912,7 +912,7 @@ void LLReflectionMapManager::initReflectionMaps()
         v[2] = LLVector3(-1, 1, -1);
         v[3] = LLVector3(1, 1, -1);
 
-        buff->flush();
+        buff->unmapBuffer();
 
         mVertexBuffer = buff;
     }

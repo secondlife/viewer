@@ -658,18 +658,6 @@ public:
 			
 			}
 
-			addText(xpos, ypos, llformat("%d Vertex Buffers", LLVertexBuffer::sGLCount));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%d Mapped Buffers", LLVertexBuffer::sMappedCount));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%d Vertex Buffer Binds", LLVertexBuffer::sBindCount));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%d Vertex Buffer Sets", LLVertexBuffer::sSetCount));
-			ypos += y_inc;
-
 			addText(xpos, ypos, llformat("%d Texture Binds", LLImageGL::sBindCount));
 			ypos += y_inc;
 
@@ -744,9 +732,7 @@ public:
 				ypos += y_inc;
 			}
 
-			LLVertexBuffer::sBindCount = LLImageGL::sBindCount = 
-				LLVertexBuffer::sSetCount = LLImageGL::sUniqueCount = 
-				gPipeline.mNumVisibleNodes = LLPipeline::sVisibleLightCount = 0;
+            gPipeline.mNumVisibleNodes = LLPipeline::sVisibleLightCount = 0;
 		}
 		if (gSavedSettings.getBOOL("DebugShowAvatarRenderInfo"))
 		{
@@ -2641,10 +2627,10 @@ void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
 
 void LLViewerWindow::drawDebugText()
 {
+    gUIProgram.bind();
 	gGL.color4f(1,1,1,1);
 	gGL.pushMatrix();
 	gGL.pushUIMatrix();
-	gUIProgram.bind();
 	{
 		// scale view by UI global scale factor and aspect ratio correction factor
 		gGL.scaleUI(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
@@ -2701,6 +2687,7 @@ void LLViewerWindow::draw()
 	// No translation needed, this view is glued to 0,0
 
 	gUIProgram.bind();
+    gGL.color4f(1, 1, 1, 1);
 
 	gGL.pushMatrix();
 	LLUI::pushMatrix();
@@ -5688,7 +5675,6 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 				
 		gSky.restoreGL();
 		gPipeline.restoreGL();
-		LLDrawPoolWater::restoreGL();
 		LLManipTranslate::restoreGL();
 		
 		gBumpImageList.restoreGL();
