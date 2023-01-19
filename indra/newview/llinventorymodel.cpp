@@ -1953,18 +1953,20 @@ void LLInventoryModel::cache(
 		items,
 		INCLUDE_TRASH,
 		can_cache);
-	std::string inventory_filename = getInvCacheAddres(agent_id);
-	saveToFile(inventory_filename, categories, items);
-	std::string gzip_filename(inventory_filename);
+    // Use temporary file to avoid potential conflicts with other
+    // instances (even a 'read only' instance unzips into a file)
+    std::string temp_file = gDirUtilp->getTempFilename();
+	saveToFile(temp_file, categories, items);
+    std::string gzip_filename = getInvCacheAddres(agent_id);
 	gzip_filename.append(".gz");
-	if(gzip_file(inventory_filename, gzip_filename))
+	if(gzip_file(temp_file, gzip_filename))
 	{
-		LL_DEBUGS(LOG_INV) << "Successfully compressed " << inventory_filename << LL_ENDL;
-		LLFile::remove(inventory_filename);
+		LL_DEBUGS(LOG_INV) << "Successfully compressed " << temp_file << " to " << gzip_filename << LL_ENDL;
+		LLFile::remove(temp_file);
 	}
 	else
 	{
-		LL_WARNS(LOG_INV) << "Unable to compress " << inventory_filename << LL_ENDL;
+		LL_WARNS(LOG_INV) << "Unable to compress " << temp_file << " into " << gzip_filename << LL_ENDL;
 	}
 }
 
@@ -3038,6 +3040,7 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
                 return false;
             }
         }
+        fileXML.flush();
 
         fileXML.close();
 
