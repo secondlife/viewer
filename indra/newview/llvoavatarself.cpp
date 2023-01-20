@@ -170,9 +170,13 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
 	// first time through.
 	mLastHoverOffsetSent(LLVector3(0.0f, 0.0f, -999.0f)),
     mInitialMetric(true),
-    mMetricSequence(0)
+    mMetricSequence(0),
+    mAtchUpdateTimeout(DEFAULT_ATTCHUPDATE_TIMEOUT),
+    mAttchUpdateEnabled(true)
 {
 	mMotionController.mIsSelf = TRUE;
+
+    mAttachmentUpdate.setTimerExpirySec(DEFAULT_ATTCHUPDATE_TIMEOUT);
 
 	LL_DEBUGS() << "Marking avatar as self " << id << LL_ENDL;
 }
@@ -1290,6 +1294,13 @@ U32 LLVOAvatarSelf::getNumWearables(LLAvatarAppearanceDefines::ETextureIndex i) 
 
 void LLVOAvatarSelf::postMotionUpdate() 
 {
+    LLViewerRegion* regionp = gAgent.getRegion();
+    if (!regionp->getRegionFlag(REGION_FLAGS_ENABLE_ANIMATION_TRACKING) || 
+            !mAttachmentUpdate.checkExpirationAndReset(mAtchUpdateTimeout) || 
+            !mAttchUpdateEnabled)
+    {
+        return;
+    }
     S32 count(0);
 
     LLVector3 agent_pos(getPositionRegion());
@@ -1325,9 +1336,12 @@ void LLVOAvatarSelf::postMotionUpdate()
     {   // just send.  If we drop a couple frames, we're fine with that. 
         gMessageSystem->sendMessage(gAgent.getRegionHost());
     }
-    //else
-    //{        
-    //}
+}
+
+void LLVOAvatarSelf::setAttachmentUpdateTimeout(F32 timeout)
+{
+    mAtchUpdateTimeout = timeout;
+    mAttachmentUpdate.setTimerExpirySec(timeout);
 }
 
 // virtual

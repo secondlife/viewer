@@ -303,7 +303,18 @@ private:
  **                                                                            **
  **                    ANIMATIONS
  **/
+public:
+    static constexpr F32    DEFAULT_ATTCHUPDATE_TIMEOUT = 0.1;
+
     void                postMotionUpdate() override;  // from llCharacter
+    void                setAttachmentUpdateTimeout(F32 timeout);
+    void                setAttechmentUpdateEnabled(bool enable) { mAttchUpdateEnabled = enable; }
+    bool                getAttechmentUpdateEnabled() const { return mAttchUpdateEnabled; }
+
+private:
+    bool                mAttchUpdateEnabled;
+    F32                 mAtchUpdateTimeout;
+    LLFrameTimer        mAttachmentUpdate;
 
  /**                   ANIMATIONS
   **                                                                            **

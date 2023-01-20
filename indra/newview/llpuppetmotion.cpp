@@ -44,6 +44,8 @@
 #include "v3dmath.h"
 #include "llsdutil_math.h"        //For ll_sd_from_vector3
 
+#include "llvoavatarself.h"
+
 #define ENABLE_RIGHT_CONSTRAINTS
 
 // BEGIN_HACK : hard-coded joint_ids
@@ -1490,5 +1492,17 @@ void LLPuppetMotion::RequestPuppetryStatusCoro(const std::string& capurl)
     size_t event_size = result["event_size"].asInteger();
     LLPuppetMotion::SetPuppetryEnabled(true, event_size);    // turn on puppetry and set the event size
     LLPuppetModule::instance().parsePuppetryResponse(result);
+
+    if (result.has("update_frequency"))
+    {
+        if (gAgentAvatarp)
+        {
+            gAgentAvatarp->setAttachmentUpdateTimeout(result["update_frequency"].asReal());
+        }
+    }
+    else if (gAgent.getRegion()->getRegionFlag(REGION_FLAGS_ENABLE_ANIMATION_TRACKING))
+    {
+        gAgentAvatarp->setAttachmentUpdateTimeout(LLVOAvatarSelf::DEFAULT_ATTCHUPDATE_TIMEOUT);
+    }
 }
 
