@@ -4037,6 +4037,8 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 
     bool occlude = LLPipeline::sUseOcclusion > 1 && do_occlusion;
 
+    setupHWLights(nullptr);
+
 	{
 		LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred pools"); //LL_RECORD_BLOCK_TIME(FTM_DEFERRED_POOLS);
 
