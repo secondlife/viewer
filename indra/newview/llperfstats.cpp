@@ -488,7 +488,8 @@ namespace LLPerfStats
             }
             // LL_DEBUGS() << "AUTO_TUNE: Target frame time:"<< LLPerfStats::raw_to_us(target_frame_time_raw) << "usecs (non_avatar is " << LLPerfStats::raw_to_us(non_avatar_time_raw) << "usecs) Max cost limited=" << renderAvatarMaxART_ns << LL_ENDL;
         }
-        else if( LLPerfStats::raw_to_ns(target_frame_time_raw) > (LLPerfStats::raw_to_ns(tot_frame_time_raw) + renderAvatarMaxART_ns) )
+        else if(( LLPerfStats::raw_to_ns(target_frame_time_raw) > (LLPerfStats::raw_to_ns(tot_frame_time_raw) + renderAvatarMaxART_ns) ) ||
+                 (tunables.vsyncEnabled && (target_fps == LLPerfStats::vsync_max_fps) && (target_frame_time_raw > getMeanTotalFrameTime())))
         {
             if(belowTargetFPS == true)
             {
