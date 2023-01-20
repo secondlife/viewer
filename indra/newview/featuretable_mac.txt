@@ -61,7 +61,6 @@ Disregard96DefaultDrawDistance	1	1
 RenderCompressTextures		1	1
 RenderShaderLightingMaxLevel	1	3
 RenderDeferred				1	1
-RenderPBR                   1   1
 RenderDeferredSSAO			1	1
 RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	2

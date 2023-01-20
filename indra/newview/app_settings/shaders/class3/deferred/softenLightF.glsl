@@ -41,7 +41,6 @@ uniform sampler2D diffuseRect;
 uniform sampler2D specularRect;
 uniform sampler2D normalMap;
 uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
-uniform sampler2D altDiffuseMap; // PBR: irradiance, skins/default/textures/default_irradiance.png
 
 const float M_PI = 3.14159265;
 

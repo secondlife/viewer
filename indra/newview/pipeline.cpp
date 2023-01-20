@@ -326,7 +326,6 @@ bool	LLPipeline::sRenderAttachedLights = true;
 bool	LLPipeline::sRenderAttachedParticles = true;
 bool	LLPipeline::sRenderDeferred = false;
 bool	LLPipeline::sReflectionProbesEnabled = false;
-bool    LLPipeline::sRenderPBR = false;
 S32		LLPipeline::sVisibleLightCount = 0;
 bool	LLPipeline::sRenderingHUDs;
 F32     LLPipeline::sDistortionWaterClipPlaneMargin = 1.0125f;
@@ -1009,12 +1008,6 @@ void LLPipeline::updateRenderBump()
 }
 
 // static
-void LLPipeline::updateRenderDeferred()
-{
-    sRenderPBR = sRenderDeferred;
-}
-
-// static
 void LLPipeline::refreshCachedSettings()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
@@ -1103,10 +1096,8 @@ void LLPipeline::refreshCachedSettings()
 	CameraDoFResScale = gSavedSettings.getF32("CameraDoFResScale");
 	RenderAutoHideSurfaceAreaLimit = gSavedSettings.getF32("RenderAutoHideSurfaceAreaLimit");
     RenderScreenSpaceReflections = gSavedSettings.getBOOL("RenderScreenSpaceReflections");
-    sReflectionProbesEnabled = gSavedSettings.getBOOL("RenderReflectionsEnabled");
+    sReflectionProbesEnabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionsEnabled") && gSavedSettings.getBOOL("RenderReflectionsEnabled");
 	RenderSpotLight = nullptr;
-
-	updateRenderDeferred();
 
 	if (gNonInteractive)
 	{
@@ -1207,7 +1198,6 @@ void LLPipeline::createGLBuffers()
     stop_glerror();
 	assertInitialized();
 
-	updateRenderDeferred();
 	if (LLPipeline::sRenderTransparentWater)
 	{ //water reflection texture
 		U32 res = (U32) llmax(gSavedSettings.getS32("RenderWaterRefResolution"), 512);
@@ -6881,10 +6871,9 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 	LLVOPartGroup::destroyGL();
     gGL.resetVertexBuffer();
 
-	LLVertexBuffer::unbind();	
+	LLVertexBuffer::unbind();
 	
 	updateRenderBump();
-	updateRenderDeferred();
 
 	sBakeSunlight = gSavedSettings.getBOOL("RenderBakeSunlight");
 	sNoAlpha = gSavedSettings.getBOOL("RenderNoAlpha");
@@ -8357,17 +8346,6 @@ void LLPipeline::renderDeferredLighting()
             LLEnvironment &environment = LLEnvironment::instance();
             soften_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
             soften_shader.uniform3fv(LLShaderMgr::LIGHTNORM, 1, environment.getClampedLightNorm().mV);
-
-            if (!LLPipeline::sUnderWaterRender && LLPipeline::sRenderPBR)
-            {
-                soften_shader.bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, LLViewerFetchedTexture::sDefaultIrradiancePBRp); // PBR: irradiance
-            }
-
-            if(LLPipeline::sRenderPBR)
-            {
-                LLVector3 cameraAtAxis = LLViewerCamera::getInstance()->getAtAxis();
-                soften_shader.uniform3fv(LLShaderMgr::DEFERRED_VIEW_DIR, 1, cameraAtAxis.mV);
-            }
 
             {
                 LLGLDepthTest depth(GL_FALSE);

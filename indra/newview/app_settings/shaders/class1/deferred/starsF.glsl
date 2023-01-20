@@ -36,7 +36,6 @@ VARYING vec2 vary_texcoord0;
 VARYING vec2 screenpos;
 
 uniform sampler2D diffuseMap;
-uniform sampler2D altDiffuseMap;
 uniform float blend_factor;
 uniform float custom_alpha;
 uniform float time;

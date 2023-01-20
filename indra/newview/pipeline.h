@@ -428,7 +428,6 @@ public:
 
 	static void updateRenderTransparentWater();
 	static void updateRenderBump();
-	static void updateRenderDeferred();
 	static void refreshCachedSettings();
 
 	void addDebugBlip(const LLVector3& position, const LLColor4& color);
@@ -648,7 +647,6 @@ public:
 	static bool				sRenderAttachedParticles;
 	static bool				sRenderDeferred;
     static bool				sReflectionProbesEnabled;
-    static bool				sRenderPBR;
 	static S32				sVisibleLightCount;
 	static bool				sRenderingHUDs;
     static F32              sDistortionWaterClipPlaneMargin;

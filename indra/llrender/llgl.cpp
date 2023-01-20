@@ -1018,8 +1018,6 @@ bool LLGLManager::initGL()
 		LL_ERRS("RenderInit") << "Calling init on LLGLManager after already initialized!" << LL_ENDL;
 	}
 
-	stop_glerror();
-
 #if 0 && LL_WINDOWS
 	if (!glGetStringi)
 	{
@@ -1055,8 +1053,6 @@ bool LLGLManager::initGL()
 	}
 #endif
 	
-	stop_glerror();
-
 	// Extract video card strings and convert to upper case to
 	// work around driver-to-driver variation in capitalization.
 	mGLVendor = ll_safe_string((const char *)glGetString(GL_VENDOR));
@@ -1128,10 +1124,8 @@ bool LLGLManager::initGL()
 		mGLVendorShort = "MISC";
 	}
 	
-	stop_glerror();
 	// This is called here because it depends on the setting of mIsGF2or4MX, and sets up mHasMultitexture.
 	initExtensions();
-	stop_glerror();
 
 	S32 old_vram = mVRAM;
 	mVRAM = 0;
@@ -1192,29 +1186,19 @@ bool LLGLManager::initGL()
 		mVRAM = old_vram;
 	}
 
-	stop_glerror();
-
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &mNumTextureImageUnits);
-    stop_glerror();
 	glGetIntegerv(GL_MAX_COLOR_TEXTURE_SAMPLES, &mMaxColorTextureSamples);
-    stop_glerror();
 	glGetIntegerv(GL_MAX_DEPTH_TEXTURE_SAMPLES, &mMaxDepthTextureSamples);
-    stop_glerror();
 	glGetIntegerv(GL_MAX_INTEGER_SAMPLES, &mMaxIntegerSamples);
-    stop_glerror();
 	glGetIntegerv(GL_MAX_SAMPLE_MASK_WORDS, &mMaxSampleMaskWords);
-    stop_glerror();
     glGetIntegerv(GL_MAX_SAMPLES, &mMaxSamples);
-    stop_glerror();
 
     if (mGLVersion >= 4.59f)
     {
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &mMaxAnisotropy);
-        stop_glerror();
     }
 
 	initGLStates();
-	stop_glerror();
 
 	return true;
 }

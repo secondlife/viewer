@@ -86,11 +86,6 @@ void LLDrawPoolAlpha::prerender()
     // TODO: is this even necessay?  These are probably set to never discard
     LLViewerFetchedTexture::sFlatNormalImagep->addTextureStats(1024.f*1024.f);
     LLViewerFetchedTexture::sWhiteImagep->addTextureStats(1024.f * 1024.f);
-
-    if (LLPipeline::sRenderPBR)
-    {
-        gPipeline.setupHWLights(NULL);
-    }
 }
 
 S32 LLDrawPoolAlpha::getNumPostDeferredPasses() 
@@ -659,12 +654,11 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                 LLRenderPass::applyModelMatrix(params);
 
                 LLMaterial* mat = NULL;
-                LLGLTFMaterial *gltf_mat = params.mGLTFMaterial; // Also see: LLPipeline::getPoolTypeFromTE()
-                bool is_pbr = LLPipeline::sRenderPBR && gltf_mat;
+                LLGLTFMaterial *gltf_mat = params.mGLTFMaterial; 
 
-                LLGLDisable cull_face(is_pbr && gltf_mat->mDoubleSided ? GL_CULL_FACE : 0);
+                LLGLDisable cull_face(gltf_mat && gltf_mat->mDoubleSided ? GL_CULL_FACE : 0);
 
-                if (is_pbr && gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
+                if (gltf_mat && gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
                 {
                     target_shader = &gDeferredPBRAlphaProgram;
                     if (params.mAvatar != nullptr)

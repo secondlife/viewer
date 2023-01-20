@@ -468,7 +468,6 @@ void LLViewerShaderMgr::setShaders()
     gPipeline.releaseGLBuffers();
 
     LLPipeline::sRenderGlow = gSavedSettings.getBOOL("RenderGlow"); 
-    LLPipeline::updateRenderDeferred();
     
     //hack to reset buffers that change behavior with shaders
     gPipeline.resetVertexBuffers();
@@ -497,10 +496,8 @@ void LLViewerShaderMgr::setShaders()
 
     //bool canRenderDeferred = true; // DEPRECATED -- LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred");
     //bool hasWindLightShaders = true; // DEPRECATED -- LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders");
-    S32 shadow_detail            = gSavedSettings.getS32("RenderShadowDetail");
-    bool pbr = gSavedSettings.getBOOL("RenderPBR");
+    //S32 shadow_detail            = gSavedSettings.getS32("RenderShadowDetail");
     bool doingWindLight = true; //DEPRECATED -- hasWindLightShaders&& gSavedSettings.getBOOL("WindLightUseAtmosShaders");
-    bool useRenderDeferred = true; //DEPRECATED -- doingWindLight&& canRenderDeferred&& gSavedSettings.getBOOL("RenderDeferred");
 
     S32 light_class = 3;
     S32 interface_class = 2;
@@ -509,32 +506,7 @@ void LLViewerShaderMgr::setShaders()
     S32 effect_class = 2;
     S32 wl_class = 1;
     S32 water_class = 3;
-    S32 deferred_class = 0;
-
-    if (useRenderDeferred)
-    {
-        //shadows
-        switch (shadow_detail)
-        {                
-            case 1:
-                deferred_class = 2; // PCF shadows
-            break; 
-
-            case 2:
-                deferred_class = 2; // PCF shadows
-            break; 
-
-            case 0: 
-            default:
-                deferred_class = 1; // no shadows
-            break; 
-        }
-    }
-
-    if (deferred_class > 0 && pbr)
-    {
-        deferred_class = 3;
-    }
+    S32 deferred_class = 3;
 
     if (doingWindLight)
     {
@@ -3859,6 +3831,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
     {
         gReflectionProbeDisplayProgram.mName = "Reflection Probe Display Shader";
         gReflectionProbeDisplayProgram.mFeatures.hasReflectionProbes = true;
+        gReflectionProbeDisplayProgram.mFeatures.hasSrgb = true;
         gReflectionProbeDisplayProgram.mShaderFiles.clear();
         gReflectionProbeDisplayProgram.mShaderFiles.push_back(make_pair("interface/reflectionprobeV.glsl", GL_VERTEX_SHADER));
         gReflectionProbeDisplayProgram.mShaderFiles.push_back(make_pair("interface/reflectionprobeF.glsl", GL_FRAGMENT_SHADER));
