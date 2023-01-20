@@ -212,7 +212,7 @@ vec4 filterColor(vec3 N)
         color /= float(u_sampleCount);
     }
 
-    return color;
+    return min(color*1.9, vec4(1));
 }
 
 // entry point
