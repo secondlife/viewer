@@ -32,17 +32,18 @@
 #if ! defined(LL_LLEVENTDISPATCHER_H)
 #define LL_LLEVENTDISPATCHER_H
 
-#include <boost/iterator/transform_iterator.hpp>
 #include <boost/function_types/is_member_function_pointer.hpp>
 #include <boost/function_types/is_nonmember_callable_builtin.hpp>
-#include <boost/function_types/function_arity.hpp>
-#include <boost/function_types/result_type.hpp>
+#include <boost/hof/is_invocable.hpp> // until C++17, when we get std::is_invocable
+#include <boost/iterator/transform_iterator.hpp>
 #include <functional>               // std::function
 #include <memory>                   // std::unique_ptr
 #include <string>
 #include <typeinfo>
 #include <type_traits>
 #include <utility>                  // std::pair
+#include "always_return.h"
+#include "function_types.h"         // LL::function_arity
 #include "llevents.h"
 #include "llptrto.h"
 #include "llsdutil.h"
@@ -78,7 +79,7 @@ public:
     //@{
 
     /// Accept any C++ callable with the right signature
-    typedef std::function<void(const LLSD&)> Callable;
+    typedef std::function<LLSD(const LLSD&)> Callable;
 
     /**
      * Register a @a callable by @a name. The passed @a callable accepts a
@@ -90,19 +91,25 @@ public:
     void add(const std::string& name,
              const std::string& desc,
              const Callable& callable,
-             const LLSD& required=LLSD());
-
-    /**
-     * The case of a free function (or static method) accepting(const LLSD&)
-     * could also be intercepted by the arbitrary-args overload below. Ensure
-     * that it's directed to the Callable overload above instead.
-     */
-    void add(const std::string& name,
-             const std::string& desc,
-             void (*f)(const LLSD&),
              const LLSD& required=LLSD())
     {
-        add(name, desc, Callable(f), required);
+        addLLSD(name, desc, callable, required);
+    }
+
+    template <typename CALLABLE,
+              typename=typename std::enable_if<
+                  boost::hof::is_invocable<CALLABLE, LLSD>::value
+             >::type>
+    void add(const std::string& name,
+             const std::string& desc,
+             CALLABLE&& callable,
+             const LLSD& required=LLSD())
+    {
+        addLLSD(
+            name,
+            desc,
+            Callable(LL::make_always_return<LLSD>(std::forward<CALLABLE>(callable))),
+            required);
     }
 
     /**
@@ -111,6 +118,27 @@ public:
      * specifying a <tt>std::bind()</tt> expression. The passed @a method
      * accepts a single LLSD value, presumably containing other parameters.
      */
+    template <typename R, class CLASS>
+    void add(const std::string& name,
+             const std::string& desc,
+             R (CLASS::*method)(const LLSD&),
+             const LLSD& required=LLSD())
+    {
+        addMethod<CLASS>(name, desc, method, required);
+    }
+
+    /// Overload for both const and non-const methods. The passed @a method
+    /// accepts a single LLSD value, presumably containing other parameters.
+    template <typename R, class CLASS>
+    void add(const std::string& name,
+             const std::string& desc,
+             R (CLASS::*method)(const LLSD&) const,
+             const LLSD& required=LLSD())
+    {
+        addMethod<CLASS>(name, desc, method, required);
+    }
+
+    // because the compiler can't match a method returning void to the above
     template <class CLASS>
     void add(const std::string& name,
              const std::string& desc,
@@ -131,6 +159,128 @@ public:
         addMethod<CLASS>(name, desc, method, required);
     }
 
+    // non-const nullary method
+    template <typename R, class CLASS>
+    void add(const std::string& name,
+             const std::string& desc,
+             R (CLASS::*method)())
+    {
+        addVMethod<CLASS>(name, desc, method);
+    }
+
+    // const nullary method
+    template <typename R, class CLASS>
+    void add(const std::string& name,
+             const std::string& desc,
+             R (CLASS::*method)() const)
+    {
+        addVMethod<CLASS>(name, desc, method);
+    }
+
+    // non-const nullary method returning void
+    template <class CLASS>
+    void add(const std::string& name,
+             const std::string& desc,
+             void (CLASS::*method)())
+    {
+        addVMethod<CLASS>(name, desc, method);
+    }
+
+    // const nullary method returning void
+    template <class CLASS>
+    void add(const std::string& name,
+             const std::string& desc,
+             void (CLASS::*method)() const)
+    {
+        addVMethod<CLASS>(name, desc, method);
+    }
+
+    // non-const unary method (but method accepting LLSD should use the other add())
+    // enable_if usage per https://stackoverflow.com/a/39913395/5533635
+    template <typename R, class CLASS, typename ARG,
+              typename = typename std::enable_if<
+                  ! std::is_same<typename std::decay<ARG>::type, LLSD>::value
+             >::type>    
+    void add(const std::string& name,
+             const std::string& desc,
+             R (CLASS::*method)(ARG))
+    {
+        addVMethod<CLASS>(name, desc, method);
+    }
+
+    // const unary method (but method accepting LLSD should use the other add())
+    template <typename R, class CLASS, typename ARG,
+              typename = typename std::enable_if<
+                  ! std::is_same<typename std::decay<ARG>::type, LLSD>::value
+             >::type>    
+    void add(const std::string& name,
+             const std::string& desc,
+             R (CLASS::*method)(ARG) const)
+    {
+        addVMethod<CLASS>(name, desc, method);
+    }
+
+    // non-const unary method returning void
+    // enable_if usage per https://stackoverflow.com/a/39913395/5533635
+    template <class CLASS, typename ARG,
+              typename = typename std::enable_if<
+                  ! std::is_same<typename std::decay<ARG>::type, LLSD>::value
+             >::type>    
+    void add(const std::string& name,
+             const std::string& desc,
+             void (CLASS::*method)(ARG))
+    {
+        addVMethod<CLASS>(name, desc, method);
+    }
+
+    // const unary method returning void
+    template <class CLASS, typename ARG,
+              typename = typename std::enable_if<
+                  ! std::is_same<typename std::decay<ARG>::type, LLSD>::value
+             >::type>    
+    void add(const std::string& name,
+             const std::string& desc,
+             void (CLASS::*method)(ARG) const)
+    {
+        addVMethod<CLASS>(name, desc, method);
+    }
+
+    // non-const binary (or more) method
+    template <typename R, class CLASS, typename ARG0, typename ARG1, typename... ARGS>    
+    void add(const std::string& name,
+             const std::string& desc,
+             R (CLASS::*method)(ARG0, ARG1, ARGS...))
+    {
+        addVMethod<CLASS>(name, desc, method);
+    }
+
+    // const binary (or more) method
+    template <typename R, class CLASS, typename ARG0, typename ARG1, typename... ARGS>    
+    void add(const std::string& name,
+             const std::string& desc,
+             R (CLASS::*method)(ARG0, ARG1, ARGS...) const)
+    {
+        addVMethod<CLASS>(name, desc, method);
+    }
+
+    // non-const binary (or more) method returning void
+    template <class CLASS, typename ARG0, typename ARG1, typename... ARGS>    
+    void add(const std::string& name,
+             const std::string& desc,
+             void (CLASS::*method)(ARG0, ARG1, ARGS...))
+    {
+        addVMethod<CLASS>(name, desc, method);
+    }
+
+    // const binary (or more) method returning void
+    template <class CLASS, typename ARG0, typename ARG1, typename... ARGS>    
+    void add(const std::string& name,
+             const std::string& desc,
+             void (CLASS::*method)(ARG0, ARG1, ARGS...) const)
+    {
+        addVMethod<CLASS>(name, desc, method);
+    }
+
     //@}
 
     /// @name Register functions with arbitrary param lists
@@ -143,12 +293,16 @@ public:
      * When calling this name, pass an LLSD::Array. Each entry in turn will be
      * converted to the corresponding parameter type using LLSDParam.
      */
-    // enable_if usage per https://stackoverflow.com/a/39913395/5533635
-    template<typename Function,
-             typename = typename std::enable_if<
-                 boost::function_types::is_nonmember_callable_builtin<Function>::value
+    template <typename CALLABLE,
+              typename=typename std::enable_if<
+                  ! boost::hof::is_invocable<CALLABLE, LLSD>()
              >::type>
-    void add(const std::string& name, const std::string& desc, Function f);
+    void add(const std::string& name,
+             const std::string& desc,
+             CALLABLE&& f)
+    {
+        addV(name, desc, f);
+    }
 
     /**
      * Register a nonstatic class method with arbitrary parameters.
@@ -156,11 +310,7 @@ public:
      * To cover cases such as a method on an LLSingleton we don't yet want to
      * instantiate, instead of directly storing an instance pointer, accept a
      * nullary callable returning a pointer/reference to the desired class
-     * instance. If you already have an instance in hand,
-     * boost::lambda::var(instance) or boost::lambda::constant(instance_ptr)
-     * produce suitable callables.
-     *
-     * TODO: variant accepting a method of the containing class, no getter.
+     * instance.
      *
      * When calling this name, pass an LLSD::Array. Each entry in turn will be
      * converted to the corresponding parameter type using LLSDParam.
@@ -186,7 +336,8 @@ public:
      */
     template<typename Function,
              typename = typename std::enable_if<
-                 boost::function_types::is_nonmember_callable_builtin<Function>::value
+                 boost::function_types::is_nonmember_callable_builtin<Function>::value &&
+                 ! boost::hof::is_invocable<Function, LLSD>::value
              >::type>
     void add(const std::string& name, const std::string& desc, Function f,
              const LLSD& params, const LLSD& defaults=LLSD());
@@ -348,6 +499,11 @@ public:
     friend std::ostream& operator<<(std::ostream&, const LLEventDispatcher&);
 
 private:
+    void addLLSD(const std::string& name,
+                 const std::string& desc,
+                 const Callable& callable,
+                 const LLSD& required);
+
     template <class CLASS, typename METHOD>
     void addMethod(const std::string& name, const std::string& desc,
                    const METHOD& method, const LLSD& required)
@@ -359,9 +515,40 @@ private:
         }
         else
         {
-            add(name, desc, std::bind(method, downcast, std::placeholders::_1), required);
+            add(name,
+                desc,
+                Callable(LL::make_always_return<LLSD>(
+                    [downcast, method]
+                    (const LLSD& args)
+                    {
+                        return (downcast->*method)(args);
+                    })),
+                required);
         }
     }
+
+    template <class CLASS, typename METHOD>
+    void addVMethod(const std::string& name, const std::string& desc,
+                    const METHOD& method)
+    {
+        CLASS* downcast = dynamic_cast<CLASS*>(this);
+        if (! downcast)
+        {
+            addFail(name, typeid(CLASS).name());
+        }
+        else
+        {
+            // add() arbitrary method plus InstanceGetter, where the
+            // InstanceGetter in this case returns 'this'. We don't need to
+            // worry about binding 'this' because, once this LLEventDispatcher
+            // is destroyed, the DispatchEntry goes away too.
+            add(name, desc, method, [downcast](){ return downcast; });
+        }
+    }
+
+    template <typename Function>
+    void addV(const std::string& name, const std::string& desc, Function f);
+
     void addFail(const std::string& name, const std::string& classname) const;
     LLSD try_call(const std::string& key, const std::string& name,
                   const LLSD& event) const;
@@ -405,21 +592,19 @@ private:
                                    const invoker_function& invoker,
                                    const LLSD& params,
                                    const LLSD& defaults);
-    template <typename RETURNTYPE>
-    struct ReturnLLSD;
 };
 
 /*****************************************************************************
 *   LLEventDispatcher template implementation details
 *****************************************************************************/
-template<typename Function, typename>
-void LLEventDispatcher::add(const std::string& name, const std::string& desc, Function f)
+template <typename Function>
+void LLEventDispatcher::addV(const std::string& name, const std::string& desc, Function f)
 {
     // Construct an invoker_function, a callable accepting const LLSD&.
     // Add to DispatchMap an ArrayParamsDispatchEntry that will handle the
     // caller's LLSD::Array.
     addArrayParamsDispatchEntry(name, desc, make_invoker(f),
-                                boost::function_types::function_arity<Function>::value);
+                                LL::function_arity<Function>::value);
 }
 
 template<typename Method, typename InstanceGetter, typename>
@@ -429,7 +614,7 @@ void LLEventDispatcher::add(const std::string& name, const std::string& desc, Me
     // Subtract 1 from the compile-time arity because the getter takes care of
     // the first parameter. We only need (arity - 1) additional arguments.
     addArrayParamsDispatchEntry(name, desc, make_invoker(f, getter),
-                                boost::function_types::function_arity<Method>::value - 1);
+                                LL::function_arity<Method>::value - 1);
 }
 
 template<typename Function, typename>
@@ -448,64 +633,23 @@ void LLEventDispatcher::add(const std::string& name, const std::string& desc, Me
     addMapParamsDispatchEntry(name, desc, make_invoker(f, getter), params, defaults);
 }
 
-// general case, when f() has a non-void return type
-template <typename RETURNTYPE>
-struct LLEventDispatcher::ReturnLLSD
-{
-    template <typename Function>
-    LLSD operator()(Function f, const LLSD& args)
-    {
-        return { LL::apply(f, args) };
-    }
-
-    template <typename Method, typename InstanceGetter>
-    LLSD operator()(Method f, const InstanceGetter& getter, const LLSD& args)
-    {
-        constexpr auto arity = boost::function_types::function_arity<
-            typename std::remove_reference<Method>::type>::value - 1;
-
-        // Use bind_front() to bind the method to (a pointer to) the object
-        // returned by getter(). It's okay to capture and bind a pointer
-        // because this bind_front() object will last only as long as this
-        // operator() call.
-        return { LL::apply_n<arity>(LL::bind_front(f, LL::get_ptr(getter())), args) };
-    }
-};
-
-// specialize for void return type
-template <>
-struct LLEventDispatcher::ReturnLLSD<void>
-{
-    template <typename Function>
-    LLSD operator()(Function f, const LLSD& args)
-    {
-        LL::apply(f, args);
-        return {};
-    }
-
-    template <typename Method, typename InstanceGetter>
-    LLSD operator()(Method f, const InstanceGetter& getter, const LLSD& args)
-    {
-        constexpr auto arity = boost::function_types::function_arity<
-            typename std::remove_reference<Method>::type>::value - 1;
-
-        // Use bind_front() to bind the method to (a pointer to) the object
-        // returned by getter(). It's okay to capture and bind a pointer
-        // because this bind_front() object will last only as long as this
-        // operator() call.
-        LL::apply_n<arity>(LL::bind_front(f, LL::get_ptr(getter())), args);
-        return {};
-    }
-};
-
 template <typename Function>
 LLEventDispatcher::invoker_function
 LLEventDispatcher::make_invoker(Function f)
 {
+    // Return an invoker_function that accepts (const LLSD& args).
     return [f](const LLSD& args)
     {
-        return ReturnLLSD<typename boost::function_types::result_type<Function>::type>()
-            (f, args);
+        // When called, call always_return<LLSD>, directing it to call
+        // f(expanded args). always_return<LLSD> guarantees we'll get an LLSD
+        // value back, even if it's undefined because 'f' doesn't return a
+        // type convertible to LLSD.
+        return LL::always_return<LLSD>(
+            [f, args]
+            ()
+            {
+                return LL::apply(f, args);
+            });
     };
 }
 
@@ -513,10 +657,24 @@ template <typename Method, typename InstanceGetter>
 LLEventDispatcher::invoker_function
 LLEventDispatcher::make_invoker(Method f, const InstanceGetter& getter)
 {
+    // function_arity<member function> includes its implicit 'this' pointer
+    constexpr auto arity = LL::function_arity<
+        typename std::remove_reference<Method>::type>::value - 1;
+
     return [f, getter](const LLSD& args)
     {
-        return ReturnLLSD<typename boost::function_types::result_type<Method>::type>()
-            (f, getter, args);
+        // always_return<LLSD>() immediately calls the lambda we pass, and
+        // returns LLSD whether our passed lambda returns void or non-void.
+        return LL::always_return<LLSD>(
+            [f, getter, args]
+            ()
+            {
+                // Use bind_front() to bind the method to (a pointer to) the object
+                // returned by getter(). It's okay to capture and bind a pointer
+                // because this bind_front() object will last only as long as this
+                // lambda call.
+                return LL::apply_n<arity>(LL::bind_front(f, LL::get_ptr(getter())), args);
+            });
     };
 }
 

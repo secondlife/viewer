@@ -384,8 +384,7 @@ struct LLEventDispatcher::LLSDDispatchEntry: public LLEventDispatcher::DispatchE
                 (desc, ": bad request: ", mismatch);
         }
         // Event syntax looks good, go for it!
-        mFunc(event);
-        return {};
+        return mFunc(event);
     }
 
     LLSD addMetadata(LLSD meta) const override
@@ -603,8 +602,8 @@ void LLEventDispatcher::addMapParamsDispatchEntry(const std::string& name,
 }
 
 /// Register a callable by name
-void LLEventDispatcher::add(const std::string& name, const std::string& desc,
-                            const Callable& callable, const LLSD& required)
+void LLEventDispatcher::addLLSD(const std::string& name, const std::string& desc,
+                                const Callable& callable, const LLSD& required)
 {
     mDispatch.emplace(name, new LLSDDispatchEntry(desc, callable, required));
 }
