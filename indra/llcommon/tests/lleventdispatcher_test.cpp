@@ -423,9 +423,9 @@ namespace tut
             work.add(name, desc, &Dispatcher::cmethod1, required);
             // Non-subclass method with/out required params
             addf("method1", "method1", &v);
-            work.add(name, desc, boost::bind(&Vars::method1, boost::ref(v), _1));
+            work.add(name, desc, [this](const LLSD& args){ return v.method1(args); });
             addf("method1_req", "method1", &v);
-            work.add(name, desc, boost::bind(&Vars::method1, boost::ref(v), _1), required);
+            work.add(name, desc, [this](const LLSD& args){ return v.method1(args); }, required);
 
             /*--------------- Arbitrary params, array style ----------------*/
 
@@ -609,6 +609,7 @@ namespace tut
 
         void addf(const std::string& n, const std::string& d, Vars* v)
         {
+            debug("addf('", n, "', '", d, "')");
             // This method is to capture in our own DescMap the name and
             // description of every registered function, for metadata query
             // testing.
@@ -1335,22 +1336,25 @@ namespace tut
 
         DispatchResult(): LLDispatchListener("results", "op")
         {
-            // As of 2022-12-22, LLEventDispatcher's shorthand add() methods
-            // for pointer-to-method of same instance only support methods
-            // with signature void(const LLSD&). The generic add(pointer-to-
-            // method) requires an instance getter.
-            add("strfunc",   "return string",       &DR::strfunc,   [this](){ return this; });
-            add("voidfunc",  "void function",       &DR::voidfunc,  [this](){ return this; });
-            add("emptyfunc", "return empty LLSD",   &DR::emptyfunc, [this](){ return this; });
-            add("intfunc",   "return Integer LLSD", &DR::intfunc,   [this](){ return this; });
-            add("mapfunc",   "return map LLSD",     &DR::mapfunc,   [this](){ return this; });
-            add("arrayfunc", "return array LLSD",   &DR::arrayfunc, [this](){ return this; });
+            add("strfunc",   "return string",       &DR::strfunc);
+            add("voidfunc",  "void function",       &DR::voidfunc);
+            add("emptyfunc", "return empty LLSD",   &DR::emptyfunc);
+            add("intfunc",   "return Integer LLSD", &DR::intfunc);
+            add("llsdfunc",  "return passed LLSD",  &DR::llsdfunc);
+            add("mapfunc",   "return map LLSD",     &DR::mapfunc);
+            add("arrayfunc", "return array LLSD",   &DR::arrayfunc);
         }
 
         std::string strfunc(const std::string& str) const { return "got " + str; }
         void voidfunc()                  const {}
         LLSD emptyfunc()                 const { return {}; }
         int  intfunc(int i)              const { return -i; }
+        LLSD llsdfunc(const LLSD& event) const
+        {
+            LLSD result{ event };
+            result["with"] = "string";
+            return result;
+        }
         LLSD mapfunc(int i, const std::string& str) const
         {
             return llsd::map("i", intfunc(i), "str", strfunc(str));
@@ -1391,6 +1395,16 @@ namespace tut
     template<> template<>
     void object::test<26>()
     {
+        set_test_name("LLSD echo");
+        DispatchResult service;
+        LLSD result{ service("llsdfunc", llsd::map("op", "llsdfunc", "reqid", 17)) };
+        ensure_equals("llsdfunc() mismatch", result,
+                      llsd::map("op", "llsdfunc", "reqid", 17, "with", "string"));
+    }
+
+    template<> template<>
+    void object::test<27>()
+    {
         set_test_name("map LLSD result");
         DispatchResult service;
         LLSD result{ service("mapfunc", llsd::array(-12, "value")) };
@@ -1398,7 +1412,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<27>()
+    void object::test<28>()
     {
         set_test_name("array LLSD result");
         DispatchResult service;
@@ -1407,7 +1421,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<28>()
+    void object::test<29>()
     {
         set_test_name("listener error, no reply");
         DispatchResult service;
@@ -1418,7 +1432,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<29>()
+    void object::test<30>()
     {
         set_test_name("listener error with reply");
         DispatchResult service;
@@ -1431,7 +1445,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<30>()
+    void object::test<31>()
     {
         set_test_name("listener call to void function");
         DispatchResult service;
@@ -1448,7 +1462,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<31>()
+    void object::test<32>()
     {
         set_test_name("listener call to string function");
         DispatchResult service;
@@ -1464,7 +1478,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<32>()
+    void object::test<33>()
     {
         set_test_name("listener call to map function");
         DispatchResult service;
@@ -1481,7 +1495,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<33>()
+    void object::test<34>()
     {
         set_test_name("batched map success");
         DispatchResult service;
@@ -1508,7 +1522,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<34>()
+    void object::test<35>()
     {
         set_test_name("batched map error");
         DispatchResult service;
@@ -1541,7 +1555,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<35>()
+    void object::test<36>()
     {
         set_test_name("batched map exception");
         DispatchResult service;
@@ -1564,7 +1578,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<36>()
+    void object::test<37>()
     {
         set_test_name("batched array success");
         DispatchResult service;
@@ -1598,7 +1612,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<37>()
+    void object::test<38>()
     {
         set_test_name("batched array error");
         DispatchResult service;
@@ -1629,7 +1643,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<38>()
+    void object::test<39>()
     {
         set_test_name("batched array exception");
         DispatchResult service;
