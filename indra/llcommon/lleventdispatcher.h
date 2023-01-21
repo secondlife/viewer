@@ -32,6 +32,7 @@
 #if ! defined(LL_LLEVENTDISPATCHER_H)
 #define LL_LLEVENTDISPATCHER_H
 
+#include <boost/fiber/fss.hpp>
 #include <boost/function_types/is_member_function_pointer.hpp>
 #include <boost/function_types/is_nonmember_callable_builtin.hpp>
 #include <boost/hof/is_invocable.hpp> // until C++17, when we get std::is_invocable
@@ -460,14 +461,26 @@ public:
 private:
     struct DispatchEntry
     {
-        DispatchEntry(const std::string& desc);
+        DispatchEntry(LLEventDispatcher* parent, const std::string& desc);
         virtual ~DispatchEntry() {} // suppress MSVC warning, sigh
 
+        // store a plain dumb back-pointer because the parent
+        // LLEventDispatcher manages the lifespan of each DispatchEntry
+        // subclass instance -- not the other way around
+        LLEventDispatcher* mParent;
         std::string mDesc;
 
         virtual LLSD call(const std::string& desc, const LLSD& event,
                           bool fromMap, const std::string& argskey) const = 0;
         virtual LLSD addMetadata(LLSD) const = 0;
+
+        template <typename... ARGS>
+        LLSD callFail(ARGS&&... args) const
+        {
+            mParent->callFail<LLEventDispatcher::DispatchError>(std::forward<ARGS>(args)...);
+            // pacify the compiler
+            return {};
+        }
     };
     typedef std::map<std::string, std::unique_ptr<DispatchEntry> > DispatchMap;
 
@@ -561,9 +574,48 @@ protected:
     static
     void sCallFail(ARGS&&... args);
 
+    // Manage transient state, e.g. which registered callable we're attempting
+    // to call, for error reporting
+    class SetState
+    {
+    public:
+        template <typename... ARGS>
+        SetState(const LLEventDispatcher* self, ARGS&&... args):
+            mSelf(self)
+        {
+            mSet = mSelf->setState(*this, stringize(std::forward<ARGS>(args)...));
+        }
+        // RAII class: forbid both copy and move
+        SetState(const SetState&) = delete;
+        SetState(SetState&&) = delete;
+        SetState& operator=(const SetState&) = delete;
+        SetState& operator=(SetState&&) = delete;
+        virtual ~SetState()
+        {
+            // if we're the ones who succeeded in setting state, clear it
+            if (mSet)
+            {
+                mSelf->setState(*this, {});
+            }
+        }
+
+    private:
+        const LLEventDispatcher* mSelf;
+        bool mSet;
+    };
+
 private:
     std::string mDesc, mKey, mArgskey;
     DispatchMap mDispatch;
+    // transient state: must be fiber_specific since multiple threads and/or
+    // multiple fibers may be calling concurrently. Make it mutable so we can
+    // use SetState even within const methods.
+    mutable boost::fibers::fiber_specific_ptr<std::string> mState;
+
+    std::string getState() const;
+    // setState() requires SetState& because only the SetState class should
+    // call it. Make it const so we can use SetState even within const methods.
+    bool setState(SetState&, const std::string& state) const;
 
     static NameDesc makeNameDesc(const DispatchMap::value_type& item)
     {
