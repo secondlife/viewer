@@ -130,10 +130,12 @@ set(llcommon_SOURCE_FILES
 set(llcommon_HEADER_FILES
     CMakeLists.txt
 
+    always_return.h
     apply.h
     chrono.h
     ctype_workaround.h
     fix_macros.h
+    function_types.h
     indra_constants.h
     lazyeventapi.h
     linden_common.h

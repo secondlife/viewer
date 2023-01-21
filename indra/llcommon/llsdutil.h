@@ -30,9 +30,9 @@
 #define LL_LLSDUTIL_H
 
 #include "apply.h"                  // LL::invoke()
+#include "function_types.h"         // LL::function_arity
 #include "llsd.h"
 #include <boost/functional/hash.hpp>
-#include <boost/function_types/function_arity.hpp>
 #include <cassert>
 #include <type_traits>
 
@@ -697,7 +697,7 @@ template <typename CALLABLE>
 auto apply(CALLABLE&& func, const LLSD& args)
 {
     // infer arity from the definition of func
-    constexpr auto arity = boost::function_types::function_arity<
+    constexpr auto arity = function_arity<
         typename std::remove_reference<CALLABLE>::type>::value;
     // now that we have a compile-time arity, apply_n() works
     return apply_n<arity>(std::forward<CALLABLE>(func), args);
