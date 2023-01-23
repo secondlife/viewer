@@ -318,7 +318,7 @@ public:
 
 	void renderHighlight(const LLViewerObject* obj, F32 fade);
 	
-	void renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& camera, LLCullResult& result, bool use_shader, bool use_occlusion, U32 target_width);
+	void renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& camera, LLCullResult& result, bool depth_clamp);
 	void renderHighlights();
 	void renderDebug();
 	void renderPhysicsDisplay();

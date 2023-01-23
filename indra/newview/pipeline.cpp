@@ -8997,16 +8997,11 @@ static LLTrace::BlockTimerStatHandle FTM_SHADOW_ALPHA_TREE("Alpha Tree");
 static LLTrace::BlockTimerStatHandle FTM_SHADOW_ALPHA_GRASS("Alpha Grass");
 static LLTrace::BlockTimerStatHandle FTM_SHADOW_FULLBRIGHT_ALPHA_MASKED("Fullbright Alpha Masked");
 
-void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& shadow_cam, LLCullResult& result, bool use_shader, bool use_occlusion, U32 target_width)
+void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& shadow_cam, LLCullResult& result, bool depth_clamp)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE; //LL_RECORD_BLOCK_TIME(FTM_SHADOW_RENDER);
     LL_PROFILE_GPU_ZONE("renderShadow");
-    //disable occlusion culling for shadow passes (save setting to restore later)
-    S32 occlude = LLPipeline::sUseOcclusion;
-    if (!use_occlusion)
-    {
-        LLPipeline::sUseOcclusion = 0;
-    }
+    
     LLPipeline::sShadowRender = true;
 
     static const U32 types[] = {
@@ -9029,20 +9024,13 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
     LLGLEnable cull(GL_CULL_FACE);
 
     //enable depth clamping if available
-    LLGLEnable depth_clamp(GL_DEPTH_CLAMP);
+    LLGLEnable clamp_depth(depth_clamp ? GL_DEPTH_CLAMP : 0);
 
     LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_LESS);
 
-    if (use_shader)
-    {
-        gDeferredShadowCubeProgram.bind();
-    }
-
-    
     updateCull(shadow_cam, result);
 
     stateSort(shadow_cam, result);
-
 
     //generate shadow map
     gGL.matrixMode(LLRender::MM_PROJECTION);
@@ -9106,31 +9094,22 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
         gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
     }
 
-    if (occlude > 1)
+    if (LLPipeline::sUseOcclusion > 1)
     { // do occlusion culling against non-masked only to take advantage of hierarchical Z
         doOcclusion(shadow_cam);
     }
 
 
-    if (use_shader)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow geom");
-
-        gDeferredShadowProgram.unbind();
-        renderGeomShadow(shadow_cam);
-        gDeferredShadowProgram.bind();
-        gDeferredShadowProgram.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
-    }
-    else
-    {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow geom");
-
         renderGeomShadow(shadow_cam);
     }
 
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow alpha");
         LL_PROFILE_GPU_ZONE("shadow alpha");
+
+        U32 target_width = LLRenderTarget::sCurResX;
 
         for (int i = 0; i < 2; ++i)
         {
@@ -9213,11 +9192,6 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
     gGLLastMatrix = NULL;
     gGL.loadMatrix(gGLModelView);
 
-    if (use_shader)
-    {
-        gDeferredShadowProgram.unbind();
-    }
-
     gGL.setColorMask(true, true);
 
     gGL.matrixMode(LLRender::MM_PROJECTION);
@@ -9226,7 +9200,6 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
     gGL.popMatrix();
     gGLLastMatrix = NULL;
 
-    LLPipeline::sUseOcclusion = occlude;
     LLPipeline::sShadowRender = false;
 }
 
@@ -10067,11 +10040,9 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			mRT->shadow[j].getViewport(gGLViewport);
 			mRT->shadow[j].clear();
 		
-			U32 target_width = mRT->shadow[j].getWidth();
-
 			{
 				static LLCullResult result[4];
-				renderShadow(view[j], proj[j], shadow_cam, result[j], true, true, target_width);
+				renderShadow(view[j], proj[j], shadow_cam, result[j], true);
 			}
 
 			mRT->shadow[j].flush();
@@ -10218,15 +10189,13 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                 mSpotShadow[i].getViewport(gGLViewport);
                 mSpotShadow[i].clear();
 
-                U32 target_width = mSpotShadow[i].getWidth();
-
                 static LLCullResult result[2];
 
                 LLViewerCamera::sCurCameraID = (LLViewerCamera::eCameraID)(LLViewerCamera::CAMERA_SPOT_SHADOW0 + i);
 
                 RenderSpotLight = drawable;
 
-                renderShadow(view[i + 4], proj[i + 4], shadow_cam, result[i], false, true, target_width);
+                renderShadow(view[i + 4], proj[i + 4], shadow_cam, result[i], false);
 
                 RenderSpotLight = nullptr;
 
