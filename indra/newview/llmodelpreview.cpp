@@ -2703,7 +2703,6 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 {
     U32 mesh_count = 0;
 
-
     LLModelLoader::model_list* model = NULL;
 
     if (lod < 0 || lod > 4)

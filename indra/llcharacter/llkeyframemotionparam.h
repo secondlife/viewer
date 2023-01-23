@@ -59,7 +59,7 @@ public:
 
 	// static constructor
 	// all subclasses must implement such a function and register it
-	static LLMotion *create(const LLUUID &id) { return new LLKeyframeMotionParam(id); }
+	static LLMotion::ptr_t create(const LLUUID &id) { return std::make_shared<LLKeyframeMotionParam>(id); }
 
 public:
 	//-------------------------------------------------------------------------
@@ -122,8 +122,8 @@ protected:
 	//-------------------------------------------------------------------------
 	struct ParameterizedMotion
 	{
-		ParameterizedMotion(LLMotion* motion, F32 param) : mMotion(motion), mParam(param) {}
-		LLMotion* mMotion;
+		ParameterizedMotion(const LLMotion::ptr_t &motion, F32 param) : mMotion(motion), mParam(param) {}
+		LLMotion::ptr_t mMotion;
 		F32 mParam;
 	};
 	
@@ -154,7 +154,7 @@ protected:
 	typedef std::set < ParameterizedMotion, compare_motions > motion_list_t;
 	typedef std::map <std::string, motion_list_t > motion_map_t;
 	motion_map_t 		mParameterizedMotions;
-	LLMotion*			mDefaultKeyframeMotion;
+	LLMotion::ptr_t     mDefaultKeyframeMotion;
 	LLCharacter*		mCharacter;
 	LLPoseBlender		mPoseBlender;
 

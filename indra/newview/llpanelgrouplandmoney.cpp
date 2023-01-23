@@ -1325,7 +1325,7 @@ void LLPanelGroupLandMoney::processGroupAccountTransactionsReply(LLMessageSystem
 	self = get_ptr_in_map(LLGroupMoneyTabEventHandler::sInstanceIDs, request_id);
 	if (!self)
 	{
-		LL_WARNS() << "GroupAccountTransactions recieved for non-existent group panel." << LL_ENDL;
+		LL_WARNS() << "GroupAccountTransactions received for non-existent group panel." << LL_ENDL;
 		return;
 	}
 
@@ -1505,7 +1505,7 @@ void LLPanelGroupLandMoney::processGroupAccountSummaryReply(LLMessageSystem* msg
 	self = get_ptr_in_map(LLGroupMoneyTabEventHandler::sInstanceIDs, request_id);
 	if (!self)
 	{
-		LL_WARNS() << "GroupAccountSummary recieved for non-existent group L$ planning tab." << LL_ENDL;
+		LL_WARNS() << "GroupAccountSummary received for non-existent group L$ planning tab." << LL_ENDL;
 		return;
 	}
 

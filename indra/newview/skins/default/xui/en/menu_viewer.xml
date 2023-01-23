@@ -2205,18 +2205,169 @@ function="World.EnvPreset"
              function="ToggleControl"
              parameter="MouseSmooth" />
         </menu_item_check>
-            <menu_item_call
-             enabled="false"
-             label="Release Keys"
-             name="Release Keys">
-                <menu_item_call.on_click
-                 function="Tools.ReleaseKeys"
-                 parameter="" />
-                <menu_item_call.on_enable
-                 function="Tools.EnableReleaseKeys"
-                 parameter="" />
-            </menu_item_call>
+        <menu_item_call
+         enabled="false"
+         label="Release Keys"
+         name="Release Keys">
+            <menu_item_call.on_click
+             function="Tools.ReleaseKeys"
+             parameter="" />
+            <menu_item_call.on_enable
+             function="Tools.EnableReleaseKeys"
+             parameter="" />
+        </menu_item_call>
+      <menu
+        create_jump_keys="true"
+        label="Puppetry"
+        name="Puppetry"
+        tear_off="true">
+        <menu_item_call
+          label="Launch plug-in..."
+          name="Launch Puppetry">
+          <menu_item_call.on_click
+            function="Advanced.Puppetry.LaunchLeap"
+             parameter="pick"/>
+          <menu_item_call.on_enable
+           function="Advanced.Puppetry.EnableLaunchLeap" />
+        </menu_item_call>
+        <menu_item_call
+          label="Close plug-in"
+          name="Close Puppetry">
+          <menu_item_call.on_click
+            function="Advanced.Puppetry.CloseLeap" />
+          <menu_item_call.on_enable
+           function="Advanced.Puppetry.EnableCloseLeap" />
+        </menu_item_call>
         <menu_item_separator/>
+        <menu_item_check
+          label="Send"
+          name="SendPuppetry">
+          <menu_item_check.on_check
+            function="Advanced.Puppetry.CheckSend"
+            parameter="" />
+          <menu_item_check.on_click
+            function="Advanced.Puppetry.ToggleSend"
+            parameter="" />
+          <menu_item_check.on_enable
+           function="Advanced.Puppetry.EnableSend" />
+        </menu_item_check>
+        <menu_item_check
+          label="Receive"
+          name="ReceivePuppetry">
+          <menu_item_check.on_check
+            function="Advanced.Puppetry.CheckReceive"
+            parameter="" />
+          <menu_item_check.on_click
+            function="Advanced.Puppetry.ToggleReceive"
+            parameter="" />
+          <menu_item_check.on_enable
+           function="Advanced.Puppetry.EnableReceive" />
+        </menu_item_check>
+        <menu_item_check
+          label="Use my server data"
+          name="EchoPuppetry">
+          <menu_item_check.on_check
+            function="Advanced.Puppetry.CheckEcho"
+            parameter="" />
+          <menu_item_check.on_click
+            function="Advanced.Puppetry.ToggleEcho"
+            parameter="" />
+          <menu_item_check.on_enable
+           function="Advanced.Puppetry.EnableEcho" />
+        </menu_item_check>
+        <menu_item_separator/>
+        <menu_item_check
+          label="Head"
+          name="PuppetryHead">
+          <menu_item_check.on_check
+            function="Advanced.Puppetry.CheckPart"
+            parameter="1" />
+          <menu_item_check.on_click
+            function="Advanced.Puppetry.SelectPart"
+            parameter="1" />
+        </menu_item_check>
+        <menu_item_check
+          label="Face"
+          name="PuppetryFace">
+          <menu_item_check.on_check
+            function="Advanced.Puppetry.CheckPart"
+            parameter="2" />
+          <menu_item_check.on_click
+            function="Advanced.Puppetry.SelectPart"
+            parameter="2" />
+        </menu_item_check>
+        <menu_item_check
+          label="Left Hand"
+          name="PuppetryLeftHand">
+          <menu_item_check.on_check
+            function="Advanced.Puppetry.CheckPart"
+            parameter="4" />
+          <menu_item_check.on_click
+            function="Advanced.Puppetry.SelectPart"
+            parameter="4" />
+        </menu_item_check>
+        <menu_item_check
+          label="Right Hand"
+          name="PuppetryRightHand">
+          <menu_item_check.on_check
+            function="Advanced.Puppetry.CheckPart"
+            parameter="8" />
+          <menu_item_check.on_click
+            function="Advanced.Puppetry.SelectPart"
+            parameter="8" />
+        </menu_item_check>
+        <menu_item_check
+          label="Fingers"
+          name="PuppetryFingers">
+          <menu_item_check.on_check
+            function="Advanced.Puppetry.CheckPart"
+            parameter="16" />
+          <menu_item_check.on_click
+            function="Advanced.Puppetry.SelectPart"
+            parameter="16" />
+        </menu_item_check>
+        <menu_item_separator/>
+        <menu_item_check
+          label="Default Camera"
+          name="CameraZero">
+          <menu_item_check.on_check
+            function="Advanced.Puppetry.CheckCamera"
+            parameter="0" />
+          <menu_item_check.on_click
+            function="Advanced.Puppetry.SelectCamera"
+            parameter="0" />
+        </menu_item_check>
+        <menu_item_check
+          label="Camera 1"
+          name="CameraOne">
+          <menu_item_check.on_check
+            function="Advanced.Puppetry.CheckCamera"
+            parameter="1" />
+          <menu_item_check.on_click
+            function="Advanced.Puppetry.SelectCamera"
+            parameter="1" />
+        </menu_item_check>
+        <menu_item_check
+          label="Camera 2"
+          name="CameraTwo">
+          <menu_item_check.on_check
+            function="Advanced.Puppetry.CheckCamera"
+            parameter="2" />
+          <menu_item_check.on_click
+            function="Advanced.Puppetry.SelectCamera"
+            parameter="2" />
+        </menu_item_check>
+        <menu_item_check
+          label="Camera 3"
+          name="CameraThree">
+          <menu_item_check.on_check
+            function="Advanced.Puppetry.CheckCamera"
+            parameter="3" />
+          <menu_item_check.on_click
+            function="Advanced.Puppetry.SelectCamera"
+            parameter="3" />
+        </menu_item_check>
+      </menu>
 
         <menu
          create_jump_keys="true"

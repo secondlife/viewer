@@ -561,7 +561,7 @@ void LLHUDEffectLookAt::update()
 	{
 		if (calcTargetPosition())
 		{
-			LLMotion* head_motion = ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->findMotion(ANIM_AGENT_HEAD_ROT);
+			LLMotion::ptr_t head_motion(((LLVOAvatar*)(LLViewerObject*)mSourceObject)->findMotion(ANIM_AGENT_HEAD_ROT));
 			if (!head_motion || head_motion->isStopped())
 			{
 				((LLVOAvatar*)(LLViewerObject*)mSourceObject)->startMotion(ANIM_AGENT_HEAD_ROT);

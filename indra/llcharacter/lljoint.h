@@ -100,7 +100,8 @@ public:
 		HIGH_PRIORITY,
 		HIGHER_PRIORITY,
 		HIGHEST_PRIORITY,
-		ADDITIVE_PRIORITY = LL_CHARACTER_MAX_PRIORITY
+		ADDITIVE_PRIORITY = LL_CHARACTER_MAX_PRIORITY,
+        PUPPET_PRIORITY = LL_CHARACTER_MAX_PRIORITY  // extra constant just for clairity. 
 	};
 
 	enum DirtyFlags
@@ -143,6 +144,7 @@ public:
     LLVector3		mEnd;
 
 	S32				mJointNum;
+    bool            mIsBone;
 
 	// child joints
 	typedef std::vector<LLJoint*> joints_t;
@@ -205,7 +207,11 @@ public:
     // joint num
 	S32 getJointNum() const { return mJointNum; }
 	void setJointNum(S32 joint_num);
-
+    
+    //Is this a bone or a collision volume/attachment
+    void setIsBone(bool is_bone);
+    bool isBone(){return mIsBone;}
+    
     // get/set support
     SupportCategory getSupport() const { return mSupport; }
     void setSupport( const SupportCategory& support) { mSupport = support; }
@@ -228,9 +234,12 @@ public:
 	void addChild( LLJoint *joint );
 	void removeChild( LLJoint *joint );
 	void removeAllChildren();
+    
+    //Tells us if this is a normal joint, leaf, or end effector
+    U32  getNumChildren() const;
 
 	// get/set local position
-	const LLVector3& getPosition();
+	const LLVector3& getPosition() const;
 	void setPosition( const LLVector3& pos, bool apply_attachment_overrides = false );
 
     // Tracks the default position defined by the skeleton
@@ -243,11 +252,11 @@ public:
 
 	// get/set world position
 	LLVector3 getWorldPosition();
-	LLVector3 getLastWorldPosition();
+	LLVector3 getLastWorldPosition() const;
 	void setWorldPosition( const LLVector3& pos );
 
 	// get/set local rotation
-	const LLQuaternion& getRotation();
+	const LLQuaternion& getRotation() const;
 	void setRotation( const LLQuaternion& rot );
 
 	// get/set world rotation
@@ -256,7 +265,7 @@ public:
 	void setWorldRotation( const LLQuaternion& rot );
 
 	// get/set local scale
-	const LLVector3& getScale();
+	const LLVector3& getScale() const;
 	void setScale( const LLVector3& scale, bool apply_attachment_overrides = false );
 
 	// get/set world matrix
@@ -273,12 +282,10 @@ public:
 	void updateWorldMatrix();
 
 	// get/set skin offset
-	const LLVector3 &getSkinOffset();
+	const LLVector3 &getSkinOffset() const;
 	void setSkinOffset( const LLVector3 &offset);
 
 	LLXformMatrix	*getXform() { return &mXform; }
-
-	void clampRotation(LLQuaternion old_rot, LLQuaternion new_rot);
 
 	virtual BOOL isAnimatable() const { return TRUE; }
 

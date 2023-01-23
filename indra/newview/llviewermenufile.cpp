@@ -200,7 +200,11 @@ void LLFilePickerThread::clearDead()
 	}
 }
 
-LLFilePickerReplyThread::LLFilePickerReplyThread(const file_picked_signal_t::slot_type& cb, LLFilePicker::ELoadFilter filter, bool get_multiple, const file_picked_signal_t::slot_type& failure_cb)
+LLFilePickerReplyThread::LLFilePickerReplyThread(
+        const file_picked_signal_t::slot_type& cb,
+        LLFilePicker::ELoadFilter filter,
+        bool get_multiple,
+        const file_picked_signal_t::slot_type& failure_cb)
 	: LLFilePickerThread(filter, get_multiple),
 	mLoadFilter(filter),
 	mSaveFilter(LLFilePicker::FFSAVE_ALL),
@@ -214,7 +218,11 @@ LLFilePickerReplyThread::LLFilePickerReplyThread(const file_picked_signal_t::slo
 	mFailureSignal->connect(failure_cb);
 }
 
-LLFilePickerReplyThread::LLFilePickerReplyThread(const file_picked_signal_t::slot_type& cb, LLFilePicker::ESaveFilter filter, const std::string &proposed_name, const file_picked_signal_t::slot_type& failure_cb)
+LLFilePickerReplyThread::LLFilePickerReplyThread(
+        const file_picked_signal_t::slot_type& cb,
+        LLFilePicker::ESaveFilter filter,
+        const std::string &proposed_name,
+        const file_picked_signal_t::slot_type& failure_cb)
 	: LLFilePickerThread(filter, proposed_name),
 	mLoadFilter(LLFilePicker::FFLOAD_ALL),
 	mSaveFilter(filter),
@@ -379,7 +387,7 @@ const bool check_file_extension(const std::string& filename, LLFilePicker::ELoad
 	return true;
 }
 
-const void upload_single_file(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type)
+void upload_single_file(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type)
 {
 	std::string filename = filenames[0];
 	if (!check_file_extension(filename, type)) return;
@@ -496,7 +504,7 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
     return file_count > 0;
 }
 
-const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type)
+void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type)
 {
 	// TODO:
 	// Check user balance for entire cost

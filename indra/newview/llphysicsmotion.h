@@ -45,6 +45,8 @@ class LLPhysicsMotionController :
 	public LLMotion
 {
 public:
+    using ptr_t = std::shared_ptr<LLPhysicsMotionController>;
+
 	// Constructor
 	LLPhysicsMotionController(const LLUUID &id);
 
@@ -58,7 +60,7 @@ public:
 
 	// static constructor
 	// all subclasses must implement such a function and register it
-	static LLMotion *create(const LLUUID &id) { return new LLPhysicsMotionController(id); }
+	static LLMotion::ptr_t create(const LLUUID &id) { return std::make_shared<LLPhysicsMotionController>(id); }
 
 public:
 	//-------------------------------------------------------------------------

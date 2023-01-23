@@ -37,13 +37,12 @@ static const std::string PRESETS_DEFAULT_UPPER = "DEFAULT";
 static const std::string PRESETS_DIR = "presets";
 static const std::string PRESETS_GRAPHIC = "graphic";
 static const std::string PRESETS_CAMERA = "camera";
-static const std::string PRESETS_REAR = "Rear";
-static const std::string PRESETS_FRONT = "Front";
-static const std::string PRESETS_SIDE = "Side";
-static const std::string PRESETS_VIEW_SUFFIX = " View";
-static const std::string PRESETS_REAR_VIEW = PRESETS_REAR + PRESETS_VIEW_SUFFIX;
-static const std::string PRESETS_FRONT_VIEW = PRESETS_FRONT + PRESETS_VIEW_SUFFIX;
-static const std::string PRESETS_SIDE_VIEW = PRESETS_SIDE + PRESETS_VIEW_SUFFIX;
+
+// Files in presets/camera/ folder will be the first word in the names plus '.xml'.  i.e. 'Rear.xml'
+static const std::string PRESETS_REAR_VIEW = "Rear View";
+static const std::string PRESETS_FRONT_VIEW = "Front View";
+static const std::string PRESETS_SIDE_VIEW = "Side View";
+static const std::string PRESETS_CLOSE_UP = "Close-Up";
 
 enum EDefaultOptions
 {

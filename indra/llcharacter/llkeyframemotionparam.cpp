@@ -68,11 +68,6 @@ LLKeyframeMotionParam::~LLKeyframeMotionParam()
 		 iter != mParameterizedMotions.end(); ++iter)
 	{
 		motion_list_t& motionList = iter->second;
-		for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
-		{
-			const ParameterizedMotion& paramMotion = *iter2;
-			delete paramMotion.mMotion;
-		}
 		motionList.clear();
 	}
 	mParameterizedMotions.clear();
@@ -97,7 +92,7 @@ LLMotion::LLMotionInitStatus LLKeyframeMotionParam::onInitialize(LLCharacter *ch
 		for (motion_list_t::iterator iter2 = motionList.begin(); iter2 != motionList.end(); ++iter2)
 		{
 			const ParameterizedMotion& paramMotion = *iter2;
-			LLMotion* motion = paramMotion.mMotion;
+			LLMotion::ptr_t motion(paramMotion.mMotion);
 			motion->onInitialize(character);
 
 			if (motion->getDuration() > mEaseInDuration)
@@ -297,7 +292,7 @@ void LLKeyframeMotionParam::onDeactivate()
 //-----------------------------------------------------------------------------
 BOOL LLKeyframeMotionParam::addKeyframeMotion(char *name, const LLUUID &id, char *param, F32 value)
 {
-	LLMotion *newMotion = mCharacter->createMotion( id );
+	LLMotion::ptr_t newMotion(mCharacter->createMotion( id ));
 	
 	if (!newMotion)
 	{

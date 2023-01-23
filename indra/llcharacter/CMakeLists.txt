@@ -29,6 +29,7 @@ set(llcharacter_SOURCE_FILES
     llgesture.cpp
     llhandmotion.cpp
     llheadrotmotion.cpp
+    llik.cpp
     lljoint.cpp
     lljointsolverrp3.cpp
     llkeyframefallmotion.cpp
@@ -56,6 +57,7 @@ set(llcharacter_HEADER_FILES
     llgesture.h
     llhandmotion.h
     llheadrotmotion.h
+    llik.h
     lljoint.h
     lljointsolverrp3.h
     lljointstate.h
@@ -88,3 +90,25 @@ target_link_libraries(
     ${LLFILESYSTEM_LIBRARIES}
     ${LLXML_LIBRARIES}
     )
+
+# Add tests
+if (LL_TESTS)
+  include(LLAddBuildTest)
+  # UNIT TESTS
+  SET(llcharacter_TEST_SOURCE_FILES
+    llik.cpp
+    lljoint.cpp
+  )
+  set_source_files_properties(
+    ${llcharacter_TEST_SOURCE_FILES}
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_THREAD_LIBRARY}"
+  )
+  set_source_files_properties(
+    llik.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_SOURCE_FILES lljoint.cpp
+  )
+  LL_ADD_PROJECT_UNIT_TESTS(llcharacter "${llcharacter_TEST_SOURCE_FILES}")
+endif (LL_TESTS)
+

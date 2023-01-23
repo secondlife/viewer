@@ -38,7 +38,7 @@
 #include <map>
 #include <string>
 
-
+class LLMotion;
 //-----------------------------------------------------------------------------
 // class LLPose
 //-----------------------------------------------------------------------------
@@ -101,8 +101,6 @@ public:
 	LL_ALIGN_16(LLJoint mJointCache);
 } LL_ALIGN_POSTFIX(16);
 
-class LLMotion;
-
 class LLPoseBlender
 {
 protected:
@@ -120,7 +118,7 @@ public:
 	~LLPoseBlender();
 	
 	// request motion joint states to be added to pose blender joint state records
-	BOOL addMotion(LLMotion* motion);
+	BOOL addMotion(const std::shared_ptr<LLMotion> &motion);
 
 	// blend all joint states and apply to skeleton
 	void blendAndApply();

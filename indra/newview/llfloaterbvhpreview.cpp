@@ -190,7 +190,7 @@ std::map <std::string, std::string> LLFloaterBvhPreview::getJointAliases()
 //-----------------------------------------------------------------------------
 BOOL LLFloaterBvhPreview::postBuild()
 {
-	LLKeyframeMotion* motionp = NULL;
+	LLKeyframeMotion::ptr_t motionp;
 	LLBVHLoader* loaderp = NULL;
 
 	if (!LLFloaterNameDesc::postBuild())
@@ -281,7 +281,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 		// motion will be returned, but it will be in a load-pending state, as this is a new motion
 		// this motion will not request an asset transfer until next update, so we have a chance to 
 		// load the keyframe data locally
-		motionp = (LLKeyframeMotion*)mAnimPreview->getDummyAvatar()->createMotion(mMotionID);
+		motionp = std::static_pointer_cast<LLKeyframeMotion>(mAnimPreview->getDummyAvatar()->createMotion(mMotionID));
 
 		// create data buffer for keyframe initialization
 		S32 buffer_size = loaderp->getOutputSize();
@@ -435,7 +435,7 @@ void LLFloaterBvhPreview::resetMotion()
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
 	BOOL paused = avatarp->areAnimationsPaused();
 
-	LLKeyframeMotion* motionp = dynamic_cast<LLKeyframeMotion*>(avatarp->findMotion(mMotionID));
+	LLKeyframeMotion::ptr_t motionp(std::dynamic_pointer_cast<LLKeyframeMotion>(avatarp->findMotion(mMotionID)));
 	if( motionp )
 	{
 		// Set emotion
@@ -648,7 +648,7 @@ void LLFloaterBvhPreview::onSliderMove()
 		LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
 		F32 slider_value = (F32)getChild<LLUICtrl>("playback_slider")->getValue().asReal();
 		LLUUID base_id = mIDList[getChild<LLUICtrl>("preview_base_anim")->getValue().asString()];
-		LLMotion* motionp = avatarp->findMotion(mMotionID);
+		LLMotion::ptr_t motionp(avatarp->findMotion(mMotionID));
 		F32 duration = motionp->getDuration();// + motionp->getEaseOutDuration();
 		F32 delta_time = duration * slider_value;
 		avatarp->deactivateAllMotions();
@@ -698,7 +698,7 @@ void LLFloaterBvhPreview::onCommitLoop()
 		return;
 	
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-	LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+	LLKeyframeMotion::ptr_t motionp(std::static_pointer_cast<LLKeyframeMotion>(avatarp->findMotion(mMotionID)));
 
 	if (motionp)
 	{
@@ -717,7 +717,7 @@ void LLFloaterBvhPreview::onCommitLoopIn()
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-	LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+	LLKeyframeMotion::ptr_t motionp(std::static_pointer_cast<LLKeyframeMotion>(avatarp->findMotion(mMotionID)));
 
 	if (motionp)
 	{
@@ -737,7 +737,7 @@ void LLFloaterBvhPreview::onCommitLoopOut()
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-	LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+	LLKeyframeMotion::ptr_t motionp(std::static_pointer_cast<LLKeyframeMotion>(avatarp->findMotion(mMotionID)));
 
 	if (motionp)
 	{
@@ -757,7 +757,7 @@ void LLFloaterBvhPreview::onCommitName()
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-	LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+	LLKeyframeMotion::ptr_t motionp(std::static_pointer_cast<LLKeyframeMotion>(avatarp->findMotion(mMotionID)));
 
 	if (motionp)
 	{
@@ -798,7 +798,7 @@ void LLFloaterBvhPreview::onCommitPriority()
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-	LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+	LLKeyframeMotion::ptr_t motionp(std::static_pointer_cast<LLKeyframeMotion>(avatarp->findMotion(mMotionID)));
 
 	motionp->setPriority(llfloor((F32)getChild<LLUICtrl>("priority")->getValue().asReal()));
 }
@@ -812,7 +812,7 @@ void LLFloaterBvhPreview::onCommitEaseIn()
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-	LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+	LLKeyframeMotion::ptr_t motionp(std::static_pointer_cast<LLKeyframeMotion>(avatarp->findMotion(mMotionID)));
 
 	motionp->setEaseIn((F32)getChild<LLUICtrl>("ease_in_time")->getValue().asReal());
 	resetMotion();
@@ -827,7 +827,7 @@ void LLFloaterBvhPreview::onCommitEaseOut()
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-	LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+	LLKeyframeMotion::ptr_t motionp(std::static_pointer_cast<LLKeyframeMotion>(avatarp->findMotion(mMotionID)));
 
 	motionp->setEaseOut((F32)getChild<LLUICtrl>("ease_out_time")->getValue().asReal());
 	resetMotion();
@@ -842,7 +842,7 @@ bool LLFloaterBvhPreview::validateEaseIn(const LLSD& data)
 		return false;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-	LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+	LLKeyframeMotion::ptr_t motionp(std::static_pointer_cast<LLKeyframeMotion>(avatarp->findMotion(mMotionID)));
 	
 	if (!motionp->getLoop())
 	{
@@ -862,7 +862,7 @@ bool LLFloaterBvhPreview::validateEaseOut(const LLSD& data)
 		return false;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-	LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+	LLKeyframeMotion::ptr_t motionp(std::static_pointer_cast<LLKeyframeMotion>(avatarp->findMotion(mMotionID)));
 	
 	if (!motionp->getLoop())
 	{
@@ -955,7 +955,7 @@ void LLFloaterBvhPreview::refresh()
 		if (avatarp->isMotionActive(mMotionID))
 		{
 			mStopButton->setEnabled(TRUE);
-			LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+			LLKeyframeMotion::ptr_t motionp(std::static_pointer_cast<LLKeyframeMotion>(avatarp->findMotion(mMotionID)));
 			if (!avatarp->areAnimationsPaused())
 			{
 				// animation is playing
@@ -989,7 +989,7 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 
 	if (floaterp->mAnimPreview)
 	{
-		LLKeyframeMotion* motionp = (LLKeyframeMotion*)floaterp->mAnimPreview->getDummyAvatar()->findMotion(floaterp->mMotionID);
+		LLKeyframeMotion::ptr_t motionp(std::static_pointer_cast<LLKeyframeMotion>(floaterp->mAnimPreview->getDummyAvatar()->findMotion(floaterp->mMotionID)));
 
 		S32 file_size = motionp->getFileSize();
 		U8* buffer = new U8[file_size];
@@ -1059,6 +1059,7 @@ LLPreviewAnimation::LLPreviewAnimation(S32 width, S32 height) : LLViewerDynamicT
 	mDummyAvatar->stopMotion( ANIM_AGENT_EYE, TRUE );
 	mDummyAvatar->stopMotion( ANIM_AGENT_BODY_NOISE, TRUE );
 	mDummyAvatar->stopMotion( ANIM_AGENT_BREATHE_ROT, TRUE );
+    mDummyAvatar->stopMotion( ANIM_AGENT_PUPPET_MOTION, TRUE );
 }
 
 //-----------------------------------------------------------------------------

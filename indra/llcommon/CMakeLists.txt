@@ -18,7 +18,7 @@ include_directories(
     ${EXPAT_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${JSONCPP_INCLUDE_DIR}
-    ${ZLIBNG_INCLUDE_DIRS}
+    ${ZLIB_INCLUDE_DIRS}
     ${URIPARSER_INCLUDE_DIRS}
     ${TRACY_INCLUDE_DIR}
     )
@@ -31,6 +31,7 @@ include_directories(
 set(llcommon_SOURCE_FILES
     apply.cpp
     indra_constants.cpp
+    lazyeventapi.cpp
     llallocator.cpp
     llallocator_heap_profile.cpp
     llapp.cpp
@@ -131,11 +132,11 @@ set(llcommon_HEADER_FILES
     always_return.h
     apply.h
     chrono.h
-    classic_callback.h
     ctype_workaround.h
     fix_macros.h
     function_types.h
     indra_constants.h
+    lazyeventapi.h
     linden_common.h
     llalignedarray.h
     llallocator.h
@@ -343,6 +344,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(classic_callback "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(lazyeventapi "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llbase64 "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llcond "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lldate "" "${test_libs}")

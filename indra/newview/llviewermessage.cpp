@@ -116,6 +116,8 @@
 #include "llpanelplaceprofile.h"
 #include "llviewerregion.h"
 #include "llfloaterregionrestarting.h"
+#include "llpuppetmodule.h"
+#include "llpuppetmotion.h"
 
 #include <boost/foreach.hpp>
 
@@ -4053,6 +4055,27 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 }
 
 
+// Common code to extract puppetry data from an avatar animation message
+static void  handle_puppetry_data(LLMessageSystem * mesgsys, LLVOAvatar * avatarp, S32 num_physav_blocks)
+{
+    LLPuppetMotion::ptr_t puppet_motion(std::static_pointer_cast<LLPuppetMotion>(avatarp->findMotion(ANIM_AGENT_PUPPET_MOTION)));
+
+    if (puppet_motion != NULL)
+    {
+        for (S32 i = 0; i < num_physav_blocks; i++)
+        {
+            S32 data_size = mesgsys->getSizeFast(_PREHASH_PhysicalAvatarEventList, i, _PREHASH_TypeData);
+            if (data_size > 0)
+            {
+                puppet_motion->unpackEvents(mesgsys, i);
+            }
+        }
+        if (!puppet_motion->isActive() && puppet_motion->needsUpdate())
+        {
+            avatarp->startMotion(ANIM_AGENT_PUPPET_MOTION);
+        }
+    }
+}
 
 void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 {
@@ -4078,6 +4101,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationList);
 	S32 num_source_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationSourceList);
+	S32 num_physav_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_PhysicalAvatarEventList);
 
 	LL_DEBUGS("Messaging", "Motion") << "Processing " << num_blocks << " Animations" << LL_ENDL;
 
@@ -4141,6 +4165,12 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 									<< " Animation id: " << animation_id << LL_ENDL;
 			}
 		}
+
+		if (LLPuppetModule::instance().getEcho())
+		{
+			// Extract and process puppetry data from message
+			handle_puppetry_data(mesgsys, avatarp, num_physav_blocks);
+		}
 	}
 	else
 	{
@@ -4150,6 +4180,9 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 			mesgsys->getS32Fast(_PREHASH_AnimationList, _PREHASH_AnimSequenceID, anim_sequence_id, i);
 			avatarp->mSignaledAnimations[animation_id] = anim_sequence_id;
 		}
+
+		// Extract and process puppetry data from message
+		handle_puppetry_data(mesgsys, avatarp, num_physav_blocks);
 	}
 
 	if (num_blocks)

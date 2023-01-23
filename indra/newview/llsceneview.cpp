@@ -294,7 +294,6 @@ void LLSceneView::draw()
 
 			LLFontGL::getFontMonospace()->renderUTF8(label,
 											0 , tri_rect.mLeft, tri_rect.mTop+margin, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
-
 		}
 	}
 

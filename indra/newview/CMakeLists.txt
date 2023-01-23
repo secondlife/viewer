@@ -124,6 +124,7 @@ set(viewer_SOURCE_FILES
     llagentlistener.cpp
     llagentpicksinfo.cpp
     llagentpilot.cpp
+    llagentiomodule.cpp
     llagentui.cpp
     llagentwearables.cpp
     llanimstatelabels.cpp
@@ -546,6 +547,9 @@ set(viewer_SOURCE_FILES
     llpreviewtexture.cpp
     llproductinforequest.cpp
     llprogressview.cpp
+    llpuppetevent.cpp
+    llpuppetmodule.cpp
+    llpuppetmotion.cpp
     llrecentpeople.cpp
     llregioninfomodel.cpp
     llregionposition.cpp
@@ -762,6 +766,7 @@ set(viewer_HEADER_FILES
     llagentlistener.h
     llagentpicksinfo.h
     llagentpilot.h
+    llagentiomodule.h
     llagentui.h
     llagentwearables.h
     llanimstatelabels.h
@@ -1173,6 +1178,9 @@ set(viewer_HEADER_FILES
     llpreviewtexture.h
     llproductinforequest.h
     llprogressview.h
+    llpuppetevent.h
+    llpuppetmodule.h
+    llpuppetmotion.h
     llrecentpeople.h
     llregioninfomodel.h
     llregionposition.h

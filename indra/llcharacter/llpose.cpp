@@ -470,7 +470,7 @@ LLPoseBlender::~LLPoseBlender()
 //-----------------------------------------------------------------------------
 // addMotion()
 //-----------------------------------------------------------------------------
-BOOL LLPoseBlender::addMotion(LLMotion* motion)
+BOOL LLPoseBlender::addMotion(const LLMotion::ptr_t &motion)
 {
 	LLPose* pose = motion->getPose();
 

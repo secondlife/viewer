@@ -38,9 +38,11 @@
 #include "llcoros.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
+#include "lldir.h"
 #include "llinventorypanel.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
+#include "llstring.h"
 #include "llviewereventrecorder.h"
 
 // newview includes
@@ -51,6 +53,7 @@
 #include "llagentui.h"
 #include "llagentwearables.h"
 #include "llagentpilot.h"
+#include "llavataractions.h"
 #include "llcompilequeue.h"
 #include "llconsole.h"
 #include "lldebugview.h"
@@ -77,9 +80,9 @@
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
 #include "llfloaterbuildoptions.h"
-#include "llavataractions.h"
-#include "lllandmarkactions.h"
 #include "llgroupmgr.h"
+#include "lllandmarkactions.h"
+#include "llleap.h"
 #include "lltooltip.h"
 #include "lltoolface.h"
 #include "llhints.h"
@@ -92,11 +95,13 @@
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
 #include "llpanelmaininventory.h"
+#include "llpuppetmodule.h"
 #include "llmarketplacefunctions.h"
 #include "llmenuoptionpathfindingrebakenavmesh.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h"
 #include "llparcel.h"
+#include "llpuppetmotion.h"
 #include "llrootview.h"
 #include "llsceneview.h"
 #include "llscenemonitor.h"
@@ -2551,6 +2556,332 @@ class LLAdvancedEnableToggleHackedGodmode : public view_listener_t
 };
 #endif
 
+void launch_leap(const std::vector<std::string>& filenames)
+{
+    // TODO: what we should to do is get:
+    //   (a) the name of the script and
+    //   (b) its interpreter (e.g. "/path/to/python", "lua",
+    //       or even "" if the file itself is executable)
+    // We would then compile the "command" = "interpreter filename"
+    // and launch that.
+    //
+    // In the meantime: we assume filename is a python script.
+    if (filenames.size() > 0)
+    {
+        std::string filename = filenames[0];
+        std::vector<std::string> command;
+#if LL_WINDOWS
+        // stupid Windows, backslashes are for punks
+        std::replace(filename.begin(), filename.end(), '\\', '/');
+        // If we were passed an executable, of course don't try to use Python
+        // to run it.
+        if (!boost::iends_with(filename, ".exe"))
+        {
+            // Windows doesn't honor an executable script with a shebang line --
+            // have to assume Python
+            command.push_back("pythonw");
+        }
+#endif
+        command.insert(
+            command.end(),
+            { filename,
+              "--camera",
+              std::to_string(LLPuppetModule::instance().getCameraNumber()) });
+        std::string command_string{ boost::algorithm::join(command, " ") };
+
+        // on a developer windows box:
+        // "python3 D:/code/viewer/scripts/leap/python/puppetry/head_webcam.py"
+        LL_INFOS() << "execute LEAP command=\"" << command_string << '"' << LL_ENDL;
+
+        try
+        {
+            std::string description = "Puppetry";
+            bool throw_exception_on_failure = true;
+
+            LLLeap * module = LLLeap::create(description, command, throw_exception_on_failure);
+            if (module != NULL)
+            {
+                LLPuppetModule::instance().setLeapModule(module->getWeak(), filename);
+                LL_INFOS() << "Puppetry module " << filename << " created ok, description: " << description << LL_ENDL;
+                LLPuppetModule::instance().setSending(true);        // Defaults sending on
+                LLPuppetModule::instance().sendCameraNumber();
+				LLPuppetModule::instance().send_skeleton();
+            }
+            else
+            {
+                LL_WARNS() << "launch_leap failed to load Puppetry module " << filename << LL_ENDL;
+            }
+        }
+        catch (const LLLeap::Error& e)
+        {
+            LLSD args;
+            args["COMMAND"] = command_string;
+            args["ERROR"] = e.what();
+            LLNotifications::instance().add(LLNotification::Params("LeapModuleFail").substitutions(args));
+        }
+    }
+}
+
+class LLAdvancedPuppetryLaunchLeap : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata) override
+    {
+        if (LLPuppetModule::instance().havePuppetModule())
+        {
+            LL_WARNS("Puppetry") << "Already have Leap module running" << LL_ENDL;
+            return false;
+        }
+        if (userdata.asString() == std::string("pick"))
+        {   // pick a file
+            (new LLFilePickerReplyThread([](auto filenames, auto, auto) { launch_leap(filenames); }, LLFilePicker::FFLOAD_EXE, false ))->getFile();
+        }
+        else if (userdata.asString() == std::string("start"))
+        {   // normal pre-determined module name
+#if LL_WINDOWS
+            std::string module_name("webcam_puppetry.exe");
+#else           // Mac
+            LL_WARNS("Puppetry") << "To do - need code for default Mac module loading" << LL_ENDL;
+            std::string module_name("webcam_puppetry");
+#endif
+
+            std::vector<std::string> filenames;
+            std::string plugin_dir = gDirUtilp->getLLPluginDir();
+            std::string plugin_dir_2(plugin_dir);
+            gDirUtilp->append(plugin_dir_2, "plugins");
+            std::string plugin_dir_3(plugin_dir_2);
+            gDirUtilp->append(plugin_dir_2, "puppetry");
+            std::string module_full_name = gDirUtilp->findFile(module_name, plugin_dir, plugin_dir_2, plugin_dir_3);
+            if (module_full_name.length() > 0)
+            {   // if we really were going to do this right, we'd look for the newest file
+                filenames.push_back(module_full_name);
+                LL_INFOS("Puppetry") << "Attempting to launch puppetry module " << module_full_name << LL_ENDL;
+                launch_leap(filenames);
+            }
+            else
+            {
+                LL_WARNS("Puppetry") << "Unable to find puppetry module : " << module_name
+                    << " in llplugin directory tree down to " << plugin_dir_3 << LL_ENDL;
+            }
+        }
+        else
+        {   // what??
+            LL_WARNS("Puppetry") << "Unexpected parameter to load a Leap module : " << userdata.asString() << LL_ENDL;
+        }
+
+        return true;
+    }
+};
+
+// used by both "start" and "launch Leap" menu items
+class LLAdvancedPuppeterringEnableLaunchLeap : public view_listener_t
+{
+    bool handleEvent(const LLSD & userdata) override
+    {
+        return (LLPuppetMotion::GetPuppetryEnabled() && !LLPuppetModule::instance().havePuppetModule());
+    }
+};
+
+class LLAdvancedPuppetryCloseLeap : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata) override
+    {
+        if (!LLPuppetModule::instance().havePuppetModule())
+        {
+            LL_WARNS("PuppetMenu") << "No active Leap module to close" << LL_ENDL;
+            return false;
+        }
+        // Close down Leap plugin
+        LL_INFOS("PuppetMenu") << "Closing down puppetry Leap module" << LL_ENDL;
+        LLPuppetModule::instance().setSending(false);
+        LLPuppetModule::instance().setEcho(false);
+        LLPuppetModule::instance().clearLeapModule();
+        return true;
+    }
+};
+
+class LLAdvancedPuppetryEnableCloseLeap : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata) override
+    {
+        return (LLPuppetModule::instance().havePuppetModule());
+    }
+};
+
+
+class LLAdvancedPuppetryCheckSend : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata) override
+    {
+        return (LLPuppetModule::instance().isSending());
+    }
+};
+
+class LLAdvancedPuppetryToggleSend : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata) override
+    {
+        if (LLPuppetModule::instance().havePuppetModule())
+        {   // Must have a loaded module
+            LLPuppetModule::instance().setSending( !LLPuppetModule::instance().isSending() );
+            return true;
+        }
+        return false;
+    }
+};
+
+class LLAdvancedPuppetryEnableSend : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata) override
+    {   // Must have a loaded module
+        bool have_module = LLPuppetModule::instance().havePuppetModule();
+        LL_DEBUGS("PuppetMenu") << "Enable send " << (have_module ? "true" : "false") << LL_ENDL;
+        return (LLPuppetModule::instance().havePuppetModule());
+    }
+};
+
+
+class LLAdvancedPuppetryCheckReceive : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata) override
+    {
+        return (LLPuppetModule::instance().isReceiving());
+    }
+};
+
+class LLAdvancedPuppetryToggleReceive : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata) override
+    {   // can always toggle receive from simulator
+        LLPuppetModule::instance().setReceiving(!LLPuppetModule::instance().isReceiving());
+        return true;
+    }
+};
+
+class LLAdvancedPuppetryEnableReceive : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata) override
+    {   // can always receive from simulator
+        return true;
+    }
+};
+
+class LLAdvancedPuppetryCheckEcho : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata) override
+    {
+        return (LLPuppetModule::instance().getEcho());
+    }
+};
+
+class LLAdvancedPuppetryToggleEcho : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata) override
+    {
+        if (LLPuppetModule::instance().havePuppetModule())
+        {
+            bool new_echo = !LLPuppetModule::instance().getEcho();
+            LLPuppetModule::instance().setEcho(new_echo);
+            if (new_echo)
+            {   // If we want echo from the server, we need to have receiving on
+                LLPuppetModule::instance().setReceiving(true);
+            }
+            return true;
+        }
+        return false;
+    }
+};
+
+class LLAdvancedPuppetryEnableEcho : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata) override
+    {   // echo requires a loaded module
+        return (LLPuppetModule::instance().havePuppetModule());
+    }
+};
+
+
+class LLAdvancedPuppetryCheckPart : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata) override
+    {
+        LL_DEBUGS("PuppetMenu") << "LLAdvancedPuppetryCheckPart called with " << userdata << LL_ENDL;
+
+        std::string part_num_str = userdata.asString();
+        S32 part_num = 0;
+        if (sscanf(part_num_str.c_str(), "%d", &part_num) != 1)
+        {
+            LL_WARNS("PuppetMenu") << "Invalid part number from menu parameter: " << part_num_str << LL_ENDL;
+            return false;
+        }
+
+        return ((bool)LLPuppetModule::instance().getEnabledPart(part_num));
+    }
+};
+
+
+class LLAdvancedPuppetrySelectPart : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata) override
+    {
+        LL_DEBUGS("PuppetMenu") << "LLAdvancedPuppetrySelectPart called with " << userdata << LL_ENDL;
+
+        std::string part_num_str = userdata.asString();
+        S32 part_num = 0;
+        if (sscanf(part_num_str.c_str(), "%d", &part_num) != 1)
+        {
+            LL_WARNS("PuppetMenu") << "Invalid part number from menu parameter: " << part_num_str << LL_ENDL;
+            return false;
+        }
+
+        // Toggle that bit
+        bool enabled = LLPuppetModule::instance().getEnabledPart(part_num);
+        LLPuppetModule::instance().setEnabledPart(part_num, !enabled);
+        return true;
+    }
+};
+
+
+class LLAdvancedPuppetryCheckCamera : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata) override
+    {
+        LL_DEBUGS("PuppetMenu") << "LLAdvancedPuppetryCheckCamera called with "
+             << userdata << LL_ENDL;
+
+        std::string camera_num_str = userdata.asString();
+        S32 camera_num = 0;
+        if (sscanf(camera_num_str.c_str(), "%d", &camera_num) != 1)
+        {
+            LL_WARNS("PuppetMenu") << "Invalid camera number from menu parameter: " << camera_num_str << LL_ENDL;
+        }
+
+        return (camera_num == LLPuppetModule::instance().getCameraNumber());
+    }
+};
+
+class LLAdvancedPuppetrySelectCamera : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata) override
+    {
+        LL_DEBUGS("PuppetMenu") << "LLAdvancedPuppetrySelectCamera called with "
+            << userdata << LL_ENDL;
+
+        std::string camera_num_str = userdata.asString();
+        S32 camera_num = 0;
+        if (sscanf(camera_num_str.c_str(), "%d", &camera_num) != 1)
+        {
+            LL_WARNS("PuppetMenu") << "Invalid camera number from menu parameter: " << camera_num_str << LL_ENDL;
+        }
+        else if (camera_num >= 0 && camera_num < 4 &&
+                 camera_num != LLPuppetModule::instance().getCameraNumber())
+        {
+            LLPuppetModule::instance().setCameraNumber(camera_num);
+            LL_INFOS("PuppetMenu") << "Set current camera to " << LLPuppetModule::instance().getCameraNumber() << LL_ENDL;
+            return true;
+        }
+        return false;
+    }
+};
 
 //
 ////-------------------------------------------------------------------
@@ -6154,7 +6485,7 @@ class LLWorldSetHomeLocation : public view_listener_t
 	{
 		// we just send the message and let the server check for failure cases
 		// server will echo back a "Home position set." alert if it succeeds
-		// and the home location screencapture happens when that alert is recieved
+		// and the home location screencapture happens when that alert is received
 		gAgent.setStartPosition(START_LOCATION_ID_HOME);
 		return true;
 	}
@@ -9559,10 +9890,34 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedRequestAdminStatus(), "Advanced.RequestAdminStatus");
 	view_listener_t::addMenu(new LLAdvancedLeaveAdminStatus(), "Advanced.LeaveAdminStatus");
 
+    // Advanced > Puppetry
+    view_listener_t::addCommit(new LLAdvancedPuppetryLaunchLeap(), "Advanced.Puppetry.LaunchLeap");
+	view_listener_t::addEnable(new LLAdvancedPuppeterringEnableLaunchLeap(), "Advanced.Puppetry.EnableLaunchLeap");
+	view_listener_t::addCommit(new LLAdvancedPuppetryCloseLeap(), "Advanced.Puppetry.CloseLeap");
+	view_listener_t::addEnable(new LLAdvancedPuppetryEnableCloseLeap(), "Advanced.Puppetry.EnableCloseLeap");
+
+	view_listener_t::addMenu(new LLAdvancedPuppetryCheckSend(), "Advanced.Puppetry.CheckSend");
+	view_listener_t::addCommit(new LLAdvancedPuppetryToggleSend(), "Advanced.Puppetry.ToggleSend");
+	view_listener_t::addEnable(new LLAdvancedPuppetryEnableSend(), "Advanced.Puppetry.EnableSend");
+
+	view_listener_t::addMenu(new LLAdvancedPuppetryCheckReceive(), "Advanced.Puppetry.CheckReceive");
+	view_listener_t::addCommit(new LLAdvancedPuppetryToggleReceive(), "Advanced.Puppetry.ToggleReceive");
+	view_listener_t::addEnable(new LLAdvancedPuppetryEnableReceive(), "Advanced.Puppetry.EnableReceive");
+
+	view_listener_t::addMenu(new LLAdvancedPuppetryCheckEcho(), "Advanced.Puppetry.CheckEcho");
+	view_listener_t::addCommit(new LLAdvancedPuppetryToggleEcho(), "Advanced.Puppetry.ToggleEcho");
+	view_listener_t::addEnable(new LLAdvancedPuppetryEnableEcho(), "Advanced.Puppetry.EnableEcho");
+
+    view_listener_t::addMenu(new LLAdvancedPuppetryCheckPart(), "Advanced.Puppetry.CheckPart");
+    view_listener_t::addMenu(new LLAdvancedPuppetrySelectPart(), "Advanced.Puppetry.SelectPart");
+
+	view_listener_t::addMenu(new LLAdvancedPuppetryCheckCamera(), "Advanced.Puppetry.CheckCamera");
+	view_listener_t::addMenu(new LLAdvancedPuppetrySelectCamera(), "Advanced.Puppetry.SelectCamera");
+
 	// Develop >Set logging level
 	view_listener_t::addMenu(new LLDevelopCheckLoggingLevel(), "Develop.CheckLoggingLevel");
 	view_listener_t::addMenu(new LLDevelopSetLoggingLevel(), "Develop.SetLoggingLevel");
-	
+
 	//Develop (Texture Fetch Debug Console)
 	view_listener_t::addMenu(new LLDevelopTextureFetchDebugger(), "Develop.SetTexFetchDebugger");
 	//Develop (clear cache immediately)

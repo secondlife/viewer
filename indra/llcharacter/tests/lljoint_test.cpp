@@ -234,9 +234,6 @@ namespace tut
         3) void updateWorldPRSParent();
         4) void updateWorldMatrix();
         5) LLXformMatrix *getXform() { return &mXform; }
-        6) void setConstraintSilhouette(LLDynamicArray<LLVector3>& silhouette);
-        7) void clampRotation(LLQuaternion old_rot, LLQuaternion new_rot);
-
 	*/
 }
 

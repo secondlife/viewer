@@ -58,7 +58,7 @@ public:
 
 	// static constructor
 	// all subclasses must implement such a function and register it
-	static LLMotion *create(const LLUUID &id) { return new LLTargetingMotion(id); }
+	static LLMotion::ptr_t create(const LLUUID &id) { return std::make_shared<LLTargetingMotion>(id); }
 
 public:
 	//-------------------------------------------------------------------------

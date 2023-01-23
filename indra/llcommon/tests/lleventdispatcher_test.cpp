@@ -361,7 +361,7 @@ namespace tut
         // Full, partial defaults arrays for params for freena(), freenb()
         LLSD dft_array_full, dft_array_partial;
         // Start index of partial defaults arrays
-        const LLSD::Integer partial_offset;
+        const size_t partial_offset;
         // Full, partial defaults maps for params for freena(), freenb()
         LLSD dft_map_full, dft_map_partial;
         // Most of the above are indexed by "a" or "b". Useful to have an
