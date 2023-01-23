@@ -2674,7 +2674,7 @@ public:
             {
                 mSuccess = true;
             }
-            LLGLTFMaterialList::queueModify(objectp->getID(), te, material);
+            LLGLTFMaterialList::queueModify(objectp, te, material);
         }
         return true;
     }
