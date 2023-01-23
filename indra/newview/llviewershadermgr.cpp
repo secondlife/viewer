@@ -3832,6 +3832,11 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
         gReflectionProbeDisplayProgram.mName = "Reflection Probe Display Shader";
         gReflectionProbeDisplayProgram.mFeatures.hasReflectionProbes = true;
         gReflectionProbeDisplayProgram.mFeatures.hasSrgb = true;
+        gReflectionProbeDisplayProgram.mFeatures.calculatesAtmospherics = true;
+        gReflectionProbeDisplayProgram.mFeatures.hasAtmospherics = true;
+        gReflectionProbeDisplayProgram.mFeatures.hasTransport = true;
+        gReflectionProbeDisplayProgram.mFeatures.hasGamma = true;
+        gReflectionProbeDisplayProgram.mFeatures.isDeferred = true;
         gReflectionProbeDisplayProgram.mShaderFiles.clear();
         gReflectionProbeDisplayProgram.mShaderFiles.push_back(make_pair("interface/reflectionprobeV.glsl", GL_VERTEX_SHADER));
         gReflectionProbeDisplayProgram.mShaderFiles.push_back(make_pair("interface/reflectionprobeF.glsl", GL_FRAGMENT_SHADER));
