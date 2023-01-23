@@ -84,7 +84,9 @@ void main()
     //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
     vec4 diff = texture2D(diffuseRect, vary_fragcoord);
     diff.rgb = linear_to_srgb(diff.rgb);
-    vec3 seed = (diff.rgb+vec3(1.0))*vec3(vary_fragcoord.xy, vary_fragcoord.x+vary_fragcoord.y);
+    vec2 tc = vary_fragcoord.xy*screen_res;
+
+    vec3 seed = (diff.rgb+vec3(1.0))*vec3(tc.xy, tc.x+tc.y);
     vec3 nz = vec3(noise(seed.rg), noise(seed.gb), noise(seed.rb));
     diff.rgb += nz*0.008;
     //diff.rgb = nz;
