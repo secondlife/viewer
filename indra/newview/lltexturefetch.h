@@ -101,12 +101,6 @@ public:
 	// Threads:  T*
 	bool updateRequestPriority(const LLUUID& id, F32 priority);
 
-    // Threads:  T*
-	bool receiveImageHeader(const LLHost& host, const LLUUID& id, U8 codec, U16 packets, U32 totalbytes, U16 data_size, U8* data);
-
-    // Threads:  T*
-	bool receiveImagePacket(const LLHost& host, const LLUUID& id, U16 packet_num, U16 data_size, U8* data);
-
     // Threads:  T* (but not safe)
 	void setTextureBandwidth(F32 bandwidth) { mTextureBandwidth = bandwidth; }
 	
@@ -227,12 +221,6 @@ public:
 	// ----------------------------------
 	
 protected:
-	// Threads:  T* (but Ttf in practice)
-	void addToNetworkQueue(LLTextureFetchWorker* worker);
-
-	// Threads:  T*
-	void removeFromNetworkQueue(LLTextureFetchWorker* worker, bool cancel);
-
     // Threads:  T*
 	void addToHTTPQueue(const LLUUID& id);
 
@@ -251,9 +239,6 @@ protected:
 	bool runCondition();
 
 private:
-    // Threads:  Tmain
-	void sendRequestListToSimulators();
-	
 	// Threads:  Ttf
 	/*virtual*/ void startThread(void);
 	
@@ -319,7 +304,7 @@ public:
 
 private:
 	LLMutex mQueueMutex;        //to protect mRequestMap and mCommands only
-	LLMutex mNetworkQueueMutex; //to protect mNetworkQueue, mHTTPTextureQueue and mCancelQueue.
+	LLMutex mNetworkQueueMutex; //to protect mHTTPTextureQueue
 
 	LLTextureCache* mTextureCache;
 	LLImageDecodeThread* mImageDecodeThread;
@@ -330,10 +315,8 @@ private:
 
 	// Set of requests that require network data
 	typedef std::set<LLUUID> queue_t;
-	queue_t mNetworkQueue;												// Mfnq
 	queue_t mHTTPTextureQueue;											// Mfnq
 	typedef std::map<LLHost,std::set<LLUUID> > cancel_queue_t;
-	cancel_queue_t mCancelQueue;										// Mfnq
 	F32 mTextureBandwidth;												// <none>
 	F32 mMaxBandwidth;													// Mfnq
 	LLTextureInfo mTextureInfo;

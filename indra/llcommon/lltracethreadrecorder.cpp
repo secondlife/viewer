@@ -308,13 +308,13 @@ ThreadRecorder* get_master_thread_recorder()
 	return sMasterThreadRecorder;
 }
 
-LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder_ptr()
+ThreadRecorder*& get_thread_recorder_ptr()
 {
-	static LLThreadLocalPointer<ThreadRecorder> s_thread_recorder;
+	static thread_local ThreadRecorder* s_thread_recorder;
 	return s_thread_recorder;
 }
 
-const LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder()
+ThreadRecorder* get_thread_recorder()
 {
 	return get_thread_recorder_ptr();
 }
