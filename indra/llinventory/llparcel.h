@@ -1,24 +1,24 @@
-/** 
+/**
  * @file llparcel.h
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -234,16 +234,7 @@ public:
 		F32 parcel_object_bonus,
 		BOOL is_group_owned = FALSE);
 
-	// TODO: make an actual copy constructor for this
-	void overrideParcelFlags(U32 flags);
-	// if you specify an agent id here, the group id will be zeroed
-	void overrideOwner(
-		const LLUUID& owner_id,
-		BOOL is_group_owned = FALSE);
-	void overrideSaleTimerExpires(F32 secs_left) { mSaleTimerExpires.setTimerExpirySec(secs_left); }
-
 	// MANIPULATORS
-	void generateNewID() { mID.generate(); }
 	void setName(const std::string& name);
 	void setDesc(const std::string& desc);
 	void setMusicURL(const std::string& url);
@@ -256,22 +247,10 @@ public:
 	void setMediaWidth(S32 width);
 	void setMediaHeight(S32 height);
 	void setMediaCurrentURL(const std::string& url);
-	void setMediaAllowNavigate(U8 enable) { mMediaAllowNavigate = enable; }
-	void setMediaURLTimeout(F32 timeout) { mMediaURLTimeout = timeout; }
-	void setMediaPreventCameraZoom(U8 enable) { mMediaPreventCameraZoom = enable; }
 
-	void setMediaURLResetTimer(F32 time);
 	virtual void	setLocalID(S32 local_id);
 
-	// blow away all the extra stuff lurking in parcels, including urls, access lists, etc
-	void clearParcel();
-
-	// This value is not persisted out to the parcel file, it is only
-	// a per-process blocker for attempts to purchase.
-	void setInEscrow(bool in_escrow) { mInEscrow = in_escrow; }
-
 	void setAuthorizedBuyerID(const LLUUID& id) { mAuthBuyerID = id; }
-	//void overrideBuyerID(const LLUUID& id) { mBuyerID = id; }
 	void setCategory(ECategory category) { mCategory = category; }
 	void setSnapshotID(const LLUUID& id) { mSnapshotID = id; }
 	void setUserLocation(const LLVector3& pos)	{ mUserLocation = pos; }
@@ -282,49 +261,24 @@ public:
 
 	void setAuctionID(U32 auction_id) { mAuctionID = auction_id;}
 
-	void	setAllParcelFlags(U32 flags);
 	void	setParcelFlag(U32 flag, BOOL b);
 
-	virtual void setArea(S32 area, S32 sim_object_limit);
-	void	setDiscountRate(F32 rate);
-
-	void	setAllowModify(BOOL b)	{ setParcelFlag(PF_CREATE_OBJECTS, b); }
-	void	setAllowGroupModify(BOOL b)	{ setParcelFlag(PF_CREATE_GROUP_OBJECTS, b); }
-	void	setAllowAllObjectEntry(BOOL b)	{ setParcelFlag(PF_ALLOW_ALL_OBJECT_ENTRY, b); }
-	void	setAllowGroupObjectEntry(BOOL b)	{ setParcelFlag(PF_ALLOW_GROUP_OBJECT_ENTRY, b); }
-	void	setAllowTerraform(BOOL b){setParcelFlag(PF_ALLOW_TERRAFORM, b); }
-	void	setAllowDamage(BOOL b)	{ setParcelFlag(PF_ALLOW_DAMAGE, b); }
-	void	setAllowFly(BOOL b)		{ setParcelFlag(PF_ALLOW_FLY, b); }
-	void	setAllowGroupScripts(BOOL b)	{ setParcelFlag(PF_ALLOW_GROUP_SCRIPTS, b); }
-	void	setAllowOtherScripts(BOOL b)	{ setParcelFlag(PF_ALLOW_OTHER_SCRIPTS, b); }
-	void	setAllowDeedToGroup(BOOL b) { setParcelFlag(PF_ALLOW_DEED_TO_GROUP, b); }
 	void    setContributeWithDeed(BOOL b) { setParcelFlag(PF_CONTRIBUTE_WITH_DEED, b); }
 	void	setForSale(BOOL b)		{ setParcelFlag(PF_FOR_SALE, b); }
 	void	setSoundOnly(BOOL b)	{ setParcelFlag(PF_SOUND_LOCAL, b); }
-	void	setDenyAnonymous(BOOL b) { setParcelFlag(PF_DENY_ANONYMOUS, b); }
-	void	setDenyAgeUnverified(BOOL b) { setParcelFlag(PF_DENY_AGEUNVERIFIED, b); }
-	void	setRestrictPushObject(BOOL b) { setParcelFlag(PF_RESTRICT_PUSHOBJECT, b); }
 	void	setAllowGroupAVSounds(BOOL b)	{ mAllowGroupAVSounds = b;		}
 	void	setAllowAnyAVSounds(BOOL b)		{ mAllowAnyAVSounds = b;		}
     void    setObscureMOAP(bool b)  { mObscureMOAP = b; }
 
-	void	setDrawDistance(F32 dist)	{ mDrawDistance = dist; }
 	void	setSalePrice(S32 price)		{ mSalePrice = price; }
 	void	setGroupID(const LLUUID& id)	{ mGroupID = id; }
-	//void	setGroupName(const std::string& s)	{ mGroupName.assign(s); }
 	void	setPassPrice(S32 price)				{ mPassPrice = price; }
 	void	setPassHours(F32 hours)				{ mPassHours = hours; }
-
-//	BOOL	importStream(std::istream& input_stream);
-	BOOL	importAccessEntry(std::istream& input_stream, LLAccessEntry* entry);
-	// BOOL	exportStream(std::ostream& output_stream);
 
 	void	packMessage(LLMessageSystem* msg);
 	void	packMessage(LLSD& msg);
 	void	unpackMessage(LLMessageSystem* msg);
 
-	void	packAccessEntries(LLMessageSystem* msg,
-								const std::map<LLUUID,LLAccessEntry>& list);
 	void	unpackAccessEntries(LLMessageSystem* msg,
 								std::map<LLUUID,LLAccessEntry>* list);
 
@@ -334,14 +288,7 @@ public:
 	void	setAABBMin(const LLVector3& min)	{ mAABBMin = min; }
 	void	setAABBMax(const LLVector3& max)	{ mAABBMax = max; }
 
-	// Extend AABB to include rectangle from min to max.
-	void extendAABB(const LLVector3& box_min, const LLVector3& box_max);
-
 	void dump();
-
-	// Scans the pass list and removes any items with an expiration
-	// time earlier than "now".
-	void expirePasses(S32 now);
 
 	// Add to list, suppressing duplicates.  Returns TRUE if added.
 	BOOL addToAccessList(const LLUUID& agent_id, S32 time);
@@ -375,7 +322,6 @@ public:
 	BOOL			getIsGroupOwned() const		{ return mGroupOwned; }
 
 	U32 getAuctionID() const	{ return mAuctionID; }
-	bool isInEscrow() const		{ return mInEscrow; }
 
 	BOOL isPublic() const;
 
@@ -416,32 +362,6 @@ public:
 
 	// functions for parcel action (used for logging)
 	static const std::string& getActionString(EAction action);
-
-	// dealing with sales and parcel conversion.
-	//
-	// the isSaleTimerExpired will trivially return FALSE if there is
-	// no sale going on. Pass in the current time in usec which will
-	// be used for comparison.
-	BOOL isSaleTimerExpired(const U64& time);
-
-	F32 getSaleTimerExpires() { return mSaleTimerExpires.getRemainingTimeF32(); }
-
-	// should the parcel join on complete?
-	//U32 getJoinNeighbors() const { return mJoinNeighbors; }
-
-	// need to record a few things with the parcel when a sale
-	// starts.
-	void startSale(const LLUUID& buyer_id, BOOL is_buyer_group);
-
-	// do the expiration logic, which needs to return values usable in
-	// a L$ transaction.
-	void expireSale(U32& type, U8& flags, LLUUID& from_id, LLUUID& to_id);
-	void completeSale(U32& type, U8& flags, LLUUID& to_id);
-	void clearSale();
-
-
-	BOOL isMediaResetTimerExpired(const U64& time);
-
 
 	// more accessors
 	U32		getParcelFlags() const			{ return mParcelFlags; }
@@ -512,13 +432,13 @@ public:
                     { return mRegionAllowAccessoverride; }
     BOOL    getRegionAllowEnvironmentOverride() const
                     { return mRegionAllowEnvironmentOverride; }
-    S32     getParcelEnvironmentVersion() const 
+    S32     getParcelEnvironmentVersion() const
                     { return mCurrentEnvironmentVersion; }
 
 
-	BOOL	getAllowGroupAVSounds()	const	{ return mAllowGroupAVSounds;	} 
+	BOOL	getAllowGroupAVSounds()	const	{ return mAllowGroupAVSounds;	}
 	BOOL	getAllowAnyAVSounds()	const	{ return mAllowAnyAVSounds;		}
- 
+
     bool    getObscureMOAP() const { return mObscureMOAP; }
 
 	F32		getDrawDistance() const			{ return mDrawDistance; }
@@ -527,12 +447,7 @@ public:
 	S32		getClaimPricePerMeter() const	{ return mClaimPricePerMeter; }
 	S32		getRentPricePerMeter() const	{ return mRentPricePerMeter; }
 
-	// Area is NOT automatically calculated.  You must calculate it
-	// and store it with setArea.
 	S32		getArea() const					{ return mArea; }
-
-	// deprecated 12/11/2003
-	//F32		getDiscountRate() const			{ return mDiscountRate; }
 
 	S32		getClaimPrice() const			{ return mClaimPricePerMeter * mArea; }
 
@@ -616,17 +531,12 @@ protected:
 	ELandingType mLandingType;
 	BOOL mSeeAVs;							// Avatars on this parcel are visible from outside it
 	BOOL mHaveNewParcelLimitData;			// Remove once hidden AV feature is grid-wide
-	LLTimer mSaleTimerExpires;
-	LLTimer mMediaResetTimer;
 
 	S32 mGraceExtension;
 
 	// This value is non-zero if there is an auction associated with
 	// the parcel.
 	U32 mAuctionID;
-
-	// value used to temporarily lock attempts to purchase the parcel.
-	bool mInEscrow;
 
 	time_t				mClaimDate;				// UTC Unix-format time
 	S32					mClaimPricePerMeter;	// meter squared
@@ -675,7 +585,7 @@ protected:
 	BOOL				mAllowAnyAVSounds;
     bool                mObscureMOAP;
     S32                 mCurrentEnvironmentVersion;
-	
+
     bool                mIsDefaultDayCycle;
 
 public:

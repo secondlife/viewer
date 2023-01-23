@@ -112,8 +112,6 @@ static const std::string PARCEL_ACTION_STRING[LLParcel::A_COUNT + 1] =
 
 
 
-//const char* revert_action_to_string(LLParcel::ESaleTimerExpireAction action);
-//LLParcel::ESaleTimerExpireAction revert_string_to_action(const char* s);
 const std::string& category_to_ui_string(LLParcel::ECategory category);
 LLParcel::ECategory category_ui_string_to_category(const std::string& s);
 
@@ -166,16 +164,9 @@ void LLParcel::init(const LLUUID &owner_id,
 	mStatus = OS_NONE;
 	mCategory = C_NONE;
 	mAuthBuyerID.setNull();
-	//mBuyerID.setNull();
-	//mJoinNeighbors = 0x0;
-	mSaleTimerExpires.setTimerExpirySec(0);
-	mSaleTimerExpires.stop();
 	mGraceExtension = 0;
-	//mExpireAction = STEA_REVERT;
-	//mRecordTransaction = FALSE;
 
 	mAuctionID = 0;
-	mInEscrow = false;
 
 	mParcelFlags = PF_DEFAULT;
 	setParcelFlag(PF_CREATE_OBJECTS,  modify);
@@ -238,27 +229,6 @@ void LLParcel::init(const LLUUID &owner_id,
     setObscureMOAP(false);
 }
 
-void LLParcel::overrideOwner(const LLUUID& owner_id, BOOL is_group_owned)
-{
-    // Override with system permission (LLUUID::null)
-    // Overridden parcels have no group
-    mOwnerID = owner_id;
-    mGroupOwned = is_group_owned;
-    if(mGroupOwned)
-    {
-        mGroupID = mOwnerID;
-    }
-    else
-    {
-        mGroupID.setNull();
-    }
-    mInEscrow = false;
-}
-
-void LLParcel::overrideParcelFlags(U32 flags)
-{
-    mParcelFlags = flags;
-}
 void LLParcel::setName(const std::string& name)
 {
     // The escaping here must match the escaping in the database
@@ -332,24 +302,12 @@ void LLParcel::setMediaCurrentURL(const std::string& url)
     // This should really filter the url in some way. Other than
     // simply requiring non-printable.
     LLStringFn::replace_nonprintable_in_ascii(mMediaCurrentURL, LL_UNKNOWN_CHAR);
-	
-}
-
-void LLParcel::setMediaURLResetTimer(F32 time)
-{
-	mMediaResetTimer.start();
-	mMediaResetTimer.setTimerExpirySec(time);
 }
 
 // virtual
 void LLParcel::setLocalID(S32 local_id)
 {
     mLocalID = local_id;
-}
-
-void LLParcel::setAllParcelFlags(U32 flags)
-{
-    mParcelFlags = flags;
 }
 
 void LLParcel::setParcelFlag(U32 flag, BOOL b)
@@ -420,69 +378,6 @@ BOOL LLParcel::allowTerraformBy(const LLUUID &agent_id) const
     }
 }
 
-
-
-void LLParcel::setArea(S32 area, S32 sim_object_limit)
-{
-    mArea = area;
-    setMaxPrimCapacity((S32)(sim_object_limit * area / (F32)(REGION_WIDTH_METERS * REGION_WIDTH_METERS)));
-}
-
-void LLParcel::setDiscountRate(F32 rate)
-{
-    // this is to make sure that the rate is at least sane - this is
-    // not intended to enforce economy rules. It only enfoces that the
-    // rate is a scaler between 0 and 1.
-    mDiscountRate = llclampf(rate);
-}
-
-
-//-----------------------------------------------------------
-// File input and output
-//-----------------------------------------------------------
-
-BOOL LLParcel::importAccessEntry(std::istream& input_stream, LLAccessEntry* entry)
-{
-    skip_to_end_of_next_keyword("{", input_stream);
-    while (input_stream.good())
-    {
-        skip_comments_and_emptyspace(input_stream);
-        std::string line, keyword, value;
-        get_line(line, input_stream, MAX_STRING);
-        get_keyword_and_value(keyword, value, line);
-        
-        if ("}" == keyword)
-        {
-            break;
-        }
-        else if ("id" == keyword)
-        {
-            entry->mID.set( value );
-        }
-        else if ("name" == keyword)
-        {
-            // deprecated
-        }
-        else if ("time" == keyword)
-        {
-            S32 when{};
-            LLStringUtil::convertToS32(value, when);
-            entry->mTime = when;
-        }
-        else if ("flags" == keyword)
-        {
-            U32 setting{};
-            LLStringUtil::convertToU32(value, setting);
-            entry->mFlags = setting;
-        }
-        else
-        {
-            LL_WARNS() << "Unknown keyword in parcel access entry section: <" 
-            << keyword << ">" << LL_ENDL;
-        }
-    }
-    return input_stream.good();
-}
 
 // Assumes we are in a block "ParcelData"
 void LLParcel::packMessage(LLMessageSystem* msg)
@@ -632,33 +527,6 @@ void LLParcel::unpackMessage(LLMessageSystem* msg)
 	
 }
 
-void LLParcel::packAccessEntries(LLMessageSystem* msg,
-								 const std::map<LLUUID,LLAccessEntry>& list)
-{
-    LLAccessEntry::map::const_iterator cit = list.begin();
-    LLAccessEntry::map::const_iterator end = list.end();
-    
-    if (cit == end)
-    {
-        msg->nextBlockFast(_PREHASH_List);
-        msg->addUUIDFast(_PREHASH_ID, LLUUID::null );
-        msg->addS32Fast(_PREHASH_Time, 0 );
-        msg->addU32Fast(_PREHASH_Flags, 0 );
-        return;
-    }
-    
-    for ( ; cit != end; ++cit)
-    {
-        const LLAccessEntry& entry = (*cit).second;
-        
-        msg->nextBlockFast(_PREHASH_List);
-        msg->addUUIDFast(_PREHASH_ID,	 entry.mID );
-        msg->addS32Fast(_PREHASH_Time,	 entry.mTime );
-        msg->addU32Fast(_PREHASH_Flags, entry.mFlags );
-    }
-}
-
-
 void LLParcel::unpackAccessEntries(LLMessageSystem* msg,
                                    std::map<LLUUID,LLAccessEntry>* list)
 {
@@ -704,27 +572,6 @@ void LLParcel::unpackExperienceEntries( LLMessageSystem* msg, U32 type )
 	}
 }
 
-
-
-void LLParcel::expirePasses(S32 now)
-{
-    LLAccessEntry::map::iterator itor = mAccessList.begin();
-    while (itor != mAccessList.end())
-    {
-        const LLAccessEntry& entry = (*itor).second;
-        
-        if (entry.mTime != 0 && entry.mTime < now)
-        {
-            mAccessList.erase(itor++);
-        }
-        else
-        {
-            ++itor;
-        }
-    }
-}
-
-
 bool LLParcel::operator==(const LLParcel &rhs) const
 {
     if (mOwnerID != rhs.mOwnerID)
@@ -763,28 +610,6 @@ LLVector3 LLParcel::getCenterpoint() const
     rv.mV[VY] = (getAABBMin().mV[VY] + getAABBMax().mV[VY]) * 0.5f;
     rv.mV[VZ] = 0.0f;
     return rv;
-}
-
-void LLParcel::extendAABB(const LLVector3& box_min, const LLVector3& box_max)
-{
-    // Patch up min corner of AABB
-    S32 i;
-    for (i=0; i<3; i++)
-    {
-        if (box_min.mV[i] < mAABBMin.mV[i])
-        {
-            mAABBMin.mV[i] = box_min.mV[i];
-        }
-    }
-    
-    // Patch up max corner of AABB
-    for (i=0; i<3; i++)
-    {
-        if (box_max.mV[i] > mAABBMax.mV[i])
-        {
-            mAABBMax.mV[i] = box_max.mV[i];
-        }
-    }
 }
 
 BOOL LLParcel::addToAccessList(const LLUUID& agent_id, S32 time)
@@ -947,128 +772,6 @@ const std::string& LLParcel::getActionString(LLParcel::EAction action)
     return PARCEL_ACTION_STRING[index];
 }
 
-BOOL LLParcel::isSaleTimerExpired(const U64& time)
-{
-    if (mSaleTimerExpires.getStarted() == FALSE)
-    {
-        return FALSE;
-    }
-    BOOL expired = mSaleTimerExpires.checkExpirationAndReset(0.0);
-    if (expired)
-    {
-        mSaleTimerExpires.stop();
-    }
-    return expired;
-}
-
-BOOL LLParcel::isMediaResetTimerExpired(const U64& time)
-{
-    if (mMediaResetTimer.getStarted() == FALSE)
-    {
-        return FALSE;
-    }
-    BOOL expired = mMediaResetTimer.checkExpirationAndReset(0.0);
-    if (expired)
-    {
-        mMediaResetTimer.stop();
-    }
-    return expired;
-}
-
-
-void LLParcel::startSale(const LLUUID& buyer_id, BOOL is_buyer_group)
-{
-	// TODO -- this and all Sale related methods need to move out of the LLParcel 
-	// base class and into server-side-only LLSimParcel class
-	setPreviousOwnerID(mOwnerID);
-	setPreviouslyGroupOwned(mGroupOwned);
-
-	mOwnerID = buyer_id;
-	mGroupOwned = is_buyer_group;
-	if(mGroupOwned)
-	{
-		mGroupID = mOwnerID;
-	}
-	else
-	{
-		mGroupID.setNull();
-	}
-	mSaleTimerExpires.start();
-	mSaleTimerExpires.setTimerExpirySec(U64Microseconds(DEFAULT_USEC_SALE_TIMEOUT));
-	mStatus = OS_LEASE_PENDING;
-	mClaimDate = time(NULL);
-	setAuctionID(0);
-	// clear the autoreturn whenever land changes hands
-	setCleanOtherTime(0);
-}
-
-void LLParcel::expireSale(
-	U32& type,
-	U8& flags,
-	LLUUID& from_id,
-	LLUUID& to_id)
-{
-    mSaleTimerExpires.setTimerExpirySec(0.0);
-    mSaleTimerExpires.stop();
-    setPreviousOwnerID(LLUUID::null);
-    setPreviouslyGroupOwned(FALSE);
-    setSellWithObjects(FALSE);
-    type = TRANS_LAND_RELEASE;
-    mStatus = OS_NONE;
-    flags = pack_transaction_flags(mGroupOwned, FALSE);
-    mAuthBuyerID.setNull();
-    from_id = mOwnerID;
-    mOwnerID.setNull();
-    to_id.setNull();
-}
-
-void LLParcel::completeSale(
-	U32& type,
-	U8& flags,
-	LLUUID& to_id)
-{
-	mSaleTimerExpires.setTimerExpirySec(0.0);
-	mSaleTimerExpires.stop();
-	mStatus = OS_LEASED;
-	type = TRANS_LAND_SALE;
-	flags = pack_transaction_flags(mGroupOwned, mGroupOwned);
-	to_id = mOwnerID;
-	mAuthBuyerID.setNull();
-
-	// Purchased parcels are assumed to no longer be for sale.
-	// Otherwise someone can snipe the sale.
-	setForSale(FALSE);
-	setAuctionID(0);
-
-	// Turn off show directory, since it's a recurring fee that
-	// the buyer may not want.
-	setParcelFlag(PF_SHOW_DIRECTORY, FALSE);
-
-	//should be cleared on sale.
-	mAccessList.clear();
-	mBanList.clear();
-}
-
-void LLParcel::clearSale()
-{
-	mSaleTimerExpires.setTimerExpirySec(0.0);
-	mSaleTimerExpires.stop();
-	if(isPublic())
-	{
-		mStatus = OS_NONE;
-	}
-	else
-	{
-		mStatus = OS_LEASED;
-	}
-	mAuthBuyerID.setNull();
-	setForSale(FALSE);
-	setAuctionID(0);
-	setPreviousOwnerID(LLUUID::null);
-	setPreviouslyGroupOwned(FALSE);
-	setSellWithObjects(FALSE);
-}
-
 BOOL LLParcel::isPublic() const
 {
     return (mOwnerID.isNull());
@@ -1081,40 +784,6 @@ BOOL LLParcel::isBuyerAuthorized(const LLUUID& buyer_id) const
         return TRUE;
     }
     return (mAuthBuyerID == buyer_id);
-}
-
-void LLParcel::clearParcel()
-{
-	overrideParcelFlags(PF_DEFAULT);
-	setName(LLStringUtil::null);
-	setDesc(LLStringUtil::null);
-	setMediaURL(LLStringUtil::null);
-	setMediaType(LLStringUtil::null);
-	setMediaID(LLUUID::null);
-    setMediaDesc(LLStringUtil::null);
-	setMediaAutoScale(0);
-	setMediaLoop(TRUE);
-	mMediaWidth = 0;
-	mMediaHeight = 0;
-	setMediaCurrentURL(LLStringUtil::null);
-	setMediaAllowNavigate(TRUE);
-	setMediaPreventCameraZoom(FALSE);
-	setMediaURLTimeout(0.0f);
-	setMusicURL(LLStringUtil::null);
-	setInEscrow(FALSE);
-	setAuthorizedBuyerID(LLUUID::null);
-	setCategory(C_NONE);
-	setSnapshotID(LLUUID::null);
-	setUserLocation(LLVector3::zero);
-	setUserLookAt(LLVector3::x_axis);
-	setLandingType(L_LANDING_POINT);
-	setAuctionID(0);
-	setGroupID(LLUUID::null);
-	setPassPrice(0);
-	setPassHours(0.f);
-	mAccessList.clear();
-	mBanList.clear();
-	//mRenterList.reset();
 }
 
 void LLParcel::dump()
@@ -1145,28 +814,6 @@ LLParcel::EOwnershipStatus ownership_string_to_status(const std::string& s)
     return LLParcel::OS_NONE;
 }
 
-//const char* revert_action_to_string(LLParcel::ESaleTimerExpireAction action)
-//{
-// S32 index = 0;
-// if(action >= 0 && action < LLParcel::STEA_COUNT)
-// {
-//	 index = action;
-// }
-// return PARCEL_SALE_TIMER_ACTION[index];
-//}
-    
-//LLParcel::ESaleTimerExpireAction revert_string_to_action(const char* s)
-//{
-// for(S32 i = 0; i < LLParcel::STEA_COUNT; ++i)
-// {
-//	 if(0 == strcmp(s, PARCEL_SALE_TIMER_ACTION[i]))
-//	 {
-//		 return (LLParcel::ESaleTimerExpireAction)i;
-//	 }
-// }
-// return LLParcel::STEA_REVERT;
-//}
-    
 const std::string& category_to_string(LLParcel::ECategory category)
 {
     S32 index = 0;
