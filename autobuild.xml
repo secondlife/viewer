@@ -2795,9 +2795,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7846ea2be3ee6f991f181ec451b02ef5</string>
+              <string>d47e0ed35dad11f0a5dc821758e2ae46</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/109530/952907/viewer_fonts-1.577710-darwin64-577710.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/109658/953998/viewer_fonts-1.577782-darwin64-577782.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2807,9 +2807,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6c41e98423d0fdc29b80f5c2d9ccd8bf</string>
+              <string>7dc39bb7cd8133d251eaff9c9e16bdfd</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/109532/952921/viewer_fonts-1.577710-windows-577710.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/109660/954010/viewer_fonts-1.577782-windows-577782.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2819,16 +2819,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>48e4986d8c61e80d672439507602cbba</string>
+              <string>86134368c16c7d685156403e15a7cbcd</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/109531/952914/viewer_fonts-1.577710-windows64-577710.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/109659/954009/viewer_fonts-1.577782-windows64-577782.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.577710</string>
+        <string>1.577782</string>
       </map>
       <key>viewer-manager</key>
       <map>
