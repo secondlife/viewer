@@ -855,10 +855,12 @@ void LLDispatchListener::call_map(const LLSD& reqmap, const LLSD& event) const
             // which request keys succeeded.
             result[name] = (*this)(name, args);
         }
-        catch (const DispatchError& err)
+        catch (const std::exception& err)
         {
-            // collect message in 'errors'
-            errors << delim << err.what();
+            // Catch not only DispatchError, but any C++ exception thrown by
+            // the target callable. Collect exception name and message in
+            // 'errors'.
+            errors << delim << LLError::Log::classname(err) << ": " << err.what();
             delim = "\n";
         }
     }
@@ -928,9 +930,12 @@ void LLDispatchListener::call_array(const LLSD& reqarray, const LLSD& event) con
             // With this form, capture return value even if undefined
             results.append((*this)(name, args));
         }
-        catch (const DispatchError& err)
+        catch (const std::exception& err)
         {
-            error = err.what();
+            // Catch not only DispatchError, but any C++ exception thrown by
+            // the target callable. Report the exception class as well as the
+            // error string.
+            error = stringize(LLError::Log::classname(err), ": ", err.what());
             break;
         }
     }

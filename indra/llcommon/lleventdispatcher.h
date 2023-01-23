@@ -747,7 +747,10 @@ LLEventDispatcher::make_invoker(Method f, const InstanceGetter& getter)
  * "reply" is present, LLDispatchListener will send a response map to the
  * specified LLEventPump containing an "error" key whose value is the relevant
  * error message. If "reply" is not present, the DispatchError exception will
- * propagate.
+ * propagate. Since LLDispatchListener bundles an LLEventStream, which
+ * attempts the call immediately on receiving the post() call, there's a
+ * reasonable chance that the exception will highlight the post() call that
+ * triggered the error.
  *
  * If LLDispatchListener successfully calls the target callable, but no
  * "reply" key is present, any value returned by that callable is discarded.
