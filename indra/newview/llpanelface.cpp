@@ -152,7 +152,7 @@ void LLPanelFace::updateSelectedGLTFMaterials(std::function<void(LLGLTFMaterial*
                 new_override = *tep->getGLTFMaterialOverride();
             }
             mFunc(&new_override);
-            LLGLTFMaterialList::queueModify(object->getID(), face, &new_override);
+            LLGLTFMaterialList::queueModify(object, face, &new_override);
 
             return true;
         }
