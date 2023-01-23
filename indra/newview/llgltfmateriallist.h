@@ -60,7 +60,7 @@ public:
     //  mat - material to apply as override, or nullptr to remove existing overrides and revert to asset
     //
     // NOTE: do not use to revert to asset when applying a new asset id, use queueApply below
-    static void queueModify(const LLUUID& id, S32 side, const LLGLTFMaterial* mat);
+    static void queueModify(const LLViewerObject* obj, S32 side, const LLGLTFMaterial* mat);
 
     // Queue an application of a material asset we want to send to the simulator.  Call "flushUpdates" to flush pending updates.
     //  object_id - ID of object to apply material asset to

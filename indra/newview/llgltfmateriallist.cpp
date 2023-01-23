@@ -392,15 +392,18 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
     }
 }
 
-void LLGLTFMaterialList::queueModify(const LLUUID& id, S32 side, const LLGLTFMaterial* mat)
+void LLGLTFMaterialList::queueModify(const LLViewerObject* obj, S32 side, const LLGLTFMaterial* mat)
 {
-    if (mat == nullptr)
+    if (obj && obj->getRenderMaterialID(side).notNull())
     {
-        sModifyQueue.push_back({ id, side, LLGLTFMaterial(), false });
-    }
-    else
-    {
-        sModifyQueue.push_back({ id, side, *mat, true});
+        if (mat == nullptr)
+        {
+            sModifyQueue.push_back({ obj->getID(), side, LLGLTFMaterial(), false });
+        }
+        else
+        {
+            sModifyQueue.push_back({ obj->getID(), side, *mat, true });
+        }
     }
 }
 
@@ -437,8 +440,14 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
 
     S32 i = data.size();
 
-    for (auto& e : sModifyQueue)
+    for (ModifyMaterialData& e : sModifyQueue)
     {
+#ifdef SHOW_ASSERT
+        // validate object has a material id
+        LLViewerObject* obj = gObjectList.findObject(e.object_id);
+        llassert(obj && obj->getRenderMaterialID(e.side).notNull());
+#endif
+
         data[i]["object_id"] = e.object_id;
         data[i]["side"] = e.side;
          
