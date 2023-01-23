@@ -39,6 +39,7 @@ uniform sampler2D lightMap;
 uniform float dist_factor;
 uniform float blur_size;
 uniform vec2 delta;
+uniform vec2 screen_res;
 uniform vec3 kern[4];
 uniform float kern_scale;
 
@@ -52,8 +53,8 @@ void main()
     vec2 tc = vary_fragcoord.xy;
     vec3 norm = getNorm(tc);
     vec3 pos = getPosition(tc).xyz;
-    vec4 ccol = texture2D(lightMap, tc).rgba;
-    
+    vec4 ccol = texture(lightMap, tc).rgba;
+  
     vec2 dlt = kern_scale * delta / (1.0+norm.xy*norm.xy);
     dlt /= max(-pos.z*dist_factor, 1.0);
     
@@ -64,7 +65,8 @@ void main()
     float pointplanedist_tolerance_pow2 = pos.z*pos.z*0.00005;
 
     // perturb sampling origin slightly in screen-space to hide edge-ghosting artifacts where smoothing radius is quite large
-    float tc_mod = 0.5*(tc.x + tc.y); // mod(tc.x+tc.y,2)
+    tc *= screen_res;
+    float tc_mod = 0.5*(tc.x + tc.y);
     tc_mod -= floor(tc_mod);
     tc_mod *= 2.0;
     tc += ( (tc_mod - 0.5) * kern[1].z * dlt * 0.5 );
@@ -83,13 +85,14 @@ void main()
     for (int i = 1; i < 7; i++)
     {
         vec2 samptc = tc + k[i].z*dlt*2.0;
+        samptc /= screen_res;
         vec3 samppos = getPosition(samptc).xyz; 
 
         float d = dot(norm.xyz, samppos.xyz-pos.xyz);// dist from plane
         
         if (d*d <= pointplanedist_tolerance_pow2)
         {
-            col += texture2D(lightMap, samptc)*k[i].xyxx;
+            col += texture(lightMap, samptc)*k[i].xyxx;
             defined_weight += k[i].xy;
         }
     }
@@ -97,19 +100,20 @@ void main()
     for (int i = 1; i < 7; i++)
     {
         vec2 samptc = tc - k[i].z*dlt*2.0;
+        samptc /= screen_res;
         vec3 samppos = getPosition(samptc).xyz; 
 
         float d = dot(norm.xyz, samppos.xyz-pos.xyz);// dist from plane
         
         if (d*d <= pointplanedist_tolerance_pow2)
         {
-            col += texture2D(lightMap, samptc)*k[i].xyxx;
+            col += texture(lightMap, samptc)*k[i].xyxx;
             defined_weight += k[i].xy;
         }
     }
 
     col /= defined_weight.xyxx;
-    //col.y *= max(col.y, 0.75);
+    //col.y *= col.y;
     
     frag_color = col;
 

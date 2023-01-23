@@ -8135,8 +8135,6 @@ LLVector4 pow4fsrgb(LLVector4 v, F32 f)
 
 void LLPipeline::renderDeferredLighting()
 {
-
-
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     LL_PROFILE_GPU_ZONE("renderDeferredLighting");
     if (!sCull)
@@ -8145,42 +8143,18 @@ void LLPipeline::renderDeferredLighting()
     }
 
     LLRenderTarget *screen_target         = &mRT->screen;
-    //LLRenderTarget *deferred_target       = &mRT->deferredScreen;
-    //LLRenderTarget *deferred_depth_target = &mRT->deferredDepth;
     LLRenderTarget* deferred_light_target = &mRT->deferredLight;
 
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("deferred"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_DEFERRED);
+        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("deferred");
         LLViewerCamera *camera = LLViewerCamera::getInstance();
         
-#if 0
-        {
-            LLGLDepthTest depth(GL_TRUE);
-            deferred_depth_target->copyContents(*deferred_target,
-                                                0,
-                                                0,
-                                                deferred_target->getWidth(),
-                                                deferred_target->getHeight(),
-                                                0,
-                                                0,
-                                                deferred_depth_target->getWidth(),
-                                                deferred_depth_target->getHeight(),
-                                                GL_DEPTH_BUFFER_BIT,
-                                                GL_NEAREST);
-        }
-#endif
-
         LLGLEnable multisample(RenderFSAASamples > 0 ? GL_MULTISAMPLE : 0);
 
         if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
         {
             gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD);
         }
-
-        // ati doesn't seem to love actually using the stencil buffer on FBO's
-        //LLGLDisable stencil(GL_STENCIL_TEST);
-        // glStencilFunc(GL_EQUAL, 1, 0xFFFFFFFF);
-        // glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
         gGL.setColorMask(true, true);
 
@@ -8251,76 +8225,64 @@ void LLPipeline::renderDeferredLighting()
 
         if (RenderDeferredSSAO)
         {
-            /*if (gCubeSnapshot)
-            { // SSAO and shadows disabled in reflection maps
-                deferred_light_target->bindTarget();
-                glClearColor(1, 1, 1, 1);
-                deferred_light_target->clear();
-                glClearColor(0, 0, 0, 0);
-                deferred_light_target->flush();
-            }
-            else*/
+            // soften direct lighting lightmap
+            LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("renderDeferredLighting - soften shadow");
+            LL_PROFILE_GPU_ZONE("soften shadow");
+            // blur lightmap
+            screen_target->bindTarget();
+            glClearColor(1, 1, 1, 1);
+            screen_target->clear(GL_COLOR_BUFFER_BIT);
+            glClearColor(0, 0, 0, 0);
+
+            bindDeferredShader(gDeferredBlurLightProgram);
+
+            LLVector3 go = RenderShadowGaussian;
+            const U32 kern_length = 4;
+            F32       blur_size = RenderShadowBlurSize;
+            F32       dist_factor = RenderShadowBlurDistFactor;
+
+            // sample symmetrically with the middle sample falling exactly on 0.0
+            F32 x = 0.f;
+
+            LLVector3 gauss[32];  // xweight, yweight, offset
+
+            for (U32 i = 0; i < kern_length; i++)
             {
-                // soften direct lighting lightmap
-                LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("renderDeferredLighting - soften shadow");
-                LL_PROFILE_GPU_ZONE("soften shadow");
-                // blur lightmap
-                screen_target->bindTarget();
-                glClearColor(1, 1, 1, 1);
-                screen_target->clear(GL_COLOR_BUFFER_BIT);
-                glClearColor(0, 0, 0, 0);
-
-                bindDeferredShader(gDeferredBlurLightProgram);
-                mScreenTriangleVB->setBuffer();
-                LLVector3 go = RenderShadowGaussian;
-                const U32 kern_length = 4;
-                F32       blur_size = RenderShadowBlurSize;
-                F32       dist_factor = RenderShadowBlurDistFactor;
-
-                // sample symmetrically with the middle sample falling exactly on 0.0
-                F32 x = 0.f;
-
-                LLVector3 gauss[32];  // xweight, yweight, offset
-
-				F32 screenPixelSize = 1.f / screen_target->getWidth();
-
-                for (U32 i = 0; i < kern_length; i++)
-                {
-                    gauss[i].mV[0] = llgaussian(x, go.mV[0]);
-                    gauss[i].mV[1] = llgaussian(x, go.mV[1]);
-                    gauss[i].mV[2] = x;
-                    x += screenPixelSize;
-                }
-
-                gDeferredBlurLightProgram.uniform2f(sDelta, screenPixelSize, 0.f);
-                gDeferredBlurLightProgram.uniform1f(sDistFactor, dist_factor);
-                gDeferredBlurLightProgram.uniform3fv(sKern, kern_length, gauss[0].mV);
-                gDeferredBlurLightProgram.uniform1f(sKernScale, blur_size * (kern_length / 2.f - 0.5f));
-
-                {
-                    LLGLDisable   blend(GL_BLEND);
-                    LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
-                    mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-                }
-
-                screen_target->flush();
-                unbindDeferredShader(gDeferredBlurLightProgram);
-
-                bindDeferredShader(gDeferredBlurLightProgram, screen_target);
-
-                mScreenTriangleVB->setBuffer();
-                deferred_light_target->bindTarget();
-
-                gDeferredBlurLightProgram.uniform2f(sDelta, 0.f, 1.f);
-
-                {
-                    LLGLDisable   blend(GL_BLEND);
-                    LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
-                    mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-                }
-                deferred_light_target->flush();
-                unbindDeferredShader(gDeferredBlurLightProgram);
+                gauss[i].mV[0] = llgaussian(x, go.mV[0]);
+                gauss[i].mV[1] = llgaussian(x, go.mV[1]);
+                gauss[i].mV[2] = x;
+                x += 1.f;
             }
+
+            gDeferredBlurLightProgram.uniform2f(sDelta, 1.f, 0.f);
+            gDeferredBlurLightProgram.uniform1f(sDistFactor, dist_factor);
+            gDeferredBlurLightProgram.uniform3fv(sKern, kern_length, gauss[0].mV);
+            gDeferredBlurLightProgram.uniform1f(sKernScale, blur_size * (kern_length / 2.f - 0.5f));
+
+            {
+                LLGLDisable   blend(GL_BLEND);
+                LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
+                mScreenTriangleVB->setBuffer();
+                mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+            }
+
+            screen_target->flush();
+            unbindDeferredShader(gDeferredBlurLightProgram);
+
+            bindDeferredShader(gDeferredBlurLightProgram, screen_target);
+
+            deferred_light_target->bindTarget();
+
+            gDeferredBlurLightProgram.uniform2f(sDelta, 0.f, 1.f);
+
+            {
+                LLGLDisable   blend(GL_BLEND);
+                LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
+                mScreenTriangleVB->setBuffer();
+                mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+            }
+            deferred_light_target->flush();
+            unbindDeferredShader(gDeferredBlurLightProgram);
         }
 
         screen_target->bindTarget();
@@ -8346,32 +8308,12 @@ void LLPipeline::renderDeferredLighting()
                 LLGLDisable   test(GL_ALPHA_TEST);
 
                 // full screen blit
-
                 mScreenTriangleVB->setBuffer();
                 mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-
             }
 
             unbindDeferredShader(LLPipeline::sUnderWaterRender ? gDeferredSoftenWaterProgram : gDeferredSoftenProgram);
         }
-
-#if 0
-        {  // render non-deferred geometry (fullbright, alpha, etc)
-            LLGLDisable blend(GL_BLEND);
-            //LLGLDisable stencil(GL_STENCIL_TEST);
-            gGL.setSceneBlendType(LLRender::BT_ALPHA);
-
-            gPipeline.pushRenderTypeMask();
-
-            gPipeline.andRenderTypeMask(LLPipeline::RENDER_TYPE_SKY,
-                                        LLPipeline::RENDER_TYPE_CLOUDS,
-                                        LLPipeline::RENDER_TYPE_WL_SKY,
-                                        LLPipeline::END_RENDER_TYPES);
-
-            renderGeomPostDeferred(*LLViewerCamera::getInstance(), false);
-            gPipeline.popRenderTypeMask();
-        }
-#endif
 
         bool render_local = RenderLocalLights; // && !gCubeSnapshot;
 
