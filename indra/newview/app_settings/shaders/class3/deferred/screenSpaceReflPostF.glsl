@@ -58,8 +58,12 @@ vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 vec4 getPosition(vec2 pos_screen);
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
 bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float hitDepth, float depth, sampler2D textureFrame);
+
 float random (vec2 uv);
-void main() {
+
+
+void main() 
+{
     vec2  tc = vary_fragcoord.xy;
     float depth = linearDepth01(getDepth(tc), zNear, zFar);
     vec3 n = vec3(0, 0, 1);
@@ -74,7 +78,8 @@ void main() {
     vec4 diffuse = texture2D(diffuseRect, tc);
     vec3 specCol = spec.rgb;
 
-    if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR)) {
+    if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR)) 
+    {
         vec3 orm = specCol.rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
@@ -86,12 +91,12 @@ void main() {
         specCol = mix(f0, baseColor.rgb, metallic);
     }
 
-	vec2 uv2 = tc * screen_res;
-	float c = (uv2.x + uv2.y) * 0.125;
-	float jitter = mod( c, 1.0);
+    vec2 uv2 = tc * screen_res;
+    float c = (uv2.x + uv2.y) * 0.125;
+    float jitter = mod( c, 1.0);
 
     vec3 firstBasis = normalize(cross(vec3(1.f, 1.f, 1.f), rayDirection));
-	vec3 secondBasis = normalize(cross(rayDirection, firstBasis));
+    vec3 secondBasis = normalize(cross(rayDirection, firstBasis));
     
     frag_color = texture(diffuseMap, tc);
     vec4 collectedColor;
@@ -100,17 +105,22 @@ void main() {
     float vignette = clamp((screenpos.x * screenpos.y) * 16,0, 1);
     vignette *= clamp((dot(normalize(viewPos), n) * 0.5 + 0.5 - 0.2) * 8, 0, 1);
     vignette *= min(linearDepth(getDepth(tc), zNear, zFar) / zFar, 1);
+
     int totalSamples = 4;
-    for (int i = 0; i < totalSamples; i++) {
-		vec2 coeffs = vec2(random(tc + vec2(0, i)) + random(tc + vec2(i, 0)));
-		vec3 reflectionDirectionRandomized = rayDirection + firstBasis * coeffs.x + secondBasis * coeffs.y;
+
+    for (int i = 0; i < totalSamples; i++) 
+    {
+        vec2 coeffs = vec2(random(tc + vec2(0, i)) + random(tc + vec2(i, 0)));
+        vec3 reflectionDirectionRandomized = rayDirection + firstBasis * coeffs.x + secondBasis * coeffs.y;
 
         bool hit = traceScreenRay(pos, reflectionDirectionRandomized, hitpoint, depth, depth, diffuseMap);
-        if (hit) {
+
+        if (hit) 
+        {
             collectedColor += hitpoint;
             collectedColor.rgb *= specCol.rgb;
         }
-	}
+    }
 
     collectedColor *= vignette;
 
