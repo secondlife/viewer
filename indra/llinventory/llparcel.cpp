@@ -35,8 +35,6 @@
 #include "llmath.h"
 #include "llsd.h"
 #include "llsdutil.h"
-#include "lltransactiontypes.h"
-#include "lltransactionflags.h"
 #include "llsdutil_math.h"
 #include "message.h"
 #include "u64.h"
@@ -153,7 +151,6 @@ void LLParcel::init(const LLUUID &owner_id,
 	mRentPricePerMeter	= rent_price_per_meter;
 	mArea				= area;
 	mDiscountRate		= 1.0f;
-	mDrawDistance		= 512.f;
 
 	mUserLookAt.setVec(0.0f, 0.f, 0.f);
 	// Default to using the parcel's landing point, if any.

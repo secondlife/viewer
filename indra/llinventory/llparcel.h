@@ -32,7 +32,6 @@
 #include "lluuid.h"
 #include "llparcelflags.h"
 #include "llpermissions.h"
-#include "lltimer.h"
 #include "v3math.h"
 #include "llsettingsdaycycle.h"
 
@@ -441,7 +440,6 @@ public:
 
     bool    getObscureMOAP() const { return mObscureMOAP; }
 
-	F32		getDrawDistance() const			{ return mDrawDistance; }
 	S32		getSalePrice() const			{ return mSalePrice; }
 	time_t	getClaimDate() const			{ return mClaimDate; }
 	S32		getClaimPricePerMeter() const	{ return mClaimPricePerMeter; }
@@ -543,7 +541,6 @@ protected:
 	S32					mRentPricePerMeter;		// meter squared
 	S32					mArea;					// meter squared
 	F32					mDiscountRate;			// 0.0-1.0
-	F32					mDrawDistance;
 	U32					mParcelFlags;
 	S32					mSalePrice;				// linden dollars
 	std::string			mName;
