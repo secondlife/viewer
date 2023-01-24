@@ -1,11 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" ?>
 <panel name="panel_login">
-	<panel.string name="forgot_password_url">
-		http://secondlife.com/account/request.php?lang=de
-	</panel.string>
-	<panel.string name="sign_up_url">
-		https://join.secondlife.com/
-	</panel.string>
+	<panel.string name="forgot_password_url">http://secondlife.com/account/request.php?lang=de</panel.string>
+	<panel.string name="sign_up_url">https://join.secondlife.com/</panel.string>
 	<layout_stack name="ui_stack">
 		<layout_panel name="ui_container">
 			<combo_box label="Benutzername" name="username_combo" tool_tip="Bei der Registrierung gewählter Benutzername wie „berndschmidt12“ oder „Liebe Sonne“"/>
@@ -16,13 +12,11 @@
 			</combo_box>
 			<button label="Anmelden" name="connect_btn"/>
 			<check_box label="Details speichern" name="remember_check"/>
-			<text name="forgot_password_text">
-				Kennwort vergessen
-			</text>
+			<text name="forgot_password_text">Kennwort vergessen</text>
 			<combo_box label="Grid auswählen" name="server_combo"/>
-			<text name="sign_up_text">
-				Registrieren
-			</text>
+			<text name="sign_up_text">Registrieren</text>
 		</layout_panel>
+		<check_box name="remember_name" label="An mich erinnern" tool_tip="Bereits gespeicherte Benutzer können über Ich &gt; Präferenzen &gt; Erweitert &gt; Gespeicherte Benutzernamen vergessen werden."/>
+		<check_box name="remember_password" label="Kennwort speichern"/>
 	</layout_stack>
 </panel>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <floater name="Statistics" title="STATISTICHE">
 	<scroll_container name="statistics_scroll">
 		<container_view name="statistics_view">
@@ -15,7 +15,7 @@
 					<stat_bar label="Totale oggetti" name="totalobjs"/>
 					<stat_bar label="Oggetti nella cache" name="cachedobjs"/>
 					<stat_bar label="Nuovi oggetti" name="newobjs"/>
-					<stat_bar label="Hit rate della cache per l&apos;oggetto" name="object_cache_hits"/>
+					<stat_bar label="Hit rate della cache per l'oggetto" name="object_cache_hits"/>
 					<stat_bar label="Occlusion query eseguite" name="occlusion_queries"/>
 					<stat_bar label="Oggetti in occlusion" name="occluded"/>
 					<stat_bar label="Oggetti non in occlusion" name="unoccluded"/>
@@ -93,5 +93,16 @@
 				</stat_view>
 			</stat_view>
 		</container_view>
+		<stat_bar name="simpendinguploads" label="Upload in sospeso"/>
+		<stat_bar name="simpendingdownloads" label="Download in attesa"/>
+		<stat_bar name="simchildagents" label="Agenti per bambini"/>
+		<stat_bar name="simagentups" label="Aggiornamenti/Sec  Agente"/>
+		<stat_bar name="simscripteps" label="Eventi di script"/>
+		<stat_bar name="simmainagents" label="Agenti principali"/>
+		<stat_bar name="simactivescripts" label="Script attivi"/>
+		<stat_bar name="simactiveobjects" label="Oggetti attivi"/>
+		<stat_bar name="simobjects" label="Oggetti"/>
+		<stat_bar name="siminpps" label="Packets In"/>
+		<stat_bar name="simoutpps" label="Packets Out"/>
 	</scroll_container>
 </floater>

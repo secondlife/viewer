@@ -1,18 +1,12 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <floater name="avatar_texture_debug" title="AVATAR-TEXTUREN">
-	<floater.string name="InvalidAvatar">
-		UNGÜLTIGER AVATAR
-	</floater.string>
+	<floater.string name="InvalidAvatar">UNGÜLTIGER AVATAR</floater.string>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text name="label">
-				Gebackene
-Texturen
-			</text>
-			<text name="composite_label">
-				Zusammengesetzte
-Texturen
-			</text>
+			<text name="label">Gebackene
+Texturen</text>
+			<text name="composite_label">Zusammengesetzte
+Texturen</text>
 			<button label="IDs an Konsole ausgeben" label_selected="Abladen" name="Dump"/>
 			<panel name="scroll_content_panel">
 				<texture_picker label="Haare" name="hair-baked"/>
@@ -46,5 +40,21 @@ Texturen
 				<texture_picker label="Rock" name="skirt"/>
 			</panel>
 		</panel>
+		<texture_picker name="upper_universal_tattoo" label="Oberes Univ.-Tattoo"/>
+		<texture_picker name="aux1_tattoo" label="AUX 1 Tattoo"/>
+		<texture_picker name="leftarm-baked" label="Linker Arm"/>
+		<texture_picker name="aux1-baked" label="AUX 1"/>
+		<texture_picker name="skirt_tattoo" label="Rocktattoo"/>
+		<texture_picker name="aux2_tattoo" label="AUX 2 Tattoo"/>
+		<texture_picker name="eyes_tattoo" label="Augentattoo"/>
+		<texture_picker name="head_universal_tattoo" label="Kopf-Univ.-Tattoo"/>
+		<texture_picker name="leftleg_tattoo" label="Tattoo am linken Bein"/>
+		<texture_picker name="aux3-baked" label="AUX 3"/>
+		<texture_picker name="hair_tattoo" label="Haartattoo"/>
+		<texture_picker name="leftleg-baked" label="Linkes Bein"/>
+		<texture_picker name="aux2-baked" label="AUX 2"/>
+		<texture_picker name="aux3_tattoo" label="AUX 3 Tattoo"/>
+		<texture_picker name="leftarm_tattoo" label="Tattoo am linken Arm"/>
+		<texture_picker name="lower_universal_tattoo" label="Unteres Univ.-Tattoo"/>
 	</scroll_container>
 </floater>
