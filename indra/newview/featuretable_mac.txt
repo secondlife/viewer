@@ -93,7 +93,7 @@ RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
 RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
-RenderVolumeLODFactor		1	0.5
+RenderVolumeLODFactor		1	1.125
 WindLightUseAtmosShaders	1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
