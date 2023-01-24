@@ -496,7 +496,6 @@ void LLViewerShaderMgr::setShaders()
 
     //bool canRenderDeferred = true; // DEPRECATED -- LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred");
     //bool hasWindLightShaders = true; // DEPRECATED -- LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders");
-    //S32 shadow_detail            = gSavedSettings.getS32("RenderShadowDetail");
     bool doingWindLight = true; //DEPRECATED -- hasWindLightShaders&& gSavedSettings.getBOOL("WindLightUseAtmosShaders");
 
     S32 light_class = 3;
@@ -858,6 +857,18 @@ std::string LLViewerShaderMgr::loadBasicShaders()
     if (local_light_kill)
     {
        attribs["LOCAL_LIGHT_KILL"] = "1";
+    }
+
+    S32 shadow_detail            = gSavedSettings.getS32("RenderShadowDetail");
+
+    if (shadow_detail >= 1)
+    {
+        attribs["SUN_SHADOW"] = "1";
+
+        if (shadow_detail >= 2)
+        {
+            attribs["SPOT_SHADOW"] = "1";
+        }
     }
 
 	// We no longer have to bind the shaders to global glhandles, they are automatically added to a map now.

@@ -841,62 +841,46 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		}
 	}	
 
-	if (LLPipeline::sRenderDeferred)
-	{
-		S32 shadow_detail = RenderShadowDetail;
-		bool ssao = RenderDeferredSSAO;
+	S32 shadow_detail = RenderShadowDetail;
+	bool ssao = RenderDeferredSSAO;
 		
-		//allocate deferred rendering color buffers
-		if (!mRT->deferredScreen.allocate(resX, resY, GL_RGBA, true, true, LLTexUnit::TT_TEXTURE, false, samples)) return false;
-		if (!addDeferredAttachments(mRT->deferredScreen)) return false;
+	//allocate deferred rendering color buffers
+	if (!mRT->deferredScreen.allocate(resX, resY, GL_RGBA, true, true, LLTexUnit::TT_TEXTURE, false, samples)) return false;
+	if (!addDeferredAttachments(mRT->deferredScreen)) return false;
 	
-		GLuint screenFormat = GL_RGBA16;
+	GLuint screenFormat = GL_RGBA16;
         
-		if (!mRT->screen.allocate(resX, resY, screenFormat, FALSE, true, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
+	if (!mRT->screen.allocate(resX, resY, screenFormat, FALSE, true, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
 
-        mRT->deferredScreen.shareDepthBuffer(mRT->screen);
+    mRT->deferredScreen.shareDepthBuffer(mRT->screen);
 
-		if (samples > 0)
-		{
-			if (!mRT->fxaaBuffer.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
-		}
-		else
-		{
-			mRT->fxaaBuffer.release();
-		}
-		
-		if (shadow_detail > 0 || ssao || RenderDepthOfField || samples > 0)
-		{ //only need mRT->deferredLight for shadows OR ssao OR dof OR fxaa
-			if (!mRT->deferredLight.allocate(resX, resY, GL_RGBA16, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE)) return false;
-		}
-		else
-		{
-			mRT->deferredLight.release();
-		}
-
-        allocateShadowBuffer(resX, resY);
-
-        //HACK make screenbuffer allocations start failing after 30 seconds
-        if (gSavedSettings.getBOOL("SimulateFBOFailure"))
-        {
-            return false;
-        }
-    }
-    else
-    {
-        mRT->deferredLight.release();
-
-        releaseSunShadowTargets();
-        releaseSpotShadowTargets();
-
-		mRT->fxaaBuffer.release();
-		mRT->screen.release();
-		mRT->deferredScreen.release(); //make sure to release any render targets that share a depth buffer with mRT->deferredScreen first
-		
-		if (!mRT->screen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_TEXTURE, FALSE)) return false;		
+	if (samples > 0)
+	{
+		if (!mRT->fxaaBuffer.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
 	}
-	
-	gGL.getTexUnit(0)->disable();
+	else
+	{
+		mRT->fxaaBuffer.release();
+	}
+		
+	if (shadow_detail > 0 || ssao || RenderDepthOfField || samples > 0)
+	{ //only need mRT->deferredLight for shadows OR ssao OR dof OR fxaa
+		if (!mRT->deferredLight.allocate(resX, resY, GL_RGBA16, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE)) return false;
+	}
+	else
+	{
+		mRT->deferredLight.release();
+	}
+
+    allocateShadowBuffer(resX, resY);
+
+    //HACK make screenbuffer allocations start failing after 30 seconds
+    if (gSavedSettings.getBOOL("SimulateFBOFailure"))
+    {
+        return false;
+    }
+
+    gGL.getTexUnit(0)->disable();
 
 	stop_glerror();
 

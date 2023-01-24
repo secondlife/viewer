@@ -1134,6 +1134,11 @@ S32 LLGLSLShader::unbindTexture(S32 uniform, LLTexUnit::eTextureType mode)
     return uniform;
 }
 
+S32 LLGLSLShader::getTextureChannel(S32 uniform) const
+{
+    return mTexture[uniform];
+}
+
 S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace space)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;

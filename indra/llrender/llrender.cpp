@@ -372,11 +372,8 @@ bool LLTexUnit::bind(LLRenderTarget* renderTarget, bool bindDepth)
 
 	if (bindDepth)
 	{
-
-		if (renderTarget->getDepth() && !renderTarget->canSampleDepth())
-		{
-			LL_ERRS() << "Cannot bind a render buffer for sampling.  Allocate render target with depth buffer sampling enabled." << LL_ENDL;
-		}
+        llassert(renderTarget->getDepth()); // target MUST have a depth buffer attachment
+        llassert(renderTarget->canSampleDepth()); // depth buffer attachment MUST be sampleable
 
 		bindManual(renderTarget->getUsage(), renderTarget->getDepth());
 	}

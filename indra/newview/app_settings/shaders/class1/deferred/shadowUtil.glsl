@@ -25,12 +25,18 @@
 
 uniform sampler2D   normalMap;
 uniform sampler2D   depthMap;
+
+#if defined(SUN_SHADOW)
 uniform sampler2DShadow shadowMap0;
 uniform sampler2DShadow shadowMap1;
 uniform sampler2DShadow shadowMap2;
 uniform sampler2DShadow shadowMap3;
+#endif
+
+#if defined(SPOT_SHADOW)
 uniform sampler2DShadow shadowMap4;
 uniform sampler2DShadow shadowMap5;
+#endif
 
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
@@ -48,6 +54,7 @@ uniform int sun_up_factor;
 
 float pcfShadow(sampler2DShadow shadowMap, vec3 norm, vec4 stc, float bias_mul, vec2 pos_screen, vec3 light_dir)
 {
+#if defined(SUN_SHADOW)
     float offset = shadow_bias * bias_mul;
     stc.xyz /= stc.w;
     stc.z += offset * 2.0;
@@ -59,10 +66,14 @@ float pcfShadow(sampler2DShadow shadowMap, vec3 norm, vec4 stc, float bias_mul, 
     shadow += shadow2D(shadowMap, stc.xyz+vec3(-1.5/shadow_res.x, -0.5/shadow_res.y, 0.0)).x;
     shadow += shadow2D(shadowMap, stc.xyz+vec3(-0.5/shadow_res.x,  1.5/shadow_res.y, 0.0)).x;
     return clamp(shadow * 0.125, 0.0, 1.0);
+#else
+    return 1.0;
+#endif
 }
 
 float pcfSpotShadow(sampler2DShadow shadowMap, vec4 stc, float bias_scale, vec2 pos_screen)
 {
+#if defined(SPOT_SHADOW)
     stc.xyz /= stc.w;
     stc.z += spot_shadow_bias * bias_scale;
     stc.x = floor(proj_shadow_res.x * stc.x + fract(pos_screen.y*0.666666666)) / proj_shadow_res.x; // snap
@@ -78,10 +89,14 @@ float pcfSpotShadow(sampler2DShadow shadowMap, vec4 stc, float bias_scale, vec2 
     shadow += shadow2D(shadowMap, stc.xyz+vec3(-off.x, off.y, 0.0)).x;
     shadow += shadow2D(shadowMap, stc.xyz+vec3(-off.x*2.0, -off.y, 0.0)).x;
     return shadow*0.2;
+#else
+    return 1.0;
+#endif
 }
 
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
 {
+#if defined(SUN_SHADOW)
     float shadow = 0.0f;
     vec3 light_dir = normalize((sun_up_factor == 1) ? sun_dir : moon_dir);
 
@@ -175,10 +190,14 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
     }
     //shadow = min(dp_directional_light,shadow);
     return shadow;
+#else
+    return 1.0;
+#endif
 }
 
 float sampleSpotShadow(vec3 pos, vec3 norm, int index, vec2 pos_screen)
 {
+#if defined(SPOT_SHADOW)
     float shadow = 0.0f;
     pos += norm * spot_shadow_offset;
 
@@ -217,5 +236,8 @@ float sampleSpotShadow(vec3 pos, vec3 norm, int index, vec2 pos_screen)
         shadow = 1.0f;
     }
     return shadow;
+#else
+    return 1.0;
+#endif
 }
 
