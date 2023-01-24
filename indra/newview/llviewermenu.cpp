@@ -2876,6 +2876,13 @@ void handle_object_open()
 	LLFloaterReg::showInstance("openobject");
 }
 
+bool enable_object_inspect()
+{
+    LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+    LLViewerObject* selected_objectp = selection->getFirstRootObject();
+    return selected_objectp != NULL;
+}
+
 bool enable_object_open()
 {
 	// Look for contents in root object, which is all the LLFloaterOpenObject
@@ -7943,7 +7950,7 @@ bool enable_object_take_copy()
 	bool all_valid = false;
 	if (LLSelectMgr::getInstance())
 	{
-		if (!LLSelectMgr::getInstance()->getSelection()->isEmpty())
+		if (LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() > 0)
 		{
 		all_valid = true;
 #ifndef HACKED_GODLIKE_VIEWER
@@ -9650,6 +9657,7 @@ void initialize_menus()
 	commit.add("Object.Open", boost::bind(&handle_object_open));
 	commit.add("Object.Take", boost::bind(&handle_take));
 	commit.add("Object.ShowInspector", boost::bind(&handle_object_show_inspector));
+    enable.add("Object.EnableInspect", boost::bind(&enable_object_inspect));
 	enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
 	enable.add("Object.EnableTouch", boost::bind(&enable_object_touch, _1));
 	enable.add("Object.EnableDelete", boost::bind(&enable_object_delete));
