@@ -685,7 +685,9 @@ void LLPipeline::cleanup()
 
 	mFaceSelectImagep = NULL;
 
-	mMovedBridge.clear();
+    mMovedList.clear();
+    mMovedBridge.clear();
+    mShiftList.clear();
 
 	mInitialized = false;
 
@@ -1773,15 +1775,20 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 void LLPipeline::removeMutedAVsLights(LLVOAvatar* muted_avatar)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-	for (light_set_t::iterator iter = gPipeline.mNearbyLights.begin();
-		 iter != gPipeline.mNearbyLights.end(); iter++)
-	{
-		if (iter->drawable->getVObj()->isAttachment() && iter->drawable->getVObj()->getAvatar() == muted_avatar)
-		{
-			gPipeline.mLights.erase(iter->drawable);
-			gPipeline.mNearbyLights.erase(iter);
-		}
-	}
+    light_set_t::iterator iter = gPipeline.mNearbyLights.begin();
+
+    while (iter != gPipeline.mNearbyLights.end())
+    {
+        if (iter->drawable->getVObj()->isAttachment() && iter->drawable->getVObj()->getAvatar() == muted_avatar)
+        {
+            gPipeline.mLights.erase(iter->drawable);
+            iter = gPipeline.mNearbyLights.erase(iter);
+        }
+        else
+        {
+            iter++;
+        }
+    }
 }
 
 U32 LLPipeline::addObject(LLViewerObject *vobj)
@@ -2817,6 +2824,14 @@ void LLPipeline::clearRebuildDrawables()
 		drawablep->clearState(LLDrawable::EARLY_MOVE | LLDrawable::MOVE_UNDAMPED | LLDrawable::ON_MOVE_LIST | LLDrawable::ANIMATED_CHILD);
 	}
 	mMovedList.clear();
+
+    for (LLDrawable::drawable_vector_t::iterator iter = mShiftList.begin();
+        iter != mShiftList.end(); ++iter)
+    {
+        LLDrawable *drawablep = *iter;
+        drawablep->clearState(LLDrawable::EARLY_MOVE | LLDrawable::MOVE_UNDAMPED | LLDrawable::ON_MOVE_LIST | LLDrawable::ANIMATED_CHILD | LLDrawable::ON_SHIFT_LIST);
+    }
+    mShiftList.clear();
 }
 
 void LLPipeline::rebuildPriorityGroups()
@@ -10906,6 +10921,8 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
         if (preview_avatar)
         {
             // Only show rigged attachments for preview
+            // For the sake of performance and so that static
+            // objects won't obstruct previewing changes
             LLVOAvatar::attachment_map_t::iterator iter;
             for (iter = avatar->mAttachmentPoints.begin();
                 iter != avatar->mAttachmentPoints.end();
@@ -10917,9 +10934,27 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
                     ++attachment_iter)
                 {
                     LLViewerObject* attached_object = attachment_iter->get();
-                    if (attached_object && attached_object->isRiggedMesh())
+                    if (attached_object)
                     {
-                        markVisible(attached_object->mDrawable->getSpatialBridge(), *viewer_camera);
+                        if (attached_object->isRiggedMesh())
+                        {
+                            markVisible(attached_object->mDrawable->getSpatialBridge(), *viewer_camera);
+                        }
+                        else
+                        {
+                            // sometimes object is a linkset and rigged mesh is a child
+                            LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
+                            for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+                                iter != child_list.end(); iter++)
+                            {
+                                LLViewerObject* child = *iter;
+                                if (child->isRiggedMesh())
+                                {
+                                    markVisible(attached_object->mDrawable->getSpatialBridge(), *viewer_camera);
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }

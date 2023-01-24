@@ -454,7 +454,8 @@ bool LLPanelMediaSettingsGeneral::navigateHomeSelectedFace(bool only_if_current_
 							LLViewerMedia::getInstance()->getMediaImplFromTextureID(object->getTE(face)->getMediaData()->getMediaID());
 						if(media_impl)
 						{
-							media_impl->navigateHome();
+                            media_impl->setPriority(LLPluginClassMedia::PRIORITY_NORMAL);
+                            media_impl->navigateHome();
 							return true;
 						}
 					}
