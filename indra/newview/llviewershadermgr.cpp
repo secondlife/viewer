@@ -1710,8 +1710,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredTreeShadowProgram.mName = "Deferred Tree Shadow Shader";
 		gDeferredTreeShadowProgram.mShaderFiles.clear();
-		gDeferredTreeShadowProgram.mFeatures.isDeferred = true;
-		gDeferredTreeShadowProgram.mFeatures.hasShadows = true;
 		gDeferredTreeShadowProgram.mShaderFiles.push_back(make_pair("deferred/treeShadowV.glsl", GL_VERTEX_SHADER));
 		gDeferredTreeShadowProgram.mShaderFiles.push_back(make_pair("deferred/treeShadowF.glsl", GL_FRAGMENT_SHADER));
 		gDeferredTreeShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
@@ -1724,8 +1722,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
     {
         gDeferredSkinnedTreeShadowProgram.mName = "Deferred Skinned Tree Shadow Shader";
         gDeferredSkinnedTreeShadowProgram.mShaderFiles.clear();
-        gDeferredSkinnedTreeShadowProgram.mFeatures.isDeferred = true;
-        gDeferredSkinnedTreeShadowProgram.mFeatures.hasShadows = true;
         gDeferredSkinnedTreeShadowProgram.mFeatures.hasObjectSkinning = true;
         gDeferredSkinnedTreeShadowProgram.mShaderFiles.push_back(make_pair("deferred/treeShadowSkinnedV.glsl", GL_VERTEX_SHADER));
         gDeferredSkinnedTreeShadowProgram.mShaderFiles.push_back(make_pair("deferred/treeShadowF.glsl", GL_FRAGMENT_SHADER));
