@@ -276,6 +276,7 @@ protected:
 	U32					mSkeletonSerialNum;
 	LLAnimPauseRequest	mPauseRequest;
 
+    virtual void        postMotionUpdate() {}
 private:
 	// visual parameter stuff
 	typedef std::map<S32, LLVisualParam *> 		visual_param_index_map_t;

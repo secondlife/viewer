@@ -40,7 +40,7 @@ const U64 REGION_FLAGS_ALLOW_SET_HOME			= (1 << 2);
 const U64 REGION_FLAGS_RESET_HOME_ON_TELEPORT	= (1 << 3);
 
 // Does the sun move?
-const U64 REGION_FLAGS_SUN_FIXED				= (1 << 4);
+const U64 REGION_FLAGS_SUN_FIXED				= (1 << 4); // deprecated
 
 // Does the estate owner allow private parcels?
 const U64 REGION_FLAGS_ALLOW_ACCESS_OVERRIDE    = (1 << 5);
@@ -88,6 +88,8 @@ const U64 REGION_FLAGS_ALLOW_VOICE = (1 << 28);
 
 const U64 REGION_FLAGS_BLOCK_PARCEL_SEARCH = (1 << 29);
 const U64 REGION_FLAGS_DENY_AGEUNVERIFIED	= (1 << 30);
+
+const U64 REGION_FLAGS_ENABLE_ANIMATION_TRACKING = (1ULL << 33);
 
 const U64 REGION_FLAGS_DEFAULT = REGION_FLAGS_ALLOW_LANDMARK |
 								 REGION_FLAGS_ALLOW_SET_HOME |
