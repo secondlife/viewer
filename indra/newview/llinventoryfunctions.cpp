@@ -403,6 +403,7 @@ void copy_inventory_category(LLInventoryModel* model,
 							 bool move_no_copy_items )
 {
 	// Create the initial folder
+	// D567 needs to handle new fields
 	inventory_func_type func = boost::bind(&copy_inventory_category_content, _1, model, cat, root_copy_id, move_no_copy_items);
 	gInventory.createNewCategory(parent_id, LLFolderType::FT_NONE, cat->getName(), func);
 }

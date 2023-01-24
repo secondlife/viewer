@@ -700,8 +700,13 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 		name.assign(LLViewerFolderType::lookupNewCategoryName(preferred_type));
 	}
 	
+#ifdef USE_AIS_FOR_NC
+	// D567 currently this doesn't really work due to limitations in
+	// AIS3, also violates the common caller assumption that we can
+	// assign the id and return immediately.
 	if (callback)
 	{
+		// D567 note that we no longer assign the UUID in the viewer, so various workflows need to change.
 		LLSD new_inventory = LLSD::emptyMap();
 		new_inventory["categories"] = LLSD::emptyArray();
 		LLViewerInventoryCategory cat(LLUUID::null, parent_id, preferred_type, name, gAgent.getID());
@@ -711,17 +716,47 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 
 		return LLUUID::null;
 	}
+#else
+	LLViewerRegion* viewer_region = gAgent.getRegion();
+	std::string url;
+	if ( viewer_region )
+		url = viewer_region->getCapability("CreateInventoryCategory");
+	
+	if (!url.empty() && callback)
+	{
+		//Let's use the new capability.
+		
+		id.generate();
+		LLSD request, body;
+		body["folder_id"] = id;
+		body["parent_id"] = parent_id;
+		body["type"] = (LLSD::Integer) preferred_type;
+		body["name"] = name;
+		
+		request["message"] = "CreateInventoryCategory";
+		request["payload"] = body;
+
+		LL_DEBUGS(LOG_INV) << "Creating category via request: " << ll_pretty_print_sd(request) << LL_ENDL;
+        LLCoros::instance().launch("LLInventoryModel::createNewCategoryCoro",
+            boost::bind(&LLInventoryModel::createNewCategoryCoro, this, url, body, callback));
+
+		return LLUUID::null;
+	}
+#endif
+
 
 	if (!gMessageSystem)
 	{
 		return LLUUID::null;
 	}
 
-	// FIXME this UDP code path needs to be removed. Requires
+	// D567 FIXME this UDP code path needs to be removed. Requires
 	// reworking many of the callers to use callbacks rather than
 	// assuming instant success.
 
 	// Add the category to the internal representation
+	LL_WARNS() << "D567 need to remove this usage" << LL_ENDL;
+	
 	id.generate();
 	LLPointer<LLViewerInventoryCategory> cat =
 		new LLViewerInventoryCategory(id, parent_id, preferred_type, name, gAgent.getID());
