@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<floater name="floater_preview_trash" title="POUBELLE">
+	<layout_panel name="empty_btn_lp"/>
+	<layout_stack name="button_panel_ls">
+		<button name="empty_btn" label="Vider la poubelle"/>
+	</layout_stack>
+</floater>
