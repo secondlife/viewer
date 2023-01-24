@@ -100,8 +100,8 @@ public:
 
     bool    hasChanged(const LLVector3 &pos, const LLQuaternion &rot) const
     {
-        static constexpr F32 SMALL_CHANGE_DIST2(0.05 * 0.05);
-        static constexpr F32 SMALL_CHANGE_ANGL(0.5);    // about 28.6 degrees
+        static constexpr F32 SMALL_CHANGE_DIST2(0.05f * 0.05f);
+        static constexpr F32 SMALL_CHANGE_ANGL(0.225f);    // just shy of 13 degrees
         // Angle choice and LLQuaternion::almost_equal: almost_equal uses the Small Angle Approximation 
         // for cos.  The approximation diverges more than 1% at around 0.6620 radians. We are under 
         // this limit and to be honest, an error of 1% in this case is acceptable. 

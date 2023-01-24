@@ -1477,7 +1477,7 @@ void LLPuppetMotion::RequestPuppetryStatusCoro(const std::string& capurl)
                 LL_WARNS("Puppet") << "Failed to get puppetry information." << LL_ENDL;
                 return;
             }
-            llcoro::suspendUntilTimeout(0.25);
+            llcoro::suspendUntilTimeout(0.25f);
             continue;
         }
         else if (!status)
@@ -1493,11 +1493,11 @@ void LLPuppetMotion::RequestPuppetryStatusCoro(const std::string& capurl)
     LLPuppetMotion::SetPuppetryEnabled(true, event_size);    // turn on puppetry and set the event size
     LLPuppetModule::instance().parsePuppetryResponse(result);
 
-    if (result.has("update_frequency"))
+    if (result.has("update_period"))
     {
         if (gAgentAvatarp)
         {
-            gAgentAvatarp->setAttachmentUpdateTimeout(result["update_frequency"].asReal());
+            gAgentAvatarp->setAttachmentUpdateTimeout(result["update_period"].asReal());
         }
     }
     else if (gAgent.getRegion()->getRegionFlag(REGION_FLAGS_ENABLE_ANIMATION_TRACKING))
