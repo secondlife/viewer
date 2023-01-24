@@ -517,27 +517,40 @@ private:
                  const Callable& callable,
                  const LLSD& required);
 
-    template <class CLASS, typename METHOD>
+    template <class CLASS, typename METHOD,
+              typename std::enable_if<
+                  std::is_base_of<LLEventDispatcher, CLASS>::value,
+                  bool
+              >::type=true>
     void addMethod(const std::string& name, const std::string& desc,
                    const METHOD& method, const LLSD& required)
     {
-        CLASS* downcast = dynamic_cast<CLASS*>(this);
-        if (! downcast)
-        {
-            addFail(name, typeid(CLASS).name());
-        }
-        else
-        {
-            add(name,
-                desc,
-                Callable(LL::make_always_return<LLSD>(
-                    [downcast, method]
-                    (const LLSD& args)
-                    {
-                        return (downcast->*method)(args);
-                    })),
-                required);
-        }
+        // Why two overloaded addMethod() methods, discriminated with
+        // std::is_base_of? It might seem simpler to use dynamic_cast and test
+        // for nullptr. The trouble is that it doesn't work for LazyEventAPI
+        // deferred registration: we get nullptr even for a method of an
+        // LLEventAPI subclass.
+        CLASS* downcast = static_cast<CLASS*>(this);
+        add(name,
+            desc,
+            Callable(LL::make_always_return<LLSD>(
+                         [downcast, method]
+                         (const LLSD& args)
+                         {
+                             return (downcast->*method)(args);
+                         })),
+            required);
+    }
+
+    template <class CLASS, typename METHOD,
+              typename std::enable_if<
+                  ! std::is_base_of<LLEventDispatcher, CLASS>::value,
+                  bool
+              >::type=true>
+    void addMethod(const std::string& name, const std::string& desc,
+                   const METHOD&, const LLSD&)
+    {
+        addFail(name, typeid(CLASS).name());
     }
 
     template <class CLASS, typename METHOD>
@@ -562,7 +575,7 @@ private:
     template <typename Function>
     void addV(const std::string& name, const std::string& desc, Function f);
 
-    void addFail(const std::string& name, const std::string& classname) const;
+    void addFail(const std::string& name, const char* classname) const;
     LLSD try_call(const std::string& key, const std::string& name,
                   const LLSD& event) const;
 
