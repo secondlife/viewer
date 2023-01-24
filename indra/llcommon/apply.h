@@ -74,7 +74,7 @@ template<typename Fn, typename... Args,
                                  int>::type = 0 >
 auto invoke(Fn&& f, Args&&... args)
 {
-    return std::mem_fn(f)(std::forward<Args>(args)...);
+    return std::mem_fn(std::forward<Fn>(f))(std::forward<Args>(args)...);
 }
 
 template<typename Fn, typename... Args, 
@@ -102,8 +102,15 @@ using std::apply;
 template <typename CALLABLE, typename... ARGS, std::size_t... I>
 auto apply_impl(CALLABLE&& func, const std::tuple<ARGS...>& args, std::index_sequence<I...>)
 {
+    // We accept const std::tuple& so a caller can construct an tuple on the
+    // fly. But std::get<I>(const tuple) adds a const qualifier to everything
+    // it extracts. Get a non-const ref to this tuple so we can extract
+    // without the extraneous const.
+    auto& non_const_args{ const_cast<std::tuple<ARGS...>&>(args) };
+
     // call func(unpacked args)
-    return invoke(std::forward<CALLABLE>(func), std::get<I>(args)...);
+    return invoke(std::forward<CALLABLE>(func),
+                  std::forward<ARGS>(std::get<I>(non_const_args))...);
 }
 
 template <typename CALLABLE, typename... ARGS>
