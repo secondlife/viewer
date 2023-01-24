@@ -97,6 +97,14 @@ bool LLAudioEngine_FMODSTUDIO::init(void* userdata, const std::string &app_title
             << " expected:" << FMOD_VERSION << LL_ENDL;
     }
 
+    Check_FMOD_Error(result, "FMOD::System::getVersion");
+    std::string logfile = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "fmod.log");
+    result = FMOD::Debug_Initialize(FMOD_DEBUG_LEVEL_LOG, FMOD_DEBUG_MODE_FILE, 0, logfile.c_str());
+    if (Check_FMOD_Error(result, "FMOD::System_Create"))
+    {
+        LL_WARNS() << "Failed to init logging" << LL_ENDL;
+    }
+
     // In this case, all sounds, PLUS wind and stream will be software.
     result = mSystem->setSoftwareChannels(LL_MAX_AUDIO_CHANNELS + 2);
     Check_FMOD_Error(result, "FMOD::System::setSoftwareChannels");
