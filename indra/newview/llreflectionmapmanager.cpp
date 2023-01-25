@@ -83,10 +83,8 @@ void LLReflectionMapManager::update()
     if (!mRenderTarget.isComplete())
     {
         U32 color_fmt = GL_RGB16F;
-        const bool use_depth_buffer = true;
-        const bool use_stencil_buffer = false;
         U32 targetRes = LL_REFLECTION_PROBE_RESOLUTION * 2; // super sample
-        mRenderTarget.allocate(targetRes, targetRes, color_fmt, use_depth_buffer, use_stencil_buffer, LLTexUnit::TT_TEXTURE);
+        mRenderTarget.allocate(targetRes, targetRes, color_fmt, true);
     }
 
     if (mMipChain.empty())
@@ -97,7 +95,7 @@ void LLReflectionMapManager::update()
         mMipChain.resize(count);
         for (int i = 0; i < count; ++i)
         {
-            mMipChain[i].allocate(res, res, GL_RGBA16F, false, false, LLTexUnit::TT_TEXTURE);
+            mMipChain[i].allocate(res, res, GL_RGBA16F);
             res /= 2;
         }
     }

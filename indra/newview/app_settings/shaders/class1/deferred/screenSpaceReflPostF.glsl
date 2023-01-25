@@ -23,35 +23,11 @@
  * $/LicenseInfo$
  */
 
-#extension GL_ARB_texture_rectangle : enable
+ // debug stub
 
-/*[EXTRA_CODE_HERE]*/
-
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
-uniform vec2 screen_res;
-uniform mat4 projection_matrix;
-uniform mat4 inv_proj;
-uniform float zNear;
-uniform float zFar;
-
-VARYING vec2 vary_fragcoord;
-
-uniform sampler2D depthMap;
-uniform sampler2D normalMap;
-uniform sampler2D sceneMap;
-uniform sampler2D diffuseRect;
-
-vec3 getNorm(vec2 screenpos);
-float getDepth(vec2 pos_screen);
-float linearDepth(float d, float znear, float zfar);
-
-void main() {
-    vec2  tc = vary_fragcoord.xy;
-    vec4 pos = getPositionWithDepth(tc, getDepth(tc));
-    frag_color = pos;
+void main() 
+{
+    frag_color = vec4(0.5, 0.4, 0.1, 0);
 }

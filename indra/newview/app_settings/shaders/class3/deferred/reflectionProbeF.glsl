@@ -25,11 +25,14 @@
 
 #define FLT_MAX 3.402823466e+38
 
+float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source);
+
 #define REFMAP_COUNT 256
 #define REF_SAMPLE_COUNT 64 //maximum number of samples to consider
 
 uniform samplerCubeArray   reflectionProbes;
 uniform samplerCubeArray   irradianceProbes;
+uniform sampler2D sceneMap;
 
 layout (std140) uniform ReflectionProbes
 {
@@ -605,7 +608,7 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir)
 }
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-        vec3 pos, vec3 norm, float glossiness, bool errorCorrect)
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool errorCorrect)
 {
     // TODO - don't hard code lods
     float reflection_lods = 6;
@@ -617,6 +620,11 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
 
     float lod = (1.0-glossiness)*reflection_lods;
     glossenv = sampleProbes(pos, normalize(refnormpersp), lod, errorCorrect);
+
+    vec4 ssr = vec4(0);
+    float w = tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap);
+
+    glossenv = mix(glossenv, ssr.rgb, w);
 }
 
 void debugTapRefMap(vec3 pos, vec3 dir, float depth, int i, inout vec4 col)
@@ -660,15 +668,15 @@ vec4 sampleReflectionProbesDebug(vec3 pos)
 }
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-    vec3 pos, vec3 norm, float glossiness)
+    vec2 tc, vec3 pos, vec3 norm, float glossiness)
 {
     sampleReflectionProbes(ambenv, glossenv,
-        pos, norm, glossiness, false);
+        tc, pos, norm, glossiness, false);
 }
 
 
 void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
-        vec3 pos, vec3 norm, float glossiness, float envIntensity)
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity)
 {
     // TODO - don't hard code lods
     float reflection_lods = 7;
@@ -676,7 +684,6 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
-    
     ambenv = sampleProbeAmbient(pos, norm);
     
     if (glossiness > 0.0)
@@ -689,6 +696,13 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
     {
         legacyenv = sampleProbes(pos, normalize(refnormpersp), 0.0, false);
     }
+
+    vec4 ssr = vec4(0);
+    float w = tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap);
+
+    //glossenv = ssr.rgb;
+    glossenv = mix(glossenv, ssr.rgb, w);
+    legacyenv = mix(legacyenv, ssr.rgb, w);
 }
 
 void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 norm)

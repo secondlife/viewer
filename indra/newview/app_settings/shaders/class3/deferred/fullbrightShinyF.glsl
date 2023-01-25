@@ -56,8 +56,9 @@ vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
 
 // reflection probe interface
-void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyEnv, 
-        vec3 pos, vec3 norm, float glossiness, float envIntensity);
+void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity);
+
 void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 norm);
 void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 norm, float envIntensity);
 
@@ -91,7 +92,7 @@ void main()
         vec3 legacyenv;
         vec3 norm = normalize(vary_texcoord1.xyz);
         vec4 spec = vec4(0,0,0,0);
-        sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, env_intensity);
+        sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, vec2(0), pos.xyz, norm.xyz, spec.a, env_intensity);
         applyLegacyEnv(color.rgb, legacyenv, spec, pos, norm, env_intensity);
 
         color.rgb = fullbrightAtmosTransportFrag(color.rgb, additive, atten);

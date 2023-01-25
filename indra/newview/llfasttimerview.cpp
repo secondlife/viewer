@@ -468,7 +468,7 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
 {
 	//allocate render target for drawing charts 
 	LLRenderTarget buffer;
-	buffer.allocate(1024,512, GL_RGB, FALSE, FALSE);
+	buffer.allocate(1024,512, GL_RGB);
 	
 
 	LLSD cur;

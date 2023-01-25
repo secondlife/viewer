@@ -373,7 +373,6 @@ bool LLTexUnit::bind(LLRenderTarget* renderTarget, bool bindDepth)
 	if (bindDepth)
 	{
         llassert(renderTarget->getDepth()); // target MUST have a depth buffer attachment
-        llassert(renderTarget->canSampleDepth()); // depth buffer attachment MUST be sampleable
 
 		bindManual(renderTarget->getUsage(), renderTarget->getDepth());
 	}

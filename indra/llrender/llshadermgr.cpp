@@ -222,7 +222,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		}
 	}
 
-	if (features->hasScreenSpaceReflections)
+	if (features->hasScreenSpaceReflections || features->hasReflectionProbes)
 	{
         if (!shader->attachFragmentObject("deferred/screenSpaceReflUtil.glsl"))
         {
@@ -1244,6 +1244,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("bumpMap");
     mReservedUniforms.push_back("bumpMap2");
 	mReservedUniforms.push_back("environmentMap");
+    mReservedUniforms.push_back("sceneMap");
     mReservedUniforms.push_back("reflectionProbes");
     mReservedUniforms.push_back("irradianceProbes");
 	mReservedUniforms.push_back("cloud_noise_texture");
