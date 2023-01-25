@@ -115,7 +115,11 @@ public:
 	// open the dialog. This is a modal operation
 	BOOL getSaveFile( ESaveFilter filter = FFSAVE_ALL, const std::string& filename = LLStringUtil::null, bool blocking = true);
 	BOOL getOpenFile( ELoadFilter filter = FFLOAD_ALL, bool blocking = true  );
+    // Todo: implement getOpenFileModeless and getMultipleOpenFilesModeless
+    // for windows and use directly instead of ugly LLFilePickerThread
+    BOOL getOpenFileModeless( ELoadFilter filter, void (*callback)(bool, std::vector<std::string> &, void*), void *userdata); // MAC only.
 	BOOL getMultipleOpenFiles( ELoadFilter filter = FFLOAD_ALL, bool blocking = true );
+    BOOL getMultipleOpenFilesModeless( ELoadFilter filter, void (*callback)(bool, std::vector<std::string> &, void*), void *userdata ); // MAC only
 
 	// Get the filename(s) found. getFirstFile() sets the pointer to
 	// the start of the structure and allows the start of iteration.
@@ -166,6 +170,7 @@ private:
 	std::vector<std::string> mFileVector;
 	
 	bool doNavChooseDialog(ELoadFilter filter);
+	bool doNavChooseDialogModeless(ELoadFilter filter, void (*callback)(bool, std::vector<std::string>&, void*), void *userdata);
 	bool doNavSaveDialog(ESaveFilter filter, const std::string& filename);
     std::vector<std::string>* navOpenFilterProc(ELoadFilter filter);
 #endif

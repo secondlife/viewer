@@ -41,6 +41,12 @@
 //void modelessPicker();
 std::vector<std::string>* doLoadDialog(const std::vector<std::string>* allowed_types, 
                  unsigned int flags);
+
+void doLoadDialogModeless(const std::vector<std::string>* allowed_types,
+                unsigned int flags,
+                void (*callback)(bool, std::vector<std::string>&, void*),
+                void *userdata);
+
 std::string* doSaveDialog(const std::string* file, 
                   const std::string* type,
                   const std::string* creator,

@@ -124,6 +124,16 @@ void LLFilePickerThread::getFile()
 {
 #if LL_WINDOWS
 	start();
+#elif LL_DARWIN
+    if (!mIsSaveDialog)
+    {
+        runModeless();
+    }
+    else
+    {
+        // Todo: implement Modeless
+        run();
+    }
 #else
 	run();
 #endif
@@ -166,7 +176,70 @@ void LLFilePickerThread::run()
 		LLMutexLock lock(sMutex);
 		sDeadQ.push(this);
 	}
+}
 
+void LLFilePickerThread::runModeless()
+{
+    BOOL result = FALSE;
+    LLFilePicker picker;
+
+    if (mIsSaveDialog)
+    {
+        // TODO: not implemented
+        /*if (picker.getSaveFile(mSaveFilter, mProposedName, blocking))
+        {
+            mResponses.push_back(picker.getFirstFile());
+        }*/
+    }
+    else
+    {
+        if (mIsGetMultiple)
+        {
+            result = picker.getMultipleOpenFilesModeless(mLoadFilter, modelessCallback, this);
+        }
+        else
+        {
+            result = picker.getOpenFileModeless(mLoadFilter, modelessCallback, this);
+        }
+    }
+    
+    if (!result)
+    {
+        LLMutexLock lock(sMutex);
+        sDeadQ.push(this);
+    }
+}
+
+void LLFilePickerThread::modelessCallback(bool result,
+                                          std::vector<std::string> &responses,
+                                          void *user_data)
+{
+    LLFilePickerThread *picker = (LLFilePickerThread*)user_data;
+    if (result)
+    {
+        if (picker->mIsGetMultiple)
+        {
+            picker->mResponses = responses;
+        }
+        else
+        {
+            std::vector<std::string>::iterator iter = responses.begin();
+            while (iter != responses.end())
+            {
+                if (!iter->empty())
+                {
+                    picker->mResponses.push_back(*iter);
+                    break;
+                }
+                iter++;
+            }
+        }
+    }
+    
+    {
+        LLMutexLock lock(sMutex);
+        sDeadQ.push(picker);
+    }
 }
 
 //static
