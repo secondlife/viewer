@@ -37,7 +37,8 @@
       layout="topleft"
       left="10"
       top="5"
-      width="128">
+      width="128"
+      name="base_color_lbl">
       Base Color:
     </text>
     <texture_picker
@@ -73,7 +74,8 @@
       height="10"
       layout="topleft"
       left_pad="5"
-      top="8">
+      top="8"
+      name="base_color_tint_lbl">
       Tint
     </text>
     <color_swatch
@@ -94,7 +96,8 @@
       layout="topleft"
       left_delta="0"
       top_pad="5"
-      width="96">
+      width="96"
+      name="base_color_transparency_lbl">
       Transparency
     </text>
     <spinner
@@ -117,10 +120,10 @@
       height="10"
       layout="topleft"
       left_delta="0"
-      name="label alphamode"
       text_readonly_color="LabelDisabledColor"
       top_pad="5"
-      width="90">
+      width="90"
+      name="alpha_mode_lbl">
       Alpha mode
     </text>
     <combo_box
@@ -151,7 +154,8 @@
       layout="topleft"
       left_delta="0"
       top_pad="5"
-      width="96">
+      width="96"
+      name="alpha_cutoff_lbl">
       Alpha Cutoff
     </text>
     <spinner
@@ -186,7 +190,8 @@
       height="10"
       layout="topleft"
       left="10"
-      top="5">
+      top="5"
+      name="metallic_roughness_lbl">
       Metallic-Roughness:
     </text>
     <texture_picker
@@ -222,7 +227,8 @@
       height="10"
       layout="topleft"
       left_pad="5"
-      top="8">
+      top="8"
+      name="metallic_factor_lbl">
       Metallic Factor
     </text>
     <spinner
@@ -246,7 +252,8 @@
       layout="topleft"
       left_delta="0"
       top_pad="5"
-      width="96">
+      width="96"
+      name="roughness_factor_lbl">
       Roughness Factor
     </text>
     <spinner
@@ -282,7 +289,8 @@
       layout="topleft"
       left="10"
       top="5"
-      width="64">
+      width="64"
+      name="emissive_lbl">
       Emissive:
     </text>
     <texture_picker
@@ -317,7 +325,8 @@
       height="10"
       layout="topleft"
       left_pad="5"
-      top="8">
+      top="8"
+      name="emissive_tint_lbl">
       Tint
     </text>
     <color_swatch
@@ -350,7 +359,8 @@
       layout="topleft"
       left="10"
       top="5"
-      width="64">
+      width="64"
+      name="normal_lbl">
       Normal:
     </text>
     <texture_picker
