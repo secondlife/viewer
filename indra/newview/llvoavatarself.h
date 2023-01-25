@@ -304,17 +304,21 @@ private:
  **                    ANIMATIONS
  **/
 public:
-    static constexpr F32    DEFAULT_ATTCHUPDATE_TIMEOUT = 0.1;
+    // Note: DEFAULT_ATTACHMENT_UPDATE_PERIOD (seconds) is F32
+    // to agree with what the server API supplies
+    // however we employ an U64 (usec) expiry pattern for mAttachmentUpdateExpiry
+    // under the hood (see below)
+    static constexpr F32    DEFAULT_ATTACHMENT_UPDATE_PERIOD = 0.1f;
 
     void                updateMotions(LLCharacter::e_update_t update_type) override;  // from llCharacter
-    void                setAttachmentUpdateTimeout(F32 timeout);
-    void                setAttechmentUpdateEnabled(bool enable) { mAttchUpdateEnabled = enable; }
-    bool                getAttechmentUpdateEnabled() const { return mAttchUpdateEnabled; }
+    void                setAttachmentUpdatePeriod(F32 period_sec);
+    void                setAttachmentUpdateEnabled(bool enable) { mAttachmentUpdateEnabled = enable; }
+    bool                getAttachmentUpdateEnabled() const { return mAttachmentUpdateEnabled; }
 
 private:
-    bool                mAttchUpdateEnabled;
-    F32                 mAtchUpdateTimeout;
-    LLFrameTimer        mAttachmentUpdate;
+    bool                mAttachmentUpdateEnabled;
+    U64                 mAttachmentUpdatePeriod; // usec
+    U64                 mAttachmentUpdateExpiry; // usec
 
  /**                   ANIMATIONS
   **                                                                            **
