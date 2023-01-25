@@ -32,6 +32,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include <algorithm>
+
 #include "llvoavatarself.h"
 #include "llvoavatar.h"
 
@@ -171,14 +173,12 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
 	mLastHoverOffsetSent(LLVector3(0.0f, 0.0f, -999.0f)),
     mInitialMetric(true),
     mMetricSequence(0),
-    mAtchUpdateTimeout(DEFAULT_ATTCHUPDATE_TIMEOUT),
-    mAttchUpdateEnabled(true)
+    mAttachmentUpdateEnabled(true),
+    mAttachmentUpdateExpiry(0)
 {
 	mMotionController.mIsSelf = TRUE;
-
-    mAttachmentUpdate.setTimerExpirySec(DEFAULT_ATTCHUPDATE_TIMEOUT);
-
 	LL_DEBUGS() << "Marking avatar as self " << id << LL_ENDL;
+    setAttachmentUpdatePeriod(DEFAULT_ATTACHMENT_UPDATE_PERIOD);
 }
 
 // Called periodically for diagnostics, return true when done.
@@ -1292,12 +1292,24 @@ U32 LLVOAvatarSelf::getNumWearables(LLAvatarAppearanceDefines::ETextureIndex i) 
 	return gAgentWearables.getWearableCount(type);
 }
 
-void LLVOAvatarSelf::postMotionUpdate() 
+void LLVOAvatarSelf::updateMotions(LLCharacter::e_update_t update_type)
 {
+    LLCharacter::updateMotions(update_type);
+
+    // post motion update
+    if (!mAttachmentUpdateEnabled)
+    {
+        return;
+    }
+    U64 now = LLFrameTimer::getTotalTime();
+    if (now > mAttachmentUpdateExpiry)
+    {
+        return;
+    }
+    mAttachmentUpdateExpiry = now + mAttachmentUpdatePeriod;
+
     LLViewerRegion* regionp = gAgent.getRegion();
-    if (!regionp->getRegionFlag(REGION_FLAGS_ENABLE_ANIMATION_TRACKING) || 
-            !mAttachmentUpdate.checkExpirationAndReset(mAtchUpdateTimeout) || 
-            !mAttchUpdateEnabled)
+    if (!regionp->getRegionFlag(REGION_FLAGS_ENABLE_ANIMATION_TRACKING))
     {
         return;
     }
@@ -1313,7 +1325,7 @@ void LLVOAvatarSelf::postMotionUpdate()
 
     for (auto const &info : mAttachmentPoints)
     {
-        if (!info.second->getIsHUDAttachment()) 
+        if (!info.second->getIsHUDAttachment())
         {
             LLVector3 pos(info.second->getWorldPosition() - agent_pos);
             LLQuaternion rot(info.second->getWorldRotation() * agent_inv_rot);
@@ -1327,21 +1339,23 @@ void LLVOAvatarSelf::postMotionUpdate()
                 gMessageSystem->addU8Fast(_PREHASH_AttachmentPoint, info.first);
                 gMessageSystem->addVector3Fast(_PREHASH_Position, pos);
                 gMessageSystem->addQuatFast(_PREHASH_Rotation, rot);
-                gMessageSystem->addF32Fast(_PREHASH_Radius, 0.0);  // 
+                gMessageSystem->addF32Fast(_PREHASH_Radius, 0.0f);
                 info.second->setLastTracked(pos, rot);
             }
         }
     }
     if (count)
-    {   // just send.  If we drop a couple frames, we're fine with that. 
+    {   // just send.  If we drop a couple frames, we're fine with that.
         gMessageSystem->sendMessage(gAgent.getRegionHost());
     }
 }
 
-void LLVOAvatarSelf::setAttachmentUpdateTimeout(F32 timeout)
+void LLVOAvatarSelf::setAttachmentUpdatePeriod(F32 period_sec)
 {
-    mAtchUpdateTimeout = timeout;
-    mAttachmentUpdate.setTimerExpirySec(timeout);
+    constexpr F32 MIN_PERIOD = 0.01f;
+    constexpr F32 MAX_PERIOD = 2.0f;
+    F32 period = std::max(std::min(period_sec, MAX_PERIOD), MIN_PERIOD);
+    mAttachmentUpdatePeriod = (U64)(period * (F32)(USEC_PER_SEC));
 }
 
 // virtual

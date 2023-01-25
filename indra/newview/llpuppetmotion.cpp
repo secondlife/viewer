@@ -1511,16 +1511,16 @@ void LLPuppetMotion::RequestPuppetryStatusCoro(const std::string& capurl)
     LLPuppetMotion::SetPuppetryEnabled(true, event_size);    // turn on puppetry and set the event size
     LLPuppetModule::instance().parsePuppetryResponse(result);
 
-    if (result.has("update_period"))
+    if (gAgentAvatarp)
     {
-        if (gAgentAvatarp)
+        if (result.has("update_period"))
         {
-            gAgentAvatarp->setAttachmentUpdateTimeout(result["update_period"].asReal());
+            gAgentAvatarp->setAttachmentUpdatePeriod(result["update_period"].asReal());
         }
-    }
-    else if (gAgent.getRegion()->getRegionFlag(REGION_FLAGS_ENABLE_ANIMATION_TRACKING))
-    {
-        gAgentAvatarp->setAttachmentUpdateTimeout(LLVOAvatarSelf::DEFAULT_ATTCHUPDATE_TIMEOUT);
+        else if (gAgent.getRegion()->getRegionFlag(REGION_FLAGS_ENABLE_ANIMATION_TRACKING))
+        {
+            gAgentAvatarp->setAttachmentUpdatePeriod(LLVOAvatarSelf::DEFAULT_ATTACHMENT_UPDATE_PERIOD);
+        }
     }
 }
 

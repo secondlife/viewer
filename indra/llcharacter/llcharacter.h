@@ -153,7 +153,7 @@ public:
 	
 	// periodic update function, steps the motion controller
 	enum e_update_t { NORMAL_UPDATE, HIDDEN_UPDATE, FORCE_UPDATE };
-	void updateMotions(e_update_t update_type);
+	virtual void updateMotions(e_update_t update_type);
 
 	LLAnimPauseRequest requestPause();
 	BOOL areAnimationsPaused() const { return mMotionController.isPaused(); }
@@ -276,7 +276,6 @@ protected:
 	U32					mSkeletonSerialNum;
 	LLAnimPauseRequest	mPauseRequest;
 
-    virtual void        postMotionUpdate() {}
 private:
 	// visual parameter stuff
 	typedef std::map<S32, LLVisualParam *> 		visual_param_index_map_t;
