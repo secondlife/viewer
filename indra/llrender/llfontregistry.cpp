@@ -483,7 +483,7 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 #if LL_DARWIN
 	font_search_paths.push_back(MACOSX_FONT_PATH_LIBRARY);
 	font_search_paths.push_back(MACOSX_FONT_PATH_LIBRARY + MACOSX_FONT_SUPPLEMENTAL);
-	font_search_paths.push_back(sys_path + MACOSX_FONT_SUPPLEMENTAL);
+	font_search_paths.push_back(LLFontGL::getFontPathSystem() + MACOSX_FONT_SUPPLEMENTAL);
 #endif
 
 	// The fontname string may contain multiple font file names separated by semicolons.
