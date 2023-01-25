@@ -29,27 +29,22 @@
 #include <iostream>
 #include "llfilepicker_mac.h"
 
-std::vector<std::string>* doLoadDialog(const std::vector<std::string>* allowed_types, 
-                 unsigned int flags)
+NSOpenPanel *init_panel(const std::vector<std::string>* allowed_types, unsigned int flags)
 {
-    int i, result;
-    
-    //Aura TODO:  We could init a small window and release it at the end of this routine
-    //for a modeless interface.
+    int i;
     
     NSOpenPanel *panel = [NSOpenPanel openPanel];
-    //NSString *fileName = nil;
     NSMutableArray *fileTypes = nil;
     
     
-    if ( allowed_types && !allowed_types->empty()) 
+    if ( allowed_types && !allowed_types->empty())
     {
         fileTypes = [[NSMutableArray alloc] init];
         
         for (i=0;i<allowed_types->size();++i)
         {
-            [fileTypes addObject: 
-             [NSString stringWithCString:(*allowed_types)[i].c_str() 
+            [fileTypes addObject:
+             [NSString stringWithCString:(*allowed_types)[i].c_str()
                                 encoding:[NSString defaultCStringEncoding]]];
         }
     }
@@ -62,21 +57,30 @@ std::vector<std::string>* doLoadDialog(const std::vector<std::string>* allowed_t
     [panel setCanChooseFiles: ( (flags & F_FILE)?true:false )];
     [panel setTreatsFilePackagesAsDirectories: ( flags & F_NAV_SUPPORT ) ];
     
-    std::vector<std::string>* outfiles = NULL; 
-    
     if (fileTypes)
     {
         [panel setAllowedFileTypes:fileTypes];
-        result = [panel runModal];
     }
-    else 
+    else
     {
         // I suggest it's better to open the last path and let this default to home dir as necessary
         // for consistency with other OS X apps
         //
         //[panel setDirectoryURL: fileURLWithPath(NSHomeDirectory()) ];
-        result = [panel runModal];
     }
+    return panel;
+}
+
+std::vector<std::string>* doLoadDialog(const std::vector<std::string>* allowed_types, 
+                 unsigned int flags)
+{
+    int result;
+    
+    NSOpenPanel *panel = init_panel(allowed_types,flags);
+    
+    result = [panel runModal];
+    
+    std::vector<std::string>* outfiles = NULL;
     
     if (result == NSOKButton) 
     {
@@ -97,6 +101,40 @@ std::vector<std::string>* doLoadDialog(const std::vector<std::string>* allowed_t
     return outfiles;
 }
 
+void doLoadDialogModeless(const std::vector<std::string>* allowed_types,
+                 unsigned int flags,
+                 void (*callback)(bool, std::vector<std::string> &, void*),
+                 void *userdata)
+{
+    // Note: might need to return and save this panel
+    // so that it does not close immediately
+    NSOpenPanel *panel = init_panel(allowed_types,flags);
+    
+    [panel beginWithCompletionHandler:^(NSModalResponse result)
+        {
+            if (result == NSOKButton)
+            {
+                std::vector<std::string> outfiles;
+                NSArray *filesToOpen = [panel URLs];
+                int i, count = [filesToOpen count];
+                
+                if (count > 0)
+                {
+                    
+                    for (i=0; i<count; i++) {
+                        NSString *aFile = [[filesToOpen objectAtIndex:i] path];
+                        std::string *afilestr = new std::string([aFile UTF8String]);
+                        outfiles.push_back(*afilestr);
+                    }
+                    callback(true, outfiles, userdata);
+                }
+                else
+                {
+                    callback(false, outfiles, userdata);
+                }
+            }
+        }];
+}
 
 std::string* doSaveDialog(const std::string* file, 
                   const std::string* type,

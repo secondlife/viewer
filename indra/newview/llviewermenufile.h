@@ -105,6 +105,8 @@ public:
 	void getFile();
 
 	virtual void run();
+    void runModeless();
+    static void modelessCallback(bool result, std::vector<std::string> &responses, void *user_data);
 
 	virtual void notify(const std::vector<std::string>& filenames) = 0;
 };
