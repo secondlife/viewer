@@ -207,7 +207,6 @@ void LLCharacter::updateMotions(e_update_t update_type)
 			mMotionController.updateMotions(force_update);
 		}
 	}
-    postMotionUpdate();
 }
 
 

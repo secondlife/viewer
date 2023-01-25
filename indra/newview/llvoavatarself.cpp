@@ -1292,8 +1292,11 @@ U32 LLVOAvatarSelf::getNumWearables(LLAvatarAppearanceDefines::ETextureIndex i) 
 	return gAgentWearables.getWearableCount(type);
 }
 
-void LLVOAvatarSelf::postMotionUpdate() 
+void LLVOAvatarSelf::updateMotions(LLCharacter::e_update_t update_type)
 {
+    LLCharacter::updateMotions(update_type);
+
+    // post motion update
     LLViewerRegion* regionp = gAgent.getRegion();
     if (!regionp->getRegionFlag(REGION_FLAGS_ENABLE_ANIMATION_TRACKING) || 
             !mAttachmentUpdate.checkExpirationAndReset(mAtchUpdateTimeout) || 
