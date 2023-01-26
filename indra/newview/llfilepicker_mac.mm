@@ -112,9 +112,9 @@ void doLoadDialogModeless(const std::vector<std::string>* allowed_types,
     
     [panel beginWithCompletionHandler:^(NSModalResponse result)
         {
+            std::vector<std::string> outfiles;
             if (result == NSOKButton)
             {
-                std::vector<std::string> outfiles;
                 NSArray *filesToOpen = [panel URLs];
                 int i, count = [filesToOpen count];
                 
@@ -128,10 +128,14 @@ void doLoadDialogModeless(const std::vector<std::string>* allowed_types,
                     }
                     callback(true, outfiles, userdata);
                 }
-                else
+                else // no valid result
                 {
                     callback(false, outfiles, userdata);
                 }
+            }
+            else // cancel
+            {
+                callback(false, outfiles, userdata);
             }
         }];
 }
@@ -166,6 +170,48 @@ std::string* doSaveDialog(const std::string* file,
         // write the file 
     } 
     return outfile;
+}
+
+void doSaveDialogModeless(const std::string* file,
+                  const std::string* type,
+                  const std::string* creator,
+                  const std::string* extension,
+                  unsigned int flags,
+                  void (*callback)(bool, std::string&, void*),
+                  void *userdata)
+{
+    NSSavePanel *panel = [NSSavePanel savePanel];
+    
+    NSString *extensionns = [NSString stringWithCString:extension->c_str() encoding:[NSString defaultCStringEncoding]];
+    NSArray *fileType = [extensionns componentsSeparatedByString:@","];
+    
+    //[panel setMessage:@"Save Image File"];
+    [panel setTreatsFilePackagesAsDirectories: ( flags & F_NAV_SUPPORT ) ];
+    [panel setCanSelectHiddenExtension:true];
+    [panel setAllowedFileTypes:fileType];
+    NSString *fileName = [NSString stringWithCString:file->c_str() encoding:[NSString defaultCStringEncoding]];
+    
+    NSURL* url = [NSURL fileURLWithPath:fileName];
+    [panel setNameFieldStringValue: fileName];
+    [panel setDirectoryURL: url];
+    
+    
+    [panel beginWithCompletionHandler:^(NSModalResponse result)
+    {
+        if (result == NSOKButton)
+        {
+            NSURL* url = [panel URL];
+            NSString* p = [url path];
+            std::string outfile([p UTF8String]);
+            
+            callback(true, outfile, userdata);
+        }
+        else // cancel
+        {
+            std::string outfile;
+            callback(false, outfile, userdata);
+        }
+    }];
 }
 
 #endif

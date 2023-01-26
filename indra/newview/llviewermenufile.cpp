@@ -123,17 +123,10 @@ std::queue<LLFilePickerThread*> LLFilePickerThread::sDeadQ;
 void LLFilePickerThread::getFile()
 {
 #if LL_WINDOWS
+    // Todo: get rid of LLFilePickerThread and make this modeless
 	start();
 #elif LL_DARWIN
-    if (!mIsSaveDialog)
-    {
-        runModeless();
-    }
-    else
-    {
-        // Todo: implement Modeless
-        run();
-    }
+    runModeless();
 #else
 	run();
 #endif
@@ -185,22 +178,18 @@ void LLFilePickerThread::runModeless()
 
     if (mIsSaveDialog)
     {
-        // TODO: not implemented
-        /*if (picker.getSaveFile(mSaveFilter, mProposedName, blocking))
-        {
-            mResponses.push_back(picker.getFirstFile());
-        }*/
+        result = picker.getSaveFileModeless(mSaveFilter,
+                                            mProposedName,
+                                            modelessStringCallback,
+                                            this);
+    }
+    else if (mIsGetMultiple)
+    {
+        result = picker.getMultipleOpenFilesModeless(mLoadFilter, modelessVectorCallback, this);
     }
     else
     {
-        if (mIsGetMultiple)
-        {
-            result = picker.getMultipleOpenFilesModeless(mLoadFilter, modelessCallback, this);
-        }
-        else
-        {
-            result = picker.getOpenFileModeless(mLoadFilter, modelessCallback, this);
-        }
+        result = picker.getOpenFileModeless(mLoadFilter, modelessVectorCallback, this);
     }
     
     if (!result)
@@ -210,12 +199,28 @@ void LLFilePickerThread::runModeless()
     }
 }
 
-void LLFilePickerThread::modelessCallback(bool result,
+void LLFilePickerThread::modelessStringCallback(bool success,
+                                          std::string &response,
+                                          void *user_data)
+{
+    LLFilePickerThread *picker = (LLFilePickerThread*)user_data;
+    if (success)
+    {
+        picker->mResponses.push_back(response);
+    }
+    
+    {
+        LLMutexLock lock(sMutex);
+        sDeadQ.push(picker);
+    }
+}
+
+void LLFilePickerThread::modelessVectorCallback(bool success,
                                           std::vector<std::string> &responses,
                                           void *user_data)
 {
     LLFilePickerThread *picker = (LLFilePickerThread*)user_data;
-    if (result)
+    if (success)
     {
         if (picker->mIsGetMultiple)
         {
