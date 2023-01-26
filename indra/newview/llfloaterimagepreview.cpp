@@ -838,6 +838,8 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 	{
 		*(index_strider++) = vf.mIndices[i];
 	}
+
+    mVertexBuffer->unmapBuffer();
 }
 
 
