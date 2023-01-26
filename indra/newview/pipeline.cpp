@@ -4019,6 +4019,26 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
 
+    if (&camera == LLViewerCamera::getInstance())
+    { // a bit hacky, this is the start of the main render frame, figure out delta between last modelview matrix and 
+        // current modelview matrix
+        glh::matrix4f last_modelview(gGLLastModelView);
+        glh::matrix4f cur_modelview(gGLModelView);
+
+        // goal is to have a matrix here that goes from the last frame's camera space to the current frame's camera space
+        glh::matrix4f m = last_modelview.inverse();  // last camera space to world space
+        m.mult_left(cur_modelview); // world space to camera space
+
+        glh::matrix4f n = m.inverse();
+
+        for (U32 i = 0; i < 16; ++i)
+        {
+            gGLDeltaModelView[i] = m.m[i];
+            gGLInverseDeltaModelView[i] = n.m[i];
+        }
+
+    }
+
     bool occlude = LLPipeline::sUseOcclusion > 1 && do_occlusion;
 
     setupHWLights(nullptr);
@@ -8069,6 +8089,9 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
 	shader.uniform1f(LLShaderMgr::DEFERRED_DEPTH_CUTOFF, RenderEdgeDepthCutoff);
 	shader.uniform1f(LLShaderMgr::DEFERRED_NORM_CUTOFF, RenderEdgeNormCutoff);
 	
+    shader.uniformMatrix4fv(LLShaderMgr::MODELVIEW_DELTA_MATRIX, 1, GL_FALSE, gGLDeltaModelView);
+    shader.uniformMatrix4fv(LLShaderMgr::INVERSE_MODELVIEW_DELTA_MATRIX, 1, GL_FALSE, gGLInverseDeltaModelView);
+
 	if (shader.getUniformLocation(LLShaderMgr::DEFERRED_NORM_MATRIX) >= 0)
 	{
         glh::matrix4f norm_mat = get_current_modelview().inverse().transpose();
@@ -8563,6 +8586,16 @@ void LLPipeline::renderDeferredLighting()
 
     screen_target->flush();
 
+    if (!gCubeSnapshot)
+    {
+        // this is the end of the 3D scene render, grab a copy of the modelview and projection
+        // matrix for use in off-by-one-frame effects in the next frame
+        for (U32 i = 0; i < 16; i++)
+        {
+            gGLLastModelView[i] = gGLModelView[i];
+            gGLLastProjection[i] = gGLProjection[i];
+        }
+    }
     gGL.setColorMask(true, true);
 }
 

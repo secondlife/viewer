@@ -55,7 +55,13 @@ F32	gGLModelView[16];
 F32	gGLLastModelView[16];
 F32 gGLLastProjection[16];
 F32 gGLProjection[16];
+
+// transform from last frame's camera space to this frame's camera space (and inverse)
+F32 gGLDeltaModelView[16];
+F32 gGLInverseDeltaModelView[16];
+
 S32	gGLViewport[4];
+
 
 U32 LLRender::sUICalls = 0;
 U32 LLRender::sUIVerts = 0;

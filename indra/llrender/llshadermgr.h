@@ -160,6 +160,9 @@ public:
         DEFERRED_NORM_CUTOFF,               //  "norm_cutoff"
         DEFERRED_SHADOW_TARGET_WIDTH,       //  "shadow_target_width"
 
+        MODELVIEW_DELTA_MATRIX,             //  "modelview_delta"
+        INVERSE_MODELVIEW_DELTA_MATRIX,     //  "inv_modelview_delta"
+
         FXAA_TC_SCALE,                      //  "tc_scale"
         FXAA_RCP_SCREEN_RES,                //  "rcp_screen_res"
         FXAA_RCP_FRAME_OPT,                 //  "rcp_frame_opt"

@@ -1325,6 +1325,9 @@ void LLShaderMgr::initAttribsAndUniforms()
 	
 	llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH+1);
 
+    mReservedUniforms.push_back("modelview_delta");
+    mReservedUniforms.push_back("inv_modelview_delta");
+
 	mReservedUniforms.push_back("tc_scale");
 	mReservedUniforms.push_back("rcp_screen_res");
 	mReservedUniforms.push_back("rcp_frame_opt");

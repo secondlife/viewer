@@ -31,6 +31,8 @@ uniform mat4 projection_matrix;
 //uniform float zNear;
 //uniform float zFar;
 uniform mat4 inv_proj;
+uniform mat4 modelview_delta;  // should be transform from last camera space to current camera space
+uniform mat4 inv_modelview_delta;
 
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
@@ -65,11 +67,21 @@ float getLinearDepth(vec2 tc)
 
     vec4 pos = getPositionWithDepth(tc, depth);
 
+    pos = modelview_delta * pos;
+
     return -pos.z;
 }
 
 bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float hitDepth, float depth, sampler2D textureFrame) 
 {
+    // transform position and reflection into same coordinate frame as the sceneMap and sceneDepth
+    float z = position.z;
+
+    reflection += position;
+    position = (inv_modelview_delta * vec4(position, 1)).xyz;
+    reflection = (inv_modelview_delta * vec4(reflection, 1)).xyz;
+    reflection -= position;
+
     vec3 step = rayStep * reflection;
     vec3 marchingPosition = position + step;
     float delta;
@@ -77,6 +89,7 @@ bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float
     vec2 screenPosition;
     bool hit = false;
     hitColor = vec4(0);
+    
     
     int i = 0;
     if (depth > depthRejectBias) 
@@ -162,6 +175,12 @@ float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, 
     collectedColor = vec4(0);
     int hits = 0;
 
+    // transform position and normal into same coordinate frame as the sceneMap and sceneDepth
+    //n += viewPos;
+    //viewPos = (inv_modelview_delta * vec4(viewPos, 1)).xyz;
+    //n = (inv_modelview_delta * vec4(n, 1)).xyz;
+    //n -= viewPos;
+    
     float depth = -viewPos.z;
 
     vec3 rayDirection = normalize(reflect(viewPos, normalize(n)));
