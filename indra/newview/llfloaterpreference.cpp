@@ -825,6 +825,7 @@ void LLFloaterPreference::resetAutotuneSettings()
 
     const std::string autotune_settings[] = {
         "AutoTuneLock",
+        "KeepAutoTuneLock",
         "TargetFPS",
         "TuningFPSStrategy",
         "AutoTuneImpostorByDistEnabled",

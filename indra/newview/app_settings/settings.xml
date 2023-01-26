@@ -16775,6 +16775,17 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>KeepAutoTuneLock</key>
+  <map>
+    <key>Comment</key>
+    <string>When enabled the AutoTuneLock will be maintainted all following sessions.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
     <integer>1</integer>
   </map>
   <key>AllowSelfImpostor</key>
@@ -16885,7 +16896,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>0</integer>
+    <integer>1</integer>
   </map>
   <key>CameraOpacity</key>
   <map>

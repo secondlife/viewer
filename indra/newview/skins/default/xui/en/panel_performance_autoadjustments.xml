@@ -63,7 +63,7 @@
    left="20"
    name="targetfps_desc"
    wrap="true"
-   width="140"
+   width="115"
    top_pad="20">
     Desired frame rate
   </text>
@@ -73,8 +73,8 @@
    font="SansSerifLarge"
    tool_tip="The viewer will attempt to achieve this by adjusting your graphics settings."
    layout="topleft"
-   follows="right|top"
-   left_pad="5"
+   follows="left|top"
+   left_pad="25"
    top_delta="0"
    height="25"
    visible="true"
@@ -85,41 +85,18 @@
    min_val="1"
    width="48"
    label_width="0" />
-  <button
-   control_name="AutoTuneFPS"
-   follows="top|right"
-   height="24"
-   initial_value="false"
-   image_pressed="PushButton_Press"
-   image_pressed_selected="PushButton_Selected_Press"
-   image_selected="PushButton_Selected_Press"
-   is_toggle="true"
-   label="Start"
-   label_selected="Stop"
-   layout="topleft"
-   left_pad="10"
-   name="AutoTuneFPS"
-   top_delta="-1"
-   tool_tip="The viewer will attempt to adjust settings to meet the target FPS."
-   width="72">
-  </button>
-  <check_box
-   control_name="AutoTuneLock"
-   follows="top|right"
+ <text
+   follows="left|top"
+   text_color="White"
    height="20"
-   initial_value="true"
-   image_pressed="PushButton_Press"
-   image_pressed_selected="PushButton_Selected_Press"
-   image_selected="PushButton_Selected_Press"
-   is_toggle="true"
-   label="Continuous"
    layout="topleft"
-   left_pad="10"
-   name="AutoTuneContinuous"
-   top_delta="0"
-   tool_tip="The viewer will continually adapt the settings to meet the target FPS until stopped even with the floater closed. When disabled clicking the Start button will adjust for the current settings then stop."
-   width="64">
-  </check_box>
+   name="display_desc"
+   top_delta="5"
+   left_pad="15"
+   wrap="true"
+   width="225">
+  Your display supports up to [FPS_LIMIT] fps.
+  </text>
   <text
    follows="left|top"
    font="SansSerif"
@@ -128,9 +105,9 @@
    layout="topleft"
    left="20"
    name="settings_desc"
-   top_pad="20"
+   top_pad="15"
    wrap="true"
-   width="150">
+   width="115">
     Settings affect
   </text>
   <combo_box
@@ -138,27 +115,118 @@
    font="SansSerif"
    height="20"
    layout="topleft"
-   left_pad="15"
+   left_pad="25"
    control_name="TuningFPSStrategy"
    name="TuningFPSStrategy"
-   width="130">
+   width="160">
     <combo_box.item
      label="Avatars Only"
      name="av_only"
      value="0" />
     <combo_box.item
-     label="Avatars and Scene"
+     label="Avatars and World"
      name="av_and_scene"
      value="1" />
   </combo_box>
+  <button
+   follows="top|left"
+   height="22"
+   image_pressed="PushButton_Press"
+   image_pressed_selected="PushButton_Selected_Press"
+   image_selected="PushButton_Selected_Press"
+   label="Auto-adjust now"
+   layout="topleft"
+   top_pad="15"
+   left="20"
+   name="start_autotune"
+   tool_tip="The viewer will attempt to adjust settings to meet the target FPS then stop."
+   width="124"/>
+  <button
+   follows="top|left"
+   height="22"
+   image_pressed="PushButton_Press"
+   image_pressed_selected="PushButton_Selected_Press"
+   image_selected="PushButton_Selected_Press"
+   label="Cancel"
+   layout="topleft"
+   left_pad="15"
+   name="stop_autotune"
+   tool_tip="Stop adjusting settings."
+   width="90"/>
+  <text
+   follows="left|top"
+   text_color="Yellow"
+   height="20"
+   layout="topleft"
+   name="wip_desc"
+   top_delta="5"
+   left_pad="20"
+   wrap="true"
+   width="115">
+  Working on it...
+  </text>
+  <check_box
+   control_name="AutoTuneLock"
+   follows="top|left"
+   height="20"
+   initial_value="true"
+   image_pressed="PushButton_Press"
+   image_pressed_selected="PushButton_Selected_Press"
+   image_selected="PushButton_Selected_Press"
+   is_toggle="true"
+   label="Adjust continuously"
+   layout="topleft"
+   left="17"
+   top_pad="10"
+   name="AutoTuneContinuous"
+   tool_tip="The viewer will continually adapt the settings to meet the target FPS until stopped even with the floater closed."
+   width="64">
+  </check_box>
+  <radio_group
+   control_name="KeepAutoTuneLock"
+   enabled_control="AutoTuneLock"
+   height="50"
+   layout="topleft"
+   follows="top|left"
+   name="autotune_lock_type"
+   top_pad="5"
+   left_delta="15"
+   width="120">
+    <radio_item
+     height="16"
+     label="This login session only"
+     layout="topleft"
+     name="one_session_lock"
+     value="0"
+     width="120" />
+    <radio_item
+     height="16"
+     label="Future login sessions"
+     layout="topleft"
+     name="next_session_lock"
+     value="1"
+     width="120" />
+  </radio_group>
   <view_border
    bevel_style="in"
    height="0"
    layout="topleft"
    name="border_vsync"
-   top_pad="20"
+   top_pad="3"
    left="20"
    width="540"/>
+  <check_box
+   control_name="RenderVSyncEnable"
+   height="16"
+   left="17"
+   initial_value="true"
+   label="Enable VSync"
+   label_text.text_color="White"
+   layout="topleft"
+   top_pad="12"
+   name="vsync"
+   tool_tip="Enable Vertical synchronization to reduce screen tearing and stuttering."
+   width="315" />
   <text
    follows="left|top"
    font="SansSerifSmall"
@@ -166,10 +234,10 @@
    height="18"
    layout="topleft"
    left="20"
-   top_pad="20"
+   top_pad="15"
    name="vsync_desc"
    width="580">
-    Synchronize the refresh rate and frame rate of a monitor,
+    Matches monitor refresh rate with frame rate.
   </text>
   <text
    follows="left|top"
@@ -179,27 +247,16 @@
    layout="topleft"
    top_pad="3"
    left="20"
-   name="vsync_desc2"
+   name="vsync_desc_limit"
    width="580">
-    which can result in smoother performance.
+    Note: Turning on VSync limits frame rate to [FPS_LIMIT] fps.
   </text>
-  <check_box
-   control_name="RenderVSyncEnable"
-   height="16"
-   initial_value="true"
-   label="Enable VSync"
-   label_text.text_color="White"
-   layout="topleft"
-   top_pad="15"
-   name="vsync"
-   tool_tip="Enable Vertical synchronization to reduce screen tearing and stuttering."
-   width="315" />
   <view_border
    bevel_style="in"
    height="0"
    layout="topleft"
    name="border1"
-   top_pad="20"
+   top_pad="10"
    left="20"
    width="540"/>
   <text
@@ -263,7 +320,7 @@
    height="18"
    layout="topleft"
    left="20"
-   top_pad="20"
+   top_pad="15"
    name="dist_limits_desc"
    width="580">
     Choose the distance range that automatic settings will affect.

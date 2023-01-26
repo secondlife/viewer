@@ -270,6 +270,12 @@ static bool handleVSyncChanged(const LLSD& newvalue)
     LLPerfStats::tunables.vsyncEnabled = newvalue.asBoolean();
     gViewerWindow->getWindow()->toggleVSync(newvalue.asBoolean());
 
+    if(newvalue.asBoolean() == true)
+    {
+        U32 current_target = gSavedSettings.getU32("TargetFPS");
+        gSavedSettings.setU32("TargetFPS", std::min((U32)gViewerWindow->getWindow()->getRefreshRate(), current_target));
+    }
+
     return true;
 }
 
@@ -649,13 +655,24 @@ void handleRenderAutoMuteByteLimitChanged(const LLSD& new_value);
 void handleTargetFPSChanged(const LLSD& newValue)
 {
     const auto targetFPS = gSavedSettings.getU32("TargetFPS");
-    LLPerfStats::tunables.userTargetFPS = targetFPS;
+
+    U32 frame_rate_limit = gViewerWindow->getWindow()->getRefreshRate();
+    if(LLPerfStats::tunables.vsyncEnabled && (targetFPS > frame_rate_limit))
+    {
+        gSavedSettings.setU32("TargetFPS", std::min(frame_rate_limit, targetFPS));
+    }
+    else
+    {
+        LLPerfStats::tunables.userTargetFPS = targetFPS;
+    }
 }
 
 void handleAutoTuneLockChanged(const LLSD& newValue)
 {
     const auto newval = gSavedSettings.getBOOL("AutoTuneLock");
     LLPerfStats::tunables.userAutoTuneLock = newval;
+
+    gSavedSettings.setBOOL("AutoTuneFPS", newval);
 }
 
 void handleAutoTuneFPSChanged(const LLSD& newValue)

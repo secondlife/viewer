@@ -123,8 +123,21 @@ namespace LLPerfStats
         LLPerfStats::tunables.userTargetFPS = gSavedSettings.getU32("TargetFPS");
         LLPerfStats::tunables.vsyncEnabled = gSavedSettings.getBOOL("RenderVSyncEnable");
         LLPerfStats::tunables.userTargetReflections = gSavedSettings.getS32("UserTargetReflections");
-        LLPerfStats::tunables.userAutoTuneEnabled = gSavedSettings.getBOOL("AutoTuneFPS");
-        LLPerfStats::tunables.userAutoTuneLock = gSavedSettings.getBOOL("AutoTuneLock");
+
+        LLPerfStats::tunables.userAutoTuneLock = gSavedSettings.getBOOL("AutoTuneLock") && gSavedSettings.getU32("KeepAutoTuneLock");
+
+        if(gSavedSettings.getBOOL("AutoTuneLock") && !gSavedSettings.getU32("KeepAutoTuneLock"))
+        {
+            gSavedSettings.setBOOL("AutoTuneLock", FALSE);
+        }
+
+        LLPerfStats::tunables.userAutoTuneEnabled = LLPerfStats::tunables.userAutoTuneLock;
+
+        if (LLPerfStats::tunables.userAutoTuneEnabled && !gSavedSettings.getBOOL("AutoTuneFPS"))
+        {
+            gSavedSettings.setBOOL("AutoTuneFPS", TRUE);
+        }
+
         // Note: The Max ART slider is logarithmic and thus we have an intermediate proxy value
         updateRenderCostLimitFromSettings();
         resetChanges();
