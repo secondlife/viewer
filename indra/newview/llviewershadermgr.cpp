@@ -843,6 +843,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
     BOOL ambient_kill = gSavedSettings.getBOOL("AmbientDisable");
 	BOOL sunlight_kill = gSavedSettings.getBOOL("SunlightDisable");
     BOOL local_light_kill = gSavedSettings.getBOOL("LocalLightDisable");
+    BOOL ssr = gSavedSettings.getBOOL("RenderScreenSpaceReflections");
 
     if (ambient_kill)
     {
@@ -869,6 +870,11 @@ std::string LLViewerShaderMgr::loadBasicShaders()
         {
             attribs["SPOT_SHADOW"] = "1";
         }
+    }
+
+    if (ssr)
+    {
+        attribs["SSR"] = "1";
     }
 
 	// We no longer have to bind the shaders to global glhandles, they are automatically added to a map now.
@@ -910,7 +916,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/shadowUtil.glsl",                      1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/aoUtil.glsl",                          1) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/reflectionProbeF.glsl",                has_reflection_probes ? 3 : 2) );
-    index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/screenSpaceReflUtil.glsl",				3) );
+    index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/screenSpaceReflUtil.glsl",             ssr ? 3 : 1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightNonIndexedF.glsl",                    mShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightAlphaMaskNonIndexedF.glsl",                   mShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightFullbrightNonIndexedF.glsl",          mShaderLevel[SHADER_LIGHTING] ) );

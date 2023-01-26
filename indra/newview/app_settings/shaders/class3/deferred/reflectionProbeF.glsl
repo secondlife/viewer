@@ -25,7 +25,9 @@
 
 #define FLT_MAX 3.402823466e+38
 
+#if defined(SSR)
 float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source);
+#endif
 
 #define REFMAP_COUNT 256
 #define REF_SAMPLE_COUNT 64 //maximum number of samples to consider
@@ -33,6 +35,7 @@ float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, 
 uniform samplerCubeArray   reflectionProbes;
 uniform samplerCubeArray   irradianceProbes;
 uniform sampler2D sceneMap;
+uniform int cube_snapshot;
 
 layout (std140) uniform ReflectionProbes
 {
@@ -621,13 +624,16 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
     float lod = (1.0-glossiness)*reflection_lods;
     glossenv = sampleProbes(pos, normalize(refnormpersp), lod, errorCorrect);
 
-    vec4 ssr = vec4(0);
-    //float w = tapScreenSpaceReflection(errorCorrect ? 1 : 4, tc, pos, norm, ssr, sceneMap);
-    float w = tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap);
+#if defined(SSR)
+    if (cube_snapshot != 1)
+    {
+        vec4 ssr = vec4(0);
+        //float w = tapScreenSpaceReflection(errorCorrect ? 1 : 4, tc, pos, norm, ssr, sceneMap);
+        float w = tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap);
 
-    glossenv = mix(glossenv, ssr.rgb, w);
-
-    ambenv = vec3(0);
+        glossenv = mix(glossenv, ssr.rgb, w);
+    }
+#endif
 }
 
 void debugTapRefMap(vec3 pos, vec3 dir, float depth, int i, inout vec4 col)
@@ -700,12 +706,16 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
         legacyenv = sampleProbes(pos, normalize(refnormpersp), 0.0, false);
     }
 
-    vec4 ssr = vec4(0);
-    float w = tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap);
+#if defined(SSR)
+    if (cube_snapshot != 1)
+    {
+        vec4 ssr = vec4(0);
+        float w = tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap);
 
-    //glossenv = ssr.rgb;
-    glossenv = mix(glossenv, ssr.rgb, w);
-    legacyenv = mix(legacyenv, ssr.rgb, w);
+        glossenv = mix(glossenv, ssr.rgb, w);
+        legacyenv = mix(legacyenv, ssr.rgb, w);
+    }
+#endif
 }
 
 void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 norm)
