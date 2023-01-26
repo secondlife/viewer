@@ -376,7 +376,6 @@ void LLRenderTarget::release()
         {
             sBytesAllocated -= mResX*mResY*4;
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+z, LLTexUnit::getInternalType(mUsage), 0, 0);
-            stop_glerror();
             LLImageGL::deleteTextures(1, &mTex[z]);
         }
         glBindFramebuffer(GL_FRAMEBUFFER, sCurFBO);

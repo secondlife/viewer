@@ -91,6 +91,7 @@ public:
         BUMP_MAP2,                          //  "bumpMap2"
         ENVIRONMENT_MAP,                    //  "environmentMap"
         SCENE_MAP,                          //  "sceneMap"
+        SCENE_DEPTH,                        //  "sceneDepth"
         REFLECTION_PROBES,                  //  "reflectionProbes"
         IRRADIANCE_PROBES,                  //  "irradianceProbes"
         CLOUD_NOISE_MAP,                    //  "cloud_noise_texture"

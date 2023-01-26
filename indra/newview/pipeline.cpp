@@ -871,7 +871,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
     if (!gCubeSnapshot && RenderScreenSpaceReflections) // hack to not allocate mSceneMap for cube snapshots
     {
-        mSceneMap.allocate(resX, resY, GL_RGB);
+        mSceneMap.allocate(resX, resY, GL_RGB, true);
     }
 
     //HACK make screenbuffer allocations start failing after 30 seconds
@@ -7571,14 +7571,18 @@ void LLPipeline::renderFinalize()
             LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
 
             LLRenderTarget& src = *screen_target;
+            LLRenderTarget& depth_src = mRT->deferredScreen;
             LLRenderTarget& dst = mSceneMap;
 
             dst.bindTarget();
-            gCopyProgram.bind();
+            dst.clear();
+            gCopyDepthProgram.bind();
 
-            S32 diff_map = gCopyProgram.getTextureChannel(LLShaderMgr::DIFFUSE_MAP);
+            S32 diff_map = gCopyDepthProgram.getTextureChannel(LLShaderMgr::DIFFUSE_MAP);
+            S32 depth_map = gCopyDepthProgram.getTextureChannel(LLShaderMgr::DEFERRED_DEPTH);
 
             gGL.getTexUnit(diff_map)->bind(&src);
+            gGL.getTexUnit(depth_map)->bind(&depth_src, true);
 
             mScreenTriangleVB->setBuffer();
             mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
@@ -7893,6 +7897,12 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     if (channel > -1)
     {
         gGL.getTexUnit(channel)->bind(&mSceneMap);
+    }
+
+    channel = shader.enableTexture(LLShaderMgr::SCENE_DEPTH);
+    if (channel > -1)
+    {
+        gGL.getTexUnit(channel)->bind(&mSceneMap, true);
     }
 
     if (shader.getUniformLocation(LLShaderMgr::VIEWPORT) != -1)

@@ -23,18 +23,16 @@
  * $/LicenseInfo$
  */
 
-uniform sampler2D diffuseMap;
+uniform sampler2D sceneMap;
+uniform sampler2D sceneDepth;
+
 uniform vec2 screen_res;
 uniform mat4 projection_matrix;
 //uniform float zNear;
 //uniform float zFar;
 uniform mat4 inv_proj;
 
-vec4 getPosition(vec2 tc);
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
-float linearDepth(float depth, float near, float far);
-float getDepth(vec2 pos_screen);
-float linearDepth01(float d, float znear, float zfar);
 
 float random (vec2 uv) 
 {
@@ -53,16 +51,24 @@ vec2 generateProjectedPosition(vec3 pos)
 
 bool isBinarySearchEnabled = true;
 bool isAdaptiveStepEnabled = true;
-bool isExponentialStepEnabled = false;
+bool isExponentialStepEnabled = true;
 bool debugDraw = false;
 int iterationCount = 40;
-float rayStep = 0.4;
-float distanceBias = 0.01;
+float rayStep = 0.1;
+float distanceBias = 0.02;
 float depthRejectBias = 0.001;
 float epsilon = 0.1;
-float samplingCoefficient = 0.25;
 
-bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, sampler2D textureFrame)
+float getLinearDepth(vec2 tc)
+{
+    float depth = texture(sceneDepth, tc).r;
+
+    vec4 pos = getPositionWithDepth(tc, depth);
+
+    return -pos.z;
+}
+
+bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float hitDepth, float depth, sampler2D textureFrame) 
 {
     vec3 step = rayStep * reflection;
     vec3 marchingPosition = position + step;
@@ -73,27 +79,26 @@ bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, sampler2D
     hitColor = vec4(0);
     
     int i = 0;
-    //if (depth > depthRejectBias) 
+    if (depth > depthRejectBias) 
     {
         for (; i < iterationCount && !hit; i++) 
         {
             screenPosition = generateProjectedPosition(marchingPosition);
-            //depthFromScreen = linearDepth(getDepth(screenPosition), zNear, zFar);
-            depthFromScreen = -getPosition(screenPosition).z; //linearDepth(getDepth(screenPosition), zNear, zFar);
+            depthFromScreen = getLinearDepth(screenPosition);
             delta = abs(marchingPosition.z) - depthFromScreen;
             
-            /*if (depth < depthFromScreen + epsilon && depth > depthFromScreen - epsilon) 
+            if (depth < depthFromScreen + epsilon && depth > depthFromScreen - epsilon) 
             {
                 break;
-            }*/
+            }
 
             if (abs(delta) < distanceBias) 
             {
                 vec4 color = vec4(1);
                 if(debugDraw)
                     color = vec4( 0.5+ sign(delta)/2,0.3,0.5- sign(delta)/2, 0);
-                hitColor = texture(textureFrame, screenPosition) * color;
-                //hitDepth = depthFromScreen;
+                hitColor = texture(sceneMap, screenPosition) * color;
+                hitDepth = depthFromScreen;
                 hit = true;
                 break;
             }
@@ -127,22 +132,21 @@ bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, sampler2D
                 marchingPosition = marchingPosition - step * sign(delta);
                 
                 screenPosition = generateProjectedPosition(marchingPosition);
-                //depthFromScreen = linearDepth(getDepth(screenPosition), zNear, zFar);
-                depthFromScreen = -getPosition(screenPosition).z;
+                depthFromScreen = getLinearDepth(screenPosition);
                 delta = abs(marchingPosition.z) - depthFromScreen;
 
-                /*if (depth < depthFromScreen + epsilon && depth > depthFromScreen - epsilon) 
+                if (depth < depthFromScreen + epsilon && depth > depthFromScreen - epsilon) 
                 {
                     break;
-                }*/
+                }
 
-                if (abs(delta) < distanceBias) // && depthFromScreen != (depth - distanceBias)) 
+                if (abs(delta) < distanceBias && depthFromScreen != (depth - distanceBias)) 
                 {
                     vec4 color = vec4(1);
                     if(debugDraw)
                         color = vec4( 0.5+ sign(delta)/2,0.3,0.5- sign(delta)/2, 0);
-                    hitColor = texture(textureFrame, screenPosition) * color;
-                    //hitDepth = depthFromScreen;
+                    hitColor = texture(sceneMap, screenPosition) * color;
+                    hitDepth = depthFromScreen;
                     hit = true;
                     break;
                 }
@@ -158,7 +162,7 @@ float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, 
     collectedColor = vec4(0);
     int hits = 0;
 
-    float depth = length(viewPos.xyz);
+    float depth = -viewPos.z;
 
     vec3 rayDirection = normalize(reflect(viewPos, normalize(n)));
 
@@ -176,7 +180,6 @@ float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, 
     vignette *= clamp(1.0+(viewPos.z/zFar), 0.0, 1.0);
     //vignette *= min(linearDepth(getDepth(tc), zNear, zFar) / zFar, 1);
     //vignette *= min(linearDepth(getDepth(tc), zNear, zFar) / zFar, 1);
-    
 
     vec4 hitpoint;
 
@@ -184,12 +187,12 @@ float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, 
     {
         for (int i = 0; i < totalSamples; i++) 
         {
-            vec2 coeffs = vec2(random(tc + vec2(0, i)) + random(tc + vec2(i, 0))) * samplingCoefficient;
+            vec2 coeffs = vec2(random(tc + vec2(0, i)) + random(tc + vec2(i, 0)));
             vec3 reflectionDirectionRandomized = rayDirection + firstBasis * coeffs.x + secondBasis * coeffs.y;
 
             //float hitDepth;
 
-            bool hit = traceScreenRay(viewPos, normalize(reflectionDirectionRandomized), hitpoint, source);
+            bool hit = traceScreenRay(viewPos, normalize(reflectionDirectionRandomized), hitpoint, depth, depth, source);
 
             if (hit) 
             {
@@ -200,7 +203,7 @@ float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, 
     }
     else
     {
-        bool hit = traceScreenRay(viewPos, normalize(rayDirection), hitpoint, source);
+        bool hit = traceScreenRay(viewPos, normalize(rayDirection), hitpoint, depth, depth, source);
         if (hit)
         {
             ++hits;
@@ -219,7 +222,6 @@ float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, 
 
     //collectedColor = textureLod(source, tc, 0);
     //collectedColor.rgb = vec3(hits);
-    //collectedColor.rgb = vec3(-getPosition(tc).z);
 
     return min(float(hits), 1.0) * vignette;
 }

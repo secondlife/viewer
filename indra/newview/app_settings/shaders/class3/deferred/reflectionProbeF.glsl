@@ -622,7 +622,7 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
     glossenv = sampleProbes(pos, normalize(refnormpersp), lod, errorCorrect);
 
     vec4 ssr = vec4(0);
-    float w = tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap);
+    float w = tapScreenSpaceReflection(errorCorrect ? 1 : 4, tc, pos, norm, ssr, sceneMap);
 
     glossenv = mix(glossenv, ssr.rgb, w);
 }
