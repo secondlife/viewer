@@ -67,20 +67,18 @@ float getLinearDepth(vec2 tc)
 
     vec4 pos = getPositionWithDepth(tc, depth);
 
-    pos = modelview_delta * pos;
-
     return -pos.z;
 }
 
 bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float hitDepth, float depth, sampler2D textureFrame) 
 {
     // transform position and reflection into same coordinate frame as the sceneMap and sceneDepth
-    float z = position.z;
-
     reflection += position;
     position = (inv_modelview_delta * vec4(position, 1)).xyz;
     reflection = (inv_modelview_delta * vec4(reflection, 1)).xyz;
     reflection -= position;
+
+    depth = -position.z;
 
     vec3 step = rayStep * reflection;
     vec3 marchingPosition = position + step;
