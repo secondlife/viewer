@@ -73,7 +73,7 @@ class LLMuteList : public LLSingleton<LLMuteList>
 {
 	LLSINGLETON(LLMuteList);
 	~LLMuteList();
-	/*virtual*/ void cleanupSingleton();
+	/*virtual*/ void cleanupSingleton() override;
 public:
 	// reasons for auto-unmuting a resident
 	enum EAutoReason 

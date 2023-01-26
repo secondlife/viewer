@@ -92,7 +92,7 @@ class LL_COMMON_API LLCoros: public LLSingleton<LLCoros>
     LLSINGLETON(LLCoros);
     ~LLCoros();
 
-    void cleanupSingleton();
+    void cleanupSingleton() override;
 public:
     /// The viewer's use of the term "coroutine" became deeply embedded before
     /// the industry term "fiber" emerged to distinguish userland threads from

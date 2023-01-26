@@ -263,7 +263,7 @@ public:
 	class LLTextInputFilter : public LLQueryFilter, public LLSingleton<LLTextInputFilter>
 	{
 		LLSINGLETON_EMPTY_CTOR(LLTextInputFilter);
-		/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const 
+		/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const override
 		{
 			return filterResult_t(view->isCtrl() && static_cast<const LLUICtrl *>(view)->acceptsTextInput(), TRUE);
 		}

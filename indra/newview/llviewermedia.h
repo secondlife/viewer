@@ -74,7 +74,7 @@ class LLViewerMedia: public LLSingleton<LLViewerMedia>
 {
 	LLSINGLETON(LLViewerMedia);
 	~LLViewerMedia();
-	void initSingleton();
+	void initSingleton() override;
 	LOG_CLASS(LLViewerMedia);
 
 public:

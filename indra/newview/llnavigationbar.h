@@ -92,10 +92,10 @@ class LLNavigationBar
 
 public:
 	
-	/*virtual*/ void	draw();
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	postBuild();
-	/*virtual*/ void	setVisible(BOOL visible);
+	/*virtual*/ void	draw() override;
+	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	postBuild() override;
+	/*virtual*/ void	setVisible(BOOL visible) override;
 
 	void handleLoginComplete();
 	void clearHistoryCache();
