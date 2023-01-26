@@ -568,11 +568,11 @@ void LLSettingsVOSky::convertAtmosphericsToLegacy(LLSD& legacy, LLSD& settings)
         legacy[SETTING_BLUE_DENSITY] = ensure_array_4(legacyhaze[SETTING_BLUE_DENSITY], 1.0);
         legacy[SETTING_BLUE_HORIZON] = ensure_array_4(legacyhaze[SETTING_BLUE_HORIZON], 1.0);
 
-        legacy[SETTING_DENSITY_MULTIPLIER] = LLSDArray(legacyhaze[SETTING_DENSITY_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
-        legacy[SETTING_DISTANCE_MULTIPLIER] = LLSDArray(legacyhaze[SETTING_DISTANCE_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
+        legacy[SETTING_DENSITY_MULTIPLIER]  = llsd::array(legacyhaze[SETTING_DENSITY_MULTIPLIER].asReal(), 0.0f, 0.0f, 1.0f);
+        legacy[SETTING_DISTANCE_MULTIPLIER] = llsd::array(legacyhaze[SETTING_DISTANCE_MULTIPLIER].asReal(), 0.0f, 0.0f, 1.0f);
 
-        legacy[SETTING_HAZE_DENSITY]        = LLSDArray(legacyhaze[SETTING_HAZE_DENSITY])(0.0f)(0.0f)(1.0f);
-        legacy[SETTING_HAZE_HORIZON]        = LLSDArray(legacyhaze[SETTING_HAZE_HORIZON])(0.0f)(0.0f)(1.0f);
+        legacy[SETTING_HAZE_DENSITY]        = llsd::array(legacyhaze[SETTING_HAZE_DENSITY], 0.0f, 0.0f, 1.0f);
+        legacy[SETTING_HAZE_HORIZON]        = llsd::array(legacyhaze[SETTING_HAZE_HORIZON], 0.0f, 0.0f, 1.0f);
     }
 }
 
@@ -586,15 +586,15 @@ LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky, bool isA
     legacy[SETTING_CLOUD_COLOR] = ensure_array_4(settings[SETTING_CLOUD_COLOR], 1.0);
     legacy[SETTING_CLOUD_POS_DENSITY1] = ensure_array_4(settings[SETTING_CLOUD_POS_DENSITY1], 1.0);
     legacy[SETTING_CLOUD_POS_DENSITY2] = ensure_array_4(settings[SETTING_CLOUD_POS_DENSITY2], 1.0);
-    legacy[SETTING_CLOUD_SCALE] = LLSDArray(settings[SETTING_CLOUD_SCALE])(LLSD::Real(0.0))(LLSD::Real(0.0))(LLSD::Real(1.0));       
+    legacy[SETTING_CLOUD_SCALE] = llsd::array(settings[SETTING_CLOUD_SCALE], LLSD::Real(0.0), LLSD::Real(0.0), LLSD::Real(1.0));
     legacy[SETTING_CLOUD_SCROLL_RATE] = settings[SETTING_CLOUD_SCROLL_RATE];
-    legacy[SETTING_LEGACY_ENABLE_CLOUD_SCROLL] = LLSDArray(LLSD::Boolean(!is_approx_zero(settings[SETTING_CLOUD_SCROLL_RATE][0].asReal())))
-        (LLSD::Boolean(!is_approx_zero(settings[SETTING_CLOUD_SCROLL_RATE][1].asReal())));     
-    legacy[SETTING_CLOUD_SHADOW] = LLSDArray(settings[SETTING_CLOUD_SHADOW].asReal())(0.0f)(0.0f)(1.0f);    
-    legacy[SETTING_GAMMA] = LLSDArray(settings[SETTING_GAMMA])(0.0f)(0.0f)(1.0f);
+    legacy[SETTING_LEGACY_ENABLE_CLOUD_SCROLL] = llsd::array(LLSD::Boolean(!is_approx_zero(settings[SETTING_CLOUD_SCROLL_RATE][0].asReal())),
+        LLSD::Boolean(!is_approx_zero(settings[SETTING_CLOUD_SCROLL_RATE][1].asReal())));     
+    legacy[SETTING_CLOUD_SHADOW] = llsd::array(settings[SETTING_CLOUD_SHADOW].asReal(), 0.0f, 0.0f, 1.0f);    
+    legacy[SETTING_GAMMA] = llsd::array(settings[SETTING_GAMMA], 0.0f, 0.0f, 1.0f);
     legacy[SETTING_GLOW] = ensure_array_4(settings[SETTING_GLOW], 1.0);
     legacy[SETTING_LIGHT_NORMAL] = ensure_array_4(psky->getLightDirection().getValue(), 0.0f);
-    legacy[SETTING_MAX_Y] = LLSDArray(settings[SETTING_MAX_Y])(0.0f)(0.0f)(1.0f);
+    legacy[SETTING_MAX_Y] = llsd::array(settings[SETTING_MAX_Y], 0.0f, 0.0f, 1.0f);
     legacy[SETTING_STAR_BRIGHTNESS] = settings[SETTING_STAR_BRIGHTNESS].asReal() / 250.0f; // convert from 0-500 -> 0-2 ala pre-FS-compat changes
     legacy[SETTING_SUNLIGHT_COLOR] = ensure_array_4(settings[SETTING_SUNLIGHT_COLOR], 1.0f);
     
@@ -1062,7 +1062,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &n
 
     newsettings[SETTING_NAME] = name;
 
-    LLSD watertrack = LLSDArray(
+    LLSD watertrack = llsd::array(
         LLSDMap(SETTING_KEYKFRAME, LLSD::Real(0.0f))
         (SETTING_KEYNAME, "water:Default"));
 
@@ -1077,7 +1077,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &n
         skytrack.append(entry);
     }
 
-    newsettings[SETTING_TRACKS] = LLSDArray(watertrack)(skytrack);
+    newsettings[SETTING_TRACKS] = llsd::array(watertrack, skytrack);
 
     LLSD frames(LLSD::emptyMap());
 
@@ -1165,7 +1165,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regio
     watersettings[SETTING_NAME] = watername;
     frames[watername] = watersettings;
 
-    LLSD watertrack = LLSDArray(
+    LLSD watertrack = llsd::array(
             LLSDMap(SETTING_KEYKFRAME, LLSD::Real(0.0f))
             (SETTING_KEYNAME, watername));
 
@@ -1179,7 +1179,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regio
 
     LLSD newsettings = LLSDMap
         ( SETTING_NAME, "Region (legacy)" )
-        ( SETTING_TRACKS, LLSDArray(watertrack)(skytrack))
+        ( SETTING_TRACKS, llsd::array(watertrack, skytrack))
         ( SETTING_FRAMES, frames )
         ( SETTING_TYPE, "daycycle" );
 
@@ -1360,7 +1360,7 @@ LLSD LLSettingsVODay::convertToLegacy(const LLSettingsVODay::ptr_t &pday)
         skys[name.str()] = std::static_pointer_cast<LLSettingsSky>((*it).second);
         
         F32 frame = ((tracksky.size() == 1) && (it == tracksky.begin())) ? -1.0f : (*it).first;
-        llsdcycle.append( LLSDArray(LLSD::Real(frame))(name.str()) );
+        llsdcycle.append( llsd::array(LLSD::Real(frame), name.str()) );
     }
 
     LLSD llsdskylist(LLSD::emptyMap());
@@ -1373,7 +1373,7 @@ LLSD LLSettingsVODay::convertToLegacy(const LLSettingsVODay::ptr_t &pday)
         llsdskylist[(*its).first] = llsdsky;
     }
 
-    return LLSDArray(LLSD::emptyMap())(llsdcycle)(llsdskylist)(llsdwater);
+    return llsd::array(LLSD::emptyMap(), llsdcycle, llsdskylist, llsdwater);
 }
 
 LLSettingsSkyPtr_t  LLSettingsVODay::getDefaultSky() const
