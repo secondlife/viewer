@@ -106,7 +106,7 @@ public:
 	/**
 	 * LLSimpleListener interface.
 	 */
-	/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+	/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata) override;
 
 	void updateAvatarsArrivalTime(uuid_vec_t& uuids);
 	F32 getArrivalTimeByID(const LLUUID& id);
