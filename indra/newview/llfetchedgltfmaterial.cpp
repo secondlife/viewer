@@ -115,3 +115,35 @@ void LLFetchedGLTFMaterial::bind()
     }
 
 }
+
+void LLFetchedGLTFMaterial::materialBegin()
+{
+    llassert(!mFetching);
+    mFetching = true;
+}
+
+void LLFetchedGLTFMaterial::onMaterialComplete(std::function<void()> material_complete)
+{
+    if (!material_complete) { return; }
+
+    if (!mFetching)
+    {
+        material_complete();
+        return;
+    }
+
+    materialCompleteCallbacks.push_back(material_complete);
+}
+
+void LLFetchedGLTFMaterial::materialComplete()
+{
+    llassert(mFetching);
+    mFetching = false;
+
+    for (std::function<void()> material_complete : materialCompleteCallbacks)
+    {
+        material_complete();
+    }
+    materialCompleteCallbacks.clear();
+    materialCompleteCallbacks.shrink_to_fit();
+}
