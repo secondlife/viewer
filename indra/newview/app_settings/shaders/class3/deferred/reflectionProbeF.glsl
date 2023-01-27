@@ -338,7 +338,8 @@ return texCUBE(envMap, ReflDirectionWS);
 // origin - ray origin in clip space
 // dir - ray direction in clip space
 // i - probe index in refBox/refSphere
-vec3 boxIntersect(vec3 origin, vec3 dir, int i)
+// d - distance to nearest wall in clip space
+vec3 boxIntersect(vec3 origin, vec3 dir, int i, out float d)
 {
     // Intersection with OBB convertto unit box space
     // Transform in local unit parallax cube space (scaled and rotated)
@@ -346,6 +347,8 @@ vec3 boxIntersect(vec3 origin, vec3 dir, int i)
 
     vec3 RayLS = mat3(clipToLocal) * dir;
     vec3 PositionLS = (clipToLocal * vec4(origin, 1.0)).xyz;
+
+    d = 1.0-max(max(abs(PositionLS.x), abs(PositionLS.y)), abs(PositionLS.z));
 
     vec3 Unitary = vec3(1.0f, 1.0f, 1.0f);
     vec3 FirstPlaneIntersect  = (Unitary - PositionLS) / RayLS;
@@ -421,6 +424,29 @@ void boxIntersectDebug(vec3 origin, vec3 pos, int i, inout vec4 col)
 }
 
 
+// get the weight of a sphere probe
+//  pos - position to be weighted
+//  dir - normal to be weighted
+//  origin - center of sphere probe
+//  r - radius of probe influence volume
+// min_da - minimum angular attenuation coefficient
+float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, float min_da)
+{
+    float r1 = r * 0.5; // 50% of radius (outer sphere to start interpolating down)
+    vec3 delta = pos.xyz - origin;
+    float d2 = max(length(delta), 0.001);
+    float r2 = r1; //r1 * r1;
+
+    //float atten = 1.0 - max(d2 - r2, 0.0) / max((rr - r2), 0.001);
+    float atten = 1.0 - max(d2 - r2, 0.0) / max((r - r2), 0.001);
+
+    atten *= max(dot(normalize(-delta), dir), min_da);
+    float w = 1.0 / d2;
+    w *= atten;
+
+    return w;
+}
+
 // Tap a reflection probe
 // pos - position of pixel
 // dir - pixel normal
@@ -439,8 +465,10 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out vec3 vi, out vec3 wi, float 
 
     if (refIndex[i].w < 0)
     {
-        v = boxIntersect(pos, dir, i);
-        w = 1.0;
+        float d = 0;
+        v = boxIntersect(pos, dir, i, d);
+
+        w = max(d, 0.001);
     }
     else
     {
@@ -451,16 +479,7 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out vec3 vi, out vec3 wi, float 
         refIndex[i].w <= 1 ? 4096.0*4096.0 : // <== effectively disable parallax correction for automatically placed probes to keep from bombing the world with obvious spheres
                 rr);
 
-        float r1 = r * 0.5; // 90% of radius (outer sphere to start interpolating down)
-        vec3 delta = pos.xyz - refSphere[i].xyz;
-        float d2 = max(length(delta), 0.001); //max(dot(delta, delta), 0.001);
-        float r2 = r1; //r1 * r1;
-
-        //float atten = 1.0 - max(d2 - r2, 0.0) / max((rr - r2), 0.001);
-        float atten = 1.0 - max(d2 - r2, 0.0) / max((r - r2), 0.001);
-
-        w = 1.0 / d2;
-        w *= atten;
+        w = sphereWeight(pos, dir, refSphere[i].xyz, r, 0.25);
     }
 
     vi = v;
@@ -489,8 +508,9 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, vec3 c, int i)
     vec3 v;
     if (refIndex[i].w < 0)
     {
-        v = boxIntersect(pos, dir, i);
-        w = 1.0;
+        float d = 0.0;
+        v = boxIntersect(pos, dir, i, d);
+        w = max(d, 0.001);
     }
     else
     {
@@ -498,17 +518,11 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, vec3 c, int i)
         float p = float(abs(refIndex[i].w)); // priority
         float rr = r * r; // radius squred
 
-        v = sphereIntersect(pos, dir, c, rr);
+        v = sphereIntersect(pos, dir, c, 
+        refIndex[i].w <= 1 ? 4096.0*4096.0 : // <== effectively disable parallax correction for automatically placed probes to keep from bombing the world with obvious spheres
+                rr);
 
-        float r1 = r * 0.1; // 75% of radius (outer sphere to start interpolating down)
-        vec3 delta = pos.xyz - refSphere[i].xyz;
-        float d2 = dot(delta, delta);
-        float r2 = r1 * r1;
-
-        w = 1.0 / d2;
-
-        float atten = 1.0 - max(d2 - r2, 0.0) / (rr - r2);
-        w *= atten;
+        w = sphereWeight(pos, dir, refSphere[i].xyz, r, 0.001);
     }
 
     v -= c;
