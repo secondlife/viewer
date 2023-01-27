@@ -300,7 +300,7 @@ namespace tut
     {
         LLSINGLETON_EMPTY_CTOR(CircularPInit);
     public:
-        virtual void initSingleton()
+        virtual void initSingleton() override
         {
             // never mind indirection, just go straight for the circularity
             CircularPInit *pt = getInstance();
