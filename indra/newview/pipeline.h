@@ -685,6 +685,10 @@ public:
 
     LLRenderTarget          mPbrBrdfLut;
 
+    // copy of the color/depth buffer just before gamma correction
+    // for use by SSR
+    LLRenderTarget          mSceneMap;
+
     LLCullResult            mSky;
     LLCullResult            mReflectedObjects;
     LLCullResult            mRefractedObjects;

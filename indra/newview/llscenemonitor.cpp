@@ -177,7 +177,7 @@ LLRenderTarget& LLSceneMonitor::getCaptureTarget()
 	if(!mFrames[0])
 	{
 		mFrames[0] = new LLRenderTarget();
-		mFrames[0]->allocate(width, height, GL_RGB, false, false, LLTexUnit::TT_TEXTURE, true);
+		mFrames[0]->allocate(width, height, GL_RGB);
 		gGL.getTexUnit(0)->bind(mFrames[0]);
 		gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -187,7 +187,7 @@ LLRenderTarget& LLSceneMonitor::getCaptureTarget()
 	else if(!mFrames[1])
 	{
 		mFrames[1] = new LLRenderTarget();
-		mFrames[1]->allocate(width, height, GL_RGB, false, false, LLTexUnit::TT_TEXTURE, true);
+		mFrames[1]->allocate(width, height, GL_RGB);
 		gGL.getTexUnit(0)->bind(mFrames[1]);
 		gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -360,7 +360,7 @@ void LLSceneMonitor::compare()
 	if(!mDiff)
 	{
 		mDiff = new LLRenderTarget();
-		mDiff->allocate(width, height, GL_RGBA, false, false, LLTexUnit::TT_TEXTURE, true);
+		mDiff->allocate(width, height, GL_RGBA);
 
 		generateDitheringTexture(width, height);
 	}

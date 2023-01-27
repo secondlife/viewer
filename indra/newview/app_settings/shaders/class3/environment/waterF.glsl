@@ -95,9 +95,6 @@ vec3 BlendNormal(vec3 bump1, vec3 bump2)
 
 vec3 srgb_to_linear(vec3 col);
 
-void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
-    vec3 pos, vec3 norm, float glossiness, float envIntensity);
-
 vec3 vN, vT, vB;
 
 vec3 transform_normal(vec3 vNt)
@@ -106,7 +103,10 @@ vec3 transform_normal(vec3 vNt)
 }
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-    vec3 pos, vec3 norm, float glossiness, bool errorCorrect);
+    vec2 tc, vec3 pos, vec3 norm, float glossiness);
+
+void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
+     vec2 tc, vec3 pos, vec3 norm, float glossiness, bool errorCorrect);
 
 vec3 getPositionWithNDC(vec3 ndc);
 
@@ -225,7 +225,7 @@ void main()
     
     vec3 irradiance = vec3(0);
     vec3 radiance = vec3(0);
-    sampleReflectionProbes(irradiance, radiance, pos, refnorm, gloss, true);
+    sampleReflectionProbes(irradiance, radiance, distort, pos, refnorm, gloss, true);
     radiance *= 0.5;
     irradiance = fb.rgb;
 

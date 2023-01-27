@@ -90,8 +90,8 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 
 float getAmbientClamp();
 
-void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv, 
-        vec3 pos, vec3 norm, float glossiness, float envIntensity);
+void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity);
 
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, float ambiance)
 {
@@ -253,7 +253,7 @@ void main()
     vec3 irradiance;
     vec3 glossenv;
     vec3 legacyenv;
-    sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, pos.xyz, norm.xyz, 0.0, 0.0);
+    sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, frag, pos.xyz, norm.xyz, 0.0, 0.0);
     
 
     float da = dot(norm.xyz, light_dir.xyz);

@@ -2270,7 +2270,7 @@ void do_assert_glerror()
 	GLenum error;
 	error = glGetError();
 	BOOL quit = FALSE;
-	while (LL_UNLIKELY(error))
+	if (LL_UNLIKELY(error))
 	{
 		quit = TRUE;
 		GLubyte const * gl_error_msg = gluErrorString(error);
@@ -2295,7 +2295,6 @@ void do_assert_glerror()
 				gFailLog << "GL Error: UNKNOWN 0x" << std::hex << error << std::dec << std::endl;
 			}
 		}
-		error = glGetError();
 	}
 
 	if (quit)

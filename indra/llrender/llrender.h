@@ -507,6 +507,8 @@ extern F32 gGLLastModelView[16];
 extern F32 gGLLastProjection[16];
 extern F32 gGLProjection[16];
 extern S32 gGLViewport[4];
+extern F32 gGLDeltaModelView[16];
+extern F32 gGLInverseDeltaModelView[16];
 
 extern thread_local LLRender gGL;
 

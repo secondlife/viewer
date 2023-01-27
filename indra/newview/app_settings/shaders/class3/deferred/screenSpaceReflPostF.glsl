@@ -42,10 +42,7 @@ uniform float zFar;
 VARYING vec2 vary_fragcoord;
 VARYING vec3 camera_ray;
 
-uniform sampler2D depthMap;
-uniform sampler2D normalMap;
 uniform sampler2D specularRect;
-uniform sampler2D sceneMap;
 uniform sampler2D diffuseRect;
 uniform sampler2D diffuseMap;
 
@@ -57,26 +54,26 @@ float linearDepth01(float d, float znear, float zfar);
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 vec4 getPosition(vec2 pos_screen);
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
-bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float hitDepth, float depth, sampler2D textureFrame);
 
 float random (vec2 uv);
 
+float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source);
 
 void main() 
 {
     vec2  tc = vary_fragcoord.xy;
     float depth = linearDepth01(getDepth(tc), zNear, zFar);
-    vec3 n = vec3(0, 0, 1);
     float envIntensity;
+    vec3 n;
     vec4 norm = getNormalEnvIntensityFlags(tc, n, envIntensity); // need `norm.w` for GET_GBUFFER_FLAG()
     vec3 pos = getPositionWithDepth(tc, getDepth(tc)).xyz;
     vec4 spec    = texture2D(specularRect, tc);
-    vec3 viewPos = camera_ray * depth;
-    vec3 rayDirection = normalize(reflect(normalize(viewPos), n)) * -viewPos.z;
     vec2 hitpixel;
-    vec4 hitpoint;
+    
     vec4 diffuse = texture2D(diffuseRect, tc);
     vec3 specCol = spec.rgb;
+
+    frag_color = texture(diffuseMap, tc);
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR)) 
     {
@@ -85,44 +82,17 @@ void main()
         float metallic = orm.b;
         vec3 f0 = vec3(0.04);
         vec3 baseColor = diffuse.rgb;
-        
+
         vec3 diffuseColor = baseColor.rgb*(vec3(1.0)-f0);
 
         specCol = mix(f0, baseColor.rgb, metallic);
     }
 
-    vec2 uv2 = tc * screen_res;
-    float c = (uv2.x + uv2.y) * 0.125;
-    float jitter = mod( c, 1.0);
+    vec4 collectedColor = vec4(0);
 
-    vec3 firstBasis = normalize(cross(vec3(1.f, 1.f, 1.f), rayDirection));
-    vec3 secondBasis = normalize(cross(rayDirection, firstBasis));
-    
-    frag_color = texture(diffuseMap, tc);
-    vec4 collectedColor;
-    
-    vec2 screenpos = 1 - abs(tc * 2 - 1);
-    float vignette = clamp((screenpos.x * screenpos.y) * 16,0, 1);
-    vignette *= clamp((dot(normalize(viewPos), n) * 0.5 + 0.5 - 0.2) * 8, 0, 1);
-    vignette *= min(linearDepth(getDepth(tc), zNear, zFar) / zFar, 1);
+    float w = tapScreenSpaceReflection(4, tc, pos, n, collectedColor, diffuseMap);
 
-    int totalSamples = 4;
+    collectedColor.rgb *= specCol.rgb;
 
-    for (int i = 0; i < totalSamples; i++) 
-    {
-        vec2 coeffs = vec2(random(tc + vec2(0, i)) + random(tc + vec2(i, 0)));
-        vec3 reflectionDirectionRandomized = rayDirection + firstBasis * coeffs.x + secondBasis * coeffs.y;
-
-        bool hit = traceScreenRay(pos, reflectionDirectionRandomized, hitpoint, depth, depth, diffuseMap);
-
-        if (hit) 
-        {
-            collectedColor += hitpoint;
-            collectedColor.rgb *= specCol.rgb;
-        }
-    }
-
-    collectedColor *= vignette;
-
-    frag_color += collectedColor;
+    frag_color += collectedColor * w;
 }

@@ -39,6 +39,14 @@
 extern BOOL gCubeSnapshot;
 extern BOOL gTeleportDisplay;
 
+static void touch_default_probe(LLReflectionMap* probe)
+{
+    LLVector3 origin = LLViewerCamera::getInstance()->getOrigin();
+    origin.mV[2] += 64.f;
+
+    probe->mOrigin.load3(origin.mV);
+}
+
 LLReflectionMapManager::LLReflectionMapManager()
 {
     initCubeFree();
@@ -83,10 +91,8 @@ void LLReflectionMapManager::update()
     if (!mRenderTarget.isComplete())
     {
         U32 color_fmt = GL_RGB16F;
-        const bool use_depth_buffer = true;
-        const bool use_stencil_buffer = false;
         U32 targetRes = LL_REFLECTION_PROBE_RESOLUTION * 2; // super sample
-        mRenderTarget.allocate(targetRes, targetRes, color_fmt, use_depth_buffer, use_stencil_buffer, LLTexUnit::TT_TEXTURE);
+        mRenderTarget.allocate(targetRes, targetRes, color_fmt, true);
     }
 
     if (mMipChain.empty())
@@ -97,7 +103,7 @@ void LLReflectionMapManager::update()
         mMipChain.resize(count);
         for (int i = 0; i < count; ++i)
         {
-            mMipChain[i].allocate(res, res, GL_RGBA16F, false, false, LLTexUnit::TT_TEXTURE);
+            mMipChain[i].allocate(res, res, GL_RGBA16F);
             res /= 2;
         }
     }
@@ -108,9 +114,8 @@ void LLReflectionMapManager::update()
         mDefaultProbe = addProbe();
         mDefaultProbe->mDistance = -4096.f; // hack to make sure the default probe is always first in sort order
         mDefaultProbe->mRadius = 4096.f;
+        touch_default_probe(mDefaultProbe);
     }
-
-    mDefaultProbe->mOrigin.load3(LLViewerCamera::getInstance()->getOrigin().mV);
     
     LLVector4a camera_pos;
     camera_pos.load3(LLViewerCamera::instance().getOrigin().mV);
@@ -154,6 +159,8 @@ void LLReflectionMapManager::update()
         did_update = true;
         doProbeUpdate();
     }
+
+    //LL_INFOS() << mProbes.size() << LL_ENDL;
 
     for (int i = 0; i < mProbes.size(); ++i)
     {
@@ -403,7 +410,26 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
 {
     // hacky hot-swap of camera specific render targets
     gPipeline.mRT = &gPipeline.mAuxillaryRT;
-    probe->update(mRenderTarget.getWidth(), face);
+
+    if (probe == mDefaultProbe)
+    {
+        touch_default_probe(probe);
+
+        gPipeline.pushRenderTypeMask();
+        
+        //only render sky, water, terrain, and clouds
+        gPipeline.andRenderTypeMask(LLPipeline::RENDER_TYPE_SKY, LLPipeline::RENDER_TYPE_WL_SKY,
+            LLPipeline::RENDER_TYPE_WATER, LLPipeline::RENDER_TYPE_CLOUDS, LLPipeline::RENDER_TYPE_TERRAIN, LLPipeline::END_RENDER_TYPES);
+        
+        probe->update(mRenderTarget.getWidth(), face);
+
+        gPipeline.popRenderTypeMask();
+    }
+    else
+    {
+        probe->update(mRenderTarget.getWidth(), face);
+    }
+    
     gPipeline.mRT = &gPipeline.mMainRT;
 
     S32 targetIdx = mReflectionProbeCount;

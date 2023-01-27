@@ -90,6 +90,8 @@ public:
         BUMP_MAP,                           //  "bumpMap"
         BUMP_MAP2,                          //  "bumpMap2"
         ENVIRONMENT_MAP,                    //  "environmentMap"
+        SCENE_MAP,                          //  "sceneMap"
+        SCENE_DEPTH,                        //  "sceneDepth"
         REFLECTION_PROBES,                  //  "reflectionProbes"
         IRRADIANCE_PROBES,                  //  "irradianceProbes"
         CLOUD_NOISE_MAP,                    //  "cloud_noise_texture"
@@ -157,6 +159,10 @@ public:
         DEFERRED_DEPTH_CUTOFF,              //  "depth_cutoff"
         DEFERRED_NORM_CUTOFF,               //  "norm_cutoff"
         DEFERRED_SHADOW_TARGET_WIDTH,       //  "shadow_target_width"
+
+        MODELVIEW_DELTA_MATRIX,             //  "modelview_delta"
+        INVERSE_MODELVIEW_DELTA_MATRIX,     //  "inv_modelview_delta"
+        CUBE_SNAPSHOT,                      //  "cube_snapshot"
 
         FXAA_TC_SCALE,                      //  "tc_scale"
         FXAA_RCP_SCREEN_RES,                //  "rcp_screen_res"

@@ -4898,7 +4898,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 			(image_width > window_width || image_height > window_height) && LLPipeline::sRenderDeferred && !show_ui)
 		{
 			U32 color_fmt = type == LLSnapshotModel::SNAPSHOT_TYPE_DEPTH ? GL_DEPTH_COMPONENT : GL_RGBA;
-			if (scratch_space.allocate(image_width, image_height, color_fmt, true, true))
+			if (scratch_space.allocate(image_width, image_height, color_fmt, true))
 			{
 				original_width = gPipeline.mRT->deferredScreen.getWidth();
 				original_height = gPipeline.mRT->deferredScreen.getHeight();
@@ -5162,9 +5162,7 @@ BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
 
     LLRenderTarget scratch_space;
     U32 color_fmt = GL_RGBA;
-    const bool use_depth_buffer = true;
-    const bool use_stencil_buffer = false;
-    if (scratch_space.allocate(image_width, image_height, color_fmt, use_depth_buffer, use_stencil_buffer))
+    if (scratch_space.allocate(image_width, image_height, color_fmt, true))
     {
         if (gPipeline.allocateScreenBuffer(image_width, image_height))
         {

@@ -222,7 +222,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		}
 	}
 
-	if (features->hasScreenSpaceReflections)
+	if (features->hasScreenSpaceReflections || features->hasReflectionProbes)
 	{
         if (!shader->attachFragmentObject("deferred/screenSpaceReflUtil.glsl"))
         {
@@ -1244,6 +1244,8 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("bumpMap");
     mReservedUniforms.push_back("bumpMap2");
 	mReservedUniforms.push_back("environmentMap");
+    mReservedUniforms.push_back("sceneMap");
+    mReservedUniforms.push_back("sceneDepth");
     mReservedUniforms.push_back("reflectionProbes");
     mReservedUniforms.push_back("irradianceProbes");
 	mReservedUniforms.push_back("cloud_noise_texture");
@@ -1322,6 +1324,10 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("shadow_target_width");
 	
 	llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH+1);
+
+    mReservedUniforms.push_back("modelview_delta");
+    mReservedUniforms.push_back("inv_modelview_delta");
+    mReservedUniforms.push_back("cube_snapshot");
 
 	mReservedUniforms.push_back("tc_scale");
 	mReservedUniforms.push_back("rcp_screen_res");

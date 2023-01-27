@@ -75,9 +75,9 @@ vec3  fullbrightAtmosTransportFragLinear(vec3 light, vec3 additive, vec3 atten);
 
 // reflection probe interface
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-        vec3 pos, vec3 norm, float glossiness);
-void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyEnv, 
-        vec3 pos, vec3 norm, float glossiness, float envIntensity);
+    vec2 tc, vec3 pos, vec3 norm, float glossiness);
+void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity);
 void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 norm);
 void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 norm, float envIntensity);
 float getDepth(vec2 pos_screen);
@@ -166,7 +166,7 @@ void main()
         float gloss      = 1.0 - perceptualRoughness;
         vec3  irradiance = vec3(0);
         vec3  radiance  = vec3(0);
-        sampleReflectionProbes(irradiance, radiance, pos.xyz, norm.xyz, gloss);
+        sampleReflectionProbes(irradiance, radiance, tc, pos.xyz, norm.xyz, gloss);
         
         // Take maximium of legacy ambient vs irradiance sample as irradiance
         // NOTE: ao is applied in pbrIbl (see pbrBaseLight), do not apply here
@@ -196,7 +196,7 @@ void main()
         vec3 glossenv = vec3(0);
         vec3 legacyenv = vec3(0);
 
-        sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, envIntensity);
+        sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, tc, pos.xyz, norm.xyz, spec.a, envIntensity);
         
         // use sky settings ambient or irradiance map sample, whichever is brighter
         irradiance = max(amblit, irradiance);

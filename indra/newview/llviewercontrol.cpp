@@ -682,6 +682,7 @@ void settings_setup_listeners()
 	// DEPRECATED - setting_setup_signal_listener(gSavedSettings, "RenderDeferred", handleRenderDeferredChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderReflectionProbeDetail", handleReflectionProbeDetailChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderReflectionsEnabled", handleReflectionProbeDetailChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderScreenSpaceReflections", handleReflectionProbeDetailChanged);
 	setting_setup_signal_listener(gSavedSettings, "RenderShadowDetail", handleSetShaderChanged);
 	setting_setup_signal_listener(gSavedSettings, "RenderDeferredSSAO", handleSetShaderChanged);
 	setting_setup_signal_listener(gSavedSettings, "RenderPerformanceTest", handleRenderPerfTestChanged);

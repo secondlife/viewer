@@ -25,11 +25,17 @@
 
 #define FLT_MAX 3.402823466e+38
 
+#if defined(SSR)
+float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source);
+#endif
+
 #define REFMAP_COUNT 256
 #define REF_SAMPLE_COUNT 64 //maximum number of samples to consider
 
 uniform samplerCubeArray   reflectionProbes;
 uniform samplerCubeArray   irradianceProbes;
+uniform sampler2D sceneMap;
+uniform int cube_snapshot;
 
 layout (std140) uniform ReflectionProbes
 {
@@ -92,14 +98,17 @@ bool shouldSampleProbe(int i, vec3 pos)
     }
     else
     {
-        vec3 delta = pos.xyz - refSphere[i].xyz;
-        float d = dot(delta, delta);
-        float r2 = refSphere[i].w;
-        r2 *= r2;
+        if (refSphere[i].w > 0.0) // zero is special indicator to always sample this probe
+        {
+            vec3 delta = pos.xyz - refSphere[i].xyz;
+            float d = dot(delta, delta);
+            float r2 = refSphere[i].w;
+            r2 *= r2;
 
-        if (d > r2)
-        { //outside bounding sphere
-            return false;
+            if (d > r2)
+            { //outside bounding sphere
+                return false;
+            }
         }
 
         max_priority = max(max_priority, refIndex[i].w);
@@ -138,13 +147,13 @@ void preProbeSample(vec3 pos)
                         probeIndex[probeInfluences++] = idx;
                         if (probeInfluences == REF_SAMPLE_COUNT)
                         {
-                            return;
+                            break;
                         }
                     }
                     count++;
                     if (count == neighborCount)
                     {
-                        return;
+                        break;
                     }
 
                     idx = refNeighbor[neighborIdx].y;
@@ -153,13 +162,13 @@ void preProbeSample(vec3 pos)
                         probeIndex[probeInfluences++] = idx;
                         if (probeInfluences == REF_SAMPLE_COUNT)
                         {
-                            return;
+                            break;
                         }
                     }
                     count++;
                     if (count == neighborCount)
                     {
-                        return;
+                        break;
                     }
 
                     idx = refNeighbor[neighborIdx].z;
@@ -168,13 +177,13 @@ void preProbeSample(vec3 pos)
                         probeIndex[probeInfluences++] = idx;
                         if (probeInfluences == REF_SAMPLE_COUNT)
                         {
-                            return;
+                            break;
                         }
                     }
                     count++;
                     if (count == neighborCount)
                     {
-                        return;
+                        break;
                     }
 
                     idx = refNeighbor[neighborIdx].w;
@@ -183,27 +192,26 @@ void preProbeSample(vec3 pos)
                         probeIndex[probeInfluences++] = idx;
                         if (probeInfluences == REF_SAMPLE_COUNT)
                         {
-                            return;
+                            break;
                         }
                     }
                     count++;
                     if (count == neighborCount)
                     {
-                        return;
+                        break;
                     }
 
                     ++neighborIdx;
                 }
 
-                return;
+                break;
             }
         }
     }
 
-    if (probeInfluences == 0)
-    { // probe at index 0 is a special fallback probe
-        probeIndex[0] = 0;
-        probeInfluences = 1;
+    if (max_priority <= 1)
+    { // probe at index 0 is a special probe for smoothing out automatic probes
+        probeIndex[probeInfluences++] = 0;
     }
 }
 
@@ -330,7 +338,8 @@ return texCUBE(envMap, ReflDirectionWS);
 // origin - ray origin in clip space
 // dir - ray direction in clip space
 // i - probe index in refBox/refSphere
-vec3 boxIntersect(vec3 origin, vec3 dir, int i)
+// d - distance to nearest wall in clip space
+vec3 boxIntersect(vec3 origin, vec3 dir, int i, out float d)
 {
     // Intersection with OBB convertto unit box space
     // Transform in local unit parallax cube space (scaled and rotated)
@@ -338,6 +347,8 @@ vec3 boxIntersect(vec3 origin, vec3 dir, int i)
 
     vec3 RayLS = mat3(clipToLocal) * dir;
     vec3 PositionLS = (clipToLocal * vec4(origin, 1.0)).xyz;
+
+    d = 1.0-max(max(abs(PositionLS.x), abs(PositionLS.y)), abs(PositionLS.z));
 
     vec3 Unitary = vec3(1.0f, 1.0f, 1.0f);
     vec3 FirstPlaneIntersect  = (Unitary - PositionLS) / RayLS;
@@ -413,6 +424,29 @@ void boxIntersectDebug(vec3 origin, vec3 pos, int i, inout vec4 col)
 }
 
 
+// get the weight of a sphere probe
+//  pos - position to be weighted
+//  dir - normal to be weighted
+//  origin - center of sphere probe
+//  r - radius of probe influence volume
+// min_da - minimum angular attenuation coefficient
+float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, float min_da)
+{
+    float r1 = r * 0.5; // 50% of radius (outer sphere to start interpolating down)
+    vec3 delta = pos.xyz - origin;
+    float d2 = max(length(delta), 0.001);
+    float r2 = r1; //r1 * r1;
+
+    //float atten = 1.0 - max(d2 - r2, 0.0) / max((rr - r2), 0.001);
+    float atten = 1.0 - max(d2 - r2, 0.0) / max((r - r2), 0.001);
+
+    atten *= max(dot(normalize(-delta), dir), min_da);
+    float w = 1.0 / d2;
+    w *= atten;
+
+    return w;
+}
+
 // Tap a reflection probe
 // pos - position of pixel
 // dir - pixel normal
@@ -431,27 +465,21 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out vec3 vi, out vec3 wi, float 
 
     if (refIndex[i].w < 0)
     {
-        v = boxIntersect(pos, dir, i);
-        w = 1.0;
+        float d = 0;
+        v = boxIntersect(pos, dir, i, d);
+
+        w = max(d, 0.001);
     }
     else
     {
         float r = refSphere[i].w; // radius of sphere volume
         float rr = r * r; // radius squared
 
-        v = sphereIntersect(pos, dir, c, rr);
+        v = sphereIntersect(pos, dir, c, 
+        refIndex[i].w <= 1 ? 4096.0*4096.0 : // <== effectively disable parallax correction for automatically placed probes to keep from bombing the world with obvious spheres
+                rr);
 
-        float p = float(abs(refIndex[i].w)); // priority
- 
-        float r1 = r * 0.1; // 90% of radius (outer sphere to start interpolating down)
-        vec3 delta = pos.xyz - refSphere[i].xyz;
-        float d2 = max(dot(delta, delta), 0.001);
-        float r2 = r1 * r1;
-
-        float atten = 1.0 - max(d2 - r2, 0.0) / max((rr - r2), 0.001);
-
-        w = 1.0 / d2;
-        w *= atten;
+        w = sphereWeight(pos, dir, refSphere[i].xyz, r, 0.25);
     }
 
     vi = v;
@@ -480,8 +508,9 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, vec3 c, int i)
     vec3 v;
     if (refIndex[i].w < 0)
     {
-        v = boxIntersect(pos, dir, i);
-        w = 1.0;
+        float d = 0.0;
+        v = boxIntersect(pos, dir, i, d);
+        w = max(d, 0.001);
     }
     else
     {
@@ -489,17 +518,11 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, vec3 c, int i)
         float p = float(abs(refIndex[i].w)); // priority
         float rr = r * r; // radius squred
 
-        v = sphereIntersect(pos, dir, c, rr);
+        v = sphereIntersect(pos, dir, c, 
+        refIndex[i].w <= 1 ? 4096.0*4096.0 : // <== effectively disable parallax correction for automatically placed probes to keep from bombing the world with obvious spheres
+                rr);
 
-        float r1 = r * 0.1; // 75% of radius (outer sphere to start interpolating down)
-        vec3 delta = pos.xyz - refSphere[i].xyz;
-        float d2 = dot(delta, delta);
-        float r2 = r1 * r1;
-
-        w = 1.0 / d2;
-
-        float atten = 1.0 - max(d2 - r2, 0.0) / (rr - r2);
-        w *= atten;
+        w = sphereWeight(pos, dir, refSphere[i].xyz, r, 0.001);
     }
 
     v -= c;
@@ -605,7 +628,7 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir)
 }
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-        vec3 pos, vec3 norm, float glossiness, bool errorCorrect)
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool errorCorrect)
 {
     // TODO - don't hard code lods
     float reflection_lods = 6;
@@ -617,6 +640,17 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
 
     float lod = (1.0-glossiness)*reflection_lods;
     glossenv = sampleProbes(pos, normalize(refnormpersp), lod, errorCorrect);
+
+#if defined(SSR)
+    if (cube_snapshot != 1)
+    {
+        vec4 ssr = vec4(0);
+        //float w = tapScreenSpaceReflection(errorCorrect ? 1 : 4, tc, pos, norm, ssr, sceneMap);
+        float w = tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap);
+
+        glossenv = mix(glossenv, ssr.rgb, w);
+    }
+#endif
 }
 
 void debugTapRefMap(vec3 pos, vec3 dir, float depth, int i, inout vec4 col)
@@ -660,15 +694,15 @@ vec4 sampleReflectionProbesDebug(vec3 pos)
 }
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-    vec3 pos, vec3 norm, float glossiness)
+    vec2 tc, vec3 pos, vec3 norm, float glossiness)
 {
     sampleReflectionProbes(ambenv, glossenv,
-        pos, norm, glossiness, false);
+        tc, pos, norm, glossiness, false);
 }
 
 
 void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
-        vec3 pos, vec3 norm, float glossiness, float envIntensity)
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity)
 {
     // TODO - don't hard code lods
     float reflection_lods = 7;
@@ -676,7 +710,6 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
-    
     ambenv = sampleProbeAmbient(pos, norm);
     
     if (glossiness > 0.0)
@@ -689,6 +722,17 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
     {
         legacyenv = sampleProbes(pos, normalize(refnormpersp), 0.0, false);
     }
+
+#if defined(SSR)
+    if (cube_snapshot != 1)
+    {
+        vec4 ssr = vec4(0);
+        float w = tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap);
+
+        glossenv = mix(glossenv, ssr.rgb, w);
+        legacyenv = mix(legacyenv, ssr.rgb, w);
+    }
+#endif
 }
 
 void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 norm)
