@@ -47,8 +47,8 @@ public:                                             \
         DEP_INIT  /* dependency in initSingleton */ \
     } sDepFlag;                                     \
                                                     \
-    void initSingleton();                           \
-    void cleanupSingleton();                        \
+    void initSingleton() override;                  \
+    void cleanupSingleton() override;               \
 };                                                  \
                                                     \
 CLS::dep_flag CLS::sDepFlag = DEP_NONE
