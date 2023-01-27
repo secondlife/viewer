@@ -173,12 +173,6 @@ float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, 
     collectedColor = vec4(0);
     int hits = 0;
 
-    // transform position and normal into same coordinate frame as the sceneMap and sceneDepth
-    //n += viewPos;
-    //viewPos = (inv_modelview_delta * vec4(viewPos, 1)).xyz;
-    //n = (inv_modelview_delta * vec4(n, 1)).xyz;
-    //n -= viewPos;
-    
     float depth = -viewPos.z;
 
     vec3 rayDirection = normalize(reflect(viewPos, normalize(n)));
@@ -196,8 +190,7 @@ float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, 
     float zFar = 64.0;
     vignette *= clamp(1.0+(viewPos.z/zFar), 0.0, 1.0);
     //vignette *= min(linearDepth(getDepth(tc), zNear, zFar) / zFar, 1);
-    //vignette *= min(linearDepth(getDepth(tc), zNear, zFar) / zFar, 1);
-
+    
     vec4 hitpoint;
 
     if (totalSamples > 1)
@@ -236,9 +229,6 @@ float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, 
     {
         collectedColor = vec4(0);
     }
-
-    //collectedColor = textureLod(source, tc, 0);
-    //collectedColor.rgb = vec3(hits);
 
     return min(float(hits), 1.0) * vignette;
 }

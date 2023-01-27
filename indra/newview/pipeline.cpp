@@ -7589,7 +7589,7 @@ void LLPipeline::renderFinalize()
 
             unbindDeferredShader(gPostScreenSpaceReflectionProgram);
 #else
-            LL_PROFILE_GPU_ZONE("ssr cop");
+            LL_PROFILE_GPU_ZONE("ssr copy");
             LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
 
             LLRenderTarget& src = *screen_target;
