@@ -39,6 +39,9 @@ public:
     LLFetchedGLTFMaterial();
     virtual ~LLFetchedGLTFMaterial();
 
+    // If this material is loaded, fire the given function
+    void onMaterialComplete(std::function<void()> material_complete);
+
     // bind this material for rendering
     void bind();
 
@@ -49,9 +52,14 @@ public:
     LLPointer<LLViewerFetchedTexture> mEmissiveTexture;
 
 protected:
-    //Lifetime management
+    // Lifetime management
+    
+    void materialBegin();
+    void materialComplete();
+
     F64 mExpectedFlusTime; // since epoch in seconds
     bool mActive;
     bool mFetching;
+    std::vector<std::function<void()>> materialCompleteCallbacks;
 };
 

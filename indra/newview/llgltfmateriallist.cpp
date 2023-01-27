@@ -525,7 +525,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
     if (status != LL_ERR_NOERR)
     {
         LL_WARNS("GLTF") << "Error getting material asset data: " << LLAssetStorage::getErrorString(status) << " (" << status << ")" << LL_ENDL;
-        asset_data->mMaterial->mFetching = false;
+        asset_data->mMaterial->materialComplete();
         delete asset_data;
     }
     else
@@ -611,13 +611,15 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
             {
                 LL_DEBUGS("GLTF") << "Failed to get material " << id << LL_ENDL;
             }
-            asset_data->mMaterial->mFetching = false;
+
+            asset_data->mMaterial->materialComplete();
+
             delete asset_data;
         });
     }
 }
 
-LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
+LLFetchedGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
 {
     LL_PROFILE_ZONE_SCOPED;
     uuid_mat_map_t::iterator iter = mList.find(id);
@@ -629,7 +631,7 @@ LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
 
         if (!mat->mFetching)
         {
-            mat->mFetching = true;
+            mat->materialBegin();
 
             AssetLoadUserData *user_data = new AssetLoadUserData();
             user_data->mMaterial = mat;

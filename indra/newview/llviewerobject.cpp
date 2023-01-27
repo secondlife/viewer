@@ -7160,6 +7160,14 @@ const LLUUID& LLViewerObject::getRenderMaterialID(U8 te) const
     return LLUUID::null;
 }
 
+void LLViewerObject::rebuildMaterial()
+{
+    llassert(!isDead());
+
+    faceMappingChanged();
+    gPipeline.markTextured(mDrawable);
+}
+
 void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool update_server)
 {
     // implementation is delicate
@@ -7188,17 +7196,16 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
     }
 
 
+    LLFetchedGLTFMaterial* new_material = nullptr;
+    if (id.notNull())
+    {
+        new_material = gGLTFMaterialList.getMaterial(id);
+    }
+        
     // update local state
     for (S32 te = start_idx; te < end_idx; ++te)
     {
-        
-        LLGLTFMaterial* new_material = nullptr;
         LLTextureEntry* tep = getTE(te);
-
-        if (id.notNull())
-        {
-            new_material = gGLTFMaterialList.getMaterial(id);
-        }
         
         bool material_changed = !param_block || id != param_block->getMaterial(te);
 
@@ -7225,8 +7232,19 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
     }
 
     // signal to render pipe that render batches must be rebuilt for this object
-    faceMappingChanged();
-    gPipeline.markTextured(mDrawable);
+    if (!new_material)
+    {
+        rebuildMaterial();
+    }
+    else
+    {
+        LLPointer<LLViewerObject> this_ptr = this;
+        new_material->onMaterialComplete([this_ptr]() mutable {
+            if (this_ptr->isDead()) { return; }
+
+            this_ptr->rebuildMaterial();
+        });
+    }
 
     if (update_server)
     {
