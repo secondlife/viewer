@@ -98,14 +98,17 @@ bool shouldSampleProbe(int i, vec3 pos)
     }
     else
     {
-        vec3 delta = pos.xyz - refSphere[i].xyz;
-        float d = dot(delta, delta);
-        float r2 = refSphere[i].w;
-        r2 *= r2;
+        if (refSphere[i].w > 0.0) // zero is special indicator to always sample this probe
+        {
+            vec3 delta = pos.xyz - refSphere[i].xyz;
+            float d = dot(delta, delta);
+            float r2 = refSphere[i].w;
+            r2 *= r2;
 
-        if (d > r2)
-        { //outside bounding sphere
-            return false;
+            if (d > r2)
+            { //outside bounding sphere
+                return false;
+            }
         }
 
         max_priority = max(max_priority, refIndex[i].w);
@@ -144,13 +147,13 @@ void preProbeSample(vec3 pos)
                         probeIndex[probeInfluences++] = idx;
                         if (probeInfluences == REF_SAMPLE_COUNT)
                         {
-                            return;
+                            break;
                         }
                     }
                     count++;
                     if (count == neighborCount)
                     {
-                        return;
+                        break;
                     }
 
                     idx = refNeighbor[neighborIdx].y;
@@ -159,13 +162,13 @@ void preProbeSample(vec3 pos)
                         probeIndex[probeInfluences++] = idx;
                         if (probeInfluences == REF_SAMPLE_COUNT)
                         {
-                            return;
+                            break;
                         }
                     }
                     count++;
                     if (count == neighborCount)
                     {
-                        return;
+                        break;
                     }
 
                     idx = refNeighbor[neighborIdx].z;
@@ -174,13 +177,13 @@ void preProbeSample(vec3 pos)
                         probeIndex[probeInfluences++] = idx;
                         if (probeInfluences == REF_SAMPLE_COUNT)
                         {
-                            return;
+                            break;
                         }
                     }
                     count++;
                     if (count == neighborCount)
                     {
-                        return;
+                        break;
                     }
 
                     idx = refNeighbor[neighborIdx].w;
@@ -189,27 +192,26 @@ void preProbeSample(vec3 pos)
                         probeIndex[probeInfluences++] = idx;
                         if (probeInfluences == REF_SAMPLE_COUNT)
                         {
-                            return;
+                            break;
                         }
                     }
                     count++;
                     if (count == neighborCount)
                     {
-                        return;
+                        break;
                     }
 
                     ++neighborIdx;
                 }
 
-                return;
+                break;
             }
         }
     }
 
-    if (probeInfluences == 0)
-    { // probe at index 0 is a special fallback probe
-        probeIndex[0] = 0;
-        probeInfluences = 1;
+    if (max_priority <= 1)
+    { // probe at index 0 is a special probe for smoothing out automatic probes
+        probeIndex[probeInfluences++] = 0;
     }
 }
 
@@ -445,16 +447,17 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out vec3 vi, out vec3 wi, float 
         float r = refSphere[i].w; // radius of sphere volume
         float rr = r * r; // radius squared
 
-        v = sphereIntersect(pos, dir, c, rr);
+        v = sphereIntersect(pos, dir, c, 
+        refIndex[i].w <= 1 ? 4096.0*4096.0 : // <== effectively disable parallax correction for automatically placed probes to keep from bombing the world with obvious spheres
+                rr);
 
-        float p = float(abs(refIndex[i].w)); // priority
- 
-        float r1 = r * 0.1; // 90% of radius (outer sphere to start interpolating down)
+        float r1 = r * 0.5; // 90% of radius (outer sphere to start interpolating down)
         vec3 delta = pos.xyz - refSphere[i].xyz;
-        float d2 = max(dot(delta, delta), 0.001);
-        float r2 = r1 * r1;
+        float d2 = max(length(delta), 0.001); //max(dot(delta, delta), 0.001);
+        float r2 = r1; //r1 * r1;
 
-        float atten = 1.0 - max(d2 - r2, 0.0) / max((rr - r2), 0.001);
+        //float atten = 1.0 - max(d2 - r2, 0.0) / max((rr - r2), 0.001);
+        float atten = 1.0 - max(d2 - r2, 0.0) / max((r - r2), 0.001);
 
         w = 1.0 / d2;
         w *= atten;
