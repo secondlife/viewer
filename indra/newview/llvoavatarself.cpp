@@ -1302,7 +1302,7 @@ void LLVOAvatarSelf::updateMotions(LLCharacter::e_update_t update_type)
         return;
     }
     U64 now = LLFrameTimer::getTotalTime();
-    if (now > mAttachmentUpdateExpiry)
+    if (now < mAttachmentUpdateExpiry)
     {
         return;
     }
