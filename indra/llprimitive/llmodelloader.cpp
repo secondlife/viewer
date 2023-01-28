@@ -25,6 +25,8 @@
  */
 
 #include "llmodelloader.h"
+
+#include "llapp.h"
 #include "llsdserialize.h"
 #include "lljoint.h"
 #include "llcallbacklist.h"
@@ -363,7 +365,10 @@ bool LLModelLoader::isAlive(LLModelLoader* loader)
 
 void LLModelLoader::loadModelCallback()
 {
-	mLoadCallback(mScene,mModelList,mLod, mOpaqueData);
+    if (!LLApp::isExiting())
+    {
+        mLoadCallback(mScene, mModelList, mLod, mOpaqueData);
+    }
 
 	while (!isStopped())
 	{ //wait until this thread is stopped before deleting self
