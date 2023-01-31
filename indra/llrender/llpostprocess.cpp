@@ -376,7 +376,7 @@ void LLPostProcess::doEffects(void)
 	checkError();
 	applyShaders();
 	
-	LLGLSLShader::bindNoShader();
+	LLGLSLShader::unbind();
 	checkError();
 
 	/// Change to a perspective view

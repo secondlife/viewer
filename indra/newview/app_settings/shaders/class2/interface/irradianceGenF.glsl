@@ -26,20 +26,15 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform samplerCubeArray   reflectionProbes;
 uniform int sourceIdx;
 
 uniform float max_probe_lod;
+uniform float ambiance_scale;
 
-VARYING vec3 vary_dir;
-
+in vec3 vary_dir;
 
 // Code below is derived from the Khronos GLTF Sample viewer:
 // https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/master/source/shaders/ibl_filtering.frag
@@ -48,7 +43,7 @@ VARYING vec3 vary_dir;
 #define MATH_PI 3.1415926535897932384626433832795
 
 float u_roughness = 1.0;
-int u_sampleCount = 64;
+int u_sampleCount = 32;
 float u_lodBias = 2.0;
 int u_width = 64;
 
@@ -183,8 +178,7 @@ vec4 filterColor(vec3 N)
 {
     //return  textureLod(uCubeMap, N, 3.0).rgb;
     vec4 color = vec4(0.f);
-    float weight = 0.0f;
-
+    
     for(int i = 0; i < u_sampleCount; ++i)
     {
         vec4 importanceSample = getImportanceSample(i, N, 1.0);
@@ -198,24 +192,17 @@ vec4 filterColor(vec3 N)
         // apply the bias to the lod
         lod += u_lodBias;
 
-        lod = clamp(lod, 0, max_probe_lod);
+        lod = clamp(lod, 0, 7);
         // sample lambertian at a lower resolution to avoid fireflies
         vec4 lambertian = textureLod(reflectionProbes, vec4(H, sourceIdx), lod);
 
         color += lambertian;
     }
 
-    if(weight != 0.0f)
-    {
-        color /= weight;
-    }
-    else
-    {
-        color /= float(u_sampleCount);
-    }
+    color /= float(u_sampleCount);
 
-    color = min(color*1.9, vec4(1)); 
-    color = pow(color, vec4(0.5));
+    color.rgb *= ambiance_scale;
+
     return color;
 }
 

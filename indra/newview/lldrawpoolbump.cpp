@@ -676,7 +676,7 @@ void LLDrawPoolBump::renderBump(U32 pass)
 //static
 void LLDrawPoolBump::endBump(U32 pass)
 {
-    gObjectBumpProgram.unbind();
+    LLGLSLShader::unbind();
 
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
 }

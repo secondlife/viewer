@@ -1041,26 +1041,10 @@ void LLGLSLShader::bind(bool rigged)
     }
 }
 
-void LLGLSLShader::unbind()
+void LLGLSLShader::unbind(void)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     gGL.flush();
-    if (sCurBoundShaderPtr)
-    {
-        sCurBoundShaderPtr->readProfileQuery();
-    }
-    stop_glerror();
-    LLVertexBuffer::unbind();
-    glUseProgram(0);
-    sCurBoundShader = 0;
-    sCurBoundShaderPtr = NULL;
-    stop_glerror();
-}
-
-void LLGLSLShader::bindNoShader(void)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
-
     LLVertexBuffer::unbind();
 
     if (sCurBoundShaderPtr)

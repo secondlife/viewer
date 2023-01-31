@@ -195,7 +195,7 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
         gPipeline.mBake.clear();
 	}
 
-	LLGLSLShader::bindNoShader();
+	LLGLSLShader::unbind();
 	LLVertexBuffer::unbind();
 	
 	BOOL result = FALSE;

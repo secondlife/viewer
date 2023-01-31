@@ -254,10 +254,9 @@ public:
     void bind();
     //helper to conditionally bind mRiggedVariant instead of this
     void bind(bool rigged);
-    void unbind();
-
+    
     // Unbinds any previously bound shader by explicitly binding no shader.
-    static void bindNoShader(void);
+    static void unbind();
 
     U32 mMatHash[LLRender::NUM_MATRIX_MODES];
     U32 mLightHash;

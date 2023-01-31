@@ -4023,7 +4023,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
     }
 
     if (&camera == LLViewerCamera::getInstance())
-    { // a bit hacky, this is the start of the main render frame, figure out delta between last modelview matrix and 
+    {   // a bit hacky, this is the start of the main render frame, figure out delta between last modelview matrix and 
         // current modelview matrix
         glh::matrix4f last_modelview(gGLLastModelView);
         glh::matrix4f cur_modelview(gGLModelView);
@@ -4039,7 +4039,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
             gGLDeltaModelView[i] = m.m[i];
             gGLInverseDeltaModelView[i] = n.m[i];
         }
-
     }
 
     bool occlude = LLPipeline::sUseOcclusion > 1 && do_occlusion;
@@ -4047,7 +4046,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
     setupHWLights(nullptr);
 
 	{
-		LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred pools"); //LL_RECORD_BLOCK_TIME(FTM_DEFERRED_POOLS);
+		LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred pools");
 
 		LLGLEnable cull(GL_CULL_FACE);
 
@@ -4096,7 +4095,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 			pool_set_t::iterator iter2 = iter1;
 			if (hasRenderType(poolp->getType()) && poolp->getNumDeferredPasses() > 0)
 			{
-				LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred pool render"); //LL_RECORD_BLOCK_TIME(FTM_DEFERRED_POOLRENDER);
+				LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred pool render");
 
 				gGLLastMatrix = NULL;
 				gGL.loadMatrix(gGLModelView);
@@ -4156,7 +4155,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 
 void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 {
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_POST_DEFERRED_POOLS);
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LL_PROFILE_GPU_ZONE("renderGeomPostDeferred");
 
     if (gUseWireframe)
@@ -4192,7 +4191,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 		pool_set_t::iterator iter2 = iter1;
 		if (hasRenderType(poolp->getType()) && poolp->getNumPostDeferredPasses() > 0)
 		{
-			LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred poolrender"); //LL_RECORD_BLOCK_TIME(FTM_POST_DEFERRED_POOLRENDER);
+			LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred poolrender");
 
 			gGLLastMatrix = NULL;
 			gGL.loadMatrix(gGLModelView);
@@ -5766,6 +5765,15 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
     // Ambient
     LLColor4 ambient = psky->getTotalAmbient();
 
+    static LLCachedControl<F32> ambiance_scale(gSavedSettings, "RenderReflectionProbeAmbianceScale", 8.f);
+
+    F32 light_scale = 1.f;
+
+    if (gCubeSnapshot && !mReflectionMapManager.isRadiancePass())
+    { //darken local lights based on brightening of sky lighting
+        light_scale = 1.f / ambiance_scale;
+    }
+
 	gGL.setAmbientLightColor(ambient);
 
     bool sun_up  = environment.getIsSunUp();
@@ -5859,7 +5867,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			}
 			
             //send linear light color to shader
-			LLColor4  light_color = light->getLightLinearColor();
+			LLColor4  light_color = light->getLightLinearColor()*light_scale;
 			light_color.mV[3] = 0.0f;
 
 			F32 fade = iter->fade;
@@ -8141,6 +8149,15 @@ void LLPipeline::renderDeferredLighting()
         return;
     }
 
+    static LLCachedControl<F32> ambiance_scale(gSavedSettings, "RenderReflectionProbeAmbianceScale", 8.f);
+
+    F32 light_scale = 1.f;
+
+    if (gCubeSnapshot && !mReflectionMapManager.isRadiancePass())
+    { //darken local lights based on brightening of sky lighting
+        light_scale = 1.f / ambiance_scale;
+    }
+
     LLRenderTarget *screen_target         = &mRT->screen;
     LLRenderTarget* deferred_light_target = &mRT->deferredLight;
 
@@ -8374,7 +8391,7 @@ void LLPipeline::renderDeferredLighting()
                     F32        s = volume->getLightRadius() * 1.5f;
 
                     // send light color to shader in linear space
-                    LLColor3 col = volume->getLightLinearColor();
+                    LLColor3 col = volume->getLightLinearColor()*light_scale;
 
                     if (col.magVecSquared() < 0.001f)
                     {
@@ -8468,7 +8485,7 @@ void LLPipeline::renderDeferredLighting()
                     setupSpotLight(gDeferredSpotLightProgram, drawablep);
 
                     // send light color to shader in linear space
-                    LLColor3 col = volume->getLightLinearColor();
+                    LLColor3 col = volume->getLightLinearColor() * light_scale;
 
                     gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
                     gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
@@ -8543,7 +8560,7 @@ void LLPipeline::renderDeferredLighting()
                     setupSpotLight(gDeferredMultiSpotLightProgram, drawablep);
 
                     // send light color to shader in linear space
-                    LLColor3 col = volume->getLightLinearColor();
+                    LLColor3 col = volume->getLightLinearColor() * light_scale;
 
                     gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, tc.v);
                     gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, light_size_final);
@@ -8955,12 +8972,16 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
     
     LLPipeline::sShadowRender = true;
 
+    // disable occlusion culling during shadow render
+    U32 saved_occlusion = sUseOcclusion;
+    sUseOcclusion = 0;
+
     static const U32 types[] = {
         LLRenderPass::PASS_SIMPLE,
         LLRenderPass::PASS_FULLBRIGHT,
         LLRenderPass::PASS_SHINY,
         LLRenderPass::PASS_BUMP,
-        LLRenderPass::PASS_FULLBRIGHT_SHINY ,
+        LLRenderPass::PASS_FULLBRIGHT_SHINY,
         LLRenderPass::PASS_MATERIAL,
         LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE,
         LLRenderPass::PASS_SPECMAP,
@@ -9151,6 +9172,8 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
     gGL.popMatrix();
     gGLLastMatrix = NULL;
 
+    // reset occlusion culling flag
+    sUseOcclusion = saved_occlusion;
     LLPipeline::sShadowRender = false;
 }
 

@@ -406,7 +406,7 @@ void LLReflectionMapManager::doProbeUpdate()
     {
         updateNeighbors(mUpdatingProbe);
         mUpdatingFace = 0;
-        if (mRadiancePass)
+        if (isRadiancePass())
         {
             mUpdatingProbe = nullptr;
             mRadiancePass = false;
@@ -460,12 +460,12 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
     }
 
     gGL.setColorMask(true, true);
+    LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+    LLGLDisable cull(GL_CULL_FACE);
+    LLGLDisable blend(GL_BLEND);
 
     // downsample to placeholder map
     {
-        LLGLDepthTest depth(GL_FALSE, GL_FALSE);
-        LLGLDisable cull(GL_CULL_FACE);
-
         gReflectionMipProgram.bind();
 
         gGL.matrixMode(gGL.MM_MODELVIEW);
@@ -560,7 +560,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         mMipChain[0].bindTarget();
         static LLStaticHashedString sSourceIdx("sourceIdx");
 
-        if (mRadiancePass)
+        if (isRadiancePass())
         {
             //generate radiance map (even if this is not the irradiance map, we need the mip chain for the irradiance map)
             gRadianceGenProgram.bind();
@@ -607,16 +607,20 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
 
             gRadianceGenProgram.unbind();
         }
-        else if (!mRadiancePass)
+        else
         {
             //generate irradiance map
             gIrradianceGenProgram.bind();
             S32 channel = gIrradianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
             mTexture->bind(channel);
 
+            static LLCachedControl<F32> ambiance_scale(gSavedSettings, "RenderReflectionProbeAmbianceScale", 8.f);
+            static LLStaticHashedString ambiance_scale_str("ambiance_scale");
+
+            gIrradianceGenProgram.uniform1f(ambiance_scale_str, ambiance_scale);
             gIrradianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
             gIrradianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
-
+            
             mVertexBuffer->setBuffer();
             int start_mip = 0;
             // find the mip target to start with based on irradiance map resolution
@@ -726,12 +730,28 @@ void LLReflectionMapManager::updateUniforms()
     // see class3/deferred/reflectionProbeF.glsl
     struct ReflectionProbeData
     {
-        LLMatrix4 refBox[LL_MAX_REFLECTION_PROBE_COUNT]; // object bounding box as needed
-        LLVector4 refSphere[LL_MAX_REFLECTION_PROBE_COUNT]; //origin and radius of refmaps in clip space
-        LLVector4 refParams[LL_MAX_REFLECTION_PROBE_COUNT]; //extra parameters (currently only ambiance)
-        GLint refIndex[LL_MAX_REFLECTION_PROBE_COUNT][4];
-        GLint refNeighbor[4096];
-        GLint refmapCount;
+        // for box probes, matrix that transforms from camera space to a [-1, 1] cube representing the bounding box of 
+        // the box probe
+        LLMatrix4 refBox[LL_MAX_REFLECTION_PROBE_COUNT]; 
+
+        // for sphere probes, origin (xyz) and radius (w) of refmaps in clip space
+        LLVector4 refSphere[LL_MAX_REFLECTION_PROBE_COUNT]; 
+
+        // extra parameters (currently only ambiance in .x)
+        LLVector4 refParams[LL_MAX_REFLECTION_PROBE_COUNT];
+
+        // indices used by probe:
+        //  [i][0] - cubemap array index for this probe
+        //  [i][1] - index into "refNeighbor" for probes that intersect this probe
+        //  [i][2] - number of probes  that intersect this probe, or -1 for no neighbors
+        //  [i][3] - priority (probe type stored in sign bit - positive for spheres, negative for boxes)
+        GLint refIndex[LL_MAX_REFLECTION_PROBE_COUNT][4]; 
+
+        // list of neighbor indices
+        GLint refNeighbor[4096]; 
+
+        // numbrer of active refmaps
+        GLint refmapCount;  
     };
 
     mReflectionMaps.resize(mReflectionProbeCount);
@@ -751,7 +771,8 @@ void LLReflectionMapManager::updateUniforms()
     LLSettingsSky::ptr_t psky = environment.getCurrentSky();
 
     F32 minimum_ambiance = psky->getTotalReflectionProbeAmbiance();
-    F32 ambscale = gCubeSnapshot && !mRadiancePass ? 0.f : 1.f;
+    F32 ambscale = gCubeSnapshot && !isRadiancePass() ? 0.f : 1.f;
+    
 
     for (auto* refmap : mReflectionMaps)
     {

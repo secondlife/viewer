@@ -358,7 +358,7 @@ void LLDrawPoolGrass::beginRenderPass(S32 pass)
 	else 
 	{
         gGL.flush();
-		LLGLSLShader::bindNoShader();
+		LLGLSLShader::unbind();
 	}
 }
 
