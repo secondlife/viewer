@@ -37,6 +37,8 @@ VARYING vec3 vary_dir;
 
 uniform float mipLevel;
 uniform int u_width; 
+uniform float max_probe_lod;
+
 
 // =============================================================================================================
 // Parts of this file are (c) 2018 Sascha Willems
@@ -128,7 +130,7 @@ vec4 prefilterEnvMap(vec3 R)
 	float envMapDim = u_width;
     int numSamples = 4;
     
-    float numMips = 6.0;
+    float numMips = max_probe_lod;
 
     float roughness = mipLevel/numMips;
 

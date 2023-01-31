@@ -39,6 +39,10 @@
 extern BOOL gCubeSnapshot;
 extern BOOL gTeleportDisplay;
 
+// get the next highest power of two of v (or v if v is already a power of two)
+//defined in llvertexbuffer.cpp
+extern U32 nhpo2(U32 v);
+
 static void touch_default_probe(LLReflectionMap* probe)
 {
     LLVector3 origin = LLViewerCamera::getInstance()->getOrigin();
@@ -91,13 +95,13 @@ void LLReflectionMapManager::update()
     if (!mRenderTarget.isComplete())
     {
         U32 color_fmt = GL_RGB16F;
-        U32 targetRes = LL_REFLECTION_PROBE_RESOLUTION * 2; // super sample
+        U32 targetRes = mProbeResolution * 2; // super sample
         mRenderTarget.allocate(targetRes, targetRes, color_fmt, true);
     }
 
     if (mMipChain.empty())
     {
-        U32 res = LL_REFLECTION_PROBE_RESOLUTION;
+        U32 res = mProbeResolution;
         U32 count = log2((F32)res) + 0.5f;
         
         mMipChain.resize(count);
@@ -401,11 +405,27 @@ void LLReflectionMapManager::doProbeUpdate()
     if (++mUpdatingFace == 6)
     {
         updateNeighbors(mUpdatingProbe);
-        mUpdatingProbe = nullptr;
         mUpdatingFace = 0;
+        if (mRadiancePass)
+        {
+            mUpdatingProbe = nullptr;
+            mRadiancePass = false;
+        }
+        else
+        {
+            mRadiancePass = true;
+        }
     }
 }
 
+// Do the reflection map update render passes.
+// For every 12 calls of this function, one complete reflection probe radiance map and irradiance map is generated
+// First six passes render the scene with direct lighting only into a scratch space cube map at the end of the cube map array and generate 
+// a simple mip chain (not convolution filter).
+// At the end of these passes, an irradiance map is generated for this probe and placed into the irradiance cube map array at the index for this probe
+// The next six passes render the scene with both radiance and irradiance into the same scratch space cube map and generate a simple mip chain.
+// At the end of these passes, a radiance map is generated for this probe and placed into the radiance cube map array at the index for this probe.
+// In effect this simulates single-bounce lighting.
 void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
 {
     // hacky hot-swap of camera specific render targets
@@ -432,11 +452,11 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
     
     gPipeline.mRT = &gPipeline.mMainRT;
 
-    S32 targetIdx = mReflectionProbeCount;
+    S32 sourceIdx = mReflectionProbeCount;
 
     if (probe != mUpdatingProbe)
     { // this is the "realtime" probe that's updating every frame, use the secondary scratch space channel
-        targetIdx += 1;
+        sourceIdx += 1;
     }
 
     gGL.setColorMask(true, true);
@@ -457,9 +477,9 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         gGL.loadIdentity();
 
         gGL.flush();
-        U32 res = LL_REFLECTION_PROBE_RESOLUTION * 2;
+        U32 res = mProbeResolution * 2;
 
-        S32 mips = log2((F32)LL_REFLECTION_PROBE_RESOLUTION) + 0.5f;
+        S32 mips = log2((F32)mProbeResolution) + 0.5f;
 
         S32 diffuseChannel = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
         S32 depthChannel   = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DEPTH, LLTexUnit::TT_TEXTURE);
@@ -516,7 +536,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
                 LL_PROFILE_GPU_ZONE("probe mip copy");
                 mTexture->bind(0);
                 //glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, probe->mCubeIndex * 6 + face, 0, 0, res, res);
-                glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, targetIdx * 6 + face, 0, 0, res, res);
+                glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, sourceIdx * 6 + face, 0, 0, res, res);
                 //if (i == 0)
                 //{
                     //glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, probe->mCubeIndex * 6 + face, 0, 0, res, res);
@@ -537,89 +557,98 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
 
     if (face == 5)
     {
-        //generate radiance map
-        gRadianceGenProgram.bind();
-        mVertexBuffer->setBuffer();
-
-        S32 channel = gRadianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
-        mTexture->bind(channel);
-        static LLStaticHashedString sSourceIdx("sourceIdx");
-        gRadianceGenProgram.uniform1i(sSourceIdx, targetIdx);
-
         mMipChain[0].bindTarget();
-        U32 res = mMipChain[0].getWidth();
+        static LLStaticHashedString sSourceIdx("sourceIdx");
 
-        for (int i = 0; i < mMipChain.size(); ++i)
+        if (mRadiancePass)
         {
-            LL_PROFILE_GPU_ZONE("probe radiance gen");
-            static LLStaticHashedString sMipLevel("mipLevel");
-            static LLStaticHashedString sRoughness("roughness");
-            static LLStaticHashedString sWidth("u_width");
+            //generate radiance map (even if this is not the irradiance map, we need the mip chain for the irradiance map)
+            gRadianceGenProgram.bind();
+            mVertexBuffer->setBuffer();
 
-            gRadianceGenProgram.uniform1f(sRoughness, (F32)i / (F32)(mMipChain.size() - 1));
-            gRadianceGenProgram.uniform1f(sMipLevel, i);
-            gRadianceGenProgram.uniform1i(sWidth, mMipChain[i].getWidth());
+            S32 channel = gRadianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
+            mTexture->bind(channel);
+            gRadianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
+            gRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
 
-            for (int cf = 0; cf < 6; ++cf)
-            { // for each cube face
-                LLCoordFrame frame;
-                frame.lookAt(LLVector3(0, 0, 0), LLCubeMapArray::sClipToCubeLookVecs[cf], LLCubeMapArray::sClipToCubeUpVecs[cf]);
+            U32 res = mMipChain[0].getWidth();
 
-                F32 mat[16];
-                frame.getOpenGLRotation(mat);
-                gGL.loadMatrix(mat);
-
-                mVertexBuffer->drawArrays(gGL.TRIANGLE_STRIP, 0, 4);
-                
-                glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, i, 0, 0, probe->mCubeIndex * 6 + cf, 0, 0, res, res);
-            }
-
-            if (i != mMipChain.size() - 1)
+            for (int i = 0; i < mMipChain.size(); ++i)
             {
-                res /= 2;
-                glViewport(0, 0, res, res);
+                LL_PROFILE_GPU_ZONE("probe radiance gen");
+                static LLStaticHashedString sMipLevel("mipLevel");
+                static LLStaticHashedString sRoughness("roughness");
+                static LLStaticHashedString sWidth("u_width");
+
+                gRadianceGenProgram.uniform1f(sRoughness, (F32)i / (F32)(mMipChain.size() - 1));
+                gRadianceGenProgram.uniform1f(sMipLevel, i);
+                gRadianceGenProgram.uniform1i(sWidth, mMipChain[i].getWidth());
+
+                for (int cf = 0; cf < 6; ++cf)
+                { // for each cube face
+                    LLCoordFrame frame;
+                    frame.lookAt(LLVector3(0, 0, 0), LLCubeMapArray::sClipToCubeLookVecs[cf], LLCubeMapArray::sClipToCubeUpVecs[cf]);
+
+                    F32 mat[16];
+                    frame.getOpenGLRotation(mat);
+                    gGL.loadMatrix(mat);
+
+                    mVertexBuffer->drawArrays(gGL.TRIANGLE_STRIP, 0, 4);
+
+                    glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, i, 0, 0, probe->mCubeIndex * 6 + cf, 0, 0, res, res);
+                }
+
+                if (i != mMipChain.size() - 1)
+                {
+                    res /= 2;
+                    glViewport(0, 0, res, res);
+                }
             }
+
+            gRadianceGenProgram.unbind();
         }
-
-        gRadianceGenProgram.unbind();
-
-        //generate irradiance map
-        gIrradianceGenProgram.bind();
-        channel = gIrradianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
-        mTexture->bind(channel);
-
-        gIrradianceGenProgram.uniform1i(sSourceIdx, targetIdx);
-        mVertexBuffer->setBuffer();
-        int start_mip = 0;
-        // find the mip target to start with based on irradiance map resolution
-        for (start_mip = 0; start_mip < mMipChain.size(); ++start_mip)
+        else if (!mRadiancePass)
         {
-            if (mMipChain[start_mip].getWidth() == LL_IRRADIANCE_MAP_RESOLUTION)
+            //generate irradiance map
+            gIrradianceGenProgram.bind();
+            S32 channel = gIrradianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
+            mTexture->bind(channel);
+
+            gIrradianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
+            gIrradianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
+
+            mVertexBuffer->setBuffer();
+            int start_mip = 0;
+            // find the mip target to start with based on irradiance map resolution
+            for (start_mip = 0; start_mip < mMipChain.size(); ++start_mip)
             {
-                break;
+                if (mMipChain[start_mip].getWidth() == LL_IRRADIANCE_MAP_RESOLUTION)
+                {
+                    break;
+                }
             }
-        }
 
-        //for (int i = start_mip; i < mMipChain.size(); ++i)
-        {
-            int i = start_mip;
-            LL_PROFILE_GPU_ZONE("probe irradiance gen");
-            glViewport(0, 0, mMipChain[i].getWidth(), mMipChain[i].getHeight());
-            for (int cf = 0; cf < 6; ++cf)
-            { // for each cube face
-                LLCoordFrame frame;
-                frame.lookAt(LLVector3(0, 0, 0), LLCubeMapArray::sClipToCubeLookVecs[cf], LLCubeMapArray::sClipToCubeUpVecs[cf]);
+            //for (int i = start_mip; i < mMipChain.size(); ++i)
+            {
+                int i = start_mip;
+                LL_PROFILE_GPU_ZONE("probe irradiance gen");
+                glViewport(0, 0, mMipChain[i].getWidth(), mMipChain[i].getHeight());
+                for (int cf = 0; cf < 6; ++cf)
+                { // for each cube face
+                    LLCoordFrame frame;
+                    frame.lookAt(LLVector3(0, 0, 0), LLCubeMapArray::sClipToCubeLookVecs[cf], LLCubeMapArray::sClipToCubeUpVecs[cf]);
 
-                F32 mat[16];
-                frame.getOpenGLRotation(mat);
-                gGL.loadMatrix(mat);
+                    F32 mat[16];
+                    frame.getOpenGLRotation(mat);
+                    gGL.loadMatrix(mat);
 
-                mVertexBuffer->drawArrays(gGL.TRIANGLE_STRIP, 0, 4);
+                    mVertexBuffer->drawArrays(gGL.TRIANGLE_STRIP, 0, 4);
 
-                S32 res = mMipChain[i].getWidth();
-                mIrradianceMaps->bind(channel);
-                glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, i - start_mip, 0, 0, probe->mCubeIndex * 6 + cf, 0, 0, res, res);
-                mTexture->bind(channel);
+                    S32 res = mMipChain[i].getWidth();
+                    mIrradianceMaps->bind(channel);
+                    glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, i - start_mip, 0, 0, probe->mCubeIndex * 6 + cf, 0, 0, res, res);
+                    mTexture->bind(channel);
+                }
             }
         }
 
@@ -722,7 +751,7 @@ void LLReflectionMapManager::updateUniforms()
     LLSettingsSky::ptr_t psky = environment.getCurrentSky();
 
     F32 minimum_ambiance = psky->getTotalReflectionProbeAmbiance();
-    F32 ambscale = gCubeSnapshot ? 0.5f : 1.f;
+    F32 ambscale = gCubeSnapshot && !mRadiancePass ? 0.f : 1.f;
 
     for (auto* refmap : mReflectionMaps)
     {
@@ -912,12 +941,14 @@ void LLReflectionMapManager::initReflectionMaps()
 {
     if (mTexture.isNull())
     {
+        mProbeResolution = nhpo2(llclamp(gSavedSettings.getU32("RenderReflectionProbeResolution"), (U32)64, (U32)512));
+        mMaxProbeLOD = log2f(mProbeResolution) - 1.f; // number of mips - 1
         mReflectionProbeCount = llclamp(gSavedSettings.getS32("RenderReflectionProbeCount"), 1, LL_MAX_REFLECTION_PROBE_COUNT);
 
         mTexture = new LLCubeMapArray();
 
         // store mReflectionProbeCount+2 cube maps, final two cube maps are used for render target and radiance map generation source)
-        mTexture->allocate(LL_REFLECTION_PROBE_RESOLUTION, 4, mReflectionProbeCount + 2);
+        mTexture->allocate(mProbeResolution, 4, mReflectionProbeCount + 2);
 
         mIrradianceMaps = new LLCubeMapArray();
         mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 4, mReflectionProbeCount, FALSE);

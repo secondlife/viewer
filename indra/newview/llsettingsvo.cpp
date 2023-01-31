@@ -68,6 +68,8 @@
 
 #undef  VERIFY_LEGACY_CONVERSION
 
+extern BOOL gCubeSnapshot;
+
 //=========================================================================
 namespace 
 {
@@ -714,7 +716,26 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     LLColor3 ambient(getTotalAmbient());
 
     shader->uniform3fv(LLShaderMgr::AMBIENT, LLVector3(ambient.mV));
-    shader->uniform3fv(LLShaderMgr::AMBIENT_LINEAR, linearColor3v(getAmbientColor()/3.f)); // note magic number 3.f comes from SLIDER_SCALE_SUN_AMBIENT
+
+    if (gCubeSnapshot && !gPipeline.mReflectionMapManager.isRadiancePass())
+    { // during an irradiance map update, disable ambient lighting (direct lighting only) and desaturate sky color (avoid tinting the world blue)
+        shader->uniform3fv(LLShaderMgr::AMBIENT_LINEAR, LLVector3::zero.mV);
+
+        auto max_vec = [](LLVector3 col)
+        {
+            col.mV[0] = col.mV[1] = col.mV[2] = llmax(llmax(col.mV[0], col.mV[1]), col.mV[2]);
+            return col;
+        };
+        shader->uniform3fv(LLShaderMgr::BLUE_HORIZON_LINEAR, max_vec(linearColor3v(getBlueHorizon() / 2.f))); // note magic number of 2.f comes from SLIDER_SCALE_BLUE_HORIZON_DENSITY
+        shader->uniform3fv(LLShaderMgr::BLUE_DENSITY_LINEAR, max_vec(linearColor3v(getBlueDensity() / 2.f)));
+    }
+    else
+    {
+        shader->uniform3fv(LLShaderMgr::AMBIENT_LINEAR, linearColor3v(getAmbientColor() / 3.f)); // note magic number 3.f comes from SLIDER_SCALE_SUN_AMBIENT
+        shader->uniform3fv(LLShaderMgr::BLUE_HORIZON_LINEAR, linearColor3v(getBlueHorizon() / 2.f)); // note magic number of 2.f comes from SLIDER_SCALE_BLUE_HORIZON_DENSITY
+        shader->uniform3fv(LLShaderMgr::BLUE_DENSITY_LINEAR, linearColor3v(getBlueDensity() / 2.f));
+    }
+
     shader->uniform3fv(LLShaderMgr::SUNLIGHT_LINEAR, linearColor3v(getSunlightColor()));
     shader->uniform3fv(LLShaderMgr::MOONLIGHT_LINEAR,linearColor3v(getMoonlightColor()));
 
@@ -724,16 +745,14 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     shader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, getSunMoonGlowFactor());
     shader->uniform1f(LLShaderMgr::DENSITY_MULTIPLIER, getDensityMultiplier());
     shader->uniform1f(LLShaderMgr::DISTANCE_MULTIPLIER, getDistanceMultiplier());
-    
+
+    shader->uniform1f(LLShaderMgr::HAZE_DENSITY_LINEAR, sRGBtoLinear(getHazeDensity()));
+
     F32 g             = getGamma();
     F32 display_gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
 
     shader->uniform1f(LLShaderMgr::GAMMA, g);
     shader->uniform1f(LLShaderMgr::DISPLAY_GAMMA, display_gamma);
-
-    shader->uniform3fv(LLShaderMgr::BLUE_HORIZON_LINEAR, linearColor3v(getBlueHorizon()/2.f)); // note magic number of 2.f comes from SLIDER_SCALE_BLUE_HORIZON_DENSITY
-    shader->uniform3fv(LLShaderMgr::BLUE_DENSITY_LINEAR, linearColor3v(getBlueDensity()/2.f));
-    shader->uniform1f(LLShaderMgr::HAZE_DENSITY_LINEAR, sRGBtoLinear(getHazeDensity()));
 }
 
 LLSettingsSky::parammapping_t LLSettingsVOSky::getParameterMap() const

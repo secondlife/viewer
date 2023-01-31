@@ -38,7 +38,6 @@ class LLViewerObject;
 #define LL_MAX_REFLECTION_PROBE_COUNT 256
 
 // reflection probe resolution
-#define LL_REFLECTION_PROBE_RESOLUTION 128
 #define LL_IRRADIANCE_MAP_RESOLUTION 64
 
 // reflection probe mininum scale
@@ -93,6 +92,9 @@ public:
 
     // call once at startup to allocate cubemap arrays
     void initReflectionMaps();
+
+    // True if currently updating a radiance map, false if currently updating an irradiance map
+    bool isRadiancePass() { return mRadiancePass; }
 
 private:
     friend class LLPipeline;
@@ -161,9 +163,21 @@ private:
     LLReflectionMap* mUpdatingProbe = nullptr;
     U32 mUpdatingFace = 0;
 
+    // if true, we're generating the radiance map for the current probe, otherwise we're generating the irradiance map.
+    // Update sequence should be to generate the irradiance map from render of the world that has no irradiance,
+    // then generate the radiance map from a render of the world that includes irradiance.
+    // This should avoid feedback loops and ensure that the colors in the radiance maps match the colors in the environment.
+    bool mRadiancePass = false;
+
     LLPointer<LLReflectionMap> mDefaultProbe;  // default reflection probe to fall back to for pixels with no probe influences (should always be at cube index 0)
 
     // number of reflection probes to use for rendering (based on saved setting RenderReflectionProbeCount)
     U32 mReflectionProbeCount;
+
+    // resolution of reflection probes
+    U32 mProbeResolution = 128;
+
+    // maximum LoD of reflection probes (mip levels - 1)
+    F32 mMaxProbeLOD = 6.f;
 };
 

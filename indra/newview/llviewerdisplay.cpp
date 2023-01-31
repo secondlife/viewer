@@ -1017,6 +1017,12 @@ void display_cube_face()
 
     display_update_camera();
 
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Env Update");
+        // update all the sky/atmospheric/water settings
+        LLEnvironment::instance().update(LLViewerCamera::getInstance());
+    }
+
     LLSpatialGroup::sNoDelete = TRUE;
         
     S32 occlusion = LLPipeline::sUseOcclusion;

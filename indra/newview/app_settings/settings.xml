@@ -10382,6 +10382,17 @@
     <key>Value</key>
     <integer>256</integer>
   </map>
+  <key>RenderReflectionProbeResolution</key>
+  <map>
+    <key>Comment</key>
+    <string>Resolution of reflection probe radiance maps (requires restart).  Will be set to the next highest power of two clamped to [64, 512].  Note that changing this value may consume a massive amount of video memory.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>256</integer>
+  </map>
 
   <key>RenderReflectionProbeDrawDistance</key>
   <map>

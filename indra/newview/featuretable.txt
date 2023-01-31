@@ -1,4 +1,4 @@
-version 46
+version 47
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -72,6 +72,7 @@ RenderFSAASamples			1	16
 RenderMaxTextureIndex		1	16
 RenderGLContextCoreProfile         1   1
 RenderGLMultiThreaded       1   0
+RenderReflectionProbeResolution 1 256
 
 
 //
@@ -270,6 +271,12 @@ RenderUseAdvancedAtmospherics 1 0
 //
 list VRAMGT512
 RenderCompressTextures		1	0
+
+//
+// VRAM < 2GB
+//
+list VRAMLT2GB
+RenderReflectionProbeResolution 1 128
 
 //
 // "Default" setups for safe, low, medium, high

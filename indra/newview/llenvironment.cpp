@@ -1630,28 +1630,31 @@ LLVector4 LLEnvironment::getRotatedLightNorm() const
     return toLightNorm(light_direction);
 }
 
+extern BOOL gCubeSnapshot;
+
 //-------------------------------------------------------------------------
 void LLEnvironment::update(const LLViewerCamera * cam)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT; //LL_RECORD_BLOCK_TIME(FTM_ENVIRONMENT_UPDATE);
     //F32Seconds now(LLDate::now().secondsSinceEpoch());
-    static LLFrameTimer timer;
-
-    F32Seconds delta(timer.getElapsedTimeAndResetF32());
-
+    if (!gCubeSnapshot)
     {
-        DayInstance::ptr_t keeper = mCurrentEnvironment;    
-        // make sure the current environment does not go away until applyTimeDelta is done.
-        mCurrentEnvironment->applyTimeDelta(delta);
+        static LLFrameTimer timer;
 
+        F32Seconds delta(timer.getElapsedTimeAndResetF32());
+
+        {
+            DayInstance::ptr_t keeper = mCurrentEnvironment;
+            // make sure the current environment does not go away until applyTimeDelta is done.
+            mCurrentEnvironment->applyTimeDelta(delta);
+
+        }
+        // update clouds, sun, and general
+        updateCloudScroll();
+
+        // cache this for use in rotating the rotated light vec for shader param updates later...
+        mLastCamYaw = cam->getYaw() + SUN_DELTA_YAW;
     }
-    // update clouds, sun, and general
-    updateCloudScroll();
-
-    // cache this for use in rotating the rotated light vec for shader param updates later...
-    mLastCamYaw = cam->getYaw() + SUN_DELTA_YAW;
-
-    stop_glerror();
 
     updateSettingsUniforms();
 
@@ -1752,13 +1755,23 @@ void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, con
         {
             LLVector4 vect4(value);
 
-            switch (it.second.getShaderKey())
-            { // convert to linear color space if this is a color parameter
-            case LLShaderMgr::BLUE_HORIZON:
-            case LLShaderMgr::BLUE_DENSITY:
-                //vect4 = LLVector4(linearColor4(LLColor4(vect4.mV)).mV);
-                break;
+            if (gCubeSnapshot && !gPipeline.mReflectionMapManager.isRadiancePass())
+            { // maximize and remove tinting if this is an irradiance map render pass and the parameter feeds into the sky background color
+                auto max_vec = [](LLVector4 col)
+                {
+                    col.mV[0] = col.mV[1] = col.mV[2] = llmax(llmax(col.mV[0], col.mV[1]), col.mV[2]);
+                    return col;
+                };
+
+                switch (it.second.getShaderKey())
+                { 
+                case LLShaderMgr::BLUE_HORIZON:
+                case LLShaderMgr::BLUE_DENSITY:
+                    vect4 = max_vec(vect4);
+                        break;
+                }
             }
+
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << vect4 << LL_ENDL;
             shader->uniform3fv(it.second.getShaderKey(), LLVector3(vect4.mV) );
             break;

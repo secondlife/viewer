@@ -806,11 +806,12 @@ LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
-    if (mRT == &mMainRT)
+    if (mRT == &mMainRT && sReflectionProbesEnabled)
     { // hacky -- allocate auxillary buffer
         gCubeSnapshot = TRUE;
+        mReflectionMapManager.initReflectionMaps();
         mRT = &mAuxillaryRT;
-        U32 res = LL_REFLECTION_PROBE_RESOLUTION * 2;
+        U32 res = mReflectionMapManager.mProbeResolution * 2;  //multiply by 2 because probes will be super sampled
         allocateScreenBuffer(res, res, samples);
         mRT = &mMainRT;
         gCubeSnapshot = FALSE;
@@ -4172,9 +4173,15 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 	calcNearbyLights(camera);
 	setupHWLights(NULL);
 
+    gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	gGL.setColorMask(true, false);
 
 	pool_set_t::iterator iter1 = mPools.begin();
+
+    if (gDebugGL || gDebugPipeline)
+    {
+        LLGLState::checkStates(GL_FALSE);
+    }
 
 	while ( iter1 != mPools.end() )
 	{
@@ -8104,6 +8111,8 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
 
     shader.uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, 1, mSunDiffuse.mV);
     shader.uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, 1, mMoonDiffuse.mV);
+
+    shader.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mReflectionMapManager.mMaxProbeLOD);
 }
 
 

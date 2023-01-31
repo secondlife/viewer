@@ -36,6 +36,7 @@ uniform samplerCubeArray   reflectionProbes;
 uniform samplerCubeArray   irradianceProbes;
 uniform sampler2D sceneMap;
 uniform int cube_snapshot;
+uniform float max_probe_lod;
 
 layout (std140) uniform ReflectionProbes
 {
@@ -623,7 +624,7 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir)
     {
         col *= 1.0/wsum;
     }
-    
+
     return col;
 }
 
@@ -631,7 +632,7 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, bool errorCorrect)
 {
     // TODO - don't hard code lods
-    float reflection_lods = 6;
+    float reflection_lods = max_probe_lod;
     preProbeSample(pos);
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
@@ -705,7 +706,7 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
         vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity)
 {
     // TODO - don't hard code lods
-    float reflection_lods = 7;
+    float reflection_lods = max_probe_lod;
     preProbeSample(pos);
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);

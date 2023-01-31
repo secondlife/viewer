@@ -162,90 +162,10 @@ float ambientLighting(vec3 norm, vec3 light_dir)
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 additive,
                          out vec3 atten)
 {
-#if 1
     calcAtmosphericVars(inPositionEye, light_dir, 1.0, sunlit, amblit, additive, atten, false);
     sunlit = srgb_to_linear(sunlit);
     additive = srgb_to_linear(additive);
     amblit = ambient_linear;
 
     amblit *= ambientLighting(norm, light_dir);
-#else 
-
-    //EXPERIMENTAL -- attempt to factor out srgb_to_linear conversions above
-    vec3 rel_pos = inPositionEye;
-
-    //(TERRAIN) limit altitude
-    if (abs(rel_pos.y) > max_y) rel_pos *= (max_y / rel_pos.y);
-
-    vec3  rel_pos_norm = normalize(rel_pos);
-    float rel_pos_len  = length(rel_pos);
-    vec3  sunlight     = (sun_up_factor == 1) ? vec3(sunlight_linear, 0.0) : vec3(moonlight_linear, 0.0);
-
-    // sunlight attenuation effect (hue and brightness) due to atmosphere
-    // this is used later for sunlight modulation at various altitudes
-    vec3 light_atten = (blue_density + vec3(haze_density * 0.25)) * (density_multiplier * max_y);
-    // I had thought blue_density and haze_density should have equal weighting,
-    // but attenuation due to haze_density tends to seem too strong
-
-    vec3 combined_haze = blue_density + vec3(haze_density);
-    vec3 blue_weight   = blue_density / combined_haze;
-    vec3 haze_weight   = vec3(haze_density) / combined_haze;
-
-    //(TERRAIN) compute sunlight from lightnorm y component. Factor is roughly cosecant(sun elevation) (for short rays like terrain)
-    float above_horizon_factor = 1.0 / max(1e-6, lightnorm.y);
-    sunlight *= exp(-light_atten * above_horizon_factor);  // for sun [horizon..overhead] this maps to an exp curve [0..1]
-
-    // main atmospheric scattering line integral
-    float density_dist = rel_pos_len * density_multiplier;
-
-    // Transparency (-> combined_haze)
-    // ATI Bugfix -- can't store combined_haze*density_dist*distance_multiplier in a variable because the ati
-    // compiler gets confused.
-    combined_haze = exp(-combined_haze * density_dist * distance_multiplier);
-
-    // final atmosphere attenuation factor
-    atten = combined_haze.rgb;
-
-    // compute haze glow
-    float haze_glow = dot(rel_pos_norm, lightnorm.xyz);
-
-    // dampen sun additive contrib when not facing it...
-    // SL-13539: This "if" clause causes an "additive" white artifact at roughly 77 degreees.
-    //    if (length(light_dir) > 0.01)
-    haze_glow *= max(0.0f, dot(light_dir, rel_pos_norm));
-
-    haze_glow = 1. - haze_glow;
-    // haze_glow is 0 at the sun and increases away from sun
-    haze_glow = max(haze_glow, .001);  // set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
-    haze_glow *= glow.x;
-    // higher glow.x gives dimmer glow (because next step is 1 / "angle")
-    haze_glow = pow(haze_glow, glow.z);
-    // glow.z should be negative, so we're doing a sort of (1 / "angle") function
-
-    // add "minimum anti-solar illumination"
-    haze_glow += .25;
-
-    haze_glow *= sun_moon_glow_factor;
-
-    //vec3 amb_color = vec4(ambient_linear, 0.0);
-    vec3 amb_color = ambient_color;
-
-    // increase ambient when there are more clouds
-    vec3 tmpAmbient = amb_color + (vec3(1.) - amb_color) * cloud_shadow * 0.5;
-
-    // Similar/Shared Algorithms:
-    //     indra\llinventory\llsettingssky.cpp                                        -- LLSettingsSky::calculateLightSettings()
-    //     indra\newview\app_settings\shaders\class1\windlight\atmosphericsFuncs.glsl -- calcAtmosphericVars()
-    // haze color
-    vec3 cs = sunlight.rgb * (1. - cloud_shadow);
-    additive = (blue_horizon.rgb * blue_weight.rgb) * (cs + tmpAmbient.rgb) + (haze_horizon * haze_weight.rgb) * (cs * haze_glow + tmpAmbient.rgb);
-
-    // brightness of surface both sunlight and ambient
-    sunlit = min(sunlight.rgb, vec3(1));
-    amblit = tmpAmbient.rgb;
-    additive *= vec3(1.0 - combined_haze);
-
-    //sunlit = sunlight_linear;
-    amblit = ambient_linear*0.8;
-#endif
 }

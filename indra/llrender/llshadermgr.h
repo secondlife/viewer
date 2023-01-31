@@ -267,6 +267,7 @@ public:
         CLOUD_VARIANCE,                     //  "cloud_variance"
 
         REFLECTION_PROBE_AMBIANCE,          //  "reflection_probe_ambiance"
+        REFLECTION_PROBE_MAX_LOD,            //  "max_probe_lod"
         SH_INPUT_L1R,                       //  "sh_input_r"
         SH_INPUT_L1G,                       //  "sh_input_g"
         SH_INPUT_L1B,                       //  "sh_input_b"
