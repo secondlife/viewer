@@ -1285,16 +1285,16 @@ BOOL LLInventoryPanel::handleToolTip(S32 x, S32 y, MASK mask)
 	{
 		if (const LLFolderViewModelItemInventory* vm_item_p = static_cast<const LLFolderViewModelItemInventory*>(hover_item_p->getViewModelItem()))
 		{
-			// Copy/pasted from LLView::handleToolTip()
-			F32 nTimeout = LLToolTipMgr::instance().toolTipVisible()
-					? LLUI::getInstance()->mSettingGroups["config"]->getF32("ToolTipFastDelay")
-					: LLUI::getInstance()->mSettingGroups["config"]->getF32("ToolTipDelay");
+            LLSD params;
+            params["inv_type"] = vm_item_p->getInventoryType();
+            params["item_id"] = vm_item_p->getUUID();
+            
 			LLToolTipMgr::instance().show(LLToolTip::Params()
 					.message(hover_item_p->getToolTip())
 					.sticky_rect(hover_item_p->calcScreenRect())
-					.delay_time(nTimeout)
+					.delay_time(LLView::getTooltipTimeout())
 					.create_callback(boost::bind(&LLInspectTextureUtil::createInventoryToolTip, _1))
-					.create_params(LLSD().with("inv_type", vm_item_p->getInventoryType()).with("item_id", vm_item_p->getUUID())));
+					.create_params(params));
 			return TRUE;
 		}
 	}

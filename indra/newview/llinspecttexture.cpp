@@ -136,14 +136,17 @@ BOOL LLInspectTexture::postBuild()
 
 LLToolTip* LLInspectTextureUtil::createInventoryToolTip(LLToolTip::Params p)
 {
-	const LLSD& sdTooltip = p.create_params;
+    const LLSD& sdTooltip = p.create_params;
+    
+    if (sdTooltip.has("thumbnail_id"))
+    {
+        // go straight for tooltip regardless of type
+        return LLUICtrlFactory::create<LLTextureToolTip>(p);
+    }
 
 	LLInventoryType::EType eInvType = (sdTooltip.has("inv_type")) ? (LLInventoryType::EType)sdTooltip["inv_type"].asInteger() : LLInventoryType::IT_NONE;
 	switch (eInvType)
 	{
-		case LLInventoryType::IT_SNAPSHOT:
-		case LLInventoryType::IT_TEXTURE:
-			return LLUICtrlFactory::create<LLTextureToolTip>(p);
 		case LLInventoryType::IT_CATEGORY:
 			{
 				if (sdTooltip.has("item_id"))
@@ -277,23 +280,27 @@ LLTextureToolTip::~LLTextureToolTip()
 
 void LLTextureToolTip::initFromParams(const LLToolTip::Params& p)
 {
-	LLToolTip::initFromParams(p);
-
-	// Create and add the preview control
-	LLView::Params p_preview;
-	p_preview.name = "texture_preview";
-	LLRect rctPreview;
-	rctPreview.setOriginAndSize(mPadding, mTextBox->getRect().mTop, mPreviewSize, mPreviewSize);
-	p_preview.rect = rctPreview;
-	mPreviewView = LLUICtrlFactory::create<LLTexturePreviewView>(p_preview);
-	addChild(mPreviewView);
-
-	// Parse the control params
-	const LLSD& sdTextureParams = p.create_params;
-	if (sdTextureParams.has("asset_id"))
-		mPreviewView->setImageFromAssetId(sdTextureParams["asset_id"].asUUID());
-	else if (sdTextureParams.has("item_id"))
-		mPreviewView->setImageFromItemId(sdTextureParams["item_id"].asUUID());
+    LLToolTip::initFromParams(p);
+    
+    // Create and add the preview control
+    LLView::Params p_preview;
+    p_preview.name = "texture_preview";
+    LLRect rctPreview;
+    rctPreview.setOriginAndSize(mPadding, mTextBox->getRect().mTop, mPreviewSize, mPreviewSize);
+    p_preview.rect = rctPreview;
+    mPreviewView = LLUICtrlFactory::create<LLTexturePreviewView>(p_preview);
+    addChild(mPreviewView);
+    
+    // Parse the control params
+    const LLSD& sdTextureParams = p.create_params;
+    if (sdTextureParams.has("thumbnail_id"))
+    {
+        mPreviewView->setImageFromAssetId(sdTextureParams["thumbnail_id"].asUUID());
+    }
+    else if (sdTextureParams.has("item_id"))
+    {
+        mPreviewView->setImageFromItemId(sdTextureParams["item_id"].asUUID());
+    }
 
 	snapToChildren();
 }

@@ -877,6 +877,17 @@ LLView*	LLView::childFromPoint(S32 x, S32 y, bool recur)
 	return 0;
 }
 
+F32 LLView::getTooltipTimeout()
+{
+    static LLCachedControl<F32> tooltip_fast_delay(*LLUI::getInstance()->mSettingGroups["config"], "ToolTipFastDelay", 0.1f);
+    static LLCachedControl<F32> tooltip_delay(*LLUI::getInstance()->mSettingGroups["config"], "ToolTipDelay", 0.7f);
+    // allow "scrubbing" over ui by showing next tooltip immediately
+    // if previous one was still visible
+    return (F32)(LLToolTipMgr::instance().toolTipVisible()
+    ? tooltip_fast_delay
+    : tooltip_delay);
+}
+
 BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = FALSE;
@@ -886,14 +897,7 @@ BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 	std::string tooltip = getToolTip();
 	if (!tooltip.empty())
 	{
-        static LLCachedControl<F32> tooltip_fast_delay(*LLUI::getInstance()->mSettingGroups["config"], "ToolTipFastDelay", 0.1f);
-        static LLCachedControl<F32> tooltip_delay(*LLUI::getInstance()->mSettingGroups["config"], "ToolTipDelay", 0.7f);
         static LLCachedControl<bool> allow_ui_tooltips(*LLUI::getInstance()->mSettingGroups["config"], "BasicUITooltips", true);
-		// allow "scrubbing" over ui by showing next tooltip immediately
-		// if previous one was still visible
-		F32 timeout = LLToolTipMgr::instance().toolTipVisible() 
-		              ? tooltip_fast_delay
-		              : tooltip_delay;
 
 		// Even if we don't show tooltips, consume the event, nothing below should show tooltip
 		if (allow_ui_tooltips)
@@ -901,7 +905,7 @@ BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 			LLToolTipMgr::instance().show(LLToolTip::Params()
 			                              .message(tooltip)
 			                              .sticky_rect(calcScreenRect())
-			                              .delay_time(timeout));
+			                              .delay_time(getTooltipTimeout()));
 		}
 		handled = TRUE;
 	}

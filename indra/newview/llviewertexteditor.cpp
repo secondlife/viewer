@@ -246,12 +246,17 @@ public:
 	}
 	virtual BOOL				handleToolTip(S32 x, S32 y, MASK mask )
 	{ 
-		if (LLAssetType::AT_TEXTURE == mItem->getType())
+		if (mItem->getThumbnailUUID().notNull())
 		{
+            LLSD params;
+            params["inv_type"] = mItem->getInventoryType();
+            params["thumbnail_id"] = mItem->getThumbnailUUID();
+            params["asset_id"] = mItem->getAssetUUID();
+            
 			LLToolTipMgr::instance().show(LLToolTip::Params()
 					.message(mToolTip)
 					.create_callback(boost::bind(&LLInspectTextureUtil::createInventoryToolTip, _1))
-					.create_params(LLSD().with("inv_type", mItem->getInventoryType()).with("asset_id", mItem->getAssetUUID())));
+					.create_params(params));
 
 			return TRUE;
 		}
