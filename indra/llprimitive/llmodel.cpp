@@ -31,7 +31,7 @@
 #include "llconvexdecomposition.h"
 #include "llsdserialize.h"
 #include "llvector4a.h"
-#include "llmd5.h"
+#include "hbxxh.h"
 
 #ifdef LL_USESYSTEMLIBS
 # include <zlib.h>
@@ -1537,7 +1537,7 @@ LLSD LLMeshSkinInfo::asLLSD(bool include_joints, bool lock_scale_if_joint_positi
 void LLMeshSkinInfo::updateHash()
 {
     //  get hash of data relevant to render batches
-    LLMD5 hash;
+    HBXXH64 hash;
 
     //mJointNames
     for (auto& name : mJointNames)
@@ -1546,24 +1546,19 @@ void LLMeshSkinInfo::updateHash()
     }
     
     //mJointNums 
-    hash.update((U8*)&(mJointNums[0]), sizeof(S32) * mJointNums.size());
+    hash.update((const void*)mJointNums.data(), sizeof(S32) * mJointNums.size());
     
     //mInvBindMatrix
     F32* src = mInvBindMatrix[0].getF32ptr();
     
-    for (int i = 0; i < mInvBindMatrix.size() * 16; ++i)
+    for (size_t i = 0, count = mInvBindMatrix.size() * 16; i < count; ++i)
     {
         S32 t = llround(src[i] * 10000.f);
-        hash.update((U8*)&t, sizeof(S32));
+        hash.update((const void*)&t, sizeof(S32));
     }
-    //hash.update((U8*)&(mInvBindMatrix[0]), sizeof(LLMatrix4a) * mInvBindMatrix.size());
+    //hash.update((const void*)mInvBindMatrix.data(), sizeof(LLMatrix4a) * mInvBindMatrix.size());
 
-    hash.finalize();
-
-    U64 digest[2];
-    hash.raw_digest((U8*) digest);
-
-    mHash = digest[0];
+    mHash = hash.digest();
 }
 
 U32 LLMeshSkinInfo::sizeBytes() const
