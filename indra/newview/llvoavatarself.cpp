@@ -32,6 +32,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include <algorithm>
+
 #include "llvoavatarself.h"
 #include "llvoavatar.h"
 
@@ -170,11 +172,13 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
 	// first time through.
 	mLastHoverOffsetSent(LLVector3(0.0f, 0.0f, -999.0f)),
     mInitialMetric(true),
-    mMetricSequence(0)
+    mMetricSequence(0),
+    mAttachmentUpdateEnabled(true),
+    mAttachmentUpdateExpiry(0)
 {
 	mMotionController.mIsSelf = TRUE;
-
 	LL_DEBUGS() << "Marking avatar as self " << id << LL_ENDL;
+    setAttachmentUpdatePeriod(DEFAULT_ATTACHMENT_UPDATE_PERIOD);
 }
 
 // Called periodically for diagnostics, return true when done.
@@ -1286,6 +1290,72 @@ U32 LLVOAvatarSelf::getNumWearables(LLAvatarAppearanceDefines::ETextureIndex i) 
 {
 	LLWearableType::EType type = sAvatarDictionary->getTEWearableType(i);
 	return gAgentWearables.getWearableCount(type);
+}
+
+void LLVOAvatarSelf::updateMotions(LLCharacter::e_update_t update_type)
+{
+    LLCharacter::updateMotions(update_type);
+
+    // post motion update
+    if (!mAttachmentUpdateEnabled)
+    {
+        return;
+    }
+    U64 now = LLFrameTimer::getTotalTime();
+    if (now < mAttachmentUpdateExpiry)
+    {
+        return;
+    }
+    mAttachmentUpdateExpiry = now + mAttachmentUpdatePeriod;
+
+    LLViewerRegion* regionp = gAgent.getRegion();
+    if (!regionp->getRegionFlag(REGION_FLAGS_ENABLE_ANIMATION_TRACKING))
+    {
+        return;
+    }
+    S32 count(0);
+
+    LLVector3 agent_pos(getPositionRegion());
+    LLQuaternion agent_inv_rot(~getWorldRotation());
+
+    gMessageSystem->newMessageFast(_PREHASH_AgentAnimationTracking);
+    gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+    gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+    gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+
+    for (auto const &info : mAttachmentPoints)
+    {
+        if (!info.second->getIsHUDAttachment())
+        {
+            LLVector3 pos(info.second->getWorldPosition() - agent_pos);
+            LLQuaternion rot(info.second->getWorldRotation() * agent_inv_rot);
+
+            /*note, using isNull, which flags very small lengths rather than isExactlyZero */
+            bool has_value = info.second->hasChanged(pos, rot);
+            if (has_value)
+            {
+                ++count;
+                gMessageSystem->nextBlockFast(_PREHASH_AttachmentPointUpdate);
+                gMessageSystem->addU8Fast(_PREHASH_AttachmentPoint, info.first);
+                gMessageSystem->addVector3Fast(_PREHASH_Position, pos);
+                gMessageSystem->addQuatFast(_PREHASH_Rotation, rot);
+                gMessageSystem->addF32Fast(_PREHASH_Radius, 0.0f);
+                info.second->setLastTracked(pos, rot);
+            }
+        }
+    }
+    if (count)
+    {   // just send.  If we drop a couple frames, we're fine with that.
+        gMessageSystem->sendMessage(gAgent.getRegionHost());
+    }
+}
+
+void LLVOAvatarSelf::setAttachmentUpdatePeriod(F32 period_sec)
+{
+    constexpr F32 MIN_PERIOD = 0.01f;
+    constexpr F32 MAX_PERIOD = 2.0f;
+    F32 period = std::max(std::min(period_sec, MAX_PERIOD), MIN_PERIOD);
+    mAttachmentUpdatePeriod = (U64)(period * (F32)(USEC_PER_SEC));
 }
 
 // virtual

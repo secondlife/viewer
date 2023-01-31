@@ -55,11 +55,11 @@ class LLVOAvatarSelf :
 public:
 	LLVOAvatarSelf(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 	virtual 				~LLVOAvatarSelf();
-	virtual void			markDead();
-	virtual void 			initInstance(); // Called after construction to initialize the class.
+	void			        markDead() override;
+	void 			        initInstance() override; // Called after construction to initialize the class.
 	void					cleanup();
 protected:
-	/*virtual*/ BOOL		loadAvatar();
+	BOOL		            loadAvatar() override;
 	BOOL					loadAvatarSelf();
 	BOOL					buildSkeletonSelf(const LLAvatarSkeletonInfo *info);
 	BOOL					buildMenus();
@@ -80,28 +80,28 @@ public:
 	boost::signals2::connection                   mRegionChangedSlot;
 
 	void					onSimulatorFeaturesReceived(const LLUUID& region_id);
-	/*virtual*/ void 		updateRegion(LLViewerRegion *regionp);
-	/*virtual*/ void   	 	idleUpdate(LLAgent &agent, const F64 &time);
+	void 		            updateRegion(LLViewerRegion *regionp) override;
+	void   	 	            idleUpdate(LLAgent &agent, const F64 &time) override;
 
 	//--------------------------------------------------------------------
 	// LLCharacter interface and related
 	//--------------------------------------------------------------------
 public:
-	/*virtual*/ bool 		hasMotionFromSource(const LLUUID& source_id);
-	/*virtual*/ void 		stopMotionFromSource(const LLUUID& source_id);
-	/*virtual*/ void 		requestStopMotion(const LLMotion::ptr_t & motion);
-	/*virtual*/ LLJoint*	getJoint(const std::string &name);
+	bool 		            hasMotionFromSource(const LLUUID& source_id) override;
+	void 		            stopMotionFromSource(const LLUUID& source_id) override;
+	void 		            requestStopMotion(const LLMotion::ptr_t & motion) override;
+	LLJoint*	            getJoint(const std::string &name) override;
 	
-	/*virtual*/ BOOL setVisualParamWeight(const LLVisualParam *which_param, F32 weight);
-	/*virtual*/ BOOL setVisualParamWeight(const char* param_name, F32 weight);
-	/*virtual*/ BOOL setVisualParamWeight(S32 index, F32 weight);
-	/*virtual*/ void updateVisualParams();
-	void writeWearablesToAvatar();
-	/*virtual*/ void idleUpdateAppearanceAnimation();
+	BOOL                    setVisualParamWeight(const LLVisualParam *which_param, F32 weight) override;
+	BOOL                    setVisualParamWeight(const char* param_name, F32 weight) override;
+	BOOL                    setVisualParamWeight(S32 index, F32 weight) override;
+	void                    updateVisualParams() override;
+	void                    writeWearablesToAvatar();
+	void                    idleUpdateAppearanceAnimation() override;
 
 private:
 	// helper function. Passed in param is assumed to be in avatar's parameter list.
-	BOOL setParamWeight(const LLViewerVisualParam *param, F32 weight);
+	BOOL                    setParamWeight(const LLViewerVisualParam *param, F32 weight);
 
 /********************************************************************************
  **                                                                            **
@@ -109,27 +109,27 @@ private:
  **/
 
 public:
-	/*virtual*/ bool 	isSelf() const { return true; }
-	/*virtual*/ BOOL	isValid() const;
+    bool 	                isSelf() const override { return true; }
+    BOOL	                isValid() const override;
 
 	//--------------------------------------------------------------------
 	// Updates
 	//--------------------------------------------------------------------
 public:
-	/*virtual*/ bool 	updateCharacter(LLAgent &agent);
-	/*virtual*/ void 	idleUpdateTractorBeam();
+	bool 	            updateCharacter(LLAgent &agent) override;
+	void 	            idleUpdateTractorBeam();
 	bool				checkStuckAppearance();
 
 	//--------------------------------------------------------------------
 	// Loading state
 	//--------------------------------------------------------------------
 public:
-	/*virtual*/ bool    getIsCloud() const;
+	bool                getIsCloud() const override;
 
 	//--------------------------------------------------------------------
 	// Region state
 	//--------------------------------------------------------------------
-	void			resetRegionCrossingTimer()	{ mRegionCrossingTimer.reset();	}
+	void			    resetRegionCrossingTimer()	{ mRegionCrossingTimer.reset();	}
 
 private:
 	U64				mLastRegionHandle;
@@ -149,7 +149,7 @@ private:
 	// Render beam
 	//--------------------------------------------------------------------
 protected:
-	BOOL 		needsRenderBeam();
+	BOOL 		        needsRenderBeam();
 private:
 	LLPointer<LLHUDEffectSpiral> mBeam;
 	LLFrameTimer mBeamTimer;
@@ -158,9 +158,9 @@ private:
 	// LLVOAvatar Constants
 	//--------------------------------------------------------------------
 public:
-	/*virtual*/ LLViewerTexture::EBoostLevel 	getAvatarBoostLevel() const { return LLGLTexture::BOOST_AVATAR_SELF; }
-	/*virtual*/ LLViewerTexture::EBoostLevel 	getAvatarBakedBoostLevel() const { return LLGLTexture::BOOST_AVATAR_BAKED_SELF; }
-	/*virtual*/ S32 						getTexImageSize() const { return LLVOAvatar::getTexImageSize()*4; }
+	LLViewerTexture::EBoostLevel 	getAvatarBoostLevel() const override { return LLGLTexture::BOOST_AVATAR_SELF; }
+	LLViewerTexture::EBoostLevel 	getAvatarBakedBoostLevel() const override { return LLGLTexture::BOOST_AVATAR_BAKED_SELF; }
+	S32 						    getTexImageSize() const override { return LLVOAvatar::getTexImageSize()*4; }
 
 /**                    Rendering
  **                                                                            **
@@ -180,9 +180,9 @@ public:
 	BOOL				isLocalTextureDataAvailable(const LLViewerTexLayerSet* layerset) const;
 	BOOL				isLocalTextureDataFinal(const LLViewerTexLayerSet* layerset) const;
 	// If you want to check all textures of a given type, pass gAgentWearables.getWearableCount() for index
-	/*virtual*/ BOOL    isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const;
-	/*virtual*/ BOOL	isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const;
-	/*virtual*/ BOOL	isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerWearable *wearable) const;
+	BOOL                isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const override;
+	BOOL	            isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const override;
+	BOOL	            isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerWearable *wearable) const override;
 
 
 	//--------------------------------------------------------------------
@@ -193,19 +193,19 @@ public:
 	LLViewerFetchedTexture*	getLocalTextureGL(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const;
 	const LLUUID&		getLocalTextureID(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const;
 	void				setLocalTextureTE(U8 te, LLViewerTexture* image, U32 index);
-	/*virtual*/ void	setLocalTexture(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerTexture* tex, BOOL baked_version_exits, U32 index);
+	void	            setLocalTexture(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerTexture* tex, BOOL baked_version_exits, U32 index) override;
 protected:
-	/*virtual*/ void	setBakedReady(LLAvatarAppearanceDefines::ETextureIndex type, BOOL baked_version_exists, U32 index);
+	void	            setBakedReady(LLAvatarAppearanceDefines::ETextureIndex type, BOOL baked_version_exists, U32 index) override;
 	void				localTextureLoaded(BOOL succcess, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
 	void				getLocalTextureByteCount(S32* gl_byte_count) const;
-	/*virtual*/ void	addLocalTextureStats(LLAvatarAppearanceDefines::ETextureIndex i, LLViewerFetchedTexture* imagep, F32 texel_area_ratio, BOOL rendered, BOOL covered_by_baked);
+	void	            addLocalTextureStats(LLAvatarAppearanceDefines::ETextureIndex i, LLViewerFetchedTexture* imagep, F32 texel_area_ratio, BOOL rendered, BOOL covered_by_baked) override;
 	LLLocalTextureObject* getLocalTextureObject(LLAvatarAppearanceDefines::ETextureIndex i, U32 index) const;
 
 private:
 	static void			onLocalTextureLoaded(BOOL succcess, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
 
-	/*virtual*/	void	setImage(const U8 te, LLViewerTexture *imagep, const U32 index); 
-	/*virtual*/ LLViewerTexture* getImage(const U8 te, const U32 index) const;
+	void	            setImage(const U8 te, LLViewerTexture *imagep, const U32 index) override; 
+	LLViewerTexture*    getImage(const U8 te, const U32 index) const override;
 
 
 	//--------------------------------------------------------------------
@@ -216,7 +216,7 @@ public:
 	// SUNSHINE CLEANUP - dead? or update to just call request appearance update?
 	void				forceBakeAllTextures(bool slam_for_debug = false);
 protected:
-	/*virtual*/ void	removeMissingBakedTextures();
+	void	            removeMissingBakedTextures() override;
 
 	//--------------------------------------------------------------------
 	// Layers
@@ -231,11 +231,11 @@ public:
 	// Composites
 	//--------------------------------------------------------------------
 public:
-	/* virtual */ void	invalidateComposite(LLTexLayerSet* layerset);
-	/* virtual */ void	invalidateAll();
-	/* virtual */ void	setCompositeUpdatesEnabled(bool b); // only works for self
-	/* virtual */ void  setCompositeUpdatesEnabled(U32 index, bool b);
-	/* virtual */ bool 	isCompositeUpdateEnabled(U32 index);
+	void	            invalidateComposite(LLTexLayerSet* layerset) override;
+	void	            invalidateAll() override;
+	void	            setCompositeUpdatesEnabled(bool b) override; // only works for self
+	void                setCompositeUpdatesEnabled(U32 index, bool b) override;
+	bool 	            isCompositeUpdateEnabled(U32 index) override;
 	void				setupComposites();
 	void				updateComposites();
 
@@ -261,7 +261,7 @@ private:
  **                    MESHES
  **/
 protected:
-	/*virtual*/ void   restoreMeshData();
+	void                restoreMeshData() override;
 
 /**                    Meshes
  **                                                                            **
@@ -285,8 +285,8 @@ public:
 	BOOL 				isWearingAttachment(const LLUUID& inv_item_id) const;
 	LLViewerObject* 	getWornAttachment(const LLUUID& inv_item_id);
 	bool				getAttachedPointName(const LLUUID& inv_item_id, std::string& name) const;
-	/*virtual*/ const LLViewerJointAttachment *attachObject(LLViewerObject *viewer_object);
-	/*virtual*/ BOOL 	detachObject(LLViewerObject *viewer_object);
+	const LLViewerJointAttachment *attachObject(LLViewerObject *viewer_object) override;
+	BOOL 	            detachObject(LLViewerObject *viewer_object) override;
 	static BOOL			detachAttachmentIntoInventory(const LLUUID& item_id);
 
 	//--------------------------------------------------------------------
@@ -298,6 +298,32 @@ private:
 /**                    Attachments
  **                                                                            **
  *******************************************************************************/
+
+/********************************************************************************
+ **                                                                            **
+ **                    ANIMATIONS
+ **/
+public:
+    // Note: DEFAULT_ATTACHMENT_UPDATE_PERIOD (seconds) is F32
+    // to agree with what the server API supplies
+    // however we employ an U64 (usec) expiry pattern for mAttachmentUpdateExpiry
+    // under the hood (see below)
+    static constexpr F32    DEFAULT_ATTACHMENT_UPDATE_PERIOD = 0.1f;
+
+    void                updateMotions(LLCharacter::e_update_t update_type) override;  // from llCharacter
+    void                setAttachmentUpdatePeriod(F32 period_sec);
+    void                setAttachmentUpdateEnabled(bool enable) { mAttachmentUpdateEnabled = enable; }
+    bool                getAttachmentUpdateEnabled() const { return mAttachmentUpdateEnabled; }
+
+private:
+    bool                mAttachmentUpdateEnabled;
+    U64                 mAttachmentUpdatePeriod; // usec
+    U64                 mAttachmentUpdateExpiry; // usec
+
+ /**                   ANIMATIONS
+  **                                                                            **
+  *******************************************************************************/
+
 
 /********************************************************************************
  **                                                                            **
@@ -313,7 +339,7 @@ public:
 	// Visibility
 	//--------------------------------------------------------------------
 
-    /* virtual */ bool shouldRenderRigged() const;
+    bool            shouldRenderRigged() const override;
     
 public:
 	bool			sendAppearanceMessage(LLMessageSystem *mesgsys) const;
@@ -321,7 +347,7 @@ public:
 	// -- care and feeding of hover height.
 	void 			setHoverIfRegionEnabled();
 	void			sendHoverHeight() const;
-	/*virtual*/ void setHoverOffset(const LLVector3& hover_offset, bool send_update=true);
+	void            setHoverOffset(const LLVector3& hover_offset, bool send_update=true) override;
 
 private:
 	mutable LLVector3 mLastHoverOffsetSent;

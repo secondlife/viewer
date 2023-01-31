@@ -44,6 +44,8 @@
 #include "v3dmath.h"
 #include "llsdutil_math.h"        //For ll_sd_from_vector3
 
+#include "llvoavatarself.h"
+
 #define ENABLE_RIGHT_CONSTRAINTS
 
 // BEGIN_HACK : hard-coded joint_ids
@@ -1493,7 +1495,7 @@ void LLPuppetMotion::RequestPuppetryStatusCoro(const std::string& capurl)
                 LL_WARNS("Puppet") << "Failed to get puppetry information." << LL_ENDL;
                 return;
             }
-            llcoro::suspendUntilTimeout(0.25);
+            llcoro::suspendUntilTimeout(0.25f);
             continue;
         }
         else if (!status)
@@ -1508,5 +1510,17 @@ void LLPuppetMotion::RequestPuppetryStatusCoro(const std::string& capurl)
     size_t event_size = result["event_size"].asInteger();
     LLPuppetMotion::SetPuppetryEnabled(true, event_size);    // turn on puppetry and set the event size
     LLPuppetModule::instance().parsePuppetryResponse(result);
+
+    if (gAgentAvatarp)
+    {
+        if (result.has("update_period"))
+        {
+            gAgentAvatarp->setAttachmentUpdatePeriod(result["update_period"].asReal());
+        }
+        else if (gAgent.getRegion()->getRegionFlag(REGION_FLAGS_ENABLE_ANIMATION_TRACKING))
+        {
+            gAgentAvatarp->setAttachmentUpdatePeriod(LLVOAvatarSelf::DEFAULT_ATTACHMENT_UPDATE_PERIOD);
+        }
+    }
 }
 
