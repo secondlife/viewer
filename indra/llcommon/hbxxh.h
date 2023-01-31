@@ -2,7 +2,7 @@
  * @file hbxxh.h
  * @brief High performances vectorized hashing based on xxHash.
  *
- * $LicenseInfo:firstyear=2023&license=viewergpl$
+ * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (c) 2023, Henri Beauchamp.
  *
