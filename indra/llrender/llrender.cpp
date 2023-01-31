@@ -35,7 +35,7 @@
 #include "llrendertarget.h"
 #include "lltexture.h"
 #include "llshadermgr.h"
-#include "llmd5.h"
+#include "hbxxh.h"
 
 #if LL_WINDOWS
 extern void APIENTRY gl_debug_callback(GLenum source,
@@ -79,7 +79,7 @@ struct LLVBCache
     std::chrono::steady_clock::time_point touched;
 };
 
-static std::unordered_map<std::size_t, LLVBCache> sVBCache;
+static std::unordered_map<U64, LLVBCache> sVBCache;
 
 static const GLenum sGLTextureType[] =
 {
@@ -1640,7 +1640,7 @@ void LLRender::flush()
         if (mBuffer)
         {
 
-            LLMD5 hash;
+            HBXXH64 hash;
             U32 attribute_mask = LLGLSLShader::sCurBoundShaderPtr->mAttributeMask;
 
             {
@@ -1660,8 +1660,8 @@ void LLRender::flush()
                 hash.finalize();
             }
             
-            size_t vhash[2];
-            hash.raw_digest((unsigned char*) vhash);
+            
+            U64 vhash = hash.digest();
 
             // check the VB cache before making a new vertex buffer
             // This is a giant hack to deal with (mostly) our terrible UI rendering code
@@ -1672,7 +1672,7 @@ void LLRender::flush()
             // To leverage this, we maintain a running hash of the vertex stream being
             // built up before a flush, and then check that hash against a VB 
             // cache just before creating a vertex buffer in VRAM
-            std::unordered_map<std::size_t, LLVBCache>::iterator cache = sVBCache.find(vhash[0]);
+            std::unordered_map<U64, LLVBCache>::iterator cache = sVBCache.find(vhash);
 
             LLPointer<LLVertexBuffer> vb;
 
@@ -1705,7 +1705,7 @@ void LLRender::flush()
 
                 vb->unbind();
 
-                sVBCache[vhash[0]] = { vb , std::chrono::steady_clock::now() };
+                sVBCache[vhash] = { vb , std::chrono::steady_clock::now() };
 
                 static U32 miss_count = 0;
                 miss_count++;
