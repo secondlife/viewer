@@ -349,6 +349,7 @@ void LLInventoryItem::copyItem(const LLInventoryItem* other)
 	copyObject(other);
 	mPermissions = other->mPermissions;
 	mAssetUUID = other->mAssetUUID;
+    mThumbnailUUID = other->mThumbnailUUID;
 	mDescription = other->mDescription;
 	mSaleInfo = other->mSaleInfo;
 	mInventoryType = other->mInventoryType;
@@ -413,6 +414,7 @@ U32 LLInventoryItem::getCRC32() const
 	//LL_DEBUGS() << "8 crc: " << std::hex << crc << std::dec << LL_ENDL;
 	crc += (U32)mCreationDate;
 	//LL_DEBUGS() << "9 crc: " << std::hex << crc << std::dec << LL_ENDL;
+    crc += mThumbnailUUID.getCRC32();
 	return crc;
 }
 
@@ -500,6 +502,15 @@ const LLSaleInfo& LLInventoryItem::getSaleInfo() const
 void LLInventoryItem::setSaleInfo(const LLSaleInfo& sale_info)
 {
 	mSaleInfo = sale_info;
+}
+
+const LLUUID& LLInventoryItem::getThumbnailUUID() const
+{
+    if (mThumbnailUUID.isNull() && mType == LLAssetType::AT_TEXTURE)
+    {
+        return mAssetUUID;
+    }
+    return mThumbnailUUID;
 }
 
 LLInventoryType::EType LLInventoryItem::getInventoryType() const

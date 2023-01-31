@@ -138,7 +138,7 @@ LLToolTip* LLInspectTextureUtil::createInventoryToolTip(LLToolTip::Params p)
 {
     const LLSD& sdTooltip = p.create_params;
     
-    if (sdTooltip.has("thumbnail_id"))
+    if (sdTooltip.has("thumbnail_id") && sdTooltip["thumbnail_id"].asUUID().notNull())
     {
         // go straight for tooltip regardless of type
         return LLUICtrlFactory::create<LLTextureToolTip>(p);
