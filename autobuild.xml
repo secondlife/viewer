@@ -2835,9 +2835,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f54f21dda4ce25b112f0cc7b4ce38bba</string>
+              <string>e4f77ba0a9b8ec3cc3fabc51c4da81d2</string>
               <key>url</key>
-              <string>http://sldev.free.fr/libraries/xxhash-0.8.1-20230124.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/110070/956941/xxhash-0.8.1.578006-windows-578006.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
