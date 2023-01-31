@@ -2928,6 +2928,36 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>version</key>
         <string>0.54.1.555529</string>
       </map>
+      <key>xxhash</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2012-2020 Yann Collet</string>
+        <key>description</key>
+        <string>xxHash Extremely fast hash algorithm</string>
+        <key>license</key>
+        <string>bsd</string>
+        <key>license_file</key>
+        <string>LICENSES/xxhash.txt</string>
+        <key>name</key>
+        <string>xxhash</string>
+        <key>platforms</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>f54f21dda4ce25b112f0cc7b4ce38bba</string>
+              <key>url</key>
+              <string>http://sldev.free.fr/libraries/xxhash-0.8.1-20230124.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>0.8.1</string>
+      </map>
       <key>zlib-ng</key>
       <map>
         <key>canonical_repo</key>
