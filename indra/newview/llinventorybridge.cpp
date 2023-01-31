@@ -2154,6 +2154,21 @@ LLViewerInventoryItem* LLItemBridge::getItem() const
 	return item;
 }
 
+const LLUUID& LLItemBridge::getThumbnailUUID() const
+{
+    LLViewerInventoryItem* item = NULL;
+    LLInventoryModel* model = getInventoryModel();
+    if(model)
+    {
+        item = (LLViewerInventoryItem*)model->getItem(mUUID);
+    }
+    if (item)
+    {
+        return item->getThumbnailUUID();
+    }
+    return LLUUID::null;
+}
+
 BOOL LLItemBridge::isItemPermissive() const
 {
 	LLViewerInventoryItem* item = getItem();

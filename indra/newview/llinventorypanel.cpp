@@ -1287,6 +1287,7 @@ BOOL LLInventoryPanel::handleToolTip(S32 x, S32 y, MASK mask)
 		{
             LLSD params;
             params["inv_type"] = vm_item_p->getInventoryType();
+            params["thumbnail_id"] = vm_item_p->getThumbnailUUID();
             params["item_id"] = vm_item_p->getUUID();
             
 			LLToolTipMgr::instance().show(LLToolTip::Params()

@@ -84,6 +84,7 @@ public:
 	// LLInvFVBridge functionality
 	//--------------------------------------------------------------------
 	virtual const LLUUID& getUUID() const { return mUUID; }
+    virtual const LLUUID& getThumbnailUUID() const { return LLUUID::null; }
 	virtual void clearDisplayName() { mDisplayName.clear(); }
 	virtual void restoreItem() {}
 	virtual void restoreToWorld() {}
@@ -251,6 +252,7 @@ public:
 	virtual LLUIImagePtr getIconOverlay() const;
 
 	LLViewerInventoryItem* getItem() const;
+    virtual const LLUUID& getThumbnailUUID() const;
 
 protected:
 	BOOL confirmRemoveItem(const LLSD& notification, const LLSD& response);

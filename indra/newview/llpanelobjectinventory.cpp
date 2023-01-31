@@ -116,6 +116,7 @@ public:
 	virtual PermissionMask getPermissionMask() const { return PERM_NONE; }
 	/*virtual*/ LLFolderType::EType getPreferredType() const { return LLFolderType::FT_NONE; }
 	virtual const LLUUID& getUUID() const { return mUUID; }
+    virtual const LLUUID& getThumbnailUUID() const { return LLUUID::null;}
 	virtual time_t getCreationDate() const;
 	virtual void setCreationDate(time_t creation_date_utc);
 

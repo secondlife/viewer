@@ -39,6 +39,7 @@ class LLFolderViewModelItemInventory
 public:
 	LLFolderViewModelItemInventory(class LLFolderViewModelInventory& root_view_model);
 	virtual const LLUUID& getUUID() const = 0;
+    virtual const LLUUID& getThumbnailUUID() const = 0;
 	virtual time_t getCreationDate() const = 0;	// UTC seconds
 	virtual void setCreationDate(time_t creation_date_utc) = 0;
 	virtual PermissionMask getPermissionMask() const = 0;
