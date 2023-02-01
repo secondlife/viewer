@@ -1717,7 +1717,7 @@ void LLRender::flush()
 
                     using namespace std::chrono_literals;
                     // every 1024 misses, clean the cache of any VBs that haven't been touched in the last second
-                    for (std::unordered_map<std::size_t, LLVBCache>::iterator iter = sVBCache.begin(); iter != sVBCache.end(); )
+                    for (std::unordered_map<U64, LLVBCache>::iterator iter = sVBCache.begin(); iter != sVBCache.end(); )
                     {
                         if (now - iter->second.touched > 1s)
                         {
