@@ -15,10 +15,11 @@
 #include "llleap.h"
 // STL headers
 // std headers
+#include <functional>
 // external library headers
+//#include <boost/algorithm/string/join.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/phoenix/core/argument.hpp>
-#include <boost/foreach.hpp>
 // other Linden headers
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
@@ -29,7 +30,6 @@
 #include "llstring.h"
 #include "stringize.h"
 #include "StringVec.h"
-#include <functional>
 
 using boost::assign::list_of;
 
@@ -110,11 +110,6 @@ namespace tut
                    "import os\n"
                    "import sys\n"
                    "\n"
-                   // Don't forget that this Python script is written to some
-                   // temp directory somewhere! Its __file__ is useless in
-                   // finding indra/lib/python. Use our __FILE__, with
-                   // raw-string syntax to deal with Windows pathnames.
-                   "mydir = os.path.dirname(r'" << __FILE__ << "')\n"
                    "from llbase import llsd\n"
                    "\n"
                    "class ProtocolError(Exception):\n"
@@ -241,9 +236,10 @@ namespace tut
                              "import sys\n"
                              "sys.stderr.write('''Hello from Python!\n"
                              "note partial line''')\n");
+        StringVec vcommand{ PYTHON, script.getName() };
+//      std::string command{ boost::algorithm::join(vcommand, " ") };
         CaptureLog log(LLError::LEVEL_INFO);
-        waitfor(LLLeap::create(get_test_name(),
-                               sv(list_of(PYTHON)(script.getName()))));
+        waitfor(LLLeap::create(get_test_name(), vcommand));
         log.messageWith("Hello from Python!");
         log.messageWith("note partial line");
     }

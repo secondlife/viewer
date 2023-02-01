@@ -29,8 +29,12 @@
 #ifndef LL_LLSDUTIL_H
 #define LL_LLSDUTIL_H
 
+#include "apply.h"                  // LL::invoke()
+#include "function_types.h"         // LL::function_arity
 #include "llsd.h"
 #include <boost/functional/hash.hpp>
+#include <cassert>
+#include <type_traits>
 
 // U32
 LL_COMMON_API LLSD ll_sd_from_U32(const U32);
@@ -402,6 +406,31 @@ private:
 };
 
 /**
+ * LLSDParam<LLSD> is for when you don't already have the target parameter
+ * type in hand. Instantiate LLSDParam<LLSD>(your LLSD object), and the
+ * templated conversion operator will try to select a more specific LLSDParam
+ * specialization.
+ */
+template <>
+class LLSDParam<LLSD>
+{
+private:
+    LLSD value_;
+
+public:
+    LLSDParam(const LLSD& value): value_(value) {}
+
+    /// if we're literally being asked for an LLSD parameter, avoid infinite
+    /// recursion
+    operator LLSD() const { return value_; }
+
+    /// otherwise, instantiate a more specific LLSDParam<T> to convert; that
+    /// preserves the existing customization mechanism
+    template <typename T>
+    operator T() const { return LLSDParam<T>(value_); }
+};
+
+/**
  * Turns out that several target types could accept an LLSD param using any of
  * a few different conversions, e.g. LLUUID's constructor can accept LLUUID or
  * std::string. Therefore, the compiler can't decide which LLSD conversion
@@ -419,7 +448,7 @@ class LLSDParam<T>                              \
 {                                               \
 public:                                         \
     LLSDParam(const LLSD& value):               \
-        _value((T)value.AS())                      \
+        _value((T)value.AS())                   \
     {}                                          \
                                                 \
     operator T() const { return _value; }       \
@@ -624,4 +653,56 @@ struct hash<LLSD>
     }
 };
 }
+
+namespace LL
+{
+
+/*****************************************************************************
+*   apply(function, LLSD array)
+*****************************************************************************/
+// validate incoming LLSD blob, and return an LLSD array suitable to pass to
+// apply_impl()
+LLSD apply_llsd_fix(size_t arity, const LLSD& args);
+
+// Derived from https://stackoverflow.com/a/20441189
+// and https://en.cppreference.com/w/cpp/utility/apply .
+// We can't simply make a tuple from the LLSD array and then apply() that
+// tuple to the function -- how would make_tuple() deduce the correct
+// parameter type for each entry? We must go directly to the target function.
+template <typename CALLABLE, std::size_t... I>
+auto apply_impl(CALLABLE&& func, const LLSD& array, std::index_sequence<I...>)
+{
+    // call func(unpacked args), using generic LLSDParam<LLSD> to convert each
+    // entry in 'array' to the target parameter type
+    return std::forward<CALLABLE>(func)(LLSDParam<LLSD>(array[I])...);
+}
+
+// use apply_n<ARITY>(function, LLSD) to call a specific arity of a variadic
+// function with (that many) items from the passed LLSD array
+template <size_t ARITY, typename CALLABLE>
+auto apply_n(CALLABLE&& func, const LLSD& args)
+{
+    return apply_impl(std::forward<CALLABLE>(func),
+                      apply_llsd_fix(ARITY, args),
+                      std::make_index_sequence<ARITY>());
+}
+
+/**
+ * apply(function, LLSD) goes beyond C++17 std::apply(). For this case
+ * @a function @emph cannot be variadic: the compiler must know at compile
+ * time how many arguments to pass. This isn't Python. (But see apply_n() to
+ * pass a specific number of args to a variadic function.)
+ */
+template <typename CALLABLE>
+auto apply(CALLABLE&& func, const LLSD& args)
+{
+    // infer arity from the definition of func
+    constexpr auto arity = function_arity<
+        typename std::remove_reference<CALLABLE>::type>::value;
+    // now that we have a compile-time arity, apply_n() works
+    return apply_n<arity>(std::forward<CALLABLE>(func), args);
+}
+
+} // namespace LL
+
 #endif // LL_LLSDUTIL_H

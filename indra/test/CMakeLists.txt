@@ -116,14 +116,21 @@ if (WINDOWS)
           LINK_FLAGS "/NODEFAULTLIB:LIBCMT"
           LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
           )
+elseif (DARWIN)
+  # Support our "@executable_path/../Resources" load path for our test
+  # executable. This SHOULD properly be "$<TARGET_FILE_DIR:lltest>/Resources",
+  # but the CMake $<TARGET_FILE_DIR> generator expression isn't evaluated by
+  # CREATE_LINK, so fudge it.
+  file(CREATE_LINK "../sharedlibs/Release/Resources" "${CMAKE_BINARY_DIR}/test/Resources"
+       SYMBOLIC)
 endif (WINDOWS)
 
 set(TEST_EXE $<TARGET_FILE:lltest>)
 
-SET_TEST_PATH(DYLD_LIBRARY_PATH)
+SET_TEST_PATH(LD_LIBRARY_PATH)
 
 LL_TEST_COMMAND(command 
-  "${DYLD_LIBRARY_PATH}"
+  "${LD_LIBRARY_PATH}"
   "${TEST_EXE}"
   "--output=${CMAKE_CURRENT_BINARY_DIR}/cpp_test_results.txt" 
   "--touch=${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt")
