@@ -596,6 +596,9 @@ bool LLInventoryFilter::checkAgainstSearchVisibility(const LLFolderViewModelItem
 	if (is_link && ((mFilterOps.mSearchVisibility & VISIBILITY_LINKS) == 0))
 		return FALSE;
 
+    if (listener->isItemInOutfits() && ((mFilterOps.mSearchVisibility & VISIBILITY_OUTFITS) == 0))
+        return FALSE;
+
 	if (listener->isItemInTrash() && ((mFilterOps.mSearchVisibility & VISIBILITY_TRASH) == 0))
 		return FALSE;
 
@@ -790,6 +793,24 @@ void LLInventoryFilter::toggleSearchVisibilityLinks()
 	{
 		setModified(hide_links ? FILTER_MORE_RESTRICTIVE : FILTER_LESS_RESTRICTIVE);
 	}
+}
+
+void LLInventoryFilter::toggleSearchVisibilityOutfits()
+{
+    bool hide_outfits = mFilterOps.mSearchVisibility & VISIBILITY_OUTFITS;
+    if (hide_outfits)
+    {
+        mFilterOps.mSearchVisibility &= ~VISIBILITY_OUTFITS;
+    }
+    else
+    {
+        mFilterOps.mSearchVisibility |= VISIBILITY_OUTFITS;
+    }
+
+    if (hasFilterString())
+    {
+        setModified(hide_outfits ? FILTER_MORE_RESTRICTIVE : FILTER_LESS_RESTRICTIVE);
+    }
 }
 
 void LLInventoryFilter::toggleSearchVisibilityTrash()

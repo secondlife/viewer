@@ -7,7 +7,7 @@
 	  min_height="350"
 	  min_width="240"
 	  name="objects panel"
-	  width="333">
+	  width="358">
     <panel
 		 follows="all"
 		 layout="topleft"
@@ -18,7 +18,7 @@
 		 height="570"
 		 visible="true"
 		 default_tab_group="1"
-		 width="330">
+		 width="355">
       <layout_stack
               follows="left|right|top|bottom"
               layout="topleft"
@@ -27,15 +27,15 @@
 							tab_group="1"
               orientation="vertical"
               name="inventory_layout_stack"
-              height="535"
-              width="330">
+              height="565"
+              width="355">
              <layout_panel
                  name="main_inventory_layout_panel"
                  layout="topleft"
                  auto_resize="true"
                  user_resize="true"
                  min_dim="150"
-                 width="330"
+                 width="355"
                  follows="bottom|left|right"
                  height="300">
                  <panel
@@ -48,10 +48,10 @@
                       top="0"
                       label=""
                       height="300"
-                      width="330" />
+                      width="355" />
              </layout_panel>
 			    <layout_panel
-                 width="330"
+                 width="355"
                  layout="topleft"
                  auto_resize="false"
                  user_resize="true"
@@ -133,117 +133,6 @@ Purchases from the marketplace will be delivered here.
                  </panel>
              </layout_panel>
          </layout_stack>
-			<panel follows="bottom|left|right"
-					 height="30"
-					 layout="topleft"
-					 name="button_panel"
-					 left="9"
-					 top_pad="7"
-					 width="308">
-				<layout_stack follows="bottom|left|right"
-											height="23"
-											layout="topleft"
-											mouse_opaque="false"
-											name="button_panel_ls"
-											left="0"
-											orientation="horizontal"
-											top="0"
-											width="308">	
-			    <layout_panel follows="bottom|left|right"
-												height="23"
-												layout="bottomleft"
-												left="0"			
-												mouse_opaque="false"
-												name="info_btn_lp"
-												auto_resize="true"
-												width="101">
-						<button enabled="true"
-										follows="bottom|left|right"
-										height="23"
-										label="Profile"
-										layout="topleft"
-										left="1"
-										name="info_btn"
-										tool_tip="Show object profile"
-										top="0"
-										width="100" />
-			    </layout_panel>
-			    <layout_panel
-                     follows="bottom|left|right"
-                     height="23"
-                     layout="bottomleft"
-                     left_pad="1"			
-                     mouse_opaque="false"
-                     name="share_btn_lp"
-                     auto_resize="true"
-                     width="100">
-                    <button
-                         enabled="true"
-                         follows="bottom|left|right"
-                         height="23"
-                         label="Share"
-                         layout="topleft"
-                         left="1"
-                         name="share_btn"
-                         tool_tip="Share an inventory item"
-                         top="0"
-                         width="99" />
-			    </layout_panel>
-			    <layout_panel
-                     follows="bottom|left|right"
-                     height="23"
-                     layout="bottomleft"
-                     left_pad="1"			
-                     mouse_opaque="false"
-                     name="shop_btn_lp"
-                     auto_resize="true"
-                     width="100">
-                    <button
-                         enabled="true"
-                         follows="bottom|left|right"
-                         height="23"
-                         label="Shop"
-                         layout="topleft"
-                         left="1"
-                         name="shop_btn"
-                         tool_tip="Open Marketplace webpage"
-                         top="0"
-                         width="99" />
-                    <button
-                         enabled="false"
-                         follows="bottom|left|right"
-                         height="23"
-                         label="Wear"
-                         layout="topleft"
-                         left="1"
-                         name="wear_btn"
-                         tool_tip="Wear seleceted outfit"
-                         top="0"
-                         width="99" />
-                    <button
-                         enabled="false"
-                         follows="bottom|left|right"
-                         height="23"
-                         label="Play"
-                         layout="topleft"
-                         name="play_btn"
-                         left="1"
-                         top="0"
-                         width="99" />
-                    <button
-                         enabled="false"
-                         follows="bottom|left|right"
-                         height="23"
-                         label="Teleport"
-                         layout="topleft"
-                         left="1"
-                         name="teleport_btn"
-                         tool_tip="Teleport to the selected area"
-                         top="0"
-                         width="99" />
-			    </layout_panel>
-			</layout_stack>
-		</panel>
 	</panel>
 	<panel
 		 follows="all"

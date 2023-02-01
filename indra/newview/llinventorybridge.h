@@ -115,6 +115,7 @@ public:
 	virtual BOOL isItemRemovable() const;
 	virtual BOOL isItemMovable() const;
 	virtual BOOL isItemInTrash() const;
+    virtual bool isItemInOutfits() const;
 	virtual BOOL isLink() const;
 	virtual BOOL isLibraryItem() const;
 	//virtual BOOL removeItem() = 0;

@@ -7,6 +7,17 @@
  name="menu_search_visibility"
  visible="false">
   <menu_item_check
+   label="Search outfit folders"
+   layout="topleft"
+   name="search_outfits">
+    <on_click
+     function="Inventory.GearDefault.Custom.Action"
+     parameter="toggle_search_outfits" />
+    <on_check
+     function="Inventory.GearDefault.Check"
+     parameter="toggle_search_outfits" />
+  </menu_item_check>
+  <menu_item_check
    label="Search Trash"
    layout="topleft"
    name="search_trash">

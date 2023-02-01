@@ -113,7 +113,8 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 	  mMenuGearDefault(NULL),
 	  mMenuVisibility(NULL),
 	  mMenuAddHandle(),
-	  mNeedUploadCost(true)
+	  mNeedUploadCost(true),
+      mMenuViewDefault(NULL)
 {
 	// Menu Callbacks (non contex menus)
 	mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLPanelMainInventory::doToSelected, this, _2));
@@ -237,6 +238,7 @@ BOOL LLPanelMainInventory::postBuild()
 
 	mGearMenuButton = getChild<LLMenuButton>("options_gear_btn");
 	mVisibilityMenuButton = getChild<LLMenuButton>("options_visibility_btn");
+    mViewMenuButton = getChild<LLMenuButton>("view_btn");
 
 	initListCommandsHandlers();
 
@@ -1163,21 +1165,15 @@ void LLFloaterInventoryFinder::selectNoTypes(void* user_data)
 
 void LLPanelMainInventory::initListCommandsHandlers()
 {
-	childSetAction("trash_btn", boost::bind(&LLPanelMainInventory::onTrashButtonClick, this));
 	childSetAction("add_btn", boost::bind(&LLPanelMainInventory::onAddButtonClick, this));
-
-	mTrashButton = getChild<LLDragAndDropButton>("trash_btn");
-	mTrashButton->setDragAndDropHandler(boost::bind(&LLPanelMainInventory::handleDragAndDropToTrash, this
-			,	_4 // BOOL drop
-			,	_5 // EDragAndDropType cargo_type
-			,	_7 // EAcceptance* accept
-			));
 
 	mCommitCallbackRegistrar.add("Inventory.GearDefault.Custom.Action", boost::bind(&LLPanelMainInventory::onCustomAction, this, _2));
 	mEnableCallbackRegistrar.add("Inventory.GearDefault.Check", boost::bind(&LLPanelMainInventory::isActionChecked, this, _2));
 	mEnableCallbackRegistrar.add("Inventory.GearDefault.Enable", boost::bind(&LLPanelMainInventory::isActionEnabled, this, _2));
 	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_inventory_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGearMenuButton->setMenu(mMenuGearDefault);
+    mMenuViewDefault = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_inventory_view_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+    mViewMenuButton->setMenu(mMenuViewDefault);
 	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory_add.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mMenuAddHandle = menu->getHandle();
 
@@ -1191,9 +1187,6 @@ void LLPanelMainInventory::initListCommandsHandlers()
 
 void LLPanelMainInventory::updateListCommands()
 {
-	bool trash_enabled = isActionEnabled("delete");
-
-	mTrashButton->setEnabled(trash_enabled);
 }
 
 void LLPanelMainInventory::onAddButtonClick()
@@ -1225,11 +1218,6 @@ void LLPanelMainInventory::showActionMenu(LLMenuGL* menu, std::string spawning_v
 		menu_y += menu->getRect().getHeight();
 		LLMenuGL::showPopup(this, menu, menu_x, menu_y);
 	}
-}
-
-void LLPanelMainInventory::onTrashButtonClick()
-{
-	onClipboardAction("delete");
 }
 
 void LLPanelMainInventory::onClipboardAction(const LLSD& userdata)
@@ -1374,6 +1362,11 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 		}
 		LLFloaterReg::showInstance("linkreplace", params);
 	}
+
+    if (command_name == "toggle_search_outfits")
+    {
+        mActivePanel->getFilter().toggleSearchVisibilityOutfits();
+    }
 
 	if (command_name == "toggle_search_trash")
 	{
@@ -1534,6 +1527,11 @@ BOOL LLPanelMainInventory::isActionChecked(const LLSD& userdata)
 		return sort_order_mask & LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP;
 	}
 
+    if (command_name == "toggle_search_outfits")
+    {
+        return (mActivePanel->getFilter().getSearchVisibilityTypes() & LLInventoryFilter::VISIBILITY_OUTFITS) != 0;
+    }
+
 	if (command_name == "toggle_search_trash")
 	{
 		return (mActivePanel->getFilter().getSearchVisibilityTypes() & LLInventoryFilter::VISIBILITY_TRASH) != 0;
@@ -1550,20 +1548,6 @@ BOOL LLPanelMainInventory::isActionChecked(const LLSD& userdata)
 	}	
 
 	return FALSE;
-}
-
-bool LLPanelMainInventory::handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept)
-{
-	*accept = ACCEPT_NO;
-
-	const bool is_enabled = isActionEnabled("delete");
-	if (is_enabled) *accept = ACCEPT_YES_MULTI;
-
-	if (is_enabled && drop)
-	{
-		onClipboardAction("delete");
-	}
-	return true;
 }
 
 void LLPanelMainInventory::setUploadCostIfNeeded()
