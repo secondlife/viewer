@@ -92,6 +92,20 @@ BOOL LLFontBitmapCache::nextOpenPos(S32 width, S32& pos_x, S32& pos_y, EFontGlyp
 		{
 			// We're out of space in the current image, or no image
 			// has been allocated yet.  Make a new one.
+            
+            S32 image_width = mMaxCharWidth * 20;
+            S32 pow_iw = 2;
+            while (pow_iw < image_width)
+            {
+                pow_iw *= 2;
+            }
+            image_width = pow_iw;
+            image_width = llmin(512, image_width); // Don't make bigger than 512x512, ever.
+            S32 image_height = image_width;
+            
+            mBitmapWidth = image_width;
+            mBitmapHeight = image_height;
+            
 			S32 num_components = getNumComponents(bitmap_type);
 			mImageRawVec[bitmap_idx].push_back(new LLImageRaw(mBitmapWidth, mBitmapHeight, num_components));
 			bitmap_num = mImageRawVec[bitmap_idx].size() - 1;
