@@ -237,7 +237,6 @@ namespace tut
                              "sys.stderr.write('''Hello from Python!\n"
                              "note partial line''')\n");
         StringVec vcommand{ PYTHON, script.getName() };
-//      std::string command{ boost::algorithm::join(vcommand, " ") };
         CaptureLog log(LLError::LEVEL_INFO);
         waitfor(LLLeap::create(get_test_name(), vcommand));
         log.messageWith("Hello from Python!");

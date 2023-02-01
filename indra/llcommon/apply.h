@@ -90,7 +90,7 @@ auto invoke(Fn&& f, Args&&... args)
 /*****************************************************************************
 *   apply(function, tuple); apply(function, array)
 *****************************************************************************/
-#if __cpp_lib_apply >= 201603L
+#if __cplusplus >= 201703L
 
 // C++17 implementation
 using std::apply;
