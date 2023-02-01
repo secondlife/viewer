@@ -190,7 +190,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
         }
     }
 
-	if(features->calculatesAtmospherics)
+	if(features->calculatesAtmospherics || features->hasGamma || features->isDeferred)
 	{
 		if (features->hasWaterFog)
 		{
