@@ -1963,9 +1963,9 @@ std::string LLItemBridge::getLabelSuffix() const
 {
 	// String table is loaded before login screen and inventory items are
 	// loaded after login, so LLTrans should be ready.
-	static std::string NO_COPY = LLTrans::getString("no_copy");
-	static std::string NO_MOD = LLTrans::getString("no_modify");
-	static std::string NO_XFER = LLTrans::getString("no_transfer");
+	static std::string NO_COPY = LLTrans::getString("no_copy_lbl");
+	static std::string NO_MOD = LLTrans::getString("no_modify_lbl");
+	static std::string NO_XFER = LLTrans::getString("no_transfer_lbl");
 	static std::string LINK = LLTrans::getString("link");
 	static std::string BROKEN_LINK = LLTrans::getString("broken_link");
 	std::string suffix;
@@ -1986,17 +1986,20 @@ std::string LLItemBridge::getLabelSuffix() const
 			BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
 			if (!copy)
 			{
+                suffix += " ";
 				suffix += NO_COPY;
 			}
 			BOOL mod = item->getPermissions().allowModifyBy(gAgent.getID());
 			if (!mod)
 			{
-				suffix += NO_MOD;
+                suffix += suffix.empty() ? " " : ",";
+                suffix += NO_MOD;
 			}
 			BOOL xfer = item->getPermissions().allowOperationBy(PERM_TRANSFER,
 																gAgent.getID());
 			if (!xfer)
 			{
+                suffix += suffix.empty() ? " " : ",";
 				suffix += NO_XFER;
 			}
 		}
@@ -5987,7 +5990,7 @@ std::string LLCallingCardBridge::getLabelSuffix() const
 	LLViewerInventoryItem* item = getItem();
 	if( item && LLAvatarTracker::instance().isBuddyOnline(item->getCreatorUUID()) )
 	{
-		return LLItemBridge::getLabelSuffix() + " (online)";
+		return LLItemBridge::getLabelSuffix() + "  online";
 	}
 	else
 	{
