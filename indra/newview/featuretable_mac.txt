@@ -1,4 +1,4 @@
-version 43
+version 44
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -71,6 +71,7 @@ RenderGLContextCoreProfile         1   1
 RenderGLMultiThreaded       1   0
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	2
+RenderScreenSpaceReflections 1  1
 
 //
 // Low Graphics Settings
@@ -98,6 +99,7 @@ WLSkyDetail					1	48
 RenderFSAASamples			1	0
 RenderReflectionsEnabled    1   0
 RenderReflectionProbeDetail	1	0
+RenderScreenSpaceReflections 1  0
 
 //
 // Medium Low Graphics Settings
@@ -124,6 +126,7 @@ WLSkyDetail					1	48
 RenderFSAASamples			1	0
 RenderReflectionsEnabled    1   0
 RenderReflectionProbeDetail	1	0
+RenderScreenSpaceReflections 1  0
 
 //
 // Medium Graphics Settings (standard)
@@ -150,6 +153,7 @@ WLSkyDetail					1	48
 RenderFSAASamples			1	2
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
+RenderScreenSpaceReflections 1  0
 
 //
 // Medium High Graphics Settings (deferred enabled)
@@ -176,6 +180,7 @@ WLSkyDetail					1	48
 RenderFSAASamples			1	2
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
+RenderScreenSpaceReflections 1  0
 
 //
 // High Graphics Settings (deferred + SSAO)
@@ -202,6 +207,7 @@ WLSkyDetail					1	48
 RenderFSAASamples			1	2
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
+RenderScreenSpaceReflections 1  0
 
 //
 // High Ultra Graphics Settings (deferred + SSAO + shadows)
@@ -228,6 +234,7 @@ WLSkyDetail					1	48
 RenderFSAASamples			1	2
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
+RenderScreenSpaceReflections 1  0
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -254,6 +261,7 @@ RenderShadowDetail			1	2
 RenderFSAASamples			1	2
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
+RenderScreenSpaceReflections 1  1
 
 //
 // Class Unknown Hardware (unknown)
