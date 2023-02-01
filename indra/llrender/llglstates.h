@@ -57,7 +57,7 @@ class LLGLSDefault
 {
 protected:
 	LLGLEnable mColorMaterial;
-	LLGLDisable mAlphaTest, mBlend, mCullFace, mDither, mFog, 
+	LLGLDisable mAlphaTest, mBlend, mCullFace, mDither, 
 		mLineSmooth, mLineStipple, mNormalize, mPolygonSmooth,
 		mGLMultisample;
 public:
@@ -70,7 +70,6 @@ public:
 		mBlend(GL_BLEND), 
 		mCullFace(GL_CULL_FACE),
 		mDither(GL_DITHER),
-		mFog(GL_FOG), 
 		mLineSmooth(GL_LINE_SMOOTH),
 		mLineStipple(GL_LINE_STIPPLE),
 		mNormalize(GL_NORMALIZE),
@@ -82,11 +81,11 @@ public:
 class LLGLSObjectSelect
 { 
 protected:
-	LLGLDisable mBlend, mFog, mAlphaTest;
+	LLGLDisable mBlend, mAlphaTest;
 	LLGLEnable mCullFace;
 public:
 	LLGLSObjectSelect()
-		: mBlend(GL_BLEND), mFog(GL_FOG), 
+		: mBlend(GL_BLEND), 
 		  mAlphaTest(GL_ALPHA_TEST),
 		  mCullFace(GL_CULL_FACE)
 	{ }
@@ -130,28 +129,6 @@ public:
 
 //----------------------------------------------------------------------------
 
-class LLGLSFog
-{
-protected:
-	LLGLEnable mFog;
-public:
-	LLGLSFog()
-		: mFog(GL_FOG)
-	{}
-};
-
-class LLGLSNoFog
-{
-protected:
-	LLGLDisable mFog;
-public:
-	LLGLSNoFog()
-		: mFog(GL_FOG)
-	{}
-};
-
-//----------------------------------------------------------------------------
-
 class LLGLSPipeline
 { 
 protected:
@@ -172,16 +149,6 @@ public:
 	LLGLSPipelineAlpha()
 		: mBlend(GL_BLEND),
 		  mAlphaTest(GL_ALPHA_TEST)
-	{ }
-};
-
-class LLGLSPipelineEmbossBump
-{
-protected:
-	LLGLDisable mFog;
-public:
-	LLGLSPipelineEmbossBump()
-		: mFog(GL_FOG)
 	{ }
 };
 

@@ -665,7 +665,6 @@ public:
         LLRenderTarget			deferredScreen;
         LLRenderTarget			fxaaBuffer;
         LLRenderTarget			edgeMap;
-        LLRenderTarget			deferredDepth;
         LLRenderTarget			deferredLight;
 
         //sun shadow map

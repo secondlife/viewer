@@ -757,6 +757,9 @@ LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 	// - if not multisampled, shrink resolution and try again (favor X resolution over Y)
 	// Make sure to call "releaseScreenBuffers" after each failure to cleanup the partially loaded state
 
+    // refresh cached settings here to protect against inconsistent event handling order
+    refreshCachedSettings();
+
 	U32 samples = RenderFSAASamples;
 
 	eFBOStatus ret = FBO_SUCCESS_FULLRES;
@@ -1145,15 +1148,13 @@ void LLPipeline::releaseShadowBuffers()
 
 void LLPipeline::releaseScreenBuffers()
 {
-	mRT->uiScreen.release();
-	mRT->screen.release();
-	mRT->fxaaBuffer.release();
-	mRT->deferredScreen.release();
-	mRT->deferredDepth.release();
-	mRT->deferredLight.release();
+    mRT->uiScreen.release();
+    mRT->screen.release();
+    mRT->fxaaBuffer.release();
+    mRT->deferredScreen.release();
+    mRT->deferredLight.release();
 }
-		
-		
+
 void LLPipeline::releaseSunShadowTarget(U32 index)
 {
     llassert(index < 4);
@@ -7248,9 +7249,8 @@ void LLPipeline::renderPostProcess()
 
 	LLVertexBuffer::unbind();
 
-	if (LLPipeline::sRenderDeferred)
-	{
-		bool dof_enabled = !LLViewerCamera::getInstance()->cameraUnderWater() &&
+    {
+		bool dof_enabled = 
 			(RenderDepthOfFieldInEditMode || !LLToolMgr::getInstance()->inBuildMode()) &&
 			RenderDepthOfField &&
 			!gCubeSnapshot;
@@ -7667,9 +7667,9 @@ void LLPipeline::renderFinalize()
         LLVertexBuffer::unbind();
     }
 
-	if (RenderDeferred)
 	{
-		bool multisample = RenderFSAASamples > 1 && mRT->fxaaBuffer.isComplete() && !gCubeSnapshot;
+        llassert(!gCubeSnapshot);
+		bool multisample = RenderFSAASamples > 1 && mRT->fxaaBuffer.isComplete();
 		LLGLSLShader* shader = &gGlowCombineProgram;
 
 		S32 width = mRT->screen.getWidth();
@@ -7697,11 +7697,11 @@ void LLPipeline::renderFinalize()
 				mRT->deferredLight.bindTexture(0, channel);
 			}
 
-			gGL.begin(LLRender::TRIANGLE_STRIP);
-			gGL.vertex2f(-1, -1);
-			gGL.vertex2f(-1, 3);
-			gGL.vertex2f(3, -1);
-			gGL.end();
+            {
+                LLGLDepthTest depth_test(GL_FALSE, GL_FALSE, GL_ALWAYS);
+                mScreenTriangleVB->setBuffer();
+                mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+            }
 
 			gGL.flush();
 
@@ -7734,22 +7734,36 @@ void LLPipeline::renderFinalize()
 			shader->uniform4f(LLShaderMgr::FXAA_RCP_FRAME_OPT2, -2.f / width * scale_x, -2.f / height * scale_y,
 				2.f / width * scale_x, 2.f / height * scale_y);
 
-			gGL.begin(LLRender::TRIANGLE_STRIP);
-			gGL.vertex2f(-1, -1);
-			gGL.vertex2f(-1, 3);
-			gGL.vertex2f(3, -1);
-			gGL.end();
+            {
+                // at this point we should pointed at the backbuffer
+                llassert(LLRenderTarget::sCurFBO == 0);
 
-			gGL.flush();
+                LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
+                S32 depth_channel = shader->getTextureChannel(LLShaderMgr::DEFERRED_DEPTH);
+                gGL.getTexUnit(depth_channel)->bind(&mRT->deferredScreen, true);
+
+                mScreenTriangleVB->setBuffer();
+                mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+            }
+			
 			shader->unbind();
 		}
 		else
 		{
+            // at this point we should pointed at the backbuffer
+            llassert(LLRenderTarget::sCurFBO == 0);
+
+            LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
+
 			shader->bind();
 
+            S32 glow_channel = shader->getTextureChannel(LLShaderMgr::DEFERRED_EMISSIVE);
+            S32 screen_channel = shader->getTextureChannel(LLShaderMgr::DEFERRED_DIFFUSE);
+            S32 depth_channel = shader->getTextureChannel(LLShaderMgr::DEFERRED_DEPTH);
 
-			gGL.getTexUnit(0)->bind(&mGlow[1]);
-			gGL.getTexUnit(1)->bind(screenTarget());
+			gGL.getTexUnit(glow_channel)->bind(&mGlow[1]);
+			gGL.getTexUnit(screen_channel)->bind(screenTarget());
+            gGL.getTexUnit(depth_channel)->bind(&mRT->deferredScreen, true);
 
 			gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
 			gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
@@ -7757,61 +7771,15 @@ void LLPipeline::renderFinalize()
 			gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
 			glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
 
-			gGL.begin(LLRender::TRIANGLE_STRIP);
-			gGL.vertex2f(-1, -1);
-			gGL.vertex2f(-1, 3);
-			gGL.vertex2f(3, -1);
-			gGL.end();
+            mScreenTriangleVB->setBuffer();
+            mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
 			gGL.flush();
 			shader->unbind();
 		}
 	}
     
-#if 0 // DEPRECATED
-    else // not deferred
-    {
-        U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1;
-        LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(mask, 0);
-        buff->allocateBuffer(3, 0);
 
-        LLStrider<LLVector3> v;
-        LLStrider<LLVector2> uv1;
-        LLStrider<LLVector2> uv2;
-
-        buff->getVertexStrider(v);
-        buff->getTexCoord0Strider(uv1);
-        buff->getTexCoord1Strider(uv2);
-
-        uv1[0] = LLVector2(0, 0);
-        uv1[1] = LLVector2(0, 2);
-        uv1[2] = LLVector2(2, 0);
-
-        uv2[0] = LLVector2(0, 0);
-        uv2[1] = LLVector2(0, tc2.mV[1] * 2.f);
-        uv2[2] = LLVector2(tc2.mV[0] * 2.f, 0);
-
-        v[0] = LLVector3(-1, -1, 0);
-        v[1] = LLVector3(-1, 3, 0);
-        v[2] = LLVector3(3, -1, 0);
-
-        buff->flush();
-
-        LLGLDisable blend(GL_BLEND);
-
-        gGlowCombineProgram.bind();
-
-        gGL.getTexUnit(0)->bind(&mGlow[1]);
-        gGL.getTexUnit(1)->bind(&mRT->screen);
-
-        LLGLEnable multisample(RenderFSAASamples > 0 ? GL_MULTISAMPLE : 0);
-
-        buff->setBuffer();
-        buff->drawArrays(LLRender::TRIANGLE_STRIP, 0, 3);
-
-        gGlowCombineProgram.unbind();
-    }
-#endif
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
     if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES))
@@ -7890,7 +7858,6 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     LLRenderTarget* deferred_target       = &mRT->deferredScreen;
-    //LLRenderTarget* deferred_depth_target = &mRT->deferredDepth;
     LLRenderTarget* deferred_light_target = &mRT->deferredLight;
 
 	shader.bind();
@@ -8772,7 +8739,6 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
 void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
 {
     LLRenderTarget* deferred_target       = &mRT->deferredScreen;
-    //LLRenderTarget* deferred_depth_target = &mRT->deferredDepth;
     LLRenderTarget* deferred_light_target = &mRT->deferredLight;
 
 	stop_glerror();

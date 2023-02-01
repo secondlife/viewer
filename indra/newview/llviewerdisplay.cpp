@@ -1312,23 +1312,17 @@ void render_ui(F32 zoom_factor, int subfield)
 		gGL.popMatrix();
 	}
 
+    // Render our post process prior to the HUD, UI, etc.
+    gPipeline.renderPostProcess();
+
+    // apply gamma correction and post effects
+    gPipeline.renderFinalize();
+
 	{
         LLGLState::checkStates();
 
-		// Render our post process prior to the HUD, UI, etc.
-		gPipeline.renderPostProcess();
 
-        LLGLState::checkStates();
-        // draw hud and 3D ui elements into screen render target so they'll be able to use 
-        // the depth buffer (avoids extra copy of depth buffer per frame)
-        gPipeline.screenTarget()->bindTarget();
-		// SL-15709
-		// NOTE: Tracy only allows one ZoneScoped per function.
-		// Solutions are:
-		// 1. Use a new scope
-		// 2. Use named zones
-		// 3. Use transient zones
-		LL_PROFILE_ZONE_NAMED_CATEGORY_UI("HUD"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_HUD);
+        LL_PROFILE_ZONE_NAMED_CATEGORY_UI("HUD");
 		render_hud_elements();
         LLGLState::checkStates();
 		render_hud_attachments();
@@ -1356,11 +1350,6 @@ void render_ui(F32 zoom_factor, int subfield)
                 render_disconnected_background();
             }
         }
-
-        gPipeline.screenTarget()->flush();
-
-        // apply gamma correction and post effects before rendering 2D UI
-        gPipeline.renderFinalize();
 
         if (render_ui)
         {

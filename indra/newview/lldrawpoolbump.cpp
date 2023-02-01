@@ -663,7 +663,6 @@ void LLDrawPoolBump::beginBump()
 void LLDrawPoolBump::renderBump(U32 pass)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_BUMP);
-	LLGLDisable fog(GL_FOG);
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
 	LLGLEnable blend(GL_BLEND);
 	gGL.diffuseColor4f(1,1,1,1);

@@ -3114,8 +3114,7 @@ BOOL LLModelPreview::render()
     LLGLDisable no_blend(GL_BLEND);
     LLGLEnable cull(GL_CULL_FACE);
     LLGLDepthTest depth(GL_FALSE); // SL-12781 disable z-buffer to render background color
-    LLGLDisable fog(GL_FOG);
-
+    
     {
         gUIProgram.bind();
 

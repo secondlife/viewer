@@ -616,14 +616,6 @@ void LLFace::renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wirefram
         }
         else
         {
-            LLGLEnable fog(GL_FOG);
-            glFogi(GL_FOG_MODE, GL_LINEAR);
-            float d = (LLViewerCamera::getInstance()->getPointOfInterest() - LLViewerCamera::getInstance()->getOrigin()).magVec();
-            LLColor4 fogCol = color * fogCfx;
-            glFogf(GL_FOG_START, d);
-            glFogf(GL_FOG_END, d*(1 + (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV())));
-            glFogfv(GL_FOG_COLOR, fogCol.mV);
-
             gGL.flush();
             {
                 gGL.diffuseColor4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
