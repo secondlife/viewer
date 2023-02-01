@@ -288,7 +288,7 @@ int BufferArray::findBlock(size_t pos, size_t * ret_offset)
 	if (pos >= mLen)
 		return -1;		// Doesn't exist
 
-	const auto block_limit(mBlocks.size());
+	const int block_limit(narrow(mBlocks.size()));
 	for (int i(0); i < block_limit; ++i)
 	{
 		if (pos < mBlocks[i]->mUsed)
