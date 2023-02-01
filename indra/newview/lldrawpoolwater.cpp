@@ -110,7 +110,7 @@ void LLDrawPoolWater::beginPostDeferredPass(S32 pass)
     LL_PROFILE_GPU_ZONE("water beginPostDeferredPass")
     gGL.setColorMask(true, true);
 
-    if (LLPipeline::sRenderTransparentWater && !gCubeSnapshot)
+    if (LLPipeline::sRenderTransparentWater)
     {
         // copy framebuffer contents so far to a texture to be used for
         // reflections and refractions
