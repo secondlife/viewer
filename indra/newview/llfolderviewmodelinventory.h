@@ -46,6 +46,7 @@ public:
 	virtual LLFolderType::EType getPreferredType() const = 0;
 	virtual void showProperties(void) = 0;
 	virtual BOOL isItemInTrash( void) const { return FALSE; } // TODO: make   into pure virtual.
+    virtual bool isItemInOutfits() const { return false; }
 	virtual BOOL isAgentInventory() const { return FALSE; }
 	virtual BOOL isUpToDate() const = 0;
     virtual void addChild(LLFolderViewModelItem* child);

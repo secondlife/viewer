@@ -1244,6 +1244,16 @@ BOOL LLInvFVBridge::isLinkedObjectInTrash() const
 	return FALSE;
 }
 
+bool LLInvFVBridge::isItemInOutfits() const
+{
+    const LLInventoryModel* model = getInventoryModel();
+    if(!model) return false;
+
+    const LLUUID my_outfits_cat = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS, false);
+
+    return isCOFFolder() || (my_outfits_cat == mUUID) || model->isObjectDescendentOf(mUUID, my_outfits_cat);
+}
+
 BOOL LLInvFVBridge::isLinkedObjectMissing() const
 {
 	const LLInventoryObject *obj = getInventoryObject();

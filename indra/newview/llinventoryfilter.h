@@ -104,7 +104,8 @@ public:
 		VISIBILITY_NONE = 0,
 		VISIBILITY_TRASH = 0x1 << 0,
 		VISIBILITY_LIBRARY = 0x1 << 1,
-		VISIBILITY_LINKS	= 0x1 << 2
+		VISIBILITY_LINKS	= 0x1 << 2,
+        VISIBILITY_OUTFITS    = 0x1 << 3
 	};
 
 	struct FilterOps
@@ -228,6 +229,7 @@ public:
 
 	void				toggleSearchVisibilityLinks();
 	void				toggleSearchVisibilityTrash();
+    void                toggleSearchVisibilityOutfits();
 	void				toggleSearchVisibilityLibrary();
 	void 				setSearchVisibilityTypes(U32 types);
 	void 				setSearchVisibilityTypes(const Params& params);

@@ -7,7 +7,7 @@
  min_height="300"
  min_width="240"
  name="main inventory panel"
- width="330">
+ width="355">
   <panel.string
    name="Itemcount">
   </panel.string>
@@ -41,11 +41,11 @@
   <combo_box
    height="23"
    layout="topleft"
-   left="10"
+   left="3"
    top="18"
    name="search_type"
    follows="top|left"
-   width="88">
+   width="67">
     <item
      label="Name"
      name="Name"
@@ -69,7 +69,7 @@
    height="23"
    image_overlay="Inv_Toolbar_SearchVisibility"
    layout="topleft"
-   left_pad="3"
+   left_pad="1"
    name="options_visibility_btn"
    width="31" />
   <filter_editor
@@ -78,15 +78,64 @@
    height="23"
    label="Enter search text"
    layout="topleft"
-   left_pad="3"
+   left_pad="1"
    max_length_chars="300"
    highlight_text_field="true"
    name="inventory search editor"
-   width="177" />
+   width="99" />
+  <menu_button
+   follows="top|right"
+   tool_tip="Show additional options"
+   height="23"
+   image_hover_unselected="Toolbar_Middle_Over"
+   image_overlay="OptionsMenu_Off"
+   image_selected="Toolbar_Middle_Selected"
+   image_unselected="Toolbar_Middle_Off"
+   layout="topleft"
+   left_pad="1"
+   name="options_gear_btn"
+   width="31" />
+  <menu_button
+   follows="top|right"
+   tool_tip="View/sort options"
+   height="23"
+   image_hover_unselected="Toolbar_Middle_Over"
+   image_overlay="Conv_toolbar_sort"
+   image_selected="Toolbar_Middle_Selected"
+   image_unselected="Toolbar_Middle_Off"
+   layout="topleft"
+   left_pad="1"
+   name="view_btn"
+   width="31" />
+  <button
+   follows="top|right"
+   height="23"
+   image_hover_unselected="Toolbar_Middle_Over"
+   image_overlay="AddItem_Off"
+   image_selected="Toolbar_Middle_Selected"
+   image_unselected="Toolbar_Middle_Off"
+   layout="topleft"
+   left_pad="1"
+   name="add_btn"
+   tool_tip="Add new item"
+   width="31" />
+  <button
+   follows="top|right"
+   tool_tip="Toggles between traditional and single-folder views"
+   height="23"
+   image_hover_unselected="Toolbar_Middle_Over"
+   image_overlay="Command_Map_Icon"
+   image_selected="Toolbar_Middle_Selected"
+   image_unselected="Toolbar_Middle_Off"
+   layout="topleft"
+   left_pad="1"
+   enabled="false"
+   name="view_mode_btn"
+   width="31" />
   <tab_container
      follows="all"
      halign="center"
-     height="339"
+     height="372"
      layout="topleft"
      left="7"
      name="inventory filter tabs"
@@ -142,92 +191,4 @@
       scroll.reserve_scroll_corner="false">
   </inventory_panel>
   </tab_container>
-  <layout_stack
-   animate="false"
-   border_size="0"
-   follows="left|right|bottom"
-   height="25"
-   layout="topleft"
-   orientation="horizontal"
-   top_pad="0"
-   left="10"
-   name="bottom_panel"
-   width="307">
-      <layout_panel
-       auto_resize="false"
-       height="25"
-       layout="topleft"
-       name="options_gear_btn_panel"
-       width="32">
-          <menu_button
-           follows="bottom|left"
-           tool_tip="Show additional options"
-           height="25"
-           image_hover_unselected="Toolbar_Left_Over"
-           image_overlay="OptionsMenu_Off"
-           image_selected="Toolbar_Left_Selected"
-           image_unselected="Toolbar_Left_Off"
-           layout="topleft"
-           left="0"
-           name="options_gear_btn"
-           top="0"
-           width="31" />
-      </layout_panel>
-      <layout_panel
-       auto_resize="false"
-       height="25"
-       layout="topleft"
-       name="add_btn_panel"
-       width="32">
-          <button
-           follows="bottom|left"
-           height="25"
-           image_hover_unselected="Toolbar_Middle_Over"
-           image_overlay="AddItem_Off"
-           image_selected="Toolbar_Middle_Selected"
-           image_unselected="Toolbar_Middle_Off"
-           layout="topleft"
-           left="0"
-           name="add_btn"
-           tool_tip="Add new item"
-           top="0"
-           width="31" />
-      </layout_panel>
-      <layout_panel
-       auto_resize="true"
-       height="25"
-       layout="topleft"
-       name="dummy_panel"
-       width="212">
-          <icon
-           follows="bottom|left|right"
-           height="25"
-           image_name="Toolbar_Middle_Off"
-           layout="topleft"
-           left="0"
-           top="0"
-           name="dummy_icon"
-           width="211" />
-      </layout_panel>
-      <layout_panel
-       auto_resize="false"
-       height="25"
-       layout="topleft"
-       name="trash_btn_panel"
-       width="31">
-          <dnd_button
-           follows="bottom|left"
-           height="25"
-           image_hover_unselected="Toolbar_Right_Over"
-           image_overlay="TrashItem_Off"
-           image_selected="Toolbar_Right_Selected"
-           image_unselected="Toolbar_Right_Off"
-           left="0"
-           layout="topleft"
-           name="trash_btn"
-           tool_tip="Remove selected item"
-           top="0"
-           width="31"/>
-      </layout_panel>
-  </layout_stack>
 </panel>

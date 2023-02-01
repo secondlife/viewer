@@ -158,22 +158,21 @@ protected:
 	void updateListCommands();
 	void onAddButtonClick();
 	void showActionMenu(LLMenuGL* menu, std::string spawning_view_name);
-	void onTrashButtonClick();
 	void onClipboardAction(const LLSD& userdata);
 	BOOL isActionEnabled(const LLSD& command_name);
 	BOOL isActionChecked(const LLSD& userdata);
 	void onCustomAction(const LLSD& command_name);
-	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
     static bool hasSettingsInventory();
 	/**
 	 * Set upload cost in "Upload" sub menu.
 	 */
 	void setUploadCostIfNeeded();
 private:
-	LLDragAndDropButton*		mTrashButton;
 	LLToggleableMenu*			mMenuGearDefault;
+    LLToggleableMenu*           mMenuViewDefault;
 	LLToggleableMenu*			mMenuVisibility;
 	LLMenuButton*				mGearMenuButton;
+    LLMenuButton*               mViewMenuButton;
 	LLMenuButton*				mVisibilityMenuButton;
 	LLHandle<LLView>			mMenuAddHandle;
 

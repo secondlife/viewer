@@ -81,8 +81,6 @@ public:
 	
 	bool isInboxEnabled() const { return mInboxEnabled; }
 
-	void updateVerbs();
-
 	static void cleanup();
 
 protected:
@@ -108,22 +106,9 @@ private:
 	LLPanelMainInventory*		mPanelMainInventory;
 
 protected:
-	void 						onInfoButtonClicked();
-	void 						onShareButtonClicked();
-	void 						onShopButtonClicked();
-	void 						onWearButtonClicked();
-	void 						onPlayButtonClicked();
-	void 						onTeleportButtonClicked();
 	void 						onBackButtonClicked();
 
 private:
-	LLButton*					mInfoBtn;
-	LLButton*					mShareBtn;
-	LLButton*					mWearBtn;
-	LLButton*					mPlayBtn;
-	LLButton*					mTeleportBtn;
-	LLButton*					mShopBtn;
-
 	bool						mInboxEnabled;
 
 	LLInventoryCategoriesObserver* 	mCategoriesObserver;
