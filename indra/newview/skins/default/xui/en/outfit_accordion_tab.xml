@@ -18,6 +18,7 @@
      follows="all"
      keep_one_selected="true"
      multi_select="true"
+     show_item_widgets="true"
      name="wearable_items_list"
      translate="false"
      standalone="false"

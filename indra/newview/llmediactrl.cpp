@@ -106,7 +106,6 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mTrusted(p.trusted_content),
 	mWindowShade(NULL),
 	mHoverTextChanged(false),
-	mContextMenu(NULL),
     mAllowFileDownload(false)
 {
 	{
@@ -151,6 +150,13 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 
 LLMediaCtrl::~LLMediaCtrl()
 {
+	auto menu = mContextMenuHandle.get();
+	if (menu)
+	{
+		menu->die();
+		mContextMenuHandle.markDead();
+	}
+
 	if (mMediaSource)
 	{
 		mMediaSource->remObserver( this );
@@ -336,15 +342,33 @@ BOOL LLMediaCtrl::handleRightMouseDown( S32 x, S32 y, MASK mask )
 		setFocus( TRUE );
 	}
 
-	if (mContextMenu)
+	auto menu = mContextMenuHandle.get();
+	if (!menu)
+	{
+		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registar;
+		registar.add("Open.WebInspector", boost::bind(&LLMediaCtrl::onOpenWebInspector, this));
+
+		// stinson 05/05/2014 : use this as the parent of the context menu if the static menu
+		// container has yet to be created
+		LLPanel* menuParent = (LLMenuGL::sMenuContainer != NULL) ? dynamic_cast<LLPanel*>(LLMenuGL::sMenuContainer) : dynamic_cast<LLPanel*>(this);
+		llassert(menuParent != NULL);
+		menu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
+			"menu_media_ctrl.xml", menuParent, LLViewerMenuHolderGL::child_registry_t::instance());
+		if (menu)
+		{
+			mContextMenuHandle = menu->getHandle();
+		}
+	}
+
+	if (menu)
 	{
 		// hide/show debugging options
 		bool media_plugin_debugging_enabled = gSavedSettings.getBOOL("MediaPluginDebugging");
-		mContextMenu->setItemVisible("open_webinspector", media_plugin_debugging_enabled );
-		mContextMenu->setItemVisible("debug_separator", media_plugin_debugging_enabled );
+		menu->setItemVisible("open_webinspector", media_plugin_debugging_enabled );
+		menu->setItemVisible("debug_separator", media_plugin_debugging_enabled );
 
-		mContextMenu->show(x, y);
-		LLMenuGL::showPopup(this, mContextMenu, x, y);
+		menu->show(x, y);
+		LLMenuGL::showPopup(this, menu, x, y);
 	}
 
 	return TRUE;
@@ -409,15 +433,6 @@ void LLMediaCtrl::onFocusLost()
 //
 BOOL LLMediaCtrl::postBuild ()
 {
-	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registar;
-	registar.add("Open.WebInspector", boost::bind(&LLMediaCtrl::onOpenWebInspector, this));
-
-	// stinson 05/05/2014 : use this as the parent of the context menu if the static menu
-	// container has yet to be created
-	LLPanel* menuParent = (LLMenuGL::sMenuContainer != NULL) ? dynamic_cast<LLPanel*>(LLMenuGL::sMenuContainer) : dynamic_cast<LLPanel*>(this);
-	llassert(menuParent != NULL);
-	mContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
-		"menu_media_ctrl.xml", menuParent, LLViewerMenuHolderGL::child_registry_t::instance());
 	setVisibleCallback(boost::bind(&LLMediaCtrl::onVisibilityChanged, this, _2));
 
 	return TRUE;
@@ -1228,11 +1243,6 @@ void LLMediaCtrl::setTrustedContent(bool trusted)
 	{
 		mMediaSource->setTrustedBrowser(trusted);
 	}
-}
-
-void LLMediaCtrl::updateContextMenuParent(LLView* pNewParent)
-{
-	mContextMenu->updateParent(pNewParent);
 }
 
 bool LLMediaCtrl::wantsKeyUpKeyDown() const

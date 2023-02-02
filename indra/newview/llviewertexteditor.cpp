@@ -1252,7 +1252,6 @@ bool LLViewerTextEditor::onCopyToInvDialog(const LLSD& notification, const LLSD&
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if( 0 == option )
 	{
-		LLUUID item_id = notification["payload"]["item_id"].asUUID();
 		llwchar wc = llwchar(notification["payload"]["item_wc"].asInteger());
 		LLInventoryItem* itemp = LLEmbeddedItems::getEmbeddedItemPtr(wc);
 		if (itemp)

@@ -684,7 +684,6 @@ namespace
             if (!injection->mBlendIn)
                 mix = 1.0 - mix;
             stringset_t dummy;
-            LLUUID cloud_noise_id = getCloudNoiseTextureId();
             F64 value = this->mSettings[injection->mKeyName].asReal();
             if (this->getCloudNoiseTextureId().isNull())
             {
@@ -3097,7 +3096,7 @@ bool LLEnvironment::loadFromSettings()
         LL_INFOS("ENVIRONMENT") << "Unable to open previous session environment file " << user_filepath << LL_ENDL;
     }
 
-    if (!env_data.isMap() || env_data.emptyMap())
+    if (!env_data.isMap() || (env_data.size() == 0))
     {
         LL_DEBUGS("ENVIRONMENT") << "Empty map loaded from: " << user_filepath << LL_ENDL;
         return false;

@@ -2159,8 +2159,6 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 
 	std::string callee_name = mPayload["session_name"].asString();
 
-	LLUUID session_id = mPayload["session_id"].asUUID();
-
 	if (callee_name == "anonymous") // obsolete? Likely was part of avaline support
 	{
 		callee_name = getString("anonymous");
@@ -2544,7 +2542,7 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 				}
 			}
 			
-			LLUUID new_session_id = gIMMgr->addSession(correct_session_name, type, session_id, true);
+			gIMMgr->addSession(correct_session_name, type, session_id, true);
 
 			std::string url = gAgent.getRegion()->getCapability(
 				"ChatSessionRequest");
@@ -2630,7 +2628,7 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 			}
 			else
 			{
-				LLUUID new_session_id = gIMMgr->addSession(
+				gIMMgr->addSession(
 					payload["session_name"].asString(),
 					type,
 					session_id, true);
