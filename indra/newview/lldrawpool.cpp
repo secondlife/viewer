@@ -458,7 +458,7 @@ void LLRenderPass::pushGLTFBatches(U32 type)
 
         auto& mat = params.mGLTFMaterial;
 
-        mat->bind();
+        mat->bind(params.mTexture);
 
         LLGLDisable cull_face(mat->mDoubleSided ? GL_CULL_FACE : 0);
 
@@ -489,7 +489,7 @@ void LLRenderPass::pushRiggedGLTFBatches(U32 type)
 
         auto& mat = params.mGLTFMaterial;
 
-        mat->bind();
+        mat->bind(params.mTexture);
 
         LLGLDisable cull_face(mat->mDoubleSided ? GL_CULL_FACE : 0);
 

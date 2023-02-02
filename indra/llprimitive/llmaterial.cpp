@@ -27,7 +27,7 @@
 #include "linden_common.h"
 
 #include "llmaterial.h"
-#include "llmd5.h"
+#include "hbxxh.h"
 
 /**
  * Materials cap parameters
@@ -479,13 +479,9 @@ U32 LLMaterial::getShaderMask(U32 alpha_mode)
 LLUUID LLMaterial::getHash() const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    LLMD5 md5;
     // HACK - hash the bytes of this LLMaterial, but trim off the S32 in LLRefCount
-    md5.update((unsigned char*)this + sizeof(S32), sizeof(this) - sizeof(S32));
-    md5.finalize();
     LLUUID id;
-    md5.raw_digest(id.mData);
-    // *TODO: Hash the overrides
+    HBXXH128::digest(id, (unsigned char*)this + sizeof(S32), sizeof(this) - sizeof(S32));
     return id;
 }
 

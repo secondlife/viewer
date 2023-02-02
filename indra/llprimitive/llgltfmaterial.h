@@ -33,7 +33,7 @@
 #include "v3color.h"
 #include "v2math.h"
 #include "lluuid.h"
-#include "llmd5.h"
+#include "hbxxh.h"
 
 #include <string>
 
@@ -98,12 +98,10 @@ public:
     LLUUID getHash() const
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-        LLMD5 md5;
-        md5.update((unsigned char*)this, sizeof(this));
-        md5.finalize();
-        LLUUID id;
-        md5.raw_digest(id.mData);
-        return id;
+        // HACK - hash the bytes of this object but don't include the ref count
+        LLUUID hash;
+        HBXXH128::digest(hash, (unsigned char*)this + sizeof(S32), sizeof(this) - sizeof(S32));
+        return hash;
     }
 
     enum TextureInfo : U32

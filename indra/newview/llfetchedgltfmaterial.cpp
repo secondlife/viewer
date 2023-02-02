@@ -46,7 +46,7 @@ LLFetchedGLTFMaterial::~LLFetchedGLTFMaterial()
     
 }
 
-void LLFetchedGLTFMaterial::bind()
+void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
 {
     // glTF 2.0 Specification 3.9.4. Alpha Coverage
     // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK
@@ -54,15 +54,19 @@ void LLFetchedGLTFMaterial::bind()
 
     LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
+    // override emissive and base color textures with media tex if present
+    LLViewerTexture* baseColorTex = media_tex ? media_tex : mBaseColorTexture;
+    LLViewerTexture* emissiveTex = media_tex ? media_tex : mEmissiveTexture;
+
     if (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
     {
         min_alpha = mAlphaCutoff;
     }
     shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, min_alpha);
 
-    if (mBaseColorTexture.notNull())
+    if (baseColorTex != nullptr)
     {
-        gGL.getTexUnit(0)->bindFast(mBaseColorTexture);
+        gGL.getTexUnit(0)->bindFast(baseColorTex);
     }
     else
     {
@@ -89,9 +93,9 @@ void LLFetchedGLTFMaterial::bind()
             shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
         }
 
-        if (mEmissiveTexture.notNull())
+        if (emissiveTex != nullptr)
         {
-            shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, mEmissiveTexture);  // PBR sRGB Emissive
+            shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, emissiveTex);  // PBR sRGB Emissive
         }
         else
         {

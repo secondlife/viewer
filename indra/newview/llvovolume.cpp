@@ -5220,13 +5220,16 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
     if (gltf_mat != nullptr)
     {
         mat_id = gltf_mat->getHash(); // TODO: cache this hash
+        if (!facep->hasMedia())
+        { // no media texture, face texture will be unused
+            tex = nullptr;
+        }
     }
     else
     {
         mat = facep->getTextureEntry()->getMaterialParams().get();
         if (mat)
         {
-            //mat_id = facep->getTextureEntry()->getMaterialID().asUUID();
             mat_id = facep->getTextureEntry()->getMaterialParams()->getHash();
         }
     }

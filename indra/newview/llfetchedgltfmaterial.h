@@ -43,7 +43,8 @@ public:
     void onMaterialComplete(std::function<void()> material_complete);
 
     // bind this material for rendering
-    void bind();
+    //   media_tex - optional media texture that may override the base color texture
+    void bind(LLViewerTexture* media_tex = nullptr);
 
     // Textures used for fetching/rendering
     LLPointer<LLViewerFetchedTexture> mBaseColorTexture;

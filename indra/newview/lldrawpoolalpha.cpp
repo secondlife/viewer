@@ -679,7 +679,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                         gPipeline.bindDeferredShaderFast(*target_shader);
                     }
 
-                    params.mGLTFMaterial->bind();
+                    params.mGLTFMaterial->bind(params.mTexture);
                 }
                 else
                 {
