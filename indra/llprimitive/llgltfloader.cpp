@@ -167,7 +167,7 @@ bool LLGLTFLoader::parseMeshes()
 bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const tinygltf::Mesh &mesh)
 {
     pModel->mLabel = mesh.name;
-    int pos_idx, norm_idx, tan_idx, uv0_idx, uv1_idx, color0_idx, color1_idx;
+    int pos_idx;
     tinygltf::Accessor indices_a, positions_a, normals_a, uv0_a, color0_a;
 
     auto prims = mesh.primitives;
@@ -187,12 +187,15 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const tinygltf::Mesh &
             //if (positions_buf.name
         }
 
+#if 0
+        int norm_idx, tan_idx, uv0_idx, uv1_idx, color0_idx, color1_idx;
         norm_idx = (prim.attributes.count("NORMAL") > 0) ? prim.attributes.at("NORMAL") : -1;
         tan_idx = (prim.attributes.count("TANGENT") > 0) ? prim.attributes.at("TANGENT") : -1;
         uv0_idx = (prim.attributes.count("TEXCOORDS_0") > 0) ? prim.attributes.at("TEXCOORDS_0") : -1;
         uv1_idx = (prim.attributes.count("TEXCOORDS_1") > 0) ? prim.attributes.at("TEXCOORDS_1") : -1;
         color0_idx = (prim.attributes.count("COLOR_0") > 0) ? prim.attributes.at("COLOR_0") : -1;
         color1_idx = (prim.attributes.count("COLOR_1") > 0) ? prim.attributes.at("COLOR_1") : -1;
+#endif
 
         if (prim.mode == TINYGLTF_MODE_TRIANGLES)
         {

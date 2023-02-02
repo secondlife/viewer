@@ -263,7 +263,7 @@ public:
 	// inside the app, otherwise a malicious web page could
 	// cause a constant teleport loop.  JC
 	LLTeleportHandler() :
-		LLCommandHandler("teleport", UNTRUSTED_THROTTLE),
+		LLCommandHandler("teleport", UNTRUSTED_CLICK_ONLY),
 		LLEventAPI("LLTeleportHandler", "Low-level teleport API")
 	{
 		LLEventAPI::add("teleport",

@@ -92,7 +92,7 @@ LLMultiSlider::LLMultiSlider(const LLMultiSlider::Params& p)
 	mMouseDownSignal(NULL),
 	mMouseUpSignal(NULL)
 {
-	mValue.emptyMap();
+	mValue = LLSD::emptyMap();
 	mCurSlider = LLStringUtil::null;
 
 	if (mOrientation == HORIZONTAL)
