@@ -54,7 +54,7 @@ if(WINDOWS)
 
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
-        openjpeg.dll
+        openjp2.dll
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
@@ -220,6 +220,7 @@ elseif(LINUX)
                  libfreetype.so.6.6.2
                  libfreetype.so.6
                  libhunspell-1.3.so.0.0.0
+                 libopenjp2.so
                  libuuid.so.16
                  libuuid.so.16.0.22
                  libfontconfig.so.1.8.0

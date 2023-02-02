@@ -676,11 +676,11 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 
 		if (cgl_err != kCGLNoError )
 		{
-			LL_DEBUGS("GLInit") << "Multi-threaded OpenGL not available." << LL_ENDL;
+			LL_INFOS("GLInit") << "Multi-threaded OpenGL not available." << LL_ENDL;
 		}
 		else
 		{
-			LL_DEBUGS("GLInit") << "Multi-threaded OpenGL enabled." << LL_ENDL;
+            LL_INFOS("GLInit") << "Multi-threaded OpenGL enabled." << LL_ENDL;
 		}
 	}
 	makeFirstResponder(mWindow, mGLView);
@@ -1254,8 +1254,11 @@ BOOL LLWindowMacOSX::isClipboardTextAvailable()
 }
 
 BOOL LLWindowMacOSX::pasteTextFromClipboard(LLWString &dst)
-{	
-	llutf16string str(copyFromPBoard());
+{
+    unsigned short* pboard_data = copyFromPBoard(); // must free returned data
+	llutf16string str(pboard_data);
+    free(pboard_data);
+
 	dst = utf16str_to_wstring(str);
 	if (dst != L"")
 	{
@@ -1288,7 +1291,7 @@ LLWindow::LLWindowResolution* LLWindowMacOSX::getSupportedResolutions(S32 &num_r
 {
 	if (!mSupportedResolutions)
 	{
-		CFArrayRef modes = CGDisplayAvailableModes(mDisplay);
+		CFArrayRef modes = CGDisplayCopyAllDisplayModes(mDisplay, nullptr);
 
 		if(modes != NULL)
 		{
@@ -1327,6 +1330,7 @@ LLWindow::LLWindowResolution* LLWindowMacOSX::getSupportedResolutions(S32 &num_r
 					}
 				}
 			}
+            CFRelease(modes);
 		}
 	}
 

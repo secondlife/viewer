@@ -52,9 +52,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b6357ef3a0ec37877a5831820f25094e</string>
+              <string>178b16ee9ff67986c8c14413ee68218e</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/80557/759704/apr_suite-1.4.5.558565-darwin64-558565.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107593/938535/apr_suite-1.4.5.576669-darwin64-576669.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -76,9 +76,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cb48ac069440f6dcd564cfa9fd02a4c2</string>
+              <string>d2997cad03dbd0d70a060276b5671480</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/80556/759710/apr_suite-1.4.5.558565-windows-558565.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107594/938548/apr_suite-1.4.5.576669-windows-576669.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -88,16 +88,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>646dc3828d9c39fb1e77c4eec44ed739</string>
+              <string>ec24f5945faa8f13807b83eeaeb994f8</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/80555/759709/apr_suite-1.4.5.558565-windows64-558565.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107592/938547/apr_suite-1.4.5.576669-windows64-576669.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.4.5.558565</string>
+        <string>1.4.5.576669</string>
       </map>
       <key>boost</key>
       <map>
@@ -1438,9 +1438,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c1c9e32e21f3c34d91ed045b2ca91f24</string>
+              <string>7a0059748d0b8733f2f9ce434cf604b8</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87781/805801/libpng-1.6.8.563850-darwin64-563850.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107514/937867/libpng-1.6.38.576621-darwin64-576621.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1462,9 +1462,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>642e9cf95c8ccd0eb34f6d7a40df585a</string>
+              <string>3112013186ad60b0fc270a398d4dd499</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87782/805831/libpng-1.6.8.563850-windows-563850.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107513/937823/libpng-1.6.38.576621-windows-576621.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1474,16 +1474,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ce46aa0f171d97626c4a3940347cecd7</string>
+              <string>7c6bfcdb0d6162587cdbc436f595dd02</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87780/805832/libpng-1.6.8.563850-windows64-563850.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107512/937822/libpng-1.6.38.576621-windows64-576621.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.6.8.563850</string>
+        <string>1.6.38.576621</string>
       </map>
       <key>libuuid</key>
       <map>
@@ -2215,9 +2215,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5abf2d9c0b250821c59cc60cd94fd8af</string>
+              <string>8114c6a7e499ea20d325db0de08ce30a</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54840/510064/openjpeg-1.5.1.538970-darwin64-538970.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/105469/923024/openjpeg-2.5.0.575496-darwin64-575496.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2239,9 +2239,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>222a406ecb4071a9cc9635353afa337e</string>
+              <string>edc9388870d951632a6d595792293e05</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54977/511775/openjpeg-1.5.1.538970-windows-538970.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/105472/923036/openjpeg-2.5.0.575496-windows-575496.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2251,16 +2251,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5b5c80807fa8161f3480be3d89fe9516</string>
+              <string>b95f0732f2388ebb0ddf33d4a30e0ff1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54974/511767/openjpeg-1.5.1.538970-windows64-538970.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/105471/923037/openjpeg-2.5.0.575496-windows64-575496.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.5.1.538970</string>
+        <string>2.5.0.575496</string>
       </map>
       <key>openssl</key>
       <map>

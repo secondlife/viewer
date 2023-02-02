@@ -1568,7 +1568,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
         return;
     }
 
-    if (messages.emptyArray())
+    if (messages.size() == 0)
     {
         // Nothing to process
         return;

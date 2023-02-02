@@ -136,6 +136,10 @@
 #include "vlc/libvlc_version.h"
 #endif // LL_LINUX
 
+#if LL_DARWIN
+#include "llwindowmacosx.h"
+#endif
+
 // Third party library includes
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
@@ -561,6 +565,7 @@ static void settings_to_globals()
     LLWorldMapView::setScaleSetting(gSavedSettings.getF32("MapScale"));
 	
 #if LL_DARWIN
+    LLWindowMacOSX::sUseMultGL = gSavedSettings.getBOOL("RenderAppleUseMultGL");
 	gHiDPISupport = gSavedSettings.getBOOL("RenderHiDPI");
 #endif
 }
@@ -1733,7 +1738,8 @@ bool LLAppViewer::cleanup()
 	{
 		if (!isSecondInstance())
 		{
-			LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
+            std::string dump_path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv");
+			LLSceneMonitor::instance().dumpToFile(dump_path);
 		}
 		LLSceneMonitor::deleteSingleton();
 	}
