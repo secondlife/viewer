@@ -44,8 +44,17 @@
    top_pad="15"
    name="settings_title"
    width="300">
-    Preferred frame rate
+    Auto-adjust settings
   </text>
+  <button
+   follows="top|left"
+   height="23"
+   label="Reset to recommended settings"
+   layout="topleft"
+   left="360"
+   name="defaults_btn"
+   top_delta="0"
+   width="200"/>
   <view_border
    bevel_style="in"
    height="0"

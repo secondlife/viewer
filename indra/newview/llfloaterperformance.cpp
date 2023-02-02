@@ -151,6 +151,7 @@ BOOL LLFloaterPerformance::postBuild()
     LLStringExplicit fps_limit(llformat("%d", gViewerWindow->getWindow()->getRefreshRate()));
     mAutoadjustmentsPanel->getChild<LLTextBox>("vsync_desc_limit")->setTextArg("[FPS_LIMIT]", fps_limit);
     mAutoadjustmentsPanel->getChild<LLTextBox>("display_desc")->setTextArg("[FPS_LIMIT]", fps_limit);
+    mAutoadjustmentsPanel->getChild<LLButton>("defaults_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickDefaults, this));
 
     mStartAutotuneBtn = mAutoadjustmentsPanel->getChild<LLButton>("start_autotune");
     mStopAutotuneBtn = mAutoadjustmentsPanel->getChild<LLButton>("stop_autotune");
