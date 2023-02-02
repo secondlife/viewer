@@ -1430,9 +1430,9 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 
 	for(U32 i=0; i<num_motions; ++i)
 	{
-		JointMotion* joint_motion = new JointMotion;		
+		JointMotion* joint_motion = new JointMotion;
 		mJointMotionList->mJointMotionArray.push_back(joint_motion);
-		
+
 		std::string joint_name;
 		if (!dp.unpackString(joint_name, "joint_name"))
 		{
@@ -1447,8 +1447,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                        << " for animation " << asset_id << LL_ENDL;
 			return FALSE;
 		}
-				
-		//---------------------------------------------------------------------
+
+        //---------------------------------------------------------------------
 		// find the corresponding joint
 		//---------------------------------------------------------------------
 		LLJoint *joint = mCharacter->getJoint( joint_name );
@@ -1477,7 +1477,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 		}
 
 		joint_motion->mJointName = joint_name;
-		
+
 		LLPointer<LLJointState> joint_state = new LLJointState;
 		mJointStates.push_back(joint_state);
 		joint_state->setJoint( joint ); // note: can accept NULL
@@ -1500,7 +1500,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                        << " for animation " << asset_id << LL_ENDL;
 			return FALSE;
 		}
-		
+
 		joint_motion->mPriority = (LLJoint::JointPriority)joint_priority;
 		if (joint_priority != LLJoint::USE_MOTION_PRIORITY &&
 		    joint_priority > mJointMotionList->mMaxPriority)
@@ -1599,8 +1599,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                            << " for animation " << asset_id << LL_ENDL;
 				success = FALSE;
 			}
-			
-			if (!success)
+
+            if (!success)
 			{
 				LL_WARNS() << "can't read rotation key (" << k << ")"
                            << " for animation " << asset_id << LL_ENDL;

@@ -272,9 +272,6 @@ public:
 
     //Create a new joint alias
     void makeTranslation(std::string key, std::string value);
-    
-    // Loads joint aliases from XML file.
-    ELoadStatus loadAliases(const char * filename);
 
 	// Load the specified BVH file.
 	// Returns status code.

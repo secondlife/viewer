@@ -137,7 +137,7 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 	errorLine = 0;
 	mStatus = loadTranslationTable("anim.ini");
 	loadStatus = mStatus;
-	LL_INFOS("BVH") << "Load Status 00 : " << loadStatus << LL_ENDL;
+	LL_INFOS("BVH") << "Load Status 00 for anim.ini: " << loadStatus << LL_ENDL;
 	if (mStatus == E_ST_NO_XLT_FILE)
 	{
 		LL_WARNS("BVH") << "NOTE: No translation table found." << LL_ENDL;
@@ -154,14 +154,13 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 			return;
 		}
 	}
-    
+
     // Recognize all names we've been told are legal.
     std::map<std::string, std::string>::iterator iter;
     for (iter = joint_alias_map.begin(); iter != joint_alias_map.end(); iter++)
     {
         makeTranslation( iter->first , iter->second );
     }
-	
 	char error_text[128];		/* Flawfinder: ignore */
 	S32 error_line;
 	mStatus = loadBVHFile(buffer, error_text, error_line); //Reads all joints in BVH file.
@@ -169,7 +168,7 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 	LL_DEBUGS("BVH") << "============================================================" << LL_ENDL;
 	LL_DEBUGS("BVH") << "Raw data from file" << LL_ENDL;
 	dumpBVHInfo();
-	
+
 	if (mStatus != E_ST_OK)
 	{
 		LL_WARNS("BVH") << "ERROR: [line: " << getLineNumber() << "] " << mStatus << LL_ENDL;
@@ -213,17 +212,17 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 
 	LL_INFOS("BVH") << "NOTE: Loading translation table: " << fileName << LL_ENDL;
 
-	//--------------------------------------------------------------------
-	// register file to be closed on function exit
-	//--------------------------------------------------------------------
-	
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
 	// load header
 	//--------------------------------------------------------------------
 	if ( ! getLine(fp) )
 		return E_ST_EOF;
 	if ( strncmp(mLine, "Translations 1.0", 16) )
 		return E_ST_NO_XLT_HEADER;
+
+
+    // NOTE - this code appears to be gloriously broken.   SL shipped with nothing in the anim.ini
+    // file, but now trying to make some name translations for it
 
 	//--------------------------------------------------------------------
 	// load data one line at a time
@@ -242,12 +241,12 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 			continue;
 
 		//----------------------------------------------------------------
-		// check if a [jointName] or [GLOBALS] was specified.
+		// check if a [ALIAS aliasBoneName boneName] or [GLOBALS] was specified.
 		//----------------------------------------------------------------
 		if (token[0] == '[')
 		{
 			char name[128]; /* Flawfinder: ignore */
-			if ( sscanf(mLine, " [%127[^]]", name) != 1 )
+            if ( sscanf(mLine, " [%127s %*[^]]", name) != 1 )
 				return E_ST_NO_XLT_NAME;
 
 			if (strcmp(name, "GLOBALS")==0)
@@ -255,10 +254,23 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 				loadingGlobals = TRUE;
 				continue;
 			}
-		}
+            else if (strcmp(name, "ALIAS") == 0)
+            {
+                char alias_name[128]; /* Flawfinder: ignore */
+                char joint_name[128];  /* Flawfinder: ignore */
+                if (sscanf(mLine, " [ALIAS %127s %127[^]]s ]", alias_name, joint_name) != 2)
+                {
+                    LL_WARNS("BVH") << "BVH anim.ini line error: " << mLine << LL_ENDL;
+                    return E_ST_NO_XLT_NAME;
+                }
+                LL_DEBUGS("BVH") << "BVH anim.ini alias: " << alias_name << " to " << joint_name << LL_ENDL;
+                makeTranslation(alias_name, joint_name);
+                continue;
+            }
+        }
 
 		//----------------------------------------------------------------
-		// check for optional emote 
+		// check for optional emote
 		//----------------------------------------------------------------
 		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "emote")==0)
 		{
@@ -293,7 +305,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 		{
 			char trueFalse[128];		/* Flawfinder: ignore */
 			trueFalse[0] = '\0';
-			
+
 			F32 loop_in = 0.f;
 			F32 loop_out = 1.f;
 
@@ -301,7 +313,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 			{
 				mLoop = TRUE;
 			}
-			else if ( sscanf(mLine, " %*s = %127s", trueFalse) == 1 )	/* Flawfinder: ignore */	
+			else if ( sscanf(mLine, " %*s = %127s", trueFalse) == 1 )	/* Flawfinder: ignore */
 			{
 				mLoop = (LLStringUtil::compareInsensitive(trueFalse, "true")==0);
 			}
@@ -411,7 +423,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 				}
 
 			}
-			
+
 			constraint.mConstraintType = CONSTRAINT_TYPE_POINT;
 			mConstraints.push_back(constraint);
 			continue;
@@ -469,9 +481,8 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 				{
 					constraint.mTargetDir.normVec();
 				}
-
 			}
-			
+
 			constraint.mConstraintType = CONSTRAINT_TYPE_PLANE;
 			mConstraints.push_back(constraint);
 			continue;
@@ -485,69 +496,36 @@ void LLBVHLoader::makeTranslation(std::string alias_name, std::string joint_name
 {
     //Translation &newTrans = (foomap.insert(value_type(alias_name, Translation()))).first();
     Translation &newTrans = mTranslations[ alias_name ];  //Uses []'s implicit call to ctor.
-    
+
     newTrans.mOutName = joint_name;
     LLMatrix3 fm;
     LLVector3 vect1(0, 1, 0);
     LLVector3 vect2(0, 0, 1);
     LLVector3 vect3(1, 0, 0);
     fm.setRows(vect1, vect2, vect3);
-    
+
     newTrans.mFrameMatrix = fm;
-    
-if (joint_name == "mPelvis")
+
+    if (joint_name == "mPelvis")
     {
         newTrans.mRelativePositionKey = TRUE;
         newTrans.mRelativeRotationKey = TRUE;
     }
-
+    else if (joint_name == "ignore")
+    {
+        newTrans.mIgnore = true;
+        newTrans.mIgnorePositions = true;
+    }
 }
 
-ELoadStatus LLBVHLoader::loadAliases(const char * filename)
-{
-    LLSD aliases_sd;
- 
-    std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,filename);
-    
-    llifstream input_stream;
-    input_stream.open(fullpath.c_str(), std::ios::in | std::ios::binary);
-    
-    if(input_stream.is_open())
-    {
-        if ( LLSDSerialize::fromXML(aliases_sd, input_stream) )
-        {
-            for(LLSD::map_iterator alias_iter = aliases_sd.beginMap();
-                alias_iter != aliases_sd.endMap();
-                ++alias_iter)
-            {
-                LLSD::String alias_name = alias_iter->first;
-                LLSD::String joint_name = alias_iter->second;
-                makeTranslation(alias_name, joint_name);
-                
-            }
-        }
-        else
-        {
-            return E_ST_NO_XLT_HEADER;
-        }
-        input_stream.close();
-    }
-    else
-    {
-        LL_WARNS("BVH") << "Can't open joint alias file " << fullpath << LL_ENDL;
-        return E_ST_NO_XLT_FILE;
-    }
-
-    return E_ST_OK;
-}
 
 void LLBVHLoader::dumpBVHInfo()
 {
 	for (U32 j=0; j<mJoints.size(); j++)
 	{
 		Joint *joint = mJoints[j];
-		LL_DEBUGS("BVH") << joint->mName << LL_ENDL;
-		for (S32 i=0; i<mNumFrames; i++)
+		LL_DEBUGS("BVHDump") << joint->mName << LL_ENDL;
+		for (S32 i=0; i<mNumFrames; i++)        // This is a LOT of data
 		{
             if (i<joint->mKeys.size()) // Check this in case file load failed.
             {
@@ -562,7 +540,7 @@ void LLBVHLoader::dumpBVHInfo()
                     (key.mRot[2] != prevkey.mRot[2])
                     )
                 {
-                    LL_DEBUGS("BVH") << "FRAME " << i 
+                    LL_DEBUGS("BVHDump") << "FRAME " << i
                                      << " POS " << key.mPos[0] << "," << key.mPos[1] << "," << key.mPos[2]
                                      << " ROT " << key.mRot[0] << "," << key.mRot[1] << "," << key.mRot[2] << LL_ENDL;
                 }
@@ -687,7 +665,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
         {
             //The root joint of the BVH file must be hip (mPelvis) or an alias of mPelvis.
             const char* FORCED_ROOT_NAME = "hip";
-            
+
             TranslationMap::iterator hip_joint = mTranslations.find( FORCED_ROOT_NAME );
             TranslationMap::iterator root_joint = mTranslations.find( jointName );
             if ( hip_joint == mTranslations.end() || root_joint == mTranslations.end() || root_joint->second.mOutName != hip_joint->second.mOutName )
@@ -697,7 +675,6 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
             }
         }
 
-		
 		//----------------------------------------------------------------
 		// add a set of keyframes for this joint
 		//----------------------------------------------------------------
@@ -914,7 +891,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
             }
             float_token_iter++;
 		}
-		LL_DEBUGS("BVH") << "Got " << floats.size() << " floats " << LL_ENDL;
+		LL_DEBUGS("BVHFloats") << "Got " << floats.size() << " floats " << LL_ENDL;     // This is a lot of data
 		for (U32 j=0; j<mJoints.size(); j++)
 		{
 			Joint *joint = mJoints[j];
