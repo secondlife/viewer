@@ -770,7 +770,7 @@ void LLMaterialEditor::markChangesUnsaved(U32 dirty_flag)
         const LLInventoryItem* item = getItem();
         if (item)
         {
-            LLPermissions perm(item->getPermissions());
+            //LLPermissions perm(item->getPermissions());
             bool allow_modify = canModify(mObjectUUID, item);
             bool source_library = mObjectUUID.isNull() && gInventory.isObjectDescendentOf(mItemUUID, gInventory.getLibraryRootFolderID());
             bool source_notecard = mNotecardInventoryID.notNull();
@@ -1339,7 +1339,6 @@ bool LLMaterialEditor::updateInventoryItem(const std::string &buffer, const LLUU
         }
         else if (!task_id.isNull() && !task_url.empty())
         {
-            LLUUID object_uuid(task_id);
             uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(task_id, item_id, LLAssetType::AT_MATERIAL, buffer,
                 [](LLUUID itemId, LLUUID task_id, LLUUID newAssetId, LLSD)
                 {
@@ -1390,7 +1389,6 @@ void LLMaterialEditor::createInventoryItem(const std::string &buffer, const std:
     // gen a new uuid for this asset
     LLTransactionID tid;
     tid.generate();     // timestamp-based randomization + uniquification
-    LLAssetID new_asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
     U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Materials");
     LLUUID parent = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_MATERIAL);
     const U8 subtype = NO_INV_SUBTYPE;  // TODO maybe use AT_SETTINGS and LLSettingsType::ST_MATERIAL ?
