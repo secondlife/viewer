@@ -515,7 +515,7 @@ void LLSceneMonitor::fetchQueryResult()
 }
 
 //dump results to a file _scene_xmonitor_results.csv
-void LLSceneMonitor::dumpToFile(std::string file_name)
+void LLSceneMonitor::dumpToFile(const std::string &file_name)
 {
 	if (!hasResults()) return;
 

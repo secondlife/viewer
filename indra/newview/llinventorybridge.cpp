@@ -834,6 +834,12 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			{
 				disabled_items.push_back(std::string("Find Original"));
 			}
+
+            items.push_back(std::string("Cut"));
+            if (!isItemMovable() || !isItemRemovable())
+            {
+                disabled_items.push_back(std::string("Cut"));
+            }
 		}
 		else
 		{
@@ -2154,6 +2160,7 @@ bool LLItemBridge::isItemCopyable(bool can_copy_as_link) const
 
     static LLCachedControl<bool> inventory_linking(gSavedSettings, "InventoryLinking", true);
     return (can_copy_as_link && inventory_linking)
+        || (mIsLink && inventory_linking)
         || item->getPermissions().allowCopyBy(gAgent.getID());
 }
 
@@ -2360,6 +2367,12 @@ BOOL LLFolderBridge::isUpToDate() const
 
 bool LLFolderBridge::isItemCopyable(bool can_copy_as_link) const
 {
+    if (can_copy_as_link && !LLFolderType::lookupIsProtectedType(getPreferredType()))
+    {
+        // Can copy and paste unprotected folders as links
+        return true;
+    }
+
 	// Folders are copyable if items in them are, recursively, copyable.
 	
 	// Get the content of the folder

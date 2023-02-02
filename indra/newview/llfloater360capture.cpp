@@ -537,7 +537,8 @@ void LLFloater360Capture::capture360Images()
     // We need to convert from the angle getYaw() gives us into something
     // the XMP data field wants (N=0, E=90, S=180, W= 270 etc.)
     mInitialHeadingDeg  = (360 + 90 - (int)(camera->getYaw() * RAD_TO_DEG)) % 360;
-    LL_INFOS("360Capture") << "Recording a heading of " << (int)(mInitialHeadingDeg) << LL_ENDL;
+    LL_INFOS("360Capture") << "Recording a heading of " << (int)(mInitialHeadingDeg)
+        << " Image size: " << (S32)mSourceImageSize << LL_ENDL;
 
     // camera constants for the square, cube map capture image
     camera->setAspect(1.0); // must set aspect ratio first to avoid undesirable clamping of vertical FoV
@@ -587,6 +588,9 @@ void LLFloater360Capture::capture360Images()
     // for each of the 6 directions we shoot...
     for (int i = 0; i < 6; i++)
     {
+        LLAppViewer::instance()->pauseMainloopTimeout();
+        LLViewerStats::instance().getRecording().stop();
+
         // these buffers are where the raw, captured pixels are stored and
         // the first time we use them, we have to make a new one
         if (mRawImages[i] == nullptr)
@@ -624,8 +628,10 @@ void LLFloater360Capture::capture360Images()
         auto duration = std::chrono::duration_cast<std::chrono::duration<double>>(t_end - t_start);
         encode_time_total += duration.count();
 
-        // ping the main loop in case the snapshot process takes a really long
-        // time and we get disconnected
+        LLViewerStats::instance().getRecording().resume();
+        LLAppViewer::instance()->resumeMainloopTimeout();
+        
+        // update main loop timeout state
         LLAppViewer::instance()->pingMainloopTimeout("LLFloater360Capture::capture360Images");
     }
 

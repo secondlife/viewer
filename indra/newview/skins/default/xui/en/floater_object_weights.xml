@@ -2,7 +2,7 @@
 <floater
  can_close="true"
  can_tear_off="false"
- height="315"
+ height="289"
  help_topic="object_weights"
  layout="topleft"
  name="object_weights"
@@ -320,23 +320,4 @@
      top_delta="0"
      value="Total capacity"
      width="130" />
-    <view_border
-     bevel_style="none"
-     follows="top|left"
-     height="0"
-     layout="topleft"
-     left="10"
-     name="land_impacts_text_border"
-     top_pad="5"
-     width="180"/>
-
-    <text
-     follows="left|top"
-     height="16"
-     layout="topleft"
-     left="10"
-     name="help_SLURL"
-     top_pad="10"
-     value="[secondlife:///app/help/object_weights What is all this?...]"
-     width="180" />
 </floater>

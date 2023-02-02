@@ -42,6 +42,7 @@ class LLSD;
 class LLTextBase;
 class LLUICtrl;
 class LLVector3;
+class LLSearchEditor;
 
 class LLFloaterPathfindingLinksets : public LLFloaterPathfindingObjects
 {
@@ -105,8 +106,8 @@ private:
 	LLPathfindingLinkset::ELinksetUse convertToLinksetUse(LLSD pXuiValue) const;
 	LLSD                              convertToXuiValue(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
 
-	LLLineEditor     *mFilterByName;
-	LLLineEditor     *mFilterByDescription;
+    LLSearchEditor   *mFilterByName;
+    LLSearchEditor   *mFilterByDescription;
 	LLComboBox       *mFilterByLinksetUse;
 	LLComboBox       *mEditLinksetUse;
 	LLScrollListItem *mEditLinksetUseUnset;
