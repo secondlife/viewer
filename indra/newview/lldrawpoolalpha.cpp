@@ -115,8 +115,18 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool d
     }
     shader->uniform1i(LLShaderMgr::NO_ATMO, (LLPipeline::sRenderingHUDs) ? 1 : 0);
     shader->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f / 2.2f));
-    shader->uniform1f(waterSign, water_sign);
-    shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, LLDrawPoolAlpha::sWaterPlane.mV);
+
+    if (LLPipeline::sRenderingHUDs)
+    { // for HUD attachments, only the pre-water pass is executed and we never want to clip anything
+        LLVector4 near_clip(0, 0, -1, 0);
+        shader->uniform1f(waterSign, 1.f);
+        shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, near_clip.mV);
+    }
+    else
+    {
+        shader->uniform1f(waterSign, water_sign);
+        shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, LLDrawPoolAlpha::sWaterPlane.mV);
+    }
 
     if (LLPipeline::sImpostorRender)
     {
@@ -605,18 +615,21 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
             LLSpatialBridge* bridge = group->getSpatialPartition()->asBridge();
             const LLVector4a* ext = bridge ? bridge->getSpatialExtents() : group->getExtents();
 
-            if (above_water)
-            { // reject any spatial groups that have no part above water
-                if (ext[1].getF32ptr()[2] < water_height)
-                {
-                    continue;
+            if (!LLPipeline::sRenderingHUDs) // ignore above/below water for HUD render
+            {
+                if (above_water)
+                { // reject any spatial groups that have no part above water
+                    if (ext[1].getF32ptr()[2] < water_height)
+                    {
+                        continue;
+                    }
                 }
-            }
-            else
-            { // reject any spatial groups that he no part below water
-                if (ext[0].getF32ptr()[2] > water_height)
-                {
-                    continue;
+                else
+                { // reject any spatial groups that he no part below water
+                    if (ext[0].getF32ptr()[2] > water_height)
+                    {
+                        continue;
+                    }
                 }
             }
 
