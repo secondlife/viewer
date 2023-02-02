@@ -26,7 +26,7 @@
 /*[EXTRA_CODE_HERE]*/
 
 // Inputs
-VARYING vec4 vary_HazeColor;
+VARYING vec3 vary_HazeColor;
 VARYING float vary_LightNormPosDot;
 
 uniform sampler2D rainbow_map;
@@ -46,7 +46,6 @@ out vec4 frag_data[3];
 // The fragment shader for the sky
 /////////////////////////////////////////////////////////////////////////
 
-VARYING vec3 vary_HazeColor;
 
 vec3 rainbow(float d)
 {

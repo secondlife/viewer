@@ -169,7 +169,6 @@ static OPJ_SIZE_T opj_write(void * buffer, OPJ_SIZE_T bytes, void* user_data)
 
 static OPJ_OFF_T opj_skip(OPJ_OFF_T bytes, void* user_data)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     JPEG2KBase* jpeg_codec = static_cast<JPEG2KBase*>(user_data);
     jpeg_codec->offset += bytes;
 
@@ -727,6 +726,7 @@ bool LLImageJ2COJ::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int disca
 
 bool LLImageJ2COJ::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int blocks_size, int precincts_size, int levels)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	// No specific implementation for this method in the OpenJpeg case
 	return false;
 }
