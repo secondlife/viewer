@@ -95,11 +95,13 @@ public:
     void clear() { mData.clear(); }
     // if there any empty LLKeyData in the end of the array, remove them
     void trimEmpty();
-    U32 getDataCount();
+    size_t getDataCount();
 
 private:
     typedef std::vector<LLKeyData> data_vector_t;
     data_vector_t mData;
+
+    data_vector_t::const_iterator endNonEmpty() const;
 };
 
 
