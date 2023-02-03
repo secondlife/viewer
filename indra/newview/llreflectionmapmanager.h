@@ -169,6 +169,11 @@ private:
     // This should avoid feedback loops and ensure that the colors in the radiance maps match the colors in the environment.
     bool mRadiancePass = false;
 
+    // same as above, but for the realtime probe.
+    // Realtime probes should update all six sides of the irradiance map on "odd" frames and all six sides of the
+    // radiance map on "even" frames.
+    bool mRealtimeRadiancePass = false;
+
     LLPointer<LLReflectionMap> mDefaultProbe;  // default reflection probe to fall back to for pixels with no probe influences (should always be at cube index 0)
 
     // number of reflection probes to use for rendering (based on saved setting RenderReflectionProbeCount)

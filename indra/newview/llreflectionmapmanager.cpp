@@ -206,11 +206,21 @@ void LLReflectionMapManager::update()
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("rmmu - realtime");
         // update the closest dynamic probe realtime
+        // should do a full irradiance pass on "odd" frames and a radiance pass on "even" frames
         closestDynamic->autoAdjustOrigin();
+
+        // store and override the value of "isRadiancePass" -- parts of the render pipe rely on "isRadiancePass" to set 
+        // lighting values etc
+        bool radiance_pass = isRadiancePass();
+        mRadiancePass = mRealtimeRadiancePass;
         for (U32 i = 0; i < 6; ++i)
         {
             updateProbeFace(closestDynamic, i);
         }
+        mRealtimeRadiancePass = !mRealtimeRadiancePass;
+
+        // restore "isRadiancePass"
+        mRadiancePass = radiance_pass;
     }
 
     // switch to updating the next oldest probe
