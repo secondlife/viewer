@@ -211,6 +211,7 @@ BOOL LLFloaterIMContainer::postBuild()
     p.options_menu = "menu_conversation.xml";
 	mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
     mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
+	mConversationsRoot->setEnableRegistrar(&mEnableCallbackRegistrar);
 
 	// Add listener to conversation model events
 	mConversationsEventStream.listen("ConversationsRefresh", boost::bind(&LLFloaterIMContainer::onConversationModelEvent, this, _1));

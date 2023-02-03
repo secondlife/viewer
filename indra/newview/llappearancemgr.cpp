@@ -3994,7 +3994,7 @@ void LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, boo
 		inventory_func_type func = boost::bind(&LLAppearanceMgr::onOutfitFolderCreated,this,_1,show_panel);
 
 		// D567 copy thumbnail info from source folder
-		LLUUID folder_id = gInventory.createNewCategory(
+		gInventory.createNewCategory(
 			parent_id,
 			LLFolderType::FT_OUTFIT,
 			new_folder_name,
