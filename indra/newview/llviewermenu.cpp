@@ -3042,9 +3042,7 @@ void handle_object_inspect()
 	LLViewerObject* selected_objectp = selection->getFirstRootObject();
 	if (selected_objectp)
 	{
-		LLSD key;
-		key["task"] = "task";
-		LLFloaterSidePanelContainer::showPanel("inventory", key);
+        LLFloaterReg::showInstance("task_properties");
 	}
 	
 	/*

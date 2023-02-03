@@ -765,13 +765,17 @@ BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id)
 
 void show_task_item_profile(const LLUUID& item_uuid, const LLUUID& object_id)
 {
-	LLFloaterSidePanelContainer::showPanel("inventory", LLSD().with("id", item_uuid).with("object", object_id));
+    LLSD params;
+    params["id"] = item_uuid;
+    params["object"] = object_id;
+    
+    LLFloaterReg::showInstance("item_properties", params);
 }
 
 void show_item_profile(const LLUUID& item_uuid)
 {
 	LLUUID linked_uuid = gInventory.getLinkedItemID(item_uuid);
-	LLFloaterSidePanelContainer::showPanel("inventory", LLSD().with("id", linked_uuid));
+    LLFloaterReg::showInstance("item_properties", LLSD().with("id", linked_uuid));
 }
 
 void show_item_original(const LLUUID& item_uuid)
