@@ -940,11 +940,7 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 			{
 				gSky.mVOSkyp->setRegion(regionp);
 			}
-			if (gSky.mVOGroundp)
-			{
-				gSky.mVOGroundp->setRegion(regionp);
-			}
-
+			
             if (regionp->capabilitiesReceived())
             {
                 regionp->requestSimulatorFeatures();

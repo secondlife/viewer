@@ -23,15 +23,10 @@
  * $/LicenseInfo$
  */
 
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
-VARYING vec3 vary_texcoord1;
+in vec4 vertex_color;
+in vec2 vary_texcoord0;
+in vec3 vary_texcoord1;
 
 uniform samplerCube environmentMap;
 
@@ -39,7 +34,7 @@ vec3 scaleSoftClip(vec3 light);
 vec3 atmosLighting(vec3 light);
 vec4 applyWaterFog(vec4 color);
 
-void shiny_lighting()
+vec4 shiny_lighting()
 {
 	vec4 color = diffuseLookup(vary_texcoord0.xy);
 	color.rgb *= vertex_color.rgb;
@@ -51,6 +46,6 @@ void shiny_lighting()
 
 	color.rgb = scaleSoftClip(color.rgb);
 	color.a = 1.0;
-	frag_color = color;
+	return color;
 }
 

@@ -28,9 +28,6 @@ uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
-// render_hud_attachments() -> HUD objects set LLShaderMgr::NO_ATMO; used in LLDrawPoolAlpha::beginRenderPass()
-uniform int no_atmo;
-
 ATTRIBUTE vec3 position;
 void passTextureIndex();
 ATTRIBUTE vec2 texcoord0;
@@ -58,30 +55,21 @@ void main()
 	passTextureIndex();
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0, 0, 1)).xy;
 
-	// SL-9632 HUDs are affected by Atmosphere
-	if (no_atmo == 1)
-	{
-		vertex_color = diffuse_color;
-        gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
-	}
-	else
-	{
+
 #ifdef HAS_SKIN
-        mat4 mat = getObjectSkinnedTransform();
-        mat = modelview_matrix * mat;
+    mat4 mat = getObjectSkinnedTransform();
+    mat = modelview_matrix * mat;
 
-        vec4 pos = mat * vert;
-        vec3 norm = normalize((mat*vec4(normal.xyz+vert.xyz,1.0)).xyz-pos.xyz);
+    vec4 pos = mat * vert;
+    vec3 norm = normalize((mat*vec4(normal.xyz+vert.xyz,1.0)).xyz-pos.xyz);
 
-        gl_Position = projection_matrix * pos;
+    gl_Position = projection_matrix * pos;
 #else
-		vec4 pos = (modelview_matrix * vert);
-		vec3 norm = normalize(normal_matrix * normal);
-        gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
+	vec4 pos = (modelview_matrix * vert);
+	vec3 norm = normalize(normal_matrix * normal);
+    gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 #endif
 
-		calcAtmospherics(pos.xyz);
-
-		vertex_color = calcLighting(pos.xyz, norm, diffuse_color);
-	}
+	calcAtmospherics(pos.xyz);
+	vertex_color = calcLighting(pos.xyz, norm, diffuse_color);
 }

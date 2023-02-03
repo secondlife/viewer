@@ -499,7 +499,6 @@ void LLDrawable::makeActive()
 			pcode == LLViewerObject::LL_VO_SURFACE_PATCH ||
 			pcode == LLViewerObject::LL_VO_PART_GROUP ||
 			pcode == LLViewerObject::LL_VO_HUD_PART_GROUP ||
-			pcode == LLViewerObject::LL_VO_GROUND ||
 			pcode == LLViewerObject::LL_VO_SKY)
 		{
 			LL_ERRS() << "Static viewer object has active drawable!" << LL_ENDL;
@@ -984,8 +983,7 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 		bool rebuild = (!volume && 
 						getRenderType() != LLPipeline::RENDER_TYPE_TREE &&
 						getRenderType() != LLPipeline::RENDER_TYPE_TERRAIN &&
-						getRenderType() != LLPipeline::RENDER_TYPE_SKY &&
-						getRenderType() != LLPipeline::RENDER_TYPE_GROUND);
+						getRenderType() != LLPipeline::RENDER_TYPE_SKY);
 
 		if (rebuild)
 		{

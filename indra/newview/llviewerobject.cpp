@@ -84,7 +84,6 @@
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "llvograss.h"
-#include "llvoground.h"
 #include "llvolume.h"
 #include "llvolumemessage.h"
 #include "llvopartgroup.h"
@@ -163,7 +162,6 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 		&& pcode != LL_VO_VOID_WATER
 		&& pcode != LL_VO_WL_SKY
 		&& pcode != LL_VO_SKY
-		&& pcode != LL_VO_GROUND
 		&& pcode != LL_VO_PART_GROUP
 		)
 	{
@@ -235,8 +233,6 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 		res = new LLVOVoidWater(id, pcode, regionp); break;
 	case LL_VO_WATER:
 		res = new LLVOWater(id, pcode, regionp); break;
-	case LL_VO_GROUND:
-	  res = new LLVOGround(id, pcode, regionp); break;
 	case LL_VO_PART_GROUP:
 	  res = new LLVOPartGroup(id, pcode, regionp); break;
 	case LL_VO_HUD_PART_GROUP:

@@ -2047,17 +2047,6 @@ function="World.EnvPreset"
                  parameter="water" />
             </menu_item_check>
             <menu_item_check
-             label="Ground"
-             name="Rendering Type Ground"
-             shortcut="control|alt|shift|8">
-                <menu_item_check.on_check
-                 function="Advanced.CheckRenderType"
-                 parameter="ground" />
-                <menu_item_check.on_click
-                 function="Advanced.ToggleRenderType"
-                 parameter="ground" />
-            </menu_item_check>
-            <menu_item_check
              label="Volume"
              name="Rendering Type Volume"
              shortcut="control|alt|shift|9">

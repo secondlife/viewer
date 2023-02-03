@@ -51,11 +51,6 @@ public:
 	/*virtual*/ void renderDeferred(S32 pass);
 
 	/*virtual*/ LLViewerTexture *getDebugTexture();
-	/*virtual*/ void beginRenderPass( S32 pass );
-	/*virtual*/ void endRenderPass( S32 pass );
-	/*virtual*/ S32	 getNumPasses() { return 1; }
-	/*virtual*/ void render(S32 pass = 0);
-	/*virtual*/ void prerender();
 	/*virtual*/ U32 getVertexDataMask() { return SKY_VERTEX_DATA_MASK; }
 	/*virtual*/ BOOL verify() const { return TRUE; }		// Verify that all data in the draw pool is correct!
 	/*virtual*/ S32 getShaderLevel() const { return mShaderLevel; }
@@ -69,17 +64,12 @@ public:
 	static void cleanupGL();
 	static void restoreGL();
 private:
-    void renderFsSky(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const;
 	void renderDome(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const;
-
-    void renderSkyHaze(const LLVector3& camPosLocal, F32 camHeightLocal) const;
-    void renderSkyClouds(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader* cloudshader) const;
 
 	void renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 camHeightLocal) const;
     void renderSkyCloudsDeferred(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader* cloudshader) const;
 
     void renderStarsDeferred(const LLVector3& camPosLocal) const;
-	void renderStars(const LLVector3& camPosLocal) const;
 	void renderHeavenlyBodies();    
 };
 

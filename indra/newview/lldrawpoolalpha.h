@@ -58,7 +58,6 @@ public:
 	/*virtual*/ void renderPostDeferred(S32 pass);
 	/*virtual*/ S32	 getNumPasses() { return 1; }
 
-	virtual void render(S32 pass = 0);
     void forwardRender(bool write_depth = false);
 	/*virtual*/ void prerender();
 

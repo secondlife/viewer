@@ -47,11 +47,6 @@ public:
 	
     S32 getNumDeferredPasses() override;
 	void renderDeferred(S32 pass) override;
-
-	/// We need two passes so we can handle emissive materials separately.
-    S32	 getNumPasses() override;
-	void render(S32 pass = 0) override;
-	void prerender() override;
 };
 
 class LLDrawPoolGrass : public LLRenderPass
@@ -68,17 +63,8 @@ public:
 
 	LLDrawPoolGrass();
 	
-	/*virtual*/ S32 getNumDeferredPasses() { return 1; }
-	/*virtual*/ void beginDeferredPass(S32 pass);
-	/*virtual*/ void endDeferredPass(S32 pass);
-	/*virtual*/ void renderDeferred(S32 pass);
-
-	/*virtual*/ void beginRenderPass(S32 pass);
-	/*virtual*/ void endRenderPass(S32 pass);
-	/// We need two passes so we can handle emissive materials separately.
-	/*virtual*/ S32	 getNumPasses() { return 1; }
-	/*virtual*/ void render(S32 pass = 0);
-	/*virtual*/ void prerender();
+	S32 getNumDeferredPasses() override { return 1; }
+	void renderDeferred(S32 pass) override;
 };
 
 class LLDrawPoolAlphaMask : public LLRenderPass
@@ -97,11 +83,6 @@ public:
 
 	/*virtual*/ S32 getNumDeferredPasses() { return 1; }
 	/*virtual*/ void renderDeferred(S32 pass);
-
-	/*virtual*/ S32	 getNumPasses() { return 1; }
-	/*virtual*/ void render(S32 pass = 0);
-	/*virtual*/ void prerender();
-
 };
 
 class LLDrawPoolFullbrightAlphaMask : public LLRenderPass
@@ -119,10 +100,6 @@ public:
 	
 	/*virtual*/ S32 getNumPostDeferredPasses() { return 1; }
 	/*virtual*/ void renderPostDeferred(S32 pass);
-
-	/*virtual*/ S32	 getNumPasses() { return 1; }
-	/*virtual*/ void render(S32 pass = 0);
-	/*virtual*/ void prerender();
 };
 
 
@@ -139,13 +116,8 @@ public:
 
 	LLDrawPoolFullbright();
 	
-	/*virtual*/ S32 getNumPostDeferredPasses() { return 1; }
-	/*virtual*/ void renderPostDeferred(S32 pass);
-
-	/*virtual*/ S32	 getNumPasses();
-	/*virtual*/ void render(S32 pass = 0);
-	/*virtual*/ void prerender();
-
+	S32 getNumPostDeferredPasses() override { return 1; }
+	void renderPostDeferred(S32 pass) override;
 };
 
 class LLDrawPoolGlow : public LLRenderPass
@@ -162,17 +134,8 @@ public:
 
 	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
 
-	virtual void prerender() { }
-
-	/*virtual*/ S32 getNumPostDeferredPasses() { return 1; }
-	/*virtual*/ void renderPostDeferred(S32 pass);
-
-    void render(LLGLSLShader* shader);
-
-	/*virtual*/ S32 getNumPasses();
-
-	void render(S32 pass = 0);
-
+	S32 getNumPostDeferredPasses() override { return 1; }
+	void renderPostDeferred(S32 pass) override;
 };
 
 #endif // LL_LLDRAWPOOLSIMPLE_H

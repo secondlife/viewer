@@ -300,6 +300,9 @@ void main()
 
 #endif // #else // FOR_IMPOSTOR
 
+#ifdef IS_HUD
+    color.rgb = linear_to_srgb(color.rgb);
+#endif
     frag_color = color;
 }
 

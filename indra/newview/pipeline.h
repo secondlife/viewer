@@ -459,7 +459,6 @@ public:
 		// Following are pool types (some are also object types)
 		RENDER_TYPE_SKY							= LLDrawPool::POOL_SKY,
 		RENDER_TYPE_WL_SKY						= LLDrawPool::POOL_WL_SKY,
-		RENDER_TYPE_GROUND						= LLDrawPool::POOL_GROUND,	
 		RENDER_TYPE_TERRAIN						= LLDrawPool::POOL_TERRAIN,
 		RENDER_TYPE_SIMPLE						= LLDrawPool::POOL_SIMPLE,
 		RENDER_TYPE_GRASS						= LLDrawPool::POOL_GRASS,
@@ -471,7 +470,6 @@ public:
 		RENDER_TYPE_AVATAR						= LLDrawPool::POOL_AVATAR,
 		RENDER_TYPE_CONTROL_AV					= LLDrawPool::POOL_CONTROL_AV, // Animesh
 		RENDER_TYPE_TREE						= LLDrawPool::POOL_TREE,
-		RENDER_TYPE_INVISIBLE					= LLDrawPool::POOL_INVISIBLE,
 		RENDER_TYPE_VOIDWATER					= LLDrawPool::POOL_VOIDWATER,
 		RENDER_TYPE_WATER						= LLDrawPool::POOL_WATER,
         RENDER_TYPE_GLTF_PBR                    = LLDrawPool::POOL_GLTF_PBR,
@@ -892,13 +890,11 @@ protected:
 	LLDrawPool*					mSkyPool = nullptr;
 	LLDrawPool*					mTerrainPool = nullptr;
 	LLDrawPool*					mWaterPool = nullptr;
-	LLDrawPool*					mGroundPool = nullptr;
 	LLRenderPass*				mSimplePool = nullptr;
 	LLRenderPass*				mGrassPool = nullptr;
 	LLRenderPass*				mAlphaMaskPool = nullptr;
 	LLRenderPass*				mFullbrightAlphaMaskPool = nullptr;
 	LLRenderPass*				mFullbrightPool = nullptr;
-	LLDrawPool*					mInvisiblePool = nullptr;
 	LLDrawPool*					mGlowPool = nullptr;
 	LLDrawPool*					mBumpPool = nullptr;
 	LLDrawPool*					mMaterialsPool = nullptr;

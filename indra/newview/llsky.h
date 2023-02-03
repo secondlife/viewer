@@ -34,7 +34,6 @@
 #include "v4color.h"
 #include "v4coloru.h"
 #include "llvosky.h"
-#include "llvoground.h"
 
 class LLViewerCamera;
 
@@ -88,7 +87,6 @@ public:
 
 public:
 	LLPointer<LLVOSky>		mVOSkyp;	// Pointer to the LLVOSky object (only one, ever!)
-	LLPointer<LLVOGround>	mVOGroundp;
 	LLPointer<LLVOWLSky>	mVOWLSkyp;
 
 protected:

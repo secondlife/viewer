@@ -2845,8 +2845,7 @@ void renderTexelDensity(LLDrawable* drawable)
 	}
 
 	LLGLEnable _(GL_BLEND);
-	//gObjectFullbrightProgram.bind();
-
+	
 	LLMatrix4 checkerboard_matrix;
 	S32 discard_level = -1;
 

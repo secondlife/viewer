@@ -98,15 +98,6 @@ void LLDrawPoolMaterials::beginDeferredPass(S32 pass)
     }
 
     gPipeline.bindDeferredShader(*mShader);
-
-    if (LLPipeline::sRenderingHUDs)
-    {
-        mShader->uniform1i(LLShaderMgr::NO_ATMO, 1);
-    }
-    else
-    {
-        mShader->uniform1i(LLShaderMgr::NO_ATMO, 0);
-    }
 }
 
 void LLDrawPoolMaterials::endDeferredPass(S32 pass)

@@ -36,7 +36,6 @@
 #include "lldrawpoolavatar.h"
 #include "lldrawpoolbump.h"
 #include "lldrawpoolmaterials.h"
-#include "lldrawpoolground.h"
 #include "lldrawpoolpbropaque.h"
 #include "lldrawpoolsimple.h"
 #include "lldrawpoolsky.h"
@@ -80,9 +79,6 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
 	case POOL_FULLBRIGHT:
 		poolp = new LLDrawPoolFullbright();
 		break;
-	case POOL_INVISIBLE:
-		poolp = new LLDrawPoolInvisible();
-		break;
 	case POOL_GLOW:
 		poolp = new LLDrawPoolGlow();
 		break;
@@ -108,9 +104,6 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
 	case POOL_VOIDWATER:
 	case POOL_WATER:
 		poolp = new LLDrawPoolWater();
-		break;
-	case POOL_GROUND:
-		poolp = new LLDrawPoolGround();
 		break;
 	case POOL_BUMP:
 		poolp = new LLDrawPoolBump();

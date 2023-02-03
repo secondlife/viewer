@@ -113,7 +113,6 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool d
     {
         shader->bind();
     }
-    shader->uniform1i(LLShaderMgr::NO_ATMO, (LLPipeline::sRenderingHUDs) ? 1 : 0);
     shader->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f / 2.2f));
 
     if (LLPipeline::sRenderingHUDs)
@@ -173,16 +172,25 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     }
 
     // prepare shaders
-    emissive_shader = (LLPipeline::sRenderDeferred)   ? &gDeferredEmissiveProgram    :
-                      (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
+    llassert(LLPipeline::sRenderDeferred);
+
+    emissive_shader = &gDeferredEmissiveProgram;
+                      
     prepare_alpha_shader(emissive_shader, true, false, water_sign);
 
-    fullbright_shader   = (LLPipeline::sImpostorRender) ? &gDeferredFullbrightAlphaMaskProgram :
-        (LLPipeline::sUnderWaterRender) ? &gDeferredFullbrightWaterAlphaProgram : &gDeferredFullbrightAlphaMaskAlphaProgram;
+    fullbright_shader   = 
+        (LLPipeline::sImpostorRender) ? &gDeferredFullbrightAlphaMaskProgram :
+        (LLPipeline::sUnderWaterRender) ? &gDeferredFullbrightWaterAlphaProgram : 
+        (LLPipeline::sRenderingHUDs) ? &gHUDFullbrightAlphaMaskAlphaProgram :
+        &gDeferredFullbrightAlphaMaskAlphaProgram;
     prepare_alpha_shader(fullbright_shader, true, true, water_sign);
 
-    simple_shader   = (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
-        (LLPipeline::sUnderWaterRender) ? &gDeferredAlphaWaterProgram : &gDeferredAlphaProgram;
+    simple_shader   = 
+        (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
+        (LLPipeline::sUnderWaterRender) ? &gDeferredAlphaWaterProgram : 
+        (LLPipeline::sRenderingHUDs) ? &gHUDAlphaProgram :
+        &gDeferredAlphaProgram;
+
     prepare_alpha_shader(simple_shader, false, true, water_sign); //prime simple shader (loads shadow relevant uniforms)
 
     LLGLSLShader* materialShader = LLPipeline::sUnderWaterRender ? gDeferredMaterialWaterProgram : gDeferredMaterialProgram;
@@ -193,8 +201,11 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 
     prepare_alpha_shader(&gDeferredPBRAlphaProgram, false, true, water_sign);
 
-    // first pass, render rigged objects only and render to depth buffer
-    forwardRender(true);
+    if (!LLPipeline::sRenderingHUDs)
+    {
+        // first pass, render rigged objects only and render to depth buffer
+        forwardRender(true);
+    }
 
     // second pass, regular forward alpha rendering
     forwardRender();
@@ -220,54 +231,6 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     }
 
     deferred_render = FALSE;
-}
-
-//set some generic parameters for forward (non-deferred) rendering
-static void prepare_forward_shader(LLGLSLShader* shader, F32 minimum_alpha)
-{
-    shader->bind();
-    shader->setMinimumAlpha(minimum_alpha);
-    shader->uniform1i(LLShaderMgr::NO_ATMO, LLPipeline::sRenderingHUDs ? 1 : 0);
-
-    //also prepare rigged variant
-    if (shader->mRiggedVariant && shader->mRiggedVariant != shader)
-    {
-        prepare_forward_shader(shader->mRiggedVariant, minimum_alpha);
-    }
-}
-
-void LLDrawPoolAlpha::render(S32 pass)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-
-    simple_shader = (LLPipeline::sImpostorRender) ? &gObjectSimpleImpostorProgram :
-        (LLPipeline::sUnderWaterRender) ? &gObjectSimpleWaterProgram : &gObjectSimpleAlphaMaskProgram;
-
-    fullbright_shader = (LLPipeline::sImpostorRender) ? &gObjectFullbrightAlphaMaskProgram :
-        (LLPipeline::sUnderWaterRender) ? &gObjectFullbrightWaterProgram : &gObjectFullbrightAlphaMaskProgram;
-
-    emissive_shader = (LLPipeline::sImpostorRender) ? &gObjectEmissiveProgram :
-        (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
-
-    F32 minimum_alpha = MINIMUM_ALPHA;
-    if (LLPipeline::sImpostorRender)
-    {
-        minimum_alpha = MINIMUM_IMPOSTOR_ALPHA;
-    }
-
-    prepare_forward_shader(fullbright_shader, minimum_alpha);
-    prepare_forward_shader(simple_shader, minimum_alpha);
-
-    for (int i = 0; i < LLMaterial::SHADER_COUNT; ++i)
-    {
-        prepare_forward_shader(LLPipeline::sUnderWaterRender ? &gDeferredMaterialWaterProgram[i] : &gDeferredMaterialProgram[i], minimum_alpha);
-    }
-
-    //first pass -- rigged only and drawn to depth buffer
-    forwardRender(true);
-
-    //second pass -- non-rigged, no depth buffer writes
-    forwardRender();
 }
 
 void LLDrawPoolAlpha::forwardRender(bool rigged)
@@ -707,7 +670,11 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                         light_enabled = TRUE;
                     }
 
-                    if (deferred_render && mat)
+                    if (LLPipeline::sRenderingHUDs)
+                    {
+                        target_shader = fullbright_shader;
+                    }
+                    else if (deferred_render && mat)
                     {
                         U32 mask = params.mShaderMask;
 

@@ -41,7 +41,6 @@ RenderFlexTimeFactor		1	1.0
 RenderFogRatio				1	4.0
 RenderGamma					1	0
 RenderGlowResolutionPow		1	9
-RenderGround				1	1
 RenderMaxPartCount			1	8192
 RenderObjectBump			1	1
 RenderLocalLights			1	1

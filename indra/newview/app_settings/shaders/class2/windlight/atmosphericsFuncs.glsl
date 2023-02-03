@@ -45,7 +45,6 @@ uniform float max_y;
 uniform vec3  glow;
 uniform float scene_light_strength;
 uniform mat3  ssao_effect_mat;
-uniform int   no_atmo;
 uniform float sun_moon_glow_factor;
 
 float getAmbientClamp() { return 1.0f; }

@@ -54,7 +54,6 @@ public:
         // based on fill rate and likelihood to occlude future passes (faster, large occluders first).
         //  
 		POOL_SIMPLE = 1,
-		POOL_GROUND,
 		POOL_FULLBRIGHT,
 		POOL_BUMP,
 		POOL_TERRAIN,
@@ -66,7 +65,6 @@ public:
 		POOL_FULLBRIGHT_ALPHA_MASK,
         POOL_SKY,
         POOL_WL_SKY,
-		POOL_INVISIBLE, // see below *
 		POOL_AVATAR,
 		POOL_CONTROL_AV, // Animesh
 		POOL_GLOW,
@@ -76,11 +74,6 @@ public:
         POOL_ALPHA_POST_WATER,
         POOL_ALPHA, // note there is no actual "POOL_ALPHA" but pre-water and post-water pools consume POOL_ALPHA faces
 		NUM_POOL_TYPES,
-		// * invisiprims work by rendering to the depth buffer but not the color buffer, occluding anything rendered after them
-		// - and the LLDrawPool types enum controls what order things are rendered in
-		// - so, it has absolute control over what invisprims block
-		// ...invisiprims being rendered in pool_invisible
-		// ...shiny/bump mapped objects in rendered in POOL_BUMP
 	};
 	
 	LLDrawPool(const U32 type);

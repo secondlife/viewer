@@ -25,11 +25,9 @@
  
 uniform vec4 sunlight_color;
 uniform vec4 light_ambient;
-uniform int no_atmo;
 
 vec3 atmosAmbient()
 {
-    if (no_atmo == 1) return vec3(0.16);
     return light_ambient.rgb;
 }
 

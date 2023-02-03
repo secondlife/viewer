@@ -296,9 +296,6 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		{
 			return FALSE;
 		}
-
-		// Test hasFullbright and hasShiny and attach fullbright and 
-		// fullbright shiny atmos transport if we split them out.
 	}
 
 	// NOTE order of shader object attaching is VERY IMPORTANT!!!
@@ -390,30 +387,11 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 			}
 		}
 	}
-	
 	// NOTE order of shader object attaching is VERY IMPORTANT!!!
 	else if (features->isFullbright)
 	{
 	
-		if (features->isShiny && features->hasWaterFog)
-		{
-			if (features->disableTextureIndex)
-			{
-                if (!shader->attachFragmentObject("lighting/lightFullbrightShinyWaterNonIndexedF.glsl"))
-				{
-					return FALSE;
-				}
-			}
-			else 
-			{
-                if (!shader->attachFragmentObject("lighting/lightFullbrightShinyWaterF.glsl"))
-				{
-					return FALSE;
-				}
-				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
-			}
-		}
-		else if (features->hasWaterFog)
+		if (features->hasWaterFog)
 		{
 			if (features->disableTextureIndex)
 			{
@@ -445,26 +423,6 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
-		
-		else if (features->isShiny)
-		{
-			if (features->disableTextureIndex)
-			{
-                if (!shader->attachFragmentObject("lighting/lightFullbrightShinyNonIndexedF.glsl"))
-				{
-					return FALSE;
-				}
-			}
-			else 
-			{
-                if (!shader->attachFragmentObject("lighting/lightFullbrightShinyF.glsl"))
-				{
-					return FALSE;
-				}
-				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
-			}
-		}
-		
 		else
 		{
 			if (features->disableTextureIndex)
@@ -505,50 +463,6 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 			}
 		}
 	}
-
-	// NOTE order of shader object attaching is VERY IMPORTANT!!!
-	else if (features->isShiny)
-	{
-	
-		if (features->hasWaterFog)
-		{
-			if (features->disableTextureIndex)
-			{
-                if (!shader->attachFragmentObject("lighting/lightShinyWaterNonIndexedF.glsl"))
-				{
-					return FALSE;
-				}
-			}
-			else 
-			{
-                if (!shader->attachFragmentObject("lighting/lightShinyWaterF.glsl"))
-				{
-					return FALSE;
-				}
-				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
-			}
-		}
-		
-		else 
-		{
-			if (features->disableTextureIndex)
-			{
-                if (!shader->attachFragmentObject("lighting/lightShinyNonIndexedF.glsl"))
-				{
-					return FALSE;
-				}
-			}
-			else 
-			{
-                if (!shader->attachFragmentObject("lighting/lightShinyF.glsl"))
-				{
-					return FALSE;
-				}
-				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
-			}
-		}
-	}
-
 	if (features->mIndexedTextureChannels <= 1)
 	{
 		if (!shader->attachVertexObject("objects/nonindexedTextureV.glsl"))
@@ -1422,7 +1336,6 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("single_mie_scattering_texture");
     mReservedUniforms.push_back("irradiance_texture");
     mReservedUniforms.push_back("blend_factor");
-    mReservedUniforms.push_back("no_atmo");
     mReservedUniforms.push_back("moisture_level");
     mReservedUniforms.push_back("droplet_radius");
     mReservedUniforms.push_back("ice_level");

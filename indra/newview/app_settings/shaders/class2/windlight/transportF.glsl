@@ -30,8 +30,6 @@
 vec3 getAdditiveColor();
 vec3 getAtmosAttenuation();
 
-uniform int no_atmo;
-
 vec3 srgb_to_linear(vec3 col);
 vec3 linear_to_srgb(vec3 col);
 

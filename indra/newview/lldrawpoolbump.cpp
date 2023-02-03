@@ -210,90 +210,6 @@ S32 LLDrawPoolBump::numBumpPasses()
     return 1;
 }
 
-S32 LLDrawPoolBump::getNumPasses()
-{
-	return numBumpPasses();
-}
-
-void LLDrawPoolBump::render(S32 pass)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_BUMP);
-
-    if (!gPipeline.hasRenderType(LLDrawPool::POOL_SIMPLE))
-    {
-        return;
-    }
-
-    for (int i = 0; i < 2; ++i)
-    {
-        mRigged = i == 1;
-
-        // first pass -- shiny
-        beginShiny();
-        renderShiny();
-        endShiny();
-
-        //second pass -- fullbright shiny
-        if (mShaderLevel > 1)
-        {
-            beginFullbrightShiny();
-            renderFullbrightShiny();
-            endFullbrightShiny();
-        }
-
-        //third pass -- bump
-        beginBump();
-        renderBump(LLRenderPass::PASS_BUMP);
-        endBump();
-    }
-}
-
-
-//static
-void LLDrawPoolBump::beginShiny()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_SHINY);
-	
-	mShiny = TRUE;
-	sVertexMask = VERTEX_MASK_SHINY;
-	// Second pass: environment map
-	if (mShaderLevel > 1)
-	{
-		sVertexMask = VERTEX_MASK_SHINY | LLVertexBuffer::MAP_TEXCOORD0;
-	}
-	
-	if (LLPipeline::sUnderWaterRender)
-	{
-		shader = &gObjectShinyWaterProgram;
-	}
-	else
-	{
-		shader = &gObjectShinyProgram;
-	}
-
-    if (mRigged)
-    {
-        llassert(shader->mRiggedVariant);
-        shader = shader->mRiggedVariant;
-    }
-
-	shader->bind();
-    if (LLPipeline::sRenderingHUDs)
-    {
-        shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
-    }
-    else
-    {
-        shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
-    }
-
-	bindCubeMap(shader, mShaderLevel, diffuse_channel, cube_channel);
-
-	if (mShaderLevel > 1)
-	{ //indexed texture rendering, channel 0 is always diffuse
-		diffuse_channel = 0;
-	}
-}
 
 //static
 void LLDrawPoolBump::bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel)
@@ -342,38 +258,6 @@ void LLDrawPoolBump::bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& di
 	}
 }
 
-void LLDrawPoolBump::renderShiny()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_SHINY);
-	
-	if( gSky.mVOSkyp->getCubeMap() && !LLPipeline::sReflectionProbesEnabled )
-	{
-		LLGLEnable blend_enable(GL_BLEND);
-		if (mShaderLevel > 1)
-		{
-            if (mRigged)
-            {
-                LLRenderPass::pushRiggedBatches(LLRenderPass::PASS_SHINY_RIGGED, true, true);
-            }
-            else
-            {
-                LLRenderPass::pushBatches(LLRenderPass::PASS_SHINY, true, true);
-            }
-		}
-		else
-		{
-            if (mRigged)
-            {
-                gPipeline.renderRiggedGroups(this, LLRenderPass::PASS_SHINY_RIGGED, true);
-            }
-            else
-            {
-                gPipeline.renderGroups(this, LLRenderPass::PASS_SHINY, true);
-            }
-		}
-	}
-}
-
 //static
 void LLDrawPoolBump::unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel)
 {
@@ -399,21 +283,6 @@ void LLDrawPoolBump::unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& 
 	}
 }
 
-void LLDrawPoolBump::endShiny()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_SHINY);
-
-	unbindCubeMap(shader, mShaderLevel, diffuse_channel, cube_channel);
-	if (shader)
-	{
-		shader->unbind();
-	}
-
-	diffuse_channel = -1;
-	cube_channel = 0;
-	mShiny = FALSE;
-}
-
 void LLDrawPoolBump::beginFullbrightShiny()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_SHINY);
@@ -421,22 +290,11 @@ void LLDrawPoolBump::beginFullbrightShiny()
 	sVertexMask = VERTEX_MASK_SHINY | LLVertexBuffer::MAP_TEXCOORD0;
 
 	// Second pass: environment map
-	
-	if (LLPipeline::sUnderWaterRender)
-	{
-		shader = &gObjectFullbrightShinyWaterProgram;
-	}
-	else
-	{
-		if (LLPipeline::sRenderDeferred)
-		{
-			shader = &gDeferredFullbrightShinyProgram;
-		}
-		else
-		{
-			shader = &gObjectFullbrightShinyProgram;
-		}
-	}
+	shader = &gDeferredFullbrightShinyProgram;
+    if (LLPipeline::sRenderingHUDs)
+    {
+        shader = &gHUDFullbrightShinyProgram;
+    }
 
     if (mRigged)
     {
@@ -466,15 +324,7 @@ void LLDrawPoolBump::beginFullbrightShiny()
 					 LLVector4(gGLModelView+8),
 					 LLVector4(gGLModelView+12));
 		shader->bind();
-        if (LLPipeline::sRenderingHUDs)
-        {
-            shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
-        }
-        else
-        {
-            shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
-        }
-
+        
 		LLVector3 vec = LLVector3(gShinyOrigin) * mat;
 		LLVector4 vec4(vec, gShinyOrigin.mV[3]);
 		shader->uniform4fv(LLViewerShaderMgr::SHINY_ORIGIN, 1, vec4.mV);
@@ -682,18 +532,7 @@ void LLDrawPoolBump::endBump(U32 pass)
 
 S32 LLDrawPoolBump::getNumDeferredPasses()
 { 
-#if 0 //DEPRECATED -- RenderObjectBump should always be TRUE
-	if (gSavedSettings.getBOOL("RenderObjectBump"))
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
-#else 
     return 1;
-#endif
 }
 
 void LLDrawPoolBump::renderDeferred(S32 pass)
@@ -754,8 +593,11 @@ void LLDrawPoolBump::renderDeferred(S32 pass)
 
 void LLDrawPoolBump::renderPostDeferred(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL
-    for (int i = 0; i < 2; ++i)
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    
+    S32 num_passes = LLPipeline::sRenderingHUDs ? 1 : 2; // skip rigged pass when rendering HUDs
+
+    for (int i = 0; i < num_passes; ++i)
     { // two passes -- static and rigged
         mRigged = (i == 1);
 
@@ -1446,24 +1288,3 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, bool texture, bool batch_text
 	}
 }
 
-void LLDrawPoolInvisible::render(S32 pass)
-{ //render invisiprims
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_INVISIBLE);
-  
-	if (gPipeline.shadersLoaded())
-	{
-		gOcclusionProgram.bind();
-	}
-
-	U32 invisi_mask = LLVertexBuffer::MAP_VERTEX;
-	//glStencilMask(0); //deprecated
-	gGL.setColorMask(false, false);
-	pushBatches(LLRenderPass::PASS_INVISIBLE, invisi_mask, FALSE);
-	gGL.setColorMask(true, false);
-	//glStencilMask(0xFFFFFFFF); //deprecated
-
-	if (gPipeline.shadersLoaded())
-	{
-		gOcclusionProgram.unbind();
-	}
-}

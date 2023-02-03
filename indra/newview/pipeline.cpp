@@ -55,7 +55,6 @@
 #include "lldrawable.h"
 #include "lldrawpoolalpha.h"
 #include "lldrawpoolavatar.h"
-#include "lldrawpoolground.h"
 #include "lldrawpoolbump.h"
 #include "lldrawpooltree.h"
 #include "lldrawpoolwater.h"
@@ -86,7 +85,6 @@
 #include "llviewerwindow.h" // For getSpinAxis
 #include "llvoavatarself.h"
 #include "llvocache.h"
-#include "llvoground.h"
 #include "llvosky.h"
 #include "llvowlsky.h"
 #include "llvotree.h"
@@ -430,7 +428,6 @@ void LLPipeline::init()
 	getPool(LLDrawPool::POOL_FULLBRIGHT_ALPHA_MASK);
 	getPool(LLDrawPool::POOL_GRASS);
 	getPool(LLDrawPool::POOL_FULLBRIGHT);
-	getPool(LLDrawPool::POOL_INVISIBLE);
 	getPool(LLDrawPool::POOL_BUMP);
 	getPool(LLDrawPool::POOL_MATERIALS);
 	getPool(LLDrawPool::POOL_GLOW);
@@ -459,12 +456,6 @@ void LLPipeline::init()
 	else
 	{
 		setAllRenderTypes(); // By default, all rendering types start enabled
-		// Don't turn on ground when this is set
-		// Mac Books with intel 950s need this
-		if(!gSavedSettings.getBOOL("RenderGround"))
-		{
-			toggleRenderType(RENDER_TYPE_GROUND);
-		}
 	}
 
 	// make sure RenderPerformanceTest persists (hackity hack hack)
@@ -649,14 +640,10 @@ void LLPipeline::cleanup()
 	mTerrainPool = NULL;
 	delete mWaterPool;
 	mWaterPool = NULL;
-	delete mGroundPool;
-	mGroundPool = NULL;
 	delete mSimplePool;
 	mSimplePool = NULL;
 	delete mFullbrightPool;
 	mFullbrightPool = NULL;
-	delete mInvisiblePool;
-	mInvisiblePool = NULL;
 	delete mGlowPool;
 	mGlowPool = NULL;
 	delete mBumpPool;
@@ -1518,10 +1505,6 @@ LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerTexture *tex0)
 		poolp = mFullbrightPool;
 		break;
 
-	case LLDrawPool::POOL_INVISIBLE:
-		poolp = mInvisiblePool;
-		break;
-
 	case LLDrawPool::POOL_GLOW:
 		poolp = mGlowPool;
 		break;
@@ -1557,10 +1540,6 @@ LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerTexture *tex0)
 
 	case LLDrawPool::POOL_WATER:
 		poolp = mWaterPool;
-		break;
-
-	case LLDrawPool::POOL_GROUND:
-		poolp = mGroundPool;
 		break;
 
 	case LLDrawPool::POOL_WL_SKY:
@@ -3168,7 +3147,6 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 
 	if (hasAnyRenderType(LLPipeline::RENDER_TYPE_AVATAR,
 					  LLPipeline::RENDER_TYPE_CONTROL_AV,
-					  LLPipeline::RENDER_TYPE_GROUND,
 					  LLPipeline::RENDER_TYPE_TERRAIN,
 					  LLPipeline::RENDER_TYPE_TREE,
 					  LLPipeline::RENDER_TYPE_SKY,
@@ -5164,18 +5142,6 @@ void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
 		}
 		break;
 
-	case LLDrawPool::POOL_INVISIBLE:
-		if (mInvisiblePool)
-		{
-			llassert(0);
-			LL_WARNS() << "Ignoring duplicate simple pool." << LL_ENDL;
-		}
-		else
-		{
-			mInvisiblePool = (LLRenderPass*) new_poolp;
-		}
-		break;
-
 	case LLDrawPool::POOL_GLOW:
 		if (mGlowPool)
 		{
@@ -5269,18 +5235,6 @@ void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
 		}
 		break;
 
-	case LLDrawPool::POOL_GROUND:
-		if( mGroundPool )
-		{
-			llassert(0);
-			LL_WARNS() << "LLPipeline::addPool(): Ignoring duplicate Ground Pool" << LL_ENDL;
-		}
-		else
-		{ 
-			mGroundPool = new_poolp;
-		}
-		break;
-
 	case LLDrawPool::POOL_WL_SKY:
 		if( mWLSkyPool )
 		{
@@ -5350,11 +5304,6 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 		mFullbrightPool = NULL;
 		break;
 
-	case LLDrawPool::POOL_INVISIBLE:
-		llassert(mInvisiblePool == poolp);
-		mInvisiblePool = NULL;
-		break;
-
 	case LLDrawPool::POOL_WL_SKY:
 		llassert(mWLSkyPool == poolp);
 		mWLSkyPool = NULL;
@@ -5419,11 +5368,6 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 	case LLDrawPool::POOL_WATER:
 		llassert( poolp == mWaterPool );
 		mWaterPool = NULL;
-		break;
-
-	case LLDrawPool::POOL_GROUND:
-		llassert( poolp == mGroundPool );
-		mGroundPool = NULL;
 		break;
 
     case LLDrawPool::POOL_GLTF_PBR:
@@ -10255,7 +10199,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
         clearRenderTypeMask(
             RENDER_TYPE_SKY,
             RENDER_TYPE_WL_SKY,
-            RENDER_TYPE_GROUND,
             RENDER_TYPE_TERRAIN,
             RENDER_TYPE_GRASS,
             RENDER_TYPE_CONTROL_AV, // Animesh

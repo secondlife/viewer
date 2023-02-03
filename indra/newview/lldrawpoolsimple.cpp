@@ -46,15 +46,6 @@ static LLTrace::BlockTimerStatHandle FTM_RENDER_GRASS_DEFERRED("Deferred Grass")
 static void setup_simple_shader(LLGLSLShader* shader)
 {
     shader->bind();
-
-    if (LLPipeline::sRenderingHUDs)
-    {
-        shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
-    }
-    else
-    {
-        shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
-    }
 }
 
 static void setup_glow_shader(LLGLSLShader* shader)
@@ -79,13 +70,9 @@ static void setup_fullbright_shader(LLGLSLShader* shader)
 
 void LLDrawPoolGlow::renderPostDeferred(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_GLOW);
-    render(&gDeferredEmissiveProgram);
-}
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    LLGLSLShader* shader = &gDeferredEmissiveProgram;
 
-void LLDrawPoolGlow::render(LLGLSLShader* shader)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_GLOW);
 	LLGLEnable blend(GL_BLEND);
 	LLGLDisable test(GL_ALPHA_TEST);
 	gGL.flush();
@@ -110,92 +97,10 @@ void LLDrawPoolGlow::render(LLGLSLShader* shader)
     gGL.setSceneBlendType(LLRender::BT_ALPHA);	
 }
 
-S32 LLDrawPoolGlow::getNumPasses()
-{
-    return 1;
-}
-
-void LLDrawPoolGlow::render(S32 pass)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-    LLGLSLShader* shader = LLPipeline::sUnderWaterRender ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
-    render(shader);
-}
-
 LLDrawPoolSimple::LLDrawPoolSimple() :
 	LLRenderPass(POOL_SIMPLE)
 {
 }
-
-void LLDrawPoolSimple::prerender()
-{
-	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
-}
-
-S32 LLDrawPoolSimple::getNumPasses()
-{
-    return 1;
-}
-
-void LLDrawPoolSimple::render(S32 pass)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_SIMPLE);
-
-	LLGLDisable blend(GL_BLEND);
-	
-    LLGLSLShader* shader = nullptr;
-    if (LLPipeline::sImpostorRender)
-    {
-        shader = &gObjectSimpleImpostorProgram;
-    }
-    else if (LLPipeline::sUnderWaterRender)
-    {
-        shader = &gObjectSimpleWaterProgram;
-    }
-    else
-    {
-        shader = &gObjectSimpleProgram;
-    }
-
-	{ //render simple
-	
-		gPipeline.enableLightsDynamic();
-
-        // first pass -- static objects
-        {
-            setup_simple_shader(shader);
-            pushBatches(LLRenderPass::PASS_SIMPLE, true, true);
-
-            if (LLPipeline::sRenderDeferred)
-            { //if deferred rendering is enabled, bump faces aren't registered as simple
-                //render bump faces here as simple so bump faces will appear under water
-                pushBatches(LLRenderPass::PASS_BUMP, true, true);
-                pushBatches(LLRenderPass::PASS_MATERIAL, true, true);
-                pushBatches(LLRenderPass::PASS_SPECMAP, true, true);
-                pushBatches(LLRenderPass::PASS_NORMMAP, true, true);
-                pushBatches(LLRenderPass::PASS_NORMSPEC, true, true);
-            }
-        }
-        
-        //second pass, rigged
-        {
-            shader = shader->mRiggedVariant;
-            setup_simple_shader(shader);
-            pushRiggedBatches(LLRenderPass::PASS_SIMPLE_RIGGED, true, true);
-
-            if (LLPipeline::sRenderDeferred)
-            { //if deferred rendering is enabled, bump faces aren't registered as simple
-                //render bump faces here as simple so bump faces will appear under water
-                pushRiggedBatches(LLRenderPass::PASS_BUMP_RIGGED, true, true);
-                pushRiggedBatches(LLRenderPass::PASS_MATERIAL_RIGGED, true, true);
-                pushRiggedBatches(LLRenderPass::PASS_SPECMAP_RIGGED, true, true);
-                pushRiggedBatches(LLRenderPass::PASS_NORMMAP_RIGGED, true, true);
-                pushRiggedBatches(LLRenderPass::PASS_NORMSPEC_RIGGED, true, true);
-            }
-        }
-	}
-}
-
 
 static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_MASK("Alpha Mask");
 
@@ -204,74 +109,9 @@ LLDrawPoolAlphaMask::LLDrawPoolAlphaMask() :
 {
 }
 
-void LLDrawPoolAlphaMask::prerender()
-{
-	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
-}
-
-void LLDrawPoolAlphaMask::render(S32 pass)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-	LLGLDisable blend(GL_BLEND);
-	
-    LLGLSLShader* shader = nullptr;
-    if (LLPipeline::sUnderWaterRender)
-    {
-        shader = &gObjectSimpleWaterAlphaMaskProgram;
-    }
-    else
-    {
-        shader = &gObjectSimpleAlphaMaskProgram;
-    }
-
-    // render static
-    setup_simple_shader(shader);
-    pushMaskBatches(LLRenderPass::PASS_ALPHA_MASK, true, true);
-	pushMaskBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, true, true);
-	pushMaskBatches(LLRenderPass::PASS_SPECMAP_MASK, true, true);
-	pushMaskBatches(LLRenderPass::PASS_NORMMAP_MASK, true, true);
-	pushMaskBatches(LLRenderPass::PASS_NORMSPEC_MASK, true, true);
-
-    // render rigged
-    setup_simple_shader(shader->mRiggedVariant);
-    pushRiggedMaskBatches(LLRenderPass::PASS_ALPHA_MASK_RIGGED, true, true);
-    pushRiggedMaskBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK_RIGGED, true, true);
-    pushRiggedMaskBatches(LLRenderPass::PASS_SPECMAP_MASK_RIGGED, true, true);
-    pushRiggedMaskBatches(LLRenderPass::PASS_NORMMAP_MASK_RIGGED, true, true);
-    pushRiggedMaskBatches(LLRenderPass::PASS_NORMSPEC_MASK_RIGGED, true, true);
-}
-
 LLDrawPoolFullbrightAlphaMask::LLDrawPoolFullbrightAlphaMask() :
 	LLRenderPass(POOL_FULLBRIGHT_ALPHA_MASK)
 {
-}
-
-void LLDrawPoolFullbrightAlphaMask::prerender()
-{
-	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
-}
-
-void LLDrawPoolFullbrightAlphaMask::render(S32 pass)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_MASK);
-
-    LLGLSLShader* shader = nullptr;
-    if (LLPipeline::sUnderWaterRender)
-    {
-        shader = &gObjectFullbrightWaterAlphaMaskProgram;
-    }
-    else
-    {
-        shader = &gObjectFullbrightAlphaMaskProgram;
-    }
-
-    // render static
-    setup_fullbright_shader(shader);
-    pushMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, true, true);
-
-    // render rigged
-    setup_fullbright_shader(shader->mRiggedVariant);
-    pushRiggedMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK_RIGGED, true, true);
 }
 
 //===============================
@@ -322,101 +162,12 @@ LLDrawPoolGrass::LLDrawPoolGrass() :
 
 }
 
-void LLDrawPoolGrass::prerender()
-{
-	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
-}
-
-
-void LLDrawPoolGrass::beginRenderPass(S32 pass)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_GRASS);
-	stop_glerror();
-
-	if (LLPipeline::sUnderWaterRender)
-	{
-		simple_shader = &gObjectAlphaMaskNonIndexedWaterProgram;
-	}
-	else
-	{
-		simple_shader = &gObjectAlphaMaskNonIndexedProgram;
-	}
-
-	if (mShaderLevel > 0)
-	{
-		simple_shader->bind();
-		simple_shader->setMinimumAlpha(0.5f);
-        if (LLPipeline::sRenderingHUDs)
-	    {
-		    simple_shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
-	    }
-	    else
-	    {
-		    simple_shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
-	    }
-	}
-	else 
-	{
-        gGL.flush();
-		LLGLSLShader::unbind();
-	}
-}
-
-void LLDrawPoolGrass::endRenderPass(S32 pass)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_GRASS);
-	LLRenderPass::endRenderPass(pass);
-
-	if (mShaderLevel > 0)
-	{
-		simple_shader->unbind();
-	}
-	else
-	{
-		gGL.flush();
-	}
-}
-
-void LLDrawPoolGrass::render(S32 pass)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-	LLGLDisable blend(GL_BLEND);
-	
-	{
-		//LL_RECORD_BLOCK_TIME(FTM_RENDER_GRASS);
-		LLGLEnable test(GL_ALPHA_TEST);
-		gGL.setSceneBlendType(LLRender::BT_ALPHA);
-		//render grass
-		LLRenderPass::pushBatches(LLRenderPass::PASS_GRASS, getVertexDataMask());
-	}
-}
-
-void LLDrawPoolGrass::beginDeferredPass(S32 pass)
-{
-
-}
-
-void LLDrawPoolGrass::endDeferredPass(S32 pass)
-{
-
-}
-
 void LLDrawPoolGrass::renderDeferred(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 	{
-		//LL_RECORD_BLOCK_TIME(FTM_RENDER_GRASS_DEFERRED);
 		gDeferredNonIndexedDiffuseAlphaMaskProgram.bind();
 		gDeferredNonIndexedDiffuseAlphaMaskProgram.setMinimumAlpha(0.5f);
-
-        if (LLPipeline::sRenderingHUDs)
-	    {
-		    gDeferredNonIndexedDiffuseAlphaMaskProgram.uniform1i(LLShaderMgr::NO_ATMO, 1);
-	    }
-	    else
-	    {
-		    gDeferredNonIndexedDiffuseAlphaMaskProgram.uniform1i(LLShaderMgr::NO_ATMO, 0);
-	    }
 
 		//render grass
 		LLRenderPass::pushBatches(LLRenderPass::PASS_GRASS, getVertexDataMask());
@@ -430,18 +181,16 @@ LLDrawPoolFullbright::LLDrawPoolFullbright() :
 {
 }
 
-void LLDrawPoolFullbright::prerender()
-{
-	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
-}
-
-
 void LLDrawPoolFullbright::renderPostDeferred(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_FULLBRIGHT);
 
     LLGLSLShader* shader = nullptr;
-    if (LLPipeline::sUnderWaterRender)
+    if (LLPipeline::sRenderingHUDs)
+    {
+        shader = &gHUDFullbrightProgram;
+    }
+    else if (LLPipeline::sUnderWaterRender)
     {
         shader = &gDeferredFullbrightWaterProgram;
     }
@@ -456,47 +205,12 @@ void LLDrawPoolFullbright::renderPostDeferred(S32 pass)
     setup_fullbright_shader(shader);
     pushBatches(LLRenderPass::PASS_FULLBRIGHT, true, true);
     
-    // render rigged
-    setup_fullbright_shader(shader->mRiggedVariant);
-    pushRiggedBatches(LLRenderPass::PASS_FULLBRIGHT_RIGGED, true, true);
-}
-
-void LLDrawPoolFullbright::render(S32 pass)
-{ //render fullbright
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_FULLBRIGHT);
-	gGL.setSceneBlendType(LLRender::BT_ALPHA);
-
-	stop_glerror();
-    LLGLSLShader* shader = nullptr;
-    if (LLPipeline::sUnderWaterRender)
+    if (!LLPipeline::sRenderingHUDs)
     {
-        shader = &gObjectFullbrightWaterProgram;
+        // render rigged
+        setup_fullbright_shader(shader->mRiggedVariant);
+        pushRiggedBatches(LLRenderPass::PASS_FULLBRIGHT_RIGGED, true, true);
     }
-    else
-    {
-        shader = &gObjectFullbrightProgram;
-    }
-
-    // render static
-    setup_fullbright_shader(shader);
-    pushBatches(LLRenderPass::PASS_FULLBRIGHT, true, true);
-    pushBatches(LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE, true, true);
-    pushBatches(LLRenderPass::PASS_SPECMAP_EMISSIVE, true, true);
-    pushBatches(LLRenderPass::PASS_NORMMAP_EMISSIVE, true, true);
-    pushBatches(LLRenderPass::PASS_NORMSPEC_EMISSIVE, true, true);
- 
-    // render rigged
-    setup_fullbright_shader(shader->mRiggedVariant);
-    pushRiggedBatches(LLRenderPass::PASS_FULLBRIGHT_RIGGED, true, true);
-    pushRiggedBatches(LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE_RIGGED, true, true);
-    pushRiggedBatches(LLRenderPass::PASS_SPECMAP_EMISSIVE_RIGGED, true, true);
-    pushRiggedBatches(LLRenderPass::PASS_NORMMAP_EMISSIVE_RIGGED, true, true);
-    pushRiggedBatches(LLRenderPass::PASS_NORMSPEC_EMISSIVE_RIGGED, true, true);
-}
-
-S32 LLDrawPoolFullbright::getNumPasses()
-{ 
-	return 1;
 }
 
 void LLDrawPoolFullbrightAlphaMask::renderPostDeferred(S32 pass)
@@ -506,32 +220,28 @@ void LLDrawPoolFullbrightAlphaMask::renderPostDeferred(S32 pass)
     LLGLSLShader* shader = nullptr;
     if (LLPipeline::sRenderingHUDs)
     {
-        shader = &gDeferredFullbrightAlphaMaskProgram;
+        shader = &gHUDFullbrightAlphaMaskProgram;
     }
-    else if (LLPipeline::sRenderDeferred)
+    else if (LLPipeline::sUnderWaterRender)
     {
-        if (LLPipeline::sUnderWaterRender)
-        {
-            shader = &gDeferredFullbrightAlphaMaskWaterProgram;
-        }
-        else
-        {
-            shader = &gDeferredFullbrightAlphaMaskProgram;
-        }
+        shader = &gDeferredFullbrightAlphaMaskWaterProgram;
     }
     else
     {
-        shader = &gObjectFullbrightAlphaMaskProgram;
+        shader = &gDeferredFullbrightAlphaMaskProgram;
     }
 
-	LLGLDisable blend(GL_BLEND);
+    LLGLDisable blend(GL_BLEND);
 	
     // render static
     setup_fullbright_shader(shader);
     pushMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, true, true);
     
-    // render rigged
-    setup_fullbright_shader(shader->mRiggedVariant);
-    pushRiggedMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK_RIGGED, true, true);
+    if (!LLPipeline::sRenderingHUDs)
+    {
+        // render rigged
+        setup_fullbright_shader(shader->mRiggedVariant);
+        pushRiggedMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK_RIGGED, true, true);
+    }
 }
 

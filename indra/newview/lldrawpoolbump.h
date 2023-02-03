@@ -52,8 +52,6 @@ public:
 
 	LLDrawPoolBump();
 
-	virtual void render(S32 pass = 0) override;
-	virtual S32	 getNumPasses() override;
 	/*virtual*/ void prerender() override;
 	void pushBatch(LLDrawInfo& params, bool texture, bool batch_textures = false) override;
 
@@ -61,10 +59,6 @@ public:
 	void renderGroup(LLSpatialGroup* group, U32 type, bool texture) override;
 		
 	S32 numBumpPasses();
-	
-	void beginShiny();
-	void renderShiny();
-	void endShiny();
 	
 	void beginFullbrightShiny();
 	void renderFullbrightShiny();
@@ -166,26 +160,5 @@ private:
 };
 
 extern LLBumpImageList gBumpImageList;
-
-class LLDrawPoolInvisible : public LLRenderPass
-{
-public:
-	LLDrawPoolInvisible() : LLRenderPass(LLDrawPool::POOL_INVISIBLE) { }
-
-	enum
-	{
-		VERTEX_DATA_MASK = LLVertexBuffer::MAP_VERTEX
-	};
-	
-	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
-
-	virtual void prerender() { }
-
-	virtual void render(S32 pass = 0);
-	virtual void beginRenderPass( S32 pass ) { }
-	virtual void endRenderPass( S32 pass ) { }
-	virtual S32	 getNumPasses() {return 1;}
-};
-
 
 #endif // LL_LLDRAWPOOLBUMP_H

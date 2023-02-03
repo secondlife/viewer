@@ -27,19 +27,15 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 #if !defined(HAS_DIFFUSE_LOOKUP)
 uniform sampler2D diffuseMap;
 #endif
 
-VARYING vec3 vary_position;
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+in vec3 vary_position;
+in vec4 vertex_color;
+in vec2 vary_texcoord0;
 
 #ifdef WATER_FOG
 vec4 applyWaterFogView(vec3 pos, vec4 color);
@@ -68,7 +64,7 @@ void main()
 #ifdef HAS_DIFFUSE_LOOKUP
     vec4 color = diffuseLookup(vary_texcoord0.xy);
 #else
-    vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
+    vec4 color = texture(diffuseMap, vary_texcoord0.xy);
 #endif
 
     float final_alpha = color.a * vertex_color.a;
@@ -91,7 +87,10 @@ void main()
     color.a   = final_alpha;
 #endif
 
-    frag_color.rgb = srgb_to_linear(color.rgb);
+#ifndef IS_HUD
+    color.rgb = srgb_to_linear(color.rgb);
+#endif
+    frag_color.rgb = color.rgb;
     frag_color.a   = color.a;
 }
 

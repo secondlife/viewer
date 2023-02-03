@@ -23,8 +23,6 @@
  * $/LicenseInfo$
  */
  
-uniform int no_atmo;
-
 vec3 scaleSoftClipFrag(vec3 light)
 {
 	// For compatibility with lower cards. Do nothing.

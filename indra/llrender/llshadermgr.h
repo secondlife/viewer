@@ -255,7 +255,6 @@ public:
         ILLUMINANCE_TEX,                    //  "irradiance_texture"
         BLEND_FACTOR,                       //  "blend_factor"
 
-        NO_ATMO,                            //  "no_atmo"
         MOISTURE_LEVEL,                     //  "moisture_level"
         DROPLET_RADIUS,                     //  "droplet_radius"
         ICE_LEVEL,                          //  "ice_level"

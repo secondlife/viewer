@@ -23,7 +23,6 @@
  * $/LicenseInfo$
  */
 uniform float gamma;
-uniform int no_atmo;
 
 vec3 getAtmosAttenuation();
 vec3 getAdditiveColor();
@@ -33,10 +32,6 @@ vec3 linear_to_srgb(vec3 col);
 
 vec3 scaleSoftClipFragLinear(vec3 light)
 { // identical to non-linear version and that's probably close enough
-    if (no_atmo == 1)
-    {
-        return light;
-    }
     //soft clip effect:
     light = 1. - clamp(light, vec3(0.), vec3(1.));
     light = 1. - pow(light, vec3(gamma)); // s/b inverted already CPU-side
@@ -45,10 +40,6 @@ vec3 scaleSoftClipFragLinear(vec3 light)
 
 vec3 scaleSoftClipFrag(vec3 light)
 {
-    if (no_atmo == 1)
-    {
-        return light;
-    }
     //soft clip effect:
     light = 1. - clamp(light, vec3(0.), vec3(1.));
     light = 1. - pow(light, vec3(gamma)); // s/b inverted already CPU-side
