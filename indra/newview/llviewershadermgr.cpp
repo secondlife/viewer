@@ -117,7 +117,6 @@ LLGLSLShader		gPathfindingNoNormalsProgram;
 LLGLSLShader		gAvatarProgram;
 LLGLSLShader		gAvatarWaterProgram;
 LLGLSLShader		gAvatarEyeballProgram;
-LLGLSLShader		gAvatarPickProgram;
 LLGLSLShader		gImpostorProgram;
 
 // Effects Shaders
@@ -571,7 +570,6 @@ void LLViewerShaderMgr::unloadShaders()
 	gAvatarProgram.unload();
 	gAvatarWaterProgram.unload();
 	gAvatarEyeballProgram.unload();
-	gAvatarPickProgram.unload();
 	gHighlightProgram.unload();
     gSkinnedHighlightProgram.unload();
 	gHighlightNormalProgram.unload();
@@ -2825,7 +2823,6 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
 		gAvatarProgram.unload();
 		gAvatarWaterProgram.unload();
 		gAvatarEyeballProgram.unload();
-		gAvatarPickProgram.unload();
 		return TRUE;
 	}
 
@@ -2871,18 +2868,6 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
 		{
 			mMaxAvatarShaderLevel = mShaderLevel[SHADER_AVATAR] = gAvatarProgram.mShaderLevel;
 		}
-	}
-
-	if (success)
-	{
-		gAvatarPickProgram.mName = "Avatar Pick Shader";
-		gAvatarPickProgram.mFeatures.hasSkinning = true;
-		gAvatarPickProgram.mFeatures.disableTextureIndex = true;
-		gAvatarPickProgram.mShaderFiles.clear();
-		gAvatarPickProgram.mShaderFiles.push_back(make_pair("avatar/pickAvatarV.glsl", GL_VERTEX_SHADER));
-		gAvatarPickProgram.mShaderFiles.push_back(make_pair("avatar/pickAvatarF.glsl", GL_FRAGMENT_SHADER));
-		gAvatarPickProgram.mShaderLevel = mShaderLevel[SHADER_AVATAR];
-		success = gAvatarPickProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
