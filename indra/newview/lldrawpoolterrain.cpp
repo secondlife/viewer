@@ -105,33 +105,7 @@ U32 LLDrawPoolTerrain::getVertexDataMask()
 
 void LLDrawPoolTerrain::prerender()
 {
-	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT);
 	sDetailMode = gSavedSettings.getS32("RenderTerrainDetail");
-}
-
-void LLDrawPoolTerrain::beginRenderPass( S32 pass )
-{
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_TERRAIN);
-	LLFacePool::beginRenderPass(pass);
-
-	sShader = LLPipeline::sUnderWaterRender ? 
-					&gTerrainWaterProgram :
-					&gTerrainProgram;	
-
-	if (mShaderLevel > 1 && sShader->mShaderLevel > 0)
-	{
-		sShader->bind();
-	}
-}
-
-void LLDrawPoolTerrain::endRenderPass( S32 pass )
-{
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_TERRAIN);
-	//LLFacePool::endRenderPass(pass);
-
-	if (mShaderLevel > 1 && sShader->mShaderLevel > 0) {
-		sShader->unbind();
-	}
 }
 
 //static
@@ -152,54 +126,12 @@ void LLDrawPoolTerrain::boostTerrainDetailTextures()
 	}
 }
 
-void LLDrawPoolTerrain::render(S32 pass)
-{
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_TERRAIN);
-	
-	if (mDrawFace.empty())
-	{
-		return;
-	}
-
-	boostTerrainDetailTextures();
-
-	LLOverrideFaceColor override(this, 1.f, 1.f, 1.f, 1.f);
-
-	LLGLSPipeline gls;
-	
-	if (mShaderLevel > 1 && sShader->mShaderLevel > 0)
-	{
-		gPipeline.enableLightsDynamic();
-
-		renderFullShader();
-	}
-	else
-	{
-		gPipeline.enableLightsStatic();
-
-		if (sDetailMode == 0)
-		{
-			renderSimple();
-		} 
-		else 
-		{
-			renderFull4TU();
-		}
-	}
-
-	// Special-case for land ownership feedback
-	if (gSavedSettings.getBOOL("ShowParcelOwners"))
-	{
-		hilightParcelOwners(false);
-	}
-}
-
 void LLDrawPoolTerrain::beginDeferredPass(S32 pass)
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_TERRAIN);
 	LLFacePool::beginRenderPass(pass);
 
-	sShader = LLPipeline::sUnderWaterRender ? &gDeferredTerrainWaterProgram : &gDeferredTerrainProgram;
+	sShader = &gDeferredTerrainProgram;
 
 	sShader->bind();
 }
@@ -226,7 +158,7 @@ void LLDrawPoolTerrain::renderDeferred(S32 pass)
 	// Special-case for land ownership feedback
 	if (gSavedSettings.getBOOL("ShowParcelOwners"))
 	{
-		hilightParcelOwners(true);
+		hilightParcelOwners();
 	}
 
 }
@@ -390,13 +322,12 @@ void LLDrawPoolTerrain::renderFullShader()
 	gGL.getTexUnit(detail0)->activate();
 }
 
-void LLDrawPoolTerrain::hilightParcelOwners(bool deferred)
+void LLDrawPoolTerrain::hilightParcelOwners()
 {
-	if (mShaderLevel > 1)
 	{ //use fullbright shader for highlighting
 		LLGLSLShader* old_shader = sShader;
 		sShader->unbind();
-		sShader = deferred ? &gDeferredHighlightProgram : &gHighlightProgram;
+		sShader = &gDeferredHighlightProgram;
 		sShader->bind();
 		gGL.diffuseColor4f(1, 1, 1, 1);
 		LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
@@ -405,11 +336,7 @@ void LLDrawPoolTerrain::hilightParcelOwners(bool deferred)
 		sShader = old_shader;
 		sShader->bind();
 	}
-	else
-	{
-		gPipeline.disableLights();
-		renderOwnership();
-	}
+	
 }
 
 void LLDrawPoolTerrain::renderFull4TU()

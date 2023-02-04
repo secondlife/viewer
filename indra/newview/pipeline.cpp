@@ -1343,14 +1343,12 @@ bool LLPipeline::shadersLoaded()
 
 bool LLPipeline::canUseWindLightShaders() const
 {
-	return (gWLSkyProgram.mProgramObject != 0 &&
-			LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1);
+    return true;
 }
 
 bool LLPipeline::canUseWindLightShadersOnObjects() const
 {
-	return (canUseWindLightShaders() 
-		&& LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0);
+    return true;
 }
 
 bool LLPipeline::canUseAntiAliasing() const
@@ -2428,64 +2426,6 @@ void LLPipeline::markOccluder(LLSpatialGroup* group)
 				parent->setOcclusionState(LLSpatialGroup::ACTIVE_OCCLUSION);
 			}
 		}
-	}
-}
-
-void LLPipeline::downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-    LL_PROFILE_GPU_ZONE("downsampleDepthBuffer");
-
-	LLGLSLShader* last_shader = LLGLSLShader::sCurBoundShaderPtr;
-
-	LLGLSLShader* shader = NULL;
-
-	if (scratch_space)
-	{
-#if 0  // TODO -- restore occlusion culling functionality
-        GLint bits = 0;
-        bits = GL_DEPTH_BUFFER_BIT;
-		scratch_space->copyContents(source,
-									0, 0, source.getWidth(), source.getHeight(), 
-									0, 0, scratch_space->getWidth(), scratch_space->getHeight(), bits, GL_NEAREST);
-#endif
-	}
-
-	dest.bindTarget();
-	dest.clear(GL_DEPTH_BUFFER_BIT);
-
-	if (source.getUsage() == LLTexUnit::TT_TEXTURE)
-	{
-		shader = &gDownsampleDepthRectProgram;
-		shader->bind();
-		shader->uniform2f(sDelta, 1.f, 1.f);
-		shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, source.getWidth(), source.getHeight());
-	}
-	else
-	{
-		shader = &gDownsampleDepthProgram;
-		shader->bind();
-		shader->uniform2f(sDelta, 1.f/source.getWidth(), 1.f/source.getHeight());
-		shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, 1.f, 1.f);
-	}
-
-	gGL.getTexUnit(0)->bind(scratch_space ? scratch_space : &source, TRUE);
-
-	{
-		LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
-        mScreenTriangleVB->setBuffer();
-        mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-	}
-	
-	dest.flush();
-	
-	if (last_shader)
-	{
-		last_shader->bind();
-	}
-	else
-	{
-		shader->unbind();
 	}
 }
 

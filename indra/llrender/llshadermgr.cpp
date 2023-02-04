@@ -254,14 +254,6 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		}
 	}
 
-    if (features->hasIndirect)
-	{
-        if (!shader->attachFragmentObject("deferred/indirect.glsl"))
-		{
-			return FALSE;
-		}
-	}
-
 	if (features->hasGamma || features->isDeferred)
 	{
         if (!shader->attachFragmentObject("windlight/gammaF.glsl"))
@@ -624,7 +616,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         */
 
  		LL_DEBUGS("ShaderLoading") << "Looking in " << open_file_name << LL_ENDL;
-		file = LLFile::fopen(open_file_name, "r");		/* Flawfinder: ignore */
+		file = LLFile::fopen(open_file_name, "r+");		/* Flawfinder: ignore */
 		if (file)
 		{
 			LL_DEBUGS("ShaderLoading") << "Loading file: " << open_file_name << " (Want class " << gpu_class << ")" << LL_ENDL;            
@@ -875,6 +867,13 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 	
 	GLuint out_of_extra_block_counter = 0, start_shader_code = shader_code_count, file_lines_count = 0;
 	
+#define TOUCH_SHADERS 0
+
+#if TOUCH_SHADERS
+    const char* marker = "// touched";
+    bool touched = false;
+#endif
+
 	while(NULL != fgets((char *)buff, 1024, file)
 		  && shader_code_count < (LL_ARRAY_SIZE(shader_code_text) - LL_ARRAY_SIZE(extra_code_text)))
 	{
@@ -882,6 +881,13 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 
 		bool extra_block_area_found = NULL != strstr((const char*)buff, "[EXTRA_CODE_HERE]");
 		
+#if TOUCH_SHADERS
+        if (NULL != strstr((const char*)buff, marker))
+        {
+            touched = true;
+        }
+#endif
+
 		if(extra_block_area_found && !(flag_extra_block_marker_was_found & flags))
 		{
 			if(!(flag_write_to_out_of_extra_block_area & flags))
@@ -943,6 +949,13 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 
 		extra_code_count = 0;
 	}
+
+#if TOUCH_SHADERS
+    if (!touched)
+    {
+        fprintf(file, "\n%s\n", marker);
+    }
+#endif
 
 	fclose(file);
 

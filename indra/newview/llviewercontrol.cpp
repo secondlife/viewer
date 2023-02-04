@@ -51,7 +51,6 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llvoiceclient.h"
-#include "llvosky.h"
 #include "llvotree.h"
 #include "llvovolume.h"
 #include "llworld.h"

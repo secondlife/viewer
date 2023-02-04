@@ -169,10 +169,6 @@ public:
 	void        markVisible(LLDrawable *drawablep, LLCamera& camera);
 	void		markOccluder(LLSpatialGroup* group);
 
-	//downsample source to dest, taking the maximum depth value per pixel in source and writing to dest
-	// if source's depth buffer cannot be bound for reading, a scratch space depth buffer must be provided
-	void		downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space = NULL);
-
 	void		doOcclusion(LLCamera& camera);
 	void		markNotCulled(LLSpatialGroup* group, LLCamera &camera);
 	void        markMoved(LLDrawable *drawablep, bool damped_motion = false);

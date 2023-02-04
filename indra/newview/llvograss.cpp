@@ -38,7 +38,6 @@
 #include "llsky.h"
 #include "llsurface.h"
 #include "llsurfacepatch.h"
-#include "llvosky.h"
 #include "llviewercamera.h"
 #include "llviewertexturelist.h"
 #include "llviewerregion.h"

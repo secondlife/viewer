@@ -41,7 +41,6 @@
 #include "llsky.h"
 #include "llviewertexturelist.h"
 #include "llviewerregion.h"
-#include "llvosky.h"
 #include "llvowater.h"
 #include "llworld.h"
 #include "pipeline.h"

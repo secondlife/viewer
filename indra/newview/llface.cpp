@@ -47,7 +47,6 @@
 #include "llviewercamera.h"
 #include "llviewertexturelist.h"
 #include "llvopartgroup.h"
-#include "llvosky.h"
 #include "llvovolume.h"
 #include "pipeline.h"
 #include "llviewerregion.h"

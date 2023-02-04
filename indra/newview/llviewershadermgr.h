@@ -58,10 +58,8 @@ public:
 	BOOL loadShadersDeferred();
 	BOOL loadShadersObject();
 	BOOL loadShadersAvatar();
-	BOOL loadShadersEnvironment();
 	BOOL loadShadersWater();
 	BOOL loadShadersInterface();
-	BOOL loadShadersWindLight();
 
 	std::vector<S32> mShaderLevel;
 	S32	mMaxAvatarShaderLevel;
@@ -151,30 +149,23 @@ extern LLVector4			gShinyOrigin;
 //utility shaders
 extern LLGLSLShader			gOcclusionProgram;
 extern LLGLSLShader			gOcclusionCubeProgram;
-extern LLGLSLShader			gCustomAlphaProgram;
 extern LLGLSLShader			gGlowCombineProgram;
-extern LLGLSLShader			gSplatTextureRectProgram;
 extern LLGLSLShader			gReflectionMipProgram;
 extern LLGLSLShader         gRadianceGenProgram;
 extern LLGLSLShader         gIrradianceGenProgram;
 extern LLGLSLShader			gGlowCombineFXAAProgram;
 extern LLGLSLShader			gDebugProgram;
 extern LLGLSLShader			gClipProgram;
-extern LLGLSLShader			gDownsampleDepthProgram;
-extern LLGLSLShader			gDownsampleDepthRectProgram;
 extern LLGLSLShader			gBenchmarkProgram;
 extern LLGLSLShader         gReflectionProbeDisplayProgram;
 extern LLGLSLShader         gCopyProgram;
 extern LLGLSLShader         gCopyDepthProgram;
 
-//output tex0[tc0] + tex1[tc1]
-extern LLGLSLShader			gTwoTextureAddProgram;
 //output tex0[tc0] - tex1[tc1]
 extern LLGLSLShader			gTwoTextureCompareProgram;
 //discard some fragments based on user-set color tolerance
 extern LLGLSLShader			gOneTextureFilterProgram;
 						
-extern LLGLSLShader			gOneTextureNoColorProgram;
 
 //object shaders
 extern LLGLSLShader		gObjectPreviewProgram;
@@ -187,10 +178,6 @@ extern LLGLSLShader		gObjectAlphaMaskNoColorProgram;
 extern LLGLSLShader		gObjectAlphaMaskNoColorWaterProgram;
 
 //environment shaders
-extern LLGLSLShader			gMoonProgram;
-extern LLGLSLShader			gStarsProgram;
-extern LLGLSLShader			gTerrainProgram;
-extern LLGLSLShader			gTerrainWaterProgram;
 extern LLGLSLShader			gWaterProgram;
 extern LLGLSLShader			gWaterEdgeProgram;
 extern LLGLSLShader			gUnderWaterProgram;
@@ -203,8 +190,6 @@ extern LLGLSLShader			gHighlightNormalProgram;
 extern LLGLSLShader			gHighlightSpecularProgram;
 
 extern LLGLSLShader			gDeferredHighlightProgram;
-extern LLGLSLShader			gDeferredHighlightNormalProgram;
-extern LLGLSLShader			gDeferredHighlightSpecularProgram;
 
 extern LLGLSLShader			gPathfindingProgram;
 extern LLGLSLShader			gPathfindingNoNormalsProgram;
@@ -216,21 +201,11 @@ extern LLGLSLShader			gAvatarEyeballProgram;
 extern LLGLSLShader			gAvatarPickProgram;
 extern LLGLSLShader			gImpostorProgram;
 
-// WindLight shader handles
-extern LLGLSLShader			gWLSkyProgram;
-extern LLGLSLShader			gWLCloudProgram;
-extern LLGLSLShader			gWLSunProgram;
-extern LLGLSLShader			gWLMoonProgram;
-
 // Post Process Shaders
-extern LLGLSLShader			gPostColorFilterProgram;
-extern LLGLSLShader			gPostNightVisionProgram;
 extern LLGLSLShader         gPostScreenSpaceReflectionProgram;
 
 // Deferred rendering shaders
 extern LLGLSLShader			gDeferredImpostorProgram;
-extern LLGLSLShader			gDeferredWaterProgram;
-extern LLGLSLShader			gDeferredUnderWaterProgram;
 extern LLGLSLShader			gDeferredDiffuseProgram;
 extern LLGLSLShader			gDeferredDiffuseAlphaMaskProgram;
 extern LLGLSLShader			gDeferredNonIndexedDiffuseAlphaMaskProgram;

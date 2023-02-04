@@ -57,10 +57,7 @@ public:
 	/*virtual*/ void endShadowPass(S32 pass);
 	/*virtual*/ void renderShadow(S32 pass);
 
-	/*virtual*/ void render(S32 pass = 0);
 	/*virtual*/ void prerender();
-	/*virtual*/ void beginRenderPass( S32 pass );
-	/*virtual*/ void endRenderPass( S32 pass );
 	/*virtual*/ void dirtyTextures(const std::set<LLViewerFetchedTexture*>& textures);
 	/*virtual*/ LLViewerTexture *getTexture();
 	/*virtual*/ LLViewerTexture *getDebugTexture();
@@ -85,7 +82,7 @@ protected:
 	void drawLoop();
 
 private:
-	void hilightParcelOwners(bool deferred);
+	void hilightParcelOwners();
 };
 
 #endif // LL_LLDRAWPOOLSIMPLE_H
