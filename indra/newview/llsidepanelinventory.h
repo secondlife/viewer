@@ -66,8 +66,6 @@ public:
 	void clearSelections(bool clearMain, bool clearInbox);
     std::set<LLFolderViewItem*> getInboxSelectionList();
 
-	void showItemInfoPanel();
-	void showTaskInfoPanel();
 	void showInventoryPanel();
 
 	// checks can share selected item(s)
@@ -101,8 +99,6 @@ protected:
 private:
 	LLPanel*					mInventoryPanel; // Main inventory view
 	LLHandle<LLInventoryPanel>	mInventoryPanelInbox;
-	LLSidepanelItemInfo*		mItemPanel; // Individual item view
-	LLSidepanelTaskInfo*		mTaskPanel; // Individual in-world object view
 	LLPanelMainInventory*		mPanelMainInventory;
 
 protected:

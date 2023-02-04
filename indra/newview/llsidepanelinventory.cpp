@@ -115,7 +115,6 @@ private:
 
 LLSidepanelInventory::LLSidepanelInventory()
 	: LLPanel()
-	, mItemPanel(NULL)
 	, mPanelMainInventory(NULL)
 	, mInboxEnabled(false)
 	, mCategoriesObserver(NULL)
@@ -173,24 +172,6 @@ BOOL LLSidepanelInventory::postBuild()
 		*/
 
 		//LLOutfitObserver::instance().addCOFChangedCallback(boost::bind(&LLSidepanelInventory::updateVerbs, this));
-	}
-
-	// UI elements from item panel
-	{
-		mItemPanel = getChild<LLSidepanelItemInfo>("sidepanel__item_panel");
-		
-		LLButton* back_btn = mItemPanel->getChild<LLButton>("back_btn");
-		back_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onBackButtonClicked, this));
-	}
-
-	// UI elements from task panel
-	{
-		mTaskPanel = findChild<LLSidepanelTaskInfo>("sidepanel__task_panel");
-		if (mTaskPanel)
-		{
-			LLButton* back_btn = mTaskPanel->getChild<LLButton>("back_btn");
-			back_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onBackButtonClicked, this));
-		}
 	}
 	
 	// Received items inbox setup
@@ -387,27 +368,6 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 		gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 	}
 #endif
-
-	if(key.size() == 0)
-		return;
-
-	mItemPanel->reset();
-
-	if (key.has("id"))
-	{
-		mItemPanel->setItemID(key["id"].asUUID());
-		if (key.has("object"))
-		{
-			mItemPanel->setObjectID(key["object"].asUUID());
-		}
-		showItemInfoPanel();
-	}
-	if (key.has("task"))
-	{
-		if (mTaskPanel)
-			mTaskPanel->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
-		showTaskInfoPanel();
-	}
 }
 
 void LLSidepanelInventory::performActionOnSelection(const std::string &action)
@@ -439,35 +399,8 @@ void LLSidepanelInventory::onSelectionChange(const std::deque<LLFolderViewItem*>
 
 }
 
-void LLSidepanelInventory::showItemInfoPanel()
-{
-	mItemPanel->setVisible(TRUE);
-	if (mTaskPanel)
-		mTaskPanel->setVisible(FALSE);
-	mInventoryPanel->setVisible(FALSE);
-
-	mItemPanel->dirty();
-	mItemPanel->setIsEditing(FALSE);
-}
-
-void LLSidepanelInventory::showTaskInfoPanel()
-{
-	mItemPanel->setVisible(FALSE);
-	mInventoryPanel->setVisible(FALSE);
-
-	if (mTaskPanel)
-	{
-		mTaskPanel->setVisible(TRUE);
-		mTaskPanel->dirty();
-		mTaskPanel->setIsEditing(FALSE);
-	}
-}
-
 void LLSidepanelInventory::showInventoryPanel()
 {
-	mItemPanel->setVisible(FALSE);
-	if (mTaskPanel)
-		mTaskPanel->setVisible(FALSE);
 	mInventoryPanel->setVisible(TRUE);
 }
 
