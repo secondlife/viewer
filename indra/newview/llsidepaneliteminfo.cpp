@@ -32,8 +32,9 @@
 #include "llagent.h"
 #include "llavataractions.h"
 #include "llbutton.h"
+#include "llcallbacklist.h"
 #include "llcombobox.h"
-#include "llfloaterreg.h"
+#include "llfloater.h"
 #include "llgroupactions.h"
 #include "llinventorydefines.h"
 #include "llinventorymodel.h"
@@ -71,49 +72,6 @@ private:
     LLUUID mItemId;
     S32 mId;
 };
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLItemPropertiesObserver
-//
-// Helper class to watch for changes to the item.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLItemPropertiesObserver : public LLInventoryObserver
-{
-public:
-	LLItemPropertiesObserver(LLSidepanelItemInfo* floater)
-		: mFloater(floater)
-	{
-		gInventory.addObserver(this);
-	}
-	virtual ~LLItemPropertiesObserver()
-	{
-		gInventory.removeObserver(this);
-	}
-	virtual void changed(U32 mask);
-private:
-	LLSidepanelItemInfo* mFloater; // Not a handle because LLSidepanelItemInfo is managing LLItemPropertiesObserver
-};
-
-void LLItemPropertiesObserver::changed(U32 mask)
-{
-	const std::set<LLUUID>& mChangedItemIDs = gInventory.getChangedIDs();
-	std::set<LLUUID>::const_iterator it;
-
-	const LLUUID& item_id = mFloater->getItemID();
-
-	for (it = mChangedItemIDs.begin(); it != mChangedItemIDs.end(); it++)
-	{
-		// set dirty for 'item profile panel' only if changed item is the item for which 'item profile panel' is shown (STORM-288)
-		if (*it == item_id)
-		{
-			// if there's a change we're interested in.
-			if((mask & (LLInventoryObserver::LABEL | LLInventoryObserver::INTERNAL | LLInventoryObserver::REMOVE)) != 0)
-			{
-				mFloater->dirty();
-			}
-		}
-	}
-}
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLObjectInventoryObserver
@@ -158,19 +116,22 @@ static LLPanelInjector<LLSidepanelItemInfo> t_item_info("sidepanel_item_info");
 
 // Default constructor
 LLSidepanelItemInfo::LLSidepanelItemInfo(const LLPanel::Params& p)
-	: LLSidepanelInventorySubpanel(p)
+	: LLPanel(p)
 	, mItemID(LLUUID::null)
 	, mObjectInventoryObserver(NULL)
 	, mUpdatePendingId(-1)
+    , mIsDirty(false) /*Not ready*/
+    , mParentFloater(NULL)
 {
-	mPropertiesObserver = new LLItemPropertiesObserver(this);
+    gInventory.addObserver(this);
+    gIdleCallbacks.addFunction(&LLSidepanelItemInfo::onIdle, (void*)this);
 }
 
 // Destroys the object
 LLSidepanelItemInfo::~LLSidepanelItemInfo()
 {
-	delete mPropertiesObserver;
-	mPropertiesObserver = NULL;
+    gInventory.removeObserver(this);
+    gIdleCallbacks.deleteFunction(&LLSidepanelItemInfo::onIdle, (void*)this);
 
 	stopObjectInventoryObserver();
 }
@@ -178,8 +139,6 @@ LLSidepanelItemInfo::~LLSidepanelItemInfo()
 // virtual
 BOOL LLSidepanelItemInfo::postBuild()
 {
-	LLSidepanelInventorySubpanel::postBuild();
-
 	getChild<LLLineEditor>("LabelItemName")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
 	getChild<LLUICtrl>("LabelItemName")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitName,this));
 	getChild<LLLineEditor>("LabelItemDesc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
@@ -226,6 +185,12 @@ void LLSidepanelItemInfo::setItemID(const LLUUID& item_id)
         mItemID = item_id;
         mUpdatePendingId = -1;
     }
+    dirty();
+}
+
+void LLSidepanelItemInfo::setParentFloater(LLFloater* parent)
+{
+    mParentFloater = parent;
 }
 
 const LLUUID& LLSidepanelItemInfo::getObjectID() const
@@ -249,12 +214,11 @@ void LLSidepanelItemInfo::onUpdateCallback(const LLUUID& item_id, S32 received_u
 
 void LLSidepanelItemInfo::reset()
 {
-	LLSidepanelInventorySubpanel::reset();
-
 	mObjectID = LLUUID::null;
 	mItemID = LLUUID::null;
 
 	stopObjectInventoryObserver();
+    dirty();
 }
 
 void LLSidepanelItemInfo::refresh()
@@ -263,44 +227,7 @@ void LLSidepanelItemInfo::refresh()
 	if(item)
 	{
 		refreshFromItem(item);
-		updateVerbs();
 		return;
-	}
-	else
-	{
-		if (getIsEditing())
-		{
-			setIsEditing(FALSE);
-		}
-	}
-
-	if (!getIsEditing())
-	{
-		const std::string no_item_names[]={
-			"LabelItemName",
-			"LabelItemDesc",
-			"LabelCreatorName",
-			"LabelOwnerName"
-		};
-
-		for(size_t t=0; t<LL_ARRAY_SIZE(no_item_names); ++t)
-		{
-			getChildView(no_item_names[t])->setEnabled(false);
-		}
-
-		setPropertiesFieldsEnabled(false);
-
-		const std::string hide_names[]={
-			"BaseMaskDebug",
-			"OwnerMaskDebug",
-			"GroupMaskDebug",
-			"EveryoneMaskDebug",
-			"NextMaskDebug"
-		};
-		for(size_t t=0; t<LL_ARRAY_SIZE(hide_names); ++t)
-		{
-			getChildView(hide_names[t])->setVisible(false);
-		}
 	}
 
 	if (!item)
@@ -314,8 +241,12 @@ void LLSidepanelItemInfo::refresh()
 			getChildView(no_edit_mode_names[t])->setEnabled(false);
 		}
 	}
-
-	updateVerbs();
+    
+    if (mParentFloater)
+    {
+        // if we failed to get item, it likely no longer exists
+        mParentFloater->closeFloater();
+    }
 }
 
 void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
@@ -731,6 +662,48 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 	}
 }
 
+void LLSidepanelItemInfo::changed(U32 mask)
+{
+    const LLUUID& item_id = getItemID();
+    if (getObjectID().notNull() || item_id.isNull())
+    {
+        // Tasl inventory or not set up yet
+        return;
+    }
+    
+    const std::set<LLUUID>& mChangedItemIDs = gInventory.getChangedIDs();
+    std::set<LLUUID>::const_iterator it;
+
+    for (it = mChangedItemIDs.begin(); it != mChangedItemIDs.end(); it++)
+    {
+        // set dirty for 'item profile panel' only if changed item is the item for which 'item profile panel' is shown (STORM-288)
+        if (*it == item_id)
+        {
+            // if there's a change we're interested in.
+            if((mask & (LLInventoryObserver::LABEL | LLInventoryObserver::INTERNAL | LLInventoryObserver::REMOVE)) != 0)
+            {
+                dirty();
+            }
+        }
+    }
+}
+
+void LLSidepanelItemInfo::dirty()
+{
+    mIsDirty = true;
+}
+
+// static
+void LLSidepanelItemInfo::onIdle( void* user_data )
+{
+    LLSidepanelItemInfo* self = reinterpret_cast<LLSidepanelItemInfo*>(user_data);
+
+    if( self->mIsDirty )
+    {
+        self->refresh();
+        self->mIsDirty = false;
+    }
+}
 
 void LLSidepanelItemInfo::setAssociatedExperience( LLHandle<LLSidepanelItemInfo> hInfo, const LLSD& experience )
 {

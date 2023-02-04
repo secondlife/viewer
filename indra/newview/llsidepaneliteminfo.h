@@ -27,7 +27,8 @@
 #ifndef LL_LLSIDEPANELITEMINFO_H
 #define LL_LLSIDEPANELITEMINFO_H
 
-#include "llsidepanelinventorysubpanel.h"
+#include "llinventoryobserver.h"
+#include "llpanel.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLSidepanelItemInfo
@@ -35,34 +36,40 @@
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class LLButton;
+class LLFloater;
 class LLViewerInventoryItem;
 class LLItemPropertiesObserver;
 class LLObjectInventoryObserver;
 class LLViewerObject;
 class LLPermissions;
 
-class LLSidepanelItemInfo : public LLSidepanelInventorySubpanel
+class LLSidepanelItemInfo : public LLPanel, public LLInventoryObserver
 {
 public:
 	LLSidepanelItemInfo(const LLPanel::Params& p = getDefaultParams());
 	virtual ~LLSidepanelItemInfo();
 	
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ BOOL postBuild() override;
 	/*virtual*/ void reset();
 
 	void setObjectID(const LLUUID& object_id);
 	void setItemID(const LLUUID& item_id);
-	void setEditMode(BOOL edit);
+    void setParentFloater(LLFloater* parent); // For simplicity
 
 	const LLUUID& getObjectID() const;
 	const LLUUID& getItemID() const;
 
 	// if received update and item id (from callback) matches internal ones, update UI
 	void onUpdateCallback(const LLUUID& item_id, S32 received_update_id);
+    
+    void changed(U32 mask) override;
+    void dirty();
+    
+    static void onIdle( void* user_data );
 
 protected:
-	/*virtual*/ void refresh();
-	/*virtual*/ void save();
+	void refresh() override;
+	void save();
 
 	LLViewerInventoryItem* findItem() const;
 	LLViewerObject*  findObject() const;
@@ -78,11 +85,12 @@ private:
 
 	LLUUID mItemID; 	// inventory UUID for the inventory item.
 	LLUUID mObjectID; 	// in-world task UUID, or null if in agent inventory.
-	LLItemPropertiesObserver* mPropertiesObserver; // for syncing changes to item
 	LLObjectInventoryObserver* mObjectInventoryObserver; // for syncing changes to items inside an object
 
 	// We can send multiple properties updates simultaneously, make sure only last response counts and there won't be a race condition.
 	S32 mUpdatePendingId;
+    bool mIsDirty;         // item properties need to be updated
+    LLFloater* mParentFloater;
 
 	//
 	// UI Elements

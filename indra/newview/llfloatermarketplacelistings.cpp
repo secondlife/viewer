@@ -955,20 +955,13 @@ LLFloaterItemProperties::~LLFloaterItemProperties()
 
 BOOL LLFloaterItemProperties::postBuild()
 {
-    // On the standalone properties floater, we have no need for a back button...
-    LLSidepanelInventorySubpanel* panel = findChild<LLSidepanelInventorySubpanel>("sidepanel");
-    if (panel)
-    {
-        LLButton* back_btn = panel->getChild<LLButton>("back_btn");
-        back_btn->setVisible(FALSE);
-    }
 	return LLFloater::postBuild();
 }
 
 void LLFloaterItemProperties::onOpen(const LLSD& key)
 {
     // Tell the panel which item it needs to visualize
-    LLSidepanelInventorySubpanel* panel = findChild<LLSidepanelInventorySubpanel>("sidepanel");
+    LLPanel* panel = findChild<LLPanel>("sidepanel");
     
     LLSidepanelItemInfo* item_panel = dynamic_cast<LLSidepanelItemInfo*>(panel);
     if (item_panel)
@@ -978,6 +971,7 @@ void LLFloaterItemProperties::onOpen(const LLSD& key)
         {
             item_panel->setObjectID(key["object"].asUUID());
         }
+        item_panel->setParentFloater(this);
     }
     
     LLSidepanelTaskInfo* task_panel = dynamic_cast<LLSidepanelTaskInfo*>(panel);
