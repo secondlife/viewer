@@ -42,6 +42,7 @@
 #include "llresmgr.h"
 #include "lltextbox.h"
 #include "llbutton.h"
+#include "llcallbacklist.h"
 #include "llcheckboxctrl.h"
 #include "llviewerobject.h"
 #include "llselectmgr.h"
@@ -78,6 +79,7 @@ LLSidepanelTaskInfo::LLSidepanelTaskInfo()
 {
 	setMouseOpaque(FALSE);
 	LLSelectMgr::instance().mUpdateSignal.connect(boost::bind(&LLSidepanelTaskInfo::refreshAll, this));
+    gIdleCallbacks.addFunction(&LLSidepanelTaskInfo::onIdle, (void*)this);
 }
 
 
@@ -85,13 +87,12 @@ LLSidepanelTaskInfo::~LLSidepanelTaskInfo()
 {
 	if (sActivePanel == this)
 		sActivePanel = NULL;
+    gIdleCallbacks.deleteFunction(&LLSidepanelTaskInfo::onIdle, (void*)this);
 }
 
 // virtual
 BOOL LLSidepanelTaskInfo::postBuild()
 {
-	LLSidepanelInventorySubpanel::postBuild();
-
 	mOpenBtn = getChild<LLButton>("open_btn");
 	mOpenBtn->setClickedCallback(boost::bind(&LLSidepanelTaskInfo::onOpenButtonClicked, this));
 	mPayBtn = getChild<LLButton>("pay_btn");
@@ -253,6 +254,8 @@ void LLSidepanelTaskInfo::disablePermissions()
 
 void LLSidepanelTaskInfo::refresh()
 {
+    mIsDirty = false;
+    
 	LLButton* btn_deed_to_group = mDeedBtn; 
 	if (btn_deed_to_group)
 	{	
@@ -864,33 +867,6 @@ void LLSidepanelTaskInfo::refresh()
 	getChildView("label click action")->setEnabled(is_perm_modify && is_nonpermanent_enforced && all_volume);
 	getChildView("clickaction")->setEnabled(is_perm_modify && is_nonpermanent_enforced && all_volume);
 
-	if (!getIsEditing())
-	{
-		const std::string no_item_names[] = 
-			{
-				"Object Name",
-				"Object Description",
-				"button set group",
-				"checkbox share with group",
-				"button deed",
-				"checkbox allow everyone move",
-				"checkbox allow everyone copy",
-				"checkbox for sale",
-				"sale type",
-				"Edit Cost",
-				"checkbox next owner can modify",
-				"checkbox next owner can copy",
-				"checkbox next owner can transfer",
-				"clickaction",
-				"search_check",
-				"perm_modify",
-				"Group Name",
-			};
-		for (size_t t=0; t<LL_ARRAY_SIZE(no_item_names); ++t)
-		{
-			getChildView(no_item_names[t])->setEnabled(	FALSE);
-		}
-	}
 	updateVerbs();
 }
 
@@ -1202,16 +1178,6 @@ void LLSidepanelTaskInfo::onCommitIncludeInSearch(LLUICtrl* ctrl, void* data)
 // virtual
 void LLSidepanelTaskInfo::updateVerbs()
 {
-	LLSidepanelInventorySubpanel::updateVerbs();
-
-	/*
-	mOpenBtn->setVisible(!getIsEditing());
-	mPayBtn->setVisible(!getIsEditing());
-	mBuyBtn->setVisible(!getIsEditing());
-	//const LLViewerObject *obj = getFirstSelectedObject();
-	//mEditBtn->setEnabled(obj && obj->permModify());
-	*/
-
 	LLSafeHandle<LLObjectSelection> object_selection = LLSelectMgr::getInstance()->getSelection();
 	const BOOL any_selected = (object_selection->getNumNodes() > 0);
 
@@ -1294,6 +1260,23 @@ void LLSidepanelTaskInfo::setObjectSelection(LLObjectSelectionHandle selection)
 LLSidepanelTaskInfo* LLSidepanelTaskInfo::getActivePanel()
 {
 	return sActivePanel;
+}
+
+void LLSidepanelTaskInfo::dirty()
+{
+    mIsDirty = true;
+}
+
+// static
+void LLSidepanelTaskInfo::onIdle( void* user_data )
+{
+    LLSidepanelTaskInfo* self = reinterpret_cast<LLSidepanelTaskInfo*>(user_data);
+
+    if( self->mIsDirty )
+    {
+        self->refresh();
+        self->mIsDirty = false;
+    }
 }
 
 LLViewerObject* LLSidepanelTaskInfo::getObject()
