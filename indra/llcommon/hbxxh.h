@@ -96,6 +96,15 @@ public:
         }
     }
 
+    // Make this class no-copy (it would be possible, with custom copy
+    // operators, but it is not trivially copyable, because of the mState
+    // pointer): it does not really make sense to allow copying it anyway,
+    // since all we care about is the resulting digest (so you should only
+    // need and care about storing/copying the digest and not a class
+    // instance).
+    HBXXH64(const HBXXH64&) noexcept = delete;
+    HBXXH64& operator=(const HBXXH64&) noexcept = delete;
+
     ~HBXXH64();
 
     void update(const void* buffer, size_t len);
@@ -198,6 +207,15 @@ public:
             finalize();
         }
     }
+
+    // Make this class no-copy (it would be possible, with custom copy
+    // operators, but it is not trivially copyable, because of the mState
+    // pointer): it does not really make sense to allow copying it anyway,
+    // since all we care about is the resulting digest (so you should only
+    // need and care about storing/copying the digest and not a class
+    // instance).
+    HBXXH128(const HBXXH128&) noexcept = delete;
+    HBXXH128& operator=(const HBXXH128&) noexcept = delete;
 
     ~HBXXH128();
 
