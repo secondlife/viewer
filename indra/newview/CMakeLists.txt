@@ -604,6 +604,7 @@ set(viewer_SOURCE_FILES
     lltextureinfodetails.cpp
     lltexturestats.cpp
     lltextureview.cpp
+    llthumbnailctrl.cpp
     lltoast.cpp
     lltoastalertpanel.cpp
     lltoastgroupnotifypanel.cpp
@@ -1236,6 +1237,7 @@ set(viewer_HEADER_FILES
     lltextureinfodetails.h
     lltexturestats.h
     lltextureview.h
+    llthumbnailctrl.h
     lltoast.h
     lltoastalertpanel.h
     lltoastgroupnotifypanel.h
