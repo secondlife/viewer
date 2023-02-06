@@ -58,6 +58,7 @@ class LLTextBase;
 class LLMenuButton;
 class LLLineEditor;
 class LLTextEditor;
+class LLThumbnailCtrl;
 class LLPanelProfileClassifieds;
 class LLPanelProfilePicks;
 class LLViewerFetchedTexture;
@@ -192,7 +193,7 @@ private:
 
 	LLGroupList*		mGroupList;
     LLComboBox*			mShowInSearchCombo;
-    LLIconCtrl*			mSecondLifePic;
+    LLThumbnailCtrl*	mSecondLifePic;
 	LLPanel*			mSecondLifePicLayout;
     LLTextEditor*		mDescriptionEdit;
     LLMenuButton*		mAgentActionMenuButton;
@@ -301,7 +302,7 @@ protected:
     void onDiscardDescriptionChanges();
 
 	LLTextEditor*	mDescriptionEdit;
-    LLIconCtrl*		mPicture;
+    LLThumbnailCtrl* mPicture;
     LLButton* mUploadPhoto;
     LLButton* mChangePhoto;
     LLButton* mRemovePhoto;

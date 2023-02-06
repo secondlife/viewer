@@ -71,6 +71,7 @@
 #include "llpanelblockedlist.h"
 #include "llpanelprofileclassifieds.h"
 #include "llpanelprofilepicks.h"
+#include "llthumbnailctrl.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewermenu.h" //is_agent_mappable
@@ -908,7 +909,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
 {
     mGroupList              = getChild<LLGroupList>("group_list");
     mShowInSearchCombo      = getChild<LLComboBox>("show_in_search");
-    mSecondLifePic          = getChild<LLIconCtrl>("2nd_life_pic");
+    mSecondLifePic          = getChild<LLThumbnailCtrl>("2nd_life_pic");
     mSecondLifePicLayout    = getChild<LLPanel>("image_panel");
     mDescriptionEdit        = getChild<LLTextEditor>("sl_description_edit");
     mAgentActionMenuButton  = getChild<LLMenuButton>("agent_actions_menu");
@@ -2133,7 +2134,7 @@ LLPanelProfileFirstLife::~LLPanelProfileFirstLife()
 BOOL LLPanelProfileFirstLife::postBuild()
 {
     mDescriptionEdit = getChild<LLTextEditor>("fl_description_edit");
-    mPicture = getChild<LLIconCtrl>("real_world_pic");
+    mPicture = getChild<LLThumbnailCtrl>("real_world_pic");
 
     mUploadPhoto = getChild<LLButton>("fl_upload_image");
     mChangePhoto = getChild<LLButton>("fl_change_image");

@@ -19,7 +19,7 @@
      layout="topleft"
      visible="false"
     />
-    <icon
+    <thumbnail
      name="real_world_pic"
      image_name="Generic_Person_Large"
      follows="top|left"
