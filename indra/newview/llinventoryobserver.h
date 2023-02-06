@@ -28,7 +28,6 @@
 #define LL_LLINVENTORYOBSERVERS_H
 
 #include "lluuid.h"
-#include "llmd5.h"
 #include <string>
 #include <vector>
 
@@ -274,11 +273,11 @@ protected:
 	struct LLCategoryData
 	{
 		LLCategoryData(const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents);
-		LLCategoryData(const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents, LLMD5 name_hash);
+		LLCategoryData(const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents, const LLUUID& name_hash);
 		callback_t	mCallback;
 		S32			mVersion;
 		S32			mDescendentsCount;
-		LLMD5		mItemNameHash;
+		LLUUID		mItemNameHash;
 		bool		mIsNameHashInitialized;
 		LLUUID		mCatID;
 	};
