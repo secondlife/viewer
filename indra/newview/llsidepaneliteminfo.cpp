@@ -318,6 +318,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 	getChildView("LabelItemDesc")->setEnabled(is_modifiable);
 	getChildView("IconLocked")->setVisible(!is_modifiable);
 	getChild<LLUICtrl>("LabelItemDesc")->setValue(item->getDescription());
+    getChild<LLUICtrl>("item_thumbnail")->setValue(item->getThumbnailUUID());
 
 	//////////////////
 	// CREATOR NAME //
