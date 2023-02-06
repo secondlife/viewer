@@ -113,6 +113,8 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     vec3 v, // surface point to camera
                     vec3 l); //surface point to light
 
+vec2 BRDF(float NoV, float roughness);
+
 vec3 calcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor, 
                     float perceptualRoughness, 
                     float metallic,
@@ -217,7 +219,11 @@ void main()
     calcDiffuseSpecular(col.rgb, metallic, diffuseColor, specularColor);
 
     vec3 v = -normalize(pos.xyz);
+
     color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
+
+    float nv = clamp(abs(dot(norm.xyz, v)), 0.001, 1.0);
+    vec2 brdf = BRDF(clamp(nv, 0, 1), 1.0-perceptualRoughness);
 
     vec3 light = vec3(0);
 
@@ -235,5 +241,11 @@ void main()
     color.rgb += light.rgb;
 
     
-    frag_color = vec4(color.rgb,basecolor.a * vertex_color.a);
+    float a = basecolor.a*vertex_color.a;
+    vec3 spec = radiance; // *specularColor;
+    float lum = max(max(spec.r, spec.g), spec.b);
+    
+    float f = brdf.y;
+    a += f;
+    frag_color = vec4(color.rgb,a);
 }

@@ -35,7 +35,6 @@
 class LLShaderFeatures
 {
 public:
-    bool atmosphericHelpers;
     bool calculatesLighting;
     bool calculatesAtmospherics;
     bool hasLighting; // implies no transport (it's possible to have neither though)

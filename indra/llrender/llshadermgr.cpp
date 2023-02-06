@@ -616,7 +616,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         */
 
  		LL_DEBUGS("ShaderLoading") << "Looking in " << open_file_name << LL_ENDL;
-		file = LLFile::fopen(open_file_name, "r+");		/* Flawfinder: ignore */
+		file = LLFile::fopen(open_file_name, "r");		/* Flawfinder: ignore */
 		if (file)
 		{
 			LL_DEBUGS("ShaderLoading") << "Loading file: " << open_file_name << " (Want class " << gpu_class << ")" << LL_ENDL;            
