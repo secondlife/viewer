@@ -256,8 +256,9 @@ public:
 								cat_array_t*& categories,
 								item_array_t*& items) const;
 
+	typedef LLUUID digest_t; // To clarify the actual usage of this "UUID"
 	// Compute a hash of direct descendant names (for detecting child name changes)
-	LLUUID hashDirectDescendentNames(const LLUUID& cat_id) const;
+	digest_t hashDirectDescendentNames(const LLUUID& cat_id) const;
 	
 	// Starting with the object specified, add its descendants to the
 	// array provided, but do not add the inventory object specified

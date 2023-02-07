@@ -452,7 +452,7 @@ void LLInventoryModel::getDirectDescendentsOf(const LLUUID& cat_id,
 	items = get_ptr_in_map(mParentChildItemTree, cat_id);
 }
 
-LLUUID LLInventoryModel::hashDirectDescendentNames(const LLUUID& cat_id) const
+LLInventoryModel::digest_t LLInventoryModel::hashDirectDescendentNames(const LLUUID& cat_id) const
 {
 	LLInventoryModel::cat_array_t* cat_array;
 	LLInventoryModel::item_array_t* item_array;
