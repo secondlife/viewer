@@ -30,6 +30,7 @@
 #include "pipeline.h"
 #include "llviewerwindow.h"
 #include "llviewerregion.h"
+#include "llworld.h"
 
 extern F32SecondsImplicit gFrameTimeSeconds;
 
@@ -123,6 +124,12 @@ void LLReflectionMap::autoAdjustOrigin()
                 mOrigin.mul(0.5f);
             }
 
+            // make sure origin isn't under ground
+            F32* fp = mOrigin.getF32ptr();
+            LLVector3 origin(fp);
+            F32 height = LLWorld::instance().resolveLandHeightAgent(origin) + 2.f;
+            fp[2] = llmax(fp[2], height);
+            
             // make sure radius encompasses all objects
             LLSimdScalar r2 = 0.0;
             for (int i = 0; i < 8; ++i)
