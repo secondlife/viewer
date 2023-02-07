@@ -949,7 +949,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
         //transform water plane to eye space
         glh::vec3f norm(0.f, 0.f, 1.f);
-        glh::vec3f p(0.f, 0.f, water_height + 0.1f);
+        glh::vec3f p(0.f, 0.f, water_height);
 
         F32 modelView[16];
         for (U32 i = 0; i < 16; i++)

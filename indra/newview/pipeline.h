@@ -718,9 +718,6 @@ public:
 	LLVector4				mSunOrthoClipPlanes;
 	LLVector2				mScreenScale;
 
-	//water reflection texture
-	LLRenderTarget				mWaterRef;
-
 	//water distortion texture (refraction)
 	LLRenderTarget				mWaterDis;
 

@@ -44,6 +44,8 @@ void main()
 
     sun_fade = smoothstep(0.3, 1.0, (position.z + 50) / 512.0f);
 
+    // smash to *almost* far clip plane -- behind clouds but in front of stars
+    pos.z = pos.w*0.999999;
     gl_Position = pos;
     
     calcAtmospherics(pos.xyz);

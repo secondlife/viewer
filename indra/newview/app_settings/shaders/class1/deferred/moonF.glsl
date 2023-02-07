@@ -72,7 +72,5 @@ void main()
     frag_data[0] = vec4(c.rgb, c.a);
     frag_data[1] = vec4(0.0);
     frag_data[2] = vec4(0.0, 0.0, 0.0, GBUFFER_FLAG_HAS_ATMOS);
-
-    gl_FragDepth = LL_SHADER_CONST_CLOUD_MOON_DEPTH; // SL-14113
 }
 

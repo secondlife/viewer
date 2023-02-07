@@ -819,6 +819,11 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		resY /= res_mod;
 	}
 
+    if (LLPipeline::sRenderTransparentWater)
+    { //water reflection texture
+        mWaterDis.allocate(resX, resY, GL_RGBA, true);
+    }
+
 	if (RenderUIBuffer)
 	{
 		if (!mRT->uiScreen.allocate(resX,resY, GL_RGBA))
@@ -1099,7 +1104,6 @@ void LLPipeline::releaseGLBuffers()
 
 	releaseLUTBuffers();
 
-	mWaterRef.release();
 	mWaterDis.release();
     mBake.release();
 	
@@ -1172,12 +1176,6 @@ void LLPipeline::createGLBuffers()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     stop_glerror();
 	assertInitialized();
-
-	if (LLPipeline::sRenderTransparentWater)
-	{ //water reflection texture
-		U32 res = (U32) llmax(gSavedSettings.getS32("RenderWaterRefResolution"), 512);
-        mWaterDis.allocate(res,res,GL_RGBA,true);
-	}
 
     // Use FBO for bake tex
     mBake.allocate(512, 512, GL_RGBA, true); // SL-12781 Build > Upload > Model; 3D Preview

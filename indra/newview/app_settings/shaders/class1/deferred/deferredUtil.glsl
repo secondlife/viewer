@@ -531,7 +531,7 @@ vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v,
 
     float NdotV = clamp(abs(dot(norm, v)), 0.001, 1.0);
     
-    color += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness);
+    color += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, 0.2);
     
     color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, v, normalize(light_dir)) * sunlit * 2.75 * scol;
     color += colorEmissive*0.5;
@@ -551,14 +551,14 @@ void waterClip(vec3 pos)
     // TODO: make this less branchy
     if (waterSign > 0)
     {
-        if ((dot(pos.xyz, waterPlane.xyz) + waterPlane.w) < -0.1)
+        if ((dot(pos.xyz, waterPlane.xyz) + waterPlane.w) < 0.0)
         {
             discard;
         }
     }
     else
     {
-        if ((dot(pos.xyz, waterPlane.xyz) + waterPlane.w) > -0.1)
+        if ((dot(pos.xyz, waterPlane.xyz) + waterPlane.w) > 0.0)
         {
             discard;
         }

@@ -643,7 +643,7 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
     glossenv = sampleProbes(pos, normalize(refnormpersp), lod, errorCorrect);
 
 #if defined(SSR)
-    if (cube_snapshot != 1)
+    if (cube_snapshot != 1 && glossiness >= 0.9)
     {
         vec4 ssr = vec4(0);
         //float w = tapScreenSpaceReflection(errorCorrect ? 1 : 4, tc, pos, norm, ssr, sceneMap);

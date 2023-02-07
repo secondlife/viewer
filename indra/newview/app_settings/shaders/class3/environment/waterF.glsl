@@ -37,6 +37,10 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, ou
 vec4 applyWaterFogViewLinear(vec3 pos, vec4 color, vec3 sunlit);
 
 // PBR interface
+vec2 BRDF(float NoV, float roughness);
+
+void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor);
+
 vec3 pbrIbl(vec3 diffuseColor,
     vec3 specularColor,
     vec3 radiance, // radiance map sample
@@ -51,6 +55,22 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
     vec3 n, // normal
     vec3 v, // surface point to camera
     vec3 l); //surface point to light
+
+vec3 pbrBaseLight(vec3 diffuseColor,
+                  vec3 specularColor,
+                  float metallic,
+                  vec3 pos,
+                  vec3 norm,
+                  float perceptualRoughness,
+                  vec3 light_dir,
+                  vec3 sunlit,
+                  float scol,
+                  vec3 radiance,
+                  vec3 irradiance,
+                  vec3 colorEmissive,
+                  float ao,
+                  vec3 additive,
+                  vec3 atten);
 
 uniform sampler2D bumpMap;
 uniform sampler2D bumpMap2;
@@ -112,8 +132,6 @@ vec3 getPositionWithNDC(vec3 ndc);
 
 void main() 
 {
-	vec4 color;
-
     vN = vary_normal;
     vT = vary_tangent;
     vB = cross(vN, vT);
@@ -151,30 +169,28 @@ void main()
 
     vec3 waver = wavef*3;
 
-    wavef = transform_normal(wavef);
+    vec3 up = transform_normal(vec3(0,0,1));
+    float vdu = -dot(viewVec, up)*2;
+    
+    vec3 wave_ibl = wavef;
+    wave_ibl.z *= 2.0;
+    wave_ibl = transform_normal(normalize(wave_ibl));
 
-    //wavef.z *= max(-viewVec.z, 0.1);
+    vec3 norm = transform_normal(normalize(wavef));
+
+    vdu = clamp(vdu, 0, 1);
+    wavef.z *= max(vdu*vdu*vdu, 0.1);
 
     wavef = normalize(wavef);
 
-	//get base fresnel components	
-	
-	vec3 df = vec3(
-					dot(viewVec, wave1),
-					dot(viewVec, (wave2 + wave3) * 0.5),
-					dot(viewVec, wave3)
-				 ) * fresnelScale + fresnelOffset;
-		    
+    //wavef = vec3(0, 0, 1);
+    wavef = transform_normal(wavef);
+    
 	float dist2 = dist;
 	dist = max(dist, 5.0);
 	
 	float dmod = sqrt(dist);
 	
-    float df1 = df.x + df.y + df.z;
-
-
-    
-
 	//figure out distortion vector (ripply)   
     vec2 distort2 = distort + waver.xy * refScale / max(dmod, 1.0);
 
@@ -203,66 +219,58 @@ void main()
 
     fb = applyWaterFogViewLinear(refPos, fb, sunlit);
 #else
-    vec4 fb = vec4(waterFogColorLinear.rgb, 0.0);
+    vec4 fb = applyWaterFogViewLinear(viewVec*1024.0, vec4(0.5), sunlit);
 #endif
 
-    vec3 v = -viewVec;
-    float NdotV = clamp(abs(dot(wavef.xyz, v)), 0.001, 1.0);
-
-    float metallic = fresnelOffset * 0.1; // fudge -- use fresnelOffset as metalness
-    float roughness = 0.1;
-    float gloss = 1.0 - roughness;
-
-    vec3 baseColor = vec3(0.25);
-    vec3 f0 = vec3(0.04);
-    vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
-    diffuseColor *= gloss;
-
-    vec3 specularColor = mix(f0, baseColor.rgb, metallic);
-
-    vec3 refnorm = normalize(wavef + vary_normal);
-    //vec3 refnorm = wavef;
+    float metallic = 0.0;
+    float perceptualRoughness = 0.1;
+    float gloss      = 1.0 - perceptualRoughness;
     
-    vec3 irradiance = vec3(0);
-    vec3 radiance = vec3(0);
-    sampleReflectionProbes(irradiance, radiance, distort, pos, refnorm, gloss, true);
-    radiance *= 0.5;
-    irradiance = fb.rgb;
+    vec3  irradiance = vec3(0);
+    vec3  radiance  = vec3(0);
+    sampleReflectionProbes(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss);
 
-    color.rgb = pbrIbl(diffuseColor, specularColor, radiance, irradiance, gloss, NdotV, 0.0);
+    irradiance       = vec3(0);
+
+    vec3 diffuseColor;
+    vec3 specularColor;
+    calcDiffuseSpecular(vec3(1), metallic, diffuseColor, specularColor);
+
+    vec3 v = -normalize(pos.xyz);
+
+    float scol = 1.0;
+    vec3 colorEmissive = vec3(0);
+    float ao = 1.0;
+    vec3 light_dir = transform_normal(lightDir);
     
-    // fudge -- for punctual lighting, pretend water is metallic
-    diffuseColor = vec3(0);
-    specularColor = vec3(1);
-    roughness = 0.1;
-    float scol = 1.0; // TODO -- incorporate shadow map
+    perceptualRoughness = 0.0;
+    metallic = 1.0;
 
-    //color.rgb += pbrPunctual(diffuseColor, specularColor, roughness, metallic, wavef, v, vary_light_dir) * sunlit * 2.75 * scol;
+    float NdotV = clamp(abs(dot(norm, v)), 0.001, 1.0);
 
-    //get specular component
-    float spec = clamp(dot(vary_light_dir, (reflect(viewVec, wavef))), 0.0, 1.0);
+    vec3 punctual = pbrPunctual(vec3(0), specularColor, 0.1, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir));
 
-    //harden specular
-    spec = pow(spec, 128.0);
+    vec3 color = punctual * sunlit * 2.75 * scol;
 
-    color.rgb += spec * specular;
+    color = atmosFragLightingLinear(color, additive, atten);
+    color = scaleSoftClipFragLinear(color);
 
-	color.rgb = atmosFragLightingLinear(color.rgb, additive, atten);
-	color.rgb = scaleSoftClipFragLinear(color.rgb);
+    vec3 ibl = pbrIbl(vec3(0), vec3(1), radiance, vec3(0), ao, NdotV, 0.0);
 
-    color.a = 0.f;
-    //color.rgb = fb.rgb;
-    //color.rgb = vec3(depth*depth*depth*depth);
-    //color.rgb = srgb_to_linear(normalize(refPos) * 0.5 + 0.5);
-    //color.rgb = srgb_to_linear(normalize(pos) * 0.5 + 0.5);
-    //color.rgb = srgb_to_linear(wavef * 0.5 + 0.5);
+    color += ibl;
 
-    //color.rgb = radiance;
-	frag_color = color;
+    float nv = clamp(abs(dot(norm.xyz, v)), 0.001, 1.0);
+    vec2 brdf = BRDF(clamp(nv, 0, 1), 1.0);
+    float f = 1.0-brdf.y; //1.0 - (brdf.x+brdf.y);
+    f *= 0.9;
+    f *= f;
 
-#if defined(WATER_EDGE)
-    gl_FragDepth = 0.9999847f;
-#endif
-	
+    f = clamp(f, 0, 1);
+    //fb.rgb *= 1.;
+    
+    color = mix(color, fb.rgb, f);
+    float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
+    
+    frag_color = vec4(color, spec); //*sunAngle2);
 }
 

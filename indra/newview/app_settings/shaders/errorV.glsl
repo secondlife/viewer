@@ -1,9 +1,9 @@
 /** 
- * @file starsV.glsl
+ * @file errorV.glsl
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2023, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,32 +23,13 @@
  * $/LicenseInfo$
  */
 
-uniform mat4 texture_matrix0;
+ // fallback shader for whenever there is a compilation error
 uniform mat4 modelview_projection_matrix;
-uniform float time;
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec4 diffuse_color;
-ATTRIBUTE vec2 texcoord0;
-
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
-VARYING vec2 screenpos;
+in vec3 position;
 
 void main()
 {
-	//transform vertex
-    vec4 pos = modelview_projection_matrix * vec4(position, 1.0);
-
-    
-    // smash to far clip plane to 
-    // avoid rendering on top of moon (do NOT write to gl_FragDepth, it's slow)
-    pos.z = pos.w;
-
-	gl_Position = pos;
-
-    float t = mod(time, 1.25f);
-    screenpos = position.xy * vec2(t, t);
-	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-	vertex_color = diffuse_color;
+    gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
 }
+

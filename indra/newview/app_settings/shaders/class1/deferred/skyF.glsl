@@ -97,7 +97,5 @@ void main()
     frag_data[0] = vec4(color.rgb, 1.0);
     frag_data[1] = vec4(0.0,0.0,0.0,0.0);
     frag_data[2] = vec4(0.0,0.0,0.0,GBUFFER_FLAG_SKIP_ATMOS); //1.0 in norm.w masks off fog
-
-    gl_FragDepth = 0.99999f;
 }
 

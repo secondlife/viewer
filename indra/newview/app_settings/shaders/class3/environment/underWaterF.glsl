@@ -55,7 +55,7 @@ VARYING vec4 littleWave;
 VARYING vec4 view;
 in vec3 vary_position;
 
-vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
+vec4 applyWaterFogViewLinearNoClip(vec3 pos, vec4 color, vec3 sunlit);
 
 void main() 
 {
@@ -77,5 +77,5 @@ void main()
     vec4 fb = vec4(waterFogColorLinear, 0.0);
 #endif
     
-	frag_color = applyWaterFogViewLinear(vary_position, fb);
+	frag_color = applyWaterFogViewLinearNoClip(vary_position, fb, vec3(1));
 }
