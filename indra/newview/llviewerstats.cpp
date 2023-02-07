@@ -64,6 +64,7 @@
 #include "llvoicevivox.h"
 #include "llinventorymodel.h"
 #include "lluiusage.h"
+#include "lltranslate.h"
 
 namespace LLStatViewer
 {
@@ -500,6 +501,7 @@ void send_viewer_stats(bool include_preferences)
 	agent["meters_traveled"] = gAgent.getDistanceTraveled();
 	agent["regions_visited"] = gAgent.getRegionsVisited();
 	agent["mem_use"] = LLMemory::getCurrentRSS() / 1024.0;
+	agent["translation"] = LLTranslate::instance().asLLSD();
 
 	LLSD &system = body["system"];
 	
@@ -529,6 +531,7 @@ void send_viewer_stats(bool include_preferences)
 	system["opengl_version"] = gGLManager.mGLVersionString;
 
 	gGLManager.asLLSD(system["gl"]);
+
 
 	S32 shader_level = 0;
 	if (LLPipeline::sRenderDeferred)

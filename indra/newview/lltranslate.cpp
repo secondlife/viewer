@@ -546,6 +546,18 @@ void LLBingTranslationHandler::verifyKey(const std::string &key, LLTranslate::Ke
 }
 
 //=========================================================================
+LLTranslate::LLTranslate():
+	mCharsSeen(0),
+	mCharsSent(0),
+	mFailureCount(0),
+	mSuccessCount(0)
+{
+}
+
+LLTranslate::~LLTranslate()
+{
+}
+
 /*static*/
 void LLTranslate::translateMessage(const std::string &from_lang, const std::string &to_lang,
     const std::string &mesg, TranslationSuccess_fn success, TranslationFailure_fn failure)
@@ -632,6 +644,43 @@ std::string LLTranslate::getTranslateLanguage()
 bool LLTranslate::isTranslationConfigured()
 {
 	return getPreferredHandler().isConfigured();
+}
+
+void LLTranslate::logCharsSeen(size_t count)
+{
+	mCharsSeen += count;
+}
+
+void LLTranslate::logCharsSent(size_t count)
+{
+	mCharsSent += count;
+}
+
+void LLTranslate::logSuccess(S32 count)
+{
+	mSuccessCount += count;
+}
+
+void LLTranslate::logFailure(S32 count)
+{
+	mFailureCount += count;
+}
+
+LLSD LLTranslate::asLLSD() const
+{
+	LLSD res;
+	bool on = gSavedSettings.getBOOL("TranslateChat");
+	res["on"] = on;
+	res["chars_seen"] = (S32) mCharsSeen;
+	if (on)
+	{
+		res["chars_sent"] = (S32) mCharsSent;
+		res["success_count"] = mSuccessCount;
+		res["failure_count"] = mFailureCount;
+		res["language"] = getTranslateLanguage();  
+		res["service"] = gSavedSettings.getString("TranslationService");
+	}
+	return res;
 }
 
 // static
