@@ -134,30 +134,4 @@ Purchases from the marketplace will be delivered here.
              </layout_panel>
          </layout_stack>
 	</panel>
-	<panel
-		 follows="all"
-		 layout="topleft"
-		 left="0"
-		 class="sidepanel_item_info"
-		 filename="sidepanel_item_info.xml"
-		 name="sidepanel__item_panel"
-		 top="0"
-		 label=""
-		 height="570"
-		 visible="false"
-		 width="330">
-	</panel>
-	<panel
-		 follows="all"
-		 layout="topleft"
-		 left="0"
-		 class="sidepanel_task_info"
-		 filename="sidepanel_task_info.xml"
-		 name="sidepanel__task_panel"
-		 top="0"
-		 label=""
-		 height="570"
-		 visible="false"
-		 width="330">
-	</panel>
 </panel>

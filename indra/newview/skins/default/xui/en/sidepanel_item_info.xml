@@ -59,14 +59,14 @@
       name="layout_item_name"
       layout="topleft"
       follows="all"
-      height="35">
+      height="25">
       <line_editor
         border_style="line"
         border_thickness="1"
         follows="left|top|right"
         layout="topleft"
         left="5"
-        top="0"
+        top="1"
         right="-25"
         height="20"
         max_length_bytes="63"
@@ -80,7 +80,7 @@
         right="-5"
         mouse_opaque="true"
         name="IconLocked"
-        top="2"
+        top="3"
         width="18" />
     </layout_panel>
     
@@ -105,7 +105,7 @@
         type="string"
         length="1"
         follows="left|top"
-        height="23"
+        height="17"
         layout="topleft"
         left_pad="5"
         name="LabelOwnerTitle"
@@ -115,49 +115,53 @@
       </text>
       <text
         type="string"
-        follows="left|right|top"
         font="SansSerifSmall"
-        height="15"
+        follows="left|right|top"
         layout="topleft"
+        height="15"
+        width="187"
         left_delta="0"
+        top_pad="0"
         name="LabelOwnerName"
-        top_pad="2"
         use_ellipses="true"
-        width="165">
+        translate="false">
+TestString PleaseIgnore
       </text>
       <text
         type="string"
         length="1"
         follows="left|top"
-        height="23"
+        height="17"
         layout="topleft"
         left_delta="0"
         name="LabelCreatorTitle"
-        top_pad="2"
+        top_pad="7"
         width="78">
         Creator:
       </text>
       <text
         type="string"
-        follows="left|right|top"
         font="SansSerifSmall"
-        height="15"
+        follows="left|right|top"
         layout="topleft"
         left_delta="0"
+        top_pad="0"
+        width="187"
+        height="15"
         name="LabelCreatorName"
-        top_pad="2"
         use_ellipses="true"
-        width="165">
+        translate="false">
+TestString PleaseIgnore
       </text>
       <text
         type="string"
         length="1"
         follows="left|top"
-        height="23"
+        height="17"
         layout="topleft"
         left_delta="0"
         name="LabelAcquiredTitle"
-        top_pad="2"
+        top_pad="7"
         width="78">
         Acquired:
       </text>
@@ -169,8 +173,8 @@
         layout="topleft"
         left_delta="0"
         name="LabelAcquiredDate"
-        top_pad="2"
-        width="210">
+        top_pad="0"
+        width="187">
       </text>
     </layout_panel>
     
@@ -179,7 +183,7 @@
       name="layout_item_description"
       layout="topleft"
       follows="all"
-      height="54">
+      height="61">
       <text
         type="string"
         length="1"
@@ -213,7 +217,7 @@
           layout="topleft"
           left="5"
           name="LabelItemExperienceTitle"
-          top_pad="0"
+          top_pad="7"
           width="78"
           visible="true">
           Experience:
@@ -237,14 +241,14 @@
       name="layout_item_permissions_sale"
       layout="topleft"
       follows="all"
-      height="300">
+      height="235">
       
       <view_border
         bevel_style="none"
         height="0"
         layout="topleft"
-        left="0"
-        right="-1"
+        left="5"
+        right="-6"
         name="cost_text_border"
         top="1"/>
         
@@ -252,9 +256,9 @@
         type="string"
         length="1"
         left="10"
-        top_pad="5"
+        top_pad="7"
         height="15"
-        follows="left|top|right"
+        follows="left|top"
         layout="topleft"
         name="perm_modify"
         width="200">
@@ -267,7 +271,7 @@
         left="10"
         top_pad="5"
         height="15"
-        follows="left|top|right"
+        follows="left|top"
         layout="topleft"
         name="perm_modify"
         width="200">
@@ -380,10 +384,10 @@
         bevel_style="none"
         height="0"
         layout="topleft"
-        left="0"
-        right="-1"
+        left="5"
+        right="-6"
         name="cost_text_border"
-        top_pad="7"/>
+        top_pad="9"/>
         
       <check_box
         height="18"
@@ -391,7 +395,7 @@
         layout="topleft"
         left="20"
         name="CheckPurchase"
-        top_pad="20"
+        top_pad="15"
         width="100"
         tool_tip="Lets people buy this object, its content or it copy inworld for specified price." />
       <combo_box

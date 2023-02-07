@@ -168,7 +168,6 @@
 		     translate="false"
          use_ellipses="true" 
 		     width="225">
-	        TestString PleaseIgnore
 	     </text>
 	    <text
 			 type="string"

@@ -29,12 +29,14 @@
 
 #include "llinventoryobserver.h"
 #include "llpanel.h"
+#include "llstyle.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLSidepanelItemInfo
 // Object properties for inventory side panel.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+class LLAvatarName;
 class LLButton;
 class LLFloater;
 class LLViewerInventoryItem;
@@ -42,6 +44,7 @@ class LLItemPropertiesObserver;
 class LLObjectInventoryObserver;
 class LLViewerObject;
 class LLPermissions;
+class LLTextBox;
 
 class LLSidepanelItemInfo : public LLPanel, public LLInventoryObserver
 {
@@ -66,6 +69,8 @@ public:
     void dirty();
     
     static void onIdle( void* user_data );
+    void updateOwnerName(const LLUUID& owner_id, const LLAvatarName& owner_name, const LLStyle::Params& style_params);
+    void updateCreatorName(const LLUUID& creator_id, const LLAvatarName& creator_name, const LLStyle::Params& style_params);
 
 protected:
 	void refresh() override;
@@ -82,6 +87,9 @@ private:
 	void startObjectInventoryObserver();
 	void stopObjectInventoryObserver();
 	void setPropertiesFieldsEnabled(bool enabled);
+    
+    boost::signals2::connection mOwnerCacheConnection;
+    boost::signals2::connection mCreatorCacheConnection;
 
 	LLUUID mItemID; 	// inventory UUID for the inventory item.
 	LLUUID mObjectID; 	// in-world task UUID, or null if in agent inventory.
@@ -91,6 +99,9 @@ private:
 	S32 mUpdatePendingId;
     bool mIsDirty;         // item properties need to be updated
     LLFloater* mParentFloater;
+    
+    LLTextBox* mLabelOwnerName;
+    LLTextBox* mLabelCreatorName;
 
 	//
 	// UI Elements
