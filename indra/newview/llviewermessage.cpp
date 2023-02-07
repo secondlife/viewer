@@ -2426,6 +2426,7 @@ void translateSuccess(LLChat chat, LLSD toastArgs, std::string originalMsg, std:
         chat.mText += " (" + LLTranslate::removeNoTranslateTags(translation) + ")";
     }
 
+	LLTranslate::instance().logSuccess(1);
     LLNotificationsUI::LLNotificationManager::instance().onChat(chat, toastArgs);
 }
 
@@ -2435,6 +2436,7 @@ void translateFailure(LLChat chat, LLSD toastArgs, int status, const std::string
     LLStringUtil::replaceString(msg, "\n", " "); // we want one-line error messages
     chat.mText += " (" + msg + ")";
 
+	LLTranslate::instance().logFailure(1);
     LLNotificationsUI::LLNotificationManager::instance().onChat(chat, toastArgs);
 }
 
@@ -2669,6 +2671,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		LLSD args;
 		chat.mOwnerID = owner_id;
 
+		LLTranslate::instance().logCharsSeen(mesg.size());
 		if (gSavedSettings.getBOOL("TranslateChat") && chat.mSourceType != CHAT_SOURCE_SYSTEM)
 		{
 			if (chat.mChatStyle == CHAT_STYLE_IRC)
@@ -2678,6 +2681,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			const std::string from_lang = ""; // leave empty to trigger autodetect
 			const std::string to_lang = LLTranslate::getTranslateLanguage();
 
+			LLTranslate::instance().logCharsSent(mesg.size());
             LLTranslate::translateMessage(from_lang, to_lang, mesg,
                 boost::bind(&translateSuccess, chat, args, mesg, from_lang, _1, _2),
                 boost::bind(&translateFailure, chat, args, _1, _2));
