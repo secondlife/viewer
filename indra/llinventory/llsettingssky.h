@@ -137,7 +137,7 @@ public:
     F32 getReflectionProbeAmbiance() const;
 
     // get the probe ambiance setting to use for rendering (adjusted by cloud shadow, aka cloud coverage)
-    F32 getTotalReflectionProbeAmbiance() const;
+    F32 getTotalReflectionProbeAmbiance(F32 cloud_shadow_scale) const;
 
     // Return first (only) profile layer represented in LLSD
     LLSD getRayleighConfig() const;

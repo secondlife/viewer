@@ -733,7 +733,8 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     shader->uniform3fv(LLShaderMgr::SUNLIGHT_LINEAR, linearColor3v(sunDiffuse));
     shader->uniform3fv(LLShaderMgr::MOONLIGHT_LINEAR,linearColor3v(moonDiffuse));
 
-    shader->uniform1f(LLShaderMgr::REFLECTION_PROBE_AMBIANCE, getTotalReflectionProbeAmbiance());
+    static LLCachedControl<F32> cloud_shadow_scale(gSavedSettings, "RenderCloudShadowAmbianceFactor", 0.125f);
+    shader->uniform1f(LLShaderMgr::REFLECTION_PROBE_AMBIANCE, getTotalReflectionProbeAmbiance(cloud_shadow_scale));
 
     shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, getIsSunUp() ? 1 : 0);
     shader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, getSunMoonGlowFactor());

@@ -780,7 +780,9 @@ void LLReflectionMapManager::updateUniforms()
     LLEnvironment& environment = LLEnvironment::instance();
     LLSettingsSky::ptr_t psky = environment.getCurrentSky();
 
-    F32 minimum_ambiance = psky->getTotalReflectionProbeAmbiance();
+    static LLCachedControl<F32> cloud_shadow_scale(gSavedSettings, "RenderCloudShadowAmbianceFactor", 0.125f);
+    F32 minimum_ambiance = psky->getTotalReflectionProbeAmbiance(cloud_shadow_scale);
+
     F32 ambscale = gCubeSnapshot && !isRadiancePass() ? 0.f : 1.f;
     
 

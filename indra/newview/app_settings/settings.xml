@@ -8828,6 +8828,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>RenderCloudShadowAmbianceFactor</key>
+  <map>
+    <key>Comment</key>
+    <string>Amount that cloud shadow (aka cloud coverage) contributes to reflection probe ambiance</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.1</real>
+  </map>
   <key>RenderComplexityColorMin</key>
     <map>
       <key>Comment</key>
