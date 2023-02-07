@@ -317,6 +317,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	gSavedSettings.getControl("UseDisplayNames")->getCommitSignal()->connect(boost::bind(&handleDisplayNamesOptionChanged,  _2));
 
 	gSavedSettings.getControl("AppearanceCameraMovement")->getCommitSignal()->connect(boost::bind(&handleAppearanceCameraMovementChanged,  _2));
+    gSavedSettings.getControl("WindLightUseAtmosShaders")->getCommitSignal()->connect(boost::bind(&LLFloaterPreference::onAtmosShaderChange, this));
 
 	LLAvatarPropertiesProcessor::getInstance()->addObserver( gAgent.getID(), this );
 
@@ -1727,6 +1728,22 @@ void LLFloaterPreference::onClickAdvanced()
 void LLFloaterPreference::onClickActionChange()
 {
     updateClickActionControls();
+}
+
+void LLFloaterPreference::onAtmosShaderChange()
+{
+    LLCheckBoxCtrl* ctrl_alm = getChild<LLCheckBoxCtrl>("UseLightShaders");
+    if(ctrl_alm)
+    {
+        //Deferred/SSAO/Shadows
+        BOOL bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
+        BOOL shaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
+        BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
+                        bumpshiny &&
+                        shaders;
+
+        ctrl_alm->setEnabled(enabled);
+    }
 }
 
 void LLFloaterPreference::onClickPermsDefault()

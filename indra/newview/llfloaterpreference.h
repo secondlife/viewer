@@ -139,6 +139,8 @@ protected:
 	// updates click/double-click action keybindngs depending on view values
 	void updateClickActionControls();
 
+    void onAtmosShaderChange();
+
 public:
 	// This function squirrels away the current values of the controls so that
 	// cancel() can restore them.	
