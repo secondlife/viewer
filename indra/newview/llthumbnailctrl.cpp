@@ -100,9 +100,7 @@ void LLThumbnailCtrl::draw()
             gl_rect_2d_checkerboard( draw_rect, alpha );
         }
         
-        //LLRectf uv_rect(0, 0, draw_rect.getWidth()/32.f, draw_rect.getHeight()/32.f);
         gl_draw_scaled_image( draw_rect.mLeft, draw_rect.mBottom, draw_rect.getWidth(), draw_rect.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha);
-        //mTexturep->addTextureStats( (F32)(draw_rect.getWidth() * draw_rect.getHeight()) );
         
         mTexturep->setKnownDrawSize(draw_rect.getWidth(), draw_rect.getHeight());
     }

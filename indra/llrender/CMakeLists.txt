@@ -48,6 +48,7 @@ set(llrender_SOURCE_FILES
     llrendertarget.cpp
     llshadermgr.cpp
     lltexture.cpp
+    lltexturemanagerbridge.cpp
     lluiimage.cpp
     llvertexbuffer.cpp
     llglcommonfunc.cpp
@@ -77,6 +78,7 @@ set(llrender_HEADER_FILES
     llrendersphere.h
     llshadermgr.h
     lltexture.h
+    lltexturemanagerbridge.h
     lluiimage.h
     lluiimage.inl
     llvertexbuffer.h

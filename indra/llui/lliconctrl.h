@@ -39,7 +39,9 @@ class LLUICtrlFactory;
 // Classes
 //
 
-// 
+// Class for diplaying named UI textures
+// Do not use for displaying textures from network,
+// UI textures are stored permanently!
 class LLIconCtrl
 : public LLUICtrl
 {
