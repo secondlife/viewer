@@ -1646,6 +1646,12 @@ void LLTextureCache::purgeAllTextures(bool purge_directories)
 			{
 				gDirUtilp->deleteFilesInDir(dirname, mask);
 			}
+#if LL_WINDOWS
+            // Texture cache can be large and can take a while to remove
+            // assure OS that processes is alive and not hanging
+            MSG msg;
+            PeekMessage(&msg, 0, 0, 0, PM_NOREMOVE | PM_NOYIELD);
+#endif
 		}
 		gDirUtilp->deleteFilesInDir(mTexturesDirName, mask); // headers, fast cache
 		if (purge_directories)

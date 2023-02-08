@@ -1926,32 +1926,16 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                     if (sloppy_ratio < 0)
                     {
                         // Sloppy method didn't work, try with smaller decimation values
-                        S32 size_vertices = 0;
-
-                        for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
-                        {
-                            const LLVolumeFace &face = base->getVolumeFace(face_idx);
-                            size_vertices += face.mNumVertices;
-                        }
-
-                        // Complex models aren't supposed to get here, they are supposed
-                        // to work on a first try of sloppy due to having more viggle room.
-                        // If they didn't, something is likely wrong, no point locking the
-                        // thread in a long calculation that will fail.
-                        const U32 too_many_vertices = 27000;
-                        if (size_vertices > too_many_vertices)
-                        {
-                            LL_WARNS() << "Sloppy optimization method failed for a complex model " << target_model->getName() << LL_ENDL;
-                        }
-                        else
                         {
                             // Find a decimator that does work
                             F32 sloppy_decimation_step = sqrt((F32)decimation); // example: 27->15->9->5->3
                             F32 sloppy_decimator = indices_decimator / sloppy_decimation_step;
+                            U64Microseconds end_time = LLTimer::getTotalTime() + U64Seconds(5);
 
                             while (sloppy_ratio < 0
                                 && sloppy_decimator > precise_ratio
-                                && sloppy_decimator > 1)// precise_ratio isn't supposed to be below 1, but check just in case
+                                && sloppy_decimator > 1 // precise_ratio isn't supposed to be below 1, but check just in case
+                                && end_time > LLTimer::getTotalTime())
                             {
                                 sloppy_ratio = genMeshOptimizerPerModel(base, target_model, sloppy_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_TOPOLOGY);
                                 sloppy_decimator = sloppy_decimator / sloppy_decimation_step;

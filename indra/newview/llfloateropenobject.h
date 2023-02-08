@@ -63,8 +63,6 @@ protected:
 	void moveToInventory(bool wear, bool replace = false);
 
 	void onClickMoveToInventory();
-	void onClickMoveAndWear();
-	void onClickReplace();
 	void onClickCancel();
 	static void callbackCreateInventoryCategory(const LLUUID& category_id, LLUUID object_id, bool wear, bool replace = false);
 	static void callbackMoveInventory(S32 result, void* data);

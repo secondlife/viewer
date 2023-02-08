@@ -179,7 +179,6 @@ void LLPanelLandMedia::refresh()
 		// enable/disable for text label for completeness
 		mMediaSizeCtrlLabel->setEnabled( can_change_media && allow_resize );
 
-		LLUUID tmp = parcel->getMediaID();
 		mMediaTextureCtrl->setImageAssetID ( parcel->getMediaID() );
 		mMediaTextureCtrl->setEnabled( can_change_media );
 

@@ -135,6 +135,10 @@
 #include "vlc/libvlc_version.h"
 #endif // LL_LINUX
 
+#if LL_DARWIN
+#include "llwindowmacosx.h"
+#endif
+
 // Third party library includes
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
@@ -209,7 +213,7 @@
 #include "llcommandlineparser.h"
 #include "llfloatermemleak.h"
 #include "llfloaterreg.h"
-#include "llfloateroutfitsnapshot.h"
+#include "llfloatersimpleoutfitsnapshot.h"
 #include "llfloatersnapshot.h"
 #include "llsidepanelinventory.h"
 #include "llatmosphere.h"
@@ -560,6 +564,7 @@ static void settings_to_globals()
     LLWorldMapView::setScaleSetting(gSavedSettings.getF32("MapScale"));
 	
 #if LL_DARWIN
+    LLWindowMacOSX::sUseMultGL = gSavedSettings.getBOOL("RenderAppleUseMultGL");
 	gHiDPISupport = gSavedSettings.getBOOL("RenderHiDPI");
 #endif
 }
@@ -1275,7 +1280,6 @@ bool LLAppViewer::init()
 
     //LLSimpleton creations
     LLEnvironment::createInstance();
-    LLEnvironment::getInstance()->initSingleton();
     LLWorld::createInstance();
     LLSelectMgr::createInstance();
     LLViewerCamera::createInstance();
@@ -1521,7 +1525,7 @@ bool LLAppViewer::doFrame()
 					LL_PROFILE_ZONE_NAMED_CATEGORY_APP( "df Snapshot" )
 				pingMainloopTimeout("Main:Snapshot");
 				LLFloaterSnapshot::update(); // take snapshots
-					LLFloaterOutfitSnapshot::update();
+                LLFloaterSimpleOutfitSnapshot::update();
 				gGLActive = FALSE;
 			}
 		}
@@ -1725,7 +1729,8 @@ bool LLAppViewer::cleanup()
 	{
 		if (!isSecondInstance())
 		{
-			LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
+            std::string dump_path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv");
+			LLSceneMonitor::instance().dumpToFile(dump_path);
 		}
 		LLSceneMonitor::deleteSingleton();
 	}

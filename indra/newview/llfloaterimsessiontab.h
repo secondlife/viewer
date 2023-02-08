@@ -71,8 +71,6 @@ public:
     static LLFloaterIMSessionTab* findConversation(const LLUUID& uuid);
     static LLFloaterIMSessionTab* getConversation(const LLUUID& uuid);
 
-	// show/hide the translation check box
-	void showTranslationCheckbox(const BOOL visible = FALSE);
 
 	bool isNearbyChat() {return mIsNearbyChat;}
 
@@ -187,7 +185,6 @@ protected:
 	LLButton* mGearBtn;
 	LLButton* mAddBtn;
     LLButton* mVoiceButton;
-    LLUICtrl* mTranslationCheckBox;
 
 private:
 	// Handling selection and contextual menu
