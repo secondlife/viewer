@@ -31,22 +31,46 @@
 #include "llviewershadermgr.h"
 #include "pipeline.h"
 
+static const U32 gltf_render_types[] = { LLPipeline::RENDER_TYPE_PASS_GLTF_PBR, LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK };
+
 LLDrawPoolGLTFPBR::LLDrawPoolGLTFPBR() :
     LLRenderPass(POOL_GLTF_PBR)
 {
 }
 
+S32 LLDrawPoolGLTFPBR::getNumDeferredPasses()
+{
+    return 1;
+}
+
 void LLDrawPoolGLTFPBR::renderDeferred(S32 pass)
 {
-    const U32 types[] = { LLPipeline::RENDER_TYPE_PASS_GLTF_PBR, LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK };
+    llassert(!LLPipeline::sRenderingHUDs);
 
-    for (U32 type : types)
+    for (U32 type : gltf_render_types)
     {
         gDeferredPBROpaqueProgram.bind();
         pushGLTFBatches(type);
-        
+
         gDeferredPBROpaqueProgram.bind(true);
-        pushRiggedGLTFBatches(type+1);
+        pushRiggedGLTFBatches(type + 1);
+    }
+}
+
+S32 LLDrawPoolGLTFPBR::getNumPostDeferredPasses()
+{
+    return LLPipeline::sRenderingHUDs ? 1 : 0;
+}
+
+void LLDrawPoolGLTFPBR::renderPostDeferred(S32 pass)
+{
+    // only HUD rendering should execute this pass
+    llassert(LLPipeline::sRenderingHUDs);
+
+    gHUDPBROpaqueProgram.bind();
+    for (U32 type : gltf_render_types)
+    {
+        pushGLTFBatches(type);
     }
 }
 

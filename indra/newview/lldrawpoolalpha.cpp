@@ -199,7 +199,9 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
         prepare_alpha_shader(&materialShader[i], false, true, water_sign);
     }
 
-    prepare_alpha_shader(&gDeferredPBRAlphaProgram, false, true, water_sign);
+    pbr_shader = LLPipeline::sRenderingHUDs ? &gHUDPBRAlphaProgram : &gDeferredPBRAlphaProgram;
+
+    prepare_alpha_shader(pbr_shader, false, true, water_sign);
 
     if (!LLPipeline::sRenderingHUDs)
     {
@@ -211,10 +213,10 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     forwardRender();
 
     // final pass, render to depth for depth of field effects
-    if (!LLPipeline::sImpostorRender && gSavedSettings.getBOOL("RenderDepthOfField") && !gCubeSnapshot)
+    if (!LLPipeline::sImpostorRender && gSavedSettings.getBOOL("RenderDepthOfField") && !gCubeSnapshot && !LLPipeline::sRenderingHUDs)
     { 
         //update depth buffer sampler
-        simple_shader = fullbright_shader = &gObjectFullbrightAlphaMaskProgram;
+        simple_shader = fullbright_shader = &gDeferredFullbrightAlphaMaskProgram;
 
         simple_shader->bind();
         simple_shader->setMinimumAlpha(0.33f);
@@ -630,7 +632,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
                 if (gltf_mat && gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
                 {
-                    target_shader = &gDeferredPBRAlphaProgram;
+                    target_shader = pbr_shader;
                     if (params.mAvatar != nullptr)
                     {
                         target_shader = target_shader->mRiggedVariant;

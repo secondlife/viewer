@@ -23,10 +23,10 @@
  * $/LicenseInfo$
  */
 
-#define DIFFUSE_ALPHA_MODE_IGNORE 0
-#define DIFFUSE_ALPHA_MODE_BLEND 1
-#define DIFFUSE_ALPHA_MODE_MASK 2
-#define DIFFUSE_ALPHA_MODE_EMISSIVE 3
+
+#ifndef IS_HUD
+
+//deferred opaque implementation
 
 #ifdef HAS_SKIN
 uniform mat4 modelview_matrix;
@@ -95,3 +95,40 @@ void main()
 	
 	vertex_color = diffuse_color;
 }
+
+#else 
+
+// fullbright HUD implementation
+
+uniform mat4 modelview_projection_matrix;
+
+uniform mat4 texture_matrix0;
+
+uniform mat3 texture_basecolor_matrix;
+uniform mat3 texture_normal_matrix;
+uniform mat3 texture_metallic_roughness_matrix;
+uniform mat3 texture_emissive_matrix;
+
+in vec3 position;
+in vec4 diffuse_color;
+in vec2 texcoord0;
+
+out vec2 basecolor_texcoord;
+out vec2 emissive_texcoord;
+ 
+out vec4 vertex_color;
+
+void main()
+{
+    //transform vertex
+    gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
+
+    basecolor_texcoord = (texture_matrix0 * vec4(texture_basecolor_matrix * vec3(texcoord0,1), 1)).xy;
+    emissive_texcoord = (texture_matrix0 * vec4(texture_emissive_matrix * vec3(texcoord0,1), 1)).xy;
+
+    vertex_color = diffuse_color;
+}
+
+#endif
+
+

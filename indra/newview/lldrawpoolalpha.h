@@ -77,6 +77,7 @@ private:
     LLGLSLShader* simple_shader = nullptr;
     LLGLSLShader* fullbright_shader = nullptr;
     LLGLSLShader* emissive_shader = nullptr;
+    LLGLSLShader* pbr_shader = nullptr;
 
     void drawEmissive(U32 mask, LLDrawInfo* draw);
     void renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives);

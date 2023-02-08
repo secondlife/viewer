@@ -3934,6 +3934,8 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_GEOMETRY);
     LL_PROFILE_GPU_ZONE("renderGeomDeferred");
 
+    llassert(!sRenderingHUDs);
+
     if (gUseWireframe)
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -7997,6 +7999,8 @@ void LLPipeline::renderDeferredLighting()
     {
         return;
     }
+
+    llassert(!sRenderingHUDs);
 
     static LLCachedControl<F32> ambiance_scale(gSavedSettings, "RenderReflectionProbeAmbianceScale", 8.f);
 

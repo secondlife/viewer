@@ -23,10 +23,10 @@
  * $/LicenseInfo$
  */
 
-#define DIFFUSE_ALPHA_MODE_IGNORE 0
-#define DIFFUSE_ALPHA_MODE_BLEND 1
-#define DIFFUSE_ALPHA_MODE_MASK 2
-#define DIFFUSE_ALPHA_MODE_EMISSIVE 3
+
+#ifndef IS_HUD
+
+// default alpha implementation
 
 #ifdef HAS_SKIN
 uniform mat4 modelview_matrix;
@@ -38,12 +38,11 @@ uniform mat4 modelview_projection_matrix;
 #endif
 uniform mat4 texture_matrix0;
 
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-  #if !defined(HAS_SKIN)
-    uniform mat4 modelview_matrix;
-  #endif
-    VARYING vec3 vary_position;
+#if !defined(HAS_SKIN)
+uniform mat4 modelview_matrix;
 #endif
+
+out vec3 vary_position;
 
 uniform mat3 texture_basecolor_matrix;
 uniform mat3 texture_normal_matrix;
@@ -79,9 +78,7 @@ void main()
 	mat4 mat = getObjectSkinnedTransform();
 	mat = modelview_matrix * mat;
 	vec3 pos = (mat*vec4(position.xyz,1.0)).xyz;
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 	vary_position = pos;
-#endif
     vec4 vert = projection_matrix * vec4(pos,1.0);
 #else
 	//transform vertex
@@ -112,9 +109,45 @@ void main()
 
 	vertex_color = diffuse_color;
 
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-  #if !defined(HAS_SKIN)
+#if !defined(HAS_SKIN)
 	vary_position = (modelview_matrix*vec4(position.xyz, 1.0)).xyz;
-  #endif
 #endif
 }
+
+#else
+
+// fullbright HUD alpha implementation
+
+uniform mat4 modelview_projection_matrix;
+
+uniform mat4 texture_matrix0;
+
+uniform mat4 modelview_matrix;
+
+out vec3 vary_position;
+
+uniform mat3 texture_basecolor_matrix;
+uniform mat3 texture_emissive_matrix;
+
+in vec3 position;
+in vec4 diffuse_color;
+in vec2 texcoord0;
+
+out vec2 basecolor_texcoord;
+out vec2 emissive_texcoord;
+
+out vec4 vertex_color;
+
+void main()
+{
+	//transform vertex
+    vec4 vert = modelview_projection_matrix * vec4(position.xyz, 1.0);
+    gl_Position = vert;
+
+	basecolor_texcoord = (texture_matrix0 * vec4(texture_basecolor_matrix * vec3(texcoord0,1), 1)).xy;
+	emissive_texcoord = (texture_matrix0 * vec4(texture_emissive_matrix * vec3(texcoord0,1), 1)).xy;
+
+	vertex_color = diffuse_color;
+}
+
+#endif

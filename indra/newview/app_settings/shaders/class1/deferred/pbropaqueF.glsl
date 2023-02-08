@@ -25,6 +25,11 @@
 
 /*[EXTRA_CODE_HERE]*/
 
+
+#ifndef IS_HUD
+
+// deferred opaque implementation 
+
 uniform sampler2D diffuseMap;  //always in sRGB space
 
 uniform float metallicFactor;
@@ -101,3 +106,47 @@ void main()
     frag_data[2] = vec4(encode_normal(tnorm), vertex_color.a, GBUFFER_FLAG_HAS_PBR); // normal, environment intensity, flags
     frag_data[3] = vec4(emissive,0);                                                // PBR sRGB Emissive
 }
+
+#else
+
+// forward fullbright implementation for HUDs
+
+uniform sampler2D diffuseMap;  //always in sRGB space
+
+uniform vec3 emissiveColor;
+uniform sampler2D emissiveMap;
+
+out vec4 frag_color;
+
+in vec3 vary_position;
+in vec4 vertex_color;
+
+in vec2 basecolor_texcoord;
+in vec2 emissive_texcoord;
+
+uniform float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
+
+vec3 linear_to_srgb(vec3 c);
+vec3 srgb_to_linear(vec3 c);
+
+void main()
+{
+    vec4 basecolor = texture2D(diffuseMap, basecolor_texcoord.xy).rgba;
+    if (basecolor.a < minimum_alpha)
+    {
+        discard;
+    }
+
+    vec3 col = vertex_color.rgb * srgb_to_linear(basecolor.rgb);
+
+    vec3 emissive = emissiveColor;
+    emissive *= srgb_to_linear(texture2D(emissiveMap, emissive_texcoord.xy).rgb);
+
+    col += emissive;
+
+    // HUDs are rendered after gamma correction, output in sRGB space
+    frag_color.rgb = linear_to_srgb(col);
+    frag_color.a = 0.0;
+}
+
+#endif

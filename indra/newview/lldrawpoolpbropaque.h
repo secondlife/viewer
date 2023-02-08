@@ -48,8 +48,11 @@ public:
 
     LLDrawPoolGLTFPBR();
 
-    S32 getNumDeferredPasses() override { return 1; }
+    S32 getNumDeferredPasses() override;
     void renderDeferred(S32 pass) override;
+
+    S32 getNumPostDeferredPasses() override;
+    void renderPostDeferred(S32 pass) override;
 };
 
 #endif // LL_LLDRAWPOOLPBROPAQUE_H
