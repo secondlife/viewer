@@ -375,7 +375,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
         }
         
 		getChildView("LabelCreatorTitle")->setEnabled(TRUE);
-        mLabelCreatorName->setEnabled(FALSE);
+        mLabelCreatorName->setEnabled(TRUE);
 	}
 	else
 	{
@@ -432,7 +432,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
             }
 		}
 		getChildView("LabelOwnerTitle")->setEnabled(TRUE);
-        mLabelOwnerName->setEnabled(FALSE);
+        mLabelOwnerName->setEnabled(TRUE);
 	}
 	else
 	{
