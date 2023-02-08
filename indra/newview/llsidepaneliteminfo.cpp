@@ -239,7 +239,18 @@ void LLSidepanelItemInfo::refresh()
 	LLViewerInventoryItem* item = findItem();
 	if(item)
 	{
-		refreshFromItem(item);
+        const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+        bool in_trash = (item->getUUID() == trash_id) || gInventory.isObjectDescendentOf(item->getUUID(), trash_id);
+        if (in_trash && mParentFloater)
+        {
+            // Close properties when moving to trash
+            // Aren't supposed to view properties from trash
+            mParentFloater->closeFloater();
+        }
+        else
+        {
+            refreshFromItem(item);
+        }
 		return;
 	}
     
