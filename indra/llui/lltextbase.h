@@ -187,7 +187,7 @@ public:
 	LLEmojiTextSegment(const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible = TRUE);
 
 	bool canEdit() const override { return false; }
-	BOOL handleToolTip(S32 x, S32 y, MASK mask);
+	BOOL handleToolTip(S32 x, S32 y, MASK mask) override;
 };
 
 // Text segment that changes it's style depending of mouse pointer position ( is it inside or outside segment)

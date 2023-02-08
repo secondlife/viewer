@@ -1997,18 +1997,7 @@ LLTextBase::segment_set_t::const_iterator LLTextBase::getEditableSegIterContaini
 
 LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
 {
-
 	static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
-
-	S32 text_len = 0;
-	if (!useLabel())
-	{
-		text_len = getLength();
-	}
-	else
-	{
-		text_len = mLabel.getWString().length();
-	}
 
 	// when there are no segments, we return the end iterator, which must be checked by caller
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
@@ -2022,16 +2011,6 @@ LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
 LLTextBase::segment_set_t::const_iterator LLTextBase::getSegIterContaining(S32 index) const
 {
 	static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
-
-	S32 text_len = 0;
-	if (!useLabel())
-	{
-		text_len = getLength();
-	}
-	else
-	{
-		text_len = mLabel.getWString().length();
-	}
 
 	// when there are no segments, we return the end iterator, which must be checked by caller
 	if (mSegments.size() <= 1) { return mSegments.begin(); }

@@ -39,15 +39,15 @@ class LLToolSelectLand
 	virtual ~LLToolSelectLand();
 
 public:
-	/*virtual*/ BOOL		handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL		handleDoubleClick(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL		handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL		handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ void		render();				// draw the select rectangle
-	/*virtual*/ BOOL		isAlwaysRendered()		{ return TRUE; }
+	/*virtual*/ BOOL		handleMouseDown(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL		handleDoubleClick(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL		handleMouseUp(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL		handleHover(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ void		render() override;				// draw the select rectangle
+	/*virtual*/ BOOL		isAlwaysRendered() override	{ return TRUE; }
 
-	/*virtual*/ void		handleSelect();
-	/*virtual*/ void		handleDeselect();
+	/*virtual*/ void		handleSelect() override;
+	/*virtual*/ void		handleDeselect() override;
 
 protected:
 	BOOL			outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y);

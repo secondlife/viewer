@@ -798,11 +798,11 @@ void LLFontFreetype::setSubImageLuminanceAlpha(U32 x, U32 y, U32 bitmap_num, U32
 
 	llassert(!mIsFallback);
 	llassert(image_raw && (image_raw->getComponents() == 2));
-
 	
 	U8 *target = image_raw->getData();
+    llassert(target);
 
-	if (!data)
+	if (!data || !target)
 	{
 		return;
 	}

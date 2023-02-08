@@ -125,11 +125,11 @@ public:
 	void removeObserver(LLConversationLogObserver* observer);
 
 	// LLIMSessionObserver triggers
-	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg);
-    virtual void sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) {}; // Stub
-	virtual void sessionRemoved(const LLUUID& session_id){}											// Stub
-	virtual void sessionVoiceOrIMStarted(const LLUUID& session_id){};								// Stub
-	virtual void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id){};	// Stub
+	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg) override;
+    virtual void sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) override {}; // Stub
+	virtual void sessionRemoved(const LLUUID& session_id) override{}											// Stub
+	virtual void sessionVoiceOrIMStarted(const LLUUID& session_id) override{};								// Stub
+	virtual void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id) override{};	// Stub
 
 	void notifyObservers();
 

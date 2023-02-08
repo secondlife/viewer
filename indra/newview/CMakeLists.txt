@@ -449,7 +449,7 @@ set(viewer_SOURCE_FILES
     llpaneleditsky.cpp
     llpaneleditwater.cpp
     llpaneleditwearable.cpp
-	llpanelemojicomplete.cpp
+    llpanelemojicomplete.cpp
     llpanelenvironment.cpp
     llpanelexperiencelisteditor.cpp
     llpanelexperiencelog.cpp
@@ -1081,7 +1081,7 @@ set(viewer_HEADER_FILES
     llpaneleditsky.h
     llpaneleditwater.h
     llpaneleditwearable.h
-	llpanelemojicomplete.h
+    llpanelemojicomplete.h
     llpanelenvironment.h
     llpanelexperiencelisteditor.h
     llpanelexperiencelog.h

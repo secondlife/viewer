@@ -203,7 +203,7 @@ public:
     void setSettings(const LLAutoReplaceSettings& settings);
 
 private:
-    /*virtual*/ void initSingleton();
+    /*virtual*/ void initSingleton() override;
 
     LLAutoReplaceSettings mSettings; ///< configuration information
 	

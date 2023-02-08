@@ -85,7 +85,7 @@ protected:
 	LLUIImagePtr	mSelectedImage;
 
 	LLWString       mEmojis;
-	U16             mVisibleEmojis = 0;
+	size_t          mVisibleEmojis = 0;
 	size_t          mFirstVisible = 0;
 	size_t          mScrollPos = 0;
 	size_t          mCurSelected = 0;
