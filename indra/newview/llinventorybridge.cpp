@@ -7586,9 +7586,6 @@ class LLObjectBridgeAction: public LLInvFVBridgeAction
 public:
 	virtual void doIt()
 	{
-		/*
-		  LLFloaterReg::showInstance("properties", mUUID);
-		*/
 		LLInvFVBridgeAction::doIt();
 	}
 	virtual ~LLObjectBridgeAction(){}

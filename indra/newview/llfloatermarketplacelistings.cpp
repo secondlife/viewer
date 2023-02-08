@@ -42,6 +42,7 @@
 #include "llnotificationsutil.h"
 #include "llsidepaneliteminfo.h"
 #include "llsidepaneltaskinfo.h"
+#include "lltabcontainer.h"
 #include "lltextbox.h"
 #include "lltrans.h"
 

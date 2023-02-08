@@ -28,7 +28,6 @@
 #define LL_LLINVENTORYBRIDGE_H
 
 #include "llcallingcard.h"
-#include "llfloaterproperties.h"
 #include "llfolderviewmodel.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"

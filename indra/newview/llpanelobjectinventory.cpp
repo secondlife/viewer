@@ -1398,21 +1398,6 @@ void LLPanelObjectInventory::inventoryChanged(LLViewerObject* object,
 	{
 		mInventoryNeedsUpdate = TRUE;
 	}
-
-	// refresh any properties floaters that are hanging around.
-	if(inventory)
-	{
-		for (LLInventoryObject::object_list_t::const_iterator iter = inventory->begin();
-			 iter != inventory->end(); )
-		{
-			LLInventoryObject* item = *iter++;
-			LLFloaterProperties* floater = LLFloaterReg::findTypedInstance<LLFloaterProperties>("properties", item->getUUID());
-			if(floater)
-			{
-				floater->refresh();
-			}
-		}
-	}
 }
 
 void LLPanelObjectInventory::updateInventory()
