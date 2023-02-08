@@ -164,16 +164,19 @@ void LLThumbnailCtrl::setValue(const LLSD& value)
 	if (tvalue.isUUID())
 	{
         mImageAssetID = tvalue.asUUID();
-        // Should it support baked textures?
-        mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+        if (mImageAssetID.notNull())
+        {
+            // Should it support baked textures?
+            mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
             
-        mTexturep->setBoostLevel(mPriority);
-        mTexturep->forceToSaveRawImage(0);
-        
-        S32 desired_draw_width = mTexturep->getWidth();
-        S32 desired_draw_height = mTexturep->getHeight();
-
-        mTexturep->setKnownDrawSize(desired_draw_width, desired_draw_height);
+            mTexturep->setBoostLevel(mPriority);
+            mTexturep->forceToSaveRawImage(0);
+            
+            S32 desired_draw_width = mTexturep->getWidth();
+            S32 desired_draw_height = mTexturep->getHeight();
+            
+            mTexturep->setKnownDrawSize(desired_draw_width, desired_draw_height);
+        }
 	}
     else if (tvalue.isString())
     {
