@@ -2388,7 +2388,7 @@ U8* unzip_llsdNavMesh( bool& valid, size_t& outsize, std::istream& is, S32 size 
 	return result;
 }
 
-char* strip_deprecated_header(char* in, U32& cur_size, U32* header_size)
+char* strip_deprecated_header(char* in, llssize& cur_size, U32* header_size)
 {
 	const char* deprecated_header = "<? LLSD/Binary ?>";
 	constexpr size_t deprecated_header_size = 17;
