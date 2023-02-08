@@ -307,11 +307,7 @@ public:
 
 private:
     std::string generateDistinctName(const std::string& prefix) const;
-    void toplevelTryWrapper(const std::string& name, const callable_t& callable);
-#if LL_WINDOWS
-    void sehHandle(const std::string& name, const callable_t& callable); // calls toplevelTryWrapper
-#endif
-    void toplevel(std::string name, callable_t callable); // calls sehHandle or toplevelTryWrapper
+    void toplevel(std::string name, callable_t callable);
     struct CoroData;
     static CoroData& get_CoroData(const std::string& caller);
     void saveException(const std::string& name, std::exception_ptr exc);

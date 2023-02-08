@@ -282,6 +282,7 @@ Beq Janus
 	SL-11300
 	SL-15709
 	SL-16021
+	SL-18592
 	SL-18637
 Beth Walcher
 Bezilon Kasei
@@ -373,6 +374,7 @@ Charlie Sazaland
 Chaser Zaks
     BUG-225599
     BUG-227485
+    SL-16874
 Cherry Cheevers
 ChickyBabes Zuzu
 Chorazin Allen
@@ -1381,6 +1383,7 @@ Sovereign Engineer
     OPEN-343
 	SL-11625
     BUG-229030
+	SL-14696
 	SL-14705
 	SL-14706
 	SL-14707
@@ -1388,6 +1391,12 @@ Sovereign Engineer
 	SL-14732
 	SL-15096
 	SL-16127
+	SL-18249
+    SL-18394
+    SL-18412
+    SL-18497
+    SL-18525
+    SL-18534
 SpacedOut Frye
 	VWR-34
 	VWR-45
@@ -1650,6 +1659,8 @@ Zi Ree
 	VWR-25588
 	STORM-1790
 	STORM-1842
+	SL-18348
+	SL-18593
 Zipherius Turas
 	VWR-76
 	VWR-77

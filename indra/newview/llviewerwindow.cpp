@@ -1309,7 +1309,6 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
                                                           TRUE /* pick_transparent */, 
                                                           FALSE /* pick_rigged */);
 
-					LLUUID object_id = pick_info.getObjectID();
 					S32 object_face = pick_info.mObjectFace;
 					std::string url = data;
 
@@ -3433,6 +3432,59 @@ void LLViewerWindow::updateUI()
 	if (!root_view)
 	{
 		root_view = mRootView;
+	}
+
+	static LLCachedControl<bool> dump_menu_holder(gSavedSettings, "DumpMenuHolderSize", false);
+	if (dump_menu_holder)
+	{
+		static bool init = false;
+		static LLFrameTimer child_count_timer;
+		static std::vector <std::string> child_vec;
+		if (!init)
+		{
+			child_count_timer.resetWithExpiry(5.f);
+			init = true;
+		}
+		if (child_count_timer.hasExpired())
+		{
+			LL_INFOS() << "gMenuHolder child count: " << gMenuHolder->getChildCount() << LL_ENDL;
+			std::vector<std::string> local_child_vec;
+			LLView::child_list_t child_list = *gMenuHolder->getChildList();
+			for (auto child : child_list)
+			{
+				local_child_vec.emplace_back(child->getName());
+			}
+			if (!local_child_vec.empty() && local_child_vec != child_vec)
+			{
+				std::vector<std::string> out_vec;
+				std::sort(local_child_vec.begin(), local_child_vec.end());
+				std::sort(child_vec.begin(), child_vec.end());
+				std::set_difference(child_vec.begin(), child_vec.end(), local_child_vec.begin(), local_child_vec.end(), std::inserter(out_vec, out_vec.begin()));
+				if (!out_vec.empty())
+				{
+					LL_INFOS() << "gMenuHolder removal diff size: '"<<out_vec.size() <<"' begin_child_diff";
+					for (auto str : out_vec)
+					{
+						LL_CONT << " : " << str;
+					}
+					LL_CONT << " : end_child_diff" << LL_ENDL;
+				}
+
+				out_vec.clear();
+				std::set_difference(local_child_vec.begin(), local_child_vec.end(), child_vec.begin(), child_vec.end(), std::inserter(out_vec, out_vec.begin()));
+				if (!out_vec.empty())
+				{
+					LL_INFOS() << "gMenuHolder addition diff size: '" << out_vec.size() << "' begin_child_diff";
+					for (auto str : out_vec)
+					{
+						LL_CONT << " : " << str;
+					}
+					LL_CONT << " : end_child_diff" << LL_ENDL;
+				}
+				child_vec.swap(local_child_vec);
+			}
+			child_count_timer.resetWithExpiry(5.f);
+		}
 	}
 
 	// only update mouse hover set when UI is visible (since we shouldn't send hover events to invisible UI

@@ -36,6 +36,7 @@
      left="3"
      multi_select="true"
      name="cof_items_list"
+     show_item_widgets="true"
      standalone="false"
      top="0"
      width="309"
