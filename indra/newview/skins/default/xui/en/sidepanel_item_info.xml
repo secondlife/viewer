@@ -60,28 +60,28 @@
       layout="topleft"
       follows="all"
       height="25">
+      <icon
+        follows="top|left"
+        height="16"
+        image_name="Inv_Object"
+        layout="topleft"
+        left="5"
+        mouse_opaque="true"
+        name="item_type_icon"
+        top="3"
+        width="16" />
       <line_editor
         border_style="line"
         border_thickness="1"
         follows="left|top|right"
         layout="topleft"
-        left="5"
+        left_pad="5"
         top="1"
-        right="-25"
+        right="-5"
         height="20"
         max_length_bytes="63"
         name="LabelItemName"
         tool_tip="The name is limited to 63 characters. Longer prim names are cut short. Names can only consist of printable characters found in the ASCII-7 (non-extended) character set, with the exception of the vertical bar/pipe &apos;|&apos;." />
-      <icon
-        follows="top|right"
-        height="18"
-        image_name="Lock"
-        layout="topleft"
-        right="-5"
-        mouse_opaque="true"
-        name="IconLocked"
-        top="3"
-        width="18" />
     </layout_panel>
     
     <layout_panel
@@ -248,7 +248,7 @@ TestString PleaseIgnore
         height="0"
         layout="topleft"
         left="5"
-        right="-6"
+        right="-5"
         name="cost_text_border"
         top="1"/>
         
@@ -385,7 +385,7 @@ TestString PleaseIgnore
         height="0"
         layout="topleft"
         left="5"
-        right="-6"
+        right="-5"
         name="cost_text_border"
         top_pad="9"/>
         

@@ -38,7 +38,9 @@
 #include "llfloater.h"
 #include "llgroupactions.h"
 #include "llgroupmgr.h"
+#include "lliconctrl.h"
 #include "llinventorydefines.h"
+#include "llinventoryicon.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "lllineeditor.h"
@@ -152,6 +154,7 @@ BOOL LLSidepanelItemInfo::postBuild()
 {
     mLabelOwnerName = getChild<LLTextBox>("LabelOwnerName");
     mLabelCreatorName = getChild<LLTextBox>("LabelCreatorName");
+    mItemTypeIcon = getChild<LLIconCtrl>("item_type_icon");
     
 	getChild<LLLineEditor>("LabelItemName")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
 	getChild<LLUICtrl>("LabelItemName")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitName,this));
@@ -314,10 +317,12 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 	getChild<LLUICtrl>("LabelItemName")->setValue(item->getName());
 	getChildView("LabelItemDescTitle")->setEnabled(TRUE);
 	getChildView("LabelItemDesc")->setEnabled(is_modifiable);
-	getChildView("IconLocked")->setVisible(!is_modifiable);
 	getChild<LLUICtrl>("LabelItemDesc")->setValue(item->getDescription());
     getChild<LLUICtrl>("item_thumbnail")->setValue(item->getThumbnailUUID());
-    
+
+    LLUIImagePtr icon_img = LLInventoryIcon::getIcon(item->getType(), item->getInventoryType(), item->getFlags(), FALSE);
+    mItemTypeIcon->setImage(icon_img);
+ 
     // Style for creator and owner links
     LLStyle::Params style_params;
     LLColor4 link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");

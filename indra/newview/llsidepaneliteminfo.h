@@ -39,6 +39,7 @@
 class LLAvatarName;
 class LLButton;
 class LLFloater;
+class LLIconCtrl;
 class LLViewerInventoryItem;
 class LLItemPropertiesObserver;
 class LLObjectInventoryObserver;
@@ -102,6 +103,7 @@ private:
     
     LLTextBox* mLabelOwnerName;
     LLTextBox* mLabelCreatorName;
+    LLIconCtrl* mItemTypeIcon;
 
 	//
 	// UI Elements
