@@ -46,6 +46,7 @@
 #include "lllineeditor.h"
 #include "llradiogroup.h"
 #include "llslurl.h"
+#include "lltexteditor.h"
 #include "llviewercontrol.h"
 #include "llviewerinventory.h"
 #include "llviewerobjectlist.h"
@@ -158,7 +159,6 @@ BOOL LLSidepanelItemInfo::postBuild()
     
 	getChild<LLLineEditor>("LabelItemName")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
 	getChild<LLUICtrl>("LabelItemName")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitName,this));
-	getChild<LLLineEditor>("LabelItemDesc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
 	getChild<LLUICtrl>("LabelItemDesc")->setCommitCallback(boost::bind(&LLSidepanelItemInfo:: onCommitDescription, this));
 	// acquired date
 	// owner permissions
@@ -909,7 +909,7 @@ void LLSidepanelItemInfo::onCommitDescription()
 	LLViewerInventoryItem* item = findItem();
 	if(!item) return;
 
-	LLLineEditor* labelItemDesc = getChild<LLLineEditor>("LabelItemDesc");
+    LLTextEditor* labelItemDesc = getChild<LLTextEditor>("LabelItemDesc");
 	if(!labelItemDesc)
 	{
 		return;

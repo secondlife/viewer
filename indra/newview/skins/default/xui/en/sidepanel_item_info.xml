@@ -183,7 +183,7 @@ TestString PleaseIgnore
       name="layout_item_description"
       layout="topleft"
       follows="all"
-      height="61">
+      height="84">
       <text
         type="string"
         length="1"
@@ -196,19 +196,23 @@ TestString PleaseIgnore
         width="78">
         Description:
       </text>
-      <line_editor
+      <text_editor
+        text_type="ascii_printable_no_pipe"
+        commit_on_focus_lost="true"
         border_style="line"
         border_thickness="1"
-        follows="left|top|right"
+        word_wrap="true"
+        use_ellipses="false"
+        follows="all"
         layout="topleft"
         left="5"
         top_pad="5"
         right="-5"
-        height="23"
-        max_length_bytes="127"
+        height="46"
+        max_length="127"
         name="LabelItemDesc"
         tool_tip="When people have &apos;Hover Tips on All Objects&apos; selected in the viewer's settings, they'll see the object description pop-up for any object under their mouse pointer. The prim description is limited to 127 bytes any string longer then that will be truncated." />
-        
+
         <text
           type="string"
           length="1"
