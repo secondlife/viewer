@@ -161,10 +161,7 @@ BOOL LLFloaterSimpleOutfitSnapshot::postBuild()
     LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
     LLView* parent_view = gSnapshotFloaterView->getParent();
 
-    parent_view->removeChild(gSnapshotFloaterView);
-    // make sure preview is below snapshot floater
     parent_view->addChild(previewp);
-    parent_view->addChild(gSnapshotFloaterView);
 
     //move snapshot floater to special purpose snapshotfloaterview
     gFloaterView->removeChild(this);
@@ -179,10 +176,11 @@ BOOL LLFloaterSimpleOutfitSnapshot::postBuild()
     previewp->mKeepAspectRatio = FALSE;
     previewp->setThumbnailPlaceholderRect(getThumbnailPlaceholderRect());
     previewp->setAllowRenderUI(false);
+    previewp->setThumbnailSubsampled(TRUE);
 
     return TRUE;
 }
-const S32 PREVIEW_OFFSET_X = 12;
+
 const S32 PREVIEW_OFFSET_Y = 70;
 
 void LLFloaterSimpleOutfitSnapshot::draw()
@@ -202,11 +200,11 @@ void LLFloaterSimpleOutfitSnapshot::draw()
         if(previewp->getThumbnailImage())
         {
             bool working = impl->getStatus() == ImplBase::STATUS_WORKING;
-            const LLRect& thumbnail_rect = getThumbnailPlaceholderRect();
             const S32 thumbnail_w = previewp->getThumbnailWidth();
             const S32 thumbnail_h = previewp->getThumbnailHeight();
 
-            S32 offset_x = PREVIEW_OFFSET_X;
+            LLRect local_rect = getLocalRect();
+            S32 offset_x = (local_rect.getWidth() - thumbnail_w) / 2;
             S32 offset_y = PREVIEW_OFFSET_Y;
 
             gGL.matrixMode(LLRender::MM_MODELVIEW);
@@ -216,18 +214,6 @@ void LLFloaterSimpleOutfitSnapshot::draw()
             gl_draw_scaled_image(offset_x, offset_y, 
                 thumbnail_w, thumbnail_h,
                 previewp->getThumbnailImage(), color % alpha);
-#if LL_DARWIN
-            std::string alpha_color = getTransparencyType() == TT_ACTIVE ? "OutfitSnapshotMacMask" : "OutfitSnapshotMacMask2";
-#else
-            std::string alpha_color = getTransparencyType() == TT_ACTIVE ? "FloaterFocusBackgroundColor" : "DkGray";
-#endif
-
-            previewp->drawPreviewRect(offset_x, offset_y, LLUIColorTable::instance().getColor(alpha_color));
-
-            gGL.pushUIMatrix();
-            LLUI::translate((F32) thumbnail_rect.mLeft, (F32) thumbnail_rect.mBottom);
-            mThumbnailPlaceholder->draw();
-            gGL.popUIMatrix();
         }
     }
     impl->updateLayout(this);
