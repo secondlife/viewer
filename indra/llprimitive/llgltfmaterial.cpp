@@ -31,6 +31,10 @@
 // NOTE -- this should be the one and only place tiny_gltf.h is included
 #include "tinygltf/tiny_gltf.h"
 
+const char* LLGLTFMaterial::ASSET_VERSION = "1.1";
+const char* LLGLTFMaterial::ASSET_TYPE = "GLTF 2.0";
+const std::array<char*, 2> LLGLTFMaterial::ACCEPTED_ASSET_VERSIONS = { "1.0", "1.1" };
+
 const char* GLTF_FILE_EXTENSION_TRANSFORM = "KHR_texture_transform";
 const char* GLTF_FILE_EXTENSION_TRANSFORM_SCALE = "scale";
 const char* GLTF_FILE_EXTENSION_TRANSFORM_OFFSET = "offset";
@@ -73,24 +77,20 @@ LLGLTFMaterial::LLGLTFMaterial(const LLGLTFMaterial& rhs)
 
 LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
 {
-    LL_PROFILE_ZONE_SCOPED;
-    //have to do a manual operator= because of LLRefCount
-    mBaseColorId = rhs.mBaseColorId;
-    mNormalId = rhs.mNormalId;
-    mMetallicRoughnessId = rhs.mMetallicRoughnessId;
-    mEmissiveId = rhs.mEmissiveId;
+    //have to do a manual operator= because of LLRefCount 
+    mTextureId = rhs.mTextureId;
+
+    mTextureTransform = rhs.mTextureTransform;
 
     mBaseColor = rhs.mBaseColor;
     mEmissiveColor = rhs.mEmissiveColor;
-
+    
     mMetallicFactor = rhs.mMetallicFactor;
     mRoughnessFactor = rhs.mRoughnessFactor;
     mAlphaCutoff = rhs.mAlphaCutoff;
 
     mDoubleSided = rhs.mDoubleSided;
     mAlphaMode = rhs.mAlphaMode;
-
-    mTextureTransform = rhs.mTextureTransform;
 
     mOverrideDoubleSided = rhs.mOverrideDoubleSided;
     mOverrideAlphaMode = rhs.mOverrideAlphaMode;
@@ -100,10 +100,9 @@ LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
 
 bool LLGLTFMaterial::operator==(const LLGLTFMaterial& rhs) const
 {
-    return mBaseColorId == rhs.mBaseColorId &&
-        mNormalId == rhs.mNormalId &&
-        mMetallicRoughnessId == rhs.mMetallicRoughnessId &&
-        mEmissiveId == rhs.mEmissiveId &&
+    return mTextureId == rhs.mTextureId &&
+
+        mTextureTransform == rhs.mTextureTransform &&
 
         mBaseColor == rhs.mBaseColor &&
         mEmissiveColor == rhs.mEmissiveColor &&
@@ -114,8 +113,6 @@ bool LLGLTFMaterial::operator==(const LLGLTFMaterial& rhs) const
 
         mDoubleSided == rhs.mDoubleSided &&
         mAlphaMode == rhs.mAlphaMode &&
-
-        mTextureTransform == rhs.mTextureTransform &&
 
         mOverrideDoubleSided == rhs.mOverrideDoubleSided &&
         mOverrideAlphaMode == rhs.mOverrideAlphaMode;
@@ -148,6 +145,8 @@ std::string LLGLTFMaterial::asJSON(bool prettyprint) const
 
     writeToModel(model_out, 0);
 
+    // To ensure consistency in asset upload, this should be the only reference
+    // to WriteGltfSceneToStream in the viewer.
     gltf.WriteGltfSceneToStream(&model_out, str, prettyprint, false);
 
     return str.str();
@@ -164,13 +163,13 @@ void LLGLTFMaterial::setFromModel(const tinygltf::Model& model, S32 mat_index)
     const tinygltf::Material& material_in = model.materials[mat_index];
 
     // Apply base color texture
-    setFromTexture(model, material_in.pbrMetallicRoughness.baseColorTexture, GLTF_TEXTURE_INFO_BASE_COLOR, mBaseColorId);
+    setFromTexture(model, material_in.pbrMetallicRoughness.baseColorTexture, GLTF_TEXTURE_INFO_BASE_COLOR);
     // Apply normal map
-    setFromTexture(model, material_in.normalTexture, GLTF_TEXTURE_INFO_NORMAL, mNormalId);
+    setFromTexture(model, material_in.normalTexture, GLTF_TEXTURE_INFO_NORMAL);
     // Apply metallic-roughness texture
-    setFromTexture(model, material_in.pbrMetallicRoughness.metallicRoughnessTexture, GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS, mMetallicRoughnessId);
+    setFromTexture(model, material_in.pbrMetallicRoughness.metallicRoughnessTexture, GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS);
     // Apply emissive texture
-    setFromTexture(model, material_in.emissiveTexture, GLTF_TEXTURE_INFO_EMISSIVE, mEmissiveId);
+    setFromTexture(model, material_in.emissiveTexture, GLTF_TEXTURE_INFO_EMISSIVE);
 
     setAlphaMode(material_in.alphaMode);
     mAlphaCutoff = llclamp((F32)material_in.alphaCutoff, 0.f, 1.f);
@@ -264,11 +263,11 @@ std::string gltf_get_texture_image(const tinygltf::Model& model, const T& textur
 
 // *NOTE: Use template here as workaround for the different similar texture info classes
 template<typename T>
-void LLGLTFMaterial::setFromTexture(const tinygltf::Model& model, const T& texture_info, TextureInfo texture_info_id, LLUUID& texture_id_out)
+void LLGLTFMaterial::setFromTexture(const tinygltf::Model& model, const T& texture_info, TextureInfo texture_info_id)
 {
     LL_PROFILE_ZONE_SCOPED;
     const std::string uri = gltf_get_texture_image(model, texture_info);
-    texture_id_out.set(uri);
+    mTextureId[texture_info_id].set(uri);
 
     const tinygltf::Value::Object& extensions_object = texture_info.extensions;
     const auto transform_it = extensions_object.find(GLTF_FILE_EXTENSION_TRANSFORM);
@@ -297,20 +296,23 @@ void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
     tinygltf::Material& material_out = model.materials[mat_index];
 
     // set base color texture
-    writeToTexture(model, material_out.pbrMetallicRoughness.baseColorTexture, GLTF_TEXTURE_INFO_BASE_COLOR, mBaseColorId);
+    writeToTexture(model, material_out.pbrMetallicRoughness.baseColorTexture, GLTF_TEXTURE_INFO_BASE_COLOR);
     // set normal texture
-    writeToTexture(model, material_out.normalTexture, GLTF_TEXTURE_INFO_NORMAL, mNormalId);
+    writeToTexture(model, material_out.normalTexture, GLTF_TEXTURE_INFO_NORMAL);
     // set metallic-roughness texture
-    writeToTexture(model, material_out.pbrMetallicRoughness.metallicRoughnessTexture, GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS, mMetallicRoughnessId);
+    writeToTexture(model, material_out.pbrMetallicRoughness.metallicRoughnessTexture, GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS);
     // set emissive texture
-    writeToTexture(model, material_out.emissiveTexture, GLTF_TEXTURE_INFO_EMISSIVE, mEmissiveId);
+    writeToTexture(model, material_out.emissiveTexture, GLTF_TEXTURE_INFO_EMISSIVE);
+    // set occlusion texture
+    // *NOTE: This is required for ORM materials for GLTF compliance.
+    // See: https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_occlusiontexture
+    writeToTexture(model, material_out.occlusionTexture, GLTF_TEXTURE_INFO_OCCLUSION);
+
 
     material_out.alphaMode = getAlphaMode();
     material_out.alphaCutoff = mAlphaCutoff;
-
+    
     mBaseColor.write(material_out.pbrMetallicRoughness.baseColorFactor);
-
-    material_out.emissiveFactor.resize(3); // 0 size by default
 
     if (mEmissiveColor != LLGLTFMaterial::getDefaultEmissiveColor())
     {
@@ -322,7 +324,6 @@ void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
     material_out.pbrMetallicRoughness.roughnessFactor = mRoughnessFactor;
 
     material_out.doubleSided = mDoubleSided;
-
 
     // generate "extras" string
     tinygltf::Value::Object extras;
@@ -364,28 +365,43 @@ void gltf_allocate_texture_image(tinygltf::Model& model, T& texture_info, const 
 }
 
 template<typename T>
-void LLGLTFMaterial::writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, const LLUUID& texture_id) const
+void LLGLTFMaterial::writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, bool force_write) const
 {
     LL_PROFILE_ZONE_SCOPED;
+    const LLUUID& texture_id = mTextureId[texture_info_id];
     const TextureTransform& transform = mTextureTransform[texture_info_id];
-    if (texture_id.isNull() && transform == sDefault.mTextureTransform[0])
+    const bool is_blank_transform = transform == sDefault.mTextureTransform[0];
+    // Check if this material matches all the fallback values, and if so, then
+    // skip including it to reduce material size
+    if (!force_write && texture_id.isNull() && is_blank_transform)
     {
         return;
     }
 
+    // tinygltf will discard this texture info if there is no valid texture,
+    // causing potential loss of information for overrides, so ensure one is
+    // defined. -Cosmic,2023-01-30
     gltf_allocate_texture_image(model, texture_info, texture_id.asString());
 
-    tinygltf::Value::Object transform_map;
-    transform_map[GLTF_FILE_EXTENSION_TRANSFORM_OFFSET] = tinygltf::Value(tinygltf::Value::Array({
-        tinygltf::Value(transform.mOffset.mV[VX]),
-        tinygltf::Value(transform.mOffset.mV[VY])
-    }));
-    transform_map[GLTF_FILE_EXTENSION_TRANSFORM_SCALE] = tinygltf::Value(tinygltf::Value::Array({
-        tinygltf::Value(transform.mScale.mV[VX]),
-        tinygltf::Value(transform.mScale.mV[VY])
-    }));
-    transform_map[GLTF_FILE_EXTENSION_TRANSFORM_ROTATION] = tinygltf::Value(transform.mRotation);
-    texture_info.extensions[GLTF_FILE_EXTENSION_TRANSFORM] = tinygltf::Value(transform_map);
+    if (!is_blank_transform)
+    {
+        tinygltf::Value::Object transform_map;
+        transform_map[GLTF_FILE_EXTENSION_TRANSFORM_OFFSET] = tinygltf::Value(tinygltf::Value::Array({
+            tinygltf::Value(transform.mOffset.mV[VX]),
+            tinygltf::Value(transform.mOffset.mV[VY])
+        }));
+        transform_map[GLTF_FILE_EXTENSION_TRANSFORM_SCALE] = tinygltf::Value(tinygltf::Value::Array({
+            tinygltf::Value(transform.mScale.mV[VX]),
+            tinygltf::Value(transform.mScale.mV[VY])
+        }));
+        transform_map[GLTF_FILE_EXTENSION_TRANSFORM_ROTATION] = tinygltf::Value(transform.mRotation);
+        texture_info.extensions[GLTF_FILE_EXTENSION_TRANSFORM] = tinygltf::Value(transform_map);
+    }
+}
+
+void LLGLTFMaterial::sanitizeAssetMaterial()
+{
+    mTextureTransform = sDefault.mTextureTransform;
 }
 
 bool LLGLTFMaterial::setBaseMaterial()
@@ -419,40 +435,33 @@ void LLGLTFMaterial::hackOverrideUUID(LLUUID& id)
     }
 }
 
-void LLGLTFMaterial::setBaseColorId(const LLUUID& id, bool for_override)
+void LLGLTFMaterial::setTextureId(TextureInfo texture_info, const LLUUID& id, bool for_override)
 {
-    mBaseColorId = id;
+    mTextureId[texture_info] = id;
     if (for_override)
     {
-        hackOverrideUUID(mBaseColorId);
+        hackOverrideUUID(mTextureId[texture_info]);
     }
+}
+
+void LLGLTFMaterial::setBaseColorId(const LLUUID& id, bool for_override)
+{
+    setTextureId(GLTF_TEXTURE_INFO_BASE_COLOR, id, for_override);
 }
 
 void LLGLTFMaterial::setNormalId(const LLUUID& id, bool for_override)
 {
-    mNormalId = id;
-    if (for_override)
-    {
-        hackOverrideUUID(mNormalId);
-    }
+    setTextureId(GLTF_TEXTURE_INFO_NORMAL, id, for_override);
 }
 
-void LLGLTFMaterial::setMetallicRoughnessId(const LLUUID& id, bool for_override)
+void LLGLTFMaterial::setOcclusionRoughnessMetallicId(const LLUUID& id, bool for_override)
 {
-    mMetallicRoughnessId = id;
-    if (for_override)
-    {
-        hackOverrideUUID(mMetallicRoughnessId);
-    }
+    setTextureId(GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS, id, for_override);
 }
 
 void LLGLTFMaterial::setEmissiveId(const LLUUID& id, bool for_override)
 {
-    mEmissiveId = id;
-    if (for_override)
-    {
-        hackOverrideUUID(mEmissiveId);
-    }
+    setTextureId(GLTF_TEXTURE_INFO_EMISSIVE, id, for_override);
 }
 
 void LLGLTFMaterial::setBaseColorFactor(const LLColor4& baseColor, bool for_override)
@@ -533,10 +542,7 @@ const char* LLGLTFMaterial::getAlphaMode() const
 void LLGLTFMaterial::setAlphaMode(S32 mode, bool for_override)
 {
     mAlphaMode = (AlphaMode) llclamp(mode, (S32) ALPHA_MODE_OPAQUE, (S32) ALPHA_MODE_MASK);
-    if (for_override)
-    {
-        mOverrideAlphaMode = true;
-    }
+    mOverrideAlphaMode = for_override && mAlphaMode == getDefaultAlphaMode();
 }
 
 void LLGLTFMaterial::setDoubleSided(bool double_sided, bool for_override)
@@ -544,10 +550,7 @@ void LLGLTFMaterial::setDoubleSided(bool double_sided, bool for_override)
     // sure, no clamping will ever be needed for a bool, but include the
     // setter for consistency with the clamping API
     mDoubleSided = double_sided;
-    if (for_override)
-    {
-        mOverrideDoubleSided = true;
-    }
+    mOverrideDoubleSided = for_override && mDoubleSided == getDefaultDoubleSided();
 }
 
 void LLGLTFMaterial::setTextureOffset(TextureInfo texture_info, const LLVector2& offset)
@@ -640,10 +643,12 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
 {
     LL_PROFILE_ZONE_SCOPED;
 
-    applyOverrideUUID(mBaseColorId, override_mat.mBaseColorId);
-    applyOverrideUUID(mNormalId, override_mat.mNormalId);
-    applyOverrideUUID(mMetallicRoughnessId, override_mat.mMetallicRoughnessId);
-    applyOverrideUUID(mEmissiveId, override_mat.mEmissiveId);
+    for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    {
+        LLUUID& texture_id = mTextureId[i];
+        const LLUUID& override_texture_id = override_mat.mTextureId[i];
+        applyOverrideUUID(texture_id, override_texture_id);
+    }
 
     if (override_mat.mBaseColor != getDefaultBaseColor())
     {

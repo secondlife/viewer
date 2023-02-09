@@ -49,6 +49,11 @@ public:
     // default material for reference
     static const LLGLTFMaterial sDefault;
 
+    static const char* ASSET_VERSION;
+    static const char* ASSET_TYPE;
+    static const std::array<char*, 2> ACCEPTED_ASSET_VERSIONS;
+    static bool isAcceptedVersion(const std::string& version) { return std::find(ACCEPTED_ASSET_VERSIONS.cbegin(), ACCEPTED_ASSET_VERSIONS.cend(), version) != ACCEPTED_ASSET_VERSIONS.cend(); }
+
     struct TextureTransform
     {
         LLVector2 mOffset = { 0.f, 0.f };
@@ -74,10 +79,25 @@ public:
     bool operator==(const LLGLTFMaterial& rhs) const;
     bool operator!=(const LLGLTFMaterial& rhs) const { return !(*this == rhs); }
 
-    LLUUID mBaseColorId;
-    LLUUID mNormalId;
-    LLUUID mMetallicRoughnessId;
-    LLUUID mEmissiveId;
+    enum TextureInfo : U32
+    {
+        GLTF_TEXTURE_INFO_BASE_COLOR,
+        GLTF_TEXTURE_INFO_NORMAL,
+        GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS,
+        // *NOTE: GLTF_TEXTURE_INFO_OCCLUSION is currently ignored, in favor of
+        // the values specified with GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS.
+        // Currently, only ORM materials are supported (materials which define
+        // occlusion, roughness, and metallic in the same texture).
+        // -Cosmic,2023-01-26
+        GLTF_TEXTURE_INFO_OCCLUSION = GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS,
+        GLTF_TEXTURE_INFO_EMISSIVE,
+
+        GLTF_TEXTURE_INFO_COUNT
+    };
+
+    std::array<LLUUID, GLTF_TEXTURE_INFO_COUNT> mTextureId;
+
+    std::array<TextureTransform, GLTF_TEXTURE_INFO_COUNT> mTextureTransform;
 
     // NOTE : initialize values to defaults according to the GLTF spec
     LLColor4 mBaseColor = LLColor4(1, 1, 1, 1);
@@ -106,24 +126,14 @@ public:
         return id;
     }
 
-    enum TextureInfo : U32
-    {
-        GLTF_TEXTURE_INFO_BASE_COLOR,
-        GLTF_TEXTURE_INFO_NORMAL,
-        GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS,
-        GLTF_TEXTURE_INFO_EMISSIVE,
-
-        GLTF_TEXTURE_INFO_COUNT
-    };
-
-    std::array<TextureTransform, GLTF_TEXTURE_INFO_COUNT> mTextureTransform;
-
     //setters for various members (will clamp to acceptable ranges)
     // for_override - set to true if this value is being set as part of an override (important for handling override to default value)
 
+    void setTextureId(TextureInfo texture_info, const LLUUID& id, bool for_override = false);
+
     void setBaseColorId(const LLUUID& id, bool for_override = false);
     void setNormalId(const LLUUID& id, bool for_override = false);
-    void setMetallicRoughnessId(const LLUUID& id, bool for_override = false);
+    void setOcclusionRoughnessMetallicId(const LLUUID& id, bool for_override = false);
     void setEmissiveId(const LLUUID& id, bool for_override = false);
 
     void setBaseColorFactor(const LLColor4& baseColor, bool for_override = false);
@@ -182,6 +192,10 @@ public:
 
     void applyOverride(const LLGLTFMaterial& override_mat);
 
+    // For base materials only (i.e. assets). Clears transforms to
+    // default since they're not supported in assets yet.
+    void sanitizeAssetMaterial();
+
     // For material overrides only. Clears most properties to
     // default/fallthrough, but preserves the transforms.
     bool setBaseMaterial();
@@ -189,12 +203,11 @@ public:
     bool isClearedForBaseMaterial();
 
 private:
+    template<typename T>
+    void setFromTexture(const tinygltf::Model& model, const T& texture_info, TextureInfo texture_info_id);
 
     template<typename T>
-    void setFromTexture(const tinygltf::Model& model, const T& texture_info, TextureInfo texture_info_id, LLUUID& texture_id_out);
-
-    template<typename T>
-    void writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, const LLUUID& texture_id) const;
+    void writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, bool force_write = false) const;
 
     void setBaseMaterial(const LLGLTFMaterial& old_override_mat);
 };

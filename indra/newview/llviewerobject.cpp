@@ -4993,10 +4993,10 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
 
     if (mat != nullptr)
     {
-        mat->mBaseColorTexture = fetch_texture(mat->mBaseColorId);
-        mat->mNormalTexture = fetch_texture(mat->mNormalId);
-        mat->mMetallicRoughnessTexture = fetch_texture(mat->mMetallicRoughnessId);
-        mat->mEmissiveTexture= fetch_texture(mat->mEmissiveId);
+        mat->mBaseColorTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR]);
+        mat->mNormalTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL]);
+        mat->mMetallicRoughnessTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS]);
+        mat->mEmissiveTexture= fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
     }
 }
 

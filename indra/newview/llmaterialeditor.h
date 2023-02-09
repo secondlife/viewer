@@ -84,8 +84,7 @@ protected:
 };
 
 class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
-{
-public:
+{ public:
 	LLMaterialEditor(const LLSD& key);
 
     bool setFromGltfModel(const tinygltf::Model& model, S32 index, bool set_textures = false);
@@ -98,6 +97,7 @@ public:
     // for live preview, apply current material to currently selected object
     void applyToSelection();
 
+    // get a dump of the json representation of the current state of the editor UI as a material object
     void getGLTFMaterial(LLGLTFMaterial* mat);
 
     void loadAsset() override;
@@ -130,11 +130,6 @@ public:
     void clearTextures();
 
     void onClickSave();
-
-    // get a dump of the json representation of the current state of the editor UI in GLTF format
-    std::string getGLTFJson(bool prettyprint = true);
-
-    void getGLBData(std::vector<U8>& data);
 
     void getGLTFModel(tinygltf::Model& model);
 
