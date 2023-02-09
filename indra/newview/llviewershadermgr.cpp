@@ -206,6 +206,8 @@ LLGLSLShader            gDeferredGenBrdfLutProgram;
 LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
 LLGLSLShader			gDeferredMaterialWaterProgram[LLMaterial::SHADER_COUNT*2];
 LLGLSLShader			gHUDPBROpaqueProgram;
+LLGLSLShader            gPBRGlowProgram;
+LLGLSLShader            gPBRGlowSkinnedProgram;
 LLGLSLShader			gDeferredPBROpaqueProgram;
 LLGLSLShader            gDeferredSkinnedPBROpaqueProgram;
 LLGLSLShader            gHUDPBRAlphaProgram;
@@ -1016,6 +1018,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		}
 
         gHUDPBROpaqueProgram.unload();
+        gPBRGlowProgram.unload();
         gDeferredPBROpaqueProgram.unload();
         gDeferredSkinnedPBROpaqueProgram.unload();
         gDeferredPBRAlphaProgram.unload();
@@ -1327,6 +1330,23 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
     if (success)
     {
+        gPBRGlowProgram.mName = " PBR Glow Shader";
+        gPBRGlowProgram.mFeatures.hasSrgb = true;
+        gPBRGlowProgram.mShaderFiles.clear();
+        gPBRGlowProgram.mShaderFiles.push_back(make_pair("deferred/pbrglowV.glsl", GL_VERTEX_SHADER));
+        gPBRGlowProgram.mShaderFiles.push_back(make_pair("deferred/pbrglowF.glsl", GL_FRAGMENT_SHADER));
+        gPBRGlowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+
+        success = make_rigged_variant(gPBRGlowProgram, gPBRGlowSkinnedProgram);
+        if (success)
+        {
+            success = gPBRGlowProgram.createShader(NULL, NULL);
+        }
+        llassert(success);
+    }
+
+    if (success)
+    {
         gHUDPBROpaqueProgram.mName = "HUD PBR Opaque Shader";
         gHUDPBROpaqueProgram.mFeatures.hasSrgb = true;
         gHUDPBROpaqueProgram.mShaderFiles.clear();
@@ -1340,6 +1360,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
  
         llassert(success);
     }
+
+    
 
 	if (success)
 	{

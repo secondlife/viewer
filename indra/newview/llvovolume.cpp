@@ -5201,8 +5201,11 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		(type == LLRenderPass::PASS_ALPHA && facep->isState(LLFace::FULLBRIGHT)) ||
 		(facep->getTextureEntry()->getFullbright());
 	
-	if (!fullbright && type != LLRenderPass::PASS_GLOW && !facep->getVertexBuffer()->hasDataType(LLVertexBuffer::TYPE_NORMAL))
+	if (!fullbright && 
+        type != LLRenderPass::PASS_GLOW && 
+        !facep->getVertexBuffer()->hasDataType(LLVertexBuffer::TYPE_NORMAL))
 	{
+        llassert(false);
 		LL_WARNS() << "Non fullbright face has no normals!" << LL_ENDL;
 		return;
 	}
@@ -6798,7 +6801,14 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 
 			if (!is_alpha && LLPipeline::sRenderGlow && te->getGlow() > 0.f)
 			{
-				registerFace(group, facep, LLRenderPass::PASS_GLOW);
+                if (gltf_mat)
+                {
+                    registerFace(group, facep, LLRenderPass::PASS_GLTF_GLOW);
+                }
+                else
+                {
+                    registerFace(group, facep, LLRenderPass::PASS_GLOW);
+                }
 			}
 						
 			++face_iter;

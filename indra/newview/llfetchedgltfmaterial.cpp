@@ -60,7 +60,9 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
 
     if (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
     {
-        min_alpha = mAlphaCutoff;
+        // dividing the alpha cutoff by transparency here allows the shader to compare against
+        // the alpha value of the texture without needing the transparency value
+        min_alpha = mAlphaCutoff/mBaseColor.mV[3];
     }
     shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, min_alpha);
 

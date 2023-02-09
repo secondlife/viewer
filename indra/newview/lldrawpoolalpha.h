@@ -77,11 +77,14 @@ private:
     LLGLSLShader* simple_shader = nullptr;
     LLGLSLShader* fullbright_shader = nullptr;
     LLGLSLShader* emissive_shader = nullptr;
+    LLGLSLShader* pbr_emissive_shader = nullptr;
     LLGLSLShader* pbr_shader = nullptr;
 
-    void drawEmissive(U32 mask, LLDrawInfo* draw);
-    void renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives);
-    void renderRiggedEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives);
+    void drawEmissive(LLDrawInfo* draw);
+    void renderEmissives(std::vector<LLDrawInfo*>& emissives);
+    void renderRiggedEmissives(std::vector<LLDrawInfo*>& emissives);
+    void renderPbrEmissives(std::vector<LLDrawInfo*>& emissives);
+    void renderRiggedPbrEmissives(std::vector<LLDrawInfo*>& emissives);
     bool TexSetup(LLDrawInfo* draw, bool use_material);
     void RestoreTexSetup(bool tex_setup);
 

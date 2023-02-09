@@ -59,18 +59,29 @@ void LLDrawPoolGLTFPBR::renderDeferred(S32 pass)
 
 S32 LLDrawPoolGLTFPBR::getNumPostDeferredPasses()
 {
-    return LLPipeline::sRenderingHUDs ? 1 : 0;
+    return 1;
 }
 
 void LLDrawPoolGLTFPBR::renderPostDeferred(S32 pass)
 {
-    // only HUD rendering should execute this pass
-    llassert(LLPipeline::sRenderingHUDs);
-
-    gHUDPBROpaqueProgram.bind();
-    for (U32 type : gltf_render_types)
+    if (LLPipeline::sRenderingHUDs)
     {
-        pushGLTFBatches(type);
+        gHUDPBROpaqueProgram.bind();
+        for (U32 type : gltf_render_types)
+        {
+            pushGLTFBatches(type);
+        }
+    }
+    else
+    {
+        gGL.setColorMask(false, true);
+        gPBRGlowProgram.bind();
+        pushGLTFBatches(LLRenderPass::PASS_GLTF_GLOW);
+
+        gPBRGlowProgram.bind(true);
+        pushRiggedGLTFBatches(LLRenderPass::PASS_GLTF_GLOW_RIGGED);
+
+        gGL.setColorMask(true, false);
     }
 }
 

@@ -175,8 +175,11 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     llassert(LLPipeline::sRenderDeferred);
 
     emissive_shader = &gDeferredEmissiveProgram;
-                      
     prepare_alpha_shader(emissive_shader, true, false, water_sign);
+
+    pbr_emissive_shader = &gPBRGlowProgram;
+    prepare_alpha_shader(pbr_emissive_shader, true, false, water_sign);
+
 
     fullbright_shader   = 
         (LLPipeline::sImpostorRender) ? &gDeferredFullbrightAlphaMaskProgram :
@@ -482,7 +485,7 @@ void LLDrawPoolAlpha::RestoreTexSetup(bool tex_setup)
 	}
 }
 
-void LLDrawPoolAlpha::drawEmissive(U32 mask, LLDrawInfo* draw)
+void LLDrawPoolAlpha::drawEmissive(LLDrawInfo* draw)
 {
     LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, 1.f);
     draw->mVertexBuffer->setBuffer();
@@ -490,7 +493,7 @@ void LLDrawPoolAlpha::drawEmissive(U32 mask, LLDrawInfo* draw)
 }
 
 
-void LLDrawPoolAlpha::renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives)
+void LLDrawPoolAlpha::renderEmissives(std::vector<LLDrawInfo*>& emissives)
 {
     emissive_shader->bind();
     emissive_shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, 1.f);
@@ -498,12 +501,25 @@ void LLDrawPoolAlpha::renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissi
     for (LLDrawInfo* draw : emissives)
     {
         bool tex_setup = TexSetup(draw, false);
-        drawEmissive(mask, draw);
+        drawEmissive(draw);
         RestoreTexSetup(tex_setup);
     }
 }
 
-void LLDrawPoolAlpha::renderRiggedEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives)
+void LLDrawPoolAlpha::renderPbrEmissives(std::vector<LLDrawInfo*>& emissives)
+{
+    pbr_emissive_shader->bind();
+
+    for (LLDrawInfo* draw : emissives)
+    {
+        llassert(draw->mGLTFMaterial);
+        draw->mGLTFMaterial->bind(draw->mTexture);
+        draw->mVertexBuffer->setBuffer();
+        draw->mVertexBuffer->drawRange(LLRender::TRIANGLES, draw->mStart, draw->mEnd, draw->mCount, draw->mOffset);
+    }
+}
+
+void LLDrawPoolAlpha::renderRiggedEmissives(std::vector<LLDrawInfo*>& emissives)
 {
     LLGLDepthTest depth(GL_TRUE, GL_FALSE); //disable depth writes since "emissive" is additive so sorting doesn't matter
     LLGLSLShader* shader = emissive_shader->mRiggedVariant;
@@ -512,8 +528,6 @@ void LLDrawPoolAlpha::renderRiggedEmissives(U32 mask, std::vector<LLDrawInfo*>& 
 
     LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
-
-    mask |= LLVertexBuffer::MAP_WEIGHT4;
 
     for (LLDrawInfo* draw : emissives)
     {
@@ -527,8 +541,34 @@ void LLDrawPoolAlpha::renderRiggedEmissives(U32 mask, std::vector<LLDrawInfo*>& 
             lastAvatar = draw->mAvatar;
             lastMeshId = draw->mSkinInfo->mHash;
         }
-        drawEmissive(mask, draw);
+        drawEmissive(draw);
         RestoreTexSetup(tex_setup);
+    }
+}
+
+void LLDrawPoolAlpha::renderRiggedPbrEmissives(std::vector<LLDrawInfo*>& emissives)
+{
+    LLGLDepthTest depth(GL_TRUE, GL_FALSE); //disable depth writes since "emissive" is additive so sorting doesn't matter
+    pbr_emissive_shader->bind(true);
+    
+    LLVOAvatar* lastAvatar = nullptr;
+    U64 lastMeshId = 0;
+
+    for (LLDrawInfo* draw : emissives)
+    {
+        if (lastAvatar != draw->mAvatar || lastMeshId != draw->mSkinInfo->mHash)
+        {
+            if (!uploadMatrixPalette(*draw))
+            { // failed to upload matrix palette, skip rendering
+                continue;
+            }
+            lastAvatar = draw->mAvatar;
+            lastMeshId = draw->mSkinInfo->mHash;
+        }
+
+        draw->mGLTFMaterial->bind(draw->mTexture);
+        draw->mVertexBuffer->setBuffer();
+        draw->mVertexBuffer->drawRange(LLRender::TRIANGLES, draw->mStart, draw->mEnd, draw->mCount, draw->mOffset);
     }
 }
 
@@ -600,8 +640,13 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
             static std::vector<LLDrawInfo*> emissives;
             static std::vector<LLDrawInfo*> rigged_emissives;
+            static std::vector<LLDrawInfo*> pbr_emissives;
+            static std::vector<LLDrawInfo*> pbr_rigged_emissives;
+
             emissives.resize(0);
             rigged_emissives.resize(0);
+            pbr_emissives.resize(0);
+            pbr_rigged_emissives.resize(0);
 
 			bool is_particle_or_hud_particle = group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_PARTICLE
 													  || group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_HUD_PARTICLE;
@@ -787,11 +832,25 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 				{
                     if (params.mAvatar != nullptr)
                     {
-                        rigged_emissives.push_back(&params);
+                        if (params.mGLTFMaterial.isNull())
+                        {
+                            rigged_emissives.push_back(&params);
+                        }
+                        else
+                        {
+                            pbr_rigged_emissives.push_back(&params);
+                        }
                     }
                     else
                     {
-                        emissives.push_back(&params);
+                        if (params.mGLTFMaterial.isNull())
+                        {
+                            emissives.push_back(&params);
+                        }
+                        else
+                        {
+                            pbr_emissives.push_back(&params);
+                        }
                     }
 				}
 			
@@ -818,14 +877,28 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                 if (!emissives.empty())
                 {
                     light_enabled = true;
-                    renderEmissives(mask, emissives);
+                    renderEmissives(emissives);
+                    rebind = true;
+                }
+
+                if (!pbr_emissives.empty())
+                {
+                    light_enabled = true;
+                    renderPbrEmissives(pbr_emissives);
                     rebind = true;
                 }
 
                 if (!rigged_emissives.empty())
                 {
                     light_enabled = true;
-                    renderRiggedEmissives(mask, rigged_emissives);
+                    renderRiggedEmissives(rigged_emissives);
+                    rebind = true;
+                }
+
+                if (!pbr_rigged_emissives.empty())
+                {
+                    light_enabled = true;
+                    renderRiggedPbrEmissives(pbr_rigged_emissives);
                     rebind = true;
                 }
 
