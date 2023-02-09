@@ -143,6 +143,7 @@ void main()
 	//transform vertex
     vec4 vert = modelview_projection_matrix * vec4(position.xyz, 1.0);
     gl_Position = vert;
+    vary_position = vert.xyz;
 
 	basecolor_texcoord = (texture_matrix0 * vec4(texture_basecolor_matrix * vec3(texcoord0,1), 1)).xy;
 	emissive_texcoord = (texture_matrix0 * vec4(texture_emissive_matrix * vec3(texcoord0,1), 1)).xy;
