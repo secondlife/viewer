@@ -2438,14 +2438,8 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 	{
 		LLVertexBuffer::unbind();
 
-		if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION))
-		{
-			gGL.setColorMask(true, false, false, false);
-		}
-		else
-		{
-			gGL.setColorMask(false, false);
-		}
+		gGL.setColorMask(false, false);
+
 		LLGLDisable blend(GL_BLEND);
 		LLGLDisable test(GL_ALPHA_TEST);
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -9417,7 +9411,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 		if (fp.empty())
 		{
-			if (!hasRenderDebugMask(RENDER_DEBUG_SHADOW_FRUSTA))
+			if (!hasRenderDebugMask(RENDER_DEBUG_SHADOW_FRUSTA) && !gCubeSnapshot)
 			{
 				mShadowCamera[0] = main_camera;
 				mShadowExtents[0][0] = min;
@@ -9497,23 +9491,9 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	}
 	else
 	{
-        /*if (gCubeSnapshot)
-        {
-            // do one shadow split for cube snapshots, clear the rest
-            mSunClipPlanes.set(64.f, 64.f, 64.f);
-            dist[1] = dist[2] = dist[3] = dist[4] = 64.f;
-            for (S32 j = 1; j < 4; j++)
-            {
-                mRT->shadow[j].bindTarget();
-                mRT->shadow[j].clear();
-                mRT->shadow[j].flush();
-            }
-        }*/
-
-		//for (S32 j = 0; j < (gCubeSnapshot ? 1 : 4); j++)
         for (S32 j = 0; j < 4; j++)
 		{
-			if (!hasRenderDebugMask(RENDER_DEBUG_SHADOW_FRUSTA))
+			if (!hasRenderDebugMask(RENDER_DEBUG_SHADOW_FRUSTA) && !gCubeSnapshot)
 			{
 				mShadowFrustPoints[j].clear();
 			}
@@ -9555,7 +9535,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			shadow_cam.calcAgentFrustumPlanes(frust);
 			shadow_cam.mFrustumCornerDist = 0.f;
 		
-			if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
+			if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA) && !gCubeSnapshot)
 			{
 				mShadowCamera[j] = shadow_cam;
 			}
@@ -9565,7 +9545,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			if (!gPipeline.getVisiblePointCloud(shadow_cam, min, max, fp, lightDir))
 			{
 				//no possible shadow receivers
-				if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
+                if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA) && !gCubeSnapshot)
 				{
 					mShadowExtents[j][0] = LLVector3();
 					mShadowExtents[j][1] = LLVector3();
@@ -9585,7 +9565,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 				continue;
 			}
 
-			if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
+			if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA) && !gCubeSnapshot)
 			{
 				mShadowExtents[j][0] = min;
 				mShadowExtents[j][1] = max;
@@ -9812,7 +9792,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 						eye = LLVector3(origin_agent.v);
 
-						if (!hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
+						if (!hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA) && !gCubeSnapshot)
 						{
 							mShadowFrustOrigin[j] = eye;
 						}
@@ -9875,7 +9855,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 			mRT->shadow[j].flush();
  
-			if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
+			if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA) && !gCubeSnapshot)
 			{
 				mShadowCamera[j+4] = shadow_cam;
 			}

@@ -1699,8 +1699,6 @@ void renderOctree(LLSpatialGroup* group)
                         }
 
 						face->getVertexBuffer()->setBuffer();
-						//drawBox((face->mExtents[0] + face->mExtents[1])*0.5f,
-						//		(face->mExtents[1]-face->mExtents[0])*0.5f);
 						face->getVertexBuffer()->draw(LLRender::TRIANGLES, face->getIndicesCount(), face->getIndicesStart());
 					}
 				}
@@ -1725,145 +1723,20 @@ void renderOctree(LLSpatialGroup* group)
 	LLVector4a fudge;
 	fudge.splat(0.001f);
 
-	//LLVector4a size = group->mObjectBounds[1];
-	//size.mul(1.01f);
-	//size.add(fudge);
-
-	//{
-	//	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
-	//	drawBox(group->mObjectBounds[0], fudge);
-	//}
-	
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
-	//if (group->mBuilt <= 0.f)
 	{
 		//draw opaque outline
-		//gGL.diffuseColor4f(col.mV[0], col.mV[1], col.mV[2], 1.f);
-		//drawBoxOutline(group->mObjectBounds[0], group->mObjectBounds[1]);
-
 		gGL.diffuseColor4f(0,1,1,1);
 
 		const LLVector4a* bounds = group->getBounds();
 		drawBoxOutline(bounds[0], bounds[1]);
-		
-		//draw bounding box for draw info
-		/*if (group->getSpatialPartition()->mRenderByGroup)
-		{
-			gGL.diffuseColor4f(1.0f, 0.75f, 0.25f, 0.6f);
-			for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
-			{
-				for (LLSpatialGroup::drawmap_elem_t::iterator j = i->second.begin(); j != i->second.end(); ++j)
-				{
-					LLDrawInfo* draw_info = *j;
-					LLVector4a center;
-					center.setAdd(draw_info->mExtents[1], draw_info->mExtents[0]);
-					center.mul(0.5f);
-					LLVector4a size;
-					size.setSub(draw_info->mExtents[1], draw_info->mExtents[0]);
-					size.mul(0.5f);
-					drawBoxOutline(center, size);
-				}
-			}
-		}*/
 	}
-
-//	LLSpatialGroup::OctreeNode* node = group->mOctreeNode;
-//	gGL.diffuseColor4f(0,1,0,1);
-//	drawBoxOutline(LLVector3(node->getCenter()), LLVector3(node->getSize()));
 }
 
 std::set<LLSpatialGroup*> visible_selected_groups;
 
-void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
-{
-	/*LLGLEnable blend(GL_BLEND);
-	gGL.setSceneBlendType(LLRender::BT_ALPHA);
-	LLGLEnable cull(GL_CULL_FACE);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);*/
 
-	/*BOOL render_objects = (!LLPipeline::sUseOcclusion || !group->isOcclusionState(LLSpatialGroup::OCCLUDED)) && group->isVisible() &&
-							!group->isEmpty();
-
-
-	if (render_objects)
-	{
-		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
-
-		LLGLDisable blend(GL_BLEND);
-		gGL.diffuseColor4f(0.f, 0.75f, 0.f,0.5f);
-		pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX, false);
-		
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glLineWidth(4.f);
-		gGL.diffuseColor4f(0.f, 0.5f, 0.f, 1.f);
-		pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX, false);
-		glLineWidth(1.f);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-		bool selected = false;
-		
-		for (LLSpatialGroup::element_iter iter = group->getDataBegin(); iter != group->getDataEnd(); ++iter)
-		{
-			LLDrawable* drawable = *iter;
-			if (drawable->getVObj().notNull() && drawable->getVObj()->isSelected())
-			{
-				selected = true;
-				break;
-			}
-		}
-		
-		if (selected)
-		{ //store for rendering occlusion volume as overlay
-			visible_selected_groups.insert(group);
-		}
-	}*/		
-
-	/*if (render_objects)
-	{
-		LLGLDepthTest depth_under(GL_TRUE, GL_FALSE, GL_GREATER);
-		gGL.diffuseColor4f(0, 0.5f, 0, 0.5f);
-		gGL.diffuseColor4f(0, 0.5f, 0, 0.5f);
-		pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX);
-	}
-
-	{
-		LLGLDepthTest depth_over(GL_TRUE, GL_FALSE, GL_LEQUAL);
-
-		if (render_objects)
-		{
-			gGL.diffuseColor4f(0.f, 0.5f, 0.f,1.f);
-			gGL.diffuseColor4f(0.f, 0.5f, 0.f, 1.f);
-			pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX);
-		}
-
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-		if (render_objects)
-		{
-			gGL.diffuseColor4f(0.f, 0.75f, 0.f,0.5f);
-			gGL.diffuseColor4f(0.f, 0.75f, 0.f, 0.5f);
-			pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX);
-		
-			bool selected = false;
-		
-			for (LLSpatialGroup::element_iter iter = group->getDataBegin(); iter != group->getDataEnd(); ++iter)
-			{
-				LLDrawable* drawable = *iter;
-				if (drawable->getVObj().notNull() && drawable->getVObj()->isSelected())
-				{
-					selected = true;
-					break;
-				}
-			}
-		
-			if (selected)
-			{ //store for rendering occlusion volume as overlay
-				visible_selected_groups.insert(group);
-			}
-		}		
-	}*/
-}
 
 void renderXRay(LLSpatialGroup* group, LLCamera* camera)
 {
@@ -3252,23 +3125,6 @@ public:
 
 				renderOctree(group);
 				stop_glerror();
-			}
-
-			//render visibility wireframe
-			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION))
-			{
-				group->rebuildGeom();
-				group->rebuildMesh();
-
-				gGL.flush();
-				gGL.pushMatrix();
-				gGLLastMatrix = NULL;
-				gGL.loadMatrix(gGLModelView);
-				renderVisibility(group, mCamera);
-				stop_glerror();
-				gGLLastMatrix = NULL;
-				gGL.popMatrix();
-				gGL.diffuseColor4f(1,1,1,1);
 			}
 		}
 	}
