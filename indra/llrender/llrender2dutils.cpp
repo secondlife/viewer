@@ -117,7 +117,6 @@ void gl_rect_2d_offset_local( S32 left, S32 top, S32 right, S32 bottom, S32 pixe
 
 void gl_rect_2d(S32 left, S32 top, S32 right, S32 bottom, BOOL filled )
 {
-	stop_glerror();
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	// Counterclockwise quad will face the viewer
@@ -142,7 +141,6 @@ void gl_rect_2d(S32 left, S32 top, S32 right, S32 bottom, BOOL filled )
 			gGL.vertex2i(left, top);
 		gGL.end();
 	}
-	stop_glerror();
 }
 
 void gl_rect_2d(S32 left, S32 top, S32 right, S32 bottom, const LLColor4 &color, BOOL filled )
