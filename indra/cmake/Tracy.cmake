@@ -17,6 +17,7 @@ if (USE_TRACY)
 
   if (DARWIN)
     MESSAGE(STATUS "Including Tracy for Darwin: '${TRACY_INCLUDE_DIR}'")
+    set(TRACY_LIBRARY "tracy")
   endif (DARWIN)
 
   if (LINUX)
