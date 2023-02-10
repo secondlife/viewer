@@ -2045,11 +2045,6 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
 	{
 		return ACCEPT_NO_LOCKED;
 	}
-	//If texture !copyable don't texture or you'll never get it back.
-	if(!item->getPermissions().allowCopyBy(gAgent.getID()))
-	{
-		return ACCEPT_NO;
-	}
 
     if (cargo_type == DAD_TEXTURE)
     {
