@@ -92,7 +92,7 @@ vec4 applyWaterFogViewLinearNoClip(vec3 pos, vec4 color, vec3 sunlit)
     //get "thickness" of water
     float l = max(depth, 0.1);
 
-    float kd = waterFogDensity;
+    float kd = waterFogDensity*1.3;
     float ks = waterFogKS;
     vec4 kc = waterFogColor;
     kc.rgb = srgb_to_linear(kc.rgb); // TODO -- pass in waterFogColor linear
