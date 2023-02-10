@@ -1904,18 +1904,12 @@ bool LLViewerFetchedTexture::updateFetch()
 		{
 			mIsFetching = FALSE;
             mLastFetchState = -1;
-            setDebugText("");
 			mLastPacketTimer.reset();
 		}
 		else
 		{
 			mFetchState = LLAppViewer::getTextureFetch()->getFetchState(mID, mDownloadProgress, mRequestedDownloadPriority,
 																		mFetchPriority, mFetchDeltaTime, mRequestDeltaTime, mCanUseHTTP);
-            /*if (mFetchState != mLastFetchState)
-            {
-                setDebugText(LLTextureFetch::getStateString(mFetchState));
-                mLastFetchState = mFetchState;
-            }*/
 		}
 		
 		// We may have data ready regardless of whether or not we are finished (e.g. waiting on write)
