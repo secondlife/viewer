@@ -23,8 +23,6 @@
  * $/LicenseInfo$                                                               
  */
 
-#pragma once
-
 #include "linden_common.h"
 #include "lltut.h"
 

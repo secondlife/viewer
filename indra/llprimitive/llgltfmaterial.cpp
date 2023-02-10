@@ -33,7 +33,7 @@
 
 const char* LLGLTFMaterial::ASSET_VERSION = "1.1";
 const char* LLGLTFMaterial::ASSET_TYPE = "GLTF 2.0";
-const std::array<char*, 2> LLGLTFMaterial::ACCEPTED_ASSET_VERSIONS = { "1.0", "1.1" };
+const std::array<std::string, 2> LLGLTFMaterial::ACCEPTED_ASSET_VERSIONS = { "1.0", "1.1" };
 
 const char* GLTF_FILE_EXTENSION_TRANSFORM = "KHR_texture_transform";
 const char* GLTF_FILE_EXTENSION_TRANSFORM_SCALE = "scale";

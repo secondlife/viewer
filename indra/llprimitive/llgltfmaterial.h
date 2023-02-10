@@ -51,7 +51,7 @@ public:
 
     static const char* ASSET_VERSION;
     static const char* ASSET_TYPE;
-    static const std::array<char*, 2> ACCEPTED_ASSET_VERSIONS;
+    static const std::array<std::string, 2> ACCEPTED_ASSET_VERSIONS;
     static bool isAcceptedVersion(const std::string& version) { return std::find(ACCEPTED_ASSET_VERSIONS.cbegin(), ACCEPTED_ASSET_VERSIONS.cend(), version) != ACCEPTED_ASSET_VERSIONS.cend(); }
 
     struct TextureTransform
