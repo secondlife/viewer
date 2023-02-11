@@ -440,7 +440,7 @@
     length="1"
     halign="right"
     name="360_label"
-    text_color="0.3 0.82 1 1"
+    text_color="HTMLLinkColor"
     top_delta="0"
     type="string"
     width="115">
