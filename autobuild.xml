@@ -2553,7 +2553,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>canonical_repo</key>
         <string>https://bitbucket.org/lindenlab/3p-tracy</string>
         <key>copyright</key>
-        <string>Copyright (c) 2017-2021, Bartosz Taudul (wolf@nereid.pl)</string>
+        <string>Copyright (c) 2017-2022, Bartosz Taudul (wolf@nereid.pl)</string>
         <key>description</key>
         <string>Tracy Profiler Library</string>
         <key>license</key>
@@ -2569,9 +2569,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>70f31fa71ecb52bd092da52e27c3ff8c</string>
+              <string>9b6e1a1f4b0969d38a1ca8ee00aeb548</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/110561/960415/tracy-v0.7.8.578230-darwin64-578230.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/110584/960613/tracy-v0.8.1.578241-darwin64-578241.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2581,11 +2581,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1dc33422939adf015db85e96c5a8276e</string>
+              <string>9e6975565d7337442259324e68bcf59c</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/110562/960424/tracy-v0.7.8.578230-windows-578230.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/110585/960636/tracy-v0.8.1.578241-windows-578241.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2595,11 +2595,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fcc6ecece2ecb65aa36500dfa9461fb3</string>
+              <string>05b72ae5d733aed7d3bf142287601cc6</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/110563/960429/tracy-v0.7.8.578230-windows64-578230.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/110586/960637/tracy-v0.8.1.578241-windows64-578241.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2610,7 +2610,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>source_type</key>
         <string>git</string>
         <key>version</key>
-        <string>v0.7.8.578230</string>
+        <string>v0.8.1.578241</string>
       </map>
       <key>tut</key>
       <map>

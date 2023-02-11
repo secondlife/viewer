@@ -17,11 +17,12 @@ if (USE_TRACY)
 
   if (DARWIN)
     MESSAGE(STATUS "Including Tracy for Darwin: '${TRACY_INCLUDE_DIR}'")
-    set(TRACY_LIBRARY "tracy")
+    set(TRACY_LIBRARY "TracyClient")
   endif (DARWIN)
 
   if (LINUX)
     MESSAGE(STATUS "Including Tracy for Linux: '${TRACY_INCLUDE_DIR}'")
+    set(TRACY_LIBRARY "TracyClient")
   endif (LINUX)
 else (USE_TRACY)
   # Tracy.cmake should not set LLCOMMON_INCLUDE_DIRS, let LLCommon.cmake do that
