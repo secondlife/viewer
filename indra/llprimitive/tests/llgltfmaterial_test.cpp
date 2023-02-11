@@ -142,7 +142,10 @@ namespace tut
         if (sizeof(void*) > 4) // Don't bother running this test for 32-bit systems
         {
             // If any fields are added/changed, these tests should be updated (consider also updating ASSET_VERSION in LLGLTFMaterial)
+            // This test result will vary between compilers, so only test a single platform
+#if LL_WINDOWS
             ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 216);
+#endif
         }
         ensure_equals("LLGLTFMaterial texture info count", (U32)LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT, 4);
     }
