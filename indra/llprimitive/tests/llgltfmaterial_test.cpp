@@ -253,4 +253,91 @@ namespace tut
             ensure_gltf_material_serialize("material with scaling/tint factors only", factors_only_material);
         }
     }
+
+    // Test that sDefault is a no-op override
+    template<> template<>
+    void llgltfmaterial_object_t::test<7>()
+    {
+        const LLGLTFMaterial material_asset = create_test_material();
+        LLGLTFMaterial render_material = material_asset;
+        render_material.applyOverride(LLGLTFMaterial::sDefault);
+        ensure("LLGLTFMaterial: sDefault is a no-op override", material_asset == render_material);
+    }
+
+    // Test application of transform overrides
+    template<> template<>
+    void llgltfmaterial_object_t::test<8>()
+    {
+        LLGLTFMaterial override_material;
+        apply_test_material_texture_transforms(override_material);
+        LLGLTFMaterial render_material;
+        render_material.applyOverride(override_material);
+        ensure("LLGLTFMaterial: transform overrides", render_material == override_material);
+    }
+
+    // Test application of flag-based overrides
+    template<> template<>
+    void llgltfmaterial_object_t::test<9>()
+    {
+        {
+            LLGLTFMaterial override_material;
+            override_material.setAlphaMode(LLGLTFMaterial::ALPHA_MODE_BLEND, true);
+            override_material.setDoubleSided(true, true);
+
+            LLGLTFMaterial render_material;
+
+            render_material.applyOverride(override_material);
+
+            ensure("LLGLTFMaterial: extra overrides with non-default values applied over default", render_material == override_material);
+        }
+        {
+            LLGLTFMaterial override_material;
+            override_material.setAlphaMode(LLGLTFMaterial::ALPHA_MODE_OPAQUE, true);
+            override_material.setDoubleSided(false, true);
+
+            LLGLTFMaterial render_material;
+            override_material.setAlphaMode(LLGLTFMaterial::ALPHA_MODE_BLEND, false);
+            override_material.setDoubleSided(true, false);
+
+            render_material.applyOverride(override_material);
+            // Not interested in these flags for equality comparison
+            override_material.mOverrideDoubleSided = false;
+            override_material.mOverrideAlphaMode = false;
+
+            ensure("LLGLTFMaterial: extra overrides with default values applied over non-default", render_material == override_material);
+        }
+    }
+
+    // Test application of texture overrides
+    template<> template<>
+    void llgltfmaterial_object_t::test<10>()
+    {
+        const U32 texture_count = 2;
+        const LLUUID override_textures[texture_count] = { LLUUID::null, LLUUID::generateNewID() };
+        const LLUUID asset_textures[texture_count] = { LLUUID::generateNewID(), LLUUID::null };
+        for (U32 i = 0; i < texture_count; ++i)
+        {
+            LLGLTFMaterial override_material;
+            const LLUUID& override_texture = override_textures[i];
+            for (LLGLTFMaterial::TextureInfo j = LLGLTFMaterial::TextureInfo(0); j  < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; j = LLGLTFMaterial::TextureInfo(U32(j) + 1))
+            {
+                override_material.setTextureId(j, override_texture, true);
+            }
+
+            LLGLTFMaterial render_material;
+            const LLUUID& asset_texture = asset_textures[i];
+            for (LLGLTFMaterial::TextureInfo j = LLGLTFMaterial::TextureInfo(0); j  < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; j = LLGLTFMaterial::TextureInfo(U32(j) + 1))
+            {
+                render_material.setTextureId(j, asset_texture, false);
+            }
+
+            render_material.applyOverride(override_material);
+
+            for (LLGLTFMaterial::TextureInfo j = LLGLTFMaterial::TextureInfo(0); j  < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; j = LLGLTFMaterial::TextureInfo(U32(j) + 1))
+            {
+                const LLUUID& render_texture = render_material.mTextureId[j];
+                ensure_equals("LLGLTFMaterial: Override texture ID " + override_texture.asString() + " replaces underlying texture ID " + asset_texture.asString(), render_texture, override_texture);
+            }
+        }
+    }
 }
