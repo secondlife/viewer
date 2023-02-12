@@ -48,23 +48,28 @@
     layout="topleft"
     visible="false">
     <layout_panel  width="120"
-                   height="140">
-      <text >
+                   height="140"
+                   name="xp_layout_panel">
+      <text name="lbl_script">
         Script:
       </text>
-      <text bottom_delta="25">
+      <text bottom_delta="25"
+            name="lbl_associated">
         Associated with:
       </text>
-      <text bottom_delta="25">
+      <text bottom_delta="25"
+            name="lbl_contribute">
         You can contribute:
       </text>
-      <text bottom_delta="25">
+      <text bottom_delta="25"
+            name="lbl_associate">
         Associate with:
       </text>
     </layout_panel>
 
     <layout_panel width="250"
-                  height="140">
+                  height="140"
+                  name="xp_choose_panel">
       <text >
         EasySit Animator 1.2.4
       </text>
