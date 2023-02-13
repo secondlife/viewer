@@ -484,15 +484,13 @@ private:
         // updated. Necessary to prevent controls updating when the mouse is
         // held down.
         void setObjectUpdatePending(const LLUUID &object_id, S32 side);
+        void setDirty() { mChanged = true; };
 
         // Callbacks
         void onSelectionChanged() { mNeedsSelectionCheck = true; }
         void onSelectedObjectUpdated(const LLUUID &object_id, S32 side);
 
     protected:
-        void clearObjectUpdatePending();
-        bool isObjectUpdatePending() { return mPendingSide != -1; }
-
         bool compareSelection();
 
         bool mChanged = false;
