@@ -219,7 +219,7 @@ void main()
 
     fb = applyWaterFogViewLinear(refPos, fb, sunlit);
 #else
-    vec4 fb = applyWaterFogViewLinear(viewVec*1024.0, vec4(0.5), sunlit);
+    vec4 fb = applyWaterFogViewLinear(viewVec*2048.0, vec4(0.5), sunlit);
 #endif
 
     float metallic = 0.0;
