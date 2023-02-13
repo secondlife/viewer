@@ -521,7 +521,9 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     dialog,
                     parent_estate_id,
                     region_id,
-                    position);
+                    position,
+                    false,      // is_region_msg
+                    timestamp);
 
                 if (!gIMMgr->isDNDMessageSend(session_id))
                 {
@@ -592,7 +594,8 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                         parent_estate_id,
                         region_id,
                         position,
-                        region_message);
+                        region_message,
+                        timestamp);
                 }
                 else
                 {
@@ -1111,7 +1114,9 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     IM_SESSION_INVITE,
                     parent_estate_id,
                     region_id,
-                    position);
+                    position,
+                    false,      // is_region_msg
+                    timestamp);
             }
             else
             {
@@ -1131,12 +1136,14 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     from_id,
                     name,
                     buffer,
-                    IM_OFFLINE == offline,
-                    ll_safe_string((char*)binary_bucket),
+                    (IM_OFFLINE == offline),
+                    ll_safe_string((char*)binary_bucket),   // session name
                     IM_SESSION_INVITE,
                     parent_estate_id,
                     region_id,
-                    position);
+                    position,
+                    false,      // is_region_msg
+                    timestamp);
             }
             break;
 
