@@ -87,7 +87,7 @@ public:
 	virtual BOOL removeItem() { return FALSE; }
 	virtual void removeBatch(std::vector<LLFolderViewModelItem*>& batch) { }
 	virtual void move( LLFolderViewModelItem* parent_listener ) { }
-	virtual BOOL isItemCopyable() const { return FALSE; }
+    virtual bool isItemCopyable(bool can_copy_as_link = true) const { return false; }
 	virtual BOOL copyToClipboard() const { return FALSE; }
 	virtual BOOL cutToClipboard() { return FALSE; }
 	virtual BOOL isClipboardPasteable() const { return FALSE; }

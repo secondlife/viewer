@@ -1691,11 +1691,11 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
 	// Can't have links to links, so there's no need for this update
 	// if the item removed is a link. Can also skip if source of the
 	// update is getting broken link info separately.
-	obj = NULL; // delete obj
 	if (fix_broken_links && !is_link_type)
 	{
 		updateLinkedObjectsFromPurge(id);
 	}
+	obj = nullptr; // delete obj
 	if (do_notify_observers)
 	{
 		notifyObservers();
@@ -1851,9 +1851,13 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
             mChangedItemIDs.insert(referent);
         }
 
-        // Fix me: From DD-81, probably shouldn't be here, instead
-        // should be somewhere in an observer
-        update_marketplace_category(referent, false);
+        if (mask != LLInventoryObserver::LABEL)
+        {
+            // Fix me: From DD-81, probably shouldn't be here, instead
+            // should be somewhere in an observer or in
+            // LLMarketplaceInventoryObserver::onIdleProcessQueue
+            update_marketplace_category(referent, false);
+        }
 
         if (mask & LLInventoryObserver::ADD)
         {
@@ -2711,7 +2715,6 @@ void LLInventoryModel::buildParentChildMap()
 			// some accounts has pbroken inventory root folders
 			
 			std::string name = "My Inventory";
-			LLUUID prev_root_id = mRootFolderID;
 			for (parent_cat_map_t::const_iterator it = mParentChildCategoryTree.begin(),
 					 it_end = mParentChildCategoryTree.end(); it != it_end; ++it)
 			{

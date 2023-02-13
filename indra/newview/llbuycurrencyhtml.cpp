@@ -41,7 +41,7 @@ class LLBuyCurrencyHTMLHandler :
 {
 public:
 	// requests will be throttled from a non-trusted browser
-	LLBuyCurrencyHTMLHandler() : LLCommandHandler( "buycurrencyhtml", UNTRUSTED_ALLOW ) {}
+	LLBuyCurrencyHTMLHandler() : LLCommandHandler( "buycurrencyhtml", UNTRUSTED_THROTTLE) {}
 
 	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
 	{

@@ -287,9 +287,9 @@ set(viewer_SOURCE_FILES
     llfloaternotificationsconsole.cpp
     llfloaternotificationstabbed.cpp
     llfloateroutfitphotopreview.cpp 
-    llfloateroutfitsnapshot.cpp
     llfloaterobjectweights.cpp
     llfloateropenobject.cpp
+    llfloatersimpleoutfitsnapshot.cpp
     llfloaterpathfindingcharacters.cpp
     llfloaterpathfindingconsole.cpp
     llfloaterpathfindinglinksets.cpp
@@ -929,9 +929,9 @@ set(viewer_HEADER_FILES
     llfloaternotificationsconsole.h
     llfloaternotificationstabbed.h
     llfloateroutfitphotopreview.h
-    llfloateroutfitsnapshot.h
     llfloaterobjectweights.h
     llfloateropenobject.h
+    llfloatersimpleoutfitsnapshot.h
     llfloaterpathfindingcharacters.h
     llfloaterpathfindingconsole.h
     llfloaterpathfindinglinksets.h
@@ -1825,9 +1825,9 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/Release/libcollada14dom22.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libcollada14dom22.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/libcollada14dom22-d.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/openjpeg.dll
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/openjpeg.dll
-      ${SHARED_LIB_STAGING_DIR}/Debug/openjpegd.dll
+      ${SHARED_LIB_STAGING_DIR}/Release/openjp2.dll
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/openjp2.dll
+      ${SHARED_LIB_STAGING_DIR}/Debug/openjp2.dll
       ${SHARED_LIB_STAGING_DIR}/Release/libhunspell.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libhunspell.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/libhunspell.dll
