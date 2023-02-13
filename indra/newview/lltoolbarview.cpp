@@ -323,15 +323,18 @@ bool LLToolBarView::loadToolbars(bool force_default)
 
     // SL-18581: Don't show the starter avatar toolbar button for NUX users
     LLViewerInventoryCategory* my_outfits_cat = gInventory.getCategory(gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS));
-    if (gAgent.isFirstLogin()
-        && my_outfits_cat != NULL
-        && my_outfits_cat->getDescendentCount() > 0)
+    if (gAgent.isFirstLogin())
     {
-        for (S32 i = LLToolBarEnums::TOOLBAR_FIRST; i <= LLToolBarEnums::TOOLBAR_LAST; i++)
+        LL_WARNS() << "First login: checking for NUX user." << LL_ENDL;
+        if (my_outfits_cat != NULL && my_outfits_cat->getDescendentCount() > 0)
         {
-            if (mToolbars[i])
+            LL_WARNS() << "First login: My Outfits folder is not empty, removing the avatar picker button." << LL_ENDL;
+            for (S32 i = LLToolBarEnums::TOOLBAR_FIRST; i <= LLToolBarEnums::TOOLBAR_LAST; i++)
             {
-                mToolbars[i]->removeCommand(LLCommandId("avatar"));
+                if (mToolbars[i])
+                {
+                    mToolbars[i]->removeCommand(LLCommandId("avatar"));
+                }
             }
         }
     }
