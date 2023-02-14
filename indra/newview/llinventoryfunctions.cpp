@@ -2561,6 +2561,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 
 
 	LLMultiPreview* multi_previewp = NULL;
+	LLMultiItemProperties* multi_itempropertiesp = nullptr;
 
 	if (("task_open" == action  || "open" == action) && selected_items.size() > 1)
 	{
@@ -2594,8 +2595,9 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 	}
 	else if (("task_properties" == action || "properties" == action) && selected_items.size() > 1)
 	{
-        // Isn't supported (previously used LLMultiProperties)
-        LL_WARNS() << "Tried to open properties for multiple items" << LL_ENDL;
+		multi_itempropertiesp = new LLMultiItemProperties("item_properties");
+		gFloaterView->addChild(multi_itempropertiesp);
+		LLFloater::setFloaterHost(multi_itempropertiesp);
 	}
 
 	std::set<LLUUID> selected_uuid_set = LLAvatarActions::getInventorySelectedUUIDs();
@@ -2767,6 +2769,10 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 	if (multi_previewp)
 	{
 		multi_previewp->openFloater(LLSD());
+	}
+	else if (multi_itempropertiesp)
+	{
+		multi_itempropertiesp->openFloater(LLSD());
 	}
 }
 

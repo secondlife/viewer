@@ -45,6 +45,7 @@
 #include "lltabcontainer.h"
 #include "lltextbox.h"
 #include "lltrans.h"
+#include "llviewerwindow.h"
 
 ///----------------------------------------------------------------------------
 /// LLPanelMarketplaceListings
@@ -982,3 +983,18 @@ void LLFloaterItemProperties::onOpen(const LLSD& key)
     }
 }
 
+LLMultiItemProperties::LLMultiItemProperties(const LLSD& key)
+	: LLMultiFloater(LLSD())
+{
+	// start with a small rect in the top-left corner ; will get resized
+	LLRect rect;
+	rect.setLeftTopAndSize(0, gViewerWindow->getWindowHeightScaled(), 350, 350);
+	setRect(rect);
+	LLFloater* last_floater = LLFloaterReg::getLastFloaterInGroup(key.asString());
+	if (last_floater)
+	{
+		stackWith(*last_floater);
+	}
+	setTitle(LLTrans::getString("MultiPropertiesTitle"));
+	buildTabContainer();
+}
