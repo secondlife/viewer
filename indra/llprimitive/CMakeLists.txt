@@ -99,6 +99,8 @@ if (LL_TESTS)
     SET(llprimitive_TEST_SOURCE_FILES
       llmediaentry.cpp
       llprimitive.cpp
+      llgltfmaterial.cpp
       )
+    
     LL_ADD_PROJECT_UNIT_TESTS(llprimitive "${llprimitive_TEST_SOURCE_FILES}")
 endif (LL_TESTS)
