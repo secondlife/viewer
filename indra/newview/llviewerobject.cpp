@@ -6289,6 +6289,11 @@ void LLViewerObject::parameterChanged(U16 param_type, LLNetworkData* data, BOOL 
 {
 	if (local_origin)
 	{
+        // *NOTE: Do not send the render material ID in this way as it will get
+        // out-of-sync with other sent client data.
+        // See LLViewerObject::setRenderMaterialID and LLGLTFMaterialList
+        llassert(param_type != LLNetworkData::PARAMS_RENDER_MATERIAL);
+
 		LLViewerRegion* regionp = getRegion();
 		if(!regionp) return;
 
@@ -7245,6 +7250,15 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
         });
     }
 
+    // predictively update LLRenderMaterialParams (don't wait for server)
+    if (param_block)
+    { // update existing parameter block
+        for (S32 te = start_idx; te < end_idx; ++te)
+        {
+            param_block->setMaterial(te, id);
+        }
+    }
+
     if (update_server)
     {
         // update via ModifyMaterialParams cap (server will echo back changes)
@@ -7254,27 +7268,6 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
             // override, but the override should already be cleared due to
             // calling setBaseMaterial above.
             LLGLTFMaterialList::queueApply(this, te, id);
-        }
-    }
-
-    // predictively update LLRenderMaterialParams (don't wait for server)
-    if (param_block)
-    { // update existing parameter block
-        for (S32 te = start_idx; te < end_idx; ++te)
-        {
-            param_block->setMaterial(te, id);
-        }
-
-        if (update_server)
-        {
-            // If 'in use' changes, it will send an update itself.
-            bool in_use_changed = setParameterEntryInUse(LLNetworkData::PARAMS_RENDER_MATERIAL, !param_block->isEmpty(), true);
-
-            if (!in_use_changed)
-            {
-                // In use didn't change, but the parameter did, send an update
-                parameterChanged(LLNetworkData::PARAMS_RENDER_MATERIAL, param_block, !param_block->isEmpty(), true);
-            }
         }
     }
 }

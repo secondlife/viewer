@@ -1941,12 +1941,6 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
                 asset_id = mItem->getAssetUUID();
             }
 
-            if (asset_id.notNull() && !objectp->hasRenderMaterialParams())
-            {
-                // make sure param section exists
-                objectp->setParameterEntryInUse(LLNetworkData::PARAMS_RENDER_MATERIAL, TRUE, false /*prevent an update*/);
-            }
-
             // Blank out most override data on the object and send to server
             objectp->setRenderMaterialID(te, asset_id);
 
@@ -1973,25 +1967,6 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
             if (object && !object->permModify())
             {
                 return false;
-            }
-
-            LLRenderMaterialParams* param_block = (LLRenderMaterialParams*)object->getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
-            if (param_block)
-            {
-                // To not cause multiple competing request that modify
-                // same param field send update only once per object
-                if (param_block->isEmpty())
-                {
-                    object->setHasRenderMaterialParams(false);
-                }
-                else if (object->hasRenderMaterialParams())
-                {
-                    object->parameterChanged(LLNetworkData::PARAMS_RENDER_MATERIAL, true);
-                }
-                else
-                {
-                    object->setHasRenderMaterialParams(true);
-                }
             }
 
             if (!mItem)
@@ -2209,14 +2184,13 @@ void LLSelectMgr::selectionRevertGLTFMaterials()
             {
                 // Restore base material
                 LLUUID asset_id = nodep->mSavedGLTFMaterialIds[te];
-                objectp->setRenderMaterialID(te, asset_id, false /*wait for bulk update*/);
 
+                // Update material locally
+                objectp->setRenderMaterialID(te, asset_id, false /*wait for LLGLTFMaterialList update*/);
+                objectp->setTEGLTFMaterialOverride(te, nodep->mSavedGLTFOverrideMaterials[te]);
 
-                // todo: make sure this does not cause race condition with setRenderMaterialID
-                // when we are reverting from null id to non null plus override
-                if (te < (S32)nodep->mSavedGLTFOverrideMaterials.size()
-                    && nodep->mSavedGLTFOverrideMaterials[te].notNull()
-                    && asset_id.notNull())
+                // Enqueue update to server
+                if (asset_id.notNull())
                 {
                     // Restore overrides
                     LLGLTFMaterialList::queueModify(objectp, te, nodep->mSavedGLTFOverrideMaterials[te]);
@@ -2232,38 +2206,6 @@ void LLSelectMgr::selectionRevertGLTFMaterials()
         }
     } setfunc(mSelectedObjects);
     getSelection()->applyToTEs(&setfunc);
-
-    struct g : public LLSelectedObjectFunctor
-    {
-        virtual bool apply(LLViewerObject* object)
-        {
-            if (object && !object->permModify())
-            {
-                return false;
-            }
-
-            LLRenderMaterialParams* param_block = (LLRenderMaterialParams*)object->getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
-            if (param_block)
-            {
-                if (param_block->isEmpty())
-                {
-                    object->setHasRenderMaterialParams(false);
-                }
-                else if (object->hasRenderMaterialParams())
-                {
-                    object->parameterChanged(LLNetworkData::PARAMS_RENDER_MATERIAL, true);
-                }
-                else
-                {
-                    object->setHasRenderMaterialParams(true);
-                }
-            }
-
-            object->sendTEUpdate();
-            return true;
-        }
-    } sendfunc;
-    getSelection()->applyToObjects(&sendfunc);
 }
 
 void LLSelectMgr::selectionSetBumpmap(U8 bumpmap, const LLUUID &image_id)
