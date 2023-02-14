@@ -1979,18 +1979,7 @@ LLTextBase::segment_set_t::const_iterator LLTextBase::getEditableSegIterContaini
 
 LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
 {
-
 	static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
-
-	S32 text_len = 0;
-	if (!useLabel())
-	{
-		text_len = getLength();
-	}
-	else
-	{
-		text_len = mLabel.getWString().length();
-	}
 
 	if (index > text_len) { return mSegments.end(); }
 
@@ -2006,16 +1995,6 @@ LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
 LLTextBase::segment_set_t::const_iterator LLTextBase::getSegIterContaining(S32 index) const
 {
 	static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
-
-	S32 text_len = 0;
-	if (!useLabel())
-	{
-		text_len = getLength();
-	}
-	else
-	{
-		text_len = mLabel.getWString().length();
-	}
 
 	if (index > text_len) { return mSegments.end(); }
 
