@@ -327,7 +327,7 @@ public:
 	S32  getLightCount() const { return mLights.size(); }
 
 	void calcNearbyLights(LLCamera& camera);
-	void setupHWLights(LLDrawPool* pool);
+	void setupHWLights();
 	void setupAvatarLights(bool for_edit = false);
 	void enableLights(U32 mask);
 	void enableLightsStatic();

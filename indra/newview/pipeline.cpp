@@ -2272,7 +2272,6 @@ bool LLPipeline::getVisibleExtents(LLCamera& camera, LLVector3& min, LLVector3& 
 	}
 
 	LLViewerCamera::sCurCameraID = saved_camera_id;
-
 	return res;
 }
 
@@ -3956,7 +3955,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 
     bool occlude = LLPipeline::sUseOcclusion > 1 && do_occlusion;
 
-    setupHWLights(nullptr);
+    setupHWLights();
 
 	{
 		LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred pools");
@@ -4083,7 +4082,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 	LLGLEnable multisample(RenderFSAASamples > 0 ? GL_MULTISAMPLE : 0);
 
 	calcNearbyLights(camera);
-	setupHWLights(NULL);
+	setupHWLights();
 
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	gGL.setColorMask(true, false);
@@ -5452,7 +5451,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 	assertInitialized();
 
-	if (LLPipeline::sReflectionRender || gCubeSnapshot)
+	if (LLPipeline::sReflectionRender || gCubeSnapshot || LLPipeline::sRenderingHUDs)
 	{
 		return;
 	}
@@ -5633,11 +5632,16 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 	}
 }
 
-void LLPipeline::setupHWLights(LLDrawPool* pool)
+void LLPipeline::setupHWLights()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 	assertInitialized();
 	
+    if (LLPipeline::sRenderingHUDs)
+    {
+        return;
+    }
+
     LLEnvironment& environment = LLEnvironment::instance();
     LLSettingsSky::ptr_t psky = environment.getCurrentSky();
 
@@ -8029,7 +8033,7 @@ void LLPipeline::renderDeferredLighting()
 
         glh::matrix4f mat = copy_matrix(gGLModelView);
 
-        setupHWLights(NULL);  // to set mSun/MoonDir;
+        setupHWLights();  // to set mSun/MoonDir;
 
         glh::vec4f tc(mSunDir.mV);
         mat.mult_matrix_vec(tc);
@@ -9236,6 +9240,24 @@ LLRenderTarget* LLPipeline::getSpotShadowTarget(U32 i)
 static LLTrace::BlockTimerStatHandle FTM_GEN_SUN_SHADOW("Gen Sun Shadow");
 static LLTrace::BlockTimerStatHandle FTM_GEN_SUN_SHADOW_SPOT_RENDER("Spot Shadow Render");
 
+// helper class for disabling occlusion culling for the current stack frame
+class LLDisableOcclusionCulling
+{
+public:
+    S32 mUseOcclusion;
+
+    LLDisableOcclusionCulling()
+    {
+        mUseOcclusion = LLPipeline::sUseOcclusion;
+        LLPipeline::sUseOcclusion = 0;
+    }
+
+    ~LLDisableOcclusionCulling()
+    {
+        LLPipeline::sUseOcclusion = mUseOcclusion;
+    }
+};
+
 void LLPipeline::generateSunShadow(LLCamera& camera)
 {
 	if (!sRenderDeferred || RenderShadowDetail <= 0)
@@ -9245,6 +9267,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE; //LL_RECORD_BLOCK_TIME(FTM_GEN_SUN_SHADOW);
     LL_PROFILE_GPU_ZONE("generateSunShadow");
+
+    LLDisableOcclusionCulling no_occlusion;
 
 	bool skip_avatar_update = false;
 	if (!isAgentAvatarValid() || gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK || !LLVOAvatar::sVisibleInFirstPerson)
@@ -9479,7 +9503,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	F32 dist[] = { near_clip, mSunClipPlanes.mV[0], mSunClipPlanes.mV[1], mSunClipPlanes.mV[2], mSunClipPlanes.mV[3] };
 	
 	if (mSunDiffuse == LLColor4::black)
-	{ //sun diffuse is totally shadows don't matter
+	{ //sun diffuse is totally black shadows don't matter
 		LLGLDepthTest depth(GL_TRUE);
 
 		for (S32 j = 0; j < 4; j++)
@@ -9988,8 +10012,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                 shadow_cam.setOrigin(origin);
 
                 LLViewerCamera::updateFrustumPlanes(shadow_cam, FALSE, FALSE, TRUE);
-
-                stop_glerror();
 
                 //
                 

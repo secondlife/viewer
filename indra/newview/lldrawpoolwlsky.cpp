@@ -416,10 +416,13 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 void LLDrawPoolWLSky::renderDeferred(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_WL_SKY);
-	if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))
+	if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY) || gSky.mVOSkyp.isNull())
 	{
 		return;
 	}
+
+    // TODO: remove gSky.mVOSkyp and fold sun/moon into LLVOWLSky
+    gSky.mVOSkyp->updateGeometry(gSky.mVOSkyp->mDrawable);
 
     const F32 camHeightLocal = LLEnvironment::instance().getCamHeight();
 

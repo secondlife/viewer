@@ -1633,8 +1633,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSunProgram.mFeatures.hasShadows    = true;
         gDeferredSunProgram.mFeatures.hasAmbientOcclusion = use_ao;
 
-        gDeferredSunProgram.mName = "Deferred Sun Shader";
-		gDeferredSunProgram.mShaderFiles.clear();
+        gDeferredSunProgram.mShaderFiles.clear();
 		gDeferredSunProgram.mShaderFiles.push_back(make_pair(vertex, GL_VERTEX_SHADER));
 		gDeferredSunProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER));
 		gDeferredSunProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
