@@ -44,6 +44,7 @@
 #include "lltimer.h"
 #include "llthread.h"
 #include "llmutex.h"
+#include "llmd5.h"
 #include "hbxxh.h"
 
 const LLUUID LLUUID::null;
@@ -400,11 +401,16 @@ LLUUID LLUUID::operator^(const LLUUID& rhs) const
 	return id;
 }
 
+// WARNING: this algorithm SHALL NOT be changed. It is also used by the server
+// and plays a role in some assets validation (e.g. clothing items). Changing
+// it would cause invalid assets.
 void LLUUID::combine(const LLUUID& other, LLUUID& result) const
 {
-	HBXXH128 hash((const void*)mData, 16, false);	// false = do not finalize
-	hash.update((const void*)other.mData, 16);
-	hash.digest(result);
+	LLMD5 md5_uuid;
+	md5_uuid.update((unsigned char*)mData, 16);
+	md5_uuid.update((unsigned char*)other.mData, 16);
+	md5_uuid.finalize();
+	md5_uuid.raw_digest(result.mData);
 }
 
 LLUUID LLUUID::combine(const LLUUID &other) const
