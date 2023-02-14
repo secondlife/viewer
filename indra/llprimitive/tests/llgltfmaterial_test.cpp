@@ -339,4 +339,31 @@ namespace tut
             }
         }
     }
+
+    // Test non-persistence of default value flags in overrides
+    template<> template<>
+    void llgltfmaterial_object_t::test<11>()
+    {
+        const S32 non_default_alpha_modes[] = { LLGLTFMaterial::ALPHA_MODE_BLEND, LLGLTFMaterial::ALPHA_MODE_MASK };
+        for (S32 non_default_alpha_mode : non_default_alpha_modes)
+        {
+            LLGLTFMaterial material;
+            // Set default alpha mode
+            material.setAlphaMode(LLGLTFMaterial::ALPHA_MODE_OPAQUE, true);
+            ensure_equals("LLGLTFMaterial: alpha mode override flag set", material.mOverrideAlphaMode, true);
+            // Set non-default alpha mode
+            material.setAlphaMode(non_default_alpha_mode, true);
+            ensure_equals("LLGLTFMaterial: alpha mode override flag unset", material.mOverrideAlphaMode, false);
+        }
+
+        {
+            // Set default double sided
+            LLGLTFMaterial material;
+            material.setDoubleSided(false, true);
+            ensure_equals("LLGLTFMaterial: double sided override flag set", material.mOverrideDoubleSided, true);
+            // Set non-default double sided
+            material.setDoubleSided(true, true);
+            ensure_equals("LLGLTFMaterial: double sided override flag unset", material.mOverrideDoubleSided, false);
+        }
+    }
 }
