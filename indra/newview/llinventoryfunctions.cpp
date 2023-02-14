@@ -49,6 +49,7 @@
 #include "llclipboard.h"
 #include "lldirpicker.h"
 #include "lldonotdisturbnotificationstorage.h"
+#include "llfloatermarketplacelistings.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfocusmgr.h"
 #include "llfolderview.h"
