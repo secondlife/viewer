@@ -6681,7 +6681,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				{ //100% transparent, don't render unless we're highlighting transparent
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA_INVISIBLE);
 				}
-				else if (facep->canRenderAsMask())
+				else if (facep->canRenderAsMask() && !hud_group)
 				{
 					if (te->getFullbright() || LLPipeline::sNoAlpha)
 					{
