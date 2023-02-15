@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_resize="false"
+ height="366"
+ layout="topleft"
+ name="change_item_thumbnail"
+ help_topic="change_item_thumbnail"
+ title="CHANGE ITEM IMAGE"
+ width="320">
+  <icon
+    follows="top|left"
+    height="16"
+    image_name="Inv_Object"
+    layout="topleft"
+    left="5"
+    mouse_opaque="true"
+    name="item_type_icon"
+    top="5"
+    width="16" />
+  <line_editor
+    border_style="line"
+    border_thickness="1"
+    follows="left|top|right"
+    font="SansSerif"
+    height="19"
+    layout="topleft"
+    top_delta="-2"
+    left_pad="5"
+    max_length_bytes="127"
+    name="item_name"
+    width="286" />
+
+  <thumbnail
+    name="item_thumbnail"
+    follows="top|left"
+    layout="topleft"
+    left="31"
+    top_pad="9"
+    height="256"
+    width="256"
+        />
+
+  <button
+    follows="right|bottom"
+    height="32"
+    label="A"
+    layout="topleft"
+    left="37"
+    name="upload_local"
+    top_pad="9"
+    width="32" />
+  
+  <button
+    follows="right|bottom"
+    height="32"
+    label="B"
+    layout="topleft"
+    left_pad="10"
+    name="upload_snapshot"
+    top_delta="0"
+    width="32" />
+
+  <button
+    follows="right|bottom"
+    height="32"
+    label="C"
+    layout="topleft"
+    left_pad="10"
+    name="use_texture"
+    top_delta="0"
+    width="32" />
+
+  <button
+    follows="right|bottom"
+    height="32"
+    label="D"
+    layout="topleft"
+    left_pad="10"
+    name="to_clipboard"
+    top_delta="0"
+    width="32" />
+
+  <button
+    follows="right|bottom"
+    height="32"
+    label="E"
+    layout="topleft"
+    left_pad="10"
+    name="from_clipboard"
+    top_delta="0"
+    width="32" />
+
+  <button
+    follows="right|bottom"
+    height="32"
+    label="F"
+    layout="topleft"
+    left_pad="10"
+    name="remove"
+    top_delta="0"
+    width="32" />
+
+  <text
+    type="string"
+    halign="center"
+    length="1"
+    follows="left|top"
+    height="17"
+    layout="topleft"
+    left="5"
+    right="-5"
+    name="LabelOwnerTitle"
+    top_pad="12"
+    width="78">
+    tooltip
+  </text>
+  
+</floater>

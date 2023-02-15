@@ -619,6 +619,14 @@
          parameter="rename" />
     </menu_item_call>
     <menu_item_call
+     label="Image..."
+     layout="topleft"
+     name="thumbnail">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="thumbnail" />
+    </menu_item_call>
+    <menu_item_call
      label="Copy Asset UUID"
      layout="topleft"
      name="Copy Asset UUID">

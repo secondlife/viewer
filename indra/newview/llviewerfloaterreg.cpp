@@ -56,6 +56,7 @@
 #include "llfloaterbvhpreview.h"
 #include "llfloatercamera.h"
 #include "llfloatercamerapresets.h"
+#include "llfloaterchangeitemthumbnail.h"
 #include "llfloaterchatvoicevolume.h"
 #include "llfloaterclassified.h"
 #include "llfloaterconversationlog.h"
@@ -327,6 +328,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("camera", "floater_camera.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCamera>);
 	LLFloaterReg::add("camera_presets", "floater_camera_presets.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCameraPresets>);
 	LLFloaterReg::add("chat_voice", "floater_voice_chat_volume.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterChatVoiceVolume>);
+    LLFloaterReg::add("change_item_thumbnail", "floater_change_item_thumbnail.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterChangeItemThumbnail>);
 	LLFloaterReg::add("nearby_chat", "floater_im_session.xml", (LLFloaterBuildFunc)&LLFloaterIMNearbyChat::buildFloater);
     LLFloaterReg::add("classified", "floater_classified.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterClassified>);
 	LLFloaterReg::add("compile_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCompileQueue>);
