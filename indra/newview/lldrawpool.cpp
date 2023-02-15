@@ -648,11 +648,6 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, bool texture, bool batch_textur
 		}
 	}
 	
-    //if (params.mGroup) // TOO LATE!
-    //{
-    //    params.mGroup->rebuildMesh();
-    //}
-
     params.mVertexBuffer->setBuffer();
     params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 

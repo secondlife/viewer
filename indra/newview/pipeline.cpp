@@ -8572,10 +8572,13 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
 		shader.uniform1f(LLShaderMgr::PROJECTOR_SHADOW_FADE, 1.f);
 	}
 
-    //if (!gCubeSnapshot)
+    // make sure we're not already targeting the same spot light with both shadow maps
+    llassert(mTargetShadowSpotLight[0] != mTargetShadowSpotLight[1] || mTargetShadowSpotLight[0].isNull());
+
+    if (!gCubeSnapshot)
 	{
 		LLDrawable* potential = drawablep;
-		//determine if this is a good light for casting shadows
+		//determine if this light is higher priority than one of the existing spot shadows
 		F32 m_pri = volume->getSpotLightPriority();
 
 		for (U32 i = 0; i < 2; i++)
@@ -8584,7 +8587,7 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
 
 			if (mTargetShadowSpotLight[i].notNull())
 			{
-				pri = mTargetShadowSpotLight[i]->getVOVolume()->getSpotLightPriority();			
+				pri = mTargetShadowSpotLight[i]->getVOVolume()->getSpotLightPriority();
 			}
 
 			if (m_pri > pri)
@@ -8596,6 +8599,9 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
 			}
 		}
 	}
+
+    // make sure we didn't end up targeting the same spot light with both shadow maps
+    llassert(mTargetShadowSpotLight[0] != mTargetShadowSpotLight[1] || mTargetShadowSpotLight[0].isNull());
 
 	LLViewerTexture* img = volume->getLightTexture();
 
@@ -9898,6 +9904,9 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
             F32 fade_amt = gFrameIntervalSeconds.value()
                 * llmax(LLTrace::get_frame_recording().getLastRecording().getSum(*velocity_stat) / LLTrace::get_frame_recording().getLastRecording().getDuration().value(), 1.0);
 
+            // should never happen
+            llassert(mTargetShadowSpotLight[0] != mTargetShadowSpotLight[1] || mTargetShadowSpotLight[0].isNull());
+
             //update shadow targets
             for (U32 i = 0; i < 2; i++)
             { //for each current shadow
@@ -9927,6 +9936,9 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                 }
             }
         }
+
+        // this should never happen
+        llassert(mShadowSpotLight[0] != mShadowSpotLight[1] || mShadowSpotLight[0].isNull());
 
         for (S32 i = 0; i < 2; i++)
         {
