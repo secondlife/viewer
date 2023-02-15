@@ -93,7 +93,11 @@ private:
 
 		bool operator==(const TEMaterialPair& b) const { return (materialID == b.materialID) && (te == b.te); }
 	};
-	
+
+	// definitions follow class
+	friend std::hash<TEMaterialPair>;
+	friend size_t hash_value(const TEMaterialPair&) noexcept;
+
 	friend inline bool operator<(
 		const LLMaterialMgr::TEMaterialPair& lhs,
 		const LLMaterialMgr::TEMaterialPair& rhs)
