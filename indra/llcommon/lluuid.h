@@ -191,4 +191,4 @@ inline size_t hash_value(const LLUUID& id) noexcept
 	return (size_t)id.getDigest64();
 }
 
-#endif
+#endif // LL_LLUUID_H

@@ -39,6 +39,7 @@
 #include "llinventorydefines.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
+#include "llmd5.h"
 #include "llnotificationsutil.h"
 #include "llmd5.h"
 #include "llresmgr.h"

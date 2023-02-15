@@ -41,6 +41,7 @@
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
+#include "llmd5.h"
 #include "llnotificationsutil.h"
 #include "llmd5.h"
 #include "lloutfitobserver.h"
