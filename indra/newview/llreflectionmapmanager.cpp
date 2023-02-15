@@ -802,6 +802,8 @@ void LLReflectionMapManager::updateUniforms()
             if (refmap->mViewerObject)
             { // have active manual probes live-track the object they're associated with
                 refmap->mOrigin.load3(refmap->mViewerObject->getPositionAgent().mV);
+                refmap->mRadius = refmap->mViewerObject->getScale().mV[0] * 0.5f;
+
             }
             modelview.affineTransform(refmap->mOrigin, oa);
             rpd.refSphere[count].set(oa.getF32ptr());

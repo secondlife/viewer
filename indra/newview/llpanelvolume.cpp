@@ -755,6 +755,7 @@ void LLPanelVolume::sendIsReflectionProbe()
     if (value && !old_value)
     { // has become a reflection probe, slam to a 10m sphere and pop up a message
         // warning people about the pitfalls of reflection probes
+#if 0
         auto* select_mgr = LLSelectMgr::getInstance();
 
         mObject->setScale(LLVector3(10.f, 10.f, 10.f));
@@ -768,6 +769,7 @@ void LLPanelVolume::sendIsReflectionProbe()
         params.getPathParams().setCurveType(LL_PCODE_PATH_CIRCLE);
         params.getProfileParams().setCurveType(LL_PCODE_PROFILE_CIRCLE_HALF);
         mObject->updateVolume(params);
+#endif
 
         LLNotificationsUtil::add("ReflectionProbeApplied");
     }
@@ -1343,6 +1345,12 @@ void LLPanelVolume::onCommitProbe(LLUICtrl* ctrl, void* userdata)
     if (volobjp->setReflectionProbeIsBox(is_box))
     {
         // make the volume match the probe
+        auto* select_mgr = LLSelectMgr::getInstance();
+
+        select_mgr->selectionUpdatePhantom(true);
+        select_mgr->selectionSetGLTFMaterial(LLUUID::null);
+        select_mgr->selectionSetAlphaOnly(0.f);
+
         U8 profile, path;
 
         if (!is_box)

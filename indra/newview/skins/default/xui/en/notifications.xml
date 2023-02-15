@@ -12041,7 +12041,7 @@ Material successfully created.  Asset ID: [ASSET_ID]
     name="ReflectionProbeApplied"
     persist="true"
     type="alertmodal">
-    Your object has been set to the default Reflection Probe state, which is an invisible, phantom, 5m sphere.  To learn more about Reflection Probes and how to use them, see the Knowledge Base.
+    WARNING: You have made your object a Refelction Probe.  Continuing to manipulate the object while it is a probe will implicitly change the object to mimic its influence volume and will make irreversible changes to the object.  If you don't know what a reflection probe is, uncheck "Reflection Probe" immediately.  To learn more about Reflection Probes and how to use them, see https://wiki.secondlife.com/wiki/PBR_Materials#Understanding_and_Assisting_the_New_Reflections_System.
     <usetemplate ignoretext="Reflection Probe tips"
                  name="okignore"
                  yestext="OK"/>
