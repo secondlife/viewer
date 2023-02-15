@@ -82,7 +82,7 @@ private:
 	void onPutResponse(bool success, const LLSD& content);
 	void onRegionRemoved(LLViewerRegion* regionp);
 
-private:
+public:
 	// struct for TE-specific material ID query
 	class TEMaterialPair
 	{
@@ -93,7 +93,8 @@ private:
 
 		bool operator==(const TEMaterialPair& b) const { return (materialID == b.materialID) && (te == b.te); }
 	};
-	
+
+private:
 	friend inline bool operator<(
 		const LLMaterialMgr::TEMaterialPair& lhs,
 		const LLMaterialMgr::TEMaterialPair& rhs)

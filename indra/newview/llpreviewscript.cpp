@@ -40,6 +40,7 @@
 #include "llinventorymodel.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
+#include "llmd5.h"
 #include "llhelp.h"
 #include "llnotificationsutil.h"
 #include "llresmgr.h"
