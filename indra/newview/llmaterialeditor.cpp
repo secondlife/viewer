@@ -277,10 +277,10 @@ bool LLSelectedTEGetMatData::apply(LLViewerObject* objectp, S32 te_index)
             llassert(mat.notNull()); // by this point shouldn't be null
             if (mat.notNull())
             {
-                tex_color_id = mat->mBaseColorId;
-                tex_metal_id = mat->mMetallicRoughnessId;
-                tex_emissive_id = mat->mEmissiveId;
-                tex_normal_id = mat->mNormalId;
+                tex_color_id = mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR];
+                tex_metal_id = mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS];
+                tex_emissive_id = mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE];
+                tex_normal_id = mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL];
             }
             if (mFirst)
             {
@@ -949,7 +949,7 @@ void LLMaterialEditor::onSelectCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_
                     }
                     case MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY:
                     {
-                        nodep->mSavedGLTFOverrideMaterials[te]->setMetallicRoughnessId(mCtrl->getValue().asUUID(), true);
+                        nodep->mSavedGLTFOverrideMaterials[te]->setOcclusionRoughnessMetallicId(mCtrl->getValue().asUUID(), true);
                         break;
                     }
                     case MATERIAL_EMISIVE_TEX_DIRTY:
@@ -991,30 +991,6 @@ void LLMaterialEditor::onSelectCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_
     LLSelectMgr::getInstance()->getSelection()->applyToNodes(&func);
 }
 
-static void write_color(const LLColor4& color, std::vector<double>& c)
-{
-    for (int i = 0; i < c.size(); ++i) // NOTE -- use c.size because some gltf colors are 3-component
-    {
-        c[i] = color.mV[i];
-    }
-}
-
-static U32 write_texture(const LLUUID& id, tinygltf::Model& model)
-{
-    tinygltf::Image image;
-    image.uri = id.asString();
-    model.images.push_back(image);
-    U32 image_idx = model.images.size() - 1;
-
-    tinygltf::Texture texture;
-    texture.source = image_idx;
-    model.textures.push_back(texture);
-    U32 texture_idx = model.textures.size() - 1;
-
-    return texture_idx;
-}
-
-
 void LLMaterialEditor::onClickSave()
 {
     if (!capabilitiesAvailable())
@@ -1034,109 +1010,14 @@ void LLMaterialEditor::onClickSave()
     saveIfNeeded();
 }
 
-
-std::string LLMaterialEditor::getGLTFJson(bool prettyprint)
-{
-    tinygltf::Model model;
-    getGLTFModel(model);
-
-    std::ostringstream str;
-
-    tinygltf::TinyGLTF gltf;
-    
-    gltf.WriteGltfSceneToStream(&model, str, prettyprint, false);
-
-    std::string dump = str.str();
-
-    return dump;
-}
-
-void LLMaterialEditor::getGLBData(std::vector<U8>& data)
-{
-    tinygltf::Model model;
-    getGLTFModel(model);
-
-    std::ostringstream str;
-
-    tinygltf::TinyGLTF gltf;
-
-    gltf.WriteGltfSceneToStream(&model, str, false, true);
-
-    std::string dump = str.str();
-
-    data.resize(dump.length());
-
-    memcpy(&data[0], dump.c_str(), dump.length());
-}
-
-void LLMaterialEditor::getGLTFModel(tinygltf::Model& model)
-{
-    model.materials.resize(1);
-    tinygltf::PbrMetallicRoughness& pbrMaterial = model.materials[0].pbrMetallicRoughness;
-
-    // write base color
-    LLColor4 base_color = getBaseColor();
-    base_color.mV[3] = getTransparency();
-    write_color(base_color, pbrMaterial.baseColorFactor);
-
-    model.materials[0].alphaCutoff = getAlphaCutoff();
-    model.materials[0].alphaMode = getAlphaMode();
-
-    LLUUID base_color_id = getBaseColorId();
-
-    if (base_color_id.notNull())
-    {
-        U32 texture_idx = write_texture(base_color_id, model);
-
-        pbrMaterial.baseColorTexture.index = texture_idx;
-    }
-
-    // write metallic/roughness
-    F32 metalness = getMetalnessFactor();
-    F32 roughness = getRoughnessFactor();
-
-    pbrMaterial.metallicFactor = metalness;
-    pbrMaterial.roughnessFactor = roughness;
-
-    LLUUID mr_id = getMetallicRoughnessId();
-    if (mr_id.notNull())
-    {
-        U32 texture_idx = write_texture(mr_id, model);
-        pbrMaterial.metallicRoughnessTexture.index = texture_idx;
-    }
-
-    //write emissive
-    LLColor4 emissive_color = getEmissiveColor();
-    model.materials[0].emissiveFactor.resize(3);
-    write_color(emissive_color, model.materials[0].emissiveFactor);
-
-    LLUUID emissive_id = getEmissiveId();
-    if (emissive_id.notNull())
-    {
-        U32 idx = write_texture(emissive_id, model);
-        model.materials[0].emissiveTexture.index = idx;
-    }
-
-    //write normal
-    LLUUID normal_id = getNormalId();
-    if (normal_id.notNull())
-    {
-        U32 idx = write_texture(normal_id, model);
-        model.materials[0].normalTexture.index = idx;
-    }
-
-    //write doublesided
-    model.materials[0].doubleSided = getDoubleSided();
-
-    model.asset.version = "2.0";
-}
-
 std::string LLMaterialEditor::getEncodedAsset()
 {
     LLSD asset;
-    asset["version"] = "1.0";
-    asset["type"] = "GLTF 2.0";
-    asset["data"] = getGLTFJson(false);
+    asset["version"] = LLGLTFMaterial::ASSET_VERSION;
+    asset["type"] = LLGLTFMaterial::ASSET_TYPE;
+    LLGLTFMaterial mat;
+    getGLTFMaterial(&mat);
+    asset["data"] = mat.asJSON();
 
     std::ostringstream str;
     LLSDSerialize::serialize(asset, str, LLSDSerialize::LLSD_BINARY);
@@ -1151,9 +1032,9 @@ bool LLMaterialEditor::decodeAsset(const std::vector<char>& buffer)
     std::istrstream str(&buffer[0], buffer.size());
     if (LLSDSerialize::deserialize(asset, str, buffer.size()))
     {
-        if (asset.has("version") && asset["version"] == "1.0")
+        if (asset.has("version") && LLGLTFMaterial::isAcceptedVersion(asset["version"].asString()))
         {
-            if (asset.has("type") && asset["type"] == "GLTF 2.0")
+            if (asset.has("type") && asset["type"] == LLGLTFMaterial::ASSET_TYPE)
             {
                 if (asset.has("data") && asset["data"].isString())
                 {
@@ -1169,6 +1050,12 @@ bool LLMaterialEditor::decodeAsset(const std::vector<char>& buffer)
                     if (loader.LoadASCIIFromString(&model_in, &error_msg, &warn_msg, data.c_str(), data.length(), ""))
                     {
                         // assets are only supposed to have one item
+                        // *NOTE: This duplicates some functionality from
+                        // LLGLTFMaterial::fromJSON, but currently does the job
+                        // better for the material editor use case.
+                        // However, LLGLTFMaterial::asJSON should always be
+                        // used when uploading materials, to ensure the
+                        // asset is valid.
                         return setFromGltfModel(model_in, 0, true);
                     }
                     else
@@ -1975,7 +1862,9 @@ void LLMaterialEditor::saveMaterialAs(const LLGLTFMaterial* render_material, con
         {
             // don't use override material here, it has 'hacked ids'
             // and values, use end result, apply it on top of local.
-            me->setBaseColor(render_material->mBaseColor);
+            const LLColor4& base_color = render_material->mBaseColor;
+            me->setBaseColor(LLColor3(base_color));
+            me->setTransparency(base_color[VW]);
             me->setMetalnessFactor(render_material->mMetallicFactor);
             me->setRoughnessFactor(render_material->mRoughnessFactor);
             me->setEmissiveColor(render_material->mEmissiveColor);
@@ -1986,24 +1875,24 @@ void LLMaterialEditor::saveMaterialAs(const LLGLTFMaterial* render_material, con
             // most things like colors we can apply without verifying
             // but texture ids are going to be different from both, base and override
             // so only apply override id if there is actually a difference
-            if (local_material->mBaseColorId != render_material->mBaseColorId)
+            if (local_material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR] != render_material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR])
             {
-                me->setBaseColorId(render_material->mBaseColorId);
+                me->setBaseColorId(render_material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR]);
                 me->childSetValue("base_color_upload_fee", me->getString("no_upload_fee_string"));
             }
-            if (local_material->mNormalId != render_material->mNormalId)
+            if (local_material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL] != render_material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL])
             {
-                me->setNormalId(render_material->mNormalId);
+                me->setNormalId(render_material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL]);
                 me->childSetValue("normal_upload_fee", me->getString("no_upload_fee_string"));
             }
-            if (local_material->mMetallicRoughnessId != render_material->mMetallicRoughnessId)
+            if (local_material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS] != render_material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS])
             {
-                me->setMetallicRoughnessId(render_material->mMetallicRoughnessId);
+                me->setMetallicRoughnessId(render_material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS]);
                 me->childSetValue("metallic_upload_fee", me->getString("no_upload_fee_string"));
             }
-            if (local_material->mEmissiveId != render_material->mEmissiveId)
+            if (local_material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE] != render_material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE])
             {
-                me->setEmissiveId(render_material->mEmissiveId);
+                me->setEmissiveId(render_material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
                 me->childSetValue("emissive_upload_fee", me->getString("no_upload_fee_string"));
             }
 
@@ -2017,7 +1906,11 @@ void LLMaterialEditor::saveMaterialAs(const LLGLTFMaterial* render_material, con
     LLSD payload;
     if (render_material)
     {
-        payload["data"] = render_material->asJSON();
+        // Make a copy of the render material with unsupported transforms removed
+        LLGLTFMaterial asset_material = *render_material;
+        asset_material.sanitizeAssetMaterial();
+        // Serialize the sanitized render material
+        payload["data"] = asset_material.asJSON();
     }
     else
     {
@@ -2040,8 +1933,9 @@ void LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback(const LLSD& notificati
     if (0 == option)
     {
         LLSD asset;
-        asset["version"] = "1.0";
-        asset["type"] = "GLTF 2.0";
+        asset["version"] = LLGLTFMaterial::ASSET_VERSION;
+        asset["type"] = LLGLTFMaterial::ASSET_TYPE;
+        // This is the string serialized from LLGLTFMaterial::asJSON
         asset["data"] = notification["payload"]["data"];
 
         std::ostringstream str;
@@ -2584,7 +2478,7 @@ public:
             }
             else if ((reverted_flags & MATERIAL_BASE_COLOR_TEX_DIRTY) && revert_mat.notNull())
             {
-                material->setBaseColorId(revert_mat->mBaseColorId, false);
+                material->setBaseColorId(revert_mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR], false);
             }
 
             if (changed_flags & MATERIAL_NORMAL_TEX_DIRTY)
@@ -2593,16 +2487,16 @@ public:
             }
             else if ((reverted_flags & MATERIAL_NORMAL_TEX_DIRTY) && revert_mat.notNull())
             {
-                material->setNormalId(revert_mat->mNormalId, false);
+                material->setNormalId(revert_mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL], false);
             }
 
             if (changed_flags & MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY)
             {
-                material->setMetallicRoughnessId(mEditor->getMetallicRoughnessId(), true);
+                material->setOcclusionRoughnessMetallicId(mEditor->getMetallicRoughnessId(), true);
             }
             else if ((reverted_flags & MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY) && revert_mat.notNull())
             {
-                material->setMetallicRoughnessId(revert_mat->mMetallicRoughnessId, false);
+                material->setOcclusionRoughnessMetallicId(revert_mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS], false);
             }
 
             if (changed_flags & MATERIAL_METALLIC_ROUGHTNESS_METALNESS_DIRTY)
@@ -2638,7 +2532,7 @@ public:
             }
             else if ((reverted_flags & MATERIAL_EMISIVE_TEX_DIRTY) && revert_mat.notNull())
             {
-                material->setEmissiveId(revert_mat->mEmissiveId, false);
+                material->setEmissiveId(revert_mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE], false);
             }
 
             if (changed_flags & MATERIAL_DOUBLE_SIDED_DIRTY)
@@ -2751,20 +2645,23 @@ void LLMaterialEditor::applyToSelection()
     }
 }
 
+// Get a dump of the json representation of the current state of the editor UI
+// in GLTF format, excluding transforms as they are not supported in material
+// assets. (See also LLGLTFMaterial::sanitizeAssetMaterial())
 void LLMaterialEditor::getGLTFMaterial(LLGLTFMaterial* mat)
 {
     mat->mBaseColor = getBaseColor();
     mat->mBaseColor.mV[3] = getTransparency();
-    mat->mBaseColorId = getBaseColorId();
+    mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR] = getBaseColorId();
 
-    mat->mNormalId = getNormalId();
+    mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL] = getNormalId();
 
-    mat->mMetallicRoughnessId = getMetallicRoughnessId();
+    mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS] = getMetallicRoughnessId();
     mat->mMetallicFactor = getMetalnessFactor();
     mat->mRoughnessFactor = getRoughnessFactor();
 
     mat->mEmissiveColor = getEmissiveColor();
-    mat->mEmissiveId = getEmissiveId();
+    mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE] = getEmissiveId();
 
     mat->mDoubleSided = getDoubleSided();
     mat->setAlphaMode(getAlphaMode());
@@ -2774,15 +2671,15 @@ void LLMaterialEditor::getGLTFMaterial(LLGLTFMaterial* mat)
 void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
 {
     setBaseColor(mat->mBaseColor);
-    setBaseColorId(mat->mBaseColorId);
-    setNormalId(mat->mNormalId);
+    setBaseColorId(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR]);
+    setNormalId(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL]);
 
-    setMetallicRoughnessId(mat->mMetallicRoughnessId);
+    setMetallicRoughnessId(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS]);
     setMetalnessFactor(mat->mMetallicFactor);
     setRoughnessFactor(mat->mRoughnessFactor);
 
     setEmissiveColor(mat->mEmissiveColor);
-    setEmissiveId(mat->mEmissiveId);
+    setEmissiveId(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
 
     setDoubleSided(mat->mDoubleSided);
     setAlphaMode(mat->getAlphaMode());

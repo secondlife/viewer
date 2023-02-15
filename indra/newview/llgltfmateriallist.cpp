@@ -564,9 +564,9 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
 
                 if (LLSDSerialize::deserialize(asset, str, buffer.size()))
                 {
-                    if (asset.has("version") && asset["version"] == "1.0")
+                    if (asset.has("version") && LLGLTFMaterial::isAcceptedVersion(asset["version"].asString()))
                     {
-                        if (asset.has("type") && asset["type"].asString() == "GLTF 2.0")
+                        if (asset.has("type") && asset["type"].asString() == LLGLTFMaterial::ASSET_TYPE)
                         {
                             if (asset.has("data") && asset["data"].isString())
                             {

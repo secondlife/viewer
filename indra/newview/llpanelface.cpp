@@ -3825,34 +3825,12 @@ private:
 
 struct LLPanelFaceUpdateFunctor : public LLSelectedObjectFunctor
 {
-    LLPanelFaceUpdateFunctor(bool update_media, bool update_pbr)
+    LLPanelFaceUpdateFunctor(bool update_media)
         : mUpdateMedia(update_media)
-        , mUpdatePbr(update_pbr)
     {}
 
     virtual bool apply(LLViewerObject* object)
     {
-        if (mUpdatePbr)
-        {
-            // setRenderMaterialId is supposed to create it
-            LLRenderMaterialParams* param_block = (LLRenderMaterialParams*)object->getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
-            if (param_block)
-            {
-                if (param_block->isEmpty())
-                {
-                    object->setHasRenderMaterialParams(false);
-                }
-                else if (object->hasRenderMaterialParams())
-                {
-                    object->parameterChanged(LLNetworkData::PARAMS_RENDER_MATERIAL, true);
-                }
-                else
-                {
-                    object->setHasRenderMaterialParams(true);
-                }
-            }
-        }
-
         object->sendTEUpdate();
 
         if (mUpdateMedia)
@@ -3867,7 +3845,6 @@ struct LLPanelFaceUpdateFunctor : public LLSelectedObjectFunctor
     }
 private:
     bool mUpdateMedia;
-    bool mUpdatePbr;
 };
 
 struct LLPanelFaceNavigateHomeFunctor : public LLSelectedTEFunctor
@@ -4003,7 +3980,7 @@ void LLPanelFace::onPasteColor()
     LLPanelFacePasteTexFunctor paste_func(this, PASTE_COLOR);
     selected_objects->applyToTEs(&paste_func);
 
-    LLPanelFaceUpdateFunctor sendfunc(false, false);
+    LLPanelFaceUpdateFunctor sendfunc(false);
     selected_objects->applyToObjects(&sendfunc);
 }
 
@@ -4364,7 +4341,7 @@ void LLPanelFace::onPasteTexture()
     LLPanelFacePasteTexFunctor paste_func(this, PASTE_TEXTURE);
     selected_objects->applyToTEs(&paste_func);
 
-    LLPanelFaceUpdateFunctor sendfunc(true, true);
+    LLPanelFaceUpdateFunctor sendfunc(true);
     selected_objects->applyToObjects(&sendfunc);
 
     LLGLTFMaterialList::flushUpdates();

@@ -543,19 +543,19 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
                     // Todo: make it account for possibility of same texture in different
                     // materials and even in scope of same material
                     S32 texture_count = 0;
-                    if (material->mBaseColorId.notNull())
+                    if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].notNull())
                     {
                         texture_count++;
                     }
-                    if (material->mMetallicRoughnessId.notNull())
+                    if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].notNull())
                     {
                         texture_count++;
                     }
-                    if (material->mNormalId.notNull())
+                    if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].notNull())
                     {
                         texture_count++;
                     }
-                    if (material->mEmissiveId.notNull())
+                    if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].notNull())
                     {
                         texture_count++;
                     }

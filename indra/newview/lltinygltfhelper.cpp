@@ -309,48 +309,48 @@ bool LLTinyGLTFHelper::getMaterialFromFile(
     if (base_color_tex)
     {
         base_color_tex->addTextureStats(64.f * 64.f, TRUE);
-        material->mBaseColorId = base_color_tex->getID();
+        material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR] = base_color_tex->getID();
         material->mBaseColorTexture = base_color_tex;
     }
     else
     {
-        material->mBaseColorId = LLUUID::null;
+        material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR] = LLUUID::null;
         material->mBaseColorTexture = nullptr;
     }
 
     if (normal_tex)
     {
         normal_tex->addTextureStats(64.f * 64.f, TRUE);
-        material->mNormalId = normal_tex->getID();
+        material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL] = normal_tex->getID();
         material->mNormalTexture = normal_tex;
     }
     else
     {
-        material->mNormalId = LLUUID::null;
+        material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL] = LLUUID::null;
         material->mNormalTexture = nullptr;
     }
 
     if (mr_tex)
     {
         mr_tex->addTextureStats(64.f * 64.f, TRUE);
-        material->mMetallicRoughnessId = mr_tex->getID();
+        material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS] = mr_tex->getID();
         material->mMetallicRoughnessTexture = mr_tex;
     }
     else
     {
-        material->mMetallicRoughnessId = LLUUID::null;
+        material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS] = LLUUID::null;
         material->mMetallicRoughnessTexture = nullptr;
     }
 
     if (emissive_tex)
     {
         emissive_tex->addTextureStats(64.f * 64.f, TRUE);
-        material->mEmissiveId = emissive_tex->getID();
+        material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE] = emissive_tex->getID();
         material->mEmissiveTexture = emissive_tex;
     }
     else
     {
-        material->mEmissiveId = LLUUID::null;
+        material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE] = LLUUID::null;
         material->mEmissiveTexture = nullptr;
     }
 
