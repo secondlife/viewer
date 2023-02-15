@@ -4687,7 +4687,7 @@ void LLPipeline::renderDebug()
         mReflectionMapManager.renderDebug();
     }
 
-    if (gSavedSettings.getBOOL("RenderReflectionProbeVolumes"))
+    if (gSavedSettings.getBOOL("RenderReflectionProbeVolumes") && !hud_only)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("probe debug display");
 
@@ -4740,7 +4740,7 @@ void LLPipeline::renderDebug()
 		}
 	}
 
-	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
+	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA) && !hud_only)
 	{
 		LLVertexBuffer::unbind();
 
@@ -9892,7 +9892,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		}
 	}
 
-	
 	//hack to disable projector shadows 
 	bool gen_shadow = RenderShadowDetail > 1;
 
