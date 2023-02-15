@@ -169,9 +169,13 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, llssize max_bytes)
 	/*
 	* Remove the newline chars
 	*/
-	auto lastchar = header.find_last_not_of("\r\n");
+	std::string::size_type lastchar = header.find_last_not_of("\r\n");
 	if (lastchar != std::string::npos)
 	{
+		// It's important that find_last_not_of() returns size_type, which is
+		// why lastchar explicitly declares the type above. erase(size_type)
+		// erases from that offset to the end of the string, whereas
+		// erase(iterator) erases only a single character.
 		header.erase(lastchar+1);
 	}
 
