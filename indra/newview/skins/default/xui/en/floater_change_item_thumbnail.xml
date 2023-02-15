@@ -6,7 +6,33 @@
  name="change_item_thumbnail"
  help_topic="change_item_thumbnail"
  title="CHANGE ITEM IMAGE"
- width="320">
+ width="319">
+
+  <floater.string
+    name="tooltip_upload_local">
+    Upload from computer
+  </floater.string>
+  <floater.string
+    name="tooltip_upload_snapshot">
+    Use snapshot tool
+  </floater.string>
+  <floater.string
+    name="tooltip_use_texture">
+    Choose texture
+  </floater.string>
+  <floater.string
+    name="tooltip_copy_to_clipboard">
+    Copy to clipboard
+  </floater.string>
+  <floater.string
+    name="tooltip_paste_from_clipboard">
+    Paste from clipboard
+  </floater.string>
+  <floater.string
+    name="tooltip_remove_image">
+    Remove image
+  </floater.string>
+  
   <icon
     follows="top|left"
     height="16"
@@ -28,13 +54,14 @@
     left_pad="5"
     max_length_bytes="127"
     name="item_name"
-    width="286" />
+    width="286"
+    enabled="false"/>
 
   <thumbnail
     name="item_thumbnail"
     follows="top|left"
     layout="topleft"
-    left="31"
+    left="32"
     top_pad="9"
     height="256"
     width="256"
@@ -45,11 +72,10 @@
     height="32"
     label="A"
     layout="topleft"
-    left="37"
+    left="38"
     name="upload_local"
     top_pad="9"
     width="32" />
-  
   <button
     follows="right|bottom"
     height="32"
@@ -59,7 +85,6 @@
     name="upload_snapshot"
     top_delta="0"
     width="32" />
-
   <button
     follows="right|bottom"
     height="32"
@@ -69,34 +94,31 @@
     name="use_texture"
     top_delta="0"
     width="32" />
-
   <button
     follows="right|bottom"
     height="32"
     label="D"
     layout="topleft"
     left_pad="10"
-    name="to_clipboard"
+    name="copy_to_clipboard"
     top_delta="0"
     width="32" />
-
   <button
     follows="right|bottom"
     height="32"
     label="E"
     layout="topleft"
     left_pad="10"
-    name="from_clipboard"
+    name="paste_from_clipboard"
     top_delta="0"
     width="32" />
-
   <button
     follows="right|bottom"
     height="32"
     label="F"
     layout="topleft"
     left_pad="10"
-    name="remove"
+    name="remove_image"
     top_delta="0"
     width="32" />
 
@@ -109,7 +131,7 @@
     layout="topleft"
     left="5"
     right="-5"
-    name="LabelOwnerTitle"
+    name="tooltip_text"
     top_pad="12"
     width="78">
     tooltip

@@ -28,11 +28,71 @@
 #define LL_LLFLOATERCHANGEITEMTHUMBNAIL_H
 
 #include "llfloater.h"
+#include "llinventoryobserver.h"
+#include "llvoinventorylistener.h"
 
-class LLFloaterChangeItemThumbnail : public LLFloater
+class LLButton;
+class LLIconCtrl;
+class LLTextBox;
+class LLThumbnailCtrl;
+class LLUICtrl;
+class LLViewerInventoryItem;
+
+class LLFloaterChangeItemThumbnail : public LLFloater, public LLInventoryObserver, public LLVOInventoryListener
 {
 public:
     LLFloaterChangeItemThumbnail(const LLSD& key);
 	~LLFloaterChangeItemThumbnail();
+
+    BOOL postBuild() override;
+    void onOpen(const LLSD& key) override;
+
+    void changed(U32 mask) override;
+    void inventoryChanged(LLViewerObject* object,
+        LLInventoryObject::object_list_t* inventory,
+        S32 serial_num,
+        void* user_data) override;
+
+private:
+
+    void refreshFromInventory();
+    void refreshFromItem(LLViewerInventoryItem* item);
+
+    void startObjectInventoryObserver();
+    void stopObjectInventoryObserver();
+
+    static void onUploadLocal(void*);
+    static void onUploadSnapshot(void*);
+    static void onUseTexture(void*);
+    static void onCopyToClipboard(void*);
+    static void onPasteFromClipboard(void*);
+    static void onRemove(void*);
+
+    enum EToolTipState
+    {
+        TOOLTIP_NONE,
+        TOOLTIP_UPLOAD_LOCAL,
+        TOOLTIP_UPLOAD_SNAPSHOT,
+        TOOLTIP_USE_TEXTURE,
+        TOOLTIP_COPY_TO_CLIPBOARD,
+        TOOLTIP_COPY_FROM_CLIPBOARD,
+        TOOLTIP_REMOVE,
+    };
+
+    void onButtonMouseEnter(LLUICtrl* button, const LLSD& param, EToolTipState state);
+    void onButtonMouseLeave(LLUICtrl* button, const LLSD& param, EToolTipState state);
+
+    bool mObserverInitialized;
+    EToolTipState mTooltipState;
+    LLUUID mItemId;
+    LLUUID mTaskId;
+
+    LLIconCtrl *mItemTypeIcon;
+    LLUICtrl *mItemNameText;
+    LLThumbnailCtrl *mThumbnailCtrl;
+    LLTextBox *mToolTipTextBox;
+    LLButton *mCopyToClipboardBtn;
+    LLButton *mPasteFromClipboardBtn;
+    LLButton *mRemoveImageBtn;
 };
 #endif  // LL_LLFLOATERCHANGEITEMTHUMBNAIL_H

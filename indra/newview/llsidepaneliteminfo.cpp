@@ -750,7 +750,7 @@ void LLSidepanelItemInfo::changed(U32 mask)
     const LLUUID& item_id = getItemID();
     if (getObjectID().notNull() || item_id.isNull())
     {
-        // Tasl inventory or not set up yet
+        // Task inventory or not set up yet
         return;
     }
     

@@ -878,6 +878,13 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 					disabled_items.push_back(std::string("Rename"));
 				}
 			}
+
+            LLViewerInventoryItem* inv_item = gInventory.getItem(mUUID);
+            items.push_back(std::string("thumbnail"));
+            if (!inv_item || !inv_item->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
+            {
+                disabled_items.push_back(std::string("thumbnail"));
+            }
 			
 			if (show_asset_id)
 			{
@@ -885,7 +892,6 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 
 				bool is_asset_knowable = false;
 
-				LLViewerInventoryItem* inv_item = gInventory.getItem(mUUID);
 				if (inv_item)
 				{
 					is_asset_knowable = LLAssetType::lookupIsAssetIDKnowable(inv_item->getType());
