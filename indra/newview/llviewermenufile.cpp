@@ -38,7 +38,7 @@
 #include "llfloatermap.h"
 #include "llfloatermodelpreview.h"
 #include "llfloatersnapshot.h"
-#include "llfloateroutfitsnapshot.h"
+#include "llfloatersimpleoutfitsnapshot.h"
 #include "llimage.h"
 #include "llimagebmp.h"
 #include "llimagepng.h"
@@ -123,7 +123,10 @@ std::queue<LLFilePickerThread*> LLFilePickerThread::sDeadQ;
 void LLFilePickerThread::getFile()
 {
 #if LL_WINDOWS
+    // Todo: get rid of LLFilePickerThread and make this modeless
 	start();
+#elif LL_DARWIN
+    runModeless();
 #else
 	run();
 #endif
@@ -166,7 +169,82 @@ void LLFilePickerThread::run()
 		LLMutexLock lock(sMutex);
 		sDeadQ.push(this);
 	}
+}
 
+void LLFilePickerThread::runModeless()
+{
+    BOOL result = FALSE;
+    LLFilePicker picker;
+
+    if (mIsSaveDialog)
+    {
+        result = picker.getSaveFileModeless(mSaveFilter,
+                                            mProposedName,
+                                            modelessStringCallback,
+                                            this);
+    }
+    else if (mIsGetMultiple)
+    {
+        result = picker.getMultipleOpenFilesModeless(mLoadFilter, modelessVectorCallback, this);
+    }
+    else
+    {
+        result = picker.getOpenFileModeless(mLoadFilter, modelessVectorCallback, this);
+    }
+    
+    if (!result)
+    {
+        LLMutexLock lock(sMutex);
+        sDeadQ.push(this);
+    }
+}
+
+void LLFilePickerThread::modelessStringCallback(bool success,
+                                          std::string &response,
+                                          void *user_data)
+{
+    LLFilePickerThread *picker = (LLFilePickerThread*)user_data;
+    if (success)
+    {
+        picker->mResponses.push_back(response);
+    }
+    
+    {
+        LLMutexLock lock(sMutex);
+        sDeadQ.push(picker);
+    }
+}
+
+void LLFilePickerThread::modelessVectorCallback(bool success,
+                                          std::vector<std::string> &responses,
+                                          void *user_data)
+{
+    LLFilePickerThread *picker = (LLFilePickerThread*)user_data;
+    if (success)
+    {
+        if (picker->mIsGetMultiple)
+        {
+            picker->mResponses = responses;
+        }
+        else
+        {
+            std::vector<std::string>::iterator iter = responses.begin();
+            while (iter != responses.end())
+            {
+                if (!iter->empty())
+                {
+                    picker->mResponses.push_back(*iter);
+                    break;
+                }
+                iter++;
+            }
+        }
+    }
+    
+    {
+        LLMutexLock lock(sMutex);
+        sDeadQ.push(picker);
+    }
 }
 
 //static
@@ -664,7 +742,7 @@ class LLFileEnableCloseAllWindows : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLFloaterSnapshot* floater_snapshot = LLFloaterSnapshot::findInstance();
-		LLFloaterOutfitSnapshot* floater_outfit_snapshot = LLFloaterOutfitSnapshot::findInstance();
+		LLFloaterSimpleOutfitSnapshot* floater_outfit_snapshot = LLFloaterSimpleOutfitSnapshot::findInstance();
 		bool is_floaters_snapshot_opened = (floater_snapshot && floater_snapshot->isInVisibleChain())
 			|| (floater_outfit_snapshot && floater_outfit_snapshot->isInVisibleChain());
 		bool open_children = gFloaterView->allChildrenClosed() && !is_floaters_snapshot_opened;
@@ -681,7 +759,7 @@ class LLFileCloseAllWindows : public view_listener_t
 		LLFloaterSnapshot* floater_snapshot = LLFloaterSnapshot::findInstance();
 		if (floater_snapshot)
 			floater_snapshot->closeFloater(app_quitting);
-		LLFloaterOutfitSnapshot* floater_outfit_snapshot = LLFloaterOutfitSnapshot::findInstance();
+        LLFloaterSimpleOutfitSnapshot* floater_outfit_snapshot = LLFloaterSimpleOutfitSnapshot::findInstance();
 		if (floater_outfit_snapshot)
 			floater_outfit_snapshot->closeFloater(app_quitting);
 		if (gMenuHolder) gMenuHolder->hideMenus();

@@ -34,7 +34,6 @@
 LLOutfitObserver::LLOutfitObserver() :
 	mCOFLastVersion(LLViewerInventoryCategory::VERSION_UNKNOWN)
 {
-	mItemNameHash.finalize();
 	gInventory.addObserver(this);
 }
 
@@ -83,7 +82,7 @@ bool LLOutfitObserver::checkCOF()
 		return false;
 
 	bool cof_changed = false;
-	LLMD5 item_name_hash = gInventory.hashDirectDescendentNames(cof);
+	LLUUID item_name_hash = gInventory.hashDirectDescendentNames(cof);
 	if (item_name_hash != mItemNameHash)
 	{
 		cof_changed = true;

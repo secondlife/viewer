@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="gallery_item_panel">
+	<string name="worn_string">
+		(założone)
+	</string>
+	<panel name="text_bg_panel">
+		<text name="outfit_worn_text">
+			(założone)
+		</text>
+	</panel>
+</panel>

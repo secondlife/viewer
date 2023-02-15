@@ -32,7 +32,6 @@
 
 #include "llmutex.h"
 #include "lltraceaccumulators.h"
-#include "llthreadlocalstorage.h"
 
 namespace LLTrace
 {
@@ -58,7 +57,7 @@ namespace LLTrace
 		void pullFromChildren();
 		void pushToParent();
 
-		TimeBlockTreeNode* getTimeBlockTreeNode(S32 index);
+		TimeBlockTreeNode* getTimeBlockTreeNode(size_t index);
 
 	protected:
 		void init();
@@ -92,7 +91,7 @@ namespace LLTrace
 
 	};
 
-	const LLThreadLocalPointer<ThreadRecorder>& get_thread_recorder();
+	ThreadRecorder* get_thread_recorder();
 	void set_thread_recorder(ThreadRecorder*);
 
 	void set_master_thread_recorder(ThreadRecorder*);

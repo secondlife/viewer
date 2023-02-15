@@ -236,7 +236,8 @@ public:
         }
 |*==========================================================================*/
 
-        LL_DEBUGS("EventHost") << "Sending: " << buffer.tellp() << ':';
+        LL_DEBUGS("EventHost") << "Sending: "
+                               << static_cast<U64>(buffer.tellp()) << ':';
         std::string::size_type truncate(80);
         if (buffer.tellp() <= truncate)
         {
@@ -249,7 +250,8 @@ public:
         LL_CONT << LL_ENDL;
 
         LLProcess::WritePipe& childin(mChild->getWritePipe(LLProcess::STDIN));
-        childin.get_ostream() << buffer.tellp() << ':' << buffer.str() << std::flush;
+        childin.get_ostream() << static_cast<U64>(buffer.tellp())
+                              << ':' << buffer.str() << std::flush;
         return false;
     }
 

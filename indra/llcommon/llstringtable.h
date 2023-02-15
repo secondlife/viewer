@@ -136,9 +136,9 @@ public:
 		for (S32 i = 0; i<mTableSize; i++)
 		{
 			string_set_t& stringset = mStringList[i];
-			for (string_set_t::iterator iter = stringset.begin(); iter != stringset.end(); iter++)
+			for (LLStdStringHandle str : stringset)
 			{
-				delete *iter;
+				delete str;
 			}
 			stringset.clear();
 		}

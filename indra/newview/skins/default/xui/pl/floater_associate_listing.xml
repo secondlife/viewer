@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="associate listing" title="PRZYPISANE PRZEDMIOTY">
-	<text name="message">ID przedmiotu:</text>
+<floater name="associate listing" title="PRZYPISZ RZECZ">
+	<text name="message">ID rzeczy:</text>
 	<line_editor name="listing_id">Wpisz tutaj ID</line_editor>
-	<button label="OK" name="OK"/>
 	<button label="Anuluj" name="Cancel"/>
 </floater>

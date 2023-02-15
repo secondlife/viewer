@@ -340,7 +340,7 @@ inline void claim_alloc(MemStatHandle& measurement, const T& value)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 #if LL_TRACE_ENABLED
-	S32 size = MeasureMem<T>::measureFootprint(value);
+	auto size = MeasureMem<T>::measureFootprint(value);
 	if(size == 0) return;
 	MemAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
@@ -353,7 +353,7 @@ inline void disclaim_alloc(MemStatHandle& measurement, const T& value)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 #if LL_TRACE_ENABLED
-	S32 size = MeasureMem<T>::measureFootprint(value);
+	auto size = MeasureMem<T>::measureFootprint(value);
 	if(size == 0) return;
 	MemAccumulator& accumulator = measurement.getCurrentAccumulator();
 	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);

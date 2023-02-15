@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="create_landmark">
+	<string name="favorites_bar">
+		Pasek ulubionych
+	</string>
+	<text name="title_label" value="Dodany landmark" />
+	<text name="name_label" value="Nazwa" />
+	<text name="folder_label" value="Zapisz landmark w:" />
+	<text name="new_folder_textbox">
+		[secondlife:/// Stwórz nowy folder]
+	</text>
+	<text name="notes_label" value="Notatki" />
+	<button label="Anuluj" name="cancel_btn" />
+</floater>

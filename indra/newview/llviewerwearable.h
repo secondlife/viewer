@@ -93,7 +93,6 @@ public:
 	// the wearable was worn. make sure the name of the wearable object matches the LLViewerInventoryItem,
 	// not the wearable asset itself.
 	void				refreshName();
-	/*virtual*/void		addToBakedTextureHash(LLMD5& hash) const {}
 
 protected:
 	LLAssetID			mAssetID;

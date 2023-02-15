@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<contents>
+	<rows name="camera_actions">
+		<columns label="Kamera" name="lst_action" />
+	</rows>
+	<rows name="look_up">
+		<columns name="lst_action" value="Patrz w górę" />
+	</rows>
+	<rows name="look_down">
+		<columns name="lst_action" value="Patrz w dół" />
+	</rows>
+	<rows name="move_forward">
+		<columns name="lst_action" value="Kamera w przód" />
+	</rows>
+	<rows name="move_backward">
+		<columns name="lst_action" value="Kamera w tył" />
+	</rows>
+	<rows name="move_forward_fast">
+		<columns name="lst_action" value="Kamera szybko w przód" />
+	</rows>
+	<rows name="move_backward_fast">
+		<columns name="lst_action" value="Kamera szybko w tył" />
+	</rows>
+	<rows name="spin_over">
+		<columns name="lst_action" value="Obrót kamery w górę" />
+	</rows>
+	<rows name="spin_under">
+		<columns name="lst_action" value="Obrót kamery w dół" />
+	</rows>
+	<rows name="pan_up">
+		<columns name="lst_action" value="Przesuń kamerę w górę" />
+	</rows>
+	<rows name="pan_down">
+		<columns name="lst_action" value="Przesuń kamerę w dół" />
+	</rows>
+	<rows name="pan_left">
+		<columns name="lst_action" value="Przesuń kamerę w lewo" />
+	</rows>
+	<rows name="pan_right">
+		<columns name="lst_action" value="Przesuń kamerę w prawo" />
+	</rows>
+	<rows name="pan_in">
+		<columns name="lst_action" value="Przybliż kamerę" />
+	</rows>
+	<rows name="pan_out">
+		<columns name="lst_action" value="Oddal kamerę" />
+	</rows>
+	<rows name="spin_around_ccw">
+		<columns name="lst_action" tool_tip="Obrót kamery w kierunku przeciwnym do ruchu wskazówek zegara." value="Obrót kamery w prawo" />
+	</rows>
+	<rows name="spin_around_cw">
+		<columns name="lst_action" tool_tip="Obrót kamery zgodnie z ruchem wskazówek zegara." value="Obrót kamery w lewo" />
+	</rows>
+	<rows name="move_forward_sitting">
+		<columns name="lst_action" value="Kamera w przód siedząc" />
+	</rows>
+	<rows name="move_backward_sitting">
+		<columns name="lst_action" value="Kamera w tył siedząc" />
+	</rows>
+	<rows name="spin_over_sitting">
+		<columns name="lst_action" value="Obrót kamery w górę siedząc" />
+	</rows>
+	<rows name="spin_under_sitting">
+		<columns name="lst_action" value="Obrót kamery w dół siedząc" />
+	</rows>
+	<rows name="spin_around_ccw_sitting">
+		<columns name="lst_action" tool_tip="Obrót kamery w kierunku przeciwnym do ruchu wskazówek zegara - siedząc." value="Obrót kamery w prawo siedząc" />
+	</rows>
+	<rows name="spin_around_cw_sitting">
+		<columns name="lst_action" tool_tip="Obrót kamery zgodnie z ruchem wskazówek zegara - siedząc." value="Obrót kamery w lewo siedząc" />
+	</rows>
+</contents>

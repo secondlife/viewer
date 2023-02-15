@@ -30,6 +30,7 @@
 
 #include "llsd.h"
 #include "llsdutil.h"
+#include <algorithm>
 
 LLKeyData::LLKeyData()
     :
@@ -180,10 +181,10 @@ LLKeyBind::LLKeyBind(const LLSD &key_bind)
 
 bool LLKeyBind::operator==(const LLKeyBind& rhs)
 {
-    U32 size = mData.size();
+    auto size = mData.size();
     if (size != rhs.mData.size()) return false;
 
-    for (U32 i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
     {
         if (mData[i] != rhs.mData[i]) return false;
     }
@@ -193,7 +194,7 @@ bool LLKeyBind::operator==(const LLKeyBind& rhs)
 
 bool LLKeyBind::operator!=(const LLKeyBind& rhs)
 {
-    U32 size = mData.size();
+    auto size = mData.size();
     if (size != rhs.mData.size()) return true;
 
     for (U32 i = 0; i < size; i++)
@@ -206,26 +207,29 @@ bool LLKeyBind::operator!=(const LLKeyBind& rhs)
 
 bool LLKeyBind::isEmpty() const
 {
-    for (data_vector_t::const_iterator iter = mData.begin(); iter != mData.end(); iter++)
+	for (const LLKeyData& key_data : mData)
     {
-        if (!iter->isEmpty()) return false;
+        if (!key_data.isEmpty()) return false;
     }
     return true;
 }
 
+LLKeyBind::data_vector_t::const_iterator LLKeyBind::endNonEmpty() const
+{
+    // search backwards for last non-empty entry, then turn back into forwards
+    // iterator (.base() call)
+    return std::find_if_not(mData.rbegin(), mData.rend(),
+                            [](const auto& kdata){ return kdata.empty(); }).base();
+}
+
 LLSD LLKeyBind::asLLSD() const
 {
-    S32 last = mData.size() - 1;
-    while (mData[last].empty())
-    {
-        last--;
-    }
-
     LLSD data;
-    for (S32 i = 0; i <= last; ++i)
+	for (const LLKeyData& key_data : mData)
     {
-        // append even if empty to not affect visual representation
-        data.append(mData[i].asLLSD());
+        // append intermediate entries even if empty to not affect visual
+        // representation
+        data.append(key_data.asLLSD());
     }
     return data;
 }
@@ -238,9 +242,9 @@ bool LLKeyBind::canHandle(EMouseClickType mouse, KEY key, MASK mask) const
         return false;
     }
 
-    for (data_vector_t::const_iterator iter = mData.begin(); iter != mData.end(); iter++)
+	for (const LLKeyData& key_data : mData)
     {
-        if (iter->canHandle(mouse, key, mask))
+        if (key_data.canHandle(mouse, key, mask))
         {
             return true;
         }
@@ -262,12 +266,12 @@ bool LLKeyBind::hasKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignor
 {
     if (mouse != CLICK_NONE || key != KEY_NONE)
     {
-        for (data_vector_t::const_iterator iter = mData.begin(); iter != mData.end(); iter++)
+		for (const LLKeyData& key_data : mData)
         {
-            if (iter->mKey == key
-                && iter->mMask == mask
-                && iter->mMouse == mouse
-                && iter->mIgnoreMasks == ignore)
+            if (key_data.mKey == key
+                && key_data.mMask == mask
+                && key_data.mMouse == mouse
+                && key_data.mIgnoreMasks == ignore)
             {
                 return true;
             }
@@ -349,16 +353,16 @@ void LLKeyBind::replaceKeyData(const LLKeyData& data, U32 index)
     {
         // if both click and key are none (isEmpty()), we are inserting a placeholder, we don't want to reset anything
         // otherwise reset identical key
-        for (data_vector_t::iterator iter = mData.begin(); iter != mData.end(); iter++)
+		for (LLKeyData& key_data : mData)
         {
-            if (iter->mKey == data.mKey
-                && iter->mMouse == data.mMouse
-                && iter->mIgnoreMasks == data.mIgnoreMasks
-                && iter->mMask == data.mMask)
+            if (key_data.mKey == data.mKey
+                && key_data.mMouse == data.mMouse
+                && key_data.mIgnoreMasks == data.mIgnoreMasks
+                && key_data.mMask == data.mMask)
             {
                 // Replacing only fully equal combinations even in case 'ignore' is set
                 // Reason: Simplicity and user might decide to do a 'move' command as W and Shift+Ctrl+W, and 'run' as Shift+W
-                iter->reset();
+                key_data.reset();
                 break;
             }
         }
@@ -380,16 +384,10 @@ void LLKeyBind::resetKeyData(S32 index)
 
 void LLKeyBind::trimEmpty()
 {
-    S32 last = mData.size() - 1;
-    while (last >= 0 && mData[last].empty())
-    {
-        mData.erase(mData.begin() + last);
-        last--;
-    }
+    mData.erase(endNonEmpty(), mData.end());
 }
 
-U32 LLKeyBind::getDataCount()
+size_t LLKeyBind::getDataCount()
 {
     return mData.size();
 }
-
