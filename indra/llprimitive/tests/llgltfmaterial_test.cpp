@@ -139,14 +139,13 @@ namespace tut
     template<> template<>
     void llgltfmaterial_object_t::test<1>()
     {
-        if (sizeof(void*) > 4) // Don't bother running this test for 32-bit systems
-        {
-            // If any fields are added/changed, these tests should be updated (consider also updating ASSET_VERSION in LLGLTFMaterial)
-            // This test result will vary between compilers, so only test a single platform
+#if ADDRESS_SIZE != 32
 #if LL_WINDOWS
-            ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 216);
+        // If any fields are added/changed, these tests should be updated (consider also updating ASSET_VERSION in LLGLTFMaterial)
+        // This test result will vary between compilers, so only test a single platform
+        ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 216);
 #endif
-        }
+#endif
         ensure_equals("LLGLTFMaterial texture info count", (U32)LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT, 4);
     }
 
@@ -251,6 +250,120 @@ namespace tut
             LLGLTFMaterial factors_only_material;
             apply_test_material_factors(factors_only_material);
             ensure_gltf_material_serialize("material with scaling/tint factors only", factors_only_material);
+        }
+    }
+
+    // Test that sDefault is a no-op override
+    template<> template<>
+    void llgltfmaterial_object_t::test<7>()
+    {
+        const LLGLTFMaterial material_asset = create_test_material();
+        LLGLTFMaterial render_material = material_asset;
+        render_material.applyOverride(LLGLTFMaterial::sDefault);
+        ensure("LLGLTFMaterial: sDefault is a no-op override", material_asset == render_material);
+    }
+
+    // Test application of transform overrides
+    template<> template<>
+    void llgltfmaterial_object_t::test<8>()
+    {
+        LLGLTFMaterial override_material;
+        apply_test_material_texture_transforms(override_material);
+        LLGLTFMaterial render_material;
+        render_material.applyOverride(override_material);
+        ensure("LLGLTFMaterial: transform overrides", render_material == override_material);
+    }
+
+    // Test application of flag-based overrides
+    template<> template<>
+    void llgltfmaterial_object_t::test<9>()
+    {
+        {
+            LLGLTFMaterial override_material;
+            override_material.setAlphaMode(LLGLTFMaterial::ALPHA_MODE_BLEND, true);
+            override_material.setDoubleSided(true, true);
+
+            LLGLTFMaterial render_material;
+
+            render_material.applyOverride(override_material);
+
+            ensure("LLGLTFMaterial: extra overrides with non-default values applied over default", render_material == override_material);
+        }
+        {
+            LLGLTFMaterial override_material;
+            override_material.setAlphaMode(LLGLTFMaterial::ALPHA_MODE_OPAQUE, true);
+            override_material.setDoubleSided(false, true);
+
+            LLGLTFMaterial render_material;
+            override_material.setAlphaMode(LLGLTFMaterial::ALPHA_MODE_BLEND, false);
+            override_material.setDoubleSided(true, false);
+
+            render_material.applyOverride(override_material);
+            // Not interested in these flags for equality comparison
+            override_material.mOverrideDoubleSided = false;
+            override_material.mOverrideAlphaMode = false;
+
+            ensure("LLGLTFMaterial: extra overrides with default values applied over non-default", render_material == override_material);
+        }
+    }
+
+    // Test application of texture overrides
+    template<> template<>
+    void llgltfmaterial_object_t::test<10>()
+    {
+        const U32 texture_count = 2;
+        const LLUUID override_textures[texture_count] = { LLUUID::null, LLUUID::generateNewID() };
+        const LLUUID asset_textures[texture_count] = { LLUUID::generateNewID(), LLUUID::null };
+        for (U32 i = 0; i < texture_count; ++i)
+        {
+            LLGLTFMaterial override_material;
+            const LLUUID& override_texture = override_textures[i];
+            for (LLGLTFMaterial::TextureInfo j = LLGLTFMaterial::TextureInfo(0); j  < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; j = LLGLTFMaterial::TextureInfo(U32(j) + 1))
+            {
+                override_material.setTextureId(j, override_texture, true);
+            }
+
+            LLGLTFMaterial render_material;
+            const LLUUID& asset_texture = asset_textures[i];
+            for (LLGLTFMaterial::TextureInfo j = LLGLTFMaterial::TextureInfo(0); j  < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; j = LLGLTFMaterial::TextureInfo(U32(j) + 1))
+            {
+                render_material.setTextureId(j, asset_texture, false);
+            }
+
+            render_material.applyOverride(override_material);
+
+            for (LLGLTFMaterial::TextureInfo j = LLGLTFMaterial::TextureInfo(0); j  < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; j = LLGLTFMaterial::TextureInfo(U32(j) + 1))
+            {
+                const LLUUID& render_texture = render_material.mTextureId[j];
+                ensure_equals("LLGLTFMaterial: Override texture ID " + override_texture.asString() + " replaces underlying texture ID " + asset_texture.asString(), render_texture, override_texture);
+            }
+        }
+    }
+
+    // Test non-persistence of default value flags in overrides
+    template<> template<>
+    void llgltfmaterial_object_t::test<11>()
+    {
+        const S32 non_default_alpha_modes[] = { LLGLTFMaterial::ALPHA_MODE_BLEND, LLGLTFMaterial::ALPHA_MODE_MASK };
+        for (S32 non_default_alpha_mode : non_default_alpha_modes)
+        {
+            LLGLTFMaterial material;
+            // Set default alpha mode
+            material.setAlphaMode(LLGLTFMaterial::ALPHA_MODE_OPAQUE, true);
+            ensure_equals("LLGLTFMaterial: alpha mode override flag set", material.mOverrideAlphaMode, true);
+            // Set non-default alpha mode
+            material.setAlphaMode(non_default_alpha_mode, true);
+            ensure_equals("LLGLTFMaterial: alpha mode override flag unset", material.mOverrideAlphaMode, false);
+        }
+
+        {
+            // Set default double sided
+            LLGLTFMaterial material;
+            material.setDoubleSided(false, true);
+            ensure_equals("LLGLTFMaterial: double sided override flag set", material.mOverrideDoubleSided, true);
+            // Set non-default double sided
+            material.setDoubleSided(true, true);
+            ensure_equals("LLGLTFMaterial: double sided override flag unset", material.mOverrideDoubleSided, false);
         }
     }
 }
