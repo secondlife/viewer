@@ -529,7 +529,7 @@ int cat_streambuf::underflow()
     if (gptr() == egptr())
     {
         // here because our buffer is empty
-        std::streamsize size;
+        std::streamsize size = 0;
         // Until we've run out of mInputs, try reading the first of them
         // into mBuffer. If that fetches some characters, break the loop.
         while (! mInputs.empty()

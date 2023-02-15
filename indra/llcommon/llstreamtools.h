@@ -135,7 +135,7 @@ public:
         mBuffer(1024)
     {}
 
-    int underflow();
+    int underflow() override;
 };
 
 #endif
