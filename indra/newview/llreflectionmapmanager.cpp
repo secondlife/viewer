@@ -799,8 +799,10 @@ void LLReflectionMapManager::updateUniforms()
         llassert(refmap->mCubeIndex >= 0); // should always be  true, if not, getReflectionMaps is bugged
 
         {
-            //LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("rmmsu - refSphere");
-
+            if (refmap->mViewerObject)
+            { // have active manual probes live-track the object they're associated with
+                refmap->mOrigin.load3(refmap->mViewerObject->getPositionAgent().mV);
+            }
             modelview.affineTransform(refmap->mOrigin, oa);
             rpd.refSphere[count].set(oa.getF32ptr());
             rpd.refSphere[count].mV[3] = refmap->mRadius;
