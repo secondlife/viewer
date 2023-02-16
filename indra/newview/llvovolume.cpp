@@ -5850,15 +5850,18 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						}
 						else
 						{
-                            if (te->getColor().mV[3] > 0.f || te->getGlow() > 0.f)
-                            { //only treat as alpha in the pipeline if < 100% transparent
-                                drawablep->setState(LLDrawable::HAS_ALPHA);
-                                add_face(sAlphaFaces, alpha_count, facep);
-                            }
-                            else if (LLDrawPoolAlpha::sShowDebugAlpha)
-                            {
-                                add_face(sAlphaFaces, alpha_count, facep);
-                            }
+							if (te->getColor().mV[3] > 0.f || te->getGlow() > 0.f)
+							{ //only treat as alpha in the pipeline if < 100% transparent
+								drawablep->setState(LLDrawable::HAS_ALPHA);
+								add_face(sAlphaFaces, alpha_count, facep);
+							}
+							else if (LLDrawPoolAlpha::sShowDebugAlpha ||
+								gPipeline.sRenderHighlight &&
+								(LLPipeline::getRenderScriptedBeacons() || LLPipeline::getRenderScriptedTouchBeacons()) &&
+								drawablep->getVObj() && drawablep->getVObj()->flagScripted())
+							{ //draw the transparent face for debugging purposes using a custom texture
+								add_face(sAlphaFaces, alpha_count, facep);
+							}
 						}
 					}
 					else
