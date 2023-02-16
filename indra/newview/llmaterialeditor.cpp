@@ -420,6 +420,13 @@ BOOL LLMaterialEditor::postBuild()
         mEmissiveTextureCtrl->setOnSelectCallback(boost::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_EMISIVE_TEX_DIRTY));
         mNormalTextureCtrl->setOnSelectCallback(boost::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_NORMAL_TEX_DIRTY));
     }
+    else
+    {
+        mBaseColorTextureCtrl->setCanApplyImmediately(false);
+        mMetallicTextureCtrl->setCanApplyImmediately(false);
+        mEmissiveTextureCtrl->setCanApplyImmediately(false);
+        mNormalTextureCtrl->setCanApplyImmediately(false);
+    }
 
     if (!mIsOverride)
     {
@@ -461,6 +468,10 @@ BOOL LLMaterialEditor::postBuild()
         mBaseColorCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_BASE_COLOR_DIRTY));
         mBaseColorCtrl->setOnSelectCallback(boost::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_BASE_COLOR_DIRTY));
     }
+    else
+    {
+        mBaseColorCtrl->setCanApplyImmediately(false);
+    }
     // transparency is a part of base color
     childSetCommitCallback("transparency", changes_callback, (void*)&MATERIAL_BASE_COLOR_DIRTY);
     childSetCommitCallback("alpha mode", changes_callback, (void*)&MATERIAL_ALPHA_MODE_DIRTY);
@@ -476,6 +487,10 @@ BOOL LLMaterialEditor::postBuild()
     {
         mEmissiveColorCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_EMISIVE_COLOR_DIRTY));
         mEmissiveColorCtrl->setOnSelectCallback(boost::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_EMISIVE_COLOR_DIRTY));
+    }
+    else
+    {
+        mEmissiveColorCtrl->setCanApplyImmediately(false);
     }
 
     if (!mIsOverride)
