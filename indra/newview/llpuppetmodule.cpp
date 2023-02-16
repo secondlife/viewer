@@ -41,6 +41,7 @@
 #include "llleap.h"
 #include "llpuppetmotion.h"
 #include "llsdutil.h"
+#include "llstreamingmotion.h"
 #include "llviewercontrol.h"    // gSavedSettings
 #include "llviewerobjectlist.h" //gObjectList
 #include "llviewerregion.h"
@@ -583,7 +584,15 @@ void LLPuppetModule::setPuppetryOptions(LLSD options)
 void LLPuppetModule::parsePuppetryResponse(LLSD response)
 {
     mPlayServerEcho = response["echo_back"].asBoolean();
-    mIsSending = response["transmit"].asBoolean();
+
+    // HACK: streaming animations is tied to whether "puppetry sending" is enabled.
+    bool is_sending = response["transmit"].asBoolean();
+    if (is_sending != mIsSending)
+    {
+        mIsSending = is_sending;
+        LLStreamingMotion::SetIsSendingAnimationStream(is_sending);
+        LLStreamingMotion::SetIsSendingAnimationStream(is_sending);
+    }
     mIsReceiving = response["receive"].asBoolean();
     mRange = response["range"].asReal();
 

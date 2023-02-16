@@ -316,9 +316,18 @@ public:
     bool                getAttachmentUpdateEnabled() const { return mAttachmentUpdateEnabled; }
 
 private:
+    void sendAttachmentUpdate(U64 now);
+    void sendAnimationStream(U64 now);
+
+private:
+    std::vector<LLQuaternion> mLastJointRotation;
+    std::vector<LLVector3> mLastJointPosition;
+    std::vector<LLVector3> mLastJointScale;
     bool                mAttachmentUpdateEnabled;
     U64                 mAttachmentUpdatePeriod; // usec
     U64                 mAttachmentUpdateExpiry; // usec
+    U64                 mAnimationStreamPeriod; // usec
+    U64                 mAnimationStreamExpiry; // usec
 
  /**                   ANIMATIONS
   **                                                                            **

@@ -67,6 +67,7 @@ extern const LLUUID ANIM_AGENT_PELVIS_FIX;
 extern const LLUUID ANIM_AGENT_TARGET;
 extern const LLUUID ANIM_AGENT_WALK_ADJUST;
 extern const LLUUID ANIM_AGENT_PUPPET_MOTION;
+extern const LLUUID ANIM_AGENT_STREAMING_MOTION;
 
 class LLViewerWearable;
 class LLVoiceVisualizer;
@@ -253,6 +254,7 @@ public:
 
 	virtual bool 	        isControlAvatar() const { return mIsControlAvatar; } // True if this avatar is a control av (no associated user)
 	virtual bool 	        isUIAvatar() const { return mIsUIAvatar; } // True if this avatar is a supplemental av used in some UI views (no associated user)
+    bool isReceivingAnimationStream() const { return mIsReceivingAnimationStream; }
 
 	// If this is an attachment, return the avatar it is attached to. Otherwise NULL.
 	virtual const LLVOAvatar *getAttachedAvatar() const { return NULL; }
@@ -315,6 +317,8 @@ public:
 	static void     updateImpostorRendering(U32 newMaxNonImpostorsValue);
 
 	void 			idleUpdateBelowWater();
+
+    void enableStreamingMotion();
 
 	//--------------------------------------------------------------------
 	// Static preferences (controlled by user settings/menus)
@@ -390,6 +394,7 @@ private:
 	LLColor4		mMutedAVColor;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
+    bool            mIsReceivingAnimationStream;
 
 private:
 	LLViewerStats::PhaseMap mPhases;

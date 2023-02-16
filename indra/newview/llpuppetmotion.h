@@ -68,22 +68,6 @@ public:
         Timestamp mExpiry = DISTANT_FUTURE_TIMESTAMP;
     };
 
-    using EventQueue = std::deque< std::pair<Timestamp, LLPuppetJointEvent> >;
-    class DelayedEventQueue
-    {
-    public:
-        void addEvent(Timestamp remote_timestamp, Timestamp local_timestamp, const LLPuppetJointEvent& event);
-        EventQueue& getEventQueue() { return mQueue; }
-    private:
-        EventQueue mQueue;
-        Timestamp mLastRemoteTimestamp = -1; // msec
-        // EventPeriod and Jitter are dynamically updated
-        // but we start with these optimistic guesses
-        F32 mEventPeriod = 100.0f; // msec
-        F32 mEventJitter = 50.0f; // msec
-    };
-    using EventQueues = std::map<S16, DelayedEventQueue>;
-
     // Constructor
     LLPuppetMotion(const LLUUID &id);
 
@@ -94,8 +78,6 @@ public:
 
     void collectJoints(LLJoint* joint);
     void addExpressionEvent(const LLPuppetJointEvent& event);
-    void queueOutgoingEvent(const LLPuppetEvent& event);
-    void unpackEvents(LLMessageSystem *mesgsys,int blocknum);
 
     void setAvatar(LLVOAvatar* avatar);
     void clearAll();
@@ -163,30 +145,21 @@ public:
 
 private:
     void measureArmSpan();
-    void queueEvent(const LLPuppetEvent& event);
     void applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::Solver::joint_config_map_t& targets);
-    void applyBroadcastEvent(const LLPuppetJointEvent& event, Timestamp now);
-    void packEvents();
-    void pumpOutgoingEvents();
     void solveIKAndHarvestResults(const LLIK::Solver::joint_config_map_t& configs, Timestamp now);
     void updateFromExpression(Timestamp now);
-    void updateFromBroadcast(Timestamp now);
     void rememberPosedJoint(S16 joint_id, LLPointer<LLJointState> joint_state, Timestamp now);
 
 private:
     state_map_t             mJointStates;      // joints known to IK
-    EventQueues             mEventQueues;
     std::map<S16, JointStateExpiry> mJointStateExpiries;        // recently animated joints and their expiries
     LLCharacter*            mCharacter;
-    update_deq_t            mOutgoingEvents;   // LLPuppetEvents to broadcast.
     std::vector< LLPointer<LLJointState> > mJointsToRemoveFromPose;
-    LLFrameTimer            mBroadcastTimer;   // When to broadcast events.
     LLFrameTimer            mPlaybackTimer;    // Playback what was broadcast
     joint_events_t          mExpressionEvents;
     LLIK::Solver            mIKSolver;
     LLVOAvatar*             mAvatar = nullptr;
     Timestamp               mNextJointStateExpiry = DISTANT_FUTURE_TIMESTAMP;
-    F32                     mRemoteToLocalClockOffset; // msec
     F32                     mArmSpan = 2.0f;
     bool                    mIsSelf = false;
 

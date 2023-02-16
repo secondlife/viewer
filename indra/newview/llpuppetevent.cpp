@@ -42,7 +42,7 @@ U8      PUPPET_WRITE_BUFFER[PUPPET_MAX_EVENT_BYTES]; //HACK move this somewhere 
 
 // Helper function
 // Note that the passed in vector is quantized
-size_t pack_vec3(U8* wptr, LLVector3 &vec)
+size_t LLIK::pack_vec3(U8* wptr, LLVector3 vec)
 {
     size_t offset(0);
 
@@ -65,7 +65,7 @@ size_t pack_vec3(U8* wptr, LLVector3 &vec)
 
 // Helper function
 // Note that the passed in quaternion is quantized and possibly negated
-size_t pack_quat(U8* wptr, LLQuaternion& quat)
+size_t LLIK::pack_quat(U8* wptr, LLQuaternion quat)
 {
     // A Quaternion is a 4D object but the group isomorphic with rotations is
     // limited to the surface of the unit hypersphere (radius = 1). Consequently
@@ -232,15 +232,15 @@ size_t LLPuppetJointEvent::pack(U8* wptr)
     //Pack these into the buffer in the same order as the flags.
     if (mMask & LLIK::MASK_ROT)
     {
-        offset += pack_quat(wptr + offset, mRotation);
+        offset += LLIK::pack_quat(wptr + offset, mRotation);
     }
     if (mMask & LLIK::MASK_POS)
     {
-        offset += pack_vec3(wptr+offset, mPosition);
+        offset += LLIK::pack_vec3(wptr + offset, mPosition);
     }
     if (mMask & LLIK::CONFIG_FLAG_LOCAL_SCALE)
     {
-        offset += pack_vec3(wptr+offset, mScale);
+        offset += LLIK::pack_vec3(wptr + offset, mScale);
     }
 
     LL_DEBUGS("PUPPET_SPAM_PACK") << "Packed event for joint " << mJointID << " with flags 0x" << std::hex << static_cast<S32>(mMask) << std::dec << " into " << offset << " bytes.";

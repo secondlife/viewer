@@ -104,7 +104,11 @@ public:
     const active_joint_map_t & getActiveJoints() const { return mActiveJoints; }
 
     void parsePuppetryResponse(LLSD response);
+
+    void pumpOutgoingEvents();
 private:
+
+    void packEvents();
 
     virtual ~LLPuppetModule()
     {
@@ -125,6 +129,8 @@ private:
     bool mIsReceiving = true;     // true when getting stream from simulator
     LLSD mSkeletonData;           // Send to the expression module on request.
     F32  mRange = 25.0f;
+
+    U64 mBroadcastExpiry = 0;
 };
 
 #endif

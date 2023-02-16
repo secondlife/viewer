@@ -48,7 +48,11 @@
 #include "llinventoryfunctions.h"
 #include "lllocaltextureobject.h"
 #include "llnotificationsutil.h"
+#include "llpuppetevent.h"
+#include "llpuppetmodule.h"
+#include "llpuppetmotion.h"
 #include "llselectmgr.h"
+#include "llstreamingmotion.h"
 #include "lltoolgrab.h"	// for needsRenderBeam
 #include "lltoolmgr.h" // for needsRenderBeam
 #include "lltoolmorph.h"
@@ -77,6 +81,8 @@
 #endif
 
 #include <boost/lexical_cast.hpp>
+
+constexpr U64 DEFAULT_ANIMATION_STREAM_PERIOD = 50 * 1000; // usec
 
 LLPointer<LLVOAvatarSelf> gAgentAvatarp = NULL;
 
@@ -174,7 +180,9 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
     mInitialMetric(true),
     mMetricSequence(0),
     mAttachmentUpdateEnabled(true),
-    mAttachmentUpdateExpiry(0)
+    mAttachmentUpdateExpiry(0),
+    mAnimationStreamPeriod(DEFAULT_ANIMATION_STREAM_PERIOD),
+    mAnimationStreamExpiry(0)
 {
 	mMotionController.mIsSelf = TRUE;
 	LL_DEBUGS() << "Marking avatar as self " << id << LL_ENDL;
@@ -1297,12 +1305,18 @@ void LLVOAvatarSelf::updateMotions(LLCharacter::e_update_t update_type)
     LLCharacter::updateMotions(update_type);
 
     // post motion update
+    U64 now = LLFrameTimer::getTotalTime();
+    sendAttachmentUpdate(now);
+    sendAnimationStream(now);
+}
+
+void LLVOAvatarSelf::sendAttachmentUpdate(U64 now)
+{
     if (!mAttachmentUpdateEnabled)
     {
         return;
     }
-    U64 now = LLFrameTimer::getTotalTime();
-    if (now < mAttachmentUpdateExpiry)
+    if (!mAttachmentUpdateEnabled || now > mAttachmentUpdateExpiry)
     {
         return;
     }
@@ -1347,6 +1361,180 @@ void LLVOAvatarSelf::updateMotions(LLCharacter::e_update_t update_type)
     if (count)
     {   // just send.  If we drop a couple frames, we're fine with that.
         gMessageSystem->sendMessage(gAgent.getRegionHost());
+    }
+}
+
+void LLVOAvatarSelf::sendAnimationStream(U64 now)
+{
+    if (!LLStreamingMotion::GetIsSendingAnimationStream() || now < mAnimationStreamExpiry)
+    {
+        return;
+    }
+    mAnimationStreamExpiry = now + mAnimationStreamPeriod;
+    /*
+    if (!LLPuppetModule::instance().isSending())
+    {
+        return;
+    }
+    */
+
+    size_t num_joints = mJointMap.size();
+    if (num_joints > mLastJointRotation.size())
+    {
+        mLastJointRotation.resize(num_joints);
+        mLastJointPosition.resize(num_joints);
+        mLastJointScale.resize(num_joints);
+    }
+
+    // look for changes
+    constexpr F32 MIN_ANGLE = 0.01f;
+    constexpr F32 MIN_DISTANCE_SQUARED = 0.0001f;
+    constexpr F32 MIN_SCALE_VARIATION_SQUARED = 0.0001f;
+    struct Change {
+        Change(LLJoint* j, U8 m) : mJoint(j), mMask(m) {}
+
+        size_t getNumBytes() const
+        {
+            size_t num_bytes = sizeof(S16); // joint_id
+            num_bytes += sizeof(U8); // mask
+            if (mMask & LLIK::CONFIG_FLAG_LOCAL_ROT)
+            {
+                num_bytes += 3 * sizeof(U16); // compressed quaternion
+            }
+            if (mMask & LLIK::CONFIG_FLAG_LOCAL_POS)
+            {
+                num_bytes += 3 * sizeof(U16); // compressed vec3
+            }
+            if (mMask & LLIK::CONFIG_FLAG_LOCAL_SCALE)
+            {
+                num_bytes += 3 * sizeof(U16); // compressed vec3
+            }
+            return num_bytes;
+        }
+
+        size_t pack(U8* buffer) const
+        {
+            //Stuff everything into a binary blob to save overhead.
+            size_t num_bytes(0);
+            S16 joint_num = (S16)(mJoint->getJointNum());
+            htolememcpy(buffer, &joint_num, MVT_S16, sizeof(S16));
+            num_bytes += sizeof(S16);
+
+            htolememcpy(buffer + num_bytes, &mMask, MVT_U8, sizeof(U8));
+            num_bytes += sizeof(U8);
+
+            //Pack these into the buffer in the same order as the flags.
+            if (mMask & LLIK::CONFIG_FLAG_LOCAL_ROT)
+            {
+                num_bytes += LLIK::pack_quat(buffer + num_bytes, mJoint->getRotation());
+            }
+            if (mMask & LLIK::CONFIG_FLAG_LOCAL_POS)
+            {
+                num_bytes += LLIK::pack_vec3(buffer + num_bytes, mJoint->getPosition());
+            }
+            if (mMask & LLIK::CONFIG_FLAG_LOCAL_SCALE)
+            {
+                num_bytes += LLIK::pack_vec3(buffer + num_bytes, mJoint->getScale());
+            }
+            return num_bytes;
+        }
+
+        LLJoint* mJoint;
+        U8 mMask;
+    };
+
+    std::vector<Change> changes;
+    for (const auto& data_pair : mJointMap)
+    {
+        U8 mask = 0;
+        auto joint = data_pair.second;
+        S32 i = joint->getJointNum();
+        if (i < 0 || i > mLastJointRotation.size())
+        {
+            continue;
+        }
+        if (!LLQuaternion::almost_equal(mLastJointRotation[i], joint->getRotation(), MIN_ANGLE))
+        {
+            mLastJointRotation[i] = joint->getRotation();
+            mask |=  LLIK::CONFIG_FLAG_LOCAL_ROT;
+        }
+        if (dist_vec_squared(mLastJointPosition[i], joint->getPosition()) > MIN_DISTANCE_SQUARED)
+        {
+            mLastJointPosition[i] = joint->getPosition();
+            mask |=  LLIK::CONFIG_FLAG_LOCAL_POS;
+        }
+        if (dist_vec_squared(mLastJointScale[i], joint->getScale()) > MIN_SCALE_VARIATION_SQUARED)
+        {
+            mLastJointScale[i] = joint->getScale();
+            mask |= LLIK::CONFIG_FLAG_LOCAL_SCALE;
+        }
+        if (mask > 0)
+        {
+            changes.push_back(Change(joint, mask));
+        }
+    }
+    if (changes.empty())
+    {
+        return;
+    }
+
+    // prepare binary buffers
+    constexpr U32 PUPPET_MAX_MSG_BYTES = 255;
+    std::array<U8, PUPPET_MAX_MSG_BYTES> scratch_buffer;
+    U8* scratch_ptr = scratch_buffer.data();
+    U8* scratch_end = scratch_ptr + PUPPET_MAX_MSG_BYTES;
+    std::array<U8, PUPPET_MAX_MSG_BYTES> pack_buffer;
+    S32 timestamp = (S32)(LLFrameTimer::getElapsedSeconds() * MSEC_PER_SEC);
+
+    auto change = changes.begin();
+    size_t num_blocks = 0;
+    size_t num_changes = 0;
+    while (change != changes.end())
+    {
+        // build message
+        LLMessageSystem* msg = gMessageSystem;
+        msg->newMessageFast(_PREHASH_AgentAnimation);
+        msg->nextBlockFast(_PREHASH_AgentData);
+        msg->addUUIDFast(_PREHASH_AgentID, gAgentID);
+        msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+
+        // header_size = outer_buffer_size + { timestamp + num_joints + inner_buffer_size }
+        S32 header_size = sizeof(S32) + sizeof(S32) + sizeof(S16) + sizeof(S32);
+
+        while (change != changes.end()
+                && (msg->getCurrentSendTotal() + change->getNumBytes() + header_size) < MTUBYTES)
+        {
+            // make room for header
+            scratch_ptr = scratch_buffer.data();
+
+            // pack the changes
+            std::string joint_list = "";
+            S32 num_scratch_bytes = 0;
+            S32 num_changes_packed = 0;
+            while (change != changes.end()
+                    && scratch_ptr + change->getNumBytes() < scratch_end)
+            {
+                joint_list.append(std::to_string(change->mJoint->getJointNum()));
+                joint_list.append(",");
+                S32 bytes_this_change = (S32)(change->pack(scratch_ptr));
+                num_scratch_bytes += bytes_this_change;
+                scratch_ptr += bytes_this_change;
+                ++num_changes_packed;
+                ++change;
+            }
+
+            // pack binary blob which will go in the message
+            LLDataPackerBinaryBuffer dataPacker(pack_buffer.data(), LLPuppetMotion::GetPuppetryEventMax());
+            dataPacker.packS32(timestamp, "time");
+            dataPacker.packS16(num_changes_packed, "num");
+            dataPacker.packBinaryData(scratch_buffer.data(), num_scratch_bytes, "data");
+
+            msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
+            msg->addBinaryDataFast(_PREHASH_TypeData, pack_buffer.data(), dataPacker.getCurrentSize());
+            ++num_blocks;
+            num_changes += num_changes_packed;
+        }
+        gAgent.sendMessage();
     }
 }
 

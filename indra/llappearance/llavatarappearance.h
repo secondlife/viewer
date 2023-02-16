@@ -133,7 +133,7 @@ protected:
 
 public:
 	F32					getPelvisToFoot() const { return mPelvisToFoot; }
-	/*virtual*/ LLJoint*	getRootJoint() { return mRoot; }
+	LLJoint*	        getRootJoint() override { return mRoot; }
 
 	LLVector3			mHeadOffset; // current head position
 	LLAvatarJoint		*mRoot;

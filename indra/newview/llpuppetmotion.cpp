@@ -544,29 +544,6 @@ LLIK::Constraint::ptr_t get_constraint_by_joint_id(S16 joint_id)
 // END HACK
 
 
-void LLPuppetMotion::DelayedEventQueue::addEvent(
-        Timestamp remote_timestamp,
-        Timestamp local_timestamp,
-        const LLPuppetJointEvent& event)
-{
-    if (mLastRemoteTimestamp != -1)
-    {
-        // dynamically measure mEventPeriod and mEventJitter
-        constexpr F32 DEL = 0.1f;
-        Timestamp this_period = remote_timestamp - mLastRemoteTimestamp;
-        mEventJitter = (1.0f - DEL) * mEventJitter + DEL * std::abs(mEventPeriod - (F32)this_period);
-
-        // mEventPeriod is a running average of the period between events
-        mEventPeriod = (1.0f - DEL) * mEventPeriod + DEL * this_period;
-    }
-    mLastRemoteTimestamp = remote_timestamp;
-
-    // we push event into the future so we have something to interpolate toward
-    // while we wait for the next
-    Timestamp delayed_timestamp = local_timestamp + (Timestamp)(mEventPeriod + mEventJitter);
-    mQueue.push_back({delayed_timestamp, event});
-}
-
 //-----------------------------------------------------------------------------
 // LLPuppetMotion()
 // Class Constructor
@@ -576,14 +553,12 @@ LLPuppetMotion::LLPuppetMotion(const LLUUID &id) :
     mCharacter(nullptr)
 {
     mName = "puppet_motion";
-    mBroadcastTimer.resetWithExpiry(PUPPET_BROADCAST_INTERVAL);
-    mRemoteToLocalClockOffset = std::numeric_limits<F32>::min();
 }
 
 // override
 bool LLPuppetMotion::needsUpdate() const
 {
-    return !mExpressionEvents.empty() || !mEventQueues.empty() || LLMotion::needsUpdate();
+    return !mExpressionEvents.empty() || LLMotion::needsUpdate();
 }
 
 F32 LLPuppetMotion::getEaseInDuration()
@@ -654,14 +629,10 @@ void LLPuppetMotion::setAvatar(LLVOAvatar* avatar)
 
 void LLPuppetMotion::clearAll()
 {
-    mEventQueues.clear();
-    mOutgoingEvents.clear();
     mJointStateExpiries.clear();
     mJointsToRemoveFromPose.clear();
     mIKSolver.resetSkeleton();
 }
-
-
 
 void LLPuppetMotion::addExpressionEvent(const LLPuppetJointEvent& event)
 {
@@ -735,6 +706,7 @@ void LLPuppetMotion::rememberPosedJoint(S16 joint_id, LLPointer<LLJointState> jo
         mJointStateExpiries.insert({joint_id, JointStateExpiry(joint_state, expiry)});
         addJointState(joint_state);
 
+        // TODO: avoid this scan by only removing joint if expired
         // check for and remove mentions of joint_state in mJointsToRemoveFromPose
         size_t i = 0;
         while (i < mJointsToRemoveFromPose.size())
@@ -775,8 +747,7 @@ void LLPuppetMotion::solveIKAndHarvestResults(const LLIK::Solver::joint_config_m
         local_puppetry = camera_mode != CAMERA_MODE_MOUSELOOK && camera_mode != CAMERA_MODE_CUSTOMIZE_AVATAR;
     }
 
-	bool is_sending = LLPuppetModule::instance().isSending();
-    if (!local_puppetry && !is_sending)
+    if (!local_puppetry)
     {
         return;
     }
@@ -795,7 +766,6 @@ void LLPuppetMotion::solveIKAndHarvestResults(const LLIK::Solver::joint_config_m
         // explicitly clear joint settings in the Puppetry stream.
     }
 
-	LLPuppetEvent broadcast_event;
     const LLIK::Solver::joint_list_t& active_joints = mIKSolver.getActiveJoints();
     for (auto joint: active_joints)
     {
@@ -819,37 +789,6 @@ void LLPuppetMotion::solveIKAndHarvestResults(const LLIK::Solver::joint_config_m
             }
             rememberPosedJoint(id, joint_state, now);
         }
-        if (is_sending)
-        {
-			LLPuppetJointEvent joint_event;
-			joint_event.setJointID(id);
-            joint_event.setReferenceFrame(LLPuppetJointEvent::PARENT_FRAME);
-            if (flags & LLIK::CONFIG_FLAG_LOCAL_POS)
-            {
-                // we send positions with correct scale
-                // so they can be applied on the receiving end without modification
-                joint_event.setPosition(joint->getPreScaledLocalPos());
-            }
-            if (flags & LLIK::CONFIG_FLAG_LOCAL_ROT)
-            {
-                joint_event.setRotation(joint->getLocalRot());
-            }
-            if (flags & LLIK::CONFIG_FLAG_LOCAL_SCALE)
-            {
-                joint_event.setScale(joint->getLocalScale());
-            }
-            if (flags & LLIK::CONFIG_FLAG_DISABLE_CONSTRAINT)
-            {
-                joint_event.disableConstraint();
-            }
-			broadcast_event.addJointEvent(joint_event);
-        }
-    }
-
-    if (is_sending)
-    {
-	    broadcast_event.updateTimestamp();
-		queueOutgoingEvent(broadcast_event);
     }
 }
 
@@ -966,120 +905,6 @@ void LLPuppetMotion::updateFromExpression(Timestamp now)
     }
 }
 
-void LLPuppetMotion::applyBroadcastEvent(const LLPuppetJointEvent& event, Timestamp now)
-{
-    S16 joint_id = event.getJointID();
-    state_map_t::iterator state_iter = mJointStates.find(joint_id);
-    if (state_iter != mJointStates.end())
-    {
-        LLPointer<LLJointState> joint_state = state_iter->second;
-        U8 flags = event.getMask();
-        joint_state->setUsage((U32)(flags & LLIK::MASK_JOINT_STATE_USAGE));
-        // Note: we assume broadcast event always in parent-frame
-        // e.g. (flags & LLIK::MASK_TARGET) == 0
-        if (flags & LLIK::CONFIG_FLAG_LOCAL_POS)
-        {
-            // we expect received position to be scaled correctly
-            // so it can be applied without modification
-            joint_state->setPosition(event.getPosition());
-        }
-        if (flags & LLIK::CONFIG_FLAG_LOCAL_ROT)
-        {
-            joint_state->setRotation(event.getRotation());
-        }
-        if (flags & LLIK::CONFIG_FLAG_LOCAL_SCALE)
-        {
-            joint_state->setScale(event.getScale());
-        }
-        rememberPosedJoint(joint_id, joint_state, now);
-    }
-}
-
-void LLPuppetMotion::updateFromBroadcast(Timestamp now)
-{
-    bool accept_broadcast = LLPuppetModule::instance().isReceiving();
-    if (accept_broadcast && mIsSelf)
-    {
-        auto camera_mode = gAgentCamera.getCameraMode();
-        accept_broadcast = (camera_mode != CAMERA_MODE_MOUSELOOK) && (camera_mode != CAMERA_MODE_CUSTOMIZE_AVATAR);
-    }
-    if (!accept_broadcast)
-    {   // drop unapplied data
-        mEventQueues.clear();
-        return;
-    }
-
-    // We walk the queue looking for the two bounding events: the last previous
-    // and the next pending: we will interpolate between them.  If we don't
-    // find bounding events we'll use whatever we've got.
-    auto queue_itr = mEventQueues.begin();
-    while (queue_itr != mEventQueues.end())
-    {
-        auto& queue = queue_itr->second.getEventQueue();
-        auto event_itr = queue.begin();
-        while (event_itr != queue.end())
-        {
-            Timestamp timestamp = event_itr->first;
-            const LLPuppetJointEvent& event = event_itr->second;
-            if (timestamp > now)
-            {
-                // first available event is in the future
-                // we have no choice but to apply what we have
-                applyBroadcastEvent(event, now);
-                break;
-            }
-
-            // event is in the past --> check next event
-            ++event_itr;
-            if (event_itr == queue.end())
-            {
-                // we're at the end of the queue
-                constexpr Timestamp STALE_QUEUE_DURATION = 3 * MSEC_PER_SEC;
-                if (timestamp < now - STALE_QUEUE_DURATION)
-                {
-                    // this queue is stale
-                    // the "remembered pose" will be purged elewhere
-                    queue.clear();
-                }
-                else
-                {
-                    // presumeably we already interpolated close to this event
-                    // but just in case we didn't quite reach it yet: apply
-                    applyBroadcastEvent(event, now);
-                }
-                break;
-            }
-
-            Timestamp next_timestamp = event_itr->first;
-            if (next_timestamp < now)
-            {
-                // event is stale --> drop it
-                queue.pop_front();
-                event_itr = queue.begin();
-                continue;
-            }
-
-            // next event is in the future
-            // which means we've found the two events that straddle 'now'
-            // --> create an interpolated event and apply that
-            F32 del = (F32)(now - timestamp) / (F32)(next_timestamp - timestamp);
-            LLPuppetJointEvent interpolated_event;
-            const LLPuppetJointEvent& next_event = event_itr->second;
-            interpolated_event.interpolate(del, event, next_event);
-            applyBroadcastEvent(interpolated_event, now);
-            break;
-        }
-        if (queue.empty())
-        {
-            queue_itr = mEventQueues.erase(queue_itr);
-        }
-        else
-        {
-            ++queue_itr;
-        }
-    }
-}
-
 void LLPuppetMotion::measureArmSpan()
 {
     // "arm span" is twice the y-component of the longest arm
@@ -1090,40 +915,6 @@ void LLPuppetMotion::measureArmSpan()
     // NOTE: we expect Puppetry data to be in the "normalized-frame" where
     // the arm-span is 2.0 units.
     // We will scale the inbound data by 0.5*mArmSpan.
-}
-
-void LLPuppetMotion::queueEvent(const LLPuppetEvent& puppet_event)
-{
-    // adjust the timestamp for local clock
-    // and push into the future to allow interpolation
-    Timestamp remote_timestamp = puppet_event.getTimestamp();
-    Timestamp now = (S32)(LLFrameTimer::getElapsedSeconds() * MSEC_PER_SEC);
-    Timestamp clock_skew = now - remote_timestamp;
-    if (std::numeric_limits<F32>::min() == mRemoteToLocalClockOffset)
-    {
-        mRemoteToLocalClockOffset = (F32)(clock_skew);
-    }
-    else
-    {
-        // compute a running average
-        constexpr F32 DEL = 0.05f;
-        mRemoteToLocalClockOffset = (1.0 - DEL) * mRemoteToLocalClockOffset + DEL * clock_skew;
-    }
-    Timestamp local_timestamp = remote_timestamp + (Timestamp)(mRemoteToLocalClockOffset);
-
-    // split puppet_event into joint-specific streams
-    for (const auto& joint_event : puppet_event.mJointEvents)
-    {
-        S16 joint_id = joint_event.getJointID();
-        state_map_t::iterator state_iter = mJointStates.find(joint_id);
-        if (state_iter == mJointStates.end())
-        {
-            // ignore this unknown joint_id
-            continue;
-        }
-        DelayedEventQueue& queue = mEventQueues[joint_id];
-        queue.addEvent(remote_timestamp, local_timestamp, joint_event);
-    }
 }
 
 BOOL LLPuppetMotion::onUpdate(F32 time, U8* joint_mask)
@@ -1159,21 +950,12 @@ BOOL LLPuppetMotion::onUpdate(F32 time, U8* joint_mask)
         if (!mExpressionEvents.empty())
         {
             updateFromExpression(now);
-            pumpOutgoingEvents();
         }
-
-        if (LLPuppetModule::instance().getEcho())
-        {   // Check for updates from server if we're echoing from there
-            updateFromBroadcast(now);
-        }
-    }
-    else
-    {   // Some other agent - just update from any incoming data
-        updateFromBroadcast(now);
     }
 
     if (mJointsToRemoveFromPose.size() > 0)
     {
+        // TODO: remove only if actually expired (e.g. need to lookup in mJointStateExpiries)
         for (auto& joint_state : mJointsToRemoveFromPose)
         {
             if (joint_state)
@@ -1200,7 +982,6 @@ BOOL LLPuppetMotion::onUpdate(F32 time, U8* joint_mask)
                 // will reset the avastar's joint...  iff no other animations
                 // contribute to it.  We'll remove it from mPose next onUpdate
                 joint_state_expiry.mState->setPriority(LLJoint::LOW_PRIORITY);
-                joint_state_expiry.mState->setRotation(LLQuaternion::DEFAULT);
                 mJointsToRemoveFromPose.push_back(joint_state_expiry.mState);
                 itr = mJointStateExpiries.erase(itr);
             }
@@ -1304,137 +1085,6 @@ void LLPuppetMotion::collectJoints(LLJoint* joint)
          itr != joint->mChildren.end(); ++itr)
     {
         collectJoints(*itr);
-    }
-}
-
-void LLPuppetMotion::pumpOutgoingEvents()
-{
-    if (!mBroadcastTimer.hasExpired())
-    {
-        return;
-    }
-    packEvents();
-    mBroadcastTimer.resetWithExpiry(PUPPET_BROADCAST_INTERVAL);
-}
-
-void LLPuppetMotion::queueOutgoingEvent(const LLPuppetEvent& event)
-{
-    mOutgoingEvents.push_back(event);
-}
-
-
-//-----------------------------------------------------------------------------
-// packEvents()
-// - packs as many events from Outgoing event queue as possible into the network data pipe
-//-----------------------------------------------------------------------------
-void    LLPuppetMotion::packEvents()
-{
-    if (mOutgoingEvents.empty())
-    {
-        return;
-    }
-
-    if (!LLPuppetMotion::GetPuppetryEnabled() || (LLPuppetMotion::sPuppeteerEventMaxSize < 30))
-    {
-        LL_WARNS_ONCE("Puppet") << "Puppetry enabled=" << LLPuppetMotion::GetPuppetryEnabled()
-            << " event_window=" << LLPuppetMotion::sPuppeteerEventMaxSize << LL_ENDL;
-        mOutgoingEvents.clear();
-        return;
-    }
-
-    std::array<U8, PUPPET_MAX_MSG_BYTES> puppet_pack_buffer;
-
-    LLDataPackerBinaryBuffer dataPacker(puppet_pack_buffer.data(), LLPuppetMotion::sPuppeteerEventMaxSize);
-
-    //Send the agent and session information.
-    LLMessageSystem* msg = gMessageSystem;
-    msg->newMessageFast(_PREHASH_AgentAnimation);
-    msg->nextBlockFast(_PREHASH_AgentData);
-    msg->addUUIDFast(_PREHASH_AgentID, gAgentID);
-    msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-
-    S32 msgblock_count(0);
-    S32 joint_count(0);
-
-    auto event = mOutgoingEvents.begin();
-    while(event != mOutgoingEvents.end())
-    {
-        dataPacker.reset();
-
-        // while the datapacker can fit at least some of the current event in the buffer...
-        while ((event != mOutgoingEvents.end()) &&
-            ((dataPacker.getCurrentSize() + event->getMinEventSize()) < dataPacker.getBufferSize()))
-        {
-            S32 packed_joints(0);
-            bool all_done = event->pack(dataPacker, packed_joints);
-            joint_count += packed_joints;
-            msgblock_count++;
-            if (!all_done)
-            {   // pack was not able to fit everything into this buffer
-                // it's full so time to send it.
-                break;
-            }
-            ++event;
-        }
-
-        // if datapacker has some data, we should put it into the message and perhaps send it.
-        if (dataPacker.getCurrentSize() > 0)
-        {
-            if ((msg->getCurrentSendTotal() + dataPacker.getCurrentSize() + 16) >= MTUBYTES)
-            {   // send the old message and get a new one ready.
-                LL_DEBUGS("PUPPET_SPAM") << "Message would overflow MTU, sending message with " << msgblock_count << " blocks and "
-                        << joint_count << " joints in frame " << (S32) gFrameCount << LL_ENDL;
-                joint_count = 0;
-
-                gAgent.sendMessage();
-
-                // Create the next message header
-                msgblock_count = 0;
-                msg->newMessageFast(_PREHASH_AgentAnimation);
-                msg->nextBlockFast(_PREHASH_AgentData);
-                msg->addUUIDFast(_PREHASH_AgentID, gAgentID);
-                msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-            }
-
-            msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
-            msg->addBinaryDataFast(_PREHASH_TypeData, puppet_pack_buffer.data(), dataPacker.getCurrentSize());
-        }
-    }
-
-    mOutgoingEvents.clear();
-
-    if (msgblock_count)
-    {   // there are some events that weren't sent above.  Send them along.
-        LL_DEBUGS("PUPPET_SPAM") << "Sending message with " << msgblock_count << " blocks and "
-            << joint_count << " joints in frame " << (S32) gFrameCount << LL_ENDL;
-        gAgent.sendMessage();
-    }
-    else
-    {   // clean up message we started
-        msg->clearMessage();
-    }
-}
-
-void LLPuppetMotion::unpackEvents(LLMessageSystem *mesgsys,int blocknum)
-{
-    std::array<U8, PUPPET_MAX_MSG_BYTES> puppet_pack_buffer;
-
-    LLDataPackerBinaryBuffer dataPacker( puppet_pack_buffer.data(), PUPPET_MAX_MSG_BYTES );
-    dataPacker.reset();
-
-    S32 data_size = mesgsys->getSizeFast(_PREHASH_PhysicalAvatarEventList, blocknum, _PREHASH_TypeData);
-    mesgsys->getBinaryDataFast(_PREHASH_PhysicalAvatarEventList, _PREHASH_TypeData, puppet_pack_buffer.data(), data_size , blocknum,PUPPET_MAX_MSG_BYTES);
-
-    LL_DEBUGS_IF(data_size > 0, "PUPPET_SPAM") << "Have puppet buffer " << data_size << " bytes in frame " << (S32) gFrameCount << LL_ENDL;
-
-    LLPuppetEvent event;
-    if (event.unpack(dataPacker))
-    {
-        queueEvent(event);
-    }
-    else
-    {
-        LL_WARNS_ONCE("Puppet") << "Invalid puppetry packet received. Rejecting!" << LL_ENDL;
     }
 }
 

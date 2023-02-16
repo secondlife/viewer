@@ -114,6 +114,7 @@
 #include "llpuppetmotion.h"
 #include "llpuppetmodule.h"
 #include "llskinningutil.h"
+#include "llstreamingmotion.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -151,7 +152,8 @@ const LLUUID ANIM_AGENT_PELVIS_FIX = LLUUID("0c5dd2a2-514d-8893-d44d-05beffad208
 const LLUUID ANIM_AGENT_TARGET = LLUUID("0e4896cb-fba4-926c-f355-8720189d5b55");  //"target"
 const LLUUID ANIM_AGENT_WALK_ADJUST	= LLUUID("829bc85b-02fc-ec41-be2e-74cc6dd7215d");  //"walk_adjust"
 const LLUUID ANIM_AGENT_PHYSICS_MOTION = LLUUID("7360e029-3cb8-ebc4-863e-212df440d987");  //"physics_motion"
-const LLUUID ANIM_AGENT_PUPPET_MOTION = LLUUID("e6f6a440-b547-11da-a94d-0800200c9a66"); //"pupppet_motion"
+const LLUUID ANIM_AGENT_PUPPET_MOTION = LLUUID("e6f6a440-b547-11da-a94d-0800200c9a66"); //"puppet_motion"
+const LLUUID ANIM_AGENT_STREAMING_MOTION = LLUUID("be61b91b-6c16-464a-ad71-a7af5581cbc8"); //"streaming_motion"
 
 //-----------------------------------------------------------------------------
 // Constants
@@ -690,6 +692,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mCachedInMuteList(false),
     mIsControlAvatar(false),
     mIsUIAvatar(false),
+    mIsReceivingAnimationStream(false),
     mEnableDefaultMotions(true)
 {
 	LL_DEBUGS("AvatarRender") << "LLVOAvatar Constructor (0x" << this << ") id:" << mID << LL_ENDL;
@@ -1143,6 +1146,7 @@ void LLVOAvatar::initClass()
 	gAnimLibrary.animStateSetString(ANIM_AGENT_TARGET,"target");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_WALK_ADJUST,"walk_adjust");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_PUPPET_MOTION,"puppet_motion");
+	gAnimLibrary.animStateSetString(ANIM_AGENT_STREAMING_MOTION,"streaming_motion");
 
     // Where should this be set initially?
     LLJoint::setDebugJointNames(gSavedSettings.getString("DebugAvatarJoints"));
@@ -1217,6 +1221,7 @@ void LLVOAvatar::initInstance()
 		registerMotion( ANIM_AGENT_TARGET,					LLTargetingMotion::create );
 		registerMotion( ANIM_AGENT_WALK_ADJUST,				LLWalkAdjustMotion::create );
         registerMotion( ANIM_AGENT_PUPPET_MOTION,           LLPuppetMotion::create );
+        registerMotion( ANIM_AGENT_STREAMING_MOTION,        LLStreamingMotion::create );
 	}
 	
 	LLAvatarAppearance::initInstance();
@@ -1225,7 +1230,10 @@ void LLVOAvatar::initInstance()
 
 	createMotion( ANIM_AGENT_CUSTOMIZE);
 	createMotion( ANIM_AGENT_CUSTOMIZE_DONE);
-	createMotion(ANIM_AGENT_PUPPET_MOTION);
+    if (isSelf())
+    {
+	    createMotion(ANIM_AGENT_PUPPET_MOTION);
+    }
 
 	LLPuppetMotion::ptr_t puppet_motion = getPuppetMotion();
     if (puppet_motion)
@@ -3701,6 +3709,46 @@ void LLVOAvatar::idleUpdateBelowWater()
 	mBelowWater =  avatar_height < water_height;
 }
 
+void LLVOAvatar::enableStreamingMotion()
+{
+    if (!isSelf() && !mIsReceivingAnimationStream)
+    {
+        // stop all non-streaming animations
+        bool found_streaming_motion = false;
+        LLMotionController::motion_list_t motions_to_stop;
+	    for (LLMotionController::motion_list_t::iterator iter = mMotionController.getActiveMotions().begin();
+		    iter != mMotionController.getActiveMotions().end(); ++iter)
+	    {
+		    LLMotion::ptr_t motionp = *iter;
+		    if (motionp->getID() == ANIM_AGENT_STREAMING_MOTION)
+            {
+                found_streaming_motion = true;
+            }
+            else
+            {
+                motions_to_stop.push_back(motionp);
+            }
+        }
+        for (auto& motionp : motions_to_stop)
+        {
+            stopMotion(motionp->getID(), true);
+        }
+
+        // start streaming motion
+        if (!found_streaming_motion)
+        {
+            LLMotion::ptr_t motionp = mMotionController.findMotion(ANIM_AGENT_STREAMING_MOTION);
+            if (!motionp)
+            {
+	            createMotion(ANIM_AGENT_STREAMING_MOTION);
+            }
+        }
+	    startMotion(ANIM_AGENT_STREAMING_MOTION);
+        mIsReceivingAnimationStream = true;
+        mEnableDefaultMotions = false;
+    }
+}
+
 void LLVOAvatar::slamPosition()
 {
 	gAgent.setPositionAgent(getPositionAgent());
@@ -4657,7 +4705,7 @@ bool LLVOAvatar::updateCharacter(LLAgent &agent)
 	else if (!getParent() && isSitting() && !isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED))
 	{
         // If we are starting up, motion might be loading
-		LLMotion::ptr_t motionp(gAgentAvatarp->findMotion(ANIM_AGENT_SIT_GROUND_CONSTRAINED));
+        LLMotion::ptr_t motionp = mMotionController.findMotion(ANIM_AGENT_SIT_GROUND_CONSTRAINED);
         if (!motionp || !mMotionController.isMotionLoading(motionp))
         {
             getOffObject();
@@ -5845,6 +5893,11 @@ const LLUUID& LLVOAvatar::getStepSound() const
 //-----------------------------------------------------------------------------
 void LLVOAvatar::processAnimationStateChanges()
 {
+    if (!isSelf() && mIsReceivingAnimationStream)
+    {
+        return;
+    }
+
 	if ( isAnyAnimationSignaled(AGENT_WALK_ANIMS, NUM_AGENT_WALK_ANIMS) )
 	{
 		startMotion(ANIM_AGENT_WALK_ADJUST);
@@ -5855,8 +5908,8 @@ void LLVOAvatar::processAnimationStateChanges()
 		stopMotion(ANIM_AGENT_WALK_ADJUST);
         if (mEnableDefaultMotions)
         {
-		startMotion(ANIM_AGENT_FLY_ADJUST);
-	}
+		    startMotion(ANIM_AGENT_FLY_ADJUST);
+	    }
 	}
 	else
 	{
@@ -5868,7 +5921,7 @@ void LLVOAvatar::processAnimationStateChanges()
 	{
         if (mEnableDefaultMotions)
         {
-		startMotion(ANIM_AGENT_TARGET);
+			startMotion(ANIM_AGENT_TARGET);
         }
 		stopMotion(ANIM_AGENT_BODY_NOISE);
 	}
@@ -5880,7 +5933,7 @@ void LLVOAvatar::processAnimationStateChanges()
 			startMotion(ANIM_AGENT_BODY_NOISE);
 		}
 	}
-	
+
 	// clear all current animations
 	AnimIterator anim_it;
 	for (anim_it = mPlayingAnimations.begin(); anim_it != mPlayingAnimations.end();)
@@ -7785,7 +7838,7 @@ void LLVOAvatar::getOffObject()
 
     if (mEnableDefaultMotions)
     {
-	startMotion(ANIM_AGENT_BODY_NOISE);
+	    startMotion(ANIM_AGENT_BODY_NOISE);
     }
 
 	if (isSelf())

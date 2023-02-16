@@ -72,6 +72,7 @@
 #include "llsmoothstep.h"
 #include "llstartup.h"
 #include "llstatusbar.h"
+#include "llstreamingmotion.h"
 #include "llteleportflags.h"
 #include "lltool.h"
 #include "lltoolbarview.h"
@@ -3180,7 +3181,7 @@ LLQuaternion LLAgent::getHeadRotation()
 
 void LLAgent::sendAnimationRequests(const std::vector<LLUUID> &anim_ids, EAnimRequest request)
 {
-	if (gAgentID.isNull())
+	if (LLStreamingMotion::GetIsSendingAnimationStream() || gAgentID.isNull())
 	{
 		return;
 	}

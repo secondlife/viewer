@@ -40,6 +40,11 @@
 #include "v3math.h"
 #include "llframetimer.h"
 
+namespace LLIK {
+    size_t pack_vec3(U8* wptr, LLVector3 vec);
+    size_t pack_quat(U8* wptr, LLQuaternion quat);
+};
+
 class LLPuppetJointEvent
 {
     //Information about an expression event that we want to broadcast
@@ -81,7 +86,7 @@ private:
     LLQuaternion mRotation;
     LLVector3 mPosition;
     LLVector3 mScale;
-    U16 mJointID = -1;
+    S16 mJointID = -1;
     U8 mMask = 0x0;
 };
 

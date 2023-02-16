@@ -118,6 +118,7 @@
 #include "llfloaterregionrestarting.h"
 #include "llpuppetmodule.h"
 #include "llpuppetmotion.h"
+#include "llstreamingmotion.h"
 
 #include <boost/foreach.hpp>
 
@@ -4056,23 +4057,23 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 
 
 // Common code to extract puppetry data from an avatar animation message
-static void  handle_puppetry_data(LLMessageSystem * mesgsys, LLVOAvatar * avatarp, S32 num_physav_blocks)
+static void  handle_streaming_animation_data(LLMessageSystem * mesgsys, LLVOAvatar * avatarp, S32 num_physav_blocks)
 {
-    LLPuppetMotion::ptr_t puppet_motion(std::static_pointer_cast<LLPuppetMotion>(avatarp->findMotion(ANIM_AGENT_PUPPET_MOTION)));
+    if (!avatarp->isReceivingAnimationStream())
+    {
+        avatarp->enableStreamingMotion();
+    }
 
-    if (puppet_motion != NULL)
+    LLStreamingMotion::ptr_t motion(std::static_pointer_cast<LLStreamingMotion>(avatarp->findMotion(ANIM_AGENT_STREAMING_MOTION)));
+    if (motion)
     {
         for (S32 i = 0; i < num_physav_blocks; i++)
         {
             S32 data_size = mesgsys->getSizeFast(_PREHASH_PhysicalAvatarEventList, i, _PREHASH_TypeData);
             if (data_size > 0)
             {
-                puppet_motion->unpackEvents(mesgsys, i);
+                motion->unpackEvents(mesgsys, i);
             }
-        }
-        if (!puppet_motion->isActive() && puppet_motion->needsUpdate())
-        {
-            avatarp->startMotion(ANIM_AGENT_PUPPET_MOTION);
         }
     }
 }
@@ -4083,7 +4084,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 	LLUUID	uuid;
 	S32		anim_sequence_id;
 	LLVOAvatar *avatarp = NULL;
-	
+
 	mesgsys->getUUIDFast(_PREHASH_Sender, _PREHASH_ID, uuid);
 
 	LLViewerObject *objp = gObjectList.findObject(uuid);
@@ -4107,7 +4108,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 
 	//clear animation flags
 	avatarp->mSignaledAnimations.clear();
-	
+
 	if (avatarp->isSelf())
 	{
 		LLUUID object_id;
@@ -4169,7 +4170,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 		if (LLPuppetModule::instance().getEcho())
 		{
 			// Extract and process puppetry data from message
-			handle_puppetry_data(mesgsys, avatarp, num_physav_blocks);
+			handle_streaming_animation_data(mesgsys, avatarp, num_physav_blocks);
 		}
 	}
 	else
@@ -4182,7 +4183,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 		}
 
 		// Extract and process puppetry data from message
-		handle_puppetry_data(mesgsys, avatarp, num_physav_blocks);
+		handle_streaming_animation_data(mesgsys, avatarp, num_physav_blocks);
 	}
 
 	if (num_blocks)

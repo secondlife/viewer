@@ -591,6 +591,7 @@ set(viewer_SOURCE_FILES
     llstartup.cpp
     llstartuplistener.cpp
     llstatusbar.cpp
+    llstreamingmotion.cpp
     llstylemap.cpp
     llsurface.cpp
     llsurfacepatch.cpp
@@ -1224,6 +1225,7 @@ set(viewer_HEADER_FILES
     llstartup.h
     llstartuplistener.h
     llstatusbar.h
+    llstreamingmotion.h
     llstylemap.h
     llsurface.h
     llsurfacepatch.h
