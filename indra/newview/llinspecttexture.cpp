@@ -75,11 +75,11 @@ void LLInspectTexture::onOpen(const LLSD& sdData)
 	// Start fade animation
 	LLInspect::onOpen(sdData);
 
-	bool fIsAsset = sdData.has("asset_id");
+	bool fIsAsset = sdData.has("thumbnail_id");
 	bool fIsInventory = sdData.has("item_id");
 
 	// Skip if we're being asked to display the same thing
-	const LLUUID idAsset = (fIsAsset) ? sdData["asset_id"].asUUID() : LLUUID::null;
+	const LLUUID idAsset = (fIsAsset) ? sdData["thumbnail_id"].asUUID() : LLUUID::null;
 	const LLUUID idItem = (fIsInventory) ? sdData["item_id"].asUUID() : LLUUID::null;
 	if ( (getVisible()) && ( ((fIsAsset) && (idAsset == mAssetId)) || ((fIsInventory) && (idItem == mItemId)) ) )
 	{
@@ -134,13 +134,27 @@ BOOL LLInspectTexture::postBuild()
 // Helper functions
 //
 
+class LLIsTextureType : public LLInventoryCollectFunctor
+{
+public:
+    LLIsTextureType() {}
+    virtual ~LLIsTextureType() {}
+    virtual bool operator()(LLInventoryCategory* cat,
+        LLInventoryItem* item);
+};
+
+bool LLIsTextureType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+    return item && (item->getType() == LLAssetType::AT_TEXTURE);
+}
+
 LLToolTip* LLInspectTextureUtil::createInventoryToolTip(LLToolTip::Params p)
 {
     const LLSD& sdTooltip = p.create_params;
     
     if (sdTooltip.has("thumbnail_id") && sdTooltip["thumbnail_id"].asUUID().notNull())
     {
-        // go straight for tooltip regardless of type
+        // go straight for thumbnail regardless of type
         return LLUICtrlFactory::create<LLTextureToolTip>(p);
     }
 
@@ -152,18 +166,31 @@ LLToolTip* LLInspectTextureUtil::createInventoryToolTip(LLToolTip::Params p)
 				if (sdTooltip.has("item_id"))
 				{
 					const LLUUID idCategory = sdTooltip["item_id"].asUUID();
+                    LLViewerInventoryCategory* cat = gInventory.getCategory(idCategory);
+                    if (cat && cat->getPreferredType() == LLFolderType::FT_OUTFIT)
+                    {
+                        LLInventoryModel::cat_array_t cats;
+                        LLInventoryModel::item_array_t items;
+                        // Not LLIsOfAssetType, because we allow links
+                        LLIsTextureType f;
+                        gInventory.getDirectDescendentsOf(idCategory, cats, items, f);
 
-					LLInventoryModel::cat_array_t cats;
-					LLInventoryModel::item_array_t items;
-					LLIsOfAssetType f(LLAssetType::AT_TEXTURE);
-					gInventory.getDirectDescendentsOf(idCategory, cats, items, f);
-
-					// Exactly one texture found => show the texture tooltip
-					if (1 == items.size())
-					{
-						p.create_params.getValue()["asset_id"] = items.front()->getAssetUUID();
-						return LLUICtrlFactory::create<LLTextureToolTip>(p);
-					}
+                        // Exactly one texture found => show the texture tooltip
+                        if (1 == items.size())
+                        {
+                            LLViewerInventoryItem* item = items.front();
+                            if (item && item->getIsLinkType())
+                            {
+                                item = item->getLinkedItem();
+                            }
+                            if (item)
+                            {
+                                // Todo: write this into folder's thumbnail id
+                                p.create_params.getValue()["thumbnail_id"] = item->getAssetUUID();
+                                return LLUICtrlFactory::create<LLTextureToolTip>(p);
+                            }
+                        }
+                    }
 				}
 
 				// No or more than one texture found => show default tooltip
