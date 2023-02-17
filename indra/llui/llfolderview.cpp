@@ -1798,14 +1798,14 @@ void LLFolderView::update()
         LLFolderViewItem* scroll_to_item = mSelectedItems.back();
 		scrollToShowItem(scroll_to_item, constraint_rect);
 		// continue scrolling until animated layout change is done
-        bool selected_filter_finished = true;
-        if (scroll_to_item && scroll_to_item->getViewModelItem())
+        bool selected_filter_finished = getRoot()->getViewModelItem()->getLastFilterGeneration() >= filter_object.getFirstSuccessGeneration();
+        if (selected_filter_finished && scroll_to_item && scroll_to_item->getViewModelItem())
         {
             selected_filter_finished = scroll_to_item->getViewModelItem()->getLastFilterGeneration() >= filter_object.getFirstSuccessGeneration();
         }
         if (filter_finished && selected_filter_finished)
         {
-            bool needs_arrange = needsArrange();
+            bool needs_arrange = needsArrange() || getRoot()->needsArrange();
             if (mParentFolder)
             {
                 needs_arrange |= (bool)mParentFolder->needsArrange();
