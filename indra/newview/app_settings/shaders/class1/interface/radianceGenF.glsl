@@ -127,14 +127,11 @@ vec4 prefilterEnvMap(vec3 R)
 	vec3 V = R;
 	vec4 color = vec4(0.0);
 	float totalWeight = 0.0;
-	float envMapDim = u_width;
-    int numSamples = 4;
-    
-    float numMips = max_probe_lod;
+	float envMapDim = float(textureSize(reflectionProbes, 0).s);
+    float roughness = mipLevel/max_probe_lod;
+    int numSamples = max(int(32*roughness), 1);
 
-    float roughness = mipLevel/numMips;
-
-    numSamples = max(int(numSamples*roughness), 1);
+    float numMips = max_probe_lod+1;
 
 	for(uint i = 0u; i < numSamples; i++) {
 		vec2 Xi = hammersley2d(i, numSamples);
@@ -154,11 +151,9 @@ vec4 prefilterEnvMap(vec3 R)
 			// Solid angle of 1 pixel across all cube faces
 			float omegaP = 4.0 * PI / (6.0 * envMapDim * envMapDim);
 			// Biased (+1.0) mip level for better result
-			float mip = roughness == 0.0 ? 0.0 : clamp(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f, numMips);
-            //float mip = clamp(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f, 7.f);
-			color += textureLod(reflectionProbes, vec4(L,sourceIdx), mip) * dotNL;
+			float mipLevel = roughness == 0.0 ? 0.0 : max(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f);
+			color += textureLod(reflectionProbes, vec4(L, sourceIdx), mipLevel) * dotNL;
 			totalWeight += dotNL;
-
 		}
 	}
 	return (color / totalWeight);
