@@ -66,7 +66,7 @@ void LLReflectionMap::autoAdjustOrigin()
 
         if (mGroup->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_VOLUME)
         {
-            mPriority = 1;
+            mPriority = 0;
             // cast a ray towards 8 corners of bounding box
             // nudge origin towards center of empty space
 
@@ -150,7 +150,7 @@ void LLReflectionMap::autoAdjustOrigin()
     }
     else if (mViewerObject)
     {
-        mPriority = 64;
+        mPriority = 1;
         mOrigin.load3(mViewerObject->getPositionAgent().mV);
         mRadius = mViewerObject->getScale().mV[0]*0.5f;
     }

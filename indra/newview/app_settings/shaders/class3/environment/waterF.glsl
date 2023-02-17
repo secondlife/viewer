@@ -232,8 +232,8 @@ void main()
 
     irradiance       = vec3(0);
 
-    vec3 diffuseColor;
-    vec3 specularColor;
+    vec3 diffuseColor = vec3(0);
+    vec3 specularColor = vec3(0);
     calcDiffuseSpecular(vec3(1), metallic, diffuseColor, specularColor);
 
     vec3 v = -normalize(pos.xyz);

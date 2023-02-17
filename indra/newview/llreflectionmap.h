@@ -97,6 +97,9 @@ public:
     LLViewerObject* mViewerObject = nullptr;
 
     // what priority should this probe have (higher is higher priority)
-    U32 mPriority = 1;
+    // currently only 0 or 1
+    // 0 - automatic probe
+    // 1 - manual probe
+    U32 mPriority = 0;
 };
 

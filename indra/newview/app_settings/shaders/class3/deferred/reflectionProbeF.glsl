@@ -80,7 +80,7 @@ bool isAbove(vec3 pos, vec4 plane)
     return (dot(plane.xyz, pos) + plane.w) > 0;
 }
 
-int max_priority = 0;
+bool sample_automatic = true;
 
 // return true if probe at index i influences position pos
 bool shouldSampleProbe(int i, vec3 pos)
@@ -95,24 +95,24 @@ bool shouldSampleProbe(int i, vec3 pos)
             return false;
         }
 
-        max_priority = max(max_priority, -refIndex[i].w);
+        sample_automatic = false;
     }
     else
     {
-        if (refSphere[i].w > 0.0) // zero is special indicator to always sample this probe
+        if (refIndex[i].w == 0 && !sample_automatic)
         {
-            vec3 delta = pos.xyz - refSphere[i].xyz;
-            float d = dot(delta, delta);
-            float r2 = refSphere[i].w;
-            r2 *= r2;
-
-            if (d > r2)
-            { //outside bounding sphere
-                return false;
-            }
+            return false;
         }
 
-        max_priority = max(max_priority, refIndex[i].w);
+        vec3 delta = pos.xyz - refSphere[i].xyz;
+        float d = dot(delta, delta);
+        float r2 = refSphere[i].w;
+        r2 *= r2;
+
+        if (d > r2)
+        { // outside bounding sphere
+            return false;
+        }
     }
 
     return true;
@@ -120,7 +120,6 @@ bool shouldSampleProbe(int i, vec3 pos)
 
 // call before sampleRef
 // populate "probeIndex" with N probe indices that influence pos where N is REF_SAMPLE_COUNT
-// overall algorithm -- 
 void preProbeSample(vec3 pos)
 {
     // TODO: make some sort of structure that reduces the number of distance checks
@@ -210,7 +209,7 @@ void preProbeSample(vec3 pos)
         }
     }
 
-    if (max_priority <= 1)
+    if (sample_automatic)
     { // probe at index 0 is a special probe for smoothing out automatic probes
         probeIndex[probeInfluences++] = 0;
     }
@@ -342,7 +341,7 @@ return texCUBE(envMap, ReflDirectionWS);
 // d - distance to nearest wall in clip space
 vec3 boxIntersect(vec3 origin, vec3 dir, int i, out float d)
 {
-    // Intersection with OBB convertto unit box space
+    // Intersection with OBB convert to unit box space
     // Transform in local unit parallax cube space (scaled and rotated)
     mat4 clipToLocal = refBox[i];
 
@@ -431,18 +430,24 @@ void boxIntersectDebug(vec3 origin, vec3 pos, int i, inout vec4 col)
 //  origin - center of sphere probe
 //  r - radius of probe influence volume
 // min_da - minimum angular attenuation coefficient
-float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, float min_da)
+// i - index of probe in refSphere
+// dw - distance weight
+float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, float min_da, int i, out float dw)
 {
     float r1 = r * 0.5; // 50% of radius (outer sphere to start interpolating down)
     vec3 delta = pos.xyz - origin;
     float d2 = max(length(delta), 0.001);
+
     float r2 = r1; //r1 * r1;
 
     //float atten = 1.0 - max(d2 - r2, 0.0) / max((rr - r2), 0.001);
     float atten = 1.0 - max(d2 - r2, 0.0) / max((r - r2), 0.001);
+    float w = 1.0 / d2;
+    
+    dw = w * atten * max(r, 1.0)*4;
 
     atten *= max(dot(normalize(-delta), dir), min_da);
-    float w = 1.0 / d2;
+
     w *= atten;
 
     return w;
@@ -451,13 +456,15 @@ float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, float min_da)
 // Tap a reflection probe
 // pos - position of pixel
 // dir - pixel normal
+//  w - weight of sample (distance and angular attenuation)
+//  dw - weight of sample (distance only)
 // vi - return value of intersection point with influence volume
 // wi - return value of approximate world space position of sampled pixel
 // lod - which mip to bias towards (lower is higher res, sharper reflections)
 // c - center of probe
 // r2 - radius of probe squared
 // i - index of probe 
-vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out vec3 vi, out vec3 wi, float lod, vec3 c, int i)
+vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, out vec3 vi, out vec3 wi, float lod, vec3 c, int i)
 {
     //lod = max(lod, 1);
     // parallax adjustment
@@ -473,14 +480,15 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out vec3 vi, out vec3 wi, float 
     }
     else
     {
-        float r = refSphere[i].w; // radius of sphere volume
-        float rr = r * r; // radius squared
+        float r = refSphere[i].w;
+
+        float rr = r * r;
 
         v = sphereIntersect(pos, dir, c, 
-        refIndex[i].w <= 1 ? 4096.0*4096.0 : // <== effectively disable parallax correction for automatically placed probes to keep from bombing the world with obvious spheres
+        refIndex[i].w < 1 ? 4096.0*4096.0 : // <== effectively disable parallax correction for automatically placed probes to keep from bombing the world with obvious spheres
                 rr);
 
-        w = sphereWeight(pos, dir, refSphere[i].xyz, r, 0.25);
+        w = sphereWeight(pos, dir, refSphere[i].xyz, r, 0.25, i, dw);
     }
 
     vi = v;
@@ -500,10 +508,10 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out vec3 vi, out vec3 wi, float 
 // Tap an irradiance map
 // pos - position of pixel
 // dir - pixel normal
-// c - center of probe
-// r2 - radius of probe squared
+// w - weight of sample (distance and angular attenuation)
+// dw - weight of sample (distance only)
 // i - index of probe 
-vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, vec3 c, int i)
+vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, out float dw, vec3 c, int i)
 {
     // parallax adjustment
     vec3 v;
@@ -516,14 +524,15 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, vec3 c, int i)
     else
     {
         float r = refSphere[i].w; // radius of sphere volume
-        float p = float(abs(refIndex[i].w)); // priority
-        float rr = r * r; // radius squred
+
+        // pad sphere for manual probe extending into automatic probe space
+        float rr = r * r;
 
         v = sphereIntersect(pos, dir, c, 
-        refIndex[i].w <= 1 ? 4096.0*4096.0 : // <== effectively disable parallax correction for automatically placed probes to keep from bombing the world with obvious spheres
+        refIndex[i].w < 1 ? 4096.0*4096.0 : // <== effectively disable parallax correction for automatically placed probes to keep from bombing the world with obvious spheres
                 rr);
 
-        w = sphereWeight(pos, dir, refSphere[i].xyz, r, 0.001);
+        w = sphereWeight(pos, dir, refSphere[i].xyz, r, 0.001, i, dw);
     }
 
     v -= c;
@@ -535,19 +544,30 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, vec3 c, int i)
 
 vec3 sampleProbes(vec3 pos, vec3 dir, float lod, bool errorCorrect)
 {
-    float wsum = 0.0;
-    vec3 col = vec3(0,0,0);
-    float vd2 = dot(pos,pos); // view distance squared
+    float wsum[2];
+    wsum[0] = 0;
+    wsum[1] = 0;
+
+    float dwsum[2];
+    dwsum[0] = 0;
+    dwsum[1] = 0;
+
+    vec3 col[2];
+    col[0] = vec3(0);
+    col[1] = vec3(0);
 
     for (int idx = 0; idx < probeInfluences; ++idx)
     {
         int i = probeIndex[idx];
-        if (abs(refIndex[i].w) < max_priority)
+        int p = clamp(abs(refIndex[i].w), 0, 1);
+
+        if (p == 0 && !sample_automatic)
         {
             continue;
         }
 
-        float w;
+        float w = 0;
+        float dw = 0;
         vec3 vi, wi;
         vec3 refcol;
 
@@ -556,7 +576,7 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod, bool errorCorrect)
             if (errorCorrect && refIndex[i].w >= 0)
             { // error correction is on and this probe is a sphere
               //take a sample to get depth value, then error correct
-                refcol = tapRefMap(pos, dir, w, vi, wi, abs(lod + 2), refSphere[i].xyz, i);
+                refcol = tapRefMap(pos, dir, w, dw, vi, wi, abs(lod + 2), refSphere[i].xyz, i);
 
                 //adjust lookup by distance result
                 float d = length(vi - wi);
@@ -571,61 +591,96 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod, bool errorCorrect)
                 // weight by vector correctness
                 vec3 pi = normalize(wi - pos);
                 w *= max(dot(pi, dir), 0.1);
-                //w = pow(w, 32.0);
             }
             else
             {
-                refcol = tapRefMap(pos, dir, w, vi, wi, lod, refSphere[i].xyz, i);
+                refcol = tapRefMap(pos, dir, w, dw, vi, wi, lod, refSphere[i].xyz, i);
             }
 
-            col += refcol.rgb*w;
-
-            wsum += w;
+            col[p] += refcol.rgb*w;
+            wsum[p] += w;
+            dwsum[p] += dw;
         }
     }
 
-    if (wsum > 0.0)
+    // mix automatic and manual probes
+    if (sample_automatic && wsum[0] > 0.0)
+    { // some automatic probes were sampled
+        col[0] *= 1.0/wsum[0];
+        if (wsum[1] > 0.0)
+        { //some manual probes were sampled, mix between the two
+            col[1] *= 1.0/wsum[1];
+            col[1] = mix(col[0], col[1], min(dwsum[1], 1.0));
+            col[0] = vec3(0);
+        }
+    }
+    else if (wsum[1] > 0.0)
     {
-        col *= 1.0/wsum;
+        // manual probes were sampled but no automatic probes were
+        col[1] *= 1.0/wsum[1];
+        col[0] = vec3(0);
     }
     
-    return col;
+    return col[1]+col[0];
 }
 
 vec3 sampleProbeAmbient(vec3 pos, vec3 dir)
 {
     // modified copy/paste of sampleProbes follows, will likely diverge from sampleProbes further
     // as irradiance map mixing is tuned independently of radiance map mixing
-    float wsum = 0.0;
-    vec3 col = vec3(0,0,0);
-    float vd2 = dot(pos,pos); // view distance squared
+    float wsum[2];
+    wsum[0] = 0;
+    wsum[1] = 0;
 
-    float minweight = 1.0;
+    float dwsum[2];
+    dwsum[0] = 0;
+    dwsum[1] = 0;
+
+    vec3 col[2];
+    col[0] = vec3(0);
+    col[1] = vec3(0);
 
     for (int idx = 0; idx < probeInfluences; ++idx)
     {
         int i = probeIndex[idx];
-        if (abs(refIndex[i].w) < max_priority)
+        int p = clamp(abs(refIndex[i].w), 0, 1);
+
+        if (p == 0 && !sample_automatic)
         {
             continue;
         }
         
         {
-            float w;
-            vec3 refcol = tapIrradianceMap(pos, dir, w, refSphere[i].xyz, i);
+            float w = 0;
+            float dw = 0;
 
-            col += refcol*w;
-            
-            wsum += w;
+            vec3 refcol = tapIrradianceMap(pos, dir, w, dw, refSphere[i].xyz, i);
+
+            col[p] += refcol*w;
+            wsum[p] += w;
+            dwsum[p] += dw;
         }
     }
 
-    if (wsum > 0.0)
-    {
-        col *= 1.0/wsum;
+    // mix automatic and manual probes
+    if (sample_automatic && wsum[0] > 0.0)
+    { // some automatic probes were sampled
+        col[0] *= 1.0/wsum[0];
+        if (wsum[1] > 0.0)
+        { //some manual probes were sampled, mix between the two
+            col[1] *= 1.0/wsum[1];
+            col[1] = mix(col[0], col[1], min(dwsum[1], 1.0));
+            col[0] = vec3(0);
+        }
     }
-
-    return col;
+    else if (wsum[1] > 0.0)
+    {
+        // manual probes were sampled but no automatic probes were
+        col[1] *= 1.0/wsum[1];
+        col[0] = vec3(0);
+    }
+    
+    return col[1]+col[0];
 }
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
@@ -658,7 +713,7 @@ void debugTapRefMap(vec3 pos, vec3 dir, float depth, int i, inout vec4 col)
 {
     vec3 origin = vec3(0,0,0);
 
-    bool manual_probe = abs(refIndex[i].w) > 2;
+    bool manual_probe = abs(refIndex[i].w) > 0;
 
     if (manual_probe)
     {
@@ -705,7 +760,6 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
 void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity)
 {
-    // TODO - don't hard code lods
     float reflection_lods = max_probe_lod;
     preProbeSample(pos);
 
