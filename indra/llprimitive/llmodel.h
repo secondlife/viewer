@@ -41,12 +41,13 @@ class domMesh;
 #define MAX_MODEL_FACES 8
 
 LL_ALIGN_PREFIX(16)
-class LLMeshSkinInfo 
+class LLMeshSkinInfo : public LLRefCount
 {
     LL_ALIGN_NEW
 public:
 	LLMeshSkinInfo();
 	LLMeshSkinInfo(LLSD& data);
+	LLMeshSkinInfo(const LLUUID& mesh_id, LLSD& data);
 	void fromLLSD(LLSD& data);
 	LLSD asLLSD(bool include_joints, bool lock_scale_if_joint_position) const;
     void updateHash();

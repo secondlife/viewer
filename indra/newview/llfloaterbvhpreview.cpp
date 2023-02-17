@@ -196,7 +196,7 @@ std::map <std::string, std::string> LLFloaterBvhPreview::getJointAliases()
 //-----------------------------------------------------------------------------
 static const S32 MAX_ASSIMP_KEYS = 100;
 
-static bool dump_key_data = false;
+static bool dump_key_data = true;
 
 static void DumpAssimpAnimationQuatKeys(aiQuatKey * quat_keys, S32 count, llofstream & data_stream)
 {
@@ -316,7 +316,7 @@ static void DumpAssimp(const aiScene* scene, const std::string & filename)
     LL_INFOS("Assimp") << "Writing data file " << assimp_data_name << LL_ENDL;
 
 
-    data_stream << "File: " << filename << std::endl;
+    data_stream << "Assimp scene data read from " << filename << std::endl;
     data_stream << "Time: " << LLDate::now() << std::endl;
     data_stream << std::endl;
 
@@ -483,7 +483,8 @@ BOOL LLFloaterBvhPreview::postBuild()
 
 		LLDataPackerBinaryBuffer dp(buffer, buffer_size);
 
-		// pass animation data through memory buffer
+		// Create LLKeyFrameMotion from BVH data by serializing from the file we
+        // read into a binary anim format, then deserialize that into a LLKeyFrameMotion object
 		LL_INFOS("BVH") << "Serializing loaderp" << LL_ENDL;
 		loaderp->serialize(dp);
 		dp.reset();
@@ -496,7 +497,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 		if (success)
 		{
 			setAnimCallbacks() ;
-			
+
 			const LLBBoxLocal &pelvis_bbox = motionp->getPelvisBBox();
 
 			LLVector3 temp = pelvis_bbox.getCenter();
@@ -1191,6 +1192,31 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 		LLDataPackerBinaryBuffer dp(buffer, file_size);
 		if (motionp->serialize(dp))
 		{
+            // Start Test Code
+            // Write out a text version of the data for debugging
+            std::string test_file_name("d:\\test_dp.txt");
+            LLFILE* test_fp = LLFile::fopen(test_file_name.c_str(), "wb");
+            if (test_fp)
+            {
+                LL_INFOS("BVH") << "Writing ascii data packer to " << test_file_name << LL_ENDL;
+                LLDataPackerAsciiFile  test_dp(test_fp);
+                if (motionp->serialize(test_dp))
+                {
+                    LL_INFOS("BVH") << "Success writing " << test_file_name << LL_ENDL;
+                }
+                else
+                {
+                    LL_WARNS("BVH") << "Error writing " << test_file_name << LL_ENDL;
+                }
+                LLFile::close(test_fp);
+            }
+            else
+            {
+                LL_WARNS("BVH") << "Writing ascii data packer to " << test_file_name << LL_ENDL;
+            }
+            // End Test Code
+
+
 			LLFileSystem file(motionp->getID(), LLAssetType::AT_ANIMATION, LLFileSystem::APPEND);
 
 			S32 size = dp.getCurrentSize();

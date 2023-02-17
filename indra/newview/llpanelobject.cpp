@@ -2131,7 +2131,7 @@ bool LLPanelObject::menuEnableItem(const LLSD& userdata)
     }
     else if (command == "params_paste")
     {
-        return mClipboardParams.isMap() && !mClipboardParams.emptyMap();
+        return mClipboardParams.isMap() && (mClipboardParams.size() != 0);
     }
     // copy options
     else if (command == "psr_copy")

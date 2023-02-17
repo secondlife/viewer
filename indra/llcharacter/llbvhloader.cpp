@@ -127,6 +127,42 @@ LLQuaternion::Order bvhStringToOrder( char *str )
 	return retVal;
 }
 
+
+
+static S32 vector_index1 = 0;
+static S32 vector_index2 = 0;
+static S32 vector_index3 = 0;
+static LLVector3 vector_list[] =
+{
+    LLVector3(0, 0, 1),
+    LLVector3(0, 1, 0),
+    LLVector3(1, 0, 0),
+    LLVector3(0, 0, -1),
+    LLVector3(0, -1, 0),
+    LLVector3(-1, 0, 0)
+};
+
+static void bump_test_number()
+{
+    vector_index1 += 1;
+    if (vector_index1 >= 6)
+    {
+        vector_index1 = 0;
+        vector_index2++;
+        if (vector_index2 >= 6)
+        {
+            vector_index2 = 0;
+            vector_index3++;
+            if (vector_index3 >= 6)
+            {
+                vector_index3 = 0;
+                LL_INFOS("BVH") << "Translation test wrap-around!!" << LL_ENDL;
+            }
+        }
+    }
+}
+
+
 //-----------------------------------------------------------------------------
 // LLBVHLoader()
 //-----------------------------------------------------------------------------
@@ -140,7 +176,7 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 	LL_INFOS("BVH") << "Load Status 00 for anim.ini: " << loadStatus << LL_ENDL;
 	if (mStatus == E_ST_NO_XLT_FILE)
 	{
-		LL_WARNS("BVH") << "NOTE: No translation table found." << LL_ENDL;
+		LL_WARNS("BVH") << "No translation table found." << LL_ENDL;
 		loadStatus = mStatus;
 		return;
 	}
@@ -185,6 +221,8 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 	dumpBVHInfo();
 
 	mInitialized = TRUE;
+
+    LL_INFOS("BVH") << "Doing transform test " << vector_index1 << ", " << vector_index2 << ", " << vector_index3 << LL_ENDL;
 }
 
 
@@ -192,6 +230,7 @@ LLBVHLoader::~LLBVHLoader()
 {
 	std::for_each(mJoints.begin(),mJoints.end(),DeletePointer());
 	mJoints.clear();
+    bump_test_number();
 }
 
 //------------------------------------------------------------------------
@@ -210,7 +249,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 	if (!fp)
 		return E_ST_NO_XLT_FILE;
 
-	LL_INFOS("BVH") << "NOTE: Loading translation table: " << fileName << LL_ENDL;
+	LL_INFOS("BVH") << "Loading translation table: " << fileName << LL_ENDL;
 
     //--------------------------------------------------------------------
 	// load header
@@ -279,7 +318,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 				return E_ST_NO_XLT_EMOTE;
 
 			mEmoteName.assign( emote_str );
-//			LL_INFOS() << "NOTE: Emote: " << mEmoteName.c_str() << LL_ENDL;
+            LL_DEBUGS("BVH") << "Emote name: " << mEmoteName.c_str() << LL_ENDL;
 			continue;
 		}
 
@@ -294,7 +333,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 				return E_ST_NO_XLT_PRIORITY;
 
 			mPriority = priority;
-//			LL_INFOS() << "NOTE: Priority: " << mPriority << LL_ENDL;
+            LL_DEBUGS("BVH") << "Priority set to " << mPriority << LL_ENDL;
 			continue;
 		}
 
@@ -456,7 +495,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 			{
 				if(sscanf( /* Flawfinder: ignore */
 					mLine,
-					" %*s = %d %f %f %f %f %15s %f %f %f %15s %f %f %f", 
+					" %*s = %d %f %f %f %f %15s %f %f %f %15s %f %f %f",
 					&constraint.mChainLength,
 					&constraint.mEaseInStart,
 					&constraint.mEaseInStop,
@@ -492,16 +531,23 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 	infile.close() ;
 	return E_ST_OK;
 }
+
+
 void LLBVHLoader::makeTranslation(std::string alias_name, std::string joint_name)
 {
-    //Translation &newTrans = (foomap.insert(value_type(alias_name, Translation()))).first();
     Translation &newTrans = mTranslations[ alias_name ];  //Uses []'s implicit call to ctor.
 
     newTrans.mOutName = joint_name;
     LLMatrix3 fm;
+
     LLVector3 vect1(0, 1, 0);
     LLVector3 vect2(0, 0, 1);
     LLVector3 vect3(1, 0, 0);
+
+ ///  LLVector3 vect1 = vector_list[vector_index1];
+ //   LLVector3 vect2 = vector_list[vector_index2];
+ //   LLVector3 vect3 = vector_list[vector_index3];
+
     fm.setRows(vect1, vect2, vect3);
 
     newTrans.mFrameMatrix = fm;
@@ -886,7 +932,9 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
             }
             catch (const boost::bad_lexical_cast&)
             {
-				strncpy(error_text, line.c_str(), 127);	/*Flawfinder: ignore*/
+                LL_WARNS("BVH") << "Expected floating point data but found " << std::string(*float_token_iter)
+                    << " in frame " << i << LL_ENDL;
+                strncpy(error_text, line.c_str(), 127);	/*Flawfinder: ignore*/
 				return E_ST_NO_POS;
             }
             float_token_iter++;
@@ -900,7 +948,9 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 
 			if (floats.size() < joint->mNumChannels)
 			{
-				strncpy(error_text, line.c_str(), 127);	/*Flawfinder: ignore*/
+                LL_WARNS("BVH") << "Expected " << joint->mNumChannels << " BVH channel data but only have " << floats.size()
+                    << " in frame " << i << LL_ENDL;
+                strncpy(error_text, line.c_str(), 127);	/*Flawfinder: ignore*/
 				return E_ST_NO_POS;
 			}
 
@@ -948,7 +998,7 @@ void LLBVHLoader::applyTranslations()
 		//----------------------------------------------------------------
 		if ( trans.mIgnore )
 		{
-            //LL_INFOS() << "NOTE: Ignoring " << joint->mName.c_str() << LL_ENDL;
+            LL_DEBUGS("BVH") << "Ignoring BVH joint " << joint->mName.c_str() << LL_ENDL;
 			joint->mIgnore = TRUE;
 			continue;
 		}
@@ -958,7 +1008,7 @@ void LLBVHLoader::applyTranslations()
 		//----------------------------------------------------------------
 		if ( ! trans.mOutName.empty() )
 		{
-			//LL_INFOS() << "NOTE: Changing " << joint->mName.c_str() << " to " << trans.mOutName.c_str() << LL_ENDL;
+            LL_DEBUGS("BVH") << "Replacing joint name " << joint->mName.c_str() << " with translation " << trans.mOutName.c_str() << LL_ENDL;
 			joint->mOutName = trans.mOutName;
 		}
 
@@ -974,25 +1024,25 @@ void LLBVHLoader::applyTranslations()
 		//----------------------------------------------------------------
 		if ( trans.mRelativePositionKey )
 		{
-//			LL_INFOS() << "NOTE: Removing 1st position offset from all keys for " << joint->mOutName.c_str() << LL_ENDL;
+			LL_DEBUGS("BVH") << "Removing 1st position offset from all keys for " << joint->mOutName.c_str() << LL_ENDL;
 			joint->mRelativePositionKey = TRUE;
 		}
 
 		if ( trans.mRelativeRotationKey )
 		{
-//			LL_INFOS() << "NOTE: Removing 1st rotation from all keys for " << joint->mOutName.c_str() << LL_ENDL;
+            LL_DEBUGS("BVH") << "Replacing 1st rotation from all keys for " << joint->mOutName.c_str() << LL_ENDL;
 			joint->mRelativeRotationKey = TRUE;
 		}
-		
+
 		if ( trans.mRelativePosition.magVec() > 0.0f )
 		{
 			joint->mRelativePosition = trans.mRelativePosition;
-//			LL_INFOS() << "NOTE: Removing " <<
-//				joint->mRelativePosition.mV[0] << " " <<
-//				joint->mRelativePosition.mV[1] << " " <<
-//				joint->mRelativePosition.mV[2] <<
-//				" from all position keys in " <<
-//				joint->mOutName.c_str() << LL_ENDL;
+            LL_DEBUGS("BVH") << "Replacing mRelativePosition with translation " <<
+				joint->mRelativePosition.mV[0] << " " <<
+				joint->mRelativePosition.mV[1] << " " <<
+				joint->mRelativePosition.mV[2] <<
+				" from all position keys in " <<
+				joint->mOutName.c_str() << LL_ENDL;
 		}
 
 		//----------------------------------------------------------------
@@ -1006,9 +1056,8 @@ void LLBVHLoader::applyTranslations()
 		//----------------------------------------------------------------
 		if ( ! trans.mMergeParentName.empty() )
 		{
-//			LL_INFOS() << "NOTE: Merging "  << joint->mOutName.c_str() << 
-//				" with parent " << 
-//				trans.mMergeParentName.c_str() << LL_ENDL;
+			LL_DEBUGS("BVH") << "Merging "  << joint->mOutName.c_str() <<
+				" with parent " << trans.mMergeParentName.c_str() << LL_ENDL;
 			joint->mMergeParentName = trans.mMergeParentName;
 		}
 
@@ -1017,8 +1066,8 @@ void LLBVHLoader::applyTranslations()
 		//----------------------------------------------------------------
 		if ( ! trans.mMergeChildName.empty() )
 		{
-//			LL_INFOS() << "NOTE: Merging " << joint->mName.c_str() <<
-//				" with child " << trans.mMergeChildName.c_str() << LL_ENDL;
+			LL_DEBUGS("BVH") << "Merging " << joint->mName.c_str() <<
+				" with child " << trans.mMergeChildName.c_str() << LL_ENDL;
 			joint->mMergeChildName = trans.mMergeChildName;
 		}
 
@@ -1208,15 +1257,16 @@ void LLBVHLoader::optimize()
 
 				ki_prev = ki;
 			}
-		}	
+		}
 
 		// don't output joints with no motion
 		if (!(pos_changed || rot_changed))
 		{
-			//LL_INFOS() << "Ignoring joint " << joint->mName << LL_ENDL;
+			LL_DEBUGS("BVH") << "Loader ignoring joint " << joint->mName
+                << " due to no change" << LL_ENDL;
 			joint->mIgnore = TRUE;
 		}
-	}
+	}   // end big loop for each joint
 }
 
 void LLBVHLoader::reset()
@@ -1261,7 +1311,10 @@ BOOL LLBVHLoader::getLine(apr_file_t* fp)
 
 // returns required size of output buffer
 U32 LLBVHLoader::getOutputSize()
-{
+{   // Note - the default LLDataPackerBinaryBuffer constructor doesn't allocate
+    // a buffer for data.   Thus the serialize() call will not actually write data
+    // anywhere, but instead moves a pointer starting from 0 and in the end getCurrentSize()
+    // will return the size needed without actually doing full serialization.
 	LLDataPackerBinaryBuffer dp;
 	serialize(dp);
 

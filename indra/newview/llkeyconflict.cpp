@@ -171,8 +171,9 @@ bool LLKeyConflictHandler::isReservedByMenu(const KEY &key, const MASK &mask)
     {
         return false;
     }
-    return (gMenuBarView && gMenuBarView->hasAccelerator(key, mask))
-           || (gLoginMenuBarView && gLoginMenuBarView->hasAccelerator(key, mask));
+    // At the moment controls are only applicable inworld,
+    // ignore gLoginMenuBarView
+    return gMenuBarView && gMenuBarView->hasAccelerator(key, mask);
 }
 
 // static
@@ -182,8 +183,7 @@ bool LLKeyConflictHandler::isReservedByMenu(const LLKeyData &data)
     {
         return false;
     }
-    return (gMenuBarView && gMenuBarView->hasAccelerator(data.mKey, data.mMask))
-           || (gLoginMenuBarView && gLoginMenuBarView->hasAccelerator(data.mKey, data.mMask));
+    return gMenuBarView && gMenuBarView->hasAccelerator(data.mKey, data.mMask);
 }
 
 bool LLKeyConflictHandler::registerControl(const std::string &control_name, U32 index, EMouseClickType mouse, KEY key, MASK mask, bool ignore_mask)
