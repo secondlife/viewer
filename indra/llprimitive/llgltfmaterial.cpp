@@ -31,14 +31,14 @@
 // NOTE -- this should be the one and only place tiny_gltf.h is included
 #include "tinygltf/tiny_gltf.h"
 
-const char* LLGLTFMaterial::ASSET_VERSION = "1.1";
-const char* LLGLTFMaterial::ASSET_TYPE = "GLTF 2.0";
+const char* const LLGLTFMaterial::ASSET_VERSION = "1.1";
+const char* const LLGLTFMaterial::ASSET_TYPE = "GLTF 2.0";
 const std::array<std::string, 2> LLGLTFMaterial::ACCEPTED_ASSET_VERSIONS = { "1.0", "1.1" };
 
-const char* GLTF_FILE_EXTENSION_TRANSFORM = "KHR_texture_transform";
-const char* GLTF_FILE_EXTENSION_TRANSFORM_SCALE = "scale";
-const char* GLTF_FILE_EXTENSION_TRANSFORM_OFFSET = "offset";
-const char* GLTF_FILE_EXTENSION_TRANSFORM_ROTATION = "rotation";
+const char* const GLTF_FILE_EXTENSION_TRANSFORM = "KHR_texture_transform";
+const char* const GLTF_FILE_EXTENSION_TRANSFORM_SCALE = "scale";
+const char* const GLTF_FILE_EXTENSION_TRANSFORM_OFFSET = "offset";
+const char* const GLTF_FILE_EXTENSION_TRANSFORM_ROTATION = "rotation";
 
 // special UUID that indicates a null UUID in override data
 static const LLUUID GLTF_OVERRIDE_NULL_UUID = LLUUID("ffffffff-ffff-ffff-ffff-ffffffffffff");
