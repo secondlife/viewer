@@ -138,6 +138,12 @@ bool isMarketplaceSendAction(const std::string& action)
 	return ("send_to_marketplace" == action);
 }
 
+bool isPanelActive(const std::string& panel_name)
+{
+    LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
+    return (active_panel && (active_panel->getName() == panel_name));
+}
+
 // Used by LLFolderBridge as callback for directory fetching recursion
 class LLRightClickInventoryFetchDescendentsObserver : public LLInventoryFetchDescendentsObserver
 {
@@ -405,6 +411,25 @@ void LLInvFVBridge::showProperties()
     {
         show_item_profile(mUUID);
     }
+}
+
+void LLInvFVBridge::navigateToFolder()
+{
+    LLInventorySingleFolderPanel* panel = dynamic_cast<LLInventorySingleFolderPanel*>(mInventoryPanel.get());
+    if (!panel)
+    {
+        return;
+    }
+    LLInventoryModel* model = getInventoryModel();
+    if (!model)
+    {
+        return;
+    }
+    if (mUUID.isNull())
+    {
+        return;
+    }
+    panel->changeFolderRoot(mUUID);
 }
 
 void LLInvFVBridge::removeBatch(std::vector<LLFolderViewModelItem*>& batch)
@@ -921,8 +946,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 
 	addDeleteContextMenuOptions(items, disabled_items);
 
-	LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-	if (active_panel && (active_panel->getName() != "All Items"))
+	if (!isPanelActive("All Items") && !isPanelActive("single_folder_inv"))
 	{
 		items.push_back(std::string("Show in Main Panel"));
 	}
@@ -1013,7 +1037,7 @@ void LLInvFVBridge::addDeleteContextMenuOptions(menuentry_vec_t &items,
 
 	items.push_back(std::string("Delete"));
 
-	if (!isItemRemovable())
+	if (!isItemRemovable() || isPanelActive("Favorite Items"))
 	{
 		disabled_items.push_back(std::string("Delete"));
 	}
@@ -4141,14 +4165,14 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
         disabled_items.push_back(std::string("Cut"));
         disabled_items.push_back(std::string("Delete"));
     }
+
+	if (isPanelActive("Favorite Items"))
+	{
+		disabled_items.push_back(std::string("Delete"));
+	}
 	if(trash_id == mUUID)
 	{
-		bool is_recent_panel = false;
-		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-		if (active_panel && (active_panel->getName() == "Recent Items"))
-		{
-			is_recent_panel = true;
-		}
+		bool is_recent_panel = isPanelActive("Recent Items");
 
 		// This is the trash.
 		items.push_back(std::string("Empty Trash"));
@@ -4367,6 +4391,20 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
     else
     {
         disabled_items.push_back(std::string("New folder from selected"));
+    }
+
+    items.push_back(std::string("open_in_new_window"));
+    if ((flags & FIRST_SELECTED_ITEM) == 0)
+    {
+        disabled_items.push_back(std::string("open_in_new_window"));
+    }
+    if(isPanelActive("single_folder_inv"))
+    {
+        items.push_back(std::string("open_in_current_window"));
+        if ((flags & FIRST_SELECTED_ITEM) == 0)
+        {
+            disabled_items.push_back(std::string("open_in_current_window"));
+        }
     }
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD

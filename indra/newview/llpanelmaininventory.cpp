@@ -38,7 +38,6 @@
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
-#include "llinventorypanel.h"
 #include "llfiltereditor.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterreg.h"
@@ -114,7 +113,9 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 	  mMenuVisibility(NULL),
 	  mMenuAddHandle(),
 	  mNeedUploadCost(true),
-      mMenuViewDefault(NULL)
+      mMenuViewDefault(NULL),
+      mSingleFolderMode(false),
+      mFolderRootChangedConnection()
 {
 	// Menu Callbacks (non contex menus)
 	mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLPanelMainInventory::doToSelected, this, _2));
@@ -240,6 +241,9 @@ BOOL LLPanelMainInventory::postBuild()
 	mVisibilityMenuButton = getChild<LLMenuButton>("options_visibility_btn");
     mViewMenuButton = getChild<LLMenuButton>("view_btn");
 
+    mSingleFolderPanelInventory = getChild<LLInventorySingleFolderPanel>("single_folder_inv");
+    mFolderRootChangedConnection = mSingleFolderPanelInventory->setRootChangedCallback(boost::bind(&LLPanelMainInventory::updateTitle, this));
+
 	initListCommandsHandlers();
 
 	const std::string texture_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost());
@@ -316,6 +320,11 @@ LLPanelMainInventory::~LLPanelMainInventory( void )
         menu->die();
         mMenuAddHandle.markDead();
     }
+
+    if (mFolderRootChangedConnection.connected())
+    {
+        mFolderRootChangedConnection.disconnect();
+    }
 }
 
 LLInventoryPanel* LLPanelMainInventory::getAllItemsPanel()
@@ -383,10 +392,17 @@ void LLPanelMainInventory::closeAllFolders()
 	getPanel()->getRootFolder()->closeAllFolders();
 }
 
+S32 get_instance_num()
+{
+    static S32 instance_num = 0;
+    instance_num = (instance_num + 1) % S32_MAX;
+
+    return instance_num;
+}
+
 void LLPanelMainInventory::newWindow()
 {
-	static S32 instance_num = 0;
-	instance_num = (instance_num + 1) % S32_MAX;
+    S32 instance_num = get_instance_num();
 
 	if (!gAgentCamera.cameraMouselook())
 	{
@@ -394,10 +410,45 @@ void LLPanelMainInventory::newWindow()
 	}
 }
 
+void LLPanelMainInventory::newFolderWindow(const LLUUID& folder_id)
+{
+    S32 instance_num = get_instance_num();
+
+    LLFloaterSidePanelContainer* inventory_container = LLFloaterReg::showTypedInstance<LLFloaterSidePanelContainer>("inventory", LLSD(instance_num));
+    if(inventory_container)
+    {
+        LLSidepanelInventory* sidepanel_inventory = dynamic_cast<LLSidepanelInventory*>(inventory_container->findChild<LLPanel>("main_panel", true));
+        if (sidepanel_inventory)
+        {
+            LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
+            if (main_inventory)
+            {
+                main_inventory->onViewModeClick();
+                if(folder_id.notNull())
+                {
+                    main_inventory->setSingleFolderViewRoot(folder_id);
+                }
+            }
+        }
+    }
+}
+
 void LLPanelMainInventory::doCreate(const LLSD& userdata)
 {
 	reset_inventory_filter();
-	menu_create_inventory_item(getPanel(), NULL, userdata);
+    if(mSingleFolderMode)
+    {
+        LLFolderViewItem* current_folder = getActivePanel()->getRootFolder();
+        if (current_folder)
+        {
+            LLFolderBridge* bridge = (LLFolderBridge*)current_folder->getViewModelItem();
+            menu_create_inventory_item(getPanel(), bridge, userdata);
+        }
+    }
+    else
+    {
+        menu_create_inventory_item(getPanel(), NULL, userdata);
+    }
 }
 
 void LLPanelMainInventory::resetFilters()
@@ -527,7 +578,7 @@ void LLPanelMainInventory::onClearSearch()
 	}
 
 	// re-open folders that were initially open in case filter was active
-	if (mActivePanel && (mFilterSubString.size() || initially_active))
+	if (mActivePanel && (mFilterSubString.size() || initially_active) && !mSingleFolderMode)
 	{
 		mSavedFolderState->setApply(TRUE);
 		mActivePanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
@@ -1173,10 +1224,15 @@ void LLFloaterInventoryFinder::selectNoTypes(void* user_data)
 void LLPanelMainInventory::initListCommandsHandlers()
 {
 	childSetAction("add_btn", boost::bind(&LLPanelMainInventory::onAddButtonClick, this));
+    childSetAction("view_mode_btn", boost::bind(&LLPanelMainInventory::onViewModeClick, this));
+    childSetAction("up_btn", boost::bind(&LLPanelMainInventory::onUpFolderClicked, this));
+    childSetAction("back_btn", boost::bind(&LLPanelMainInventory::onBackFolderClicked, this));
+    childSetAction("forward_btn", boost::bind(&LLPanelMainInventory::onForwardFolderClicked, this));
 
 	mCommitCallbackRegistrar.add("Inventory.GearDefault.Custom.Action", boost::bind(&LLPanelMainInventory::onCustomAction, this, _2));
 	mEnableCallbackRegistrar.add("Inventory.GearDefault.Check", boost::bind(&LLPanelMainInventory::isActionChecked, this, _2));
 	mEnableCallbackRegistrar.add("Inventory.GearDefault.Enable", boost::bind(&LLPanelMainInventory::isActionEnabled, this, _2));
+    mEnableCallbackRegistrar.add("Inventory.GearDefault.Visible", boost::bind(&LLPanelMainInventory::isActionVisible, this, _2));
 	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_inventory_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGearMenuButton->setMenu(mMenuGearDefault, LLMenuButton::MP_TOP_LEFT, true);
     mMenuViewDefault = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_inventory_view_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -1209,6 +1265,47 @@ void LLPanelMainInventory::onAddButtonClick()
 
 		showActionMenu(menu,"add_btn");
 	}
+}
+
+void LLPanelMainInventory::onViewModeClick()
+{
+    mSingleFolderMode = !mSingleFolderMode;
+
+    getChild<LLPanel>("default_inventory_panel")->setVisible(!mSingleFolderMode);
+    getChild<LLPanel>("single_folder_inventory")->setVisible(mSingleFolderMode);
+    getChild<LLLayoutPanel>("nav_buttons")->setVisible(mSingleFolderMode);
+    getChild<LLButton>("view_mode_btn")->setImageOverlay(mSingleFolderMode ? getString("default_mode_btn") : getString("single_folder_mode_btn"));
+
+    mActivePanel = mSingleFolderMode ? getChild<LLInventoryPanel>("single_folder_inv") : (LLInventoryPanel*)getChild<LLTabContainer>("inventory filter tabs")->getCurrentPanel();
+    updateTitle();
+}
+
+void LLPanelMainInventory::onUpFolderClicked()
+{
+    const LLViewerInventoryCategory* cat = gInventory.getCategory(mSingleFolderPanelInventory->getSingleFolderRoot());
+    if (cat)
+    {
+        if (cat->getParentUUID().notNull())
+        {
+            mSingleFolderPanelInventory->changeFolderRoot(cat->getParentUUID());
+        }
+    }
+}
+
+void LLPanelMainInventory::onBackFolderClicked()
+{
+    mSingleFolderPanelInventory->onBackwardFolder();
+}
+
+void LLPanelMainInventory::onForwardFolderClicked()
+{
+    mSingleFolderPanelInventory->onForwardFolder();
+}
+
+void LLPanelMainInventory::setSingleFolderViewRoot(const LLUUID& folder_id)
+{
+    mSingleFolderPanelInventory->changeFolderRoot(folder_id);
+    mSingleFolderPanelInventory->clearNavigationHistory();
 }
 
 void LLPanelMainInventory::showActionMenu(LLMenuGL* menu, std::string spawning_view_name)
@@ -1254,6 +1351,27 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 		return;
 
 	const std::string command_name = userdata.asString();
+    if (command_name == "new_single_folder_window")
+    {
+        newFolderWindow(LLUUID());
+    }
+    if ((command_name == "open_in_current_window") || (command_name == "open_in_new_window"))
+    {
+        LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+        if (!current_item)
+        {
+            return;
+        }
+        const LLUUID& folder_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
+        if((command_name == "open_in_current_window"))
+        {
+            mSingleFolderPanelInventory->changeFolderRoot(folder_id);
+        }
+        if((command_name == "open_in_new_window"))
+        {
+            newFolderWindow(folder_id);
+        }
+    }
 	if (command_name == "new_window")
 	{
 		newWindow();
@@ -1505,8 +1623,32 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 		LLInventoryModel::EHasChildren children = gInventory.categoryHasChildren(trash_id);
 		return children != LLInventoryModel::CHILDREN_NO && gInventory.isCategoryComplete(trash_id);
 	}
+    if (command_name == "open_folder")
+    {
+        LLFolderView* root = getActivePanel()->getRootFolder();
+        std::set<LLFolderViewItem*> selection_set = root->getSelectionList();
+        if (selection_set.size() != 1) return FALSE;
+        LLFolderViewItem* current_item = *selection_set.begin();
+        if (!current_item) return FALSE;
+        const LLUUID& folder_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
+        return (gInventory.getCategory(folder_id) != NULL);
+    }
 
 	return TRUE;
+}
+
+bool LLPanelMainInventory::isActionVisible(const LLSD& userdata)
+{
+    const std::string param_str = userdata.asString();
+    if (param_str == "single_folder_view")
+    {
+        return mSingleFolderMode;
+    }
+    if (param_str == "multi_folder_view")
+    {
+        return !mSingleFolderMode;
+    }
+    return true;
 }
 
 BOOL LLPanelMainInventory::isActionChecked(const LLSD& userdata)
@@ -1576,5 +1718,24 @@ bool LLPanelMainInventory::hasSettingsInventory()
     return LLEnvironment::instance().isInventoryEnabled();
 }
 
+void LLPanelMainInventory::updateTitle()
+{
+    LLFloater* inventory_floater = gFloaterView->getParentFloater(this);
+    if(inventory_floater)
+    {
+        if(mSingleFolderMode)
+        {
+            const LLViewerInventoryCategory* cat = gInventory.getCategory(mSingleFolderPanelInventory->getSingleFolderRoot());
+            if (cat)
+            {
+                inventory_floater->setTitle(cat->getName());
+            }
+        }
+        else
+        {
+            inventory_floater->setTitle(getString("inventory_title"));
+        }
+    }
+}
 // List Commands                                                              //
 ////////////////////////////////////////////////////////////////////////////////

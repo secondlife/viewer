@@ -239,6 +239,8 @@ public:
 	const std::string& 	getFilterSubStringOrig() const { return mFilterSubStringOrig; } 
 	bool 				hasFilterString() const;
 
+    void                setSingleFolderMode(bool is_single_folder) { mSingleFolderMode = is_single_folder; }
+
 	void 				setFilterPermissions(PermissionMask perms);
 	PermissionMask 		getFilterPermissions() const;
 
@@ -361,6 +363,8 @@ private:
 
 	std::vector<std::string> mFilterTokens;
 	std::string				 mExactToken;
+
+    bool mSingleFolderMode;
 };
 
 #endif

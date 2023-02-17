@@ -111,6 +111,7 @@ public:
 	virtual void previewItem( void );
 	virtual void selectItem(void) { } 
 	virtual void showProperties(void);
+    virtual void navigateToFolder() {}
 
 	// Methods used in sorting (see LLConversationSort::operator())
 	EConversationType const getType() const { return mConvType; }

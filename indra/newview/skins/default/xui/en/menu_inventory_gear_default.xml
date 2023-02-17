@@ -7,14 +7,38 @@
  name="menu_gear_default"
  visible="false">
     <menu_item_call
+     label="Open"
+     layout="topleft"
+     name="open_in_current_window">
+       <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="open_in_current_window" />
+       <on_enable
+         function="Inventory.GearDefault.Enable"
+         parameter="open_folder" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="single_folder_view" />
+    </menu_item_call>
+    <menu_item_call
+     label="Open in new window"
+     layout="topleft"
+     name="open_in_new_window">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="open_in_new_window" />
+        <on_enable
+         function="Inventory.GearDefault.Enable"
+         parameter="open_folder" />
+    </menu_item_call>
+    <menu_item_call
      label="New Folder Window"
      layout="topleft"
      shortcut="control|shift|J"
-     enabled="false"
      name="new_single_folder">
         <on_click
          function="Inventory.GearDefault.Custom.Action"
-         parameter="new_window" />
+         parameter="new_single_folder_window" />
     </menu_item_call>
     <menu_item_call
      label="New Inventory Window"
@@ -32,6 +56,9 @@
         <on_click
          function="Inventory.GearDefault.Custom.Action"
          parameter="close_folders" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="multi_folder_view" />
     </menu_item_call>
     <menu_item_separator
      layout="topleft" />
@@ -115,6 +142,9 @@
         <on_enable
          function="Inventory.GearDefault.Enable"
          parameter="empty_lostnfound" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="multi_folder_view" />
     </menu_item_call>
     <menu_item_call
      label="Empty Trash"
@@ -126,5 +156,8 @@
         <on_enable
          function="Inventory.GearDefault.Enable"
          parameter="empty_trash" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="multi_folder_view" />
     </menu_item_call>
 </toggleable_menu>

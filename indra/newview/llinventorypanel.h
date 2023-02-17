@@ -222,6 +222,7 @@ public:
 	void doCreate(const LLSD& userdata);
 	bool beginIMSession();
 	void fileUploadLocation(const LLSD& userdata);
+    void openSingleViewInventory(const LLSD& userdata);
 	void purgeSelectedItems();
 	bool attachObject(const LLSD& userdata);
 	static void idle(void* user_data);
@@ -262,6 +263,8 @@ public:
     void clearFolderRoot();
 
     void callbackPurgeSelectedItems(const LLSD& notification, const LLSD& response);
+
+    void changeFolderRoot(const LLUUID& new_id) {};
 
 protected:
 	void openStartFolderOrMyInventory(); // open the first level of inventory
@@ -380,6 +383,44 @@ private:
     EViewsInitializationState	mViewsInitialized; // Whether views have been generated
     F64							mBuildViewsEndTime; // Stop building views past this timestamp
     std::deque<LLUUID>			mBuildViewsQueue;
+};
+
+
+class LLInventorySingleFolderPanel : public LLInventoryPanel
+{
+public:
+    struct Params : public LLInitParam::Block<Params, LLInventoryPanel::Params>
+    {};
+
+    void initFromParams(const Params& p);
+    bool isSelectionRemovable() { return false; }
+    //void setSelectCallback(const boost::function<void(const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb);
+
+    void openInCurrentWindow(const LLSD& userdata);
+    void changeFolderRoot(const LLUUID& new_id);
+    void onForwardFolder();
+    void onBackwardFolder();
+    void clearNavigationHistory();
+    LLUUID getSingleFolderRoot() { return mFolderID; }
+
+    void setSelectCallback(const boost::function<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb);
+
+    typedef boost::function<void()> root_changed_callback_t;
+    boost::signals2::connection setRootChangedCallback(root_changed_callback_t cb);
+
+protected:
+    LLInventorySingleFolderPanel(const Params& params);
+    ~LLInventorySingleFolderPanel();
+    void updateSingleFolderRoot();
+
+    boost::function<void(const std::deque<LLFolderViewItem*>& items, BOOL user_action)> mSelectionCallback;
+    friend class LLUICtrlFactory;
+    
+    LLUUID mFolderID;
+    std::list<LLUUID> mBackwardFolders;
+    std::list<LLUUID> mForwardFolders;
+
+    boost::signals2::signal<void()> mRootChangedSignal;
 };
 
 /************************************************************************/

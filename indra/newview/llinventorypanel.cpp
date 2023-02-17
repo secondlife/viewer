@@ -183,6 +183,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mCommitCallbackRegistrar.add("Inventory.BeginIMSession", boost::bind(&LLInventoryPanel::beginIMSession, this));
 	mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars, this));
 	mCommitCallbackRegistrar.add("Inventory.FileUploadLocation", boost::bind(&LLInventoryPanel::fileUploadLocation, this, _2));
+    mCommitCallbackRegistrar.add("Inventory.OpenNewFolderWindow", boost::bind(&LLInventoryPanel::openSingleViewInventory, this, _2));
 }
 
 LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
@@ -1643,6 +1644,11 @@ void LLInventoryPanel::fileUploadLocation(const LLSD& userdata)
     }
 }
 
+void LLInventoryPanel::openSingleViewInventory(const LLSD& userdata)
+{
+    LLPanelMainInventory::newFolderWindow(LLFolderBridge::sSelf.get()->getUUID());
+}
+
 void LLInventoryPanel::purgeSelectedItems()
 {
     if (!mFolderRoot.get()) return;
@@ -2031,6 +2037,138 @@ LLInventoryRecentItemsPanel::LLInventoryRecentItemsPanel( const Params& params)
 {
 	// replace bridge builder to have necessary View bridges.
 	mInvFVBridgeBuilder = &RECENT_ITEMS_BUILDER;
+}
+
+static LLDefaultChildRegistry::Register<LLInventorySingleFolderPanel> t_single_folder_inventory_panel("single_folder_inventory_panel");
+
+LLInventorySingleFolderPanel::LLInventorySingleFolderPanel(const Params& params)
+    : LLInventoryPanel(params)
+{
+    getFilter().setSingleFolderMode(true);
+
+    mCommitCallbackRegistrar.add("Inventory.OpenSelectedFolder", boost::bind(&LLInventorySingleFolderPanel::openInCurrentWindow, this, _2));
+}
+
+LLInventorySingleFolderPanel::~LLInventorySingleFolderPanel()
+{
+}
+
+void LLInventorySingleFolderPanel::setSelectCallback(const boost::function<void(const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb)
+{
+    if (mFolderRoot.get())
+    {
+        mFolderRoot.get()->setSelectCallback(cb);
+        mSelectionCallback = cb;
+    }
+}
+
+void LLInventorySingleFolderPanel::initFromParams(const Params& p)
+{
+    Params fav_params(p);
+    fav_params.start_folder.id = gInventory.getRootFolderID();
+    LLInventoryPanel::initFromParams(p);
+    changeFolderRoot(gInventory.getRootFolderID());
+}
+
+void LLInventorySingleFolderPanel::openInCurrentWindow(const LLSD& userdata)
+{
+    changeFolderRoot(LLFolderBridge::sSelf.get()->getUUID());
+}
+
+void LLInventorySingleFolderPanel::changeFolderRoot(const LLUUID& new_id)
+{
+    if(mFolderID.notNull())
+    {
+        mBackwardFolders.push_back(mFolderID);
+    }
+    mFolderID = new_id;
+    updateSingleFolderRoot();
+}
+
+void LLInventorySingleFolderPanel::onForwardFolder()
+{
+    if(!mForwardFolders.empty() && (mFolderID != mForwardFolders.back()))
+    {
+        mBackwardFolders.push_back(mFolderID);
+        mFolderID = mForwardFolders.back();
+        mForwardFolders.pop_back();
+        updateSingleFolderRoot();
+    }
+}
+
+void LLInventorySingleFolderPanel::onBackwardFolder()
+{
+    if(!mBackwardFolders.empty() && (mFolderID != mBackwardFolders.back()))
+    {
+        mForwardFolders.push_back(mFolderID);
+        mFolderID = mBackwardFolders.back();
+        mBackwardFolders.pop_back();
+        updateSingleFolderRoot();
+    }
+}
+
+void LLInventorySingleFolderPanel::clearNavigationHistory()
+{
+    mForwardFolders.clear();
+    mBackwardFolders.clear();
+}
+
+boost::signals2::connection LLInventorySingleFolderPanel::setRootChangedCallback(root_changed_callback_t cb)
+{
+    return mRootChangedSignal.connect(cb);
+}
+
+void LLInventorySingleFolderPanel::updateSingleFolderRoot()
+{
+    if (mFolderID != getRootFolderID())
+    {
+        mRootChangedSignal();
+
+        LLUUID root_id = mFolderID;
+        if (mFolderRoot.get())
+        {
+            removeItemID(getRootFolderID());
+            mFolderRoot.get()->destroyView();
+        }
+
+        mCommitCallbackRegistrar.pushScope();
+        {
+            LLFolderView* folder_view = createFolderRoot(root_id);
+            folder_view->setChildrenInited(false);
+            mFolderRoot = folder_view->getHandle();
+
+            addItemID(root_id, mFolderRoot.get());
+
+            LLRect scroller_view_rect = getRect();
+            scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
+            LLScrollContainer::Params scroller_params(mParams.scroll());
+            scroller_params.rect(scroller_view_rect);
+
+            if (mScroller)
+            {
+                removeChild(mScroller);
+                delete mScroller;
+                mScroller = NULL;
+            }
+            mScroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
+            addChild(mScroller);
+            mScroller->addChild(mFolderRoot.get());
+            mFolderRoot.get()->setScrollContainer(mScroller);
+            mFolderRoot.get()->setFollowsAll();
+            mFolderRoot.get()->addChild(mFolderRoot.get()->mStatusTextBox);
+
+            if (!mSelectionCallback.empty())
+            {
+                mFolderRoot.get()->setSelectCallback(mSelectionCallback);
+            }
+        }
+        mCommitCallbackRegistrar.popScope();
+        mFolderRoot.get()->setCallbackRegistrar(&mCommitCallbackRegistrar);
+
+        buildNewViews(mFolderID);
+
+        mFolderRoot.get()->setShowEmptyMessage(false);
+    }
 }
 
 /************************************************************************/

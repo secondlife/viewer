@@ -18,7 +18,7 @@
 		 height="570"
 		 visible="true"
 		 default_tab_group="1"
-		 width="355">
+		 width="395">
       <layout_stack
               follows="left|right|top|bottom"
               layout="topleft"
@@ -28,14 +28,14 @@
               orientation="vertical"
               name="inventory_layout_stack"
               height="565"
-              width="355">
+              width="395">
              <layout_panel
                  name="main_inventory_layout_panel"
                  layout="topleft"
                  auto_resize="true"
                  user_resize="true"
                  min_dim="150"
-                 width="355"
+                 width="395"
                  follows="bottom|left|right"
                  height="300">
                  <panel
@@ -48,7 +48,7 @@
                       top="0"
                       label=""
                       height="300"
-                      width="355" />
+                      width="395" />
              </layout_panel>
 			    <layout_panel
                  width="355"

@@ -72,6 +72,7 @@ public:
                                                     text_pad_right,
                                                     arrow_size,
                                                     max_folder_item_overlap;
+        Optional<bool>                              single_folder_mode;
 		Params();
 	};
 
@@ -121,6 +122,7 @@ protected:
 								mIsMouseOverTitle,
 								mAllowWear,
                                 mAllowDrop,
+                                mSingleFolderMode,
 								mSelectPending,
 								mIsItemCut;
 

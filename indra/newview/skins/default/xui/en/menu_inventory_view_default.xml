@@ -49,5 +49,8 @@
         <on_check
          function="Inventory.GearDefault.Check"
          parameter="sort_system_folders_to_top" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="multi_folder_view" />
     </menu_item_check>
 </toggleable_menu>

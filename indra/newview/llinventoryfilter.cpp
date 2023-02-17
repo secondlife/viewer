@@ -81,7 +81,8 @@ LLInventoryFilter::LLInventoryFilter(const Params& p)
 	mCurrentGeneration(0),
 	mFirstRequiredGeneration(0),
 	mFirstSuccessGeneration(0),
-	mSearchType(SEARCHTYPE_NAME)
+	mSearchType(SEARCHTYPE_NAME),
+    mSingleFolderMode(false)
 {
 	// copy mFilterOps into mDefaultFilterOps
 	markDefault();
@@ -1626,7 +1627,7 @@ bool LLInventoryFilter::areDateLimitsSet()
 
 bool LLInventoryFilter::showAllResults() const
 {
-	return hasFilterString();
+	return hasFilterString() && !mSingleFolderMode;
 }
 
 

@@ -30,6 +30,7 @@
 
 #include "llpanel.h"
 #include "llinventoryobserver.h"
+#include "llinventorypanel.h"
 #include "lldndbutton.h"
 
 #include "llfolderview.h"
@@ -92,10 +93,16 @@ public:
 	void setFocusFilterEditor();
 
 	static void newWindow();
+    static void newFolderWindow(const LLUUID& folder_id);
 
 	void toggleFindOptions();
 
     void resetFilters();
+    void onViewModeClick();
+    void onUpFolderClicked();
+    void onBackFolderClicked();
+    void onForwardFolderClicked();
+    void setSingleFolderViewRoot(const LLUUID& folder_id);
 
 protected:
 	//
@@ -149,7 +156,10 @@ private:
 	std::string					mCategoryCountString;
 	LLComboBox*					mSearchTypeCombo;
 
+    bool mSingleFolderMode;
+    LLInventorySingleFolderPanel* mSingleFolderPanelInventory;
 
+    boost::signals2::connection mFolderRootChangedConnection;
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// List Commands                                                                //
@@ -162,7 +172,9 @@ protected:
 	BOOL isActionEnabled(const LLSD& command_name);
 	BOOL isActionChecked(const LLSD& userdata);
 	void onCustomAction(const LLSD& command_name);
+    bool isActionVisible(const LLSD& userdata);
     static bool hasSettingsInventory();
+    void updateTitle();
 	/**
 	 * Set upload cost in "Upload" sub menu.
 	 */

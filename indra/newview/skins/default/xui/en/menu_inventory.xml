@@ -401,6 +401,20 @@
          parameter="model" />
       </menu_item_call>
     </menu>
+    <menu_item_call
+     label="Open"
+     layout="topleft"
+     name="open_in_current_window">
+      <menu_item_call.on_click
+       function="Inventory.OpenSelectedFolder"/>
+    </menu_item_call>
+    <menu_item_call
+     label="Open in new window"
+     layout="topleft"
+     name="open_in_new_window">
+      <menu_item_call.on_click
+       function="Inventory.OpenNewFolderWindow"/>
+    </menu_item_call>
     <menu
      label="Change Type"
      layout="topleft"
