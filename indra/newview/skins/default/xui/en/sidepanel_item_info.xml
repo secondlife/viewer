@@ -89,14 +89,14 @@
       name="layout_item_details"
       layout="topleft"
       follows="all"
-      height="130">
+      height="133">
       
       <thumbnail
         name="item_thumbnail"
         follows="top|left"
         layout="topleft"
         left="5"
-        top="0"
+        top="2"
         height="128"
         width="128"
         />
@@ -105,7 +105,7 @@
         type="string"
         length="1"
         follows="left|top"
-        height="17"
+        height="16"
         layout="topleft"
         left_pad="5"
         name="LabelOwnerTitle"
@@ -131,7 +131,7 @@ TestString PleaseIgnore
         type="string"
         length="1"
         follows="left|top"
-        height="17"
+        height="16"
         layout="topleft"
         left_delta="0"
         name="LabelCreatorTitle"
@@ -157,7 +157,7 @@ TestString PleaseIgnore
         type="string"
         length="1"
         follows="left|top"
-        height="17"
+        height="16"
         layout="topleft"
         left_delta="0"
         name="LabelAcquiredTitle"
@@ -169,13 +169,23 @@ TestString PleaseIgnore
         type="string"
         length="1"
         follows="left|top|right"
-        height="23"
+        height="18"
         layout="topleft"
         left_delta="0"
         name="LabelAcquiredDate"
         top_pad="0"
         width="187">
+        00/00/00
       </text>
+      <button
+        follows="left|top"
+        height="21"
+        label="Image..."
+        layout="topleft"
+        left_delta="0"
+        name="change_thumbnail_btn"
+        top_pad="0"
+        width="120" />
     </layout_panel>
     
     <layout_panel

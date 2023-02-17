@@ -36,6 +36,7 @@
 #include "llcallbacklist.h"
 #include "llcombobox.h"
 #include "llfloater.h"
+#include "llfloaterreg.h"
 #include "llgroupactions.h"
 #include "llgroupmgr.h"
 #include "lliconctrl.h"
@@ -160,6 +161,8 @@ BOOL LLSidepanelItemInfo::postBuild()
 	getChild<LLLineEditor>("LabelItemName")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
 	getChild<LLUICtrl>("LabelItemName")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitName,this));
 	getChild<LLUICtrl>("LabelItemDesc")->setCommitCallback(boost::bind(&LLSidepanelItemInfo:: onCommitDescription, this));
+    // Thumnail edition
+    getChild<LLUICtrl>("change_thumbnail_btn")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onEditThumbnail, this));
 	// acquired date
 	// owner permissions
 	// Permissions debug text
@@ -1022,7 +1025,14 @@ void LLSidepanelItemInfo::updatePermissions()
 	}
 }
 
-// static
+void LLSidepanelItemInfo::onEditThumbnail()
+{
+    LLSD data;
+    data["task_id"] = mObjectID;
+    data["item_id"] = mItemID;
+    LLFloaterReg::showInstance("change_item_thumbnail", data);
+}
+
 void LLSidepanelItemInfo::onCommitSaleInfo(LLUICtrl* ctrl)
 {
     if (ctrl)

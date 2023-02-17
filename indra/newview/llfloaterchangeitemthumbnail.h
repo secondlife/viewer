@@ -55,11 +55,9 @@ public:
 
 private:
 
+    LLViewerInventoryItem* getItem();
     void refreshFromInventory();
     void refreshFromItem(LLViewerInventoryItem* item);
-
-    void startObjectInventoryObserver();
-    void stopObjectInventoryObserver();
 
     static void onUploadLocal(void*);
     static void onUploadSnapshot(void*);
@@ -67,6 +65,9 @@ private:
     static void onCopyToClipboard(void*);
     static void onPasteFromClipboard(void*);
     static void onRemove(void*);
+
+    void showTexturePicker(const LLUUID &thumbnail_id);
+    void onTexturePickerCommit(LLUUID id);
 
     enum EToolTipState
     {
@@ -94,5 +95,7 @@ private:
     LLButton *mCopyToClipboardBtn;
     LLButton *mPasteFromClipboardBtn;
     LLButton *mRemoveImageBtn;
+
+    LLHandle<LLFloater> mPickerHandle;
 };
 #endif  // LL_LLFLOATERCHANGEITEMTHUMBNAIL_H

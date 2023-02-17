@@ -41,7 +41,7 @@
     left="5"
     mouse_opaque="true"
     name="item_type_icon"
-    top="5"
+    top="4"
     width="16" />
   <line_editor
     border_style="line"
@@ -50,7 +50,7 @@
     font="SansSerif"
     height="19"
     layout="topleft"
-    top_delta="-2"
+    top_delta="-1"
     left_pad="5"
     max_length_bytes="127"
     name="item_name"

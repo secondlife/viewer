@@ -29,14 +29,17 @@
 #include "llfloaterchangeitemthumbnail.h"
 
 #include "llbutton.h"
+#include "llclipboard.h"
 #include "lliconctrl.h"
 #include "llinventoryicon.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "lllineeditor.h"
 #include "lltextbox.h"
+#include "lltexturectrl.h"
 #include "llthumbnailctrl.h"
 #include "llviewerobjectlist.h"
+#include "llwindow.h"
 
 
 LLFloaterChangeItemThumbnail::LLFloaterChangeItemThumbnail(const LLSD& key)
@@ -151,7 +154,7 @@ void LLFloaterChangeItemThumbnail::inventoryChanged(LLViewerObject* object,
     refreshFromInventory();
 }
 
-void LLFloaterChangeItemThumbnail::refreshFromInventory()
+LLViewerInventoryItem* LLFloaterChangeItemThumbnail::getItem()
 {
     LLViewerInventoryItem* item = NULL;
     if (mTaskId.isNull())
@@ -178,10 +181,16 @@ void LLFloaterChangeItemThumbnail::refreshFromInventory()
 
             item = static_cast<LLViewerInventoryItem*>(object->getInventoryObject(mItemId));
         }
-        else
-        {
-            closeFloater();
-        }
+    }
+    return item;
+}
+
+void LLFloaterChangeItemThumbnail::refreshFromInventory()
+{
+    LLViewerInventoryItem* item = getItem();
+    if (!item)
+    {
+        closeFloater();
     }
 
     if (item)
@@ -220,16 +229,9 @@ void LLFloaterChangeItemThumbnail::refreshFromItem(LLViewerInventoryItem* item)
 
     mCopyToClipboardBtn->setEnabled(thumbnail_id.notNull());
     mRemoveImageBtn->setEnabled(thumbnail_id.notNull() && (item->getActualType() != LLAssetType::AT_TEXTURE) || (item->getAssetUUID() != thumbnail_id));
-}
 
-void LLFloaterChangeItemThumbnail::startObjectInventoryObserver()
-{
-
-}
-
-void LLFloaterChangeItemThumbnail::stopObjectInventoryObserver()
-{
-
+    // todo: some elements might not support setting thumbnails
+    // since they already have them
 }
 
 void LLFloaterChangeItemThumbnail::onUploadLocal(void *userdata)
@@ -244,22 +246,113 @@ void LLFloaterChangeItemThumbnail::onUploadSnapshot(void *userdata)
 
 void LLFloaterChangeItemThumbnail::onUseTexture(void *userdata)
 {
+    LLFloaterChangeItemThumbnail *self = (LLFloaterChangeItemThumbnail*)userdata;
+    LLViewerInventoryItem* item = self->getItem();
+    if (item)
+    {
+        self->showTexturePicker(item->getThumbnailUUID());
+    }
 
 }
 
 void LLFloaterChangeItemThumbnail::onCopyToClipboard(void *userdata)
 {
-
+    LLFloaterChangeItemThumbnail *self = (LLFloaterChangeItemThumbnail*)userdata;
+    LLViewerInventoryItem* item = self->getItem();
+    if (item)
+    {
+        LLClipboard::instance().addToClipboard(item->getThumbnailUUID());
+    }
 }
 
 void LLFloaterChangeItemThumbnail::onPasteFromClipboard(void *userdata)
 {
-
+    LLFloaterChangeItemThumbnail *self = (LLFloaterChangeItemThumbnail*)userdata;
+    std::vector<LLUUID> objects;
+    LLClipboard::instance().pasteFromClipboard(objects);
+    if (objects.size() > 0)
+    {
+        LLViewerInventoryItem* item = self->getItem();
+        if (item)
+        {
+            item->setThumbnailUUID(objects[0]);
+        }
+    }
 }
 
 void LLFloaterChangeItemThumbnail::onRemove(void *userdata)
 {
+    LLFloaterChangeItemThumbnail *self = (LLFloaterChangeItemThumbnail*)userdata;
+    LLViewerInventoryItem* item = self->getItem();
+    if (item)
+    {
+        item->setThumbnailUUID(LLUUID::null);
+    }
+}
 
+void LLFloaterChangeItemThumbnail::showTexturePicker(const LLUUID &thumbnail_id)
+{
+    // show hourglass cursor when loading inventory window
+    getWindow()->setCursor(UI_CURSOR_WAIT);
+
+    LLFloater* floaterp = mPickerHandle.get();
+    // Show the dialog
+    if (floaterp)
+    {
+        floaterp->openFloater();
+    }
+    else
+    {
+        floaterp = new LLFloaterTexturePicker(
+            this,
+            thumbnail_id,
+            thumbnail_id,
+            thumbnail_id,
+            FALSE,
+            TRUE,
+            "SELECT PHOTO",
+            PERM_NONE,
+            PERM_NONE,
+            PERM_NONE,
+            FALSE,
+            NULL);
+
+        mPickerHandle = floaterp->getHandle();
+
+        LLFloaterTexturePicker* texture_floaterp = dynamic_cast<LLFloaterTexturePicker*>(floaterp);
+        if (texture_floaterp)
+        {
+            //texture_floaterp->setTextureSelectedCallback();
+            //texture_floaterp->setOnUpdateImageStatsCallback();
+            texture_floaterp->setOnFloaterCommitCallback([this](LLTextureCtrl::ETexturePickOp op, LLUUID id)
+            {
+                if (op == LLTextureCtrl::TEXTURE_SELECT)
+                {
+                    onTexturePickerCommit(id);
+                }
+            }
+            );
+
+            texture_floaterp->setLocalTextureEnabled(FALSE);
+            texture_floaterp->setBakeTextureEnabled(FALSE);
+            texture_floaterp->setCanApplyImmediately(false);
+            texture_floaterp->setCanApply(false, true);
+        }
+
+        floaterp->openFloater();
+    }
+    floaterp->setFocus(TRUE);
+}
+
+void LLFloaterChangeItemThumbnail::onTexturePickerCommit(LLUUID id)
+{
+    LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mPickerHandle.get();
+    LLViewerInventoryItem* item = getItem();
+
+    if (item && floaterp)
+    {
+        item->setThumbnailUUID(floaterp->getAssetID());
+    }
 }
 
 void LLFloaterChangeItemThumbnail::onButtonMouseEnter(LLUICtrl* button, const LLSD& param, EToolTipState state)
