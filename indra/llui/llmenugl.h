@@ -234,7 +234,9 @@ class LLMenuItemSeparatorGL : public LLMenuItemGL
 public:
 	struct Params : public LLInitParam::Block<Params, LLMenuItemGL::Params>
 	{
-		Params();
+        Optional<EnableCallbackParam > on_visible;
+        Params() : on_visible("on_visible")
+        {}
 	};
 	LLMenuItemSeparatorGL(const LLMenuItemSeparatorGL::Params& p = LLMenuItemSeparatorGL::Params());
 
@@ -243,7 +245,12 @@ public:
 	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
 
+    virtual void buildDrawLabel();
+
 	/*virtual*/ U32 getNominalHeight( void ) const;
+
+private:
+    enable_signal_t mVisibleSignal;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
