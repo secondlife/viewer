@@ -61,8 +61,11 @@ public:
     void setOutfitID(LLUUID id) { mOutfitID = id; }
     LLUUID getOutfitID() { return mOutfitID; }
     void setGallery(LLOutfitGallery* gallery) { mOutfitGallery = gallery; }
+    void setInventoryId(const LLUUID &inventory_id) {}
+    void setTaskId(const LLUUID &task_id) {}
 
     void postSave();
+    static void uploadThumbnail(const std::string &file_path, const LLUUID &inventory_id, const LLUUID &task_id);
 
     class Impl;
     friend class Impl;

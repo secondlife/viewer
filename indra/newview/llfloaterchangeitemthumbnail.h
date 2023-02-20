@@ -55,9 +55,9 @@ public:
 
 private:
 
-    LLViewerInventoryItem* getItem();
+    LLInventoryObject* getInventoryObject();
     void refreshFromInventory();
-    void refreshFromItem(LLViewerInventoryItem* item);
+    void refreshFromObject(LLInventoryObject* obj);
 
     static void onUploadLocal(void*);
     static void onUploadSnapshot(void*);

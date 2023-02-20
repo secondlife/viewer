@@ -34,116 +34,23 @@
 #include "llinventoryicon.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
+#include "llfloaterreg.h"
+#include "llfloatersimplesnapshot.h"
 #include "lllineeditor.h"
 #include "lltextbox.h"
 #include "lltexturectrl.h"
 #include "llthumbnailctrl.h"
+#include "llviewerfoldertype.h"
 #include "llviewermenufile.h"
 #include "llviewerobjectlist.h"
 #include "llwindow.h"
 
 
-//TODO: this part is likely to be moved into outfit snapshot floater
-// and flaoter is likely to become a thumbnail snapshot floater
-
-#include "llagent.h"
-#include "llnotificationsutil.h"
-#include "llviewertexturelist.h"
-
-static const std::string THUMBNAIL_ITEM_UPLOAD_CAP = "InventoryItemThumbnailUpload";
-static const std::string THUMBNAIL_CATEGORY_UPLOAD_CAP = "InventoryCategoryThumbnailUpload";
-
-void post_thumbnail_image_coro(std::string cap_url, std::string path_to_image, LLSD first_data)
-{
-    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("post_profile_image_coro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpHeaders::ptr_t httpHeaders;
-
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
-    httpOpts->setFollowRedirects(true);
-
-    LLSD result = httpAdapter->postAndSuspend(httpRequest, cap_url, first_data, httpOpts, httpHeaders);
-
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-    if (!status)
-    {
-        // todo: notification?
-        LL_WARNS("AvatarProperties") << "Failed to get uploader cap " << status.toString() << LL_ENDL;
-        return;
-    }
-    if (!result.has("uploader"))
-    {
-        // todo: notification?
-        LL_WARNS("AvatarProperties") << "Failed to get uploader cap, response contains no data." << LL_ENDL;
-        return;
-    }
-    std::string uploader_cap = result["uploader"].asString();
-    if (uploader_cap.empty())
-    {
-        LL_WARNS("AvatarProperties") << "Failed to get uploader cap, cap invalid." << LL_ENDL;
-        return;
-    }
-
-    // Upload the image
-
-    LLCore::HttpRequest::ptr_t uploaderhttpRequest(new LLCore::HttpRequest);
-    LLCore::HttpHeaders::ptr_t uploaderhttpHeaders(new LLCore::HttpHeaders);
-    LLCore::HttpOptions::ptr_t uploaderhttpOpts(new LLCore::HttpOptions);
-    S64 length;
-
-    {
-        llifstream instream(path_to_image.c_str(), std::iostream::binary | std::iostream::ate);
-        if (!instream.is_open())
-        {
-            LL_WARNS("AvatarProperties") << "Failed to open file " << path_to_image << LL_ENDL;
-            return;
-        }
-        length = instream.tellg();
-    }
-
-    uploaderhttpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, "application/jp2"); // optional
-    uploaderhttpHeaders->append(HTTP_OUT_HEADER_CONTENT_LENGTH, llformat("%d", length)); // required!
-    uploaderhttpOpts->setFollowRedirects(true);
-
-    result = httpAdapter->postFileAndSuspend(uploaderhttpRequest, uploader_cap, path_to_image, uploaderhttpOpts, uploaderhttpHeaders);
-
-    httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-    LL_DEBUGS("Thumbnail") << result << LL_ENDL;
-
-    if (!status)
-    {
-        LL_WARNS("Thumbnail") << "Failed to upload image " << status.toString() << LL_ENDL;
-        return;
-    }
-    
-    if (result["state"].asString() != "complete")
-    {
-        if (result.has("message"))
-        {
-            LL_WARNS("Thumbnail") << "Failed to upload image, state " << result["state"] << " message: " << result["message"] << LL_ENDL;
-        }
-        else
-        {
-            LL_WARNS("Thumbnail") << "Failed to upload image " << result << LL_ENDL;
-        }
-        return;
-    }
-
-    // todo: issue an inventory udpate?
-    //return result["new_asset"].asUUID();
-}
-
 class LLThumbnailImagePicker : public LLFilePickerThread
 {
 public:
-    LLThumbnailImagePicker(const LLUUID &item_id, LLHandle<LLFloater> *handle);
-    LLThumbnailImagePicker(const LLUUID &item_id, const LLUUID &task_id, LLHandle<LLFloater> *handle);
+    LLThumbnailImagePicker(const LLUUID &item_id);
+    LLThumbnailImagePicker(const LLUUID &item_id, const LLUUID &task_id);
     ~LLThumbnailImagePicker();
     void notify(const std::vector<std::string>& filenames) override;
 
@@ -153,16 +60,14 @@ private:
     LLUUID mTaskId;
 };
 
-LLThumbnailImagePicker::LLThumbnailImagePicker(const LLUUID &item_id, LLHandle<LLFloater> *handle)
+LLThumbnailImagePicker::LLThumbnailImagePicker(const LLUUID &item_id)
     : LLFilePickerThread(LLFilePicker::FFLOAD_IMAGE)
-    , mHandle(handle)
     , mInventoryId(item_id)
 {
 }
 
-LLThumbnailImagePicker::LLThumbnailImagePicker(const LLUUID &item_id, const LLUUID &task_id, LLHandle<LLFloater> *handle)
+LLThumbnailImagePicker::LLThumbnailImagePicker(const LLUUID &item_id, const LLUUID &task_id)
     : LLFilePickerThread(LLFilePicker::FFLOAD_IMAGE)
-    , mHandle(handle)
     , mInventoryId(item_id)
     , mTaskId(task_id)
 {
@@ -170,15 +75,10 @@ LLThumbnailImagePicker::LLThumbnailImagePicker(const LLUUID &item_id, const LLUU
 
 LLThumbnailImagePicker::~LLThumbnailImagePicker()
 {
-    delete mHandle;
 }
 
 void LLThumbnailImagePicker::notify(const std::vector<std::string>& filenames)
 {
-    if (mHandle->isDead())
-    {
-        return;
-    }
     if (filenames.empty())
     {
         return;
@@ -188,52 +88,8 @@ void LLThumbnailImagePicker::notify(const std::vector<std::string>& filenames)
     {
         return;
     }
-
-    // generate a temp texture file for coroutine
-    std::string temp_file = gDirUtilp->getTempFilename();
-    U32 codec = LLImageBase::getCodecFromExtension(gDirUtilp->getExtension(file_path));
-    const S32 MAX_DIM = 256;
-    if (!LLViewerTextureList::createUploadFile(file_path, temp_file, codec, MAX_DIM))
-    {
-        LLSD notif_args;
-        notif_args["REASON"] = LLImage::getLastError().c_str();
-        LLNotificationsUtil::add("CannotUploadTexture", notif_args);
-        LL_WARNS("Thumbnail") << "Failed to upload thumbnail for " << mInventoryId << " " << mTaskId << ", reason: " << notif_args["REASON"].asString() << LL_ENDL;
-        return;
-    }
-
-    std::string cap_name;
-    LLSD data;
-
-    if (mTaskId.notNull())
-    {
-        cap_name = THUMBNAIL_ITEM_UPLOAD_CAP;
-        data["item_id"] = mInventoryId;
-        data["task_id"] = mTaskId;
-    }
-    else if (gInventory.getCategory(mInventoryId))
-    {
-        cap_name = THUMBNAIL_CATEGORY_UPLOAD_CAP;
-        data["category_id"] = mInventoryId;
-    }
-    else
-    {
-        cap_name = THUMBNAIL_ITEM_UPLOAD_CAP;
-        data["item_id"] = mInventoryId;
-    }
-
-    std::string cap_url = gAgent.getRegionCapability(cap_name);
-    if (cap_url.empty())
-    {
-        LLSD args;
-        args["CAPABILITY"] = cap_url;
-        LLNotificationsUtil::add("RegionCapabilityRequestError", args);
-        LL_WARNS("Thumbnail") << "Failed to upload profile image for item " << mInventoryId << " " << mTaskId << ", no cap found" << LL_ENDL;
-        return;
-    }
-
-    LLCoros::instance().launch("postAgentUserImageCoro",
-        boost::bind(post_thumbnail_image_coro, cap_url, temp_file, data));
+    
+    LLFloaterSimpleSnapshot::uploadThumbnail(file_path, mInventoryId, mTaskId);
 }
 
 LLFloaterChangeItemThumbnail::LLFloaterChangeItemThumbnail(const LLSD& key)
@@ -348,9 +204,9 @@ void LLFloaterChangeItemThumbnail::inventoryChanged(LLViewerObject* object,
     refreshFromInventory();
 }
 
-LLViewerInventoryItem* LLFloaterChangeItemThumbnail::getItem()
+LLInventoryObject* LLFloaterChangeItemThumbnail::getInventoryObject()
 {
-    LLViewerInventoryItem* item = NULL;
+    LLInventoryObject* obj = NULL;
     if (mTaskId.isNull())
     {
         // it is in agent inventory
@@ -360,7 +216,7 @@ LLViewerInventoryItem* LLFloaterChangeItemThumbnail::getItem()
             mObserverInitialized = true;
         }
 
-        item = gInventory.getItem(mItemId);
+        obj = gInventory.getObject(mItemId);
     }
     else
     {
@@ -373,28 +229,24 @@ LLViewerInventoryItem* LLFloaterChangeItemThumbnail::getItem()
                 mObserverInitialized = false;
             }
 
-            item = static_cast<LLViewerInventoryItem*>(object->getInventoryObject(mItemId));
+            obj = object->getInventoryObject(mItemId);
         }
     }
-    return item;
+    return obj;
 }
 
 void LLFloaterChangeItemThumbnail::refreshFromInventory()
 {
-    LLViewerInventoryItem* item = getItem();
-    if (!item)
+    LLInventoryObject* obj = getInventoryObject();
+    if (!obj)
     {
         closeFloater();
     }
 
-    if (item)
+    if (obj)
     {
-        // This floater probably shouldn't be be possible to open
-        // for imcomplete items
-        llassert(item->isFinished());
-
         const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-        bool in_trash = (item->getUUID() == trash_id) || gInventory.isObjectDescendentOf(item->getUUID(), trash_id);
+        bool in_trash = (obj->getUUID() == trash_id) || gInventory.isObjectDescendentOf(obj->getUUID(), trash_id);
         if (in_trash)
         {
             // Close properties when moving to trash
@@ -403,7 +255,7 @@ void LLFloaterChangeItemThumbnail::refreshFromInventory()
         }
         else
         {
-            refreshFromItem(item);
+            refreshFromObject(obj);
         }
     }
     else
@@ -412,17 +264,37 @@ void LLFloaterChangeItemThumbnail::refreshFromInventory()
     }
 }
 
-void LLFloaterChangeItemThumbnail::refreshFromItem(LLViewerInventoryItem* item)
+void LLFloaterChangeItemThumbnail::refreshFromObject(LLInventoryObject* obj)
 {
-    LLUIImagePtr icon_img = LLInventoryIcon::getIcon(item->getType(), item->getInventoryType(), item->getFlags(), FALSE);
-    mItemTypeIcon->setImage(icon_img);
-    mItemNameText->setValue(item->getName());
+    LLUIImagePtr icon_img;
+    LLUUID thumbnail_id = obj->getThumbnailUUID();
 
-    LLUUID thumbnail_id = item->getThumbnailUUID();
+    LLViewerInventoryItem* item = dynamic_cast<LLViewerInventoryItem*>(obj);
+    if (item)
+    {
+        // This floater probably shouldn't be be possible to open
+        // for imcomplete items
+        llassert(item->isFinished());
+
+        icon_img = LLInventoryIcon::getIcon(item->getType(), item->getInventoryType(), item->getFlags(), FALSE);
+        mRemoveImageBtn->setEnabled(thumbnail_id.notNull() && ((item->getActualType() != LLAssetType::AT_TEXTURE) || (item->getAssetUUID() != thumbnail_id)));
+    }
+    else
+    {
+        LLViewerInventoryCategory* cat = dynamic_cast<LLViewerInventoryCategory*>(obj);
+
+        if (cat)
+        {
+            icon_img = LLUI::getUIImage(LLViewerFolderType::lookupIconName(cat->getPreferredType(), true));
+            mRemoveImageBtn->setEnabled(thumbnail_id.notNull());
+        }
+    }
+    mItemTypeIcon->setImage(icon_img);
+    mItemNameText->setValue(obj->getName());
+
     mThumbnailCtrl->setValue(thumbnail_id);
 
     mCopyToClipboardBtn->setEnabled(thumbnail_id.notNull());
-    mRemoveImageBtn->setEnabled(thumbnail_id.notNull() && ((item->getActualType() != LLAssetType::AT_TEXTURE) || (item->getAssetUUID() != thumbnail_id)));
 
     // todo: some elements might not support setting thumbnails
     // since they already have them
@@ -431,7 +303,8 @@ void LLFloaterChangeItemThumbnail::refreshFromItem(LLViewerInventoryItem* item)
 void LLFloaterChangeItemThumbnail::onUploadLocal(void *userdata)
 {
     LLFloaterChangeItemThumbnail *self = (LLFloaterChangeItemThumbnail*)userdata;
-    (new LLThumbnailImagePicker(self->mItemId, self->mTaskId, new LLHandle<LLFloater>(self->getHandle())))->getFile();
+
+    (new LLThumbnailImagePicker(self->mItemId, self->mTaskId))->getFile();
 
     LLFloater* floaterp = self->mPickerHandle.get();
     if (floaterp)
@@ -442,16 +315,24 @@ void LLFloaterChangeItemThumbnail::onUploadLocal(void *userdata)
 
 void LLFloaterChangeItemThumbnail::onUploadSnapshot(void *userdata)
 {
+    LLFloaterChangeItemThumbnail *self = (LLFloaterChangeItemThumbnail*)userdata;
 
+    LLFloaterReg::toggleInstanceOrBringToFront("simple_snapshot");
+    LLFloaterSimpleSnapshot* snapshot_floater = LLFloaterSimpleSnapshot::getInstance();
+    if (snapshot_floater)
+    {
+        snapshot_floater->setInventoryId(self->mItemId);
+        snapshot_floater->setTaskId(self->mTaskId);
+    }
 }
 
 void LLFloaterChangeItemThumbnail::onUseTexture(void *userdata)
 {
     LLFloaterChangeItemThumbnail *self = (LLFloaterChangeItemThumbnail*)userdata;
-    LLViewerInventoryItem* item = self->getItem();
-    if (item)
+    LLInventoryObject* obj = self->getInventoryObject();
+    if (obj)
     {
-        self->showTexturePicker(item->getThumbnailUUID());
+        self->showTexturePicker(obj->getThumbnailUUID());
     }
 
 }
@@ -459,10 +340,10 @@ void LLFloaterChangeItemThumbnail::onUseTexture(void *userdata)
 void LLFloaterChangeItemThumbnail::onCopyToClipboard(void *userdata)
 {
     LLFloaterChangeItemThumbnail *self = (LLFloaterChangeItemThumbnail*)userdata;
-    LLViewerInventoryItem* item = self->getItem();
-    if (item)
+    LLInventoryObject* obj = self->getInventoryObject();
+    if (obj)
     {
-        LLClipboard::instance().addToClipboard(item->getThumbnailUUID());
+        LLClipboard::instance().addToClipboard(obj->getThumbnailUUID());
     }
 }
 
@@ -473,10 +354,10 @@ void LLFloaterChangeItemThumbnail::onPasteFromClipboard(void *userdata)
     LLClipboard::instance().pasteFromClipboard(objects);
     if (objects.size() > 0)
     {
-        LLViewerInventoryItem* item = self->getItem();
-        if (item)
+        LLInventoryObject* obj = self->getInventoryObject();
+        if (obj)
         {
-            item->setThumbnailUUID(objects[0]);
+            obj->setThumbnailUUID(objects[0]);
         }
     }
 }
@@ -484,7 +365,7 @@ void LLFloaterChangeItemThumbnail::onPasteFromClipboard(void *userdata)
 void LLFloaterChangeItemThumbnail::onRemove(void *userdata)
 {
     LLFloaterChangeItemThumbnail *self = (LLFloaterChangeItemThumbnail*)userdata;
-    LLViewerInventoryItem* item = self->getItem();
+    LLInventoryObject* item = self->getInventoryObject();
     if (item)
     {
         item->setThumbnailUUID(LLUUID::null);
@@ -548,11 +429,11 @@ void LLFloaterChangeItemThumbnail::showTexturePicker(const LLUUID &thumbnail_id)
 void LLFloaterChangeItemThumbnail::onTexturePickerCommit(LLUUID id)
 {
     LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mPickerHandle.get();
-    LLViewerInventoryItem* item = getItem();
+    LLInventoryObject* obj = getInventoryObject();
 
-    if (item && floaterp)
+    if (obj && floaterp)
     {
-        item->setThumbnailUUID(floaterp->getAssetID());
+        obj->setThumbnailUUID(floaterp->getAssetID());
     }
 }
 

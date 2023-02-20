@@ -12,7 +12,7 @@
  help_topic="snapshot"
  save_rect="true"
  save_visibility="false"
- title="OUTFIT SNAPSHOT"
+ title="THUMBNAIL SNAPSHOT"
  width="351">
   <ui_ctrl
    layout="topleft"

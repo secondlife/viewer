@@ -1386,7 +1386,7 @@ void LLOutfitGallery::onSelectPhoto(LLUUID selected_outfit_id)
 
 void LLOutfitGallery::onTakeSnapshot(LLUUID selected_outfit_id)
 {
-    LLFloaterReg::toggleInstanceOrBringToFront("simple_outfit_snapshot");
+    LLFloaterReg::toggleInstanceOrBringToFront("simple_snapshot");
     LLFloaterSimpleSnapshot* snapshot_floater = LLFloaterSimpleSnapshot::getInstance();
     if (snapshot_floater)
     {
