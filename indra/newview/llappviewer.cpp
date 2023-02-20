@@ -213,7 +213,7 @@
 #include "llcommandlineparser.h"
 #include "llfloatermemleak.h"
 #include "llfloaterreg.h"
-#include "llfloatersimpleoutfitsnapshot.h"
+#include "llfloatersimplesnapshot.h"
 #include "llfloatersnapshot.h"
 #include "llsidepanelinventory.h"
 #include "llatmosphere.h"
@@ -1525,7 +1525,7 @@ bool LLAppViewer::doFrame()
 					LL_PROFILE_ZONE_NAMED_CATEGORY_APP( "df Snapshot" )
 				pingMainloopTimeout("Main:Snapshot");
 				LLFloaterSnapshot::update(); // take snapshots
-                LLFloaterSimpleOutfitSnapshot::update();
+                LLFloaterSimpleSnapshot::update();
 				gGLActive = FALSE;
 			}
 		}

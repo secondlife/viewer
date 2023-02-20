@@ -1,6 +1,6 @@
 /**
-* @file llfloatersimpleoutfitsnapshot.h
-* @brief Snapshot preview window for saving as an outfit thumbnail in visual outfit gallery
+* @file llfloatersimplesnapshot.h
+* @brief Snapshot preview window for saving as a thumbnail
 *
 * $LicenseInfo:firstyear=2022&license=viewerlgpl$
 * Second Life Viewer Source Code
@@ -24,26 +24,27 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_LLFLOATERSIMPLEOUTFITSNAPSHOT_H
-#define LL_LLFLOATERSIMPLEOUTFITSNAPSHOT_H
+#ifndef LL_LLFLOATERSIMPLESNAPSHOT_H
+#define LL_LLFLOATERSIMPLESNAPSHOT_H
 
 #include "llfloater.h"
 #include "llfloatersnapshot.h"
-#include "lloutfitgallery.h"
 #include "llsnapshotlivepreview.h"
 
+class LLOutfitGallery;
+
 ///----------------------------------------------------------------------------
-/// Class LLFloaterSimpleOutfitSnapshot
+/// Class LLFloaterSimpleSnapshot
 ///----------------------------------------------------------------------------
 
-class LLFloaterSimpleOutfitSnapshot : public LLFloaterSnapshotBase
+class LLFloaterSimpleSnapshot : public LLFloaterSnapshotBase
 {
-    LOG_CLASS(LLFloaterSimpleOutfitSnapshot);
+    LOG_CLASS(LLFloaterSimpleSnapshot);
 
 public:
 
-    LLFloaterSimpleOutfitSnapshot(const LLSD& key);
-    ~LLFloaterSimpleOutfitSnapshot();
+    LLFloaterSimpleSnapshot(const LLSD& key);
+    ~LLFloaterSimpleSnapshot();
 
     BOOL postBuild();
     void onOpen(const LLSD& key);
@@ -51,8 +52,8 @@ public:
 
     static void update();
 
-    static LLFloaterSimpleOutfitSnapshot* getInstance();
-    static LLFloaterSimpleOutfitSnapshot* findInstance();
+    static LLFloaterSimpleSnapshot* getInstance();
+    static LLFloaterSimpleSnapshot* findInstance();
     void saveTexture();
 
     const LLRect& getThumbnailPlaceholderRect() { return mThumbnailPlaceholder->getRect(); }
@@ -75,12 +76,12 @@ private:
 };
 
 ///----------------------------------------------------------------------------
-/// Class LLFloaterSimpleOutfitSnapshot::Impl
+/// Class LLFloaterSimpleSnapshot::Impl
 ///----------------------------------------------------------------------------
 
-class LLFloaterSimpleOutfitSnapshot::Impl : public LLFloaterSnapshotBase::ImplBase
+class LLFloaterSimpleSnapshot::Impl : public LLFloaterSnapshotBase::ImplBase
 {
-    LOG_CLASS(LLFloaterSimpleOutfitSnapshot::Impl);
+    LOG_CLASS(LLFloaterSimpleSnapshot::Impl);
 public:
     Impl(LLFloaterSnapshotBase* floater)
         : LLFloaterSnapshotBase::ImplBase(floater)
@@ -108,7 +109,7 @@ private:
 /// Class LLSimpleOutfitSnapshotFloaterView
 ///----------------------------------------------------------------------------
 
-class LLSimpleOutfitSnapshotFloaterView : public LLFloaterView
+class LLSimpleSnapshotFloaterView : public LLFloaterView
 {
 public:
     struct Params
@@ -117,13 +118,13 @@ public:
     };
 
 protected:
-    LLSimpleOutfitSnapshotFloaterView(const Params& p);
+    LLSimpleSnapshotFloaterView(const Params& p);
     friend class LLUICtrlFactory;
 
 public:
-    virtual ~LLSimpleOutfitSnapshotFloaterView();
+    virtual ~LLSimpleSnapshotFloaterView();
 };
 
-extern LLSimpleOutfitSnapshotFloaterView* gSimpleOutfitSnapshotFloaterView;
+extern LLSimpleSnapshotFloaterView* gSimpleOutfitSnapshotFloaterView;
 
-#endif // LL_LLFLOATERSIMPLEOUTFITSNAPSHOT_H
+#endif // LL_LLFLOATERSIMPLESNAPSHOT_H

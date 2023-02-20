@@ -1,6 +1,6 @@
 /** 
-* @file llfloatersimpleoutfitsnapshot.cpp
-* @brief Snapshot preview window for saving as an outfit thumbnail in visual outfit gallery
+* @file llfloatersimplesnapshot.cpp
+* @brief Snapshot preview window for saving as a thumbnail
 *
 * $LicenseInfo:firstyear=2022&license=viewerlgpl$
 * Second Life Viewer Source Code
@@ -26,37 +26,38 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llfloatersimpleoutfitsnapshot.h"
+#include "llfloatersimplesnapshot.h"
 
 #include "llfloaterreg.h"
 #include "llimagefiltersmanager.h"
 #include "llstatusbar.h" // can_afford_transaction()
 #include "llnotificationsutil.h"
+#include "lloutfitgallery.h"
 #include "llagentbenefits.h"
 #include "llviewercontrol.h"
 
-LLSimpleOutfitSnapshotFloaterView* gSimpleOutfitSnapshotFloaterView = NULL;
+LLSimpleSnapshotFloaterView* gSimpleSnapshotFloaterView = NULL;
 
-const S32 OUTFIT_SNAPSHOT_WIDTH = 256;
-const S32 OUTFIT_SNAPSHOT_HEIGHT = 256;
+const S32 THUMBNAIL_SNAPSHOT_WIDTH = 256;
+const S32 THUMBNAIL_SNAPSHOT_HEIGHT = 256;
 
-static LLDefaultChildRegistry::Register<LLSimpleOutfitSnapshotFloaterView> r("simple_snapshot_outfit_floater_view");
+static LLDefaultChildRegistry::Register<LLSimpleSnapshotFloaterView> r("simple_snapshot_floater_view");
 
 ///----------------------------------------------------------------------------
-/// Class LLFloaterSimpleOutfitSnapshot::Impl
+/// Class LLFloaterSimpleSnapshot::Impl
 ///----------------------------------------------------------------------------
 
-LLSnapshotModel::ESnapshotFormat LLFloaterSimpleOutfitSnapshot::Impl::getImageFormat(LLFloaterSnapshotBase* floater)
+LLSnapshotModel::ESnapshotFormat LLFloaterSimpleSnapshot::Impl::getImageFormat(LLFloaterSnapshotBase* floater)
 {
     return LLSnapshotModel::SNAPSHOT_FORMAT_PNG;
 }
 
-LLSnapshotModel::ESnapshotLayerType LLFloaterSimpleOutfitSnapshot::Impl::getLayerType(LLFloaterSnapshotBase* floater)
+LLSnapshotModel::ESnapshotLayerType LLFloaterSimpleSnapshot::Impl::getLayerType(LLFloaterSnapshotBase* floater)
 {
     return LLSnapshotModel::SNAPSHOT_TYPE_COLOR;
 }
 
-void LLFloaterSimpleOutfitSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
+void LLFloaterSimpleSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
 {
     LLSnapshotLivePreview* previewp = getPreviewView();
     updateResolution(floater);
@@ -68,14 +69,14 @@ void LLFloaterSimpleOutfitSnapshot::Impl::updateControls(LLFloaterSnapshotBase* 
     }
 }
 
-std::string LLFloaterSimpleOutfitSnapshot::Impl::getSnapshotPanelPrefix()
+std::string LLFloaterSimpleSnapshot::Impl::getSnapshotPanelPrefix()
 {
     return "panel_outfit_snapshot_";
 }
 
-void LLFloaterSimpleOutfitSnapshot::Impl::updateResolution(void* data)
+void LLFloaterSimpleSnapshot::Impl::updateResolution(void* data)
 {
-    LLFloaterSimpleOutfitSnapshot *view = (LLFloaterSimpleOutfitSnapshot *)data;
+    LLFloaterSimpleSnapshot *view = (LLFloaterSimpleSnapshot *)data;
 
     if (!view)
     {
@@ -83,8 +84,8 @@ void LLFloaterSimpleOutfitSnapshot::Impl::updateResolution(void* data)
         return;
     }
 
-    S32 width = OUTFIT_SNAPSHOT_WIDTH;
-    S32 height = OUTFIT_SNAPSHOT_HEIGHT;
+    S32 width = THUMBNAIL_SNAPSHOT_WIDTH;
+    S32 height = THUMBNAIL_SNAPSHOT_HEIGHT;
 
     LLSnapshotLivePreview* previewp = getPreviewView();
     if (previewp)
@@ -111,7 +112,7 @@ void LLFloaterSimpleOutfitSnapshot::Impl::updateResolution(void* data)
     }
 }
 
-void LLFloaterSimpleOutfitSnapshot::Impl::setStatus(EStatus status, bool ok, const std::string& msg)
+void LLFloaterSimpleSnapshot::Impl::setStatus(EStatus status, bool ok, const std::string& msg)
 {
     switch (status)
     {
@@ -130,27 +131,27 @@ void LLFloaterSimpleOutfitSnapshot::Impl::setStatus(EStatus status, bool ok, con
 }
 
 ///----------------------------------------------------------------re------------
-/// Class LLFloaterSimpleOutfitSnapshot
+/// Class LLFloaterSimpleSnapshot
 ///----------------------------------------------------------------------------
 
-LLFloaterSimpleOutfitSnapshot::LLFloaterSimpleOutfitSnapshot(const LLSD& key)
+LLFloaterSimpleSnapshot::LLFloaterSimpleSnapshot(const LLSD& key)
     : LLFloaterSnapshotBase(key),
     mOutfitGallery(NULL)
 {
     impl = new Impl(this);
 }
 
-LLFloaterSimpleOutfitSnapshot::~LLFloaterSimpleOutfitSnapshot()
+LLFloaterSimpleSnapshot::~LLFloaterSimpleSnapshot()
 {
 }
 
-BOOL LLFloaterSimpleOutfitSnapshot::postBuild()
+BOOL LLFloaterSimpleSnapshot::postBuild()
 {
     getChild<LLUICtrl>("save_btn")->setLabelArg("[UPLOAD_COST]", std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost()));
 
     childSetAction("new_snapshot_btn", ImplBase::onClickNewSnapshot, this);
-    childSetAction("save_btn", boost::bind(&LLFloaterSimpleOutfitSnapshot::onSend, this));
-    childSetAction("cancel_btn", boost::bind(&LLFloaterSimpleOutfitSnapshot::onCancel, this));
+    childSetAction("save_btn", boost::bind(&LLFloaterSimpleSnapshot::onSend, this));
+    childSetAction("cancel_btn", boost::bind(&LLFloaterSimpleSnapshot::onCancel, this));
 
     mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 
@@ -183,7 +184,7 @@ BOOL LLFloaterSimpleOutfitSnapshot::postBuild()
 
 const S32 PREVIEW_OFFSET_Y = 70;
 
-void LLFloaterSimpleOutfitSnapshot::draw()
+void LLFloaterSimpleSnapshot::draw()
 {
     LLSnapshotLivePreview* previewp = getPreviewView();
 
@@ -219,7 +220,7 @@ void LLFloaterSimpleOutfitSnapshot::draw()
     impl->updateLayout(this);
 }
 
-void LLFloaterSimpleOutfitSnapshot::onOpen(const LLSD& key)
+void LLFloaterSimpleSnapshot::onOpen(const LLSD& key)
 {
     LLSnapshotLivePreview* preview = getPreviewView();
     if (preview)
@@ -235,12 +236,12 @@ void LLFloaterSimpleOutfitSnapshot::onOpen(const LLSD& key)
     impl->setStatus(ImplBase::STATUS_READY);
 }
 
-void LLFloaterSimpleOutfitSnapshot::onCancel()
+void LLFloaterSimpleSnapshot::onCancel()
 {
     closeFloater();
 }
 
-void LLFloaterSimpleOutfitSnapshot::onSend()
+void LLFloaterSimpleSnapshot::onSend()
 {
     S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
     if (can_afford_transaction(expected_upload_cost))
@@ -257,15 +258,15 @@ void LLFloaterSimpleOutfitSnapshot::onSend()
     }
 }
 
-void LLFloaterSimpleOutfitSnapshot::postSave()
+void LLFloaterSimpleSnapshot::postSave()
 {
     impl->setStatus(ImplBase::STATUS_WORKING);
 }
 
 // static 
-void LLFloaterSimpleOutfitSnapshot::update()
+void LLFloaterSimpleSnapshot::update()
 {
-    LLFloaterSimpleOutfitSnapshot* inst = findInstance();
+    LLFloaterSimpleSnapshot* inst = findInstance();
     if (inst != NULL)
     {
         inst->impl->updateLivePreview();
@@ -274,18 +275,18 @@ void LLFloaterSimpleOutfitSnapshot::update()
 
 
 // static
-LLFloaterSimpleOutfitSnapshot* LLFloaterSimpleOutfitSnapshot::findInstance()
+LLFloaterSimpleSnapshot* LLFloaterSimpleSnapshot::findInstance()
 {
-    return LLFloaterReg::findTypedInstance<LLFloaterSimpleOutfitSnapshot>("simple_outfit_snapshot");
+    return LLFloaterReg::findTypedInstance<LLFloaterSimpleSnapshot>("simple_outfit_snapshot");
 }
 
 // static
-LLFloaterSimpleOutfitSnapshot* LLFloaterSimpleOutfitSnapshot::getInstance()
+LLFloaterSimpleSnapshot* LLFloaterSimpleSnapshot::getInstance()
 {
-    return LLFloaterReg::getTypedInstance<LLFloaterSimpleOutfitSnapshot>("simple_outfit_snapshot");
+    return LLFloaterReg::getTypedInstance<LLFloaterSimpleSnapshot>("simple_outfit_snapshot");
 }
 
-void LLFloaterSimpleOutfitSnapshot::saveTexture()
+void LLFloaterSimpleSnapshot::saveTexture()
 {
      LLSnapshotLivePreview* previewp = getPreviewView();
     if (!previewp)
@@ -310,10 +311,10 @@ void LLFloaterSimpleOutfitSnapshot::saveTexture()
 /// Class LLSimpleOutfitSnapshotFloaterView
 ///----------------------------------------------------------------------------
 
-LLSimpleOutfitSnapshotFloaterView::LLSimpleOutfitSnapshotFloaterView(const Params& p) : LLFloaterView(p)
+LLSimpleSnapshotFloaterView::LLSimpleSnapshotFloaterView(const Params& p) : LLFloaterView(p)
 {
 }
 
-LLSimpleOutfitSnapshotFloaterView::~LLSimpleOutfitSnapshotFloaterView()
+LLSimpleSnapshotFloaterView::~LLSimpleSnapshotFloaterView()
 {
 }

@@ -7,7 +7,7 @@
  can_close="true"
  height="305"
  layout="topleft"
- name="simple_outfit_snapshot"
+ name="simple_snapshot"
  single_instance="true"
  help_topic="snapshot"
  save_rect="true"

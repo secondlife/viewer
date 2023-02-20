@@ -41,7 +41,7 @@
 #include "llfilepicker.h"
 #include "llfloaterperms.h"
 #include "llfloaterreg.h"
-#include "llfloatersimpleoutfitsnapshot.h"
+#include "llfloatersimplesnapshot.h"
 #include "llimagedimensionsinfo.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
@@ -1387,7 +1387,7 @@ void LLOutfitGallery::onSelectPhoto(LLUUID selected_outfit_id)
 void LLOutfitGallery::onTakeSnapshot(LLUUID selected_outfit_id)
 {
     LLFloaterReg::toggleInstanceOrBringToFront("simple_outfit_snapshot");
-    LLFloaterSimpleOutfitSnapshot* snapshot_floater = LLFloaterSimpleOutfitSnapshot::getInstance();
+    LLFloaterSimpleSnapshot* snapshot_floater = LLFloaterSimpleSnapshot::getInstance();
     if (snapshot_floater)
     {
         snapshot_floater->setOutfitID(selected_outfit_id);
