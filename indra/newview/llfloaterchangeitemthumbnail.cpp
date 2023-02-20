@@ -228,7 +228,7 @@ void LLFloaterChangeItemThumbnail::refreshFromItem(LLViewerInventoryItem* item)
     mThumbnailCtrl->setValue(thumbnail_id);
 
     mCopyToClipboardBtn->setEnabled(thumbnail_id.notNull());
-    mRemoveImageBtn->setEnabled(thumbnail_id.notNull() && (item->getActualType() != LLAssetType::AT_TEXTURE) || (item->getAssetUUID() != thumbnail_id));
+    mRemoveImageBtn->setEnabled(thumbnail_id.notNull() && ((item->getActualType() != LLAssetType::AT_TEXTURE) || (item->getAssetUUID() != thumbnail_id)));
 
     // todo: some elements might not support setting thumbnails
     // since they already have them
