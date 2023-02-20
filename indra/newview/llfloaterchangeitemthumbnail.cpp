@@ -38,9 +38,203 @@
 #include "lltextbox.h"
 #include "lltexturectrl.h"
 #include "llthumbnailctrl.h"
+#include "llviewermenufile.h"
 #include "llviewerobjectlist.h"
 #include "llwindow.h"
 
+
+//TODO: this part is likely to be moved into outfit snapshot floater
+// and flaoter is likely to become a thumbnail snapshot floater
+
+#include "llagent.h"
+#include "llnotificationsutil.h"
+#include "llviewertexturelist.h"
+
+static const std::string THUMBNAIL_ITEM_UPLOAD_CAP = "InventoryItemThumbnailUpload";
+static const std::string THUMBNAIL_CATEGORY_UPLOAD_CAP = "InventoryCategoryThumbnailUpload";
+
+void post_thumbnail_image_coro(std::string cap_url, std::string path_to_image, LLSD first_data)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("post_profile_image_coro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpHeaders::ptr_t httpHeaders;
+
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    httpOpts->setFollowRedirects(true);
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, cap_url, first_data, httpOpts, httpHeaders);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        // todo: notification?
+        LL_WARNS("AvatarProperties") << "Failed to get uploader cap " << status.toString() << LL_ENDL;
+        return;
+    }
+    if (!result.has("uploader"))
+    {
+        // todo: notification?
+        LL_WARNS("AvatarProperties") << "Failed to get uploader cap, response contains no data." << LL_ENDL;
+        return;
+    }
+    std::string uploader_cap = result["uploader"].asString();
+    if (uploader_cap.empty())
+    {
+        LL_WARNS("AvatarProperties") << "Failed to get uploader cap, cap invalid." << LL_ENDL;
+        return;
+    }
+
+    // Upload the image
+
+    LLCore::HttpRequest::ptr_t uploaderhttpRequest(new LLCore::HttpRequest);
+    LLCore::HttpHeaders::ptr_t uploaderhttpHeaders(new LLCore::HttpHeaders);
+    LLCore::HttpOptions::ptr_t uploaderhttpOpts(new LLCore::HttpOptions);
+    S64 length;
+
+    {
+        llifstream instream(path_to_image.c_str(), std::iostream::binary | std::iostream::ate);
+        if (!instream.is_open())
+        {
+            LL_WARNS("AvatarProperties") << "Failed to open file " << path_to_image << LL_ENDL;
+            return;
+        }
+        length = instream.tellg();
+    }
+
+    uploaderhttpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, "application/jp2"); // optional
+    uploaderhttpHeaders->append(HTTP_OUT_HEADER_CONTENT_LENGTH, llformat("%d", length)); // required!
+    uploaderhttpOpts->setFollowRedirects(true);
+
+    result = httpAdapter->postFileAndSuspend(uploaderhttpRequest, uploader_cap, path_to_image, uploaderhttpOpts, uploaderhttpHeaders);
+
+    httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    LL_DEBUGS("Thumbnail") << result << LL_ENDL;
+
+    if (!status)
+    {
+        LL_WARNS("Thumbnail") << "Failed to upload image " << status.toString() << LL_ENDL;
+        return;
+    }
+    
+    if (result["state"].asString() != "complete")
+    {
+        if (result.has("message"))
+        {
+            LL_WARNS("Thumbnail") << "Failed to upload image, state " << result["state"] << " message: " << result["message"] << LL_ENDL;
+        }
+        else
+        {
+            LL_WARNS("Thumbnail") << "Failed to upload image " << result << LL_ENDL;
+        }
+        return;
+    }
+
+    // todo: issue an inventory udpate?
+    //return result["new_asset"].asUUID();
+}
+
+class LLThumbnailImagePicker : public LLFilePickerThread
+{
+public:
+    LLThumbnailImagePicker(const LLUUID &item_id, LLHandle<LLFloater> *handle);
+    LLThumbnailImagePicker(const LLUUID &item_id, const LLUUID &task_id, LLHandle<LLFloater> *handle);
+    ~LLThumbnailImagePicker();
+    void notify(const std::vector<std::string>& filenames) override;
+
+private:
+    LLHandle<LLFloater> *mHandle;
+    LLUUID mInventoryId;
+    LLUUID mTaskId;
+};
+
+LLThumbnailImagePicker::LLThumbnailImagePicker(const LLUUID &item_id, LLHandle<LLFloater> *handle)
+    : LLFilePickerThread(LLFilePicker::FFLOAD_IMAGE)
+    , mHandle(handle)
+    , mInventoryId(item_id)
+{
+}
+
+LLThumbnailImagePicker::LLThumbnailImagePicker(const LLUUID &item_id, const LLUUID &task_id, LLHandle<LLFloater> *handle)
+    : LLFilePickerThread(LLFilePicker::FFLOAD_IMAGE)
+    , mHandle(handle)
+    , mInventoryId(item_id)
+    , mTaskId(task_id)
+{
+}
+
+LLThumbnailImagePicker::~LLThumbnailImagePicker()
+{
+    delete mHandle;
+}
+
+void LLThumbnailImagePicker::notify(const std::vector<std::string>& filenames)
+{
+    if (mHandle->isDead())
+    {
+        return;
+    }
+    if (filenames.empty())
+    {
+        return;
+    }
+    std::string file_path = filenames[0];
+    if (file_path.empty())
+    {
+        return;
+    }
+
+    // generate a temp texture file for coroutine
+    std::string temp_file = gDirUtilp->getTempFilename();
+    U32 codec = LLImageBase::getCodecFromExtension(gDirUtilp->getExtension(file_path));
+    const S32 MAX_DIM = 256;
+    if (!LLViewerTextureList::createUploadFile(file_path, temp_file, codec, MAX_DIM))
+    {
+        LLSD notif_args;
+        notif_args["REASON"] = LLImage::getLastError().c_str();
+        LLNotificationsUtil::add("CannotUploadTexture", notif_args);
+        LL_WARNS("Thumbnail") << "Failed to upload thumbnail for " << mInventoryId << " " << mTaskId << ", reason: " << notif_args["REASON"].asString() << LL_ENDL;
+        return;
+    }
+
+    std::string cap_name;
+    LLSD data;
+
+    if (mTaskId.notNull())
+    {
+        cap_name = THUMBNAIL_ITEM_UPLOAD_CAP;
+        data["item_id"] = mInventoryId;
+        data["task_id"] = mTaskId;
+    }
+    else if (gInventory.getCategory(mInventoryId))
+    {
+        cap_name = THUMBNAIL_CATEGORY_UPLOAD_CAP;
+        data["category_id"] = mInventoryId;
+    }
+    else
+    {
+        cap_name = THUMBNAIL_ITEM_UPLOAD_CAP;
+        data["item_id"] = mInventoryId;
+    }
+
+    std::string cap_url = gAgent.getRegionCapability(cap_name);
+    if (cap_url.empty())
+    {
+        LLSD args;
+        args["CAPABILITY"] = cap_url;
+        LLNotificationsUtil::add("RegionCapabilityRequestError", args);
+        LL_WARNS("Thumbnail") << "Failed to upload profile image for item " << mInventoryId << " " << mTaskId << ", no cap found" << LL_ENDL;
+        return;
+    }
+
+    LLCoros::instance().launch("postAgentUserImageCoro",
+        boost::bind(post_thumbnail_image_coro, cap_url, temp_file, data));
+}
 
 LLFloaterChangeItemThumbnail::LLFloaterChangeItemThumbnail(const LLSD& key)
     : LLFloater(key)
@@ -236,7 +430,14 @@ void LLFloaterChangeItemThumbnail::refreshFromItem(LLViewerInventoryItem* item)
 
 void LLFloaterChangeItemThumbnail::onUploadLocal(void *userdata)
 {
+    LLFloaterChangeItemThumbnail *self = (LLFloaterChangeItemThumbnail*)userdata;
+    (new LLThumbnailImagePicker(self->mItemId, self->mTaskId, new LLHandle<LLFloater>(self->getHandle())))->getFile();
 
+    LLFloater* floaterp = self->mPickerHandle.get();
+    if (floaterp)
+    {
+        floaterp->closeFloater();
+    }
 }
 
 void LLFloaterChangeItemThumbnail::onUploadSnapshot(void *userdata)

@@ -366,7 +366,7 @@ LLUUID post_profile_image(std::string cap_url, const LLSD &first_data, std::stri
     httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-    LL_WARNS("AvatarProperties") << result << LL_ENDL;
+    LL_DEBUGS("AvatarProperties") << result << LL_ENDL;
 
     if (!status)
     {
@@ -1438,7 +1438,6 @@ void LLPanelProfileSecondLife::setLoaded()
 }
 
 
-
 class LLProfileImagePicker : public LLFilePickerThread
 {
 public:
@@ -1485,15 +1484,20 @@ void LLProfileImagePicker::notify(const std::vector<std::string>& filenames)
     const S32 MAX_DIM = 256;
     if (!LLViewerTextureList::createUploadFile(file_path, temp_file, codec, MAX_DIM))
     {
-        //todo: image not supported notification
-        LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << (S32)PROFILE_IMAGE_SL << ", failed to open image" << LL_ENDL;
+        LLSD notif_args;
+        notif_args["REASON"] = LLImage::getLastError().c_str();
+        LLNotificationsUtil::add("CannotUploadTexture", notif_args);
+        LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << (S32)mType << ", " << notif_args["REASON"].asString() << LL_ENDL;
         return;
     }
 
     std::string cap_url = gAgent.getRegionCapability(PROFILE_IMAGE_UPLOAD_CAP);
     if (cap_url.empty())
     {
-        LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << (S32)PROFILE_IMAGE_SL << ", no cap found" << LL_ENDL;
+        LLSD args;
+        args["CAPABILITY"] = PROFILE_IMAGE_UPLOAD_CAP;
+        LLNotificationsUtil::add("RegionCapabilityRequestError", args);
+        LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << (S32)mType << ", no cap found" << LL_ENDL;
         return;
     }
 
