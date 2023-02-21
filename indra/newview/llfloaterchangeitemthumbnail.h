@@ -65,6 +65,7 @@ private:
     static void onCopyToClipboard(void*);
     static void onPasteFromClipboard(void*);
     static void onRemove(void*);
+    static void onRemovalConfirmation(const LLSD& notification, const LLSD& response, LLHandle<LLFloater> handle);
 
     void showTexturePicker(const LLUUID &thumbnail_id);
     void onTexturePickerCommit(LLUUID id);

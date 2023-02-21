@@ -881,7 +881,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 
             LLViewerInventoryItem* inv_item = gInventory.getItem(mUUID);
             items.push_back(std::string("thumbnail"));
-            if (!inv_item || !inv_item->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
+            if (inv_item && !inv_item->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
             {
                 disabled_items.push_back(std::string("thumbnail"));
             }
@@ -3289,6 +3289,12 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		
 		return;
 	}
+    else if ("thumbnail" == action)
+    {
+        LLSD data(mUUID);
+        LLFloaterReg::showInstance("change_item_thumbnail", data);
+        return;
+    }
 	else if ("paste" == action)
 	{
 		pasteFromClipboard();

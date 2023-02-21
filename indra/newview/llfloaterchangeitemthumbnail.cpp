@@ -37,6 +37,7 @@
 #include "llfloaterreg.h"
 #include "llfloatersimplesnapshot.h"
 #include "lllineeditor.h"
+#include "llnotificationsutil.h"
 #include "lltextbox.h"
 #include "lltexturectrl.h"
 #include "llthumbnailctrl.h"
@@ -364,10 +365,26 @@ void LLFloaterChangeItemThumbnail::onPasteFromClipboard(void *userdata)
 void LLFloaterChangeItemThumbnail::onRemove(void *userdata)
 {
     LLFloaterChangeItemThumbnail *self = (LLFloaterChangeItemThumbnail*)userdata;
-    LLInventoryObject* item = self->getInventoryObject();
-    if (item)
+
+    LLSD payload;
+    payload["item_id"] = self->mItemId;
+    payload["object_id"] = self->mTaskId;
+    LLNotificationsUtil::add("DeleteThumbnail", LLSD(), payload, boost::bind(&LLFloaterChangeItemThumbnail::onRemovalConfirmation, _1, _2, self->getHandle()));
+}
+
+// static 
+void LLFloaterChangeItemThumbnail::onRemovalConfirmation(const LLSD& notification, const LLSD& response, LLHandle<LLFloater> handle)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0 && !handle.isDead() && !handle.get()->isDead())
     {
-        item->setThumbnailUUID(LLUUID::null);
+        LLFloaterChangeItemThumbnail* self = (LLFloaterChangeItemThumbnail*)handle.get();
+
+        LLInventoryObject* obj = self->getInventoryObject();
+        if (obj)
+        {
+            obj->setThumbnailUUID(LLUUID::null);
+        }
     }
 }
 

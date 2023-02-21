@@ -6094,7 +6094,21 @@ Are you sure you want to delete them?
      notext="Cancel"
      yestext="OK"/>
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   name="DeleteThumbnail"
+   type="alertmodal">
+    <unique/>
+    Delete the image for this item? There is no undo.
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Don't show me this again"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="Delete"/>
+  </notification>
+
   <notification
      icon="alertmodal.tga"
      name="ConfirmUnlink"
