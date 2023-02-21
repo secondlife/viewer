@@ -36,6 +36,7 @@
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llagentbenefits.h"
+#include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
@@ -1112,10 +1113,7 @@ LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
 
     registrar.add("Gear.WearAdd", boost::bind(&LLOutfitListGearMenuBase::onAdd, this));
 
-    registrar.add("Gear.UploadPhoto", boost::bind(&LLOutfitListGearMenuBase::onUploadFoto, this));
-    registrar.add("Gear.SelectPhoto", boost::bind(&LLOutfitListGearMenuBase::onSelectPhoto, this));
-    registrar.add("Gear.TakeSnapshot", boost::bind(&LLOutfitListGearMenuBase::onTakeSnapshot, this));
-    registrar.add("Gear.RemovePhoto", boost::bind(&LLOutfitListGearMenuBase::onRemovePhoto, this));
+    registrar.add("Gear.Thumbnail", boost::bind(&LLOutfitListGearMenuBase::onThumbnail, this));
     registrar.add("Gear.SortByName", boost::bind(&LLOutfitListGearMenuBase::onChangeSortOrder, this));
 
     enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitListGearMenuBase::onEnable, this, _2));
@@ -1251,24 +1249,11 @@ bool LLOutfitListGearMenuBase::onVisible(LLSD::String param)
     return true;
 }
 
-void LLOutfitListGearMenuBase::onUploadFoto()
+void LLOutfitListGearMenuBase::onThumbnail()
 {
-
-}
-
-void LLOutfitListGearMenuBase::onSelectPhoto()
-{
-
-}
-
-void LLOutfitListGearMenuBase::onTakeSnapshot()
-{
-
-}
-
-void LLOutfitListGearMenuBase::onRemovePhoto()
-{
-
+    const LLUUID& selected_outfit_id = getSelectedOutfitID();
+    LLSD data(selected_outfit_id);
+    LLFloaterReg::showInstance("change_item_thumbnail", data);
 }
 
 void LLOutfitListGearMenuBase::onChangeSortOrder()

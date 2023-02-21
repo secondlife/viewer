@@ -185,7 +185,8 @@ LLToolTip* LLInspectTextureUtil::createInventoryToolTip(LLToolTip::Params p)
                             }
                             if (item)
                             {
-                                // Todo: write this into folder's thumbnail id
+                                // Note: LLFloaterChangeItemThumbnail will attempt to write this
+                                // into folder's thumbnail id when opened
                                 p.create_params.getValue()["thumbnail_id"] = item->getAssetUUID();
                                 return LLUICtrlFactory::create<LLTextureToolTip>(p);
                             }

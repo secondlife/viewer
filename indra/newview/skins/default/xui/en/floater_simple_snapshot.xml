@@ -12,7 +12,7 @@
  help_topic="snapshot"
  save_rect="true"
  save_visibility="false"
- title="THUMBNAIL SNAPSHOT"
+ title="ITEM SNAPSHOT"
  width="351">
   <ui_ctrl
    layout="topleft"
@@ -36,7 +36,7 @@
    height="22"
    layout="topleft"
    left_pad="10"
-   label="Save (L$[UPLOAD_COST])"
+   label="Save"
    name="save_btn"
    width="90" />
   <button

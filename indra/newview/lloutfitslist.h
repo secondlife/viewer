@@ -163,10 +163,7 @@ public:
 
 protected:
     virtual void onUpdateItemsVisibility();
-    virtual void onUploadFoto();
-    virtual void onSelectPhoto();
-    virtual void onTakeSnapshot();
-    virtual void onRemovePhoto();
+    virtual void onThumbnail();
     virtual void onChangeSortOrder();
 
     const LLUUID& getSelectedOutfitID();

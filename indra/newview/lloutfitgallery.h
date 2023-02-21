@@ -215,10 +215,7 @@ protected:
     /* virtual */ LLContextMenu* createMenu();
     bool onEnable(LLSD::String param);
     bool onVisible(LLSD::String param);
-    void onUploadPhoto(const LLUUID& outfit_cat_id);
-    void onSelectPhoto(const LLUUID& outfit_cat_id);
-    void onRemovePhoto(const LLUUID& outfit_cat_id);
-    void onTakeSnapshot(const LLUUID& outfit_cat_id);
+    void onThumbnail(const LLUUID& outfit_cat_id);
     void onCreate(const LLSD& data);
     void onRemoveOutfit(const LLUUID& outfit_cat_id);
     void onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response, const LLUUID& outfit_cat_id);

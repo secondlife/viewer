@@ -31,8 +31,6 @@
 #include "llfloatersnapshot.h"
 #include "llsnapshotlivepreview.h"
 
-class LLOutfitGallery;
-
 ///----------------------------------------------------------------------------
 /// Class LLFloaterSimpleSnapshot
 ///----------------------------------------------------------------------------
@@ -58,11 +56,9 @@ public:
 
     const LLRect& getThumbnailPlaceholderRect() { return mThumbnailPlaceholder->getRect(); }
 
-    void setOutfitID(LLUUID id) { mOutfitID = id; }
-    LLUUID getOutfitID() { return mOutfitID; }
-    void setGallery(LLOutfitGallery* gallery) { mOutfitGallery = gallery; }
-    void setInventoryId(const LLUUID &inventory_id) {}
-    void setTaskId(const LLUUID &task_id) {}
+    void setInventoryId(const LLUUID &inventory_id) { mInventoryId = inventory_id; }
+    LLUUID getInventoryId() { return mInventoryId; }
+    void setTaskId(const LLUUID &task_id) { mTaskId = task_id; }
 
     void postSave();
     static void uploadThumbnail(const std::string &file_path, const LLUUID &inventory_id, const LLUUID &task_id);
@@ -74,8 +70,11 @@ private:
     void onSend();
     void onCancel();
 
-    LLUUID mOutfitID;
-    LLOutfitGallery* mOutfitGallery;
+    // uploads upload-ready file
+    static void uploadImageUploadFile(const std::string &temp_file, const LLUUID &inventory_id, const LLUUID &task_id);
+
+    LLUUID mInventoryId;
+    LLUUID mTaskId;
 };
 
 ///----------------------------------------------------------------------------

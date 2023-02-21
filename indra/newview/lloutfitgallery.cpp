@@ -837,52 +837,23 @@ LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
     registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id));
     registrar.add("Outfit.Delete", boost::bind(&LLOutfitGalleryContextMenu::onRemoveOutfit, this, selected_id));
     registrar.add("Outfit.Create", boost::bind(&LLOutfitGalleryContextMenu::onCreate, this, _2));
-    registrar.add("Outfit.UploadPhoto", boost::bind(&LLOutfitGalleryContextMenu::onUploadPhoto, this, selected_id));
-    registrar.add("Outfit.SelectPhoto", boost::bind(&LLOutfitGalleryContextMenu::onSelectPhoto, this, selected_id));
-    registrar.add("Outfit.TakeSnapshot", boost::bind(&LLOutfitGalleryContextMenu::onTakeSnapshot, this, selected_id));
-    registrar.add("Outfit.RemovePhoto", boost::bind(&LLOutfitGalleryContextMenu::onRemovePhoto, this, selected_id));
+    registrar.add("Outfit.Thumbnail", boost::bind(&LLOutfitGalleryContextMenu::onThumbnail, this, selected_id));
     enable_registrar.add("Outfit.OnEnable", boost::bind(&LLOutfitGalleryContextMenu::onEnable, this, _2));
     enable_registrar.add("Outfit.OnVisible", boost::bind(&LLOutfitGalleryContextMenu::onVisible, this, _2));
     
     return createFromFile("menu_gallery_outfit_tab.xml");
 }
 
-void LLOutfitGalleryContextMenu::onUploadPhoto(const LLUUID& outfit_cat_id)
+void LLOutfitGalleryContextMenu::onThumbnail(const LLUUID& outfit_cat_id)
 {
     LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
     if (gallery && outfit_cat_id.notNull())
     {
-        gallery->uploadPhoto(outfit_cat_id);
+        LLSD data(outfit_cat_id);
+        LLFloaterReg::showInstance("change_item_thumbnail", data);
     }
 }
 
-void LLOutfitGalleryContextMenu::onSelectPhoto(const LLUUID& outfit_cat_id)
-{
-    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
-    if (gallery && outfit_cat_id.notNull())
-    {
-        gallery->onSelectPhoto(outfit_cat_id);
-    }
-}
-
-void LLOutfitGalleryContextMenu::onRemovePhoto(const LLUUID& outfit_cat_id)
-{
-    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
-    if (gallery && outfit_cat_id.notNull())
-    {
-        gallery->checkRemovePhoto(outfit_cat_id);
-        gallery->refreshOutfit(outfit_cat_id);
-    }
-}
-
-void LLOutfitGalleryContextMenu::onTakeSnapshot(const LLUUID& outfit_cat_id)
-{
-    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
-    if (gallery && outfit_cat_id.notNull())
-    {
-        gallery->onTakeSnapshot(outfit_cat_id);
-    }
-}
 
 void LLOutfitGalleryContextMenu::onRemoveOutfit(const LLUUID& outfit_cat_id)
 {
@@ -1390,8 +1361,7 @@ void LLOutfitGallery::onTakeSnapshot(LLUUID selected_outfit_id)
     LLFloaterSimpleSnapshot* snapshot_floater = LLFloaterSimpleSnapshot::getInstance();
     if (snapshot_floater)
     {
-        snapshot_floater->setOutfitID(selected_outfit_id);
-        snapshot_floater->getInstance()->setGallery(this);
+        snapshot_floater->setInventoryId(selected_outfit_id);
     }
 }
 

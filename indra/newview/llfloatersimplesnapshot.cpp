@@ -30,9 +30,9 @@
 
 #include "llfloaterreg.h"
 #include "llimagefiltersmanager.h"
+#include "llinventorymodel.h"
 #include "llstatusbar.h" // can_afford_transaction()
 #include "llnotificationsutil.h"
-#include "lloutfitgallery.h"
 #include "llagent.h"
 #include "llagentbenefits.h"
 #include "llviewercontrol.h"
@@ -43,8 +43,6 @@
 LLSimpleSnapshotFloaterView* gSimpleSnapshotFloaterView = NULL;
 
 const S32 THUMBNAIL_SNAPSHOT_DIM = 256;
-
-static LLDefaultChildRegistry::Register<LLSimpleSnapshotFloaterView> r("simple_snapshot_floater_view");
 
 // Thumbnail posting coro
 
@@ -229,8 +227,7 @@ void LLFloaterSimpleSnapshot::Impl::setStatus(EStatus status, bool ok, const std
 ///----------------------------------------------------------------------------
 
 LLFloaterSimpleSnapshot::LLFloaterSimpleSnapshot(const LLSD& key)
-    : LLFloaterSnapshotBase(key),
-    mOutfitGallery(NULL)
+    : LLFloaterSnapshotBase(key)
 {
     impl = new Impl(this);
 }
@@ -241,8 +238,6 @@ LLFloaterSimpleSnapshot::~LLFloaterSimpleSnapshot()
 
 BOOL LLFloaterSimpleSnapshot::postBuild()
 {
-    getChild<LLUICtrl>("save_btn")->setLabelArg("[UPLOAD_COST]", std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost()));
-
     childSetAction("new_snapshot_btn", ImplBase::onClickNewSnapshot, this);
     childSetAction("save_btn", boost::bind(&LLFloaterSimpleSnapshot::onSend, this));
     childSetAction("cancel_btn", boost::bind(&LLFloaterSimpleSnapshot::onCancel, this));
@@ -337,18 +332,18 @@ void LLFloaterSimpleSnapshot::onCancel()
 
 void LLFloaterSimpleSnapshot::onSend()
 {
-    S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
-    if (can_afford_transaction(expected_upload_cost))
+    LLSnapshotLivePreview* previewp = getPreviewView();
+
+    std::string temp_file = gDirUtilp->getTempFilename();
+    if (previewp->createUploadFile(temp_file, THUMBNAIL_SNAPSHOT_DIM))
     {
-        saveTexture();
-        postSave();
+        uploadImageUploadFile(temp_file, mInventoryId, mTaskId);
     }
     else
     {
-        LLSD args;
-        args["COST"] = llformat("%d", expected_upload_cost);
-        LLNotificationsUtil::add("ErrorPhotoCannotAfford", args);
-        inventorySaveFailed();
+        LLSD notif_args;
+        notif_args["REASON"] = LLImage::getLastError().c_str();
+        LLNotificationsUtil::add("CannotUploadTexture", notif_args);
     }
 }
 
@@ -371,7 +366,12 @@ void LLFloaterSimpleSnapshot::uploadThumbnail(const std::string &file_path, cons
         LL_WARNS("Thumbnail") << "Failed to upload thumbnail for " << inventory_id << " " << task_id << ", reason: " << notif_args["REASON"].asString() << LL_ENDL;
         return;
     }
+    uploadImageUploadFile(temp_file, inventory_id, task_id);
+}
 
+// static
+void LLFloaterSimpleSnapshot::uploadImageUploadFile(const std::string &temp_file, const LLUUID &inventory_id, const LLUUID &task_id)
+{
     std::string cap_name;
     LLSD data;
 
@@ -431,22 +431,14 @@ LLFloaterSimpleSnapshot* LLFloaterSimpleSnapshot::getInstance()
 
 void LLFloaterSimpleSnapshot::saveTexture()
 {
-     LLSnapshotLivePreview* previewp = getPreviewView();
+    LLSnapshotLivePreview* previewp = getPreviewView();
     if (!previewp)
     {
         llassert(previewp != NULL);
         return;
     }
 
-    if (mOutfitGallery)
-    {
-        mOutfitGallery->onBeforeOutfitSnapshotSave();
-    }
-    previewp->saveTexture(TRUE, getOutfitID().asString());
-    if (mOutfitGallery)
-    {
-        mOutfitGallery->onAfterOutfitSnapshotSave();
-    }
+    previewp->saveTexture(TRUE, getInventoryId().asString());
     closeFloater();
 }
 

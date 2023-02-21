@@ -51,6 +51,7 @@
 #include "llviewercontrol.h"
 #include "llviewermenufile.h"	// upload_new_resource()
 #include "llviewerstats.h"
+#include "llviewertexturelist.h"
 #include "llwindow.h"
 #include "llworld.h"
 #include <boost/filesystem.hpp>
@@ -871,6 +872,31 @@ LLPointer<LLImageRaw> LLSnapshotLivePreview::getEncodedImage()
 		}
 	}
     return mPreviewImageEncoded;
+}
+
+bool LLSnapshotLivePreview::createUploadFile(const std::string &out_filename, const S32 max_image_dimentions)
+{
+    // make a copy, since convertToUploadFile modifies raw image
+    LLPointer<LLImageRaw> raw_image = new LLImageRaw(
+        mPreviewImage->getData(),
+        mPreviewImage->getWidth(),
+        mPreviewImage->getHeight(),
+        mPreviewImage->getComponents());
+
+    LLPointer<LLImageJ2C> compressedImage = LLViewerTextureList::convertToUploadFile(raw_image, max_image_dimentions);
+    if (compressedImage.isNull())
+    {
+        compressedImage->setLastError("Couldn't convert the image to jpeg2000.");
+        LL_INFOS() << "Couldn't convert to j2c, file : " << out_filename << LL_ENDL;
+        return false;
+    }
+    if (!compressedImage->save(out_filename))
+    {
+        compressedImage->setLastError("Couldn't create the jpeg2000 image for upload.");
+        LL_INFOS() << "Couldn't create output file : " << out_filename << LL_ENDL;
+        return false;
+    }
+    return true;
 }
 
 // We actually estimate the data size so that we do not require actual compression when showing the preview

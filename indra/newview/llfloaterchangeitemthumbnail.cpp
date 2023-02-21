@@ -31,6 +31,7 @@
 #include "llbutton.h"
 #include "llclipboard.h"
 #include "lliconctrl.h"
+#include "llinventoryfunctions.h"
 #include "llinventoryicon.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
@@ -264,6 +265,20 @@ void LLFloaterChangeItemThumbnail::refreshFromInventory()
     }
 }
 
+class LLIsOutfitTextureType : public LLInventoryCollectFunctor
+{
+public:
+    LLIsOutfitTextureType() {}
+    virtual ~LLIsOutfitTextureType() {}
+    virtual bool operator()(LLInventoryCategory* cat,
+        LLInventoryItem* item);
+};
+
+bool LLIsOutfitTextureType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+    return item && (item->getType() == LLAssetType::AT_TEXTURE);
+}
+
 void LLFloaterChangeItemThumbnail::refreshFromObject(LLInventoryObject* obj)
 {
     LLUIImagePtr icon_img;
@@ -286,6 +301,35 @@ void LLFloaterChangeItemThumbnail::refreshFromObject(LLInventoryObject* obj)
         if (cat)
         {
             icon_img = LLUI::getUIImage(LLViewerFolderType::lookupIconName(cat->getPreferredType(), true));
+
+            if (thumbnail_id.isNull() && (cat->getPreferredType() == LLFolderType::FT_OUTFIT))
+            {
+                // Legacy support, check if there is an image inside
+
+                LLInventoryModel::cat_array_t cats;
+                LLInventoryModel::item_array_t items;
+                // Not LLIsOfAssetType, because we allow links
+                LLIsOutfitTextureType f;
+                gInventory.getDirectDescendentsOf(mItemId, cats, items, f);
+
+                if (1 == items.size())
+                {
+                    LLViewerInventoryItem* item = items.front();
+                    if (item && item->getIsLinkType())
+                    {
+                        item = item->getLinkedItem();
+                    }
+                    if (item)
+                    {
+                        thumbnail_id = item->getAssetUUID();
+
+                        // per SL-19188, set this image as a thumbnail
+                        cat->setThumbnailUUID(thumbnail_id);
+                        // todo: needs to trigger send/update once server support is done
+                    }
+                }
+            }
+
             mRemoveImageBtn->setEnabled(thumbnail_id.notNull());
         }
     }
@@ -358,6 +402,7 @@ void LLFloaterChangeItemThumbnail::onPasteFromClipboard(void *userdata)
         if (obj)
         {
             obj->setThumbnailUUID(objects[0]);
+            // todo: need to trigger send/update once server support is done
         }
     }
 }
@@ -384,6 +429,7 @@ void LLFloaterChangeItemThumbnail::onRemovalConfirmation(const LLSD& notificatio
         if (obj)
         {
             obj->setThumbnailUUID(LLUUID::null);
+            // todo: need to trigger send/update once server support is done
         }
     }
 }
@@ -450,6 +496,7 @@ void LLFloaterChangeItemThumbnail::onTexturePickerCommit(LLUUID id)
     if (obj && floaterp)
     {
         obj->setThumbnailUUID(floaterp->getAssetID());
+        // todo: need to trigger send/update once server support is done
     }
 }
 
