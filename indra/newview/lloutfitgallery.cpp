@@ -36,7 +36,6 @@
 
 #include "llaccordionctrltab.h"
 #include "llappearancemgr.h"
-#include "llagentbenefits.h"
 #include "llerror.h"
 #include "llfilepicker.h"
 #include "llfloaterperms.h"
@@ -888,16 +887,6 @@ bool LLOutfitGalleryContextMenu::onEnable(LLSD::String param)
 
 bool LLOutfitGalleryContextMenu::onVisible(LLSD::String param)
 {
-	mMenuHandle.get()->getChild<LLUICtrl>("upload_photo")->setLabelArg("[UPLOAD_COST]", std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost()));
-    if ("remove_photo" == param)
-    {
-        LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
-        LLUUID selected_id = mUUIDs.front();
-        if (gallery && selected_id.notNull())
-        {
-            return !gallery->hasDefaultImage(selected_id);
-        }
-    }
     return LLOutfitContextMenu::onVisible(param);
 }
 
@@ -912,10 +901,7 @@ void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
     bool have_selection = getSelectedOutfitID().notNull();
     mMenu->setItemVisible("expand", FALSE);
     mMenu->setItemVisible("collapse", FALSE);
-    mMenu->setItemVisible("upload_photo", have_selection);
-    mMenu->setItemVisible("select_photo", have_selection);
-    mMenu->setItemVisible("take_snapshot", have_selection);
-    mMenu->setItemVisible("remove_photo", !hasDefaultImage());
+    mMenu->setItemVisible("thumbnail", have_selection);
     mMenu->setItemVisible("sepatator3", TRUE);
     mMenu->setItemVisible("sort_folders_by_name", TRUE);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();

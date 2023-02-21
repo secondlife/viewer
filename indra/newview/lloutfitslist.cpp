@@ -35,7 +35,6 @@
 #include "llaccordionctrltab.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
-#include "llagentbenefits.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llinventoryfunctions.h"
@@ -1230,7 +1229,6 @@ bool LLOutfitListGearMenuBase::onEnable(LLSD::String param)
 
 bool LLOutfitListGearMenuBase::onVisible(LLSD::String param)
 {
-	getMenu()->getChild<LLUICtrl>("upload_photo")->setLabelArg("[UPLOAD_COST]", std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost()));
     const LLUUID& selected_outfit_id = getSelectedOutfitID();
     if (selected_outfit_id.isNull()) // no selection or invalid outfit selected
     {
@@ -1273,10 +1271,7 @@ void LLOutfitListGearMenu::onUpdateItemsVisibility()
     if (!mMenu) return;
     mMenu->setItemVisible("expand", TRUE);
     mMenu->setItemVisible("collapse", TRUE);
-    mMenu->setItemVisible("upload_photo", FALSE);
-    mMenu->setItemVisible("select_photo", FALSE);
-    mMenu->setItemVisible("take_snapshot", FALSE);
-    mMenu->setItemVisible("remove_photo", FALSE);
+    mMenu->setItemVisible("thumbnail", FALSE); // Never visible?
     mMenu->setItemVisible("sepatator3", FALSE);
     mMenu->setItemVisible("sort_folders_by_name", FALSE);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
