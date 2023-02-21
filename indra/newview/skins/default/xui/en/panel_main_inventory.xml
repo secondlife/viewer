@@ -24,8 +24,8 @@
     Fetched [ITEM_COUNT] Items and [CATEGORY_COUNT] Folders [FILTER]
   </panel.string>
   <panel.string name="inventory_title">INVENTORY</panel.string>
-  <panel.string name="default_mode_btn">Command_AboutLand_Icon</panel.string>
-  <panel.string name="single_folder_mode_btn">Command_Map_Icon</panel.string>
+  <panel.string name="default_mode_btn">Multi_Folder_Mode</panel.string>
+  <panel.string name="single_folder_mode_btn">Single_Folder_Mode</panel.string>
   <text
 		     type="string"
 		     length="1"
@@ -60,9 +60,9 @@
      <button
       follows="top|left"
       height="23"
-      image_selected="Arrow_Left"
-      image_pressed="Arrow_Left"
-      image_unselected="Arrow_Left"
+      image_selected="Single_Folder_Back"
+      image_pressed="Single_Folder_Back"
+      image_unselected="Single_Folder_Back"
       scale_image="false"
       layout="topleft"
       left="3"
@@ -73,9 +73,9 @@
      <button
       follows="top|left"
       height="23"
-      image_selected="Arrow_Right"
-      image_pressed="Arrow_Right"
-      image_unselected="Arrow_Right"
+      image_selected="Single_Folder_Forward"
+      image_pressed="Single_Folder_Forward"
+      image_unselected="Single_Folder_Forward"
       scale_image="false"
       layout="topleft"
       left_pad="1"
@@ -85,9 +85,9 @@
      <button
       follows="top|left"
       height="23"
-      image_selected="Arrow_Up"
-      image_pressed="Arrow_Up"
-      image_unselected="Arrow_Up"
+      image_selected="Single_Folder_Up"
+      image_pressed="Single_Folder_Up"
+      image_unselected="Single_Folder_Up"
       scale_image="false"
       layout="topleft"
       left_pad="1"
@@ -189,7 +189,7 @@
        tool_tip="Switch between views"
        height="23"
        image_hover_unselected="Toolbar_Middle_Over"
-       image_overlay="Command_Map_Icon"
+       image_overlay="Single_Folder_Mode"
        image_selected="Toolbar_Middle_Selected"
        image_unselected="Toolbar_Middle_Off"
        layout="topleft"

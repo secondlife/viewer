@@ -886,4 +886,10 @@ with the same filename but different name
   <texture name="System_Notification" file_name="icons/SL_Logo.png" preload="true"/>
   <texture name="Icon_Attachment_Small" file_name="icons/Icon_Attachment_Small.png"	preload="true"/>
   <texture name="Icon_Attachment_Large" file_name="icons/Icon_Attachment_Large.png"	preload="true"/>
+
+  <texture name="Single_Folder_Mode" file_name="icons/single_folder_mode.png" preload="true"/>
+  <texture name="Multi_Folder_Mode" file_name="icons/multi_folder_mode.png" preload="true"/>
+  <texture name="Single_Folder_Back" file_name="icons/single_folder_back.png" preload="true"/>
+  <texture name="Single_Folder_Forward" file_name="icons/single_folder_forward.png" preload="true"/>
+  <texture name="Single_Folder_Up" file_name="icons/single_folder_up.png" preload="true"/>
 </textures>

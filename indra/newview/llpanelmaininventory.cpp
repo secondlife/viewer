@@ -1278,6 +1278,20 @@ void LLPanelMainInventory::onViewModeClick()
 
     mActivePanel = mSingleFolderMode ? getChild<LLInventoryPanel>("single_folder_inv") : (LLInventoryPanel*)getChild<LLTabContainer>("inventory filter tabs")->getCurrentPanel();
     updateTitle();
+
+    LLSidepanelInventory* sidepanel_inventory = getParentSidepanelInventory();
+    if (sidepanel_inventory)
+    {
+        if(mSingleFolderMode)
+        {
+            sidepanel_inventory->hideInbox();
+        }
+        else
+        {
+            sidepanel_inventory->toggleInbox();
+        }
+    }
+
 }
 
 void LLPanelMainInventory::onUpFolderClicked()
@@ -1623,16 +1637,6 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 		LLInventoryModel::EHasChildren children = gInventory.categoryHasChildren(trash_id);
 		return children != LLInventoryModel::CHILDREN_NO && gInventory.isCategoryComplete(trash_id);
 	}
-    if (command_name == "open_folder")
-    {
-        LLFolderView* root = getActivePanel()->getRootFolder();
-        std::set<LLFolderViewItem*> selection_set = root->getSelectionList();
-        if (selection_set.size() != 1) return FALSE;
-        LLFolderViewItem* current_item = *selection_set.begin();
-        if (!current_item) return FALSE;
-        const LLUUID& folder_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
-        return (gInventory.getCategory(folder_id) != NULL);
-    }
 
 	return TRUE;
 }
@@ -1647,6 +1651,16 @@ bool LLPanelMainInventory::isActionVisible(const LLSD& userdata)
     if (param_str == "multi_folder_view")
     {
         return !mSingleFolderMode;
+    }
+    if (param_str == "open_folder")
+    {
+        LLFolderView* root = getActivePanel()->getRootFolder();
+        std::set<LLFolderViewItem*> selection_set = root->getSelectionList();
+        if (selection_set.size() != 1) return FALSE;
+        LLFolderViewItem* current_item = *selection_set.begin();
+        if (!current_item) return FALSE;
+        const LLUUID& folder_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
+        return (gInventory.getCategory(folder_id) != NULL);
     }
     return true;
 }
@@ -1695,6 +1709,19 @@ BOOL LLPanelMainInventory::isActionChecked(const LLSD& userdata)
 		return (mActivePanel->getFilter().getSearchVisibilityTypes() & LLInventoryFilter::VISIBILITY_LINKS) != 0;	
 	}	
 
+    if (command_name == "list_view")
+    {
+        return true;
+    }
+    if (command_name == "gallery_view")
+    {
+        return false;
+    }
+    if (command_name == "combination_view")
+    {
+        return false;
+    }
+
 	return FALSE;
 }
 
@@ -1736,6 +1763,16 @@ void LLPanelMainInventory::updateTitle()
             inventory_floater->setTitle(getString("inventory_title"));
         }
     }
+}
+
+LLSidepanelInventory* LLPanelMainInventory::getParentSidepanelInventory()
+{
+    LLFloaterSidePanelContainer* inventory_container = dynamic_cast<LLFloaterSidePanelContainer*>(gFloaterView->getParentFloater(this));
+    if(inventory_container)
+    {
+        return dynamic_cast<LLSidepanelInventory*>(inventory_container->findChild<LLPanel>("main_panel", true));
+    }
+    return NULL;
 }
 // List Commands                                                              //
 ////////////////////////////////////////////////////////////////////////////////

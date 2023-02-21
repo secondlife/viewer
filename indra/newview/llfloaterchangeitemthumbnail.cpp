@@ -55,7 +55,6 @@ public:
     void notify(const std::vector<std::string>& filenames) override;
 
 private:
-    LLHandle<LLFloater> *mHandle;
     LLUUID mInventoryId;
     LLUUID mTaskId;
 };

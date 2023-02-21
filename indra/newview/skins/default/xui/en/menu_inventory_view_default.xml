@@ -53,4 +53,60 @@
          function="Inventory.GearDefault.Visible"
          parameter="multi_folder_view" />
     </menu_item_check>
+    <menu_item_separator>
+        <menu_item_separator.on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="single_folder_view" />
+    </menu_item_separator>
+    <menu_item_check
+     label="List view"
+     layout="topleft"
+     name="list_view">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="list_view" />
+        <on_check
+         function="Inventory.GearDefault.Check"
+         parameter="list_view" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="single_folder_view" />
+    </menu_item_check>
+    <menu_item_check
+     label="Gallery view"
+     layout="topleft"
+     name="gallery_view">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="gallery_view" />
+        <on_check
+         function="Inventory.GearDefault.Check"
+         parameter="gallery_view" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="single_folder_view" />
+    </menu_item_check>
+    <menu_item_check
+     label="Combination view"
+     layout="topleft"
+     name="combination_view">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="combination_view" />
+        <on_check
+         function="Inventory.GearDefault.Check"
+         parameter="combination_view" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="single_folder_view" />
+    </menu_item_check>
+    <menu_item_separator/>
+    <menu_item_call
+     label="Inventory settings..."
+     layout="topleft"
+     name="inv_settings">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="inv_settings" />
+    </menu_item_call>
 </toggleable_menu>

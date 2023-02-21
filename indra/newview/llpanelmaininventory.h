@@ -44,6 +44,7 @@ class LLTabContainer;
 class LLFloaterInventoryFinder;
 class LLMenuButton;
 class LLMenuGL;
+class LLSidepanelInventory;
 class LLToggleableMenu;
 class LLFloater;
 
@@ -103,6 +104,7 @@ public:
     void onBackFolderClicked();
     void onForwardFolderClicked();
     void setSingleFolderViewRoot(const LLUUID& folder_id);
+    bool isSingleFolderMode() { return mSingleFolderMode; }
 
 protected:
 	//
@@ -136,6 +138,8 @@ protected:
 	void onFocusReceived();
 	void onSelectSearchType();
 	void updateSearchTypeCombo();
+
+    LLSidepanelInventory* getParentSidepanelInventory();
 
 private:
 	LLFloaterInventoryFinder* getFinder();

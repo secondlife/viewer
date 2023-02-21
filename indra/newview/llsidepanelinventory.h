@@ -74,6 +74,8 @@ public:
 	void onToggleInboxBtn();
 
 	void enableInbox(bool enabled);
+    void toggleInbox();
+    void hideInbox();
 	
 	void openInbox();
 	
@@ -100,6 +102,8 @@ private:
 	LLPanel*					mInventoryPanel; // Main inventory view
 	LLHandle<LLInventoryPanel>	mInventoryPanelInbox;
 	LLPanelMainInventory*		mPanelMainInventory;
+
+    LLLayoutPanel* mInboxLayoutPanel;
 
 protected:
 	void 						onBackButtonClicked();
