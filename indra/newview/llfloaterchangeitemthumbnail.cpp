@@ -321,6 +321,7 @@ void LLFloaterChangeItemThumbnail::refreshFromObject(LLInventoryObject* obj)
                     }
                     if (item)
                     {
+                        LL_INFOS() << "Setting image from outfit as a thumbnail" << LL_ENDL;
                         thumbnail_id = item->getAssetUUID();
 
                         // per SL-19188, set this image as a thumbnail

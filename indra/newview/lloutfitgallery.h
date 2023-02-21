@@ -33,7 +33,6 @@
 #include "lllayoutstack.h"
 #include "lloutfitslist.h"
 #include "llpanelappearancetab.h"
-#include "lltexturectrl.h"
 #include "llviewertexture.h"
 
 #include <vector>
@@ -106,13 +105,7 @@ public:
     void updateMessageVisibility();
     bool hasDefaultImage(const LLUUID& outfit_cat_id);
 
-    void refreshTextures(const LLUUID& category_id);
     void refreshOutfit(const LLUUID& category_id);
-
-    void onTexturePickerCommit(LLTextureCtrl::ETexturePickOp op, LLUUID id);
-    void onTexturePickerUpdateImageStats(LLPointer<LLViewerTexture> texture);
-    void onBeforeOutfitSnapshotSave();
-    void onAfterOutfitSnapshotSave();
 
 protected:
     /*virtual*/ void onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id);
@@ -127,14 +120,10 @@ protected:
     void applyFilter(LLOutfitGalleryItem* item, const std::string& filter_substring);
 
 private:
-    void loadPhotos();
     void uploadPhoto(LLUUID outfit_id);
     void uploadOutfitImage(const std::vector<std::string>& filenames, LLUUID outfit_id);
-    void updateSnapshotFolderObserver();
     LLUUID getPhotoAssetId(const LLUUID& outfit_id);
     LLUUID getDefaultPhoto();
-    void linkPhotoToOutfit(LLUUID outfit_id, LLUUID photo_id);
-    bool checkRemovePhoto(LLUUID outfit_id);
     void addToGallery(LLOutfitGalleryItem* item);
     void removeFromGalleryLast(LLOutfitGalleryItem* item);
     void removeFromGalleryMiddle(LLOutfitGalleryItem* item);
@@ -190,8 +179,6 @@ private:
     
     LLListContextMenu* mOutfitGalleryMenu;
 
-    LLHandle<LLFloater> mFloaterHandle;
-
     typedef std::map<LLUUID, LLOutfitGalleryItem*>      outfit_map_t;
     typedef outfit_map_t::value_type                    outfit_map_value_t;
     outfit_map_t                                        mOutfitMap;
@@ -233,10 +220,6 @@ public:
 protected:
     /*virtual*/ void onUpdateItemsVisibility();
 private:
-    /*virtual*/ void onUploadFoto();
-    /*virtual*/ void onSelectPhoto();
-    /*virtual*/ void onTakeSnapshot();
-    /*virtual*/ void onRemovePhoto();
     /*virtual*/ void onChangeSortOrder();
 
     bool hasDefaultImage();

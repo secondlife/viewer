@@ -125,7 +125,6 @@ void LLOutfitGallery::onOpen(const LLSD& info)
     LLOutfitListBase::onOpen(info);
     if (!mGalleryCreated)
     {
-        loadPhotos();
         uuid_vec_t cats;
         getCurrentCategories(cats);
         int n = cats.size();
@@ -854,7 +853,6 @@ void LLOutfitGalleryContextMenu::onThumbnail(const LLUUID& outfit_cat_id)
     }
 }
 
-
 void LLOutfitGalleryContextMenu::onRemoveOutfit(const LLUUID& outfit_cat_id)
 {
     LLNotificationsUtil::add("DeleteOutfits", LLSD(), LLSD(), boost::bind(&LLOutfitGalleryContextMenu::onOutfitsRemovalConfirmation, this, _1, _2, outfit_cat_id));
@@ -923,47 +921,6 @@ void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 
-void LLOutfitGalleryGearMenu::onUploadFoto()
-{
-    LLUUID selected_outfit_id = getSelectedOutfitID();
-    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
-    if (gallery && selected_outfit_id.notNull())
-    {
-        gallery->uploadPhoto(selected_outfit_id);
-    }
-}
-
-void LLOutfitGalleryGearMenu::onSelectPhoto()
-{
-    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
-    LLUUID selected_outfit_id = getSelectedOutfitID();
-    if (gallery && !selected_outfit_id.isNull())
-    {
-        gallery->onSelectPhoto(selected_outfit_id);
-    }
-}
-
-void LLOutfitGalleryGearMenu::onRemovePhoto()
-{
-    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
-    LLUUID selected_outfit_id = getSelectedOutfitID();
-    if (gallery && !selected_outfit_id.isNull())
-    {
-        gallery->checkRemovePhoto(selected_outfit_id);
-        gallery->refreshOutfit(selected_outfit_id);
-    }
-}
-
-void LLOutfitGalleryGearMenu::onTakeSnapshot()
-{
-    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
-    LLUUID selected_outfit_id = getSelectedOutfitID();
-    if (gallery && !selected_outfit_id.isNull())
-    {
-        gallery->onTakeSnapshot(selected_outfit_id);
-    }
-}
-
 void LLOutfitGalleryGearMenu::onChangeSortOrder()
 {
     bool sort_by_name = !gSavedSettings.getBOOL("OutfitGallerySortByName");
@@ -990,104 +947,82 @@ void LLOutfitGallery::onTextureSelectionChanged(LLInventoryItem* itemp)
 {
 }
 
-void LLOutfitGallery::loadPhotos()
-{
-    //Iterate over inventory
-    mSnapshotFolderID = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_TEXTURE);
-    LLViewerInventoryCategory* textures_category = gInventory.getCategory(mSnapshotFolderID);
-    if (!textures_category)
-        return;
-    if (mTexturesObserver == NULL)
-    {
-        mTexturesObserver = new LLInventoryCategoriesObserver();
-        gInventory.addObserver(mTexturesObserver);
-    }
-
-    // Start observing changes in "Textures" category.
-    mTexturesObserver->addCategory(mSnapshotFolderID,
-        boost::bind(&LLOutfitGallery::refreshTextures, this, mSnapshotFolderID));
-
-    textures_category->fetch();
-}
-
-void LLOutfitGallery::updateSnapshotFolderObserver()
-{
-    if(mSnapshotFolderID != gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_TEXTURE))
-    {
-        if (gInventory.containsObserver(mTexturesObserver))
-        {
-            gInventory.removeObserver(mTexturesObserver);
-        }
-        delete mTexturesObserver;
-        mTexturesObserver = NULL;
-        loadPhotos();
-    }
-}
-
 void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
 {
     LLViewerInventoryCategory* category = gInventory.getCategory(category_id);
     if (category)
     {
         bool photo_loaded = false;
-        LLInventoryModel::cat_array_t sub_cat_array;
-        LLInventoryModel::item_array_t outfit_item_array;
-        // Collect all sub-categories of a given category.
-        gInventory.collectDescendents(
-            category->getUUID(),
-            sub_cat_array,
-            outfit_item_array,
-            LLInventoryModel::EXCLUDE_TRASH);
-        BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
+        LLUUID asset_id = category->getThumbnailUUID();
+        if (asset_id.isNull())
         {
-            LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
-            LLUUID asset_id, inv_id;
-            std::string item_name;
-            if (linked_item != NULL)
+            LLInventoryModel::cat_array_t sub_cat_array;
+            LLInventoryModel::item_array_t outfit_item_array;
+            // Collect all sub-categories of a given category.
+            gInventory.collectDescendents(
+                category->getUUID(),
+                sub_cat_array,
+                outfit_item_array,
+                LLInventoryModel::EXCLUDE_TRASH);
+            BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
             {
-                if (linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+                LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
+                LLUUID asset_id, inv_id;
+                std::string item_name;
+                if (linked_item != NULL)
                 {
-                    asset_id = linked_item->getAssetUUID();
-                    inv_id = linked_item->getUUID();
-                    item_name = linked_item->getName();
-                }
-            }
-            else if (outfit_item->getActualType() == LLAssetType::AT_TEXTURE)
-            {
-                asset_id = outfit_item->getAssetUUID();
-                inv_id = outfit_item->getUUID();
-                item_name = outfit_item->getName();
-            }
-            if (asset_id.notNull())
-            {
-                photo_loaded |= mOutfitMap[category_id]->setImageAssetId(asset_id);
-                // Rename links
-                if (!mOutfitRenamePending.isNull() && mOutfitRenamePending.asString() == item_name)
-                {
-                    LLViewerInventoryCategory *outfit_cat = gInventory.getCategory(mOutfitRenamePending);
-                    LLStringUtil::format_map_t photo_string_args;
-                    photo_string_args["OUTFIT_NAME"] = outfit_cat->getName();
-                    std::string new_name = getString("outfit_photo_string", photo_string_args);
-                    LLSD updates;
-                    updates["name"] = new_name;
-                    update_inventory_item(inv_id, updates, NULL);
-                    mOutfitRenamePending.setNull();
-                    LLFloater* appearance_floater = LLFloaterReg::getInstance("appearance");
-                    if (appearance_floater)
+                    if (linked_item->getActualType() == LLAssetType::AT_TEXTURE)
                     {
-                        appearance_floater->setFocus(TRUE);
+                        asset_id = linked_item->getAssetUUID();
+                        inv_id = linked_item->getUUID();
+                        item_name = linked_item->getName();
                     }
                 }
-                if (item_name == LLAppearanceMgr::sExpectedTextureName)
+                else if (outfit_item->getActualType() == LLAssetType::AT_TEXTURE)
                 {
-                    // Images with "appropriate" name take priority
-                    break;
+                    asset_id = outfit_item->getAssetUUID();
+                    inv_id = outfit_item->getUUID();
+                    item_name = outfit_item->getName();
+                }
+                if (category->getThumbnailUUID().notNull())
+                {
+                    asset_id = category->getThumbnailUUID();
+                }
+                if (asset_id.notNull())
+                {
+                    photo_loaded |= mOutfitMap[category_id]->setImageAssetId(asset_id);
+                    // Rename links
+                    if (!mOutfitRenamePending.isNull() && mOutfitRenamePending.asString() == item_name)
+                    {
+                        LLViewerInventoryCategory *outfit_cat = gInventory.getCategory(mOutfitRenamePending);
+                        LLStringUtil::format_map_t photo_string_args;
+                        photo_string_args["OUTFIT_NAME"] = outfit_cat->getName();
+                        std::string new_name = getString("outfit_photo_string", photo_string_args);
+                        LLSD updates;
+                        updates["name"] = new_name;
+                        update_inventory_item(inv_id, updates, NULL);
+                        mOutfitRenamePending.setNull();
+                        LLFloater* appearance_floater = LLFloaterReg::getInstance("appearance");
+                        if (appearance_floater)
+                        {
+                            appearance_floater->setFocus(TRUE);
+                        }
+                    }
+                    if (item_name == LLAppearanceMgr::sExpectedTextureName)
+                    {
+                        // Images with "appropriate" name take priority
+                        break;
+                    }
+                }
+                if (!photo_loaded)
+                {
+                    mOutfitMap[category_id]->setDefaultImage();
                 }
             }
-            if (!photo_loaded)
-            {
-                mOutfitMap[category_id]->setDefaultImage();
-            }
+        }
+        else
+        {
+            mOutfitMap[category_id]->setImageAssetId(asset_id);
         }
     }
     
@@ -1095,131 +1030,6 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
     {
         reArrangeRows();
     }
-}
-
-// Refresh linked textures from "textures" uploads folder
-void LLOutfitGallery::refreshTextures(const LLUUID& category_id)
-{
-    LLInventoryModel::cat_array_t cat_array;
-    LLInventoryModel::item_array_t item_array;
-
-    // Collect all sub-categories of a given category.
-    LLIsType is_texture(LLAssetType::AT_TEXTURE);
-    gInventory.collectDescendentsIf(
-        category_id,
-        cat_array,
-        item_array,
-        LLInventoryModel::EXCLUDE_TRASH,
-        is_texture);
-
-    //Find texture which contain pending outfit ID string in name
-    LLViewerInventoryItem* photo_upload_item = NULL;
-    BOOST_FOREACH(LLViewerInventoryItem* item, item_array)
-    {
-        std::string name = item->getName();
-        if (!mOutfitLinkPending.isNull() && name == mOutfitLinkPending.asString())
-        {
-            photo_upload_item = item;
-            break;
-        }
-    }
-
-    if (photo_upload_item != NULL)
-    {
-        LLUUID photo_item_id = photo_upload_item->getUUID();
-        LLInventoryObject* upload_object = gInventory.getObject(photo_item_id);
-        if (!upload_object)
-        {
-            LL_WARNS() << "LLOutfitGallery::refreshTextures added_object is null!" << LL_ENDL;
-        }
-        else
-        {
-            linkPhotoToOutfit(photo_item_id, mOutfitLinkPending);
-            mOutfitRenamePending = mOutfitLinkPending;
-            mOutfitLinkPending.setNull();
-        }
-    }
-}
-
-void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
-{
-	outfit_map_t::iterator outfit_it = mOutfitMap.find(outfit_id);
-	if (outfit_it == mOutfitMap.end() || outfit_it->first.isNull())
-	{
-		return;
-	}
-    (new LLFilePickerReplyThread(boost::bind(&LLOutfitGallery::uploadOutfitImage, this, _1, outfit_id), LLFilePicker::FFLOAD_IMAGE, false))->getFile();
-}
-
-void LLOutfitGallery::uploadOutfitImage(const std::vector<std::string>& filenames, LLUUID outfit_id)
-{
-    std::string filename = filenames[0];
-    LLLocalBitmap* unit = new LLLocalBitmap(filename);
-    if (unit->getValid())
-    {
-        std::string exten = gDirUtilp->getExtension(filename);
-        U32 codec = LLImageBase::getCodecFromExtension(exten);
-
-        LLImageDimensionsInfo image_info;
-        std::string image_load_error;
-        if (!image_info.load(filename, codec))
-        {
-            image_load_error = image_info.getLastError();
-        }
-
-        S32 max_width = MAX_OUTFIT_PHOTO_WIDTH;
-        S32 max_height = MAX_OUTFIT_PHOTO_HEIGHT;
-
-        if ((image_info.getWidth() > max_width) || (image_info.getHeight() > max_height))
-        {
-            LLStringUtil::format_map_t args;
-            args["WIDTH"] = llformat("%d", max_width);
-            args["HEIGHT"] = llformat("%d", max_height);
-
-            image_load_error = LLTrans::getString("outfit_photo_load_dimensions_error", args);
-        }
-
-        if (!image_load_error.empty())
-        {
-            LLSD subst;
-            subst["REASON"] = image_load_error;
-            LLNotificationsUtil::add("OutfitPhotoLoadError", subst);
-            return;
-        }
-
-        S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
-        void *nruserdata = NULL;
-        nruserdata = (void *)&outfit_id;
-
-        LLViewerInventoryCategory *outfit_cat = gInventory.getCategory(outfit_id);
-        if (!outfit_cat) return;
-        updateSnapshotFolderObserver();
-        checkRemovePhoto(outfit_id);
-        std::string upload_pending_name = outfit_id.asString();
-        std::string upload_pending_desc = "";
-        upload_new_resource(filename, // file
-            upload_pending_name,
-            upload_pending_desc,
-            0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
-            LLFloaterPerms::getNextOwnerPerms("Uploads"),
-            LLFloaterPerms::getGroupPerms("Uploads"),
-            LLFloaterPerms::getEveryonePerms("Uploads"),
-            upload_pending_name, LLAssetStorage::LLStoreAssetCallback(), expected_upload_cost, nruserdata, false);
-        mOutfitLinkPending = outfit_id;
-    }
-    delete unit;
-}
-
-void LLOutfitGallery::linkPhotoToOutfit(LLUUID photo_id, LLUUID outfit_id)
-{
-    LLPointer<LLInventoryCallback> cb = new LLUpdateGalleryOnPhotoLinked();
-    link_inventory_object(outfit_id, photo_id, cb);
-}
-
-bool LLOutfitGallery::checkRemovePhoto(LLUUID outfit_id)
-{
-    LLAppearanceMgr::instance().removeOutfitPhoto(outfit_id);
-    return true;
 }
 
 void LLUpdateGalleryOnPhotoLinked::fire(const LLUUID& inv_item_id)
@@ -1241,150 +1051,3 @@ LLUUID LLOutfitGallery::getDefaultPhoto()
     return LLUUID();
 }
 
-void LLOutfitGallery::onTexturePickerCommit(LLTextureCtrl::ETexturePickOp op, LLUUID id)
-{
-    LLUUID selected_outfit_id = getSelectedOutfitUUID();
-
-    if (selected_outfit_id.isNull())
-    {
-        return;
-    }
-
-    LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
-
-    if (floaterp && op == LLTextureCtrl::TEXTURE_SELECT)
-    {
-        LLUUID image_item_id;
-        if (id.notNull())
-        {
-            image_item_id = id;
-        }
-        else
-        {
-            image_item_id = floaterp->findItemID(floaterp->getAssetID(), FALSE, TRUE);
-            if (image_item_id.isNull())
-            {
-                LL_WARNS() << "id or image_item_id is NULL!" << LL_ENDL;
-                return;
-            }
-        }
-
-        std::string image_load_error;
-        S32 max_width = MAX_OUTFIT_PHOTO_WIDTH;
-        S32 max_height = MAX_OUTFIT_PHOTO_HEIGHT;
-        if (mTextureSelected.isNull() ||
-            mTextureSelected->getFullWidth() == 0 ||
-            mTextureSelected->getFullHeight() == 0)
-        {
-            image_load_error = LLTrans::getString("outfit_photo_verify_dimensions_error");
-            LL_WARNS() << "Cannot verify selected texture dimensions" << LL_ENDL;
-            return;
-        }
-        S32 width = mTextureSelected->getFullWidth();
-        S32 height = mTextureSelected->getFullHeight();
-        if ((width > max_width) || (height > max_height))
-        {
-            LLStringUtil::format_map_t args;
-            args["WIDTH"] = llformat("%d", max_width);
-            args["HEIGHT"] = llformat("%d", max_height);
-
-            image_load_error = LLTrans::getString("outfit_photo_select_dimensions_error", args);
-        }
-
-        if (!image_load_error.empty())
-        {
-            LLSD subst;
-            subst["REASON"] = image_load_error;
-            LLNotificationsUtil::add("OutfitPhotoLoadError", subst);
-            return;
-        }
-
-        checkRemovePhoto(selected_outfit_id);
-        linkPhotoToOutfit(image_item_id, selected_outfit_id);
-    }
-}
-
-void LLOutfitGallery::onSelectPhoto(LLUUID selected_outfit_id)
-{
-    if (selected_outfit_id.notNull())
-    {
-
-        // show hourglass cursor when loading inventory window
-        // because inventory construction is slooow
-        getWindow()->setCursor(UI_CURSOR_WAIT);
-        LLFloater* floaterp = mFloaterHandle.get();
-
-        // Show the dialog
-        if (floaterp)
-        {
-            floaterp->openFloater();
-        }
-        else
-        {
-            floaterp = new LLFloaterTexturePicker(
-                this,
-                getPhotoAssetId(selected_outfit_id),
-                getPhotoAssetId(selected_outfit_id),
-                getPhotoAssetId(selected_outfit_id),
-                FALSE,
-                TRUE,
-                "SELECT PHOTO",
-                PERM_NONE,
-                PERM_NONE,
-                PERM_NONE,
-                FALSE,
-                NULL);
-
-            mFloaterHandle = floaterp->getHandle();
-            mTextureSelected = NULL;
-
-            LLFloaterTexturePicker* texture_floaterp = dynamic_cast<LLFloaterTexturePicker*>(floaterp);
-            if (texture_floaterp)
-            {
-                texture_floaterp->setTextureSelectedCallback(boost::bind(&LLOutfitGallery::onTextureSelectionChanged, this, _1));
-                texture_floaterp->setOnFloaterCommitCallback(boost::bind(&LLOutfitGallery::onTexturePickerCommit, this, _1, _2));
-                texture_floaterp->setOnUpdateImageStatsCallback(boost::bind(&LLOutfitGallery::onTexturePickerUpdateImageStats, this, _1));
-                texture_floaterp->setLocalTextureEnabled(FALSE);
-                texture_floaterp->setBakeTextureEnabled(FALSE);
-                texture_floaterp->setCanApply(false, true);
-            }
-
-            floaterp->openFloater();
-        }
-        floaterp->setFocus(TRUE);
-    }
-}
-
-void LLOutfitGallery::onTakeSnapshot(LLUUID selected_outfit_id)
-{
-    LLFloaterReg::toggleInstanceOrBringToFront("simple_snapshot");
-    LLFloaterSimpleSnapshot* snapshot_floater = LLFloaterSimpleSnapshot::getInstance();
-    if (snapshot_floater)
-    {
-        snapshot_floater->setInventoryId(selected_outfit_id);
-    }
-}
-
-void LLOutfitGallery::onBeforeOutfitSnapshotSave()
-{
-    LLUUID selected_outfit_id = getSelectedOutfitUUID();
-    if (!selected_outfit_id.isNull())
-    {
-        checkRemovePhoto(selected_outfit_id);
-        updateSnapshotFolderObserver();
-    }
-}
-
-void LLOutfitGallery::onAfterOutfitSnapshotSave()
-{
-    LLUUID selected_outfit_id = getSelectedOutfitUUID();
-    if (!selected_outfit_id.isNull())
-    {
-        mOutfitLinkPending = selected_outfit_id;
-    }
-}
-
-void LLOutfitGallery::onTexturePickerUpdateImageStats(LLPointer<LLViewerTexture> texture)
-{
-    mTextureSelected = texture;
-}
