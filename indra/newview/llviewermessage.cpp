@@ -4059,7 +4059,9 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 // Common code to extract puppetry data from an avatar animation message
 static void  handle_streaming_animation_data(LLMessageSystem * mesgsys, LLVOAvatar * avatarp, S32 num_physav_blocks)
 {
-    if (!avatarp->isReceivingAnimationStream())
+    if (num_physav_blocks > 0
+            && !avatarp->isReceivingAnimationStream()
+            && mesgsys->getSizeFast(_PREHASH_PhysicalAvatarEventList, 0, _PREHASH_TypeData) > 0)
     {
         avatarp->enableStreamingMotion();
     }
