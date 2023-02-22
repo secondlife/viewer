@@ -589,7 +589,7 @@ void LLPanelMainInventory::onClearSearch()
 	}
 	mFilterSubString = "";
 
-	LLSidepanelInventory * sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+	LLSidepanelInventory * sidepanel_inventory = getParentSidepanelInventory();
 	if (sidepanel_inventory)
 	{
 		LLPanelMarketplaceInbox* inbox_panel = sidepanel_inventory->getChild<LLPanelMarketplaceInbox>("marketplace_inbox");
@@ -630,7 +630,7 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 	// set new filter string
 	setFilterSubString(mFilterSubString);
 
-	LLSidepanelInventory * sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+    LLSidepanelInventory * sidepanel_inventory = getParentSidepanelInventory();
 	if (sidepanel_inventory)
 	{
 		LLPanelMarketplaceInbox* inbox_panel = sidepanel_inventory->getChild<LLPanelMarketplaceInbox>("marketplace_inbox");
