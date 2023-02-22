@@ -98,5 +98,6 @@ private:
     LLButton *mRemoveImageBtn;
 
     LLHandle<LLFloater> mPickerHandle;
+    LLHandle<LLFloater> mSnapshotHandle;
 };
 #endif  // LL_LLFLOATERCHANGEITEMTHUMBNAIL_H

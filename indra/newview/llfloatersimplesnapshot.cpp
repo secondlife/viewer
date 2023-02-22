@@ -228,6 +228,8 @@ void LLFloaterSimpleSnapshot::Impl::setStatus(EStatus status, bool ok, const std
 
 LLFloaterSimpleSnapshot::LLFloaterSimpleSnapshot(const LLSD& key)
     : LLFloaterSnapshotBase(key)
+    , mOwner(NULL)
+    , mContextConeOpacity(0.f)
 {
     impl = new Impl(this);
 }
@@ -249,13 +251,9 @@ BOOL LLFloaterSimpleSnapshot::postBuild()
     LLSnapshotLivePreview::Params p;
     p.rect(full_screen_rect);
     LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
-    LLView* parent_view = gSnapshotFloaterView->getParent();
 
-    parent_view->addChild(previewp);
-
-    //move snapshot floater to special purpose snapshotfloaterview
-    gFloaterView->removeChild(this);
-    gSnapshotFloaterView->addChild(this);
+    // Do not move LLFloaterSimpleSnapshot floater into gSnapshotFloaterView
+    // since it can be a dependednt floater and does not draw UI
 
     impl->mPreviewHandle = previewp->getHandle();
     previewp->setContainer(this);
@@ -275,6 +273,12 @@ const S32 PREVIEW_OFFSET_Y = 70;
 
 void LLFloaterSimpleSnapshot::draw()
 {
+    if (mOwner)
+    {
+        static LLCachedControl<F32> max_opacity(gSavedSettings, "PickerContextOpacity", 0.4f);
+        drawConeToOwner(mContextConeOpacity, max_opacity, mOwner);
+    }
+
     LLSnapshotLivePreview* previewp = getPreviewView();
 
     if (previewp && (previewp->isSnapshotActive() || previewp->getThumbnailLock()))
@@ -323,6 +327,9 @@ void LLFloaterSimpleSnapshot::onOpen(const LLSD& key)
 
     impl->updateControls(this);
     impl->setStatus(ImplBase::STATUS_READY);
+
+    mInventoryId = key["item_id"].asUUID();
+    mTaskId = key["task_id"].asUUID();
 }
 
 void LLFloaterSimpleSnapshot::onCancel()
@@ -406,27 +413,32 @@ void LLFloaterSimpleSnapshot::uploadImageUploadFile(const std::string &temp_file
         boost::bind(post_thumbnail_image_coro, cap_url, temp_file, data));
 }
 
-// static 
 void LLFloaterSimpleSnapshot::update()
 {
-    LLFloaterSimpleSnapshot* inst = findInstance();
-    if (inst != NULL)
+    // initializes snapshots when needed
+    LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("simple_snapshot");
+    for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
+        iter != inst_list.end(); ++iter)
     {
-        inst->impl->updateLivePreview();
+        LLFloaterSimpleSnapshot* floater = dynamic_cast<LLFloaterSimpleSnapshot*>(*iter);
+        if (floater)
+        {
+            floater->impl->updateLivePreview();
+        }
     }
 }
 
 
 // static
-LLFloaterSimpleSnapshot* LLFloaterSimpleSnapshot::findInstance()
+LLFloaterSimpleSnapshot* LLFloaterSimpleSnapshot::findInstance(const LLSD &key)
 {
-    return LLFloaterReg::findTypedInstance<LLFloaterSimpleSnapshot>("simple_snapshot");
+    return LLFloaterReg::findTypedInstance<LLFloaterSimpleSnapshot>("simple_snapshot", key);
 }
 
 // static
-LLFloaterSimpleSnapshot* LLFloaterSimpleSnapshot::getInstance()
+LLFloaterSimpleSnapshot* LLFloaterSimpleSnapshot::getInstance(const LLSD &key)
 {
-    return LLFloaterReg::getTypedInstance<LLFloaterSimpleSnapshot>("simple_snapshot");
+    return LLFloaterReg::getTypedInstance<LLFloaterSimpleSnapshot>("simple_snapshot", key);
 }
 
 void LLFloaterSimpleSnapshot::saveTexture()

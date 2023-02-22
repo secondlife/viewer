@@ -50,8 +50,8 @@ public:
 
     static void update();
 
-    static LLFloaterSimpleSnapshot* getInstance();
-    static LLFloaterSimpleSnapshot* findInstance();
+    static LLFloaterSimpleSnapshot* getInstance(const LLSD &key);
+    static LLFloaterSimpleSnapshot* findInstance(const LLSD &key);
     void saveTexture();
 
     const LLRect& getThumbnailPlaceholderRect() { return mThumbnailPlaceholder->getRect(); }
@@ -59,6 +59,7 @@ public:
     void setInventoryId(const LLUUID &inventory_id) { mInventoryId = inventory_id; }
     LLUUID getInventoryId() { return mInventoryId; }
     void setTaskId(const LLUUID &task_id) { mTaskId = task_id; }
+    void setOwner(LLView *owner_view) { mOwner = owner_view; }
 
     void postSave();
     static void uploadThumbnail(const std::string &file_path, const LLUUID &inventory_id, const LLUUID &task_id);
@@ -75,6 +76,9 @@ private:
 
     LLUUID mInventoryId;
     LLUUID mTaskId;
+
+    LLView* mOwner;
+    F32	 mContextConeOpacity;
 };
 
 ///----------------------------------------------------------------------------

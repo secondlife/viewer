@@ -356,18 +356,41 @@ void LLFloaterChangeItemThumbnail::onUploadLocal(void *userdata)
     {
         floaterp->closeFloater();
     }
+    floaterp = self->mSnapshotHandle.get();
+    if (floaterp)
+    {
+        floaterp->closeFloater();
+    }
 }
 
 void LLFloaterChangeItemThumbnail::onUploadSnapshot(void *userdata)
 {
     LLFloaterChangeItemThumbnail *self = (LLFloaterChangeItemThumbnail*)userdata;
 
-    LLFloaterReg::toggleInstanceOrBringToFront("simple_snapshot");
-    LLFloaterSimpleSnapshot* snapshot_floater = LLFloaterSimpleSnapshot::getInstance();
-    if (snapshot_floater)
+    LLFloater* floaterp = self->mSnapshotHandle.get();
+    // Show the dialog
+    if (floaterp)
     {
-        snapshot_floater->setInventoryId(self->mItemId);
-        snapshot_floater->setTaskId(self->mTaskId);
+        floaterp->openFloater();
+    }
+    else
+    {
+        LLSD key;
+        key["item_id"] = self->mItemId;
+        key["task_id"] = self->mTaskId;
+        LLFloaterSimpleSnapshot* snapshot_floater = (LLFloaterSimpleSnapshot*)LLFloaterReg::showInstance("simple_snapshot", key, true);
+        if (snapshot_floater)
+        {
+            self->addDependentFloater(snapshot_floater);
+            self->mSnapshotHandle = snapshot_floater->getHandle();
+            snapshot_floater->setOwner(self);
+        }
+    }
+
+    floaterp = self->mPickerHandle.get();
+    if (floaterp)
+    {
+        floaterp->closeFloater();
     }
 }
 
@@ -380,6 +403,11 @@ void LLFloaterChangeItemThumbnail::onUseTexture(void *userdata)
         self->showTexturePicker(obj->getThumbnailUUID());
     }
 
+    LLFloater* floaterp = self->mSnapshotHandle.get();
+    if (floaterp)
+    {
+        floaterp->closeFloater();
+    }
 }
 
 void LLFloaterChangeItemThumbnail::onCopyToClipboard(void *userdata)
@@ -482,6 +510,8 @@ void LLFloaterChangeItemThumbnail::showTexturePicker(const LLUUID &thumbnail_id)
             texture_floaterp->setBakeTextureEnabled(FALSE);
             texture_floaterp->setCanApplyImmediately(false);
             texture_floaterp->setCanApply(false, true);
+
+            addDependentFloater(texture_floaterp);
         }
 
         floaterp->openFloater();
