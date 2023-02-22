@@ -314,7 +314,6 @@ public:
         if (childout.size() >= mExpect)
         {
             // Ready to rock and roll.
-            S32 save_size = childout.size();
             LLSD data;
 #if 1
             // specifically require notation LLSD from child

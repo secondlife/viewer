@@ -66,12 +66,7 @@ LLKeyframeMotionParam::~LLKeyframeMotionParam()
 {
 	for (motion_map_t::value_type& motion_pair : mParameterizedMotions)
 	{
-		motion_list_t& motionList = motion_pair.second;
-		for (const ParameterizedMotion& paramMotion : motionList)
-		{
-			delete paramMotion.mMotion;
-		}
-		motionList.clear();
+		motion_pair.second.clear();
 	}
 	mParameterizedMotions.clear();
 }
