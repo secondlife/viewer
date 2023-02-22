@@ -108,7 +108,6 @@ set(llcommon_SOURCE_FILES
     llsys.cpp
     lltempredirect.cpp
     llthread.cpp
-    llthreadlocalstorage.cpp
     llthreadsafequeue.cpp
     lltimer.cpp
     lltrace.cpp
@@ -119,6 +118,7 @@ set(llcommon_SOURCE_FILES
     lluriparser.cpp
     lluuid.cpp
     llworkerthread.cpp
+    hbxxh.cpp
     u64.cpp
     threadpool.cpp
     workqueue.cpp
@@ -255,6 +255,7 @@ set(llcommon_HEADER_FILES
     llwin32headers.h
     llwin32headerslean.h
     llworkerthread.h
+    hbxxh.h
     lockstatic.h
     stdtypes.h
     stringize.h

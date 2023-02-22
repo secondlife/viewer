@@ -126,7 +126,7 @@ http://secondlife.com/download
 
 For more information, see our FAQ below:
 http://secondlife.com/viewer-access-faq</string>
-	<string name="LoginFailed">Grid emergency login failure.
+	<string name="LoginFailed">Login failure.
 If you feel this is an error, please contact support@secondlife.com.</string>
 	<string name="LoginIntermediateOptionalUpdateAvailable">Optional viewer update available: [VERSION]</string>
 	<string name="LoginFailedRequiredUpdate">Required viewer update: [VERSION]</string>
@@ -233,7 +233,7 @@ If you feel this is an error, please contact support@secondlife.com</string>
 	<string name="TooltipForSaleL$">For Sale: L$[AMOUNT]</string> <!-- L$ version -->
 	<string name="TooltipFlagGroupBuild">Group Build</string>
 	<string name="TooltipFlagNoBuild">No Build</string>
-	<string name="TooltipFlagNoEdit">Group Build</string>
+	<string name="TooltipFlagNoEdit">No Edit</string>
 	<string name="TooltipFlagNotSafe">Not Safe</string><!-- damage area -->
 	<string name="TooltipFlagNoFly">No Fly</string>
 	<string name="TooltipFlagGroupScripts">Group Scripts</string>
@@ -4299,6 +4299,10 @@ name="Command_360_Capture_Tooltip">Capture a 360 equirectangular image</string>
   </string>
   <string name="Mav_Details_MAV_CONFIRMATION_DATA_MISMATCH">
       The physics shape contains bad confirmation data. Try to correct the physics model.
+  </string>
+  <!-- MAV_BLOCK_MISSING means server didn't get and couldn't substitute physics_convex, high_lod or BoundingVerts-->
+  <string name="Mav_Details_MAV_BLOCK_MISSING">
+    Missing data. Make sure high lod is present and valid. Set the physics model if not set.
   </string>
   <string name="Mav_Details_MAV_UNKNOWN_VERSION">
       The physics shape does not have correct version. Set the correct version for the physics model.

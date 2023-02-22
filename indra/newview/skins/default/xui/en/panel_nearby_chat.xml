@@ -18,26 +18,6 @@
    orientation="vertical"
    width="242">
     <layout_panel
-     auto_resize="false"
-     height="26"
-     layout="topleft"
-     left_delta="0"
-     name="translate_chat_checkbox_lp"
-     top_delta="0"
-     visible="true"
-     width="230">
-      <check_box
-       top="10"
-       control_name="TranslateChat"
-       enabled="true"
-       height="16"
-       label="Translate chat"
-       layout="topleft"
-       left="5"
-       name="translate_chat_checkbox"
-       width="230" />
-    </layout_panel>
-    <layout_panel
      auto_resize="true"
      height="138"
      left_delta="0"

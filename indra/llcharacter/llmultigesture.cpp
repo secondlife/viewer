@@ -88,10 +88,8 @@ S32 LLMultiGesture::getMaxSerialSize() const
 
 	max_size += 64;		// step count S32
 
-	std::vector<LLGestureStep*>::const_iterator it;
-	for (it = mSteps.begin(); it != mSteps.end(); ++it)
+	for (LLGestureStep* step : mSteps)
 	{
-		LLGestureStep* step = *it;
 		max_size += 64;	// type S32
 		max_size += step->getMaxSerialSize();
 	}

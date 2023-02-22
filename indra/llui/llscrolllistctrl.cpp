@@ -3395,3 +3395,42 @@ boost::signals2::connection LLScrollListCtrl::setIsFriendCallback(const is_frien
 	}
 	return mIsFriendSignal->connect(cb);
 }
+
+bool LLScrollListCtrl::highlightMatchingItems(const std::string& filter_str)
+{
+    if (filter_str == "" || filter_str == " ")
+    {
+        clearHighlightedItems();
+        return false;
+    }
+    
+    bool res = false;
+
+    setHighlightedColor(LLUIColorTable::instance().getColor("SearchableControlHighlightColor", LLColor4::red));
+
+    std::string filter_str_lc(filter_str);
+    LLStringUtil::toLower(filter_str_lc);
+
+    std::vector<LLScrollListItem*> data = getAllData();
+    std::vector<LLScrollListItem*>::iterator iter = data.begin();
+    while (iter != data.end())
+    {
+        LLScrollListCell* cell = (*iter)->getColumn(0);
+        if (cell)
+        {
+            std::string value = cell->getValue().asString();
+            LLStringUtil::toLower(value);
+            if (value.find(filter_str_lc) == std::string::npos)
+            {
+                (*iter)->setHighlighted(false);
+            }
+            else
+            {
+                (*iter)->setHighlighted(true);
+                res = true;
+            }
+        }
+        iter++;
+    }
+    return res;
+}

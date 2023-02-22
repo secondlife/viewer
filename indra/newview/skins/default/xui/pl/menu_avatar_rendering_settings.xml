@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<context_menu name="Settings">
+    <menu_item_check label="Domyślne" name="default" />
+    <menu_item_check label="Zawsze renderuj" name="always_render" />
+    <menu_item_check label="Nigdy nie renderuj" name="never_render" />
+</context_menu>

@@ -143,38 +143,35 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
     mID = info->mID;
     setWeight(getDefaultWeight());
 
-    LLPolySkeletalDistortionInfo::bone_info_list_t::iterator iter;
-    for (iter = getInfo()->mBoneInfoList.begin(); iter != getInfo()->mBoneInfoList.end(); iter++)
+    for (LLPolySkeletalBoneInfo& bone_info : getInfo()->mBoneInfoList)
     {
-        LLPolySkeletalBoneInfo *bone_info = &(*iter);
-        LLJoint* joint = mAvatar->getJoint(bone_info->mBoneName);
+        LLJoint* joint = mAvatar->getJoint(bone_info.mBoneName);
         if (!joint)
         {
             // There's no point continuing after this error - means
             // that either the skeleton or lad file is broken.
-            LL_WARNS() << "Joint " << bone_info->mBoneName << " not found." << LL_ENDL;
+            LL_WARNS() << "Joint " << bone_info.mBoneName << " not found." << LL_ENDL;
 			return FALSE;
         }
 
         // store it
-        mJointScales[joint] = bone_info->mScaleDeformation;
+        mJointScales[joint] = bone_info.mScaleDeformation;
 
         // apply to children that need to inherit it
-        for (LLJoint::joints_t::iterator iter = joint->mChildren.begin();
-             iter != joint->mChildren.end(); ++iter)
+        for (LLJoint* joint : joint->mChildren)
         {
-            LLAvatarJoint* child_joint = (LLAvatarJoint*)(*iter);
+            LLAvatarJoint* child_joint = (LLAvatarJoint*)joint;
             if (child_joint->inheritScale())
             {
                 LLVector3 childDeformation = LLVector3(child_joint->getScale());
-                childDeformation.scaleVec(bone_info->mScaleDeformation);
+                childDeformation.scaleVec(bone_info.mScaleDeformation);
                 mJointScales[child_joint] = childDeformation;
             }
         }
 
-        if (bone_info->mHasPositionDeformation)
+        if (bone_info.mHasPositionDeformation)
         {
-            mJointOffsets[joint] = bone_info->mPositionDeformation;
+            mJointOffsets[joint] = bone_info.mPositionDeformation;
         }
     }
     return TRUE;
@@ -195,15 +192,12 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
     F32 effective_weight = ( getSex() & avatar_sex ) ? mCurWeight : getDefaultWeight();
 
     LLJoint* joint;
-    joint_vec_map_t::iterator iter;
 
-    for (iter = mJointScales.begin();
-         iter != mJointScales.end();
-         iter++)
+    for (joint_vec_map_t::value_type& scale_pair : mJointScales)
     {
-        joint = iter->first;
+        joint = scale_pair.first;
         LLVector3 newScale = joint->getScale();
-        LLVector3 scaleDelta = iter->second;
+        LLVector3 scaleDelta = scale_pair.second;
         LLVector3 offset = (effective_weight - mLastWeight) * scaleDelta;
         newScale = newScale + offset;
         //An aspect of attached mesh objects (which contain joint offsets) that need to be cleaned up when detached
@@ -218,13 +212,11 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
         joint->setScale(newScale, true);
     }
 
-    for (iter = mJointOffsets.begin();
-         iter != mJointOffsets.end();
-         iter++)
+    for (joint_vec_map_t::value_type& offset_pair : mJointOffsets)
     {
-        joint = iter->first;
+        joint = offset_pair.first;
         LLVector3 newPosition = joint->getPosition();
-        LLVector3 positionDelta = iter->second;				
+        LLVector3 positionDelta = offset_pair.second;
         newPosition = newPosition + (effective_weight * positionDelta) - (mLastWeight * positionDelta);		
         // SL-315
         bool allow_attachment_pos_overrides = true;

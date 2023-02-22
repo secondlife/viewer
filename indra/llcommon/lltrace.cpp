@@ -40,7 +40,7 @@ StatBase::StatBase( const char* name, const char* description )
 	mDescription(description ? description : "")
 {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-	if (LLTrace::get_thread_recorder().notNull())
+	if (LLTrace::get_thread_recorder() != NULL)
 	{
 		LL_ERRS() << "Attempting to declare trace object after program initialization.  Trace objects should be statically initialized." << LL_ENDL;
 	}
@@ -65,7 +65,7 @@ void TimeBlockTreeNode::setParent( BlockTimerStatHandle* parent )
 	llassert_always(parent != mBlock);
 	llassert_always(parent != NULL);
 
-	TimeBlockTreeNode* parent_tree_node = get_thread_recorder()->getTimeBlockTreeNode(parent->getIndex());
+	TimeBlockTreeNode* parent_tree_node = get_thread_recorder()->getTimeBlockTreeNode(narrow(parent->getIndex()));
 	if (!parent_tree_node) return;
 
 	if (mParent)
