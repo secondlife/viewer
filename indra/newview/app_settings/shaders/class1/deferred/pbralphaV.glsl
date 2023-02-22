@@ -49,10 +49,9 @@ uniform mat3 texture_normal_matrix;
 uniform mat3 texture_metallic_roughness_matrix;
 uniform mat3 texture_emissive_matrix;
 
-#ifdef HAS_SUN_SHADOW
 out vec3 vary_fragcoord;
+
 uniform float near_clip;
-#endif
 
 in vec3 position;
 in vec4 diffuse_color;
@@ -86,9 +85,7 @@ void main()
 #endif
     gl_Position = vert;
 
-#ifdef HAS_SUN_SHADOW
     vary_fragcoord.xyz = vert.xyz + vec3(0,0,near_clip);
-#endif
 
 	basecolor_texcoord = (texture_matrix0 * vec4(texture_basecolor_matrix * vec3(texcoord0,1), 1)).xy;
 	normal_texcoord = (texture_matrix0 * vec4(texture_normal_matrix * vec3(texcoord0,1), 1)).xy;

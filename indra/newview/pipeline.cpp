@@ -7821,18 +7821,6 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
         stop_glerror();
     }
 
-    channel = shader.enableTexture(LLShaderMgr::SCENE_MAP);
-    if (channel > -1)
-    {
-        gGL.getTexUnit(channel)->bind(&mSceneMap);
-    }
-
-    channel = shader.enableTexture(LLShaderMgr::SCENE_DEPTH);
-    if (channel > -1)
-    {
-        gGL.getTexUnit(channel)->bind(&mSceneMap, true);
-    }
-
     if (shader.getUniformLocation(LLShaderMgr::VIEWPORT) != -1)
     {
 		shader.uniform4f(LLShaderMgr::VIEWPORT, (F32) gGLViewport[0],
@@ -8765,6 +8753,21 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
 
         setEnvMat(shader);
     }
+
+    // reflection probe shaders generally sample the scene map as well for SSR
+    channel = shader.enableTexture(LLShaderMgr::SCENE_MAP);
+    if (channel > -1)
+    {
+        gGL.getTexUnit(channel)->bind(&mSceneMap);
+    }
+
+    channel = shader.enableTexture(LLShaderMgr::SCENE_DEPTH);
+    if (channel > -1)
+    {
+        gGL.getTexUnit(channel)->bind(&mSceneMap, true);
+    }
+
+
 }
 
 void LLPipeline::unbindReflectionProbes(LLGLSLShader& shader)

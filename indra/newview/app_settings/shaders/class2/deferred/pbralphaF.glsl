@@ -46,8 +46,9 @@ uniform vec3 moon_dir;
 
 out vec4 frag_color;
 
+in vec3 vary_fragcoord;
+
 #ifdef HAS_SUN_SHADOW
-  in vec3 vary_fragcoord;
   uniform vec2 screen_res;
 #endif
 
@@ -191,8 +192,9 @@ void main()
     vec3 atten;
     calcAtmosphericVarsLinear(pos.xyz, norm, light_dir, sunlit, amblit, additive, atten);
 
-#ifdef HAS_SUN_SHADOW
     vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
+
+#ifdef HAS_SUN_SHADOW
     scol = sampleDirectionalShadow(pos.xyz, norm.xyz, frag);
 #endif
 
@@ -211,7 +213,7 @@ void main()
     float gloss      = 1.0 - perceptualRoughness;
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
-    sampleReflectionProbes(irradiance, radiance, vec2(0), pos.xyz, norm.xyz, gloss);
+    sampleReflectionProbes(irradiance, radiance, vary_position.xy*0.5+0.5, pos.xyz, norm.xyz, gloss);
     // Take maximium of legacy ambient vs irradiance sample as irradiance
     // NOTE: ao is applied in pbrIbl (see pbrBaseLight), do not apply here
     irradiance       = max(amblit,irradiance);
