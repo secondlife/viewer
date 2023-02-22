@@ -33,9 +33,17 @@
 
 static const U32 gltf_render_types[] = { LLPipeline::RENDER_TYPE_PASS_GLTF_PBR, LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK };
 
-LLDrawPoolGLTFPBR::LLDrawPoolGLTFPBR() :
-    LLRenderPass(POOL_GLTF_PBR)
+LLDrawPoolGLTFPBR::LLDrawPoolGLTFPBR(U32 type) :
+    LLRenderPass(type)
 {
+    if (type == LLDrawPool::POOL_GLTF_PBR_ALPHA_MASK)
+    {
+        mRenderType = LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK;
+    }
+    else
+    {
+        mRenderType = LLPipeline::RENDER_TYPE_PASS_GLTF_PBR;
+    }
 }
 
 S32 LLDrawPoolGLTFPBR::getNumDeferredPasses()
@@ -47,14 +55,11 @@ void LLDrawPoolGLTFPBR::renderDeferred(S32 pass)
 {
     llassert(!LLPipeline::sRenderingHUDs);
 
-    for (U32 type : gltf_render_types)
-    {
-        gDeferredPBROpaqueProgram.bind();
-        pushGLTFBatches(type);
+    gDeferredPBROpaqueProgram.bind();
+    pushGLTFBatches(mRenderType);
 
-        gDeferredPBROpaqueProgram.bind(true);
-        pushRiggedGLTFBatches(type + 1);
-    }
+    gDeferredPBROpaqueProgram.bind(true);
+    pushRiggedGLTFBatches(mRenderType + 1);
 }
 
 S32 LLDrawPoolGLTFPBR::getNumPostDeferredPasses()
@@ -67,12 +72,9 @@ void LLDrawPoolGLTFPBR::renderPostDeferred(S32 pass)
     if (LLPipeline::sRenderingHUDs)
     {
         gHUDPBROpaqueProgram.bind();
-        for (U32 type : gltf_render_types)
-        {
-            pushGLTFBatches(type);
-        }
+        pushGLTFBatches(mRenderType);
     }
-    else
+    else if (mRenderType == LLPipeline::RENDER_TYPE_PASS_GLTF_PBR) // HACK -- don't render glow except for the non-alpha masked implementation
     {
         gGL.setColorMask(false, true);
         gPBRGlowProgram.bind();
@@ -84,5 +86,4 @@ void LLDrawPoolGLTFPBR::renderPostDeferred(S32 pass)
         gGL.setColorMask(true, false);
     }
 }
-
 

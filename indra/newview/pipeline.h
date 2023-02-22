@@ -895,6 +895,8 @@ protected:
 	LLDrawPool*					mMaterialsPool = nullptr;
 	LLDrawPool*					mWLSkyPool = nullptr;
 	LLDrawPool*					mPBROpaquePool = nullptr;
+    LLDrawPool*                 mPBRAlphaMaskPool = nullptr;
+
 	// Note: no need to keep an quick-lookup to avatar pools, since there's only one per avatar
 	
 public:

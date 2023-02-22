@@ -432,6 +432,7 @@ void LLPipeline::init()
 	getPool(LLDrawPool::POOL_MATERIALS);
 	getPool(LLDrawPool::POOL_GLOW);
 	getPool(LLDrawPool::POOL_GLTF_PBR);
+    getPool(LLDrawPool::POOL_GLTF_PBR_ALPHA_MASK);
 
 	resetFrameStats();
 
@@ -1545,6 +1546,9 @@ LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerTexture *tex0)
 	case LLDrawPool::POOL_GLTF_PBR:
 		poolp = mPBROpaquePool;
 		break;
+    case LLDrawPool::POOL_GLTF_PBR_ALPHA_MASK:
+        poolp = mPBRAlphaMaskPool;
+        break;
 
 	default:
 		llassert(0);
@@ -2431,6 +2435,26 @@ void LLPipeline::doOcclusion(LLCamera& camera)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     LL_PROFILE_GPU_ZONE("doOcclusion");
     llassert(!gCubeSnapshot);
+
+    if (sReflectionProbesEnabled && sUseOcclusion > 1 && !LLPipeline::sShadowRender && !gCubeSnapshot)
+    {
+        gGL.setColorMask(false, false);
+        LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+        LLGLDisable cull(GL_CULL_FACE);
+
+        gOcclusionCubeProgram.bind();
+
+        if (mCubeVB.isNull())
+        { //cube VB will be used for issuing occlusion queries
+            mCubeVB = ll_create_cube_vb(LLVertexBuffer::MAP_VERTEX);
+        }
+        mCubeVB->setBuffer();
+
+        mReflectionMapManager.doOcclusion();
+        gOcclusionCubeProgram.unbind();
+
+        gGL.setColorMask(true, true);
+    }
 
     if (LLPipeline::sUseOcclusion > 1 && !LLSpatialPartition::sTeleportRequested &&
 		(sCull->hasOcclusionGroups() || LLVOCachePartition::sNeedsOcclusionCheck))
@@ -5192,6 +5216,19 @@ void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
         }
         break;
 
+    case LLDrawPool::POOL_GLTF_PBR_ALPHA_MASK:
+        if (mPBRAlphaMaskPool)
+        {
+            llassert(0);
+            LL_WARNS() << "LLPipeline::addPool(): Ignoring duplicate PBR Alpha Mask Pool" << LL_ENDL;
+        }
+        else
+        {
+            mPBRAlphaMaskPool = new_poolp;
+        }
+        break;
+
+
 	default:
 		llassert(0);
 		LL_WARNS() << "Invalid Pool Type in  LLPipeline::addPool()" << LL_ENDL;
@@ -5306,6 +5343,11 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
     case LLDrawPool::POOL_GLTF_PBR:
         llassert( poolp == mPBROpaquePool );
         mPBROpaquePool = NULL;
+        break;
+
+    case LLDrawPool::POOL_GLTF_PBR_ALPHA_MASK:
+        llassert(poolp == mPBRAlphaMaskPool);
+        mPBRAlphaMaskPool = NULL;
         break;
 
 	default:

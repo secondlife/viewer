@@ -96,6 +96,9 @@ public:
     // True if currently updating a radiance map, false if currently updating an irradiance map
     bool isRadiancePass() { return mRadiancePass; }
 
+    // perform occlusion culling on all active reflection probes
+    void doOcclusion();
+
 private:
     friend class LLPipeline;
 

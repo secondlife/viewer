@@ -64,6 +64,12 @@ public:
     // return false if no bounding box (treat as sphere influence volume)
     bool getBox(LLMatrix4& box);
 
+    // return true if this probe is active for rendering
+    bool isActive();
+
+    // perform occlusion query/readback
+    void doOcclusion(const LLVector4a& eye);
+
     // point at which environment map was last generated from (in agent space)
     LLVector4a mOrigin;
     
@@ -101,5 +107,10 @@ public:
     // 0 - automatic probe
     // 1 - manual probe
     U32 mPriority = 0;
+
+    // occlusion culling state
+    GLuint mOcclusionQuery = 0;
+    bool mOccluded = false;
+    U32 mOcclusionPendingFrames = 0;
 };
 

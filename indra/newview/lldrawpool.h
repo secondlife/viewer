@@ -58,8 +58,9 @@ public:
 		POOL_BUMP,
 		POOL_TERRAIN,
         POOL_MATERIALS,
-        POOL_GRASS,
         POOL_GLTF_PBR,
+        POOL_GRASS,
+        POOL_GLTF_PBR_ALPHA_MASK,
 		POOL_TREE,
 		POOL_ALPHA_MASK,
 		POOL_FULLBRIGHT_ALPHA_MASK,
@@ -109,7 +110,7 @@ public:
 
     virtual void render(S32 pass = 0) {};
     virtual void prerender() {};
-	virtual U32 getVertexDataMask() = 0;
+    virtual U32 getVertexDataMask() { return 0; } // DEPRECATED -- draw pool doesn't actually determine vertex data mask any more
 	virtual BOOL verify() const { return TRUE; }		// Verify that all data in the draw pool is correct!
 	virtual S32 getShaderLevel() const { return mShaderLevel; }
 	

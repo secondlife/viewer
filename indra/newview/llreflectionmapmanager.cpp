@@ -157,6 +157,7 @@ void LLReflectionMapManager::update()
     LLReflectionMap* closestDynamic = nullptr;
 
     LLReflectionMap* oldestProbe = nullptr;
+    LLReflectionMap* oldestOccluded = nullptr;
 
     if (mUpdatingProbe != nullptr)
     {
@@ -179,12 +180,27 @@ void LLReflectionMapManager::update()
         probe->mProbeIndex = i;
 
         LLVector4a d;
-        
-        if (!did_update && 
-            i < mReflectionProbeCount &&
-            (oldestProbe == nullptr || probe->mLastUpdateTime < oldestProbe->mLastUpdateTime))
+
+        if (probe->mOccluded)
         {
-            oldestProbe = probe;
+            if (oldestOccluded == nullptr)
+            {
+                oldestOccluded = probe;
+            }
+            else if (probe->mLastUpdateTime < oldestOccluded->mLastUpdateTime)
+            {
+                oldestOccluded = probe;
+            }
+        }
+        else
+        {
+            if (!did_update &&
+                i < mReflectionProbeCount &&
+                (oldestProbe == nullptr ||
+                    probe->mLastUpdateTime < oldestProbe->mLastUpdateTime))
+            {
+               oldestProbe = probe;
+            }
         }
 
         if (realtime && 
@@ -240,6 +256,13 @@ void LLReflectionMapManager::update()
         doProbeUpdate();
     }
 
+    if (oldestOccluded)
+    {
+        // as far as this occluded probe is concerned, an origin/radius update is as good as a full update
+        oldestOccluded->autoAdjustOrigin();
+        oldestOccluded->mLastUpdateTime = gFrameTimeSeconds;
+    }
+
     // update distance to camera for all probes
     std::sort(mProbes.begin(), mProbes.end(), CompareProbeDistance());
 }
@@ -277,8 +300,11 @@ void LLReflectionMapManager::getReflectionMaps(std::vector<LLReflectionMap*>& ma
         mProbes[i]->mLastBindTime = gFrameTimeSeconds; // something wants to use this probe, indicate it's been requested
         if (mProbes[i]->mCubeIndex != -1)
         {
-            mProbes[i]->mProbeIndex = count;
-            maps[count++] = mProbes[i];
+            if (!mProbes[i]->mOccluded)
+            {
+                mProbes[i]->mProbeIndex = count;
+                maps[count++] = mProbes[i];
+            }
         }
         else
         {
@@ -1037,4 +1063,18 @@ void LLReflectionMapManager::cleanup()
 
     // note: also called on teleport (not just shutdown), so make sure we're in a good "starting" state
     initCubeFree();
+}
+
+void LLReflectionMapManager::doOcclusion()
+{
+    LLVector4a eye;
+    eye.load3(LLViewerCamera::instance().getOrigin().mV);
+
+    for (auto& probe : mProbes)
+    {
+        if (probe != nullptr)
+        {
+            probe->doOcclusion(eye);
+        }
+    }
 }

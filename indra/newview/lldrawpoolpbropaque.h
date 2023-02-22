@@ -32,21 +32,9 @@
 class LLDrawPoolGLTFPBR final : public LLRenderPass
 {
 public:
-    enum
-    {
-        // See: DEFERRED_VB_MASK
-        VERTEX_DATA_MASK = 0
-                         | LLVertexBuffer::MAP_VERTEX
-                         | LLVertexBuffer::MAP_NORMAL
-                         | LLVertexBuffer::MAP_TEXCOORD0 // Diffuse
-                         | LLVertexBuffer::MAP_TEXCOORD1 // Normal
-                         | LLVertexBuffer::MAP_TEXCOORD2 // Spec <-- ORM Occlusion Roughness Metal
-                         | LLVertexBuffer::MAP_TANGENT
-                         | LLVertexBuffer::MAP_COLOR
-    };
-    U32 getVertexDataMask() override { return VERTEX_DATA_MASK; }
+    LLDrawPoolGLTFPBR(U32 type = LLDrawPool::POOL_GLTF_PBR);
 
-    LLDrawPoolGLTFPBR();
+    U32 mRenderType = 0;
 
     S32 getNumDeferredPasses() override;
     void renderDeferred(S32 pass) override;

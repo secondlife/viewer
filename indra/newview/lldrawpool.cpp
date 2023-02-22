@@ -116,6 +116,9 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
 		break;
 	case POOL_GLTF_PBR:
 		poolp = new LLDrawPoolGLTFPBR();
+        break;
+    case POOL_GLTF_PBR_ALPHA_MASK:
+        poolp = new LLDrawPoolGLTFPBR(LLDrawPool::POOL_GLTF_PBR_ALPHA_MASK);
 		break;
 	default:
 		LL_ERRS() << "Unknown draw pool type!" << LL_ENDL;

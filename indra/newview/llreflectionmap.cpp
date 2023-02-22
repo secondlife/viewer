@@ -31,8 +31,11 @@
 #include "llviewerwindow.h"
 #include "llviewerregion.h"
 #include "llworld.h"
+#include "llshadermgr.h"
 
 extern F32SecondsImplicit gFrameTimeSeconds;
+
+extern U32 get_box_fan_indices(LLCamera* camera, const LLVector4a& center);
 
 LLReflectionMap::LLReflectionMap()
 {
@@ -244,4 +247,82 @@ bool LLReflectionMap::getBox(LLMatrix4& box)
     }
 
     return false;
+}
+
+bool LLReflectionMap::isActive()
+{
+    return mCubeIndex != -1;
+}
+
+void LLReflectionMap::doOcclusion(const LLVector4a& eye)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+#if 1
+    // super sloppy, but we're doing an occlusion cull against a bounding cube of
+    // a bounding sphere, pad radius so we assume if the eye is within
+    // the bounding sphere of the bounding cube, the node is not culled
+    F32 dist = mRadius * F_SQRT3 + 1.f;
+
+    LLVector4a o;
+    o.setSub(mOrigin, eye);
+
+    bool do_query = false;
+
+    if (o.getLength3().getF32() < dist)
+    { // eye is inside radius, don't attempt to occlude
+        mOccluded = false;
+        if (mViewerObject)
+        {
+            mViewerObject->setDebugText("Camera Non-Occluded");
+        }
+        return;
+    }
+    
+    if (mOcclusionQuery == 0)
+    { // no query was previously issued, allocate one and issue
+        glGenQueries(1, &mOcclusionQuery);
+        do_query = true;
+    }
+    else
+    { // query was previously issued, check it and only issue a new query
+        // if previous query is available
+        GLuint result = (GLuint) 0xFFFFFFFF;
+        glGetQueryObjectuiv(mOcclusionQuery, GL_QUERY_RESULT_NO_WAIT, &result);
+
+        if (result != (GLuint) 0xFFFFFFFF)
+        {
+            do_query = true;
+            mOccluded = result == 0;
+            mOcclusionPendingFrames = 0;
+        }
+        else
+        {
+            mOcclusionPendingFrames++;
+            if (mViewerObject)
+            {
+                mViewerObject->setDebugText(llformat("Query Pending - %d", mOcclusionPendingFrames));
+            }
+        }
+    }
+
+    if (do_query)
+    {
+        glBeginQuery(GL_ANY_SAMPLES_PASSED, mOcclusionQuery);
+
+        LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+        shader->uniform3fv(LLShaderMgr::BOX_CENTER, 1, mOrigin.getF32ptr());
+        F32 r = mRadius + 0.25f; // pad by 1/4m for near clip plane etc
+        shader->uniform3f(LLShaderMgr::BOX_SIZE, mRadius, mRadius, mRadius);
+
+        gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(LLViewerCamera::getInstance(), mOrigin));
+
+        glEndQuery(GL_ANY_SAMPLES_PASSED);
+
+        if (mViewerObject)
+        {
+            mViewerObject->setDebugText(llformat("Query Issued - %.2f, %.2f, %.2f", o.getLength3().getF32(), dist, mRadius));
+        }
+    }
+#endif
 }
