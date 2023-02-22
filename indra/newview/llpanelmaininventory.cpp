@@ -243,6 +243,7 @@ BOOL LLPanelMainInventory::postBuild()
 
     mSingleFolderPanelInventory = getChild<LLInventorySingleFolderPanel>("single_folder_inv");
     mFolderRootChangedConnection = mSingleFolderPanelInventory->setRootChangedCallback(boost::bind(&LLPanelMainInventory::updateTitle, this));
+    mSingleFolderPanelInventory->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mSingleFolderPanelInventory, _1, _2));
 
 	initListCommandsHandlers();
 
@@ -1652,13 +1653,16 @@ bool LLPanelMainInventory::isActionVisible(const LLSD& userdata)
     {
         return !mSingleFolderMode;
     }
-    if (param_str == "open_folder")
+    if (param_str == "open_folder" || param_str == "open_new_folder")
     {
+        if (!mSingleFolderMode && (param_str == "open_folder")) return false;
+
         LLFolderView* root = getActivePanel()->getRootFolder();
         std::set<LLFolderViewItem*> selection_set = root->getSelectionList();
-        if (selection_set.size() != 1) return FALSE;
+        if (selection_set.size() != 1) return false;
+
         LLFolderViewItem* current_item = *selection_set.begin();
-        if (!current_item) return FALSE;
+        if (!current_item) return false;
         const LLUUID& folder_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
         return (gInventory.getCategory(folder_id) != NULL);
     }

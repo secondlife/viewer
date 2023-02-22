@@ -4141,12 +4141,6 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		}
 
 		disabled_items.push_back(std::string("New Folder"));
-		disabled_items.push_back(std::string("New Script"));
-		disabled_items.push_back(std::string("New Note"));
-		disabled_items.push_back(std::string("New Settings"));
-		disabled_items.push_back(std::string("New Gesture"));
-		disabled_items.push_back(std::string("New Clothes"));
-		disabled_items.push_back(std::string("New Body Parts"));
 		disabled_items.push_back(std::string("upload_def"));
 	}
 	if (favorites == mUUID)
@@ -4169,11 +4163,6 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
     if (getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
     {
         disabled_items.push_back(std::string("New Folder"));
-		disabled_items.push_back(std::string("New Script"));
-		disabled_items.push_back(std::string("New Note"));
-		disabled_items.push_back(std::string("New Gesture"));
-		disabled_items.push_back(std::string("New Clothes"));
-		disabled_items.push_back(std::string("New Body Parts"));
 		disabled_items.push_back(std::string("upload_def"));
     }
     if (marketplace_listings_id == mUUID)
@@ -4233,19 +4222,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 				}
                 if (!isMarketplaceListingsFolder())
                 {
-                    items.push_back(std::string("New Script"));
-                    items.push_back(std::string("New Note"));
-                    items.push_back(std::string("New Gesture"));
-                    items.push_back(std::string("New Clothes"));
-                    items.push_back(std::string("New Body Parts"));
-                    items.push_back(std::string("New Settings"));
                     items.push_back(std::string("upload_def"));
-
-                    if (!LLEnvironment::instance().isInventoryEnabled())
-                    {
-                        disabled_items.push_back("New Settings");
-                    }
-
                 }
 			}
 			getClipboardEntries(false, items, disabled_items, flags);
@@ -4411,17 +4388,14 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
         disabled_items.push_back(std::string("New folder from selected"));
     }
 
-    items.push_back(std::string("open_in_new_window"));
-    if ((flags & FIRST_SELECTED_ITEM) == 0)
+
+    if ((flags & ITEM_IN_MULTI_SELECTION) == 0)
     {
-        disabled_items.push_back(std::string("open_in_new_window"));
-    }
-    if(isPanelActive("single_folder_inv"))
-    {
-        items.push_back(std::string("open_in_current_window"));
-        if ((flags & FIRST_SELECTED_ITEM) == 0)
+        items.push_back(std::string("open_in_new_window"));
+        items.push_back(std::string("Open Folder Separator"));
+        if(isPanelActive("single_folder_inv"))
         {
-            disabled_items.push_back(std::string("open_in_current_window"));
+            items.push_back(std::string("open_in_current_window"));
         }
     }
 

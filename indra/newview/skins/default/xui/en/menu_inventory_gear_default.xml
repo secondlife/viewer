@@ -26,7 +26,7 @@
          parameter="open_in_new_window" />
         <on_visible
          function="Inventory.GearDefault.Visible"
-         parameter="open_folder" />
+         parameter="open_new_folder" />
     </menu_item_call>
     <menu_item_call
      label="New Folder Window"
