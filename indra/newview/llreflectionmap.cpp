@@ -271,10 +271,6 @@ void LLReflectionMap::doOcclusion(const LLVector4a& eye)
     if (o.getLength3().getF32() < dist)
     { // eye is inside radius, don't attempt to occlude
         mOccluded = false;
-        if (mViewerObject)
-        {
-            mViewerObject->setDebugText("Camera Non-Occluded");
-        }
         return;
     }
     
@@ -298,10 +294,6 @@ void LLReflectionMap::doOcclusion(const LLVector4a& eye)
         else
         {
             mOcclusionPendingFrames++;
-            if (mViewerObject)
-            {
-                mViewerObject->setDebugText(llformat("Query Pending - %d", mOcclusionPendingFrames));
-            }
         }
     }
 
@@ -312,17 +304,11 @@ void LLReflectionMap::doOcclusion(const LLVector4a& eye)
         LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
         shader->uniform3fv(LLShaderMgr::BOX_CENTER, 1, mOrigin.getF32ptr());
-        F32 r = mRadius + 0.25f; // pad by 1/4m for near clip plane etc
         shader->uniform3f(LLShaderMgr::BOX_SIZE, mRadius, mRadius, mRadius);
 
         gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(LLViewerCamera::getInstance(), mOrigin));
 
         glEndQuery(GL_ANY_SAMPLES_PASSED);
-
-        if (mViewerObject)
-        {
-            mViewerObject->setDebugText(llformat("Query Issued - %.2f, %.2f, %.2f", o.getLength3().getF32(), dist, mRadius));
-        }
     }
 #endif
 }
