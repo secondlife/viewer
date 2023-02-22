@@ -204,30 +204,35 @@ public:
         LLSD packet(LLSDMap("pump", pump)("data", data));
 
         std::ostringstream buffer;
-        buffer << LLSDNotationStreamer(packet);
+        // SL-18330: for large data blocks, it's much faster to parse binary
+        // LLSD than notation LLSD. Use serialize(LLSD_BINARY) rather than
+        // directly calling LLSDBinaryFormatter because, unlike the latter,
+        // serialize() prepends the relevant header, needed by a general-
+        // purpose LLSD parser to distinguish binary from notation.
+        LLSDSerialize::serialize(packet, buffer, LLSDSerialize::LLSD_BINARY,
+                                 LLSDFormatter::OPTIONS_NONE);
 
 /*==========================================================================*|
         // DEBUGGING ONLY: don't copy str() if we can avoid it.
         std::string strdata(buffer.str());
         if (std::size_t(buffer.tellp()) != strdata.length())
         {
-            LL_ERRS("LLLeap") << "tellp() -> " << buffer.tellp() << " != "
+            LL_ERRS("LLLeap") << "tellp() -> " << static_cast<U64>(buffer.tellp()) << " != "
                               << "str().length() -> " << strdata.length() << LL_ENDL;
         }
         // DEBUGGING ONLY: reading back is terribly inefficient.
         std::istringstream readback(strdata);
         LLSD echo;
-        LLPointer<LLSDParser> parser(new LLSDNotationParser());
-        S32 parse_status(parser->parse(readback, echo, strdata.length()));
-        if (parse_status == LLSDParser::PARSE_FAILURE)
+        bool parse_status(LLSDSerialize::deserialize(echo, readback, strdata.length()));
+        if (! parse_status)
         {
-            LL_ERRS("LLLeap") << "LLSDNotationParser() cannot parse output of "
-                              << "LLSDNotationStreamer()" << LL_ENDL;
+            LL_ERRS("LLLeap") << "LLSDSerialize::deserialize() cannot parse output of "
+                              << "LLSDSerialize::serialize(LLSD_BINARY)" << LL_ENDL;
         }
         if (! llsd_equals(echo, packet))
         {
-            LL_ERRS("LLLeap") << "LLSDNotationParser() produced different LLSD "
-                              << "than passed to LLSDNotationStreamer()" << LL_ENDL;
+            LL_ERRS("LLLeap") << "LLSDSerialize::deserialize() returned different LLSD "
+                              << "than passed to LLSDSerialize::serialize()" << LL_ENDL;
         }
 |*==========================================================================*/
 
@@ -314,9 +319,17 @@ public:
             LL_DEBUGS("LLLeap") << "needed " << mExpect << " bytes, got "
                                 << childout.size() << ", parsing LLSD" << LL_ENDL;
             LLSD data;
+#if 1
+            // specifically require notation LLSD from child
             LLPointer<LLSDParser> parser(new LLSDNotationParser());
             S32 parse_status(parser->parse(childout.get_istream(), data, mExpect));
             if (parse_status == LLSDParser::PARSE_FAILURE)
+#else
+            // SL-18330: accept any valid LLSD serialization format from child
+            // Unfortunately this runs into trouble we have not yet debugged.
+            bool parse_status(LLSDSerialize::deserialize(data, childout.get_istream(), mExpect));
+            if (! parse_status)
+#endif
             {
                 bad_protocol("unparseable LLSD data");
             }
