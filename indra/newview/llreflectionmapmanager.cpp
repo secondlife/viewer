@@ -862,7 +862,7 @@ void LLReflectionMapManager::updateUniforms()
                 }
 
                 GLint idx = neighbor->mProbeIndex;
-                if (idx == -1)
+                if (idx == -1 || neighbor->mOccluded)
                 {
                     continue;
                 }

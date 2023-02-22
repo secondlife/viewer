@@ -39,6 +39,8 @@ public:
     // allocate an environment map of the given resolution 
     LLReflectionMap();
 
+    ~LLReflectionMap();
+
     // update this environment map
     // resolution - size of cube map to generate
     void update(U32 resolution, U32 face);

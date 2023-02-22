@@ -41,6 +41,14 @@ LLReflectionMap::LLReflectionMap()
 {
 }
 
+LLReflectionMap::~LLReflectionMap()
+{
+    if (mOcclusionQuery)
+    {
+        glDeleteQueries(1, &mOcclusionQuery);
+    }
+}
+
 void LLReflectionMap::update(U32 resolution, U32 face)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
@@ -276,18 +284,21 @@ void LLReflectionMap::doOcclusion(const LLVector4a& eye)
     
     if (mOcclusionQuery == 0)
     { // no query was previously issued, allocate one and issue
+        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("rmdo - glGenQueries");
         glGenQueries(1, &mOcclusionQuery);
         do_query = true;
     }
     else
     { // query was previously issued, check it and only issue a new query
         // if previous query is available
-        GLuint result = (GLuint) 0xFFFFFFFF;
-        glGetQueryObjectuiv(mOcclusionQuery, GL_QUERY_RESULT_NO_WAIT, &result);
+        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("rmdo - glGetQueryObject");
+        GLuint result = 0;
+        glGetQueryObjectuiv(mOcclusionQuery, GL_QUERY_RESULT_AVAILABLE, &result);
 
-        if (result != (GLuint) 0xFFFFFFFF)
+        if (result > 0)
         {
             do_query = true;
+            glGetQueryObjectuiv(mOcclusionQuery, GL_QUERY_RESULT, &result);
             mOccluded = result == 0;
             mOcclusionPendingFrames = 0;
         }
@@ -299,6 +310,7 @@ void LLReflectionMap::doOcclusion(const LLVector4a& eye)
 
     if (do_query)
     {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("rmdo - push query");
         glBeginQuery(GL_ANY_SAMPLES_PASSED, mOcclusionQuery);
 
         LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
