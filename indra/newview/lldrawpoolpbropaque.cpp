@@ -31,8 +31,6 @@
 #include "llviewershadermgr.h"
 #include "pipeline.h"
 
-static const U32 gltf_render_types[] = { LLPipeline::RENDER_TYPE_PASS_GLTF_PBR, LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK };
-
 LLDrawPoolGLTFPBR::LLDrawPoolGLTFPBR(U32 type) :
     LLRenderPass(type)
 {
