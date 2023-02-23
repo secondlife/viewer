@@ -41,7 +41,7 @@
 #include "llurlregistry.h"
 
 
-static const std::string BING_NOTRANSLATE_OPENING_TAG("<div class=\"notranslate\">");
+static const std::string BING_NOTRANSLATE_OPENING_TAG("<div translate=\"no\">");
 static const std::string BING_NOTRANSLATE_CLOSING_TAG("</div>");
 
 /**
@@ -113,6 +113,14 @@ public:
 
     void verifyKeyCoro(LLTranslate::EService service, std::string key, LLTranslate::KeyVerificationResult_fn fnc);
     void translateMessageCoro(LanguagePair_t fromTo, std::string msg, LLTranslate::TranslationSuccess_fn success, LLTranslate::TranslationFailure_fn failure);
+
+    virtual void initHttpHeader(LLCore::HttpHeaders::ptr_t headers, const std::string& user_agent) const = 0;
+    virtual LLSD sendMessageAndSuspend(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t adapter,
+                                       LLCore::HttpRequest::ptr_t request,
+                                       LLCore::HttpOptions::ptr_t options,
+                                       LLCore::HttpHeaders::ptr_t headers,
+                                       const std::string & url,
+                                       const std::string & msg) const = 0;
 };
 
 void LLTranslationAPIHandler::translateMessage(LanguagePair_t fromTo, std::string msg, LLTranslate::TranslationSuccess_fn success, LLTranslate::TranslationFailure_fn failure)
@@ -184,8 +192,7 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
         LLVersionInfo::instance().getPatch(),
         LLVersionInfo::instance().getBuild());
 
-    httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_TEXT_PLAIN);
-    httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
+    initHttpHeader(httpHeaders, user_agent);
     httpOpts->setSSLVerifyPeer(false);
 
     std::string url = this->getTranslateURL(fromTo.first, fromTo.second, msg);
@@ -194,8 +201,10 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
         LL_INFOS("Translate") << "No translation URL" << LL_ENDL;
         return;
     }
+    LL_INFOS() << "Message: " << msg << LL_ENDL;
+    LL_INFOS() << "Requesting: " << url << LL_ENDL;
 
-    LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url, httpOpts, httpHeaders);
+    LLSD result = sendMessageAndSuspend(httpAdapter, httpRequest, httpOpts, httpHeaders, url, msg);
 
     if (LLApp::isQuitting())
     {
@@ -279,6 +288,14 @@ public:
     /*virtual*/ LLTranslate::EService getCurrentService() { return LLTranslate::EService::SERVICE_GOOGLE; }
 
     /*virtual*/ void verifyKey(const std::string &key, LLTranslate::KeyVerificationResult_fn fnc);
+
+    void initHttpHeader(LLCore::HttpHeaders::ptr_t headers, const std::string& user_agent) const override;
+    LLSD sendMessageAndSuspend(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t adapter,
+        LLCore::HttpRequest::ptr_t request,
+        LLCore::HttpOptions::ptr_t options,
+        LLCore::HttpHeaders::ptr_t headers,
+        const std::string & url,
+        const std::string & msg) const override;
 
 private:
     static void parseErrorResponse(
@@ -417,31 +434,55 @@ void LLGoogleTranslationHandler::verifyKey(const std::string &key, LLTranslate::
         this, LLTranslate::SERVICE_GOOGLE, key, fnc));
 }
 
+/*virtual*/
+void LLGoogleTranslationHandler::initHttpHeader(LLCore::HttpHeaders::ptr_t headers, const std::string& user_agent) const
+{
+    headers->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_TEXT_PLAIN);
+    headers->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
+}
+
+LLSD LLGoogleTranslationHandler::sendMessageAndSuspend(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t adapter,
+    LLCore::HttpRequest::ptr_t request,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers,
+    const std::string & url,
+    const std::string & msg) const
+{
+    return adapter->getRawAndSuspend(request, url, options, headers);
+}
 
 //=========================================================================
 /// Microsoft Translator v2 API handler.
-class LLBingTranslationHandler : public LLTranslationAPIHandler
+class LLAzureTranslationHandler : public LLTranslationAPIHandler
 {
-    LOG_CLASS(LLBingTranslationHandler);
+    LOG_CLASS(LLAzureTranslationHandler);
 
 public:
-    /*virtual*/ std::string getTranslateURL(
+    std::string getTranslateURL(
         const std::string &from_lang,
         const std::string &to_lang,
-        const std::string &text) const;
-    /*virtual*/ std::string getKeyVerificationURL(
-        const std::string &key) const;
-    /*virtual*/ bool parseResponse(
+        const std::string &text) const override;
+    std::string getKeyVerificationURL(
+        const std::string &key) const override;
+    bool parseResponse(
         int& status,
         const std::string& body,
         std::string& translation,
         std::string& detected_lang,
-        std::string& err_msg) const;
-    /*virtual*/ bool isConfigured() const;
+        std::string& err_msg) const override;
+    bool isConfigured() const override;
 
-    /*virtual*/ LLTranslate::EService getCurrentService() { return LLTranslate::EService::SERVICE_BING; }
+    LLTranslate::EService getCurrentService() override { return LLTranslate::EService::SERVICE_BING; }
 
-    /*virtual*/ void verifyKey(const std::string &key, LLTranslate::KeyVerificationResult_fn fnc);
+    void verifyKey(const std::string &key, LLTranslate::KeyVerificationResult_fn fnc) override;
+
+    void initHttpHeader(LLCore::HttpHeaders::ptr_t headers, const std::string& user_agent) const override;
+    LLSD sendMessageAndSuspend(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t adapter,
+        LLCore::HttpRequest::ptr_t request,
+        LLCore::HttpOptions::ptr_t options,
+        LLCore::HttpHeaders::ptr_t headers,
+        const std::string & url,
+        const std::string & msg) const override;
 private:
     static std::string getAPIKey();
     static std::string getAPILanguageCode(const std::string& lang);
@@ -450,23 +491,20 @@ private:
 
 //-------------------------------------------------------------------------
 // virtual
-std::string LLBingTranslationHandler::getTranslateURL(
+std::string LLAzureTranslationHandler::getTranslateURL(
 	const std::string &from_lang,
 	const std::string &to_lang,
 	const std::string &text) const
 {
-	std::string url = std::string("http://api.microsofttranslator.com/v2/Http.svc/Translate?appId=")
-		+ getAPIKey() + "&text=" + LLURI::escape(text) + "&to=" + getAPILanguageCode(to_lang);
-	if (!from_lang.empty())
-	{
-		url += "&from=" + getAPILanguageCode(from_lang);
-	}
+    // Global service. Alternatively regional services exist.
+	std::string url = std::string("https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=")
+		+ getAPILanguageCode(to_lang) + "&Subscription-Key=" + getAPIKey();
     return url;
 }
 
 
 // virtual
-std::string LLBingTranslationHandler::getKeyVerificationURL(
+std::string LLAzureTranslationHandler::getKeyVerificationURL(
 	const std::string& key) const
 {
 	std::string url = std::string("http://api.microsofttranslator.com/v2/Http.svc/GetLanguagesForTranslate?appId=")
@@ -475,7 +513,7 @@ std::string LLBingTranslationHandler::getKeyVerificationURL(
 }
 
 // virtual
-bool LLBingTranslationHandler::parseResponse(
+bool LLAzureTranslationHandler::parseResponse(
 	int& status,
 	const std::string& body,
 	std::string& translation,
@@ -521,28 +559,49 @@ bool LLBingTranslationHandler::parseResponse(
 }
 
 // virtual
-bool LLBingTranslationHandler::isConfigured() const
+bool LLAzureTranslationHandler::isConfigured() const
 {
 	return !getAPIKey().empty();
 }
 
 // static
-std::string LLBingTranslationHandler::getAPIKey()
+std::string LLAzureTranslationHandler::getAPIKey()
 {
 	return gSavedSettings.getString("BingTranslateAPIKey");
 }
 
 // static
-std::string LLBingTranslationHandler::getAPILanguageCode(const std::string& lang)
+std::string LLAzureTranslationHandler::getAPILanguageCode(const std::string& lang)
 {
 	return lang == "zh" ? "zh-CHT" : lang; // treat Chinese as Traditional Chinese
 }
 
 /*virtual*/
-void LLBingTranslationHandler::verifyKey(const std::string &key, LLTranslate::KeyVerificationResult_fn fnc)
+void LLAzureTranslationHandler::verifyKey(const std::string &key, LLTranslate::KeyVerificationResult_fn fnc)
 {
     LLCoros::instance().launch("Bing /Verify Key", boost::bind(&LLTranslationAPIHandler::verifyKeyCoro, 
         this, LLTranslate::SERVICE_BING, key, fnc));
+}
+
+/*virtual*/
+void LLAzureTranslationHandler::initHttpHeader(LLCore::HttpHeaders::ptr_t headers, const std::string& user_agent) const
+{
+    headers->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_JSON);
+    // Token based autorization exists
+    //headers->append("Ocp-Apim-Subscription-Key", getAPIKey());
+    headers->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
+}
+
+LLSD LLAzureTranslationHandler::sendMessageAndSuspend(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t adapter,
+    LLCore::HttpRequest::ptr_t request,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers,
+    const std::string & url,
+    const std::string & msg) const
+{
+    LLSD body;
+    body["text"] = "Hello, what is your name?";
+    return adapter->postJsonAndSuspend(request, url, body, headers);
 }
 
 //=========================================================================
@@ -652,7 +711,7 @@ LLTranslationAPIHandler& LLTranslate::getPreferredHandler()
 LLTranslationAPIHandler& LLTranslate::getHandler(EService service)
 {
 	static LLGoogleTranslationHandler google;
-	static LLBingTranslationHandler bing;
+	static LLAzureTranslationHandler bing;
 
 	if (service == SERVICE_GOOGLE)
 	{
