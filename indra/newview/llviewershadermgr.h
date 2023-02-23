@@ -151,6 +151,7 @@ extern LLGLSLShader			gOcclusionProgram;
 extern LLGLSLShader			gOcclusionCubeProgram;
 extern LLGLSLShader			gGlowCombineProgram;
 extern LLGLSLShader			gReflectionMipProgram;
+extern LLGLSLShader         gGaussianProgram;
 extern LLGLSLShader         gRadianceGenProgram;
 extern LLGLSLShader         gIrradianceGenProgram;
 extern LLGLSLShader			gGlowCombineFXAAProgram;

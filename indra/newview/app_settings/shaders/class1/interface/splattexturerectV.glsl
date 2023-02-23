@@ -25,17 +25,16 @@
 
 uniform mat4 modelview_projection_matrix;
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec2 texcoord0;
-ATTRIBUTE vec4 diffuse_color;
+in vec3 position;
+in vec4 diffuse_color;
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+out vec4 vertex_color;
+out vec2 vary_texcoord0;
 
 void main()
 {
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
-	vary_texcoord0 = texcoord0;
+	vary_texcoord0 = position.xy*0.5+0.5;
 	vertex_color = diffuse_color;
 }
 

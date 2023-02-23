@@ -10391,7 +10391,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>256</integer>
+    <integer>128</integer>
   </map>
   <key>RenderReflectionProbeAmbianceScale</key>
   <map>

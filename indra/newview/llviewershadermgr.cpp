@@ -73,6 +73,7 @@ LLGLSLShader    gSkinnedOcclusionProgram;
 LLGLSLShader	gOcclusionCubeProgram;
 LLGLSLShader	gGlowCombineProgram;
 LLGLSLShader	gReflectionMipProgram;
+LLGLSLShader    gGaussianProgram;
 LLGLSLShader	gRadianceGenProgram;
 LLGLSLShader	gIrradianceGenProgram;
 LLGLSLShader	gGlowCombineFXAAProgram;
@@ -3185,12 +3186,20 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
         gReflectionMipProgram.mShaderFiles.push_back(make_pair("interface/reflectionmipF.glsl", GL_FRAGMENT_SHADER));
         gReflectionMipProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
         success = gReflectionMipProgram.createShader(NULL, NULL);
-        if (success)
-        {
-            gReflectionMipProgram.bind();
-            gReflectionMipProgram.uniform1i(sScreenMap, 0);
-            gReflectionMipProgram.unbind();
-        }
+    }
+
+    if (success)
+    {
+        gGaussianProgram.mName = "Reflection Mip Shader";
+        gGaussianProgram.mFeatures.isDeferred = true;
+        gGaussianProgram.mFeatures.hasGamma = true;
+        gGaussianProgram.mFeatures.hasAtmospherics = true;
+        gGaussianProgram.mFeatures.calculatesAtmospherics = true;
+        gGaussianProgram.mShaderFiles.clear();
+        gGaussianProgram.mShaderFiles.push_back(make_pair("interface/splattexturerectV.glsl", GL_VERTEX_SHADER));
+        gGaussianProgram.mShaderFiles.push_back(make_pair("interface/gaussianF.glsl", GL_FRAGMENT_SHADER));
+        gGaussianProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
+        success = gGaussianProgram.createShader(NULL, NULL);
     }
 
     if (success && gGLManager.mHasCubeMapArray)

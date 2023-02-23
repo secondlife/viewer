@@ -95,7 +95,7 @@ void LLReflectionMapManager::update()
     if (!mRenderTarget.isComplete())
     {
         U32 color_fmt = GL_RGB16;
-        U32 targetRes = mProbeResolution * 2; // super sample
+        U32 targetRes = mProbeResolution * 4; // super sample
         mRenderTarget.allocate(targetRes, targetRes, color_fmt, true);
     }
 
@@ -502,8 +502,6 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
 
     // downsample to placeholder map
     {
-        gReflectionMipProgram.bind();
-
         gGL.matrixMode(gGL.MM_MODELVIEW);
         gGL.pushMatrix();
         gGL.loadIdentity();
@@ -515,13 +513,43 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         gGL.flush();
         U32 res = mProbeResolution * 2;
 
-        S32 mips = log2((F32)mProbeResolution) + 0.5f;
-
-        S32 diffuseChannel = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
-        S32 depthChannel   = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DEPTH, LLTexUnit::TT_TEXTURE);
+        static LLStaticHashedString resScale("resScale");
+        static LLStaticHashedString direction("direction");
+        static LLStaticHashedString znear("znear");
+        static LLStaticHashedString zfar("zfar");
 
         LLRenderTarget* screen_rt = &gPipeline.mAuxillaryRT.screen;
         LLRenderTarget* depth_rt = &gPipeline.mAuxillaryRT.deferredScreen;
+
+        // perform a gaussian blur on the super sampled render before downsampling
+        {
+            gGaussianProgram.bind();
+            gGaussianProgram.uniform1f(resScale, 1.f / (mProbeResolution * 2));
+            S32 diffuseChannel = gGaussianProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
+
+            // horizontal
+            gGaussianProgram.uniform2f(direction, 1.f, 0.f);
+            gGL.getTexUnit(diffuseChannel)->bind(screen_rt);
+            mRenderTarget.bindTarget();
+            gPipeline.mScreenTriangleVB->setBuffer();
+            gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+            mRenderTarget.flush();
+
+            // vertical
+            gGaussianProgram.uniform2f(direction, 0.f, 1.f);
+            gGL.getTexUnit(diffuseChannel)->bind(&mRenderTarget);
+            screen_rt->bindTarget();
+            gPipeline.mScreenTriangleVB->setBuffer();
+            gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+            screen_rt->flush();
+        }
+
+
+        S32 mips = log2((F32)mProbeResolution) + 0.5f;
+
+        gReflectionMipProgram.bind();
+        S32 diffuseChannel = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
+        S32 depthChannel   = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DEPTH, LLTexUnit::TT_TEXTURE);
 
         for (int i = 0; i < mMipChain.size(); ++i)
         {
@@ -529,7 +557,6 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
             mMipChain[i].bindTarget();
             if (i == 0)
             {
-                
                 gGL.getTexUnit(diffuseChannel)->bind(screen_rt);
             }
             else
@@ -539,30 +566,13 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
 
             gGL.getTexUnit(depthChannel)->bind(depth_rt, true);
 
-            static LLStaticHashedString resScale("resScale");
-            static LLStaticHashedString znear("znear");
-            static LLStaticHashedString zfar("zfar");
-            
-            gReflectionMipProgram.uniform1f(resScale, (F32) (1 << i));
+            gReflectionMipProgram.uniform1f(resScale, 1.f/(mProbeResolution*2));
             gReflectionMipProgram.uniform1f(znear, probe->getNearClip());
             gReflectionMipProgram.uniform1f(zfar, MAX_FAR_CLIP);
 
-            gGL.begin(gGL.QUADS);
-
-            gGL.texCoord2f(0, 0);
-            gGL.vertex2f(-1, -1);
-
-            gGL.texCoord2f(1.f, 0);
-            gGL.vertex2f(1, -1);
-
-            gGL.texCoord2f(1.f, 1.f);
-            gGL.vertex2f(1, 1);
-
-            gGL.texCoord2f(0, 1.f);
-            gGL.vertex2f(-1, 1);
-            gGL.end();
-            gGL.flush();
-
+            gPipeline.mScreenTriangleVB->setBuffer();
+            gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+            
             res /= 2;
 
             S32 mip = i - (mMipChain.size() - mips);

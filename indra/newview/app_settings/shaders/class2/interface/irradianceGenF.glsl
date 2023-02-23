@@ -176,7 +176,6 @@ float computeLod(float pdf)
 
 vec4 filterColor(vec3 N)
 {
-    //return  textureLod(uCubeMap, N, 3.0).rgb;
     vec4 color = vec4(0.f);
     
     for(int i = 0; i < u_sampleCount; ++i)
@@ -192,7 +191,7 @@ vec4 filterColor(vec3 N)
         // apply the bias to the lod
         lod += u_lodBias;
 
-        lod = clamp(lod, 0, 7);
+        lod = clamp(lod, 0, max_probe_lod);
         // sample lambertian at a lower resolution to avoid fireflies
         vec4 lambertian = textureLod(reflectionProbes, vec4(H, sourceIdx), lod);
 

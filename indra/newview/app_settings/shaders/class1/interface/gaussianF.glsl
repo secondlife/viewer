@@ -1,9 +1,9 @@
 /** 
- * @file reflectionmipF.glsl
+ * @file gaussianF.glsl
  *
- * $LicenseInfo:firstyear=2022&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2022, Linden Research, Inc.
+ * Copyright (C) 2023, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,15 +22,15 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
 out vec4 frag_color;
 
 uniform sampler2D diffuseRect;
-uniform sampler2D depthMap;
 
 uniform float resScale;
-uniform float znear;
-uniform float zfar;
+
+// texture direction, will be <1, 0> or <0, 1>
+uniform vec2 direction;
 
 in vec2 vary_texcoord0;
 
@@ -39,16 +39,15 @@ float linearDepth(float d, float znear, float zfar);
 
 void main() 
 {
-    float depth = texture(depthMap, vary_texcoord0.xy).r;
-    float dist = linearDepth(depth, znear, zfar);
+    vec3 col = vec3(0,0,0);
 
-    // convert linear depth to distance
-    vec3 v;
-    v.xy = vary_texcoord0.xy / 512.0 * 2.0 - 1.0;
-    v.z = 1.0;
-    v = normalize(v);
-    dist /= v.z;
+    float w[] = { 0.0002, 0.0060, 0.0606, 0.2417, 0.3829, 0.2417, 0.0606, 0.0060, 0.0002 };
+    
+    for (int i = 0; i < 9; ++i)
+    {
+        vec2 tc = vary_texcoord0 + (i-4)*direction*resScale;
+        col += texture(diffuseRect, tc).rgb * w[i];
+    }
 
-    vec3 col = texture(diffuseRect, vary_texcoord0.xy).rgb;
-    frag_color = vec4(col, dist/256.0);
+    frag_color = vec4(col, 0.0);
 }
