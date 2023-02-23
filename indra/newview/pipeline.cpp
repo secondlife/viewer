@@ -2286,7 +2286,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE; //LL_RECORD_BLOCK_TIME(FTM_CULL);
     LL_PROFILE_GPU_ZONE("updateCull"); // should always be zero GPU time, but drop a timer to flush stuff out
 
-    bool water_clip = !sRenderTransparentWater;
+    bool water_clip = !sRenderTransparentWater && !sRenderingHUDs;
 
     if (water_clip)
     {
