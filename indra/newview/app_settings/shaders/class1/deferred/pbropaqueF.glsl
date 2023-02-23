@@ -51,6 +51,9 @@ in vec2 basecolor_texcoord;
 in vec2 normal_texcoord;
 in vec2 metallic_roughness_texcoord;
 in vec2 emissive_texcoord;
+#if DEBUG_TEXCOORD
+in vec2 original_texcoord;
+#endif
 
 uniform float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
 
@@ -69,6 +72,10 @@ void main()
     }
 
     vec3 col = vertex_color.rgb * srgb_to_linear(basecolor.rgb);
+#if DEBUG_TEXCOORD
+    vec3 texcoord_color = vec3(mod(original_texcoord, 1.0), 0);
+    col = texcoord_color;
+#endif
 
     // from mikktspace.com
     vec3 vNt = texture2D(bumpMap, normal_texcoord.xy).xyz*2.0-1.0;
@@ -123,6 +130,9 @@ in vec4 vertex_color;
 
 in vec2 basecolor_texcoord;
 in vec2 emissive_texcoord;
+#if DEBUG_TEXCOORD
+in vec2 original_texcoord;
+#endif
 
 uniform float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
 
@@ -138,6 +148,10 @@ void main()
     }
 
     vec3 col = vertex_color.rgb * srgb_to_linear(basecolor.rgb);
+#if DEBUG_TEXCOORD
+    vec3 texcoord_color = vec3(mod(original_texcoord, 1.0), 0);
+    col = texcoord_color;
+#endif
 
     vec3 emissive = emissiveColor;
     emissive *= srgb_to_linear(texture2D(emissiveMap, emissive_texcoord.xy).rgb);

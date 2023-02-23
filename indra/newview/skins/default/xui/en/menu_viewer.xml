@@ -2844,6 +2844,16 @@ function="World.EnvPreset"
            parameter="texture anim" />
         </menu_item_check>
         <menu_item_check
+         label="Texture Coordinates"
+            name="RenderDebugTexcoord">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="RenderDebugTexcoord" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="RenderDebugTexcoord" />
+        </menu_item_check>
+        <menu_item_check
          label="Texture Priority"
          name="Texture Priority">
           <menu_item_check.on_check

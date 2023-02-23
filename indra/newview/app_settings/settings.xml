@@ -9727,6 +9727,18 @@
     <integer>1</integer>
   </map>
 
+  <key>RenderDebugTexcoord</key>
+  <map>
+    <key>Comment</key>
+    <string>Enables a colored debug overlay on meshes to show UV coordinates. Not all meshes support this setting.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+
   <key>RenderDeferredBlurLight</key>
   <map>
     <key>Comment</key>

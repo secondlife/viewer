@@ -57,6 +57,9 @@ in vec2 basecolor_texcoord;
 in vec2 normal_texcoord;
 in vec2 metallic_roughness_texcoord;
 in vec2 emissive_texcoord;
+#if DEBUG_TEXCOORD
+in vec2 original_texcoord;
+#endif
 
 in vec4 vertex_color;
 
@@ -173,6 +176,10 @@ void main()
 #endif
 
     vec3 col = vertex_color.rgb * basecolor.rgb;
+#if DEBUG_TEXCOORD
+    vec3 texcoord_color = vec3(mod(original_texcoord, 1.0), 0);
+    col = texcoord_color;
+#endif
 
     vec3 vNt = texture(bumpMap, normal_texcoord.xy).xyz*2.0-1.0;
     float sign = vary_sign;
@@ -265,6 +272,9 @@ in vec3 vary_position;
 
 in vec2 basecolor_texcoord;
 in vec2 emissive_texcoord;
+#if DEBUG_TEXCOORD
+in vec2 original_texcoord;
+#endif
 
 in vec4 vertex_color;
 
@@ -292,6 +302,10 @@ void main()
 #endif
 
     color = vertex_color.rgb * basecolor.rgb;
+#if DEBUG_TEXCOORD
+    vec3 texcoord_color = vec3(mod(original_texcoord, 1.0), 0);
+    color = texcoord_color;
+#endif
 
     // emissiveColor is the emissive color factor from GLTF and is already in linear space
     vec3 colorEmissive = emissiveColor;
