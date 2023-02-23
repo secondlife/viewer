@@ -5856,9 +5856,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 								add_face(sAlphaFaces, alpha_count, facep);
 							}
 							else if (LLDrawPoolAlpha::sShowDebugAlpha ||
-								gPipeline.sRenderHighlight &&
+								(gPipeline.sRenderHighlight &&
 								(LLPipeline::getRenderScriptedBeacons() || LLPipeline::getRenderScriptedTouchBeacons()) &&
-								drawablep->getVObj() && drawablep->getVObj()->flagScripted())
+								drawablep->getVObj() && drawablep->getVObj()->flagScripted()))
 							{ //draw the transparent face for debugging purposes using a custom texture
 								add_face(sAlphaFaces, alpha_count, facep);
 							}
