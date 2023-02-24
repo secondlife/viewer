@@ -23,6 +23,31 @@
  * $/LicenseInfo$
  */
 
+// This shader code is taken from the sample code on the KHR_texture_transform
+// spec page page, plus or minus some sign error corrections (I think because the GLSL
+// matrix constructor is backwards?):
+// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_texture_transform
+// Previously (6494eed242b1), we passed in a single, precalculated matrix
+// uniform per transform into the shaders. However, that was found to produce
+// small-but-noticeable discrepancies with the GLTF sample model
+// "TextureTransformTest", likely due to numerical precision differences. In
+// the interest of parity with other renderers, calculate the transform
+// directly in the shader. -Cosmic,2023-02-24
+vec2 khr_texture_transform(vec2 texcoord, vec2 scale, float rotation, vec2 offset)
+{
+    mat3 scale_mat = mat3(scale.x,0,0, 0,scale.y,0, 0,0,1);
+    mat3 offset_mat = mat3(1,0,0, 0,1,0, offset.x, offset.y, 1);
+    mat3 rotation_mat = mat3(
+        cos(rotation),-sin(rotation), 0,
+        sin(rotation), cos(rotation), 0,
+                    0,             0, 1
+    );
+
+    mat3 transform = offset_mat * rotation_mat * scale_mat;
+
+    return (transform * vec3(texcoord, 1)).xy;
+}
+
 // vertex_texcoord - The UV texture coordinates sampled from the vertex at
 //     runtime. Per SL convention, this is in a right-handed UV coordinate
 //     system. Collada models also have right-handed UVs.
@@ -33,17 +58,14 @@
 //     animations, available through LSL script functions such as
 //     LlSetTextureAnim. It assumes a right-handed UV coordinate system.
 // texcoord - The final texcoord to use for image sampling
-vec2 texture_transform(vec2 vertex_texcoord, mat3 khr_gltf_transform, mat4 sl_animation_transform)
+vec2 texture_transform(vec2 vertex_texcoord, vec2 khr_gltf_scale, float khr_gltf_rotation, vec2 khr_gltf_offset, mat4 sl_animation_transform)
 {
     vec2 texcoord = vertex_texcoord;
 
     // Convert to left-handed coordinate system. The offset of 1 is necessary
     // for rotations to be applied correctly.
-    // In the future, we could bake this coordinate conversion into the uniform
-    // that khr_gltf_transform comes from, since it's applied immediately
-    // before.
     texcoord.y = 1.0 - texcoord.y;
-    texcoord = (khr_gltf_transform * vec3(texcoord, 1.0)).xy;
+    texcoord = khr_texture_transform(texcoord, khr_gltf_scale, khr_gltf_rotation, khr_gltf_offset);
     // Convert back to right-handed coordinate system
     texcoord.y = 1.0 - texcoord.y;
     texcoord = (sl_animation_transform * vec4(texcoord, 0, 1)).xy;
