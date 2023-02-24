@@ -100,18 +100,6 @@ namespace
     constexpr U32 PUPPET_MAX_MSG_BYTES = 255;  // This is the largest possible size event
 }
 
-bool gIsSendingAnimationStream = false;
-
-void LLStreamingMotion::SetIsSendingAnimationStream(bool is_sending)
-{
-    gIsSendingAnimationStream = is_sending;
-}
-
-bool LLStreamingMotion::GetIsSendingAnimationStream()
-{
-    return gIsSendingAnimationStream;
-}
-
 void LLStreamingMotion::DelayedEventQueue::addEvent(
         Timestamp remote_timestamp,
         Timestamp local_timestamp,

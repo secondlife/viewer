@@ -41,8 +41,6 @@ class LLStreamingMotion :
     public LLMotion
 {
 public:
-    static void SetIsSendingAnimationStream(bool is_sending);
-    static bool GetIsSendingAnimationStream();
 
     //using state_map_t = std::map <S16, LLPointer<LLJointState>>;
     using state_vector_t = std::vector< LLPointer<LLJointState> >;

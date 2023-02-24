@@ -3749,6 +3749,17 @@ void LLVOAvatar::enableStreamingMotion()
     }
 }
 
+void LLVOAvatar::disableStreamingMotion()
+{
+    // TODO?: implement this?
+    // Might be necessary when this avatar moves out of region with puppetry support.
+    //
+    // Note: ATM mIsReceivingAnimationStream is initialized to 'false',
+    // is set 'true' as soon as it receives any animation-stream data,
+    // and can never be set 'false' again.  This animation stream stuff
+    // is still experimental.
+}
+
 void LLVOAvatar::slamPosition()
 {
 	gAgent.setPositionAgent(getPositionAgent());
@@ -5893,6 +5904,9 @@ const LLUUID& LLVOAvatar::getStepSound() const
 //-----------------------------------------------------------------------------
 void LLVOAvatar::processAnimationStateChanges()
 {
+    // Note: if this other-avatar is receiving an animation stream
+    // then we don't bother processing animation state changes
+    // since the stream should represent the final animation state
     if (!isSelf() && mIsReceivingAnimationStream)
     {
         return;

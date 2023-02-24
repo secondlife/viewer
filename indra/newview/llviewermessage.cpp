@@ -4061,6 +4061,7 @@ static void  handle_streaming_animation_data(LLMessageSystem * mesgsys, LLVOAvat
 {
     if (num_physav_blocks > 0
             && !avatarp->isReceivingAnimationStream()
+            && LLPuppetModule::instance().isReceiving()
             && mesgsys->getSizeFast(_PREHASH_PhysicalAvatarEventList, 0, _PREHASH_TypeData) > 0)
     {
         avatarp->enableStreamingMotion();

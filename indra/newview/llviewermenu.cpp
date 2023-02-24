@@ -2735,10 +2735,9 @@ class LLAdvancedPuppetryEnableSend : public view_listener_t
     {   // Must have a loaded module
         bool have_module = LLPuppetModule::instance().havePuppetModule();
         LL_DEBUGS("PuppetMenu") << "Enable send " << (have_module ? "true" : "false") << LL_ENDL;
-        return (LLPuppetModule::instance().havePuppetModule());
+        return have_module;
     }
 };
-
 
 class LLAdvancedPuppetryCheckReceive : public view_listener_t
 {

@@ -1366,7 +1366,7 @@ void LLVOAvatarSelf::sendAttachmentUpdate(U64 now)
 
 void LLVOAvatarSelf::sendAnimationStream(U64 now)
 {
-    if (!LLStreamingMotion::GetIsSendingAnimationStream() || now < mAnimationStreamExpiry)
+    if (!LLPuppetModule::instance().isSending() || now < mAnimationStreamExpiry)
     {
         return;
     }

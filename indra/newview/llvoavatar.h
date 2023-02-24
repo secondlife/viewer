@@ -319,6 +319,7 @@ public:
 	void 			idleUpdateBelowWater();
 
     void enableStreamingMotion();
+    void disableStreamingMotion();
 
 	//--------------------------------------------------------------------
 	// Static preferences (controlled by user settings/menus)

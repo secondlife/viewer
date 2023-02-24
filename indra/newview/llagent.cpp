@@ -3181,7 +3181,13 @@ LLQuaternion LLAgent::getHeadRotation()
 
 void LLAgent::sendAnimationRequests(const std::vector<LLUUID> &anim_ids, EAnimRequest request)
 {
-	if (LLStreamingMotion::GetIsSendingAnimationStream() || gAgentID.isNull())
+    // Note: we continue to send animation requests
+    // for any viewers lacking puppetry support
+    // however if animation-streaming works great in the end
+    // and is adopted everywhere...
+    // then we could purge this logic.
+
+	if (gAgentID.isNull())
 	{
 		return;
 	}
