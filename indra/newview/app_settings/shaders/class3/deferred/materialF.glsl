@@ -92,7 +92,7 @@ uniform vec3 light_diffuse[8];
 float getAmbientClamp();
 void waterClip(vec3 pos);
 
-vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, float ambiance)
+vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, inout float glare, float ambiance)
 {
     // SL-14895 inverted attenuation work-around
     // This routine is tweaked to match deferred lighting, but previously used an inverted la value. To reconstruct
@@ -170,6 +170,11 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
                 vec3 speccol = lit*scol*light_col.rgb*spec.rgb;
                 speccol = clamp(speccol, vec3(0), vec3(1));
                 col += speccol;
+
+                float cur_glare = max(speccol.r, speccol.g);
+                cur_glare = max(cur_glare, speccol.b);
+                glare = max(glare, speccol.r);
+                glare += max(cur_glare, 0.0);
             }
         }
     }
@@ -218,83 +223,104 @@ VARYING vec2 vary_texcoord0;
 
 vec2 encode_normal(vec3 n);
 
-void main()
+// get the transformed normal and apply glossiness component from normal map
+vec3 getNormal(inout float glossiness)
 {
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-    waterClip(vary_position.xyz);
+#ifdef HAS_NORMAL_MAP
+	vec4 norm = texture2D(bumpMap, vary_texcoord1.xy);
+    glossiness *= norm.a;
+
+	norm.xyz = norm.xyz * 2 - 1;
+
+	return normalize(vec3(dot(norm.xyz,vary_mat0),
+			  dot(norm.xyz,vary_mat1),
+			  dot(norm.xyz,vary_mat2)));
+#else
+	return normalize(vary_normal);
 #endif
+}
 
-    vec2 pos_screen = vary_texcoord0.xy;
-
-    vec4 diffcol = texture2D(diffuseMap, vary_texcoord0.xy);
-	diffcol.rgb *= vertex_color.rgb;
-
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK)
-
-    // Comparing floats cast from 8-bit values, produces acne right at the 8-bit transition points
-    float bias = 0.001953125; // 1/512, or half an 8-bit quantization
-    if (diffcol.a < minimum_alpha-bias)
-    {
-        discard;
-    }
-#endif
-
+vec4 getSpecular()
+{
 #ifdef HAS_SPECULAR_MAP
     vec4 spec = texture2D(specularMap, vary_texcoord2.xy);
     spec.rgb *= specular_color.rgb;
 #else
     vec4 spec = vec4(specular_color.rgb, 1.0);
 #endif
+    return spec;
+}
 
-#ifdef HAS_NORMAL_MAP
-	vec4 norm = texture2D(bumpMap, vary_texcoord1.xy);
-
-	norm.xyz = norm.xyz * 2 - 1;
-
-	vec3 tnorm = vec3(dot(norm.xyz,vary_mat0),
-			  dot(norm.xyz,vary_mat1),
-			  dot(norm.xyz,vary_mat2));
-#else
-	vec4 norm = vec4(0,0,0,1.0);
-	vec3 tnorm = vary_normal;
+void alphaMask(float alpha)
+{
+#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK)
+    // Comparing floats cast from 8-bit values, produces acne right at the 8-bit transition points
+    float bias = 0.001953125; // 1/512, or half an 8-bit quantization
+    if (alpha < minimum_alpha-bias)
+    {
+        discard;
+    }
 #endif
+}
 
-    norm.xyz = normalize(tnorm.xyz);
+void waterClip()
+{
+#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
+    waterClip(vary_position.xyz);
+#endif
+}
+
+float getEmissive(vec4 diffcol)
+{
+#if (DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_EMISSIVE)
+	return emissive_brightness;
+#else
+	return max(diffcol.a, emissive_brightness);
+#endif
+}
+
+float getShadow(vec3 pos, vec3 norm)
+{
+#ifdef HAS_SUN_SHADOW
+    #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
+        return sampleDirectionalShadow(pos, norm, vary_texcoord0.xy);
+    #else
+        return 1;
+    #endif
+#else
+    return 1;
+#endif
+}
+
+void main()
+{
+    waterClip();
+
+    // diffcol == diffuse map combined with vertex color
+    vec4 diffcol = texture2D(diffuseMap, vary_texcoord0.xy);
+	diffcol.rgb *= vertex_color.rgb;
+
+    alphaMask(diffcol.a);
+
+    // spec == specular map combined with specular color
+    vec4 spec = getSpecular();
+    float glossiness = specular_color.a;
+    vec3 norm = getNormal(glossiness);
 
     vec2 abnormal = encode_normal(norm.xyz);
 
-    vec4 final_color = diffcol;
-
-#if (DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_EMISSIVE)
-	final_color.a = emissive_brightness;
-#else
-	final_color.a = max(final_color.a, emissive_brightness);
-#endif
-
-    vec4 final_specular = spec;
-    
-#ifdef HAS_SPECULAR_MAP
-    vec4 final_normal = vec4(encode_normal(normalize(tnorm)), env_intensity * spec.a, GBUFFER_FLAG_HAS_ATMOS);
-	final_specular.a = specular_color.a * norm.a;
-#else
-	vec4 final_normal = vec4(encode_normal(normalize(tnorm)), env_intensity, GBUFFER_FLAG_HAS_ATMOS);
-	final_specular.a = specular_color.a;
-#endif
+    float emissive = getEmissive(diffcol);
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
     //forward rendering, output lit linear color
     diffcol.rgb = srgb_to_linear(diffcol.rgb);
-    final_specular.rgb = srgb_to_linear(final_specular.rgb);
+    spec.rgb = srgb_to_linear(spec.rgb);
 
     vec3 pos = vary_position;
 
-    float shadow = 1.0f;
+    float shadow = getShadow(pos, norm);
 
-#ifdef HAS_SUN_SHADOW
-    shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, pos_screen);
-#endif
-
-    vec4 diffuse = final_color;
+    vec4 diffuse = diffcol;
 
     vec3 color = vec3(0,0,0);
 
@@ -310,7 +336,7 @@ void main()
     vec3 ambenv;
     vec3 glossenv;
     vec3 legacyenv;
-    sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos_screen, pos.xyz, norm.xyz, final_specular.a, env_intensity);
+    sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos.xy*0.5+0.5, pos.xyz, norm.xyz, glossiness, env_intensity);
     
     // use sky settings ambient or irradiance map sample, whichever is brighter
     color = max(amblit, ambenv);
@@ -322,28 +348,37 @@ void main()
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
-    if (final_specular.a > 0.0)  // specular reflection
+    float glare = 0.0;
+
+    if (glossiness > 0.0)  // specular reflection
     {
         float sa        = dot(normalize(refnormpersp), light_dir.xyz);
-        vec3  dumbshiny = sunlit * shadow * (texture2D(lightFunc, vec2(sa, final_specular.a)).r);
+        vec3  dumbshiny = sunlit * shadow * (texture2D(lightFunc, vec2(sa, glossiness)).r);
 
         // add the two types of shiny together
-        vec3 spec_contrib = dumbshiny * final_specular.rgb;
+        vec3 spec_contrib = dumbshiny * spec.rgb;
         bloom             = dot(spec_contrib, spec_contrib) / 6;
+
+        glare = max(spec_contrib.r, spec_contrib.g);
+        glare = max(glare, spec_contrib.b);
 
         color += spec_contrib;
 
-        applyGlossEnv(color, glossenv, final_specular, pos.xyz, norm.xyz);
+        applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
     }
 
-    color = mix(color.rgb, diffcol.rgb, diffuse.a);
+    color = mix(color.rgb, diffcol.rgb, emissive);
 
     if (env_intensity > 0.0)
     {  // add environmentmap
-        applyLegacyEnv(color, legacyenv, final_specular, pos.xyz, norm.xyz, env_intensity);
+        applyLegacyEnv(color, legacyenv, spec, pos.xyz, norm.xyz, env_intensity);
+
+        float cur_glare = max(max(legacyenv.r, legacyenv.g), legacyenv.b);
+        cur_glare *= env_intensity*4.0;
+        glare += cur_glare;
     }
 
-    color.rgb = mix(atmosFragLightingLinear(color.rgb, additive, atten), fullbrightAtmosTransportFragLinear(color, additive, atten), diffuse.a); 
+    color.rgb = mix(atmosFragLightingLinear(color.rgb, additive, atten), fullbrightAtmosTransportFragLinear(color, additive, atten), emissive); 
     color.rgb = scaleSoftClipFragLinear(color.rgb);
 
 #ifdef WATER_FOG
@@ -354,7 +389,7 @@ void main()
     vec3 npos = normalize(-pos.xyz);
     vec3 light = vec3(0, 0, 0);
 
-#define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w );
+#define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, spec, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w );
 
     LIGHT_LOOP(1)
         LIGHT_LOOP(2)
@@ -366,15 +401,16 @@ void main()
 
     color += light;
 
-    float al = diffcol.a*vertex_color.a;
-
+    glare = min(glare, 1.0);
+    float al = max(diffcol.a, glare) * vertex_color.a;
+    
     frag_color = vec4(color, al);
-#else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer 
 
+#else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer 
     // deferred path               // See: C++: addDeferredAttachment(), shader: softenLightF.glsl
-    frag_data[0] = final_color;    // gbuffer is sRGB for legacy materials
-    frag_data[1] = final_specular; // XYZ = Specular color. W = Specular exponent.
-    frag_data[2] = final_normal;   // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
+    frag_data[0] = vec4(diffcol.rgb, emissive);        // gbuffer is sRGB for legacy materials
+    frag_data[1] = vec4(spec.rgb, glossiness);           // XYZ = Specular color. W = Specular exponent.
+    frag_data[2] = vec4(encode_normal(norm), env_intensity, GBUFFER_FLAG_HAS_ATMOS);;   // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
 #endif
 }
 

@@ -37,7 +37,6 @@ uniform sampler2D diffuseRect;
 uniform sampler2D specularRect;
 uniform sampler2D normalMap;
 uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
-uniform sampler2D noiseMap;
 uniform sampler2D lightFunc;
 uniform sampler2D depthMap;
 
@@ -126,8 +125,7 @@ void main()
         diffuse = srgb_to_linear(diffuse);
         spec.rgb = srgb_to_linear(spec.rgb);
 
-        float noise = texture2D(noiseMap, tc).b;
-        float lit = nl * dist_atten * noise;
+        float lit = nl * dist_atten;
 
         final_color = color.rgb*lit*diffuse;
 
