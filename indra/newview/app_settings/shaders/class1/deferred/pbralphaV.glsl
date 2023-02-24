@@ -64,9 +64,6 @@ out vec2 basecolor_texcoord;
 out vec2 normal_texcoord;
 out vec2 metallic_roughness_texcoord;
 out vec2 emissive_texcoord;
-#if DEBUG_TEXCOORD
-out vec2 original_texcoord;
-#endif
 
 out vec4 vertex_color;
 
@@ -99,9 +96,6 @@ void main()
 	normal_texcoord = texture_transform(texcoord0, texture_normal_matrix, texture_matrix0);
 	metallic_roughness_texcoord = texture_transform(texcoord0, texture_metallic_roughness_matrix, texture_matrix0);
 	emissive_texcoord = texture_transform(texcoord0, texture_emissive_matrix, texture_matrix0);
-#if DEBUG_TEXCOORD
-    original_texcoord = texcoord0;
-#endif
 
 #ifdef HAS_SKIN
 	vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
@@ -143,9 +137,6 @@ in vec2 texcoord0;
 
 out vec2 basecolor_texcoord;
 out vec2 emissive_texcoord;
-#if DEBUG_TEXCOORD
-out vec2 original_texcoord;
-#endif
 
 out vec4 vertex_color;
 
@@ -161,9 +152,6 @@ void main()
 
 	basecolor_texcoord = texture_transform(texcoord0, texture_basecolor_matrix, texture_matrix0);
 	emissive_texcoord = texture_transform(texcoord0, texture_emissive_matrix, texture_matrix0);
-#if DEBUG_TEXCOORD
-    original_texcoord = texcoord0;
-#endif
 
 	vertex_color = diffuse_color;
 }

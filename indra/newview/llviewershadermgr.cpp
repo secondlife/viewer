@@ -1321,10 +1321,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredPBROpaqueProgram.mShaderFiles.push_back(make_pair("deferred/pbropaqueF.glsl", GL_FRAGMENT_SHADER));
         gDeferredPBROpaqueProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         gDeferredPBROpaqueProgram.clearPermutations();
-        if (gSavedSettings.getBOOL("RenderDebugTexcoord"))
-        {
-            gDeferredPBROpaqueProgram.addPermutation("DEBUG_TEXCOORD", "1");
-        }
         
         success = make_rigged_variant(gDeferredPBROpaqueProgram, gDeferredSkinnedPBROpaqueProgram);
         if (success)
@@ -1361,10 +1357,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gHUDPBROpaqueProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         gHUDPBROpaqueProgram.clearPermutations();
         gHUDPBROpaqueProgram.addPermutation("IS_HUD", "1");
-        if (gSavedSettings.getBOOL("RenderDebugTexcoord"))
-        {
-            gHUDPBROpaqueProgram.addPermutation("DEBUG_TEXCOORD", "1");
-        }
 
         success = gHUDPBROpaqueProgram.createShader(NULL, NULL);
  
@@ -1408,10 +1400,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         {
             shader->addPermutation("HAS_SUN_SHADOW", "1");
         }
-        if (gSavedSettings.getBOOL("RenderDebugTexcoord"))
-        {
-            shader->addPermutation("DEBUG_TEXCOORD", "1");
-        }
 
         shader->mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = make_rigged_variant(*shader, gDeferredSkinnedPBRAlphaProgram);
@@ -1444,10 +1432,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         shader->clearPermutations();
 
         shader->addPermutation("IS_HUD", "1");
-        if (gSavedSettings.getBOOL("RenderDebugTexcoord"))
-        {
-            shader->addPermutation("DEBUG_TEXCOORD", "1");
-        }
 
         shader->mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = shader->createShader(NULL, NULL);
