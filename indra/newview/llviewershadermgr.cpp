@@ -654,6 +654,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
     shaders.push_back( make_pair( "environment/srgbF.glsl",                 1 ) );
 	shaders.push_back( make_pair( "avatar/avatarSkinV.glsl",                1 ) );
 	shaders.push_back( make_pair( "avatar/objectSkinV.glsl",                1 ) );
+    shaders.push_back( make_pair( "deferred/textureUtilV.glsl",             1 ) );
 	if (gGLManager.mGLSLVersionMajor >= 2 || gGLManager.mGLSLVersionMinor >= 30)
 	{
 		shaders.push_back( make_pair( "objects/indexedTextureV.glsl",           1 ) );
@@ -1320,6 +1321,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredPBROpaqueProgram.mShaderFiles.push_back(make_pair("deferred/pbropaqueV.glsl", GL_VERTEX_SHADER));
         gDeferredPBROpaqueProgram.mShaderFiles.push_back(make_pair("deferred/pbropaqueF.glsl", GL_FRAGMENT_SHADER));
         gDeferredPBROpaqueProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        gDeferredPBROpaqueProgram.clearPermutations();
         
         success = make_rigged_variant(gDeferredPBROpaqueProgram, gDeferredSkinnedPBROpaqueProgram);
         if (success)

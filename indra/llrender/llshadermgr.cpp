@@ -177,6 +177,11 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 			return FALSE;
 		}
 	}
+
+    if (!shader->attachVertexObject("deferred/textureUtilV.glsl"))
+    {
+        return FALSE;
+    }
 	
 	///////////////////////////////////////
 	// Attach Fragment Shader Features Next

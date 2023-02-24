@@ -47,6 +47,8 @@ out vec2 emissive_texcoord;
  
 out vec4 vertex_emissive;
 
+vec2 texture_transform(vec2 vertex_texcoord, mat3 khr_gltf_transform, mat4 sl_animation_transform);
+
 void main()
 {
 #ifdef HAS_SKIN
@@ -62,8 +64,8 @@ void main()
     gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
 #endif
 
-    basecolor_texcoord = (texture_matrix0 * vec4(texture_basecolor_matrix * vec3(texcoord0,1), 1)).xy;
-    emissive_texcoord = (texture_matrix0 * vec4(texture_emissive_matrix * vec3(texcoord0,1), 1)).xy;
+    basecolor_texcoord = texture_transform(texcoord0, texture_basecolor_matrix, texture_matrix0);
+    emissive_texcoord = texture_transform(texcoord0, texture_emissive_matrix, texture_matrix0);
 
     vertex_emissive = emissive;
 }
