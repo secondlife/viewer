@@ -712,6 +712,61 @@
       value="2"/>
   </combo_box>
 
+
+  <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="16"
+    layout="topleft"
+    left="420"
+    name="RenderTonemapperText"
+    text_readonly_color="LabelDisabledColor"
+    top_delta="24"
+    width="128">
+    Tonemapper:
+  </text>
+  <combo_box
+   control_name="RenderTonemapper"
+   height="18"
+   layout="topleft"
+   left_delta="130"
+   top_delta="0"
+   name="ToneMapper"
+   width="150">
+    <combo_box.item
+      label="Linear"
+      name="0"
+      value="0"/>
+    <combo_box.item
+      label="ACES Narkowicz"
+      name="1"
+      value="1"/>
+    <combo_box.item
+      label="ACES Hill"
+      name="2"
+      value="2"/>
+  </combo_box>
+
+    <slider
+    control_name="RenderExposure"
+    decimal_digits="1"
+    follows="left|top"
+    height="16"
+    increment="0.1"
+    initial_value="160"
+    label="Exposure:"
+    label_width="145"
+    layout="topleft"
+    left="420"
+    min_val="0.5"
+    max_val="4.0"
+    name="RenderExposure"
+    show_text="true"
+    top_delta="20"
+    width="260">
+  </slider>
+
   <!-- End of Advanced Settings block -->
 	<view_border
       bevel_style="in"

@@ -127,14 +127,11 @@ vec3 toneMapACES_Hill(vec3 color)
     return color;
 }
 
-
-#define TONEMAP_ACES_NARKOWICZ
-//#define TONEMAP_ACES_HILL_EXPOSURE_BOOST
-float u_Exposure = 1;
+uniform float exposure;
 
 vec3 toneMap(vec3 color)
 {
-    color *= u_Exposure;
+    color *= exposure;
 
 #ifdef TONEMAP_ACES_NARKOWICZ
     color = toneMapACES_Narkowicz(color);

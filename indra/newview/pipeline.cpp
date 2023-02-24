@@ -7575,9 +7575,13 @@ void LLPipeline::renderFinalize()
 
             gDeferredPostGammaCorrectProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, screenTarget()->getWidth(), screenTarget()->getHeight());
 
-            F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
+            static LLCachedControl<F32> exposure(gSavedSettings, "RenderExposure", 1.f);
 
-            gDeferredPostGammaCorrectProgram.uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f / 2.2f));
+            F32 e = llclamp(exposure(), 0.5f, 4.f);
+
+            static LLStaticHashedString s_exposure("exposure");
+
+            gDeferredPostGammaCorrectProgram.uniform1f(s_exposure, e);
 
             mScreenTriangleVB->setBuffer();
             mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
