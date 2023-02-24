@@ -320,14 +320,23 @@ private:
     void sendAnimationStream(U64 now);
 
 private:
+    // We keep track of last-streamed joint data
     std::vector<LLQuaternion> mLastJointRotation;
     std::vector<LLVector3> mLastJointPosition;
     std::vector<LLVector3> mLastJointScale;
-    bool                mAttachmentUpdateEnabled;
+
+    // The animation stream sends fresh changes, but also resends old
+    // changes that haven't been sent in a while.  This because otherwise
+    // it is possible for a new viewer to arrive mid-stream and never
+    // receive an update for some joint that changed once but stopped changing.
+    std::vector<S32> mJointResendExpiries;
+    std::vector<U8> mLastMask;
+
     U64                 mAttachmentUpdatePeriod; // usec
     U64                 mAttachmentUpdateExpiry; // usec
     U64                 mAnimationStreamPeriod; // usec
     U64                 mAnimationStreamExpiry; // usec
+    bool                mAttachmentUpdateEnabled;
 
  /**                   ANIMATIONS
   **                                                                            **

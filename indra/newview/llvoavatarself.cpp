@@ -179,10 +179,10 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
 	mLastHoverOffsetSent(LLVector3(0.0f, 0.0f, -999.0f)),
     mInitialMetric(true),
     mMetricSequence(0),
-    mAttachmentUpdateEnabled(true),
     mAttachmentUpdateExpiry(0),
     mAnimationStreamPeriod(DEFAULT_ANIMATION_STREAM_PERIOD),
-    mAnimationStreamExpiry(0)
+    mAnimationStreamExpiry(0),
+    mAttachmentUpdateEnabled(true)
 {
 	mMotionController.mIsSelf = TRUE;
 	LL_DEBUGS() << "Marking avatar as self " << id << LL_ENDL;
@@ -1371,45 +1371,70 @@ void LLVOAvatarSelf::sendAnimationStream(U64 now)
         return;
     }
     mAnimationStreamExpiry = now + mAnimationStreamPeriod;
-    /*
-    if (!LLPuppetModule::instance().isSending())
-    {
-        return;
-    }
-    */
+
+    constexpr F32 MIN_DISTANCE_SQUARED = 0.0001f;
+    constexpr F32 MIN_ANGLE = 0.01f;
+    constexpr F32 MIN_SCALE_VARIATION_SQUARED = 0.0001f;
 
     size_t num_joints = mJointMap.size();
     if (num_joints > mLastJointRotation.size())
     {
+        // first time around: initialize and bail
         mLastJointRotation.resize(num_joints);
         mLastJointPosition.resize(num_joints);
         mLastJointScale.resize(num_joints);
+        constexpr S32 DISTANT_FUTURE = std::numeric_limits<S32>::max();
+        mJointResendExpiries.resize(num_joints, DISTANT_FUTURE);
+        mLastMask.resize(num_joints, 0);
+        for (const auto& data_pair : mJointMap)
+        {
+            auto joint = data_pair.second;
+            S32 i = joint->getJointNum();
+            if (i >= 0 && i < num_joints)
+            {
+                mLastJointPosition[i] = joint->getPosition();
+                mLastJointRotation[i] = joint->getRotation();
+                mLastJointScale[i] = joint->getScale();
+
+                // Notice if any parameters are different from defaults and set the mask accordingly
+                U8 mask = 0;
+                if (dist_vec_squared(mLastJointPosition[i], joint->getDefaultPosition()) > MIN_DISTANCE_SQUARED)
+                {
+                    mask |=  LLIK::CONFIG_FLAG_LOCAL_POS;
+                }
+                if (!LLQuaternion::almost_equal(mLastJointRotation[i], LLQuaternion::DEFAULT, MIN_ANGLE))
+                {
+                    mask |=  LLIK::CONFIG_FLAG_LOCAL_ROT;
+                }
+                if (dist_vec_squared(mLastJointScale[i], joint->getDefaultScale()) > MIN_SCALE_VARIATION_SQUARED)
+                {
+                    mask |= LLIK::CONFIG_FLAG_LOCAL_SCALE;
+                }
+                mLastMask[i] = mask;
+            }
+        }
+        return;
     }
 
-    // look for changes
-    constexpr F32 MIN_ANGLE = 0.01f;
-    constexpr F32 MIN_DISTANCE_SQUARED = 0.0001f;
-    constexpr F32 MIN_SCALE_VARIATION_SQUARED = 0.0001f;
-    struct Change {
-        Change(LLJoint* j, U8 m) : mJoint(j), mMask(m) {}
-
-        size_t getNumBytes() const
+    // Change class to hold outgoing data
+    struct Change
+    {
+        Change(LLJoint* j, U8 m) : mJoint(j), mMask(m)
         {
-            size_t num_bytes = sizeof(S16); // joint_id
-            num_bytes += sizeof(U8); // mask
-            if (mMask & LLIK::CONFIG_FLAG_LOCAL_ROT)
-            {
-                num_bytes += 3 * sizeof(U16); // compressed quaternion
-            }
-            if (mMask & LLIK::CONFIG_FLAG_LOCAL_POS)
-            {
-                num_bytes += 3 * sizeof(U16); // compressed vec3
-            }
-            if (mMask & LLIK::CONFIG_FLAG_LOCAL_SCALE)
-            {
-                num_bytes += 3 * sizeof(U16); // compressed vec3
-            }
-            return num_bytes;
+            assert(mJoint);
+            assert(mMask);
+            mNumBytes = (U8)(sizeof(S16) // joint_id
+                + sizeof(U8) // mask
+                + (3 * sizeof(U16) * ((mMask & LLIK::CONFIG_FLAG_LOCAL_POS)
+                    + ((mMask & LLIK::CONFIG_FLAG_LOCAL_ROT) >> 1)
+                    + ((mMask & LLIK::CONFIG_FLAG_LOCAL_SCALE) >> 2))));
+        }
+
+        ~Change() { mJoint = nullptr; mMask = 0; mNumBytes = 0;}
+
+        S32 getNumBytes() const
+        {
+            return (size_t)(mNumBytes);
         }
 
         size_t pack(U8* buffer) const
@@ -1424,44 +1449,58 @@ void LLVOAvatarSelf::sendAnimationStream(U64 now)
             num_bytes += sizeof(U8);
 
             //Pack these into the buffer in the same order as the flags.
-            if (mMask & LLIK::CONFIG_FLAG_LOCAL_ROT)
-            {
-                num_bytes += LLIK::pack_quat(buffer + num_bytes, mJoint->getRotation());
-            }
             if (mMask & LLIK::CONFIG_FLAG_LOCAL_POS)
             {
                 num_bytes += LLIK::pack_vec3(buffer + num_bytes, mJoint->getPosition());
+            }
+            if (mMask & LLIK::CONFIG_FLAG_LOCAL_ROT)
+            {
+                num_bytes += LLIK::pack_quat(buffer + num_bytes, mJoint->getRotation());
             }
             if (mMask & LLIK::CONFIG_FLAG_LOCAL_SCALE)
             {
                 num_bytes += LLIK::pack_vec3(buffer + num_bytes, mJoint->getScale());
             }
+            assert(num_bytes == mNumBytes);
             return num_bytes;
         }
 
         LLJoint* mJoint;
         U8 mMask;
+        U8 mNumBytes;
     };
 
+    // there is a tendency of expired resends to clump together
+    // so we only collect a few, which helps spread them across
+    // multiple update packets
+    constexpr size_t MAX_NUM_EXPIRED_RESENDS = 4;
+
+    // compute next resend expiry
+    S32 timestamp = (S32)(LLFrameTimer::getElapsedSeconds() * MSEC_PER_SEC); // msec
+    constexpr S32 RESEND_EXPIRY = 4 * MSEC_PER_SEC;
+    S32 expiry = timestamp + RESEND_EXPIRY;
+
+    // collect changes and expired_changes
     std::vector<Change> changes;
+    std::vector<Change> expired_changes;
     for (const auto& data_pair : mJointMap)
     {
         U8 mask = 0;
         auto joint = data_pair.second;
         S32 i = joint->getJointNum();
-        if (i < 0 || i > mLastJointRotation.size())
+        if (i < 0 || i >= num_joints)
         {
             continue;
-        }
-        if (!LLQuaternion::almost_equal(mLastJointRotation[i], joint->getRotation(), MIN_ANGLE))
-        {
-            mLastJointRotation[i] = joint->getRotation();
-            mask |=  LLIK::CONFIG_FLAG_LOCAL_ROT;
         }
         if (dist_vec_squared(mLastJointPosition[i], joint->getPosition()) > MIN_DISTANCE_SQUARED)
         {
             mLastJointPosition[i] = joint->getPosition();
             mask |=  LLIK::CONFIG_FLAG_LOCAL_POS;
+        }
+        if (!LLQuaternion::almost_equal(mLastJointRotation[i], joint->getRotation(), MIN_ANGLE))
+        {
+            mLastJointRotation[i] = joint->getRotation();
+            mask |=  LLIK::CONFIG_FLAG_LOCAL_ROT;
         }
         if (dist_vec_squared(mLastJointScale[i], joint->getScale()) > MIN_SCALE_VARIATION_SQUARED)
         {
@@ -1471,6 +1510,13 @@ void LLVOAvatarSelf::sendAnimationStream(U64 now)
         if (mask > 0)
         {
             changes.push_back(Change(joint, mask));
+            mLastMask[i] |= mask;
+            mJointResendExpiries[i] = expiry;
+        }
+        else if (mJointResendExpiries[i] < timestamp
+                && expired_changes.size() < MAX_NUM_EXPIRED_RESENDS)
+        {
+            expired_changes.push_back(Change(joint, mLastMask[i]));
         }
     }
     if (changes.empty())
@@ -1479,60 +1525,94 @@ void LLVOAvatarSelf::sendAnimationStream(U64 now)
     }
 
     // prepare binary buffers
+    // PUPPET_EVENT_HEADER_BYTES = outer_buffer_size + { timestamp + num_joints + inner_buffer_size }
+    constexpr U32 PUPPET_EVENT_HEADER_BYTES = sizeof(S32) + sizeof(S32) + sizeof(S16) + sizeof(S32);
     constexpr U32 PUPPET_MAX_MSG_BYTES = 255;
-    std::array<U8, PUPPET_MAX_MSG_BYTES> scratch_buffer;
-    U8* scratch_ptr = scratch_buffer.data();
-    U8* scratch_end = scratch_ptr + PUPPET_MAX_MSG_BYTES;
-    std::array<U8, PUPPET_MAX_MSG_BYTES> pack_buffer;
-    S32 timestamp = (S32)(LLFrameTimer::getElapsedSeconds() * MSEC_PER_SEC);
+    constexpr U32 SCRATCH_BUFFER_BYTES = PUPPET_MAX_MSG_BYTES - PUPPET_EVENT_HEADER_BYTES;
 
+    // scratch_buffer for actual joint data
+    std::array<U8, SCRATCH_BUFFER_BYTES> scratch_buffer;
+    U8* scratch_ptr = scratch_buffer.data();
+    U8* scratch_end = scratch_ptr + SCRATCH_BUFFER_BYTES;
+
+    // pack_buffer for binary blob: event header + scratch
+    std::array<U8, PUPPET_MAX_MSG_BYTES> pack_buffer;
+
+    // send changes
     auto change = changes.begin();
-    size_t num_blocks = 0;
-    size_t num_changes = 0;
+    auto expired_change = expired_changes.begin();
+    constexpr S32 MAX_EXPIRED_RESENDS = 1;
     while (change != changes.end())
     {
-        // build message
+        // start building message
         LLMessageSystem* msg = gMessageSystem;
         msg->newMessageFast(_PREHASH_AgentAnimation);
         msg->nextBlockFast(_PREHASH_AgentData);
         msg->addUUIDFast(_PREHASH_AgentID, gAgentID);
         msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 
-        // header_size = outer_buffer_size + { timestamp + num_joints + inner_buffer_size }
-        S32 header_size = sizeof(S32) + sizeof(S32) + sizeof(S16) + sizeof(S32);
-
         while (change != changes.end()
-                && (msg->getCurrentSendTotal() + change->getNumBytes() + header_size) < MTUBYTES)
+                && (msg->getCurrentSendTotal() + PUPPET_EVENT_HEADER_BYTES + change->getNumBytes()) < MTUBYTES)
         {
-            // make room for header
             scratch_ptr = scratch_buffer.data();
 
-            // pack the changes
-            std::string joint_list = "";
+            // pack the changes into scratch_buffer
+            bool scratch_is_full = false;
             S32 num_scratch_bytes = 0;
             S32 num_changes_packed = 0;
+            S32 num_expired_changes_packed = 0;
             while (change != changes.end()
-                    && scratch_ptr + change->getNumBytes() < scratch_end)
+                    && (msg->getCurrentSendTotal() + PUPPET_EVENT_HEADER_BYTES + num_scratch_bytes + change->getNumBytes()) < MTUBYTES)
             {
-                joint_list.append(std::to_string(change->mJoint->getJointNum()));
-                joint_list.append(",");
+                if (scratch_ptr + change->getNumBytes() >= scratch_end)
+                {
+                    scratch_is_full = true;
+                    break;
+                }
+
                 S32 bytes_this_change = (S32)(change->pack(scratch_ptr));
+                assert(bytes_this_change == change->getNumBytes());
                 num_scratch_bytes += bytes_this_change;
                 scratch_ptr += bytes_this_change;
                 ++num_changes_packed;
                 ++change;
             }
 
-            // pack binary blob which will go in the message
+            // if there is room in the scratch buffer then we try to add a few "expired" joints
+            // which are "joints that were once animated but haven't changed recently and may
+            // need to be resent... in case any other viewers who have since wandered onto the
+            // animation stream"
+            if (!scratch_is_full
+                    && expired_change != expired_changes.end()
+                    && (msg->getCurrentSendTotal() + PUPPET_EVENT_HEADER_BYTES + num_scratch_bytes + expired_change->getNumBytes()) < MTUBYTES)
+            {
+                // pack expired changes into scratch_buffer
+                while (expired_change != expired_changes.end()
+                        && scratch_ptr + expired_change->getNumBytes() < scratch_end)
+                {
+                    S32 bytes_this_change = (S32)(expired_change->pack(scratch_ptr));
+                    num_scratch_bytes += bytes_this_change;
+                    scratch_ptr += bytes_this_change;
+
+                    // don't forget to update expiry
+                    S32 joint_num = expired_change->mJoint->getJointNum();
+                    mJointResendExpiries[joint_num] = expiry;
+
+                    ++num_changes_packed;
+                    ++num_expired_changes_packed;
+                    ++expired_change;
+                }
+            }
+
+            // pack binary blob
             LLDataPackerBinaryBuffer dataPacker(pack_buffer.data(), LLPuppetMotion::GetPuppetryEventMax());
             dataPacker.packS32(timestamp, "time");
             dataPacker.packS16(num_changes_packed, "num");
             dataPacker.packBinaryData(scratch_buffer.data(), num_scratch_bytes, "data");
 
+            // pack message block
             msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
             msg->addBinaryDataFast(_PREHASH_TypeData, pack_buffer.data(), dataPacker.getCurrentSize());
-            ++num_blocks;
-            num_changes += num_changes_packed;
         }
         gAgent.sendMessage();
     }
