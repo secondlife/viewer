@@ -46,55 +46,6 @@
 
 #define ENABLE_RIGHT_CONSTRAINTS
 
-// BEGIN_HACK : hard-coded joint_ids
-//constexpr U16 PELVIS_ID = 0;
-constexpr U16 TORSO_ID = 3;
-constexpr U16 CHEST_ID = 6;
-constexpr U16 NECK_ID = 7;
-constexpr U16 HEAD_ID = 8;
-constexpr S16 COLLAR_LEFT_ID = 58;
-constexpr S16 SHOULDER_LEFT_ID = 59;
-constexpr S16 ELBOW_LEFT_ID = 60;
-constexpr S16 WRIST_LEFT_ID = 61;
-
-constexpr S16 HAND_MIDDLE_LEFT_1_ID = 62;
-constexpr S16 HAND_MIDDLE_LEFT_2_ID = 63;
-constexpr S16 HAND_MIDDLE_LEFT_3_ID = 64;
-constexpr S16 HAND_INDEX_LEFT_1_ID = 65;
-constexpr S16 HAND_INDEX_LEFT_2_ID = 66;
-constexpr S16 HAND_INDEX_LEFT_3_ID = 67;
-constexpr S16 HAND_RING_LEFT_1_ID = 68;
-constexpr S16 HAND_RING_LEFT_2_ID = 69;
-constexpr S16 HAND_RING_LEFT_3_ID = 70;
-constexpr S16 HAND_PINKY_LEFT_1_ID = 71;
-constexpr S16 HAND_PINKY_LEFT_2_ID = 72;
-constexpr S16 HAND_PINKY_LEFT_3_ID = 73;
-constexpr S16 HAND_THUMB_LEFT_1_ID = 74;
-constexpr S16 HAND_THUMB_LEFT_2_ID = 75;
-constexpr S16 HAND_THUMB_LEFT_3_ID = 76;
-
-#ifdef ENABLE_RIGHT_CONSTRAINTS
-constexpr S16 COLLAR_RIGHT_ID = 77;
-constexpr S16 SHOULDER_RIGHT_ID = 78;
-constexpr S16 ELBOW_RIGHT_ID = 79;
-constexpr S16 WRIST_RIGHT_ID = 80;
-constexpr S16 HAND_MIDDLE_RIGHT_1_ID = 81;
-constexpr S16 HAND_MIDDLE_RIGHT_2_ID = 82;
-constexpr S16 HAND_MIDDLE_RIGHT_3_ID = 83;
-constexpr S16 HAND_INDEX_RIGHT_1_ID = 84;
-constexpr S16 HAND_INDEX_RIGHT_2_ID = 85;
-constexpr S16 HAND_INDEX_RIGHT_3_ID = 86;
-constexpr S16 HAND_RING_RIGHT_1_ID = 87;
-constexpr S16 HAND_RING_RIGHT_2_ID = 88;
-constexpr S16 HAND_RING_RIGHT_3_ID = 89;
-constexpr S16 HAND_PINKY_RIGHT_1_ID = 90;
-constexpr S16 HAND_PINKY_RIGHT_2_ID = 91;
-constexpr S16 HAND_PINKY_RIGHT_3_ID = 92;
-constexpr S16 HAND_THUMB_RIGHT_1_ID = 93;
-constexpr S16 HAND_THUMB_RIGHT_2_ID = 94;
-constexpr S16 HAND_THUMB_RIGHT_3_ID = 95;
-#endif //ENABLE_RIGHT_CONSTRAINTS
-
 namespace
 {
     constexpr U32 PUPPET_MAX_MSG_BYTES = 255;  // This is the largest possible size event

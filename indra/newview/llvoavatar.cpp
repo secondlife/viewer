@@ -1223,29 +1223,29 @@ void LLVOAvatar::initInstance()
         registerMotion( ANIM_AGENT_PUPPET_MOTION,           LLPuppetMotion::create );
         registerMotion( ANIM_AGENT_STREAMING_MOTION,        LLStreamingMotion::create );
 	}
-	
+
 	LLAvatarAppearance::initInstance();
-	
+
 	// preload specific motions here
 
 	createMotion( ANIM_AGENT_CUSTOMIZE);
 	createMotion( ANIM_AGENT_CUSTOMIZE_DONE);
-    if (isSelf())
-    {
-	    createMotion(ANIM_AGENT_PUPPET_MOTION);
-    }
+	if (isSelf())
+	{
+		createMotion(ANIM_AGENT_PUPPET_MOTION);
+	}
 
 	LLPuppetMotion::ptr_t puppet_motion = getPuppetMotion();
-    if (puppet_motion)
-    {
+	if (puppet_motion)
+	{
 		puppet_motion->setAvatar(this);
-    }
+	}
 	else
 	{
 		LL_WARNS("Puppet") << "Missing puppet motion when initializing avatar" << LL_ENDL;
 	}
 	//VTPause();  // VTune
-	
+
 	mVoiceVisualizer->setVoiceEnabled( LLVoiceClient::getInstance()->getVoiceEnabled( mID ) );
 
     mInitFlags |= 1<<1;
@@ -3716,11 +3716,11 @@ void LLVOAvatar::enableStreamingMotion()
         // stop all non-streaming animations
         bool found_streaming_motion = false;
         LLMotionController::motion_list_t motions_to_stop;
-	    for (LLMotionController::motion_list_t::iterator iter = mMotionController.getActiveMotions().begin();
-		    iter != mMotionController.getActiveMotions().end(); ++iter)
-	    {
-		    LLMotion::ptr_t motionp = *iter;
-		    if (motionp->getID() == ANIM_AGENT_STREAMING_MOTION)
+        for (LLMotionController::motion_list_t::iterator iter = mMotionController.getActiveMotions().begin();
+            iter != mMotionController.getActiveMotions().end(); ++iter)
+        {
+            LLMotion::ptr_t motionp = *iter;
+            if (motionp->getID() == ANIM_AGENT_STREAMING_MOTION)
             {
                 found_streaming_motion = true;
             }
@@ -3740,10 +3740,10 @@ void LLVOAvatar::enableStreamingMotion()
             LLMotion::ptr_t motionp = mMotionController.findMotion(ANIM_AGENT_STREAMING_MOTION);
             if (!motionp)
             {
-	            createMotion(ANIM_AGENT_STREAMING_MOTION);
+                createMotion(ANIM_AGENT_STREAMING_MOTION);
             }
         }
-	    startMotion(ANIM_AGENT_STREAMING_MOTION);
+        startMotion(ANIM_AGENT_STREAMING_MOTION);
         mIsReceivingAnimationStream = true;
         mEnableDefaultMotions = false;
     }
@@ -5904,13 +5904,13 @@ const LLUUID& LLVOAvatar::getStepSound() const
 //-----------------------------------------------------------------------------
 void LLVOAvatar::processAnimationStateChanges()
 {
-    // Note: if this other-avatar is receiving an animation stream
-    // then we don't bother processing animation state changes
-    // since the stream should represent the final animation state
-    if (!isSelf() && mIsReceivingAnimationStream)
-    {
-        return;
-    }
+	// Note: if this other-avatar is receiving an animation stream
+	// then we don't bother processing animation state changes
+	// since the stream should represent the final animation state
+	if (!isSelf() && mIsReceivingAnimationStream)
+	{
+		return;
+	}
 
 	if ( isAnyAnimationSignaled(AGENT_WALK_ANIMS, NUM_AGENT_WALK_ANIMS) )
 	{
@@ -5920,10 +5920,10 @@ void LLVOAvatar::processAnimationStateChanges()
 	else if (mInAir && !isSitting())
 	{
 		stopMotion(ANIM_AGENT_WALK_ADJUST);
-        if (mEnableDefaultMotions)
-        {
+		if (mEnableDefaultMotions)
+		{
 		    startMotion(ANIM_AGENT_FLY_ADJUST);
-	    }
+		}
 	}
 	else
 	{
@@ -5933,17 +5933,17 @@ void LLVOAvatar::processAnimationStateChanges()
 
 	if ( isAnyAnimationSignaled(AGENT_GUN_AIM_ANIMS, NUM_AGENT_GUN_AIM_ANIMS) )
 	{
-        if (mEnableDefaultMotions)
-        {
+		if (mEnableDefaultMotions)
+		{
 			startMotion(ANIM_AGENT_TARGET);
-        }
+		}
 		stopMotion(ANIM_AGENT_BODY_NOISE);
 	}
 	else
 	{
 		stopMotion(ANIM_AGENT_TARGET);
-        if (mEnableDefaultMotions)
-        {
+		if (mEnableDefaultMotions)
+		{
 			startMotion(ANIM_AGENT_BODY_NOISE);
 		}
 	}
@@ -5970,7 +5970,7 @@ void LLVOAvatar::processAnimationStateChanges()
 	{
 		mPlayingAnimations.clear();
 	}
-	
+
 	// start up all new anims
 	if (getOverallAppearance() == AOA_NORMAL)
 	{

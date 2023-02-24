@@ -42,11 +42,7 @@ class LLStreamingMotion :
 {
 public:
 
-    //using state_map_t = std::map <S16, LLPointer<LLJointState>>;
     using state_vector_t = std::vector< LLPointer<LLJointState> >;
-    //using jointid_vec_t = std::vector<S16>;
-    //using update_deq_t = std::deque<LLPuppetEvent>;
-    //using joint_events_t = std::vector<LLPuppetJointEvent>;
     using ptr_t = std::shared_ptr<LLStreamingMotion>;
     using Timestamp = S32;
 
@@ -67,14 +63,11 @@ public:
     };
     using EventQueues = std::map<S16, DelayedEventQueue>;
 
-    // Constructor
     LLStreamingMotion(const LLUUID &id);
+    virtual ~LLStreamingMotion() {}
 
     void collectJoints(LLJoint* joint);
     bool needsUpdate() const override;
-
-    // Destructor
-    virtual ~LLStreamingMotion() {}
 
     void unpackEvents(LLMessageSystem *mesgsys,int blocknum);
 

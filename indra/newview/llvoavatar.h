@@ -254,7 +254,7 @@ public:
 
 	virtual bool 	        isControlAvatar() const { return mIsControlAvatar; } // True if this avatar is a control av (no associated user)
 	virtual bool 	        isUIAvatar() const { return mIsUIAvatar; } // True if this avatar is a supplemental av used in some UI views (no associated user)
-    bool isReceivingAnimationStream() const { return mIsReceivingAnimationStream; }
+	bool isReceivingAnimationStream() const { return mIsReceivingAnimationStream; }
 
 	// If this is an attachment, return the avatar it is attached to. Otherwise NULL.
 	virtual const LLVOAvatar *getAttachedAvatar() const { return NULL; }
@@ -318,8 +318,8 @@ public:
 
 	void 			idleUpdateBelowWater();
 
-    void enableStreamingMotion();
-    void disableStreamingMotion();
+	void enableStreamingMotion();
+	void disableStreamingMotion();
 
 	//--------------------------------------------------------------------
 	// Static preferences (controlled by user settings/menus)
@@ -395,7 +395,7 @@ private:
 	LLColor4		mMutedAVColor;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
-    bool            mIsReceivingAnimationStream;
+	bool			mIsReceivingAnimationStream;
 
 private:
 	LLViewerStats::PhaseMap mPhases;

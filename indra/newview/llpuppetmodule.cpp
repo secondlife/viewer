@@ -584,12 +584,7 @@ void LLPuppetModule::setPuppetryOptions(LLSD options)
 void LLPuppetModule::parsePuppetryResponse(LLSD response)
 {
     mPlayServerEcho = response["echo_back"].asBoolean();
-
-    bool is_sending = response["transmit"].asBoolean();
-    if (is_sending != mIsSending)
-    {
-        mIsSending = is_sending;
-    }
+    mIsSending = is_sending = response["transmit"].asBoolean();
     mIsReceiving = response["receive"].asBoolean();
     mRange = response["range"].asReal();
 
