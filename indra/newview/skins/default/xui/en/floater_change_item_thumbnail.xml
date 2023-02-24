@@ -56,6 +56,7 @@
 
   <thumbnail
     name="item_thumbnail"
+    fallback_image="Thumbnail_Fallback"
     follows="top|left"
     layout="topleft"
     left="32"

@@ -43,6 +43,7 @@ static LLDefaultChildRegistry::Register<LLThumbnailCtrl> r("thumbnail");
 LLThumbnailCtrl::Params::Params()
 : border("border")
 , border_color("border_color")
+, fallback_image("fallback_image")
 , image_name("image_name")
 , border_visible("show_visible", false)
 , interactable("interactable", false)
@@ -53,6 +54,7 @@ LLThumbnailCtrl::LLThumbnailCtrl(const LLThumbnailCtrl::Params& p)
 :	LLUICtrl(p)
 ,   mBorderColor(p.border_color())
 ,   mBorderVisible(p.border_visible())
+,   mFallbackImagep(p.fallback_image)
 ,   mInteractable(p.interactable())
 ,   mShowLoadingPlaceholder(p.show_loading())
 ,	mPriority(LLGLTexture::BOOST_PREVIEW)
@@ -76,6 +78,7 @@ LLThumbnailCtrl::~LLThumbnailCtrl()
 {
 	mTexturep = nullptr;
     mImagep = nullptr;
+    mFallbackImagep = nullptr;
 }
 
 
@@ -106,7 +109,30 @@ void LLThumbnailCtrl::draw()
     }
     else if( mImagep.notNull() )
     {
-        mImagep->draw(getLocalRect(), UI_VERTEX_COLOR % alpha );
+        mImagep->draw(draw_rect, UI_VERTEX_COLOR % alpha );
+    }
+    else if (mFallbackImagep.notNull())
+    {
+        if (draw_rect.getWidth() > mFallbackImagep->getWidth()
+            && draw_rect.getHeight() > mFallbackImagep->getHeight())
+        {
+            S32 img_width = mFallbackImagep->getWidth();
+            S32 img_height = mFallbackImagep->getHeight();
+            S32 rect_width = draw_rect.getWidth();
+            S32 rect_height = draw_rect.getHeight();
+
+            LLRect fallback_rect;
+            fallback_rect.mLeft = draw_rect.mLeft + (rect_width - img_width) / 2;
+            fallback_rect.mRight = fallback_rect.mLeft + img_width;
+            fallback_rect.mBottom = draw_rect.mBottom + (rect_height - img_height) / 2;
+            fallback_rect.mTop = fallback_rect.mBottom + img_height;
+
+            mFallbackImagep->draw(fallback_rect, UI_VERTEX_COLOR % alpha);
+        }
+        else
+        {
+            mFallbackImagep->draw(draw_rect, UI_VERTEX_COLOR % alpha);
+        }
     }
     else
     {

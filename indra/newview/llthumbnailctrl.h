@@ -49,6 +49,7 @@ public:
         Optional<LLViewBorder::Params> border;
         Optional<LLUIColor>        border_color;
         Optional<std::string>      image_name;
+        Optional<LLUIImage*>       fallback_image;
         Optional<bool>             border_visible;
         Optional<bool>             interactable;
         Optional<bool>             show_loading;
@@ -80,6 +81,7 @@ private:
     
 	LLPointer<LLViewerFetchedTexture> mTexturep;
     LLPointer<LLUIImage> mImagep;
+    LLPointer<LLUIImage> mFallbackImagep;
 };
 
 #endif
