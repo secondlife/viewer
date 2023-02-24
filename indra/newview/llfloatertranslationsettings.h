@@ -42,22 +42,22 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
-	void setBingVerified(bool ok, bool alert);
+	void setAzureVerified(bool ok, bool alert);
 	void setGoogleVerified(bool ok, bool alert);
 	void onClose(bool app_quitting);
 
 private:
 	std::string getSelectedService() const;
-	std::string getEnteredBingKey() const;
+	LLSD getEnteredAzureKey() const;
 	std::string getEnteredGoogleKey() const;
 	void showAlert(const std::string& msg_name) const;
 	void updateControlsEnabledState();
-	void verifyKey(int service, const std::string& key, bool alert = true);
+    void verifyKey(int service, const LLSD& key, bool alert = true);
 
 	void onEditorFocused(LLFocusableElement* control);
-	void onBingKeyEdited();
+	void onAzureKeyEdited();
 	void onGoogleKeyEdited();
-	void onBtnBingVerify();
+	void onBtnAzureVerify();
 	void onBtnGoogleVerify();
 	void onBtnOK();
 
@@ -65,14 +65,16 @@ private:
 
 	LLCheckBoxCtrl* mMachineTranslationCB;
 	LLComboBox* mLanguageCombo;
-	LLLineEditor* mBingAPIKeyEditor;
+    LLComboBox* mAzureAPIEndpointEditor;;
+	LLLineEditor* mAzureAPIKeyEditor;
+    LLLineEditor* mAzureAPIRegionEditor;
 	LLLineEditor* mGoogleAPIKeyEditor;
 	LLRadioGroup* mTranslationServiceRadioGroup;
-	LLButton* mBingVerifyBtn;
+	LLButton* mAzureVerifyBtn;
 	LLButton* mGoogleVerifyBtn;
 	LLButton* mOKBtn;
 
-	bool mBingKeyVerified;
+	bool mAzureKeyVerified;
 	bool mGoogleKeyVerified;
 };
 
