@@ -45,14 +45,7 @@
 LLFloaterTranslationSettings::LLFloaterTranslationSettings(const LLSD& key)
 :	LLFloater(key)
 ,	mMachineTranslationCB(NULL)
-,	mLanguageCombo(NULL)
-,	mTranslationServiceRadioGroup(NULL)
-,	mBingAPIKeyEditor(NULL)
-,	mGoogleAPIKeyEditor(NULL)
-,	mBingVerifyBtn(NULL)
-,	mGoogleVerifyBtn(NULL)
-,	mOKBtn(NULL)
-,	mBingKeyVerified(false)
+,	mAzureKeyVerified(false)
 ,	mGoogleKeyVerified(false)
 {
 }
@@ -63,9 +56,11 @@ BOOL LLFloaterTranslationSettings::postBuild()
 	mMachineTranslationCB = getChild<LLCheckBoxCtrl>("translate_chat_checkbox");
 	mLanguageCombo = getChild<LLComboBox>("translate_language_combo");
 	mTranslationServiceRadioGroup = getChild<LLRadioGroup>("translation_service_rg");
-	mBingAPIKeyEditor = getChild<LLLineEditor>("bing_api_key");
+    mAzureAPIEndpointEditor = getChild<LLComboBox>("azure_api_endpoint_combo");
+	mAzureAPIKeyEditor = getChild<LLLineEditor>("azure_api_key");
+    mAzureAPIRegionEditor = getChild<LLLineEditor>("azure_api_region");
 	mGoogleAPIKeyEditor = getChild<LLLineEditor>("google_api_key");
-	mBingVerifyBtn = getChild<LLButton>("verify_bing_api_key_btn");
+	mAzureVerifyBtn = getChild<LLButton>("verify_azure_api_key_btn");
 	mGoogleVerifyBtn = getChild<LLButton>("verify_google_api_key_btn");
 	mOKBtn = getChild<LLButton>("ok_btn");
 
@@ -73,11 +68,17 @@ BOOL LLFloaterTranslationSettings::postBuild()
 	mTranslationServiceRadioGroup->setCommitCallback(boost::bind(&LLFloaterTranslationSettings::updateControlsEnabledState, this));
 	mOKBtn->setClickedCallback(boost::bind(&LLFloaterTranslationSettings::onBtnOK, this));
 	getChild<LLButton>("cancel_btn")->setClickedCallback(boost::bind(&LLFloater::closeFloater, this, false));
-	mBingVerifyBtn->setClickedCallback(boost::bind(&LLFloaterTranslationSettings::onBtnBingVerify, this));
+	mAzureVerifyBtn->setClickedCallback(boost::bind(&LLFloaterTranslationSettings::onBtnAzureVerify, this));
 	mGoogleVerifyBtn->setClickedCallback(boost::bind(&LLFloaterTranslationSettings::onBtnGoogleVerify, this));
 
-	mBingAPIKeyEditor->setFocusReceivedCallback(boost::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
-	mBingAPIKeyEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onBingKeyEdited, this), NULL);
+	mAzureAPIKeyEditor->setFocusReceivedCallback(boost::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
+	mAzureAPIKeyEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onAzureKeyEdited, this), NULL);
+    mAzureAPIRegionEditor->setFocusReceivedCallback(boost::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
+    mAzureAPIRegionEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onAzureKeyEdited, this), NULL);
+
+    mAzureAPIEndpointEditor->setFocusLostCallback(boost::bind(&LLFloaterTranslationSettings::onAzureKeyEdited, this));
+    mAzureAPIEndpointEditor->setCommitCallback(boost::bind(&LLFloaterTranslationSettings::onAzureKeyEdited, this));
+
 	mGoogleAPIKeyEditor->setFocusReceivedCallback(boost::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
 	mGoogleAPIKeyEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onGoogleKeyEdited, this), NULL);
 
@@ -92,17 +93,27 @@ void LLFloaterTranslationSettings::onOpen(const LLSD& key)
 	mLanguageCombo->setSelectedByValue(gSavedSettings.getString("TranslateLanguage"), TRUE);
 	mTranslationServiceRadioGroup->setSelectedByValue(gSavedSettings.getString("TranslationService"), TRUE);
 
-	std::string bing_key = gSavedSettings.getString("BingTranslateAPIKey");
-	if (!bing_key.empty())
+	LLSD azure_key = gSavedSettings.getLLSD("AzureTranslateAPIKey");
+	if (azure_key.isMap())
 	{
-		mBingAPIKeyEditor->setText(bing_key);
-		mBingAPIKeyEditor->setTentative(FALSE);
-		verifyKey(LLTranslate::SERVICE_BING, bing_key, false);
+		mAzureAPIKeyEditor->setText(azure_key["id"].asString());
+		mAzureAPIKeyEditor->setTentative(false);
+        if (azure_key.has("region"))
+        {
+            mAzureAPIRegionEditor->setText(azure_key["region"].asString());
+            mAzureAPIRegionEditor->setTentative(false);
+        }
+        else
+        {
+            mAzureAPIRegionEditor->setTentative(true);
+        }
+        mAzureAPIEndpointEditor->setValue(azure_key["endpoint"]);
+		verifyKey(LLTranslate::SERVICE_AZURE, azure_key, false);
 	}
 	else
 	{
-		mBingAPIKeyEditor->setTentative(TRUE);
-		mBingKeyVerified = FALSE;
+		mAzureAPIKeyEditor->setTentative(TRUE);
+		mAzureKeyVerified = FALSE;
 	}
 
 	std::string google_key = gSavedSettings.getString("GoogleTranslateAPIKey");
@@ -121,14 +132,14 @@ void LLFloaterTranslationSettings::onOpen(const LLSD& key)
 	updateControlsEnabledState();
 }
 
-void LLFloaterTranslationSettings::setBingVerified(bool ok, bool alert)
+void LLFloaterTranslationSettings::setAzureVerified(bool ok, bool alert)
 {
 	if (alert)
 	{
-		showAlert(ok ? "bing_api_key_verified" : "bing_api_key_not_verified");
+		showAlert(ok ? "azure_api_key_verified" : "azure_api_key_not_verified");
 	}
 
-	mBingKeyVerified = ok;
+	mAzureKeyVerified = ok;
 	updateControlsEnabledState();
 }
 
@@ -148,9 +159,19 @@ std::string LLFloaterTranslationSettings::getSelectedService() const
 	return mTranslationServiceRadioGroup->getSelectedValue().asString();
 }
 
-std::string LLFloaterTranslationSettings::getEnteredBingKey() const
+LLSD LLFloaterTranslationSettings::getEnteredAzureKey() const
 {
-	return mBingAPIKeyEditor->getTentative() ? LLStringUtil::null : mBingAPIKeyEditor->getText();
+    LLSD key;
+    if (!mAzureAPIKeyEditor->getTentative())
+    {
+        key["endpoint"] = mAzureAPIEndpointEditor->getValue();
+        key["id"] = mAzureAPIKeyEditor->getText();
+        if (!mAzureAPIRegionEditor->getTentative())
+        {
+            key["region"] = mAzureAPIRegionEditor->getText();
+        }
+    }
+	return key;
 }
 
 std::string LLFloaterTranslationSettings::getEnteredGoogleKey() const
@@ -170,27 +191,31 @@ void LLFloaterTranslationSettings::updateControlsEnabledState()
 	// Enable/disable controls based on the checkbox value.
 	bool on = mMachineTranslationCB->getValue().asBoolean();
 	std::string service = getSelectedService();
-	bool bing_selected = service == "bing";
+	bool azure_selected = service == "azure";
 	bool google_selected = service == "google";
 
 	mTranslationServiceRadioGroup->setEnabled(on);
 	mLanguageCombo->setEnabled(on);
 
-	getChild<LLTextBox>("bing_api_key_label")->setEnabled(on);
-	mBingAPIKeyEditor->setEnabled(on);
+	getChild<LLTextBox>("azure_api_endoint_label")->setEnabled(on);
+	mAzureAPIEndpointEditor->setEnabled(on);
+    getChild<LLTextBox>("azure_api_key_label")->setEnabled(on);
+    mAzureAPIKeyEditor->setEnabled(on);
+    getChild<LLTextBox>("azure_api_region_label")->setEnabled(on);
+    mAzureAPIRegionEditor->setEnabled(on);
 
 	getChild<LLTextBox>("google_api_key_label")->setEnabled(on);
 	mGoogleAPIKeyEditor->setEnabled(on);
 
-	mBingAPIKeyEditor->setEnabled(on && bing_selected);
+	mAzureAPIKeyEditor->setEnabled(on && azure_selected);
 	mGoogleAPIKeyEditor->setEnabled(on && google_selected);
 
-	mBingVerifyBtn->setEnabled(on && bing_selected &&
-		!mBingKeyVerified && !getEnteredBingKey().empty());
+	mAzureVerifyBtn->setEnabled(on && azure_selected &&
+		!mAzureKeyVerified && getEnteredAzureKey().isMap());
 	mGoogleVerifyBtn->setEnabled(on && google_selected &&
 		!mGoogleKeyVerified && !getEnteredGoogleKey().empty());
 
-	bool service_verified = (bing_selected && mBingKeyVerified) || (google_selected && mGoogleKeyVerified);
+	bool service_verified = (azure_selected && mAzureKeyVerified) || (google_selected && mGoogleKeyVerified);
 	gSavedPerAccountSettings.setBOOL("TranslatingEnabled", service_verified);
 
 	mOKBtn->setEnabled(!on || service_verified);
@@ -210,8 +235,8 @@ void LLFloaterTranslationSettings::setVerificationStatus(int service, bool ok, b
 
     switch (service)
     {
-    case LLTranslate::SERVICE_BING:
-        floater->setBingVerified(ok, alert);
+    case LLTranslate::SERVICE_AZURE:
+        floater->setAzureVerified(ok, alert);
         break;
     case LLTranslate::SERVICE_GOOGLE:
         floater->setGoogleVerified(ok, alert);
@@ -220,7 +245,7 @@ void LLFloaterTranslationSettings::setVerificationStatus(int service, bool ok, b
 }
 
 
-void LLFloaterTranslationSettings::verifyKey(int service, const std::string& key, bool alert)
+void LLFloaterTranslationSettings::verifyKey(int service, const LLSD& key, bool alert)
 {
     LLTranslate::verifyKey(static_cast<LLTranslate::EService>(service), key,
         boost::bind(&LLFloaterTranslationSettings::setVerificationStatus, _1, _2, alert));
@@ -239,11 +264,14 @@ void LLFloaterTranslationSettings::onEditorFocused(LLFocusableElement* control)
 	}
 }
 
-void LLFloaterTranslationSettings::onBingKeyEdited()
+void LLFloaterTranslationSettings::onAzureKeyEdited()
 {
-	if (mBingAPIKeyEditor->isDirty())
+	if (mAzureAPIKeyEditor->isDirty()
+        || mAzureAPIRegionEditor->isDirty()
+        || mAzureAPIEndpointEditor->getValue().isString())
 	{
-		setBingVerified(false, false);
+        // todo: verify mAzureAPIEndpointEditor url
+		setAzureVerified(false, false);
 	}
 }
 
@@ -255,12 +283,12 @@ void LLFloaterTranslationSettings::onGoogleKeyEdited()
 	}
 }
 
-void LLFloaterTranslationSettings::onBtnBingVerify()
+void LLFloaterTranslationSettings::onBtnAzureVerify()
 {
-	std::string key = getEnteredBingKey();
-	if (!key.empty())
+	LLSD key = getEnteredAzureKey();
+	if (key.isMap())
 	{
-		verifyKey(LLTranslate::SERVICE_BING, key);
+		verifyKey(LLTranslate::SERVICE_AZURE, key);
 	}
 }
 
@@ -269,16 +297,16 @@ void LLFloaterTranslationSettings::onBtnGoogleVerify()
 	std::string key = getEnteredGoogleKey();
 	if (!key.empty())
 	{
-		verifyKey(LLTranslate::SERVICE_GOOGLE, key);
+		verifyKey(LLTranslate::SERVICE_GOOGLE, LLSD(key));
 	}
 }
 void LLFloaterTranslationSettings::onClose(bool app_quitting)
 {
 	std::string service = gSavedSettings.getString("TranslationService");
-	bool bing_selected = service == "bing";
+	bool azure_selected = service == "azure";
 	bool google_selected = service == "google";
 
-	bool service_verified = (bing_selected && mBingKeyVerified) || (google_selected && mGoogleKeyVerified);
+	bool service_verified = (azure_selected && mAzureKeyVerified) || (google_selected && mGoogleKeyVerified);
 	gSavedPerAccountSettings.setBOOL("TranslatingEnabled", service_verified);
 
 }
@@ -287,7 +315,7 @@ void LLFloaterTranslationSettings::onBtnOK()
 	gSavedSettings.setBOOL("TranslateChat", mMachineTranslationCB->getValue().asBoolean());
 	gSavedSettings.setString("TranslateLanguage", mLanguageCombo->getSelectedValue().asString());
 	gSavedSettings.setString("TranslationService", getSelectedService());
-	gSavedSettings.setString("BingTranslateAPIKey", getEnteredBingKey());
+	gSavedSettings.setLLSD("AzureTranslateAPIKey", getEnteredAzureKey());
 	gSavedSettings.setString("GoogleTranslateAPIKey", getEnteredGoogleKey());
 
 	closeFloater(false);
