@@ -54,8 +54,8 @@ LLMatrix3 LLGLTFMaterial::TextureTransform::asMatrix()
     const F32 cos_r = cos(mRotation);
     const F32 sin_r = sin(mRotation);
     rotation.mMatrix[0][0] = cos_r;
-    rotation.mMatrix[0][1] = sin_r;
-    rotation.mMatrix[1][0] = -sin_r;
+    rotation.mMatrix[0][1] = -sin_r;
+    rotation.mMatrix[1][0] = sin_r;
     rotation.mMatrix[1][1] = cos_r;
 
     LLMatrix3 offset;
