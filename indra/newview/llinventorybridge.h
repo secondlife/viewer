@@ -107,7 +107,7 @@ public:
 	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
 	virtual void openItem() {}
 	virtual void closeItem() {}
-    virtual void navigateToFolder();
+    virtual void navigateToFolder(bool new_window = false);
 	virtual void showProperties();
 	virtual BOOL isItemRenameable() const { return TRUE; }
 	virtual BOOL isMultiPreviewAllowed() { return TRUE; }

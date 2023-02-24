@@ -94,7 +94,7 @@ public:
 	void setFocusFilterEditor();
 
 	static void newWindow();
-    static void newFolderWindow(const LLUUID& folder_id);
+    static void newFolderWindow(LLUUID folder_id = LLUUID(), LLUUID item_to_select = LLUUID());
 
 	void toggleFindOptions();
 

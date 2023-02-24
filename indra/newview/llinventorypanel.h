@@ -222,7 +222,7 @@ public:
 	void doCreate(const LLSD& userdata);
 	bool beginIMSession();
 	void fileUploadLocation(const LLSD& userdata);
-    void openSingleViewInventory(const LLSD& userdata);
+    void openSingleViewInventory(LLUUID folder_id = LLUUID());
 	void purgeSelectedItems();
 	bool attachObject(const LLSD& userdata);
 	static void idle(void* user_data);

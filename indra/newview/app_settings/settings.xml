@@ -16898,5 +16898,38 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>FindOriginalOpenWindow</key>
+  <map>
+    <key>Comment</key>
+    <string>Sets the action for 'Find original' and 'Show in Inventory' (0 - shows item in main Inventory, 1 - opens a new single-folder window)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+<key>MultiModeDoubleClickOpenWindow</key>
+<map>
+  <key>Comment</key>
+  <string>Sets the action for Double-click on folder in multi-folder view (0 - expands and collapses folder, 1 - opens a new window)</string>
+  <key>Persist</key>
+  <integer>1</integer>
+  <key>Type</key>
+  <string>Boolean</string>
+  <key>Value</key>
+  <integer>0</integer>
+</map>
+<key>SingleModeDoubleClickOpenWindow</key>
+<map>
+  <key>Comment</key>
+  <string>Sets the action for Double-click on folder in single-folder view (0 - stays in current window, 1 - opens a new window)</string>
+  <key>Persist</key>
+  <integer>1</integer>
+  <key>Type</key>
+  <string>Boolean</string>
+  <key>Value</key>
+  <integer>0</integer>
+</map>
 </map>
 </llsd>

@@ -2066,15 +2066,23 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 	BOOL handled = FALSE;
     if(mSingleFolderMode)
     {
-        getViewModelItem()->navigateToFolder();
+        static LLUICachedControl<bool> double_click_new_window("SingleModeDoubleClickOpenWindow", false);
+        getViewModelItem()->navigateToFolder(double_click_new_window);
         return TRUE;
     }
+
 	if( isOpen() )
 	{
 		handled = childrenHandleDoubleClick( x, y, mask ) != NULL;
 	}
 	if( !handled )
 	{
+        static LLUICachedControl<bool> double_click_new_window("MultiModeDoubleClickOpenWindow", false);
+        if (double_click_new_window)
+        {
+            getViewModelItem()->navigateToFolder(true);
+            return TRUE;
+        }
 		if(mIndentation < x && x < mIndentation + (isCollapsed() ? 0 : mArrowSize) + mTextPad)
 		{
 			// don't select when user double-clicks plus sign

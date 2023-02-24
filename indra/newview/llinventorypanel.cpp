@@ -183,7 +183,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mCommitCallbackRegistrar.add("Inventory.BeginIMSession", boost::bind(&LLInventoryPanel::beginIMSession, this));
 	mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars, this));
 	mCommitCallbackRegistrar.add("Inventory.FileUploadLocation", boost::bind(&LLInventoryPanel::fileUploadLocation, this, _2));
-    mCommitCallbackRegistrar.add("Inventory.OpenNewFolderWindow", boost::bind(&LLInventoryPanel::openSingleViewInventory, this, _2));
+    mCommitCallbackRegistrar.add("Inventory.OpenNewFolderWindow", boost::bind(&LLInventoryPanel::openSingleViewInventory, this, LLUUID()));
 }
 
 LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
@@ -1644,9 +1644,9 @@ void LLInventoryPanel::fileUploadLocation(const LLSD& userdata)
     }
 }
 
-void LLInventoryPanel::openSingleViewInventory(const LLSD& userdata)
+void LLInventoryPanel::openSingleViewInventory(LLUUID folder_id)
 {
-    LLPanelMainInventory::newFolderWindow(LLFolderBridge::sSelf.get()->getUUID());
+    LLPanelMainInventory::newFolderWindow(folder_id.isNull() ? LLFolderBridge::sSelf.get()->getUUID() : folder_id);
 }
 
 void LLInventoryPanel::purgeSelectedItems()

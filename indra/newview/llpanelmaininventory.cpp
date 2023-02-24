@@ -411,7 +411,7 @@ void LLPanelMainInventory::newWindow()
 	}
 }
 
-void LLPanelMainInventory::newFolderWindow(const LLUUID& folder_id)
+void LLPanelMainInventory::newFolderWindow(LLUUID folder_id, LLUUID item_to_select)
 {
     S32 instance_num = get_instance_num();
 
@@ -428,6 +428,10 @@ void LLPanelMainInventory::newFolderWindow(const LLUUID& folder_id)
                 if(folder_id.notNull())
                 {
                     main_inventory->setSingleFolderViewRoot(folder_id);
+                    if(item_to_select.notNull())
+                    {
+                        sidepanel_inventory->getActivePanel()->setSelection(item_to_select, TAKE_FOCUS_YES);
+                    }
                 }
             }
         }
@@ -1368,7 +1372,7 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 	const std::string command_name = userdata.asString();
     if (command_name == "new_single_folder_window")
     {
-        newFolderWindow(LLUUID());
+        newFolderWindow();
     }
     if ((command_name == "open_in_current_window") || (command_name == "open_in_new_window"))
     {

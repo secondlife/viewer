@@ -413,23 +413,30 @@ void LLInvFVBridge::showProperties()
     }
 }
 
-void LLInvFVBridge::navigateToFolder()
+void LLInvFVBridge::navigateToFolder(bool new_window)
 {
-    LLInventorySingleFolderPanel* panel = dynamic_cast<LLInventorySingleFolderPanel*>(mInventoryPanel.get());
-    if (!panel)
+    if(new_window)
     {
-        return;
+        mInventoryPanel.get()->openSingleViewInventory(mUUID);
     }
-    LLInventoryModel* model = getInventoryModel();
-    if (!model)
+    else
     {
-        return;
+        LLInventorySingleFolderPanel* panel = dynamic_cast<LLInventorySingleFolderPanel*>(mInventoryPanel.get());
+        if (!panel)
+        {
+            return;
+        }
+        LLInventoryModel* model = getInventoryModel();
+        if (!model)
+        {
+            return;
+        }
+        if (mUUID.isNull())
+        {
+            return;
+        }
+        panel->changeFolderRoot(mUUID);
     }
-    if (mUUID.isNull())
-    {
-        return;
-    }
-    panel->changeFolderRoot(mUUID);
 }
 
 void LLInvFVBridge::removeBatch(std::vector<LLFolderViewModelItem*>& batch)
