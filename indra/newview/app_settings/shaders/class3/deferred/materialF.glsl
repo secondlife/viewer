@@ -304,6 +304,7 @@ void main()
 
     // spec == specular map combined with specular color
     vec4 spec = getSpecular();
+    float env = env_intensity * spec.a;
     float glossiness = specular_color.a;
     vec3 norm = getNormal(glossiness);
 
@@ -336,7 +337,7 @@ void main()
     vec3 ambenv;
     vec3 glossenv;
     vec3 legacyenv;
-    sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos.xy*0.5+0.5, pos.xyz, norm.xyz, glossiness, env_intensity);
+    sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos.xy*0.5+0.5, pos.xyz, norm.xyz, glossiness, env);
     
     // use sky settings ambient or irradiance map sample, whichever is brighter
     color = max(amblit, ambenv);
@@ -369,12 +370,12 @@ void main()
 
     color = mix(color.rgb, diffcol.rgb, emissive);
 
-    if (env_intensity > 0.0)
+    if (env > 0.0)
     {  // add environmentmap
-        applyLegacyEnv(color, legacyenv, spec, pos.xyz, norm.xyz, env_intensity);
+        applyLegacyEnv(color, legacyenv, spec, pos.xyz, norm.xyz, env);
 
         float cur_glare = max(max(legacyenv.r, legacyenv.g), legacyenv.b);
-        cur_glare *= env_intensity*4.0;
+        cur_glare *= env*4.0;
         glare += cur_glare;
     }
 
@@ -410,7 +411,7 @@ void main()
     // deferred path               // See: C++: addDeferredAttachment(), shader: softenLightF.glsl
     frag_data[0] = vec4(diffcol.rgb, emissive);        // gbuffer is sRGB for legacy materials
     frag_data[1] = vec4(spec.rgb, glossiness);           // XYZ = Specular color. W = Specular exponent.
-    frag_data[2] = vec4(encode_normal(norm), env_intensity, GBUFFER_FLAG_HAS_ATMOS);;   // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
+    frag_data[2] = vec4(encode_normal(norm), env, GBUFFER_FLAG_HAS_ATMOS);;   // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
 #endif
 }
 
