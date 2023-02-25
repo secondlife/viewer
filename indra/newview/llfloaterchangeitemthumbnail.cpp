@@ -324,9 +324,12 @@ void LLFloaterChangeItemThumbnail::refreshFromObject(LLInventoryObject* obj)
                         LL_INFOS() << "Setting image from outfit as a thumbnail" << LL_ENDL;
                         thumbnail_id = item->getAssetUUID();
 
-                        // per SL-19188, set this image as a thumbnail
-                        cat->setThumbnailUUID(thumbnail_id);
-                        // todo: needs to trigger send/update once server support is done
+                        if (validateAsset(thumbnail_id))
+                        {
+                            // per SL-19188, set this image as a thumbnail
+                            cat->setThumbnailUUID(thumbnail_id);
+                            // todo: needs to trigger send/update once server support is done
+                        }
                     }
                 }
             }
@@ -430,8 +433,16 @@ void LLFloaterChangeItemThumbnail::onPasteFromClipboard(void *userdata)
         LLInventoryObject* obj = self->getInventoryObject();
         if (obj)
         {
-            obj->setThumbnailUUID(objects[0]);
-            // todo: need to trigger send/update once server support is done
+            LLUUID asset_id = objects[0];
+            if (validateAsset(asset_id))
+            {
+                obj->setThumbnailUUID(asset_id);
+                // todo: need to trigger send/update once server support is done
+            }
+            else
+            {
+                LLNotificationsUtil::add("ThumbnailDimantionsLimit");
+            }
         }
     }
 }
@@ -460,6 +471,33 @@ void LLFloaterChangeItemThumbnail::onRemovalConfirmation(const LLSD& notificatio
             obj->setThumbnailUUID(LLUUID::null);
             // todo: need to trigger send/update once server support is done
         }
+    }
+}
+
+bool LLFloaterChangeItemThumbnail::validateAsset(const LLUUID &asset_id)
+{
+    LLPointer<LLViewerFetchedTexture> texturep = LLViewerTextureManager::getFetchedTexture(asset_id);
+
+    if (!texturep)
+    {
+        return false;
+    }
+
+    if (texturep->getFullWidth() != texturep->getFullHeight())
+    {
+        return false;
+    }
+
+    if (texturep->getFullWidth() > LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MAX
+        || texturep->getFullHeight() > LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MAX)
+    {
+        return false;
+    }
+
+    if (texturep->getFullWidth() < LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MIN
+        || texturep->getFullHeight() < LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MIN)
+    {
+        return false;
     }
 }
 
@@ -526,8 +564,16 @@ void LLFloaterChangeItemThumbnail::onTexturePickerCommit(LLUUID id)
 
     if (obj && floaterp)
     {
-        obj->setThumbnailUUID(floaterp->getAssetID());
-        // todo: need to trigger send/update once server support is done
+        LLUUID asset_id = floaterp->getAssetID();
+        if (validateAsset(asset_id))
+        {
+            obj->setThumbnailUUID(asset_id);
+            // todo: need to trigger send/update once server support is done
+        }
+        else
+        {
+            LLNotificationsUtil::add("ThumbnailDimantionsLimit");
+        }
     }
 }
 

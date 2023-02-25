@@ -1286,7 +1286,8 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 										 const std::string& out_filename,
 										 const U8 codec,
-										 const S32 max_image_dimentions)
+										 const S32 max_image_dimentions,
+										 const S32 min_image_dimentions)
 {	
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	// Load the image
@@ -1314,6 +1315,16 @@ BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 		image->setLastError("Image files with less than 3 or more than 4 components are not supported.");
 		return FALSE;
 	}
+    if (image->getWidth() < min_image_dimentions || image->getHeight() < min_image_dimentions)
+    {
+        std::string reason = llformat("Images below %d x %d pixels are not allowed. Actual size: %d x %dpx",
+            min_image_dimentions,
+            min_image_dimentions,
+            image->getWidth(),
+            image->getHeight());
+        image->setLastError(reason);
+        return FALSE;
+    }
 	// Convert to j2c (JPEG2000) and save the file locally
 	LLPointer<LLImageJ2C> compressedImage = convertToUploadFile(raw_image, max_image_dimentions);
 	if (compressedImage.isNull())

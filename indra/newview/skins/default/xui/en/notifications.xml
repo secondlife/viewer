@@ -6110,6 +6110,17 @@ Are you sure you want to delete them?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="ThumbnailDimantionsLimit"
+   type="alertmodal">
+    <unique/>
+    Only square images from 64 to 256 pixels per side are allowed.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
      icon="alertmodal.tga"
      name="ConfirmUnlink"
      type="alertmodal">

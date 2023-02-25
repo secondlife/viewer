@@ -44,14 +44,15 @@
     top="4"
     width="16" />
   <text
-    follows="left|top|right"
+    name="item_name"
     font="SansSerif"
-    height="19"
+    max_length_bytes="127"
+    use_ellipses="true"
+    follows="left|top|right"
     layout="topleft"
+    height="19"
     top_delta="1"
     left_pad="3"
-    max_length_bytes="127"
-    name="item_name"
     width="286"/>
 
   <thumbnail

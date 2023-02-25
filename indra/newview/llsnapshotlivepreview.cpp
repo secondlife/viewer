@@ -874,7 +874,7 @@ LLPointer<LLImageRaw> LLSnapshotLivePreview::getEncodedImage()
     return mPreviewImageEncoded;
 }
 
-bool LLSnapshotLivePreview::createUploadFile(const std::string &out_filename, const S32 max_image_dimentions)
+bool LLSnapshotLivePreview::createUploadFile(const std::string &out_filename, const S32 max_image_dimentions, const S32 min_image_dimentions)
 {
     // make a copy, since convertToUploadFile modifies raw image
     LLPointer<LLImageRaw> raw_image = new LLImageRaw(
@@ -884,6 +884,16 @@ bool LLSnapshotLivePreview::createUploadFile(const std::string &out_filename, co
         mPreviewImage->getComponents());
 
     LLPointer<LLImageJ2C> compressedImage = LLViewerTextureList::convertToUploadFile(raw_image, max_image_dimentions);
+    if (compressedImage->getWidth() < min_image_dimentions || compressedImage->getHeight() < min_image_dimentions)
+    {
+        std::string reason = llformat("Images below %d x %d pixels are not allowed. Actual size: %d x %dpx",
+            min_image_dimentions,
+            min_image_dimentions,
+            compressedImage->getWidth(),
+            compressedImage->getHeight());
+        compressedImage->setLastError(reason);
+        return FALSE;
+    }
     if (compressedImage.isNull())
     {
         compressedImage->setLastError("Couldn't convert the image to jpeg2000.");

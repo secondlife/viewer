@@ -42,7 +42,8 @@
 
 LLSimpleSnapshotFloaterView* gSimpleSnapshotFloaterView = NULL;
 
-const S32 THUMBNAIL_SNAPSHOT_DIM = 256;
+const S32 LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MAX = 256;
+const S32 LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MIN = 64;
 
 // Thumbnail posting coro
 
@@ -176,8 +177,8 @@ void LLFloaterSimpleSnapshot::Impl::updateResolution(void* data)
         return;
     }
 
-    S32 width = THUMBNAIL_SNAPSHOT_DIM;
-    S32 height = THUMBNAIL_SNAPSHOT_DIM;
+    S32 width = THUMBNAIL_SNAPSHOT_DIM_MAX;
+    S32 height = THUMBNAIL_SNAPSHOT_DIM_MAX;
 
     LLSnapshotLivePreview* previewp = getPreviewView();
     if (previewp)
@@ -342,7 +343,7 @@ void LLFloaterSimpleSnapshot::onSend()
     LLSnapshotLivePreview* previewp = getPreviewView();
 
     std::string temp_file = gDirUtilp->getTempFilename();
-    if (previewp->createUploadFile(temp_file, THUMBNAIL_SNAPSHOT_DIM))
+    if (previewp->createUploadFile(temp_file, THUMBNAIL_SNAPSHOT_DIM_MAX, THUMBNAIL_SNAPSHOT_DIM_MIN))
     {
         uploadImageUploadFile(temp_file, mInventoryId, mTaskId);
     }
@@ -365,7 +366,7 @@ void LLFloaterSimpleSnapshot::uploadThumbnail(const std::string &file_path, cons
     // generate a temp texture file for coroutine
     std::string temp_file = gDirUtilp->getTempFilename();
     U32 codec = LLImageBase::getCodecFromExtension(gDirUtilp->getExtension(file_path));
-    if (!LLViewerTextureList::createUploadFile(file_path, temp_file, codec, THUMBNAIL_SNAPSHOT_DIM))
+    if (!LLViewerTextureList::createUploadFile(file_path, temp_file, codec, THUMBNAIL_SNAPSHOT_DIM_MAX, THUMBNAIL_SNAPSHOT_DIM_MIN))
     {
         LLSD notif_args;
         notif_args["REASON"] = LLImage::getLastError().c_str();
