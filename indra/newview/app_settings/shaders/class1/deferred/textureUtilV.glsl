@@ -62,13 +62,14 @@ vec2 texture_transform(vec2 vertex_texcoord, vec2 khr_gltf_scale, float khr_gltf
 {
     vec2 texcoord = vertex_texcoord;
 
+    // Apply texture animation first to avoid shearing and other artifacts
+    texcoord = (sl_animation_transform * vec4(texcoord, 0, 1)).xy;
     // Convert to left-handed coordinate system. The offset of 1 is necessary
     // for rotations to be applied correctly.
     texcoord.y = 1.0 - texcoord.y;
     texcoord = khr_texture_transform(texcoord, khr_gltf_scale, khr_gltf_rotation, khr_gltf_offset);
     // Convert back to right-handed coordinate system
     texcoord.y = 1.0 - texcoord.y;
-    texcoord = (sl_animation_transform * vec4(texcoord, 0, 1)).xy;
 
     // To make things more confusing, all SL image assets are upside-down
     // We may need an additional sign flip here when we implement a Vulkan backend
