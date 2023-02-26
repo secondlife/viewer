@@ -1408,8 +1408,11 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
         LL_PROFILE_ZONE_NUM(height);
 
         free_cur_tex_image();
-#if 0
-        glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, use_scratch ? scratch : pixels);
+#if LL_DARWIN
+        {
+            LL_PROFILE_ZONE_NAMED("glTexImage2D alloc");
+            glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, use_scratch ? scratch : pixels);
+        }
 #else
         // break up calls to a manageable size for the GL command buffer
         {
