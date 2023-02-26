@@ -499,6 +499,7 @@ bool LLFloaterChangeItemThumbnail::validateAsset(const LLUUID &asset_id)
     {
         return false;
     }
+    return true;
 }
 
 void LLFloaterChangeItemThumbnail::showTexturePicker(const LLUUID &thumbnail_id)
