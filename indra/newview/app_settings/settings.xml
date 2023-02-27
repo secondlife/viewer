@@ -16909,14 +16909,14 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-<key>MultiModeDoubleClickOpenWindow</key>
+<key>MultiModeDoubleClickFolder</key>
 <map>
   <key>Comment</key>
-  <string>Sets the action for Double-click on folder in multi-folder view (0 - expands and collapses folder, 1 - opens a new window)</string>
+  <string>Sets the action for Double-click on folder in multi-folder view (0 - expands and collapses folder, 1 - opens a new window, 2 – stays in current floater but switches to SFV)</string>
   <key>Persist</key>
   <integer>1</integer>
   <key>Type</key>
-  <string>Boolean</string>
+  <string>U32</string>
   <key>Value</key>
   <integer>0</integer>
 </map>

@@ -4,10 +4,10 @@
  can_minimize="true"
  can_resize="false"
  save_rect="true"
- height="350"
+ height="370"
  width="370"
  name="inventory_settings"
- title="Inventory settings">
+ title="INVENTORY SETTINGS">
  <icon
   follows="top|left"
   height="18"
@@ -33,14 +33,14 @@
    Double-click on folder in multi-folder view:
  </text>
  <radio_group
-  control_name="MultiModeDoubleClickOpenWindow"
+  control_name="MultiModeDoubleClickFolder"
   follows="left|top"
   top_pad="8"
   layout="topleft"
   font="SansSerifMedium"
   left="60"
-  width="325"
-  height="45"
+  width="300"
+  height="70"
   name="multi_double_click_setting">
      <radio_item
       height="20"
@@ -48,7 +48,7 @@
       label_text.text_color="White"
       follows="left|top"
       layout="topleft"
-      name="false"
+      name="0"
       width="200"/>
      <radio_item
       height="20"
@@ -57,7 +57,17 @@
       label_text.text_color="White"
       layout="topleft"
       left_delta="0"
-      name="true"
+      name="1"
+      top_pad ="5"
+      width="200" />
+     <radio_item
+      height="20"
+      follows="left|top"
+      label="Switch view"
+      label_text.text_color="White"
+      layout="topleft"
+      left_delta="0"
+      name="2"
       top_pad ="5"
       width="200" />
  </radio_group>
@@ -92,7 +102,7 @@
   layout="topleft"
   font="SansSerifMedium"
   left="60"
-  width="325"
+  width="300"
   height="45"
   name="single_double_click_setting">
      <radio_item
@@ -135,7 +145,7 @@
   layout="topleft"
   font="SansSerifMedium"
   left="60"
-  width="325"
+  width="300"
   height="45"
   name="find_original_settings">
      <radio_item

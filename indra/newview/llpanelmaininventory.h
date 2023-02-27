@@ -103,7 +103,7 @@ public:
     void onUpFolderClicked();
     void onBackFolderClicked();
     void onForwardFolderClicked();
-    void setSingleFolderViewRoot(const LLUUID& folder_id);
+    void setSingleFolderViewRoot(const LLUUID& folder_id, bool clear_nav_history = true);
     bool isSingleFolderMode() { return mSingleFolderMode; }
 
 protected:

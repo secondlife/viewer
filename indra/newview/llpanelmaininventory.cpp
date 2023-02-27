@@ -1321,10 +1321,13 @@ void LLPanelMainInventory::onForwardFolderClicked()
     mSingleFolderPanelInventory->onForwardFolder();
 }
 
-void LLPanelMainInventory::setSingleFolderViewRoot(const LLUUID& folder_id)
+void LLPanelMainInventory::setSingleFolderViewRoot(const LLUUID& folder_id, bool clear_nav_history)
 {
     mSingleFolderPanelInventory->changeFolderRoot(folder_id);
-    mSingleFolderPanelInventory->clearNavigationHistory();
+    if(clear_nav_history)
+    {
+        mSingleFolderPanelInventory->clearNavigationHistory();
+    }
 }
 
 void LLPanelMainInventory::showActionMenu(LLMenuGL* menu, std::string spawning_view_name)

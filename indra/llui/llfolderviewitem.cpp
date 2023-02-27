@@ -2077,10 +2077,15 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 	}
 	if( !handled )
 	{
-        static LLUICachedControl<bool> double_click_new_window("MultiModeDoubleClickOpenWindow", false);
-        if (double_click_new_window)
+        static LLUICachedControl<U32> double_click_action("MultiModeDoubleClickFolder", false);
+        if (double_click_action == 1)
         {
             getViewModelItem()->navigateToFolder(true);
+            return TRUE;
+        }
+        if (double_click_action == 2)
+        {
+            getViewModelItem()->navigateToFolder(false, true);
             return TRUE;
         }
 		if(mIndentation < x && x < mIndentation + (isCollapsed() ? 0 : mArrowSize) + mTextPad)

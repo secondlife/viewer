@@ -125,7 +125,7 @@ public:
 	virtual BOOL canOpenItem() const { return FALSE; }
 	virtual void closeItem() {}
 	virtual void selectItem() {}
-    virtual void navigateToFolder(bool new_window = false) {}
+    virtual void navigateToFolder(bool new_window = false, bool change_mode = false) {}
 	virtual BOOL isItemRenameable() const;
 	virtual BOOL renameItem(const std::string& new_name);
 	virtual BOOL isItemMovable() const;

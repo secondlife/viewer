@@ -246,7 +246,7 @@ public:
 													BOOL main_panel = FALSE,
 													BOOL take_keyboard_focus = TAKE_FOCUS_YES,
 													BOOL reset_filter = FALSE);
-
+    static void setSFViewAndOpenFolder(const LLInventoryPanel* panel, const LLUUID& folder_id);
 	void addItemID(const LLUUID& id, LLFolderViewItem* itemp);
 	void removeItemID(const LLUUID& id);
 	LLFolderViewItem* getItemByID(const LLUUID& id);
