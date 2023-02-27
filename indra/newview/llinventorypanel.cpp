@@ -2045,6 +2045,8 @@ LLInventorySingleFolderPanel::LLInventorySingleFolderPanel(const Params& params)
     : LLInventoryPanel(params)
 {
     getFilter().setSingleFolderMode(true);
+    getFilter().setEmptyLookupMessage("InventorySingleFolderNoMatches");
+    getFilter().setDefaultEmptyLookupMessage("InventorySingleFolderEmpty");
 
     mCommitCallbackRegistrar.add("Inventory.OpenSelectedFolder", boost::bind(&LLInventorySingleFolderPanel::openInCurrentWindow, this, _2));
 }
@@ -2166,8 +2168,6 @@ void LLInventorySingleFolderPanel::updateSingleFolderRoot()
         mFolderRoot.get()->setCallbackRegistrar(&mCommitCallbackRegistrar);
 
         buildNewViews(mFolderID);
-
-        mFolderRoot.get()->setShowEmptyMessage(false);
     }
 }
 

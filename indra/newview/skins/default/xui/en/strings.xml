@@ -2306,6 +2306,8 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="FavoritesNoMatchingItems">To add a place to your favorites, click the star to the right of the location name, then save the landmark to "Favorites bar".</string>
 	<string name="MarketplaceNoListing">You have no listings yet.</string>
 	<string name="MarketplaceNoMatchingItems">No items found. Check the spelling of your search string and try again.</string>
+	<string name="InventorySingleFolderEmpty">Folder is empty.</string>
+	<string name="InventorySingleFolderNoMatches">No matches.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
 	<string name="InventoryInboxNoItems">Your Marketplace purchases will appear here. You may then drag them into your inventory to use them.</string>
 	<string name="MarketplaceURL">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/</string>

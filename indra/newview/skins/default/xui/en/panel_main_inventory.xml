@@ -279,7 +279,6 @@
      width="312">
       <single_folder_inventory_panel
        name="single_folder_inv"
-       show_empty_message="false"
        follows="all"
        left="0"
        top="0"

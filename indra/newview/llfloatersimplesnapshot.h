@@ -67,8 +67,8 @@ public:
     class Impl;
     friend class Impl;
 
-    static const S32 LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MAX;
-    static const S32 LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MIN;
+    static const S32 THUMBNAIL_SNAPSHOT_DIM_MAX;
+    static const S32 THUMBNAIL_SNAPSHOT_DIM_MIN;
 
 private:
     void onSend();
