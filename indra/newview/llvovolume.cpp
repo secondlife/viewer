@@ -625,18 +625,24 @@ void LLVOVolume::animateTextures()
 					continue;
 				}
 		
-				if (!(result & LLViewerTextureAnim::ROTATE))
-				{
-					te->getRotation(&rot);
-				}
-				if (!(result & LLViewerTextureAnim::TRANSLATE))
-				{
-					te->getOffset(&off_s,&off_t);
-				}			
-				if (!(result & LLViewerTextureAnim::SCALE))
-				{
-					te->getScale(&scale_s, &scale_t);
-				}
+                LLGLTFMaterial *gltf_mat = te->getGLTFRenderMaterial();
+                const bool is_pbr = gltf_mat != nullptr;
+
+                if (!is_pbr)
+                {
+                    if (!(result & LLViewerTextureAnim::ROTATE))
+                    {
+                        te->getRotation(&rot);
+                    }
+                    if (!(result & LLViewerTextureAnim::TRANSLATE))
+                    {
+                        te->getOffset(&off_s,&off_t);
+                    }
+                    if (!(result & LLViewerTextureAnim::SCALE))
+                    {
+                        te->getScale(&scale_s, &scale_t);
+                    }
+                }
 
 				if (!facep->mTextureMatrix)
 				{
@@ -645,6 +651,7 @@ void LLVOVolume::animateTextures()
 
 				LLMatrix4& tex_mat = *facep->mTextureMatrix;
 				tex_mat.setIdentity();
+
 				LLVector3 trans ;
 
 					trans.set(LLVector3(off_s+0.5f, off_t+0.5f, 0.f));			

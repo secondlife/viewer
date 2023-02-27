@@ -1073,11 +1073,21 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("texture_matrix3");
 	mReservedUniforms.push_back("object_plane_s");
 	mReservedUniforms.push_back("object_plane_t");
-    mReservedUniforms.push_back("texture_basecolor_matrix"); // GLTF
-    mReservedUniforms.push_back("texture_normal_matrix"); // GLTF
-    mReservedUniforms.push_back("texture_metallic_roughness_matrix"); // GLTF
-    mReservedUniforms.push_back("texture_emissive_matrix"); // GLTF
-    llassert(mReservedUniforms.size() == LLShaderMgr::TEXTURE_EMISSIVE_MATRIX+1);
+
+    mReservedUniforms.push_back("texture_base_color_scale"); // (GLTF)
+    mReservedUniforms.push_back("texture_base_color_rotation"); // (GLTF)
+    mReservedUniforms.push_back("texture_base_color_offset"); // (GLTF)
+    mReservedUniforms.push_back("texture_normal_scale"); // (GLTF)
+    mReservedUniforms.push_back("texture_normal_rotation"); // (GLTF)
+    mReservedUniforms.push_back("texture_normal_offset"); // (GLTF)
+    mReservedUniforms.push_back("texture_metallic_roughness_scale"); // (GLTF)
+    mReservedUniforms.push_back("texture_metallic_roughness_rotation"); // (GLTF)
+    mReservedUniforms.push_back("texture_metallic_roughness_offset"); // (GLTF)
+    mReservedUniforms.push_back("texture_emissive_scale"); // (GLTF)
+    mReservedUniforms.push_back("texture_emissive_rotation"); // (GLTF)
+    mReservedUniforms.push_back("texture_emissive_offset"); // (GLTF)
+
+    llassert(mReservedUniforms.size() == LLShaderMgr::TEXTURE_EMISSIVE_OFFSET+1);
 
 	mReservedUniforms.push_back("viewport");
 

@@ -34,20 +34,24 @@ uniform mat4 modelview_projection_matrix;
 
 uniform mat4 texture_matrix0;
 
-uniform mat3 texture_basecolor_matrix;
-uniform mat3 texture_emissive_matrix;
+uniform vec2 texture_base_color_scale;
+uniform float texture_base_color_rotation;
+uniform vec2 texture_base_color_offset;
+uniform vec2 texture_emissive_scale;
+uniform float texture_emissive_rotation;
+uniform vec2 texture_emissive_offset;
 
 in vec3 position;
 in vec4 emissive;
 
 in vec2 texcoord0;
 
-out vec2 basecolor_texcoord;
+out vec2 base_color_texcoord;
 out vec2 emissive_texcoord;
  
 out vec4 vertex_emissive;
 
-vec2 texture_transform(vec2 vertex_texcoord, mat3 khr_gltf_transform, mat4 sl_animation_transform);
+vec2 texture_transform(vec2 vertex_texcoord, vec2 khr_gltf_scale, float khr_gltf_rotation, vec2 khr_gltf_offset, mat4 sl_animation_transform);
 
 void main()
 {
@@ -64,8 +68,8 @@ void main()
     gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
 #endif
 
-    basecolor_texcoord = texture_transform(texcoord0, texture_basecolor_matrix, texture_matrix0);
-    emissive_texcoord = texture_transform(texcoord0, texture_emissive_matrix, texture_matrix0);
+    base_color_texcoord = texture_transform(texcoord0, texture_base_color_scale, texture_base_color_rotation, texture_base_color_offset, texture_matrix0);
+    emissive_texcoord = texture_transform(texcoord0, texture_emissive_scale, texture_emissive_rotation, texture_emissive_offset, texture_matrix0);
 
     vertex_emissive = emissive;
 }

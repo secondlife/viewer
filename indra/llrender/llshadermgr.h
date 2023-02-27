@@ -52,10 +52,20 @@ public:
         TEXTURE_MATRIX3,                    //  "texture_matrix3"
         OBJECT_PLANE_S,                     //  "object_plane_s"
         OBJECT_PLANE_T,                     //  "object_plane_t"
-        TEXTURE_BASECOLOR_MATRIX,           //  "texture_basecolor_matrix" (GLTF)
-        TEXTURE_NORMAL_MATRIX,              //  "texture_normal_matrix" (GLTF)
-        TEXTURE_METALLIC_ROUGHNESS_MATRIX,  //  "texture_metallic_roughness_matrix" (GLTF)
-        TEXTURE_EMISSIVE_MATRIX,            //  "texture_emissive_matrix" (GLTF)
+
+        TEXTURE_BASE_COLOR_SCALE,           //  "texture_base_color_scale" (GLTF)
+        TEXTURE_BASE_COLOR_ROTATION,        //  "texture_base_color_rotation" (GLTF)
+        TEXTURE_BASE_COLOR_OFFSET,          //  "texture_base_color_offset" (GLTF)
+        TEXTURE_NORMAL_SCALE,               //  "texture_normal_scale" (GLTF)
+        TEXTURE_NORMAL_ROTATION,            //  "texture_normal_rotation" (GLTF)
+        TEXTURE_NORMAL_OFFSET,              //  "texture_normal_offset" (GLTF)
+        TEXTURE_METALLIC_ROUGHNESS_SCALE,   //  "texture_metallic_roughness_scale" (GLTF)
+        TEXTURE_METALLIC_ROUGHNESS_ROTATION,//  "texture_metallic_roughness_rotation" (GLTF)
+        TEXTURE_METALLIC_ROUGHNESS_OFFSET,  //  "texture_metallic_roughness_offset" (GLTF)
+        TEXTURE_EMISSIVE_SCALE,             //  "texture_emissive_scale" (GLTF)
+        TEXTURE_EMISSIVE_ROTATION,          //  "texture_emissive_rotation" (GLTF)
+        TEXTURE_EMISSIVE_OFFSET,            //  "texture_emissive_offset" (GLTF)
+
         VIEWPORT,                           //  "viewport"
         LIGHT_POSITION,                     //  "light_position"
         LIGHT_DIRECTION,                    //  "light_direction"
