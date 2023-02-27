@@ -26,29 +26,11 @@
 out vec4 frag_color;
 
 uniform sampler2D diffuseRect;
-uniform sampler2D depthMap;
-
-uniform float resScale;
-uniform float znear;
-uniform float zfar;
 
 in vec2 vary_texcoord0;
 
-// get linear depth value given a depth buffer sample d and znear and zfar values
-float linearDepth(float d, float znear, float zfar);
-
 void main() 
 {
-    float depth = texture(depthMap, vary_texcoord0.xy).r;
-    float dist = linearDepth(depth, znear, zfar);
-
-    // convert linear depth to distance
-    vec3 v;
-    v.xy = vary_texcoord0.xy / 512.0 * 2.0 - 1.0;
-    v.z = 1.0;
-    v = normalize(v);
-    dist /= v.z;
-
     vec3 col = texture(diffuseRect, vary_texcoord0.xy).rgb;
-    frag_color = vec4(col, dist/256.0);
+    frag_color = vec4(col, 0.0);
 }

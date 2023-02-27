@@ -107,7 +107,7 @@ void LLReflectionMapManager::update()
         mMipChain.resize(count);
         for (int i = 0; i < count; ++i)
         {
-            mMipChain[i].allocate(res, res, GL_RGBA16);
+            mMipChain[i].allocate(res, res, GL_RGB16);
             res /= 2;
         }
     }
@@ -475,7 +475,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         
         //only render sky, water, terrain, and clouds
         gPipeline.andRenderTypeMask(LLPipeline::RENDER_TYPE_SKY, LLPipeline::RENDER_TYPE_WL_SKY,
-            LLPipeline::RENDER_TYPE_WATER, LLPipeline::RENDER_TYPE_CLOUDS, LLPipeline::RENDER_TYPE_TERRAIN, LLPipeline::END_RENDER_TYPES);
+            LLPipeline::RENDER_TYPE_WATER, LLPipeline::RENDER_TYPE_VOIDWATER, LLPipeline::RENDER_TYPE_CLOUDS, LLPipeline::RENDER_TYPE_TERRAIN, LLPipeline::END_RENDER_TYPES);
         
         probe->update(mRenderTarget.getWidth(), face);
 
@@ -519,7 +519,6 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         static LLStaticHashedString zfar("zfar");
 
         LLRenderTarget* screen_rt = &gPipeline.mAuxillaryRT.screen;
-        LLRenderTarget* depth_rt = &gPipeline.mAuxillaryRT.deferredScreen;
 
         // perform a gaussian blur on the super sampled render before downsampling
         {
@@ -549,7 +548,6 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
 
         gReflectionMipProgram.bind();
         S32 diffuseChannel = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
-        S32 depthChannel   = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DEPTH, LLTexUnit::TT_TEXTURE);
 
         for (int i = 0; i < mMipChain.size(); ++i)
         {
@@ -564,12 +562,9 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
                 gGL.getTexUnit(diffuseChannel)->bind(&(mMipChain[i - 1]));
             }
 
-            gGL.getTexUnit(depthChannel)->bind(depth_rt, true);
-
+            
             gReflectionMipProgram.uniform1f(resScale, 1.f/(mProbeResolution*2));
-            gReflectionMipProgram.uniform1f(znear, probe->getNearClip());
-            gReflectionMipProgram.uniform1f(zfar, MAX_FAR_CLIP);
-
+            
             gPipeline.mScreenTriangleVB->setBuffer();
             gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
             
@@ -597,7 +592,6 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         gGL.popMatrix();
 
         gGL.getTexUnit(diffuseChannel)->unbind(LLTexUnit::TT_TEXTURE);
-        gGL.getTexUnit(depthChannel)->unbind(LLTexUnit::TT_TEXTURE);
         gReflectionMipProgram.unbind();
     }
 
@@ -1021,7 +1015,7 @@ void LLReflectionMapManager::initReflectionMaps()
         mTexture = new LLCubeMapArray();
 
         // store mReflectionProbeCount+2 cube maps, final two cube maps are used for render target and radiance map generation source)
-        mTexture->allocate(mProbeResolution, 4, mReflectionProbeCount + 2);
+        mTexture->allocate(mProbeResolution, 3, mReflectionProbeCount + 2);
 
         mIrradianceMaps = new LLCubeMapArray();
         mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 4, mReflectionProbeCount, FALSE);

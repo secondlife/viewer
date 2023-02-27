@@ -122,11 +122,8 @@ vec3 transform_normal(vec3 vNt)
     return normalize(vNt.x * vT + vNt.y * vB + vNt.z * vN);
 }
 
-void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-    vec2 tc, vec3 pos, vec3 norm, float glossiness);
-
-void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-     vec2 tc, vec3 pos, vec3 norm, float glossiness, bool errorCorrect);
+void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
+        vec2 tc, vec3 pos, vec3 norm, float glossiness);
 
 vec3 getPositionWithNDC(vec3 ndc);
 
@@ -219,16 +216,16 @@ void main()
 
     fb = applyWaterFogViewLinear(refPos, fb, sunlit);
 #else
-    vec4 fb = applyWaterFogViewLinear(viewVec*2048.0, vec4(0.5), sunlit);
+    vec4 fb = applyWaterFogViewLinear(viewVec*2048.0, vec4(1.0), sunlit);
 #endif
 
     float metallic = 0.0;
-    float perceptualRoughness = 0.1;
+    float perceptualRoughness = 0.05;
     float gloss      = 1.0 - perceptualRoughness;
     
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
-    sampleReflectionProbes(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss);
+    sampleReflectionProbesWater(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss);
 
     irradiance       = vec3(0);
 
@@ -265,10 +262,18 @@ void main()
     f *= 0.9;
     f *= f;
 
+    // incoming scale is [0, 1] with 0.5 being default
+    // shift to 0.5 to 1.5
+    f *= (fresnelScale - 0.5)+1.0;
+
+    // incoming offset is [0, 1] with 0.5 being default
+    // shift from -1 to 1
+    f += (fresnelOffset - 0.5) * 2.0;
+
     f = clamp(f, 0, 1);
-    //fb.rgb *= 1.;
-    
+
     color = mix(color, fb.rgb, f);
+
     float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
     
     frag_color = vec4(color, spec); //*sunAngle2);

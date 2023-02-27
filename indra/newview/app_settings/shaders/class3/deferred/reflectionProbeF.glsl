@@ -542,7 +542,7 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, out float dw, vec3 c, int
     }
 }
 
-vec3 sampleProbes(vec3 pos, vec3 dir, float lod, bool errorCorrect)
+vec3 sampleProbes(vec3 pos, vec3 dir, float lod)
 {
     float wsum[2];
     wsum[0] = 0;
@@ -573,29 +573,7 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod, bool errorCorrect)
 
         
         {
-            if (errorCorrect && refIndex[i].w >= 0)
-            { // error correction is on and this probe is a sphere
-              //take a sample to get depth value, then error correct
-                refcol = tapRefMap(pos, dir, w, dw, vi, wi, abs(lod + 2), refSphere[i].xyz, i);
-
-                //adjust lookup by distance result
-                float d = length(vi - wi);
-                vi += dir * d;
-
-                vi -= refSphere[i].xyz;
-
-                vi = env_mat * vi;
-
-                refcol = textureLod(reflectionProbes, vec4(vi, refIndex[i].x), lod).rgb;
-
-                // weight by vector correctness
-                vec3 pi = normalize(wi - pos);
-                w *= max(dot(pi, dir), 0.1);
-            }
-            else
-            {
-                refcol = tapRefMap(pos, dir, w, dw, vi, wi, lod, refSphere[i].xyz, i);
-            }
+            refcol = tapRefMap(pos, dir, w, dw, vi, wi, lod, refSphere[i].xyz, i);
 
             col[p] += refcol.rgb*w;
             wsum[p] += w;
@@ -684,7 +662,7 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir)
 }
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool errorCorrect)
+        vec2 tc, vec3 pos, vec3 norm, float glossiness)
 {
     // TODO - don't hard code lods
     float reflection_lods = max_probe_lod;
@@ -695,18 +673,23 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
     ambenv = sampleProbeAmbient(pos, norm);
 
     float lod = (1.0-glossiness)*reflection_lods;
-    glossenv = sampleProbes(pos, normalize(refnormpersp), lod, errorCorrect);
+    glossenv = sampleProbes(pos, normalize(refnormpersp), lod);
 
 #if defined(SSR)
     if (cube_snapshot != 1 && glossiness >= 0.9)
     {
         vec4 ssr = vec4(0);
-        //float w = tapScreenSpaceReflection(errorCorrect ? 1 : 4, tc, pos, norm, ssr, sceneMap);
         float w = tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap);
 
         glossenv = mix(glossenv, ssr.rgb, w);
     }
 #endif
+}
+
+void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
+        vec2 tc, vec3 pos, vec3 norm, float glossiness)
+{
+    sampleReflectionProbes(ambenv, glossenv, tc, pos, norm, glossiness);
 }
 
 void debugTapRefMap(vec3 pos, vec3 dir, float depth, int i, inout vec4 col)
@@ -749,14 +732,6 @@ vec4 sampleReflectionProbesDebug(vec3 pos)
     return col;
 }
 
-void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-    vec2 tc, vec3 pos, vec3 norm, float glossiness)
-{
-    sampleReflectionProbes(ambenv, glossenv,
-        tc, pos, norm, glossiness, false);
-}
-
-
 void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity)
 {
@@ -770,12 +745,12 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
     if (glossiness > 0.0)
     {
         float lod = (1.0-glossiness)*reflection_lods;
-        glossenv = sampleProbes(pos, normalize(refnormpersp), lod, false);
+        glossenv = sampleProbes(pos, normalize(refnormpersp), lod);
     }
     
     if (envIntensity > 0.0)
     {
-        legacyenv = sampleProbes(pos, normalize(refnormpersp), 0.0, false);
+        legacyenv = sampleProbes(pos, normalize(refnormpersp), 0.0);
     }
 
 #if defined(SSR)
