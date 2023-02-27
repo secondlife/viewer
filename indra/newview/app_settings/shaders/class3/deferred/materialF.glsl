@@ -382,11 +382,6 @@ void main()
     color.rgb = mix(atmosFragLightingLinear(color.rgb, additive, atten), fullbrightAtmosTransportFragLinear(color, additive, atten), emissive); 
     color.rgb = scaleSoftClipFragLinear(color.rgb);
 
-#ifdef WATER_FOG
-    vec4 temp = applyWaterFogView(pos, vec4(color, 0.0));
-    color = temp.rgb;
-#endif
-
     vec3 npos = normalize(-pos.xyz);
     vec3 light = vec3(0, 0, 0);
 
@@ -400,11 +395,18 @@ void main()
         LIGHT_LOOP(6)
         LIGHT_LOOP(7)
 
+    light *= 1.0-emissive;
     color += light;
 
+    glare *= 1.0-emissive;
     glare = min(glare, 1.0);
     float al = max(diffcol.a, glare) * vertex_color.a;
     
+#ifdef WATER_FOG
+    vec4 temp = applyWaterFogView(pos, vec4(color, 0.0));
+    color = temp.rgb;
+#endif
+
     frag_color = vec4(color, al);
 
 #else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer 
