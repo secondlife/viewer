@@ -229,8 +229,6 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
         LL_INFOS("Translate") << "No translation URL" << LL_ENDL;
         return;
     }
-    LL_DEBUGS("Translate") << "Message: " << msg << LL_ENDL;
-    LL_DEBUGS("Translate") << "Requesting: " << url << LL_ENDL;
 
     LLSD result = sendMessageAndSuspend(httpAdapter, httpRequest, httpOpts, httpHeaders, url, msg);
 
@@ -646,7 +644,7 @@ bool LLAzureTranslationHandler::checkVerificationResponse(
     }
 
     // Expected: "{\"error\":{\"code\":400000,\"message\":\"One of the request inputs is not valid.\"}}"
-    // But for now just verify response is a valid json with an error
+    // But for now just verify response is a valid json
 
     Json::Value root;
     Json::Reader reader;

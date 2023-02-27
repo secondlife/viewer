@@ -246,6 +246,7 @@
     Region:
   </text>
   <line_editor
+   default_text="Can be left empty for global services"
    follows="top|left"
    height="20"
    layout="topleft"
