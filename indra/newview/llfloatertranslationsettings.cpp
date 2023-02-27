@@ -94,11 +94,11 @@ void LLFloaterTranslationSettings::onOpen(const LLSD& key)
 	mTranslationServiceRadioGroup->setSelectedByValue(gSavedSettings.getString("TranslationService"), TRUE);
 
 	LLSD azure_key = gSavedSettings.getLLSD("AzureTranslateAPIKey");
-	if (azure_key.isMap())
+	if (azure_key.isMap() && !azure_key["id"].asString().empty())
 	{
 		mAzureAPIKeyEditor->setText(azure_key["id"].asString());
 		mAzureAPIKeyEditor->setTentative(false);
-        if (azure_key.has("region"))
+        if (azure_key.has("region") && !azure_key["region"].asString().empty())
         {
             mAzureAPIRegionEditor->setText(azure_key["region"].asString());
             mAzureAPIRegionEditor->setTentative(false);
@@ -113,6 +113,7 @@ void LLFloaterTranslationSettings::onOpen(const LLSD& key)
 	else
 	{
 		mAzureAPIKeyEditor->setTentative(TRUE);
+        mAzureAPIRegionEditor->setTentative(true);
 		mAzureKeyVerified = FALSE;
 	}
 
