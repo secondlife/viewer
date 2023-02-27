@@ -54,7 +54,7 @@ in vec3 vary_fragcoord;
 
 in vec3 vary_position;
 
-in vec2 basecolor_texcoord;
+in vec2 base_color_texcoord;
 in vec2 normal_texcoord;
 in vec2 metallic_roughness_texcoord;
 in vec2 emissive_texcoord;
@@ -168,7 +168,7 @@ void main()
 
     waterClip(pos);
 
-    vec4 basecolor = texture(diffuseMap, basecolor_texcoord.xy).rgba;
+    vec4 basecolor = texture(diffuseMap, base_color_texcoord.xy).rgba;
     basecolor.rgb = srgb_to_linear(basecolor.rgb);
 #ifdef HAS_ALPHA_MASK
     if (basecolor.a < minimum_alpha)
@@ -267,7 +267,7 @@ out vec4 frag_color;
 
 in vec3 vary_position;
 
-in vec2 basecolor_texcoord;
+in vec2 base_color_texcoord;
 in vec2 emissive_texcoord;
 
 in vec4 vertex_color;
@@ -286,7 +286,7 @@ void main()
 
     vec3  pos         = vary_position;
 
-    vec4 basecolor = texture(diffuseMap, basecolor_texcoord.xy).rgba;
+    vec4 basecolor = texture(diffuseMap, base_color_texcoord.xy).rgba;
     basecolor.rgb = srgb_to_linear(basecolor.rgb);
 #ifdef HAS_ALPHA_MASK
     if (basecolor.a < minimum_alpha)

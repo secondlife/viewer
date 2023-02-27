@@ -37,7 +37,7 @@ out vec4 frag_color;
 in vec3 vary_position;
 in vec4 vertex_emissive;
 
-in vec2 basecolor_texcoord;
+in vec2 base_color_texcoord;
 in vec2 emissive_texcoord;
 
 uniform float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
@@ -47,7 +47,7 @@ vec3 srgb_to_linear(vec3 c);
 
 void main()
 {
-    vec4 basecolor = texture2D(diffuseMap, basecolor_texcoord.xy).rgba;
+    vec4 basecolor = texture2D(diffuseMap, base_color_texcoord.xy).rgba;
 
     if (basecolor.a < minimum_alpha)
     {
