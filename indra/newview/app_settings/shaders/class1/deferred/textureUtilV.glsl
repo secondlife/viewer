@@ -58,7 +58,7 @@ vec2 khr_texture_transform(vec2 texcoord, vec2 scale, float rotation, vec2 offse
 //     animations, available through LSL script functions such as
 //     LlSetTextureAnim. It assumes a right-handed UV coordinate system.
 // texcoord - The final texcoord to use for image sampling
-vec2 texture_transform(vec2 vertex_texcoord, vec2 khr_gltf_scale, float khr_gltf_rotation, vec2 khr_gltf_offset, mat4 sl_animation_transform)
+vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform)
 {
     vec2 texcoord = vertex_texcoord;
 
@@ -67,7 +67,7 @@ vec2 texture_transform(vec2 vertex_texcoord, vec2 khr_gltf_scale, float khr_gltf
     // Convert to left-handed coordinate system. The offset of 1 is necessary
     // for rotations to be applied correctly.
     texcoord.y = 1.0 - texcoord.y;
-    texcoord = khr_texture_transform(texcoord, khr_gltf_scale, khr_gltf_rotation, khr_gltf_offset);
+    texcoord = khr_texture_transform(texcoord, khr_gltf_transform[0].xy, khr_gltf_transform[0].z, khr_gltf_transform[1].xy);
     // Convert back to right-handed coordinate system
     texcoord.y = 1.0 - texcoord.y;
 

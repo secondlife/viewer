@@ -28,7 +28,6 @@
 
 #include "llrefcount.h"
 #include "llmemory.h"
-#include "m3math.h"
 #include "v4color.h"
 #include "v3color.h"
 #include "v2math.h"
@@ -60,7 +59,7 @@ public:
         LLVector2 mScale = { 1.f, 1.f };
         F32 mRotation = 0.f;
 
-        LLMatrix3 asMatrix();
+        void getPacked(F32 (&packed)[8]);
 
         bool operator==(const TextureTransform& other) const;
     };

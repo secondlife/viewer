@@ -110,21 +110,21 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
         shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, mMetallicFactor);
         shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, mEmissiveColor.mV);
 
-        shader->uniform2fv(LLShaderMgr::TEXTURE_BASE_COLOR_SCALE, 1, (F32*)mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].mScale.mV);
-        shader->uniform1f(LLShaderMgr::TEXTURE_BASE_COLOR_ROTATION, mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].mRotation);
-        shader->uniform2fv(LLShaderMgr::TEXTURE_BASE_COLOR_OFFSET, 1, (F32*)mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].mOffset.mV);
+        F32 base_color_packed[8];
+        mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)base_color_packed);
 
-        shader->uniform2fv(LLShaderMgr::TEXTURE_NORMAL_SCALE, 1, (F32*)mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].mScale.mV);
-        shader->uniform1f(LLShaderMgr::TEXTURE_NORMAL_ROTATION, mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].mRotation);
-        shader->uniform2fv(LLShaderMgr::TEXTURE_NORMAL_OFFSET, 1, (F32*)mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].mOffset.mV);
+        F32 normal_packed[8];
+        mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_NORMAL_TRANSFORM, 2, (F32*)normal_packed);
 
-        shader->uniform2fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_SCALE, 1, (F32*)mTextureTransform[GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].mScale.mV);
-        shader->uniform1f(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_ROTATION, mTextureTransform[GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].mRotation);
-        shader->uniform2fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_OFFSET, 1, (F32*)mTextureTransform[GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].mOffset.mV);
+        F32 metallic_roughness_packed[8];
+        mTextureTransform[GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].getPacked(metallic_roughness_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, 2, (F32*)metallic_roughness_packed);
 
-        shader->uniform2fv(LLShaderMgr::TEXTURE_EMISSIVE_SCALE, 1, (F32*)mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].mScale.mV);
-        shader->uniform1f(LLShaderMgr::TEXTURE_EMISSIVE_ROTATION, mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].mRotation);
-        shader->uniform2fv(LLShaderMgr::TEXTURE_EMISSIVE_OFFSET, 1, (F32*)mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].mOffset.mV);
+        F32 emissive_packed[8];
+        mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
     }
 
 }
