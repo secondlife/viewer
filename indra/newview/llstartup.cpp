@@ -2258,12 +2258,6 @@ bool idle_startup()
 
 	if (STATE_CLEANUP == LLStartUp::getStartupState())
 	{
-        if (gAgent.isFirstLogin())
-        {
-            gSavedSettings.setBOOL("AutoTuneLock", TRUE);
-            gSavedSettings.setBOOL("KeepAutoTuneLock", TRUE);
-            gSavedSettings.setBOOL("AutoTuneFPS", TRUE);
-        }
         set_startup_status(1.0, "", "");
 		display_startup();
 
