@@ -364,11 +364,10 @@ void LLAvatarRenderInfoAccountant::getRenderInfoFromRegion(LLViewerRegion * regi
 	}
 }
 
-// static
 // Called every frame - send render weight requests to every region
 void LLAvatarRenderInfoAccountant::idle()
 {
-	if (mRenderInfoScanTimer.hasExpired())
+	if (mRenderInfoScanTimer.hasExpired() && !LLApp::isExiting())
 	{
 		LL_DEBUGS("AvatarRenderInfo") << "Scanning regions for render info updates"
 									  << LL_ENDL;

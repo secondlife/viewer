@@ -3983,7 +3983,7 @@ Please check http://status.secondlifegrid.net to see if there is a known problem
   <string name="Premium_PlusMembership">Premium Plus</string>
   <string name="InternalMembership">Internal</string> <!-- No need to translate -->
 
-  <string name="MembershipUpgradeText">Upgrade to Premium</string>
+  <string name="MembershipUpgradeText">Change membership plan...</string>
   <string name="MembershipPremiumText">My Premium membership</string>
 
   <!-- Question strings for delete items notifications -->

@@ -65,8 +65,11 @@ public:
 	{
 		UNTRUSTED_ALLOW,       // allow commands from untrusted browsers
 		UNTRUSTED_BLOCK,       // ignore commands from untrusted browsers
+        UNTRUSTED_CLICK_ONLY,  // allow untrusted, but only if clicked
 		UNTRUSTED_THROTTLE     // allow untrusted, but only a few per min.
 	};
+
+    static const std::string NAV_TYPE_CLICKED;
 
 	LLCommandHandler(const char* command, EUntrustedAccess untrusted_access);
 		// Automatically registers object to get called when 
@@ -75,6 +78,13 @@ public:
 		// should not be allowed from outside the app.
 		
 	virtual ~LLCommandHandler();
+
+    virtual bool canHandleUntrusted(
+        const LLSD& params,
+        const LLSD& query_map,
+        LLMediaCtrl* web,
+        const std::string& nav_type)
+    { return true; }
 
 	virtual bool handle(const LLSD& params,
 						const LLSD& query_map,

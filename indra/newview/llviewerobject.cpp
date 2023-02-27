@@ -3234,36 +3234,39 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
         return;
     }
 
-    LLFilenameAndTask* ft = new LLFilenameAndTask;
-    ft->mTaskID = task_id;
     // we can receive multiple task updates simultaneously, make sure we will not rewrite newer with older update
-    msg->getS16Fast(_PREHASH_InventoryData, _PREHASH_Serial, ft->mSerial);
+    S16 serial = 0;
+    msg->getS16Fast(_PREHASH_InventoryData, _PREHASH_Serial, serial);
 
-    if (ft->mSerial == object->mInventorySerialNum
-        && ft->mSerial < object->mExpectedInventorySerialNum)
+    if (serial == object->mInventorySerialNum
+        && serial < object->mExpectedInventorySerialNum)
     {
         // Loop Protection.
         // We received same serial twice.
         // Viewer did some changes to inventory that couldn't be saved server side
         // or something went wrong to cause serial to be out of sync.
         // Drop xfer and restart after some time, assign server's value as expected
-        LL_WARNS() << "Task inventory serial might be out of sync, server serial: " << ft->mSerial << " client expected serial: " << object->mExpectedInventorySerialNum << LL_ENDL;
-        object->mExpectedInventorySerialNum = ft->mSerial;
+        LL_WARNS() << "Task inventory serial might be out of sync, server serial: " << serial << " client expected serial: " << object->mExpectedInventorySerialNum << LL_ENDL;
+        object->mExpectedInventorySerialNum = serial;
         object->fetchInventoryDelayed(INVENTORY_UPDATE_WAIT_TIME_DESYNC);
     }
-    else if (ft->mSerial < object->mExpectedInventorySerialNum)
+    else if (serial < object->mExpectedInventorySerialNum)
     {
         // Out of date message, record to current serial for loop protection, but do not load it
         // Drop xfer and restart after some time
-        if (ft->mSerial < object->mInventorySerialNum)
+        if (serial < object->mInventorySerialNum)
         {
             LL_WARNS() << "Task serial decreased. Potentially out of order packet or desync." << LL_ENDL;
         }
-        object->mInventorySerialNum = ft->mSerial;
+        object->mInventorySerialNum = serial;
         object->fetchInventoryDelayed(INVENTORY_UPDATE_WAIT_TIME_OUTDATED);
     }
-    else if (ft->mSerial >= object->mExpectedInventorySerialNum)
+    else if (serial >= object->mExpectedInventorySerialNum)
     {
+        LLFilenameAndTask* ft = new LLFilenameAndTask;
+        ft->mTaskID = task_id;
+        ft->mSerial = serial;
+        
         // We received version we expected or newer. Load it.
         object->mInventorySerialNum = ft->mSerial;
         object->mExpectedInventorySerialNum = ft->mSerial;
@@ -3298,7 +3301,7 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
             object->mRegionp->getHost(),
             TRUE,
             &LLViewerObject::processTaskInvFile,
-            (void**)ft,
+            (void**)ft, // This takes ownership of ft
             LLXferManager::HIGH_PRIORITY);
         if (object->mInvRequestState == INVENTORY_XFER)
         {

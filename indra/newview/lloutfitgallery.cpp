@@ -1226,7 +1226,7 @@ void LLOutfitGallery::uploadOutfitImage(const std::vector<std::string>& filename
         checkRemovePhoto(outfit_id);
         std::string upload_pending_name = outfit_id.asString();
         std::string upload_pending_desc = "";
-        LLUUID photo_id = upload_new_resource(filename, // file
+        upload_new_resource(filename, // file
             upload_pending_name,
             upload_pending_desc,
             0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
