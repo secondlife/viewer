@@ -42,15 +42,15 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
-	void setAzureVerified(bool ok, bool alert);
-	void setGoogleVerified(bool ok, bool alert);
+	void setAzureVerified(bool ok, bool alert, S32 status);
+	void setGoogleVerified(bool ok, bool alert, S32 status);
 	void onClose(bool app_quitting);
 
 private:
 	std::string getSelectedService() const;
 	LLSD getEnteredAzureKey() const;
 	std::string getEnteredGoogleKey() const;
-	void showAlert(const std::string& msg_name) const;
+	void showAlert(const std::string& msg_name, S32 status) const;
 	void updateControlsEnabledState();
     void verifyKey(int service, const LLSD& key, bool alert = true);
 
@@ -61,7 +61,7 @@ private:
 	void onBtnGoogleVerify();
 	void onBtnOK();
 
-    static void setVerificationStatus(int service, bool alert, bool ok);
+    static void setVerificationStatus(int service, bool alert, bool ok, S32 status);
 
 	LLCheckBoxCtrl* mMachineTranslationCB;
 	LLComboBox* mLanguageCombo;

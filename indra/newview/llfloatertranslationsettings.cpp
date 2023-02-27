@@ -132,22 +132,22 @@ void LLFloaterTranslationSettings::onOpen(const LLSD& key)
 	updateControlsEnabledState();
 }
 
-void LLFloaterTranslationSettings::setAzureVerified(bool ok, bool alert)
+void LLFloaterTranslationSettings::setAzureVerified(bool ok, bool alert, S32 status)
 {
 	if (alert)
 	{
-		showAlert(ok ? "azure_api_key_verified" : "azure_api_key_not_verified");
+		showAlert(ok ? "azure_api_key_verified" : "azure_api_key_not_verified", status);
 	}
 
 	mAzureKeyVerified = ok;
 	updateControlsEnabledState();
 }
 
-void LLFloaterTranslationSettings::setGoogleVerified(bool ok, bool alert)
+void LLFloaterTranslationSettings::setGoogleVerified(bool ok, bool alert, S32 status)
 {
 	if (alert)
 	{
-		showAlert(ok ? "google_api_key_verified" : "google_api_key_not_verified");
+		showAlert(ok ? "google_api_key_verified" : "google_api_key_not_verified", status);
 	}
 
 	mGoogleKeyVerified = ok;
@@ -179,10 +179,15 @@ std::string LLFloaterTranslationSettings::getEnteredGoogleKey() const
 	return mGoogleAPIKeyEditor->getTentative() ? LLStringUtil::null : mGoogleAPIKeyEditor->getText();
 }
 
-void LLFloaterTranslationSettings::showAlert(const std::string& msg_name) const
+void LLFloaterTranslationSettings::showAlert(const std::string& msg_name, S32 status) const
 {
+    LLStringUtil::format_map_t string_args;
+    // For now just show an http error code, whole 'reason' string might be added later
+    string_args["[STATUS]"] = llformat("%d", status);
+    std::string message = getString(msg_name, string_args);
+
 	LLSD args;
-	args["MESSAGE"] = getString(msg_name);
+	args["MESSAGE"] = message;
 	LLNotificationsUtil::add("GenericAlert", args);
 }
 
@@ -222,7 +227,7 @@ void LLFloaterTranslationSettings::updateControlsEnabledState()
 }
 
 /*static*/
-void LLFloaterTranslationSettings::setVerificationStatus(int service, bool ok, bool alert)
+void LLFloaterTranslationSettings::setVerificationStatus(int service, bool ok, bool alert, S32 status)
 {
     LLFloaterTranslationSettings* floater =
         LLFloaterReg::getTypedInstance<LLFloaterTranslationSettings>("prefs_translation");
@@ -236,10 +241,10 @@ void LLFloaterTranslationSettings::setVerificationStatus(int service, bool ok, b
     switch (service)
     {
     case LLTranslate::SERVICE_AZURE:
-        floater->setAzureVerified(ok, alert);
+        floater->setAzureVerified(ok, alert, status);
         break;
     case LLTranslate::SERVICE_GOOGLE:
-        floater->setGoogleVerified(ok, alert);
+        floater->setGoogleVerified(ok, alert, status);
         break;
     }
 }
@@ -248,7 +253,7 @@ void LLFloaterTranslationSettings::setVerificationStatus(int service, bool ok, b
 void LLFloaterTranslationSettings::verifyKey(int service, const LLSD& key, bool alert)
 {
     LLTranslate::verifyKey(static_cast<LLTranslate::EService>(service), key,
-        boost::bind(&LLFloaterTranslationSettings::setVerificationStatus, _1, _2, alert));
+        boost::bind(&LLFloaterTranslationSettings::setVerificationStatus, _1, _2, alert, _3));
 }
 
 void LLFloaterTranslationSettings::onEditorFocused(LLFocusableElement* control)
@@ -271,7 +276,7 @@ void LLFloaterTranslationSettings::onAzureKeyEdited()
         || mAzureAPIEndpointEditor->getValue().isString())
 	{
         // todo: verify mAzureAPIEndpointEditor url
-		setAzureVerified(false, false);
+		setAzureVerified(false, false, 0);
 	}
 }
 
@@ -279,7 +284,7 @@ void LLFloaterTranslationSettings::onGoogleKeyEdited()
 {
 	if (mGoogleAPIKeyEditor->isDirty())
 	{
-		setGoogleVerified(false, false);
+		setGoogleVerified(false, false, 0);
 	}
 }
 

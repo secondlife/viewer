@@ -41,8 +41,8 @@
 #include "llurlregistry.h"
 
 
-static const std::string BING_NOTRANSLATE_OPENING_TAG("<div translate=\"no\">");
-static const std::string BING_NOTRANSLATE_CLOSING_TAG("</div>");
+static const std::string AZURE_NOTRANSLATE_OPENING_TAG("<div translate=\"no\">");
+static const std::string AZURE_NOTRANSLATE_CLOSING_TAG("</div>");
 
 /**
 * Handler of an HTTP machine translation service.
@@ -103,6 +103,7 @@ public:
     * @param[out]    err_msg       Error message (in case of error).
     */
     virtual bool parseResponse(
+        const LLSD& http_response,
         int& status,
         const std::string& body,
         std::string& translation,
@@ -176,6 +177,13 @@ void LLTranslationAPIHandler::verifyKeyCoro(LLTranslate::EService service, LLSD 
         return;
     }
 
+    std::string::size_type delim_pos = url.find("://");
+    if (delim_pos == std::string::npos)
+    {
+        LL_INFOS("Translate") << "URL is missing a scheme" << LL_ENDL;
+        return;
+    }
+
     LLSD result = verifyAndSuspend(httpAdapter, httpRequest, httpOpts, httpHeaders, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
@@ -190,7 +198,7 @@ void LLTranslationAPIHandler::verifyKeyCoro(LLTranslate::EService service, LLSD 
 
     if (!fnc.empty())
     {
-        fnc(service, bOk);
+        fnc(service, bOk, parseResult);
     }
 }
 
@@ -221,8 +229,8 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
         LL_INFOS("Translate") << "No translation URL" << LL_ENDL;
         return;
     }
-    LL_INFOS() << "Message: " << msg << LL_ENDL;
-    LL_INFOS() << "Requesting: " << url << LL_ENDL;
+    LL_DEBUGS("Translate") << "Message: " << msg << LL_ENDL;
+    LL_DEBUGS("Translate") << "Requesting: " << url << LL_ENDL;
 
     LLSD result = sendMessageAndSuspend(httpAdapter, httpRequest, httpOpts, httpHeaders, url, msg);
 
@@ -245,7 +253,7 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
 
     try
     {
-        res = this->parseResponse(parseResult, body, translation, detected_lang, err_msg);
+        res = this->parseResponse(httpResults, parseResult, body, translation, detected_lang, err_msg);
     }
     catch (std::out_of_range&)
     {
@@ -306,6 +314,7 @@ public:
         const LLSD &response,
         int status) const override;
     bool parseResponse(
+        const LLSD& http_response,
         int& status,
         const std::string& body,
         std::string& translation,
@@ -380,6 +389,7 @@ bool LLGoogleTranslationHandler::checkVerificationResponse(
 
 // virtual
 bool LLGoogleTranslationHandler::parseResponse(
+    const LLSD& http_response,
 	int& status,
 	const std::string& body,
 	std::string& translation,
@@ -531,6 +541,7 @@ public:
         const LLSD &response,
         int status) const override;
     bool parseResponse(
+        const LLSD& http_response,
         int& status,
         const std::string& body,
         std::string& translation,
@@ -557,6 +568,8 @@ public:
         LLCore::HttpHeaders::ptr_t headers,
         const std::string & url) const override;
 private:
+    static std::string parseErrorResponse(
+        const std::string& body);
     static LLSD getAPIKey();
     static std::string getAPILanguageCode(const std::string& lang);
 
@@ -574,7 +587,7 @@ std::string LLAzureTranslationHandler::getTranslateURL(
     if (key.isMap())
     {
         std::string endpoint = key["endpoint"].asString();
-        // todo: validate url
+
         if (*endpoint.rbegin() != '/')
         {
             endpoint += "/";
@@ -594,7 +607,6 @@ std::string LLAzureTranslationHandler::getKeyVerificationURL(
     if (key.isMap())
     {
         std::string endpoint = key["endpoint"].asString();
-        // todo: validate url
         if (*endpoint.rbegin() != '/')
         {
             endpoint += "/";
@@ -609,11 +621,48 @@ bool LLAzureTranslationHandler::checkVerificationResponse(
     const LLSD &response,
     int status) const
 {
-    return status == HTTP_BAD_REQUEST; // would have been 401 if id was wrong
+    if (status == HTTP_UNAUTHORIZED)
+    {
+        LL_DEBUGS("Translate") << "Key unathorised" << LL_ENDL;
+        return false;
+    }
+
+    if (status == HTTP_NOT_FOUND)
+    {
+        LL_DEBUGS("Translate") << "Either endpoint doesn't have requested resource" << LL_ENDL;
+        return false;
+    }
+
+    if (status != HTTP_BAD_REQUEST)
+    {
+        LL_DEBUGS("Translate") << "Unexpected error code" << LL_ENDL;
+        return false;
+    }
+
+    if (!response.has("error_body"))
+    {
+        LL_DEBUGS("Translate") << "Unexpected response, no error returned" << LL_ENDL;
+        return false;
+    }
+
+    // Expected: "{\"error\":{\"code\":400000,\"message\":\"One of the request inputs is not valid.\"}}"
+    // But for now just verify response is a valid json with an error
+
+    Json::Value root;
+    Json::Reader reader;
+
+    if (!reader.parse(response["error_body"].asString(), root))
+    {
+        LL_DEBUGS("Translate") << "Failed to parse error_body:" << reader.getFormatedErrorMessages() << LL_ENDL;
+        return false;
+    }
+
+    return true;
 }
 
 // virtual
 bool LLAzureTranslationHandler::parseResponse(
+    const LLSD& http_response,
 	int& status,
 	const std::string& body,
 	std::string& translation,
@@ -622,6 +671,8 @@ bool LLAzureTranslationHandler::parseResponse(
 {
 	if (status != HTTP_OK)
 	{
+        if (http_response.has("error_body"))
+        err_msg = parseErrorResponse(http_response["error_body"].asString());
 		return false;
 	}
 
@@ -680,6 +731,36 @@ bool LLAzureTranslationHandler::parseResponse(
 bool LLAzureTranslationHandler::isConfigured() const
 {
 	return !getAPIKey().isMap();
+}
+
+//static
+std::string LLAzureTranslationHandler::parseErrorResponse(
+    const std::string& body)
+{
+    // Expected: "{\"error\":{\"code\":400000,\"message\":\"One of the request inputs is not valid.\"}}"
+    // But for now just verify response is a valid json with an error
+
+    Json::Value root;
+    Json::Reader reader;
+
+    if (!reader.parse(body, root))
+    {
+        return std::string();
+    }
+
+    if (!root.isObject() || !root.isMember("error"))
+    {
+        return std::string();
+    }
+
+    const Json::Value& error_map = root["error"];
+
+    if (!error_map.isObject() || !error_map.isMember("message"))
+    {
+        return std::string();
+    }
+
+    return error_map["message"].asString();
 }
 
 // static
@@ -771,54 +852,65 @@ void LLTranslate::translateMessage(const std::string &from_lang, const std::stri
 
 std::string LLTranslate::addNoTranslateTags(std::string mesg)
 {
-    if (getPreferredHandler().getCurrentService() != SERVICE_AZURE)
+    if (getPreferredHandler().getCurrentService() == SERVICE_GOOGLE)
     {
         return mesg;
     }
 
-    std::string upd_msg(mesg);
-    LLUrlMatch match;
-    S32 dif = 0;
-    //surround all links (including SLURLs) with 'no-translate' tags to prevent unnecessary translation
-    while (LLUrlRegistry::instance().findUrl(mesg, match))
+    if (getPreferredHandler().getCurrentService() == SERVICE_AZURE)
     {
-        upd_msg.insert(dif + match.getStart(), BING_NOTRANSLATE_OPENING_TAG);
-        upd_msg.insert(dif + BING_NOTRANSLATE_OPENING_TAG.size() + match.getEnd() + 1, BING_NOTRANSLATE_CLOSING_TAG);
-        mesg.erase(match.getStart(), match.getEnd() - match.getStart());
-        dif += match.getEnd() - match.getStart() + BING_NOTRANSLATE_OPENING_TAG.size() + BING_NOTRANSLATE_CLOSING_TAG.size();
+        // https://learn.microsoft.com/en-us/azure/cognitive-services/translator/prevent-translation
+        std::string upd_msg(mesg);
+        LLUrlMatch match;
+        S32 dif = 0;
+        //surround all links (including SLURLs) with 'no-translate' tags to prevent unnecessary translation
+        while (LLUrlRegistry::instance().findUrl(mesg, match))
+        {
+            upd_msg.insert(dif + match.getStart(), AZURE_NOTRANSLATE_OPENING_TAG);
+            upd_msg.insert(dif + AZURE_NOTRANSLATE_OPENING_TAG.size() + match.getEnd() + 1, AZURE_NOTRANSLATE_CLOSING_TAG);
+            mesg.erase(match.getStart(), match.getEnd() - match.getStart());
+            dif += match.getEnd() - match.getStart() + AZURE_NOTRANSLATE_OPENING_TAG.size() + AZURE_NOTRANSLATE_CLOSING_TAG.size();
+        }
+        return upd_msg;
     }
-    return upd_msg;
+    return mesg;
 }
 
 std::string LLTranslate::removeNoTranslateTags(std::string mesg)
 {
-    if (getPreferredHandler().getCurrentService() != SERVICE_AZURE)
+    if (getPreferredHandler().getCurrentService() == SERVICE_GOOGLE)
     {
         return mesg;
     }
-    std::string upd_msg(mesg);
-    LLUrlMatch match;
-    S32 opening_tag_size = BING_NOTRANSLATE_OPENING_TAG.size();
-    S32 closing_tag_size = BING_NOTRANSLATE_CLOSING_TAG.size();
-    S32 dif = 0;
-    //remove 'no-translate' tags we added to the links before
-    while (LLUrlRegistry::instance().findUrl(mesg, match))
-    {
-        if (upd_msg.substr(dif + match.getStart() - opening_tag_size, opening_tag_size) == BING_NOTRANSLATE_OPENING_TAG)
-        {
-            upd_msg.erase(dif + match.getStart() - opening_tag_size, opening_tag_size);
-            dif -= opening_tag_size;
 
-            if (upd_msg.substr(dif + match.getEnd() + 1, closing_tag_size) == BING_NOTRANSLATE_CLOSING_TAG)
+    if (getPreferredHandler().getCurrentService() == SERVICE_AZURE)
+    {
+        std::string upd_msg(mesg);
+        LLUrlMatch match;
+        S32 opening_tag_size = AZURE_NOTRANSLATE_OPENING_TAG.size();
+        S32 closing_tag_size = AZURE_NOTRANSLATE_CLOSING_TAG.size();
+        S32 dif = 0;
+        //remove 'no-translate' tags we added to the links before
+        while (LLUrlRegistry::instance().findUrl(mesg, match))
+        {
+            if (upd_msg.substr(dif + match.getStart() - opening_tag_size, opening_tag_size) == AZURE_NOTRANSLATE_OPENING_TAG)
             {
-                upd_msg.replace(dif + match.getEnd() + 1, closing_tag_size, " ");
-                dif -= closing_tag_size - 1;
+                upd_msg.erase(dif + match.getStart() - opening_tag_size, opening_tag_size);
+                dif -= opening_tag_size;
+
+                if (upd_msg.substr(dif + match.getEnd() + 1, closing_tag_size) == AZURE_NOTRANSLATE_CLOSING_TAG)
+                {
+                    upd_msg.replace(dif + match.getEnd() + 1, closing_tag_size, " ");
+                    dif -= closing_tag_size - 1;
+                }
             }
+            mesg.erase(match.getStart(), match.getUrl().size());
+            dif += match.getUrl().size();
         }
-        mesg.erase(match.getStart(), match.getUrl().size());
-        dif += match.getUrl().size();
+        return upd_msg;
     }
-    return upd_msg;
+
+    return mesg;
 }
 
 /*static*/
