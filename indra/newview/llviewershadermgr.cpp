@@ -378,9 +378,6 @@ void LLViewerShaderMgr::setShaders()
 
     LLPipeline::sRenderGlow = gSavedSettings.getBOOL("RenderGlow"); 
     
-    //hack to reset buffers that change behavior with shaders
-    gPipeline.resetVertexBuffers();
-
     if (gViewerWindow)
     {
         gViewerWindow->setCursor(UI_CURSOR_WAIT);

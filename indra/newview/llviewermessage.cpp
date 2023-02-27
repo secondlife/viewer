@@ -2938,8 +2938,6 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	// Teleport is finished; it can't be cancelled now.
 	gViewerWindow->setProgressCancelButtonVisible(FALSE);
 
-	gPipeline.doResetVertexBuffers(true);
-
 	// Do teleport effect for where you're leaving
 	// VEFFECT: TeleportStart
 	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);

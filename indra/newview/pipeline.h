@@ -97,9 +97,7 @@ public:
 
 	void destroyGL();
 	void restoreGL();
-	void resetVertexBuffers();
-	void doResetVertexBuffers(bool forced = false);
-    void requestResizeScreenTexture(); // set flag only, no work, safer for callbacks...
+	void requestResizeScreenTexture(); // set flag only, no work, safer for callbacks...
     void requestResizeShadowTexture(); // set flag only, no work, safer for callbacks...
 
 	void resizeScreenTexture();

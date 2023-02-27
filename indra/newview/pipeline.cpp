@@ -681,8 +681,6 @@ void LLPipeline::destroyGL()
 	
 	resetDrawOrders();
 
-	resetVertexBuffers();
-
 	releaseGLBuffers();
 
 	if (mMeshDirtyQueryObject)
@@ -6751,88 +6749,6 @@ void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
 			facep->clearVertexBuffer();
 		}
 	}
-}
-
-void LLPipeline::resetVertexBuffers()
-{	
-	mResetVertexBuffers = true;
-}
-
-void LLPipeline::doResetVertexBuffers(bool forced)
-{
-	if (!mResetVertexBuffers)
-	{
-		return;
-	}
-	if(!forced && LLSpatialPartition::sTeleportRequested)
-	{
-		if(gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
-		{
-			return; //wait for teleporting to finish
-		}
-		else
-		{
-			//teleporting aborted
-			LLSpatialPartition::sTeleportRequested = FALSE;
-			mResetVertexBuffers = false;
-			return;
-		}
-	}
-
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-	mResetVertexBuffers = false;
-
-	mCubeVB = NULL;
-    mDeferredVB = NULL;
-
-	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
-			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
-	{
-		LLViewerRegion* region = *iter;
-		for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
-		{
-			LLSpatialPartition* part = region->getSpatialPartition(i);
-			if (part)
-			{
-				part->resetVertexBuffers();
-			}
-		}
-	}
-	if(LLSpatialPartition::sTeleportRequested)
-	{
-		LLSpatialPartition::sTeleportRequested = FALSE;
-
-		LLWorld::getInstance()->clearAllVisibleObjects();
-		clearRebuildDrawables();
-	}
-
-	resetDrawOrders();
-
-	gSky.resetVertexBuffers();
-
-	LLVOPartGroup::destroyGL();
-
-	if ( LLPathingLib::getInstance() )
-	{
-		LLPathingLib::getInstance()->cleanupVBOManager();
-	}
-	LLVOPartGroup::destroyGL();
-    gGL.resetVertexBuffer();
-
-	LLVertexBuffer::unbind();
-	
-	updateRenderBump();
-
-	sBakeSunlight = gSavedSettings.getBOOL("RenderBakeSunlight");
-	sNoAlpha = gSavedSettings.getBOOL("RenderNoAlpha");
-	LLPipeline::sTextureBindTest = gSavedSettings.getBOOL("RenderDebugTextureBind");
-
-    gGL.initVertexBuffer();
-
-    mDeferredVB = new LLVertexBuffer(DEFERRED_VB_MASK);
-    mDeferredVB->allocateBuffer(8, 0);
-
-	LLVOPartGroup::restoreGL();
 }
 
 void LLPipeline::renderObjects(U32 type, bool texture, bool batch_texture, bool rigged)

@@ -149,14 +149,7 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
     if (gPipeline.isInit())
     {
         // ALM depends onto atmospheric shaders, state might have changed
-        bool old_state = LLPipeline::sRenderDeferred;
         LLPipeline::refreshCachedSettings();
-        if (old_state != LLPipeline::sRenderDeferred)
-        {
-            gPipeline.releaseGLBuffers();
-            gPipeline.createGLBuffers();
-            gPipeline.resetVertexBuffers();
-        }
     }
 
 	// else, leave terrain detail as is
@@ -206,7 +199,6 @@ bool handleRenderTransparentWaterChanged(const LLSD& newvalue)
 		gPipeline.updateRenderTransparentWater();
 		gPipeline.releaseGLBuffers();
 		gPipeline.createGLBuffers();
-		gPipeline.resetVertexBuffers();
 		LLViewerShaderMgr::instance()->setShaders();
 	}
 	LLWorld::getInstance()->updateWaterObjects();
@@ -397,15 +389,6 @@ static bool handleWLSkyDetailChanged(const LLSD&)
 	return true;
 }
 
-static bool handleResetVertexBuffersChanged(const LLSD&)
-{
-	if (gPipeline.isInit())
-	{
-		gPipeline.resetVertexBuffers();
-	}
-	return true;
-}
-
 static bool handleRepartition(const LLSD&)
 {
 	if (gPipeline.isInit())
@@ -436,7 +419,6 @@ static bool handleReflectionProbeDetailChanged(const LLSD& newvalue)
         LLPipeline::refreshCachedSettings();
         gPipeline.releaseGLBuffers();
         gPipeline.createGLBuffers();
-        gPipeline.resetVertexBuffers();
         LLViewerShaderMgr::instance()->setShaders();
     }
     return true;
@@ -654,7 +636,6 @@ void settings_setup_listeners()
 	setting_setup_signal_listener(gSavedSettings, "RenderGlow", handleReleaseGLBufferChanged);
 	setting_setup_signal_listener(gSavedSettings, "RenderGlow", handleSetShaderChanged);
 	setting_setup_signal_listener(gSavedSettings, "RenderGlowResolutionPow", handleReleaseGLBufferChanged);
-	// DEPRECATED -- setting_setup_signal_listener(gSavedSettings, "WindLightUseAtmosShaders", handleSetShaderChanged);
 	setting_setup_signal_listener(gSavedSettings, "RenderGammaFull", handleSetShaderChanged);
 	setting_setup_signal_listener(gSavedSettings, "RenderVolumeLODFactor", handleVolumeLODChanged);
 	setting_setup_signal_listener(gSavedSettings, "RenderAvatarLODFactor", handleAvatarLODChanged);
@@ -667,17 +648,11 @@ void settings_setup_listeners()
 	setting_setup_signal_listener(gSavedSettings, "RenderMaxPartCount", handleMaxPartCountChanged);
 	setting_setup_signal_listener(gSavedSettings, "RenderDynamicLOD", handleRenderDynamicLODChanged);
 	setting_setup_signal_listener(gSavedSettings, "RenderLocalLights", handleRenderLocalLightsChanged);
-	setting_setup_signal_listener(gSavedSettings, "RenderDebugTextureBind", handleResetVertexBuffersChanged);
-	setting_setup_signal_listener(gSavedSettings, "RenderAutoMaskAlphaDeferred", handleResetVertexBuffersChanged);
-	setting_setup_signal_listener(gSavedSettings, "RenderAutoMaskAlphaNonDeferred", handleResetVertexBuffersChanged);
-	// DEPRECATED - setting_setup_signal_listener(gSavedSettings, "RenderObjectBump", handleRenderBumpChanged);
-	setting_setup_signal_listener(gSavedSettings, "RenderMaxVBOSize", handleResetVertexBuffersChanged);
-    setting_setup_signal_listener(gSavedSettings, "RenderVSyncEnable", handleVSyncChanged);
+	setting_setup_signal_listener(gSavedSettings, "RenderVSyncEnable", handleVSyncChanged);
 	setting_setup_signal_listener(gSavedSettings, "RenderDeferredNoise", handleReleaseGLBufferChanged);
 	setting_setup_signal_listener(gSavedSettings, "RenderDebugPipeline", handleRenderDebugPipelineChanged);
 	setting_setup_signal_listener(gSavedSettings, "RenderResolutionDivisor", handleRenderResolutionDivisorChanged);
-	// DEPRECATED - setting_setup_signal_listener(gSavedSettings, "RenderDeferred", handleRenderDeferredChanged);
-    setting_setup_signal_listener(gSavedSettings, "RenderReflectionProbeDetail", handleReflectionProbeDetailChanged);
+	setting_setup_signal_listener(gSavedSettings, "RenderReflectionProbeDetail", handleReflectionProbeDetailChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderReflectionsEnabled", handleReflectionProbeDetailChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderScreenSpaceReflections", handleReflectionProbeDetailChanged);
 	setting_setup_signal_listener(gSavedSettings, "RenderShadowDetail", handleSetShaderChanged);
@@ -705,11 +680,6 @@ void settings_setup_listeners()
 	setting_setup_signal_listener(gSavedSettings, "MuteVoice", handleAudioVolumeChanged);
 	setting_setup_signal_listener(gSavedSettings, "MuteAmbient", handleAudioVolumeChanged);
 	setting_setup_signal_listener(gSavedSettings, "MuteUI", handleAudioVolumeChanged);
-	setting_setup_signal_listener(gSavedSettings, "RenderVBOEnable", handleResetVertexBuffersChanged);
-	setting_setup_signal_listener(gSavedSettings, "RenderUseVAO", handleResetVertexBuffersChanged);
-	setting_setup_signal_listener(gSavedSettings, "RenderVBOMappingDisable", handleResetVertexBuffersChanged);
-	setting_setup_signal_listener(gSavedSettings, "RenderUseStreamVBO", handleResetVertexBuffersChanged);
-	setting_setup_signal_listener(gSavedSettings, "RenderPreferStreamDraw", handleResetVertexBuffersChanged);
 	setting_setup_signal_listener(gSavedSettings, "WLSkyDetail", handleWLSkyDetailChanged);
 	setting_setup_signal_listener(gSavedSettings, "JoystickAxis0", handleJoystickChanged);
 	setting_setup_signal_listener(gSavedSettings, "JoystickAxis1", handleJoystickChanged);

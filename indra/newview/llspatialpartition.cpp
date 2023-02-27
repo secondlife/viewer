@@ -3234,6 +3234,7 @@ public:
 				renderAgentTarget(avatar);
 			}
 			
+#if 0
 			if (gDebugGL)
 			{
 				for (U32 i = 0; i < drawable->getNumFaces(); ++i)
@@ -3259,6 +3260,7 @@ public:
 					}
 				}
 			}
+#endif
 		}
 		
 		for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)

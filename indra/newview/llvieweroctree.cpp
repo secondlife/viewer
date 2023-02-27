@@ -870,6 +870,7 @@ LLOcclusionCullingGroup::LLOcclusionCullingGroup(OctreeNode* node, LLViewerOctre
 	for (U32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
 	{
 		mOcclusionQuery[i] = 0;
+        mOcclusionCheckCount[i] = 0;
 		mOcclusionIssued[i] = 0;
 		mOcclusionState[i] = parent ? SG_STATE_INHERIT_MASK & parent->mOcclusionState[i] : 0;
 		mVisible[i] = 0;
@@ -1127,10 +1128,12 @@ void LLOcclusionCullingGroup::checkOcclusion()
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("co - query available");
                 glGetQueryObjectuiv(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE, &available);
+                mOcclusionCheckCount[LLViewerCamera::sCurCameraID]++;
             }
 
-            if (available)
+            if (available || mOcclusionCheckCount[LLViewerCamera::sCurCameraID] > 4)
             {   
+                mOcclusionCheckCount[LLViewerCamera::sCurCameraID] = 0;
                 GLuint query_result;    // Will be # samples drawn, or a boolean depending on mHasOcclusionQuery2 (both are type GLuint)
                 {
                     LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("co - query result");
@@ -1140,20 +1143,6 @@ void LLOcclusionCullingGroup::checkOcclusion()
                 sPendingQueries.erase(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
 #endif
 
-#if 0   // (12/2021) occasional false-negative occlusion tests produce water reflection errors, SL-16461
-        // If/when water occlusion queries become 100% reliable, re-enable this optimization
-
-                if (LLPipeline::RENDER_TYPE_WATER == mSpatialPartition->mDrawableType)
-                {
-                    // Note any unoccluded water, for deciding on reflection/distortion passes
-                    // (If occlusion is disabled, these are set within LLDrawPoolWater::render)
-                    if (query_result > 0)
-                    {
-                        LLDrawPoolWater::sNeedsReflectionUpdate = TRUE;
-                        LLDrawPoolWater::sNeedsDistortionUpdate = TRUE;
-                    }
-                }
-#endif
                 if (query_result > 0)
                 {
                     clearOcclusionState(LLOcclusionCullingGroup::OCCLUDED, LLOcclusionCullingGroup::STATE_MODE_DIFF);
