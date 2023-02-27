@@ -5295,13 +5295,14 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	if (mat)
 	{
+		BOOL is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) || (facep->getTextureEntry()->getColor().mV[3] < 0.999f) ? TRUE : FALSE;
 		if (type == LLRenderPass::PASS_ALPHA)
 		{
-			shader_mask = mat->getShaderMask(LLMaterial::DIFFUSE_ALPHA_MODE_BLEND);
+			shader_mask = mat->getShaderMask(LLMaterial::DIFFUSE_ALPHA_MODE_BLEND, is_alpha);
 		}
 		else
 		{
-			shader_mask = mat->getShaderMask();
+			shader_mask = mat->getShaderMask(LLMaterial::DIFFUSE_ALPHA_MODE_DEFAULT, is_alpha);
 		}
 	}
 
@@ -6676,7 +6677,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 						LLRenderPass::PASS_NORMSPEC_EMISSIVE,
 					};
 
-					U32 mask = mat->getShaderMask();
+					U32 mask = mat->getShaderMask(LLMaterial::DIFFUSE_ALPHA_MODE_DEFAULT, is_alpha);
 
 					llassert(mask < sizeof(pass)/sizeof(U32));
 
