@@ -9,8 +9,8 @@
  title="CHAT TRANSLATION SETTINGS"
  width="485">
 
- <string name="azure_api_key_not_verified">Azure service identifier not verified. Please try again.</string>
- <string name="google_api_key_not_verified">Google API key not verified. Please try again.</string>
+ <string name="azure_api_key_not_verified">Azure service identifier not verified. Status: [STATUS]. Please check your settings and try again.</string>
+ <string name="google_api_key_not_verified">Google API key not verified. Status: [STATUS]. Please check your key and try again.</string>
 
  <string name="azure_api_key_verified">Azure service identifier verified.</string>
  <string name="google_api_key_verified">Google API key verified.</string>
@@ -148,6 +148,19 @@
  </radio_group>
 
   <text
+   follows="top|right"
+   height="20"
+   layout="topleft"
+   left="185"
+   length="1"
+   name="google_links_text"
+   top_pad="-142"
+   type="string"
+   width="100">
+    [https://learn.microsoft.com/en-us/azure/cognitive-services/translator/create-translator-resource Setup]
+  </text>
+
+  <text
    type="string"
    length="1"
    follows="top|right"
@@ -155,7 +168,7 @@
    layout="topleft"
    left="70"
    name="azure_api_endoint_label"
-   top_pad="-115"
+   top_pad="8"
    width="85">
     Endpoint:
   </text>
