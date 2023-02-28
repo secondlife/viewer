@@ -1373,27 +1373,7 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 		return;
 
 	const std::string command_name = userdata.asString();
-    if (command_name == "new_single_folder_window")
-    {
-        newFolderWindow();
-    }
-    if ((command_name == "open_in_current_window") || (command_name == "open_in_new_window"))
-    {
-        LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
-        if (!current_item)
-        {
-            return;
-        }
-        const LLUUID& folder_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
-        if((command_name == "open_in_current_window"))
-        {
-            mSingleFolderPanelInventory->changeFolderRoot(folder_id);
-        }
-        if((command_name == "open_in_new_window"))
-        {
-            newFolderWindow(folder_id);
-        }
-    }
+
 	if (command_name == "new_window")
 	{
 		newWindow();
@@ -1660,19 +1640,7 @@ bool LLPanelMainInventory::isActionVisible(const LLSD& userdata)
     {
         return !mSingleFolderMode;
     }
-    if (param_str == "open_folder" || param_str == "open_new_folder")
-    {
-        if (!mSingleFolderMode && (param_str == "open_folder")) return false;
 
-        LLFolderView* root = getActivePanel()->getRootFolder();
-        std::set<LLFolderViewItem*> selection_set = root->getSelectionList();
-        if (selection_set.size() != 1) return false;
-
-        LLFolderViewItem* current_item = *selection_set.begin();
-        if (!current_item) return false;
-        const LLUUID& folder_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
-        return (gInventory.getCategory(folder_id) != NULL);
-    }
     return true;
 }
 

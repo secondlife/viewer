@@ -37,15 +37,6 @@
          parameter="" />
       </menu_item_call>
       <menu_item_call
-       label="New Folder Window"
-       name="new_single_folder"
-       shortcut="control|shift|J"
-       visible="false">
-        <menu_item_call.on_click
-         function="Inventory.NewFolderWindow"
-         parameter="" />
-      </menu_item_call>
-      <menu_item_call
        label="Places..."
        name="Places"
        shortcut="control|L">

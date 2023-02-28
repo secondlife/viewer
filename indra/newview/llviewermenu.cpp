@@ -9703,7 +9703,6 @@ void initialize_menus()
 	commit.add("PayObject", boost::bind(&handle_give_money_dialog));
 
 	commit.add("Inventory.NewWindow", boost::bind(&LLPanelMainInventory::newWindow));
-    commit.add("Inventory.NewFolderWindow", boost::bind(&LLPanelMainInventory::newFolderWindow, LLUUID(), LLUUID()));
 
 	enable.add("EnablePayObject", boost::bind(&enable_pay_object));
 	enable.add("EnablePayAvatar", boost::bind(&enable_pay_avatar));

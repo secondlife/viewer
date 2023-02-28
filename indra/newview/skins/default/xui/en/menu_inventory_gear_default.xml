@@ -7,37 +7,6 @@
  name="menu_gear_default"
  visible="false">
     <menu_item_call
-     label="Open"
-     layout="topleft"
-     name="open_in_current_window">
-       <on_click
-         function="Inventory.GearDefault.Custom.Action"
-         parameter="open_in_current_window" />
-        <on_visible
-         function="Inventory.GearDefault.Visible"
-         parameter="open_folder" />
-    </menu_item_call>
-    <menu_item_call
-     label="Open in new window"
-     layout="topleft"
-     name="open_in_new_window">
-        <on_click
-         function="Inventory.GearDefault.Custom.Action"
-         parameter="open_in_new_window" />
-        <on_visible
-         function="Inventory.GearDefault.Visible"
-         parameter="open_new_folder" />
-    </menu_item_call>
-    <menu_item_call
-     label="New Folder Window"
-     layout="topleft"
-     shortcut="control|shift|J"
-     name="new_single_folder">
-        <on_click
-         function="Inventory.GearDefault.Custom.Action"
-         parameter="new_single_folder_window" />
-    </menu_item_call>
-    <menu_item_call
      label="New Inventory Window"
      layout="topleft"
      shortcut="control|shift|I"
