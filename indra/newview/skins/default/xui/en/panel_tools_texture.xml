@@ -140,11 +140,11 @@
              top_pad="17"
              width="90">
                 <combo_box.item
-                 label="Materials"
+                 label="Blinn-Phong"
                  name="Materials"
                  value="Materials" />
                 <combo_box.item
-                 label="PBR"
+                 label="PBR Metallic Roughness"
                  name="PBR"
                  value="PBR" />
                 <combo_box.item
@@ -256,7 +256,7 @@
              allow_no_texture="true"
              follows="left|top"
              height="80"
-             label="PBR       "
+             label="Material"
              layout="topleft"
              left="10"
              name="pbr_control"
