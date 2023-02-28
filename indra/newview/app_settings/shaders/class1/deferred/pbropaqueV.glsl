@@ -38,18 +38,10 @@ uniform mat4 modelview_projection_matrix;
 #endif
 uniform mat4 texture_matrix0;
 
-uniform vec2 texture_base_color_scale;
-uniform float texture_base_color_rotation;
-uniform vec2 texture_base_color_offset;
-uniform vec2 texture_normal_scale;
-uniform float texture_normal_rotation;
-uniform vec2 texture_normal_offset;
-uniform vec2 texture_metallic_roughness_scale;
-uniform float texture_metallic_roughness_rotation;
-uniform vec2 texture_metallic_roughness_offset;
-uniform vec2 texture_emissive_scale;
-uniform float texture_emissive_rotation;
-uniform vec2 texture_emissive_offset;
+uniform vec4[2] texture_base_color_transform;
+uniform vec4[2] texture_normal_transform;
+uniform vec4[2] texture_metallic_roughness_transform;
+uniform vec4[2] texture_emissive_transform;
 
 in vec3 position;
 in vec4 diffuse_color;
@@ -68,7 +60,7 @@ out vec3 vary_tangent;
 flat out float vary_sign;
 out vec3 vary_normal;
 
-vec2 texture_transform(vec2 vertex_texcoord, vec2 khr_gltf_scale, float khr_gltf_rotation, vec2 khr_gltf_offset, mat4 sl_animation_transform);
+vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
 
 void main()
 {
@@ -86,10 +78,10 @@ void main()
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
 #endif
 
-    base_color_texcoord = texture_transform(texcoord0, texture_base_color_scale, texture_base_color_rotation, texture_base_color_offset, texture_matrix0);
-    normal_texcoord = texture_transform(texcoord0, texture_normal_scale, texture_normal_rotation, texture_normal_offset, texture_matrix0);
-    metallic_roughness_texcoord = texture_transform(texcoord0, texture_metallic_roughness_scale, texture_metallic_roughness_rotation, texture_metallic_roughness_offset, texture_matrix0);
-    emissive_texcoord = texture_transform(texcoord0, texture_emissive_scale, texture_emissive_rotation, texture_emissive_offset, texture_matrix0);
+    base_color_texcoord = texture_transform(texcoord0, texture_base_color_transform, texture_matrix0);
+    normal_texcoord = texture_transform(texcoord0, texture_normal_transform, texture_matrix0);
+    metallic_roughness_texcoord = texture_transform(texcoord0, texture_metallic_roughness_transform, texture_matrix0);
+    emissive_texcoord = texture_transform(texcoord0, texture_emissive_transform, texture_matrix0);
 
 #ifdef HAS_SKIN
 	vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
@@ -114,18 +106,10 @@ uniform mat4 modelview_projection_matrix;
 
 uniform mat4 texture_matrix0;
 
-uniform vec2 texture_base_color_scale;
-uniform float texture_base_color_rotation;
-uniform vec2 texture_base_color_offset;
-uniform vec2 texture_normal_scale;
-uniform float texture_normal_rotation;
-uniform vec2 texture_normal_offset;
-uniform vec2 texture_metallic_roughness_scale;
-uniform float texture_metallic_roughness_rotation;
-uniform vec2 texture_metallic_roughness_offset;
-uniform vec2 texture_emissive_scale;
-uniform float texture_emissive_rotation;
-uniform vec2 texture_emissive_offset;
+uniform vec4[2] texture_base_color_transform;
+uniform vec4[2] texture_normal_transform;
+uniform vec4[2] texture_metallic_roughness_transform;
+uniform vec4[2] texture_emissive_transform;
 
 in vec3 position;
 in vec4 diffuse_color;
@@ -136,15 +120,15 @@ out vec2 emissive_texcoord;
  
 out vec4 vertex_color;
 
-vec2 texture_transform(vec2 vertex_texcoord, vec2 khr_gltf_scale, float khr_gltf_rotation, vec2 khr_gltf_offset, mat4 sl_animation_transform);
+vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
 
 void main()
 {
     //transform vertex
     gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
 
-    base_color_texcoord = texture_transform(texcoord0, texture_base_color_scale, texture_base_color_rotation, texture_base_color_offset, texture_matrix0);
-    emissive_texcoord = texture_transform(texcoord0, texture_emissive_scale, texture_emissive_rotation, texture_emissive_offset, texture_matrix0);
+    base_color_texcoord = texture_transform(texcoord0, texture_base_color_transform, texture_matrix0);
+    emissive_texcoord = texture_transform(texcoord0, texture_emissive_transform, texture_matrix0);
 
     vertex_color = diffuse_color;
 }
