@@ -53,18 +53,10 @@ public:
         OBJECT_PLANE_S,                     //  "object_plane_s"
         OBJECT_PLANE_T,                     //  "object_plane_t"
 
-        TEXTURE_BASE_COLOR_SCALE,           //  "texture_base_color_scale" (GLTF)
-        TEXTURE_BASE_COLOR_ROTATION,        //  "texture_base_color_rotation" (GLTF)
-        TEXTURE_BASE_COLOR_OFFSET,          //  "texture_base_color_offset" (GLTF)
-        TEXTURE_NORMAL_SCALE,               //  "texture_normal_scale" (GLTF)
-        TEXTURE_NORMAL_ROTATION,            //  "texture_normal_rotation" (GLTF)
-        TEXTURE_NORMAL_OFFSET,              //  "texture_normal_offset" (GLTF)
-        TEXTURE_METALLIC_ROUGHNESS_SCALE,   //  "texture_metallic_roughness_scale" (GLTF)
-        TEXTURE_METALLIC_ROUGHNESS_ROTATION,//  "texture_metallic_roughness_rotation" (GLTF)
-        TEXTURE_METALLIC_ROUGHNESS_OFFSET,  //  "texture_metallic_roughness_offset" (GLTF)
-        TEXTURE_EMISSIVE_SCALE,             //  "texture_emissive_scale" (GLTF)
-        TEXTURE_EMISSIVE_ROTATION,          //  "texture_emissive_rotation" (GLTF)
-        TEXTURE_EMISSIVE_OFFSET,            //  "texture_emissive_offset" (GLTF)
+        TEXTURE_BASE_COLOR_TRANSFORM,         //  "texture_base_color_transform" (GLTF)
+        TEXTURE_NORMAL_TRANSFORM,             //  "texture_normal_transform" (GLTF)
+        TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, //  "texture_metallic_roughness_transform" (GLTF)
+        TEXTURE_EMISSIVE_TRANSFORM,           //  "texture_emissive_transform" (GLTF)
 
         VIEWPORT,                           //  "viewport"
         LIGHT_POSITION,                     //  "light_position"

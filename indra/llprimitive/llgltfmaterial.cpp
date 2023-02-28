@@ -43,26 +43,16 @@ const char* const GLTF_FILE_EXTENSION_TRANSFORM_ROTATION = "rotation";
 // special UUID that indicates a null UUID in override data
 static const LLUUID GLTF_OVERRIDE_NULL_UUID = LLUUID("ffffffff-ffff-ffff-ffff-ffffffffffff");
 
-// https://github.com/KhronosGroup/glTF/tree/main/extensions/3.0/Khronos/KHR_texture_transform
-LLMatrix3 LLGLTFMaterial::TextureTransform::asMatrix()
+void LLGLTFMaterial::TextureTransform::getPacked(F32 (&packed)[8])
 {
-    LLMatrix3 scale;
-    scale.mMatrix[0][0] = mScale[0];
-    scale.mMatrix[1][1] = mScale[1];
-
-    LLMatrix3 rotation;
-    const F32 cos_r = cos(mRotation);
-    const F32 sin_r = sin(mRotation);
-    rotation.mMatrix[0][0] = cos_r;
-    rotation.mMatrix[0][1] = -sin_r;
-    rotation.mMatrix[1][0] = sin_r;
-    rotation.mMatrix[1][1] = cos_r;
-
-    LLMatrix3 offset;
-    offset.mMatrix[2][0] = mOffset[0];
-    offset.mMatrix[2][1] = mOffset[1];
-
-    return offset * rotation * scale;
+    packed[0] = mScale.mV[VX];
+    packed[1] = mScale.mV[VY];
+    packed[2] = mRotation;
+    // packed[3] = unused
+    packed[4] = mOffset.mV[VX];
+    packed[5] = mOffset.mV[VY];
+    // packed[6] = unused
+    // packed[7] = unused
 }
 
 bool LLGLTFMaterial::TextureTransform::operator==(const TextureTransform& other) const
