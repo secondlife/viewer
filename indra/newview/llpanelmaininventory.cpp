@@ -1489,6 +1489,20 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 		LLFloaterReg::showInstance("linkreplace", params);
 	}
 
+    if (command_name == "close_inv_windows")
+    {
+        LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
+        for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end();)
+        {
+            LLFloaterSidePanelContainer* iv = dynamic_cast<LLFloaterSidePanelContainer*>(*iter++);
+            if (iv)
+            {
+                iv->closeFloater();
+            }
+        }
+        LLFloaterReg::hideInstance("inventory_settings");
+    }
+
     if (command_name == "toggle_search_outfits")
     {
         mActivePanel->getFilter().toggleSearchVisibilityOutfits();
