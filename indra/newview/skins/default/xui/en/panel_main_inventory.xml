@@ -286,6 +286,7 @@
        height="372"
        width="312"
        layout="topleft"
+       show_item_link_overlays="true"
        bg_opaque_color="DkGray2"
        bg_alpha_color="DkGray2"
        background_visible="true"

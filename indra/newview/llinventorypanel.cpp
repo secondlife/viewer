@@ -939,8 +939,8 @@ LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge * br
 	params.tool_tip = params.name;
     params.allow_drop = allow_drop;
 
-	params.font_color = (bridge->isLibraryItem() ? sLibraryColor : (bridge->isLink() ? sLinkColor : sDefaultColor));
-	params.font_highlight_color = (bridge->isLibraryItem() ? sLibraryColor : (bridge->isLink() ? sLinkColor : sDefaultHighlightColor));
+	params.font_color = (bridge->isLibraryItem() ? sLibraryColor : sDefaultColor);
+	params.font_highlight_color = (bridge->isLibraryItem() ? sLibraryColor : sDefaultHighlightColor);
 	
 	return LLUICtrlFactory::create<LLFolderViewFolder>(params);
 }
@@ -956,8 +956,8 @@ LLFolderViewItem * LLInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge
 	params.rect = LLRect (0, 0, 0, 0);
 	params.tool_tip = params.name;
 
-	params.font_color = (bridge->isLibraryItem() ? sLibraryColor : (bridge->isLink() ? sLinkColor : sDefaultColor));
-	params.font_highlight_color = (bridge->isLibraryItem() ? sLibraryColor : (bridge->isLink() ? sLinkColor : sDefaultHighlightColor));
+	params.font_color = (bridge->isLibraryItem() ? sLibraryColor : sDefaultColor);
+	params.font_highlight_color = (bridge->isLibraryItem() ? sLibraryColor : sDefaultHighlightColor);
 	
 	return LLUICtrlFactory::create<LLFolderViewItem>(params);
 }
