@@ -425,18 +425,14 @@ bool LLFeatureManager::loadGPUClass()
 		}
 	
 		if (gbps < 0.f)
-		{ //couldn't bench, use GLVersion
+		{ //couldn't bench, default to Low
 	#if LL_DARWIN
 		//GLVersion is misleading on OSX, just default to class 3 if we can't bench
 		LL_WARNS("RenderInit") << "Unable to get an accurate benchmark; defaulting to class 3" << LL_ENDL;
 		mGPUClass = GPU_CLASS_3;
 	#else
-			mGPUClass = GPU_CLASS_2;
-	#endif
-		}
-		else if (gbps <= 5.f)
-		{
 			mGPUClass = GPU_CLASS_0;
+	#endif
 		}
 		else if (gbps <= 8.f)
 		{

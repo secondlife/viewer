@@ -1,4 +1,4 @@
-version 49
+version 50
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -117,7 +117,7 @@ RenderGlowResolutionPow		1	8
 RenderMaxPartCount			1	2048
 RenderLocalLights			1	1
 RenderTransparentWater      1   0
-RenderReflectionsEnabled    1   0
+RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	1.0

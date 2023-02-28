@@ -1076,7 +1076,7 @@ void LLReflectionMapManager::doOcclusion()
 
     for (auto& probe : mProbes)
     {
-        if (probe != nullptr)
+        if (probe != nullptr && probe != mDefaultProbe)
         {
             probe->doOcclusion(eye);
         }
