@@ -71,6 +71,7 @@ RenderGLMultiThreaded       1   0
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	2
 RenderScreenSpaceReflections 1  1
+RenderReflectionProbeCount  1   8
 
 //
 // Low Graphics Settings
