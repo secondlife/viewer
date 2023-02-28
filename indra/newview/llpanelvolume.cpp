@@ -749,29 +749,49 @@ void LLPanelVolume::sendIsReflectionProbe()
     BOOL value = getChild<LLUICtrl>("Reflection Probe")->getValue();
     BOOL old_value = volobjp->isReflectionProbe();
 
-    volobjp->setIsReflectionProbe(value);
-    LL_INFOS() << "update reflection probe sent" << LL_ENDL;
+    if (value && value != old_value)
+    { // defer to notification util as to whether or not we *really* make this object a reflection probe
+        LLNotificationsUtil::add("ReflectionProbeApplied", LLSD(), LLSD(), boost::bind(&LLPanelVolume::doSendIsReflectionProbe, this, _1, _2));
+    }
+    else
+    {
+        volobjp->setIsReflectionProbe(value);
+    }
+}
 
-    if (value && !old_value)
-    { // has become a reflection probe, slam to a 10m sphere and pop up a message
-        // warning people about the pitfalls of reflection probes
-#if 0
-        auto* select_mgr = LLSelectMgr::getInstance();
+void LLPanelVolume::doSendIsReflectionProbe(const LLSD & notification, const LLSD & response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0) // YES
+    {
+        LLViewerObject* objectp = mObject;
+        if (!objectp || (objectp->getPCode() != LL_PCODE_VOLUME))
+        {
+            return;
+        }
+        LLVOVolume* volobjp = (LLVOVolume*)objectp;
 
-        mObject->setScale(LLVector3(10.f, 10.f, 10.f));
-        select_mgr->sendMultipleUpdate(UPD_ROTATION | UPD_POSITION | UPD_SCALE);
+        volobjp->setIsReflectionProbe(true);
 
-        select_mgr->selectionUpdatePhantom(true);
-        select_mgr->selectionSetGLTFMaterial(LLUUID::null);
-        select_mgr->selectionSetAlphaOnly(0.f);
-        
-        LLVolumeParams params;
-        params.getPathParams().setCurveType(LL_PCODE_PATH_CIRCLE);
-        params.getProfileParams().setCurveType(LL_PCODE_PROFILE_CIRCLE_HALF);
-        mObject->updateVolume(params);
-#endif
+        { // has become a reflection probe, slam to a 10m sphere and pop up a message
+            // warning people about the pitfalls of reflection probes
 
-        LLNotificationsUtil::add("ReflectionProbeApplied");
+            auto* select_mgr = LLSelectMgr::getInstance();
+
+            select_mgr->selectionUpdatePhantom(true);
+            select_mgr->selectionSetGLTFMaterial(LLUUID::null);
+            select_mgr->selectionSetAlphaOnly(0.f);
+
+            LLVolumeParams params;
+            params.getPathParams().setCurveType(LL_PCODE_PATH_CIRCLE);
+            params.getProfileParams().setCurveType(LL_PCODE_PROFILE_CIRCLE_HALF);
+            mObject->updateVolume(params);
+        }
+    }
+    else
+    {
+        // cancelled, touch up UI state
+        getChild<LLUICtrl>("Reflection Probe")->setValue(false);
     }
 }
 

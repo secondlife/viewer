@@ -12041,10 +12041,12 @@ Material successfully created.  Asset ID: [ASSET_ID]
     name="ReflectionProbeApplied"
     persist="true"
     type="alertmodal">
-    WARNING: You have made your object a Refelction Probe.  Continuing to manipulate the object while it is a probe will implicitly change the object to mimic its influence volume and will make irreversible changes to the object.  If you don't know what a reflection probe is, uncheck "Reflection Probe" immediately.  To learn more about Reflection Probes and how to use them, see https://wiki.secondlife.com/wiki/PBR_Materials#Understanding_and_Assisting_the_New_Reflections_System.
-    <usetemplate ignoretext="Reflection Probe tips"
-                 name="okignore"
-                 yestext="OK"/>
+    WARNING: You have made your object a Reflection Probe.  This will implicitly change the object to mimic its influence volume and will make irreversible changes to the object.  Do you want to continue?
+   <usetemplate
+       ignoretext="Reflection Probe tips"
+       name="okcancelignore"
+       notext="Cancel"
+       yestext="OK"/>
   </notification>
   
 </notifications>
