@@ -67,7 +67,7 @@ if (WINDOWS)
   # locally at least, the build output is spammed with 1000s of 'D9002'
   # warnings about this switch being ignored.
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")  
-  if( ADDRESS_SIZE EQUAL 32 )
+  if(ADDRESS_SIZE EQUAL 32 AND DEFINED ENV{"TEAMCITY_PROJECT_NAME"})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /p:PreferredToolArchitecture=x64")  
   endif()
   # Preserve first-pass-through versions (ie no FORCE overwrite). Prevents recursive addition of /Zo (04/2021)
