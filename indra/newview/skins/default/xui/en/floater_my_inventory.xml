@@ -6,7 +6,7 @@
  height="570"
  help_topic="sidebar_inventory"
  min_width="363"
- min_height="590"
+ min_height="270"
  name="floater_my_inventory"
  save_rect="true"
  save_visibility="true"

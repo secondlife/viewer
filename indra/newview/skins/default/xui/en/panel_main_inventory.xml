@@ -293,10 +293,10 @@
        border="false"
        bevel_style="none"
        scroll.reserve_scroll_corner="false">
-        <item folder_indentation="0"/>
+        <item folder_indentation="-8"/>
         <folder
          single_folder_mode="true"
-         folder_indentation="0"/>
+         folder_indentation="-8"/>
       </single_folder_inventory_panel>
     </panel>
 </panel>
