@@ -276,7 +276,7 @@ namespace tut
 			// why does LLSDSerialize::deserialize() reverse the parse() params??
 			mParser = [parser](std::istream& istr, LLSD& data, llssize max_bytes)
 			{
-				return (parser(data, istr, max_bytes) > 0);
+				return parser(data, istr, max_bytes);
 			};
 		}
 
