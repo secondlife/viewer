@@ -37,6 +37,8 @@
 #include "lluiimage.h"
 #include "llwindow.h"
 
+#include "llgltexture.h"
+
 static LLDefaultChildRegistry::Register<LLIconCtrl> r("icon");
 
 LLIconCtrl::Params::Params()
@@ -94,6 +96,22 @@ BOOL LLIconCtrl::handleHover(S32 x, S32 y, MASK mask)
     return LLUICtrl::handleHover(x, y, mask);
 }
 
+void LLIconCtrl::onVisibilityChange(BOOL new_visibility)
+{
+	LLUICtrl::onVisibilityChange(new_visibility);
+	if (mPriority == LLGLTexture::BOOST_ICON)
+	{
+		if (new_visibility)
+		{
+			loadImage(getValue(), mPriority);
+		}
+		else
+		{
+			mImagep = nullptr;
+		}
+	}
+}
+
 // virtual
 // value might be a string or a UUID
 void LLIconCtrl::setValue(const LLSD& value)
@@ -110,6 +128,14 @@ void LLIconCtrl::setValue(const LLSD& value, S32 priority)
 		tvalue = LLSD(LLUUID(value.asString()));
 	}
 	LLUICtrl::setValue(tvalue);
+
+	loadImage(tvalue, priority);
+}
+
+void LLIconCtrl::loadImage(const LLSD& tvalue, S32 priority)
+{
+	if(mPriority == LLGLTexture::BOOST_ICON && !getVisible()) return;
+
 	if (tvalue.isUUID())
 	{
         mImagep = LLUI::getUIImageByID(tvalue.asUUID(), priority);
