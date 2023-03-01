@@ -2383,6 +2383,7 @@ if (LL_TESTS)
 #    llremoteparcelrequest.cpp
     llviewerhelputil.cpp
     llversioninfo.cpp
+    llvocache.cpp
     llworldmap.cpp
     llworldmipmap.cpp
   )
@@ -2394,6 +2395,13 @@ if (LL_TESTS)
     LL_TEST_ADDITIONAL_SOURCE_FILES 
     tests/llviewertexture_stub.cpp
     #llviewertexturelist.cpp
+  )
+
+  set_source_files_properties(
+    llvocache.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_SOURCE_FILES 
+    ../llmessage/lldatapacker.cpp
   )
 
   set(test_libs

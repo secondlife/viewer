@@ -785,7 +785,7 @@ void LLViewerRegion::loadObjectCache()
 	if(LLVOCache::instanceExists())
 	{
         LLVOCache & vocache = LLVOCache::instance();
-		vocache.readFromCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap)  ;
+		vocache.readFromCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap);
         vocache.readGenericExtrasFromCache(mHandle, mImpl->mCacheID, mImpl->mGLTFOverridesJson);
 
 		if (mImpl->mCacheMap.empty())
@@ -814,7 +814,8 @@ void LLViewerRegion::saveObjectCache()
 		bool removal_enabled = sVOCacheCullingEnabled && (mRegionTimer.getElapsedTimeF32() > start_time_threshold); //allow to remove invalid objects from object cache file.
 
         LLVOCache & instance = LLVOCache::instance();
-		instance.writeToCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap, mCacheDirty, removal_enabled)  ;
+
+        instance.writeToCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap, mCacheDirty, removal_enabled);
         instance.writeGenericExtrasToCache(mHandle, mImpl->mCacheID, mImpl->mGLTFOverridesJson, mCacheDirty, removal_enabled);
 		mCacheDirty = FALSE;
 	}
@@ -822,6 +823,7 @@ void LLViewerRegion::saveObjectCache()
 	// Map of LLVOCacheEntry takes time to release, store map for cleanup on idle
 	sRegionCacheCleanup.insert(mImpl->mCacheMap.begin(), mImpl->mCacheMap.end());
 	mImpl->mCacheMap.clear();
+    // TODO - probably need to do the same for overrides cache
 }
 
 void LLViewerRegion::sendMessage()
@@ -2646,6 +2648,8 @@ void LLViewerRegion::cacheFullUpdateGLTFOverride(const LLGLTFOverrideCacheEntry 
     LLViewerObject * obj = gObjectList.findObject(object_id);
     if (obj != nullptr)
     {
+        llassert(obj->getRegion() == this);
+
         U32 local_id = obj->getLocalID();
 
         mImpl->mGLTFOverridesJson[local_id] = override_data;
@@ -3546,5 +3550,9 @@ void LLViewerRegion::loadCacheMiscExtras(U32 local_id, LLVOCacheEntry * entry, U
     if (iter != mImpl->mGLTFOverridesJson.end())
     {
         LLGLTFMaterialList::loadCacheOverrides(iter->second);
+    }
+    else
+    {
+        LL_DEBUGS("GLTF") << "cache miss for handle: " << mHandle << " local_id:" << local_id << LL_ENDL;
     }
 }

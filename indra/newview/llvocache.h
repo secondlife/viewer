@@ -43,7 +43,7 @@ class LLGLTFOverrideCacheEntry
 {
 public:
     bool fromLLSD(const LLSD& data);
-    LLSD toLLSD();
+    LLSD toLLSD() const;
 
     LLUUID mObjectId;
     std::map<S32, std::string> mSides; //json per side
@@ -301,6 +301,7 @@ private:
 	void setDirNames(ELLPath location);	
 	// determine the cache filename for the region from the region handle	
 	void getObjectCacheFilename(U64 handle, std::string& filename);
+    std::string getObjectCacheExtrasFilename(U64 handle);
 	void removeFromCache(HeaderEntryInfo* entry);
 	void readCacheHeader();
 	void writeCacheHeader();
