@@ -25,7 +25,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llfloaterreg.h"
 #include "llinspect.h"
 #include "llinspecttexture.h"
 #include "llinventoryfunctions.h"
@@ -34,101 +33,6 @@
 #include "lltrans.h"
 #include "llviewertexturelist.h"
 
-// ============================================================================
-// LLInspectTexture class
-//
-
-class LLInspectTexture : public LLInspect
-{
-	friend class LLFloaterReg;
-public:
-	LLInspectTexture(const LLSD& sdKey);
-	~LLInspectTexture();
-
-public:
-	void onOpen(const LLSD& sdData) override;
-	BOOL postBuild() override;
-
-public:
-	const LLUUID& getAssetId() const { return mAssetId; }
-	const LLUUID& getItemId() const  { return mItemId; }
-
-protected:
-	LLUUID         mAssetId;
-	LLUUID         mItemId;		// Item UUID relative to gInventoryModel (or null if not displaying an inventory texture)
-	LLUUID         mNotecardId;
-	LLTextureCtrl* mTextureCtrl = nullptr;
-	LLTextBox*     mTextureName = nullptr;
-};
-
-LLInspectTexture::LLInspectTexture(const LLSD& sdKey)
-	: LLInspect(LLSD())
-{
-}
-
-LLInspectTexture::~LLInspectTexture()
-{
-}
-
-void LLInspectTexture::onOpen(const LLSD& sdData)
-{
-	// Start fade animation
-	LLInspect::onOpen(sdData);
-
-	bool fIsAsset = sdData.has("thumbnail_id");
-	bool fIsInventory = sdData.has("item_id");
-
-	// Skip if we're being asked to display the same thing
-	const LLUUID idAsset = (fIsAsset) ? sdData["thumbnail_id"].asUUID() : LLUUID::null;
-	const LLUUID idItem = (fIsInventory) ? sdData["item_id"].asUUID() : LLUUID::null;
-	if ( (getVisible()) && ( ((fIsAsset) && (idAsset == mAssetId)) || ((fIsInventory) && (idItem == mItemId)) ) )
-	{
-		return;
-	}
-
-	// Position the inspector relative to the mouse cursor
-	// Similar to how tooltips are positioned [see LLToolTipMgr::createToolTip()]
-	if (sdData.has("pos"))
-		LLUI::instance().positionViewNearMouse(this, sdData["pos"]["x"].asInteger(), sdData["pos"]["y"].asInteger());
-	else
-		LLUI::instance().positionViewNearMouse(this);
-
-	std::string strName = sdData["name"].asString();
-	if (fIsAsset)
-	{
-		mAssetId = idAsset;
-		mItemId = idItem;		// Will be non-null in the case of a notecard
-		mNotecardId = sdData["notecard_id"].asUUID();
-	}
-	else if (fIsInventory)
-	{
-		const LLViewerInventoryItem* pItem = gInventory.getItem(idItem);
-		if ( (pItem) && (LLAssetType::AT_TEXTURE == pItem->getType()) )
-		{
-			if (strName.empty())
-				strName = pItem->getName();
-			mAssetId = pItem->getAssetUUID();
-			mItemId = idItem;
-		}
-		else
-		{
-			mAssetId.setNull();
-			mItemId.setNull();
-		}
-		mNotecardId = LLUUID::null;
-	}
-
-	mTextureCtrl->setImageAssetID(mAssetId);
-	mTextureName->setText(strName);
-}
-
-BOOL LLInspectTexture::postBuild()
-{
-	mTextureCtrl = getChild<LLTextureCtrl>("texture_ctrl");
-	mTextureName = getChild<LLTextBox>("texture_name");
-
-	return TRUE;
-}
 
 // ============================================================================
 // Helper functions
@@ -200,11 +104,6 @@ LLToolTip* LLInspectTextureUtil::createInventoryToolTip(LLToolTip::Params p)
 		default:
 			return LLUICtrlFactory::create<LLToolTip>(p);
 	}
-}
-
-void LLInspectTextureUtil::registerFloater()
-{
-	LLFloaterReg::add("inspect_texture", "inspect_texture.xml", &LLFloaterReg::build<LLInspectTexture>);
 }
 
 // ============================================================================

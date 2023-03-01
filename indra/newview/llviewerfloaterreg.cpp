@@ -154,7 +154,6 @@
 #include "llinspectgroup.h"
 #include "llinspectobject.h"
 #include "llinspectremoteobject.h"
-#include "llinspecttexture.h"
 #include "llinspecttoast.h"
 #include "llmoveview.h"
 #include "llfloaterimnearbychat.h"
@@ -378,7 +377,6 @@ void LLViewerFloaterReg::registerFloaters()
 	LLInspectAvatarUtil::registerFloater();
 	LLInspectGroupUtil::registerFloater();
 	LLInspectObjectUtil::registerFloater();
-	LLInspectTextureUtil::registerFloater();
 	LLInspectRemoteObjectUtil::registerFloater();
 	LLFloaterVoiceVolumeUtil::registerFloater();
 	LLNotificationsUI::registerFloater();

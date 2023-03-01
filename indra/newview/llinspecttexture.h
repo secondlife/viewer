@@ -32,9 +32,6 @@ class LLTexturePreviewView;
 namespace LLInspectTextureUtil
 {
 	LLToolTip* createInventoryToolTip(LLToolTip::Params p);
-
-	// Register with LLFloaterReg
-	void registerFloater();
 }
 
 class LLTextureToolTip : public LLToolTip
