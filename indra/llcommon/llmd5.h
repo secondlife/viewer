@@ -67,6 +67,8 @@ documentation and/or software.
 
 */
 
+#include <cstdint>                  // uint32_t et al.
+
 // use for the raw digest output
 const int MD5RAW_BYTES = 16;
 
@@ -75,18 +77,13 @@ const int MD5HEX_STR_SIZE = 33;  // char hex[MD5HEX_STR_SIZE]; with null
 const int MD5HEX_STR_BYTES = 32; // message system fixed size
 
 class LL_COMMON_API LLMD5 {
-// first, some types:
-  typedef unsigned       int uint4; // assumes integer is 4 words long
-  typedef unsigned short int uint2; // assumes short integer is 2 words long
-  typedef unsigned      char uint1; // assumes char is 1 word long
-
 // how many bytes to grab at a time when checking files
   static const int BLOCK_LEN;
 
 public:
 // methods for controlled operation:
   LLMD5              ();  // simple initializer
-  void  update     (const uint1 *input, const size_t input_length);
+  void  update     (const uint8_t *input, const size_t input_length);
   void  update     (std::istream& stream);
   void  update     (FILE *file);
   void  update     (const std::string& str);
@@ -109,19 +106,19 @@ private:
 
 
 // next, the private data:
-  uint4 state[4];
+  uint32_t state[4];
   uint64_t count;     // number of *bits*, mod 2^64
-  uint1 buffer[64];   // input buffer
-  uint1 digest[16];
-  uint1 finalized;
+  uint8_t buffer[64];   // input buffer
+  uint8_t digest[16];
+  uint8_t finalized;
 
 // last, the private methods, mostly static:
   void init             ();               // called by all constructors
-  void transform        (const uint1 *buffer);  // does the real update work.  Note 
+  void transform        (const uint8_t *buffer);  // does the real update work.  Note 
                                           // that length is implied to be 64.
 
-  static void encode    (uint1 *dest, const uint4 *src, const size_t length);
-  static void decode    (uint4 *dest, const uint1 *src, const size_t length);
+  static void encode    (uint8_t *dest, const uint32_t *src, const size_t length);
+  static void decode    (uint32_t *dest, const uint8_t *src, const size_t length);
 
 };
 
