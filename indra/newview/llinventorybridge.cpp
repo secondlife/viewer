@@ -4240,6 +4240,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 			if (cat && (cat->getPreferredType() == LLFolderType::FT_OUTFIT))
 			{
 				items.push_back(std::string("Rename"));
+                items.push_back(std::string("thumbnail"));
 
 				addDeleteContextMenuOptions(items, disabled_items);
 				// EXT-4030: disallow deletion of currently worn outfit

@@ -72,6 +72,7 @@ public:
 	virtual const LLUUID& getCreatorUUID() const;
 	virtual const std::string& getDescription() const;
 	virtual const LLSaleInfo& getSaleInfo() const;
+    virtual const LLUUID& getThumbnailUUID() const;
 	virtual LLInventoryType::EType getInventoryType() const;
 	virtual bool isWearableType() const;
 	virtual LLWearableType::EType getWearableType() const;

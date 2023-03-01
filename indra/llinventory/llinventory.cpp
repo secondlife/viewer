@@ -504,15 +504,6 @@ void LLInventoryItem::setSaleInfo(const LLSaleInfo& sale_info)
 	mSaleInfo = sale_info;
 }
 
-const LLUUID& LLInventoryItem::getThumbnailUUID() const
-{
-    if (mThumbnailUUID.isNull() && mType == LLAssetType::AT_TEXTURE)
-    {
-        return mAssetUUID;
-    }
-    return mThumbnailUUID;
-}
-
 LLInventoryType::EType LLInventoryItem::getInventoryType() const
 {
 	return mInventoryType;

@@ -741,10 +741,13 @@ void LLOutfitGalleryItem::setOutfitWorn(bool value)
     mWorn = value;
     LLStringUtil::format_map_t worn_string_args;
     std::string worn_string = getString("worn_string", worn_string_args);
-    LLUIColor text_color = LLUIColorTable::instance().getColor(mSelected ? "White" : (mWorn ? "OutfitGalleryItemWorn" : "White"), LLColor4::white);
+    LLUIColor text_color = LLUIColorTable::instance().getColor("White", LLColor4::white);
     mOutfitWornText->setReadOnlyColor(text_color.get());
     mOutfitNameText->setReadOnlyColor(text_color.get());
+    mOutfitWornText->setFont(value ? LLFontGL::getFontSansSerifBold() : LLFontGL::getFontSansSerifSmall());
+    mOutfitNameText->setFont(value ? LLFontGL::getFontSansSerifBold() : LLFontGL::getFontSansSerifSmall());
     mOutfitWornText->setValue(value ? worn_string : "");
+    mOutfitNameText->setText(mOutfitName); // refresh LLTextViewModel to pick up font changes
 }
 
 void LLOutfitGalleryItem::setSelected(bool value)

@@ -1893,6 +1893,23 @@ const LLSaleInfo& LLViewerInventoryItem::getSaleInfo() const
 	return LLInventoryItem::getSaleInfo();
 }
 
+const LLUUID& LLViewerInventoryItem::getThumbnailUUID() const
+{
+    if (mThumbnailUUID.isNull() && mType == LLAssetType::AT_TEXTURE)
+    {
+        return mAssetUUID;
+    }
+    if (mThumbnailUUID.isNull() && mType == LLAssetType::AT_LINK)
+    {
+        return gInventory.getItem(getLinkedUUID())->getThumbnailUUID();
+    }
+    if (mThumbnailUUID.isNull() && mType == LLAssetType::AT_LINK_FOLDER)
+    {
+        return gInventory.getCategory(getLinkedUUID())->getThumbnailUUID();
+    }
+    return mThumbnailUUID;
+}
+
 LLInventoryType::EType LLViewerInventoryItem::getInventoryType() const
 {
 	if (const LLViewerInventoryItem *linked_item = getLinkedItem())

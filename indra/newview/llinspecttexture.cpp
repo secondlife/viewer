@@ -59,6 +59,7 @@ LLToolTip* LLInspectTextureUtil::createInventoryToolTip(LLToolTip::Params p)
     if (sdTooltip.has("thumbnail_id") && sdTooltip["thumbnail_id"].asUUID().notNull())
     {
         // go straight for thumbnail regardless of type
+        // TODO: make a tooltip factory?
         return LLUICtrlFactory::create<LLTextureToolTip>(p);
     }
 
@@ -147,12 +148,12 @@ LLTexturePreviewView::~LLTexturePreviewView()
 
 void LLTexturePreviewView::draw()
 {
+    LLView::draw();
+
 	if (m_Image)
 	{
 		LLRect rctClient = getLocalRect();
 
-		gl_rect_2d(rctClient, LLColor4::black);
-		rctClient.stretch(-2);
 		if (4 == m_Image->getComponents())
 			gl_rect_2d_checkerboard(rctClient);
 		gl_draw_scaled_image(rctClient.mLeft, rctClient.mBottom, rctClient.getWidth(), rctClient.getHeight(), m_Image);
@@ -199,6 +200,11 @@ LLTextureToolTip::LLTextureToolTip(const LLToolTip::Params& p)
 	, mPreviewSize(256)
 {
 	mMaxWidth = llmax(mMaxWidth, mPreviewSize);
+
+    // Currently has to share params with LLToolTip, override values
+    setBackgroundColor(LLColor4::black);
+    setTransparentColor(LLColor4::black);
+    setBorderVisible(true);
 }
 
 LLTextureToolTip::~LLTextureToolTip()
@@ -228,6 +234,25 @@ void LLTextureToolTip::initFromParams(const LLToolTip::Params& p)
     {
         mPreviewView->setImageFromItemId(sdTextureParams["item_id"].asUUID());
     }
+
+    // Currently has to share params with LLToolTip, override values manually
+    // Todo: provide from own params instead, may be like object inspector does it
+    LLViewBorder::Params border_params;
+    border_params.border_thickness(LLPANEL_BORDER_WIDTH);
+    border_params.highlight_light_color(LLColor4::white);
+    border_params.highlight_dark_color(LLColor4::white);
+    border_params.shadow_light_color(LLColor4::white);
+    border_params.shadow_dark_color(LLColor4::white);
+    addBorder(border_params);
+    setBorderVisible(true);
+
+    setBackgroundColor(LLColor4::black);
+    setBackgroundVisible(true);
+    setBackgroundOpaque(true);
+    setBackgroundImage(nullptr);
+    setTransparentImage(nullptr);
+
+    mTextBox->setColor(LLColor4::white);
 
 	snapToChildren();
 }
