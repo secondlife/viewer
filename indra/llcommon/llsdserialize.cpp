@@ -143,7 +143,7 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, llssize max_bytes)
 		// byte. We could store one if needed, since even the incremented
 		// inbuf won't exceed sizeof(hdr_buf)-1, but there's no need.
 	}
-	std::string header{ hdr_buf, narrow(inbuf) };
+	std::string header{ hdr_buf, static_cast<std::string::size_type>(inbuf) };
 	if (str.fail())
 	{
 		str.clear();
