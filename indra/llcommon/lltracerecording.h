@@ -331,7 +331,7 @@ namespace LLTrace
 	:	public LLStopWatchControlsMixin<PeriodicRecording>
 	{
 	public:
-		PeriodicRecording(S32 num_periods, EPlayState state = STOPPED);
+		PeriodicRecording(size_t num_periods, EPlayState state = STOPPED);
 		~PeriodicRecording();
 
 		void nextPeriod();
@@ -381,7 +381,7 @@ namespace LLTrace
 
 			bool has_value = false;
 			typename T::value_t min_val(std::numeric_limits<typename T::value_t>::max());
-			for (S32 i = 1; i <= num_periods; i++)
+			for (size_t i = 1; i <= num_periods; i++)
 			{
 				Recording& recording = getPrevRecording(i);
 				if (recording.hasValue(stat))
@@ -429,7 +429,7 @@ namespace LLTrace
 			num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 			typename RelatedTypes<typename T::value_t>::fractional_t min_val(std::numeric_limits<F64>::max());
-			for (S32 i = 1; i <= num_periods; i++)
+			for (size_t i = 1; i <= num_periods; i++)
 			{
 				Recording& recording = getPrevRecording(i);
 				min_val = llmin(min_val, recording.getPerSec(stat));
@@ -457,7 +457,7 @@ namespace LLTrace
 
 			bool has_value = false;
 			typename T::value_t max_val(std::numeric_limits<typename T::value_t>::min());
-			for (S32 i = 1; i <= num_periods; i++)
+			for (size_t i = 1; i <= num_periods; i++)
 			{
 				Recording& recording = getPrevRecording(i);
 				if (recording.hasValue(stat))
@@ -505,7 +505,7 @@ namespace LLTrace
 			num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 			F64 max_val = std::numeric_limits<F64>::min();
-			for (S32 i = 1; i <= num_periods; i++)
+			for (size_t i = 1; i <= num_periods; i++)
 			{
 				Recording& recording = getPrevRecording(i);
 				max_val = llmax(max_val, recording.getPerSec(stat));
@@ -533,7 +533,7 @@ namespace LLTrace
 
 			typename RelatedTypes<typename T::value_t>::fractional_t mean(0);
 
-			for (S32 i = 1; i <= num_periods; i++)
+			for (size_t i = 1; i <= num_periods; i++)
 			{
 				Recording& recording = getPrevRecording(i);
 				if (recording.getDuration() > (F32Seconds)0.f)
@@ -579,7 +579,7 @@ namespace LLTrace
 
 			typename RelatedTypes<typename T::value_t>::fractional_t mean = 0;
 
-			for (S32 i = 1; i <= num_periods; i++)
+			for (size_t i = 1; i <= num_periods; i++)
 			{
 				Recording& recording = getPrevRecording(i);
 				if (recording.getDuration() > (F32Seconds)0.f)
@@ -600,34 +600,34 @@ namespace LLTrace
 			return typename RelatedTypes<T>::fractional_t(getPeriodMeanPerSec(static_cast<const StatType<CountAccumulator>&>(stat), num_periods));
 		}
 
-        F64 getPeriodMedian( const StatType<SampleAccumulator>& stat, size_t num_periods = std::numeric_limits<size_t>::max());
+		F64 getPeriodMedian( const StatType<SampleAccumulator>& stat, size_t num_periods = std::numeric_limits<size_t>::max());
 
-        template <typename T>
-        typename RelatedTypes<typename T::value_t>::fractional_t getPeriodMedianPerSec(const StatType<T>& stat, size_t num_periods = std::numeric_limits<size_t>::max())
-        {
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
-            num_periods = llmin(num_periods, getNumRecordedPeriods());
+		template <typename T>
+		typename RelatedTypes<typename T::value_t>::fractional_t getPeriodMedianPerSec(const StatType<T>& stat, size_t num_periods = std::numeric_limits<size_t>::max())
+		{
+			LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+			num_periods = llmin(num_periods, getNumRecordedPeriods());
 
-            std::vector <typename RelatedTypes<typename T::value_t>::fractional_t> buf;
-            for (S32 i = 1; i <= num_periods; i++)
-            {
-                Recording& recording = getPrevRecording(i);
-                if (recording.getDuration() > (F32Seconds)0.f)
-                {
-                    buf.push_back(recording.getPerSec(stat));
-                }
-            }
-            std::sort(buf.begin(), buf.end());
+			std::vector <typename RelatedTypes<typename T::value_t>::fractional_t> buf;
+			for (size_t i = 1; i <= num_periods; i++)
+			{
+				Recording& recording = getPrevRecording(i);
+				if (recording.getDuration() > (F32Seconds)0.f)
+				{
+					buf.push_back(recording.getPerSec(stat));
+				}
+			}
+			std::sort(buf.begin(), buf.end());
 
-            return typename RelatedTypes<T>::fractional_t((buf.size() % 2 == 0) ? (buf[buf.size() / 2 - 1] + buf[buf.size() / 2]) / 2 : buf[buf.size() / 2]);
-        }
+			return typename RelatedTypes<T>::fractional_t((buf.size() % 2 == 0) ? (buf[buf.size() / 2 - 1] + buf[buf.size() / 2]) / 2 : buf[buf.size() / 2]);
+		}
 
-        template<typename T>
-        typename RelatedTypes<T>::fractional_t getPeriodMedianPerSec(const CountStatHandle<T>& stat, size_t num_periods = std::numeric_limits<size_t>::max())
-        {
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
-            return typename RelatedTypes<T>::fractional_t(getPeriodMedianPerSec(static_cast<const StatType<CountAccumulator>&>(stat), num_periods));
-        }
+		template<typename T>
+		typename RelatedTypes<T>::fractional_t getPeriodMedianPerSec(const CountStatHandle<T>& stat, size_t num_periods = std::numeric_limits<size_t>::max())
+		{
+			LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+			return typename RelatedTypes<T>::fractional_t(getPeriodMedianPerSec(static_cast<const StatType<CountAccumulator>&>(stat), num_periods));
+		}
 
 		//
 		// PERIODIC STANDARD DEVIATION
@@ -659,6 +659,35 @@ namespace LLTrace
 		/*virtual*/ void handleStop();
 		/*virtual*/ void handleReset();
 		/*virtual*/ void handleSplitTo(PeriodicRecording& other);
+
+		// helper methods for wraparound ring-buffer arithmetic
+		inline
+		size_t wrapi(size_t i) const
+		{
+			return i % mRecordingPeriods.size();
+		}
+
+		inline
+		size_t nexti(size_t i, size_t offset=1) const
+		{
+			return wrapi(i + offset);
+		}
+
+		inline
+		size_t previ(size_t i, size_t offset=1) const
+		{
+			auto num_periods = mRecordingPeriods.size();
+			// constrain offset
+			offset = llclamp(offset, 0, num_periods - 1);
+			// add size() so expression can't go (unsigned) "negative"
+			return wrapi(i + num_periods - offset);
+		}
+
+		inline
+		void inci(size_t& i, size_t offset=1) const
+		{
+			i = nexti(i, offset);
+		}
 
 	private:
 		std::vector<Recording>	mRecordingPeriods;
