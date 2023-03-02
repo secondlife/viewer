@@ -5105,6 +5105,7 @@ LLFace** LLVolumeGeometryManager::sSimpleFaces[2] = { NULL };
 LLFace** LLVolumeGeometryManager::sNormFaces[2] = { NULL };
 LLFace** LLVolumeGeometryManager::sSpecFaces[2] = { NULL };
 LLFace** LLVolumeGeometryManager::sNormSpecFaces[2] = { NULL };
+LLFace** LLVolumeGeometryManager::sPbrFaces[2] = { NULL };
 LLFace** LLVolumeGeometryManager::sAlphaFaces[2] = { NULL };
 
 LLVolumeGeometryManager::LLVolumeGeometryManager()
@@ -5141,6 +5142,7 @@ void LLVolumeGeometryManager::allocateFaces(U32 pMaxFaceCount)
         sNormFaces[i] = static_cast<LLFace**>(ll_aligned_malloc<64>(pMaxFaceCount * sizeof(LLFace*)));
         sSpecFaces[i] = static_cast<LLFace**>(ll_aligned_malloc<64>(pMaxFaceCount * sizeof(LLFace*)));
         sNormSpecFaces[i] = static_cast<LLFace**>(ll_aligned_malloc<64>(pMaxFaceCount * sizeof(LLFace*)));
+        sPbrFaces[i] = static_cast<LLFace**>(ll_aligned_malloc<64>(pMaxFaceCount * sizeof(LLFace*)));
         sAlphaFaces[i] = static_cast<LLFace**>(ll_aligned_malloc<64>(pMaxFaceCount * sizeof(LLFace*)));
     }
 }
@@ -5155,6 +5157,7 @@ void LLVolumeGeometryManager::freeFaces()
         ll_aligned_free<64>(sNormFaces[i]);
         ll_aligned_free<64>(sSpecFaces[i]);
         ll_aligned_free<64>(sNormSpecFaces[i]);
+        ll_aligned_free<64>(sPbrFaces[i]);
         ll_aligned_free<64>(sAlphaFaces[i]);
 
         sFullbrightFaces[i] = NULL;
@@ -5163,6 +5166,7 @@ void LLVolumeGeometryManager::freeFaces()
         sNormFaces[i] = NULL;
         sSpecFaces[i] = NULL;
         sNormSpecFaces[i] = NULL;
+        sPbrFaces[i] = NULL;
         sAlphaFaces[i] = NULL;
     }
 }
@@ -5596,6 +5600,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	U32 norm_count[2] = { 0 };
 	U32 spec_count[2] = { 0 };
 	U32 normspec_count[2] = { 0 };
+	U32 pbr_count[2] = { 0 };
 
 	static LLCachedControl<S32> max_vbo_size(gSavedSettings, "RenderMaxVBOSize", 512);
 	static LLCachedControl<S32> max_node_size(gSavedSettings, "RenderMaxNodeSize", 65536);
@@ -5877,11 +5882,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							{
                                 if (gltf_mat != nullptr)
                                 {
-                                    // all gltf materials have all vertex attributes for now
-                                    // *TODO: More finely enumerate vertex attributes for GLTF materials so
-                                    // that LLFace::getGeometryVolume can use a more optimal computation path
-                                    // as appropriate. (see: "whole expensive loop") -Cosmic,2023-03-01
-                                    add_face(sNormSpecFaces, normspec_count, facep);
+                                    add_face(sPbrFaces, pbr_count, facep);
                                 }
                                 else
                                 {
@@ -5980,6 +5981,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	U32 normspec_mask = norm_mask | LLVertexBuffer::MAP_TEXCOORD2;
 	U32 spec_mask = simple_mask | LLVertexBuffer::MAP_TEXCOORD2;
 
+	U32 pbr_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TANGENT;
+
 	if (emissive)
 	{ //emissive faces are present, include emissive byte to preserve batching
 		simple_mask = simple_mask | LLVertexBuffer::MAP_EMISSIVE;
@@ -5989,6 +5992,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		norm_mask = norm_mask | LLVertexBuffer::MAP_EMISSIVE;
 		normspec_mask = normspec_mask | LLVertexBuffer::MAP_EMISSIVE;
 		spec_mask = spec_mask | LLVertexBuffer::MAP_EMISSIVE;
+        pbr_mask = pbr_mask | LLVertexBuffer::MAP_EMISSIVE;
 	}
 
 	BOOL batch_textures = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1;
@@ -6019,6 +6023,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
         geometryBytes += genDrawInfo(group, norm_mask | extra_mask, sNormFaces[i], norm_count[i], FALSE, FALSE, rigged);
         geometryBytes += genDrawInfo(group, spec_mask | extra_mask, sSpecFaces[i], spec_count[i], FALSE, FALSE, rigged);
         geometryBytes += genDrawInfo(group, normspec_mask | extra_mask, sNormSpecFaces[i], normspec_count[i], FALSE, FALSE, rigged);
+        geometryBytes += genDrawInfo(group, pbr_mask | extra_mask, sPbrFaces[i], pbr_count[i], FALSE, FALSE, rigged);
 
         // for rigged set, add weights and disable alpha sorting (rigged items use depth buffer)
         extra_mask |= LLVertexBuffer::MAP_WEIGHT4;
