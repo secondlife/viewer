@@ -631,6 +631,7 @@ std::unique_ptr<std::vector<std::string>> LLFilePicker::navOpenFilterProc(ELoadF
             allowedv->push_back("anim");
             break;
         case FFLOAD_GLTF:
+        case FFLOAD_MATERIAL:
             allowedv->push_back("gltf");
             allowedv->push_back("glb");
             break;
