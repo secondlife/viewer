@@ -44,9 +44,6 @@ vec3 linear_to_srgb(vec3 cl);
 //===============================================================
 // tone mapping taken from Khronos sample implementation
 //===============================================================
-const float GAMMA = 2.2;
-const float INV_GAMMA = 1.0 / GAMMA;
-
 
 // sRGB => XYZ => D65_2_D60 => AP1 => RRT_SAT
 const mat3 ACESInputMat = mat3
@@ -64,29 +61,6 @@ const mat3 ACESOutputMat = mat3
     -0.53108,  1.10813, -0.07276,
     -0.07367, -0.00605,  1.07602
 );
-
-
-// linear to sRGB approximation
-// see http://chilliant.blogspot.com/2012/08/srgb-approximations-for-hlsl.html
-vec3 linearTosRGB(vec3 color)
-{
-    return pow(color, vec3(INV_GAMMA));
-}
-
-
-// sRGB to linear approximation
-// see http://chilliant.blogspot.com/2012/08/srgb-approximations-for-hlsl.html
-vec3 sRGBToLinear(vec3 srgbIn)
-{
-    return vec3(pow(srgbIn.xyz, vec3(GAMMA)));
-}
-
-
-vec4 sRGBToLinear(vec4 srgbIn)
-{
-    return vec4(sRGBToLinear(srgbIn.xyz), srgbIn.w);
-}
-
 
 // ACES tone map (faster approximation)
 // see: https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
@@ -128,13 +102,13 @@ vec3 toneMapACES_Hill(vec3 color)
 }
 
 uniform float exposure;
+uniform float gamma;
 
 vec3 toneMap(vec3 color)
 {
     color *= exposure;
 
 #ifdef TONEMAP_ACES_NARKOWICZ
-    color *= 0.8;
     color = toneMapACES_Narkowicz(color);
 #endif
 
@@ -146,11 +120,12 @@ vec3 toneMap(vec3 color)
     // boost exposure as discussed in https://github.com/mrdoob/three.js/pull/19621
     // this factor is based on the exposure correction of Krzysztof Narkowicz in his
     // implemetation of ACES tone mapping
-    color *= 0.85/0.6;
+    color *= 1.0/0.6;
+    //color /= 0.6;
     color = toneMapACES_Hill(color);
 #endif
 
-    return linearTosRGB(color);
+    return linear_to_srgb(color);
 }
 
 //===============================================================
@@ -193,16 +168,26 @@ float noise(vec2 x) {
 
 //=============================
 
+
+vec3 legacyGamma(vec3 color)
+{
+    color = 1. - clamp(color, vec3(0.), vec3(1.));
+    color = 1. - pow(color, vec3(gamma)); // s/b inverted already CPU-side
+
+    return color;
+}
+
 void main() 
 {
     //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
     vec4 diff = texture2D(diffuseRect, vary_fragcoord);
     diff.rgb = toneMap(diff.rgb);
-    vec2 tc = vary_fragcoord.xy*screen_res;
-
+    diff.rgb = legacyGamma(diff.rgb);
+    
+    vec2 tc = vary_fragcoord.xy*screen_res*4.0;
     vec3 seed = (diff.rgb+vec3(1.0))*vec3(tc.xy, tc.x+tc.y);
     vec3 nz = vec3(noise(seed.rg), noise(seed.gb), noise(seed.rb));
-    diff.rgb += nz*0.008;
+    diff.rgb += nz*0.003;
     //diff.rgb = nz;
     frag_color = diff;
 }

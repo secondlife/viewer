@@ -235,7 +235,6 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderLevel(SHADER_COUNT, 0),
 	mMaxAvatarShaderLevel(0)
 {   
-    /// Make sure WL Sky is the first program
     //ONLY shaders that need WL Param management should be added here
 	mShaderList.push_back(&gAvatarProgram);
 	mShaderList.push_back(&gWaterProgram);
@@ -291,6 +290,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
     mShaderList.push_back(&gDeferredPBRAlphaProgram);
     mShaderList.push_back(&gHUDPBRAlphaProgram);
     mShaderList.push_back(&gDeferredSkinnedPBRAlphaProgram);
+    mShaderList.push_back(&gDeferredPostGammaCorrectProgram); // for gamma
 
 }
 
@@ -2524,6 +2524,10 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         else if (tonemapper == 2)
         {
             gDeferredPostGammaCorrectProgram.addPermutation("TONEMAP_ACES_HILL_EXPOSURE_BOOST", "1");
+        }
+        else
+        {
+            gDeferredPostGammaCorrectProgram.addPermutation("TONEMAP_LINEAR", "1");
         }
 		gDeferredPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
 		gDeferredPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredGammaCorrect.glsl", GL_FRAGMENT_SHADER));

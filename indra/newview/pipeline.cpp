@@ -8119,6 +8119,8 @@ void LLPipeline::renderDeferredLighting()
             soften_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
             soften_shader.uniform3fv(LLShaderMgr::LIGHTNORM, 1, environment.getClampedLightNorm().mV);
 
+            soften_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, LLDrawPoolAlpha::sWaterPlane.mV);
+
             {
                 LLGLDepthTest depth(GL_FALSE);
                 LLGLDisable   blend(GL_BLEND);

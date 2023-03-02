@@ -716,15 +716,15 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
 
     LLColor3 ambient(getTotalAmbient());
 
-    shader->uniform3fv(LLShaderMgr::AMBIENT, LLVector3(ambient.mV));
-
     if (radiance_pass)
     { // during an irradiance map update, disable ambient lighting (direct lighting only) and desaturate sky color (avoid tinting the world blue)
         shader->uniform3fv(LLShaderMgr::AMBIENT_LINEAR, LLVector3::zero.mV);
+        shader->uniform3fv(LLShaderMgr::AMBIENT, LLVector3::zero.mV);
     }
     else
     {
         shader->uniform3fv(LLShaderMgr::AMBIENT_LINEAR, linearColor3v(getAmbientColor() / 3.f)); // note magic number 3.f comes from SLIDER_SCALE_SUN_AMBIENT
+        shader->uniform3fv(LLShaderMgr::AMBIENT, LLVector3(ambient.mV));
     }
 
     shader->uniform3fv(LLShaderMgr::BLUE_HORIZON_LINEAR, linearColor3v(getBlueHorizon() / 2.f)); // note magic number of 2.f comes from SLIDER_SCALE_BLUE_HORIZON_DENSITY

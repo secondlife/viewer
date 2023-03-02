@@ -250,6 +250,9 @@ void main()
 
     calcAtmosphericVarsLinear(pos.xyz, norm, light_dir, sunlit, amblit, additive, atten);
 
+    vec3 sunlit_linear = srgb_to_linear(sunlit);
+    vec3 amblit_linear = amblit;
+
     vec3 irradiance;
     vec3 glossenv;
     vec3 legacyenv;
@@ -266,7 +269,7 @@ void main()
 
     color.a   = final_alpha;
 
-    vec3 sun_contrib = min(final_da, shadow) * sunlit;
+    vec3 sun_contrib = min(final_da, shadow) * sunlit_linear;
 
     color.rgb = max(amblit, irradiance);
 
@@ -274,8 +277,10 @@ void main()
 
     color.rgb *= diffuse_linear.rgb;
 
+    color.rgb = linear_to_srgb(color.rgb);
     color.rgb = atmosFragLightingLinear(color.rgb, additive, atten);
     color.rgb = scaleSoftClipFragLinear(color.rgb);
+    color.rgb = srgb_to_linear(color.rgb);
 
     vec4 light = vec4(0,0,0,0);
     
@@ -294,8 +299,9 @@ void main()
     color.rgb += light.rgb;
 #endif // !defined(LOCAL_LIGHT_KILL)
 
+
 #ifdef WATER_FOG
-    color = applyWaterFogViewLinear(pos.xyz, color, sunlit);
+    color = applyWaterFogViewLinear(pos.xyz, color, sunlit_linear);
 #endif // WATER_FOG
 
 #endif // #else // FOR_IMPOSTOR
@@ -303,6 +309,7 @@ void main()
 #ifdef IS_HUD
     color.rgb = linear_to_srgb(color.rgb);
 #endif
+
     frag_color = color;
 }
 

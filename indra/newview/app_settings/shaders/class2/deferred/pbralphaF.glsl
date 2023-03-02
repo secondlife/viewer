@@ -82,6 +82,8 @@ vec3 srgb_to_linear(vec3 c);
 vec3 linear_to_srgb(vec3 c);
 
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
+vec3 atmosFragLightingLinear(vec3 color, vec3 additive, vec3 atten);
+vec3 scaleSoftClipFragLinear(vec3 color);
 
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 float calcLegacyDistanceAttenuation(float distance, float falloff);
@@ -196,6 +198,8 @@ void main()
     vec3 atten;
     calcAtmosphericVarsLinear(pos.xyz, norm, light_dir, sunlit, amblit, additive, atten);
 
+    vec3 sunlit_linear = srgb_to_linear(sunlit);
+
     vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
 
 #ifdef HAS_SUN_SHADOW
@@ -229,8 +233,13 @@ void main()
     vec3 v = -normalize(pos.xyz);
 
     vec3 spec;
-    color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit, scol, radiance, irradiance, colorEmissive, ao, additive, atten, spec);
+    color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten, spec);
     glare += max(max(spec.r, spec.g), spec.b);
+
+    color.rgb = linear_to_srgb(color.rgb);
+    color.rgb = atmosFragLightingLinear(color.rgb, additive, atten);
+    color.rgb = scaleSoftClipFragLinear(color.rgb);
+    color.rgb = srgb_to_linear(color.rgb);
 
     vec3 light = vec3(0);
 
