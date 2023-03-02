@@ -620,76 +620,81 @@ bool LLAppViewerWin32::init()
         LLFile::remove(log_file, ENOENT);
     }
 
-	std::string build_data_fname(
-		gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "build_data.json"));
-	// Use llifstream instead of std::ifstream because LL_PATH_EXECUTABLE
-	// could contain non-ASCII characters, which std::ifstream doesn't handle.
-	llifstream inf(build_data_fname.c_str());
-	if (! inf.is_open())
-	{
-		LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, can't read '" << build_data_fname
-				   << "'" << LL_ENDL;
-	}
-	else
-	{
-		Json::Reader reader;
-		Json::Value build_data;
-		if (! reader.parse(inf, build_data, false)) // don't collect comments
-		{
-			// gah, the typo is baked into Json::Reader API
-			LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, can't parse '" << build_data_fname
-					   << "': " << reader.getFormatedErrorMessages() << LL_ENDL;
-		}
-		else
-		{
-			Json::Value BugSplat_DB = build_data["BugSplat DB"];
-			if (! BugSplat_DB)
-			{
-				LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, no 'BugSplat DB' entry in '"
-						   << build_data_fname << "'" << LL_ENDL;
-			}
-			else
-			{
-				// Got BugSplat_DB, onward!
-				std::wstring version_string(WSTRINGIZE(LL_VIEWER_VERSION_MAJOR << '.' <<
-													   LL_VIEWER_VERSION_MINOR << '.' <<
-													   LL_VIEWER_VERSION_PATCH << '.' <<
-													   LL_VIEWER_VERSION_BUILD));
+    // Win7 is no longer supported
+    bool is_win_7_or_below = LLOSInfo::getInstance()->mMajorVer <= 6 && LLOSInfo::getInstance()->mMajorVer <= 1;
 
-                DWORD dwFlags = MDSF_NONINTERACTIVE | // automatically submit report without prompting
-                                MDSF_PREVENTHIJACKING; // disallow swiping Exception filter
-
-                bool needs_log_file = !isSecondInstance() && debugLoggingEnabled("BUGSPLAT");
-                if (needs_log_file)
+    if (!is_win_7_or_below)
+    {
+        std::string build_data_fname(
+            gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "build_data.json"));
+        // Use llifstream instead of std::ifstream because LL_PATH_EXECUTABLE
+        // could contain non-ASCII characters, which std::ifstream doesn't handle.
+        llifstream inf(build_data_fname.c_str());
+        if (!inf.is_open())
+        {
+            LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, can't read '" << build_data_fname
+                << "'" << LL_ENDL;
+        }
+        else
+        {
+            Json::Reader reader;
+            Json::Value build_data;
+            if (!reader.parse(inf, build_data, false)) // don't collect comments
+            {
+                // gah, the typo is baked into Json::Reader API
+                LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, can't parse '" << build_data_fname
+                    << "': " << reader.getFormatedErrorMessages() << LL_ENDL;
+            }
+            else
+            {
+                Json::Value BugSplat_DB = build_data["BugSplat DB"];
+                if (!BugSplat_DB)
                 {
-                    // Startup only!
-                    LL_INFOS("BUGSPLAT") << "Engaged BugSplat logging to bugsplat.log" << LL_ENDL;
-                    dwFlags |= MDSF_LOGFILE | MDSF_LOG_VERBOSE;
+                    LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, no 'BugSplat DB' entry in '"
+                        << build_data_fname << "'" << LL_ENDL;
                 }
-
-				// have to convert normal wide strings to strings of __wchar_t
-				sBugSplatSender = new MiniDmpSender(
-					WCSTR(BugSplat_DB.asString()),
-					WCSTR(LL_TO_WSTRING(LL_VIEWER_CHANNEL)),
-					WCSTR(version_string),
-					nullptr,              // szAppIdentifier -- set later
-					dwFlags);
-				sBugSplatSender->setCallback(bugsplatSendLog);
-
-                if (needs_log_file)
+                else
                 {
-                    // Log file will be created in %TEMP%, but it will be moved into logs folder in case of crash
-                    std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "bugsplat.log");
-                    sBugSplatSender->setLogFilePath(WCSTR(log_file));
-                }
+                    // Got BugSplat_DB, onward!
+                    std::wstring version_string(WSTRINGIZE(LL_VIEWER_VERSION_MAJOR << '.' <<
+                        LL_VIEWER_VERSION_MINOR << '.' <<
+                        LL_VIEWER_VERSION_PATCH << '.' <<
+                        LL_VIEWER_VERSION_BUILD));
 
-				// engage stringize() overload that converts from wstring
-				LL_INFOS("BUGSPLAT") << "Engaged BugSplat(" << LL_TO_STRING(LL_VIEWER_CHANNEL)
-						   << ' ' << stringize(version_string) << ')' << LL_ENDL;
-			} // got BugSplat_DB
-		} // parsed build_data.json
-	} // opened build_data.json
+                    DWORD dwFlags = MDSF_NONINTERACTIVE | // automatically submit report without prompting
+                        MDSF_PREVENTHIJACKING; // disallow swiping Exception filter
 
+                    bool needs_log_file = !isSecondInstance() && debugLoggingEnabled("BUGSPLAT");
+                    if (needs_log_file)
+                    {
+                        // Startup only!
+                        LL_INFOS("BUGSPLAT") << "Engaged BugSplat logging to bugsplat.log" << LL_ENDL;
+                        dwFlags |= MDSF_LOGFILE | MDSF_LOG_VERBOSE;
+                    }
+
+                    // have to convert normal wide strings to strings of __wchar_t
+                    sBugSplatSender = new MiniDmpSender(
+                        WCSTR(BugSplat_DB.asString()),
+                        WCSTR(LL_TO_WSTRING(LL_VIEWER_CHANNEL)),
+                        WCSTR(version_string),
+                        nullptr,              // szAppIdentifier -- set later
+                        dwFlags);
+                    sBugSplatSender->setCallback(bugsplatSendLog);
+
+                    if (needs_log_file)
+                    {
+                        // Log file will be created in %TEMP%, but it will be moved into logs folder in case of crash
+                        std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "bugsplat.log");
+                        sBugSplatSender->setLogFilePath(WCSTR(log_file));
+                    }
+
+                    // engage stringize() overload that converts from wstring
+                    LL_INFOS("BUGSPLAT") << "Engaged BugSplat(" << LL_TO_STRING(LL_VIEWER_CHANNEL)
+                        << ' ' << stringize(version_string) << ')' << LL_ENDL;
+                } // got BugSplat_DB
+            } // parsed build_data.json
+        } // opened build_data.json
+    } // !is_win_7_or_below
 #endif // LL_BUGSPLAT
 #endif // LL_SEND_CRASH_REPORTS
 
