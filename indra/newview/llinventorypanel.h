@@ -403,6 +403,9 @@ public:
     void clearNavigationHistory();
     LLUUID getSingleFolderRoot() { return mFolderID; }
 
+    bool isBackwardAvailable();
+    bool isForwardAvailable();
+
     void setSelectCallback(const boost::function<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb);
 
     typedef boost::function<void()> root_changed_callback_t;

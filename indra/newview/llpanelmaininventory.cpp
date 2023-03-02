@@ -374,6 +374,10 @@ BOOL LLPanelMainInventory::handleKeyHere(KEY key, MASK mask)
 		{
 			startSearch();
 		}
+        if(mSingleFolderMode && key == KEY_LEFT)
+        {
+            onBackFolderClicked();
+        }
 	}
 
 	return LLPanel::handleKeyHere(key, mask);
@@ -1327,6 +1331,7 @@ void LLPanelMainInventory::setSingleFolderViewRoot(const LLUUID& folder_id, bool
     if(clear_nav_history)
     {
         mSingleFolderPanelInventory->clearNavigationHistory();
+        updateNavButtons();
     }
 }
 
@@ -1756,6 +1761,17 @@ void LLPanelMainInventory::updateTitle()
             inventory_floater->setTitle(getString("inventory_title"));
         }
     }
+    updateNavButtons();
+}
+
+void LLPanelMainInventory::updateNavButtons()
+{
+    getChild<LLButton>("back_btn")->setEnabled(mSingleFolderPanelInventory->isBackwardAvailable());
+    getChild<LLButton>("forward_btn")->setEnabled(mSingleFolderPanelInventory->isForwardAvailable());
+    
+    const LLViewerInventoryCategory* cat = gInventory.getCategory(mSingleFolderPanelInventory->getSingleFolderRoot());
+    bool up_enabled = (cat && cat->getParentUUID().notNull());
+    getChild<LLButton>("up_btn")->setEnabled(up_enabled);
 }
 
 LLSidepanelInventory* LLPanelMainInventory::getParentSidepanelInventory()

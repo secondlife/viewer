@@ -2107,7 +2107,7 @@ void LLInventorySingleFolderPanel::changeFolderRoot(const LLUUID& new_id)
 
 void LLInventorySingleFolderPanel::onForwardFolder()
 {
-    if(!mForwardFolders.empty() && (mFolderID != mForwardFolders.back()))
+    if(isForwardAvailable())
     {
         mBackwardFolders.push_back(mFolderID);
         mFolderID = mForwardFolders.back();
@@ -2118,7 +2118,7 @@ void LLInventorySingleFolderPanel::onForwardFolder()
 
 void LLInventorySingleFolderPanel::onBackwardFolder()
 {
-    if(!mBackwardFolders.empty() && (mFolderID != mBackwardFolders.back()))
+    if(isBackwardAvailable())
     {
         mForwardFolders.push_back(mFolderID);
         mFolderID = mBackwardFolders.back();
@@ -2131,6 +2131,16 @@ void LLInventorySingleFolderPanel::clearNavigationHistory()
 {
     mForwardFolders.clear();
     mBackwardFolders.clear();
+}
+
+bool LLInventorySingleFolderPanel::isBackwardAvailable()
+{
+    return (!mBackwardFolders.empty() && (mFolderID != mBackwardFolders.back()));
+}
+
+bool LLInventorySingleFolderPanel::isForwardAvailable()
+{
+    return (!mForwardFolders.empty() && (mFolderID != mForwardFolders.back()));
 }
 
 boost::signals2::connection LLInventorySingleFolderPanel::setRootChangedCallback(root_changed_callback_t cb)
@@ -2186,6 +2196,12 @@ void LLInventorySingleFolderPanel::updateSingleFolderRoot()
         mFolderRoot.get()->setCallbackRegistrar(&mCommitCallbackRegistrar);
 
         buildNewViews(mFolderID);
+        
+        LLFloater* root_floater = gFloaterView->getParentFloater(this);
+        if(root_floater)
+        {
+            root_floater->setFocus(true);
+        }
     }
 }
 

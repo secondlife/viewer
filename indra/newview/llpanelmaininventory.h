@@ -179,6 +179,7 @@ protected:
     bool isActionVisible(const LLSD& userdata);
     static bool hasSettingsInventory();
     void updateTitle();
+    void updateNavButtons();
 	/**
 	 * Set upload cost in "Upload" sub menu.
 	 */

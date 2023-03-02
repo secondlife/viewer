@@ -293,7 +293,9 @@
        border="false"
        bevel_style="none"
        scroll.reserve_scroll_corner="false">
-        <item folder_indentation="-8"/>
+        <item
+         single_folder_mode="true"
+         folder_indentation="-8"/>
         <folder
          single_folder_mode="true"
          folder_indentation="-8"/>

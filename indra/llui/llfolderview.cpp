@@ -1273,6 +1273,11 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 		if(mSelectedItems.size())
 		{
 			LLFolderViewItem* last_selected = getCurSelectedItem();
+            if(last_selected && last_selected->isSingleFolderMode())
+            {
+                handled = FALSE;
+                break;
+            }
 			LLFolderViewItem* parent_folder = last_selected->getParentFolder();
 			if (!last_selected->isOpen() && parent_folder && parent_folder->getParentFolder())
 			{

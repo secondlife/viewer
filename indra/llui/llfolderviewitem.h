@@ -279,6 +279,8 @@ public:
     // Does not need filter update
 	virtual void refreshSuffix();
 
+    bool isSingleFolderMode() { return mSingleFolderMode; }
+
 	// LLView functionality
 	virtual BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
 	virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
