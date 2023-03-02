@@ -5878,6 +5878,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                                 if (gltf_mat != nullptr)
                                 {
                                     // all gltf materials have all vertex attributes for now
+                                    // *TODO: More finely enumerate vertex attributes for GLTF materials so
+                                    // that LLFace::getGeometryVolume can use a more optimal computation path
+                                    // as appropriate. (see: "whole expensive loop") -Cosmic,2023-03-01
                                     add_face(sNormSpecFaces, normspec_count, facep);
                                 }
                                 else
