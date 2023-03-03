@@ -4207,21 +4207,29 @@ void process_animation_control(LLMessageSystem *mesgsys, void **user_data)
         return;
     }
 
-    /*TODO: Test for muted object or owner*/
-    object_id;
-    owner_id;
+    // Test for muted object or owner
+    if (object_id.notNull() && LLMuteList::instance().isMuted(object_id))
+    {
+        LL_DEBUGS("Messaging", "Puppetry") << "Animation request from muted object " << object_id << LL_ENDL;
+        return;
+    }
+    if (owner_id.notNull() && LLMuteList::instance().isMuted(owner_id))
+    {
+        LL_DEBUGS("Messaging", "Puppetry") << "Animation request from muted object owner " << object_id << LL_ENDL;
+        return;
+    }
 
     if (mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationParams) > 0)
     {   // There should be 0 or 1 of these.  Only taking values from the first.
-        U32 flags{0};
-        F32 update_interval{0.0f};
+        //U32 flags{0};
+        //F32 update_interval{0.0f};
 
-        mesgsys->getU32Fast(_PREHASH_AnimationParams, _PREHASH_Flags, flags);
-        mesgsys->getF32Fast(_PREHASH_AnimationParams, _PREHASH_ReportPeriod, update_interval);
+        //mesgsys->getU32Fast(_PREHASH_AnimationParams, _PREHASH_Flags, flags);
+        //mesgsys->getF32Fast(_PREHASH_AnimationParams, _PREHASH_ReportPeriod, update_interval);
 
         /*TODO: Update the period */
-        flags;
-        update_interval;
+        //flags;
+        //update_interval;
     }
 
     S32 bone_control_count = mesgsys->getNumberOfBlocksFast(_PREHASH_BoneControl);
