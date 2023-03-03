@@ -628,6 +628,14 @@ void LLVOVolume::animateTextures()
                 LLGLTFMaterial *gltf_mat = te->getGLTFRenderMaterial();
                 const bool is_pbr = gltf_mat != nullptr;
 
+				if (!facep->mTextureMatrix)
+				{
+					facep->mTextureMatrix = new LLMatrix4();
+				}
+
+				LLMatrix4& tex_mat = *facep->mTextureMatrix;
+				tex_mat.setIdentity();
+
                 if (!is_pbr)
                 {
                     if (!(result & LLViewerTextureAnim::ROTATE))
@@ -642,32 +650,50 @@ void LLVOVolume::animateTextures()
                     {
                         te->getScale(&scale_s, &scale_t);
                     }
+
+                    LLVector3 trans ;
+
+                        trans.set(LLVector3(off_s+0.5f, off_t+0.5f, 0.f));			
+                        tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
+
+                    LLVector3 scale(scale_s, scale_t, 1.f);			
+                    LLQuaternion quat;
+                    quat.setQuat(rot, 0, 0, -1.f);
+            
+                    tex_mat.rotate(quat);				
+
+                    LLMatrix4 mat;
+                    mat.initAll(scale, LLQuaternion(), LLVector3());
+                    tex_mat *= mat;
+            
+                    tex_mat.translate(trans);
                 }
+                else
+                {
+                    // For PBR materials, use Blinn-Phong rotation as hint for
+                    // translation direction. In a Blinn-Phong material, the
+                    // translation direction would be a byproduct the texture
+                    // transform.
+                    F32 rot_frame;
+                    te->getRotation(&rot_frame);
 
-				if (!facep->mTextureMatrix)
-				{
-					facep->mTextureMatrix = new LLMatrix4();
-				}
+                    tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
 
-				LLMatrix4& tex_mat = *facep->mTextureMatrix;
-				tex_mat.setIdentity();
+                    LLQuaternion quat;
+                    quat.setQuat(rot, 0, 0, -1.f);
+                    tex_mat.rotate(quat);				
 
-				LLVector3 trans ;
+                    LLMatrix4 mat;
+                    LLVector3 scale(scale_s, scale_t, 1.f);			
+                    mat.initAll(scale, LLQuaternion(), LLVector3());
+                    tex_mat *= mat;
+            
+                    LLVector3 off(off_s, off_t, 0.f);
+                    off.rotVec(rot_frame, 0, 0, 1.f);
+                    tex_mat.translate(off);
 
-					trans.set(LLVector3(off_s+0.5f, off_t+0.5f, 0.f));			
-					tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
-
-				LLVector3 scale(scale_s, scale_t, 1.f);			
-				LLQuaternion quat;
-				quat.setQuat(rot, 0, 0, -1.f);
-		
-				tex_mat.rotate(quat);				
-
-				LLMatrix4 mat;
-				mat.initAll(scale, LLQuaternion(), LLVector3());
-				tex_mat *= mat;
-		
-				tex_mat.translate(trans);
+                    tex_mat.translate(LLVector3(0.5f, 0.5f, 0.f));
+                }
 			}
 		}
 		else
