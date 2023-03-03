@@ -72,6 +72,8 @@ private:
     void showTexturePicker(const LLUUID &thumbnail_id);
     void onTexturePickerCommit(LLUUID id);
 
+    void setThumbnailId(const LLUUID &new_thumbnail_id);
+
     enum EToolTipState
     {
         TOOLTIP_NONE,
