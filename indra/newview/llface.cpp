@@ -1524,7 +1524,8 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					     || mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD2);
 			}
 			
-			bool do_tex_mat = tex_mode && mTextureMatrix;
+            // For GLTF materials: Transforms will be applied later
+			bool do_tex_mat = tex_mode && mTextureMatrix && !gltf_mat;
 
 			if (!do_bump)
 			{ //not bump mapped, might be able to do a cheap update
@@ -1614,7 +1615,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							*tex_coords0++ = tc;	
 						}
 					}
-					else
+					else if (do_xform)
 					{
 						for (S32 i = 0; i < num_vertices; i++)
 						{	
@@ -1626,6 +1627,20 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							planarProjection(tc, norm, center, vec);
 						
 							xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
+
+							*tex_coords0++ = tc;	
+						}
+					}
+					else
+					{
+						for (S32 i = 0; i < num_vertices; i++)
+						{	
+							LLVector2 tc(vf.mTexCoords[i]);
+							LLVector4a& norm = vf.mNormals[i];
+							LLVector4a& center = *(vf.mCenter);
+							LLVector4a vec = vf.mPositions[i];	
+							vec.mul(scalea);
+							planarProjection(tc, norm, center, vec);
 
 							*tex_coords0++ = tc;	
 						}
@@ -1694,44 +1709,44 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					}
 					
 
-				for (S32 i = 0; i < num_vertices; i++)
-				{	
-					LLVector2 tc(vf.mTexCoords[i]);
-			
-					LLVector4a& norm = vf.mNormals[i];
-				
-					LLVector4a& center = *(vf.mCenter);
-		   
-					if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
-					{
-						LLVector4a vec = vf.mPositions[i];
-				
-						vec.mul(scalea);
+                    for (S32 i = 0; i < num_vertices; i++)
+                    {   
+                        LLVector2 tc(vf.mTexCoords[i]);
+                
+                        LLVector4a& norm = vf.mNormals[i];
+                    
+                        LLVector4a& center = *(vf.mCenter);
+               
+                        if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
+                        {
+                            LLVector4a vec = vf.mPositions[i];
+                    
+                            vec.mul(scalea);
 
-							if (texgen == LLTextureEntry::TEX_GEN_PLANAR)
-						{
-								planarProjection(tc, norm, center, vec);
-						}		
-					}
+                            if (texgen == LLTextureEntry::TEX_GEN_PLANAR)
+                            {
+                                planarProjection(tc, norm, center, vec);
+                            }       
+                        }
 
-					if (tex_mode && mTextureMatrix)
-					{
-						LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
-						tmp = tmp * *mTextureMatrix;
-						tc.mV[0] = tmp.mV[0];
-						tc.mV[1] = tmp.mV[1];
-					}
-					else
-					{
-						xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
-					}
+                        if (tex_mode && mTextureMatrix)
+                        {
+                            LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+                            tmp = tmp * *mTextureMatrix;
+                            tc.mV[0] = tmp.mV[0];
+                            tc.mV[1] = tmp.mV[1];
+                        }
+                        else if (do_xform)
+                        {
+                            xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
+                        }
 
-						*dst++ = tc;
-					if (do_bump)
-					{
-						bump_tc.push_back(tc);
-					}
-				}
+                        *dst++ = tc;
+                        if (do_bump)
+                        {
+                            bump_tc.push_back(tc);
+                        }
+                    }
 				}
 
 				if ((!mat && !gltf_mat) && do_bump)
