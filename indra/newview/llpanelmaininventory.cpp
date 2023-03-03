@@ -825,6 +825,17 @@ void LLPanelMainInventory::updateItemcountText()
 	{
 		text = getString("ItemcountUnknown", string_args);
 	}
+
+    if (mSingleFolderMode)
+    {
+        LLInventoryModel::cat_array_t *cats;
+        LLInventoryModel::item_array_t *items;
+        gInventory.getDirectDescendentsOf(mSingleFolderPanelInventory->getSingleFolderRoot(), cats, items);
+    
+        string_args["[ITEM_COUNT]"] = llformat("%d", items->size());
+        string_args["[CATEGORY_COUNT]"] = llformat("%d", cats->size());
+        text = getString("ItemcountCompleted", string_args);
+    }
 	
     mCounterCtrl->setValue(text);
     mCounterCtrl->setToolTip(text);
