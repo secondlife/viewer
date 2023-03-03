@@ -33,13 +33,16 @@
 #include "v3dmath.h"
 #include "llvoavatar.h"
 #include "llviewerobjectlist.h" //gObjectList
+#include "llvoavatarself.h"
 #include <iomanip>
+#include <algorithm>
 
 const std::string PUPPET_ROOT_JOINT_NAME("mPelvis");    //Name of the root joint
 constexpr U32 PUPPET_MAX_EVENT_BYTES = 200;
 U8      PUPPET_WRITE_BUFFER[PUPPET_MAX_EVENT_BYTES]; //HACK move this somewhere better.
 
-
+namespace
+{
 // Helper function
 // Note that the passed in vector is quantized
 size_t pack_vec3(U8* wptr, LLVector3 &vec)
@@ -155,6 +158,32 @@ size_t unpack_quat(U8* wptr, LLQuaternion& quat)
     }
     return offset;
 }
+}
+
+
+// Constructs an event that looks like the current position
+// of a joint.
+void LLPuppetJointEvent::fromJoint(LLJoint *jointp, LLJoint *pelvisp, E_REFERENCE_FRAME frame)
+{
+    mJointID = jointp->getJointNum();
+
+    if (frame == PARENT_FRAME)
+    {
+        mRotation = jointp->getLastWorldRotation() * ~pelvisp->getWorldRotation();
+        mPosition = jointp->getLastWorldPosition() - pelvisp->getWorldPosition();
+
+        mPosition *= ~pelvisp->getWorldRotation();
+    }
+    else
+    {
+        mPosition = jointp->getPosition();
+        mRotation = jointp->getRotation();
+    }
+
+    mMask = LLIK::CONFIG_FLAG_TARGET_POS | LLIK::CONFIG_FLAG_TARGET_ROT;
+    
+}
+
 
 void LLPuppetJointEvent::interpolate(F32 del, const LLPuppetJointEvent& A, const LLPuppetJointEvent& B)
 {
@@ -206,6 +235,12 @@ void LLPuppetJointEvent::setJointID(S32 id)
 {
     mJointID = (S16)(id);
 }
+
+void LLPuppetJointEvent::setChainLimit(U8 limit)
+{
+    mChainLimit = limit;
+}
+
 
 size_t LLPuppetJointEvent::getSize() const
 {
@@ -393,4 +428,223 @@ bool LLPuppetEvent::unpack(LLDataPackerBinaryBuffer& buffer)
 
     LL_DEBUGS("PUPPET_SPAM") << "Unpacked " << mJointEvents.size() << " joint events. event buffer size=" << buff_sz << " last offset=" << offset << " in frame " << (S32)gFrameCount << LL_ENDL;
     return (index == num_joints) && (offset == buff_sz);
+}
+
+//========================================================================
+LLPuppetControl::LLPuppetControl(U8 attachment_point) :
+    mAttachmentPoint(attachment_point)
+{
+    
+    mAttachmentJoint = gAgentAvatarp->getAttachmentJoint(mAttachmentPoint);
+    if (mAttachmentJoint)
+    {
+        mParentJoint = mAttachmentJoint->getParent();
+    }
+    mPelvis = gAgentAvatarp->getJoint("mPelvis");
+}
+
+
+void LLPuppetControl::setFlags(U32 sim_flags)
+{
+    mFlags |= sim_flags;
+    if ((mFlags & PUPPET_POSITION) == PUPPET_POSITION)
+    {   // both position bits are set.  Get the one from sim_flags 
+        mFlags &= ~PUPPET_POSITION;
+        mFlags |= (sim_flags & PUPPET_POSITION);
+    }
+    if ((mFlags & PUPPET_ROTATION) != (sim_flags & PUPPET_ROTATION))
+    {   // both rotation bits are set.  Get the one from sim_flags
+        mFlags &= ~PUPPET_ROTATION;
+        mFlags |= (sim_flags & PUPPET_ROTATION);
+    }
+}  
+
+void LLPuppetControl::setEaseIn(F32 now, F32 time, U8 method)
+{
+    mPhaseDef[EASEIN].reset();
+    mPhaseDef[EASEIN].mDuration = std::max(0.0f, time);
+    mPhaseDef[EASEIN].mMethod = method;
+
+    setAnimationPhase(EASEIN, now);
+}
+
+void LLPuppetControl::setHold(F32 now, F32 time, bool start_now)
+{
+    mPhaseDef[HOLD].reset();
+    mPhaseDef[HOLD].mDuration = (time < 0.0) ? DISTANT_FUTURE_TIMESTAMP : time;
+    mPhaseDef[HOLD].mMethod = 0;
+
+    mPhaseDef[EASEIN].reset();
+    setAnimationPhase(HOLD, now);
+}
+
+void LLPuppetControl::setEaseOut(F32 now, F32 time, U8 method, bool start_now)
+{
+    mPhaseDef[EASEOUT].reset();
+    mPhaseDef[EASEOUT].mDuration = std::max(0.0f, time);
+    mPhaseDef[EASEOUT].mMethod = method;
+
+    mPhaseDef[EASEIN].reset();
+    mPhaseDef[HOLD].reset();
+    setAnimationPhase(EASEOUT, now);
+}
+
+void LLPuppetControl::setTrackingAttachmentPnt(U8 tracking_attch)
+{
+    mTargetAttachment = tracking_attch;
+    mTrackingAttach = gAgentAvatarp->getAttachmentJoint(mTargetAttachment);
+}
+
+
+LLPuppetControl::PhaseID LLPuppetControl::getPhaseID() const
+{
+    if (!(mFlags & LLIK::MASK_TRANSFORM) || !mParentJoint)
+    {
+        return DONE;
+    }
+    return mCurentPhase;
+}
+
+void LLPuppetControl::setAnimationPhase(LLPuppetControl::PhaseID phase, F32 time)
+{
+    mCurentPhase = phase;
+    mPhaseStartTime = time;
+}
+
+LLPuppetControl::PhaseID LLPuppetControl::advanceAnimationPhase(F32 now)
+{
+    if (mCurentPhase == DONE)
+        return DONE;
+
+    // Advance until done, or there is a phase with a hold time. 
+    while ((++mCurentPhase != DONE) && (mPhaseDef[mCurentPhase].mDuration < 0.001))
+    { }
+
+    mPhaseStartTime = now;
+    return mCurentPhase;
+}
+
+bool LLPuppetControl::updateTargetEvent()
+{
+    mEventTarget = LLPuppetJointEvent();
+
+    if (!(mFlags & (PUPPET_POSITION | PUPPET_ROTATION)))
+    {
+        return false;
+    }
+
+    if (!mPelvis || !mParentJoint)
+    {
+        return false;
+    }
+
+    mEventTarget.setJointID(mParentJoint->getJointNum());
+    mEventTarget.setReferenceFrame(LLPuppetJointEvent::ROOT_FRAME);
+
+    if (mFlags & PUPPET_POSITION)
+    {
+        if (mFlags & PUPPET_POS_ABS)
+        {
+            LLVector3 newpos =  mTargetPosition - mPelvis->getWorldPosition();
+            newpos *= ~mPelvis->getWorldRotation();
+            mEventTarget.setPosition(newpos);
+        }
+        else if (mFlags & PUPPET_POS_ATTCH)
+        {
+            if (!mTargetAttachment)
+            {
+                return false;
+            }
+            LLVector3 actual_target = (mTrackingAttach->getWorldPosition() + mTargetPosition) - mPelvis->getWorldPosition();
+            //actual_target *= ~mPelvis->getWorldRotation();
+            mEventTarget.setPosition(actual_target);
+        }
+        else
+        {   // PUPPET_POS_LOC
+            mEventTarget.setPosition(mTargetPosition);
+        }
+    }
+    if (mFlags & PUPPET_ROTATION)
+    {
+        if (mFlags & PUPPET_ROT_ABS)
+        { 
+            mEventTarget.setRotation(mTargetRotation * ~mPelvis->getWorldRotation());
+        }
+        else if (mFlags & PUPPET_POS_ATTCH)
+        {
+            if (!mTargetAttachment)
+            {
+                return false;
+            }
+            LLQuaternion actual_rotation = mTrackingAttach->getWorldRotation() * mTargetRotation;
+            actual_rotation *= ~mPelvis->getWorldRotation();
+            mEventTarget.setRotation(actual_rotation);
+        }
+        else
+        {   // PUPPET_ROT_LOC
+            mEventTarget.setRotation(mTargetRotation);
+        }
+    }
+
+    if (mFlags & PUPPET_IGNORE_IK)
+    {
+        mEventTarget.disableConstraint();
+    }
+
+    return true;
+    // TODO: chain length here
+}
+
+bool LLPuppetControl::generateEventAt(F32 now, LLPuppetJointEvent &event_out)
+{
+    if (mCurentPhase == DONE)
+    {
+        return false;
+    }
+
+    // lets keep things in fractional seconds
+    now /= MSEC_PER_SEC;
+
+    if (!updateTargetEvent())
+    {
+        return false;
+    }
+
+    F32 time = now - mPhaseStartTime;
+    F32 progress{1.0f};
+    if (mPhaseDef[mCurentPhase].mDuration > 0.001f)
+    {
+        progress = time / mPhaseDef[mCurentPhase].mDuration;
+    }
+    progress = std::max(0.0f, std::min(1.0f, progress)); // C++17 std::clamp(progress, 0.0f, 1.0f);
+
+    if (mCurentPhase != HOLD)
+    {
+        LLPuppetJointEvent source;
+        source.fromJoint(mParentJoint, mPelvis, LLPuppetJointEvent::PARENT_FRAME);
+        source.forceMask(mEventTarget.getMask());
+        F32 ease = (mCurentPhase == EASEOUT) ? 1.0f - progress : progress;
+
+        F32 strength{ 1.0f };
+        //TODO: Add other easing methods here.  mPhaseDef.mMethod is other than 0
+        // strength is the result of some function of ease, where ease (0, 1). s = f(e)
+        strength = ease; // this is just easing type 0 which is 1:1
+
+        event_out.interpolate(strength, source, mEventTarget);
+    }
+    else
+    {
+        event_out = mEventTarget;
+    }
+    if (mChainLength)
+    {
+        event_out.setChainLimit(mChainLength);
+    }
+
+    if (progress == 1.0)
+    {
+        advanceAnimationPhase(now);
+    }
+
+    return true;
 }

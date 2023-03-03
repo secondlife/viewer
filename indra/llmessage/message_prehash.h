@@ -1406,5 +1406,15 @@ extern char const* const _PREHASH_ExperienceID;
 extern char const* const _PREHASH_LargeGenericMessage;
 extern char const* const _PREHASH_AgentAnimationTracking;
 extern char const* const _PREHASH_AttachmentPointUpdate;
+extern char const* const _PREHASH_AnimationControl;
+extern char const* const _PREHASH_AnimationParams;
+extern char const* const _PREHASH_ReportPeriod;
+extern char const* const _PREHASH_BoneControl;
+extern char const* const _PREHASH_EaseInTime;
+extern char const* const _PREHASH_EaseInMethod;
+extern char const* const _PREHASH_HoldTime;
+extern char const* const _PREHASH_EaseOutTime;
+extern char const* const _PREHASH_EaseOutMethod;
+extern char const* const _PREHASH_ChainLen;
 
 #endif

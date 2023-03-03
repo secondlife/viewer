@@ -164,6 +164,11 @@ void LLIK::Joint::Config::setLocalScale(const LLVector3& scale)
     mFlags |= CONFIG_FLAG_LOCAL_SCALE;
 }
 
+void LLIK::Joint::Config::setChainLimit(U8 limit)
+{
+    mChainLimit = limit;
+}
+
 void LLIK::Joint::Config::setTargetPos(const LLVector3& pos)
 {
     mTargetPos = pos;
@@ -1290,7 +1295,7 @@ LLQuaternion LLIK::Joint::computeParentRot() const
 
 void LLIK::Joint::updateChildLocalRots() const
 {
-    // now that we know mRot we can update the childrens' mLocalRot
+    // now that we know mRot we can update the children's mLocalRot
     for (const Joint::ptr_t& child: mChildren)
     {
         if (child->isActive())
@@ -2295,11 +2300,11 @@ void LLIK::Solver::rebuildAllChains()
         {
             // add and build chain
             mChainMap[joint_id] = joint_list_t();
-            buildChain(joint, mChainMap[joint_id], sub_bases);
+            buildChain(joint, mChainMap[joint_id], sub_bases, config.getChainLimit());
 
             //HACK or FIX?  If we have sequential end effectors, we are not guaranteed the expression
             //module has sent us positions that can be solved.  We will instead assume that the child's
-            //position is higher prioriy than the parent, get direction from child to parent and move the
+            //position is higher priority than the parent, get direction from child to parent and move the
             //parent's target to the exact bone length.
             //TODO:  Will not work correctly for a parent with multiple direct children with effector targets.
             //Because we create the targets form low to high we will know if the parent is an end-effector.
@@ -2336,7 +2341,7 @@ void LLIK::Solver::rebuildAllChains()
             // add and build chain
             Joint::ptr_t joint = mSkeleton[joint_id];
             mChainMap[joint_id] = joint_list_t();
-            buildChain(joint, mChainMap[joint_id], new_sub_bases);
+            buildChain(joint, mChainMap[joint_id], new_sub_bases, 255);
         }
         sub_bases = std::move(new_sub_bases);
     }
@@ -2607,7 +2612,7 @@ void LLIK::Solver::resetJointGeometry(S16 joint_id, const Constraint::ptr_t& con
     // Note: will need to call computeReach() after all Joint geometries are reset.
 }
 
-void LLIK::Solver::buildChain(Joint::ptr_t joint, joint_list_t& chain, std::set<S16>& sub_bases)
+void LLIK::Solver::buildChain(Joint::ptr_t joint, joint_list_t& chain, std::set<S16>& sub_bases, size_t chain_length)
 {
     // Builds a Chain in descending order (inward) from end-effector or
     // sub-base.  Stops at next end-effector (has target), sub-base (more than
@@ -2619,7 +2624,8 @@ void LLIK::Solver::buildChain(Joint::ptr_t joint, joint_list_t& chain, std::set<
     // sub-base, or root.  When a sub-base is encountered push its id
     // onto sub_bases.
     joint = joint->getParent();
-    while(joint)
+
+    while(joint && (chain.size() < chain_length))
     {
         chain.push_back(joint);
         joint->activate();
@@ -2712,7 +2718,7 @@ void LLIK::Solver::shiftChainToBase(const joint_list_t& chain)
 
 void LLIK::Solver::executeFabrikPass()
 {
-    // FABRIK = Forward And Backward Reching Inverse Kinematics
+    // FABRIK = Forward And Backward Reaching Inverse Kinematics
     // http://andreasaristidou.com/FABRIK.html
 
     DEBUG_SET_PHASE(FABRIK);
@@ -2843,7 +2849,7 @@ void LLIK::Solver::executeCcdInward(const joint_list_t& chain)
         chain[i]->updatePosAndRotFromParent();
     }
 
-    // finally: make sure to update outer_end's childrens' mLocalRots
+    // finally: make sure to update outer_end's children's mLocalRots
     // Note: we don't bother to enforce constraints in this step
     outer_end->updateChildLocalRots();
 }

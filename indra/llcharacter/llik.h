@@ -153,13 +153,13 @@ private:
     F32 mSinConeAngle;
 };
 
-// TwistLimitedCone Constrainte can has limited twist about its 'forward' axis
+// TwistLimitedCone Constraint can have limited twist about its 'forward' axis
 // but has a uniform bend limit for orientations perpendicular to 'forward'.
 class TwistLimitedCone : public Constraint
 {
     // A constraint for the shoulder.  Like SimpleCone but with limited twist
     //
-    // View from side:                 View with foward out of page:
+    // View from side:                 View with forward out of page:
     //                                         max_twist
     //        / cone_angle                  | /
     //       /                              |/
@@ -359,10 +359,12 @@ public:
         bool hasLocalPos() const { return (mFlags & CONFIG_FLAG_LOCAL_POS) > 0; }
         bool hasLocalRot() const { return (mFlags & CONFIG_FLAG_LOCAL_ROT) > 0; }
         bool hasLocalScale() const { return (mFlags & CONFIG_FLAG_LOCAL_SCALE) > 0; }
+        bool hasChainLimit() const { return (mChainLimit != 0); }
         bool constraintIsDisabled() const { return (mFlags & CONFIG_FLAG_DISABLE_CONSTRAINT) > 0; }
         void setLocalPos(const LLVector3& pos);
         void setLocalRot(const LLQuaternion& rot);
         void setLocalScale(const LLVector3& scale);
+        void setChainLimit(U8 limit);
         void disableConstraint() { mFlags |= CONFIG_FLAG_DISABLE_CONSTRAINT; }
         const LLVector3& getLocalPos() const { return mLocalPos; }
         const LLQuaternion& getLocalRot() const { return mLocalRot; }
@@ -375,6 +377,7 @@ public:
         void setTargetRot(const LLQuaternion& rot);
         const LLVector3& getTargetPos() const { return mTargetPos; }
         const LLQuaternion& getTargetRot() const { return mTargetRot; }
+        size_t getChainLimit() const { return (mChainLimit) ? mChainLimit : 255; }
 
         void delegate() { mFlags |= CONFIG_FLAG_HAS_DELEGATED; } // EXPERIMENTAL
         bool hasDelegated() const { return (mFlags & CONFIG_FLAG_HAS_DELEGATED) > 0; } // EXPERIMENTAL
@@ -389,6 +392,7 @@ public:
         LLVector3 mLocalScale;
         LLVector3 mTargetPos;
         LLQuaternion mTargetRot;
+        U8 mChainLimit = 0;
         U8 mFlags = 0; // per-feature bits
     };
 
@@ -612,7 +616,7 @@ private:
     //void adjustTargets(joint_config_map_t& targets); // EXPERIMENTAL: keep this
     void dropElbow(const Joint::ptr_t& wrist_joint);
     void rebuildAllChains();
-    void buildChain(Joint::ptr_t joint, joint_list_t& chain, std::set<S16>& sub_bases);
+    void buildChain(Joint::ptr_t joint, joint_list_t& chain, std::set<S16>& sub_bases, size_t chain_length);
     void executeFabrikInward(const joint_list_t& chain);
     void executeFabrikOutward(const joint_list_t& chain);
     void shiftChainToBase(const joint_list_t& chain);

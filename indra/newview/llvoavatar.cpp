@@ -6251,6 +6251,15 @@ LLJoint *LLVOAvatar::getJoint( S32 joint_num )
     return pJoint;
 }
 
+LLViewerJointAttachment *LLVOAvatar::getAttachmentJoint( S32 attachment_num ) const
+{
+    auto it = mAttachmentPoints.find(attachment_num);
+    if (it != mAttachmentPoints.end())
+    {
+        return (*it).second;
+    }
+    return nullptr;
+}
 //-----------------------------------------------------------------------------
 // getRiggedMeshID
 //

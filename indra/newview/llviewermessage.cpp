@@ -4191,6 +4191,135 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 	}
 }
 
+void process_animation_control(LLMessageSystem *mesgsys, void **user_data)
+{
+    LLUUID	agent_id;
+    LLUUID  object_id;
+    LLUUID  owner_id;
+
+    mesgsys->getUUIDFast(_PREHASH_Sender, _PREHASH_AgentID, agent_id);
+    mesgsys->getUUIDFast(_PREHASH_Sender, _PREHASH_ObjectID, object_id);
+    mesgsys->getUUIDFast(_PREHASH_Sender, _PREHASH_OwnerID, owner_id);
+
+    if (gAgent.getID() != agent_id)
+    {
+        LL_WARNS("Messaging", "Puppetry") << "Have animation control for agent other than self. Discarding." << LL_ENDL;
+        return;
+    }
+
+    /*TODO: Test for muted object or owner*/
+    object_id;
+    owner_id;
+
+    if (mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationParams) > 0)
+    {   // There should be 0 or 1 of these.  Only taking values from the first.
+        U32 flags{0};
+        F32 update_interval{0.0f};
+
+        mesgsys->getU32Fast(_PREHASH_AnimationParams, _PREHASH_Flags, flags);
+        mesgsys->getF32Fast(_PREHASH_AnimationParams, _PREHASH_ReportPeriod, update_interval);
+
+        /*TODO: Update the period */
+        flags;
+        update_interval;
+    }
+
+    S32 bone_control_count = mesgsys->getNumberOfBlocksFast(_PREHASH_BoneControl);
+    LLPuppetMotion::ptr_t puppet(gAgentAvatarp->getPuppetMotion());
+
+    F64 now = LLFrameTimer::getElapsedSeconds();
+
+    if (bone_control_count && puppet)
+    {
+        for (S32 index = 0; index < bone_control_count; ++index)
+        {
+            U8 attachment_point{0};
+
+            mesgsys->getU8Fast(_PREHASH_BoneControl, _PREHASH_AttachmentPoint, attachment_point, index);
+            LLPuppetControl *controlp = puppet->getPuppetControl(attachment_point);
+
+            if (controlp)
+            {
+                U32 flags{ 0 };
+                F32 time;
+                U8 method;
+                LLVector3 position;
+                LLQuaternion rotation;
+
+                mesgsys->getU32Fast(_PREHASH_BoneControl, _PREHASH_Flags, flags, index);
+                controlp->setFlags(flags);    
+
+                //mesgsys->getU8Fast(_PREHASH_BoneControl, _PREHASH_Priority, priority, index);
+
+                if (flags & LLPuppetControl::PUPPET_CHAIN_LEN)
+                {
+                    mesgsys->getU8Fast(_PREHASH_BoneControl, _PREHASH_ChainLen, controlp->mChainLength, index);
+                }
+
+                if (flags & LLPuppetControl::PUPPET_POSITION)
+                {
+                    mesgsys->getVector3Fast(_PREHASH_BoneControl, _PREHASH_Position, position, index);
+                    controlp->mTargetPosition = position;
+                    if (flags & LLPuppetControl::PUPPET_POS_ATTCH)
+                    {   // We are actually tracking an attachment point on our own avatar.
+                        // mTargetPosition will be a relative offset from its position.
+                        U8 tracking_attch;
+                        mesgsys->getU8Fast(_PREHASH_BoneControl, _PREHASH_TargetData, tracking_attch);
+                        controlp->setTrackingAttachmentPnt(tracking_attch);
+                    }
+
+                }
+                if (flags & LLPuppetControl::PUPPET_ROTATION)
+                {
+                    mesgsys->getQuatFast(_PREHASH_BoneControl, _PREHASH_Rotation, rotation, index);
+                    controlp->mTargetRotation = rotation;
+                    if (flags & LLPuppetControl::PUPPET_POS_ATTCH)
+                    {   // We are actually tracking an attachment point on our own avatar.
+                        // mTargetRotation will be an additional rotation applied.
+                        U8 tracking_attch;
+                        mesgsys->getU8Fast(_PREHASH_BoneControl, _PREHASH_TargetData, tracking_attch);
+                        controlp->setTrackingAttachmentPnt(tracking_attch);
+                    }
+                }
+
+                if (flags & LLPuppetControl::PUPPET_EASEOUT)
+                {
+                    mesgsys->getF32Fast(_PREHASH_BoneControl, _PREHASH_EaseOutTime, time, index);
+                    mesgsys->getU8Fast(_PREHASH_BoneControl, _PREHASH_EaseOutMethod, method, index);
+                    // Set, or reset the hold time.  If setting without also setting an ease in.  Clear ease in.
+                    controlp->setEaseOut(now, time, method, (bool)(flags & (LLPuppetControl::PUPPET_EASEIN | LLPuppetControl::PUPPET_HOLD)));
+                }
+
+                if (flags & LLPuppetControl::PUPPET_HOLD)
+                {
+                    mesgsys->getF32Fast(_PREHASH_BoneControl, _PREHASH_HoldTime, time, index);
+                    // Set, or reset the hold time.  If setting without also setting an ease in.  Clear ease in.
+                    controlp->setHold(now, time, (bool)(flags & LLPuppetControl::PUPPET_EASEIN));
+                }
+
+                if (flags & LLPuppetControl::PUPPET_EASEIN)
+                {
+                    mesgsys->getF32Fast(_PREHASH_BoneControl, _PREHASH_EaseInTime, time, index);
+                    mesgsys->getU8Fast(_PREHASH_BoneControl, _PREHASH_EaseInMethod, method, index);
+                    controlp->setEaseIn(now, time, method);
+                }
+
+
+                if (!controlp->updateTargetEvent())
+                {
+                    puppet->removePuppetControl(attachment_point);
+                }
+            }
+
+        }
+
+        if (!puppet->isActive() || puppet->isStopped())
+        {
+            gAgentAvatarp->startMotion(ANIM_AGENT_PUPPET_MOTION);
+        }
+    }
+
+}
 
 void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
 {

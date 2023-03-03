@@ -33,6 +33,7 @@
 //-----------------------------------------------------------------------------
 #include <deque>
 #include <vector>
+#include <unordered_map>
 #include "llmotion.h"
 #include "llframetimer.h"
 #include "m3math.h"
@@ -122,44 +123,54 @@ public:
     //-------------------------------------------------------------------------
 
     // motions must specify whether or not they loop
-    virtual BOOL getLoop() override { return FALSE; }
+    BOOL getLoop() override { return FALSE; }
 
     // motions must report their total duration
-    virtual F32 getDuration() override { return 0.0f; }
+    F32 getDuration() override { return 0.0f; }
 
     // motions must report their "ease in" duration
-    virtual F32 getEaseInDuration() override;
+    F32 getEaseInDuration() override;
 
     // motions must report their "ease out" duration.
-    virtual F32 getEaseOutDuration() override;
+    F32 getEaseOutDuration() override;
 
     // motions must report their priority
-    virtual LLJoint::JointPriority getPriority() override;
+    LLJoint::JointPriority getPriority() override;
     void setPriority(LLJoint::JointPriority priority) { mMotionPriority = priority; }
 
-    virtual LLMotionBlendType getBlendType() override { return NORMAL_BLEND; }
+    LLMotionBlendType getBlendType() override { return NORMAL_BLEND; }
 
     // called to determine when a motion should be activated/deactivated based on avatar pixel coverage
-    virtual F32 getMinPixelArea() override { return MIN_REQUIRED_PIXEL_AREA_PUPPET; }
+    F32 getMinPixelArea() override { return MIN_REQUIRED_PIXEL_AREA_PUPPET; }
 
     // run-time (post constructor) initialization,
     // called after parameters have been set
     // must return true to indicate success and be available for activation
-    virtual LLMotionInitStatus onInitialize(LLCharacter *character) override;
+    LLMotionInitStatus onInitialize(LLCharacter *character) override;
 
-    virtual BOOL onActivate() override;
+    BOOL onActivate() override;
 
     // called per time step
     // must return TRUE while it is active, and
     // must return FALSE when the motion is completed.
-    virtual BOOL onUpdate(F32 time, U8* joint_mask) override;
+    BOOL onUpdate(F32 time, U8* joint_mask) override;
 
-    virtual void onDeactivate() override;
+    void onDeactivate() override;
 
     BOOL canDeprecate() override { return FALSE; }
     void addJointToSkeletonData(LLSD& skeleton_sd, LLJoint* joint, const LLVector3& parent_rel_pos, const LLVector3& tip_rel_end_pos);
     LLSD getSkeletonData();
     void updateSkeletonGeometry();
+
+public:
+    // Puppetry control from the simulator.
+    LLPuppetControl *   getPuppetControl(U8 attachment_point);
+    void                removePuppetControl(U8 attachment_point);
+
+private:
+    using puppet_control_map = std::unordered_map<U32, LLPuppetControl>;
+    puppet_control_map     mPuppetControl;
+
 
 private:
     void measureArmSpan();
@@ -171,6 +182,7 @@ private:
     void solveIKAndHarvestResults(const LLIK::Solver::joint_config_map_t& configs, Timestamp now);
     void updateFromExpression(Timestamp now);
     void updateFromBroadcast(Timestamp now);
+    void updateFromSimulator(Timestamp now);
     void rememberPosedJoint(S16 joint_id, LLPointer<LLJointState> joint_state, Timestamp now);
 
 private:
@@ -195,5 +207,6 @@ private:
     static bool sIsPuppetryEnabled;  // Is puppetry enabled on the simulator.
     static size_t sPuppeteerEventMaxSize;  // Simulator reported maximum size for a puppetry event.
 };
+
 
 #endif

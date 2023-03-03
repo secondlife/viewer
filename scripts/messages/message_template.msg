@@ -3605,6 +3605,40 @@ version 2.0
 	}
 
 }
+
+// AnimationControl IK animation instructions
+// simulator --> viewer
+{
+	AnimationControl High 31 Trusted Zerocoded 
+    {
+        Sender          Single
+        {   AgentID         LLUUID }
+        {   ObjectID        LLUUID }
+        {   OwnerID         LLUUID }
+    }
+    {
+        AnimationParams Variable    // will be 1 or 0
+        {   Flags           U32 }
+        {   ReportPeriod    F32 }
+    }
+    {
+        BoneControl     Variable
+        {   AttachmentPoint U8              }
+        {   Priority        U8              }
+        {   Flags           U32             }
+        {   ChainLen        U8              }
+        {   Position        LLVector3       }
+        {   Rotation        LLQuaternion    }
+        {   EaseInTime      F32             }
+        {   EaseInMethod    U8              }
+        {   HoldTime        F32             }
+        {   EaseOutTime     F32             }
+        {   EaseOutMethod   U8              }
+        {   TargetID        LLUUID          }
+        {   TargetData      U8              }
+    }
+}
+
 // AvatarAppearance - Update visual params
 {
 	AvatarAppearance Low 158 Trusted Zerocoded

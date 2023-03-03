@@ -583,7 +583,8 @@ LLPuppetMotion::LLPuppetMotion(const LLUUID &id) :
 // override
 bool LLPuppetMotion::needsUpdate() const
 {
-    return !mExpressionEvents.empty() || !mEventQueues.empty() || LLMotion::needsUpdate();
+    return !mExpressionEvents.empty() || !mEventQueues.empty() || 
+        !mPuppetControl.empty() || LLMotion::needsUpdate();
 }
 
 F32 LLPuppetMotion::getEaseInDuration()
@@ -722,6 +723,29 @@ void LLPuppetMotion::updateSkeletonGeometry()
         mIKSolver.resetJointGeometry(joint_id, constraint);
     }
     measureArmSpan();
+}
+
+
+LLPuppetControl *LLPuppetMotion::getPuppetControl(U8 attachment_point)
+{
+    auto it = mPuppetControl.find(attachment_point);
+    if (it == mPuppetControl.end())
+    {
+        /*TODO test valid attachment point.*/
+        mPuppetControl[attachment_point] = LLPuppetControl(attachment_point);
+        
+        return &mPuppetControl[attachment_point];
+    }
+    return &((*it).second);
+}
+
+void LLPuppetMotion::removePuppetControl(U8 attachment_point)
+{
+    auto it = mPuppetControl.find(attachment_point);
+    if (it != mPuppetControl.end())
+    {
+        mPuppetControl.erase(it);
+    }
 }
 
 void LLPuppetMotion::rememberPosedJoint(S16 joint_id, LLPointer<LLJointState> joint_state, Timestamp now)
@@ -893,11 +917,38 @@ void LLPuppetMotion::applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::
             config.disableConstraint();
             something_changed = true;
         }
+        if (event.hasChainLimit())
+        {
+            config.setChainLimit(event.getChainLimit());
+            something_changed = true;
+        }
         if (something_changed)
         {
             configs[joint_id] = config;
         }
     }
+}
+
+void LLPuppetMotion::updateFromSimulator(Timestamp now)
+{
+    // Scan through the list of puppetry events and attempt to generate an LLPuppetJointEvent.
+    // If the event was generate put it on the back of the expression queue, if it was not, then
+    // the entry in the puppet control has run its course and should be removed. 
+    auto it = mPuppetControl.begin();
+    while(it != mPuppetControl.end())
+    { 
+        LLPuppetJointEvent puppet_event;
+        if ((*it).second.generateEventAt(now, puppet_event))
+        {
+            mExpressionEvents.push_back(puppet_event);
+            ++it;
+        }
+        else
+        {
+            it = mPuppetControl.erase(it);
+        }
+    }
+
 }
 
 void LLPuppetMotion::updateFromExpression(Timestamp now)
@@ -939,6 +990,11 @@ void LLPuppetMotion::updateFromExpression(Timestamp now)
                 // don't forget to scale by 0.5*mArmSpan
                 config.setTargetPos(event.getPosition() * (0.5f * mArmSpan));
             }
+            something_changed = true;
+        }
+        if (event.hasChainLimit())
+        {
+            config.setChainLimit(event.getChainLimit());
             something_changed = true;
         }
         if (mask & LLIK::CONFIG_FLAG_DISABLE_CONSTRAINT)
@@ -1156,8 +1212,10 @@ BOOL LLPuppetMotion::onUpdate(F32 time, U8* joint_mask)
     {
         // TODO: combine the two event maps into one vector of targets
         // LLIK::Solver::joint_config_map_t targets;
-        if (!mExpressionEvents.empty())
+
+        if (!mExpressionEvents.empty() || !mPuppetControl.empty())
         {
+            updateFromSimulator(now);
             updateFromExpression(now);
             pumpOutgoingEvents();
         }

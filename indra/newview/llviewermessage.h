@@ -99,6 +99,7 @@ void process_health_message(LLMessageSystem *mesgsys, void **user_data);
 void process_sim_stats(LLMessageSystem *mesgsys, void **user_data);
 void process_shooter_agent_hit(LLMessageSystem* msg, void** user_data);
 void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data);
+void process_animation_control(LLMessageSystem *mesgsys, void **user_data);
 void process_object_animation(LLMessageSystem *mesgsys, void **user_data);
 void process_avatar_appearance(LLMessageSystem *mesgsys, void **user_data);
 void process_camera_constraint(LLMessageSystem *mesgsys, void **user_data);

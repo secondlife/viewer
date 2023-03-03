@@ -203,6 +203,8 @@ public:
 
 	LLJoint*		        getJoint(const std::string &name) override;
 	LLJoint*		        getJoint(S32 num);
+    LLViewerJointAttachment *getAttachmentJoint(S32 attachment_num) const;
+
 
     //if you KNOW joint_num is a valid animated joint index, use getSkeletonJoint for efficiency
     inline LLJoint*         getSkeletonJoint(S32 joint_num) { return mSkeleton[joint_num]; }
