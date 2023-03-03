@@ -137,11 +137,14 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     additive = (blue_horizon.rgb * blue_weight.rgb) * (cs + tmpAmbient.rgb) + (haze_horizon * haze_weight.rgb) * (cs * haze_glow + tmpAmbient.rgb);
 
     // brightness of surface both sunlight and ambient
+    
+    // fudge sunlit and amblit to get consistent lighting compared to legacy
+    // midday before PBR was a thing
     sunlit = sunlight.rgb * 0.7;
     amblit = tmpAmbient.rgb * 0.25;
+
     additive *= vec3(1.0 - combined_haze);
 }
-
 
 vec3 srgb_to_linear(vec3 col);
 
@@ -163,6 +166,8 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, ou
 {
     calcAtmosphericVars(inPositionEye, light_dir, 1.0, sunlit, amblit, additive, atten, false);
 
+    // multiply by 2 to get same colors as when the "scaleSoftClip" implementation was doubling color values
+    // (allows for mixing of light sources other than sunlight e.g. reflection probes)
     sunlit *= 2.0;
     amblit *= 2.0;
 

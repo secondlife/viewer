@@ -74,7 +74,6 @@ const float ONE_OVER_PI = 0.3183098861;
 
 vec3 srgb_to_linear(vec3 cs);
 vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
-vec3 scaleSoftClipFragLinear(vec3 light);
 
 float calcLegacyDistanceAttenuation(float distance, float falloff)
 {
@@ -568,7 +567,7 @@ vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v,
     specContrib *= sunlit * 2.75 * scol;
     specContrib += ibl_spec;
 
-    color += colorEmissive; //divide by two to correct for magical multiply by two in atmosFragLighting
+    color += colorEmissive;
 
     return color;
 }

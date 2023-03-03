@@ -222,7 +222,9 @@ void main()
     vec4 fb = applyWaterFogViewLinear(viewVec*2048.0, vec4(1.0), sunlit_linear);
 #endif
 
+    // fudge sample on other side of water to be a tad darker
     fb.rgb *= 0.75;
+
     float metallic = 0.0;
     float perceptualRoughness = 0.05;
     float gloss      = 1.0 - perceptualRoughness;

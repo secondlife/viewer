@@ -89,7 +89,6 @@ void main()
 
 #ifndef IS_HUD
     color.rgb = fullbrightAtmosTransport(color.rgb);
-    color.rgb = fullbrightScaleSoftClip(color.rgb);
     color.rgb = srgb_to_linear(color.rgb);
 #endif
 
