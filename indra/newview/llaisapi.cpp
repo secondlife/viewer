@@ -368,6 +368,153 @@ void AISAPI::UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t 
 }
 
 /*static*/
+void AISAPI::FetchItem(const LLUUID &itemId, ITEM_TYPE type, completion_t callback)
+{
+
+	std::string cap;
+
+	cap = (type == INVENTORY) ? getInvCap() : getLibCap();
+	if (cap.empty())
+	{
+		LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+		return;
+	}
+	std::string url = cap + std::string("/item/") + itemId.asString();
+
+	invokationFn_t patchFn = boost::bind(
+		// Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+		static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+		//----
+		// _1 -> httpAdapter
+		// _2 -> httpRequest
+		// _3 -> url
+		// _4 -> body 
+		// _5 -> httpOptions
+		// _6 -> httpHeaders
+		(&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, _5, _6);
+
+	LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+		_1, patchFn, url, itemId, LLSD(), callback, FETCHITEM));
+
+	EnqueueAISCommand("FetchItem", proc);
+}
+
+/*static*/
+void AISAPI::FetchCategoryChildren(const LLUUID &catId, ITEM_TYPE type, bool recursive, completion_t callback, S32 depth)
+{
+    std::string cap;
+
+    cap = (type == INVENTORY) ? getInvCap() : getLibCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
+    std::string url = cap + std::string("/category/") + catId.asString() + "/children";
+
+    if (recursive)
+    {
+        url += "?depth=*";
+    }
+    else
+    {
+        url += "?depth=" + std::to_string(depth);
+    }
+
+    invokationFn_t patchFn = boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        // _4 -> body 
+        // _5 -> httpOptions
+        // _6 -> httpHeaders
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, _5, _6);
+
+    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+        _1, patchFn, url, catId, LLSD(), callback, FETCHCATEGORYCHILDREN));
+
+    EnqueueAISCommand("FetchCategoryChildren", proc);
+}
+
+/*static*/
+void AISAPI::FetchCategoryCategories(const LLUUID &catId, ITEM_TYPE type, bool recursive, completion_t callback, S32 depth)
+{
+    std::string cap;
+
+    cap = (type == INVENTORY) ? getInvCap() : getLibCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
+    std::string url = cap + std::string("/category/") + catId.asString() + "/categories";
+
+    if (recursive)
+    {
+        url += "?depth=*";
+    }
+    else
+    {
+        url += "?depth=" + std::to_string(depth);
+    }
+
+    invokationFn_t patchFn = boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        // _4 -> body 
+        // _5 -> httpOptions
+        // _6 -> httpHeaders
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, _5, _6);
+
+    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+        _1, patchFn, url, catId, LLSD(), callback, FETCHCATEGORYCATEGORIES));
+
+    EnqueueAISCommand("FetchCategoryCategories", proc);
+}
+
+/*static*/
+void AISAPI::FetchCOF(completion_t callback)
+{
+    std::string cap;
+    cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
+    LLUUID cof_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+
+    std::string url = cap + std::string("/category/") + cof_id.asString() +  "/links";
+    
+    //LLUUID root_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_ROOT_INVENTORY);
+    //std::string url = cap + std::string("/category/") + root_id.asString() +  "/children?depth=*";
+
+    invokationFn_t patchFn = boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        // _4 -> body 
+        // _5 -> httpOptions
+        // _6 -> httpHeaders
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, _5, _6);
+
+    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+        _1, patchFn, url, cof_id, LLSD(), callback, FETCHCOF));
+
+    EnqueueAISCommand("FetchCOF", proc);
+}
+
+/*static*/
 void AISAPI::EnqueueAISCommand(const std::string &procName, LLCoprocedureManager::CoProcedure_t proc)
 {
     LLCoprocedureManager &inst = LLCoprocedureManager::instance();
@@ -426,7 +573,12 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
     LLCore::HttpHeaders::ptr_t httpHeaders;
 
-    httpOptions->setTimeout(LLCoreHttpUtil::HTTP_REQUEST_EXPIRY_SECS);
+    /*if (type == FETCHCATEGORYCHILDREN && (url.find("?depth=*") != std::string::npos))
+    {
+        LL_WARNS() << "testy test start"<< LL_ENDL;
+    }*/
+
+    httpOptions->setTimeout(180);
 
     LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
 
@@ -474,8 +626,35 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
                 }
             }
         }
+        else if (status.getType() == 403)
+        {
+            if (type == FETCHCATEGORYCHILDREN)
+            {
+                if (url.find("?depth=*") != std::string::npos)
+                {
+                    LL_WARNS() << "too much" << LL_ENDL;
+                    AISAPI::FetchCategoryChildren(gInventory.getRootFolderID(), AISAPI::ITEM_TYPE::INVENTORY, false, boost::bind(&LLInventoryModel::fetchDescendentsDepthOne, &gInventory, targetId));
+
+                    if (result["oversize_inventory"].asBoolean() == true)
+                    {
+                        LL_WARNS("Inventory") << "Can't fetch the oversized inventory folder" << LL_ENDL;
+                    }
+                }
+                else
+                {
+                    if (result["oversize_inventory"].asBoolean() == true)
+                    {
+                        LL_WARNS("Inventory") << "Can't fetch the oversized inventory folder" << LL_ENDL;
+                    }
+                }
+            }
+        }
         LL_WARNS("Inventory") << "Inventory error: " << status.toString() << LL_ENDL;
         LL_WARNS("Inventory") << ll_pretty_print_sd(result) << LL_ENDL;
+    }
+    else if (type == FETCHCOF)
+    {
+        //LL_WARNS("Inventory") << ll_pretty_print_sd(result) << LL_ENDL;      
     }
 
     gInventory.onAISUpdateReceived("AISCommand", result);
@@ -841,11 +1020,11 @@ void AISUpdate::parseEmbeddedLinks(const LLSD& links)
 	{
 		const LLUUID link_id((*linkit).first);
 		const LLSD& link_map = (*linkit).second;
-		if (mItemIds.end() == mItemIds.find(link_id))
+		/*if (mItemIds.end() == mItemIds.find(link_id))
 		{
 			LL_DEBUGS("Inventory") << "Ignoring link not in items list " << link_id << LL_ENDL;
 		}
-		else
+		else*/
 		{
 			parseLink(link_map);
 		}
@@ -857,7 +1036,7 @@ void AISUpdate::parseEmbeddedItem(const LLSD& item)
 	// a single item (_embedded in a link)
 	if (item.has("item_id"))
 	{
-		if (mItemIds.end() != mItemIds.find(item["item_id"].asUUID()))
+        //if (mItemIds.end() != mItemIds.find(item["item_id"].asUUID()))
 		{
 			parseItem(item);
 		}
@@ -873,11 +1052,11 @@ void AISUpdate::parseEmbeddedItems(const LLSD& items)
 	{
 		const LLUUID item_id((*itemit).first);
 		const LLSD& item_map = (*itemit).second;
-		if (mItemIds.end() == mItemIds.find(item_id))
+		/*if (mItemIds.end() == mItemIds.find(item_id))
 		{
 			LL_DEBUGS("Inventory") << "Ignoring item not in items list " << item_id << LL_ENDL;
 		}
-		else
+		else*/
 		{
 			parseItem(item_map);
 		}
@@ -889,7 +1068,7 @@ void AISUpdate::parseEmbeddedCategory(const LLSD& category)
 	// a single category (_embedded in a link)
 	if (category.has("category_id"))
 	{
-		if (mCategoryIds.end() != mCategoryIds.find(category["category_id"].asUUID()))
+		//if (mCategoryIds.end() != mCategoryIds.find(category["category_id"].asUUID()))
 		{
 			parseCategory(category);
 		}
@@ -905,11 +1084,11 @@ void AISUpdate::parseEmbeddedCategories(const LLSD& categories)
 	{
 		const LLUUID category_id((*categoryit).first);
 		const LLSD& category_map = (*categoryit).second;
-		if (mCategoryIds.end() == mCategoryIds.find(category_id))
+		/*if (mCategoryIds.end() == mCategoryIds.find(category_id))
 		{
 			LL_DEBUGS("Inventory") << "Ignoring category not in categories list " << category_id << LL_ENDL;
 		}
-		else
+		else*/
 		{
 			parseCategory(category_map);
 		}

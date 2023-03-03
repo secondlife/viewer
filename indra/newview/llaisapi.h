@@ -38,6 +38,11 @@
 class AISAPI
 {
 public:
+    typedef enum {
+        INVENTORY,
+        LIBRARY
+    } ITEM_TYPE;
+
     typedef boost::function<void(const LLUUID &invItem)>    completion_t;
 
     static bool isAvailable();
@@ -50,6 +55,10 @@ public:
     static void PurgeDescendents(const LLUUID &categoryId, completion_t callback = completion_t());
     static void UpdateCategory(const LLUUID &categoryId, const LLSD &updates, completion_t callback = completion_t());
     static void UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t callback = completion_t());
+    static void FetchItem(const LLUUID &itemId, ITEM_TYPE type, completion_t callback = completion_t());
+    static void FetchCategoryChildren(const LLUUID &catId, ITEM_TYPE type = AISAPI::ITEM_TYPE::INVENTORY, bool recursive = false, completion_t callback = completion_t(), S32 depth = 0);
+    static void FetchCategoryCategories(const LLUUID &catId, ITEM_TYPE type = AISAPI::ITEM_TYPE::INVENTORY, bool recursive = false, completion_t callback = completion_t(), S32 depth = 0);
+    static void FetchCOF(completion_t callback = completion_t());
     static void CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, bool copySubfolders, completion_t callback = completion_t());
 
 private:
@@ -61,7 +70,11 @@ private:
         PURGEDESCENDENTS,
         UPDATECATEGORY,
         UPDATEITEM,
-        COPYLIBRARYCATEGORY
+        COPYLIBRARYCATEGORY,
+        FETCHITEM,
+        FETCHCATEGORYCHILDREN,
+        FETCHCATEGORYCATEGORIES,
+        FETCHCOF
     } COMMAND_TYPE;
 
     static const std::string INVENTORY_CAP_NAME;
