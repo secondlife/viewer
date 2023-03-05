@@ -37,6 +37,7 @@
 #include "llappearancemgr.h"
 #include "llavatarnamecache.h"
 #include "llclipboard.h"
+#include "lldispatcher.h"
 #include "llinventorypanel.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
@@ -49,6 +50,7 @@
 #include "llviewercontrol.h"
 #include "llviewernetwork.h"
 #include "llpreview.h" 
+#include "llviewergenericmessage.h"
 #include "llviewermessage.h"
 #include "llviewerfoldertype.h"
 #include "llviewerwindow.h"
@@ -131,6 +133,221 @@ bool LLCanCache::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 	}
 	return rv;
 }
+
+struct InventoryCallbackInfo
+{
+    InventoryCallbackInfo(U32 callback, const LLUUID& inv_id) :
+        mCallback(callback), mInvID(inv_id) {}
+    U32 mCallback;
+    LLUUID mInvID;
+};
+
+///----------------------------------------------------------------------------
+/// Class LLDispatchClassifiedClickThrough
+///----------------------------------------------------------------------------
+
+class LLDispatchBulkUpdateInventory : public LLDispatchHandler
+{
+public:
+    virtual bool operator()(
+        const LLDispatcher* dispatcher,
+        const std::string& key,
+        const LLUUID& invoice,
+        const sparam_t& strings)
+    {
+        LLSD message;
+
+        // Expect single string parameter in the form of a notation serialized LLSD.
+        sparam_t::const_iterator it = strings.begin();
+        if (it != strings.end()) {
+            const std::string& llsdRaw = *it++;
+            std::istringstream llsdData(llsdRaw);
+            if (!LLSDSerialize::deserialize(message, llsdData, llsdRaw.length()))
+            {
+                LL_WARNS() << "LLDispatchBulkUpdateInventory: Attempted to read parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
+            }
+        }
+
+        LLInventoryModel::update_map_t update;
+        LLInventoryModel::cat_array_t folders;
+        LLInventoryModel::item_array_t items;
+        std::list<InventoryCallbackInfo> cblist;
+        uuid_vec_t wearable_ids;
+
+        LLSD item_data = message["item_data"];
+        if (item_data.isArray())
+        {
+            for (LLSD::array_iterator itd = item_data.beginArray(); itd != item_data.endArray(); ++itd)
+            {
+                const LLSD &item(*itd);
+
+                // Agent id probably should be in the root of the message
+                LLUUID agent_id = item["agent_id"].asUUID();
+                if (agent_id != gAgent.getID())
+                {
+                    LL_WARNS() << "Got a BulkUpdateInventory for the wrong agent." << LL_ENDL;
+                    return false;
+                }
+
+                LLPointer<LLViewerInventoryItem> titem = new LLViewerInventoryItem;
+                titem->unpackMessage(item);
+                LL_DEBUGS("Inventory") << "unpacked item '" << titem->getName() << "' in "
+                    << titem->getParentUUID() << LL_ENDL;
+                U32 callback_id = item["callback_id"].asInteger();
+
+                if (titem->getUUID().notNull())
+                {
+                    items.push_back(titem);
+                    cblist.push_back(InventoryCallbackInfo(callback_id, titem->getUUID()));
+                    if (titem->getInventoryType() == LLInventoryType::IT_WEARABLE)
+                    {
+                        wearable_ids.push_back(titem->getUUID());
+                    }
+
+                    // examine update for changes.
+                    LLViewerInventoryItem* itemp = gInventory.getItem(titem->getUUID());
+                    if (itemp)
+                    {
+                        if (titem->getParentUUID() == itemp->getParentUUID())
+                        {
+                            update[titem->getParentUUID()];
+                        }
+                        else
+                        {
+                            ++update[titem->getParentUUID()];
+                            --update[itemp->getParentUUID()];
+                        }
+                    }
+                    else
+                    {
+                        LLViewerInventoryCategory* folderp = gInventory.getCategory(titem->getParentUUID());
+                        if (folderp)
+                        {
+                            ++update[titem->getParentUUID()];
+                        }
+                    }
+                }
+                else
+                {
+                    cblist.push_back(InventoryCallbackInfo(callback_id, LLUUID::null));
+                }
+            }
+        }
+
+        LLSD folder_data = message["folder_data"];
+        if (folder_data.isArray())
+        {
+            for (LLSD::array_iterator itd = folder_data.beginArray(); itd != folder_data.endArray(); ++itd)
+            {
+                const LLSD &folder(*itd);
+
+                LLPointer<LLViewerInventoryCategory> tfolder = new LLViewerInventoryCategory(gAgent.getID());
+                tfolder->unpackMessage(folder);
+
+                LL_DEBUGS("Inventory") << "unpacked folder '" << tfolder->getName() << "' ("
+                        << tfolder->getUUID() << ") in " << tfolder->getParentUUID()
+                        << LL_ENDL;
+
+                // If the folder is a listing or a version folder, all we need to do is update the SLM data
+                int depth_folder = depth_nesting_in_marketplace(tfolder->getUUID());
+                if ((depth_folder == 1) || (depth_folder == 2))
+                {
+                    // Trigger an SLM listing update
+                    LLUUID listing_uuid = (depth_folder == 1 ? tfolder->getUUID() : tfolder->getParentUUID());
+                    S32 listing_id = LLMarketplaceData::instance().getListingID(listing_uuid);
+                    LLMarketplaceData::instance().getListing(listing_id);
+                    // In that case, there is no item to update so no callback -> we skip the rest of the update
+                }
+                else if (tfolder->getUUID().notNull())
+                {
+                    folders.push_back(tfolder);
+                    LLViewerInventoryCategory* folderp = gInventory.getCategory(tfolder->getUUID());
+                    if (folderp)
+                    {
+                        if (tfolder->getParentUUID() == folderp->getParentUUID())
+                        {
+                            update[tfolder->getParentUUID()];
+                        }
+                        else
+                        {
+                            ++update[tfolder->getParentUUID()];
+                            --update[folderp->getParentUUID()];
+                        }
+                    }
+                    else
+                    {
+                        // we could not find the folder, so it is probably
+                        // new. However, we only want to attempt accounting
+                        // for the parent if we can find the parent.
+                        folderp = gInventory.getCategory(tfolder->getParentUUID());
+                        if (folderp)
+                        {
+                            ++update[tfolder->getParentUUID()];
+                        }
+                    }
+                }
+            }
+        }
+
+        gInventory.accountForUpdate(update);
+
+        for (LLInventoryModel::cat_array_t::iterator cit = folders.begin(); cit != folders.end(); ++cit)
+        {
+            gInventory.updateCategory(*cit);
+        }
+        for (LLInventoryModel::item_array_t::iterator iit = items.begin(); iit != items.end(); ++iit)
+        {
+            gInventory.updateItem(*iit);
+        }
+        gInventory.notifyObservers();
+
+        /*
+        Transaction id not included?
+
+        // The incoming inventory could span more than one BulkInventoryUpdate packet,
+        // so record the transaction ID for this purchase, then wear all clothing
+        // that comes in as part of that transaction ID.  JC
+        if (LLInventoryState::sWearNewClothing)
+        {
+            LLInventoryState::sWearNewClothingTransactionID = tid;
+            LLInventoryState::sWearNewClothing = FALSE;
+        }
+
+        if (tid.notNull() && tid == LLInventoryState::sWearNewClothingTransactionID)
+        {
+            count = wearable_ids.size();
+            for (i = 0; i < count; ++i)
+            {
+                LLViewerInventoryItem* wearable_item;
+                wearable_item = gInventory.getItem(wearable_ids[i]);
+                LLAppearanceMgr::instance().wearItemOnAvatar(wearable_item->getUUID(), true, true);
+            }
+        }
+        */
+
+        if (LLInventoryState::sWearNewClothing && wearable_ids.size() > 0)
+        {
+            LLInventoryState::sWearNewClothing = FALSE;
+
+            size_t count = wearable_ids.size();
+            for (S32 i = 0; i < count; ++i)
+            {
+                LLViewerInventoryItem* wearable_item;
+                wearable_item = gInventory.getItem(wearable_ids[i]);
+                LLAppearanceMgr::instance().wearItemOnAvatar(wearable_item->getUUID(), true, true);
+            }
+        }
+
+        std::list<InventoryCallbackInfo>::iterator inv_it;
+        for (inv_it = cblist.begin(); inv_it != cblist.end(); ++inv_it)
+        {
+            InventoryCallbackInfo cbinfo = (*inv_it);
+            gInventoryCallbacks.fire(cbinfo.mCallback, cbinfo.mInvID);
+        }
+        return true;
+    }
+};
+static LLDispatchBulkUpdateInventory sBulkUpdateInventory;
 
 ///----------------------------------------------------------------------------
 /// Class LLInventoryValidationInfo
@@ -2827,6 +3044,11 @@ void LLInventoryModel::initHttpRequest()
 		mHttpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_LLSD_XML);
 		mHttpPolicyClass = app_core_http.getPolicy(LLAppCoreHttp::AP_INVENTORY);
 	}
+
+    if (!gGenericDispatcher.isHandlerPresent("BulkUpdateInventory"))
+    {
+        gGenericDispatcher.addHandler("BulkUpdateInventory", &sBulkUpdateInventory);
+    }
 }
 
 void LLInventoryModel::handleResponses(bool foreground)
@@ -3416,14 +3638,6 @@ void LLInventoryModel::processSaveAssetIntoInventory(LLMessageSystem* msg,
 		gViewerWindow->getWindow()->decBusyCount();
 	}
 }
-
-struct InventoryCallbackInfo
-{
-	InventoryCallbackInfo(U32 callback, const LLUUID& inv_id) :
-		mCallback(callback), mInvID(inv_id) {}
-	U32 mCallback;
-	LLUUID mInvID;
-};
 
 // static
 void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
