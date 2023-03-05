@@ -4863,17 +4863,6 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 			mTangents = NULL;
 		}
 
-        if (src.mTangents)
-        {
-            allocateTangents(src.mNumVertices);
-            LLVector4a::memcpyNonAliased16((F32*)mTangents, (F32*)src.mTangents, vert_size);
-        }
-        else
-        {
-            ll_aligned_free_16(mTangents);
-            mTangents = nullptr;
-        }
-
 		if (src.mWeights)
 		{
             llassert(!mWeights); // don't orphan an old alloc here accidentally
