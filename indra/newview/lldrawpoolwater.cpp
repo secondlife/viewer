@@ -495,6 +495,9 @@ void LLDrawPoolWater::renderWater()
     if (sun_up)
     {
         light_diffuse += psky->getSunlightColor();
+        light_diffuse.normalize();
+        light_diffuse.mV[0] = 5;
+        light_diffuse.mV[1] = 2;
     }
     // moonlight is several orders of magnitude less bright than sunlight,
     // so only use this color when the moon alone is showing
