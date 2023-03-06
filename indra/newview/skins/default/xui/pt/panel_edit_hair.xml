@@ -7,7 +7,7 @@
 		<accordion name="wearable_accordion">
 			<accordion_tab name="hair_color_tab" title="Cor"/>
 			<accordion_tab name="hair_style_tab" title="Estilo"/>
-			<accordion_tab name="hair_eyebrows_tab" title="Sombrancelhas"/>
+			<accordion_tab name="hair_eyebrows_tab" title="Sobrancelhas"/>
 			<accordion_tab name="hair_facial_tab" title="Faciais"/>
 		</accordion>
 	</panel>
