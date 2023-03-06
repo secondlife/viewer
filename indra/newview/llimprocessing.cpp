@@ -453,7 +453,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
     BOOL is_friend = (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL) ? false : true;
     BOOL accept_im_from_only_friend = gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly");
     BOOL is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
-        LLMuteList::getInstance()->isLinden(name);
+        LLMuteList::isLinden(name);
 
     chat.mMuted = is_muted;
     chat.mFromID = from_id;
