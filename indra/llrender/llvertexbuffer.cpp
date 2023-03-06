@@ -1363,7 +1363,8 @@ void LLVertexBuffer::setBuffer()
     U32 data_mask = LLGLSLShader::sCurBoundShaderPtr->mAttributeMask;
 
     // this Vertex Buffer must provide all necessary attributes for currently bound shader
-    llassert((data_mask & mTypeMask) == data_mask);
+    llassert_msg((data_mask & mTypeMask) == data_mask,
+        "Attribute mask mismatch! mTypeMask should be a superset of data_mask.  data_mask: 0x" << std::hex << data_mask << " mTypeMask: 0x" << mTypeMask << std::dec);
 
     if (sGLRenderBuffer != mGLBuffer)
     {
