@@ -2940,16 +2940,20 @@ void LLIK::Solver::updateBounds(const LLVector3& point)
 }
 #endif // DEBUG_LLIK_UNIT_TESTS
 
-std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::getConstraint(const LLIK::Constraint::Info& info)
+std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::getConstraint(const LLIK::Constraint::Info& info, LLSD &record)
 {
     std::string key = info.getString();
     std::map<std::string, std::shared_ptr<LLIK::Constraint> >::const_iterator itr = mConstraints.find(key);
     if (itr != mConstraints.end())
     {
+        /*TEMP code just to get the LLSD*/
+        create(info, record);
+        // end temp
+
         return itr->second;
     }
 
-    std::shared_ptr<LLIK::Constraint> ptr = create(info);
+    std::shared_ptr<LLIK::Constraint> ptr = create(info, record);
     if (ptr)
     {
         mConstraints.insert({key, ptr});
@@ -2958,14 +2962,18 @@ std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::getConstraint(const LLI
 }
 
 // static
-std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::create(const LLIK::Constraint::Info& info)
+std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::create(const LLIK::Constraint::Info& info, LLSD &record)
 {
+
     std::shared_ptr<LLIK::Constraint> ptr;
     switch (info.mType)
     {
         case LLIK::Constraint::Info::SIMPLE_CONE_CONSTRAINT:
             if (info.mVectors.size() > 0 && info.mFloats.size() > 0)
             {
+                record["type"] = "SIMPLE_CONE";
+                record["forward_axis"] = info.mVectors[0].getValue();
+                record["max_angle"] = info.mFloats[0];
                 ptr = std::make_shared<LLIK::SimpleCone>(
                         info.mVectors[0], // forward_axis
                         info.mFloats[0]); // max_angle
@@ -2974,6 +2982,12 @@ std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::create(const LLIK::Cons
         case LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT:
             if (info.mVectors.size() > 0 && info.mFloats.size() > 2)
             {
+                record["type"] = "TWIST_LIMITED_CONE";
+                record["forward_axis"] = info.mVectors[0].getValue();
+                record["cone_angle"] = info.mFloats[0];
+                record["min_twist"] = info.mFloats[1];
+                record["max_twist"] = info.mFloats[2];
+
                 ptr = std::make_shared<LLIK::TwistLimitedCone>(
                         info.mVectors[0], // forward_axis
                         info.mFloats[0], // cone_angle
@@ -2984,6 +2998,14 @@ std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::create(const LLIK::Cons
         case LLIK::Constraint::Info::ELBOW_CONSTRAINT:
             if (info.mVectors.size() > 1 && info.mFloats.size() > 3)
             {
+                record["type"] = "ELBOW";
+                record["forward_axis"] = info.mVectors[0].getValue();
+                record["pivot_axis"] = info.mVectors[1].getValue();
+                record["min_bend"] = info.mFloats[0];
+                record["max_bend"] = info.mFloats[1];
+                record["min_twist"] = info.mFloats[2];
+                record["max_twist"] = info.mFloats[3];
+
                 ptr = std::make_shared<LLIK::ElbowConstraint>(
                         info.mVectors[0], // forward_axis
                         info.mVectors[1], // pivot_axis
@@ -2996,6 +3018,12 @@ std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::create(const LLIK::Cons
         case LLIK::Constraint::Info::KNEE_CONSTRAINT:
             if (info.mVectors.size() > 1 && info.mFloats.size() > 1)
             {
+                record["type"] = "KNEE";
+                record["forward_axis"] = info.mVectors[0].getValue();
+                record["pivot_axis"] = info.mVectors[1].getValue();
+                record["min_bend"] = info.mFloats[0];
+                record["max_bend"] = info.mFloats[1];
+
                 ptr = std::make_shared<LLIK::KneeConstraint>(
                         info.mVectors[0], // forward_axis
                         info.mVectors[1], // pivot_axis
@@ -3006,6 +3034,15 @@ std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::create(const LLIK::Cons
         case LLIK::Constraint::Info::ACUTE_ELLIPSOIDAL_CONE_CONSTRAINT:
             if (info.mVectors.size() > 1 && info.mFloats.size() > 4)
             {
+                record["type"] = "ACUTE_ELLIPSOIDAL_CONE";
+                record["forward_axis"] = info.mVectors[0].getValue();
+                record["up_axis"] = info.mVectors[1].getValue();
+                record["forward"] = info.mFloats[0];
+                record["up"] = info.mFloats[1];
+                record["left"] = info.mFloats[2];
+                record["down"] = info.mFloats[3];
+                record["right"] = info.mFloats[4];
+
                 ptr = std::make_shared<LLIK::AcuteEllipsoidalCone>(
                         info.mVectors[0], // forward_axis
                         info.mVectors[1], // up_axis
@@ -3020,6 +3057,14 @@ std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::create(const LLIK::Cons
         case LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT:
             if (info.mVectors.size() > 1 && info.mFloats.size() > 3)
             {
+                record["type"] = "DOUBLE_LIMITED_HINGE";
+                record["forward_axis"] = info.mVectors[0].getValue();
+                record["up_axis"] = info.mVectors[1].getValue();
+                record["min_yaw"] = info.mFloats[0];
+                record["max_yaw"] = info.mFloats[1];
+                record["min_pitch"] = info.mFloats[2];
+                record["max_pitch"] = info.mFloats[3];
+
                 ptr = std::make_shared<LLIK::DoubleLimitedHinge>(
                         info.mVectors[0], // forward_axis
                         info.mVectors[1], // up_axis
@@ -3032,6 +3077,7 @@ std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::create(const LLIK::Cons
         default:
         break;
     }
+
     return ptr;
 }
 

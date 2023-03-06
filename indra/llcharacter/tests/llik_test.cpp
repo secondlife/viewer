@@ -726,23 +726,24 @@ namespace tut
 	template<> template<>
 	void llik_object::test<6>()
 	{
+        LLSD record;
         LLIKConstraintFactory factory;
         LLIK::Constraint::ptr_t constraint;
         ensure_equals("LLIKConstraintFactory starts empty", factory.getNumConstraints(), 0);
         LLIK::Constraint::Info info;
 
-        constraint = factory.getConstraint(info);
+        constraint = factory.getConstraint(info, record);
         ensure("LLIKConstraintFactory creates null Constraint when given bad info", ! bool(constraint));
         ensure_equals("LLIKConstraintFactory should remain empty", factory.getNumConstraints(), 0);
 
         info.mType = LLIK::Constraint::Info::SIMPLE_CONE_CONSTRAINT;
         info.mVectors.push_back(LLVector3::x_axis); // cone_axis
         info.mFloats.push_back(F_PI / 4.0f); // cone_angle
-        constraint = factory.getConstraint(info);
+        constraint = factory.getConstraint(info, record);
         ensure("LLIKConstraintFactory creates non-null Constraint when given good info", bool(constraint));
         ensure_equals("LLIKConstraintFactory should have one Constraint", factory.getNumConstraints(), 1);
 
-        LLIK::Constraint::ptr_t other_constraint = factory.getConstraint(info);
+        LLIK::Constraint::ptr_t other_constraint = factory.getConstraint(info, record);
         ensure_equals("LLIKConstraintFactory supplies same constraint for identical info", constraint, other_constraint);
 
         LLIK::Constraint::Info other_info;
@@ -753,7 +754,7 @@ namespace tut
         other_info.mFloats.push_back(F_PI / 2.0f); // max_bend
         other_info.mFloats.push_back(-F_PI / 4.0f); // min_twist
         other_info.mFloats.push_back(F_PI / 2.0f); // max_twist
-        other_constraint = factory.getConstraint(other_info);
+        other_constraint = factory.getConstraint(other_info, record);
         ensure("LLIKConstraintFactory creates non-null Constraint when given good info", bool(other_constraint));
         ensure_not_equals("LLIKConstraintFactory supplies different constraint for different info", constraint, other_constraint);
         ensure_equals("LLIKConstraintFactory should have two Constraints", factory.getNumConstraints(), 2);
@@ -818,8 +819,9 @@ namespace tut
         ensure_equals("LLIK::Solver::getRootID", solver.getRootID(), root_joint_id);
 
         // build solver skeleton
+        LLSD record;
         LLIK::Constraint::Info info;
-        LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(info);
+        LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(info, record);
         S16 ik_joint_id = root_joint_id;
         S16 parent_ik_joint_id = -1;
         for (S16 i = 0; i < S16(joints.size()); ++i)
@@ -962,8 +964,9 @@ namespace tut
             solver.setRootID(0);
 
             // build solver skeleton
+            LLSD record;
             LLIK::Constraint::Info info;
-            LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(info, record);
             for (S16 i = 0; i < S16(joints.size()); ++i)
             {
                 solver.addJoint(i, i-1, joints[i], null_constraint);
@@ -995,9 +998,10 @@ namespace tut
             LLIK::Constraint::Info info;
             F32 del = 0.2f;
 
+            LLSD record;
             // build solver skeleton
             LLIK::Constraint::Info info_A;
-            LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(info, record);
             S16 joint_id = 0;
             solver.addJoint(joint_id, joint_id-1, joints[joint_id], null_constraint);
             ++joint_id;
@@ -1008,7 +1012,7 @@ namespace tut
             info_CW.mVectors.push_back(LLVector3::z_axis); // pivot_axis
             info_CW.mFloats.push_back(-0.5f * F_PI - del); // min_bend
             info_CW.mFloats.push_back(-0.5f * F_PI + del); // max_bend
-            LLIK::Constraint::ptr_t right_turn_CW = factory.getConstraint(info_CW);
+            LLIK::Constraint::ptr_t right_turn_CW = factory.getConstraint(info_CW, record);
             solver.addJoint(joint_id, joint_id-1, joints[joint_id], right_turn_CW);
             ++joint_id;
 
@@ -1021,7 +1025,7 @@ namespace tut
             info_CCW.mVectors.push_back(LLVector3::z_axis); // pivot_axis
             info_CCW.mFloats.push_back(0.5f * F_PI - del); // min_bend
             info_CCW.mFloats.push_back(0.5f * F_PI + del); // max_bend
-            LLIK::Constraint::ptr_t right_turn_CCW = factory.getConstraint(info_CCW);
+            LLIK::Constraint::ptr_t right_turn_CCW = factory.getConstraint(info_CCW, record);
             solver.addJoint(joint_id, joint_id-1, joints[joint_id], right_turn_CCW);
 
             // configure a target for end-effector
@@ -1140,9 +1144,10 @@ namespace tut
             ++joint_id;
         }
 
+        LLSD record;
         LLIKConstraintFactory factory;
         LLIK::Constraint::Info info;
-        LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(info);
+        LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(info, record);
 
         LLIK::Solver solver;
         constexpr F32 ACCEPTABLE_ERROR = 1.0e-3f; // one mm
@@ -1525,6 +1530,7 @@ namespace tut
 
         S16 joint_id = 0;
         solver.setRootID(joint_id);
+        LLSD record;
 
         // Pelvis
         {
@@ -1538,7 +1544,7 @@ namespace tut
             joint->setEnd(bone);
             joints.push_back(joint);
 
-            LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(LLIK::Constraint::Info());
+            LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(LLIK::Constraint::Info(), record);
 
             solver.addJoint(joint_id, -1, joint, null_constraint);
         }
@@ -1562,7 +1568,7 @@ namespace tut
             info.mFloats.push_back(0.0628319f); // cone_angle
             info.mFloats.push_back(-0.0628319f); // min_twist
             info.mFloats.push_back(0.0628319f); // max_twist
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -1586,7 +1592,7 @@ namespace tut
             info.mFloats.push_back(0.0628319f); // cone_angle
             info.mFloats.push_back(-0.0628319f); // min_twist
             info.mFloats.push_back(0.0628319f); // max_twist
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -1608,7 +1614,7 @@ namespace tut
             info.mType = LLIK::Constraint::Info::SIMPLE_CONE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
             info.mFloats.push_back(0.15708f); // cone_angle
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -1633,7 +1639,7 @@ namespace tut
             info.mFloats.push_back(1.5f); // cone_angle
             info.mFloats.push_back(-1.25664f); // min_twist
             info.mFloats.push_back(1.7952f); // max_twist
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -1659,7 +1665,7 @@ namespace tut
             info.mFloats.push_back(0.0f); // max_bend
             info.mFloats.push_back(-0.785398f); // min_twist
             info.mFloats.push_back(2.35619f); // max_twist
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -1684,7 +1690,7 @@ namespace tut
             info.mFloats.push_back(0.628318f); // cone_angle
             info.mFloats.push_back(-0.05f); // min_twist
             info.mFloats.push_back(0.05f); // max_twist
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -1716,7 +1722,7 @@ namespace tut
             info.mFloats.push_back(0.15708f); // max_yaw
             info.mFloats.push_back(0.0f); // min_pitch
             info.mFloats.push_back(0.942478f); // max_pitch
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -1742,7 +1748,7 @@ namespace tut
             info.mVectors.push_back(pivot_axis);
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.5708f); // max_bend
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -1768,7 +1774,7 @@ namespace tut
             info.mVectors.push_back(pivot_axis);
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.25664f); // max_bend
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -1795,7 +1801,7 @@ namespace tut
             info.mFloats.push_back(0.15708f); // max_yaw
             info.mFloats.push_back(0.0f); // min_pitch
             info.mFloats.push_back(1.39626f); // max_pitch
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -1821,7 +1827,7 @@ namespace tut
             info.mVectors.push_back(pivot_axis);
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.5708f); // max_bend
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -1847,7 +1853,7 @@ namespace tut
             info.mVectors.push_back(pivot_axis);
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.25664f); // max_bend
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -1874,7 +1880,7 @@ namespace tut
             info.mFloats.push_back(0.15708f); // max_yaw
             info.mFloats.push_back(0.0f); // min_pitch
             info.mFloats.push_back(1.39626f); // max_pitch
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -1900,7 +1906,7 @@ namespace tut
             info.mVectors.push_back(pivot_axis);
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.5708f); // max_bend
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -1926,7 +1932,7 @@ namespace tut
             info.mVectors.push_back(pivot_axis);
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.25664f); // max_bend
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -1953,7 +1959,7 @@ namespace tut
             info.mFloats.push_back(0.15708f); // max_yaw
             info.mFloats.push_back(0.0f); // min_pitch
             info.mFloats.push_back(1.39626f); // max_pitch
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -1979,7 +1985,7 @@ namespace tut
             info.mVectors.push_back(pivot_axis);
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.5708f); // max_bend
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -2005,7 +2011,7 @@ namespace tut
             info.mVectors.push_back(pivot_axis);
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.25664f); // max_bend
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -2032,7 +2038,7 @@ namespace tut
             info.mFloats.push_back(0.15708f); // max_yaw
             info.mFloats.push_back(-0.1f); // min_pitch
             info.mFloats.push_back(0.785398f); // max_pitch
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -2059,7 +2065,7 @@ namespace tut
             info.mVectors.push_back(pivot_axis);
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(0.942478f); // max_bend
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -2086,7 +2092,7 @@ namespace tut
             info.mVectors.push_back(pivot_axis);
             info.mFloats.push_back(0.0f); // min_bend
             info.mFloats.push_back(1.25664f); // max_bend
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -2223,6 +2229,7 @@ namespace tut
 
         S16 joint_id = 0;
         solver.setRootID(joint_id);
+        LLSD record;
 
         // Pelvis
         {
@@ -2236,7 +2243,7 @@ namespace tut
             joint->setEnd(bone);
             joints.push_back(joint);
 
-            LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(LLIK::Constraint::Info());
+            LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(LLIK::Constraint::Info(), record);
 
             solver.addJoint(joint_id, joint_id-1, joint, null_constraint);
         }
@@ -2260,7 +2267,7 @@ namespace tut
             info.mFloats.push_back(0.0628319f); // cone_angle
             info.mFloats.push_back(-0.0628319f); // min_twist
             info.mFloats.push_back(0.0628319f); // max_twist
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -2284,7 +2291,7 @@ namespace tut
             info.mFloats.push_back(0.0628319f); // cone_angle
             info.mFloats.push_back(-0.0628319f); // min_twist
             info.mFloats.push_back(0.0628319f); // max_twist
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -2309,7 +2316,7 @@ namespace tut
             info.mFloats.push_back(0.0628319f); // cone_angle
             info.mFloats.push_back(-0.0628319f); // min_twist
             info.mFloats.push_back(0.0628319f); // max_twist
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -2333,7 +2340,7 @@ namespace tut
             info.mFloats.push_back(0.0628319f); // cone_angle
             info.mFloats.push_back(-0.0628319f); // min_twist
             info.mFloats.push_back(0.0628319f); // max_twist
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -2355,7 +2362,7 @@ namespace tut
             info.mType = LLIK::Constraint::Info::SIMPLE_CONE_CONSTRAINT;
             info.mVectors.push_back(local_position); // forward_axis
             info.mFloats.push_back(0.15708f); // cone_angle
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -2380,7 +2387,7 @@ namespace tut
             info.mFloats.push_back(1.5f); // cone_angle
             info.mFloats.push_back(-0.5f * F_PI); // min_twist
             info.mFloats.push_back(0.5f * F_PI); // max_twist
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -2406,7 +2413,7 @@ namespace tut
             info.mFloats.push_back(0.0f); // max_bend
             info.mFloats.push_back(-0.785398f); // min_twist
             info.mFloats.push_back(2.35619f); // max_twist
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }
@@ -2431,7 +2438,7 @@ namespace tut
             info.mFloats.push_back(0.628318f); // cone_angle
             info.mFloats.push_back(-0.05f); // min_twist
             info.mFloats.push_back(0.05f); // max_twist
-            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
+            LLIK::Constraint::ptr_t constraint = factory.getConstraint(info, record);
 
             solver.addJoint(joint_id, joint_id-1, joint, constraint);
         }

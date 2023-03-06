@@ -42,6 +42,7 @@
 #include "llviewerregion.h"
 #include "llvoavatar.h"
 #include "v3dmath.h"
+#include "llsdserialize.h"
 #include "llsdutil_math.h"        //For ll_sd_from_vector3
 
 #include "llvoavatarself.h"
@@ -112,6 +113,8 @@ namespace
     constexpr U32 PUPPET_MAX_MSG_BYTES = 255;  // This is the largest possible size event
     constexpr F32 PUPPET_BROADCAST_INTERVAL = 0.05f;  //Time in seconds
     constexpr S32 POSED_JOINT_EXPIRY_PERIOD = 3 * MSEC_PER_SEC;
+
+    static LLSD TEMP_CONSTRAINT_LLSD;
 }
 
 const std::string PUPPET_ROOT_JOINT_NAME("mPelvis");    //Name of the root joint
@@ -119,8 +122,9 @@ const std::string PUPPET_ROOT_JOINT_NAME("mPelvis");    //Name of the root joint
 bool    LLPuppetMotion::sIsPuppetryEnabled(false);
 size_t  LLPuppetMotion::sPuppeteerEventMaxSize(0);
 
+
 // BEGIN HACK - generate hard-coded constraints for various joints
-LLIK::Constraint::ptr_t get_constraint_by_joint_id(S16 joint_id)
+LLIK::Constraint::ptr_t get_constraint_by_joint_id(S16 joint_id, std::string joint_name)
 {
     LLIK::Constraint::Info info;
 
@@ -539,7 +543,15 @@ LLIK::Constraint::ptr_t get_constraint_by_joint_id(S16 joint_id)
             break;
     }
     // TODO: add DoubleLimitedHinge Constraints for fingers
-    return gConstraintFactory.getConstraint(info);
+
+    LLSD record;
+    LLIK::Constraint::ptr_t retval = gConstraintFactory.getConstraint(info, record);
+
+    if (retval && !joint_name.empty())
+    {
+        TEMP_CONSTRAINT_LLSD[joint_name] = record;
+    }
+    return retval;
 }
 // END HACK
 
@@ -621,6 +633,22 @@ LLMotion::LLMotionInitStatus LLPuppetMotion::onInitialize(LLCharacter *character
         mIKSolver.setRootID(joint_id);
 
         collectJoints(joint);
+
+        /*This is as good a place as any to write the constraints file.*/
+        std::string constraint_xml = gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER, "avatar_constraint.xml");
+        std::string constraint_not = gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER, "avatar_constraint.note");
+
+        {
+            std::ofstream xml_out(constraint_xml);
+            LLSDSerialize::serialize(TEMP_CONSTRAINT_LLSD, xml_out, LLSDSerialize::LLSD_XML, 
+                LLSDFormatter::EFormatterOptions(LLSDFormatter::OPTIONS_PRETTY|LLSDFormatter::OPTIONS_PRETTY_BINARY));
+        }
+        {
+            std::ofstream not_out(constraint_not);
+            LLSDSerialize::serialize(TEMP_CONSTRAINT_LLSD, not_out, LLSDSerialize::LLSD_NOTATION, 
+                LLSDFormatter::EFormatterOptions(LLSDFormatter::OPTIONS_PRETTY | LLSDFormatter::OPTIONS_PRETTY_BINARY));
+        }
+
         mIKSolver.addWristID(WRIST_LEFT_ID);
         mIKSolver.addWristID(WRIST_RIGHT_ID);
 
@@ -718,7 +746,7 @@ void LLPuppetMotion::updateSkeletonGeometry()
     for (auto& data_pair : mJointStates)
     {
         S16 joint_id = data_pair.first;
-        LLIK::Constraint::ptr_t constraint = get_constraint_by_joint_id(joint_id);
+        LLIK::Constraint::ptr_t constraint = get_constraint_by_joint_id(joint_id, "");
         mIKSolver.resetJointGeometry(joint_id, constraint);
     }
     measureArmSpan();
@@ -1296,7 +1324,7 @@ void LLPuppetMotion::collectJoints(LLJoint* joint)
     S16 joint_id = joint->getJointNum();
     mJointStates[joint_id] = joint_state;
 
-    LLIK::Constraint::ptr_t constraint = get_constraint_by_joint_id(joint_id);
+    LLIK::Constraint::ptr_t constraint = get_constraint_by_joint_id(joint_id, joint->getName());
     mIKSolver.addJoint(joint_id, parent_id, joint, constraint);
 
     // Recurse through the children of this joint and add them to our joint control list

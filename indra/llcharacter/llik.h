@@ -652,10 +652,10 @@ private:
 class LLIKConstraintFactory
 {
 public:
-    std::shared_ptr<LLIK::Constraint> getConstraint(const LLIK::Constraint::Info& info);
+    std::shared_ptr<LLIK::Constraint> getConstraint(const LLIK::Constraint::Info& info, LLSD &record);
     size_t getNumConstraints() const { return mConstraints.size(); } // for unit-test
 private:
-    static std::shared_ptr<LLIK::Constraint> create(const LLIK::Constraint::Info& info);
+    static std::shared_ptr<LLIK::Constraint> create(const LLIK::Constraint::Info& info, LLSD &record);
     std::map<std::string, std::shared_ptr<LLIK::Constraint> > mConstraints;
 };
 
