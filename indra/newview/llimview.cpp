@@ -3088,7 +3088,7 @@ void LLIMMgr::addMessage(
 		name_is_setted = true;
 	}
 	bool skip_message = false;
-	bool from_linden = LLMuteList::getInstance()->isLinden(from);
+	bool from_linden = LLMuteList::isLinden(from);
     if (gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly") && !from_linden)
 	{
 		// Evaluate if we need to skip this message when that setting is true (default is false)
@@ -3426,7 +3426,7 @@ void LLIMMgr::inviteToSession(
 	std::string question_type = "VoiceInviteQuestionDefault";
 
 	BOOL voice_invite = FALSE;
-	bool is_linden = LLMuteList::getInstance()->isLinden(caller_name);
+	bool is_linden = LLMuteList::isLinden(caller_name);
 
 
 	if(type == IM_SESSION_P2P_INVITE)
