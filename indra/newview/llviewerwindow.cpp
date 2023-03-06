@@ -5206,7 +5206,12 @@ BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
         LLPipeline::toggleRenderDebugFeature(LLPipeline::RENDER_DEBUG_FEATURE_UI);
     }
 
-    LLPipeline::sShowHUDAttachments = FALSE;
+    BOOL hide_hud = LLPipeline::sShowHUDAttachments;
+	if (hide_hud)
+	{
+		LLPipeline::sShowHUDAttachments = FALSE;
+	}
+
     LLRect window_rect = getWorldViewRectRaw();
 
     S32 original_width = LLPipeline::sRenderDeferred ? gPipeline.mRT->deferredScreen.getWidth() : gViewerWindow->getWorldViewWidthRaw();
@@ -5276,7 +5281,10 @@ BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
         }
     }
 
-    LLPipeline::sShowHUDAttachments = TRUE;
+	if (hide_hud)
+	{
+		LLPipeline::sShowHUDAttachments = TRUE;
+	}
 
     setCursor(UI_CURSOR_ARROW);
 
@@ -5351,7 +5359,11 @@ BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
         LLPipeline::toggleRenderDebugFeature(LLPipeline::RENDER_DEBUG_FEATURE_UI);
     }
     
-    LLPipeline::sShowHUDAttachments = FALSE;
+    BOOL hide_hud = LLPipeline::sShowHUDAttachments;
+	if (hide_hud)
+	{
+		LLPipeline::sShowHUDAttachments = FALSE;
+	}
     LLRect window_rect = getWorldViewRectRaw();
 
     mWorldViewRectRaw.set(0, res, res, 0);
@@ -5417,7 +5429,10 @@ BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
         }
     }
 
-    LLPipeline::sShowHUDAttachments = TRUE;
+	if (hide_hud)
+	{
+		LLPipeline::sShowHUDAttachments = TRUE;
+	}
 
     gPipeline.resetDrawOrders();
     mWorldViewRectRaw = window_rect;
