@@ -1762,10 +1762,12 @@ bool LLAppViewer::cleanup()
     // Give any remaining SLPlugin instances a chance to exit cleanly.
     LLPluginProcessParent::shutdown();
 
-	disconnectViewer();
-	LLViewerCamera::deleteSingleton();
-
-	LL_INFOS() << "Viewer disconnected" << LL_ENDL;
+	// SL-18721: Disconnect sooner to force the cache write
+	// Commented out code moved to LLAppViewer::forceQuit()
+	//disconnectViewer();
+	//LLViewerCamera::deleteSingleton();
+	//
+	//LL_INFOS() << "Viewer disconnected" << LL_ENDL;
 	
 	if (gKeyboard)
 	{
@@ -4078,6 +4080,12 @@ void LLAppViewer::removeDumpDir()
 
 void LLAppViewer::forceQuit()
 {
+	// SL-18721: Disconnect sooner to force the cache write
+	// The following code moved from LLAppViewer::cleanup()
+	disconnectViewer();
+	LLViewerCamera::deleteSingleton();
+	LL_INFOS() << "Viewer disconnected" << LL_ENDL;
+
 	LLApp::setQuitting();
 }
 
@@ -5423,6 +5431,12 @@ void LLAppViewer::idleNetwork()
 	}
 	add(LLStatViewer::NUM_NEW_OBJECTS, gObjectList.mNumNewObjects);
 
+	// SL-18721: Disconnect sooner to force the cache write
+	if (gDisconnected)
+	{
+		return;
+	}
+
 	// Retransmit unacknowledged packets.
 	gXferManager->retransmitUnackedPackets();
 	gAssetStorage->checkForTimeouts();
@@ -5451,6 +5465,10 @@ void LLAppViewer::disconnectViewer()
 	{
 		return;
 	}
+
+	// SL-18721: Disconnect sooner to force the cache write
+	gDisconnected = TRUE;
+
 	//
 	// Cleanup after quitting.
 	//
@@ -5506,7 +5524,7 @@ void LLAppViewer::disconnectViewer()
 
 	// This is where we used to call gObjectList.destroy() and then delete gWorldp.
 	// Now we just ask the LLWorld singleton to cleanly shut down.
-	if(LLWorld::instanceExists())
+	if (LLWorld::instanceExists())
 	{
 		LLWorld::getInstance()->resetClass();
 	}
@@ -5516,7 +5534,8 @@ void LLAppViewer::disconnectViewer()
 	LLDestroyClassList::instance().fireCallbacks();
 
 	cleanup_xfer_manager();
-	gDisconnected = TRUE;
+	// SL-18721: Disconnect sooner to force the cache write
+	//gDisconnected = TRUE;
 
 	// Pass the connection state to LLUrlEntryParcel not to attempt
 	// parcel info requests while disconnected.

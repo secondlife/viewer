@@ -133,10 +133,10 @@ S32 LLQueuedThread::updateQueue(F32 max_time_ms)
 	if (mThreaded)
 	{
 		pending = getPending();
-		if(pending > 0)
+		if (pending > 0)
 		{
-		unpause();
-	}
+			unpause();
+		}
 	}
 	else
 	{
