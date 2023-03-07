@@ -169,7 +169,9 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, ou
     // multiply by 2 to get same colors as when the "scaleSoftClip" implementation was doubling color values
     // (allows for mixing of light sources other than sunlight e.g. reflection probes)
     sunlit *= 2.0;
-    amblit *= 2.0;
+
+    // squash ambient to approximate whatever weirdness legacy atmospherics were doing
+    amblit = ambient_color * 0.5;
 
     amblit *= ambientLighting(norm, light_dir);
     amblit = srgb_to_linear(amblit);

@@ -815,7 +815,7 @@ void LLReflectionMapManager::updateUniforms()
 
     F32 ambscale = gCubeSnapshot && !isRadiancePass() ? 0.f : 1.f;
     F32 radscale = gCubeSnapshot && !isRadiancePass() ? 0.5f : 1.f;
-
+    
     for (auto* refmap : mReflectionMaps)
     {
         if (refmap == nullptr)

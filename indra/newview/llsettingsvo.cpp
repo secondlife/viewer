@@ -675,7 +675,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     LLVector3 light_direction = LLVector3(LLEnvironment::instance().getClampedLightNorm().mV);
 
-    bool radiance_pass = gCubeSnapshot && !gPipeline.mReflectionMapManager.isRadiancePass();
+    bool irradiance_pass = gCubeSnapshot && !gPipeline.mReflectionMapManager.isRadiancePass();
 
     LLShaderUniforms* shader = &((LLShaderUniforms*)ptarget)[LLGLSLShader::SG_DEFAULT];
 	{        
@@ -716,7 +716,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
 
     LLColor3 ambient(getTotalAmbient());
 
-    if (radiance_pass)
+    if (irradiance_pass)
     { // during an irradiance map update, disable ambient lighting (direct lighting only) and desaturate sky color (avoid tinting the world blue)
         shader->uniform3fv(LLShaderMgr::AMBIENT_LINEAR, LLVector3::zero.mV);
         shader->uniform3fv(LLShaderMgr::AMBIENT, LLVector3::zero.mV);
