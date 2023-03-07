@@ -53,7 +53,7 @@ class SpeakingIndicatorManager : public LLSingleton<SpeakingIndicatorManager>, L
 	LOG_CLASS(SpeakingIndicatorManager);
 
 protected:
-    void                cleanupSingleton();
+    void                cleanupSingleton() override;
 
 public:
 
