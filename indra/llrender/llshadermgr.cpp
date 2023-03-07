@@ -188,7 +188,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	///////////////////////////////////////
 
 // NOTE order of shader object attaching is VERY IMPORTANT!!!
-    if (features->hasSrgb || features->hasAtmospherics || features->calculatesAtmospherics)
+    if (features->hasSrgb || features->hasAtmospherics || features->calculatesAtmospherics || features->isDeferred)
     {
         if (!shader->attachFragmentObject("environment/srgbF.glsl"))
         {
