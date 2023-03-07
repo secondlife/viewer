@@ -1696,9 +1696,21 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge,
 			parent_id = gInventory.getRootFolderID();
 		}
 
-		LLUUID category = gInventory.createNewCategory(parent_id, preferred_type, LLStringUtil::null);
-		gInventory.notifyObservers();
-		panel->setSelectionByID(category, TRUE);
+        LLHandle<LLPanel> handle = panel->getHandle();
+		gInventory.createNewCategory(
+            parent_id,
+            preferred_type,
+            LLStringUtil::null,
+            [handle](const LLUUID &new_category_id)
+        {
+            gInventory.notifyObservers();
+            LLInventoryPanel* panel = static_cast<LLInventoryPanel*>(handle.get());
+            if (panel)
+            {
+                panel->setSelectionByID(new_category_id, TRUE);
+            }
+        }
+        );
 	}
 	else if ("lsl" == type_name)
 	{

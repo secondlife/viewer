@@ -861,22 +861,6 @@ void open_marketplace_listings()
 	LLFloaterReg::showInstance("marketplace_listings");
 }
 
-// Create a new folder in destFolderId with the same name as the item name and return the uuid of the new folder
-// Note: this is used locally in various situation where we need to wrap an item into a special folder
-LLUUID create_folder_for_item(LLInventoryItem* item, const LLUUID& destFolderId)
-{
-	llassert(item);
-	llassert(destFolderId.notNull());
-
-	LLUUID created_folder_id = gInventory.createNewCategory(destFolderId, LLFolderType::FT_NONE, item->getName());
-	gInventory.notifyObservers();
-    
-    // *TODO : Create different notifications for the various cases
-	LLNotificationsUtil::add("OutboxFolderCreated");
-
-	return created_folder_id;
-}
-
 ///----------------------------------------------------------------------------
 // Marketplace functions
 //
@@ -1753,28 +1737,36 @@ bool validate_marketplacelistings(
                         }
                         cb(message,depth,LLError::LEVEL_WARN);
                     }
-                    LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, new_folder_type, folder_name);
-                    
-                    // Move each item to the new folder
-                    while (!items_vector_it->second.empty())
+                    std::vector<LLUUID> &uuid_vector = items_vector_it->second;
+                    gInventory.createNewCategory(
+                        parent_uuid,
+                        new_folder_type,
+                        folder_name,
+                        [uuid_vector, cb, indent, depth, parent_uuid, notify_observers](const LLUUID &new_category_id)
                     {
-                        LLViewerInventoryItem* viewer_inv_item = gInventory.getItem(items_vector_it->second.back());
-                        if (cb)
+                        // Move each item to the new folder
+                        std::vector<LLUUID>::reverse_iterator iter = uuid_vector.rbegin();
+                        while (iter != uuid_vector.rend())
                         {
-                            std::string message = indent + viewer_inv_item->getName() + LLTrans::getString("Marketplace Validation Warning Move");
-                            cb(message,depth,LLError::LEVEL_WARN);
+                            LLViewerInventoryItem* viewer_inv_item = gInventory.getItem(*iter);
+                            if (cb)
+                            {
+                                std::string message = indent + viewer_inv_item->getName() + LLTrans::getString("Marketplace Validation Warning Move");
+                                cb(message, depth, LLError::LEVEL_WARN);
+                            }
+                            gInventory.changeItemParent(viewer_inv_item, new_category_id, true);
+                            iter++;
                         }
-                        gInventory.changeItemParent(viewer_inv_item, folder_uuid, true);
-                        items_vector_it->second.pop_back();
+
+                        // Next type
+                        update_marketplace_category(parent_uuid);
+                        update_marketplace_category(new_category_id);
+                        if (notify_observers)
+                        {
+                            gInventory.notifyObservers();
+                        }
                     }
-                    
-                    // Next type
-                    update_marketplace_category(parent_uuid);
-                    update_marketplace_category(folder_uuid);
-                    if (notify_observers)
-                    {
-                        gInventory.notifyObservers();
-                    }
+                    );
                     items_vector_it++;
                 }
             }

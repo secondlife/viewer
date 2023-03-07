@@ -165,35 +165,11 @@ void LLFloaterOpenObject::moveToInventory(bool wear, bool replace)
 
 	inventory_func_type func = boost::bind(LLFloaterOpenObject::callbackCreateInventoryCategory,_1,object_id,wear,replace);
 	// D567 copy thumbnail info
-	LLUUID category_id = gInventory.createNewCategory(parent_category_id, 
-													  LLFolderType::FT_NONE, 
-													  name,
-													  func);
-
-	//If we get a null category ID, we are using a capability in createNewCategory and we will
-	//handle the following in the callbackCreateInventoryCategory routine.
-	// D567 review
-	if ( category_id.notNull() )
-	{
-		LLCatAndWear* data = new LLCatAndWear;
-		data->mCatID = category_id;
-		data->mWear = wear;
-		data->mFolderResponded = false;
-		data->mReplace = replace;
-
-		// Copy and/or move the items into the newly created folder.
-		// Ignore any "you're going to break this item" messages.
-		BOOL success = move_inv_category_world_to_agent(object_id, category_id, TRUE,
-														callbackMoveInventory, 
-														(void*)data);
-		if (!success)
-		{
-			delete data;
-			data = NULL;
-
-			LLNotificationsUtil::add("OpenObjectCannotCopy");
-		}
-	}
+	gInventory.createNewCategory(
+        parent_category_id,
+        LLFolderType::FT_NONE,
+        name,
+        func);
 }
 
 // static
