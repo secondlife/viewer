@@ -82,9 +82,11 @@ const int LL_ERR_NOERR = 0;
 
 #ifdef SHOW_ASSERT
 #define llassert(func)			llassert_always_msg(func, #func)
+#define llassert_msg(func, msg)	llassert_always_msg(func, msg)
 #define llverify(func)			llassert_always_msg(func, #func)
 #else
 #define llassert(func)
+#define llassert_msg(func, msg)
 #define llverify(func)			do {if (func) {}} while(0)
 #endif
 
