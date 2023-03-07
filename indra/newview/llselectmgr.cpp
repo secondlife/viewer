@@ -1847,21 +1847,11 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 		    }
 		    if (mItem)
 			{
-				if (te == -1) // all faces
-				{
-					LLToolDragAndDrop::dropTextureAllFaces(objectp,
-														   mItem,
-														   LLToolDragAndDrop::SOURCE_AGENT,
-														   LLUUID::null);
-				}
-				else // one face
-				{
-					LLToolDragAndDrop::dropTextureOneFace(objectp,
-														  te,
-														  mItem,
-														  LLToolDragAndDrop::SOURCE_AGENT,
-														  LLUUID::null);
-				}
+                LLToolDragAndDrop::dropTextureOneFace(objectp,
+                                                      te,
+                                                      mItem,
+                                                      LLToolDragAndDrop::SOURCE_AGENT,
+                                                      LLUUID::null);
 			}
 			else // not an inventory item
 			{
