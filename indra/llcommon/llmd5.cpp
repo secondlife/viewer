@@ -96,7 +96,7 @@ LLMD5::LLMD5()
 // operation, processing another message block, and updating the
 // context.
 
-void LLMD5::update (const uint1 *input, const size_t input_length) {
+void LLMD5::update (const uint8_t *input, const size_t input_length) {
 
   size_t input_index, buffer_index;
   size_t buffer_space;                // how much space is left in buffer
@@ -189,7 +189,7 @@ void LLMD5::finalize (){
 
   unsigned char bits[8];		/* Flawfinder: ignore */
   size_t index, padLen;
-  static uint1 PADDING[64]={
+  static uint8_t PADDING[64]={
     0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -201,8 +201,8 @@ void LLMD5::finalize (){
   }
 
   // Save number of bits.
-  // Treat count, a uint64_t, as uint4[2].
-  encode (bits, reinterpret_cast<uint4*>(&count), 8);
+  // Treat count, a uint64_t, as uint32_t[2].
+  encode (bits, reinterpret_cast<uint32_t*>(&count), 8);
 
   // Pad out to 56 mod 64.
   index = size_t((count >> 3) & 0x3f);
@@ -412,7 +412,7 @@ Rotation is separate from addition to prevent recomputation.
 // LLMD5 basic transformation. Transforms state based on block.
 void LLMD5::transform (const U8 block[64]){
 
-  uint4 a = state[0], b = state[1], c = state[2], d = state[3], x[16];
+  uint32_t a = state[0], b = state[1], c = state[2], d = state[3], x[16];
 
   decode (x, block, 64);
 
@@ -496,38 +496,38 @@ void LLMD5::transform (const U8 block[64]){
   state[3] += d;
 
   // Zeroize sensitive information.
-  memset ( (uint1 *) x, 0, sizeof(x));
+  memset ( (uint8_t *) x, 0, sizeof(x));
 
 }
 
 
 
-// Encodes input (UINT4) into output (unsigned char). Assumes len is
+// Encodes input (uint32_t) into output (unsigned char). Assumes len is
 // a multiple of 4.
-void LLMD5::encode (uint1 *output, const uint4 *input, const size_t len) {
+void LLMD5::encode (uint8_t *output, const uint32_t *input, const size_t len) {
 
   size_t i, j;
 
   for (i = 0, j = 0; j < len; i++, j += 4) {
-    output[j]   = (uint1)  (input[i] & 0xff);
-    output[j+1] = (uint1) ((input[i] >> 8) & 0xff);
-    output[j+2] = (uint1) ((input[i] >> 16) & 0xff);
-    output[j+3] = (uint1) ((input[i] >> 24) & 0xff);
+    output[j]   = (uint8_t)  (input[i] & 0xff);
+    output[j+1] = (uint8_t) ((input[i] >> 8) & 0xff);
+    output[j+2] = (uint8_t) ((input[i] >> 16) & 0xff);
+    output[j+3] = (uint8_t) ((input[i] >> 24) & 0xff);
   }
 }
 
 
 
 
-// Decodes input (unsigned char) into output (UINT4). Assumes len is
+// Decodes input (unsigned char) into output (uint32_t). Assumes len is
 // a multiple of 4.
-void LLMD5::decode (uint4 *output, const uint1 *input, const size_t len){
+void LLMD5::decode (uint32_t *output, const uint8_t *input, const size_t len){
 
   size_t i, j;
 
   for (i = 0, j = 0; j < len; i++, j += 4)
-    output[i] = ((uint4)input[j]) | (((uint4)input[j+1]) << 8) |
-      (((uint4)input[j+2]) << 16) | (((uint4)input[j+3]) << 24);
+    output[i] = ((uint32_t)input[j]) | (((uint32_t)input[j+1]) << 8) |
+      (((uint32_t)input[j+2]) << 16) | (((uint32_t)input[j+3]) << 24);
 }
 
 

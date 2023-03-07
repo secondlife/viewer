@@ -30,6 +30,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <type_traits>
 
 #include "stdtypes.h"
 
@@ -215,15 +216,21 @@ public:
 		void assign(const Date&);
 		void assign(const URI&);
 		void assign(const Binary&);
-		
-		LLSD& operator=(Boolean v)			{ assign(v); return *this; }
-		LLSD& operator=(Integer v)			{ assign(v); return *this; }
-		LLSD& operator=(Real v)				{ assign(v); return *this; }
-		LLSD& operator=(const String& v)	{ assign(v); return *this; }
-		LLSD& operator=(const UUID& v)		{ assign(v); return *this; }
-		LLSD& operator=(const Date& v)		{ assign(v); return *this; }
-		LLSD& operator=(const URI& v)		{ assign(v); return *this; }
-		LLSD& operator=(const Binary& v)	{ assign(v); return *this; }
+
+		// support assignment from size_t et al.
+		template <typename VALUE,
+				  typename std::enable_if<std::is_integral<VALUE>::value &&
+										  ! std::is_same<VALUE, Boolean>::value,
+										  bool>::type = true>
+		void assign(VALUE v) { assign(Integer(narrow(v))); }
+		// support assignment from F32 et al.
+		template <typename VALUE,
+				  typename std::enable_if<std::is_floating_point<VALUE>::value,
+										  bool>::type = true>
+		void assign(VALUE v) { assign(Real(narrow(v))); }
+
+		template <typename VALUE>
+		LLSD& operator=(VALUE v)			{ assign(v); return *this; }
 	//@}
 
 	/**
@@ -285,7 +292,6 @@ public:
 	//@{
 		LLSD(const char*);
 		void assign(const char*);
-		LLSD& operator=(const char* v) { assign(v); return *this; }
 	//@}
 	
 	/** @name Map Values */
