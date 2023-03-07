@@ -140,6 +140,7 @@ private:
 	LLTextBox *		mInventoryTitle;
 
 	LLUUID			mRootFolderId;
+    bool            mRootFolderCreating;
 	LLPanelMarketplaceListings * mPanelListings;
     bool            mPanelListingsSet;
 };

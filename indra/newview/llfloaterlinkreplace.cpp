@@ -335,8 +335,8 @@ BOOL LLFloaterLinkReplace::tick()
 void LLFloaterLinkReplace::processBatch(LLInventoryModel::item_array_t items)
 {
 	const LLViewerInventoryItem* target_item = gInventory.getItem(mTargetUUID);
-	const LLUUID cof_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
-	const LLUUID outfit_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS, false);
+	const LLUUID cof_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+	const LLUUID outfit_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
 
 	for (LLInventoryModel::item_array_t::iterator it = items.begin(); it != items.end(); ++it)
 	{

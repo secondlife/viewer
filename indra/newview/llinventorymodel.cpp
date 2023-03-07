@@ -804,10 +804,63 @@ void LLInventoryModel::consolidateForType(const LLUUID& main_id, LLFolderType::E
 	}
 }
 
+void LLInventoryModel::ensureCategoryForTypeExists(LLFolderType::EType preferred_type)
+{
+    LLUUID rv = LLUUID::null;
+    LLUUID root_id = gInventory.getRootFolderID();
+    if (LLFolderType::FT_ROOT_INVENTORY == preferred_type)
+    {
+        rv = root_id;
+    }
+    else if (root_id.notNull())
+    {
+        cat_array_t* cats = NULL;
+        cats = get_ptr_in_map(mParentChildCategoryTree, root_id);
+        if (cats)
+        {
+            S32 count = cats->size();
+            for (S32 i = 0; i < count; ++i)
+            {
+                LLViewerInventoryCategory* p_cat = cats->at(i);
+                if (p_cat && p_cat->getPreferredType() == preferred_type)
+                {
+                    const LLUUID& folder_id = cats->at(i)->getUUID();
+                    if (rv.isNull() || folder_id < rv)
+                    {
+                        rv = folder_id;
+                    }
+                }
+            }
+        }
+    }
+
+    if (rv.isNull() && root_id.notNull())
+    {
+
+        if (isInventoryUsable())
+        {
+            createNewCategory(
+                root_id,
+                preferred_type,
+                LLStringUtil::null,
+                [preferred_type](const LLUUID &new_cat_id)
+            {
+                LL_DEBUGS("Inventory") << "Created category: " << new_cat_id
+                    << " for type: " << preferred_type << LL_ENDL;
+            }
+            );
+        }
+        else
+        {
+            LL_WARNS("Inventory") << "Can't create requested folder, type " << preferred_type
+                << " because inventory is not usable" << LL_ENDL;
+        }
+    }
+}
+
 const LLUUID LLInventoryModel::findCategoryUUIDForTypeInRoot(
 	LLFolderType::EType preferred_type,
-	bool create_folder,
-	const LLUUID& root_id)
+	const LLUUID& root_id) const
 {
 	LLUUID rv = LLUUID::null;
 	if(LLFolderType::FT_ROOT_INVENTORY == preferred_type)
@@ -836,18 +889,14 @@ const LLUUID LLInventoryModel::findCategoryUUIDForTypeInRoot(
 		}
 	}
 	
-	if(rv.isNull() && create_folder && root_id.notNull())
+	if(rv.isNull() && root_id.notNull() && preferred_type != LLFolderType::FT_MARKETPLACE_LISTINGS)
 	{
-
-		if (isInventoryUsable())
-		{
-			return createNewCategory(root_id, preferred_type, LLStringUtil::null);
-		}
-		else
-		{
-			LL_WARNS("Inventory") << "Can't create requested folder, type " << preferred_type
-								  << " because inventory is not usable" << LL_ENDL;
-		}
+        // if it does not exists, it should either be added
+        // to createCommonSystemCategories or server should
+        // have set it
+        llassert(false);
+        LL_WARNS("Inventory") << "Tried to find folder, type " << preferred_type
+								  << " but category does not exist" << LL_ENDL;
 	}
 	return rv;
 }
@@ -856,12 +905,12 @@ const LLUUID LLInventoryModel::findCategoryUUIDForTypeInRoot(
 // specifies 'type' as what it defaults to containing. The category is
 // not necessarily only for that type. *NOTE: This will create a new
 // inventory category on the fly if one does not exist.
-const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType preferred_type, bool create_folder)
+const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType preferred_type) const
 {
-	return findCategoryUUIDForTypeInRoot(preferred_type, create_folder, gInventory.getRootFolderID());
+	return findCategoryUUIDForTypeInRoot(preferred_type, gInventory.getRootFolderID());
 }
 
-const LLUUID LLInventoryModel::findUserDefinedCategoryUUIDForType(LLFolderType::EType preferred_type)
+const LLUUID LLInventoryModel::findUserDefinedCategoryUUIDForType(LLFolderType::EType preferred_type) const
 {
     LLUUID cat_id;
     switch (preferred_type)
@@ -892,14 +941,14 @@ const LLUUID LLInventoryModel::findUserDefinedCategoryUUIDForType(LLFolderType::
     
     if (cat_id.isNull() || !getCategory(cat_id))
     {
-        cat_id = findCategoryUUIDForTypeInRoot(preferred_type, true, getRootFolderID());
+        cat_id = findCategoryUUIDForTypeInRoot(preferred_type, getRootFolderID());
     }
     return cat_id;
 }
 
-const LLUUID LLInventoryModel::findLibraryCategoryUUIDForType(LLFolderType::EType preferred_type, bool create_folder)
+const LLUUID LLInventoryModel::findLibraryCategoryUUIDForType(LLFolderType::EType preferred_type) const
 {
-	return findCategoryUUIDForTypeInRoot(preferred_type, create_folder, gInventory.getLibraryRootFolderID());
+	return findCategoryUUIDForTypeInRoot(preferred_type, gInventory.getLibraryRootFolderID());
 }
 
 // Convenience function to create a new category. You could call
@@ -1556,7 +1605,7 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat, U32 
 			mask |= LLInventoryObserver::LABEL;
 		}
         // Under marketplace, category labels are quite complex and need extra upate
-        const LLUUID marketplace_id = findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        const LLUUID marketplace_id = findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
         if (marketplace_id.notNull() && isObjectDescendentOf(cat->getUUID(), marketplace_id))
         {
 			mask |= LLInventoryObserver::LABEL;
@@ -2881,7 +2930,7 @@ void LLInventoryModel::buildParentChildMap()
 		}
 	}
 
-	const BOOL COF_exists = (findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, FALSE) != LLUUID::null);
+	const BOOL COF_exists = (findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT) != LLUUID::null);
 	sFirstTimeInViewer2 = !COF_exists || gAgent.isFirstLogin();
 
 
@@ -3101,14 +3150,14 @@ LLCore::HttpHandle LLInventoryModel::requestPost(bool foreground,
 
 void LLInventoryModel::createCommonSystemCategories()
 {
-	gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH,true);
-	gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE,true);
-	gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD,true);
-	gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS,true);
-	gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, true);
-	gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK, true); // folder should exist before user tries to 'landmark this'
-    gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS, true);
-    gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, true);
+	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_TRASH);
+	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_FAVORITE);
+	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_CALLINGCARD);
+	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_MY_OUTFITS);
+	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_CURRENT_OUTFIT);
+	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_LANDMARK); // folder should exist before user tries to 'landmark this'
+    gInventory.ensureCategoryForTypeExists(LLFolderType::FT_SETTINGS);
+    gInventory.ensureCategoryForTypeExists(LLFolderType::FT_INBOX);
 }
 
 struct LLUUIDAndName

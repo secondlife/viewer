@@ -745,7 +745,7 @@ LLUUID LLInventoryPanel::getRootFolderID()
                 LLStringExplicit label(mParams.start_folder.name());
                 setLabel(label);
                 
-				root_id = gInventory.findCategoryUUIDForType(preferred_type, false);
+				root_id = gInventory.findCategoryUUIDForType(preferred_type);
 				if (root_id.isNull())
 				{
 					LL_WARNS() << "Could not find folder of type " << preferred_type << LL_ENDL;
