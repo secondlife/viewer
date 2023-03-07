@@ -10402,7 +10402,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>8</real>
+    <real>32</real>
   </map>
   <key>RenderTonemapper</key>
   <map>
