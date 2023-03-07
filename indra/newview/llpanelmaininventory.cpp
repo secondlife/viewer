@@ -415,8 +415,33 @@ void LLPanelMainInventory::newWindow()
 	}
 }
 
+//static
 void LLPanelMainInventory::newFolderWindow(LLUUID folder_id, LLUUID item_to_select)
 {
+    LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
+    for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end();)
+    {
+        LLFloaterSidePanelContainer* inventory_container = dynamic_cast<LLFloaterSidePanelContainer*>(*iter++);
+        if (inventory_container)
+        {
+            LLSidepanelInventory* sidepanel_inventory = dynamic_cast<LLSidepanelInventory*>(inventory_container->findChild<LLPanel>("main_panel", true));
+            if (sidepanel_inventory)
+            {
+                LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
+                if (main_inventory && main_inventory->isSingleFolderMode()
+                    && (main_inventory->getSingleFolderViewRoot() == folder_id))
+                {
+                    main_inventory->setFocus(true);
+                    if(item_to_select.notNull())
+                    {
+                        sidepanel_inventory->getActivePanel()->setSelection(item_to_select, TAKE_FOCUS_YES);
+                    }
+                    return;
+                }
+            }
+        }
+    }
+    
     S32 instance_num = get_instance_num();
 
     LLFloaterSidePanelContainer* inventory_container = LLFloaterReg::showTypedInstance<LLFloaterSidePanelContainer>("inventory", LLSD(instance_num));
@@ -1344,6 +1369,11 @@ void LLPanelMainInventory::setSingleFolderViewRoot(const LLUUID& folder_id, bool
         mSingleFolderPanelInventory->clearNavigationHistory();
         updateNavButtons();
     }
+}
+
+LLUUID LLPanelMainInventory::getSingleFolderViewRoot()
+{
+    return mSingleFolderPanelInventory->getSingleFolderRoot();
 }
 
 void LLPanelMainInventory::showActionMenu(LLMenuGL* menu, std::string spawning_view_name)

@@ -104,6 +104,7 @@ public:
     void onBackFolderClicked();
     void onForwardFolderClicked();
     void setSingleFolderViewRoot(const LLUUID& folder_id, bool clear_nav_history = true);
+    LLUUID getSingleFolderViewRoot();
     bool isSingleFolderMode() { return mSingleFolderMode; }
 
 protected:
