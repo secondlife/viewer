@@ -394,10 +394,9 @@ struct LLEventDispatcher::LLSDDispatchEntry: public LLEventDispatcher::DispatchE
         return mFunc(event);
     }
 
-    LLSD addMetadata(LLSD meta) const override
+    LLSD getMetadata() const override
     {
-        meta["required"] = mRequired;
-        return meta;
+        return llsd::map("required", mRequired);
     }
 };
 
@@ -485,15 +484,14 @@ struct LLEventDispatcher::ArrayParamsDispatchEntry: public LLEventDispatcher::Pa
         return ParamsDispatchEntry::call(desc, args, fromMap, argskey);
     }
 
-    LLSD addMetadata(LLSD meta) const override
+    LLSD getMetadata() const override
     {
         LLSD array(LLSD::emptyArray());
         // Resize to number of arguments required
         if (mArity)
             array[mArity - 1] = LLSD();
         llassert_always(array.size() == mArity);
-        meta["required"] = array;
-        return meta;
+        return llsd::map("required", array);
     }
 };
 
@@ -568,11 +566,9 @@ struct LLEventDispatcher::MapParamsDispatchEntry: public LLEventDispatcher::Para
         return ParamsDispatchEntry::call(desc, mMapper.map(args), fromMap, argskey);
     }
 
-    LLSD addMetadata(LLSD meta) const override
+    LLSD getMetadata() const override
     {
-        meta["required"] = mRequired;
-        meta["optional"] = mOptional;
-        return meta;
+        return llsd::map("required", mRequired, "optional", mOptional);
     }
 };
 
@@ -733,10 +729,10 @@ LLSD LLEventDispatcher::getMetadata(const std::string& name) const
     {
         return LLSD();
     }
-    LLSD meta;
+    LLSD meta{ found->second->getMetadata() };
     meta["name"] = name;
     meta["desc"] = found->second->mDesc;
-    return found->second->addMetadata(meta);
+    return meta;
 }
 
 std::ostream& operator<<(std::ostream& out, const LLEventDispatcher& self)
