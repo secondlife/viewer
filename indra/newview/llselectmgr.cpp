@@ -1847,21 +1847,11 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 		    }
 		    if (mItem)
 			{
-				if (te == -1) // all faces
-				{
-					LLToolDragAndDrop::dropTextureAllFaces(objectp,
-														   mItem,
-														   LLToolDragAndDrop::SOURCE_AGENT,
-														   LLUUID::null);
-				}
-				else // one face
-				{
-					LLToolDragAndDrop::dropTextureOneFace(objectp,
-														  te,
-														  mItem,
-														  LLToolDragAndDrop::SOURCE_AGENT,
-														  LLUUID::null);
-				}
+                LLToolDragAndDrop::dropTextureOneFace(objectp,
+                                                      te,
+                                                      mItem,
+                                                      LLToolDragAndDrop::SOURCE_AGENT,
+                                                      LLUUID::null);
 			}
 			else // not an inventory item
 			{
@@ -1931,21 +1921,14 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
         f(LLViewerInventoryItem* item, const LLUUID& id) : mItem(item), mMatId(id) {}
         bool apply(LLViewerObject* objectp, S32 te)
         {
-            if (objectp && !objectp->permModify())
+            LLUUID asset_id = mMatId;
+            // If success, the material may be copied into the object's inventory
+            BOOL success = LLToolDragAndDrop::handleDropMaterialProtections(objectp, mItem, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
+            if (!success)
             {
                 return false;
             }
-            LLUUID asset_id = mMatId;
-            if (mItem)
-            {
-                // If success, the material may be copied into the object's inventory
-                BOOL success = LLToolDragAndDrop::handleDropMaterialProtections(objectp, mItem, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
-                if (!success)
-                {
-                    return false;
-                }
-                asset_id = mItem->getAssetUUID();
-            }
+            asset_id = mItem->getAssetUUID();
 
             // Blank out most override data on the object and send to server
             objectp->setRenderMaterialID(te, asset_id);
@@ -1954,15 +1937,8 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
         }
     };
 
-    if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
-    {
-        getSelection()->applyNoCopyPbrMaterialToTEs(item);
-    }
-    else
-    {
-        f setfunc(item, mat_id);
-        getSelection()->applyToTEs(&setfunc);
-    }
+    f setfunc(item, mat_id);
+    getSelection()->applyToTEs(&setfunc);
 
     struct g : public LLSelectedObjectFunctor
     {
