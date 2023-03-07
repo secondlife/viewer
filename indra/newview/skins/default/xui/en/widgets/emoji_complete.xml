@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<emoji_complete
+  autosize="false"
+  font="EmojiHuge"
+  hover_image="ListItem_Over"
+  max_emoji="7"
+  padding="8"
+  selected_image="ListItem_Select"
+  >
+</emoji_complete>
