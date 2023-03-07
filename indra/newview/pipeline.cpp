@@ -335,18 +335,6 @@ static LLCullResult* sCull = NULL;
 
 void validate_framebuffer_object();
 
-// override the projection_matrix uniform on the given shader to that which would be set by the main camera
-void set_camera_projection_matrix(LLGLSLShader& shader)
-{
-    auto          camProj = LLViewerCamera::getInstance()->getProjection();
-    glh::matrix4f projection = get_current_projection();
-    projection.set_row(0, glh::vec4f(camProj.mMatrix[0][0], camProj.mMatrix[0][1], camProj.mMatrix[0][2], camProj.mMatrix[0][3]));
-    projection.set_row(0, glh::vec4f(camProj.mMatrix[1][0], camProj.mMatrix[1][1], camProj.mMatrix[1][2], camProj.mMatrix[1][3]));
-    projection.set_row(0, glh::vec4f(camProj.mMatrix[2][0], camProj.mMatrix[2][1], camProj.mMatrix[2][2], camProj.mMatrix[2][3]));
-    projection.set_row(0, glh::vec4f(camProj.mMatrix[3][0], camProj.mMatrix[3][1], camProj.mMatrix[3][2], camProj.mMatrix[3][3]));
-    shader.uniformMatrix4fv(LLShaderMgr::PROJECTION_MATRIX, 1, FALSE, projection.m);
-}
-
 // Add color attachments for deferred rendering
 // target -- RenderTarget to add attachments to
 bool addDeferredAttachments(LLRenderTarget& target, bool for_impostor = false)
@@ -4716,9 +4704,6 @@ void LLPipeline::renderDebug()
         bindDeferredShader(gReflectionProbeDisplayProgram, NULL);
         mScreenTriangleVB->setBuffer();
 
-        // Provide our projection matrix.
-        set_camera_projection_matrix(gReflectionProbeDisplayProgram);
-
         LLGLEnable blend(GL_BLEND);
         LLGLDepthTest depth(GL_FALSE);
 
@@ -7410,40 +7395,6 @@ void LLPipeline::renderFinalize()
 
         if (RenderScreenSpaceReflections && !gCubeSnapshot)
         {
-#if 0
-            LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("renderDeferredLighting - screen space reflections");
-            LL_PROFILE_GPU_ZONE("screen space reflections");
-
-            bindDeferredShader(gPostScreenSpaceReflectionProgram, NULL);
-            mScreenTriangleVB->setBuffer();
-
-            set_camera_projection_matrix(gPostScreenSpaceReflectionProgram);
-
-            // We need linear depth.
-            static LLStaticHashedString zfar("zFar");
-            static LLStaticHashedString znear("zNear");
-            float                       nearClip = LLViewerCamera::getInstance()->getNear();
-            float                       farClip  = LLViewerCamera::getInstance()->getFar();
-            gPostScreenSpaceReflectionProgram.uniform1f(zfar, farClip);
-            gPostScreenSpaceReflectionProgram.uniform1f(znear, nearClip);
-
-            S32 channel = gPostScreenSpaceReflectionProgram.enableTexture(LLShaderMgr::DIFFUSE_MAP, screenTarget()->getUsage());
-            if (channel > -1)
-            {
-				screenTarget()->bindTexture(0, channel, LLTexUnit::TFO_POINT);
-            }
-
-            {
-                LLGLDisable blend(GL_BLEND);
-                LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
-
-                stop_glerror();
-                mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-                stop_glerror();
-            }
-
-            unbindDeferredShader(gPostScreenSpaceReflectionProgram);
-#else
             LL_PROFILE_GPU_ZONE("ssr copy");
             LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
 
@@ -7465,7 +7416,6 @@ void LLPipeline::renderFinalize()
             mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
             dst.flush();
-#endif
         }
 
         screenTarget()->bindTarget();
