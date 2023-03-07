@@ -1847,21 +1847,11 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 		    }
 		    if (mItem)
 			{
-				if (te == -1) // all faces
-				{
-					LLToolDragAndDrop::dropTextureAllFaces(objectp,
-														   mItem,
-														   LLToolDragAndDrop::SOURCE_AGENT,
-														   LLUUID::null);
-				}
-				else // one face
-				{
-					LLToolDragAndDrop::dropTextureOneFace(objectp,
-														  te,
-														  mItem,
-														  LLToolDragAndDrop::SOURCE_AGENT,
-														  LLUUID::null);
-				}
+                LLToolDragAndDrop::dropTextureOneFace(objectp,
+                                                      te,
+                                                      mItem,
+                                                      LLToolDragAndDrop::SOURCE_AGENT,
+                                                      LLUUID::null);
 			}
 			else // not an inventory item
 			{
@@ -1938,6 +1928,12 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
             LLUUID asset_id = mMatId;
             if (mItem)
             {
+                // If success, the material may be copied into the object's inventory
+                BOOL success = LLToolDragAndDrop::handleDropMaterialProtections(objectp, mItem, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
+                if (!success)
+                {
+                    return false;
+                }
                 asset_id = mItem->getAssetUUID();
             }
 
