@@ -472,7 +472,7 @@ private:
 
         virtual LLSD call(const std::string& desc, const LLSD& event,
                           bool fromMap, const std::string& argskey) const = 0;
-        virtual LLSD addMetadata(LLSD) const = 0;
+        virtual LLSD getMetadata() const = 0;
 
         template <typename... ARGS>
         LLSD callFail(ARGS&&... args) const
