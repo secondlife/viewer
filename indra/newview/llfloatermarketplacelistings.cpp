@@ -230,18 +230,31 @@ void LLPanelMarketplaceListings::onTabChange()
 
 void LLPanelMarketplaceListings::onAddButtonClicked()
 {
-	// Find active panel
-	LLInventoryPanel* panel = (LLInventoryPanel*)getChild<LLTabContainer>("marketplace_filter_tabs")->getCurrentPanel();
-	if (panel)
-	{
-        LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
-        llassert(marketplacelistings_id.notNull());
-        LLFolderType::EType preferred_type = LLFolderType::lookup("category");
-        LLUUID category = gInventory.createNewCategory(marketplacelistings_id, preferred_type, LLStringUtil::null);
-        gInventory.notifyObservers();
-        panel->setSelectionByID(category, TRUE);
-        panel->getRootFolder()->setNeedsAutoRename(TRUE);
+    LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    llassert(marketplacelistings_id.notNull());
+    LLFolderType::EType preferred_type = LLFolderType::lookup("category");
+    LLHandle<LLPanel> handle = getHandle();
+    gInventory.createNewCategory(
+        marketplacelistings_id,
+        preferred_type,
+        LLStringUtil::null,
+        [handle](const LLUUID &new_cat_id)
+    {
+        // Find active panel
+        LLPanel *marketplace_panel = handle.get();
+        if (!marketplace_panel)
+        {
+            return;
+        }
+        LLInventoryPanel* panel = (LLInventoryPanel*)marketplace_panel->getChild<LLTabContainer>("marketplace_filter_tabs")->getCurrentPanel();
+        if (panel)
+        {
+            gInventory.notifyObservers();
+            panel->setSelectionByID(new_cat_id, TRUE);
+            panel->getRootFolder()->setNeedsAutoRename(TRUE);
+        }
     }
+    );
 }
 
 void LLPanelMarketplaceListings::onAuditButtonClicked()
