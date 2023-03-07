@@ -221,7 +221,7 @@ void LLSidepanelInventory::updateInbox()
 	//
 	// Track inbox folder changes
 	//
-	const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, true);
+	const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX);
 	
 	// Set up observer to listen for creation of inbox if it doesn't exist
 	if (inbox_id.isNull())

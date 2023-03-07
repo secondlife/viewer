@@ -3213,7 +3213,7 @@ void LLAppearanceMgr::copyLibraryGestures()
 
 	// Copy gestures
 	LLUUID lib_gesture_cat_id =
-		gInventory.findLibraryCategoryUUIDForType(LLFolderType::FT_GESTURE,false);
+		gInventory.findLibraryCategoryUUIDForType(LLFolderType::FT_GESTURE);
 	if (lib_gesture_cat_id.isNull())
 	{
 		LL_WARNS() << "Unable to copy gestures, source category not found" << LL_ENDL;

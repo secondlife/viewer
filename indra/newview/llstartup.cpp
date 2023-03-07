@@ -2768,7 +2768,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	// Not going through the processAgentInitialWearables path, so need to set this here.
 	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
 	// Initiate creation of COF, since we're also bypassing that.
-	gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_CURRENT_OUTFIT);
 	
 	ESex gender;
 	if (gender_name == "male")

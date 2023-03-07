@@ -303,24 +303,25 @@ public:
 	// Find
 	//--------------------------------------------------------------------
 public:
+
+    // Checks if category exists (My Inventory only), if it does not, creates it
+    void LLInventoryModel::ensureCategoryForTypeExists(LLFolderType::EType preferred_type);
+
 	const LLUUID findCategoryUUIDForTypeInRoot(
 		LLFolderType::EType preferred_type,
-		bool create_folder,
-		const LLUUID& root_id);
+		const LLUUID& root_id) const;
 
 	// Returns the uuid of the category that specifies 'type' as what it 
 	// defaults to containing. The category is not necessarily only for that type. 
 	//    NOTE: If create_folder is true, this will create a new inventory category 
 	//    on the fly if one does not exist. *NOTE: if find_in_library is true it 
 	//    will search in the user's library folder instead of "My Inventory"
-	const LLUUID findCategoryUUIDForType(LLFolderType::EType preferred_type, 
-										 bool create_folder = true);
+	const LLUUID findCategoryUUIDForType(LLFolderType::EType preferred_type) const;
 	//    will search in the user's library folder instead of "My Inventory"
-	const LLUUID findLibraryCategoryUUIDForType(LLFolderType::EType preferred_type, 
-												bool create_folder = true);
+	const LLUUID findLibraryCategoryUUIDForType(LLFolderType::EType preferred_type) const;
 	// Returns user specified category for uploads, returns default id if there are no
 	// user specified one or it does not exist, creates default category if it is missing.
-	const LLUUID findUserDefinedCategoryUUIDForType(LLFolderType::EType preferred_type);
+	const LLUUID findUserDefinedCategoryUUIDForType(LLFolderType::EType preferred_type) const;
 	
 	// Get whatever special folder this object is a child of, if any.
 	const LLViewerInventoryCategory *getFirstNondefaultParent(const LLUUID& obj_id) const;

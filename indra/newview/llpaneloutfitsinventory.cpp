@@ -87,7 +87,7 @@ BOOL LLPanelOutfitsInventory::postBuild()
 	// ( This is only necessary if we want to show a warning if a user deletes an item that has a
 	// a link in an outfit, see "ConfirmItemDeleteHasLinks". )
 
-	const LLUUID &outfits_cat = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS, false);
+	const LLUUID &outfits_cat = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
 	if (outfits_cat.notNull())
 	{
 		LLInventoryModelBackgroundFetch::instance().start(outfits_cat);

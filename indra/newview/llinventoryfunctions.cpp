@@ -372,7 +372,7 @@ void update_all_marketplace_count(const LLUUID& cat_id)
 void update_all_marketplace_count()
 {
     // Get the marketplace root and launch the recursive exploration
-    const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
     if (!marketplace_listings_uuid.isNull())
     {
         update_all_marketplace_count(marketplace_listings_uuid);
@@ -875,7 +875,7 @@ S32 depth_nesting_in_marketplace(LLUUID cur_uuid)
     // Todo: findCategoryUUIDForType is somewhat expensive with large
     // flat root folders yet we use depth_nesting_in_marketplace at
     // every turn, find a way to correctly cache this id.
-    const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
     if (marketplace_listings_uuid.isNull())
     {
         return -1;
@@ -1347,6 +1347,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
     return accept;
 }
 
+// Can happen asynhroneously!!!
 bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_folder, bool copy)
 {
     // Get the marketplace listings depth of the destination folder, exit with error if not under marketplace
@@ -1386,53 +1387,64 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
         if (can_move_to_marketplace(inv_item, error_msg, true))
         {
             // When moving an isolated item, we might need to create the folder structure to support it
+
+            LLUUID item_id = inv_item->getUUID();
+            std::function<void(const LLUUID&)> callback_create_stock = [copy, item_id](const LLUUID& new_cat_id)
+            {
+                // Verify we can have this item in that destination category
+                LLViewerInventoryCategory* dest_cat = gInventory.getCategory(new_cat_id);
+                LLViewerInventoryItem * viewer_inv_item = gInventory.getItem(item_id);
+                if (!dest_cat->acceptItem(viewer_inv_item))
+                {
+                    LLSD subs;
+                    subs["[ERROR_CODE]"] = LLTrans::getString("Marketplace Error Prefix") + LLTrans::getString("Marketplace Error Not Accepted");
+                    LLNotificationsUtil::add("MerchantPasteFailed", subs);
+                }
+
+                if (copy)
+                {
+                    // Copy the item
+                    LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(update_folder_cb, new_cat_id));
+                    copy_inventory_item(
+                        gAgent.getID(),
+                        viewer_inv_item->getPermissions().getOwner(),
+                        viewer_inv_item->getUUID(),
+                        new_cat_id,
+                        std::string(),
+                        cb);
+                }
+                else
+                {
+                    // Reparent the item
+                    gInventory.changeItemParent(viewer_inv_item, new_cat_id, true);
+                }
+            };
+
+            std::function<void(const LLUUID&)> callback_dest_create = [copy, item_id, callback_create_stock](const LLUUID& new_cat_id)
+            {
+                LLViewerInventoryCategory* dest_cat = gInventory.getCategory(new_cat_id);
+                LLViewerInventoryItem * viewer_inv_item = gInventory.getItem(item_id);
+                if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()) &&
+                    (dest_cat->getPreferredType() != LLFolderType::FT_MARKETPLACE_STOCK))
+                {
+                    // We need to create a stock folder to move a no copy item
+                    gInventory.createNewCategory(new_cat_id, LLFolderType::FT_MARKETPLACE_STOCK, viewer_inv_item->getName(), callback_create_stock);
+                }
+                else
+                {
+                    callback_create_stock(new_cat_id);
+                }
+            };
+
             if (depth == 0)
             {
                 // We need a listing folder
-                dest_folder = gInventory.createNewCategory(dest_folder, LLFolderType::FT_NONE, viewer_inv_item->getName());
-                depth++;
+               gInventory.createNewCategory(dest_folder, LLFolderType::FT_NONE, viewer_inv_item->getName(), callback_dest_create);
             }
             if (depth == 1)
             {
                 // We need a version folder
-                dest_folder = gInventory.createNewCategory(dest_folder, LLFolderType::FT_NONE, viewer_inv_item->getName());
-                depth++;
-            }
-			LLViewerInventoryCategory* dest_cat = gInventory.getCategory(dest_folder);
-            if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()) &&
-                (dest_cat->getPreferredType() != LLFolderType::FT_MARKETPLACE_STOCK))
-            {
-                // We need to create a stock folder to move a no copy item
-                dest_folder = gInventory.createNewCategory(dest_folder, LLFolderType::FT_MARKETPLACE_STOCK, viewer_inv_item->getName());
-                dest_cat = gInventory.getCategory(dest_folder);
-                depth++;
-            }
-            
-            // Verify we can have this item in that destination category
-            if (!dest_cat->acceptItem(viewer_inv_item))
-            {
-                LLSD subs;
-                subs["[ERROR_CODE]"] = LLTrans::getString("Marketplace Error Prefix") + LLTrans::getString("Marketplace Error Not Accepted");
-                LLNotificationsUtil::add("MerchantPasteFailed", subs);
-                return false;
-            }
-
-            if (copy)
-            {
-                // Copy the item
-                LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(update_folder_cb, dest_folder));
-                copy_inventory_item(
-                                    gAgent.getID(),
-                                    viewer_inv_item->getPermissions().getOwner(),
-                                    viewer_inv_item->getUUID(),
-                                    dest_folder,
-                                    std::string(),
-                                    cb);
-            }
-            else
-            {
-                // Reparent the item
-                gInventory.changeItemParent(viewer_inv_item, dest_folder, true);
+                gInventory.createNewCategory(dest_folder, LLFolderType::FT_NONE, viewer_inv_item->getName(), callback_dest_create);
             }
         }
         else
@@ -2496,7 +2508,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 	if ("delete" == action)
 	{
 		static bool sDisplayedAtSession = false;
-		const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+		const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
 		bool marketplacelistings_item = false;
 		LLAllDescendentsPassedFilter f;
 		for (std::set<LLFolderViewItem*>::iterator it = selected_items.begin(); (it != selected_items.end()) && (f.allDescendentsPassedFilter()); ++it)
@@ -2620,7 +2632,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     if (action == "wear" || action == "wear_add")
     {
         const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-        const LLUUID mp_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        const LLUUID mp_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
         std::copy_if(selected_uuid_set.begin(),
             selected_uuid_set.end(),
             std::back_inserter(ids),
@@ -2873,7 +2885,7 @@ void LLInventoryAction::buildMarketplaceFolders(LLFolderView* root)
     // target listing *and* the original listing. So we need to keep track of both.
     // Note: do not however put the marketplace listings root itself in this list or the whole marketplace data will be rebuilt.
     sMarketplaceFolders.clear();
-    const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
     if (marketplacelistings_id.isNull())
     {
     	return;

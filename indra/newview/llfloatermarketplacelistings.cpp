@@ -230,7 +230,7 @@ void LLPanelMarketplaceListings::onTabChange()
 
 void LLPanelMarketplaceListings::onAddButtonClicked()
 {
-    LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
     llassert(marketplacelistings_id.notNull());
     LLFolderType::EType preferred_type = LLFolderType::lookup("category");
     LLHandle<LLPanel> handle = getHandle();
@@ -375,6 +375,7 @@ LLFloaterMarketplaceListings::LLFloaterMarketplaceListings(const LLSD& key)
 , mInventoryTitle(NULL)
 , mPanelListings(NULL)
 , mPanelListingsSet(false)
+, mRootFolderCreating(false)
 {
 }
 
@@ -460,15 +461,39 @@ void LLFloaterMarketplaceListings::setRootFolder()
 		// If we are *not* a merchant or we have no market place connection established yet, do nothing
 		return;
 	}
+    if (!gInventory.isInventoryUsable())
+    {
+        return;
+    }
     
+    LLFolderType::EType preferred_type = LLFolderType::FT_MARKETPLACE_LISTINGS;
 	// We are a merchant. Get the Marketplace listings folder, create it if needs be.
-	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, true);
-	if (marketplacelistings_id.isNull())
-	{
-		// We should never get there unless the inventory fails badly
-		LL_ERRS("SLM") << "Inventory problem: failure to create the marketplace listings folder for a merchant!" << LL_ENDL;
-		return;
-	}
+	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(preferred_type);
+
+    if (marketplacelistings_id.isNull())
+    {
+        if (!mRootFolderCreating)
+        {
+            mRootFolderCreating = true;
+            gInventory.createNewCategory(
+                gInventory.getRootFolderID(),
+                preferred_type,
+                LLStringUtil::null,
+                [preferred_type](const LLUUID &new_cat_id)
+            {
+                LLFloaterMarketplaceListings *marketplace = LLFloaterReg::findTypedInstance<LLFloaterMarketplaceListings>("marketplace_listings");
+                if (marketplace)
+                {
+                    // will call setRootFolder again
+                    marketplace->updateView();
+                }
+            }
+            );
+        }
+        return;
+    }
+
+    mRootFolderCreating = false;
     
 	// No longer need to observe new category creation
 	if (mCategoryAddedObserver && gInventory.containsObserver(mCategoryAddedObserver))
@@ -486,6 +511,7 @@ void LLFloaterMarketplaceListings::setRootFolder()
     }
     
     mRootFolderId = marketplacelistings_id;
+    mRootFolderCreating = true;
 }
 
 void LLFloaterMarketplaceListings::setPanels()
@@ -555,6 +581,11 @@ void LLFloaterMarketplaceListings::updateView()
     if (mRootFolderId.isNull() && is_merchant)
     {
         setRootFolder();
+    }
+    if (mRootFolderCreating)
+    {
+        // waiting for callback
+        return;
     }
 
     // Update the bottom initializing status and progress dial if we are initializing or if we're a merchant and still loading
@@ -859,7 +890,7 @@ void LLFloaterMarketplaceValidation::onOpen(const LLSD& key)
     LLUUID cat_id(key.asUUID());
     if (cat_id.isNull())
     {
-        cat_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        cat_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
     }
 
     // Validates the folder
