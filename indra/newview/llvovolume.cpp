@@ -670,6 +670,21 @@ void LLVOVolume::animateTextures()
                 }
                 else
                 {
+                    if (!(result & LLViewerTextureAnim::ROTATE))
+                    {
+                        rot = 0.0f;
+                    }
+                    if (!(result & LLViewerTextureAnim::TRANSLATE))
+                    {
+                        off_s = 0.0f;
+                        off_t = 0.0f;
+                    }
+                    if (!(result & LLViewerTextureAnim::SCALE))
+                    {
+                        scale_s = 1.0f;
+                        scale_t = 1.0f;
+                    }
+
                     // For PBR materials, use Blinn-Phong rotation as hint for
                     // translation direction. In a Blinn-Phong material, the
                     // translation direction would be a byproduct the texture
