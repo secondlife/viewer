@@ -73,6 +73,8 @@ static const char * const INBOX_LAYOUT_PANEL_NAME = "inbox_layout_panel";
 static const char * const INVENTORY_LAYOUT_STACK_NAME = "inventory_layout_stack";
 static const char * const MARKETPLACE_INBOX_PANEL = "marketplace_inbox";
 
+static bool sLoginCompleted = false;
+
 //
 // Helpers
 //
@@ -182,22 +184,30 @@ BOOL LLSidepanelInventory::postBuild()
 
 		inbox_button->setCommitCallback(boost::bind(&LLSidepanelInventory::onToggleInboxBtn, this));
 
-		// Get the previous inbox state from "InventoryInboxToggleState" setting.
-		bool is_inbox_collapsed = !inbox_button->getToggleState();
+		// For main Inventory floater: Get the previous inbox state from "InventoryInboxToggleState" setting. 
+        // For additional Inventory floaters: Collapsed state is default.
+		bool is_inbox_collapsed = !inbox_button->getToggleState() || sLoginCompleted;
 
 		// Restore the collapsed inbox panel state
         mInboxLayoutPanel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
-		inv_stack->collapsePanel(mInboxLayoutPanel, is_inbox_collapsed);
-		if (!is_inbox_collapsed)
-		{
+        inv_stack->collapsePanel(mInboxLayoutPanel, is_inbox_collapsed);
+        if (!is_inbox_collapsed)
+        {
             mInboxLayoutPanel->setTargetDim(gSavedPerAccountSettings.getS32("InventoryInboxHeight"));
-		}
+        }
 
-		// Set the inbox visible based on debug settings (final setting comes from http request below)
-		enableInbox(gSavedSettings.getBOOL("InventoryDisplayInbox"));
-
-		// Trigger callback for after login so we can setup to track inbox changes after initial inventory load
-		LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLSidepanelInventory::updateInbox, this));
+        if (sLoginCompleted)
+        {
+            //save the state of Inbox panel only for main Inventory floater
+            inbox_button->removeControlVariable();
+            inbox_button->setToggleState(false);
+            updateInbox();
+        }
+        else
+        {
+            // Trigger callback for after login so we can setup to track inbox changes after initial inventory load
+            LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLSidepanelInventory::updateInbox, this));
+        }
 	}
 
 	gSavedSettings.getControl("InventoryDisplayInbox")->getCommitSignal()->connect(boost::bind(&handleInventoryDisplayInboxChanged));
@@ -207,6 +217,7 @@ BOOL LLSidepanelInventory::postBuild()
 
 void LLSidepanelInventory::updateInbox()
 {
+    sLoginCompleted = true;
 	//
 	// Track inbox folder changes
 	//

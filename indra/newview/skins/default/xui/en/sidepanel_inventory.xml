@@ -57,7 +57,7 @@
                  user_resize="true"
                  follows="left|right|top"
                  name="inbox_layout_panel"
-                 visible="false"
+                 visible="true"
                  min_dim="35"
                  expanded_min_dim="90"
                  height="235">
