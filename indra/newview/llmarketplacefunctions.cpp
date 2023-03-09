@@ -700,10 +700,9 @@ void LLMarketplaceInventoryObserver::onIdleProcessQueue(void *userdata)
                 // If it's a folder known to the marketplace, let's check it's in proper shape
                 if (LLMarketplaceData::instance().isListed(*id_it) || LLMarketplaceData::instance().isVersionFolder(*id_it))
                 {
-                    LLInventoryCategory* cat = (LLInventoryCategory*)(obj);
                     // can trigger notifyObservers
                     // can cause more structural changes
-                    validate_marketplacelistings(cat);
+                    LLMarketplaceValidator::getInstance()->validateMarketplaceListings(obj->getUUID());
                 }
             }
             else
@@ -1848,8 +1847,7 @@ void LLMarketplaceData::decrementValidationWaiting(const LLUUID& folder_id, S32 
         if (found->second <= 0)
         {
             mValidationWaitingList.erase(found);
-            LLInventoryCategory *cat = gInventory.getCategory(folder_id);
-            validate_marketplacelistings(cat);
+            LLMarketplaceValidator::getInstance()->validateMarketplaceListings(folder_id);
             update_marketplace_category(folder_id);
             gInventory.notifyObservers();
         }

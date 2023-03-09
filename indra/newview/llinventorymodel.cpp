@@ -954,27 +954,23 @@ const LLUUID LLInventoryModel::findLibraryCategoryUUIDForType(LLFolderType::ETyp
 // Convenience function to create a new category. You could call
 // updateCategory() with a newly generated UUID category, but this
 // version will take care of details like what the name should be
-// based on preferred type. Returns the UUID of the new category.
-//
-// On failure, returns a null UUID.
-// FIXME: callers do not check for or handle a null results currently.
-LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
+// based on preferred type.
+void LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 										   LLFolderType::EType preferred_type,
 										   const std::string& pname,
 										   inventory_func_type callback)
 {
-	LLUUID id; // Initially null.
 	if (!isInventoryUsable())
 	{
 		LL_WARNS(LOG_INV) << "Inventory is not usable; can't create requested category of type "
 						  << preferred_type << LL_ENDL;
-		return id;
+		return;
 	}
 
 	if(LLFolderType::lookup(preferred_type) == LLFolderType::badLookup())
 	{
 		LL_DEBUGS(LOG_INV) << "Attempt to create undefined category." << LL_ENDL;
-		return id;
+		return;
 	}
 
 	if (preferred_type != LLFolderType::FT_NONE)
@@ -990,24 +986,53 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	{
 		name.assign(LLViewerFolderType::lookupNewCategoryName(preferred_type));
 	}
-	
+
 #ifdef USE_AIS_FOR_NC
-	// D567 currently this doesn't really work due to limitations in
-	// AIS3, also violates the common caller assumption that we can
-	// assign the id and return immediately.
-	if (callback)
+    // D567 currently this doesn't really work due to limitations in
+    // AIS3, also violates the common caller assumption that we can
+    // assign the id and return immediately.
+	if (callback && AISAPI::isAvailable())
 	{
-		// D567 note that we no longer assign the UUID in the viewer, so various workflows need to change.
 		LLSD new_inventory = LLSD::emptyMap();
 		new_inventory["categories"] = LLSD::emptyArray();
 		LLViewerInventoryCategory cat(LLUUID::null, parent_id, preferred_type, name, gAgent.getID());
 		LLSD cat_sd = cat.asLLSD();
 		new_inventory["categories"].append(cat_sd);
-		AISAPI::CreateInventory(parent_id, new_inventory, callback);
+		AISAPI::CreateInventory(
+            parent_id,
+            new_inventory,
+            [this, callback, parent_id, preferred_type, name] (const LLUUID& new_category)
+        {
+            if (new_category.isNull())
+            {
+                callback(new_category);
+                return;
+            }
 
-		return LLUUID::null;
+            LLViewerInventoryCategory* folderp = gInventory.getCategory(new_category);
+            if (!folderp)
+            {
+                // Add the category to the internal representation
+                LLPointer<LLViewerInventoryCategory> cat = new LLViewerInventoryCategory(
+                    new_category,
+                    parent_id,
+                    preferred_type,
+                    name,
+                    gAgent.getID());
+
+                LLInventoryModel::LLCategoryUpdate update(cat->getParentUUID(), 1);
+                accountForUpdate(update);
+
+                cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL - 1); // accountForUpdate() will icrease version by 1
+                cat->setDescendentCount(0);
+                updateCategory(cat);
+            }
+
+            callback(new_category);
+        });
+        return;
 	}
-#else
+#endif
 	LLViewerRegion* viewer_region = gAgent.getRegion();
 	std::string url;
 	if ( viewer_region )
@@ -1016,7 +1041,7 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	if (!url.empty() && callback)
 	{
 		//Let's use the new capability.
-		
+        LLUUID id;
 		id.generate();
 		LLSD request, body;
 		body["folder_id"] = id;
@@ -1030,48 +1055,7 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 		LL_DEBUGS(LOG_INV) << "Creating category via request: " << ll_pretty_print_sd(request) << LL_ENDL;
         LLCoros::instance().launch("LLInventoryModel::createNewCategoryCoro",
             boost::bind(&LLInventoryModel::createNewCategoryCoro, this, url, body, callback));
-
-		return LLUUID::null;
 	}
-#endif
-
-
-	if (!gMessageSystem)
-	{
-		return LLUUID::null;
-	}
-
-	// D567 FIXME this UDP code path needs to be removed. Requires
-	// reworking many of the callers to use callbacks rather than
-	// assuming instant success.
-
-	// Add the category to the internal representation
-	LL_WARNS() << "D567 need to remove this usage" << LL_ENDL;
-	
-	id.generate();
-	LLPointer<LLViewerInventoryCategory> cat =
-		new LLViewerInventoryCategory(id, parent_id, preferred_type, name, gAgent.getID());
-	cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL - 1); // accountForUpdate() will icrease version by 1
-	cat->setDescendentCount(0);
-	LLCategoryUpdate update(cat->getParentUUID(), 1);
-	accountForUpdate(update);
-	updateCategory(cat);
-
-	LL_DEBUGS(LOG_INV) << "Creating category via UDP message CreateInventoryFolder, type " << preferred_type << LL_ENDL;
-
-	// Create the category on the server. We do this to prevent people
-	// from munging their protected folders.
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessage("CreateInventoryFolder");
-	msg->nextBlock("AgentData");
-	msg->addUUID("AgentID", gAgent.getID());
-	msg->addUUID(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->nextBlock("FolderData");
-	cat->packMessage(msg);
-	gAgent.sendReliableMessage();
-
-	// return the folder id of the newly created folder
-	return id;
 }
 
 void LLInventoryModel::createNewCategoryCoro(std::string url, LLSD postData, inventory_func_type callback)
@@ -1095,12 +1079,20 @@ void LLInventoryModel::createNewCategoryCoro(std::string url, LLSD postData, inv
     if (!status)
     {
         LL_WARNS() << "HTTP failure attempting to create category." << LL_ENDL;
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
         return;
     }
 
     if (!result.has("folder_id"))
     {
         LL_WARNS() << "Malformed response contents" << ll_pretty_print_sd(result) << LL_ENDL;
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
         return;
     }
 

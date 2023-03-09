@@ -477,7 +477,7 @@ public:
 public:
 	// Returns the UUID of the new category. If you want to use the default 
 	// name based on type, pass in a NULL to the 'name' parameter.
-	LLUUID createNewCategory(const LLUUID& parent_id,
+	void createNewCategory(const LLUUID& parent_id,
 							 LLFolderType::EType preferred_type,
 							 const std::string& name,
 							 inventory_func_type callback = NULL);

@@ -896,8 +896,11 @@ void LLFloaterMarketplaceValidation::onOpen(const LLSD& key)
     // Validates the folder
     if (cat_id.notNull())
     {
-        LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
-        validate_marketplacelistings(cat, boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1, _2, _3), false);
+        LLMarketplaceValidator::getInstance()->validateMarketplaceListings(
+            cat_id,
+            NULL,
+            boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1, _2, _3),
+            false);
     }
     
     // Handle the listing folder being processed

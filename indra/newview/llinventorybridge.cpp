@@ -2901,11 +2901,16 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
                     LLUUID version_folder_id = LLMarketplaceData::instance().getActiveFolder(from_folder_uuid);
                     if (version_folder_id.notNull())
                     {
-                        LLViewerInventoryCategory* cat = gInventory.getCategory(version_folder_id);
-                        if (!validate_marketplacelistings(cat,NULL))
+                        LLMarketplaceValidator::getInstance()->validateMarketplaceListings(
+                            version_folder_id,
+                            [version_folder_id](bool result)
                         {
-                            LLMarketplaceData::instance().activateListing(version_folder_id,false);
+                            if (!result)
+                            {
+                                LLMarketplaceData::instance().activateListing(version_folder_id, false);
+                            }
                         }
+                        );
                     }
                     // In all cases, update the listing we moved from so suffix are updated
                     update_marketplace_category(from_folder_uuid);
@@ -3371,18 +3376,26 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         if (depth_nesting_in_marketplace(mUUID) == 1)
         {
             LLUUID version_folder_id = LLMarketplaceData::instance().getVersionFolder(mUUID);
-            LLViewerInventoryCategory* cat = gInventory.getCategory(version_folder_id);
             mMessage = "";
-            if (!validate_marketplacelistings(cat,boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3)))
+
+            LLMarketplaceValidator::getInstance()->validateMarketplaceListings(
+                version_folder_id,
+                [this, version_folder_id](bool result)
             {
-                LLSD subs;
-                subs["[ERROR_CODE]"] = mMessage;
-                LLNotificationsUtil::add("MerchantListingFailed", subs);
-            }
-            else
-            {
-                LLMarketplaceData::instance().activateListing(mUUID,true);
-            }
+                // todo: might need to ensure bridge/mUUID exists or this will cause crashes
+                if (!result)
+                {
+                    LLSD subs;
+                    subs["[ERROR_CODE]"] = mMessage;
+                    LLNotificationsUtil::add("MerchantListingFailed", subs);
+                }
+                else
+                {
+                    LLMarketplaceData::instance().activateListing(mUUID, true);
+                }
+            },
+                boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3)
+            );
         }
 		return;
 	}
@@ -3390,18 +3403,27 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	{
         if (depth_nesting_in_marketplace(mUUID) == 2)
         {
-			LLInventoryCategory* category = gInventory.getCategory(mUUID);
             mMessage = "";
-            if (!validate_marketplacelistings(category,boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3),false,2))
+
+            LLMarketplaceValidator::getInstance()->validateMarketplaceListings(
+                mUUID,
+                [this](bool result)
             {
-                LLSD subs;
-                subs["[ERROR_CODE]"] = mMessage;
-                LLNotificationsUtil::add("MerchantFolderActivationFailed", subs);
-            }
-            else
-            {
-                LLMarketplaceData::instance().setVersionFolder(category->getParentUUID(), mUUID);
-            }
+                if (!result)
+                {
+                    LLSD subs;
+                    subs["[ERROR_CODE]"] = mMessage;
+                    LLNotificationsUtil::add("MerchantFolderActivationFailed", subs);
+                }
+                else
+                {
+                    LLInventoryCategory* category = gInventory.getCategory(mUUID);
+                    LLMarketplaceData::instance().setVersionFolder(category->getParentUUID(), mUUID);
+                }
+            },
+                boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3),
+                false,
+                2);
         }
 		return;
 	}
@@ -3424,29 +3446,44 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	}
 	else if ("marketplace_create_listing" == action)
 	{
-        LLViewerInventoryCategory* cat = gInventory.getCategory(mUUID);
         mMessage = "";
-        bool validates = validate_marketplacelistings(cat,boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3),false);
-        if (!validates)
+
+        // first run vithout fix_hierarchy, second run with fix_hierarchy
+        LLMarketplaceValidator::getInstance()->validateMarketplaceListings(
+            mUUID,
+            [this](bool result)
         {
-            mMessage = "";
-            validates = validate_marketplacelistings(cat,boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3),true);
-            if (validates)
+            if (!result)
             {
-                LLNotificationsUtil::add("MerchantForceValidateListing");
+                mMessage = "";
+
+                LLMarketplaceValidator::getInstance()->validateMarketplaceListings(
+                    mUUID,
+                    [this](bool result)
+                {
+                    if (result)
+                    {
+                        LLNotificationsUtil::add("MerchantForceValidateListing");
+                        LLMarketplaceData::instance().createListing(mUUID);
+                    }
+                    else
+                    {
+                        LLSD subs;
+                        subs["[ERROR_CODE]"] = mMessage;
+                        LLNotificationsUtil::add("MerchantListingFailed", subs);
+                    }
+                },
+                    boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3),
+                    true);
             }
-        }
+            else
+            {
+                LLMarketplaceData::instance().createListing(mUUID);
+            }
+        },
+            boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3),
+            false);
         
-        if (!validates)
-        {
-            LLSD subs;
-            subs["[ERROR_CODE]"] = mMessage;
-            LLNotificationsUtil::add("MerchantListingFailed", subs);
-        }
-        else
-        {
-            LLMarketplaceData::instance().createListing(mUUID);
-        }
 		return;
 	}
     else if ("marketplace_disassociate_listing" == action)
@@ -5296,11 +5333,15 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
                 LLUUID version_folder_id = LLMarketplaceData::instance().getActiveFolder(from_folder_uuid);
                 if (version_folder_id.notNull())
                 {
-                    LLViewerInventoryCategory* cat = gInventory.getCategory(version_folder_id);
-                    if (!validate_marketplacelistings(cat,NULL))
+                    LLMarketplaceValidator::getInstance()->validateMarketplaceListings(
+                        version_folder_id,
+                        [version_folder_id](bool result)
                     {
-                        LLMarketplaceData::instance().activateListing(version_folder_id,false);
-                    }
+                        if (!result)
+                        {
+                            LLMarketplaceData::instance().activateListing(version_folder_id, false);
+                        }
+                    });
                 }
             }
 
