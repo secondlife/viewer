@@ -718,7 +718,7 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 void LLPanelMainInventory::onFilterSelected()
 {
 	// Find my index
-	mActivePanel = (LLInventoryPanel*)getChild<LLTabContainer>("inventory filter tabs")->getCurrentPanel();
+    mActivePanel = mSingleFolderMode ? getChild<LLInventoryPanel>("single_folder_inv") : (LLInventoryPanel*)getChild<LLTabContainer>("inventory filter tabs")->getCurrentPanel();
 
 	if (!mActivePanel)
 	{
@@ -736,6 +736,14 @@ void LLPanelMainInventory::onFilterSelected()
 	if (finder)
 	{
 		finder->changeFilter(&filter);
+        if (mSingleFolderMode)
+        {
+            const LLViewerInventoryCategory* cat = gInventory.getCategory(mSingleFolderPanelInventory->getSingleFolderRoot());
+            if (cat)
+            {
+                finder->setTitle(cat->getName());
+            }
+        }
 	}
 	if (filter.isActive())
 	{
@@ -897,6 +905,15 @@ void LLPanelMainInventory::toggleFindOptions()
 			parent_floater->addDependentFloater(mFinderHandle);
 		// start background fetch of folders
 		LLInventoryModelBackgroundFetch::instance().start();
+
+        if (mSingleFolderMode)
+        {
+            const LLViewerInventoryCategory* cat = gInventory.getCategory(mSingleFolderPanelInventory->getSingleFolderRoot());
+            if (cat)
+            {
+                finder->setTitle(cat->getName());
+            }
+        }
 	}
 	else
 	{
@@ -1323,6 +1340,7 @@ void LLPanelMainInventory::onViewModeClick()
 
     mActivePanel = mSingleFolderMode ? getChild<LLInventoryPanel>("single_folder_inv") : (LLInventoryPanel*)getChild<LLTabContainer>("inventory filter tabs")->getCurrentPanel();
     updateTitle();
+    onFilterSelected();
 
     LLSidepanelInventory* sidepanel_inventory = getParentSidepanelInventory();
     if (sidepanel_inventory)
@@ -1795,6 +1813,11 @@ void LLPanelMainInventory::updateTitle()
             if (cat)
             {
                 inventory_floater->setTitle(cat->getName());
+                LLFloaterInventoryFinder *finder = getFinder();
+                if (finder)
+                {
+                    finder->setTitle(cat->getName());
+                }
             }
         }
         else
