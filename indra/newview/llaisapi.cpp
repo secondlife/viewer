@@ -93,6 +93,7 @@ void AISAPI::CreateInventory(const LLUUID& parentId, const LLSD& newInventory, c
     if (cap.empty())
     {
         LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        callback(LLUUID::null);
         return;
     }
 
@@ -485,13 +486,17 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
     {   
         LLUUID id(LLUUID::null);
 
-        if (result.has("category_id") && (type == COPYLIBRARYCATEGORY))
+        if (type == COPYLIBRARYCATEGORY)
 	    {
-		    id = result["category_id"];
+            if (result.has("category_id"))
+            {
+                id = result["category_id"];
+            } //else signal failure
 			callback(id);
 	    }
 		if (type == CREATEINVENTORY)
 		{
+            bool informed_caller = false;
 			if (result.has("_created_categories"))
 			{
 				LLSD& cats = result["_created_categories"];
@@ -500,6 +505,7 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
 				{
 					LLUUID cat_id = *cat_iter;
 					callback(cat_id);
+                    informed_caller = true;
 				}
 			}
 			if (result.has("_created_items"))
@@ -510,8 +516,15 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
 				{
 					LLUUID item_id = *item_iter;
 					callback(item_id);
+                    informed_caller = true;
 				}
 			}
+
+            if (!informed_caller)
+            {
+                // signal failure with null id
+                callback(id);
+            }
 		}
 
     }
