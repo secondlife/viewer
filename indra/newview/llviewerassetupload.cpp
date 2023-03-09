@@ -338,7 +338,7 @@ bool LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(const std::string& e
 		asset_type = LLAssetType::AT_ANIMATION; 
 		succ = true;
 	}
-	else if (!bulk_upload && (exten_lc == "bvh"))
+	else if (!bulk_upload && (exten_lc == "bvh" || exten_lc == "fbx"))
 	{
 		asset_type = LLAssetType::AT_ANIMATION;
 		succ = true;

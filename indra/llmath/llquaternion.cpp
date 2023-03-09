@@ -817,7 +817,42 @@ const char *OrderToString( const LLQuaternion::Order order )
 }
 
 LLQuaternion::Order StringToOrder( const char *str )
-{
+{   // Caller must ensure a valid pointer and 3 byte string is passed in
+    // Ugly but faster than strncmp calls.
+
+    char first = str[0];
+    char second = str[1];
+    char third = str[2];
+    if (first == 'X' || first == 'x')
+    {
+        if ((second == 'Y' || second == 'y') &&
+            (third == 'Z' || third == 'z'))
+            return LLQuaternion::XYZ;
+        else if ((second == 'Z' || second == 'z') &&
+                 (third == 'Y' || third == 'y'))
+            return LLQuaternion::XZY;
+    }
+    else if (first == 'Y' || first == 'y')
+    {
+        if ((second == 'X' || second == 'x') &&
+            (third == 'Z' || third == 'z'))
+            return LLQuaternion::YXZ;
+        else if ((second == 'Z' || second == 'z') &&
+                 (third == 'X' || third == 'x'))
+            return LLQuaternion::YZX;
+    }
+    else if (first == 'Z' || first == 'z')
+    {
+        if ((second == 'X' || second == 'x') &&
+            (third == 'Y' || third == 'y'))
+            return LLQuaternion::ZXY;
+        else if ((second == 'Y' || second == 'y') &&
+                 (third == 'X' || third == 'x'))
+            return LLQuaternion::ZYX;
+    }
+    return LLQuaternion::XYZ;   // shouldn't get here
+
+    /*  remove this after code review
 	if (strncmp(str, "XYZ", 3)==0 || strncmp(str, "xyz", 3)==0)
 		return LLQuaternion::XYZ;
 
@@ -837,6 +872,7 @@ LLQuaternion::Order StringToOrder( const char *str )
 		return LLQuaternion::ZYX;
 
 	return LLQuaternion::XYZ;
+    */
 }
 
 void LLQuaternion::getAngleAxis(F32* angle, LLVector3 &vec) const

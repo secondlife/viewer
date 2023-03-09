@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llbvhloader.cpp
  * @brief Translates a BVH files to LindenLabAnimation format.
  *
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,7
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -38,6 +38,10 @@
 #include "llstl.h"
 #include "llapr.h"
 #include "llsdserialize.h"
+
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/postprocess.h>     // Post processing flags
 
 
 using namespace std;
@@ -98,15 +102,6 @@ const char *LLBVHLoader::ST_NO_XLT_EMOTE		= "Can't read emote name.";
 const char *LLBVHLoader::ST_BAD_ROOT        = "Illegal ROOT joint.";
 */
 
-//------------------------------------------------------------------------
-// find_next_whitespace()
-//------------------------------------------------------------------------
-const char *find_next_whitespace(const char *p)
-{
-	while(*p && isspace(*p)) p++;
-	while(*p && !isspace(*p)) p++;
-	return p;
-}
 
 
 //------------------------------------------------------------------------
@@ -129,100 +124,83 @@ LLQuaternion::Order bvhStringToOrder( char *str )
 
 
 
-static S32 vector_index1 = 0;
-static S32 vector_index2 = 0;
-static S32 vector_index3 = 0;
-static LLVector3 vector_list[] =
-{
-    LLVector3(0, 0, 1),
-    LLVector3(0, 1, 0),
-    LLVector3(1, 0, 0),
-    LLVector3(0, 0, -1),
-    LLVector3(0, -1, 0),
-    LLVector3(-1, 0, 0)
-};
-
-static void bump_test_number()
-{
-    vector_index1 += 1;
-    if (vector_index1 >= 6)
-    {
-        vector_index1 = 0;
-        vector_index2++;
-        if (vector_index2 >= 6)
-        {
-            vector_index2 = 0;
-            vector_index3++;
-            if (vector_index3 >= 6)
-            {
-                vector_index3 = 0;
-                LL_INFOS("BVH") << "Translation test wrap-around!!" << LL_ENDL;
-            }
-        }
-    }
-}
-
-
 //-----------------------------------------------------------------------------
 // LLBVHLoader()
 //-----------------------------------------------------------------------------
 
-LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine, std::map<std::string, std::string>& joint_alias_map )
+LLBVHLoader::LLBVHLoader() : mAssimpImporter(nullptr),
+                             mAssimpScene(nullptr)
 {
-	reset();
-	errorLine = 0;
-	mStatus = loadTranslationTable("anim.ini");
-	loadStatus = mStatus;
-	LL_INFOS("BVH") << "Load Status 00 for anim.ini: " << loadStatus << LL_ENDL;
+    reset();
+}
+
+
+void LLBVHLoader::loadAnimationData(const char* buffer,
+                        S32 &errorLine,
+                        const joint_alias_map_t& joint_alias_map,
+                        const std::string& full_path_filename,
+                        S32 transform_type)
+{
+    mFilenameAndPath = full_path_filename;
+    mTransformType = transform_type;        // Passed in from globals for development
+
+    errorLine = 0;
+    std::string anim_ini("anim.ini");
+	mStatus = loadTranslationTable(anim_ini);
 	if (mStatus == E_ST_NO_XLT_FILE)
 	{
 		LL_WARNS("BVH") << "No translation table found." << LL_ENDL;
-		loadStatus = mStatus;
 		return;
 	}
-	else
+	else if (mStatus != E_ST_OK)
 	{
-		if (mStatus != E_ST_OK)
-		{
-			LL_WARNS("BVH") << "ERROR: [line: " << getLineNumber() << "] " << mStatus << LL_ENDL;
-			errorLine = getLineNumber();
-			loadStatus = mStatus;
-			return;
-		}
-	}
+		LL_WARNS("BVH") << "ERROR in " << anim_ini << " [line: " << getLineNumber() << "] " << mStatus << LL_ENDL;
+		errorLine = getLineNumber();
+        return;
+    }
+    else
+    {
+        LL_INFOS("BVH") << "Loaded anim.ini with " << mTranslations.size() << " translations" << LL_ENDL;
+    }
 
-    // Recognize all names we've been told are legal.
-    std::map<std::string, std::string>::iterator iter;
+    // Recognize all names we've been told are legal from standard SL skeleton
+    joint_alias_map_t::const_iterator iter;
     for (iter = joint_alias_map.begin(); iter != joint_alias_map.end(); iter++)
     {
-        makeTranslation( iter->first , iter->second );
+        makeTranslation(iter->first, iter->second);
     }
-	char error_text[128];		/* Flawfinder: ignore */
-	S32 error_line;
-	mStatus = loadBVHFile(buffer, error_text, error_line); //Reads all joints in BVH file.
 
-	LL_DEBUGS("BVH") << "============================================================" << LL_ENDL;
-	LL_DEBUGS("BVH") << "Raw data from file" << LL_ENDL;
-	dumpBVHInfo();
+
+// don't read BVH file!
+//	char error_text[128];		/* Flawfinder: ignore */
+//	S32 error_line;
+//	mStatus = loadBVHFile(buffer, error_text, error_line); //Reads all joints in BVH file.
+//    LL_DEBUGS("BVH") << "Joint data from file " << mFilenameAndPath << LL_ENDL;
+//    dumpJointInfo(mJoints);
+
+    mStatus = E_ST_OK;
+
+    // Assimp test code
+    loadAssimp();
+    if (mAssimpScene)
+    {
+        dumpAssimp();
+    }
 
 	if (mStatus != E_ST_OK)
 	{
 		LL_WARNS("BVH") << "ERROR: [line: " << getLineNumber() << "] " << mStatus << LL_ENDL;
-		loadStatus = mStatus;
 		errorLine = getLineNumber();
-		return;
+        return;
 	}
-	
-	applyTranslations();  //Maps between joints found in file and the aliased names.
+
+	applyTranslations();    // Map between joints found in file and the aliased names.  Also detects mSkeletonType
 	optimize();
-	
-	LL_DEBUGS("BVH") << "============================================================" << LL_ENDL;
-	LL_DEBUGS("BVH") << "After translations and optimize" << LL_ENDL;
-	dumpBVHInfo();
 
-	mInitialized = TRUE;
+	LL_DEBUGS("BVH") << "After translations and optimize from file " << mFilenameAndPath << LL_ENDL;
+    dumpJointInfo(mJoints);      // to do - more useful before/after comparison
 
-    LL_INFOS("BVH") << "Doing transform test " << vector_index1 << ", " << vector_index2 << ", " << vector_index3 << LL_ENDL;
+	mInitialized = true;
 }
 
 
@@ -230,13 +208,13 @@ LLBVHLoader::~LLBVHLoader()
 {
 	std::for_each(mJoints.begin(),mJoints.end(),DeletePointer());
 	mJoints.clear();
-    bump_test_number();
+    reset();        // Clean up mAssimpImporter and mAssimpScene
 }
 
 //------------------------------------------------------------------------
-// LLBVHLoader::loadTranslationTable()
+// LLBVHLoader::loadTranslationTable() - reads anim.ini
 //------------------------------------------------------------------------
-ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
+ELoadStatus LLBVHLoader::loadTranslationTable(const std::string & fileName)
 {
 	//--------------------------------------------------------------------
 	// open file
@@ -256,17 +234,18 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 	//--------------------------------------------------------------------
 	if ( ! getLine(fp) )
 		return E_ST_EOF;
-	if ( strncmp(mLine, "Translations 1.0", 16) )
+	if ( strnicmp(mLine, "Translations 1.0", 16) )
 		return E_ST_NO_XLT_HEADER;
 
 
-    // NOTE - this code appears to be gloriously broken.   SL shipped with nothing in the anim.ini
+    // NOTE - some of this code appears to be gloriously broken.
+    // SL shipped with nothing in the anim.ini
     // file, but now trying to make some name translations for it
 
 	//--------------------------------------------------------------------
 	// load data one line at a time
 	//--------------------------------------------------------------------
-	BOOL loadingGlobals = FALSE;
+	bool loadingGlobals = false;
 	while ( getLine(fp) )
 	{
 		//----------------------------------------------------------------
@@ -288,21 +267,23 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
             if ( sscanf(mLine, " [%127s %*[^]]", name) != 1 )
 				return E_ST_NO_XLT_NAME;
 
-			if (strcmp(name, "GLOBALS")==0)
+			if (stricmp(name, "GLOBALS")==0)
 			{
-				loadingGlobals = TRUE;
+				loadingGlobals = true;
 				continue;
 			}
-            else if (strcmp(name, "ALIAS") == 0)
+            else if (stricmp(name, "ALIAS") == 0)
             {
-                char alias_name[128]; /* Flawfinder: ignore */
-                char joint_name[128];  /* Flawfinder: ignore */
-                if (sscanf(mLine, " [ALIAS %127s %127[^]]s ]", alias_name, joint_name) != 2)
+                loadingGlobals = false;
+
+                char alias_name[128];       /* Flawfinder: ignore */
+                char joint_name[128];       /* Flawfinder: ignore */
+                if (sscanf(mLine, " [ALIAS %127s %127[^]]s ]", &alias_name[0], &joint_name[0]) != 2)
                 {
-                    LL_WARNS("BVH") << "BVH anim.ini line error: " << mLine << LL_ENDL;
+                    LL_WARNS("BVH") << "anim.ini line error: " << mLine << LL_ENDL;
                     return E_ST_NO_XLT_NAME;
                 }
-                LL_DEBUGS("BVH") << "BVH anim.ini alias: " << alias_name << " to " << joint_name << LL_ENDL;
+                LL_DEBUGS("BVH") << "Animation joint anim.ini alias: " << std::string(alias_name) << " to " << std::string(joint_name) << LL_ENDL;
                 makeTranslation(alias_name, joint_name);
                 continue;
             }
@@ -345,12 +326,16 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 			char trueFalse[128];		/* Flawfinder: ignore */
 			trueFalse[0] = '\0';
 
-			F32 loop_in = 0.f;
-			F32 loop_out = 1.f;
+            // At this point we don't have mDuration, so mLoopInPoint and mLoopOutPoint
+            // are read and set between 0 and 1
+            mLoopInPoint = 0.f;
+            mLoopOutPoint = 1.f;
 
-			if ( sscanf(mLine, " %*s = %f %f", &loop_in, &loop_out) == 2 )
+			if ( sscanf(mLine, " %*s = %f %f", &mLoopInPoint, &mLoopOutPoint) == 2 )
 			{
-				mLoop = TRUE;
+                mLoopInPoint = llclampf(mLoopInPoint);                          // Clamp between 0 and 1
+                mLoopOutPoint = llclamp(mLoopOutPoint, mLoopInPoint, 1.f);
+                mLoop = (mLoopOutPoint > mLoopInPoint);
 			}
 			else if ( sscanf(mLine, " %*s = %127s", trueFalse) == 1 )	/* Flawfinder: ignore */
 			{
@@ -360,9 +345,6 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 			{
 				return E_ST_NO_XLT_LOOP;
 			}
-
-			mLoopInPoint = loop_in * mDuration;
-			mLoopOutPoint = loop_out * mDuration;
 
 			continue;
 		}
@@ -410,7 +392,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 
 		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "constraint")==0)
 		{
-			Constraint constraint;
+			LLAnimConstraint constraint;
 
 			// try reading optional target direction
 			if(sscanf( /* Flawfinder: ignore */
@@ -470,7 +452,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 
 		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "planar_constraint")==0)
 		{
-			Constraint constraint;
+			LLAnimConstraint constraint;
 
 			// try reading optional target direction
 			if(sscanf( /* Flawfinder: ignore */
@@ -532,73 +514,271 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 	return E_ST_OK;
 }
 
+static S32 test_transform_chain = 3;
 
-void LLBVHLoader::makeTranslation(std::string alias_name, std::string joint_name)
+static std::string test_joint_chain[] =
 {
-    Translation &newTrans = mTranslations[ alias_name ];  //Uses []'s implicit call to ctor.
+    std::string("RightArm"),
+    std::string("RightForeArm"),
+    std::string("RightHand"),
+    std::string("")         // end marker
+};
+
+static bool joint_in_test(const std::string & joint_name, const std::string & alias_name)
+{
+    if (test_transform_chain < 0)       // set -1 to transform all joints (original behavior)
+        return true;
+
+    for (S32 test_index = 0; test_index < test_transform_chain; test_index++)
+    {
+        if (test_joint_chain[test_index].length() == 0)
+            break;
+        if (joint_name == test_joint_chain[test_index] ||
+            alias_name == test_joint_chain[test_index])
+            return true;
+    }
+    return false;
+}
+
+void LLBVHLoader::selectTransformMatrix(const std::string & in_name, LLAnimTranslation & translation)
+{   // Select the transform for coordinate system matching
+
+    // Transform matrix numbers can be identified by a basic index starting at zero,
+    // or a 3 digit number like the default identity 421.   This digit is the value
+    // of the 3 vectors in the matrix if you read XYZ as 100, 010, 001, etc
+
+    // 421 No change as default
+    LLVector3 vect1(1, 0, 0);   // 4  x -> x
+    LLVector3 vect2(0, 1, 0);   // 2  y -> y
+    LLVector3 vect3(0, 0, 1);   // 1  z -> z
+
+    static S32 test_transform = 999;
+
+    S32 use_transform = mTransformType;
+    if (mSkeletonType == "mixamo")
+    {
+        if (joint_in_test(in_name, translation.mOutName))
+        {
+            use_transform = test_transform;
+        }
+    }
+    else if (use_transform != 2 && use_transform != 214)
+    {
+        LL_WARNS("BVH") << "Using non-standard transform matrix " << use_transform << " for importing SL skeleton animation, this may cause issues."
+            << "  Try changing debug setting AnimationImportTransform to the default 2" << LL_ENDL;
+    }
+
+    // development code - clean this up when fully working
+    LL_DEBUGS("BVH") << "transform matrix " << use_transform << " for " << translation.mOutName << LL_ENDL;
+    switch (use_transform)
+    {
+        case 0:     // 421 default - no change
+        case 421:
+            break;
+        case 1:     // 412 test
+        case 412:
+            vect1.set(1, 0, 0); // x -> x
+            vect2.set(0, 0, 1); // z -> y
+            vect3.set(0, 1, 0); // y -> z
+            break;
+        case 2:     // 214 Original bvh importer
+        case 214:
+            vect1.set(0, 1, 0); // y -> x
+            vect2.set(0, 0, 1); // z -> y
+            vect3.set(1, 0, 0); // x -> z
+            break;
+        case 3:     // 241 Mixamo test 1
+        case 241:
+            vect1.set(0, 1, 0); // y -> x
+            vect2.set(1, 0, 0); // x -> y
+            vect3.set(0, 0, 1); // z -> z
+            break;
+        case 4:     // 124
+        case 124:
+            vect1.set(0, 0, 1); // z -> x
+            vect2.set(0, 1, 0); // y -> y
+            vect3.set(1, 0, 0); // x -> z
+            break;
+        case 5:     // 142
+        case 142:
+            vect1.set(0, 0, 1); // z -> x
+            vect2.set(1, 0, 0); // x -> y
+            vect3.set(0, 1, 0); // y -> z
+            break;
+
+        // experiments
+        case 6:     // 444  x everywhere
+        case 444:
+            vect1.set(1, 0, 0); // x -> x
+            vect2.set(1, 0, 0); // x -> y
+            vect3.set(1, 0, 0); // x -> z
+            break;
+        case 7:     // 222  y everywhere
+        case 222:
+            vect1.set(0, 1, 0); // x -> x
+            vect2.set(0, 1, 0); // x -> y
+            vect3.set(0, 1, 0); // x -> z
+            break;
+        case 8:     // 111  z everywhere
+        case 111:
+            vect1.set(0, 0, 1); // z -> x
+            vect2.set(0, 0, 1); // z -> y
+            vect3.set(0, 0, 1); // z -> z
+            break;
+        case 999:   // 000
+            vect1.set(0, 0, 0); // zero it out
+            vect2.set(0, 0, 0); // zero it out
+            vect3.set(0, 0, 0); // zero it out
+            break;
+        default:
+            break;
+    }
+
+    translation.mFrameMatrix.setRows(vect1, vect2, vect3);
+}
+
+void LLBVHLoader::makeTranslation(const std::string & alias_name, const std::string & joint_name)
+{
+
+    // Access existing value or create new - uses []'s implicit call to ctor.
+    LLAnimTranslation &newTrans = mTranslations[ alias_name ];
+    if (newTrans.mOutName.length() > 0)
+    {   // Don't expect to have one already - clean up anim.ini?
+        LL_WARNS("BVH") << "Replacing joint translation " << alias_name
+            << ", existing output name " << newTrans.mOutName << ", new " << joint_name
+            << ".   Check anim.ini ?" << LL_ENDL;
+    }
 
     newTrans.mOutName = joint_name;
-    LLMatrix3 fm;
-
-    LLVector3 vect1(0, 1, 0);
-    LLVector3 vect2(0, 0, 1);
-    LLVector3 vect3(1, 0, 0);
-
- ///  LLVector3 vect1 = vector_list[vector_index1];
- //   LLVector3 vect2 = vector_list[vector_index2];
- //   LLVector3 vect3 = vector_list[vector_index3];
-
-    fm.setRows(vect1, vect2, vect3);
-
-    newTrans.mFrameMatrix = fm;
+    // Note - can't call selectTransformMatrix() here because mSkeletonType isn't detected yet
 
     if (joint_name == "mPelvis")
     {
-        newTrans.mRelativePositionKey = TRUE;
-        newTrans.mRelativeRotationKey = TRUE;
+        newTrans.mRelativePositionKey = true;
+        newTrans.mRelativeRotationKey = true;
     }
     else if (joint_name == "ignore")
-    {
+    {   // This won't be included in output
         newTrans.mIgnore = true;
         newTrans.mIgnorePositions = true;
     }
 }
 
 
-void LLBVHLoader::dumpBVHInfo()
+// hack data
+void LLBVHLoader::tweakJointData(LLAnimJointVector & joints)
 {
-	for (U32 j=0; j<mJoints.size(); j++)
-	{
-		Joint *joint = mJoints[j];
-		LL_DEBUGS("BVHDump") << joint->mName << LL_ENDL;
-		for (S32 i=0; i<mNumFrames; i++)        // This is a LOT of data
-		{
-            if (i<joint->mKeys.size()) // Check this in case file load failed.
+    static bool enable_joint_tweaks = true;
+
+    if (mSkeletonType != "mixamo")
+        return;
+
+    if (enable_joint_tweaks)
+    {
+        for (U32 j = 0; j < joints.size(); j++)
+        {
+            LLAnimJoint *joint = joints[j];
+            if (joint_in_test(joint->mName, joint->mOutName))
             {
-                Key &prevkey = joint->mKeys[llmax(i-1,0)];
-                Key &key = joint->mKeys[i];
-                if ((i==0) ||
+                LL_DEBUGS("BVH") << "No debug tweaks for " << joint->mName << "/" << joint->mOutName << " data" << LL_ENDL;
+            }
+            else
+            {
+                LL_DEBUGS("BVH") << "Zeroing all rotations for " << joint->mName << "/" << joint->mOutName << LL_ENDL;
+                for (S32 i = 0; i < mNumFrames; i++)        // This is a LOT of data
+                {
+                    if (i < joint->mKeys.size())    // Check this in case file load failed.
+                    {
+                        LLAnimKey &key = joint->mKeys[i];
+                        key.mRot[0] = 0;
+                        key.mRot[1] = 0;
+                        key.mRot[2] = 0;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void LLBVHLoader::dumpJointInfo(LLAnimJointVector & joints)
+{
+    LL_DEBUGS("BVHDump") << "mNumFrames " << mNumFrames << LL_ENDL;
+    LL_DEBUGS("BVHDump") << "mFrameTime " << mFrameTime << LL_ENDL;
+    LL_DEBUGS("BVHDump") << "Num joints " << mJoints.size() << LL_ENDL;
+
+    for (U32 j = 0; j < joints.size(); j++)
+	{
+		LLAnimJoint *joint = joints[j];
+        std::string joint_name_info(joint->mName);
+        if (joint_name_info != joint->mOutName)
+        {
+            joint_name_info.append(" -> ");
+            joint_name_info.append(joint->mOutName);
+        }
+		LL_DEBUGS("BVHDump") << joint_name_info << " : "
+            << (joint->mIgnore ? " Ignored " : "")
+            << (joint->mIgnorePositions ? " Ignore Positions " : "")
+            << (joint->mRelativePositionKey ? " Relative Positions " : "")
+            << (joint->mRelativeRotationKey ? " Relative Rotations " : "")
+            << " order " << std::string(&joint->mOrder[0])
+            << ", " << joint->mNumPosKeys << " positions, "
+            << joint->mNumRotKeys << " rotations, "
+            << "child tree max depth " << joint->mChildTreeMaxDepth
+            << ", priority " << joint->mPriority
+            << ", channels " << joint->mNumChannels
+            << LL_ENDL;
+
+        bool dump_all_keys = true;
+        S32 skipped_joints = 0;
+		for (S32 i = 0; i < mNumFrames; i++)        // This is a LOT of data
+		{
+            if (i < joint->mKeys.size()) // Check this in case file load failed.
+            {
+                LLAnimKey &prevkey = joint->mKeys[llmax(i-1,0)];
+                LLAnimKey &key = joint->mKeys[i];
+                if (dump_all_keys ||
+                    (i == 0) ||
                     (key.mPos[0] != prevkey.mPos[0]) ||
                     (key.mPos[1] != prevkey.mPos[1]) ||
                     (key.mPos[2] != prevkey.mPos[2]) ||
                     (key.mRot[0] != prevkey.mRot[0]) ||
                     (key.mRot[1] != prevkey.mRot[1]) ||
-                    (key.mRot[2] != prevkey.mRot[2])
-                    )
+                    (key.mRot[2] != prevkey.mRot[2]) ||
+                    (key.mIgnorePos != prevkey.mIgnorePos) ||
+                    (key.mIgnoreRot != prevkey.mIgnoreRot) )
                 {
-                    LL_DEBUGS("BVHDump") << "FRAME " << i
-                                     << " POS " << key.mPos[0] << "," << key.mPos[1] << "," << key.mPos[2]
-                                     << " ROT " << key.mRot[0] << "," << key.mRot[1] << "," << key.mRot[2] << LL_ENDL;
+                    if (joint->mIgnorePositions)
+                    {   // no position, just rotation data
+                        LL_DEBUGS("BVHDump") << "  Frame " << i
+                            << (key.mIgnoreRot ? " Ignore Rot " : "")
+                            << " rot " << key.mRot[0] << "," << key.mRot[1] << "," << key.mRot[2] << LL_ENDL;
+                    }
+                    else
+                    {   // Have both rotation and position
+                        LL_DEBUGS("BVHDump") << "  Frame " << i
+                            << (key.mIgnorePos ? " Ignore Pos " : "")
+                            << (key.mIgnoreRot ? " Ignore Rot " : "")
+                            << " pos " << key.mPos[0] << "," << key.mPos[1] << "," << key.mPos[2]
+                            << " rot " << key.mRot[0] << "," << key.mRot[1] << "," << key.mRot[2] << LL_ENDL;
+                    }
                 }
             }
+            else
+            {
+                skipped_joints++;
+            }
 		}
-	}
-
+        if (skipped_joints > 0)
+        {
+            LL_DEBUGS("BVHDump") << "  Skipped " << skipped_joints << " identical joints for " << joint->mName << "/" << joint->mOutName << LL_ENDL;
+        }
+    }
 }
 
 //------------------------------------------------------------------------
 // LLBVHLoader::loadBVHFile()
 //------------------------------------------------------------------------
+#if (0)
 ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &err_line)
 {
 	std::string line;
@@ -627,44 +807,34 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 
 	if ( !strstr(line.c_str(), "HIERARCHY") )
 	{
-//		LL_INFOS() << line << LL_ENDL;
+//		LL_INFOS("BVH") << line << LL_ENDL;
 		return E_ST_NO_HIER;
 	}
 
-	//--------------------------------------------------------------------
-	// consume joints
-	//--------------------------------------------------------------------
-	while (TRUE)
+	// consume joints until everything makes sense
+	while (true)
 	{
-		//----------------------------------------------------------------
 		// get next line
-		//----------------------------------------------------------------
 		if (iter == tokens.end())
 			return E_ST_EOF;
 		line = (*(iter++));
 		err_line++;
 
-		//----------------------------------------------------------------
 		// consume }
-		//----------------------------------------------------------------
 		if ( strstr(line.c_str(), "}") )
-		{
+		{   // end of joint definition
 			if (parent_joints.size() > 0)
-			{
+			{   // step back one level of parent joint chain
 				parent_joints.pop_back();
 			}
 			continue;
 		}
 
-		//----------------------------------------------------------------
-		// if MOTION, break out
-		//----------------------------------------------------------------
+		// if MOTION, break out - done with joint HIERARCHY
 		if ( strstr(line.c_str(), "MOTION") )
 			break;
 
-		//----------------------------------------------------------------
-		// it must be either ROOT or JOINT or EndSite
-		//----------------------------------------------------------------
+		// Should be either ROOT or JOINT or End Site
 		if ( strstr(line.c_str(), "ROOT") )
 		{
 		}
@@ -672,14 +842,14 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 		{
 		}
 		else if ( strstr(line.c_str(), "End Site") )
-		{
+		{   // first skip OFFSET
 			iter++; // {
 			iter++; //     OFFSET
 			iter++; // }
 			S32 depth = 0;
 			for (S32 j = (S32)parent_joints.size() - 1; j >= 0; j--)
 			{
-				Joint *joint = mJoints[parent_joints[j]];
+				LLAnimJoint *joint = mJoints[parent_joints[j]];
 				if (depth > joint->mChildTreeMaxDepth)
 				{
 					joint->mChildTreeMaxDepth = depth;
@@ -694,9 +864,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 			return E_ST_NO_JOINT;
 		}
 
-		//----------------------------------------------------------------
-		// get the joint name
-		//----------------------------------------------------------------
+		// ROOT or JOINT:  Get the joint name
 		char jointName[80];	/* Flawfinder: ignore */
 		if ( sscanf(line.c_str(), "%*s %79s", jointName) != 1 )	/* Flawfinder: ignore */
 		{
@@ -704,16 +872,20 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 			return E_ST_NO_NAME;
 		}
 
-		//---------------------------------------------------------------
-		// we require the root joint be "hip" - DEV-26188
-		//---------------------------------------------------------------
+		// Require the root joint be "hip" or an recognized alias
         if (mJoints.size() == 0 )
         {
+            // Use 'Hips' to identify Mixamo skeleton bvh file.
+            if (strcmp(jointName, "Hips") == 0)
+            {
+                LL_INFOS("BVH") << "Detected Mixamo Hips root name in " << mFilenameAndPath << LL_ENDL;
+            }
+
             //The root joint of the BVH file must be hip (mPelvis) or an alias of mPelvis.
             const char* FORCED_ROOT_NAME = "hip";
 
-            TranslationMap::iterator hip_joint = mTranslations.find( FORCED_ROOT_NAME );
-            TranslationMap::iterator root_joint = mTranslations.find( jointName );
+            LLAnimTranslationMap::iterator hip_joint = mTranslations.find( FORCED_ROOT_NAME );
+            LLAnimTranslationMap::iterator root_joint = mTranslations.find( jointName );
             if ( hip_joint == mTranslations.end() || root_joint == mTranslations.end() || root_joint->second.mOutName != hip_joint->second.mOutName )
             {
                 strncpy(error_text, line.c_str(), 127);	/* Flawfinder: ignore */
@@ -721,19 +893,17 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
             }
         }
 
-		//----------------------------------------------------------------
 		// add a set of keyframes for this joint
-		//----------------------------------------------------------------
-		mJoints.push_back( new Joint( jointName ) );
-		Joint *joint = mJoints.back();
-		LL_DEBUGS("BVH") << "Created joint " << jointName << LL_ENDL;
-		LL_DEBUGS("BVH") << "- index " << mJoints.size()-1 << LL_ENDL;
+		mJoints.push_back( new LLAnimJoint( jointName ) );
+		LLAnimJoint *joint = mJoints.back();
+		LL_DEBUGS("BVH") << "Created joint " << jointName << " at index " << mJoints.size()-1 
+            << " parent depth " << (S32)parent_joints.size() << LL_ENDL;
 
 		S32 depth = 1;
 		for (S32 j = (S32)parent_joints.size() - 1; j >= 0; j--)
 		{
-			Joint *pjoint = mJoints[parent_joints[j]];
-			LL_DEBUGS("BVH") << "- ancestor " << pjoint->mName << LL_ENDL;
+			LLAnimJoint *pjoint = mJoints[parent_joints[j]];
+			LL_DEBUGS("BVH") << "- ancestor is " << pjoint->mName << " at depth " << j << LL_ENDL;
 			if (depth > pjoint->mChildTreeMaxDepth)
 			{
 				pjoint->mChildTreeMaxDepth = depth;
@@ -741,9 +911,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 			depth++;
 		}
 
-		//----------------------------------------------------------------
-		// get next line
-		//----------------------------------------------------------------
+		// Get next line
 		if (iter == tokens.end())
 		{
 			return E_ST_EOF;
@@ -751,9 +919,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 		line = (*(iter++));
 		err_line++;
 
-		//----------------------------------------------------------------
 		// it must be {
-		//----------------------------------------------------------------
 		if ( !strstr(line.c_str(), "{") )
 		{
 			strncpy(error_text, line.c_str(), 127);		/*Flawfinder: ignore*/
@@ -764,9 +930,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 			parent_joints.push_back((S32)mJoints.size() - 1);
 		}
 
-		//----------------------------------------------------------------
-		// get next line
-		//----------------------------------------------------------------
+		// Get next line
 		if (iter == tokens.end())
 		{
 			return E_ST_EOF;
@@ -774,18 +938,14 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 		line = (*(iter++));
 		err_line++;
 
-		//----------------------------------------------------------------
-		// it must be OFFSET
-		//----------------------------------------------------------------
+		// it must be OFFSET - ignore it
 		if ( !strstr(line.c_str(), "OFFSET") )
 		{
 			strncpy(error_text, line.c_str(), 127);		/*Flawfinder: ignore*/
 			return E_ST_NO_OFFSET;
 		}
 
-		//----------------------------------------------------------------
 		// get next line
-		//----------------------------------------------------------------
 		if (iter == tokens.end())
 		{
 			return E_ST_EOF;
@@ -793,9 +953,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 		line = (*(iter++));
 		err_line++;
 
-		//----------------------------------------------------------------
 		// it must be CHANNELS
-		//----------------------------------------------------------------
 		if ( !strstr(line.c_str(), "CHANNELS") )
 		{
 			strncpy(error_text, line.c_str(), 127);		/*Flawfinder: ignore*/
@@ -803,7 +961,9 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 		}
 
         // Animating position (via mNumChannels = 6) is only supported for mPelvis.
-		int res = sscanf(line.c_str(), " CHANNELS %d", &joint->mNumChannels);
+        // CHANNELS 6 Xposition Yposition Zposition Yrotation Xrotation Zrotation
+        // CHANNELS 3 Yrotation Xrotation Zrotation
+        int res = sscanf(line.c_str(), " CHANNELS %d", &joint->mNumChannels);
 		if ( res != 1 )
 		{
 			// Assume default if not otherwise specified.
@@ -817,9 +977,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 			}
 		}
 
-		//----------------------------------------------------------------
 		// get rotation order
-		//----------------------------------------------------------------
 		const char *p = line.c_str();
 		for (S32 i=0; i<3; i++)
 		{
@@ -830,6 +988,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 				return E_ST_NO_ROTATION;
 			}
 
+            // Extract axis from char before 'rotation':    Yrotation Xrotation Zrotation
 			const char axis = *(p - 1);
 			if ((axis != 'X') && (axis != 'Y') && (axis != 'Z'))
 			{
@@ -839,22 +998,18 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 
 			joint->mOrder[i] = axis;
 
-			p++;
+			p += 8;     // skip past the current "rotation" for the next strstr() scan
 		}
-	}
+	}   // end loop scanning "HIERARCHY"
 
-	//--------------------------------------------------------------------
-	// consume motion
-	//--------------------------------------------------------------------
+	// Consume MOTION
 	if ( !strstr(line.c_str(), "MOTION") )
 	{
 		strncpy(error_text, line.c_str(), 127);		/*Flawfinder: ignore*/
 		return E_ST_NO_MOTION;
 	}
 
-	//--------------------------------------------------------------------
-	// get number of frames
-	//--------------------------------------------------------------------
+	// Get number of frames
 	if (iter == tokens.end())
 	{
 		return E_ST_EOF;
@@ -863,7 +1018,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 	err_line++;
 
 	if ( !strstr(line.c_str(), "Frames:") )
-	{
+	{   // Must have "Frames:"
 		strncpy(error_text, line.c_str(), 127);	/*Flawfinder: ignore*/
 		return E_ST_NO_FRAMES;
 	}
@@ -874,9 +1029,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 		return E_ST_NO_FRAMES;
 	}
 
-	//--------------------------------------------------------------------
-	// get frame time
-	//--------------------------------------------------------------------
+	// Get frame time
 	if (iter == tokens.end())
 	{
 		return E_ST_EOF;
@@ -896,8 +1049,8 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 		return E_ST_NO_FRAME_TIME;
 	}
 
-	// If the user only supplies one animation frame (after the ignored reference frame 0), hold for mFrameTime.
-	// If the user supples exactly one total frame, it isn't clear if that is a pose or reference frame, and the
+	// If the file only supplies one animation frame (after the ignored reference frame 0), hold for mFrameTime.
+	// If the file supples exactly one total frame, it isn't clear if that is a pose or reference frame, and the
 	// behavior is not defined. In this case, retain historical undefined behavior.
 	mDuration = llmax((F32)(mNumFrames - NUMBER_OF_UNPLAYED_FRAMES), 1.0f) * mFrameTime;
 	if (!mLoop)
@@ -939,12 +1092,12 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
             }
             float_token_iter++;
 		}
-		LL_DEBUGS("BVHFloats") << "Got " << floats.size() << " floats " << LL_ENDL;     // This is a lot of data
+		LL_DEBUGS("BVHFloats") << "Got " << floats.size() << " floats " << LL_ENDL;     // This is a lot of useless log data
 		for (U32 j=0; j<mJoints.size(); j++)
 		{
-			Joint *joint = mJoints[j];
+			LLAnimJoint *joint = mJoints[j];
 			joint->mKeys.push_back( Key() );
-			Key &key = joint->mKeys.back();
+			LLAnimKey &key = joint->mKeys.back();
 
 			if (floats.size() < joint->mNumChannels)
 			{
@@ -970,42 +1123,44 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 
 	return E_ST_OK;
 }
-
+#endif
 
 //------------------------------------------------------------------------
 // LLBVHLoader::applyTranslation()
 //------------------------------------------------------------------------
 void LLBVHLoader::applyTranslations()
 {
-	JointVector::iterator ji;
-	for (ji = mJoints.begin(); ji != mJoints.end(); ++ji )
+    // First calculate the translations mFrameMatrix values
+    for (auto tmi = mTranslations.begin(); tmi != mTranslations.end(); ++tmi)
+    {
+        selectTransformMatrix(tmi->first, tmi->second);
+    }
+
+
+	for (auto ji = mJoints.begin(); ji != mJoints.end(); ++ji )
 	{
-		Joint *joint = *ji;
-		//----------------------------------------------------------------
-		// Look for a translation for this joint.
+		LLAnimJoint *joint = *ji;
+
+        // Look for a translation for this joint.
 		// If none, skip to next joint
-		//----------------------------------------------------------------
-		TranslationMap::iterator ti = mTranslations.find( joint->mName );
-		if ( ti == mTranslations.end() )
+		LLAnimTranslationMap::iterator tmi = mTranslations.find( joint->mName );
+		if (tmi == mTranslations.end())
 		{
-			continue;
+            LL_DEBUGS("BVH") << "No translation to apply for " << joint->mName << LL_ENDL;
+            continue;
 		}
 
-		Translation &trans = ti->second;
+        LLAnimTranslation &trans = tmi->second;
 
-		//----------------------------------------------------------------
 		// Set the ignore flag if necessary
-		//----------------------------------------------------------------
 		if ( trans.mIgnore )
 		{
-            LL_DEBUGS("BVH") << "Ignoring BVH joint " << joint->mName.c_str() << LL_ENDL;
-			joint->mIgnore = TRUE;
+            LL_DEBUGS("BVH") << "Ignoring animation joint " << joint->mName << LL_ENDL;
+			joint->mIgnore = true;
 			continue;
 		}
 
-		//----------------------------------------------------------------
 		// Set the output name
-		//----------------------------------------------------------------
 		if ( ! trans.mOutName.empty() )
 		{
             LL_DEBUGS("BVH") << "Replacing joint name " << joint->mName.c_str() << " with translation " << trans.mOutName.c_str() << LL_ENDL;
@@ -1013,25 +1168,23 @@ void LLBVHLoader::applyTranslations()
 		}
 
         //Allow joint position changes as of SL-318
-        joint->mIgnorePositions = FALSE;
+        joint->mIgnorePositions = false;
         if (joint->mNumChannels == 3)
         {
-            joint->mIgnorePositions = TRUE;
+            joint->mIgnorePositions = true;
         }
 
-		//----------------------------------------------------------------
-		// Set the relativepos flags if necessary
-		//----------------------------------------------------------------
+		// Set the relative position and rotation flags if necessary
 		if ( trans.mRelativePositionKey )
 		{
 			LL_DEBUGS("BVH") << "Removing 1st position offset from all keys for " << joint->mOutName.c_str() << LL_ENDL;
-			joint->mRelativePositionKey = TRUE;
+			joint->mRelativePositionKey = true;
 		}
 
 		if ( trans.mRelativeRotationKey )
 		{
             LL_DEBUGS("BVH") << "Replacing 1st rotation from all keys for " << joint->mOutName.c_str() << LL_ENDL;
-			joint->mRelativeRotationKey = TRUE;
+			joint->mRelativeRotationKey = true;
 		}
 
 		if ( trans.mRelativePosition.magVec() > 0.0f )
@@ -1045,15 +1198,11 @@ void LLBVHLoader::applyTranslations()
 				joint->mOutName.c_str() << LL_ENDL;
 		}
 
-		//----------------------------------------------------------------
 		// Set change of coordinate frame
-		//----------------------------------------------------------------
 		joint->mFrameMatrix = trans.mFrameMatrix;
 		joint->mOffsetMatrix = trans.mOffsetMatrix;
 
-		//----------------------------------------------------------------
 		// Set mergeparent name
-		//----------------------------------------------------------------
 		if ( ! trans.mMergeParentName.empty() )
 		{
 			LL_DEBUGS("BVH") << "Merging "  << joint->mOutName.c_str() <<
@@ -1061,9 +1210,7 @@ void LLBVHLoader::applyTranslations()
 			joint->mMergeParentName = trans.mMergeParentName;
 		}
 
-		//----------------------------------------------------------------
 		// Set mergechild name
-		//----------------------------------------------------------------
 		if ( ! trans.mMergeChildName.empty() )
 		{
 			LL_DEBUGS("BVH") << "Merging " << joint->mName.c_str() <<
@@ -1071,11 +1218,8 @@ void LLBVHLoader::applyTranslations()
 			joint->mMergeChildName = trans.mMergeChildName;
 		}
 
-		//----------------------------------------------------------------
 		// Set joint priority
-		//----------------------------------------------------------------
 		joint->mPriority = mPriority + trans.mPriorityModifier;
-
 	}
 }
 
@@ -1092,12 +1236,11 @@ void LLBVHLoader::optimize()
 		mEaseOut *= factor;
 	}
 
-	JointVector::iterator ji;
-	for (ji = mJoints.begin(); ji != mJoints.end(); ++ji)
+	for (auto ji = mJoints.begin(); ji != mJoints.end(); ++ji)
 	{
-		Joint *joint = *ji;
-		BOOL pos_changed = FALSE;
-		BOOL rot_changed = FALSE;
+		LLAnimJoint *joint = *ji;
+		bool pos_changed = false;
+		bool rot_changed = false;
 
 		if ( ! joint->mIgnore )
 		{
@@ -1105,44 +1248,44 @@ void LLBVHLoader::optimize()
 			joint->mNumRotKeys = 0;
 			LLQuaternion::Order order = bvhStringToOrder( joint->mOrder );
 
-			KeyVector::iterator first_key = joint->mKeys.begin();
+			LLAnimKeyVector::iterator first_key = joint->mKeys.begin();
 
 			// no keys?
 			if (first_key == joint->mKeys.end())
 			{
-				joint->mIgnore = TRUE;
+				joint->mIgnore = true;
 				continue;
 			}
 
 			LLVector3 first_frame_pos(first_key->mPos);
 			LLQuaternion first_frame_rot = mayaQ( first_key->mRot[0], first_key->mRot[1], first_key->mRot[2], order);
-	
+
 			// skip first key
-			KeyVector::iterator ki = joint->mKeys.begin();
+			LLAnimKeyVector::iterator ki = joint->mKeys.begin();
 			if (joint->mKeys.size() == 1)
 			{
 				// *FIX: use single frame to move pelvis
 				// if only one keyframe force output for this joint
-				rot_changed = TRUE;
+				rot_changed = true;
 			}
 			else
 			{
 				// if more than one keyframe, use first frame as reference and skip to second
-				first_key->mIgnorePos = TRUE;
-				first_key->mIgnoreRot = TRUE;
+				first_key->mIgnorePos = true;
+				first_key->mIgnoreRot = true;
 				++ki;
 			}
 
-			KeyVector::iterator ki_prev = ki;
-			KeyVector::iterator ki_last_good_pos = ki;
-			KeyVector::iterator ki_last_good_rot = ki;
+			LLAnimKeyVector::iterator ki_prev = ki;
+			LLAnimKeyVector::iterator ki_last_good_pos = ki;
+			LLAnimKeyVector::iterator ki_last_good_rot = ki;
 			S32 numPosFramesConsidered = 2;
 			S32 numRotFramesConsidered = 2;
 
 			F32 rot_threshold = ROTATION_KEYFRAME_THRESHOLD / llmax((F32)joint->mChildTreeMaxDepth * 0.33f, 1.f);
 
 			double diff_max = 0;
-			KeyVector::iterator ki_max = ki;
+			LLAnimKeyVector::iterator ki_max = ki;
 			for (; ki != joint->mKeys.end(); ++ki)
 			{
 				if (ki_prev == ki_last_good_pos)
@@ -1150,7 +1293,7 @@ void LLBVHLoader::optimize()
 					joint->mNumPosKeys++;
 					if (dist_vec_squared(LLVector3(ki_prev->mPos), first_frame_pos) > POSITION_MOTION_THRESHOLD_SQUARED)
 					{
-						pos_changed = TRUE;
+						pos_changed = true;
 					}
 				}
 				else
@@ -1163,12 +1306,12 @@ void LLBVHLoader::optimize()
 
 					if (dist_vec_squared(current_pos, first_frame_pos) > POSITION_MOTION_THRESHOLD_SQUARED)
 					{
-						pos_changed = TRUE;
+						pos_changed = true;
 					}
 
 					if (dist_vec_squared(interp_pos, test_pos) < POSITION_KEYFRAME_THRESHOLD_SQUARED)
 					{
-						ki_prev->mIgnorePos = TRUE;
+						ki_prev->mIgnorePos = true;
 						numPosFramesConsidered++;
 					}
 					else
@@ -1189,7 +1332,7 @@ void LLBVHLoader::optimize()
 
 					if (rot_test > ROTATION_MOTION_THRESHOLD)
 					{
-						rot_changed = TRUE;
+						rot_changed = true;
 					}
 				}
 				else
@@ -1203,7 +1346,7 @@ void LLBVHLoader::optimize()
 					F32 x_delta;
 					F32 y_delta;
 					F32 rot_test;
-					
+
 					// Test if the rotation has changed significantly since the very first frame.  If false
 					// for all frames, then we'll just throw out this joint's rotation entirely.
 					x_delta = dist_vec(LLVector3::x_axis * first_frame_rot, LLVector3::x_axis * test_rot);
@@ -1211,7 +1354,7 @@ void LLBVHLoader::optimize()
 					rot_test = x_delta + y_delta;
 					if (rot_test > ROTATION_MOTION_THRESHOLD)
 					{
-						rot_changed = TRUE;
+						rot_changed = true;
 					}
 					x_delta = dist_vec(LLVector3::x_axis * interp_rot, LLVector3::x_axis * test_rot);
 					y_delta = dist_vec(LLVector3::y_axis * interp_rot, LLVector3::y_axis * test_rot);
@@ -1233,9 +1376,9 @@ void LLBVHLoader::optimize()
 						// because it's significantly faster.
 						if (diff_max > 0)
 						{
-							if (ki_max->mIgnoreRot == TRUE)
+							if (ki_max->mIgnoreRot == true)
 							{
-								ki_max->mIgnoreRot = FALSE;
+								ki_max->mIgnoreRot = false;
 								joint->mNumRotKeys++;
 							}
 							diff_max = 0;
@@ -1244,7 +1387,7 @@ void LLBVHLoader::optimize()
 					else
 					{
 						// This keyframe isn't significant enough, throw it away.
-						ki_prev->mIgnoreRot = TRUE;
+						ki_prev->mIgnoreRot = true;
 						numRotFramesConsidered++;
 						// Store away the keyframe that has the largest deviation from the interpolated line, for insertion later.
 						if (rot_test > diff_max)
@@ -1264,7 +1407,7 @@ void LLBVHLoader::optimize()
 		{
 			LL_DEBUGS("BVH") << "Loader ignoring joint " << joint->mName
                 << " due to no change" << LL_ENDL;
-			joint->mIgnore = TRUE;
+			joint->mIgnore = true;
 		}
 	}   // end big loop for each joint
 }
@@ -1277,40 +1420,49 @@ void LLBVHLoader::reset()
 	mDuration = 0.0f;
 
 	mPriority = 2;
-	mLoop = FALSE;
+	mLoop = false;
 	mLoopInPoint = 0.f;
-	mLoopOutPoint = 0.f;
+	mLoopOutPoint = 1.f;
 	mEaseIn = 0.3f;
 	mEaseOut = 0.3f;
 	mHand = 1;
-	mInitialized = FALSE;
+	mInitialized = false;
 
 	mEmoteName = "";
 	mLineNumber = 0;
 	mTranslations.clear();
 	mConstraints.clear();
+    mSkeletonType = "SL";
+    mTransformType = 214;
+
+    if (mAssimpImporter)
+    {
+        delete mAssimpImporter;
+        mAssimpImporter = nullptr;
+    }
+    mAssimpScene = nullptr;
 }
 
 //------------------------------------------------------------------------
 // LLBVHLoader::getLine()
 //------------------------------------------------------------------------
-BOOL LLBVHLoader::getLine(apr_file_t* fp)
+bool LLBVHLoader::getLine(apr_file_t* fp)
 {
 	if (apr_file_eof(fp) == APR_EOF)
 	{
-		return FALSE;
+		return false;
 	}
 	if ( apr_file_gets(mLine, BVH_PARSER_LINE_SIZE, fp) == APR_SUCCESS)
 	{
 		mLineNumber++;
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 // returns required size of output buffer
-U32 LLBVHLoader::getOutputSize()
+S32 LLBVHLoader::getOutputSize()
 {   // Note - the default LLDataPackerBinaryBuffer constructor doesn't allocate
     // a buffer for data.   Thus the serialize() call will not actually write data
     // anywhere, but instead moves a pointer starting from 0 and in the end getCurrentSize()
@@ -1322,17 +1474,15 @@ U32 LLBVHLoader::getOutputSize()
 }
 
 // writes contents to datapacker
-BOOL LLBVHLoader::serialize(LLDataPacker& dp)
+bool LLBVHLoader::serialize(LLDataPacker& dp)
 {
-	JointVector::iterator ji;
-	KeyVector::iterator ki;
 	F32 time;
 
 	// count number of non-ignored joints
 	S32 numJoints = 0;
-	for (ji=mJoints.begin(); ji!=mJoints.end(); ++ji)
+	for (auto ji = mJoints.begin(); ji != mJoints.end(); ++ji)
 	{
-		Joint *joint = *ji;
+		LLAnimJoint *joint = *ji;
 		if ( ! joint->mIgnore )
 			numJoints++;
 	}
@@ -1351,17 +1501,17 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 	dp.packU32(mHand, "hand_pose");
 	dp.packU32(numJoints, "num_joints");
 
-	for (	ji = mJoints.begin();
+	for (auto ji = mJoints.begin();
 			ji != mJoints.end();
 			++ji )
 	{
-		Joint *joint = *ji;
+		LLAnimJoint *joint = *ji;
 		// if ignored, skip it
 		if ( joint->mIgnore )
 			continue;
 
 		LLQuaternion first_frame_rot;
-		LLQuaternion fixup_rot;
+		//LLQuaternion fixup_rot;  not used?
 
 		dp.packString(joint->mOutName, "joint_name");
 		dp.packS32(joint->mPriority, "joint_priority");
@@ -1375,20 +1525,19 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 		// find mergechild and mergeparent joints, if specified
 		LLQuaternion mergeParentRot;
 		LLQuaternion mergeChildRot;
-		Joint *mergeParent = NULL;
-		Joint *mergeChild = NULL;
+		LLAnimJoint *mergeParent = NULL;
+		LLAnimJoint *mergeChild = NULL;
 
-		JointVector::iterator mji;
-		for (mji=mJoints.begin(); mji!=mJoints.end(); ++mji)
+		for (auto merge_joint_iter = mJoints.begin(); merge_joint_iter != mJoints.end(); ++merge_joint_iter)
 		{
-			Joint *mjoint = *mji;
+			LLAnimJoint *mjoint = *merge_joint_iter;
 			if ( !joint->mMergeParentName.empty() && (mjoint->mName == joint->mMergeParentName) )
 			{
-				mergeParent = *mji;
+				mergeParent = *merge_joint_iter;
 			}
 			if ( !joint->mMergeChildName.empty() && (mjoint->mName == joint->mMergeChildName) )
 			{
-				mergeChild = *mji;
+				mergeChild = *merge_joint_iter;
 			}
 		}
 
@@ -1397,7 +1546,7 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 		LLQuaternion::Order order = bvhStringToOrder( joint->mOrder );
 		S32 outcount = 0;
 		S32 frame = 0;
-		for (	ki = joint->mKeys.begin();
+		for ( auto ki = joint->mKeys.begin();
 				ki != joint->mKeys.end();
 				++ki )
 		{
@@ -1405,8 +1554,7 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 			if ((frame == 0) && joint->mRelativeRotationKey)
 			{
 				first_frame_rot = mayaQ( ki->mRot[0], ki->mRot[1], ki->mRot[2], order);
-				
-				fixup_rot.shortestArc(LLVector3::z_axis * first_frame_rot * frameRot, LLVector3::z_axis);
+				//fixup_rot.shortestArc(LLVector3::z_axis * first_frame_rot * frameRot, LLVector3::z_axis);
 			}
 
 			if (ki->mIgnoreRot)
@@ -1441,7 +1589,6 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 				LLQuaternion childFrameRot( mergeChild->mFrameMatrix );
 				LLQuaternion childOffsetRot( mergeChild->mOffsetMatrix );
 				mergeChildRot = ~childFrameRot * mergeChildRot * childFrameRot * childOffsetRot;
-				
 			}
 			else
 			{
@@ -1466,7 +1613,7 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 			outcount++;
 			frame++;
 		}
-		
+
 		// output position keys if joint has motion.
         if ( !joint->mIgnorePositions )
 		{
@@ -1476,7 +1623,7 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 			LLVector3 relKey;
 
 			frame = 0;
-			for (	ki = joint->mKeys.begin();
+			for (auto ki = joint->mKeys.begin();
 					ki != joint->mKeys.end();
 					++ki )
 			{
@@ -1493,7 +1640,7 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 
 				time = llmax((F32)(frame - NUMBER_OF_IGNORED_FRAMES_AT_START), 0.0f) * mFrameTime; // Time elapsed before this frame starts.
 
-				LLVector3 inPos = (LLVector3(ki->mPos) - relKey) * ~first_frame_rot;// * fixup_rot;
+				LLVector3 inPos = (LLVector3(ki->mPos) - relKey) * ~first_frame_rot;        // * fixup_rot;
 				LLVector3 outPos = inPos * frameRot * offsetRot;
 
 				outPos *= INCHES_TO_METERS;
@@ -1526,13 +1673,13 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 	S32 num_constraints = (S32)mConstraints.size();
 	dp.packS32(num_constraints, "num_constraints");
 
-	for (ConstraintVector::iterator constraint_it = mConstraints.begin();
+	for (auto constraint_it = mConstraints.begin();
 		constraint_it != mConstraints.end();
 		constraint_it++)
 		{
 			U8 byte = constraint_it->mChainLength;
 			dp.packU8(byte, "chain_length");
-			
+
 			byte = constraint_it->mConstraintType;
 			dp.packU8(byte, "constraint_type");
 			dp.packBinaryDataFixed((U8*)constraint_it->mSourceJointName, 16, "source_volume");
@@ -1546,6 +1693,354 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 			dp.packF32(constraint_it->mEaseOutStop,	"ease_out_stop");
 		}
 
-	
-	return TRUE;
+		return true;
 }
+
+
+//-----------------------------------------------------------------------------
+// Test code - poke into assimp scene and look at the animation data
+//-----------------------------------------------------------------------------
+static const S32 MAX_ASSIMP_KEYS = 100;
+
+static bool dump_key_data = true;
+
+void LLBVHLoader::dumpAssimpAnimationQuatKeys(aiQuatKey * quat_keys, S32 count, llofstream & data_stream)
+{
+    if (!dump_key_data)
+        return;
+
+    for (S32 index = 0; index < count; index++)
+    {
+        const aiQuatKey & cur_quat = quat_keys[index];
+        LLQuaternion ll_quat(cur_quat.mValue.x, cur_quat.mValue.y, cur_quat.mValue.z, cur_quat.mValue.w);
+        F32 roll, pitch, yaw;
+        ll_quat.getEulerAngles(&roll, &pitch, &yaw);
+
+        data_stream << "       tick: " << cur_quat.mTime
+            << "  <" << cur_quat.mValue.w
+            << ",  " << cur_quat.mValue.x
+            << ",  " << cur_quat.mValue.y
+            << ",  " << cur_quat.mValue.z << ">"
+            << " or euler: " << roll << ", " << pitch << ", " << yaw
+            << " (" << roll * RAD_TO_DEG << ", " << pitch * RAD_TO_DEG << ", " << yaw * RAD_TO_DEG << ") degrees"
+            << std::endl;
+
+        if (index >= MAX_ASSIMP_KEYS)
+            break;
+    }
+}
+
+void LLBVHLoader::dumpAssimpAnimationVectorKeys(aiVectorKey * vector_keys, S32 count, llofstream & data_stream)
+{
+    if (!dump_key_data)
+        return;
+
+    for (S32 index = 0; index < count; index++)
+    {
+        const aiVectorKey & cur_vector = vector_keys[index];
+        data_stream << "       tick: " << cur_vector.mTime
+            << "  <" << cur_vector.mValue.x
+            << ",  " << cur_vector.mValue.y
+            << ",  " << cur_vector.mValue.z << ">" << std::endl;
+
+        if (index >= MAX_ASSIMP_KEYS)
+            break;
+    }
+}
+
+void LLBVHLoader::dumpAssimpAnimationChannels(aiAnimation * cur_animation, llofstream & data_stream)
+{
+    for (S32 index = 0; index < cur_animation->mNumChannels; index++)
+    {
+        aiNodeAnim * cur_node = cur_animation->mChannels[index];
+        if (cur_node && cur_node->mNodeName.C_Str())
+        {
+            std::string node_name(cur_node->mNodeName.C_Str());
+            data_stream << "    Node name: " << node_name << std::endl;
+            data_stream << "      mNumPositionKeys: " << (S32)(cur_node->mNumPositionKeys) << " for " << node_name << std::endl;
+            if (cur_node->mNumPositionKeys > 0)
+            {
+                dumpAssimpAnimationVectorKeys(cur_node->mPositionKeys, cur_node->mNumPositionKeys, data_stream);
+            }
+            data_stream << "      mNumRotationKeys: " << (S32)(cur_node->mNumRotationKeys) << " for " << node_name << std::endl;
+            if (cur_node->mNumRotationKeys > 0)
+            {
+                dumpAssimpAnimationQuatKeys(cur_node->mRotationKeys, cur_node->mNumRotationKeys, data_stream);
+            }
+            if (cur_node->mNumScalingKeys > 0)
+            {   // see if scaling keys has anything interesting
+                bool show_details = false;
+                for (S32 scale_index = 0; scale_index < cur_node->mNumScalingKeys; scale_index++)
+                {
+                    const aiVectorKey & cur_vector = cur_node->mScalingKeys[scale_index];
+                    if (cur_vector.mValue.x != 1 ||
+                        cur_vector.mValue.y != 1 ||
+                        cur_vector.mValue.z != 1)
+                    {
+                        show_details = true;
+                        break;
+                    }
+                }
+
+                if (show_details)
+                {
+                    data_stream << "      mNumScalingKeys: " << (S32)(cur_node->mNumScalingKeys) << " for " << node_name << std::endl;
+                    dumpAssimpAnimationVectorKeys(cur_node->mScalingKeys, cur_node->mNumScalingKeys, data_stream);
+                }
+                else
+                {
+                    data_stream << "      mNumScalingKeys: " << (S32)(cur_node->mNumScalingKeys) << " for " << node_name
+                        << " all <1,  1,  1>" << std::endl;
+                }
+            }
+            else
+            {   // no scaling keys
+                data_stream << "      mNumScalingKeys: 0 for " << node_name << std::endl;
+            }
+        }
+        else
+        {
+            data_stream << "    Unexpected missing aiNodeAnim channel " << index << std::endl;
+            break;
+        }
+    }
+}
+
+void LLBVHLoader::dumpAssimpAnimations(llofstream & data_stream)
+{
+    aiAnimation * cur_animation = mAssimpScene->mAnimations[0];     // to do - support extracting Nth animation ?
+    if (cur_animation)
+    {
+        if (cur_animation->mName.C_Str())
+        {
+            std::string animation_name(cur_animation->mName.C_Str());
+            data_stream << "  Animation name: " << animation_name << std::endl;
+        }
+        else
+        {
+            data_stream << "  No animation name" << std::endl;
+        }
+        data_stream << "  Animation duration " << cur_animation->mDuration
+            << " ticks, running at " << cur_animation->mTicksPerSecond << " per second for "
+            << (cur_animation->mDuration / cur_animation->mTicksPerSecond) << " seconds"
+            << std::endl;
+
+        data_stream << "  Animation mNumChannels " << cur_animation->mNumChannels << std::endl;
+        data_stream << "  Animation mNumMeshChannels " << cur_animation->mNumMeshChannels << std::endl;
+        data_stream << "  Animation mNumMorphMeshChannels " << cur_animation->mNumMorphMeshChannels << std::endl;
+
+        if (cur_animation->mNumChannels > 0)
+        {
+            dumpAssimpAnimationChannels(cur_animation, data_stream);
+        }
+    }
+    else
+    {
+        LL_WARNS("Assimp") << "Unexpected missing animation data" << LL_ENDL;
+    }
+}
+
+void LLBVHLoader::dumpAssimp()
+{
+    // Make a file stream so we can write data
+    std::string assimp_data_name(mFilenameAndPath);
+    assimp_data_name.append(".data");
+    llofstream data_stream(assimp_data_name.c_str());
+    if (!data_stream.is_open())
+    {
+        LL_WARNS("Assimp") << "Failed to open file for data stream " << assimp_data_name << LL_ENDL;
+        return;
+    }
+    LL_INFOS("Assimp") << "Writing data file " << assimp_data_name << LL_ENDL;
+
+
+    data_stream << "Assimp scene data read from " << mFilenameAndPath << std::endl;
+    data_stream << "Time: " << LLDate::now() << std::endl;
+    data_stream << std::endl;
+
+    data_stream << "mNumAnimations: " << (S32)(mAssimpScene->mNumAnimations) << std::endl;
+    data_stream << "mNumSkeletons: " << (S32)(mAssimpScene->mNumSkeletons) << std::endl;
+    data_stream << "mNumMeshes: " << (S32)(mAssimpScene->mNumMeshes) << std::endl;
+    data_stream << "mNumMaterials: " << (S32)(mAssimpScene->mNumMaterials) << std::endl;
+    data_stream << "mNumTextures: " << (S32)(mAssimpScene->mNumTextures) << std::endl;
+    data_stream << "mNumLights: " << (S32)(mAssimpScene->mNumLights) << std::endl;
+    data_stream << "mNumCameras: " << (S32)(mAssimpScene->mNumCameras) << std::endl;
+
+    if (mAssimpScene->mNumAnimations == 1)
+    {
+        dumpAssimpAnimations(data_stream);
+    }
+}
+
+ELoadStatus LLBVHLoader::loadAssimp()
+{
+    using namespace Assimp;
+
+    if (mAssimpImporter)
+    {
+        LL_WARNS("Assimp") << "Already have unexpected importer when loading assimp" << LL_ENDL;
+        return E_ST_INTERNAL_ERROR;
+    }
+    if (mAssimpScene)
+    {
+        LL_WARNS("Assimp") << "Already have unexpected scene when loading assimp" << LL_ENDL;
+        return E_ST_INTERNAL_ERROR;
+    }
+
+    // Create a logger instance.   To do - remove eventually?
+    std::string assimp_log_name(mFilenameAndPath);
+    assimp_log_name.append(".log");
+    Assimp::DefaultLogger::create(assimp_log_name.c_str(), Logger::VERBOSE);
+    LL_INFOS("Assimp") << "Writing log file " << assimp_log_name << LL_ENDL;
+
+    // Test
+    DefaultLogger::get()->info("SL assimp animation loading logging");
+    try
+    {
+        // Create an instance of the Asset Importer class
+        mAssimpImporter = new Assimp::Importer;
+
+        // And have it read the given file with some example postprocessing
+        // Usually - if speed is not the most important aspect for you - you'll
+        // probably to request more postprocessing than we do in this example.
+
+        LL_INFOS("Assimp") << "Loading BVH file into Assimp Importer " << mFilenameAndPath << LL_ENDL;
+        mAssimpScene = mAssimpImporter->ReadFile(mFilenameAndPath,
+            //aiProcess_CalcTangentSpace |
+            aiProcess_Triangulate |
+            aiProcess_JoinIdenticalVertices |
+            aiProcess_SortByPType);
+
+        // Check if the import failed
+        if (mAssimpScene == nullptr)
+        {
+            LL_WARNS("Assimp") << "Unable to read and create Assimp scene from " << mFilenameAndPath << LL_ENDL;
+        }
+        extractJointsFromAssimp();
+    }
+    catch (...)
+    {   // to do - some better handling / alert to user?
+        LL_WARNS("Assimp") << "Unhandled exception trying to use Assimp asset import library" << LL_ENDL;
+    }
+
+    // Get rid of assimp logger
+    DefaultLogger::kill();
+
+    return E_ST_OK;
+}
+
+void LLBVHLoader::extractJointsFromAssimp()
+{
+    if (!mAssimpScene)
+    {
+        LL_WARNS("Assimp") << "No assimp scene, can't extract joint animations" << LL_ENDL;
+        return;     // to do - add errors
+    }
+    if (mAssimpScene->mNumAnimations == 0)
+    {
+        LL_WARNS("Assimp") << "No assimp animations, can't extract joints" << LL_ENDL;
+        return;
+    }
+
+    aiAnimation * cur_animation = mAssimpScene->mAnimations[0];     // to do - support extracting Nth animation ?
+    if (cur_animation)
+    {
+        LL_INFOS("Assimp") << "assimp data duration " << cur_animation->mDuration << " vs. mNumFrames " << mNumFrames << LL_ENDL;
+
+        mNumFrames = cur_animation->mDuration + 1;
+        if (cur_animation->mTicksPerSecond <= 0.0)
+        {   // Play it safe
+            cur_animation->mTicksPerSecond = 1.0;
+        }
+        mFrameTime = (F32)(1.0 / cur_animation->mTicksPerSecond);
+
+        // Copied from original BVH code:
+        // If the file only supplies one animation frame (after the ignored reference frame 0), hold for mFrameTime.
+        // If the file supples exactly one total frame, it isn't clear if that is a pose or reference frame, and the
+        // behavior is not defined. In this case, retain historical undefined behavior.
+        mDuration = llmax((F32)(mNumFrames - NUMBER_OF_UNPLAYED_FRAMES), 1.0f) * mFrameTime;
+        if (mLoop)
+        {
+            mLoopInPoint *= mDuration;
+            mLoopOutPoint *= mDuration;
+        }
+        else
+        {
+            mLoopInPoint = 0.f;
+            mLoopOutPoint = mDuration;
+        }
+
+        // Extract nodes into mJoints
+        for (S32 node_index = 0; node_index < cur_animation->mNumChannels; node_index++)
+        {
+            aiNodeAnim * cur_node = cur_animation->mChannels[node_index];
+            if (cur_node && cur_node->mNodeName.C_Str())
+            {
+                std::string node_name(cur_node->mNodeName.C_Str());
+
+                // Special filter for mixamo fbx format ... joints will look like "mixamorig:Hips"
+                if (node_name.find("mixamorig:") == 0)
+                {
+                    LL_DEBUGS("Assimp") << "Converting mixamo joint name " << node_name << " to " << node_name.substr(10) << LL_ENDL;
+                    node_name = node_name.substr(10);
+                }
+
+                if (node_name == "Hips")
+                {
+                    LL_INFOS("BVH") << "Detected mixamo style Hips, using that skeleton type" << LL_ENDL;
+                    mSkeletonType = "mixamo";
+                }
+
+                mJoints.push_back(new LLAnimJoint(node_name));
+                LLAnimJoint *joint = mJoints.back();
+                LL_DEBUGS("Assimp") << "Created joint " << node_name << " at index " << mJoints.size() - 1 << LL_ENDL;
+
+                joint->mNumChannels = (node_index == 0) ? 6 : 3;
+
+                // To do - Can we figure out mChildTreeMaxDepth ?   It's used only for some threshold calculations about
+                // detectable movement, but without it there may be a behavior change
+
+                joint->mOrder[0] = 'X';
+                joint->mOrder[1] = 'Y';
+                joint->mOrder[2] = 'Z';
+
+                // Add all animations frames
+                for (S32 key_index = 0; key_index < cur_node->mNumRotationKeys; key_index++)
+                {
+                    joint->mKeys.push_back(LLAnimKey());
+                    LLAnimKey &key = joint->mKeys.back();
+
+                    const aiQuatKey & cur_quat = cur_node->mRotationKeys[key_index];
+                    LLQuaternion ll_quat(cur_quat.mValue.x, cur_quat.mValue.y, cur_quat.mValue.z, cur_quat.mValue.w);
+                    F32 roll, pitch, yaw;
+                    ll_quat.getEulerAngles(&roll, &pitch, &yaw);
+                    key.mRot[0] = roll * RAD_TO_DEG;
+                    key.mRot[1] = pitch * RAD_TO_DEG;
+                    key.mRot[2] = yaw * RAD_TO_DEG;
+
+                    if (joint->mNumChannels == 6 &&
+                        key_index < cur_node->mNumPositionKeys)
+                    {
+                        const aiVectorKey & cur_vector = cur_node->mPositionKeys[key_index];
+                        key.mPos[0] = cur_vector.mValue.x;
+                        key.mPos[1] = cur_vector.mValue.y;
+                        key.mPos[2] = cur_vector.mValue.z;
+                    }
+                }
+            }
+            else
+            {
+                LL_WARNS("Assimp") << "Unexpected missing aiNodeAnim channel " << node_index << LL_ENDL;
+                return;
+            }
+        }
+
+        tweakJointData(mJoints);
+
+        LL_INFOS("Assimp") << "Extracted " << mJoints.size() << " animation joints from assimp"
+            << ", using " << mSkeletonType << " skeleton" << LL_ENDL;
+        dumpJointInfo(mJoints);
+    }
+}
+
+void            detectSkeletonType();           // Scan scene, detect skeleton type and adjust translations

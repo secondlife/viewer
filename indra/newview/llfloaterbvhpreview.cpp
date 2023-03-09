@@ -57,6 +57,7 @@
 #include "lltoolmgr.h"
 #include "llui.h"
 #include "llviewercamera.h"
+#include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "llviewerwindow.h"
 #include "llviewermenufile.h"	// upload_new_resource()
@@ -64,11 +65,6 @@
 #include "pipeline.h"
 #include "lluictrlfactory.h"
 #include "lltrans.h"
-
-#include <assimp/DefaultLogger.hpp>
-#include <assimp/Importer.hpp>      // C++ importer interface
-#include <assimp/scene.h>           // Output data structure
-#include <assimp/postprocess.h>     // Post processing flags
 
 const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
@@ -117,7 +113,8 @@ std::string STATUS[] =
 	"E_ST_NO_XLT_EASEOUT",
 	"E_ST_NO_XLT_HAND",
 	"E_ST_NO_XLT_EMOTE",
-"E_ST_BAD_ROOT"
+    "E_ST_BAD_ROOT",
+    "E_ST_INTERNAL_ERROR"
 };
 
 //-----------------------------------------------------------------------------
@@ -174,7 +171,7 @@ void LLFloaterBvhPreview::setAnimCallbacks()
 	getChild<LLUICtrl>("loop_out_point")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateLoopOut, this, _1));
 
 	getChild<LLUICtrl>("hand_pose_combo")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitHandPose, this));
-	
+
 	getChild<LLUICtrl>("emote_combo")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitEmote, this));
 	getChild<LLUICtrl>("emote_combo")->setValue("[None]");
 
@@ -184,155 +181,12 @@ void LLFloaterBvhPreview::setAnimCallbacks()
 	getChild<LLUICtrl>("ease_out_time")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateEaseOut, this, _1));
 }
 
-std::map <std::string, std::string> LLFloaterBvhPreview::getJointAliases()
+const joint_alias_map_t & LLFloaterBvhPreview::getAnimationJointAliases()
 {
     LLPointer<LLVOAvatar> av = (LLVOAvatar*)mAnimPreview->getDummyAvatar();
     return av->getJointAliases();
 }
 
-
-//-----------------------------------------------------------------------------
-// Test code - poke into assimp scene and look at the animation data
-//-----------------------------------------------------------------------------
-static const S32 MAX_ASSIMP_KEYS = 100;
-
-static bool dump_key_data = true;
-
-static void DumpAssimpAnimationQuatKeys(aiQuatKey * quat_keys, S32 count, llofstream & data_stream)
-{
-    if (!dump_key_data)
-        return;
-
-    for (S32 index = 0; index < count; index++)
-    {
-        const aiQuatKey & cur_quat = quat_keys[index];
-        data_stream << "       tick: " << cur_quat.mTime
-                    << "  <  " << cur_quat.mValue.w
-                    << ",  " << cur_quat.mValue.x
-                    << ",  " << cur_quat.mValue.y
-                    << ",  " << cur_quat.mValue.z << " >" << std::endl;
-
-        if (index >= MAX_ASSIMP_KEYS)
-            break;
-    }
-}
-
-static void DumpAssimpAnimationVectorKeys(aiVectorKey * vector_keys, S32 count, llofstream & data_stream)
-{
-    if (!dump_key_data)
-        return;
-
-    for (S32 index = 0; index < count; index++)
-    {
-        const aiVectorKey & cur_vector = vector_keys[index];
-        data_stream << "       tick: " << cur_vector.mTime
-                    << "  <  " << cur_vector.mValue.x
-                    << ",  " << cur_vector.mValue.y
-                    << ",  " << cur_vector.mValue.z << " >" << std::endl;
-
-        if (index >= MAX_ASSIMP_KEYS)
-            break;
-    }
-}
-
-static void DumpAssimpAnimationChannels(aiAnimation * cur_animation, llofstream & data_stream)
-{
-    for (S32 index = 0; index < cur_animation->mNumChannels; index++)
-    {
-        aiNodeAnim * cur_node = cur_animation->mChannels[index];
-        if (cur_node && cur_node->mNodeName.C_Str())
-        {
-            std::string node_name(cur_node->mNodeName.C_Str());
-            data_stream << "    Node name: " << node_name << std::endl;
-            data_stream << "      mNumPositionKeys: " << (S32)(cur_node->mNumPositionKeys) << " for " << node_name << std::endl;
-            if (cur_node->mNumPositionKeys > 0)
-            {
-                DumpAssimpAnimationVectorKeys(cur_node->mPositionKeys, cur_node->mNumPositionKeys, data_stream);
-            }
-            data_stream << "      mNumRotationKeys: " << (S32)(cur_node->mNumRotationKeys) << " for " << node_name << std::endl;
-            if (cur_node->mNumRotationKeys > 0)
-            {
-                DumpAssimpAnimationQuatKeys(cur_node->mRotationKeys, cur_node->mNumRotationKeys, data_stream);
-            }
-            data_stream << "      mNumScalingKeys: " << (S32)(cur_node->mNumScalingKeys) << " for " << node_name << std::endl;
-            if (cur_node->mNumScalingKeys > 0)
-            {
-                DumpAssimpAnimationVectorKeys(cur_node->mScalingKeys, cur_node->mNumScalingKeys, data_stream);
-            }
-        }
-        else
-        {
-            data_stream << "    Unexpected missing aiNodeAnim channel " << index << std::endl;
-            break;
-        }
-    }
-}
-
-static void DumpAssimpAnimations(const aiScene* scene, llofstream & data_stream)
-{
-    aiAnimation * cur_animation = scene->mAnimations[0];
-    if (cur_animation)
-    {
-        if (cur_animation->mName.C_Str())
-        {
-            std::string animation_name(cur_animation->mName.C_Str());
-            data_stream << "  Animation name: " << animation_name << std::endl;
-        }
-        else
-        {
-            data_stream << "  No animation name" << std::endl;
-        }
-        data_stream << "  Animation duration " << cur_animation->mDuration
-            << " ticks, running at " << cur_animation->mTicksPerSecond << " per second for "
-            << (cur_animation->mDuration / cur_animation->mTicksPerSecond) << " seconds"
-            << std::endl;
-
-        data_stream << "  Animation mNumChannels " << cur_animation->mNumChannels << std::endl;
-        data_stream << "  Animation mNumMeshChannels " << cur_animation->mNumMeshChannels << std::endl;
-        data_stream << "  Animation mNumMorphMeshChannels " << cur_animation->mNumMorphMeshChannels << std::endl;
-
-        if (cur_animation->mNumChannels > 0)
-        {
-            DumpAssimpAnimationChannels(cur_animation, data_stream);
-        }
-    }
-    else
-    {
-        LL_WARNS("Assimp") << "Unexpected missing animation data" << LL_ENDL;
-    }
-}
-
-static void DumpAssimp(const aiScene* scene, const std::string & filename)
-{
-    // Make a file stream so we can write data
-    std::string assimp_data_name(filename);
-    assimp_data_name.append(".data");
-    llofstream data_stream(assimp_data_name.c_str());
-    if (!data_stream.is_open())
-    {
-        LL_WARNS("Assimp") << "Failed to open file for data stream " << assimp_data_name << LL_ENDL;
-        return;
-    }
-    LL_INFOS("Assimp") << "Writing data file " << assimp_data_name << LL_ENDL;
-
-
-    data_stream << "Assimp scene data read from " << filename << std::endl;
-    data_stream << "Time: " << LLDate::now() << std::endl;
-    data_stream << std::endl;
-
-    data_stream << "mNumAnimations: " << (S32)(scene->mNumAnimations) << std::endl;
-    data_stream << "mNumSkeletons: " << (S32)(scene->mNumSkeletons) << std::endl;
-    data_stream << "mNumMeshes: " << (S32)(scene->mNumMeshes) << std::endl;
-    data_stream << "mNumMaterials: " << (S32)(scene->mNumMaterials) << std::endl;
-    data_stream << "mNumTextures: " << (S32)(scene->mNumTextures) << std::endl;
-    data_stream << "mNumLights: " << (S32)(scene->mNumLights) << std::endl;
-    data_stream << "mNumCameras: " << (S32)(scene->mNumCameras) << std::endl;
-
-    if (scene->mNumAnimations == 1)
-    {
-        DumpAssimpAnimations(scene, data_stream);
-    }
-}
 
 
 
@@ -342,7 +196,6 @@ static void DumpAssimp(const aiScene* scene, const std::string & filename)
 BOOL LLFloaterBvhPreview::postBuild()
 {
 	LLKeyframeMotion* motionp = NULL;
-	LLBVHLoader* loaderp = NULL;
 
 	if (!LLFloaterNameDesc::postBuild())
 	{
@@ -354,9 +207,9 @@ BOOL LLFloaterBvhPreview::postBuild()
 	childSetAction("ok_btn", onBtnOK, this);
 	setDefaultBtn();
 
-	mPreviewRect.set(PREVIEW_HPAD, 
+	mPreviewRect.set(PREVIEW_HPAD,
 		PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD,
-		getRect().getWidth() - PREVIEW_HPAD, 
+		getRect().getWidth() - PREVIEW_HPAD,
 		PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 	mPreviewImageRect.set(0.f, 1.f, 1.f, 0.f);
 
@@ -367,63 +220,21 @@ BOOL LLFloaterBvhPreview::postBuild()
 	mPauseButton = getChild<LLButton>( "pause_btn");
 	mPauseButton->setClickedCallback(boost::bind(&LLFloaterBvhPreview::onBtnPause, this));
 	mPauseButton->setVisible(false);
-	
+
 	mStopButton = getChild<LLButton>( "stop_btn");
 	mStopButton->setClickedCallback(boost::bind(&LLFloaterBvhPreview::onBtnStop, this));
 
 	getChildView("bad_animation_text")->setVisible(FALSE);
 
     mAnimPreview = new LLPreviewAnimation(256, 256);
-    
+
 	std::string exten = gDirUtilp->getExtension(mFilename);
-	if (exten == "bvh")
+
+    LLBVHLoader loader;
+
+	if (exten == "bvh" || exten == "fbx")
 	{
-
-        using namespace Assimp;
-
-        // Create a logger instance
-        std::string assimp_log_name(mFilenameAndPath);
-        assimp_log_name.append(".log");
-        Assimp::DefaultLogger::create(assimp_log_name.c_str(), Logger::VERBOSE);
-        LL_INFOS("Assimp") << "Writing log file " << assimp_log_name << LL_ENDL;
-
-        // Test
-        DefaultLogger::get()->info("SL assimp animation loading logging");
-        {
-            // Create an instance of the Asset Importer class
-            Assimp::Importer importer;
-
-            // And have it read the given file with some example postprocessing
-            // Usually - if speed is not the most important aspect for you - you'll
-            // probably to request more postprocessing than we do in this example.
-
-            LL_INFOS("Assimp") << "Loading BVH file into Assimp Importer " << mFilenameAndPath << LL_ENDL;
-            const aiScene* scene = importer.ReadFile(mFilenameAndPath,
-                aiProcess_CalcTangentSpace |
-                aiProcess_Triangulate |
-                aiProcess_JoinIdenticalVertices |
-                aiProcess_SortByPType);
-
-            // Check if the import failed
-            if (scene == nullptr)
-            {
-                LL_WARNS("Assimp") << "Unable to read and create Assimp scene from " << mFilenameAndPath << LL_ENDL;
-            }
-            else
-            {
-                // Process the assimp data
-                DumpAssimp(scene, mFilenameAndPath);
-
-                //DoTheSceneProcessing(scene);
-            }
-        }   // assimp importer out of scope, destructor called here
-        // Get rid of assimp logger
-        DefaultLogger::kill();
-
-
-// Continue with original bvh loading code
-
-		// now load bvh file
+		// now load animation file
 		S32 file_size;
 
 		LLAPRFile infile ;
@@ -431,7 +242,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 
 		if (!infile.getFileHandle())
 		{
-			LL_WARNS() << "Can't open BVH file:" << mFilename << LL_ENDL;	
+            LL_WARNS("BVH") << "Can't open animation file:" << mFilenameAndPath << LL_ENDL;
 		}
 		else
 		{
@@ -441,24 +252,28 @@ BOOL LLFloaterBvhPreview::postBuild()
 
 			if (file_size == infile.read(file_buffer, file_size))
 			{
-				file_buffer[file_size] = '\0';
-				LL_INFOS() << "Loading BVH file " << mFilename << LL_ENDL;
-				ELoadStatus load_status = E_ST_OK;
-				S32 line_number = 0;
+                LL_INFOS("BVH") << "Loading animation file " << mFilename << LL_ENDL;
 
-                std::map<std::string, std::string> joint_alias_map = getJointAliases();
+                file_buffer[file_size] = '\0';
+                S32 line_number = 0;
+                const joint_alias_map_t & joint_alias_map = getAnimationJointAliases();
 
-				loaderp = new LLBVHLoader(file_buffer, load_status, line_number, joint_alias_map);
-				std::string status = getString(STATUS[load_status]);
+                // Read and parse the animation file into internal joint data
+                loader.loadAnimationData(file_buffer, line_number, joint_alias_map, mFilenameAndPath, gSavedSettings.getS32("AnimationImportTransform"));
+                ELoadStatus load_status = loader.getStatus();
 
 				if(load_status == E_ST_NO_XLT_FILE)
 				{
-					LL_WARNS() << "NOTE: No translation table found." << LL_ENDL;
+					LL_WARNS("BVH") << "NOTE: No translation table found." << LL_ENDL;
 				}
-				else
+				else if (load_status != E_ST_OK)
 				{
-					LL_WARNS() << "ERROR: [line: " << line_number << "] " << status << LL_ENDL;
+                    LL_WARNS("BVH") << "ERROR loading animation file: [line: " << line_number << "] " << getString(STATUS[load_status]) << LL_ENDL;
 				}
+                else
+                {
+                    LL_INFOS("BVH") << "Animation file " << mFilenameAndPath << " loaded OK" << LL_ENDL;
+                }
 			}
 
 			infile.close() ;
@@ -466,7 +281,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 		}
 	}
 
-	if (loaderp && loaderp->isInitialized() && loaderp->getDuration() <= MAX_ANIM_DURATION)
+	if (loader.isInitialized() && loader.getDuration() <= MAX_ANIM_DURATION)
 	{
 		// generate unique id for this motion
 		mTransactionID.generate();
@@ -478,19 +293,20 @@ BOOL LLFloaterBvhPreview::postBuild()
 		motionp = (LLKeyframeMotion*)mAnimPreview->getDummyAvatar()->createMotion(mMotionID);
 
 		// create data buffer for keyframe initialization
-		S32 buffer_size = loaderp->getOutputSize();
+		S32 buffer_size = loader.getOutputSize();
 		U8* buffer = new U8[buffer_size];
 
 		LLDataPackerBinaryBuffer dp(buffer, buffer_size);
 
 		// Create LLKeyFrameMotion from BVH data by serializing from the file we
         // read into a binary anim format, then deserialize that into a LLKeyFrameMotion object
-		LL_INFOS("BVH") << "Serializing loaderp" << LL_ENDL;
-		loaderp->serialize(dp);
+		LL_INFOS("BVH") << "Serializing from animation loader into motion data" << LL_ENDL;
+		loader.serialize(dp);
 		dp.reset();
-		LL_INFOS("BVH") << "Deserializing motionp" << LL_ENDL;
-		BOOL success = motionp && motionp->deserialize(dp, mMotionID, false);
-		LL_INFOS("BVH") << "Done" << LL_ENDL;
+		LL_INFOS("BVH") << "Deserializing motion into animation data" << LL_ENDL;
+		bool success = motionp && motionp->deserialize(dp, mMotionID, false);
+		LL_INFOS("BVH") << (success ? "Success: " : "Failed")
+            << "Done: output animation data size " << dp.getCurrentSize() << " bytes" << LL_ENDL;
 
 		delete []buffer;
 
@@ -541,21 +357,18 @@ BOOL LLFloaterBvhPreview::postBuild()
 	}
 	else
 	{
-		if ( loaderp )
+		if (loader.getDuration() > MAX_ANIM_DURATION)
 		{
-			if (loaderp->getDuration() > MAX_ANIM_DURATION)
-			{
-				LLUIString out_str = getString("anim_too_long");
-				out_str.setArg("[LENGTH]", llformat("%.1f", loaderp->getDuration()));
-				out_str.setArg("[MAX_LENGTH]", llformat("%.1f", MAX_ANIM_DURATION));
-				getChild<LLUICtrl>("bad_animation_text")->setValue(out_str.getString());
-			}
-			else
-			{
-				LLUIString out_str = getString("failed_file_read");
-				out_str.setArg("[STATUS]", getString(STATUS[loaderp->getStatus()])); 
-				getChild<LLUICtrl>("bad_animation_text")->setValue(out_str.getString());
-			}
+			LLUIString out_str = getString("anim_too_long");
+			out_str.setArg("[LENGTH]", llformat("%.1f", loader.getDuration()));
+			out_str.setArg("[MAX_LENGTH]", llformat("%.1f", MAX_ANIM_DURATION));
+			getChild<LLUICtrl>("bad_animation_text")->setValue(out_str.getString());
+		}
+		else
+		{
+			LLUIString out_str = getString("failed_file_read");
+			out_str.setArg("[STATUS]", getString(STATUS[loader.getStatus()])); 
+			getChild<LLUICtrl>("bad_animation_text")->setValue(out_str.getString());
 		}
 
 		//setEnabled(FALSE);
@@ -564,8 +377,6 @@ BOOL LLFloaterBvhPreview::postBuild()
 	}
 
 	refresh();
-
-	delete loaderp;
 
 	return TRUE;
 }
@@ -1194,7 +1005,8 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 		{
             // Start Test Code
             // Write out a text version of the data for debugging
-            std::string test_file_name("d:\\test_dp.txt");
+            std::string test_file_name(floaterp->mFilenameAndPath);
+            test_file_name.append("-anim.txt");
             LLFILE* test_fp = LLFile::fopen(test_file_name.c_str(), "wb");
             if (test_fp)
             {
@@ -1239,7 +1051,7 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 			}
 			else
 			{
-				LL_WARNS() << "Failure writing animation data." << LL_ENDL;
+				LL_WARNS("BVH") << "Failure writing animation data." << LL_ENDL;
 				LLNotificationsUtil::add("WriteAnimationFail");
 			}
 		}

@@ -151,6 +151,10 @@ Maximum animation length is [MAX_LENGTH] seconds.
      name="E_ST_BAD_ROOT">
         Incorrect root joint name, use "hip".
     </floater.string>
+    <floater.string
+     name="E_ST_INTERNAL_ERROR">
+        Internal importer error.
+    </floater.string>
   <text
      type="string"
      length="1"
