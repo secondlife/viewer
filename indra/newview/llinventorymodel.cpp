@@ -193,6 +193,7 @@ public:
                 titem->unpackMessage(item);
                 LL_DEBUGS("Inventory") << "unpacked item '" << titem->getName() << "' in "
                     << titem->getParentUUID() << LL_ENDL;
+                // callback id might be no longer supported
                 U32 callback_id = item["callback_id"].asInteger();
 
                 if (titem->getUUID().notNull())

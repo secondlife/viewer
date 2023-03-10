@@ -44,6 +44,7 @@
 static const std::string INV_ITEM_ID_LABEL("item_id");
 static const std::string INV_FOLDER_ID_LABEL("cat_id");
 static const std::string INV_PARENT_ID_LABEL("parent_id");
+static const std::string INV_THUMBNAIL_LABEL("thumbnail");
 static const std::string INV_THUMBNAIL_ID_LABEL("thumbnail_id");
 static const std::string INV_ASSET_TYPE_LABEL("type");
 static const std::string INV_PREFERRED_TYPE_LABEL("preferred_type");
@@ -863,6 +864,34 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
 	{
 		mParentUUID = sd[w];
 	}
+    w = INV_THUMBNAIL_LABEL;
+    if (sd.has(w))
+    {
+        LLSD thumbnail_map = sd[w];
+        w = INV_ASSET_ID_LABEL;
+        if (thumbnail_map.has(w))
+        {
+            mThumbnailUUID = thumbnail_map[w];
+        }
+        /*
+            <key> asset_id </key>
+            <uuid> acc0ec86 - 17f2 - 4b92 - ab41 - 6718b1f755f7 </uuid>
+            <key> perms </key>
+            <integer> 8 </integer>
+            <key>service</key>
+            <integer> 3 </integer>
+            <key>version</key>
+            <integer> 1 </key>
+        */
+    }
+    else
+    {
+        w = INV_THUMBNAIL_ID_LABEL;
+        if (sd.has(w))
+        {
+            mThumbnailUUID = sd[w];
+        }
+    }
 	w = INV_PERMISSIONS_LABEL;
 	if (sd.has(w))
 	{
@@ -1071,10 +1100,33 @@ bool LLInventoryCategory::fromLLSD(const LLSD& sd)
     {
         mParentUUID = sd[w];
     }
-    w = INV_THUMBNAIL_ID_LABEL;
+    w = INV_THUMBNAIL_LABEL;
     if (sd.has(w))
     {
-        mThumbnailUUID = sd[w];
+        LLSD thumbnail_map = sd[w];
+        w = INV_ASSET_ID_LABEL;
+        if (thumbnail_map.has(w))
+        {
+            mThumbnailUUID = thumbnail_map[w];
+        }
+        /*
+            <key> asset_id </key>
+            <uuid> acc0ec86 - 17f2 - 4b92 - ab41 - 6718b1f755f7 </uuid>
+            <key> perms </key>
+            <integer> 8 </integer>
+            <key>service</key>
+            <integer> 3 </integer>
+            <key>version</key>
+            <integer> 1 </key>
+        */
+    }
+    else
+    {
+        w = INV_THUMBNAIL_ID_LABEL;
+        if (sd.has(w))
+        {
+            mThumbnailUUID = sd[w];
+        }
     }
     w = INV_ASSET_TYPE_LABEL;
     if (sd.has(w))
