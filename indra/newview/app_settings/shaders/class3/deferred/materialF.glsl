@@ -316,6 +316,7 @@ void main()
     //forward rendering, output lit linear color
     diffcol.rgb = srgb_to_linear(diffcol.rgb);
     spec.rgb = srgb_to_linear(spec.rgb);
+    spec.a = glossiness; // pack glossiness into spec alpha for lighting functions
 
     vec3 pos = vary_position;
 
