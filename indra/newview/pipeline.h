@@ -224,7 +224,6 @@ public:
 		
 	bool		shadersLoaded();
 	bool		canUseWindLightShaders() const;
-	bool		canUseWindLightShadersOnObjects() const;
 	bool		canUseAntiAliasing() const;
 
 	// phases
@@ -421,7 +420,6 @@ public:
 	static void setRenderHighlightTextureChannel(LLRender::eTexIndex channel); // sets which UV setup to display in highlight overlay
 
 	static void updateRenderTransparentWater();
-	static void updateRenderBump();
 	static void refreshCachedSettings();
 
 	void addDebugBlip(const LLVector3& position, const LLColor4& color);
@@ -623,7 +621,6 @@ public:
 	static bool				sAutoMaskAlphaDeferred;
 	static bool				sAutoMaskAlphaNonDeferred;
 	static bool				sRenderTransparentWater;
-	static bool				sRenderBump;
 	static bool				sBakeSunlight;
 	static bool				sNoAlpha;
 	static bool				sUseFarClip;

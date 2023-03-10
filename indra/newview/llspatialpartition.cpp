@@ -3105,7 +3105,8 @@ static void setTextureAreaDebugText(LLDrawable* drawablep)
         {
             std::ostringstream str;
 
-            for (S32 i = 0; i < vobjp->getNumTEs(); ++i)
+            //for (S32 i = 0; i < vobjp->getNumTEs(); ++i)
+            S32 i = 0;
             {
                 if (i < drawablep->getNumFaces())
                 {
@@ -3139,7 +3140,6 @@ static void setTextureAreaDebugText(LLDrawable* drawablep)
 
                     vobjp->setDebugText(str.str());
                 }
-                break;
             }
         }
         else

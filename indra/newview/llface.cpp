@@ -1107,20 +1107,13 @@ bool LLFace::canRenderAsMask()
 		(te->getGlow() == 0.f) && // glowing masks are hard to implement - don't mask
 		getTexture()->getIsAlphaMask()) // texture actually qualifies for masking (lazily recalculated but expensive)
 	{
-		if (LLPipeline::sRenderDeferred)
-		{
-			if (getViewerObject()->isHUDAttachment() || te->getFullbright())
-			{ //hud attachments and fullbright objects are NOT subject to the deferred rendering pipe
-				return LLPipeline::sAutoMaskAlphaNonDeferred;
-			}
-			else
-			{
-				return LLPipeline::sAutoMaskAlphaDeferred;
-			}
+		if (getViewerObject()->isHUDAttachment() || te->getFullbright())
+		{ //hud attachments and fullbright objects are NOT subject to the deferred rendering pipe
+			return LLPipeline::sAutoMaskAlphaNonDeferred;
 		}
 		else
 		{
-			return LLPipeline::sAutoMaskAlphaNonDeferred;
+			return LLPipeline::sAutoMaskAlphaDeferred;
 		}
 	}
 
@@ -1260,19 +1253,10 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 						
 			bool shiny_in_alpha = false;
 			
-			if (LLPipeline::sRenderDeferred)
-			{ //store shiny in alpha if we don't have a specular map
-				if  (!mat || mat->getSpecularID().isNull())
-				{
-					shiny_in_alpha = true;
-				}
-			}
-			else
+			//store shiny in alpha if we don't have a specular map
+			if  (!mat || mat->getSpecularID().isNull())
 			{
-				if (!mat || mat->getDiffuseAlphaMode() != LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
-				{
-					shiny_in_alpha = true;
-				}
+				shiny_in_alpha = true;
 			}
 
 			if (shiny_in_alpha)

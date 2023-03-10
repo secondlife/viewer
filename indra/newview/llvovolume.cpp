@@ -5469,7 +5469,8 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
     llassert(type != LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_RIGGED || info->mGLTFMaterial != nullptr);
     llassert(type != LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK || info->mGLTFMaterial != nullptr);
     llassert(type != LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK_RIGGED || info->mGLTFMaterial != nullptr);
-
+    
+    llassert(type != LLRenderPass::PASS_BUMP || (info->mVertexBuffer->getTypeMask() & LLVertexBuffer::MAP_TANGENT) != 0);
     llassert(type != LLRenderPass::PASS_NORMSPEC || info->mNormalMap.notNull());
 }
 
@@ -5742,7 +5743,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			rigged = rigged || (vobj->isAnimatedObject() && vobj->isRiggedMesh() &&
                 vobj->getControlAvatar() && vobj->getControlAvatar()->mPlaying);
 
-			bool bake_sunlight = LLPipeline::sBakeSunlight && drawablep->isStatic();
 			bool any_rigged_face = false;
 
 			//for each face
@@ -5900,13 +5900,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							facep->mLastUpdateTime = gFrameTimeSeconds;
 						}
 
-						if (gPipeline.canUseWindLightShadersOnObjects()
-							&& LLPipeline::sRenderBump)
 						{
                             LLGLTFMaterial* gltf_mat = te->getGLTFRenderMaterial();
 
-							if (LLPipeline::sRenderDeferred && 
-                                (gltf_mat != nullptr || (te->getMaterialParams().notNull()  && !te->getMaterialID().isNull())))
+							if (gltf_mat != nullptr || (te->getMaterialParams().notNull()  && !te->getMaterialID().isNull()))
 							{
                                 if (gltf_mat != nullptr)
                                 {
@@ -5915,7 +5912,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                                 else
                                 {
                                     LLMaterial* mat = te->getMaterialParams().get();
-                                    if (mat->getNormalID().notNull())
+                                    if (mat->getNormalID().notNull() || // <-- has a normal map, needs tangents
+                                        (te->getBumpmap() && (te->getBumpmap() < 18))) // <-- has an emboss bump map, needs tangents
                                     {
                                         if (mat->getSpecularID().notNull())
                                         { //has normal and specular maps (needs texcoord1, texcoord2, and tangent)
@@ -5941,23 +5939,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                                 add_face(sBumpFaces, bump_count, facep);
 							}
 							else if (te->getShiny() || !te->getFullbright())
-							{ //needs normal
-                                add_face(sSimpleFaces, simple_count, facep);
-							}
-							else 
-							{ //doesn't need normal
-								facep->setState(LLFace::FULLBRIGHT);
-                                add_face(sFullbrightFaces, fullbright_count, facep);
-							}
-						}
-						else
-						{
-							if (te->getBumpmap() && LLPipeline::sRenderBump)
-							{ //needs normal + tangent
-                                add_face(sBumpFaces, bump_count, facep);
-							}
-							else if ((te->getShiny() && LLPipeline::sRenderBump) ||
-								!(te->getFullbright() || bake_sunlight))
 							{ //needs normal
                                 add_face(sSimpleFaces, simple_count, facep);
 							}
@@ -6194,7 +6175,7 @@ struct CompareBatchBreaker
 		{
 			return lte->getFullbright() < rte->getFullbright();
 		}
-        else if (LLPipeline::sRenderDeferred && lte->getMaterialID() != rte->getMaterialID())
+        else if (lte->getMaterialID() != rte->getMaterialID())
         {
             return lte->getMaterialID() < rte->getMaterialID();
         }
@@ -6285,13 +6266,9 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 		texture_index_channels = LLGLSLShader::sIndexedTextureChannels-1; //always reserve one for shiny for now just for simplicity;
 	}
 
-	if (LLPipeline::sRenderDeferred && distance_sort)
+	if (distance_sort)
 	{
 		texture_index_channels = gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels;
-	}
-    
-    if (distance_sort)
-    {
         buffer_index = -1;
     }
 
@@ -6647,6 +6624,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				}
 				else if (use_legacy_bump)
 				{
+                    llassert(mask & LLVertexBuffer::MAP_TANGENT);
 					// we have a material AND legacy bump settings, but no normal map
 					registerFace(group, facep, LLRenderPass::PASS_BUMP);
 				}
@@ -6706,7 +6684,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
 				}
 				else if (gPipeline.shadersLoaded()
-					&& LLPipeline::sRenderBump 
 					&& te->getShiny() 
 					&& can_be_shiny)
 				{
@@ -6741,7 +6718,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				}
 			}
 			else if (gPipeline.shadersLoaded()
-				&& LLPipeline::sRenderBump 
 				&& te->getShiny() 
 				&& can_be_shiny)
 			{ //shiny
@@ -6762,6 +6738,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 					}
 					else if (use_legacy_bump)
 					{ //register in deferred bump pass
+                        llassert(mask& LLVertexBuffer::MAP_TANGENT);
 						registerFace(group, facep, LLRenderPass::PASS_BUMP);
 					}
 					else
@@ -6795,15 +6772,16 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 					{
 						registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
 					}
-					if (!hud_group && LLPipeline::sRenderBump && use_legacy_bump)
+					if (!hud_group && use_legacy_bump)
 					{ //if this is the deferred render and a bump map is present, register in post deferred bump
 						registerFace(group, facep, LLRenderPass::PASS_POST_BUMP);
 					}
 				}
 				else
 				{
-					if (LLPipeline::sRenderDeferred && LLPipeline::sRenderBump && use_legacy_bump)
+					if (use_legacy_bump)
 					{ //non-shiny or fullbright deferred bump
+                        llassert(mask& LLVertexBuffer::MAP_TANGENT);
 						registerFace(group, facep, LLRenderPass::PASS_BUMP);
 					}
 					else
@@ -6823,8 +6801,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				
 				if (!gPipeline.shadersLoaded() && 
 					!is_alpha && 
-					te->getShiny() && 
-					LLPipeline::sRenderBump)
+					te->getShiny())
 				{ //shiny as an extra pass when shaders are disabled
 					registerFace(group, facep, LLRenderPass::PASS_SHINY);
 				}
@@ -6836,8 +6813,9 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				llassert((mask & LLVertexBuffer::MAP_NORMAL) || fullbright);
 				facep->setPoolType((fullbright) ? LLDrawPool::POOL_FULLBRIGHT : LLDrawPool::POOL_SIMPLE);
 				
-				if (!force_simple && LLPipeline::sRenderBump && use_legacy_bump)
+				if (!force_simple && use_legacy_bump)
 				{
+                    llassert(mask & LLVertexBuffer::MAP_TANGENT);
 					registerFace(group, facep, LLRenderPass::PASS_BUMP);
 				}
 			}
