@@ -210,9 +210,9 @@ uniform float minimum_alpha;
 #endif
 
 #ifdef HAS_NORMAL_MAP
-VARYING vec3 vary_mat0;
-VARYING vec3 vary_mat1;
-VARYING vec3 vary_mat2;
+in vec3 vary_normal;
+in vec3 vary_tangent;
+flat in float vary_sign;
 VARYING vec2 vary_texcoord1;
 #else
 VARYING vec3 vary_normal;
@@ -227,14 +227,17 @@ vec2 encode_normal(vec3 n);
 vec3 getNormal(inout float glossiness)
 {
 #ifdef HAS_NORMAL_MAP
-	vec4 norm = texture2D(bumpMap, vary_texcoord1.xy);
-    glossiness *= norm.a;
+	vec4 vNt = texture2D(bumpMap, vary_texcoord1.xy);
+    glossiness *= vNt.a;
+	vNt.xyz = vNt.xyz * 2 - 1;
+    float sign = vary_sign;
+    vec3 vN = vary_normal;
+    vec3 vT = vary_tangent.xyz;
+    
+    vec3 vB = sign * cross(vN, vT);
+    vec3 tnorm = normalize( vNt.x * vT + vNt.y * vB + vNt.z * vN );
 
-	norm.xyz = norm.xyz * 2 - 1;
-
-	return normalize(vec3(dot(norm.xyz,vary_mat0),
-			  dot(norm.xyz,vary_mat1),
-			  dot(norm.xyz,vary_mat2)));
+	return tnorm;
 #else
 	return normalize(vary_normal);
 #endif
