@@ -453,7 +453,7 @@ void LLPanelMainInventory::newFolderWindow(LLUUID folder_id, LLUUID item_to_sele
             LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
             if (main_inventory)
             {
-                main_inventory->onViewModeClick();
+                main_inventory->toggleViewMode();
                 if(folder_id.notNull())
                 {
                     main_inventory->setSingleFolderViewRoot(folder_id);
@@ -1329,7 +1329,7 @@ void LLPanelMainInventory::onAddButtonClick()
 	}
 }
 
-void LLPanelMainInventory::onViewModeClick()
+void LLPanelMainInventory::toggleViewMode()
 {
     mSingleFolderMode = !mSingleFolderMode;
 
@@ -1354,7 +1354,61 @@ void LLPanelMainInventory::onViewModeClick()
             sidepanel_inventory->toggleInbox();
         }
     }
+}
 
+void LLPanelMainInventory::onViewModeClick()
+{
+    LLUUID selected_folder;
+    LLUUID new_root_folder;
+    if(mSingleFolderMode)
+    {
+        selected_folder = mSingleFolderPanelInventory->getSingleFolderRoot();
+    }
+    else
+    {
+        LLFolderView* root = getActivePanel()->getRootFolder();
+        std::set<LLFolderViewItem*> selection_set = root->getSelectionList();
+        if (selection_set.size() == 1)
+        {
+            LLFolderViewItem* current_item = *selection_set.begin();
+            if (current_item)
+            {
+                const LLUUID& id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
+                if(gInventory.getCategory(id) != NULL)
+                {
+                    new_root_folder = id;
+                }
+                else
+                {
+                    const LLViewerInventoryItem* selected_item = gInventory.getItem(id);
+                    if (selected_item && selected_item->getParentUUID().notNull())
+                    {
+                        new_root_folder = selected_item->getParentUUID();
+                        selected_folder = id;
+                    }
+                }
+            }
+        }
+    }
+
+    toggleViewMode();
+
+    if (mSingleFolderMode && new_root_folder.notNull())
+    {
+        setSingleFolderViewRoot(new_root_folder, true);
+        if(selected_folder.notNull())
+        {
+            getActivePanel()->setSelection(selected_folder, TAKE_FOCUS_YES);
+        }
+    }
+    else
+    {
+        if(selected_folder.notNull())
+        {
+            selectAllItemsPanel();
+            getActivePanel()->setSelection(selected_folder, TAKE_FOCUS_YES);
+        }
+    }
 }
 
 void LLPanelMainInventory::onUpFolderClicked()

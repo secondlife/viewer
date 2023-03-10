@@ -810,7 +810,7 @@ void show_item_original(const LLUUID& item_uuid)
         {
             if(main_inventory->isSingleFolderMode())
             {
-                main_inventory->onViewModeClick();
+                main_inventory->toggleViewMode();
             }
             main_inventory->resetFilters();
         }

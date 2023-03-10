@@ -100,6 +100,7 @@ public:
 
     void resetFilters();
     void onViewModeClick();
+    void toggleViewMode();
     void onUpFolderClicked();
     void onBackFolderClicked();
     void onForwardFolderClicked();

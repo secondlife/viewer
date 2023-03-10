@@ -1843,7 +1843,7 @@ void LLInventoryPanel::setSFViewAndOpenFolder(const LLInventoryPanel* panel, con
         LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
         if (main_inventory && panel->hasAncestor(main_inventory) && !main_inventory->isSingleFolderMode())
         {
-            main_inventory->onViewModeClick();
+            main_inventory->toggleViewMode();
             main_inventory->setSingleFolderViewRoot(folder_id, false);
         }
     }
