@@ -304,8 +304,8 @@ public:
 	//--------------------------------------------------------------------
 public:
 
-    // Checks if category exists (My Inventory only), if it does not, creates it
-    void LLInventoryModel::ensureCategoryForTypeExists(LLFolderType::EType preferred_type);
+    // Checks if category exists ("My Inventory" only), if it does not, creates it
+    void ensureCategoryForTypeExists(LLFolderType::EType preferred_type);
 
 	const LLUUID findCategoryUUIDForTypeInRoot(
 		LLFolderType::EType preferred_type,
