@@ -106,10 +106,12 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
     tinygltf::TinyGLTF loader;
     std::string        error_msg;
     std::string        warn_msg;
+    std::string filename_lc(filename);
+    LLStringUtil::toLower(filename_lc);
 
     // Load a tinygltf model fom a file. Assumes that the input filename has already been
     // been sanitized to one of (.gltf , .glb) extensions, so does a simple find to distinguish.
-    if (std::string::npos == filename.rfind(".gltf"))
+    if (std::string::npos == filename_lc.rfind(".gltf"))
     {  // file is binary
         mGltfLoaded = loader.LoadBinaryFromFile(&mGltfModel, &error_msg, &warn_msg, filename);
     }
