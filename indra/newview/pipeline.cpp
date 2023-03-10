@@ -4319,6 +4319,8 @@ extern std::set<LLSpatialGroup*> visible_selected_groups;
 
 void LLPipeline::renderDebug()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+
 	assertInitialized();
 
 	bool hud_only = hasRenderType(LLPipeline::RENDER_TYPE_HUD);

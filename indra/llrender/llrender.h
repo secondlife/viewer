@@ -52,6 +52,9 @@ class LLTexture ;
 
 #define LL_MATRIX_STACK_DEPTH 32
 
+constexpr U32 LL_NUM_TEXTURE_LAYERS = 32;
+constexpr U32 LL_NUM_LIGHT_UNITS = 8;
+
 class LLTexUnit 
 {
 	friend class LLRender;
@@ -135,7 +138,7 @@ public:
         TCS_SRGB
     } eTextureColorSpace;
 
-	LLTexUnit(S32 index);
+	LLTexUnit(S32 index = -1);
 
 	// Refreshes renderer state of the texture unit to the cached values
 	// Needed when the render context has changed and invalidated the current state
@@ -212,7 +215,9 @@ public:
     eTextureColorSpace getCurrColorSpace() { return mTexColorSpace; }
 
 protected:
-	const S32			mIndex;
+    friend class LLRender;
+
+	S32		        	mIndex;
 	U32					mCurrTexture;
 	eTextureType		mCurrTexType;
     eTextureColorSpace  mTexColorSpace;
@@ -230,7 +235,7 @@ protected:
 class LLLightState
 {
 public:
-	LLLightState(S32 index);
+	LLLightState(S32 index = -1);
 
 	void enable();
 	void disable();
@@ -488,9 +493,9 @@ private:
 	LLStrider<LLVector3>		mVerticesp;
 	LLStrider<LLVector2>		mTexcoordsp;
 	LLStrider<LLColor4U>		mColorsp;
-	std::vector<LLTexUnit*>		mTexUnits;
-	LLTexUnit*			mDummyTexUnit;
-	std::vector<LLLightState*> mLightState;
+	std::array<LLTexUnit, LL_NUM_TEXTURE_LAYERS> mTexUnits;
+	LLTexUnit			mDummyTexUnit;
+	std::array<LLLightState, LL_NUM_LIGHT_UNITS> mLightState;
 
 	eBlendFactor mCurrBlendColorSFactor;
 	eBlendFactor mCurrBlendColorDFactor;

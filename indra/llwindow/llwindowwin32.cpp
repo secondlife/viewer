@@ -4857,13 +4857,14 @@ void LLWindowWin32::LLWindowWin32Thread::updateVRAMUsage()
 
         DXGI_QUERY_VIDEO_MEMORY_INFO info;
         mDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info);
-
 #if 0 // debug 0 budget and 0 CU
         info.Budget = 0;
         info.CurrentUsage = 0;
 #endif
 
         U32 budget_mb = info.Budget / 1024 / 1024;
+        gGLManager.mVRAM = llmax(gGLManager.mVRAM, (S32) budget_mb);
+
         U32 afr_mb = info.AvailableForReservation / 1024 / 1024;
         // correct for systems that misreport budget
         if (budget_mb == 0)

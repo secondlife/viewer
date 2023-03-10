@@ -37,12 +37,13 @@ thread_local bool gProfilerEnabled = false;
 
 #if (TRACY_ENABLE)
 // Override new/delete for tracy memory profiling
-void *operator new(size_t size)
+
+void* ll_tracy_new(size_t size)
 {
     void* ptr;
     if (gProfilerEnabled)
     {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
+        //LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
         ptr = (malloc)(size);
     }
     else
@@ -57,18 +58,38 @@ void *operator new(size_t size)
     return ptr;
 }
 
-void operator delete(void *ptr) noexcept
+void* operator new(size_t size)
+{
+    return ll_tracy_new(size);
+}
+
+void* operator new[](std::size_t count)
+{
+    return ll_tracy_new(count);
+}
+
+void ll_tracy_delete(void* ptr)
 {
     TracyFree(ptr);
     if (gProfilerEnabled)
     {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
+        //LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
         (free)(ptr);
     }
     else
     {
         (free)(ptr);
     }
+}
+
+void operator delete(void *ptr) noexcept
+{
+    ll_tracy_delete(ptr);
+}
+
+void operator delete[](void* ptr) noexcept
+{
+    ll_tracy_delete(ptr);
 }
 
 // C-style malloc/free can't be so easily overridden, so we define tracy versions and use

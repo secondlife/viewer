@@ -89,8 +89,6 @@ S32 LLViewerTexture::sAuxCount = 0;
 LLFrameTimer LLViewerTexture::sEvaluationTimer;
 F32 LLViewerTexture::sDesiredDiscardBias = 0.f;
 F32 LLViewerTexture::sDesiredDiscardScale = 1.1f;
-S8  LLViewerTexture::sCameraMovingDiscardBias = 0;
-F32 LLViewerTexture::sCameraMovingBias = 0.0f;
 S32 LLViewerTexture::sMaxSculptRez = 128; //max sculpt image size
 const S32 MAX_CACHED_RAW_IMAGE_AREA = 64 * 64;
 const S32 MAX_CACHED_RAW_SCULPT_IMAGE_AREA = LLViewerTexture::sMaxSculptRez * LLViewerTexture::sMaxSculptRez;
@@ -552,29 +550,26 @@ void LLViewerTexture::updateClass()
 
 	LLViewerMediaTexture::updateClass();
 
-	if(isMemoryForTextureLow())
-	{
-		// Note: isMemoryForTextureLow() uses 1s delay, make sure we waited enough for it to recheck
-		if (sEvaluationTimer.getElapsedTimeF32() > GPU_MEMORY_CHECK_WAIT_TIME)
-		{
-			sDesiredDiscardBias += discard_bias_delta;
-			sEvaluationTimer.reset();
-		}
-	}
-	else if (sDesiredDiscardBias > 0.0f
-			 && isMemoryForTextureSuficientlyFree())
-	{
-		// If we are using less texture memory than we should,
-		// scale down the desired discard level
-		if (sEvaluationTimer.getElapsedTimeF32() > discard_delta_time)
-		{
-			sDesiredDiscardBias -= discard_bias_delta;
-			sEvaluationTimer.reset();
-		}
-	}
-	sDesiredDiscardBias = llclamp(sDesiredDiscardBias, desired_discard_bias_min, desired_discard_bias_max);
+    static LLCachedControl<U32> max_vram_budget(gSavedSettings, "RenderMaxVRAMBudget", 0);
 
-	LLViewerTexture::sFreezeImageUpdates = sDesiredDiscardBias > (desired_discard_bias_max - 1.0f);
+    // get an estimate of how much video memory we're using 
+    // NOTE: our metrics miss about half the vram we use, so this biases high but turns out to typically be within 5% of the real number
+    F32 used = (LLImageGL::getTextureBytesAllocated() + LLVertexBuffer::getBytesAllocated()) / 1024 / 512;
+    
+    F32 budget = max_vram_budget == 0 ? gGLManager.mVRAM : max_vram_budget;
+
+    // try to leave half a GB for everyone else, but keep at least 768MB for ourselves
+    F32 target = llmax(budget - 512.f, 768.f);
+
+    F32 over_pct = llmax((used-target) / target, 0.f);
+    sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.f + over_pct);
+
+    if (sDesiredDiscardBias > 1.f)
+    {
+        sDesiredDiscardBias -= gFrameIntervalSeconds * 0.01;
+    }
+
+    LLViewerTexture::sFreezeImageUpdates = false; // sDesiredDiscardBias > (desired_discard_bias_max - 1.0f);
 }
 
 //end of static functions
@@ -627,7 +622,6 @@ LLViewerTexture::~LLViewerTexture()
 // virtual
 void LLViewerTexture::init(bool firstinit)
 {
-	mSelectedTime = 0.f;
 	mMaxVirtualSize = 0.f;
 	mMaxVirtualSizeResetInterval = 1;
 	mMaxVirtualSizeResetCounter = mMaxVirtualSizeResetInterval;
@@ -685,7 +679,6 @@ void LLViewerTexture::setBoostLevel(S32 level)
 	{
 		mBoostLevel = level;
 		if(mBoostLevel != LLViewerTexture::BOOST_NONE && 
-			mBoostLevel != LLViewerTexture::BOOST_ALM && 
 			mBoostLevel != LLViewerTexture::BOOST_SELECTED && 
 			mBoostLevel != LLViewerTexture::BOOST_ICON)
 		{
@@ -698,12 +691,6 @@ void LLViewerTexture::setBoostLevel(S32 level)
     {
         mMaxVirtualSize = 2048.f * 2048.f;
     }
-
-	if (mBoostLevel == LLViewerTexture::BOOST_SELECTED)
-	{
-		mSelectedTime = gFrameTimeSeconds;
-	}
-
 }
 
 bool LLViewerTexture::isActiveFetching()
@@ -1710,10 +1697,6 @@ void LLViewerFetchedTexture::processTextureStats()
 		{
 			mDesiredDiscardLevel = 0;
 		}
-		else if (!LLPipeline::sRenderDeferred && mBoostLevel == LLGLTexture::BOOST_ALM)
-		{ // ??? don't load spec and normal maps when alm is disabled ???
-			mDesiredDiscardLevel = MAX_DISCARD_LEVEL + 1;
-		}
         else if (mDontDiscard && mBoostLevel == LLGLTexture::BOOST_ICON)
         {
             if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
@@ -1831,8 +1814,7 @@ bool LLViewerFetchedTexture::updateFetch()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	static LLCachedControl<bool> textures_decode_disabled(gSavedSettings,"TextureDecodeDisabled", false);
-	static LLCachedControl<F32>  sCameraMotionThreshold(gSavedSettings,"TextureCameraMotionThreshold", 0.2);
-	static LLCachedControl<S32>  sCameraMotionBoost(gSavedSettings,"TextureCameraMotionBoost", 3);
+	
 	if(textures_decode_disabled) // don't fetch the surface textures in wireframe mode
 	{
 		return false;
@@ -2055,32 +2037,9 @@ bool LLViewerFetchedTexture::updateFetch()
 		make_request = false;
 		switchToCachedImage(); //use the cached raw data first
 	}
-	//else if (!isJustBound() && mCachedRawImageReady)
-	//{
-	//	make_request = false;
-	//}
 	
 	if (make_request)
 	{
-#if 0
-		// Load the texture progressively: we try not to rush to the desired discard too fast.
-		// If the camera is not moving, we do not tweak the discard level notch by notch but go to the desired discard with larger boosted steps
-		// This mitigates the "textures stay blurry" problem when loading while not killing the texture memory while moving around
-		S32 delta_level = (mBoostLevel > LLGLTexture::BOOST_ALM) ? 2 : 1; 
-		if (current_discard < 0)
-		{
-			desired_discard = llmax(desired_discard, getMaxDiscardLevel() - delta_level);
-		}
-		else if (LLViewerTexture::sCameraMovingBias < sCameraMotionThreshold)
-		{
-			desired_discard = llmax(desired_discard, current_discard - sCameraMotionBoost);
-		}
-        else
-        {
-			desired_discard = llmax(desired_discard, current_discard - delta_level);
-        }
-#endif
-
 		if (mIsFetching)
 		{
             // already requested a higher resolution mip
@@ -3095,10 +3054,6 @@ void LLViewerLODTexture::processTextureStats()
 		if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
 			mDesiredDiscardLevel = 1; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
 	}
-	else if (!LLPipeline::sRenderDeferred && mBoostLevel == LLGLTexture::BOOST_ALM)
-	{
-		mDesiredDiscardLevel = MAX_DISCARD_LEVEL + 1;
-	}
 	else if (mBoostLevel < LLGLTexture::BOOST_HIGH && mMaxVirtualSize <= 10.f)
 	{
 		// If the image has not been significantly visible in a while, we don't want it
@@ -3108,72 +3063,70 @@ void LLViewerLODTexture::processTextureStats()
 	{
 		mDesiredDiscardLevel = 	getMaxDiscardLevel();
 	}
-	else
-	{
-		//static const F64 log_2 = log(2.0);
-		static const F64 log_4 = log(4.0);
+    else
+    {
+        //static const F64 log_2 = log(2.0);
+        static const F64 log_4 = log(4.0);
 
-		F32 discard_level = 0.f;
+        F32 discard_level = 0.f;
 
-		// If we know the output width and height, we can force the discard
-		// level to the correct value, and thus not decode more texture
-		// data than we need to.
-		if (mKnownDrawWidth && mKnownDrawHeight)
-		{
-			S32 draw_texels = mKnownDrawWidth * mKnownDrawHeight;
-			draw_texels = llclamp(draw_texels, MIN_IMAGE_AREA, MAX_IMAGE_AREA);
+        // If we know the output width and height, we can force the discard
+        // level to the correct value, and thus not decode more texture
+        // data than we need to.
+        if (mKnownDrawWidth && mKnownDrawHeight)
+        {
+            S32 draw_texels = mKnownDrawWidth * mKnownDrawHeight;
+            draw_texels = llclamp(draw_texels, MIN_IMAGE_AREA, MAX_IMAGE_AREA);
 
-			// Use log_4 because we're in square-pixel space, so an image
-			// with twice the width and twice the height will have mTexelsPerImage
-			// 4 * draw_size
-			discard_level = (F32)(log(mTexelsPerImage/draw_texels) / log_4);
-		}
-		else
-		{
-			// Calculate the required scale factor of the image using pixels per texel
-			discard_level = (F32)(log(mTexelsPerImage/mMaxVirtualSize) / log_4);
-			mDiscardVirtualSize = mMaxVirtualSize;
-			mCalculatedDiscardLevel = discard_level;
-		}
-		if (mBoostLevel < LLGLTexture::BOOST_SCULPTED)
-		{
-			discard_level += sDesiredDiscardBias;
-			discard_level *= sDesiredDiscardScale; // scale
-			discard_level += sCameraMovingDiscardBias;
-		}
-		discard_level = floorf(discard_level);
+            // Use log_4 because we're in square-pixel space, so an image
+            // with twice the width and twice the height will have mTexelsPerImage
+            // 4 * draw_size
+            discard_level = (F32)(log(mTexelsPerImage / draw_texels) / log_4);
+        }
+        else
+        {
+            // Calculate the required scale factor of the image using pixels per texel
+            discard_level = (F32)(log(mTexelsPerImage / mMaxVirtualSize) / log_4);
+            mDiscardVirtualSize = mMaxVirtualSize;
+            mCalculatedDiscardLevel = discard_level;
+        }
+        if (mBoostLevel < LLGLTexture::BOOST_SCULPTED)
+        {
+            //discard_level += sDesiredDiscardBias; // gradually increases to a maximum of 5 as vram runs low
+            discard_level *= sDesiredDiscardScale; // scale (default 1.1f)
+        }
+        discard_level = floorf(discard_level);
 
-		F32 min_discard = 0.f;
-		U32 desired_size = MAX_IMAGE_SIZE_DEFAULT; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
-		if (mBoostLevel <= LLGLTexture::BOOST_SCULPTED)
-		{
-			desired_size = DESIRED_NORMAL_TEXTURE_SIZE;
-		}
-		if (mFullWidth > desired_size || mFullHeight > desired_size)
-			min_discard = 1.f;
+        F32 min_discard = 0.f;
+        U32 desired_size = MAX_IMAGE_SIZE_DEFAULT; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
+        if (mBoostLevel <= LLGLTexture::BOOST_SCULPTED)
+        {
+            desired_size = DESIRED_NORMAL_TEXTURE_SIZE;
+        }
+        if (mFullWidth > desired_size || mFullHeight > desired_size)
+            min_discard = 1.f;
 
-		discard_level = llclamp(discard_level, min_discard, (F32)MAX_DISCARD_LEVEL);
-		
-		// Can't go higher than the max discard level
-		mDesiredDiscardLevel = llmin(getMaxDiscardLevel() + 1, (S32)discard_level);
-		// Clamp to min desired discard
-		mDesiredDiscardLevel = llmin(mMinDesiredDiscardLevel, mDesiredDiscardLevel);
+        discard_level = llclamp(discard_level, min_discard, (F32)MAX_DISCARD_LEVEL);
 
-		//
-		// At this point we've calculated the quality level that we want,
-		// if possible.  Now we check to see if we have it, and take the
-		// proper action if we don't.
-		//
+        // Can't go higher than the max discard level
+        mDesiredDiscardLevel = llmin(getMaxDiscardLevel() + 1, (S32)discard_level);
+        // Clamp to min desired discard
+        mDesiredDiscardLevel = llmin(mMinDesiredDiscardLevel, mDesiredDiscardLevel);
 
-		S32 current_discard = getDiscardLevel();
-		if (sDesiredDiscardBias > 0.0f && mBoostLevel < LLGLTexture::BOOST_SCULPTED && current_discard >= 0)
-		{
-			if(desired_discard_bias_max <= sDesiredDiscardBias && !mForceToSaveRawImage)
-			{
-				//needs to release texture memory urgently
-				scaleDown();
-			}
-		}
+        //
+        // At this point we've calculated the quality level that we want,
+        // if possible.  Now we check to see if we have it, and take the
+        // proper action if we don't.
+        //
+
+        S32 current_discard = getDiscardLevel();
+        if (mBoostLevel < LLGLTexture::BOOST_SCULPTED && current_discard >= 0)
+        {
+            if (current_discard < (mDesiredDiscardLevel-1) && !mForceToSaveRawImage)
+            { // should scale down
+                scaleDown();
+            }
+        }
 
 		if (isUpdateFrozen() // we are out of memory and nearing max allowed bias
 			&& mBoostLevel < LLGLTexture::BOOST_SCULPTED
@@ -3188,6 +3141,16 @@ void LLViewerLODTexture::processTextureStats()
 	{
 		mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S8)mDesiredSavedRawDiscardLevel);
 	}
+
+    // decay max virtual size over time
+    mMaxVirtualSize *= 0.8f;
+
+    // selection manager will immediately reset BOOST_SELECTED but never unsets it
+    // unset it immediately after we consume it
+    if (getBoostLevel() == BOOST_SELECTED)
+    {
+        setBoostLevel(BOOST_NONE);
+    }
 }
 
 bool LLViewerLODTexture::scaleDown()

@@ -314,13 +314,16 @@ public:
 
     U32 mTouchCount = 0;
 
-#if ANALYZE_VBO_POOL
     U64 mDistributed = 0;
     U64 mAllocated = 0;
     U64 mReserved = 0;
     U32 mMisses = 0;
     U32 mHits = 0;
-#endif
+
+    U64 getVramBytesUsed()
+    {
+        return mAllocated + mReserved;
+    }
 
     // increase the size to some common value (e.g. a power of two) to increase hit rate
     void adjustSize(U32& size)
@@ -341,13 +344,9 @@ public:
         llassert(data == nullptr);  // non null data indicates a buffer that wasn't freed
         llassert(size >= 2);  // any buffer size smaller than a single index is nonsensical
 
-#if ANALYZE_VBO_POOL
         mDistributed += size;
         adjustSize(size);
         mAllocated += size;
-#else
-        adjustSize(size);
-#endif
 
         auto& pool = type == GL_ELEMENT_ARRAY_BUFFER ? mIBOPool : mVBOPool;
 
@@ -357,9 +356,7 @@ public:
             LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vbo pool miss");
             LL_PROFILE_GPU_ZONE("vbo alloc");
 
-#if ANALYZE_VBO_POOL
             mMisses++;
-#endif
             name = gen_buffer();
             glBindBuffer(type, name);
             glBufferData(type, size, nullptr, GL_DYNAMIC_DRAW);
@@ -376,11 +373,9 @@ public:
         }
         else
         {
-#if ANALYZE_VBO_POOL
             mHits++;
             llassert(mReserved >= size); // assert if accounting gets messed up
             mReserved -= size;
-#endif
 
             std::list<Entry>& entries = iter->second;
             Entry& entry = entries.back();
@@ -407,16 +402,12 @@ public:
 
         clean();
 
-#if ANALYZE_VBO_POOL
         llassert(mDistributed >= size);
         mDistributed -= size;
         adjustSize(size);
         llassert(mAllocated >= size);
         mAllocated -= size;
         mReserved += size;
-#else
-        adjustSize(size);
-#endif
 
         auto& pool = type == GL_ELEMENT_ARRAY_BUFFER ? mIBOPool : mVBOPool;
 
@@ -465,10 +456,8 @@ public:
                     auto& entry = entries.back();
                     ll_aligned_free_16(entry.mData);
                     glDeleteBuffers(1, &entry.mGLName);
-#if ANALYZE_VBO_POOL
                     llassert(mReserved >= iter->first);
                     mReserved -= iter->first;
-#endif
                     entries.pop_back();
 
                 }
@@ -484,7 +473,7 @@ public:
             }
         }
 
-#if ANALYZE_VBO_POOL
+#if 0
         LL_INFOS() << llformat("(%d/%d)/%d MB (distributed/allocated)/total in VBO Pool. Overhead: %d percent. Hit rate: %d percent", 
             mDistributed / 1000000, 
             mAllocated / 1000000, 
@@ -515,9 +504,7 @@ public:
             }
         }
 
-#if ANALYZE_VBO_POOL
         mReserved = 0;
-#endif
 
         mIBOPool.clear();
         mVBOPool.clear();
@@ -527,6 +514,12 @@ public:
 };
 
 static LLVBOPool* sVBOPool = nullptr;
+
+//static
+U64 LLVertexBuffer::getBytesAllocated()
+{
+    return sVBOPool ? sVBOPool->getVramBytesUsed() : 0;
+}
 
 //============================================================================
 // 

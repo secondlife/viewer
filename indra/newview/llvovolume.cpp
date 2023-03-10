@@ -843,12 +843,6 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 			continue;
 		}
 
-        // clear out boost selected periodically
-        if (imagep->getBoostLevel() == LLGLTexture::BOOST_SELECTED)
-        {
-            imagep->setBoostLevel(LLGLTexture::BOOST_NONE);
-        }
-
 		F32 vsize;
 		F32 old_size = face->getVirtualSize();
 
@@ -863,7 +857,6 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 		else
 		{
 			vsize = face->getTextureVirtualSize();
-            imagep->addTextureStats(vsize);
 		}
 
 		mPixelArea = llmax(mPixelArea, face->getPixelArea());
@@ -880,12 +873,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 			}
 		}
 				
-		if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
-		{
-			if (vsize < min_vsize) min_vsize = vsize;
-			if (vsize > max_vsize) max_vsize = vsize;
-		}
-		else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
+		if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
 		{
 			LLViewerFetchedTexture* img = LLViewerTextureManager::staticCastToFetchedTexture(imagep) ;
 			if(img)
@@ -950,7 +938,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 	{
 		LLLightImageParams* params = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
 		LLUUID id = params->getLightTexture();
-		mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM);
+		mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE);
 		if (mLightTexture.notNull())
 		{
 			F32 rad = getLightRadius();
@@ -3292,7 +3280,6 @@ void LLVOVolume::updateSpotLightPriority()
 	if (mLightTexture.notNull())
 	{
 		mLightTexture->addTextureStats(mSpotLightPriority);
-		mLightTexture->setBoostLevel(LLGLTexture::BOOST_CLOUDS);
 	}
 }
 
@@ -3316,7 +3303,7 @@ LLViewerTexture* LLVOVolume::getLightTexture()
 	{
 		if (mLightTexture.isNull() || id != mLightTexture->getID())
 		{
-			mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM);
+			mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE);
 		}
 	}
 	else
