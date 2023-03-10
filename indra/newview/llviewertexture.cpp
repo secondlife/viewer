@@ -3092,7 +3092,6 @@ void LLViewerLODTexture::processTextureStats()
         }
         if (mBoostLevel < LLGLTexture::BOOST_SCULPTED)
         {
-            //discard_level += sDesiredDiscardBias; // gradually increases to a maximum of 5 as vram runs low
             discard_level *= sDesiredDiscardScale; // scale (default 1.1f)
         }
         discard_level = floorf(discard_level);
