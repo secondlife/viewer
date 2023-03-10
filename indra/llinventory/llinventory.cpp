@@ -671,6 +671,26 @@ BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 		{
 			mType = LLAssetType::lookup(valuestr);
 		}
+        else if (0 == strcmp("metadata", keyword))
+        {
+            LLSD metadata(valuestr);
+            if (metadata.has("thumbnail"))
+            {
+                const LLSD& thumbnail = metadata["thumbnail"];
+                if (thumbnail.has("asset_id"))
+                {
+                    setThumbnailUUID(thumbnail["asset_id"].asUUID());
+                }
+                else
+                {
+                    setThumbnailUUID(LLUUID::null);
+                }
+            }
+            else
+            {
+                setThumbnailUUID(LLUUID::null);
+            }
+        }
 		else if(0 == strcmp("inv_type", keyword))
 		{
 			mInventoryType = LLInventoryType::lookup(std::string(valuestr));
@@ -760,6 +780,13 @@ BOOL LLInventoryItem::exportLegacyStream(std::ostream& output_stream, BOOL inclu
 	output_stream << "\t\tparent_id\t" << uuid_str << "\n";
 	mPermissions.exportLegacyStream(output_stream);
 
+    if (mThumbnailUUID.notNull())
+    {
+        LLSD metadata;
+        metadata["thumbnail"] = LLSD().with("asset_id", mThumbnailUUID);
+        output_stream << "\t\tmetadata\t" << metadata << "|\n";
+    }
+
 	// Check for permissions to see the asset id, and if so write it
 	// out as an asset id. Otherwise, apply our cheesy encryption.
 	if(include_asset_key)
@@ -812,7 +839,11 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
 	sd[INV_ITEM_ID_LABEL] = mUUID;
 	sd[INV_PARENT_ID_LABEL] = mParentUUID;
 	sd[INV_PERMISSIONS_LABEL] = ll_create_sd_from_permissions(mPermissions);
-    sd[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
+
+    if (mThumbnailUUID.notNull())
+    {
+        sd[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
+    }
 
 	U32 mask = mPermissions.getMaskBase();
 	if(((mask & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED)
@@ -865,6 +896,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
 	{
 		mParentUUID = sd[w];
 	}
+    mThumbnailUUID.setNull();
     w = INV_THUMBNAIL_LABEL;
     if (sd.has(w))
     {
@@ -890,7 +922,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
         w = INV_THUMBNAIL_ID_LABEL;
         if (sd.has(w))
         {
-            mThumbnailUUID = sd[w];
+            mThumbnailUUID = sd[w].asUUID();
         }
     }
 	w = INV_PERMISSIONS_LABEL;
@@ -1068,10 +1100,14 @@ LLSD LLInventoryCategory::asLLSD() const
     LLSD sd = LLSD();
     sd["item_id"] = mUUID;
     sd["parent_id"] = mParentUUID;
-    sd[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
     S8 type = static_cast<S8>(mPreferredType);
     sd["type"]      = type;
     sd["name"] = mName;
+
+    if (mThumbnailUUID.notNull())
+    {
+        sd[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
+    }
 
     return sd;
 }
@@ -1101,6 +1137,7 @@ bool LLInventoryCategory::fromLLSD(const LLSD& sd)
     {
         mParentUUID = sd[w];
     }
+    mThumbnailUUID.setNull();
     w = INV_THUMBNAIL_LABEL;
     if (sd.has(w))
     {
@@ -1210,6 +1247,26 @@ BOOL LLInventoryCategory::importLegacyStream(std::istream& input_stream)
 			LLStringUtil::replaceNonstandardASCII(mName, ' ');
 			LLStringUtil::replaceChar(mName, '|', ' ');
 		}
+        else if (0 == strcmp("metadata", keyword))
+        {
+            LLSD metadata(valuestr);
+            if (metadata.has("thumbnail"))
+            {
+                const LLSD& thumbnail = metadata["thumbnail"];
+                if (thumbnail.has("asset_id"))
+                {
+                    setThumbnailUUID(thumbnail["asset_id"].asUUID());
+                }
+                else
+                {
+                    setThumbnailUUID(LLUUID::null);
+                }
+            }
+            else
+            {
+                setThumbnailUUID(LLUUID::null);
+            }
+        }
 		else
 		{
 			LL_WARNS() << "unknown keyword '" << keyword
@@ -1230,6 +1287,12 @@ BOOL LLInventoryCategory::exportLegacyStream(std::ostream& output_stream, BOOL) 
 	output_stream << "\t\ttype\t" << LLAssetType::lookup(mType) << "\n";
 	output_stream << "\t\tpref_type\t" << LLFolderType::lookup(mPreferredType) << "\n";
 	output_stream << "\t\tname\t" << mName.c_str() << "|\n";
+    if (mThumbnailUUID.notNull())
+    {
+        LLSD metadata;
+        metadata["thumbnail"] = LLSD().with("asset_id", mThumbnailUUID);
+        output_stream << "\t\tmetadata\t" << metadata << "|\n";
+    }
 	output_stream << "\t}\n";
 	return TRUE;
 }
@@ -1241,8 +1304,12 @@ LLSD LLInventoryCategory::exportLLSD() const
 	cat_data[INV_PARENT_ID_LABEL] = mParentUUID;
 	cat_data[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(mType);
 	cat_data[INV_PREFERRED_TYPE_LABEL] = LLFolderType::lookup(mPreferredType);
-    cat_data[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
 	cat_data[INV_NAME_LABEL] = mName;
+
+    if (mThumbnailUUID.notNull())
+    {
+        cat_data[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
+    }
 
 	return cat_data;
 }
@@ -1265,14 +1332,16 @@ bool LLInventoryCategory::importLLSD(const LLSD& cat_data)
 	{
 		setPreferredType(LLFolderType::lookup(cat_data[INV_PREFERRED_TYPE_LABEL].asString()));
 	}
+    LLUUID thumbnail_uuid;
     if (cat_data.has(INV_THUMBNAIL_LABEL))
     {
         const LLSD &thumbnail_data = cat_data[INV_THUMBNAIL_LABEL];
         if (thumbnail_data.has(INV_ASSET_ID_LABEL))
         {
-            setThumbnailUUID(thumbnail_data[INV_ASSET_ID_LABEL].asUUID());
+            thumbnail_uuid = thumbnail_data[INV_ASSET_ID_LABEL].asUUID();
         }
     }
+    setThumbnailUUID(thumbnail_uuid);
 	if (cat_data.has(INV_NAME_LABEL))
 	{
 		mName = cat_data[INV_NAME_LABEL].asString();
