@@ -2973,7 +2973,7 @@ std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::create(const LLIK::Cons
             {
                 record["type"] = "SIMPLE_CONE";
                 record["forward_axis"] = info.mVectors[0].getValue();
-                record["max_angle"] = info.mFloats[0];
+                record["max_angle"] = info.mFloats[0] * RAD_TO_DEG;
                 ptr = std::make_shared<LLIK::SimpleCone>(
                         info.mVectors[0], // forward_axis
                         info.mFloats[0]); // max_angle
@@ -2984,9 +2984,9 @@ std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::create(const LLIK::Cons
             {
                 record["type"] = "TWIST_LIMITED_CONE";
                 record["forward_axis"] = info.mVectors[0].getValue();
-                record["cone_angle"] = info.mFloats[0];
-                record["min_twist"] = info.mFloats[1];
-                record["max_twist"] = info.mFloats[2];
+                record["cone_angle"] = info.mFloats[0] * RAD_TO_DEG;;
+                record["min_twist"] = info.mFloats[1] * RAD_TO_DEG;;
+                record["max_twist"] = info.mFloats[2] * RAD_TO_DEG;;
 
                 ptr = std::make_shared<LLIK::TwistLimitedCone>(
                         info.mVectors[0], // forward_axis
@@ -3001,10 +3001,10 @@ std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::create(const LLIK::Cons
                 record["type"] = "ELBOW";
                 record["forward_axis"] = info.mVectors[0].getValue();
                 record["pivot_axis"] = info.mVectors[1].getValue();
-                record["min_bend"] = info.mFloats[0];
-                record["max_bend"] = info.mFloats[1];
-                record["min_twist"] = info.mFloats[2];
-                record["max_twist"] = info.mFloats[3];
+                record["min_bend"] = info.mFloats[0] * RAD_TO_DEG;;
+                record["max_bend"] = info.mFloats[1] * RAD_TO_DEG;;
+                record["min_twist"] = info.mFloats[2] * RAD_TO_DEG;;
+                record["max_twist"] = info.mFloats[3] * RAD_TO_DEG;;
 
                 ptr = std::make_shared<LLIK::ElbowConstraint>(
                         info.mVectors[0], // forward_axis
@@ -3021,8 +3021,8 @@ std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::create(const LLIK::Cons
                 record["type"] = "KNEE";
                 record["forward_axis"] = info.mVectors[0].getValue();
                 record["pivot_axis"] = info.mVectors[1].getValue();
-                record["min_bend"] = info.mFloats[0];
-                record["max_bend"] = info.mFloats[1];
+                record["min_bend"] = info.mFloats[0] * RAD_TO_DEG;;
+                record["max_bend"] = info.mFloats[1] * RAD_TO_DEG;;
 
                 ptr = std::make_shared<LLIK::KneeConstraint>(
                         info.mVectors[0], // forward_axis
@@ -3060,10 +3060,10 @@ std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::create(const LLIK::Cons
                 record["type"] = "DOUBLE_LIMITED_HINGE";
                 record["forward_axis"] = info.mVectors[0].getValue();
                 record["up_axis"] = info.mVectors[1].getValue();
-                record["min_yaw"] = info.mFloats[0];
-                record["max_yaw"] = info.mFloats[1];
-                record["min_pitch"] = info.mFloats[2];
-                record["max_pitch"] = info.mFloats[3];
+                record["min_yaw"] = info.mFloats[0] * RAD_TO_DEG;;
+                record["max_yaw"] = info.mFloats[1] * RAD_TO_DEG;;
+                record["min_pitch"] = info.mFloats[2] * RAD_TO_DEG;;
+                record["max_pitch"] = info.mFloats[3] * RAD_TO_DEG;;
 
                 ptr = std::make_shared<LLIK::DoubleLimitedHinge>(
                         info.mVectors[0], // forward_axis
