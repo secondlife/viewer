@@ -26,10 +26,11 @@
 #ifndef LL_LLIK_H
 #define LL_LLIK_H
 
-#include <map>
+#include <unordered_map>
 #include <set>
 #include <string>
 #include <vector>
+#include <functional>
 
 #include "llmath.h"
 #include "llquaternion.h"
@@ -37,6 +38,8 @@
 #include "v3math.h"
 #include "v4math.h"
 #include "xform.h"
+
+#include "llsingleton.h"
 
 class LLJoint;
 
@@ -47,11 +50,11 @@ namespace LLIK
 // Inverse Kinematics (IK) for humanoid character.
 //
 // The Solver uses Forward and Backward Reaching Inverse Kinematics (FABRIK)
-// algorightm to iterate toward a solution:
+// algorithm to iterate toward a solution:
 //
 //      http://andreasaristidou.com/FABRIK.html
 //
-// The Joints can have Constraints which limite their parent-local orientations.
+// The Joints can have Constraints which limit their parent-local orientations.
 //
 
 class Solver;
@@ -112,15 +115,29 @@ public:
     };
 
     Constraint() {}
+    Constraint(Info::ConstraintType type, LLSD &parameters) :
+        mType(type)
+    {
+        mForward = LLVector3(parameters["forward_axis"]);
+        mForward.normalize();
+    }
+
     virtual ~Constraint() {};
-    Info::ConstraintType getType() const { return mType; }
-    bool enforce(Joint& joint) const;
-    virtual LLQuaternion computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const = 0;
-    virtual LLQuaternion minimizeTwist(const LLQuaternion& joint_local_rot) const;
+
+    virtual LLSD            asLLSD() const;
+    virtual size_t          generateHash() const;
+
+    Info::ConstraintType    getType() const { return mType; }
+    bool                    enforce(Joint& joint) const;
+    virtual LLQuaternion    computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const = 0;
+    virtual LLQuaternion    minimizeTwist(const LLQuaternion& joint_local_rot) const;
 
     // all Constraints have a forward axis
-    const LLVector3& getForwardAxis() const { return mForward; }
-    virtual bool allowsTwist() const { return true; }
+    const LLVector3&        getForwardAxis() const { return mForward; }
+    virtual bool            allowsTwist() const { return true; }
+
+    std::string             typeToName() const;
+
 #ifdef DEBUG_LLIK_UNIT_TESTS
     virtual void dumpConfig() const = 0;
 #endif
@@ -129,7 +146,7 @@ protected:
     Info::ConstraintType mType = Info::NULL_CONSTRAINT;
 };
 
-// SimpleCone Constrainte can twist arbitrarily about its 'forward' axis
+// SimpleCone Constraint can twist arbitrarily about its 'forward' axis
 // but has a uniform bend limit for orientations perpendicular to 'forward'.
 class SimpleCone : public Constraint
 {
@@ -143,17 +160,26 @@ class SimpleCone : public Constraint
     //
 public:
     SimpleCone(const LLVector3& forward_axis, F32 max_angle);
-    ~SimpleCone(){}
+    SimpleCone(LLSD &parameters);
+
+    ~SimpleCone() {}
+
+    LLSD    asLLSD() const override;
+    size_t  generateHash() const override;
+
+
     LLQuaternion computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const override;
 #ifdef DEBUG_LLIK_UNIT_TESTS
     void dumpConfig() const override;
 #endif
 private:
+    F32 mMaxAngle;
+
     F32 mCosConeAngle;
     F32 mSinConeAngle;
 };
 
-// TwistLimitedCone Constrainte can has limited twist about its 'forward' axis
+// TwistLimitedCone Constraint can has limited twist about its 'forward' axis
 // but has a uniform bend limit for orientations perpendicular to 'forward'.
 class TwistLimitedCone : public Constraint
 {
@@ -170,13 +196,20 @@ class TwistLimitedCone : public Constraint
     //
 public:
     TwistLimitedCone(const LLVector3& forward_axis, F32 cone_angle, F32 min_twist, F32 max_twist);
+    TwistLimitedCone(LLSD &parameters);
     ~TwistLimitedCone(){}
+
+    LLSD        asLLSD() const override;
+    size_t      generateHash() const override;
+
     LLQuaternion computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const override;
     LLQuaternion minimizeTwist(const LLQuaternion& joint_local_rot) const override;
 #ifdef DEBUG_LLIK_UNIT_TESTS
     void dumpConfig() const override;
 #endif
 private:
+    F32 mConeAngle;
+
     F32 mCosConeAngle;
     F32 mSinConeAngle;
     F32 mMinTwist;
@@ -200,6 +233,11 @@ class ElbowConstraint : public Constraint
     //                              min_twist
 public:
     ElbowConstraint(const LLVector3& forward_axis, const LLVector3& pivot_axis, F32 min_bend, F32 max_bend, F32 min_twist, F32 max_twist);
+    ElbowConstraint(LLSD &parameters);
+
+    LLSD asLLSD() const override;
+    size_t generateHash() const override;
+
     LLQuaternion computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const override;
     LLQuaternion minimizeTwist(const LLQuaternion& joint_local_rot) const override;
 #ifdef DEBUG_LLIK_UNIT_TESTS
@@ -231,6 +269,11 @@ class KneeConstraint : public Constraint
     //
 public:
     KneeConstraint(const LLVector3& forward_axis, const LLVector3& pivot_axis, F32 min_bend, F32 max_bend);
+    KneeConstraint(LLSD &parameters);
+
+    LLSD asLLSD() const override;
+    size_t generateHash() const override;
+
     LLQuaternion computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const override;
     bool allowsTwist() const override { return false; }
     LLQuaternion minimizeTwist(const LLQuaternion& joint_local_rot) const override;
@@ -246,9 +289,9 @@ private:
 
 // AcuteEllipsoidalCone is like SimpleCone but with asymmetric radiuses in
 // the up, left, down, right directions.  In other words: it has non-symmetric
-// bend limits for axes perpendicular to its 'forward' axix.  It was implemented
+// bend limits for axes perpendicular to its 'forward' axis.  It was implemented
 // mostly as an exercise, since it is similar to the Constraint described in
-// the original FABRIK papter. The geometry of the ellipsoidal boundary are
+// the original FABRIK paper. The geometry of the ellipsoidal boundary are
 // described by defining the forward offset of the "cross" of radiuses.  Each
 // quadrant of the cross in the left-up plane is bound by an elliptical curve that
 // depends on its bounding radiuses.
@@ -271,6 +314,11 @@ public:
             F32 left,
             F32 down,
             F32 right);
+    AcuteEllipsoidalCone(LLSD &parameters);
+
+    LLSD    asLLSD() const override;
+    size_t  generateHash() const override;
+
     LLQuaternion computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const override;
 #ifdef DEBUG_LLIK_UNIT_TESTS
     void dumpConfig() const override;
@@ -278,6 +326,12 @@ public:
 private:
     LLVector3 mUp;
     LLVector3 mLeft;
+
+    F32 mXForward;
+    F32 mXUp;
+    F32 mXDown;
+    F32 mXLeft;
+    F32 mXRight;
 
     // for each quadrant we cache these parameters to help
     // us project onto each partial ellipse.
@@ -313,6 +367,11 @@ public:
             F32 max_yaw,
             F32 min_pitch,
             F32 max_pitch);
+    DoubleLimitedHinge(LLSD &parameters);
+
+    LLSD    asLLSD() const override;
+    size_t  generateHash() const override;
+
     LLQuaternion computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const override;
     LLQuaternion minimizeTwist(const LLQuaternion& joint_local_rot) const override;
 #ifdef DEBUG_LLIK_UNIT_TESTS
@@ -327,7 +386,7 @@ private:
     F32 mMaxPitch;
 };
 
-// Joint represents a constrained bone in the skeleton heirarchy.
+// Joint represents a constrained bone in the skeleton hierarchy.
 // It typically has a parent Joint, a fixed mLocalPos position in its
 // parent's local-frame, and a fixed mBone to its 'end' position
 // in its own local-frame.  A summary of its important data members
@@ -335,12 +394,12 @@ private:
 //
 //     mLocalPos = tip position in parent's local-frame
 //     mLocalRot = orientation of Joint's tip relative to parent's local-frame
-//     mBone = invarient end position in local-frame
+//     mBone = invariant end position in local-frame
 //     mPos = tip position in world-frame (we call it 'world-frame'
 //         but really it is the 'root-frame' of the Skeleton hierarchy).
 //     mRot = orientation of Joint in world-frame.
 //
-// Some imprtant formula to keep in mind:
+// Some important formula to keep in mind:
 //
 //     mPos = mParent->mPos + mLocalPos * mParent->mRot
 //     mRot = mLocalRot * mParent->mRot
@@ -649,15 +708,49 @@ private:
 // allocate them, which allows multiple Joints with identical constraint configs
 // to use a single Constraint instance.
 //
-class LLIKConstraintFactory
+class LLIKConstraintFactory: public LLSingleton<LLIKConstraintFactory>
 {
+    LLSINGLETON_EMPTY_CTOR_C11(LLIKConstraintFactory)
+
 public:
-    std::shared_ptr<LLIK::Constraint> getConstraint(const LLIK::Constraint::Info& info);
-    size_t getNumConstraints() const { return mConstraints.size(); } // for unit-test
+
+    size_t  getNumConstraints() const { return mConstraints.size(); } // for unit-test
+
+    LLIK::Constraint::ptr_t         getConstrForJoint(const std::string &joint_name) const;
+
+#ifdef LL_TEST
+    LLIK::Constraint::ptr_t         getConstraint(const LLIK::Constraint::Info& info);
+#endif // 
+
+protected:
+    void    initSingleton() override;
+
 private:
-    static std::shared_ptr<LLIK::Constraint> create(const LLIK::Constraint::Info& info);
-    std::map<std::string, std::shared_ptr<LLIK::Constraint> > mConstraints;
+    using constraint_cache_t = std::unordered_map<size_t, LLIK::Constraint::ptr_t>; // turn this into an unordered set?
+    using constraint_map_t = std::unordered_map<std::string, LLIK::Constraint::ptr_t>;
+
+    void                            processConstraintMappings(LLSD mappings);
+    LLIK::Constraint::ptr_t         getConstraint(LLSD constraint_def);
+
+    static LLIK::Constraint::ptr_t  create(const LLIK::Constraint::Info& info);
+    static LLIK::Constraint::ptr_t  create(LLSD &data);
+
+    constraint_cache_t  mConstraints;
+    constraint_map_t    mJointMapping;
 };
+
+
+namespace std
+{   // Specialization for std::hash<Constraint>
+    template<>
+    struct hash<LLIK::Constraint>
+    {
+        size_t operator()(LLIK::Constraint const& s) const noexcept
+        {
+            return s.generateHash();
+        }
+    };
+}
 
 #endif // LL_LLIK_H
 

@@ -100,10 +100,6 @@ constexpr S16 HAND_THUMB_RIGHT_3_ID = 95;
 // TODO: implement "allow incremental updates" policy
 // TODO: figure out how to handle scale of local_pos changes
 
-// HACK: the gConstraintFactory is a static global rather than a singleton
-// because I couldn't figure out how to make the singleton compile. - Leviathan
-LLIKConstraintFactory gConstraintFactory;
-
 namespace
 {
     //-----------------------------------------------------------------------------
@@ -119,6 +115,7 @@ const std::string PUPPET_ROOT_JOINT_NAME("mPelvis");    //Name of the root joint
 bool    LLPuppetMotion::sIsPuppetryEnabled(false);
 size_t  LLPuppetMotion::sPuppeteerEventMaxSize(0);
 
+#if 0
 // BEGIN HACK - generate hard-coded constraints for various joints
 LLIK::Constraint::ptr_t get_constraint_by_joint_id(S16 joint_id)
 {
@@ -539,10 +536,10 @@ LLIK::Constraint::ptr_t get_constraint_by_joint_id(S16 joint_id)
             break;
     }
     // TODO: add DoubleLimitedHinge Constraints for fingers
-    return gConstraintFactory.getConstraint(info);
+    return LLIKConstraintFactory::instance().getConstraint(info);
 }
 // END HACK
-
+#endif
 
 void LLPuppetMotion::DelayedEventQueue::addEvent(
         Timestamp remote_timestamp,
@@ -715,10 +712,13 @@ LLSD LLPuppetMotion::getSkeletonData()
 
 void LLPuppetMotion::updateSkeletonGeometry()
 {
+    LLIKConstraintFactory &factory(LLIKConstraintFactory::instance());
+
     for (auto& data_pair : mJointStates)
     {
         S16 joint_id = data_pair.first;
-        LLIK::Constraint::ptr_t constraint = get_constraint_by_joint_id(joint_id);
+
+        LLIK::Constraint::ptr_t constraint(factory.getConstrForJoint(data_pair.second->getJoint()->getName()));
         mIKSolver.resetJointGeometry(joint_id, constraint);
     }
     measureArmSpan();
@@ -1296,7 +1296,7 @@ void LLPuppetMotion::collectJoints(LLJoint* joint)
     S16 joint_id = joint->getJointNum();
     mJointStates[joint_id] = joint_state;
 
-    LLIK::Constraint::ptr_t constraint = get_constraint_by_joint_id(joint_id);
+    LLIK::Constraint::ptr_t constraint = LLIKConstraintFactory::instance().getConstrForJoint(joint->getName());
     mIKSolver.addJoint(joint_id, parent_id, joint, constraint);
 
     // Recurse through the children of this joint and add them to our joint control list
