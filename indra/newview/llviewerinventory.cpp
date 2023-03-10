@@ -1000,13 +1000,18 @@ void create_notecard_cb(const LLUUID& inv_item)
 
 LLInventoryCallbackManager gInventoryCallbacks;
 
-void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
-						   const LLUUID& parent, const LLTransactionID& transaction_id,
-						   const std::string& name,
-						   const std::string& desc, LLAssetType::EType asset_type,
-						   LLInventoryType::EType inv_type, U8 subtype,
-						   U32 next_owner_perm,
-						   LLPointer<LLInventoryCallback> cb)
+void create_inventory_item(
+    const LLUUID& agent_id,
+    const LLUUID& session_id,
+    const LLUUID& parent_id,
+    const LLTransactionID& transaction_id,
+    const std::string& name,
+    const std::string& desc,
+    LLAssetType::EType asset_type,
+    LLInventoryType::EType inv_type,
+    U8 subtype,
+    U32 next_owner_perm,
+    LLPointer<LLInventoryCallback> cb)
 {
 	//check if name is equal to one of special inventory items names
 	//EXT-5839
@@ -1027,6 +1032,49 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 		}
 	}
 
+#ifdef USE_AIS_FOR_NC
+    // D567 currently this doesn't work due to missing AIS3 support
+    if (AISAPI::isAvailable())
+    {
+        LLSD new_inventory = LLSD::emptyMap();
+        new_inventory["items"] = LLSD::emptyArray();
+
+        LLPermissions perms;
+        perms.init(
+            gAgentID,
+            gAgentID,
+            LLUUID::null,
+            LLUUID::null);
+        perms.initMasks(
+            PERM_ALL,
+            PERM_ALL,
+            PERM_NONE,
+            PERM_NONE,
+            next_owner_perm);
+
+        LLUUID null_id;
+        LLPointer<LLViewerInventoryItem> item = new LLViewerInventoryItem(
+            null_id, /*don't know yet*/
+            parent_id,
+            perms,
+            null_id, /*don't know yet*/
+            asset_type,
+            inv_type,
+            server_name,
+            desc,
+            LLSaleInfo(),
+            0,
+            0 /*don't know yet, whenever server creates it*/);
+        LLSD item_sd = item->asLLSD();
+        new_inventory["items"].append(item_sd);
+        AISAPI::CreateInventory(
+            parent_id,
+            new_inventory,
+            nullptr);
+        return;
+    }
+#endif
+
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_CreateInventoryItem);
 	msg->nextBlock(_PREHASH_AgentData);
@@ -1034,7 +1082,7 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 	msg->addUUIDFast(_PREHASH_SessionID, session_id);
 	msg->nextBlock(_PREHASH_InventoryBlock);
 	msg->addU32Fast(_PREHASH_CallbackID, gInventoryCallbacks.registerCB(cb));
-	msg->addUUIDFast(_PREHASH_FolderID, parent);
+	msg->addUUIDFast(_PREHASH_FolderID, parent_id);
 	msg->addUUIDFast(_PREHASH_TransactionID, transaction_id);
 	msg->addU32Fast(_PREHASH_NextOwnerMask, next_owner_perm);
 	msg->addS8Fast(_PREHASH_Type, (S8)asset_type);
