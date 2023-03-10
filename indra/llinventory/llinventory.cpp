@@ -812,6 +812,7 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
 	sd[INV_ITEM_ID_LABEL] = mUUID;
 	sd[INV_PARENT_ID_LABEL] = mParentUUID;
 	sd[INV_PERMISSIONS_LABEL] = ll_create_sd_from_permissions(mPermissions);
+    sd[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
 
 	U32 mask = mPermissions.getMaskBase();
 	if(((mask & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED)
@@ -867,13 +868,13 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
     w = INV_THUMBNAIL_LABEL;
     if (sd.has(w))
     {
-        LLSD thumbnail_map = sd[w];
+        const LLSD &thumbnail_map = sd[w];
         w = INV_ASSET_ID_LABEL;
         if (thumbnail_map.has(w))
         {
             mThumbnailUUID = thumbnail_map[w];
         }
-        /*
+        /* Example:
             <key> asset_id </key>
             <uuid> acc0ec86 - 17f2 - 4b92 - ab41 - 6718b1f755f7 </uuid>
             <key> perms </key>
@@ -1067,7 +1068,7 @@ LLSD LLInventoryCategory::asLLSD() const
     LLSD sd = LLSD();
     sd["item_id"] = mUUID;
     sd["parent_id"] = mParentUUID;
-    sd["thumbnail_id"] = mThumbnailUUID;
+    sd[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
     S8 type = static_cast<S8>(mPreferredType);
     sd["type"]      = type;
     sd["name"] = mName;
@@ -1103,22 +1104,12 @@ bool LLInventoryCategory::fromLLSD(const LLSD& sd)
     w = INV_THUMBNAIL_LABEL;
     if (sd.has(w))
     {
-        LLSD thumbnail_map = sd[w];
+        const LLSD &thumbnail_map = sd[w];
         w = INV_ASSET_ID_LABEL;
         if (thumbnail_map.has(w))
         {
             mThumbnailUUID = thumbnail_map[w];
         }
-        /*
-            <key> asset_id </key>
-            <uuid> acc0ec86 - 17f2 - 4b92 - ab41 - 6718b1f755f7 </uuid>
-            <key> perms </key>
-            <integer> 8 </integer>
-            <key>service</key>
-            <integer> 3 </integer>
-            <key>version</key>
-            <integer> 1 </key>
-        */
     }
     else
     {
@@ -1250,6 +1241,7 @@ LLSD LLInventoryCategory::exportLLSD() const
 	cat_data[INV_PARENT_ID_LABEL] = mParentUUID;
 	cat_data[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(mType);
 	cat_data[INV_PREFERRED_TYPE_LABEL] = LLFolderType::lookup(mPreferredType);
+    cat_data[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
 	cat_data[INV_NAME_LABEL] = mName;
 
 	return cat_data;
@@ -1273,6 +1265,14 @@ bool LLInventoryCategory::importLLSD(const LLSD& cat_data)
 	{
 		setPreferredType(LLFolderType::lookup(cat_data[INV_PREFERRED_TYPE_LABEL].asString()));
 	}
+    if (cat_data.has(INV_THUMBNAIL_LABEL))
+    {
+        const LLSD &thumbnail_data = cat_data[INV_THUMBNAIL_LABEL];
+        if (thumbnail_data.has(INV_ASSET_ID_LABEL))
+        {
+            setThumbnailUUID(thumbnail_data[INV_ASSET_ID_LABEL].asUUID());
+        }
+    }
 	if (cat_data.has(INV_NAME_LABEL))
 	{
 		mName = cat_data[INV_NAME_LABEL].asString();
