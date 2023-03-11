@@ -483,20 +483,17 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
     gInventory.onAISUpdateReceived("AISCommand", result);
 
     if (callback && !callback.empty())
-    {   
+    {
+        bool needs_callback = true;
         LLUUID id(LLUUID::null);
 
-        if (type == COPYLIBRARYCATEGORY)
-	    {
-            if (result.has("category_id"))
-            {
-                id = result["category_id"];
-            } //else signal failure
-			callback(id);
+        if (type == COPYLIBRARYCATEGORY && result.has("category_id"))
+        {
+            id = result["category_id"];
 	    }
 		if (type == CREATEINVENTORY)
 		{
-            bool informed_caller = false;
+            // CREATEINVENTORY can have multiple callbacks
 			if (result.has("_created_categories"))
 			{
 				LLSD& cats = result["_created_categories"];
@@ -505,7 +502,7 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
 				{
 					LLUUID cat_id = *cat_iter;
 					callback(cat_id);
-                    informed_caller = true;
+                    needs_callback = false;
 				}
 			}
 			if (result.has("_created_items"))
@@ -516,17 +513,17 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
 				{
 					LLUUID item_id = *item_iter;
 					callback(item_id);
-                    informed_caller = true;
+                    needs_callback = false;
 				}
 			}
-
-            if (!informed_caller)
-            {
-                // signal failure with null id
-                callback(id);
-            }
 		}
 
+        if (needs_callback)
+        {
+            // Call callback at least once regardless of failure.
+            // UPDATEITEM doesn't expect an id
+            callback(id);
+        }
     }
 
 }
