@@ -101,8 +101,6 @@ F32 LLViewerTexture::sCurrentTime = 0.0f;
 
 LLViewerTexture::EDebugTexels LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_OFF;
 
-const F32 desired_discard_bias_min = -2.0f; // -max number of levels to improve image quality by
-const F32 desired_discard_bias_max = (F32)MAX_DISCARD_LEVEL; // max number of levels to reduce image quality by
 const F64 log_2 = log(2.0);
 
 #if ADDRESS_SIZE == 32
@@ -469,8 +467,6 @@ void LLViewerTexture::initClass()
 }
 
 // tuning params
-const F32 discard_bias_delta = .25f;
-const F32 discard_delta_time = 0.5f;
 const F32 GPU_MEMORY_CHECK_WAIT_TIME = 1.0f;
 // non-const (used externally
 F32 texmem_lower_bound_scale = 0.85f;
