@@ -1420,7 +1420,7 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
                 }
             };
 
-            std::function<void(const LLUUID&)> callback_dest_create = [copy, item_id, callback_create_stock](const LLUUID& new_cat_id)
+            std::function<void(const LLUUID&)> callback_dest_create = [item_id, callback_create_stock](const LLUUID& new_cat_id)
             {
                 LLViewerInventoryCategory* dest_cat = gInventory.getCategory(new_cat_id);
                 LLViewerInventoryItem * viewer_inv_item = gInventory.getItem(item_id);

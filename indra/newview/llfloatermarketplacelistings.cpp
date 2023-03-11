@@ -479,7 +479,7 @@ void LLFloaterMarketplaceListings::setRootFolder()
                 gInventory.getRootFolderID(),
                 preferred_type,
                 LLStringUtil::null,
-                [preferred_type](const LLUUID &new_cat_id)
+                [](const LLUUID &new_cat_id)
             {
                 LLFloaterMarketplaceListings *marketplace = LLFloaterReg::findTypedInstance<LLFloaterMarketplaceListings>("marketplace_listings");
                 if (marketplace)

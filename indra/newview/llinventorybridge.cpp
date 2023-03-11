@@ -3380,7 +3380,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 
             LLMarketplaceValidator::getInstance()->validateMarketplaceListings(
                 version_folder_id,
-                [this, version_folder_id](bool result)
+                [this](bool result)
             {
                 // todo: might need to ensure bridge/mUUID exists or this will cause crashes
                 if (!result)
