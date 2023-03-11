@@ -270,7 +270,6 @@ LLSD LLIK::Constraint::asLLSD() const
     LLSD data(LLSD::emptyMap());
 
     data["forward_axis"] = mForward.getValue();
-
     data["type"] = constraint_type_to_name(mType);
 
     return data;
@@ -333,7 +332,7 @@ LLIK::SimpleCone::SimpleCone(const LLVector3& forward, F32 max_angle)
 LLIK::SimpleCone::SimpleCone(LLSD &parameters):
     LLIK::Constraint(LLIK::Constraint::Info::SIMPLE_CONE_CONSTRAINT, parameters)
 {
-    mMaxAngle = std::abs(parameters["max_angle"].asReal());
+    mMaxAngle = std::abs(parameters["max_angle"].asReal()) * DEG_TO_RAD;
     mCosConeAngle = std::cos(mMaxAngle);
     mSinConeAngle = std::sin(mMaxAngle);
 }
@@ -341,7 +340,7 @@ LLIK::SimpleCone::SimpleCone(LLSD &parameters):
 LLSD LLIK::SimpleCone::asLLSD() const
 {
     LLSD data = Constraint::asLLSD();
-    data["max_angle"] = mMaxAngle;
+    data["max_angle"] = mMaxAngle * DEG_TO_RAD;
 
     return data;
 }
@@ -409,11 +408,11 @@ LLIK::TwistLimitedCone::TwistLimitedCone(const LLVector3& forward, F32 cone_angl
 LLIK::TwistLimitedCone::TwistLimitedCone(LLSD &parameters):
     LLIK::Constraint(LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT, parameters)
 {
-    mConeAngle = parameters["cone_angle"].asReal();
+    mConeAngle = parameters["cone_angle"].asReal() * DEG_TO_RAD;
     mCosConeAngle = std::cos(mConeAngle);
     mSinConeAngle = std::sin(mConeAngle);
-    mMinTwist = parameters["min_twist"].asReal();
-    mMaxTwist = parameters["max_twist"].asReal();
+    mMinTwist = parameters["min_twist"].asReal() * DEG_TO_RAD;
+    mMaxTwist = parameters["max_twist"].asReal() * DEG_TO_RAD;
 
     compute_angle_limits(mMinTwist, mMaxTwist);
 }
@@ -421,9 +420,9 @@ LLIK::TwistLimitedCone::TwistLimitedCone(LLSD &parameters):
 LLSD LLIK::TwistLimitedCone::asLLSD() const
 {
     LLSD data = Constraint::asLLSD();
-    data["cone_angle"] = mConeAngle;
-    data["min_twist"] = mMinTwist;
-    data["max_twist"] = mMaxTwist;
+    data["cone_angle"] = mConeAngle * DEG_TO_RAD;
+    data["min_twist"] = mMinTwist * DEG_TO_RAD;
+    data["max_twist"] = mMaxTwist * DEG_TO_RAD;
 
     return data;
 }
@@ -559,12 +558,12 @@ LLIK::ElbowConstraint::ElbowConstraint(LLSD &parameters):
 
     mLeft = mPivotAxis % mForward;
 
-    mMinBend = parameters["min_bend"].asReal();
-    mMaxBend = parameters["max_bend"].asReal();
+    mMinBend = parameters["min_bend"].asReal() * DEG_TO_RAD;
+    mMaxBend = parameters["max_bend"].asReal() * DEG_TO_RAD;
     compute_angle_limits(mMinBend, mMaxBend);
 
-    mMinTwist = parameters["min_twist"].asReal();
-    mMaxTwist = parameters["max_twist"].asReal();
+    mMinTwist = parameters["min_twist"].asReal() * DEG_TO_RAD;
+    mMaxTwist = parameters["max_twist"].asReal() * DEG_TO_RAD;
     compute_angle_limits(mMinTwist, mMaxTwist);
 }
 
@@ -572,10 +571,10 @@ LLSD LLIK::ElbowConstraint::asLLSD() const
 {
     LLSD data = Constraint::asLLSD();
     data["pivot_axis"] = mPivotAxis.getValue();
-    data["min_bend"] = mMinBend;
-    data["max_bend"] = mMaxBend;
-    data["min_twist"] = mMinTwist;
-    data["max_twist"] = mMaxTwist;
+    data["min_bend"] = mMinBend * DEG_TO_RAD;
+    data["max_bend"] = mMaxBend * DEG_TO_RAD;
+    data["min_twist"] = mMinTwist * DEG_TO_RAD;
+    data["max_twist"] = mMaxTwist * DEG_TO_RAD;
 
     return data;
 }
@@ -700,8 +699,8 @@ LLIK::KneeConstraint::KneeConstraint(LLSD &parameters):
     mPivotAxis.normalize();
     mLeft = mPivotAxis % mForward;
 
-    mMinBend = parameters["min_bend"].asReal();
-    mMaxBend = parameters["max_bend"].asReal();
+    mMinBend = parameters["min_bend"].asReal() * DEG_TO_RAD;
+    mMaxBend = parameters["max_bend"].asReal() * DEG_TO_RAD;
     compute_angle_limits(mMinBend, mMaxBend);
 }
 
@@ -709,8 +708,8 @@ LLSD LLIK::KneeConstraint::asLLSD() const
 {
     LLSD data = Constraint::asLLSD();
     data["pivot_axis"] = mPivotAxis.getValue();
-    data["min_bend"] = mMinBend;
-    data["max_bend"] = mMaxBend;
+    data["min_bend"] = mMinBend * DEG_TO_RAD;
+    data["max_bend"] = mMaxBend * DEG_TO_RAD;
 
     return data;
 }
@@ -1073,13 +1072,13 @@ LLIK::DoubleLimitedHinge::DoubleLimitedHinge(LLSD &parameters):
     mUp.normalize();
     mLeft = mUp % mForward;
 
-    mMinYaw = parameters["min_yaw"].asReal();
-    mMaxYaw = parameters["max_yaw"].asReal();
+    mMinYaw = parameters["min_yaw"].asReal() * DEG_TO_RAD;
+    mMaxYaw = parameters["max_yaw"].asReal() * DEG_TO_RAD;
     compute_angle_limits(mMinYaw, mMaxYaw);
 
     // keep pitch in range [-PI/2, PI/2]
     constexpr F32 HALF_PI = 0.5f * F_PI;
-    mMinPitch = remove_multiples_of_two_pi(parameters["min_pitch"].asReal());
+    mMinPitch = remove_multiples_of_two_pi(parameters["min_pitch"].asReal() * DEG_TO_RAD);
     if (mMinPitch > HALF_PI)
     {
         mMinPitch = HALF_PI;
@@ -1088,7 +1087,7 @@ LLIK::DoubleLimitedHinge::DoubleLimitedHinge(LLSD &parameters):
     {
         mMinPitch = -HALF_PI;
     }
-    mMaxPitch = remove_multiples_of_two_pi(parameters["max_pitch"].asReal());
+    mMaxPitch = remove_multiples_of_two_pi(parameters["max_pitch"].asReal() * DEG_TO_RAD);
     if (mMaxPitch > HALF_PI)
     {
         mMaxPitch = HALF_PI;
@@ -1110,10 +1109,10 @@ LLSD LLIK::DoubleLimitedHinge::asLLSD() const
     LLSD data = Constraint::asLLSD();
 
     data["up_axis"] = mUp.getValue();
-    data["min_yaw"] = mMinYaw;
-    data["max_yaw"] = mMaxYaw;
-    data["min_pitch"] = mMinPitch;
-    data["max_pitch"] = mMaxPitch;
+    data["min_yaw"] = mMinYaw * DEG_TO_RAD;
+    data["max_yaw"] = mMaxYaw * DEG_TO_RAD;
+    data["min_pitch"] = mMinPitch * DEG_TO_RAD;
+    data["max_pitch"] = mMaxPitch * DEG_TO_RAD;
 
     return data;
 }
@@ -3380,6 +3379,7 @@ LLIK::Constraint::ptr_t LLIKConstraintFactory::getConstraint(LLSD constraint_def
     return ptr;
 }
 
+#ifdef LL_TEST
 // static
 LLIK::Constraint::ptr_t LLIKConstraintFactory::create(const LLIK::Constraint::Info& info)
 {
@@ -3457,6 +3457,7 @@ LLIK::Constraint::ptr_t LLIKConstraintFactory::create(const LLIK::Constraint::In
     }
     return ptr;
 }
+#endif
 
 // static
 std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::create(LLSD &data)

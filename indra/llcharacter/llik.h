@@ -713,17 +713,15 @@ class LLIKConstraintFactory: public LLSingleton<LLIKConstraintFactory>
     LLSINGLETON_EMPTY_CTOR_C11(LLIKConstraintFactory)
 
 public:
-
-    size_t  getNumConstraints() const { return mConstraints.size(); } // for unit-test
+    size_t                          getNumConstraints() const { return mConstraints.size(); } // for unit-test
 
     LLIK::Constraint::ptr_t         getConstrForJoint(const std::string &joint_name) const;
-
 #ifdef LL_TEST
     LLIK::Constraint::ptr_t         getConstraint(const LLIK::Constraint::Info& info);
 #endif // 
 
 protected:
-    void    initSingleton() override;
+    void                            initSingleton() override;
 
 private:
     using constraint_cache_t = std::unordered_map<size_t, LLIK::Constraint::ptr_t>; // turn this into an unordered set?
@@ -732,7 +730,9 @@ private:
     void                            processConstraintMappings(LLSD mappings);
     LLIK::Constraint::ptr_t         getConstraint(LLSD constraint_def);
 
+#ifdef LL_TEST
     static LLIK::Constraint::ptr_t  create(const LLIK::Constraint::Info& info);
+#endif
     static LLIK::Constraint::ptr_t  create(LLSD &data);
 
     constraint_cache_t  mConstraints;

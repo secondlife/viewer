@@ -2,29 +2,29 @@
 {
     'mChest':
         {
-            'cone_angle':r0.0628319,
+            'cone_angle':r3.6,
             'forward_axis':
                 [r0,r0,r1],
-            'max_twist':r0.0628319,
-            'min_twist':r-0.0628319,
+            'max_twist':r3.6,
+            'min_twist':r-3.6,
             'type':'TWIST_LIMITED_CONE'
         },
     'mCollarLeft':
         {
-            'cone_angle':r0.15708,
+            'cone_angle':r9,
             'forward_axis':
                 [r-0.021,r0.085,r0.165],
-            'max_twist':r0.314159,
-            'min_twist':r-0.314159,
+            'max_twist':r18,
+            'min_twist':r-18,
             'type':'TWIST_LIMITED_CONE'
         },
     'mCollarRight':
         {
-            'cone_angle':r0.15708,
+            'cone_angle':r9,
             'forward_axis':
                 [r-0.021,r-0.085,r0.165],
-            'max_twist':r0.314159,
-            'min_twist':r-0.314159,
+            'max_twist':r18,
+            'min_twist':r-18,
             'type':'TWIST_LIMITED_CONE'
         },
     'mElbowLeft':
@@ -32,9 +32,9 @@
             'forward_axis':
                 [r0,r1,r0],
             'max_bend':r0,
-            'max_twist':r2.35619,
-            'min_bend':r-2.74889,
-            'min_twist':r-0.785398,
+            'max_twist':r135,
+            'min_bend':r-157.5,
+            'min_twist':r-45,
             'pivot_axis':
                 [r0,r0,r1],
             'type':'ELBOW'
@@ -44,9 +44,9 @@
             'forward_axis':
                 [r-0,r-1,r-0],
             'max_bend':r0,
-            'max_twist':r2.35619,
-            'min_bend':r-2.74889,
-            'min_twist':r-0.785398,
+            'max_twist':r135,
+            'min_bend':r-157.5,
+            'min_twist':r-45,
             'pivot_axis':
                 [r-0,r-0,r-1],
             'type':'ELBOW'
@@ -55,10 +55,10 @@
         {
             'forward_axis':
                 [r0.038,r0.097,r0.015],
-            'max_pitch':r1.39626,
-            'max_yaw':r0.15708,
+            'max_pitch':r80,
+            'max_yaw':r9,
             'min_pitch':r0,
-            'min_yaw':r-0.15708,
+            'min_yaw':r-9,
             'type':'DOUBLE_LIMITED_HINGE',
             'up_axis':
                 [r0,r0,r1]
@@ -67,10 +67,10 @@
         {
             'forward_axis':
                 [r0.038,r-0.097,r0.015],
-            'max_pitch':r1.39626,
-            'max_yaw':r0.15708,
+            'max_pitch':r80,
+            'max_yaw':r9,
             'min_pitch':r0,
-            'min_yaw':r-0.15708,
+            'min_yaw':r-9,
             'type':'DOUBLE_LIMITED_HINGE',
             'up_axis':
                 [r0,r0,r1]
@@ -79,7 +79,7 @@
         {
             'forward_axis':
                 [r0.017,r0.036,r-0.006],
-            'max_bend':r1.5708,
+            'max_bend':r90,
             'min_bend':r0,
             'pivot_axis':
                 [r-1,r-0,r-0],
@@ -89,7 +89,7 @@
         {
             'forward_axis':
                 [r0.017,r-0.036,r-0.006],
-            'max_bend':r1.5708,
+            'max_bend':r90,
             'min_bend':r0,
             'pivot_axis':
                 [r1,r0,r0],
@@ -99,7 +99,7 @@
         {
             'forward_axis':
                 [r0.014,r0.032,r-0.006],
-            'max_bend':r1.25664,
+            'max_bend':r72,
             'min_bend':r0,
             'pivot_axis':
                 [r-1,r-0,r-0],
@@ -109,7 +109,7 @@
         {
             'forward_axis':
                 [r0.014,r-0.032,r-0.006],
-            'max_bend':r1.25664,
+            'max_bend':r72,
             'min_bend':r0,
             'pivot_axis':
                 [r1,r0,r0],
@@ -119,10 +119,10 @@
         {
             'forward_axis':
                 [r0.013,r0.101,r0.015],
-            'max_pitch':r0.942478,
-            'max_yaw':r0.15708,
+            'max_pitch':r54,
+            'max_yaw':r9,
             'min_pitch':r0,
-            'min_yaw':r-0.15708,
+            'min_yaw':r-9,
             'type':'DOUBLE_LIMITED_HINGE',
             'up_axis':
                 [r0,r0,r1]
@@ -131,10 +131,10 @@
         {
             'forward_axis':
                 [r0.013,r-0.101,r0.015],
-            'max_pitch':r0.942478,
-            'max_yaw':r0.15708,
+            'max_pitch':r54,
+            'max_yaw':r9,
             'min_pitch':r0,
-            'min_yaw':r-0.15708,
+            'min_yaw':r-9,
             'type':'DOUBLE_LIMITED_HINGE',
             'up_axis':
                 [r0,r0,r1]
@@ -143,7 +143,7 @@
         {
             'forward_axis':
                 [r-0.001,r0.04,r-0.006],
-            'max_bend':r1.5708,
+            'max_bend':r90,
             'min_bend':r0,
             'pivot_axis':
                 [r-1,r-0,r-0],
@@ -153,7 +153,7 @@
         {
             'forward_axis':
                 [r-0.001,r-0.04,r-0.006],
-            'max_bend':r1.5708,
+            'max_bend':r90,
             'min_bend':r0,
             'pivot_axis':
                 [r1,r0,r0],
@@ -163,7 +163,7 @@
         {
             'forward_axis':
                 [r-0.001,r0.049,r-0.008],
-            'max_bend':r1.25664,
+            'max_bend':r72,
             'min_bend':r0,
             'pivot_axis':
                 [r-1,r-0,r-0],
@@ -173,7 +173,7 @@
         {
             'forward_axis':
                 [r-0.001,r-0.049,r-0.008],
-            'max_bend':r1.25664,
+            'max_bend':r72,
             'min_bend':r0,
             'pivot_axis':
                 [r1,r0,r0],
@@ -183,10 +183,10 @@
         {
             'forward_axis':
                 [r-0.031,r0.095,r0.003],
-            'max_pitch':r1.39626,
-            'max_yaw':r0.15708,
+            'max_pitch':r80,
+            'max_yaw':r9,
             'min_pitch':r0,
-            'min_yaw':r-0.15708,
+            'min_yaw':r-9,
             'type':'DOUBLE_LIMITED_HINGE',
             'up_axis':
                 [r0,r0,r1]
@@ -195,10 +195,10 @@
         {
             'forward_axis':
                 [r-0.031,r-0.095,r0.003],
-            'max_pitch':r1.39626,
-            'max_yaw':r0.15708,
+            'max_pitch':r80,
+            'max_yaw':r9,
             'min_pitch':r0,
-            'min_yaw':r-0.15708,
+            'min_yaw':r-9,
             'type':'DOUBLE_LIMITED_HINGE',
             'up_axis':
                 [r0,r0,r1]
@@ -207,7 +207,7 @@
         {
             'forward_axis':
                 [r-0.024,r0.025,r-0.006],
-            'max_bend':r1.5708,
+            'max_bend':r90,
             'min_bend':r0,
             'pivot_axis':
                 [r-1,r-0,r-0],
@@ -217,7 +217,7 @@
         {
             'forward_axis':
                 [r-0.024,r-0.025,r-0.006],
-            'max_bend':r1.5708,
+            'max_bend':r90,
             'min_bend':r0,
             'pivot_axis':
                 [r1,r0,r0],
@@ -227,7 +227,7 @@
         {
             'forward_axis':
                 [r-0.015,r0.018,r-0.004],
-            'max_bend':r1.25664,
+            'max_bend':r72,
             'min_bend':r0,
             'pivot_axis':
                 [r-1,r-0,r-0],
@@ -237,7 +237,7 @@
         {
             'forward_axis':
                 [r-0.015,r-0.018,r-0.004],
-            'max_bend':r1.25664,
+            'max_bend':r72,
             'min_bend':r0,
             'pivot_axis':
                 [r1,r0,r0],
@@ -247,10 +247,10 @@
         {
             'forward_axis':
                 [r-0.01,r0.099,r0.009],
-            'max_pitch':r1.39626,
-            'max_yaw':r0.15708,
+            'max_pitch':r80,
+            'max_yaw':r9,
             'min_pitch':r0,
-            'min_yaw':r-0.15708,
+            'min_yaw':r-9,
             'type':'DOUBLE_LIMITED_HINGE',
             'up_axis':
                 [r0,r0,r1]
@@ -259,10 +259,10 @@
         {
             'forward_axis':
                 [r-0.01,r-0.099,r0.009],
-            'max_pitch':r1.39626,
-            'max_yaw':r0.15708,
+            'max_pitch':r80,
+            'max_yaw':r9,
             'min_pitch':r0,
-            'min_yaw':r-0.15708,
+            'min_yaw':r-9,
             'type':'DOUBLE_LIMITED_HINGE',
             'up_axis':
                 [r0,r0,r1]
@@ -271,7 +271,7 @@
         {
             'forward_axis':
                 [r-0.013,r0.038,r-0.008],
-            'max_bend':r1.5708,
+            'max_bend':r90,
             'min_bend':r0,
             'pivot_axis':
                 [r-1,r-0,r-0],
@@ -281,7 +281,7 @@
         {
             'forward_axis':
                 [r-0.013,r-0.038,r-0.008],
-            'max_bend':r1.5708,
+            'max_bend':r90,
             'min_bend':r0,
             'pivot_axis':
                 [r1,r0,r0],
@@ -291,7 +291,7 @@
         {
             'forward_axis':
                 [r-0.013,r0.04,r-0.009],
-            'max_bend':r1.25664,
+            'max_bend':r72,
             'min_bend':r0,
             'pivot_axis':
                 [r-1,r-0,r-0],
@@ -301,7 +301,7 @@
         {
             'forward_axis':
                 [r-0.013,r-0.04,r-0.009],
-            'max_bend':r1.25664,
+            'max_bend':r72,
             'min_bend':r0,
             'pivot_axis':
                 [r1,r0,r0],
@@ -311,10 +311,10 @@
         {
             'forward_axis':
                 [r0.031,r0.026,r0.004],
-            'max_pitch':r0.785398,
-            'max_yaw':r0.15708,
-            'min_pitch':r-0.1,
-            'min_yaw':r-0.15708,
+            'max_pitch':r45,
+            'max_yaw':r9,
+            'min_pitch':r-5.72958,
+            'min_yaw':r-9,
             'type':'DOUBLE_LIMITED_HINGE',
             'up_axis':
                 [r1,r-1,r1]
@@ -323,10 +323,10 @@
         {
             'forward_axis':
                 [r0.031,r-0.026,r0.004],
-            'max_pitch':r0.785398,
-            'max_yaw':r0.15708,
-            'min_pitch':r-0.1,
-            'min_yaw':r-0.15708,
+            'max_pitch':r45,
+            'max_yaw':r9,
+            'min_pitch':r-5.72958,
+            'min_yaw':r-9,
             'type':'DOUBLE_LIMITED_HINGE',
             'up_axis':
                 [r1,r1,r1]
@@ -335,7 +335,7 @@
         {
             'forward_axis':
                 [r0.028,r0.032,r-0.001],
-            'max_bend':r0.942478,
+            'max_bend':r54,
             'min_bend':r0,
             'pivot_axis':
                 [r-1,r0,r1],
@@ -345,7 +345,7 @@
         {
             'forward_axis':
                 [r0.028,r-0.032,r-0.001],
-            'max_bend':r0.942478,
+            'max_bend':r54,
             'min_bend':r0,
             'pivot_axis':
                 [r1,r0,r0],
@@ -355,7 +355,7 @@
         {
             'forward_axis':
                 [r0.023,r0.031,r-0.001],
-            'max_bend':r1.25664,
+            'max_bend':r72,
             'min_bend':r0,
             'pivot_axis':
                 [r-1,r0,r1],
@@ -365,7 +365,7 @@
         {
             'forward_axis':
                 [r0.023,r-0.031,r-0.001],
-            'max_bend':r1.25664,
+            'max_bend':r72,
             'min_bend':r0,
             'pivot_axis':
                 [r1,r0,r0],
@@ -373,65 +373,65 @@
         },
     'mHead':
         {
-            'cone_angle':r0.785398,
+            'cone_angle':r45,
             'forward_axis':
                 [r0,r0,r1],
-            'max_twist':r0.785398,
-            'min_twist':r-0.785398,
+            'max_twist':r45,
+            'min_twist':r-45,
             'type':'TWIST_LIMITED_CONE'
         },
     'mNeck':
         {
-            'cone_angle':r0.785398,
+            'cone_angle':r45,
             'forward_axis':
                 [r0,r0,r1],
-            'max_twist':r0.785398,
-            'min_twist':r-0.785398,
+            'max_twist':r45,
+            'min_twist':r-45,
             'type':'TWIST_LIMITED_CONE'
         },
     'mShoulderLeft':
         {
-            'cone_angle':r1.5708,
+            'cone_angle':r90,
             'forward_axis':
                 [r0,r1,r0],
-            'max_twist':r1.7952,
-            'min_twist':r-1.25664,
+            'max_twist':r102.857,
+            'min_twist':r-72,
             'type':'TWIST_LIMITED_CONE'
         },
     'mShoulderRight':
         {
-            'cone_angle':r1.5708,
+            'cone_angle':r90,
             'forward_axis':
                 [r-0,r-1,r-0],
-            'max_twist':r1.7952,
-            'min_twist':r-1.25664,
+            'max_twist':r102.857,
+            'min_twist':r-72,
             'type':'TWIST_LIMITED_CONE'
         },
     'mTorso':
         {
-            'cone_angle':r0.015708,
+            'cone_angle':r0.9,
             'forward_axis':
                 [r0,r0,r1],
-            'max_twist':r0.015708,
-            'min_twist':r-0.015708,
+            'max_twist':r0.9,
+            'min_twist':r-0.9,
             'type':'TWIST_LIMITED_CONE'
         },
     'mWristLeft':
         {
-            'cone_angle':r0.785398,
+            'cone_angle':r45,
             'forward_axis':
                 [r0,r1,r0],
-            'max_twist':r0.05,
-            'min_twist':r-0.05,
+            'max_twist':r2.86479,
+            'min_twist':r-2.86479,
             'type':'TWIST_LIMITED_CONE'
         },
     'mWristRight':
         {
-            'cone_angle':r0.785398,
+            'cone_angle':r45,
             'forward_axis':
                 [r-0,r-1,r-0],
-            'max_twist':r0.05,
-            'min_twist':r-0.05,
+            'max_twist':r2.86479,
+            'min_twist':r-2.86479,
             'type':'TWIST_LIMITED_CONE'
         }
 }
