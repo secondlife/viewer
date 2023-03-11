@@ -1113,6 +1113,45 @@ void LLImageGL::postAddToAtlas()
 	stop_glerror();	
 }
 
+// Equivalent to calling glSetSubImage2D(target, miplevel, x_offset, y_offset, width, height, pixformat, pixtype, src)
+// However, instead there are multiple calls to glSetSubImage2D on smaller slices of the image
+void subImageLines(U32 target, S32 miplevel, S32 x_offset, S32 y_offset, S32 width, S32 height, U32 pixformat, U32 pixtype, const U8* src)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
+    U32 components = LLImageGL::dataFormatComponents(pixformat);
+    U32 type_width = 0;
+
+    switch (pixtype)
+    {
+    case GL_UNSIGNED_BYTE:
+    case GL_BYTE:
+    case GL_UNSIGNED_INT_8_8_8_8_REV:
+        type_width = 1;
+        break;
+    case GL_UNSIGNED_SHORT:
+    case GL_SHORT:
+        type_width = 2;
+        break;
+    case GL_UNSIGNED_INT:
+    case GL_INT:
+    case GL_FLOAT:
+        type_width = 4;
+        break;
+    default:
+        LL_ERRS() << "Unknown type: " << pixtype << LL_ENDL;
+    }
+
+    const U32 line_width = width * components * type_width;
+    const U32 y_offset_end = y_offset + height;
+    for (U32 y = y_offset; y < y_offset_end; ++y)
+    {
+        const S32 y_pos = y + y_offset;
+        glTexSubImage2D(target, miplevel, x_offset, y_pos, width, 1, pixformat, pixtype, src);
+        src += line_width;
+    }
+}
+
 BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update /* = FALSE */, LLGLuint use_name)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
@@ -1193,6 +1232,10 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 		if (!res) LL_ERRS() << "LLImageGL::setSubImage(): bindTexture failed" << LL_ENDL;
 		stop_glerror();
 
+        // *TODO: glTexSubImage2D may not work on a subset of the texture if
+        // the texture is compressed. Make sure the image isn't compressed
+        // when using this function, then it's safe to replace this call with
+        // subImageLines, when it is performant to do so (see setManualImage)
 		glTexSubImage2D(mTarget, 0, x_pos, y_pos, width, height, mFormatPrimary, mFormatType, datap);
 		gGL.getTexUnit(0)->disable();
 		stop_glerror();
@@ -1359,7 +1402,8 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
         }
     }
 
-    if (LLImageGL::sCompressTextures && allow_compression)
+    const bool compress = LLImageGL::sCompressTextures && allow_compression;
+    if (compress)
     {
         switch (intformat)
         {
@@ -1412,11 +1456,11 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
         const bool use_sub_image = false;
 #else
         // glTexSubImage2D doesn't work with compressed textures on select tested Nvidia GPUs on Windows 10 -Cosmic,2023-03-08
-        const bool use_sub_image = !allow_compression;
+        const bool use_sub_image = !compress;
 #endif
         if (!use_sub_image)
         {
-            LL_PROFILE_ZONE_NAMED("glTexImage2D alloc");
+            LL_PROFILE_ZONE_NAMED("glTexImage2D alloc + copy");
             glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, use_scratch ? scratch : pixels);
         }
         else
@@ -1431,35 +1475,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
             if (src)
             {
                 LL_PROFILE_ZONE_NAMED("glTexImage2D copy");
-                U32 components = dataFormatComponents(pixformat);
-                U32 type_width = 0;
-
-                switch (pixtype)
-                {
-                case GL_UNSIGNED_BYTE:
-                case GL_BYTE:
-                case GL_UNSIGNED_INT_8_8_8_8_REV:
-                    type_width = 1;
-                    break;
-                case GL_UNSIGNED_SHORT:
-                case GL_SHORT:
-                    type_width = 2;
-                    break;
-                case GL_UNSIGNED_INT:
-                case GL_INT:
-                case GL_FLOAT:
-                    type_width = 4;
-                    break;
-                default:
-                    LL_ERRS() << "Unknown type: " << pixtype << LL_ENDL;
-                }
-
-                U32 line_width = width * components * type_width;
-                for (U32 y = 0; y < height; ++y)
-                {
-                    glTexSubImage2D(target, miplevel, 0, y, width, 1, pixformat, pixtype, src);
-                    src += line_width;
-                }
+                subImageLines(target, miplevel, 0, 0, width, height, pixformat, pixtype, src);
             }
         }
         alloc_tex_image(width, height, pixformat);
