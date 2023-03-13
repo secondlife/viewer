@@ -210,9 +210,9 @@ uniform float minimum_alpha;
 #endif
 
 #ifdef HAS_NORMAL_MAP
-VARYING vec3 vary_mat0;
-VARYING vec3 vary_mat1;
-VARYING vec3 vary_mat2;
+in vec3 vary_normal;
+in vec3 vary_tangent;
+flat in float vary_sign;
 VARYING vec2 vary_texcoord1;
 #else
 VARYING vec3 vary_normal;
@@ -227,14 +227,17 @@ vec2 encode_normal(vec3 n);
 vec3 getNormal(inout float glossiness)
 {
 #ifdef HAS_NORMAL_MAP
-	vec4 norm = texture2D(bumpMap, vary_texcoord1.xy);
-    glossiness *= norm.a;
+	vec4 vNt = texture2D(bumpMap, vary_texcoord1.xy);
+    glossiness *= vNt.a;
+	vNt.xyz = vNt.xyz * 2 - 1;
+    float sign = vary_sign;
+    vec3 vN = vary_normal;
+    vec3 vT = vary_tangent.xyz;
+    
+    vec3 vB = sign * cross(vN, vT);
+    vec3 tnorm = normalize( vNt.x * vT + vNt.y * vB + vNt.z * vN );
 
-	norm.xyz = norm.xyz * 2 - 1;
-
-	return normalize(vec3(dot(norm.xyz,vary_mat0),
-			  dot(norm.xyz,vary_mat1),
-			  dot(norm.xyz,vary_mat2)));
+	return tnorm;
 #else
 	return normalize(vary_normal);
 #endif
@@ -316,6 +319,7 @@ void main()
     //forward rendering, output lit linear color
     diffcol.rgb = srgb_to_linear(diffcol.rgb);
     spec.rgb = srgb_to_linear(spec.rgb);
+    spec.a = glossiness; // pack glossiness into spec alpha for lighting functions
 
     vec3 pos = vary_position;
 
@@ -334,16 +338,19 @@ void main()
     vec3 atten;
     calcAtmosphericVarsLinear(pos.xyz, norm.xyz, light_dir, sunlit, amblit, additive, atten);
     
+    vec3 sunlit_linear = srgb_to_linear(sunlit);
+    vec3 amblit_linear = amblit;
+
     vec3 ambenv;
     vec3 glossenv;
     vec3 legacyenv;
     sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos.xy*0.5+0.5, pos.xyz, norm.xyz, glossiness, env);
     
     // use sky settings ambient or irradiance map sample, whichever is brighter
-    color = max(amblit, ambenv);
+    color = max(amblit_linear, ambenv);
 
     float da          = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
-    vec3 sun_contrib = min(da, shadow) * sunlit;
+    vec3 sun_contrib = min(da, shadow) * sunlit_linear;
     color.rgb += sun_contrib;
     color *= diffcol.rgb;
 
@@ -354,7 +361,7 @@ void main()
     if (glossiness > 0.0)  // specular reflection
     {
         float sa        = dot(normalize(refnormpersp), light_dir.xyz);
-        vec3  dumbshiny = sunlit * shadow * (texture2D(lightFunc, vec2(sa, glossiness)).r);
+        vec3  dumbshiny = sunlit_linear * shadow * (texture2D(lightFunc, vec2(sa, glossiness)).r);
 
         // add the two types of shiny together
         vec3 spec_contrib = dumbshiny * spec.rgb;
@@ -379,8 +386,10 @@ void main()
         glare += cur_glare;
     }
 
-    color.rgb = mix(atmosFragLightingLinear(color.rgb, additive, atten), fullbrightAtmosTransportFragLinear(color, additive, atten), emissive); 
+    color.rgb = linear_to_srgb(color.rgb);
+    color.rgb = atmosFragLightingLinear(color.rgb, additive, atten); 
     color.rgb = scaleSoftClipFragLinear(color.rgb);
+    color.rgb = srgb_to_linear(color.rgb);
 
     vec3 npos = normalize(-pos.xyz);
     vec3 light = vec3(0, 0, 0);

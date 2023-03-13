@@ -74,7 +74,6 @@ const float ONE_OVER_PI = 0.3183098861;
 
 vec3 srgb_to_linear(vec3 cs);
 vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
-vec3 scaleSoftClipFragLinear(vec3 light);
 
 float calcLegacyDistanceAttenuation(float distance, float falloff)
 {
@@ -396,7 +395,7 @@ vec3 pbrIbl(vec3 diffuseColor,
 
     specContrib = specular * ao;
 
-	return (diffuse + specular*0.5) * ao;  //reduce by half to place in appropriate color space for atmospherics
+	return (diffuse + specular) * ao;
 }
 
 vec3 pbrIbl(vec3 diffuseColor,
@@ -562,16 +561,13 @@ vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v,
     float NdotV = clamp(abs(dot(norm, v)), 0.001, 1.0);
     
     vec3 ibl_spec;
-    color += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, 0.2, ibl_spec);
+    color += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness, ibl_spec);
     
     color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, v, normalize(light_dir), specContrib) * sunlit * 2.75 * scol;
     specContrib *= sunlit * 2.75 * scol;
     specContrib += ibl_spec;
 
-    color += colorEmissive*0.5;
-
-    color = atmosFragLightingLinear(color, additive, atten);
-    color = scaleSoftClipFragLinear(color);
+    color += colorEmissive;
 
     return color;
 }

@@ -628,6 +628,14 @@ void LLVOVolume::animateTextures()
                 LLGLTFMaterial *gltf_mat = te->getGLTFRenderMaterial();
                 const bool is_pbr = gltf_mat != nullptr;
 
+				if (!facep->mTextureMatrix)
+				{
+					facep->mTextureMatrix = new LLMatrix4();
+				}
+
+				LLMatrix4& tex_mat = *facep->mTextureMatrix;
+				tex_mat.setIdentity();
+
                 if (!is_pbr)
                 {
                     if (!(result & LLViewerTextureAnim::ROTATE))
@@ -642,32 +650,65 @@ void LLVOVolume::animateTextures()
                     {
                         te->getScale(&scale_s, &scale_t);
                     }
+
+                    LLVector3 trans ;
+
+                        trans.set(LLVector3(off_s+0.5f, off_t+0.5f, 0.f));			
+                        tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
+
+                    LLVector3 scale(scale_s, scale_t, 1.f);			
+                    LLQuaternion quat;
+                    quat.setQuat(rot, 0, 0, -1.f);
+            
+                    tex_mat.rotate(quat);				
+
+                    LLMatrix4 mat;
+                    mat.initAll(scale, LLQuaternion(), LLVector3());
+                    tex_mat *= mat;
+            
+                    tex_mat.translate(trans);
                 }
+                else
+                {
+                    if (!(result & LLViewerTextureAnim::ROTATE))
+                    {
+                        rot = 0.0f;
+                    }
+                    if (!(result & LLViewerTextureAnim::TRANSLATE))
+                    {
+                        off_s = 0.0f;
+                        off_t = 0.0f;
+                    }
+                    if (!(result & LLViewerTextureAnim::SCALE))
+                    {
+                        scale_s = 1.0f;
+                        scale_t = 1.0f;
+                    }
 
-				if (!facep->mTextureMatrix)
-				{
-					facep->mTextureMatrix = new LLMatrix4();
-				}
+                    // For PBR materials, use Blinn-Phong rotation as hint for
+                    // translation direction. In a Blinn-Phong material, the
+                    // translation direction would be a byproduct the texture
+                    // transform.
+                    F32 rot_frame;
+                    te->getRotation(&rot_frame);
 
-				LLMatrix4& tex_mat = *facep->mTextureMatrix;
-				tex_mat.setIdentity();
+                    tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
 
-				LLVector3 trans ;
+                    LLQuaternion quat;
+                    quat.setQuat(rot, 0, 0, -1.f);
+                    tex_mat.rotate(quat);				
 
-					trans.set(LLVector3(off_s+0.5f, off_t+0.5f, 0.f));			
-					tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
+                    LLMatrix4 mat;
+                    LLVector3 scale(scale_s, scale_t, 1.f);			
+                    mat.initAll(scale, LLQuaternion(), LLVector3());
+                    tex_mat *= mat;
+            
+                    LLVector3 off(off_s, off_t, 0.f);
+                    off.rotVec(rot_frame, 0, 0, 1.f);
+                    tex_mat.translate(off);
 
-				LLVector3 scale(scale_s, scale_t, 1.f);			
-				LLQuaternion quat;
-				quat.setQuat(rot, 0, 0, -1.f);
-		
-				tex_mat.rotate(quat);				
-
-				LLMatrix4 mat;
-				mat.initAll(scale, LLQuaternion(), LLVector3());
-				tex_mat *= mat;
-		
-				tex_mat.translate(trans);
+                    tex_mat.translate(LLVector3(0.5f, 0.5f, 0.f));
+                }
 			}
 		}
 		else
@@ -817,12 +858,6 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 			continue;
 		}
 
-        // clear out boost selected periodically
-        if (imagep->getBoostLevel() == LLGLTexture::BOOST_SELECTED)
-        {
-            imagep->setBoostLevel(LLGLTexture::BOOST_NONE);
-        }
-
 		F32 vsize;
 		F32 old_size = face->getVirtualSize();
 
@@ -837,7 +872,6 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 		else
 		{
 			vsize = face->getTextureVirtualSize();
-            imagep->addTextureStats(vsize);
 		}
 
 		mPixelArea = llmax(mPixelArea, face->getPixelArea());
@@ -854,12 +888,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 			}
 		}
 				
-		if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
-		{
-			if (vsize < min_vsize) min_vsize = vsize;
-			if (vsize > max_vsize) max_vsize = vsize;
-		}
-		else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
+		if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
 		{
 			LLViewerFetchedTexture* img = LLViewerTextureManager::staticCastToFetchedTexture(imagep) ;
 			if(img)
@@ -924,7 +953,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 	{
 		LLLightImageParams* params = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
 		LLUUID id = params->getLightTexture();
-		mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM);
+		mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE);
 		if (mLightTexture.notNull())
 		{
 			F32 rad = getLightRadius();
@@ -3266,7 +3295,6 @@ void LLVOVolume::updateSpotLightPriority()
 	if (mLightTexture.notNull())
 	{
 		mLightTexture->addTextureStats(mSpotLightPriority);
-		mLightTexture->setBoostLevel(LLGLTexture::BOOST_CLOUDS);
 	}
 }
 
@@ -3290,7 +3318,7 @@ LLViewerTexture* LLVOVolume::getLightTexture()
 	{
 		if (mLightTexture.isNull() || id != mLightTexture->getID())
 		{
-			mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM);
+			mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE);
 		}
 	}
 	else
@@ -5105,6 +5133,7 @@ LLFace** LLVolumeGeometryManager::sSimpleFaces[2] = { NULL };
 LLFace** LLVolumeGeometryManager::sNormFaces[2] = { NULL };
 LLFace** LLVolumeGeometryManager::sSpecFaces[2] = { NULL };
 LLFace** LLVolumeGeometryManager::sNormSpecFaces[2] = { NULL };
+LLFace** LLVolumeGeometryManager::sPbrFaces[2] = { NULL };
 LLFace** LLVolumeGeometryManager::sAlphaFaces[2] = { NULL };
 
 LLVolumeGeometryManager::LLVolumeGeometryManager()
@@ -5141,6 +5170,7 @@ void LLVolumeGeometryManager::allocateFaces(U32 pMaxFaceCount)
         sNormFaces[i] = static_cast<LLFace**>(ll_aligned_malloc<64>(pMaxFaceCount * sizeof(LLFace*)));
         sSpecFaces[i] = static_cast<LLFace**>(ll_aligned_malloc<64>(pMaxFaceCount * sizeof(LLFace*)));
         sNormSpecFaces[i] = static_cast<LLFace**>(ll_aligned_malloc<64>(pMaxFaceCount * sizeof(LLFace*)));
+        sPbrFaces[i] = static_cast<LLFace**>(ll_aligned_malloc<64>(pMaxFaceCount * sizeof(LLFace*)));
         sAlphaFaces[i] = static_cast<LLFace**>(ll_aligned_malloc<64>(pMaxFaceCount * sizeof(LLFace*)));
     }
 }
@@ -5155,6 +5185,7 @@ void LLVolumeGeometryManager::freeFaces()
         ll_aligned_free<64>(sNormFaces[i]);
         ll_aligned_free<64>(sSpecFaces[i]);
         ll_aligned_free<64>(sNormSpecFaces[i]);
+        ll_aligned_free<64>(sPbrFaces[i]);
         ll_aligned_free<64>(sAlphaFaces[i]);
 
         sFullbrightFaces[i] = NULL;
@@ -5163,6 +5194,7 @@ void LLVolumeGeometryManager::freeFaces()
         sNormFaces[i] = NULL;
         sSpecFaces[i] = NULL;
         sNormSpecFaces[i] = NULL;
+        sPbrFaces[i] = NULL;
         sAlphaFaces[i] = NULL;
     }
 }
@@ -5437,7 +5469,8 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
     llassert(type != LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_RIGGED || info->mGLTFMaterial != nullptr);
     llassert(type != LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK || info->mGLTFMaterial != nullptr);
     llassert(type != LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK_RIGGED || info->mGLTFMaterial != nullptr);
-
+    
+    llassert(type != LLRenderPass::PASS_BUMP || (info->mVertexBuffer->getTypeMask() & LLVertexBuffer::MAP_TANGENT) != 0);
     llassert(type != LLRenderPass::PASS_NORMSPEC || info->mNormalMap.notNull());
 }
 
@@ -5596,6 +5629,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	U32 norm_count[2] = { 0 };
 	U32 spec_count[2] = { 0 };
 	U32 normspec_count[2] = { 0 };
+	U32 pbr_count[2] = { 0 };
 
 	static LLCachedControl<S32> max_vbo_size(gSavedSettings, "RenderMaxVBOSize", 512);
 	static LLCachedControl<S32> max_node_size(gSavedSettings, "RenderMaxNodeSize", 65536);
@@ -5709,7 +5743,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			rigged = rigged || (vobj->isAnimatedObject() && vobj->isRiggedMesh() &&
                 vobj->getControlAvatar() && vobj->getControlAvatar()->mPlaying);
 
-			bool bake_sunlight = LLPipeline::sBakeSunlight && drawablep->isStatic();
 			bool any_rigged_face = false;
 
 			//for each face
@@ -5867,23 +5900,20 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							facep->mLastUpdateTime = gFrameTimeSeconds;
 						}
 
-						if (gPipeline.canUseWindLightShadersOnObjects()
-							&& LLPipeline::sRenderBump)
 						{
                             LLGLTFMaterial* gltf_mat = te->getGLTFRenderMaterial();
 
-							if (LLPipeline::sRenderDeferred && 
-                                (gltf_mat != nullptr || (te->getMaterialParams().notNull()  && !te->getMaterialID().isNull())))
+							if (gltf_mat != nullptr || (te->getMaterialParams().notNull()  && !te->getMaterialID().isNull()))
 							{
                                 if (gltf_mat != nullptr)
                                 {
-                                    // all gltf materials have all vertex attributes for now
-                                    add_face(sNormSpecFaces, normspec_count, facep);
+                                    add_face(sPbrFaces, pbr_count, facep);
                                 }
                                 else
                                 {
                                     LLMaterial* mat = te->getMaterialParams().get();
-                                    if (mat->getNormalID().notNull())
+                                    if (mat->getNormalID().notNull() || // <-- has a normal map, needs tangents
+                                        (te->getBumpmap() && (te->getBumpmap() < 18))) // <-- has an emboss bump map, needs tangents
                                     {
                                         if (mat->getSpecularID().notNull())
                                         { //has normal and specular maps (needs texcoord1, texcoord2, and tangent)
@@ -5909,23 +5939,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                                 add_face(sBumpFaces, bump_count, facep);
 							}
 							else if (te->getShiny() || !te->getFullbright())
-							{ //needs normal
-                                add_face(sSimpleFaces, simple_count, facep);
-							}
-							else 
-							{ //doesn't need normal
-								facep->setState(LLFace::FULLBRIGHT);
-                                add_face(sFullbrightFaces, fullbright_count, facep);
-							}
-						}
-						else
-						{
-							if (te->getBumpmap() && LLPipeline::sRenderBump)
-							{ //needs normal + tangent
-                                add_face(sBumpFaces, bump_count, facep);
-							}
-							else if ((te->getShiny() && LLPipeline::sRenderBump) ||
-								!(te->getFullbright() || bake_sunlight))
 							{ //needs normal
                                 add_face(sSimpleFaces, simple_count, facep);
 							}
@@ -5977,6 +5990,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	U32 normspec_mask = norm_mask | LLVertexBuffer::MAP_TEXCOORD2;
 	U32 spec_mask = simple_mask | LLVertexBuffer::MAP_TEXCOORD2;
 
+	U32 pbr_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TANGENT;
+
 	if (emissive)
 	{ //emissive faces are present, include emissive byte to preserve batching
 		simple_mask = simple_mask | LLVertexBuffer::MAP_EMISSIVE;
@@ -5986,6 +6001,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		norm_mask = norm_mask | LLVertexBuffer::MAP_EMISSIVE;
 		normspec_mask = normspec_mask | LLVertexBuffer::MAP_EMISSIVE;
 		spec_mask = spec_mask | LLVertexBuffer::MAP_EMISSIVE;
+        pbr_mask = pbr_mask | LLVertexBuffer::MAP_EMISSIVE;
 	}
 
 	BOOL batch_textures = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1;
@@ -6016,6 +6032,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
         geometryBytes += genDrawInfo(group, norm_mask | extra_mask, sNormFaces[i], norm_count[i], FALSE, FALSE, rigged);
         geometryBytes += genDrawInfo(group, spec_mask | extra_mask, sSpecFaces[i], spec_count[i], FALSE, FALSE, rigged);
         geometryBytes += genDrawInfo(group, normspec_mask | extra_mask, sNormSpecFaces[i], normspec_count[i], FALSE, FALSE, rigged);
+        geometryBytes += genDrawInfo(group, pbr_mask | extra_mask, sPbrFaces[i], pbr_count[i], FALSE, FALSE, rigged);
 
         // for rigged set, add weights and disable alpha sorting (rigged items use depth buffer)
         extra_mask |= LLVertexBuffer::MAP_WEIGHT4;
@@ -6158,7 +6175,7 @@ struct CompareBatchBreaker
 		{
 			return lte->getFullbright() < rte->getFullbright();
 		}
-        else if (LLPipeline::sRenderDeferred && lte->getMaterialID() != rte->getMaterialID())
+        else if (lte->getMaterialID() != rte->getMaterialID())
         {
             return lte->getMaterialID() < rte->getMaterialID();
         }
@@ -6249,13 +6266,9 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 		texture_index_channels = LLGLSLShader::sIndexedTextureChannels-1; //always reserve one for shiny for now just for simplicity;
 	}
 
-	if (LLPipeline::sRenderDeferred && distance_sort)
+	if (distance_sort)
 	{
 		texture_index_channels = gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels;
-	}
-    
-    if (distance_sort)
-    {
         buffer_index = -1;
     }
 
@@ -6611,6 +6624,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				}
 				else if (use_legacy_bump)
 				{
+                    llassert(mask & LLVertexBuffer::MAP_TANGENT);
 					// we have a material AND legacy bump settings, but no normal map
 					registerFace(group, facep, LLRenderPass::PASS_BUMP);
 				}
@@ -6670,7 +6684,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
 				}
 				else if (gPipeline.shadersLoaded()
-					&& LLPipeline::sRenderBump 
 					&& te->getShiny() 
 					&& can_be_shiny)
 				{
@@ -6705,7 +6718,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				}
 			}
 			else if (gPipeline.shadersLoaded()
-				&& LLPipeline::sRenderBump 
 				&& te->getShiny() 
 				&& can_be_shiny)
 			{ //shiny
@@ -6726,6 +6738,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 					}
 					else if (use_legacy_bump)
 					{ //register in deferred bump pass
+                        llassert(mask& LLVertexBuffer::MAP_TANGENT);
 						registerFace(group, facep, LLRenderPass::PASS_BUMP);
 					}
 					else
@@ -6759,15 +6772,16 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 					{
 						registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
 					}
-					if (!hud_group && LLPipeline::sRenderBump && use_legacy_bump)
+					if (!hud_group && use_legacy_bump)
 					{ //if this is the deferred render and a bump map is present, register in post deferred bump
 						registerFace(group, facep, LLRenderPass::PASS_POST_BUMP);
 					}
 				}
 				else
 				{
-					if (LLPipeline::sRenderDeferred && LLPipeline::sRenderBump && use_legacy_bump)
+					if (use_legacy_bump)
 					{ //non-shiny or fullbright deferred bump
+                        llassert(mask& LLVertexBuffer::MAP_TANGENT);
 						registerFace(group, facep, LLRenderPass::PASS_BUMP);
 					}
 					else
@@ -6787,8 +6801,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				
 				if (!gPipeline.shadersLoaded() && 
 					!is_alpha && 
-					te->getShiny() && 
-					LLPipeline::sRenderBump)
+					te->getShiny())
 				{ //shiny as an extra pass when shaders are disabled
 					registerFace(group, facep, LLRenderPass::PASS_SHINY);
 				}
@@ -6800,8 +6813,9 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				llassert((mask & LLVertexBuffer::MAP_NORMAL) || fullbright);
 				facep->setPoolType((fullbright) ? LLDrawPool::POOL_FULLBRIGHT : LLDrawPool::POOL_SIMPLE);
 				
-				if (!force_simple && LLPipeline::sRenderBump && use_legacy_bump)
+				if (!force_simple && use_legacy_bump)
 				{
+                    llassert(mask & LLVertexBuffer::MAP_TANGENT);
 					registerFace(group, facep, LLRenderPass::PASS_BUMP);
 				}
 			}

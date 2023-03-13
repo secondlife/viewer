@@ -488,14 +488,18 @@ void do_bulk_upload(std::vector<std::string> filenames, const LLSD& notification
         // gltf does not use normal upload procedure
         if (ext == "gltf" || ext == "glb")
         {
-            S32 materials_in_file = LLTinyGLTFHelper::getMaterialCountFromFile(filename);
-
-            for (S32 i = 0; i < materials_in_file; i++)
+            tinygltf::Model model;
+            if (LLTinyGLTFHelper::loadModel(filename, model))
             {
-                // Todo:
-                // 1. Decouple bulk upload from material editor
-                // 2. Take into account possiblity of identical textures
-                LLMaterialEditor::uploadMaterialFromFile(filename, i);
+                S32 materials_in_file = model.materials.size();
+
+                for (S32 i = 0; i < materials_in_file; i++)
+                {
+                    // Todo:
+                    // 1. Decouple bulk upload from material editor
+                    // 2. Take into account possiblity of identical textures
+                    LLMaterialEditor::uploadMaterialFromModel(filename, model, i);
+                }
             }
         }
     }
@@ -530,37 +534,43 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
         if (ext == "gltf" || ext == "glb")
         {
             S32 texture_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
-            S32 materials_in_file = LLTinyGLTFHelper::getMaterialCountFromFile(filename);
+            
+            tinygltf::Model model;
 
-            for (S32 i = 0; i < materials_in_file; i++)
+            if (LLTinyGLTFHelper::loadModel(filename, model))
             {
-                LLPointer<LLFetchedGLTFMaterial> material = new LLFetchedGLTFMaterial();
-                std::string material_name;
-                bool decode_successful = LLTinyGLTFHelper::getMaterialFromFile(filename, i, material.get(), material_name);
+                S32 materials_in_file = model.materials.size();
 
-                if (decode_successful)
+                for (S32 i = 0; i < materials_in_file; i++)
                 {
-                    // Todo: make it account for possibility of same texture in different
-                    // materials and even in scope of same material
-                    S32 texture_count = 0;
-                    if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].notNull())
+                    LLPointer<LLFetchedGLTFMaterial> material = new LLFetchedGLTFMaterial();
+                    std::string material_name;
+                    bool decode_successful = LLTinyGLTFHelper::getMaterialFromModel(filename, model, i, material.get(), material_name);
+
+                    if (decode_successful)
                     {
-                        texture_count++;
+                        // Todo: make it account for possibility of same texture in different
+                        // materials and even in scope of same material
+                        S32 texture_count = 0;
+                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].notNull())
+                        {
+                            texture_count++;
+                        }
+                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].notNull())
+                        {
+                            texture_count++;
+                        }
+                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].notNull())
+                        {
+                            texture_count++;
+                        }
+                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].notNull())
+                        {
+                            texture_count++;
+                        }
+                        total_cost += texture_count * texture_upload_cost;
+                        file_count++;
                     }
-                    if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].notNull())
-                    {
-                        texture_count++;
-                    }
-                    if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].notNull())
-                    {
-                        texture_count++;
-                    }
-                    if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].notNull())
-                    {
-                        texture_count++;
-                    }
-                    total_cost += texture_count * texture_upload_cost;
-                    file_count++;
                 }
             }
         }

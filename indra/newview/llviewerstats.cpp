@@ -570,14 +570,11 @@ void send_viewer_stats(bool include_preferences)
 			shader_level = 3;
 		}
 	}
-	else if (gPipeline.canUseWindLightShadersOnObjects())
+	else
 	{
 		shader_level = 2;
 	}
-	else if (gPipeline.shadersLoaded())
-	{
-		shader_level = 1;
-	}
+	
 
 
 	system["shader_level"] = shader_level;

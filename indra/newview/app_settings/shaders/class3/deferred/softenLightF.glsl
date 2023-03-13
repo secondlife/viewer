@@ -85,6 +85,8 @@ float getDepth(vec2 pos_screen);
 vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
 
+uniform vec4 waterPlane;
+
 #ifdef WATER_FOG
 vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
 #endif
@@ -153,6 +155,24 @@ void main()
 
     calcAtmosphericVarsLinear(pos.xyz, norm.xyz, light_dir, sunlit, amblit, additive, atten);
 
+    vec3 sunlit_linear = srgb_to_linear(sunlit);
+    vec3 amblit_linear = amblit;
+
+    bool do_atmospherics = false;
+
+#ifndef WATER_FOG
+    // when above water, mask off atmospherics below water
+    if (dot(pos.xyz, waterPlane.xyz) + waterPlane.w > 0.0)
+    {
+        do_atmospherics = true;
+    }
+#else
+    do_atmospherics = true;
+#endif
+
+    vec3  irradiance = vec3(0);
+    vec3  radiance  = vec3(0);
+
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
         vec3 orm = texture2D(specularRect, tc).rgb; 
@@ -161,23 +181,32 @@ void main()
         float ao = orm.r * ambocc;
 
         vec3 colorEmissive = texture2D(emissiveRect, tc).rgb;
-
         // PBR IBL
         float gloss      = 1.0 - perceptualRoughness;
-        vec3  irradiance = vec3(0);
-        vec3  radiance  = vec3(0);
+        
         sampleReflectionProbes(irradiance, radiance, tc, pos.xyz, norm.xyz, gloss);
         
         // Take maximium of legacy ambient vs irradiance sample as irradiance
         // NOTE: ao is applied in pbrIbl (see pbrBaseLight), do not apply here
-        irradiance       = max(amblit,irradiance);
+        irradiance       = max(amblit_linear,irradiance);
 
         vec3 diffuseColor;
         vec3 specularColor;
         calcDiffuseSpecular(baseColor.rgb, metallic, diffuseColor, specularColor);
 
         vec3 v = -normalize(pos.xyz);
-        color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
+        color = vec3(1,0,1);
+        color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
+
+        
+        if (do_atmospherics)
+        {
+            color = linear_to_srgb(color);
+            color = atmosFragLightingLinear(color, additive, atten);
+            color = srgb_to_linear(color);
+        }
+        
+        
     }
     else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {
@@ -199,12 +228,12 @@ void main()
         sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, tc, pos.xyz, norm.xyz, spec.a, envIntensity);
         
         // use sky settings ambient or irradiance map sample, whichever is brighter
-        irradiance = max(amblit, irradiance);
+        irradiance = max(amblit_linear, irradiance);
 
         // apply lambertian IBL only (see pbrIbl)
         color.rgb = irradiance * ambocc;
 
-        vec3 sun_contrib = min(da, scol) * sunlit;
+        vec3 sun_contrib = min(da, scol) * sunlit_linear;
         color.rgb += sun_contrib;
         color.rgb *= baseColor.rgb;
         
@@ -230,9 +259,16 @@ void main()
             applyLegacyEnv(color, legacyenv, spec, pos.xyz, norm.xyz, envIntensity);
         }
 
-        color = mix(atmosFragLightingLinear(color, additive, atten), fullbrightAtmosTransportFragLinear(color, additive, atten), baseColor.a);
-        color = scaleSoftClipFragLinear(color);
-    }
+        
+        if (do_atmospherics)
+        {
+            color = linear_to_srgb(color);
+            color = atmosFragLightingLinear(color, additive, atten);
+            color = srgb_to_linear(color);
+        }
+   }
+
+    
 
     #ifdef WATER_FOG
         vec4 fogged = applyWaterFogViewLinear(pos.xyz, vec4(color, bloom));

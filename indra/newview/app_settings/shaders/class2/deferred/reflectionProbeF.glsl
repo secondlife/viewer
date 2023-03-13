@@ -47,7 +47,6 @@ void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness)
 {
     sampleReflectionProbes(ambenv, glossenv, tc, pos, norm, glossiness);
-    glossenv *= 8.0;
 }
 
 vec4 sampleReflectionProbesDebug(vec3 pos)

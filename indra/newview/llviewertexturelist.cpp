@@ -61,6 +61,7 @@
 #include "llviewerdisplay.h"
 #include "llviewerwindow.h"
 #include "llprogressview.h"
+
 ////////////////////////////////////////////////////////////////////////////
 
 void (*LLViewerTextureList::sUUIDCallback)(void **, const LLUUID&) = NULL;
@@ -533,12 +534,6 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 	LLPointer<LLViewerFetchedTexture> imagep = findImage(image_id, get_element_type(boost_priority));
 	if (!imagep.isNull())
 	{
-		if (boost_priority != LLViewerTexture::BOOST_ALM && imagep->getBoostLevel() == LLViewerTexture::BOOST_ALM)
-		{
-			// Workaround: we need BOOST_ALM texture for something, 'rise' to NONE
-			imagep->setBoostLevel(LLViewerTexture::BOOST_NONE);
-		}
-
 		LLViewerFetchedTexture *texture = imagep.get();
 		if (request_from_host.isOk() &&
 			!texture->getTargetHost().isOk())
@@ -874,6 +869,8 @@ static void touch_texture(LLViewerFetchedTexture* tex, F32 vsize)
     }
 }
 
+extern BOOL gCubeSnapshot;
+
 void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imagep)
 {
     if (imagep->isInDebug() || imagep->isUnremovable())
@@ -882,18 +879,36 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         return; //is in debug, ignore.
     }
 
+    llassert(!gCubeSnapshot);
+
+    static LLCachedControl<F32> bias_distance_scale(gSavedSettings, "TextureBiasDistanceScale", 1.f);
+
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE
     {
         for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
         {
             for (U32 fi = 0; fi < imagep->getNumFaces(i); ++fi)
             {
-                const LLFace* face = (*(imagep->getFaceList(i)))[fi];
+                LLFace* face = (*(imagep->getFaceList(i)))[fi];
 
                 if (face && face->getViewerObject() && face->getTextureEntry())
                 {
-                    F32 vsize = face->getVirtualSize();
+                    F32 vsize = face->getPixelArea();
 
+#if LL_DARWIN
+                    vsize /= 1.f + LLViewerTexture::sDesiredDiscardBias*(1.f+face->getDrawable()->mDistanceWRTCamera*bias_distance_scale);
+#else
+                    vsize /= LLViewerTexture::sDesiredDiscardBias;
+                    vsize /= llmax(1.f, (LLViewerTexture::sDesiredDiscardBias-1.f) * (1.f + face->getDrawable()->mDistanceWRTCamera * bias_distance_scale));
+
+                    F32 radius;
+                    F32 cos_angle_to_view_dir;
+                    BOOL in_frustum = face->calcPixelArea(cos_angle_to_view_dir, radius);
+                    if (!in_frustum || !face->getDrawable()->isVisible())
+                    { // further reduce by discard bias when off screen or occluded
+                        vsize /= LLViewerTexture::sDesiredDiscardBias;
+                    }
+#endif
                     // if a GLTF material is present, ignore that face
                     // as far as this texture stats go, but update the GLTF material 
                     // stats
@@ -914,7 +929,9 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
             }
         }
     }
-    
+
+    //imagep->setDebugText(llformat("%.3f - %d", sqrtf(imagep->getMaxVirtualSize()), imagep->getBoostLevel()));
+
     F32 lazy_flush_timeout = 30.f; // stop decoding
     F32 max_inactive_time = 20.f; // actually delete
     S32 min_refs = 3; // 1 for mImageList, 1 for mUUIDMap, 1 for local reference

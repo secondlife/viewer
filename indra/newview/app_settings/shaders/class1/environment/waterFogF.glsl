@@ -33,6 +33,7 @@ uniform float waterFogKS;
 vec3 getPositionEye();
 
 vec3 srgb_to_linear(vec3 col);
+vec3 linear_to_srgb(vec3 col);
 
 vec4 applyWaterFogView(vec3 pos, vec4 color)
 {
@@ -68,48 +69,16 @@ vec4 applyWaterFogView(vec3 pos, vec4 color)
     float D = pow(0.98, l*kd);
     
     color.rgb = color.rgb * D + kc.rgb * L;
+    color.a = kc.a + color.a;
 
     return color;
 }
 
 vec4 applyWaterFogViewLinearNoClip(vec3 pos, vec4 color, vec3 sunlit)
 {
-    vec3 view = normalize(pos);
-    //normalize view vector
-    float es = -(dot(view, waterPlane.xyz));
-
-    
-    //find intersection point with water plane and eye vector
-
-    //get eye depth
-    float e0 = max(-waterPlane.w, 0.0);
-
-    vec3 int_v = waterPlane.w > 0.0 ? view * waterPlane.w / es : vec3(0.0, 0.0, 0.0);
-
-    //get object depth
-    float depth = length(pos - int_v);
-
-    //get "thickness" of water
-    float l = max(depth, 0.1);
-
-    float kd = waterFogDensity*1.3;
-    float ks = waterFogKS;
-    vec4 kc = waterFogColor;
-    kc.rgb = srgb_to_linear(kc.rgb); // TODO -- pass in waterFogColor linear
-    kc.rgb *= sunlit;
-
-    float F = 0.98;
-
-    float t1 = -kd * pow(F, ks * e0);
-    float t2 = kd + ks * es;
-    float t3 = pow(F, t2 * l) - 1.0;
-
-    float L = min(t1 / t2 * t3, 1.0);
-
-    float D = pow(0.98, l * kd);
-
-    color.rgb = color.rgb * D + kc.rgb * L;
-
+    color.rgb = linear_to_srgb(color.rgb);
+    color = applyWaterFogView(pos, color);
+    color.rgb = srgb_to_linear(color.rgb);
     return color;
 }
 

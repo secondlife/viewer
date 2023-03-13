@@ -357,8 +357,6 @@ void LLFace::switchTexture(U32 ch, LLViewerTexture* new_texture)
 
 	llassert(mTexture[ch].notNull());
 
-	new_texture->addTextureStats(mTexture[ch]->getMaxVirtualSize()) ;
-
 	if (ch == LLRender::DIFFUSE_MAP)
 	{
 	    getViewerObject()->changeTEImage(mTEOffset, new_texture) ;
@@ -1109,20 +1107,13 @@ bool LLFace::canRenderAsMask()
 		(te->getGlow() == 0.f) && // glowing masks are hard to implement - don't mask
 		getTexture()->getIsAlphaMask()) // texture actually qualifies for masking (lazily recalculated but expensive)
 	{
-		if (LLPipeline::sRenderDeferred)
-		{
-			if (getViewerObject()->isHUDAttachment() || te->getFullbright())
-			{ //hud attachments and fullbright objects are NOT subject to the deferred rendering pipe
-				return LLPipeline::sAutoMaskAlphaNonDeferred;
-			}
-			else
-			{
-				return LLPipeline::sAutoMaskAlphaDeferred;
-			}
+		if (getViewerObject()->isHUDAttachment() || te->getFullbright())
+		{ //hud attachments and fullbright objects are NOT subject to the deferred rendering pipe
+			return LLPipeline::sAutoMaskAlphaNonDeferred;
 		}
 		else
 		{
-			return LLPipeline::sAutoMaskAlphaNonDeferred;
+			return LLPipeline::sAutoMaskAlphaDeferred;
 		}
 	}
 
@@ -1262,19 +1253,10 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 						
 			bool shiny_in_alpha = false;
 			
-			if (LLPipeline::sRenderDeferred)
-			{ //store shiny in alpha if we don't have a specular map
-				if  (!mat || mat->getSpecularID().isNull())
-				{
-					shiny_in_alpha = true;
-				}
-			}
-			else
+			//store shiny in alpha if we don't have a specular map
+			if  (!mat || mat->getSpecularID().isNull())
 			{
-				if (!mat || mat->getDiffuseAlphaMode() != LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
-				{
-					shiny_in_alpha = true;
-				}
+				shiny_in_alpha = true;
 			}
 
 			if (shiny_in_alpha)
@@ -1322,39 +1304,75 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		}
 	}
 	
-	F32 r = 0, os = 0, ot = 0, ms = 0, mt = 0, cos_ang = 0, sin_ang = 0;
-	bool do_xform = false;
-	if (rebuild_tcoord)
-	{
-		if (tep)
-		{
-			r  = tep->getRotation();
-			os = tep->mOffsetS;
-			ot = tep->mOffsetT;
-			ms = tep->mScaleS;
-			mt = tep->mScaleT;
-			cos_ang = cos(r);
-			sin_ang = sin(r);
 
-			if (cos_ang != 1.f || 
-				sin_ang != 0.f ||
-				os != 0.f ||
-				ot != 0.f ||
-				ms != 1.f ||
-				mt != 1.f)
-			{
-				do_xform = true;
-			}
-			else
-			{
-				do_xform = false;
-			}	
-		}
-		else
-		{
-			do_xform = false;
-		}
-	}
+    LLMaterial* mat = tep->getMaterialParams().get();
+    LLGLTFMaterial* gltf_mat = tep->getGLTFRenderMaterial();
+
+	F32 r = 0, os = 0, ot = 0, ms = 0, mt = 0, cos_ang = 0, sin_ang = 0;
+
+    constexpr S32 XFORM_NONE = 0;
+    constexpr S32 XFORM_BLINNPHONG_COLOR = 1;
+    constexpr S32 XFORM_BLINNPHONG_NORMAL = 1 << 1;
+    constexpr S32 XFORM_BLINNPHONG_SPECULAR = 1 << 2;
+
+    S32 xforms = XFORM_NONE;
+    // For GLTF, transforms will be applied later
+    if (rebuild_tcoord && tep && !gltf_mat)
+    {
+        r  = tep->getRotation();
+        os = tep->mOffsetS;
+        ot = tep->mOffsetT;
+        ms = tep->mScaleS;
+        mt = tep->mScaleT;
+        cos_ang = cos(r);
+        sin_ang = sin(r);
+
+        if (cos_ang != 1.f ||
+            sin_ang != 0.f ||
+            os != 0.f ||
+            ot != 0.f ||
+            ms != 1.f ||
+            mt != 1.f)
+        {
+            xforms |= XFORM_BLINNPHONG_COLOR;
+        }
+        if (mat)
+        {
+            F32 r_norm = 0, os_norm = 0, ot_norm = 0, ms_norm = 0, mt_norm = 0, cos_ang_norm = 0, sin_ang_norm = 0;
+            mat->getNormalOffset(os_norm, ot_norm);
+            mat->getNormalRepeat(ms_norm, mt_norm);
+            r_norm = mat->getNormalRotation();
+            cos_ang_norm = cos(r_norm);
+            sin_ang_norm = sin(r_norm);
+            if (cos_ang_norm != 1.f ||
+                sin_ang_norm != 0.f ||
+                os_norm != 0.f ||
+                ot_norm != 0.f ||
+                ms_norm != 1.f ||
+                mt_norm != 1.f)
+            {
+                xforms |= XFORM_BLINNPHONG_NORMAL;
+            }
+        }
+        if (mat)
+        {
+            F32 r_spec = 0, os_spec = 0, ot_spec = 0, ms_spec = 0, mt_spec = 0, cos_ang_spec = 0, sin_ang_spec = 0;
+            mat->getSpecularOffset(os_spec, ot_spec);
+            mat->getSpecularRepeat(ms_spec, mt_spec);
+            r_spec = mat->getSpecularRotation();
+            cos_ang_spec = cos(r_spec);
+            sin_ang_spec = sin(r_spec);
+            if (cos_ang_spec != 1.f ||
+                sin_ang_spec != 0.f ||
+                os_spec != 0.f ||
+                ot_spec != 0.f ||
+                ms_spec != 1.f ||
+                mt_spec != 1.f)
+            {
+                xforms |= XFORM_BLINNPHONG_SPECULAR;
+            }
+        }
+    }
 	
     const LLMeshSkinInfo* skin = nullptr;
     LLMatrix4a mat_vert;
@@ -1495,7 +1513,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					sin_ang = 0.f;
 					ms = mt = 1.f;
 
-					do_xform = false;
+                    xforms = XFORM_NONE;
 				}
 
 				if (getVirtualSize() >= MIN_TEX_ANIM_SIZE) // || isState(LLFace::RIGGED))
@@ -1507,15 +1525,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			LLVector4a scalea;
 			scalea.load3(scale.mV);
 
-			LLMaterial* mat = tep->getMaterialParams().get();
-            LLGLTFMaterial* gltf_mat = tep->getGLTFRenderMaterial();
-
-            if (gltf_mat)
-            {
-                // Transforms will be applied later
-                do_xform = false;
-            }
-
 			bool do_bump = bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1);
 
 			if ((mat || gltf_mat) && !do_bump)
@@ -1524,7 +1533,8 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					     || mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD2);
 			}
 			
-			bool do_tex_mat = tex_mode && mTextureMatrix;
+            // For GLTF materials: Transforms will be applied later
+			bool do_tex_mat = tex_mode && mTextureMatrix && !gltf_mat;
 
 			if (!do_bump)
 			{ //not bump mapped, might be able to do a cheap update
@@ -1535,7 +1545,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
                     LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("getGeometryVolume - texgen");
 					if (!do_tex_mat)
 					{
-						if (!do_xform)
+						if (xforms == XFORM_NONE)
 						{
                             LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("ggv - texgen 1");
 							S32 tc_size = (num_vertices*2*sizeof(F32)+0xF) & ~0xF;
@@ -1614,7 +1624,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							*tex_coords0++ = tc;	
 						}
 					}
-					else
+					else if (xforms != XFORM_NONE)
 					{
 						for (S32 i = 0; i < num_vertices; i++)
 						{	
@@ -1626,6 +1636,20 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							planarProjection(tc, norm, center, vec);
 						
 							xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
+
+							*tex_coords0++ = tc;	
+						}
+					}
+					else
+					{
+						for (S32 i = 0; i < num_vertices; i++)
+						{	
+							LLVector2 tc(vf.mTexCoords[i]);
+							LLVector4a& norm = vf.mNormals[i];
+							LLVector4a& center = *(vf.mCenter);
+							LLVector4a vec = vf.mPositions[i];	
+							vec.mul(scalea);
+							planarProjection(tc, norm, center, vec);
 
 							*tex_coords0++ = tc;	
 						}
@@ -1647,12 +1671,15 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 				for (U32 ch = 0; ch < 3; ++ch)
 				{
+                    S32 xform_channel = XFORM_NONE;
 					switch (ch)
 					{
 						case 0: 
+                            xform_channel = XFORM_BLINNPHONG_COLOR;
 							mVertexBuffer->getTexCoord0Strider(dst, mGeomIndex, mGeomCount); 
 							break;
 						case 1:
+                            xform_channel = XFORM_BLINNPHONG_NORMAL;
 							if (mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1))
 							{
 								mVertexBuffer->getTexCoord1Strider(dst, mGeomIndex, mGeomCount);
@@ -1673,6 +1700,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							}
 							break;
 						case 2:
+                            xform_channel = XFORM_BLINNPHONG_SPECULAR;
 							if (mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD2))
 							{
 								mVertexBuffer->getTexCoord2Strider(dst, mGeomIndex, mGeomCount);
@@ -1692,46 +1720,47 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							}
 							break;
 					}
+                    const bool do_xform = (xforms & xform_channel) != XFORM_NONE;
 					
 
-				for (S32 i = 0; i < num_vertices; i++)
-				{	
-					LLVector2 tc(vf.mTexCoords[i]);
-			
-					LLVector4a& norm = vf.mNormals[i];
-				
-					LLVector4a& center = *(vf.mCenter);
-		   
-					if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
-					{
-						LLVector4a vec = vf.mPositions[i];
-				
-						vec.mul(scalea);
+                    for (S32 i = 0; i < num_vertices; i++)
+                    {   
+                        LLVector2 tc(vf.mTexCoords[i]);
+                
+                        LLVector4a& norm = vf.mNormals[i];
+                    
+                        LLVector4a& center = *(vf.mCenter);
+               
+                        if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
+                        {
+                            LLVector4a vec = vf.mPositions[i];
+                    
+                            vec.mul(scalea);
 
-							if (texgen == LLTextureEntry::TEX_GEN_PLANAR)
-						{
-								planarProjection(tc, norm, center, vec);
-						}		
-					}
+                            if (texgen == LLTextureEntry::TEX_GEN_PLANAR)
+                            {
+                                planarProjection(tc, norm, center, vec);
+                            }       
+                        }
 
-					if (tex_mode && mTextureMatrix)
-					{
-						LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
-						tmp = tmp * *mTextureMatrix;
-						tc.mV[0] = tmp.mV[0];
-						tc.mV[1] = tmp.mV[1];
-					}
-					else
-					{
-						xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
-					}
+                        if (tex_mode && mTextureMatrix)
+                        {
+                            LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+                            tmp = tmp * *mTextureMatrix;
+                            tc.mV[0] = tmp.mV[0];
+                            tc.mV[1] = tmp.mV[1];
+                        }
+                        else if (do_xform)
+                        {
+                            xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
+                        }
 
-						*dst++ = tc;
-					if (do_bump)
-					{
-						bump_tc.push_back(tc);
-					}
-				}
+                        *dst++ = tc;
+                        if (do_bump)
+                        {
+                            bump_tc.push_back(tc);
+                        }
+                    }
 				}
 
 				if ((!mat && !gltf_mat) && do_bump)

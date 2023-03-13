@@ -235,6 +235,7 @@ public: //aligned members
 	LLVector4a		mExtents[2];
 
 private:
+    friend class LLViewerTextureList;
 	F32         adjustPartialOverlapPixelArea(F32 cos_angle_to_view_dir, F32 radius );
 	BOOL        calcPixelArea(F32& cos_angle_to_view_dir, F32& radius) ;
 public:

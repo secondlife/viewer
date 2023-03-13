@@ -1622,37 +1622,10 @@ static void pack_textures(
     }
 }
 
-void LLMaterialEditor::uploadMaterialFromFile(const std::string& filename, S32 index)
+void LLMaterialEditor::uploadMaterialFromModel(const std::string& filename, tinygltf::Model& model_in, S32 index)
 {
     if (index < 0 || !LLMaterialEditor::capabilitiesAvailable())
     {
-        return;
-    }
-
-    tinygltf::TinyGLTF loader;
-    std::string        error_msg;
-    std::string        warn_msg;
-
-    bool loaded = false;
-    tinygltf::Model model_in;
-
-    std::string filename_lc = filename;
-    LLStringUtil::toLower(filename_lc);
-
-    // Load a tinygltf model fom a file. Assumes that the input filename has already been
-    // been sanitized to one of (.gltf , .glb) extensions, so does a simple find to distinguish.
-    if (std::string::npos == filename_lc.rfind(".gltf"))
-    {  // file is binary
-        loaded = loader.LoadBinaryFromFile(&model_in, &error_msg, &warn_msg, filename);
-    }
-    else
-    {  // file is ascii
-        loaded = loader.LoadASCIIFromFile(&model_in, &error_msg, &warn_msg, filename);
-    }
-
-    if (!loaded)
-    {
-        LLNotificationsUtil::add("CannotUploadMaterial");
         return;
     }
 
@@ -1672,13 +1645,15 @@ void LLMaterialEditor::uploadMaterialFromFile(const std::string& filename, S32 i
     // This uses 'filename' to make sure multiple bulk uploads work
     // instead of fighting for a single instance.
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", LLSD().with("filename", filename).with("index", LLSD::Integer(index)));
-    me->loadMaterial(model_in, filename_lc, index, false);
+    me->loadMaterial(model_in, filename, index, false);
     me->saveIfNeeded();
 }
 
 
 void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 index)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
+
     tinygltf::TinyGLTF loader;
     std::string        error_msg;
     std::string        warn_msg;
@@ -1725,12 +1700,12 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
     if (index >= 0)
     {
         // Prespecified material
-        me->loadMaterial(model_in, filename_lc, index);
+        me->loadMaterial(model_in, filename, index);
     }
     else if (model_in.materials.size() == 1)
     {
         // Only one, just load it
-        me->loadMaterial(model_in, filename_lc, 0);
+        me->loadMaterial(model_in, filename, 0);
     }
     else
     {
@@ -1738,6 +1713,7 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
         std::list<std::string> material_list;
         std::vector<tinygltf::Material>::const_iterator mat_iter = model_in.materials.begin();
         std::vector<tinygltf::Material>::const_iterator mat_end = model_in.materials.end();
+        
         for (; mat_iter != mat_end; mat_iter++)
         {
             std::string mat_name = mat_iter->name;
@@ -1750,10 +1726,13 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
                 material_list.push_back(mat_name);
             }
         }
+
+        material_list.push_back(me->getString("material_batch_import_text"));
+
         LLFloaterComboOptions::showUI(
-            [me, model_in, filename_lc](const std::string& option, S32 index)
+            [me, model_in, filename](const std::string& option, S32 index)
         {
-            me->loadMaterial(model_in, filename_lc, index);
+            me->loadMaterial(model_in, filename, index);
         },
             me->getString("material_selection_title"),
             me->getString("material_selection_text"),
@@ -1961,13 +1940,22 @@ void LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback(const LLSD& notificati
     }
 }
 
-void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::string &filename_lc, S32 index, bool open_floater)
+const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type);
+
+void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::string &filename, S32 index, bool open_floater)
 {
+    if (index == model_in.materials.size())
+    {
+        // bulk upload all the things
+        upload_bulk({ filename }, LLFilePicker::FFLOAD_MATERIAL);
+        return;
+    }
+
     if (model_in.materials.size() <= index)
     {
         return;
     }
-    std::string folder = gDirUtilp->getDirName(filename_lc);
+    std::string folder = gDirUtilp->getDirName(filename);
 
     tinygltf::Material material_in = model_in.materials[index];
 
@@ -2055,7 +2043,7 @@ void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::
 
     setFromGltfModel(model_in, index);
 
-    setFromGltfMetaData(filename_lc, model_in, index);
+    setFromGltfMetaData(filename, model_in, index);
 
     markChangesUnsaved(U32_MAX);
 

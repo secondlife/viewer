@@ -686,6 +686,7 @@ private:
 	static LLFace** sNormFaces[2];
 	static LLFace** sSpecFaces[2];
 	static LLFace** sNormSpecFaces[2];
+	static LLFace** sPbrFaces[2];
 	static LLFace** sAlphaFaces[2];
 };
 

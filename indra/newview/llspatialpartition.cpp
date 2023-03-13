@@ -3095,6 +3095,60 @@ void renderAgentTarget(LLVOAvatar* avatar)
 	}
 }
 
+static void setTextureAreaDebugText(LLDrawable* drawablep)
+{
+    LLVOVolume* vobjp = drawablep->getVOVolume();
+
+    if (vobjp)
+    {
+        if (drawablep->mDistanceWRTCamera < 32.f)
+        {
+            std::ostringstream str;
+
+            //for (S32 i = 0; i < vobjp->getNumTEs(); ++i)
+            S32 i = 0;
+            {
+                if (i < drawablep->getNumFaces())
+                {
+                    LLFace* facep = drawablep->getFace(i);
+
+                    if (facep)
+                    {
+                        LLViewerTexture* imagep = facep->getTexture();
+
+                        if (imagep)
+                        {
+                            str << llformat("D - %.2f", sqrtf(imagep->getMaxVirtualSize()));
+                        }
+
+                        imagep = vobjp->getTENormalMap(i);
+
+                        if (imagep && imagep != LLViewerFetchedTexture::sDefaultImagep)
+                        {
+                            str << llformat("\nN - %.2f", sqrtf(imagep->getMaxVirtualSize()));
+                        }
+
+                        imagep = vobjp->getTESpecularMap(i);
+
+                        if (imagep && imagep != LLViewerFetchedTexture::sDefaultImagep)
+                        {
+                            str << llformat("\nS - %.2f", sqrtf(imagep->getMaxVirtualSize()));
+                        }
+
+                        str << "\n\n";
+                    }
+
+                    vobjp->setDebugText(str.str());
+                }
+            }
+        }
+        else
+        {
+            vobjp->setDebugText(".");
+        }
+    }
+}
+
 class LLOctreeRenderNonOccluded : public OctreeTraveler
 {
 public:
@@ -3183,7 +3237,12 @@ public:
 					size.mul(0.5f);
 					drawBoxOutline(center, size);
 				}
-			}	
+			}
+
+            if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
+            {
+                setTextureAreaDebugText(drawable);
+            }
 
 			/*if (drawable->getVOVolume() && gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
 			{
@@ -3514,6 +3573,7 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_NORMALS |
 									  LLPipeline::RENDER_DEBUG_POINTS |
 									  //LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY |
+                                      LLPipeline::RENDER_DEBUG_TEXTURE_AREA |
 									  LLPipeline::RENDER_DEBUG_TEXTURE_ANIM |
 									  LLPipeline::RENDER_DEBUG_RAYCAST |
 									  LLPipeline::RENDER_DEBUG_AVATAR_VOLUME |

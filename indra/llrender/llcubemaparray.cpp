@@ -122,7 +122,7 @@ void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, BOOL us
 
     bind(0);
 
-    U32 format = components == 4 ? GL_RGBA12 : GL_RGB10;
+    U32 format = components == 4 ? GL_RGBA12 : GL_RGB16F;
 
     U32 mip = 0;
 

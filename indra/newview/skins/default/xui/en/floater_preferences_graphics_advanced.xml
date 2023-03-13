@@ -589,7 +589,7 @@
     control_name="RenderDeferredSSAO"
     height="16"
     initial_value="true"
-    label="Ambient Occlusion"
+    label="Screen Space Ambient Occlusion"
     layout="topleft"
     left="420"
     name="UseSSAO"

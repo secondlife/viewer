@@ -1409,52 +1409,59 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 
         free_cur_tex_image();
 #if LL_DARWIN
+        const bool use_sub_image = false;
+#else
+        // glTexSubImage2D doesn't work with compressed textures on select tested Nvidia GPUs on Windows 10 -Cosmic,2023-03-08
+        const bool use_sub_image = !allow_compression;
+#endif
+        if (!use_sub_image)
         {
             LL_PROFILE_ZONE_NAMED("glTexImage2D alloc");
             glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, use_scratch ? scratch : pixels);
         }
-#else
-        // break up calls to a manageable size for the GL command buffer
+        else
         {
-            LL_PROFILE_ZONE_NAMED("glTexImage2D alloc");
-            glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, nullptr);
-        }
-
-        U8* src = (U8*)(use_scratch ? scratch : pixels);
-        if (src)
-        {
-            LL_PROFILE_ZONE_NAMED("glTexImage2D copy");
-            U32 components = dataFormatComponents(pixformat);
-            U32 type_width = 0;
-
-            switch (pixtype)
+            // break up calls to a manageable size for the GL command buffer
             {
-            case GL_UNSIGNED_BYTE:
-            case GL_BYTE:
-            case GL_UNSIGNED_INT_8_8_8_8_REV:
-                type_width = 1;
-                break;
-            case GL_UNSIGNED_SHORT:
-            case GL_SHORT:
-                type_width = 2;
-                break;
-            case GL_UNSIGNED_INT:
-            case GL_INT:
-            case GL_FLOAT:
-                type_width = 4;
-                break;
-            default:
-                LL_ERRS() << "Unknown type: " << pixtype << LL_ENDL;
+                LL_PROFILE_ZONE_NAMED("glTexImage2D alloc");
+                glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, nullptr);
             }
 
-            U32 line_width = width * components * type_width;
-            for (U32 y = 0; y < height; ++y)
+            U8* src = (U8*)(use_scratch ? scratch : pixels);
+            if (src)
             {
-                glTexSubImage2D(target, miplevel, 0, y, width, 1, pixformat, pixtype, src);
-                src += line_width;
+                LL_PROFILE_ZONE_NAMED("glTexImage2D copy");
+                U32 components = dataFormatComponents(pixformat);
+                U32 type_width = 0;
+
+                switch (pixtype)
+                {
+                case GL_UNSIGNED_BYTE:
+                case GL_BYTE:
+                case GL_UNSIGNED_INT_8_8_8_8_REV:
+                    type_width = 1;
+                    break;
+                case GL_UNSIGNED_SHORT:
+                case GL_SHORT:
+                    type_width = 2;
+                    break;
+                case GL_UNSIGNED_INT:
+                case GL_INT:
+                case GL_FLOAT:
+                    type_width = 4;
+                    break;
+                default:
+                    LL_ERRS() << "Unknown type: " << pixtype << LL_ENDL;
+                }
+
+                U32 line_width = width * components * type_width;
+                for (U32 y = 0; y < height; ++y)
+                {
+                    glTexSubImage2D(target, miplevel, 0, y, width, 1, pixformat, pixtype, src);
+                    src += line_width;
+                }
             }
         }
-#endif
         alloc_tex_image(width, height, pixformat);
     }
     stop_glerror();

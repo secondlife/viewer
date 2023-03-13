@@ -195,7 +195,6 @@ protected:
 	LLUUID mID;
 	S32 mTextureListType; // along with mID identifies where to search for this texture in TextureList
 
-	F32 mSelectedTime;				// time texture was last selected
 	mutable F32 mMaxVirtualSize = 0.f;	// The largest virtual size of the image, in pixels - how much data to we need?	
 	mutable S32  mMaxVirtualSizeResetCounter;
 	mutable S32  mMaxVirtualSizeResetInterval;
@@ -223,8 +222,6 @@ public:
 	static LLFrameTimer sEvaluationTimer;
 	static F32 sDesiredDiscardBias;
 	static F32 sDesiredDiscardScale;
-	static S8  sCameraMovingDiscardBias;
-	static F32 sCameraMovingBias;
 	static S32 sMaxSculptRez ;
 	static U32 sMinLargeImageSize ;
 	static U32 sMaxSmallImageSize ;

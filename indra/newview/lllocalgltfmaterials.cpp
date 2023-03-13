@@ -214,12 +214,18 @@ bool LLLocalGLTFMaterial::loadMaterial()
             LLStringUtil::toLower(filename_lc);
             std::string material_name;
 
-            // Might be a good idea to make these textures into local textures
-            decode_successful = LLTinyGLTFHelper::getMaterialFromFile(
-                mFilename,
-                mMaterialIndex,
-                this,
-                material_name);
+            tinygltf::Model model;
+            decode_successful = LLTinyGLTFHelper::loadModel(mFilename, model);
+            if (decode_successful)
+            {
+                // Might be a good idea to make these textures into local textures
+                decode_successful = LLTinyGLTFHelper::getMaterialFromModel(
+                    mFilename,
+                    model,
+                    mMaterialIndex,
+                    this,
+                    material_name);
+            }
 
             if (!material_name.empty())
             {
@@ -308,7 +314,10 @@ S32 LLLocalGLTFMaterialMgr::addUnit(const std::vector<std::string>& filenames)
 
 S32 LLLocalGLTFMaterialMgr::addUnit(const std::string& filename)
 {
-    S32 materials_in_file = LLTinyGLTFHelper::getMaterialCountFromFile(filename);
+    tinygltf::Model model;
+    LLTinyGLTFHelper::loadModel(filename, model);
+
+    S32 materials_in_file = model.materials.size();
     if (materials_in_file <= 0)
     {
         return 0;

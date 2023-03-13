@@ -458,28 +458,24 @@ float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, float min_da, int i
 // dir - pixel normal
 //  w - weight of sample (distance and angular attenuation)
 //  dw - weight of sample (distance only)
-// vi - return value of intersection point with influence volume
-// wi - return value of approximate world space position of sampled pixel
-// lod - which mip to bias towards (lower is higher res, sharper reflections)
+// lod - which mip to sample (lower is higher res, sharper reflections)
 // c - center of probe
 // r2 - radius of probe squared
 // i - index of probe 
-vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, out vec3 vi, out vec3 wi, float lod, vec3 c, int i)
+vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, float lod, vec3 c, int i)
 {
-    //lod = max(lod, 1);
     // parallax adjustment
-
     vec3 v;
 
     if (refIndex[i].w < 0)
-    {
+    {  // box probe
         float d = 0;
         v = boxIntersect(pos, dir, i, d);
 
         w = max(d, 0.001);
     }
     else
-    {
+    { // sphere probe
         float r = refSphere[i].w;
 
         float rr = r * r;
@@ -491,16 +487,12 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, out vec3 vi, out v
         w = sphereWeight(pos, dir, refSphere[i].xyz, r, 0.25, i, dw);
     }
 
-    vi = v;
-
     v -= c;
     vec3 d = normalize(v);
 
     v = env_mat * v;
     
-    vec4 ret = textureLod(reflectionProbes, vec4(v.xyz, refIndex[i].x), lod);
-
-    wi = d * ret.a * 256.0+c;
+    vec4 ret = textureLod(reflectionProbes, vec4(v.xyz, refIndex[i].x), lod) * refParams[i].y;
 
     return ret.rgb;
 }
@@ -568,12 +560,11 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod)
 
         float w = 0;
         float dw = 0;
-        vec3 vi, wi;
         vec3 refcol;
 
         
         {
-            refcol = tapRefMap(pos, dir, w, dw, vi, wi, lod, refSphere[i].xyz, i);
+            refcol = tapRefMap(pos, dir, w, dw, lod, refSphere[i].xyz, i);
 
             col[p] += refcol.rgb*w;
             wsum[p] += w;
@@ -665,7 +656,7 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness)
 {
     // TODO - don't hard code lods
-    float reflection_lods = max_probe_lod;
+    float reflection_lods = max_probe_lod-1;
     preProbeSample(pos);
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
@@ -690,6 +681,9 @@ void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness)
 {
     sampleReflectionProbes(ambenv, glossenv, tc, pos, norm, glossiness);
+
+    // fudge factor to get PBR water at a similar luminance ot legacy water
+    glossenv *= 0.25;
 }
 
 void debugTapRefMap(vec3 pos, vec3 dir, float depth, int i, inout vec4 col)
