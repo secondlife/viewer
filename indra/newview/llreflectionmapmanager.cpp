@@ -94,7 +94,7 @@ void LLReflectionMapManager::update()
 
     if (!mRenderTarget.isComplete())
     {
-        U32 color_fmt = GL_RGB16;
+        U32 color_fmt = GL_RGB16F;
         U32 targetRes = mProbeResolution * 4; // super sample
         mRenderTarget.allocate(targetRes, targetRes, color_fmt, true);
     }
@@ -107,7 +107,7 @@ void LLReflectionMapManager::update()
         mMipChain.resize(count);
         for (int i = 0; i < count; ++i)
         {
-            mMipChain[i].allocate(res, res, GL_RGB16);
+            mMipChain[i].allocate(res, res, GL_RGB16F);
             res /= 2;
         }
     }
