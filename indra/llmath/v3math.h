@@ -150,6 +150,8 @@ class LLVector3
 		friend std::ostream&	 operator<<(std::ostream& s, const LLVector3 &a);		// Stream a
 
 		static BOOL parseVector3(const std::string& buf, LLVector3* value);
+
+        friend void boost::hash_combine<LLVector3>(size_t& seed, LLVector3 const& v);
 };
 
 typedef LLVector3 LLSimLocalVec;
@@ -607,6 +609,14 @@ inline std::ostream& operator<<(std::ostream& s, const LLVector3 &a)
 {
 	s << "{ " << a.mV[VX] << ", " << a.mV[VY] << ", " << a.mV[VZ] << " }";
 	return s;
+}
+
+template <>
+void boost::hash_combine(size_t& seed, LLVector3 const& v)
+{
+    hash_combine(seed, v.mV[0]);
+    hash_combine(seed, v.mV[1]);
+    hash_combine(seed, v.mV[2]);
 }
 
 #endif
