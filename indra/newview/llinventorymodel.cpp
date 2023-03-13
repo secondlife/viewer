@@ -965,12 +965,20 @@ void LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	{
 		LL_WARNS(LOG_INV) << "Inventory is not usable; can't create requested category of type "
 						  << preferred_type << LL_ENDL;
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
 		return;
 	}
 
 	if(LLFolderType::lookup(preferred_type) == LLFolderType::badLookup())
 	{
 		LL_DEBUGS(LOG_INV) << "Attempt to create undefined category." << LL_ENDL;
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
 		return;
 	}
 
@@ -992,7 +1000,7 @@ void LLInventoryModel::createNewCategory(const LLUUID& parent_id,
     // D567 currently this doesn't really work due to limitations in
     // AIS3, also violates the common caller assumption that we can
     // assign the id and return immediately.
-	if (callback && AISAPI::isAvailable())
+	if (AISAPI::isAvailable())
 	{
 		LLSD new_inventory = LLSD::emptyMap();
 		new_inventory["categories"] = LLSD::emptyArray();
@@ -1006,7 +1014,10 @@ void LLInventoryModel::createNewCategory(const LLUUID& parent_id,
         {
             if (new_category.isNull())
             {
-                callback(new_category);
+                if (callback)
+                {
+                    callback(new_category);
+                }
                 return;
             }
 
@@ -1029,7 +1040,10 @@ void LLInventoryModel::createNewCategory(const LLUUID& parent_id,
                 updateCategory(cat);
             }
 
-            callback(new_category);
+            if (callback)
+            {
+                callback(new_category);
+            }
         });
         return;
 	}
@@ -1039,7 +1053,7 @@ void LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	if ( viewer_region )
 		url = viewer_region->getCapability("CreateInventoryCategory");
 	
-	if (!url.empty() && callback)
+	if (!url.empty())
 	{
 		//Let's use the new capability.
         LLUUID id;
@@ -1056,7 +1070,13 @@ void LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 		LL_DEBUGS(LOG_INV) << "Creating category via request: " << ll_pretty_print_sd(request) << LL_ENDL;
         LLCoros::instance().launch("LLInventoryModel::createNewCategoryCoro",
             boost::bind(&LLInventoryModel::createNewCategoryCoro, this, url, body, callback));
+        return;
 	}
+
+    if (callback)
+    {
+        callback(LLUUID::null); // Notify about failure
+    }
 }
 
 void LLInventoryModel::createNewCategoryCoro(std::string url, LLSD postData, inventory_func_type callback)
