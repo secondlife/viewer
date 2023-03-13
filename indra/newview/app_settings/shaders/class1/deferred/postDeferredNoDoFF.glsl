@@ -34,7 +34,6 @@ out vec4 frag_color;
 #endif
 
 uniform sampler2D diffuseRect;
-uniform sampler2D bloomMap;
 
 uniform vec2 screen_res;
 VARYING vec2 vary_fragcoord;
@@ -43,7 +42,6 @@ void main()
 {
 	vec4 diff = texture2D(diffuseRect, vary_fragcoord.xy);
 	
-	vec4 bloom = texture2D(bloomMap, vary_fragcoord.xy);
-	frag_color = diff + bloom;
+	frag_color = diff;
 }
 

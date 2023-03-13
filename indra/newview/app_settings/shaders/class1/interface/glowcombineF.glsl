@@ -29,7 +29,6 @@
 
 out vec4 frag_color;
 
-uniform sampler2D emissiveRect;
 uniform sampler2D diffuseRect;
 uniform sampler2D depthMap;
 
@@ -37,8 +36,7 @@ in vec2 tc;
 
 void main() 
 {
-	frag_color = texture2D(emissiveRect, tc) +
-					texture2D(diffuseRect, tc);
+	frag_color = texture2D(diffuseRect, tc);
 
     gl_FragDepth = texture(depthMap, tc).r;
 }

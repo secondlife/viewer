@@ -34,6 +34,7 @@ out vec4 frag_color;
 #endif
 
 uniform sampler2D diffuseRect;
+uniform sampler2D emissiveRect;
 
 uniform vec2 screen_res;
 VARYING vec2 vary_fragcoord;
@@ -196,7 +197,7 @@ float noise(vec2 x) {
 void main() 
 {
     //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
-    vec4 diff = texture2D(diffuseRect, vary_fragcoord);
+    vec4 diff = texture2D(diffuseRect, vary_fragcoord) + texture2D(emissiveRect, vary_fragcoord);
     diff.rgb = toneMap(diff.rgb);
     vec2 tc = vary_fragcoord.xy*screen_res;
 

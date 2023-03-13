@@ -7489,6 +7489,12 @@ void LLPipeline::renderFinalize()
 				screenTarget()->bindTexture(0, channel, LLTexUnit::TFO_POINT);
             }
 
+			channel = gDeferredPostGammaCorrectProgram.enableTexture(LLShaderMgr::DEFERRED_EMISSIVE, screenTarget()->getUsage());
+			if (channel > -1)
+			{
+				mGlow[1].bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
+			}
+
             gDeferredPostGammaCorrectProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, screenTarget()->getWidth(), screenTarget()->getHeight());
 
             static LLCachedControl<F32> exposure(gSavedSettings, "RenderExposure", 1.f);
@@ -7516,8 +7522,8 @@ void LLPipeline::renderFinalize()
 		bool multisample = RenderFSAASamples > 1 && mRT->fxaaBuffer.isComplete();
 		LLGLSLShader* shader = &gGlowCombineProgram;
 
-		S32 width = mRT->screen.getWidth();
-		S32 height = mRT->screen.getHeight();
+		S32 width = screenTarget()->getWidth();
+		S32 height = screenTarget()->getHeight();
 
 		S32 channel = -1;
 
@@ -7535,10 +7541,10 @@ void LLPipeline::renderFinalize()
 			shader->bind();
 			shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, width, height);
 
-			channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mRT->deferredLight.getUsage());
+			channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, screenTarget()->getUsage());
 			if (channel > -1)
 			{
-				mRT->deferredLight.bindTexture(0, channel);
+				screenTarget()->bindTexture(0, channel);
 			}
 
             {
@@ -7549,7 +7555,7 @@ void LLPipeline::renderFinalize()
 
 			gGL.flush();
 
-			shader->disableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mRT->deferredLight.getUsage());
+			shader->disableTexture(LLShaderMgr::DEFERRED_DIFFUSE, screenTarget()->getUsage());
 			shader->unbind();
 
 			mRT->fxaaBuffer.flush();
@@ -7601,11 +7607,9 @@ void LLPipeline::renderFinalize()
 
 			shader->bind();
 
-            S32 glow_channel = shader->getTextureChannel(LLShaderMgr::DEFERRED_EMISSIVE);
             S32 screen_channel = shader->getTextureChannel(LLShaderMgr::DEFERRED_DIFFUSE);
             S32 depth_channel = shader->getTextureChannel(LLShaderMgr::DEFERRED_DEPTH);
 
-			gGL.getTexUnit(glow_channel)->bind(&mGlow[1]);
 			gGL.getTexUnit(screen_channel)->bind(screenTarget());
             gGL.getTexUnit(depth_channel)->bind(&mRT->deferredScreen, true);
 
@@ -7622,7 +7626,6 @@ void LLPipeline::renderFinalize()
 			shader->unbind();
 		}
 	}
-    
 
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
@@ -7777,12 +7780,6 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
         {
             gGL.getTexUnit(channel)->bindFast(LLViewerFetchedTexture::sWhiteImagep);
         }
-	}
-
-	channel = shader.enableTexture(LLShaderMgr::DEFERRED_BLOOM);
-	if (channel > -1)
-	{
-		mGlow[1].bindTexture(0, channel);
 	}
 
 	stop_glerror();
