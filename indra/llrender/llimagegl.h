@@ -118,9 +118,9 @@ public:
 	BOOL createGLTexture(S32 discard_level, const U8* data, BOOL data_hasmips = FALSE, S32 usename = 0, bool defer_copy = false, LLGLuint* tex_name = nullptr);
 	void setImage(const LLImageRaw* imageraw);
 	BOOL setImage(const U8* data_in, BOOL data_hasmips = FALSE, S32 usename = 0);
-    // *NOTE: force_fast_update should only be used if the texture is not
-    // compressed (i.e. RenderCompressTextures is 0). Partial image updates
-    // (glTexSubImage2D) do not work on compressed textures.
+    // *TODO: This function may not work if the textures is compressed (i.e.
+    // RenderCompressTextures is 0). Partial image updates do not work on
+    // compressed textures.
 	BOOL setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE, LLGLuint use_name = 0);
 	BOOL setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE, LLGLuint use_name = 0);
 	BOOL setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_pos, S32 width, S32 height);
