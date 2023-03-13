@@ -1570,7 +1570,7 @@ void LLVOCache::readGenericExtrasFromCache(U64 handle, const LLUUID& id, LLVOCac
     try {
         num_entries = std::stol(line);
     }
-    catch(std::logic_error &excp)  // either invalid_argument or out_of_range
+    catch(std::logic_error&)  // either invalid_argument or out_of_range
     {
         LL_WARNS() << "Failed reading extras cache for handle " << handle << ". unreadable num_entries" << LL_ENDL;
         return;
