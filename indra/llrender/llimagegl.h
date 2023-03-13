@@ -214,6 +214,7 @@ public:
 private:
 	U32 createPickMask(S32 pWidth, S32 pHeight);
 	void freePickMask();
+    bool isCompressed();
 
 	LLPointer<LLImageRaw> mSaveData; // used for destroyGL/restoreGL
 	LL::WorkQueue::weak_t mMainQueue;
