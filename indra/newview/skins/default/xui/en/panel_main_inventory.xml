@@ -235,7 +235,9 @@
          sort_order_setting="InventorySortOrder"
          show_item_link_overlays="true"
          top="16"
-         width="288" />
+         width="288">
+            <folder double_click_override="true"/>
+        </inventory_panel>
         <recent_inventory_panel
          bg_opaque_color="DkGray2"
          bg_alpha_color="DkGray2"
@@ -250,7 +252,9 @@
          left_delta="0"
          name="Recent Items"
          show_item_link_overlays="true"
-         width="290" />
+         width="290">
+            <folder double_click_override="true"/>
+        </recent_inventory_panel>
         <inventory_panel
          name="Worn Items"
          label="WORN"
@@ -264,6 +268,7 @@
          border="false"
          bevel_style="none"
          scroll.reserve_scroll_corner="false">
+            <folder double_click_override="true"/>
         </inventory_panel>
       </tab_container>
     </panel>
