@@ -33,6 +33,8 @@
 #include "llinventorymodel.h"
 #include "llsdutil.h"
 #include "llviewerregion.h"
+#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llinventoryobserver.h"
 #include "llviewercontrol.h"
 
@@ -409,6 +411,7 @@ void AISAPI::FetchCategoryChildren(const LLUUID &catId, ITEM_TYPE type, bool rec
     if (cap.empty())
     {
         LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        callback(LLUUID::null);
         return;
     }
     std::string url = cap + std::string("/category/") + catId.asString() + "/children";
@@ -566,6 +569,24 @@ void AISAPI::onIdle(void *userdata)
 }
 
 /*static*/
+void AISAPI::onUpdateReceived(const std::string& context, const LLSD& update, COMMAND_TYPE type)
+{
+    LLTimer timer;
+    if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+    {
+        dump_sequential_xml(gAgentAvatarp->getFullname() + "_ais_update", update);
+    }
+    bool is_fetch = (type == FETCHITEM)
+        || (type == FETCHCATEGORYCHILDREN)
+        || (type == FETCHCATEGORYCATEGORIES)
+        || (type == FETCHCOF);
+    // parse update llsd into stuff to do or parse received items.
+    AISUpdate ais_update(update, is_fetch);
+    ais_update.doUpdate(); // execute the updates in the appropriate order.
+    LL_INFOS("Inventory") << "elapsed: " << timer.getElapsedTimeF32() << LL_ENDL;
+}
+
+/*static*/
 void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter, 
         invokationFn_t invoke, std::string url, 
         LLUUID targetId, LLSD body, completion_t callback, COMMAND_TYPE type)
@@ -659,7 +680,7 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
     }
 
 	LL_DEBUGS("Inventory") << result << LL_ENDL;
-    gInventory.onAISUpdateReceived("AISCommand", result);
+    onUpdateReceived("AISCommand", result, type);
 
     if (callback && !callback.empty())
     {
@@ -708,7 +729,8 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
 }
 
 //-------------------------------------------------------------------------
-AISUpdate::AISUpdate(const LLSD& update)
+AISUpdate::AISUpdate(const LLSD& update, bool fetch)
+: mFetch(fetch)
 {
 	parseUpdate(update);
 }
@@ -849,7 +871,7 @@ void AISUpdate::parseItem(const LLSD& item_map)
 	BOOL rv = new_item->unpackMessage(item_map);
 	if (rv)
 	{
-		if (curr_item)
+		if (!mFetch && curr_item)
 		{
 			mItemsUpdated[item_id] = new_item;
 			// This statement is here to cause a new entry with 0
@@ -884,7 +906,7 @@ void AISUpdate::parseLink(const LLSD& link_map)
 	if (rv)
 	{
 		const LLUUID& parent_id = new_link->getParentUUID();
-		if (curr_link)
+		if (!mFetch && curr_link)
 		{
 			mItemsUpdated[item_id] = new_link;
 			// This statement is here to cause a new entry with 0
@@ -951,7 +973,7 @@ void AISUpdate::parseCategory(const LLSD& category_map)
 	//}
 	if (rv)
 	{
-		if (curr_cat)
+		if (curr_cat && !mFetch)
 		{
 			mCategoriesUpdated[category_id] = new_cat;
 			// This statement is here to cause a new entry with 0
@@ -1054,7 +1076,7 @@ void AISUpdate::parseEmbeddedLinks(const LLSD& links)
 	{
 		const LLUUID link_id((*linkit).first);
 		const LLSD& link_map = (*linkit).second;
-		if (mItemIds.end() == mItemIds.find(link_id))
+		if (!mFetch && mItemIds.end() == mItemIds.find(link_id))
 		{
 			LL_DEBUGS("Inventory") << "Ignoring link not in items list " << link_id << LL_ENDL;
 		}
@@ -1070,7 +1092,7 @@ void AISUpdate::parseEmbeddedItem(const LLSD& item)
 	// a single item (_embedded in a link)
 	if (item.has("item_id"))
 	{
-		if (mItemIds.end() != mItemIds.find(item["item_id"].asUUID()))
+		if (mFetch || mItemIds.end() != mItemIds.find(item["item_id"].asUUID()))
 		{
 			parseItem(item);
 		}
@@ -1086,7 +1108,7 @@ void AISUpdate::parseEmbeddedItems(const LLSD& items)
 	{
 		const LLUUID item_id((*itemit).first);
 		const LLSD& item_map = (*itemit).second;
-		if (mItemIds.end() == mItemIds.find(item_id))
+		if (!mFetch && mItemIds.end() == mItemIds.find(item_id))
 		{
 			LL_DEBUGS("Inventory") << "Ignoring item not in items list " << item_id << LL_ENDL;
 		}
@@ -1102,7 +1124,7 @@ void AISUpdate::parseEmbeddedCategory(const LLSD& category)
 	// a single category (_embedded in a link)
 	if (category.has("category_id"))
 	{
-		if (mCategoryIds.end() != mCategoryIds.find(category["category_id"].asUUID()))
+		if (mFetch || mCategoryIds.end() != mCategoryIds.find(category["category_id"].asUUID()))
 		{
 			parseCategory(category);
 		}
@@ -1118,7 +1140,7 @@ void AISUpdate::parseEmbeddedCategories(const LLSD& categories)
 	{
 		const LLUUID category_id((*categoryit).first);
 		const LLSD& category_map = (*categoryit).second;
-		if (mCategoryIds.end() == mCategoryIds.find(category_id))
+		if (!mFetch && mCategoryIds.end() == mCategoryIds.find(category_id))
 		{
 			LL_DEBUGS("Inventory") << "Ignoring category not in categories list " << category_id << LL_ENDL;
 		}

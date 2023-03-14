@@ -411,9 +411,6 @@ public:
 	// Delete
 	//--------------------------------------------------------------------
 public:
-
-	// Update model after an AISv3 update received for any operation.
-	void onAISUpdateReceived(const std::string& context, const LLSD& update);
 		
 	// Update model after an item is confirmed as removed from
 	// server. Works for categories or items.

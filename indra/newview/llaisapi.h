@@ -86,6 +86,7 @@ private:
 
     static void EnqueueAISCommand(const std::string &procName, LLCoprocedureManager::CoProcedure_t proc);
     static void onIdle(void *userdata); // launches postponed AIS commands
+    static void onUpdateReceived(const std::string& context, const LLSD& update, COMMAND_TYPE type);
 
     static std::string getInvCap();
     static std::string getLibCap();
@@ -101,7 +102,7 @@ private:
 class AISUpdate
 {
 public:
-	AISUpdate(const LLSD& update);
+	AISUpdate(const LLSD& update, bool fetch);
 	void parseUpdate(const LLSD& update);
 	void parseMeta(const LLSD& update);
 	void parseContent(const LLSD& update);
@@ -137,6 +138,7 @@ private:
 	uuid_list_t mObjectsDeletedIds;
 	uuid_list_t mItemIds;
 	uuid_list_t mCategoryIds;
+    bool mFetch;
 };
 
 #endif

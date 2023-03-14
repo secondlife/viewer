@@ -1754,19 +1754,6 @@ void LLInventoryModel::changeCategoryParent(LLViewerInventoryCategory* cat,
 	notifyObservers();
 }
 
-void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLSD& update)
-{
-	LLTimer timer;
-	if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
-	{
-		dump_sequential_xml(gAgentAvatarp->getFullname() + "_ais_update", update);
-	}
-
-	AISUpdate ais_update(update); // parse update llsd into stuff to do.
-	ais_update.doUpdate(); // execute the updates in the appropriate order.
-	LL_INFOS(LOG_INV) << "elapsed: " << timer.getElapsedTimeF32() << LL_ENDL;
-}
-
 // Does not appear to be used currently.
 void LLInventoryModel::onItemUpdated(const LLUUID& item_id, const LLSD& updates, bool update_parent_version)
 {

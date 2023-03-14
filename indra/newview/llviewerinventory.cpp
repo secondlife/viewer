@@ -667,7 +667,7 @@ bool LLViewerInventoryCategory::fetch()
 		{
 			LL_WARNS(LOG_INV) << "agent region is null" << LL_ENDL;
 		}
-		if (!url.empty()) //Capability found.  Build up LLSD and use it.
+		if (!url.empty() || AISAPI::isAvailable())
 		{
 			LLInventoryModelBackgroundFetch::instance().start(mUUID, false);			
 		}
