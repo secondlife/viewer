@@ -202,7 +202,7 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
         {
             // At the moment background fetch only cares about VERSION_UNKNOWN,
             // so do not check isCategoryComplete that compares descendant count
-            LLInventoryModelBackgroundFetch::instance().start(folder_id);
+            LLInventoryModelBackgroundFetch::instance().start(folder_id, false);
         }
 	}
 
