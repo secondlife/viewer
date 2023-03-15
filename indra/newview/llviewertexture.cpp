@@ -402,13 +402,6 @@ void LLViewerTextureManager::init()
 	LLViewerFetchedTexture::sDefaultImagep->dontDiscard();
 	LLViewerFetchedTexture::sDefaultImagep->setCategory(LLGLTexture::OTHER);
 
-#if 0
-	// When called first time after clearing cache this call creates (and adds to cache) an opaque texture instead of transparent
-	// SL-18964 : The creating of this texture was moved to LLDrawPoolAlpha::renderDebugAlpha()
- 	LLViewerFetchedTexture::sSmokeImagep = LLViewerTextureManager::getFetchedTexture(IMG_SMOKE, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-	LLViewerFetchedTexture::sSmokeImagep->setNoDelete();
-#endif
-
 	image_raw = new LLImageRaw(32,32,3);
 	data = image_raw->getData();
 
