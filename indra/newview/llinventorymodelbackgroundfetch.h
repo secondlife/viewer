@@ -114,7 +114,6 @@ private:
 	LLFrameTimer mFetchTimer;
 	F32 mMinTimeBetweenFetches;
 	fetch_queue_t mFetchQueue;
-    fetch_queue_t mRecursiveFetchQueue;
 
 };
 

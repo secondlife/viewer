@@ -901,7 +901,25 @@ void AISUpdate::parseLink(const LLSD& link_map)
 
 void AISUpdate::parseCategory(const LLSD& category_map)
 {
-	LLUUID category_id = category_map["category_id"].asUUID();
+    LLUUID category_id = category_map["category_id"].asUUID();
+    S32 version = LLViewerInventoryCategory::VERSION_UNKNOWN;
+
+    if (category_map.has("version"))
+    {
+        version = category_map["version"].asInteger();
+    }
+
+    LLViewerInventoryCategory *curr_cat = gInventory.getCategory(category_id);
+
+    if (curr_cat
+        && curr_cat->getVersion() > LLViewerInventoryCategory::VERSION_UNKNOWN
+        && version > LLViewerInventoryCategory::VERSION_UNKNOWN
+        && version < curr_cat->getVersion())
+    {
+        LL_WARNS() << "Got stale folder, known: " << curr_cat->getVersion()
+            << ", received: " << version << LL_ENDL;
+        return;
+    }
 
 	// Check descendent count first, as it may be needed
 	// to populate newly created categories
@@ -911,7 +929,6 @@ void AISUpdate::parseCategory(const LLSD& category_map)
 	}
 
 	LLPointer<LLViewerInventoryCategory> new_cat;
-	LLViewerInventoryCategory *curr_cat = gInventory.getCategory(category_id);
 	if (curr_cat)
 	{
 		// Default to current values where not provided.
@@ -940,11 +957,10 @@ void AISUpdate::parseCategory(const LLSD& category_map)
         if (mFetch)
         {
             // Set version/descendents for newly created categories.
-            if (category_map.has("version"))
+            if (version > LLViewerInventoryCategory::VERSION_UNKNOWN)
             {
-                S32 version = category_map["version"].asInteger();
                 LL_DEBUGS("Inventory") << "Setting version to " << version
-                    << " for new category " << category_id << LL_ENDL;
+                    << " for category " << category_id << LL_ENDL;
                 new_cat->setVersion(version);
             }
             uuid_int_map_t::const_iterator lookup_it = mCatDescendentsKnown.find(category_id);
@@ -952,7 +968,7 @@ void AISUpdate::parseCategory(const LLSD& category_map)
             {
                 S32 descendent_count = lookup_it->second;
                 LL_DEBUGS("Inventory") << "Setting descendents count to " << descendent_count
-                    << " for new category " << category_id << LL_ENDL;
+                    << " for category " << category_id << LL_ENDL;
                 new_cat->setDescendentCount(descendent_count);
             }
             mCategoriesCreated[category_id] = new_cat;
