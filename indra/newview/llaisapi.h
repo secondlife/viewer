@@ -75,7 +75,6 @@ private:
         FETCHITEM,
         FETCHCATEGORYCHILDREN,
         FETCHCATEGORYCATEGORIES,
-        FETCHCOF,
     } COMMAND_TYPE;
 
     static const std::string INVENTORY_CAP_NAME;

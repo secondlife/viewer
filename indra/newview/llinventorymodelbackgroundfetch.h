@@ -73,9 +73,14 @@ public:
 
 protected:
 
+    typedef enum {
+        RT_NONE = 0,
+        RT_CONTENT, // request content recursively
+        RT_RECURSIVE, // request everything recursively
+    } ERecursionType;
     struct FetchQueueInfo
     {
-        FetchQueueInfo(const LLUUID& id, bool recursive, bool is_category = true)
+        FetchQueueInfo(const LLUUID& id, ERecursionType recursive, bool is_category = true)
             : mUUID(id),
             mIsCategory(is_category),
             mRecursive(recursive)
@@ -83,10 +88,11 @@ protected:
 
         LLUUID mUUID;
         bool mIsCategory;
-        bool mRecursive;
+        ERecursionType mRecursive;
     };
     typedef std::deque<FetchQueueInfo> fetch_queue_t;
 
+    void onAISCalback(const LLUUID &request_id, const LLUUID &response_id, ERecursionType recursion);
     void bulkFetchViaAis();
     void bulkFetchViaAis(const FetchQueueInfo& fetch_info);
 	void bulkFetch();
