@@ -31,6 +31,7 @@
 #include "llfloaterreg.h"
 #include "llimagefiltersmanager.h"
 #include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "llstatusbar.h" // can_afford_transaction()
 #include "llnotificationsutil.h"
 #include "llagent.h"
@@ -47,8 +48,7 @@ const S32 LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MIN = 64;
 
 // Thumbnail posting coro
 
-static const std::string THUMBNAIL_ITEM_UPLOAD_CAP = "InventoryItemThumbnailUpload";
-static const std::string THUMBNAIL_CATEGORY_UPLOAD_CAP = "InventoryCategoryThumbnailUpload";
+static const std::string THUMBNAIL_UPLOAD_CAP = "InventoryThumbnailUpload";
 
 void post_thumbnail_image_coro(std::string cap_url, std::string path_to_image, LLSD first_data)
 {
@@ -132,8 +132,27 @@ void post_thumbnail_image_coro(std::string cap_url, std::string path_to_image, L
         return;
     }
 
-    // todo: issue an inventory udpate?
-    //return result["new_asset"].asUUID();
+    if (first_data.has("category_id"))
+    {
+        LLUUID cat_id = first_data["category_id"].asUUID();
+        LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+        if (cat)
+        {
+            cat->setThumbnailUUID(result["new_asset"].asUUID());
+        }
+        gInventory.addChangedMask(LLInventoryObserver::INTERNAL, cat_id);
+    }
+    if (first_data.has("item_id"))
+    {
+        LLUUID item_id = first_data["item_id"].asUUID();
+        LLViewerInventoryItem* item = gInventory.getItem(item_id);
+        if (item)
+        {
+            item->setThumbnailUUID(result["new_asset"].asUUID());
+        }
+        // Are we supposed to get BulkUpdateInventory?
+        gInventory.addChangedMask(LLInventoryObserver::INTERNAL, item_id);
+    }
 }
 
 ///----------------------------------------------------------------------------
@@ -346,6 +365,7 @@ void LLFloaterSimpleSnapshot::onSend()
     if (previewp->createUploadFile(temp_file, THUMBNAIL_SNAPSHOT_DIM_MAX, THUMBNAIL_SNAPSHOT_DIM_MIN))
     {
         uploadImageUploadFile(temp_file, mInventoryId, mTaskId);
+        closeFloater();
     }
     else
     {
@@ -380,31 +400,27 @@ void LLFloaterSimpleSnapshot::uploadThumbnail(const std::string &file_path, cons
 // static
 void LLFloaterSimpleSnapshot::uploadImageUploadFile(const std::string &temp_file, const LLUUID &inventory_id, const LLUUID &task_id)
 {
-    std::string cap_name;
     LLSD data;
 
     if (task_id.notNull())
     {
-        cap_name = THUMBNAIL_ITEM_UPLOAD_CAP;
         data["item_id"] = inventory_id;
         data["task_id"] = task_id;
     }
     else if (gInventory.getCategory(inventory_id))
     {
-        cap_name = THUMBNAIL_CATEGORY_UPLOAD_CAP;
         data["category_id"] = inventory_id;
     }
     else
     {
-        cap_name = THUMBNAIL_ITEM_UPLOAD_CAP;
         data["item_id"] = inventory_id;
     }
 
-    std::string cap_url = gAgent.getRegionCapability(cap_name);
+    std::string cap_url = gAgent.getRegionCapability(THUMBNAIL_UPLOAD_CAP);
     if (cap_url.empty())
     {
         LLSD args;
-        args["CAPABILITY"] = cap_url;
+        args["CAPABILITY"] = THUMBNAIL_UPLOAD_CAP;
         LLNotificationsUtil::add("RegionCapabilityRequestError", args);
         LL_WARNS("Thumbnail") << "Failed to upload profile image for item " << inventory_id << " " << task_id << ", no cap found" << LL_ENDL;
         return;

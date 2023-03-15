@@ -3024,8 +3024,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 
 	capabilityNames.append("InterestList");
 
-    capabilityNames.append("InventoryCategoryThumbnailUpload");
-    capabilityNames.append("InventoryItemThumbnailUpload");
+    capabilityNames.append("InventoryThumbnailUpload");
 	capabilityNames.append("GetDisplayNames");
 	capabilityNames.append("GetExperiences");
 	capabilityNames.append("AgentExperiences");
