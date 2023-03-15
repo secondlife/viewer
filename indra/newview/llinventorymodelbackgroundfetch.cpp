@@ -276,7 +276,7 @@ void LLInventoryModelBackgroundFetch::start(const LLUUID& id, bool recursive)
                     // Not only root folder can be massive, but
                     // most system folders will be requested independently
                     // so request root folder and content separately
-                    mRecursiveFetchQueue.push_back(FetchQueueInfo(gInventory.getRootFolderID(), RT_CONTENT));
+                    mFetchQueue.push_front(FetchQueueInfo(gInventory.getRootFolderID(), RT_CONTENT));
                 }
                 else
                 {
@@ -287,25 +287,18 @@ void LLInventoryModelBackgroundFetch::start(const LLUUID& id, bool recursive)
 			if (! mRecursiveLibraryFetchStarted)
 			{
 				mRecursiveLibraryFetchStarted |= recursive;
-                if (recursive && AISAPI::isAvailable())
-                {
-                    mRecursiveFetchQueue.push_back(FetchQueueInfo(gInventory.getLibraryRootFolderID(), recursion_type));
-                }
-                else
-                {
-                    mFetchQueue.push_back(FetchQueueInfo(gInventory.getLibraryRootFolderID(), recursion_type));
-                }
+                mFetchQueue.push_back(FetchQueueInfo(gInventory.getLibraryRootFolderID(), recursion_type));
 				gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
 			}
 		}
 		else
 		{
-            if (recursive && AISAPI::isAvailable())
+            if (AISAPI::isAvailable() && !recursive)
             {
-                // AIS does depth requests, recursive requests will need to be prioritizes
-                if (mRecursiveFetchQueue.empty() || mRecursiveFetchQueue.back().mUUID != id)
+                // Specific folder requests go to front of queue.
+                if (mFetchQueue.empty() || mFetchQueue.back().mUUID != id)
                 {
-                    mRecursiveFetchQueue.push_back(FetchQueueInfo(id, recursion_type));
+                    mFetchQueue.push_back(FetchQueueInfo(id, recursion_type));
                     gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
                 }
             }
@@ -318,6 +311,7 @@ void LLInventoryModelBackgroundFetch::start(const LLUUID& id, bool recursive)
                     gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
                 }
             }
+
 			if (id == gInventory.getLibraryRootFolderID())
 			{
 				mRecursiveLibraryFetchStarted |= recursive;
@@ -409,7 +403,7 @@ void LLInventoryModelBackgroundFetch::onAISCalback(const LLUUID &request_id, con
             // Try requesting folder and nested content separately
             mBackgroundFetchActive = true;
             mFolderFetchActive = true;
-            mRecursiveFetchQueue.push_back(FetchQueueInfo(request_id, RT_CONTENT));
+            mFetchQueue.push_front(FetchQueueInfo(request_id, RT_CONTENT));
             gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
         }
     }
@@ -425,7 +419,13 @@ void LLInventoryModelBackgroundFetch::onAISCalback(const LLUUID &request_id, con
                 it != categories->end();
                 ++it)
             {
-                mRecursiveFetchQueue.push_back(FetchQueueInfo((*it)->getUUID(), RT_RECURSIVE));
+                mFetchQueue.push_back(FetchQueueInfo((*it)->getUUID(), RT_RECURSIVE));
+            }
+            if (!mFetchQueue.empty())
+            {
+                mBackgroundFetchActive = true;
+                mFolderFetchActive = true;
+                gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
             }
         }
     }
@@ -442,20 +442,11 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
         return;
     }
 
-    static const S32 max_concurrent_fetches(12);
+    static const S32 max_concurrent_fetches(50);
 
     if (mFetchCount >= max_concurrent_fetches)
     {
         return;
-    }
-
-    // Start with recursive queue since it can get multiple categories
-    // in a single request and might contain what other requests want
-    while (!mRecursiveFetchQueue.empty() && mFetchCount < max_concurrent_fetches)
-    {
-        const FetchQueueInfo & fetch_info(mRecursiveFetchQueue.front());
-        bulkFetchViaAis(fetch_info);
-        mRecursiveFetchQueue.pop_front();
     }
 
     while (!mFetchQueue.empty() && mFetchCount < max_concurrent_fetches)
@@ -522,7 +513,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                         it != categories->end();
                         ++it)
                     {
-                        mRecursiveFetchQueue.push_back(FetchQueueInfo((*it)->getUUID(), fetch_info.mRecursive));
+                        mFetchQueue.push_back(FetchQueueInfo((*it)->getUUID(), fetch_info.mRecursive));
                     }
                 }
             }
@@ -597,13 +588,6 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 	LLSD folder_request_body_lib;
 	LLSD item_request_body;
 	LLSD item_request_body_lib;
-
-    if (!mRecursiveFetchQueue.empty())
-    {
-        LL_DEBUGS(LOG_INV) << "Request was sheduled for AIS, using legacy" << LL_ENDL;
-        mFetchQueue.insert(mFetchQueue.begin(), mRecursiveFetchQueue.begin(), mRecursiveFetchQueue.end());
-        mRecursiveFetchQueue.clear();
-    }
 
 	while (! mFetchQueue.empty() 
 			&& (item_count + folder_count) < max_batch_size)
