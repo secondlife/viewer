@@ -484,41 +484,6 @@ void AISAPI::FetchCategoryCategories(const LLUUID &catId, ITEM_TYPE type, bool r
 }
 
 /*static*/
-void AISAPI::FetchCOF(completion_t callback)
-{
-    std::string cap;
-    cap = getInvCap();
-    if (cap.empty())
-    {
-        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
-        return;
-    }
-    LLUUID cof_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-
-    std::string url = cap + std::string("/category/") + cof_id.asString() +  "/links";
-    
-    //LLUUID root_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_ROOT_INVENTORY);
-    //std::string url = cap + std::string("/category/") + root_id.asString() +  "/children?depth=*";
-
-    invokationFn_t patchFn = boost::bind(
-        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
-        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
-        //----
-        // _1 -> httpAdapter
-        // _2 -> httpRequest
-        // _3 -> url
-        // _4 -> body 
-        // _5 -> httpOptions
-        // _6 -> httpHeaders
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, _5, _6);
-
-    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
-        _1, patchFn, url, cof_id, LLSD(), callback, FETCHCOF));
-
-    EnqueueAISCommand("FetchCOF", proc);
-}
-
-/*static*/
 void AISAPI::EnqueueAISCommand(const std::string &procName, LLCoprocedureManager::CoProcedure_t proc)
 {
     LLCoprocedureManager &inst = LLCoprocedureManager::instance();
@@ -578,8 +543,7 @@ void AISAPI::onUpdateReceived(const std::string& context, const LLSD& update, CO
     }
     bool is_fetch = (type == FETCHITEM)
         || (type == FETCHCATEGORYCHILDREN)
-        || (type == FETCHCATEGORYCATEGORIES)
-        || (type == FETCHCOF);
+        || (type == FETCHCATEGORYCATEGORIES);
     // parse update llsd into stuff to do or parse received items.
     AISUpdate ais_update(update, is_fetch);
     ais_update.doUpdate(); // execute the updates in the appropriate order.
@@ -648,35 +612,15 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
                 }
             }
         }
-        /*else if (status.getType() == 403)
+        else if (status.getType() == 403)
         {
             if (type == FETCHCATEGORYCHILDREN)
             {
-                if (url.find("?depth=*") != std::string::npos)
-                {
-                    LL_WARNS() << "too much" << LL_ENDL;
-                    AISAPI::FetchCategoryChildren(gInventory.getRootFolderID(), AISAPI::ITEM_TYPE::INVENTORY, false, boost::bind(&LLInventoryModel::fetchDescendentsDepthOne, &gInventory, targetId));
-
-                    if (result["oversize_inventory"].asBoolean() == true)
-                    {
-                        LL_WARNS("Inventory") << "Can't fetch the oversized inventory folder" << LL_ENDL;
-                    }
-                }
-                else
-                {
-                    if (result["oversize_inventory"].asBoolean() == true)
-                    {
-                        LL_WARNS("Inventory") << "Can't fetch the oversized inventory folder" << LL_ENDL;
-                    }
-                }
+                LL_DEBUGS("Inventory") << "Fetch failed, content is over imit" << LL_ENDL;
             }
-        }*/
+        }
         LL_WARNS("Inventory") << "Inventory error: " << status.toString() << LL_ENDL;
         LL_WARNS("Inventory") << ll_pretty_print_sd(result) << LL_ENDL;
-    }
-    else if (type == FETCHCOF)
-    {
-        //LL_WARNS("Inventory") << ll_pretty_print_sd(result) << LL_ENDL;      
     }
 
 	LL_DEBUGS("Inventory") << result << LL_ENDL;
@@ -687,7 +631,10 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
         bool needs_callback = true;
         LLUUID id(LLUUID::null);
 
-        if (type == COPYLIBRARYCATEGORY && result.has("category_id"))
+        if ( ( (type == COPYLIBRARYCATEGORY)
+               || (type == FETCHCATEGORYCATEGORIES)
+               || (type == FETCHCATEGORYCHILDREN))
+             && result.has("category_id"))
         {
             id = result["category_id"];
 	    }
@@ -871,7 +818,12 @@ void AISUpdate::parseItem(const LLSD& item_map)
 	BOOL rv = new_item->unpackMessage(item_map);
 	if (rv)
 	{
-		if (!mFetch && curr_item)
+        if (mFetch)
+        {
+            mItemsCreated[item_id] = new_item;
+            mCatDescendentDeltas[new_item->getParentUUID()];
+        }
+        else if (curr_item)
 		{
 			mItemsUpdated[item_id] = new_item;
 			// This statement is here to cause a new entry with 0
@@ -906,7 +858,19 @@ void AISUpdate::parseLink(const LLSD& link_map)
 	if (rv)
 	{
 		const LLUUID& parent_id = new_link->getParentUUID();
-		if (!mFetch && curr_link)
+        if (mFetch)
+        {
+            LLPermissions default_perms;
+            default_perms.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
+            default_perms.initMasks(PERM_NONE, PERM_NONE, PERM_NONE, PERM_NONE, PERM_NONE);
+            new_link->setPermissions(default_perms);
+            LLSaleInfo default_sale_info;
+            new_link->setSaleInfo(default_sale_info);
+            //LL_DEBUGS("Inventory") << "creating link from llsd: " << ll_pretty_print_sd(link_map) << LL_ENDL;
+            mItemsCreated[item_id] = new_link;
+            mCatDescendentDeltas[parent_id];
+        }
+		else if (curr_link)
 		{
 			mItemsUpdated[item_id] = new_link;
 			// This statement is here to cause a new entry with 0
@@ -973,7 +937,28 @@ void AISUpdate::parseCategory(const LLSD& category_map)
 	//}
 	if (rv)
 	{
-		if (curr_cat && !mFetch)
+        if (mFetch)
+        {
+            // Set version/descendents for newly created categories.
+            if (category_map.has("version"))
+            {
+                S32 version = category_map["version"].asInteger();
+                LL_DEBUGS("Inventory") << "Setting version to " << version
+                    << " for new category " << category_id << LL_ENDL;
+                new_cat->setVersion(version);
+            }
+            uuid_int_map_t::const_iterator lookup_it = mCatDescendentsKnown.find(category_id);
+            if (mCatDescendentsKnown.end() != lookup_it)
+            {
+                S32 descendent_count = lookup_it->second;
+                LL_DEBUGS("Inventory") << "Setting descendents count to " << descendent_count
+                    << " for new category " << category_id << LL_ENDL;
+                new_cat->setDescendentCount(descendent_count);
+            }
+            mCategoriesCreated[category_id] = new_cat;
+            mCatDescendentDeltas[new_cat->getParentUUID()];
+        }
+		else if (curr_cat)
 		{
 			mCategoriesUpdated[category_id] = new_cat;
 			// This statement is here to cause a new entry with 0
