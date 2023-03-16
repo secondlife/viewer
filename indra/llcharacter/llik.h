@@ -91,31 +91,20 @@ class Constraint
 public:
     using ptr_t = std::shared_ptr<Constraint>;
 
-    class Info
+    enum ConstraintType
     {
-    public:
-        // public Constraint
-        enum ConstraintType
-        {
-            NULL_CONSTRAINT,
-            UNKNOWN_CONSTRAINT,
-            SIMPLE_CONE_CONSTRAINT,
-            TWIST_LIMITED_CONE_CONSTRAINT,
-            ELBOW_CONSTRAINT,
-            KNEE_CONSTRAINT,
-            ACUTE_ELLIPSOIDAL_CONE_CONSTRAINT,
-            DOUBLE_LIMITED_HINGE_CONSTRAINT
-        };
-
-        std::string getString() const;
-
-        std::vector<LLVector3> mVectors;
-        std::vector<F32> mFloats;
-        ConstraintType mType = UNKNOWN_CONSTRAINT;
+        NULL_CONSTRAINT,
+        UNKNOWN_CONSTRAINT,
+        SIMPLE_CONE_CONSTRAINT,
+        TWIST_LIMITED_CONE_CONSTRAINT,
+        ELBOW_CONSTRAINT,
+        KNEE_CONSTRAINT,
+        ACUTE_ELLIPSOIDAL_CONE_CONSTRAINT,
+        DOUBLE_LIMITED_HINGE_CONSTRAINT
     };
 
     Constraint() {}
-    Constraint(Info::ConstraintType type, LLSD &parameters) :
+    Constraint(ConstraintType type, LLSD &parameters) :
         mType(type)
     {
         mForward = LLVector3(parameters["forward_axis"]);
@@ -127,7 +116,7 @@ public:
     virtual LLSD            asLLSD() const;
     virtual size_t          generateHash() const;
 
-    Info::ConstraintType    getType() const { return mType; }
+    ConstraintType          getType() const { return mType; }
     bool                    enforce(Joint& joint) const;
     virtual LLQuaternion    computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const = 0;
     virtual LLQuaternion    minimizeTwist(const LLQuaternion& joint_local_rot) const;
@@ -142,8 +131,8 @@ public:
     virtual void dumpConfig() const = 0;
 #endif
 protected:
-    LLVector3 mForward { LLVector3::zero };
-    Info::ConstraintType mType = Info::NULL_CONSTRAINT;
+    LLVector3               mForward { LLVector3::zero };
+    ConstraintType          mType{NULL_CONSTRAINT};
 };
 
 // SimpleCone Constraint can twist arbitrarily about its 'forward' axis
@@ -716,9 +705,6 @@ public:
     size_t                          getNumConstraints() const { return mConstraints.size(); } // for unit-test
 
     LLIK::Constraint::ptr_t         getConstrForJoint(const std::string &joint_name) const;
-#ifdef LL_TEST
-    LLIK::Constraint::ptr_t         getConstraint(const LLIK::Constraint::Info& info);
-#endif // 
 
 protected:
     void                            initSingleton() override;
@@ -730,9 +716,6 @@ private:
     void                            processConstraintMappings(LLSD mappings);
     LLIK::Constraint::ptr_t         getConstraint(LLSD constraint_def);
 
-#ifdef LL_TEST
-    static LLIK::Constraint::ptr_t  create(const LLIK::Constraint::Info& info);
-#endif
     static LLIK::Constraint::ptr_t  create(LLSD &data);
 
     constraint_cache_t  mConstraints;

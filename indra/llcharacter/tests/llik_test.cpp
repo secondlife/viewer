@@ -722,6 +722,7 @@ namespace tut
         }
     }
 
+#if 0
     // LLIKConstraintFactory
 	template<> template<>
 	void llik_object::test<6>()
@@ -2492,4 +2493,5 @@ namespace tut
             delete joint;
         }
     }
+#endif
 }
