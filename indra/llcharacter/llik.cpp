@@ -54,23 +54,23 @@ namespace
     constexpr char *ACUTE_ELLIPSOIDAL_CONE_CONSTRAINT_NAME("ACUTE_ELLIPSOIDAL_CONE");
     constexpr char *DOUBLE_LIMITED_HINGE_CONSTRAINT_NAME  ("DOUBLE_LIMITED_HINGE");
 
-    std::string constraint_type_to_name(LLIK::Constraint::Info::ConstraintType type)
+    std::string constraint_type_to_name(LLIK::Constraint::ConstraintType type)
     {
         switch (type)
         {
-        case LLIK::Constraint::Info::NULL_CONSTRAINT:
+        case LLIK::Constraint::NULL_CONSTRAINT:
             return NULL_CONSTRAINT_NAME;
-        case LLIK::Constraint::Info::SIMPLE_CONE_CONSTRAINT:
+        case LLIK::Constraint::SIMPLE_CONE_CONSTRAINT:
             return SIMPLE_CONE_CONSTRAINT_NAME;
-        case LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT:
+        case LLIK::Constraint::TWIST_LIMITED_CONE_CONSTRAINT:
             return TWIST_LIMITED_CONE_CONSTRAINT_NAME;
-        case LLIK::Constraint::Info::ELBOW_CONSTRAINT:
+        case LLIK::Constraint::ELBOW_CONSTRAINT:
             return ELBOW_CONSTRAINT_NAME;
-        case LLIK::Constraint::Info::KNEE_CONSTRAINT:
+        case LLIK::Constraint::KNEE_CONSTRAINT:
             return KNEE_CONSTRAINT_NAME;
-        case LLIK::Constraint::Info::ACUTE_ELLIPSOIDAL_CONE_CONSTRAINT:
+        case LLIK::Constraint::ACUTE_ELLIPSOIDAL_CONE_CONSTRAINT:
             return ACUTE_ELLIPSOIDAL_CONE_CONSTRAINT_NAME;
-        case LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT:
+        case LLIK::Constraint::DOUBLE_LIMITED_HINGE_CONSTRAINT:
             return DOUBLE_LIMITED_HINGE_CONSTRAINT_NAME;
         }
         return std::string();
@@ -255,21 +255,6 @@ void LLIK::Joint::Config::updateFrom(const Config& other_config)
     }
 }
 
-std::string LLIK::Constraint::Info::getString() const
-{
-    std::ostringstream s;
-    s << mType;
-    for (const auto& v : mVectors)
-    {
-        s << "," << v;
-    }
-    for (F32 f : mFloats)
-    {
-        s << "," << f;
-    }
-    return s.str();
-}
-
 LLSD LLIK::Constraint::asLLSD() const
 {
     LLSD data(LLSD::emptyMap());
@@ -331,11 +316,11 @@ LLIK::SimpleCone::SimpleCone(const LLVector3& forward, F32 max_angle)
     mMaxAngle = std::abs(max_angle);
     mCosConeAngle = std::cos(mMaxAngle);
     mSinConeAngle = std::sin(mMaxAngle);
-    mType = Info::SIMPLE_CONE_CONSTRAINT;
+    mType = SIMPLE_CONE_CONSTRAINT;
 }
 
 LLIK::SimpleCone::SimpleCone(LLSD &parameters):
-    LLIK::Constraint(LLIK::Constraint::Info::SIMPLE_CONE_CONSTRAINT, parameters)
+    LLIK::Constraint(LLIK::Constraint::SIMPLE_CONE_CONSTRAINT, parameters)
 {
     mMaxAngle = std::abs(parameters["max_angle"].asReal()) * DEG_TO_RAD;
     mCosConeAngle = std::cos(mMaxAngle);
@@ -407,11 +392,11 @@ LLIK::TwistLimitedCone::TwistLimitedCone(const LLVector3& forward, F32 cone_angl
     mMinTwist = min_twist;
     mMaxTwist = max_twist;
     compute_angle_limits(mMinTwist, mMaxTwist);
-    mType = Info::TWIST_LIMITED_CONE_CONSTRAINT;
+    mType = TWIST_LIMITED_CONE_CONSTRAINT;
 }
 
 LLIK::TwistLimitedCone::TwistLimitedCone(LLSD &parameters):
-    LLIK::Constraint(LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT, parameters)
+    LLIK::Constraint(LLIK::Constraint::TWIST_LIMITED_CONE_CONSTRAINT, parameters)
 {
     mConeAngle = parameters["cone_angle"].asReal() * DEG_TO_RAD;
     mCosConeAngle = std::cos(mConeAngle);
@@ -552,11 +537,11 @@ LLIK::ElbowConstraint::ElbowConstraint(const LLVector3& forward_axis, const LLVe
     mMinTwist = min_twist;
     mMaxTwist = max_twist;
     compute_angle_limits(mMinTwist, mMaxTwist);
-    mType = Info::ELBOW_CONSTRAINT;
+    mType = ELBOW_CONSTRAINT;
 }
 
 LLIK::ElbowConstraint::ElbowConstraint(LLSD &parameters):
-    LLIK::Constraint(LLIK::Constraint::Info::ELBOW_CONSTRAINT, parameters)
+    LLIK::Constraint(LLIK::Constraint::ELBOW_CONSTRAINT, parameters)
 {
     mPivotAxis = mForward % (LLVector3(parameters["pivot_axis"]) % mForward);
     mPivotAxis.normalize();
@@ -694,11 +679,11 @@ LLIK::KneeConstraint::KneeConstraint(const LLVector3& forward_axis, const LLVect
     mMinBend = min_bend;
     mMaxBend = max_bend;
     compute_angle_limits(mMinBend, mMaxBend);
-    mType = Info::KNEE_CONSTRAINT;
+    mType = KNEE_CONSTRAINT;
 }
 
 LLIK::KneeConstraint::KneeConstraint(LLSD &parameters):
-    LLIK::Constraint(LLIK::Constraint::Info::KNEE_CONSTRAINT, parameters)
+    LLIK::Constraint(LLIK::Constraint::KNEE_CONSTRAINT, parameters)
 {
     mPivotAxis = mForward % (LLVector3(parameters["pivot_axis"]) % mForward);
     mPivotAxis.normalize();
@@ -861,11 +846,11 @@ LLIK::AcuteEllipsoidalCone::AcuteEllipsoidalCone(
     mQuadrantCotAngles[2] = 1.0f / down;
     mQuadrantCosAngles[3] = mQuadrantCosAngles[2];
     mQuadrantCotAngles[3] = mQuadrantCotAngles[2];
-    mType = Info::ACUTE_ELLIPSOIDAL_CONE_CONSTRAINT;
+    mType = ACUTE_ELLIPSOIDAL_CONE_CONSTRAINT;
 }
 
 LLIK::AcuteEllipsoidalCone::AcuteEllipsoidalCone(LLSD &parameters):
-    LLIK::Constraint(LLIK::Constraint::Info::ACUTE_ELLIPSOIDAL_CONE_CONSTRAINT, parameters)
+    LLIK::Constraint(LLIK::Constraint::ACUTE_ELLIPSOIDAL_CONE_CONSTRAINT, parameters)
 {
     // See constructor above for detailed comments.
     // This constraint readjusts forward_axis
@@ -1067,11 +1052,11 @@ LLIK::DoubleLimitedHinge::DoubleLimitedHinge(
         mMinPitch = mMaxPitch;
         mMaxPitch = temp;
     }
-    mType = Info::DOUBLE_LIMITED_HINGE_CONSTRAINT;
+    mType = DOUBLE_LIMITED_HINGE_CONSTRAINT;
 }
 
 LLIK::DoubleLimitedHinge::DoubleLimitedHinge(LLSD &parameters):
-    LLIK::Constraint(LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT, parameters)
+    LLIK::Constraint(LLIK::Constraint::DOUBLE_LIMITED_HINGE_CONSTRAINT, parameters)
 {
     mUp = mForward % (LLVector3(parameters["up_axis"]) % mForward);
     mUp.normalize();
@@ -3341,28 +3326,6 @@ void LLIKConstraintFactory::processConstraintMappings(LLSD mappings)
     }
 }
 
-#ifdef LL_TEST
-LLIK::Constraint::ptr_t LLIKConstraintFactory::getConstraint(const LLIK::Constraint::Info& info)
-{
-    LLIK::Constraint::ptr_t ptr = create(info);
-    if (ptr)
-    {
-        size_t key = ptr->generateHash();
-        auto itr = mConstraints.find(key);
-        if (itr != mConstraints.end())
-        {
-            return itr->second;
-        }
-
-        if (ptr)
-        {
-            mConstraints.insert({ key, ptr });
-        }
-    }
-    return ptr;
-}
-#endif // LL_TEST
-
 LLIK::Constraint::ptr_t LLIKConstraintFactory::getConstraint(LLSD constraint_def)
 {
     LLIK::Constraint::ptr_t ptr = create(constraint_def);
@@ -3384,86 +3347,6 @@ LLIK::Constraint::ptr_t LLIKConstraintFactory::getConstraint(LLSD constraint_def
 
     return ptr;
 }
-
-#ifdef LL_TEST
-// static
-LLIK::Constraint::ptr_t LLIKConstraintFactory::create(const LLIK::Constraint::Info& info)
-{
-    LLIK::Constraint::ptr_t ptr;
-    switch (info.mType)
-    {
-        case LLIK::Constraint::Info::SIMPLE_CONE_CONSTRAINT:
-            if (info.mVectors.size() > 0 && info.mFloats.size() > 0)
-            {
-                ptr = std::make_shared<LLIK::SimpleCone>(
-                        info.mVectors[0], // forward_axis
-                        info.mFloats[0]); // max_angle
-            }
-        break;
-        case LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT:
-            if (info.mVectors.size() > 0 && info.mFloats.size() > 2)
-            {
-                ptr = std::make_shared<LLIK::TwistLimitedCone>(
-                        info.mVectors[0], // forward_axis
-                        info.mFloats[0], // cone_angle
-                        info.mFloats[1], // min_twist
-                        info.mFloats[2]); // max_twist
-            }
-        break;
-        case LLIK::Constraint::Info::ELBOW_CONSTRAINT:
-            if (info.mVectors.size() > 1 && info.mFloats.size() > 3)
-            {
-                ptr = std::make_shared<LLIK::ElbowConstraint>(
-                        info.mVectors[0], // forward_axis
-                        info.mVectors[1], // pivot_axis
-                        info.mFloats[0],  // min_bend
-                        info.mFloats[1],  // max_bend
-                        info.mFloats[2],  // min_twist
-                        info.mFloats[3]); // max_twist
-            }
-        break;
-        case LLIK::Constraint::Info::KNEE_CONSTRAINT:
-            if (info.mVectors.size() > 1 && info.mFloats.size() > 1)
-            {
-                ptr = std::make_shared<LLIK::KneeConstraint>(
-                        info.mVectors[0], // forward_axis
-                        info.mVectors[1], // pivot_axis
-                        info.mFloats[0],  // min_bend
-                        info.mFloats[1]); // max_bend
-            }
-        break;
-        case LLIK::Constraint::Info::ACUTE_ELLIPSOIDAL_CONE_CONSTRAINT:
-            if (info.mVectors.size() > 1 && info.mFloats.size() > 4)
-            {
-                ptr = std::make_shared<LLIK::AcuteEllipsoidalCone>(
-                        info.mVectors[0], // forward_axis
-                        info.mVectors[1], // up_axis
-                        info.mFloats[0],  // forward
-                        info.mFloats[1],  // up
-                        info.mFloats[2],  // left
-                        info.mFloats[3],  // down
-                        info.mFloats[4]   // right
-                        );
-            }
-        break;
-        case LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT:
-            if (info.mVectors.size() > 1 && info.mFloats.size() > 3)
-            {
-                ptr = std::make_shared<LLIK::DoubleLimitedHinge>(
-                        info.mVectors[0], // forward_axis
-                        info.mVectors[1], // up_axis
-                        info.mFloats[0],  // min_yaw
-                        info.mFloats[1],  // max_yaw
-                        info.mFloats[2],  // min_pitch
-                        info.mFloats[3]); // max_pitch
-            }
-        break;
-        default:
-        break;
-    }
-    return ptr;
-}
-#endif
 
 // static
 std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::create(LLSD &data)
