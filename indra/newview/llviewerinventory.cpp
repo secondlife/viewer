@@ -1400,25 +1400,10 @@ void remove_inventory_item(
 				gInventory.onObjectDeletedFromServer(item_id);
 			}
 		}
-		else // no cap
-		{
-			LLMessageSystem* msg = gMessageSystem;
-			msg->newMessageFast(_PREHASH_RemoveInventoryItem);
-			msg->nextBlockFast(_PREHASH_AgentData);
-			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID()); 
-			msg->nextBlockFast(_PREHASH_InventoryData);
-			msg->addUUIDFast(_PREHASH_ItemID, item_id);
-			gAgent.sendReliableMessage();
-
-			// Update inventory and call callback immediately since
-			// message-based system has no callback mechanism (!)
-			gInventory.onObjectDeletedFromServer(item_id);
-			if (cb)
-			{
-				cb->fire(item_id);
-			}
-		}
+        else
+        {
+            LL_WARNS(LOG_INV) << "Tried to use inventory without AIS API" << LL_ENDL;
+        }
 	}
 	else
 	{
@@ -1547,28 +1532,10 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 			AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
 			AISAPI::PurgeDescendents(id, cr);
 		}
-		else // no cap
-		{
-			// Fast purge
-			LL_DEBUGS(LOG_INV) << "purge_descendents_of fast case " << cat->getName() << LL_ENDL;
-
-			// send it upstream
-			LLMessageSystem* msg = gMessageSystem;
-			msg->newMessage("PurgeInventoryDescendents");
-			msg->nextBlock("AgentData");
-			msg->addUUID("AgentID", gAgent.getID());
-			msg->addUUID("SessionID", gAgent.getSessionID());
-			msg->nextBlock("InventoryData");
-			msg->addUUID("FolderID", id);
-			gAgent.sendReliableMessage();
-
-			// Update model immediately because there is no callback mechanism.
-			gInventory.onDescendentsPurgedFromServer(id);
-			if (cb)
-			{
-				cb->fire(id);
-			}
-		}
+        else
+        {
+            LL_WARNS(LOG_INV) << "Tried to use inventory without AIS API" << LL_ENDL;
+        }
 	}
 }
 
