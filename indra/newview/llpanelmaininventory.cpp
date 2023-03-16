@@ -1457,8 +1457,7 @@ void LLPanelMainInventory::showActionMenu(LLMenuGL* menu, std::string spawning_v
 		LLView* spawning_view = getChild<LLView> (spawning_view_name);
 		S32 menu_x, menu_y;
 		//show menu in co-ordinates of panel
-		spawning_view->localPointToOtherView(0, spawning_view->getRect().getHeight(), &menu_x, &menu_y, this);
-		menu_y += menu->getRect().getHeight();
+		spawning_view->localPointToOtherView(0, 0, &menu_x, &menu_y, this);
 		LLMenuGL::showPopup(this, menu, menu_x, menu_y);
 	}
 }
