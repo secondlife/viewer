@@ -29,17 +29,17 @@
 
 static int intAtStringIndex(NSArray *array, int index)
 {
-    return [(NSString *)[array objectAtIndex:index] integerValue];
+    return int([(NSString *)[array objectAtIndex:index] integerValue]);
 }
 
-bool LLGetDarwinOSInfo(int &major, int &minor, int &patch)
+bool LLGetDarwinOSInfo(int64_t &major, int64_t &minor, int64_t &patch)
 {
     if (NSAppKitVersionNumber > NSAppKitVersionNumber10_8)
     {
         NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
-        major = osVersion.majorVersion;
-        minor = osVersion.minorVersion;
-        patch = osVersion.patchVersion;
+        major = int(osVersion.majorVersion);
+        minor = int(osVersion.minorVersion);
+        patch = int(osVersion.patchVersion);
     }
     else
     {
