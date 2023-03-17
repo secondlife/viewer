@@ -293,23 +293,20 @@ void LLInventoryModelBackgroundFetch::start(const LLUUID& id, bool recursive)
 		}
 		else
 		{
-            if (AISAPI::isAvailable() && !recursive)
+            if (mFetchQueue.empty() || mFetchQueue.front().mUUID != id)
             {
-                // Specific folder requests go to front of queue.
-                if (mFetchQueue.empty() || mFetchQueue.back().mUUID != id)
+                if (AISAPI::isAvailable())
                 {
+                    // On AIS make sure root goes to the top and follow up recursive
+                    // fetches, not individual requests
                     mFetchQueue.push_back(FetchQueueInfo(id, recursion_type));
-                    gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
                 }
-            }
-            else
-            {
-                // Specific folder requests go to front of queue.
-                if (mFetchQueue.empty() || mFetchQueue.front().mUUID != id)
+                else
                 {
+                    // Specific folder requests go to front of queue.
                     mFetchQueue.push_front(FetchQueueInfo(id, recursion_type));
-                    gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
                 }
+                gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
             }
 
 			if (id == gInventory.getLibraryRootFolderID())
@@ -419,7 +416,7 @@ void LLInventoryModelBackgroundFetch::onAISCalback(const LLUUID &request_id, con
                 it != categories->end();
                 ++it)
             {
-                mFetchQueue.push_back(FetchQueueInfo((*it)->getUUID(), RT_RECURSIVE));
+                mFetchQueue.push_front(FetchQueueInfo((*it)->getUUID(), RT_RECURSIVE));
             }
             if (!mFetchQueue.empty())
             {
@@ -449,11 +446,17 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
         return;
     }
 
-    while (!mFetchQueue.empty() && mFetchCount < max_concurrent_fetches)
+    // Don't loop for too long (in case of large, fully loaded inventory)
+    F64 curent_time = LLTimer::getTotalSeconds();
+    const F64 max_time = 0.006f; // 6 ms
+    const F64 end_time = curent_time + max_time;
+
+    while (!mFetchQueue.empty() && mFetchCount < max_concurrent_fetches && curent_time < end_time)
     {
         const FetchQueueInfo & fetch_info(mFetchQueue.front());
         bulkFetchViaAis(fetch_info);
         mFetchQueue.pop_front();
+        curent_time = LLTimer::getTotalSeconds();
     }
     
     if (isBulkFetchProcessingComplete())
@@ -513,6 +516,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                         it != categories->end();
                         ++it)
                     {
+                        // not push_front to not cause an infinite loop
                         mFetchQueue.push_back(FetchQueueInfo((*it)->getUUID(), fetch_info.mRecursive));
                     }
                 }
