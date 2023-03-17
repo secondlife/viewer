@@ -996,7 +996,6 @@ void LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 		name.assign(LLViewerFolderType::lookupNewCategoryName(preferred_type));
 	}
 
-#ifdef USE_AIS_FOR_NC
     // D567 currently this doesn't really work due to limitations in
     // AIS3, also violates the common caller assumption that we can
     // assign the id and return immediately.
@@ -1047,7 +1046,7 @@ void LLInventoryModel::createNewCategory(const LLUUID& parent_id,
         });
         return;
 	}
-#endif
+
 	LLViewerRegion* viewer_region = gAgent.getRegion();
 	std::string url;
 	if ( viewer_region )

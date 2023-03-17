@@ -430,48 +430,50 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 {
 	if(!mIsComplete)
 	{
-		std::string url; 
+        if (AISAPI::isAvailable()) // AIS v 3
+        {
+            if (gAgent.getID() != mPermissions.getOwner())
+            {
+                AISAPI::FetchItem(mUUID, AISAPI::LIBRARY);
+            }
+            else
+            {
+                AISAPI::FetchItem(mUUID, AISAPI::INVENTORY);
+            }
+        }
+        else
+        {
+            std::string url;
 
-		LLViewerRegion* region = gAgent.getRegion();
-		// we have to check region. It can be null after region was destroyed. See EXT-245
-		if (region)
-		{
-		  if (gAgent.getID() != mPermissions.getOwner())
-		  {
-		      url = region->getCapability("FetchLib2");
-		  }
-		  else
-		  {	
-		      url = region->getCapability("FetchInventory2");
-		  }
-		}
-		else
-		{
-			LL_WARNS(LOG_INV) << "Agent Region is absent" << LL_ENDL;
-		}
+            LLViewerRegion* region = gAgent.getRegion();
+            // we have to check region. It can be null after region was destroyed. See EXT-245
+            if (region)
+            {
+                if (gAgent.getID() != mPermissions.getOwner())
+                {
+                    url = region->getCapability("FetchLib2");
+                }
+                else
+                {
+                    url = region->getCapability("FetchInventory2");
+                }
+            }
+            else
+            {
+                LL_WARNS(LOG_INV) << "Agent Region is absent" << LL_ENDL;
+            }
 
-		if (!url.empty())
-		{
-			LLSD body;
-			body["agent_id"]	= gAgent.getID();
-			body["items"][0]["owner_id"]	= mPermissions.getOwner();
-			body["items"][0]["item_id"]		= mUUID;
+            if (!url.empty())
+            {
+                LLSD body;
+                body["agent_id"] = gAgent.getID();
+                body["items"][0]["owner_id"] = mPermissions.getOwner();
+                body["items"][0]["item_id"] = mUUID;
 
-            LLCore::HttpHandler::ptr_t handler(new LLInventoryModel::FetchItemHttpHandler(body));
-			gInventory.requestPost(true, url, body, handler, "Inventory Item");
-		}
-		else
-		{
-			LLMessageSystem* msg = gMessageSystem;
-			msg->newMessage("FetchInventory");
-			msg->nextBlock("AgentData");
-			msg->addUUID("AgentID", gAgent.getID());
-			msg->addUUID("SessionID", gAgent.getSessionID());
-			msg->nextBlock("InventoryData");
-			msg->addUUID("OwnerID", mPermissions.getOwner());
-			msg->addUUID("ItemID", mUUID);
-			gAgent.sendReliableMessage();
-		}
+                LLCore::HttpHandler::ptr_t handler(new LLInventoryModel::FetchItemHttpHandler(body));
+                gInventory.requestPost(true, url, body, handler, "Inventory Item");
+            }
+        }
 	}
 }
 
@@ -1033,7 +1035,7 @@ void create_inventory_item(
 	}
 
 #ifdef USE_AIS_FOR_NC
-    // D567 currently this doesn't work due to missing AIS3 support
+    // D567 18.03.2023 not yet implemented within AIS3
     if (AISAPI::isAvailable())
     {
         LLSD new_inventory = LLSD::emptyMap();
@@ -1067,11 +1069,16 @@ void create_inventory_item(
             0 /*don't know yet, whenever server creates it*/);
         LLSD item_sd = item->asLLSD();
         new_inventory["items"].append(item_sd);
+        AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
         AISAPI::CreateInventory(
             parent_id,
             new_inventory,
-            nullptr);
+            cr);
         return;
+    }
+    else
+    {
+        LL_WARNS() << "AIS v3 not available" << LL_ENDL;
     }
 #endif
 

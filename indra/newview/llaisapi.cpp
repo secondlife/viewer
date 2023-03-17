@@ -632,11 +632,6 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
 	LL_DEBUGS("Inventory") << result << LL_ENDL;
     onUpdateReceived("AISCommand", result, type, body);
 
-    if (type == FETCHITEM)
-    {
-        LL_WARNS() << "test" << LL_ENDL;
-    }
-
     if (callback && !callback.empty())
     {
         bool needs_callback = true;
