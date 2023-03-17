@@ -1928,11 +1928,13 @@ const LLUUID& LLViewerInventoryItem::getThumbnailUUID() const
     }
     if (mThumbnailUUID.isNull() && mType == LLAssetType::AT_LINK)
     {
-        return gInventory.getItem(getLinkedUUID())->getThumbnailUUID();
+        LLViewerInventoryItem *linked_item = gInventory.getItem(mAssetUUID);
+        return linked_item ? linked_item->getThumbnailUUID() : LLUUID::null;
     }
     if (mThumbnailUUID.isNull() && mType == LLAssetType::AT_LINK_FOLDER)
     {
-        return gInventory.getCategory(getLinkedUUID())->getThumbnailUUID();
+        LLViewerInventoryCategory *linked_cat = gInventory.getCategory(mAssetUUID);
+        return linked_cat ? linked_cat->getThumbnailUUID() : LLUUID::null;
     }
     return mThumbnailUUID;
 }

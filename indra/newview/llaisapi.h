@@ -85,7 +85,7 @@ private:
 
     static void EnqueueAISCommand(const std::string &procName, LLCoprocedureManager::CoProcedure_t proc);
     static void onIdle(void *userdata); // launches postponed AIS commands
-    static void onUpdateReceived(const std::string& context, const LLSD& update, COMMAND_TYPE type);
+    static void onUpdateReceived(const std::string& context, const LLSD& update, COMMAND_TYPE type, const LLSD& request_body);
 
     static std::string getInvCap();
     static std::string getLibCap();
@@ -101,21 +101,21 @@ private:
 class AISUpdate
 {
 public:
-	AISUpdate(const LLSD& update, bool fetch);
+	AISUpdate(const LLSD& update, bool fetch, S32 depth);
 	void parseUpdate(const LLSD& update);
 	void parseMeta(const LLSD& update);
 	void parseContent(const LLSD& update);
 	void parseUUIDArray(const LLSD& content, const std::string& name, uuid_list_t& ids);
 	void parseLink(const LLSD& link_map);
 	void parseItem(const LLSD& link_map);
-	void parseCategory(const LLSD& link_map);
+	void parseCategory(const LLSD& link_map, S32 depth);
 	void parseDescendentCount(const LLUUID& category_id, const LLSD& embedded);
-	void parseEmbedded(const LLSD& embedded);
+	void parseEmbedded(const LLSD& embedded, S32 depth);
 	void parseEmbeddedLinks(const LLSD& links);
 	void parseEmbeddedItems(const LLSD& items);
-	void parseEmbeddedCategories(const LLSD& categories);
+	void parseEmbeddedCategories(const LLSD& categories, S32 depth);
 	void parseEmbeddedItem(const LLSD& item);
-	void parseEmbeddedCategory(const LLSD& category);
+	void parseEmbeddedCategory(const LLSD& category, S32 depth);
 	void doUpdate();
 private:
 	void clearParseResults();
@@ -138,6 +138,7 @@ private:
 	uuid_list_t mItemIds;
 	uuid_list_t mCategoryIds;
     bool mFetch;
+    S32 mFetchDepth;
 };
 
 #endif

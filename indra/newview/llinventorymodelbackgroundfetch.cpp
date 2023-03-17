@@ -478,10 +478,10 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
         else
         {
 
-            if (!gInventory.isCategoryComplete(cat_id))
+            const LLViewerInventoryCategory * cat(gInventory.getCategory(cat_id));
+            if (cat)
             {
-                const LLViewerInventoryCategory * cat(gInventory.getCategory(cat_id));
-                if (cat)
+                if (!gInventory.isCategoryComplete(cat_id))
                 {
                     if (ALEXANDRIA_LINDEN_ID == cat->getOwnerID())
                     {
@@ -502,25 +502,24 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                     }
                     mFetchCount++;
                 }
-                // else?
-            }
-            else
-            {
-                // Already fetched, check if anything inside needs fetching
-                if (fetch_info.mRecursive)
+                else
                 {
-                    LLInventoryModel::cat_array_t * categories(NULL);
-                    LLInventoryModel::item_array_t * items(NULL);
-                    gInventory.getDirectDescendentsOf(cat_id, categories, items);
-                    for (LLInventoryModel::cat_array_t::const_iterator it = categories->begin();
-                        it != categories->end();
-                        ++it)
+                    // Already fetched, check if anything inside needs fetching
+                    if (fetch_info.mRecursive)
                     {
-                        // not push_front to not cause an infinite loop
-                        mFetchQueue.push_back(FetchQueueInfo((*it)->getUUID(), fetch_info.mRecursive));
+                        LLInventoryModel::cat_array_t * categories(NULL);
+                        LLInventoryModel::item_array_t * items(NULL);
+                        gInventory.getDirectDescendentsOf(cat_id, categories, items);
+                        for (LLInventoryModel::cat_array_t::const_iterator it = categories->begin();
+                            it != categories->end();
+                            ++it)
+                        {
+                            // not push_front to not cause an infinite loop
+                            mFetchQueue.push_back(FetchQueueInfo((*it)->getUUID(), fetch_info.mRecursive));
+                        }
                     }
                 }
-            }
+            } // else?
         }
     }
     else
@@ -613,10 +612,10 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 			}
 			else
 			{
-                if (!gInventory.isCategoryComplete(cat_id))
+                const LLViewerInventoryCategory * cat(gInventory.getCategory(cat_id));
+                if (cat)
                 {
-                    const LLViewerInventoryCategory * cat(gInventory.getCategory(cat_id));
-                    if (cat)
+                    if (LLViewerInventoryCategory::VERSION_UNKNOWN == cat->getVersion())
                     {
                         LLSD folder_sd;
                         folder_sd["folder_id"] = cat->getUUID();
@@ -635,23 +634,23 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
                         }
                         folder_count++;
                     }
+                    else
+                    {
+                        // May already have this folder, but append child folders to list.
+                        if (fetch_info.mRecursive)
+                        {
+                            LLInventoryModel::cat_array_t * categories(NULL);
+                            LLInventoryModel::item_array_t * items(NULL);
+                            gInventory.getDirectDescendentsOf(cat_id, categories, items);
+                            for (LLInventoryModel::cat_array_t::const_iterator it = categories->begin();
+                                it != categories->end();
+                                ++it)
+                            {
+                                mFetchQueue.push_back(FetchQueueInfo((*it)->getUUID(), fetch_info.mRecursive));
+                            }
+                        }
+                    }
                 }
-                else
-                {
-					// May already have this folder, but append child folders to list.
-					if (fetch_info.mRecursive)
-					{	
-						LLInventoryModel::cat_array_t * categories(NULL);
-						LLInventoryModel::item_array_t * items(NULL);
-						gInventory.getDirectDescendentsOf(cat_id, categories, items);
-						for (LLInventoryModel::cat_array_t::const_iterator it = categories->begin();
-							 it != categories->end();
-							 ++it)
-						{
-							mFetchQueue.push_back(FetchQueueInfo((*it)->getUUID(), fetch_info.mRecursive));
-						}
-					}
-				}
 			}
 			if (fetch_info.mRecursive)
 			{
