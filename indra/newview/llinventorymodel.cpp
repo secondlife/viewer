@@ -996,9 +996,6 @@ void LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 		name.assign(LLViewerFolderType::lookupNewCategoryName(preferred_type));
 	}
 
-    // D567 currently this doesn't really work due to limitations in
-    // AIS3, also violates the common caller assumption that we can
-    // assign the id and return immediately.
 	if (AISAPI::isAvailable())
 	{
 		LLSD new_inventory = LLSD::emptyMap();
@@ -3380,9 +3377,6 @@ void LLInventoryModel::registerCallbacks(LLMessageSystem* msg)
 	msg->setHandlerFuncFast(_PREHASH_RemoveInventoryItem,
 						processRemoveInventoryItem,
 						NULL);
-	msg->setHandlerFuncFast(_PREHASH_UpdateInventoryFolder,
-						processUpdateInventoryFolder,
-						NULL);
 	msg->setHandlerFuncFast(_PREHASH_RemoveInventoryFolder,
 						processRemoveInventoryFolder,
 						NULL);
@@ -3523,66 +3517,6 @@ void LLInventoryModel::processRemoveInventoryItem(LLMessageSystem* msg, void**)
 	}
 	LLInventoryModel::removeInventoryItem(agent_id, msg, _PREHASH_InventoryData);
 	gInventory.notifyObservers();
-}
-
-// 	static
-void LLInventoryModel::processUpdateInventoryFolder(LLMessageSystem* msg,
-													void**)
-{
-	LL_DEBUGS(LOG_INV) << "LLInventoryModel::processUpdateInventoryFolder()" << LL_ENDL;
-	LLUUID agent_id, folder_id, parent_id;
-	//char name[DB_INV_ITEM_NAME_BUF_SIZE];
-	msg->getUUIDFast(_PREHASH_FolderData, _PREHASH_AgentID, agent_id);
-	if(agent_id != gAgent.getID())
-	{
-		LL_WARNS(LOG_INV) << "Got an UpdateInventoryFolder for the wrong agent."
-						  << LL_ENDL;
-		return;
-	}
-	LLPointer<LLViewerInventoryCategory> lastfolder; // hack
-	cat_array_t folders;
-	update_map_t update;
-	S32 count = msg->getNumberOfBlocksFast(_PREHASH_FolderData);
-	for(S32 i = 0; i < count; ++i)
-	{
-		LLPointer<LLViewerInventoryCategory> tfolder = new LLViewerInventoryCategory(gAgent.getID());
-		lastfolder = tfolder;
-		tfolder->unpackMessage(msg, _PREHASH_FolderData, i);
-		// make sure it's not a protected folder
-		tfolder->setPreferredType(LLFolderType::FT_NONE);
-		folders.push_back(tfolder);
-		// examine update for changes.
-		LLViewerInventoryCategory* folderp = gInventory.getCategory(tfolder->getUUID());
-		if(folderp)
-		{
-			if(tfolder->getParentUUID() == folderp->getParentUUID())
-			{
-				update[tfolder->getParentUUID()];
-			}
-			else
-			{
-				++update[tfolder->getParentUUID()];
-				--update[folderp->getParentUUID()];
-			}
-		}
-		else
-		{
-			++update[tfolder->getParentUUID()];
-		}
-	}
-	gInventory.accountForUpdate(update);
-	for (cat_array_t::iterator it = folders.begin(); it != folders.end(); ++it)
-	{
-		gInventory.updateCategory(*it);
-	}
-	gInventory.notifyObservers();
-
-	// *HACK: Do the 'show' logic for a new item in the inventory.
-	LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
-	if (active_panel)
-	{
-		active_panel->setSelection(lastfolder->getUUID(), TAKE_FOCUS_NO);
-	}
 }
 
 // 	static
