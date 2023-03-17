@@ -3811,10 +3811,20 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	for (cat_array_t::iterator cit = folders.begin(); cit != folders.end(); ++cit)
 	{
 		gInventory.updateCategory(*cit);
+
+        // Temporary workaround: just fetch the item using AIS to get missing fields.
+        // If this works fine we might want to extract ids only from the message
+        // then use AIS as a primary fetcher
+        AISAPI::FetchCategoryChildren((*cit)->getUUID(), AISAPI::INVENTORY, false);
 	}
 	for (item_array_t::iterator iit = items.begin(); iit != items.end(); ++iit)
 	{
 		gInventory.updateItem(*iit);
+
+        // Temporary workaround: just fetch the item using AIS to get missing fields.
+        // If this works fine we might want to extract ids only from the message
+        // then use AIS as a primary fetcher
+        AISAPI::FetchItem((*iit)->getUUID(), AISAPI::INVENTORY, false);
 	}
 	gInventory.notifyObservers();
 
