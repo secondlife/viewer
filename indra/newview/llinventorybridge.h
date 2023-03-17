@@ -299,6 +299,7 @@ public:
 	static LLUIImagePtr getIcon(LLFolderType::EType preferred_type);
 	virtual std::string getLabelSuffix() const;
 	virtual LLFontGL::StyleFlags getLabelStyle() const;
+    virtual const LLUUID& getThumbnailUUID() const;
 
 	void setShowDescendantsCount(bool show_count) {mShowDescendantsCount = show_count;}
 

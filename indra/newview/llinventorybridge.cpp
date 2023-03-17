@@ -2339,6 +2339,16 @@ LLFontGL::StyleFlags LLFolderBridge::getLabelStyle() const
     return LLFontGL::NORMAL;
 }
 
+const LLUUID& LLFolderBridge::getThumbnailUUID() const
+{
+    LLViewerInventoryCategory* cat = getCategory();
+    if (cat)
+    {
+        return cat->getThumbnailUUID();
+    }
+    return LLUUID::null;
+}
+
 void LLFolderBridge::update()
 {
 	// we know we have children but  haven't  fetched them (doesn't obey filter)
