@@ -68,6 +68,9 @@ public:
 	bool isBulkFetchProcessingComplete() const;
 	void setAllFoldersFetched();
 
+    typedef boost::function<void()> folders_fetched_callback_t;
+    boost::signals2::connection setAllFoldersFetchedCallback(folders_fetched_callback_t cb);
+
 	void addRequestAtFront(const LLUUID & id, bool recursive, bool is_category);
 	void addRequestAtBack(const LLUUID & id, bool recursive, bool is_category);
 
@@ -106,6 +109,8 @@ private:
  	bool mRecursiveInventoryFetchStarted;
 	bool mRecursiveLibraryFetchStarted;
 	bool mAllFoldersFetched;
+    typedef boost::signals2::signal<void()> folders_fetched_signal_t;
+    folders_fetched_signal_t mAllFoldersFetchedSignal;
 
     bool mBackgroundFetchActive;
 	bool mFolderFetchActive;

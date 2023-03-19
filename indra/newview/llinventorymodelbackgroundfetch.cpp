@@ -347,10 +347,18 @@ void LLInventoryModelBackgroundFetch::setAllFoldersFetched()
 		mAllFoldersFetched = true;
 		//LL_INFOS(LOG_INV) << "All folders fetched, validating" << LL_ENDL;
 		//gInventory.validate();
+
+        // For now only informs about initial fetch being done
+        mAllFoldersFetchedSignal();
 	}
 	mFolderFetchActive = false;
 	mBackgroundFetchActive = false;
 	LL_INFOS(LOG_INV) << "Inventory background fetch completed" << LL_ENDL;
+}
+
+boost::signals2::connection LLInventoryModelBackgroundFetch::setAllFoldersFetchedCallback(folders_fetched_callback_t cb)
+{
+    return mAllFoldersFetchedSignal.connect(cb);
 }
 
 void LLInventoryModelBackgroundFetch::backgroundFetchCB(void *)
@@ -481,7 +489,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
             const LLViewerInventoryCategory * cat(gInventory.getCategory(cat_id));
             if (cat)
             {
-                if (!gInventory.isCategoryComplete(cat_id))
+                if (LLViewerInventoryCategory::VERSION_UNKNOWN == cat->getVersion())
                 {
                     if (ALEXANDRIA_LINDEN_ID == cat->getOwnerID())
                     {

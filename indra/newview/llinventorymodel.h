@@ -407,6 +407,10 @@ public:
 							  const LLUUID& new_parent_id,
 							  BOOL restamp);
 
+    // Marks links from a "possibly" broken list for a rebuild
+    // clears the list
+    void rebuildBrockenLinks();
+
 	//--------------------------------------------------------------------
 	// Delete
 	//--------------------------------------------------------------------
@@ -574,6 +578,8 @@ private:
     U32 mModifyMaskBacklog;
     changed_items_t mChangedItemIDsBacklog;
     changed_items_t mAddedItemIDsBacklog;
+    changed_items_t mPossiblyBrockenLinks;
+    boost::signals2::connection mBulckFecthCallbackSlot;
 	
 	
 	//--------------------------------------------------------------------

@@ -41,6 +41,7 @@
 #include "llinventorypanel.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "llfloaterpreviewtrash.h"
@@ -439,6 +440,7 @@ LLInventoryModel::LLInventoryModel()
 	mIsNotifyObservers(FALSE),
 	mModifyMask(LLInventoryObserver::ALL),
 	mChangedItemIDs(),
+    mBulckFecthCallbackSlot(),
 	mObservers(),
 	mHttpRequestFG(NULL),
 	mHttpRequestBG(NULL),
@@ -470,6 +472,11 @@ void LLInventoryModel::cleanupInventory()
 		mObservers.erase(iter);
 		delete observer;
 	}
+
+    if (mBulckFecthCallbackSlot.connected())
+    {
+        mBulckFecthCallbackSlot.disconnect();
+    }
 	mObservers.clear();
 
 	// Run down HTTP transport
@@ -1750,6 +1757,15 @@ void LLInventoryModel::changeCategoryParent(LLViewerInventoryCategory* cat,
 	notifyObservers();
 }
 
+void LLInventoryModel::rebuildBrockenLinks()
+{
+    for (LLUUID link_id : mPossiblyBrockenLinks)
+    {
+        addChangedMask(LLInventoryObserver::REBUILD, link_id);
+    }
+    mPossiblyBrockenLinks.clear();
+}
+
 // Does not appear to be used currently.
 void LLInventoryModel::onItemUpdated(const LLUUID& item_id, const LLSD& updates, bool update_parent_version)
 {
@@ -2368,9 +2384,34 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 		// The item will show up as a broken link.
 		if (item->getIsBrokenLink())
 		{
-			LL_INFOS(LOG_INV) << "Adding broken link [ name: " << item->getName()
-							  << " itemID: " << item->getUUID()
-							  << " assetID: " << item->getAssetUUID() << " )  parent: " << item->getParentUUID() << LL_ENDL;
+            if (!LLInventoryModelBackgroundFetch::getInstance()->isEverythingFetched())
+            {
+                // isEverythingFetched is actually 'initial' fetch only.
+                // Schedule this link for a recheck once inventory gets loaded
+                mPossiblyBrockenLinks.insert(item->getUUID());
+                if (!mBulckFecthCallbackSlot.connected())
+                {
+                    // Links might take a while to update this way, and there
+                    // might be a lot of them. A better option might be to check
+                    // links periodically with final check on fetch completion.
+                    mBulckFecthCallbackSlot =
+                        LLInventoryModelBackgroundFetch::getInstance()->setAllFoldersFetchedCallback(
+                            []()
+                    {
+                        gInventory.rebuildBrockenLinks();
+                    });
+                }
+                LL_DEBUGS(LOG_INV) << "Scheduling a link to be rebuilt later [ name: " << item->getName()
+                    << " itemID: " << item->getUUID()
+                    << " assetID: " << item->getAssetUUID() << " )  parent: " << item->getParentUUID() << LL_ENDL;
+
+            }
+            else
+            {
+                LL_INFOS(LOG_INV) << "Adding broken link [ name: " << item->getName()
+                    << " itemID: " << item->getUUID()
+                    << " assetID: " << item->getAssetUUID() << " )  parent: " << item->getParentUUID() << LL_ENDL;
+            }
 		}
 		if (item->getIsLinkType())
 		{
