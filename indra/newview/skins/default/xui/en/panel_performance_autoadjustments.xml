@@ -136,6 +136,10 @@
      label="Avatars and World"
      name="av_and_scene"
      value="1" />
+	<combo_box.item
+     label="World only"
+     name="scene_only"
+     value="2" />
   </combo_box>
   <button
    follows="top|left"

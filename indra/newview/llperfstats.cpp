@@ -439,7 +439,7 @@ namespace LLPerfStats
                 // we cannnot do this by avatar adjustment alone.
                 if((gFrameCount - LLPerfStats::lastGlobalPrefChange) > settingsChangeFrequency) // give  changes a short time to take effect.
                 {
-                    if(tunables.userFPSTuningStrategy == TUNE_SCENE_AND_AVATARS)
+                    if(tunables.userFPSTuningStrategy != TUNE_AVATARS_ONLY)
                     {
                         // 1 - hack the water to opaque. all non opaque have a significant hit, this is a big boost for (arguably) a minor visual hit.
                         // the other reflection options make comparatively little change and if this overshoots we'll be stepping back up later
@@ -477,7 +477,7 @@ namespace LLPerfStats
                 target_avatar_time_raw =  target_frame_time_raw - non_avatar_time_raw;
             }
 
-            if( target_avatar_time_raw < tot_avatar_time_raw )
+            if ((target_avatar_time_raw < tot_avatar_time_raw) && (tunables.userFPSTuningStrategy != TUNE_SCENE_ONLY))
             {
                 // we need to spend less time drawing avatars to meet our budget
                 auto new_render_limit_ns {LLPerfStats::raw_to_ns(av_render_max_raw)};
@@ -520,7 +520,7 @@ namespace LLPerfStats
                     // turn off if we are not locked.
                     tunables.updateUserAutoTuneEnabled(false);
                 }
-                if(renderAvatarMaxART_ns != 0 && LLPerfStats::tunedAvatars > 0 )
+                if(renderAvatarMaxART_ns != 0 && LLPerfStats::tunedAvatars > 0 && (tunables.userFPSTuningStrategy != TUNE_SCENE_ONLY) )
                 {
                     // if we have more time to spare let's shift up little in the hope we'll restore an avatar.
                     U64 up_step = LLPerfStats::tunedAvatars > 2 ? LLPerfStats::ART_MIN_ADJUST_UP_NANOS : LLPerfStats::ART_MIN_ADJUST_UP_NANOS * 2;
@@ -528,7 +528,7 @@ namespace LLPerfStats
                     tunables.updateSettingsFromRenderCostLimit();
                     return;
                 }
-                if(tunables.userFPSTuningStrategy == TUNE_SCENE_AND_AVATARS)
+                if(tunables.userFPSTuningStrategy != TUNE_AVATARS_ONLY)
                 {
                     if( LLPipeline::RenderFarClip < tunables.userTargetDrawDistance ) 
                     {

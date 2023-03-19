@@ -16890,7 +16890,7 @@
   <key>TuningFPSStrategy</key>
   <map>
     <key>Comment</key>
-    <string>Strategy to use when tuning FPS. 0=Tune avatar rendering only, 1=Tune both avatar and global scene settings.</string>
+    <string>Strategy to use when tuning FPS. 0=Tune avatar rendering only, 1=Tune both avatar and global scene settings, 2=Tune only global scene.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
