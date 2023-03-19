@@ -16753,7 +16753,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>30</integer>
+    <integer>15</integer>
   </map>
   <key>AutoTuneFPS</key>
   <map>
