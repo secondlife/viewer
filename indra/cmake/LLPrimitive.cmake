@@ -4,49 +4,49 @@
 include(Prebuilt)
 include(Boost)
 
+include_guard()
+
+add_library( ll::pcre INTERFACE IMPORTED )
+add_library( ll::minizip-ng INTERFACE IMPORTED )
+add_library( ll::libxml INTERFACE IMPORTED )
+add_library( ll::colladadom INTERFACE IMPORTED )
+
+# ND, needs fixup in collada conan pkg
+if( USE_CONAN )
+  target_include_directories( ll::colladadom SYSTEM INTERFACE
+    "${CONAN_INCLUDE_DIRS_COLLADADOM}/collada-dom/" 
+    "${CONAN_INCLUDE_DIRS_COLLADADOM}/collada-dom/1.4/" )
+endif()
+
+use_system_binary( colladadom )
+
 use_prebuilt_binary(colladadom)
 use_prebuilt_binary(minizip-ng) # needed for colladadom
 use_prebuilt_binary(pcre)
 use_prebuilt_binary(libxml2)
 
-set(LLPRIMITIVE_INCLUDE_DIRS
-    ${LIBS_OPEN_DIR}/llprimitive
-    )
-if (WINDOWS)
-    set(LLPRIMITIVE_LIBRARIES 
-        debug llprimitive
-        optimized llprimitive
-        debug libcollada14dom23-sd
-        optimized libcollada14dom23-s
-        libxml2_a
-        debug pcrecppd
-        optimized pcrecpp
-        debug pcred
-        optimized pcre
-        debug libminizip
-        optimized libminizip
-        ${BOOST_SYSTEM_LIBRARIES}
-        )
-elseif (DARWIN)
-    set(LLPRIMITIVE_LIBRARIES 
-        llprimitive
-        debug collada14dom-d
-        optimized collada14dom
-        minizip           # for collada libminizip.a
-        xml2
-        pcrecpp
-        pcre
-        iconv           # Required by libxml2
-        )
-elseif (LINUX)
-    set(LLPRIMITIVE_LIBRARIES 
-        llprimitive
-        debug collada14dom-d
-        optimized collada14dom
-        minizip
-        xml2
-        pcrecpp
-        pcre
-        )
-endif (WINDOWS)
+target_link_libraries( ll::pcre INTERFACE pcrecpp pcre )
 
+if (WINDOWS)
+    target_link_libraries( ll::minizip-ng INTERFACE libminizip )
+else()
+    target_link_libraries( ll::minizip-ng INTERFACE minizip )
+endif()
+
+if (WINDOWS)
+    target_link_libraries( ll::libxml INTERFACE libxml2_a)
+else()
+    target_link_libraries( ll::libxml INTERFACE xml2)
+endif()
+
+target_include_directories( ll::colladadom SYSTEM INTERFACE
+        ${LIBS_PREBUILT_DIR}/include/collada
+        ${LIBS_PREBUILT_DIR}/include/collada/1.4
+        )
+if (WINDOWS)
+    target_link_libraries(ll::colladadom INTERFACE libcollada14dom23-s ll::libxml ll::minizip-ng )
+elseif (DARWIN)
+    target_link_libraries(ll::colladadom INTERFACE collada14dom ll::libxml ll::minizip-ng)
+elseif (LINUX)
+    target_link_libraries(ll::colladadom INTERFACE collada14dom ll::libxml ll::minizip-ng)
+endif()

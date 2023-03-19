@@ -764,13 +764,10 @@ void LLWorld::updateParticles()
 
 void LLWorld::renderPropertyLines()
 {
-	S32 region_count = 0;
-
 	for (region_list_t::iterator iter = mVisibleRegionList.begin();
 		 iter != mVisibleRegionList.end(); ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
-		region_count++;
 		regionp->renderPropertyLines();
 	}
 }

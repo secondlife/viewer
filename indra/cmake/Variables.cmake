@@ -12,14 +12,17 @@
 # Switches set here and in 00-Common.cmake must agree with
 # https://bitbucket.org/lindenlab/viewer-build-variables/src/tip/variables
 # Reading $LL_BUILD is an attempt to directly use those switches.
-if ("$ENV{LL_BUILD}" STREQUAL "")
+if ("$ENV{LL_BUILD}" STREQUAL "" AND "${LL_BUILD_ENV}" STREQUAL "" )
   message(FATAL_ERROR "Environment variable LL_BUILD must be set")
+elseif("$ENV{LL_BUILD}" STREQUAL "")
+  set( ENV{LL_BUILD} "${LL_BUILD_ENV}" )
+  message( "Setting ENV{LL_BUILD} to cached variable ${LL_BUILD_ENV}" )
+else()
+  set( LL_BUILD_ENV "$ENV{LL_BUILD}" CACHE STRING "Save environment" FORCE )
 endif ()
+include_guard()
 
 # Relative and absolute paths to subtrees.
-
-if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
-set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
 if(NOT DEFINED COMMON_CMAKE_DIR)
     set(COMMON_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
@@ -70,39 +73,36 @@ endif (NOT CMAKE_BUILD_TYPE)
 # If someone has specified an address size, use that to determine the
 # architecture.  Otherwise, let the architecture specify the address size.
 if (ADDRESS_SIZE EQUAL 32)
-  #message(STATUS "ADDRESS_SIZE is 32")
   set(ARCH i686)
 elseif (ADDRESS_SIZE EQUAL 64)
-  #message(STATUS "ADDRESS_SIZE is 64")
   set(ARCH x86_64)
 else (ADDRESS_SIZE EQUAL 32)
-  #message(STATUS "ADDRESS_SIZE is UNRECOGNIZED: '${ADDRESS_SIZE}'")
-  # Use Python's platform.machine() since uname -m isn't available everywhere.
-  # Even if you can assume cygwin uname -m, the answer depends on whether
-  # you're running 32-bit cygwin or 64-bit cygwin! But even 32-bit Python will
-  # report a 64-bit processor.
-  execute_process(COMMAND
-                  "${PYTHON_EXECUTABLE}" "-c"
-                  "import platform; print platform.machine()"
-                  OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
-  # We expect values of the form i386, i686, x86_64, AMD64.
-  # In CMake, expressing ARCH.endswith('64') is awkward:
-  string(LENGTH "${ARCH}" ARCH_LENGTH)
-  math(EXPR ARCH_LEN_2 "${ARCH_LENGTH} - 2")
-  string(SUBSTRING "${ARCH}" ${ARCH_LEN_2} 2 ARCH_LAST_2)
-  if (ARCH_LAST_2 STREQUAL 64)
-    #message(STATUS "ARCH is detected as 64; ARCH is ${ARCH}")
+  # Note we cannot use if(DARWIN) here, this variable is set way lower
+  if( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
     set(ADDRESS_SIZE 64)
-  else ()
-    #message(STATUS "ARCH is detected as 32; ARCH is ${ARCH}")
-    set(ADDRESS_SIZE 32)
-  endif ()
+    set(ARCH x86_64)
+  else()
+    # Use Python's platform.machine() since uname -m isn't available everywhere.
+    # Even if you can assume cygwin uname -m, the answer depends on whether
+    # you're running 32-bit cygwin or 64-bit cygwin! But even 32-bit Python will
+    # report a 64-bit processor.
+    execute_process(COMMAND
+            "${PYTHON_EXECUTABLE}" "-c"
+            "import platform; print( platform.machine() )"
+            OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
+    string( REGEX MATCH ".*(64)$" RE_MATCH "${ARCH}" )
+    if( RE_MATCH AND ${CMAKE_MATCH_1} STREQUAL "64" )
+      set(ADDRESS_SIZE 64)
+      set(ARCH x86_64)
+    else()
+      set(ADDRESS_SIZE 32)
+      set(ARCH i686)
+    endif()
+  endif()
 endif (ADDRESS_SIZE EQUAL 32)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(WINDOWS ON BOOL FORCE)
-  set(LL_ARCH ${ARCH}_win32)
-  set(LL_ARCH_DIR ${ARCH}-win32)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -128,9 +128,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   endif (DPKG_RESULT EQUAL 0)
 
   include(ConfigurePkgConfig)
-
-  set(LL_ARCH ${ARCH}_linux)
-  set(LL_ARCH_DIR ${ARCH}-linux)
 
   if (INSTALL_PROPRIETARY)
     # Only turn on headless if we can find osmesa libraries.
@@ -200,9 +197,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_OSX_ARCHITECTURES "${ARCH}")
   string(REPLACE "i686"  "i386"   CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
   string(REPLACE "AMD64" "x86_64" CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
-
-  set(LL_ARCH ${ARCH}_darwin)
-  set(LL_ARCH_DIR universal-darwin)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 # Default deploy grid
@@ -214,10 +208,10 @@ set(ENABLE_SIGNING OFF CACHE BOOL "Enable signing the viewer")
 set(SIGNING_IDENTITY "" CACHE STRING "Specifies the signing identity to use, if necessary.")
 
 set(VERSION_BUILD "0" CACHE STRING "Revision number passed in from the outside")
-set(USESYSTEMLIBS OFF CACHE BOOL "Use libraries from your system rather than Linden-supplied prebuilt libraries.")
 
 set(USE_PRECOMPILED_HEADERS ON CACHE BOOL "Enable use of precompiled header directives where supported.")
 
 source_group("CMake Rules" FILES CMakeLists.txt)
 
-endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
+get_property(LL_GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
