@@ -315,6 +315,8 @@ public:
 
 	void 			idleUpdateBelowWater();
 
+	static void updateNearbyAvatarCount();
+
 	//--------------------------------------------------------------------
 	// Static preferences (controlled by user settings/menus)
 	//--------------------------------------------------------------------
@@ -338,6 +340,9 @@ public:
 	static BOOL		sJointDebug; // output total number of joints being touched for each avatar
 
     static LLPointer<LLViewerTexture>  sCloudTexture;
+
+	static std::vector<LLUUID> sAVsIgnoringARTLimit;
+    static S32 sAvatarsNearby;
 
 	//--------------------------------------------------------------------
 	// Region state
