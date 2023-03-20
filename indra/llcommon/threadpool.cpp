@@ -39,6 +39,11 @@ void LL::ThreadPool::start()
                 run(tname);
             });
     }
+
+    // Special workflow for LLWindowWin32Thread - it's close() should be called explicitly
+    if (mExplicitShutdown)
+        return;
+
     // Listen on "LLApp", and when the app is shutting down, close the queue
     // and join the workers.
     LLEventPumps::instance().obtain("LLApp").listen(
