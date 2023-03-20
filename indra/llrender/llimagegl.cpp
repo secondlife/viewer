@@ -732,21 +732,8 @@ void LLImageGL::setImage(const LLImageRaw* imageraw)
 BOOL LLImageGL::setImage(const U8* data_in, BOOL data_hasmips /* = FALSE */, S32 usename /* = 0 */)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	bool is_compressed = false;
 
-    switch (mFormatPrimary)
-    {
-    case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
-    case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT:
-    case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:
-    case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT:
-    case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
-    case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:
-        is_compressed = true;
-        break;
-    default:
-        break;
-    }
+	const bool is_compressed = isCompressed();
 	
 	if (mUseMipMaps)
 	{
@@ -1232,11 +1219,23 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 		if (!res) LL_ERRS() << "LLImageGL::setSubImage(): bindTexture failed" << LL_ENDL;
 		stop_glerror();
 
-        // *TODO: glTexSubImage2D may not work on a subset of the texture if
-        // the texture is compressed. Make sure the image isn't compressed
-        // when using this function, then it's safe to replace this call with
-        // subImageLines, when it is performant to do so (see setManualImage)
-		glTexSubImage2D(mTarget, 0, x_pos, y_pos, width, height, mFormatPrimary, mFormatType, datap);
+#if LL_DARWIN
+        const bool use_sub_image = false;
+#else
+        const bool use_sub_image = !isCompressed();
+#endif
+        if (!use_sub_image)
+        {
+            // *TODO: Why does this work here, in setSubImage, but not in
+            // setManualImage? Maybe because it only gets called with the
+            // dimensions of the full image?  Or because the image is never
+            // compressed?
+            glTexSubImage2D(mTarget, 0, x_pos, y_pos, width, height, mFormatPrimary, mFormatType, datap);
+        }
+        else
+        {
+            subImageLines(mTarget, 0, x_pos, y_pos, width, height, mFormatPrimary, mFormatType, datap);
+        }
 		gGL.getTexUnit(0)->disable();
 		stop_glerror();
 
@@ -1456,6 +1455,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
         const bool use_sub_image = false;
 #else
         // glTexSubImage2D doesn't work with compressed textures on select tested Nvidia GPUs on Windows 10 -Cosmic,2023-03-08
+        // *TODO: Small chance that glCompressedTexImage2D/glCompressedTexSubImage2D may work better here
         const bool use_sub_image = !compress;
 #endif
         if (!use_sub_image)
@@ -2294,6 +2294,27 @@ void LLImageGL::freePickMask()
 	}
 	mPickMask = NULL;
 	mPickMaskWidth = mPickMaskHeight = 0;
+}
+
+bool LLImageGL::isCompressed()
+{
+    llassert(mFormatPrimary != 0);
+    // *NOTE: Not all compressed formats are included here.
+    bool is_compressed = false;
+    switch (mFormatPrimary)
+    {
+    case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+    case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT:
+    case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+    case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT:
+    case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+    case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:
+        is_compressed = true;
+        break;
+    default:
+        break;
+    }
+    return is_compressed;
 }
 
 //----------------------------------------------------------------------------
