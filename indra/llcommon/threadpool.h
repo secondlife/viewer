@@ -59,6 +59,10 @@ namespace LL
          */
         virtual void run();
 
+    protected:
+        // LLWindowWin32Thread should set this flag to true
+        bool mExplicitShutdown { false };
+
     private:
         void run(const std::string& name);
 
