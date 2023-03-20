@@ -440,7 +440,7 @@ LLInventoryModel::LLInventoryModel()
 	mIsNotifyObservers(FALSE),
 	mModifyMask(LLInventoryObserver::ALL),
 	mChangedItemIDs(),
-    mBulckFecthCallbackSlot(),
+    mBulkFecthCallbackSlot(),
 	mObservers(),
 	mHttpRequestFG(NULL),
 	mHttpRequestBG(NULL),
@@ -473,9 +473,9 @@ void LLInventoryModel::cleanupInventory()
 		delete observer;
 	}
 
-    if (mBulckFecthCallbackSlot.connected())
+    if (mBulkFecthCallbackSlot.connected())
     {
-        mBulckFecthCallbackSlot.disconnect();
+        mBulkFecthCallbackSlot.disconnect();
     }
 	mObservers.clear();
 
@@ -1764,6 +1764,7 @@ void LLInventoryModel::rebuildBrockenLinks()
         addChangedMask(LLInventoryObserver::REBUILD, link_id);
     }
     mPossiblyBrockenLinks.clear();
+    notifyObservers();
 }
 
 // Does not appear to be used currently.
@@ -2389,16 +2390,17 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
                 // isEverythingFetched is actually 'initial' fetch only.
                 // Schedule this link for a recheck once inventory gets loaded
                 mPossiblyBrockenLinks.insert(item->getUUID());
-                if (!mBulckFecthCallbackSlot.connected())
+                if (!mBulkFecthCallbackSlot.connected())
                 {
                     // Links might take a while to update this way, and there
                     // might be a lot of them. A better option might be to check
                     // links periodically with final check on fetch completion.
-                    mBulckFecthCallbackSlot =
+                    mBulkFecthCallbackSlot =
                         LLInventoryModelBackgroundFetch::getInstance()->setAllFoldersFetchedCallback(
-                            []()
+                            [this]()
                     {
-                        gInventory.rebuildBrockenLinks();
+                        rebuildBrockenLinks();
+                        mBulkFecthCallbackSlot.disconnect();
                     });
                 }
                 LL_DEBUGS(LOG_INV) << "Scheduling a link to be rebuilt later [ name: " << item->getName()

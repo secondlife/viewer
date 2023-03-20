@@ -410,6 +410,7 @@ public:
     // Marks links from a "possibly" broken list for a rebuild
     // clears the list
     void rebuildBrockenLinks();
+    bool hasPosiblyBrockenLinks() const { return mPossiblyBrockenLinks.size() > 0; }
 
 	//--------------------------------------------------------------------
 	// Delete
@@ -579,7 +580,7 @@ private:
     changed_items_t mChangedItemIDsBacklog;
     changed_items_t mAddedItemIDsBacklog;
     changed_items_t mPossiblyBrockenLinks;
-    boost::signals2::connection mBulckFecthCallbackSlot;
+    boost::signals2::connection mBulkFecthCallbackSlot;
 	
 	
 	//--------------------------------------------------------------------

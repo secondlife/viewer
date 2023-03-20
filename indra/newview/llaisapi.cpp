@@ -637,15 +637,17 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
         bool needs_callback = true;
         LLUUID id(LLUUID::null);
 
-        if ( ( (type == COPYLIBRARYCATEGORY)
-               || (type == FETCHCATEGORYCATEGORIES)
-               || (type == FETCHCATEGORYCHILDREN))
-             && result.has("category_id"))
+        switch (type)
         {
-            id = result["category_id"];
-	    }
-        if (type == FETCHITEM)
-        {
+        case COPYLIBRARYCATEGORY:
+        case FETCHCATEGORYCATEGORIES:
+        case FETCHCATEGORYCHILDREN:
+            if (result.has("category_id"))
+            {
+                id = result["category_id"];
+            }
+            break;
+        case FETCHITEM:
             if (result.has("item_id"))
             {
                 id = result["item_id"];
@@ -654,33 +656,35 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
             {
                 id = result["linked_id"];
             }
-        }
-		if (type == CREATEINVENTORY)
-		{
+            break;
+        case CREATEINVENTORY:
             // CREATEINVENTORY can have multiple callbacks
-			if (result.has("_created_categories"))
-			{
-				LLSD& cats = result["_created_categories"];
-				LLSD::array_const_iterator cat_iter;
-				for (cat_iter = cats.beginArray(); cat_iter != cats.endArray(); ++cat_iter)
-				{
-					LLUUID cat_id = *cat_iter;
-					callback(cat_id);
+            if (result.has("_created_categories"))
+            {
+                LLSD& cats = result["_created_categories"];
+                LLSD::array_const_iterator cat_iter;
+                for (cat_iter = cats.beginArray(); cat_iter != cats.endArray(); ++cat_iter)
+                {
+                    LLUUID cat_id = *cat_iter;
+                    callback(cat_id);
                     needs_callback = false;
-				}
-			}
-			if (result.has("_created_items"))
-			{
-				LLSD& items = result["_created_items"];
-				LLSD::array_const_iterator item_iter;
-				for (item_iter = items.beginArray(); item_iter != items.endArray(); ++item_iter)
-				{
-					LLUUID item_id = *item_iter;
-					callback(item_id);
+                }
+            }
+            if (result.has("_created_items"))
+            {
+                LLSD& items = result["_created_items"];
+                LLSD::array_const_iterator item_iter;
+                for (item_iter = items.beginArray(); item_iter != items.endArray(); ++item_iter)
+                {
+                    LLUUID item_id = *item_iter;
+                    callback(item_id);
                     needs_callback = false;
-				}
-			}
-		}
+                }
+            }
+            break;
+        default:
+            break;
+        }
 
         if (needs_callback)
         {

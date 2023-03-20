@@ -40,6 +40,7 @@
 #include "llgesturemgr.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryobserver.h"
 #include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
@@ -2416,6 +2417,46 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
 
 	LL_DEBUGS("Avatar") << self_av_string() << "starting" << LL_ENDL;
 
+    if (gInventory.hasPosiblyBrockenLinks())
+    {
+        // Inventory has either broken links or links that
+        // haven't loaded yet and fetch is still in progress.
+        // Check if LLAppearanceMgr needs to wait.
+        LLUUID current_outfit_id = getCOF();
+        LLInventoryModel::item_array_t cof_items;
+        LLInventoryModel::cat_array_t cof_cats;
+        LLFindBrokenLinks is_brocken_link;
+        gInventory.collectDescendentsIf(current_outfit_id,
+            cof_cats,
+            cof_items,
+            LLInventoryModel::EXCLUDE_TRASH,
+            is_brocken_link);
+
+        if (cof_items.size() > 0)
+        {
+            // Some links haven't loaded yet, but fetch isn't complete so
+            // links are likely fine and we will have to wait for them to
+            // load (if inventory takes too long to load, might be a good
+            // idea to make this check periodical)
+            if (!mBulkFecthCallbackSlot.connected())
+            {
+                nullary_func_t cb = post_update_func;
+                mBulkFecthCallbackSlot =
+                    LLInventoryModelBackgroundFetch::getInstance()->setAllFoldersFetchedCallback(
+                        [this, enforce_ordering, post_update_func, cb]()
+                {
+                    // inventory model should be already tracking this
+                    // callback, but make sure rebuildBrockenLinks gets
+                    // called before a cof update
+                    gInventory.rebuildBrockenLinks();
+                    updateAppearanceFromCOF(enforce_ordering, post_update_func, post_update_func);
+                    mBulkFecthCallbackSlot.disconnect();
+                });
+            }
+            return;
+        }
+    }
+
 	if (enforce_item_restrictions)
 	{
 		// The point here is just to call
@@ -4213,6 +4254,11 @@ LLAppearanceMgr::LLAppearanceMgr():
 LLAppearanceMgr::~LLAppearanceMgr()
 {
 	mActive = false;
+
+    if (!mBulkFecthCallbackSlot.connected())
+    {
+        mBulkFecthCallbackSlot.disconnect();
+    }
 }
 
 void LLAppearanceMgr::setAttachmentInvLinkEnable(bool val)
