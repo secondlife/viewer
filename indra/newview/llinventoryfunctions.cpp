@@ -2274,6 +2274,19 @@ bool LLFindCOFValidItems::operator()(LLInventoryCategory* cat,
 	}
 }
 
+bool LLFindBrokenLinks::operator()(LLInventoryCategory* cat,
+    LLInventoryItem* item)
+{
+    // only for broken links getType will be a link
+    // otherwise it's supposed to have the type of an item
+    // it is linked too
+    if (item && LLAssetType::lookupIsLinkType(item->getType()))
+    {
+        return TRUE;
+    }
+    return FALSE;
+}
+
 bool LLFindWearables::operator()(LLInventoryCategory* cat,
 								 LLInventoryItem* item)
 {
