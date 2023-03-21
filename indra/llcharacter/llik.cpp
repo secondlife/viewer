@@ -325,7 +325,7 @@ LLIK::SimpleCone::SimpleCone(LLSD &parameters):
 LLSD LLIK::SimpleCone::asLLSD() const
 {
     LLSD data = Constraint::asLLSD();
-    data["max_angle"] = mMaxAngle * DEG_TO_RAD;
+    data["max_angle"] = mMaxAngle * RAD_TO_DEG;
 
     return data;
 }
@@ -405,9 +405,9 @@ LLIK::TwistLimitedCone::TwistLimitedCone(LLSD &parameters):
 LLSD LLIK::TwistLimitedCone::asLLSD() const
 {
     LLSD data = Constraint::asLLSD();
-    data["cone_angle"] = mConeAngle * DEG_TO_RAD;
-    data["min_twist"] = mMinTwist * DEG_TO_RAD;
-    data["max_twist"] = mMaxTwist * DEG_TO_RAD;
+    data["cone_angle"] = mConeAngle * RAD_TO_DEG;
+    data["min_twist"] = mMinTwist * RAD_TO_DEG;
+    data["max_twist"] = mMaxTwist * RAD_TO_DEG;
 
     return data;
 }
@@ -556,10 +556,10 @@ LLSD LLIK::ElbowConstraint::asLLSD() const
 {
     LLSD data = Constraint::asLLSD();
     data["pivot_axis"] = mPivotAxis.getValue();
-    data["min_bend"] = mMinBend * DEG_TO_RAD;
-    data["max_bend"] = mMaxBend * DEG_TO_RAD;
-    data["min_twist"] = mMinTwist * DEG_TO_RAD;
-    data["max_twist"] = mMaxTwist * DEG_TO_RAD;
+    data["min_bend"] = mMinBend * RAD_TO_DEG;
+    data["max_bend"] = mMaxBend * RAD_TO_DEG;
+    data["min_twist"] = mMinTwist * RAD_TO_DEG;
+    data["max_twist"] = mMaxTwist * RAD_TO_DEG;
 
     return data;
 }
@@ -693,8 +693,8 @@ LLSD LLIK::KneeConstraint::asLLSD() const
 {
     LLSD data = Constraint::asLLSD();
     data["pivot_axis"] = mPivotAxis.getValue();
-    data["min_bend"] = mMinBend * DEG_TO_RAD;
-    data["max_bend"] = mMaxBend * DEG_TO_RAD;
+    data["min_bend"] = mMinBend * RAD_TO_DEG;
+    data["max_bend"] = mMaxBend * RAD_TO_DEG;
 
     return data;
 }
@@ -1094,10 +1094,10 @@ LLSD LLIK::DoubleLimitedHinge::asLLSD() const
     LLSD data = Constraint::asLLSD();
 
     data["up_axis"] = mUp.getValue();
-    data["min_yaw"] = mMinYaw * DEG_TO_RAD;
-    data["max_yaw"] = mMaxYaw * DEG_TO_RAD;
-    data["min_pitch"] = mMinPitch * DEG_TO_RAD;
-    data["max_pitch"] = mMaxPitch * DEG_TO_RAD;
+    data["min_yaw"] = mMinYaw * RAD_TO_DEG;
+    data["max_yaw"] = mMaxYaw * RAD_TO_DEG;
+    data["min_pitch"] = mMinPitch * RAD_TO_DEG;
+    data["max_pitch"] = mMaxPitch * RAD_TO_DEG;
 
     return data;
 }
