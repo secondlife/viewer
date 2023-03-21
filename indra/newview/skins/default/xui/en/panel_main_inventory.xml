@@ -327,6 +327,5 @@
        background_visible="true"
        follows="all"
        layout="topleft" />
-      </panel>
     </panel>
 </panel>

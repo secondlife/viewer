@@ -576,6 +576,14 @@ void LLInventoryGallery::updateAddedItem(LLUUID item_id)
     {
         addToGallery(item);
     }
+
+    if (mCategoriesObserver == NULL)
+    {
+        mCategoriesObserver = new LLInventoryCategoriesObserver();
+        gInventory.addObserver(mCategoriesObserver);
+    }
+    mCategoriesObserver->addCategory(item_id,
+        boost::bind(&LLInventoryGallery::updateItemThumbnail, this, item_id), true);
 }
 
 void LLInventoryGallery::updateRemovedItem(LLUUID item_id)
@@ -583,6 +591,8 @@ void LLInventoryGallery::updateRemovedItem(LLUUID item_id)
     gallery_item_map_t::iterator item_iter = mItemMap.find(item_id);
     if (item_iter != mItemMap.end())
     {
+        mCategoriesObserver->removeCategory(item_id);
+
         LLInventoryGalleryItem* item = item_iter->second;
 
         deselectItem(item_id);
@@ -608,6 +618,26 @@ void LLInventoryGallery::updateChangedItemName(LLUUID item_id, std::string name)
         {
             item->setName(name);
         }
+    }
+}
+
+void LLInventoryGallery::updateItemThumbnail(LLUUID item_id)
+{
+    LLInventoryObject* obj = gInventory.getObject(item_id);
+    if (!obj)
+    {
+        return;
+    }
+    LLUUID thumbnail_id = obj->getThumbnailUUID();
+
+    if ((LLAssetType::AT_CATEGORY == obj->getType()) && thumbnail_id.isNull())
+    {
+        thumbnail_id = getOutfitImageID(item_id);
+    }
+
+    if (mItemMap[item_id])
+    {
+        mItemMap[item_id]->setThumbnail(thumbnail_id);
     }
 }
 

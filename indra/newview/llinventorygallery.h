@@ -74,6 +74,7 @@ public:
     void updateAddedItem(LLUUID item_id);
     void updateRemovedItem(LLUUID item_id);
     void updateChangedItemName(LLUUID item_id, std::string name);
+    void updateItemThumbnail(LLUUID item_id);
 
     void updateMessageVisibility();
 

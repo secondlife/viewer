@@ -25,11 +25,11 @@
    left="1"/>
   <icon
    left="5"
-   top_pad="-25"
+   top_pad="-21"
    layout="topleft"
    name="item_type"
-   height="20"
-   width="20"
+   height="16"
+   width="16"
    follows="left|top"
    visible="true"
    image_name="Inv_Eye"/>
