@@ -188,6 +188,7 @@ public:
     U32             mControlFlags       { 0 };
     LLVector3       mTargetPosition;
     LLQuaternion    mTargetRotation;
+    LLUUID          mTargetId;
     U8              mChainLength        { 0 };
 
 private:
@@ -207,6 +208,10 @@ private:
     F32                     mPhaseStartTime { 0.0f };
 
     LLPuppetJointEvent      mEventTarget;
+    LLVector3               mLastTargetPos;
+    LLQuaternion            mLastTargetRot;
+    bool                    mHaveLastPos    { false };
+    bool                    mHaveLastRot    { false };
 
     LLJoint *               mAttachmentJoint{ nullptr };
     LLJoint *               mParentJoint    { nullptr };

@@ -543,9 +543,11 @@ bool LLPuppetControl::updateTargetEvent()
 
     if (mFlags & PUPPET_POSITION)
     {
+        LLVector3   pelvis_pos = mPelvis->getWorldPosition();
+
         if (mFlags & PUPPET_POS_ABS)
         {
-            LLVector3 newpos =  mTargetPosition - mPelvis->getWorldPosition();
+            LLVector3 newpos =  mTargetPosition - pelvis_pos;
             newpos *= ~mPelvis->getWorldRotation();
             mEventTarget.setPosition(newpos);
         }
@@ -555,9 +557,27 @@ bool LLPuppetControl::updateTargetEvent()
             {
                 return false;
             }
-            LLVector3 actual_target = (mTrackingAttach->getWorldPosition() + mTargetPosition) - mPelvis->getWorldPosition();
+            LLVector3 actual_target = (mTrackingAttach->getWorldPosition() + mTargetPosition) - pelvis_pos;
             //actual_target *= ~mPelvis->getWorldRotation();
             mEventTarget.setPosition(actual_target);
+        }
+        else if (mFlags & PUPPET_POS_TARGET)
+        {   // Get the target (if known) by UUID
+            LLViewerObject *target = gObjectList.findObject(mTargetId);
+            if (!target)
+            {
+                if (!mHaveLastPos)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                mLastTargetPos = target->getWorldPosition();
+                mHaveLastPos = true;
+            }
+            LLVector3 newpos = mLastTargetPos - pelvis_pos;
+            mEventTarget.setPosition(newpos);
         }
         else
         {   // PUPPET_POS_LOC
@@ -566,19 +586,38 @@ bool LLPuppetControl::updateTargetEvent()
     }
     if (mFlags & PUPPET_ROTATION)
     {
+        LLQuaternion pelvis_arot = ~mPelvis->getWorldRotation();
         if (mFlags & PUPPET_ROT_ABS)
         { 
-            mEventTarget.setRotation(mTargetRotation * ~mPelvis->getWorldRotation());
+            mEventTarget.setRotation(mTargetRotation * pelvis_arot);
         }
-        else if (mFlags & PUPPET_POS_ATTCH)
+        else if (mFlags & PUPPET_ROT_ATTCH)
         {
             if (!mTargetAttachment)
             {
                 return false;
             }
             LLQuaternion actual_rotation = mTrackingAttach->getWorldRotation() * mTargetRotation;
-            actual_rotation *= ~mPelvis->getWorldRotation();
+            actual_rotation *= pelvis_arot;
             mEventTarget.setRotation(actual_rotation);
+        }
+        else if (mFlags & PUPPET_ROT_TARGET)
+        {
+            LLViewerObject *target = gObjectList.findObject(mTargetId);
+            if (!target)
+            {
+                if (!mHaveLastRot)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                mLastTargetRot = target->getWorldRotation();
+                mHaveLastRot = true;
+            }
+            LLQuaternion newrot = mLastTargetRot * pelvis_arot;
+            mEventTarget.setRotation(newrot);
         }
         else
         {   // PUPPET_ROT_LOC
