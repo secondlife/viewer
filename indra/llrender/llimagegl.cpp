@@ -1219,12 +1219,12 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 		if (!res) LL_ERRS() << "LLImageGL::setSubImage(): bindTexture failed" << LL_ENDL;
 		stop_glerror();
 
-//#if LL_DARWIN
-//        const bool use_sub_image = false;
-//#else
-//        const bool use_sub_image = !isCompressed();
-//#endif
-        //if (!use_sub_image)
+#if LL_DARWIN
+        const bool use_sub_image = false;
+#else
+        const bool use_sub_image = !isCompressed();
+#endif
+        if (!use_sub_image)
         {
             // *TODO: Why does this work here, in setSubImage, but not in
             // setManualImage? Maybe because it only gets called with the
@@ -1232,10 +1232,10 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
             // compressed?
             glTexSubImage2D(mTarget, 0, x_pos, y_pos, width, height, mFormatPrimary, mFormatType, datap);
         }
-        //else
-        //{
-        //    subImageLines(mTarget, 0, x_pos, y_pos, width, height, mFormatPrimary, mFormatType, datap);
-        //}
+        else
+        {
+            subImageLines(mTarget, 0, x_pos, y_pos, width, height, mFormatPrimary, mFormatType, datap);
+        }
 		gGL.getTexUnit(0)->disable();
 		stop_glerror();
 
