@@ -1100,15 +1100,9 @@ void LLImageGL::postAddToAtlas()
 	stop_glerror();	
 }
 
-// Equivalent to calling glSetSubImage2D(target, miplevel, x_offset, y_offset, width, height, pixformat, pixtype, src)
-// However, instead there are multiple calls to glSetSubImage2D on smaller slices of the image
-void subImageLines(U32 target, S32 miplevel, S32 x_offset, S32 y_offset, S32 width, S32 height, U32 pixformat, U32 pixtype, const U8* src)
+U32 type_width_from_pixtype(U32 pixtype)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-
-    U32 components = LLImageGL::dataFormatComponents(pixformat);
     U32 type_width = 0;
-
     switch (pixtype)
     {
     case GL_UNSIGNED_BYTE:
@@ -1128,12 +1122,22 @@ void subImageLines(U32 target, S32 miplevel, S32 x_offset, S32 y_offset, S32 wid
     default:
         LL_ERRS() << "Unknown type: " << pixtype << LL_ENDL;
     }
+    return type_width;
+}
 
-    const U32 line_width = width * components * type_width;
+// Equivalent to calling glSetSubImage2D(target, miplevel, x_offset, y_offset, width, height, pixformat, pixtype, src), assuming the total width of the image is data_width
+// However, instead there are multiple calls to glSetSubImage2D on smaller slices of the image
+void subImageLines(U32 target, S32 miplevel, S32 x_offset, S32 y_offset, S32 width, S32 height, U32 pixformat, U32 pixtype, const U8* src, S32 data_width)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
+    U32 components = LLImageGL::dataFormatComponents(pixformat);
+    U32 type_width = type_width_from_pixtype(pixtype);
+
+    const U32 line_width = data_width * components * type_width;
     const U32 y_offset_end = y_offset + height;
-    for (U32 y = y_offset; y < y_offset_end; ++y)
+    for (U32 y_pos = y_offset; y_pos < y_offset_end; ++y_pos)
     {
-        const S32 y_pos = y + y_offset;
         glTexSubImage2D(target, miplevel, x_offset, y_pos, width, 1, pixformat, pixtype, src);
         src += line_width;
     }
@@ -1213,7 +1217,7 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 			stop_glerror();
 		}
 
-		datap += (y_pos * data_width + x_pos) * getComponents();
+		const U8* sub_datap = datap + (y_pos * data_width + x_pos) * getComponents();
 		// Update the GL texture
 		BOOL res = gGL.getTexUnit(0)->bindManual(mBindTarget, tex_name);
 		if (!res) LL_ERRS() << "LLImageGL::setSubImage(): bindTexture failed" << LL_ENDL;
@@ -1230,11 +1234,11 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
             // setManualImage? Maybe because it only gets called with the
             // dimensions of the full image?  Or because the image is never
             // compressed?
-            glTexSubImage2D(mTarget, 0, x_pos, y_pos, width, height, mFormatPrimary, mFormatType, datap);
+            glTexSubImage2D(mTarget, 0, x_pos, y_pos, width, height, mFormatPrimary, mFormatType, sub_datap);
         }
         else
         {
-            subImageLines(mTarget, 0, x_pos, y_pos, width, height, mFormatPrimary, mFormatType, datap);
+            subImageLines(mTarget, 0, x_pos, y_pos, width, height, mFormatPrimary, mFormatType, sub_datap, data_width);
         }
 		gGL.getTexUnit(0)->disable();
 		stop_glerror();
@@ -1475,7 +1479,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
             if (src)
             {
                 LL_PROFILE_ZONE_NAMED("glTexImage2D copy");
-                subImageLines(target, miplevel, 0, 0, width, height, pixformat, pixtype, src);
+                subImageLines(target, miplevel, 0, 0, width, height, pixformat, pixtype, src, width);
             }
         }
         alloc_tex_image(width, height, pixformat);
