@@ -472,6 +472,15 @@ private:
 	LLWearableType::EType mWearableType;
 };
 
+class LLIsTextureType : public LLInventoryCollectFunctor
+{
+public:
+    LLIsTextureType() {}
+    virtual ~LLIsTextureType() {}
+    virtual bool operator()(LLInventoryCategory* cat,
+        LLInventoryItem* item);
+};
+
 /** Filter out wearables-links */
 class LLFindActualWearablesOfType : public LLFindWearablesOfType
 {

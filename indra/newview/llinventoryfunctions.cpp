@@ -2352,6 +2352,11 @@ void LLFindWearablesOfType::setType(LLWearableType::EType type)
 	mWearableType = type;
 }
 
+bool LLIsTextureType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+    return item && (item->getType() == LLAssetType::AT_TEXTURE);
+}
+
 bool LLFindNonRemovableObjects::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 {
 	if (item)

@@ -306,4 +306,27 @@
          folder_indentation="-8"/>
       </single_folder_inventory_panel>
     </panel>
+    <panel
+     follows="all"
+     halign="center"
+     height="372"
+     layout="topleft"
+     left="7"
+     name="gallery_view_inventory"
+     top_delta="0"
+     visible="false"
+     width="312">
+      <panel
+       class="inventory_gallery"
+       filename="panel_inventory_gallery.xml"
+       left="0"
+       top="0"
+       height="372"
+       width="312"
+       name="gallery_view_inv"
+       background_visible="true"
+       follows="all"
+       layout="topleft" />
+      </panel>
+    </panel>
 </panel>

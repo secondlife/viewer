@@ -38,20 +38,6 @@
 // Helper functions
 //
 
-class LLIsTextureType : public LLInventoryCollectFunctor
-{
-public:
-    LLIsTextureType() {}
-    virtual ~LLIsTextureType() {}
-    virtual bool operator()(LLInventoryCategory* cat,
-        LLInventoryItem* item);
-};
-
-bool LLIsTextureType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
-{
-    return item && (item->getType() == LLAssetType::AT_TEXTURE);
-}
-
 LLToolTip* LLInspectTextureUtil::createInventoryToolTip(LLToolTip::Params p)
 {
     const LLSD& sdTooltip = p.create_params;

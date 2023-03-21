@@ -406,6 +406,11 @@ public:
     bool isBackwardAvailable();
     bool isForwardAvailable();
 
+    void setNavBackwardList(std::list<LLUUID> backward_list) { mBackwardFolders = backward_list; }
+    void setNavForwardList(std::list<LLUUID> forward_list) { mForwardFolders = forward_list; }
+    std::list<LLUUID> getNavBackwardList() { return mBackwardFolders; }
+    std::list<LLUUID> getNavForwardList() { return mForwardFolders; }
+
     void setSelectCallback(const boost::function<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb);
 
     typedef boost::function<void()> root_changed_callback_t;

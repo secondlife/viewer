@@ -2097,12 +2097,15 @@ void LLInventorySingleFolderPanel::openInCurrentWindow(const LLSD& userdata)
 
 void LLInventorySingleFolderPanel::changeFolderRoot(const LLUUID& new_id)
 {
-    if(mFolderID.notNull())
+    if (mFolderID != new_id)
     {
-        mBackwardFolders.push_back(mFolderID);
+        if(mFolderID.notNull())
+        {
+            mBackwardFolders.push_back(mFolderID);
+        }
+        mFolderID = new_id;
+        updateSingleFolderRoot();
     }
-    mFolderID = new_id;
-    updateSingleFolderRoot();
 }
 
 void LLInventorySingleFolderPanel::onForwardFolder()

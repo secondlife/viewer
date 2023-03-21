@@ -89,6 +89,7 @@
     <menu_item_check
      label="Combination view"
      layout="topleft"
+     enabled="false"
      name="combination_view">
         <on_click
          function="Inventory.GearDefault.Custom.Action"

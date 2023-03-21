@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+   background_visible="true"
+   bg_alpha_color="DkGray"
+   border="false"
+   follows="all"
+   height="390"
+   name="Inventory Gallery"
+   layout="topleft"
+   left="0"
+   top="0"
+   width="404">
+  <text
+    type="string"
+    clip_partial="false"
+    follows="left|top"
+    layout="topleft"
+    left="13"
+    name="empty_txt"
+    top="0"
+    height="32"
+    valign="center"
+    parse_urls="true"
+    wrap="true">
+    Folder is empty.
+  </text> 
+  <scroll_container
+   follows="all"
+   height="400"
+   layout="topleft"
+   left="4"
+   top="0"
+   name="gallery_scroll_panel"
+   opaque="false"
+   top_pad="0">
+  </scroll_container>
+</panel>
