@@ -116,7 +116,7 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 	  mNeedUploadCost(true),
       mMenuViewDefault(NULL),
       mSingleFolderMode(false),
-      mViewMode(VIEW_LIST),
+      mViewMode(MODE_LIST),
       mListViewRootUpdatedConnection(),
       mGalleryRootUpdatedConnection()
 {
@@ -1689,11 +1689,11 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 
     if (command_name == "list_view")
     {
-        setViewMode(VIEW_LIST);
+        setViewMode(MODE_LIST);
     }
     if (command_name == "gallery_view")
     {
-        setViewMode(VIEW_GALLERY);
+        setViewMode(MODE_GALLERY);
     }
 }
 

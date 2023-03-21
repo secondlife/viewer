@@ -68,9 +68,9 @@ public:
 
     enum EViewModeType
     {
-        VIEW_LIST,
-        VIEW_GALLERY,
-        VIEW_COMBINATION
+        MODE_LIST,
+        MODE_GALLERY,
+        MODE_COMBINATION
     };
 
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
@@ -117,8 +117,8 @@ public:
     bool isSingleFolderMode() { return mSingleFolderMode; }
 
     void setViewMode(EViewModeType mode);
-    bool isListViewMode() { return (mViewMode == VIEW_LIST); }
-    bool isGalleryViewMode() { return (mViewMode == VIEW_GALLERY); }
+    bool isListViewMode() { return (mViewMode == MODE_LIST); }
+    bool isGalleryViewMode() { return (mViewMode == MODE_GALLERY); }
     LLUUID getCurrentSFVRoot();
 
 protected:
