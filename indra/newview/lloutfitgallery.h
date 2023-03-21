@@ -43,15 +43,6 @@ class LLOutfitListGearMenuBase;
 class LLOutfitGalleryGearMenu;
 class LLOutfitGalleryContextMenu;
 
-class LLUpdateGalleryOnPhotoLinked : public LLInventoryCallback
-{
-public:
-    LLUpdateGalleryOnPhotoLinked(){}
-    virtual ~LLUpdateGalleryOnPhotoLinked(){}
-    /* virtual */ void fire(const LLUUID& inv_item_id);
-private:
-};
-
 class LLOutfitGallery : public LLOutfitListBase
 {
 public:
@@ -82,10 +73,7 @@ public:
 
     /*virtual*/ BOOL postBuild();
     /*virtual*/ void onOpen(const LLSD& info);
-    /*virtual*/ void draw();	
-    
-    void onSelectPhoto(LLUUID selected_outfit_id);
-    void onTakeSnapshot(LLUUID selected_outfit_id);
+    /*virtual*/ void draw();
 
     void wearSelectedOutfit();
 

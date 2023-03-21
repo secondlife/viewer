@@ -1021,10 +1021,6 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
     }
 }
 
-void LLUpdateGalleryOnPhotoLinked::fire(const LLUUID& inv_item_id)
-{
-}
-
 LLUUID LLOutfitGallery::getPhotoAssetId(const LLUUID& outfit_id)
 {
     outfit_map_t::iterator outfit_it = mOutfitMap.find(outfit_id);

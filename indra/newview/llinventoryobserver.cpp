@@ -649,6 +649,13 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 			}
 		}
 
+        const LLUUID thumbnail_id = category->getThumbnailUUID();
+        if (cat_data.mThumbnailId != thumbnail_id)
+        {
+            cat_data.mThumbnailId = thumbnail_id;
+            cat_changed = true;
+        }
+
 		// If anything has changed above, fire the callback.
 		if (cat_changed)
 			cat_data.mCallback();
@@ -666,6 +673,7 @@ bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t
 	S32 version = LLViewerInventoryCategory::VERSION_UNKNOWN;
 	S32 current_num_known_descendents = LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN;
 	bool can_be_added = true;
+    LLUUID thumbnail_id;
 
 	LLViewerInventoryCategory* category = gInventory.getCategory(cat_id);
 	// If category could not be retrieved it might mean that
@@ -677,6 +685,7 @@ bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t
 		// Inventory category version is used to find out if some changes
 		// to a category have been made.
 		version = category->getVersion();
+        thumbnail_id = category->getThumbnailUUID();
 
 		LLInventoryModel::cat_array_t* cats;
 		LLInventoryModel::item_array_t* items;
@@ -702,11 +711,11 @@ bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t
 		if(init_name_hash)
 		{
 			LLMD5 item_name_hash = gInventory.hashDirectDescendentNames(cat_id);
-			mCategoryMap.insert(category_map_value_t(cat_id,LLCategoryData(cat_id, cb, version, current_num_known_descendents,item_name_hash)));
+			mCategoryMap.insert(category_map_value_t(cat_id,LLCategoryData(cat_id, thumbnail_id, cb, version, current_num_known_descendents,item_name_hash)));
 		}
 		else
 		{
-			mCategoryMap.insert(category_map_value_t(cat_id,LLCategoryData(cat_id, cb, version, current_num_known_descendents)));
+			mCategoryMap.insert(category_map_value_t(cat_id,LLCategoryData(cat_id, thumbnail_id, cb, version, current_num_known_descendents)));
 		}
 	}
 
@@ -719,24 +728,26 @@ void LLInventoryCategoriesObserver::removeCategory(const LLUUID& cat_id)
 }
 
 LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
-	const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents)
+	const LLUUID& cat_id, const LLUUID& thumbnail_id, callback_t cb, S32 version, S32 num_descendents)
 	
 	: mCatID(cat_id)
 	, mCallback(cb)
 	, mVersion(version)
 	, mDescendentsCount(num_descendents)
+    , mThumbnailId(thumbnail_id)
 	, mIsNameHashInitialized(false)
 {
 	mItemNameHash.finalize();
 }
 
 LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
-	const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents, LLMD5 name_hash)
+	const LLUUID& cat_id, const LLUUID& thumbnail_id, callback_t cb, S32 version, S32 num_descendents, LLMD5 name_hash)
 
 	: mCatID(cat_id)
 	, mCallback(cb)
 	, mVersion(version)
 	, mDescendentsCount(num_descendents)
+    , mThumbnailId(thumbnail_id)
 	, mIsNameHashInitialized(true)
 	, mItemNameHash(name_hash)
 {
