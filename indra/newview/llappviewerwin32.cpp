@@ -259,20 +259,74 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
 	std::string app_name = LLTrans::getString("APP_NAME");
 	llutf16string w_app_name = utf8str_to_utf16str(app_name);
 	wsprintf(profile_name, L"%s", w_app_name.c_str());
-	status = NvAPI_DRS_SetCurrentGlobalProfile(hSession, profile_name);
-	if (status != NVAPI_OK)
+	NvDRSProfileHandle hProfile = 0;
+	// (3) Check if we already have an application profile for the viewer
+	status = NvAPI_DRS_FindProfileByName(hSession, profile_name, &hProfile);
+	if (status != NVAPI_OK && status != NVAPI_PROFILE_NOT_FOUND)
 	{
 		nvapi_error(status);
 		return;
 	}
+	else if (status == NVAPI_PROFILE_NOT_FOUND)
+	{
+		// Don't have an application profile yet - create one
+		LL_INFOS() << "Creating NVIDIA application profile" << LL_ENDL;
 
-	// (3) Obtain the current profile. 
-	NvDRSProfileHandle hProfile = 0;
-	status = NvAPI_DRS_GetCurrentGlobalProfile(hSession, &hProfile);
-	if (status != NVAPI_OK) 
+		NVDRS_PROFILE profileInfo;
+		profileInfo.version = NVDRS_PROFILE_VER;
+		profileInfo.isPredefined = 0;
+		wsprintf(profileInfo.profileName, L"%s", w_app_name.c_str());
+
+		status = NvAPI_DRS_CreateProfile(hSession, &profileInfo, &hProfile);
+		if (status != NVAPI_OK)
+		{
+			nvapi_error(status);
+			return;
+		}
+	}
+
+	// (4) Check if current exe is part of the profile
+	std::string exe_name = gDirUtilp->getExecutableFilename();
+	NVDRS_APPLICATION profile_application;
+	profile_application.version = NVDRS_APPLICATION_VER;
+
+	llutf16string w_exe_name = utf8str_to_utf16str(exe_name);
+	NvAPI_UnicodeString profile_app_name;
+	wsprintf(profile_app_name, L"%s", w_exe_name.c_str());
+
+	status = NvAPI_DRS_GetApplicationInfo(hSession, hProfile, profile_app_name, &profile_application);
+	if (status != NVAPI_OK && status != NVAPI_EXECUTABLE_NOT_FOUND)
 	{
 		nvapi_error(status);
 		return;
+	}
+	else if (status == NVAPI_EXECUTABLE_NOT_FOUND)
+	{
+		LL_INFOS() << "Creating application for " << exe_name << " for NVIDIA application profile" << LL_ENDL;
+
+		// Add this exe to the profile
+		NVDRS_APPLICATION application;
+		application.version = NVDRS_APPLICATION_VER;
+		application.isPredefined = 0;
+		wsprintf(application.appName, L"%s", w_exe_name.c_str());
+		wsprintf(application.userFriendlyName, L"%s", w_exe_name.c_str());
+		wsprintf(application.launcher, L"%s", w_exe_name.c_str());
+		wsprintf(application.fileInFolder, L"%s", "");
+
+		status = NvAPI_DRS_CreateApplication(hSession, hProfile, &application);
+		if (status != NVAPI_OK)
+		{
+			nvapi_error(status);
+			return;
+		}
+
+		// Save application in case we added one
+		status = NvAPI_DRS_SaveSettings(hSession);
+		if (status != NVAPI_OK)
+		{
+			nvapi_error(status);
+			return;
+		}
 	}
 
 	// load settings for querying 
@@ -289,7 +343,7 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
 	status = NvAPI_DRS_GetSetting(hSession, hProfile, PREFERRED_PSTATE_ID, &drsSetting);
 	if (status == NVAPI_SETTING_NOT_FOUND)
 	{ //only override if the user hasn't specifically set this setting
-		// (4) Specify that we want the VSYNC disabled setting
+		// (5) Specify that we want to enable maximum performance setting
 		// first we fill the NVDRS_SETTING struct, then we call the function
 		drsSetting.version = NVDRS_SETTING_VER;
 		drsSetting.settingId = PREFERRED_PSTATE_ID;
@@ -302,7 +356,7 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
 			return;
 		}
 
-        // (5) Now we apply (or save) our changes to the system
+        // (6) Now we apply (or save) our changes to the system
         status = NvAPI_DRS_SaveSettings(hSession);
         if (status != NVAPI_OK) 
         {
@@ -388,11 +442,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	}
 
     NvDRSSessionHandle hSession = 0;
-    // Viewer shouldn't need NvAPI and this implementation alters global
-    // settings instead of viewer-only ones (SL-4126)
-    // TODO: ideally this should be removed, but temporary disabling
-    // it with a way to turn it back on in case of issues
-    static LLCachedControl<bool> use_nv_api(gSavedSettings, "NvAPISessionOverride", false);
+    static LLCachedControl<bool> use_nv_api(gSavedSettings, "NvAPICreateApplicationProfile", true);
     if (use_nv_api)
     {
         NvAPI_Status status;
