@@ -576,7 +576,8 @@ bool LLPuppetControl::updateTargetEvent()
                 mLastTargetPos = target->getWorldPosition();
                 mHaveLastPos = true;
             }
-            LLVector3 newpos = mLastTargetPos - pelvis_pos;
+            LLVector3 newpos = (mLastTargetPos + mTargetPosition) - pelvis_pos;
+            newpos *= ~mPelvis->getWorldRotation();
             mEventTarget.setPosition(newpos);
         }
         else
@@ -616,7 +617,7 @@ bool LLPuppetControl::updateTargetEvent()
                 mLastTargetRot = target->getWorldRotation();
                 mHaveLastRot = true;
             }
-            LLQuaternion newrot = mLastTargetRot * pelvis_arot;
+            LLQuaternion newrot = mLastTargetRot * mTargetRotation * pelvis_arot;
             mEventTarget.setRotation(newrot);
         }
         else

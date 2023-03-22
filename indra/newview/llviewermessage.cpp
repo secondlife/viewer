@@ -4275,7 +4275,10 @@ void process_animation_control(LLMessageSystem *mesgsys, void **user_data)
                         mesgsys->getU8Fast(_PREHASH_BoneControl, _PREHASH_TargetData, tracking_attch);
                         controlp->setTrackingAttachmentPnt(tracking_attch);
                     }
-
+                    else if (flags & LLPuppetControl::PUPPET_POS_TARGET)
+                    {
+                        mesgsys->getUUIDFast(_PREHASH_BoneControl, _PREHASH_TargetID, controlp->mTargetId, index);
+                    }
                 }
                 if (flags & LLPuppetControl::PUPPET_ROTATION)
                 {
@@ -4287,6 +4290,10 @@ void process_animation_control(LLMessageSystem *mesgsys, void **user_data)
                         U8 tracking_attch;
                         mesgsys->getU8Fast(_PREHASH_BoneControl, _PREHASH_TargetData, tracking_attch);
                         controlp->setTrackingAttachmentPnt(tracking_attch);
+                    }
+                    else if (flags & LLPuppetControl::PUPPET_ROT_TARGET)
+                    {
+                        mesgsys->getUUIDFast(_PREHASH_BoneControl, _PREHASH_TargetID, controlp->mTargetId, index);
                     }
                 }
 
