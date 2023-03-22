@@ -46,6 +46,8 @@ public:
     //   media_tex - optional media texture that may override the base color texture
     void bind(LLViewerTexture* media_tex = nullptr);
 
+    bool isFetching() const { return mFetching; }
+
     // Textures used for fetching/rendering
     LLPointer<LLViewerFetchedTexture> mBaseColorTexture;
     LLPointer<LLViewerFetchedTexture> mNormalTexture;
