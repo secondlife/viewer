@@ -45,6 +45,7 @@
 #include "llmaterialmgr.h"
 #include "llnotificationsutil.h"
 #include "llscrolllistctrl.h"
+#include "lltextureentry.h"
 #include "lltinygltfhelper.h"
 #include "llviewertexture.h"
 
@@ -118,6 +119,15 @@ S32 LLLocalGLTFMaterial::getIndexInFile() const
     return mMaterialIndex;
 }
 
+void LLLocalGLTFMaterial::addTextureEntry(LLTextureEntry* te)
+{
+    mTextureEntires.insert(te);
+}
+void LLLocalGLTFMaterial::removeTextureEntry(LLTextureEntry* te)
+{
+    mTextureEntires.erase(te);
+}
+
 /* update functions */
 bool LLLocalGLTFMaterial::updateSelf()
 {
@@ -154,6 +164,27 @@ bool LLLocalGLTFMaterial::updateSelf()
                     gGLTFMaterialList.addMaterial(mWorldID, this);
 
                     mUpdateRetries = LL_LOCAL_UPDATE_RETRIES;
+
+                    for (LLTextureEntry* entry : mTextureEntires)
+                    {
+                        // Normally a change in applied material id is supposed to
+                        // drop overrides thus reset material, but local materials
+                        // currently reuse their existing asset id, and purpose is
+                        // to preview how material will work in-world, overrides
+                        // included, so do an override to render update instead.
+                        LLGLTFMaterial* override_mat = entry->getGLTFMaterialOverride();
+                        if (override_mat)
+                        {
+                            // do not create a new material, reuse existing pointer
+                            LLFetchedGLTFMaterial* render_mat = (LLFetchedGLTFMaterial*)entry->getGLTFRenderMaterial();
+                            if (render_mat)
+                            {
+                                *render_mat = *this;
+                                render_mat->applyOverride(*override_mat);
+                            }
+                        }
+                    }
+
                     updated = true;
                 }
 

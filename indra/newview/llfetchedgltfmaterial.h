@@ -39,6 +39,8 @@ public:
     LLFetchedGLTFMaterial();
     virtual ~LLFetchedGLTFMaterial();
 
+    LLFetchedGLTFMaterial& operator=(const LLFetchedGLTFMaterial& rhs);
+
     // If this material is loaded, fire the given function
     void onMaterialComplete(std::function<void()> material_complete);
 
