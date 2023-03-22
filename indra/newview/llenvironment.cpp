@@ -1758,7 +1758,11 @@ void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, con
             { // maximize and remove tinting if this is an irradiance map render pass and the parameter feeds into the sky background color
                 auto max_vec = [](LLVector4 col)
                 {
-                    col.mV[0] = col.mV[1] = col.mV[2] = llmax(llmax(col.mV[0], col.mV[1]), col.mV[2]);
+                    LLColor3 color(col);
+                    F32 h, s, l;
+                    color.calcHSL(&h, &s, &l);
+
+                    col.mV[0] = col.mV[1] = col.mV[2] = l;
                     return col;
                 };
 

@@ -51,7 +51,6 @@ uniform sampler2D normalMap;
 uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 uniform samplerCube environmentMap;
 uniform sampler2D lightMap;
-uniform sampler2D noiseMap;
 uniform sampler2D projectionMap; // rgba
 uniform sampler2D lightFunc;
 
@@ -193,7 +192,6 @@ void main()
         diffuse = srgb_to_linear(diffuse);
         spec.rgb = srgb_to_linear(spec.rgb);
         
-        float noise = texture2D(noiseMap, tc).b;
         if (proj_tc.z > 0.0 &&
             proj_tc.x < 1.0 &&
             proj_tc.y < 1.0 &&
@@ -205,7 +203,7 @@ void main()
 
             if (nl > 0.0)
             {
-                lit = nl * dist_atten * noise;
+                lit = nl * dist_atten;
 
                 dlit = getProjectedLightDiffuseColor( l_dist, proj_tc.xy );
 
@@ -214,7 +212,7 @@ void main()
                 amb_da += (nl*0.5+0.5) /* * (1.0-shadow) */ * proj_ambiance;
             }
 
-            vec3 amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, noise, proj_tc.xy );
+            vec3 amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, 1.0, proj_tc.xy );
             final_color += diffuse.rgb*amb_rgb;
   #if DEBUG_LEG_LIGHT_TYPE
             final_color = vec3(0,0.5,0);

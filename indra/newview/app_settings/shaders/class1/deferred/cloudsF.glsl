@@ -24,19 +24,15 @@
  */
 /*[EXTRA_CODE_HERE]*/ 
 
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
-#else
-#define frag_data gl_FragData
-#endif
+out vec4 frag_data[4];
 
 /////////////////////////////////////////////////////////////////////////
 // The fragment shader for the sky
 /////////////////////////////////////////////////////////////////////////
 
-VARYING vec3 vary_CloudColorSun;
-VARYING vec3 vary_CloudColorAmbient;
-VARYING float vary_CloudDensity;
+in vec3 vary_CloudColorSun;
+in vec3 vary_CloudColorAmbient;
+in float vary_CloudDensity;
 
 uniform sampler2D cloud_noise_texture;
 uniform sampler2D cloud_noise_texture_next;
@@ -46,16 +42,16 @@ uniform vec3 cloud_pos_density2;
 uniform float cloud_scale;
 uniform float cloud_variance;
 
-VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
-VARYING vec2 vary_texcoord2;
-VARYING vec2 vary_texcoord3;
-VARYING float altitude_blend_factor;
+in vec2 vary_texcoord0;
+in vec2 vary_texcoord1;
+in vec2 vary_texcoord2;
+in vec2 vary_texcoord3;
+in float altitude_blend_factor;
 
 vec4 cloudNoise(vec2 uv)
 {
-   vec4 a = texture2D(cloud_noise_texture, uv);
-   vec4 b = texture2D(cloud_noise_texture_next, uv);
+   vec4 a = texture(cloud_noise_texture, uv);
+   vec4 b = texture(cloud_noise_texture_next, uv);
    vec4 cloud_noise_sample = mix(a, b, blend_factor);
    return cloud_noise_sample;
 }
@@ -118,8 +114,9 @@ void main()
     color.rgb *= 2.0;
 
     /// Gamma correct for WL (soft clip effect).
-    frag_data[0] = vec4(color.rgb, alpha1);
+    frag_data[0] = vec4(0);
     frag_data[1] = vec4(0.0,0.0,0.0,0.0);
     frag_data[2] = vec4(0,0,0,GBUFFER_FLAG_SKIP_ATMOS);
+    frag_data[3] = vec4(color.rgb, alpha1);
 }
 
