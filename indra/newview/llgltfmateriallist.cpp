@@ -157,8 +157,8 @@ public:
         // receive override data from simulator via LargeGenericMessage
         // message should have:
         //  object_id - UUID of LLViewerObject
-        //  side - S32 index of texture entry
-        //  gltf_json - String of GLTF json for override data
+        //  sides - array of S32 indices of texture entries
+        //  gltf_json - array of corresponding Strings of GLTF json for override data
 
 
         LLSD message;
@@ -380,11 +380,22 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
                 { // object doesn't have its base GLTF material yet, don't apply override (yet)
                     return;
                 }
-                obj->setTEGLTFMaterialOverride(i, overrides[i]);
+
+                S32 status = obj->setTEGLTFMaterialOverride(i, overrides[i]);
+                if (status == TEM_CHANGE_NONE)
+                {
+                    // can't apply this yet, since failure to change the material override
+                    // probably means the base material is still being fetched.  leave in
+                    // the queue for later
+                    return;
+                }
+
                 if (obj->getTE(i)->isSelected())
                 {
                     handle_gltf_override_message.doSelectionCallbacks(id, i);
                 }
+                // success!
+                overrides[i] = nullptr;
             }
         }
 
