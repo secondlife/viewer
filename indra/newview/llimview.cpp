@@ -3053,6 +3053,8 @@ LLIMMgr::LLIMMgr()
 	mPendingAgentListUpdates = LLSD::emptyMap();
 
 	LLIMModel::getInstance()->addNewMsgCallback(boost::bind(&LLFloaterIMSession::sRemoveTypingIndicator, _1));
+
+	gSavedPerAccountSettings.declareBOOL("FetchGroupChatHistory", TRUE, "Fetch recent messages from group chat servers when a group window opens", LLControlVariable::PERSIST_ALWAYS);
 }
 
 // Add a message to a session.
