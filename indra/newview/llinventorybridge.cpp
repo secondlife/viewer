@@ -110,9 +110,6 @@ using namespace LLOldEvents;
 bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, boost::shared_ptr<LLMoveInv>);
 bool confirm_attachment_rez(const LLSD& notification, const LLSD& response);
 void teleport_via_landmark(const LLUUID& asset_id);
-static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
-static bool can_move_to_my_outfits(LLInventoryModel* model, LLInventoryCategory* inv_cat, U32 wear_limit);
-static BOOL can_move_to_landmarks(LLInventoryItem* inv_item);
 static bool check_category(LLInventoryModel* model,
 						   const LLUUID& cat_id,
 						   LLInventoryPanel* active_panel,
@@ -4905,97 +4902,6 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 
 	move_inv.reset(); //since notification will persist
 	return false;
-}
-
-// Returns true if the item can be moved to Current Outfit or any outfit folder.
-static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit)
-{
-	LLInventoryType::EType inv_type = inv_item->getInventoryType();
-	if ((inv_type != LLInventoryType::IT_WEARABLE) &&
-		(inv_type != LLInventoryType::IT_GESTURE) &&
-		(inv_type != LLInventoryType::IT_ATTACHMENT) &&
-		(inv_type != LLInventoryType::IT_OBJECT) &&
-		(inv_type != LLInventoryType::IT_SNAPSHOT) &&
-		(inv_type != LLInventoryType::IT_TEXTURE))
-	{
-		return FALSE;
-	}
-
-	U32 flags = inv_item->getFlags();
-	if(flags & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS)
-	{
-		return FALSE;
-	}
-
-	if((inv_type == LLInventoryType::IT_TEXTURE) || (inv_type == LLInventoryType::IT_SNAPSHOT))
-	{
-		return !move_is_into_current_outfit;
-	}
-
-	if (move_is_into_current_outfit && get_is_item_worn(inv_item->getUUID()))
-	{
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-// Returns true if folder's content can be moved to Current Outfit or any outfit folder.
-static bool can_move_to_my_outfits(LLInventoryModel* model, LLInventoryCategory* inv_cat, U32 wear_limit)
-{
-    LLInventoryModel::cat_array_t *cats;
-    LLInventoryModel::item_array_t *items;
-    model->getDirectDescendentsOf(inv_cat->getUUID(), cats, items);
-
-    if (items->size() > wear_limit)
-    {
-        return false;
-    }
-
-    if (items->size() == 0)
-    {
-        // Nothing to move(create)
-        return false;
-    }
-
-    if (cats->size() > 0)
-    {
-        // We do not allow subfolders in outfits of "My Outfits" yet
-        return false;
-    }
-
-    LLInventoryModel::item_array_t::iterator iter = items->begin();
-    LLInventoryModel::item_array_t::iterator end = items->end();
-
-    while (iter != end)
-    {
-        LLViewerInventoryItem *item = *iter;
-        if (!can_move_to_outfit(item, false))
-        {
-            return false;
-        }
-        iter++;
-    }
-
-    return true;
-}
-
-// Returns TRUE if item is a landmark or a link to a landmark
-// and can be moved to Favorites or Landmarks folder.
-static BOOL can_move_to_landmarks(LLInventoryItem* inv_item)
-{
-	// Need to get the linked item to know its type because LLInventoryItem::getType()
-	// returns actual type AT_LINK for links, not the asset type of a linked item.
-	if (LLAssetType::AT_LINK == inv_item->getType())
-	{
-		LLInventoryItem* linked_item = gInventory.getItem(inv_item->getLinkedUUID());
-		if (linked_item)
-		{
-			return LLAssetType::AT_LANDMARK == linked_item->getType();
-		}
-	}
-
-	return LLAssetType::AT_LANDMARK == inv_item->getType();
 }
 
 void LLFolderBridge::dropToFavorites(LLInventoryItem* inv_item)

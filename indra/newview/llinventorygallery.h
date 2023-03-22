@@ -66,6 +66,8 @@ public:
     BOOL postBuild();
     void initGallery();
     void draw();
+    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type,
+                           void* cargo_data, EAcceptance* accept, std::string& tooltip_msg);
 
     void setFilterSubString(const std::string& string);
     std::string getFilterSubString() { return mFilterSubString; }
@@ -198,6 +200,11 @@ public:
     BOOL handleMouseDown(S32 x, S32 y, MASK mask);
     BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
     BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+                                   EDragAndDropType cargo_type,
+                                   void* cargo_data,
+                                   EAcceptance* accept,
+                                   std::string& tooltip_msg);
 
     void setName(std::string name);
     void setSelected(bool value);
