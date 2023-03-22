@@ -5416,7 +5416,8 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
         if (gltf_mat)
         {
-            // nothing to do, render pools will reference the GLTF material
+            // just remember the material ID, render pools will reference the GLTF material
+            draw_info->mMaterialID = mat_id;
         }
         else if (mat)
 		{

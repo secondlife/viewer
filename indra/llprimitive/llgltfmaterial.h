@@ -115,14 +115,7 @@ public:
     bool mOverrideAlphaMode = false;
 
     // get a UUID based on a hash of this LLGLTFMaterial
-    LLUUID getHash() const
-    {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-        // HACK - hash the bytes of this object but don't include the ref count
-        LLUUID hash;
-        HBXXH128::digest(hash, (unsigned char*)this + sizeof(S32), sizeof(this) - sizeof(S32));
-        return hash;
-    }
+    LLUUID getHash() const;
 
     //setters for various members (will clamp to acceptable ranges)
     // for_override - set to true if this value is being set as part of an override (important for handling override to default value)
