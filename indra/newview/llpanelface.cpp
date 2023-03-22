@@ -1282,7 +1282,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			LLCheckBoxCtrl*	cb_planar_align = getChild<LLCheckBoxCtrl>("checkbox planar align");
 			align_planar = (cb_planar_align && cb_planar_align->get());
 
-			bool enabled = (editable && isIdenticalPlanarTexgen() && (!pbr_selected || texture_info_selected));
+			bool enabled = (editable && isIdenticalPlanarTexgen() && !texture_info_selected);
 			childSetValue("checkbox planar align", align_planar && enabled);
             childSetVisible("checkbox planar align", enabled);
 			childSetEnabled("checkbox planar align", enabled);
@@ -2724,14 +2724,14 @@ void LLPanelFace::updateVisibility()
     const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
     const U32 pbr_type = findChild<LLRadioGroup>("radio_pbr_type")->getSelectedIndex();
     const LLGLTFMaterial::TextureInfo texture_info = texture_info_from_pbrtype(pbr_type);
-    const bool show_texture_info = show_pbr && texture_info != LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT;
+    const bool show_pbr_asset = show_pbr && texture_info == LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT;
 
     radio_mat_type->setVisible(show_material);
 
     // Shared material controls
-    getChildView("checkbox_sync_settings")->setVisible(show_material || show_media || show_texture_info);
-    getChildView("tex gen")->setVisible(show_material || show_media || show_texture_info);
-    getChildView("combobox texgen")->setVisible(show_material || show_media || show_texture_info);
+    getChildView("checkbox_sync_settings")->setVisible(show_material || show_media);
+    getChildView("tex gen")->setVisible(show_material || show_media || show_pbr_asset);
+    getChildView("combobox texgen")->setVisible(show_material || show_media || show_pbr_asset);
     getChildView("button align textures")->setVisible(show_material || show_media);
 
 	// Media controls
@@ -4648,7 +4648,7 @@ void LLPanelFace::updateGLTFTextureTransform(float value, U32 pbr_type, std::fun
     U32 texture_info_start;
     U32 texture_info_end;
     const LLGLTFMaterial::TextureInfo texture_info = texture_info_from_pbrtype(pbr_type);
-    if (gSavedSettings.getBOOL("SyncMaterialSettings") || texture_info == LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT)
+    if (texture_info == LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT)
     {
         texture_info_start = 0;
         texture_info_end = LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT;
