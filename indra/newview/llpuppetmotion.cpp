@@ -100,10 +100,6 @@ constexpr S16 HAND_THUMB_RIGHT_3_ID = 95;
 // TODO: implement "allow incremental updates" policy
 // TODO: figure out how to handle scale of local_pos changes
 
-// HACK: the gConstraintFactory is a static global rather than a singleton
-// because I couldn't figure out how to make the singleton compile. - Leviathan
-LLIKConstraintFactory gConstraintFactory;
-
 namespace
 {
     //-----------------------------------------------------------------------------
@@ -118,431 +114,6 @@ const std::string PUPPET_ROOT_JOINT_NAME("mPelvis");    //Name of the root joint
 
 bool    LLPuppetMotion::sIsPuppetryEnabled(false);
 size_t  LLPuppetMotion::sPuppeteerEventMaxSize(0);
-
-// BEGIN HACK - generate hard-coded constraints for various joints
-LLIK::Constraint::ptr_t get_constraint_by_joint_id(S16 joint_id)
-{
-    LLIK::Constraint::Info info;
-
-    switch (joint_id)
-    {
-        case TORSO_ID:
-        {
-            info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3::z_axis); // forward_axis
-            info.mFloats.push_back(0.005f * F_PI); // cone_angle
-            info.mFloats.push_back(-0.005f * F_PI); // min_twist
-            info.mFloats.push_back(0.005f * F_PI); // max_twist
-        }
-        break;
-        case NECK_ID:
-        // yes, fallthrough
-        case HEAD_ID:
-        {
-            info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3::z_axis); // forward_axis
-            info.mFloats.push_back(0.25f * F_PI); // cone_angle
-            info.mFloats.push_back(-0.25f * F_PI); // min_twist
-            info.mFloats.push_back(0.25f * F_PI); // max_twist
-        }
-        break;
-        case CHEST_ID:
-        {
-            info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3::z_axis); // forward_axis
-            info.mFloats.push_back(0.02f * F_PI); // cone_angle
-            info.mFloats.push_back(-0.02f * F_PI); // min_twist
-            info.mFloats.push_back(0.02f * F_PI); // max_twist
-        }
-        break;
-        case COLLAR_LEFT_ID:
-        {
-            LLVector3 axis(-0.021f, 0.085f, 0.165f); // from avatar_skeleton.xml
-            info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
-            info.mVectors.push_back(axis); // forward_axis
-            info.mFloats.push_back(F_PI * 0.05f); // cone_angle
-            info.mFloats.push_back(-F_PI * 0.1f); // min_twist
-            info.mFloats.push_back(F_PI * 0.1f); // max_twist
-        }
-        break;
-        case SHOULDER_LEFT_ID:
-        {
-            info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3::y_axis); // forward_axis
-            info.mFloats.push_back(F_PI * 1.0f / 2.0f ); // cone_angle
-            info.mFloats.push_back(-F_PI * 2.0f / 5.0f ); // min_twist
-            info.mFloats.push_back(F_PI * 4.0f / 7.0f ); // max_twist
-        }
-        break;
-        case ELBOW_LEFT_ID:
-        {
-            info.mType = LLIK::Constraint::Info::ELBOW_CONSTRAINT;
-            info.mVectors.push_back(LLVector3::y_axis); // forward_axis
-            info.mVectors.push_back(LLVector3::z_axis); // pivot_axis
-            info.mFloats.push_back(- F_PI * 7.0f / 8.0f); // min_bend
-            info.mFloats.push_back(0.0f); // max_bend
-            info.mFloats.push_back(-F_PI * 1.0f / 4.0f ); // min_twist
-            info.mFloats.push_back(F_PI * 3.0f / 4.0f ); // max_twist
-        }
-        break;
-        case WRIST_LEFT_ID:
-        {
-            info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3::y_axis); // forward_axis
-            info.mFloats.push_back(F_PI * 1.0f / 4.0f ); // cone_angle
-            info.mFloats.push_back(-0.05f); // min_twist
-            info.mFloats.push_back(0.05f); // max_twist
-        }
-        break;
-        // MIDDLE LEFT
-        case HAND_MIDDLE_LEFT_1_ID:
-        {
-            info.mType = LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(0.013f, 0.101f, 0.015f)); // forward_axis
-            info.mVectors.push_back(LLVector3::z_axis); // up_axis
-            info.mFloats.push_back(-0.05f * F_PI); // min_yaw
-            info.mFloats.push_back(0.05f * F_PI); // max_yaw
-            info.mFloats.push_back(0.0f ); // min_pitch
-            info.mFloats.push_back(0.3f * F_PI); // max_pitch
-        }
-        break;
-        case HAND_MIDDLE_LEFT_2_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(-0.001f, 0.040f, -0.006f)); // forward_axis
-            info.mVectors.push_back(LLVector3(-LLVector3::x_axis)); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.5f * F_PI); // max_bend
-        }
-        break;
-        case HAND_MIDDLE_LEFT_3_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(-0.001f, 0.049f, -0.008f)); // forward_axis
-            info.mVectors.push_back(LLVector3(-LLVector3::x_axis)); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.4f * F_PI); // max_bend
-        }
-        // INDEX LEFT
-        break;
-        case HAND_INDEX_LEFT_1_ID:
-        {
-            info.mType = LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(0.038f, 0.097f, 0.015f)); // forward_axis
-            info.mVectors.push_back(LLVector3::z_axis); // up_axis
-            info.mFloats.push_back(-0.05f * F_PI); // min_yaw
-            info.mFloats.push_back(0.05f * F_PI); // max_yaw
-            info.mFloats.push_back(0.0f ); // min_pitch
-            info.mFloats.push_back(F_PI * 4.0f / 9.0f ); // max_pitch
-        }
-        break;
-        case HAND_INDEX_LEFT_2_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(0.017f, 0.036f, -0.006f)); // forward_axis
-            info.mVectors.push_back(LLVector3(-LLVector3::x_axis)); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.5f * F_PI); // max_bend
-        }
-        break;
-        case HAND_INDEX_LEFT_3_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(0.014f, 0.032f, -0.006f)); // forward_axis
-            info.mVectors.push_back(LLVector3(-LLVector3::x_axis)); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.4f * F_PI); // max_bend
-        }
-        // RING LEFT
-        break;
-        case HAND_RING_LEFT_1_ID:
-        {
-            info.mType = LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(-0.010f, 0.099f, 0.009f)); // forward_axis
-            info.mVectors.push_back(LLVector3::z_axis); // up_axis
-            info.mFloats.push_back(-0.05f * F_PI); // min_yaw
-            info.mFloats.push_back(0.05f * F_PI); // max_yaw
-            info.mFloats.push_back(0.0f ); // min_pitch
-            info.mFloats.push_back(F_PI * 4.0f / 9.0f ); // max_pitch
-        }
-        break;
-        case HAND_RING_LEFT_2_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(-0.013f, 0.038f, -0.008f)); // forward_axis
-            info.mVectors.push_back(LLVector3(-LLVector3::x_axis)); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.5f * F_PI); // max_bend
-        }
-        break;
-        case HAND_RING_LEFT_3_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(-0.013f, 0.040f, -0.009f)); // forward_axis
-            info.mVectors.push_back(LLVector3(-LLVector3::x_axis)); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.4f * F_PI); // max_bend
-        }
-        // PINKY LEFT
-        break;
-        case HAND_PINKY_LEFT_1_ID:
-        {
-            info.mType = LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(-0.031f, 0.095f, 0.003f)); // forward_axis
-            info.mVectors.push_back(LLVector3::z_axis); // up_axis
-            info.mFloats.push_back(-0.05f * F_PI); // min_yaw
-            info.mFloats.push_back(0.05f * F_PI); // max_yaw
-            info.mFloats.push_back(0.0f ); // min_pitch
-            info.mFloats.push_back(F_PI * 4.0f / 9.0f ); // max_pitch
-        }
-        break;
-        case HAND_PINKY_LEFT_2_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(-0.024f, 0.025f, -0.006f)); // forward_axis
-            info.mVectors.push_back(LLVector3(-LLVector3::x_axis)); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.5f * F_PI); // max_bend
-        }
-        break;
-        case HAND_PINKY_LEFT_3_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(-0.015f, 0.018f, -0.004f)); // forward_axis
-            info.mVectors.push_back(LLVector3(-LLVector3::x_axis)); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.4f * F_PI); // max_bend
-        }
-        // THUMB LEFT
-        break;
-        case HAND_THUMB_LEFT_1_ID:
-        {
-            info.mType = LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(0.031f, 0.026f, 0.004f)); // forward_axis
-            info.mVectors.push_back(LLVector3(1.0f, -1.0f, 1.0f)); // up_axis
-            info.mFloats.push_back(-0.05f * F_PI); // min_yaw
-            info.mFloats.push_back(0.05f * F_PI); // max_yaw
-            info.mFloats.push_back(-0.1f ); // min_pitch
-            info.mFloats.push_back(F_PI / 4.0f ); // max_pitch
-        }
-        break;
-        case HAND_THUMB_LEFT_2_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(0.028f, 0.032f, -0.001f)); // forward_axis
-            info.mVectors.push_back(LLVector3::z_axis - LLVector3::x_axis); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.3f * F_PI); // max_bend
-        }
-        break;
-        case HAND_THUMB_LEFT_3_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(0.023f, 0.031f, -0.001f)); // forward_axis
-            info.mVectors.push_back(LLVector3::z_axis - LLVector3::x_axis); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.4f * F_PI); // max_bend
-        }
-        break;
-#ifdef ENABLE_RIGHT_CONSTRAINTS
-        case COLLAR_RIGHT_ID:
-        {
-            LLVector3 axis(-0.021f, -0.085f, 0.165f); // from avatar_skeleton.xml
-            info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
-            info.mVectors.push_back(axis);
-            info.mFloats.push_back(F_PI * 0.05f); // cone_angle
-            info.mFloats.push_back(-F_PI * 0.1f); // min_twist
-            info.mFloats.push_back(F_PI * 0.1f); // max_twist
-        }
-        break;
-        case SHOULDER_RIGHT_ID:
-        {
-            info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
-            info.mVectors.push_back(-LLVector3::y_axis); // forward_axis
-            info.mFloats.push_back(F_PI * 1.0f / 2.0f ); // cone_angle
-            info.mFloats.push_back(-F_PI * 2.0f / 5.0f ); // min_twist
-            info.mFloats.push_back(F_PI * 4.0f / 7.0f ); // max_twist
-        }
-        break;
-        case ELBOW_RIGHT_ID:
-        {
-            info.mType = LLIK::Constraint::Info::ELBOW_CONSTRAINT;
-            info.mVectors.push_back(-LLVector3::y_axis); // forward_axis
-            info.mVectors.push_back(-LLVector3::z_axis); // pivot_axis
-            info.mFloats.push_back(- F_PI * 7.0f / 8.0f); // min_bend
-            info.mFloats.push_back(0.0f); // max_bend
-            info.mFloats.push_back(-F_PI * 1.0f / 4.0f ); // min_twist
-            info.mFloats.push_back(F_PI * 3.0f / 4.0f ); // max_twist
-        }
-        break;
-        case WRIST_RIGHT_ID:
-        {
-            info.mType = LLIK::Constraint::Info::TWIST_LIMITED_CONE_CONSTRAINT;
-            info.mVectors.push_back(-LLVector3::y_axis); // forward_axis
-            info.mFloats.push_back(F_PI * 1.0f / 4.0f ); // cone_angle
-            info.mFloats.push_back(-0.05f); // min_twist
-            info.mFloats.push_back(0.05f); // max_twist
-        }
-        break;
-        // MIDDLE LEFT
-        case HAND_MIDDLE_RIGHT_1_ID:
-        {
-            info.mType = LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(0.013f, -0.101f, 0.015f)); // forward_axis
-            info.mVectors.push_back(LLVector3::z_axis); // up_axis
-            info.mFloats.push_back(-0.05f * F_PI); // min_yaw
-            info.mFloats.push_back(0.05f * F_PI); // max_yaw
-            info.mFloats.push_back(0.0f ); // min_pitch
-            info.mFloats.push_back(0.3f * F_PI); // max_pitch
-        }
-        break;
-        case HAND_MIDDLE_RIGHT_2_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(-0.001f, -0.040f, -0.006f)); // forward_axis
-            info.mVectors.push_back(LLVector3::x_axis); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.5f * F_PI); // max_bend
-        }
-        break;
-        case HAND_MIDDLE_RIGHT_3_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(-0.001f, -0.049f, -0.008f)); // forward_axis
-            info.mVectors.push_back(LLVector3::x_axis); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.4f * F_PI); // max_bend
-        }
-        // INDEX LEFT
-        break;
-        case HAND_INDEX_RIGHT_1_ID:
-        {
-            info.mType = LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(0.038f, -0.097f, 0.015f)); // forward_axis
-            info.mVectors.push_back(LLVector3::z_axis); // up_axis
-            info.mFloats.push_back(-0.05f * F_PI); // min_yaw
-            info.mFloats.push_back(0.05f * F_PI); // max_yaw
-            info.mFloats.push_back(0.0f ); // min_pitch
-            info.mFloats.push_back(F_PI * 4.0f / 9.0f ); // max_pitch
-        }
-        break;
-        case HAND_INDEX_RIGHT_2_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(0.017f, -0.036f, -0.006f)); // forward_axis
-            info.mVectors.push_back(LLVector3::x_axis); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.5f * F_PI); // max_bend
-        }
-        break;
-        case HAND_INDEX_RIGHT_3_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(0.014f, -0.032f, -0.006f)); // forward_axis
-            info.mVectors.push_back(LLVector3::x_axis); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.4f * F_PI); // max_bend
-        }
-        // RING LEFT
-        break;
-        case HAND_RING_RIGHT_1_ID:
-        {
-            info.mType = LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(-0.010f, -0.099f, 0.009f)); // forward_axis
-            info.mVectors.push_back(LLVector3::z_axis); // up_axis
-            info.mFloats.push_back(-0.05f * F_PI); // min_yaw
-            info.mFloats.push_back(0.05f * F_PI); // max_yaw
-            info.mFloats.push_back(0.0f ); // min_pitch
-            info.mFloats.push_back(F_PI * 4.0f / 9.0f ); // max_pitch
-        }
-        break;
-        case HAND_RING_RIGHT_2_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(-0.013f, -0.038f, -0.008f)); // forward_axis
-            info.mVectors.push_back(LLVector3::x_axis); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.5f * F_PI); // max_bend
-        }
-        break;
-        case HAND_RING_RIGHT_3_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(-0.013f, -0.040f, -0.009f)); // forward_axis
-            info.mVectors.push_back(LLVector3::x_axis); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.4f * F_PI); // max_bend
-        }
-        // PINKY LEFT
-        break;
-        case HAND_PINKY_RIGHT_1_ID:
-        {
-            info.mType = LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(-0.031f, -0.095f, 0.003f)); // forward_axis
-            info.mVectors.push_back(LLVector3::z_axis); // up_axis
-            info.mFloats.push_back(-0.05f * F_PI); // min_yaw
-            info.mFloats.push_back(0.05f * F_PI); // max_yaw
-            info.mFloats.push_back(0.0f ); // min_pitch
-            info.mFloats.push_back(F_PI * 4.0f / 9.0f ); // max_pitch
-        }
-        break;
-        case HAND_PINKY_RIGHT_2_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(-0.024f, -0.025f, -0.006f)); // forward_axis
-            info.mVectors.push_back(LLVector3::x_axis); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.5f * F_PI); // max_bend
-        }
-        break;
-        case HAND_PINKY_RIGHT_3_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(-0.015f, -0.018f, -0.004f)); // forward_axis
-            info.mVectors.push_back(LLVector3::x_axis); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.4f * F_PI); // max_bend
-        }
-        // THUMB LEFT
-        break;
-        case HAND_THUMB_RIGHT_1_ID:
-        {
-            info.mType = LLIK::Constraint::Info::DOUBLE_LIMITED_HINGE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(0.031f, -0.026f, 0.004f)); // forward_axis
-            info.mVectors.push_back(LLVector3(1.0f, 1.0f, 1.0f)); // up_axis
-            info.mFloats.push_back(-0.05f * F_PI); // min_yaw
-            info.mFloats.push_back(0.05f * F_PI); // max_yaw
-            info.mFloats.push_back(-0.1f ); // min_pitch
-            info.mFloats.push_back(F_PI / 4.0f ); // max_pitch
-        }
-        break;
-        case HAND_THUMB_RIGHT_2_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(0.028f, -0.032f, -0.001f)); // forward_axis
-            info.mVectors.push_back(LLVector3::x_axis); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.3f * F_PI); // max_bend
-        }
-        break;
-        case HAND_THUMB_RIGHT_3_ID:
-        {
-            info.mType = LLIK::Constraint::Info::KNEE_CONSTRAINT;
-            info.mVectors.push_back(LLVector3(0.023f, -0.031f, -0.001f)); // forward_axis
-            info.mVectors.push_back(LLVector3::x_axis); // pivot_axis
-            info.mFloats.push_back(0.0f); // min_bend
-            info.mFloats.push_back(0.4f * F_PI); // max_bend
-        }
-        break;
-#endif //ENABLE_RIGHT_CONSTRAINTS
-        default:
-            break;
-    }
-    // TODO: add DoubleLimitedHinge Constraints for fingers
-    return gConstraintFactory.getConstraint(info);
-}
-// END HACK
-
 
 void LLPuppetMotion::DelayedEventQueue::addEvent(
         Timestamp remote_timestamp,
@@ -630,13 +201,13 @@ LLMotion::LLMotionInitStatus LLPuppetMotion::onInitialize(LLCharacter *character
         //Generate reference rotation
         mIKSolver.resetSkeleton();
 
-        // HACK: whitelist of sub-bases: joints that have only child Chains
+        // HACK: white list of sub-bases: joints that have only child Chains
         // and should always be Chain endpoints, never in the middle of a Chain.
         std::set<S16> ids;
         ids.insert(CHEST_ID);
         mIKSolver.setSubBaseIds(ids);
 
-        //// HACK: whitelist of sub-roots.
+        //// HACK: white list of sub-roots.
         //// This HACK prevents the spine from being included in the IK solution,
         //// effectively preventing the spine from moving.
         //ids.clear();
@@ -715,10 +286,13 @@ LLSD LLPuppetMotion::getSkeletonData()
 
 void LLPuppetMotion::updateSkeletonGeometry()
 {
+    LLIKConstraintFactory &factory(LLIKConstraintFactory::instance());
+
     for (auto& data_pair : mJointStates)
     {
         S16 joint_id = data_pair.first;
-        LLIK::Constraint::ptr_t constraint = get_constraint_by_joint_id(joint_id);
+
+        LLIK::Constraint::ptr_t constraint(factory.getConstrForJoint(data_pair.second->getJoint()->getName()));
         mIKSolver.resetJointGeometry(joint_id, constraint);
     }
     measureArmSpan();
@@ -1296,7 +870,7 @@ void LLPuppetMotion::collectJoints(LLJoint* joint)
     S16 joint_id = joint->getJointNum();
     mJointStates[joint_id] = joint_state;
 
-    LLIK::Constraint::ptr_t constraint = get_constraint_by_joint_id(joint_id);
+    LLIK::Constraint::ptr_t constraint = LLIKConstraintFactory::instance().getConstrForJoint(joint->getName());
     mIKSolver.addJoint(joint_id, parent_id, joint, constraint);
 
     // Recurse through the children of this joint and add them to our joint control list
