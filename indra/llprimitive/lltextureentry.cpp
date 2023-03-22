@@ -112,7 +112,15 @@ LLTextureEntry &LLTextureEntry::operator=(const LLTextureEntry &rhs)
 
         mMaterialID = rhs.mMaterialID;
 
+        if (mGLTFMaterial)
+        {
+            mGLTFMaterial->removeTextureEntry(this);
+        }
         mGLTFMaterial = rhs.mGLTFMaterial;
+        if (mGLTFMaterial)
+        {
+            mGLTFMaterial->addTextureEntry(this);
+        }
         
         if (rhs.mGLTFMaterialOverrides.notNull())
         {
@@ -155,6 +163,12 @@ LLTextureEntry::~LLTextureEntry()
 		delete mMediaEntry;
 		mMediaEntry = NULL;
 	}
+
+    if (mGLTFMaterial)
+    {
+        mGLTFMaterial->removeTextureEntry(this);
+        mGLTFMaterial = NULL;
+    }
 }
 
 bool LLTextureEntry::operator!=(const LLTextureEntry &rhs) const
@@ -524,7 +538,20 @@ void LLTextureEntry::setGLTFMaterial(LLGLTFMaterial* material, bool local_origin
         // NOTE: if you're hitting this assert, try to make sure calling code is using LLViewerObject::setRenderMaterialID
         llassert(!local_origin || getGLTFMaterialOverride() == nullptr || getGLTFMaterialOverride()->isClearedForBaseMaterial());
 
+        if (mGLTFMaterial)
+        {
+            // Local materials have to keep track
+            // due to update mechanics
+            mGLTFMaterial->removeTextureEntry(this);
+        }
+
         mGLTFMaterial = material;
+
+        if (mGLTFMaterial)
+        {
+            mGLTFMaterial->addTextureEntry(this);
+        }
+
         if (mGLTFMaterial == nullptr)
         {
             setGLTFRenderMaterial(nullptr);

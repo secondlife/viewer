@@ -46,6 +46,18 @@ LLFetchedGLTFMaterial::~LLFetchedGLTFMaterial()
     
 }
 
+LLFetchedGLTFMaterial& LLFetchedGLTFMaterial::operator=(const LLFetchedGLTFMaterial& rhs)
+{
+    LLGLTFMaterial::operator =(rhs);
+
+    mBaseColorTexture = rhs.mBaseColorTexture;
+    mNormalTexture = rhs.mNormalTexture;
+    mMetallicRoughnessTexture = rhs.mMetallicRoughnessTexture;
+    mEmissiveTexture = rhs.mEmissiveTexture;
+
+    return *this;
+}
+
 void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
 {
     // glTF 2.0 Specification 3.9.4. Alpha Coverage

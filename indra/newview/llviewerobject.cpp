@@ -5368,8 +5368,10 @@ S32 LLViewerObject::setTEGLTFMaterialOverride(U8 te, LLGLTFMaterial* override_ma
 
     LLFetchedGLTFMaterial* src_mat = (LLFetchedGLTFMaterial*) tep->getGLTFMaterial();
 
+    // if override mat exists, we must also have a source mat
     if (!src_mat)
-    { // we can get into this state if an override has arrived before the viewer has
+    {
+        // we can get into this state if an override has arrived before the viewer has
         // received or handled an update, return TEM_CHANGE_NONE to signal to LLGLTFMaterialList that it
         // should queue the update for later
         return retval;
@@ -5383,10 +5385,7 @@ S32 LLViewerObject::setTEGLTFMaterialOverride(U8 te, LLGLTFMaterial* override_ma
 
     tep->setGLTFMaterialOverride(override_mat);
 
-    // if override mat exists, we must also have a source mat
-    llassert(override_mat ? bool(src_mat) : true);
-
-    if (override_mat && src_mat)
+    if (override_mat)
     {
         LLFetchedGLTFMaterial* render_mat = new LLFetchedGLTFMaterial(*src_mat);
         render_mat->applyOverride(*override_mat);
