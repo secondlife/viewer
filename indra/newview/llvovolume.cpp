@@ -5473,6 +5473,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
     
     llassert(type != LLRenderPass::PASS_BUMP || (info->mVertexBuffer->getTypeMask() & LLVertexBuffer::MAP_TANGENT) != 0);
     llassert(type != LLRenderPass::PASS_NORMSPEC || info->mNormalMap.notNull());
+    llassert(type != LLRenderPass::PASS_SPECMAP || (info->mVertexBuffer->getTypeMask() & LLVertexBuffer::MAP_TEXCOORD2) != 0);
 }
 
 void LLVolumeGeometryManager::getGeometry(LLSpatialGroup* group)
@@ -6665,6 +6666,15 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
                         alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
                     }
 					U32 mask = mat->getShaderMask(alpha_mode);
+
+                    U32 vb_mask = facep->getVertexBuffer()->getTypeMask();
+
+                    // HACK - this should also never happen, but sometimes we get here and the material thinks it has a specmap now 
+                    // even though it didn't appear to have a specmap when the face was added to the list of faces
+                    if ((mask & 0x4) && !(vb_mask & LLVertexBuffer::MAP_TEXCOORD2))
+                    {
+                        mask &= ~0x4;
+                    }
 
 					llassert(mask < sizeof(pass)/sizeof(U32));
 
