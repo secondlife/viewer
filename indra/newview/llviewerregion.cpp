@@ -1862,6 +1862,9 @@ LLViewerObject* LLViewerRegion::addNewObject(LLVOCacheEntry* entry)
 		//should not hit here any more, but does not hurt either, just put it back to active list
 		addActiveCacheEntry(entry);
 	}
+
+    loadCacheMiscExtras(entry->getLocalID(), entry, entry->getCRC());
+
 	return obj;
 }
 
@@ -2759,7 +2762,7 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 			entry->setValid();
 			decodeBoundingInfo(entry);
 
-            loadCacheMiscExtras(local_id, entry, crc);
+            //loadCacheMiscExtras(local_id, entry, crc);
 
 			return true;
 		}
