@@ -1826,7 +1826,6 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
     const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
     if (show_pbr)
     {
-        const U32 pbr_type = findChild<LLRadioGroup>("radio_pbr_type")->getSelectedIndex();
         const bool new_state = has_pbr_capabilities && has_pbr_material;
 
         LLUICtrl* gltfCtrlTextureScaleU = getChild<LLUICtrl>("gltfTextureScaleU");
