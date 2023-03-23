@@ -45,14 +45,14 @@
 
 namespace
 {
-    constexpr char *NULL_CONSTRAINT_NAME                  ("NULL_CONSTRAINT");
-    constexpr char *UNKNOWN_CONSTRAINT_NAME               ("UNKNOWN_CONSTRAINT");
-    constexpr char *SIMPLE_CONE_CONSTRAINT_NAME           ("SIMPLE_CONE");
-    constexpr char *TWIST_LIMITED_CONE_CONSTRAINT_NAME    ("TWIST_LIMITED_CONE");
-    constexpr char *ELBOW_CONSTRAINT_NAME                 ("ELBOW");
-    constexpr char *KNEE_CONSTRAINT_NAME                  ("KNEE");
-    constexpr char *ACUTE_ELLIPSOIDAL_CONE_CONSTRAINT_NAME("ACUTE_ELLIPSOIDAL_CONE");
-    constexpr char *DOUBLE_LIMITED_HINGE_CONSTRAINT_NAME  ("DOUBLE_LIMITED_HINGE");
+    constexpr const char *NULL_CONSTRAINT_NAME                  ("NULL_CONSTRAINT");
+    constexpr const char *UNKNOWN_CONSTRAINT_NAME               ("UNKNOWN_CONSTRAINT");
+    constexpr const char *SIMPLE_CONE_CONSTRAINT_NAME           ("SIMPLE_CONE");
+    constexpr const char *TWIST_LIMITED_CONE_CONSTRAINT_NAME    ("TWIST_LIMITED_CONE");
+    constexpr const char *ELBOW_CONSTRAINT_NAME                 ("ELBOW");
+    constexpr const char *KNEE_CONSTRAINT_NAME                  ("KNEE");
+    constexpr const char *ACUTE_ELLIPSOIDAL_CONE_CONSTRAINT_NAME("ACUTE_ELLIPSOIDAL_CONE");
+    constexpr const char *DOUBLE_LIMITED_HINGE_CONSTRAINT_NAME  ("DOUBLE_LIMITED_HINGE");
 
     std::string constraint_type_to_name(LLIK::Constraint::ConstraintType type)
     {
@@ -72,6 +72,8 @@ namespace
             return ACUTE_ELLIPSOIDAL_CONE_CONSTRAINT_NAME;
         case LLIK::Constraint::DOUBLE_LIMITED_HINGE_CONSTRAINT:
             return DOUBLE_LIMITED_HINGE_CONSTRAINT_NAME;
+        default:
+            return UNKNOWN_CONSTRAINT_NAME;
         }
         return std::string();
     }
@@ -3271,7 +3273,7 @@ void LLIKConstraintFactory::initSingleton()
     // so introduces an unnecessary dependency on LLDir into the unit tests.
 #ifndef LL_TEST
     // Load the default constraints and mappings from config file.
-    constexpr char *constraint_file_base("avatar_constraint.llsd");
+    constexpr const char *constraint_file_base("avatar_constraint.llsd");
 
     std::string constraint_file (gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER, constraint_file_base));
     if (constraint_file.empty())
