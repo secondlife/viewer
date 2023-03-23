@@ -46,6 +46,7 @@
 #include "llgesturemgr.h"
 #include "llmarketplacefunctions.h"
 #include "lltrans.h"
+#include "llviewerassettype.h"
 #include "llviewermessage.h"
 #include "llviewerobjectlist.h"
 #include "llvoavatarself.h"
@@ -970,13 +971,53 @@ void LLInventoryGalleryItem::setSelected(bool value)
 BOOL LLInventoryGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     setFocus(TRUE);
-    return LLUICtrl::handleMouseDown(x, y, mask);
+
+    gFocusMgr.setMouseCapture(this);
+    S32 screen_x;
+    S32 screen_y;
+    localPointToScreen(x, y, &screen_x, &screen_y );
+    LLToolDragAndDrop::getInstance()->setDragStart(screen_x, screen_y);
+    return TRUE;
 }
 
 BOOL LLInventoryGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     setFocus(TRUE);
     return LLUICtrl::handleRightMouseDown(x, y, mask);
+}
+
+BOOL LLInventoryGalleryItem::handleMouseUp(S32 x, S32 y, MASK mask)
+{
+    if(hasMouseCapture())
+    {
+        gFocusMgr.setMouseCapture(NULL);
+        return TRUE;
+    }
+    return LLPanel::handleMouseUp(x, y, mask);
+}
+
+BOOL LLInventoryGalleryItem::handleHover(S32 x, S32 y, MASK mask)
+{
+    if(hasMouseCapture())
+    {
+        S32 screen_x;
+        S32 screen_y;
+        const LLInventoryItem *item = gInventory.getItem(mUUID);;
+
+        localPointToScreen(x, y, &screen_x, &screen_y );
+        if(item && LLToolDragAndDrop::getInstance()->isOverThreshold(screen_x, screen_y))
+        {
+            EDragAndDropType type = LLViewerAssetType::lookupDragAndDropType(item->getType());
+            LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_LIBRARY;
+            if(item->getPermissions().getOwner() == gAgent.getID())
+            {
+                src = LLToolDragAndDrop::SOURCE_AGENT;
+            }
+            LLToolDragAndDrop::getInstance()->beginDrag(type, item->getUUID(), src);
+            return LLToolDragAndDrop::getInstance()->handleHover(x, y, mask );
+        }
+    }
+    return LLUICtrl::handleHover(x,y,mask);
 }
 
 BOOL LLInventoryGalleryItem::handleDoubleClick(S32 x, S32 y, MASK mask)

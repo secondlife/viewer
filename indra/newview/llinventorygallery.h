@@ -200,6 +200,8 @@ public:
     BOOL handleMouseDown(S32 x, S32 y, MASK mask);
     BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
     BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+    BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+    BOOL handleHover(S32 x, S32 y, MASK mask);
     BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
                                    EDragAndDropType cargo_type,
                                    void* cargo_data,
