@@ -4963,12 +4963,16 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
         mat = (LLFetchedGLTFMaterial*) gGLTFMaterialList.getMaterial(mat_id);
         if (mat->isFetching())
         { // material is not loaded yet, rebuild draw info when the object finishes loading
-            LLUUID id = getID();
-            mat->onMaterialComplete([=]
+            mat->onMaterialComplete([id=getID()]
                 {
                     LLViewerObject* obj = gObjectList.findObject(id);
                     if (obj)
                     {
+                        LLViewerRegion* region = obj->getRegion();
+                        if(region)
+                        {
+                            region->loadCacheMiscExtras(obj->getLocalID());
+                        }
                         obj->markForUpdate(FALSE);
                     }
                 });
@@ -5696,6 +5700,23 @@ void LLViewerObject::setDebugText(const std::string &utf8text)
 	mText->setZCompare(FALSE);
 	mText->setDoFade(FALSE);
 	updateText();
+}
+
+void LLViewerObject::appendDebugText(const std::string &utf8text)
+{
+    if (utf8text.empty() && !mText)
+    {
+        return;
+    }
+
+    if (!mText)
+    {
+        initHudText();
+    }
+    mText->addLine(utf8text, LLColor4::white);
+    mText->setZCompare(FALSE);
+    mText->setDoFade(FALSE);
+    updateText();
 }
 
 void LLViewerObject::initHudText()
@@ -7260,12 +7281,14 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
     }
     else
     {
-        LLPointer<LLViewerObject> this_ptr = this;
-        new_material->onMaterialComplete([this_ptr]() mutable {
-            if (this_ptr->isDead()) { return; }
-
-            this_ptr->rebuildMaterial();
-        });
+        new_material->onMaterialComplete([obj_id = getID()]()
+            {
+                LLViewerObject* obj = gObjectList.findObject(obj_id);
+                if (obj)
+                {
+                    obj->rebuildMaterial();
+                }
+            });
     }
 
     // predictively update LLRenderMaterialParams (don't wait for server)

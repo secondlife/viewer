@@ -366,6 +366,8 @@ void LLGLTFMaterialList::queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFM
 void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
 {
     LL_PROFILE_ZONE_SCOPED;
+
+    llassert(obj);
     const LLUUID& id = obj->getID();
     auto iter = mQueuedOverrides.find(id);
 
