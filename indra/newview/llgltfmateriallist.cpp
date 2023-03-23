@@ -376,8 +376,14 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
         {
             if (overrides[i].notNull())
             {
-                if (!obj->getTE(i) || !obj->getTE(i)->getGLTFMaterial())
-                { // object doesn't have its base GLTF material yet, don't apply override (yet)
+                if (!obj->getTE(i))
+                { // object is incomplete
+                    return;
+                }
+
+                if (!obj->getTE(i)->getGLTFMaterial())
+                {
+                    // doesn't have its base GLTF material yet, don't apply override(yet)
                     return;
                 }
 
@@ -387,6 +393,7 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
                     // can't apply this yet, since failure to change the material override
                     // probably means the base material is still being fetched.  leave in
                     // the queue for later
+                    //obj->setDebugText("early out 3");
                     return;
                 }
 

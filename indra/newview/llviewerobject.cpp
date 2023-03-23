@@ -4961,6 +4961,18 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
     if (mat == nullptr && mat_id.notNull())
     {
         mat = (LLFetchedGLTFMaterial*) gGLTFMaterialList.getMaterial(mat_id);
+        if (mat->isFetching())
+        { // material is not loaded yet, rebuild draw info when the object finishes loading
+            LLUUID id = getID();
+            mat->onMaterialComplete([=]
+                {
+                    LLViewerObject* obj = gObjectList.findObject(id);
+                    if (obj)
+                    {
+                        obj->markForUpdate(FALSE);
+                    }
+                });
+        }
         getTE(te)->setGLTFMaterial(mat);
     }
     else if (mat_id.isNull() && mat != nullptr)
@@ -5391,6 +5403,7 @@ S32 LLViewerObject::setTEGLTFMaterialOverride(U8 te, LLGLTFMaterial* override_ma
         render_mat->applyOverride(*override_mat);
         tep->setGLTFRenderMaterial(render_mat);
         retval = TEM_CHANGE_TEXTURE;
+
     }
     else if (tep->setGLTFRenderMaterial(nullptr))
     {
