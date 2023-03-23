@@ -1282,7 +1282,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			LLCheckBoxCtrl*	cb_planar_align = getChild<LLCheckBoxCtrl>("checkbox planar align");
 			align_planar = (cb_planar_align && cb_planar_align->get());
 
-			bool enabled = (editable && isIdenticalPlanarTexgen() && (!pbr_selected || texture_info_selected));
+			bool enabled = (editable && isIdenticalPlanarTexgen() && !texture_info_selected);
 			childSetValue("checkbox planar align", align_planar && enabled);
             childSetVisible("checkbox planar align", enabled);
 			childSetEnabled("checkbox planar align", enabled);
@@ -1826,10 +1826,7 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
     const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
     if (show_pbr)
     {
-        const U32 pbr_type = findChild<LLRadioGroup>("radio_pbr_type")->getSelectedIndex();
-        const LLGLTFMaterial::TextureInfo texture_info = texture_info_from_pbrtype(pbr_type);
-        const bool show_texture_info = texture_info != LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT;
-        const bool new_state = show_texture_info && has_pbr_capabilities && has_pbr_material;
+        const bool new_state = has_pbr_capabilities && has_pbr_material;
 
         LLUICtrl* gltfCtrlTextureScaleU = getChild<LLUICtrl>("gltfTextureScaleU");
         LLUICtrl* gltfCtrlTextureScaleV = getChild<LLUICtrl>("gltfTextureScaleV");
@@ -1858,11 +1855,6 @@ void LLPanelFace::updateVisibilityGLTF()
 
     const U32 pbr_type = radio_pbr_type->getSelectedIndex();
     const bool show_pbr_render_material_id = show_pbr && (pbr_type == PBRTYPE_RENDER_MATERIAL_ID);
-    const bool show_pbr_base_color = show_pbr && (pbr_type == PBRTYPE_BASE_COLOR);
-    const bool show_pbr_normal = show_pbr && (pbr_type == PBRTYPE_NORMAL);
-    const bool show_pbr_metallic_roughness = show_pbr && (pbr_type == PBRTYPE_METALLIC_ROUGHNESS);
-    const bool show_pbr_emissive = show_pbr && (pbr_type == PBRTYPE_EMISSIVE);
-    const bool show_pbr_transform = show_pbr_base_color || show_pbr_normal || show_pbr_metallic_roughness || show_pbr_emissive;
 
     getChildView("pbr_control")->setVisible(show_pbr_render_material_id);
 
@@ -1870,11 +1862,11 @@ void LLPanelFace::updateVisibilityGLTF()
     getChildView("edit_selected_pbr")->setVisible(show_pbr_render_material_id);
     getChildView("save_selected_pbr")->setVisible(show_pbr_render_material_id);
 
-    getChildView("gltfTextureScaleU")->setVisible(show_pbr_transform);
-    getChildView("gltfTextureScaleV")->setVisible(show_pbr_transform);
-    getChildView("gltfTextureRotation")->setVisible(show_pbr_transform);
-    getChildView("gltfTextureOffsetU")->setVisible(show_pbr_transform);
-    getChildView("gltfTextureOffsetV")->setVisible(show_pbr_transform);
+    getChildView("gltfTextureScaleU")->setVisible(show_pbr);
+    getChildView("gltfTextureScaleV")->setVisible(show_pbr);
+    getChildView("gltfTextureRotation")->setVisible(show_pbr);
+    getChildView("gltfTextureOffsetU")->setVisible(show_pbr);
+    getChildView("gltfTextureOffsetV")->setVisible(show_pbr);
 }
 
 void LLPanelFace::updateCopyTexButton()
@@ -2731,14 +2723,14 @@ void LLPanelFace::updateVisibility()
     const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
     const U32 pbr_type = findChild<LLRadioGroup>("radio_pbr_type")->getSelectedIndex();
     const LLGLTFMaterial::TextureInfo texture_info = texture_info_from_pbrtype(pbr_type);
-    const bool show_texture_info = show_pbr && texture_info != LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT;
+    const bool show_pbr_asset = show_pbr && texture_info == LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT;
 
     radio_mat_type->setVisible(show_material);
 
     // Shared material controls
-    getChildView("checkbox_sync_settings")->setVisible(show_material || show_media || show_texture_info);
-    getChildView("tex gen")->setVisible(show_material || show_media || show_texture_info);
-    getChildView("combobox texgen")->setVisible(show_material || show_media || show_texture_info);
+    getChildView("checkbox_sync_settings")->setVisible(show_material || show_media);
+    getChildView("tex gen")->setVisible(show_material || show_media || show_pbr_asset);
+    getChildView("combobox texgen")->setVisible(show_material || show_media || show_pbr_asset);
     getChildView("button align textures")->setVisible(show_material || show_media);
 
 	// Media controls
@@ -4654,7 +4646,8 @@ void LLPanelFace::updateGLTFTextureTransform(float value, U32 pbr_type, std::fun
 {
     U32 texture_info_start;
     U32 texture_info_end;
-    if (gSavedSettings.getBOOL("SyncMaterialSettings"))
+    const LLGLTFMaterial::TextureInfo texture_info = texture_info_from_pbrtype(pbr_type);
+    if (texture_info == LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT)
     {
         texture_info_start = 0;
         texture_info_end = LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT;
@@ -4685,11 +4678,20 @@ void LLPanelFace::setMaterialOverridesFromSelection()
 {
     const U32 pbr_type = findChild<LLRadioGroup>("radio_pbr_type")->getSelectedIndex();
     const LLGLTFMaterial::TextureInfo texture_info = texture_info_from_pbrtype(pbr_type);
+    U32 texture_info_start;
+    U32 texture_info_end;
     if (texture_info == LLGLTFMaterial::TextureInfo::GLTF_TEXTURE_INFO_COUNT)
     {
-        return;
+        texture_info_start = 0;
+        texture_info_end = LLGLTFMaterial::TextureInfo::GLTF_TEXTURE_INFO_COUNT;
+    }
+    else
+    {
+        texture_info_start = texture_info;
+        texture_info_end = texture_info + 1;
     }
 
+    bool read_transform = true;
     LLGLTFMaterial::TextureTransform transform;
     bool scale_u_same = true;
     bool scale_v_same = true;
@@ -4697,26 +4699,56 @@ void LLPanelFace::setMaterialOverridesFromSelection()
     bool offset_u_same = true;
     bool offset_v_same = true;
 
-    readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
+    for (U32 i = texture_info_start; i < texture_info_end; ++i)
     {
-        return mat ? mat->mTextureTransform[texture_info].mScale[VX] : 0.f;
-    }, transform.mScale[VX], scale_u_same, true, 1e-3f);
-    readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
-    {
-        return mat ? mat->mTextureTransform[texture_info].mScale[VY] : 0.f;
-    }, transform.mScale[VY], scale_v_same, true, 1e-3f);
-    readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
-    {
-        return mat ? mat->mTextureTransform[texture_info].mRotation : 0.f;
-    }, transform.mRotation, rotation_same, true, 1e-3f);
-    readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
-    {
-        return mat ? mat->mTextureTransform[texture_info].mOffset[VX] : 0.f;
-    }, transform.mOffset[VX], offset_u_same, true, 1e-3f);
-    readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
-    {
-        return mat ? mat->mTextureTransform[texture_info].mOffset[VY] : 0.f;
-    }, transform.mOffset[VY], offset_v_same, true, 1e-3f);
+        LLGLTFMaterial::TextureTransform this_transform;
+        bool this_scale_u_same = true;
+        bool this_scale_v_same = true;
+        bool this_rotation_same = true;
+        bool this_offset_u_same = true;
+        bool this_offset_v_same = true;
+
+        readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
+        {
+            return mat ? mat->mTextureTransform[i].mScale[VX] : 0.f;
+        }, this_transform.mScale[VX], this_scale_u_same, true, 1e-3f);
+        readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
+        {
+            return mat ? mat->mTextureTransform[i].mScale[VY] : 0.f;
+        }, this_transform.mScale[VY], this_scale_v_same, true, 1e-3f);
+        readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
+        {
+            return mat ? mat->mTextureTransform[i].mRotation : 0.f;
+        }, this_transform.mRotation, this_rotation_same, true, 1e-3f);
+        readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
+        {
+            return mat ? mat->mTextureTransform[i].mOffset[VX] : 0.f;
+        }, this_transform.mOffset[VX], this_offset_u_same, true, 1e-3f);
+        readSelectedGLTFMaterial<float>([&](const LLGLTFMaterial* mat)
+        {
+            return mat ? mat->mTextureTransform[i].mOffset[VY] : 0.f;
+        }, this_transform.mOffset[VY], this_offset_v_same, true, 1e-3f);
+
+        scale_u_same = scale_u_same && this_scale_u_same;
+        scale_v_same = scale_v_same && this_scale_v_same;
+        rotation_same = rotation_same && this_rotation_same;
+        offset_u_same = offset_u_same && this_offset_u_same;
+        offset_v_same = offset_v_same && this_offset_v_same;
+
+        if (read_transform)
+        {
+            read_transform = false;
+            transform = this_transform;
+        }
+        else
+        {
+            scale_u_same = scale_u_same && (this_transform.mScale[VX] == transform.mScale[VX]);
+            scale_v_same = scale_v_same && (this_transform.mScale[VY] == transform.mScale[VY]);
+            rotation_same = rotation_same && (this_transform.mRotation == transform.mRotation);
+            offset_u_same = offset_u_same && (this_transform.mOffset[VX] == transform.mOffset[VX]);
+            offset_v_same = offset_v_same && (this_transform.mOffset[VY] == transform.mOffset[VY]);
+        }
+    }
 
     LLUICtrl* gltfCtrlTextureScaleU = getChild<LLUICtrl>("gltfTextureScaleU");
     LLUICtrl* gltfCtrlTextureScaleV = getChild<LLUICtrl>("gltfTextureScaleV");
