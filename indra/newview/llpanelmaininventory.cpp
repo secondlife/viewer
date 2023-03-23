@@ -482,11 +482,18 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
 	reset_inventory_filter();
     if(mSingleFolderMode)
     {
-        LLFolderViewItem* current_folder = getActivePanel()->getRootFolder();
-        if (current_folder)
+        if(isListViewMode())
         {
-            LLFolderBridge* bridge = (LLFolderBridge*)current_folder->getViewModelItem();
-            menu_create_inventory_item(getPanel(), bridge, userdata);
+            LLFolderViewItem* current_folder = getActivePanel()->getRootFolder();
+            if (current_folder)
+            {
+                LLFolderBridge* bridge = (LLFolderBridge*)current_folder->getViewModelItem();
+                menu_create_inventory_item(getPanel(), bridge, userdata);
+            }
+        }
+        else if(isGalleryViewMode())
+        {
+            menu_create_inventory_item(NULL, mInventoryGalleryPanel->getRootFolder(), userdata);
         }
     }
     else

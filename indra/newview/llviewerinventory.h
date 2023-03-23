@@ -446,6 +446,8 @@ void menu_create_inventory_item(LLInventoryPanel* root,
 								const LLSD& userdata,
 								const LLUUID& default_parent_uuid = LLUUID::null);
 
+void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const LLSD& userdata, const LLUUID& default_parent_uuid = LLUUID::null);
+
 void slam_inventory_folder(const LLUUID& folder_id,
 						   const LLSD& contents,
 						   LLPointer<LLInventoryCallback> cb);
