@@ -37,6 +37,7 @@
 
 #include "llagent.h"
 #include "llagentwearables.h"
+#include "llaisapi.h"
 #include "llfloater.h"
 #include "llfocusmgr.h"
 #include "llinventorybridge.h"
@@ -251,6 +252,8 @@ void fetch_items_from_llsd(const LLSD& items_llsd)
 
 void LLInventoryFetchItemsObserver::startFetch()
 {
+    bool aisv3 = AISAPI::isAvailable();
+
 	LLUUID owner_id;
 	LLSD items_llsd;
 	for (uuid_vec_t::const_iterator it = mIDs.begin(); it < mIDs.end(); ++it)
@@ -294,17 +297,39 @@ void LLInventoryFetchItemsObserver::startFetch()
 		// pack this on the message.
 		mIncomplete.push_back(*it);
 
-		// Prepare the data to fetch
-		LLSD item_entry;
-		item_entry["owner_id"] = owner_id;
-		item_entry["item_id"] = (*it);
-		items_llsd.append(item_entry);
+        if (aisv3)
+        {
+            // doesn't support bulk fetching, request one by one
+            if (owner_id == ALEXANDRIA_LINDEN_ID)
+            {
+                AISAPI::FetchItem(*it, AISAPI::LIBRARY);
+            }
+            else
+            {
+                AISAPI::FetchItem(*it, AISAPI::INVENTORY);
+            }
+            // Todo: remove item from mIncomplete on callback
+            // but keep in mind that observer can expire before
+            // callback
+        }
+        else
+        {
+            // Prepare the data to fetch
+            LLSD item_entry;
+            item_entry["owner_id"] = owner_id;
+            item_entry["item_id"] = (*it);
+            items_llsd.append(item_entry);
+        }
 	}
 
 	mFetchingPeriod.reset();
 	mFetchingPeriod.setTimerExpirySec(FETCH_TIMER_EXPIRY);
 
-	fetch_items_from_llsd(items_llsd);
+    if (!aisv3)
+    {
+        fetch_items_from_llsd(items_llsd);
+    }
+
 }
 
 LLInventoryFetchDescendentsObserver::LLInventoryFetchDescendentsObserver(const LLUUID& cat_id) :
