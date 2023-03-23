@@ -3448,6 +3448,10 @@ void LLInventoryModel::processUpdateCreateInventoryItem(LLMessageSystem* msg, vo
 		msg->getU32Fast(_PREHASH_InventoryData, _PREHASH_CallbackID, callback_id);
 
 		gInventoryCallbacks.fire(callback_id, item_id);
+
+        // todo: instead of unpacking message fully,
+        // grab only an item_id, then fetch via AIS
+        AISAPI::FetchItem(item_id, AISAPI::INVENTORY);
 	}
 
 }

@@ -100,10 +100,11 @@ private:
 	S32 mUpdatePendingId;
     bool mIsDirty;         // item properties need to be updated
     LLFloater* mParentFloater;
-    
+
+    LLUICtrl* mChangeThumbnailBtn;
+    LLIconCtrl* mItemTypeIcon;
     LLTextBox* mLabelOwnerName;
     LLTextBox* mLabelCreatorName;
-    LLIconCtrl* mItemTypeIcon;
 
 	//
 	// UI Elements

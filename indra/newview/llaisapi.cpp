@@ -543,7 +543,8 @@ void AISAPI::onIdle(void *userdata)
 void AISAPI::onUpdateReceived(const std::string& context, const LLSD& update, COMMAND_TYPE type, const LLSD& request_body)
 {
     LLTimer timer;
-    if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+    if ( (type == UPDATECATEGORY || type == UPDATEITEM)
+        && gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
     {
         dump_sequential_xml(gAgentAvatarp->getFullname() + "_ais_update", update);
     }
@@ -558,7 +559,7 @@ void AISAPI::onUpdateReceived(const std::string& context, const LLSD& update, CO
     }
     AISUpdate ais_update(update, is_fetch, depth);
     ais_update.doUpdate(); // execute the updates in the appropriate order.
-    LL_INFOS("Inventory") << "elapsed: " << timer.getElapsedTimeF32() << LL_ENDL;
+    LL_DEBUGS("Inventory") << "elapsed: " << timer.getElapsedTimeF32() << LL_ENDL;
 }
 
 /*static*/
