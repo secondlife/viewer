@@ -9,6 +9,7 @@
 	<panel.string name="ItemcountUnknown">
 		Itens [ITEM_COUNT] e Pastas [CATEGORY_COUNT] Reunidos [FILTER]
 	</panel.string>
+    <panel.string name="inventory_title">INVENTÁRIO</panel.string>
 	<text name="ItemcountText">
 		Itens:
 	</text>

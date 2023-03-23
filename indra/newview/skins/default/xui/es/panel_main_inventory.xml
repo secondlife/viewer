@@ -9,6 +9,7 @@
 	<panel.string name="ItemcountUnknown">
 		[ITEM_COUNT] Objetos y [CATEGORY_COUNT] Carpetas Obtenidos [FILTER]
 	</panel.string>
+    <panel.string name="inventory_title">INVENTARIO</panel.string>
 	<text name="ItemcountText">
 		Ítems:
 	</text>

@@ -9,6 +9,7 @@
 	<panel.string name="ItemcountUnknown">
 		Выборка [ITEM_COUNT] предметов и [CATEGORY_COUNT] папок [FILTER]
 	</panel.string>
+    <panel.string name="inventory_title">ИНВЕНТАРЬ</panel.string>
 	<text name="ItemcountText">
 		Вещи:
 	</text>

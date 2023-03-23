@@ -53,6 +53,7 @@
 #include "llspinctrl.h"
 #include "lltoggleablemenu.h"
 #include "lltooldraganddrop.h"
+#include "lltrans.h"
 #include "llviewermenu.h"
 #include "llviewertexturelist.h"
 #include "llsidepanelinventory.h"
@@ -763,11 +764,7 @@ void LLPanelMainInventory::onFilterSelected()
 		finder->changeFilter(&filter);
         if (mSingleFolderMode)
         {
-            const LLViewerInventoryCategory* cat = gInventory.getCategory(mSingleFolderPanelInventory->getSingleFolderRoot());
-            if (cat)
-            {
-                finder->setTitle(cat->getName());
-            }
+            finder->setTitle(getLocalizedRootName());
         }
 	}
 	if (filter.isActive())
@@ -934,11 +931,7 @@ void LLPanelMainInventory::toggleFindOptions()
 
         if (mSingleFolderMode)
         {
-            const LLViewerInventoryCategory* cat = gInventory.getCategory(mSingleFolderPanelInventory->getSingleFolderRoot());
-            if (cat)
-            {
-                finder->setTitle(cat->getName());
-            }
+            finder->setTitle(getLocalizedRootName());
         }
 	}
 	else
@@ -1925,15 +1918,11 @@ void LLPanelMainInventory::updateTitle()
     {
         if(mSingleFolderMode)
         {
-            const LLViewerInventoryCategory* cat = gInventory.getCategory(getCurrentSFVRoot());
-            if (cat)
+            inventory_floater->setTitle(getLocalizedRootName());
+            LLFloaterInventoryFinder *finder = getFinder();
+            if (finder)
             {
-                inventory_floater->setTitle(cat->getName());
-                LLFloaterInventoryFinder *finder = getFinder();
-                if (finder)
-                {
-                    finder->setTitle(cat->getName());
-                }
+                finder->setTitle(getLocalizedRootName());
             }
         }
         else
@@ -2002,6 +1991,36 @@ void LLPanelMainInventory::setViewMode(EViewModeType mode)
             onFilterEdit(mFilterSubString);
         }
     }
+}
+
+std::string LLPanelMainInventory::getLocalizedRootName()
+{
+    std::string localized_root_name;
+    if(mSingleFolderMode)
+    {
+        const LLViewerInventoryCategory* cat = gInventory.getCategory(getCurrentSFVRoot());
+        if (cat)
+        {
+            LLFolderType::EType preferred_type = cat->getPreferredType();
+
+            // Translation of Accessories folder in Library inventory folder
+            bool accessories = false;
+            if(getName() == "Accessories")
+            {
+                const LLUUID& parent_folder_id = cat->getParentUUID();
+                accessories = (parent_folder_id == gInventory.getLibraryRootFolderID());
+            }
+
+            //"Accessories" inventory category has folder type FT_NONE. So, this folder
+            //can not be detected as protected with LLFolderType::lookupIsProtectedType
+            localized_root_name.assign(cat->getName());
+            if (accessories || LLFolderType::lookupIsProtectedType(preferred_type))
+            {
+                LLTrans::findString(localized_root_name, std::string("InvFolder ") + cat->getName(), LLSD());
+            }
+        }
+    }
+    return localized_root_name;
 }
 
 LLUUID LLPanelMainInventory::getCurrentSFVRoot()

@@ -120,6 +120,7 @@ public:
     bool isListViewMode() { return (mViewMode == MODE_LIST); }
     bool isGalleryViewMode() { return (mViewMode == MODE_GALLERY); }
     LLUUID getCurrentSFVRoot();
+    std::string getLocalizedRootName();
 
 protected:
 	//

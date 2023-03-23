@@ -9,6 +9,7 @@
 	<panel.string name="ItemcountUnknown">
 		Recherche effectuée [ITEM_COUNT] d&apos;articles et [CATEGORY_COUNT] de dossiers [FILTER]
 	</panel.string>
+    <panel.string name="inventory_title">INVENTAIRE</panel.string>
 	<text name="ItemcountText">
 		Articles :
 	</text>

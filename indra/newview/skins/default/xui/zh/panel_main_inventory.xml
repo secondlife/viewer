@@ -9,6 +9,7 @@
 	<panel.string name="ItemcountUnknown">
 		擷取了[ITEM_COUNT]個物項及[CATEGORY_COUNT]個資料夾[FILTER]
 	</panel.string>
+    <panel.string name="inventory_title">收納區</panel.string>
 	<text name="ItemcountText">
 		物品：
 	</text>
