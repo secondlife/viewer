@@ -494,7 +494,7 @@ F32 LLFontGL::getWidthF32(const std::string& utf8text, S32 begin_offset, S32 max
 	return getWidthF32(wtext.c_str(), begin_offset, max_chars);
 }
 
-F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars) const
+F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars, bool no_padding) const
 {
 	const S32 LAST_CHARACTER = LLFontFreetype::LAST_CHAR_FULL;
 
@@ -517,12 +517,15 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars
 
 		F32 advance = mFontFreetype->getXAdvance(fgi);
 
-		// for the last character we want to measure the greater of its width and xadvance values
-		// so keep track of the difference between these values for the each character we measure
-		// so we can fix things up at the end
-		width_padding = llmax(	0.f,											// always use positive padding amount
-								width_padding - advance,						// previous padding left over after advance of current character
-								(F32)(fgi->mWidth + fgi->mXBearing) - advance);	// difference between width of this character and advance to next character
+		if (!no_padding)
+		{
+			// for the last character we want to measure the greater of its width and xadvance values
+			// so keep track of the difference between these values for the each character we measure
+			// so we can fix things up at the end
+			width_padding = llmax(0.f,											// always use positive padding amount
+				width_padding - advance,						// previous padding left over after advance of current character
+				(F32)(fgi->mWidth + fgi->mXBearing) - advance);	// difference between width of this character and advance to next character
+		}
 
 		cur_x += advance;
 		llwchar next_char = wchars[i+1];
@@ -539,8 +542,11 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars
 		cur_x = (F32)ll_round(cur_x);
 	}
 
-	// add in extra pixels for last character's width past its xadvance
-	cur_x += width_padding;
+	if (!no_padding)
+	{
+		// add in extra pixels for last character's width past its xadvance
+		cur_x += width_padding;
+	}
 
 	return cur_x / sScaleX;
 }
