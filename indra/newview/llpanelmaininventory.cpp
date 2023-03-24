@@ -1382,10 +1382,7 @@ void LLPanelMainInventory::onViewModeClick()
     LLUUID new_root_folder;
     if(mSingleFolderMode)
     {
-        if(isListViewMode())
-        {
-            selected_folder = mSingleFolderPanelInventory->getSingleFolderRoot();
-        }
+        selected_folder = getCurrentSFVRoot();
     }
     else
     {
@@ -1419,7 +1416,7 @@ void LLPanelMainInventory::onViewModeClick()
     if (mSingleFolderMode && new_root_folder.notNull())
     {
         setSingleFolderViewRoot(new_root_folder, true);
-        if(selected_folder.notNull())
+        if(selected_folder.notNull() && isListViewMode())
         {
             getActivePanel()->setSelection(selected_folder, TAKE_FOCUS_YES);
         }
@@ -1485,9 +1482,17 @@ void LLPanelMainInventory::setSingleFolderViewRoot(const LLUUID& folder_id, bool
         if(clear_nav_history)
         {
             mSingleFolderPanelInventory->clearNavigationHistory();
-            updateNavButtons();
         }
     }
+    else if(isGalleryViewMode())
+    {
+        mInventoryGalleryPanel->setRootFolder(folder_id);
+        if(clear_nav_history)
+        {
+            mInventoryGalleryPanel->clearNavigationHistory();
+        }
+    }
+    updateNavButtons();
 }
 
 LLUUID LLPanelMainInventory::getSingleFolderViewRoot()
