@@ -586,14 +586,19 @@ void LLInventoryGallery::updateAddedItem(LLUUID item_id)
         return;
     }
 
+    std::string name = obj->getName();
     LLUUID thumbnail_id = obj->getThumbnailUUID();;
 
-    if ((LLAssetType::AT_CATEGORY == obj->getType()) && thumbnail_id.isNull())
+    if (LLAssetType::AT_CATEGORY == obj->getType())
     {
-        thumbnail_id = getOutfitImageID(item_id);
+        name = get_localized_folder_name(item_id);
+        if(thumbnail_id.isNull())
+        {
+            thumbnail_id = getOutfitImageID(item_id);
+        }
     }
-
-    LLInventoryGalleryItem* item = buildGalleryItem(obj->getName(), item_id, obj->getType(), thumbnail_id, obj->getIsLinkType());
+    
+    LLInventoryGalleryItem* item = buildGalleryItem(name, item_id, obj->getType(), thumbnail_id, obj->getIsLinkType());
     mItemMap.insert(LLInventoryGallery::gallery_item_map_t::value_type(item_id, item));
 
     item->setFocusReceivedCallback(boost::bind(&LLInventoryGallery::onChangeItemSelection, this, item_id));

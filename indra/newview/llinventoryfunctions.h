@@ -100,6 +100,8 @@ bool is_only_items_selected(const uuid_vec_t& selected_uuids);
 bool can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
 bool can_move_to_landmarks(LLInventoryItem* inv_item);
 bool can_move_to_my_outfits(LLInventoryModel* model, LLInventoryCategory* inv_cat, U32 wear_limit);
+std::string get_localized_folder_name(LLUUID cat_uuid);
+
 /**                    Miscellaneous global functions
  **                                                                            **
  *******************************************************************************/

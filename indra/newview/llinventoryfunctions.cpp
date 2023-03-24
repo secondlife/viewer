@@ -2097,6 +2097,34 @@ bool can_move_to_my_outfits(LLInventoryModel* model, LLInventoryCategory* inv_ca
 
     return true;
 }
+
+std::string get_localized_folder_name(LLUUID cat_uuid)
+{
+    std::string localized_root_name;
+    const LLViewerInventoryCategory* cat = gInventory.getCategory(cat_uuid);
+    if (cat)
+    {
+        LLFolderType::EType preferred_type = cat->getPreferredType();
+
+        // Translation of Accessories folder in Library inventory folder
+        bool accessories = false;
+        if(cat->getName() == "Accessories")
+        {
+            const LLUUID& parent_folder_id = cat->getParentUUID();
+            accessories = (parent_folder_id == gInventory.getLibraryRootFolderID());
+        }
+
+        //"Accessories" inventory category has folder type FT_NONE. So, this folder
+        //can not be detected as protected with LLFolderType::lookupIsProtectedType
+        localized_root_name.assign(cat->getName());
+        if (accessories || LLFolderType::lookupIsProtectedType(preferred_type))
+        {
+            LLTrans::findString(localized_root_name, std::string("InvFolder ") + cat->getName(), LLSD());
+        }
+    }
+    
+    return localized_root_name;
+}
 ///----------------------------------------------------------------------------
 /// LLMarketplaceValidator implementations
 ///----------------------------------------------------------------------------
