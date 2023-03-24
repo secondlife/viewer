@@ -310,7 +310,7 @@ void LLInventoryFetchItemsObserver::startFetch()
             }
             // Todo: remove item from mIncomplete on callback
             // but keep in mind that observer can expire before
-            // callback
+            // callback or use LLInventoryModelBackgroundFetch
         }
         else
         {

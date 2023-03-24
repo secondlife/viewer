@@ -845,6 +845,7 @@ void AISUpdate::parseItem(const LLSD& item_map)
         {
             mItemsCreated[item_id] = new_item;
             mCatDescendentDeltas[new_item->getParentUUID()];
+            new_item->setComplete(true);
         }
         else if (curr_item)
 		{

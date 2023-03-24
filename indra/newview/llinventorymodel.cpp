@@ -3451,7 +3451,7 @@ void LLInventoryModel::processUpdateCreateInventoryItem(LLMessageSystem* msg, vo
 
         // todo: instead of unpacking message fully,
         // grab only an item_id, then fetch via AIS
-        AISAPI::FetchItem(item_id, AISAPI::INVENTORY);
+        LLInventoryModelBackgroundFetch::instance().start(item_id, false);
 	}
 
 }
@@ -3795,7 +3795,7 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
         // Temporary workaround: just fetch the item using AIS to get missing fields.
         // If this works fine we might want to extract ids only from the message
         // then use AIS as a primary fetcher
-        AISAPI::FetchCategoryChildren((*cit)->getUUID(), AISAPI::INVENTORY);
+        LLInventoryModelBackgroundFetch::instance().start((*cit)->getUUID(), false);
 	}
 	for (item_array_t::iterator iit = items.begin(); iit != items.end(); ++iit)
 	{
@@ -3804,7 +3804,7 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
         // Temporary workaround: just fetch the item using AIS to get missing fields.
         // If this works fine we might want to extract ids only from the message
         // then use AIS as a primary fetcher
-        AISAPI::FetchItem((*iit)->getUUID(), AISAPI::INVENTORY);
+        LLInventoryModelBackgroundFetch::instance().start((*iit)->getUUID(), false);
 	}
 	gInventory.notifyObservers();
 

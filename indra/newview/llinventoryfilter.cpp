@@ -195,7 +195,8 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 	// when applying a filter, matching folders get their contents downloaded first
 	// but make sure we are not interfering with pre-download
 	if (isNotDefault()
-		&& LLStartUp::getStartupState() > STATE_WEARABLES_WAIT)
+		&& LLStartUp::getStartupState() > STATE_WEARABLES_WAIT
+        && !LLInventoryModelBackgroundFetch::instance().inventoryFetchInProgress())
     {
         LLViewerInventoryCategory* cat = gInventory.getCategory(folder_id);
         if (!cat || (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN))

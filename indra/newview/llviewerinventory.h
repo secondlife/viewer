@@ -135,8 +135,8 @@ public:
 	virtual BOOL importLegacyStream(std::istream& input_stream);
 
 	// new methods
-	BOOL isFinished() const { return mIsComplete; }
-	void setComplete(BOOL complete) { mIsComplete = complete; }
+	bool isFinished() const { return mIsComplete; }
+	void setComplete(bool complete) { mIsComplete = complete; }
 	//void updateAssetOnServer() const;
 
 	virtual void setTransactionID(const LLTransactionID& transaction_id);
@@ -164,7 +164,7 @@ public:
 	BOOL regenerateLink();
 
 public:
-	BOOL mIsComplete;
+	bool mIsComplete;
 	LLTransactionID mTransactionID;
 };
 

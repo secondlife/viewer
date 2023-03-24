@@ -280,7 +280,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
     }
 
 	// do not enable the UI for incomplete items.
-	BOOL is_complete = item->isFinished();
+	bool is_complete = item->isFinished();
 	const BOOL cannot_restrict_permissions = LLInventoryType::cannotRestrictPermissions(item->getInventoryType());
 	const BOOL is_calling_card = (item->getInventoryType() == LLInventoryType::IT_CALLINGCARD);
 	const BOOL is_settings = (item->getInventoryType() == LLInventoryType::IT_SETTINGS);

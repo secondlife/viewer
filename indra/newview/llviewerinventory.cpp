@@ -312,7 +312,7 @@ LLViewerInventoryItem::LLViewerInventoryItem(const LLUUID& uuid,
 											 time_t creation_date_utc) :
 	LLInventoryItem(uuid, parent_uuid, perm, asset_uuid, type, inv_type,
 					name, desc, sale_info, flags, creation_date_utc),
-	mIsComplete(TRUE)
+	mIsComplete(true)
 {
 }
 
@@ -321,7 +321,7 @@ LLViewerInventoryItem::LLViewerInventoryItem(const LLUUID& item_id,
 											 const std::string& name,
 											 LLInventoryType::EType inv_type) :
 	LLInventoryItem(),
-	mIsComplete(FALSE)
+	mIsComplete(false)
 {
 	mUUID = item_id;
 	mParentUUID = parent_id;
@@ -331,7 +331,7 @@ LLViewerInventoryItem::LLViewerInventoryItem(const LLUUID& item_id,
 
 LLViewerInventoryItem::LLViewerInventoryItem() :
 	LLInventoryItem(),
-	mIsComplete(FALSE)
+	mIsComplete(false)
 {
 }
 
@@ -348,7 +348,7 @@ LLViewerInventoryItem::LLViewerInventoryItem(const LLViewerInventoryItem* other)
 
 LLViewerInventoryItem::LLViewerInventoryItem(const LLInventoryItem *other) :
 	LLInventoryItem(other),
-	mIsComplete(TRUE)
+	mIsComplete(true)
 {
 }
 
