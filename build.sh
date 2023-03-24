@@ -158,16 +158,19 @@ pre_build()
     # honor autobuild_configure_parameters same as sling-buildscripts
     eval_autobuild_configure_parameters=$(eval $(echo echo $autobuild_configure_parameters))
 
+    # Set PYTHON_EXECUTABLE: it's important to use the virtualenv created by
+    # sling-buildscripts build.sh.
     "$autobuild" configure --quiet -c $variant \
      ${eval_autobuild_configure_parameters:---} \
-     -DPACKAGE:BOOL=ON \
-     -DHAVOK:BOOL="$HAVOK" \
-     -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
-     -DVIEWER_SYMBOL_FILE:STRING="${VIEWER_SYMBOL_FILE:-}" \
      -DBUGSPLAT_DB:STRING="${BUGSPLAT_DB:-}" \
-     -DVIEWER_CHANNEL:STRING="${viewer_channel}" \
      -DGRID:STRING="\"$viewer_grid\"" \
+     -DHAVOK:BOOL="$HAVOK" \
+     -DPACKAGE:BOOL=ON \
+     -DPYTHON_EXECUTABLE:FILEPATH="$(native_path "$PYTHON_COMMAND")" \
+     -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
+     -DVIEWER_CHANNEL:STRING="${viewer_channel}" \
+     -DVIEWER_SYMBOL_FILE:STRING="${VIEWER_SYMBOL_FILE:-}" \
      "${SIGNING[@]}" \
     || fatal "$variant configuration failed"
 

@@ -115,7 +115,7 @@ namespace tut
                    "    import llsd\n"
                    "except ImportError:\n"
                    // older llbase.llsd module
-                   "    from llbase import llsd\n"
+                   "    raise\n"
                    "\n"
                    "class ProtocolError(Exception):\n"
                    "    def __init__(self, msg, data):\n"
