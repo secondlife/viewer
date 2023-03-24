@@ -7575,12 +7575,25 @@ class LLObjectBridgeAction: public LLInvFVBridgeAction
 public:
 	virtual void doIt()
 	{
-		LLInvFVBridgeAction::doIt();
+        attachOrDetach();
 	}
 	virtual ~LLObjectBridgeAction(){}
 protected:
 	LLObjectBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
+    void attachOrDetach();
 };
+
+void LLObjectBridgeAction::attachOrDetach()
+{
+    if (get_is_item_worn(mUUID))
+    {
+        LLAppearanceMgr::instance().removeItemFromAvatar(mUUID);
+    }
+    else
+    {
+        LLAppearanceMgr::instance().wearItemOnAvatar(mUUID, true, false); // Don't replace if adding.
+    }
+}
 
 class LLLSLTextBridgeAction: public LLInvFVBridgeAction
 {
@@ -7640,7 +7653,17 @@ void LLWearableBridgeAction::wearOnAvatar()
 	LLViewerInventoryItem* item = getItem();
 	if(item)
 	{
-		LLAppearanceMgr::instance().wearItemOnAvatar(item->getUUID(), true, true);
+        if (get_is_item_worn(mUUID))
+        {
+            if(item->getType() != LLAssetType::AT_BODYPART)
+            {
+                LLAppearanceMgr::instance().removeItemFromAvatar(item->getUUID());
+            }
+        }
+        else
+        {
+            LLAppearanceMgr::instance().wearItemOnAvatar(item->getUUID(), true, true);
+        }
 	}
 }
 

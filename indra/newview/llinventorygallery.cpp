@@ -458,7 +458,7 @@ void LLInventoryGallery::removeFromLastRow(LLInventoryGalleryItem* item)
     mItemPanels.pop_back();
 }
 
-LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id)
+LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id, bool is_link)
 {
     LLInventoryGalleryItem::Params giparams;
     LLInventoryGalleryItem* gitem = LLUICtrlFactory::create<LLInventoryGalleryItem>(giparams);
@@ -469,7 +469,7 @@ LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, L
     gitem->setName(name);
     gitem->setUUID(item_id);
     gitem->setGallery(this);
-    gitem->setType(type);
+    gitem->setType(type, is_link);
     gitem->setThumbnail(thumbnail_id);
     return gitem;
 }
@@ -593,7 +593,7 @@ void LLInventoryGallery::updateAddedItem(LLUUID item_id)
         thumbnail_id = getOutfitImageID(item_id);
     }
 
-    LLInventoryGalleryItem* item = buildGalleryItem(obj->getName(), item_id, obj->getType(), thumbnail_id);
+    LLInventoryGalleryItem* item = buildGalleryItem(obj->getName(), item_id, obj->getType(), thumbnail_id, obj->getIsLinkType());
     mItemMap.insert(LLInventoryGallery::gallery_item_map_t::value_type(item_id, item));
 
     item->setFocusReceivedCallback(boost::bind(&LLInventoryGallery::onChangeItemSelection, this, item_id));
@@ -902,7 +902,7 @@ BOOL LLInventoryGalleryItem::postBuild()
     return TRUE;
 }
 
-void LLInventoryGalleryItem::setType(LLAssetType::EType type)
+void LLInventoryGalleryItem::setType(LLAssetType::EType type, bool is_link)
 {
     mType = type;
     mIsFolder = (mType == LLAssetType::AT_CATEGORY);
@@ -929,6 +929,7 @@ void LLInventoryGalleryItem::setType(LLAssetType::EType type)
     }
 
     getChild<LLIconCtrl>("item_type")->setValue(icon_name);
+    getChild<LLIconCtrl>("link_overlay")->setVisible(is_link);
 }
 
 void LLInventoryGalleryItem::setThumbnail(LLUUID id)
@@ -1002,7 +1003,7 @@ BOOL LLInventoryGalleryItem::handleHover(S32 x, S32 y, MASK mask)
     {
         S32 screen_x;
         S32 screen_y;
-        const LLInventoryItem *item = gInventory.getItem(mUUID);;
+        const LLInventoryItem *item = gInventory.getItem(mUUID);
 
         localPointToScreen(x, y, &screen_x, &screen_y );
         if(item && LLToolDragAndDrop::getInstance()->isOverThreshold(screen_x, screen_y))
@@ -1028,8 +1029,7 @@ BOOL LLInventoryGalleryItem::handleDoubleClick(S32 x, S32 y, MASK mask)
     }
     else
     {
-        LLInvFVBridgeAction::doAction(mUUID,&gInventory);
-        //todo: some item types require different handling
+        LLInvFVBridgeAction::doAction(mUUID, &gInventory);
     }
 
     return TRUE;

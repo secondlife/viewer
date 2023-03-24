@@ -33,6 +33,16 @@
    follows="left|top"
    visible="true"
    image_name="Inv_Eye"/>
+  <icon
+    left="5"
+    top_pad="-8"
+    layout="topleft"
+    name="link_overlay"
+    height="8"
+    width="6"
+    follows="left|top"
+    visible="false"
+    image_name="Inv_Link"/>
   <panel
    background_visible="false"
    background_opaque="true"
