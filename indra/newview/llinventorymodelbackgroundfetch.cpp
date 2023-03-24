@@ -33,6 +33,7 @@
 #include "llcallbacklist.h"
 #include "llinventorypanel.h"
 #include "llinventorymodel.h"
+#include "llstartup.h"
 #include "llviewercontrol.h"
 #include "llviewerinventory.h"
 #include "llviewermessage.h"
@@ -447,7 +448,8 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
         return;
     }
 
-    static const S32 max_concurrent_fetches(50);
+    static LLCachedControl<U32> ais_pool(gSavedSettings, "", 20);
+    const U32 max_concurrent_fetches = llmax(1, ais_pool - 1);
 
     if (mFetchCount >= max_concurrent_fetches)
     {
@@ -456,7 +458,9 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
 
     // Don't loop for too long (in case of large, fully loaded inventory)
     F64 curent_time = LLTimer::getTotalSeconds();
-    const F64 max_time = 0.006f; // 6 ms
+    const F64 max_time = LLStartUp::getStartupState() > STATE_WEARABLES_WAIT
+        ? 0.006f // 6 ms
+        : 1.f; 
     const F64 end_time = curent_time + max_time;
 
     while (!mFetchQueue.empty() && mFetchCount < max_concurrent_fetches && curent_time < end_time)
@@ -480,8 +484,10 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
         const LLUUID & cat_id(fetch_info.mUUID);
         if (cat_id.isNull()) // Lost and found
         {
-            AISAPI::FetchCategoryChildren(LLUUID::null, AISAPI::INVENTORY, false, ais_simple_callback);
-            mFetchCount++;
+            LL_WARNS() << "Lost and found not implemented yet" << LL_ENDL;
+            // todo: needs to be requested from ais in special manner?
+            /*AISAPI::FetchCategoryChildren(LLUUID::null, AISAPI::INVENTORY, false, ais_simple_callback);
+            mFetchCount++;*/
         }
         else
         {
