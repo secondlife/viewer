@@ -166,7 +166,7 @@ pre_build()
      -DGRID:STRING="\"$viewer_grid\"" \
      -DHAVOK:BOOL="$HAVOK" \
      -DPACKAGE:BOOL=ON \
-     -DPYTHON_EXECUTABLE:FILEPATH="$PYTHON_COMMAND" \
+     -DPYTHON_EXECUTABLE:FILEPATH="$(native_path "$PYTHON_COMMAND")" \
      -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
      -DVIEWER_CHANNEL:STRING="${viewer_channel}" \
