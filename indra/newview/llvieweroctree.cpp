@@ -1131,7 +1131,9 @@ void LLOcclusionCullingGroup::checkOcclusion()
                 mOcclusionCheckCount[LLViewerCamera::sCurCameraID]++;
             }
 
-            if (available || mOcclusionCheckCount[LLViewerCamera::sCurCameraID] > 4)
+            static LLCachedControl<S32> occlusion_timeout(gSavedSettings, "RenderOcclusionTimeout", 4);
+
+            if (available || mOcclusionCheckCount[LLViewerCamera::sCurCameraID] > occlusion_timeout)
             {   
                 mOcclusionCheckCount[LLViewerCamera::sCurCameraID] = 0;
                 GLuint query_result;    // Will be # samples drawn, or a boolean depending on mHasOcclusionQuery2 (both are type GLuint)

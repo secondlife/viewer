@@ -14261,6 +14261,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  <key>RenderOcclusionTimeout</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum number of frames to wait on an occlusion query before forcibly reading it back</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>8</integer>
+  </map>
   <key>UseObjectCacheOcclusion</key>
   <map>
     <key>Comment</key>

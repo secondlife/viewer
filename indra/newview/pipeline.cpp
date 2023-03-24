@@ -9419,7 +9419,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	}
 	else
 	{
-        for (S32 j = 0; j < 4; j++)
+        for (S32 j = 0; j < (gCubeSnapshot ? 3 : 4); j++)
 		{
 			if (!hasRenderDebugMask(RENDER_DEBUG_SHADOW_FRUSTA) && !gCubeSnapshot)
 			{
