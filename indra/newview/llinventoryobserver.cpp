@@ -40,6 +40,7 @@
 #include "llaisapi.h"
 #include "llfloater.h"
 #include "llfocusmgr.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"

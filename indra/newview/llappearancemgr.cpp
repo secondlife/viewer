@@ -4385,6 +4385,70 @@ public:
 	~CallAfterCategoryFetchStage1()
 	{
 	}
+    /*virtual*/ void startFetch()
+    {
+        bool ais3 = AISAPI::isAvailable();
+        for (uuid_vec_t::const_iterator it = mIDs.begin(); it != mIDs.end(); ++it)
+        {
+            LLViewerInventoryCategory* cat = gInventory.getCategory(*it);
+            if (!cat) continue;
+            if (!isCategoryComplete(cat))
+            {
+                // CHECK IT: isCategoryComplete() checks both version and descendant count but
+                // fetch() only works for Unknown version and doesn't care about descentants,
+                // as result fetch won't start and folder will potentially get stuck as
+                // incomplete in observer.
+                // Likely either both should use only version or both should check descendants.
+                cat->fetch();		//blindly fetch it without seeing if anything else is fetching it.
+                mIncomplete.push_back(*it);	//Add to list of things being downloaded for this observer.
+            }
+            else if (ais3)
+            {
+                LLInventoryModel::cat_array_t* cats;
+                LLInventoryModel::item_array_t* items;
+                gInventory.getDirectDescendentsOf(cat->getUUID(), cats, items);
+
+                if (items)
+                {
+                    S32 complete_count = 0;
+                    S32 incomplete_count = 0;
+                    for (LLInventoryModel::item_array_t::const_iterator it = items->begin(); it < items->end(); ++it)
+                    {
+                        if (!(*it)->isFinished())
+                        {
+                            incomplete_count++;
+                        }
+                        else
+                        {
+                            complete_count++;
+                        }
+                    }
+                    // AIS can fetch couple items, but if there
+                    // is more than a dozen it will be very slow
+                    // it's faster to get whole folder in such case
+                    const S32 MAX_INDIVIDUAL_FETCH = 10;
+                    if (incomplete_count > MAX_INDIVIDUAL_FETCH
+                        || (incomplete_count > 1 && complete_count == 0))
+                    {
+                        // To prevent premature removal from mIncomplete and
+                        // since we are doing a full refetch anyway, mark unknown
+                        cat->setVersion(LLViewerInventoryCategory::VERSION_UNKNOWN);
+                        LLInventoryModelBackgroundFetch::instance().start(*it, false);
+                        mIncomplete.push_back(*it);
+                    }
+                    else
+                    {
+                        // let stage2 handle incomplete ones
+                        mComplete.push_back(*it);
+                    }
+                }
+            }
+            else
+            {
+                mComplete.push_back(*it);
+            }
+        }
+    }
 	virtual void done()
 	{
         if (mComplete.size() <= 0)

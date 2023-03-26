@@ -126,7 +126,7 @@ public:
 	LLInventoryFetchDescendentsObserver(const LLUUID& cat_id = LLUUID::null);
 	LLInventoryFetchDescendentsObserver(const uuid_vec_t& cat_ids);
 
-	/*virtual*/ void startFetch();
+	virtual void startFetch();
 	/*virtual*/ void changed(U32 mask);
 protected:
 	BOOL isCategoryComplete(const LLViewerInventoryCategory* cat) const;

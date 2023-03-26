@@ -671,7 +671,7 @@ bool LLViewerInventoryCategory::fetch()
 		}
 		if (!url.empty() || AISAPI::isAvailable())
 		{
-			LLInventoryModelBackgroundFetch::instance().start(mUUID, false);			
+			LLInventoryModelBackgroundFetch::instance().start(mUUID, false);
 		}
 		return true;
 	}

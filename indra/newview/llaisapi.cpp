@@ -373,7 +373,6 @@ void AISAPI::UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t 
 /*static*/
 void AISAPI::FetchItem(const LLUUID &itemId, ITEM_TYPE type, completion_t callback)
 {
-
 	std::string cap;
 
 	cap = (type == INVENTORY) ? getInvCap() : getLibCap();
@@ -859,6 +858,7 @@ void AISUpdate::parseItem(const LLSD& item_map)
 		{
 			mItemsCreated[item_id] = new_item;
 			mCatDescendentDeltas[new_item->getParentUUID()]++;
+            new_item->setComplete(true);
 		}
 	}
 	else
@@ -893,6 +893,7 @@ void AISUpdate::parseLink(const LLSD& link_map)
             //LL_DEBUGS("Inventory") << "creating link from llsd: " << ll_pretty_print_sd(link_map) << LL_ENDL;
             mItemsCreated[item_id] = new_link;
             mCatDescendentDeltas[parent_id];
+            new_link->setComplete(true);
         }
 		else if (curr_link)
 		{
@@ -913,6 +914,7 @@ void AISUpdate::parseLink(const LLSD& link_map)
 			//LL_DEBUGS("Inventory") << "creating link from llsd: " << ll_pretty_print_sd(link_map) << LL_ENDL;
 			mItemsCreated[item_id] = new_link;
 			mCatDescendentDeltas[parent_id]++;
+            new_link->setComplete(true);
 		}
 	}
 	else

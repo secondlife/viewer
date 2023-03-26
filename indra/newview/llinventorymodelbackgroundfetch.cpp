@@ -31,8 +31,9 @@
 #include "llagent.h"
 #include "llappviewer.h"
 #include "llcallbacklist.h"
-#include "llinventorypanel.h"
 #include "llinventorymodel.h"
+#include "llinventoryobserver.h"
+#include "llinventorypanel.h"
 #include "llstartup.h"
 #include "llviewercontrol.h"
 #include "llviewerinventory.h"
@@ -348,6 +349,9 @@ void LLInventoryModelBackgroundFetch::setAllFoldersFetched()
 		mAllFoldersFetched = true;
 		//LL_INFOS(LOG_INV) << "All folders fetched, validating" << LL_ENDL;
 		//gInventory.validate();
+
+        gInventory.addChangedMask(LLInventoryObserver::INTERNAL, gInventory.getRootFolderID());
+        gInventory.addChangedMask(LLInventoryObserver::INTERNAL, gInventory.getLibraryRootFolderID());
 
         // For now only informs about initial fetch being done
         mAllFoldersFetchedSignal();
