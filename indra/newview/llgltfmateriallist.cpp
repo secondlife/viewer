@@ -157,8 +157,8 @@ public:
         // receive override data from simulator via LargeGenericMessage
         // message should have:
         //  object_id - UUID of LLViewerObject
-        //  side - S32 index of texture entry
-        //  gltf_json - String of GLTF json for override data
+        //  sides - array of S32 indices of texture entries
+        //  gltf_json - array of corresponding Strings of GLTF json for override data
 
 
         LLSD message;
@@ -366,6 +366,8 @@ void LLGLTFMaterialList::queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFM
 void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
 {
     LL_PROFILE_ZONE_SCOPED;
+
+    llassert(obj);
     const LLUUID& id = obj->getID();
     auto iter = mQueuedOverrides.find(id);
 
@@ -376,15 +378,33 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
         {
             if (overrides[i].notNull())
             {
-                if (!obj->getTE(i) || !obj->getTE(i)->getGLTFMaterial())
-                { // object doesn't have its base GLTF material yet, don't apply override (yet)
+                if (!obj->getTE(i))
+                { // object is incomplete
                     return;
                 }
-                obj->setTEGLTFMaterialOverride(i, overrides[i]);
+
+                if (!obj->getTE(i)->getGLTFMaterial())
+                {
+                    // doesn't have its base GLTF material yet, don't apply override(yet)
+                    return;
+                }
+
+                S32 status = obj->setTEGLTFMaterialOverride(i, overrides[i]);
+                if (status == TEM_CHANGE_NONE)
+                {
+                    // can't apply this yet, since failure to change the material override
+                    // probably means the base material is still being fetched.  leave in
+                    // the queue for later
+                    //obj->setDebugText("early out 3");
+                    return;
+                }
+
                 if (obj->getTE(i)->isSelected())
                 {
                     handle_gltf_override_message.doSelectionCallbacks(id, i);
                 }
+                // success!
+                overrides[i] = nullptr;
             }
         }
 

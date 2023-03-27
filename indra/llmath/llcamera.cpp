@@ -311,104 +311,6 @@ int LLCamera::sphereInFrustumQuick(const LLVector3 &sphere_center, const F32 rad
 	return 0;	
 }
 
-// HACK: This version is still around because the version below doesn't work
-// unless the agent planes are initialized.
-// Return 1 if sphere is in frustum, 2 if fully in frustum, otherwise 0.
-// NOTE: 'center' is in absolute frame.
-int LLCamera::sphereInFrustumOld(const LLVector3 &sphere_center, const F32 radius) const 
-{
-	// Returns 1 if sphere is in frustum, 0 if not.
-	// modified so that default view frust is along X with Z vertical
-	F32 x, y, z, rightDist, leftDist, topDist, bottomDist;
-
-	// Subtract the view position 
-	//LLVector3 relative_center;
-	//relative_center = sphere_center - getOrigin();
-	LLVector3 rel_center(sphere_center);
-	rel_center -= mOrigin;
-
-	bool all_in = TRUE;
-
-	// Transform relative_center.x to camera frame
-	x = mXAxis * rel_center;
-	if (x < MIN_NEAR_PLANE - radius)
-	{
-		return 0;
-	}
-	else if (x < MIN_NEAR_PLANE + radius)
-	{
-		all_in = FALSE;
-	}
-
-	if (x > mFarPlane + radius)
-	{
-		return 0;
-	}
-	else if (x > mFarPlane - radius)
-	{
-		all_in = FALSE;
-	}
-
-	// Transform relative_center.y to camera frame
-	y = mYAxis * rel_center;
-
-	// distance to plane is the dot product of (x, y, 0) * plane_normal
-	rightDist = x * mLocalPlanes[PLANE_RIGHT][VX] + y * mLocalPlanes[PLANE_RIGHT][VY];
-	if (rightDist < -radius)
-	{
-		return 0;
-	}
-	else if (rightDist < radius)
-	{
-		all_in = FALSE;
-	}
-
-	leftDist = x * mLocalPlanes[PLANE_LEFT][VX] + y * mLocalPlanes[PLANE_LEFT][VY];
-	if (leftDist < -radius)
-	{
-		return 0;
-	}
-	else if (leftDist < radius)
-	{
-		all_in = FALSE;
-	}
-
-	// Transform relative_center.y to camera frame
-	z = mZAxis * rel_center;
-
-	topDist = x * mLocalPlanes[PLANE_TOP][VX] + z * mLocalPlanes[PLANE_TOP][VZ];
-	if (topDist < -radius)
-	{
-		return 0;
-	}
-	else if (topDist < radius)
-	{
-		all_in = FALSE;
-	}
-
-	bottomDist = x * mLocalPlanes[PLANE_BOTTOM][VX] + z * mLocalPlanes[PLANE_BOTTOM][VZ];
-	if (bottomDist < -radius)
-	{
-		return 0;
-	}
-	else if (bottomDist < radius)
-	{
-		all_in = FALSE;
-	}
-
-	if (all_in)
-	{
-		return 2;
-	}
-
-	return 1;
-}
-
-
-// HACK: This (presumably faster) version only currently works if you set up the
-// frustum planes using GL.  At some point we should get those planes through another
-// mechanism, and then we can get rid of the "old" version above.
-
 // Return 1 if sphere is in frustum, 2 if fully in frustum, otherwise 0.
 // NOTE: 'center' is in absolute frame.
 int LLCamera::sphereInFrustum(const LLVector3 &sphere_center, const F32 radius) const 
@@ -463,65 +365,6 @@ F32 LLCamera::heightInPixels(const LLVector3 &center, F32 radius ) const
 	}
 }
 
-// If pos is visible, return the distance from pos to the camera.
-// Use fudge distance to scale rad against top/bot/left/right planes
-// Otherwise, return -distance
-F32 LLCamera::visibleDistance(const LLVector3 &pos, F32 rad, F32 fudgedist, U32 planemask) const
-{
-	if (mFixedDistance > 0)
-	{
-		return mFixedDistance;
-	}
-	LLVector3 dvec = pos - mOrigin;
-	// Check visibility
-	F32 dist = dvec.magVec();
-	if (dist > rad)
-	{
- 		F32 dp,tdist;
- 		dp = dvec * mXAxis;
-  		if (dp < -rad)
-  			return -dist;
-
-		rad *= fudgedist;
-		LLVector3 tvec(pos);
-		for (int p=0; p<PLANE_NUM; p++)
-		{
-			if (!(planemask & (1<<p)))
-				continue;
-			tdist = -(mWorldPlanes[p].dist(tvec));
-			if (tdist > rad)
-				return -dist;
-		}
-	}
-	return dist;
-}
-
-// Like visibleDistance, except uses mHorizPlanes[], which are left and right
-//  planes perpindicular to (0,0,1) in world space
-F32 LLCamera::visibleHorizDistance(const LLVector3 &pos, F32 rad, F32 fudgedist, U32 planemask) const
-{
-	if (mFixedDistance > 0)
-	{
-		return mFixedDistance;
-	}
-	LLVector3 dvec = pos - mOrigin;
-	// Check visibility
-	F32 dist = dvec.magVec();
-	if (dist > rad)
-	{
-		rad *= fudgedist;
-		LLVector3 tvec(pos);
-		for (int p=0; p<HORIZ_PLANE_NUM; p++)
-		{
-			if (!(planemask & (1<<p)))
-				continue;
-			F32 tdist = -(mHorizPlanes[p].dist(tvec));
-			if (tdist > rad)
-				return -dist;
-		}
-	}
-	return dist;
-}
 
 // ---------------- friends and operators ----------------  
 
@@ -536,18 +379,6 @@ std::ostream& operator<<(std::ostream &s, const LLCamera &C)
 	s << "  Aspect = " << C.getAspect() << "\n";
 	s << "  NearPlane   = " << C.mNearPlane << "\n";
 	s << "  FarPlane    = " << C.mFarPlane << "\n";
-	s << "  TopPlane    = " << C.mLocalPlanes[LLCamera::PLANE_TOP][VX] << "  " 
-							<< C.mLocalPlanes[LLCamera::PLANE_TOP][VY] << "  " 
-							<< C.mLocalPlanes[LLCamera::PLANE_TOP][VZ] << "\n";
-	s << "  BottomPlane = " << C.mLocalPlanes[LLCamera::PLANE_BOTTOM][VX] << "  " 
-							<< C.mLocalPlanes[LLCamera::PLANE_BOTTOM][VY] << "  " 
-							<< C.mLocalPlanes[LLCamera::PLANE_BOTTOM][VZ] << "\n";
-	s << "  LeftPlane   = " << C.mLocalPlanes[LLCamera::PLANE_LEFT][VX] << "  " 
-							<< C.mLocalPlanes[LLCamera::PLANE_LEFT][VY] << "  " 
-							<< C.mLocalPlanes[LLCamera::PLANE_LEFT][VZ] << "\n";
-	s << "  RightPlane  = " << C.mLocalPlanes[LLCamera::PLANE_RIGHT][VX] << "  " 
-							<< C.mLocalPlanes[LLCamera::PLANE_RIGHT][VY] << "  " 
-							<< C.mLocalPlanes[LLCamera::PLANE_RIGHT][VZ] << "\n";
 	s << "}";
 	return s;
 }
@@ -675,26 +506,6 @@ void LLCamera::calcRegionFrustumPlanes(const LLVector3& shift, F32 far_clip_dist
 
 void LLCamera::calculateFrustumPlanes(F32 left, F32 right, F32 top, F32 bottom)
 {
-	LLVector3 a, b, c;
-
-	// For each plane we need to define 3 points (LLVector3's) in camera view space.  
-	// The order in which we pass the points to planeFromPoints() matters, because the 
-	// plane normal has a degeneracy of 2; we want it pointing _into_ the frustum. 
-
-	a.setVec(0.0f, 0.0f, 0.0f);
-	b.setVec(mFarPlane, right, top);
-	c.setVec(mFarPlane, right, bottom);
-	mLocalPlanes[PLANE_RIGHT].setVec(a, b, c);
-
-	c.setVec(mFarPlane, left, top);
-	mLocalPlanes[PLANE_TOP].setVec(a, c, b);
-
-	b.setVec(mFarPlane, left, bottom);
-	mLocalPlanes[PLANE_LEFT].setVec(a, b, c);
-
-	c.setVec(mFarPlane, right, bottom);
-	mLocalPlanes[PLANE_BOTTOM].setVec( a, c, b); 
-
 	//calculate center and radius squared of frustum in world absolute coordinates
 	static LLVector3 const X_AXIS(1.f, 0.f, 0.f);
 	mFrustCenter = X_AXIS*mFarPlane*0.5f;
@@ -716,39 +527,6 @@ void LLCamera::calculateFrustumPlanesFromWindow(F32 x1, F32 y1, F32 x2, F32 y2)
 	top = 	 y2 * 2.f * view_height;
 
 	calculateFrustumPlanes(left, right, top, bottom);
-}
-
-void LLCamera::calculateWorldFrustumPlanes() 
-{
-	F32 d;
-	LLVector3 center = mOrigin - mXAxis*mNearPlane;
-	mWorldPlanePos = center;
-	LLVector3 pnorm;	
-	for (int p = 0; p < PLANE_NUM; p++)
-	{
-		mLocalPlanes[p].getVector3(pnorm);
-		LLVector3 norm = rotateToAbsolute(pnorm);
-		norm.normVec();
-		d = -(center * norm);
-		mWorldPlanes[p] = LLPlane(norm, d);
-	}
-	// horizontal planes, perpindicular to (0,0,1);
-	LLVector3 zaxis(0, 0, 1.0f);
-	F32 yaw = getYaw();
-	{
-		LLVector3 tnorm;
-		mLocalPlanes[PLANE_LEFT].getVector3(tnorm);
-		tnorm.rotVec(yaw, zaxis);
-		d = -(mOrigin * tnorm);
-		mHorizPlanes[HORIZ_PLANE_LEFT] = LLPlane(tnorm, d);
-	}
-	{
-		LLVector3 tnorm;
-		mLocalPlanes[PLANE_RIGHT].getVector3(tnorm);
-		tnorm.rotVec(yaw, zaxis);
-		d = -(mOrigin * tnorm);
-		mHorizPlanes[HORIZ_PLANE_RIGHT] = LLPlane(tnorm, d);
-	}
 }
 
 // NOTE: this is the OpenGL matrix that will transform the default OpenGL view 

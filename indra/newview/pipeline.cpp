@@ -202,9 +202,6 @@ LLVector3 LLPipeline::RenderShadowGaussian;
 F32 LLPipeline::RenderShadowBlurDistFactor;
 bool LLPipeline::RenderDeferredAtmospheric;
 F32 LLPipeline::RenderHighlightFadeTime;
-LLVector3 LLPipeline::RenderShadowClipPlanes;
-LLVector3 LLPipeline::RenderShadowOrthoClipPlanes;
-LLVector3 LLPipeline::RenderShadowNearDist;
 F32 LLPipeline::RenderFarClip;
 LLVector3 LLPipeline::RenderShadowSplitExponent;
 F32 LLPipeline::RenderShadowErrorCutoff;
@@ -558,9 +555,6 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderShadowBlurDistFactor");
 	connectRefreshCachedSettingsSafe("RenderDeferredAtmospheric");
 	connectRefreshCachedSettingsSafe("RenderHighlightFadeTime");
-	connectRefreshCachedSettingsSafe("RenderShadowClipPlanes");
-	connectRefreshCachedSettingsSafe("RenderShadowOrthoClipPlanes");
-	connectRefreshCachedSettingsSafe("RenderShadowNearDist");
 	connectRefreshCachedSettingsSafe("RenderFarClip");
 	connectRefreshCachedSettingsSafe("RenderShadowSplitExponent");
 	connectRefreshCachedSettingsSafe("RenderShadowErrorCutoff");
@@ -1043,9 +1037,6 @@ void LLPipeline::refreshCachedSettings()
 	RenderShadowBlurDistFactor = gSavedSettings.getF32("RenderShadowBlurDistFactor");
 	RenderDeferredAtmospheric = gSavedSettings.getBOOL("RenderDeferredAtmospheric");
 	RenderHighlightFadeTime = gSavedSettings.getF32("RenderHighlightFadeTime");
-	RenderShadowClipPlanes = gSavedSettings.getVector3("RenderShadowClipPlanes");
-	RenderShadowOrthoClipPlanes = gSavedSettings.getVector3("RenderShadowOrthoClipPlanes");
-	RenderShadowNearDist = gSavedSettings.getVector3("RenderShadowNearDist");
 	RenderFarClip = gSavedSettings.getF32("RenderFarClip");
 	RenderShadowSplitExponent = gSavedSettings.getVector3("RenderShadowSplitExponent");
 	RenderShadowErrorCutoff = gSavedSettings.getF32("RenderShadowErrorCutoff");
@@ -9277,27 +9268,12 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	glh::matrix4f view[6];
 	glh::matrix4f proj[6];
 	
-	//clip contains parallel split distances for 3 splits
-	LLVector3 clip = RenderShadowClipPlanes;
-
     LLVector3 caster_dir(environment.getIsSunUp() ? mSunDir : mMoonDir);
-
-	//F32 slope_threshold = gSavedSettings.getF32("RenderShadowSlopeThreshold");
-
-	//far clip on last split is minimum of camera view distance and 128
-	mSunClipPlanes = LLVector4(clip, clip.mV[2] * clip.mV[2]/clip.mV[1]);
-
-	clip = RenderShadowOrthoClipPlanes;
-	mSunOrthoClipPlanes = LLVector4(clip, clip.mV[2]*clip.mV[2]/clip.mV[1]);
-
-	//currently used for amount to extrude frusta corners for constructing shadow frusta
-	//LLVector3 n = RenderShadowNearDist;
-	//F32 nearDist[] = { n.mV[0], n.mV[1], n.mV[2], n.mV[2] };
 
 	//put together a universal "near clip" plane for shadow frusta
 	LLPlane shadow_near_clip;
 	{
-		LLVector3 p = gAgent.getPositionAgent();
+        LLVector3 p = camera.getOrigin(); // gAgent.getPositionAgent();
 		p += caster_dir * RenderFarClip*2.f;
 		shadow_near_clip.setVec(p, caster_dir);
 	}
@@ -9317,9 +9293,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	{
 		up = camera.getUpAxis();
 	}
-
-	/*LLVector3 left = up%at;
-	up = at%left;*/
 
 	up.normVec();
 	at.normVec();
@@ -9403,6 +9376,14 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		mSunClipPlanes.mV[0] *= 1.25f; //bump back first split for transition padding
 	}
 
+    if (gCubeSnapshot)
+    { // stretch clip planes for reflection probe renders to reduce number of shadow passes
+        mSunClipPlanes.mV[1] = mSunClipPlanes.mV[2];
+        mSunClipPlanes.mV[2] = mSunClipPlanes.mV[3];
+        mSunClipPlanes.mV[3] *= 1.5f;
+    }
+
+
 	// convenience array of 4 near clip plane distances
 	F32 dist[] = { near_clip, mSunClipPlanes.mV[0], mSunClipPlanes.mV[1], mSunClipPlanes.mV[2], mSunClipPlanes.mV[3] };
 	
@@ -9419,7 +9400,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	}
 	else
 	{
-        for (S32 j = 0; j < 4; j++)
+        for (S32 j = 0; j < (gCubeSnapshot ? 2 : 4); j++)
 		{
 			if (!hasRenderDebugMask(RENDER_DEBUG_SHADOW_FRUSTA) && !gCubeSnapshot)
 			{

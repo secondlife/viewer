@@ -25,15 +25,11 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
-#else
-#define frag_data gl_FragData
-#endif
+out vec4 frag_data[4];
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
-VARYING vec2 screenpos;
+in vec4 vertex_color;
+in vec2 vary_texcoord0;
+in vec2 screenpos;
 
 uniform sampler2D diffuseMap;
 uniform float blend_factor;
@@ -62,8 +58,9 @@ void main()
     col.a = (col.a * factor) * 32.0f;
     col.a *= twinkle();
 
-    frag_data[0] = col;
+    frag_data[0] = vec4(0);
     frag_data[1] = vec4(0.0f);
     frag_data[2] = vec4(0.0, 1.0, 0.0, GBUFFER_FLAG_SKIP_ATMOS);
+    frag_data[3] = col;
 }
 

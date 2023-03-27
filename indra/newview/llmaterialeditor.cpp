@@ -2045,6 +2045,15 @@ void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::
 
     setFromGltfMetaData(filename, model_in, index);
 
+    if (getDoubleSided())
+    {
+        // SL-19392 Double sided materials double the number of pixels that must be rasterized,
+        // and a great many tools that export GLTF simply leave double sided enabled whether
+        // or not it is necessary.
+        LL_DEBUGS("MaterialEditor") << "Defaulting Double Sided to disabled on import" << LL_ENDL;
+        setDoubleSided(false);
+    }
+
     markChangesUnsaved(U32_MAX);
 
     if (open_floater)

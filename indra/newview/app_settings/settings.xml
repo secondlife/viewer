@@ -9002,37 +9002,6 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
-
-  <key>RenderShadowNearDist</key>
-  <map>
-    <key>Comment</key>
-    <string>Near clip plane of shadow camera (affects precision of depth shadows).</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Vector3</string>
-    <key>Value</key>
-    <array>
-      <real>256</real>
-      <real>256</real>
-      <real>256</real>
-    </array>
-  </map>
-  <key>RenderShadowClipPlanes</key>
-  <map>
-    <key>Comment</key>
-    <string>Near clip plane split distances for shadow map frusta.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Vector3</string>
-    <key>Value</key>
-    <array>
-      <real>1.0</real>
-      <real>12.0</real>
-      <real>32.0</real>
-    </array>
-  </map>
   <key>RenderShadowSplitExponent</key>
   <map>
     <key>Comment</key>
@@ -9046,21 +9015,6 @@
       <real>3.0</real>
       <real>3.0</real>
       <real>2.0</real>
-    </array>
-  </map>
-  <key>RenderShadowOrthoClipPlanes</key>
-  <map>
-    <key>Comment</key>
-    <string>Near clip plane split distances for orthographic shadow map frusta.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Vector3</string>
-    <key>Value</key>
-    <array>
-      <real>4.0</real>
-      <real>8.0</real>
-      <real>24.0</real>
     </array>
   </map>
   <key>RenderShadowProjOffset</key>
@@ -10402,7 +10356,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>32</real>
+    <real>16</real>
   </map>
   <key>RenderTonemapper</key>
   <map>
@@ -14261,6 +14215,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  <key>RenderOcclusionTimeout</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum number of frames to wait on an occlusion query before forcibly reading it back</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>8</integer>
+  </map>
   <key>UseObjectCacheOcclusion</key>
   <map>
     <key>Comment</key>

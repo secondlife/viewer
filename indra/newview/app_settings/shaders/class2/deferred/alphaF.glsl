@@ -79,7 +79,6 @@ vec3 srgb_to_linear(vec3 c);
 vec3 linear_to_srgb(vec3 c);
 
 vec2 encode_normal (vec3 n);
-vec3 scaleSoftClipFragLinear(vec3 l);
 vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
 
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
@@ -279,7 +278,6 @@ void main()
 
     color.rgb = linear_to_srgb(color.rgb);
     color.rgb = atmosFragLightingLinear(color.rgb, additive, atten);
-    color.rgb = scaleSoftClipFragLinear(color.rgb);
     color.rgb = srgb_to_linear(color.rgb);
 
     vec4 light = vec4(0,0,0,0);

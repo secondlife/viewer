@@ -999,9 +999,6 @@ public:
 	static F32 RenderShadowBlurDistFactor;
 	static bool RenderDeferredAtmospheric;
 	static F32 RenderHighlightFadeTime;
-	static LLVector3 RenderShadowClipPlanes;
-	static LLVector3 RenderShadowOrthoClipPlanes;
-	static LLVector3 RenderShadowNearDist;
 	static F32 RenderFarClip;
 	static LLVector3 RenderShadowSplitExponent;
 	static F32 RenderShadowErrorCutoff;

@@ -812,7 +812,7 @@ const F64Seconds LLEnvironment::TRANSITION_SLOW(10.0f);
 const F64Seconds LLEnvironment::TRANSITION_ALTITUDE(5.0f);
 
 const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("01e41537-ff51-2f1f-8ef7-17e4df760bfb");
-const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("6c83e853-e7f8-cad7-8ee6-5f31c453721c");
+const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("e4391f43-74d6-d889-19fb-99a4a3ad6c5c");
 const LLUUID LLEnvironment::KNOWN_SKY_SUNSET("084e26cd-a900-28e8-08d0-64a9de5c15e2");
 const LLUUID LLEnvironment::KNOWN_SKY_MIDNIGHT("8a01b97a-cb20-c1ea-ac63-f7ea84ad0090");
 
@@ -1758,7 +1758,11 @@ void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, con
             { // maximize and remove tinting if this is an irradiance map render pass and the parameter feeds into the sky background color
                 auto max_vec = [](LLVector4 col)
                 {
-                    col.mV[0] = col.mV[1] = col.mV[2] = llmax(llmax(col.mV[0], col.mV[1]), col.mV[2]);
+                    LLColor3 color(col);
+                    F32 h, s, l;
+                    color.calcHSL(&h, &s, &l);
+
+                    col.mV[0] = col.mV[1] = col.mV[2] = l;
                     return col;
                 };
 

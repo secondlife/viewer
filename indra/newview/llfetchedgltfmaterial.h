@@ -39,12 +39,16 @@ public:
     LLFetchedGLTFMaterial();
     virtual ~LLFetchedGLTFMaterial();
 
+    LLFetchedGLTFMaterial& operator=(const LLFetchedGLTFMaterial& rhs);
+
     // If this material is loaded, fire the given function
     void onMaterialComplete(std::function<void()> material_complete);
 
     // bind this material for rendering
     //   media_tex - optional media texture that may override the base color texture
     void bind(LLViewerTexture* media_tex = nullptr);
+
+    bool isFetching() const { return mFetching; }
 
     // Textures used for fetching/rendering
     LLPointer<LLViewerFetchedTexture> mBaseColorTexture;

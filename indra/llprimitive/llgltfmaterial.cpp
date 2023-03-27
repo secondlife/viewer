@@ -692,3 +692,13 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
         }
     }
 }
+
+LLUUID LLGLTFMaterial::getHash() const
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    // HACK - hash the bytes of this object but don't include the ref count
+    LLUUID hash;
+    HBXXH128::digest(hash, (unsigned char*)this + sizeof(LLRefCount), sizeof(*this) - sizeof(LLRefCount));
+    return hash;
+}
+

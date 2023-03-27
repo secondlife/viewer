@@ -151,7 +151,7 @@ vec4 prefilterEnvMap(vec3 R)
 			// Solid angle of 1 pixel across all cube faces
 			float omegaP = 4.0 * PI / (6.0 * envMapDim * envMapDim);
 			// Biased (+1.0) mip level for better result
-			float mipLevel = roughness == 0.0 ? 0.0 : max(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f);
+			float mipLevel = roughness == 0.0 ? 0.0 : clamp(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f, max_probe_lod);
 			color += textureLod(reflectionProbes, vec4(L, sourceIdx), mipLevel) * dotNL;
 			totalWeight += dotNL;
 		}

@@ -823,7 +823,7 @@ void LLViewerRegion::saveObjectCache()
 	// Map of LLVOCacheEntry takes time to release, store map for cleanup on idle
 	sRegionCacheCleanup.insert(mImpl->mCacheMap.begin(), mImpl->mCacheMap.end());
 	mImpl->mCacheMap.clear();
-    // TODO - probably need to do the same for overrides cache
+	// TODO - probably need to do the same for overrides cache
 }
 
 void LLViewerRegion::sendMessage()
@@ -1151,6 +1151,8 @@ void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry, bool for_rendering)
 	entry->setState(LLVOCacheEntry::INACTIVE);
 	entry->removeOctreeEntry();
 	entry->setValid(FALSE);
+
+	// TODO kill extras/material overrides cache too
 }
 
 //physically delete the cache entry	
@@ -1862,6 +1864,9 @@ LLViewerObject* LLViewerRegion::addNewObject(LLVOCacheEntry* entry)
 		//should not hit here any more, but does not hurt either, just put it back to active list
 		addActiveCacheEntry(entry);
 	}
+
+    loadCacheMiscExtras(entry->getLocalID());
+
 	return obj;
 }
 
@@ -2759,7 +2764,7 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 			entry->setValid();
 			decodeBoundingInfo(entry);
 
-            loadCacheMiscExtras(local_id, entry, crc);
+            //loadCacheMiscExtras(local_id, entry, crc);
 
 			return true;
 		}
@@ -2876,6 +2881,7 @@ void LLViewerRegion::dumpCache()
 	{
 		LL_INFOS() << "Changes " << i << " " << change_bin[i] << LL_ENDL;
 	}
+	// TODO - add overrides cache too
 }
 
 void LLViewerRegion::unpackRegionHandshake()
@@ -3544,15 +3550,11 @@ std::string LLViewerRegion::getSimHostName()
 	return std::string("...");
 }
 
-void LLViewerRegion::loadCacheMiscExtras(U32 local_id, LLVOCacheEntry * entry, U32 crc)
+void LLViewerRegion::loadCacheMiscExtras(U32 local_id)
 {
     auto iter = mImpl->mGLTFOverridesJson.find(local_id);
     if (iter != mImpl->mGLTFOverridesJson.end())
     {
         LLGLTFMaterialList::loadCacheOverrides(iter->second);
-    }
-    else
-    {
-        LL_DEBUGS("GLTF") << "cache miss for handle: " << mHandle << " local_id:" << local_id << LL_ENDL;
     }
 }

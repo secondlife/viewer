@@ -211,7 +211,7 @@ void main()
     else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {
         //should only be true of WL sky, just port over base color value
-        color = srgb_to_linear(baseColor.rgb);
+        color = srgb_to_linear(texture2D(emissiveRect, tc).rgb);
     }
     else
     {

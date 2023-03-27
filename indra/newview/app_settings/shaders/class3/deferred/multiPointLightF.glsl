@@ -37,7 +37,6 @@ uniform sampler2D depthMap;
 uniform sampler2D diffuseRect;
 uniform sampler2D specularRect;
 uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
-uniform sampler2D     noiseMap;
 uniform sampler2D     lightFunc;
 
 uniform vec3  env_mat[3];
@@ -132,9 +131,6 @@ void main()
     }
     else
     {
-
-        float noise = texture2D(noiseMap, tc).b;
-
         diffuse = srgb_to_linear(diffuse);
         spec.rgb = srgb_to_linear(spec.rgb);
 
@@ -154,7 +150,6 @@ void main()
 
                     float fa         = light_col[i].a;
                     float dist_atten = calcLegacyDistanceAttenuation(dist, fa);
-                    dist_atten *= noise;
 
                     float lit = nl * dist_atten;
 

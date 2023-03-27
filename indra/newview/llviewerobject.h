@@ -442,6 +442,7 @@ public:
 	void sendMaterialUpdate() const;
 
 	void setDebugText(const std::string &utf8text);
+	void appendDebugText(const std::string &utf8text);
 	void initHudText();
 	void restoreHudText();
 	void setIcon(LLViewerTexture* icon_image);
