@@ -139,6 +139,8 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
 
         sky_shader->bind();
 
+        sky_shader->uniform1i(LLShaderMgr::CUBE_SNAPSHOT, gCubeSnapshot ? 1 : 0);
+
         LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
         LLViewerTexture* rainbow_tex = gSky.mVOSkyp->getRainbowTex();
