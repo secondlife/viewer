@@ -95,7 +95,7 @@ protected:
     };
     typedef std::deque<FetchQueueInfo> fetch_queue_t;
 
-    void onAISCalback(const LLUUID &request_id, const LLUUID &response_id, ERecursionType recursion);
+    void onAISFodlerCalback(const LLUUID &request_id, const LLUUID &response_id, ERecursionType recursion);
     void bulkFetchViaAis();
     void bulkFetchViaAis(const FetchQueueInfo& fetch_info);
 	void bulkFetch();

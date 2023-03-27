@@ -419,12 +419,19 @@ void LLInventoryModelBackgroundFetch::incrFetchCount(S32 fetching)
 	}
 }
 
-void ais_simple_callback(const LLUUID& inv_id)
+void ais_simple_folder_callback(const LLUUID& inv_id)
+{
+    LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
+    LLViewerInventoryCategory * cat(gInventory.getCategory(inv_id));
+    if (cat) cat->setFetching(false);
+}
+
+void ais_simple_item_callback(const LLUUID& inv_id)
 {
     LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
 }
 
-void LLInventoryModelBackgroundFetch::onAISCalback(const LLUUID &request_id, const LLUUID &response_id, ERecursionType recursion)
+void LLInventoryModelBackgroundFetch::onAISFodlerCalback(const LLUUID &request_id, const LLUUID &response_id, ERecursionType recursion)
 {
     incrFetchCount(-1);
     if (response_id.isNull()) // Failure
@@ -459,6 +466,13 @@ void LLInventoryModelBackgroundFetch::onAISCalback(const LLUUID &request_id, con
                 mFolderFetchActive = true;
                 gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
             }
+        }
+
+        // done
+        LLViewerInventoryCategory * cat(gInventory.getCategory(request_id));
+        if (cat)
+        {
+            cat->setFetching(false);
         }
     }
 }
@@ -497,11 +511,11 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
         curent_time = LLTimer::getTotalSeconds();
     }
 
-    while (!mFetchFolderQueue.empty() && mFetchCount < max_concurrent_fetches && curent_time < end_time)
+    while (!mFetchItemQueue.empty() && mFetchCount < max_concurrent_fetches && curent_time < end_time)
     {
-        const FetchQueueInfo & fetch_info(mFetchFolderQueue.front());
+        const FetchQueueInfo & fetch_info(mFetchItemQueue.front());
         bulkFetchViaAis(fetch_info);
-        mFetchFolderQueue.pop_front();
+        mFetchItemQueue.pop_front();
         curent_time = LLTimer::getTotalSeconds();
     }
     
@@ -526,14 +540,14 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
         else
         {
 
-            const LLViewerInventoryCategory * cat(gInventory.getCategory(cat_id));
+            LLViewerInventoryCategory * cat(gInventory.getCategory(cat_id));
             if (cat)
             {
                 if (LLViewerInventoryCategory::VERSION_UNKNOWN == cat->getVersion())
                 {
                     if (ALEXANDRIA_LINDEN_ID == cat->getOwnerID())
                     {
-                        AISAPI::FetchCategoryChildren(cat->getUUID(), AISAPI::LIBRARY, fetch_info.mRecursive == RT_RECURSIVE, ais_simple_callback);
+                        AISAPI::FetchCategoryChildren(cat->getUUID(), AISAPI::LIBRARY, fetch_info.mRecursive == RT_RECURSIVE, ais_simple_folder_callback);
                     }
                     else
                     {
@@ -545,10 +559,11 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                             type == RT_RECURSIVE,
                             [cat_id, type](const LLUUID &response_id)
                         {
-                            LLInventoryModelBackgroundFetch::instance().onAISCalback(cat_id, response_id, type);
+                            LLInventoryModelBackgroundFetch::instance().onAISFodlerCalback(cat_id, response_id, type);
                         });
                     }
                     mFetchCount++;
+                    cat->setFetching(true);
                 }
                 else
                 {
@@ -578,11 +593,11 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
         {
             if (itemp->getPermissions().getOwner() == gAgent.getID())
             {
-                AISAPI::FetchItem(itemp->getUUID(), AISAPI::INVENTORY, ais_simple_callback);
+                AISAPI::FetchItem(itemp->getUUID(), AISAPI::INVENTORY, ais_simple_item_callback);
             }
             else
             {
-                AISAPI::FetchItem(itemp->getUUID(), AISAPI::LIBRARY, ais_simple_callback);
+                AISAPI::FetchItem(itemp->getUUID(), AISAPI::LIBRARY, ais_simple_item_callback);
             }
             mFetchCount++;
         }

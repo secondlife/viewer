@@ -211,6 +211,8 @@ public:
 
 	// Returns true if a fetch was issued.
 	bool fetch();
+    // Returns true if a fetch was issued.
+    void setFetching(bool);
 
 	// used to help make caching more robust - for example, if
 	// someone is getting 4 packets but logs out after 3. the viewer

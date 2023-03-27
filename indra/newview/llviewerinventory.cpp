@@ -659,7 +659,6 @@ bool LLViewerInventoryCategory::fetch()
 		mDescendentsRequested.reset();
 		mDescendentsRequested.setTimerExpirySec(FETCH_TIMER_EXPIRY);
 
-
 		std::string url;
 		if (gAgent.getRegion())
 		{
@@ -676,6 +675,24 @@ bool LLViewerInventoryCategory::fetch()
 		return true;
 	}
 	return false;
+}
+
+void LLViewerInventoryCategory::setFetching(bool fetching)
+{
+    if (fetching)
+    {
+        if ((VERSION_UNKNOWN == getVersion())
+            && mDescendentsRequested.hasExpired())
+        {
+            const F32 FETCH_TIMER_EXPIRY = 10.0f;
+            mDescendentsRequested.reset();
+            mDescendentsRequested.setTimerExpirySec(FETCH_TIMER_EXPIRY);
+        }
+    }
+    else
+    {
+        mDescendentsRequested.stop();
+    }
 }
 
 S32 LLViewerInventoryCategory::getViewerDescendentCount() const
