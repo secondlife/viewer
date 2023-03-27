@@ -545,7 +545,7 @@ void LLSidepanelInventory::clearSelections(bool clearMain, bool clearInbox)
 		}
 	}
 	
-	if (clearInbox && mInboxEnabled && mInventoryPanelInbox.get())
+	if (clearInbox && mInboxEnabled && !mInventoryPanelInbox.isDead())
 	{
 		mInventoryPanelInbox.get()->getRootFolder()->clearSelection();
 	}

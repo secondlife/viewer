@@ -255,29 +255,19 @@ void LLInventoryFetchItemsObserver::startFetch()
 {
     bool aisv3 = AISAPI::isAvailable();
 
-	LLUUID owner_id;
 	LLSD items_llsd;
+
+    typedef std::map<LLUUID, uuid_vec_t> requests_by_fodlers_t;
+    requests_by_fodlers_t requests;
 	for (uuid_vec_t::const_iterator it = mIDs.begin(); it < mIDs.end(); ++it)
 	{
-		LLViewerInventoryItem* item = gInventory.getItem(*it);
-		if (item)
-		{
-			if (item->isFinished())
-			{
-				// It's complete, so put it on the complete container.
-				mComplete.push_back(*it);
-				continue;
-			}
-			else
-			{
-				owner_id = item->getPermissions().getOwner();
-			}
-		}
-		else
-		{
-			// assume it's agent inventory.
-			owner_id = gAgent.getID();
-		}
+        LLViewerInventoryItem* item = gInventory.getItem(*it);
+        if (item && item->isFinished())
+        {
+            // It's complete, so put it on the complete container.
+            mComplete.push_back(*it);
+            continue;
+        }
 
 		// Ignore categories since they're not items.  We
 		// could also just add this to mComplete but not sure what the
@@ -300,13 +290,31 @@ void LLInventoryFetchItemsObserver::startFetch()
 
         if (aisv3)
         {
-            LLInventoryModelBackgroundFetch::getInstance()->start(*it);
+            if (item)
+            {
+                LLUUID parent_id = item->getParentUUID();
+                requests[parent_id].push_back(*it);
+            }
+            else
+            {
+                // Can happen for gestures and calling cards if server notified us before they fetched
+                // Request by id without checking for an item.
+                LLInventoryModelBackgroundFetch::getInstance()->scheduleItemFetch(*it);
+            }
         }
         else
         {
             // Prepare the data to fetch
             LLSD item_entry;
-            item_entry["owner_id"] = owner_id;
+            if (item)
+            {
+                item_entry["owner_id"] = item->getPermissions().getOwner();
+            }
+            else
+            {
+                // assume it's agent inventory.
+                item_entry["owner_id"] = gAgent.getID();
+            }
             item_entry["item_id"] = (*it);
             items_llsd.append(item_entry);
         }
@@ -315,7 +323,59 @@ void LLInventoryFetchItemsObserver::startFetch()
 	mFetchingPeriod.reset();
 	mFetchingPeriod.setTimerExpirySec(FETCH_TIMER_EXPIRY);
 
-    if (!aisv3)
+    if (aisv3)
+    {
+        const S32 MAX_INDIVIDUAL_REQUESTS = 10;
+        for (requests_by_fodlers_t::value_type &folder : requests)
+        {
+            if (folder.second.size() > MAX_INDIVIDUAL_REQUESTS)
+            {
+                // requesting one by one will take a while
+                // do whole folder
+                LLInventoryModelBackgroundFetch::getInstance()->start(folder.first);
+            }
+            else
+            {
+                LLViewerInventoryCategory* cat = gInventory.getCategory(folder.first);
+                if (cat)
+                {
+                    if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
+                    {
+                        // start fetching whole folder since it's not ready either way
+                        cat->fetch();
+                    }
+                    else if (cat->getViewerDescendentCount() <= folder.second.size())
+                    {
+                        // start fetching whole folder since we need all items
+                        cat->setVersion(LLViewerInventoryCategory::VERSION_UNKNOWN);
+                        cat->fetch();
+
+                    }
+                    else
+                    {
+                        // get items one by one
+                        for (LLUUID &item_id : folder.second)
+                        {
+                            LLInventoryModelBackgroundFetch::getInstance()->scheduleItemFetch(item_id);
+                        }
+                    }
+                }
+                else
+                {
+                    // Isn't supposed to happen? We should have all folders
+                    // and if item exists, folder is supposed to exist as well.
+                    llassert(false);
+
+                    // get items one by one
+                    for (LLUUID &item_id : folder.second)
+                    {
+                        LLInventoryModelBackgroundFetch::getInstance()->scheduleItemFetch(item_id);
+                    }
+                }
+            }
+        }
+    }
+    else
     {
         fetch_items_from_llsd(items_llsd);
     }

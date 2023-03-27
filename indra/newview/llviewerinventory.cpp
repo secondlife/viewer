@@ -432,14 +432,7 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 	{
         if (AISAPI::isAvailable()) // AIS v 3
         {
-            if (gAgent.getID() != mPermissions.getOwner())
-            {
-                AISAPI::FetchItem(mUUID, AISAPI::LIBRARY);
-            }
-            else
-            {
-                AISAPI::FetchItem(mUUID, AISAPI::INVENTORY);
-            }
+            LLInventoryModelBackgroundFetch::getInstance()->scheduleItemFetch(mUUID);
         }
         else
         {

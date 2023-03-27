@@ -47,9 +47,10 @@ class LLInventoryModelBackgroundFetch : public LLSingleton<LLInventoryModelBackg
 	~LLInventoryModelBackgroundFetch();
 public:
 
-	// Start and stop background breadth-first fetching of inventory contents.
+    // Start  background breadth-first fetching of inventory contents.
 	// This gets triggered when performing a filter-search.
 	void start(const LLUUID& cat_id = LLUUID::null, bool recursive = true);
+    void scheduleItemFetch(const LLUUID& item_id);
 
 	BOOL folderFetchActive() const;
 	bool isEverythingFetched() const; // completing the fetch once per session should be sufficient
@@ -64,12 +65,14 @@ public:
 
     void findLostItems();	
 	void incrFetchCount(S32 fetching);
+    void incrFetchFolderCount(S32 fetching);
 
 	bool isBulkFetchProcessingComplete() const;
+    bool isFolderFetchProcessingComplete() const;
 	void setAllFoldersFetched();
 
     typedef boost::function<void()> folders_fetched_callback_t;
-    boost::signals2::connection setAllFoldersFetchedCallback(folders_fetched_callback_t cb);
+    boost::signals2::connection setFetchCompletionCallback(folders_fetched_callback_t cb);
 
 	void addRequestAtFront(const LLUUID & id, bool recursive, bool is_category);
 	void addRequestAtBack(const LLUUID & id, bool recursive, bool is_category);
@@ -110,11 +113,12 @@ private:
 	bool mRecursiveLibraryFetchStarted;
 	bool mAllFoldersFetched;
     typedef boost::signals2::signal<void()> folders_fetched_signal_t;
-    folders_fetched_signal_t mAllFoldersFetchedSignal;
+    folders_fetched_signal_t mFoldersFetchedSignal;
 
     bool mBackgroundFetchActive;
 	bool mFolderFetchActive;
 	S32 mFetchCount;
+    S32 mFetchFolderCount;
 
 	LLFrameTimer mFetchTimer;
 	F32 mMinTimeBetweenFetches;

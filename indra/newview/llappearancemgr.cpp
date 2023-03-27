@@ -2420,7 +2420,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
     if (gInventory.hasPosiblyBrockenLinks())
     {
         // Inventory has either broken links or links that
-        // haven't loaded yet and fetch is still in progress.
+        // haven't loaded yet.
         // Check if LLAppearanceMgr needs to wait.
         LLUUID current_outfit_id = getCOF();
         LLInventoryModel::item_array_t cof_items;
@@ -2438,22 +2438,34 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
             // links are likely fine and we will have to wait for them to
             // load (if inventory takes too long to load, might be a good
             // idea to make this check periodical)
-            if (!mBulkFecthCallbackSlot.connected())
+            if (LLInventoryModelBackgroundFetch::getInstance()->folderFetchActive())
             {
-                nullary_func_t cb = post_update_func;
-                mBulkFecthCallbackSlot =
-                    LLInventoryModelBackgroundFetch::getInstance()->setAllFoldersFetchedCallback(
-                        [this, enforce_ordering, post_update_func, cb]()
+                if (!mBulkFecthCallbackSlot.connected())
                 {
-                    // inventory model should be already tracking this
-                    // callback, but make sure rebuildBrockenLinks gets
-                    // called before a cof update
-                    gInventory.rebuildBrockenLinks();
-                    updateAppearanceFromCOF(enforce_ordering, post_update_func, post_update_func);
-                    mBulkFecthCallbackSlot.disconnect();
-                });
+                    nullary_func_t cb = post_update_func;
+                    mBulkFecthCallbackSlot =
+                        LLInventoryModelBackgroundFetch::getInstance()->setFetchCompletionCallback(
+                            [this, enforce_ordering, post_update_func, cb]()
+                    {
+                        // inventory model should be already tracking this
+                        // callback, but make sure rebuildBrockenLinks gets
+                        // called before a cof update
+                        gInventory.rebuildBrockenLinks();
+                        updateAppearanceFromCOF(enforce_ordering, post_update_func, post_update_func);
+                        mBulkFecthCallbackSlot.disconnect();
+                    });
+                }
+                return;
             }
-            return;
+            else
+            {
+                // this should have happened on completion callback,
+                // check why it didn't then fix it
+                llassert(false); 
+
+                // try to recover now
+                gInventory.rebuildBrockenLinks();
+            }
         }
     }
 
@@ -4433,7 +4445,7 @@ public:
                         // To prevent premature removal from mIncomplete and
                         // since we are doing a full refetch anyway, mark unknown
                         cat->setVersion(LLViewerInventoryCategory::VERSION_UNKNOWN);
-                        LLInventoryModelBackgroundFetch::instance().start(*it, false);
+                        cat->fetch();
                         mIncomplete.push_back(*it);
                     }
                     else
