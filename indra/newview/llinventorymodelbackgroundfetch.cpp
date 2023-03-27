@@ -372,9 +372,6 @@ void LLInventoryModelBackgroundFetch::setAllFoldersFetched()
 		//LL_INFOS(LOG_INV) << "All folders fetched, validating" << LL_ENDL;
 		//gInventory.validate();
 
-        gInventory.addChangedMask(LLInventoryObserver::INTERNAL, gInventory.getRootFolderID());
-        gInventory.addChangedMask(LLInventoryObserver::INTERNAL, gInventory.getLibraryRootFolderID());
-
         // For now only informs about initial fetch being done
         mAllFoldersFetchedSignal();
 	}

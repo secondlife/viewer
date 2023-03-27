@@ -1759,6 +1759,9 @@ void LLInventoryModel::changeCategoryParent(LLViewerInventoryCategory* cat,
 
 void LLInventoryModel::rebuildBrockenLinks()
 {
+    // make sure we aren't adding expensive Rebuild to anything else.
+    notifyObservers();
+
     for (LLUUID link_id : mPossiblyBrockenLinks)
     {
         addChangedMask(LLInventoryObserver::REBUILD, link_id);
