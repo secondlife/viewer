@@ -2961,12 +2961,15 @@ void LLViewerMediaImpl::doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* da
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
     mLock.lock();   // don't allow media source tear-down during update
 
+    const LLGLuint tex_name = media_tex->getGLTexture() ? media_tex->getGLTexture()->getTexName() : (LLGLuint)0;
+    if (!tex_name)
+    {
+        llassert(false);
+        return;
+    }
+
     // wrap "data" in an LLImageRaw but do NOT make a copy
     LLPointer<LLImageRaw> raw = new LLImageRaw(data, media_tex->getWidth(), media_tex->getHeight(), media_tex->getComponents(), true);
-        
-    // Allocate GL texture based on LLImageRaw but do NOT copy to GL
-    LLGLuint tex_name = 0;
-    media_tex->createGLTexture(0, raw, 0, TRUE, LLGLTexture::OTHER, true, &tex_name);
 
     // copy just the subimage covered by the image raw to GL
     media_tex->setSubImage(data, data_width, data_height, x_pos, y_pos, width, height, tex_name);
