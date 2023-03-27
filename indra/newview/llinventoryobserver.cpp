@@ -300,18 +300,7 @@ void LLInventoryFetchItemsObserver::startFetch()
 
         if (aisv3)
         {
-            // doesn't support bulk fetching, request one by one
-            if (owner_id == ALEXANDRIA_LINDEN_ID)
-            {
-                AISAPI::FetchItem(*it, AISAPI::LIBRARY);
-            }
-            else
-            {
-                AISAPI::FetchItem(*it, AISAPI::INVENTORY);
-            }
-            // Todo: remove item from mIncomplete on callback
-            // but keep in mind that observer can expire before
-            // callback or use LLInventoryModelBackgroundFetch
+            LLInventoryModelBackgroundFetch::getInstance()->start(*it);
         }
         else
         {
