@@ -29,9 +29,6 @@
 float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source);
 #endif
 
-#define REFMAP_COUNT 256
-#define REF_SAMPLE_COUNT 64 //maximum number of samples to consider
-
 uniform samplerCubeArray   reflectionProbes;
 uniform samplerCubeArray   irradianceProbes;
 uniform sampler2D sceneMap;
