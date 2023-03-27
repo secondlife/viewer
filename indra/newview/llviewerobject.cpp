@@ -334,6 +334,8 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	}
 	resetRot();
 
+    //setDebugText(llformat("constructed! %d", mLocalID));
+    
 	LLViewerObject::sNumObjects++;
 }
 
@@ -1157,6 +1159,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
     LL_DEBUGS("ObjectUpdate") << " mesgsys " << mesgsys << " dp " << dp << " id " << getID() << " update_type " << (S32) update_type << LL_ENDL;
     dumpStack("ObjectUpdateStack");
+    appendDebugText("processObjectUpdate()");
 
 	U32 retval = 0x0;
 	
@@ -4968,6 +4971,7 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
                     LLViewerObject* obj = gObjectList.findObject(id);
                     if (obj)
                     {
+                        obj->appendDebugText("updateTEMaterialTextures completed fetching base");
                         LLViewerRegion* region = obj->getRegion();
                         if(region)
                         {
@@ -5339,10 +5343,12 @@ S32 LLViewerObject::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID
 	}
 	//else if (pMaterialID != tep->getMaterialID())
 	{
-		LL_DEBUGS("Material") << "Changing texture entry for te " << (S32)te
-							 << ", object " << mID
-							 << ", material " << pMaterialID
-							 << LL_ENDL;
+		if (te == 0) {
+			appendDebugText(STRINGIZE(
+				"Changing texture entry for te " << (S32)te << ", object " << mID << ", material "
+				<< (pMaterialID.isNull() ? "null" : pMaterialID.asString())
+			));
+		}
 		retval = LLPrimitive::setTEMaterialID(te, pMaterialID);
 		refreshMaterials();
 	}
@@ -5360,10 +5366,9 @@ S32 LLViewerObject::setTEMaterialParams(const U8 te, const LLMaterialPtr pMateri
 	}
 
 	retval = LLPrimitive::setTEMaterialParams(te, pMaterialParams);
-	LL_DEBUGS("Material") << "Changing material params for te " << (S32)te
-							<< ", object " << mID
-			               << " (" << retval << ")"
-							<< LL_ENDL;
+	appendDebugText(STRINGIZE(
+        "Changing material params for te " << (S32)te << ", object " << mID << " (" << retval << ")"
+    ));
 	setTENormalMap(te, (pMaterialParams) ? pMaterialParams->getNormalID() : LLUUID::null);
 	setTESpecularMap(te, (pMaterialParams) ? pMaterialParams->getSpecularID() : LLUUID::null);
 
@@ -5415,6 +5420,11 @@ S32 LLViewerObject::setTEGLTFMaterialOverride(U8 te, LLGLTFMaterial* override_ma
         {
             retval = TEM_CHANGE_TEXTURE;
         }
+    }
+    if (te == 0) {
+        appendDebugText(STRINGIZE(
+            "Changing material override params for te " << (S32)te << ", object " << mID << " (" << retval << ")"
+        ));
     }
 
     return retval;
@@ -5730,6 +5740,7 @@ void LLViewerObject::initHudText()
     mText->setMaxLines(-1);
     mText->setSourceObject(this);
     mText->setOnHUDAttachment(isHUDAttachment());
+    mText->addLine("initHudText()", LLColor4::white);
 }
 
 void LLViewerObject::restoreHudText()
@@ -6372,6 +6383,7 @@ void LLViewerObject::parameterChanged(U16 param_type, LLNetworkData* data, BOOL 
         if (param_type == LLNetworkData::PARAMS_RENDER_MATERIAL)
         {
             const LLRenderMaterialParams* params = in_use ? (LLRenderMaterialParams*)getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL) : nullptr;
+            appendDebugText("setRenderMaterialIDs()");
             setRenderMaterialIDs(params, local_origin);
         }
     }
@@ -7290,6 +7302,7 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
                 if (obj)
                 {
                     obj->rebuildMaterial();
+                    obj->markForUpdate(FALSE);
                 }
             });
     }

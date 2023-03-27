@@ -229,6 +229,7 @@ void LLViewerObjectList::setUUIDAndLocal(const LLUUID &id,
 S32 gFullObjectUpdates = 0;
 S32 gTerseObjectUpdates = 0;
 
+[[clang::optnone]]
 void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp, 
 										   void** user_data, 
 										   U32 i, 
@@ -248,7 +249,8 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
     LL_DEBUGS("ObjectUpdate") << "uuid " << objectp->mID << " calling processUpdateMessage " 
                               << objectp << " just_created " << just_created << " from_cache " << from_cache << " msg " << msg << LL_ENDL;
     dumpStack("ObjectUpdateStack");
-	 	
+    objectp->appendDebugText(STRINGIZE("local_id " << objectp->getLocalID() << " uuid " << objectp->mID << " calling processUpdateMessage " << objectp << " just_created " << just_created << " from_cache " << from_cache << " msg " << msg));
+
 	objectp->processUpdateMessage(msg, user_data, i, update_type, dpp);
 		
 	if (objectp->isDead())
@@ -333,10 +335,12 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 
 	if (objectp)
 	{
-		if(!objectp->isDead() && (objectp->mLocalID != entry->getLocalID() ||
+        if(!objectp->isDead() && (objectp->mLocalID != entry->getLocalID() ||
 			objectp->getRegion() != regionp))
 		{
-			removeFromLocalIDTable(objectp);
+            objectp->appendDebugText(llformat("processObjectUpdateFromCache() local_id %d -> %d", objectp->mLocalID, entry->getLocalID()));
+
+            removeFromLocalIDTable(objectp);
 			setUUIDAndLocal(fullid, entry->getLocalID(),
 							regionp->getHost().getAddress(),
 							regionp->getHost().getPort());
@@ -593,6 +597,8 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			//			<< LL_ENDL;
 			//}
 			removeFromLocalIDTable(objectp);
+            objectp->appendDebugText(llformat("processObjectUpdate() local_id %d -> %d", objectp->mLocalID, local_id));
+
 			setUUIDAndLocal(fullid,
 							local_id,
 							gMessageSystem->getSenderIP(),
@@ -1874,6 +1880,7 @@ LLViewerObject *LLViewerObjectList::createObjectFromCache(const LLPCode pcode, L
 // 		LL_WARNS() << "Couldn't create object of type " << LLPrimitive::pCodeToString(pcode) << " id:" << fullid << LL_ENDL;
 		return NULL;
 	}
+    objectp->appendDebugText(llformat("createObjectFromCache() local_id: %d", local_id));
 
 	objectp->mLocalID = local_id;
 	mUUIDObjectMap[uuid] = objectp;
@@ -1910,6 +1917,7 @@ LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRe
 // 		LL_WARNS() << "Couldn't create object of type " << LLPrimitive::pCodeToString(pcode) << " id:" << fullid << LL_ENDL;
 		return NULL;
 	}
+    objectp->appendDebugText(llformat("createObject() local_id: %d", local_id));
 	if(regionp)
 	{
 		regionp->addToCreatedList(local_id); 

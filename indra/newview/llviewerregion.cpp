@@ -1846,6 +1846,7 @@ LLViewerObject* LLViewerRegion::addNewObject(LLVOCacheEntry* entry)
 				mImpl->mWaitingSet.insert(entry);
 				entry->setState(LLVOCacheEntry::WAITING);
 			}
+			obj->appendDebugText("addNewObject() loading cache");
 		}
 	}
 	else
@@ -2754,7 +2755,8 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 			entry->setValid();
 			decodeBoundingInfo(entry);
 
-            //loadCacheMiscExtras(local_id, entry, crc);
+			// TODO how did this get commented out
+			loadCacheMiscExtras(local_id);
 
 			return true;
 		}

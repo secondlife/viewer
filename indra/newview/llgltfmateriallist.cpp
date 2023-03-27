@@ -190,12 +190,14 @@ public:
 
         // Cache the data
         {
-            LL_DEBUGS("GLTF") << "material overrides cache" << LL_ENDL;
-
             LLViewerRegion * region = LLWorld::instance().getRegionFromHandle(object_override.mRegionHandle);
 
             if (region)
             {
+                if (LLViewerObject * obj = gObjectList.findObject(object_override.mObjectId))
+                {
+                    obj->appendDebugText(llformat("%d incoming override, caching", obj->getLocalID()));
+                }
                 region->cacheFullUpdateGLTFOverride(object_override);
             }
             else
@@ -277,23 +279,27 @@ public:
             {
                 std::unordered_set<S32> side_set;
 
-                for (int i = 0; i < results.size(); ++i)
+                for (auto const & result : results)
                 {
-                    if (results[i].mSuccess)
+                    S32 side = result.mSide;
+                    if (result.mSuccess)
                     {
+                        auto const & material = result.mMaterial;
+
                         // flag this side to not be nulled out later
-                        side_set.insert(results[i].mSide);
+                        side_set.insert(side);
 
                         if (obj)
                         {
-                            obj->setTEGLTFMaterialOverride(results[i].mSide, results[i].mMaterial);
+                            obj->setTEGLTFMaterialOverride(side, material);
                         }
                     }
                     
+                    //if(obj) { obj->appendDebugText(llformat("%d FAILED parsing override side: %d", obj->getLocalID(), side)); }
                     // unblock material editor
-                    if (obj && obj->getTE(results[i].mSide) && obj->getTE(results[i].mSide)->isSelected())
+                    if (obj && obj->getTE(side) && obj->getTE(side)->isSelected())
                     {
-                        doSelectionCallbacks(object_override.mObjectId, results[i].mSide);
+                        doSelectionCallbacks(object_override.mObjectId, side);
                     }
                 }
 
@@ -384,7 +390,7 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
                     // can't apply this yet, since failure to change the material override
                     // probably means the base material is still being fetched.  leave in
                     // the queue for later
-                    //obj->setDebugText("early out 3");
+                    obj->setDebugText("queued base material fetching");
                     return;
                 }
 
@@ -780,5 +786,9 @@ void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides,
 
 void LLGLTFMaterialList::loadCacheOverrides(const LLGLTFOverrideCacheEntry& override)
 {
+    if (LLViewerObject * obj = gObjectList.findObject(override.mObjectId))
+    {
+        obj->appendDebugText(llformat("%d loading cached override", obj->getLocalID()));
+    }
     handle_gltf_override_message.applyData(override);
 }
