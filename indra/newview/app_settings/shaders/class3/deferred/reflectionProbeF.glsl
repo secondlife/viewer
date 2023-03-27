@@ -95,6 +95,7 @@ bool shouldSampleProbe(int i, vec3 pos)
             return false;
         }
 
+        // never allow automatic probes to encroach on box probes
         sample_automatic = false;
     }
     else
@@ -429,24 +430,18 @@ void boxIntersectDebug(vec3 origin, vec3 pos, int i, inout vec4 col)
 //  dir - normal to be weighted
 //  origin - center of sphere probe
 //  r - radius of probe influence volume
-// min_da - minimum angular attenuation coefficient
 // i - index of probe in refSphere
 // dw - distance weight
-float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, float min_da, int i, out float dw)
+float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, int i, out float dw)
 {
     float r1 = r * 0.5; // 50% of radius (outer sphere to start interpolating down)
     vec3 delta = pos.xyz - origin;
     float d2 = max(length(delta), 0.001);
 
-    float r2 = r1; //r1 * r1;
-
-    //float atten = 1.0 - max(d2 - r2, 0.0) / max((rr - r2), 0.001);
-    float atten = 1.0 - max(d2 - r2, 0.0) / max((r - r2), 0.001);
+    float atten = 1.0 - max(d2 - r1, 0.0) / max((r - r1), 0.001);
     float w = 1.0 / d2;
     
     dw = w * atten * max(r, 1.0)*4;
-
-    atten *= max(dot(normalize(-delta), dir), min_da);
 
     w *= atten;
 
@@ -484,7 +479,7 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, float lod, vec3 c,
         refIndex[i].w < 1 ? 4096.0*4096.0 : // <== effectively disable parallax correction for automatically placed probes to keep from bombing the world with obvious spheres
                 rr);
 
-        w = sphereWeight(pos, dir, refSphere[i].xyz, r, 0.25, i, dw);
+        w = sphereWeight(pos, dir, refSphere[i].xyz, r, i, dw);
     }
 
     v -= c;
@@ -524,7 +519,7 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, out float dw, vec3 c, int
         refIndex[i].w < 1 ? 4096.0*4096.0 : // <== effectively disable parallax correction for automatically placed probes to keep from bombing the world with obvious spheres
                 rr);
 
-        w = sphereWeight(pos, dir, refSphere[i].xyz, r, 0.001, i, dw);
+        w = sphereWeight(pos, dir, refSphere[i].xyz, r, i, dw);
     }
 
     v -= c;
@@ -562,7 +557,6 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod)
         float dw = 0;
         vec3 refcol;
 
-        
         {
             refcol = tapRefMap(pos, dir, w, dw, lod, refSphere[i].xyz, i);
 
@@ -735,7 +729,7 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
     ambenv = sampleProbeAmbient(pos, norm);
-    
+
     if (glossiness > 0.0)
     {
         float lod = (1.0-glossiness)*reflection_lods;
