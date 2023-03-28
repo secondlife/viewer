@@ -30,6 +30,7 @@
 out vec4 frag_color;
 
 uniform sampler2D diffuseRect;
+uniform sampler2D emissiveRect;
 uniform float dt;
 
 void main() 
@@ -50,7 +51,7 @@ void main()
         {
             vec2 tc = vec2(x,y);
             w += 1.0;
-            col += texture(diffuseRect, tc).rgb;
+            col += texture(diffuseRect, tc).rgb + texture(emissiveRect, tc).rgb;
         }
     }
 

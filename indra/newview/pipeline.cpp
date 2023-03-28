@@ -7422,6 +7422,12 @@ void LLPipeline::renderFinalize()
                 screenTarget()->bindTexture(0, channel, LLTexUnit::TFO_POINT);
             }
 
+            channel = gDeferredPostGammaCorrectProgram.enableTexture(LLShaderMgr::DEFERRED_EMISSIVE, screenTarget()->getUsage());
+            if (channel > -1)
+            {
+                mGlow[1].bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
+            }
+
             static LLStaticHashedString dt("dt");
             gExposureProgram.uniform1f(dt, gFrameIntervalSeconds);
             

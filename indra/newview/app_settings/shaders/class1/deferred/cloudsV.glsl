@@ -114,7 +114,7 @@ void main()
     float rel_pos_len  = length(rel_pos);
 
 	// Initialize temp variables
-	vec3 sunlight = sunlight_color;
+	vec3 sunlight = sunlight_color*2.0;
 	vec3 light_atten;
 
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
