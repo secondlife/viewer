@@ -3453,8 +3453,8 @@ void LLInventoryModel::processUpdateCreateInventoryItem(LLMessageSystem* msg, vo
 		gInventoryCallbacks.fire(callback_id, item_id);
 
         // todo: instead of unpacking message fully,
-        // grab only an item_id, then fetch via AIS
-        LLInventoryModelBackgroundFetch::instance().start(item_id, false);
+        // grab only an item_id, then fetch
+        LLInventoryModelBackgroundFetch::instance().scheduleItemFetch(item_id, true);
 	}
 
 }
@@ -3798,10 +3798,7 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
         // Temporary workaround: just fetch the item using AIS to get missing fields.
         // If this works fine we might want to extract ids only from the message
         // then use AIS as a primary fetcher
-
-        // Use AIS derectly to not reset folder's version
-        // Todo: May be LLInventoryModelBackgroundFetch needs a 'forced' option
-        AISAPI::FetchCategoryChildren((*cit)->getUUID(), AISAPI::INVENTORY);
+        LLInventoryModelBackgroundFetch::instance().scheduleFolderFetch((*cit)->getUUID(), true /*force, since it has changes*/);
 	}
 	for (item_array_t::iterator iit = items.begin(); iit != items.end(); ++iit)
 	{
@@ -3810,7 +3807,7 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
         // Temporary workaround: just fetch the item using AIS to get missing fields.
         // If this works fine we might want to extract ids only from the message
         // then use AIS as a primary fetcher
-        LLInventoryModelBackgroundFetch::instance().scheduleItemFetch((*iit)->getUUID());
+        LLInventoryModelBackgroundFetch::instance().scheduleItemFetch((*iit)->getUUID(), true);
 	}
 	gInventory.notifyObservers();
 

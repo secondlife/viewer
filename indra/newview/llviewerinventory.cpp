@@ -561,7 +561,8 @@ LLViewerInventoryCategory::LLViewerInventoryCategory(const LLUUID& uuid,
 	LLInventoryCategory(uuid, parent_uuid, pref, name),
 	mOwnerID(owner_id),
 	mVersion(LLViewerInventoryCategory::VERSION_UNKNOWN),
-	mDescendentCount(LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN)
+	mDescendentCount(LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN),
+    mFetching(FETCH_NONE)
 {
 	mDescendentsRequested.reset();
 }
@@ -569,7 +570,8 @@ LLViewerInventoryCategory::LLViewerInventoryCategory(const LLUUID& uuid,
 LLViewerInventoryCategory::LLViewerInventoryCategory(const LLUUID& owner_id) :
 	mOwnerID(owner_id),
 	mVersion(LLViewerInventoryCategory::VERSION_UNKNOWN),
-	mDescendentCount(LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN)
+	mDescendentCount(LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN),
+    mFetching(FETCH_NONE)
 {
 	mDescendentsRequested.reset();
 }
@@ -670,21 +672,33 @@ bool LLViewerInventoryCategory::fetch()
 	return false;
 }
 
-void LLViewerInventoryCategory::setFetching(bool fetching)
+LLViewerInventoryCategory::EFetchType LLViewerInventoryCategory::getFetching()
 {
-    if (fetching)
+    // if timer hasn't expired, request was scheduled, but not in progress
+    // if mFetching request was actually started
+    if (mDescendentsRequested.hasExpired())
     {
-        if ((VERSION_UNKNOWN == getVersion())
-            && mDescendentsRequested.hasExpired())
+        mFetching = FETCH_NONE;
+    }
+    return mFetching;
+}
+
+void LLViewerInventoryCategory::setFetching(LLViewerInventoryCategory::EFetchType fetching)
+{
+    if (fetching > mFetching) // allow a switch from normal to recursive
+    {
+        if (mDescendentsRequested.hasExpired() || (mFetching == FETCH_NONE))
         {
             const F32 FETCH_TIMER_EXPIRY = 10.0f;
             mDescendentsRequested.reset();
             mDescendentsRequested.setTimerExpirySec(FETCH_TIMER_EXPIRY);
         }
+        mFetching = fetching;
     }
-    else
+    else if (fetching = FETCH_NONE)
     {
         mDescendentsRequested.stop();
+        mFetching = fetching;
     }
 }
 

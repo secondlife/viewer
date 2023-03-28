@@ -47,10 +47,11 @@ class LLInventoryModelBackgroundFetch : public LLSingleton<LLInventoryModelBackg
 	~LLInventoryModelBackgroundFetch();
 public:
 
-    // Start  background breadth-first fetching of inventory contents.
+    // Start background breadth-first fetching of inventory contents.
 	// This gets triggered when performing a filter-search.
 	void start(const LLUUID& cat_id = LLUUID::null, bool recursive = true);
-    void scheduleItemFetch(const LLUUID& item_id);
+    void scheduleFolderFetch(const LLUUID& cat_id, bool forced = false);
+    void scheduleItemFetch(const LLUUID& item_id, bool forced = false);
 
 	BOOL folderFetchActive() const;
 	bool isEverythingFetched() const; // completing the fetch once per session should be sufficient
@@ -80,25 +81,26 @@ public:
 protected:
 
     typedef enum {
-        RT_NONE = 0,
-        RT_CONTENT, // request content recursively
-        RT_RECURSIVE, // request everything recursively
-    } ERecursionType;
+        FT_DEFAULT = 0,
+        FT_FORCED, // request even if already loaded
+        FT_CONTENT_RECURSIVE, // request content recursively
+        FT_RECURSIVE, // request everything recursively
+    } EFetchType;
     struct FetchQueueInfo
     {
-        FetchQueueInfo(const LLUUID& id, ERecursionType recursive, bool is_category = true)
+        FetchQueueInfo(const LLUUID& id, EFetchType recursive, bool is_category = true)
             : mUUID(id),
             mIsCategory(is_category),
-            mRecursive(recursive)
+            mFetchType(recursive)
         {}
 
         LLUUID mUUID;
         bool mIsCategory;
-        ERecursionType mRecursive;
+        EFetchType mFetchType;
     };
     typedef std::deque<FetchQueueInfo> fetch_queue_t;
 
-    void onAISFodlerCalback(const LLUUID &request_id, const LLUUID &response_id, ERecursionType recursion);
+    void onAISFodlerCalback(const LLUUID &request_id, const LLUUID &response_id, EFetchType recursion);
     void bulkFetchViaAis();
     void bulkFetchViaAis(const FetchQueueInfo& fetch_info);
 	void bulkFetch();

@@ -209,10 +209,17 @@ public:
 	S32 getVersion() const;
 	void setVersion(S32 version);
 
-	// Returns true if a fetch was issued.
+	// Returns true if a fetch was issued (not nessesary in progress).
 	bool fetch();
-    // Returns true if a fetch was issued.
-    void setFetching(bool);
+
+    typedef enum {
+        FETCH_NONE = 0,
+        FETCH_NORMAL,
+        FETCH_RECURSIVE,
+    } EFetchType;
+    EFetchType getFetching();
+    // marks as fetch being in progress or as done
+    void setFetching(EFetchType);
 
 	// used to help make caching more robust - for example, if
 	// someone is getting 4 packets but logs out after 3. the viewer
@@ -242,6 +249,7 @@ protected:
 	LLUUID mOwnerID;
 	S32 mVersion;
 	S32 mDescendentCount;
+    EFetchType mFetching;
 	LLFrameTimer mDescendentsRequested;
 };
 
