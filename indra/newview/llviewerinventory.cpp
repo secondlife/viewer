@@ -695,7 +695,7 @@ void LLViewerInventoryCategory::setFetching(LLViewerInventoryCategory::EFetchTyp
         }
         mFetching = fetching;
     }
-    else if (fetching = FETCH_NONE)
+    else if (fetching == FETCH_NONE)
     {
         mDescendentsRequested.stop();
         mFetching = fetching;
