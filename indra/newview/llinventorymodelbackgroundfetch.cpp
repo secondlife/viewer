@@ -514,7 +514,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
         return;
     }
 
-    static LLCachedControl<U32> ais_pool(gSavedSettings, "", 20);
+    static LLCachedControl<U32> ais_pool(gSavedSettings, "PoolSizeAIS", 20);
     const U32 max_concurrent_fetches = llmax(1, ais_pool - 1);
 
     if (mFetchCount >= max_concurrent_fetches)
