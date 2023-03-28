@@ -10356,7 +10356,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>16</real>
+    <real>8</real>
   </map>
   <key>RenderTonemapper</key>
   <map>

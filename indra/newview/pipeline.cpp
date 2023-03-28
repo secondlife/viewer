@@ -338,7 +338,7 @@ bool addDeferredAttachments(LLRenderTarget& target, bool for_impostor = false)
     bool valid = true
         && target.addColorAttachment(GL_RGBA) // frag-data[1] specular OR PBR ORM
         && target.addColorAttachment(GL_RGBA16F)                              // frag_data[2] normal+z+fogmask, See: class1\deferred\materialF.glsl & softenlight
-        && target.addColorAttachment(GL_RGB16);                  // frag_data[3] PBR emissive
+        && target.addColorAttachment(GL_RGB16F);                  // frag_data[3] PBR emissive
     return valid;
 }
 
