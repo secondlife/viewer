@@ -91,10 +91,8 @@ void main()
     vary_LightNormPosDot = rel_pos_lightnorm_dot;
 
     // Initialize temp variables
-    vec3 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
-    float scale = cube_snapshot*0.75+1;
-    sunlight *= scale;
-
+    vec3 sunlight = (sun_up_factor == 1) ? sunlight_color*2.0 : moonlight_color;
+    
     // Sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
     vec3 light_atten = (blue_density + vec3(haze_density * 0.25)) * (density_multiplier * max_y);

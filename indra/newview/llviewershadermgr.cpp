@@ -187,6 +187,7 @@ LLGLSLShader			gDeferredPostProgram;
 LLGLSLShader			gDeferredCoFProgram;
 LLGLSLShader			gDeferredDoFCombineProgram;
 LLGLSLShader			gDeferredPostGammaCorrectProgram;
+LLGLSLShader			gExposureProgram;
 LLGLSLShader			gFXAAProgram;
 LLGLSLShader			gDeferredPostNoDoFProgram;
 LLGLSLShader			gDeferredWLSkyProgram;
@@ -1000,6 +1001,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredPostProgram.unload();		
 		gDeferredCoFProgram.unload();		
 		gDeferredDoFCombineProgram.unload();
+        gExposureProgram.unload();
 		gDeferredPostGammaCorrectProgram.unload();
 		gFXAAProgram.unload();
 		gDeferredWLSkyProgram.unload();
@@ -2517,6 +2519,20 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarAlphaProgram.mFeatures.calculatesLighting = true;
 		gDeferredAvatarAlphaProgram.mFeatures.hasLighting = true;
 	}
+
+    if (success)
+    {
+        gExposureProgram.mName = "Exposure";
+        gExposureProgram.mFeatures.hasSrgb = true;
+        gExposureProgram.mFeatures.isDeferred = true;
+        gExposureProgram.mShaderFiles.clear();
+        gExposureProgram.clearPermutations();
+        gExposureProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+        gExposureProgram.mShaderFiles.push_back(make_pair("deferred/exposureF.glsl", GL_FRAGMENT_SHADER));
+        gExposureProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = gExposureProgram.createShader(NULL, NULL);
+        llassert(success);
+    }
 
 	if (success)
 	{

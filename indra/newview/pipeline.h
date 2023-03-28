@@ -300,8 +300,6 @@ public:
     void bindReflectionProbes(LLGLSLShader& shader);
     void unbindReflectionProbes(LLGLSLShader& shader);
 
-    
-
 	void renderDeferredLighting();
 	void postDeferredGammaCorrect(LLRenderTarget* screen_target);
 
@@ -678,6 +676,12 @@ public:
     // copy of the color/depth buffer just before gamma correction
     // for use by SSR
     LLRenderTarget          mSceneMap;
+
+    // exposure map for getting average color in scene
+    LLRenderTarget          mExposureMap;
+
+    // tonemapped and gamma corrected render ready for post
+    LLRenderTarget          mPostMap;
 
     LLCullResult            mSky;
     LLCullResult            mReflectedObjects;
