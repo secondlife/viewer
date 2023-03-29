@@ -325,6 +325,10 @@ then
 fi
 end_section "coding policy check"
 
+# Some build-time tests require llbase. Now that that's no longer implicitly
+# pulled in by autobuild, install it explicitly.
+pip install llbase
+
 # Now run the build
 succeeded=true
 last_built_variant=
