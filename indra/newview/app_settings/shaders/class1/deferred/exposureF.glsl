@@ -82,7 +82,7 @@ void main()
 
     float L = lum(col);
 
-    float s = clamp(0.1/L, 0.5, 4.0);
+    float s = clamp(0.1/L, 0.5, 2.0);
 
     float prev = texture(exposureMap, vec2(0.5,0.5)).r;
     s = mix(prev, s, min(dt*2.0, 0.04));
