@@ -316,8 +316,8 @@ begin_section "coding policy check"
 # this far. Running coding policy checks on one platform *should* suffice...
 if [[ "$arch" == "Darwin" ]]
 then
-    # install the git-hooks dependencies
-    pip install -r "$(native_path "$git_hooks_checkout/requirements.txt")" || \
+    # install the git-hooks dependencies in our virtualenv
+    python_cmd -m pip install -r "$(native_path "$git_hooks_checkout/requirements.txt")" || \
         fatal "pip install git-hooks failed"
     # validate the branch we're about to build
     python_cmd "$git_hooks_checkout/coding_policy_git.py" --all_files || \
@@ -326,8 +326,8 @@ fi
 end_section "coding policy check"
 
 # Some build-time tests require llbase. Now that that's no longer implicitly
-# pulled in by autobuild, install it explicitly.
-pip install llbase
+# pulled in by autobuild, install it explicitly in our virtualenv.
+python_cmd -m pip install llbase
 
 # Now run the build
 succeeded=true
