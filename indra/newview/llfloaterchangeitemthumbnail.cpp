@@ -45,6 +45,7 @@
 #include "llviewerfoldertype.h"
 #include "llviewermenufile.h"
 #include "llviewerobjectlist.h"
+#include "llviewertexturelist.h"
 #include "llwindow.h"
 
 
@@ -167,6 +168,53 @@ void LLFloaterChangeItemThumbnail::onOpen(const LLSD& key)
     }
 
     refreshFromInventory();
+}
+
+void LLFloaterChangeItemThumbnail::onFocusReceived()
+{
+    mPasteFromClipboardBtn->setEnabled(LLClipboard::instance().hasContents());
+}
+
+void LLFloaterChangeItemThumbnail::onMouseEnter(S32 x, S32 y, MASK mask)
+{
+    mPasteFromClipboardBtn->setEnabled(LLClipboard::instance().hasContents());
+}
+
+BOOL LLFloaterChangeItemThumbnail::handleDragAndDrop(
+    S32 x,
+    S32 y,
+    MASK mask,
+    BOOL drop,
+    EDragAndDropType cargo_type,
+    void *cargo_data,
+    EAcceptance *accept,
+    std::string& tooltip_msg)
+{
+    if (cargo_type == DAD_TEXTURE)
+    {
+        LLInventoryItem *item = (LLInventoryItem *)cargo_data;
+        if (item->getAssetUUID().notNull())
+        {
+            if (drop)
+            {
+                assignAndValidateAsset(item->getAssetUUID());
+            }
+
+            *accept = ACCEPT_YES_SINGLE;
+        }
+        else
+        {
+            *accept = ACCEPT_NO;
+        }
+    }
+    else
+    {
+        *accept = ACCEPT_NO;
+    }
+
+    LL_DEBUGS("UserInput") << "dragAndDrop handled by LLFloaterChangeItemThumbnail " << getKey() << LL_ENDL;
+
+    return TRUE;
 }
 
 void LLFloaterChangeItemThumbnail::changed(U32 mask)
@@ -342,9 +390,11 @@ void LLFloaterChangeItemThumbnail::refreshFromObject(LLInventoryObject* obj)
     mThumbnailCtrl->setValue(thumbnail_id);
 
     mCopyToClipboardBtn->setEnabled(thumbnail_id.notNull());
+    mPasteFromClipboardBtn->setEnabled(LLClipboard::instance().hasContents());
 
     // todo: some elements might not support setting thumbnails
     // since they already have them
+    // It is unclear how system folders should function
 }
 
 void LLFloaterChangeItemThumbnail::onUploadLocal(void *userdata)
@@ -418,7 +468,8 @@ void LLFloaterChangeItemThumbnail::onCopyToClipboard(void *userdata)
     LLInventoryObject* obj = self->getInventoryObject();
     if (obj)
     {
-        LLClipboard::instance().addToClipboard(obj->getThumbnailUUID());
+        LLClipboard::instance().addToClipboard(obj->getThumbnailUUID(), LLAssetType::AT_NONE);
+        self->mPasteFromClipboardBtn->setEnabled(true);
     }
 }
 
@@ -440,29 +491,29 @@ void LLFloaterChangeItemThumbnail::onPasteFromClipboard(void *userdata)
                 // no point checking snapshot?
                 if (item->getType() == LLAssetType::AT_TEXTURE)
                 {
-                    asset_id = item->getAssetUUID();
+                    bool copy = item->getPermissions().allowCopyBy(gAgent.getID());
+                    bool xfer = item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
+
+                    if (copy && xfer)
+                    {
+                        asset_id = item->getAssetUUID();
+                    }
+                    else
+                    {
+                        LLNotificationsUtil::add("ThumbnailInsufficientPermissions");
+                        return;
+                    }
                 }
             }
             else
             {
-                LLPointer<LLViewerFetchedTexture> texturep = LLViewerTextureManager::getFetchedTexture(potential_uuid);
-                if (texturep)
-                {
-                    asset_id = potential_uuid;
-                }
+                // assume that this is a texture
+                asset_id = potential_uuid;
             }
         }
         if (asset_id.notNull())
         {
-            // todo: if texture isn't loaded subscribe, or preload it in some way.
-            if (validateAsset(asset_id))
-            {
-                self->setThumbnailId(asset_id);
-            }
-            else
-            {
-                LLNotificationsUtil::add("ThumbnailDimentionsLimit");
-            }
+            self->assignAndValidateAsset(asset_id);
         }
         // else show 'buffer has no texture' warning?
     }
@@ -489,11 +540,41 @@ void LLFloaterChangeItemThumbnail::onRemovalConfirmation(const LLSD& notificatio
     }
 }
 
-bool LLFloaterChangeItemThumbnail::validateAsset(const LLUUID &asset_id)
+void LLFloaterChangeItemThumbnail::assignAndValidateAsset(const LLUUID &asset_id)
 {
     LLPointer<LLViewerFetchedTexture> texturep = LLViewerTextureManager::getFetchedTexture(asset_id);
+    if (texturep->getFullWidth() == 0 && !texturep->isFullyLoaded() && !texturep->isMissingAsset())
+    {
+        texturep->setLoadedCallback(onImageLoaded,
+            MAX_DISCARD_LEVEL, // don't actually need max one, 3 or 4 should be enough
+            FALSE,
+            FALSE,
+            new LLHandle<LLFloater>(getHandle()),
+            NULL,
+            FALSE);
+    }
+    else
+    {
+        if (validateAsset(asset_id))
+        {
+            setThumbnailId(asset_id);
+        }
+        else
+        {
+            LLNotificationsUtil::add("ThumbnailDimentionsLimit");
+        }
+    }
+}
+bool LLFloaterChangeItemThumbnail::validateAsset(const LLUUID &asset_id)
+{
+    LLPointer<LLViewerFetchedTexture> texturep = LLViewerTextureManager::findFetchedTexture(asset_id, TEX_LIST_STANDARD);
 
     if (!texturep)
+    {
+        return false;
+    }
+
+    if (texturep->isMissingAsset())
     {
         return false;
     }
@@ -515,6 +596,42 @@ bool LLFloaterChangeItemThumbnail::validateAsset(const LLUUID &asset_id)
         return false;
     }
     return true;
+}
+
+//static
+void LLFloaterChangeItemThumbnail::onImageLoaded(
+    BOOL success,
+    LLViewerFetchedTexture *src_vi,
+    LLImageRaw* src,
+    LLImageRaw* aux_src,
+    S32 discard_level,
+    BOOL final,
+    void* userdata)
+{
+    if (!userdata) return;
+
+    if (!final && success) return; //not done yet
+
+    LLHandle<LLFloater>* handle = (LLHandle<LLFloater>*)userdata;
+
+    if (success && !handle->isDead())
+    {
+        LLFloaterChangeItemThumbnail* self = static_cast<LLFloaterChangeItemThumbnail*>(handle->get());
+        if (self)
+        {
+            LLUUID asset_id = src_vi->getID();
+            if (validateAsset(asset_id))
+            {
+                self->setThumbnailId(asset_id);
+            }
+            else
+            {
+                LLNotificationsUtil::add("ThumbnailDimentionsLimit");
+            }
+        }
+    }
+
+    delete handle;
 }
 
 void LLFloaterChangeItemThumbnail::showTexturePicker(const LLUUID &thumbnail_id)

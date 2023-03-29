@@ -6144,6 +6144,17 @@ Are you sure you want to delete them?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="ThumbnailInsufficientPermissions"
+   type="alertmodal">
+    <unique/>
+    Only copy and transfer free images can be assigned as thumbnails.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
      icon="alertmodal.tga"
      name="ConfirmUnlink"
      type="alertmodal">

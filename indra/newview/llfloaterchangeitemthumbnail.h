@@ -37,6 +37,7 @@ class LLTextBox;
 class LLThumbnailCtrl;
 class LLUICtrl;
 class LLViewerInventoryItem;
+class LLViewerFetchedTexture;
 
 class LLFloaterChangeItemThumbnail : public LLFloater, public LLInventoryObserver, public LLVOInventoryListener
 {
@@ -46,6 +47,18 @@ public:
 
     BOOL postBuild() override;
     void onOpen(const LLSD& key) override;
+    void onFocusReceived() override;
+    void onMouseEnter(S32 x, S32 y, MASK mask) override;
+
+    BOOL handleDragAndDrop(
+        S32 x,
+        S32 y,
+        MASK mask,
+        BOOL drop,
+        EDragAndDropType cargo_type,
+        void *cargo_data,
+        EAcceptance *accept,
+        std::string& tooltip_msg) override;
 
     void changed(U32 mask) override;
     void inventoryChanged(LLViewerObject* object,
@@ -67,7 +80,15 @@ private:
     static void onRemove(void*);
     static void onRemovalConfirmation(const LLSD& notification, const LLSD& response, LLHandle<LLFloater> handle);
 
+    void assignAndValidateAsset(const LLUUID &asset_id);
     static bool validateAsset(const LLUUID &asset_id);
+    static void onImageLoaded(BOOL success,
+        LLViewerFetchedTexture *src_vi,
+        LLImageRaw* src,
+        LLImageRaw* aux_src,
+        S32 discard_level,
+        BOOL final,
+        void* userdata);
 
     void showTexturePicker(const LLUUID &thumbnail_id);
     void onTexturePickerCommit(LLUUID id);
