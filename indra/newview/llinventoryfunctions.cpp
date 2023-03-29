@@ -46,6 +46,7 @@
 #include "llappearancemgr.h"
 #include "llappviewer.h"
 #include "llavataractions.h"
+#include "llavatarnamecache.h"
 #include "llclipboard.h"
 #include "lldirpicker.h"
 #include "lldonotdisturbnotificationstorage.h"
@@ -2163,6 +2164,55 @@ void ungroup_folder_items(const LLUUID& folder_id)
     }
     gInventory.removeCategory(inv_cat->getUUID());
     gInventory.notifyObservers();
+}
+
+std::string get_searchable_description(LLInventoryModel* model, const LLUUID& item_id)
+{
+    if (model)
+    {
+        const LLInventoryItem *item = model->getItem(item_id);
+        if(item)
+        {
+            std::string desc = item->getDescription();
+            LLStringUtil::toUpper(desc);
+            return desc;
+        }
+    }
+    return LLStringUtil::null;
+}
+
+std::string get_searchable_creator_name(LLInventoryModel* model, const LLUUID& item_id)
+{
+    if (model)
+    {
+        const LLInventoryItem *item = model->getItem(item_id);
+        if(item)
+        {
+            LLAvatarName av_name;
+            if (LLAvatarNameCache::get(item->getCreatorUUID(), &av_name))
+            {
+                std::string username = av_name.getUserName();
+                LLStringUtil::toUpper(username);
+                return username;
+            }
+        }
+    }
+    return LLStringUtil::null;
+}
+
+std::string get_searchable_UUID(LLInventoryModel* model, const LLUUID& item_id)
+{
+    if (model)
+    {
+        const LLViewerInventoryItem *item = model->getItem(item_id);
+        if(item && (item->getIsFullPerm() || gAgent.isGodlikeWithoutAdminMenuFakery()))
+        {
+            std::string uuid = item->getAssetUUID().asString();
+            LLStringUtil::toUpper(uuid);
+            return uuid;
+        }
+    }
+    return LLStringUtil::null;
 }
 ///----------------------------------------------------------------------------
 /// LLMarketplaceValidator implementations

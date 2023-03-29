@@ -103,6 +103,9 @@ bool can_move_to_my_outfits(LLInventoryModel* model, LLInventoryCategory* inv_ca
 std::string get_localized_folder_name(LLUUID cat_uuid);
 void new_folder_window(const LLUUID& folder_id);
 void ungroup_folder_items(const LLUUID& folder_id);
+std::string get_searchable_description(LLInventoryModel* model, const LLUUID& item_id);
+std::string get_searchable_creator_name(LLInventoryModel* model, const LLUUID& item_id);
+std::string get_searchable_UUID(LLInventoryModel* model, const LLUUID& item_id);
 
 /**                    Miscellaneous global functions
  **                                                                            **

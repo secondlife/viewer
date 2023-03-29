@@ -29,6 +29,7 @@
 
 #include "lllistcontextmenu.h"
 #include "llpanel.h"
+#include "llinventoryfilter.h"
 #include "llinventorymodel.h"
 
 class LLInventoryCategoriesObserver;
@@ -108,6 +109,9 @@ public:
     void signalSelectionItemID(const LLUUID& category_id);
     boost::signals2::connection setSelectionChangeCallback(selection_change_callback_t cb);
 
+    void setSearchType(LLInventoryFilter::ESearchType type);
+    LLInventoryFilter::ESearchType getSearchType() { return mSearchType; }
+
 protected:
 
     void onChangeItemSelection(const LLUUID& category_id);
@@ -181,6 +185,8 @@ private:
     typedef std::map<LLUUID, LLInventoryGalleryItem*> gallery_item_map_t;
     gallery_item_map_t mItemMap;
     std::map<LLInventoryGalleryItem*, S32> mItemIndexMap;
+
+    LLInventoryFilter::ESearchType mSearchType;
 };
 
 class LLInventoryGalleryItem : public LLPanel
@@ -217,7 +223,14 @@ public:
     void setSelected(bool value);
     void setUUID(LLUUID id) {mUUID = id;}
     LLUUID getUUID() { return mUUID;}
-    
+
+    void setAssetIDStr(std::string asset_id) {mAssetIDStr = asset_id;}
+    std::string getAssetIDStr() { return mAssetIDStr;}
+    void setDescription(std::string desc) {mDesc = desc;}
+    std::string getDescription() { return mDesc;}
+    void setCreatorName(std::string name) {mCreatorName = name;}
+    std::string getCreatorName() { return mCreatorName;}
+
     std::string getItemName() {return mName;}
     bool isDefaultImage() {return mDefaultImage;}
     
@@ -238,7 +251,11 @@ private:
     bool     mDefaultImage;
     bool     mHidden;
     bool     mIsFolder;
-    
+
+    std::string mAssetIDStr;
+    std::string mDesc;
+    std::string mCreatorName;
+
     EInventorySortGroup mSortGroup;
     LLAssetType::EType mType;
     std::string mName;

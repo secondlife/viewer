@@ -83,7 +83,8 @@ LLInventoryGallery::LLInventoryGallery(const LLInventoryGallery::Params& p)
       mItemsInRow(p.items_in_row),
       mRowPanWidthFactor(p.row_panel_width_factor),
       mGalleryWidthFactor(p.gallery_width_factor),
-      mIsInitialized(false)
+      mIsInitialized(false),
+      mSearchType(LLInventoryFilter::SEARCHTYPE_NAME)
 {
     updateGalleryWidth();
 
@@ -473,6 +474,9 @@ LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, L
     gitem->setGallery(this);
     gitem->setType(type, is_link);
     gitem->setThumbnail(thumbnail_id);
+    gitem->setCreatorName(get_searchable_creator_name(&gInventory, item_id));
+    gitem->setDescription(get_searchable_description(&gInventory, item_id));
+    gitem->setAssetIDStr(get_searchable_UUID(&gInventory, item_id));
     return gitem;
 }
 
@@ -556,14 +560,41 @@ void LLInventoryGallery::applyFilter(LLInventoryGalleryItem* item, const std::st
 {
     if (!item) return;
 
-    std::string item_name = item->getItemName();
-    LLStringUtil::toUpper(item_name);
+    std::string desc;
+
+    switch(mSearchType)
+    {
+        case LLInventoryFilter::SEARCHTYPE_CREATOR:
+            desc = item->getCreatorName();
+            break;
+        case LLInventoryFilter::SEARCHTYPE_DESCRIPTION:
+            desc = item->getDescription();
+            break;
+        case LLInventoryFilter::SEARCHTYPE_UUID:
+            desc = item->getAssetIDStr();
+            break;
+        case LLInventoryFilter::SEARCHTYPE_NAME:
+        default:
+            desc = item->getItemName();
+            break;
+    }
+    
+    LLStringUtil::toUpper(desc);
 
     std::string cur_filter = filter_substring;
     LLStringUtil::toUpper(cur_filter);
 
-    bool hidden = (std::string::npos == item_name.find(cur_filter));
+    bool hidden = (std::string::npos == desc.find(cur_filter));
     item->setHidden(hidden);
+}
+
+void LLInventoryGallery::setSearchType(LLInventoryFilter::ESearchType type)
+{
+    if(mSearchType != type)
+    {
+        mSearchType = type;
+        reArrangeRows();
+    }
 }
 
 void LLInventoryGallery::getCurrentCategories(uuid_vec_t& vcur)

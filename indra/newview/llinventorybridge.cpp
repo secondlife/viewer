@@ -215,54 +215,17 @@ const std::string& LLInvFVBridge::getDisplayName() const
 
 std::string LLInvFVBridge::getSearchableDescription() const
 {
-	const LLInventoryModel* model = getInventoryModel();
-	if (model)
-	{
-		const LLInventoryItem *item = model->getItem(mUUID);
-		if(item)
-		{
-			std::string desc = item->getDescription();
-			LLStringUtil::toUpper(desc);
-			return desc;
-		}
-	}
-	return LLStringUtil::null;
+    return get_searchable_description(getInventoryModel(), mUUID);
 }
 
 std::string LLInvFVBridge::getSearchableCreatorName() const
 {
-	const LLInventoryModel* model = getInventoryModel();
-	if (model)
-	{
-		const LLInventoryItem *item = model->getItem(mUUID);
-		if(item)
-		{
-			LLAvatarName av_name;
-			if (LLAvatarNameCache::get(item->getCreatorUUID(), &av_name))
-			{
-				std::string username = av_name.getUserName();
-				LLStringUtil::toUpper(username);
-				return username;
-			}
-		}
-	}
-	return LLStringUtil::null;
+    return get_searchable_creator_name(getInventoryModel(), mUUID);
 }
 
 std::string LLInvFVBridge::getSearchableUUIDString() const
 {
-	const LLInventoryModel* model = getInventoryModel();
-	if (model)
-	{
-		const LLViewerInventoryItem *item = model->getItem(mUUID);
-		if(item && (item->getIsFullPerm() || gAgent.isGodlikeWithoutAdminMenuFakery()))
-		{
-			std::string uuid = item->getAssetUUID().asString();
-			LLStringUtil::toUpper(uuid);
-			return uuid;
-		}
-	}
-	return LLStringUtil::null;
+    return get_searchable_UUID(getInventoryModel(), mUUID);
 }
 
 // Folders have full perms

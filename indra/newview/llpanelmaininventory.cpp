@@ -566,25 +566,47 @@ void LLPanelMainInventory::onSelectSearchType()
 	std::string new_type = mSearchTypeCombo->getValue();
 	if (new_type == "search_by_name")
 	{
-		getActivePanel()->setSearchType(LLInventoryFilter::SEARCHTYPE_NAME);
+		setSearchType(LLInventoryFilter::SEARCHTYPE_NAME);
 	}
 	if (new_type == "search_by_creator")
 	{
-		getActivePanel()->setSearchType(LLInventoryFilter::SEARCHTYPE_CREATOR);
+		setSearchType(LLInventoryFilter::SEARCHTYPE_CREATOR);
 	}
 	if (new_type == "search_by_description")
 	{
-		getActivePanel()->setSearchType(LLInventoryFilter::SEARCHTYPE_DESCRIPTION);
+		setSearchType(LLInventoryFilter::SEARCHTYPE_DESCRIPTION);
 	}
 	if (new_type == "search_by_UUID")
 	{
-		getActivePanel()->setSearchType(LLInventoryFilter::SEARCHTYPE_UUID);
+		setSearchType(LLInventoryFilter::SEARCHTYPE_UUID);
 	}
+}
+
+void LLPanelMainInventory::setSearchType(LLInventoryFilter::ESearchType type)
+{
+    if(mSingleFolderMode && isGalleryViewMode())
+    {
+        mInventoryGalleryPanel->setSearchType(type);
+    }
+    else
+    {
+        getActivePanel()->setSearchType(type);
+    }
 }
 
 void LLPanelMainInventory::updateSearchTypeCombo()
 {
-	LLInventoryFilter::ESearchType search_type = getActivePanel()->getSearchType();
+    LLInventoryFilter::ESearchType search_type(LLInventoryFilter::SEARCHTYPE_NAME);
+
+    if(mSingleFolderMode && isGalleryViewMode())
+    {
+        search_type = mInventoryGalleryPanel->getSearchType();
+    }
+    else
+    {
+        search_type = getActivePanel()->getSearchType();
+    }
+
 	switch(search_type)
 	{
 		case LLInventoryFilter::SEARCHTYPE_CREATOR:
