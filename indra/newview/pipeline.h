@@ -679,6 +679,7 @@ public:
 
     // exposure map for getting average color in scene
     LLRenderTarget          mExposureMap;
+    LLRenderTarget          mLastExposure;
 
     // tonemapped and gamma corrected render ready for post
     LLRenderTarget          mPostMap;

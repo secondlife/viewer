@@ -116,27 +116,7 @@
 #include "llenvironment.h"
 #include "llsettingsvo.h"
 
-#ifdef _DEBUG
-// Debug indices is disabled for now for debug performance - djs 4/24/02
-//#define DEBUG_INDICES
-#else
-//#define DEBUG_INDICES
-#endif
-
-// Expensive and currently broken
-//
-#define MATERIALS_IN_REFLECTIONS 0
-
-// NOTE: Keep in sync with indra/newview/skins/default/xui/en/floater_preferences_graphics_advanced.xml
-// NOTE: Unused consts are commented out since some compilers (on macOS) may complain about unused variables.
-//  const S32 WATER_REFLECT_NONE_WATER_OPAQUE       = -2;
-    //const S32 WATER_REFLECT_NONE_WATER_TRANSPARENT  = -1;
-    //const S32 WATER_REFLECT_MINIMAL                 =  0;
-//  const S32 WATER_REFLECT_TERRAIN                 =  1;
-    //const S32 WATER_REFLECT_STATIC_OBJECTS          =  2;
-    //const S32 WATER_REFLECT_AVATARS                 =  3;
-    //const S32 WATER_REFLECT_EVERYTHING              =  4;
-
+extern BOOL gSnapshot;
 bool gShiftFrame = false;
 
 //cached settings
@@ -851,11 +831,6 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
     mPostMap.allocate(resX, resY, GL_RGBA);
 
-    mExposureMap.allocate(1, 1, GL_R16F);
-    mExposureMap.bindTarget();
-    mExposureMap.clear();
-    mExposureMap.flush();
-
     //HACK make screenbuffer allocations start failing after 30 seconds
     if (gSavedSettings.getBOOL("SimulateFBOFailure"))
     {
@@ -1086,8 +1061,6 @@ void LLPipeline::releaseGLBuffers()
 	
     mSceneMap.release();
 
-    mExposureMap.release();
-
     mPostMap.release();
 
 	for (U32 i = 0; i < 3; i++)
@@ -1110,6 +1083,10 @@ void LLPipeline::releaseLUTBuffers()
 	}
 
     mPbrBrdfLut.release();
+
+    mExposureMap.release();
+    mLastExposure.release();
+
 }
 
 void LLPipeline::releaseShadowBuffers()
@@ -1286,6 +1263,13 @@ void LLPipeline::createLUTBuffers()
 
     gDeferredGenBrdfLutProgram.unbind();
     mPbrBrdfLut.flush();
+
+    mExposureMap.allocate(1, 1, GL_R16F);
+    mExposureMap.bindTarget();
+    mExposureMap.clear();
+    mExposureMap.flush();
+
+    mLastExposure.allocate(1, 1, GL_R16F);
 }
 
 
@@ -7407,30 +7391,50 @@ void LLPipeline::renderFinalize()
         // exposure sample
         {
             LL_PROFILE_GPU_ZONE("exposure sample");
+
+            {
+                // copy last frame's exposure into mLastExposure
+                mLastExposure.bindTarget();
+                gCopyProgram.bind();
+                gGL.getTexUnit(0)->bind(&mExposureMap);
+
+                mScreenTriangleVB->setBuffer();
+                mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+                mLastExposure.flush();
+            }
+
+
             mExposureMap.bindTarget();
 
             LLGLDepthTest depth(GL_FALSE, GL_FALSE);
-            LLGLEnable blend(GL_BLEND);
-            gGL.setSceneBlendType(LLRender::BT_ALPHA);
-
+            
             gExposureProgram.bind();
 
             S32 channel = 0;
-            channel = gExposureProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, screenTarget()->getUsage());
+            channel = gExposureProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE);
             if (channel > -1)
             {
                 screenTarget()->bindTexture(0, channel, LLTexUnit::TFO_POINT);
             }
 
-            channel = gDeferredPostGammaCorrectProgram.enableTexture(LLShaderMgr::DEFERRED_EMISSIVE, screenTarget()->getUsage());
+            channel = gExposureProgram.enableTexture(LLShaderMgr::DEFERRED_EMISSIVE);
             if (channel > -1)
             {
-                mGlow[1].bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
+                mGlow[1].bindTexture(0, channel);
+            }
+
+            channel = gExposureProgram.enableTexture(LLShaderMgr::EXPOSURE_MAP);
+            if (channel > -1)
+            {
+                mLastExposure.bindTexture(0, channel);
             }
 
             static LLStaticHashedString dt("dt");
+            static LLStaticHashedString noiseVec("noiseVec");
             gExposureProgram.uniform1f(dt, gFrameIntervalSeconds);
-            
+            gExposureProgram.uniform2f(noiseVec, ll_frand() * 2.0 - 1.0, ll_frand() * 2.0 - 1.0);
+           
             mScreenTriangleVB->setBuffer();
             mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
@@ -7562,9 +7566,8 @@ void LLPipeline::renderFinalize()
 				2.f / width * scale_x, 2.f / height * scale_y);
 
             {
-                // at this point we should pointed at the backbuffer
-                llassert(LLRenderTarget::sCurFBO == 0);
-
+                // at this point we should pointed at the backbuffer (or a snapshot render target)
+                llassert(gSnapshot || LLRenderTarget::sCurFBO == 0);
                 LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
                 S32 depth_channel = shader->getTextureChannel(LLShaderMgr::DEFERRED_DEPTH);
                 gGL.getTexUnit(depth_channel)->bind(&mRT->deferredScreen, true);
@@ -7577,8 +7580,8 @@ void LLPipeline::renderFinalize()
 		}
 		else
 		{
-            // at this point we should pointed at the backbuffer
-            llassert(LLRenderTarget::sCurFBO == 0);
+            // at this point we should pointed at the backbuffer (or a snapshot render target)
+            llassert(gSnapshot || LLRenderTarget::sCurFBO == 0);
 
             LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
 

@@ -108,9 +108,8 @@ uniform float gamma;
 
 vec3 toneMap(vec3 color)
 {
-    float exp_sample = texture(exposureMap, vec2(0.5,0.5)).r;
+    float exp_scale = texture(exposureMap, vec2(0.5,0.5)).r;
 
-    float exp_scale = clamp(0.1/exp_sample, 0.5, 8.0);
     color *= exposure * exp_scale;
 
 #ifdef TONEMAP_ACES_NARKOWICZ
