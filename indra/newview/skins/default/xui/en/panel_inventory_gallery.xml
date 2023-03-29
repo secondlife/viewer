@@ -26,7 +26,7 @@
   </text> 
   <scroll_container
    follows="all"
-   height="400"
+   height="390"
    layout="topleft"
    left="4"
    top="0"

@@ -53,7 +53,7 @@
    left="0"
    top="129"
    height="25"
-   width="148"
+   width="130"
    name="text_bg_panel">
     <text
       read_only="true"
@@ -65,7 +65,7 @@
       name="item_name"
       parse_urls="false"
       top="2"
-      width="150"
+      width="130"
       use_ellipses="true">
       Item name, folder name.
     </text>

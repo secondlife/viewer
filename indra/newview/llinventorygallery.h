@@ -27,6 +27,7 @@
 #ifndef LL_LLINVENTORYGALLERY_H
 #define LL_LLINVENTORYGALLERY_H
 
+#include "lllistcontextmenu.h"
 #include "llpanel.h"
 #include "llinventorymodel.h"
 
@@ -34,6 +35,8 @@ class LLInventoryCategoriesObserver;
 class LLInventoryGalleryItem;
 class LLScrollContainer;
 class LLTextBox;
+
+class LLInventoryGalleryContextMenu;
 
 class LLInventoryGallery : public LLPanel
 {
@@ -108,6 +111,7 @@ public:
 protected:
 
     void onChangeItemSelection(const LLUUID& category_id);
+    void showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& item_id);
 
     void applyFilter(LLInventoryGalleryItem* item, const std::string& filter_substring);
 
@@ -171,6 +175,7 @@ private:
     int mRowPanWidthFactor;
     int mGalleryWidthFactor;
 
+    LLInventoryGalleryContextMenu* mInventoryGalleryMenu;
     std::string mFilterSubString;
 
     typedef std::map<LLUUID, LLInventoryGalleryItem*> gallery_item_map_t;

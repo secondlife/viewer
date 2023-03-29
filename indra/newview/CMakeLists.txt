@@ -381,6 +381,7 @@ set(viewer_SOURCE_FILES
     llinventoryfilter.cpp
     llinventoryfunctions.cpp
     llinventorygallery.cpp
+    llinventorygallerymenu.cpp
     llinventoryicon.cpp
     llinventoryitemslist.cpp
     llinventorylistitem.cpp
@@ -1025,6 +1026,7 @@ set(viewer_HEADER_FILES
     llinventoryfilter.h
     llinventoryfunctions.h
     llinventorygallery.h
+    llinventorygallerymenu.h
     llinventoryicon.h
     llinventoryitemslist.h
     llinventorylistitem.h

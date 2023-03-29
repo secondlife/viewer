@@ -27,8 +27,8 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llinventorygallery.h"
+#include "llinventorygallerymenu.h"
 
-#include "llaccordionctrltab.h"
 #include "llcommonutils.h"
 #include "lliconctrl.h"
 #include "llinventorybridge.h"
@@ -115,12 +115,14 @@ BOOL LLInventoryGallery::postBuild()
     LLPanel::Params params = LLPanel::getDefaultParams();
     mGalleryPanel = LLUICtrlFactory::create<LLPanel>(params);
     mMessageTextBox = getChild<LLTextBox>("empty_txt");
-
+    mInventoryGalleryMenu = new LLInventoryGalleryContextMenu(this);
     return TRUE;
 }
 
 LLInventoryGallery::~LLInventoryGallery()
 {
+    delete mInventoryGalleryMenu;
+
     while (!mUnusedRowPanels.empty())
     {
         LLPanel* panelp = mUnusedRowPanels.back();
@@ -600,7 +602,7 @@ void LLInventoryGallery::updateAddedItem(LLUUID item_id)
     
     LLInventoryGalleryItem* item = buildGalleryItem(name, item_id, obj->getType(), thumbnail_id, obj->getIsLinkType());
     mItemMap.insert(LLInventoryGallery::gallery_item_map_t::value_type(item_id, item));
-
+    item->setRightMouseDownCallback(boost::bind(&LLInventoryGallery::showContextMenu, this, _1, _2, _3, item_id));
     item->setFocusReceivedCallback(boost::bind(&LLInventoryGallery::onChangeItemSelection, this, item_id));
     if (mGalleryCreated)
     {
@@ -668,6 +670,16 @@ void LLInventoryGallery::updateItemThumbnail(LLUUID item_id)
     if (mItemMap[item_id])
     {
         mItemMap[item_id]->setThumbnail(thumbnail_id);
+    }
+}
+
+void LLInventoryGallery::showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& item_id)
+{
+    if (mInventoryGalleryMenu && item_id.notNull())
+    {
+        uuid_vec_t selected_uuids;
+        selected_uuids.push_back(item_id);
+        mInventoryGalleryMenu->show(ctrl, selected_uuids, x, y);
     }
 }
 
