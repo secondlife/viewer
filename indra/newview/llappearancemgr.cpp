@@ -2786,8 +2786,6 @@ void LLAppearanceMgr::wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool ap
 			pid = gInventory.getRootFolderID();
 		}
 
-		// UDP PATH
-		// D567 needs to carry over thumbnail info if present
 		gInventory.createNewCategory(
 			pid,
 			LLFolderType::FT_NONE,
@@ -2807,7 +2805,8 @@ void LLAppearanceMgr::wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool ap
 
             // BAP fixes a lag in display of created dir.
             gInventory.notifyObservers();
-        }
+        },
+            cat->getThumbnailUUID()
         );
 	}
 	else
@@ -4050,8 +4049,6 @@ void LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, boo
 	// First, make a folder in the My Outfits directory.
 	const LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
 
-    // UDP PATH, should remove
-    // D567 copy thumbnail info from source folder
     gInventory.createNewCategory(
         parent_id,
         LLFolderType::FT_OUTFIT,

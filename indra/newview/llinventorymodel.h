@@ -482,7 +482,8 @@ public:
 	void createNewCategory(const LLUUID& parent_id,
 							 LLFolderType::EType preferred_type,
 							 const std::string& name,
-							 inventory_func_type callback = NULL);
+							 inventory_func_type callback = NULL,
+							 const LLUUID& thumbnail_id = LLUUID::null);
 protected:
 	// Internal methods that add inventory and make sure that all of
 	// the internal data structures are consistent. These methods

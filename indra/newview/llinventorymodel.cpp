@@ -966,7 +966,8 @@ const LLUUID LLInventoryModel::findLibraryCategoryUUIDForType(LLFolderType::ETyp
 void LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 										   LLFolderType::EType preferred_type,
 										   const std::string& pname,
-										   inventory_func_type callback)
+										   inventory_func_type callback,
+										   const LLUUID& thumbnail_id)
 {
 	if (!isInventoryUsable())
 	{
@@ -1008,6 +1009,7 @@ void LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 		LLSD new_inventory = LLSD::emptyMap();
 		new_inventory["categories"] = LLSD::emptyArray();
 		LLViewerInventoryCategory cat(LLUUID::null, parent_id, preferred_type, name, gAgent.getID());
+        cat.setThumbnailUUID(thumbnail_id);
 		LLSD cat_sd = cat.asLLSD();
 		new_inventory["categories"].append(cat_sd);
 		AISAPI::CreateInventory(

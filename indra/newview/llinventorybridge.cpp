@@ -4965,7 +4965,8 @@ void LLFolderBridge::dropToMyOutfits(LLInventoryCategory* inv_cat)
     gInventory.createNewCategory(dest_id,
                                  LLFolderType::FT_OUTFIT,
                                  inv_cat->getName(),
-                                 func);
+                                 func,
+                                 inv_cat->getThumbnailUUID());
 }
 
 void LLFolderBridge::outfitFolderCreatedCallback(LLUUID cat_source_id, LLUUID cat_dest_id)
