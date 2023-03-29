@@ -1564,7 +1564,8 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 
 	// connect this media_impl to the media texture, creating it if it doesn't exist.0
 	// This is necessary because we need to be able to use getMaxVirtualSize() even if the media plugin is not loaded.
-	LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture(mTextureId);
+    const BOOL use_mipmaps = FALSE;
+	LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture(mTextureId, use_mipmaps);
 	if(media_tex)
 	{
 		media_tex->setMediaImpl();
@@ -3005,10 +3006,10 @@ LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
     }
 
     llassert(!mTextureId.isNull());
-    LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture( mTextureId );
+    const BOOL use_mipmaps = FALSE;
+    LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture( mTextureId, use_mipmaps );
  
     if ( mNeedsNewTexture
-        || media_tex->getUseMipMaps()
         || (media_tex->getWidth() != mMediaSource->getTextureWidth())
         || (media_tex->getHeight() != mMediaSource->getTextureHeight())
         || (mTextureUsedWidth != mMediaSource->getWidth())
@@ -3024,8 +3025,6 @@ LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
 
         // MEDIAOPT: check to see if size actually changed before doing work
         media_tex->destroyGLTexture();
-        // MEDIAOPT: apparently just calling setUseMipMaps(FALSE) doesn't work?
-        media_tex->reinit(FALSE);	// probably not needed
 
         // MEDIAOPT: seems insane that we actually have to make an imageraw then
         // immediately discard it
