@@ -1775,20 +1775,17 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 void LLPipeline::removeMutedAVsLights(LLVOAvatar* muted_avatar)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-    light_set_t::iterator iter = gPipeline.mNearbyLights.begin();
-
-    while (iter != gPipeline.mNearbyLights.end())
-    {
-        if (iter->drawable->getVObj()->isAttachment() && iter->drawable->getVObj()->getAvatar() == muted_avatar)
-        {
-            gPipeline.mLights.erase(iter->drawable);
-            iter = gPipeline.mNearbyLights.erase(iter);
-        }
-        else
-        {
-            iter++;
-        }
-    }
+	for (light_set_t::iterator iter = gPipeline.mNearbyLights.begin();
+		 iter != gPipeline.mNearbyLights.end(); iter++)
+	{
+        const LLViewerObject *vobj = iter->drawable->getVObj();
+        if (vobj && vobj->getAvatar()
+            && vobj->isAttachment() && vobj->getAvatar() == muted_avatar)
+		{
+			gPipeline.mLights.erase(iter->drawable);
+			gPipeline.mNearbyLights.erase(iter);
+		}
+	}
 }
 
 U32 LLPipeline::addObject(LLViewerObject *vobj)

@@ -1115,7 +1115,7 @@ void LLViewerFetchedTexture::init(bool firstinit)
 	mLoadedCallbackDesiredDiscardLevel = S8_MAX;
 	mPauseLoadedCallBacks = FALSE;
 
-	mNeedsCreateTexture = FALSE;
+	mNeedsCreateTexture = false;
 	
 	mIsRawImageValid = FALSE;
 	mRawDiscardLevel = INVALID_DISCARD_LEVEL;
@@ -1397,12 +1397,12 @@ void LLViewerFetchedTexture::addToCreateTexture()
 	{
 		//just update some variables, not to create a real GL texture.
 		createGLTexture(mRawDiscardLevel, mRawImage, 0, FALSE);
-		mNeedsCreateTexture = FALSE;
+		mNeedsCreateTexture = false;
 		destroyRawImage();
 	}
 	else if(!force_update && getDiscardLevel() > -1 && getDiscardLevel() <= mRawDiscardLevel)
 	{
-		mNeedsCreateTexture = FALSE;
+		mNeedsCreateTexture = false;
 		destroyRawImage();
 	}
 	else
@@ -1438,7 +1438,7 @@ void LLViewerFetchedTexture::addToCreateTexture()
 						mRawDiscardLevel += i;
 						if(mRawDiscardLevel >= getDiscardLevel() && getDiscardLevel() > 0)
 						{
-							mNeedsCreateTexture = FALSE;
+							mNeedsCreateTexture = false;
 							destroyRawImage();
 							return;
 						}
@@ -1470,7 +1470,7 @@ BOOL LLViewerFetchedTexture::preCreateTexture(S32 usename/*= 0*/)
         destroyRawImage();
         return FALSE;
     }
-    mNeedsCreateTexture = FALSE;
+    mNeedsCreateTexture = false;
 
     if (mRawImage.isNull())
     {
@@ -1606,14 +1606,14 @@ void LLViewerFetchedTexture::postCreateTexture()
         destroyRawImage();
     }
 
-    mNeedsCreateTexture = FALSE;
+    mNeedsCreateTexture = false;
 }
 
 void LLViewerFetchedTexture::scheduleCreateTexture()
 {
     if (!mNeedsCreateTexture)
     {
-        mNeedsCreateTexture = TRUE;
+        mNeedsCreateTexture = true;
         if (preCreateTexture())
         {
 #if LL_IMAGEGL_THREAD_CHECK
@@ -1627,7 +1627,7 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
                 memcpy(data_copy, data, size);
             }
 #endif
-            mNeedsCreateTexture = TRUE;
+            mNeedsCreateTexture = true;
             auto mainq = LLImageGLThread::sEnabled ? mMainQueue.lock() : nullptr;
             if (mainq)
             {
