@@ -6134,7 +6134,7 @@ Are you sure you want to delete them?
 
   <notification
    icon="alertmodal.tga"
-   name="ThumbnailDimantionsLimit"
+   name="ThumbnailDimentionsLimit"
    type="alertmodal">
     <unique/>
     Only square images from 64 to 256 pixels per side are allowed.

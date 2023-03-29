@@ -429,15 +429,42 @@ void LLFloaterChangeItemThumbnail::onPasteFromClipboard(void *userdata)
     LLClipboard::instance().pasteFromClipboard(objects);
     if (objects.size() > 0)
     {
-        LLUUID asset_id = objects[0];
-        if (validateAsset(asset_id))
+        LLUUID potential_uuid = objects[0];
+        LLUUID asset_id;
+
+        if (potential_uuid.notNull())
         {
-            self->setThumbnailId(asset_id);
+            LLViewerInventoryItem* item = gInventory.getItem(potential_uuid);
+            if (item)
+            {
+                // no point checking snapshot?
+                if (item->getType() == LLAssetType::AT_TEXTURE)
+                {
+                    asset_id = item->getAssetUUID();
+                }
+            }
+            else
+            {
+                LLPointer<LLViewerFetchedTexture> texturep = LLViewerTextureManager::getFetchedTexture(potential_uuid);
+                if (texturep)
+                {
+                    asset_id = potential_uuid;
+                }
+            }
         }
-        else
+        if (asset_id.notNull())
         {
-            LLNotificationsUtil::add("ThumbnailDimantionsLimit");
+            // todo: if texture isn't loaded subscribe, or preload it in some way.
+            if (validateAsset(asset_id))
+            {
+                self->setThumbnailId(asset_id);
+            }
+            else
+            {
+                LLNotificationsUtil::add("ThumbnailDimentionsLimit");
+            }
         }
+        // else show 'buffer has no texture' warning?
     }
 }
 
@@ -559,7 +586,7 @@ void LLFloaterChangeItemThumbnail::onTexturePickerCommit(LLUUID id)
         }
         else
         {
-            LLNotificationsUtil::add("ThumbnailDimantionsLimit");
+            LLNotificationsUtil::add("ThumbnailDimentionsLimit");
         }
     }
 }
