@@ -2301,6 +2301,7 @@ void LLAgentCamera::changeCameraToThirdPerson(BOOL animate)
 		}
 		gAgentAvatarp->startMotion(ANIM_AGENT_BODY_NOISE);
 		gAgentAvatarp->startMotion(ANIM_AGENT_BREATHE_ROT);
+
 	}
 
 	LLVector3 at_axis;
@@ -2389,7 +2390,7 @@ void LLAgentCamera::changeCameraToCustomizeAvatar()
 		gAgent.sendAnimationRequest(ANIM_AGENT_CUSTOMIZE, ANIM_REQUEST_START);
 		gAgent.setCustomAnim(TRUE);
 		gAgentAvatarp->startMotion(ANIM_AGENT_CUSTOMIZE);
-		LLMotion* turn_motion = gAgentAvatarp->findMotion(ANIM_AGENT_CUSTOMIZE);
+		LLMotion::ptr_t turn_motion(gAgentAvatarp->findMotion(ANIM_AGENT_CUSTOMIZE));
 
 		if (turn_motion)
 		{

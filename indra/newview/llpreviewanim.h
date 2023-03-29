@@ -29,8 +29,8 @@
 
 #include "llpreview.h"
 #include "llcharacter.h"
+#include "llmotion.h"
 
-class LLMotion;
 class LLTextBox;
 
 class LLPreviewAnim : public LLPreview

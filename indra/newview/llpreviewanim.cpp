@@ -114,7 +114,7 @@ void LLPreviewAnim::play(const LLSD& param)
 				gAgentAvatarp->startMotion(item->getAssetUUID());
 			}
 
-			LLMotion* motion = gAgentAvatarp->findMotion(itemID);
+			LLMotion::ptr_t motion(gAgentAvatarp->findMotion(itemID));
 			if (motion)
 			{
 				mItemID = itemID;
@@ -140,7 +140,7 @@ void LLPreviewAnim::draw()
 	LLPreview::draw();
 	if (!this->mItemID.isNull())
 	{
-		LLMotion* motion = gAgentAvatarp->findMotion(this->mItemID);
+		LLMotion::ptr_t motion(gAgentAvatarp->findMotion(this->mItemID));
 		if (motion)
 		{
 			if (motion->isStopped() && this->mDidStart)
@@ -150,7 +150,7 @@ void LLPreviewAnim::draw()
 			if(gAgentAvatarp->isMotionActive(this->mItemID) && !this->mDidStart)
 			{
 				const LLInventoryItem *item = getItem();
-				LLMotion* motion = gAgentAvatarp->findMotion(this->mItemID);
+				LLMotion::ptr_t motion(gAgentAvatarp->findMotion(this->mItemID));
 				if (item && motion)
 				{
 					motion->setName(item->getName());
@@ -214,7 +214,7 @@ void LLPreviewAnim::showAdvanced()
         LLRect rect = getRect();
         reshape(rect.getWidth(), rect.getHeight() + pAdvancedStatsTextBox->getRect().getHeight() + ADVANCED_VPAD, FALSE);
 
-        LLMotion *motion = NULL;
+        LLMotion::ptr_t motion;
         const LLInventoryItem* item = getItem();
         if (item)
         {

@@ -54,6 +54,9 @@ public:
 
 	static const LLQuaternion DEFAULT;
 
+    // Note: 1.0e-3f radians corresponds to about 0.0573 degrees
+    static bool almost_equal(const LLQuaternion& A, const LLQuaternion& B, F32 tolerance_angle = 1.0e-3f);
+
 	LLQuaternion();									// Initializes Quaternion to (0,0,0,1)
 	explicit LLQuaternion(const LLMatrix4 &mat);				// Initializes Quaternion from Matrix4
 	explicit LLQuaternion(const LLMatrix3 &mat);				// Initializes Quaternion from Matrix3
@@ -90,6 +93,7 @@ public:
 	const LLQuaternion&	setAngleAxis(F32 angle, const LLVector3 &vec);	// Sets Quaternion to axis_angle2quat(angle, vec)
 	const LLQuaternion&	setAngleAxis(F32 angle, const LLVector4 &vec);	// Sets Quaternion to axis_angle2quat(angle, vec)
 	const LLQuaternion&	setEulerAngles(F32 roll, F32 pitch, F32 yaw);	// Sets Quaternion to euler2quat(pitch, yaw, roll)
+    const LLQuaternion& setEulerAngles(const LLVector3 mat);    // Sets Quaternion to euler2quat(pitch, yaw, roll)
 
 	const LLQuaternion&	setQuatInit(F32 x, F32 y, F32 z, F32 w);	// deprecated
 	const LLQuaternion&	setQuat(const LLQuaternion &quat);			// deprecated
@@ -106,6 +110,8 @@ public:
 	void		getAngleAxis(F32* angle, F32* x, F32* y, F32* z) const;	// returns rotation in radians about axis x,y,z
 	void		getAngleAxis(F32* angle, LLVector3 &vec) const;
 	void		getEulerAngles(F32 *roll, F32* pitch, F32 *yaw) const;
+    LLVector3   getEulerAngles() const;
+
     void        getAzimuthAndAltitude(F32 &azimuth, F32 &altitude);
 
 	F32	normalize();	// Normalizes Quaternion and returns magnitude

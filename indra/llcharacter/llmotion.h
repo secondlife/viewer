@@ -66,6 +66,8 @@ public:
 	virtual ~LLMotion();
 
 public:
+    typedef std::shared_ptr<LLMotion>   ptr_t;
+
 	//-------------------------------------------------------------------------
 	// functions to support MotionController and MotionRegistry
 	//-------------------------------------------------------------------------
@@ -93,22 +95,24 @@ public:
 
 	BOOL isStopped() const { return mStopped; }
 
-	void setStopped(BOOL stopped) { mStopped = stopped; }
+	void setStopped(BOOL stopped);
 
-	BOOL isBlending();
+	BOOL isBlending() const;
+
+	virtual bool needsUpdate() const;
 
 	// Activation functions.
 	// It is OK for other classes to activate a motion,
 	// but only the controller can deactivate it.
 	// Thus, if mActive == TRUE, the motion *may* be on the controllers active list,
 	// but if mActive == FALSE, the motion is gauranteed not to be on the active list.
+	BOOL isActive() const { return mActive; }
 protected:
 	// Used by LLMotionController only
 	void deactivate();
-	BOOL isActive() { return mActive; }
 public:
 	void activate(F32 time);
-	
+
 public:
 	//-------------------------------------------------------------------------
 	// animation callbacks to be implemented by subclasses
@@ -198,7 +202,7 @@ class LLTestMotion : public LLMotion
 public:
 	LLTestMotion(const LLUUID &id) : LLMotion(id){}
 	~LLTestMotion() {}
-	static LLMotion *create(const LLUUID& id) { return new LLTestMotion(id); }
+	static LLMotion::ptr_t create(const LLUUID& id) { return std::make_shared<LLTestMotion>(id); }
 	BOOL getLoop() { return FALSE; }
 	F32 getDuration() { return 0.0f; }
 	F32 getEaseInDuration() { return 0.0f; }
@@ -222,7 +226,7 @@ class LLNullMotion : public LLMotion
 public:
 	LLNullMotion(const LLUUID &id) : LLMotion(id) {}
 	~LLNullMotion() {}
-	static LLMotion *create(const LLUUID &id) { return new LLNullMotion(id); }
+	static LLMotion::ptr_t create(const LLUUID &id) { return std::make_shared<LLNullMotion>(id); }
 
 	// motions must specify whether or not they loop
 	/*virtual*/ BOOL getLoop() { return TRUE; }

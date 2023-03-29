@@ -176,6 +176,14 @@ BOOL LLHeadRotMotion::onActivate()
 BOOL LLHeadRotMotion::onUpdate(F32 time, U8* joint_mask)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
+    if (mEnabled == false)
+    {
+        // yes, return TRUE even when not enabled.
+        // This motion relays the target position to code that moves
+        // the eyes and such.  We want to keep the targeting working
+        // but bypass the head motion effects.
+        return true;
+    }
 	LLQuaternion	targetHeadRotWorld;
 	LLQuaternion	currentRootRotWorld = mRootJoint->getWorldRotation();
 	LLQuaternion	currentInvRootRotWorld = ~currentRootRotWorld;

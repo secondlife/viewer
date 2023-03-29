@@ -49,7 +49,7 @@ class LLCharacter;
 //-----------------------------------------------------------------------------
 // LLMotionRegistry
 //-----------------------------------------------------------------------------
-typedef LLMotion*(*LLMotionConstructor)(const LLUUID &id);
+typedef std::function<LLMotion::ptr_t(const LLUUID &)> LLMotionConstructor;
 
 class LLMotionRegistry
 {
@@ -61,12 +61,12 @@ public:
 	~LLMotionRegistry();
 
 	// adds motion classes to the registry
-	// returns true if successfull
+	// returns true if successful
 	BOOL registerMotion( const LLUUID& id, LLMotionConstructor create);
 
 	// creates a new instance of a named motion
 	// returns NULL motion is not registered
-	LLMotion *createMotion( const LLUUID &id );
+	LLMotion::ptr_t createMotion( const LLUUID &id );
 
 	// initialization of motion failed, don't try to create this motion again
 	void markBad( const LLUUID& id );
@@ -83,8 +83,9 @@ protected:
 class LLMotionController
 {
 public:
-	typedef std::list<LLMotion*> motion_list_t;
-	typedef std::set<LLMotion*> motion_set_t;
+    // ?should these be weak?
+	typedef std::list<LLMotion::ptr_t> motion_list_t;
+	typedef std::set<LLMotion::ptr_t> motion_set_t;
 	BOOL mIsSelf;
 	
 public:
@@ -105,7 +106,7 @@ public:
 	BOOL registerMotion( const LLUUID& id, LLMotionConstructor create );
 
 	// creates a motion from the registry
-	LLMotion *createMotion( const LLUUID &id );
+	LLMotion::ptr_t createMotion( const LLUUID &id );
 
 	// unregisters a motion with the controller
 	// (actually just forwards call to motion registry)
@@ -135,8 +136,6 @@ public:
 	// minimal update (e.g. while hidden)
 	void updateMotionsMinimal();
 
-	void clearBlenders() { mPoseBlender.clearBlenders(); }
-
 	// flush motions
 	// releases all motion instances
 	void flushAllMotions();
@@ -163,9 +162,9 @@ public:
 	void incMotionCounts(S32& num_motions, S32& num_loading_motions, S32& num_loaded_motions, S32& num_active_motions, S32& num_deprecated_motions);
 	
 //protected:
-	bool isMotionActive( LLMotion *motion );
-	bool isMotionLoading( LLMotion *motion );
-	LLMotion *findMotion( const LLUUID& id ) const;
+	bool isMotionActive(const LLMotion::ptr_t &motion );
+	bool isMotionLoading(const LLMotion::ptr_t &motion );
+	LLMotion::ptr_t findMotion( const LLUUID& id ) const;
 
 	void dumpMotions();
 
@@ -178,16 +177,16 @@ protected:
 	// internal operations act on motion instances directly
 	// as there can be duplicate motions per id during blending overlap
 	void deleteAllMotions();
-	BOOL activateMotionInstance(LLMotion *motion, F32 time);
-	BOOL deactivateMotionInstance(LLMotion *motion);
-	void deprecateMotionInstance(LLMotion* motion);
-	BOOL stopMotionInstance(LLMotion *motion, BOOL stop_imemdiate);
-	void removeMotionInstance(LLMotion* motion);
+	BOOL activateMotionInstance(const LLMotion::ptr_t &motion, F32 time);
+	BOOL deactivateMotionInstance(LLMotion::ptr_t &motion);
+	void deprecateMotionInstance(LLMotion::ptr_t &motion);
+	BOOL stopMotionInstance(LLMotion::ptr_t &motion, BOOL stop_imemdiate);
+	void removeMotionInstance(LLMotion::ptr_t &motion); // note non const ref
 	void updateRegularMotions();
 	void updateAdditiveMotions();
 	void resetJointSignatures();
 	void updateMotionsByType(LLMotion::LLMotionBlendType motion_type);
-	void updateIdleMotion(LLMotion* motionp);
+	void updateIdleMotion(LLMotion::ptr_t &motionp);
 	void updateIdleActiveMotions();
 	void purgeExcessMotions();
 	void deactivateStoppedMotions();
@@ -208,7 +207,7 @@ protected:
 //	Once an animations is loaded, it will be initialized and put on the mLoadedMotions list.
 //	Any animation that is currently playing also sits in the mActiveMotions list.
 
-	typedef std::map<LLUUID, LLMotion*> motion_map_t;
+	typedef std::map<LLUUID, LLMotion::ptr_t> motion_map_t;
 	motion_map_t	mAllMotions;
 
 	motion_set_t		mLoadingMotions;

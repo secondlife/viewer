@@ -73,7 +73,7 @@ private:
 	static void sendPostcardFinished(LLSD result);
 	void sendPostcard();
 
-	void onMsgFormFocusRecieved();
+	void onMsgFormFocusReceived();
 	void onFormatComboCommit(LLUICtrl* ctrl);
 	void onQualitySliderCommit(LLUICtrl* ctrl);
 	void onSend();
@@ -95,7 +95,7 @@ LLPanelSnapshotPostcard::LLPanelSnapshotPostcard()
 BOOL LLPanelSnapshotPostcard::postBuild()
 {
 	// For the first time a user focuses to .the msg box, all text will be selected.
-	getChild<LLUICtrl>("msg_form")->setFocusChangedCallback(boost::bind(&LLPanelSnapshotPostcard::onMsgFormFocusRecieved, this));
+	getChild<LLUICtrl>("msg_form")->setFocusChangedCallback(boost::bind(&LLPanelSnapshotPostcard::onMsgFormFocusReceived, this));
 
 	getChild<LLUICtrl>("to_form")->setFocus(TRUE);
 
@@ -196,7 +196,7 @@ void LLPanelSnapshotPostcard::sendPostcard()
     mSnapshotFloater->postSave();
 }
 
-void LLPanelSnapshotPostcard::onMsgFormFocusRecieved()
+void LLPanelSnapshotPostcard::onMsgFormFocusReceived()
 {
 	LLTextEditor* msg_form = getChild<LLTextEditor>("msg_form");
 	if (msg_form->hasFocus() && !mHasFirstMsgFocus)

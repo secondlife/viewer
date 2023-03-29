@@ -30,7 +30,7 @@
 #if LL_LINUX || LL_DARWIN
 #include <sys/time.h>
 #endif
-#include <limits.h>
+#include <limits>
 
 #include "stdtypes.h"
 
@@ -47,6 +47,8 @@ const U32	USEC_PER_MIN	= USEC_PER_SEC * SEC_PER_MIN;
 const U32	USEC_PER_HOUR	= USEC_PER_MIN * MIN_PER_HOUR;
 const U32	SEC_PER_HOUR	= SEC_PER_MIN * MIN_PER_HOUR;
 const F64 	SEC_PER_USEC 	= 1.0 / (F64) USEC_PER_SEC;
+
+constexpr U64 MSEC_PER_SEC = 1e3;
 
 class LL_COMMON_API LLTimer 
 {

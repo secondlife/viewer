@@ -42,8 +42,7 @@
 //-----------------------------------------------------------------------------
 // class LLEditingMotion
 //-----------------------------------------------------------------------------
-LL_ALIGN_PREFIX(16)
-class LLEditingMotion :
+class alignas(16) LLEditingMotion :
 	public LLMotion
 {
     LL_ALIGN_NEW
@@ -61,7 +60,7 @@ public:
 
 	// static constructor
 	// all subclasses must implement such a function and register it
-	static LLMotion *create(const LLUUID &id) { return new LLEditingMotion(id); }
+	static LLMotion::ptr_t create(const LLUUID &id) { return ptr_t(new LLEditingMotion(id)); }
 
 public:
 	//-------------------------------------------------------------------------

@@ -56,7 +56,7 @@ public:
 
 	// static constructor
 	// all subclasses must implement such a function and register it
-	static LLMotion *create(const LLUUID &id) { return new LLHeadRotMotion(id); }
+	static LLMotion::ptr_t create(const LLUUID &id) { return std::make_shared<LLHeadRotMotion>(id); }
 
 public:
 	//-------------------------------------------------------------------------
@@ -101,6 +101,12 @@ public:
 	// called when a motion is deactivated
 	virtual void onDeactivate();
 
+    // expose Enabled status so the effects of this motion can be turned on/off
+    // independently of its Active state
+    void enable() { mEnabled = true; }
+    void disable() { mEnabled = false; }
+    bool isEnabled() const { return mEnabled; }
+
 public:
 	//-------------------------------------------------------------------------
 	// joint states to be animated
@@ -117,6 +123,8 @@ public:
 	LLPointer<LLJointState> mHeadState;
 
 	LLQuaternion		mLastHeadRot;
+
+    bool mEnabled = true;
 };
 
 //-----------------------------------------------------------------------------
@@ -139,7 +147,7 @@ public:
 
 	// static constructor
 	// all subclasses must implement such a function and register it
-	static LLMotion *create( const LLUUID &id) { return new LLEyeMotion(id); }
+	static LLMotion::ptr_t create( const LLUUID &id) { return std::make_shared<LLEyeMotion>(id); }
 
 public:
 	//-------------------------------------------------------------------------

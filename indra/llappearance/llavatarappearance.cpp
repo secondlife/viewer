@@ -680,6 +680,7 @@ BOOL LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
 	{
 		joint->setSkinOffset( info->mPivot );
         joint->setJointNum(joint_num);
+        joint->setIsBone(true);
 		joint_num++;
 	}
 	else // collision volume
@@ -732,7 +733,7 @@ BOOL LLAvatarAppearance::buildSkeleton(const LLAvatarSkeletonInfo *info)
 		LL_ERRS() << "Can't allocate " << info->mNumBones << " joints" << LL_ENDL;
 		return FALSE;
 	}
-	
+
 	// allocate volumes
 	if (info->mNumCollisionVolumes)
 	{

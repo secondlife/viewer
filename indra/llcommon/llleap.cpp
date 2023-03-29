@@ -86,7 +86,7 @@ public:
             // notice Python specially: we provide Python LLSD serialization
             // support, so there's a pretty good reason to implement plugins
             // in that language.
-            if (cparams.args.size() && (desclower == "python" || desclower == "python3" || desclower == "python.exe"))
+            if (cparams.args.size() && (desclower == "python" || desclower == "python3" || desclower == "python.exe" || desclower == "pythonw.exe" || desclower == "pythonw3.exe"))
             {
                 mDesc = LLProcess::basename(cparams.args()[0]);
             }
@@ -133,7 +133,7 @@ public:
         mStdoutConnection = childout.getPump()
             .listen("prefix", boost::bind(&LLLeapImpl::rstdout, this, _1));
         mStdoutDataConnection = childout.getPump()
-            .listen("data",   boost::bind(&LLLeapImpl::rstdoutData, this, _1));
+            .listen("data",   boost::bind(&LLLeapImpl::rstdoutData, this));
         mBlocker.reset(new LLEventPump::Blocker(mStdoutDataConnection));
 
         // Log anything sent up through stderr. When a typical program
@@ -204,34 +204,40 @@ public:
         LLSD packet(LLSDMap("pump", pump)("data", data));
 
         std::ostringstream buffer;
-        buffer << LLSDNotationStreamer(packet);
+        // SL-18330: for large data blocks, it's much faster to parse binary
+        // LLSD than notation LLSD. Use serialize(LLSD_BINARY) rather than
+        // directly calling LLSDBinaryFormatter because, unlike the latter,
+        // serialize() prepends the relevant header, needed by a general-
+        // purpose LLSD parser to distinguish binary from notation.
+        LLSDSerialize::serialize(packet, buffer, LLSDSerialize::LLSD_BINARY,
+                                 LLSDFormatter::OPTIONS_NONE);
 
 /*==========================================================================*|
         // DEBUGGING ONLY: don't copy str() if we can avoid it.
         std::string strdata(buffer.str());
         if (std::size_t(buffer.tellp()) != strdata.length())
         {
-            LL_ERRS("LLLeap") << "tellp() -> " << buffer.tellp() << " != "
+            LL_ERRS("LLLeap") << "tellp() -> " << static_cast<U64>(buffer.tellp()) << " != "
                               << "str().length() -> " << strdata.length() << LL_ENDL;
         }
         // DEBUGGING ONLY: reading back is terribly inefficient.
         std::istringstream readback(strdata);
         LLSD echo;
-        LLPointer<LLSDParser> parser(new LLSDNotationParser());
-        S32 parse_status(parser->parse(readback, echo, strdata.length()));
-        if (parse_status == LLSDParser::PARSE_FAILURE)
+        bool parse_status(LLSDSerialize::deserialize(echo, readback, strdata.length()));
+        if (! parse_status)
         {
-            LL_ERRS("LLLeap") << "LLSDNotationParser() cannot parse output of "
-                              << "LLSDNotationStreamer()" << LL_ENDL;
+            LL_ERRS("LLLeap") << "LLSDSerialize::deserialize() cannot parse output of "
+                              << "LLSDSerialize::serialize(LLSD_BINARY)" << LL_ENDL;
         }
         if (! llsd_equals(echo, packet))
         {
-            LL_ERRS("LLLeap") << "LLSDNotationParser() produced different LLSD "
-                              << "than passed to LLSDNotationStreamer()" << LL_ENDL;
+            LL_ERRS("LLLeap") << "LLSDSerialize::deserialize() returned different LLSD "
+                              << "than passed to LLSDSerialize::serialize()" << LL_ENDL;
         }
 |*==========================================================================*/
 
-        LL_DEBUGS("EventHost") << "Sending: " << buffer.tellp() << ':';
+        LL_DEBUGS("EventHost") << "Sending: "
+                               << static_cast<U64>(buffer.tellp()) << ':';
         std::string::size_type truncate(80);
         if (buffer.tellp() <= truncate)
         {
@@ -244,7 +250,8 @@ public:
         LL_CONT << LL_ENDL;
 
         LLProcess::WritePipe& childin(mChild->getWritePipe(LLProcess::STDIN));
-        childin.get_ostream() << buffer.tellp() << ':' << buffer.str() << std::flush;
+        childin.get_ostream() << static_cast<U64>(buffer.tellp())
+                              << ':' << buffer.str() << std::flush;
         return false;
     }
 
@@ -276,7 +283,7 @@ public:
                 // Saw length prefix, saw colon, life is good. Now wait for
                 // that length of data to arrive.
                 mExpect = expect;
-                LL_DEBUGS("LLLeap") << "got length, waiting for "
+                LL_DEBUGS("LLLeapData") << "got length, waiting for "
                                     << mExpect << " bytes of data" << LL_ENDL;
                 // Block calls to this method; resetting mBlocker unblocks
                 // calls to the other method.
@@ -284,9 +291,7 @@ public:
                 // Go check if we've already received all the advertised data.
                 if (childout.size())
                 {
-                    LLSD updata(data);
-                    updata["len"] = LLSD::Integer(childout.size());
-                    rstdoutData(updata);
+                    rstdoutData();
                 }
             }
         }
@@ -302,19 +307,25 @@ public:
 
     // State in which we listen on stdout for the specified length of data to
     // arrive.
-    bool rstdoutData(const LLSD& data)
+    bool rstdoutData()
     {
         LLProcess::ReadPipe& childout(mChild->getReadPipe(LLProcess::STDOUT));
         // Until we've accumulated the promised length of data, keep waiting.
         if (childout.size() >= mExpect)
         {
             // Ready to rock and roll.
-            LL_DEBUGS("LLLeap") << "needed " << mExpect << " bytes, got "
-                                << childout.size() << ", parsing LLSD" << LL_ENDL;
             LLSD data;
+#if 1
+            // specifically require notation LLSD from child
             LLPointer<LLSDParser> parser(new LLSDNotationParser());
             S32 parse_status(parser->parse(childout.get_istream(), data, mExpect));
             if (parse_status == LLSDParser::PARSE_FAILURE)
+#else
+            // SL-18330: accept any valid LLSD serialization format from child
+            // Unfortunately this runs into trouble we have not yet debugged.
+            bool parse_status(LLSDSerialize::deserialize(data, childout.get_istream(), mExpect));
+            if (! parse_status)
+#endif
             {
                 bad_protocol("unparseable LLSD data");
             }
@@ -322,6 +333,8 @@ public:
             {
                 // we got an LLSD object, but it lacks required keys
                 bad_protocol("missing 'pump' or 'data'");
+                // logging here will break the INTEGRATION_TEST_llleap unit test - just uncomment for development as needed
+                //LL_WARNS("LLLeapData") << "offending LEAP data: " << data << LL_ENDL;
             }
             else
             {
@@ -471,3 +484,4 @@ LLLeap* LLLeap::create(const std::string& desc, const std::string& plugin, bool 
                                           "\\"),     // backslash escape
                   exc);
 }
+

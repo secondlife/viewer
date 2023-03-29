@@ -32,6 +32,7 @@
 #include <string>
 #include <typeinfo>
 #include <vector>
+#include <iomanip>
 
 #include "stdtypes.h"
 
@@ -414,6 +415,8 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 // suppressed
 // https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
 // https://docs.microsoft.com/en-us/cpp/preprocessor/variadic-macros?view=vs-2015
+#define LL_DEBUGS_IF(exp, ...)	if (exp) LL_DEBUGS(__VA_ARGS__) << "(" #exp ")"
+#define LL_INFOS_IF(exp, ...)	if (exp) LL_INFOS(__VA_ARGS__) << "(" #exp ")"
 #define LL_WARNS_IF(exp, ...)	if (exp) LL_WARNS(__VA_ARGS__) << "(" #exp ")"
 #define LL_ERRS_IF(exp, ...)	if (exp) LL_ERRS(__VA_ARGS__) << "(" #exp ")"
 
@@ -468,4 +471,50 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 // Check at run-time whether logging is enabled, without generating output
 bool debugLoggingEnabled(const std::string& tag);
 
+//=====================================================================
+namespace LLError
+{
+    class arraylogger
+    {
+    public:
+        explicit arraylogger(const U8 *buff, size_t length) :
+            mBuffer(buff),
+            mSize(length)
+        { }
+
+        template <size_t SIZE>
+        explicit arraylogger(const std::array<U8, SIZE> &buffer)
+        {
+            mBuffer = buffer.data();
+            mSize = buffer.size();
+        }
+
+    private:
+        const U8 *  mBuffer;
+        size_t      mSize;
+
+        template<class CHART, class TRAITS>
+        static inline void stream(std::basic_ostream<CHART, TRAITS> &os, const arraylogger &ba)
+        {
+            os << std::hex;
+            os << "[";
+            for (size_t idx(0); idx < ba.mSize; ++idx)
+            {
+                os << std::setfill('0') << std::setw(2);
+                os << " " << static_cast<S32>(ba.mBuffer[idx]);
+            }
+            os << std::dec << std::setw(1);
+            os << "](" << ba.mSize << ")";
+        }
+
+        template <class CHART, class TRAITS>
+        friend std::basic_ostream<CHART, TRAITS>& operator <<(std::basic_ostream<CHART, TRAITS>&os, const arraylogger &ba)
+        {
+            arraylogger::stream<CHART, TRAITS>(os, ba);
+            return os;
+        }
+
+
+    };
+}
 #endif // LL_LLERROR_H

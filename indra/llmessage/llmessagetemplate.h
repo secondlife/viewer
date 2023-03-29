@@ -324,7 +324,7 @@ public:
 		return mMemberBlocks[name];
 	}
 
-	// Trusted messages can only be recieved on trusted circuits.
+	// Trusted messages can only be received on trusted circuits.
 	void setTrust(EMsgTrust t)
 	{
 		mTrust = t;

@@ -124,16 +124,16 @@ public:
 	// End Interface
 	//-------------------------------------------------------------------------
 	// registers a motion with the character
-	// returns true if successfull
+	// returns true if successful
 	BOOL registerMotion( const LLUUID& id, LLMotionConstructor create );
 
 	void removeMotion( const LLUUID& id );
 
 	// returns an instance of a registered motion, creating one if necessary
-	LLMotion* createMotion( const LLUUID &id );
+	LLMotion::ptr_t createMotion( const LLUUID &id );
 
 	// returns an existing instance of a registered motion
-	LLMotion* findMotion( const LLUUID &id );
+	LLMotion::ptr_t findMotion( const LLUUID &id );
 	
 	// start a motion
 	// returns true if successful, false if an error occurred
@@ -149,11 +149,11 @@ public:
 	// Called when a motion has completely stopped and has been deactivated.
 	// Subclasses may optionally override this.
 	// The default implementation does nothing.
-	virtual void requestStopMotion( LLMotion* motion );
+	virtual void requestStopMotion( const LLMotion::ptr_t &motion );
 	
 	// periodic update function, steps the motion controller
 	enum e_update_t { NORMAL_UPDATE, HIDDEN_UPDATE, FORCE_UPDATE };
-	void updateMotions(e_update_t update_type);
+	virtual void updateMotions(e_update_t update_type);
 
 	LLAnimPauseRequest requestPause();
 	BOOL areAnimationsPaused() const { return mMotionController.isPaused(); }
@@ -254,9 +254,9 @@ public:
 
 	U32				getAppearanceSerialNum() const		{ return mAppearanceSerialNum; }
 	void			setAppearanceSerialNum( U32 num )	{ mAppearanceSerialNum = num; }
-	
+
 	U32				getSkeletonSerialNum() const		{ return mSkeletonSerialNum; }
-	void			setSkeletonSerialNum( U32 num )	{ mSkeletonSerialNum = num; }
+	void			bumpSkeletonSerialNum()	{ ++mSkeletonSerialNum; }
 
 	static std::vector< LLCharacter* > sInstances;
 	static BOOL sAllowInstancesChange ; //debug use

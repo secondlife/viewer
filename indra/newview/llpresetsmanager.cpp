@@ -94,6 +94,7 @@ void LLPresetsManager::createCameraDefaultPresets()
 	bool is_default_created = createDefaultCameraPreset(PRESETS_REAR_VIEW);
 	is_default_created |= createDefaultCameraPreset(PRESETS_FRONT_VIEW);
 	is_default_created |= createDefaultCameraPreset(PRESETS_SIDE_VIEW);
+	is_default_created |= createDefaultCameraPreset(PRESETS_CLOSE_UP);
 
 	if (is_default_created)
 	{
@@ -214,6 +215,7 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& subdirectory, p
 			mPresetNames.push_back(PRESETS_FRONT_VIEW);
 			mPresetNames.push_back(PRESETS_REAR_VIEW);
 			mPresetNames.push_back(PRESETS_SIDE_VIEW);
+			mPresetNames.push_back(PRESETS_CLOSE_UP);
 		}
 	}
 
@@ -536,12 +538,14 @@ bool LLPresetsManager::deletePreset(const std::string& subdirectory, std::string
 
 bool LLPresetsManager::isDefaultCameraPreset(std::string preset_name)
 {
-	return (preset_name == PRESETS_REAR_VIEW || preset_name == PRESETS_SIDE_VIEW || preset_name == PRESETS_FRONT_VIEW);
+	return (preset_name == PRESETS_REAR_VIEW || preset_name == PRESETS_SIDE_VIEW
+		|| preset_name == PRESETS_FRONT_VIEW || preset_name == PRESETS_CLOSE_UP);
 }
 
 bool LLPresetsManager::isTemplateCameraPreset(std::string preset_name)
 {
-	return (preset_name == PRESETS_REAR || preset_name == PRESETS_SIDE || preset_name == PRESETS_FRONT);
+	return (preset_name == PRESETS_REAR_VIEW || preset_name == PRESETS_SIDE_VIEW
+		|| preset_name == PRESETS_FRONT_VIEW || preset_name == PRESETS_CLOSE_UP);
 }
 
 void LLPresetsManager::resetCameraPreset(std::string preset_name)
@@ -562,8 +566,15 @@ bool LLPresetsManager::createDefaultCameraPreset(std::string preset_name, bool f
 	std::string preset_file = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR,
 		PRESETS_CAMERA, LLURI::escape(preset_name) + ".xml");
 	if (!gDirUtilp->fileExists(preset_file) || force_reset)
-	{
-		std::string template_name = preset_name.substr(0, preset_name.size() - PRESETS_VIEW_SUFFIX.size());
+	{	// the default preset files are named after the first word in the preset name, i.e. Front, Rear, Side, Close
+		std::string template_name = preset_name;
+		size_t space_index = preset_name.find_first_of(" ");
+		if (space_index != preset_name.npos)
+		{	// Get the first word as the template file name
+			template_name = preset_name.substr(0, space_index);
+		}
+
+		// Get the xml file
 		std::string default_template_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, PRESETS_CAMERA, template_name + ".xml");
 		return LLFile::copy(default_template_file, preset_file);
 	}

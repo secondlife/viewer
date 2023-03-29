@@ -20,6 +20,7 @@
 #include "../test/lltut.h"
 #include "llsd.h"
 #include "llsdutil.h"
+#include "llevents.h"
 #include "stringize.h"
 #include "tests/wrapllerrs.h"
 #include "../test/catch_and_store_what_in.h"
@@ -335,7 +336,7 @@ namespace tut
         // Full, partial defaults arrays for params for freena(), freenb()
         LLSD dft_array_full, dft_array_partial;
         // Start index of partial defaults arrays
-        const LLSD::Integer partial_offset;
+        const size_t partial_offset;
         // Full, partial defaults maps for params for freena(), freenb()
         LLSD dft_map_full, dft_map_partial;
         // Most of the above are indexed by "a" or "b". Useful to have an
@@ -644,12 +645,45 @@ namespace tut
                    outer.find(inner) != std::string::npos);
         }
 
-        void call_exc(const std::string& func, const LLSD& args, const std::string& exc_frag)
+        std::string call_exc(const std::string& func, const LLSD& args, const std::string& exc_frag)
         {
-            std::string threw = catch_what<std::runtime_error>([this, &func, &args](){
-                    work(func, args);
-                });
-            ensure_has(threw, exc_frag);
+            // This method was written when LLEventDispatcher responded to
+            // name or argument errors with LL_ERRS, hence the name: we used
+            // to have to intercept LL_ERRS by making it throw. Now we set up
+            // to catch an error response instead. But -- for that we need to
+            // be able to sneak a "reply" key into args, which must be a Map.
+            if (! (args.isUndefined() || args.isMap()))
+                fail(stringize("can't test call_exc() with ", args));
+            LLEventStream replypump("reply");
+            LLSD reply;
+            LLTempBoundListener bound{
+                replypump.listen(
+                    "listener",
+                    [&reply](const LLSD& event)
+                    {
+                        reply = event;
+                        return false;
+                    }) };
+            LLSD modargs{ args };
+            modargs["reply"] = replypump.getName();
+            if (func.empty())
+            {
+                work(modargs);
+            }
+            else
+            {
+                work(func, modargs);
+            }
+            ensure("no error response", reply.has("error"));
+            ensure_has(reply["error"], exc_frag);
+            return reply["error"];
+        }
+
+        void call_logerr(const std::string& func, const LLSD& args, const std::string& frag)
+        {
+            CaptureLog capture;
+            work(func, args);
+            capture.messageWith(frag);
         }
 
         LLSD getMetadata(const std::string& name)
@@ -1031,13 +1065,7 @@ namespace tut
     {
         set_test_name("call with bad name");
         call_exc("freek", LLSD(), "not found");
-        // We don't have a comparable helper function for the one-arg
-        // operator() method, and it's not worth building one just for this
-        // case. Write it out.
-        std::string threw = catch_what<std::runtime_error>([this](){
-                work(LLSDMap("op", "freek"));
-            });
-        ensure_has(threw, "bad");
+        std::string threw = call_exc("", LLSDMap("op", "freek"), "bad");
         ensure_has(threw, "op");
         ensure_has(threw, "freek");
     }
@@ -1087,7 +1115,7 @@ namespace tut
             ensure_equals("answer mismatch", tr.llsd, answer);
             // Should NOT be able to pass 'answer' to Callables registered
             // with 'required'.
-            call_exc(tr.name_req, answer, "bad request");
+            call_logerr(tr.name_req, answer, "bad request");
             // But SHOULD be able to pass 'matching' to Callables registered
             // with 'required'.
             work(tr.name_req, matching);
@@ -1107,11 +1135,11 @@ namespace tut
         // args. We should only need to engage it for one map-style
         // registration and one array-style registration.
         std::string array_exc("needs an args array");
-        call_exc("free0_array", 17, array_exc);
-        call_exc("free0_array", LLSDMap("pi", 3.14), array_exc);
+        call_logerr("free0_array", 17, array_exc);
+        call_logerr("free0_array", LLSDMap("pi", 3.14), array_exc);
 
         std::string map_exc("needs a map");
-        call_exc("free0_map", 17, map_exc);
+        call_logerr("free0_map", 17, map_exc);
         // Passing an array to a map-style function works now! No longer an
         // error case!
 //      call_exc("free0_map", LLSDArray("a")("b"), map_exc);
@@ -1158,7 +1186,7 @@ namespace tut
         {
             foreach(const llsd::MapEntry& e, inMap(funcsab))
             {
-                call_exc(e.second, tooshort, "requires more arguments");
+                call_logerr(e.second, tooshort, "requires more arguments");
             }
         }
     }

@@ -37,9 +37,9 @@ LLMortician::~LLMortician()
 	sGraveyard.remove(this);
 }
 
-U32 LLMortician::logClass(std::stringstream &str)
+size_t LLMortician::logClass(std::stringstream &str)
 {
-    U32 size = sGraveyard.size();
+    auto size = sGraveyard.size();
     str << "Mortician graveyard count: " << size;
     str << " Zealous: " << (sDestroyImmediate ? "True" : "False");
     if (size == 0)

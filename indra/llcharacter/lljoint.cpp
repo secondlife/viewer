@@ -115,7 +115,8 @@ void LLJoint::init()
 }
 
 LLJoint::LLJoint() :
-	mJointNum(-1)
+	mJointNum(-1),
+    mIsBone(false)
 {
 	init();
 	touch();
@@ -230,6 +231,15 @@ void LLJoint::setJointNum(S32 joint_num)
         LL_ERRS() << "joint_num " << joint_num << " + 2 is too large for " << LL_CHARACTER_MAX_ANIMATED_JOINTS << LL_ENDL;
     }
 }
+
+//-----------------------------------------------------------------------------
+// setIsBone()
+//-----------------------------------------------------------------------------
+void LLJoint::setIsBone(bool is_bone)
+{
+    mIsBone=is_bone;
+}
+
 //-----------------------------------------------------------------------------
 // getRoot()
 //-----------------------------------------------------------------------------
@@ -251,7 +261,7 @@ LLJoint *LLJoint::findJoint( const std::string &name )
 	if (name == getName())
 		return this;
 
-	for (joints_t::iterator iter = mChildren.begin();
+	for (joints_t::const_iterator iter = mChildren.begin();
 		 iter != mChildren.end(); ++iter)
 	{
 		LLJoint* joint = *iter;
@@ -316,11 +326,19 @@ void LLJoint::removeAllChildren()
     mChildren.clear();
 }
 
+//--------------------------------------------------------------------
+// getNumChildren()
+//--------------------------------------------------------------------
+U32 LLJoint::getNumChildren() const
+{
+    //return of 0 indicates an end effector, > 1 a leaf and 1 a normal joint.
+    return mChildren.size();
+}
 
 //--------------------------------------------------------------------
 // getPosition()
 //--------------------------------------------------------------------
-const LLVector3& LLJoint::getPosition()
+const LLVector3& LLJoint::getPosition() const
 {
 	return mXform.getPosition();
 }
@@ -768,7 +786,7 @@ LLVector3 LLJoint::getWorldPosition()
 //-----------------------------------------------------------------------------
 // getLastWorldPosition()
 //-----------------------------------------------------------------------------
-LLVector3 LLJoint::getLastWorldPosition()
+LLVector3 LLJoint::getLastWorldPosition() const
 {
 	return mXform.getWorldPosition();
 }
@@ -804,7 +822,7 @@ void LLJoint::setWorldPosition( const LLVector3& pos )
 //--------------------------------------------------------------------
 // getRotation()
 //--------------------------------------------------------------------
-const LLQuaternion& LLJoint::getRotation()
+const LLQuaternion& LLJoint::getRotation() const
 {
 	return mXform.getRotation();
 }
@@ -873,7 +891,7 @@ void LLJoint::setWorldRotation( const LLQuaternion& rot )
 //--------------------------------------------------------------------
 // getScale()
 //--------------------------------------------------------------------
-const LLVector3& LLJoint::getScale()
+const LLVector3& LLJoint::getScale() const
 {
     return mXform.getScale();
 }
@@ -1018,7 +1036,7 @@ void LLJoint::updateWorldMatrix()
 //--------------------------------------------------------------------
 // getSkinOffset()
 //--------------------------------------------------------------------
-const LLVector3 &LLJoint::getSkinOffset()
+const LLVector3 &LLJoint::getSkinOffset() const
 {
 	return mSkinOffset;
 }
@@ -1030,28 +1048,6 @@ const LLVector3 &LLJoint::getSkinOffset()
 void LLJoint::setSkinOffset( const LLVector3& offset )
 {
 	mSkinOffset = offset;
-}
-
-
-//-----------------------------------------------------------------------------
-// clampRotation()
-//-----------------------------------------------------------------------------
-void LLJoint::clampRotation(LLQuaternion old_rot, LLQuaternion new_rot)
-{
-	LLVector3 main_axis(1.f, 0.f, 0.f);
-
-	for (joints_t::iterator iter = mChildren.begin();
-		 iter != mChildren.end(); ++iter)
-	{
-		LLJoint* joint = *iter;
-		if (joint->isAnimatable())
-		{
-			main_axis = joint->getPosition();
-			main_axis.normVec();
-			// only care about first animatable child
-			break;
-		}
-	}
 }
 
 // End

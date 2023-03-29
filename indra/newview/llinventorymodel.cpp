@@ -4359,7 +4359,6 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 		}
 	}
 
-
 	if (cat_lock > 0 || item_lock > 0)
 	{
 		LL_INFOS("Inventory") << "Found locks on some categories: sub-cat arrays "
@@ -4590,7 +4589,6 @@ void LLInventoryModel::FetchItemHttpHandler::processData(LLSD & content, LLCore:
 	{
 		gInventory.updateItem(*it);
 	}
-	
 	gInventory.notifyObservers();
 	gViewerWindow->getWindow()->decBusyCount();
 }

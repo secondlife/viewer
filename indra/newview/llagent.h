@@ -38,6 +38,7 @@
 #include "v3dmath.h"
 #include "httprequest.h"
 #include "llcorehttputil.h"
+#include "llmotion.h"
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
@@ -48,7 +49,6 @@ extern const U8 	AGENT_STATE_TYPING;  // Typing indication
 extern const U8 	AGENT_STATE_EDITING; // Set when agent has objects selected
 
 class LLViewerRegion;
-class LLMotion;
 class LLMessageSystem;
 class LLPermissions;
 class LLHost;
@@ -486,7 +486,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void            stopCurrentAnimations();
-	void			requestStopMotion(LLMotion* motion);
+	void			requestStopMotion(const LLMotion::ptr_t &motion);
 	void			onAnimStop(const LLUUID& id);
 	void			sendAnimationRequests(const std::vector<LLUUID> &anim_ids, EAnimRequest request);
 	void			sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request);
@@ -933,6 +933,7 @@ public:
 private:
     void            requestAgentUserInfoCoro(std::string capurl);
     void            updateAgentUserInfoCoro(std::string capurl, std::string directory_visibility);
+
     // DEPRECATED: may be removed when User Info cap propagates 
     void 			sendAgentUserInfoRequestMessage();
     void            sendAgentUpdateUserInfoMessage(const std::string& directory_visibility);

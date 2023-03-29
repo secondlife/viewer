@@ -41,7 +41,16 @@
 // WARNING: Don't use this for global const definitions!  using this
 // at the top of a *.cpp file might not give you what you think.
 const LLQuaternion LLQuaternion::DEFAULT;
- 
+
+// static
+bool LLQuaternion::almost_equal(const LLQuaternion& A, const LLQuaternion& B, F32 tolerance_angle)
+{
+    // Note: this only works for well-normalized Quaternions
+    // and uses the small angle approximation of cos():
+    //    cos(angle) ~= 1.0 - 0.5 * angle^2
+    return 8.0f * std::abs(1.0f - std::abs(dot(A, B))) < tolerance_angle * tolerance_angle;
+}
+
 // Constructors
 
 LLQuaternion::LLQuaternion(const LLMatrix4 &mat)
@@ -213,6 +222,11 @@ const LLQuaternion&	LLQuaternion::setEulerAngles(F32 roll, F32 pitch, F32 yaw)
 		
 	normalize();
 	return (*this);
+}
+
+const LLQuaternion& LLQuaternion::setEulerAngles(const LLVector3 mat)
+{
+    return setEulerAngles(mat.mV[0], mat.mV[1], mat.mV[2]);
 }
 
 // deprecated
@@ -914,6 +928,13 @@ void LLQuaternion::getEulerAngles(F32 *roll, F32 *pitch, F32 *yaw) const
 		}
 		*roll = 0;
 	}
+}
+
+LLVector3 LLQuaternion::getEulerAngles() const
+{
+    LLVector3 r;
+    getEulerAngles(&r.mV[0], &r.mV[1], &r.mV[2]);
+    return r;
 }
 
 // Saves space by using the fact that our quaternions are normalized

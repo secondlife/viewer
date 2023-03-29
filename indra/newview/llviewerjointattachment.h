@@ -51,13 +51,13 @@ public:
 
 	// Returns true if this object is transparent.
 	// This is used to determine in which order to draw objects.
-	/*virtual*/ BOOL isTransparent();
+	BOOL isTransparent() override;
 
 	// Draws the shape attached to a joint.
 	// Called by render().
-	/*virtual*/ U32 drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy );
+	U32  drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy ) override;
 	
-	/*virtual*/ BOOL updateLOD(F32 pixel_area, BOOL activate);
+	BOOL updateLOD(F32 pixel_area, BOOL activate) override;
 
 	//
 	// accessors
@@ -72,7 +72,7 @@ public:
 	void setIsHUDAttachment(BOOL is_hud) { mIsHUDAttachment = is_hud; }
 	BOOL getIsHUDAttachment() const { return mIsHUDAttachment; }
 
-	BOOL isAnimatable() const { return FALSE; }
+	BOOL isAnimatable() const override { return FALSE; }
 
 	S32 getGroup() const { return mGroup; }
 	S32 getPieSlice() const { return mPieSlice; }
@@ -98,16 +98,36 @@ public:
 	typedef std::vector<LLPointer<LLViewerObject> > attachedobjs_vec_t;
 	attachedobjs_vec_t mAttachedObjects;
 
+    bool    hasChanged(const LLVector3 &pos, const LLQuaternion &rot) const
+    {
+        static constexpr F32 SMALL_CHANGE_DIST2(0.05f * 0.05f);
+        static constexpr F32 SMALL_CHANGE_ANGL(0.225f);    // just shy of 13 degrees
+        // Angle choice and LLQuaternion::almost_equal: almost_equal uses the Small Angle Approximation 
+        // for cos.  The approximation diverges more than 1% at around 0.6620 radians. We are under 
+        // this limit and to be honest, an error of 1% in this case is acceptable. 
+
+        return (((pos - mLastTrackedPos).magVecSquared() > SMALL_CHANGE_DIST2) || 
+            !LLQuaternion::almost_equal(rot, mLastTrackedRot, SMALL_CHANGE_ANGL));
+    }
+
+    void    setLastTracked(const LLVector3 &tracked_pos, const LLQuaternion &tracked_rot)
+    {
+        mLastTrackedPos = tracked_pos;
+        mLastTrackedRot = tracked_rot;
+    }
+
 protected:
 	void calcLOD();
 	void setupDrawable(LLViewerObject *object);
 
 private:
-	BOOL			mVisibleInFirst;
-	LLVector3		mOriginalPos;
-	S32				mGroup;
-	BOOL			mIsHUDAttachment;
-	S32				mPieSlice;
+    BOOL                mVisibleInFirst;
+    LLVector3           mOriginalPos;
+    S32                 mGroup;
+    BOOL                mIsHUDAttachment;
+    S32                 mPieSlice;
+    LLVector3           mLastTrackedPos;
+    LLQuaternion        mLastTrackedRot;
 };
 
 #endif // LL_LLVIEWERJOINTATTACHMENT_H
