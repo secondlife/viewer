@@ -79,6 +79,8 @@
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
 
+// *TODO: Consider enabling mipmaps (they have been disabled for a long time). Likely has a significant performance impact for tiled/high texture repeat media. Mip generation in a shader may also be an option if necessary.
+constexpr BOOL USE_MIPMAPS = FALSE;
 
 void init_threaded_picker_load_dialog(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple)
 {
@@ -1564,8 +1566,8 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 
 	// connect this media_impl to the media texture, creating it if it doesn't exist.0
 	// This is necessary because we need to be able to use getMaxVirtualSize() even if the media plugin is not loaded.
-    const BOOL use_mipmaps = FALSE;
-	LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture(mTextureId, use_mipmaps);
+    // *TODO: Consider enabling mipmaps (they have been disabled for a long time). Likely has a significant performance impact for tiled/high texture repeat media. Mip generation in a shader may also be an option if necessary.
+	LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture(mTextureId, USE_MIPMAPS);
 	if(media_tex)
 	{
 		media_tex->setMediaImpl();
@@ -3006,8 +3008,8 @@ LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
     }
 
     llassert(!mTextureId.isNull());
-    const BOOL use_mipmaps = FALSE;
-    LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture( mTextureId, use_mipmaps );
+    // *TODO: Consider enabling mipmaps (they have been disabled for a long time). Likely has a significant performance impact for tiled/high texture repeat media. Mip generation in a shader may also be an option if necessary.
+    LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture( mTextureId, USE_MIPMAPS );
  
     if ( mNeedsNewTexture
         || (media_tex->getWidth() != mMediaSource->getTextureWidth())
