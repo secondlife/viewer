@@ -42,6 +42,7 @@
 #include "llnotificationsutil.h"
 #include "llviewerfoldertype.h"
 #include "llviewerwindow.h"
+#include "llvoavatarself.h"
 
 LLContextMenu* LLInventoryGalleryContextMenu::createMenu()
 {
@@ -275,6 +276,18 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
     else if ("ungroup_folder_items" == action)
     {
         ungroup_folder_items(selected_id);
+    }
+    else if ("take_off" == action || "detach" == action)
+    {
+        LLAppearanceMgr::instance().removeItemFromAvatar(selected_id);
+    }
+    else if ("wear_add" == action)
+    {
+        LLAppearanceMgr::instance().wearItemOnAvatar(selected_id, true, false); // Don't replace if adding.
+    }
+    else if ("wear" == action)
+    {
+        LLAppearanceMgr::instance().wearItemOnAvatar(selected_id, true, true);
     }
 }
 
@@ -564,6 +577,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                && obj->getType() != LLAssetType::AT_OBJECT
                && obj->getType() != LLAssetType::AT_CLOTHING
                && obj->getType() != LLAssetType::AT_CATEGORY
+               && obj->getType() != LLAssetType::AT_LANDMARK
                && obj->getType() != LLAssetType::AT_BODYPART))
         {
             bool can_open = !LLAssetType::lookupIsLinkType(obj->getType());
@@ -584,6 +598,46 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
         else if(LLAssetType::AT_LANDMARK == obj->getType())
         {
             items.push_back(std::string("Landmark Open"));
+        }
+        else if (obj->getType() == LLAssetType::AT_OBJECT || obj->getType() == LLAssetType::AT_CLOTHING || obj->getType() == LLAssetType::AT_BODYPART)
+        {
+            items.push_back(std::string("Wearable And Object Separator"));
+            if(obj->getType() == LLAssetType::AT_CLOTHING)
+            {
+                items.push_back(std::string("Take Off"));
+            }
+            if(get_is_item_worn(selected_id))
+            {
+                if(obj->getType() == LLAssetType::AT_OBJECT)
+                {
+                    items.push_back(std::string("Detach From Yourself"));
+                }
+                disabled_items.push_back(std::string("Wearable And Object Wear"));
+                disabled_items.push_back(std::string("Wearable Add"));
+            }
+            else
+            {
+                if(obj->getType() == LLAssetType::AT_OBJECT)
+                {
+                    items.push_back(std::string("Wearable Add"));
+                }
+                items.push_back(std::string("Wearable And Object Wear"));
+                disabled_items.push_back(std::string("Take Off"));
+            }
+
+            if (!gAgentAvatarp->canAttachMoreObjects() && (obj->getType() == LLAssetType::AT_OBJECT))
+            {
+                disabled_items.push_back(std::string("Wearable And Object Wear"));
+                disabled_items.push_back(std::string("Wearable Add"));
+            }
+            if (selected_item && (obj->getType() != LLAssetType::AT_OBJECT) && LLWearableType::getInstance()->getAllowMultiwear(selected_item->getWearableType()))
+            {
+                items.push_back(std::string("Wearable Add"));
+                if (!gAgentWearables.canAddWearable(selected_item->getWearableType()))
+                {
+                    disabled_items.push_back(std::string("Wearable Add"));
+                }
+            }
         }
         if (is_link)
         {
