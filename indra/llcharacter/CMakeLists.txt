@@ -4,22 +4,6 @@ project(llcharacter)
 
 include(00-Common)
 include(LLCommon)
-include(LLMath)
-include(LLMessage)
-include(LLFileSystem)
-include(LLXML)
-
-include_directories(
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLMATH_INCLUDE_DIRS}
-    ${LLMESSAGE_INCLUDE_DIRS}
-    ${LLFILESYSTEM_INCLUDE_DIRS}
-    ${LLXML_INCLUDE_DIRS}
-    )
-include_directories(SYSTEM
-    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
-    ${LLXML_SYSTEM_INCLUDE_DIRS}
-    )
 
 set(llcharacter_SOURCE_FILES
     llanimationstates.cpp
@@ -73,18 +57,16 @@ set(llcharacter_HEADER_FILES
     llvisualparam.h
     )
 
-set_source_files_properties(${llcharacter_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND llcharacter_SOURCE_FILES ${llcharacter_HEADER_FILES})
 
 add_library (llcharacter ${llcharacter_SOURCE_FILES})
+target_include_directories( llcharacter  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(
-    llcharacter
-    ${LLCOMMON_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${LLMESSAGE_LIBRARIES}
-    ${LLFILESYSTEM_LIBRARIES}
-    ${LLXML_LIBRARIES}
+        llcharacter
+        llcommon
+        llmath
+        llmessage
+        llfilesystem
+        llxml
     )

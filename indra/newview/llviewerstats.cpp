@@ -511,6 +511,7 @@ void send_viewer_stats(bool include_preferences)
     system["cpu_sse"] = gSysCPU.getSSEVersions();
 	system["address_size"] = ADDRESS_SIZE;
 	system["os_bitness"] = LLOSInfo::instance().getOSBitness();
+	system["hardware_concurrency"] = (LLSD::Integer) std::thread::hardware_concurrency();
 	unsigned char MACAddress[MAC_ADDRESS_BYTES];
 	LLUUID::getNodeID(MACAddress);
 	std::string macAddressString = llformat("%02x-%02x-%02x-%02x-%02x-%02x",

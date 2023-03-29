@@ -1636,6 +1636,9 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
 		LL_WARNS(LOG_INV) << "Deleting non-existent object [ id: " << id << " ] " << LL_ENDL;
 		return;
 	}
+
+    //collect the links before removing the item from mItemMap
+    LLInventoryModel::item_array_t links = collectLinksTo(id);
 	
 	LL_DEBUGS(LOG_INV) << "Deleting inventory object " << id << LL_ENDL;
 	mLastItem = NULL;
@@ -1693,7 +1696,7 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
 	// update is getting broken link info separately.
 	if (fix_broken_links && !is_link_type)
 	{
-		updateLinkedObjectsFromPurge(id);
+        rebuildLinkItems(links);
 	}
 	obj = nullptr; // delete obj
 	if (do_notify_observers)
@@ -1702,26 +1705,25 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
 	}
 }
 
-void LLInventoryModel::updateLinkedObjectsFromPurge(const LLUUID &baseobj_id)
+void LLInventoryModel::rebuildLinkItems(LLInventoryModel::item_array_t& items)
 {
-	LLInventoryModel::item_array_t item_array = collectLinksTo(baseobj_id);
-
-	// REBUILD is expensive, so clear the current change list first else
-	// everything else on the changelist will also get rebuilt.
-	if (item_array.size() > 0)
-	{
-		notifyObservers();
-		for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
-			iter != item_array.end();
-			iter++)
-		{
-			const LLViewerInventoryItem *linked_item = (*iter);
-			const LLUUID &item_id = linked_item->getUUID();
-			if (item_id == baseobj_id) continue;
-			addChangedMask(LLInventoryObserver::REBUILD, item_id);
-		}
-		notifyObservers();
-	}
+    // REBUILD is expensive, so clear the current change list first else
+    // everything else on the changelist will also get rebuilt.
+    if (items.size() > 0)
+    {
+        notifyObservers();
+        for (LLInventoryModel::item_array_t::const_iterator iter = items.begin();
+            iter != items.end();
+            iter++)
+        {
+            const LLViewerInventoryItem *linked_item = (*iter);
+            if (linked_item)
+            {
+                addChangedMask(LLInventoryObserver::REBUILD, linked_item->getUUID());
+            }
+        }
+        notifyObservers();
+    }
 }
 
 // Add/remove an observer. If the observer is destroyed, be sure to
@@ -1951,18 +1953,20 @@ void LLInventoryModel::cache(
 		items,
 		INCLUDE_TRASH,
 		can_cache);
-	std::string inventory_filename = getInvCacheAddres(agent_id);
-	saveToFile(inventory_filename, categories, items);
-	std::string gzip_filename(inventory_filename);
+    // Use temporary file to avoid potential conflicts with other
+    // instances (even a 'read only' instance unzips into a file)
+    std::string temp_file = gDirUtilp->getTempFilename();
+	saveToFile(temp_file, categories, items);
+    std::string gzip_filename = getInvCacheAddres(agent_id);
 	gzip_filename.append(".gz");
-	if(gzip_file(inventory_filename, gzip_filename))
+	if(gzip_file(temp_file, gzip_filename))
 	{
-		LL_DEBUGS(LOG_INV) << "Successfully compressed " << inventory_filename << LL_ENDL;
-		LLFile::remove(inventory_filename);
+		LL_DEBUGS(LOG_INV) << "Successfully compressed " << temp_file << " to " << gzip_filename << LL_ENDL;
+		LLFile::remove(temp_file);
 	}
 	else
 	{
-		LL_WARNS(LOG_INV) << "Unable to compress " << inventory_filename << LL_ENDL;
+		LL_WARNS(LOG_INV) << "Unable to compress " << temp_file << " into " << gzip_filename << LL_ENDL;
 	}
 }
 
@@ -3035,6 +3039,7 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
                 return false;
             }
         }
+        fileXML.flush();
 
         fileXML.close();
 
@@ -4590,7 +4595,6 @@ void LLInventoryModel::FetchItemHttpHandler::processData(LLSD & content, LLCore:
 	{
 		gInventory.updateItem(*it);
 	}
-	
 	gInventory.notifyObservers();
 	gViewerWindow->getWindow()->decBusyCount();
 }
