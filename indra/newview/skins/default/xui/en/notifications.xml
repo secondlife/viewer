@@ -6155,6 +6155,17 @@ Are you sure you want to delete them?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="ThumbnailOutfitPhoto"
+   type="alertmodal">
+    <unique/>
+    To add an image to an outfit, use the Outfit Gallery window, or right-click on the outfit folder and select "Image..."
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
      icon="alertmodal.tga"
      name="ConfirmUnlink"
      type="alertmodal">

@@ -41,7 +41,6 @@
 #include "llfloateropenobject.h"
 #include "llfloaterreg.h"
 #include "llfloatermarketplacelistings.h"
-#include "llfloateroutfitphotopreview.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llsidepanelinventory.h"
 #include "llfloaterworldmap.h"
@@ -4896,11 +4895,8 @@ void LLFolderBridge::dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_c
 		const LLUUID &my_outifts_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
 		if(mUUID != my_outifts_id)
 		{
-			LLFloaterOutfitPhotoPreview* photo_preview  = LLFloaterReg::showTypedInstance<LLFloaterOutfitPhotoPreview>("outfit_photo_preview", inv_item->getUUID());
-			if(photo_preview)
-			{
-				photo_preview->setOutfitID(mUUID);
-			}
+            // Legacy: prior to thumbnails images in outfits were used for outfit gallery.
+            LLNotificationsUtil::add("ThumbnailOutfitPhoto");
 		}
 		return;
 	}
