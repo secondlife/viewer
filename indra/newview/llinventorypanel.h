@@ -260,7 +260,7 @@ public:
     // Clean up stuff when the folder root gets deleted
     void clearFolderRoot();
 
-    void callbackPurgeSelectedItems(const LLSD& notification, const LLSD& response);
+    static void callbackPurgeSelectedItems(const LLSD& notification, const LLSD& response, const std::vector<LLUUID> inventory_selected);
 
 protected:
 	void openStartFolderOrMyInventory(); // open the first level of inventory

@@ -78,7 +78,9 @@ static S32 cube_channel = -1;
 static S32 diffuse_channel = -1;
 static S32 bump_channel = -1;
 
-#define LL_BUMPLIST_MULTITHREADED 0 // TODO -- figure out why this doesn't work
+// Enabled after changing LLViewerTexture::mNeedsCreateTexture to an
+// LLAtomicBool; this should work just fine, now. HB
+#define LL_BUMPLIST_MULTITHREADED 1
 
 
 // static 
