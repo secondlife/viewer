@@ -144,7 +144,7 @@ private:
     void updateRowsIfNeeded();
     void updateGalleryWidth();
 
-    LLInventoryGalleryItem* buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id, bool is_link);
+    LLInventoryGalleryItem* buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id, LLInventoryType::EType inventory_type, U32 flags, bool is_link);
 
     void buildGalleryPanel(int row_count);
     void reshapeGalleryPanel(int row_count);
@@ -237,7 +237,7 @@ public:
     bool isHidden() {return mHidden;}
     void setHidden(bool hidden) {mHidden = hidden;}
 
-    void setType(LLAssetType::EType type, bool is_link);
+    void setType(LLAssetType::EType type, LLInventoryType::EType inventory_type, U32 flags, bool is_link);
     void setThumbnail(LLUUID id);
     void setGallery(LLInventoryGallery* gallery) { mGallery = gallery; }
     bool isFolder() { return mIsFolder; }

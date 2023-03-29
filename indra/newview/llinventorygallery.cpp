@@ -461,7 +461,7 @@ void LLInventoryGallery::removeFromLastRow(LLInventoryGalleryItem* item)
     mItemPanels.pop_back();
 }
 
-LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id, bool is_link)
+LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id, LLInventoryType::EType inventory_type, U32 flags, bool is_link)
 {
     LLInventoryGalleryItem::Params giparams;
     LLInventoryGalleryItem* gitem = LLUICtrlFactory::create<LLInventoryGalleryItem>(giparams);
@@ -472,7 +472,7 @@ LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, L
     gitem->setName(name);
     gitem->setUUID(item_id);
     gitem->setGallery(this);
-    gitem->setType(type, is_link);
+    gitem->setType(type, inventory_type, flags, is_link);
     gitem->setThumbnail(thumbnail_id);
     gitem->setCreatorName(get_searchable_creator_name(&gInventory, item_id));
     gitem->setDescription(get_searchable_description(&gInventory, item_id));
@@ -621,7 +621,8 @@ void LLInventoryGallery::updateAddedItem(LLUUID item_id)
 
     std::string name = obj->getName();
     LLUUID thumbnail_id = obj->getThumbnailUUID();;
-
+    LLInventoryType::EType inventory_type(LLInventoryType::IT_CATEGORY);
+    U32 misc_flags = 0;
     if (LLAssetType::AT_CATEGORY == obj->getType())
     {
         name = get_localized_folder_name(item_id);
@@ -630,8 +631,17 @@ void LLInventoryGallery::updateAddedItem(LLUUID item_id)
             thumbnail_id = getOutfitImageID(item_id);
         }
     }
+    else
+    {
+        LLInventoryItem* inv_item = gInventory.getItem(item_id);
+        if (inv_item)
+        {
+            inventory_type = inv_item->getInventoryType();
+            misc_flags = inv_item->getFlags();
+        }
+    }
     
-    LLInventoryGalleryItem* item = buildGalleryItem(name, item_id, obj->getType(), thumbnail_id, obj->getIsLinkType());
+    LLInventoryGalleryItem* item = buildGalleryItem(name, item_id, obj->getType(), thumbnail_id, inventory_type, misc_flags, obj->getIsLinkType());
     mItemMap.insert(LLInventoryGallery::gallery_item_map_t::value_type(item_id, item));
     item->setRightMouseDownCallback(boost::bind(&LLInventoryGallery::showContextMenu, this, _1, _2, _3, item_id));
     item->setFocusReceivedCallback(boost::bind(&LLInventoryGallery::onChangeItemSelection, this, item_id));
@@ -950,12 +960,12 @@ BOOL LLInventoryGalleryItem::postBuild()
     return TRUE;
 }
 
-void LLInventoryGalleryItem::setType(LLAssetType::EType type, bool is_link)
+void LLInventoryGalleryItem::setType(LLAssetType::EType type, LLInventoryType::EType inventory_type, U32 flags, bool is_link)
 {
     mType = type;
     mIsFolder = (mType == LLAssetType::AT_CATEGORY);
 
-    std::string icon_name = LLInventoryIcon::getIconName(mType);
+    std::string icon_name = LLInventoryIcon::getIconName(mType, inventory_type, flags);
     if(mIsFolder)
     {
         mSortGroup = SG_NORMAL_FOLDER;
