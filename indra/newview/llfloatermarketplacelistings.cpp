@@ -511,7 +511,6 @@ void LLFloaterMarketplaceListings::setRootFolder()
     }
     
     mRootFolderId = marketplacelistings_id;
-    mRootFolderCreating = true;
 }
 
 void LLFloaterMarketplaceListings::setPanels()
