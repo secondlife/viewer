@@ -533,6 +533,11 @@ BOOL get_is_item_worn(const LLUUID& id)
 	if (!item)
 		return FALSE;
 
+    if (item->getIsLinkType() && !gInventory.getItem(item->getLinkedUUID()))
+    {
+        return FALSE;
+    }
+
 	// Consider the item as worn if it has links in COF.
 	if (LLAppearanceMgr::instance().isLinkedInCOF(id))
 	{
@@ -813,7 +818,7 @@ void show_item_original(const LLUUID& item_uuid)
             {
                 main_inventory->toggleViewMode();
             }
-            main_inventory->resetFilters();
+            main_inventory->resetAllItemsFilters();
         }
         reset_inventory_filter();
 
@@ -3003,7 +3008,12 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     }
     else
     {
-        std::copy(selected_uuid_set.begin(), selected_uuid_set.end(), std::back_inserter(ids));
+        for (std::set<LLFolderViewItem*>::iterator it = selected_items.begin(), end_it = selected_items.end();
+            it != end_it;
+            ++it)
+        {
+            ids.push_back(static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID());
+        }
     }
 
     // Check for actions that get handled in bulk
@@ -3064,7 +3074,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     }
     else if ("ungroup_folder_items" == action)
     {
-        if (selected_uuid_set.size() == 1)
+        if (ids.size() == 1)
         {
             ungroup_folder_items(*ids.begin());
         }

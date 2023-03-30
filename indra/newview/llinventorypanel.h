@@ -262,7 +262,7 @@ public:
     // Clean up stuff when the folder root gets deleted
     void clearFolderRoot();
 
-    void callbackPurgeSelectedItems(const LLSD& notification, const LLSD& response);
+    static void callbackPurgeSelectedItems(const LLSD& notification, const LLSD& response, const std::vector<LLUUID> inventory_selected);
 
     void changeFolderRoot(const LLUUID& new_id) {};
 

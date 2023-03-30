@@ -1180,6 +1180,7 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 	{
 		LLViewerFetchedTexture* imagep = *iter3++;
         imagep->updateFetch();
+
 		if (min_count <= min_update_count)
 		{
 			mLastFetchKey = LLTextureKey(imagep->getID(), (ETexListType)imagep->getTextureListType());
