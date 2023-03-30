@@ -401,29 +401,15 @@ void LLViewerShaderMgr::setShaders()
 
     llassert((gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 10));
 
-    //bool canRenderDeferred = true; // DEPRECATED -- LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred");
-    //bool hasWindLightShaders = true; // DEPRECATED -- LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders");
-    bool doingWindLight = true; //DEPRECATED -- hasWindLightShaders&& gSavedSettings.getBOOL("WindLightUseAtmosShaders");
-
+    
     S32 light_class = 3;
     S32 interface_class = 2;
     S32 env_class = 2;
     S32 obj_class = 2;
     S32 effect_class = 2;
-    S32 wl_class = 1;
+    S32 wl_class = 2;
     S32 water_class = 3;
     S32 deferred_class = 3;
-
-    if (doingWindLight)
-    {
-        // user has disabled WindLight in their settings, downgrade
-        // windlight shaders to stub versions.
-        wl_class = 2;
-    }
-    else
-    {
-        light_class = 2;
-    }
 
     // Trigger a full rebuild of the fallback skybox / cubemap if we've toggled windlight shaders
     if (!wl_class || (mShaderLevel[SHADER_WINDLIGHT] != wl_class && gSky.mVOSkyp.notNull()))
@@ -670,7 +656,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 
 	bool has_reflection_probes = gSavedSettings.getBOOL("RenderReflectionsEnabled") && gGLManager.mGLVersion > 3.99f;
 
-	S32 probe_count = gSavedSettings.getS32("RenderReflectionProbeCount");
+	S32 probe_count = llclamp(gSavedSettings.getS32("RenderReflectionProbeCount"), 1, LL_MAX_REFLECTION_PROBE_COUNT);
 
     if (ambient_kill)
     {

@@ -1006,11 +1006,15 @@ void LLReflectionMapManager::renderDebug()
 
 void LLReflectionMapManager::initReflectionMaps()
 {
-    if (mTexture.isNull())
+    static LLCachedControl<S32> probe_count(gSavedSettings, "RenderReflectionProbeCount", LL_MAX_REFLECTION_PROBE_COUNT);
+
+    U32 count = llclamp((S32) probe_count, 1, LL_MAX_REFLECTION_PROBE_COUNT);
+
+    if (mTexture.isNull() || mReflectionProbeCount != count)
     {
+        mReflectionProbeCount = count;
         mProbeResolution = nhpo2(llclamp(gSavedSettings.getU32("RenderReflectionProbeResolution"), (U32)64, (U32)512));
         mMaxProbeLOD = log2f(mProbeResolution) - 1.f; // number of mips - 1
-        mReflectionProbeCount = llclamp(gSavedSettings.getS32("RenderReflectionProbeCount"), 1, LL_MAX_REFLECTION_PROBE_COUNT);
 
         mTexture = new LLCubeMapArray();
 
@@ -1019,6 +1023,26 @@ void LLReflectionMapManager::initReflectionMaps()
 
         mIrradianceMaps = new LLCubeMapArray();
         mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount, FALSE);
+
+        // reset probe state
+        mUpdatingFace = 0;
+        mUpdatingProbe = nullptr;
+        mRadiancePass = false;
+        mRealtimeRadiancePass = false;
+        mDefaultProbe = nullptr;
+
+        for (auto& probe : mProbes)
+        {
+            probe->mComplete = false;
+            probe->mProbeIndex = -1;
+            probe->mCubeArray = nullptr;
+            probe->mCubeIndex = -1;
+        }
+
+        for (bool& is_free : mCubeFree)
+        {
+            is_free = true;
+        }
     }
 
     if (mVertexBuffer.isNull())
