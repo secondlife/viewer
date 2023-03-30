@@ -90,6 +90,12 @@ public:
     // cube map used to sample this environment map
     LLPointer<LLCubeMapArray> mCubeArray;
     S32 mCubeIndex = -1; // index into cube map array or -1 if not currently stored in cube map array
+    
+    // probe has had at least one full update and is ready to render
+    bool mComplete = false;
+
+    // fade in parameter for this probe
+    F32 mFadeIn = 0.f;
 
     // index into array packed by LLReflectionMapManager::getReflectionMaps
     // WARNING -- only valid immediately after call to getReflectionMaps
