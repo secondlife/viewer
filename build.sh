@@ -327,7 +327,7 @@ end_section "coding policy check"
 
 # Some build-time tests require llbase. Now that that's no longer implicitly
 # pulled in by autobuild, install it explicitly in our virtualenv.
-python_cmd -m pip install llbase
+python_cmd -m pip install -U llbase==1.3.1b1
 
 # Now run the build
 succeeded=true
