@@ -1661,13 +1661,14 @@ void LLViewerMediaImpl::destroyMediaSource()
 
 	cancelMimeTypeProbe();
 
-    mLock.lock();   // Delay tear-down while bg thread is updating
-	if(mMediaSource)
-	{
-		mMediaSource->setDeleteOK(true) ;
-		mMediaSource = NULL; // shared pointer
-	}
-    mLock.unlock();
+    {
+        LLMutexLock lock(&mLock); // Delay tear-down while bg thread is updating
+        if(mMediaSource)
+        {
+            mMediaSource->setDeleteOK(true) ;
+            mMediaSource = NULL; // shared pointer
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2962,7 +2963,7 @@ bool LLViewerMediaImpl::preMediaTexUpdate(LLViewerMediaTexture*& media_tex, U8*&
 void LLViewerMediaImpl::doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* data, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, bool sync)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
-    mLock.lock();   // don't allow media source tear-down during update
+    LLMutexLock lock(&mLock); // don't allow media source tear-down during update
 
     const LLGLuint tex_name = media_tex->getGLTexture() ? media_tex->getGLTexture()->getTexName() : (LLGLuint)0;
     if (!tex_name)
@@ -2989,8 +2990,6 @@ void LLViewerMediaImpl::doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* da
     // release the data pointer before freeing raw so LLImageRaw destructor doesn't
     // free memory at data pointer
     raw->releaseData();
-
-    mLock.unlock();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
