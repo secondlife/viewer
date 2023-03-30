@@ -111,6 +111,8 @@ public:
 
     void setSearchType(LLInventoryFilter::ESearchType type);
     LLInventoryFilter::ESearchType getSearchType() { return mSearchType; }
+    void toggleSearchLinks();
+    bool getSearchLinks(){ return mSearchLinks; }
 
 protected:
 
@@ -187,6 +189,7 @@ private:
     std::map<LLInventoryGalleryItem*, S32> mItemIndexMap;
 
     LLInventoryFilter::ESearchType mSearchType;
+    bool mSearchLinks;
 };
 
 class LLInventoryGalleryItem : public LLPanel
@@ -241,6 +244,7 @@ public:
     void setThumbnail(LLUUID id);
     void setGallery(LLInventoryGallery* gallery) { mGallery = gallery; }
     bool isFolder() { return mIsFolder; }
+    bool isLink() { return mIsLink; }
     EInventorySortGroup getSortGroup() { return mSortGroup; }
     
 private:
@@ -251,6 +255,7 @@ private:
     bool     mDefaultImage;
     bool     mHidden;
     bool     mIsFolder;
+    bool     mIsLink;
 
     std::string mAssetIDStr;
     std::string mDesc;

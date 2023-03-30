@@ -84,7 +84,8 @@ LLInventoryGallery::LLInventoryGallery(const LLInventoryGallery::Params& p)
       mRowPanWidthFactor(p.row_panel_width_factor),
       mGalleryWidthFactor(p.gallery_width_factor),
       mIsInitialized(false),
-      mSearchType(LLInventoryFilter::SEARCHTYPE_NAME)
+      mSearchType(LLInventoryFilter::SEARCHTYPE_NAME),
+      mSearchLinks(true)
 {
     updateGalleryWidth();
 
@@ -561,6 +562,11 @@ void LLInventoryGallery::applyFilter(LLInventoryGalleryItem* item, const std::st
     if (!item) return;
 
     std::string desc;
+    if(!mSearchLinks && item->isLink())
+    {
+        item->setHidden(true);
+        return;
+    }
 
     switch(mSearchType)
     {
@@ -593,6 +599,18 @@ void LLInventoryGallery::setSearchType(LLInventoryFilter::ESearchType type)
     if(mSearchType != type)
     {
         mSearchType = type;
+        if(!mFilterSubString.empty())
+        {
+            reArrangeRows();
+        }
+    }
+}
+
+void LLInventoryGallery::toggleSearchLinks()
+{
+    mSearchLinks = !mSearchLinks;
+    if(!mFilterSubString.empty())
+    {
         reArrangeRows();
     }
 }
@@ -940,6 +958,7 @@ LLInventoryGalleryItem::LLInventoryGalleryItem(const Params& p)
     mName(""),
     mUUID(LLUUID()),
     mIsFolder(true),
+    mIsLink(false),
     mGallery(NULL),
     mType(LLAssetType::AT_NONE),
     mSortGroup(SG_ITEM)
@@ -964,6 +983,7 @@ void LLInventoryGalleryItem::setType(LLAssetType::EType type, LLInventoryType::E
 {
     mType = type;
     mIsFolder = (mType == LLAssetType::AT_CATEGORY);
+    mIsLink = is_link;
 
     std::string icon_name = LLInventoryIcon::getIconName(mType, inventory_type, flags);
     if(mIsFolder)

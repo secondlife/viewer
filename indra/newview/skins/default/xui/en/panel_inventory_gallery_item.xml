@@ -65,7 +65,7 @@
       name="item_name"
       parse_urls="false"
       top="2"
-      width="130"
+      width="127"
       use_ellipses="true">
       Item name, folder name.
     </text>

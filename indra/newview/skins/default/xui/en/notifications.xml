@@ -3252,7 +3252,8 @@ See https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
    label="Rename Selected Item"
    name="RenameItem"
    type="alertmodal">
-    Choose a new name for [NAME]
+    Choose a new name for:
+[NAME]
    <tag>confirm</tag>
     <form name="form">
     <input name="new_name" type="text" width="300">
