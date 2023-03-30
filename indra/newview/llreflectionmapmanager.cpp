@@ -328,29 +328,20 @@ void LLReflectionMapManager::getReflectionMaps(std::vector<LLReflectionMap*>& ma
 
 LLReflectionMap* LLReflectionMapManager::registerSpatialGroup(LLSpatialGroup* group)
 {
-#if 1
-    if (group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_VOLUME)
+    static LLCachedControl<S32> automatic_probes(gSavedSettings, "RenderAutomaticReflectionProbes", 2);
+    if (automatic_probes > 1)
     {
-        OctreeNode* node = group->getOctreeNode();
-        F32 size = node->getSize().getF32ptr()[0];
-        if (size >= 15.f && size <= 17.f)
+        if (group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_VOLUME)
         {
-            return addProbe(group);
+            OctreeNode* node = group->getOctreeNode();
+            F32 size = node->getSize().getF32ptr()[0];
+            if (size >= 15.f && size <= 17.f)
+            {
+                return addProbe(group);
+            }
         }
     }
-#endif
 
-#if 0
-    if (group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_TERRAIN)
-    {
-        OctreeNode* node = group->getOctreeNode();
-        F32 size = node->getSize().getF32ptr()[0];
-        if (size >= 15.f && size <= 17.f)
-        {
-            return addProbe(group);
-        }
-    }
-#endif
     return nullptr;
 }
 

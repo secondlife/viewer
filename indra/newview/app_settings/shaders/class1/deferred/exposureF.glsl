@@ -46,7 +46,7 @@ float lum(vec3 col)
 
 void main() 
 {
-    float step = 1.0/32.0;
+    float step = 1.0/16.0;
 
     float start = step;
     float end = 1.0-step;
@@ -82,7 +82,7 @@ void main()
 
     float L = lum(col);
 
-    float s = clamp(0.1/L, 0.5, 2.0);
+    float s = clamp(0.1/L, 0.5, 2.5);
 
     float prev = texture(exposureMap, vec2(0.5,0.5)).r;
     s = mix(prev, s, min(dt*2.0, 0.04));

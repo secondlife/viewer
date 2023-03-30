@@ -10367,7 +10367,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <real>1</real>
+    <real>2</real>
   </map>
   <key>RenderExposure</key>
   <map>
@@ -10403,18 +10403,17 @@
     <key>Value</key>
     <real>0</real>
   </map>
-  <key>RenderReflectionProbeTextureHackID</key>
+  <key>RenderAutomaticReflectionProbes</key>
   <map>
     <key>Comment</key>
-    <string>HACK -- Any object with a diffuse texture with this ID will be treated as a user override reflection probe. (default is "Violet Info Hub" photo from Library)</string>
+    <string>Automatic reflection probes control.  0 - disable, 1 - Terrain/water only, 2- Terrain/water + objects.  Requires restart.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
-    <string>String</string>
+    <string>S32</string>
     <key>Value</key>
-    <string>6b186931-05da-eafa-a3ed-a012a33bbfb6</string>
+    <integer>2</integer>
   </map>
-  
   <key>RenderReflectionRes</key>
     <map>
       <key>Comment</key>
