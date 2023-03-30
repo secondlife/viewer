@@ -212,6 +212,7 @@ void main()
     {
         //should only be true of WL sky, just port over base color value
         color = srgb_to_linear(texture2D(emissiveRect, tc).rgb);
+        color *= sun_up_factor + 1.0;
     }
     else
     {

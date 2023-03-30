@@ -62,8 +62,8 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
 
     vec3  rel_pos_norm = normalize(rel_pos);
     float rel_pos_len  = length(rel_pos);
-    float scale = 2.0;
-    vec3  sunlight     = (sun_up_factor == 1) ? sunlight_color * scale: moonlight_color*0.75;
+    
+    vec3  sunlight     = (sun_up_factor == 1) ? sunlight_color: moonlight_color;
 
     // sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
@@ -141,7 +141,7 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     
     // fudge sunlit and amblit to get consistent lighting compared to legacy
     // midday before PBR was a thing
-    sunlit = sunlight.rgb / scale;
+    sunlit = sunlight.rgb;
     amblit = tmpAmbient.rgb * 0.25;
 
     additive *= vec3(1.0 - combined_haze);

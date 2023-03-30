@@ -36,12 +36,11 @@ uniform sampler2D exposureMap;
 uniform float dt;
 uniform vec2 noiseVec;
 
-// calculate luminance the same way LLColor4::calcHSL does
+
 float lum(vec3 col)
 {
-    float mx = max(max(col.r, col.g), col.b);
-    float mn = min(min(col.r, col.g), col.b);
-    return (mx + mn) * 0.5;
+    vec3 l = vec3(0.2126, 0.7152, 0.0722);
+    return dot(l, col);
 }
 
 void main() 
@@ -82,7 +81,7 @@ void main()
 
     float L = lum(col);
 
-    float s = clamp(0.1/L, 0.5, 2.5);
+    float s = clamp(0.175/L, 0.125, 1.3);
 
 
     float prev = texture(exposureMap, vec2(0.5,0.5)).r;
