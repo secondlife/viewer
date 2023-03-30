@@ -2878,7 +2878,7 @@ void LLViewerMediaImpl::update()
     if (preMediaTexUpdate(media_tex, data, data_width, data_height, x_pos, y_pos, width, height))
     {
         // Push update to worker thread
-        auto main_queue = LLImageGLThread::sEnabled ? mMainQueue.lock() : nullptr;
+        auto main_queue = LLImageGLThread::sEnabledMedia ? mMainQueue.lock() : nullptr;
         if (main_queue)
         {
             mTextureUpdatePending = true;

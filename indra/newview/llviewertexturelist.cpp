@@ -1230,7 +1230,7 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 		LLViewerFetchedTexture* imagep = *iter++;
 		imagep->updateFetch();
 	}
-    std::shared_ptr<LL::WorkQueue> main_queue = LLImageGLThread::sEnabled ? LL::WorkQueue::getInstance("mainloop") : NULL;
+    std::shared_ptr<LL::WorkQueue> main_queue = LLImageGLThread::sEnabledTextures ? LL::WorkQueue::getInstance("mainloop") : NULL;
 	// Run threads
 	S32 fetch_pending = 0;
 	while (1)
@@ -1239,7 +1239,7 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 		LLAppViewer::instance()->getImageDecodeThread()->update(1); // unpauses the image thread
 		fetch_pending = LLAppViewer::instance()->getTextureFetch()->update(1); // unpauses the texture fetch thread
 
-        if (LLImageGLThread::sEnabled)
+        if (LLImageGLThread::sEnabledTextures)
         {
             main_queue->runFor(std::chrono::milliseconds(1));
             fetch_pending += main_queue->size();

@@ -312,7 +312,7 @@ void update_texture_fetch()
 	LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
 	gTextureList.updateImages(0.10f);
 
-    if (LLImageGLThread::sEnabled)
+    if (LLImageGLThread::sEnabledTextures)
     {
         std::shared_ptr<LL::WorkQueue> main_queue = LL::WorkQueue::getInstance("mainloop");
         main_queue->runFor(std::chrono::milliseconds(1));
