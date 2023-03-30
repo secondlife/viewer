@@ -1043,6 +1043,8 @@ void LLReflectionMapManager::initReflectionMaps()
         {
             is_free = true;
         }
+
+        mCubeFree[0] = false;
     }
 
     if (mVertexBuffer.isNull())
