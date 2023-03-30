@@ -55,13 +55,13 @@ void main()
 
     vec3 col;
 
-    vec2 nz = noiseVec * step * 0.5;
+    //vec2 nz = noiseVec * step * 0.5;
 
     for (float x = start; x <= end; x += step)
     {
         for (float y = start; y <= end; y += step)
         {
-            vec2 tc = vec2(x,y) + nz;
+            vec2 tc = vec2(x,y); // + nz;
             vec3 c = texture(diffuseRect, tc).rgb + texture(emissiveRect, tc).rgb;
             float L = max(lum(c), 0.25);
 
@@ -84,9 +84,11 @@ void main()
 
     float s = clamp(0.1/L, 0.5, 2.5);
 
-    float prev = texture(exposureMap, vec2(0.5,0.5)).r;
-    s = mix(prev, s, min(dt*2.0, 0.04));
 
+    float prev = texture(exposureMap, vec2(0.5,0.5)).r;
+
+    s = mix(prev, s, min(dt*2.0*abs(prev-s), 0.04));
+    
     frag_color = vec4(s, s, s, dt);
 }
 
