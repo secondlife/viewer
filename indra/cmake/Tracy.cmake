@@ -11,11 +11,8 @@ if (USE_TRACY)
   use_prebuilt_binary(tracy)
 
   target_include_directories( ll::tracy SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include/tracy)
-    set(TRACY_LIBRARY "TracyClient")
-    set(TRACY_LIBRARY "TracyClient")
 
-# See: indra/llcommon/llprofiler.h
-  target_compile_definitions(ll::tracy INTERFACE LL_PROFILER_CONFIGURATION=3 )
-    set(TRACY_LIBRARY "TracyClient")
+  # See: indra/llcommon/llprofiler.h
+  add_compile_definitions(LL_PROFILER_CONFIGURATION=3)
 endif (USE_TRACY)
 

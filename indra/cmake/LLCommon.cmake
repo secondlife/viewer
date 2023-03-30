@@ -9,4 +9,3 @@ include(ZLIBNG)
 include(JsonCpp)
 
 include(XmlRpcEpi)
-        ${TRACY_LIBRARY}

@@ -10,9 +10,9 @@
  */
 
 // Precompiled header
-#include "llviewerprecompiledheaders.h"
+#include "../llviewerprecompiledheaders.h"
 // associated header
-#include "llviewercontrollistener.h"
+#include "../llviewercontrollistener.h"
 // STL headers
 // std headers
 // external library headers
@@ -21,7 +21,6 @@
 #include "../test/catch_and_store_what_in.h" // catch_what()
 #include "commoncontrol.h"
 #include "llcontrol.h"              // LLControlGroup
-#include "llviewercontrollistener.h"
 
 /*****************************************************************************
 *   TUT

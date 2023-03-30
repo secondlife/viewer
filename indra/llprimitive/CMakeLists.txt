@@ -7,11 +7,8 @@ include(LLCommon)
 include(LLCoreHttp)
 include(LLPhysicsExtensions)
 include(LLPrimitive)
-include(LLRender)
 include(GLH)
 include(TinyGLTF)
-    ${LLRENDER_INCLUDE_DIRS}
-    ${TINYGLTF_INCLUDE_DIR}
 
 set(llprimitive_SOURCE_FILES
     lldaeloader.cpp
@@ -68,6 +65,7 @@ target_link_libraries(llprimitive
         llcorehttp
         llxml
         llcharacter
+        llrender
         llphysicsextensions_impl
         ll::colladadom
         ll::pcre
@@ -82,6 +80,7 @@ if (LL_TESTS)
       llprimitive.cpp
       llgltfmaterial.cpp
       )
-    
+
+    set_property(SOURCE llprimitive.cpp PROPERTY LL_TEST_ADDITIONAL_LIBRARIES llmessage)
     LL_ADD_PROJECT_UNIT_TESTS(llprimitive "${llprimitive_TEST_SOURCE_FILES}")
 endif (LL_TESTS)

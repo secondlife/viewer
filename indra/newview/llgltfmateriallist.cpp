@@ -554,8 +554,6 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
         LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
         LL::WorkQueue::ptr_t general_queue = LL::WorkQueue::getInstance("General");
 
-        typedef std::pair<U32, tinygltf::Model> return_data_t;
-
         main_queue->postTo(
             general_queue,
             [id, asset_type, asset_data]() // Work done on general queue
