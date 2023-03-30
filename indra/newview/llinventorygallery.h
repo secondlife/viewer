@@ -108,6 +108,7 @@ public:
     void deselectItem(const LLUUID& category_id);
     void signalSelectionItemID(const LLUUID& category_id);
     boost::signals2::connection setSelectionChangeCallback(selection_change_callback_t cb);
+    LLUUID getSelectedItemID() { return mSelectedItemID; }
 
     void setSearchType(LLInventoryFilter::ESearchType type);
     LLInventoryFilter::ESearchType getSearchType() { return mSearchType; }

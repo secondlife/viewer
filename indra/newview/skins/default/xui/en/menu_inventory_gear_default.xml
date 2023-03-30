@@ -69,7 +69,8 @@
      name="Share"
      visible="true">
      <on_click
-         function="Inventory.Share" />
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="share" />
      <on_enable
          function="Inventory.GearDefault.Enable"
          parameter="share" />

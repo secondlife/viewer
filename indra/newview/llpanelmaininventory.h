@@ -48,6 +48,7 @@ class LLMenuGL;
 class LLSidepanelInventory;
 class LLToggleableMenu;
 class LLFloater;
+class LLFloaterSidePanelContainer;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPanelMainInventory
@@ -101,13 +102,15 @@ public:
 
 	void setFocusFilterEditor();
 
-	static void newWindow();
+	static LLFloaterSidePanelContainer* newWindow();
     static void newFolderWindow(LLUUID folder_id = LLUUID(), LLUUID item_to_select = LLUUID());
 
 	void toggleFindOptions();
 
     void resetFilters();
     void resetAllItemsFilters();
+
+    void findLinks(const LLUUID& item_id, const std::string& item_name);
 
     void onViewModeClick();
     void toggleViewMode();

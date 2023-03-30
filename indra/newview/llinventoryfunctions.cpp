@@ -55,6 +55,7 @@
 #include "llfocusmgr.h"
 #include "llfolderview.h"
 #include "llgesturemgr.h"
+#include "llgiveinventory.h"
 #include "lliconctrl.h"
 #include "llimview.h"
 #include "llinventorybridge.h"
@@ -2218,6 +2219,35 @@ std::string get_searchable_UUID(LLInventoryModel* model, const LLUUID& item_id)
         }
     }
     return LLStringUtil::null;
+}
+
+bool can_share_item(const LLUUID& item_id)
+{
+    bool can_share = false;
+
+    if (gInventory.isObjectDescendentOf(item_id, gInventory.getRootFolderID()))
+    {
+            const LLViewerInventoryItem *item = gInventory.getItem(item_id);
+            if (item)
+            {
+                if (LLInventoryCollectFunctor::itemTransferCommonlyAllowed(item))
+                {
+                    can_share = LLGiveInventory::isInventoryGiveAcceptable(item);
+                }
+            }
+            else
+            {
+                can_share = (gInventory.getCategory(item_id) != NULL);
+            }
+
+            const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+            if ((item_id == trash_id) || gInventory.isObjectDescendentOf(item_id, trash_id))
+            {
+                can_share = false;
+            }
+    }
+
+    return can_share;
 }
 ///----------------------------------------------------------------------------
 /// LLMarketplaceValidator implementations

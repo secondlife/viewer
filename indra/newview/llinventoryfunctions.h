@@ -106,6 +106,7 @@ void ungroup_folder_items(const LLUUID& folder_id);
 std::string get_searchable_description(LLInventoryModel* model, const LLUUID& item_id);
 std::string get_searchable_creator_name(LLInventoryModel* model, const LLUUID& item_id);
 std::string get_searchable_UUID(LLInventoryModel* model, const LLUUID& item_id);
+bool can_share_item(const LLUUID& item_id);
 
 /**                    Miscellaneous global functions
  **                                                                            **

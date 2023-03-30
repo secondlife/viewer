@@ -33,7 +33,6 @@
 #include "llavataractions.h"
 #include "llclipboard.h"
 #include "llfloaterreg.h"
-#include "llgiveinventory.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
@@ -340,35 +339,6 @@ void LLInventoryGalleryContextMenu::fileUploadLocation(const LLSD& userdata, con
     {
         gSavedPerAccountSettings.setString("AnimationUploadFolder", selected_id.asString());
     }
-}
-
-bool can_share_item(LLUUID item_id)
-{
-    bool can_share = false;
-
-    if (gInventory.isObjectDescendentOf(item_id, gInventory.getRootFolderID()))
-    {
-            const LLViewerInventoryItem *item = gInventory.getItem(item_id);
-            if (item)
-            {
-                if (LLInventoryCollectFunctor::itemTransferCommonlyAllowed(item))
-                {
-                    can_share = LLGiveInventory::isInventoryGiveAcceptable(item);
-                }
-            }
-            else
-            {
-                can_share = (gInventory.getCategory(item_id) != NULL);
-            }
-
-            const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-            if ((item_id == trash_id) || gInventory.isObjectDescendentOf(item_id, trash_id))
-            {
-                can_share = false;
-            }
-    }
-
-    return can_share;
 }
 
 bool is_inbox_folder(LLUUID item_id)

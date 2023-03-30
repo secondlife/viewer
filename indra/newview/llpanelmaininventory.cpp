@@ -130,7 +130,6 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 	mCommitCallbackRegistrar.add("Inventory.ShowFilters", boost::bind(&LLPanelMainInventory::toggleFindOptions, this));
 	mCommitCallbackRegistrar.add("Inventory.ResetFilters", boost::bind(&LLPanelMainInventory::resetFilters, this));
 	mCommitCallbackRegistrar.add("Inventory.SetSortBy", boost::bind(&LLPanelMainInventory::setSortBy, this, _2));
-	mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars, this));
 
     mEnableCallbackRegistrar.add("Inventory.EnvironmentEnabled", [](LLUICtrl *, const LLSD &) { return LLPanelMainInventory::hasSettingsInventory(); });
 
@@ -416,14 +415,15 @@ S32 get_instance_num()
     return instance_num;
 }
 
-void LLPanelMainInventory::newWindow()
+LLFloaterSidePanelContainer* LLPanelMainInventory::newWindow()
 {
     S32 instance_num = get_instance_num();
 
 	if (!gAgentCamera.cameraMouselook())
 	{
-		LLFloaterReg::showTypedInstance<LLFloaterSidePanelContainer>("inventory", LLSD(instance_num));
+		return LLFloaterReg::showTypedInstance<LLFloaterSidePanelContainer>("inventory", LLSD(instance_num));
 	}
+    return NULL;
 }
 
 //static
@@ -525,6 +525,17 @@ void LLPanelMainInventory::resetAllItemsFilters()
     }
 
     setFilterTextFromFilter();
+}
+
+void LLPanelMainInventory::findLinks(const LLUUID& item_id, const std::string& item_name)
+{
+    mFilterSubString = item_name;
+
+    LLInventoryFilter &filter = mActivePanel->getFilter();
+    filter.setFindAllLinksMode(item_name, item_id);
+
+    mFilterEditor->setText(item_name);
+    mFilterEditor->setFocus(TRUE);
 }
 
 void LLPanelMainInventory::setSortBy(const LLSD& userdata)
@@ -1556,13 +1567,22 @@ void LLPanelMainInventory::onClipboardAction(const LLSD& userdata)
 
 void LLPanelMainInventory::saveTexture(const LLSD& userdata)
 {
-	LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
-	if (!current_item)
-	{
-		return;
-	}
-	
-	const LLUUID& item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
+    LLUUID item_id;
+    if(mSingleFolderMode && isGalleryViewMode())
+    {
+        item_id = mInventoryGalleryPanel->getSelectedItemID();
+        if (item_id.isNull()) return;
+    }
+    else
+    {
+        LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+        if (!current_item)
+        {
+            return;
+        }
+        item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
+    }
+
 	LLPreviewTexture* preview_texture = LLFloaterReg::showTypedInstance<LLPreviewTexture>("preview_texture", LLSD(item_id), TAKE_FOCUS_YES);
 	if (preview_texture)
 	{
@@ -1646,35 +1666,69 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 	}
 	if (command_name == "find_original")
 	{
+        if(mSingleFolderMode && isGalleryViewMode())
+        {
+            LLInventoryObject *obj = gInventory.getObject(mInventoryGalleryPanel->getSelectedItemID());
+            if (obj && obj->getIsLinkType())
+            {
+                show_item_original(obj->getUUID());
+            }
+        }
+        else
+        {
 		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
 		if (!current_item)
 		{
 			return;
 		}
 		static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->performAction(getActivePanel()->getModel(), "goto");
+        }
 	}
 
 	if (command_name == "find_links")
 	{
-		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
-		if (!current_item)
-		{
-			return;
-		}
-		const LLUUID& item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
-		const std::string &item_name = current_item->getViewModelItem()->getName();
-		mFilterSubString = item_name;
-
-		LLInventoryFilter &filter = mActivePanel->getFilter();
-		filter.setFindAllLinksMode(item_name, item_id);
-
-		mFilterEditor->setText(item_name);
-		mFilterEditor->setFocus(TRUE);
+        if(mSingleFolderMode && isGalleryViewMode())
+        {
+            LLFloaterSidePanelContainer* inventory_container = newWindow();
+            if (inventory_container)
+            {
+                LLSidepanelInventory* sidepanel_inventory = dynamic_cast<LLSidepanelInventory*>(inventory_container->findChild<LLPanel>("main_panel", true));
+                if (sidepanel_inventory)
+                {
+                    LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
+                    if (main_inventory)
+                    {
+                        LLInventoryObject *obj = gInventory.getObject(mInventoryGalleryPanel->getSelectedItemID());
+                        if (obj)
+                        {
+                            main_inventory->findLinks(obj->getUUID(), obj->getName());
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+            if (!current_item)
+            {
+                return;
+            }
+            const LLUUID& item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
+            const std::string &item_name = current_item->getViewModelItem()->getName();
+            findLinks(item_id, item_name);
+        }
 	}
 
 	if (command_name == "replace_links")
 	{
-		LLSD params;
+        LLSD params;
+        if(mSingleFolderMode && isGalleryViewMode())
+        {
+            params = LLSD(mInventoryGalleryPanel->getSelectedItemID());
+        }
+        else
+        {
 		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
 		if (current_item)
 		{
@@ -1689,6 +1743,7 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 				}
 			}
 		}
+        }
 		LLFloaterReg::showInstance("linkreplace", params);
 	}
 
@@ -1733,6 +1788,19 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
         }
 	}
 
+    if (command_name == "share")
+    {
+        if(mSingleFolderMode && isGalleryViewMode())
+        {
+            std::set<LLUUID> uuids{mInventoryGalleryPanel->getSelectedItemID()};
+            LLAvatarActions::shareWithAvatars(uuids, gFloaterView->getParentFloater(this));
+        }
+        else
+        {
+            LLAvatarActions::shareWithAvatars(this);
+        }
+    }
+
     if (command_name == "list_view")
     {
         setViewMode(MODE_LIST);
@@ -1758,17 +1826,26 @@ void LLPanelMainInventory::onVisibilityChange( BOOL new_visibility )
 
 bool LLPanelMainInventory::isSaveTextureEnabled(const LLSD& userdata)
 {
-	LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
-	if (current_item) 
-	{
-		LLViewerInventoryItem *inv_item = dynamic_cast<LLViewerInventoryItem*>(static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getInventoryObject());
+    LLViewerInventoryItem *inv_item = NULL;
+    if(mSingleFolderMode && isGalleryViewMode())
+    {
+        inv_item = gInventory.getItem(mInventoryGalleryPanel->getSelectedItemID());
+    }
+    else
+    {
+        LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+        if (current_item)
+        {
+            inv_item = dynamic_cast<LLViewerInventoryItem*>(static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getInventoryObject());
+        }
+    }
 		if(inv_item)
 		{
 			bool can_save = inv_item->checkPermissionsSet(PERM_ITEM_UNRESTRICTED);
-			LLInventoryType::EType curr_type = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getInventoryType();
+            LLInventoryType::EType curr_type = inv_item->getInventoryType();
 			return can_save && (curr_type == LLInventoryType::IT_TEXTURE || curr_type == LLInventoryType::IT_SNAPSHOT);
 		}
-	}
+
 	return false;
 }
 
@@ -1799,9 +1876,16 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 	}
 	if (command_name == "find_original")
 	{
+        LLUUID item_id;
+        if(mSingleFolderMode && isGalleryViewMode())
+        {
+            item_id = mInventoryGalleryPanel->getSelectedItemID();
+        }
+        else{
 		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
 		if (!current_item) return FALSE;
-		const LLUUID& item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
+        item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
+        }
 		const LLViewerInventoryItem *item = gInventory.getItem(item_id);
 		if (item && item->getIsLinkType() && !item->getIsBrokenLink())
 		{
@@ -1812,12 +1896,19 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 
 	if (command_name == "find_links")
 	{
+        LLUUID item_id;
+        if(mSingleFolderMode && isGalleryViewMode())
+        {
+            item_id = mInventoryGalleryPanel->getSelectedItemID();
+        }
+        else{
 		LLFolderView* root = getActivePanel()->getRootFolder();
 		std::set<LLFolderViewItem*> selection_set = root->getSelectionList();
 		if (selection_set.size() != 1) return FALSE;
 		LLFolderViewItem* current_item = root->getCurSelectedItem();
 		if (!current_item) return FALSE;
-		const LLUUID& item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
+		item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
+        }
 		const LLInventoryObject *obj = gInventory.getObject(item_id);
 		if (obj && !obj->getIsLinkType() && LLAssetType::lookupCanLink(obj->getType()))
 		{
@@ -1841,10 +1932,16 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 
 	if (command_name == "share")
 	{
+        if(mSingleFolderMode && isGalleryViewMode())
+        {
+            return can_share_item(mInventoryGalleryPanel->getSelectedItemID());
+        }
+        else{
 		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
 		if (!current_item) return FALSE;
 		LLSidepanelInventory* parent = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 		return parent ? parent->canShare() : FALSE;
+        }
 	}
 	if (command_name == "empty_trash")
 	{
