@@ -137,7 +137,7 @@
      name="av_and_scene"
      value="1" />
 	<combo_box.item
-     label="World only"
+     label="World Only"
      name="scene_only"
      value="2" />
   </combo_box>
