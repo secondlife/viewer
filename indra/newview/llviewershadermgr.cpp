@@ -760,9 +760,11 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 BOOL LLViewerShaderMgr::loadShadersWater()
 {
     LL_PROFILE_ZONE_SCOPED;
-#if 1 // DEPRECATED -- forward rendering is deprecated
 	BOOL success = TRUE;
 	BOOL terrainWaterSuccess = TRUE;
+    
+    bool use_sun_shadow = mShaderLevel[SHADER_DEFERRED] > 1 &&
+        gSavedSettings.getS32("RenderShadowDetail") > 0;
 
 	if (mShaderLevel[SHADER_WATER] == 0)
 	{
@@ -783,6 +785,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gWaterProgram.mFeatures.hasTransport = true;
         gWaterProgram.mFeatures.hasSrgb = true;
         gWaterProgram.mFeatures.hasReflectionProbes = true;
+        gWaterProgram.mFeatures.hasShadows = use_sun_shadow;
 		gWaterProgram.mShaderFiles.clear();
 		gWaterProgram.mShaderFiles.push_back(make_pair("environment/waterV.glsl", GL_VERTEX_SHADER));
 		gWaterProgram.mShaderFiles.push_back(make_pair("environment/waterF.glsl", GL_FRAGMENT_SHADER));
@@ -791,6 +794,12 @@ BOOL LLViewerShaderMgr::loadShadersWater()
         {
             gWaterProgram.addPermutation("TRANSPARENT_WATER", "1");
         }
+
+        if (use_sun_shadow)
+        {
+            gWaterProgram.addPermutation("HAS_SUN_SHADOW", "1");
+        }
+
 		gWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
 		gWaterProgram.mShaderLevel = mShaderLevel[SHADER_WATER];
 		success = gWaterProgram.createShader(NULL, NULL);
@@ -808,6 +817,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gWaterEdgeProgram.mFeatures.hasTransport = true;
         gWaterEdgeProgram.mFeatures.hasSrgb = true;
         gWaterEdgeProgram.mFeatures.hasReflectionProbes = true;
+        gWaterEdgeProgram.mFeatures.hasShadows = use_sun_shadow;
 		gWaterEdgeProgram.mShaderFiles.clear();
 		gWaterEdgeProgram.mShaderFiles.push_back(make_pair("environment/waterV.glsl", GL_VERTEX_SHADER));
 		gWaterEdgeProgram.mShaderFiles.push_back(make_pair("environment/waterF.glsl", GL_FRAGMENT_SHADER));
@@ -816,6 +826,11 @@ BOOL LLViewerShaderMgr::loadShadersWater()
         if (LLPipeline::sRenderTransparentWater)
         {
             gWaterEdgeProgram.addPermutation("TRANSPARENT_WATER", "1");
+        }
+
+        if (use_sun_shadow)
+        {
+            gWaterEdgeProgram.addPermutation("HAS_SUN_SHADOW", "1");
         }
 		gWaterEdgeProgram.mShaderGroup = LLGLSLShader::SG_WATER;
 		gWaterEdgeProgram.mShaderLevel = mShaderLevel[SHADER_WATER];
@@ -866,8 +881,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 	
 	LLWorld::getInstance()->updateWaterObjects();
 
-#endif
-	return TRUE;
+    return TRUE;
 }
 
 BOOL LLViewerShaderMgr::loadShadersEffects()

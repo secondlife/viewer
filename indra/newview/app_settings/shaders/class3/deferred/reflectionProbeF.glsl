@@ -433,13 +433,15 @@ void boxIntersectDebug(vec3 origin, vec3 pos, int i, inout vec4 col)
 // dw - distance weight
 float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, int i, out float dw)
 {
-    float r1 = r * 0.5; // 50% of radius (outer sphere to start interpolating down)
+    float r1 = r * 0.5; // 50% of radius (outer sphere to start interpolating down) 
     vec3 delta = pos.xyz - origin;
     float d2 = max(length(delta), 0.001);
 
     float atten = 1.0 - max(d2 - r1, 0.0) / max((r - r1), 0.001);
     float w = 1.0 / d2;
-    
+
+    w *= refParams[i].z;
+
     dw = w * atten * max(r, 1.0)*4;
 
     w *= atten;
