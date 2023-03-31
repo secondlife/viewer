@@ -32,6 +32,7 @@
 #include "llfile.h"
 #include "llrender.h"
 #include "llvertexbuffer.h"
+#include "llrendertarget.h"
 
 #if LL_DARWIN
 #include "OpenGL/OpenGL.h"
@@ -1082,6 +1083,39 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextu
     }
 
     return uniform;
+}
+
+S32 LLGLSLShader::bindTexture(S32 uniform, LLRenderTarget* texture, bool depth, LLTexUnit::eTextureFilterOptions mode)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+
+    if (uniform < 0 || uniform >= (S32)mTexture.size())
+    {
+        LL_SHADER_UNIFORM_ERRS() << "Uniform out of range: " << uniform << LL_ENDL;
+        return -1;
+    }
+
+    uniform = getTextureChannel(uniform);
+
+    if (uniform > -1)
+    {
+        gGL.getTexUnit(uniform)->bindManual(texture->getUsage(), texture->getTexture(0));
+
+
+        gGL.getTexUnit(uniform)->setTextureFilteringOption(mode);
+    }
+
+    return uniform;
+}
+
+S32 LLGLSLShader::bindTexture(const std::string& uniform, LLRenderTarget* texture, bool depth, LLTexUnit::eTextureFilterOptions mode)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+
+    S32 channel = 0;
+    channel = getUniformLocation(uniform);
+
+    return bindTexture(channel, texture, depth, mode);
 }
 
 S32 LLGLSLShader::unbindTexture(const std::string& uniform, LLTexUnit::eTextureType mode)

@@ -34,7 +34,6 @@ out vec4 frag_color;
 #endif
 
 uniform sampler2D diffuseRect;
-uniform sampler2D emissiveRect;
 uniform sampler2D exposureMap;
 
 uniform vec2 screen_res;
@@ -184,7 +183,7 @@ vec3 legacyGamma(vec3 color)
 void main() 
 {
     //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
-    vec4 diff = texture2D(diffuseRect, vary_fragcoord) + texture2D(emissiveRect, vary_fragcoord);
+    vec4 diff = texture2D(diffuseRect, vary_fragcoord);
     diff.rgb = toneMap(diff.rgb);
     diff.rgb = legacyGamma(diff.rgb);
     
