@@ -1,0 +1,93 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main, contribute]
+    tags: ["*"]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        runner: [windows-large]
+        configuration: [ReleaseOS]
+        addrsize: [64]
+        include:
+          - runner: windows-large
+            configuration: ReleaseOS
+            addrsize: 32
+    runs-on: ${{ matrix.runner }}
+    env:
+      AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
+      AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
+      AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
+      AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
+      AUTOBUILD_VSVER: "170" # vs2k22
+      LOGFAIL: debug # Show details when tests fail
+      GIT_REF: ${{ github.head_ref || github.ref }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Checkout build variables
+        uses: actions/checkout@v3
+        with:
+          repository: secondlife/build-variables
+          ref: viewer
+          path: .build-variables
+
+      - name: Install autobuild and python dependencies
+        run: pip3 install autobuild llbase
+
+      - name: Cache autobuild packages
+        uses: actions/cache@v3
+        id: cache-installables
+        with:
+          path: .autobuild-installables
+          key: ${{ runner.os }}-${{ matrix.addrsize }}-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.addrsize }}-${{ matrix.configuration }}-
+            ${{ runner.os }}-${{ matrix.addrsize }}-
+
+      - name: Install windows dependencies
+        if: runner.os == 'Windows'
+        run: choco install nsis-unicode
+
+      - name: Build
+        id: build
+        shell: bash
+        env:
+          RUNNER_OS: ${{ runner.os }}
+        run: |
+          # On windows we need to point the build to the correct python
+          # as neither CMake's FindPython nor our custom Python.cmake module
+          # will resolve the correct interpreter location.
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            export PYTHON="$(cygpath -m "$(which python)")"
+            echo "Python location: $PYTHON"
+          fi
+          
+          autobuild configure -- -DVIEWER_CHANNEL="Second Life Test ${GIT_REF##*/}"
+          autobuild  build --no-configure
+
+          # Find artifacts
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            installer_path=$(find ./build-*/newview/ | grep '_Setup\.exe')
+            installer_name="$(basename $installer_path)"
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            installer_path=$(find ./build-*/newview/ | grep '\.dmg')
+            installer_name="$(basename $installer_path)"
+          fi
+
+          echo "installer_path=$installer_path" >> $GITHUB_OUTPUT
+          echo "installer_name=$installer_name" >> $GITHUB_OUTPUT
+      
+      - name: Upload installer
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.build.outputs.installer_name }}
+          path: ${{ steps.build.outputs.installer_path }}
