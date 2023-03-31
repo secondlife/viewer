@@ -250,9 +250,35 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
             }
         }
     }
-    else if ("paste_as_link" == action)
+    else if ("paste_link" == action)
     {
-        link_inventory_object(selected_id, obj, LLPointer<LLInventoryCallback>(NULL));
+        const LLUUID &current_outfit_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+        const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+        const LLUUID &my_outifts_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
+
+        const BOOL move_is_into_current_outfit = (selected_id == current_outfit_id);
+        const BOOL move_is_into_my_outfits = (selected_id == my_outifts_id) || gInventory.isObjectDescendentOf(selected_id, my_outifts_id);
+        const BOOL move_is_into_marketplacelistings = gInventory.isObjectDescendentOf(selected_id, marketplacelistings_id);
+
+        if (move_is_into_marketplacelistings || move_is_into_current_outfit || move_is_into_my_outfits)
+        {
+            return;
+        }
+
+        std::vector<LLUUID> objects;
+        LLClipboard::instance().pasteFromClipboard(objects);
+        for (std::vector<LLUUID>::const_iterator iter = objects.begin();
+             iter != objects.end();
+             ++iter)
+        {
+            const LLUUID &object_id = (*iter);
+            if (LLConstPointer<LLInventoryObject> link_obj = gInventory.getObject(object_id))
+            {
+                link_inventory_object(selected_id, link_obj, LLPointer<LLInventoryCallback>(NULL));
+            }
+        }
+
+        LLClipboard::instance().setCutMode(false);
     }
     else if ("rename" == action)
     {

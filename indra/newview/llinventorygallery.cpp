@@ -222,6 +222,9 @@ void LLInventoryGallery::updateRootFolder()
         }
     }
 
+    const LLUUID cof = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+    mCategoriesObserver->addCategory(cof, boost::bind(&LLInventoryGallery::onCOFChanged, this));
+
     if (!mGalleryCreated)
     {
         initGallery();
@@ -243,9 +246,6 @@ void LLInventoryGallery::initGallery()
         }
         reArrangeRows();
         mGalleryCreated = true;
-
-        const LLUUID cof = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-        mCategoriesObserver->addCategory(cof, boost::bind(&LLInventoryGallery::onCOFChanged, this));
     }
 }
 
@@ -646,22 +646,19 @@ void LLInventoryGallery::updateAddedItem(LLUUID item_id)
     LLInventoryType::EType inventory_type(LLInventoryType::IT_CATEGORY);
     U32 misc_flags = 0;
     bool is_worn = false;
-    if (LLAssetType::AT_CATEGORY == obj->getType())
+    LLInventoryItem* inv_item = gInventory.getItem(item_id);
+    if (inv_item)
+    {
+        inventory_type = inv_item->getInventoryType();
+        misc_flags = inv_item->getFlags();
+        is_worn = LLAppearanceMgr::instance().isLinkedInCOF(item_id);
+    }
+    else if (LLAssetType::AT_CATEGORY == obj->getType())
     {
         name = get_localized_folder_name(item_id);
         if(thumbnail_id.isNull())
         {
             thumbnail_id = getOutfitImageID(item_id);
-        }
-    }
-    else
-    {
-        LLInventoryItem* inv_item = gInventory.getItem(item_id);
-        if (inv_item)
-        {
-            inventory_type = inv_item->getInventoryType();
-            misc_flags = inv_item->getFlags();
-            is_worn = LLAppearanceMgr::instance().isLinkedInCOF(item_id);
         }
     }
 
@@ -1049,7 +1046,16 @@ void LLInventoryGalleryItem::setType(LLAssetType::EType type, LLInventoryType::E
     if(mIsFolder)
     {
         mSortGroup = SG_NORMAL_FOLDER;
-        LLViewerInventoryCategory * cat = gInventory.getCategory(mUUID);
+        LLUUID folder_id = mUUID;
+        if(mIsLink)
+        {
+            LLInventoryObject* obj = gInventory.getObject(mUUID);
+            if (obj)
+            {
+                folder_id = obj->getLinkedUUID();
+            }
+        }
+        LLViewerInventoryCategory* cat = gInventory.getCategory(folder_id);
         if (cat)
         {
             LLFolderType::EType preferred_type = cat->getPreferredType();
