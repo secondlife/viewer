@@ -236,9 +236,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b923ca041271446592b3b10e678b93b6</string>
+              <string>df05eee28649996c78a47dd054de2a47</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/109517/952832/colladadom-2.3.577706-darwin64-577706.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/112764/977018/colladadom-2.3.579218-darwin64-579218.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -260,9 +260,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2b3c9c1fe86c2b5bad6619c021bb11a8</string>
+              <string>6752b4f098a522bb22b6334cdfba7614</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/109518/952846/colladadom-2.3.577706-windows-577706.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/112771/977087/colladadom-2.3.579224-windows-579224.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -272,16 +272,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8ece469892029506759420ac531bd675</string>
+              <string>81de6dc4a79b547a25d0040370c42fec</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/109519/952847/colladadom-2.3.577706-windows64-577706.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/112770/977082/colladadom-2.3.579224-windows64-579224.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.3.577706</string>
+        <string>2.3.579218</string>
       </map>
       <key>cubemaptoequirectangular</key>
       <map>
