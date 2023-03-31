@@ -40,7 +40,7 @@
 		Щелкните и перетащите для выделения земли
 	</floater.string>
 	<floater.string name="status_selectcount">
-		Выбрано объектов: [OBJ_COUNT], влияние на землю [LAND_IMPACT]
+		Выбрано объектов: [OBJ_COUNT], влияние на землю [LAND_IMPACT] [secondlife:///app/openfloater/object_weights ?]
 	</floater.string>
 	<floater.string name="status_remaining_capacity">
 		Остаток емкости [LAND_CAPACITY].

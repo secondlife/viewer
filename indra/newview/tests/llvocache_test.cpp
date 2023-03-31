@@ -28,15 +28,16 @@
 #include "../llviewerprecompiledheaders.h"
 #include "../test/lltut.h"
 
-#include "llvocache.h"
+#include "../llvocache.h"
 
 #include "lldir.h"
-#include "llhudobject.h"
+#include "../llhudobject.h"
 #include "llregionhandle.h"
 #include "llsdutil.h"
 #include "llsdserialize.h"
-#include "llviewerobjectlist.h"
-#include "llviewerregion.h"
+
+#include "../llviewerobjectlist.h"
+#include "../llviewerregion.h"
 
 #include "lldir_stub.cpp"
 #include "llvieweroctree_stub.cpp"

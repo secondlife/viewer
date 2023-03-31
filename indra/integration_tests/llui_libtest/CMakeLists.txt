@@ -22,23 +22,6 @@ include(Hunspell)
 include(Linking)
 # include(Tut)
 
-include_directories(
-    ${FREETYPE_INCLUDE_DIRS}
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLIMAGE_INCLUDE_DIRS}
-    ${LLMATH_INCLUDE_DIRS}
-    ${LLRENDER_INCLUDE_DIRS}
-    ${LLUI_INCLUDE_DIRS}
-    ${LLFILESYSTEM_INCLUDE_DIRS}
-    ${LLWINDOW_INCLUDE_DIRS}
-    ${LLXML_INCLUDE_DIRS}
-    ${LIBS_PREBUILD_DIR}/include/hunspell
-    )
-include_directories(SYSTEM
-    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
-    ${LLXML_SYSTEM_INCLUDE_DIRS}
-    )
-
 set(llui_libtest_SOURCE_FILES
     llui_libtest.cpp
     llwidgetreg.cpp
@@ -50,50 +33,26 @@ set(llui_libtest_HEADER_FILES
     llwidgetreg.h
     )
 
-set_source_files_properties(${llui_libtest_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND llui_libtest_SOURCE_FILES ${llui_libtest_HEADER_FILES})
 
 add_executable(llui_libtest ${llui_libtest_SOURCE_FILES})
 
-# Link with OS-specific libraries for LLWindow dependency
-if (DARWIN)
-  find_library(COCOA_LIBRARY Cocoa)
-  find_library(IOKIT_LIBRARY IOKit)
-  set(OS_LIBRARIES ${COCOA_LIBRARY} ${IOKIT_LIBRARY})
-elseif (WINDOWS)
-  #ll_stack_trace needs this now...
-  list(APPEND WINDOWS_LIBRARIES dbghelp)
-  set(OS_LIBRARIES ${WINDOWS_LIBRARIES})
-elseif (LINUX)
-  set(OS_LIBRARIES)
-else (DARWIN)
-  message(FATAL_ERROR "unknown platform")
-endif (DARWIN)
-
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 target_link_libraries(llui_libtest
-    ${LEGACY_STDIO_LIBS}
-    llui
-    llinventory
-    llmessage
-    ${LLRENDER_LIBRARIES}
-    ${LLIMAGE_LIBRARIES}
-    ${LLKDU_LIBRARIES}
-    ${KDU_LIBRARY}
-    ${LLIMAGEJ2COJ_LIBRARIES}
-    ${OS_LIBRARIES}
-    ${GOOGLE_PERFTOOLS_LIBRARIES}
-    ${HUNSPELL_LIBRARY}
-    )
+        llui
+        llinventory
+        llmessage
+        llrender
+        llimage
+        llkdu
+        llimagej2coj
+        )
 
 if (WINDOWS)
     set_target_properties(llui_libtest
         PROPERTIES 
         LINK_FLAGS "/NODEFAULTLIB:LIBCMT"
-        LINK_FLAGS_DEBUG "/NODEFAULTLIB:MSVCRT /NODEFAULTLIB:LIBCMTD"
         )
 
     # Copy over OpenJPEG.dll
@@ -101,7 +60,7 @@ if (WINDOWS)
     set(OPENJPEG_RELEASE
         "${ARCH_PREBUILT_DIRS_RELEASE}/openjp2.dll")
     add_custom_command( TARGET llui_libtest POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${OPENJPEG_RELEASE} ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Copying OpenJPEG DLLs to binary directory"
         )

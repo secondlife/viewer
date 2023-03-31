@@ -788,7 +788,7 @@ bool LLBufferedAssetUploadInfo::failedUpload(LLSD &result, std::string &reason)
 LLScriptAssetUpload::LLScriptAssetUpload(LLUUID itemId, std::string buffer, invnUploadFinish_f finish, uploadFailed_f failed):
     LLBufferedAssetUploadInfo(itemId, LLAssetType::AT_LSL_TEXT, buffer, finish, failed),
     mExerienceId(),
-    mTargetType(LSL2),
+    mTargetType(MONO),
     mIsRunning(false)
 {
 }
@@ -809,7 +809,7 @@ LLSD LLScriptAssetUpload::generatePostBody()
     if (getTaskId().isNull())
     {
         body["item_id"] = getItemId();
-        body["target"] = "lsl2";
+        body["target"] = "mono";
     }
     else
     {

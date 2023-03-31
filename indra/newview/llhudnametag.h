@@ -85,6 +85,9 @@ public:
 		ALIGN_VERT_CENTER
 	} EVertAlignment;
 
+    static const F32 NAMETAG_MAX_WIDTH; // 298px, made to fit 31 M's
+    static const F32 HUD_TEXT_MAX_WIDTH; // 190px
+
 public:
 	// Set entire string, eliminating existing lines
 	void setString(const std::string& text_utf8);
@@ -92,11 +95,17 @@ public:
 	void clearString();
 
 	// Add text a line at a time, allowing custom formatting
-	void addLine(const std::string &text_utf8, const LLColor4& color, const LLFontGL::StyleFlags style = LLFontGL::NORMAL, const LLFontGL* font = NULL, const bool use_ellipses = false);
+	void addLine(
+        const std::string &text_utf8,
+        const LLColor4& color,
+        const LLFontGL::StyleFlags style = LLFontGL::NORMAL,
+        const LLFontGL* font = NULL,
+        const bool use_ellipses = false,
+        F32 max_pixels = HUD_TEXT_MAX_WIDTH);
 
 	// For bubble chat, set the part above the chat text
 	void setLabel(const std::string& label_utf8);
-	void addLabel(const std::string& label_utf8);
+	void addLabel(const std::string& label_utf8, F32 max_pixels = HUD_TEXT_MAX_WIDTH);
 
 	// Sets the default font for lines with no font specified
 	void setFont(const LLFontGL* font);
