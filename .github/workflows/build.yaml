@@ -12,15 +12,16 @@ jobs:
     strategy:
       matrix:
         runner: [windows-large, macos-12-xl]
-        configuration: [Release]
+        configuration: [Release, ReleaseOS]
         addrsize: [64]
         python-version: ["3.11"]
         include:
           - runner: windows-large
-            configuration: Release
+            configuration: [Release, ReleaseOS]
             addrsize: 32
-            python-version: "3.11"
+            python-version: ["3.11"]
           - runner: macos-12-xl
+            configuration: [Release, ReleaseOS]
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
     runs-on: ${{ matrix.runner }}
     env:
@@ -30,7 +31,7 @@ jobs:
       AUTOBUILD_GITHUB_TOKEN: ${{ secrets.SHARED_AUTOBUILD_GITHUB_TOKEN }}
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
       AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
-      AUTOBUILD_VSVER: "170"
+      AUTOBUILD_VSVER: "170" # VS2022
       DEVELOPER_DIR: ${{ matrix.developer_dir }}
       # Ensure that viewer builds engage Bugsplat.
       BUGSPLAT_DB: "SecondLife_Viewer_2018"
@@ -61,7 +62,7 @@ jobs:
           ref: viewer
           path: .build-variables
 
-      - name: Install autobuild 
+      - name: Install autobuild and python dependencies
         run: pip3 install autobuild llsd
 
       - name: Cache autobuild packages
