@@ -103,7 +103,7 @@
 #include "llfloaterobjectweights.h"
 #include "llfloateropenobject.h"
 #include "llfloateroutfitphotopreview.h"
-#include "llfloateroutfitsnapshot.h"
+#include "llfloatersimpleoutfitsnapshot.h"
 #include "llfloaterpathfindingcharacters.h"
 #include "llfloaterpathfindingconsole.h"
 #include "llfloaterpathfindinglinksets.h"
@@ -170,14 +170,107 @@
 // *NOTE: Please add files in alphabetical order to keep merges easy.
 
 // handle secondlife:///app/openfloater/{NAME} URLs
+const std::string FLOATER_PROFILE("profile");
 class LLFloaterOpenHandler : public LLCommandHandler
 {
 public:
-	// requires trusted browser to trigger
+	// requires trusted browser to trigger or an explicit click
 	LLFloaterOpenHandler() : LLCommandHandler("openfloater", UNTRUSTED_THROTTLE) { }
 
-	bool handle(const LLSD& params, const LLSD& query_map,
-				LLMediaCtrl* web)
+    bool canHandleUntrusted(
+        const LLSD& params,
+        const LLSD& query_map,
+        LLMediaCtrl* web,
+        const std::string& nav_type) override
+    {
+        if (params.size() != 1)
+        {
+            return true; // will fail silently
+        }
+        
+        std::string fl_name = params[0].asString();
+
+        if (nav_type == NAV_TYPE_CLICKED)
+        {
+            const std::list<std::string> blacklist_clicked = {
+                "camera_presets",
+                "delete_pref_preset",
+                "forget_username",
+                "god_tools",
+                "group_picker",
+                "hud",
+                "incoming_call",
+                "linkreplace",
+                "message_critical", // Modal!!! Login specific.
+                "message_tos", // Modal!!! Login specific.
+                "save_pref_preset",
+                "save_camera_preset",
+                "region_restarting",
+                "outfit_snapshot",
+                "upload_anim_bvh",
+                "upload_anim_anim",
+                "upload_image",
+                "upload_model",
+                "upload_script",
+                "upload_sound"
+            };
+            return std::find(blacklist_clicked.begin(), blacklist_clicked.end(), fl_name) == blacklist_clicked.end();
+        }
+        else
+        {
+            const std::list<std::string> blacklist_untrusted = {
+                "360capture",
+                "block_timers",
+                "add_payment_method",
+                "appearance",
+                "associate_listing",
+                "avatar_picker",
+                "camera",
+                "camera_presets",
+                "classified",
+                "add_landmark",
+                "delete_pref_preset",
+                "env_fixed_environmentent_water",
+                "env_fixed_environmentent_sky",
+                "env_edit_extdaycycle",
+                "font_test",
+                "forget_username",
+                "god_tools",
+                "group_picker",
+                "hud",
+                "incoming_call",
+                "linkreplace",
+                "mem_leaking",
+                "marketplace_validation",
+                "message_critical", // Modal!!! Login specific. If this is in use elsewhere, better to create a non modal variant
+                "message_tos", // Modal!!! Login specific.
+                "mute_object_by_name",
+                "publish_classified",
+                "save_pref_preset",
+                "save_camera_preset",
+                "region_restarting",
+                "script_debug",
+                "script_debug_output",
+                "sell_land",
+                "outfit_snapshot",
+                "upload_anim_bvh",
+                "upload_anim_anim",
+                "upload_image",
+                "upload_model",
+                "upload_script",
+                "upload_sound"
+            };
+            return std::find(blacklist_untrusted.begin(), blacklist_untrusted.end(), fl_name) == blacklist_untrusted.end();
+        }
+
+
+        return true;
+    }
+
+	bool handle(
+        const LLSD& params,
+        const LLSD& query_map,
+        LLMediaCtrl* web) override
 	{
 		if (params.size() != 1)
 		{
@@ -185,7 +278,12 @@ public:
 		}
 
 		const std::string floater_name = LLURI::unescape(params[0].asString());
-		LLFloaterReg::showInstance(floater_name);
+        LLSD key;
+        if (floater_name == FLOATER_PROFILE)
+        {
+            key["id"] = gAgentID;
+        }
+		LLFloaterReg::showInstance(floater_name, key);
 
 		return true;
 	}
@@ -368,7 +466,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("scene_load_stats", "floater_scene_load_stats.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSceneLoadStats>);
 	LLFloaterReg::add("stop_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterNotRunQueue>);
 	LLFloaterReg::add("snapshot", "floater_snapshot.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSnapshot>);
-    LLFloaterReg::add("outfit_snapshot", "floater_outfit_snapshot.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterOutfitSnapshot>);
+    LLFloaterReg::add("simple_outfit_snapshot", "floater_simple_outfit_snapshot.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSimpleOutfitSnapshot>);
     LLFloaterReg::add("search", "floater_search.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSearch>);
     LLFloaterReg::add("profile", "floater_profile.xml",(LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterProfile>);
 	LLFloaterReg::add("guidebook", "floater_how_to.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterHowTo>);

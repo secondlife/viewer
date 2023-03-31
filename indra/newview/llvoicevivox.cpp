@@ -1247,8 +1247,8 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
 
         if (result.has("connector"))
         {
-            LLVoiceVivoxStats::getInstance()->establishAttemptEnd(connected);
             connected = LLSD::Boolean(result["connector"]);
+            LLVoiceVivoxStats::getInstance()->establishAttemptEnd(connected);
             if (!connected)
             {
                 if (result.has("retry") && ++retries <= CONNECT_RETRY_MAX && !sShuttingDown)
@@ -4525,7 +4525,7 @@ void LLVivoxVoiceClient::messageEvent(
 		{
 			bool is_do_not_disturb = gAgent.isDoNotDisturb();
 			bool is_muted = LLMuteList::getInstance()->isMuted(session->mCallerID, session->mName, LLMute::flagTextChat);
-			bool is_linden = LLMuteList::getInstance()->isLinden(session->mName);
+			bool is_linden = LLMuteList::isLinden(session->mName);
 			LLChat chat;
 
 			chat.mMuted = is_muted && !is_linden;
@@ -4551,9 +4551,7 @@ void LLVivoxVoiceClient::messageEvent(
 						IM_NOTHING_SPECIAL,		// default arg
 						0,						// default arg
 						LLUUID::null,			// default arg
-						LLVector3::zero,		// default arg
-						true);					// prepend name and make it a link to the user's profile
-
+						LLVector3::zero);		// default arg
 			}
 		}		
 	}
@@ -5215,11 +5213,6 @@ void LLVivoxVoiceClient::declineInvite(std::string &sessionHandle)
 	{
 		sessionMediaDisconnectSendMessage(session);
 	}
-}
-
-bool LLVivoxVoiceClient::singletoneInstanceExists()
-{
-	return LLVivoxVoiceClient::instanceExists();
 }
 
 void LLVivoxVoiceClient::leaveNonSpatialChannel()
@@ -6229,7 +6222,7 @@ void LLVivoxVoiceClient::clearSessionHandle(const sessionStatePtr_t &session)
 {
     if (session)
     {
-        if (session->mHandle.empty())
+        if (!session->mHandle.empty())
         {
             sessionMap::iterator iter = mSessionsByHandle.find(session->mHandle);
             if (iter != mSessionsByHandle.end())

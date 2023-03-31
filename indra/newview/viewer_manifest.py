@@ -75,7 +75,7 @@ class ViewerManifest(LLManifest):
                 # include the entire shaders directory recursively
                 self.path("shaders")
                 # include the extracted list of contributors
-                contributions_path = "../../doc/contributions.txt"
+                contributions_path = os.path.join(self.args['source'], "..", "..", "doc", "contributions.txt")
                 contributor_names = self.extract_names(contributions_path)
                 self.put_in_file(contributor_names.encode(), "contributors.txt", src=contributions_path)
 
@@ -435,7 +435,7 @@ class WindowsManifest(ViewerManifest):
             self.cmakedirs(os.path.dirname(dst))
             self.created_paths.append(dst)
             if not os.path.isdir(src):
-                if(self.args['configuration'].lower() == 'debug'):
+                if(self.args['buildtype'].lower() == 'debug'):
                     test_assembly_binding(src, "Microsoft.VC80.DebugCRT", "8.0.50727.4053")
                 else:
                     test_assembly_binding(src, "Microsoft.VC80.CRT", "8.0.50727.4053")
@@ -458,7 +458,7 @@ class WindowsManifest(ViewerManifest):
             self.created_paths.append(dst)
             if not os.path.isdir(src):
                 try:
-                    if(self.args['configuration'].lower() == 'debug'):
+                    if(self.args['buildtype'].lower() == 'debug'):
                         test_assembly_binding(src, "Microsoft.VC80.DebugCRT", "")
                     else:
                         test_assembly_binding(src, "Microsoft.VC80.CRT", "")
@@ -504,10 +504,10 @@ class WindowsManifest(ViewerManifest):
         
         # Get shared libs from the shared libs staging directory
         with self.prefix(src=os.path.join(self.args['build'], os.pardir,
-                                          'sharedlibs', self.args['configuration'])):
+                                          'sharedlibs', self.args['buildtype'])):
             # Get fmodstudio dll if needed
             if self.args['fmodstudio'] == 'ON':
-                if(self.args['configuration'].lower() == 'debug'):
+                if(self.args['buildtype'].lower() == 'debug'):
                     self.path("fmodL.dll")
                 else:
                     self.path("fmod.dll")
@@ -518,7 +518,7 @@ class WindowsManifest(ViewerManifest):
                 self.path("alut.dll")
 
             # For textures
-            self.path("openjpeg.dll")
+            self.path("openjp2.dll")
 
             # Uriparser
             self.path("uriparser.dll")
@@ -603,7 +603,7 @@ class WindowsManifest(ViewerManifest):
 
             # MSVC DLLs needed for CEF and have to be in same directory as plugin
             with self.prefix(src=os.path.join(self.args['build'], os.pardir,
-                                              'sharedlibs', 'Release')):
+                                              'sharedlibs', self.args['buildtype'])):
                 self.path("msvcp140.dll")
                 self.path("vcruntime140.dll")
                 self.path_optional("vcruntime140_1.dll")
@@ -1040,7 +1040,7 @@ class DarwinManifest(ViewerManifest):
 
                 # Fmod studio dylibs (vary based on configuration)
                 if self.args['fmodstudio'] == 'ON':
-                    if self.args['configuration'].lower() == 'debug':
+                    if self.args['buildtype'].lower() == 'debug':
                         for libfile in (
                                     "libfmodL.dylib",
                                     ):
@@ -1501,7 +1501,7 @@ class Linux_i686_Manifest(LinuxManifest):
             self.path("libdirectfb-1.*.so.*")
             self.path("libfusion-1.*.so.*")
             self.path("libdirect-1.*.so.*")
-            self.path("libopenjpeg.so*")
+            self.path("libopenjp2.so*")
             self.path("libdirectfb-1.4.so.5")
             self.path("libfusion-1.4.so.5")
             self.path("libdirect-1.4.so.5*")

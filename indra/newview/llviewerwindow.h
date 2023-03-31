@@ -177,6 +177,8 @@ public:
 	bool			getUIVisibility();
 	void			handlePieMenu(S32 x, S32 y, MASK mask);
 
+    void            reshapeStatusBarContainer();
+
 	BOOL handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down);
 
 	//

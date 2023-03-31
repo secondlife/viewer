@@ -122,8 +122,6 @@ public:
 
 	virtual const LLVoiceVersionInfo& getVersion()=0;
 	
-	virtual bool singletoneInstanceExists()=0;
-	
 	/////////////////////
 	/// @name Tuning
 	//@{

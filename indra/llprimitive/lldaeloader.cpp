@@ -330,7 +330,10 @@ LLModel::EModelStatus load_face_from_dom_triangles(
 			// VFExtents change
 			face.mExtents[0].set(v[0], v[1], v[2]);
 			face.mExtents[1].set(v[0], v[1], v[2]);
-			point_map.clear();
+
+            verts.clear();
+            indices.clear();
+            point_map.clear();
 		}
 	}
 
