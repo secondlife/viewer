@@ -845,13 +845,13 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 				}
 			}
 
-            LLViewerInventoryItem* inv_item = gInventory.getItem(mUUID);
             items.push_back(std::string("thumbnail"));
-            if (inv_item && !inv_item->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
+            if (isLibraryItem())
             {
                 disabled_items.push_back(std::string("thumbnail"));
             }
-			
+
+            LLViewerInventoryItem *inv_item = gInventory.getItem(mUUID);
 			if (show_asset_id)
 			{
 				items.push_back(std::string("Copy Asset UUID"));

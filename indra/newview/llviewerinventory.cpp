@@ -1369,7 +1369,8 @@ void update_inventory_category(
 	LL_DEBUGS(LOG_INV) << "cat_id: [" << cat_id << "] name " << (obj ? obj->getName() : "(NOT FOUND)") << LL_ENDL;
 	if(obj)
 	{
-		if (LLFolderType::lookupIsProtectedType(obj->getPreferredType()))
+        if (LLFolderType::lookupIsProtectedType(obj->getPreferredType())
+            && (updates.size() != 1 || !updates.has("thumbnail")))
 		{
 			LLNotificationsUtil::add("CannotModifyProtectedCategories");
 			return;
