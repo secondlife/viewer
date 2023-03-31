@@ -26,6 +26,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Compiler flags
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Unicode true
 SetOverwrite on				# Overwrite files
 SetCompress auto			# Compress if saves space
 SetCompressor /solid lzma	# Compress whole installer as one block
@@ -523,6 +524,7 @@ FunctionEnd
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Make sure the user can uninstall
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+/* Unused
 Function un.CheckIfAdministrator
     DetailPrint $(CheckAdministratorUnInstDP)
     UserInfo::GetAccountType
@@ -534,6 +536,7 @@ lbl_is_admin:
     Return
 
 FunctionEnd
+*/
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function CheckWillUninstallV2               
