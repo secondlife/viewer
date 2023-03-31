@@ -5483,7 +5483,8 @@ void LLAppViewer::disconnectViewer()
     {
         gInventory.cache(gInventory.getRootFolderID(), gAgent.getID());
         if (gInventory.getLibraryRootFolderID().notNull()
-            && gInventory.getLibraryOwnerID().notNull())
+            && gInventory.getLibraryOwnerID().notNull()
+            && !mSecondInstance) // agent is unique, library isn't
         {
             gInventory.cache(
                 gInventory.getLibraryRootFolderID(),

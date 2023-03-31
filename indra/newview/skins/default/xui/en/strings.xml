@@ -126,8 +126,8 @@ http://secondlife.com/download
 
 For more information, see our FAQ below:
 http://secondlife.com/viewer-access-faq</string>
-	<string name="LoginFailed">Grid emergency login failure.
-If you feel this is an error, please contact support@secondlife.com.</string>
+	<string name="LoginFailed">"Login process did not complete due to system issues. Try again in a few minutes.
+If you feel this is an error, contact Support at https://support.secondlife.com"</string>
 	<string name="LoginIntermediateOptionalUpdateAvailable">Optional viewer update available: [VERSION]</string>
 	<string name="LoginFailedRequiredUpdate">Required viewer update: [VERSION]</string>
 	<string name="LoginFailedAlreadyLoggedIn">This agent is already logged in.
