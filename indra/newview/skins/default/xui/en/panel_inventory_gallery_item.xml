@@ -16,7 +16,7 @@
   <string name="worn_string">(worn)</string>
   <thumbnail
    name="preview_thumbnail"
-   image_name="Thumbnail_Fallback"
+   fallback_image="Thumbnail_Fallback"
    layout="topleft"
    follows="left|top"
    interactable="false"

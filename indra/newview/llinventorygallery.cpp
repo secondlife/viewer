@@ -1081,7 +1081,7 @@ void LLInventoryGalleryItem::setThumbnail(LLUUID id)
     mDefaultImage = id.isNull();
     if(mDefaultImage)
     {
-        getChild<LLThumbnailCtrl>("preview_thumbnail")->setValue("Thumbnail_Fallback");
+        getChild<LLThumbnailCtrl>("preview_thumbnail")->clearTexture();
     }
     else
     {

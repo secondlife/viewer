@@ -170,6 +170,13 @@ void LLThumbnailCtrl::draw()
     LLUICtrl::draw();
 }
 
+void LLThumbnailCtrl::clearTexture()
+{
+    mImageAssetID = LLUUID::null;
+    mTexturep = nullptr;
+    mImagep = nullptr;
+}
+
 // virtual
 // value might be a string or a UUID
 void LLThumbnailCtrl::setValue(const LLSD& value)

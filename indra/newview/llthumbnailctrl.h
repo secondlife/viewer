@@ -66,6 +66,7 @@ public:
 	virtual void draw() override;
 
 	virtual void setValue(const LLSD& value ) override;
+    void clearTexture();
     
     virtual BOOL handleHover(S32 x, S32 y, MASK mask) override;
 	
