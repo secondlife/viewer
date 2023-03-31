@@ -44,7 +44,12 @@
 #include "llviewercontrol.h"
 
 // Have to include these last to avoid queue redefinition!
+
+#ifdef LL_USESYSTEMLIBS
+#include <xmlrpc.h>
+#else
 #include <xmlrpc-epi/xmlrpc.h>
+#endif
 // <xmlrpc-epi/queue.h> contains a harmful #define queue xmlrpc_queue. This
 // breaks any use of std::queue. Ditch that #define: if any of our code wants
 // to reference xmlrpc_queue, let it reference it directly.
@@ -514,10 +519,11 @@ void LLXMLRPCTransaction::Impl::setHttpStatus(const LLCore::HttpStatus &status)
 		message = LLTrans::getString("couldnt_resolve_host", args);
 		break;
 
+#if CURLE_SSL_PEER_CERTIFICATE != CURLE_SSL_CACERT
 	case CURLE_SSL_PEER_CERTIFICATE:
 		message = LLTrans::getString("ssl_peer_certificate");
 		break;
-
+#endif
 	case CURLE_SSL_CACERT:
 	case CURLE_SSL_CONNECT_ERROR:		
 		message = LLTrans::getString("ssl_connect_error");

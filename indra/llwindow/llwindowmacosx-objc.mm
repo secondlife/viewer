@@ -215,6 +215,7 @@ NSWindowRef createNSWindow(int x, int y, int width, int height)
 													  styleMask:NSTitledWindowMask | NSResizableWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSTexturedBackgroundWindowMask backing:NSBackingStoreBuffered defer:NO];
 	[window makeKeyAndOrderFront:nil];
 	[window setAcceptsMouseMovedEvents:TRUE];
+    [window setRestorable:FALSE]; // Viewer manages state from own settings
 	return window;
 }
 

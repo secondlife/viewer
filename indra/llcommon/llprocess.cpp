@@ -272,6 +272,14 @@ public:
 					boost::bind(&ReadPipeImpl::tick, this, _1));
 	}
 
+    ~ReadPipeImpl()
+    {
+        if (mConnection.connected())
+        {
+            mConnection.disconnect();
+        }
+    }
+
 	// Much of the implementation is simply connecting the abstract virtual
 	// methods with implementation data concealed from the base class.
 	virtual std::istream& get_istream() { return mStream; }

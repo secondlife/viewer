@@ -40,7 +40,7 @@
 		Araziyi seçmek için tıklayın ve sürükleyin
 	</floater.string>
 	<floater.string name="status_selectcount">
-		[OBJ_COUNT] nesne seçili, [LAND_IMPACT] arazi etkisi
+		[OBJ_COUNT] nesne seçili, [LAND_IMPACT] arazi etkisi [secondlife:///app/openfloater/object_weights Ek bilgi]
 	</floater.string>
 	<floater.string name="status_remaining_capacity">
 		Kalan kapasite [LAND_CAPACITY].
