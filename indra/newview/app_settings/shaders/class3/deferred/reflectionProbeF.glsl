@@ -35,6 +35,8 @@ uniform sampler2D sceneMap;
 uniform int cube_snapshot;
 uniform float max_probe_lod;
 
+#define MAX_REFMAP_COUNT 256  // must match LL_MAX_REFLECTION_PROBE_COUNT
+
 layout (std140) uniform ReflectionProbes
 {
     // list of OBBs for user override probes
@@ -42,18 +44,18 @@ layout (std140) uniform ReflectionProbes
     // for each box refBox[i]...
     /// box[0..2] - plane 0 .. 2 in [A,B,C,D] notation
     //  box[3][0..2] - plane thickness
-    mat4 refBox[REFMAP_COUNT];
+    mat4 refBox[MAX_REFMAP_COUNT];
     // list of bounding spheres for reflection probes sorted by distance to camera (closest first)
-    vec4 refSphere[REFMAP_COUNT];
+    vec4 refSphere[MAX_REFMAP_COUNT];
     // extra parameters (currently only .x used for probe ambiance)
-    vec4 refParams[REFMAP_COUNT];
+    vec4 refParams[MAX_REFMAP_COUNT];
     // index  of cube map in reflectionProbes for a corresponding reflection probe
     // e.g. cube map channel of refSphere[2] is stored in refIndex[2]
     // refIndex.x - cubemap channel in reflectionProbes
     // refIndex.y - index in refNeighbor of neighbor list (index is ivec4 index, not int index)
     // refIndex.z - number of neighbors
     // refIndex.w - priority, if negative, this probe has a box influence
-    ivec4 refIndex[REFMAP_COUNT];
+    ivec4 refIndex[MAX_REFMAP_COUNT];
 
     // neighbor list data (refSphere indices, not cubemap array layer)
     ivec4 refNeighbor[1024];
@@ -674,7 +676,7 @@ void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
     sampleReflectionProbes(ambenv, glossenv, tc, pos, norm, glossiness);
 
     // fudge factor to get PBR water at a similar luminance ot legacy water
-    glossenv *= 0.25;
+    glossenv *= 0.4;
 }
 
 void debugTapRefMap(vec3 pos, vec3 dir, float depth, int i, inout vec4 col)

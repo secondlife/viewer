@@ -125,7 +125,6 @@ vec3 toneMap(vec3 color)
     // this factor is based on the exposure correction of Krzysztof Narkowicz in his
     // implemetation of ACES tone mapping
     color *= 1.0/0.6;
-    //color /= 0.6;
     color = toneMapACES_Hill(color);
 #endif
 

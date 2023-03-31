@@ -62,8 +62,10 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
 
     vec3  rel_pos_norm = normalize(rel_pos);
     float rel_pos_len  = length(rel_pos);
-    float scale = 2.0;
-    vec3  sunlight     = (sun_up_factor == 1) ? sunlight_color * scale: moonlight_color*0.75;
+    
+    float scale = sun_up_factor + 1;
+    vec3  sunlight     = (sun_up_factor == 1) ? sunlight_color: moonlight_color;
+    sunlight *= scale;
 
     // sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes

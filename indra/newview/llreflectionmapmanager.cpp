@@ -181,7 +181,11 @@ void LLReflectionMapManager::update()
 
         LLVector4a d;
 
-        if (probe->mOccluded)
+        if (probe->mComplete)
+        {
+            probe->mFadeIn = llmin((F32) (probe->mFadeIn + gFrameIntervalSeconds), 1.f);
+        }
+        if (probe->mOccluded && probe->mComplete)
         {
             if (oldestOccluded == nullptr)
             {
@@ -300,7 +304,7 @@ void LLReflectionMapManager::getReflectionMaps(std::vector<LLReflectionMap*>& ma
         mProbes[i]->mLastBindTime = gFrameTimeSeconds; // something wants to use this probe, indicate it's been requested
         if (mProbes[i]->mCubeIndex != -1)
         {
-            if (!mProbes[i]->mOccluded)
+            if (!mProbes[i]->mOccluded && mProbes[i]->mComplete)
             {
                 mProbes[i]->mProbeIndex = count;
                 maps[count++] = mProbes[i];
@@ -328,29 +332,20 @@ void LLReflectionMapManager::getReflectionMaps(std::vector<LLReflectionMap*>& ma
 
 LLReflectionMap* LLReflectionMapManager::registerSpatialGroup(LLSpatialGroup* group)
 {
-#if 1
-    if (group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_VOLUME)
+    static LLCachedControl<S32> automatic_probes(gSavedSettings, "RenderAutomaticReflectionProbes", 2);
+    if (automatic_probes > 1)
     {
-        OctreeNode* node = group->getOctreeNode();
-        F32 size = node->getSize().getF32ptr()[0];
-        if (size >= 15.f && size <= 17.f)
+        if (group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_VOLUME)
         {
-            return addProbe(group);
+            OctreeNode* node = group->getOctreeNode();
+            F32 size = node->getSize().getF32ptr()[0];
+            if (size >= 15.f && size <= 17.f)
+            {
+                return addProbe(group);
+            }
         }
     }
-#endif
 
-#if 0
-    if (group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_TERRAIN)
-    {
-        OctreeNode* node = group->getOctreeNode();
-        F32 size = node->getSize().getF32ptr()[0];
-        if (size >= 15.f && size <= 17.f)
-        {
-            return addProbe(group);
-        }
-    }
-#endif
     return nullptr;
 }
 
@@ -394,6 +389,7 @@ S32 LLReflectionMapManager::allocateCubeIndex()
             S32 ret = mProbes[i]->mCubeIndex;
             mProbes[i]->mCubeIndex = -1;
             mProbes[i]->mCubeArray = nullptr;
+            mProbes[i]->mComplete = false;
             return ret;
         }
     }
@@ -444,6 +440,7 @@ void LLReflectionMapManager::doProbeUpdate()
         mUpdatingFace = 0;
         if (isRadiancePass())
         {
+            mUpdatingProbe->mComplete = true;
             mUpdatingProbe = nullptr;
             mRadiancePass = false;
         }
@@ -777,7 +774,10 @@ void LLReflectionMapManager::updateUniforms()
         // for sphere probes, origin (xyz) and radius (w) of refmaps in clip space
         LLVector4 refSphere[LL_MAX_REFLECTION_PROBE_COUNT]; 
 
-        // extra parameters (currently only ambiance in .x)
+        // extra parameters 
+        //  x - irradiance scale
+        //  y - radiance scale
+        //  z - fade in
         LLVector4 refParams[LL_MAX_REFLECTION_PROBE_COUNT];
 
         // indices used by probe:
@@ -852,7 +852,7 @@ void LLReflectionMapManager::updateUniforms()
             rpd.refIndex[count][3] = -rpd.refIndex[count][3];
         }
 
-        rpd.refParams[count].set(llmax(minimum_ambiance, refmap->getAmbiance())*ambscale, radscale, 0.f, 0.f);
+        rpd.refParams[count].set(llmax(minimum_ambiance, refmap->getAmbiance())*ambscale, radscale, refmap->mFadeIn, 0.f);
 
         S32 ni = nc; // neighbor ("index") - index into refNeighbor to write indices for current reflection probe's neighbors
         {
@@ -1006,11 +1006,15 @@ void LLReflectionMapManager::renderDebug()
 
 void LLReflectionMapManager::initReflectionMaps()
 {
-    if (mTexture.isNull())
+    static LLCachedControl<S32> probe_count(gSavedSettings, "RenderReflectionProbeCount", LL_MAX_REFLECTION_PROBE_COUNT);
+
+    U32 count = llclamp((S32) probe_count, 1, LL_MAX_REFLECTION_PROBE_COUNT);
+
+    if (mTexture.isNull() || mReflectionProbeCount != count)
     {
+        mReflectionProbeCount = count;
         mProbeResolution = nhpo2(llclamp(gSavedSettings.getU32("RenderReflectionProbeResolution"), (U32)64, (U32)512));
         mMaxProbeLOD = log2f(mProbeResolution) - 1.f; // number of mips - 1
-        mReflectionProbeCount = llclamp(gSavedSettings.getS32("RenderReflectionProbeCount"), 1, LL_MAX_REFLECTION_PROBE_COUNT);
 
         mTexture = new LLCubeMapArray();
 
@@ -1019,6 +1023,28 @@ void LLReflectionMapManager::initReflectionMaps()
 
         mIrradianceMaps = new LLCubeMapArray();
         mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount, FALSE);
+
+        // reset probe state
+        mUpdatingFace = 0;
+        mUpdatingProbe = nullptr;
+        mRadiancePass = false;
+        mRealtimeRadiancePass = false;
+        mDefaultProbe = nullptr;
+
+        for (auto& probe : mProbes)
+        {
+            probe->mComplete = false;
+            probe->mProbeIndex = -1;
+            probe->mCubeArray = nullptr;
+            probe->mCubeIndex = -1;
+        }
+
+        for (bool& is_free : mCubeFree)
+        {
+            is_free = true;
+        }
+
+        mCubeFree[0] = false;
     }
 
     if (mVertexBuffer.isNull())

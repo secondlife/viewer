@@ -36,17 +36,16 @@ uniform sampler2D exposureMap;
 uniform float dt;
 uniform vec2 noiseVec;
 
-// calculate luminance the same way LLColor4::calcHSL does
+
 float lum(vec3 col)
 {
-    float mx = max(max(col.r, col.g), col.b);
-    float mn = min(min(col.r, col.g), col.b);
-    return (mx + mn) * 0.5;
+    vec3 l = vec3(0.2126, 0.7152, 0.0722);
+    return dot(l, col);
 }
 
 void main() 
 {
-    float step = 1.0/32.0;
+    float step = 1.0/16.0;
 
     float start = step;
     float end = 1.0-step;
@@ -55,13 +54,13 @@ void main()
 
     vec3 col;
 
-    vec2 nz = noiseVec * step * 0.5;
+    //vec2 nz = noiseVec * step * 0.5;
 
     for (float x = start; x <= end; x += step)
     {
         for (float y = start; y <= end; y += step)
         {
-            vec2 tc = vec2(x,y) + nz;
+            vec2 tc = vec2(x,y); // + nz;
             vec3 c = texture(diffuseRect, tc).rgb + texture(emissiveRect, tc).rgb;
             float L = max(lum(c), 0.25);
 
@@ -82,11 +81,13 @@ void main()
 
     float L = lum(col);
 
-    float s = clamp(0.1/L, 0.5, 4.0);
+    float s = clamp(0.175/L, 0.125, 1.3);
+
 
     float prev = texture(exposureMap, vec2(0.5,0.5)).r;
-    s = mix(prev, s, min(dt*2.0, 0.04));
 
+    s = mix(prev, s, min(dt*2.0*abs(prev-s), 0.04));
+    
     frag_color = vec4(s, s, s, dt);
 }
 
