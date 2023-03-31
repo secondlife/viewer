@@ -81,6 +81,7 @@ public:
     void updateRemovedItem(LLUUID item_id);
     void updateChangedItemName(LLUUID item_id, std::string name);
     void updateItemThumbnail(LLUUID item_id);
+    void updateWornItem(LLUUID item_id, bool is_worn);
 
     void updateMessageVisibility();
 
@@ -103,6 +104,7 @@ public:
     LLUUID getOutfitImageID(LLUUID outfit_id);
 
     void refreshList(const LLUUID& category_id);
+    void onCOFChanged();
     void computeDifference(const LLInventoryModel::cat_array_t vcats, const LLInventoryModel::item_array_t vitems, uuid_vec_t& vadded, uuid_vec_t& vremoved);
 
     void deselectItem(const LLUUID& category_id);
@@ -147,7 +149,7 @@ private:
     void updateRowsIfNeeded();
     void updateGalleryWidth();
 
-    LLInventoryGalleryItem* buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id, LLInventoryType::EType inventory_type, U32 flags, bool is_link);
+    LLInventoryGalleryItem* buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id, LLInventoryType::EType inventory_type, U32 flags, bool is_link, bool is_worn);
 
     void buildGalleryPanel(int row_count);
     void reshapeGalleryPanel(int row_count);
@@ -187,6 +189,7 @@ private:
 
     typedef std::map<LLUUID, LLInventoryGalleryItem*> gallery_item_map_t;
     gallery_item_map_t mItemMap;
+    uuid_vec_t mCOFLinkedItems;
     std::map<LLInventoryGalleryItem*, S32> mItemIndexMap;
 
     LLInventoryFilter::ESearchType mSearchType;
@@ -223,8 +226,11 @@ public:
                                    EAcceptance* accept,
                                    std::string& tooltip_msg);
 
+    LLFontGL* getTextFont();
+
     void setName(std::string name);
     void setSelected(bool value);
+    void setWorn(bool value);
     void setUUID(LLUUID id) {mUUID = id;}
     LLUUID getUUID() { return mUUID;}
 
@@ -251,8 +257,10 @@ public:
 private:
     LLUUID mUUID;
     LLTextBox* mNameText;
+    LLTextBox* mSuffixText;
     LLPanel* mTextBgPanel;
     bool     mSelected;
+    bool     mWorn;
     bool     mDefaultImage;
     bool     mHidden;
     bool     mIsFolder;

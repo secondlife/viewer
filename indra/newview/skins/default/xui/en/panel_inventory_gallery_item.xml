@@ -13,6 +13,7 @@
    layout="topleft"
    left="0"
    top="0">
+  <string name="worn_string">(worn)</string>
   <thumbnail
    name="preview_thumbnail"
    image_name="Thumbnail_Fallback"
@@ -64,10 +65,24 @@
       layout="topleft"
       name="item_name"
       parse_urls="false"
+      text_readonly_color="White"
       top="2"
       width="127"
       use_ellipses="true">
       Item name, folder name.
+    </text>
+    <text
+      read_only="true"
+      length="1"
+      follows="left|top"
+      left="1"
+      height="10"
+      layout="topleft"
+      name="suffix_text"
+      text_readonly_color="InventoryItemLinkColor"
+      top="13"
+      width="127">
+      (worn)
     </text>
   </panel>
 </panel>

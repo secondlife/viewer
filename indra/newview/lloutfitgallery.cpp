@@ -64,7 +64,6 @@ const S32 GALLERY_ITEMS_PER_ROW_MIN = 2;
 
 LLOutfitGallery::LLOutfitGallery(const LLOutfitGallery::Params& p)
     : LLOutfitListBase(),
-      mTexturesObserver(NULL),
       mOutfitsObserver(NULL),
       mScrollPanel(NULL),
       mGalleryPanel(NULL),
@@ -438,12 +437,6 @@ void LLOutfitGallery::moveRowPanel(LLPanel* stack, int left, int bottom)
 LLOutfitGallery::~LLOutfitGallery()
 {
     delete mOutfitGalleryMenu;
-    
-    if (gInventory.containsObserver(mTexturesObserver))
-    {
-        gInventory.removeObserver(mTexturesObserver);
-    }
-    delete mTexturesObserver;
 
     if (gInventory.containsObserver(mOutfitsObserver))
     {

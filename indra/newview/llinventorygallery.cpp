@@ -243,6 +243,9 @@ void LLInventoryGallery::initGallery()
         }
         reArrangeRows();
         mGalleryCreated = true;
+
+        const LLUUID cof = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+        mCategoriesObserver->addCategory(cof, boost::bind(&LLInventoryGallery::onCOFChanged, this));
     }
 }
 
@@ -462,7 +465,7 @@ void LLInventoryGallery::removeFromLastRow(LLInventoryGalleryItem* item)
     mItemPanels.pop_back();
 }
 
-LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id, LLInventoryType::EType inventory_type, U32 flags, bool is_link)
+LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id, LLInventoryType::EType inventory_type, U32 flags, bool is_link, bool is_worn)
 {
     LLInventoryGalleryItem::Params giparams;
     LLInventoryGalleryItem* gitem = LLUICtrlFactory::create<LLInventoryGalleryItem>(giparams);
@@ -475,6 +478,7 @@ LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, L
     gitem->setGallery(this);
     gitem->setType(type, inventory_type, flags, is_link);
     gitem->setThumbnail(thumbnail_id);
+    gitem->setWorn(is_worn);
     gitem->setCreatorName(get_searchable_creator_name(&gInventory, item_id));
     gitem->setDescription(get_searchable_description(&gInventory, item_id));
     gitem->setAssetIDStr(get_searchable_UUID(&gInventory, item_id));
@@ -641,6 +645,7 @@ void LLInventoryGallery::updateAddedItem(LLUUID item_id)
     LLUUID thumbnail_id = obj->getThumbnailUUID();;
     LLInventoryType::EType inventory_type(LLInventoryType::IT_CATEGORY);
     U32 misc_flags = 0;
+    bool is_worn = false;
     if (LLAssetType::AT_CATEGORY == obj->getType())
     {
         name = get_localized_folder_name(item_id);
@@ -656,10 +661,11 @@ void LLInventoryGallery::updateAddedItem(LLUUID item_id)
         {
             inventory_type = inv_item->getInventoryType();
             misc_flags = inv_item->getFlags();
+            is_worn = LLAppearanceMgr::instance().isLinkedInCOF(item_id);
         }
     }
-    
-    LLInventoryGalleryItem* item = buildGalleryItem(name, item_id, obj->getType(), thumbnail_id, inventory_type, misc_flags, obj->getIsLinkType());
+
+    LLInventoryGalleryItem* item = buildGalleryItem(name, item_id, obj->getType(), thumbnail_id, inventory_type, misc_flags, obj->getIsLinkType(), is_worn);
     mItemMap.insert(LLInventoryGallery::gallery_item_map_t::value_type(item_id, item));
     item->setRightMouseDownCallback(boost::bind(&LLInventoryGallery::showContextMenu, this, _1, _2, _3, item_id));
     item->setFocusReceivedCallback(boost::bind(&LLInventoryGallery::onChangeItemSelection, this, item_id));
@@ -708,6 +714,19 @@ void LLInventoryGallery::updateChangedItemName(LLUUID item_id, std::string name)
         if (item)
         {
             item->setName(name);
+        }
+    }
+}
+
+void LLInventoryGallery::updateWornItem(LLUUID item_id, bool is_worn)
+{
+    gallery_item_map_t::iterator iter = mItemMap.find(item_id);
+    if (iter != mItemMap.end())
+    {
+        LLInventoryGalleryItem* item = iter->second;
+        if (item)
+        {
+            item->setWorn(is_worn);
         }
     }
 }
@@ -834,6 +853,46 @@ void LLInventoryGallery::computeDifference(
     getCurrentCategories(vcur);
 
     LLCommonUtils::computeDifference(vnew, vcur, vadded, vremoved);
+}
+
+void LLInventoryGallery::onCOFChanged()
+{
+    LLInventoryModel::cat_array_t cat_array;
+    LLInventoryModel::item_array_t item_array;
+
+    gInventory.collectDescendents(
+        LLAppearanceMgr::instance().getCOF(),
+        cat_array,
+        item_array,
+        LLInventoryModel::EXCLUDE_TRASH);
+
+    uuid_vec_t vnew;
+    uuid_vec_t vadded;
+    uuid_vec_t vremoved;
+
+    for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
+        iter != item_array.end();
+        ++iter)
+    {
+        vnew.push_back((*iter)->getLinkedUUID());
+    }
+
+    // We need to update only items that were added or removed from COF.
+    LLCommonUtils::computeDifference(vnew, mCOFLinkedItems, vadded, vremoved);
+
+    mCOFLinkedItems = vnew;
+    
+    for (uuid_vec_t::const_iterator iter = vadded.begin();
+        iter != vadded.end();
+        ++iter)
+    {
+        updateWornItem(*iter, true);
+    }
+
+    for (uuid_vec_t::const_iterator iter = vremoved.begin(); iter != vremoved.end(); ++iter)
+    {
+        updateWornItem(*iter, false);
+    }
 }
 
 void LLInventoryGallery::deselectItem(const LLUUID& category_id)
@@ -973,6 +1032,7 @@ LLInventoryGalleryItem::~LLInventoryGalleryItem()
 BOOL LLInventoryGalleryItem::postBuild()
 {
     mNameText = getChild<LLTextBox>("item_name");
+    mSuffixText = getChild<LLTextBox>("suffix_text");
 
     mTextBgPanel = getChild<LLPanel>("text_bg_panel");
     mHidden = false;
@@ -1036,9 +1096,10 @@ void LLInventoryGalleryItem::draw()
 
 void LLInventoryGalleryItem::setName(std::string name)
 {
+    mName = name;
+    mNameText->setFont(getTextFont());
     mNameText->setText(name);
     mNameText->setToolTip(name);
-    mName = name;
 }
 
 void LLInventoryGalleryItem::setSelected(bool value)
@@ -1135,6 +1196,24 @@ BOOL LLInventoryGalleryItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL dro
         return FALSE;
     }
     return baseHandleDragAndDrop(mUUID, drop, cargo_type, cargo_data, accept, tooltip_msg);
+}
+
+void LLInventoryGalleryItem::setWorn(bool value)
+{
+    mWorn = value;
+    mSuffixText->setValue(mWorn ? getString("worn_string") : "");
+
+    mNameText->setFont(getTextFont());
+    mNameText->setText(mName); // refresh to pick up font changes
+}
+
+LLFontGL* LLInventoryGalleryItem::getTextFont()
+{
+    if(mWorn)
+    {
+        return LLFontGL::getFontSansSerifSmallBold();
+    }
+    return mIsLink ? LLFontGL::getFontSansSerifSmallItalic() : LLFontGL::getFontSansSerifSmall();
 }
 
 //-----------------------------

@@ -175,7 +175,6 @@ private:
     item_num_map_t                                      mItemIndexMap;
 
 
-    LLInventoryCategoriesObserver* 	mTexturesObserver;
     LLInventoryCategoriesObserver* 	mOutfitsObserver;
 };
 class LLOutfitGalleryContextMenu : public LLOutfitContextMenu
