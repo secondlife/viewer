@@ -3244,7 +3244,7 @@ LLSD transform_cert_args(LLPointer<LLCertificate> cert)
 		// are actually arrays, and we want to format them as comma separated          
 		// strings, so special case those.                                             
 		LLSDSerialize::toXML(cert_info[iter->first], std::cout);
-		if((iter->first== std::string(CERT_KEY_USAGE)) |
+		if((iter->first== std::string(CERT_KEY_USAGE)) ||
 		   (iter->first == std::string(CERT_EXTENDED_KEY_USAGE)))
 		{
 			value = "";

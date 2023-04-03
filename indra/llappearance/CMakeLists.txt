@@ -4,29 +4,10 @@ project(llappearance)
 
 include(00-Common)
 include(LLCommon)
-include(LLCharacter)
 include(LLImage)
-include(LLInventory)
-include(LLMath)
-include(LLMessage)
 include(LLCoreHttp)
-include(LLRender)
-include(LLFileSystem)
 include(LLWindow)
-include(LLXML)
 include(Linking)
-
-include_directories(
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLCHARACTER_INCLUDE_DIRS}
-    ${LLIMAGE_INCLUDE_DIRS}
-    ${LLINVENTORY_INCLUDE_DIRS}
-    ${LLMATH_INCLUDE_DIRS}
-    ${LLRENDER_INCLUDE_DIRS}
-    ${LLFILESYSTEM_INCLUDE_DIRS}
-    ${LLWINDOW_INCLUDE_DIRS}
-    ${LLXML_INCLUDE_DIRS}
-    )
 
 set(llappearance_SOURCE_FILES
     llavatarappearance.cpp
@@ -71,41 +52,37 @@ set(llappearance_HEADER_FILES
     llavatarappearancedefines.h
     )
 
-set_source_files_properties(${llappearance_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND llappearance_SOURCE_FILES ${llappearance_HEADER_FILES})
 
 add_library (llappearance ${llappearance_SOURCE_FILES})
 
 target_link_libraries(llappearance
-    ${LLCHARACTER_LIBRARIES}
-    ${LLINVENTORY_LIBRARIES}
-    ${LLIMAGE_LIBRARIES}
-    ${LLRENDER_LIBRARIES}
-    ${LLFILESYSTEM_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${LLXML_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${LLMESSAGE_LIBRARIES}
-    ${LLCOREHTTP_LIBRARIES}
-    ${LLCOMMON_LIBRARIES}
+        llcharacter
+        llinventory
+        llimage
+        llrender
+        llfilesystem
+        llmath
+        llxml
+        llmessage
+        llcorehttp
+        llcommon
     )
+target_include_directories( llappearance  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (BUILD_HEADLESS)
   add_library (llappearanceheadless ${llappearance_SOURCE_FILES})
-  
+  target_include_directories( llappearanceheadless  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
+
   target_link_libraries(llappearanceheadless
-      ${LLCHARACTER_LIBRARIES}
-      ${LLINVENTORY_LIBRARIES}
-      ${LLIMAGE_LIBRARIES}
-      ${LLRENDERHEADLESS_LIBRARIES}
-      ${LLFILESYSTEM_LIBRARIES}
-      ${LLMATH_LIBRARIES}
-      ${LLXML_LIBRARIES}
-      ${LLMATH_LIBRARIES}
-      ${LLMESSAGE_LIBRARIES}
-      ${LLCOREHTTP_LIBRARIES}
-      ${LLCOMMON_LIBRARIES}
+          llcharacter
+          llinventory
+          llimage
+          llfilesystem
+          llmath
+          llxml
+          llmessage
+          llcorehttp
+          llcommon
       )
 endif (BUILD_HEADLESS)

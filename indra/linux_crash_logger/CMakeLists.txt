@@ -45,9 +45,6 @@ set(linux_crash_logger_HEADER_FILES
     llcrashloggerlinux.h
     )
 
-set_source_files_properties(${linux_crash_logger_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND linux_crash_logger_SOURCE_FILES
      ${linux_crash_logger_HEADER_FILES}
      )
@@ -61,19 +58,14 @@ set(LIBRT_LIBRARY rt)
 
 
 target_link_libraries(linux-crash-logger
-    ${LLCRASHLOGGER_LIBRARIES}
-    ${LLFILESYSTEM_LIBRARIES}
-    ${LLXML_LIBRARIES}
-    ${LLMESSAGE_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${LLCOREHTTP_LIBRARIES}
-    ${LLCOMMON_LIBRARIES}
-    ${BOOST_FIBER_LIBRARY}
-    ${BOOST_CONTEXT_LIBRARY}
-    ${UI_LIBRARIES}
-    ${DB_LIBRARIES}
-    ${FREETYPE_LIBRARIES}
-    ${LIBRT_LIBRARY}
+        llcrashlogger
+        llfilesystem
+        llxml
+        llmessage
+        llmath
+        llcorehttp
+        llcommon
+        ll::uilibraries
     )
 
 add_custom_target(linux-crash-logger-target ALL

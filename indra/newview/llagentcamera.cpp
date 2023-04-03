@@ -133,7 +133,6 @@ LLAgentCamera::LLAgentCamera() :
 	mCameraFOVZoomFactor(0.f),
 	mCameraCurrentFOVZoomFactor(0.f),
 	mCameraFocusOffset(),
-	mCameraFOVDefault(DEFAULT_FIELD_OF_VIEW),
 
 	mCameraCollidePlane(),
 
@@ -155,7 +154,6 @@ LLAgentCamera::LLAgentCamera() :
 	mFocusObject(NULL),
 	mFocusObjectDist(0.f),
 	mFocusObjectOffset(),
-	mFocusDotRadius( 0.1f ),			// meters
 	mTrackFocusObject(TRUE),
 
 	mAtKey(0), // Either 1, 0, or -1... indicates that movement-key is pressed
@@ -2360,6 +2358,11 @@ void LLAgentCamera::changeCameraToCustomizeAvatar()
 
 	gAgent.standUp(); // force stand up
 	gViewerWindow->getWindow()->resetBusyCount();
+
+    if (LLSelectMgr::getInstance()->getSelection()->isAttachment())
+    {
+        LLSelectMgr::getInstance()->deselectAll();
+    }
 
 	if (gFaceEditToolset)
 	{

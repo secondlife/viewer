@@ -307,6 +307,16 @@
             <key>name</key>
             <string>darwin64</string>
           </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>ac54672e0b38f52726f5c99047c913e4</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89306/815431/cubemaptoequirectangular-1.1.0-windows64-564841.tar.bz2</string>
+            </map>
+          </map>
           <key>windows</key>
           <map>
             <key>archive</key>
@@ -1050,9 +1060,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dc09e870c8419979d748855c2d956711</string>
+              <string>7f147ae0410f705f846b981498898392</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/109675/954163/icu4c-4.8.1-darwin64-577789.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/112850/977592/icu4c-4.8.1-darwin64-579264.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1108,6 +1118,16 @@
             </map>
             <key>name</key>
             <string>darwin64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>e70898903475d8ac2e81ff33278fc987</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89309/815433/jpegencoderbasic-1.0-windows64-564842.tar.bz2</string>
+            </map>
           </map>
           <key>windows</key>
           <map>
@@ -1695,9 +1715,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>da57838d80cf332f4a3026713a13f086</string>
+              <string>e51c6f5dfd76eb148348a44ff57e66c2</string>
               <key>url</key>
-              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/90708/824484/llphysicsextensions_source-1.0.565754-darwin64-565754.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/104810/918016/llphysicsextensions_source-1.0.575107-darwin64-575107.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1719,9 +1739,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>28ad884012aa0bb70cf4101853af2f9a</string>
+              <string>dbbe4cc568ac149d862e421cdda4dd48</string>
               <key>url</key>
-              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/90733/824570/llphysicsextensions_source-1.0.565768-windows-565768.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/104809/918011/llphysicsextensions_source-1.0.575107-windows-575107.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2588,6 +2608,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>name</key>
             <string>darwin64</string>
           </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>46edf0f55417f8ef0d33a5c007bc3644</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89310/815451/threejs-0.132.2-windows64-564843.tar.bz2</string>
+            </map>
+          </map>
           <key>windows</key>
           <map>
             <key>archive</key>
@@ -2849,9 +2879,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2e8d817e7837dd6f4284b13fa3f5c15e</string>
+              <string>9e1b5515ab59b4e9cfeef6626d65d03d</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104765/917714/viewer_manager-3.0.575083-darwin64-575083.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/108609/945996/viewer_manager-3.0.577252-darwin64-577252.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2861,9 +2891,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3efa80faaf537e39a77218cd6efa9409</string>
+              <string>a3c599595ecc8fb987a5499fca42520a</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104766/917721/viewer_manager-3.0.575083-windows-575083.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/108610/946003/viewer_manager-3.0.577252-windows-577252.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2874,7 +2904,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>3.0.575083</string>
+        <string>3.0.577252</string>
       </map>
       <key>vlc-bin</key>
       <map>
@@ -3289,10 +3319,72 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <key>name</key>
           <string>darwin64</string>
         </map>
+        <key>linux64</key>
+        <map>
+          <key>build_directory</key>
+          <string>build-linux-x86_64</string>
+          <key>configurations</key>
+          <map>
+            <key>Release</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>ninja</string>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>Ninja</string>
+                  <string>-DLL_TESTS=Off</string>
+                </array>
+              </map>
+              <key>default</key>
+              <string>True</string>
+              <key>name</key>
+              <string>Release</string>
+            </map>
+            <key>ReleaseOS</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>ninja</string>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>Ninja</string>
+                  <string>-DLL_TESTS=Off</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>ReleaseOS</string>
+            </map>
+            <key>default</key>
+            <map>
+              <key>build</key>
+              <map>
+              </map>
+              <key>name</key>
+              <string>default</string>
+            </map>
+          </map>
+          <key>name</key>
+          <string>linux64</string>
+        </map>
         <key>windows</key>
         <map>
           <key>build_directory</key>
-          <string>build-vc${AUTOBUILD_VSVER|150}-$AUTOBUILD_ADDRSIZE</string>
+          <string>build-vc${AUTOBUILD_VSVER|170}-$AUTOBUILD_ADDRSIZE</string>
           <key>configurations</key>
           <map>
             <key>RelWithDebInfo</key>
@@ -3321,6 +3413,8 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
+                  <string>-A</string>
+                  <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                 </array>
               </map>
               <key>default</key>
@@ -3359,9 +3453,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
+                  <string>-A</string>
+                  <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
-                  <string>-DOPENAL:BOOL=ON</string>
+                  <string>-DUSE_OPENAL:BOOL=ON</string>
                 </array>
               </map>
               <key>name</key>
@@ -3393,6 +3489,8 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
+                  <string>-A</string>
+                  <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                 </array>
               </map>
               <key>name</key>
@@ -3429,10 +3527,12 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
+                  <string>-A</string>
+                  <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
-                  <string>-DOPENAL:BOOL=ON</string>
+                  <string>-DUSE_OPENAL:BOOL=ON</string>
                 </array>
               </map>
               <key>name</key>

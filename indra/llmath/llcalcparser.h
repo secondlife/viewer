@@ -81,28 +81,28 @@ struct LLCalcParser : grammar<LLCalcParser>
 			;
 
 			unary_func =
-				((str_p("SIN") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_sin)(self,arg1)]) |
-				 (str_p("COS") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_cos)(self,arg1)]) |
-				 (str_p("TAN") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_tan)(self,arg1)]) |
-				 (str_p("ASIN") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_asin)(self,arg1)]) |
-				 (str_p("ACOS") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_acos)(self,arg1)]) |
-				 (str_p("ATAN") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_atan)(self,arg1)]) |
-				 (str_p("SQRT") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_sqrt)(self,arg1)]) |
-				 (str_p("LOG") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_log)(self,arg1)]) |
-				 (str_p("EXP") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_exp)(self,arg1)]) |
-				 (str_p("ABS") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_fabs)(self,arg1)]) |
-				 (str_p("FLR") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_floor)(self,arg1)]) |
-				 (str_p("CEIL") >> '(' >> expression[unary_func.value = bind(&LLCalcParser::_ceil)(self,arg1)])
+				((str_p("SIN") >> '(' >> expression[unary_func.value = phoenix::bind(&LLCalcParser::_sin)(self,arg1)]) |
+				 (str_p("COS") >> '(' >> expression[unary_func.value = phoenix::bind(&LLCalcParser::_cos)(self,arg1)]) |
+				 (str_p("TAN") >> '(' >> expression[unary_func.value = phoenix::bind(&LLCalcParser::_tan)(self,arg1)]) |
+				 (str_p("ASIN") >> '(' >> expression[unary_func.value = phoenix::bind(&LLCalcParser::_asin)(self,arg1)]) |
+				 (str_p("ACOS") >> '(' >> expression[unary_func.value = phoenix::bind(&LLCalcParser::_acos)(self,arg1)]) |
+				 (str_p("ATAN") >> '(' >> expression[unary_func.value = phoenix::bind(&LLCalcParser::_atan)(self,arg1)]) |
+				 (str_p("SQRT") >> '(' >> expression[unary_func.value = phoenix::bind(&LLCalcParser::_sqrt)(self,arg1)]) |
+				 (str_p("LOG") >> '(' >> expression[unary_func.value = phoenix::bind(&LLCalcParser::_log)(self,arg1)]) |
+				 (str_p("EXP") >> '(' >> expression[unary_func.value = phoenix::bind(&LLCalcParser::_exp)(self,arg1)]) |
+				 (str_p("ABS") >> '(' >> expression[unary_func.value = phoenix::bind(&LLCalcParser::_fabs)(self,arg1)]) |
+				 (str_p("FLR") >> '(' >> expression[unary_func.value = phoenix::bind(&LLCalcParser::_floor)(self,arg1)]) |
+				 (str_p("CEIL") >> '(' >> expression[unary_func.value = phoenix::bind(&LLCalcParser::_ceil)(self,arg1)])
 				) >> assert_syntax(ch_p(')'))
 			;
 			
 			binary_func =
 				((str_p("ATAN2") >> '(' >> expression[binary_func.value = arg1] >> ',' >>
-				  expression[binary_func.value = bind(&LLCalcParser::_atan2)(self, binary_func.value, arg1)]) |
+				  expression[binary_func.value = phoenix::bind(&LLCalcParser::_atan2)(self, binary_func.value, arg1)]) |
 				 (str_p("MIN") >> '(' >> expression[binary_func.value = arg1] >> ',' >> 
-				  expression[binary_func.value = bind(&LLCalcParser::_min)(self, binary_func.value, arg1)]) |
+				  expression[binary_func.value = phoenix::bind(&LLCalcParser::_min)(self, binary_func.value, arg1)]) |
 				 (str_p("MAX") >> '(' >> expression[binary_func.value = arg1] >> ',' >> 
-				  expression[binary_func.value = bind(&LLCalcParser::_max)(self, binary_func.value, arg1)])
+				  expression[binary_func.value = phoenix::bind(&LLCalcParser::_max)(self, binary_func.value, arg1)])
 				) >> assert_syntax(ch_p(')'))
 			;
 			
@@ -118,10 +118,10 @@ struct LLCalcParser : grammar<LLCalcParser>
 				 // Lookup throws an Unknown Symbol error if it is unknown, while this works fine,
 				 // would be "neater" to handle symbol lookup from here with an assertive parser.
 //				 constants_p[factor.value = arg1]|
-				 identifier[factor.value = bind(&LLCalcParser::lookup)(self, arg1, arg2)]
+				 identifier[factor.value = phoenix::bind(&LLCalcParser::lookup)(self, arg1, arg2)]
 				) >>
 				// Detect and throw math errors.
-				assert_domain(eps_p(bind(&LLCalcParser::checkNaN)(self, factor.value)))
+				assert_domain(eps_p(phoenix::bind(&LLCalcParser::checkNaN)(self, factor.value)))
 			;
 
 			unary_expr =
@@ -131,14 +131,14 @@ struct LLCalcParser : grammar<LLCalcParser>
 			
 			power =
 				unary_expr[power.value = arg1] >>
-				*('^' >> assert_syntax(unary_expr[power.value = bind(&powf)(power.value, arg1)]))
+				*('^' >> assert_syntax(unary_expr[power.value = phoenix::bind(&powf)(power.value, arg1)]))
 			;
 			
 			term =
 				power[term.value = arg1] >>
 				*(('*' >> assert_syntax(power[term.value *= arg1])) |
 				  ('/' >> assert_syntax(power[term.value /= arg1])) |
-				  ('%' >> assert_syntax(power[term.value = bind(&fmodf)(term.value, arg1)]))
+				  ('%' >> assert_syntax(power[term.value = phoenix::bind(&fmodf)(term.value, arg1)]))
 				)
 			;
 			
