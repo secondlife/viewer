@@ -669,6 +669,7 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 										   const std::string& pname,
 										   inventory_func_type callback)
 {
+	LL_DEBUGS(LOG_INV) << "Create '" << pname << "' in '" << make_inventory_path(parent_id) << "'" << LL_ENDL;
 	LLUUID id;
 	if (!isInventoryUsable())
 	{
@@ -760,6 +761,7 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	cat->packMessage(msg);
 	gAgent.sendReliableMessage();
 
+	LL_INFOS(LOG_INV) << "Created new category '" << make_inventory_path(id) << "'" << LL_ENDL;
 	// return the folder id of the newly created folder
 	return id;
 }
@@ -1348,6 +1350,7 @@ void LLInventoryModel::moveObject(const LLUUID& object_id, const LLUUID& cat_id)
 	LLPointer<LLViewerInventoryCategory> cat = getCategory(object_id);
 	if(cat && (cat->getParentUUID() != cat_id))
 	{
+		LL_DEBUGS(LOG_INV) << "Move category '" << make_path(cat) << "' to '" << make_inventory_path(cat_id) << "'" << LL_ENDL;
 		cat_array_t* cat_array;
 		cat_array = getUnlockedCatArray(cat->getParentUUID());
 		if(cat_array) vector_replace_with_last(*cat_array, cat);
@@ -1360,6 +1363,7 @@ void LLInventoryModel::moveObject(const LLUUID& object_id, const LLUUID& cat_id)
 	LLPointer<LLViewerInventoryItem> item = getItem(object_id);
 	if(item && (item->getParentUUID() != cat_id))
 	{
+		LL_DEBUGS(LOG_INV) << "Move item '" << make_path(item) << "' to '" << make_inventory_path(cat_id) << "'" << LL_ENDL;
 		item_array_t* item_array;
 		item_array = getUnlockedItemArray(item->getParentUUID());
 		if(item_array) vector_replace_with_last(*item_array, item);
@@ -1378,14 +1382,14 @@ void LLInventoryModel::changeItemParent(LLViewerInventoryItem* item,
 {
 	if (item->getParentUUID() == new_parent_id)
 	{
-		LL_DEBUGS(LOG_INV) << "'" << item->getName() << "' (" << item->getUUID()
-						   << ") is already in folder " << new_parent_id << LL_ENDL;
+		LL_DEBUGS(LOG_INV) << make_info(item) << " is already in folder " << make_inventory_info(new_parent_id) << LL_ENDL;
 	}
 	else
 	{
-		LL_INFOS(LOG_INV) << "Moving '" << item->getName() << "' (" << item->getUUID()
-						  << ") from " << item->getParentUUID() << " to folder "
-						  << new_parent_id << LL_ENDL;
+		LL_INFOS(LOG_INV) << "Move item " << make_info(item)
+			<< " from " << make_inventory_info(item->getParentUUID())
+			<< " to " << make_inventory_info(new_parent_id) << LL_ENDL;
+
 		LLInventoryModel::update_list_t update;
 		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
 		update.push_back(old_folder);
@@ -1416,6 +1420,10 @@ void LLInventoryModel::changeCategoryParent(LLViewerInventoryCategory* cat,
 	{
 		return;
 	}
+
+	LL_INFOS(LOG_INV) << "Move category " << make_info(cat)
+		<< " from " << make_inventory_info(cat->getParentUUID())
+		<< " to " << make_inventory_info(new_parent_id) << LL_ENDL;
 
 	LLInventoryModel::update_list_t update;
 	LLInventoryModel::LLCategoryUpdate old_folder(cat->getParentUUID(), -1);
