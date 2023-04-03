@@ -424,7 +424,8 @@ private:
 	bool isNonCacheableObjectCreated(U32 local_id);	
 
 public:
-	void loadCacheMiscExtras(U32 local_id);
+	// returns true if cache has data for that object
+	bool loadCacheMiscExtras(U32 local_id);
 
     void applyCacheMiscExtras(LLViewerObject* obj);
 

@@ -390,7 +390,7 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
                     // can't apply this yet, since failure to change the material override
                     // probably means the base material is still being fetched.  leave in
                     // the queue for later
-                    obj->setDebugText("queued base material fetching");
+                    obj->appendDebugText("queued base material fetching");
                     return;
                 }
 

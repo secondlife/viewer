@@ -4971,13 +4971,14 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
                     LLViewerObject* obj = gObjectList.findObject(id);
                     if (obj)
                     {
-                        obj->appendDebugText("updateTEMaterialTextures completed fetching base");
+                        bool hit = false;
                         LLViewerRegion* region = obj->getRegion();
                         if(region)
                         {
-                            region->loadCacheMiscExtras(obj->getLocalID());
+                            hit = region->loadCacheMiscExtras(obj->getLocalID());
                         }
                         obj->markForUpdate(FALSE);
+                        obj->appendDebugText(STRINGIZE("updateTEMaterialTextures completed fetching base / override cache hit: " << hit));
                     }
                 });
         }
@@ -5366,9 +5367,11 @@ S32 LLViewerObject::setTEMaterialParams(const U8 te, const LLMaterialPtr pMateri
 	}
 
 	retval = LLPrimitive::setTEMaterialParams(te, pMaterialParams);
-	appendDebugText(STRINGIZE(
-        "Changing material params for te " << (S32)te << ", object " << mID << " (" << retval << ")"
-    ));
+	if (te == 0) {
+		appendDebugText(STRINGIZE(
+			"Changing material params for te " << (S32)te << ", object " << mID << " (" << retval << ")"
+		));
+	}
 	setTENormalMap(te, (pMaterialParams) ? pMaterialParams->getNormalID() : LLUUID::null);
 	setTESpecularMap(te, (pMaterialParams) ? pMaterialParams->getSpecularID() : LLUUID::null);
 
@@ -5722,11 +5725,21 @@ void LLViewerObject::appendDebugText(const std::string &utf8text)
         return;
     }
 
+    static std::unordered_map<LLUUID, std::ostringstream> object_log;
+
+    std::ostringstream & out = object_log[mID];
+
     if (!mText)
     {
+        U64 address = U64((void*) this);
+        out << "initHudText(0x" << std::hex << address << std::dec << " id:" << mID.asString().substr(0, 16) << "...)!\n";
         initHudText();
     }
-    mText->addLine(utf8text, LLColor4::white);
+
+    out << utf8text << '\n';
+
+    mText->setColor(LLColor4::white);
+    mText->setString(out.str());
     mText->setZCompare(FALSE);
     mText->setDoFade(FALSE);
     updateText();
@@ -7301,6 +7314,7 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
                 LLViewerObject* obj = gObjectList.findObject(obj_id);
                 if (obj)
                 {
+                    obj->appendDebugText("setRenderMaterialID() (no-vocache) completed fetching base");
                     obj->rebuildMaterial();
                     obj->markForUpdate(FALSE);
                 }

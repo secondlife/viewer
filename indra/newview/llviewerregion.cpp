@@ -1836,17 +1836,18 @@ LLViewerObject* LLViewerRegion::addNewObject(LLVOCacheEntry* entry)
 
 	LLViewerObject* obj = NULL;
 	if(!entry->getEntry()->hasDrawable()) //not added to the rendering pipeline yet
-	{ 
+	{
 		//add the object
 		obj = gObjectList.processObjectUpdateFromCache(entry, this);
 		if(obj)
 		{
+			bool hit = loadCacheMiscExtras(obj->getLocalID());
 			if(!entry->isState(LLVOCacheEntry::ACTIVE))
 			{
 				mImpl->mWaitingSet.insert(entry);
 				entry->setState(LLVOCacheEntry::WAITING);
 			}
-			obj->appendDebugText("addNewObject() loading cache");
+			obj->appendDebugText(STRINGIZE("addNewObject() loading cache.  override cache hit:" << hit));
 		}
 	}
 	else
@@ -1868,7 +1869,9 @@ LLViewerObject* LLViewerRegion::addNewObject(LLVOCacheEntry* entry)
 		addActiveCacheEntry(entry);
 	}
 
-    loadCacheMiscExtras(entry->getLocalID());
+	// TODO - figure out if this is needed.  unify with line 1850 above
+	bool hit = loadCacheMiscExtras(entry->getLocalID());
+	if (obj) { obj->appendDebugText(STRINGIZE("addNewObject() loading cache.  override cache hit:" << hit)); }
 
 	return obj;
 }
@@ -3542,13 +3545,17 @@ std::string LLViewerRegion::getSimHostName()
 	return std::string("...");
 }
 
-void LLViewerRegion::loadCacheMiscExtras(U32 local_id)
+bool LLViewerRegion::loadCacheMiscExtras(U32 local_id)
 {
     auto iter = mImpl->mGLTFOverridesJson.find(local_id);
-    if (iter != mImpl->mGLTFOverridesJson.end())
+
+    bool found = iter != mImpl->mGLTFOverridesJson.end();
+    if (found)
     {
         LLGLTFMaterialList::loadCacheOverrides(iter->second);
     }
+
+    return found;
 }
 
 void LLViewerRegion::applyCacheMiscExtras(LLViewerObject* obj)
