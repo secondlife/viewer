@@ -84,12 +84,14 @@ LLInventoryGallery::LLInventoryGallery(const LLInventoryGallery::Params& p)
       mRowPanWidthFactor(p.row_panel_width_factor),
       mGalleryWidthFactor(p.gallery_width_factor),
       mIsInitialized(false),
-      mSearchType(LLInventoryFilter::SEARCHTYPE_NAME),
-      mSearchLinks(true)
+      mSearchType(LLInventoryFilter::SEARCHTYPE_NAME)
 {
     updateGalleryWidth();
-
+    mFilter = new LLInventoryFilter();
     mCategoriesObserver = new LLInventoryCategoriesObserver();
+
+    mUsername = gAgentUsername;
+    LLStringUtil::toUpper(mUsername);
 }
 
 LLInventoryGallery::Params::Params()
@@ -124,6 +126,7 @@ BOOL LLInventoryGallery::postBuild()
 LLInventoryGallery::~LLInventoryGallery()
 {
     delete mInventoryGalleryMenu;
+    delete mFilter;
 
     while (!mUnusedRowPanels.empty())
     {
@@ -254,20 +257,26 @@ void LLInventoryGallery::draw()
     LLPanel::draw();
     if (mGalleryCreated)
     {
-        updateRowsIfNeeded();
+        if(!updateRowsIfNeeded() && mFilter->isModified())
+        {
+            reArrangeRows();
+        }
     }
 }
 
-void LLInventoryGallery::updateRowsIfNeeded()
+bool LLInventoryGallery::updateRowsIfNeeded()
 {
     if(((getRect().getWidth() - mRowPanelWidth) > mItemWidth) && mRowCount > 1)
     {
         reArrangeRows(1);
+        return true;
     }
     else if((mRowPanelWidth > (getRect().getWidth() + mItemHorizontalGap)) && mItemsInRow > GALLERY_ITEMS_PER_ROW_MIN)
     {
         reArrangeRows(-1);
+        return true;
     }
+    return false;
 }
 
 bool compareGalleryItem(LLInventoryGalleryItem* item1, LLInventoryGalleryItem* item2)
@@ -312,6 +321,7 @@ void LLInventoryGallery::reArrangeRows(S32 row_diff)
         applyFilter(*it, mFilterSubString);
         addToGallery(*it);
     }
+    mFilter->clearModified();
     updateMessageVisibility();
 }
 
@@ -558,20 +568,50 @@ void LLInventoryGallery::moveRowPanel(LLPanel* stack, int left, int bottom)
 void LLInventoryGallery::setFilterSubString(const std::string& string)
 {
     mFilterSubString = string;
-    reArrangeRows();
+    mFilter->setFilterSubString(string);
+    
+    //reArrangeRows();
 }
 
 void LLInventoryGallery::applyFilter(LLInventoryGalleryItem* item, const std::string& filter_substring)
 {
     if (!item) return;
 
-    std::string desc;
-    if(!mSearchLinks && item->isLink())
+    if (item->isFolder() && (mFilter->getShowFolderState() == LLInventoryFilter::SHOW_ALL_FOLDERS))
+    {
+        item->setHidden(false);
+        return;
+    }
+
+    if(item->isLink() && ((mFilter->getSearchVisibilityTypes() & LLInventoryFilter::VISIBILITY_LINKS) == 0) && !filter_substring.empty())
+    {
+        item->setHidden(true);
+        return;
+    }
+    
+    bool hidden = false;
+
+    if(mFilter->getFilterCreatorType() == LLInventoryFilter::FILTERCREATOR_SELF)
+    {
+        hidden = (item->getCreatorName() == mUsername) || item->isFolder();
+    }
+    else if(mFilter->getFilterCreatorType() == LLInventoryFilter::FILTERCREATOR_OTHERS)
+    {
+        hidden = (item->getCreatorName() != mUsername) || item->isFolder();
+    }
+    if(hidden)
     {
         item->setHidden(true);
         return;
     }
 
+    if(!checkAgainstFilterType(item->getUUID()))
+    {
+        item->setHidden(true);
+        return;
+    }
+
+    std::string desc;
     switch(mSearchType)
     {
         case LLInventoryFilter::SEARCHTYPE_CREATOR:
@@ -594,7 +634,7 @@ void LLInventoryGallery::applyFilter(LLInventoryGalleryItem* item, const std::st
     std::string cur_filter = filter_substring;
     LLStringUtil::toUpper(cur_filter);
 
-    bool hidden = (std::string::npos == desc.find(cur_filter));
+    hidden = (std::string::npos == desc.find(cur_filter));
     item->setHidden(hidden);
 }
 
@@ -607,15 +647,6 @@ void LLInventoryGallery::setSearchType(LLInventoryFilter::ESearchType type)
         {
             reArrangeRows();
         }
-    }
-}
-
-void LLInventoryGallery::toggleSearchLinks()
-{
-    mSearchLinks = !mSearchLinks;
-    if(!mFilterSubString.empty())
-    {
-        reArrangeRows();
     }
 }
 
@@ -777,7 +808,13 @@ void LLInventoryGallery::onChangeItemSelection(const LLUUID& category_id)
 
 void LLInventoryGallery::updateMessageVisibility()
 {
+
     mMessageTextBox->setVisible(mItems.empty());
+    if(mItems.empty())
+    {
+        mMessageTextBox->setText(hasDescendents(mFolderID) ? LLTrans::getString("InventorySingleFolderEmpty") : LLTrans::getString("InventorySingleFolderNoMatches"));
+    }
+
     mScrollPanel->setVisible(!mItems.empty());
 }
 
@@ -1001,6 +1038,87 @@ BOOL LLInventoryGallery::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
     return handled;
 }
 
+bool LLInventoryGallery::hasDescendents(const LLUUID& cat_id)
+{
+    LLInventoryModel::cat_array_t* cats;
+    LLInventoryModel::item_array_t* items;
+    gInventory.getDirectDescendentsOf(cat_id, cats, items);
+
+    return (cats->empty() && items->empty());
+}
+
+bool LLInventoryGallery::checkAgainstFilterType(const LLUUID& object_id)
+{
+    const LLInventoryObject *object = gInventory.getObject(object_id);
+    if(!object) return false;
+
+    LLInventoryType::EType object_type = LLInventoryType::IT_CATEGORY;
+    LLInventoryItem* inv_item = gInventory.getItem(object_id);
+    if (inv_item)
+    {
+        object_type = inv_item->getInventoryType();
+    }
+    const U32 filterTypes = mFilter->getFilterTypes();
+
+    if ((filterTypes & LLInventoryFilter::FILTERTYPE_OBJECT) && inv_item)
+    {
+        switch (object_type)
+        {
+        case LLInventoryType::IT_NONE:
+            // If it has no type, pass it, unless it's a link.
+            if (object && object->getIsLinkType())
+            {
+                return false;
+            }
+            break;
+        case LLInventoryType::IT_UNKNOWN:
+            {
+                // Unknows are only shown when we show every type.
+                // Unknows are 255 and won't fit in 64 bits.
+                if (mFilter->getFilterObjectTypes() != 0xffffffffffffffffULL)
+                {
+                    return false;
+                }
+                break;
+            }
+        default:
+            if ((1LL << object_type & mFilter->getFilterObjectTypes()) == U64(0))
+            {
+                return false;
+            }
+            break;
+        }
+    }
+    
+    if (filterTypes & LLInventoryFilter::FILTERTYPE_DATE)
+    {
+        const U16 HOURS_TO_SECONDS = 3600;
+        time_t earliest = time_corrected() - mFilter->getHoursAgo() * HOURS_TO_SECONDS;
+
+        if (mFilter->getMinDate() > time_min() && mFilter->getMinDate() < earliest)
+        {
+            earliest = mFilter->getMinDate();
+        }
+        else if (!mFilter->getHoursAgo())
+        {
+            earliest = 0;
+        }
+
+        if (LLInventoryFilter::FILTERDATEDIRECTION_NEWER == mFilter->getDateSearchDirection() || mFilter->isSinceLogoff())
+        {
+            if (object->getCreationDate() < earliest ||
+                object->getCreationDate() > mFilter->getMaxDate())
+                return false;
+        }
+        else
+        {
+            if (object->getCreationDate() > earliest ||
+                object->getCreationDate() > mFilter->getMaxDate())
+                return false;
+        }
+    }
+    return true;
+}
 //-----------------------------
 // LLInventoryGalleryItem
 //-----------------------------

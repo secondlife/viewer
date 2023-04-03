@@ -506,7 +506,7 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
 void LLPanelMainInventory::resetFilters()
 {
 	LLFloaterInventoryFinder *finder = getFinder();
-	getActivePanel()->getFilter().resetDefault();
+	getCurrentFilter().resetDefault();
 	if (finder)
 	{
 		finder->updateElementsFromFilter();
@@ -802,7 +802,7 @@ void LLPanelMainInventory::onFilterSelected()
 	}
 	updateSearchTypeCombo();
 	setFilterSubString(mFilterSubString);
-	LLInventoryFilter& filter = mActivePanel->getFilter();
+	LLInventoryFilter& filter = getCurrentFilter();
 	LLFloaterInventoryFinder *finder = getFinder();
 	if (finder)
 	{
@@ -956,7 +956,7 @@ void LLPanelMainInventory::onFocusReceived()
 
 void LLPanelMainInventory::setFilterTextFromFilter() 
 { 
-	mFilterText = mActivePanel->getFilter().getFilterText(); 
+	mFilterText = getCurrentFilter().getFilterText();
 }
 
 void LLPanelMainInventory::toggleFindOptions()
@@ -1210,10 +1210,21 @@ void LLFloaterInventoryFinder::draw()
 		filter &= ~(0x1 << LLInventoryType::IT_CATEGORY);
 	}
 
-	// update the panel, panel will update the filter
-	mPanelMainInventory->getPanel()->setShowFolderState(getCheckShowEmpty() ?
-		LLInventoryFilter::SHOW_ALL_FOLDERS : LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	mPanelMainInventory->getPanel()->setFilterTypes(filter);
+
+    bool is_gallery = mPanelMainInventory->isSingleFolderMode() && mPanelMainInventory->isGalleryViewMode();
+    if(is_gallery)
+    {
+        mPanelMainInventory->mInventoryGalleryPanel->getFilter().setShowFolderState(getCheckShowEmpty() ?
+            LLInventoryFilter::SHOW_ALL_FOLDERS : LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
+        mPanelMainInventory->mInventoryGalleryPanel->getFilter().setFilterObjectTypes(filter);
+    }
+    else
+    {
+        // update the panel, panel will update the filter
+        mPanelMainInventory->getPanel()->setShowFolderState(getCheckShowEmpty() ?
+            LLInventoryFilter::SHOW_ALL_FOLDERS : LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
+        mPanelMainInventory->getPanel()->setFilterTypes(filter);
+    }
 
 	if (getCheckSinceLogoff())
 	{
@@ -1235,10 +1246,20 @@ void LLFloaterInventoryFinder::draw()
 	}
 	hours += days * 24;
 
-	mPanelMainInventory->getPanel()->setHoursAgo(hours);
-	mPanelMainInventory->getPanel()->setSinceLogoff(getCheckSinceLogoff());
+
 	mPanelMainInventory->setFilterTextFromFilter();
-	mPanelMainInventory->getPanel()->setDateSearchDirection(getDateSearchDirection());
+    if(is_gallery)
+    {
+        mPanelMainInventory->mInventoryGalleryPanel->getFilter().setHoursAgo(hours);
+        mPanelMainInventory->mInventoryGalleryPanel->getFilter().setDateRangeLastLogoff(getCheckSinceLogoff());
+        mPanelMainInventory->mInventoryGalleryPanel->getFilter().setDateSearchDirection(getDateSearchDirection());
+    }
+    else
+    {
+        mPanelMainInventory->getPanel()->setHoursAgo(hours);
+        mPanelMainInventory->getPanel()->setSinceLogoff(getCheckSinceLogoff());
+        mPanelMainInventory->getPanel()->setDateSearchDirection(getDateSearchDirection());
+    }
 
 	LLPanel::draw();
 }
@@ -1250,15 +1271,15 @@ void LLFloaterInventoryFinder::onCreatorSelfFilterCommit()
 
 	if(show_creator_self && show_creator_other)
 	{
-		mFilter->setFilterCreator(LLInventoryFilter::FILTERCREATOR_ALL);
+        mPanelMainInventory->getCurrentFilter().setFilterCreator(LLInventoryFilter::FILTERCREATOR_ALL);
 	}
 	else if(show_creator_self)
 	{
-		mFilter->setFilterCreator(LLInventoryFilter::FILTERCREATOR_SELF);
+        mPanelMainInventory->getCurrentFilter().setFilterCreator(LLInventoryFilter::FILTERCREATOR_SELF);
 	}
 	else if(!show_creator_self || !show_creator_other)
 	{
-		mFilter->setFilterCreator(LLInventoryFilter::FILTERCREATOR_OTHERS);
+        mPanelMainInventory->getCurrentFilter().setFilterCreator(LLInventoryFilter::FILTERCREATOR_OTHERS);
 		mCreatorOthers->set(TRUE);
 	}
 }
@@ -1270,15 +1291,15 @@ void LLFloaterInventoryFinder::onCreatorOtherFilterCommit()
 
 	if(show_creator_self && show_creator_other)
 	{
-		mFilter->setFilterCreator(LLInventoryFilter::FILTERCREATOR_ALL);
+        mPanelMainInventory->getCurrentFilter().setFilterCreator(LLInventoryFilter::FILTERCREATOR_ALL);
 	}
 	else if(show_creator_other)
 	{
-		mFilter->setFilterCreator(LLInventoryFilter::FILTERCREATOR_OTHERS);
+        mPanelMainInventory->getCurrentFilter().setFilterCreator(LLInventoryFilter::FILTERCREATOR_OTHERS);
 	}
 	else if(!show_creator_other || !show_creator_self)
 	{
-		mFilter->setFilterCreator(LLInventoryFilter::FILTERCREATOR_SELF);
+        mPanelMainInventory->getCurrentFilter().setFilterCreator(LLInventoryFilter::FILTERCREATOR_SELF);
 		mCreatorSelf->set(TRUE);
 	}
 }
@@ -1763,29 +1784,22 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 
     if (command_name == "toggle_search_outfits")
     {
-        mActivePanel->getFilter().toggleSearchVisibilityOutfits();
+        getCurrentFilter().toggleSearchVisibilityOutfits();
     }
 
 	if (command_name == "toggle_search_trash")
 	{
-		mActivePanel->getFilter().toggleSearchVisibilityTrash();
+        getCurrentFilter().toggleSearchVisibilityTrash();
 	}
 
 	if (command_name == "toggle_search_library")
 	{
-		mActivePanel->getFilter().toggleSearchVisibilityLibrary();
+        getCurrentFilter().toggleSearchVisibilityLibrary();
 	}
 
 	if (command_name == "include_links")
 	{
-        if(mSingleFolderMode && isGalleryViewMode())
-        {
-            mInventoryGalleryPanel->toggleSearchLinks();
-        }
-        else
-        {
-            mActivePanel->getFilter().toggleSearchVisibilityLinks();
-        }
+        getCurrentFilter().toggleSearchVisibilityLinks();
 	}
 
     if (command_name == "share")
@@ -2000,29 +2014,22 @@ BOOL LLPanelMainInventory::isActionChecked(const LLSD& userdata)
 
     if (command_name == "toggle_search_outfits")
     {
-        return (mActivePanel->getFilter().getSearchVisibilityTypes() & LLInventoryFilter::VISIBILITY_OUTFITS) != 0;
+        return (getCurrentFilter().getSearchVisibilityTypes() & LLInventoryFilter::VISIBILITY_OUTFITS) != 0;
     }
 
 	if (command_name == "toggle_search_trash")
 	{
-		return (mActivePanel->getFilter().getSearchVisibilityTypes() & LLInventoryFilter::VISIBILITY_TRASH) != 0;
+		return (getCurrentFilter().getSearchVisibilityTypes() & LLInventoryFilter::VISIBILITY_TRASH) != 0;
 	}
 
 	if (command_name == "toggle_search_library")
 	{
-		return (mActivePanel->getFilter().getSearchVisibilityTypes() & LLInventoryFilter::VISIBILITY_LIBRARY) != 0;
+		return (getCurrentFilter().getSearchVisibilityTypes() & LLInventoryFilter::VISIBILITY_LIBRARY) != 0;
 	}
 
 	if (command_name == "include_links")
 	{
-        if(mSingleFolderMode && isGalleryViewMode())
-        {
-            return mInventoryGalleryPanel->getSearchLinks();
-        }
-        else
-        {
-            return (mActivePanel->getFilter().getSearchVisibilityTypes() & LLInventoryFilter::VISIBILITY_LINKS) != 0;
-        }
+        return (getCurrentFilter().getSearchVisibilityTypes() & LLInventoryFilter::VISIBILITY_LINKS) != 0;
 	}	
 
     if (command_name == "list_view")
@@ -2135,6 +2142,7 @@ void LLPanelMainInventory::setViewMode(EViewModeType mode)
         }
         updateNavButtons();
 
+        onFilterSelected();
         if((isListViewMode() && (mActivePanel->getFilterSubString() != mFilterSubString)) ||
            (isGalleryViewMode() && (mInventoryGalleryPanel->getFilterSubString() != mFilterSubString)))
         {
@@ -2159,6 +2167,18 @@ LLUUID LLPanelMainInventory::getCurrentSFVRoot()
         return mInventoryGalleryPanel->getRootFolder();
     }
     return LLUUID::null;
+}
+
+LLInventoryFilter& LLPanelMainInventory::getCurrentFilter()
+{
+    if(mSingleFolderMode && isGalleryViewMode())
+    {
+        return mInventoryGalleryPanel->getFilter();
+    }
+    else
+    {
+        return mActivePanel->getFilter();
+    }
 }
 // List Commands                                                              //
 ////////////////////////////////////////////////////////////////////////////////

@@ -127,6 +127,8 @@ public:
     LLUUID getCurrentSFVRoot();
     std::string getLocalizedRootName();
 
+    LLInventoryFilter& getCurrentFilter();
+
 protected:
 	//
 	// Misc functions

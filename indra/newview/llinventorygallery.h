@@ -75,6 +75,8 @@ public:
 
     void setFilterSubString(const std::string& string);
     std::string getFilterSubString() { return mFilterSubString; }
+    LLInventoryFilter& getFilter() const { return *mFilter; }
+    bool checkAgainstFilterType(const LLUUID& object_id);
 
     void getCurrentCategories(uuid_vec_t& vcur);
     void updateAddedItem(LLUUID item_id);
@@ -114,8 +116,8 @@ public:
 
     void setSearchType(LLInventoryFilter::ESearchType type);
     LLInventoryFilter::ESearchType getSearchType() { return mSearchType; }
-    void toggleSearchLinks();
-    bool getSearchLinks(){ return mSearchLinks; }
+
+    bool hasDescendents(const LLUUID& cat_id);
 
 protected:
 
@@ -146,7 +148,7 @@ private:
     LLPanel* addToRow(LLPanel* row_stack, LLInventoryGalleryItem* item, int pos, int hgap);
     void removeFromLastRow(LLInventoryGalleryItem* item);
     void reArrangeRows(S32 row_diff = 0);
-    void updateRowsIfNeeded();
+    bool updateRowsIfNeeded();
     void updateGalleryWidth();
 
     LLInventoryGalleryItem* buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id, LLInventoryType::EType inventory_type, U32 flags, bool is_link, bool is_worn);
@@ -186,6 +188,7 @@ private:
 
     LLInventoryGalleryContextMenu* mInventoryGalleryMenu;
     std::string mFilterSubString;
+    LLInventoryFilter* mFilter;
 
     typedef std::map<LLUUID, LLInventoryGalleryItem*> gallery_item_map_t;
     gallery_item_map_t mItemMap;
@@ -193,7 +196,7 @@ private:
     std::map<LLInventoryGalleryItem*, S32> mItemIndexMap;
 
     LLInventoryFilter::ESearchType mSearchType;
-    bool mSearchLinks;
+    std::string mUsername;
 };
 
 class LLInventoryGalleryItem : public LLPanel
