@@ -91,17 +91,18 @@ void LLViewerAudio::startInternetStreamWithAutoFade(const std::string &streamURI
 		return;
 	}
 
-	// Record the URI we are going to be switching to	
+	if (!gAudiop)
+	{
+		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
+		return;
+	}
+
+	// Record the URI we are going to be switching to
 	mNextStreamURI = streamURI;
 
 	switch (mFadeState)
 	{
 	case FADE_IDLE:
-		if (!gAudiop)
-		{
-			LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
-			break;
-		}
 		// If a stream is playing fade it out first
 		if (!gAudiop->getInternetStreamURL().empty())
 		{
@@ -114,28 +115,28 @@ void LLViewerAudio::startInternetStreamWithAutoFade(const std::string &streamURI
 			mFadeState = FADE_IN;
 
 			LLStreamingAudioInterface *stream = gAudiop->getStreamingAudioImpl();
-			if(stream && stream->supportsAdjustableBufferSizes())
-				stream->setBufferSizes(gSavedSettings.getU32("FMODExStreamBufferSize"),gSavedSettings.getU32("FMODExDecodeBufferSize"));
+			if (stream && stream->supportsAdjustableBufferSizes())
+				stream->setBufferSizes(gSavedSettings.getU32("FMODExStreamBufferSize"), gSavedSettings.getU32("FMODExDecodeBufferSize"));
 
 			gAudiop->startInternetStream(mNextStreamURI);
-			startFading();
-			registerIdleListener();
-			break;
 		}
+
+		startFading();
+		break;
 
 	case FADE_OUT:
 		startFading();
-		registerIdleListener();
 		break;
 
 	case FADE_IN:
-		registerIdleListener();
 		break;
 
 	default:
 		LL_WARNS() << "Unknown fading state: " << mFadeState << LL_ENDL;
-		break;
+		return;
 	}
+
+	registerIdleListener();
 }
 
 // A return of false from onIdleUpdate means it will be called again next idle update.
@@ -236,15 +237,12 @@ void LLViewerAudio::startFading()
 	// This minimum fade time prevents divide by zero and negative times
 	const F32 AUDIO_MUSIC_MINIMUM_FADE_TIME = 0.01f;
 
-	if(mDone)
+	if (mDone)
 	{
 		// The fade state here should only be one of FADE_IN or FADE_OUT, but, in case it is not,
 		// rather than check for both states assume a fade in and check for the fade out case.
-		mFadeTime = AUDIO_MUSIC_FADE_IN_TIME;
-		if (LLViewerAudio::getInstance()->getFadeState() == LLViewerAudio::FADE_OUT)
-		{
-			mFadeTime = AUDIO_MUSIC_FADE_OUT_TIME;
-		}
+		mFadeTime = LLViewerAudio::getInstance()->getFadeState() == LLViewerAudio::FADE_OUT ?
+			AUDIO_MUSIC_FADE_OUT_TIME : AUDIO_MUSIC_FADE_IN_TIME;
 
 		// Prevent invalid fade time
 		mFadeTime = llmax(mFadeTime, AUDIO_MUSIC_MINIMUM_FADE_TIME);
