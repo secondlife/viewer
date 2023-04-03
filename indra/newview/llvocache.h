@@ -32,6 +32,7 @@
 #include "lldir.h"
 #include "llvieweroctree.h"
 #include "llapr.h"
+#include "llgltfmaterial.h"
 
 #include <unordered_map>
 
@@ -46,9 +47,10 @@ public:
     LLSD toLLSD() const;
 
     LLUUID mObjectId;
-    std::map<S32, std::string> mSides; //json per side
-    U64 mRegionHandle;
-    bool mHasRegionHandle;
+    U32    mLocalId = 0;
+    std::unordered_map<S32, std::string> mSides; //json per side
+    std::unordered_map<S32, LLPointer<LLGLTFMaterial> > mGLTFMaterial; //GLTF material per side
+    U64 mRegionHandle = 0;
 };
 
 class LLVOCacheEntry 

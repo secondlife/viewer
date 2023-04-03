@@ -200,7 +200,7 @@ public:
 
     // GLTF override
     LLGLTFMaterial* getGLTFMaterialOverride() const { return mGLTFMaterialOverrides; }
-    void setGLTFMaterialOverride(LLGLTFMaterial* mat);
+    S32 setGLTFMaterialOverride(LLGLTFMaterial* mat);
     // Clear most overrides so the render material better matches the material
     // ID (preserve transforms). If the overrides become passthrough, set the
     // overrides to nullptr.

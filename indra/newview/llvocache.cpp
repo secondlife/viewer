@@ -57,9 +57,14 @@ BOOL check_write(LLAPRFile* apr_file, void* src, S32 n_bytes)
 
 bool LLGLTFOverrideCacheEntry::fromLLSD(const LLSD& data)
 {
-    if (!data.has("object_id"))
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
+    
+    llassert(data.has("local_id"));
+    llassert(data.has("object_id"));
+    llassert(data.has("region_handle_x") && data.has("region_handle_y"));
+
+    if (!data.has("local_id"))
     {
-        mObjectId.setNull();
         return false;
     }
 
@@ -69,13 +74,13 @@ bool LLGLTFOverrideCacheEntry::fromLLSD(const LLSD& data)
         U32 region_handle_y = data["region_handle_y"].asInteger();
         U32 region_handle_x = data["region_handle_x"].asInteger();
         mRegionHandle = to_region_handle(region_handle_x, region_handle_y);
-        mHasRegionHandle = true;
     }
     else
     {
-        mHasRegionHandle = false;
+        return false;
     }
 
+    mLocalId = data["local_id"].asInteger();
     mObjectId = data["object_id"];
 
     // message should be interpreted thusly:
@@ -94,7 +99,26 @@ bool LLGLTFOverrideCacheEntry::fromLLSD(const LLSD& data)
             for (int i = 0; i < sides.size(); ++i)
             {
                 S32 side_idx = sides[i].asInteger();
-                mSides[side_idx] = gltf_json[i].asString();
+                std::string gltf_json_str = gltf_json[i].asString();
+                mSides[side_idx] = gltf_json_str;
+                LLGLTFMaterial* override_mat = new LLGLTFMaterial();
+                std::string error, warn;
+                if (override_mat->fromJSON(gltf_json_str, warn, error))
+                {
+                    mGLTFMaterial[i] = override_mat;
+                }
+                else
+                {
+                    LL_WARNS() << "Invalid GLTF string: \n" << gltf_json_str << LL_ENDL;
+                    if (!error.empty())
+                    {
+                        LL_WARNS() << "Error: " << error << LL_ENDL;
+                    }
+                    if (!warn.empty())
+                    {
+                        LL_WARNS() << "Warning: " << warn << LL_ENDL;
+                    }
+                }
             }
         }
         else
@@ -107,16 +131,15 @@ bool LLGLTFOverrideCacheEntry::fromLLSD(const LLSD& data)
 
 LLSD LLGLTFOverrideCacheEntry::toLLSD() const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     LLSD data;
-    if (mHasRegionHandle)
-    {
-        U32 region_handle_x, region_handle_y;
-        from_region_handle(mRegionHandle, &region_handle_x, &region_handle_y);
-        data["region_handle_y"] = LLSD::Integer(region_handle_y);
-        data["region_handle_x"] = LLSD::Integer(region_handle_x);
-    }
+    U32 region_handle_x, region_handle_y;
+    from_region_handle(mRegionHandle, &region_handle_x, &region_handle_y);
+    data["region_handle_y"] = LLSD::Integer(region_handle_y);
+    data["region_handle_x"] = LLSD::Integer(region_handle_x);
 
     data["object_id"] = mObjectId;
+    data["local_id"] = (LLSD::Integer) mLocalId;
 
     for (auto const & side : mSides)
     {

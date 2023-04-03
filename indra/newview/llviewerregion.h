@@ -426,6 +426,8 @@ private:
 public:
 	void loadCacheMiscExtras(U32 local_id);
 
+    void applyCacheMiscExtras(LLViewerObject* obj);
+
 	struct CompareDistance
 	{
 		bool operator()(const LLViewerRegion* const& lhs, const LLViewerRegion* const& rhs)

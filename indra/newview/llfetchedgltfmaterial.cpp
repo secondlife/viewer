@@ -89,7 +89,7 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
 
     if (!LLPipeline::sShadowRender)
     {
-        if (mNormalTexture.notNull())
+        if (mNormalTexture.notNull() && mNormalTexture->getDiscardLevel() <= 4)
         {
             shader->bindTexture(LLShaderMgr::BUMP_MAP, mNormalTexture);
         }

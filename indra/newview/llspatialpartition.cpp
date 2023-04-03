@@ -1375,7 +1375,7 @@ S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* result
 		selecter.traverse(mOctree);
 	
 	return 0;
-	}
+}
 
 extern BOOL gCubeSnapshot;
 
@@ -1540,6 +1540,7 @@ void pushVertsColorCoded(LLSpatialGroup* group)
 //  - a linked rigged drawable face has the wrong draw order index
 bool check_rigged_group(LLDrawable* drawable)
 {
+#if 0
     if (drawable->isState(LLDrawable::RIGGED))
     {
         LLSpatialGroup* group = drawable->getSpatialGroup();
@@ -1587,7 +1588,7 @@ bool check_rigged_group(LLDrawable* drawable)
             }
         }
     }
-
+#endif
     return true;
 }
 
