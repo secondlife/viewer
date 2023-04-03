@@ -66,6 +66,8 @@ public:
         S32 serial_num,
         void* user_data) override;
 
+    static bool validateAsset(const LLUUID &asset_id);
+
 private:
 
     LLInventoryObject* getInventoryObject();
@@ -80,8 +82,7 @@ private:
     static void onRemove(void*);
     static void onRemovalConfirmation(const LLSD& notification, const LLSD& response, LLHandle<LLFloater> handle);
 
-    void assignAndValidateAsset(const LLUUID &asset_id);
-    static bool validateAsset(const LLUUID &asset_id);
+    void assignAndValidateAsset(const LLUUID &asset_id, bool silent = false);
     static void onImageLoaded(BOOL success,
         LLViewerFetchedTexture *src_vi,
         LLImageRaw* src,
@@ -113,6 +114,7 @@ private:
     EToolTipState mTooltipState;
     LLUUID mItemId;
     LLUUID mTaskId;
+    LLUUID mExpectingAssetId;
 
     LLIconCtrl *mItemTypeIcon;
     LLUICtrl *mItemNameText;
