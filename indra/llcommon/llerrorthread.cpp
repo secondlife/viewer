@@ -108,11 +108,9 @@ void LLErrorThread::run()
 	// application state as APP_STATUS_ERROR.
 	LL_INFOS() << "thread_error - Waiting for an error" << LL_ENDL;
 
-	S32 counter = 0;
 	while (! (LLApp::isError() || LLApp::isStopped()))
 	{
 		ms_sleep(10);
-		counter++;
 	}
 	if (LLApp::isError())
 	{
