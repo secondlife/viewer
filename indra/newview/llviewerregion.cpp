@@ -2651,20 +2651,8 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObjec
 
 void LLViewerRegion::cacheFullUpdateGLTFOverride(const LLGLTFOverrideCacheEntry &override_data)
 {
-    LLUUID object_id = override_data.mObjectId;
-    LLViewerObject * obj = gObjectList.findObject(object_id);
-    if (obj != nullptr)
-    {
-        llassert(obj->getRegion() == this);
-
-        U32 local_id = obj->getLocalID();
-
-        mImpl->mGLTFOverridesJson[local_id] = override_data;
-    }
-    else
-    {
-        LL_WARNS("GLTF") << "got material override for unknown object_id, cannot cache it" << LL_ENDL;
-    }
+    U32 object_id = override_data.mLocalId;
+    mImpl->mGLTFOverridesJson[object_id] = override_data;
 }
 
 LLVOCacheEntry* LLViewerRegion::getCacheEntryForOctree(U32 local_id)
@@ -3560,3 +3548,22 @@ void LLViewerRegion::loadCacheMiscExtras(U32 local_id)
         LLGLTFMaterialList::loadCacheOverrides(iter->second);
     }
 }
+
+void LLViewerRegion::applyCacheMiscExtras(LLViewerObject* obj)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+    llassert(obj);
+
+    U32 local_id = obj->getLocalID();
+    auto iter = mImpl->mGLTFOverridesJson.find(local_id);
+    if (iter != mImpl->mGLTFOverridesJson.end())
+    {
+        llassert(iter->second.mGLTFMaterial.size() == iter->second.mSides.size());
+
+        for (auto& side : iter->second.mGLTFMaterial)
+        {
+            obj->setTEGLTFMaterialOverride(side.first, side.second);
+        }
+    }
+}
+

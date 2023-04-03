@@ -192,14 +192,7 @@ public:
         {
             LL_DEBUGS("GLTF") << "material overrides cache" << LL_ENDL;
 
-            // default to main region if message doesn't specify
-            LLViewerRegion * region = gAgent.getRegion();;
-
-            if (object_override.mHasRegionHandle)
-            {
-                // TODO start requiring this once server sends this for all messages
-                region = LLWorld::instance().getRegionFromHandle(object_override.mRegionHandle);
-            }
+            LLViewerRegion * region = LLWorld::instance().getRegionFromHandle(object_override.mRegionHandle);
 
             if (region)
             {
@@ -248,8 +241,8 @@ public:
             {
                 results.reserve(object_override.mSides.size());
                 // parse json
-                std::map<S32, std::string>::const_iterator iter = object_override.mSides.begin();
-                std::map<S32, std::string>::const_iterator end = object_override.mSides.end();
+                std::unordered_map<S32, std::string>::const_iterator iter = object_override.mSides.begin();
+                std::unordered_map<S32, std::string>::const_iterator end = object_override.mSides.end();
                 while (iter != end)
                 {
                     LLPointer<LLGLTFMaterial> override_data = new LLGLTFMaterial();
@@ -278,7 +271,6 @@ public:
         },
             [object_override, this](std::vector<ReturnData> results) // Callback to main thread
             {
-
             LLViewerObject * obj = gObjectList.findObject(object_override.mObjectId);
 
             if (results.size() > 0 )
@@ -292,23 +284,16 @@ public:
                         // flag this side to not be nulled out later
                         side_set.insert(results[i].mSide);
 
-                        if (!obj || !obj->setTEGLTFMaterialOverride(results[i].mSide, results[i].mMaterial))
+                        if (obj)
                         {
-                            // object not ready to receive override data, queue for later
-                            gGLTFMaterialList.queueOverrideUpdate(object_override.mObjectId, results[i].mSide, results[i].mMaterial);
-                        }
-                        else if (obj && obj->getTE(results[i].mSide) && obj->getTE(results[i].mSide)->isSelected())
-                        {
-                            doSelectionCallbacks(object_override.mObjectId, results[i].mSide);
+                            obj->setTEGLTFMaterialOverride(results[i].mSide, results[i].mMaterial);
                         }
                     }
-                    else
+                    
+                    // unblock material editor
+                    if (obj && obj->getTE(results[i].mSide) && obj->getTE(results[i].mSide)->isSelected())
                     {
-                        // unblock material editor
-                        if (obj && obj->getTE(results[i].mSide) && obj->getTE(results[i].mSide)->isSelected())
-                        {
-                            doSelectionCallbacks(object_override.mObjectId, results[i].mSide);
-                        }
+                        doSelectionCallbacks(object_override.mObjectId, results[i].mSide);
                     }
                 }
 
@@ -353,6 +338,7 @@ namespace
 
 void LLGLTFMaterialList::queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFMaterial* override_data)
 {
+#if 0
     override_list_t& overrides = mQueuedOverrides[id];
     
     if (overrides.size() < side + 1)
@@ -361,6 +347,7 @@ void LLGLTFMaterialList::queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFM
     }
 
     overrides[side] = override_data;
+#endif
 }
 
 void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
@@ -368,6 +355,8 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
     LL_PROFILE_ZONE_SCOPED;
 
     llassert(obj);
+
+#if 0
     const LLUUID& id = obj->getID();
     auto iter = mQueuedOverrides.find(id);
 
@@ -410,6 +399,14 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
 
         mQueuedOverrides.erase(iter);
     }
+#else
+    // the override cache is the authoritarian source of the most recent override data
+    LLViewerRegion* regionp = obj->getRegion();
+    if (regionp)
+    {
+        regionp->applyCacheMiscExtras(obj);
+    }
+#endif
 }
 
 void LLGLTFMaterialList::queueModify(const LLViewerObject* obj, S32 side, const LLGLTFMaterial* mat)

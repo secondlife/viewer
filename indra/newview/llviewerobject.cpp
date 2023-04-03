@@ -5399,19 +5399,22 @@ S32 LLViewerObject::setTEGLTFMaterialOverride(U8 te, LLGLTFMaterial* override_ma
         return retval;
     }
 
-    tep->setGLTFMaterialOverride(override_mat);
+    retval = tep->setGLTFMaterialOverride(override_mat);
 
-    if (override_mat)
+    if (retval)
     {
-        LLFetchedGLTFMaterial* render_mat = new LLFetchedGLTFMaterial(*src_mat);
-        render_mat->applyOverride(*override_mat);
-        tep->setGLTFRenderMaterial(render_mat);
-        retval = TEM_CHANGE_TEXTURE;
+        if (override_mat)
+        {
+            LLFetchedGLTFMaterial* render_mat = new LLFetchedGLTFMaterial(*src_mat);
+            render_mat->applyOverride(*override_mat);
+            tep->setGLTFRenderMaterial(render_mat);
+            retval = TEM_CHANGE_TEXTURE;
 
-    }
-    else if (tep->setGLTFRenderMaterial(nullptr))
-    {
-        retval = TEM_CHANGE_TEXTURE;
+        }
+        else if (tep->setGLTFRenderMaterial(nullptr))
+        {
+            retval = TEM_CHANGE_TEXTURE;
+        }
     }
 
     return retval;
