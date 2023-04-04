@@ -89,6 +89,8 @@ LLInventoryGallery::LLInventoryGallery(const LLInventoryGallery::Params& p)
     updateGalleryWidth();
     mFilter = new LLInventoryFilter();
     mCategoriesObserver = new LLInventoryCategoriesObserver();
+    mThumbnailsObserver = new LLThumbnailsObserver();
+    gInventory.addObserver(mThumbnailsObserver);
 
     mUsername = gAgentUsername;
     LLStringUtil::toUpper(mUsername);
@@ -146,6 +148,12 @@ LLInventoryGallery::~LLInventoryGallery()
         gInventory.removeObserver(mCategoriesObserver);
     }
     delete mCategoriesObserver;
+
+    if (gInventory.containsObserver(mThumbnailsObserver))
+    {
+        gInventory.removeObserver(mThumbnailsObserver);
+    }
+    delete mThumbnailsObserver;
 }
 
 void LLInventoryGallery::setRootFolder(const LLUUID cat_id)
@@ -702,13 +710,8 @@ void LLInventoryGallery::updateAddedItem(LLUUID item_id)
         addToGallery(item);
     }
 
-    if (mCategoriesObserver == NULL)
-    {
-        mCategoriesObserver = new LLInventoryCategoriesObserver();
-        gInventory.addObserver(mCategoriesObserver);
-    }
-    mCategoriesObserver->addCategory(item_id,
-        boost::bind(&LLInventoryGallery::updateItemThumbnail, this, item_id), true);
+    mThumbnailsObserver->addItem(item_id,
+        boost::bind(&LLInventoryGallery::updateItemThumbnail, this, item_id));
 }
 
 void LLInventoryGallery::updateRemovedItem(LLUUID item_id)
@@ -716,7 +719,7 @@ void LLInventoryGallery::updateRemovedItem(LLUUID item_id)
     gallery_item_map_t::iterator item_iter = mItemMap.find(item_id);
     if (item_iter != mItemMap.end())
     {
-        mCategoriesObserver->removeCategory(item_id);
+        mThumbnailsObserver->removeItem(item_id);
 
         LLInventoryGalleryItem* item = item_iter->second;
 
@@ -978,7 +981,7 @@ LLUUID LLInventoryGallery::getOutfitImageID(LLUUID outfit_id)
     return thumbnail_id;
 }
 
-boost::signals2::connection LLInventoryGallery::setRootChangedCallback(root_changed_callback_t cb)
+boost::signals2::connection LLInventoryGallery::setRootChangedCallback(callback_t cb)
 {
     return mRootChangedSignal.connect(cb);
 }
@@ -1338,6 +1341,61 @@ LLFontGL* LLInventoryGalleryItem::getTextFont()
         return LLFontGL::getFontSansSerifSmallBold();
     }
     return mIsLink ? LLFontGL::getFontSansSerifSmallItalic() : LLFontGL::getFontSansSerifSmall();
+}
+
+//-----------------------------
+// LLThumbnailsObserver
+//-----------------------------
+
+void LLThumbnailsObserver::changed(U32 mask)
+{
+    if (!mItemMap.size())
+        return;
+    std::vector<LLUUID> deleted_ids;
+
+    for (item_map_t::iterator iter = mItemMap.begin();
+         iter != mItemMap.end();
+         ++iter)
+    {
+        const LLUUID& obj_id = (*iter).first;
+        LLItemData& data = (*iter).second;
+        
+        LLInventoryObject* obj = gInventory.getObject(obj_id);
+        if (!obj)
+        {
+            deleted_ids.push_back(obj_id);
+            continue;
+        }
+
+        const LLUUID thumbnail_id = obj->getThumbnailUUID();
+        if (data.mThumbnailID != thumbnail_id)
+        {
+            data.mThumbnailID = thumbnail_id;
+            data.mCallback();
+        }
+    }
+
+    // Remove deleted items from the list
+    for (std::vector<LLUUID>::iterator deleted_id = deleted_ids.begin(); deleted_id != deleted_ids.end(); ++deleted_id)
+    {
+        removeItem(*deleted_id);
+    }
+}
+
+bool LLThumbnailsObserver::addItem(const LLUUID& obj_id, callback_t cb)
+{
+    LLInventoryObject* obj = gInventory.getObject(obj_id);
+    if (obj)
+    {
+        mItemMap.insert(item_map_value_t(obj_id, LLItemData(obj_id, obj->getThumbnailUUID(), cb)));
+        return true;
+    }
+    return false;
+}
+
+void LLThumbnailsObserver::removeItem(const LLUUID& obj_id)
+{
+    mItemMap.erase(obj_id);
 }
 
 //-----------------------------

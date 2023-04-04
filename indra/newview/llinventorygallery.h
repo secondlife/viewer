@@ -30,14 +30,18 @@
 #include "lllistcontextmenu.h"
 #include "llpanel.h"
 #include "llinventoryfilter.h"
+#include "llinventoryobserver.h"
 #include "llinventorymodel.h"
 
 class LLInventoryCategoriesObserver;
 class LLInventoryGalleryItem;
 class LLScrollContainer;
 class LLTextBox;
+class LLThumbnailsObserver;
 
 class LLInventoryGalleryContextMenu;
+
+typedef boost::function<void()> callback_t;
 
 class LLInventoryGallery : public LLPanel
 {
@@ -90,8 +94,7 @@ public:
     void setRootFolder(const LLUUID cat_id);
     void updateRootFolder();
     LLUUID getRootFolder() { return mFolderID; }
-    typedef boost::function<void()> root_changed_callback_t;
-    boost::signals2::connection setRootChangedCallback(root_changed_callback_t cb);
+    boost::signals2::connection setRootChangedCallback(callback_t cb);
     void onForwardFolder();
     void onBackwardFolder();
     void clearNavigationHistory();
@@ -127,6 +130,7 @@ protected:
     void applyFilter(LLInventoryGalleryItem* item, const std::string& filter_substring);
 
     LLInventoryCategoriesObserver*     mCategoriesObserver;
+    LLThumbnailsObserver*              mThumbnailsObserver;
     LLUUID                             mSelectedItemID;
     bool                               mIsInitialized;
 
@@ -277,6 +281,35 @@ private:
     LLAssetType::EType mType;
     std::string mName;
     LLInventoryGallery* mGallery;
+};
+
+class LLThumbnailsObserver : public LLInventoryObserver
+{
+public:
+    LLThumbnailsObserver(){};
+
+    virtual void changed(U32 mask);
+    bool addItem(const LLUUID& obj_id, callback_t cb);
+    void removeItem(const LLUUID& obj_id);
+
+protected:
+
+    struct LLItemData
+    {
+        LLItemData(const LLUUID& obj_id, const LLUUID& thumbnail_id, callback_t cb)
+            : mItemID(obj_id)
+            , mCallback(cb)
+            , mThumbnailID(thumbnail_id)
+        {}
+
+        callback_t mCallback;
+        LLUUID mItemID;
+        LLUUID mThumbnailID;
+    };
+
+    typedef std::map<LLUUID, LLItemData> item_map_t;
+    typedef item_map_t::value_type item_map_value_t;
+    item_map_t mItemMap;
 };
 
 #endif
