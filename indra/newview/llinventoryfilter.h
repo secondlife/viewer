@@ -281,7 +281,7 @@ public:
 
 	void 				setEmptyLookupMessage(const std::string& message);
 	void				setDefaultEmptyLookupMessage(const std::string& message);
-	std::string			getEmptyLookupMessage() const;
+	std::string			getEmptyLookupMessage(bool is_empty_folder = false) const;
 
 	// +-------------------------------------------------------------------+
 	// + Status

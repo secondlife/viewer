@@ -34,7 +34,7 @@ bool LLFolderViewModelCommon::needsSort(LLFolderViewModelItem* item)
 	return item->getSortVersion() < mTargetSortVersion;
 }
 
-std::string LLFolderViewModelCommon::getStatusText()
+std::string LLFolderViewModelCommon::getStatusText(bool is_empty_folder)
 {
 	if (!contentsReady() || mFolderView->getViewModelItem()->getLastFilterGeneration() < getFilter().getCurrentGeneration())
 	{
@@ -42,7 +42,7 @@ std::string LLFolderViewModelCommon::getStatusText()
 	}
 	else
 	{
-		return getFilter().getEmptyLookupMessage();
+		return getFilter().getEmptyLookupMessage(is_empty_folder);
 	}
 }
 

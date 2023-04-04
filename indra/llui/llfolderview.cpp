@@ -665,7 +665,7 @@ void LLFolderView::draw()
 	}
 	else if (mShowEmptyMessage)
 	{
-		mStatusTextBox->setValue(getFolderViewModel()->getStatusText());
+		mStatusTextBox->setValue(getFolderViewModel()->getStatusText(mItems.empty() && mFolders.empty()));
 		mStatusTextBox->setVisible( TRUE );
 		
 		// firstly reshape message textbox with current size. This is necessary to

@@ -1603,9 +1603,9 @@ void LLInventoryFilter::setDefaultEmptyLookupMessage(const std::string& message)
 	mDefaultEmptyLookupMessage = message;
 }
 
-std::string LLInventoryFilter::getEmptyLookupMessage() const
+std::string LLInventoryFilter::getEmptyLookupMessage(bool is_empty_folder) const
 {
-	if (isDefault() && !mDefaultEmptyLookupMessage.empty())
+	if ((isDefault() || is_empty_folder) && !mDefaultEmptyLookupMessage.empty())
 	{
 		return LLTrans::getString(mDefaultEmptyLookupMessage);
 	}
