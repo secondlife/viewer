@@ -276,9 +276,7 @@ void main()
 
     color.rgb *= diffuse_linear.rgb;
 
-    color.rgb = linear_to_srgb(color.rgb);
     color.rgb = atmosFragLightingLinear(color.rgb, additive, atten);
-    color.rgb = srgb_to_linear(color.rgb);
 
     vec4 light = vec4(0,0,0,0);
     

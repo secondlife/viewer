@@ -282,11 +282,7 @@ void main()
 
     color = mix(color, fb.rgb, f);
 
-    color.rgb = linear_to_srgb(color.rgb);
     color = atmosFragLightingLinear(color, additive, atten);
-    color = scaleSoftClipFragLinear(color);
-    color.rgb = srgb_to_linear(color.rgb);
-
 
     float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
     

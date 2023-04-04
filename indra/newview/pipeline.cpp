@@ -5637,15 +5637,6 @@ void LLPipeline::setupHWLights()
     // Ambient
     LLColor4 ambient = psky->getTotalAmbient();
 
-    static LLCachedControl<F32> ambiance_scale(gSavedSettings, "RenderReflectionProbeAmbianceScale", 8.f);
-
-    F32 light_scale = 1.f;
-
-    if (gCubeSnapshot && !mReflectionMapManager.isRadiancePass())
-    { //darken local lights based on brightening of sky lighting
-        light_scale = 1.f / ambiance_scale;
-    }
-
 	gGL.setAmbientLightColor(ambient);
 
     bool sun_up  = environment.getIsSunUp();
@@ -5739,7 +5730,7 @@ void LLPipeline::setupHWLights()
 			}
 			
             //send linear light color to shader
-			LLColor4  light_color = light->getLightLinearColor()*light_scale;
+			LLColor4  light_color = light->getLightLinearColor();
 			light_color.mV[3] = 0.0f;
 
 			F32 fade = iter->fade;
@@ -7885,15 +7876,6 @@ void LLPipeline::renderDeferredLighting()
 
     llassert(!sRenderingHUDs);
 
-    static LLCachedControl<F32> ambiance_scale(gSavedSettings, "RenderReflectionProbeAmbianceScale", 8.f);
-
-    F32 light_scale = 1.f;
-
-    if (gCubeSnapshot && !mReflectionMapManager.isRadiancePass())
-    { //darken local lights based on brightening of sky lighting
-        light_scale = 1.f / ambiance_scale;
-    }
-
     LLRenderTarget *screen_target         = &mRT->screen;
     LLRenderTarget* deferred_light_target = &mRT->deferredLight;
 
@@ -8129,7 +8111,7 @@ void LLPipeline::renderDeferredLighting()
                     F32        s = volume->getLightRadius() * 1.5f;
 
                     // send light color to shader in linear space
-                    LLColor3 col = volume->getLightLinearColor()*light_scale;
+                    LLColor3 col = volume->getLightLinearColor();
 
                     if (col.magVecSquared() < 0.001f)
                     {
@@ -8223,7 +8205,7 @@ void LLPipeline::renderDeferredLighting()
                     setupSpotLight(gDeferredSpotLightProgram, drawablep);
 
                     // send light color to shader in linear space
-                    LLColor3 col = volume->getLightLinearColor() * light_scale;
+                    LLColor3 col = volume->getLightLinearColor();
 
                     gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
                     gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
@@ -8298,7 +8280,7 @@ void LLPipeline::renderDeferredLighting()
                     setupSpotLight(gDeferredMultiSpotLightProgram, drawablep);
 
                     // send light color to shader in linear space
-                    LLColor3 col = volume->getLightLinearColor() * light_scale;
+                    LLColor3 col = volume->getLightLinearColor();
 
                     gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, tc.v);
                     gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, light_size_final);

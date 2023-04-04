@@ -43,9 +43,7 @@ VARYING vec3 vary_position;
 
 uniform samplerCube environmentMap;
 
-vec3 fullbrightShinyAtmosTransport(vec3 light);
 vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
-vec3 fullbrightScaleSoftClip(vec3 light);
 
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
 
@@ -88,9 +86,8 @@ void main()
     sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, vec2(0), pos.xyz, norm.xyz, spec.a, env_intensity);
     applyLegacyEnv(color.rgb, legacyenv, spec, pos, norm, env_intensity);
 
-    color.rgb = fullbrightAtmosTransportFrag(color.rgb, additive, atten);
-    color.rgb = fullbrightScaleSoftClip(color.rgb);
     color.rgb = srgb_to_linear(color.rgb);
+    color.rgb = fullbrightAtmosTransportFrag(color.rgb, additive, atten);
 #endif
 
 	color.a = 1.0;

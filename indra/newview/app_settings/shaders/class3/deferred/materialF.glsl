@@ -44,7 +44,6 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 vec3 atmosFragLightingLinear(vec3 l, vec3 additive, vec3 atten);
 vec3 scaleSoftClipFragLinear(vec3 l);
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
-vec3 fullbrightAtmosTransportFragLinear(vec3 light, vec3 additive, vec3 atten);
 
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cs);
@@ -386,10 +385,7 @@ void main()
         glare += cur_glare;
     }
 
-    color.rgb = linear_to_srgb(color.rgb);
     color.rgb = atmosFragLightingLinear(color.rgb, additive, atten); 
-    color.rgb = scaleSoftClipFragLinear(color.rgb);
-    color.rgb = srgb_to_linear(color.rgb);
 
     vec3 npos = normalize(-pos.xyz);
     vec3 light = vec3(0, 0, 0);

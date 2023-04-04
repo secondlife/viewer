@@ -10347,17 +10347,6 @@
     <key>Value</key>
     <integer>128</integer>
   </map>
-  <key>RenderReflectionProbeAmbianceScale</key>
-  <map>
-    <key>Comment</key>
-    <string>Scaler to apply to reflection probes to over-brighten sky contributions to indirect light</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>8</real>
-  </map>
   <key>RenderTonemapper</key>
   <map>
     <key>Comment</key>

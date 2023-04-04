@@ -30,14 +30,13 @@
 vec3 getAdditiveColor();
 vec3 getAtmosAttenuation();
 
-vec3 srgb_to_linear(vec3 col);
-vec3 linear_to_srgb(vec3 col);
+vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
+
+// the below implementations are deprecated but remain here as adapters for shaders that haven't been refactored yet
 
 vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
 {
-    light *= atten.r;
-	light += additive * 2.0;
-	return light;
+    return atmosFragLighting(light, additive, atten);
 }
 
 vec3 atmosTransport(vec3 light)
@@ -45,30 +44,17 @@ vec3 atmosTransport(vec3 light)
      return atmosTransportFrag(light, getAdditiveColor(), getAtmosAttenuation());
 }
 
-vec3 fullbrightAtmosTransportFragLinear(vec3 light, vec3 additive, vec3 atten)
-{
-    // same as non-linear version, probably fine
-    //float brightness = dot(light.rgb * 0.5, vec3(0.3333)) + 0.1;    
-    //return mix(atmosTransportFrag(light.rgb, additive, atten), light.rgb + additive, brightness * brightness);
-    return atmosTransportFrag(light, additive, atten);
-}
-
 vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
 {
-    //float brightness = dot(light.rgb * 0.5, vec3(0.3333)) + 0.1;    
-    //return mix(atmosTransportFrag(light.rgb, additive, atten), light.rgb + additive, brightness * brightness);
     return atmosTransportFrag(light, additive, atten);
 }
 
 vec3 fullbrightAtmosTransport(vec3 light)
 {
-    //return fullbrightAtmosTransportFrag(light, getAdditiveColor(), getAtmosAttenuation());
     return atmosTransport(light);
 }
 
 vec3 fullbrightShinyAtmosTransport(vec3 light)
 {
-    //float brightness = dot(light.rgb, vec3(0.33333));
-    //return mix(atmosTransport(light.rgb), (light.rgb + getAdditiveColor().rgb) * (2.0 - brightness), brightness * brightness);
     return atmosTransport(light);
 }

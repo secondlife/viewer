@@ -2574,7 +2574,7 @@ even though the user gets a free copy.
                    label="Ambiance"
                    label_width="55"
                    left="10"
-                   max_val="1"
+                   max_val="100"
                    min_val="0"
                    mouse_opaque="true"
                    name="Probe Ambiance"
