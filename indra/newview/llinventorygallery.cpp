@@ -794,7 +794,7 @@ void LLInventoryGallery::showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLU
 
 void LLInventoryGallery::changeItemSelection(const LLUUID& item_id)
 {
-    if ((mItemMap.count(item_id) > 0) && (mSelectedItemID == item_id))
+    if ((mItemMap.count(item_id) == 0) || (mSelectedItemID == item_id))
         return;
 
     if (mItemMap[mSelectedItemID])
@@ -1136,6 +1136,7 @@ LLInventoryGalleryItem::LLInventoryGalleryItem(const Params& p)
     mUUID(LLUUID()),
     mIsFolder(true),
     mIsLink(false),
+    mHidden(false),
     mGallery(NULL),
     mType(LLAssetType::AT_NONE),
     mSortGroup(SG_ITEM)
@@ -1151,9 +1152,8 @@ BOOL LLInventoryGalleryItem::postBuild()
 {
     mNameText = getChild<LLTextBox>("item_name");
     mSuffixText = getChild<LLTextBox>("suffix_text");
-
     mTextBgPanel = getChild<LLPanel>("text_bg_panel");
-    mHidden = false;
+
     return TRUE;
 }
 
