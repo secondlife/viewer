@@ -2651,8 +2651,8 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObjec
 
 void LLViewerRegion::cacheFullUpdateGLTFOverride(const LLGLTFOverrideCacheEntry &override_data)
 {
-    U32 object_id = override_data.mLocalId;
-    mImpl->mGLTFOverridesJson[object_id] = override_data;
+    U32 local_id = override_data.mLocalId;
+    mImpl->mGLTFOverridesJson[local_id] = override_data;
 }
 
 LLVOCacheEntry* LLViewerRegion::getCacheEntryForOctree(U32 local_id)
