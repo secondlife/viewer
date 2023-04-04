@@ -310,19 +310,12 @@ python_cmd "$helpers/codeticket.py" addinput "Viewer Channel" "${viewer_channel}
 initialize_version # provided by buildscripts build.sh; sets version id
 
 begin_section "coding policy check"
-# On our TC Windows build hosts, for a long time the coding_policy_git.py
-# script failed to run. Now that it's been fixed, of course it diagnoses a
-# dismaying number of coding policy violations that crept in while it wasn't
-# looking. Until we fix those...
-if [[ "$arch" == "Darwin" ]]
-then
-    # install the git-hooks dependencies in our virtualenv
-    python_cmd -m pip install -r "$(native_path "$git_hooks_checkout/requirements.txt")" || \
-        fatal "pip install git-hooks failed"
-    # validate the branch we're about to build
-    python_cmd "$git_hooks_checkout/coding_policy_git.py" --all_files || \
-        fatal "coding policy check failed"
-fi
+# install the git-hooks dependencies in our virtualenv
+python_cmd -m pip install -r "$(native_path "$git_hooks_checkout/requirements.txt")" || \
+    fatal "pip install git-hooks failed"
+# validate the branch we're about to build
+python_cmd "$git_hooks_checkout/coding_policy_git.py" --all_files || \
+    fatal "coding policy check failed"
 end_section "coding policy check"
 
 # Now run the build
