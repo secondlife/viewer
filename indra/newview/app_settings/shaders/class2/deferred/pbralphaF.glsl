@@ -90,7 +90,7 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv, 
         vec2 tc, vec3 pos, vec3 norm, float glossiness);
 
-void waterClip(vec3 pos);w
+void waterClip(vec3 pos);
 
 void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor);
 
