@@ -1920,7 +1920,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredFullbrightProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredFullbrightProgram.mFeatures.hasGamma = true;
 		gDeferredFullbrightProgram.mFeatures.hasTransport = true;
-		gDeferredFullbrightProgram.mFeatures.hasSrgb = true;		
+		gDeferredFullbrightProgram.mFeatures.hasSrgb = true;
 		gDeferredFullbrightProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 		gDeferredFullbrightProgram.mShaderFiles.clear();
 		gDeferredFullbrightProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightV.glsl", GL_VERTEX_SHADER));

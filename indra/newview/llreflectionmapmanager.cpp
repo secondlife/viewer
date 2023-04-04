@@ -651,10 +651,6 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
             S32 channel = gIrradianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
             mTexture->bind(channel);
 
-            static LLCachedControl<F32> ambiance_scale(gSavedSettings, "RenderReflectionProbeAmbianceScale", 8.f);
-            static LLStaticHashedString ambiance_scale_str("ambiance_scale");
-
-            gIrradianceGenProgram.uniform1f(ambiance_scale_str, ambiance_scale);
             gIrradianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
             gIrradianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
             

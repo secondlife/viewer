@@ -30,10 +30,14 @@ vec3 scaleSoftClipFrag(vec3 light);
 vec3 srgb_to_linear(vec3 col);
 vec3 linear_to_srgb(vec3 col);
 
+uniform int sun_up_factor;
+
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)
 { 
     light *= atten.r;
-    light += additive * 2.0;
+    additive = srgb_to_linear(additive*2.0);
+    additive *= sun_up_factor + 1.0;
+    light += additive;
     return light;
 }
 

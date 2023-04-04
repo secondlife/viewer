@@ -71,7 +71,6 @@ vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 vec3  atmosFragLightingLinear(vec3 l, vec3 additive, vec3 atten);
 vec3  scaleSoftClipFragLinear(vec3 l);
-vec3  fullbrightAtmosTransportFragLinear(vec3 light, vec3 additive, vec3 atten);
 
 // reflection probe interface
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
@@ -212,6 +211,7 @@ void main()
     {
         //should only be true of WL sky, just port over base color value
         color = srgb_to_linear(texture2D(emissiveRect, tc).rgb);
+        color *= sun_up_factor + 1.0;
     }
     else
     {
@@ -262,9 +262,7 @@ void main()
         
         if (do_atmospherics)
         {
-            color = linear_to_srgb(color);
             color = atmosFragLightingLinear(color, additive, atten);
-            color = srgb_to_linear(color);
         }
    }
 
