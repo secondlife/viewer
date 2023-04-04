@@ -2180,5 +2180,13 @@ LLInventoryFilter& LLPanelMainInventory::getCurrentFilter()
         return mActivePanel->getFilter();
     }
 }
+
+void LLPanelMainInventory::setGallerySelection(const LLUUID& item_id)
+{
+    if(mSingleFolderMode && isGalleryViewMode())
+    {
+        mInventoryGalleryPanel->changeItemSelection(item_id);
+    }
+}
 // List Commands                                                              //
 ////////////////////////////////////////////////////////////////////////////////

@@ -696,7 +696,7 @@ void LLInventoryGallery::updateAddedItem(LLUUID item_id)
     LLInventoryGalleryItem* item = buildGalleryItem(name, item_id, obj->getType(), thumbnail_id, inventory_type, misc_flags, obj->getIsLinkType(), is_worn);
     mItemMap.insert(LLInventoryGallery::gallery_item_map_t::value_type(item_id, item));
     item->setRightMouseDownCallback(boost::bind(&LLInventoryGallery::showContextMenu, this, _1, _2, _3, item_id));
-    item->setFocusReceivedCallback(boost::bind(&LLInventoryGallery::onChangeItemSelection, this, item_id));
+    item->setFocusReceivedCallback(boost::bind(&LLInventoryGallery::changeItemSelection, this, item_id));
     if (mGalleryCreated)
     {
         addToGallery(item);
@@ -789,21 +789,21 @@ void LLInventoryGallery::showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLU
     }
 }
 
-void LLInventoryGallery::onChangeItemSelection(const LLUUID& category_id)
+void LLInventoryGallery::changeItemSelection(const LLUUID& item_id)
 {
-    if (mSelectedItemID == category_id)
+    if ((mItemMap.count(item_id) > 0) && (mSelectedItemID == item_id))
         return;
 
     if (mItemMap[mSelectedItemID])
     {
         mItemMap[mSelectedItemID]->setSelected(FALSE);
     }
-    if (mItemMap[category_id])
+    if (mItemMap[item_id])
     {
-        mItemMap[category_id]->setSelected(TRUE);
+        mItemMap[item_id]->setSelected(TRUE);
     }
-    mSelectedItemID = category_id;
-    signalSelectionItemID(category_id);
+    mSelectedItemID = item_id;
+    signalSelectionItemID(item_id);
 }
 
 void LLInventoryGallery::updateMessageVisibility()

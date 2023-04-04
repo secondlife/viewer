@@ -57,6 +57,8 @@ public:
 
 	LLPanel* openChildPanel(const std::string& panel_name, const LLSD& params);
 
+    static LLFloater* getTopmostInventoryFloater();
+
 	static void showPanel(const std::string& floater_name, const LLSD& key);
 
 	static void showPanel(const std::string& floater_name, const std::string& panel_name, const LLSD& key);

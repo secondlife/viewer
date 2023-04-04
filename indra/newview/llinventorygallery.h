@@ -110,6 +110,7 @@ public:
     void computeDifference(const LLInventoryModel::cat_array_t vcats, const LLInventoryModel::item_array_t vitems, uuid_vec_t& vadded, uuid_vec_t& vremoved);
 
     void deselectItem(const LLUUID& category_id);
+    void changeItemSelection(const LLUUID& item_id);
     void signalSelectionItemID(const LLUUID& category_id);
     boost::signals2::connection setSelectionChangeCallback(selection_change_callback_t cb);
     LLUUID getSelectedItemID() { return mSelectedItemID; }
@@ -121,7 +122,6 @@ public:
 
 protected:
 
-    void onChangeItemSelection(const LLUUID& category_id);
     void showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& item_id);
 
     void applyFilter(LLInventoryGalleryItem* item, const std::string& filter_substring);

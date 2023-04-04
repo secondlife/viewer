@@ -1793,6 +1793,20 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 	{
 		sidepanel_inventory->selectAllItemsPanel();
 	}
+
+    LLFloater* inventory_floater = LLFloaterSidePanelContainer::getTopmostInventoryFloater();
+    if(!auto_open && inventory_floater && inventory_floater->getVisible())
+    {
+        LLSidepanelInventory *inventory_panel = inventory_floater->findChild<LLSidepanelInventory>("main_panel");
+        LLPanelMainInventory* main_panel = inventory_panel->getMainInventoryPanel();
+        if(main_panel->isSingleFolderMode() && main_panel->isGalleryViewMode())
+        {
+            main_panel->setGallerySelection(obj_id);
+            return;
+        }
+    }
+
+
 	LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
 
 	if (active_panel)

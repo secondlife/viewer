@@ -118,6 +118,7 @@ public:
     void onBackFolderClicked();
     void onForwardFolderClicked();
     void setSingleFolderViewRoot(const LLUUID& folder_id, bool clear_nav_history = true);
+    void setGallerySelection(const LLUUID& item_id);
     LLUUID getSingleFolderViewRoot();
     bool isSingleFolderMode() { return mSingleFolderMode; }
 
