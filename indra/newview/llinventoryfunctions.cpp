@@ -1479,7 +1479,7 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
                gInventory.createNewCategory(dest_folder,
                                             LLFolderType::FT_NONE,
                                             viewer_inv_item->getName(),
-                                            [item_id, callback_dest_create](const LLUUID &new_cat_id)
+                                            [callback_dest_create](const LLUUID &new_cat_id)
                                             {
                                                 if (new_cat_id.isNull())
                                                 {
