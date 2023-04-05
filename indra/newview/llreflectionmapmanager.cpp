@@ -464,6 +464,13 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
     // hacky hot-swap of camera specific render targets
     gPipeline.mRT = &gPipeline.mAuxillaryRT;
 
+    mLightScale = 1.f;
+    static LLCachedControl<F32> max_local_light_ambiance(gSavedSettings, "RenderReflectionProbeMaxLocalLightAmbiance", 8.f);
+    if (!isRadiancePass() && probe->getAmbiance() > max_local_light_ambiance)
+    {
+        mLightScale = max_local_light_ambiance / probe->getAmbiance();
+    }
+
     if (probe == mDefaultProbe)
     {
         touch_default_probe(probe);

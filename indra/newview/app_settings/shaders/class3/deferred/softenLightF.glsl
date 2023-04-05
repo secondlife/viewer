@@ -90,6 +90,8 @@ uniform vec4 waterPlane;
 vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
 #endif
 
+uniform float sky_hdr_scale;
+
 void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor);
 
 vec3 pbrBaseLight(vec3 diffuseColor,
@@ -196,22 +198,17 @@ void main()
         vec3 v = -normalize(pos.xyz);
         color = vec3(1,0,1);
         color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
-
         
         if (do_atmospherics)
         {
-            color = linear_to_srgb(color);
             color = atmosFragLightingLinear(color, additive, atten);
-            color = srgb_to_linear(color);
         }
-        
-        
     }
     else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {
         //should only be true of WL sky, just port over base color value
         color = srgb_to_linear(texture2D(emissiveRect, tc).rgb);
-        color *= sun_up_factor + 1.0;
+        color *= sun_up_factor * sky_hdr_scale + 1.0;
     }
     else
     {

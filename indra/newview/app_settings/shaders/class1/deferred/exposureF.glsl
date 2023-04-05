@@ -36,6 +36,7 @@ uniform sampler2D exposureMap;
 uniform float dt;
 uniform vec2 noiseVec;
 
+uniform vec3 dynamic_exposure_params;
 
 float lum(vec3 col)
 {
@@ -81,7 +82,7 @@ void main()
 
     float L = lum(col);
 
-    float s = clamp(0.175/L, 0.125, 1.3);
+    float s = clamp(dynamic_exposure_params.x/L, dynamic_exposure_params.y, dynamic_exposure_params.z);
 
 
     float prev = texture(exposureMap, vec2(0.5,0.5)).r;

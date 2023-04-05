@@ -10447,6 +10447,61 @@
       <key>Value</key>
       <integer>3</integer>
     </map>
+  <key>RenderSkyHDRScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Amount to over-brighten sun for HDR effect during the day</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>3.0</real>
+  </map>
+  <key>RenderReflectionProbeMaxLocalLightAmbiance</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum effective probe ambiance for local lights</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>4.0</real>
+  </map>
+  <key>RenderDynamicExposureMin</key>
+  <map>
+    <key>Comment</key>
+    <string>Minimum dynamic exposure amount</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.125</real>
+  </map>
+  <key>RenderDynamicExposureMax</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum dynamic exposure amount</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.3</real>
+  </map>
+  <key>RenderDynamicExposureCoefficient</key>
+  <map>
+    <key>Comment</key>
+    <string>Luminance coefficient for dynamic exposure</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.3</real>
+  </map>
     <key>RenderShaderLODThreshold</key>
     <map>
       <key>Comment</key>
