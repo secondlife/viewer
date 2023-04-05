@@ -187,5 +187,8 @@ private:
 
     // maximum LoD of reflection probes (mip levels - 1)
     F32 mMaxProbeLOD = 6.f;
+
+    // amount to scale local lights during an irradiance map update (set during updateProbeFace and used by LLPipeline)
+    F32 mLightScale = 1.f;
 };
 

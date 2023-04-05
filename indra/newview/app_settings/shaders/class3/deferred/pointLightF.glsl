@@ -151,6 +151,6 @@ void main()
         }
     }
 
-    frag_color.rgb = final_color;
+    frag_color.rgb = max(final_color, vec3(0));
     frag_color.a = 0.0;
 }
