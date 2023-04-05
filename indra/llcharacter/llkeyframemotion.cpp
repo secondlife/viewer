@@ -1399,6 +1399,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 	// get number of joint motions
 	//-------------------------------------------------------------------------
 	U32 num_motions = 0;
+    S32 rotation_dupplicates = 0;
+    S32 position_dupplicates = 0;
 	if (!dp.unpackU32(num_motions, "num_joints"))
 	{
 		LL_WARNS() << "can't read number of joints"
@@ -1629,6 +1631,12 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 			rCurve->mKeys[time] = rot_key;
 		}
 
+        if (joint_motion->mRotationCurve.mNumKeys > joint_motion->mRotationCurve.mKeys.size())
+        {
+            rotation_dupplicates++;
+            LL_INFOS() << "Motion: " << asset_id << " had dupplicate rotation keys that were removed" << LL_ENDL;
+        }
+
 		//---------------------------------------------------------------------
 		// scan position curve header
 		//---------------------------------------------------------------------
@@ -1731,8 +1739,23 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 			}
 		}
 
+        if (joint_motion->mPositionCurve.mNumKeys > joint_motion->mPositionCurve.mKeys.size())
+        {
+            position_dupplicates++;
+        }
+
 		joint_motion->mUsage = joint_state->getUsage();
 	}
+
+    if (rotation_dupplicates > 0)
+    {
+        LL_INFOS() << "Motion: " << asset_id << " had " << rotation_dupplicates << " dupplicate rotation keys that were removed" << LL_ENDL;
+    }
+
+    if (position_dupplicates > 0)
+    {
+        LL_INFOS() << "Motion: " << asset_id << " had " << position_dupplicates << " dupplicate position keys that were removed" << LL_ENDL;
+    }
 
 	//-------------------------------------------------------------------------
 	// get number of constraints
@@ -2013,9 +2036,12 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 		JointMotion* joint_motionp = mJointMotionList->getJointMotion(i);
 		success &= dp.packString(joint_motionp->mJointName, "joint_name");
 		success &= dp.packS32(joint_motionp->mPriority, "joint_priority");
-		success &= dp.packS32(joint_motionp->mRotationCurve.mNumKeys, "num_rot_keys");
+        success &= dp.packS32(joint_motionp->mRotationCurve.mKeys.size(), "num_rot_keys");
 
-		LL_DEBUGS("BVH") << "Joint " << joint_motionp->mJointName << LL_ENDL;
+		LL_DEBUGS("BVH") << "Joint " << i
+            << " name: " << joint_motionp->mJointName
+            << " Rotation keys: " << joint_motionp->mRotationCurve.mKeys.size()
+            << " Position keys: " << joint_motionp->mPositionCurve.mKeys.size() << LL_ENDL;
 		for (RotationCurve::key_map_t::iterator iter = joint_motionp->mRotationCurve.mKeys.begin();
 			 iter != joint_motionp->mRotationCurve.mKeys.end(); ++iter)
 		{
@@ -2037,7 +2063,7 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 			LL_DEBUGS("BVH") << "  rot: t " << rot_key.mTime << " angles " << rot_angles.mV[VX] <<","<< rot_angles.mV[VY] <<","<< rot_angles.mV[VZ] << LL_ENDL;
 		}
 
-		success &= dp.packS32(joint_motionp->mPositionCurve.mNumKeys, "num_pos_keys");
+		success &= dp.packS32(joint_motionp->mPositionCurve.mKeys.size(), "num_pos_keys");
 		for (PositionCurve::key_map_t::iterator iter = joint_motionp->mPositionCurve.mKeys.begin();
 			 iter != joint_motionp->mPositionCurve.mKeys.end(); ++iter)
 		{
