@@ -1082,6 +1082,7 @@ void LLPipeline::releaseLUTBuffers()
     mPbrBrdfLut.release();
 
     mExposureMap.release();
+    mLuminanceMap.release();
     mLastExposure.release();
 
 }
@@ -1265,6 +1266,8 @@ void LLPipeline::createLUTBuffers()
     mExposureMap.bindTarget();
     mExposureMap.clear();
     mExposureMap.flush();
+
+    mLuminanceMap.allocate(256, 256, GL_R16F);
 
     mLastExposure.allocate(1, 1, GL_R16F);
 }
@@ -7262,6 +7265,43 @@ void LLPipeline::renderFinalize()
             dst.flush();
         }
 
+        // luminance sample and mipmap generation
+        {
+            LL_PROFILE_GPU_ZONE("luminance sample");
+
+            mLuminanceMap.bindTarget();
+
+            LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+
+            gLuminanceProgram.bind();
+
+
+            S32 channel = 0;
+            channel = gLuminanceProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE);
+            if (channel > -1)
+            {
+                screenTarget()->bindTexture(0, channel, LLTexUnit::TFO_POINT);
+            }
+
+            channel = gLuminanceProgram.enableTexture(LLShaderMgr::DEFERRED_EMISSIVE);
+            if (channel > -1)
+            {
+                mGlow[1].bindTexture(0, channel);
+            }
+
+
+            mScreenTriangleVB->setBuffer();
+            mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+            mLuminanceMap.flush();
+
+            mLuminanceMap.bindTexture(0, 0, LLTexUnit::TFO_TRILINEAR);
+            glGenerateMipmap(GL_TEXTURE_2D);
+
+            // note -- unbind AFTER the glGenerateMipMap so time in generatemipmap can be profiled under "Luminance"
+            // also note -- keep an eye on the performance of glGenerateMipmap, might need to replace it with a mip generation shader
+            gLuminanceProgram.unbind();
+        }
+
         // exposure sample
         {
             LL_PROFILE_GPU_ZONE("exposure sample");
@@ -7278,25 +7318,16 @@ void LLPipeline::renderFinalize()
                 mLastExposure.flush();
             }
 
-
             mExposureMap.bindTarget();
 
             LLGLDepthTest depth(GL_FALSE, GL_FALSE);
             
             gExposureProgram.bind();
 
-
-            S32 channel = 0;
-            channel = gExposureProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE);
+            S32 channel = gExposureProgram.enableTexture(LLShaderMgr::DEFERRED_EMISSIVE);
             if (channel > -1)
             {
-                screenTarget()->bindTexture(0, channel, LLTexUnit::TFO_POINT);
-            }
-
-            channel = gExposureProgram.enableTexture(LLShaderMgr::DEFERRED_EMISSIVE);
-            if (channel > -1)
-            {
-                mGlow[1].bindTexture(0, channel);
+                mLuminanceMap.bindTexture(0, channel, LLTexUnit::TFO_TRILINEAR);
             }
 
             channel = gExposureProgram.enableTexture(LLShaderMgr::EXPOSURE_MAP);

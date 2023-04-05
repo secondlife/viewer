@@ -188,6 +188,7 @@ LLGLSLShader			gDeferredCoFProgram;
 LLGLSLShader			gDeferredDoFCombineProgram;
 LLGLSLShader			gDeferredPostGammaCorrectProgram;
 LLGLSLShader			gExposureProgram;
+LLGLSLShader			gLuminanceProgram;
 LLGLSLShader			gFXAAProgram;
 LLGLSLShader			gDeferredPostNoDoFProgram;
 LLGLSLShader			gDeferredWLSkyProgram;
@@ -1002,6 +1003,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredCoFProgram.unload();		
 		gDeferredDoFCombineProgram.unload();
         gExposureProgram.unload();
+        gLuminanceProgram.unload();
 		gDeferredPostGammaCorrectProgram.unload();
 		gFXAAProgram.unload();
 		gDeferredWLSkyProgram.unload();
@@ -2531,6 +2533,18 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gExposureProgram.mShaderFiles.push_back(make_pair("deferred/exposureF.glsl", GL_FRAGMENT_SHADER));
         gExposureProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = gExposureProgram.createShader(NULL, NULL);
+        llassert(success);
+    }
+
+    if (success)
+    {
+        gLuminanceProgram.mName = "Luminance";
+        gLuminanceProgram.mShaderFiles.clear();
+        gLuminanceProgram.clearPermutations();
+        gLuminanceProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+        gLuminanceProgram.mShaderFiles.push_back(make_pair("deferred/luminanceF.glsl", GL_FRAGMENT_SHADER));
+        gLuminanceProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = gLuminanceProgram.createShader(NULL, NULL);
         llassert(success);
     }
 

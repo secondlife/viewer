@@ -1,5 +1,5 @@
 /** 
- * @file exposureF.glsl
+ * @file luminanceF.glsl
  *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,19 +23,17 @@
  * $/LicenseInfo$
  */
  
-#extension GL_ARB_texture_rectangle : enable
 
 /*[EXTRA_CODE_HERE]*/
 
+// take a luminance sample of diffuseRect and emissiveRect 
+
 out vec4 frag_color;
 
+in vec2 vary_fragcoord;
+
+uniform sampler2D diffuseRect;
 uniform sampler2D emissiveRect;
-uniform sampler2D exposureMap;
-
-uniform float dt;
-uniform vec2 noiseVec;
-
-uniform vec3 dynamic_exposure_params;
 
 float lum(vec3 col)
 {
@@ -45,16 +43,10 @@ float lum(vec3 col)
 
 void main() 
 {
-    vec2 tc = vec2(0.5,0.5);
+    vec2 tc = vary_fragcoord*0.6+0.2;
+    vec3 c = texture(diffuseRect, tc).rgb + texture(emissiveRect, tc).rgb;
+    float L = lum(c);
 
-    float L = textureLod(emissiveRect, tc, 8).r;
-
-    float s = clamp(dynamic_exposure_params.x/L, dynamic_exposure_params.y, dynamic_exposure_params.z);
-
-    float prev = texture(exposureMap, vec2(0.5,0.5)).r;
-
-    s = mix(prev, s, min(dt*2.0*abs(prev-s), 0.04));
-    
-    frag_color = vec4(s, s, s, dt);
+    frag_color = vec4(L);
 }
 
