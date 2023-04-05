@@ -43,13 +43,6 @@ float lum(vec3 col)
 
 void main() 
 {
-    float step = 1.0/16.0;
-
-    float start = step;
-    float end = 1.0-step;
-
-    float w = 0.0;
-
     vec2 tc = vary_fragcoord*0.6+0.2;
     vec3 c = texture(diffuseRect, tc).rgb + texture(emissiveRect, tc).rgb;
     float L = lum(c);
