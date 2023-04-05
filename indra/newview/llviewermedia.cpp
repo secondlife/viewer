@@ -2878,7 +2878,7 @@ void LLViewerMediaImpl::update()
     if (preMediaTexUpdate(media_tex, data, data_width, data_height, x_pos, y_pos, width, height))
     {
         // Push update to worker thread
-        auto main_queue = LLImageGLThread::sEnabled ? mMainQueue.lock() : nullptr;
+        auto main_queue = LLImageGLThread::sEnabledMedia ? mMainQueue.lock() : nullptr;
         if (main_queue)
         {
             mTextureUpdatePending = true;
@@ -2967,11 +2967,12 @@ void LLViewerMediaImpl::doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* da
 
     // wrap "data" in an LLImageRaw but do NOT make a copy
     LLPointer<LLImageRaw> raw = new LLImageRaw(data, media_tex->getWidth(), media_tex->getHeight(), media_tex->getComponents(), true);
-        
+
     // *NOTE: Recreating the GL texture each media update may seem wasteful
     // (note the texture creation in preMediaTexUpdate), however, it apparently
     // prevents GL calls from blocking, due to poor bookkeeping of state of
-    // updated textures by the OpenGL implementation.
+    // updated textures by the OpenGL implementation. (Windows 10/Nvidia)
+    // -Cosmic,2023-04-04
     // Allocate GL texture based on LLImageRaw but do NOT copy to GL
     LLGLuint tex_name = 0;
     media_tex->createGLTexture(0, raw, 0, TRUE, LLGLTexture::OTHER, true, &tex_name);

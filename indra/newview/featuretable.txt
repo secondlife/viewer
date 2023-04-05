@@ -1,4 +1,4 @@
-version 53
+version 54
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -70,7 +70,8 @@ RenderUseStreamVBO			1	1
 RenderFSAASamples			1	16
 RenderMaxTextureIndex		1	16
 RenderGLContextCoreProfile         1   1
-RenderGLMultiThreaded       1   0
+RenderGLMultiThreadedTextures      1   0
+RenderGLMultiThreadedMedia         1   1
 RenderReflectionProbeResolution 1 128
 RenderScreenSpaceReflections 1  1
 
@@ -311,9 +312,10 @@ list Intel
 RenderAnisotropic			1	0
 RenderFSAASamples			1	0
 RenderGLContextCoreProfile  1   0
+RenderGLMultiThreadedMedia  1   0
 
 list AMD
-RenderGLMultiThreaded       1   1
+RenderGLMultiThreadedTextures       1   1
 
 list GL3
 RenderFSAASamples           0   0

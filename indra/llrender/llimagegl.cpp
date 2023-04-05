@@ -42,6 +42,8 @@
 #include "llwindow.h"
 #include "llframetimer.h"
 
+extern LL_COMMON_API bool on_main_thread();
+
 #if !LL_IMAGEGL_THREAD_CHECK
 #define checkActiveThread()
 #endif
@@ -132,7 +134,8 @@ bool LLImageGL::sCompressTextures = false;
 std::set<LLImageGL*> LLImageGL::sImageList;
 
 
-bool LLImageGLThread::sEnabled = false;
+bool LLImageGLThread::sEnabledTextures = false;
+bool LLImageGLThread::sEnabledMedia = false;
 
 //****************************************************************************************************
 //The below for texture auditing use only
@@ -242,14 +245,16 @@ BOOL is_little_endian()
 }
 
 //static 
-void LLImageGL::initClass(LLWindow* window, S32 num_catagories, BOOL skip_analyze_alpha /* = false */, bool multi_threaded /* = false */)
+void LLImageGL::initClass(LLWindow* window, S32 num_catagories, BOOL skip_analyze_alpha /* = false */, bool thread_texture_loads /* = false */, bool thread_media_updates /* = false */)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	sSkipAnalyzeAlpha = skip_analyze_alpha;
 
-    if (multi_threaded)
+    if (thread_texture_loads || thread_media_updates)
     {
         LLImageGLThread::createInstance(window);
+        LLImageGLThread::sEnabledTextures = thread_texture_loads;
+        LLImageGLThread::sEnabledMedia = thread_media_updates;
     }
 }
 
@@ -259,6 +264,7 @@ void LLImageGL::cleanupClass()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     LLImageGLThread::deleteSingleton();
 }
+
 
 //static
 S32 LLImageGL::dataFormatBits(S32 dataformat)
@@ -1125,9 +1131,20 @@ U32 type_width_from_pixtype(U32 pixtype)
     return type_width;
 }
 
+bool should_stagger_image_set(bool compressed)
+{
+#if LL_DARWIN
+    return false;
+#else
+    // glTexSubImage2D doesn't work with compressed textures on select tested Nvidia GPUs on Windows 10 -Cosmic,2023-03-08
+    // Setting media textures off-thread seems faster when not using sub_image_lines (Nvidia/Windows 10) -Cosmic,2023-03-31
+    return !compressed && on_main_thread();
+#endif
+}
+
 // Equivalent to calling glSetSubImage2D(target, miplevel, x_offset, y_offset, width, height, pixformat, pixtype, src), assuming the total width of the image is data_width
 // However, instead there are multiple calls to glSetSubImage2D on smaller slices of the image
-void subImageLines(U32 target, S32 miplevel, S32 x_offset, S32 y_offset, S32 width, S32 height, U32 pixformat, U32 pixtype, const U8* src, S32 data_width)
+void sub_image_lines(U32 target, S32 miplevel, S32 x_offset, S32 y_offset, S32 width, S32 height, U32 pixformat, U32 pixtype, const U8* src, S32 data_width)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
@@ -1223,11 +1240,7 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 		if (!res) LL_ERRS() << "LLImageGL::setSubImage(): bindTexture failed" << LL_ENDL;
 		stop_glerror();
 
-#if LL_DARWIN
-        const bool use_sub_image = false;
-#else
-        const bool use_sub_image = !isCompressed();
-#endif
+        const bool use_sub_image = should_stagger_image_set(isCompressed());
         if (!use_sub_image)
         {
             // *TODO: Why does this work here, in setSubImage, but not in
@@ -1238,7 +1251,7 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
         }
         else
         {
-            subImageLines(mTarget, 0, x_pos, y_pos, width, height, mFormatPrimary, mFormatType, sub_datap, data_width);
+            sub_image_lines(mTarget, 0, x_pos, y_pos, width, height, mFormatPrimary, mFormatType, sub_datap, data_width);
         }
 		gGL.getTexUnit(0)->disable();
 		stop_glerror();
@@ -1455,13 +1468,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
         LL_PROFILE_ZONE_NUM(height);
 
         free_cur_tex_image();
-#if LL_DARWIN
-        const bool use_sub_image = false;
-#else
-        // glTexSubImage2D doesn't work with compressed textures on select tested Nvidia GPUs on Windows 10 -Cosmic,2023-03-08
-        // *TODO: Small chance that glCompressedTexImage2D/glCompressedTexSubImage2D may work better here
-        const bool use_sub_image = !compress;
-#endif
+        const bool use_sub_image = should_stagger_image_set(compress);
         if (!use_sub_image)
         {
             LL_PROFILE_ZONE_NAMED("glTexImage2D alloc + copy");
@@ -1479,7 +1486,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
             if (src)
             {
                 LL_PROFILE_ZONE_NAMED("glTexImage2D copy");
-                subImageLines(target, miplevel, 0, 0, width, height, pixformat, pixtype, src, width);
+                sub_image_lines(target, miplevel, 0, 0, width, height, pixformat, pixtype, src, width);
             }
         }
         alloc_tex_image(width, height, pixformat);
@@ -2504,7 +2511,6 @@ LLImageGLThread::LLImageGLThread(LLWindow* window)
     , mWindow(window)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    sEnabled = true;
     mFinished = false;
 
     mContext = mWindow->createSharedContext();

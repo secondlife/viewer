@@ -287,7 +287,7 @@ public:
 #endif
 
 public:
-	static void initClass(LLWindow* window, S32 num_catagories, BOOL skip_analyze_alpha = false, bool multi_threaded = false); 
+	static void initClass(LLWindow* window, S32 num_catagories, BOOL skip_analyze_alpha = false, bool thread_texture_loads = false, bool thread_media_updates = false);
 	static void cleanupClass() ;
 
 private:
@@ -329,8 +329,10 @@ public:
 class LLImageGLThread : public LLSimpleton<LLImageGLThread>, LL::ThreadPool
 {
 public:
-    // follows gSavedSettings "RenderGLMultiThreaded"
-    static bool sEnabled;
+    // follows gSavedSettings "RenderGLMultiThreadedTextures"
+    static bool sEnabledTextures;
+    // follows gSavedSettings "RenderGLMultiThreadedMedia"
+    static bool sEnabledMedia;
     
     LLImageGLThread(LLWindow* window);
 
@@ -348,6 +350,5 @@ private:
     void* mContext = nullptr;
     LLAtomicBool mFinished;
 };
-
 
 #endif // LL_LLIMAGEGL_H

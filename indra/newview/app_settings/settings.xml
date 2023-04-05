@@ -9909,10 +9909,21 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>RenderGLMultiThreaded</key>
+    <key>RenderGLMultiThreadedTextures</key>
     <map>
       <key>Comment</key>
-      <string>Allow OpenGL to use multiple render contexts (reduces frame stutters from loading textures, doesn't play nice with Intel drivers).</string>
+      <string>Allow OpenGL to use multiple render contexts for loading textures (may reduce frame stutters, doesn't play nice with Intel drivers).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderGLMultiThreadedMedia</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow OpenGL to use multiple render contexts for playing media (may reduce frame stutters, doesn't play nice with Intel drivers)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
