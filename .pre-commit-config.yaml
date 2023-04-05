@@ -1,9 +1,8 @@
 repos:
-  - repo: https://bitbucket.org/lindenlab/git-hooks.git 
-    rev: v1.0.0-beta2
+  - repo: https://github.com/secondlife/git-hooks.git 
+    rev: v1.0.0
     hooks:
       - id: opensource-license
-      - id: jira-issue 
       - id: llsd
       - id: no-trigraphs
       - id: copyright
@@ -11,7 +10,7 @@ repos:
         files: \.(cpp|c|h|py|glsl|cmake|txt)$
         exclude: language.txt
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.5.0
+    rev: v4.4.0
     hooks:
       - id: check-xml
       - id: mixed-line-ending
