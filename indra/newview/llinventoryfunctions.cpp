@@ -1398,9 +1398,29 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
             LLUUID item_id = inv_item->getUUID();
             std::function<void(const LLUUID&)> callback_create_stock = [copy, item_id](const LLUUID& new_cat_id)
             {
+                if (new_cat_id.isNull())
+                {
+                    LL_WARNS() << "Failed to create category" << LL_ENDL;
+                    LLSD subs;
+                    subs["[ERROR_CODE]"] =
+                        LLTrans::getString("Marketplace Error Prefix") + LLTrans::getString("Marketplace Error Not Accepted");
+                    LLNotificationsUtil::add("MerchantPasteFailed", subs);
+                    return;
+                }
+
                 // Verify we can have this item in that destination category
                 LLViewerInventoryCategory* dest_cat = gInventory.getCategory(new_cat_id);
                 LLViewerInventoryItem * viewer_inv_item = gInventory.getItem(item_id);
+                if (!dest_cat || !viewer_inv_item)
+                {
+                    LL_WARNS() << "Move to marketplace: item or folder do not exist" << LL_ENDL;
+
+                    LLSD subs;
+                    subs["[ERROR_CODE]"] =
+                        LLTrans::getString("Marketplace Error Prefix") + LLTrans::getString("Marketplace Error Not Accepted");
+                    LLNotificationsUtil::add("MerchantPasteFailed", subs);
+                    return;
+                }
                 if (!dest_cat->acceptItem(viewer_inv_item))
                 {
                     LLSD subs;
@@ -1429,6 +1449,16 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
 
             std::function<void(const LLUUID&)> callback_dest_create = [item_id, callback_create_stock](const LLUUID& new_cat_id)
             {
+                if (new_cat_id.isNull())
+                {
+                    LL_WARNS() << "Failed to create category" << LL_ENDL;
+                    LLSD subs;
+                    subs["[ERROR_CODE]"] =
+                        LLTrans::getString("Marketplace Error Prefix") + LLTrans::getString("Marketplace Error Not Accepted");
+                    LLNotificationsUtil::add("MerchantPasteFailed", subs);
+                    return;
+                }
+
                 LLViewerInventoryCategory* dest_cat = gInventory.getCategory(new_cat_id);
                 LLViewerInventoryItem * viewer_inv_item = gInventory.getItem(item_id);
                 if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()) &&
@@ -1446,7 +1476,28 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
             if (depth == 0)
             {
                 // We need a listing folder
-               gInventory.createNewCategory(dest_folder, LLFolderType::FT_NONE, viewer_inv_item->getName(), callback_dest_create);
+               gInventory.createNewCategory(dest_folder,
+                                            LLFolderType::FT_NONE,
+                                            viewer_inv_item->getName(),
+                                            [item_id, callback_dest_create](const LLUUID &new_cat_id)
+                                            {
+                                                if (new_cat_id.isNull())
+                                                {
+                                                    LL_WARNS() << "Failed to create listing folder for marketpace" << LL_ENDL;
+                                                    return;
+                                                }
+                                                LLViewerInventoryCategory *dest_cat = gInventory.getCategory(new_cat_id);
+                                                if (!dest_cat)
+                                                {
+                                                    LL_WARNS() << "Failed to find freshly created listing folder" << LL_ENDL;
+                                                    return;
+                                                }
+                                                // version folder
+                                                gInventory.createNewCategory(new_cat_id,
+                                                                             LLFolderType::FT_NONE,
+                                                                             dest_cat->getName(),
+                                                                             callback_dest_create);
+                                            });
             }
             if (depth == 1)
             {
