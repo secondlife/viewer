@@ -37,9 +37,10 @@ import getopt
 from io import StringIO
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-
-from llbase.fastest_elementtree import parse as xml_parse
-import llsd
+#SPATTERS
+#from llbase.fastest_elementtree import parse as xml_parse
+#import llsd
+from llbase import llsd
 
 # we're in llcorehttp/tests ; testrunner.py is found in llmessage/tests
 sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,

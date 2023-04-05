@@ -15,10 +15,10 @@
 #include "llleap.h"
 // STL headers
 // std headers
+#include <functional>
 // external library headers
 #include <boost/assign/list_of.hpp>
 #include <boost/phoenix/core/argument.hpp>
-#include <boost/foreach.hpp>
 // other Linden headers
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
@@ -29,7 +29,6 @@
 #include "llstring.h"
 #include "stringize.h"
 #include "StringVec.h"
-#include <functional>
 
 using boost::assign::list_of;
 
@@ -116,6 +115,7 @@ namespace tut
                    "except ImportError:\n"
                    // older llbase.llsd module
                    "    raise\n"
+                   "from llbase import llsd\n"
                    "\n"
                    "class ProtocolError(Exception):\n"
                    "    def __init__(self, msg, data):\n"
@@ -241,9 +241,9 @@ namespace tut
                              "import sys\n"
                              "sys.stderr.write('''Hello from Python!\n"
                              "note partial line''')\n");
+        StringVec vcommand{ PYTHON, script.getName() };
         CaptureLog log(LLError::LEVEL_INFO);
-        waitfor(LLLeap::create(get_test_name(),
-                               sv(list_of(PYTHON)(script.getName()))));
+        waitfor(LLLeap::create(get_test_name(), vcommand));
         log.messageWith("Hello from Python!");
         log.messageWith("note partial line");
     }
@@ -531,7 +531,7 @@ namespace tut
         result.ensure();
     }
 
-    struct TestLargeMessage: public std::binary_function<size_t, size_t, bool>
+    struct TestLargeMessage
     {
         TestLargeMessage(const std::string& PYTHON_, const std::string& reader_module_,
                          const std::string& test_name_):
