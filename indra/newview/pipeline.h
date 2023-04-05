@@ -678,6 +678,7 @@ public:
     LLRenderTarget          mSceneMap;
 
     // exposure map for getting average color in scene
+    LLRenderTarget          mLuminanceMap;
     LLRenderTarget          mExposureMap;
     LLRenderTarget          mLastExposure;
 
