@@ -307,6 +307,9 @@ python_cmd "$helpers/codeticket.py" addinput "Viewer Channel" "${viewer_channel}
 initialize_version # provided by buildscripts build.sh; sets version id
 
 begin_section "coding policy check"
+python_cmd -m pip install pre-commit
+pre-commit install -f
+pre-commit install -f -t commit-msg
 pre-commit run --all-files
 end_section "coding policy check"
 
