@@ -60,6 +60,7 @@
 #include "llfolderview.h"
 #include "llradiogroup.h"
 #include "llenvironment.h"
+#include "llweb.h"
 
 const std::string FILTERS_FILENAME("filters.xml");
 
@@ -1815,7 +1816,10 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
             LLAvatarActions::shareWithAvatars(this);
         }
     }
-
+    if (command_name == "shop")
+    {
+        LLWeb::loadURL(gSavedSettings.getString("MarketplaceURL"));
+    }
     if (command_name == "list_view")
     {
         setViewMode(MODE_LIST);
