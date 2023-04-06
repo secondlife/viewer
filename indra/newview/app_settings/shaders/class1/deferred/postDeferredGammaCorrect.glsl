@@ -105,11 +105,11 @@ vec3 toneMapACES_Hill(vec3 color)
 uniform float exposure;
 uniform float gamma;
 
-vec3 toneMap(vec3 color)
+vec3 toneMap(vec3 color, float gs)
 {
     float exp_scale = texture(exposureMap, vec2(0.5,0.5)).r;
 
-    color *= exposure * exp_scale;
+    color *= exposure * exp_scale * gs;
 
 #ifdef TONEMAP_ACES_NARKOWICZ
     color = toneMapACES_Narkowicz(color);
@@ -179,12 +179,21 @@ vec3 legacyGamma(vec3 color)
     return color;
 }
 
+float legacyGammaApprox()
+{
+ //TODO -- figure out how to plumb this in as a uniform
+    float c = 0.5;
+    float gc = 1.0-pow(c, gamma);
+    
+    return gc/c * gamma;
+}
+
 void main() 
 {
     //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
     vec4 diff = texture2D(diffuseRect, vary_fragcoord);
-    diff.rgb = toneMap(diff.rgb);
-    diff.rgb = legacyGamma(diff.rgb);
+
+    diff.rgb = toneMap(diff.rgb, legacyGammaApprox());
     
     vec2 tc = vary_fragcoord.xy*screen_res*4.0;
     vec3 seed = (diff.rgb+vec3(1.0))*vec3(tc.xy, tc.x+tc.y);
