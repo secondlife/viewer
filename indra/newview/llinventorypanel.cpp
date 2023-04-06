@@ -1627,6 +1627,7 @@ void LLInventoryPanel::purgeSelectedItems()
     if (inventory_selected.empty()) return;
     LLSD args;
     S32 count = inventory_selected.size();
+    std::vector<LLUUID> selected_items;
     for (std::set<LLFolderViewItem*>::const_iterator it = inventory_selected.begin(), end_it = inventory_selected.end();
         it != end_it;
         ++it)
@@ -1636,27 +1637,23 @@ void LLInventoryPanel::purgeSelectedItems()
         LLInventoryModel::item_array_t items;
         gInventory.collectDescendents(item_id, cats, items, LLInventoryModel::INCLUDE_TRASH);
         count += items.size() + cats.size();
+        selected_items.push_back(item_id);
     }
     args["COUNT"] = count;
-    LLNotificationsUtil::add("PurgeSelectedItems", args, LLSD(), boost::bind(&LLInventoryPanel::callbackPurgeSelectedItems, this, _1, _2));
+    LLNotificationsUtil::add("PurgeSelectedItems", args, LLSD(), boost::bind(callbackPurgeSelectedItems, _1, _2, selected_items));
 }
 
-void LLInventoryPanel::callbackPurgeSelectedItems(const LLSD& notification, const LLSD& response)
+// static
+void LLInventoryPanel::callbackPurgeSelectedItems(const LLSD& notification, const LLSD& response, const std::vector<LLUUID> inventory_selected)
 {
-    if (!mFolderRoot.get()) return;
-
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (option == 0)
     {
-        const std::set<LLFolderViewItem*> inventory_selected = mFolderRoot.get()->getSelectionList();
         if (inventory_selected.empty()) return;
 
-        std::set<LLFolderViewItem*>::const_iterator it = inventory_selected.begin();
-        const std::set<LLFolderViewItem*>::const_iterator it_end = inventory_selected.end();
-        for (; it != it_end; ++it)
+        for (auto it : inventory_selected)
         {
-            LLUUID item_id = static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID();
-            remove_inventory_object(item_id, NULL);
+            remove_inventory_object(it, NULL);
         }
     }
 }

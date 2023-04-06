@@ -4525,7 +4525,7 @@ void LLVivoxVoiceClient::messageEvent(
 		{
 			bool is_do_not_disturb = gAgent.isDoNotDisturb();
 			bool is_muted = LLMuteList::getInstance()->isMuted(session->mCallerID, session->mName, LLMute::flagTextChat);
-			bool is_linden = LLMuteList::getInstance()->isLinden(session->mName);
+			bool is_linden = LLMuteList::isLinden(session->mName);
 			LLChat chat;
 
 			chat.mMuted = is_muted && !is_linden;

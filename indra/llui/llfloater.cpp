@@ -759,11 +759,13 @@ void LLFloater::closeFloater(bool app_quitting)
         }
 
 		// now close dependent floater
-		for(handle_set_iter_t dependent_it = mDependents.begin();
-			dependent_it != mDependents.end(); )
+		while(mDependents.size() > 0)
 		{
+            handle_set_iter_t dependent_it = mDependents.begin();
 			LLFloater* floaterp = dependent_it->get();
-            dependent_it = mDependents.erase(dependent_it);
+            // normally removeDependentFloater will do this, but in
+            // case floaterp is somehow invalid or orphaned, erase now
+            mDependents.erase(dependent_it);
             if (floaterp)
             {
                 floaterp->mDependeeHandle = LLHandle<LLFloater>();

@@ -2,27 +2,31 @@
 include(Prebuilt)
 include(Linking)
 
+include_guard()
+
+add_library( ll::googlemock INTERFACE IMPORTED )
+if(USE_CONAN)
+  target_link_libraries( ll::googlemock INTERFACE  CONAN_PKG::gtest )
+
+  #Not very nice, but for the moment we need this for tut.hpp
+  target_include_directories( ll::googlemock SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include ) 
+  return()
+endif()
+
 use_prebuilt_binary(googlemock)
 
-set(GOOGLEMOCK_INCLUDE_DIRS
-    ${LIBS_PREBUILT_DIR}/include)
+target_include_directories( ll::googlemock SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include )
 
 if (LINUX)
     # VWR-24366: gmock is underlinked, it needs gtest.
-    set(GOOGLEMOCK_LIBRARIES
-        gmock -Wl,--no-as-needed
-        gtest -Wl,--as-needed)
+    target_link_libraries( ll::googlemock INTERFACE gmock gtest)
 elseif(WINDOWS)
-    set(GOOGLEMOCK_LIBRARIES
-        gmock)
-    set(GOOGLEMOCK_INCLUDE_DIRS
-        ${LIBS_PREBUILT_DIR}/include
-        ${LIBS_PREBUILT_DIR}/include/gmock
-        ${LIBS_PREBUILT_DIR}/include/gmock/boost/tr1/tr1)
+    target_link_libraries( ll::googlemock INTERFACE gmock)
+    target_include_directories( ll::googlemock SYSTEM INTERFACE
+            ${LIBS_PREBUILT_DIR}/include
+            ${LIBS_PREBUILT_DIR}/include/gmock)
 elseif(DARWIN)
-    set(GOOGLEMOCK_LIBRARIES
-        gmock
-        gtest)
+    target_link_libraries( ll::googlemock INTERFACE gmock gtest)
 endif(LINUX)
 
 

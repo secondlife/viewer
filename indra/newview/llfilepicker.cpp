@@ -1206,7 +1206,7 @@ static std::string add_save_texture_filter_to_gtkchooser(GtkWindow *picker)
 	return caption;
 }
 
-BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename )
+BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename, bool blocking )
 {
 	BOOL rtn = FALSE;
 
@@ -1423,7 +1423,7 @@ BOOL LLFilePicker::getMultipleOpenFiles( ELoadFilter filter, bool blocking)
 // Hacky stubs designed to facilitate fake getSaveFile and getOpenFile with
 // static results, when we don't have a real filepicker.
 
-BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename )
+BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename, bool blocking )
 {
 	// if local file browsing is turned off, return without opening dialog
 	// (Even though this is a stub, I think we still should not return anything at all)
