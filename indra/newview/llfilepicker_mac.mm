@@ -75,27 +75,27 @@ std::unique_ptr<std::vector<std::string>> doLoadDialog(const std::vector<std::st
                  unsigned int flags)
 {
     int result;
-    
+
     NSOpenPanel *panel = init_panel(allowed_types,flags);
     
     result = [panel runModal];
     
-    std::vector<std::string>* outfiles = NULL;
-    
+    std::unique_ptr<std::vector<std::string>> outfiles = nullptr;
+
     if (result == NSOKButton) 
     {
         NSArray *filesToOpen = [panel URLs];
-        int i, count = [filesToOpen count];
-        
+        int count = [filesToOpen count];
+
         if (count > 0)
         {
-            outfiles = new std::vector<std::string>;
+            outfiles = std::make_unique<std::vector<std::string>>();
         }
-        
-        for (i=0; i<count; i++) {
-            NSString *aFile = [[filesToOpen objectAtIndex:i] path];
-            std::string *afilestr = new std::string([aFile UTF8String]);
-            outfiles->push_back(*afilestr);
+
+        for (int i=0; i<count; i++) {
+            NSString *aFile = [filesToOpen objectAtIndex:i];
+            std::string afilestr = [[aFile stringByStandardizingPath] UTF8String];
+            outfiles->push_back(std::move(afilestr));
         }
     }
     return outfiles;
@@ -140,7 +140,7 @@ void doLoadDialogModeless(const std::vector<std::string>* allowed_types,
         }];
 }
 
-std::string* doSaveDialog(const std::string* file, 
+std::unique_ptr<std::string> doSaveDialog(const std::string* file, 
                   const std::string* type,
                   const std::string* creator,
                   const std::string* extension,
@@ -157,7 +157,7 @@ std::string* doSaveDialog(const std::string* file,
     [panel setAllowedFileTypes:fileType];
     NSString *fileName = [NSString stringWithCString:file->c_str() encoding:[NSString defaultCStringEncoding]];
     
-    std::string *outfile = NULL;
+    std::unique_ptr<std::string> outfile = nullptr;
     NSURL* url = [NSURL fileURLWithPath:fileName];
     [panel setNameFieldStringValue: fileName];
     [panel setDirectoryURL: url];
@@ -166,7 +166,7 @@ std::string* doSaveDialog(const std::string* file,
     {
         NSURL* url = [panel URL];
         NSString* p = [url path];
-        outfile = new std::string( [p UTF8String] );
+        outfile = std::make_unique<std::string>( [p UTF8String] );
         // write the file 
     } 
     return outfile;

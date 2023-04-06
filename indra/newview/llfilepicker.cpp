@@ -716,9 +716,9 @@ bool    LLFilePicker::doNavChooseDialogModeless(ELoadFilter filter,
         return false;
     }
     
-    std::vector<std::string> *allowed_types=navOpenFilterProc(filter);
+    std::unique_ptr<std::vector<std::string>> allowed_types=navOpenFilterProc(filter);
     
-    doLoadDialogModeless(allowed_types,
+    doLoadDialogModeless(allowed_types.get(),
                                                     mPickOptions,
                                                     callback,
                                                     userdata);
