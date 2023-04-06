@@ -69,7 +69,6 @@ vec4 applyWaterFogView(vec3 pos, vec4 color)
     float D = pow(0.98, l*kd);
     
     color.rgb = color.rgb * D + kc.rgb * L;
-    color.a = kc.a + color.a;
 
     return color;
 }
