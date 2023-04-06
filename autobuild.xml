@@ -3403,7 +3403,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
-                  <string>/toolsversion:4.0</string>
                   <string>/p:VCBuildAdditionalOptions= /incremental</string>
                 </array>
               </map>
@@ -3477,7 +3476,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
-                  <string>/toolsversion:4.0</string>
                   <string>/p:VCBuildAdditionalOptions= /incremental</string>
                 </array>
               </map>
