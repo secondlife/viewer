@@ -71,7 +71,7 @@ NSOpenPanel *init_panel(const std::vector<std::string>* allowed_types, unsigned 
     return panel;
 }
 
-std::vector<std::string>* doLoadDialog(const std::vector<std::string>* allowed_types, 
+std::unique_ptr<std::vector<std::string>> doLoadDialog(const std::vector<std::string>* allowed_types, 
                  unsigned int flags)
 {
     int result;

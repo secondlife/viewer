@@ -89,6 +89,7 @@ BOOL LLFloaterAvatarRenderSettings::postBuild()
     LLFloater::postBuild();
     mAvatarSettingsList = getChild<LLNameListCtrl>("render_settings_list");
     mAvatarSettingsList->setRightMouseDownCallback(boost::bind(&LLFloaterAvatarRenderSettings::onAvatarListRightClick, this, _1, _2, _3));
+    mAvatarSettingsList->setAlternateSort();
     getChild<LLFilterEditor>("people_filter_input")->setCommitCallback(boost::bind(&LLFloaterAvatarRenderSettings::onFilterEdit, this, _2));
 
 	return TRUE;
@@ -138,8 +139,8 @@ void LLFloaterAvatarRenderSettings::updateList()
             item_params.columns.add().value(av_name.getCompleteName()).column("name");
             std::string setting = getString(iter->second == 1 ? "av_never_render" : "av_always_render");
             item_params.columns.add().value(setting).column("setting");
-            std::string timestamp = createTimestamp(LLRenderMuteList::getInstance()->getVisualMuteDate(iter->first));
-            item_params.columns.add().value(timestamp).column("timestamp");
+            S32 mute_date = LLRenderMuteList::getInstance()->getVisualMuteDate(iter->first);
+            item_params.columns.add().value(createTimestamp(mute_date)).column("timestamp").alt_value(std::to_string(mute_date));
             mAvatarSettingsList->addNameItemRow(item_params);
         }
     }

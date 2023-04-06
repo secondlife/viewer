@@ -40,7 +40,7 @@
 		Kliknij i przeciągnij, aby zaznaczyć teren
 	</floater.string>
 	<floater.string name="status_selectcount">
-		[OBJ_COUNT] zaznaczonych obiektów, wpływ na strefę: [LAND_IMPACT]
+		[OBJ_COUNT] zaznaczonych obiektów, wpływ na strefę: [LAND_IMPACT] [secondlife:///app/openfloater/object_weights ?]
 	</floater.string>
 	<floater.string name="status_remaining_capacity">
 		Pojemność pozostała: [LAND_CAPACITY].

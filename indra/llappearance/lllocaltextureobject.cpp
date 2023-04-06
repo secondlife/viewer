@@ -76,6 +76,7 @@ LLLocalTextureObject::LLLocalTextureObject(const LLLocalTextureObject& lto) :
 
 LLLocalTextureObject::~LLLocalTextureObject()
 {
+	delete_and_clear(mTexLayers);
 }
 
 LLGLTexture* LLLocalTextureObject::getImage() const

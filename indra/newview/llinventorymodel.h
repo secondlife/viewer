@@ -445,7 +445,7 @@ public:
 	void checkTrashOverflow();
 
 protected:
-	void updateLinkedObjectsFromPurge(const LLUUID& baseobj_id);
+    void rebuildLinkItems(LLInventoryModel::item_array_t& items);
 	
 	//--------------------------------------------------------------------
 	// Reorder

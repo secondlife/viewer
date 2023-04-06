@@ -178,7 +178,7 @@ private:
                                    void (*callback)(bool, std::vector<std::string>&, void*),
                                    void *userdata);
 	bool doNavSaveDialog(ESaveFilter filter, const std::string& filename);
-    std::vector<std::string>* navOpenFilterProc(ELoadFilter filter);
+    std::unique_ptr<std::vector<std::string>> navOpenFilterProc(ELoadFilter filter);
     bool doNavSaveDialogModeless(ESaveFilter filter,
                                  const std::string& filename,
                                  void (*callback)(bool, std::string&, void*),

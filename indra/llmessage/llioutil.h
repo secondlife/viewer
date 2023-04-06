@@ -147,7 +147,7 @@ protected:
  * }
  * </code>
  */
-class LLChangeChannel //: public unary_function<T, void>
+class LLChangeChannel
 {
 public:
 	/** 
