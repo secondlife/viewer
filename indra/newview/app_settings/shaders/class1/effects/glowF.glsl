@@ -56,5 +56,5 @@ void main()
 	col += kern[6] * texture2D(diffuseMap, vary_texcoord2.zw);	
 	col += kern[7] * texture2D(diffuseMap, vary_texcoord3.zw);	
 	
-	frag_color = vec4(col.rgb * glowStrength, col.a);
+	frag_color = max(vec4(col.rgb * glowStrength, col.a), vec4(0));
 }

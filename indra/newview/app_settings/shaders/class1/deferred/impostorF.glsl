@@ -25,11 +25,7 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
-#else
-#define frag_data gl_FragData
-#endif
+out vec4 frag_data[4];
 
 uniform float minimum_alpha;
 
@@ -58,4 +54,5 @@ void main()
 	frag_data[0] = vec4(col.rgb, 0.0);
 	frag_data[1] = spec;
 	frag_data[2] = vec4(encode_normal(norm.xyz),0,GBUFFER_FLAG_HAS_ATMOS);
+    frag_data[3] = vec4(0);
 }

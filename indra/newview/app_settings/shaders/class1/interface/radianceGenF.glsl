@@ -162,6 +162,6 @@ vec4 prefilterEnvMap(vec3 R)
 void main()
 {		
 	vec3 N = normalize(vary_dir);
-	frag_color = prefilterEnvMap(N);
+	frag_color = max(prefilterEnvMap(N), vec4(0));
 }
 // =============================================================================================================

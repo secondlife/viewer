@@ -265,6 +265,11 @@ bool LLReflectionMap::isActive()
 void LLReflectionMap::doOcclusion(const LLVector4a& eye)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+    if (LLGLSLShader::sProfileEnabled)
+    {
+        return;
+    }
+
 #if 1
     // super sloppy, but we're doing an occlusion cull against a bounding cube of
     // a bounding sphere, pad radius so we assume if the eye is within

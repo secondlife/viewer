@@ -32,7 +32,7 @@
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 out vec4 frag_color;
 #else
-out vec4 frag_data[3];
+out vec4 frag_data[4];
 #endif
 
 void main()
@@ -44,6 +44,7 @@ void main()
     frag_data[0] = vec4(0.5, 0, 1, 0);    // gbuffer is sRGB for legacy materials
     frag_data[1] = vec4(0); // XYZ = Specular color. W = Specular exponent.
     frag_data[2] = vec4(0); // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
+    frag_data[3] = vec4(0);
 #endif
 }
 

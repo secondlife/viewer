@@ -86,12 +86,27 @@ void APIENTRY gl_debug_callback(GLenum source,
                                 const GLchar* message,
                                 GLvoid* userParam)
 {
-    if (severity != GL_DEBUG_SEVERITY_HIGH  //&&
-        //severity != GL_DEBUG_SEVERITY_MEDIUM &&
-        //severity != GL_DEBUG_SEVERITY_LOW
+    /*if (severity != GL_DEBUG_SEVERITY_HIGH &&
+        severity != GL_DEBUG_SEVERITY_MEDIUM &&
+        severity != GL_DEBUG_SEVERITY_LOW
         )
     { //suppress out-of-spec messages sent by nvidia driver (mostly vertexbuffer hints)
         return;
+    }*/
+
+    // list of messages to suppress
+    const char* suppress[] =
+    {
+        "Buffer detailed info:",
+        "Program undefined behavior warning: The current GL state uses a sampler (0) that has depth comparisons enabled"
+    };
+
+    for (const char* msg : suppress)
+    {
+        if (strncmp(msg, message, strlen(msg)) == 0)
+        {
+            return;
+        }
     }
 
     if (severity == GL_DEBUG_SEVERITY_HIGH)
@@ -133,7 +148,8 @@ void APIENTRY gl_debug_callback(GLenum source,
         glGetBufferParameteriv(GL_UNIFORM_BUFFER, GL_BUFFER_SIZE, &ubo_size);
         glGetBufferParameteriv(GL_UNIFORM_BUFFER, GL_BUFFER_IMMUTABLE_STORAGE, &ubo_immutable);
     }
-    //if (severity == GL_DEBUG_SEVERITY_HIGH)
+    
+    if (severity == GL_DEBUG_SEVERITY_HIGH)
     {
         LL_ERRS() << "Halting on GL Error" << LL_ENDL;
     }

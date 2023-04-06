@@ -77,5 +77,5 @@ void main()
     vec4 fb = vec4(waterFogColorLinear, 0.0);
 #endif
     
-	frag_color = applyWaterFogViewLinearNoClip(vary_position, fb, vec3(1));
+	frag_color = max(applyWaterFogViewLinearNoClip(vary_position, fb, vec3(1)), vec4(0));
 }

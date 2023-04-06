@@ -44,5 +44,5 @@ void main()
 		discard;
 	}
 
-	frag_color = col;
+	frag_color = max(col, vec4(0));
 }

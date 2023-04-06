@@ -49,5 +49,5 @@ void main()
         col += texture(diffuseRect, tc).rgb * w[i];
     }
 
-    frag_color = vec4(col, 0.0);
+    frag_color = max(vec4(col, 0.0), vec4(0));
 }

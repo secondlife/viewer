@@ -531,7 +531,7 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
     specContrib *= NdotL;
     specContrib = max(specContrib, vec3(0));
 
-    return color;
+    return clamp(color, vec3(0), vec3(10));
 }
 
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 

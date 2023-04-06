@@ -115,7 +115,7 @@ void main()
     col /= defined_weight.xyxx;
     //col.y *= col.y;
     
-    frag_color = col;
+    frag_color = max(col, vec4(0));
 
 #ifdef IS_AMD_CARD
     // If it's AMD make sure the GLSL compiler sees the arrays referenced once by static index. Otherwise it seems to optimise the storage awawy which leads to unfun crashes and artifacts.

@@ -36,5 +36,5 @@ VARYING vec2 vary_texcoord0;
 
 void main() 
 {
-	frag_color = color*texture2D(diffuseMap, vary_texcoord0.xy);
+	frag_color = max(color*texture2D(diffuseMap, vary_texcoord0.xy), vec4(0));
 }

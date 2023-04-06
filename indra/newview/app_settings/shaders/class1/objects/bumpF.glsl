@@ -40,5 +40,5 @@ void main()
 	float tex0 = texture2D(texture0, vary_texcoord0.xy).a;
 	float tex1 = texture2D(texture1, vary_texcoord1.xy).a;
 
-	frag_color = vec4(tex0+(1.0-tex1)-0.5);
+	frag_color = max(vec4(tex0+(1.0-tex1)-0.5), vec4(0));
 }

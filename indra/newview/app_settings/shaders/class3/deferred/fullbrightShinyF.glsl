@@ -92,6 +92,6 @@ void main()
 
 	color.a = 1.0;
 
-	frag_color = color;
+	frag_color = max(color, vec4(0));
 }
 

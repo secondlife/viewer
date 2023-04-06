@@ -54,6 +54,6 @@ void default_lighting()
 
 	color.rgb = scaleSoftClip(color.rgb);
 
-	frag_color = color;
+	frag_color = max(color, vec4(0));
 }
 

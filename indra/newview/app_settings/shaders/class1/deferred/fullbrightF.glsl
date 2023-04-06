@@ -92,7 +92,6 @@ void main()
     
 #endif
 
-    frag_color.rgb = color.rgb;
-    frag_color.a   = color.a;
+    frag_color = max(color, vec4(0));
 }
 

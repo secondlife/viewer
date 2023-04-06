@@ -190,10 +190,7 @@ void main()
     vec3 seed = (diff.rgb+vec3(1.0))*vec3(tc.xy, tc.x+tc.y);
     vec3 nz = vec3(noise(seed.rg), noise(seed.gb), noise(seed.rb));
     diff.rgb += nz*0.003;
-    //diff.rgb = nz;
-
-    //float exp_sample = texture(exposureMap, vec2(0.5,0.5)).r;
-    //diff.g = exp_sample;
-    frag_color = diff;
+    
+    frag_color = max(diff, vec4(0));
 }
 

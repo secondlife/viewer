@@ -286,6 +286,6 @@ void main()
 
     float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
     
-    frag_color = vec4(color, spec); //*sunAngle2);
+    frag_color = max(vec4(color, spec), vec4(0));
 }
 

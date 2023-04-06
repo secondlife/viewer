@@ -101,10 +101,10 @@ void main()
     //emissive = vNt * 0.5 + 0.5;
     //emissive = tnorm*0.5+0.5;
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
-    frag_data[0] = vec4(col, 0.0);                                                   // Diffuse
-    frag_data[1] = vec4(spec.rgb,vertex_color.a);                                    // PBR linear packed Occlusion, Roughness, Metal.
-    frag_data[2] = vec4(encode_normal(tnorm), vertex_color.a, GBUFFER_FLAG_HAS_PBR); // normal, environment intensity, flags
-    frag_data[3] = vec4(emissive,0);                                                // PBR sRGB Emissive
+    frag_data[0] = max(vec4(col, 0.0), vec4(0));                                                   // Diffuse
+    frag_data[1] = max(vec4(spec.rgb,vertex_color.a), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
+    frag_data[2] = max(vec4(encode_normal(tnorm), vertex_color.a, GBUFFER_FLAG_HAS_PBR), vec4(0)); // normal, environment intensity, flags
+    frag_data[3] = max(vec4(emissive,0), vec4(0));                                                // PBR sRGB Emissive
 }
 
 #else

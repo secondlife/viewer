@@ -25,11 +25,7 @@
 
 /*[EXTRA_CODE_HERE]*/
  
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
-#else
-#define frag_data gl_FragData
-#endif
+out vec4 frag_data[4];
 
 uniform sampler2D diffuseMap;
 
@@ -47,5 +43,6 @@ void main()
 	//frag_data[1] = vec4(vec3(vertex_color.a), vertex_color.a+(1.0-vertex_color.a)*vertex_color.a); // spec - from former class3 - maybe better, but not so well tested
 	vec3 nvn = normalize(vary_normal);
 	frag_data[2] = vec4(encode_normal(nvn.xyz), vertex_color.a, GBUFFER_FLAG_HAS_ATMOS);
+    frag_data[3] = vec4(0);
 }
 

@@ -55,6 +55,6 @@ void main()
 
     s = mix(prev, s, min(dt*2.0*abs(prev-s), 0.04));
     
-    frag_color = vec4(s, s, s, dt);
+    frag_color = max(vec4(s, s, s, dt), vec4(0.0));
 }
 

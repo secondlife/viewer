@@ -41,6 +41,6 @@ void main()
 	vec4 color = diffuseLookup(vary_texcoord0.xy)*vertex_color;
 	color.rgb = fullbrightAtmosTransport(color.rgb);
 
-	frag_color = color;
+	frag_color = max(color, vec4(0));
 }
 

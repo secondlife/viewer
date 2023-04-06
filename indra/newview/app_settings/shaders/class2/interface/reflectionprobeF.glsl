@@ -38,5 +38,5 @@ void main()
     float depth        = getDepth(tc.xy);
     vec4  pos          = getPositionWithDepth(tc, depth);
 
-    frag_color = sampleReflectionProbesDebug(pos.xyz);
+    frag_color = max(sampleReflectionProbesDebug(pos.xyz), vec4(0));
 }

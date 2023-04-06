@@ -10452,7 +10452,7 @@
     <key>Comment</key>
     <string>Amount to over-brighten sun for HDR effect during the day</string>
     <key>Persist</key>
-    <integer>1</integer>
+    <integer>0</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
@@ -10463,7 +10463,7 @@
     <key>Comment</key>
     <string>Maximum effective probe ambiance for local lights</string>
     <key>Persist</key>
-    <integer>1</integer>
+    <integer>0</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
@@ -10474,7 +10474,7 @@
     <key>Comment</key>
     <string>Minimum dynamic exposure amount</string>
     <key>Persist</key>
-    <integer>1</integer>
+    <integer>0</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
@@ -10485,7 +10485,7 @@
     <key>Comment</key>
     <string>Maximum dynamic exposure amount</string>
     <key>Persist</key>
-    <integer>1</integer>
+    <integer>0</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
@@ -10496,7 +10496,7 @@
     <key>Comment</key>
     <string>Luminance coefficient for dynamic exposure</string>
     <key>Persist</key>
-    <integer>1</integer>
+    <integer>0</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>

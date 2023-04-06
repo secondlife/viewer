@@ -54,6 +54,6 @@ void default_lighting_water()
 
 	color = applyWaterFog(color);
 	
-	frag_color = color;
+	frag_color = max(color, vec4(0));
 }
 

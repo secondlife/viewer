@@ -183,7 +183,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 
 #else
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
+out vec4 frag_data[4];
 #else
 #define frag_data gl_FragData
 #endif
@@ -412,13 +412,14 @@ void main()
     color = temp.rgb;
 #endif
 
-    frag_color = vec4(color, al);
+    frag_color = max(vec4(color, al), vec4(0));
 
 #else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer 
     // deferred path               // See: C++: addDeferredAttachment(), shader: softenLightF.glsl
     frag_data[0] = vec4(diffcol.rgb, emissive);        // gbuffer is sRGB for legacy materials
     frag_data[1] = vec4(spec.rgb, glossiness);           // XYZ = Specular color. W = Specular exponent.
     frag_data[2] = vec4(encode_normal(norm), env, GBUFFER_FLAG_HAS_ATMOS);;   // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
+    frag_data[3] = vec4(0);
 #endif
 }
 

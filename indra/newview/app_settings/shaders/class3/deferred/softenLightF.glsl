@@ -270,6 +270,6 @@ void main()
         color       = fogged.rgb;
     #endif
 
-    frag_color.rgb = color.rgb; //output linear since local lights will be added to this shader's results
+    frag_color.rgb = max(color.rgb, vec3(0)); //output linear since local lights will be added to this shader's results
     frag_color.a = 0.0;
 }

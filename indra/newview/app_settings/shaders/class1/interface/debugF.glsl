@@ -33,5 +33,5 @@ uniform vec4 color;
 
 void main() 
 {
-	frag_color = color;
+	frag_color = max(color, vec4(0));
 }
