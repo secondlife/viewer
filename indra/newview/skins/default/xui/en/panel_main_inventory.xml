@@ -328,4 +328,15 @@
        follows="all"
        layout="topleft" />
     </panel>
+    <panel
+     follows="all"
+     halign="center"
+     height="372"
+     layout="topleft"
+     left="7"
+     name="combination_view_inventory"
+     top_delta="0"
+     visible="false"
+     width="312">
+    </panel>
 </panel>

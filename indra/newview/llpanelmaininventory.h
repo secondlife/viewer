@@ -125,6 +125,7 @@ public:
     void setViewMode(EViewModeType mode);
     bool isListViewMode() { return (mViewMode == MODE_LIST); }
     bool isGalleryViewMode() { return (mViewMode == MODE_GALLERY); }
+    bool isCombinationViewMode() { return (mViewMode == MODE_COMBINATION); }
     LLUUID getCurrentSFVRoot();
     std::string getLocalizedRootName();
 

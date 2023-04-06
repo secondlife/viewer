@@ -613,6 +613,12 @@ void LLInventoryGallery::applyFilter(LLInventoryGalleryItem* item, const std::st
         return;
     }
 
+    if(!mFilter->checkAgainstFilterThumbnails(item->getUUID()))
+    {
+        item->setHidden(true);
+        return;
+    }
+
     if(!checkAgainstFilterType(item->getUUID()))
     {
         item->setHidden(true);

@@ -1421,6 +1421,7 @@ void LLPanelMainInventory::toggleViewMode()
     getChild<LLPanel>("default_inventory_panel")->setVisible(!mSingleFolderMode);
     getChild<LLPanel>("single_folder_inventory")->setVisible(mSingleFolderMode && isListViewMode());
     getChild<LLPanel>("gallery_view_inventory")->setVisible(mSingleFolderMode && isGalleryViewMode());
+    getChild<LLPanel>("combination_view_inventory")->setVisible(mSingleFolderMode && isCombinationViewMode());
     getChild<LLLayoutPanel>("nav_buttons")->setVisible(mSingleFolderMode);
     getChild<LLButton>("view_mode_btn")->setImageOverlay(mSingleFolderMode ? getString("default_mode_btn") : getString("single_folder_mode_btn"));
 
@@ -1823,6 +1824,10 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
     {
         setViewMode(MODE_GALLERY);
     }
+    if (command_name == "combination_view")
+    {
+        setViewMode(MODE_COMBINATION);
+    }
 }
 
 void LLPanelMainInventory::onVisibilityChange( BOOL new_visibility )
@@ -2042,7 +2047,7 @@ BOOL LLPanelMainInventory::isActionChecked(const LLSD& userdata)
     }
     if (command_name == "combination_view")
     {
-        return false;
+        return isCombinationViewMode();
     }
 
 	return FALSE;
@@ -2127,6 +2132,7 @@ void LLPanelMainInventory::setViewMode(EViewModeType mode)
 
         getChild<LLPanel>("single_folder_inventory")->setVisible(mSingleFolderMode && isListViewMode());
         getChild<LLPanel>("gallery_view_inventory")->setVisible(mSingleFolderMode && isGalleryViewMode());
+        getChild<LLPanel>("combination_view_inventory")->setVisible(mSingleFolderMode && isCombinationViewMode());
 
         if(isListViewMode())
         {
@@ -2165,6 +2171,11 @@ LLUUID LLPanelMainInventory::getCurrentSFVRoot()
     if(isGalleryViewMode())
     {
         return mInventoryGalleryPanel->getRootFolder();
+    }
+    if(isCombinationViewMode())
+    {
+        //todo: should get actual Combination view root
+        return mSingleFolderPanelInventory->getSingleFolderRoot();
     }
     return LLUUID::null;
 }
