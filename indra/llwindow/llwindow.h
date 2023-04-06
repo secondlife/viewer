@@ -118,7 +118,8 @@ public:
 
 	// Sets cursor, may set to arrow+hourglass
 	virtual void setCursor(ECursorType cursor) { mNextCursor = cursor; };
-	virtual ECursorType getCursor() const;
+    virtual ECursorType getCursor() const;
+    virtual ECursorType getNextCursor() const { return mNextCursor; };
 	virtual void updateCursor() = 0;
 
 	virtual void captureMouse() = 0;
