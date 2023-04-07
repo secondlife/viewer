@@ -134,7 +134,7 @@ void preProbeSample(vec3 pos)
             int neighborIdx = refIndex[i].y;
             if (neighborIdx != -1)
             {
-                int neighborCount = min(refIndex[i].z, REF_SAMPLE_COUNT-1);
+                int neighborCount = refIndex[i].z;
 
                 int count = 0;
                 while (count < neighborCount)

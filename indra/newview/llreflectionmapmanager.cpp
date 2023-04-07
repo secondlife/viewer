@@ -861,6 +861,9 @@ void LLReflectionMapManager::updateUniforms()
         {
             //LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("rmmsu - refNeighbors");
             //pack neghbor list
+            const U32 max_neighbors = 64;
+            U32 neighbor_count = 0;
+
             for (auto& neighbor : refmap->mNeighbors)
             {
                 if (ni >= 4096)
@@ -876,6 +879,12 @@ void LLReflectionMapManager::updateUniforms()
 
                 // this neighbor may be sampled
                 rpd.refNeighbor[ni++] = idx;
+
+                neighbor_count++;
+                if (neighbor_count >= max_neighbors)
+                {
+                    break;
+                }
             }
         }
 

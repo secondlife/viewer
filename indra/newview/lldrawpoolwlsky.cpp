@@ -442,7 +442,11 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
         {
             renderStarsDeferred(origin);
         }
-        renderSkyCloudsDeferred(origin, camHeightLocal, cloud_shader);
+
+        if (!gCubeSnapshot || gPipeline.mReflectionMapManager.isRadiancePass()) // don't draw clouds in irradiance maps to avoid popping
+        {
+            renderSkyCloudsDeferred(origin, camHeightLocal, cloud_shader);
+        }
     }
     gGL.setColorMask(true, true);
 }
