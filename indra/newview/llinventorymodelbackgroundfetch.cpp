@@ -487,6 +487,26 @@ void LLInventoryModelBackgroundFetch::onAISFodlerCalback(const LLUUID &request_i
             mFetchFolderQueue.push_front(FetchQueueInfo(request_id, FT_CONTENT_RECURSIVE));
             gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
         }
+        else if (recursion == FT_CONTENT_RECURSIVE)
+        {
+            LL_WARNS() << "Failed to download folder: " << request_id << " Requesting known content separately" << LL_ENDL;
+            LLInventoryModel::cat_array_t  *categories(NULL);
+            LLInventoryModel::item_array_t *items(NULL);
+            gInventory.getDirectDescendentsOf(request_id, categories, items);
+            if (categories)
+            {
+                for (LLInventoryModel::cat_array_t::const_iterator it = categories->begin(); it != categories->end(); ++it)
+                {
+                    mFetchFolderQueue.push_front(FetchQueueInfo((*it)->getUUID(), FT_RECURSIVE));
+                }
+                if (!mFetchFolderQueue.empty())
+                {
+                    mBackgroundFetchActive = true;
+                    mFolderFetchActive     = true;
+                    gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
+                }
+            }
+        }
     }
     else
     {
