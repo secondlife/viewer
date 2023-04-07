@@ -141,7 +141,7 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     
     // fudge sunlit and amblit to get consistent lighting compared to legacy
     // midday before PBR was a thing
-    sunlit = sunlight.rgb * (1.0+sun_up_factor*0.3);
+    sunlit = sunlight.rgb * (1.0+sun_up_factor*0.2);
     amblit = tmpAmbient.rgb * 0.25;
 
     additive *= vec3(1.0 - combined_haze);

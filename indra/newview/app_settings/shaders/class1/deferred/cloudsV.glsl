@@ -114,7 +114,7 @@ void main()
     float rel_pos_len  = length(rel_pos);
 
 	// Initialize temp variables
-	vec3 sunlight = sunlight_color*2.0;
+	vec3 sunlight = sunlight_color;
 	vec3 light_atten;
 
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
@@ -166,7 +166,7 @@ void main()
         (blue_horizon * blue_weight * (sunlight + tmpAmbient) + (haze_horizon * haze_weight) * (sunlight * haze_glow + tmpAmbient));
 
 	// CLOUDS
-    sunlight = sunlight_color;  // SL-14707 reset color -- Clouds are unusually dim in EEP
+    sunlight = sunlight_color;
     off_axis = 1.0 / max(1e-6, lightnorm.y * 2.);
     sunlight *= exp(-light_atten * off_axis);
 
