@@ -541,15 +541,16 @@ bool LLPuppetControl::updateTargetEvent()
     mEventTarget.setJointID(mParentJoint->getJointNum());
     mEventTarget.setReferenceFrame(LLPuppetJointEvent::ROOT_FRAME);
 
+    LLVector3 pos_final = mAttachmentJoint->getWorldPosition();
+
     if (mFlags & PUPPET_POSITION)
     {
         LLVector3   pelvis_pos = mPelvis->getWorldPosition();
 
         if (mFlags & PUPPET_POS_ABS)
         {
-            LLVector3 newpos =  mTargetPosition - pelvis_pos;
-            newpos *= ~mPelvis->getWorldRotation();
-            mEventTarget.setPosition(newpos);
+            pos_final =  mTargetPosition - pelvis_pos;
+            pos_final *= ~mPelvis->getWorldRotation();
         }
         else if (mFlags & PUPPET_POS_ATTCH)
         {
@@ -557,9 +558,8 @@ bool LLPuppetControl::updateTargetEvent()
             {
                 return false;
             }
-            LLVector3 actual_target = (mTrackingAttach->getWorldPosition() + mTargetPosition) - pelvis_pos;
+            pos_final = (mTrackingAttach->getWorldPosition() + mTargetPosition) - pelvis_pos;
             //actual_target *= ~mPelvis->getWorldRotation();
-            mEventTarget.setPosition(actual_target);
         }
         else if (mFlags & PUPPET_POS_TARGET)
         {   // Get the target (if known) by UUID
@@ -573,24 +573,28 @@ bool LLPuppetControl::updateTargetEvent()
             }
             else
             {
-                mLastTargetPos = target->getWorldPosition();
+                mLastTargetPos = target->getPositionRegion();
                 mHaveLastPos = true;
             }
-            LLVector3 newpos = (mLastTargetPos + mTargetPosition) - pelvis_pos;
-            newpos *= ~mPelvis->getWorldRotation();
-            mEventTarget.setPosition(newpos);
+            pos_final = (mLastTargetPos + mTargetPosition) - pelvis_pos;
+            pos_final *= ~mPelvis->getWorldRotation();
         }
         else
         {   // PUPPET_POS_LOC
-            mEventTarget.setPosition(mTargetPosition);
+            pos_final = mTargetPosition;
         }
+
+        mEventTarget.setPosition(pos_final);
     }
+
+    LLQuaternion rot_final = mAttachmentJoint->getWorldRotation();
     if (mFlags & PUPPET_ROTATION)
     {
         LLQuaternion pelvis_arot = ~mPelvis->getWorldRotation();
+
         if (mFlags & PUPPET_ROT_ABS)
         { 
-            mEventTarget.setRotation(mTargetRotation * pelvis_arot);
+            rot_final = mTargetRotation;
         }
         else if (mFlags & PUPPET_ROT_ATTCH)
         {
@@ -598,9 +602,8 @@ bool LLPuppetControl::updateTargetEvent()
             {
                 return false;
             }
-            LLQuaternion actual_rotation = mTrackingAttach->getWorldRotation() * mTargetRotation;
-            actual_rotation *= pelvis_arot;
-            mEventTarget.setRotation(actual_rotation);
+            rot_final = mTrackingAttach->getWorldRotation() * mTargetRotation;
+            rot_final *= pelvis_arot;
         }
         else if (mFlags & PUPPET_ROT_TARGET)
         {
@@ -614,16 +617,29 @@ bool LLPuppetControl::updateTargetEvent()
             }
             else
             {
-                mLastTargetRot = target->getWorldRotation();
-                mHaveLastRot = true;
+                if (mFlags & PUPPET_ROT_TOWARD) 
+                {
+                    static const LLVector3 pos_x(1.0f, 0.0f, 0.0f);
+                    LLVector3              pelvis_vec(target->getPositionRegion() - mTargetPosition);
+                    pelvis_vec.normalize();
+                    rot_final.shortestArc(pos_x, pelvis_vec);
+                }
+                else
+                {
+                    rot_final = target->getWorldRotation();
+                }
             }
-            LLQuaternion newrot = mLastTargetRot * mTargetRotation * pelvis_arot;
-            mEventTarget.setRotation(newrot);
+            rot_final = rot_final * mTargetRotation;
         }
         else
         {   // PUPPET_ROT_LOC
-            mEventTarget.setRotation(mTargetRotation);
+            rot_final = mTargetRotation;
         }
+
+        mLastTargetRot = rot_final;
+        mHaveLastRot = true;
+
+        mEventTarget.setRotation(rot_final);
     }
 
     if (mFlags & PUPPET_IGNORE_IK)
