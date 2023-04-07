@@ -1265,6 +1265,8 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
         }
     }
 
+    gPipeline.mReflectionMapManager.reset();
+
     if (!mSignalEnvChanged.empty())
         mSignalEnvChanged(env, env_version);
 }

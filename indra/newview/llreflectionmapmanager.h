@@ -80,8 +80,8 @@ public:
     // Guaranteed to not return null
     LLReflectionMap* registerViewerObject(LLViewerObject* vobj);
 
-    // force an update of all probes
-    void rebuild();
+    // reset all state on the next update
+    void reset();
 
     // called on region crossing to "shift" probes into new coordinate frame
     void shift(const LLVector4a& offset);
@@ -190,5 +190,8 @@ private:
 
     // amount to scale local lights during an irradiance map update (set during updateProbeFace and used by LLPipeline)
     F32 mLightScale = 1.f;
+
+    // if true, reset all probe render state on the next update (for teleports and sky changes)
+    bool mReset = false;
 };
 

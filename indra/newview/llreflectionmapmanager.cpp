@@ -75,6 +75,23 @@ struct CompareProbeDistance
     }
 };
 
+// return true if a is higher priority for an update than b
+static bool check_priority(LLReflectionMap* a, LLReflectionMap* b)
+{
+    if (!a->mComplete && !b->mComplete)
+    { //neither probe is complete, use distance
+        return a->mDistance < b->mDistance;
+    }
+    else if (a->mComplete && b->mComplete)
+    { //both probes are complete, use combination of distance and last update time
+        return (a->mDistance - (gFrameTimeSeconds - a->mLastUpdateTime)) <
+            (b->mDistance - (gFrameTimeSeconds - b->mLastUpdateTime));
+    }
+
+    // one of these probes is not complete, if b is complete, a is higher priority
+    return b->mComplete;
+}
+
 // helper class to seed octree with probes
 void LLReflectionMapManager::update()
 {
@@ -181,6 +198,12 @@ void LLReflectionMapManager::update()
 
         LLVector4a d;
 
+        if (probe != mDefaultProbe)
+        {
+            d.setSub(camera_pos, probe->mOrigin);
+            probe->mDistance = d.getLength3().getF32() - probe->mRadius;
+        }
+
         if (probe->mComplete)
         {
             probe->mFadeIn = llmin((F32) (probe->mFadeIn + gFrameIntervalSeconds), 1.f);
@@ -201,7 +224,7 @@ void LLReflectionMapManager::update()
             if (!did_update &&
                 i < mReflectionProbeCount &&
                 (oldestProbe == nullptr ||
-                    probe->mLastUpdateTime < oldestProbe->mLastUpdateTime))
+                    check_priority(probe, oldestProbe)))
             {
                oldestProbe = probe;
             }
@@ -213,12 +236,6 @@ void LLReflectionMapManager::update()
             probe->getIsDynamic())
         {
             closestDynamic = probe;
-        }
-
-        if (probe != mDefaultProbe)
-        {
-            d.setSub(camera_pos, probe->mOrigin);
-            probe->mDistance = d.getLength3().getF32() - probe->mRadius;
         }
     }
 
@@ -702,12 +719,9 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
     }
 }
 
-void LLReflectionMapManager::rebuild()
+void LLReflectionMapManager::reset()
 {
-    for (auto& probe : mProbes)
-    {
-        probe->mLastUpdateTime = 0.f;
-    }
+    mReset = true;
 }
 
 void LLReflectionMapManager::shift(const LLVector4a& offset)
@@ -950,8 +964,26 @@ void renderReflectionProbe(LLReflectionMap* probe)
     gGL.begin(gGL.LINES);
     for (auto& neighbor : probe->mNeighbors)
     {
+        if (probe->mViewerObject && neighbor->mViewerObject)
+        {
+            continue;
+        }
+        
         gGL.vertex3fv(po);
         gGL.vertex3fv(neighbor->mOrigin.getF32ptr());
+    }
+    gGL.end();
+    gGL.flush();
+
+    gGL.diffuseColor4f(1, 1, 0, 1);
+    gGL.begin(gGL.LINES);
+    for (auto& neighbor : probe->mNeighbors)
+    {
+        if (probe->mViewerObject && neighbor->mViewerObject)
+        {
+            gGL.vertex3fv(po);
+            gGL.vertex3fv(neighbor->mOrigin.getF32ptr());
+        }
     }
     gGL.end();
     gGL.flush();
@@ -1022,8 +1054,9 @@ void LLReflectionMapManager::initReflectionMaps()
 
     U32 count = llclamp((S32) probe_count, 1, LL_MAX_REFLECTION_PROBE_COUNT);
 
-    if (mTexture.isNull() || mReflectionProbeCount != count)
+    if (mTexture.isNull() || mReflectionProbeCount != count || mReset)
     {
+        mReset = false;
         mReflectionProbeCount = count;
         mProbeResolution = nhpo2(llclamp(gSavedSettings.getU32("RenderReflectionProbeResolution"), (U32)64, (U32)512));
         mMaxProbeLOD = log2f(mProbeResolution) - 1.f; // number of mips - 1
@@ -1045,6 +1078,7 @@ void LLReflectionMapManager::initReflectionMaps()
 
         for (auto& probe : mProbes)
         {
+            probe->mLastUpdateTime = 0.f;
             probe->mComplete = false;
             probe->mProbeIndex = -1;
             probe->mCubeArray = nullptr;

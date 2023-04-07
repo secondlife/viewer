@@ -8451,12 +8451,6 @@ void handle_cache_clear_immediately()
 	LLNotificationsUtil::add("ConfirmClearCache", LLSD(), LLSD(), callback_clear_cache_immediately);
 }
 
-void handle_rebuild_reflection_probes()
-{
-    gPipeline.mReflectionMapManager.rebuild();
-}
-
-
 void handle_web_content_test(const LLSD& param)
 {
 	std::string url = param.asString();
@@ -9550,9 +9544,7 @@ void initialize_menus()
 	
 	//Develop (clear cache immediately)
 	commit.add("Develop.ClearCache", boost::bind(&handle_cache_clear_immediately) );
-    //Develop (override environment map)
-    commit.add("Develop.RebuildReflectionProbes", boost::bind(&handle_rebuild_reflection_probes));
-
+    
 	// Admin >Object
 	view_listener_t::addMenu(new LLAdminForceTakeCopy(), "Admin.ForceTakeCopy");
 	view_listener_t::addMenu(new LLAdminHandleObjectOwnerSelf(), "Admin.HandleObjectOwnerSelf");
