@@ -713,6 +713,7 @@ void LLInventoryGallery::updateAddedItem(LLUUID item_id)
     item->setFocusReceivedCallback(boost::bind(&LLInventoryGallery::changeItemSelection, this, item_id));
     if (mGalleryCreated)
     {
+        applyFilter(item, mFilterSubString);
         addToGallery(item);
     }
 

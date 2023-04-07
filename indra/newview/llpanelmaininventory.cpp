@@ -506,9 +506,9 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
                 menu_create_inventory_item(getPanel(), bridge, userdata);
             }
         }
-        else if(isGalleryViewMode())
+        else
         {
-            menu_create_inventory_item(NULL, mInventoryGalleryPanel->getRootFolder(), userdata);
+            menu_create_inventory_item(NULL, getCurrentSFVRoot(), userdata);
         }
     }
     else
@@ -625,6 +625,11 @@ void LLPanelMainInventory::setSearchType(LLInventoryFilter::ESearchType type)
     {
         mInventoryGalleryPanel->setSearchType(type);
     }
+    if(mSingleFolderMode && isCombinationViewMode())
+    {
+        mCombinationPanelInventory->setSearchType(type);
+        mCombinationGalleryPanel->setSearchType(type);
+    }
     else
     {
         getActivePanel()->setSearchType(type);
@@ -638,6 +643,10 @@ void LLPanelMainInventory::updateSearchTypeCombo()
     if(mSingleFolderMode && isGalleryViewMode())
     {
         search_type = mInventoryGalleryPanel->getSearchType();
+    }
+    else if(mSingleFolderMode && isCombinationViewMode())
+    {
+        search_type = mCombinationGalleryPanel->getSearchType();
     }
     else
     {
@@ -2279,6 +2288,17 @@ void LLPanelMainInventory::setGallerySelection(const LLUUID& item_id)
     if(mSingleFolderMode && isGalleryViewMode())
     {
         mInventoryGalleryPanel->changeItemSelection(item_id);
+    }
+    else if(mSingleFolderMode && isCombinationViewMode())
+    {
+        if(mCombinationGalleryPanel->getFilter().checkAgainstFilterThumbnails(item_id))
+        {
+            mCombinationGalleryPanel->changeItemSelection(item_id);
+        }
+        else
+        {
+            mCombinationPanelInventory->setSelection(item_id, false);
+        }
     }
 }
 // List Commands                                                              //
