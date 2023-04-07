@@ -1649,16 +1649,20 @@ void validate_marketplacelistings(
             gInventory.createNewCategory(parent_uuid,
                 LLFolderType::FT_NONE,
                 cat->getName(),
-                [cat_uuid, cb_result, cb_msg, fix_hierarchy, depth, notify_observers](const LLUUID &new_cat_id)
+                [cat_uuid, cb_result, cb_msg, fix_hierarchy, depth](const LLUUID &new_cat_id)
             {
+                if (new_cat_id.isNull())
+                {
+                    cb_result(0, false);
+                    return;
+                }
                 LLInventoryCategory * move_cat = gInventory.getCategory(cat_uuid);
                 LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *)(move_cat);
                 LLInventoryCategory * new_cat = gInventory.getCategory(new_cat_id);
                 gInventory.changeCategoryParent(viewer_cat, new_cat_id, false);
                 S32 pending = 0;
                 bool result = true;
-                // notify_observers probably should be true in such case?
-                validate_marketplacelistings(new_cat, cb_result, cb_msg, fix_hierarchy, depth + 1, notify_observers, pending, result);
+                validate_marketplacelistings(new_cat, cb_result, cb_msg, fix_hierarchy, depth + 1, true, pending, result);
                 cb_result(pending, result);
             }
             );
@@ -2306,8 +2310,11 @@ bool can_share_item(const LLUUID& item_id)
 
 
 LLMarketplaceValidator::LLMarketplaceValidator()
+    : mPendingCallbacks(0)
+    , mValidationInProgress(false)
 {
 }
+
 LLMarketplaceValidator::~LLMarketplaceValidator()
 {
 }
@@ -2335,7 +2342,7 @@ void LLMarketplaceValidator::start()
         return;
     }
     mValidationInProgress = true;
-    mPendingCallbacks = 1; // do '1' in case something decides ro callback immediately
+    mPendingCallbacks = 1; // do '1' in case something decides to callback immediately
     const ValidationRequest &first = mValidationQueue.front();
     LLViewerInventoryCategory* cat = gInventory.getCategory(first.mCategoryId);
 
@@ -2358,6 +2365,7 @@ void LLMarketplaceValidator::start()
         }
     };
 
+    S32 pending_calbacks = 0;
     validate_marketplacelistings(
         cat,
         result_callback,
@@ -2365,10 +2373,10 @@ void LLMarketplaceValidator::start()
         first.mFixHierarchy,
         first.mDepth,
         true,
-        mPendingCallbacks,
+        pending_calbacks,
         mPendingResult);
 
-    result_callback(mPendingCallbacks, mPendingResult);
+    result_callback(pending_calbacks, mPendingResult);
 }
 
 LLMarketplaceValidator::ValidationRequest::ValidationRequest(

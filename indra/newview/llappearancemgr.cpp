@@ -1702,8 +1702,6 @@ void LLAppearanceMgr::shallowCopyCategory(const LLUUID& src_id, const LLUUID& ds
 	{
 		parent_id = gInventory.getRootFolderID();
 	}
-	// USES UDP PATH
-	// D567 needs to carry over thumbnail info
 	gInventory.createNewCategory(
         parent_id,
         LLFolderType::FT_NONE,
@@ -1713,7 +1711,8 @@ void LLAppearanceMgr::shallowCopyCategory(const LLUUID& src_id, const LLUUID& ds
         LLAppearanceMgr::getInstance()->shallowCopyCategoryContents(src_id, new_id, cb);
 
         gInventory.notifyObservers();
-    }
+    },
+        src_cat->getThumbnailUUID()
     );
 }
 
