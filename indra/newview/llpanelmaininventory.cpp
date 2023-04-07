@@ -252,6 +252,19 @@ BOOL LLPanelMainInventory::postBuild()
     mInventoryGalleryPanel = getChild<LLInventoryGallery>("gallery_view_inv");
     mGalleryRootUpdatedConnection = mInventoryGalleryPanel->setRootChangedCallback(boost::bind(&LLPanelMainInventory::updateTitle, this));
 
+    mCombinationPanelInventory = getChild<LLInventorySingleFolderPanel>("comb_single_folder_inv");
+    LLInventoryFilter& comb_inv_filter = mCombinationPanelInventory->getFilter();
+    comb_inv_filter.setFilterThumbnails(LLInventoryFilter::FILTER_EXCLUDE_THUMBNAILS);
+    comb_inv_filter.markDefault();
+    mCombinationPanelInventory->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mCombinationPanelInventory, _1, _2));
+    mCombinationPanelInventory->setRootChangedCallback(boost::bind(&LLPanelMainInventory::onCombinationRootChanged, this, false));
+
+    mCombinationGalleryPanel = getChild<LLInventoryGallery>("comb_gallery_view_inv");
+    LLInventoryFilter& comb_gallery_filter = mCombinationGalleryPanel->getFilter();
+    comb_gallery_filter.setFilterThumbnails(LLInventoryFilter::FILTER_ONLY_THUMBNAILS);
+    comb_gallery_filter.markDefault();
+    mCombinationGalleryPanel->setRootChangedCallback(boost::bind(&LLPanelMainInventory::onCombinationRootChanged, this, true));
+
 	initListCommandsHandlers();
 
 	const std::string texture_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost());
@@ -887,6 +900,7 @@ void LLPanelMainInventory::draw()
 	}
 	LLPanel::draw();
 	updateItemcountText();
+    updateCombinationVisibility();
 }
 
 void LLPanelMainInventory::updateItemcountText()
@@ -1514,6 +1528,10 @@ void LLPanelMainInventory::onUpFolderClicked()
             {
                 mInventoryGalleryPanel->setRootFolder(cat->getParentUUID());
             }
+            if(isCombinationViewMode())
+            {
+                mCombinationPanelInventory->changeFolderRoot(cat->getParentUUID());
+            }
         }
     }
 }
@@ -1528,6 +1546,10 @@ void LLPanelMainInventory::onBackFolderClicked()
     {
         mInventoryGalleryPanel->onBackwardFolder();
     }
+    if(isCombinationViewMode())
+    {
+        mCombinationPanelInventory->onBackwardFolder();
+    }
 }
 
 void LLPanelMainInventory::onForwardFolderClicked()
@@ -1539,6 +1561,10 @@ void LLPanelMainInventory::onForwardFolderClicked()
     if(isGalleryViewMode())
     {
         mInventoryGalleryPanel->onForwardFolder();
+    }
+    if(isCombinationViewMode())
+    {
+        mCombinationPanelInventory->onForwardFolder();
     }
 }
 
@@ -2099,6 +2125,26 @@ void LLPanelMainInventory::updateTitle()
     updateNavButtons();
 }
 
+void LLPanelMainInventory::onCombinationRootChanged(bool gallery_clicked)
+{
+    if(gallery_clicked)
+    {
+        mCombinationPanelInventory->changeFolderRoot(mCombinationGalleryPanel->getRootFolder());
+    }
+    else
+    {
+        mCombinationGalleryPanel->setRootFolder(mCombinationPanelInventory->getSingleFolderRoot());
+    }
+
+    updateTitle();
+}
+
+void LLPanelMainInventory::updateCombinationVisibility()
+{
+    getChild<LLLayoutPanel>("comb_gallery_layout")->setVisible(mCombinationGalleryPanel->hasVisibleItems());
+    getChild<LLView>("border")->setVisible(mCombinationGalleryPanel->hasVisibleItems());
+}
+
 void LLPanelMainInventory::updateNavButtons()
 {
     if(isListViewMode())
@@ -2110,6 +2156,11 @@ void LLPanelMainInventory::updateNavButtons()
     {
         getChild<LLButton>("back_btn")->setEnabled(mInventoryGalleryPanel->isBackwardAvailable());
         getChild<LLButton>("forward_btn")->setEnabled(mInventoryGalleryPanel->isForwardAvailable());
+    }
+    if(isCombinationViewMode())
+    {
+        getChild<LLButton>("back_btn")->setEnabled(mCombinationPanelInventory->isBackwardAvailable());
+        getChild<LLButton>("forward_btn")->setEnabled(mCombinationPanelInventory->isForwardAvailable());
     }
 
     const LLViewerInventoryCategory* cat = gInventory.getCategory(getCurrentSFVRoot());
@@ -2131,6 +2182,24 @@ void LLPanelMainInventory::setViewMode(EViewModeType mode)
 {
     if(mode != mViewMode)
     {
+        std::list<LLUUID> forward_history;
+        std::list<LLUUID> backward_history;
+        switch(mViewMode)
+        {
+            case MODE_LIST:
+                forward_history = mSingleFolderPanelInventory->getNavForwardList();
+                backward_history = mSingleFolderPanelInventory->getNavBackwardList();
+                break;
+            case MODE_GALLERY:
+                forward_history = mInventoryGalleryPanel->getNavForwardList();
+                backward_history = mInventoryGalleryPanel->getNavBackwardList();
+                break;
+            case MODE_COMBINATION:
+                forward_history = mCombinationPanelInventory->getNavForwardList();
+                backward_history = mCombinationPanelInventory->getNavBackwardList();
+                break;
+        }
+            
         LLUUID cur_root = getCurrentSFVRoot();
         mViewMode = mode;
 
@@ -2141,15 +2210,25 @@ void LLPanelMainInventory::setViewMode(EViewModeType mode)
         if(isListViewMode())
         {
             mSingleFolderPanelInventory->changeFolderRoot(cur_root);
-            mSingleFolderPanelInventory->setNavForwardList(mInventoryGalleryPanel->getNavForwardList());
-            mSingleFolderPanelInventory->setNavBackwardList(mInventoryGalleryPanel->getNavBackwardList());
+            mSingleFolderPanelInventory->setNavForwardList(forward_history);
+            mSingleFolderPanelInventory->setNavBackwardList(backward_history);
         }
         if(isGalleryViewMode())
         {
             mInventoryGalleryPanel->setRootFolder(cur_root);
-            mInventoryGalleryPanel->setNavForwardList(mSingleFolderPanelInventory->getNavForwardList());
-            mInventoryGalleryPanel->setNavBackwardList(mSingleFolderPanelInventory->getNavBackwardList());
+            mInventoryGalleryPanel->setNavForwardList(forward_history);
+            mInventoryGalleryPanel->setNavBackwardList(backward_history);
         }
+        if(isCombinationViewMode())
+        {
+            mCombinationPanelInventory->changeFolderRoot(cur_root);
+            mCombinationGalleryPanel->setRootFolder(cur_root);
+            mCombinationPanelInventory->setNavForwardList(forward_history);
+            mCombinationPanelInventory->setNavBackwardList(backward_history);
+            mCombinationGalleryPanel->setNavForwardList(forward_history);
+            mCombinationGalleryPanel->setNavBackwardList(backward_history);
+        }
+
         updateNavButtons();
 
         onFilterSelected();
@@ -2178,8 +2257,7 @@ LLUUID LLPanelMainInventory::getCurrentSFVRoot()
     }
     if(isCombinationViewMode())
     {
-        //todo: should get actual Combination view root
-        return mSingleFolderPanelInventory->getSingleFolderRoot();
+        return mCombinationPanelInventory->getSingleFolderRoot();
     }
     return LLUUID::null;
 }

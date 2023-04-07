@@ -122,6 +122,7 @@ public:
     LLInventoryFilter::ESearchType getSearchType() { return mSearchType; }
 
     bool hasDescendents(const LLUUID& cat_id);
+    bool hasVisibleItems();
 
 protected:
 

@@ -160,6 +160,8 @@ protected:
 	bool isSaveTextureEnabled(const LLSD& userdata);
 	void updateItemcountText();
 
+    void updateCombinationVisibility();
+
 	void onFocusReceived();
 	void onSelectSearchType();
 	void updateSearchTypeCombo();
@@ -190,6 +192,8 @@ private:
     EViewModeType mViewMode;
     LLInventorySingleFolderPanel* mSingleFolderPanelInventory;
     LLInventoryGallery* mInventoryGalleryPanel;
+    LLInventorySingleFolderPanel* mCombinationPanelInventory;
+    LLInventoryGallery* mCombinationGalleryPanel;
 
     boost::signals2::connection mListViewRootUpdatedConnection;
     boost::signals2::connection mGalleryRootUpdatedConnection;
@@ -209,6 +213,8 @@ protected:
     static bool hasSettingsInventory();
     void updateTitle();
     void updateNavButtons();
+    
+    void onCombinationRootChanged(bool gallery_clicked);
 	/**
 	 * Set upload cost in "Upload" sub menu.
 	 */

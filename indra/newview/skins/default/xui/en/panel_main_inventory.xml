@@ -286,8 +286,7 @@
        name="single_folder_inv"
        follows="all"
        left="0"
-       top="0"
-       top_pad="5"
+       top_pad="1"
        height="372"
        width="312"
        layout="topleft"
@@ -338,5 +337,76 @@
      top_delta="0"
      visible="false"
      width="312">
+     <layout_stack
+      follows="all"
+      height="372"
+      width="312"
+      animate="false"
+      top="0"
+      left="0"
+      orientation="vertical">
+       <layout_panel
+        border="false"
+        bevel_style="in"
+        user_resize="true"
+        auto_resize="true"
+        height="186"
+        width="312"
+        min_width="150"
+        name="comb_gallery_layout">
+        <panel
+         class="inventory_gallery"
+         filename="panel_inventory_gallery.xml"
+         left="0"
+         top_pad="0"
+         height="178"
+         width="312"
+         name="comb_gallery_view_inv"
+         background_visible="true"
+         follows="all"
+         layout="topleft">
+        </panel>
+        <view_border
+         bevel_style="none"
+         height="0"
+         follows="left|bottom|right"
+         layout="topleft"
+         left="6"
+         name="border"
+         top_pad="8"
+         width="300"/>
+       </layout_panel>
+       <layout_panel
+        border="false"
+        bevel_style="in"
+        user_resize="true"
+        auto_resize="true"
+        height="186"
+        width="312"
+        name="comb_inventory_layout">
+        <single_folder_inventory_panel
+         name="comb_single_folder_inv"
+         follows="all"
+         left="0"
+         top="1"
+         height="181"
+         width="312"
+         layout="topleft"
+         show_item_link_overlays="true"
+         bg_opaque_color="DkGray2"
+         bg_alpha_color="DkGray2"
+         background_visible="true"
+         border="false"
+         bevel_style="none"
+         scroll.reserve_scroll_corner="false">
+         <item
+          single_folder_mode="true"
+          folder_indentation="-8"/>
+         <folder
+          single_folder_mode="true"
+          folder_indentation="-8"/>
+        </single_folder_inventory_panel>
+       </layout_panel>
+     </layout_stack>
     </panel>
 </panel>

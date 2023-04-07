@@ -1128,6 +1128,11 @@ bool LLInventoryGallery::checkAgainstFilterType(const LLUUID& object_id)
     }
     return true;
 }
+
+bool LLInventoryGallery::hasVisibleItems()
+{
+    return mItemsAddedCount > 0;
+}
 //-----------------------------
 // LLInventoryGalleryItem
 //-----------------------------
