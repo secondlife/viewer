@@ -1098,11 +1098,28 @@ void LLInventoryCategory::setPreferredType(LLFolderType::EType type)
 LLSD LLInventoryCategory::asLLSD() const
 {
     LLSD sd = LLSD();
-    sd["item_id"] = mUUID;
-    sd["parent_id"] = mParentUUID;
+    sd[INV_ITEM_ID_LABEL]   = mUUID;
+    sd[INV_PARENT_ID_LABEL] = mParentUUID;
     S8 type = static_cast<S8>(mPreferredType);
-    sd["type"]      = type;
-    sd["name"] = mName;
+    sd[INV_ASSET_TYPE_LABEL] = type;
+    sd[INV_NAME_LABEL] = mName;
+
+    if (mThumbnailUUID.notNull())
+    {
+        sd[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
+    }
+
+    return sd;
+}
+
+LLSD LLInventoryCategory::asAISLLSD() const
+{
+    LLSD sd                 = LLSD();
+    sd[INV_FOLDER_ID_LABEL_WS]  = mUUID;
+    sd[INV_PARENT_ID_LABEL] = mParentUUID;
+    S8 type                 = static_cast<S8>(mPreferredType);
+    sd[INV_ASSET_TYPE_LABEL_WS] = type;
+    sd[INV_NAME_LABEL] = mName;
 
     if (mThumbnailUUID.notNull())
     {

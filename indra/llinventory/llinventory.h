@@ -253,6 +253,7 @@ public:
 	LLFolderType::EType getPreferredType() const;
 	void setPreferredType(LLFolderType::EType type);
 	LLSD asLLSD() const;
+    LLSD asAISLLSD() const;
 	bool fromLLSD(const LLSD& sd);
 
 	//--------------------------------------------------------------------

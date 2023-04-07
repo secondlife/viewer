@@ -1010,7 +1010,7 @@ void LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 		new_inventory["categories"] = LLSD::emptyArray();
 		LLViewerInventoryCategory cat(LLUUID::null, parent_id, preferred_type, name, gAgent.getID());
         cat.setThumbnailUUID(thumbnail_id);
-		LLSD cat_sd = cat.asLLSD();
+		LLSD cat_sd = cat.asAISLLSD();
 		new_inventory["categories"].append(cat_sd);
 		AISAPI::CreateInventory(
             parent_id,
