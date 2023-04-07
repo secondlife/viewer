@@ -1908,7 +1908,7 @@ Only large parcels can be listed in search.
             </text>
             <check_box
              height="16"
-             label="Obscure MOAP"
+             label="Restrict MOAP to this parcel"
              layout="topleft"
              left="110"
              left_pad="0"

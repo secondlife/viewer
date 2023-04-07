@@ -162,7 +162,7 @@ private:
     void setMapOrientation(const LLSD& userdata);
     void popupShowAboutLand(const LLSD& userdata);
 
-	LLMenuGL*		mPopupMenu;
+    LLHandle<LLView> mPopupMenuHandle;
 	uuid_vec_t		gmSelected;
 };
 

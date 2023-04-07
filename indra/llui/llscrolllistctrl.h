@@ -261,8 +261,8 @@ public:
 	virtual LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos = ADD_BOTTOM, const LLSD& id = LLSD());
 
 	BOOL			selectItemByLabel( const std::string& item, BOOL case_sensitive = TRUE, S32 column = 0 );		// FALSE if item not found
-	BOOL			selectItemByPrefix(const std::string& target, BOOL case_sensitive = TRUE);
-	BOOL			selectItemByPrefix(const LLWString& target, BOOL case_sensitive = TRUE);
+	BOOL			selectItemByPrefix(const std::string& target, BOOL case_sensitive = TRUE, S32 column = -1);
+	BOOL			selectItemByPrefix(const LLWString& target, BOOL case_sensitive = TRUE, S32 column = -1);
 	LLScrollListItem*  getItemByLabel( const std::string& item, BOOL case_sensitive = TRUE, S32 column = 0 );
 	const std::string	getSelectedItemLabel(S32 column = 0) const;
 	LLSD			getSelectedValue();
@@ -419,6 +419,8 @@ public:
 	void			setNeedsSort(bool val = true) { mSorted = !val; }
 	void			dirtyColumns(); // some operation has potentially affected column layout or ordering
 
+    bool highlightMatchingItems(const std::string& filter_str);
+
 	boost::signals2::connection setSortCallback(sort_signal_t::slot_type cb )
 	{
 		if (!mSortCallback) mSortCallback = new sort_signal_t();
@@ -526,7 +528,7 @@ private:
 
 	S32				mHighlightedItem;
 	class LLViewBorder*	mBorder;
-	LLContextMenu	*mPopupMenu;
+	LLHandle<LLContextMenu>	mPopupMenuHandle;
 	
 	LLView			*mCommentTextView;
 

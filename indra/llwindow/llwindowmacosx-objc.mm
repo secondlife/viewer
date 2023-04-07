@@ -49,14 +49,12 @@ void setupCocoa()
 	
 	if(!inited)
 	{
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-		
-		// The following prevents the Cocoa command line parser from trying to open 'unknown' arguements as documents.
-		// ie. running './secondlife -set Language fr' would cause a pop-up saying can't open document 'fr'
-		// when init'ing the Cocoa App window.
-		[[NSUserDefaults standardUserDefaults] setObject:@"NO" forKey:@"NSTreatUnknownArgumentsAsOpen"];
-		
-		[pool release];
+        @autoreleasepool {
+            // The following prevents the Cocoa command line parser from trying to open 'unknown' arguements as documents.
+            // ie. running './secondlife -set Language fr' would cause a pop-up saying can't open document 'fr'
+            // when init'ing the Cocoa App window.
+            [[NSUserDefaults standardUserDefaults] setObject:@"NO" forKey:@"NSTreatUnknownArgumentsAsOpen"];
+        }
 
 		inited = true;
 	}
@@ -64,13 +62,13 @@ void setupCocoa()
 
 bool copyToPBoard(const unsigned short *str, unsigned int len)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc]init];
-	NSPasteboard *pboard = [NSPasteboard generalPasteboard];
-	[pboard clearContents];
-	
-	NSArray *contentsToPaste = [[NSArray alloc] initWithObjects:[NSString stringWithCharacters:str length:len], nil];
-	[pool release];
-	return [pboard writeObjects:contentsToPaste];
+    @autoreleasepool {
+        NSPasteboard *pboard = [NSPasteboard generalPasteboard];
+        [pboard clearContents];
+        
+        NSArray *contentsToPaste = [[[NSArray alloc] initWithObjects:[NSString stringWithCharacters:str length:len], nil] autorelease];
+        return [pboard writeObjects:contentsToPaste];
+    }
 }
 
 bool pasteBoardAvailable()
@@ -79,39 +77,39 @@ bool pasteBoardAvailable()
 	return [[NSPasteboard generalPasteboard] canReadObjectForClasses:classArray options:[NSDictionary dictionary]];
 }
 
-const unsigned short *copyFromPBoard()
+unsigned short *copyFromPBoard()
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc]init];
-	NSPasteboard *pboard = [NSPasteboard generalPasteboard];
-	NSArray *classArray = [NSArray arrayWithObject:[NSString class]];
-	NSString *str = NULL;
-	BOOL ok = [pboard canReadObjectForClasses:classArray options:[NSDictionary dictionary]];
-	if (ok)
-	{
-		NSArray *objToPaste = [pboard readObjectsForClasses:classArray options:[NSDictionary dictionary]];
-		str = [objToPaste objectAtIndex:0];
-	}
-	unichar* temp = (unichar*)calloc([str length]+1, sizeof(unichar));
-	[str getCharacters:temp];
-	[pool release];
-	return temp;
+    @autoreleasepool {
+        NSPasteboard *pboard = [NSPasteboard generalPasteboard];
+        NSArray *classArray = [NSArray arrayWithObject:[NSString class]];
+        NSString *str = NULL;
+        BOOL ok = [pboard canReadObjectForClasses:classArray options:[NSDictionary dictionary]];
+        if (ok)
+        {
+            NSArray *objToPaste = [pboard readObjectsForClasses:classArray options:[NSDictionary dictionary]];
+            str = [objToPaste objectAtIndex:0];
+        }
+        NSUInteger str_len = [str length];
+        unichar* temp = (unichar*)calloc(str_len+1, sizeof(unichar));
+        [str getCharacters:temp range:NSMakeRange(0, str_len)];
+        return temp;
+    }
 }
 
 CursorRef createImageCursor(const char *fullpath, int hotspotX, int hotspotY)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
-	// extra retain on the NSCursor since we want it to live for the lifetime of the app.
-	NSCursor *cursor =
-	[[[NSCursor alloc]
-	  initWithImage:
-	  [[[NSImage alloc] initWithContentsOfFile:
-		[NSString stringWithUTF8String:fullpath]
-		]autorelease]
-	  hotSpot:NSMakePoint(hotspotX, hotspotY)
-	  ]retain];
-	
-	[pool release];
+    NSCursor *cursor = nil;
+    @autoreleasepool {
+        // extra retain on the NSCursor since we want it to live for the lifetime of the app.
+        cursor =
+        [[[NSCursor alloc]
+          initWithImage:
+              [[[NSImage alloc] initWithContentsOfFile:
+                    [NSString stringWithUTF8String:fullpath]
+               ] autorelease]
+          hotSpot:NSMakePoint(hotspotX, hotspotY)
+         ] retain];
+    }
 	
 	return (CursorRef)cursor;
 }
@@ -178,10 +176,10 @@ OSErr releaseImageCursor(CursorRef ref)
 {
 	if( ref != NULL )
 	{
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-		NSCursor *cursor = (NSCursor*)ref;
-		[cursor release];
-		[pool release];
+        @autoreleasepool {
+            NSCursor *cursor = (NSCursor*)ref;
+            [cursor autorelease];
+        }
 	}
 	else
 	{
@@ -195,10 +193,10 @@ OSErr setImageCursor(CursorRef ref)
 {
 	if( ref != NULL )
 	{
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-		NSCursor *cursor = (NSCursor*)ref;
-		[cursor set];
-		[pool release];
+        @autoreleasepool {
+            NSCursor *cursor = (NSCursor*)ref;
+            [cursor set];
+        }
 	}
 	else
 	{
@@ -217,6 +215,7 @@ NSWindowRef createNSWindow(int x, int y, int width, int height)
 													  styleMask:NSTitledWindowMask | NSResizableWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSTexturedBackgroundWindowMask backing:NSBackingStoreBuffered defer:NO];
 	[window makeKeyAndOrderFront:nil];
 	[window setAcceptsMouseMovedEvents:TRUE];
+    [window setRestorable:FALSE]; // Viewer manages state from own settings
 	return window;
 }
 
@@ -419,24 +418,26 @@ void requestUserAttention()
 
 long showAlert(std::string text, std::string title, int type)
 {
-    NSAlert *alert = [[NSAlert alloc] init];
-    
-    [alert setMessageText:[NSString stringWithCString:title.c_str() encoding:[NSString defaultCStringEncoding]]];
-    [alert setInformativeText:[NSString stringWithCString:text.c_str() encoding:[NSString defaultCStringEncoding]]];
-    if (type == 0)
-    {
-        [alert addButtonWithTitle:@"Okay"];
-    } else if (type == 1)
-    {
-        [alert addButtonWithTitle:@"Okay"];
-        [alert addButtonWithTitle:@"Cancel"];
-    } else if (type == 2)
-    {
-        [alert addButtonWithTitle:@"Yes"];
-        [alert addButtonWithTitle:@"No"];
+    long ret = 0;
+    @autoreleasepool {
+        NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+        
+        [alert setMessageText:[NSString stringWithCString:title.c_str() encoding:[NSString defaultCStringEncoding]]];
+        [alert setInformativeText:[NSString stringWithCString:text.c_str() encoding:[NSString defaultCStringEncoding]]];
+        if (type == 0)
+        {
+            [alert addButtonWithTitle:@"Okay"];
+        } else if (type == 1)
+        {
+            [alert addButtonWithTitle:@"Okay"];
+            [alert addButtonWithTitle:@"Cancel"];
+        } else if (type == 2)
+        {
+            [alert addButtonWithTitle:@"Yes"];
+            [alert addButtonWithTitle:@"No"];
+        }
+        ret = [alert runModal];
     }
-    long ret = [alert runModal];
-    [alert dealloc];
     
     if (ret == NSAlertFirstButtonReturn)
     {

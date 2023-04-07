@@ -7,7 +7,7 @@
   text_pad_right="6" 
   select_on_focus="true"
   text_tentative_color="TextFgTentativeColor"
-  highlight_text_field="false"
+  highlight_text_field="true"
   background_image="TextField_Search_Off"
   background_image_disabled="TextField_Search_Disabled"
   background_image_focused="TextField_Search_Active"

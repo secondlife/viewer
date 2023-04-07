@@ -1386,6 +1386,16 @@ LLMeshSkinInfo::LLMeshSkinInfo(LLSD& skin):
 	fromLLSD(skin);
 }
 
+LLMeshSkinInfo::LLMeshSkinInfo(const LLUUID& mesh_id, LLSD& skin) :
+	mMeshID(mesh_id),
+	mPelvisOffset(0.0),
+	mLockScaleIfJointPosition(false),
+	mInvalidJointsScrubbed(false),
+	mJointNumsInitialized(false)
+{
+	fromLLSD(skin);
+}
+
 void LLMeshSkinInfo::fromLLSD(LLSD& skin)
 {
 	if (skin.has("joint_names"))
