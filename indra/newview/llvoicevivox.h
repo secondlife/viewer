@@ -666,12 +666,10 @@ private:
 	
 	LLHost mDaemonHost;
 	LLSocket::ptr_t mSocket;
-	bool mConnected;
 	
 	// We should kill the voice daemon in case of connection alert 
 	bool mTerminateDaemon;
 	
-	LLPumpIO *mPump;
 	friend class LLVivoxProtocolParser;
 	
 	std::string mAccountName;
@@ -916,7 +914,10 @@ private:
     bool    mIsProcessingChannels;
     bool    mIsCoroutineActive;
 
-    static bool sShuttingDown; // corutines can last longer than vivox so we need a static variable as a shutdown flag
+    // This variables can last longer than vivox in coroutines so we need them as static
+    static bool sShuttingDown;
+    static bool sConnected;
+    static LLPumpIO* sPump;
 
     LLEventMailDrop mVivoxPump;
 };
