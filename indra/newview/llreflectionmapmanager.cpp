@@ -75,6 +75,11 @@ struct CompareProbeDistance
     }
 };
 
+static F32 update_score(LLReflectionMap* p)
+{
+    return gFrameTimeSeconds - p->mLastUpdateTime  - p->mDistance*0.1f;
+}
+
 // return true if a is higher priority for an update than b
 static bool check_priority(LLReflectionMap* a, LLReflectionMap* b)
 {
@@ -83,9 +88,8 @@ static bool check_priority(LLReflectionMap* a, LLReflectionMap* b)
         return a->mDistance < b->mDistance;
     }
     else if (a->mComplete && b->mComplete)
-    { //both probes are complete, use combination of distance and last update time
-        return (a->mDistance - (gFrameTimeSeconds - a->mLastUpdateTime)) <
-            (b->mDistance - (gFrameTimeSeconds - b->mLastUpdateTime));
+    { //both probes are complete, use update_score metric
+        return update_score(a) > update_score(b);
     }
 
     // one of these probes is not complete, if b is complete, a is higher priority
@@ -203,9 +207,15 @@ void LLReflectionMapManager::update()
             d.setSub(camera_pos, probe->mOrigin);
             probe->mDistance = d.getLength3().getF32() - probe->mRadius;
         }
+        else if (probe->mComplete)
+        {
+            // make default probe have a distance of 64m for the purposes of prioritization (if it's already been generated once)
+            probe->mDistance = 64.f;
+        }
 
         if (probe->mComplete)
         {
+            probe->autoAdjustOrigin();
             probe->mFadeIn = llmin((F32) (probe->mFadeIn + gFrameIntervalSeconds), 1.f);
         }
         if (probe->mOccluded && probe->mComplete)
@@ -285,6 +295,7 @@ void LLReflectionMapManager::update()
     }
 
     // update distance to camera for all probes
+    mDefaultProbe->mDistance = -4096.f; // make default probe always end up at index 0
     std::sort(mProbes.begin(), mProbes.end(), CompareProbeDistance());
 }
 
