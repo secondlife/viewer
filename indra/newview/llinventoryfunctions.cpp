@@ -2342,9 +2342,20 @@ void LLMarketplaceValidator::start()
         return;
     }
     mValidationInProgress = true;
-    mPendingCallbacks = 1; // do '1' in case something decides to callback immediately
+
     const ValidationRequest &first = mValidationQueue.front();
     LLViewerInventoryCategory* cat = gInventory.getCategory(first.mCategoryId);
+    if (!cat)
+    {
+        LL_WARNS() << "Tried to validate a folder that doesn't exist" << LL_ENDL;
+        if (first.mCbDone)
+        {
+            first.mCbDone(false);
+        }
+        mValidationQueue.pop();
+        start();
+        return;
+    }
 
     validation_result_callback_t result_callback = [](S32 pending, bool result)
     {
@@ -2365,7 +2376,11 @@ void LLMarketplaceValidator::start()
         }
     };
 
+    mPendingResult = true;
+    mPendingCallbacks = 1; // do '1' in case something decides to callback immediately
+
     S32 pending_calbacks = 0;
+    bool result = true;
     validate_marketplacelistings(
         cat,
         result_callback,
@@ -2374,9 +2389,9 @@ void LLMarketplaceValidator::start()
         first.mDepth,
         true,
         pending_calbacks,
-        mPendingResult);
+        result);
 
-    result_callback(pending_calbacks, mPendingResult);
+    result_callback(pending_calbacks, result);
 }
 
 LLMarketplaceValidator::ValidationRequest::ValidationRequest(
