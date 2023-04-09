@@ -7230,10 +7230,10 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst) {
 			// bake out texture2D with RGBL for FXAA shader
 			mRT->fxaaBuffer.bindTarget();
 
-			shader = &gDeferredPostNoDoFProgram;
+			shader = &gGlowCombineFXAAProgram;
 			shader->bind();
 
-			S32 channel = gDeferredPostNoDoFProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, src->getUsage());
+			S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, src->getUsage());
 			if (channel > -1)
 			{
 				src->bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
@@ -7270,7 +7270,6 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst) {
 				2.f / width * scale_x, 2.f / height * scale_y);
 
 			{
-				// at this point we should pointed at the backbuffer (or a snapshot render target)
 				LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
 				S32 depth_channel = shader->getTextureChannel(LLShaderMgr::DEFERRED_DEPTH);
 				gGL.getTexUnit(depth_channel)->bind(&mRT->deferredScreen, true);
@@ -7280,6 +7279,28 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst) {
 			}
 
 			shader->unbind();
+			dst->flush();
+		}
+		else {
+			// Just copy directly into the destination.
+			dst->bindTarget();
+
+			gDeferredPostNoDoFProgram.bind();
+
+			S32 channel = gDeferredPostNoDoFProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, src->getUsage());
+			if (channel > -1)
+			{
+				src->bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
+			}
+
+			{
+				LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
+				mScreenTriangleVB->setBuffer();
+				mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+			}
+
+			gDeferredPostNoDoFProgram.unbind();
+
 			dst->flush();
 		}
 	}
@@ -7310,18 +7331,19 @@ void LLPipeline::renderFinalize()
     if (!gCubeSnapshot)
     {
 
-		copyScreenSpaceReflections(&mSceneMap, screenTarget());
+		copyScreenSpaceReflections(&mSceneMap, &mRT->screen);
 
-		generateLuminance(screenTarget(), &mLuminanceMap);
+		generateLuminance(&mRT->screen, &mLuminanceMap);
 
 		generateExposure(&mLuminanceMap, &mExposureMap);
 
-		gammaCorrect(screenTarget(), &mPostMap);
+		gammaCorrect(&mRT->screen, &mPostMap);
 
         LLVertexBuffer::unbind();
     }
 
-	renderGlow(&mPostMap, screenTarget());
+	renderGlow(&mPostMap, &mRT->screen);
+
 	/*
 	{
 		bool dof_enabled =
@@ -7561,16 +7583,17 @@ void LLPipeline::renderFinalize()
 		}
 	}*/
 
-	//applyFXAA(screenTarget(), screenTarget());
+	applyFXAA(&mRT->screen, &mPostMap);
 
 	// Present the screen target.
 
 	gDeferredPostNoDoFProgram.bind();
 
-	S32 channel = gDeferredPostNoDoFProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, screenTarget()->getUsage());
+	// Whatever is last in the above post processing chain should _always_ be rendered directly here.  If not, expect problems.
+	S32 channel = gDeferredPostNoDoFProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mPostMap.getUsage());
 	if (channel > -1)
 	{
-		screenTarget()->bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
+		mPostMap.bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
 	}
 
 	{
