@@ -7331,7 +7331,7 @@ void LLPipeline::renderFinalize()
     if (!gCubeSnapshot)
     {
 
-		copyScreenSpaceReflections(&mSceneMap, &mRT->screen);
+		copyScreenSpaceReflections(&mRT->screen, &mSceneMap);
 
 		generateLuminance(&mRT->screen, &mLuminanceMap);
 
