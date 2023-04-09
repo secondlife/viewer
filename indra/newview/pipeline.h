@@ -135,6 +135,12 @@ public:
 	void generateImpostor(LLVOAvatar* avatar, bool preview_avatar = false);
 	void bindScreenToTexture();
 	void renderFinalize();
+	void copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst);
+	void generateLuminance(LLRenderTarget* src, LLRenderTarget* dst);
+	void generateExposure(LLRenderTarget* src, LLRenderTarget* dst);
+	void gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst);
+	void renderGlow(LLRenderTarget* src, LLRenderTarget* dst);
+	void applyFXAA(LLRenderTarget* src, LLRenderTarget* dst);
 	void renderPostProcess();
 	LLRenderTarget* screenTarget();
 

@@ -1307,9 +1307,6 @@ void render_ui(F32 zoom_factor, int subfield)
 		gGL.popMatrix();
 	}
 
-    // Render our post process prior to the HUD, UI, etc.
-    gPipeline.renderPostProcess();
-
     // apply gamma correction and post effects
     gPipeline.renderFinalize();
 
