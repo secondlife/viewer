@@ -29,6 +29,7 @@
 #define LL_FLOATER_AVATAR_H
 
 #include "llfloater.h"
+class LLMediaCtrl;
 
 class LLFloaterAvatar:
 	public LLFloater
@@ -38,6 +39,8 @@ private:
 	LLFloaterAvatar(const LLSD& key);
 	/*virtual*/	~LLFloaterAvatar();
 	/*virtual*/	BOOL postBuild();
+
+    LLMediaCtrl* mAvatarPicker;
 };
 
 #endif

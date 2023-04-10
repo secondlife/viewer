@@ -167,7 +167,7 @@ private:
 	
 	bool doNavChooseDialog(ELoadFilter filter);
 	bool doNavSaveDialog(ESaveFilter filter, const std::string& filename);
-    std::vector<std::string>* navOpenFilterProc(ELoadFilter filter);
+    std::unique_ptr<std::vector<std::string>> navOpenFilterProc(ELoadFilter filter);
 #endif
 
 #if LL_GTK

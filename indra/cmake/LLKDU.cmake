@@ -7,15 +7,20 @@ if (INSTALL_PROPRIETARY)
   set(USE_KDU ON CACHE BOOL "Use Kakadu library.")
 endif (INSTALL_PROPRIETARY)
 
+include_guard()
+add_library( ll::kdu INTERFACE IMPORTED )
+
 if (USE_KDU)
   include(Prebuilt)
   use_prebuilt_binary(kdu)
   if (WINDOWS)
-    set(KDU_LIBRARY kdu.lib)
+    target_link_libraries( ll::kdu INTERFACE kdu.lib)
   else (WINDOWS)
-    set(KDU_LIBRARY libkdu.a)
+    target_link_libraries( ll::kdu INTERFACE libkdu.a)
   endif (WINDOWS)
-  set(KDU_INCLUDE_DIR ${AUTOBUILD_INSTALL_DIR}/include/kdu)
-  set(LLKDU_INCLUDE_DIRS ${LIBS_OPEN_DIR}/llkdu)
-  set(LLKDU_LIBRARIES llkdu)
+
+  target_include_directories( ll::kdu SYSTEM INTERFACE
+          ${AUTOBUILD_INSTALL_DIR}/include/kdu
+          ${LIBS_OPEN_DIR}/llkdu
+          )
 endif (USE_KDU)

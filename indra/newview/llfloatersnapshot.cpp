@@ -176,16 +176,20 @@ void LLFloaterSnapshotBase::ImplBase::updateLayout(LLFloaterSnapshotBase* floate
 
 	LLUICtrl* thumbnail_placeholder = floaterp->getChild<LLUICtrl>("thumbnail_placeholder");
 	thumbnail_placeholder->setVisible(mAdvanced);
-	thumbnail_placeholder->reshape(panel_width, thumbnail_placeholder->getRect().getHeight());
+
 	floaterp->getChild<LLUICtrl>("image_res_text")->setVisible(mAdvanced);
 	floaterp->getChild<LLUICtrl>("file_size_label")->setVisible(mAdvanced);
     if (floaterp->hasChild("360_label", TRUE))
     { 
         floaterp->getChild<LLUICtrl>("360_label")->setVisible(mAdvanced);
     }
-	if(!floaterp->isMinimized())
+	if (!mSkipReshaping)
 	{
-		floaterp->reshape(floater_width, floaterp->getRect().getHeight());
+        thumbnail_placeholder->reshape(panel_width, thumbnail_placeholder->getRect().getHeight());
+        if (!floaterp->isMinimized())
+        {
+            floaterp->reshape(floater_width, floaterp->getRect().getHeight());
+        }
 	}
 
 	bool use_freeze_frame = floaterp->getChild<LLUICtrl>("freeze_frame_check")->getValue().asBoolean();
@@ -1193,7 +1197,7 @@ S32 LLFloaterSnapshotBase::notify(const LLSD& info)
 
 		// The refresh button is initially hidden. We show it after the first update,
 		// i.e. when preview appears.
-		if (!mRefreshBtn->getVisible())
+		if (mRefreshBtn && !mRefreshBtn->getVisible())
 		{
 			mRefreshBtn->setVisible(true);
 		}

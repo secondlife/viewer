@@ -6,33 +6,9 @@ include(00-Common)
 include(Hunspell)
 include(LLCommon)
 include(LLImage)
-include(LLInventory)
-include(LLMath)
-include(LLMessage)
 include(LLCoreHttp)
-include(LLRender)
 include(LLWindow)
 include(LLCoreHttp)
-include(LLFileSystem)
-include(LLXML)
-
-include_directories(
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLCOREHTTP_INCLUDE_DIRS}
-    ${LLIMAGE_INCLUDE_DIRS}
-    ${LLINVENTORY_INCLUDE_DIRS}
-    ${LLMATH_INCLUDE_DIRS}
-    ${LLMESSAGE_INCLUDE_DIRS}
-    ${LLRENDER_INCLUDE_DIRS}
-    ${LLWINDOW_INCLUDE_DIRS}
-    ${LLFILESYSTEM_INCLUDE_DIRS}
-    ${LLXML_INCLUDE_DIRS}
-    ${LIBS_PREBUILD_DIR}/include/hunspell
-    )
-include_directories(SYSTEM
-    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
-    ${LLXML_SYSTEM_INCLUDE_DIRS}
-    )
 
 set(llui_SOURCE_FILES
     llaccordionctrl.cpp
@@ -260,9 +236,6 @@ set(llui_HEADER_FILES
     llxyvector.h
     )
 
-set_source_files_properties(${llui_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 SET(llurlentry_TEST_DEPENDENCIES
     llurlmatch.cpp
     llurlregistry.cpp
@@ -276,42 +249,37 @@ set_source_files_properties(llurlentry.cpp
 list(APPEND llui_SOURCE_FILES ${llui_HEADER_FILES})
 
 add_library (llui ${llui_SOURCE_FILES})
+target_include_directories( llui  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 target_link_libraries(llui
-    ${LLRENDER_LIBRARIES}
-    ${LLWINDOW_LIBRARIES}
-    ${LLIMAGE_LIBRARIES}
-    ${LLINVENTORY_LIBRARIES}
-    ${LLMESSAGE_LIBRARIES}
-    ${LLCOREHTTP_LIBRARIES}
-    ${LLFILESYSTEM_LIBRARIES}
-    ${LLXUIXML_LIBRARIES}
-    ${LLXML_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${HUNSPELL_LIBRARY}
-    ${LLMESSAGE_LIBRARIES}
-    ${LLCOMMON_LIBRARIES} # must be after llimage, llwindow, llrender
+        llrender
+        llwindow
+        llimage
+        llinventory
+        llmessage
+        llcorehttp
+        llfilesystem
+        llxml
+        llmath
+        ll::hunspell
+        llcommon
     )
 
 # Add tests
 if(LL_TESTS)
   include(LLAddBuildTest)
+  set(test_libs llmessage llcorehttp llxml llrender llcommon ll::hunspell)
+
   SET(llui_TEST_SOURCE_FILES
       llurlmatch.cpp
       )
+  set_property( SOURCE ${llui_TEST_SOURCE_FILES} PROPERTY LL_TEST_ADDITIONAL_LIBRARIES ${test_libs})
   LL_ADD_PROJECT_UNIT_TESTS(llui "${llui_TEST_SOURCE_FILES}")
   # INTEGRATION TESTS
-  set(test_libs llui llmessage llcorehttp llcommon
-      ${HUNSPELL_LIBRARY}
-      ${LLCOMMON_LIBRARIES}
-      ${BOOST_FIBER_LIBRARY} ${BOOST_CONTEXT_LIBRARY} ${BOOST_SYSTEM_LIBRARY}
-      ${WINDOWS_LIBRARIES})
+
   if(NOT LINUX)
-    if(WINDOWS)
-      LL_ADD_INTEGRATION_TEST(llurlentry llurlentry.cpp "imm32;${test_libs}")
-    else(WINDOWS)
-      LL_ADD_INTEGRATION_TEST(llurlentry llurlentry.cpp "${test_libs}")
-    endif(WINDOWS)
+    set(test_libs llui llmessage llcorehttp llxml llrender llcommon ll::hunspell )
+    LL_ADD_INTEGRATION_TEST(llurlentry llurlentry.cpp "${test_libs}")
   endif(NOT LINUX)
 endif(LL_TESTS)
