@@ -614,9 +614,9 @@ BOOL LLFilePicker::getSaveFileModeless(ESaveFilter filter,
 
 #elif LL_DARWIN
 
-std::vector<std::string>* LLFilePicker::navOpenFilterProc(ELoadFilter filter) //(AEDesc *theItem, void *info, void *callBackUD, NavFilterModes filterMode)
+std::unique_ptr<std::vector<std::string>> LLFilePicker::navOpenFilterProc(ELoadFilter filter) //(AEDesc *theItem, void *info, void *callBackUD, NavFilterModes filterMode)
 {
-    std::vector<std::string> *allowedv = new std::vector< std::string >;
+    std::unique_ptr<std::vector<std::string>> allowedv(new std::vector< std::string >);
     switch(filter)
     {
         case FFLOAD_ALL:
@@ -689,9 +689,9 @@ bool	LLFilePicker::doNavChooseDialog(ELoadFilter filter)
     
 	gViewerWindow->getWindow()->beforeDialog();
     
-    std::vector<std::string> *allowed_types=navOpenFilterProc(filter);
+    std::unique_ptr<std::vector<std::string>> allowed_types = navOpenFilterProc(filter);
     
-    std::vector<std::string> *filev  = doLoadDialog(allowed_types, 
+    std::unique_ptr<std::vector<std::string>> filev  = doLoadDialog(allowed_types.get(),
                                                     mPickOptions);
 
 	gViewerWindow->getWindow()->afterDialog();
@@ -716,9 +716,9 @@ bool    LLFilePicker::doNavChooseDialogModeless(ELoadFilter filter,
         return false;
     }
     
-    std::vector<std::string> *allowed_types=navOpenFilterProc(filter);
+    std::unique_ptr<std::vector<std::string>> allowed_types=navOpenFilterProc(filter);
     
-    doLoadDialogModeless(allowed_types,
+    doLoadDialogModeless(allowed_types.get(),
                                                     mPickOptions,
                                                     callback,
                                                     userdata);
@@ -826,7 +826,7 @@ bool	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& filena
 	gViewerWindow->getWindow()->beforeDialog();
 
 	// Run the dialog
-    std::string* filev = doSaveDialog(&namestring, 
+    std::unique_ptr<std::string> filev = doSaveDialog(&namestring, 
                  &type,
                  &creator,
                  &extension,
@@ -1354,7 +1354,7 @@ static std::string add_save_texture_filter_to_gtkchooser(GtkWindow *picker)
 	return caption;
 }
 
-BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename )
+BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename, bool blocking )
 {
 	BOOL rtn = FALSE;
 
@@ -1571,7 +1571,7 @@ BOOL LLFilePicker::getMultipleOpenFiles( ELoadFilter filter, bool blocking)
 // Hacky stubs designed to facilitate fake getSaveFile and getOpenFile with
 // static results, when we don't have a real filepicker.
 
-BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename )
+BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename, bool blocking )
 {
 	// if local file browsing is turned off, return without opening dialog
 	// (Even though this is a stub, I think we still should not return anything at all)

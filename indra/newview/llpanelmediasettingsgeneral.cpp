@@ -39,6 +39,7 @@
 #include "llagent.h"
 #include "llviewerwindow.h"
 #include "llviewermedia.h"
+#include "llvovolume.h"
 #include "llsdutil.h"
 #include "llselectmgr.h"
 #include "llbutton.h"
@@ -452,10 +453,17 @@ bool LLPanelMediaSettingsGeneral::navigateHomeSelectedFace(bool only_if_current_
 					{
 						viewer_media_t media_impl =
 							LLViewerMedia::getInstance()->getMediaImplFromTextureID(object->getTE(face)->getMediaData()->getMediaID());
-						if(media_impl)
-						{
+                        if (media_impl)
+                        {
                             media_impl->setPriority(LLPluginClassMedia::PRIORITY_NORMAL);
                             media_impl->navigateHome();
+
+                            if (!only_if_current_is_empty)
+                            {
+                                LLSD media_data;
+                                media_data[LLMediaEntry::CURRENT_URL_KEY] = std::string();
+                                object->getTE(face)->mergeIntoMediaData(media_data);
+                            }
 							return true;
 						}
 					}
@@ -471,6 +479,23 @@ bool LLPanelMediaSettingsGeneral::navigateHomeSelectedFace(bool only_if_current_
 	LLObjectSelectionHandle selected_objects =LLSelectMgr::getInstance()->getSelection();
 	selected_objects->getSelectedTEValue( &functor_navigate_media, all_face_media_navigated );
 	
+    if (all_face_media_navigated)
+    {
+        struct functor_sync_to_server : public LLSelectedObjectFunctor
+        {
+            virtual bool apply(LLViewerObject* object)
+            {
+                LLVOVolume *volume = dynamic_cast<LLVOVolume*>(object);
+                if (volume)
+                {
+                    volume->sendMediaDataUpdate();
+                }
+                return true;
+            }
+        } sendfunc;
+        selected_objects->applyToObjects(&sendfunc);
+    }
+
 	// Note: we don't update the 'current URL' field until the media data itself changes
 
 	return all_face_media_navigated;

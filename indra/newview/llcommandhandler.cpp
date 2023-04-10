@@ -39,6 +39,7 @@
 #define THROTTLE_PERIOD    5    // required seconds between throttled commands
 
 static LLCommandDispatcherListener sCommandDispatcherListener;
+const std::string LLCommandHandler::NAV_TYPE_CLICKED = "clicked";
 
 //---------------------------------------------------------------------------
 // Underlying registry for command handlers, not directly accessible.
@@ -64,6 +65,9 @@ public:
 				  bool trusted_browser);
 
 private:
+    void notifySlurlBlocked();
+    void notifySlurlThrottled();
+
 	friend LLSD LLCommandDispatcher::enumerate();
 	std::map<std::string, LLCommandHandlerInfo> mMap;
 };
@@ -96,8 +100,6 @@ bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
 										const std::string& nav_type,
 										bool trusted_browser)
 {
-	static bool slurl_blocked = false;
-	static bool slurl_throttled = false;
 	static F64 last_throttle_time = 0.0;
 	F64 cur_time = 0.0;
 	std::map<std::string, LLCommandHandlerInfo>::iterator it = mMap.find(cmd);
@@ -115,29 +117,37 @@ bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
 			// block request from external browser, but report as
 			// "handled" because it was well formatted.
 			LL_WARNS_ONCE("SLURL") << "Blocked SLURL command from untrusted browser" << LL_ENDL;
-			if (! slurl_blocked)
-			{
-				if (LLStartUp::getStartupState() >= STATE_BROWSER_INIT)
-				{
-					// Note: commands can arrive before we initialize everything we need for Notification.
-					LLNotificationsUtil::add("BlockedSLURL");
-				}
-				slurl_blocked = true;
-			}
+            notifySlurlBlocked();
 			return true;
 
+        case LLCommandHandler::UNTRUSTED_CLICK_ONLY:
+            if (nav_type == LLCommandHandler::NAV_TYPE_CLICKED
+                && info.mHandler->canHandleUntrusted(params, query_map, web, nav_type))
+            {
+                break;
+            }
+            LL_WARNS_ONCE("SLURL") << "Blocked SLURL click-only command " << cmd << " from untrusted browser" << LL_ENDL;
+            notifySlurlBlocked();
+            return true;
+
 		case LLCommandHandler::UNTRUSTED_THROTTLE:
-			// if users actually click on a link, we don't need to throttle it
-			// (throttling mechanism is used to prevent an avalanche of clicks via
-			// javascript
-			if ( nav_type == "clicked" )
-			{
-				break;
-			}
 			//skip initial request from external browser before STATE_BROWSER_INIT
 			if (LLStartUp::getStartupState() == STATE_FIRST)
 			{
 				return true;
+			}
+            if (!info.mHandler->canHandleUntrusted(params, query_map, web, nav_type))
+            {
+                LL_WARNS_ONCE("SLURL") << "Blocked SLURL command from untrusted browser" << LL_ENDL;
+                notifySlurlBlocked();
+                return true;
+            }
+			// if users actually click on a link, we don't need to throttle it
+			// (throttling mechanism is used to prevent an avalanche of clicks via
+			// javascript
+			if (nav_type == LLCommandHandler::NAV_TYPE_CLICKED)
+			{
+				break;
 			}
 			cur_time = LLTimer::getElapsedSeconds();
 			if (cur_time < last_throttle_time + THROTTLE_PERIOD)
@@ -145,14 +155,7 @@ bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
 				// block request from external browser if it happened
 				// within THROTTLE_PERIOD seconds of the last command
 				LL_WARNS_ONCE("SLURL") << "Throttled SLURL command from untrusted browser" << LL_ENDL;
-				if (! slurl_throttled)
-				{
-					if (LLStartUp::getStartupState() >= STATE_BROWSER_INIT)
-					{
-						LLNotificationsUtil::add("ThrottledSLURL");
-					}
-					slurl_throttled = true;
-				}
+                notifySlurlThrottled();
 				return true;
 			}
 			last_throttle_time = cur_time;
@@ -161,6 +164,34 @@ bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
 	}
 	if (!info.mHandler) return false;
 	return info.mHandler->handle(params, query_map, web);
+}
+
+void LLCommandHandlerRegistry::notifySlurlBlocked()
+{
+    static bool slurl_blocked = false;
+    if (!slurl_blocked)
+    {
+        if (LLStartUp::getStartupState() >= STATE_BROWSER_INIT)
+        {
+            // Note: commands can arrive before we initialize everything we need for Notification.
+            LLNotificationsUtil::add("BlockedSLURL");
+        }
+        slurl_blocked = true;
+    }
+}
+
+void LLCommandHandlerRegistry::notifySlurlThrottled()
+{
+    static bool slurl_throttled = false;
+    if (!slurl_throttled)
+    {
+        if (LLStartUp::getStartupState() >= STATE_BROWSER_INIT)
+        {
+            // Note: commands can arrive before we initialize everything we need for Notification.
+            LLNotificationsUtil::add("ThrottledSLURL");
+        }
+        slurl_throttled = true;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -230,6 +261,7 @@ symbol_info symbols[] =
 {
 	ent(LLCommandHandler::UNTRUSTED_ALLOW),		  // allow commands from untrusted browsers
 	ent(LLCommandHandler::UNTRUSTED_BLOCK),		  // ignore commands from untrusted browsers
+    ent(LLCommandHandler::UNTRUSTED_CLICK_ONLY),  // allow untrusted, but only if clicked
 	ent(LLCommandHandler::UNTRUSTED_THROTTLE)	  // allow untrusted, but only a few per min.
 };
 

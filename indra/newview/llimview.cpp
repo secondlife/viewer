@@ -1,25 +1,25 @@
-/** 
+/**
  * @file LLIMMgr.cpp
  * @brief Container for Instant Messaging
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -41,6 +41,7 @@
 #include "llstring.h"
 #include "lltextutil.h"
 #include "lltrans.h"
+#include "lltranslate.h"
 #include "lluictrlfactory.h"
 #include "llfloaterimsessiontab.h"
 #include "llagent.h"
@@ -76,11 +77,17 @@ const static std::string ADHOC_NAME_SUFFIX(" Conference");
 const static std::string NEARBY_P2P_BY_OTHER("nearby_P2P_by_other");
 const static std::string NEARBY_P2P_BY_AGENT("nearby_P2P_by_agent");
 
+// Markers inserted around translated part of chat text
+const static std::string XL8_START_TAG(" (");
+const static std::string XL8_END_TAG(")");
+const S32 XL8_PADDING = 3;  // XL8_START_TAG.size() + XL8_END_TAG.size()
+
 /** Timeout of outgoing session initialization (in seconds) */
 const static U32 SESSION_INITIALIZATION_TIMEOUT = 30;
 
 void startConfrenceCoro(std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId, LLSD agents);
 void chatterBoxInvitationCoro(std::string url, LLUUID sessionId, LLIMMgr::EInvitationType invitationType);
+void chatterBoxHistoryCoro(std::string url, LLUUID sessionId, std::string from, std::string message, U32 timestamp);
 void start_deprecated_conference_chat(const LLUUID& temp_session_id, const LLUUID& creator_id, const LLUUID& other_participant_id, const LLSD& agents_to_invite);
 
 const LLUUID LLOutgoingCallDialog::OCD_KEY = LLUUID("7CF78E11-0CFE-498D-ADB9-1417BF03DDB4");
@@ -111,7 +118,7 @@ void process_dnd_im(const LLSD& notification)
     LLUUID sessionID = data["SESSION_ID"].asUUID();
     LLUUID fromID = data["FROM_ID"].asUUID();
 
-    //re-create the IM session if needed 
+    //re-create the IM session if needed
     //(when coming out of DND mode upon app restart)
     if(!gIMMgr->hasSession(sessionID))
     {
@@ -122,13 +129,13 @@ void process_dnd_im(const LLSD& notification)
         {
             name = av_name.getDisplayName();
         }
-		
-        
-        LLIMModel::getInstance()->newSession(sessionID, 
-            name, 
-            IM_NOTHING_SPECIAL, 
-            fromID, 
-            false, 
+
+
+        LLIMModel::getInstance()->newSession(sessionID,
+            name,
+            IM_NOTHING_SPECIAL,
+            fromID,
+            false,
             false); //will need slight refactor to retrieve whether offline message or not (assume online for now)
     }
 
@@ -311,8 +318,8 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 			}
 			else
 			{
-				if (is_dnd_msg && (ON_TOP == conversations_floater_status || 
-									NOT_ON_TOP == conversations_floater_status || 
+				if (is_dnd_msg && (ON_TOP == conversations_floater_status ||
+									NOT_ON_TOP == conversations_floater_status ||
 									CLOSED == conversations_floater_status))
 				{
 					im_box->highlightConversationItemWidget(session_id, true);
@@ -371,7 +378,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 	}
 	if (store_dnd_message)
 	{
-		// If in DND mode, allow notification to be stored so upon DND exit 
+		// If in DND mode, allow notification to be stored so upon DND exit
 		// the user will be notified with some limitations (see 'is_dnd_msg' flag checks)
 		if(session_id.notNull()
 			&& participant_id.notNull()
@@ -392,7 +399,7 @@ void startConfrenceCoro(std::string url,
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("TwitterConnect", httpPolicy));
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("ConferenceChatStart", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
     LLSD postData;
@@ -432,7 +439,7 @@ void chatterBoxInvitationCoro(std::string url, LLUUID sessionId, LLIMMgr::EInvit
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("TwitterConnect", httpPolicy));
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("ConferenceInviteStart", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
     LLSD postData;
@@ -510,8 +517,124 @@ void chatterBoxInvitationCoro(std::string url, LLUUID sessionId, LLIMMgr::EInvit
 
 }
 
+void translateSuccess(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text,
+                        U64 time_n_flags, std::string originalMsg, std::string expectLang, std::string translation, const std::string detected_language)
+{
+    std::string message_txt(utf8_text);
+    // filter out non-interesting responses
+    if (!translation.empty()
+        && ((detected_language.empty()) || (expectLang != detected_language))
+        && (LLStringUtil::compareInsensitive(translation, originalMsg) != 0))
+    {   // Note - if this format changes, also fix code in addMessagesFromServerHistory()
+        message_txt += XL8_START_TAG + LLTranslate::removeNoTranslateTags(translation) + XL8_END_TAG;
+    }
 
-LLIMModel::LLIMModel() 
+    // Extract info packed in time_n_flags
+    bool log2file =      (bool)(time_n_flags & (1LL << 32));
+    bool is_region_msg = (bool)(time_n_flags & (1LL << 33));
+    U32 time_stamp = (U32)(time_n_flags & 0x00000000ffffffff);
+
+    LLIMModel::getInstance()->processAddingMessage(session_id, from, from_id, message_txt, log2file, is_region_msg, time_stamp);
+}
+
+void translateFailure(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text,
+                        U64 time_n_flags, int status, const std::string err_msg)
+{
+    std::string message_txt(utf8_text);
+    std::string msg = LLTrans::getString("TranslationFailed", LLSD().with("[REASON]", err_msg));
+    LLStringUtil::replaceString(msg, "\n", " "); // we want one-line error messages
+    message_txt += XL8_START_TAG + msg + XL8_END_TAG;
+
+    // Extract info packed in time_n_flags
+    bool log2file = (bool)(time_n_flags & (1LL << 32));
+    bool is_region_msg = (bool)(time_n_flags & (1LL << 33));
+    U32 time_stamp = (U32)(time_n_flags & 0x00000000ffffffff);
+
+    LLIMModel::getInstance()->processAddingMessage(session_id, from, from_id, message_txt, log2file, is_region_msg, time_stamp);
+}
+
+void chatterBoxHistoryCoro(std::string url, LLUUID sessionId, std::string from, std::string message, U32 timestamp)
+{   // if parameters from, message and timestamp have values, they are a message that opened chat
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("ChatHistory", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD postData;
+    postData["method"] = "fetch history";
+    postData["session-id"] = sessionId;
+
+    LL_DEBUGS("ChatHistory") << sessionId << ": Chat history posting " << postData << " to " << url
+        << ", from " << from << ", message " << message << ", timestamp " << (S32)timestamp << LL_ENDL;
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("ChatHistory") << sessionId << ": Bad HTTP response in chatterBoxHistoryCoro"
+            << ", results: " << httpResults << LL_ENDL;
+        return;
+    }
+
+    // Add history to IM session
+    LLSD history = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT];
+
+    LL_DEBUGS("ChatHistory") << sessionId << ": Chat server history fetch returned " << history << LL_ENDL;
+
+    try
+    {
+        LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(sessionId);
+        if (session && history.isArray())
+        {   // Result array is sorted oldest to newest
+            if (history.size() > 0)
+            {   // History from the chat server has an integer 'time' value timestamp.   Create 'datetime' string which will match
+                // what we have from the local history cache
+                for (LLSD::array_iterator cur_server_hist = history.beginArray(), endLists = history.endArray();
+                    cur_server_hist != endLists;
+                    cur_server_hist++)
+                {
+                    if ((*cur_server_hist).isMap())
+                    {   // Take the 'time' value from the server and make the date-time string that will be in local cache log files
+                        //   {'from_id':u7aa8c222-8a81-450e-b3d1-9c28491ef717,'message':'Can you hear me now?','from':'Chat Tester','num':i86,'time':r1.66501e+09}
+                        U32 timestamp = (U32)((*cur_server_hist)[LL_IM_TIME].asInteger());
+                        (*cur_server_hist)[LL_IM_DATE_TIME] = LLLogChat::timestamp2LogString(timestamp, true);
+                    }
+                }
+
+                session->addMessagesFromServerHistory(history, from, message, timestamp);
+
+                // Display the newly added messages
+                LLFloaterIMSession* floater = LLFloaterReg::findTypedInstance<LLFloaterIMSession>("impanel", sessionId);
+                if (floater && floater->isInVisibleChain())
+                {
+                    floater->updateMessages();
+                }
+            }
+            else
+            {
+                LL_DEBUGS("ChatHistory") << sessionId << ": Empty history from chat server, nothing to add" << LL_ENDL;
+            }
+        }
+        else if (session && !history.isArray())
+        {
+            LL_WARNS("ChatHistory") << sessionId << ": Bad array data fetching chat history" << LL_ENDL;
+        }
+        else
+        {
+            LL_WARNS("ChatHistory") << sessionId << ": Unable to find session fetching chat history" << LL_ENDL;
+        }
+    }
+    catch (...)
+    {
+        LOG_UNHANDLED_EXCEPTION("chatterBoxHistoryCoro");
+        LL_WARNS("ChatHistory") << "chatterBoxHistoryCoro unhandled exception while processing data for session " << sessionId << LL_ENDL;
+    }
+}
+
+LLIMModel::LLIMModel()
 {
 	addNewMsgCallback(boost::bind(&LLFloaterIMSession::newIMCallback, _1));
 	addNewMsgCallback(boost::bind(&on_new_message, _1));
@@ -556,25 +679,25 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 		else
 		{
 			mSessionType = ADHOC_SESSION;
-		} 
+		}
 	}
 
 	if(mVoiceChannel)
 	{
 		mVoiceChannelStateChangeConnection = mVoiceChannel->setStateChangedCallback(boost::bind(&LLIMSession::onVoiceChannelStateChanged, this, _1, _2, _3));
 	}
-		
+
 	mSpeakers = new LLIMSpeakerMgr(mVoiceChannel);
 
 	// All participants will be added to the list of people we've recently interacted with.
 
-	// we need to add only _active_ speakers...so comment this. 
+	// we need to add only _active_ speakers...so comment this.
 	// may delete this later on cleanup
 	//mSpeakers->addListener(&LLRecentPeople::instance(), "add");
 
 	//we need to wait for session initialization for outgoing ad-hoc and group chat session
 	//correct session id for initiated ad-hoc chat will be received from the server
-	if (!LLIMModel::getInstance()->sendStartSession(mSessionID, mOtherParticipantID, 
+	if (!LLIMModel::getInstance()->sendStartSession(mSessionID, mOtherParticipantID,
 		mInitialTargetIDs, mType))
 	{
 		//we don't need to wait for any responses
@@ -656,7 +779,7 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 					LLStringUtil::format_map_t string_args;
 					string_args["[NAME]"] = other_avatar_name;
 					message = LLTrans::getString("name_started_call", string_args);
-					LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, message);				
+					LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, message);
 					break;
 				}
 			case LLVoiceChannel::STATE_CONNECTED :
@@ -760,14 +883,21 @@ void LLIMModel::LLIMSession::sessionInitReplyReceived(const LLUUID& new_session_
 	}
 }
 
-void LLIMModel::LLIMSession::addMessage(const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& time, const bool is_history, bool is_region_msg)
+void LLIMModel::LLIMSession::addMessage(const std::string& from,
+                                        const LLUUID& from_id,
+                                        const std::string& utf8_text,
+                                        const std::string& time,
+                                        const bool is_history,  // comes from a history file or chat server
+                                        const bool is_region_msg,
+                                        const U32 timestamp)   // may be zero
 {
 	LLSD message;
 	message["from"] = from;
 	message["from_id"] = from_id;
 	message["message"] = utf8_text;
-	message["time"] = time; 
-	message["index"] = (LLSD::Integer)mMsgs.size(); 
+	message["time"] = time;         // string used in display, may be full data YYYY/MM/DD HH:MM or just HH:MM
+    message["timestamp"] = (S32)timestamp;          // use string? LLLogChat::timestamp2LogString(timestamp, true);
+	message["index"] = (LLSD::Integer)mMsgs.size();
 	message["is_history"] = is_history;
 	message["is_region_msg"] = is_region_msg;
 
@@ -788,7 +918,7 @@ void LLIMModel::LLIMSession::addMessage(const std::string& from, const LLUUID& f
 		}
 	}
 
-	mMsgs.push_front(message); 
+	mMsgs.push_front(message);          // Add most recent messages to the front of mMsgs
 
 	if (mSpeakers && from_id.notNull())
 	{
@@ -797,34 +927,280 @@ void LLIMModel::LLIMSession::addMessage(const std::string& from, const LLUUID& f
 	}
 }
 
-void LLIMModel::LLIMSession::addMessagesFromHistory(const std::list<LLSD>& history)
+void LLIMModel::LLIMSession::addMessagesFromHistoryCache(const chat_message_list_t& history)
 {
-	std::list<LLSD>::const_iterator it = history.begin();
-	while (it != history.end())
-	{
-		const LLSD& msg = *it;
+    // Add the messages from the local cached chat history to the session window
+    for (const auto& msg : history)
+    {
+        std::string from = msg[LL_IM_FROM];
+        LLUUID from_id;
+        if (msg[LL_IM_FROM_ID].isDefined())
+        {
+            from_id = msg[LL_IM_FROM_ID].asUUID();
+        }
+        else
+        {   // convert it to a legacy name if we have a complete name
+            std::string legacy_name = gCacheName->buildLegacyName(from);
+            from_id = LLAvatarNameCache::getInstance()->findIdByName(legacy_name);
+        }
 
-		std::string from = msg[LL_IM_FROM];
-		LLUUID from_id;
-		if (msg[LL_IM_FROM_ID].isDefined())
-		{
-			from_id = msg[LL_IM_FROM_ID].asUUID();
-		}
-		else
-		{
-			// convert it to a legacy name if we have a complete name
-			std::string legacy_name = gCacheName->buildLegacyName(from);
-			from_id = LLAvatarNameCache::getInstance()->findIdByName(legacy_name);
-		}
+        // Save the last minute of messages so we can merge with the chat server history.
+        // Really would be nice to have a numeric timestamp in the local cached chat file
+        const std::string & msg_time_str = msg[LL_IM_DATE_TIME].asString();
+        if (mLastHistoryCacheDateTime != msg_time_str)
+        {
+            mLastHistoryCacheDateTime = msg_time_str;   // Reset to the new time
+            mLastHistoryCacheMsgs.clear();
+        }
+        mLastHistoryCacheMsgs.push_front(msg);
+        LL_DEBUGS("ChatHistory") << mSessionID << ": Adding history cache message: " << msg << LL_ENDL;
 
-		std::string timestamp = msg[LL_IM_TIME];
-		std::string text = msg[LL_IM_TEXT];
-
-		addMessage(from, from_id, text, timestamp, true);
-
-		it++;
-	}
+        // Add message from history cache to the display
+        addMessage(from, from_id, msg[LL_IM_TEXT], msg[LL_IM_TIME], true, false, 0);   // from history data, not region message, no timestamp
+    }
 }
+
+void LLIMModel::LLIMSession::addMessagesFromServerHistory(const LLSD& history,             // Array of chat messages from chat server
+                                                        const std::string& target_from,    // Sender of message that opened chat
+                                                        const std::string& target_message, // Message text that opened chat
+                                                        U32 timestamp)                     // timestamp of message that opened chat
+{   // Add messages from history returned by the chat server.
+
+    // The session mMsgs may contain chat messages from the local history cache file, and possibly one or more newly
+    // arrived chat messages.   If the chat window was manually opened, these will be empty and history can
+    // more easily merged.    The history from the server, however, may overlap what is in the file and those must also be merged.
+
+    // At this point, the session mMsgs can have
+    //   no messages
+    //   nothing from history file cache, but one or more very recently arrived messages,
+    //   messages from history file cache, no recent chat
+    //   messages from history file cache, one or more very recent messages
+    //
+    // The chat history from server can possibly contain:
+    //   no messages
+    //   messages that start back before anything in the local file (obscure case, but possible)
+    //   messages that match messages from the history file cache
+    //   messages from the last hour, new to the viewer
+    //   one or more messages that match most recently received chat (the one that opened the window)
+    // In other words:
+    //   messages from chat server may or may not match what we already have in mMsgs
+    //   We can drop anything that is during the time span covered by the local cache file
+    //   To keep things simple, drop any chat data older than the local cache file
+
+    if (!history.isArray())
+    {
+        LL_WARNS("ChatHistory") << mSessionID << ": Unexpected history data not array, type " << (S32)history.type() << LL_ENDL;
+        return;
+    }
+
+    if (history.size() == 0)
+    {   // If history is empty
+        LL_DEBUGS("ChatHistory") << mSessionID << ": addMessagesFromServerHistory() has empty history, nothing to merge" << LL_ENDL;
+        return;
+    }
+
+    if (history.size() == 1 &&          // Server chat history has one entry,
+        target_from.length() > 0 &&     // and we have a chat message that just arrived
+        mMsgs.size() > 0)               // and we have some data in the window - assume the history message is there.
+    {   // This is the common case where a group chat is silent for a while, and then one message is sent.
+        LL_DEBUGS("ChatHistory") << mSessionID << ": addMessagesFromServerHistory() only has chat message just received." << LL_ENDL;
+        return;
+    }
+
+    LL_DEBUGS("ChatHistory") << mSessionID << ": addMessagesFromServerHistory() starting with mMsg.size() " << mMsgs.size()
+        << " adding history with " << history.size() << " messages"
+        << ", target_from: " << target_from
+        << ", target_message: " << target_message
+        << ", timestamp: " << (S32)timestamp << LL_ENDL;
+
+    // At start of merging, mMsgs is either empty, has some chat messages read from a local cache file, and may have
+    // one or more messages that just arrived from the server.
+    U32 match_timestamp = 0;
+    chat_message_list_t shift_msgs;
+    if (mMsgs.size() > 0 &&
+        target_from.length() > 0
+        && target_message.length() > 0)
+    {   // Find where to insert the history messages by popping off a few in the session.
+        // The most common case is one duplciate message, the one that opens a chat session
+        while (mMsgs.size() > 0)
+        {
+            // The "time" value from mMsgs is a string, either just time HH:MM or a full date and time
+            LLSD cur_msg = mMsgs.front();       // Get most recent message from the chat display (front of mMsgs list)
+
+            if (cur_msg.isMap())
+            {
+                LL_DEBUGS("ChatHistoryCompare") << mSessionID << ": Finding insertion point, looking at cur_msg: " << cur_msg << LL_ENDL;
+
+                match_timestamp = cur_msg["timestamp"].asInteger();  // get timestamp of message in the session, may be zero
+                if ((S32)timestamp > match_timestamp)
+                {
+                    LL_DEBUGS("ChatHistory") << mSessionID << ": found older chat message: " << cur_msg
+                        << ", timestamp " << (S32)timestamp
+                        << " vs. match_timestamp " << match_timestamp
+                        << ", shift_msgs size is " << shift_msgs.size() << LL_ENDL;
+                    break;
+                }
+                // Have the matching message or one more recent: these need to be at the end
+                shift_msgs.push_front(cur_msg);     // Move chat message to temp list.
+                mMsgs.pop_front();                  // Normally this is just one message
+                LL_DEBUGS("ChatHistory") << mSessionID << ": shifting chat message " << cur_msg
+                    << " to be inserted at end, shift_msgs size is " << shift_msgs.size()
+                    << ", match_timestamp " << match_timestamp
+                    << ", timestamp " << (S32)timestamp << LL_ENDL;
+            }
+            else
+            {
+                LL_DEBUGS("ChatHistory") << mSessionID << ": Unexpected non-map entry in session messages: " << cur_msg << LL_ENDL;
+                return;
+            }
+        }
+    }
+
+    // Now merge messages from server history data into the session display.   The history data
+    // from the local file may overlap with the chat messages from the server.
+    // Drop any messages from the chat server history that are before the latest one from the local history file.
+    // Unfortunately, messages from the local file don't have timestamps - just datetime strings
+    LLSD::array_const_iterator cur_history_iter = history.beginArray();
+    while (cur_history_iter != history.endArray())
+    {
+        const LLSD &cur_server_hist = *cur_history_iter;
+        cur_history_iter++;
+
+        if (cur_server_hist.isMap())
+        {   // Each server history entry looks like
+            //   { 'from':'Laggy Avatar', 'from_id' : u72345678 - 744f - 43b9 - 98af - b06f1c76ddda, 'index' : i24, 'is_history' : 1, 'message' : 'That was slow', 'time' : '02/13/2023 10:03', 'timestamp' : i1676311419 }
+
+            // If we reach the message that opened our window, stop adding messages
+            U32 history_msg_timestamp = (U32)cur_server_hist[LL_IM_TIME].asInteger();
+            if ((match_timestamp > 0 && match_timestamp <= history_msg_timestamp) ||
+                (timestamp > 0 && timestamp <= history_msg_timestamp))
+            {   // we found the message we matched, so stop inserting from chat server history
+                LL_DEBUGS("ChatHistoryCompare") << "Found end of chat history insertion with match_timestamp " << (S32)match_timestamp
+                    << " vs. history_msg_timestamp " << (S32)history_msg_timestamp
+                    << " vs. timestamp " << (S32)timestamp
+                    << LL_ENDL;
+                break;
+            }
+            LL_DEBUGS("ChatHistoryCompare") << "Compared match_timestamp " << (S32)match_timestamp
+                << " vs. history_msg_timestamp " << (S32)history_msg_timestamp << LL_ENDL;
+
+            bool add_chat_to_conversation = true;
+            if (!mLastHistoryCacheDateTime.empty())
+            {   // Skip past the any from server that are older than what we already read from the history file.
+                std::string history_datetime = cur_server_hist[LL_IM_DATE_TIME].asString();
+                if (history_datetime.empty())
+                {
+                    history_datetime = cur_server_hist[LL_IM_TIME].asString();
+                }
+
+                if (history_datetime < mLastHistoryCacheDateTime)
+                {
+                    LL_DEBUGS("ChatHistoryCompare") << "Skipping message from chat server history since it's older than messages the session already has."
+                        << history_datetime << " vs  " << mLastHistoryCacheDateTime << LL_ENDL;
+                    add_chat_to_conversation = false;
+                }
+                else if (history_datetime > mLastHistoryCacheDateTime)
+                {   // The message from the chat server is more recent than the last one from the local cache file.   Add it
+                    LL_DEBUGS("ChatHistoryCompare") << "Found message dated "
+                        << history_datetime << " vs " << mLastHistoryCacheDateTime
+                        << ", adding new message from chat server history " << cur_server_hist << LL_ENDL;
+                }
+                else   // (history_datetime == mLastHistoryCacheDateTime)
+                {      // Messages are in the same minute as the last from the cache log file.
+                    const std::string & history_msg_text = cur_server_hist[LL_IM_TEXT];
+
+                    // Look in the saved messages from the history file that have the same time
+                    for (const auto& scan_msg : mLastHistoryCacheMsgs)
+                    {
+                        LL_DEBUGS("ChatHistoryCompare") << "comparing messages " << scan_msg[LL_IM_TEXT]
+                            << " with " << cur_server_hist << LL_ENDL;
+                        if (scan_msg.size() > 0)
+                        {   // Extra work ... the history_msg_text value may have been translated, i.e. "I am confused (je suis confus)"
+                            //  while the server history will only have the first part "I am confused"
+                            std::string target_compare(scan_msg[LL_IM_TEXT]);
+                            if (target_compare.size() > history_msg_text.size() + XL8_PADDING &&
+                                target_compare.substr(history_msg_text.size(), XL8_START_TAG.size()) == XL8_START_TAG &&
+                                target_compare.substr(target_compare.size() - XL8_END_TAG.size()) == XL8_END_TAG)
+                            {   // This really looks like a "translated string (cadena traducida)" so just compare the source part
+                                LL_DEBUGS("ChatHistory") << mSessionID << ": Found translated chat " << target_compare
+                                    << " when comparing to history " << history_msg_text
+                                    << ", will truncate" << LL_ENDL;
+                                target_compare = target_compare.substr(0, history_msg_text.size());
+                            }
+                            if (history_msg_text == target_compare)
+                            {   // Found a match, so don't add a duplicate chat message to the window
+                                LL_DEBUGS("ChatHistory") << mSessionID << ": Found duplicate message text " << history_msg_text
+                                    << " : " << (S32)history_msg_timestamp << ", matching datetime " << history_datetime << LL_ENDL;
+                                add_chat_to_conversation = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            LLUUID sender_id = cur_server_hist[LL_IM_FROM_ID].asUUID();
+            if (add_chat_to_conversation)
+            {   // Check if they're muted
+                if (LLMuteList::getInstance()->isMuted(sender_id, LLMute::flagTextChat))
+                {
+                    add_chat_to_conversation = false;
+                    LL_DEBUGS("ChatHistory") << mSessionID << ": Skipped adding chat from " << sender_id
+                        << " as muted, message: " << cur_server_hist
+                        << LL_ENDL;
+                }
+            }
+
+            if (add_chat_to_conversation)
+            {   // Finally add message to the chat session
+                std::string chat_time_str = LLConversation::createTimestamp((U64Seconds)history_msg_timestamp);
+                std::string sender_name = cur_server_hist[LL_IM_FROM].asString();
+
+                std::string history_msg_text = cur_server_hist[LL_IM_TEXT].asString();
+                LLSD message;
+                message["from"] = sender_name;
+                message["from_id"] = sender_id;
+                message["message"] = history_msg_text;
+                message["time"] = chat_time_str;
+                message["timestamp"] = (S32)history_msg_timestamp;
+                message["index"] = (LLSD::Integer)mMsgs.size();
+                message["is_history"] = true;
+                mMsgs.push_front(message);
+
+                LL_DEBUGS("ChatHistory") << mSessionID << ": push_front() adding group chat history message " << message << LL_ENDL;
+
+                // Add chat history messages to the local cache file, only in the case where we opened the chat window
+                // Need to solve the logic around messages that arrive and open chat - at this point, they've already been added to the
+                //   local history cache file.   If we append messages here, it will be out of order.
+                if (target_from.empty() && target_message.empty())
+                {
+                    LLIMModel::getInstance()->logToFile(LLIMModel::getInstance()->getHistoryFileName(mSessionID),
+                        sender_name, sender_id, history_msg_text);
+                }
+            }
+        }
+    }
+
+    S32 shifted_size = shift_msgs.size();
+    while (shift_msgs.size() > 0)
+    {   // Finally add back any new messages, and tweak the index value to be correct.
+        LLSD newer_message = shift_msgs.front();
+        shift_msgs.pop_front();
+        S32 old_index = newer_message["index"];
+        newer_message["index"] = (LLSD::Integer)mMsgs.size();   // Update the index to match the new position in the conversation
+        LL_DEBUGS("ChatHistory") << mSessionID << ": Re-adding newest group chat history messages from " << newer_message["from"]
+            << ", text: " << newer_message["message"]
+            << " old index " << old_index << ", new index " << newer_message["index"] << LL_ENDL;
+        mMsgs.push_front(newer_message);
+    }
+
+    LL_DEBUGS("ChatHistory") << mSessionID << ": addMessagesFromServerHistory() exiting with mMsg.size() " << mMsgs.size()
+        << ", shifted " << shifted_size << " messages" << LL_ENDL;
+
+    mLastHistoryCacheDateTime.clear();  // Don't need this data
+    mLastHistoryCacheMsgs.clear();
+}
+
 
 void LLIMModel::LLIMSession::chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata)
 {
@@ -834,26 +1210,29 @@ void LLIMModel::LLIMSession::chatFromLogFile(LLLogChat::ELogLineType type, const
 
 	if (type == LLLogChat::LOG_LINE)
 	{
-		self->addMessage("", LLSD(), msg["message"].asString(), "", true);
+        LL_DEBUGS("ChatHistory") << "chatFromLogFile() adding LOG_LINE message from " << msg << LL_ENDL;
+        self->addMessage("", LLSD(), msg["message"].asString(), "", true, false, 0);        // from history data, not region message, no timestamp
 	}
 	else if (type == LLLogChat::LOG_LLSD)
 	{
-		self->addMessage(msg["from"].asString(), msg["from_id"].asUUID(), msg["message"].asString(), msg["time"].asString(), true);
+        LL_DEBUGS("ChatHistory") << "chatFromLogFile() adding LOG_LLSD message from " << msg << LL_ENDL;
+        self->addMessage(msg["from"].asString(), msg["from_id"].asUUID(), msg["message"].asString(), msg["time"].asString(), true, false, 0);  // from history data, not region message, no timestamp
 	}
 }
 
 void LLIMModel::LLIMSession::loadHistory()
 {
 	mMsgs.clear();
+    mLastHistoryCacheMsgs.clear();
+    mLastHistoryCacheDateTime.clear();
 
 	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
 	{
-		std::list<LLSD> chat_history;
-
-		//involves parsing of a chat history
+        // read and parse chat history from local file
+        chat_message_list_t chat_history;
 		LLLogChat::loadChatHistory(mHistoryFileName, chat_history, LLSD(), isGroupChat());
-		addMessagesFromHistory(chat_history);
-	}
+        addMessagesFromHistoryCache(chat_history);
+    }
 }
 
 LLIMModel::LLIMSession* LLIMModel::findIMSession(const LLUUID& session_id) const
@@ -873,7 +1252,7 @@ LLIMModel::LLIMSession* LLIMModel::findAdHocIMSession(const uuid_vec_t& ids)
 	for (; it != mId2SessionMap.end(); ++it)
 	{
 		LLIMSession* session = (*it).second;
-	
+
 		if (!session->isAdHoc()) continue;
 		if (session->mInitialTargetIDs.size() != num) continue;
 
@@ -884,8 +1263,8 @@ LLIMModel::LLIMSession* LLIMModel::findAdHocIMSession(const uuid_vec_t& ids)
 		{
 			tmp_list.remove(*iter);
 			++iter;
-			
-			if (tmp_list.empty()) 
+
+			if (tmp_list.empty())
 			{
 				break;
 			}
@@ -941,7 +1320,7 @@ void LLIMModel::LLIMSession::buildHistoryFileName()
 	if (isAdHoc())
 	{
 		/* in case of outgoing ad-hoc sessions we need to make specilized names
-		* if this naming system is ever changed then the filtering definitions in 
+		* if this naming system is ever changed then the filtering definitions in
 		* lllogchat.cpp need to be change acordingly so that the filtering for the
 		* date stamp code introduced in STORM-102 will work properly and not add
 		* a date stamp to the Ad-hoc conferences.
@@ -954,7 +1333,7 @@ void LLIMModel::LLIMSession::buildHistoryFileName()
 		else
 		{
 			//in case of incoming ad-hoc sessions
-			mHistoryFileName = mName + " " + LLLogChat::timestamp(true) + " " + mSessionID.asString().substr(0, 4);
+			mHistoryFileName = mName + " " + LLLogChat::timestamp2LogString(0, true) + " " + mSessionID.asString().substr(0, 4);
 		}
 	}
 	else if (isP2P()) // look up username to use as the log name
@@ -985,7 +1364,7 @@ void LLIMModel::LLIMSession::buildHistoryFileName()
 LLUUID LLIMModel::LLIMSession::generateHash(const std::set<LLUUID>& sorted_uuids)
 {
 	LLMD5 md5_uuid;
-	
+
 	std::set<LLUUID>::const_iterator it = sorted_uuids.begin();
 	while (it != sorted_uuids.end())
 	{
@@ -1047,7 +1426,7 @@ void LLIMModel::testMessages()
 
 	S32 rand1 = ll_rand(sizeof firstname)/(sizeof firstname[0]);
 	S32 rand2 = ll_rand(sizeof lastname)/(sizeof lastname[0]);
-	
+
 	from = firstname[rand1] + " " + lastname[rand2];
 	bot2_id.generate(from);
 	LLUUID bot2_session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, bot2_id);
@@ -1057,7 +1436,7 @@ void LLIMModel::testMessages()
 }
 
 //session name should not be empty
-bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, 
+bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type,
 						   const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice, bool has_offline_msg)
 {
 	if (name.empty())
@@ -1099,7 +1478,7 @@ bool LLIMModel::clearSession(const LLUUID& session_id)
 	return true;
 }
 
-void LLIMModel::getMessages(const LLUUID& session_id, std::list<LLSD>& messages, int start_index, const bool sendNoUnreadMsgs)
+void LLIMModel::getMessages(const LLUUID& session_id, chat_message_list_t& messages, int start_index, const bool sendNoUnreadMsgs)
 {
 	getMessagesSilently(session_id, messages, start_index);
 
@@ -1109,7 +1488,7 @@ void LLIMModel::getMessages(const LLUUID& session_id, std::list<LLSD>& messages,
 	}
 }
 
-void LLIMModel::getMessagesSilently(const LLUUID& session_id, std::list<LLSD>& messages, int start_index)
+void LLIMModel::getMessagesSilently(const LLUUID& session_id, chat_message_list_t& messages, int start_index)
 {
 	LLIMSession* session = findIMSession(session_id);
 	if (!session)
@@ -1120,7 +1499,7 @@ void LLIMModel::getMessagesSilently(const LLUUID& session_id, std::list<LLSD>& m
 
 	int i = session->mMsgs.size() - start_index;
 
-	for (std::list<LLSD>::iterator iter = session->mMsgs.begin();
+	for (chat_message_list_t::iterator iter = session->mMsgs.begin();
 		iter != session->mMsgs.end() && i > 0;
 		iter++)
 	{
@@ -1142,7 +1521,7 @@ void LLIMModel::sendNoUnreadMessages(const LLUUID& session_id)
 
 	session->mNumUnread = 0;
 	session->mParticipantUnreadMessageCount = 0;
-	
+
 	LLSD arg;
 	arg["session_id"] = session_id;
 	arg["num_unread"] = 0;
@@ -1150,17 +1529,23 @@ void LLIMModel::sendNoUnreadMessages(const LLUUID& session_id)
 	mNoUnreadMsgsSignal(arg);
 }
 
-bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text, bool is_region_msg) {
-	
+bool LLIMModel::addToHistory(const LLUUID& session_id,
+                             const std::string& from,
+                             const LLUUID& from_id,
+                             const std::string& utf8_text,
+                             bool is_region_msg,
+                             U32 timestamp)
+{
 	LLIMSession* session = findIMSession(session_id);
 
-	if (!session) 
+	if (!session)
 	{
 		LL_WARNS() << "session " << session_id << "does not exist " << LL_ENDL;
 		return false;
 	}
 
-	session->addMessage(from, from_id, utf8_text, LLLogChat::timestamp(false), false, is_region_msg); //might want to add date separately
+    // This is where a normal arriving message is added to the session.   Note that the time string created here is without the full date
+	session->addMessage(from, from_id, utf8_text, LLLogChat::timestamp2LogString(timestamp, false), false, is_region_msg, timestamp);
 
 	return true;
 }
@@ -1168,14 +1553,14 @@ bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, 
 bool LLIMModel::logToFile(const std::string& file_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text)
 {
 	if (gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 1)
-	{	
+	{
 		std::string from_name = from;
 
 		LLAvatarName av_name;
-		if (!from_id.isNull() && 
+		if (!from_id.isNull() &&
 			LLAvatarNameCache::get(from_id, &av_name) &&
 			!av_name.isDisplayNameDefault())
-		{	
+		{
 			from_name = av_name.getCompleteName();
 		}
 
@@ -1189,43 +1574,63 @@ bool LLIMModel::logToFile(const std::string& file_name, const std::string& from,
 	}
 }
 
-bool LLIMModel::proccessOnlineOfflineNotification(
-	const LLUUID& session_id, 
-	const std::string& utf8_text)
+void LLIMModel::proccessOnlineOfflineNotification(
+	const LLUUID& session_id,
+    const std::string& utf8_text)
 {
 	// Add system message to history
-	return addMessage(session_id, SYSTEM_FROM, LLUUID::null, utf8_text);
+	addMessage(session_id, SYSTEM_FROM, LLUUID::null, utf8_text);
 }
 
-bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, 
-						   const std::string& utf8_text, bool log2file, bool is_region_msg) { 
-
-	LLIMSession* session = addMessageSilently(session_id, from, from_id, utf8_text, log2file, is_region_msg);
-	if (!session) return false;
-
-	//good place to add some1 to recent list
-	//other places may be called from message history.
-	if( !from_id.isNull() &&
-		( session->isP2PSessionType() || session->isAdHocSessionType() ) )
-		LLRecentPeople::instance().add(from_id);
-
-	// notify listeners
-	LLSD arg;
-	arg["session_id"] = session_id;
-	arg["num_unread"] = session->mNumUnread;
-	arg["participant_unread"] = session->mParticipantUnreadMessageCount;
-	arg["message"] = utf8_text;
-	arg["from"] = from;
-	arg["from_id"] = from_id;
-	arg["time"] = LLLogChat::timestamp(false);
-	arg["session_type"] = session->mSessionType;
-	mNewMsgSignal(arg);
-
-	return true;
+void LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id,
+						   const std::string& utf8_text, bool log2file /* = true */, bool is_region_msg, /* = false */ U32 time_stamp /* = 0 */)
+{
+    if (gSavedSettings.getBOOL("TranslateChat") && (from != SYSTEM_FROM))
+    {
+        const std::string from_lang = ""; // leave empty to trigger autodetect
+        const std::string to_lang = LLTranslate::getTranslateLanguage();
+        U64 time_n_flags = ((U64) time_stamp) | (log2file ? (1LL << 32) : 0) | (is_region_msg ? (1LL << 33) : 0);   // boost::bind has limited parameters
+        LLTranslate::translateMessage(from_lang, to_lang, utf8_text,
+            boost::bind(&translateSuccess, session_id, from, from_id, utf8_text, time_n_flags, utf8_text, from_lang, _1, _2),
+            boost::bind(&translateFailure, session_id, from, from_id, utf8_text, time_n_flags, _1, _2));
+    }
+    else
+    {
+        processAddingMessage(session_id, from, from_id, utf8_text, log2file, is_region_msg, time_stamp);
+    }
 }
 
-LLIMModel::LLIMSession* LLIMModel::addMessageSilently(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, 
-													 const std::string& utf8_text, bool log2file, bool is_region_msg)
+void LLIMModel::processAddingMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id,
+    const std::string& utf8_text, bool log2file, bool is_region_msg, U32 time_stamp)
+{
+    LLIMSession* session = addMessageSilently(session_id, from, from_id, utf8_text, log2file, is_region_msg, time_stamp);
+    if (!session)
+        return;
+
+    //good place to add some1 to recent list
+    //other places may be called from message history.
+    if( !from_id.isNull() &&
+        ( session->isP2PSessionType() || session->isAdHocSessionType() ) )
+        LLRecentPeople::instance().add(from_id);
+
+    // notify listeners
+    LLSD arg;
+    arg["session_id"] = session_id;
+    arg["num_unread"] = session->mNumUnread;
+    arg["participant_unread"] = session->mParticipantUnreadMessageCount;
+    arg["message"] = utf8_text;
+    arg["from"] = from;
+    arg["from_id"] = from_id;
+    arg["time"] = LLLogChat::timestamp2LogString(time_stamp, true);
+    arg["session_type"] = session->mSessionType;
+    arg["is_region_msg"] = is_region_msg;
+
+    mNewMsgSignal(arg);
+}
+
+LLIMModel::LLIMSession* LLIMModel::addMessageSilently(const LLUUID& session_id, const std::string& from, const LLUUID& from_id,
+													  const std::string& utf8_text, bool log2file /* = true */, bool is_region_msg, /* false */
+                                                      U32 timestamp /* = 0 */)
 {
 	LLIMSession* session = findIMSession(session_id);
 
@@ -1241,12 +1646,12 @@ LLIMModel::LLIMSession* LLIMModel::addMessageSilently(const LLUUID& session_id, 
 		from_name = SYSTEM_FROM;
 	}
 
-	addToHistory(session_id, from_name, from_id, utf8_text, is_region_msg);
+	addToHistory(session_id, from_name, from_id, utf8_text, is_region_msg, timestamp);
 	if (log2file)
 	{
 		logToFile(getHistoryFileName(session_id), from_name, from_id, utf8_text);
 	}
-	
+
 	session->mNumUnread++;
 
 	//update count of unread messages from real participant
@@ -1348,7 +1753,7 @@ const std::string& LLIMModel::getHistoryFileName(const LLUUID& session_id) const
 
 
 // TODO get rid of other participant ID
-void LLIMModel::sendTypingState(LLUUID session_id, LLUUID other_participant_id, BOOL typing) 
+void LLIMModel::sendTypingState(LLUUID session_id, LLUUID other_participant_id, BOOL typing)
 {
 	std::string name;
 	LLAgentUI::buildFullname(name);
@@ -1379,7 +1784,7 @@ void LLIMModel::sendLeaveSession(const LLUUID& session_id, const LLUUID& other_p
 			FALSE,
 			gAgent.getSessionID(),
 			other_participant_id,
-			name, 
+			name,
 			LLStringUtil::null,
 			IM_ONLINE,
 			IM_SESSION_LEAVE,
@@ -1400,7 +1805,7 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 
 	const LLRelationship* info = NULL;
 	info = LLAvatarTracker::instance().getBuddyInfo(other_participant_id);
-	
+
 	U8 offline = (!info || info->isOnline()) ? IM_ONLINE : IM_OFFLINE;
 	// Old call to send messages to SLim client,  no longer supported.
 	//if((offline == IM_OFFLINE) && (LLVoiceClient::getInstance()->isOnlineSIP(other_participant_id)))
@@ -1408,7 +1813,7 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 	//	// User is online through the OOW connector, but not with a regular viewer.  Try to send the message via SLVoice.
 	//	sent = LLVoiceClient::getInstance()->sendTextMessage(other_participant_id, utf8_text);
 	//}
-	
+
 	if(!sent)
 	{
 		// Send message normally.
@@ -1465,7 +1870,7 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 		}
 	}
 
-	if((dialog == IM_NOTHING_SPECIAL) && 
+	if((dialog == IM_NOTHING_SPECIAL) &&
 	   (other_participant_id.notNull()))
 	{
 		// Do we have to replace the /me's here?
@@ -1503,7 +1908,7 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 		// to Recent People to prevent showing of an item with (?? ?)(?? ?), sans the spaces. See EXT-8246.
 		// Concrete participants will be added into this list once they sent message in chat.
 		if (IM_SESSION_INVITE == dialog) return;
-			
+
 		if (IM_SESSION_CONFERENCE_START == dialog) // outgoing ad-hoc session
 		{
 			// Add only online members of conference to recent list (EXT-8658)
@@ -1585,7 +1990,7 @@ void start_deprecated_conference_chat(
 	for(S32 i = 0; i < count; ++i)
 	{
 		LLUUID agent_id = agents_to_invite[i].asUUID();
-		
+
 		memcpy(pos, &agent_id, UUID_BYTES);
 		pos += UUID_BYTES;
 	}
@@ -1601,7 +2006,7 @@ void start_deprecated_conference_chat(
 		bucket_size);
 
 	gAgent.sendReliableMessage();
- 
+
 	delete[] bucket;
 }
 
@@ -1822,7 +2227,7 @@ void LLCallDialogManager::onVoiceChannelChangedInt(const LLUUID &session_id)
 {
 	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
 	if(!session)
-	{		
+	{
 		mPreviousSessionlName = mCurrentSessionlName;
 		mCurrentSessionlName = ""; // Empty string results in "Nearby Voice Chat" after substitution
 		return;
@@ -1845,7 +2250,7 @@ void LLCallDialogManager::onVoiceChannelChangedInt(const LLUUID &session_id)
 	if (LLVoiceChannel::getCurrentVoiceChannel()->getState() == LLVoiceChannel::STATE_CALL_STARTED &&
 		LLVoiceChannel::getCurrentVoiceChannel()->getCallDirection() == LLVoiceChannel::OUTGOING_CALL)
 	{
-		
+
 		//*TODO get rid of duplicated code
 		LLSD mCallDialogPayload;
 		mCallDialogPayload["session_id"] = mSession->mSessionID;
@@ -1860,7 +2265,7 @@ void LLCallDialogManager::onVoiceChannelChangedInt(const LLUUID &session_id)
 		if(ocd)
 		{
 			ocd->show(mCallDialogPayload);
-		}	
+		}
 	}
 
 }
@@ -1893,7 +2298,7 @@ void LLCallDialogManager::onVoiceChannelStateChangedInt(const LLVoiceChannel::ES
 	mCallDialogPayload["ended_by_agent"] = ended_by_agent;
 
 	switch(new_state)
-	{			
+	{
 	case LLVoiceChannel::STATE_CALL_STARTED :
 		// do not show "Calling to..." if it is incoming call
 		if(direction == LLVoiceChannel::INCOMING_CALL)
@@ -1922,7 +2327,7 @@ void LLCallDialogManager::onVoiceChannelStateChangedInt(const LLVoiceChannel::ES
 	if(ocd)
 	{
 		ocd->show(mCallDialogPayload);
-	}	
+	}
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1948,9 +2353,9 @@ BOOL LLCallDialog::postBuild()
 {
 	if (!LLDockableFloater::postBuild() || !gToolBarView)
 		return FALSE;
-	
+
 	dockToToolbarButton("speak");
-	
+
 	return TRUE;
 }
 
@@ -1968,20 +2373,20 @@ LLDockControl::DocAt LLCallDialog::getDockControlPos(const std::string& toolbarB
 {
 	LLCommandId command_id(toolbarButtonName);
 	S32 toolbar_loc = gToolBarView->hasCommand(command_id);
-	
+
 	LLDockControl::DocAt doc_at = LLDockControl::TOP;
-	
+
 	switch (toolbar_loc)
 	{
 		case LLToolBarEnums::TOOLBAR_LEFT:
 			doc_at = LLDockControl::RIGHT;
 			break;
-			
+
 		case LLToolBarEnums::TOOLBAR_RIGHT:
 			doc_at = LLDockControl::LEFT;
 			break;
 	}
-	
+
 	return doc_at;
 }
 
@@ -1996,7 +2401,7 @@ LLCallDialog(payload)
 	if(instance && instance->getVisible())
 	{
 		instance->onCancel(instance);
-	}	
+	}
 }
 
 void LLCallDialog::draw()
@@ -2053,7 +2458,7 @@ bool LLCallDialog::lifetimeHasExpired()
 	if (mLifetimeTimer.getStarted())
 	{
 		F32 elapsed_time = mLifetimeTimer.getElapsedTimeF32();
-		if (elapsed_time > mLifetime) 
+		if (elapsed_time > mLifetime)
 		{
 			return true;
 		}
@@ -2095,7 +2500,7 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 	}
 	else
 	{
-		getChild<LLUICtrl>("leaving")->setTextArg("[CURRENT_CHAT]", getString("localchat"));		
+		getChild<LLUICtrl>("leaving")->setTextArg("[CURRENT_CHAT]", getString("localchat"));
 	}
 
 	if (!mPayload["disconnected_channel_name"].asString().empty())
@@ -2115,13 +2520,11 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 
 	std::string callee_name = mPayload["session_name"].asString();
 
-	LLUUID session_id = mPayload["session_id"].asUUID();
-
 	if (callee_name == "anonymous") // obsolete? Likely was part of avaline support
 	{
 		callee_name = getString("anonymous");
 	}
-	
+
 	LLSD callee_id = mPayload["other_user_id"];
 	// Beautification:  Since you know who you called, just show display name
 	std::string title = callee_name;
@@ -2177,7 +2580,7 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 		{
 			const std::string& nearby_str = mPayload["ended_by_agent"] ? NEARBY_P2P_BY_AGENT : NEARBY_P2P_BY_OTHER;
 			getChild<LLTextBox>(nearby_str)->setVisible(true);
-		} 
+		}
 		else
 		{
 			getChild<LLTextBox>("nearby")->setVisible(true);
@@ -2211,7 +2614,7 @@ void LLOutgoingCallDialog::onCancel(void* user_data)
 
 	LLUUID session_id = self->mPayload["session_id"].asUUID();
 	gIMMgr->endCall(session_id);
-	
+
 	self->closeFloater();
 }
 
@@ -2296,7 +2699,7 @@ BOOL LLIncomingCallDialog::postBuild()
         LL_INFOS("IMVIEW") << "IncomingCall: notify_box_type was not provided" << LL_ENDL;
         return TRUE;
     }
-	
+
 	// init notification's lifetime
 	std::istringstream ss( getString("lifetime") );
 	if (!(ss >> mLifetime))
@@ -2471,7 +2874,7 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 			if (session_name.empty())
 			{
 				LL_WARNS() << "Received an empty session name from a server" << LL_ENDL;
-				
+
 				switch(type){
 				case IM_SESSION_CONFERENCE_START:
 				case IM_SESSION_GROUP_START:
@@ -2489,18 +2892,18 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 						if (LLAvatarNameCache::get(caller_id, &av_name))
 						{
 							correct_session_name = av_name.getCompleteName();
-							correct_session_name.append(ADHOC_NAME_SUFFIX); 
+							correct_session_name.append(ADHOC_NAME_SUFFIX);
 						}
 					}
 					LL_INFOS("IMVIEW") << "Corrected session name is " << correct_session_name << LL_ENDL;
 					break;
-				default: 
+				default:
 					LL_WARNS("IMVIEW") << "Received an empty session name from a server and failed to generate a new proper session name" << LL_ENDL;
 					break;
 				}
 			}
-			
-			LLUUID new_session_id = gIMMgr->addSession(correct_session_name, type, session_id, true);
+
+			gIMMgr->addSession(correct_session_name, type, session_id, true);
 
 			std::string url = gAgent.getRegion()->getCapability(
 				"ChatSessionRequest");
@@ -2511,7 +2914,7 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
                     boost::bind(&chatterBoxInvitationCoro, url,
                     session_id, inv_type));
 
-				// send notification message to the corresponding chat 
+				// send notification message to the corresponding chat
 				if (payload["notify_box_type"].asString() == "VoiceInviteGroup" || payload["notify_box_type"].asString() == "VoiceInviteAdHoc")
 				{
 					LLStringUtil::format_map_t string_args;
@@ -2546,7 +2949,7 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 			data["session-id"] = session_id;
 
             LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, data,
-                "Invitation declined", 
+                "Invitation declined",
                 "Invitation decline failed.");
 		}
 	}
@@ -2566,7 +2969,7 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 	EInstantMessage type = (EInstantMessage)payload["type"].asInteger();
 	LLIMMgr::EInvitationType inv_type = (LLIMMgr::EInvitationType)payload["inv_type"].asInteger();
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	switch(option) 
+	switch(option)
 	{
 	case 0: // accept
 		{
@@ -2586,7 +2989,7 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 			}
 			else
 			{
-				LLUUID new_session_id = gIMMgr->addSession(
+				gIMMgr->addSession(
 					payload["session_name"].asString(),
 					type,
 					session_id, true);
@@ -2610,7 +3013,7 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 		}
 	}
 	/* FALLTHROUGH */
-	
+
 	case 1: // decline
 	{
 		if (type == IM_SESSION_P2P_INVITE)
@@ -2626,8 +3029,8 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 			LLSD data;
 			data["method"] = "decline invitation";
 			data["session-id"] = session_id;
-            LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, data, 
-                "Invitation declined.", 
+            LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, data,
+                "Invitation declined.",
                 "Invitation decline failed.");
 		}
 	}
@@ -2636,7 +3039,7 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 	gIMMgr->clearPendingInvitation(session_id);
 	break;
 	}
-	
+
 	return false;
 }
 
@@ -2650,9 +3053,11 @@ LLIMMgr::LLIMMgr()
 	mPendingAgentListUpdates = LLSD::emptyMap();
 
 	LLIMModel::getInstance()->addNewMsgCallback(boost::bind(&LLFloaterIMSession::sRemoveTypingIndicator, _1));
+
+	gSavedPerAccountSettings.declareBOOL("FetchGroupChatHistory", TRUE, "Fetch recent messages from group chat servers when a group window opens", LLControlVariable::PERSIST_ALWAYS);
 }
 
-// Add a message to a session. 
+// Add a message to a session.
 void LLIMMgr::addMessage(
 	const LLUUID& session_id,
 	const LLUUID& target_id,
@@ -2664,7 +3069,8 @@ void LLIMMgr::addMessage(
 	U32 parent_estate_id,
 	const LLUUID& region_id,
 	const LLVector3& position,
-	bool is_region_msg)
+    bool is_region_msg,
+    U32 timestamp)      // May be zero
 {
 	LLUUID other_participant_id = target_id;
 
@@ -2684,7 +3090,7 @@ void LLIMMgr::addMessage(
 		name_is_setted = true;
 	}
 	bool skip_message = false;
-	bool from_linden = LLMuteList::getInstance()->isLinden(from);
+	bool from_linden = LLMuteList::isLinden(from);
     if (gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly") && !from_linden)
 	{
 		// Evaluate if we need to skip this message when that setting is true (default is false)
@@ -2751,6 +3157,14 @@ void LLIMMgr::addMessage(
 				return;
 			}
 
+            // Fetch group chat history, enabled by default.
+            if (gSavedPerAccountSettings.getBOOL("FetchGroupChatHistory"))
+            {
+                std::string chat_url = gAgent.getRegion()->getCapability("ChatSessionRequest");
+                LLCoros::instance().launch("chatterBoxHistoryCoro",
+                    boost::bind(&chatterBoxHistoryCoro, chat_url, session_id, from, msg, timestamp));
+            }
+
 			//Play sound for new conversations
 			if (!skip_message & !gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundNewConversation") == TRUE))
 			{
@@ -2766,7 +3180,7 @@ void LLIMMgr::addMessage(
 
 	if (!LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && !skip_message)
 	{
-		LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, msg, true, is_region_msg);
+		LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, msg, true, is_region_msg, timestamp);
 	}
 
 	// Open conversation floater if offline messages are present
@@ -2781,7 +3195,7 @@ void LLIMMgr::addMessage(
 void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& message_name, const LLSD& args)
 {
 	LLUIString message;
-	
+
 	// null session id means near me (chat history)
 	if (session_id.isNull())
 	{
@@ -2821,7 +3235,7 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 S32 LLIMMgr::getNumberOfUnreadIM()
 {
 	std::map<LLUUID, LLIMModel::LLIMSession*>::iterator it;
-	
+
 	S32 num = 0;
 	for(it = LLIMModel::getInstance()->mId2SessionMap.begin(); it != LLIMModel::getInstance()->mId2SessionMap.end(); ++it)
 	{
@@ -2848,7 +3262,7 @@ void LLIMMgr::autoStartCallOnStartup(const LLUUID& session_id)
 {
 	LLIMModel::LLIMSession *session = LLIMModel::getInstance()->findIMSession(session_id);
 	if (!session) return;
-	
+
 	if (session->mSessionInitialized)
 	{
 		startCall(session_id);
@@ -2856,7 +3270,7 @@ void LLIMMgr::autoStartCallOnStartup(const LLUUID& session_id)
 	else
 	{
 		session->mStartCallOnInitialize = true;
-	}	
+	}
 }
 
 LLUUID LLIMMgr::addP2PSession(const std::string& name,
@@ -2893,7 +3307,7 @@ LLUUID LLIMMgr::addSession(
 	return session_id;
 }
 
-// Adds a session using the given session_id.  If the session already exists 
+// Adds a session using the given session_id.  If the session already exists
 // the dialog type is assumed correct. Returns the uuid of the session.
 LLUUID LLIMMgr::addSession(
 	const std::string& name,
@@ -2956,9 +3370,9 @@ LLUUID LLIMMgr::addSession(
 
 	//we don't need to show notes about online/offline, mute/unmute users' statuses for existing sessions
 	if (!new_session) return session_id;
-	
+
     LL_INFOS("IMVIEW") << "LLIMMgr::addSession, new session added, name = " << name << ", session id = " << session_id << LL_ENDL;
-    
+
 	//Per Plan's suggestion commented "explicit offline status warning" out to make Dessie happier (see EXT-3609)
 	//*TODO After February 2010 remove this commented out line if no one will be missing that warning
 	//noteOfflineUsers(session_id, floater, ids);
@@ -2988,7 +3402,7 @@ bool LLIMMgr::leaveSession(const LLUUID& session_id)
 void LLIMMgr::removeSession(const LLUUID& session_id)
 {
 	llassert_always(hasSession(session_id));
-	
+
 	clearPendingInvitation(session_id);
 	clearPendingAgentListUpdates(session_id);
 
@@ -3000,9 +3414,9 @@ void LLIMMgr::removeSession(const LLUUID& session_id)
 }
 
 void LLIMMgr::inviteToSession(
-	const LLUUID& session_id, 
-	const std::string& session_name, 
-	const LLUUID& caller_id, 
+	const LLUUID& session_id,
+	const std::string& session_name,
+	const LLUUID& caller_id,
 	const std::string& caller_name,
 	EInstantMessage type,
 	EInvitationType inv_type,
@@ -3014,7 +3428,7 @@ void LLIMMgr::inviteToSession(
 	std::string question_type = "VoiceInviteQuestionDefault";
 
 	BOOL voice_invite = FALSE;
-	bool is_linden = LLMuteList::getInstance()->isLinden(caller_name);
+	bool is_linden = LLMuteList::isLinden(caller_name);
 
 
 	if(type == IM_SESSION_P2P_INVITE)
@@ -3119,22 +3533,22 @@ void LLIMMgr::inviteToSession(
 	{
 		if (caller_name.empty())
 		{
-			LLAvatarNameCache::get(caller_id, 
+			LLAvatarNameCache::get(caller_id,
 				boost::bind(&LLIMMgr::onInviteNameLookup, payload, _1, _2));
 		}
 		else
 		{
 			LLFloaterReg::showInstance("incoming_call", payload, FALSE);
 		}
-		
-		// Add the caller to the Recent List here (at this point 
+
+		// Add the caller to the Recent List here (at this point
 		// "incoming_call" floater is shown and the recipient can
 		// reject the call), because even if a recipient will reject
 		// the call, the caller should be added to the recent list
 		// anyway. STORM-507.
 		if(type == IM_SESSION_P2P_INVITE)
 			LLRecentPeople::instance().add(caller_id);
-		
+
 		mPendingInvitations[session_id.asString()] = LLSD();
 	}
 }
@@ -3331,7 +3745,7 @@ bool LLIMMgr::startCall(const LLUUID& session_id, LLVoiceChannel::EDirection dir
 {
 	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(session_id);
 	if (!voice_channel) return false;
-	
+
 	voice_channel->setCallDirection(direction);
 	voice_channel->activate();
 	return true;
@@ -3449,7 +3863,7 @@ void LLIMMgr::noteMutedUsers(const LLUUID& session_id,
 	if(count > 0)
 	{
 		LLIMModel* im_model = LLIMModel::getInstance();
-		
+
 		for(S32 i = 0; i < count; ++i)
 		{
 			if( ml->isMuted(ids.at(i)) )
@@ -3527,7 +3941,15 @@ public:
 				if ( body.has("session_info") )
 				{
 					im_floater->processSessionUpdate(body["session_info"]);
-				}
+
+                    // Send request for chat history, if enabled.
+                    if (gSavedPerAccountSettings.getBOOL("FetchGroupChatHistory"))
+                    {
+                        std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
+                        LLCoros::instance().launch("chatterBoxHistoryCoro",
+                            boost::bind(&chatterBoxHistoryCoro, url, session_id, "", "", 0));
+                    }
+                }
 			}
 
 			gIMMgr->clearPendingAgentListUpdates(session_id);
@@ -3656,7 +4078,7 @@ public:
 			LLUUID session_id = message_params["id"].asUUID();
 			std::vector<U8> bin_bucket = message_params["data"]["binary_bucket"].asBinary();
 			U8 offline = (U8)message_params["offline"].asInteger();
-			
+
 			time_t timestamp =
 				(time_t) message_params["timestamp"].asInteger();
 
@@ -3693,7 +4115,9 @@ public:
 				IM_SESSION_INVITE,
 				message_params["parent_estate_id"].asInteger(),
 				message_params["region_id"].asUUID(),
-				ll_vector3_from_sd(message_params["position"]));
+				ll_vector3_from_sd(message_params["position"]),
+                false,      // is_region_message
+                timestamp);
 
 			if (LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat))
 			{
@@ -3719,8 +4143,8 @@ public:
 			}
 
 			gIMMgr->inviteToSession(
-				input["body"]["session_id"].asUUID(), 
-				input["body"]["session_name"].asString(), 
+				input["body"]["session_id"].asUUID(),
+				input["body"]["session_name"].asString(),
 				input["body"]["from_id"].asUUID(),
 				input["body"]["from_name"].asString(),
 				IM_SESSION_INVITE,
@@ -3729,8 +4153,8 @@ public:
 		else if ( input["body"].has("immediate") )
 		{
 			gIMMgr->inviteToSession(
-				input["body"]["session_id"].asUUID(), 
-				input["body"]["session_name"].asString(), 
+				input["body"]["session_id"].asUUID(),
+				input["body"]["session_name"].asString(),
 				input["body"]["from_id"].asUUID(),
 				input["body"]["from_name"].asString(),
 				IM_SESSION_INVITE,

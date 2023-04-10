@@ -73,7 +73,7 @@ def main(command, arguments=[], libpath=[], vars={}):
     if sys.platform == "win32":
         lpvars = ["PATH"]
     elif sys.platform == "darwin":
-        lpvars = ["LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH"]
+        lpvars = ["LD_LIBRARY_PATH"] # , "DYLD_LIBRARY_PATH"]
     elif sys.platform.startswith("linux"):
         lpvars = ["LD_LIBRARY_PATH"]
     else:

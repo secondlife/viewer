@@ -220,6 +220,17 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
+    <key>FetchGroupChatHistory</key>
+      <map>
+        <key>Comment</key>
+        <string>Fetch recent messages from group chat servers when a group window opens</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+      </map>
     <key>VoiceCallsFriendsOnly</key>
     <map>
         <key>Comment</key>

@@ -296,7 +296,12 @@ LLAvatarAppearance::~LLAvatarAppearance()
 		}
 	}
 
-	if (mRoot) mRoot->removeAllChildren();
+	if (mRoot) 
+	{
+		mRoot->removeAllChildren();
+		delete mRoot;
+		mRoot = nullptr;
+	}
 	mJointMap.clear();
 
 	clearSkeleton();

@@ -435,12 +435,6 @@ BOOL LLThrottleGroup::dynamicAdjust()
 		{
 			channel_over_nominal[i] = FALSE;
 		}
-
-		//if (total)
-		//{
-		//	LL_INFOS() << i << ": B" << channel_busy[i] << " I" << channel_idle[i] << " N" << channel_over_nominal[i];
-		//	LL_CONT << " Nom: " << mNominalBPS[i] << " Cur: " << mCurrentBPS[i] << " BS: " << mBitsSentHistory[i] << LL_ENDL;
-		//}
 	}
 
 	if (channels_busy)

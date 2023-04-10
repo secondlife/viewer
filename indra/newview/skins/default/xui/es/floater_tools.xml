@@ -25,7 +25,7 @@
 		Pulsa y arrastra para seleccionar el terreno.
 	</floater.string>
 	<floater.string name="status_selectcount">
-		[OBJ_COUNT] objetos seleccionados, impacto en el terreno [LAND_IMPACT]
+		[OBJ_COUNT] objetos seleccionados, impacto en el terreno [LAND_IMPACT] [secondlife:///app/openfloater/object_weights ?]
 	</floater.string>
 	<floater.string name="status_remaining_capacity">
 		Capacidad restante [LAND_CAPACITY].
