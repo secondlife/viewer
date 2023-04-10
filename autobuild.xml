@@ -527,6 +527,62 @@
         <key>version</key>
         <string>1.12.4.202209142021_91.1.21_g9dd45fe_chromium-91.0.4472.114</string>
       </map>
+      <key>emoji_shortcodes</key>
+      <map>
+        <key>canonical_repo</key>
+        <string>https://github.com/secondlife/3p-emoji-shortcodes</string>
+        <key>copyright</key>
+        <string>Copyright 2017-2019 Miles Johnson.</string>
+        <key>description</key>
+        <string>Emoji shortcodes</string>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/emojibase-license.txt</string>
+        <key>name</key>
+        <string>emoji_shortcodes</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>7ac35da9b1b5c9a05954edeef3fe8e54</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113242/980233/emoji_shortcodes-6.1.0.579438-darwin64-579438.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>3c5c4c7e3bb2eeef61e605b6690a63f3</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113244/980245/emoji_shortcodes-6.1.0.579438-windows-579438.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>087ce7e6d93dcd88b477b10d8e1ab259</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113243/980244/emoji_shortcodes-6.1.0.579438-windows64-579438.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>6.1.0.579438</string>
+      </map>
       <key>expat</key>
       <map>
         <key>copyright</key>
