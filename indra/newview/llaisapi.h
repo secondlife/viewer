@@ -59,6 +59,7 @@ public:
     static void FetchCategoryChildren(const LLUUID &catId, ITEM_TYPE type = AISAPI::ITEM_TYPE::INVENTORY, bool recursive = false, completion_t callback = completion_t(), S32 depth = 0);
     static void FetchCategoryChildren(const std::string &identifier, bool recursive = false, completion_t callback = completion_t(), S32 depth = 0);
     static void FetchCategoryCategories(const LLUUID &catId, ITEM_TYPE type = AISAPI::ITEM_TYPE::INVENTORY, bool recursive = false, completion_t callback = completion_t(), S32 depth = 0);
+    static void FetchOrphans(completion_t callback = completion_t() );
     static void CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, bool copySubfolders, completion_t callback = completion_t());
 
 private:
@@ -75,6 +76,7 @@ private:
         FETCHITEM,
         FETCHCATEGORYCHILDREN,
         FETCHCATEGORYCATEGORIES,
+        FETCHORPHANS,
     } COMMAND_TYPE;
 
     static const std::string INVENTORY_CAP_NAME;
@@ -127,6 +129,7 @@ private:
 
 	typedef std::map<LLUUID,LLPointer<LLViewerInventoryItem> > deferred_item_map_t;
 	deferred_item_map_t mItemsCreated;
+    deferred_item_map_t mItemsLost;
 	deferred_item_map_t mItemsUpdated;
 	typedef std::map<LLUUID,LLPointer<LLViewerInventoryCategory> > deferred_category_map_t;
 	deferred_category_map_t mCategoriesCreated;

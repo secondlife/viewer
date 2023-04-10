@@ -535,6 +535,35 @@ void AISAPI::FetchCategoryCategories(const LLUUID &catId, ITEM_TYPE type, bool r
 }
 
 /*static*/
+void AISAPI::FetchOrphans(completion_t callback)
+{
+    std::string cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
+    std::string url = cap + std::string("/orphans");
+
+    invokationFn_t getFn = boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t , const std::string& , LLCore::HttpOptions::ptr_t , LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        // _4 -> body 
+        // _5 -> httpOptions
+        // _6 -> httpHeaders
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend) , _1 , _2 , _3 , _5 , _6);
+
+    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro ,
+                                                         _1 , getFn , url , LLUUID::null , LLSD() , callback , FETCHORPHANS));
+
+    EnqueueAISCommand("FetchOrphans" , proc);
+}
+
+/*static*/
 void AISAPI::EnqueueAISCommand(const std::string &procName, LLCoprocedureManager::CoProcedure_t proc)
 {
     LLCoprocedureManager &inst = LLCoprocedureManager::instance();
@@ -595,7 +624,8 @@ void AISAPI::onUpdateReceived(const std::string& context, const LLSD& update, CO
     }
     bool is_fetch = (type == FETCHITEM)
         || (type == FETCHCATEGORYCHILDREN)
-        || (type == FETCHCATEGORYCATEGORIES);
+        || (type == FETCHCATEGORYCATEGORIES)
+        || (type == FETCHORPHANS);
     // parse update llsd into stuff to do or parse received items.
     S32 depth = 0;
     if (is_fetch && request_body.has("depth"))
@@ -620,9 +650,30 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
 
     LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
 
-    LLSD result = invoke(httpAdapter, httpRequest, url, body, httpOptions, httpHeaders);
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+    LLSD result;
+    LLSD httpResults;
+    LLCore::HttpStatus status;
+
+    if (debugLoggingEnabled("AIS3"))
+    {
+        LLTimer ais_timer;
+        ais_timer.start();
+        result = invoke(httpAdapter , httpRequest , url , body , httpOptions , httpHeaders);
+        httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+        F32MillisecondsImplicit elapsed_time = ais_timer.getElapsedTimeF32();
+        LL_DEBUGS("AIS3") << "Request type: " << (S32)type
+            << " \nRequest url: " << url
+            << " \nRequest target: " << targetId
+            << " \nElapsed time: " << elapsed_time
+            << " \nstatus: " << status.toULong() << LL_ENDL;
+    }
+    else
+    {
+        result = invoke(httpAdapter , httpRequest , url , body , httpOptions , httpHeaders);
+        httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+    }
 
     if (!status || !result.isMap())
     {
@@ -756,6 +807,7 @@ void AISUpdate::clearParseResults()
 	mCatDescendentsKnown.clear();
 	mCatVersionsUpdated.clear();
 	mItemsCreated.clear();
+    mItemsLost.clear();
 	mItemsUpdated.clear();
 	mCategoriesCreated.clear();
 	mCategoriesUpdated.clear();
@@ -891,6 +943,11 @@ void AISUpdate::parseItem(const LLSD& item_map)
             mItemsCreated[item_id] = new_item;
             mCatDescendentDeltas[new_item->getParentUUID()];
             new_item->setComplete(true);
+
+            if (new_item->getParentUUID().isNull())
+            {
+                mItemsLost[item_id] = new_item;
+            }
         }
         else if (curr_item)
 		{
@@ -940,6 +997,11 @@ void AISUpdate::parseLink(const LLSD& link_map)
             mItemsCreated[item_id] = new_link;
             mCatDescendentDeltas[parent_id];
             new_link->setComplete(true);
+
+            if (new_link->getParentUUID().isNull())
+            {
+                mItemsLost[item_id] = new_link;
+            }
         }
 		else if (curr_link)
 		{
@@ -1298,6 +1360,24 @@ void AISUpdate::doUpdate()
 			LL_DEBUGS("Inventory") << "updated category " << new_category->getName() << " " << category_id << LL_ENDL;
 		}
 	}
+
+    // LOST ITEMS
+    if (!mItemsLost.empty())
+    {
+        LL_INFOS("Inventory") << "Received " << (S32)mItemsLost.size() << " items without a parent" << LL_ENDL;
+        const LLUUID lost_uuid(gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
+        if (lost_uuid.notNull())
+        {
+            for (deferred_item_map_t::const_iterator lost_it = mItemsLost.begin();
+                 lost_it != mItemsLost.end(); ++lost_it)
+            {
+                LLPointer<LLViewerInventoryItem> new_item = lost_it->second;
+
+                new_item->setParent(lost_uuid);
+                new_item->updateParentOnServer(FALSE);
+            }
+        }
+    }
 
 	// CREATE ITEMS
 	for (deferred_item_map_t::const_iterator create_it = mItemsCreated.begin();

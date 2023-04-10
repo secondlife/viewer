@@ -461,10 +461,13 @@ void LLInventoryModelBackgroundFetch::incrFetchFolderCount(S32 fetching)
 void ais_simple_folder_callback(const LLUUID& inv_id)
 {
     LLInventoryModelBackgroundFetch::instance().incrFetchFolderCount(-1);
-    LLViewerInventoryCategory * cat(gInventory.getCategory(inv_id));
-    if (cat)
+    if (inv_id.notNull()) // null normally means a failure, but is an expected response for orphans
     {
-        cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
+        LLViewerInventoryCategory* cat(gInventory.getCategory(inv_id));
+        if (cat)
+        {
+            cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
+        }
     }
 }
 
@@ -580,6 +583,11 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
         mFetchItemQueue.pop_front();
         curent_time = LLTimer::getTotalSeconds();
     }
+
+    LL_DEBUGS(LOG_INV , "AIS3") << "Total active fetches: " << mFetchCount
+        << ", scheduled fodler fetches: " << (S32)mFetchFolderQueue.size()
+        << ", scheduled item fetches: " << (S32)mFetchItemQueue.size()
+        << LL_ENDL;
     
     if (isFolderFetchProcessingComplete() && mFolderFetchActive)
     {
@@ -600,7 +608,8 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
         if (cat_id.isNull())
         {
             // Lost and found
-            AISAPI::FetchCategoryChildren("lstndfnd", true, ais_simple_folder_callback);
+            // Should it actually be recursive?
+            AISAPI::FetchOrphans(ais_simple_folder_callback);
             incrFetchFolderCount(1);
         }
         else
