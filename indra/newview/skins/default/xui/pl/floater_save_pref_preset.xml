@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<floater name="save_pref_preset" title="Zapisz ustawienie graficzne">
+	<text name="Preset">
+		Wpisz nazwę ustawienia lub wybierz już istniejące.
+	</text>
+	<button label="Zapisz" name="save" />
+	<button label="Anuluj" name="cancel" />
+</floater>

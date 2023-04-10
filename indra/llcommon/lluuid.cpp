@@ -40,11 +40,12 @@
 #include "lluuid.h"
 #include "llerror.h"
 #include "llrand.h"
-#include "llmd5.h"
 #include "llstring.h"
 #include "lltimer.h"
 #include "llthread.h"
 #include "llmutex.h"
+#include "llmd5.h"
+#include "hbxxh.h"
 
 const LLUUID LLUUID::null;
 const LLTransactionID LLTransactionID::tnull;
@@ -400,6 +401,9 @@ LLUUID LLUUID::operator^(const LLUUID& rhs) const
 	return id;
 }
 
+// WARNING: this algorithm SHALL NOT be changed. It is also used by the server
+// and plays a role in some assets validation (e.g. clothing items). Changing
+// it would cause invalid assets.
 void LLUUID::combine(const LLUUID& other, LLUUID& result) const
 {
 	LLMD5 md5_uuid;
@@ -857,17 +861,12 @@ void LLUUID::generate()
 	tmp >>= 8;
 	mData[8] = (unsigned char) tmp;
 
-	LLMD5 md5_uuid;
-	
-	md5_uuid.update(mData,16);
-	md5_uuid.finalize();
-	md5_uuid.raw_digest(mData);
+	HBXXH128::digest(*this, (const void*)mData, 16);
 }
 
 void LLUUID::generate(const std::string& hash_string)
 {
-	LLMD5 md5_uuid((U8*)hash_string.c_str());
-	md5_uuid.raw_digest(mData);
+	HBXXH128::digest(*this, hash_string);
 }
 
 U32 LLUUID::getRandomSeed()
@@ -885,13 +884,8 @@ U32 LLUUID::getRandomSeed()
    seed[7]=(unsigned char)(pid);
    getSystemTime((uuid_time_t *)(&seed[8]));
 
-   LLMD5 md5_seed;
-	
-   md5_seed.update(seed,16);
-   md5_seed.finalize();
-   md5_seed.raw_digest(seed);
-   
-   return(*(U32 *)seed);
+   U64 seed64 = HBXXH64::digest((const void*)seed, 16);
+   return U32(seed64) ^ U32(seed64 >> 32);
 }
 
 BOOL LLUUID::parseUUID(const std::string& buf, LLUUID* value)

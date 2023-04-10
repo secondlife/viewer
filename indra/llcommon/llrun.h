@@ -85,7 +85,7 @@ public:
 	 *
 	 * @return Returns the number of runnables run.
 	 */
-	S32 run();
+	size_t run();
 
 	/** 
 	 * @brief Add a runnable to the run list.

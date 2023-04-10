@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="floaterland" title="O DZIAŁCE">
+	<floater.string name="Hours">
+		[HOURS] godz.
+	</floater.string>
+	<floater.string name="Hour">
+		godz.
+	</floater.string>
 	<floater.string name="Minutes">
-		[MINUTES] minuty
+		[MINUTES] min.
 	</floater.string>
 	<floater.string name="Minute">
-		minuta
+		min.
 	</floater.string>
 	<floater.string name="Seconds">
-		[SECONDS] sekund
+		[SECONDS] sek.
 	</floater.string>
 	<floater.string name="Remaining">
 		pozostało
+	</floater.string>
+	<floater.string name="Always">
+		Zawsze
 	</floater.string>
 	<tab_container name="landtab">
 		<panel label="OGÓLNE" name="land_general_panel">
@@ -65,15 +74,9 @@
 			<text name="Owner:">
 				Właściciel:
 			</text>
-			<text name="OwnerText">
-				Ładowanie...
-			</text>
 			<button label="Profil" name="Profile..." />
 			<text name="Group:">
 				Grupa:
-			</text>
-			<text name="GroupText">
-				Ładowanie...
 			</text>
 			<button label="Ustaw" name="Set..." />
 			<check_box label="Udostępnij przypisywanie na Grupę" name="check deed" tool_tip="Oficer Grupy ma prawo przepisać prawo własności działki na Grupę. Działka wspierana jest przez przydziały pochodzące od członków Grupy." />
@@ -111,7 +114,7 @@
 			<text name="DwellText">
 				Wczytywanie...
 			</text>
-			<button label="Kup działkę" name="Buy Land..." />
+			<button label="Kup działkę" label_selected="Kup działkę" name="Buy Land..." />
 			<button label="Sprzedaż przez Lindenów" name="Linden Sale..." tool_tip="Działka musi mieć Właściciela, zawartość oraz nie może być wystawiona na Aukcję." />
 			<button label="Skrypty" name="Scripts..."/>
 			<button label="Kup dla Grupy" name="Buy For Group..." />
@@ -130,7 +133,7 @@
 				Działka zakupiona w tym Regionie może być łączona/dzielona.
 			</panel.string>
 			<panel.string name="can_not_change">
-				Działka zakupiona w tym Regionie nie może być 
+				Działka zakupiona w tym Regionie nie może być
 łączona/dzielona.
 			</panel.string>
 			<text name="estate_section_lbl">
@@ -150,9 +153,6 @@
 			</text_editor>
 			<text name="covenant_timestamp_text">
 				Ostatnia modyfikacja Wed Dec 31 16:00:00 1969
-			</text>
-			<text name="region_name_text">
-				Wczytywanie...
 			</text>
 			<text name="region_landtype_lbl">
 				Typ:
@@ -220,8 +220,8 @@
 			<text name="Object Owners:">
 				Właściciele:
 			</text>
-			<button name="Refresh List" tool_tip="Odśwież listę obiektów" />
-			<button label="Zwróć obiekty" name="Return objects..." />
+			<button label="Odśwież listę" label_selected="Odśwież listę" name="Refresh List" tool_tip="Odśwież listę obiektów" />
+			<button label="Zwróć obiekty" label_selected="Zwróć obiekty" name="Return objects..." />
 			<name_list name="owner list">
 				<name_list.columns label="Typ" name="type" />
 				<name_list.columns label="Nazwa" name="name" />
@@ -250,7 +250,7 @@ Jedynie większe działki mogą być umieszczone w bazie wyszukiwarki.
 				Twoja działka bądź treść jaką zawiera klasyfikowana jest jako Moderate.
 			</panel.string>
 			<panel.string name="mature_check_adult_tooltip">
-				Twoja działka bądź treść jaką zawiera klasyfikowana jest jako Adult
+				Twoja działka bądź treść jaką zawiera klasyfikowana jest jako Adult.
 			</panel.string>
 			<panel.string name="landing_point_none">
 				(brak)
@@ -271,21 +271,21 @@ Jedynie większe działki mogą być umieszczone w bazie wyszukiwarki.
 			<text name="allow_label2">
 				Budowanie:
 			</text>
-			<check_box label="Wszyscy" name="edit objects check" />
-			<check_box label="Grupa" name="edit group objects check" />
+			<check_box label="Wszyscy" name="edit objects check" tool_tip="Gdy ta opcja jest włączona, to Rezydenci mogą tworzyć i rezzować obiekty na Twojej działce." />
+			<check_box label="Grupa" name="edit group objects check" tool_tip="Gdy ta opcja jest włączona, to osoby będące w grupie przypisanej do Twojej działki mogą na niej tworzyć i rezzować obiekty." />
 			<text name="allow_label3">
 				Nowe obiekty:
 			</text>
-			<check_box label="Wszyscy" name="all object entry check" />
-			<check_box label="Grupa" name="group object entry check" />
+			<check_box label="Wszyscy" name="all object entry check" tool_tip="Gdy ta opcja jest włączona, to Rezydenci mogą przenosić istniejące obiekty z innych działek na tę działkę." />
+			<check_box label="Grupa" name="group object entry check" tool_tip="Gdy ta opcja jest włączona, to osoby będące w grupie przypisanej do tej działki mogą na nią przenosić istniejące obiekty z innych działek." />
 			<text name="allow_label4">
 				Skrypty:
 			</text>
-			<check_box label="Wszyscy" name="check other scripts" />
-			<check_box label="Grupa" name="check group scripts" />
+			<check_box label="Wszyscy" name="check other scripts" tool_tip="Gdy ta opcja jest włączona, to Rezydenci mogą uruchamiać skrypty na Twojej działce, włączając w to te z dodatków." />
+			<check_box label="Grupa" name="check group scripts" tool_tip="Gdy ta opcja jest włączona, to osoby będące w grupie przypisanej do Twojej działki mogą na niej uruchamiać skrypty, włączając w to te z dodatków." />
 			<check_box label="Bezpieczna (brak uszkodzeń)" name="check safe" tool_tip="Wybrana - działka jest bezpieczna - uszkodzenia w walce są zablokowane. Nie jest wybrana - uszkodzenia w walce są włączone." />
 			<check_box label="Popychanie niedozwolone" name="PushRestrictCheck" tool_tip="Nie pozwalaj skryptom na popychanie. Wybranie tej opcji może być przydatne do ograniczenia zakłóceń spokoju na Twojej działce." />
-			<check_box label="Wyświetlaj w wyszukiwarce (30L$/tyg.)" name="ShowDirectoryCheck" tool_tip="Udostępnij ukazywanie się nazwy działki w wyszukiwarce" />
+			<check_box label="Wyświetlaj w wyszukiwarce (30L$/tyg.)" name="ShowDirectoryCheck" tool_tip="Udostępnij ukazywanie się nazwy działki w wyszukiwarce"/>
 			<combo_box name="land category">
 				<combo_box.item label="Każda kategoria" name="item0" />
 				<combo_box.item label="Lokalizacja Lindenów" name="item1" />
@@ -301,24 +301,24 @@ Jedynie większe działki mogą być umieszczone w bazie wyszukiwarki.
 				<combo_box.item label="Wynajem" name="item13" />
 				<combo_box.item label="Inna" name="item12" />
 			</combo_box>
-			<check_box label="Treść Moderate" name="MatureCheck" />
+			<check_box label="Treść Moderate" name="MatureCheck"/>
 			<text name="Snapshot:">
 				Zdjęcie:
 			</text>
 			<texture_picker name="snapshot_ctrl" tool_tip="Kliknij by wybrać zdjęcie" />
-			<text name="allow_label5">
+			<text name="allow_see_label">
 				Awatary na innych działkach mogą rozmawiać/widzieć awatary na tej działce
 			</text>
-			<check_box name="SeeAvatarsCheck" tool_tip="Pozwala Rezydentom z innych działek widzieć i rozmawiać z Rezydentami na tej działce - oraz Tobie, widzieć ich i rozmawiać z nimi." />
+			<check_box label="Widzieć awatary" name="SeeAvatarsCheck" tool_tip="Pozwala Rezydentom z innych działek widzieć i rozmawiać z Rezydentami na tej działce - oraz Tobie, widzieć ich i rozmawiać z nimi." />
 			<text name="landing_point">
 				Punkt Lądowania: [LANDING]
 			</text>
 			<button label="Ustaw" label_selected="Ustaw" name="Set" tool_tip="Ustal miejsce lądowania dla przybywających gości. Używa położenia Twojego awatara na tej działce." />
-			<button label="Wyczyść" label_selected="Wyczyść" name="Clear" tool_tip="Usuń dotychczasowe miejsce lądowania" />
+			<button label="Wyczyść" label_selected="Wyczyść" name="Clear" tool_tip="Usuń dotychczasowe miejsce lądowania." />
 			<text name="Teleport Routing: ">
 				Trasa teleportacji:
 			</text>
-			<combo_box name="landing type" tool_tip="Trasa teleportacji - ustaw w jaki sposób będzie się odbywać proces teleportacji na działce">
+			<combo_box name="landing type" tool_tip="Trasa teleportacji - ustaw w jaki sposób będzie się odbywać proces teleportacji na działce.">
 				<combo_box.item label="Zablokowana" name="Blocked" />
 				<combo_box.item label="Punkt Lądowania" name="LandingPoint" />
 				<combo_box.item label="Gdziekolwiek" name="Anywhere" />
@@ -345,18 +345,18 @@ Jedynie większe działki mogą być umieszczone w bazie wyszukiwarki.
 				Obiekty używające tej tekstury będą wyświetlały film lub stronę internetową po naciśnięciu przycisku odtwarzania. Wybierz miniaturę, jeśli chcesz zmienić teksturę.
 			</text>
 			<check_box label="Skaluj automatycznie" name="media_auto_scale" tool_tip="Wybranie tej opcji dobierze rozmiar zawartości mediów dla tej działki automatycznie. Może to mieć znaczący wpływ na jakość odtwarzanego materiału - może on być odtwarzany wolniej i w gorszej jakości, ale żadne dalsze działania nie będą potrzebne." />
-			<text name="media_size" tool_tip="Rozmiar dla ładowania mediów internetowych. Zostaw 0 dla ustawień domyślnych.">
+			<text name="media_size" tool_tip="Rozmiar dla przesyłanych mediów internetowych. Zostaw 0 dla ustawień domyślnych.">
 				Rozmiar:
 			</text>
-			<spinner name="media_size_width" tool_tip="Rozmiar dla ładowania mediów internetowych. Zostaw 0 dla ustawień domyślnych." />
-			<spinner name="media_size_height" tool_tip="Rozmiar dla ładowania mediów internetowych. Zostaw 0 dla ustawień domyślnych." />
+			<spinner name="media_size_width" tool_tip="Rozmiar dla przesyłanych mediów internetowych. Zostaw 0 dla ustawień domyślnych." />
+			<spinner name="media_size_height" tool_tip="Rozmiar dla przesyłanych mediów internetowych. Zostaw 0 dla ustawień domyślnych." />
 			<text name="pixels">
 				pikseli
 			</text>
 			<text name="Options:">
 				Opcje:
 			</text>
-			<check_box label="Odtwarzanie mediów w pętli" name="media_loop" tool_tip="Powtarzaj odtwarzanie mediów w pętli. Po wyświetleniu materiału odtwarzanie rozpocznie się od początku." />
+			<check_box label="Odtwarzaj w pętli" name="media_loop" tool_tip="Powtarzaj odtwarzanie mediów w pętli. Po wyświetleniu materiału odtwarzanie rozpocznie się od początku." />
 		</panel>
 		<panel label="DŹWIĘK" name="land_audio_panel">
 			<text name="MusicURL:">
@@ -377,6 +377,7 @@ Jedynie większe działki mogą być umieszczone w bazie wyszukiwarki.
 			<check_box label="Rozmowy włączone" name="parcel_enable_voice_channel" />
 			<check_box label="Rozmowy włączone (ustawione przez Majątek)" name="parcel_enable_voice_channel_is_estate_disabled" />
 			<check_box label="Ogranicz komunikację głosową do obszaru tej działki" name="parcel_enable_voice_channel_local" />
+			<check_box label="Ogranicz MOAP do obecnej działki" name="obscure_moap" tool_tip="Media na primach znajdujących się poza tą działką nie powinny odtwarzać się automatycznie dla rezydentów będących na niej - i odwrotnie." />
 		</panel>
 		<panel label="DOSTĘP" name="land_access_panel">
 			<panel.string name="access_estate_defined">
@@ -385,13 +386,10 @@ Jedynie większe działki mogą być umieszczone w bazie wyszukiwarki.
 			<panel.string name="estate_override">
 				Jedna lub więcej z tych opcji ustawiona jest z poziomu Majątku
 			</panel.string>
-			<check_box name="public_access" label="Dostęp publiczny (brak zaznaczenia tej opcji = widoczne linie zakazu)" />
-			<text name="Only Allow">
-				Umożliwiaj dostęp tylko dla:
-			</text>
-			<check_box label="Rezydentów zarejestrowanych w systemie płatniczym Linden Lab [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Zbanuj Rezydentów niezarejestrowanych w systemie płatniczym Linden Lab. Odwiedź [SUPPORT_SITE], aby uzyskać więcej informacji." />
-			<check_box label="Rezydentów, którzy mają 18+ lat [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Zbanuj Rezydetów, którzy mają mniej niż 18 lat. Odwiedź [SUPPORT_SITE], aby uzyskać więcej informacji." />
-			<check_box label="Udostępnij wejście grupie [GROUP]" name="GroupCheck" tool_tip="Ustaw Grupę w głównej zakładce." />
+			<check_box label="Każdy może odwiedzać (brak zaznaczenia = widoczne linie zakazu)" name="public_access" />
+			<check_box label="Osoba musi mieć 18+ lat [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Zbanuj Rezydetów, którzy mają mniej niż 18 lat. Odwiedź [SUPPORT_SITE], aby uzyskać więcej informacji." />
+			<check_box label="Osoba musi mieć dane płatnicze w systemie Linden Lab [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Zbanuj Rezydentów niezarejestrowanych w systemie płatniczym Linden Lab. Odwiedź [SUPPORT_SITE], aby uzyskać więcej informacji." />
+			<check_box label="Umożliwiaj wejście bez ograniczeń grupie [GROUP]" name="GroupCheck" tool_tip="Ustaw Grupę w głównej zakładce." />
 			<check_box label="Sprzedaj przepustki:" name="PassCheck" tool_tip="Otwórz tymczasowy dostęp do tej działki" />
 			<combo_box name="pass_combo">
 				<combo_box.item label="Każdemu" name="Anyone" />
@@ -399,22 +397,32 @@ Jedynie większe działki mogą być umieszczone w bazie wyszukiwarki.
 			</combo_box>
 			<spinner label="Cena w L$:" name="PriceSpin" />
 			<spinner label="Godziny dostępu:" name="HoursSpin" />
-			<panel name="Allowed_layout_panel">
-				<text label="Zawsze Zezwalaj" name="AllowedText">
-					Dozwoleni Rezydenci
-				</text>
-				<name_list name="AccessList" tool_tip="([LISTED] na liście, [MAX] maksimum)" />
-				<button label="Dodaj" name="add_allowed" />
-				<button label="Usuń" label_selected="Usuń" name="remove_allowed" />
-			</panel>
-			<panel name="Banned_layout_panel">
-				<text label="Banuj" name="BanCheck">
-					Zbanowani Rezydenci
-				</text>
-				<name_list name="BannedList" tool_tip="([LISTED] na liście, [MAX] maksimum)" />
-				<button label="Dodaj" name="add_banned" />
-				<button label="Usuń" label_selected="Usuń" name="remove_banned" />
-			</panel>
+			<text name="OwnerLimited">
+				(właściciel Majątku może ograniczać te wybory)
+			</text>
+			<layout_stack name="access_stack">
+				<layout_panel name="Allowed_layout_panel">
+					<text label="Zawsze zezwalaj" name="AllowedText">
+						Zawsze zezwalaj ([COUNT]/[MAX])
+					</text>
+					<name_list name="AccessList" tool_tip="([LISTED] na liście, [MAX] maksimum)"/>
+					<button label="Dodaj" name="add_allowed"/>
+					<button label="Usuń" label_selected="Usuń" name="remove_allowed"/>
+				</layout_panel>
+				<layout_panel name="Banned_layout_panel">
+					<text label="Banuj" name="BanCheck">
+						Zbanowani ([COUNT]/[MAX])
+					</text>
+					<name_list name="BannedList" tool_tip="([LISTED] na liście, [MAX] maksimum)">
+						<columns label="Imię" name="name" />
+						<columns label="Czas" name="duration" />
+					</name_list>
+					<button label="Dodaj" name="add_banned"/>
+					<button label="Usuń" label_selected="Usuń" name="remove_banned"/>
+				</layout_panel>
+			</layout_stack>
 		</panel>
+		<panel label="PRZYGODY" name="land_experiences_panel"/>
+		<panel label="OTOCZENIE" name="land_environment_panel" />
 	</tab_container>
 </floater>

@@ -28,6 +28,7 @@
 #define LL_LLDEFS_H
 
 #include "stdtypes.h"
+#include <type_traits>
 
 // Often used array indices
 const U32	VX			= 0;
@@ -166,82 +167,67 @@ const U32	MAXADDRSTR		= 17;		// 123.567.901.345 = 15 chars + \0 + 1 for good luc
 //
 // defined for U16, U32, U64, S16, S32, S64, :
 //   llclampb(a)     // clamps a to [0 .. 255]
-//   				   
+//
 
-template <class LLDATATYPE> 
-inline LLDATATYPE llmax(const LLDATATYPE& d1, const LLDATATYPE& d2)
+// recursion tail
+template <typename T>
+inline auto llmax(T data)
 {
-	return (d1 > d2) ? d1 : d2;
+    return data;
 }
 
-template <class LLDATATYPE> 
-inline LLDATATYPE llmax(const LLDATATYPE& d1, const LLDATATYPE& d2, const LLDATATYPE& d3)
+template <typename T0, typename T1, typename... Ts> 
+inline auto llmax(T0 d0, T1 d1, Ts... rest)
 {
-	LLDATATYPE r = llmax(d1,d2);
-	return llmax(r, d3);
+    auto maxrest = llmax(d1, rest...);
+    return (d0 > maxrest)? d0 : maxrest;
 }
 
-template <class LLDATATYPE> 
-inline LLDATATYPE llmax(const LLDATATYPE& d1, const LLDATATYPE& d2, const LLDATATYPE& d3, const LLDATATYPE& d4)
+// recursion tail
+template <typename T>
+inline auto llmin(T data)
 {
-	LLDATATYPE r1 = llmax(d1,d2);
-	LLDATATYPE r2 = llmax(d3,d4);
-	return llmax(r1, r2);
+    return data;
 }
 
-template <class LLDATATYPE> 
-inline LLDATATYPE llmin(const LLDATATYPE& d1, const LLDATATYPE& d2)
+template <typename T0, typename T1, typename... Ts> 
+inline auto llmin(T0 d0, T1 d1, Ts... rest)
 {
-	return (d1 < d2) ? d1 : d2;
+    auto minrest = llmin(d1, rest...);
+    return (d0 < minrest) ? d0 : minrest;
 }
 
-template <class LLDATATYPE> 
-inline LLDATATYPE llmin(const LLDATATYPE& d1, const LLDATATYPE& d2, const LLDATATYPE& d3)
+template <typename A, typename MIN, typename MAX> 
+inline A llclamp(A a, MIN minval, MAX maxval)
 {
-	LLDATATYPE r = llmin(d1,d2);
-	return (r < d3 ? r : d3);
-}
-
-template <class LLDATATYPE> 
-inline LLDATATYPE llmin(const LLDATATYPE& d1, const LLDATATYPE& d2, const LLDATATYPE& d3, const LLDATATYPE& d4)
-{
-	LLDATATYPE r1 = llmin(d1,d2);
-	LLDATATYPE r2 = llmin(d3,d4);
-	return llmin(r1, r2);
-}
-
-template <class LLDATATYPE> 
-inline LLDATATYPE llclamp(const LLDATATYPE& a, const LLDATATYPE& minval, const LLDATATYPE& maxval)
-{
-	if ( a < minval )
+	A aminval{ static_cast<A>(minval) }, amaxval{ static_cast<A>(maxval) };
+	if ( a < aminval )
 	{
-		return minval;
+		return aminval;
 	}
-	else if ( a > maxval )
+	else if ( a > amaxval )
 	{
-		return maxval;
+		return amaxval;
 	}
 	return a;
 }
 
 template <class LLDATATYPE> 
-inline LLDATATYPE llclampf(const LLDATATYPE& a)
+inline LLDATATYPE llclampf(LLDATATYPE a)
 {
-	return llmin(llmax(a, (LLDATATYPE)0), (LLDATATYPE)1);
+	return llmin(llmax(a, LLDATATYPE(0)), LLDATATYPE(1));
 }
 
 template <class LLDATATYPE> 
-inline LLDATATYPE llclampb(const LLDATATYPE& a)
+inline LLDATATYPE llclampb(LLDATATYPE a)
 {
-	return llmin(llmax(a, (LLDATATYPE)0), (LLDATATYPE)255);
+	return llmin(llmax(a, LLDATATYPE(0)), LLDATATYPE(255));
 }
 
 template <class LLDATATYPE> 
 inline void llswap(LLDATATYPE& lhs, LLDATATYPE& rhs)
 {
-	LLDATATYPE tmp = lhs;
-	lhs = rhs;
-	rhs = tmp;
+	std::swap(lhs, rhs);
 }
 
 #endif // LL_LLDEFS_H

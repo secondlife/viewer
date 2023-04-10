@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<contents>
+	<rows name="media_actions">
+		<columns label="Dźwięk i media" name="lst_action" />
+	</rows>
+	<rows name="toggle_pause_media">
+		<columns name="lst_action" value="Odtwórz / wstrzymaj media" />
+	</rows>
+	<rows name="toggle_enable_media">
+		<columns name="lst_action" value="Odtwórz / zatrzymaj wszystkie media" />
+	</rows>
+	<rows name="voice_follow_key">
+		<columns name="lst_action" value="Głos" />
+	</rows>
+	<rows name="toggle_voice">
+		<columns name="lst_action" value="Przełącz głos" />
+	</rows>
+	<rows name="start_chat">
+		<columns name="lst_action" value="Rozpocznij czat" />
+	</rows>
+	<rows name="start_gesture">
+		<columns name="lst_action" value="Odtwórz gest" />
+	</rows>
+	<rows name="script_trigger_lbutton">
+		<columns name="lst_action" value="Interakcja (LMB)" />
+	</rows>
+</contents>

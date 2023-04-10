@@ -241,11 +241,8 @@ BOOL LLTexLayerSetInfo::parseXml(LLXmlTreeNode* node)
 void LLTexLayerSetInfo::createVisualParams(LLAvatarAppearance *appearance)
 {
 	//layer_info_list_t		mLayerInfoList;
-	for (layer_info_list_t::iterator layer_iter = mLayerInfoList.begin();
-		 layer_iter != mLayerInfoList.end();
-		 layer_iter++)
+	for (LLTexLayerInfo* layer_info : mLayerInfoList)
 	{
-		LLTexLayerInfo *layer_info = *layer_iter;
 		layer_info->createVisualParams(appearance);
 	}
 }
@@ -287,12 +284,10 @@ BOOL LLTexLayerSet::setInfo(const LLTexLayerSetInfo *info)
 	//mID = info->mID; // No ID
 
 	mLayerList.reserve(info->mLayerInfoList.size());
-	for (LLTexLayerSetInfo::layer_info_list_t::const_iterator iter = info->mLayerInfoList.begin(); 
-		 iter != info->mLayerInfoList.end(); 
-		 iter++)
+	for (LLTexLayerInfo* layer_info : info->mLayerInfoList)
 	{
 		LLTexLayerInterface *layer = NULL;
-		if ( (*iter)->isUserSettable() )
+		if (layer_info->isUserSettable())
 		{
 			layer = new LLTexLayerTemplate( this, getAvatarAppearance() );
 		}
@@ -301,7 +296,7 @@ BOOL LLTexLayerSet::setInfo(const LLTexLayerSetInfo *info)
 			layer = new LLTexLayer(this);
 		}
 		// this is the first time this layer (of either type) is being created - make sure you add the parameters to the avatar appearance
-		if (!layer->setInfo(*iter, NULL))
+		if (!layer->setInfo(layer_info, NULL))
 		{
 			mInfo = NULL;
 			return FALSE;
@@ -348,14 +343,12 @@ BOOL LLTexLayerSet::parseData(LLXmlTreeNode* node)
 
 void LLTexLayerSet::deleteCaches()
 {
-	for( layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
+	for(LLTexLayerInterface* layer : mLayerList)
 	{
-		LLTexLayerInterface* layer = *iter;
 		layer->deleteCaches();
 	}
-	for (layer_list_t::iterator iter = mMaskLayerList.begin(); iter != mMaskLayerList.end(); iter++)
+	for (LLTexLayerInterface* layer : mMaskLayerList)
 	{
-		LLTexLayerInterface* layer = *iter;
 		layer->deleteCaches();
 	}
 }
@@ -368,9 +361,8 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height, LLRenderTarget*
 
 	if (mMaskLayerList.size() > 0)
 	{
-		for (layer_list_t::iterator iter = mMaskLayerList.begin(); iter != mMaskLayerList.end(); iter++)
+		for (LLTexLayerInterface* layer : mMaskLayerList)
 		{
-			LLTexLayerInterface* layer = *iter;
 			if (layer->isInvisibleAlphaMask())
 			{
 				mIsVisible = FALSE;
@@ -399,9 +391,8 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height, LLRenderTarget*
 	if (mIsVisible)
 	{
 		// composite color layers
-		for( layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
+		for(LLTexLayerInterface* layer : mLayerList)
 		{
-			LLTexLayerInterface* layer = *iter;
 			if (layer->getRenderPass() == LLTexLayer::RP_COLOR)
 			{
 				gGL.flush();
@@ -473,9 +464,8 @@ void LLTexLayerSet::gatherMorphMaskAlpha(U8 *data, S32 origin_x, S32 origin_y, S
     LL_PROFILE_ZONE_SCOPED;
 	memset(data, 255, width * height);
 
-	for( layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
+	for(LLTexLayerInterface* layer : mLayerList)
 	{
-		LLTexLayerInterface* layer = *iter;
 		layer->gatherAlphaMasks(data, origin_x, origin_y, width, height, bound_target);
 	}
 	
@@ -526,9 +516,8 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 	if (mMaskLayerList.size() > 0)
 	{
 		gGL.setSceneBlendType(LLRender::BT_MULT_ALPHA);
-		for (layer_list_t::iterator iter = mMaskLayerList.begin(); iter != mMaskLayerList.end(); iter++)
+		for (LLTexLayerInterface* layer : mMaskLayerList)
 		{
-			LLTexLayerInterface* layer = *iter;
 			gGL.flush();
 			layer->blendAlphaTexture(x,y,width, height);
 			gGL.flush();
@@ -549,9 +538,8 @@ void LLTexLayerSet::applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_
 
 BOOL LLTexLayerSet::isMorphValid() const
 {
-	for(layer_list_t::const_iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
+	for(const LLTexLayerInterface* layer : mLayerList)
 	{
-		const LLTexLayerInterface* layer = *iter;
 		if (layer && !layer->isMorphValid())
 		{
 			return FALSE;
@@ -562,9 +550,8 @@ BOOL LLTexLayerSet::isMorphValid() const
 
 void LLTexLayerSet::invalidateMorphMasks()
 {
-	for( layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
+	for(LLTexLayerInterface* layer : mLayerList)
 	{
-		LLTexLayerInterface* layer = *iter;
 		if (layer)
 		{
 			layer->invalidateMorphMasks();
@@ -661,14 +648,12 @@ BOOL LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
 			/* if ("upper_shirt" == local_texture_name)
 				mLocalTexture = TEX_UPPER_SHIRT; */
 			mLocalTexture = TEX_NUM_INDICES;
-			for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearance::getDictionary()->getTextures().begin();
-				 iter != LLAvatarAppearance::getDictionary()->getTextures().end();
-				 iter++)
+			for (const LLAvatarAppearanceDictionary::Textures::value_type& dict_pair : LLAvatarAppearance::getDictionary()->getTextures())
 			{
-				const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = iter->second;
+				const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = dict_pair.second;
 				if (local_texture_name == texture_dict->mName)
 			{
-					mLocalTexture = iter->first;
+					mLocalTexture = dict_pair.first;
 					break;
 			}
 			}
@@ -735,11 +720,8 @@ BOOL LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
 BOOL LLTexLayerInfo::createVisualParams(LLAvatarAppearance *appearance)
 {
 	BOOL success = TRUE;
-	for (param_color_info_list_t::iterator color_info_iter = mParamColorInfoList.begin();
-		 color_info_iter != mParamColorInfoList.end();
-		 color_info_iter++)
+	for (LLTexLayerParamColorInfo* color_info : mParamColorInfoList)
 	{
-		LLTexLayerParamColorInfo * color_info = *color_info_iter;
 		LLTexLayerParamColor* param_color = new LLTexLayerParamColor(appearance);
 		if (!param_color->setInfo(color_info, TRUE))
 		{
@@ -749,11 +731,8 @@ BOOL LLTexLayerInfo::createVisualParams(LLAvatarAppearance *appearance)
 		}
 	}
 
-	for (param_alpha_info_list_t::iterator alpha_info_iter = mParamAlphaInfoList.begin();
-		 alpha_info_iter != mParamAlphaInfoList.end();
-		 alpha_info_iter++)
+	for (LLTexLayerParamAlphaInfo* alpha_info : mParamAlphaInfoList)
 	{
-		LLTexLayerParamAlphaInfo * alpha_info = *alpha_info_iter;
 		LLTexLayerParamAlpha* param_alpha = new LLTexLayerParamAlpha(appearance);
 		if (!param_alpha->setInfo(alpha_info, TRUE))
 		{
@@ -796,15 +775,13 @@ BOOL LLTexLayerInterface::setInfo(const LLTexLayerInfo *info, LLWearable* wearab
 	//mID = info->mID; // No ID
 
 	mParamColorList.reserve(mInfo->mParamColorInfoList.size());
-	for (param_color_info_list_t::const_iterator iter = mInfo->mParamColorInfoList.begin(); 
-		 iter != mInfo->mParamColorInfoList.end(); 
-		 iter++)
+	for (LLTexLayerParamColorInfo* color_info : mInfo->mParamColorInfoList)
 	{
 		LLTexLayerParamColor* param_color;
 		if (!wearable)
 			{
 				param_color = new LLTexLayerParamColor(this);
-				if (!param_color->setInfo(*iter, TRUE))
+				if (!param_color->setInfo(color_info, TRUE))
 				{
 					mInfo = NULL;
 					return FALSE;
@@ -812,7 +789,7 @@ BOOL LLTexLayerInterface::setInfo(const LLTexLayerInfo *info, LLWearable* wearab
 			}
 			else
 			{
-				param_color = (LLTexLayerParamColor*)wearable->getVisualParam((*iter)->getID());
+				param_color = (LLTexLayerParamColor*)wearable->getVisualParam(color_info->getID());
 				if (!param_color)
 				{
 					mInfo = NULL;
@@ -823,15 +800,13 @@ BOOL LLTexLayerInterface::setInfo(const LLTexLayerInfo *info, LLWearable* wearab
 		}
 
 	mParamAlphaList.reserve(mInfo->mParamAlphaInfoList.size());
-	for (param_alpha_info_list_t::const_iterator iter = mInfo->mParamAlphaInfoList.begin(); 
-		 iter != mInfo->mParamAlphaInfoList.end(); 
-		 iter++)
+	for (LLTexLayerParamAlphaInfo* alpha_info : mInfo->mParamAlphaInfoList)
 		{
 			LLTexLayerParamAlpha* param_alpha;
 			if (!wearable)
 			{
 				param_alpha = new LLTexLayerParamAlpha( this );
-				if (!param_alpha->setInfo(*iter, TRUE))
+				if (!param_alpha->setInfo(alpha_info, TRUE))
 				{
 					mInfo = NULL;
 					return FALSE;
@@ -839,7 +814,7 @@ BOOL LLTexLayerInterface::setInfo(const LLTexLayerInfo *info, LLWearable* wearab
 			}
 			else
 			{
-				param_alpha = (LLTexLayerParamAlpha*) wearable->getVisualParam((*iter)->getID());
+				param_alpha = (LLTexLayerParamAlpha*) wearable->getVisualParam(alpha_info->getID());
 				if (!param_alpha)
 				{
 					mInfo = NULL;
@@ -873,12 +848,9 @@ LLWearableType::EType LLTexLayerInterface::getWearableType() const
 	if (TEX_INVALID == te)
 	{
 		LLWearableType::EType type = LLWearableType::WT_INVALID;
-		param_color_list_t::const_iterator color_iter = mParamColorList.begin();
-		param_alpha_list_t::const_iterator alpha_iter = mParamAlphaList.begin();
 
-		for (; color_iter != mParamColorList.end(); color_iter++)
+		for (LLTexLayerParamColor* param : mParamColorList)
 		{
-			LLTexLayerParamColor* param = *color_iter;
 			if (param) 
 			{
 				LLWearableType::EType new_type = (LLWearableType::EType)param->getWearableType();
@@ -893,9 +865,8 @@ LLWearableType::EType LLTexLayerInterface::getWearableType() const
 			}
 		}
 
-		for (; alpha_iter != mParamAlphaList.end(); alpha_iter++)
+		for (LLTexLayerParamAlpha* param : mParamAlphaList)
 		{
-			LLTexLayerParamAlpha* param = *alpha_iter;
 			if (param) 
 			{
 				LLWearableType::EType new_type = (LLWearableType::EType)param->getWearableType();
@@ -938,18 +909,18 @@ void LLTexLayerInterface::invalidateMorphMasks()
 LLViewerVisualParam* LLTexLayerInterface::getVisualParamPtr(S32 index) const
 {
 	LLViewerVisualParam *result = NULL;
-	for (param_color_list_t::const_iterator color_iter = mParamColorList.begin(); color_iter != mParamColorList.end() && !result; ++color_iter)
+	for (LLTexLayerParamColor* param : mParamColorList)
 	{
-		if ((*color_iter)->getID() == index)
+		if (param->getID() == index)
 		{
-			result = *color_iter;
+			result = param;
 		}
 	}
-	for (param_alpha_list_t::const_iterator alpha_iter = mParamAlphaList.begin(); alpha_iter != mParamAlphaList.end() && !result; ++alpha_iter)
+	for (LLTexLayerParamAlpha* param : mParamAlphaList)
 	{
-		if ((*alpha_iter)->getID() == index)
+		if (param->getID() == index)
 		{
-			result = *alpha_iter;
+			result = param;
 		}
 	}
 
@@ -994,10 +965,9 @@ LLTexLayer::~LLTexLayer()
 	//std::for_each(mParamAlphaList.begin(), mParamAlphaList.end(), DeletePointer());
 	//std::for_each(mParamColorList.begin(), mParamColorList.end(), DeletePointer());
 	
-	for( alpha_cache_t::iterator iter = mAlphaCache.begin();
-		 iter != mAlphaCache.end(); iter++ )
+	for (alpha_cache_t::value_type& alpha_pair : mAlphaCache)
 	{
-		U8* alpha_data = iter->second;
+		U8* alpha_data = alpha_pair.second;
 		ll_aligned_free_32(alpha_data);
 	}
 
@@ -1021,10 +991,8 @@ BOOL LLTexLayer::setInfo(const LLTexLayerInfo* info, LLWearable* wearable  )
 //static 
 void LLTexLayer::calculateTexLayerColor(const param_color_list_t &param_list, LLColor4 &net_color)
 {
-	for (param_color_list_t::const_iterator iter = param_list.begin();
-		 iter != param_list.end(); iter++)
+	for (const LLTexLayerParamColor* param : param_list)
 	{
-		const LLTexLayerParamColor* param = *iter;
 		LLColor4 param_net = param->getNetColor();
 		const LLTexLayerParamColorInfo *info = (LLTexLayerParamColorInfo *)param->getInfo();
 		switch(info->getOperation())
@@ -1049,10 +1017,8 @@ void LLTexLayer::calculateTexLayerColor(const param_color_list_t &param_list, LL
 /*virtual*/ void LLTexLayer::deleteCaches()
 {
 	// Only need to delete caches for alpha params. Color params don't hold extra memory
-	for (param_alpha_list_t::iterator iter = mParamAlphaList.begin();
-		 iter != mParamAlphaList.end(); iter++ )
+	for (LLTexLayerParamAlpha* param : mParamAlphaList)
 	{
-		LLTexLayerParamAlpha* param = *iter;
 		param->deleteCaches();
 	}
 }
@@ -1226,9 +1192,8 @@ const U8*	LLTexLayer::getAlphaData() const
 	const LLUUID& uuid = getUUID();
 	alpha_mask_crc.update((U8*)(&uuid.mData), UUID_BYTES);
 
-	for (param_alpha_list_t::const_iterator iter = mParamAlphaList.begin(); iter != mParamAlphaList.end(); iter++)
+	for (const LLTexLayerParamAlpha* param : mParamAlphaList)
 	{
-		const LLTexLayerParamAlpha* param = *iter;
 		// MULTI-WEARABLE: verify visual parameters used here
 		F32 param_weight = param->getWeight();
 		alpha_mask_crc.update((U8*)&param_weight, sizeof(F32));
@@ -1365,9 +1330,8 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 	// Accumulate alphas
 	LLGLSNoAlphaTest gls_no_alpha_test;
 	gGL.color4f( 1.f, 1.f, 1.f, 1.f );
-	for (param_alpha_list_t::iterator iter = mParamAlphaList.begin(); iter != mParamAlphaList.end(); iter++)
+	for (LLTexLayerParamAlpha* param : mParamAlphaList)
 	{
-		LLTexLayerParamAlpha* param = *iter;
 		success &= param->render( x, y, width, height );
 		if (!success && !force_render)
 		{
@@ -1441,9 +1405,8 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 		const LLUUID& uuid = getUUID();
 		alpha_mask_crc.update((U8*)(&uuid.mData), UUID_BYTES);
 		
-		for (param_alpha_list_t::const_iterator iter = mParamAlphaList.begin(); iter != mParamAlphaList.end(); iter++)
+		for (const LLTexLayerParamAlpha* param : mParamAlphaList)
 		{
-			const LLTexLayerParamAlpha* param = *iter;
 			F32 param_weight = param->getWeight();
 			alpha_mask_crc.update((U8*)&param_weight, sizeof(F32));
 		}
@@ -1683,12 +1646,10 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i) const
 
 	BOOL success = TRUE;
 	updateWearableCache();
-	for (wearable_cache_t::const_iterator iter = mWearableCache.begin(); iter!= mWearableCache.end(); iter++)
+	for (LLWearable* wearable : mWearableCache)
 	{
-		LLWearable* wearable = NULL;
 		LLLocalTextureObject *lto = NULL;
 		LLTexLayer *layer = NULL;
-		wearable = *iter;
 		if (wearable)
 		{
 			lto = wearable->getLocalTextureObject(mInfo->mLocalTexture);
@@ -1785,17 +1746,15 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i) const
 //-----------------------------------------------------------------------------
 LLTexLayerInterface*  LLTexLayerSet::findLayerByName(const std::string& name)
 {
-	for (layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
+	for (LLTexLayerInterface* layer : mLayerList)
 	{
-		LLTexLayerInterface* layer = *iter;
 		if (layer->getName() == name)
 		{
 			return layer;
 		}
 	}
-	for (layer_list_t::iterator iter = mMaskLayerList.begin(); iter != mMaskLayerList.end(); iter++ )
+	for (LLTexLayerInterface* layer : mMaskLayerList)
 	{
-		LLTexLayerInterface* layer = *iter;
 		if (layer->getName() == name)
 		{
 			return layer;
@@ -1807,20 +1766,20 @@ LLTexLayerInterface*  LLTexLayerSet::findLayerByName(const std::string& name)
 void LLTexLayerSet::cloneTemplates(LLLocalTextureObject *lto, LLAvatarAppearanceDefines::ETextureIndex tex_index, LLWearable *wearable)
 {
 	// initialize all texlayers with this texture type for this LTO
-	for( LLTexLayerSet::layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
+	for(LLTexLayerInterface* layer : mLayerList)
 	{
-		LLTexLayerTemplate* layer = (LLTexLayerTemplate*)*iter;
-		if (layer->getInfo()->getLocalTexture() == (S32) tex_index)
+		LLTexLayerTemplate* layer_template = (LLTexLayerTemplate*)layer;
+		if (layer_template->getInfo()->getLocalTexture() == (S32)tex_index)
 		{
-			lto->addTexLayer(layer, wearable);
+			lto->addTexLayer(layer_template, wearable);
 		}
 	}
-	for( LLTexLayerSet::layer_list_t::iterator iter = mMaskLayerList.begin(); iter != mMaskLayerList.end(); iter++ )
+	for(LLTexLayerInterface* layer : mMaskLayerList)
 	{
-		LLTexLayerTemplate* layer = (LLTexLayerTemplate*)*iter;
-		if (layer->getInfo()->getLocalTexture() == (S32) tex_index)
+		LLTexLayerTemplate* layer_template = (LLTexLayerTemplate*)layer;
+		if (layer_template->getInfo()->getLocalTexture() == (S32)tex_index)
 		{
-			lto->addTexLayer(layer, wearable);
+			lto->addTexLayer(layer_template, wearable);
 		}
 	}
 }
