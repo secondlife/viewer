@@ -7426,27 +7426,27 @@ void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst) {
 
 			{ // build diffuse+bloom+CoF
 				mRT->deferredLight.bindTarget();
-				shader = &gDeferredCoFProgram;
 
-				bindDeferredShader(*shader);
+				gDeferredCoFProgram.bind();
 
-				S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, src->getUsage());
-				if (channel > -1)
-				{
-					src->bindTexture(0, channel);
-				}
+				S32 channel = gDeferredCoFProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, src->getUsage());
+				gDeferredCoFProgram.bindTexture(channel, src);
 
-				shader->uniform1f(LLShaderMgr::DOF_FOCAL_DISTANCE, -subject_distance / 1000.f);
-				shader->uniform1f(LLShaderMgr::DOF_BLUR_CONSTANT, blur_constant);
-				shader->uniform1f(LLShaderMgr::DOF_TAN_PIXEL_ANGLE, tanf(1.f / LLDrawable::sCurPixelAngle));
-				shader->uniform1f(LLShaderMgr::DOF_MAGNIFICATION, magnification);
-				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
-				shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
+				channel = gDeferredCoFProgram.enableTexture(LLShaderMgr::DEFERRED_DEPTH, mRT->deferredScreen.getUsage());
+				gDeferredCoFProgram.bindTexture(channel, &mRT->deferredScreen, true);
+
+				gDeferredCoFProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, dst->getWidth(), dst->getHeight());
+				gDeferredCoFProgram.uniform1f(LLShaderMgr::DOF_FOCAL_DISTANCE, -subject_distance / 1000.f);
+				gDeferredCoFProgram.uniform1f(LLShaderMgr::DOF_BLUR_CONSTANT, blur_constant);
+				gDeferredCoFProgram.uniform1f(LLShaderMgr::DOF_TAN_PIXEL_ANGLE, tanf(1.f / LLDrawable::sCurPixelAngle));
+				gDeferredCoFProgram.uniform1f(LLShaderMgr::DOF_MAGNIFICATION, magnification);
+				gDeferredCoFProgram.uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
+				gDeferredCoFProgram.uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
 
 				mScreenTriangleVB->setBuffer();
 				mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
-				unbindDeferredShader(*shader);
+				gDeferredCoFProgram.unbind();
 				mRT->deferredLight.flush();
 			}
 
