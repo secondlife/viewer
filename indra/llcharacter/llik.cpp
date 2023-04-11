@@ -2645,7 +2645,14 @@ void LLIK::Solver::rebuildAllChains()
                 parent->setTargetPos(parent_target_pos);
             }
         }
-        else if (config.hasLocalPos())
+        else if (config.hasTargetRot())
+        {
+            // add and build chain
+            mChainMap[joint_id] = joint_list_t();
+            buildChain(joint, mChainMap[joint_id], sub_bases, config.getChainLimit());
+        }
+
+        if (config.hasLocalPos())
         {
             joint->setLocalPos(config.getLocalPos());
             joint->activate();
