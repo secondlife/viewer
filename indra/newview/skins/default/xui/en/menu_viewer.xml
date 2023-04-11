@@ -904,7 +904,8 @@
             </menu_item_check>
           <menu_item_check
            label="Midday"
-           name="Noon">
+           name="Noon"
+           shortcut="control|shift|Y">
             <menu_item_check.on_click
              function="World.EnvSettings"
              parameter="noon" />
@@ -914,8 +915,7 @@
           </menu_item_check>
           <menu_item_check
              label="Midday (Legacy)"
-             name="legacy noon"
-             shortcut="control|shift|Y">
+             name="legacy noon">
             <menu_item_check.on_click
              function="World.EnvSettings"
              parameter="legacy noon" />
