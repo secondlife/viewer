@@ -712,7 +712,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                             ++it)
                         {
                             // not push_front to not cause an infinite loop
-                            mFetchFolderQueue.push_back(FetchQueueInfo((*it)->getUUID(), fetch_info.mFetchType));
+                            mFetchFolderQueue.push_back(FetchQueueInfo((*it)->getUUID(), FT_RECURSIVE));
                         }
                     }
                 }
