@@ -91,6 +91,7 @@ public:
 	LLInventoryPanel* getAllItemsPanel();
 	void selectAllItemsPanel();
 	const LLInventoryPanel* getActivePanel() const { return mActivePanel; }
+    void setActivePanel();
 
 	bool isRecentItemsPanelSelected();
 

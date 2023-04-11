@@ -727,6 +727,10 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
         mInventoryGalleryPanel->setFilterSubString(mFilterSubString);
         return;
     }
+    if(mSingleFolderMode && isCombinationViewMode())
+    {
+        mCombinationGalleryPanel->setFilterSubString(search_string);
+    }
 
 	if (search_string == "")
 	{
@@ -816,7 +820,7 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 void LLPanelMainInventory::onFilterSelected()
 {
 	// Find my index
-    mActivePanel = mSingleFolderMode ? getChild<LLInventoryPanel>("single_folder_inv") : (LLInventoryPanel*)getChild<LLTabContainer>("inventory filter tabs")->getCurrentPanel();
+    setActivePanel();
 
 	if (!mActivePanel)
 	{
@@ -1243,8 +1247,8 @@ void LLFloaterInventoryFinder::draw()
 	}
 
 
-    bool is_gallery = mPanelMainInventory->isSingleFolderMode() && mPanelMainInventory->isGalleryViewMode();
-    if(is_gallery)
+    bool is_sf_mode = mPanelMainInventory->isSingleFolderMode();
+    if(is_sf_mode && mPanelMainInventory->isGalleryViewMode())
     {
         mPanelMainInventory->mInventoryGalleryPanel->getFilter().setShowFolderState(getCheckShowEmpty() ?
             LLInventoryFilter::SHOW_ALL_FOLDERS : LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
@@ -1252,6 +1256,12 @@ void LLFloaterInventoryFinder::draw()
     }
     else
     {
+        if(is_sf_mode && mPanelMainInventory->isCombinationViewMode())
+        {
+            mPanelMainInventory->mCombinationGalleryPanel->getFilter().setShowFolderState(getCheckShowEmpty() ?
+                LLInventoryFilter::SHOW_ALL_FOLDERS : LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
+            mPanelMainInventory->mCombinationGalleryPanel->getFilter().setFilterObjectTypes(filter);
+        }
         // update the panel, panel will update the filter
         mPanelMainInventory->getPanel()->setShowFolderState(getCheckShowEmpty() ?
             LLInventoryFilter::SHOW_ALL_FOLDERS : LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
@@ -1280,7 +1290,7 @@ void LLFloaterInventoryFinder::draw()
 
 
 	mPanelMainInventory->setFilterTextFromFilter();
-    if(is_gallery)
+    if(is_sf_mode && mPanelMainInventory->isGalleryViewMode())
     {
         mPanelMainInventory->mInventoryGalleryPanel->getFilter().setHoursAgo(hours);
         mPanelMainInventory->mInventoryGalleryPanel->getFilter().setDateRangeLastLogoff(getCheckSinceLogoff());
@@ -1288,6 +1298,12 @@ void LLFloaterInventoryFinder::draw()
     }
     else
     {
+        if(is_sf_mode && mPanelMainInventory->isCombinationViewMode())
+        {
+            mPanelMainInventory->mCombinationGalleryPanel->getFilter().setHoursAgo(hours);
+            mPanelMainInventory->mCombinationGalleryPanel->getFilter().setDateRangeLastLogoff(getCheckSinceLogoff());
+            mPanelMainInventory->mCombinationGalleryPanel->getFilter().setDateSearchDirection(getDateSearchDirection());
+        }
         mPanelMainInventory->getPanel()->setHoursAgo(hours);
         mPanelMainInventory->getPanel()->setSinceLogoff(getCheckSinceLogoff());
         mPanelMainInventory->getPanel()->setDateSearchDirection(getDateSearchDirection());
@@ -1446,6 +1462,22 @@ void LLPanelMainInventory::onAddButtonClick()
 	}
 }
 
+void LLPanelMainInventory::setActivePanel()
+{
+    if(mSingleFolderMode && isListViewMode())
+    {
+        mActivePanel = getChild<LLInventoryPanel>("single_folder_inv");
+    }
+    else if(mSingleFolderMode && isCombinationViewMode())
+    {
+        mActivePanel = getChild<LLInventoryPanel>("comb_single_folder_inv");
+    }
+    else
+    {
+        mActivePanel = (LLInventoryPanel*)getChild<LLTabContainer>("inventory filter tabs")->getCurrentPanel();
+    }
+}
+
 void LLPanelMainInventory::toggleViewMode()
 {
     mSingleFolderMode = !mSingleFolderMode;
@@ -1457,7 +1489,7 @@ void LLPanelMainInventory::toggleViewMode()
     getChild<LLLayoutPanel>("nav_buttons")->setVisible(mSingleFolderMode);
     getChild<LLButton>("view_mode_btn")->setImageOverlay(mSingleFolderMode ? getString("default_mode_btn") : getString("single_folder_mode_btn"));
 
-    mActivePanel = mSingleFolderMode ? getChild<LLInventoryPanel>("single_folder_inv") : (LLInventoryPanel*)getChild<LLTabContainer>("inventory filter tabs")->getCurrentPanel();
+    setActivePanel();
     updateTitle();
     onFilterSelected();
 

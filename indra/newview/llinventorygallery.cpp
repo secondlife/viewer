@@ -180,6 +180,11 @@ void LLInventoryGallery::updateRootFolder()
         {
             updateRemovedItem(mItems[i]->getUUID());
         }
+        S32 hidden_count = mHiddenItems.size();
+        for (S32 i = hidden_count - 1; i >= 0; i--)
+        {
+            updateRemovedItem(mHiddenItems[i]->getUUID());
+        }
         
         if (gInventory.containsObserver(mCategoriesObserver))
         {
@@ -740,7 +745,6 @@ void LLInventoryGallery::updateRemovedItem(LLUUID item_id)
             item->die();
         }
     }
-
 }
 
 void LLInventoryGallery::updateChangedItemName(LLUUID item_id, std::string name)
