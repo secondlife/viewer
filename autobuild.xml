@@ -2865,7 +2865,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       <key>viewer-fonts</key>
       <map>
         <key>copyright</key>
-        <string>Copyright various</string>
+        <string>Copyright 2016-2022 Brad Erickson CC-BY-4.0/MIT, Copyright 2016-2022 Twitter, Inc. CC-BY-4.0, Copyright 2013 Joe Loughry and Terence Eden MIT</string>
         <key>description</key>
         <string>Viewer fonts</string>
         <key>license</key>
@@ -2881,9 +2881,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d47e0ed35dad11f0a5dc821758e2ae46</string>
+              <string>6041bbd4001e3951f96ac3456c7906da</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/109658/953998/viewer_fonts-1.577782-darwin64-577782.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113314/980656/viewer_fonts-1.579464-darwin64-579464.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2893,9 +2893,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7dc39bb7cd8133d251eaff9c9e16bdfd</string>
+              <string>19c48abc168a1c4e0f0ec6d471b2e1bd</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/109660/954010/viewer_fonts-1.577782-windows-577782.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113308/980632/viewer_fonts-1.579464-windows-579464.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2905,16 +2905,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>86134368c16c7d685156403e15a7cbcd</string>
+              <string>1745ba6eec0108250446fe01d4aa065c</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/109659/954009/viewer_fonts-1.577782-windows64-577782.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113307/980631/viewer_fonts-1.579464-windows64-579464.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.577782</string>
+        <string>1.579464</string>
       </map>
       <key>viewer-manager</key>
       <map>
