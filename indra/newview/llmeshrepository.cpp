@@ -1969,7 +1969,7 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 	{
         try
         {
-            U32 uzip_result = LLUZipHelper::unzip_llsd(skin, data, data_size);
+            U32 uzip_result = LLUZipHelper::unzip_llsd(skin, data, (llssize)data_size);
             if (uzip_result != LLUZipHelper::ZR_OK)
             {
                 LL_WARNS(LOG_MESH) << "Mesh skin info parse error.  Not a valid mesh asset!  ID:  " << mesh_id
@@ -2015,7 +2015,7 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
     {
         try
         {
-            U32 uzip_result = LLUZipHelper::unzip_llsd(decomp, data, data_size);
+            U32 uzip_result = LLUZipHelper::unzip_llsd(decomp, data, (llssize)data_size);
             if (uzip_result != LLUZipHelper::ZR_OK)
             {
                 LL_WARNS(LOG_MESH) << "Mesh decomposition parse error.  Not a valid mesh asset!  ID:  " << mesh_id

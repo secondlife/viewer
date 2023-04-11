@@ -2181,8 +2181,7 @@ std::string zip_llsd(LLSD& data)
 			if (strm.avail_out >= CHUNK)
 			{
 				deflateEnd(&strm);
-				if(output)
-					free(output);
+				free(output);
 				LL_WARNS() << "Failed to compress LLSD block." << LL_ENDL;
 				return std::string();
 			}
@@ -2227,7 +2226,7 @@ std::string zip_llsd(LLSD& data)
 //decompress a block of LLSD from provided istream
 // not very efficient -- creats a copy of decompressed LLSD block in memory
 // and deserializes from that copy using LLSDSerialize
-LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, std::istream& is, S32 size)
+LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, std::istream& is, llssize size)
 {
 	std::unique_ptr<U8[]> in = std::unique_ptr<U8[]>(new(std::nothrow) U8[size]);
 	if (!in)
@@ -2239,7 +2238,7 @@ LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, std::istream& is,
 	return unzip_llsd(data, in.get(), size);
 }
 
-LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, const U8* in, S32 size)
+LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, const U8* in, llssize size)
 {
 	U8* result = NULL;
 	U32 cur_size = 0;
@@ -2256,7 +2255,7 @@ LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, const U8* in, S32
 	strm.zalloc = Z_NULL;
 	strm.zfree = Z_NULL;
 	strm.opaque = Z_NULL;
-	strm.avail_in = size;
+	strm.avail_in = (S32)size;
 	strm.next_in = const_cast<U8*>(in);
 
 	S32 ret = inflateInit(&strm);
@@ -2336,7 +2335,7 @@ LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, const U8* in, S32
 //This unzip function will only work with a gzip header and trailer - while the contents
 //of the actual compressed data is the same for either format (gzip vs zlib ), the headers
 //and trailers are different for the formats.
-U8* unzip_llsdNavMesh( bool& valid, size_t& outsize, std::istream& is, S32 size )
+U8* unzip_llsdNavMesh( bool& valid, size_t& outsize, std::istream& is, size_t size )
 {
 	if (size == 0)
 	{
@@ -2440,7 +2439,7 @@ U8* unzip_llsdNavMesh( bool& valid, size_t& outsize, std::istream& is, S32 size 
 char* strip_deprecated_header(char* in, U32& cur_size, U32* header_size)
 {
 	const char* deprecated_header = "<? LLSD/Binary ?>";
-	constexpr size_t deprecated_header_size = 17;
+	constexpr size_t deprecated_header_size = sizeof(deprecated_header) - 1;
 
 	if (cur_size > deprecated_header_size
 		&& memcmp(in, deprecated_header, deprecated_header_size) == 0)

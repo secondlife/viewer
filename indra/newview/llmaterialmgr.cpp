@@ -432,7 +432,7 @@ void LLMaterialMgr::onGetResponse(bool success, const LLSD& content, const LLUUI
 	const LLSD::Binary& content_binary = content[MATERIALS_CAP_ZIP_FIELD].asBinary();
 
 	LLSD response_data;
-	U32 uzip_result = LLUZipHelper::unzip_llsd(response_data, content_binary.data(), content_binary.size());
+	U32 uzip_result = LLUZipHelper::unzip_llsd(response_data, content_binary.data(), (llssize)content_binary.size());
 	if (uzip_result != LLUZipHelper::ZR_OK)
 	{
 		LL_WARNS("Materials") << "Cannot unzip LLSD binary content: " << uzip_result << LL_ENDL;
@@ -473,7 +473,7 @@ void LLMaterialMgr::onGetAllResponse(bool success, const LLSD& content, const LL
 	const LLSD::Binary& content_binary = content[MATERIALS_CAP_ZIP_FIELD].asBinary();
 
 	LLSD response_data;
-	U32 uzip_result = LLUZipHelper::unzip_llsd(response_data, content_binary.data(), content_binary.size());
+	U32 uzip_result = LLUZipHelper::unzip_llsd(response_data, content_binary.data(), (llssize)content_binary.size());
 	if (uzip_result != LLUZipHelper::ZR_OK)
 	{
 		LL_WARNS("Materials") << "Cannot unzip LLSD binary content: " << uzip_result << LL_ENDL;
@@ -540,7 +540,7 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 	const LLSD::Binary& content_binary = content[MATERIALS_CAP_ZIP_FIELD].asBinary();
 
 	LLSD response_data;
-	U32 uzip_result = LLUZipHelper::unzip_llsd(response_data, content_binary.data(), content_binary.size());
+	U32 uzip_result = LLUZipHelper::unzip_llsd(response_data, content_binary.data(), (llssize)content_binary.size());
 	if (uzip_result != LLUZipHelper::ZR_OK)
 	{
 		LL_WARNS("Materials") << "Cannot unzip LLSD binary content: " << uzip_result << LL_ENDL;
