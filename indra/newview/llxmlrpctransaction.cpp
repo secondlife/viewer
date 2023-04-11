@@ -44,7 +44,12 @@
 #include "llviewercontrol.h"
 
 // Have to include these last to avoid queue redefinition!
+
+#ifdef LL_USESYSTEMLIBS
+#include <xmlrpc.h>
+#else
 #include <xmlrpc-epi/xmlrpc.h>
+#endif
 
 #include "llappviewer.h"
 #include "lltrans.h"
@@ -508,10 +513,11 @@ void LLXMLRPCTransaction::Impl::setHttpStatus(const LLCore::HttpStatus &status)
 		message = LLTrans::getString("couldnt_resolve_host", args);
 		break;
 
+#if CURLE_SSL_PEER_CERTIFICATE != CURLE_SSL_CACERT
 	case CURLE_SSL_PEER_CERTIFICATE:
 		message = LLTrans::getString("ssl_peer_certificate");
 		break;
-
+#endif
 	case CURLE_SSL_CACERT:
 	case CURLE_SSL_CONNECT_ERROR:		
 		message = LLTrans::getString("ssl_connect_error");

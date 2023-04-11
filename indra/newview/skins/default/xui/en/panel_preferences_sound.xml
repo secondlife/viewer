@@ -322,154 +322,161 @@
 		name="enable_voice_check"
 		width="110"/>
 	<!-- -->
-    <text
-        follows="left|top"
-        layout="topleft"
-        height="15"
-        left="0"
-        top_pad="3"
-        width="120"
-        halign="right"
-        name="media_autoplay_label">
-         Media auto-play
-    </text>
-    <combo_box
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   layout="topleft"
+   left="23"
+   top_delta="22"
+   name="Listen media from"
+   height="15"
+   word_wrap="true"
+   width="112">
+      Hear media and sounds from:
+  </text>
+  <radio_group
+   control_name="MediaSoundsEarLocation"
+   follows="left|top"
+   top_delta="-6"
+   layout="topleft"
+   left_pad="20"
+   width="360"
+   height="40"
+   name="media_ear_location">
+      <radio_item
+       height="19"
+       label="Camera position"
+       follows="left|top"
+       layout="topleft"
+       name="0"
+       width="200"/>
+      <radio_item
+       height="19"
+       follows="left|top"
+       label="Avatar position"
+       layout="topleft"
+       left_delta="0"
+       name="1"
+       top_delta ="18"
+       width="200" />
+  </radio_group>  
+ 	<check_box
+    name="media_show_on_others_btn"
+    control_name="MediaShowOnOthers"
+    value="true"
+    follows="left|top"
+    layout="topleft" 
+    height="15"
+    top_pad="8"
+    tool_tip="Uncheck this to hide media attached to other avatars nearby"
+    label="Play media attached to other avatars"
+    left="20"
+    width="230"/>
+  <text
+   follows="left|top"
+   layout="topleft"
+   height="15"
+   left="23"
+   top_pad="8"
+   width="120"
+   name="media_autoplay_label">
+    Auto-play media
+  </text>
+  <combo_box
         control_name="ParcelMediaAutoPlayEnable"
         enabled_control="AudioStreamingMedia"
         follows="left|top"
         layout="topleft"
         height="23"
-        left_pad="7"
+        left_pad="-15"
         top_delta="-4"
         name="media_auto_play_combo"
-        width="100">
-      <item
-          label="No"
-          name="autoplay_disabled"
-          value="0"/>      
-      <item
-          label="Yes"
-          name="autoplay_enabled"
-          value="1"/>
-      <item
-          label="Ask"
-          name="autoplay_ask"
-          value="2"/>
-    </combo_box>
- 	<check_box
-		name="media_show_on_others_btn"
-		control_name="MediaShowOnOthers"
-		value="true"
-		follows="left|bottom|right"
-		height="15"
-		tool_tip="Uncheck this to hide media attached to other avatars nearby"
-		label="Play media attached to other avatars"
-		left="25"
-    width="230"/>
-	<check_box
-		name="gesture_audio_play_btn"
-		control_name="EnableGestureSounds"
-        disabled_control="MuteAudio"
-		value="true"
-		follows="left|bottom|right"
-		height="15"
-		tool_tip="Check this to hear sounds from gestures"
-		label="Play sounds from gestures"
-		top_pad="1"
-		left="25"/>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="20"
-     layout="topleft"
-     left="25"
-     name="voice_chat_settings"
-     width="200"
-     top_pad="16">
-	  Voice Chat Settings
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     layout="topleft"
-	   left="46"
-	   top_delta="16"
-     name="Listen from"
-     width="112">
-        Listen from:
-    </text>
-	<icon
-		follows="left|top"
-		height="18"
-		image_name="Cam_FreeCam_Off"
-		layout="topleft"
-		name="camera_icon"
-		mouse_opaque="false"
-		visible="true"
-		width="18"
-		left_pad="-4"
-		top_delta="-5"/>
-	<icon
-		follows="left|top"
-		height="18"
-		image_name="Move_Walk_Off"
-		layout="topleft"
-		left_pad="170" 
-		name="avatar_icon"
-		mouse_opaque="false"
-		visible="true"
-		width="18"
-		top_delta="0" />
-   <radio_group
-     enabled_control="EnableVoiceChat"
-     control_name="VoiceEarLocation"
-     follows="left|top"
-     layout="topleft"
-     left_delta="-168"
-     width="360"
-     height="20"
-     name="ear_location">
-    <radio_item
-     height="19"
-     label="Camera position"
-     follows="left|top"
-     layout="topleft"
-     name="0"
-     width="200"/>
-    <radio_item
-     height="19"
-     follows="left|top"
-     label="Avatar position"
-     layout="topleft"
-     left_pad="-16"
-     name="1"
-     top_delta ="0" 
-     width="200" />
-   </radio_group>
+        width="115">
+    <item
+        label="Never"
+        name="autoplay_disabled"
+        value="0"/>
+    <item
+        label="Always"
+        name="autoplay_enabled"
+        value="1"/>
+    <item
+        label="Ask"
+        name="autoplay_ask"
+        value="2"/>
+  </combo_box>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   layout="topleft"
+   left="23"
+   top_delta="30"
+   name="Listen from"
+   width="112">
+     Hear voice from:
+  </text>
+  <radio_group
+   enabled_control="EnableVoiceChat"
+   control_name="VoiceEarLocation"
+   follows="left|top"
+   layout="topleft"
+   left_pad="20"
+   top_delta="-6"
+   width="360"
+   height="40"
+   name="ear_location">
+   <radio_item
+    height="19"
+    label="Camera position"
+    follows="left|top"
+    layout="topleft"
+    name="0"
+    width="200"/>
+   <radio_item
+    height="19"
+    follows="left|top"
+    label="Avatar position"
+    layout="topleft"
+    left_delta="0"
+    name="1"
+    top_delta ="18" 
+    width="200" />
+  </radio_group>
   <check_box
    control_name="LipSyncEnabled"
    follows="left|top"
    height="15"
    label="Move avatar lips when speaking"
    layout="topleft"
-   left="44"
+   left="20"
    name="enable_lip_sync"
-   top_pad="5" 
+   top_pad="10" 
    width="237"/>
- <check_box
-  follows="top|left"
-  enabled_control="EnableVoiceChat"
-  control_name="PushToTalkToggle"
-  height="15"
-  label="Toggle speak on/off when I press button in toolbar"
-  layout="topleft"
-  left="44"
-  name="push_to_talk_toggle_check"
-  width="237"
-  tool_tip="When in toggle mode, press and release the trigger key ONCE to switch your microphone on or off. When not in toggle mode, the microphone broadcasts your voice only while the trigger is being held down."
-  top_pad="3"/>
+  <check_box
+   follows="top|left"
+   enabled_control="EnableVoiceChat"
+   control_name="PushToTalkToggle"
+   height="15"
+   label="Toggle speak on/off when I press button in toolbar"
+   layout="topleft"
+   left="20"
+   name="push_to_talk_toggle_check"
+   width="237"
+   tool_tip="When in toggle mode, press and release the trigger key ONCE to switch your microphone on or off. When not in toggle mode, the microphone broadcasts your voice only while the trigger is being held down."
+   top_pad="5"/>
+  <check_box
+   name="gesture_audio_play_btn"
+   control_name="EnableGestureSounds"
+   disabled_control="MuteAudio"
+   value="true"
+   follows="left|bottom|right"
+   height="15"
+   tool_tip="Check this to hear sounds from gestures"
+   label="Play sounds from gestures"
+   top_pad="5"
+   left="20"/>
   <button
    control_name="ShowDeviceSettings"
    follows="left|top"
@@ -478,7 +485,7 @@
    label="Voice Input/Output devices"
    layout="topleft"
    left="20"
-   top_pad="6"
+   top_pad="9"
    name="device_settings_btn"
    width="230">
   </button>

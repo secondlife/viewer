@@ -37,7 +37,6 @@ import getopt
 from io import StringIO
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-
 from llbase.fastest_elementtree import parse as xml_parse
 import llsd
 

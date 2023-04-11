@@ -52,7 +52,32 @@ class LLGroupHandler : public LLCommandHandler
 {
 public:
 	// requires trusted browser to trigger
-	LLGroupHandler() : LLCommandHandler("group", UNTRUSTED_THROTTLE) { }
+	LLGroupHandler() : LLCommandHandler("group", UNTRUSTED_CLICK_ONLY) { }
+
+    virtual bool canHandleUntrusted(
+        const LLSD& params,
+        const LLSD& query_map,
+        LLMediaCtrl* web,
+        const std::string& nav_type)
+    {
+        if (params.size() < 1)
+        {
+            return true; // don't block, will fail later
+        }
+
+        if (nav_type == NAV_TYPE_CLICKED)
+        {
+            return true;
+        }
+
+        const std::string verb = params[0].asString();
+        if (verb == "create")
+        {
+            return false;
+        }
+        return true;
+    }
+
 	bool handle(const LLSD& tokens, const LLSD& query_map,
 				LLMediaCtrl* web)
 	{
@@ -175,8 +200,7 @@ public:
 	virtual void processGroupData() = 0;
 protected:
 	LLUUID mGroupId;
-private:
-	bool mRequestProcessed;
+    bool mRequestProcessed;
 };
 
 class LLFetchLeaveGroupData: public LLFetchGroupMemberData
@@ -189,6 +213,22 @@ public:
 	 {
 		 LLGroupActions::processLeaveGroupDataResponse(mGroupId);
 	 }
+     void changed(LLGroupChange gc)
+     {
+         if (gc == GC_PROPERTIES && !mRequestProcessed)
+         {
+             LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupId);
+             if (!gdatap)
+             {
+                 LL_WARNS() << "GroupData was NULL" << LL_ENDL;
+             } 
+             else
+             {
+                 processGroupData();
+                 mRequestProcessed = true;
+             }
+         }
+     }
 };
 
 LLFetchLeaveGroupData* gFetchLeaveGroupData = NULL;
