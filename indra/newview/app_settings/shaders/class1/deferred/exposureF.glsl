@@ -47,7 +47,7 @@ void main()
 {
     vec2 tc = vec2(0.5,0.5);
 
-    float L = textureLod(emissiveRect, tc, 10).r;
+    float L = textureLod(emissiveRect, tc, 8).r;
     float max_L = dynamic_exposure_params.x;
     L = clamp(L, 0.0, max_L);
     L /= max_L;

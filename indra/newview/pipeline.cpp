@@ -1267,7 +1267,7 @@ void LLPipeline::createLUTBuffers()
     mExposureMap.clear();
     mExposureMap.flush();
 
-    mLuminanceMap.allocate(1024, 1024, GL_R16F);
+    mLuminanceMap.allocate(256, 256, GL_R16F);
 
     mLastExposure.allocate(1, 1, GL_R16F);
 }
@@ -7302,11 +7302,6 @@ void LLPipeline::renderFinalize()
             gLuminanceProgram.unbind();
         }
 
-        static LLStaticHashedString dynamic_exposure_params("dynamic_exposure_params");
-        static LLCachedControl<F32> dynamic_exposure_coefficient(gSavedSettings, "RenderDynamicExposureCoefficient", 0.175f);
-        static LLCachedControl<F32> dynamic_exposure_min(gSavedSettings, "RenderDynamicExposureMin", 0.125f);
-        static LLCachedControl<F32> dynamic_exposure_max(gSavedSettings, "RenderDynamicExposureMax", 1.3f);
-
         // exposure sample
         {
             LL_PROFILE_GPU_ZONE("exposure sample");
@@ -7343,7 +7338,11 @@ void LLPipeline::renderFinalize()
 
             static LLStaticHashedString dt("dt");
             static LLStaticHashedString noiseVec("noiseVec");
-            
+            static LLStaticHashedString dynamic_exposure_params("dynamic_exposure_params");
+            static LLCachedControl<F32> dynamic_exposure_coefficient(gSavedSettings, "RenderDynamicExposureCoefficient", 0.175f);
+            static LLCachedControl<F32> dynamic_exposure_min(gSavedSettings, "RenderDynamicExposureMin", 0.125f);
+            static LLCachedControl<F32> dynamic_exposure_max(gSavedSettings, "RenderDynamicExposureMax", 1.3f);
+
             gExposureProgram.uniform1f(dt, gFrameIntervalSeconds);
             gExposureProgram.uniform2f(noiseVec, ll_frand() * 2.0 - 1.0, ll_frand() * 2.0 - 1.0);
             gExposureProgram.uniform3f(dynamic_exposure_params, dynamic_exposure_coefficient, dynamic_exposure_min, dynamic_exposure_max);
@@ -7371,8 +7370,7 @@ void LLPipeline::renderFinalize()
 
             gDeferredPostGammaCorrectProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, screenTarget(), false, LLTexUnit::TFO_POINT);
 
-			gDeferredPostGammaCorrectProgram.bindTexture(LLShaderMgr::EXPOSURE_MAP, &mExposureMap);
-            gDeferredPostGammaCorrectProgram.bindTexture(LLShaderMgr::DEFERRED_EMISSIVE, &mLuminanceMap, false, LLTexUnit::TFO_TRILINEAR);
+            gDeferredPostGammaCorrectProgram.bindTexture(LLShaderMgr::EXPOSURE_MAP, &mExposureMap);
 
             gDeferredPostGammaCorrectProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, screenTarget()->getWidth(), screenTarget()->getHeight());
 
@@ -7383,8 +7381,6 @@ void LLPipeline::renderFinalize()
             static LLStaticHashedString s_exposure("exposure");
 
             gDeferredPostGammaCorrectProgram.uniform1f(s_exposure, e);
-
-            gDeferredPostGammaCorrectProgram.uniform3f(dynamic_exposure_params, dynamic_exposure_coefficient, dynamic_exposure_min, dynamic_exposure_max);
 
             mScreenTriangleVB->setBuffer();
             mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);

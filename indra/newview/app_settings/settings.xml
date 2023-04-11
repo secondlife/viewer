@@ -10358,17 +10358,6 @@
     <key>Value</key>
     <integer>128</integer>
   </map>
-  <key>RenderTonemapper</key>
-  <map>
-    <key>Comment</key>
-    <string>Which tone mapping function to use (0 - Linear, 1 - ACES Narkowicz, 2 - ACES Hill)</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <real>2</real>
-  </map>
   <key>RenderExposure</key>
   <map>
     <key>Comment</key>
