@@ -20,3 +20,4 @@ use_prebuilt_binary(slvoice)
 
 use_prebuilt_binary(nanosvg)
 use_prebuilt_binary(viewer-fonts)
+use_prebuilt_binary(emoji_shortcodes)
