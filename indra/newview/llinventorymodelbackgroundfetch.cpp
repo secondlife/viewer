@@ -190,6 +190,7 @@ LLInventoryModelBackgroundFetch::LLInventoryModelBackgroundFetch():
 	mBackgroundFetchActive(false),
 	mFolderFetchActive(false),
 	mFetchCount(0),
+    mLastFetchCount(0),
     mFetchFolderCount(0),
     mAllRecursiveFoldersFetched(false),
 	mRecursiveInventoryFetchStarted(false),
@@ -424,13 +425,13 @@ void LLInventoryModelBackgroundFetch::backgroundFetchCB(void *)
 
 void LLInventoryModelBackgroundFetch::backgroundFetch()
 {
-	if (mBackgroundFetchActive && gAgent.getRegion() && gAgent.getRegion()->capabilitiesReceived())
+	if (mBackgroundFetchActive)
 	{
         if (AISAPI::isAvailable())
         {
             bulkFetchViaAis();
         }
-        else
+        else if (gAgent.getRegion() && gAgent.getRegion()->capabilitiesReceived())
         {
             // If we'll be using the capability, we'll be sending batches and the background thing isn't as important.
             bulkFetch();
@@ -460,6 +461,7 @@ void LLInventoryModelBackgroundFetch::incrFetchFolderCount(S32 fetching)
 
 void ais_simple_folder_callback(const LLUUID& inv_id)
 {
+    LL_DEBUGS("AIS3") << "Response for folder " << inv_id << LL_ENDL;
     LLInventoryModelBackgroundFetch::instance().incrFetchFolderCount(-1);
     if (inv_id.notNull()) // null normally means a failure, but is an expected response for orphans
     {
@@ -473,6 +475,7 @@ void ais_simple_folder_callback(const LLUUID& inv_id)
 
 void ais_simple_item_callback(const LLUUID& inv_id)
 {
+    LL_DEBUGS("AIS3") << "Response for " << inv_id << LL_ENDL;
     LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
 }
 
@@ -481,6 +484,7 @@ void LLInventoryModelBackgroundFetch::onAISFodlerCalback(const LLUUID &request_i
     incrFetchFolderCount(-1);
     if (response_id.isNull()) // Failure
     {
+        LL_DEBUGS("AIS3") << "Failure response for folder " << request_id << LL_ENDL;
         if (recursion == FT_RECURSIVE)
         {
             // A full recursive request failed.
@@ -513,6 +517,7 @@ void LLInventoryModelBackgroundFetch::onAISFodlerCalback(const LLUUID &request_i
     }
     else
     {
+        LL_DEBUGS("AIS3") << "Got folder " << request_id << LL_ENDL;
         if (recursion == FT_CONTENT_RECURSIVE)
         {
             // Got the folder, now recursively request content
@@ -567,6 +572,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
         ? 0.006f // 6 ms
         : 1.f; 
     const F64 end_time = curent_time + max_time;
+    S32 last_fetch_count = mFetchCount;
 
     while (!mFetchFolderQueue.empty() && mFetchCount < max_concurrent_fetches && curent_time < end_time)
     {
@@ -589,10 +595,15 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
         }
     }
 
-    LL_DEBUGS(LOG_INV , "AIS3") << "Total active fetches: " << mFetchCount
-        << ", scheduled fodler fetches: " << (S32)mFetchFolderQueue.size()
-        << ", scheduled item fetches: " << (S32)mFetchItemQueue.size()
-        << LL_ENDL;
+    if (last_fetch_count != mFetchCount // if anything was added
+        || mLastFetchCount != mFetchCount) // if anything was substracted
+    {
+        mLastFetchCount = mFetchCount;
+        LL_DEBUGS(LOG_INV , "AIS3") << "Total active fetches: " << last_fetch_count << "->" << mFetchCount
+            << ", scheduled fodler fetches: " << (S32)mFetchFolderQueue.size()
+            << ", scheduled item fetches: " << (S32)mFetchItemQueue.size()
+            << LL_ENDL;
+    }
     
     if (isFolderFetchProcessingComplete() && mFolderFetchActive)
     {
@@ -619,7 +630,6 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
         }
         else
         {
-
             LLViewerInventoryCategory * cat(gInventory.getCategory(cat_id));
             if (cat)
             {
@@ -630,9 +640,9 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                         ? LLViewerInventoryCategory::FETCH_RECURSIVE
                         : LLViewerInventoryCategory::FETCH_NORMAL;
                     // start again if we did a non-recursive fetch before
+                    // to get all children in a single request
                     if (cat->getFetching() < target_state)
                     {
-
                         if (ALEXANDRIA_LINDEN_ID == cat->getOwnerID())
                         {
                             AISAPI::FetchCategoryChildren(cat->getUUID(), AISAPI::LIBRARY, fetch_info.mFetchType == FT_RECURSIVE, ais_simple_folder_callback);

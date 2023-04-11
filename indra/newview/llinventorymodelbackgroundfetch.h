@@ -120,6 +120,7 @@ private:
     bool mBackgroundFetchActive;
 	bool mFolderFetchActive;
 	S32 mFetchCount;
+    S32 mLastFetchCount; // for debug
     S32 mFetchFolderCount;
 
 	LLFrameTimer mFetchTimer;

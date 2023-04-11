@@ -689,7 +689,7 @@ void LLViewerInventoryCategory::setFetching(LLViewerInventoryCategory::EFetchTyp
     {
         if (mDescendentsRequested.hasExpired() || (mFetching == FETCH_NONE))
         {
-            const F32 FETCH_TIMER_EXPIRY = 10.0f;
+            const F32 FETCH_TIMER_EXPIRY = 30.0f;
             mDescendentsRequested.reset();
             mDescendentsRequested.setTimerExpirySec(FETCH_TIMER_EXPIRY);
         }

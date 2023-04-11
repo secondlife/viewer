@@ -29,6 +29,7 @@
 #include "llaisapi.h"
 
 #include "llagent.h"
+#include "llappviewer.h"
 #include "llcallbacklist.h"
 #include "llinventorymodel.h"
 #include "llsdutil.h"
@@ -95,7 +96,10 @@ void AISAPI::CreateInventory(const LLUUID& parentId, const LLSD& newInventory, c
     if (cap.empty())
     {
         LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
-        callback(LLUUID::null);
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
         return;
     }
 
@@ -138,6 +142,10 @@ void AISAPI::SlamFolder(const LLUUID& folderId, const LLSD& newInventory, comple
     if (cap.empty())
     {
         LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
         return;
     }
 
@@ -173,6 +181,10 @@ void AISAPI::RemoveCategory(const LLUUID &categoryId, completion_t callback)
     if (cap.empty())
     {
         LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
         return;
     }
 
@@ -206,6 +218,10 @@ void AISAPI::RemoveItem(const LLUUID &itemId, completion_t callback)
     if (cap.empty())
     {
         LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
         return;
     }
 
@@ -238,6 +254,10 @@ void AISAPI::CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, b
     if (cap.empty())
     {
         LL_WARNS("Inventory") << "Library cap not found!" << LL_ENDL;
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
         return;
     }
 
@@ -282,6 +302,10 @@ void AISAPI::PurgeDescendents(const LLUUID &categoryId, completion_t callback)
     if (cap.empty())
     {
         LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
         return;
     }
 
@@ -316,6 +340,10 @@ void AISAPI::UpdateCategory(const LLUUID &categoryId, const LLSD &updates, compl
     if (cap.empty())
     {
         LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
         return;
     }
     std::string url = cap + std::string("/category/") + categoryId.asString();
@@ -348,6 +376,10 @@ void AISAPI::UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t 
     if (cap.empty())
     {
         LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
         return;
     }
     std::string url = cap + std::string("/item/") + itemId.asString();
@@ -379,6 +411,10 @@ void AISAPI::FetchItem(const LLUUID &itemId, ITEM_TYPE type, completion_t callba
 	if (cap.empty())
 	{
 		LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
 		return;
 	}
 	std::string url = cap + std::string("/item/") + itemId.asString();
@@ -410,7 +446,10 @@ void AISAPI::FetchCategoryChildren(const LLUUID &catId, ITEM_TYPE type, bool rec
     if (cap.empty())
     {
         LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
-        callback(LLUUID::null);
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
         return;
     }
     std::string url = cap + std::string("/category/") + catId.asString() + "/children";
@@ -456,7 +495,10 @@ void AISAPI::FetchCategoryChildren(const std::string &identifier, bool recursive
     if (cap.empty())
     {
         LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
-        callback(LLUUID::null);
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
         return;
     }
     std::string url = cap + std::string("/category/") + identifier + "/children";
@@ -500,6 +542,10 @@ void AISAPI::FetchCategoryCategories(const LLUUID &catId, ITEM_TYPE type, bool r
     if (cap.empty())
     {
         LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
         return;
     }
     std::string url = cap + std::string("/category/") + catId.asString() + "/categories";
@@ -541,6 +587,10 @@ void AISAPI::FetchOrphans(completion_t callback)
     if (cap.empty())
     {
         LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
         return;
     }
     std::string url = cap + std::string("/orphans");
@@ -642,6 +692,15 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
         invokationFn_t invoke, std::string url, 
         LLUUID targetId, LLSD body, completion_t callback, COMMAND_TYPE type)
 {
+    if (gDisconnected)
+    {
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
+        return;
+    }
+
     LLCore::HttpOptions::ptr_t httpOptions(new LLCore::HttpOptions);
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
     LLCore::HttpHeaders::ptr_t httpHeaders;
