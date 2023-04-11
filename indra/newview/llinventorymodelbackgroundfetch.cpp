@@ -191,7 +191,7 @@ LLInventoryModelBackgroundFetch::LLInventoryModelBackgroundFetch():
 	mFolderFetchActive(false),
 	mFetchCount(0),
     mFetchFolderCount(0),
-	mAllFoldersFetched(false),
+    mAllRecursiveFoldersFetched(false),
 	mRecursiveInventoryFetchStarted(false),
 	mRecursiveLibraryFetchStarted(false),
 	mMinTimeBetweenFetches(0.3f)
@@ -242,7 +242,7 @@ bool LLInventoryModelBackgroundFetch::inventoryFetchInProgress() const
 
 bool LLInventoryModelBackgroundFetch::isEverythingFetched() const
 {
-	return mAllFoldersFetched;
+	return mAllRecursiveFoldersFetched;
 }
 
 BOOL LLInventoryModelBackgroundFetch::folderFetchActive() const
@@ -395,7 +395,7 @@ void LLInventoryModelBackgroundFetch::setAllFoldersFetched()
 	if (mRecursiveInventoryFetchStarted &&
 		mRecursiveLibraryFetchStarted)
 	{
-		mAllFoldersFetched = true;
+        mAllRecursiveFoldersFetched = true;
 		//LL_INFOS(LOG_INV) << "All folders fetched, validating" << LL_ENDL;
 		//gInventory.validate();
 	}
@@ -576,12 +576,17 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
         curent_time = LLTimer::getTotalSeconds();
     }
 
-    while (!mFetchItemQueue.empty() && mFetchCount < max_concurrent_fetches && curent_time < end_time)
+    if (mRecursiveInventoryFetchStarted && mAllRecursiveFoldersFetched)
     {
-        const FetchQueueInfo & fetch_info(mFetchItemQueue.front());
-        bulkFetchViaAis(fetch_info);
-        mFetchItemQueue.pop_front();
-        curent_time = LLTimer::getTotalSeconds();
+        // Don't fetch items if recursive fetch isn't done,
+        // it gets both items and folders and should get the items in question faster
+        while (!mFetchItemQueue.empty() && mFetchCount < max_concurrent_fetches && curent_time < end_time)
+        {
+            const FetchQueueInfo& fetch_info(mFetchItemQueue.front());
+            bulkFetchViaAis(fetch_info);
+            mFetchItemQueue.pop_front();
+            curent_time = LLTimer::getTotalSeconds();
+        }
     }
 
     LL_DEBUGS(LOG_INV , "AIS3") << "Total active fetches: " << mFetchCount

@@ -113,7 +113,7 @@ protected:
 private:
  	bool mRecursiveInventoryFetchStarted;
 	bool mRecursiveLibraryFetchStarted;
-	bool mAllFoldersFetched;
+	bool mAllRecursiveFoldersFetched;
     typedef boost::signals2::signal<void()> folders_fetched_signal_t;
     folders_fetched_signal_t mFoldersFetchedSignal;
 
