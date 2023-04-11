@@ -145,7 +145,7 @@ void LLPathfindingNavMesh::handleNavMeshResult(const LLSD &pContent, U32 pNavMes
 			std::istringstream streamdecomp( newStr );
 			size_t decompBinSize = 0;
 			bool valid = false;
-			U8* pUncompressedNavMeshContainer = unzip_llsdNavMesh( valid, decompBinSize, streamdecomp, binSize ) ;
+			U8* pUncompressedNavMeshContainer = unzip_llsdNavMesh( valid, decompBinSize, streamdecomp, (size_t) binSize ) ;
 			if ( !valid )
 			{
 				LL_WARNS() << "Unable to decompress the navmesh llsd." << LL_ENDL;

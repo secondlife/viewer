@@ -943,7 +943,7 @@ namespace LLError
             for (a = sets.beginArray(), end = sets.endArray(); a != end; ++a)
             {
                 const LLSD& entry = *a;
-                if (entry.isMap() && !entry.emptyMap())
+                if (entry.isMap() && entry.size() != 0)
                 {
                     ELevel level = decodeLevel(entry["level"]);
 

@@ -142,7 +142,7 @@ struct DeletePairedPointerArray
 //                     llselect2nd<map_type::value_type>()));
 
 template<typename T>
-struct DeletePointerFunctor : public std::unary_function<T*, bool>
+struct DeletePointerFunctor
 {
 	bool operator()(T* ptr) const
 	{
@@ -153,7 +153,7 @@ struct DeletePointerFunctor : public std::unary_function<T*, bool>
 
 // See notes about DeleteArray for why you should consider avoiding this.
 template<typename T>
-struct DeleteArrayFunctor : public std::unary_function<T*, bool>
+struct DeleteArrayFunctor
 {
 	bool operator()(T* ptr) const
 	{
@@ -395,16 +395,17 @@ OutputIter ll_transform_n(
 // select... with the stl. Look up usage on the sgi website.
 
 template <class _Pair>
-struct _LLSelect1st : public std::unary_function<_Pair, typename _Pair::first_type> {
-  const typename _Pair::first_type& operator()(const _Pair& __x) const {
+struct _LLSelect1st
+{
+  const auto& operator()(const _Pair& __x) const {
     return __x.first;
   }
 };
 
 template <class _Pair>
-struct _LLSelect2nd : public std::unary_function<_Pair, typename _Pair::second_type>
+struct _LLSelect2nd
 {
-  const typename _Pair::second_type& operator()(const _Pair& __x) const {
+  const auto& operator()(const _Pair& __x) const {
     return __x.second;
   }
 };
@@ -416,9 +417,7 @@ template <class _Pair> struct llselect2nd : public _LLSelect2nd<_Pair> {};
 // compose... with the stl. Look up usage on the sgi website.
 
 template <class _Operation1, class _Operation2>
-class ll_unary_compose :
-	public std::unary_function<typename _Operation2::argument_type,
-							   typename _Operation1::result_type>
+class ll_unary_compose
 {
 protected:
   _Operation1 __op1;
@@ -426,8 +425,9 @@ protected:
 public:
   ll_unary_compose(const _Operation1& __x, const _Operation2& __y)
     : __op1(__x), __op2(__y) {}
-  typename _Operation1::result_type
-  operator()(const typename _Operation2::argument_type& __x) const {
+  template <typename _Op2Arg>
+  auto
+  operator()(const _Op2Arg& __x) const {
     return __op1(__op2(__x));
   }
 };
@@ -441,8 +441,7 @@ llcompose1(const _Operation1& __op1, const _Operation2& __op2)
 
 template <class _Operation1, class _Operation2, class _Operation3>
 class ll_binary_compose
-  : public std::unary_function<typename _Operation2::argument_type,
-							   typename _Operation1::result_type> {
+{
 protected:
   _Operation1 _M_op1;
   _Operation2 _M_op2;
@@ -451,8 +450,9 @@ public:
   ll_binary_compose(const _Operation1& __x, const _Operation2& __y,
 					const _Operation3& __z)
     : _M_op1(__x), _M_op2(__y), _M_op3(__z) { }
-  typename _Operation1::result_type
-  operator()(const typename _Operation2::argument_type& __x) const {
+  template<typename OP2ARG>
+  auto
+  operator()(const OP2ARG& __x) const {
     return _M_op1(_M_op2(__x), _M_op3(__x));
   }
 };
@@ -468,54 +468,51 @@ llcompose2(const _Operation1& __op1, const _Operation2& __op2,
 
 // helpers to deal with the fact that MSDev does not package
 // bind... with the stl. Again, this is from sgi.
-template <class _Operation>
-class llbinder1st :
-	public std::unary_function<typename _Operation::second_argument_type,
-							   typename _Operation::result_type> {
+template <class _Operation, typename _Arg1>
+class llbinder1st
+{
 protected:
   _Operation op;
-  typename _Operation::first_argument_type value;
+  _Arg1 value;
 public:
-  llbinder1st(const _Operation& __x,
-			  const typename _Operation::first_argument_type& __y)
+  llbinder1st(const _Operation& __x, const _Arg1& __y)
       : op(__x), value(__y) {}
-	typename _Operation::result_type
-	operator()(const typename _Operation::second_argument_type& __x) const {
-		return op(value, __x);
-	}
+    template <typename _Arg2>
+    auto
+    operator()(const _Arg2& __x) const {
+        return op(value, __x);
+    }
 };
 
 template <class _Operation, class _Tp>
-inline llbinder1st<_Operation>
+inline auto
 llbind1st(const _Operation& __oper, const _Tp& __x)
 {
-  typedef typename _Operation::first_argument_type _Arg1_type;
-  return llbinder1st<_Operation>(__oper, _Arg1_type(__x));
+  return llbinder1st<_Operation, _Tp>(__oper, __x);
 }
 
-template <class _Operation>
+template <class _Operation, typename _Arg2>
 class llbinder2nd
-	: public std::unary_function<typename _Operation::first_argument_type,
-								 typename _Operation::result_type> {
+{
 protected:
 	_Operation op;
-	typename _Operation::second_argument_type value;
+	_Arg2 value;
 public:
 	llbinder2nd(const _Operation& __x,
-				const typename _Operation::second_argument_type& __y)
+				const _Arg2& __y)
 		: op(__x), value(__y) {}
-	typename _Operation::result_type
-	operator()(const typename _Operation::first_argument_type& __x) const {
+	template <typename _Arg1>
+	auto
+	operator()(const _Arg1& __x) const {
 		return op(__x, value);
 	}
 };
 
 template <class _Operation, class _Tp>
-inline llbinder2nd<_Operation>
+inline auto
 llbind2nd(const _Operation& __oper, const _Tp& __x)
 {
-  typedef typename _Operation::second_argument_type _Arg2_type;
-  return llbinder2nd<_Operation>(__oper, _Arg2_type(__x));
+  return llbinder2nd<_Operation, _Tp>(__oper, __x);
 }
 
 /**
@@ -548,8 +545,7 @@ bool before(const std::type_info* lhs, const std::type_info* rhs)
 namespace std
 {
 	template <>
-	struct less<const std::type_info*>:
-		public std::binary_function<const std::type_info*, const std::type_info*, bool>
+	struct less<const std::type_info*>
 	{
 		bool operator()(const std::type_info* lhs, const std::type_info* rhs) const
 		{
@@ -558,8 +554,7 @@ namespace std
 	};
 
 	template <>
-	struct less<std::type_info*>:
-		public std::binary_function<std::type_info*, std::type_info*, bool>
+	struct less<std::type_info*>
 	{
 		bool operator()(std::type_info* lhs, std::type_info* rhs) const
 		{
