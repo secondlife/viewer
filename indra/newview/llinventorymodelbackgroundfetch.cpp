@@ -459,29 +459,33 @@ void LLInventoryModelBackgroundFetch::incrFetchFolderCount(S32 fetching)
     }
 }
 
-void ais_simple_folder_callback(const LLUUID& inv_id)
-{
-    LL_DEBUGS("AIS3") << "Response for folder " << inv_id << LL_ENDL;
-    LLInventoryModelBackgroundFetch::instance().incrFetchFolderCount(-1);
-    if (inv_id.notNull()) // null normally means a failure, but is an expected response for orphans
-    {
-        LLViewerInventoryCategory* cat(gInventory.getCategory(inv_id));
-        if (cat)
-        {
-            cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
-        }
-    }
-}
-
 void ais_simple_item_callback(const LLUUID& inv_id)
 {
     LL_DEBUGS("AIS3") << "Response for " << inv_id << LL_ENDL;
     LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
 }
 
-void LLInventoryModelBackgroundFetch::onAISFodlerCalback(const LLUUID &request_id, const LLUUID &response_id, EFetchType recursion)
+void LLInventoryModelBackgroundFetch::onAISFolderCalback(const LLUUID &request_id, const LLUUID &response_id, EFetchType recursion)
 {
     incrFetchFolderCount(-1);
+    std::list<LLUUID>::const_iterator found = std::find(mExpectedFolderIds.begin() , mExpectedFolderIds.end(), request_id);
+    if (found != mExpectedFolderIds.end())
+    {
+        mExpectedFolderIds.erase(found);
+    }
+    else
+    {
+        // ais shouldn't respond twice
+        llassert(false);
+        LL_WARNS() << "Unexpected folder response for " << request_id << LL_ENDL;
+    }
+
+    if (request_id.isNull())
+    {
+        // orhans, no other actions needed
+        return;
+    }
+
     if (response_id.isNull()) // Failure
     {
         LL_DEBUGS("AIS3") << "Failure response for folder " << request_id << LL_ENDL;
@@ -598,11 +602,36 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
     if (last_fetch_count != mFetchCount // if anything was added
         || mLastFetchCount != mFetchCount) // if anything was substracted
     {
-        mLastFetchCount = mFetchCount;
-        LL_DEBUGS(LOG_INV , "AIS3") << "Total active fetches: " << last_fetch_count << "->" << mFetchCount
+        LL_DEBUGS(LOG_INV , "AIS3") << "Total active fetches: " << mLastFetchCount << "->" << last_fetch_count << "->" << mFetchCount
             << ", scheduled fodler fetches: " << (S32)mFetchFolderQueue.size()
             << ", scheduled item fetches: " << (S32)mFetchItemQueue.size()
             << LL_ENDL;
+        mLastFetchCount = mFetchCount;
+
+        if (!mExpectedFolderIds.empty())
+        {
+            // A folder seem to be stack fetching on QA account, print oldest folder out
+            LL_DEBUGS("AIS3") << "Oldest expected folder: ";
+            std::list<LLUUID>::const_iterator iter = mExpectedFolderIds.begin();
+            LL_CONT << *iter;
+            if ((*iter).notNull())
+            {
+                LLViewerInventoryCategory* cat(gInventory.getCategory(*iter));
+                if (cat)
+                {
+                    LL_CONT << " Folder name: " << cat->getName() << " Parent: " << cat->getParentUUID();
+                }
+                else
+                {
+                    LL_CONT << " This folder doesn't exist";
+                }
+            }
+            else
+            {
+                LL_CONT << " Orphans request";
+            }
+            LL_CONT << LL_ENDL;
+        }
     }
     
     if (isFolderFetchProcessingComplete() && mFolderFetchActive)
@@ -623,10 +652,16 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
         const LLUUID & cat_id(fetch_info.mUUID);
         if (cat_id.isNull())
         {
+            incrFetchFolderCount(1);
+            mExpectedFolderIds.push_back(cat_id);
             // Lost and found
             // Should it actually be recursive?
-            AISAPI::FetchOrphans(ais_simple_folder_callback);
-            incrFetchFolderCount(1);
+            AISAPI::FetchOrphans([](const LLUUID& response_id)
+                                 {
+                                     LLInventoryModelBackgroundFetch::instance().onAISFolderCalback(LLUUID::null,
+                                         response_id,
+                                         FT_DEFAULT);
+                                 });
         }
         else
         {
@@ -643,26 +678,25 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                     // to get all children in a single request
                     if (cat->getFetching() < target_state)
                     {
+                        // increment before call in case of immediate callback
+                        incrFetchFolderCount(1);
+                        cat->setFetching(target_state);
+                        mExpectedFolderIds.push_back(cat_id);
+
+                        EFetchType type = fetch_info.mFetchType;
+                        LLUUID cat_id = cat->getUUID();
+                        AISAPI::completion_t cb = [cat_id , type](const LLUUID& response_id)
+                        {
+                            LLInventoryModelBackgroundFetch::instance().onAISFolderCalback(cat_id , response_id , type);
+                        };
+
+                        AISAPI::ITEM_TYPE item_type = AISAPI::INVENTORY;
                         if (ALEXANDRIA_LINDEN_ID == cat->getOwnerID())
                         {
-                            AISAPI::FetchCategoryChildren(cat->getUUID(), AISAPI::LIBRARY, fetch_info.mFetchType == FT_RECURSIVE, ais_simple_folder_callback);
+                            item_type = AISAPI::LIBRARY;
                         }
-                        else
-                        {
-                            LLUUID cat_id = cat->getUUID();
-                            EFetchType type = fetch_info.mFetchType;
-                            AISAPI::FetchCategoryChildren(
-                                cat_id,
-                                AISAPI::INVENTORY,
-                                type == FT_RECURSIVE,
-                                [cat_id, type](const LLUUID &response_id)
-                            {
-                                LLInventoryModelBackgroundFetch::instance().onAISFodlerCalback(cat_id, response_id, type);
-                            });
-                        }
-                        incrFetchFolderCount(1);
 
-                        cat->setFetching(target_state);
+                        AISAPI::FetchCategoryChildren(cat_id , item_type , type == FT_RECURSIVE , cb);
                     }
                 }
                 else
@@ -693,6 +727,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
         {
             if (!itemp->isFinished() || fetch_info.mFetchType == FT_FORCED)
             {
+                mFetchCount++;
                 if (itemp->getPermissions().getOwner() == gAgent.getID())
                 {
                     AISAPI::FetchItem(fetch_info.mUUID, AISAPI::INVENTORY, ais_simple_item_callback);
@@ -701,14 +736,13 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                 {
                     AISAPI::FetchItem(fetch_info.mUUID, AISAPI::LIBRARY, ais_simple_item_callback);
                 }
-                mFetchCount++;
             }
         }
         else // We don't know it, assume incomplete
         {
             // Assume agent's inventory, library wouldn't have gotten here
-            AISAPI::FetchItem(fetch_info.mUUID, AISAPI::INVENTORY, ais_simple_item_callback);
             mFetchCount++;
+            AISAPI::FetchItem(fetch_info.mUUID, AISAPI::INVENTORY, ais_simple_item_callback);
         }
     }
 }

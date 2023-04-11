@@ -100,7 +100,7 @@ protected:
     };
     typedef std::deque<FetchQueueInfo> fetch_queue_t;
 
-    void onAISFodlerCalback(const LLUUID &request_id, const LLUUID &response_id, EFetchType recursion);
+    void onAISFolderCalback(const LLUUID &request_id, const LLUUID &response_id, EFetchType recursion);
     void bulkFetchViaAis();
     void bulkFetchViaAis(const FetchQueueInfo& fetch_info);
 	void bulkFetch();
@@ -127,7 +127,7 @@ private:
 	F32 mMinTimeBetweenFetches;
 	fetch_queue_t mFetchFolderQueue;
     fetch_queue_t mFetchItemQueue;
-
+    std::list<LLUUID> mExpectedFolderIds; // for debug, should this track time?
 };
 
 #endif // LL_LLINVENTORYMODELBACKGROUNDFETCH_H
