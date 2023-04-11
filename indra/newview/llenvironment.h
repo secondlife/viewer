@@ -61,6 +61,7 @@ public:
 
     static const LLUUID         KNOWN_SKY_SUNRISE;
     static const LLUUID         KNOWN_SKY_MIDDAY;
+    static const LLUUID         KNOWN_SKY_LEGACY_MIDDAY;
     static const LLUUID         KNOWN_SKY_SUNSET;
     static const LLUUID         KNOWN_SKY_MIDNIGHT;
 

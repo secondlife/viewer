@@ -902,17 +902,27 @@
                  function="World.EnableEnvSettings" 
                  parameter="sunrise" />
             </menu_item_check>
-            <menu_item_check
-             label="Midday"
-             name="Noon"
+          <menu_item_check
+           label="Midday"
+           name="Noon">
+            <menu_item_check.on_click
+             function="World.EnvSettings"
+             parameter="noon" />
+            <menu_item_check.on_check
+             function="World.EnableEnvSettings"
+             parameter="noon" />
+          </menu_item_check>
+          <menu_item_check
+             label="Midday (Legacy)"
+             name="legacy noon"
              shortcut="control|shift|Y">
-                <menu_item_check.on_click
-                 function="World.EnvSettings"
-                 parameter="noon" />
-                <menu_item_check.on_check
-                 function="World.EnableEnvSettings" 
-                 parameter="noon" />
-            </menu_item_check>
+            <menu_item_check.on_click
+             function="World.EnvSettings"
+             parameter="legacy noon" />
+            <menu_item_check.on_check
+             function="World.EnableEnvSettings"
+             parameter="legacy noon" />
+          </menu_item_check>
             <menu_item_check
              label="Sunset"
              name="Sunset"

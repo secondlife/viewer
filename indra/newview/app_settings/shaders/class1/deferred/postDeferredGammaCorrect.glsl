@@ -35,7 +35,9 @@ out vec4 frag_color;
 
 uniform sampler2D diffuseRect;
 uniform sampler2D exposureMap;
+uniform sampler2D emissiveRect;
 
+uniform vec3 dynamic_exposure_params;
 uniform vec2 screen_res;
 VARYING vec2 vary_fragcoord;
 uniform float display_gamma;
@@ -105,29 +107,21 @@ vec3 toneMapACES_Hill(vec3 color)
 uniform float exposure;
 uniform float gamma;
 
+vec3 legacy_adjust_post(vec3 c);
+
 vec3 toneMap(vec3 color, float gs)
 {
     float exp_scale = texture(exposureMap, vec2(0.5,0.5)).r;
 
     color *= exposure * exp_scale * gs;
 
-#ifdef TONEMAP_ACES_NARKOWICZ
-    color = toneMapACES_Narkowicz(color);
-#endif
-
-#ifdef TONEMAP_ACES_HILL
     color = toneMapACES_Hill(color);
-#endif
 
-#ifdef TONEMAP_ACES_HILL_EXPOSURE_BOOST
-    // boost exposure as discussed in https://github.com/mrdoob/three.js/pull/19621
-    // this factor is based on the exposure correction of Krzysztof Narkowicz in his
-    // implemetation of ACES tone mapping
-    color *= 1.0/0.6;
-    color = toneMapACES_Hill(color);
-#endif
+    color = linear_to_srgb(color);
 
-    return linear_to_srgb(color);
+    color = legacy_adjust_post(color);
+
+    return color;
 }
 
 //===============================================================
@@ -200,6 +194,17 @@ void main()
     vec3 nz = vec3(noise(seed.rg), noise(seed.gb), noise(seed.rb));
     diff.rgb += nz*0.003;
     
+#if 0
+    float L = texture(emissiveRect, vary_fragcoord.xy).r;
+    
+    float max_L = dynamic_exposure_params.x;
+    L = clamp(L, 0.0, max_L);
+    L /= max_L;
+
+    float s = mix(dynamic_exposure_params.z, dynamic_exposure_params.y, L);
+    
+    diff.rgb = vec3(s);
+#endif
     frag_color = max(diff, vec4(0));
 }
 

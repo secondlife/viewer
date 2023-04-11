@@ -8898,6 +8898,12 @@ class LLWorldEnvSettings : public view_listener_t
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
             defocusEnvFloaters();
 		}
+        else if (event_name == "legacy noon")
+        {
+            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_LEGACY_MIDDAY, LLEnvironment::TRANSITION_INSTANT);
+            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
+            defocusEnvFloaters();
+        }
 		else if (event_name == "sunset")
 		{
             LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_SUNSET, LLEnvironment::TRANSITION_INSTANT);
@@ -8966,6 +8972,10 @@ class LLWorldEnableEnvSettings : public view_listener_t
 			{
             result = (skyid == LLEnvironment::KNOWN_SKY_MIDDAY);
 			}
+        else if (event_name == "legacy noon")
+        {
+            result = (skyid == LLEnvironment::KNOWN_SKY_LEGACY_MIDDAY);
+        }
 		else if (event_name == "sunset")
 			{
             result = (skyid == LLEnvironment::KNOWN_SKY_SUNSET);

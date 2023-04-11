@@ -63,6 +63,7 @@ vec4 getPosition(vec2 pos_screen);
 vec2 getScreenXY(vec4 clip);
 vec2 getScreenCoord(vec4 clip);
 vec3 srgb_to_linear(vec3 c);
+vec3 legacy_adjust(vec3 c);
 float getDepth(vec2 tc);
 
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
@@ -121,7 +122,7 @@ void main()
         {
             discard;
         }
-
+        diffuse = legacy_adjust(diffuse);
         diffuse = srgb_to_linear(diffuse);
         spec.rgb = srgb_to_linear(spec.rgb);
 

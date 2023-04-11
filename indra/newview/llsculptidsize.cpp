@@ -65,7 +65,7 @@ void LLSculptIDSize::inc(const LLDrawable *pdrawable, int sz)
 	pair_iter_iter_BY_SCULPT_ID_t itLU = mSizeInfo.get<tag_BY_SCULPT_ID>().equal_range(sculptId);
 	if (itLU.first == itLU.second)
 	{ //register
-		llassert(mSizeInfo.get<tag_BY_DRAWABLE>().end() == mSizeInfo.get<tag_BY_DRAWABLE>().find(pdrawable));
+		//llassert(mSizeInfo.get<tag_BY_DRAWABLE>().end() == mSizeInfo.get<tag_BY_DRAWABLE>().find(pdrawable));
 		mSizeInfo.get<tag_BY_DRAWABLE>().insert(Info(pdrawable, sz, boost::make_shared<SizeSum>(sz), sculptId));
 		total_size = sz;
 	}
