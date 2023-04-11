@@ -44,9 +44,9 @@ float lum(vec3 col)
 void main() 
 {
     vec2 tc = vary_fragcoord*0.6+0.2;
+    tc.y -= 0.1;
     vec3 c = texture(diffuseRect, tc).rgb + texture(emissiveRect, tc).rgb;
     float L = lum(c);
-
     frag_color = vec4(L);
 }
 

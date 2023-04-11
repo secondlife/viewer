@@ -48,8 +48,11 @@ void main()
     vec2 tc = vec2(0.5,0.5);
 
     float L = textureLod(emissiveRect, tc, 8).r;
-
-    float s = clamp(dynamic_exposure_params.x/L, dynamic_exposure_params.y, dynamic_exposure_params.z);
+    float max_L = dynamic_exposure_params.x;
+    L = clamp(L, 0.0, max_L);
+    L /= max_L;
+    L = pow(L, 2.0);
+    float s = mix(dynamic_exposure_params.z, dynamic_exposure_params.y, L);
 
     float prev = texture(exposureMap, vec2(0.5,0.5)).r;
 

@@ -7336,13 +7336,13 @@ void LLPipeline::renderFinalize()
                 mLastExposure.bindTexture(0, channel);
             }
 
+            static LLStaticHashedString dt("dt");
+            static LLStaticHashedString noiseVec("noiseVec");
+            static LLStaticHashedString dynamic_exposure_params("dynamic_exposure_params");
             static LLCachedControl<F32> dynamic_exposure_coefficient(gSavedSettings, "RenderDynamicExposureCoefficient", 0.175f);
             static LLCachedControl<F32> dynamic_exposure_min(gSavedSettings, "RenderDynamicExposureMin", 0.125f);
             static LLCachedControl<F32> dynamic_exposure_max(gSavedSettings, "RenderDynamicExposureMax", 1.3f);
 
-            static LLStaticHashedString dt("dt");
-            static LLStaticHashedString noiseVec("noiseVec");
-            static LLStaticHashedString dynamic_exposure_params("dynamic_exposure_params");
             gExposureProgram.uniform1f(dt, gFrameIntervalSeconds);
             gExposureProgram.uniform2f(noiseVec, ll_frand() * 2.0 - 1.0, ll_frand() * 2.0 - 1.0);
             gExposureProgram.uniform3f(dynamic_exposure_params, dynamic_exposure_coefficient, dynamic_exposure_min, dynamic_exposure_max);
@@ -7370,7 +7370,7 @@ void LLPipeline::renderFinalize()
 
             gDeferredPostGammaCorrectProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, screenTarget(), false, LLTexUnit::TFO_POINT);
 
-			gDeferredPostGammaCorrectProgram.bindTexture(LLShaderMgr::EXPOSURE_MAP, &mExposureMap);
+            gDeferredPostGammaCorrectProgram.bindTexture(LLShaderMgr::EXPOSURE_MAP, &mExposureMap);
 
             gDeferredPostGammaCorrectProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, screenTarget()->getWidth(), screenTarget()->getHeight());
 
@@ -9466,6 +9466,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			set_current_projection(saved_proj);
 
 			LLVector3 eye = camera.getOrigin();
+            llassert(eye.isFinite());
 
 			//camera used for shadow cull/render
 			LLCamera shadow_cam;
@@ -9745,6 +9746,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 					{
 						//get perspective projection
 						view[j] = view[j].inverse();
+                        //llassert(origin.isFinite());
 
 						glh::vec3f origin_agent(origin.mV);
 					
@@ -9752,7 +9754,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 						view[j].mult_matrix_vec(origin_agent);
 
 						eye = LLVector3(origin_agent.v);
-
+                        //llassert(eye.isFinite());
 						if (!hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA) && !gCubeSnapshot)
 						{
 							mShadowFrustOrigin[j] = eye;

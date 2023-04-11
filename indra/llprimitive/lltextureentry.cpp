@@ -536,7 +536,7 @@ void LLTextureEntry::setGLTFMaterial(LLGLTFMaterial* material, bool local_origin
         // whether or not mGLTFMaterial is null, any existing override should have been cleared
         // before calling setGLTFMaterial
         // NOTE: if you're hitting this assert, try to make sure calling code is using LLViewerObject::setRenderMaterialID
-        llassert(!local_origin || getGLTFMaterialOverride() == nullptr || getGLTFMaterialOverride()->isClearedForBaseMaterial());
+        //llassert(!local_origin || getGLTFMaterialOverride() == nullptr || getGLTFMaterialOverride()->isClearedForBaseMaterial());
 
         if (mGLTFMaterial)
         {

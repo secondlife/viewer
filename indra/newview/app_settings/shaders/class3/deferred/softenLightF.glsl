@@ -83,8 +83,11 @@ float getDepth(vec2 pos_screen);
 
 vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
+vec3 legacy_adjust(vec3 c);
 
 uniform vec4 waterPlane;
+
+uniform int cube_snapshot;
 
 #ifdef WATER_FOG
 vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
@@ -207,12 +210,18 @@ void main()
     else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {
         //should only be true of WL sky, just port over base color value
-        color = srgb_to_linear(texture2D(emissiveRect, tc).rgb);
-        color *= sun_up_factor * sky_hdr_scale + 1.0;
+        color = texture2D(emissiveRect, tc).rgb;
+        color = srgb_to_linear(color);
+        if (sun_up_factor > 0)
+        {
+           color *= sky_hdr_scale + 1.0;
+        }
     }
     else
     {
         // legacy shaders are still writng sRGB to gbuffer
+        baseColor.rgb = legacy_adjust(baseColor.rgb);
+
         baseColor.rgb = srgb_to_linear(baseColor.rgb);
         spec.rgb = srgb_to_linear(spec.rgb);
 

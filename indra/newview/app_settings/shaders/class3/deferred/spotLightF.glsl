@@ -91,6 +91,7 @@ vec3 getProjectedLightSpecularColor(vec3 pos, vec3 n);
 vec2 getScreenXY(vec4 clip_point);
 vec2 getScreenCoord(vec4 clip_point);
 vec3 srgb_to_linear(vec3 c);
+vec3 legacy_adjust(vec3 c);
 vec4 texture2DLodSpecular(vec2 tc, float lod);
 
 vec4 getPosition(vec2 pos_screen);
@@ -189,6 +190,7 @@ void main()
     }
     else
     {
+        diffuse = legacy_adjust(diffuse);
         diffuse = srgb_to_linear(diffuse);
         spec.rgb = srgb_to_linear(spec.rgb);
         
