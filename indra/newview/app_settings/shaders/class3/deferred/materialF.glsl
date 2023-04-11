@@ -47,6 +47,7 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, ou
 
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cs);
+vec3 legacy_adjust(vec3 c);
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 
@@ -316,6 +317,7 @@ void main()
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
     //forward rendering, output lit linear color
+    diffcol.rgb = legacy_adjust(diffcol.rgb);
     diffcol.rgb = srgb_to_linear(diffcol.rgb);
     spec.rgb = srgb_to_linear(spec.rgb);
     spec.a = glossiness; // pack glossiness into spec alpha for lighting functions
