@@ -46,19 +46,21 @@
 
 #include "llvoavatarself.h"
 
-#define ENABLE_RIGHT_CONSTRAINTS
+//#define ENABLE_RIGHT_CONSTRAINTS
 
 // BEGIN_HACK : hard-coded joint_ids
 //constexpr U16 PELVIS_ID = 0;
-constexpr U16 TORSO_ID = 3;
+//constexpr U16 TORSO_ID = 3;
 constexpr U16 CHEST_ID = 6;
-constexpr U16 NECK_ID = 7;
-constexpr U16 HEAD_ID = 8;
+//constexpr U16 NECK_ID = 7;
+//constexpr U16 HEAD_ID = 8;
+#ifdef ENABLE_LEFT_CONSTRAINTS
 constexpr S16 COLLAR_LEFT_ID = 58;
 constexpr S16 SHOULDER_LEFT_ID = 59;
 constexpr S16 ELBOW_LEFT_ID = 60;
+#endif // ENABLE_LEFT_CONSTRAINTS
 constexpr S16 WRIST_LEFT_ID = 61;
-
+#ifdef ENABLE_LEFT_CONSTRAINTS
 constexpr S16 HAND_MIDDLE_LEFT_1_ID = 62;
 constexpr S16 HAND_MIDDLE_LEFT_2_ID = 63;
 constexpr S16 HAND_MIDDLE_LEFT_3_ID = 64;
@@ -74,12 +76,15 @@ constexpr S16 HAND_PINKY_LEFT_3_ID = 73;
 constexpr S16 HAND_THUMB_LEFT_1_ID = 74;
 constexpr S16 HAND_THUMB_LEFT_2_ID = 75;
 constexpr S16 HAND_THUMB_LEFT_3_ID = 76;
+#endif // ENABLE_LEFT_CONSTRAINTS
 
 #ifdef ENABLE_RIGHT_CONSTRAINTS
 constexpr S16 COLLAR_RIGHT_ID = 77;
 constexpr S16 SHOULDER_RIGHT_ID = 78;
 constexpr S16 ELBOW_RIGHT_ID = 79;
+#endif // ENABLE_RIGHT_CONSTRAINTS
 constexpr S16 WRIST_RIGHT_ID = 80;
+#ifdef ENABLE_RIGHT_CONSTRAINTS
 constexpr S16 HAND_MIDDLE_RIGHT_1_ID = 81;
 constexpr S16 HAND_MIDDLE_RIGHT_2_ID = 82;
 constexpr S16 HAND_MIDDLE_RIGHT_3_ID = 83;

@@ -612,6 +612,7 @@ inline std::ostream& operator<<(std::ostream& s, const LLVector3 &a)
 }
 
 template <>
+inline
 void boost::hash_combine(size_t& seed, LLVector3 const& v)
 {
     hash_combine(seed, v.mV[0]);

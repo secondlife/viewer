@@ -158,16 +158,19 @@ pre_build()
     # honor autobuild_configure_parameters same as sling-buildscripts
     eval_autobuild_configure_parameters=$(eval $(echo echo $autobuild_configure_parameters))
 
+    # Set PYTHON_EXECUTABLE: it's important to use the virtualenv created by
+    # sling-buildscripts build.sh.
     "$autobuild" configure --quiet -c $variant \
      ${eval_autobuild_configure_parameters:---} \
-     -DPACKAGE:BOOL=ON \
-     -DHAVOK:BOOL="$HAVOK" \
-     -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
-     -DVIEWER_SYMBOL_FILE:STRING="${VIEWER_SYMBOL_FILE:-}" \
      -DBUGSPLAT_DB:STRING="${BUGSPLAT_DB:-}" \
-     -DVIEWER_CHANNEL:STRING="${viewer_channel}" \
      -DGRID:STRING="\"$viewer_grid\"" \
+     -DHAVOK:BOOL="$HAVOK" \
+     -DPACKAGE:BOOL=ON \
+     -DPYTHON_EXECUTABLE:FILEPATH="$(native_path "$PYTHON_COMMAND")" \
+     -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
+     -DVIEWER_CHANNEL:STRING="${viewer_channel}" \
+     -DVIEWER_SYMBOL_FILE:STRING="${VIEWER_SYMBOL_FILE:-}" \
      "${SIGNING[@]}" \
     || fatal "$variant configuration failed"
 
@@ -307,19 +310,12 @@ python_cmd "$helpers/codeticket.py" addinput "Viewer Channel" "${viewer_channel}
 initialize_version # provided by buildscripts build.sh; sets version id
 
 begin_section "coding policy check"
-# On our TC Windows build hosts, the GitPython library underlying our
-# coding_policy_git.py script fails to run git for reasons we have not tried
-# to diagnose. Clearly git works fine on those hosts, or we would never get
-# this far. Running coding policy checks on one platform *should* suffice...
-if [[ "$arch" == "Darwin" ]]
-then
-    # install the git-hooks dependencies
-    pip install -r "$(native_path "$git_hooks_checkout/requirements.txt")" || \
-        fatal "pip install git-hooks failed"
-    # validate the branch we're about to build
-    python_cmd "$git_hooks_checkout/coding_policy_git.py" --all_files || \
-        fatal "coding policy check failed"
-fi
+# install the git-hooks dependencies in our virtualenv
+python_cmd -m pip install -r "$(native_path "$git_hooks_checkout/requirements.txt")" || \
+    fatal "pip install git-hooks failed"
+# validate the branch we're about to build
+python_cmd "$git_hooks_checkout/coding_policy_git.py" --all_files || \
+    fatal "coding policy check failed"
 end_section "coding policy check"
 
 # Now run the build
