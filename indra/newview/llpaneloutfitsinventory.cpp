@@ -166,7 +166,11 @@ void LLPanelOutfitsInventory::onSearchEdit(const std::string& string)
 		mActivePanel->setFilterSubString(LLStringUtil::null);
 	}
 
-	LLInventoryModelBackgroundFetch::instance().start();
+    if (!LLInventoryModelBackgroundFetch::instance().inventoryFetchStarted())
+    {
+        llassert(false); // this should have been done on startup
+        LLInventoryModelBackgroundFetch::instance().start();
+    }
 
 	if (mActivePanel->getFilterSubString().empty() && string.empty())
 	{

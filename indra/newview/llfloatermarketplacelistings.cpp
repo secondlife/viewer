@@ -448,7 +448,7 @@ void LLFloaterMarketplaceListings::fetchContents()
 	{
         LLMarketplaceData::instance().setDataFetchedSignal(boost::bind(&LLFloaterMarketplaceListings::updateView, this));
         LLMarketplaceData::instance().setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_LOADING);
-		LLInventoryModelBackgroundFetch::instance().start(mRootFolderId);
+		LLInventoryModelBackgroundFetch::instance().start(mRootFolderId, true);
         LLMarketplaceData::instance().getSLMListings();
 	}
 }

@@ -738,7 +738,11 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 		return;
 	}
 
-	LLInventoryModelBackgroundFetch::instance().start();
+    if (!LLInventoryModelBackgroundFetch::instance().inventoryFetchStarted())
+    {
+        llassert(false); // this should have been done on startup
+        LLInventoryModelBackgroundFetch::instance().start();
+    }
 
 	mFilterSubString = search_string;
 	if (mActivePanel->getFilterSubString().empty() && mFilterSubString.empty())
@@ -835,9 +839,9 @@ void LLPanelMainInventory::onFilterSelected()
             finder->setTitle(getLocalizedRootName());
         }
 	}
-	if (filter.isActive())
+	if (filter.isActive() && !LLInventoryModelBackgroundFetch::instance().inventoryFetchStarted())
 	{
-		// If our filter is active we may be the first thing requiring a fetch so we better start it here.
+        llassert(false); // this should have been done on startup
 		LLInventoryModelBackgroundFetch::instance().start();
 	}
 	setFilterTextFromFilter();
@@ -995,8 +999,12 @@ void LLPanelMainInventory::toggleFindOptions()
 		LLFloater* parent_floater = gFloaterView->getParentFloater(this);
 		if (parent_floater)
 			parent_floater->addDependentFloater(mFinderHandle);
-		// start background fetch of folders
-		LLInventoryModelBackgroundFetch::instance().start();
+
+        if (!LLInventoryModelBackgroundFetch::instance().inventoryFetchStarted())
+        {
+            llassert(false); // this should have been done on startup
+            LLInventoryModelBackgroundFetch::instance().start();
+        }
 
         if (mSingleFolderMode)
         {

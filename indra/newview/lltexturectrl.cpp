@@ -1478,8 +1478,11 @@ BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 			showPicker(FALSE);
 			//grab textures first...
 			LLInventoryModelBackgroundFetch::instance().start(gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE));
-			//...then start full inventory fetch.
-			LLInventoryModelBackgroundFetch::instance().start();
+			//...then start full inventory fetch (should have been done on startup, but just in case.
+            if (!LLInventoryModelBackgroundFetch::instance().inventoryFetchStarted())
+            {
+                LLInventoryModelBackgroundFetch::instance().start();
+            }
 			handled = TRUE;
 		}
 		else
