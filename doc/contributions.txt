@@ -884,6 +884,7 @@ Kitty Barnett
 	STORM-2149
 	MAINT-7581
 	MAINT-7081
+	DRTVWR-489 (Internal JIRA that tracks Kitty's sizeable, epic contribution: support for Emoji characters in the Viewer [April 2023])
 Kolor Fall
 Komiko Okamoto
 Korvel Noh
