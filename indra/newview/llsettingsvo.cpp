@@ -723,8 +723,20 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     }
     else
     {
-        shader->uniform3fv(LLShaderMgr::AMBIENT_LINEAR, linearColor3v(getAmbientColor() / 3.f)); // note magic number 3.f comes from SLIDER_SCALE_SUN_AMBIENT
-        shader->uniform3fv(LLShaderMgr::AMBIENT, LLVector3(ambient.mV));
+        if (psky->getReflectionProbeAmbiance() == 0.f)
+        {
+            LLVector3 ambcol(ambient.mV);
+            F32 cloud_shadow = psky->getCloudShadow();
+            LLVector3 tmpAmbient = ambcol + ((LLVector3::all_one - ambcol) * cloud_shadow * 0.5f);
+
+            shader->uniform3fv(LLShaderMgr::AMBIENT_LINEAR, linearColor3v(tmpAmbient));
+            shader->uniform3fv(LLShaderMgr::AMBIENT, tmpAmbient.mV);
+        }
+        else
+        {
+            shader->uniform3fv(LLShaderMgr::AMBIENT_LINEAR, linearColor3v(getAmbientColor() / 3.f)); // note magic number 3.f comes from SLIDER_SCALE_SUN_AMBIENT
+            shader->uniform3fv(LLShaderMgr::AMBIENT, LLVector3(ambient.mV));
+        }
     }
 
     shader->uniform3fv(LLShaderMgr::BLUE_HORIZON_LINEAR, linearColor3v(getBlueHorizon() / 2.f)); // note magic number of 2.f comes from SLIDER_SCALE_BLUE_HORIZON_DENSITY

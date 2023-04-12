@@ -1443,7 +1443,10 @@ F32 LLSettingsSky::getTotalReflectionProbeAmbiance(F32 cloud_shadow_scale) const
     // without brightening dark/interior spaces
     F32 probe_ambiance = getReflectionProbeAmbiance();
 
-    probe_ambiance += (1.f - probe_ambiance) * getCloudShadow()*cloud_shadow_scale;
+    if (probe_ambiance > 0.f)
+    {
+        probe_ambiance += (1.f - probe_ambiance) * getCloudShadow() * cloud_shadow_scale;
+    }
 
     return probe_ambiance;
 }
