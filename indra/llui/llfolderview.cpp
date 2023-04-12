@@ -189,7 +189,8 @@ LLFolderView::LLFolderView(const Params& p)
 	mStatusTextBox(NULL),
 	mShowItemLinkOverlays(p.show_item_link_overlays),
 	mViewModel(p.view_model),
-    mGroupedItemModel(p.grouped_item_model)
+    mGroupedItemModel(p.grouped_item_model),
+    mForceArrange(false)
 {
     LLPanel* panel = p.parent_panel;
     mParentPanel = panel->getHandle();
@@ -1736,7 +1737,7 @@ void LLFolderView::update()
 		mNeedsAutoSelect = FALSE;
 	}
 
-  BOOL is_visible = isInVisibleChain();
+  BOOL is_visible = isInVisibleChain() || mForceArrange;
 
   //Puts folders/items in proper positions
   // arrange() takes the model filter flag into account and call sort() if necessary (CHUI-849)

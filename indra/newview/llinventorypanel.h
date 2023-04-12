@@ -405,6 +405,8 @@ public:
     bool isBackwardAvailable();
     bool isForwardAvailable();
 
+    bool hasVisibleItems();
+
     void setNavBackwardList(std::list<LLUUID> backward_list) { mBackwardFolders = backward_list; }
     void setNavForwardList(std::list<LLUUID> forward_list) { mForwardFolders = forward_list; }
     std::list<LLUUID> getNavBackwardList() { return mBackwardFolders; }

@@ -357,7 +357,7 @@
         bevel_style="in"
         user_resize="true"
         auto_resize="true"
-        height="186"
+        height="246"
         width="312"
         min_width="150"
         name="comb_gallery_layout">
@@ -366,7 +366,7 @@
          filename="panel_inventory_gallery.xml"
          left="0"
          top_pad="0"
-         height="186"
+         height="246"
          width="312"
          name="comb_gallery_view_inv"
          background_visible="true"
@@ -379,7 +379,7 @@
         bevel_style="in"
         user_resize="true"
         auto_resize="true"
-        height="186"
+        height="126"
         width="312"
         name="comb_inventory_layout">
         <single_folder_inventory_panel
@@ -387,7 +387,7 @@
          follows="all"
          left="0"
          top="1"
-         height="181"
+         height="126"
          width="312"
          layout="topleft"
          show_item_link_overlays="true"

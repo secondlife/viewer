@@ -2221,6 +2221,10 @@ void LLInventorySingleFolderPanel::updateSingleFolderRoot()
     }
 }
 
+bool LLInventorySingleFolderPanel::hasVisibleItems()
+{
+    return mFolderRoot.get()->hasVisibleChildren();
+}
 /************************************************************************/
 /* Asset Pre-Filtered Inventory Panel related class                     */
 /************************************************************************/

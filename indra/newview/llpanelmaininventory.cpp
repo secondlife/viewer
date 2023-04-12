@@ -1480,6 +1480,11 @@ void LLPanelMainInventory::setActivePanel()
 
 void LLPanelMainInventory::toggleViewMode()
 {
+    if(mSingleFolderMode && isCombinationViewMode())
+    {
+        mCombinationInventoryPanel->getRootFolder()->setForceArrange(false);
+    }
+
     mSingleFolderMode = !mSingleFolderMode;
 
     getChild<LLPanel>("default_inventory_panel")->setVisible(!mSingleFolderMode);
@@ -2193,11 +2198,17 @@ void LLPanelMainInventory::updateCombinationVisibility()
     if(mSingleFolderMode && isCombinationViewMode())
     {
         bool is_gallery_empty = !mCombinationGalleryPanel->hasVisibleItems();
+        bool show_inv_pane = mCombinationInventoryPanel->hasVisibleItems() || is_gallery_empty;
         getChild<LLLayoutPanel>("comb_gallery_layout")->setVisible(!is_gallery_empty);
+        getChild<LLLayoutPanel>("comb_inventory_layout")->setVisible(show_inv_pane);
+        mCombinationInventoryPanel->getRootFolder()->setForceArrange(!show_inv_pane);
+
         if(is_gallery_empty)
         {
             mCombinationGalleryPanel->handleModifiedFilter();
         }
+        
+        getActivePanel()->getRootFolder();
     }
 }
 
@@ -2253,6 +2264,7 @@ void LLPanelMainInventory::setViewMode(EViewModeType mode)
             case MODE_COMBINATION:
                 forward_history = mCombinationInventoryPanel->getNavForwardList();
                 backward_history = mCombinationInventoryPanel->getNavBackwardList();
+                mCombinationInventoryPanel->getRootFolder()->setForceArrange(false);
                 break;
         }
             
