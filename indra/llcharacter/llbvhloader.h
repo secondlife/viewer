@@ -33,7 +33,7 @@
 #include "llapr.h"
 #include "llbvhconsts.h"
 
-#include <assimp/Importer.hpp>      // C++ importer interface
+#include "assimp/Importer.hpp"      // C++ importer interface
 
 const S32 BVH_PARSER_LINE_SIZE = 2048;
 class LLDataPacker;

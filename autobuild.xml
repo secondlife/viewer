@@ -99,6 +99,88 @@
         <key>version</key>
         <string>1.4.5.576669</string>
       </map>
+      <key>assimp</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2006-2021, assimp team</string>
+        <key>description</key>
+        <string>Asset importer library</string>
+        <key>license</key>
+        <string>BSD</string>
+        <key>license_file</key>
+        <string>LICENSES/assimp.txt</string>
+        <key>name</key>
+        <string>assimp</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>4638ea7eb1619cdfc9bda30357206aefa145d5b1</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-assimp/releases/download/v5.2.5-r1/assimp-darwin64-5.2.5-r1.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>8acab1da0ad6d876b1286a4ad01811835069aa44</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-assimp/releases/download/v5.2.5-r1/assimp-linux64-5.2.5-r1.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>96f0f1e86ed324d38e4cca4c615d49308dbbc34d</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-assimp/releases/download/v5.2.5-r1/assimp-windows-5.2.5-r1.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>4b23258b0e1e28d07fa45446699ad7e62578cc8b</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-assimp/releases/download/v5.2.5-r1/assimp-windows64-5.2.5-r1.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>use_scm_version</key>
+        <boolean>true</boolean>
+        <key>vcs_branch</key>
+        <string>HEAD</string>
+        <key>vcs_revision</key>
+        <string>717300255973ccde3b707bf2967d5ae692edddd6</string>
+        <key>vcs_url</key>
+        <string>https://github.com/secondlife/3p-assimp</string>
+        <key>version</key>
+        <string>5.2.5-r1</string>
+      </map>
       <key>boost</key>
       <map>
         <key>copyright</key>

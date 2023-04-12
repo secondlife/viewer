@@ -61,6 +61,7 @@ if(WINDOWS)
         nghttp2.dll
         libhunspell.dll
         uriparser.dll
+        assimp-vc143-mt.dll
         )
 
     # OpenSSL
@@ -176,6 +177,7 @@ elseif(DARWIN)
         liburiparser.dylib
         liburiparser.1.dylib
         liburiparser.1.0.27.dylib
+        libassimp.dylib
        )
 
     if (TARGET ll::fmodstudio)
@@ -226,6 +228,7 @@ elseif(LINUX)
                  libfontconfig.so.1
                  libgmodule-2.0.so
                  libgobject-2.0.so
+                 libassimp.so
                  )
      endif()
 

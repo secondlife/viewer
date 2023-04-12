@@ -1894,6 +1894,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
         ll::tracy
+        assimp-vc143-mt
         )
 
 if( TARGET ll::intel_memops )

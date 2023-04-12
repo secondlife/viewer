@@ -566,6 +566,9 @@ class WindowsManifest(ViewerManifest):
                     self.path("BugSplat.dll")
                     self.path("BugSplatRc.dll")
 
+            # Assimp
+            self.path("assimp-vc143-mt.dll")
+
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
         self.path("cube.dae")

@@ -39,9 +39,9 @@
 #include "llapr.h"
 #include "llsdserialize.h"
 
-#include <assimp/DefaultLogger.hpp>
-#include <assimp/scene.h>           // Output data structure
-#include <assimp/postprocess.h>     // Post processing flags
+#include "assimp/DefaultLogger.hpp"
+#include "assimp/scene.h"           // Output data structure
+#include "assimp/postprocess.h"     // Post processing flags
 
 
 using namespace std;
