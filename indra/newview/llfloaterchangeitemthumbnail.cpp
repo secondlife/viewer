@@ -740,7 +740,8 @@ void LLFloaterChangeItemThumbnail::setThumbnailId(const LLUUID &new_thumbnail_id
     else if (obj->getThumbnailUUID() != new_thumbnail_id)
     {
         LLSD updates;
-        updates["thumbnail"] = LLSD().with("asset_id", new_thumbnail_id);
+        // At the moment server expects id as a string
+        updates["thumbnail"] = LLSD().with("asset_id", new_thumbnail_id.asString());
         LLViewerInventoryCategory* view_folder = dynamic_cast<LLViewerInventoryCategory*>(obj);
         if (view_folder)
         {
