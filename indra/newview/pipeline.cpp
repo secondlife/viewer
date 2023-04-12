@@ -7193,25 +7193,6 @@ void LLPipeline::renderGlow(LLRenderTarget* src, LLRenderTarget* dst) {
 		mGlow[1].clear();
 		mGlow[1].flush();
 	}
-
-	// Go ahead and do our glow combine here in our destination.  We blit this later into the front buffer.
-
-	dst->bindTarget();
-
-	{
-		LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
-
-		gGlowCombineProgram.bind();
-
-		gGlowCombineProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src);
-		gGlowCombineProgram.bindTexture(LLShaderMgr::DEFERRED_DEPTH, &mRT->deferredScreen, true);
-		gGlowCombineProgram.bindTexture(LLShaderMgr::DEFERRED_EMISSIVE, &mGlow[1]);
-
-		mScreenTriangleVB->setBuffer();
-		mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-	}
-
-	dst->flush();
 }
 
 void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst) {
@@ -7288,6 +7269,8 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst) {
 }
 
 void LLPipeline::copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst) {
+
+	LL_PROFILE_GPU_ZONE("copyRenderTarget");
 	dst->bindTarget();
 
 	gDeferredPostNoDoFProgram.bind();
@@ -7305,6 +7288,27 @@ void LLPipeline::copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst) {
 	}
 
 	gDeferredPostNoDoFProgram.unbind();
+
+	dst->flush();
+}
+
+void LLPipeline::combineGlow(LLRenderTarget* src, LLRenderTarget* dst) {
+	// Go ahead and do our glow combine here in our destination.  We blit this later into the front buffer.
+
+	dst->bindTarget();
+
+	{
+		LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
+
+		gGlowCombineProgram.bind();
+
+		gGlowCombineProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src);
+		gGlowCombineProgram.bindTexture(LLShaderMgr::DEFERRED_DEPTH, &mRT->deferredScreen, true);
+		gGlowCombineProgram.bindTexture(LLShaderMgr::DEFERRED_EMISSIVE, &mGlow[1]);
+
+		mScreenTriangleVB->setBuffer();
+		mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+	}
 
 	dst->flush();
 }
@@ -7539,7 +7543,6 @@ void LLPipeline::renderFinalize()
 
     if (!gCubeSnapshot)
     {
-
 		copyScreenSpaceReflections(&mRT->screen, &mSceneMap);
 
 		generateLuminance(&mRT->screen, &mLuminanceMap);
@@ -7551,11 +7554,13 @@ void LLPipeline::renderFinalize()
         LLVertexBuffer::unbind();
     }
 
-	renderGlow(&mPostMap, &mRT->screen);
+	renderGlow(&mPostMap, &mRT->screen); // We don't actually write to the screen buffer here.  Should probably pass in mGlow[2] as our destination.
 
-	renderDoF(&mRT->screen, &mPostMap);
+	renderDoF(&mPostMap, &mRT->screen);
 
-	applyFXAA(&mPostMap, &mRT->screen);
+	applyFXAA(&mRT->screen, &mPostMap);
+
+	combineGlow(&mPostMap, &mRT->screen);
 
 	// Present the screen target.
 

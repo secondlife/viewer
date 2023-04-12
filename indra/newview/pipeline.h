@@ -143,6 +143,7 @@ public:
 	void applyFXAA(LLRenderTarget* src, LLRenderTarget* dst);
 	void renderDoF(LLRenderTarget* src, LLRenderTarget* dst);
 	void copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst);
+	void combineGlow(LLRenderTarget* src, LLRenderTarget* dst);
 	void renderPostProcess();
 	LLRenderTarget* screenTarget();
 
