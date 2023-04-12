@@ -59,6 +59,8 @@ public:
 		Optional<S32>			drag_handle_thickness;
 		Optional<S32>			drag_handle_shift;
 
+        Optional<LLUIColor>     drag_handle_color;
+
 		Params();
 	};
 
@@ -127,6 +129,7 @@ private:
 	S32  mDragHandleSecondIndent;
 	S32  mDragHandleThickness;
 	S32  mDragHandleShift;
+    LLUIColor mDragHandleColor;
 }; // end class LLLayoutStack
 
 

@@ -2194,7 +2194,6 @@ void LLPanelMainInventory::updateCombinationVisibility()
     {
         bool is_gallery_empty = !mCombinationGalleryPanel->hasVisibleItems();
         getChild<LLLayoutPanel>("comb_gallery_layout")->setVisible(!is_gallery_empty);
-        getChild<LLView>("border")->setVisible(!is_gallery_empty);
         if(is_gallery_empty)
         {
             mCombinationGalleryPanel->handleModifiedFilter();

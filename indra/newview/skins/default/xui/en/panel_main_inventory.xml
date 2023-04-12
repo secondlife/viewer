@@ -342,6 +342,13 @@
       height="372"
       width="312"
       animate="false"
+      drag_handle_gap="13"
+      drag_handle_thickness="6"
+      drag_handle_first_indent="18"
+      drag_handle_second_indent="18"
+      drag_handle_color="AddPaymentPanel"
+      drag_handle_shift="5"
+      show_drag_handle="true"
       top="0"
       left="0"
       orientation="vertical">
@@ -359,22 +366,13 @@
          filename="panel_inventory_gallery.xml"
          left="0"
          top_pad="0"
-         height="178"
+         height="186"
          width="312"
          name="comb_gallery_view_inv"
          background_visible="true"
          follows="all"
          layout="topleft">
         </panel>
-        <view_border
-         bevel_style="none"
-         height="0"
-         follows="left|bottom|right"
-         layout="topleft"
-         left="6"
-         name="border"
-         top_pad="8"
-         width="300"/>
        </layout_panel>
        <layout_panel
         border="false"
