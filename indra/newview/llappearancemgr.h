@@ -264,7 +264,6 @@ private:
 	bool mIsInUpdateAppearanceFromCOF; // to detect recursive calls.
     bool mOutstandingAppearanceBakeRequest; // A bake request is outstanding.  Do not overlap.
     bool mRerequestAppearanceBake;
-    boost::signals2::connection mBulkFecthCallbackSlot;
 
 	/**
 	 * Lock for blocking operations on outfit until server reply or timeout exceed

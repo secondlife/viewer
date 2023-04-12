@@ -1764,11 +1764,19 @@ void LLInventoryModel::rebuildBrockenLinks()
     // make sure we aren't adding expensive Rebuild to anything else.
     notifyObservers();
 
-    for (const LLUUID &link_id : mPossiblyBrockenLinks)
+    for (const broken_links_t::value_type &link_list : mPossiblyBrockenLinks)
     {
-        addChangedMask(LLInventoryObserver::REBUILD, link_id);
+        for (const LLUUID& link_id : link_list.second)
+        {
+            addChangedMask(LLInventoryObserver::REBUILD , link_id);
+        }
+    }
+    for (const LLUUID& link_id : mLinksRebuildList)
+    {
+        addChangedMask(LLInventoryObserver::REBUILD , link_id);
     }
     mPossiblyBrockenLinks.clear();
+    mLinksRebuildList.clear();
     notifyObservers();
 }
 
@@ -2075,6 +2083,20 @@ void LLInventoryModel::idleNotifyObservers()
 {
 	// *FIX:  Think I want this conditional or moved elsewhere...
 	handleResponses(true);
+
+    if (mLinksRebuildList.size() > 0)
+    {
+        if (mModifyMask != LLInventoryObserver::NONE || (mChangedItemIDs.size() != 0))
+        {
+            notifyObservers();
+        }
+        for (const LLUUID& link_id : mLinksRebuildList)
+        {
+            addChangedMask(LLInventoryObserver::REBUILD , link_id);
+        }
+        mLinksRebuildList.clear();
+        notifyObservers();
+    }
 	
 	if (mModifyMask == LLInventoryObserver::NONE && (mChangedItemIDs.size() == 0))
 	{
@@ -2394,11 +2416,14 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 		// The item will show up as a broken link.
 		if (item->getIsBrokenLink())
 		{
-            if (LLInventoryModelBackgroundFetch::getInstance()->folderFetchActive())
+            if (item->getAssetUUID().notNull()
+                && LLInventoryModelBackgroundFetch::getInstance()->folderFetchActive())
             {
-                // isEverythingFetched is actually 'initial' fetch only.
-                // Schedule this link for a recheck once inventory gets loaded
-                mPossiblyBrockenLinks.insert(item->getUUID());
+                // Schedule this link for a recheck as inventory gets loaded
+                // Todo: expand to cover not just an initial fetch
+                mPossiblyBrockenLinks[item->getAssetUUID()].insert(item->getUUID());
+
+                // Do a blank rebuild of links once fetch is done
                 if (!mBulkFecthCallbackSlot.connected())
                 {
                     // Links might take a while to update this way, and there
@@ -2408,6 +2433,9 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
                         LLInventoryModelBackgroundFetch::getInstance()->setFetchCompletionCallback(
                             [this]()
                     {
+                        // rebuild is just in case, primary purpose is to wipe
+                        // the list since we won't be getting anything 'new'
+                        // see mLinksRebuildList
                         rebuildBrockenLinks();
                         mBulkFecthCallbackSlot.disconnect();
                     });
@@ -2424,6 +2452,16 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
                     << " assetID: " << item->getAssetUUID() << " )  parent: " << item->getParentUUID() << LL_ENDL;
             }
 		}
+        if (!mPossiblyBrockenLinks.empty())
+        {
+            // check if we are waiting for this item
+            broken_links_t::iterator iter = mPossiblyBrockenLinks.find(item->getUUID());
+            if (iter != mPossiblyBrockenLinks.end())
+            {
+                mLinksRebuildList.insert(iter->second.begin() , iter->second.end());
+                mPossiblyBrockenLinks.erase(iter);
+            }
+        }
 		if (item->getIsLinkType())
 		{
 			// Add back-link from linked-to UUID.

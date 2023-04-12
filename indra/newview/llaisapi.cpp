@@ -707,6 +707,8 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
 
     httpOptions->setTimeout(180);
 
+    LL_DEBUGS("Inventory") << "Request url: " << url << LL_ENDL;
+
     LLSD result;
     LLSD httpResults;
     LLCore::HttpStatus status;
@@ -721,7 +723,6 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
         F32MillisecondsImplicit elapsed_time = ais_timer.getElapsedTimeF32();
 
         LL_DEBUGS("Inventory") << "Request type: " << (S32)type
-            << " \nRequest url: " << url
             << " \nRequest target: " << targetId
             << " \nElapsed time ince request: " << elapsed_time
             << " \nstatus: " << status.toULong() << LL_ENDL;

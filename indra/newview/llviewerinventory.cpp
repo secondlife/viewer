@@ -579,6 +579,7 @@ LLViewerInventoryCategory::LLViewerInventoryCategory(const LLUUID& owner_id) :
 LLViewerInventoryCategory::LLViewerInventoryCategory(const LLViewerInventoryCategory* other)
 {
 	copyViewerCategory(other);
+    mFetching = FETCH_NONE;
 }
 
 LLViewerInventoryCategory::~LLViewerInventoryCategory()

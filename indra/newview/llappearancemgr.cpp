@@ -586,6 +586,66 @@ LLUpdateAppearanceAndEditWearableOnDestroy::~LLUpdateAppearanceAndEditWearableOn
 	}
 }
 
+class LLBrokenLinkObserver : public LLInventoryObserver
+{
+public:
+    LLUUID mUUID;
+    bool mEnforceItemRestrictions;
+    bool mEnforceOrdering;
+    nullary_func_t mPostUpdateFunc;
+
+    LLBrokenLinkObserver(const LLUUID& uuid,
+                          bool enforce_item_restrictions ,
+                          bool enforce_ordering ,
+                          nullary_func_t post_update_func) :
+        mUUID(uuid),
+        mEnforceItemRestrictions(enforce_item_restrictions),
+        mEnforceOrdering(enforce_ordering),
+        mPostUpdateFunc(post_update_func)
+    {
+    }
+    /* virtual */ void changed(U32 mask);
+    void postProcess();
+};
+
+void LLBrokenLinkObserver::changed(U32 mask)
+{
+    if (mask & LLInventoryObserver::REBUILD)
+    {
+        // This observer should be executed after LLInventoryPanel::itemChanged(),
+        // but if it isn't, consider calling updateAppearanceFromCOF with a delay
+        const uuid_set_t& changed_item_ids = gInventory.getChangedIDs();
+        for (uuid_set_t::const_iterator it = changed_item_ids.begin(); it != changed_item_ids.end(); ++it)
+        {
+            const LLUUID& id = *it;
+            if (id == mUUID)
+            {
+                // Might not be processed yet and it is not a
+                // good idea to update appearane here, postpone.
+                doOnIdleOneTime([this]()
+                                {
+                                    postProcess();
+                                });
+
+                gInventory.removeObserver(this);
+                return;
+            }
+        }
+    }
+}
+
+void LLBrokenLinkObserver::postProcess()
+{
+    LLViewerInventoryItem* item = gInventory.getItem(mUUID);
+    llassert(item && !item->getIsBrokenLink()); // the whole point was to get a correct link
+
+    LLAppearanceMgr::instance().updateAppearanceFromCOF(
+        mEnforceItemRestrictions ,
+        mEnforceOrdering ,
+        mPostUpdateFunc);
+    delete this;
+}
+
 
 struct LLFoundData
 {
@@ -2435,35 +2495,16 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
         {
             // Some links haven't loaded yet, but fetch isn't complete so
             // links are likely fine and we will have to wait for them to
-            // load (if inventory takes too long to load, might be a good
-            // idea to make this check periodical)
+            // load
             if (LLInventoryModelBackgroundFetch::getInstance()->folderFetchActive())
             {
-                if (!mBulkFecthCallbackSlot.connected())
-                {
-                    nullary_func_t cb = post_update_func;
-                    mBulkFecthCallbackSlot =
-                        LLInventoryModelBackgroundFetch::getInstance()->setFetchCompletionCallback(
-                            [this, enforce_ordering, post_update_func, cb]()
-                    {
-                        // inventory model should be already tracking this
-                        // callback, but make sure rebuildBrockenLinks gets
-                        // called before a cof update
-                        gInventory.rebuildBrockenLinks();
-                        updateAppearanceFromCOF(enforce_ordering, post_update_func, post_update_func);
-                        mBulkFecthCallbackSlot.disconnect();
-                    });
-                }
-                return;
-            }
-            else
-            {
-                // this should have happened on completion callback,
-                // check why it didn't then fix it
-                llassert(false); 
 
-                // try to recover now
-                gInventory.rebuildBrockenLinks();
+                LLBrokenLinkObserver* observer = new LLBrokenLinkObserver(cof_items.front()->getUUID(),
+                                                                            enforce_item_restrictions,
+                                                                            enforce_ordering,
+                                                                            post_update_func);
+                gInventory.addObserver(observer);
+                return;
             }
         }
     }
@@ -4262,11 +4303,6 @@ LLAppearanceMgr::LLAppearanceMgr():
 LLAppearanceMgr::~LLAppearanceMgr()
 {
 	mActive = false;
-
-    if (!mBulkFecthCallbackSlot.connected())
-    {
-        mBulkFecthCallbackSlot.disconnect();
-    }
 }
 
 void LLAppearanceMgr::setAttachmentInvLinkEnable(bool val)

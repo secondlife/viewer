@@ -586,17 +586,15 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
         curent_time = LLTimer::getTotalSeconds();
     }
 
-    if (mRecursiveInventoryFetchStarted && mAllRecursiveFoldersFetched)
+    // Ideally we shouldn't fetch items if recursive fetch isn't done,
+    // but there is a chance some request will start timeouting and recursive
+    // fetch will get stuck on a signle folder, don't block item fetch in such case
+    while (!mFetchItemQueue.empty() && mFetchCount < max_concurrent_fetches && curent_time < end_time)
     {
-        // Don't fetch items if recursive fetch isn't done,
-        // it gets both items and folders and should get the items in question faster
-        while (!mFetchItemQueue.empty() && mFetchCount < max_concurrent_fetches && curent_time < end_time)
-        {
-            const FetchQueueInfo& fetch_info(mFetchItemQueue.front());
-            bulkFetchViaAis(fetch_info);
-            mFetchItemQueue.pop_front();
-            curent_time = LLTimer::getTotalSeconds();
-        }
+        const FetchQueueInfo& fetch_info(mFetchItemQueue.front());
+        bulkFetchViaAis(fetch_info);
+        mFetchItemQueue.pop_front();
+        curent_time = LLTimer::getTotalSeconds();
     }
 
     if (last_fetch_count != mFetchCount // if anything was added
@@ -696,7 +694,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                             item_type = AISAPI::LIBRARY;
                         }
 
-                        AISAPI::FetchCategoryChildren(cat_id , item_type , type == FT_RECURSIVE , cb);
+                        AISAPI::FetchCategoryChildren(cat_id , item_type , type == FT_RECURSIVE , cb, 0);
                     }
                 }
                 else
