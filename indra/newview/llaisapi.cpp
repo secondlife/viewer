@@ -684,7 +684,7 @@ void AISAPI::onUpdateReceived(const std::string& context, const LLSD& update, CO
     }
     AISUpdate ais_update(update, is_fetch, depth);
     ais_update.doUpdate(); // execute the updates in the appropriate order.
-    LL_DEBUGS("Inventory") << "elapsed: " << timer.getElapsedTimeF32() << LL_ENDL;
+    LL_DEBUGS("Inventory", "AIS3") << "Elapsed processing: " << timer.getElapsedTimeF32() << LL_ENDL;
 }
 
 /*static*/
@@ -707,13 +707,11 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
 
     httpOptions->setTimeout(180);
 
-    LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
-
     LLSD result;
     LLSD httpResults;
     LLCore::HttpStatus status;
 
-    if (debugLoggingEnabled("AIS3"))
+    if (debugLoggingEnabled("Inventory"))
     {
         LLTimer ais_timer;
         ais_timer.start();
@@ -721,10 +719,11 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
         httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
         status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
         F32MillisecondsImplicit elapsed_time = ais_timer.getElapsedTimeF32();
-        LL_DEBUGS("AIS3") << "Request type: " << (S32)type
+
+        LL_DEBUGS("Inventory") << "Request type: " << (S32)type
             << " \nRequest url: " << url
             << " \nRequest target: " << targetId
-            << " \nElapsed time: " << elapsed_time
+            << " \nElapsed time ince request: " << elapsed_time
             << " \nstatus: " << status.toULong() << LL_ENDL;
     }
     else
@@ -785,7 +784,7 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
         LL_WARNS("Inventory") << ll_pretty_print_sd(result) << LL_ENDL;
     }
 
-	LL_DEBUGS("Inventory") << result << LL_ENDL;
+	LL_DEBUGS("Inventory", "AIS3") << "Result: " << result << LL_ENDL;
     onUpdateReceived("AISCommand", result, type, body);
 
     if (callback && !callback.empty())

@@ -461,7 +461,7 @@ void LLInventoryModelBackgroundFetch::incrFetchFolderCount(S32 fetching)
 
 void ais_simple_item_callback(const LLUUID& inv_id)
 {
-    LL_DEBUGS("AIS3") << "Response for " << inv_id << LL_ENDL;
+    LL_DEBUGS(LOG_INV , "AIS3") << "Response for " << inv_id << LL_ENDL;
     LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
 }
 
@@ -488,7 +488,7 @@ void LLInventoryModelBackgroundFetch::onAISFolderCalback(const LLUUID &request_i
 
     if (response_id.isNull()) // Failure
     {
-        LL_DEBUGS("AIS3") << "Failure response for folder " << request_id << LL_ENDL;
+        LL_DEBUGS(LOG_INV , "AIS3") << "Failure response for folder " << request_id << LL_ENDL;
         if (recursion == FT_RECURSIVE)
         {
             // A full recursive request failed.
@@ -521,7 +521,7 @@ void LLInventoryModelBackgroundFetch::onAISFolderCalback(const LLUUID &request_i
     }
     else
     {
-        LL_DEBUGS("AIS3") << "Got folder " << request_id << LL_ENDL;
+        LL_DEBUGS(LOG_INV , "AIS3") << "Got folder " << request_id << LL_ENDL;
         if (recursion == FT_CONTENT_RECURSIVE)
         {
             // Got the folder, now recursively request content
@@ -611,7 +611,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
         if (!mExpectedFolderIds.empty())
         {
             // A folder seem to be stack fetching on QA account, print oldest folder out
-            LL_DEBUGS("AIS3") << "Oldest expected folder: ";
+            LL_DEBUGS(LOG_INV , "AIS3") << "Oldest expected folder: ";
             std::list<LLUUID>::const_iterator iter = mExpectedFolderIds.begin();
             LL_CONT << *iter;
             if ((*iter).notNull())
