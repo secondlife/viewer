@@ -1091,7 +1091,6 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLRenderTarget* texture, bool depth, 
 
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
-        LL_SHADER_UNIFORM_ERRS() << "Uniform out of range: " << uniform << LL_ENDL;
         return -1;
     }
 
@@ -1099,9 +1098,13 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLRenderTarget* texture, bool depth, 
 
     if (uniform > -1)
     {
-        bool has_mips = mode == LLTexUnit::TFO_TRILINEAR || mode == LLTexUnit::TFO_ANISOTROPIC;
-        gGL.getTexUnit(uniform)->bindManual(texture->getUsage(), texture->getTexture(0), has_mips);
-
+        if (depth) {
+            gGL.getTexUnit(uniform)->bind(texture, true);
+        }
+        else {
+            bool has_mips = mode == LLTexUnit::TFO_TRILINEAR || mode == LLTexUnit::TFO_ANISOTROPIC;
+            gGL.getTexUnit(uniform)->bindManual(texture->getUsage(), texture->getTexture(0), has_mips);
+        }
 
         gGL.getTexUnit(uniform)->setTextureFilteringOption(mode);
     }
