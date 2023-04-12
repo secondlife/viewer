@@ -1091,7 +1091,6 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLRenderTarget* texture, bool depth, 
 
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
-        //LL_SHADER_UNIFORM_ERRS() << "Uniform out of range: " << uniform << LL_ENDL;
         return -1;
     }
 

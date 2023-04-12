@@ -139,7 +139,7 @@ public:
 	void generateLuminance(LLRenderTarget* src, LLRenderTarget* dst);
 	void generateExposure(LLRenderTarget* src, LLRenderTarget* dst);
 	void gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst);
-	void renderGlow(LLRenderTarget* src, LLRenderTarget* dst);
+	void generateGlow(LLRenderTarget* src);
 	void applyFXAA(LLRenderTarget* src, LLRenderTarget* dst);
 	void renderDoF(LLRenderTarget* src, LLRenderTarget* dst);
 	void copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst);
