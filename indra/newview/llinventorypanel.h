@@ -394,7 +394,6 @@ public:
 
     void initFromParams(const Params& p);
     bool isSelectionRemovable() { return false; }
-    //void setSelectCallback(const boost::function<void(const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb);
 
     void openInCurrentWindow(const LLSD& userdata);
     void changeFolderRoot(const LLUUID& new_id);

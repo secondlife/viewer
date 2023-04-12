@@ -193,7 +193,8 @@ private:
     EViewModeType mViewMode;
     LLInventorySingleFolderPanel* mSingleFolderPanelInventory;
     LLInventoryGallery* mInventoryGalleryPanel;
-    LLInventorySingleFolderPanel* mCombinationPanelInventory;
+
+    LLInventorySingleFolderPanel* mCombinationInventoryPanel;
     LLInventoryGallery* mCombinationGalleryPanel;
 
     boost::signals2::connection mListViewRootUpdatedConnection;

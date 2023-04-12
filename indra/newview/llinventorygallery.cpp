@@ -270,9 +270,9 @@ void LLInventoryGallery::draw()
     LLPanel::draw();
     if (mGalleryCreated)
     {
-        if(!updateRowsIfNeeded() && mFilter->isModified())
+        if(!updateRowsIfNeeded())
         {
-            reArrangeRows();
+            handleModifiedFilter();
         }
     }
 }
@@ -1138,6 +1138,15 @@ bool LLInventoryGallery::hasVisibleItems()
 {
     return mItemsAddedCount > 0;
 }
+
+void LLInventoryGallery::handleModifiedFilter()
+{
+    if(mFilter->isModified())
+    {
+        reArrangeRows();
+    }
+}
+
 //-----------------------------
 // LLInventoryGalleryItem
 //-----------------------------
