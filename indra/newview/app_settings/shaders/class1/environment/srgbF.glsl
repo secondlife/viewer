@@ -93,16 +93,11 @@ vec3 legacy_adjust_no_brighten(vec3 c)
 
 vec3 legacy_adjust(vec3 c)
 {
-#if 1
     vec3 desat = rgb2hsv(c.rgb);
     desat.g *= 1.0-(1.0-desat.b)*0.5;
-    //desat.g = max(desat.g-0.1*c.b-0.1, 0.0);
     desat.b += (1.0-desat.b)*0.1f;
     desat.rgb = hsv2rgb(desat);
     return desat;
-#else
-    return c;
-#endif
 }
 
 vec3 legacy_adjust_post(vec3 c)
