@@ -10358,17 +10358,6 @@
     <key>Value</key>
     <integer>128</integer>
   </map>
-  <key>RenderTonemapper</key>
-  <map>
-    <key>Comment</key>
-    <string>Which tone mapping function to use (0 - Linear, 1 - ACES Narkowicz, 2 - ACES Hill)</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <real>2</real>
-  </map>
   <key>RenderExposure</key>
   <map>
     <key>Comment</key>
@@ -10456,7 +10445,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>3.0</real>
+    <real>1.25</real>
   </map>
   <key>RenderReflectionProbeMaxLocalLightAmbiance</key>
   <map>
@@ -10478,7 +10467,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.125</real>
+    <real>0.6</real>
   </map>
   <key>RenderDynamicExposureMax</key>
   <map>
@@ -10489,7 +10478,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>1.3</real>
+    <real>1.5</real>
   </map>
   <key>RenderDynamicExposureCoefficient</key>
   <map>
@@ -10500,7 +10489,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.175</real>
+    <real>0.3</real>
   </map>
     <key>RenderShaderLODThreshold</key>
     <map>

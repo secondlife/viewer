@@ -2555,20 +2555,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredPostGammaCorrectProgram.mFeatures.isDeferred = true;
 		gDeferredPostGammaCorrectProgram.mShaderFiles.clear();
         gDeferredPostGammaCorrectProgram.clearPermutations();
-        U32 tonemapper = gSavedSettings.getU32("RenderTonemapper");
-        if (tonemapper == 1)
-        {
-            gDeferredPostGammaCorrectProgram.addPermutation("TONEMAP_ACES_NARKOWICZ", "1");
-        }
-        else if (tonemapper == 2)
-        {
-            gDeferredPostGammaCorrectProgram.addPermutation("TONEMAP_ACES_HILL_EXPOSURE_BOOST", "1");
-        }
-        else
-        {
-            gDeferredPostGammaCorrectProgram.addPermutation("TONEMAP_LINEAR", "1");
-        }
-		gDeferredPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+        gDeferredPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
 		gDeferredPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredGammaCorrect.glsl", GL_FRAGMENT_SHADER));
         gDeferredPostGammaCorrectProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		success = gDeferredPostGammaCorrectProgram.createShader(NULL, NULL);

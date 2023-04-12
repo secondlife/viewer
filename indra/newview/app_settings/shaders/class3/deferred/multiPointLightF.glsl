@@ -58,6 +58,7 @@ vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensi
 vec2 getScreenXY(vec4 clip);
 vec2 getScreenCoord(vec4 clip);
 vec3 srgb_to_linear(vec3 c);
+vec3 legacy_adjust(vec3 c);
 
 // Util
 vec3 hue_to_rgb(float hue);
@@ -131,6 +132,7 @@ void main()
     }
     else
     {
+        diffuse.rgb = legacy_adjust(diffuse.rgb);
         diffuse = srgb_to_linear(diffuse);
         spec.rgb = srgb_to_linear(spec.rgb);
 

@@ -265,6 +265,11 @@ void LLDrawPoolWLSky::renderSkyCloudsDeferred(const LLVector3& camPosLocal, F32 
         F32 cloud_variance = psky ? psky->getCloudVariance() : 0.0f;
         F32 blend_factor   = psky ? psky->getBlendFactor() : 0.0f;
 
+        if (psky->getCloudScrollRate().isExactlyZero())
+        {
+            blend_factor = 0.f;
+        }
+
         // if we even have sun disc textures to work with...
         if (cloud_noise || cloud_noise_next)
         {

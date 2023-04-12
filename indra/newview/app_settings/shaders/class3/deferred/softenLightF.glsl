@@ -83,8 +83,11 @@ float getDepth(vec2 pos_screen);
 
 vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
+vec3 legacy_adjust(vec3 c);
 
 uniform vec4 waterPlane;
+
+uniform int cube_snapshot;
 
 #ifdef WATER_FOG
 vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
@@ -92,6 +95,7 @@ vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
 
 uniform float sky_hdr_scale;
 
+void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor);
 
 vec3 pbrBaseLight(vec3 diffuseColor,
@@ -207,12 +211,18 @@ void main()
     else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {
         //should only be true of WL sky, just port over base color value
-        color = srgb_to_linear(texture2D(emissiveRect, tc).rgb);
-        color *= sun_up_factor * sky_hdr_scale + 1.0;
+        color = texture2D(emissiveRect, tc).rgb;
+        color = srgb_to_linear(color);
+        if (sun_up_factor > 0)
+        {
+           color *= sky_hdr_scale + 1.0;
+        }
     }
     else
     {
         // legacy shaders are still writng sRGB to gbuffer
+        baseColor.rgb = legacy_adjust(baseColor.rgb);
+
         baseColor.rgb = srgb_to_linear(baseColor.rgb);
         spec.rgb = srgb_to_linear(spec.rgb);
 
@@ -236,6 +246,7 @@ void main()
         
         vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
+#if 0 // wrong implementation
         if (spec.a > 0.0)  // specular reflection
         {
             float sa        = dot(normalize(refnormpersp), light_dir.xyz);
@@ -248,6 +259,32 @@ void main()
             // add radiance map
             applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
         }
+#else //right implementation (ported from pointLightF.glsl)
+        if (spec.a > 0.0)
+        {
+            vec3  lv = light_dir.xyz;
+            vec3  h, l, v = -normalize(pos.xyz);
+            float nh, nl, nv, vh, lightDist;
+            vec3 n = norm.xyz;
+            calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
+
+            if (nl > 0.0 && nh > 0.0)
+            {
+                float lit = min(nl*6.0, 1.0);
+
+                float sa = nh;
+                float fres = pow(1 - vh, 5) * 0.4+0.5;
+                float gtdenom = 2 * nh;
+                float gt = max(0,(min(gtdenom * nv / vh, gtdenom * nl / vh)));
+
+                scol *= fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*nl);
+                color.rgb += lit*scol*sunlit_linear.rgb*spec.rgb;
+            }
+
+            // add radiance map
+            applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
+        }
+#endif
 
         color.rgb = mix(color.rgb, baseColor.rgb, baseColor.a);
         

@@ -72,7 +72,7 @@ vec3 rgb2hsv(vec3 c)
     vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
 
     float d = q.x - min(q.w, q.y);
-    float e = 1.0e-10;
+    float e = 1.0e-3;
     return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 }
 
@@ -81,4 +81,26 @@ vec3 hsv2rgb(vec3 c)
     vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
     vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+vec3 legacy_adjust_no_brighten(vec3 c)
+{
+    vec3 desat = rgb2hsv(c.rgb);
+    desat.g *= 0.75;
+    desat.rgb = hsv2rgb(desat);
+    return desat;
+}
+
+vec3 legacy_adjust(vec3 c)
+{
+    vec3 desat = rgb2hsv(c.rgb);
+    desat.g *= 1.0-(1.0-desat.b)*0.5;
+    desat.b += (1.0-desat.b)*0.1f;
+    desat.rgb = hsv2rgb(desat);
+    return desat;
+}
+
+vec3 legacy_adjust_post(vec3 c)
+{
+    return c;
 }

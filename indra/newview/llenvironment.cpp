@@ -812,7 +812,8 @@ const F64Seconds LLEnvironment::TRANSITION_SLOW(10.0f);
 const F64Seconds LLEnvironment::TRANSITION_ALTITUDE(5.0f);
 
 const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("01e41537-ff51-2f1f-8ef7-17e4df760bfb");
-const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("7819e136-b6af-2e32-9c85-0b94121bb359");
+const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("bd2e6d30-6e16-3253-e3e6-549e30b536ca");
+const LLUUID LLEnvironment::KNOWN_SKY_LEGACY_MIDDAY("6c83e853-e7f8-cad7-8ee6-5f31c453721c");
 const LLUUID LLEnvironment::KNOWN_SKY_SUNSET("084e26cd-a900-28e8-08d0-64a9de5c15e2");
 const LLUUID LLEnvironment::KNOWN_SKY_MIDNIGHT("8a01b97a-cb20-c1ea-ac63-f7ea84ad0090");
 
@@ -1686,8 +1687,16 @@ void LLEnvironment::updateCloudScroll()
     
     if (mCurrentEnvironment->getSky() && !mCloudScrollPaused)
     {
-        LLVector2 cloud_delta = static_cast<F32>(delta_t)* (mCurrentEnvironment->getSky()->getCloudScrollRate()) / 100.0;
-        mCloudScrollDelta += cloud_delta;
+        LLVector2 rate = mCurrentEnvironment->getSky()->getCloudScrollRate();
+        if (rate.isExactlyZero())
+        {
+            mCloudScrollDelta.setZero();
+        }
+        else
+        {
+            LLVector2 cloud_delta = static_cast<F32>(delta_t) * (mCurrentEnvironment->getSky()->getCloudScrollRate()) / 100.0;
+            mCloudScrollDelta += cloud_delta;
+        }
     }
 
 }

@@ -752,6 +752,8 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
         legacyenv = mix(legacyenv, ssr.rgb, w);
     }
 #endif
+
+    glossenv = clamp(glossenv, vec3(0), vec3(10));
 }
 
 void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 norm)

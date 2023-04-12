@@ -139,10 +139,8 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
 
     // brightness of surface both sunlight and ambient
     
-    // fudge sunlit and amblit to get consistent lighting compared to legacy
-    // midday before PBR was a thing
-    sunlit = sunlight.rgb * (1.0+sun_up_factor*0.2);
-    amblit = tmpAmbient.rgb * 0.25;
+    sunlit = sunlight.rgb;
+    amblit = vec3(1,0,1); //should no longer be used, filled in by calcAtmosphericVarsLinear
 
     additive *= vec3(1.0 - combined_haze);
 }
@@ -172,7 +170,7 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, ou
     sunlit *= 2.0;
 
     // squash ambient to approximate whatever weirdness legacy atmospherics were doing
-    amblit = ambient_color * 0.5 * (1.0+sun_up_factor*0.3);
+    amblit = ambient_color; // * (1.0+sun_up_factor*0.3);
 
     amblit *= ambientLighting(norm, light_dir);
     amblit = srgb_to_linear(amblit);
