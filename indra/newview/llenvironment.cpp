@@ -1361,9 +1361,6 @@ void LLEnvironment::clearEnvironment(LLEnvironment::EnvSelection_t env)
 
     mEnvironments[env].reset();
 
-    // reset probe data when reverting back to region sky setting
-    gPipeline.mReflectionMapManager.reset();
-
     if (!mSignalEnvChanged.empty())
         mSignalEnvChanged(env, VERSION_CLEANUP);
 }

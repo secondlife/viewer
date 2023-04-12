@@ -411,7 +411,8 @@ void main()
         applyLegacyEnv(color, legacyenv, spec, pos.xyz, norm.xyz, env);
 
         float cur_glare = max(max(legacyenv.r, legacyenv.g), legacyenv.b);
-        cur_glare *= env*4.0;
+        cur_glare = clamp(cur_glare, 0, 1);
+        cur_glare *= env;
         glare += cur_glare;
     }
 

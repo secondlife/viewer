@@ -8918,6 +8918,9 @@ class LLWorldEnvSettings : public view_listener_t
 		}
         else if (event_name == "region")
 		{
+            // reset probe data when reverting back to region sky setting
+            gPipeline.mReflectionMapManager.reset();
+
             LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_LOCAL);
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
             defocusEnvFloaters();
