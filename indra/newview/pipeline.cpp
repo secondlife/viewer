@@ -7239,6 +7239,13 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst) {
 				mRT->fxaaBuffer.bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
 			}
 
+			gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
+			gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
+			gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
+			gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
+
+			glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
+
 			F32 scale_x = (F32)width / mRT->fxaaBuffer.getWidth();
 			F32 scale_y = (F32)height / mRT->fxaaBuffer.getHeight();
 			shader->uniform2f(LLShaderMgr::FXAA_TC_SCALE, scale_x, scale_y);
@@ -7273,14 +7280,10 @@ void LLPipeline::copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst) {
 
 	gDeferredPostNoDoFProgram.bind();
 
-	S32 channel = gDeferredPostNoDoFProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, src->getUsage());
-	if (channel > -1)
-	{
-		src->bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
-	}
+	gDeferredPostNoDoFProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src);
+	gDeferredPostNoDoFProgram.bindTexture(LLShaderMgr::DEFERRED_DEPTH, &mRT->deferredScreen, true);
 
 	{
-		LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
 		mScreenTriangleVB->setBuffer();
 		mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 	}
@@ -7296,12 +7299,10 @@ void LLPipeline::combineGlow(LLRenderTarget* src, LLRenderTarget* dst) {
 	dst->bindTarget();
 
 	{
-		LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
 
 		gGlowCombineProgram.bind();
 
 		gGlowCombineProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src);
-		gGlowCombineProgram.bindTexture(LLShaderMgr::DEFERRED_DEPTH, &mRT->deferredScreen, true);
 		gGlowCombineProgram.bindTexture(LLShaderMgr::DEFERRED_EMISSIVE, &mGlow[1]);
 
 		mScreenTriangleVB->setBuffer();
@@ -7455,6 +7456,7 @@ void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst) {
 			{ // perform DoF sampling at half-res (preserve alpha channel)
 				src->bindTarget();
 				glViewport(0, 0, dof_width, dof_height);
+
 				gGL.setColorMask(true, false);
 
 				gDeferredPostProgram.bind();
@@ -7476,7 +7478,16 @@ void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst) {
 			{ // combine result based on alpha
 				
 				dst->bindTarget();
-				glViewport(0, 0, dst->getWidth(), dst->getHeight());
+				if (RenderFSAASamples > 1 && mRT->fxaaBuffer.isComplete()) {
+					glViewport(0, 0, dst->getWidth(), dst->getHeight());
+				}
+				else {
+					gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
+					gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
+					gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
+					gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
+					glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
+				}
 
 				gDeferredDoFCombineProgram.bind();	
 				gDeferredDoFCombineProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src, LLTexUnit::TFO_POINT);
@@ -7542,21 +7553,23 @@ void LLPipeline::renderFinalize()
 
 	combineGlow(&mPostMap, &mRT->screen);
 
+	gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
+	gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
+	gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
+	gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
+	glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
+
 	renderDoF(&mRT->screen, &mPostMap);
 
 	applyFXAA(&mPostMap, &mRT->screen);
-
 
 	// Present the screen target.
 
 	gDeferredPostNoDoFProgram.bind();
 
 	// Whatever is last in the above post processing chain should _always_ be rendered directly here.  If not, expect problems.
-	S32 channel = gDeferredPostNoDoFProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mRT->screen.getUsage());
-	if (channel > -1)
-	{
-		mRT->screen.bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
-	}
+	gDeferredPostNoDoFProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, &mRT->screen);
+	gDeferredPostNoDoFProgram.bindTexture(LLShaderMgr::DEFERRED_DEPTH, &mRT->deferredScreen, true);
 
 	{
 		LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
