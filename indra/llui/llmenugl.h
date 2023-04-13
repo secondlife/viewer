@@ -745,8 +745,7 @@ public:
 
 	LLContextMenuBranch(const Params&);
 
-	virtual ~LLContextMenuBranch()
-	{}
+	virtual ~LLContextMenuBranch();
 
 	// called to rebuild the draw label
 	virtual void	buildDrawLabel( void );

@@ -206,6 +206,7 @@ bool LLUrlEntryBase::isWikiLinkCorrect(const std::string &labeled_url) const
     {
         return (chr == L'\u02D0') // "Modifier Letter Colon"
             || (chr == L'\uFF1A') // "Fullwidth Colon"
+            || (chr == L'\u2236') // "Ratio"
             || (chr == L'\uFE55'); // "Small Colon"
     },
         L'\u003A'); // Colon

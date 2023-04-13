@@ -704,7 +704,7 @@ LLUUID LLBufferedAssetUploadInfo::finishUpload(LLSD &result)
 LLScriptAssetUpload::LLScriptAssetUpload(LLUUID itemId, std::string buffer, invnUploadFinish_f finish):
     LLBufferedAssetUploadInfo(itemId, LLAssetType::AT_LSL_TEXT, buffer, finish),
     mExerienceId(),
-    mTargetType(LSL2),
+    mTargetType(MONO),
     mIsRunning(false)
 {
 }
@@ -725,7 +725,7 @@ LLSD LLScriptAssetUpload::generatePostBody()
     if (getTaskId().isNull())
     {
         body["item_id"] = getItemId();
-        body["target"] = "lsl2";
+        body["target"] = "mono";
     }
     else
     {
@@ -868,11 +868,6 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
     {
         floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", success).with("msg", "inventory")));
     }
-    LLFloater* floater_outfit_snapshot = LLFloaterReg::findInstance("outfit_snapshot");
-    if (uploadInfo->getAssetType() == LLAssetType::AT_TEXTURE && floater_outfit_snapshot && floater_outfit_snapshot->isShown())
-    {
-        floater_outfit_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", success).with("msg", "inventory")));
-    }
 }
 
 //=========================================================================
@@ -950,12 +945,6 @@ void LLViewerAssetUpload::HandleUploadError(LLCore::HttpStatus status, LLSD &res
         {
             floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", false).with("msg", "inventory")));
         }
-    }
-
-    LLFloater* floater_outfit_snapshot = LLFloaterReg::findInstance("outfit_snapshot");
-    if (uploadInfo->getAssetType() == LLAssetType::AT_TEXTURE && floater_outfit_snapshot && floater_outfit_snapshot->isShown())
-    {
-        floater_outfit_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", false).with("msg", "inventory")));
     }
 }
 

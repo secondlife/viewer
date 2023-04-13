@@ -2380,13 +2380,31 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 	//input stream is now pointing at a zlib compressed block of LLSD
 	//decompress block
 	LLSD mdl;
-	U32 uzip_result = LLUZipHelper::unzip_llsd(mdl, is, size);
+	U32 uzip_result = LLUZipHelper::unzip_llsd(mdl, is, (llssize)size);
 	if (uzip_result != LLUZipHelper::ZR_OK)
 	{
 		LL_DEBUGS("MeshStreaming") << "Failed to unzip LLSD blob for LoD with code " << uzip_result << " , will probably fetch from sim again." << LL_ENDL;
 		return false;
 	}
-	
+	return unpackVolumeFacesInternal(mdl);
+}
+
+bool LLVolume::unpackVolumeFaces(U8* in_data, S32 size)
+{
+	//input data is now pointing at a zlib compressed block of LLSD
+	//decompress block
+	LLSD mdl;
+	U32 uzip_result = LLUZipHelper::unzip_llsd(mdl, in_data, (llssize)size);
+	if (uzip_result != LLUZipHelper::ZR_OK)
+	{
+		LL_DEBUGS("MeshStreaming") << "Failed to unzip LLSD blob for LoD with code " << uzip_result << " , will probably fetch from sim again." << LL_ENDL;
+		return false;
+	}
+	return unpackVolumeFacesInternal(mdl);
+}
+
+bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
+{
 	{
 		U32 face_count = mdl.size();
 
@@ -5013,6 +5031,17 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 	{
 		U16 index = mIndices[i];
 
+        if (index >= mNumVertices)
+        {
+            // invalid index
+            // replace with a valid index to avoid crashes
+            index = mNumVertices - 1;
+            mIndices[i] = index;
+
+            // Needs better logging
+            LL_DEBUGS_ONCE("LLVOLUME") << "Invalid index, substituting" << LL_ENDL;
+        }
+
 		LLVolumeFace::VertexData cv;
 		getVertexData(index, cv);
 		
@@ -5384,6 +5413,17 @@ bool LLVolumeFace::cacheOptimize()
         { //populate vertex data and triangle data arrays
             U16 idx = mIndices[i];
             U32 tri_idx = i / 3;
+
+            if (idx >= mNumVertices)
+            {
+                // invalid index
+                // replace with a valid index to avoid crashes
+                idx = mNumVertices - 1;
+                mIndices[i] = idx;
+
+                // Needs better logging
+                LL_DEBUGS_ONCE("LLVOLUME") << "Invalid index, substituting" << LL_ENDL;
+            }
 
             vertex_data[idx].mTriangles.push_back(&(triangle_data[tri_idx]));
             vertex_data[idx].mIdx = idx;

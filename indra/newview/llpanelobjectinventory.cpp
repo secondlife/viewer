@@ -131,7 +131,7 @@ public:
 	virtual BOOL removeItem();
 	virtual void removeBatch(std::vector<LLFolderViewModelItem*>& batch);
 	virtual void move(LLFolderViewModelItem* parent_listener);	
-	virtual BOOL isItemCopyable() const;
+    virtual bool isItemCopyable(bool can_copy_as_link = true) const;
 	virtual BOOL copyToClipboard() const;
 	virtual BOOL cutToClipboard();
 	virtual BOOL isClipboardPasteable() const;
@@ -439,10 +439,10 @@ void LLTaskInvFVBridge::move(LLFolderViewModelItem* parent_listener)
 {
 }
 
-BOOL LLTaskInvFVBridge::isItemCopyable() const
+bool LLTaskInvFVBridge::isItemCopyable(bool can_link) const
 {
 	LLInventoryItem* item = findItem();
-	if(!item) return FALSE;
+	if(!item) return false;
 	return gAgent.allowOperation(PERM_COPY, item->getPermissions(),
 								GP_OBJECT_MANIPULATE);
 }
@@ -1275,7 +1275,8 @@ LLPanelObjectInventory::LLPanelObjectInventory(const LLPanelObjectInventory::Par
 	mHaveInventory(FALSE),
 	mIsInventoryEmpty(TRUE),
 	mInventoryNeedsUpdate(FALSE),
-	mInventoryViewModel(p.name)
+	mInventoryViewModel(p.name),
+    mShowRootFolder(p.show_root_folder)
 {
 	// Setup context menu callbacks
 	mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLPanelObjectInventory::doToSelected, this, _2));
@@ -1360,6 +1361,7 @@ void LLPanelObjectInventory::reset()
 	mFolders = LLUICtrlFactory::create<LLFolderView>(p);
 
 	mFolders->setCallbackRegistrar(&mCommitCallbackRegistrar);
+	mFolders->setEnableRegistrar(&mEnableCallbackRegistrar);
 
 	if (hasFocus())
 	{
@@ -1526,15 +1528,23 @@ void LLPanelObjectInventory::createFolderViews(LLInventoryObject* inventory_root
 		p.font_highlight_color = item_color;
 
 		LLFolderViewFolder* new_folder = LLUICtrlFactory::create<LLFolderViewFolder>(p);
-		new_folder->addToFolder(mFolders);
-		new_folder->toggleOpen();
+
+        if (mShowRootFolder)
+        {
+            new_folder->addToFolder(mFolders);
+            new_folder->toggleOpen();
+        }
 
 		if (!contents.empty())
 		{
-			createViewsForCategory(&contents, inventory_root, new_folder);
+			createViewsForCategory(&contents, inventory_root, mShowRootFolder ? new_folder : mFolders);
 		}
-        // Refresh for label to add item count
-        new_folder->refresh();
+
+        if (mShowRootFolder)
+        {
+            // Refresh for label to add item count
+            new_folder->refresh();
+        }
 	}
 }
 

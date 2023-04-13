@@ -307,6 +307,13 @@ LLPanelMainInventory::~LLPanelMainInventory( void )
     
 	gInventory.removeObserver(this);
 	delete mSavedFolderState;
+
+	auto menu = mMenuAddHandle.get();
+	if(menu)
+	{
+		menu->die();
+		mMenuAddHandle.markDead();
+	}
 }
 
 LLInventoryPanel* LLPanelMainInventory::getAllItemsPanel()
@@ -401,6 +408,18 @@ void LLPanelMainInventory::resetFilters()
 	}
 
 	setFilterTextFromFilter();
+}
+
+void LLPanelMainInventory::resetAllItemsFilters()
+{
+    LLFloaterInventoryFinder *finder = getFinder();
+    getAllItemsPanel()->getFilter().resetDefault();
+    if (finder)
+    {
+        finder->updateElementsFromFilter();
+    }
+
+    setFilterTextFromFilter();
 }
 
 void LLPanelMainInventory::setSortBy(const LLSD& userdata)
@@ -1177,13 +1196,12 @@ void LLPanelMainInventory::initListCommandsHandlers()
 	mEnableCallbackRegistrar.add("Inventory.GearDefault.Check", boost::bind(&LLPanelMainInventory::isActionChecked, this, _2));
 	mEnableCallbackRegistrar.add("Inventory.GearDefault.Enable", boost::bind(&LLPanelMainInventory::isActionEnabled, this, _2));
 	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_inventory_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	mGearMenuButton->setMenu(mMenuGearDefault);
+	mGearMenuButton->setMenu(mMenuGearDefault, LLMenuButton::MP_TOP_LEFT, true);
 	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory_add.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mMenuAddHandle = menu->getHandle();
 
 	mMenuVisibility = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_inventory_search_visibility.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	mVisibilityMenuButton->setMenu(mMenuVisibility);
-	mVisibilityMenuButton->setMenuPosition(LLMenuButton::MP_BOTTOM_LEFT);
+	mVisibilityMenuButton->setMenu(mMenuVisibility, LLMenuButton::MP_BOTTOM_LEFT, true);
 
 	// Update the trash button when selected item(s) get worn or taken off.
 	LLOutfitObserver::instance().addCOFChangedCallback(boost::bind(&LLPanelMainInventory::updateListCommands, this));

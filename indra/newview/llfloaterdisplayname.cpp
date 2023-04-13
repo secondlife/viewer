@@ -47,6 +47,7 @@ public:
 	virtual ~LLFloaterDisplayName() { }
 	/*virtual*/	BOOL	postBuild();
 	void onSave();
+	void onReset();
 	void onCancel();
 	/*virtual*/ void onOpen(const LLSD& key);
 	
@@ -101,6 +102,7 @@ void LLFloaterDisplayName::onOpen(const LLSD& key)
 
 BOOL LLFloaterDisplayName::postBuild()
 {
+	getChild<LLUICtrl>("reset_btn")->setCommitCallback(boost::bind(&LLFloaterDisplayName::onReset, this));	
 	getChild<LLUICtrl>("cancel_btn")->setCommitCallback(boost::bind(&LLFloaterDisplayName::onCancel, this));	
 	getChild<LLUICtrl>("save_btn")->setCommitCallback(boost::bind(&LLFloaterDisplayName::onSave, this));	
 	
@@ -155,6 +157,20 @@ void LLFloaterDisplayName::onCancel()
 {
 	setVisible(false);
 }
+
+void LLFloaterDisplayName::onReset()
+{
+    LLAvatarName av_name;
+    if (!LLAvatarNameCache::get(gAgent.getID(), &av_name))
+    {
+        return;
+    }
+    getChild<LLUICtrl>("display_name_editor")->setValue(av_name.getCompleteName());
+
+    getChild<LLUICtrl>("display_name_confirm")->clear();
+    getChild<LLUICtrl>("display_name_confirm")->setFocus(TRUE);
+}
+
 
 void LLFloaterDisplayName::onSave()
 {

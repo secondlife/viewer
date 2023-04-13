@@ -323,7 +323,6 @@
         follows="left|top"
         decimal_digits="0"
         increment="1"
-        control_name="Edit Cost"
         name="Edit Cost"
         label="Price:"
         label_width="100"
