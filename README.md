@@ -7,9 +7,6 @@
 **[Second Life][] is a free 3D virtual world where users can create, connect and chat with others from around the
 world.** This repository contains the source code for the official client.
 
-
-
-
 ## Open Source
 
 Second Life provides a huge variety of tools for expression, content creation, socialization and play. Its vibrancy is
