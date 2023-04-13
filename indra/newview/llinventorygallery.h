@@ -256,6 +256,7 @@ public:
     std::string getCreatorName() { return mCreatorName;}
 
     std::string getItemName() {return mName;}
+    std::string getItemNameSuffix() {return mSuffix;}
     bool isDefaultImage() {return mDefaultImage;}
     
     bool isHidden() {return mHidden;}
@@ -288,6 +289,7 @@ private:
     EInventorySortGroup mSortGroup;
     LLAssetType::EType mType;
     std::string mName;
+    std::string mSuffix;
     LLInventoryGallery* mGallery;
 };
 

@@ -650,7 +650,7 @@ void LLInventoryGallery::applyFilter(LLInventoryGalleryItem* item, const std::st
             break;
         case LLInventoryFilter::SEARCHTYPE_NAME:
         default:
-            desc = item->getItemName();
+            desc = item->getItemName() + item->getItemNameSuffix();
             break;
     }
     
@@ -1202,6 +1202,7 @@ LLInventoryGalleryItem::LLInventoryGalleryItem(const Params& p)
     mSelected(false),
     mDefaultImage(true),
     mName(""),
+    mSuffix(""),
     mUUID(LLUUID()),
     mIsFolder(true),
     mIsLink(false),
@@ -1397,13 +1398,16 @@ BOOL LLInventoryGalleryItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL dro
 void LLInventoryGalleryItem::setWorn(bool value)
 {
     mWorn = value;
-    std::string suffix("");
 
     if(mWorn)
     {
-        suffix = (mType == LLAssetType::AT_GESTURE) ? getString("active_string") : getString("worn_string");
+        mSuffix = (mType == LLAssetType::AT_GESTURE) ? getString("active_string") : getString("worn_string");
     }
-    mSuffixText->setValue(suffix);
+    else
+    {
+        mSuffix = "";
+    }
+    mSuffixText->setValue(mSuffix);
 
     mNameText->setFont(getTextFont());
     mNameText->setText(mName); // refresh to pick up font changes
