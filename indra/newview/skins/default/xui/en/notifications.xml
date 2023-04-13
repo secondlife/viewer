@@ -11965,4 +11965,18 @@ If you want others to see this object, remove it and re-attach it to an avatar a
         yestext="OK"/>
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="EnableAutoFPSWarning"
+   type="alertmodal">
+You are about to enable AutoFPS. All unsaved graphics settings will be lost.
+
+Would you like to save them first?
+      <tag>confirm</tag>
+      <usetemplate
+       name="okcancelbuttons"
+       notext="No"
+       yestext="Yes"/>
+  </notification>
+    
 </notifications>

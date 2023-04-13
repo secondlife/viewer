@@ -71,6 +71,7 @@ private:
     void startAutotune();
     void stopAutotune();
     void updateAutotuneCtrls(bool autotune_enabled);
+    void enableAutotuneWarning();
 
     void updateMaxRenderTime();
 

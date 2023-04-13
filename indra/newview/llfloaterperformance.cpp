@@ -39,6 +39,7 @@
 #include "llnamelistctrl.h"
 #include "llnotificationsutil.h"
 #include "llperfstats.h"
+#include "llpresetsmanager.h"
 #include "llradiogroup.h"
 #include "llsliderctrl.h"
 #include "lltextbox.h"
@@ -158,6 +159,8 @@ BOOL LLFloaterPerformance::postBuild()
     mStartAutotuneBtn->setCommitCallback(boost::bind(&LLFloaterPerformance::startAutotune, this));
     mStopAutotuneBtn->setCommitCallback(boost::bind(&LLFloaterPerformance::stopAutotune, this));
 
+    gSavedPerAccountSettings.declareBOOL("HadEnabledAutoFPS", FALSE, "User had enabled AutoFPS at least once", LLControlVariable::PERSIST_ALWAYS);
+
     return TRUE;
 }
 
@@ -188,7 +191,10 @@ void LLFloaterPerformance::showAutoadjustmentsPanel()
 
 void LLFloaterPerformance::draw()
 {
-    if (mUpdateTimer->hasExpired())
+    enableAutotuneWarning();
+
+    if (mUpdateTimer->hasExpired() && 
+        !LLFloaterReg::instanceVisible("save_pref_preset", PRESETS_GRAPHIC)) // give user a chance to save the graphics settings before updating them
     {
         setFPSText();
         if (mHUDsPanel->getVisible())
@@ -671,5 +677,23 @@ void LLFloaterPerformance::updateAutotuneCtrls(bool autotune_enabled)
 
     getChild<LLTextBox>("wip_desc")->setVisible(autotune_enabled && !auto_tune_locked);
     getChild<LLTextBox>("display_desc")->setVisible(LLPerfStats::tunables.vsyncEnabled);
+}
+
+void LLFloaterPerformance::enableAutotuneWarning()
+{
+    if (!gSavedPerAccountSettings.getBOOL("HadEnabledAutoFPS") && LLPerfStats::tunables.userAutoTuneEnabled)
+    {
+        gSavedPerAccountSettings.setBOOL("HadEnabledAutoFPS", TRUE);
+
+        LLNotificationsUtil::add("EnableAutoFPSWarning", LLSD(), LLSD(),
+            [](const LLSD& notif, const LLSD& resp)
+            {
+                S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
+                if (opt == 0)
+                { // offer user to save current graphics settings as a preset
+                    LLFloaterReg::showInstance("save_pref_preset", PRESETS_GRAPHIC);
+                }
+            });
+    }
 }
 // EOF
