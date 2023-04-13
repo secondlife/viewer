@@ -92,7 +92,7 @@ public:
     // any override data that arrived before the object was ready to receive it
     void applyQueuedOverrides(LLViewerObject* obj);
 
-    static void loadCacheOverrides(const LLGLTFOverrideCacheEntry& override);
+    static void loadCacheOverrides(const LLGLTFOverrideCacheEntry& override_entry);
 
 private:
     friend class LLGLTFMaterialOverrideDispatchHandler;

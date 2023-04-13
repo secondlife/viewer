@@ -334,8 +334,6 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	}
 	resetRot();
 
-    //setDebugText(llformat("constructed! %d", mLocalID));
-    
 	LLViewerObject::sNumObjects++;
 }
 
@@ -5404,6 +5402,7 @@ S32 LLViewerObject::setTEGLTFMaterialOverride(U8 te, LLGLTFMaterial* override_ma
     if(src_mat->isFetching())
     {
         // if still fetching, we need to wait until it is done and try again
+        // returning TEM_CHANGE_NONE here signals to LLGLTFMaterialList to queue the override for later
         return retval;
     }
 
@@ -5718,32 +5717,30 @@ void LLViewerObject::setDebugText(const std::string &utf8text)
 	updateText();
 }
 
-void LLViewerObject::appendDebugText(const std::string &utf8text)
+static std::unordered_map<LLUUID, std::ostringstream> object_log;
+
+std::ostringstream & LLViewerObject::getDebugStream(LLUUID const & object_id)
 {
-    if (utf8text.empty() && !mText)
-    {
-        return;
-    }
-
-    static std::unordered_map<LLUUID, std::ostringstream> object_log;
-
-    std::ostringstream & out = object_log[mID];
-
-    if (!mText)
-    {
-        U64 address = U64((void*) this);
-        out << "initHudText(0x" << std::hex << address << std::dec << " id:" << mID.asString().substr(0, 16) << "...)!\n";
-        initHudText();
-    }
-
-    out << utf8text << '\n';
-
-    mText->setColor(LLColor4::white);
-    mText->setString(out.str());
-    mText->setZCompare(FALSE);
-    mText->setDoFade(FALSE);
-    updateText();
+    return object_log[object_id];
 }
+
+std::ostringstream & LLViewerObject::getDebugStream()
+{
+    return object_log[mID];
+}
+
+void LLViewerObject::showDebugStream()
+{
+    setDebugText(getDebugStream().str());
+}
+
+void LLViewerObject::appendDebugText(const std::string &utf8text) {
+    appendDebug([&](std::ostream & out) {
+        out << utf8text << '\n';
+    });
+    //showDebugStream();
+}
+
 
 void LLViewerObject::initHudText()
 {
@@ -5753,7 +5750,6 @@ void LLViewerObject::initHudText()
     mText->setMaxLines(-1);
     mText->setSourceObject(this);
     mText->setOnHUDAttachment(isHUDAttachment());
-    mText->addLine("initHudText()", LLColor4::white);
 }
 
 void LLViewerObject::restoreHudText()

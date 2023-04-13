@@ -442,7 +442,14 @@ public:
 	void sendMaterialUpdate() const;
 
 	void setDebugText(const std::string &utf8text);
-	void appendDebugText(const std::string &utf8text);
+
+    static std::ostringstream & getDebugStream(LLUUID const & object_id);
+    std::ostringstream & getDebugStream();
+    void showDebugStream();
+    template <typename Functor>
+    void appendDebug(Functor f) { f(getDebugStream()); }
+    void appendDebugText(const std::string &utf8text);
+
 	void initHudText();
 	void restoreHudText();
 	void setIcon(LLViewerTexture* icon_image);

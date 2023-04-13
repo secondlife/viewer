@@ -194,10 +194,9 @@ public:
 
             if (region)
             {
-                if (LLViewerObject * obj = gObjectList.findObject(object_override.mObjectId))
-                {
-                    obj->appendDebugText(llformat("%d incoming override, caching", obj->getLocalID()));
-                }
+                std::ostream & out = LLViewerObject::getDebugStream(object_override.mObjectId);
+                out << "incoming override, caching for object " << object_override.mObjectId << '\n';
+
                 region->cacheFullUpdateGLTFOverride(object_override);
             }
             else
@@ -274,6 +273,8 @@ public:
             [object_override, this](std::vector<ReturnData> results) // Callback to main thread
             {
             LLViewerObject * obj = gObjectList.findObject(object_override.mObjectId);
+            std::ostream & out = LLViewerObject::getDebugStream(object_override.mObjectId);
+            out << "override completed parsing for " << object_override.mObjectId << ", attempting to set TE Overrides.  obj found? " << bool(obj) << '\n';
 
             if (results.size() > 0 )
             {
@@ -295,7 +296,6 @@ public:
                         }
                     }
                     
-                    //if(obj) { obj->appendDebugText(llformat("%d FAILED parsing override side: %d", obj->getLocalID(), side)); }
                     // unblock material editor
                     if (obj && obj->getTE(side) && obj->getTE(side)->isSelected())
                     {
@@ -309,6 +309,7 @@ public:
                     {
                         if (side_set.find(i) == side_set.end())
                         {
+                            obj->appendDebugText(llformat("clearing override side %d", i));
                             obj->setTEGLTFMaterialOverride(i, nullptr);
                             if (obj->getTE(i) && obj->getTE(i)->isSelected())
                             {
@@ -320,6 +321,7 @@ public:
             }
             else if (obj)
             { // override list was empty or an error occurred, null out all overrides for this object
+                obj->appendDebugText("clearing overrides");
                 for (int i = 0; i < obj->getNumTEs(); ++i)
                 {
                     obj->setTEGLTFMaterialOverride(i, nullptr);
@@ -784,11 +786,10 @@ void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides,
     }
 }
 
-void LLGLTFMaterialList::loadCacheOverrides(const LLGLTFOverrideCacheEntry& override)
+void LLGLTFMaterialList::loadCacheOverrides(const LLGLTFOverrideCacheEntry& override_entry)
 {
-    if (LLViewerObject * obj = gObjectList.findObject(override.mObjectId))
-    {
-        obj->appendDebugText(llformat("%d loading cached override", obj->getLocalID()));
-    }
-    handle_gltf_override_message.applyData(override);
+    std::ostream & out = LLViewerObject::getDebugStream(override_entry.mObjectId);
+    out << "loading cached override for object: " << override_entry.mObjectId << '\n';
+
+    handle_gltf_override_message.applyData(override_entry);
 }
