@@ -1146,6 +1146,7 @@ void render_hud_attachments()
 		LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 		gPipeline.updateCull(hud_cam, result);
 
+        // Toggle render types
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_BUMP);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_SIMPLE);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_VOLUME);
@@ -1155,6 +1156,9 @@ void render_hud_attachments()
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_FULLBRIGHT_ALPHA_MASK);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_FULLBRIGHT);
         gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_GLTF_PBR);
+        gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_GLTF_PBR_ALPHA_MASK);
+
+        // Toggle render passes
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_ALPHA);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_ALPHA_MASK);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_BUMP);
