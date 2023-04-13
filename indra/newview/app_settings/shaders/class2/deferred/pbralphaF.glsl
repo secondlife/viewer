@@ -309,7 +309,6 @@ void main()
 
     
     float a = basecolor.a*vertex_color.a;
-    a = 1.0;
     color += colorEmissive;
     color = linear_to_srgb(color);
     frag_color = vec4(color.rgb,a);
