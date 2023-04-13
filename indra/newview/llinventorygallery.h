@@ -27,6 +27,7 @@
 #ifndef LL_LLINVENTORYGALLERY_H
 #define LL_LLINVENTORYGALLERY_H
 
+#include "llgesturemgr.h"
 #include "lllistcontextmenu.h"
 #include "llpanel.h"
 #include "llinventoryfilter.h"
@@ -38,6 +39,7 @@ class LLInventoryGalleryItem;
 class LLScrollContainer;
 class LLTextBox;
 class LLThumbnailsObserver;
+class LLGalleryGestureObserver;
 
 class LLInventoryGalleryContextMenu;
 
@@ -110,6 +112,7 @@ public:
 
     void refreshList(const LLUUID& category_id);
     void onCOFChanged();
+    void onGesturesChanged();
     void computeDifference(const LLInventoryModel::cat_array_t vcats, const LLInventoryModel::item_array_t vitems, uuid_vec_t& vadded, uuid_vec_t& vremoved);
 
     void deselectItem(const LLUUID& category_id);
@@ -133,6 +136,7 @@ protected:
 
     LLInventoryCategoriesObserver*     mCategoriesObserver;
     LLThumbnailsObserver*              mThumbnailsObserver;
+    LLGalleryGestureObserver*          mGestureObserver;
     LLUUID                             mSelectedItemID;
     bool                               mIsInitialized;
 
@@ -199,6 +203,7 @@ private:
     typedef std::map<LLUUID, LLInventoryGalleryItem*> gallery_item_map_t;
     gallery_item_map_t mItemMap;
     uuid_vec_t mCOFLinkedItems;
+    uuid_vec_t mActiveGestures;
     std::map<LLInventoryGalleryItem*, S32> mItemIndexMap;
 
     LLInventoryFilter::ESearchType mSearchType;
@@ -257,6 +262,7 @@ public:
     void setHidden(bool hidden) {mHidden = hidden;}
 
     void setType(LLAssetType::EType type, LLInventoryType::EType inventory_type, U32 flags, bool is_link);
+    LLAssetType::EType getAssetType() { return mType; }
     void setThumbnail(LLUUID id);
     void setGallery(LLInventoryGallery* gallery) { mGallery = gallery; }
     bool isFolder() { return mIsFolder; }
@@ -312,6 +318,17 @@ protected:
     typedef std::map<LLUUID, LLItemData> item_map_t;
     typedef item_map_t::value_type item_map_value_t;
     item_map_t mItemMap;
+};
+
+class LLGalleryGestureObserver : public LLGestureManagerObserver
+{
+public:
+    LLGalleryGestureObserver(LLInventoryGallery* gallery) : mGallery(gallery) {}
+    virtual ~LLGalleryGestureObserver() {}
+    virtual void changed() { mGallery->onGesturesChanged(); }
+
+private:
+    LLInventoryGallery* mGallery;
 };
 
 #endif

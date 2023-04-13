@@ -314,6 +314,26 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
     {
         LLAppearanceMgr::instance().wearItemOnAvatar(selected_id, true, true);
     }
+    else if ("activate" == action)
+    {
+        LLGestureMgr::instance().activateGesture(selected_id);
+
+        LLViewerInventoryItem* item = gInventory.getItem(selected_id);
+        if (!item) return;
+
+        gInventory.updateItem(item);
+        gInventory.notifyObservers();
+    }
+    else if ("deactivate" == action)
+    {
+        LLGestureMgr::instance().deactivateGesture(selected_id);
+
+        LLViewerInventoryItem* item = gInventory.getItem(selected_id);
+        if (!item) return;
+
+        gInventory.updateItem(item);
+        gInventory.notifyObservers();
+    }
 }
 
 void LLInventoryGalleryContextMenu::onRename(const LLSD& notification, const LLSD& response)
@@ -589,6 +609,19 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             {
                 disabled_items.push_back(std::string("Open"));
                 disabled_items.push_back(std::string("Open Original"));
+            }
+            
+            if(LLAssetType::AT_GESTURE == obj->getType())
+            {
+                items.push_back(std::string("Gesture Separator"));
+                if(!LLGestureMgr::instance().isGestureActive(selected_id))
+                {
+                    items.push_back(std::string("Activate"));
+                }
+                else
+                {
+                    items.push_back(std::string("Deactivate"));
+                }
             }
         }
         else if(LLAssetType::AT_LANDMARK == obj->getType())

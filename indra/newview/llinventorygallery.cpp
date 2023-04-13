@@ -92,6 +92,9 @@ LLInventoryGallery::LLInventoryGallery(const LLInventoryGallery::Params& p)
     mThumbnailsObserver = new LLThumbnailsObserver();
     gInventory.addObserver(mThumbnailsObserver);
 
+    mGestureObserver = new LLGalleryGestureObserver(this);
+    LLGestureMgr::instance().addObserver(mGestureObserver);
+
     mUsername = gAgentUsername;
     LLStringUtil::toUpper(mUsername);
 }
@@ -154,6 +157,9 @@ LLInventoryGallery::~LLInventoryGallery()
         gInventory.removeObserver(mThumbnailsObserver);
     }
     delete mThumbnailsObserver;
+    
+    LLGestureMgr::instance().removeObserver(mGestureObserver);
+    delete mGestureObserver;
 }
 
 void LLInventoryGallery::setRootFolder(const LLUUID cat_id)
@@ -701,7 +707,14 @@ void LLInventoryGallery::updateAddedItem(LLUUID item_id)
     {
         inventory_type = inv_item->getInventoryType();
         misc_flags = inv_item->getFlags();
-        is_worn = LLAppearanceMgr::instance().isLinkedInCOF(item_id);
+        if (LLAssetType::AT_GESTURE == obj->getType())
+        {
+            is_worn = LLGestureMgr::instance().isGestureActive(item_id);
+        }
+        else
+        {
+            is_worn = LLAppearanceMgr::instance().isLinkedInCOF(item_id);
+        }
     }
     else if (LLAssetType::AT_CATEGORY == obj->getType())
     {
@@ -929,6 +942,37 @@ void LLInventoryGallery::onCOFChanged()
     LLCommonUtils::computeDifference(vnew, mCOFLinkedItems, vadded, vremoved);
 
     mCOFLinkedItems = vnew;
+    
+    for (uuid_vec_t::const_iterator iter = vadded.begin();
+        iter != vadded.end();
+        ++iter)
+    {
+        updateWornItem(*iter, true);
+    }
+
+    for (uuid_vec_t::const_iterator iter = vremoved.begin(); iter != vremoved.end(); ++iter)
+    {
+        updateWornItem(*iter, false);
+    }
+}
+
+void LLInventoryGallery::onGesturesChanged()
+{
+    uuid_vec_t vnew;
+    uuid_vec_t vadded;
+    uuid_vec_t vremoved;
+
+    const LLGestureMgr::item_map_t& active_gestures = LLGestureMgr::instance().getActiveGestures();
+    for (LLGestureMgr::item_map_t::const_iterator iter = active_gestures.begin();
+        iter != active_gestures.end();
+        ++iter)
+    {
+        vnew.push_back(iter->first);
+    }
+
+    LLCommonUtils::computeDifference(vnew, mActiveGestures, vadded, vremoved);
+
+    mActiveGestures = vnew;
     
     for (uuid_vec_t::const_iterator iter = vadded.begin();
         iter != vadded.end();
@@ -1353,7 +1397,13 @@ BOOL LLInventoryGalleryItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL dro
 void LLInventoryGalleryItem::setWorn(bool value)
 {
     mWorn = value;
-    mSuffixText->setValue(mWorn ? getString("worn_string") : "");
+    std::string suffix("");
+
+    if(mWorn)
+    {
+        suffix = (mType == LLAssetType::AT_GESTURE) ? getString("active_string") : getString("worn_string");
+    }
+    mSuffixText->setValue(suffix);
 
     mNameText->setFont(getTextFont());
     mNameText->setText(mName); // refresh to pick up font changes
