@@ -444,7 +444,7 @@ public:
 	void setDebugText(const std::string &utf8text);
 
     static std::ostringstream & getDebugStream(LLUUID const & object_id);
-    std::ostringstream & getDebugStream();
+    std::ostringstream & getDebugStream() const;
     void showDebugStream();
     template <typename Functor>
     void appendDebug(Functor f) { f(getDebugStream()); }

@@ -5724,7 +5724,7 @@ std::ostringstream & LLViewerObject::getDebugStream(LLUUID const & object_id)
     return object_log[object_id];
 }
 
-std::ostringstream & LLViewerObject::getDebugStream()
+std::ostringstream & LLViewerObject::getDebugStream() const
 {
     return object_log[mID];
 }
