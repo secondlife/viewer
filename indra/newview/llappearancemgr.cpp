@@ -638,6 +638,11 @@ void LLBrokenLinkObserver::postProcess()
 {
     LLViewerInventoryItem* item = gInventory.getItem(mUUID);
     llassert(item && !item->getIsBrokenLink()); // the whole point was to get a correct link
+    if (item && item->getIsBrokenLink())
+    {
+        LL_INFOS_ONCE("Avatar") << "Outfit link broken despite being regenerated" << LL_ENDL;
+        LL_DEBUGS("Avatar", "Inventory") << "Outfit link " << mUUID << " \"" << item->getName() << "\" is broken despite being regenerated" << LL_ENDL;
+    }
 
     LLAppearanceMgr::instance().updateAppearanceFromCOF(
         mEnforceItemRestrictions ,
