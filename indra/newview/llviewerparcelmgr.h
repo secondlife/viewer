@@ -204,6 +204,7 @@ public:
 	void	renderOneSegment(F32 x1, F32 y1, F32 x2, F32 y2, F32 height, U8 direction, LLViewerRegion* regionp);
 	void	renderHighlightSegments(const U8* segments, LLViewerRegion* regionp);
 	void	renderCollisionSegments(U8* segments, BOOL use_pass, LLViewerRegion* regionp);
+    void	resetCollisionTimer();
 
 	void	sendParcelGodForceOwner(const LLUUID& owner_id);
 
@@ -361,7 +362,7 @@ private:
 	// If it's coming, draw the parcel's boundaries.
 	LLParcel*					mCollisionParcel;
 	U8*							mCollisionSegments;
-	BOOL						mRenderCollision; 
+	bool						mRenderCollision; 
 	BOOL						mRenderSelection;
 	S32							mCollisionBanned;     
 	LLFrameTimer				mCollisionTimer;
