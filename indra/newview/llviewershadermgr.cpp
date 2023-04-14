@@ -154,8 +154,9 @@ LLGLSLShader			gDeferredShadowProgram;
 LLGLSLShader            gDeferredSkinnedShadowProgram;
 LLGLSLShader			gDeferredShadowCubeProgram;
 LLGLSLShader			gDeferredShadowAlphaMaskProgram;
-LLGLSLShader			gDeferredShadowGLTFAlphaMaskProgram;
 LLGLSLShader            gDeferredSkinnedShadowAlphaMaskProgram;
+LLGLSLShader			gDeferredShadowGLTFAlphaMaskProgram;
+LLGLSLShader			gDeferredSkinnedShadowGLTFAlphaMaskProgram;
 LLGLSLShader			gDeferredShadowFullbrightAlphaMaskProgram;
 LLGLSLShader            gDeferredSkinnedShadowFullbrightAlphaMaskProgram;
 LLGLSLShader			gDeferredAvatarShadowProgram;
@@ -970,8 +971,9 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSkinnedShadowProgram.unload();
 		gDeferredShadowCubeProgram.unload();
         gDeferredShadowAlphaMaskProgram.unload();
-        gDeferredShadowGLTFAlphaMaskProgram.unload();
         gDeferredSkinnedShadowAlphaMaskProgram.unload();
+        gDeferredShadowGLTFAlphaMaskProgram.unload();
+        gDeferredSkinnedShadowGLTFAlphaMaskProgram.unload();
         gDeferredShadowFullbrightAlphaMaskProgram.unload();
         gDeferredSkinnedShadowFullbrightAlphaMaskProgram.unload();
 		gDeferredAvatarShadowProgram.unload();
@@ -2307,28 +2309,11 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredShadowFullbrightAlphaMaskProgram.addPermutation("DEPTH_CLAMP", "1");
         gDeferredShadowFullbrightAlphaMaskProgram.addPermutation("IS_FULLBRIGHT", "1");
 		gDeferredShadowFullbrightAlphaMaskProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        gDeferredShadowFullbrightAlphaMaskProgram.mRiggedVariant = &gDeferredSkinnedShadowFullbrightAlphaMaskProgram;
-		success = gDeferredShadowFullbrightAlphaMaskProgram.createShader(NULL, NULL);
+        success = make_rigged_variant(gDeferredShadowFullbrightAlphaMaskProgram, gDeferredSkinnedShadowFullbrightAlphaMaskProgram);
+        success = success && gDeferredShadowFullbrightAlphaMaskProgram.createShader(NULL, NULL);
 		llassert(success);
 	}
     
-    if (success)
-    {
-        gDeferredSkinnedShadowFullbrightAlphaMaskProgram.mName = "Deferred Skinned Shadow Fullbright Alpha Mask Shader";
-        gDeferredSkinnedShadowFullbrightAlphaMaskProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
-        gDeferredSkinnedShadowFullbrightAlphaMaskProgram.mFeatures.hasObjectSkinning = true;
-        gDeferredSkinnedShadowFullbrightAlphaMaskProgram.mShaderFiles.clear();
-        gDeferredSkinnedShadowFullbrightAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskSkinnedV.glsl", GL_VERTEX_SHADER));
-        gDeferredSkinnedShadowFullbrightAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskF.glsl", GL_FRAGMENT_SHADER));
-
-        gDeferredSkinnedShadowFullbrightAlphaMaskProgram.clearPermutations();
-        gDeferredSkinnedShadowFullbrightAlphaMaskProgram.addPermutation("DEPTH_CLAMP", "1");
-        gDeferredSkinnedShadowFullbrightAlphaMaskProgram.addPermutation("IS_FULLBRIGHT", "1");
-        gDeferredSkinnedShadowFullbrightAlphaMaskProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        success = gDeferredSkinnedShadowFullbrightAlphaMaskProgram.createShader(NULL, NULL);
-        llassert(success);
-    }
-
     if (success)
 	{
 		gDeferredShadowAlphaMaskProgram.mName = "Deferred Shadow Alpha Mask Shader";
@@ -2338,15 +2323,15 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredShadowAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskV.glsl", GL_VERTEX_SHADER));
 		gDeferredShadowAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskF.glsl", GL_FRAGMENT_SHADER));
 		gDeferredShadowAlphaMaskProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        gDeferredShadowAlphaMaskProgram.mRiggedVariant = &gDeferredSkinnedShadowAlphaMaskProgram;
-		success = gDeferredShadowAlphaMaskProgram.createShader(NULL, NULL);
+        success = make_rigged_variant(gDeferredShadowAlphaMaskProgram, gDeferredSkinnedShadowAlphaMaskProgram);
+        success = success && gDeferredShadowAlphaMaskProgram.createShader(NULL, NULL);
 		llassert(success);
 	}
     
 
     if (success)
     {
-        gDeferredShadowGLTFAlphaMaskProgram.mName = "Deferred Shadow Alpha Mask Shader";
+        gDeferredShadowGLTFAlphaMaskProgram.mName = "Deferred GLTF Shadow Alpha Mask Shader";
         gDeferredShadowGLTFAlphaMaskProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
         gDeferredShadowGLTFAlphaMaskProgram.mShaderFiles.clear();
         gDeferredShadowGLTFAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskV.glsl", GL_VERTEX_SHADER));
@@ -2354,21 +2339,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredShadowGLTFAlphaMaskProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         gDeferredShadowGLTFAlphaMaskProgram.clearPermutations();
         gDeferredShadowGLTFAlphaMaskProgram.addPermutation("GLTF", "1");
-        gDeferredShadowGLTFAlphaMaskProgram.mRiggedVariant = &gDeferredSkinnedShadowAlphaMaskProgram;
-        success = gDeferredShadowGLTFAlphaMaskProgram.createShader(NULL, NULL);
-        llassert(success);
-    }
-
-    if (success)
-    {
-        gDeferredSkinnedShadowAlphaMaskProgram.mName = "Deferred Skinned Shadow Alpha Mask Shader";
-        gDeferredSkinnedShadowAlphaMaskProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
-        gDeferredSkinnedShadowAlphaMaskProgram.mFeatures.hasObjectSkinning = true;
-        gDeferredSkinnedShadowAlphaMaskProgram.mShaderFiles.clear();
-        gDeferredSkinnedShadowAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskSkinnedV.glsl", GL_VERTEX_SHADER));
-        gDeferredSkinnedShadowAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskF.glsl", GL_FRAGMENT_SHADER));
-        gDeferredSkinnedShadowAlphaMaskProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        success = gDeferredSkinnedShadowAlphaMaskProgram.createShader(NULL, NULL);
+        success = make_rigged_variant(gDeferredShadowGLTFAlphaMaskProgram, gDeferredSkinnedShadowGLTFAlphaMaskProgram);
+        success = success && gDeferredShadowGLTFAlphaMaskProgram.createShader(NULL, NULL);
         llassert(success);
     }
 
