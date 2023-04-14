@@ -5574,37 +5574,44 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
 
         U32 vert_count = meshopt_generateVertexRemapMulti(&remap[0], nullptr, data.p.size(), data.p.size(), mos, stream_count);
 
-        std::vector<U32> indices;
-        indices.resize(mNumIndices);
-
-        //copy results back into volume
-        resizeVertices(vert_count);
-
-        if (!data.w.empty())
+        if (vert_count < 65535)
         {
-            allocateWeights(vert_count);
-        }
+            std::vector<U32> indices;
+            indices.resize(mNumIndices);
 
-        allocateTangents(mNumVertices);
+            //copy results back into volume
+            resizeVertices(vert_count);
 
-        for (int i = 0; i < mNumIndices; ++i)
-        {
-            U32 src_idx = i;
-            U32 dst_idx = remap[i];
-            mIndices[i] = dst_idx;
-
-            mPositions[dst_idx].load3(data.p[src_idx].mV);
-            mNormals[dst_idx].load3(data.n[src_idx].mV);
-            mTexCoords[dst_idx] = data.tc[src_idx];
-
-            mTangents[dst_idx].loadua(data.t[src_idx].mV);
-
-            if (mWeights)
+            if (!data.w.empty())
             {
-                mWeights[dst_idx].loadua(data.w[src_idx].mV);
+                allocateWeights(vert_count);
+            }
+
+            allocateTangents(mNumVertices);
+
+            for (int i = 0; i < mNumIndices; ++i)
+            {
+                U32 src_idx = i;
+                U32 dst_idx = remap[i];
+                mIndices[i] = dst_idx;
+
+                mPositions[dst_idx].load3(data.p[src_idx].mV);
+                mNormals[dst_idx].load3(data.n[src_idx].mV);
+                mTexCoords[dst_idx] = data.tc[src_idx];
+
+                mTangents[dst_idx].loadua(data.t[src_idx].mV);
+
+                if (mWeights)
+                {
+                    mWeights[dst_idx].loadua(data.w[src_idx].mV);
+                }
             }
         }
-
+        else
+        {
+            // blew past the max vertex size limit, use legacy tangent generation which never adds verts
+            createTangents();
+        }
 
         // put back in normalized coordinate frame
         LLVector4a inv_scale(1.f/mNormalizedScale.mV[0], 1.f / mNormalizedScale.mV[1], 1.f / mNormalizedScale.mV[2]);
