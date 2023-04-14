@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+  name="emojipicker"
+  title="CHOOSE EMOJI"
+  help_topic="emojipicker"
+  positioning="cascading"
+  legacy_header_height="10"
+  can_resize="false"
+  layout="topleft"
+  height="419"
+  width="200">
+    <panel
+      label="Emojis"
+      name="EmojiPanel"
+      help_topic="emojipicker"
+      layout="topleft"
+      top="4"
+      left="2"
+      height="410"
+      width="196">
+      <scroll_list
+        draw_heading="true"
+        heading_height="28"
+        follows="all"
+        layout="topleft"
+        name="Emojis"
+        sort_column="0"
+		height="410">
+        <columns
+          label="Look"
+          name="look"
+          width="40" />
+		<columns
+          label="Name"
+          name="name"
+          width="150" />
+	  </scroll_list>
+    </panel>
+</floater>

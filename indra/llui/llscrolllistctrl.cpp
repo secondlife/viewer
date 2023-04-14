@@ -411,7 +411,7 @@ void LLScrollListCtrl::clearRows()
 LLScrollListItem* LLScrollListCtrl::getFirstSelected() const
 {
 	item_list::const_iterator iter;
-	for(iter = mItemList.begin(); iter != mItemList.end(); iter++)
+	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item  = *iter;
 		if (item->getSelected())
