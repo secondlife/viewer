@@ -1,6 +1,5 @@
 <?xml version="1.0" ?>
-<llsd>
-<map>
+<llsd><map>
     <key>installables</key>
     <map>
       <key>SDL</key>
@@ -184,9 +183,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0d41c7c2e563b5abd972d61661c03a51</string>
+              <string>878eaf654926e400d67680100cb780c9</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107318/936265/bugsplat-1.0.7.576517-darwin64-576517.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113512/981912/bugsplat-1.0.7.579546-darwin64-579546.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -196,9 +195,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5ede19a3a5fc906ccce23f008faf09d6</string>
+              <string>ad306307016d6ac6f86823d7292847ff</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107317/936259/bugsplat-4.0.3.0.576517-windows-576517.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113514/981926/bugsplat-4.0.3.0.579546-windows-579546.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -208,16 +207,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2f0ae3c5e10347c1ef2d0d1ccc22232b</string>
+              <string>8d237d16a0c038649e17a64ba8c9f2b7</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107313/936242/bugsplat-.576517-windows64-576517.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113517/981927/bugsplat-4.0.3.0.579546-windows64-579546.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.0.3.0.576517</string>
+        <string>4.0.3.0.579546</string>
       </map>
       <key>colladadom</key>
       <map>
@@ -3272,5 +3271,4 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
     <string>autobuild</string>
     <key>version</key>
     <string>1.3</string>
-  </map>
-</llsd>
+  </map></llsd>
