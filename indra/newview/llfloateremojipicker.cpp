@@ -91,14 +91,14 @@ LLFloaterEmojiPicker::LLFloaterEmojiPicker(const LLSD& key)
 
 BOOL LLFloaterEmojiPicker::postBuild()
 {
-	if (mEmojis = getChild<LLScrollListCtrl>("Emojis"))
+	if ((mEmojis = getChild<LLScrollListCtrl>("Emojis")))
 	{
 		mEmojis->setDoubleClickCallback(boost::bind(&LLFloaterEmojiPicker::onSelect, this));
 
 		mEmojis->clearRows();
 
 		const std::map<llwchar, const LLEmojiDescriptor*>& emoji2Descr = LLEmojiDictionary::instance().getEmoji2Descr();
-		for (const std::pair<llwchar, const LLEmojiDescriptor*>& it : emoji2Descr)
+		for (const std::pair<const llwchar, const LLEmojiDescriptor*>& it : emoji2Descr)
 		{
 			LLScrollListItem::Params params;
 			params.columns.add().column("name").value(it.second->Name);
