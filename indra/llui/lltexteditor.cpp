@@ -680,18 +680,24 @@ void LLTextEditor::selectByCursorPosition(S32 prev_cursor_pos, S32 next_cursor_p
 	endSelection();
 }
 
-void LLTextEditor::handleEmojiCommit(const LLWString& wstr)
+void LLTextEditor::insertEmoji(llwchar emoji)
 {
-	LLWString wtext(getWText()); S32 shortCodePos;
-	if (LLEmojiHelper::isCursorInEmojiCode(wtext, mCursorPos, &shortCodePos))
+	auto styleParams = LLStyle::Params();
+	styleParams.font = LLFontGL::getFontEmoji();
+	auto segment = new LLEmojiTextSegment(new LLStyle(styleParams), mCursorPos, mCursorPos + 1, *this);
+	insert(mCursorPos, LLWString(1, emoji), false, segment);
+	setCursorPos(mCursorPos + 1);
+}
+
+void LLTextEditor::handleEmojiCommit(llwchar emoji)
+{
+	S32 shortCodePos;
+	if (LLEmojiHelper::isCursorInEmojiCode(getWText(), mCursorPos, &shortCodePos))
 	{
 		remove(shortCodePos, mCursorPos - shortCodePos, true);
+		setCursorPos(shortCodePos);
 
-		auto styleParams = LLStyle::Params();
-		styleParams.font = LLFontGL::getFontEmoji();
-		insert(shortCodePos, wstr, false, new LLEmojiTextSegment(new LLStyle(styleParams), shortCodePos, shortCodePos + wstr.size(), *this));
-
-		setCursorPos(shortCodePos + 1);
+		insertEmoji(emoji);
 	}
 }
 

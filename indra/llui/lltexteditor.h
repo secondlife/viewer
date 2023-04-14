@@ -92,7 +92,8 @@ public:
 
 	static S32		spacesPerTab();
 
-	        void    handleEmojiCommit(const LLWString& wstr);
+	void    insertEmoji(llwchar emoji);
+	void    handleEmojiCommit(llwchar emoji);
 
 	// mousehandler overrides
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);

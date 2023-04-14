@@ -44,12 +44,12 @@ public:
 	std::string getToolTip(llwchar ch) const;
 	bool        isActive(const LLUICtrl* ctrl_p) const;
 	static bool isCursorInEmojiCode(const LLWString& wtext, S32 cursor_pos, S32* short_code_pos_p = nullptr);
-	void        showHelper(LLUICtrl* hostctrl_p, S32 local_x, S32 local_y, const std::string& short_code, std::function<void(LLWString)> commit_cb);
+	void        showHelper(LLUICtrl* hostctrl_p, S32 local_x, S32 local_y, const std::string& short_code, std::function<void(llwchar)> commit_cb);
 	void        hideHelper(const LLUICtrl* ctrl_p = nullptr);
 
 	// Eventing
 	bool handleKey(const LLUICtrl* ctrl_p, KEY key, MASK mask);
-	void onCommitEmoji(const LLWString& wstr);
+	void onCommitEmoji(llwchar emoji);
 
 protected:
 	LLUICtrl* getHostCtrl() const { return mHostHandle.get(); }
@@ -60,5 +60,5 @@ private:
 	LLHandle<LLFloater> mHelperHandle;
 	boost::signals2::connection mHostCtrlFocusLostConn;
 	boost::signals2::connection mHelperCommitConn;
-	std::function<void(LLWString)> mEmojiCommitCb;
+	std::function<void(llwchar)> mEmojiCommitCb;
 };

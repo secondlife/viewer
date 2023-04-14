@@ -297,8 +297,20 @@
                          tab_group="3"
                          bottom="-8"
                          left_pad="5"
-                         right="-5"
+                         right="-30"
                          wrap="true" />
+                        <button
+                         follows="right|bottom"
+                         bottom="-7"
+                         height="25"
+                         image_hover_unselected="Toolbar_Middle_Over"
+                         image_overlay="Emoji_Picker_Icon"
+                         image_selected="Toolbar_Middle_Selected"
+                         image_unselected="Toolbar_Middle_Off"
+                         right="-1"
+                         name="emoji_panel_btn"
+                         tool_tip="Shows/hides emoji panel"
+                         width="25"/>
                     </layout_panel>
                     <layout_panel
                      auto_resize="false"
