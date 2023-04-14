@@ -794,14 +794,36 @@
            name="LandShow"
            tear_off="true">
           <menu_item_check
-             label="Ban Lines"
-             name="Ban Lines">
+             label="Hide Ban Lines"
+             name="Hide Ban Lines">
             <menu_item_check.on_check
-               control="ShowBanLines" />
+             function="World.CheckBanLines"
+             parameter="0" />
             <menu_item_check.on_click
-               function="ToggleControl"
-               parameter="ShowBanLines" />
+             function="World.ShowBanLines"
+             parameter="0" />
           </menu_item_check>
+          <menu_item_check
+             label="Show Ban Lines On Collision"
+             name="Show Ban Lines On Collision">
+            <menu_item_check.on_check
+             function="World.CheckBanLines"
+             parameter="1" />
+            <menu_item_check.on_click
+             function="World.ShowBanLines"
+             parameter="1" />
+          </menu_item_check>
+          <menu_item_check
+             label="Show Ban Lines On Proximity"
+             name="Show Ban Lines On Proximity">
+            <menu_item_check.on_check
+             function="World.CheckBanLines"
+             parameter="2" />
+            <menu_item_check.on_click
+             function="World.ShowBanLines"
+             parameter="2" />
+          </menu_item_check>
+          <menu_item_separator />
            <menu_item_check
                  label="Beacons"
                  name="beacons"

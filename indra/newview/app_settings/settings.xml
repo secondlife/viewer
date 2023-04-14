@@ -11316,11 +11316,11 @@
     <key>ShowBanLines</key>
     <map>
       <key>Comment</key>
-      <string>Show in-world ban/access borders</string>
+      <string>Show in-world ban/access borders, 0 - do not show, 1 - show on collision, 2 - show on proximity</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>S32</string>
       <key>Value</key>
       <integer>1</integer>
     </map>
