@@ -102,7 +102,7 @@ void LLRenderTarget::resize(U32 resx, U32 resy)
 }
     
 
-bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLTexUnit::eTextureType usage)
+bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLTexUnit::eTextureType usage, LLTexUnit::eTextureMipGeneration generateMipMaps)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     llassert(usage == LLTexUnit::TT_TEXTURE);
@@ -118,6 +118,13 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLT
 
     mUsage = usage;
     mUseDepth = depth;
+
+    mGenerateMipMaps = generateMipMaps;
+
+    if (mGenerateMipMaps != LLTexUnit::TMG_NONE) {
+        // Calculate the number of mip levels based upon resolution that we should have.
+        mMipLevels = 1 + floor(log10((float)llmax(mResX, mResY))/log10(2.0));
+    }
     
     if (depth)
     {
@@ -511,6 +518,12 @@ void LLRenderTarget::flush()
     llassert(mFBO);
     llassert(sCurFBO == mFBO);
     llassert(sBoundTarget == this);
+
+    if (mGenerateMipMaps == LLTexUnit::TMG_AUTO) {
+        LL_PROFILE_GPU_ZONE("rt generate mipmaps");
+        bindTexture(0, 0, LLTexUnit::TFO_TRILINEAR);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
 
     if (mPreviousRT)
     {
