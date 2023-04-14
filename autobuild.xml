@@ -1,6 +1,5 @@
 <?xml version="1.0" ?>
-<llsd>
-<map>
+<llsd><map>
     <key>installables</key>
     <map>
       <key>SDL</key>
@@ -184,9 +183,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7b4aceaed511d44c4d1354b2162b59c7</string>
+              <string>878eaf654926e400d67680100cb780c9</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107398/936936/bugsplat-1.0.7.576560-darwin64-576560.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113512/981912/bugsplat-1.0.7.579546-darwin64-579546.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -196,9 +195,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>53918c7c74b943cdc0bb90caf9657a84</string>
+              <string>ad306307016d6ac6f86823d7292847ff</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107400/936949/bugsplat-4.0.3.0.576560-windows-576560.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113514/981926/bugsplat-4.0.3.0.579546-windows-579546.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -208,16 +207,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>19d6a55db101f02e7eb531daf3e8cfd1</string>
+              <string>8d237d16a0c038649e17a64ba8c9f2b7</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/107401/936948/bugsplat-.576560-windows64-576560.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113517/981927/bugsplat-4.0.3.0.579546-windows64-579546.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.0.3.0.576560</string>
+        <string>4.0.3.0.579546</string>
       </map>
       <key>colladadom</key>
       <map>
@@ -307,6 +306,16 @@
             <key>name</key>
             <string>darwin64</string>
           </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>ac54672e0b38f52726f5c99047c913e4</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89306/815431/cubemaptoequirectangular-1.1.0-windows64-564841.tar.bz2</string>
+            </map>
+          </map>
           <key>windows</key>
           <map>
             <key>archive</key>
@@ -330,16 +339,6 @@
             </map>
             <key>name</key>
             <string>windows64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>ac54672e0b38f52726f5c99047c913e4</string>
-              <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89306/815431/cubemaptoequirectangular-1.1.0-windows64-564841.tar.bz2</string>
-            </map>
           </map>
         </map>
         <key>version</key>
@@ -1063,6 +1062,16 @@
             <key>name</key>
             <string>darwin64</string>
           </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>e70898903475d8ac2e81ff33278fc987</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89309/815433/jpegencoderbasic-1.0-windows64-564842.tar.bz2</string>
+            </map>
+          </map>
           <key>windows</key>
           <map>
             <key>archive</key>
@@ -1086,16 +1095,6 @@
             </map>
             <key>name</key>
             <string>windows64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>e70898903475d8ac2e81ff33278fc987</string>
-              <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89309/815433/jpegencoderbasic-1.0-windows64-564842.tar.bz2</string>
-            </map>
           </map>
         </map>
         <key>version</key>
@@ -2484,6 +2483,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>name</key>
             <string>darwin64</string>
           </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>46edf0f55417f8ef0d33a5c007bc3644</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89310/815451/threejs-0.132.2-windows64-564843.tar.bz2</string>
+            </map>
+          </map>
           <key>windows</key>
           <map>
             <key>archive</key>
@@ -2507,16 +2516,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             </map>
             <key>name</key>
             <string>windows64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>46edf0f55417f8ef0d33a5c007bc3644</string>
-              <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89310/815451/threejs-0.132.2-windows64-564843.tar.bz2</string>
-            </map>
           </map>
         </map>
         <key>version</key>
@@ -3021,68 +3020,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <key>name</key>
           <string>common</string>
         </map>
-        <key>linux64</key>
-        <map>
-          <key>build_directory</key>
-          <string>build-linux-x86_64</string>
-          <key>configurations</key>
-          <map>
-            <key>Release</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>ninja</string>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>Ninja</string>
-                  <string>-DLL_TESTS=Off</string>
-                </array>
-              </map>
-              <key>default</key>
-              <string>True</string>
-              <key>name</key>
-              <string>Release</string>
-            </map>
-            <key>ReleaseOS</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>ninja</string>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>Ninja</string>
-                  <string>-DLL_TESTS=Off</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>ReleaseOS</string>
-            </map>
-            <key>default</key>
-            <map>
-              <key>build</key>
-              <map>
-              </map>
-              <key>name</key>
-              <string>default</string>
-            </map>
-          </map>
-          <key>name</key>
-          <string>linux64</string>
-        </map>
         <key>darwin64</key>
         <map>
           <key>build_directory</key>
@@ -3202,6 +3139,68 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           </map>
           <key>name</key>
           <string>darwin64</string>
+        </map>
+        <key>linux64</key>
+        <map>
+          <key>build_directory</key>
+          <string>build-linux-x86_64</string>
+          <key>configurations</key>
+          <map>
+            <key>Release</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>ninja</string>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>Ninja</string>
+                  <string>-DLL_TESTS=Off</string>
+                </array>
+              </map>
+              <key>default</key>
+              <string>True</string>
+              <key>name</key>
+              <string>Release</string>
+            </map>
+            <key>ReleaseOS</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>ninja</string>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>Ninja</string>
+                  <string>-DLL_TESTS=Off</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>ReleaseOS</string>
+            </map>
+            <key>default</key>
+            <map>
+              <key>build</key>
+              <map>
+              </map>
+              <key>name</key>
+              <string>default</string>
+            </map>
+          </map>
+          <key>name</key>
+          <string>linux64</string>
         </map>
         <key>windows</key>
         <map>
@@ -3372,5 +3371,4 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
     <string>autobuild</string>
     <key>version</key>
     <string>1.3</string>
-  </map>
-</llsd>
+  </map></llsd>
