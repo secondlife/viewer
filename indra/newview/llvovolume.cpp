@@ -5291,6 +5291,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
     LLUUID mat_id;
 
     auto* gltf_mat = (LLFetchedGLTFMaterial*) facep->getTextureEntry()->getGLTFRenderMaterial();
+    llassert(gltf_mat == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(facep->getTextureEntry()->getGLTFRenderMaterial()) != nullptr);
     if (gltf_mat != nullptr)
     {
         mat_id = gltf_mat->getHash(); // TODO: cache this hash
