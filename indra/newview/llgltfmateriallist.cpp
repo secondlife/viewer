@@ -226,7 +226,7 @@ public:
         struct ReturnData
         {
         public:
-            LLPointer<LLGLTFMaterial> mMaterial;
+            LLGLTFMaterial mMaterial;
             S32 mSide;
             bool mSuccess;
         };
@@ -246,21 +246,18 @@ public:
                 std::unordered_map<S32, std::string>::const_iterator end = object_override.mSides.end();
                 while (iter != end)
                 {
-                    LLPointer<LLGLTFMaterial> override_data = new LLGLTFMaterial();
                     std::string warn_msg, error_msg;
 
-                    bool success = override_data->fromJSON(iter->second, warn_msg, error_msg);
-
                     ReturnData result;
+
+                    bool success = result.mMaterial.fromJSON(iter->second, warn_msg, error_msg);
+
                     result.mSuccess = success;
                     result.mSide = iter->first;
 
-                    if (success)
+                    if (!success)
                     {
-                        result.mMaterial = override_data;
-                    }
-                    else
-                    {
+                        result.mMaterial = LLGLTFMaterial();
                         LL_WARNS("GLTF") << "failed to parse GLTF override data.  errors: " << error_msg << " | warnings: " << warn_msg << LL_ENDL;
                     }
 
@@ -285,7 +282,8 @@ public:
                     S32 side = result.mSide;
                     if (result.mSuccess)
                     {
-                        auto const & material = result.mMaterial;
+                        // copy to heap here because LLTextureEntry is going to take ownership with an LLPointer
+                        LLGLTFMaterial * material = new LLGLTFMaterial(result.mMaterial);
 
                         // flag this side to not be nulled out later
                         side_set.insert(side);
