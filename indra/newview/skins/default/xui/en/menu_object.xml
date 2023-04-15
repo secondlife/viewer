@@ -246,4 +246,14 @@
             <menu_item_call.on_visible
              function="Avatar.EnableResetSkeleton"/>
     </menu_item_call>
+    <menu_item_call
+        label="Object Debug Log"
+        name="Object Debug Log">
+      <menu_item_call.on_click
+          function="Object.DebugLog" />
+      <menu_item_call.on_visible
+          function="Object.EnableDebugLog" />
+      <menu_item_call.on_enable
+          function="Object.EnableDebugLog" />
+    </menu_item_call>
 </context_menu>

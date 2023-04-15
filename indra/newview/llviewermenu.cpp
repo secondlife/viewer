@@ -3029,6 +3029,25 @@ void handle_object_inspect()
 	*/
 }
 
+void handle_object_debuglog()
+{
+    class ShowDebugStream : public LLSelectedObjectFunctor {
+        bool apply(LLViewerObject* object) override {
+            object->showDebugStream();
+            return false;
+        }
+    };
+    static ShowDebugStream f;
+
+    LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+    selection->applyToObjects(&f);
+}
+
+bool handle_object_enable_debuglog()
+{
+    return gSavedSettings.getBOOL("QAMode");
+}
+
 //---------------------------------------------------------------------------
 // Land pie menu
 //---------------------------------------------------------------------------
@@ -9640,6 +9659,10 @@ void initialize_menus()
     commit.add("Object.EditGLTFMaterial", boost::bind(&handle_object_edit_gltf_material));
     commit.add("Object.SaveGLTFMaterial", boost::bind(&handle_object_save_gltf_material));
 	commit.add("Object.Inspect", boost::bind(&handle_object_inspect));
+
+    commit.add("Object.DebugLog", boost::bind(&handle_object_debuglog));
+    enable.add("Object.EnableDebugLog", boost::bind(&handle_object_enable_debuglog));
+
 	commit.add("Object.Open", boost::bind(&handle_object_open));
 	commit.add("Object.Take", boost::bind(&handle_take));
 	commit.add("Object.ShowInspector", boost::bind(&handle_object_show_inspector));
