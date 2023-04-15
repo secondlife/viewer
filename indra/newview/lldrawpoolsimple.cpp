@@ -62,6 +62,13 @@ static void setup_glow_shader(LLGLSLShader* shader)
 static void setup_fullbright_shader(LLGLSLShader* shader)
 {
     setup_glow_shader(shader);
+
+    S32 channel = shader->enableTexture(LLShaderMgr::EXPOSURE_MAP);
+    if (channel > -1)
+    {
+        gGL.getTexUnit(channel)->bind(&gPipeline.mExposureMap);
+    }
+
     shader->uniform1f(LLViewerShaderMgr::FULLBRIGHT, 1.f);
 }
 

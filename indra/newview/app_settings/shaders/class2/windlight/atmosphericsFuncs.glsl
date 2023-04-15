@@ -50,6 +50,7 @@ uniform float sun_moon_glow_factor;
 float getAmbientClamp() { return 1.0f; }
 
 vec3 srgb_to_linear(vec3 col);
+vec3 legacy_adjust(vec3 col);
 
 // return colors in sRGB space
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive,
@@ -63,8 +64,8 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     vec3  rel_pos_norm = normalize(rel_pos);
     float rel_pos_len  = length(rel_pos);
     
-    vec3  sunlight     = (sun_up_factor == 1) ? sunlight_color: moonlight_color;
-
+    vec3  sunlight     = (sun_up_factor == 1) ? sunlight_color: moonlight_color * 0.7;  // magic 0.7 to match legacy color
+    
     // sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
     vec3 light_atten = (blue_density + vec3(haze_density * 0.25)) * (density_multiplier * max_y);

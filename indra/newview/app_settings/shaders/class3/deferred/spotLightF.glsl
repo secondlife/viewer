@@ -180,7 +180,7 @@ void main()
                 
                 dlit = getProjectedLightDiffuseColor( l_dist, proj_tc.xy );
 
-                vec3 intensity = dist_atten * dlit * 3.0 * shadow; // Legacy attenuation
+                vec3 intensity = dist_atten * dlit * 3.9 * shadow; // Legacy attenuation
                 final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, normalize(lv));
             }
 

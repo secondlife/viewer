@@ -148,7 +148,7 @@ vec3 calcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
         // spot*spot => GL_SPOT_EXPONENT=2
         float spot_atten = spot*spot;
 
-        vec3 intensity = spot_atten * dist_atten * lightColor * 3.0;
+        vec3 intensity = spot_atten * dist_atten * lightColor * 3.9; //magic number to balance with legacy materials
 
         vec3 speccol;
         color = intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, speccol);

@@ -7696,6 +7696,12 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
         stop_glerror();
     }
 
+    channel = shader.enableTexture(LLShaderMgr::EXPOSURE_MAP);
+    if (channel > -1)
+    {
+        gGL.getTexUnit(channel)->bind(&mExposureMap);
+    }
+
     if (shader.getUniformLocation(LLShaderMgr::VIEWPORT) != -1)
     {
 		shader.uniform4f(LLShaderMgr::VIEWPORT, (F32) gGLViewport[0],
