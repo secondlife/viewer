@@ -219,7 +219,7 @@ public:
         struct ReturnData
         {
         public:
-            LLPointer<LLGLTFMaterial> mMaterial;
+            LLGLTFMaterial mMaterial;
             S32 mSide;
             bool mSuccess;
         };
@@ -239,20 +239,16 @@ public:
                 std::unordered_map<S32, std::string>::const_iterator end = object_override.mSides.end();
                 while (iter != end)
                 {
-                    LLPointer<LLGLTFMaterial> override_data = new LLGLTFMaterial();
                     std::string warn_msg, error_msg;
 
-                    bool success = override_data->fromJSON(iter->second, warn_msg, error_msg);
-
                     ReturnData result;
+
+                    bool success = result.mMaterial.fromJSON(iter->second, warn_msg, error_msg);
+
                     result.mSuccess = success;
                     result.mSide = iter->first;
 
-                    if (success)
-                    {
-                        result.mMaterial = override_data;
-                    }
-                    else
+                    if (!success)
                     {
                         LL_WARNS("GLTF") << "failed to parse GLTF override data.  errors: " << error_msg << " | warnings: " << warn_msg << LL_ENDL;
                     }
@@ -271,23 +267,27 @@ public:
             {
                 std::unordered_set<S32> side_set;
 
-                for (int i = 0; i < results.size(); ++i)
+                for (auto const & result : results)
                 {
-                    if (results[i].mSuccess)
+                    S32 side = result.mSide;
+                    if (result.mSuccess)
                     {
+                        // copy to heap here because LLTextureEntry is going to take ownership with an LLPointer
+                        LLGLTFMaterial * material = new LLGLTFMaterial(result.mMaterial);
+
                         // flag this side to not be nulled out later
-                        side_set.insert(results[i].mSide);
+                        side_set.insert(side);
 
                         if (obj)
                         {
-                            obj->setTEGLTFMaterialOverride(results[i].mSide, results[i].mMaterial);
+                            obj->setTEGLTFMaterialOverride(side, material);
                         }
                     }
                     
                     // unblock material editor
-                    if (obj && obj->getTE(results[i].mSide) && obj->getTE(results[i].mSide)->isSelected())
+                    if (obj && obj->getTE(side) && obj->getTE(side)->isSelected())
                     {
-                        doSelectionCallbacks(object_override.mObjectId, results[i].mSide);
+                        doSelectionCallbacks(object_override.mObjectId, side);
                     }
                 }
 
