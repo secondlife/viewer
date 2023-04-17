@@ -343,6 +343,59 @@ void LLPuppetMotion::rememberPosedJoint(S16 joint_id, LLPointer<LLJointState> jo
     }
 }
 
+void LLPuppetMotion::reportRootRelativePosition(const S16 joint_id, const S32 request_id)
+{
+    //Get current and root joints.
+    LLPointer<LLJointState> joint_state = mJointStates[joint_id];
+    LLPointer<LLJointState> root_state = mJointStates[0];
+        
+    if (!joint_state || !root_state) return;
+    std::string name = joint_state->getJoint()->getName();
+
+    LLVector3 rpos = root_state->getJoint()->getWorldPosition();
+    LLVector3 jpos = joint_state->getJoint()->getWorldPosition();
+    LLVector3 jend = joint_state->getJoint()->getEnd();
+    
+    jend.rotVec( joint_state->getJoint()->getWorldRotation());
+    jpos = jpos + jend;
+    
+    LLVector3 opos = jpos - rpos; //Vector from root to joint end
+    LLQuaternion rrot = root_state->getJoint()->getWorldRotation();
+    
+    opos.rotVec(~rrot); //remove root rotation.
+    
+    F32 span = mArmSpan * 0.5f;
+    LLVector3 opos2 = opos / span; //scale result for armspan.
+    
+    rrot = joint_state->getJoint()->getRotation();
+    LLVector3 reuler = rrot.getEulerAngles() * RAD_TO_DEG;
+    
+    
+    //Has joint ID, 1M scale, armscale.
+    LL_INFOS("Puppet") << " PostIK report: " << name << " (" <<
+        joint_id << ") 1M scale position: (" <<
+        opos.mV[0] << ", " << opos.mV[1] << ", " << opos.mV[2] <<
+        ")  armspan scale: " <<
+        opos2.mV[0] << ", " << opos2.mV[1] << ", " << opos2.mV[2] <<
+        ") parent relative Euler rotation (" <<
+        reuler.mV[0] << ", " << reuler.mV[1] << ", " << reuler.mV[2] << ")"
+        << LL_ENDL;
+
+    LLSD data;
+    data["joint_id"] = joint_id;
+    data["name"] = name;
+    data["position"] = LLSDMap();
+    data["position"]["one_meter"] = ll_sd_from_vector3(opos);
+    data["position"]["armspan"] = ll_sd_from_vector3(opos2);
+    data["rotation"] = ll_sd_from_quaternion(rrot);
+    if (request_id > -1)
+    {
+        data["reqid"] = request_id;
+    }
+
+    LLEventPumps::instance().obtain("JointReport").post(data);
+}
+
 void LLPuppetMotion::solveIKAndHarvestResults(const LLIK::Solver::joint_config_map_t& configs, Timestamp now)
 {
     // Note: this only ever called when mIsSelf is true and configs not empty
@@ -472,6 +525,10 @@ void LLPuppetMotion::applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::
             config.disableConstraint();
             something_changed = true;
         }
+        if (mask & LLIK::CONFIG_FLAG_ENABLE_REPORTING)
+        {
+            config.enableReporting(event.getRequestID()); //Don't care if something_changed
+        }
         if (something_changed)
         {
             configs[joint_id] = config;
@@ -483,6 +540,8 @@ void LLPuppetMotion::updateFromExpression(Timestamp now)
 {
     // Note: if we get here mIsSelf must be true
     LLIK::Solver::joint_config_map_t configs;
+    bool reporting = false;
+    
     for(const auto& event: mExpressionEvents)
     {
         S16 joint_id = event.getJointID();
@@ -520,6 +579,11 @@ void LLPuppetMotion::updateFromExpression(Timestamp now)
             }
             something_changed = true;
         }
+        if ((mask & LLIK::CONFIG_FLAG_ENABLE_REPORTING) && joint_id != 0)
+        {
+            reporting = true;
+   
+        }
         if (mask & LLIK::CONFIG_FLAG_DISABLE_CONSTRAINT)
         {
             config.disableConstraint();
@@ -538,11 +602,32 @@ void LLPuppetMotion::updateFromExpression(Timestamp now)
             }
         }
     }
-    mExpressionEvents.clear();
     if (!configs.empty())
     {
         solveIKAndHarvestResults(configs, now);
     }
+    
+    if (!LLPuppetModule::instance().getEcho() && reporting)
+    {
+        for(const auto& event: mExpressionEvents)
+        {
+            S16 joint_id = event.getJointID();
+            S32                   reqid     = event.getRequestID();
+            state_map_t::iterator state_iter = mJointStates.find(joint_id);
+            if (state_iter == mJointStates.end())
+            {
+                continue;
+            }
+            
+            U8 mask = event.getMask();
+            
+            if (mask & LLIK::CONFIG_FLAG_ENABLE_REPORTING && joint_id != 0)
+            {
+                reportRootRelativePosition(joint_id, reqid);
+            }
+        }
+    }
+    mExpressionEvents.clear();
 }
 
 void LLPuppetMotion::applyBroadcastEvent(const LLPuppetJointEvent& event, Timestamp now)

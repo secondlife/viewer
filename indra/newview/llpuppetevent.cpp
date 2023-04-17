@@ -207,6 +207,12 @@ void LLPuppetJointEvent::setJointID(S32 id)
     mJointID = (S16)(id);
 }
 
+void LLPuppetJointEvent::enableReporting(const S32 &reqid)
+{
+    mMask |= LLIK::CONFIG_FLAG_ENABLE_REPORTING;
+    mRequestID = reqid;
+}
+
 size_t LLPuppetJointEvent::getSize() const
 {
     constexpr U32 BYTES_PER_VEC_3(3 * sizeof(F32));

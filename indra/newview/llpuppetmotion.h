@@ -99,6 +99,7 @@ public:
 
     void setAvatar(LLVOAvatar* avatar);
     void clearAll();
+    void reportRootRelativePosition(const S16 joint_id, const S32 request_id);
 
 public:
     //-------------------------------------------------------------------------

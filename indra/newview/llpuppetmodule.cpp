@@ -95,7 +95,7 @@ void processGetRequest(const LLSD& data)
     }
 }
 
-void processJointData(const std::string& key, const LLSD& data)
+void processJointData(const std::string& key, const LLSD& data, S32 reqid=-1 )
 {
     LLVOAvatar* voa = static_cast<LLVOAvatar*>(gObjectList.findObject(gAgentID));
     if (!voa)
@@ -186,6 +186,7 @@ void processJointData(const std::string& key, const LLSD& data)
         {
             const LLSD& value = param_itr->second;
             std::string param_name = param_itr->first;
+
             constexpr S32 NUM_COMPONENTS = 3;
             if (value.isArray() && value.size() >= NUM_COMPONENTS)
             {
@@ -241,6 +242,11 @@ void processJointData(const std::string& key, const LLSD& data)
             {
                 joint_event.disableConstraint();
             }
+            else if (param_name == "r" || param_name ==
+                     "report" )
+            {
+                joint_event.enableReporting(reqid);  //Outputs rot/pos after solution.
+            }
         }
         if (!joint_event.isEmpty())
         {
@@ -279,6 +285,13 @@ void processSetRequest(const LLSD& data)
             return;
         }
     }
+
+    S32 reqid = -1;
+    if (data.has("reqid"))
+    {
+        reqid = data["reqid"].asInteger();
+    }
+    
     const LLSD& sd = data[data_key];
     if (!sd.isMap())
     {
@@ -304,7 +317,7 @@ void processSetRequest(const LLSD& data)
             LL_WARNS("Puppet") << "Joint data is not a map" << LL_ENDL;
             continue;
         }
-        processJointData(key, joint_data);
+        processJointData(key, joint_data, reqid);
     }
 }
 
@@ -343,13 +356,22 @@ LLPuppetModule::LLPuppetModule() :
         &processSetRequest);
 
     //This function defines viewer-internal API endpoints for this event handler.
-    mPlugin = LLEventPumps::instance().obtain("SkeletonUpdate").listen(
+    mSendSkeletonAPI = LLEventPumps::instance().obtain("SkeletonUpdate").listen(
                     "LLPuppetModule",
                     [](const LLSD& unused)
                     {
                         LLPuppetModule::instance().send_skeleton();
                         return false;
                     });
+    mSendReportAPI =
+        LLEventPumps::instance().obtain("JointReport").listen(
+                    "LLPuppetModule",
+                    [](const LLSD& sd)
+                    {
+                        LLPuppetModule::instance().send_report(sd);
+                        return false;
+                    });
+
 }
 
 
@@ -464,6 +486,11 @@ void LLPuppetModule::getCameraNumber_(const LLSD& request) const
 void LLPuppetModule::sendCameraNumber()
 {
     sendCommand("set_camera", llsd::map("camera_id", getCameraNumber()));
+}
+
+void LLPuppetModule::send_report(const LLSD& sd)
+{
+    sendCommand("joint_report", sd);
 }
 
 void LLPuppetModule::send_skeleton(const LLSD& sd)  //Named per nat's request
