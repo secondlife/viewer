@@ -256,7 +256,7 @@ public:
     std::string getCreatorName() { return mCreatorName;}
 
     std::string getItemName() {return mName;}
-    std::string getItemNameSuffix() {return mSuffix;}
+    std::string getItemNameSuffix() {return mPermSuffix + mWornSuffix;}
     bool isDefaultImage() {return mDefaultImage;}
     
     bool isHidden() {return mHidden;}
@@ -269,11 +269,12 @@ public:
     bool isFolder() { return mIsFolder; }
     bool isLink() { return mIsLink; }
     EInventorySortGroup getSortGroup() { return mSortGroup; }
+
+    void updateNameText();
     
 private:
     LLUUID mUUID;
     LLTextBox* mNameText;
-    LLTextBox* mSuffixText;
     LLPanel* mTextBgPanel;
     bool     mSelected;
     bool     mWorn;
@@ -289,7 +290,8 @@ private:
     EInventorySortGroup mSortGroup;
     LLAssetType::EType mType;
     std::string mName;
-    std::string mSuffix;
+    std::string mWornSuffix;
+    std::string mPermSuffix;
     LLInventoryGallery* mGallery;
 };
 

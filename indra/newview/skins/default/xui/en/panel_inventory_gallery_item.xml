@@ -13,8 +13,6 @@
    layout="topleft"
    left="0"
    top="0">
-  <string name="worn_string">(worn)</string>
-  <string name="active_string">(active)</string>
   <thumbnail
    name="preview_thumbnail"
    fallback_image="Thumbnail_Fallback"
@@ -62,28 +60,16 @@
       length="1"
       follows="left|top"
       left="1"
-      height="10"
+      height="23"
       layout="topleft"
       name="item_name"
       parse_urls="false"
       text_readonly_color="White"
+      word_wrap="true"
       top="2"
       width="127"
       use_ellipses="true">
       Item name, folder name.
-    </text>
-    <text
-      read_only="true"
-      length="1"
-      follows="left|top"
-      left="1"
-      height="10"
-      layout="topleft"
-      name="suffix_text"
-      text_readonly_color="InventoryItemLinkColor"
-      top="13"
-      width="127">
-      (worn)
     </text>
   </panel>
 </panel>

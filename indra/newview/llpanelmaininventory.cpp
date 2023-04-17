@@ -1640,6 +1640,10 @@ void LLPanelMainInventory::setSingleFolderViewRoot(const LLUUID& folder_id, bool
             mInventoryGalleryPanel->clearNavigationHistory();
         }
     }
+    else if(isCombinationViewMode())
+    {
+        mCombinationInventoryPanel->changeFolderRoot(folder_id);
+    }
     updateNavButtons();
 }
 

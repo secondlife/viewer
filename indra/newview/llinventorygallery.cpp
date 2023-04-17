@@ -1202,7 +1202,8 @@ LLInventoryGalleryItem::LLInventoryGalleryItem(const Params& p)
     mSelected(false),
     mDefaultImage(true),
     mName(""),
-    mSuffix(""),
+    mWornSuffix(""),
+    mPermSuffix(""),
     mUUID(LLUUID()),
     mIsFolder(true),
     mIsLink(false),
@@ -1221,7 +1222,6 @@ LLInventoryGalleryItem::~LLInventoryGalleryItem()
 BOOL LLInventoryGalleryItem::postBuild()
 {
     mNameText = getChild<LLTextBox>("item_name");
-    mSuffixText = getChild<LLTextBox>("suffix_text");
     mTextBgPanel = getChild<LLPanel>("text_bg_panel");
 
     return TRUE;
@@ -1262,6 +1262,32 @@ void LLInventoryGalleryItem::setType(LLAssetType::EType type, LLInventoryType::E
             }
         }
     }
+    else
+    {
+        const LLInventoryItem *item = gInventory.getItem(mUUID);
+        if(item && (LLAssetType::AT_CALLINGCARD != item->getType()) && !mIsLink)
+        {
+            std::string delim(" --");
+            bool copy = item->getPermissions().allowCopyBy(gAgent.getID());
+            if (!copy)
+            {
+                mPermSuffix += delim;
+                mPermSuffix += LLTrans::getString("no_copy_lbl");
+            }
+            bool mod = item->getPermissions().allowModifyBy(gAgent.getID());
+            if (!mod)
+            {
+                mPermSuffix += mPermSuffix.empty() ? delim : ",";
+                mPermSuffix += LLTrans::getString("no_modify_lbl");
+            }
+            bool xfer = item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
+            if (!xfer)
+            {
+                mPermSuffix += mPermSuffix.empty() ? delim : ",";
+                mPermSuffix += LLTrans::getString("no_transfer_lbl");
+            }
+        }
+    }
 
     getChild<LLIconCtrl>("item_type")->setValue(icon_name);
     getChild<LLIconCtrl>("link_overlay")->setVisible(is_link);
@@ -1294,9 +1320,7 @@ void LLInventoryGalleryItem::draw()
 void LLInventoryGalleryItem::setName(std::string name)
 {
     mName = name;
-    mNameText->setFont(getTextFont());
-    mNameText->setText(name);
-    mNameText->setToolTip(name);
+    updateNameText();
 }
 
 void LLInventoryGalleryItem::setSelected(bool value)
@@ -1401,16 +1425,14 @@ void LLInventoryGalleryItem::setWorn(bool value)
 
     if(mWorn)
     {
-        mSuffix = (mType == LLAssetType::AT_GESTURE) ? getString("active_string") : getString("worn_string");
+        mWornSuffix = (mType == LLAssetType::AT_GESTURE) ? LLTrans::getString("active") : LLTrans::getString("worn");
     }
     else
     {
-        mSuffix = "";
+        mWornSuffix = "";
     }
-    mSuffixText->setValue(mSuffix);
 
-    mNameText->setFont(getTextFont());
-    mNameText->setText(mName); // refresh to pick up font changes
+    updateNameText();
 }
 
 LLFontGL* LLInventoryGalleryItem::getTextFont()
@@ -1420,6 +1442,14 @@ LLFontGL* LLInventoryGalleryItem::getTextFont()
         return LLFontGL::getFontSansSerifSmallBold();
     }
     return mIsLink ? LLFontGL::getFontSansSerifSmallItalic() : LLFontGL::getFontSansSerifSmall();
+}
+
+void LLInventoryGalleryItem::updateNameText()
+{
+    mNameText->setFont(getTextFont());
+    mNameText->setText(mName + mPermSuffix + mWornSuffix);
+    mNameText->setToolTip(mName + mPermSuffix + mWornSuffix);
+    getChild<LLThumbnailCtrl>("preview_thumbnail")->setToolTip(mName + mPermSuffix + mWornSuffix);
 }
 
 //-----------------------------

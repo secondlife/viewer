@@ -918,7 +918,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 
 	addDeleteContextMenuOptions(items, disabled_items);
 
-	if (!isPanelActive("All Items") && !isPanelActive("single_folder_inv"))
+	if (!isPanelActive("All Items") && !isPanelActive("single_folder_inv") && !isPanelActive("comb_single_folder_inv"))
 	{
 		items.push_back(std::string("Show in Main Panel"));
 	}
