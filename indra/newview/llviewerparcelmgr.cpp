@@ -74,14 +74,14 @@
 
 const F32 PARCEL_BAN_LINES_DRAW_SECS_ON_COLLISION = 10.f;
 const F32 PARCEL_COLLISION_DRAW_SECS_ON_PROXIMITY = 1.f;
-const S32 PARCEL_BAN_LINES_HIDE = 0;
-const S32 PARCEL_BAN_LINES_ON_COLLISION = 1;
-const S32 PARCEL_BAN_LINES_ON_PROXIMITY = 2;
 
 
 // Globals
 
 U8* LLViewerParcelMgr::sPackedOverlay = NULL;
+S32 LLViewerParcelMgr::PARCEL_BAN_LINES_HIDE = 0;
+S32 LLViewerParcelMgr::PARCEL_BAN_LINES_ON_COLLISION = 1;
+S32 LLViewerParcelMgr::PARCEL_BAN_LINES_ON_PROXIMITY = 2;
 
 LLUUID gCurrentMovieID = LLUUID::null;
 
@@ -896,7 +896,7 @@ void LLViewerParcelMgr::render()
 
 void LLViewerParcelMgr::renderParcelCollision()
 {
-    static LLCachedControl<S32> ban_lines_mode(gSavedSettings , "ShowBanLines" , PARCEL_BAN_LINES_DRAW_SECS_ON_COLLISION);
+    static LLCachedControl<S32> ban_lines_mode(gSavedSettings , "ShowBanLines" , PARCEL_BAN_LINES_ON_COLLISION);
 
 	// check for expiration
     F32 expiration = (ban_lines_mode == PARCEL_BAN_LINES_ON_PROXIMITY)
@@ -1851,7 +1851,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 			 sequence_id == COLLISION_BANNED_PARCEL_SEQ_ID)
 	{
 		// We're about to collide with this parcel
-        static LLCachedControl<S32> ban_lines_mode(gSavedSettings , "ShowBanLines" , PARCEL_BAN_LINES_DRAW_SECS_ON_COLLISION);
+        static LLCachedControl<S32> ban_lines_mode(gSavedSettings , "ShowBanLines" , PARCEL_BAN_LINES_ON_COLLISION);
         if (ban_lines_mode == PARCEL_BAN_LINES_ON_PROXIMITY)
         {
             parcel_mgr.resetCollisionTimer();
