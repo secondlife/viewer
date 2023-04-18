@@ -162,49 +162,43 @@ public:
 
 
         LLSD message;
-
-        sparam_t::const_iterator it = strings.begin();
-        if (it != strings.end())
+        bool success = true;
+        for(const std::string& llsdRaw : strings)
         {
-            const std::string& llsdRaw = *it++;
             std::istringstream llsdData(llsdRaw);
             if (!LLSDSerialize::deserialize(message, llsdData, llsdRaw.length()))
             {
                 LL_WARNS() << "LLGLTFMaterialOverrideDispatchHandler: Attempted to read parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
+                success = false;
+                continue;
             }
-        }
-        else
-        {
-            // malformed message, nothing we can do to handle it
-            LL_DEBUGS("GLTF") << "Empty message" << LL_ENDL;
-            return false;
-        }
 
-        LLGLTFOverrideCacheEntry object_override;
-        if (!object_override.fromLLSD(message))
-        {
-            // malformed message, nothing we can do to handle it
-            LL_DEBUGS("GLTF") << "Message without id:" << message << LL_ENDL;
-            return false;
-        }
-
-        // Cache the data
-        {
-            LL_DEBUGS("GLTF") << "material overrides cache" << LL_ENDL;
-
-            LLViewerRegion * region = LLWorld::instance().getRegionFromHandle(object_override.mRegionHandle);
-
-            if (region)
+            LLGLTFOverrideCacheEntry object_override;
+            if (!object_override.fromLLSD(message))
             {
-                region->cacheFullUpdateGLTFOverride(object_override);
+                // malformed message, nothing we can do to handle it
+                LL_DEBUGS("GLTF") << "Message without id:" << message << LL_ENDL;
+                success = false;
+                continue;
             }
-            else
+
+            // Cache the data
             {
-                LL_WARNS("GLTF") << "could not access region for material overrides message cache, region_handle: " << LL_ENDL;
+                LLViewerRegion * region = LLWorld::instance().getRegionFromHandle(object_override.mRegionHandle);
+
+                if (region)
+                {
+                    region->cacheFullUpdateGLTFOverride(object_override);
+                }
+                else
+                {
+                    LL_WARNS("GLTF") << "could not access region for material overrides message cache, region_handle: " << LL_ENDL;
+                }
             }
+            applyData(object_override);
         }
-        applyData(object_override);
-        return true;
+
+        return success;
     }
 
     void doSelectionCallbacks(const LLUUID& object_id, S32 side)
