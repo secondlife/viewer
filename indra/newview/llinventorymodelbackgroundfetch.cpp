@@ -486,6 +486,7 @@ void LLInventoryModelBackgroundFetch::onAISFolderCalback(const LLUUID &request_i
         return;
     }
 
+    bool request_descendants = false;
     if (response_id.isNull()) // Failure
     {
         LL_DEBUGS(LOG_INV , "AIS3") << "Failure response for folder " << request_id << LL_ENDL;
@@ -501,36 +502,37 @@ void LLInventoryModelBackgroundFetch::onAISFolderCalback(const LLUUID &request_i
         else if (recursion == FT_CONTENT_RECURSIVE)
         {
             LL_WARNS() << "Failed to download folder: " << request_id << " Requesting known content separately" << LL_ENDL;
-            LLInventoryModel::cat_array_t  *categories(NULL);
-            LLInventoryModel::item_array_t *items(NULL);
-            gInventory.getDirectDescendentsOf(request_id, categories, items);
-            if (categories)
-            {
-                for (LLInventoryModel::cat_array_t::const_iterator it = categories->begin(); it != categories->end(); ++it)
-                {
-                    mFetchFolderQueue.push_front(FetchQueueInfo((*it)->getUUID(), FT_RECURSIVE));
-                }
-                if (!mFetchFolderQueue.empty())
-                {
-                    mBackgroundFetchActive = true;
-                    mFolderFetchActive     = true;
-                    gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
-                }
-            }
+            request_descendants = true;
         }
     }
     else
     {
-        LL_DEBUGS(LOG_INV , "AIS3") << "Got folder " << request_id << LL_ENDL;
-        if (recursion == FT_CONTENT_RECURSIVE)
+        if (recursion == FT_CONTENT_RECURSIVE || recursion == FT_RECURSIVE)
         {
             // Got the folder, now recursively request content
-            LLInventoryModel::cat_array_t * categories(NULL);
-            LLInventoryModel::item_array_t * items(NULL);
-            gInventory.getDirectDescendentsOf(request_id, categories, items);
+            // Request content even for FT_RECURSIVE in case of changes, failures
+            // or if depth limit gets imlemented.
+            // This shouldn't redownload folders if they already have version
+            request_descendants = true;
+            LL_DEBUGS(LOG_INV, "AIS3") << "Got folder " << request_id << ". Requesting content" << LL_ENDL;
+        }
+        else
+        {
+            LL_DEBUGS(LOG_INV, "AIS3") << "Got folder " << request_id << "." << LL_ENDL;
+        }
+
+    }
+
+    if (request_descendants)
+    {
+        LLInventoryModel::cat_array_t* categories(NULL);
+        LLInventoryModel::item_array_t* items(NULL);
+        gInventory.getDirectDescendentsOf(request_id, categories, items);
+        if (categories)
+        {
             for (LLInventoryModel::cat_array_t::const_iterator it = categories->begin();
-                it != categories->end();
-                ++it)
+                 it != categories->end();
+                 ++it)
             {
                 mFetchFolderQueue.push_front(FetchQueueInfo((*it)->getUUID(), FT_RECURSIVE));
             }
