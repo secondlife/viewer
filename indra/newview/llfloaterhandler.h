@@ -33,7 +33,7 @@ class LLFloaterHandler
 {
 public:
 	LLFloaterHandler() : LLCommandHandler("floater", UNTRUSTED_BLOCK) { }
-	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web);
+	bool handle(const LLSD& params, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web);
 };
 
 #endif
