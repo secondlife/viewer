@@ -1509,14 +1509,24 @@ BOOL LLFloater::isFrontmost()
 				&& floater_view->getFrontmost() == this);
 }
 
-void LLFloater::addDependentFloater(LLFloater* floaterp, BOOL reposition)
+void LLFloater::addDependentFloater(LLFloater* floaterp, BOOL reposition, BOOL resize)
 {
 	mDependents.insert(floaterp->getHandle());
 	floaterp->mDependeeHandle = getHandle();
 
 	if (reposition)
 	{
-		floaterp->setRect(gFloaterView->findNeighboringPosition(this, floaterp));
+		LLRect rect = gFloaterView->findNeighboringPosition(this, floaterp);
+		if (resize)
+		{
+			const LLRect& base = getRect();
+			if (rect.mTop == base.mTop)
+				rect.mBottom = base.mBottom;
+			else if (rect.mLeft == base.mLeft)
+				rect.mRight = base.mRight;
+			floaterp->reshape(rect.getWidth(), rect.getHeight(), FALSE);
+		}
+		floaterp->setRect(rect);
 		floaterp->setSnapTarget(getHandle());
 	}
 	gFloaterView->adjustToFitScreen(floaterp, FALSE, TRUE);
@@ -1527,12 +1537,12 @@ void LLFloater::addDependentFloater(LLFloater* floaterp, BOOL reposition)
 	}
 }
 
-void LLFloater::addDependentFloater(LLHandle<LLFloater> dependent, BOOL reposition)
+void LLFloater::addDependentFloater(LLHandle<LLFloater> dependent, BOOL reposition, BOOL resize)
 {
 	LLFloater* dependent_floaterp = dependent.get();
 	if(dependent_floaterp)
 	{
-		addDependentFloater(dependent_floaterp, reposition);
+		addDependentFloater(dependent_floaterp, reposition, resize);
 	}
 }
 

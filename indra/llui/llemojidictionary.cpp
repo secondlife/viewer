@@ -175,6 +175,12 @@ LLWString LLEmojiDictionary::findMatchingEmojis(const std::string& needle) const
 	return result;
 }
 
+const LLEmojiDescriptor* LLEmojiDictionary::getDescriptorFromEmoji(llwchar emoji) const
+{
+	const auto it = mEmoji2Descr.find(emoji);
+	return (mEmoji2Descr.end() != it) ? it->second : nullptr;
+}
+
 const LLEmojiDescriptor* LLEmojiDictionary::getDescriptorFromShortCode(const std::string& short_code) const
 {
 	const auto it = mShortCode2Descr.find(short_code);
@@ -194,6 +200,10 @@ void LLEmojiDictionary::addEmoji(LLEmojiDescriptor&& descr)
 	for (const std::string& shortCode : descr.ShortCodes)
 	{
 		mShortCode2Descr.insert(std::make_pair(shortCode, &mEmojis.back()));
+	}
+	for (const std::string& category : descr.Categories)
+	{
+		mCategory2Descrs[category].push_back(&mEmojis.back());
 	}
 }
 

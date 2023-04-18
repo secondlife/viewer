@@ -1,39 +1,64 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
-  name="emojipicker"
-  title="CHOOSE EMOJI"
-  help_topic="emojipicker"
-  positioning="cascading"
-  legacy_header_height="10"
-  can_resize="false"
-  layout="topleft"
-  height="419"
-  width="200">
-    <panel
-      label="Emojis"
-      name="EmojiPanel"
-      help_topic="emojipicker"
+    name="emojipicker"
+    title="CHOOSE EMOJI"
+    help_topic="emojipicker"
+    positioning="cascading"
+    legacy_header_height="0"
+    can_resize="true"
+    layout="topleft"
+    height="400"
+    width="200">
+  <line_editor
+      name="Search"
+      layout="bottomleft"
+      follows="bottom|left|right"
+      text_tentative_color="TextFgTentativeColor"
+      max_length_bytes="63"
+      left_pad="5"
+	  bottom="14"
+	  left="34"
+      height="29"
+      width="162" />
+  <button
+	  name="PreviewEmoji"
+      layout="bottomleft"
+      follows="bottom|left"
+	  font="EmojiHuge"
+	  use_font_color="true"
+	  bottom="14"
+	  left="0"
+	  height="29"
+	  width="29" />
+  <scroll_list
+      name="Emojis"
       layout="topleft"
-      top="4"
-      left="2"
-      height="410"
-      width="196">
-      <scroll_list
-        draw_heading="true"
-        heading_height="28"
-        follows="all"
-        layout="topleft"
-        name="Emojis"
-        sort_column="0"
-		height="410">
-        <columns
-          label="Look"
-          name="look"
-          width="40" />
-		<columns
-          label="Name"
-          name="name"
-          width="150" />
-	  </scroll_list>
-    </panel>
+      follows="all"
+      sort_column="0"
+	  max_chars="63"
+	  commit_on_selection_change="true"
+      draw_heading="true"
+      heading_height="25"
+	  row_padding="0"
+	  top="25"
+	  height="330"
+	  width="200">
+    <columns
+        label="Look"
+        name="look"
+        width="40" />
+	<columns
+        label="Name"
+        name="name" />
+  </scroll_list>
+  <combo_box
+      name="Category"
+      layout="topleft"
+      follows="top|left|right"
+	  allow_text_entry="true"
+      left_pad="4"
+	  top="0"
+	  left="4"
+      height="27"
+      width="192" />
 </floater>
