@@ -11,7 +11,7 @@ jobs:
   build:
     strategy:
       matrix:
-        runner: [windows-large]
+        runner: [windows-large, macos-12]
         configuration: [ReleaseOS]
         addrsize: [64]
         include:
