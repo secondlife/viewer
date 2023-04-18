@@ -728,7 +728,7 @@ void LLInventoryGallery::updateAddedItem(LLUUID item_id)
     LLInventoryGalleryItem* item = buildGalleryItem(name, item_id, obj->getType(), thumbnail_id, inventory_type, misc_flags, obj->getIsLinkType(), is_worn);
     mItemMap.insert(LLInventoryGallery::gallery_item_map_t::value_type(item_id, item));
     item->setRightMouseDownCallback(boost::bind(&LLInventoryGallery::showContextMenu, this, _1, _2, _3, item_id));
-    item->setFocusReceivedCallback(boost::bind(&LLInventoryGallery::changeItemSelection, this, item_id));
+    item->setFocusReceivedCallback(boost::bind(&LLInventoryGallery::changeItemSelection, this, item_id, false));
     if (mGalleryCreated)
     {
         applyFilter(item, mFilterSubString);
@@ -816,21 +816,60 @@ void LLInventoryGallery::showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLU
     }
 }
 
-void LLInventoryGallery::changeItemSelection(const LLUUID& item_id)
+void LLInventoryGallery::changeItemSelection(const LLUUID& item_id, bool scroll_to_selection)
 {
-    if ((mItemMap.count(item_id) == 0) || (mSelectedItemID == item_id))
+    if ((mItemMap.count(item_id) == 0))
+    {
+        mItemToSelect = item_id;
         return;
+    }
+    if (mSelectedItemID != item_id)
+    {
+        
+        if (mItemMap[mSelectedItemID])
+        {
+            mItemMap[mSelectedItemID]->setSelected(FALSE);
+        }
+        if (mItemMap[item_id])
+        {
+            mItemMap[item_id]->setSelected(TRUE);
+        }
+        mSelectedItemID = item_id;
+        signalSelectionItemID(item_id);
 
-    if (mItemMap[mSelectedItemID])
-    {
-        mItemMap[mSelectedItemID]->setSelected(FALSE);
+        mItemToSelect = LLUUID::null;
+        if(scroll_to_selection)
+        {
+            scrollToShowItem(mSelectedItemID);
+        }
     }
-    if (mItemMap[item_id])
+}
+
+void LLInventoryGallery::scrollToShowItem(const LLUUID& item_id)
+{
+    LLInventoryGalleryItem* item = mItemMap[item_id];
+    if(item)
     {
-        mItemMap[item_id]->setSelected(TRUE);
+        const LLRect visible_content_rect = mScrollPanel->getVisibleContentRect();
+
+        LLRect item_rect;
+        item->localRectToOtherView(item->getLocalRect(), &item_rect, this);
+        LLRect overlap_rect(item_rect);
+        overlap_rect.intersectWith(visible_content_rect);
+
+        //Scroll when the selected item is outside the visible area
+        if (overlap_rect.getHeight() + 5 < item->getRect().getHeight())
+        {
+            LLRect content_rect = mScrollPanel->getContentWindowRect();
+            LLRect constraint_rect;
+            constraint_rect.setOriginAndSize(0, 0, content_rect.getWidth(), content_rect.getHeight());
+
+            LLRect item_doc_rect;
+            item->localRectToOtherView(item->getLocalRect(), &item_doc_rect, this);
+
+            mScrollPanel->scrollToShowRect( item_doc_rect, constraint_rect );
+        }
     }
-    mSelectedItemID = item_id;
-    signalSelectionItemID(item_id);
 }
 
 void LLInventoryGallery::updateMessageVisibility()
@@ -885,6 +924,11 @@ void LLInventoryGallery::refreshList(const LLUUID& category_id)
         }
 
         updateChangedItemName(*items_iter, obj->getName());
+    }
+
+    if(mItemToSelect.notNull())
+    {
+        changeItemSelection(mItemToSelect, true);
     }
     updateMessageVisibility();
 }

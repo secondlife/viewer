@@ -1727,7 +1727,7 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge,
     menu_create_inventory_item(panel, bridge ? bridge->getUUID() : LLUUID::null, userdata, default_parent_uuid);
 }
 
-void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const LLSD& userdata, const LLUUID& default_parent_uuid)
+void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const LLSD& userdata, const LLUUID& default_parent_uuid, std::function<void(const LLUUID&)> folder_created_cb)
 {
     std::string type_name = userdata.asString();
     
@@ -1762,6 +1762,10 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const L
                     panel->setSelectionByID(new_category_id, TRUE);
                 }
             };
+        }
+        else if(folder_created_cb != NULL)
+        {
+            callback_cat_created = folder_created_cb;
         }
         gInventory.createNewCategory(
             parent_id,

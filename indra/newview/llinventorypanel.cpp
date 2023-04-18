@@ -1801,7 +1801,7 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
     {
         LLSidepanelInventory *inventory_panel = inventory_floater->findChild<LLSidepanelInventory>("main_panel");
         LLPanelMainInventory* main_panel = inventory_panel->getMainInventoryPanel();
-        if(main_panel->isSingleFolderMode() && (main_panel->isGalleryViewMode() || main_panel->isCombinationViewMode()))
+        if(main_panel->isSingleFolderMode() && main_panel->isGalleryViewMode())
         {
             main_panel->setGallerySelection(obj_id);
             return;

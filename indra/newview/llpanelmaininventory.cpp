@@ -497,7 +497,7 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
 	reset_inventory_filter();
     if(mSingleFolderMode)
     {
-        if(isListViewMode())
+        if(isListViewMode() || isCombinationViewMode())
         {
             LLFolderViewItem* current_folder = getActivePanel()->getRootFolder();
             if (current_folder)
@@ -508,7 +508,12 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
         }
         else
         {
-            menu_create_inventory_item(NULL, getCurrentSFVRoot(), userdata);
+            std::function<void(const LLUUID&)> callback_cat_created = [this](const LLUUID &new_category_id)
+            {
+                gInventory.notifyObservers();
+                setGallerySelection(new_category_id);
+            };
+            menu_create_inventory_item(NULL, getCurrentSFVRoot(), userdata, LLUUID::null, callback_cat_created);
         }
     }
     else
@@ -2350,13 +2355,13 @@ void LLPanelMainInventory::setGallerySelection(const LLUUID& item_id)
 {
     if(mSingleFolderMode && isGalleryViewMode())
     {
-        mInventoryGalleryPanel->changeItemSelection(item_id);
+        mInventoryGalleryPanel->changeItemSelection(item_id, true);
     }
     else if(mSingleFolderMode && isCombinationViewMode())
     {
         if(mCombinationGalleryPanel->getFilter().checkAgainstFilterThumbnails(item_id))
         {
-            mCombinationGalleryPanel->changeItemSelection(item_id);
+            mCombinationGalleryPanel->changeItemSelection(item_id, true);
         }
         else
         {

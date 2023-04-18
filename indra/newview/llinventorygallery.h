@@ -116,7 +116,8 @@ public:
     void computeDifference(const LLInventoryModel::cat_array_t vcats, const LLInventoryModel::item_array_t vitems, uuid_vec_t& vadded, uuid_vec_t& vremoved);
 
     void deselectItem(const LLUUID& category_id);
-    void changeItemSelection(const LLUUID& item_id);
+    void changeItemSelection(const LLUUID& item_id, bool scroll_to_selection = false);
+    void scrollToShowItem(const LLUUID& item_id);
     void signalSelectionItemID(const LLUUID& category_id);
     boost::signals2::connection setSelectionChangeCallback(selection_change_callback_t cb);
     LLUUID getSelectedItemID() { return mSelectedItemID; }
@@ -138,6 +139,7 @@ protected:
     LLThumbnailsObserver*              mThumbnailsObserver;
     LLGalleryGestureObserver*          mGestureObserver;
     LLUUID                             mSelectedItemID;
+    LLUUID                             mItemToSelect;
     bool                               mIsInitialized;
 
     selection_change_signal_t        mSelectionChangeSignal;
