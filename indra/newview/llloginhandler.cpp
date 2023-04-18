@@ -87,6 +87,7 @@ void LLLoginHandler::parse(const LLSD& queryMap)
 
 bool LLLoginHandler::handle(const LLSD& tokens,
 							const LLSD& query_map,
+							const std::string& grid,
 							LLMediaCtrl* web)
 {
 	// do nothing if we are already logged in

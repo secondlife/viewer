@@ -131,8 +131,8 @@ class LLRegionHandler : public LLCommandHandler
 public:
     // requests will be throttled from a non-trusted browser
     LLRegionHandler() : LLCommandHandler("region", UNTRUSTED_THROTTLE) {}
-       
-    bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+
+    bool handle(const LLSD& params, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web)
     {
         // make sure that we at least have a region name
         int num_params = params.size();
@@ -143,6 +143,10 @@ public:
            
         // build a secondlife://{PLACE} SLurl from this SLapp
         std::string url = "secondlife://";
+        if (!grid.empty())
+        {
+            url += grid + "/secondlife/";
+        }
 		boost::regex name_rx("[A-Za-z0-9()_%]+");
 		boost::regex coord_rx("[0-9]+");
         for (int i = 0; i < num_params; i++)
