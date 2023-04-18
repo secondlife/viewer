@@ -526,7 +526,7 @@ void translateSuccess(const LLUUID& session_id, const std::string& from, const L
         && ((detected_language.empty()) || (expectLang != detected_language))
         && (LLStringUtil::compareInsensitive(translation, originalMsg) != 0))
     {   // Note - if this format changes, also fix code in addMessagesFromServerHistory()
-        message_txt += XL8_START_TAG + LLTranslate::removeNoTranslateTags(translation) + XL8_END_TAG;
+		message_txt += stringize(XL8_START_TAG, LLTranslate::removeNoTranslateTags(translation), XL8_END_TAG);
     }
 
     // Extract info packed in time_n_flags

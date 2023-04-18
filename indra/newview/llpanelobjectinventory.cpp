@@ -1429,11 +1429,9 @@ void LLPanelObjectInventory::updateInventory()
 		selected_items = mFolders->getSelectionList();
 		inventory_has_focus = gFocusMgr.childHasKeyboardFocus(mFolders);
 	}
-	for (std::set<LLFolderViewItem*>::iterator it = selected_items.begin(), end_it = selected_items.end();
-		it != end_it;
-		++it)
+	for (auto& item : selected_items)
 	{
-		selected_item_ids.push_back(static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID());
+		selected_item_ids.push_back(static_cast<LLFolderViewModelItemInventory*>((item)->getViewModelItem())->getUUID());
 	}
 
 	LLViewerObject* objectp = gObjectList.findObject(mTaskUUID);

@@ -2687,11 +2687,9 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     }
     else
     {
-        for (std::set<LLFolderViewItem*>::iterator it = selected_items.begin(), end_it = selected_items.end();
-            it != end_it;
-            ++it)
+        for (auto& item : selected_items)
         {
-            ids.push_back(static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID());
+            ids.push_back(static_cast<LLFolderViewModelItemInventory*>((item)->getViewModelItem())->getUUID());
         }
     }
 

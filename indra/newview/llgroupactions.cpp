@@ -71,11 +71,7 @@ public:
         }
 
         const std::string verb = params[0].asString();
-        if (verb == "create")
-        {
-            return false;
-        }
-        return true;
+		return (verb != "create");
     }
 
 	bool handle(const LLSD& tokens,

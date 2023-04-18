@@ -2,7 +2,7 @@
  * @file llfloatersettingsdebug.cpp
  * @brief floater for debugging internal viewer settings
  *
- * $LicenseInfo:firstyear=2022&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2022, Linden Research, Inc.
  * 
