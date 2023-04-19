@@ -231,6 +231,8 @@ private:
 	LLHandle<LLView>			mMenuAddHandle;
 
 	bool						mNeedUploadCost;
+
+    bool                        mForceShowInvLayout;
 	// List Commands                                                              //
 	////////////////////////////////////////////////////////////////////////////////
 };

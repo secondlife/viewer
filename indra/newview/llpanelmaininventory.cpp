@@ -118,6 +118,7 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 	  mNeedUploadCost(true),
       mMenuViewDefault(NULL),
       mSingleFolderMode(false),
+      mForceShowInvLayout(false),
       mViewMode(MODE_LIST),
       mListViewRootUpdatedConnection(),
       mGalleryRootUpdatedConnection()
@@ -502,6 +503,13 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
             LLFolderViewItem* current_folder = getActivePanel()->getRootFolder();
             if (current_folder)
             {
+                if(isCombinationViewMode())
+                {
+                    //show layout and inventory panel before adding the item
+                    //to avoid wrong position of the 'renamer'
+                    mForceShowInvLayout = true;
+                }
+
                 LLFolderBridge* bridge = (LLFolderBridge*)current_folder->getViewModelItem();
                 menu_create_inventory_item(getPanel(), bridge, userdata);
             }
@@ -2198,7 +2206,7 @@ void LLPanelMainInventory::onCombinationRootChanged(bool gallery_clicked)
     {
         mCombinationGalleryPanel->setRootFolder(mCombinationInventoryPanel->getSingleFolderRoot());
     }
-
+    mForceShowInvLayout = false;
     updateTitle();
 }
 
@@ -2207,11 +2215,14 @@ void LLPanelMainInventory::updateCombinationVisibility()
     if(mSingleFolderMode && isCombinationViewMode())
     {
         bool is_gallery_empty = !mCombinationGalleryPanel->hasVisibleItems();
-        bool show_inv_pane = mCombinationInventoryPanel->hasVisibleItems() || is_gallery_empty;
+        bool show_inv_pane = mCombinationInventoryPanel->hasVisibleItems() || is_gallery_empty || mForceShowInvLayout;
         getChild<LLLayoutPanel>("comb_gallery_layout")->setVisible(!is_gallery_empty);
         getChild<LLLayoutPanel>("comb_inventory_layout")->setVisible(show_inv_pane);
         mCombinationInventoryPanel->getRootFolder()->setForceArrange(!show_inv_pane);
-
+        if(mCombinationInventoryPanel->hasVisibleItems())
+        {
+            mForceShowInvLayout = false;
+        }
         if(is_gallery_empty)
         {
             mCombinationGalleryPanel->handleModifiedFilter();
