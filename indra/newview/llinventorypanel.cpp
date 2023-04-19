@@ -2080,6 +2080,7 @@ LLInventorySingleFolderPanel::LLInventorySingleFolderPanel(const Params& params)
     getFilter().setDefaultEmptyLookupMessage("InventorySingleFolderEmpty");
 
     mCommitCallbackRegistrar.add("Inventory.OpenSelectedFolder", boost::bind(&LLInventorySingleFolderPanel::openInCurrentWindow, this, _2));
+    mCommitCallbackRegistrar.replace("Inventory.DoCreate", boost::bind(&LLInventorySingleFolderPanel::doCreate, this, _2));
 }
 
 LLInventorySingleFolderPanel::~LLInventorySingleFolderPanel()
@@ -2224,6 +2225,18 @@ void LLInventorySingleFolderPanel::updateSingleFolderRoot()
 bool LLInventorySingleFolderPanel::hasVisibleItems()
 {
     return mFolderRoot.get()->hasVisibleChildren();
+}
+
+void LLInventorySingleFolderPanel::doCreate(const LLSD& userdata)
+{
+    std::string type_name = userdata.asString();
+    LLUUID dest_id = LLFolderBridge::sSelf.get()->getUUID();
+    if (("category" == type_name) || ("outfit" == type_name))
+    {
+        changeFolderRoot(dest_id);
+    }
+    reset_inventory_filter();
+    menu_create_inventory_item(this, dest_id, userdata);
 }
 /************************************************************************/
 /* Asset Pre-Filtered Inventory Panel related class                     */

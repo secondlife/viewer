@@ -402,6 +402,8 @@ public:
     void clearNavigationHistory();
     LLUUID getSingleFolderRoot() { return mFolderID; }
 
+    void doCreate(const LLSD& userdata);
+
     bool isBackwardAvailable();
     bool isForwardAvailable();
 
