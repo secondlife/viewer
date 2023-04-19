@@ -1081,21 +1081,27 @@ void LLFace::updateRebuildFlags()
 
 bool LLFace::canRenderAsMask()
 {
-	if (LLPipeline::sNoAlpha)
+	const LLTextureEntry* te = getTextureEntry();
+	if( !te || !getViewerObject() || !getTexture() )
 	{
-		return true;
+		return false;
 	}
+
+    if (te->getGLTFRenderMaterial())
+    {
+        return false;
+    }
+
+    if (LLPipeline::sNoAlpha)
+    {
+        return true;
+    }
 
     if (isState(LLFace::RIGGED))
     { // never auto alpha-mask rigged faces
         return false;
     }
 
-	const LLTextureEntry* te = getTextureEntry();
-	if( !te || !getViewerObject() || !getTexture() )
-	{
-		return false;
-	}
 	
 	LLMaterial* mat = te->getMaterialParams();
 	if (mat && mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND)
