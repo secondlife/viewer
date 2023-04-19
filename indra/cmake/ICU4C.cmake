@@ -1,22 +1,23 @@
 # -*- cmake -*-
 include(Prebuilt)
 
-set(ICU4C_FIND_QUIETLY ON)
-set(ICU4C_FIND_REQUIRED ON)
+include_guard()
 
-if (USESYSTEMLIBS)
-  include(FindICU4C)
-else (USESYSTEMLIBS)
-  use_prebuilt_binary(icu4c)
-  if (WINDOWS)
-    set(ICU4C_LIBRARY icuuc)
-  elseif(DARWIN)
-    set(ICU4C_LIBRARY icuuc)
-  #elseif(LINUX)
-  #  set(ICU4C_LIBRARY ...)
-  else()
-    message(FATAL_ERROR "Invalid platform")
-  endif()
-  set(ICU4C_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/unicode)
-  use_prebuilt_binary(dictionaries)
-endif (USESYSTEMLIBS)
+add_library( ll::icu4c INTERFACE IMPORTED )
+
+
+use_system_binary(icu4c)
+use_prebuilt_binary(icu4c)
+if (WINDOWS)
+  target_link_libraries( ll::icu4c INTERFACE  icuuc)
+elseif(DARWIN)
+  target_link_libraries( ll::icu4c INTERFACE  icuuc)
+#elseif(LINUX)
+##  target_link_libraries( ll::icu4c INTERFACE  )
+else()
+  message(FATAL_ERROR "Invalid platform")
+endif()
+
+target_include_directories( ll::icu4c SYSTEM INTERFACE  ${LIBS_PREBUILT_DIR}/include/unicode )
+
+use_prebuilt_binary(dictionaries)

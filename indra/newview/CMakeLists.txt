@@ -1899,7 +1899,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
         ll::tracy
-         ${ICU4C_LIBRARY}
+        ll::icu4u
         )
 
 if( TARGET ll::intel_memops )
