@@ -325,7 +325,7 @@
                     Reflection Probe Ambiance:
                   </text>
                   <slider
-                          decimal_digits="3"
+                          decimal_digits="2"
                           follows="left|top"
                           height="16"
                           increment="0.01"
