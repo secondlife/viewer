@@ -173,6 +173,8 @@ void LLReflectionMapManager::update()
     bool did_update = false;
     
     static LLCachedControl<S32> sDetail(gSavedSettings, "RenderReflectionProbeDetail", -1);
+    static LLCachedControl<S32> sLevel(gSavedSettings, "RenderReflectionProbeLevel", 3);
+
     bool realtime = sDetail >= (S32)LLReflectionMapManager::DetailLevel::REALTIME;
     
     LLReflectionMap* closestDynamic = nullptr;
@@ -198,6 +200,11 @@ void LLReflectionMapManager::update()
             continue;
         }
         
+        if (probe != mDefaultProbe && !probe->isRelevant())
+        {
+            continue;
+        }
+
         probe->mProbeIndex = i;
 
         LLVector4a d;
@@ -268,6 +275,13 @@ void LLReflectionMapManager::update()
 
         // restore "isRadiancePass"
         mRadiancePass = radiance_pass;
+    }
+
+    static LLCachedControl<F32> sUpdatePeriod(gSavedSettings, "RenderDefaultProbeUpdatePeriod", 20.f);
+    if (sLevel == 0 &&
+        gFrameTimeSeconds - mDefaultProbe->mLastUpdateTime < sUpdatePeriod)
+    { // when probes are disabled don't update the default probe more often than once every 20 seconds
+        oldestProbe = nullptr;
     }
 
     // switch to updating the next oldest probe
@@ -360,17 +374,13 @@ void LLReflectionMapManager::getReflectionMaps(std::vector<LLReflectionMap*>& ma
 
 LLReflectionMap* LLReflectionMapManager::registerSpatialGroup(LLSpatialGroup* group)
 {
-    static LLCachedControl<S32> automatic_probes(gSavedSettings, "RenderAutomaticReflectionProbes", 2);
-    if (automatic_probes > 1)
+    if (group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_VOLUME)
     {
-        if (group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_VOLUME)
+        OctreeNode* node = group->getOctreeNode();
+        F32 size = node->getSize().getF32ptr()[0];
+        if (size >= 15.f && size <= 17.f)
         {
-            OctreeNode* node = group->getOctreeNode();
-            F32 size = node->getSize().getF32ptr()[0];
-            if (size >= 15.f && size <= 17.f)
-            {
-                return addProbe(group);
-            }
+            return addProbe(group);
         }
     }
 

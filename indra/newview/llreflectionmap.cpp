@@ -263,6 +263,30 @@ bool LLReflectionMap::isActive()
     return mCubeIndex != -1;
 }
 
+bool LLReflectionMap::isRelevant()
+{
+    static LLCachedControl<S32> RenderReflectionProbeLevel(gSavedSettings, "RenderReflectionProbeLevel", 3);
+
+    if (mViewerObject && RenderReflectionProbeLevel > 0)
+    { // not an automatic probe
+        return true;
+    }
+
+    if (RenderReflectionProbeLevel == 3)
+    { // all automatics are relevant
+        return true;
+    }
+
+    if (RenderReflectionProbeLevel == 2)
+    { // terrain and water only, ignore probes that have a group
+        return !mGroup;
+    }
+
+    // no automatic probes, yes manual probes
+    return mViewerObject != nullptr;
+}
+
+
 void LLReflectionMap::doOcclusion(const LLVector4a& eye)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;

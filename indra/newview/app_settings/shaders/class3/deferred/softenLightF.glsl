@@ -246,20 +246,6 @@ void main()
         
         vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
-#if 0 // wrong implementation
-        if (spec.a > 0.0)  // specular reflection
-        {
-            float sa        = dot(normalize(refnormpersp), light_dir.xyz);
-            vec3  dumbshiny = sunlit * scol * (texture2D(lightFunc, vec2(sa, spec.a)).r);
-
-            // add the two types of shiny together
-            vec3 spec_contrib = dumbshiny * spec.rgb;
-            color.rgb += spec_contrib;
-
-            // add radiance map
-            applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
-        }
-#else //right implementation (ported from pointLightF.glsl)
         if (spec.a > 0.0)
         {
             vec3  lv = light_dir.xyz;
@@ -284,7 +270,6 @@ void main()
             // add radiance map
             applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
         }
-#endif
 
         color.rgb = mix(color.rgb, baseColor.rgb, baseColor.a);
         

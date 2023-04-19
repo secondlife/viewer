@@ -658,6 +658,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 	bool has_reflection_probes = gSavedSettings.getBOOL("RenderReflectionsEnabled") && gGLManager.mGLVersion > 3.99f;
 
 	S32 probe_count = llclamp(gSavedSettings.getS32("RenderReflectionProbeCount"), 1, LL_MAX_REFLECTION_PROBE_COUNT);
+    S32 probe_level = llclamp(gSavedSettings.getS32("RenderReflectionProbeLevel"), 0, 3);
 
     if (ambient_kill)
     {
@@ -694,6 +695,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 	if (has_reflection_probes)
 	{
 		attribs["REFMAP_COUNT"] = std::to_string(probe_count);
+        attribs["REFMAP_LEVEL"] = std::to_string(probe_level);
 		attribs["REF_SAMPLE_COUNT"] = "32";
 	}
 

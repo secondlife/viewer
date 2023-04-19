@@ -72,6 +72,9 @@ public:
     // perform occlusion query/readback
     void doOcclusion(const LLVector4a& eye);
 
+    // return false if this probe isn't currently relevant (for example, disabled due to graphics preferences)
+    bool isRelevant();
+
     // point at which environment map was last generated from (in agent space)
     LLVector4a mOrigin;
     
