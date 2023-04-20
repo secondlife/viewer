@@ -87,6 +87,13 @@ public:
 		TFO_ANISOTROPIC			// Equal to: min=anisotropic, max=anisotropic, mip=linear.
 	} eTextureFilterOptions;
 
+	typedef enum
+	{
+		TMG_NONE = 0,			// Mipmaps are not automatically generated for this texture.
+		TMG_AUTO,				// Mipmaps are automatically generated for this texture.
+		TMG_MANUAL				// Mipmaps are manually generated for this texture.
+	} eTextureMipGeneration;
+
 	typedef enum 
 	{
 		TB_REPLACE = 0,

@@ -190,6 +190,7 @@ F32 LLPipeline::CameraMaxCoF;
 F32 LLPipeline::CameraDoFResScale;
 F32 LLPipeline::RenderAutoHideSurfaceAreaLimit;
 bool LLPipeline::RenderScreenSpaceReflections;
+S32 LLPipeline::RenderBufferVisualization;
 LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
 
 const F32 BACKLIGHT_DAY_MAGNITUDE_OBJECT = 0.1f;
@@ -542,6 +543,7 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("CameraDoFResScale");
 	connectRefreshCachedSettingsSafe("RenderAutoHideSurfaceAreaLimit");
     connectRefreshCachedSettingsSafe("RenderScreenSpaceReflections");
+	connectRefreshCachedSettingsSafe("RenderBufferVisualization");
 	gSavedSettings.getControl("RenderAutoHideSurfaceAreaLimit")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
 }
 
@@ -1025,6 +1027,7 @@ void LLPipeline::refreshCachedSettings()
 	CameraDoFResScale = gSavedSettings.getF32("CameraDoFResScale");
 	RenderAutoHideSurfaceAreaLimit = gSavedSettings.getF32("RenderAutoHideSurfaceAreaLimit");
     RenderScreenSpaceReflections = gSavedSettings.getBOOL("RenderScreenSpaceReflections");
+	RenderBufferVisualization = gSavedSettings.getS32("RenderBufferVisualization");
     sReflectionProbesEnabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionsEnabled") && gSavedSettings.getBOOL("RenderReflectionsEnabled");
 	RenderSpotLight = nullptr;
 
@@ -1267,7 +1270,7 @@ void LLPipeline::createLUTBuffers()
     mExposureMap.clear();
     mExposureMap.flush();
 
-    mLuminanceMap.allocate(256, 256, GL_R16F);
+    mLuminanceMap.allocate(256, 256, GL_R16F, false, LLTexUnit::TT_TEXTURE, LLTexUnit::TMG_AUTO);
 
     mLastExposure.allocate(1, 1, GL_R16F);
 }
@@ -6909,58 +6912,21 @@ void LLPipeline::bindScreenToTexture()
 
 static LLTrace::BlockTimerStatHandle FTM_RENDER_BLOOM("Bloom");
 
-void LLPipeline::renderPostProcess()
-{
-	LLVertexBuffer::unbind();
-	LLGLState::checkStates();
+void LLPipeline::visualizeBuffers(LLRenderTarget* src, LLRenderTarget* dst, U32 bufferIndex) {
+	dst->bindTarget();
+	gDeferredBufferVisualProgram.bind();
+	gDeferredBufferVisualProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src, false, LLTexUnit::TFO_BILINEAR, bufferIndex);
 
-	assertInitialized();
+	static LLStaticHashedString mipLevel("mipLevel");
+	if (RenderBufferVisualization != 4)
+		gDeferredBufferVisualProgram.uniform1f(mipLevel, 0);
+	else
+		gDeferredBufferVisualProgram.uniform1f(mipLevel, 8);
 
-	LLVector2 tc1(0, 0);
-	LLVector2 tc2((F32)mRT->screen.getWidth() * 2, (F32)mRT->screen.getHeight() * 2);
-
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_BLOOM);
-	LL_PROFILE_GPU_ZONE("renderPostProcess");
-
-	LLGLDepthTest depth(GL_FALSE);
-	LLGLDisable blend(GL_BLEND);
-	LLGLDisable cull(GL_CULL_FACE);
-
-	enableLightsFullbright();
-
-	LLGLDisable test(GL_ALPHA_TEST);
-
-	gGL.setColorMask(true, true);
-	glClearColor(0, 0, 0, 0);
-
-	gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
-	gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
-	gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
-	gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
-	glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
-
-	tc2.setVec((F32)mRT->screen.getWidth(), (F32)mRT->screen.getHeight());
-
-	gGL.flush();
-
-	LLVertexBuffer::unbind();
-
-    
-}
-
-LLRenderTarget* LLPipeline::screenTarget() {
-
-	bool dof_enabled = !LLViewerCamera::getInstance()->cameraUnderWater() &&
-		(RenderDepthOfFieldInEditMode || !LLToolMgr::getInstance()->inBuildMode()) &&
-		RenderDepthOfField &&
-		!gCubeSnapshot;
-
-	bool multisample = RenderFSAASamples > 1 && mRT->fxaaBuffer.isComplete() && !gCubeSnapshot;
-
-	if (multisample || dof_enabled)
-		return &mRT->deferredLight;
-	
-	return &mRT->screen;
+	mScreenTriangleVB->setBuffer();
+	mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+	gDeferredBufferVisualProgram.unbind();
+	dst->flush();
 }
 
 void LLPipeline::generateLuminance(LLRenderTarget* src, LLRenderTarget* dst) {
@@ -6990,9 +6956,6 @@ void LLPipeline::generateLuminance(LLRenderTarget* src, LLRenderTarget* dst) {
 		mScreenTriangleVB->setBuffer();
 		mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 		dst->flush();
-
-		dst->bindTexture(0, 0, LLTexUnit::TFO_TRILINEAR);
-		glGenerateMipmap(GL_TEXTURE_2D);
 
 		// note -- unbind AFTER the glGenerateMipMap so time in generatemipmap can be profiled under "Luminance"
 		// also note -- keep an eye on the performance of glGenerateMipmap, might need to replace it with a mip generation shader
@@ -7049,7 +7012,7 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst) {
 		mScreenTriangleVB->setBuffer();
 		mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
-		gGL.getTexUnit(channel)->unbind(screenTarget()->getUsage());
+		gGL.getTexUnit(channel)->unbind(mLastExposure.getUsage());
 		gExposureProgram.unbind();
 		dst->flush();
 	}
@@ -7220,8 +7183,8 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst) {
 		bool multisample = RenderFSAASamples > 1 && mRT->fxaaBuffer.isComplete();
 		LLGLSLShader* shader = &gGlowCombineProgram;
 
-		S32 width = screenTarget()->getWidth();
-		S32 height = screenTarget()->getHeight();
+		S32 width = dst->getWidth();
+		S32 height = dst->getHeight();
 
 		// Present everything.
 		if (multisample)
@@ -7583,13 +7546,30 @@ void LLPipeline::renderFinalize()
 	renderDoF(&mRT->screen, &mPostMap);
 
 	applyFXAA(&mPostMap, &mRT->screen);
+	LLRenderTarget* finalBuffer = &mRT->screen;
+	if (RenderBufferVisualization > -1) {
+		finalBuffer = &mPostMap;
+		switch (RenderBufferVisualization)
+		{
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+			visualizeBuffers(&mRT->deferredScreen, finalBuffer, RenderBufferVisualization);
+			break;
+		case 4:
+			visualizeBuffers(&mLuminanceMap, finalBuffer, 0);
+		default:
+			break;
+		}
+	}
 
 	// Present the screen target.
 
 	gDeferredPostNoDoFProgram.bind();
 
 	// Whatever is last in the above post processing chain should _always_ be rendered directly here.  If not, expect problems.
-	gDeferredPostNoDoFProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, &mRT->screen);
+	gDeferredPostNoDoFProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, finalBuffer);
 	gDeferredPostNoDoFProgram.bindTexture(LLShaderMgr::DEFERRED_DEPTH, &mRT->deferredScreen, true);
 
 	{

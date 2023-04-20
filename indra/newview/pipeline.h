@@ -144,8 +144,7 @@ public:
 	void renderDoF(LLRenderTarget* src, LLRenderTarget* dst);
 	void copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst);
 	void combineGlow(LLRenderTarget* src, LLRenderTarget* dst);
-	void renderPostProcess();
-	LLRenderTarget* screenTarget();
+	void visualizeBuffers(LLRenderTarget* src, LLRenderTarget* dst, U32 bufferIndex);
 
 	void init();
 	void cleanup();
@@ -1024,6 +1023,7 @@ public:
 	static F32 CameraDoFResScale;
 	static F32 RenderAutoHideSurfaceAreaLimit;
 	static bool RenderScreenSpaceReflections;
+	static S32 RenderBufferVisualization;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);
