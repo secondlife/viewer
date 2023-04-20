@@ -50,8 +50,11 @@ void main()
     vec4 pos  = getPosition(pos_screen);
     vec3 norm = getNorm(pos_screen);
 
-    frag_color.r = sampleDirectionalShadow(pos.xyz, norm, pos_screen);
-    frag_color.g = calcAmbientOcclusion(pos, norm, pos_screen);
-    frag_color.b = sampleSpotShadow(pos.xyz, norm, 0, pos_screen);
-    frag_color.a = sampleSpotShadow(pos.xyz, norm, 1, pos_screen);
+    vec4 col;
+    col.r = sampleDirectionalShadow(pos.xyz, norm, pos_screen);
+    col.g = calcAmbientOcclusion(pos, norm, pos_screen);
+    col.b = sampleSpotShadow(pos.xyz, norm, 0, pos_screen);
+    col.a = sampleSpotShadow(pos.xyz, norm, 1, pos_screen);
+
+    frag_color = clamp(col, vec4(0), vec4(1));
 }
