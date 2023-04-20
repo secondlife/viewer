@@ -29,31 +29,53 @@
 
 #include "llfloater.h"
 
+struct LLEmojiDescriptor;
+
 class LLFloaterEmojiPicker : public LLFloater
 {
 public:
 	// The callback function will be called with an emoji char.
-	typedef boost::function<void (llwchar)> select_callback_t;
+	typedef boost::function<void (llwchar)> pick_callback_t;
+	typedef boost::function<void ()> close_callback_t;
 
 	// Call this to select an emoji.
 	static LLFloaterEmojiPicker* getInstance();
-	static LLFloaterEmojiPicker* showInstance(select_callback_t callback);
+	static LLFloaterEmojiPicker* showInstance(pick_callback_t pick_callback = nullptr, close_callback_t close_callback = nullptr);
 
 	LLFloaterEmojiPicker(const LLSD& key);
 	virtual ~LLFloaterEmojiPicker();
 
 	virtual	BOOL postBuild();
 
-	void show(select_callback_t callback);
+	void show(pick_callback_t pick_callback = nullptr, close_callback_t close_callback = nullptr);
+
+	virtual void closeFloater(bool app_quitting = false);
 
 private:
-	void onSelect();
+	void fillEmojis();
+	bool matchesCategory(const LLEmojiDescriptor* descr);
+	bool matchesPattern(const LLEmojiDescriptor* descr);
+
+	void onCategoryCommit();
+	void onSearchKeystroke(class LLLineEditor* caller, void* user_data);
+	void onPreviewEmojiClick();
+	void onEmojiSelect();
+	void onEmojiEmpty();
+	void onEmojiPick();
 
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
-	class LLScrollListCtrl* mEmojis;
-	select_callback_t mSelectCallback;
-	std::string mEmojiName;
+	class LLComboBox* mCategory { nullptr };
+	class LLLineEditor* mSearch { nullptr };
+	class LLScrollListCtrl* mEmojis { nullptr };
+	class LLButton* mPreviewEmoji { nullptr };
+
+	pick_callback_t mEmojiPickCallback;
+	close_callback_t mFloaterCloseCallback;
+
+	static std::string mSelectedCategory;
+	static std::string mSearchPattern;
+	static int mSelectedEmojiIndex;
 };
 
 #endif

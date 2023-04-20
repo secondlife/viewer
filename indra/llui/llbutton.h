@@ -73,6 +73,7 @@ public:
 		Optional<bool>			label_shadow;
 		Optional<bool>			auto_resize;
 		Optional<bool>			use_ellipses;
+		Optional<bool>			use_font_color;
 
 		// images
 		Optional<LLUIImage*>	image_unselected,
@@ -174,6 +175,7 @@ public:
 	void			setUnselectedLabelColor( const LLColor4& c )		{ mUnselectedLabelColor = c; }
 	void			setSelectedLabelColor( const LLColor4& c )			{ mSelectedLabelColor = c; }
 	void			setUseEllipses( BOOL use_ellipses )					{ mUseEllipses = use_ellipses; }
+	void			setUseFontColor( BOOL use_font_color)				{ mUseFontColor = use_font_color; }
 
 
 	boost::signals2::connection setClickedCallback(const CommitCallbackParam& cb);
@@ -238,6 +240,8 @@ public:
 	
 	void            autoResize();	// resize with label of current btn state 
 	void            resize(LLUIString label); // resize with label input
+	void			setLabel(const std::string& label);
+	void			setLabel(const LLUIString& label);
 	void			setLabel( const LLStringExplicit& label);
 	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 	void			setLabelUnselected(const LLStringExplicit& label);
@@ -353,6 +357,7 @@ protected:
 	bool						mDropShadowedText;
 	bool						mAutoResize;
 	bool						mUseEllipses;
+	bool						mUseFontColor;
 	bool						mBorderEnabled;
 	bool						mFlashing;
 

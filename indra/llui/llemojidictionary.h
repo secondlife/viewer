@@ -56,20 +56,28 @@ class LLEmojiDictionary : public LLParamSingleton<LLEmojiDictionary>, public LLI
 	~LLEmojiDictionary() override {};
 
 public:
+	typedef std::map<llwchar, const LLEmojiDescriptor*> emoji2descr_map_t;
+	typedef std::map<std::string, const LLEmojiDescriptor*> code2descr_map_t;
+	typedef std::map<std::string, std::vector<const LLEmojiDescriptor*>> cat2descrs_map_t;
+
 	static void initClass();
 	LLWString   findMatchingEmojis(const std::string& needle) const;
+	const LLEmojiDescriptor* getDescriptorFromEmoji(llwchar emoji) const;
 	const LLEmojiDescriptor* getDescriptorFromShortCode(const std::string& short_code) const;
 	std::string getNameFromEmoji(llwchar ch) const;
 
-	const std::map<llwchar, const LLEmojiDescriptor*>& getEmoji2Descr() const { return mEmoji2Descr; }
+	const emoji2descr_map_t& getEmoji2Descr() const { return mEmoji2Descr; }
+	const code2descr_map_t& getShortCode2Descr() const { return mShortCode2Descr; }
+	const cat2descrs_map_t& getCategory2Descrs() const { return mCategory2Descrs; }
 
 private:
 	void addEmoji(LLEmojiDescriptor&& descr);
 
 private:
 	std::list<LLEmojiDescriptor> mEmojis;
-	std::map<llwchar, const LLEmojiDescriptor*> mEmoji2Descr;
-	std::map<std::string, const LLEmojiDescriptor*> mShortCode2Descr;
+	emoji2descr_map_t mEmoji2Descr;
+	code2descr_map_t mShortCode2Descr;
+	cat2descrs_map_t mCategory2Descrs;
 };
 
 // ============================================================================

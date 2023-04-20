@@ -208,7 +208,8 @@ private:
 	void onInputEditorClicked();
 
 	static void onEmojiPanelBtnClicked(LLFloaterIMSessionTab* self);
-	void onEmojiSelected(llwchar emoji);
+	void onEmojiPicked(llwchar emoji);
+	void onEmojiPickerClosed();
 
 	bool checkIfTornOff();
     bool mIsHostAttached;

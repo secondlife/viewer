@@ -253,7 +253,7 @@ public:
 	S32				getItemIndex( LLScrollListItem* item ) const;
 	S32				getItemIndex( const LLUUID& item_id ) const;
 
-	void setCommentText( const std::string& comment_text);
+	void			setCommentText( const std::string& comment_text);
 	LLScrollListItem* addSeparator(EAddPosition pos);
 
 	// "Simple" interface: use this when you're creating a list that contains only unique strings, only
@@ -263,7 +263,7 @@ public:
 	BOOL			selectItemByLabel( const std::string& item, BOOL case_sensitive = TRUE, S32 column = 0 );		// FALSE if item not found
 	BOOL			selectItemByPrefix(const std::string& target, BOOL case_sensitive = TRUE, S32 column = -1);
 	BOOL			selectItemByPrefix(const LLWString& target, BOOL case_sensitive = TRUE, S32 column = -1);
-	LLScrollListItem*  getItemByLabel( const std::string& item, BOOL case_sensitive = TRUE, S32 column = 0 );
+	LLScrollListItem*	getItemByLabel(const std::string& item, BOOL case_sensitive = TRUE, S32 column = 0);
 	const std::string	getSelectedItemLabel(S32 column = 0) const;
 	LLSD			getSelectedValue();
 
@@ -322,7 +322,7 @@ public:
 
 	virtual S32		getScrollPos() const;
 	virtual void	setScrollPos( S32 pos );
-	S32 getSearchColumn();
+	S32				getSearchColumn();
 	void			setSearchColumn(S32 column) { mSearchColumn = column; }
 	S32				getColumnIndexFromOffset(S32 x);
 	S32				getColumnOffsetFromIndex(S32 index);
@@ -371,13 +371,13 @@ public:
 	// Used "internally" by the scroll bar.
 	void			onScrollChange( S32 new_pos, LLScrollbar* src );
 
-	static void onClickColumn(void *userdata);
+	static void		onClickColumn(void *userdata);
 
-	virtual void updateColumns(bool force_update = false);
-	S32 calcMaxContentWidth();
-	bool updateColumnWidths();
+	virtual void	updateColumns(bool force_update = false);
+	S32				calcMaxContentWidth();
+	bool			updateColumnWidths();
 
-	void setHeadingHeight(S32 heading_height);
+	void			setHeadingHeight(S32 heading_height);
 	/**
 	 * Sets  max visible  lines without scroolbar, if this value equals to 0,
 	 * then display all items.
@@ -398,18 +398,20 @@ public:
 	virtual void	deselect();
 	virtual BOOL	canDeselect() const;
 
-	void setNumDynamicColumns(S32 num) { mNumDynamicWidthColumns = num; }
-	void updateStaticColumnWidth(LLScrollListColumn* col, S32 new_width);
-	S32 getTotalStaticColumnWidth() { return mTotalStaticColumnWidth; }
+	void			setNumDynamicColumns(S32 num) { mNumDynamicWidthColumns = num; }
+	void			updateStaticColumnWidth(LLScrollListColumn* col, S32 new_width);
+	S32				getTotalStaticColumnWidth() { return mTotalStaticColumnWidth; }
 
 	std::string     getSortColumnName();
 	BOOL			getSortAscending() { return mSortColumns.empty() ? TRUE : mSortColumns.back().second; }
 	BOOL			hasSortOrder() const;
 	void			clearSortOrder();
 
-	void			setAlternateSort() { mAlternateSort = true; }
+	void			setAlternateSort() { mAlternateSort = TRUE; }
 
-	S32		selectMultiple( uuid_vec_t ids );
+	void			selectPrevItem(BOOL extend_selection = FALSE);
+	void			selectNextItem(BOOL extend_selection = FALSE);
+	S32				selectMultiple(uuid_vec_t ids);
 	// conceptually const, but mutates mItemList
 	void			updateSort() const;
 	// sorts a list without affecting the permanent sort order (so further list insertions can be unsorted, for example)
@@ -454,8 +456,6 @@ protected:
 	void			updateLineHeight();
 
 private:
-	void			selectPrevItem(BOOL extend_selection);
-	void			selectNextItem(BOOL extend_selection);
 	void			drawItems();
 	
 	void            updateLineHeightInsert(LLScrollListItem* item);

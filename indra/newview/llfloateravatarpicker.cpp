@@ -741,7 +741,6 @@ void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& 
 	}
 }
 
-//static
 void LLFloaterAvatarPicker::editKeystroke(LLLineEditor* caller, void* user_data)
 {
 	getChildView("Find")->setEnabled(caller->getText().size() > 0);

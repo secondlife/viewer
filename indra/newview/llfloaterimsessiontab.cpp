@@ -434,10 +434,12 @@ void LLFloaterIMSessionTab::onEmojiPanelBtnClicked(LLFloaterIMSessionTab* self)
 	{
 		if (!picker->isShown())
 		{
-			picker->show(boost::bind(&LLFloaterIMSessionTab::onEmojiSelected, self, _1));
+			picker->show(
+				boost::bind(&LLFloaterIMSessionTab::onEmojiPicked, self, _1),
+				boost::bind(&LLFloaterIMSessionTab::onEmojiPickerClosed, self));
 			if (LLFloater* root_floater = gFloaterView->getParentFloater(self))
 			{
-				root_floater->addDependentFloater(picker);
+				root_floater->addDependentFloater(picker, TRUE, TRUE);
 			}
 		}
 		else
@@ -447,9 +449,14 @@ void LLFloaterIMSessionTab::onEmojiPanelBtnClicked(LLFloaterIMSessionTab* self)
 	}
 }
 
-void LLFloaterIMSessionTab::onEmojiSelected(llwchar emoji)
+void LLFloaterIMSessionTab::onEmojiPicked(llwchar emoji)
 {
 	mInputEditor->insertEmoji(emoji);
+}
+
+void LLFloaterIMSessionTab::onEmojiPickerClosed()
+{
+	mInputEditor->setFocus(TRUE);
 }
 
 std::string LLFloaterIMSessionTab::appendTime()

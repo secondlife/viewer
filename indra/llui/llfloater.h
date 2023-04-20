@@ -255,8 +255,8 @@ public:
 	std::string		getShortTitle() const;
 	virtual void	setMinimized(BOOL b);
 	void			moveResizeHandlesToFront();
-	void			addDependentFloater(LLFloater* dependent, BOOL reposition = TRUE);
-	void			addDependentFloater(LLHandle<LLFloater> dependent_handle, BOOL reposition = TRUE);
+	void			addDependentFloater(LLFloater* dependent, BOOL reposition = TRUE, BOOL resize = FALSE);
+	void			addDependentFloater(LLHandle<LLFloater> dependent_handle, BOOL reposition = TRUE, BOOL resize = FALSE);
 	LLFloater*		getDependee() { return (LLFloater*)mDependeeHandle.get(); }
 	void		removeDependentFloater(LLFloater* dependent);
 	BOOL			isMinimized() const				{ return mMinimized; }
