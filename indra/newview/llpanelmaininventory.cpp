@@ -119,7 +119,7 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
       mMenuViewDefault(NULL),
       mSingleFolderMode(false),
       mForceShowInvLayout(false),
-      mViewMode(MODE_LIST),
+      mViewMode(MODE_COMBINATION),
       mListViewRootUpdatedConnection(),
       mGalleryRootUpdatedConnection()
 {
