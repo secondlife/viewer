@@ -452,21 +452,26 @@ void LLRenderPass::pushGLTFBatches(U32 type)
         LLDrawInfo& params = **i;
         LLCullResult::increment_iterator(i, end);
 
-        auto& mat = params.mGLTFMaterial;
-
-        mat->bind(params.mTexture);
-
-        LLGLDisable cull_face(mat->mDoubleSided ? GL_CULL_FACE : 0);
-
-        setup_texture_matrix(params);
-        
-        applyModelMatrix(params);
-
-        params.mVertexBuffer->setBuffer();
-        params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
-
-        teardown_texture_matrix(params);
+        pushGLTFBatch(params);
     }
+}
+
+void LLRenderPass::pushGLTFBatch(LLDrawInfo& params)
+{
+    auto& mat = params.mGLTFMaterial;
+
+    mat->bind(params.mTexture);
+
+    LLGLDisable cull_face(mat->mDoubleSided ? GL_CULL_FACE : 0);
+
+    setup_texture_matrix(params);
+    
+    applyModelMatrix(params);
+
+    params.mVertexBuffer->setBuffer();
+    params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+
+    teardown_texture_matrix(params);
 }
 
 void LLRenderPass::pushRiggedGLTFBatches(U32 type)
@@ -483,28 +488,20 @@ void LLRenderPass::pushRiggedGLTFBatches(U32 type)
         LLDrawInfo& params = **i;
         LLCullResult::increment_iterator(i, end);
 
-        auto& mat = params.mGLTFMaterial;
-
-        mat->bind(params.mTexture);
-
-        LLGLDisable cull_face(mat->mDoubleSided ? GL_CULL_FACE : 0);
-
-        setup_texture_matrix(params);
-
-        applyModelMatrix(params);
-
-        if (params.mAvatar.notNull() && (lastAvatar != params.mAvatar || lastMeshId != params.mSkinInfo->mHash))
-        {
-            uploadMatrixPalette(params);
-            lastAvatar = params.mAvatar;
-            lastMeshId = params.mSkinInfo->mHash;
-        }
-
-        params.mVertexBuffer->setBuffer();
-        params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
-
-        teardown_texture_matrix(params);
+        pushRiggedGLTFBatch(params, lastAvatar, lastMeshId);
     }
+}
+
+void LLRenderPass::pushRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId)
+{
+    if (params.mAvatar.notNull() && (lastAvatar != params.mAvatar || lastMeshId != params.mSkinInfo->mHash))
+    {
+        uploadMatrixPalette(params);
+        lastAvatar = params.mAvatar;
+        lastMeshId = params.mSkinInfo->mHash;
+    }
+
+    pushGLTFBatch(params);
 }
 
 void LLRenderPass::pushBatches(U32 type, bool texture, bool batch_textures)
