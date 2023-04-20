@@ -1980,6 +1980,7 @@ void LLVOAvatar::startDefaultMotions()
 	//-------------------------------------------------------------------------
 	// start default motions
 	//-------------------------------------------------------------------------
+
 	startMotion( ANIM_AGENT_HEAD_ROT );
 	startMotion( ANIM_AGENT_EYE );
 	startMotion( ANIM_AGENT_BODY_NOISE );
@@ -5856,8 +5857,8 @@ void LLVOAvatar::processAnimationStateChanges()
 		stopMotion(ANIM_AGENT_WALK_ADJUST);
         if (mEnableDefaultMotions)
         {
-		startMotion(ANIM_AGENT_FLY_ADJUST);
-	}
+		    startMotion(ANIM_AGENT_FLY_ADJUST);
+	    }
 	}
 	else
 	{
@@ -5869,7 +5870,7 @@ void LLVOAvatar::processAnimationStateChanges()
 	{
         if (mEnableDefaultMotions)
         {
-		startMotion(ANIM_AGENT_TARGET);
+		    startMotion(ANIM_AGENT_TARGET);
         }
 		stopMotion(ANIM_AGENT_BODY_NOISE);
 	}

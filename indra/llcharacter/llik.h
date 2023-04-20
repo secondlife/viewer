@@ -67,7 +67,8 @@ constexpr U8 CONFIG_FLAG_LOCAL_SCALE = 1 << 2;
 constexpr U8 CONFIG_FLAG_DISABLE_CONSTRAINT = 1 << 3;
 constexpr U8 CONFIG_FLAG_TARGET_POS = 1 << 4;
 constexpr U8 CONFIG_FLAG_TARGET_ROT = 1 << 5;
-constexpr U8 CONFIG_FLAG_HAS_DELEGATED = 1 << 6; // EXPERIMENTAL
+constexpr U8 CONFIG_FLAG_HAS_DELEGATED      = 1 << 6;  // EXPERIMENTAL
+constexpr U8 CONFIG_FLAG_ENABLE_REPORTING  = 1 << 7;  // EXPERIMENTAL
 
 constexpr U8 IK_FLAG_LOCAL_ROT = 1 << 1; // IK has adjusted local_rot
 constexpr U8 IK_FLAG_ACTIVE = 1 << 5;
@@ -402,25 +403,26 @@ class Joint
 public:
     class Config
     {
-    public:
+      public:
         // local info is in parent-frame
-        bool hasLocalPos() const { return (mFlags & CONFIG_FLAG_LOCAL_POS) > 0; }
-        bool hasLocalRot() const { return (mFlags & CONFIG_FLAG_LOCAL_ROT) > 0; }
-        bool hasLocalScale() const { return (mFlags & CONFIG_FLAG_LOCAL_SCALE) > 0; }
-        bool constraintIsDisabled() const { return (mFlags & CONFIG_FLAG_DISABLE_CONSTRAINT) > 0; }
-        void setLocalPos(const LLVector3& pos);
-        void setLocalRot(const LLQuaternion& rot);
-        void setLocalScale(const LLVector3& scale);
-        void disableConstraint() { mFlags |= CONFIG_FLAG_DISABLE_CONSTRAINT; }
-        const LLVector3& getLocalPos() const { return mLocalPos; }
-        const LLQuaternion& getLocalRot() const { return mLocalRot; }
-        const LLVector3& getLocalScale() const { return mLocalScale; }
+        bool                hasLocalPos() const { return (mFlags & CONFIG_FLAG_LOCAL_POS) > 0; }
+        bool                hasLocalRot() const { return (mFlags & CONFIG_FLAG_LOCAL_ROT) > 0; }
+        bool                hasLocalScale() const { return (mFlags & CONFIG_FLAG_LOCAL_SCALE) > 0; }
+        bool                constraintIsDisabled() const { return (mFlags & CONFIG_FLAG_DISABLE_CONSTRAINT) > 0; }
+        void                setLocalPos(const LLVector3 &pos);
+        void                setLocalRot(const LLQuaternion &rot);
+        void                setLocalScale(const LLVector3 &scale);
+        void                disableConstraint() { mFlags |= CONFIG_FLAG_DISABLE_CONSTRAINT; }
+        const LLVector3    &getLocalPos() const { return mLocalPos; }
+        const LLQuaternion &getLocalRot() const { return mLocalRot; }
+        const LLVector3    &getLocalScale() const { return mLocalScale; }
 
         // target info is in skeleton root-frame
-        bool hasTargetPos() const { return (mFlags & CONFIG_FLAG_TARGET_POS) > 0; }
-        bool hasTargetRot() const { return (mFlags & CONFIG_FLAG_TARGET_ROT) > 0; }
-        void setTargetPos(const LLVector3& pos);
-        void setTargetRot(const LLQuaternion& rot);
+        bool                hasTargetPos() const { return (mFlags & CONFIG_FLAG_TARGET_POS) > 0; }
+        bool                hasTargetRot() const { return (mFlags & CONFIG_FLAG_TARGET_ROT) > 0; }
+        void                setTargetPos(const LLVector3 &pos);
+        void                setTargetRot(const LLQuaternion &rot);
+        void                enableReporting(S32 reqid){ mFlags = mFlags & CONFIG_FLAG_ENABLE_REPORTING; }
         const LLVector3& getTargetPos() const { return mTargetPos; }
         const LLQuaternion& getTargetRot() const { return mTargetRot; }
 

@@ -60,8 +60,10 @@ public:
     void setScale(const LLVector3& scale);
     void setJointID(S32 id);
     void disableConstraint() { mMask |= LLIK::CONFIG_FLAG_DISABLE_CONSTRAINT; }
+    void enableReporting(const S32 &reqid);
 
     S16 getJointID() const { return mJointID; }
+    S32          getRequestID() const { return mRequestID; }
     LLQuaternion getRotation() const { return mRotation; }
     LLVector3 getPosition() const { return mPosition; }
     LLVector3 getScale() const { return mScale; }
@@ -83,6 +85,7 @@ private:
     LLVector3 mScale;
     U16 mJointID = -1;
     U8 mMask = 0x0;
+    S32               mRequestID = -1;  //Used for reporting.
 };
 
 class LLPuppetEvent

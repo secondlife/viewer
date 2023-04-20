@@ -84,6 +84,7 @@ public:
 
     void sendCameraNumber();
     void sendEnabledParts();
+    void send_report(const LLSD& sd);
     void send_skeleton(const LLSD& sd=LLSD::emptyMap());
 
     bool getEcho() const { return mPlayServerEcho; };
@@ -116,7 +117,8 @@ private:
     mutable std::weak_ptr<LLLeap> mLeapModule; // weak pointer to module
     std::string mModuleName;
     LLBoundListener mListener;
-    LLTempBoundListener mPlugin;        //For event pump to send leap updates to plug-ins
+    LLTempBoundListener mSendSkeletonAPI;    //For event pump to send leap updates to plug-ins
+    LLTempBoundListener mSendReportAPI;
 
     active_joint_map_t     mActiveJoints;    // Map of used joints and last time seen
 
