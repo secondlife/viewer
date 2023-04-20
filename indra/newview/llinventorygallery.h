@@ -134,6 +134,7 @@ protected:
     void showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& item_id);
 
     void applyFilter(LLInventoryGalleryItem* item, const std::string& filter_substring);
+    bool checkAgainstFilters(LLInventoryGalleryItem* item, const std::string& filter_substring);
 
     LLInventoryCategoriesObserver*     mCategoriesObserver;
     LLThumbnailsObserver*              mThumbnailsObserver;

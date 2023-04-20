@@ -594,18 +594,24 @@ void LLInventoryGallery::setFilterSubString(const std::string& string)
 
 void LLInventoryGallery::applyFilter(LLInventoryGalleryItem* item, const std::string& filter_substring)
 {
-    if (!item) return;
+    if(item)
+    {
+        item->setHidden(!checkAgainstFilters(item, filter_substring));
+    }
+}
+
+bool LLInventoryGallery::checkAgainstFilters(LLInventoryGalleryItem* item, const std::string& filter_substring)
+{
+    if (!item) return false;
 
     if (item->isFolder() && (mFilter->getShowFolderState() == LLInventoryFilter::SHOW_ALL_FOLDERS))
     {
-        item->setHidden(false);
-        return;
+        return true;
     }
 
     if(item->isLink() && ((mFilter->getSearchVisibilityTypes() & LLInventoryFilter::VISIBILITY_LINKS) == 0) && !filter_substring.empty())
     {
-        item->setHidden(true);
-        return;
+        return false;
     }
     
     bool hidden = false;
@@ -620,20 +626,17 @@ void LLInventoryGallery::applyFilter(LLInventoryGalleryItem* item, const std::st
     }
     if(hidden)
     {
-        item->setHidden(true);
-        return;
+        return false;
     }
 
     if(!mFilter->checkAgainstFilterThumbnails(item->getUUID()))
     {
-        item->setHidden(true);
-        return;
+        return false;
     }
 
     if(!checkAgainstFilterType(item->getUUID()))
     {
-        item->setHidden(true);
-        return;
+        return false;
     }
 
     std::string desc;
@@ -660,7 +663,7 @@ void LLInventoryGallery::applyFilter(LLInventoryGalleryItem* item, const std::st
     LLStringUtil::toUpper(cur_filter);
 
     hidden = (std::string::npos == desc.find(cur_filter));
-    item->setHidden(hidden);
+    return !hidden;
 }
 
 void LLInventoryGallery::setSearchType(LLInventoryFilter::ESearchType type)
@@ -803,6 +806,13 @@ void LLInventoryGallery::updateItemThumbnail(LLUUID item_id)
     if (mItemMap[item_id])
     {
         mItemMap[item_id]->setThumbnail(thumbnail_id);
+
+        bool passes_filter = checkAgainstFilters(mItemMap[item_id], mFilterSubString);
+        if((mItemMap[item_id]->isHidden() && passes_filter)
+           || (!mItemMap[item_id]->isHidden() && !passes_filter))
+        {
+            reArrangeRows();
+        }
     }
 }
 
