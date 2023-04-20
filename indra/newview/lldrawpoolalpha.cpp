@@ -140,6 +140,12 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool d
         shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
     }
 
+    S32 channel = shader->enableTexture(LLShaderMgr::EXPOSURE_MAP);
+    if (channel > -1)
+    {
+        gGL.getTexUnit(channel)->bind(&gPipeline.mExposureMap);
+    }
+
     //also prepare rigged variant
     if (shader->mRiggedVariant && shader->mRiggedVariant != shader)
     { 

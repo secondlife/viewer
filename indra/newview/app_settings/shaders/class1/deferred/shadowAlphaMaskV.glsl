@@ -24,7 +24,12 @@
  */
 
 uniform mat4 texture_matrix0;
+#if defined(HAS_SKIN)
+uniform mat4 modelview_matrix;
+uniform mat4 projection_matrix;
+#else
 uniform mat4 modelview_projection_matrix;
+#endif
 uniform float shadow_target_width;
 
 ATTRIBUTE vec3 position;
@@ -38,11 +43,24 @@ VARYING vec2 vary_texcoord0;
 
 void passTextureIndex();
 
+#if defined(HAS_SKIN)
+mat4 getObjectSkinnedTransform();
+#endif
+
 void main()
 {
 	//transform vertex
+#if defined(HAS_SKIN)
+	vec4 pre_pos = vec4(position.xyz, 1.0);
+	mat4 mat = getObjectSkinnedTransform();
+	mat = modelview_matrix * mat;
+	vec4 pos = mat * pre_pos;
+	pos = projection_matrix * pos;
+#else
 	vec4 pre_pos = vec4(position.xyz, 1.0);
 	vec4 pos = modelview_projection_matrix * pre_pos;
+#endif
+
 	target_pos_x = 0.5 * (shadow_target_width - 1.0) * pos.x;
 
 	post_pos = pos;

@@ -36,11 +36,8 @@ VARYING vec2 vary_texcoord0;
 
 void main() 
 {
-	float shadow = 1.0;
-
-	vec4 color = diffuseLookup(vary_texcoord0.xy)*vertex_color;
-	color.rgb = fullbrightAtmosTransport(color.rgb);
-
-	frag_color = max(color, vec4(0));
+    // NOTE: when this shader is used, only alpha is being written to
+	float a = diffuseLookup(vary_texcoord0.xy).a*vertex_color.a;
+	frag_color = vec4(0, 0, 0, a);
 }
 

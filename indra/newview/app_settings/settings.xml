@@ -9852,7 +9852,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>RenderFlexTimeFactor</key>
     <map>
@@ -10021,7 +10021,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.35</real>
+      <real>0.325</real>
     </map>
     <key>RenderGlowWarmthAmount</key>
     <map>
@@ -10208,7 +10208,7 @@
       <key>Comment</key>
       <string>Render influence volumes of Reflection Probes</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -10403,16 +10403,27 @@
     <key>Value</key>
     <real>0</real>
   </map>
-  <key>RenderAutomaticReflectionProbes</key>
+  <key>RenderDefaultProbeUpdatePeriod</key>
   <map>
     <key>Comment</key>
-    <string>Automatic reflection probes control.  0 - disable, 1 - Terrain/water only, 2- Terrain/water + objects.  Requires restart.</string>
+    <string>When RenderReflectionProbeLevel is 0, amount of time in seconds to wait between updates to reflection map.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>20.0</real>
+  </map>
+  <key>RenderReflectionProbeLevel</key>
+  <map>
+    <key>Comment</key>
+    <string>Reflection probes control.  0 - disable (one probe to rule them all), 1 - manual probes only, 2 - manual + terrain/water, 3 - Manual + Terrain/water + objects.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>2</integer>
+    <integer>3</integer>
   </map>
   <key>RenderReflectionRes</key>
     <map>

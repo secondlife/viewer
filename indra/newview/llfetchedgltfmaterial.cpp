@@ -70,13 +70,16 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
     LLViewerTexture* baseColorTex = media_tex ? media_tex : mBaseColorTexture;
     LLViewerTexture* emissiveTex = media_tex ? media_tex : mEmissiveTexture;
 
-    if (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
+    if (!LLPipeline::sShadowRender || (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK))
     {
-        // dividing the alpha cutoff by transparency here allows the shader to compare against
-        // the alpha value of the texture without needing the transparency value
-        min_alpha = mAlphaCutoff/mBaseColor.mV[3];
+        if (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
+        {
+            // dividing the alpha cutoff by transparency here allows the shader to compare against
+            // the alpha value of the texture without needing the transparency value
+            min_alpha = mAlphaCutoff/mBaseColor.mV[3];
+        }
+        shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, min_alpha);
     }
-    shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, min_alpha);
 
     if (baseColorTex != nullptr)
     {

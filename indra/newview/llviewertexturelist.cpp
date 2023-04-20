@@ -914,6 +914,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                     // stats
                     const LLTextureEntry* te = face->getTextureEntry();
                     LLFetchedGLTFMaterial* mat = te ? (LLFetchedGLTFMaterial*)te->getGLTFRenderMaterial() : nullptr;
+                    llassert(mat == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(te->getGLTFRenderMaterial()) != nullptr);
                     if (mat)
                     {
                         touch_texture(mat->mBaseColorTexture, vsize);

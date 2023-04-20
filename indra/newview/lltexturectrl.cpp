@@ -573,6 +573,7 @@ void LLFloaterTexturePicker::draw()
             if (mInventoryPickType == LLTextureCtrl::PICK_MATERIAL)
             {
                 mGLTFMaterial = (LLFetchedGLTFMaterial*) gGLTFMaterialList.getMaterial(mImageAssetID);
+                llassert(mGLTFMaterial == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(gGLTFMaterialList.getMaterial(mImageAssetID)) != nullptr);
             }
             else
             {

@@ -77,6 +77,7 @@ public:
 
     // presently hacked into LLViewerObject::setTE
     // Used by LLViewerObjects that are Reflection Probes
+    // vobj must not be null
     // Guaranteed to not return null
     LLReflectionMap* registerViewerObject(LLViewerObject* vobj);
 

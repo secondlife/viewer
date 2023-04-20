@@ -1,4 +1,4 @@
-version 49
+version 50
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -73,6 +73,7 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	2
 RenderScreenSpaceReflections 1  1
 RenderReflectionProbeCount  1   256
+RenderReflectionProbeLevel  1   3
 
 //
 // Low Graphics Settings
@@ -102,6 +103,7 @@ RenderReflectionsEnabled    1   0
 RenderReflectionProbeDetail	1	0
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeCount  1   8
+RenderReflectionProbeLevel  1   0
 
 //
 // Medium Low Graphics Settings
@@ -131,6 +133,7 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeCount  1   16
+RenderReflectionProbeLevel  1   1
 
 //
 // Medium Graphics Settings (standard)
@@ -160,6 +163,7 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeCount  1   32
+RenderReflectionProbeLevel  1   2
 
 //
 // Medium High Graphics Settings (deferred enabled)
@@ -189,6 +193,7 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeCount  1   64
+RenderReflectionProbeLevel  1   2
 
 //
 // High Graphics Settings (deferred + SSAO)
@@ -218,6 +223,7 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeCount  1   128
+RenderReflectionProbeLevel  1   3
 
 //
 // High Ultra Graphics Settings (deferred + SSAO + shadows)
@@ -247,6 +253,7 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeCount  1   256
+RenderReflectionProbeLevel  1   3
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -276,6 +283,7 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
 RenderScreenSpaceReflections 1  1
 RenderReflectionProbeCount  1   256
+RenderReflectionProbeLevel  1   3
 
 //
 // Class Unknown Hardware (unknown)

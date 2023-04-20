@@ -179,6 +179,7 @@ bool LLLocalGLTFMaterial::updateSelf()
                             LLFetchedGLTFMaterial* render_mat = (LLFetchedGLTFMaterial*)entry->getGLTFRenderMaterial();
                             if (render_mat)
                             {
+                                llassert(dynamic_cast<LLFetchedGLTFMaterial*>(entry->getGLTFRenderMaterial()) != nullptr);
                                 *render_mat = *this;
                                 render_mat->applyOverride(*override_mat);
                             }

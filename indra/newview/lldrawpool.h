@@ -329,6 +329,10 @@ public:
                 return "PASS_GLTF_PBR";
             case PASS_GLTF_PBR_RIGGED:
                 return "PASS_GLTF_PBR_RIGGED";
+            case PASS_GLTF_PBR_ALPHA_MASK:
+                return "PASS_GLTF_PBR_ALPHA_MASK";
+            case PASS_GLTF_PBR_ALPHA_MASK_RIGGED:
+                return "PASS_GLTF_PBR_ALPHA_MASK_RIGGED";
             default:
                 return "Unknown pass";
         }
@@ -348,7 +352,9 @@ public:
 	virtual void pushBatches(U32 type, bool texture = true, bool batch_textures = false);
     virtual void pushRiggedBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushGLTFBatches(U32 type);
+    void pushGLTFBatch(LLDrawInfo& params);
     void pushRiggedGLTFBatches(U32 type);
+    void pushRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId);
 	virtual void pushMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
     virtual void pushRiggedMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
 	virtual void pushBatch(LLDrawInfo& params, bool texture, bool batch_textures = false);

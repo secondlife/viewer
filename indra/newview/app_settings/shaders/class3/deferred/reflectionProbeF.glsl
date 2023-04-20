@@ -122,6 +122,7 @@ bool shouldSampleProbe(int i, vec3 pos)
 // populate "probeIndex" with N probe indices that influence pos where N is REF_SAMPLE_COUNT
 void preProbeSample(vec3 pos)
 {
+#if REFMAP_LEVEL > 0
     // TODO: make some sort of structure that reduces the number of distance checks
     for (int i = 1; i < refmapCount; ++i)
     {
@@ -213,6 +214,9 @@ void preProbeSample(vec3 pos)
     { // probe at index 0 is a special probe for smoothing out automatic probes
         probeIndex[probeInfluences++] = 0;
     }
+#else
+    probeIndex[probeInfluences++] = 0;
+#endif
 }
 
 // from https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection

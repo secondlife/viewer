@@ -272,7 +272,7 @@ public:
     void renderObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
     void renderShadowSimple(U32 type);
 
-    void renderAlphaObjects(bool texture = true, bool batch_texture = false, bool rigged = false);
+    void renderAlphaObjects(bool rigged = false);
 	void renderMaskedObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
     void renderFullbrightMaskedObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
 

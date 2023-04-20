@@ -6754,7 +6754,8 @@ void LLPipeline::renderShadowSimple(U32 type)
     gGLLastMatrix = NULL;
 }
 
-void LLPipeline::renderAlphaObjects(bool texture, bool batch_texture, bool rigged)
+// Currently only used for shadows -Cosmic,2023-04-19
+void LLPipeline::renderAlphaObjects(bool rigged)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     assertInitialized();
@@ -6771,9 +6772,20 @@ void LLPipeline::renderAlphaObjects(bool texture, bool batch_texture, bool rigge
         LLDrawInfo* pparams = *i;
         LLCullResult::increment_iterator(i, end);
 
+        if (rigged != (pparams->mAvatar != nullptr))
+        {
+            // Pool contains both rigged and non-rigged DrawInfos. Only draw
+            // the objects we're interested in in this pass.
+            continue;
+        }
+
         if (rigged)
         {
-            if (pparams->mAvatar != nullptr)
+            if (pparams->mGLTFMaterial)
+            {
+                mSimplePool->pushRiggedGLTFBatch(*pparams, lastAvatar, lastMeshId);
+            }
+            else
             {
                 if (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash)
                 {
@@ -6782,12 +6794,19 @@ void LLPipeline::renderAlphaObjects(bool texture, bool batch_texture, bool rigge
                     lastMeshId = pparams->mSkinInfo->mHash;
                 }
 
-                mSimplePool->pushBatch(*pparams, texture, batch_texture);
+                mSimplePool->pushBatch(*pparams, true, true);
             }
         }
-        else if (pparams->mAvatar == nullptr)
+        else
         {
-            mSimplePool->pushBatch(*pparams, texture, batch_texture);
+            if (pparams->mGLTFMaterial)
+            {
+                mSimplePool->pushGLTFBatch(*pparams);
+            }
+            else
+            {
+                mSimplePool->pushBatch(*pparams, true, true);
+            }
         }
     }
 
@@ -6795,6 +6814,7 @@ void LLPipeline::renderAlphaObjects(bool texture, bool batch_texture, bool rigge
     gGLLastMatrix = NULL;
 }
 
+// Currently only used for shadows -Cosmic,2023-04-19
 void LLPipeline::renderMaskedObjects(U32 type, bool texture, bool batch_texture, bool rigged)
 {
 	assertInitialized();
@@ -6812,6 +6832,7 @@ void LLPipeline::renderMaskedObjects(U32 type, bool texture, bool batch_texture,
 	gGLLastMatrix = NULL;		
 }
 
+// Currently only used for shadows -Cosmic,2023-04-19
 void LLPipeline::renderFullbrightMaskedObjects(U32 type, bool texture, bool batch_texture, bool rigged)
 {
 	assertInitialized();
@@ -7674,6 +7695,12 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     {
         gGL.getTexUnit(channel)->bind(deferred_target, TRUE);
         stop_glerror();
+    }
+
+    channel = shader.enableTexture(LLShaderMgr::EXPOSURE_MAP);
+    if (channel > -1)
+    {
+        gGL.getTexUnit(channel)->bind(&mExposureMap);
     }
 
     if (shader.getUniformLocation(LLShaderMgr::VIEWPORT) != -1)
@@ -8732,6 +8759,8 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
     U32 saved_occlusion = sUseOcclusion;
     sUseOcclusion = 0;
 
+    // List of render pass types that use the prim volume as the shadow,
+    // ignoring textures.
     static const U32 types[] = {
         LLRenderPass::PASS_SIMPLE,
         LLRenderPass::PASS_FULLBRIGHT,
@@ -8857,7 +8886,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
                 LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow alpha blend");
                 LL_PROFILE_GPU_ZONE("shadow alpha blend");
                 LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(0.598f);
-                renderAlphaObjects(true, true, rigged);
+                renderAlphaObjects(rigged);
             }
 
             {

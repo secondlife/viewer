@@ -23,6 +23,8 @@
  * $/LicenseInfo$
  */
 
+ uniform sampler2D exposureMap;
+
 vec3 srgb_to_linear(vec3 cs)
 {
 	vec3 low_range = cs / vec3(12.92);
@@ -83,12 +85,32 @@ vec3 hsv2rgb(vec3 c)
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
-vec3 legacy_adjust_no_brighten(vec3 c)
+const mat3 inv_ACESOutputMat = mat3(0.643038, 0.0592687, 0.0059619, 0.311187, 0.931436, 0.063929, 0.0457755, 0.00929492, 0.930118 );
+
+const mat3 inv_ACESInputMat = mat3( 1.76474, -0.147028, -0.0363368, -0.675778, 1.16025, -0.162436, -0.0889633, -0.0132237, 1.19877 );
+
+vec3 inv_RRTAndODTFit(vec3 x)
 {
-    vec3 desat = rgb2hsv(c.rgb);
-    desat.g *= 0.75;
-    desat.rgb = hsv2rgb(desat);
-    return desat;
+    float A = 0.0245786;
+    float B = 0.000090537;
+    float C = 0.983729;
+    float D = 0.4329510;
+    float E = 0.238081;
+
+    return (A - D * x)/(2.0 * (C * x - 1.0)) - sqrt(pow(D * x - A, vec3(2.0)) - 4.0 * (C * x - 1.0) * (B + E * x))/(2.0 * (C * x - 1.0));
+}
+
+// experimental inverse of ACES Hill tonemapping
+vec3 inv_toneMapACES_Hill(vec3 color)
+{
+    color = inv_ACESOutputMat * color;
+
+    // Apply RRT and ODT
+    color = inv_RRTAndODTFit(color);
+
+    color = inv_ACESInputMat * color;
+
+    return color;
 }
 
 vec3 legacy_adjust(vec3 c)
@@ -99,6 +121,13 @@ vec3 legacy_adjust(vec3 c)
     desat.rgb = hsv2rgb(desat);
     return desat;
 }
+
+vec3 legacy_adjust_fullbright(vec3 c)
+{
+    float exp_scale = texture(exposureMap, vec2(0.5, 0.5)).r;
+    return c / exp_scale * 1.34;
+}
+
 
 vec3 legacy_adjust_post(vec3 c)
 {
