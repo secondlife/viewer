@@ -456,12 +456,16 @@ void AISAPI::FetchCategoryChildren(const LLUUID &catId, ITEM_TYPE type, bool rec
 
     if (recursive)
     {
-        url += "?depth=*";
+        // can specify depth=*, but server side is going to cap requests
+        // and reject everything 'over the top',.
+        depth = 50;
     }
     else
     {
-        url += "?depth=" + std::to_string(depth);
+        depth = llmax(depth, 50);
     }
+
+    url += "?depth=" + std::to_string(depth);
 
     invokationFn_t getFn = boost::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
@@ -477,7 +481,7 @@ void AISAPI::FetchCategoryChildren(const LLUUID &catId, ITEM_TYPE type, bool rec
 
     // get doesn't use body, can pass additional data
     LLSD body;
-    body["depth"] = recursive ? S32_MAX : depth;
+    body["depth"] = depth;
     LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
         _1, getFn, url, catId, body, callback, FETCHCATEGORYCHILDREN));
 
@@ -505,12 +509,16 @@ void AISAPI::FetchCategoryChildren(const std::string &identifier, bool recursive
 
     if (recursive)
     {
-        url += "?depth=*";
+        // can specify depth=*, but server side is going to cap requests
+        // and reject everything 'over the top',.
+        depth = 50;
     }
     else
     {
-        url += "?depth=" + std::to_string(depth);
+        depth = llmax(depth, 50);
     }
+
+    url += "?depth=" + std::to_string(depth);
 
     invokationFn_t getFn = boost::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
@@ -526,7 +534,7 @@ void AISAPI::FetchCategoryChildren(const std::string &identifier, bool recursive
 
     // get doesn't use body, can pass additional data
     LLSD body;
-    body["depth"] = recursive ? S32_MAX : depth;
+    body["depth"] = depth;
     LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
         _1, getFn, url, LLUUID::null, body, callback, FETCHCATEGORYCHILDREN));
 
@@ -552,12 +560,16 @@ void AISAPI::FetchCategoryCategories(const LLUUID &catId, ITEM_TYPE type, bool r
 
     if (recursive)
     {
-        url += "?depth=*";
+        // can specify depth=*, but server side is going to cap requests
+        // and reject everything 'over the top',.
+        depth = 50;
     }
     else
     {
-        url += "?depth=" + std::to_string(depth);
+        depth = llmax(depth, 50);
     }
+
+    url += "?depth=" + std::to_string(depth);
 
     invokationFn_t getFn = boost::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
