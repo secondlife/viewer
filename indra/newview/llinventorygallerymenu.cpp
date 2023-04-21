@@ -334,6 +334,10 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata, const LLU
         gInventory.updateItem(item);
         gInventory.notifyObservers();
     }
+    else if ("replace_links" == action)
+    {
+        LLFloaterReg::showInstance("linkreplace", LLSD(selected_id));
+    }
 }
 
 void LLInventoryGalleryContextMenu::onRename(const LLSD& notification, const LLSD& response)
@@ -451,8 +455,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
     if(!is_link)
     {
         items.push_back(std::string("thumbnail"));
-        LLViewerInventoryItem* inv_item = gInventory.getItem(selected_id);
-        if (inv_item && !inv_item->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
+        if (!is_agent_inventory)
         {
             disabled_items.push_back(std::string("thumbnail"));
         }
@@ -465,6 +468,13 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
         items.push_back(std::string("open_in_current_window"));
         items.push_back(std::string("open_in_new_window"));
         items.push_back(std::string("Open Folder Separator"));
+    }
+    else
+    {
+        if (is_agent_inventory && (obj->getType() != LLAssetType::AT_LINK_FOLDER))
+        {
+            items.push_back(std::string("Replace Links"));
+        }
     }
 
     if(is_trash)
@@ -490,7 +500,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             }
         }
         items.push_back(std::string("Purge Item"));
-        if (!get_is_category_removable(&gInventory, selected_id))
+        if (is_folder && !get_is_category_removable(&gInventory, selected_id))
         {
             disabled_items.push_back(std::string("Purge Item"));
         }
