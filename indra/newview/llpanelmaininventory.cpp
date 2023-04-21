@@ -455,7 +455,7 @@ void LLPanelMainInventory::newFolderWindow(LLUUID folder_id, LLUUID item_to_sele
             {
                 LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
                 if (main_inventory && main_inventory->isSingleFolderMode()
-                    && (main_inventory->getSingleFolderViewRoot() == folder_id))
+                    && (main_inventory->getCurrentSFVRoot() == folder_id))
                 {
                     main_inventory->setFocus(true);
                     if(item_to_select.notNull())
