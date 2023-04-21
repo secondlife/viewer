@@ -504,7 +504,7 @@ void LLRenderPass::pushRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvat
     pushGLTFBatch(params);
 }
 
-void LLRenderPass::pushBatches(U32 type, bool texture, bool batch_textures)
+void LLRenderPass::pushBatches(U32 type, bool texture, bool batch_textures, bool reset_gltf)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     auto* begin = gPipeline.beginRenderMap(type);
@@ -514,11 +514,12 @@ void LLRenderPass::pushBatches(U32 type, bool texture, bool batch_textures)
         LLDrawInfo* pparams = *i;
         LLCullResult::increment_iterator(i, end);
 
-		pushBatch(*pparams, texture, batch_textures);
+		pushBatch(*pparams, texture, batch_textures, reset_gltf);
+        reset_gltf = false;
 	}
 }
 
-void LLRenderPass::pushRiggedBatches(U32 type, bool texture, bool batch_textures)
+void LLRenderPass::pushRiggedBatches(U32 type, bool texture, bool batch_textures, bool reset_gltf)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LLVOAvatar* lastAvatar = nullptr;
@@ -537,11 +538,12 @@ void LLRenderPass::pushRiggedBatches(U32 type, bool texture, bool batch_textures
             lastMeshId = pparams->mSkinInfo->mHash;
         }
 
-        pushBatch(*pparams, texture, batch_textures);
+        pushBatch(*pparams, texture, batch_textures, reset_gltf);
+        reset_gltf = false;
     }
 }
 
-void LLRenderPass::pushMaskBatches(U32 type, bool texture, bool batch_textures)
+void LLRenderPass::pushMaskBatches(U32 type, bool texture, bool batch_textures, bool reset_gltf)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     auto* begin = gPipeline.beginRenderMap(type);
@@ -551,11 +553,12 @@ void LLRenderPass::pushMaskBatches(U32 type, bool texture, bool batch_textures)
         LLDrawInfo* pparams = *i;
         LLCullResult::increment_iterator(i, end);
 		LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(pparams->mAlphaMaskCutoff);
-		pushBatch(*pparams, texture, batch_textures);
+		pushBatch(*pparams, texture, batch_textures, reset_gltf);
+        reset_gltf = false;
 	}
 }
 
-void LLRenderPass::pushRiggedMaskBatches(U32 type, bool texture, bool batch_textures)
+void LLRenderPass::pushRiggedMaskBatches(U32 type, bool texture, bool batch_textures, bool reset_gltf)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LLVOAvatar* lastAvatar = nullptr;
@@ -584,7 +587,8 @@ void LLRenderPass::pushRiggedMaskBatches(U32 type, bool texture, bool batch_text
             lastMeshId = pparams->mSkinInfo->mHash;
         }
 
-        pushBatch(*pparams, texture, batch_textures);
+        pushBatch(*pparams, texture, batch_textures, reset_gltf);
+        reset_gltf = false;
     }
 }
 
@@ -603,7 +607,14 @@ void LLRenderPass::applyModelMatrix(const LLDrawInfo& params)
 	}
 }
 
-void LLRenderPass::pushBatch(LLDrawInfo& params, bool texture, bool batch_textures)
+void LLRenderPass::resetGLTFTextureTransform()
+{
+    F32 ignore_gltf_transform[8];
+    LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(ignore_gltf_transform);
+    LLGLSLShader::sCurBoundShaderPtr->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)ignore_gltf_transform);
+}
+
+void LLRenderPass::pushBatch(LLDrawInfo& params, bool texture, bool batch_textures, bool reset_gltf)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     if (!params.mCount)
@@ -612,6 +623,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, bool texture, bool batch_textur
     }
 
 	applyModelMatrix(params);
+    if (reset_gltf) { resetGLTFTextureTransform(); }
 
 	bool tex_setup = false;
 

@@ -1218,12 +1218,14 @@ void LLDrawPoolBump::pushBumpBatches(U32 type)
 	}
 }
 
-void LLDrawPoolBump::pushBatch(LLDrawInfo& params, bool texture, bool batch_textures)
+void LLDrawPoolBump::pushBatch(LLDrawInfo& params, bool texture, bool batch_textures, bool reset_gltf)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 	applyModelMatrix(params);
 
 	bool tex_setup = false;
+
+	if (reset_gltf) { LLRenderPass::resetGLTFTextureTransform(); }
 
 	if (batch_textures && params.mTextureList.size() > 1)
 	{
