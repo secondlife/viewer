@@ -31,10 +31,10 @@
 		- デイサイクルをプレビューするにはスクラバーを使います。
 	</text>
 	<panel name="day_cycle_slider_panel">
-		<multi_slider initial_value="0" name="WLTimeSlider"/>
-		<multi_slider initial_value="0" name="WLDayCycleKeys"/>
-		<button label="キーの追加" label_selected="キーの追加" name="WLAddKey"/>
-		<button label="キーの削除" label_selected="キーの削除" name="WLDeleteKey"/>
+		<multi_slider initial_value="0" name="WLTimeSlider" />
+		<multi_slider initial_value="0" name="WLDayCycleKeys" />
+		<button label="キーの追加" label_selected="キーの追加" name="WLAddKey" />
+		<button label="キーの削除" label_selected="キーの削除" name="WLDeleteKey" />
 		<text name="WL12am">
 			12am
 		</text>
@@ -93,12 +93,12 @@
 	<text name="WLCurKeyPresetText">
 		空の設定：
 	</text>
-	<combo_box label="事前設定" name="WLSkyPresets"/>
+	<combo_box label="事前設定" name="WLSkyPresets" />
 	<text name="WLCurKeyTimeText">
 		時間：
 	</text>
-	<time name="time" value="6:00 AM"/>
-	<check_box label="これを新しいデイサイクルにする" name="make_default_cb"/>
-	<button label="保存" name="save"/>
-	<button label="取り消し" name="cancel"/>
+	<time name="time" value="6:00 AM" />
+	<check_box label="これを新しいデイサイクルにする" name="make_default_cb" />
+	<button label="保存" name="save" />
+	<button label="取り消し" name="cancel" />
 </floater>

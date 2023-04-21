@@ -35,14 +35,14 @@
 	</text>
 	<script_editor name="Script Preview">
 		/* サンプル スクリプト */
-default
-{
-state_entry()
-    {
-// コメント
-string greeting = &quot;こんにちは&quot;;
-llSay(PUBLIC_CHANNEL, greeting);
-    }
-}
+		default
+		{
+		state_entry()
+		{
+		// コメント
+		string greeting = &quot;こんにちは&quot;;
+		llSay(PUBLIC_CHANNEL, greeting);
+		}
+		}
 	</script_editor>
 </floater>

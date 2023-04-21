@@ -46,7 +46,8 @@
 		L$ [AMT]
 	</text>
 	<text name="currency_links">
-		[http://www.secondlife.com/my/account/payment_method_management.php 支払方法] | [http://www.secondlife.com/my/account/currency.php 通貨]
+		[http://www.secondlife.com/my/account/payment_method_management.php 支払方法] |
+		[http://www.secondlife.com/my/account/currency.php 通貨]
 	</text>
 	<text name="exchange_rate_note">
 		金額を再入力して最新換算レートを確認します。
@@ -57,8 +58,8 @@
 	<text name="purchase_warning_notenough">
 		購入しようとしている L$ が不足しています。 金額を上げてください。
 	</text>
-	<button label="購入する" name="buy_btn"/>
-	<button label="取り消し" name="cancel_btn"/>
+	<button label="購入する" name="buy_btn" />
+	<button label="取り消し" name="cancel_btn" />
 	<floater.string name="info_cannot_buy">
 		購入できません
 	</floater.string>

@@ -5,17 +5,17 @@
 	<text name="paying_text">支払中:</text>
 	<text name="payee_name">Ericacita Moostopolison</text>
 	<text name="object_name_label">オブジェクトを介して：</text>
-	<icon name="icon_object" tool_tip="オブジェクト"/>
+	<icon name="icon_object" tool_tip="オブジェクト" />
 	<text name="object_name_text">...</text>
 	<panel label="検索" name="PatternsPanel">
-		<button label="L$ 1 支払う" label_selected="L$ 1 支払う" name="fastpay 1"/>
-		<button label="L$ 5 支払う" label_selected="L$ 5 支払う" name="fastpay 5"/>
-		<button label="L$ 10 支払う" label_selected="L$ 10 支払う" name="fastpay 10"/>
-		<button label="L$ 20 支払う" label_selected="L$ 20 支払う" name="fastpay 20"/>
+		<button label="L$ 1 支払う" label_selected="L$ 1 支払う" name="fastpay 1" />
+		<button label="L$ 5 支払う" label_selected="L$ 5 支払う" name="fastpay 5" />
+		<button label="L$ 10 支払う" label_selected="L$ 10 支払う" name="fastpay 10" />
+		<button label="L$ 20 支払う" label_selected="L$ 20 支払う" name="fastpay 20" />
 	</panel>
 	<panel label="検索" name="InputPanel">
 		<text name="amount text">その他の金額:</text>
-		<button label="支払い" label_selected="支払い" name="pay btn"/>
-		<button label="取り消し" label_selected="取り消し" name="cancel btn"/>
+		<button label="支払い" label_selected="支払い" name="pay btn" />
+		<button label="取り消し" label_selected="取り消し" name="cancel btn" />
 	</panel>
 </floater>

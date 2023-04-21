@@ -9,9 +9,9 @@
 		<layout_panel>
 			<layout_stack name="water_stack2">
 				<layout_panel>
-					<slider label="X：" name="water_normal_scale_x"/>
-					<slider label="Y：" name="water_normal_scale_y"/>
-					<slider label="Z：" name="water_normal_scale_z"/>
+					<slider label="X：" name="water_normal_scale_x" />
+					<slider label="Y：" name="water_normal_scale_y" />
+					<slider label="Z：" name="water_normal_scale_z" />
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>

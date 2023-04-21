@@ -37,8 +37,8 @@
 		<text name="BHText">
 			大波の方向
 		</text>
-		<slider label="X" name="WaterWave1DirX"/>
-		<slider label="Y" name="WaterWave1DirY"/>
+		<slider label="X" name="WaterWave1DirX" />
+		<slider label="Y" name="WaterWave1DirY" />
 		<text name="BDensText">
 			さざ波の反射スケール
 		</text>
@@ -51,8 +51,8 @@
 		<text name="BHText2">
 			小波の方向
 		</text>
-		<slider label="X" name="WaterWave2DirX"/>
-		<slider label="Y" name="WaterWave2DirY"/>
+		<slider label="X" name="WaterWave2DirX" />
+		<slider label="Y" name="WaterWave2DirY" />
 		<text name="DensMultText">
 			水面の屈折スケール
 		</text>
@@ -66,7 +66,7 @@
 			ノーマル・マップ
 		</text>
 	</panel>
-	<check_box label="この事前設定を新しい水の設定にする" name="make_default_cb"/>
-	<button label="保存" name="save"/>
-	<button label="キャンセル" name="cancel"/>
+	<check_box label="この事前設定を新しい水の設定にする" name="make_default_cb" />
+	<button label="保存" name="save" />
+	<button label="キャンセル" name="cancel" />
 </floater>

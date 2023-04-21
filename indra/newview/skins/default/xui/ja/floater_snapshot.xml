@@ -48,24 +48,24 @@
 	<string name="local_failed_str">
 		コンピュータに保存できませんでした。
 	</string>
-	<button label="更新" name="new_snapshot_btn"/>
+	<button label="更新" name="new_snapshot_btn" />
 	<panel name="advanced_options_panel">
 		<text name="layer_type_label">
 			キャプチャ：
 		</text>
 		<combo_box label="画像レイヤー" name="layer_types">
-			<combo_box.item label="色" name="Colors"/>
-			<combo_box.item label="深度" name="Depth"/>
+			<combo_box.item label="色" name="Colors" />
+			<combo_box.item label="深度" name="Depth" />
 		</combo_box>
-		<check_box label="インターフェース" name="ui_check"/>
-		<check_box label="HUD" name="hud_check"/>
-		<check_box label="画面全体を静止" name="freeze_frame_check"/>
-		<check_box label="自動更新" name="auto_snapshot_check"/>
+		<check_box label="インターフェース" name="ui_check" />
+		<check_box label="HUD" name="hud_check" />
+		<check_box label="画面全体を静止" name="freeze_frame_check" />
+		<check_box label="自動更新" name="auto_snapshot_check" />
 		<text name="filter_list_label">
 			フィルター:
 		</text>
 		<combo_box name="filters_combobox" tool_tip="画像フィルター">
-			<combo_box.item label="フィルターなし" name="NoFilter"/>
+			<combo_box.item label="フィルターなし" name="NoFilter" />
 		</combo_box>
 	</panel>
 	<text name="image_res_text">

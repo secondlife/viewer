@@ -9,6 +9,6 @@
 	<text name="note">
 		* ブロックされるのはオブジェクトの文字だけで、音はブロックされません。
 	</text>
-	<button label="OK" name="OK"/>
-	<button label="ｷｬﾝｾﾙ" name="Cancel"/>
+	<button label="OK" name="OK" />
+	<button label="ｷｬﾝｾﾙ" name="Cancel" />
 </floater>

@@ -12,7 +12,7 @@
 	<text name="name_confirm_label">
 		新しい表示名を再入力して確認：
 	</text>
-	<button label="保存" name="save_btn" tool_tip="新しい表示名を保存"/>
-	<button label="リセット" name="reset_btn" tool_tip="表示名とユーザー名を統一"/>
-	<button label="取り消し" name="cancel_btn"/>
+	<button label="保存" name="save_btn" tool_tip="新しい表示名を保存" />
+	<button label="リセット" name="reset_btn" tool_tip="表示名とユーザー名を統一" />
+	<button label="取り消し" name="cancel_btn" />
 </floater>

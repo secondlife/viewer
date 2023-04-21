@@ -9,6 +9,6 @@
 	<text name="Preset">
 		プリセットの名前を入力するか、既存のプリセットを選択します。
 	</text>
-	<button label="保存" name="save"/>
-	<button label="取り消し" name="cancel"/>
+	<button label="保存" name="save" />
+	<button label="取り消し" name="cancel" />
 </floater>

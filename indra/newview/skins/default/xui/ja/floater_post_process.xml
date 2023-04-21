@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Post-Process Floater" title="ポストプロセス設定">
 	<tab_container name="Post-Process Tabs">
 		<panel label="カラー・フィルター" name="wmiColorFilterPanel">
@@ -46,7 +46,7 @@
 		</panel>
 		<panel label="その他" name="Extras">
 			<button label="効果読み込み" label_selected="効果読み込み"
-			     name="PPLoadEffect" />
+				name="PPLoadEffect" />
 			<button label="効果保存" label_selected="効果保存" name="PPSaveEffect" />
 			<line_editor label="効果名" name="PPEffectNameEditor" />
 		</panel>

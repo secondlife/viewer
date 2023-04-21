@@ -3,5 +3,5 @@
 	<text name="voice_label">
 		ボイスチャット
 	</text>
-	<check_box label="有効" name="enable_voice"/>
+	<check_box label="有効" name="enable_voice" />
 </floater>

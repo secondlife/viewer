@@ -6,12 +6,12 @@
 	<text name="region_text">
 		未知
 	</text>
-	<spinner label="水面の高さ" name="water_height_spin"/>
-	<spinner label="地形の上昇限度" name="terrain_raise_spin"/>
-	<spinner label="地形の下降限度" name="terrain_lower_spin"/>
+	<spinner label="水面の高さ" name="water_height_spin" />
+	<spinner label="地形の上昇限度" name="terrain_raise_spin" />
+	<spinner label="地形の下降限度" name="terrain_lower_spin" />
 	<text name="detail_texture_text">
-    地形テクスチャ（1024x1024 の 24 bit .tga ファイル）
-  </text>
+		地形テクスチャ（1024x1024 の 24 bit .tga ファイル）
+	</text>
 	<text name="height_text_lbl">
 		1（低）
 	</text>
@@ -39,22 +39,22 @@
 	<text name="height_text_lbl7">
 		北東
 	</text>
-	<spinner label="低" name="height_start_spin_1"/>
-	<spinner label="低" name="height_start_spin_3"/>
-	<spinner label="高" name="height_range_spin_1"/>
-	<spinner label="高" name="height_range_spin_3"/>
+	<spinner label="低" name="height_start_spin_1" />
+	<spinner label="低" name="height_start_spin_3" />
+	<spinner label="高" name="height_range_spin_1" />
+	<spinner label="高" name="height_range_spin_3" />
 	<text name="height_text_lbl8">
 		南西
 	</text>
 	<text name="height_text_lbl9">
 		南東
 	</text>
-	<spinner label="低" name="height_start_spin_0"/>
-	<spinner label="低" name="height_start_spin_2"/>
-	<spinner label="高" name="height_range_spin_0"/>
-	<spinner label="高" name="height_range_spin_2"/>
-	<button label="RAW 地形ダウンロード..." name="download_raw_btn" tool_tip="不動産オーナーのみ利用可能、管理者は利用不可です"/>
-	<button label="RAW 地形アップロード..." name="upload_raw_btn" tool_tip="不動産オーナーのみ利用可能、管理者は利用不可です"/>
-	<button label="地形の構築" name="bake_terrain_btn" tool_tip="現在の地形を上昇・下降範囲の中間点として設定します"/>
-	<button label="適用" name="apply_btn"/>
+	<spinner label="低" name="height_start_spin_0" />
+	<spinner label="低" name="height_start_spin_2" />
+	<spinner label="高" name="height_range_spin_0" />
+	<spinner label="高" name="height_range_spin_2" />
+	<button label="RAW 地形ダウンロード..." name="download_raw_btn" tool_tip="不動産オーナーのみ利用可能、管理者は利用不可です" />
+	<button label="RAW 地形アップロード..." name="upload_raw_btn" tool_tip="不動産オーナーのみ利用可能、管理者は利用不可です" />
+	<button label="地形の構築" name="bake_terrain_btn" tool_tip="現在の地形を上昇・下降範囲の中間点として設定します" />
+	<button label="適用" name="apply_btn" />
 </panel>

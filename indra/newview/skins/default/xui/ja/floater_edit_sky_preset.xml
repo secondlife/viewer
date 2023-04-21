@@ -58,8 +58,8 @@
 			<text name="SunGlowText">
 				太陽の輝き
 			</text>
-			<slider label="焦点" name="WLGlowB"/>
-			<slider label="サイズ" name="WLGlowR"/>
+			<slider label="焦点" name="WLGlowB" />
+			<slider label="サイズ" name="WLGlowR" />
 			<text name="WLStarText">
 				星の輝き
 			</text>
@@ -69,7 +69,7 @@
 			<text name="TODText">
 				太陽/月の位置
 			</text>
-			<multi_slider initial_value="0" name="WLSunPos"/>
+			<multi_slider initial_value="0" name="WLSunPos" />
 			<text name="WL12amHash">
 				|
 			</text>
@@ -100,7 +100,7 @@
 			<text name="WL12am2">
 				12am
 			</text>
-			<time name="WLDayTime" value="6:00 AM"/>
+			<time name="WLDayTime" value="6:00 AM" />
 			<text name="WLEastAngleText">
 				東の角度
 			</text>
@@ -112,9 +112,9 @@
 			<text name="WLCloudColorText2">
 				雲のXY/密度
 			</text>
-			<slider label="X" name="WLCloudX"/>
-			<slider label="Y" name="WLCloudY"/>
-			<slider label="D" name="WLCloudDensity"/>
+			<slider label="X" name="WLCloudX" />
+			<slider label="Y" name="WLCloudY" />
+			<slider label="D" name="WLCloudDensity" />
 			<text name="WLCloudCoverageText">
 				雲の量
 			</text>
@@ -124,20 +124,20 @@
 			<text name="WLCloudDetailText">
 				雲の詳細（XY/密度）
 			</text>
-			<slider label="X" name="WLCloudDetailX"/>
-			<slider label="Y" name="WLCloudDetailY"/>
-			<slider label="D" name="WLCloudDetailDensity"/>
+			<slider label="X" name="WLCloudDetailX" />
+			<slider label="Y" name="WLCloudDetailY" />
+			<slider label="D" name="WLCloudDetailDensity" />
 			<text name="WLCloudScrollXText">
 				雲の移動速度（X方向）
 			</text>
-			<check_box label="ロック" name="WLCloudLockX"/>
+			<check_box label="ロック" name="WLCloudLockX" />
 			<text name="WLCloudScrollYText">
 				雲の移動速度（Y方向）
 			</text>
-			<check_box label="ロック" name="WLCloudLockY"/>
+			<check_box label="ロック" name="WLCloudLockY" />
 		</panel>
 	</tab_container>
-	<check_box label="この事前設定を新しい空の設定にする" name="make_default_cb"/>
-	<button label="保存" name="save"/>
-	<button label="キャンセル" name="cancel"/>
+	<check_box label="この事前設定を新しい空の設定にする" name="make_default_cb" />
+	<button label="保存" name="save" />
+	<button label="キャンセル" name="cancel" />
 </floater>

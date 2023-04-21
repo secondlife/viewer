@@ -21,12 +21,12 @@
 	</text>
 	<text name="group_details">
 		A group of folks charged with creating a room with a moose.
-Fear the moose!  Fear it!  And the mongoose too!
+		Fear the moose! Fear it! And the mongoose too!
 	</text>
 	<text name="group_cost">
 		L$123 to join
 	</text>
-	<button label="参加" name="join_btn"/>
-	<button label="脱退" name="leave_btn"/>
-	<button label="プロフィールの表示" name="view_profile_btn"/>
+	<button label="参加" name="join_btn" />
+	<button label="脱退" name="leave_btn" />
+	<button label="プロフィールの表示" name="view_profile_btn" />
 </floater>

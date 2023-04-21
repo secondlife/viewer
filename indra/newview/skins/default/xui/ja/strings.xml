@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<!-- This file contains strings that used to be hardcoded in the source.
-     It is only for those strings which do not belong in a floater.
-     For example, the strings used in avatar chat bubbles, and strings
-     that are returned from one component and may appear in many places-->
+<!-- 
+This file contains strings that used to be hardcoded in the source.
+It is only for those strings which do not belong in a floater.
+For example, the strings used in avatar chat bubbles, and strings
+that are returned from one component and may appear in many places
+-->
 <strings>
 	<string name="SECOND_LIFE">
 		Second Life
@@ -35,25 +37,27 @@
 		グラフィックを初期化できませんでした。グラフィックドライバを更新してください。
 	</string>
 	<string name="AboutHeader">
-		[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) 
-[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+		[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3]
+		([ADDRESS_SIZE]bit)
+		[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
 		ビルド構成 [BUILD_CONFIG]
 	</string>
 	<string name="AboutPosition">
-		あなたの現在地は、[POSITION_LOCAL_0,number,1]、[POSITION_LOCAL_1,number,1]、[POSITION_LOCAL_2,number,1] の [REGION] です。位置は &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; です。（[HOSTIP]）
-SLURL:&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
-(グローバル座標 [POSITION_0,number,1]、[POSITION_1,number,1]、[POSITION_2,number,1])
-[SERVER_VERSION]
-[SERVER_RELEASE_NOTES_URL]
+		あなたの現在地は、[POSITION_LOCAL_0,number,1]、[POSITION_LOCAL_1,number,1]、[POSITION_LOCAL_2,number,1] の
+		[REGION] です。位置は &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; です。（[HOSTIP]）
+		SLURL:&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
+		(グローバル座標 [POSITION_0,number,1]、[POSITION_1,number,1]、[POSITION_2,number,1])
+		[SERVER_VERSION]
+		[SERVER_RELEASE_NOTES_URL]
 	</string>
 	<string name="AboutSystem">
 		CPU：[CPU]
-メモリ：[MEMORY_MB] MB
-OS バージョン：[OS_VERSION]
-グラフィックカード製造元：[GRAPHICS_CARD_VENDOR]
-グラフィックカード:[GRAPHICS_CARD]
+		メモリ：[MEMORY_MB] MB
+		OS バージョン：[OS_VERSION]
+		グラフィックカード製造元：[GRAPHICS_CARD_VENDOR]
+		グラフィックカード:[GRAPHICS_CARD]
 	</string>
 	<string name="AboutDriver">
 		Windows グラフィックドライババージョン：[GRAPHICS_DRIVER_VERSION]
@@ -63,29 +67,30 @@ OS バージョン：[OS_VERSION]
 	</string>
 	<string name="AboutSettings">
 		ウィンドウサイズ: [WINDOW_WIDTH]x[WINDOW_HEIGHT]
-フォントサイズ調整: [FONT_SIZE_ADJUSTMENT]pt
-UI スケーリング: [UI_SCALE]
-描画距離: [DRAW_DISTANCE]m
-帯域幅: [NET_BANDWITH]kbit/s
-LOD 係数: [LOD_FACTOR]
-描画の質: [RENDER_QUALITY]
-高度なライティングモデル: [GPU_SHADERS]
-テクスチャメモリ: [TEXTURE_MEMORY]MB
+		フォントサイズ調整: [FONT_SIZE_ADJUSTMENT]pt
+		UI スケーリング: [UI_SCALE]
+		描画距離: [DRAW_DISTANCE]m
+		帯域幅: [NET_BANDWITH]kbit/s
+		LOD 係数: [LOD_FACTOR]
+		描画の質: [RENDER_QUALITY]
+		高度なライティングモデル: [GPU_SHADERS]
+		テクスチャメモリ: [TEXTURE_MEMORY]MB
 	</string>
 	<string name="AboutOSXHiDPI">
 		HiDPI 表示モード: [HIDPI]
 	</string>
 	<string name="AboutLibs">
-		J2C デコーダバージョン： [J2C_VERSION] 
-オーディオドライババージョン： [AUDIO_DRIVER_VERSION] 
-[LIBCEF_VERSION] LibVLC バージョン： [LIBVLC_VERSION] 
-ボイスサーバーバージョン: [VOICE_VERSION]
+		J2C デコーダバージョン： [J2C_VERSION]
+		オーディオドライババージョン： [AUDIO_DRIVER_VERSION]
+		[LIBCEF_VERSION] LibVLC バージョン： [LIBVLC_VERSION]
+		ボイスサーバーバージョン: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		パケットロス：[PACKETS_LOST,number,0]/[PACKETS_IN,number,0] （[PACKETS_PCT,number,1]%）
 	</string>
 	<string name="AboutTime">
-		[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]
+		[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min,
+		datetime, slt]:[second,datetime,slt]
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		サーバーのリリースノートの URL を取得中にエラーが発生しました。
@@ -103,7 +108,7 @@ LOD 係数: [LOD_FACTOR]
 		明るさ全開（レガシー）
 	</string>
 	<string name="LoginInProgress">
-		ログイン中です。[APP_NAME]の表示がフリーズする場合があります。  しばらくお待ちください。
+		ログイン中です。[APP_NAME]の表示がフリーズする場合があります。 しばらくお待ちください。
 	</string>
 	<string name="LoginInProgressNoFrozen">
 		ログイン中です...
@@ -175,10 +180,10 @@ LOD 係数: [LOD_FACTOR]
 		グリッドが返した証明書は有効期限が終了していると考えられます。お使いのシステムクロックを確認するか、グリッドの管理者にお問い合わせください。
 	</string>
 	<string name="CertKeyUsage">
-		SSL 証明書のエラーが発生しました。  グリッド管理者にご連絡ください。
+		SSL 証明書のエラーが発生しました。 グリッド管理者にご連絡ください。
 	</string>
 	<string name="CertBasicConstraints">
-		サーバーの証明書チェーンに証明書が多すぎます。  グリッド管理者にご連絡ください。
+		サーバーの証明書チェーンに証明書が多すぎます。 グリッド管理者にご連絡ください。
 	</string>
 	<string name="CertInvalidSignature">
 		グリッドサーバーが返した証明書の署名を認証できませんでした。グリッドの管理者にお問い合わせください。
@@ -206,10 +211,10 @@ LOD 係数: [LOD_FACTOR]
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		お使いの古いビューワでは Second Life にアクセスできません。以下のページから新しいビューワをダウンロードしてください：
-http://secondlife.com/download
+		http://secondlife.com/download
 
-詳細については、FAQ を参照してください：
-http://secondlife.com/viewer-access-faq
+		詳細については、FAQ を参照してください：
+		http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="LoginIntermediateOptionalUpdateAvailable">
 		ビューワアップデート（オプション）があります： [VERSION]
@@ -222,62 +227,61 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="LoginFailedAuthenticationFailed">
 		申し訳ありませんが、ログインできませんでした。
-以下の情報が正しく入力されたことを確認してください：
-* ユーザー名（bobsmith12 または steller.sunshine など）
-* パスワード
-また、Caps Lock キーが有効になっていないこともお確かめください。
+		以下の情報が正しく入力されたことを確認してください：
+		* ユーザー名（bobsmith12 または steller.sunshine など）
+		* パスワード
+		また、Caps Lock キーが有効になっていないこともお確かめください。
 	</string>
 	<string name="LoginFailedPasswordChanged">
 		セキュリティ上の理由により、あなたのパスワードは変更されました。
-アカウントページ（http://secondlife.com/password）に移動し、
-秘密の質問に答えて、パスワードをリセットしてください。
-ご迷惑をおかけして申し訳ございません。
+		アカウントページ（http://secondlife.com/password）に移動し、
+		秘密の質問に答えて、パスワードをリセットしてください。
+		ご迷惑をおかけして申し訳ございません。
 	</string>
 	<string name="LoginFailedPasswordReset">
 		弊社はシステムを若干変更しました。お手数ですが、パスワードのリセットをお願いします。
-アカウントページ（http://secondlife.com/password）に移動し、
-秘密の質問に答えて、パスワードをリセットしてください。
-ご迷惑をおかけして申し訳ございません。
+		アカウントページ（http://secondlife.com/password）に移動し、
+		秘密の質問に答えて、パスワードをリセットしてください。
+		ご迷惑をおかけして申し訳ございません。
 	</string>
 	<string name="LoginFailedEmployeesOnly">
 		Second Life はメンテナンスのため、一時的にご利用いただけません。
-従業員以外にはログインをご遠慮いただいています。
-最新の状況については www.secondlife.com/status でお確かめください。
+		従業員以外にはログインをご遠慮いただいています。
+		最新の状況については www.secondlife.com/status でお確かめください。
 	</string>
 	<string name="LoginFailedPremiumOnly">
 		既にログインしているユーザーに最上のインワールド体験を提供するため、Second Life へのログインは一時的に制限されています。
-
-申し訳ございませんが、有料アカウントのユーザーを優先するため、現在のところ無料アカウントのユーザーには Second Life へのアクセスをご遠慮いただいています。
+		申し訳ございませんが、有料アカウントのユーザーを優先するため、現在のところ無料アカウントのユーザーには Second Life へのアクセスをご遠慮いただいています。
 	</string>
 	<string name="LoginFailedComputerProhibited">
 		このパソコンからは Second Life にアクセスできません。
-システムのエラーだと思われる場合は、
-support@secondlife.com にお問い合わせください。
+		システムのエラーだと思われる場合は、
+		support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedAcountSuspended">
 		あなたのアカウントは
-太平洋時間の [TIME] までご利用いただけません。
+		太平洋時間の [TIME] までご利用いただけません。
 	</string>
 	<string name="LoginFailedAccountDisabled">
 		現在リクエストを完了することができません。
-Second Life のサポート（http://support.secondlife.com）にお問い合わせください。
+		Second Life のサポート（http://support.secondlife.com）にお問い合わせください。
 	</string>
 	<string name="LoginFailedTransformError">
 		ログイン時にデータの不一致が見つかりました。
-support@secondlife.com にお問い合わせください。
+		support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedAccountMaintenance">
 		現在アカウントのメインテナンスが行われています。
-あなたのアカウントは
-太平洋時間の [TIME] までご利用いただけません。
-システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
+		あなたのアカウントは
+		太平洋時間の [TIME] までご利用いただけません。
+		システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedPendingLogoutFault">
 		ログアウトをリスクエストしたら、シミュレーターから「fault」が返されました。
 	</string>
 	<string name="LoginFailedPendingLogout">
 		システムによるログアウトが実行されました。
-しばらくしてから再度お試しください。
+		しばらくしてから再度お試しください。
 	</string>
 	<string name="LoginFailedUnableToCreateSession">
 		有効なセッションを生成できません。
@@ -287,56 +291,56 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedRestrictedHours">
 		あなたの Second Life アカウントにアクセスできるのは、
-太平洋時間の [START] ～ [END] の間に限られます。
-有効な時間帯に再度お試しください。
-システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
+		太平洋時間の [START] ～ [END] の間に限られます。
+		有効な時間帯に再度お試しください。
+		システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedIncorrectParameters">
 		パラメーターが正しくありません。
-システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
+		システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedFirstNameNotAlphanumeric">
 		ファーストネームのパラメーターは英数字です。
-システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
+		システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LoginFailedLastNameNotAlphanumeric">
 		ラストネームのパラメーターは英数字です。
-システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
+		システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="LogoutFailedRegionGoingOffline">
 		リージョンはオフライン中です。
-しばらくしてから再度お試しください。
+		しばらくしてから再度お試しください。
 	</string>
 	<string name="LogoutFailedAgentNotInRegion">
 		エージェントがリージョンに不在です。
-しばらくしてから再度お試しください。
+		しばらくしてから再度お試しください。
 	</string>
 	<string name="LogoutFailedPendingLogin">
 		このリージョンでは別のセッションがログインされていました。
-しばらくしてから再度お試しください。
+		しばらくしてから再度お試しください。
 	</string>
 	<string name="LogoutFailedLoggingOut">
 		このリージョンでは前のセッションがログアウトされました。
-しばらくしてから再度お試しください。
+		しばらくしてから再度お試しください。
 	</string>
 	<string name="LogoutFailedStillLoggingOut">
 		このリージョンでは現在も前のセッションのログアウトが処理されています。
-しばらくしてから再度お試しください。
+		しばらくしてから再度お試しください。
 	</string>
 	<string name="LogoutSucceeded">
 		リージョンでは前のセッションがログアウトされました。
-しばらくしてから再度お試しください。
+		しばらくしてから再度お試しください。
 	</string>
 	<string name="LogoutFailedLogoutBegun">
 		リージョンではログアウトプロセスが開始されました。
-しばらくしてから再度お試しください。
+		しばらくしてから再度お試しください。
 	</string>
 	<string name="LoginFailedLoggingOutSession">
 		あなたの前のセッションはシステムによってログアウトされています。
-しばらくしてから再度お試しください。
+		しばらくしてから再度お試しください。
 	</string>
 	<string name="AgentLostConnection">
-		このリージョンに不都合が発生している可能性があります。  ご使用のインターネット接続をご確認ください。
+		このリージョンに不都合が発生している可能性があります。 ご使用のインターネット接続をご確認ください。
 	</string>
 	<string name="SavingSettings">
 		設定を保存中です...
@@ -491,7 +495,7 @@ support@secondlife.com にお問い合わせください。
 	<string name="TooltipTooManyWearables">
 		[AMOUNT] 以上のアイテムを含むフォルダを装着できません。「詳細設定」 &gt; 「デバッグ設定を表示」 &gt; 「WearFolderLimit」でこの制限を変更できます。
 	</string>
-	<string name="TooltipPrice" value="L$[AMOUNT]："/>
+	<string name="TooltipPrice" value="L$[AMOUNT]：" />
 	<string name="TooltipSLIcon">
 		これは、SecondLife.com または LindenLab.com の公式ドメイン上のページにリンクします。
 	</string>
@@ -597,7 +601,7 @@ support@secondlife.com にお問い合わせください。
 	<string name="TooltipSLAPP">
 		クリックして secondlife:// コマンドを出します
 	</string>
-	<string name="CurrentURL" value=" 現在の URL： [CurrentURL]"/>
+	<string name="CurrentURL" value=" 現在の URL： [CurrentURL]" />
 	<string name="TooltipEmail">
 		クリックして電子メールを作成
 	</string>
@@ -654,12 +658,12 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="TooltipNotecardNotAllowedTypeDrop">
 		このタイプのアイテムは、このリージョンのノートカード
-に添付することができません。
+		に添付することができません。
 	</string>
 	<string name="TooltipNotecardOwnerRestrictedDrop">
 		制限のない「次の所有者」の
-許可のみノートカードに
-添付できます。
+		許可のみノートカードに
+		添付できます。
 	</string>
 	<string name="Searching">
 		検索中...
@@ -735,7 +739,7 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="AssetUploadRequestInvalid">
 		アップロードリクエスト中にエラーが発生しました。問題を解決するには、サポート
-（http://secondlife.com/support）にお問い合わせください。
+		（http://secondlife.com/support）にお問い合わせください。
 	</string>
 	<string name="SettingValidationError">
 		インポートする設定 [NAME] の検証に失敗しました。
@@ -1110,10 +1114,12 @@ support@secondlife.com にお問い合わせください。
 		「近くのボイスチャット」に再接続されます
 	</string>
 	<string name="ScriptQuestionCautionChatGranted">
-		[REGIONNAME] の [REGIONPOS] という場所にある、「 [OWNERNAME] 」が所有する「 [OBJECTNAME] 」というオブジェクトは、次の権限を許可しました： [PERMISSIONS]
+		[REGIONNAME] の [REGIONPOS] という場所にある、「 [OWNERNAME] 」が所有する「 [OBJECTNAME] 」というオブジェクトは、次の権限を許可しました：
+		[PERMISSIONS]
 	</string>
 	<string name="ScriptQuestionCautionChatDenied">
-		[REGIONNAME] の [REGIONPOS] という場所にある、「 [OWNERNAME] 」が所有する「 [OBJECTNAME] 」というオブジェクトは、次の権限を拒否しました： [PERMISSIONS]
+		[REGIONNAME] の [REGIONPOS] という場所にある、「 [OWNERNAME] 」が所有する「 [OBJECTNAME] 」というオブジェクトは、次の権限を拒否しました：
+		[PERMISSIONS]
 	</string>
 	<string name="AdditionalPermissionsRequestHeader">
 		あなたのアカウントへのアクセスを許可すると、このオブジェクトには次の操作も許可されます：
@@ -1166,7 +1172,7 @@ support@secondlife.com にお問い合わせください。
 	<string name="AgentNameSubst">
 		(あなた)
 	</string>
-	<string name="JoinAnExperience"/>
+	<string name="JoinAnExperience" />
 	<string name="SilentlyManageEstateAccess">
 		土地のアクセスリストを管理するときにアラートを表示しない
 	</string>
@@ -1539,14 +1545,14 @@ support@secondlife.com にお問い合わせください。
 	<string name="InventoryOutboxNotMerchantTitle">
 		マーケットプレイスでは誰でもアイテムを売ることができます。
 	</string>
-	<string name="InventoryOutboxNotMerchantTooltip"/>
+	<string name="InventoryOutboxNotMerchantTooltip" />
 	<string name="InventoryOutboxNotMerchant">
 		マーチャントになりたい方は、[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイスストアを作成]する必要があります。
 	</string>
 	<string name="InventoryOutboxNoItemsTitle">
 		アウトボックスは空です。
 	</string>
-	<string name="InventoryOutboxNoItemsTooltip"/>
+	<string name="InventoryOutboxNoItemsTooltip" />
 	<string name="InventoryOutboxNoItems">
 		[[MARKETPLACE_DASHBOARD_URL] マーケットプレイス]に販売するアイテムを一覧するには、フォルダをこのエリアにドラッグし、「マーケットプレイスに送信」をクリックします。
 	</string>
@@ -1563,7 +1569,8 @@ support@secondlife.com にお問い合わせください。
 		[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイス ストア] がエラーを返しています。
 	</string>
 	<string name="InventoryMarketplaceError">
-		マーケットプレイスのリストを開くときにエラーが発生しました。引き続きこのメッセージを受信するには、Second Life のサポート (http://support.secondlife.com) にお問い合わせください
+		マーケットプレイスのリストを開くときにエラーが発生しました。引き続きこのメッセージを受信するには、Second Life のサポート
+		(http://support.secondlife.com) にお問い合わせください
 	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">
 		マーケットプレイスのリストフォルダが空です。
@@ -1656,7 +1663,8 @@ support@secondlife.com にお問い合わせください。
 		アップデート中...
 	</string>
 	<string name="UploadFeeInfo">
-		料金はサブスクリプションのレベルにより異なります。レベルが高いほど、料金が下がります。[https://secondlife.com/my/account/membership.php? 詳細]
+		料金はサブスクリプションのレベルにより異なります。レベルが高いほど、料金が下がります。[https://secondlife.com/my/account/membership.php?
+		詳細]
 	</string>
 	<string name="Open landmarks">
 		オープン ランドマーク
@@ -1664,50 +1672,50 @@ support@secondlife.com にお問い合わせください。
 	<string name="Unconstrained">
 		アンコンストレインド（制約なし）
 	</string>
-	<string name="no_transfer" value=" （再販・プレゼント不可）"/>
-	<string name="no_modify" value=" （編集不可）"/>
-	<string name="no_copy" value=" （コピー不可）"/>
-	<string name="worn" value=" （着用中）"/>
-	<string name="link" value=" （リンク）"/>
-	<string name="broken_link" value=" （壊れたリンク）"/>
+	<string name="no_transfer" value=" （再販・プレゼント不可）" />
+	<string name="no_modify" value=" （編集不可）" />
+	<string name="no_copy" value=" （コピー不可）" />
+	<string name="worn" value=" （着用中）" />
+	<string name="link" value=" （リンク）" />
+	<string name="broken_link" value=" （壊れたリンク）" />
 	<string name="LoadingContents">
 		コンテンツをロード中です...
 	</string>
 	<string name="NoContents">
 		コンテンツなし
 	</string>
-	<string name="WornOnAttachmentPoint" value=" （[ATTACHMENT_POINT] に装着中）"/>
-	<string name="AttachmentErrorMessage" value="([ATTACHMENT_ERROR])"/>
-	<string name="ActiveGesture" value="[GESLABEL] （アクティブ）"/>
+	<string name="WornOnAttachmentPoint" value=" （[ATTACHMENT_POINT] に装着中）" />
+	<string name="AttachmentErrorMessage" value="([ATTACHMENT_ERROR])" />
+	<string name="ActiveGesture" value="[GESLABEL] （アクティブ）" />
 	<string name="PermYes">
 		はい
 	</string>
 	<string name="PermNo">
 		いいえ
 	</string>
-	<string name="Chat Message" value="チャット："/>
-	<string name="Sound" value=" サウンド："/>
-	<string name="Wait" value=" --- 待機：:"/>
-	<string name="AnimFlagStop" value=" アニメーションを停止："/>
-	<string name="AnimFlagStart" value=" アニメーションを開始："/>
-	<string name="Wave" value=" 手を振る"/>
-	<string name="GestureActionNone" value="なし"/>
-	<string name="HelloAvatar" value=" やあ、アバター！"/>
-	<string name="ViewAllGestures" value="  すべて表示 &gt;&gt;"/>
-	<string name="GetMoreGestures" value="ショッピング &gt;&gt;"/>
-	<string name="Animations" value="アニメーション、"/>
-	<string name="Calling Cards" value="コーリングカード、"/>
-	<string name="Clothing" value="衣類、"/>
-	<string name="Gestures" value="ジェスチャー、"/>
-	<string name="Landmarks" value="ランドマーク、"/>
-	<string name="Notecards" value="ノートカード、"/>
-	<string name="Objects" value="オブジェクト、"/>
-	<string name="Scripts" value="スクリプト、"/>
-	<string name="Sounds" value="サウンド、"/>
-	<string name="Textures" value="テクスチャ、"/>
-	<string name="Snapshots" value="スナップショット、"/>
-	<string name="No Filters" value="いいえ "/>
-	<string name="Since Logoff" value=" - ログオフ以来"/>
+	<string name="Chat Message" value="チャット：" />
+	<string name="Sound" value=" サウンド：" />
+	<string name="Wait" value=" --- 待機：:" />
+	<string name="AnimFlagStop" value=" アニメーションを停止：" />
+	<string name="AnimFlagStart" value=" アニメーションを開始：" />
+	<string name="Wave" value=" 手を振る" />
+	<string name="GestureActionNone" value="なし" />
+	<string name="HelloAvatar" value=" やあ、アバター！" />
+	<string name="ViewAllGestures" value="  すべて表示 &gt;&gt;" />
+	<string name="GetMoreGestures" value="ショッピング &gt;&gt;" />
+	<string name="Animations" value="アニメーション、" />
+	<string name="Calling Cards" value="コーリングカード、" />
+	<string name="Clothing" value="衣類、" />
+	<string name="Gestures" value="ジェスチャー、" />
+	<string name="Landmarks" value="ランドマーク、" />
+	<string name="Notecards" value="ノートカード、" />
+	<string name="Objects" value="オブジェクト、" />
+	<string name="Scripts" value="スクリプト、" />
+	<string name="Sounds" value="サウンド、" />
+	<string name="Textures" value="テクスチャ、" />
+	<string name="Snapshots" value="スナップショット、" />
+	<string name="No Filters" value="いいえ " />
+	<string name="Since Logoff" value=" - ログオフ以来" />
 	<string name="InvFolder My Inventory">
 		インベントリ
 	</string>
@@ -2224,17 +2232,17 @@ support@secondlife.com にお問い合わせください。
 	<string name="GroupsNone">
 		なし
 	</string>
-	<string name="Group" value=" （グループ）"/>
+	<string name="Group" value=" （グループ）" />
 	<string name="Unknown">
 		（不明）
 	</string>
-	<string name="SummaryForTheWeek" value="今週のまとめ。開始日は"/>
-	<string name="NextStipendDay" value="です。次回のお小遣い支給日："/>
+	<string name="SummaryForTheWeek" value="今週のまとめ。開始日は" />
+	<string name="NextStipendDay" value="です。次回のお小遣い支給日：" />
 	<string name="GroupPlanningDate">
 		[year,datetime,utc]/[mthnum,datetime,utc]/[day,datetime,utc]
 	</string>
-	<string name="GroupIndividualShare" value="                      グループ       個人の割り当て"/>
-	<string name="GroupColumn" value="グループの設定"/>
+	<string name="GroupIndividualShare" value="                      グループ       個人の割り当て" />
+	<string name="GroupColumn" value="グループの設定" />
 	<string name="Balance">
 		残高
 	</string>
@@ -2545,11 +2553,11 @@ support@secondlife.com にお問い合わせください。
 		この不動産には約款がありません。
 	</string>
 	<string name="RegionNoCovenantOtherOwner">
-		この不動産には約款がありません。 この不動産上の土地は不動産所有者により販売され、Linden Lab は販売しません。  販売に関するお問い合わせは、不動産所有者までお願い致します。
+		この不動産には約款がありません。 この不動産上の土地は不動産所有者により販売され、Linden Lab は販売しません。 販売に関するお問い合わせは、不動産所有者までお願い致します。
 	</string>
-	<string name="covenant_last_modified" value="最終修正日："/>
-	<string name="none_text" value=" （なし） "/>
-	<string name="never_text" value=" （無） "/>
+	<string name="covenant_last_modified" value="最終修正日：" />
+	<string name="none_text" value=" （なし） " />
+	<string name="never_text" value=" （無） " />
 	<string name="GroupOwned">
 		グループ所有
 	</string>
@@ -2684,7 +2692,7 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="UnknownFileExtension">
 		不明の拡張子： %s
-使用可能な拡張子： .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
+		使用可能な拡張子： .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
 	<string name="MuteObject2">
 		ブロック
@@ -2895,8 +2903,8 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="MBCmdLineError">
 		コマンドラインにエラーが見つかりました。
-リンク先を参照してください： http://wiki.secondlife.com/wiki/Client_parameters
-エラー：
+		リンク先を参照してください： http://wiki.secondlife.com/wiki/Client_parameters
+		エラー：
 	</string>
 	<string name="MBCmdLineUsg">
 		[APP_NAME] コマンドライン使用：
@@ -2904,9 +2912,9 @@ support@secondlife.com にお問い合わせください。
 	<string name="MBUnableToAccessFile">
 		[APP_NAME] は必要なファイルにアクセスできません。
 
-複数のコピーを実行中か、ファイルが既に開いているとあなたのシステムが誤認識している可能性があります。
-このメッセージが何度も出る場合は、コンピューターを再起動してもう一度お試しください。
-それでも問題が続く場合、[APP_NAME] を完全にアンインストールして、再インストールをしてください。
+		複数のコピーを実行中か、ファイルが既に開いているとあなたのシステムが誤認識している可能性があります。
+		このメッセージが何度も出る場合は、コンピューターを再起動してもう一度お試しください。
+		それでも問題が続く場合、[APP_NAME] を完全にアンインストールして、再インストールをしてください。
 	</string>
 	<string name="MBFatalError">
 		致命的なエラー
@@ -2916,28 +2924,29 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="MBAlreadyRunning">
 		[APP_NAME] はすでに実行中です。
-最小化されたプログラムのコピーをタスクバーで確認してください。
-このメッセージが何度も出る場合はコンピューターを再起動してください。
+		最小化されたプログラムのコピーをタスクバーで確認してください。
+		このメッセージが何度も出る場合はコンピューターを再起動してください。
 	</string>
 	<string name="MBFrozenCrashed">
 		[APP_NAME] は前回の実行時にフリーズしています。
-クラッシュ報告を送信しますか？
+		クラッシュ報告を送信しますか？
 	</string>
 	<string name="MBAlert">
 		通知
 	</string>
 	<string name="MBNoDirectX">
 		[APP_NAME] は DirectX 9.0b 及びそれ以降のバージョンを検出することができませんでした。
-[APP_NAME] は DirectX を使用して安定性の問題、低パフォーマンス、クラッシュ等悪影響を与えるハードウェアや古いドライバを検出します。  DirectX 9.0b がなくても [APP_NAME] を実行できますが、DirectX 9.0bとのご使用を強く推奨します。
+		[APP_NAME] は DirectX を使用して安定性の問題、低パフォーマンス、クラッシュ等悪影響を与えるハードウェアや古いドライバを検出します。 DirectX 9.0b がなくても
+		[APP_NAME] を実行できますが、DirectX 9.0bとのご使用を強く推奨します。
 
-続けますか？
+		続けますか？
 	</string>
 	<string name="MBWarning">
 		警告
 	</string>
 	<string name="MBNoAutoUpdate">
 		自動更新は現在 Linux には対応していません。
-www.secondlife.com から最新バージョンをダウンロードしてください。
+		www.secondlife.com から最新バージョンをダウンロードしてください。
 	</string>
 	<string name="MBRegClassFailed">
 		RegisterClass 失敗
@@ -2947,7 +2956,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="MBFullScreenErr">
 		[WIDTH] x [HEIGHT] では全画面で実行することができません。
-ウィンドウモードで実行中です。
+		ウィンドウモードで実行中です。
 	</string>
 	<string name="MBDestroyWinFailed">
 		シャットダウンエラー（DestroyWindow() 失敗）
@@ -2966,13 +2975,13 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="MBTrueColorWindow">
 		[APP_NAME] を実行するには、True Color （32ビット）が必要です。
-お使いのコンピューターの「コントロールパネル」＞「画面」＞「設定」に行き、「最高 （32 ビット)」に設定してください。
+		お使いのコンピューターの「コントロールパネル」＞「画面」＞「設定」に行き、「最高 （32 ビット)」に設定してください。
 	</string>
 	<string name="MBAlpha">
-		[APP_NAME] は 8 ビットのアルファチャンネルを取得できないため実行できません。  通常ビデオカードのドライバの問題で起こります。
-お使いのコンピューターに最新のビデオカードドライバがインストールされているかご確認ください。
-また、「コントロールパネル」＞「画面」＞「設定」内で、モニターが「最高 （32 ビット）」に設定されていることもご確認ください。
-このメッセージが何度も出る場合は、[SUPPORT_SITE] へご連絡ください。
+		[APP_NAME] は 8 ビットのアルファチャンネルを取得できないため実行できません。 通常ビデオカードのドライバの問題で起こります。
+		お使いのコンピューターに最新のビデオカードドライバがインストールされているかご確認ください。
+		また、「コントロールパネル」＞「画面」＞「設定」内で、モニターが「最高 （32 ビット）」に設定されていることもご確認ください。
+		このメッセージが何度も出る場合は、[SUPPORT_SITE] へご連絡ください。
 	</string>
 	<string name="MBPixelFmtSetErr">
 		ピクセル形式が設定できません
@@ -2984,9 +2993,10 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		GL レンダーコンテキストをアクティベートできません
 	</string>
 	<string name="MBVideoDrvErr">
-		お使いのコンピューターのビデオカードドライバが正常にインストールできなかった、または古いかサポート対象外のため、[APP_NAME]  は実行できません。 最新のビデオカードドライバがインストールされているのを確認し、されている場合は再インストールをお試しください。
+		お使いのコンピューターのビデオカードドライバが正常にインストールできなかった、または古いかサポート対象外のため、[APP_NAME] は実行できません。
+		最新のビデオカードドライバがインストールされているのを確認し、されている場合は再インストールをお試しください。
 
-このメッセージが何度も出る場合は、[SUPPORT_SITE] へご連絡ください。
+		このメッセージが何度も出る場合は、[SUPPORT_SITE] へご連絡ください。
 	</string>
 	<string name="5 O&apos;Clock Shadow">
 		うっすらとしたヒゲ
@@ -4471,7 +4481,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		[APP_NAME] をインストール中です...
 	</string>
 	<string name="UpdaterUpdatingDescriptive">
-		お使いの [APP_NAME] ビューワが最新バージョンにアップデートされています。  数分かかることがありますのでしばらくお待ちください。
+		お使いの [APP_NAME] ビューワが最新バージョンにアップデートされています。 数分かかることがありますのでしばらくお待ちください。
 	</string>
 	<string name="UpdaterProgressBarTextWithEllipses">
 		アップデートをダウンロード中です...
@@ -4767,7 +4777,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="uploading_abuse_report">
 		アップロード中...
 
-嫌がらせの報告
+		嫌がらせの報告
 	</string>
 	<string name="New Shape">
 		新しいシェイプ
@@ -5051,12 +5061,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="outfit_photo_verify_dimensions_error">
 		写真の寸法を確認できません。写真サイズがピッカーに表示されるまでお待ちください
 	</string>
-	<string name="words_separator" value=","/>
+	<string name="words_separator" value="," />
 	<string name="server_is_down">
 		大変申し訳ございませんが、予期しない問題が発生しました。
 
-サービスに関する既知の問題については、http://status.secondlifegrid.net をご覧ください。
-問題が引き続き発生する場合は、お使いのネットワークやファイアウォールの設定を調べてください。
+		サービスに関する既知の問題については、http://status.secondlifegrid.net をご覧ください。
+		問題が引き続き発生する場合は、お使いのネットワークやファイアウォールの設定を調べてください。
 	</string>
 	<string name="dateTimeWeekdaysNames">
 		日曜日:月曜日:火曜日:水曜日:木曜日:金曜日:土曜日
@@ -5147,8 +5157,8 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="ExternalEditorNotFound">
 		指定された外部エディターが見つかりません。
-エディターへのパスを二重引用符で囲んでみてください。
-（例：&quot;/path to my/editor&quot; &quot;%s&quot;）
+		エディターへのパスを二重引用符で囲んでみてください。
+		（例：&quot;/path to my/editor&quot; &quot;%s&quot;）
 	</string>
 	<string name="ExternalEditorCommandParseError">
 		外部エディターのコマンドの解析中にエラーが見つかりました。
@@ -5896,23 +5906,22 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="couldnt_resolve_host">
 		DNS がホスト名 ([HOSTNAME]) を解決できませんでした。
-www.secondlife.com のウェブサイトに接続できるかご確認ください。
-接続できても、このエラーが継続的に起こる場合は、
-サポートセクションから問題を報告してください。
+		www.secondlife.com のウェブサイトに接続できるかご確認ください。
+		接続できても、このエラーが継続的に起こる場合は、
+		サポートセクションから問題を報告してください。
 	</string>
 	<string name="ssl_peer_certificate">
 		ログインサーバーが SSL 経由で確認できませんでした。
-このエラーが継続的に起こる場合は、
-Secondlife.com のサポートセクションから
-問題を報告してください。
+		このエラーが継続的に起こる場合は、
+		Secondlife.com のサポートセクションから
+		問題を報告してください。
 	</string>
 	<string name="ssl_connect_error">
 		この問題の多くは、お使いのコンピュータの時計が正しく設定されていないために起こります。
-コントロールパネルから時刻と日付が正しく設定されているかご確認ください。
-お使いのネットワークとファイアウォールも正しく設定されているかお確かめください。
-このエラーが継続的に起こる場合は、Secondlife.com のサポートセクションから
-問題を報告してください。
-
-[https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 ナレッジベース]
+		コントロールパネルから時刻と日付が正しく設定されているかご確認ください。
+		お使いのネットワークとファイアウォールも正しく設定されているかお確かめください。
+		このエラーが継続的に起こる場合は、Secondlife.com のサポートセクションから
+		問題を報告してください。
+		[https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 ナレッジベース]
 	</string>
 </strings>

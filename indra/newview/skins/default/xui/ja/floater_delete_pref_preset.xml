@@ -9,6 +9,6 @@
 	<text name="Preset">
 		プリセットを選択
 	</text>
-	<button label="削除" name="delete"/>
-	<button label="取り消し" name="cancel"/>
+	<button label="削除" name="delete" />
+	<button label="取り消し" name="cancel" />
 </floater>

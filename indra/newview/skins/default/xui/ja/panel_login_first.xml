@@ -10,10 +10,11 @@
 		<layout_panel name="parent_panel2">
 			<layout_stack name="widget_stack">
 				<layout_panel name="widget_container">
-					<combo_box label="ユーザー名" name="username_combo" tool_tip="登録時に自分で選んだユーザー名（例：bobsmith12、Steller Sunshineなど）"/>
-					<line_editor label="パスワード" name="password_edit"/>
-					<button label="ログイン" name="connect_btn"/>
-					<check_box label="記憶する" name="remember_check"/>
+					<combo_box label="ユーザー名" name="username_combo"
+						tool_tip="登録時に自分で選んだユーザー名（例：bobsmith12、Steller Sunshineなど）" />
+					<line_editor label="パスワード" name="password_edit" />
+					<button label="ログイン" name="connect_btn" />
+					<check_box label="記憶する" name="remember_check" />
 					<text name="forgot_password_text">
 						パスワードを忘れた場合
 					</text>

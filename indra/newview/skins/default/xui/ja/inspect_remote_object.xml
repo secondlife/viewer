@@ -19,7 +19,7 @@
 	<text name="object_slurl">
 		http://slurl.com/Ahern/50/50/50
 	</text>
-	<button label="地図" name="map_btn"/>
-	<button label="ブロック" name="block_btn"/>
-	<button label="閉じる" name="close_btn"/>
+	<button label="地図" name="map_btn" />
+	<button label="ブロック" name="block_btn" />
+	<button label="閉じる" name="close_btn" />
 </floater>

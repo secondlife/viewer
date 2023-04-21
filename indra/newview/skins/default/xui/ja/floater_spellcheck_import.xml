@@ -3,13 +3,13 @@
 	<text name="import_dict">
 		辞書：
 	</text>
-	<button label="参照" label_selected="参照" name="dictionary_path_browse"/>
+	<button label="参照" label_selected="参照" name="dictionary_path_browse" />
 	<text name="import_name">
 		名前：
 	</text>
 	<text name="import_lang">
 		言語：
 	</text>
-	<button label="インポート" name="ok_btn"/>
-	<button label="取り消し" name="cancel_btn"/>
+	<button label="インポート" name="ok_btn" />
+	<button label="取り消し" name="cancel_btn" />
 </floater>

@@ -8,7 +8,7 @@
 	</text>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<icon label="" name="edit_icon" tool_tip="クリックして画像を選択"/>
+			<icon label="" name="edit_icon" tool_tip="クリックして画像を選択" />
 			<text name="Name:">
 				タイトル：
 			</text>
@@ -21,16 +21,16 @@
 			<text name="pick_location">
 				ローディング...
 			</text>
-			<button label="現在地に設定" name="set_to_curr_location_btn"/>
+			<button label="現在地に設定" name="set_to_curr_location_btn" />
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">
 		<layout_stack name="layout_stack1">
 			<layout_panel name="layout_panel1">
-				<button label="ピックを保存" name="save_changes_btn"/>
+				<button label="ピックを保存" name="save_changes_btn" />
 			</layout_panel>
 			<layout_panel name="layout_panel2">
-				<button label="取り消し" name="cancel_btn"/>
+				<button label="取り消し" name="cancel_btn" />
 			</layout_panel>
 		</layout_stack>
 	</panel>

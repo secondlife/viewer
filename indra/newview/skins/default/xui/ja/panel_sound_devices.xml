@@ -18,7 +18,7 @@
 	<text name="My volume label">
 		マイク音量:
 	</text>
-	<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="スライダーを使ってマイクレベルを調節します"/>
+	<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="スライダーを使ってマイクレベルを調節します" />
 	<text name="wait_text">
 		しばらくお待ちください。
 	</text>

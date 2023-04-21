@@ -9,8 +9,8 @@
 	<text name="status">
 		ステータス： [STATUS]
 	</text>
-	<button label="取り消し" name="cancel"/>
-	<button label="OK" name="ok"/>
+	<button label="取り消し" name="cancel" />
+	<button label="OK" name="ok" />
 	<string name="status_idle">
 		待機状態
 	</string>

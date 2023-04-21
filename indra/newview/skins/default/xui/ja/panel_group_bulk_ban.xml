@@ -30,11 +30,11 @@
 	<text name="help_text">
 		グループから一度に複数の住人を立入禁止にすることができます。「リストから住人を選択」をクリックしてください。
 	</text>
-	<button label="リストから住人を選択" name="add_button"/>
-	<name_list name="banned_agent_list" tool_tip="Ctrl キーを押しながら複数の住人をクリックできます"/>
-	<button label="選択した住人をリストから削除" name="remove_button" tool_tip="立入禁止リストから上で選択した住人を削除します"/>
-	<button label="住人を立入禁止" name="ban_button"/>
-	<button label="取り消し" name="cancel_button"/>
+	<button label="リストから住人を選択" name="add_button" />
+	<name_list name="banned_agent_list" tool_tip="Ctrl キーを押しながら複数の住人をクリックできます" />
+	<button label="選択した住人をリストから削除" name="remove_button" tool_tip="立入禁止リストから上で選択した住人を削除します" />
+	<button label="住人を立入禁止" name="ban_button" />
+	<button label="取り消し" name="cancel_button" />
 	<string name="GroupBulkBan">
 		グループへの立入禁止
 	</string>

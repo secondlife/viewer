@@ -3,5 +3,5 @@
 	<floater.string name="Title">
 		会話:[NAME]
 	</floater.string>
-	<text name="page_label" value="ページ"/>
+	<text name="page_label" value="ページ" />
 </floater>

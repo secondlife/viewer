@@ -21,11 +21,11 @@
 	<text name="covenant_timestamp_text">
 		最終更新日：1969年12月31日（水）16:00:00
 	</text>
-	<button label="?" name="covenant_help"/>
+	<button label="?" name="covenant_help" />
 	<text_editor bottom="-263" height="178" name="covenant_editor">
 		この不動産には約款がありません。
 	</text_editor>
-	<button label="リセット" name="reset_covenant"/>
+	<button label="リセット" name="reset_covenant" />
 	<text name="covenant_help_text" left="100">
 		約款の変更は不動産全区画に適用となります。
 	</text>

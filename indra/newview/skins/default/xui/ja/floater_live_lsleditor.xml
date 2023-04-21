@@ -24,9 +24,9 @@
 	<floater.string name="loading">
 		ロード中...
 	</floater.string>
-	<button label="リセット" label_selected="リセット" name="Reset"/>
-	<check_box initial_value="true" label="実行中" name="running"/>
-	<check_box initial_value="true" label="Mono" name="mono"/>
-	<check_box label="体験を使用：" name="enable_xp"/>
-	<button label="&gt;" name="view_profile"/>
+	<button label="リセット" label_selected="リセット" name="Reset" />
+	<check_box initial_value="true" label="実行中" name="running" />
+	<check_box initial_value="true" label="Mono" name="mono" />
+	<check_box label="体験を使用：" name="enable_xp" />
+	<button label="&gt;" name="view_profile" />
 </floater>

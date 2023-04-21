@@ -20,11 +20,11 @@
 	</panel.string>
 	<panel name="layout_panel_landmoney">
 		<scroll_list name="group_parcel_list">
-			<scroll_list.columns label="区画" name="name"/>
-			<scroll_list.columns label="地域" name="location"/>
-			<scroll_list.columns label="種類" name="type"/>
-			<scroll_list.columns label="面積" name="area"/>
-			<scroll_list.columns label="非表示" name="hidden"/>
+			<scroll_list.columns label="区画" name="name" />
+			<scroll_list.columns label="地域" name="location" />
+			<scroll_list.columns label="種類" name="type" />
+			<scroll_list.columns label="面積" name="area" />
+			<scroll_list.columns label="非表示" name="hidden" />
 		</scroll_list>
 		<text name="total_contributed_land_label">
 			寄付合計：
@@ -32,7 +32,7 @@
 		<text name="total_contributed_land_value">
 			[AREA] 平方メートル
 		</text>
-		<button label="地図" label_selected="地図" name="map_button"/>
+		<button label="地図" label_selected="地図" name="map_button" />
 		<text name="total_land_in_use_label">
 			土地利用の合計：
 		</text>
@@ -71,15 +71,15 @@
 			<text_editor name="group_money_details_text">
 				ローディング...
 			</text_editor>
-			<button label="前の週" label_selected="前の週" name="earlier_details_button" tool_tip="前の週"/>
-			<button label="次の週" label_selected="次の週" name="later_details_button" tool_tip="次の週"/>
+			<button label="前の週" label_selected="前の週" name="earlier_details_button" tool_tip="前の週" />
+			<button label="次の週" label_selected="次の週" name="later_details_button" tool_tip="次の週" />
 		</panel>
 		<panel label="販売取引" name="group_money_sales_tab">
 			<text_editor name="group_money_sales_text">
 				ローディング...
 			</text_editor>
-			<button label="前の週" label_selected="前の週" name="earlier_sales_button" tool_tip="前の週"/>
-			<button label="次の週" label_selected="次の週" name="later_sales_button" tool_tip="次の週"/>
+			<button label="前の週" label_selected="前の週" name="earlier_sales_button" tool_tip="前の週" />
+			<button label="次の週" label_selected="次の週" name="later_sales_button" tool_tip="次の週" />
 		</panel>
 	</tab_container>
 </panel>

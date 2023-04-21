@@ -10,11 +10,12 @@
 					<string name="InboxLabelNoArg">
 						受け取ったアイテム
 					</string>
-					<button label="受け取ったアイテム" name="inbox_btn"/>
+					<button label="受け取ったアイテム" name="inbox_btn" />
 					<text name="inbox_fresh_new_count">
 						[NUM] 個の新アイテム
 					</text>
-					<panel name="inbox_inventory_placeholder_panel" tool_tip="アイテムを使用するには、そのアイテムをインベントリにドラッグアンドドロップ">
+					<panel name="inbox_inventory_placeholder_panel"
+						tool_tip="アイテムを使用するには、そのアイテムをインベントリにドラッグアンドドロップ">
 						<text name="inbox_inventory_placeholder">
 							マーケットプレイスから購入した商品はここに配達されます。
 						</text>
@@ -25,16 +26,16 @@
 		<panel name="button_panel">
 			<layout_stack name="button_panel_ls">
 				<layout_panel name="info_btn_lp">
-					<button label="プロフィール" name="info_btn" tool_tip="オブジェクトのプロフィールを表示する"/>
+					<button label="プロフィール" name="info_btn" tool_tip="オブジェクトのプロフィールを表示する" />
 				</layout_panel>
 				<layout_panel name="share_btn_lp">
-					<button label="共有" name="share_btn" tool_tip="「持ち物」のアイテムを共有する"/>
+					<button label="共有" name="share_btn" tool_tip="「持ち物」のアイテムを共有する" />
 				</layout_panel>
 				<layout_panel name="shop_btn_lp">
-					<button label="ショッピング" name="shop_btn" tool_tip="マーケットプレイスのサイトを開く"/>
-					<button label="装着" name="wear_btn" tool_tip="選択したアウトフィットを着用する"/>
-					<button label="再生" name="play_btn"/>
-					<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポートする"/>
+					<button label="ショッピング" name="shop_btn" tool_tip="マーケットプレイスのサイトを開く" />
+					<button label="装着" name="wear_btn" tool_tip="選択したアウトフィットを着用する" />
+					<button label="再生" name="play_btn" />
+					<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポートする" />
 				</layout_panel>
 			</layout_stack>
 		</panel>
