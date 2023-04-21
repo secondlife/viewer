@@ -38,7 +38,6 @@ uniform sampler2D exposureMap;
 
 uniform vec2 screen_res;
 VARYING vec2 vary_fragcoord;
-uniform float display_gamma;
 
 vec3 linear_to_srgb(vec3 cl);
 

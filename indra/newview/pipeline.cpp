@@ -7039,7 +7039,7 @@ void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst) {
 
 		static LLCachedControl<F32> exposure(gSavedSettings, "RenderExposure", 1.f);
 
-		F32 e = llclamp(exposure(), 0.5f, 4.f);       
+		F32 e = llclamp(exposure(), 0.5f, 4.f);
 
 		static LLStaticHashedString s_exposure("exposure");
 
