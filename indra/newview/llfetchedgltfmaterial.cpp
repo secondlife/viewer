@@ -90,6 +90,10 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
         gGL.getTexUnit(0)->bindFast(LLViewerFetchedTexture::sWhiteImagep);
     }
 
+    F32 base_color_packed[8];
+    mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
+    shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)base_color_packed);
+
     if (!LLPipeline::sShadowRender)
     {
         if (mNormalTexture.notNull() && mNormalTexture->getDiscardLevel() <= 4)
@@ -124,10 +128,6 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
         shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, mRoughnessFactor);
         shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, mMetallicFactor);
         shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, mEmissiveColor.mV);
-
-        F32 base_color_packed[8];
-        mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
-        shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)base_color_packed);
 
         F32 normal_packed[8];
         mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);

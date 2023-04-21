@@ -27,25 +27,26 @@ uniform mat4 texture_matrix0;
 #if defined(HAS_SKIN)
 uniform mat4 modelview_matrix;
 uniform mat4 projection_matrix;
+mat4 getObjectSkinnedTransform();
 #else
 uniform mat4 modelview_projection_matrix;
 #endif
+
+uniform vec4[2] texture_base_color_transform;
+vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
+
 uniform float shadow_target_width;
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec4 diffuse_color;
-ATTRIBUTE vec2 texcoord0;
+in vec3 position;
+in vec4 diffuse_color;
+in vec2 texcoord0;
 
-VARYING vec4 post_pos;
-VARYING float target_pos_x;
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+out vec4 post_pos;
+out float target_pos_x;
+out vec4 vertex_color;
+out vec2 vary_texcoord0;
 
 void passTextureIndex();
-
-#if defined(HAS_SKIN)
-mat4 getObjectSkinnedTransform();
-#endif
 
 void main()
 {
@@ -69,6 +70,6 @@ void main()
 	
 	passTextureIndex();
 
-	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
+	vary_texcoord0 = texture_transform(texcoord0, texture_base_color_transform, texture_matrix0);
 	vertex_color = diffuse_color;
 }
