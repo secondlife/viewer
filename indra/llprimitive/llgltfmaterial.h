@@ -61,7 +61,7 @@ public:
         LLVector2 mScale = { 1.f, 1.f };
         F32 mRotation = 0.f;
 
-        void getPacked(F32 (&packed)[8]);
+        void getPacked(F32 (&packed)[8]) const;
 
         bool operator==(const TextureTransform& other) const;
     };

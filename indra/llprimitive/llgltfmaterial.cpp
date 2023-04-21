@@ -43,7 +43,7 @@ const char* const GLTF_FILE_EXTENSION_TRANSFORM_ROTATION = "rotation";
 // special UUID that indicates a null UUID in override data
 static const LLUUID GLTF_OVERRIDE_NULL_UUID = LLUUID("ffffffff-ffff-ffff-ffff-ffffffffffff");
 
-void LLGLTFMaterial::TextureTransform::getPacked(F32 (&packed)[8])
+void LLGLTFMaterial::TextureTransform::getPacked(F32 (&packed)[8]) const
 {
     packed[0] = mScale.mV[VX];
     packed[1] = mScale.mV[VY];
