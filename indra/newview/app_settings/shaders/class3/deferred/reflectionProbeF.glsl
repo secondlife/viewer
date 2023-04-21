@@ -651,12 +651,11 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir)
     return col[1]+col[0];
 }
 
-void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
+void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness)
 {
     // TODO - don't hard code lods
     float reflection_lods = max_probe_lod;
-    preProbeSample(pos);
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
@@ -676,10 +675,24 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
 #endif
 }
 
+void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
+        vec2 tc, vec3 pos, vec3 norm, float glossiness)
+{
+    preProbeSample(pos);
+    doProbeSample(ambenv, glossenv, tc, pos, norm, glossiness);
+}
+
 void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness)
 {
-    sampleReflectionProbes(ambenv, glossenv, tc, pos, norm, glossiness);
+    // don't sample automatic probes for water
+    sample_automatic = false;
+    preProbeSample(pos);
+    sample_automatic = true;
+    // always include void probe on water
+    probeIndex[probeInfluences++] = 0;
+
+    doProbeSample(ambenv, glossenv, tc, pos, norm, glossiness);
 
     // fudge factor to get PBR water at a similar luminance ot legacy water
     glossenv *= 0.4;

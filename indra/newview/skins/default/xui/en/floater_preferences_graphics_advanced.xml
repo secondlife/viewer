@@ -729,7 +729,7 @@
       name="1"
       value="1"/>
     <combo_box.item
-      label="Manual + terrain and water"
+      label="Manual + terrain"
       name="2"
       value="2"/>
     <combo_box.item
