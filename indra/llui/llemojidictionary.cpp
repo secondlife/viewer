@@ -141,7 +141,13 @@ void LLEmojiDictionary::initClass()
 
 	LLSD data;
 
-	const std::string filename = gDirUtilp->findSkinnedFilenames(LLDir::XUI, SKINNED_EMOJI_FILENAME, LLDir::CURRENT_SKIN).front();
+	auto filenames = gDirUtilp->findSkinnedFilenames(LLDir::XUI, SKINNED_EMOJI_FILENAME, LLDir::CURRENT_SKIN);
+	if (filenames.empty())
+	{
+		LL_WARNS() << "Emoji file characters not found" << LL_ENDL;
+		return;
+	}
+	const std::string filename = filenames.back();
 	llifstream file(filename.c_str());
 	if (file.is_open())
 	{
