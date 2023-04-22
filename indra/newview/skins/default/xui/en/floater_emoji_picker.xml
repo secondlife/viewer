@@ -11,23 +11,23 @@
     width="200">
   <line_editor
       name="Search"
+      label="Type to search an emoji"
       layout="bottomleft"
       follows="bottom|left|right"
       text_tentative_color="TextFgTentativeColor"
       max_length_bytes="63"
-      left_pad="5"
-	  bottom="14"
-	  left="34"
+	  bottom="5"
+	  left="39"
       height="29"
-      width="162" />
+      width="158" />
   <button
 	  name="PreviewEmoji"
       layout="bottomleft"
       follows="bottom|left"
 	  font="EmojiHuge"
 	  use_font_color="true"
-	  bottom="14"
-	  left="0"
+	  bottom="5"
+	  left="5"
 	  height="29"
 	  width="29" />
   <scroll_list
@@ -39,26 +39,27 @@
 	  commit_on_selection_change="true"
       draw_heading="true"
       heading_height="25"
+	  left="5"
 	  row_padding="0"
 	  top="25"
-	  height="330"
-	  width="200">
+	  height="338"
+	  width="192">
     <columns
         label="Look"
         name="look"
-        width="40" />
+        width="50" />
 	<columns
         label="Name"
         name="name" />
   </scroll_list>
   <combo_box
       name="Category"
+      label="Choose a category"
       layout="topleft"
       follows="top|left|right"
 	  allow_text_entry="true"
-      left_pad="4"
 	  top="0"
-	  left="4"
-      height="27"
+	  left="5"
+      height="25"
       width="192" />
 </floater>
