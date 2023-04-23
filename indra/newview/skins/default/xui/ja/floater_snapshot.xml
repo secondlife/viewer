@@ -1,77 +1,37 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Snapshot" title="スナップショット">
-	<floater.string name="unknown">
-		不明
-	</floater.string>
-	<string name="postcard_progress_str">
-		メールの送信
-	</string>
-	<string name="facebook_progress_str">
-		Facebook へ投稿中
-	</string>
-	<string name="profile_progress_str">
-		投稿
-	</string>
-	<string name="inventory_progress_str">
-		インベントリに保存
-	</string>
-	<string name="local_progress_str">
-		コンピュータに保存
-	</string>
-	<string name="facebook_succeeded_str">
-		画像がアップロードされました
-	</string>
-	<string name="profile_succeeded_str">
-		画像がアップロードされました
-	</string>
-	<string name="postcard_succeeded_str">
-		メールが送信されました
-	</string>
-	<string name="inventory_succeeded_str">
-		インベントリに保存されました
-	</string>
-	<string name="local_succeeded_str">
-		コンピュータに保存されました
-	</string>
-	<string name="facebook_failed_str">
-		Facebook のタイムラインに画像をアップロードできませんでした。
-	</string>
-	<string name="profile_failed_str">
-		プロフィールフィードに画像をアップロードできませんでした。
-	</string>
-	<string name="postcard_failed_str">
-		メールを送信できませんでした。
-	</string>
-	<string name="inventory_failed_str">
-		インベントリに保存できませんでした。
-	</string>
-	<string name="local_failed_str">
-		コンピュータに保存できませんでした。
-	</string>
-	<button label="更新" name="new_snapshot_btn" />
-	<panel name="advanced_options_panel">
-		<text name="layer_type_label">
-			キャプチャ：
-		</text>
-		<combo_box label="画像レイヤー" name="layer_types">
-			<combo_box.item label="色" name="Colors" />
-			<combo_box.item label="深度" name="Depth" />
-		</combo_box>
-		<check_box label="インターフェース" name="ui_check" />
-		<check_box label="HUD" name="hud_check" />
-		<check_box label="画面全体を静止" name="freeze_frame_check" />
-		<check_box label="自動更新" name="auto_snapshot_check" />
-		<text name="filter_list_label">
-			フィルター:
-		</text>
-		<combo_box name="filters_combobox" tool_tip="画像フィルター">
-			<combo_box.item label="フィルターなし" name="NoFilter" />
-		</combo_box>
-	</panel>
-	<text name="image_res_text">
-		[WIDTH]px (横幅) x [HEIGHT]px (高さ)
-	</text>
-	<text name="file_size_label">
-		[SIZE] キロバイト
-	</text>
+  <floater.string name="unknown">不明</floater.string>
+  <string name="postcard_progress_str">メールの送信</string>
+  <string name="facebook_progress_str">Facebook へ投稿中</string>
+  <string name="profile_progress_str">投稿</string>
+  <string name="inventory_progress_str">インベントリに保存</string>
+  <string name="local_progress_str">コンピュータに保存</string>
+  <string name="facebook_succeeded_str">画像がアップロードされました。</string>
+  <string name="profile_succeeded_str">画像がアップロードされました。</string>
+  <string name="postcard_succeeded_str">メールが送信されました。</string>
+  <string name="inventory_succeeded_str">インベントリに保存されました。</string>
+  <string name="local_succeeded_str">コンピュータに保存されました。</string>
+  <string name="facebook_failed_str">Facebook のタイムラインに画像をアップロードできませんでした。</string>
+  <string name="profile_failed_str">プロフィールフィードに画像をアップロードできませんでした。</string>
+  <string name="postcard_failed_str">メールを送信できませんでした。</string>
+  <string name="inventory_failed_str">インベントリに保存できませんでした。</string>
+  <string name="local_failed_str">コンピュータに保存できませんでした。</string>
+  <button label="更新" name="new_snapshot_btn" />
+  <panel name="advanced_options_panel">
+    <text name="layer_type_label">キャプチャ：</text>
+    <combo_box label="画像レイヤー" name="layer_types">
+      <combo_box.item label="色" name="Colors" />
+      <combo_box.item label="深度" name="Depth" />
+    </combo_box>
+    <check_box label="インターフェース" name="ui_check" />
+    <check_box label="HUD" name="hud_check" />
+    <check_box label="画面全体を静止" name="freeze_frame_check" />
+    <check_box label="自動更新" name="auto_snapshot_check" />
+    <text name="filter_list_label">フィルター：</text>
+    <combo_box name="filters_combobox" tool_tip="画像フィルター">
+      <combo_box.item label="フィルターなし" name="NoFilter" />
+    </combo_box>
+  </panel>
+  <text name="image_res_text">[WIDTH]px (横幅) x [HEIGHT]px (高さ)</text>
+  <text name="file_size_label">[SIZE] キロバイト</text>
 </floater>

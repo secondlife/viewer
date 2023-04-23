@@ -1,56 +1,64 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="camera_floater" title="カメラのコントロール">
-	<floater.string name="rotate_tooltip">
-		フォーカスを中心にカメラを回転
-	</floater.string>
-	<floater.string name="zoom_tooltip">
-		フォーカスに向けてカメラをズーム
-	</floater.string>
-	<floater.string name="move_tooltip">
-		カメラを上下左右に移動
-	</floater.string>
-	<floater.string name="free_mode_title">
-		オブジェクトを見る
-	</floater.string>
-	<panel name="controls">
-		<panel name="preset_views_list">
-			<panel_camera_item name="front_view">
-				<panel_camera_item.text name="front_view_text">
-					前方視界
-				</panel_camera_item.text>
-			</panel_camera_item>
-			<panel_camera_item name="group_view">
-				<panel_camera_item.text name="side_view_text">
-					グループ視界
-				</panel_camera_item.text>
-			</panel_camera_item>
-			<panel_camera_item name="rear_view">
-				<panel_camera_item.text name="rear_view_text">
-					後方視界
-				</panel_camera_item.text>
-			</panel_camera_item>
-		</panel>
-		<panel name="camera_modes_list">
-			<panel_camera_item name="object_view">
-				<panel_camera_item.text name="object_view_text">
-					オブジェクト視点
-				</panel_camera_item.text>
-			</panel_camera_item>
-			<panel_camera_item name="mouselook_view">
-				<panel_camera_item.text name="mouselook_view_text">
-					一人称視点
-				</panel_camera_item.text>
-			</panel_camera_item>
-		</panel>
-		<panel name="zoom" tool_tip="向いている方法にカメラをズーム">
-			<joystick_rotate name="cam_rotate_stick" tool_tip="自分を軸にカメラを回す" />
-			<slider_bar name="zoom_slider" tool_tip="向いている方向にカメラをズーム" />
-			<joystick_track name="cam_track_stick" tool_tip="カメラを上下左右に動かします" />
-		</panel>
-	</panel>
-	<panel name="buttons">
-		<button label="" name="presets_btn" tool_tip="事前設定の視野" />
-		<button label="" name="pan_btn" tool_tip="旋回 - ズーム - 水平・垂直移動" />
-		<button label="" name="avatarview_btn" tool_tip="カメラモード" />
-	</panel>
+<floater name="camera_floater" help_topic="camera_floater" title="カメラ操作">
+  <floater.string name="rotate_tooltip">対象を中心にカメラを回す</floater.string>
+  <floater.string name="zoom_tooltip">対象にカメラをズーム</floater.string>
+  <floater.string name="move_tooltip">カメラを上下左右に移動</floater.string>
+  <floater.string name="free_mode_title">オブジェクト視点</floater.string>
+  <string name="inactive_combo_text">Use preset</string>
+  <panel border="false" height="123" layout="topleft" left="2" top="0" mouse_opaque="false" name="controls" width="220">
+    <!--TODO: replace + - images -->
+    <panel border="false" class="camera_zoom_panel" height="123" layout="topleft" left="0" mouse_opaque="false" name="zoom" top="0" width="220">
+      <joystick_rotate follows="top|left" height="78" layout="topleft" left="7" name="cam_rotate_stick" quadrant="left" sound_flags="3" visible="true" tool_tip="対象にカメラを追尾" top="25" width="78" />
+      <button follows="top|left" height="18" image_disabled="AddItem_Disabled" image_selected="AddItem_Press" image_unselected="AddItem_Off" layout="topleft" left_pad="14" name="zoom_plus_btn" width="18" top="23">
+        <commit_callback function="Zoom.plus" />
+        <mouse_held_callback function="Zoom.plus" />
+      </button>
+      <slider_bar height="50" layout="topleft" name="zoom_slider" orientation="vertical" tool_tip="カメラを上下左右に移動" top_pad="0" min_val="0" max_val="1" width="18">
+        <commit_callback function="Slider.value_changed" />
+      </slider_bar>
+      <button follows="top|left" height="18" image_disabled="MinusItem_Disabled" image_selected="MinusItem_Press" image_unselected="MinusItem_Off" layout="topleft" name="zoom_minus_btn" top_pad="0" width="18">
+        <commit_callback function="Zoom.minus" />
+        <mouse_held_callback function="Zoom.minus" />
+      </button>
+      <joystick_track follows="top|left" height="78" image_selected="Cam_Tracking_In" image_unselected="Cam_Tracking_Out" layout="topleft" left="133" name="cam_track_stick" quadrant="left" scale_image="false" sound_flags="3" tool_tip="Move camera up and down, left and right" top="25" width="78" />
+      <text type="string" length="1" follows="left|top" height="15" layout="topleft" left="41" top_pad="9" name="precise_ctrs_label" width="200">Use precise controls</text>
+    </panel>
+  </panel>
+  <panel follows="all" height="102" layout="topleft" left_pad="2" name="buttons_panel" top="22" width="212">
+    <panel_camera_item name="front_view" tool_tip="前方視界" width="30">
+      <panel_camera_item.mousedown_callback function="CameraPresets.ChangeView" parameter="前から見る" />
+      <panel_camera_item.picture image_name="Cam_Preset_Front_Off" />
+      <panel_camera_item.selected_picture image_name="Cam_Preset_Front_On" />
+    </panel_camera_item>
+    <panel_camera_item name="group_view" tool_tip="斜方視界" width="30" left_pad="4">
+      <panel_camera_item.mousedown_callback function="CameraPresets.ChangeView" parameter="横から見る" />
+      <panel_camera_item.picture image_name="Cam_Preset_Side_Off" />
+      <panel_camera_item.selected_picture image_name="Cam_Preset_Side_On" />
+    </panel_camera_item>
+    <panel_camera_item name="rear_view" tool_tip="後方視界" width="30" left_pad="4">
+      <panel_camera_item.mousedown_callback function="CameraPresets.ChangeView" tool_tip="後ろから見る" parameter="Rear View" />
+      <panel_camera_item.picture image_name="Cam_Preset_Back_Off" />
+      <panel_camera_item.selected_picture image_name="Cam_Preset_Back_On" />
+    </panel_camera_item>
+    <panel_camera_item name="object_view" tool_tip="オブジェクト視点" width="30" left_pad="4">
+      <panel_camera_item.mousedown_callback function="CameraPresets.ChangeView" parameter="object_view" />
+      <panel_camera_item.picture image_name="Object_View_Off" />
+      <panel_camera_item.selected_picture image_name="Object_View_On" />
+    </panel_camera_item>
+    <panel_camera_item name="mouselook_view" tool_tip="マウスルックビュー" width="30" left_pad="4">
+      <panel_camera_item.mousedown_callback function="CameraPresets.ChangeView" parameter="mouselook_view" />
+      <panel_camera_item.picture image_name="MouseLook_View_Off" />
+      <panel_camera_item.selected_picture image_name="MouseLook_View_On" />
+    </panel_camera_item>
+    <combo_box height="23" left="0" mouse_opaque="true" name="preset_combo" top_pad="10" width="136">
+      <combo_list mouse_wheel_opaque="true" />
+      <combo_box.item label="プリセットを使用" name="Use preset" value="default" />
+    </combo_box>
+    <button height="16" width="16" layout="topleft" mouse_opaque="true" name="gear_btn" tool_tip="My Camera Presets" top_delta="3" left_pad="10" image_selected="Icon_Gear" image_pressed="Icon_Gear" image_unselected="Icon_Gear" is_toggle="true">
+      <button.commit_callback function="CameraPresets.ShowPresetsList" />
+    </button>
+    <button follows="top|left" height="25" label="プリセットを保存…" layout="topleft" left="0" name="save_preset_btn" top_pad="18" width="150">
+      <button.commit_callback function="CameraPresets.Save" />
+    </button>
+  </panel>
 </floater>
