@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="linkreplace" help_topic="linkreplace" positioning="centered" title="REPLACE INVENTORY LINKS" width="333" height="130" save_rect="true" can_minimize="true" can_close="true">
+  <string name="Ready">準備中…</string>
+  <string name="TargetNotFound">ターゲットのアイテムは見つかりませんでした。</string>
+  <string name="ItemsIdentical">ソースとターゲットが同一です。</string>
+  <string name="ItemsFound">[NUM]件のリンクが見つかりました。</string>
+  <string name="ItemsRemaining">残りリンク数：[NUM]</string>
+  <string name="ReplaceFinished">インベントリのリンクの交換が完了しました。</string>
+  <text type="string" follows="left|top" font="SansSerif" height="23" layout="topleft" left="10" width="35" name="source_label" top="10">旧：</text>
+  <inventory_link_replace_drop_target name="source_uuid_editor" follows="left|top|right" height="23" layout="topleft" left_pad="10" max_length_bytes="255" top_delta="-3" right="-10" tool_tip="現在の交換したいインベントリ内のアイテムはここへドラッグ・アンド・ドロップしてください。" />
+  <text type="string" follows="left|top" font="SansSerif" height="23" layout="topleft" left="10" width="35" name="target_label" top_pad="10">新：</text>
+  <inventory_link_replace_drop_target name="target_uuid_editor" follows="left|top|right" height="23" layout="topleft" left_pad="10" max_length_bytes="255" top_delta="-3" right="-10" tool_tip="新しいインベントリアイテムをここにドラッグアンドドロップしてください。" />
+  <text type="string" follows="left|top|right" font="SansSerif" height="20" layout="topleft" left="10" right="-10" name="status_text" top_pad="10">準備中…</text>
+  <button top_pad="5" left="10" height="22" width="90" follows="left|top" mouse_opaque="true" halign="center" name="btn_refresh" label="リフレッシュ" />
+  <button top_delta="0" right="-10" height="22" width="90" follows="right|top" mouse_opaque="true" halign="center" name="btn_start" label="開始" />
+</floater>

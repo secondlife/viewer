@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu layout="topleft" name="Outfit">
+  <menu_item_call label="衣装 - 現在の衣装と交換" layout="topleft" name="wear_replace">
+    <on_click function="Outfit.WearReplace" />
+    <on_enable function="Outfit.OnEnable" parameter="wear_replace" />
+    <on_visible function="Outfit.OnVisible" parameter="wear_replace" />
+  </menu_item_call>
+  <menu_item_call label="衣装 - 現在の衣装に追加" layout="topleft" name="wear_add">
+    <on_click function="Outfit.WearAdd" />
+    <on_enable function="Outfit.OnEnable" parameter="wear_add" />
+    <on_visible function="Outfit.OnVisible" parameter="wear_add" />
+  </menu_item_call>
+  <menu_item_call label="脱ぐ - 現在の衣装から削除" layout="topleft" name="take_off">
+    <on_click function="Outfit.TakeOff" />
+    <on_enable function="Outfit.OnEnable" parameter="take_off" />
+    <on_visible function="Outfit.OnVisible" parameter="take_off" />
+  </menu_item_call>
+  <menu_item_call label="画像をアップロード（L$[UPLOAD_COST]）" layout="topleft" name="upload_photo">
+    <on_click function="Outfit.UploadPhoto" />
+  </menu_item_call>
+  <menu_item_call label="画像を選択" layout="topleft" name="select_photo">
+    <on_click function="Outfit.SelectPhoto" />
+  </menu_item_call>
+  <menu_item_call label="スナップショットを撮影" layout="topleft" name="take_snapshot">
+    <on_click function="Outfit.TakeSnapshot" />
+  </menu_item_call>
+  <menu_item_call label="画像を削除" layout="topleft" name="remove_photo">
+    <on_click function="Outfit.RemovePhoto" />
+    <on_visible function="Outfit.OnVisible" parameter="remove_photo" />
+  </menu_item_call>
+  <menu_item_separator name="sepatator1" />
+  <menu height="175" label="新しい服" layout="topleft" left_delta="0" mouse_opaque="false" name="New Clothes" top_pad="514" width="125">
+    <menu_item_call label="新しいシャツ" layout="topleft" name="New Shirt">
+      <menu_item_call.on_click function="Outfit.Create" parameter="shirt" />
+    </menu_item_call>
+    <menu_item_call label="新しいズボン" layout="topleft" name="New Pants">
+      <menu_item_call.on_click function="Outfit.Create" parameter="pants" />
+    </menu_item_call>
+    <menu_item_call label="新しい靴" layout="topleft" name="New Shoes">
+      <menu_item_call.on_click function="Outfit.Create" parameter="shoes" />
+    </menu_item_call>
+    <menu_item_call label="新しい靴下" layout="topleft" name="New Socks">
+      <menu_item_call.on_click function="Outfit.Create" parameter="socks" />
+    </menu_item_call>
+    <menu_item_call label="新しいジャケット" layout="topleft" name="New Jacket">
+      <menu_item_call.on_click function="Outfit.Create" parameter="jacket" />
+    </menu_item_call>
+    <menu_item_call label="新しいスカート" layout="topleft" name="New Skirt">
+      <menu_item_call.on_click function="Outfit.Create" parameter="skirt" />
+    </menu_item_call>
+    <menu_item_call label="新しい手袋" layout="topleft" name="New Gloves">
+      <menu_item_call.on_click function="Outfit.Create" parameter="gloves" />
+    </menu_item_call>
+    <menu_item_call label="新しい下着（上半身）" layout="topleft" name="New Undershirt">
+      <menu_item_call.on_click function="Outfit.Create" parameter="undershirt" />
+    </menu_item_call>
+    <menu_item_call label="新しい下着（下半身）" layout="topleft" name="新しい下着（下）">
+      <menu_item_call.on_click function="Outfit.Create" parameter="underpants" />
+    </menu_item_call>
+    <menu_item_call label="新しいアルファ" layout="topleft" name="New Alpha">
+      <menu_item_call.on_click function="Outfit.Create" parameter="alpha" />
+    </menu_item_call>
+    <menu_item_call label="新しい物理" layout="topleft" name="New Physics">
+      <menu_item_call.on_click function="Outfit.Create" parameter="physics" />
+    </menu_item_call>
+    <menu_item_call label="新しいタトゥ" layout="topleft" name="New Tattoo">
+      <menu_item_call.on_click function="Outfit.Create" parameter="tattoo" />
+    </menu_item_call>
+  </menu>
+  <menu height="85" label="新しいボディパーツ" layout="topleft" left_delta="0" mouse_opaque="false" name="New Body Parts" top_pad="514" width="118">
+    <menu_item_call label="新しい形状" layout="topleft" name="New Shape">
+      <menu_item_call.on_click function="Outfit.Create" parameter="shape" />
+    </menu_item_call>
+    <menu_item_call label="新しいスキン" layout="topleft" name="New Skin">
+      <menu_item_call.on_click function="Outfit.Create" parameter="skin" />
+    </menu_item_call>
+    <menu_item_call label="新しい髪型" layout="topleft" name="New Hair">
+      <menu_item_call.on_click function="Outfit.Create" parameter="hair" />
+    </menu_item_call>
+    <menu_item_call label="新しい目" layout="topleft" name="New Eyes">
+      <menu_item_call.on_click function="Outfit.Create" parameter="eyes" />
+    </menu_item_call>
+  </menu>
+  <menu_item_separator name="sepatator2" />
+  <menu_item_call label="衣装を編集" layout="topleft" name="edit">
+    <on_click function="Outfit.Edit" />
+    <on_visible function="Outfit.OnVisible" parameter="edit" />
+  </menu_item_call>
+  <menu_item_call label="衣装の名前変更" layout="topleft" name="rename">
+    <on_click function="Outfit.Rename" />
+    <on_enable function="Outfit.OnEnable" parameter="rename" />
+  </menu_item_call>
+  <menu_item_call label="衣装を削除" layout="topleft" name="delete">
+    <on_click function="Outfit.Delete" />
+    <on_visible function="Outfit.OnVisible" parameter="delete" />
+  </menu_item_call>
+</context_menu>
