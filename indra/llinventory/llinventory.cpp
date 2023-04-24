@@ -1345,16 +1345,16 @@ bool LLInventoryCategory::importLLSD(const LLSD& cat_data)
 	{
 		setPreferredType(LLFolderType::lookup(cat_data[INV_PREFERRED_TYPE_LABEL].asString()));
 	}
-    LLUUID thumbnail_uuid;
     if (cat_data.has(INV_THUMBNAIL_LABEL))
     {
+        LLUUID thumbnail_uuid;
         const LLSD &thumbnail_data = cat_data[INV_THUMBNAIL_LABEL];
         if (thumbnail_data.has(INV_ASSET_ID_LABEL))
         {
             thumbnail_uuid = thumbnail_data[INV_ASSET_ID_LABEL].asUUID();
         }
+        setThumbnailUUID(thumbnail_uuid);
     }
-    setThumbnailUUID(thumbnail_uuid);
 	if (cat_data.has(INV_NAME_LABEL))
 	{
 		mName = cat_data[INV_NAME_LABEL].asString();

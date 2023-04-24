@@ -2638,12 +2638,6 @@ bool LLInventoryModel::loadSkeleton(
 			cat->setUUID(folder_id.asUUID());
 			cat->setParent(parent_id.asUUID());
 
-            LLSD thumbnail = (*it)["thumbnail"];
-            if (thumbnail.isMap())
-            {
-                cat->setThumbnailUUID(thumbnail["asset_id"].asUUID());
-            }
-
 			LLFolderType::EType preferred_type = LLFolderType::FT_NONE;
 			LLSD type_default = (*it)["type_default"];
 			if(type_default.isDefined())
@@ -2735,6 +2729,10 @@ bool LLInventoryModel::loadSkeleton(
 				else
 				{
 					cached_ids.insert(tcat->getUUID());
+
+                    // At the moment download does not provide a thumbnail
+                    // uuid, use the one from cache
+                    tcat->setThumbnailUUID(cat->getThumbnailUUID());
 				}
 			}
 
