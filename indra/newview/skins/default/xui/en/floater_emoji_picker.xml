@@ -11,44 +11,44 @@
     width="200">
   <line_editor
       name="Search"
-      label="Type to search an emoji"
+      label="Type to search"
       layout="bottomleft"
       follows="bottom|left|right"
       text_tentative_color="TextFgTentativeColor"
       max_length_bytes="63"
-	  bottom="5"
-	  left="39"
+      bottom="14"
+      left="34"
       height="29"
-      width="158" />
+      width="162" />
   <button
-	  name="PreviewEmoji"
+      name="PreviewEmoji"
       layout="bottomleft"
       follows="bottom|left"
-	  font="EmojiHuge"
-	  use_font_color="true"
-	  bottom="5"
-	  left="5"
-	  height="29"
-	  width="29" />
+      font="EmojiHuge"
+      use_font_color="true"
+      bottom="14"
+      left="2"
+      height="29"
+      width="29" />
   <scroll_list
       name="Emojis"
       layout="topleft"
       follows="all"
       sort_column="0"
-	  max_chars="63"
-	  commit_on_selection_change="true"
+      max_chars="63"
+      commit_on_selection_change="true"
       draw_heading="true"
       heading_height="25"
-	  left="5"
-	  row_padding="0"
-	  top="25"
-	  height="338"
-	  width="192">
+      row_padding="0"
+      top="25"
+      left="0"
+      height="330"
+      width="200">
     <columns
-        label="Look"
+        label="@"
         name="look"
-        width="50" />
-	<columns
+        width="16" />
+    <columns
         label="Name"
         name="name" />
   </scroll_list>
@@ -57,9 +57,9 @@
       label="Choose a category"
       layout="topleft"
       follows="top|left|right"
-	  allow_text_entry="true"
-	  top="0"
-	  left="5"
+      allow_text_entry="true"
+      top="0"
+      left="2"
       height="25"
-      width="192" />
+      width="196" />
 </floater>
