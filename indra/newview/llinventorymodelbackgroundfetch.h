@@ -65,6 +65,7 @@ public:
 	bool inventoryFetchInProgress() const;
 
     void findLostItems();	
+    void fetchCOF();
 	void incrFetchCount(S32 fetching);
     void incrFetchFolderCount(S32 fetching);
 

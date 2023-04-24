@@ -1898,6 +1898,7 @@ bool idle_startup()
 		}
 		
         LLInventoryModelBackgroundFetch::instance().start();
+        LLInventoryModelBackgroundFetch::instance().fetchCOF();
 		gInventory.createCommonSystemCategories();
 
 		// It's debatable whether this flag is a good idea - sets all

@@ -593,6 +593,40 @@ void AISAPI::FetchCategoryCategories(const LLUUID &catId, ITEM_TYPE type, bool r
 }
 
 /*static*/
+// Will get COF folder, links in it and items those links point to
+void AISAPI::FetchCOF(completion_t callback)
+{
+    std::string cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        if (callback)
+        {
+            callback(LLUUID::null);
+        }
+        return;
+    }
+    std::string url = cap + std::string("/category/current/links");
+
+    invokationFn_t getFn = boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string&, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        // _4 -> body 
+        // _5 -> httpOptions
+        // _6 -> httpHeaders
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, _5, _6);
+
+    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+                                                         _1, getFn, url, LLUUID::null, LLSD(), callback, FETCHCOF));
+
+    EnqueueAISCommand("FetchCOF", proc);
+}
+
+/*static*/
 void AISAPI::FetchOrphans(completion_t callback)
 {
     std::string cap = getInvCap();
@@ -687,6 +721,7 @@ void AISAPI::onUpdateReceived(const std::string& context, const LLSD& update, CO
     bool is_fetch = (type == FETCHITEM)
         || (type == FETCHCATEGORYCHILDREN)
         || (type == FETCHCATEGORYCATEGORIES)
+        || (type == FETCHCOF)
         || (type == FETCHORPHANS);
     // parse update llsd into stuff to do or parse received items.
     S32 depth = 0;
@@ -1095,6 +1130,11 @@ void AISUpdate::parseLink(const LLSD& link_map)
 			mCatDescendentDeltas[parent_id]++;
             new_link->setComplete(true);
 		}
+
+        if (link_map.has("_embedded"))
+        {
+            parseEmbedded(link_map["_embedded"], S32_MAX);
+        }
 	}
 	else
 	{

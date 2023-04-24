@@ -391,6 +391,12 @@ void LLInventoryModelBackgroundFetch::findLostItems()
     gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
 }
 
+void LLInventoryModelBackgroundFetch::fetchCOF()
+{
+    // Will get COF folder, links in it and items those links point to
+    AISAPI::FetchCOF();
+}
+
 void LLInventoryModelBackgroundFetch::setAllFoldersFetched()
 {
 	if (mRecursiveInventoryFetchStarted &&
