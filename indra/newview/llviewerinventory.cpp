@@ -1377,11 +1377,8 @@ void update_inventory_category(
 			return;
 		}
 
-		LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(obj);
-		new_cat->fromLLSD(updates);
-        LLSD new_llsd = new_cat->asLLSD();
         AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
-        AISAPI::UpdateCategory(cat_id, new_llsd, cr);
+        AISAPI::UpdateCategory(cat_id, updates, cr);
 	}
 }
 
