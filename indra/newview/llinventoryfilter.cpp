@@ -195,6 +195,11 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 		return true;
 	}
 
+    if(!checkAgainstFilterThumbnails(folder_id))
+    {
+        return false;
+    }
+
 	// when applying a filter, matching folders get their contents downloaded first
 	// but make sure we are not interfering with pre-download
 	if (isNotDefault()
