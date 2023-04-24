@@ -6797,7 +6797,8 @@ void LLPipeline::renderAlphaObjects(bool rigged)
                     lastMeshId = pparams->mSkinInfo->mHash;
                 }
 
-                mSimplePool->pushBatch(*pparams, true, true, true);
+                LLRenderPass::resetGLTFTextureTransform();
+                mSimplePool->pushBatch(*pparams, true, true);
             }
         }
         else
@@ -6808,7 +6809,8 @@ void LLPipeline::renderAlphaObjects(bool rigged)
             }
             else
             {
-                mSimplePool->pushBatch(*pparams, true, true, true);
+                LLRenderPass::resetGLTFTextureTransform();
+                mSimplePool->pushBatch(*pparams, true, true);
             }
         }
     }
@@ -6825,11 +6827,11 @@ void LLPipeline::renderMaskedObjects(U32 type, bool texture, bool batch_texture,
 	gGLLastMatrix = NULL;
     if (rigged)
     {
-        mAlphaMaskPool->pushRiggedMaskBatches(type+1, texture, batch_texture, true);
+        mAlphaMaskPool->pushRiggedMaskBatches(type+1, texture, batch_texture);
     }
     else
     {
-        mAlphaMaskPool->pushMaskBatches(type, texture, batch_texture, true);
+        mAlphaMaskPool->pushMaskBatches(type, texture, batch_texture);
     }
 	gGL.loadMatrix(gGLModelView);
 	gGLLastMatrix = NULL;		
@@ -6843,11 +6845,11 @@ void LLPipeline::renderFullbrightMaskedObjects(U32 type, bool texture, bool batc
 	gGLLastMatrix = NULL;
     if (rigged)
     {
-        mFullbrightAlphaMaskPool->pushRiggedMaskBatches(type+1, texture, batch_texture, true);
+        mFullbrightAlphaMaskPool->pushRiggedMaskBatches(type+1, texture, batch_texture);
     }
     else
     {
-        mFullbrightAlphaMaskPool->pushMaskBatches(type, texture, batch_texture, true);
+        mFullbrightAlphaMaskPool->pushMaskBatches(type, texture, batch_texture);
     }
 	gGL.loadMatrix(gGLModelView);
 	gGLLastMatrix = NULL;		
@@ -8909,6 +8911,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow alpha masked");
                 LL_PROFILE_GPU_ZONE("shadow alpha masked");
+                LLRenderPass::resetGLTFTextureTransform();
                 renderMaskedObjects(LLRenderPass::PASS_ALPHA_MASK, true, true, rigged);
             }
 
@@ -8925,6 +8928,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
                 gDeferredShadowFullbrightAlphaMaskProgram.bind(rigged);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
+                LLRenderPass::resetGLTFTextureTransform();
                 renderFullbrightMaskedObjects(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, true, true, rigged);
             }
 
@@ -8941,6 +8945,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
                 {
                     LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow alpha material");
                     LL_PROFILE_GPU_ZONE("shadow alpha material");
+                    LLRenderPass::resetGLTFTextureTransform();
                     renderMaskedObjects(LLRenderPass::PASS_NORMSPEC_MASK, true, false, rigged);
                     renderMaskedObjects(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, true, false, rigged);
                     renderMaskedObjects(LLRenderPass::PASS_SPECMAP_MASK, true, false, rigged);
