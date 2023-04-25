@@ -462,7 +462,7 @@ void AISAPI::FetchCategoryChildren(const LLUUID &catId, ITEM_TYPE type, bool rec
     }
     else
     {
-        depth = llmax(depth, 50);
+        depth = llmin(depth, 50);
     }
 
     url += "?depth=" + std::to_string(depth);
@@ -515,7 +515,7 @@ void AISAPI::FetchCategoryChildren(const std::string &identifier, bool recursive
     }
     else
     {
-        depth = llmax(depth, 50);
+        depth = llmin(depth, 50);
     }
 
     url += "?depth=" + std::to_string(depth);
@@ -566,7 +566,7 @@ void AISAPI::FetchCategoryCategories(const LLUUID &catId, ITEM_TYPE type, bool r
     }
     else
     {
-        depth = llmax(depth, 50);
+        depth = llmin(depth, 50);
     }
 
     url += "?depth=" + std::to_string(depth);
