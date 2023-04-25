@@ -771,7 +771,7 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
 
         LL_DEBUGS("Inventory") << "Request type: " << (S32)type
             << " \nRequest target: " << targetId
-            << " \nElapsed time ince request: " << elapsed_time
+            << " \nElapsed time since request: " << elapsed_time
             << " \nstatus: " << status.toULong() << LL_ENDL;
     }
     else
@@ -904,6 +904,8 @@ AISUpdate::AISUpdate(const LLSD& update, bool fetch, S32 depth)
 : mFetch(fetch)
 , mFetchDepth(depth)
 {
+    mTimer.setTimerExpirySec(debugLoggingEnabled("Inventory") ? EXPIRY_SECONDS_DEBUG : EXPIRY_SECONDS_LIVE);
+    mTimer.start();
 	parseUpdate(update);
 }
 
@@ -1279,6 +1281,13 @@ void AISUpdate::parseDescendentCount(const LLUUID& category_id, const LLSD& embe
 
 void AISUpdate::parseEmbedded(const LLSD& embedded, S32 depth)
 {
+    if (mTimer.hasExpired())
+    {
+        llcoro::suspend();
+        LLCoros::checkStop();
+        mTimer.setTimerExpirySec(debugLoggingEnabled("Inventory") ? EXPIRY_SECONDS_DEBUG : EXPIRY_SECONDS_LIVE);
+    }
+
 	if (embedded.has("links")) // _embedded in a category
 	{
 		parseEmbeddedLinks(embedded["links"]);

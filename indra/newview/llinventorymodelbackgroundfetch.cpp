@@ -555,12 +555,17 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
     }
 
     static LLCachedControl<U32> ais_pool(gSavedSettings, "PoolSizeAIS", 20);
+    // Don't have too many requests at once
+    // Reserve one request for actions outside of fetch (like renames)
     const U32 max_concurrent_fetches = llmax(1, ais_pool - 1);
 
     if (mFetchCount >= max_concurrent_fetches)
     {
         return;
     }
+
+    // Don't fire all requests at once
+    const U32 max_requests_this_run = llmin(mFetchCount + 5, max_concurrent_fetches);
 
     // Don't loop for too long (in case of large, fully loaded inventory)
     F64 curent_time = LLTimer::getTotalSeconds();
@@ -570,7 +575,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
     const F64 end_time = curent_time + max_time;
     S32 last_fetch_count = mFetchCount;
 
-    while (!mFetchFolderQueue.empty() && mFetchCount < max_concurrent_fetches && curent_time < end_time)
+    while (!mFetchFolderQueue.empty() && mFetchCount < max_requests_this_run && curent_time < end_time)
     {
         const FetchQueueInfo & fetch_info(mFetchFolderQueue.front());
         bulkFetchViaAis(fetch_info);
@@ -581,7 +586,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
     // Ideally we shouldn't fetch items if recursive fetch isn't done,
     // but there is a chance some request will start timeouting and recursive
     // fetch will get stuck on a signle folder, don't block item fetch in such case
-    while (!mFetchItemQueue.empty() && mFetchCount < max_concurrent_fetches && curent_time < end_time)
+    while (!mFetchItemQueue.empty() && mFetchCount < max_requests_this_run && curent_time < end_time)
     {
         const FetchQueueInfo& fetch_info(mFetchItemQueue.front());
         bulkFetchViaAis(fetch_info);

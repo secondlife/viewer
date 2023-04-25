@@ -124,6 +124,11 @@ public:
 private:
 	void clearParseResults();
 
+    // Debug is very log-heavy, give it more time or it will take forever to process
+    // Todo: find a way to make throttle static isntead of per-request
+    const F32 EXPIRY_SECONDS_DEBUG = 1.f;
+    const F32 EXPIRY_SECONDS_LIVE = 0.01f;
+
 	typedef std::map<LLUUID,S32> uuid_int_map_t;
 	uuid_int_map_t mCatDescendentDeltas;
 	uuid_int_map_t mCatDescendentsKnown;
@@ -144,6 +149,7 @@ private:
 	uuid_list_t mCategoryIds;
     bool mFetch;
     S32 mFetchDepth;
+    LLTimer mTimer;
 };
 
 #endif

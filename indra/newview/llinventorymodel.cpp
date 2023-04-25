@@ -4681,7 +4681,6 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 			}
 			else if (count_under_root > 1)
 			{
-				LL_WARNS("Inventory") << "Fatal inventory corruption: system folder type has excess copies under root, type " << ft << " count " << count_under_root << LL_ENDL;
 				validation_info->mDuplicateRequiredSystemFolders.insert(folder_type);
                 if (!is_automatic && folder_type != LLFolderType::FT_SETTINGS)
                 {
@@ -4689,6 +4688,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
                     // outfits, trash and other non-automatic folders.
 					validation_info->mFatalSystemDuplicate++;
                     fatal_errs++;
+                    LL_WARNS("Inventory") << "Fatal inventory corruption: system folder type has excess copies under root, type " << ft << " count " << count_under_root << LL_ENDL;
                 }
                 else
                 {
@@ -4697,6 +4697,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
                     // Exception: FT_SETTINGS is not automatic, but only deserves a warning.
 					validation_info->mWarnings["non_fatal_system_duplicate_under_root"]++;
                     warning_count++;
+                    LL_WARNS("Inventory") << "System folder type has excess copies under root, type " << ft << " count " << count_under_root << LL_ENDL;
                 }
 			}
 			if (count_elsewhere > 0)
