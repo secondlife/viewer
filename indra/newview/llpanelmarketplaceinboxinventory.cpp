@@ -62,10 +62,13 @@ LLInboxInventoryPanel::LLInboxInventoryPanel(const LLInboxInventoryPanel::Params
 :	LLInventoryPanel(p)
 {
 	LLInboxNewItemsStorage::getInstance()->load();
+    LLInboxNewItemsStorage::getInstance()->addInboxPanel(this);
 }
 
 LLInboxInventoryPanel::~LLInboxInventoryPanel()
-{}
+{
+    LLInboxNewItemsStorage::getInstance()->removeInboxPanel(this);
+}
 
 void LLInboxInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 {
@@ -106,6 +109,21 @@ LLFolderViewItem * LLInboxInventoryPanel::createFolderViewItem(LLInvFVBridge * b
 	params.font_highlight_color = item_color;
 
 	return LLUICtrlFactory::create<LLInboxFolderViewItem>(params);
+}
+
+void LLInboxInventoryPanel::onRemoveItemFreshness(const LLUUID& item_id)
+{
+    LLInboxFolderViewFolder* inbox_folder_view = dynamic_cast<LLInboxFolderViewFolder*>(getFolderByID(item_id));
+    if(inbox_folder_view)
+    {
+        inbox_folder_view->setFresh(false);
+    }
+
+    LLInboxFolderViewItem* inbox_item_view = dynamic_cast<LLInboxFolderViewItem*>(getItemByID(item_id));
+    if(inbox_item_view)
+    {
+        inbox_item_view->setFresh(false);
+    }
 }
 
 //
@@ -339,5 +357,19 @@ void LLInboxNewItemsStorage::load()
 			}
 		}
 	}
+}
+
+void LLInboxNewItemsStorage::removeItem(const LLUUID& id)
+{
+    mNewItemsIDs.erase(id);
+
+    //notify inbox panels
+    for (auto inbox : mInboxPanels)
+    {
+        if(inbox)
+        {
+            inbox->onRemoveItemFreshness(id);
+        }
+    }
 }
 // eof
