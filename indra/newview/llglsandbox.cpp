@@ -1028,8 +1028,6 @@ F32 gpu_benchmark()
 	//time limit, allocation operations shouldn't take longer then 30 seconds, same for actual benchmark.
 	const F32 time_limit = 30;
 
-	ShaderProfileHelper initProfile;
-	
 	std::vector<LLRenderTarget> dest(count);
 	TextureHolder texHolder(0, count);
 	std::vector<F32> results;
@@ -1111,46 +1109,49 @@ F32 gpu_benchmark()
 
 	buff->unmapBuffer();
 
-	// ensure matched pair of bind() and unbind() calls
-	ShaderBinder binder(gBenchmarkProgram);
+    LLGLSLShader::unbind();
 
-	buff->setBuffer();
-	glFinish();
+    F32 time_passed = 0; // seconds
 
-	F32 time_passed = 0; // seconds
-	for (S32 c = -1; c < samples && time_passed < time_limit; ++c)
-	{
-		LLTimer timer;
-		timer.start();
+    { //run CPU timer benchmark
+        glFinish();
+        gBenchmarkProgram.bind();
+        for (S32 c = -1; c < samples && time_passed < time_limit; ++c)
+        {
+            LLTimer timer;
+            timer.start();
 
-		for (U32 i = 0; i < count; ++i)
-		{
-			dest[i].bindTarget();
-			texHolder.bind(i);
-			buff->drawArrays(LLRender::TRIANGLES, 0, 3);
-			dest[i].flush();
-		}
+            for (U32 i = 0; i < count; ++i)
+            {
+                dest[i].bindTarget();
+                texHolder.bind(i);
+                buff->setBuffer();
+                buff->drawArrays(LLRender::TRIANGLES, 0, 3);
+                dest[i].flush();
+            }
 
-		//wait for current batch of copies to finish
-		glFinish();
+            //wait for current batch of copies to finish
+            glFinish();
 
-		F32 time = timer.getElapsedTimeF32();
-		time_passed += time;
+            F32 time = timer.getElapsedTimeF32();
+            time_passed += time;
 
-		if (c >= 0) // <-- ignore the first sample as it tends to be artificially slow
-		{ 
-			//store result in gigabytes per second
-			F32 gb = (F32) ((F64) (res*res*8*count))/(1000000000);
-			F32 gbps = gb/time;
-			results.push_back(gbps);
-		}
-	}
+            if (c >= 0) // <-- ignore the first sample as it tends to be artificially slow
+            {
+                //store result in gigabytes per second
+                F32 gb = (F32)((F64)(res * res * 8 * count)) / (1000000000);
+                F32 gbps = gb / time;
+                results.push_back(gbps);
+            }
+        }
+        gBenchmarkProgram.unbind();
+    }
 
 	std::sort(results.begin(), results.end());
 
 	F32 gbps = results[results.size()/2];
 
-	LL_INFOS("Benchmark") << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to CPU timers, " << (F32)results.size() << " tests took " << time_passed << " seconds" << LL_ENDL;
+	LL_INFOS("Benchmark") << "Memory bandwidth is " << llformat("%.3f", gbps) << " GB/sec according to CPU timers, " << (F32)results.size() << " tests took " << time_passed << " seconds" << LL_ENDL;
   
 #if LL_DARWIN
     if (gbps > 512.f)
@@ -1161,14 +1162,32 @@ F32 gpu_benchmark()
     }
 #endif
 
+    // run GPU timer benchmark
+    { 
+        ShaderProfileHelper initProfile;
+        dest[0].bindTarget();
+        gBenchmarkProgram.bind();
+        for (S32 c = 0; c < samples; ++c)
+        {
+            for (U32 i = 0; i < count; ++i)
+            {
+                texHolder.bind(i);
+                buff->setBuffer();
+                buff->drawArrays(LLRender::TRIANGLES, 0, 3);
+            }
+        }
+        gBenchmarkProgram.unbind();
+        dest[0].flush();
+    }
+
 	F32 ms = gBenchmarkProgram.mTimeElapsed/1000000.f;
 	F32 seconds = ms/1000.f;
 
-	F64 samples_drawn = res*res*count*results.size();
+    F64 samples_drawn = gBenchmarkProgram.mSamplesDrawn;
 	F32 samples_sec = (samples_drawn/1000000000.0)/seconds;
-	gbps = samples_sec*8;
+	gbps = samples_sec*4;  // 4 bytes per sample
 
-	LL_INFOS("Benchmark") << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to ARB_timer_query, total time " << seconds << " seconds" << LL_ENDL;
+	LL_INFOS("Benchmark") << "Memory bandwidth is " << llformat("%.3f", gbps) << " GB/sec according to ARB_timer_query, total time " << seconds << " seconds" << LL_ENDL;
 
 	return gbps;
 }
