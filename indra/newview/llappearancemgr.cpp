@@ -4563,13 +4563,16 @@ protected:
 
 void callAfterCOFFetch(nullary_func_t cb)
 {
-    if (AISAPI::isAvailable())
+    LLUUID cat_id = LLAppearanceMgr::instance().getCOF();
+    LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+    if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN && AISAPI::isAvailable())
     {
+        // Assume that we have no relevant cache. Fetch cof, and items cof's links point to.
         AISAPI::FetchCOF([cb](const LLUUID& id) { cb(); });
     }
     else
     {
-        LLUUID cat_id = LLAppearanceMgr::instance().getCOF();
+        // Assume that cache is present. Process like a normal folder.
         callAfterCategoryFetch(cat_id, cb);
     }
 }
