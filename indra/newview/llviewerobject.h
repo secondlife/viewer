@@ -441,7 +441,7 @@ public:
 
 	void sendMaterialUpdate() const;
 
-	void setDebugText(const std::string &utf8text);
+	void setDebugText(const std::string &utf8text, const LLColor4& color = LLColor4::white);
 	void appendDebugText(const std::string &utf8text);
 	void initHudText();
 	void restoreHudText();

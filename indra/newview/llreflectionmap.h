@@ -78,8 +78,12 @@ public:
     // point at which environment map was last generated from (in agent space)
     LLVector4a mOrigin;
     
-    // distance from viewer camera
-    F32 mDistance;
+    // distance from main viewer camera
+    F32 mDistance = -1.f;
+
+    // Minimum and maximum depth in current render camera
+    F32 mMinDepth = -1.f;
+    F32 mMaxDepth = -1.f;
 
     // radius of this probe's affected area
     F32 mRadius = 16.f;
