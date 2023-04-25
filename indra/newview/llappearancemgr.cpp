@@ -4561,18 +4561,31 @@ protected:
 	nullary_func_t mCallable;
 };
 
+void callAfterCOFFetch(nullary_func_t cb)
+{
+    if (AISAPI::isAvailable())
+    {
+        AISAPI::FetchCOF([cb](const LLUUID& id) { cb(); });
+    }
+    else
+    {
+        LLUUID cat_id = LLAppearanceMgr::instance().getCOF();
+        callAfterCategoryFetch(cat_id, cb);
+    }
+}
+
 void callAfterCategoryFetch(const LLUUID& cat_id, nullary_func_t cb)
 {
-	CallAfterCategoryFetchStage1 *stage1 = new CallAfterCategoryFetchStage1(cat_id, cb);
-	stage1->startFetch();
-	if (stage1->isFinished())
-	{
-		stage1->done();
-	}
-	else
-	{
-		gInventory.addObserver(stage1);
-	}
+    CallAfterCategoryFetchStage1* stage1 = new CallAfterCategoryFetchStage1(cat_id, cb);
+    stage1->startFetch();
+    if (stage1->isFinished())
+    {
+        stage1->done();
+    }
+    else
+    {
+        gInventory.addObserver(stage1);
+    }
 }
 
 void add_wearable_type_counts(const uuid_vec_t& ids,

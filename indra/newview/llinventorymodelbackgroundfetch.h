@@ -64,9 +64,8 @@ public:
 	bool inventoryFetchCompleted() const;
 	bool inventoryFetchInProgress() const;
 
-    void findLostItems();	
-    void fetchCOF();
-	void incrFetchCount(S32 fetching);
+    void findLostItems();
+    void incrFetchCount(S32 fetching);
     void incrFetchFolderCount(S32 fetching);
 
 	bool isBulkFetchProcessingComplete() const;

@@ -1898,7 +1898,6 @@ bool idle_startup()
 		}
 		
         LLInventoryModelBackgroundFetch::instance().start();
-        LLInventoryModelBackgroundFetch::instance().fetchCOF();
 		gInventory.createCommonSystemCategories();
 
 		// It's debatable whether this flag is a good idea - sets all
@@ -2161,7 +2160,7 @@ bool idle_startup()
 			gAgentWearables.notifyLoadingStarted();
 			gAgent.setOutfitChosen(TRUE);
 			gAgentWearables.sendDummyAgentWearablesUpdate();
-			callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(), set_flags_and_update_appearance);
+            callAfterCOFFetch(set_flags_and_update_appearance);
 		}
 
 		display_startup();

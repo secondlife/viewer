@@ -354,17 +354,7 @@ void LLInventoryModelBackgroundFetch::start(const LLUUID& id, bool recursive)
 
 void LLInventoryModelBackgroundFetch::scheduleFolderFetch(const LLUUID& cat_id, bool forced)
 {
-    if (AISAPI::isAvailable())
-    {
-        if (mFetchFolderQueue.empty() || mFetchFolderQueue.back().mUUID != cat_id)
-        {
-            // On AIS make sure root goes to the top and follow up recursive
-            // fetches, not individual requests
-            mFetchFolderQueue.push_back(FetchQueueInfo(cat_id, forced ? FT_FORCED : FT_DEFAULT));
-            gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
-        }
-    }
-    else if (mFetchFolderQueue.empty() || mFetchFolderQueue.front().mUUID != cat_id)
+    if (mFetchFolderQueue.empty() || mFetchFolderQueue.front().mUUID != cat_id)
     {
         // Specific folder requests go to front of queue.
         mFetchFolderQueue.push_front(FetchQueueInfo(cat_id, forced ? FT_FORCED : FT_DEFAULT));
@@ -389,12 +379,6 @@ void LLInventoryModelBackgroundFetch::findLostItems()
     mFolderFetchActive = true;
     mFetchFolderQueue.push_back(FetchQueueInfo(LLUUID::null, FT_RECURSIVE));
     gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
-}
-
-void LLInventoryModelBackgroundFetch::fetchCOF()
-{
-    // Will get COF folder, links in it and items those links point to
-    AISAPI::FetchCOF();
 }
 
 void LLInventoryModelBackgroundFetch::setAllFoldersFetched()
