@@ -945,6 +945,7 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 	// *TODO:  Think I'd like to get a shared pointer to this and share it
 	// among all the folder requests.
 	uuid_vec_t recursive_cats;
+    uuid_vec_t all_cats; // dupplicate avoidance
 
 	LLSD folder_request_body;
 	LLSD folder_request_body_lib;
@@ -976,22 +977,25 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
                 {
                     if (LLViewerInventoryCategory::VERSION_UNKNOWN == cat->getVersion())
                     {
-                        LLSD folder_sd;
-                        folder_sd["folder_id"] = cat->getUUID();
-                        folder_sd["owner_id"] = cat->getOwnerID();
-                        folder_sd["sort_order"] = LLSD::Integer(sort_order);
-                        folder_sd["fetch_folders"] = LLSD::Boolean(true); //(LLSD::Boolean)sFullFetchStarted;
-                        folder_sd["fetch_items"] = LLSD::Boolean(true);
+                        if (std::find(all_cats.begin(), all_cats.end(), cat_id) == all_cats.end())
+                        {
+                            LLSD folder_sd;
+                            folder_sd["folder_id"] = cat->getUUID();
+                            folder_sd["owner_id"] = cat->getOwnerID();
+                            folder_sd["sort_order"] = LLSD::Integer(sort_order);
+                            folder_sd["fetch_folders"] = LLSD::Boolean(TRUE); //(LLSD::Boolean)sFullFetchStarted;
+                            folder_sd["fetch_items"] = LLSD::Boolean(TRUE);
 
-                        if (ALEXANDRIA_LINDEN_ID == cat->getOwnerID())
-                        {
-                            folder_request_body_lib["folders"].append(folder_sd);
+                            if (ALEXANDRIA_LINDEN_ID == cat->getOwnerID())
+                            {
+                                folder_request_body_lib["folders"].append(folder_sd);
+                            }
+                            else
+                            {
+                                folder_request_body["folders"].append(folder_sd);
+                            }
+                            folder_count++;
                         }
-                        else
-                        {
-                            folder_request_body["folders"].append(folder_sd);
-                        }
-                        folder_count++;
                     }
                     else
                     {
@@ -1015,6 +1019,7 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 			{
 				recursive_cats.push_back(cat_id);
 			}
+            all_cats.push_back(cat_id);
 		}
 
         mFetchFolderQueue.pop_front();
@@ -1349,6 +1354,46 @@ void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::Http
 					  << LLCoreHttpUtil::responseToString(response) << "]" << LL_ENDL;
 
 	// Could use a 404 test here to try to detect revoked caps...
+
+    if(status == LLCore::HttpStatus(HTTP_FORBIDDEN))
+    {
+        // too large, split into two, assume that this isn't the library
+        const std::string url(gAgent.getRegionCapability("FetchInventoryDescendents2"));
+        S32 size = mRequestSD["folders"].size();
+
+        if (!gDisconnected && !LLApp::isExiting() && !url.empty() && size > 1)
+        {
+            LLSD folders;
+            uuid_vec_t recursive_cats;
+            LLSD::array_iterator iter = mRequestSD["folders"].beginArray();
+            LLSD::array_iterator end = mRequestSD["folders"].endArray();
+            while (iter != end)
+            {
+                folders.append(*iter);
+                LLUUID fodler_id = iter->get("folder_id").asUUID();
+                if (std::find(mRecursiveCatUUIDs.begin(), mRecursiveCatUUIDs.end(), fodler_id) != mRecursiveCatUUIDs.end())
+                {
+                    recursive_cats.push_back(fodler_id);
+                }
+                if (folders.size() == (S32)(size / 2))
+                {
+                    LLSD request_body;
+                    request_body["folders"] = folders;
+                    LLCore::HttpHandler::ptr_t  handler(new BGFolderHttpHandler(request_body, recursive_cats));
+                    gInventory.requestPost(false, url, request_body, handler, "Inventory Folder");
+                    recursive_cats.clear();
+                    folders.clear();
+                }
+                iter++;
+            }
+
+            LLSD request_body;
+            request_body["folders"] = folders;
+            LLCore::HttpHandler::ptr_t  handler(new BGFolderHttpHandler(request_body, recursive_cats));
+            gInventory.requestPost(false, url, request_body, handler, "Inventory Folder");
+            return;
+        }
+    }
 	
 	// This was originally the request retry logic for the inventory
 	// request which tested on HTTP_INTERNAL_ERROR status.  This
