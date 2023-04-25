@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="avatar_list_item">
-  <string name="FormatSeconds">[COUNT] 秒</string>
-  <string name="FormatMinutes">[COUNT] 分</string>
-  <string name="FormatHours">[COUNT] 時間</string>
-  <string name="FormatDays">[COUNT] 日</string>
-  <string name="FormatWeeks">[COUNT] 週間</string>
-  <string name="FormatMonths">[COUNT] ヶ月</string>
-  <string name="FormatYears">[COUNT] 年</string>
+  <string name="FormatSeconds">[COUNT]秒</string>
+  <string name="FormatMinutes">[COUNT]分</string>
+  <string name="FormatHours">[COUNT]時間</string>
+  <string name="FormatDays">[COUNT]日</string>
+  <string name="FormatWeeks">[COUNT]週間</string>
+  <string name="FormatMonths">[COUNT]ヶ月</string>
+  <string name="FormatYears">[COUNT]年</string>
   <text name="avatar_name" value="（ローディング）" />
   <text name="last_interaction" value="0 秒" />
   <icon name="permission_edit_theirs_icon" tool_tip="このフレンドのオブジェクトを編集することができます" />

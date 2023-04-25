@@ -8,8 +8,8 @@
   <floater.string name="expand_icon" value="Conv_toolbar_expand" />
   <floater.string name="tear_off_icon" value="Conv_toolbar_arrow_ne" />
   <floater.string name="return_icon" value="Conv_toolbar_arrow_sw" />
-  <floater.string name="participant_added" value="[NAME] に会話を招待されました。" />
-  <floater.string name="multiple_participants_added" value="[NAME] は会話に招待されました。" />
+  <floater.string name="participant_added" value="[NAME]に会話を招待されました。" />
+  <floater.string name="multiple_participants_added" value="[NAME]は会話に招待されました。" />
   <floater.string name="tooltip_to_separate_window" value="この会話を別のウィンドウへ移動する" />
   <floater.string name="tooltip_to_main_window" value="この会話をメインウィンドウへ戻す" />
   <floater.string name="start_call_button_tooltip" value="会話の接続を開く" />

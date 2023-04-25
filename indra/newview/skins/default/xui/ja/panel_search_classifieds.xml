@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel height="70" layout="topleft" name="panel_search_classifieds" width="602">
+   <text follows="left|top|right" height="16" layout="topleft" left="4" name="search_title" top="4" value="検索語句：" width="255" />
+   <check_box control_name="ShowPGClassifieds" follows="right|top" height="16" label="" layout="topleft" left="489" name="pg_all" top="4" width="15">
+      <check_box.commit_callback function="Search.query" />
+   </check_box>
+   <icon follows="right|top" height="16" image_name="Parcel_PG_Dark" layout="topleft" left_pad="2" name="rating_icon_general" top_delta="-1" width="18"/>
+   <check_box control_name="ShowMatureClassifieds" follows="right|top" height="16" label="" layout="topleft" left_pad="2" name="mature_all" top_delta="1" width="15">
+      <check_box.commit_callback function="Search.query" />
+   </check_box>
+   <icon follows="right|top" height="16" image_name="Parcel_M_Dark" layout="topleft" left_pad="2" name="rating_icon_moderate" top_delta="-1" width="18"/>
+   <check_box control_name="ShowAdultClassifieds" follows="right|top" height="16" label="" layout="topleft" left_pad="2" name="adult_all" top_delta="1" width="15">
+      <check_box.commit_callback function="Search.query" />
+   </check_box>
+   <icon follows="right|top" height="16" image_name="Parcel_R_Dark" layout="topleft" left_pad="2" name="rating_icon_adult" top_delta="-1" width="18"/>
+   <search_editor follows="top|left|right" search_button_visible="true" height="22" text_readonly_color="DkGray" label="Search" layout="topleft" top_pad="1" left="4" right="-128" name="search_bar" select_on_focus="true" commit_on_focus_lost="false" tool_tip="検索語句を入力してください。">
+      <search_editor.commit_callback function="Search.query" />
+   </search_editor>
+   <combo_box follows="right|top" layout="topleft" height="23" allow_text_entry="false" top_delta="0" left_pad="2" name="classifieds_category" width="122">
+      <combo_box.commit_callback function="Search.query" />
+   </combo_box>
+</panel>

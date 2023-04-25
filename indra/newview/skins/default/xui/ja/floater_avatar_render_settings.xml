@@ -3,7 +3,7 @@
   <string name="av_never_render" value="使用しない" />
   <string name="av_always_render" value="常に使用する" />
   <filter_editor label="人をフィルター" name="people_filter_input" />
-  <menu_button name="plus_btn" tool_tip="選択した人に対するアクション:" />
+  <menu_button name="plus_btn" tool_tip="選択した人に対するアクション：" />
   <name_list name="render_settings_list">
     <name_list.columns label="名前" name="name" />
     <name_list.columns label="描画設定" name="setting" />

@@ -10,18 +10,18 @@
 	datetimeToCodes["wkday"]	= "%a";		// Thu
 	datetimeToCodes["weekday"]	= "%A";		// Thursday
 	datetimeToCodes["year4"]	= "%Y";		// 2009
-	datetimeToCodes["year"] = "%Y";		// 2009
+	datetimeToCodes["year"]= "%Y";		// 2009
 	datetimeToCodes["year2"]	= "%y";		// 09
-	datetimeToCodes["mth"] = "%b";		// Aug
+	datetimeToCodes["mth"]= "%b";		// Aug
 	datetimeToCodes["month"]	= "%B";		// August
 	datetimeToCodes["mthnum"]	= "%m";		// 08
-	datetimeToCodes["day"] = "%d";		// 31
-	datetimeToCodes["sday"] = "%-d";	// 9
+	datetimeToCodes["day"]= "%d";		// 31
+	datetimeToCodes["sday"]= "%-d";	// 9
 	datetimeToCodes["hour24"]	= "%H";		// 14
-	datetimeToCodes["hour"] = "%H";		// 14
+	datetimeToCodes["hour"]= "%H";		// 14
 	datetimeToCodes["hour12"]	= "%I";		// 02
-	datetimeToCodes["min"] = "%M";		// 59
-	datetimeToCodes["ampm"] = "%p";		// AM
+	datetimeToCodes["min"]= "%M";		// 59
+	datetimeToCodes["ampm"]= "%p";		// AM
 	datetimeToCodes["second"]	= "%S";		// 59
 	datetimeToCodes["timezone"]	= "%Z";		// PST	
 	-->

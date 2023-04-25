@@ -5,7 +5,7 @@
   <string name="hint_new">新しいデイサイクルに名前をつけ、希望の設定に調節して、「保存」をクリックします。</string>
   <string name="hint_edit">自分で作成したデイサイクルを編集するには、希望の設定に調節して、「保存」をクリックします。</string>
   <string name="time_label">（[HH]：[MM]）</string>
-  <string name="sky_track_label">空 [ALT]</string>
+  <string name="sky_track_label">空[ALT]</string>
   <string name="sky_label">空</string>
   <string name="water_label">水</string>
   <string name="commit_parcel">区画に適用</string>
@@ -51,9 +51,9 @@
                 </layout_stack>
               </layout_panel>
               <layout_panel>
-                <button label="[FRAME] を追加" name="add_frame" />
-                <button label="[FRAME] をロード" name="btn_load_frame" />
-                <button label="[FRAME] を削除" name="delete_frame" />
+                <button label="[FRAME]を追加" name="add_frame" />
+                <button label="[FRAME]をロード" name="btn_load_frame" />
+                <button label="[FRAME]を削除" name="delete_frame" />
               </layout_panel>
             </layout_stack>
           </panel>

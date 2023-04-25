@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu layout="topleft" name="Avatar Profile Menu Self">
+  <menu_item_call label="表示名を編集" layout="topleft" name="edit_display_name">
+    <on_click function="Profile.Commit" parameter="edit_display_name"/>
+  </menu_item_call>
+  <menu_item_call label="パートナーを編集" layout="topleft" name="edit_partner">
+    <on_click function="Profile.Commit" parameter="edit_partner"/>
+  </menu_item_call>
+  <menu_item_call label="画像をアップロード" layout="topleft" name="upload_photo">
+    <menu_item_call.on_click function="Profile.Commit" parameter="upload_photo"/>
+    <menu_item_call.on_enable function="Profile.EnableItem" parameter="upload_photo"/>
+  </menu_item_call>
+  <menu_item_call label="画像を変更" layout="topleft" name="change_photo">
+    <menu_item_call.on_click function="Profile.Commit" parameter="change_photo"/>
+    <menu_item_call.on_enable function="Profile.EnableItem" parameter="change_photo"/>
+  </menu_item_call>
+  <menu_item_call label="画像を削除" layout="topleft" name="remove_photo">
+    <menu_item_call.on_click function="Profile.Commit" parameter="remove_photo"/>
+    <menu_item_call.on_enable function="Profile.EnableItem" parameter="remove_photo"/>
+  </menu_item_call>
+  <menu_item_separator name="separator_copy_options"/>
+  <menu_item_call label="表示名をコピー" layout="topleft" name="copy_display_name">
+    <menu_item_call.on_click function="Profile.Commit" parameter="copy_display_name"/>
+    <menu_item_call.on_enable function="Profile.EnableItem" parameter="copy_display_name"/>
+  </menu_item_call>
+  <menu_item_call label="エージェント名をコピー" layout="topleft" name="copy_name">
+    <menu_item_call.on_click function="Profile.Commit" parameter="copy_username"/>
+    <menu_item_call.on_enable function="Profile.EnableItem" parameter="copy_username"/>
+  </menu_item_call>
+  <menu_item_call label="エージェントIdをコピー" layout="topleft" name="copy_id">
+    <menu_item_call.on_click function="Profile.Commit" parameter="copy_user_id"/>
+  </menu_item_call>
+</toggleable_menu>

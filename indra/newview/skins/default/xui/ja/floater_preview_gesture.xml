@@ -7,7 +7,7 @@
   <floater.string name="stop_txt">停止</floater.string>
   <floater.string name="preview_txt">プレビュー</floater.string>
   <floater.string name="none_text">-- なし --</floater.string>
-  <floater.string name="Title">ジェスチャー： [NAME]</floater.string>
+  <floater.string name="Title">ジェスチャー：[NAME]</floater.string>
   <text name="desc_label">説明：</text>
   <text name="trigger_label">トリガー：</text>
   <text name="replace_text" tool_tip="トリガーワードをこれらの単語に置き換えます。たとえば、トリガー「hello」を「Howdy」に置換すると、「I wanted to say hello」というチャット文が「I wanted to say howdy」に変わり、ジェスチャーにも置換が反映されます。">置換：</text>

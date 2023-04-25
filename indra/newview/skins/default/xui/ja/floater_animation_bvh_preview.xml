@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Animation Preview">
   <floater.string name="failed_to_initialize"> 動きを初期化できませんでした </floater.string>
-  <floater.string name="anim_too_long"> アニメーションファイルの長さは [LENGTH] 秒です。
-    アニメーションの最大長は [MAX_LENGTH] 秒です。 </floater.string>
+  <floater.string name="anim_too_long"> アニメーションファイルの長さは[LENGTH]秒です。
+    アニメーションの最大長は[MAX_LENGTH]秒です。 </floater.string>
   <floater.string name="failed_file_read"> アニメーションファイルを読み取れません。
-    [STATUS] </floater.string>
+[STATUS]</floater.string>
   <floater.string name="E_ST_OK">Ok </floater.string>
   <floater.string name="E_ST_EOF">ファイルの終端が不完全です。</floater.string>
-  <floater.string name="E_ST_NO_CONSTRAINT"> 制約定義を読み取れません。</floater.string>
-  <floater.string name="E_ST_NO_FILE">BVH ファイルを開けません。</floater.string>
-  <floater.string name="E_ST_NO_HIER">HIERARCHY ヘッダーが無効です。</floater.string>
-  <floater.string name="E_ST_NO_JOINT">ROOT または JOINT が見つかりません。</floater.string>
-  <floater.string name="E_ST_NO_NAME">JOINT 名を取得できません。</floater.string>
-  <floater.string name="E_ST_NO_OFFSET">OFFSET が見つかりません。</floater.string>
+  <floater.string name="E_ST_NO_CONSTRAINT">制約定義を読み取れません。</floater.string>
+  <floater.string name="E_ST_NO_FILE">BVHファイルを開けません。</floater.string>
+  <floater.string name="E_ST_NO_HIER">HIERARCHYヘッダーが無効です。</floater.string>
+  <floater.string name="E_ST_NO_JOINT">ROOTまたはJOINTが見つかりません。</floater.string>
+  <floater.string name="E_ST_NO_NAME">JOINT名を取得できません。</floater.string>
+  <floater.string name="E_ST_NO_OFFSET">OFFSETが見つかりません。</floater.string>
   <floater.string name="E_ST_NO_CHANNELS">CHANNELS が見つかりません。</floater.string>
   <floater.string name="E_ST_NO_ROTATION">回転順序を取得できません。</floater.string>
   <floater.string name="E_ST_NO_AXIS">回転軸を取得できません。</floater.string>
@@ -26,16 +26,16 @@
   <floater.string name="E_ST_NO_XLT_NAME">変換名を読み取れません。</floater.string>
   <floater.string name="E_ST_NO_XLT_IGNORE">変換無視値を読み取れません。</floater.string>
   <floater.string name="E_ST_NO_XLT_RELATIVE">変換相対値を読み取れません。</floater.string>
-  <floater.string name="E_ST_NO_XLT_OUTNAME">変換 outname 値を読み取れません。</floater.string>
+  <floater.string name="E_ST_NO_XLT_OUTNAME">変換outname値を読み取れません。</floater.string>
   <floater.string name="E_ST_NO_XLT_MATRIX">変換行列を読み取れません。</floater.string>
-  <floater.string name="E_ST_NO_XLT_MERGECHILD">Mergechild 名を取得できません。</floater.string>
-  <floater.string name="E_ST_NO_XLT_MERGEPARENT">Mergeparent 名を取得できません。</floater.string>
-  <floater.string name="E_ST_NO_XLT_PRIORITY">priority 値を取得できません。</floater.string>
+  <floater.string name="E_ST_NO_XLT_MERGECHILD">Mergechild名を取得できません。</floater.string>
+  <floater.string name="E_ST_NO_XLT_MERGEPARENT">Mergeparent名を取得できません。</floater.string>
+  <floater.string name="E_ST_NO_XLT_PRIORITY">priority値を取得できません。</floater.string>
   <floater.string name="E_ST_NO_XLT_LOOP">loop 値を取得できません。</floater.string>
-  <floater.string name="E_ST_NO_XLT_EASEIN">easeln 値を取得できません。</floater.string>
-  <floater.string name="E_ST_NO_XLT_EASEOUT">easeOut 値を取得できません。</floater.string>
-  <floater.string name="E_ST_NO_XLT_HAND">Hand morph 値を取得できません。</floater.string>
-  <floater.string name="E_ST_NO_XLT_EMOTE">emote 名を読みとれません。</floater.string>
+  <floater.string name="E_ST_NO_XLT_EASEIN">easeln値を取得できません。</floater.string>
+  <floater.string name="E_ST_NO_XLT_EASEOUT">easeOut値を取得できません。</floater.string>
+  <floater.string name="E_ST_NO_XLT_HAND">Hand morph値を取得できません。</floater.string>
+  <floater.string name="E_ST_NO_XLT_EMOTE">emote名を読みとれません。</floater.string>
   <floater.string name="E_ST_BAD_ROOT">ルートジョイント名が不正です。hip」を使用してください。</floater.string>
   <text name="name_label">名前：</text>
   <text name="description_label">説明：</text>
@@ -91,10 +91,10 @@
   </combo_box>
   <spinner label="イーズイン（秒）" name="ease_in_time" tool_tip="アニメーションのブレンドイン時間（秒）" />
   <spinner label="イーズアウト（秒）" name="ease_out_time" tool_tip="アニメーションのブレンドアウト時間（秒）" />
-  <button name="play_btn" tool_tip="アニメーションを再生する" />
-  <button name="pause_btn" tool_tip="アニメーションを一時停止する" />
-  <button name="stop_btn" tool_tip="アニメーションの再生を停止する" />
-  <text name="bad_animation_text"> アニメーションファイルを読み取れません。Poser 4 からエクスポートした BVH ファイルをお勧めします。 </text>
+  <button name="play_btn" tool_tip="アニメーションを再生する。" />
+  <button name="pause_btn" tool_tip="アニメーションを一時停止する。" />
+  <button name="stop_btn" tool_tip="アニメーションの再生を停止する。" />
+  <text name="bad_animation_text"> アニメーションファイルを読み取れません。Poser 4からエクスポートしたBVHファイルをお勧めします。</text>
   <button label="アップロード（L$[AMOUNT]）" name="ok_btn" />
   <button label="キャンセル" name="cancel_btn" />
 </floater>

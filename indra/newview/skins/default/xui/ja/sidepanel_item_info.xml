@@ -6,7 +6,7 @@
   <panel.string name="public">（公開）</panel.string>
   <panel.string name="you_can">あなたができること：</panel.string>
   <panel.string name="owner_can">所有者ができること：</panel.string>
-  <panel.string name="acquiredDate">[year,datetime,local] [mth,datetime,local] [day,datetime,local] [wkday,datetime,local]
+  <panel.string name="acquiredDate">[year,datetime,local]　[mth,datetime,local]　[day,datetime,local]　[wkday,datetime,local]
 [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]</panel.string>
   <panel.string name="origin_inventory">（インベントリ）</panel.string>
   <panel.string name="origin_inworld">（インワールド）</panel.string>
@@ -17,7 +17,7 @@
       <text name="LabelItemNameTitle">名前：</text>
       <line_editor name="LabelItemName" tool_tip="使用できる名前の文字数は最大 63 文字までです。長いプリム名は短縮されます。名前に使用できる文字は ASCII-7 （非拡張）に含まれる印字可能な文字のみです（縦線「|」は例外）。" />
       <text name="LabelItemDescTitle">説明：</text>
-      <line_editor name="LabelItemDesc" tool_tip="ビューアーの設定で [すべてのオブジェクト上でヒントを表示] が選択されている場合、オブジェクトにマウスのポインタをかざすとそのオブジェクトの説明がポップアップ表示されます。プリムの説明は最大 127 バイトまでに制限されているため、それよりも長い文字列は切り捨てられます。" />
+      <line_editor name="LabelItemDesc" tool_tip="ビューアーの設定で[すべてのオブジェクト上でヒントを表示]が選択されている場合、オブジェクトにマウスのポインタをかざすとそのオブジェクトの説明がポップアップ表示されます。プリムの説明は最大 127 バイトまでに制限されているため、それよりも長い文字列は切り捨てられます。" />
       <text name="LabelCreatorTitle">制作者：</text>
       <text name="LabelOwnerTitle">所有者：</text>
       <text name="LabelAcquiredTitle">取得：</text>

@@ -7,7 +7,7 @@
           <string name="InboxLabelWithArg">受け取ったアイテム（[NUM]）</string>
           <string name="InboxLabelNoArg">受け取ったアイテム</string>
           <button label="受け取ったアイテム" name="inbox_btn" />
-          <text name="inbox_fresh_new_count">[NUM] 個の新アイテム</text>
+          <text name="inbox_fresh_new_count">[NUM]個の新アイテム</text>
           <panel name="inbox_inventory_placeholder_panel" tool_tip="アイテムを使用するには、そのアイテムをインベントリにドラッグアンドドロップ">
             <text name="inbox_inventory_placeholder">マーケットプレイスから購入した商品はここに配達されます。</text>
           </panel>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu name="menu_group_plus">
+	<menu_item_check label="説明文" name="description">
+		<menu_item_check.on_check function="Inspect.EnableColumn" parameter="description"/>
+		<menu_item_check.on_click function="Inspect.ToggleColumn" parameter="description"/>
+	</menu_item_check>
+	<menu_item_check label="所有者名" name="owner_name">
+		<menu_item_check.on_check function="Inspect.EnableColumn" parameter="owner_name"/>
+		<menu_item_check.on_click function="Inspect.ToggleColumn" parameter="owner_name"/>
+	</menu_item_check>
+	<menu_item_check label="作成者名" name="creator_name">
+		<menu_item_check.on_check function="Inspect.EnableColumn" parameter="creator_name"/>
+		<menu_item_check.on_click function="Inspect.ToggleColumn" parameter="creator_name"/>
+	</menu_item_check>
+	<menu_item_check label="顔" name="facecount">
+		<menu_item_check.on_check function="Inspect.EnableColumn" parameter="facecount"/>
+		<menu_item_check.on_click function="Inspect.ToggleColumn" parameter="facecount"/>
+	</menu_item_check>
+	<menu_item_check label="頂点" name="vertexcount">
+		<menu_item_check.on_check function="Inspect.EnableColumn" parameter="vertexcount"/>
+		<menu_item_check.on_click function="Inspect.ToggleColumn" parameter="vertexcount"/>
+	</menu_item_check>
+	<menu_item_check label="三角形" name="trianglecount">
+		<menu_item_check.on_check function="Inspect.EnableColumn" parameter="trianglecount"/>
+		<menu_item_check.on_click function="Inspect.ToggleColumn" parameter="trianglecount"/>
+	</menu_item_check>
+	<menu_item_check label="TMem" name="tramcount">
+		<menu_item_check.on_check function="Inspect.EnableColumn" parameter="tramcount"/>
+		<menu_item_check.on_click function="Inspect.ToggleColumn" parameter="tramcount"/>
+	</menu_item_check>
+	<menu_item_check label="VRAM" name="vramcount">
+		<menu_item_check.on_check function="Inspect.EnableColumn" parameter="vramcount"/>
+		<menu_item_check.on_click function="Inspect.ToggleColumn" parameter="vramcount"/>
+	</menu_item_check>
+	<menu_item_check label="作成日" name="creation_date">
+		<menu_item_check.on_check function="Inspect.EnableColumn" parameter="creation_date"/>
+		<menu_item_check.on_click function="Inspect.ToggleColumn" parameter="creation_date"/>
+	</menu_item_check>
+</toggleable_menu>

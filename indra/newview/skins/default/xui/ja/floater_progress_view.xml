@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater positioning="centered" header_height="0" height="90" layout="topleft" name="progress_view" chrome="false" can_resize="false" can_close="false" can_minimize="false" single_instance="true" width="420">
+   <floater.string name="loc_fmt">[REGION]へレポートしています…。</floater.string>
+   <floater.string name="teleporting">テレポートしています…。</floater.string>
+   <text height="26" use_ellipses="true" type="string" text_color="LabelTextColor" font="SansSerifHugeBold" length="1" follows="top|left" layout="topleft" name="location" top="6" left="6" right="-6" value="[APP_NAME]" />
+   <text height="20" use_ellipses="true" font="SanSerifHuge" type="string" length="1" follows="top|right" layout="topleft" name="progress_text" top_pad="10" left="6" width="334" />
+   <button height="24" label="キャンセル" left_pad="4" name="cancel_btn" top_delta="-4" width="70">
+      <button.commit_callback function="cancel" />
+   </button>
+   <progress_bar height="16" follows="top|left" layout="topleft" name="progress_bar" top_pad="4" left="6" right="-6" tool_tip="progress bar" color_bar="EmphasisColor"/>
+</floater>

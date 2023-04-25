@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="window_size" title="ウィンドウサイズ">
-  <string name="resolution_format">[RES_X] x [RES_Y]</string>
+  <string name="resolution_format">[RES_X]x[RES_Y]</string>
   <text name="windowsize_text">ウィンドウのサイズを設定：</text>
   <combo_box name="window_size_combo" tool_tip="横幅 x 高さ">
     <combo_box.item label="1000 x 700 （デフォルト）" name="item1" />

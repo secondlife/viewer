@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="もの" name="main inventory panel">
-  <panel.string name="ItemcountFetching">[ITEM_COUNT] 個のアイテムと [CATEGORY_COUNT] 個のフォルダーを取得中です…。[FILTER]</panel.string>
-  <panel.string name="ItemcountCompleted">[ITEM_COUNT] 個のアイテムと [CATEGORY_COUNT] 個のフォルダー [FILTER]</panel.string>
-  <panel.string name="ItemcountUnknown">[ITEM_COUNT] 個のアイテムと [CATEGORY_COUNT] 個のフォルダーを取得しました [FILTER]</panel.string>
+  <panel.string name="ItemcountFetching">[ITEM_COUNT]個のアイテムと[CATEGORY_COUNT]個のフォルダーを取得中です…。[FILTER]</panel.string>
+  <panel.string name="ItemcountCompleted">[ITEM_COUNT]個のアイテムと[CATEGORY_COUNT]個のフォルダー[FILTER]</panel.string>
+  <panel.string name="ItemcountUnknown">[ITEM_COUNT]個のアイテムと[CATEGORY_COUNT]個のフォルダーを取得しました[FILTER]</panel.string>
   <text name="ItemcountText">アイテム：</text>
   <filter_editor label="検索用語を入力する" name="inventory search editor" />
   <combo_box name="search_type">

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel bevel_style="none" border_style="line" follows="left|top|right|bottom" height="522" layout="topleft" left="0" name="script panel" width="497">
+  <panel.string name="loading">読み込んでいます…</panel.string>
+  <panel.string name="can_not_view">このスクリプトは「コピー不可」に設定されているため、表示または編集できません。オブジェクト内のスクリプトを表示または編集するには、完全な権限が必要です。</panel.string>
+  <panel.string name="public_objects_can_not_run">パブリック オブジェクトはスクリプトを実行できません。</panel.string>
+  <panel.string name="script_running">動作中</panel.string>
+  <panel.string name="Title">スクリプト：[NAME]</panel.string>
+  <menu_bar bg_visible="false" follows="left|top" height="18" layout="topleft" left="0" mouse_opaque="false" name="script_menu" width="476">
+    <menu top="0" height="62" label="File" layout="topleft" left="0" mouse_opaque="false" name="File" width="138">
+      <menu_item_call label="保存" layout="topleft" name="Save" shortcut="control|S" />
+      <menu_item_separator layout="topleft" />
+      <menu_item_call label="復帰" layout="topleft" name="Revert All Changes" />
+      <menu_item_separator layout="topleft" />
+      <menu_item_call label="ファイルから読み込み…" layout="topleft" name="LoadFromFile" />
+      <menu_item_call label="Sファイルへ保存…" layout="topleft" name="SaveToFile" />
+      <menu_item_separator layout="topleft" />
+      <menu_item_call label="スクリプトの初期設定…" layout="topleft" name="Colors">
+        <menu_item_call.on_click function="Floater.Toggle" parameter="script_colors"/>
+      </menu_item_call>
+    </menu>
+    <menu top="0" height="198" label="Edit" layout="topleft" mouse_opaque="false" name="Edit" width="139">
+      <menu_item_call enabled="false" label="取り消し" layout="topleft" name="Undo" shortcut="control|Z" />
+      <menu_item_call enabled="false" label="やり直し" layout="topleft" name="Redo" shortcut="control|Y" />
+      <menu_item_separator layout="topleft" />
+      <menu_item_call enabled="false" label="カット" layout="topleft" name="Cut" shortcut="control|X" />
+      <menu_item_call enabled="false" label="・コピー" layout="topleft" name="Copy" shortcut="control|C" />
+      <menu_item_call enabled="false" label="ペースト" layout="topleft" name="Paste" shortcut="control|V" />
+      <menu_item_call enabled="false" label="削除" layout="topleft" name="Delete" shortcut="Del" />
+      <menu_item_call label="すべてを選択" layout="topleft" name="Select All" shortcut="control|A" />
+      <menu_item_call enabled="false" label="Deselect" layout="topleft" name="Deselect" />
+      <menu_item_separator layout="topleft" name="separator3" />
+      <menu_item_call label="検索／置換…" layout="topleft" name="Search / Replace..." shortcut="control|F" />
+      <menu_item_call label="行に移動…" layout="topleft" name="Go to line..." shortcut="control|G" />
+    </menu>
+    <menu top="0" height="34" label="LSLリファレンス" layout="topleft" mouse_opaque="false" name="Help" width="112">
+      <menu_item_call label="キーワードヘルプ…" layout="topleft" name="Keyword Help..." shortcut="shift|F1" />
+    </menu>
+  </menu_bar>
+  <tab_container follows="all" halign="left" height="378" left="0" top_pad="2" name="Tabset" tab_position="bottom" tab_width="100" tab_padding_right="0" tab_height="16" width="487">
+    <panel bevel_style="none" border_style="line" follows="left|top|right|bottom" height="377" layout="topleft" left="0" top="0" name="Script" label="スクリプト" width="487">
+      <script_editor left="0" top="0" type="string" length="1" follows="left|top|right|bottom" font="Monospace" height="376" ignore_tab="false" layout="topleft" max_length="262144" name="Script Editor" text_color="ScriptText" default_color="ScriptText" bg_writeable_color="ScriptBackground" bg_focus_color="ScriptBackground" text_readonly_color="ScriptText" bg_readonly_color="ScriptBackground" bg_selected_color="ScriptSelectedColor" cursor_color="ScriptCursorColor" width="487" enable_tooltip_paste="true" word_wrap="true" show_context_menu="true">読み込んでいます…</script_editor>
+    </panel>
+    <panel bevel_style="none" border_style="line" follows="left|top|right|bottom" height="377" layout="topleft" left="0" name="Preprocessed" label="プリプロセス済み" width="487">
+      <lsl_preproc_viewer left="0" top="0" type="string" length="1" follows="left|top|right|bottom" font="Monospace" height="376" ignore_tab="false" layout="topleft" max_length="262144" name="Post Editor" text_color="ScriptText" default_color="ScriptText" bg_writeable_color="ScriptBackground" bg_focus_color="ScriptBackground" text_readonly_color="ScriptText" bg_readonly_color="ScriptBackground" bg_selected_color="ScriptSelectedColor" cursor_color="ScriptCursorColor" width="487" word_wrap="true" show_context_menu="true">読み込んでいます…</lsl_preproc_viewer>
+    </panel>
+  </tab_container>
+  <scroll_list top_pad="10" left="0" follows="left|right|bottom" height="60" layout="topleft" name="lsl errors" width="487" />
+  <text follows="left|bottom" height="12" layout="topleft" left="0" name="line_col" width="128" />
+  <combo_box follows="left|bottom" height="23" label="挿入…" layout="topleft" name="Insert..." width="128" />
+  <button follows="right|bottom" height="23" label="保存" label_selected="Save" layout="topleft" top_pad="-35" right="487" name="Save_btn" width="81" />
+  <button enabled="false" follows="right|bottom" height="23" label="編集…" layout="topleft" top_pad="-23" right="400" name="Edit_btn" width="81" />
+</panel>

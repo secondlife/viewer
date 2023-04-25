@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu name="menu_profile_legacy" left="0" bottom="0" visible="false" mouse_opaque="false">
+  <menu_item_call label="Open Webprofile..." name="webprofile">
+    <menu_item_call.on_click function="Profile.Action" parameter="webprofile"/>
+  </menu_item_call>
+  <menu_item_separator/>
+  <!--
+  <menu label="Upload profile image" layout="topleft" name="upload_image_menu">
+    <menu_item_call label="Second Life..." name="upload_second_life"><menu_item_call.on_click function="Profile.Action" parameter="upload_sl"/>
+    <menu_item_call.on_enable function="Profile.Enable" parameter="can_upload_pic" />
+  </menu_item_call>
+  <menu_item_call label="First Life..." name="upload_first_life">
+    <menu_item_call.on_click function="Profile.Action" parameter="upload_fl"/>
+    <menu_item_call.on_enable function="Profile.Enable" parameter="can_upload_pic" />
+  </menu_item_call>
+  </menu>
+-->
+  <menu_item_call label="共有…" name="share">
+    <menu_item_call.on_click function="Profile.Action" parameter="share"/>
+    <menu_item_call.on_enable function="Profile.Enable" parameter="can_share" />
+  </menu_item_call>
+  <menu_item_call label="アバター呼び出し…" name="call">
+    <menu_item_call.on_click function="Profile.Action" parameter="call"/>
+    <menu_item_call.on_enable function="Profile.Enable" parameter="can_has_telefono" />
+  </menu_item_call>
+  <menu_item_call label="テレポートを申し込む…" name="teleport">
+    <menu_item_call.on_click function="Profile.Action" parameter="teleport"/>
+    <menu_item_call.on_enable function="Profile.Enable" parameter="can_has_teleport" />
+  </menu_item_call>
+  <menu_item_call label="テレポートをリクエスト…" name="request_teleport">
+    <menu_item_call.on_click function="Profile.Action" parameter="req_teleport"/>
+    <menu_item_call.on_enable function="Profile.Enable" parameter="can_has_teleport" />
+  </menu_item_call>
+  <menu_item_call label="マップに表示…" name="map">
+    <menu_item_call.on_click function="Profile.Action" parameter="map"/>
+    <menu_item_call.on_enable function="Profile.Enable" parameter="can_has_map" />
+  </menu_item_call>
+  <menu_item_call label="支払い…" name="pay">
+    <menu_item_call.on_click function="Profile.Action" parameter="pay"/>
+    <menu_item_call.on_enable function="Profile.Enable" parameter="can_has_pay" />
+  </menu_item_call>
+  <menu_item_call label="違反を報告…" name="report_abuse">
+    <menu_item_call.on_click function="Profile.Action" parameter="report_abuse"/>
+    <menu_item_call.on_enable function="Profile.Enable" parameter="can_drama" />
+  </menu_item_call>
+  <menu_item_separator />
+  <menu_item_call label="名前をコピー" name="Copy Name">
+    <menu_item_call.on_click function="Avatar.CopyData" parameter="account_name"/>
+    <menu_item_call.on_enable function="RLV.CanShowName" />
+  </menu_item_call>
+  <menu_item_call label="SLurlをコピー" name="Copy SLurl">
+    <menu_item_call.on_click function="Avatar.CopyData" parameter="slurl"/>
+    <menu_item_call.on_enable function="RLV.CanShowName" />
+  </menu_item_call>
+  <menu_item_call label="IDをコピー" name="Copy ID">
+    <menu_item_call.on_click function="Avatar.CopyData" parameter="id"/>
+  </menu_item_call>
+</toggleable_menu>

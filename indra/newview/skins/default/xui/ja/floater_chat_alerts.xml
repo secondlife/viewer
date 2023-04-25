@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater border="false" can_close="true" can_minimize="true" can_resize="false" height="370" name="floater_chat_alerts" positioning="centered" title="チャットキーワードの警報" width="490">
+  <sound_drop_target bottom="-5" layout="topleft" left="5" name="sound_drop_target" right="-5" top="5" />
+
+  <check_box control_name="ChatAlerts" follows="left|top" height="16" label="警告を有効化" layout="topleft" left="20" name="alerts_check" top="10" width="150" />
+
+  <scroll_list draw_heading="true" follows="all" height="150" layout="topleft" left="20" name="alerts_list" top_pad="5" width="450">
+    <scroll_list.columns label="キーワード" name="alert_keyword" />
+  </scroll_list>
+  <button follows="left|bottom" height="22" label="新規" layout="topleft" left="20" name="alerts_new_btn" top_pad="5" width="90" />
+  <button follows="left|bottom" height="22" label="削除" layout="topleft" left_pad="5" name="alerts_delete_btn" top_delta="0" width="90" />
+
+  <view_border bevel_style="none" border_thickness="1" follows="left|bottom" height="0" layout="topleft" left="20" name="divisor" top_pad="10" width="450" />
+
+  <text follows="left|bottom" height="10" layout="topleft" left="20" name="alerts_keyword_label" text_readonly_color="LabelDisabledColor" top_pad="15" type="string" width="100">キーワード：</text>
+  <line_editor follows="left|bottom" height="23" layout="topleft" left_pad="5" name="alerts_keyword" top_delta="-5" width="225" />
+  <check_box follows="left|bottom" height="16" layout="topleft" label="センシティブなワード" left_pad="10" name="alerts_keyword_case" top_delta="3" width="100" />
+
+  <text follows="top|bottom" height="10" layout="topleft" left="20" name="alerts_color_label" text_readonly_color="LabelDisabledColor" top_pad="12" type="string" width="100">ハイライトカラー：</text>
+  <color_swatch can_apply_immediately="true" color="Red" follows="left|bottom" height="24" label_height="0" layout="topleft" left_pad="6" name="alerts_highlight_color" top_delta="-5" width="44">
+  </color_swatch>
+
+  <text follows="left|bottom" height="10" layout="topleft" left="20" name="alerts_sound_label" text_readonly_color="LabelDisabledColor" top_pad="10" type="string" width="100">再生するサウンド：</text>
+  <line_editor enabled="false" follows="bottom|left|right" halign="center" height="23" label="インベントリのアイテムをドラッグ・アンド・ドロップ" layout="topleft" left_pad="5" max_length_bytes="90" name="alerts_sound_name" tab_stop="false" text_color="EmphasisColor" text_pad_left="25" text_pad_right="23" text_tentative_color="EmphasisColor" top_delta="-5" width="300" />
+  <icon enabled="false" follows="bottom|left" height="15" layout="topleft" left_delta="5" mouse_opaque="true" name="alerts_sound_icon" visible="false" top_delta="3" width="15" />
+  <button follows="bottom|right" height="13" image_unselected="Icon_Close_Toast" image_selected="Icon_Close_Toast" layout="topleft" left_delta="275" name="alerts_sound_clear_btn" top_delta="2" visible="false" width="13" />
+
+  <text follows="top|bottom" height="10" layout="topleft" left="20" name="alerts_trigger_label" text_readonly_color="LabelDisabledColor" top_pad="12" type="string" width="100">トリガー条件：</text>
+  <check_box follows="left|bottom" height="16" label="チャット" layout="topleft" left_pad="5" name="alerts_trigger_chat" width="50" top_delta="0" />
+  <check_box follows="left|bottom" height="16" label="IM" layout="topleft" left_pad="15" name="alerts_trigger_im" width="50" top_delta="0" />
+  <check_box follows="left|bottom" height="16" label="グループ" layout="topleft" left_pad="15" name="alerts_trigger_group" width="50" top_delta="0" />
+
+  <button height="22" follows="left|bottom" name="alerts_save_btn" label="エントリを保存" left="20" top_pad="10" width="90" />
+  <button height="22" follows="left|bottom" name="alerts_revert_btn" label="エントリを復帰" left_pad="10" top_delta="0" width="90" />
+</floater>

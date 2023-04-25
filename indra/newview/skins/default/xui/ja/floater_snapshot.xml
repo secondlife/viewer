@@ -32,6 +32,6 @@
       <combo_box.item label="フィルターなし" name="NoFilter" />
     </combo_box>
   </panel>
-  <text name="image_res_text">[WIDTH]px (横幅) x [HEIGHT]px (高さ)</text>
-  <text name="file_size_label">[SIZE] キロバイト</text>
+  <text name="image_res_text">[WIDTH]px (横幅) x[HEIGHT]px (高さ)</text>
+  <text name="file_size_label">[SIZE]キロバイト</text>
 </floater>

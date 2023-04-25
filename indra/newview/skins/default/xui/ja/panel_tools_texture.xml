@@ -59,7 +59,7 @@
   <text name="label shinycolor">色</text>
   <color_swatch label="" name="shinycolorswatch" tool_tip="クリックしてカラーピッカーを開きます" />
   <text name="media_info">選択したメディアの URL がもしあれば、ここに入ります。</text>
-  <button label="選択..." name="add_media" tool_tip="メディアを追加します" />
+  <button label="選択…" name="add_media" tool_tip="メディアを追加します" />
   <button label="削除" name="delete_media" tool_tip="このメディアテクスチャを削除します" />
   <button label="揃える" label_selected="メディアを一列に揃えます" name="button align" tool_tip="メディアテクスチャを一列に揃える（最初に読み込む必要があります）" />
   <text name="tex gen">マッピング</text>

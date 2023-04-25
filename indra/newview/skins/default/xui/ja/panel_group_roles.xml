@@ -14,7 +14,7 @@
   複数の人を選択できます。
       </panel.string>
       <panel.string name="donation_area">
-  [AREA] 平方メートル
+ [AREA]平方メートル
       </panel.string>
       <filter_editor label="メンバーを選別" name="filter_input" />
       <name_list name="member_list">
@@ -70,7 +70,7 @@
   立入禁止リストに登録された住人はグループに参加できません。
       </panel.string>
       <panel.string name="ban_count_template">
-  立入禁止の人数: [COUNT]/[LIMIT]
+  立入禁止の人数:[COUNT]/[LIMIT]
       </panel.string>
       <name_list name="ban_list">
         <name_list.columns label="住人" name="name" />

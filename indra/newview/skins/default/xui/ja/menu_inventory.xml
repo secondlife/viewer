@@ -16,7 +16,7 @@
   <menu_item_call label="名前の変更" name="Task Rename" />
   <menu_item_call label="削除" name="Task Remove" />
   <menu_item_call label="ごみ箱を空にする" name="Empty Trash" />
-  <menu_item_call label="紛失物フォルダを空にする" name="Empty Lost And Found" />
+  <menu_item_call label="遺失物フォルダを空にする" name="Empty Lost And Found" />
   <menu_item_call label="新しいフォルダ" name="New Folder" />
   <menu_item_call label="新しいスクリプト" name="New Script" />
   <menu_item_call label="新しいノートカード" name="New Note" />

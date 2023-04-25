@@ -2,7 +2,7 @@
 <floater name="preview notecard" title="ノートカード：">
 	<floater.string name="no_object">このノートカードが含まれたオブジェクトが見つかりません。</floater.string>
 	<floater.string name="not_allowed">このノートを見る権限がありません。</floater.string>
-	<floater.string name="Title">ノートカード： [NAME]</floater.string>
+	<floater.string name="Title">ノートカード：[NAME]</floater.string>
 	<text name="desc txt">説明：</text>
 	<text_editor name="Notecard Editor">読み込んでいます…</text_editor>
 	<button label="編集…" label_selected="編集" name="Edit" />

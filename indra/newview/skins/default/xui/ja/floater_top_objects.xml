@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="top_objects" title="トップオブジェクト">
   <floater.string name="top_scripts_title">トップ・スクリプト</floater.string>
-  <floater.string name="top_scripts_text">[COUNT] スクリプトには合計で [TIME] 分かかり、[MEMORY] ㎅使用しています。</floater.string>
+  <floater.string name="top_scripts_text">[COUNT]スクリプトには合計で[TIME]分かかり、[MEMORY]㎅使用しています。</floater.string>
   <floater.string name="scripts_score_label">時間</floater.string>
   <floater.string name="top_colliders_title">上部コライダー</floater.string>
   <floater.string name="top_colliders_text">上位[COUNT]個の物体は多くの衝突可能性があります。</floater.string>

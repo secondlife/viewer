@@ -1,35 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_profile_classified">
-  <panel.string name="type_mature">
-Moderate
-  </panel.string>
-  <panel.string name="type_pg">
-General コンテンツ
-  </panel.string>
-  <panel.string name="l$_price">
-L$[PRICE]
-  </panel.string>
-  <panel.string name="click_through_text_fmt">
-[TELEPORT] テレポート、 [MAP] 地図、 [PROFILE] プロフィール
-  </panel.string>
-  <panel.string name="date_fmt">
-[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
-  </panel.string>
-  <panel.string name="auto_renew_on">
-有効
-  </panel.string>
-  <panel.string name="auto_renew_off">
-無効
-  </panel.string>
-  <panel.string name="location_notice">
-（掲載後更新）
-  </panel.string>
-  <string name="publish_label">
-掲載
-  </string>
-  <string name="save_label">
-保存
-  </string>
+  <panel.string name="type_mature">Moderate</panel.string>
+  <panel.string name="type_pg">General コンテンツ</panel.string>
+  <panel.string name="l$_price">L$[PRICE]</panel.string>
+  <panel.string name="click_through_text_fmt">[TELEPORT]テレポート、[MAP]地図、[PROFILE]プロフィール</panel.string>
+  <panel.string name="date_fmt">[mthnum,datetime,slt]／[day,datetime,slt]／[year,datetime,slt]</panel.string>
+  <panel.string name="auto_renew_on">有効</panel.string>
+  <panel.string name="auto_renew_off">無効</panel.string>
+  <panel.string name="location_notice">（掲載後更新）</panel.string>
+  <string name="publish_label">掲載</string>
+  <string name="save_label">保存</string>
   <scroll_container name="profile_scroll">
     <panel name="info_scroll_content_panel">
       <icon label="" name="edit_icon" tool_tip="クリックして画像を選択" />

@@ -2,7 +2,7 @@
 <panel label="環境" name="panel_env_info">
   <string name="str_label_use_default">既定の設定を使用</string>
   <string name="str_label_use_region">リージョン（地域）の設定を使用</string>
-  <string name="str_altitude_desription">空 [INDEX]([ALTITUDE]m)</string>
+  <string name="str_altitude_desription">空[INDEX]([ALTITUDE]m)</string>
   <string name="str_no_parcel">区画が選択されていません。環境設定が無効になっています。</string>
   <string name="str_cross_region">リージョン（地域）の境界では環境設定ができません。</string>
   <string name="str_legacy">このリージョン（地域）で環境設定はできません。</string>
@@ -25,26 +25,26 @@
               <check_box label="区画所有者が環境を上書きすることがあります" name="chk_allow_override" />
             </layout_panel>
             <layout_panel name="pnl_environment_length">
-              <text name="lbl_apparent_time">[HH]:[MM][AP] ([PRC]%)</text>
+              <text name="lbl_apparent_time">[HH]:[MM][AP]([PRC]%)</text>
             </layout_panel>
             <layout_panel name="pnl_environment_buttons" />
           </layout_stack>
         </layout_panel>
         <layout_panel name="pnl_environment_altitudes">
           <panel name="pnl_alt1">
-            <text name="txt_alt1">空 [INDEX]
+            <text name="txt_alt1">空[INDEX]
 [ALTITUDE]m</text>
             <line_editor name="edt_invname_alt1">不明</line_editor>
             <settings_drop_target name="sdt_alt1" tool_tip="持ち物から設定をこのターゲットボックスにドラッグし、現在の空として選択する" />
           </panel>
           <panel name="pnl_alt2">
-            <text name="txt_alt2">空 [INDEX]
+            <text name="txt_alt2">空[INDEX]
 [ALTITUDE]m</text>
             <line_editor name="edt_invname_alt2">不明</line_editor>
             <settings_drop_target name="sdt_alt2" tool_tip="持ち物から設定をこのターゲットボックスにドラッグし、現在の空として選択する" />
           </panel>
           <panel name="pnl_alt3">
-            <text name="txt_alt3">空 [INDEX]
+            <text name="txt_alt3">空[INDEX]
 [ALTITUDE]m</text>
             <line_editor name="edt_invname_alt3">不明</line_editor>
             <settings_drop_target name="sdt_alt3" tool_tip="持ち物から設定をこのターゲットボックスにドラッグし、現在の空として選択する" />

@@ -20,7 +20,7 @@
     <text name="Name:">名前：</text>
     <line_editor name="Object Name" tool_tip="使用できる名前の文字数は最大 63 文字までです。長いプリム名は短縮されます。名前に使用できる文字は ASCII-7 （非拡張）に含まれる印字可能な文字のみです（縦線「|」は例外）。" />
     <text name="Description:">説明：</text>
-    <line_editor name="Object Description" tool_tip="ビューアーの設定で [すべてのオブジェクト上でヒントを表示] が選択されている場合、オブジェクトにマウスのポインタをかざすとそのオブジェクトの説明がポップアップ表示されます。プリムの説明は最大 127 バイトまでに制限されているため、それよりも長い文字列は切り捨てられます。" />
+    <line_editor name="Object Description" tool_tip="ビューアーの設定で[すべてのオブジェクト上でヒントを表示]が選択されている場合、オブジェクトにマウスのポインタをかざすとそのオブジェクトの説明がポップアップ表示されます。プリムの説明は最大 127 バイトまでに制限されているため、それよりも長い文字列は切り捨てられます。" />
     <text name="CreatorNameLabel">制作者：</text>
     <text name="Owner:">所有者：</text>
     <text name="Group_label">グループ：</text>
@@ -28,7 +28,7 @@
     <name_box initial_value="読み込んでいます…" name="Group Name Proxy" />
     <button label="譲渡" label_selected="譲渡" name="button deed" tool_tip="このアイテムを譲渡すると「次の所有者」の権限が適用されます。 グループ共有オブジェクトは、グループのオフィサーが譲渡できます。" />
     <text name="label click action">クリックで：</text>
-    <combo_box name="clickaction" tool_tip="マウスを 1 回左クリックすると、オブジェクトに対してアクションを起こせるようになります。各クリックアクションには、何ができるかを示す特別なカーソルがあります。クリックアクションによっては、動作要件が必要なものもあります。たとえば、[タッチ] や [支払い] にはスクリプトが必要になるなどです">
+    <combo_box name="clickaction" tool_tip="マウスを 1 回左クリックすると、オブジェクトに対してアクションを起こせるようになります。各クリックアクションには、何ができるかを示す特別なカーソルがあります。クリックアクションによっては、動作要件が必要なものもあります。たとえば、[タッチ]や[支払い]にはスクリプトが必要になるなどです">
       <combo_box.item label="触る（デフォルト）" name="Touch/grab(default)" />
       <combo_box.item label="オブジェクトに座る" name="Sitonobject" />
       <combo_box.item label="オブジェクトを買う" name="Buyobject" />
@@ -66,9 +66,9 @@
     <text name="F:">F:</text>
   </panel>
   <panel name="button_panel">
-    <button label="開く" name="open_btn" tool_tip="[オブジェクトの中身] を開いて確認します。" />
-    <button label="支払う" name="pay_btn" tool_tip="[支払い] ウィンドウを開きます。オブジェクトでこの動作を実行するには、支払い用のスクリプトが必要です。" />
-    <button label="買う" name="buy_btn" tool_tip="[購入] ウィンドウを開きます。オブジェクトは販売用に設定する必要があります。" />
-    <button label="詳細" name="details_btn" tool_tip="[オブジェクトを調べる] ウィンドウを開きます。" />
+    <button label="開く" name="open_btn" tool_tip="[オブジェクトの中身]を開いて確認します。" />
+    <button label="支払う" name="pay_btn" tool_tip="[支払い]ウィンドウを開きます。オブジェクトでこの動作を実行するには、支払い用のスクリプトが必要です。" />
+    <button label="買う" name="buy_btn" tool_tip="[購入]ウィンドウを開きます。オブジェクトは販売用に設定する必要があります。" />
+    <button label="詳細" name="details_btn" tool_tip="[オブジェクトを調べる]ウィンドウを開きます。" />
   </panel>
 </panel>

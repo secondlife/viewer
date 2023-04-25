@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater min_width="450" name="inspect" title="オブジェクトのチェック">
-  <floater.string name="timeStamp">[year,datetime,local] [mth,datetime,local] [day,datetime,local] [wkday,datetime,local]
+  <floater.string name="timeStamp">[year,datetime,local]　[mth,datetime,local]　[day,datetime,local]　[wkday,datetime,local]
 [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]</floater.string>
   <scroll_list name="object_list" tool_tip="リストからオブジェクトを選択し、インワールドで強調表示します。">
     <scroll_list.columns label="名前" name="object_name" />

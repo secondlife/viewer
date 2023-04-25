@@ -15,15 +15,15 @@
       <scroll_list.columns label="非表示" name="hidden" />
     </scroll_list>
     <text name="total_contributed_land_label">寄付合計：</text>
-    <text name="total_contributed_land_value">[AREA] 平方メートル</text>
+    <text name="total_contributed_land_value">[AREA]平方メートル</text>
     <button label="地図" label_selected="地図" name="map_button" />
     <text name="total_land_in_use_label">土地利用の合計：</text>
-    <text name="total_land_in_use_value">[AREA] 平方メートル</text>
+    <text name="total_land_in_use_value">[AREA]平方メートル</text>
     <text name="land_available_label">利用可能の土地：</text>
-    <text name="land_available_value">[AREA] 平方メートル</text>
+    <text name="land_available_value">[AREA]平方メートル</text>
     <text name="your_contribution_label">あなたの貢献：</text>
     <text name="your_contribution_units">平方メートル</text>
-    <text name="your_contribution_max_value">（最大 [AMOUNT]）</text>
+    <text name="your_contribution_max_value">（最大[AMOUNT]）</text>
     <text name="group_over_limit_text">土地利用をサポートするための土地クレジットが足りません。</text>
     <text name="group_money_heading">グループの L$</text>
   </panel>

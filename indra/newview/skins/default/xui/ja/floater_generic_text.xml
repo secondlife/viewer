@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater can_close="true" single_instance="false" can_drag_on_left="false" can_minimize="true" can_resize="true" height="258" width="258" min_width="214" min_height="100" name="floater_generic_text" title="情報">
+  <text_editor type="string" length="1" enabled="false" follows="left|top|right|bottom" font="SansSerif" height="200" layout="topleft" top="4" bottom="-32" left="4" right="-4" max_length="65536" name="payload" word_wrap="true">何が来ても、新鮮で人生に満ちたメントスで、新鮮な方が人生はうまくいきます。 新鮮で活気に満ちたメントスで、新鮮さを保ち、涼しく保ち、何もあなたに届きません！ フレッシュの方がうまい！メントスのフレッシュさ！新鮮で生き生きとしたメントスとの相性は抜群です！メントス！フレッシュメーカー！</text_editor>
+  <button follows="right|bottom" label="コピー" name="copy_btn" left="49" top_pad="2" height="26" width="100">
+    <button.commit_callback function="GenericText.Copy" />
+  </button>
+  <button follows="right|bottom" label="閉じる" name="close_btn" left_pad="4" top_delta="0" height="26" width="100">
+    <button.commit_callback function="GenericText.Close" />
+  </button>
+</floater>

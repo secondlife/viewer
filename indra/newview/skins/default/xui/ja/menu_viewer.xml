@@ -1,54 +1,54 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar name="Main Menu">
-  <menu label="ミー" name="Me">
-    <menu_item_call label="プロフィール..." name="Profile" />
-    <menu_item_call label="容姿..." name="ChangeOutfit" />
-    <menu_item_call label="アバターを選択..." name="Avatar Picker" />
-    <menu_item_check label="インベントリ..." name="Inventory" />
+  <menu label="私" name="Me">
+    <menu_item_call label="プロフィール…" name="Profile" />
+    <menu_item_call label="衣装…" name="ChangeOutfit" />
+    <menu_item_call label="アバターを選択…" name="Avatar Picker" />
+    <menu_item_check label="インベントリ…" name="Inventory" />
     <menu_item_call label="新しいインベントリウィンドウ" name="NewInventoryWindow" />
-    <menu_item_call label="場所..." name="Places" />
-    <menu_item_call label="ピック..." name="Picks" />
-    <menu_item_call label="体験..." name="Experiences" />
+    <menu_item_call label="場所…" name="Places" />
+    <menu_item_call label="ピック…" name="Picks" />
+    <menu_item_call label="体験…" name="Experiences" />
     <menu_item_call label="スクリプト…" name="MyScripts" />
-    <menu_item_call label="カメラコントロール..." name="Camera Controls" />
+    <menu_item_call label="カメラコントロール…" name="Camera Controls" />
     <menu label="ムーブメント" name="Movement">
       <menu_item_call label="座る" name="Sit Down Here" />
       <menu_item_call label="立ち上がる" name="Stand up" />
       <menu_item_check label="飛ぶ" name="Fly" />
       <menu_item_check label="常に走る" name="Always Run" />
       <menu_item_call label="私のアニメーションを停止する" name="Stop Animating My Avatar" />
-      <menu_item_call label="歩行／走行／飛行..." name="WalkRunFly" />
+      <menu_item_call label="歩行／走行／飛行…" name="WalkRunFly" />
     </menu>
     <menu label="ログイン" name="Status">
       <menu_item_check label="一時退席中" name="Away" />
       <menu_item_check label="着信拒否" name="Do Not Disturb" />
     </menu>
-    <menu_item_call label="L$ の購入..." name="Buy and Sell L$" />
-    <menu_item_call label="マーケティングプレイスのリスト..." name="MarketplaceListings" />
-    <menu_item_call label="マイアカウント..." name="Manage My Account">
+    <menu_item_call label="L$ の購入…" name="Buy and Sell L$" />
+    <menu_item_call label="マーケティングプレイスのリスト…" name="MarketplaceListings" />
+    <menu_item_call label="マイアカウント…" name="Manage My Account">
       <menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=ja" />
     </menu_item_call>
-    <menu_item_call label="環境設定..." name="Preferences" />
-    <menu_item_call label="ツールバーのボタン..." name="Toolbars" />
+    <menu_item_call label="環境設定…" name="Preferences" />
+    <menu_item_call label="ツールバーのボタン…" name="Toolbars" />
     <menu_item_call label="全てのコントロールを非表示にする" name="Hide UI" />
     <menu_item_check label="HUD を表示" name="Show HUD Attachments" />
-    <menu_item_call label="[APP_NAME] を終了" name="Quit" />
+    <menu_item_call label="[APP_NAME]を終了" name="Quit" />
   </menu>
   <menu label="コミュニケーション" name="Communicate">
-    <menu_item_check label="会話..." name="Conversations" />
-    <menu_item_check label="近くのチャット..." name="Nearby Chat" />
+    <menu_item_check label="会話…" name="Conversations" />
+    <menu_item_check label="近くのチャット…" name="Nearby Chat" />
     <menu_item_check label="話す" name="Speak" />
-    <menu_item_check label="会話ログ..." name="Conversation Log..." />
-    <menu_item_call label="Facebook..." name="Facebook" />
-    <menu_item_call label="Twitter..." name="Twitter" />
-    <menu_item_call label="Flickr..." name="Flickr" />
+    <menu_item_check label="会話ログ…" name="Conversation Log..." />
+    <menu_item_call label="Facebook…" name="Facebook" />
+    <menu_item_call label="Twitter…" name="Twitter" />
+    <menu_item_call label="Flickr…" name="Flickr" />
     <menu label="ボイスモーフィング" name="VoiceMorphing">
       <menu_item_check label="ボイスモーフィングなし" name="NoVoiceMorphing" />
-      <menu_item_check label="プレビュー..." name="Preview" />
-      <menu_item_call label="申し込む..." name="Subscribe" />
-      <menu_item_call label="プレミアム会員特典..." name="PremiumPerk" />
+      <menu_item_check label="プレビュー…" name="Preview" />
+      <menu_item_call label="申し込む…" name="Subscribe" />
+      <menu_item_call label="プレミアム会員特典…" name="PremiumPerk" />
     </menu>
-    <menu_item_check label="ジェスチャー..." name="Gestures" />
+    <menu_item_check label="ジェスチャー…" name="Gestures" />
     <menu_item_check label="フレンド" name="My Friends" />
     <menu_item_check label="グループ" name="My Groups" />
     <menu_item_check label="近くにいる人" name="Active Speakers" />
@@ -57,18 +57,18 @@
   </menu>
   <menu label="世界" name="World">
     <menu_item_call label="現在地をランドマーク" name="Create Landmark Here" />
-    <menu_item_call label="行き先..." name="Destinations" />
+    <menu_item_call label="行き先…" name="Destinations" />
     <menu_item_check label="世界地図" name="World Map" />
     <menu_item_check label="ミニマップ" name="Mini-Map" />
     <menu_item_call label="イベント" name="Events" />
-    <menu_item_check label="検索..." name="Search" />
+    <menu_item_check label="検索…" name="Search" />
     <menu_item_call label="ホームにテレポート" name="Teleport Home" />
     <menu_item_call label="現在地をホームに設定" name="Set Home to Here" />
     <menu_item_call label="スナップショット" name="Take Snapshot" />
     <menu_item_call label="場所のプロフィール" name="Place Profile" />
     <menu_item_call label="土地情報" name="About Land" />
     <menu_item_call label="地域 / 不動産" name="RegionEstate" />
-    <menu_item_call label="保有地..." name="My Land" />
+    <menu_item_call label="保有地…" name="My Land" />
     <menu_item_call label="この土地を購入" name="Buy Land" />
     <menu label="表示" name="LandShow">
       <menu_item_check label="立入禁止ライン" name="Ban Lines" />
@@ -165,17 +165,17 @@
     <menu_item_call label="Wiki" name="Wiki" />
     <menu_item_call label="コミュニティフォーラム" name="Community Forums" />
     <menu_item_call label="日本語サポートページ" name="Support portal" />
-    <menu_item_call label="[SECOND_LIFE] ニュース" name="Second Life News" />
-    <menu_item_call label="[SECOND_LIFE] ブログ" name="Second Life Blogs" />
+    <menu_item_call label="[SECOND_LIFE]ニュース" name="Second Life News" />
+    <menu_item_call label="[SECOND_LIFE]ブログ" name="Second Life Blogs" />
     <menu_item_call label="嫌がらせを報告する" name="Report Abuse" />
     <menu_item_call label="バグを報告する" name="Report Bug" />
     <menu_item_call label="衝突・プッシュ・打撃" name="Bumps, Pushes &amp;amp; Hits" />
-    <menu_item_call label="[APP_NAME] について" name="About Second Life" />
+    <menu_item_call label="[APP_NAME]について" name="About Second Life" />
   </menu>
   <menu label="アドバンス" name="Advanced">
     <menu_item_call label="テクスチャのリベークをする" name="Rebake Texture" />
     <menu_item_call label="UI のサイズをデフォルトに設定する" name="Set UI Size to Default" />
-    <menu_item_call label="ウィンドウのサイズを設定する" name="Set Window Size..." />
+    <menu_item_call label="ウィンドウのサイズを設定する…" name="Set Window Size..." />
     <menu_item_check label="遠くのオブジェクトを選択しない" name="Limit Select Distance" />
     <menu_item_check label="カメラの距離移動を制限しない" name="Disable Camera Distance" />
     <menu_item_check label="高解像度スナップショット" name="HighResSnapshot" />
@@ -461,13 +461,13 @@
     <menu label="オブジェクトを取り外す" name="Detach Object" />
     <menu label="衣類を脱ぐ" name="Take Off Clothing">
       <menu_item_call label="シャツ" name="Shirt" />
-      <menu_item_call label="パンツ" name="Pants" />
+      <menu_item_call label="ズボン" name="Pants" />
       <menu_item_call label="靴" name="Shoes" />
       <menu_item_call label="靴下" name="Socks" />
       <menu_item_call label="ジャケット" name="Jacket" />
       <menu_item_call label="手袋" name="Gloves" />
-      <menu_item_call label="下着シャツ" name="Menu Undershirt" />
-      <menu_item_call label="下着パンツ" name="Menu Underpants" />
+      <menu_item_call label="下着（上半身）" name="Menu Undershirt" />
+      <menu_item_call label="下着（下半身）" name="Menu Underpants" />
       <menu_item_call label="スカート" name="Skirt" />
       <menu_item_call label="アルファ" name="Alpha" />
       <menu_item_call label="タトゥ" name="Tattoo" />

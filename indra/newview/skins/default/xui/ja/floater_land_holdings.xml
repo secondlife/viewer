@@ -2,7 +2,7 @@
 <floater name="land holdings floater" title="自分の土地">
   <scroll_list name="parcel list">
     <column label="区画" name="name" />
-    <column label="地域（リージョン）" name="location" />
+    <column label="リージョン（地域）" name="location" />
     <column label="種類" name="type" />
     <column label="面積" name="area" />
     <column label="" name="hidden" />
@@ -15,10 +15,10 @@
     <column label="面積" name="area" />
   </scroll_list>
   <text name="allowed_label">現在の支払いプランで許可された保有地：</text>
-  <text name="allowed_text">[AREA] 平方メートル</text>
+  <text name="allowed_text">[AREA]平方メートル</text>
   <text name="current_label">現在の保有地：</text>
-  <text name="current_text">[AREA] 平方メートル</text>
+  <text name="current_text">[AREA]平方メートル</text>
   <text name="available_label">購入可能な土地：</text>
-  <text name="available_text">[AREA] 平方メートル</text>
-  <string name="area_string">[AREA] 平方メートル</string>
+  <text name="available_text">[AREA]平方メートル</text>
+  <string name="area_string">[AREA]平方メートル</string>
 </floater>

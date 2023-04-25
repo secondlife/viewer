@@ -13,8 +13,8 @@
   <floater.string name="status_grab">ドラッグで移動、Ctrlで持ち上げ、Ctrl + Shiftで回転</floater.string>
   <floater.string name="status_place">インワールドでクリックして作成</floater.string>
   <floater.string name="status_selectland">土地をクリックし、ドラッグして選択</floater.string>
-  <floater.string name="status_selectcount">選択されているオブジェクトは [OBJ_COUNT] 個、土地の負荷は [LAND_IMPACT] [secondlife:///app/openfloater/object_weights 詳細]</floater.string>
-  <floater.string name="status_remaining_capacity">残りの許容数 [LAND_CAPACITY]</floater.string>
+  <floater.string name="status_selectcount">選択されているオブジェクトは[OBJ_COUNT]個、土地の負荷は[LAND_IMPACT]　[secondlife:///app/openfloater/object_weights 詳細]</floater.string>
+  <floater.string name="status_remaining_capacity">残りの許容数[LAND_CAPACITY]</floater.string>
   <button label="" label_selected="" name="button focus" tool_tip="フォーカス" />
   <button label="" label_selected="" name="button move" tool_tip="動かす" />
   <button label="" label_selected="" name="button edit" tool_tip="編集" />
@@ -82,7 +82,7 @@
   <text name="Strength:">強度</text>
   <button label="適用" label_selected="適用" name="button apply to selection" tool_tip="選択した土地を修正します" />
   <text name="selection_empty">何も選択されていません。</text>
-  <text name="remaining_capacity">[CAPACITY_STRING] [secondlife:///app/openfloater/object_weights 詳細]</text>
+  <text name="remaining_capacity">[CAPACITY_STRING]　[secondlife:///app/openfloater/object_weights 詳細]</text>
   <tab_container name="Object Info Tabs">
     <panel label="一般" name="General">
       <panel.string name="text deed continued">譲渡</panel.string>
@@ -91,8 +91,8 @@
       <panel.string name="text modify info 2">これらのオブジェクトを修正できます。</panel.string>
       <panel.string name="text modify info 3">このオブジェクトを修正できません。</panel.string>
       <panel.string name="text modify info 4">これらのオブジェクトを修正できません。</panel.string>
-      <panel.string name="text modify info 5">地域（リージョン）の境界を越えてこのオブジェクトを修正できません。</panel.string>
-      <panel.string name="text modify info 6">地域（リージョン）の境界を越えてこれらのオブジェクトを修正できません。</panel.string>
+      <panel.string name="text modify info 5">リージョン（地域）の境界を越えてこのオブジェクトを修正できません。</panel.string>
+      <panel.string name="text modify info 6">リージョン（地域）の境界を越えてこれらのオブジェクトを修正できません。</panel.string>
       <panel.string name="text modify warning">オブジェクト全体を選択して権限の設定を行ってください。</panel.string>
       <panel.string name="Cost Default">価格：L$</panel.string>
       <panel.string name="Cost Total">合計：L$</panel.string>
@@ -102,7 +102,7 @@
       <text name="Name:">名前：</text>
       <line_editor name="Object Name" tool_tip="使用できる名前の文字数は最大 63 文字までです。長いプリム名は短縮されます。名前に使用できる文字は ASCII-7 （非拡張）に含まれる印字可能な文字のみです（縦線「|」は例外）。" />
       <text name="Description:">説明：</text>
-      <line_editor name="Object Description" tool_tip="ビューアーの設定で [すべてのオブジェクト上でヒントを表示] が選択されている場合、オブジェクトにマウスのポインタをかざすとそのオブジェクトの説明がポップアップ表示されます。プリムの説明は最大 127 バイトまでに制限されているため、それよりも長い文字列は切り捨てられます。" />
+      <line_editor name="Object Description" tool_tip="ビューアーの設定で[すべてのオブジェクト上でヒントを表示]が選択されている場合、オブジェクトにマウスのポインタをかざすとそのオブジェクトの説明がポップアップ表示されます。プリムの説明は最大 127 バイトまでに制限されているため、それよりも長い文字列は切り捨てられます。" />
       <text name="Creator:">制作者：</text>
       <text name="Creator Name">Mrs. Esbee Linden (esbee.linden)</text>
       <text name="Owner:">所有者：</text>
@@ -113,7 +113,7 @@
       <check_box label="共有" name="checkbox share with group" tool_tip="設定したグループのメンバー全員にこのオブジェクトの修正権限を与えます。 譲渡しない限り、役割制限を有効にはできません" />
       <button label="譲渡" label_selected="譲渡" name="button deed" tool_tip="このアイテムを譲渡すると「次の所有者」の権限が適用されます。 グループ共有オブジェクトは、グループのオフィサーが譲渡できます" />
       <text name="label click action">クリックで：</text>
-      <combo_box name="clickaction" tool_tip="マウスを 1 回左クリックすると、オブジェクトに対してアクションを起こせるようになります。各クリックアクションには、何ができるかを示す特別なカーソルがあります。クリックアクションによっては、動作要件が必要なものもあります。たとえば、[タッチ] や [支払い] にはスクリプトが必要になるなどです">
+      <combo_box name="clickaction" tool_tip="マウスを 1 回左クリックすると、オブジェクトに対してアクションを起こせるようになります。各クリックアクションには、何ができるかを示す特別なカーソルがあります。クリックアクションによっては、動作要件が必要なものもあります。たとえば、[タッチ]や[支払い]にはスクリプトが必要になるなどです">
         <combo_box.item label="触る（デフォルト）" name="Touch/grab(default)" />
         <combo_box.item label="オブジェクトに座る" name="Sitonobject" />
         <combo_box.item label="オブジェクトを購入する" name="Buyobject" />
@@ -269,8 +269,8 @@
   </tab_container>
   <panel name="land info panel">
     <text name="label_parcel_info">区画情報</text>
-    <text name="label_area_price">価格： [AREA] 平方メートル L$ [PRICE]</text>
-    <text name="label_area">面積： [AREA] 平方メートル</text>
+    <text name="label_area_price">価格：[AREA]平方メートル L$[PRICE]</text>
+    <text name="label_area">面積：[AREA]平方メートル</text>
     <button label="土地情報" label_selected="土地情報" name="button about land" />
     <check_box label="所有者を表示" name="checkbox show owners" tool_tip="所有者の種類別に区画を色づけます：   緑 = あなたの土地  アクア = あなたのグループ所有地  赤 = 他人が所有する土地  黄色 = 売り出し中  紫 = オークション  グレー = パブリック" />
     <text name="label_parcel_modify">区画の編集</text>

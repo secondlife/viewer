@@ -5,8 +5,8 @@
 	<floater.string name="messaging_set_inprogress">選択した経路探索リンクセットを修正中…</floater.string>
 	<floater.string name="messaging_set_error">選択した経路探索リンクセットの修正中にエラーが発生しました。</floater.string>
 	<floater.string name="messaging_complete_none_found">経路探索リンクセットがありません。</floater.string>
-	<floater.string name="messaging_complete_available">[NUM_TOTAL] 中 [NUM_SELECTED] が選択されました。</floater.string>
-	<floater.string name="messaging_not_enabled">この地域（リージョン）は経路探索に対応していません。</floater.string>
+	<floater.string name="messaging_complete_available">[NUM_TOTAL]中[NUM_SELECTED]が選択されました。</floater.string>
+	<floater.string name="messaging_not_enabled">このリージョン（地域）は経路探索に対応していません。</floater.string>
 	<floater.string name="linkset_terrain_name">[Terrain]</floater.string>
 	<floater.string name="linkset_terrain_description">--</floater.string>
 	<floater.string name="linkset_terrain_owner">--</floater.string>

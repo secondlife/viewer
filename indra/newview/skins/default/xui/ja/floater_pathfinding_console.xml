@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_pathfinding_console" title="経路探索の表示／テスト">
   <floater.string name="navmesh_viewer_status_library_not_implemented">経路探索ライブラリの実装が見つかりません。</floater.string>
-  <floater.string name="navmesh_viewer_status_region_not_enabled">この地域（リージョン）は経路探索に対応していません。</floater.string>
-  <floater.string name="navmesh_viewer_status_region_loading">地域（リージョン）の読み込みを待機しています。</floater.string>
+  <floater.string name="navmesh_viewer_status_region_not_enabled">このリージョン（地域）は経路探索に対応していません。</floater.string>
+  <floater.string name="navmesh_viewer_status_region_loading">リージョン（地域）の読み込みを待機しています。</floater.string>
   <floater.string name="navmesh_viewer_status_checking_version">ナビメッシュのステータスを確認しています。</floater.string>
   <floater.string name="navmesh_viewer_status_downloading">ナビメッシュをダウンロードしています。</floater.string>
   <floater.string name="navmesh_viewer_status_updating">サーバー上でナビメッシュが変わりました。最新のナビメッシュをダウンロードしています。</floater.string>
@@ -11,17 +11,17 @@
   <floater.string name="navmesh_viewer_status_error">ナビメッシュを正しくダウンロードできません。</floater.string>
   <floater.string name="navmesh_simulator_status_pending">ナビメッシュに保留中の変更があります。</floater.string>
   <floater.string name="navmesh_simulator_status_building">ナビメッシュを作成しています。</floater.string>
-  <floater.string name="navmesh_simulator_status_some_pending">ナビメッシュの一部の地域（リージョン）に保留中の変更があります。</floater.string>
-  <floater.string name="navmesh_simulator_status_some_building">一部のナビメッシュ地域（リージョン）を構築しています。</floater.string>
-  <floater.string name="navmesh_simulator_status_pending_and_building">ナビメッシュの一部の地域（リージョン）に保留中の変更があり、その他の地域（リージョン）は構築中です。</floater.string>
+  <floater.string name="navmesh_simulator_status_some_pending">ナビメッシュの一部のリージョン（地域）に保留中の変更があります。</floater.string>
+  <floater.string name="navmesh_simulator_status_some_building">一部のナビメッシュのリージョン（地域）を構築しています。</floater.string>
+  <floater.string name="navmesh_simulator_status_pending_and_building">ナビメッシュの一部のリージョン（地域）に保留中の変更があり、その他のリージョン（地域）は構築中です。</floater.string>
   <floater.string name="navmesh_simulator_status_complete">ナビメッシュは最新です。</floater.string>
   <floater.string name="pathing_library_not_implemented">経路探索ライブラリの実装が見つかりません。</floater.string>
-  <floater.string name="pathing_region_not_enabled">この地域（リージョン）は経路探索に対応していません。</floater.string>
+  <floater.string name="pathing_region_not_enabled">このリージョン（地域）は経路探索に対応していません。</floater.string>
   <floater.string name="pathing_choose_start_and_end_points">開始点と終了点を選択してください。</floater.string>
   <floater.string name="pathing_choose_start_point">開始点を選択してください。</floater.string>
   <floater.string name="pathing_choose_end_point">終了点を選択してください。</floater.string>
   <floater.string name="pathing_path_valid">パスはオレンジ色で表示されています。</floater.string>
-  <floater.string name="pathing_path_invalid">選択した 2 点間のパスが見つかりません。</floater.string>
+  <floater.string name="pathing_path_invalid">選択した２点間のパスが見つかりません。</floater.string>
   <floater.string name="pathing_error">パスの生成中にエラーが発生しました。</floater.string>
   <panel name="pathfinding_console_main">
     <text name="viewer_status_label">ビューアーのステータス</text>

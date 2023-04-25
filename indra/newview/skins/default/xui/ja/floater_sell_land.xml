@@ -5,7 +5,7 @@
       <text name="info_parcel_label">区画：</text>
       <text name="info_parcel">区画名</text>
       <text name="info_size_label">サイズ：</text>
-      <text name="info_size">[AREA] 平方メートル</text>
+      <text name="info_size">[AREA]平方メートル</text>
       <text name="info_action">この区画を販売：</text>
       <text name="price_label">１．価格の設定：</text>
       <text name="price_text">適正価格を設定してください。</text>

@@ -2,7 +2,7 @@
 <floater label="場所" name="gestures" title="ジェスチャー">
   <floater.string name="loading">読み込んでいます…。</floater.string>
   <floater.string name="playing">（再生中）</floater.string>
-  <floater.string name="copy_name">[COPY_NAME] のコピー</floater.string>
+  <floater.string name="copy_name">[COPY_NAME]のコピー</floater.string>
   <scroll_list name="gesture_list">
     <scroll_list.columns label="名前" name="name" />
     <scroll_list.columns label="チャット" name="trigger" />
