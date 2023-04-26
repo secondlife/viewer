@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="もの" name="Outfits">
-  <panel.string name="wear_outfit_tooltip">選択した衣装を着用する</panel.string>
+<panel name="Outfits" bg_alpha_color="DkGray" bg_opaque_color="DkGray" background_opaque="true" background_visible="true" follows="all" height="575" label="Things" layout="topleft" min_height="350" min_width="240" width="320" border="false">
+  <panel.string name="wear_outfit_tooltip">選択した衣装に着替える</panel.string>
   <panel.string name="wear_items_tooltip">選択したアイテムを着用</panel.string>
-  <tab_container name="appearance_tabs">
-    <panel label="衣装ギャラリー" name="outfit_gallery_tab" />
-    <panel label="マイ 衣装" name="outfitslist_tab" />
-    <panel label="着用中" name="cof_tab" />
+  <tab_container follows="all" height="539" layout="topleft" left="5" name="appearance_tabs" tab_min_width="100" tab_height="30" tab_position="top" halign="center" top="8" width="315">
+    <panel class="outfit_gallery" filename="panel_outfit_gallery.xml" height="520" name="outfit_gallery_tab" background_visible="true" help_topic="outfit_gallery_tab" follows="all" label="衣装ギャラリー" layout="topleft" width="315" />
+    <panel class="outfits_list" filename="panel_outfits_list.xml" height="520" name="outfitslist_tab" background_visible="true" help_topic="my_outfits_tab" follows="all" label="自分の衣装" layout="topleft" width="315" />
+    <panel background_visible="true" bg_alpha_color="DkGray" class="panel_wearing" filename="panel_outfits_wearing.xml" follows="all" height="520" help_topic="now_wearing_tab" label="着用中" layout="topleft" name="cof_tab" width="315" />
   </tab_container>
-  <panel name="bottom_panel">
-    <layout_stack name="bottom_panel_ls">
-      <layout_panel name="save_btn_lp">
-        <button label="名前をつけて保存" name="save_btn" />
+
+  <panel background_visible="true" follows="bottom|left|right" height="27" layout="topleft" left="9" top_pad="1" visible="true" name="bottom_panel" width="310">
+    <layout_stack follows="bottom|left|right" height="23" layout="topleft" mouse_opaque="false" name="bottom_panel_ls" left="0" orientation="horizontal" top="0" width="308">
+      <layout_panel follows="bottom|left|right" height="23" layout="bottomleft" left="0" mouse_opaque="false" name="save_btn_lp" auto_resize="true" width="156">
+        <button follows="bottom|left|right" height="23" label="変更を保存" left="1" layout="topleft" name="save_btn" top="0" width="155" />
       </layout_panel>
-      <layout_panel name="wear_btn_lp">
-        <button label="装着" name="wear_btn" />
+      <layout_panel follows="bottom|left|right" height="23" layout="bottomleft" left_pad="3" mouse_opaque="false" name="save_as_btn_lp" auto_resize="true" width="156">
+        <button follows="bottom|left|right" height="23" label="名前をつけて保存…" layout="topleft" name="save_as_btn" top="0" left="1" width="155" />
+      </layout_panel>
+      <layout_panel follows="bottom|left|right" height="23" layout="bottomleft" left_pad="3" mouse_opaque="false" name="wear_btn_lp" auto_resize="true" width="147">
+        <button follows="bottom|left|right" height="23" label="着用" layout="topleft" name="wear_btn" left="1" top="0" width="146" />
       </layout_panel>
     </layout_stack>
   </panel>
