@@ -4568,7 +4568,18 @@ void callAfterCOFFetch(nullary_func_t cb)
     if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN && AISAPI::isAvailable())
     {
         // Assume that we have no relevant cache. Fetch cof, and items cof's links point to.
-        AISAPI::FetchCOF([cb](const LLUUID& id) { cb(); });
+        AISAPI::FetchCOF([cb](const LLUUID& id)
+                         {
+                             cb();
+                             LLUUID cat_id = LLAppearanceMgr::instance().getCOF();
+                             LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+                             if (cat)
+                             {
+                                 cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
+                             }
+                         });
+        // Mark it so that background fetch won't request it if it didn't already
+        cat->setFetching(LLViewerInventoryCategory::FETCH_RECURSIVE);
     }
     else
     {

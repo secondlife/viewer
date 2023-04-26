@@ -59,11 +59,11 @@ public:
     static void FetchCategoryChildren(const LLUUID &catId, ITEM_TYPE type = AISAPI::ITEM_TYPE::INVENTORY, bool recursive = false, completion_t callback = completion_t(), S32 depth = 0);
     static void FetchCategoryChildren(const std::string &identifier, bool recursive = false, completion_t callback = completion_t(), S32 depth = 0);
     static void FetchCategoryCategories(const LLUUID &catId, ITEM_TYPE type = AISAPI::ITEM_TYPE::INVENTORY, bool recursive = false, completion_t callback = completion_t(), S32 depth = 0);
+    static void FetchCategorySubset(const LLUUID& catId, const uuid_vec_t specificChildren, ITEM_TYPE type = AISAPI::ITEM_TYPE::INVENTORY, bool recursive = false, completion_t callback = completion_t(), S32 depth = 0);
     static void FetchCOF(completion_t callback = completion_t());
     static void FetchOrphans(completion_t callback = completion_t() );
     static void CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, bool copySubfolders, completion_t callback = completion_t());
 
-private:
     typedef enum {
         COPYINVENTORY,
         SLAMFOLDER,
@@ -77,10 +77,12 @@ private:
         FETCHITEM,
         FETCHCATEGORYCHILDREN,
         FETCHCATEGORYCATEGORIES,
+        FETCHCATEGORYSUBSET,
         FETCHCOF,
         FETCHORPHANS,
     } COMMAND_TYPE;
 
+private:
     static const std::string INVENTORY_CAP_NAME;
     static const std::string LIBRARY_CAP_NAME;
 
@@ -89,7 +91,7 @@ private:
 
     static void EnqueueAISCommand(const std::string &procName, LLCoprocedureManager::CoProcedure_t proc);
     static void onIdle(void *userdata); // launches postponed AIS commands
-    static void onUpdateReceived(const std::string& context, const LLSD& update, COMMAND_TYPE type, const LLSD& request_body);
+    static void onUpdateReceived(const LLSD& update, COMMAND_TYPE type, const LLSD& request_body);
 
     static std::string getInvCap();
     static std::string getLibCap();
@@ -105,17 +107,17 @@ private:
 class AISUpdate
 {
 public:
-	AISUpdate(const LLSD& update, bool fetch, S32 depth);
+	AISUpdate(const LLSD& update, AISAPI::COMMAND_TYPE type, const LLSD& request_body);
 	void parseUpdate(const LLSD& update);
 	void parseMeta(const LLSD& update);
 	void parseContent(const LLSD& update);
 	void parseUUIDArray(const LLSD& content, const std::string& name, uuid_list_t& ids);
-	void parseLink(const LLSD& link_map);
+	void parseLink(const LLSD& link_map, S32 depth);
 	void parseItem(const LLSD& link_map);
 	void parseCategory(const LLSD& link_map, S32 depth);
 	void parseDescendentCount(const LLUUID& category_id, const LLSD& embedded);
 	void parseEmbedded(const LLSD& embedded, S32 depth);
-	void parseEmbeddedLinks(const LLSD& links);
+	void parseEmbeddedLinks(const LLSD& links, S32 depth);
 	void parseEmbeddedItems(const LLSD& items);
 	void parseEmbeddedCategories(const LLSD& categories, S32 depth);
 	void parseEmbeddedItem(const LLSD& item);
@@ -151,6 +153,7 @@ private:
     bool mFetch;
     S32 mFetchDepth;
     LLTimer mTimer;
+    AISAPI::COMMAND_TYPE mType;
 };
 
 #endif

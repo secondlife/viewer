@@ -82,8 +82,9 @@ protected:
 
     typedef enum {
         FT_DEFAULT = 0,
-        FT_FORCED, // request even if already loaded
+        FT_FORCED, // request non-recursively even if already loaded
         FT_CONTENT_RECURSIVE, // request content recursively
+        FT_FOLDER_AND_CONTENT, // request content recursively
         FT_RECURSIVE, // request everything recursively
     } EFetchType;
     struct FetchQueueInfo
@@ -100,7 +101,8 @@ protected:
     };
     typedef std::deque<FetchQueueInfo> fetch_queue_t;
 
-    void onAISFolderCalback(const LLUUID &request_id, const LLUUID &response_id, EFetchType recursion);
+    void onAISContentCalback(const LLUUID& request_id, const uuid_vec_t &content_ids, const LLUUID& response_id, EFetchType fetch_type);
+    void onAISFolderCalback(const LLUUID &request_id, const LLUUID &response_id, EFetchType fetch_type);
     void bulkFetchViaAis();
     void bulkFetchViaAis(const FetchQueueInfo& fetch_info);
 	void bulkFetch();
