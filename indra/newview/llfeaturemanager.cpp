@@ -408,6 +408,7 @@ bool LLFeatureManager::loadGPUClass()
 {
 	if (!gSavedSettings.getBOOL("SkipBenchmark"))
 	{
+        F32 class0_gbps = gSavedSettings.getF32("RenderClass0MemoryBandwidth");  // TODO merge brad - figure out what to do with this setting and the below gbps constant comparisons
 		//get memory bandwidth from benchmark
 		F32 gbps;
 		try
@@ -424,6 +425,14 @@ bool LLFeatureManager::loadGPUClass()
 			LL_WARNS("RenderInit") << "GPU benchmark failed: " << e.what() << LL_ENDL;
 		}
 	
+        mGPUMemoryBandwidth = gbps;
+
+        // bias by CPU speed
+        F32 cpu_basis_mhz = gSavedSettings.getF32("RenderCPUBasis");
+        F32 cpu_mhz = (F32) gSysCPU.getMHz();
+        F32 cpu_bias = llclamp(cpu_mhz / cpu_basis_mhz, 0.5f, 1.f);
+        gbps *= cpu_bias;
+
 		if (gbps < 0.f)
 		{ //couldn't bench, default to Low
 	#if LL_DARWIN
