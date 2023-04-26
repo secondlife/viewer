@@ -128,6 +128,7 @@ public:
     bool hasDescendents(const LLUUID& cat_id);
     bool hasVisibleItems();
     void handleModifiedFilter();
+    LLScrollContainer* getScrollableContainer() { return mScrollPanel; }
 
 protected:
 

@@ -143,8 +143,6 @@ protected:
 
 	static BOOL filtersVisible(void* user_data);
 	void onClearSearch();
-	static void onFoldersByName(void *user_data);
-	static BOOL checkFoldersByName(void *user_data);
 	
 	static BOOL incrementalFind(LLFolderViewItem* first_item, const char *find_text, BOOL backward);
 	void onFilterSelected();
@@ -196,6 +194,7 @@ private:
 
     LLInventorySingleFolderPanel* mCombinationInventoryPanel;
     LLInventoryGallery* mCombinationGalleryPanel;
+    LLView* mCombinationScroller;
 
     boost::signals2::connection mListViewRootUpdatedConnection;
     boost::signals2::connection mGalleryRootUpdatedConnection;

@@ -123,6 +123,7 @@ public:
 	void doUpdate();
 private:
 	void clearParseResults();
+    void checkTimeout();
 
     // Debug is very log-heavy, give it more time or it will take forever to process
     // Todo: find a way to make throttle static isntead of per-request

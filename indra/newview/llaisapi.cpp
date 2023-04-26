@@ -924,6 +924,16 @@ void AISUpdate::clearParseResults()
 	mCategoryIds.clear();
 }
 
+void AISUpdate::checkTimeout()
+{
+    if (mTimer.hasExpired())
+    {
+        llcoro::suspend();
+        LLCoros::checkStop();
+        mTimer.setTimerExpirySec(debugLoggingEnabled("Inventory") ? EXPIRY_SECONDS_DEBUG : EXPIRY_SECONDS_LIVE);
+    }
+}
+
 void AISUpdate::parseUpdate(const LLSD& update)
 {
 	clearParseResults();
@@ -1281,12 +1291,7 @@ void AISUpdate::parseDescendentCount(const LLUUID& category_id, const LLSD& embe
 
 void AISUpdate::parseEmbedded(const LLSD& embedded, S32 depth)
 {
-    if (mTimer.hasExpired())
-    {
-        llcoro::suspend();
-        LLCoros::checkStop();
-        mTimer.setTimerExpirySec(debugLoggingEnabled("Inventory") ? EXPIRY_SECONDS_DEBUG : EXPIRY_SECONDS_LIVE);
-    }
+    checkTimeout();
 
 	if (embedded.has("links")) // _embedded in a category
 	{
@@ -1408,6 +1413,8 @@ void AISUpdate::parseEmbeddedCategories(const LLSD& categories, S32 depth)
 
 void AISUpdate::doUpdate()
 {
+    checkTimeout();
+
 	// Do version/descendant accounting.
 	for (std::map<LLUUID,S32>::const_iterator catit = mCatDescendentDeltas.begin();
 		 catit != mCatDescendentDeltas.end(); ++catit)
@@ -1570,6 +1577,8 @@ void AISUpdate::doUpdate()
             }
 		}
 	}
+
+    checkTimeout();
 
 	gInventory.notifyObservers();
 }
