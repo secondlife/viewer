@@ -5910,7 +5910,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						{
                             LLGLTFMaterial* gltf_mat = te->getGLTFRenderMaterial();
 
-							if (gltf_mat != nullptr || (te->getMaterialParams().notNull()  && !te->getMaterialID().isNull()))
+							if (gltf_mat != nullptr || (te->getMaterialParams().notNull()))
 							{
                                 if (gltf_mat != nullptr)
                                 {
