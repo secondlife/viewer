@@ -158,12 +158,6 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 	return true;
 }
 
-static bool handleShadowDetailChanged(const LLSD& newvalue)
-{
-    gPipeline.handleShadowDetailChanged();
-    return true;
-}
-
 static bool handleRenderPerfTestChanged(const LLSD& newvalue)
 {
        bool status = !newvalue.asBoolean();

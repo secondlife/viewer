@@ -1200,8 +1200,7 @@ void LLFloaterPreference::refreshEnabledState()
 
 	getChildView("block_list")->setEnabled(LLLoginInstance::getInstance()->authSuccess());
 }
-// TODO merge brad figure out where LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState() went and port over changes
-// static
+
 void LLAvatarComplexityControls::setIndirectControls()
 {
 	/*
@@ -1242,7 +1241,7 @@ void LLAvatarComplexityControls::setIndirectMaxArc()
 	}
 	gSavedSettings.setU32("IndirectMaxComplexity", indirect_max_arc);
 }
-// TODO merge brad figure out where LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings() went and port over changes
+
 void LLFloaterPreference::refresh()
 {
 	LLPanel::refresh();
@@ -1726,7 +1725,7 @@ void LLFloaterPreference::onAtmosShaderChange()
     if(ctrl_alm)
     {
         //Deferred/SSAO/Shadows
-        BOOL bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
+        BOOL bumpshiny = LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
         BOOL shaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
         BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
                         bumpshiny &&

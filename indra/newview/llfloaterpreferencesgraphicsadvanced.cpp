@@ -354,13 +354,13 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
     LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
 
     // Reflections
-    BOOL reflections = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps;
+    BOOL reflections = LLCubeMap::sUseCubeMaps;
     ctrl_reflections->setEnabled(reflections);
     reflections_text->setEnabled(reflections);
 
     // Bump & Shiny	
     LLCheckBoxCtrl* bumpshiny_ctrl = getChild<LLCheckBoxCtrl>("BumpShiny");
-    bool bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump");
+    bool bumpshiny = LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump");
     bumpshiny_ctrl->setEnabled(bumpshiny ? TRUE : FALSE);
 
     // Avatar Mode
@@ -396,21 +396,29 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
     terrain_text->setEnabled(FALSE);
 
     // WindLight
-    LLCheckBoxCtrl* ctrl_wind_light = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
+    //LLCheckBoxCtrl* ctrl_wind_light = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
+    //ctrl_wind_light->setEnabled(TRUE);
     LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
     LLTextBox* sky_text = getChild<LLTextBox>("SkyMeshDetailText");
-    ctrl_wind_light->setEnabled(TRUE);
     sky->setEnabled(TRUE);
     sky_text->setEnabled(TRUE);
 
+    BOOL enabled = TRUE;
+#if 0 // deferred always on now
     //Deferred/SSAO/Shadows
     LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
 
-    BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
+    enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
         ((bumpshiny_ctrl && bumpshiny_ctrl->get()) ? TRUE : FALSE) &&
         (ctrl_wind_light->get()) ? TRUE : FALSE;
 
     ctrl_deferred->setEnabled(enabled);
+#endif
+    
+    LLCheckBoxCtrl* ctrl_pbr = getChild<LLCheckBoxCtrl>("UsePBRShaders");
+
+    //PBR
+    ctrl_pbr->setEnabled(TRUE);
 
     LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
     LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
@@ -418,9 +426,9 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
     LLTextBox* shadow_text = getChild<LLTextBox>("RenderShadowDetailText");
 
     // note, okay here to get from ctrl_deferred as it's twin, ctrl_deferred2 will alway match it
-    enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO") && (ctrl_deferred->get() ? TRUE : FALSE);
+    enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO");// && (ctrl_deferred->get() ? TRUE : FALSE);
 
-    ctrl_deferred->set(gSavedSettings.getBOOL("RenderDeferred"));
+    //ctrl_deferred->set(gSavedSettings.getBOOL("RenderDeferred"));
 
     ctrl_ssao->setEnabled(enabled);
     ctrl_dof->setEnabled(enabled);
@@ -431,20 +439,23 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
     shadow_text->setEnabled(enabled);
 
     // Hardware settings
+# if 0 // TODO merge brad VRAM is rewritten
     F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
     S32Megabytes min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
     S32Megabytes max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier);
     getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem.value());
     getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem.value());
-
+#endif
+    
+#if 0 // cannot turn off VBOs anymore
     if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
         !gGLManager.mHasVertexBufferObject)
     {
         getChildView("vbo")->setEnabled(FALSE);
     }
+#endif
 
-    if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderCompressTextures") ||
-        !gGLManager.mHasVertexBufferObject)
+    if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderCompressTextures"))
     {
         getChildView("texture compression")->setEnabled(FALSE);
     }

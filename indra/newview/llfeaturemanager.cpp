@@ -408,7 +408,7 @@ bool LLFeatureManager::loadGPUClass()
 {
 	if (!gSavedSettings.getBOOL("SkipBenchmark"))
 	{
-        F32 class0_gbps = gSavedSettings.getF32("RenderClass0MemoryBandwidth");  // TODO merge brad - figure out what to do with this setting and the below gbps constant comparisons
+        //F32 class0_gbps = gSavedSettings.getF32("RenderClass0MemoryBandwidth");  // TODO merge brad - figure out what to do with this setting and the below gbps constant comparisons
 		//get memory bandwidth from benchmark
 		F32 gbps;
 		try
