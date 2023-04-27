@@ -730,7 +730,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
 
                     LLViewerInventoryCategory::EFetchType target_state = LLViewerInventoryCategory::FETCH_RECURSIVE;
                     // technically limit is 'as many as you can put into url', but for now stop at 10
-                    const S32 batch_limit = 10;
+                    const S32 batch_limit = 20;
                     bool content_done = true;
 
                     for (LLInventoryModel::cat_array_t::iterator it = categories->begin();
