@@ -156,17 +156,6 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
     F32 lastFullbright = 0.f;
     F32 lastMinimumAlpha = 0.f;
     LLVector4 lastSpecular = LLVector4(0, 0, 0, 0);
-    #if 0 // TODO merge brad move this down into LLCullResult begin/end loop
-        if(params.mFace)
-        {
-            LLViewerObject* vobj = (LLViewerObject *)params.mFace->getViewerObject();
-
-            if( vobj && vobj->isAttachment() )
-            {
-                trackAttachments( vobj, params.mFace->isState(LLFace::RIGGED), &ratPtr );
-            }
-        }
-    #endif
 
     GLint intensity = mShader->getUniformLocation(LLShaderMgr::ENVIRONMENT_INTENSITY);
     GLint brightness = mShader->getUniformLocation(LLShaderMgr::EMISSIVE_BRIGHTNESS);
@@ -211,6 +200,18 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 		LLDrawInfo& params = **i;
 		
         LLCullResult::increment_iterator(i, end);
+
+#if 0 // TODO SL-19656 figure out how to reenable trackAttachments()
+        if(params.mFace)
+        {
+            LLViewerObject* vobj = (LLViewerObject *)params.mFace->getViewerObject();
+
+            if( vobj && vobj->isAttachment() )
+            {
+                trackAttachments( vobj, params.mFace->isState(LLFace::RIGGED), &ratPtr );
+            }
+        }
+#endif
 
         if (specular > -1 && params.mSpecColor != lastSpecular)
         {

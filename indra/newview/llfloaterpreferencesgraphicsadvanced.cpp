@@ -439,21 +439,11 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
     shadow_text->setEnabled(enabled);
 
     // Hardware settings
-# if 0 // TODO merge brad VRAM is rewritten
-    F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
-    S32Megabytes min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
-    S32Megabytes max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier);
-    getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem.value());
-    getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem.value());
-#endif
     
-#if 0 // cannot turn off VBOs anymore
-    if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
-        !gGLManager.mHasVertexBufferObject)
+    if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable"))
     {
         getChildView("vbo")->setEnabled(FALSE);
     }
-#endif
 
     if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderCompressTextures"))
     {
