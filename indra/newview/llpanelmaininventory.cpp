@@ -2217,26 +2217,31 @@ void LLPanelMainInventory::updateCombinationVisibility()
 {
     if(mSingleFolderMode && isCombinationViewMode())
     {
-        LLRect inner_rect = mCombinationInventoryPanel->getScrollableContainer()->getScrolledViewRect();
+        if (!mCombinationGalleryPanel->hasVisibleItems())
+        {
+            mCombinationGalleryPanel->handleModifiedFilter();
+        }
         LLRect inv_rect = mCombinationInventoryPanel->getRect();
+        LLRect inv_inner_rect = mCombinationInventoryPanel->getScrollableContainer()->getScrolledViewRect();
+        LLRect galery_rect = mCombinationGalleryPanel->getRect();
+        LLRect inner_galery_rect = mCombinationGalleryPanel->getScrollableContainer()->getScrolledViewRect();
+
         inv_rect.mBottom = 0;
-        inv_rect.mRight = inv_rect.mLeft + inner_rect.getWidth();
+        inv_rect.mRight = inv_rect.mLeft + inv_inner_rect.getWidth();
         if (!mCombinationGalleryPanel->hasVisibleItems() || mCombinationInventoryPanel->hasVisibleItems())
         {
-            inv_rect.mTop = inv_rect.mBottom + inner_rect.getHeight();
+            inv_rect.mTop = inv_rect.mBottom + inv_inner_rect.getHeight();
         }
         else
         {
             inv_rect.mTop = inv_rect.mBottom;
         }
 
-        inner_rect = mCombinationGalleryPanel->getScrollableContainer()->getScrolledViewRect();
-        LLRect galery_rect = mCombinationGalleryPanel->getRect();
         galery_rect.mBottom = inv_rect.mTop;
         if (mCombinationGalleryPanel->hasVisibleItems())
         {
             mCombinationGalleryPanel->setVisible(true);
-            galery_rect.mTop = galery_rect.mBottom + inner_rect.getHeight();
+            galery_rect.mTop = galery_rect.mBottom + inner_galery_rect.getHeight();
         }
         else
         {
@@ -2244,16 +2249,9 @@ void LLPanelMainInventory::updateCombinationVisibility()
             galery_rect.mTop = galery_rect.mBottom;
         }
 
-        LLRect scroller_rect = mCombinationScroller->getRect();
-        scroller_rect.mBottom = 0;
-        scroller_rect.mTop = scroller_rect.mBottom + inv_rect.getHeight() + galery_rect.getHeight();
-        scroller_rect.mRight = scroller_rect.mLeft + llmax(inv_rect.getWidth(), galery_rect.getWidth());
-
-        mCombinationScroller->setRect(scroller_rect);
+        mCombinationScroller->reshape(llmax(inv_rect.getWidth(), galery_rect.getWidth()), inv_rect.getHeight() + galery_rect.getHeight(), true);
         mCombinationGalleryPanel->handleReshape(galery_rect, false);
         mCombinationInventoryPanel->handleReshape(inv_rect, false);
-        
-        getActivePanel()->getRootFolder();
     }
 }
 
