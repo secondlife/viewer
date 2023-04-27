@@ -5826,7 +5826,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					const LLTextureEntry* te = facep->getTextureEntry();
 					LLViewerTexture* tex = facep->getTexture();
 
-					if (te->getGlow() >= 1.f/255.f)
+					if (te->getGlow() > 0.f)
 					{
 						emissive = true;
 					}
@@ -5910,7 +5910,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						{
                             LLGLTFMaterial* gltf_mat = te->getGLTFRenderMaterial();
 
-							if (gltf_mat != nullptr || (te->getMaterialParams().notNull()  && !te->getMaterialID().isNull()))
+							if (gltf_mat != nullptr || (te->getMaterialParams().notNull()))
 							{
                                 if (gltf_mat != nullptr)
                                 {
