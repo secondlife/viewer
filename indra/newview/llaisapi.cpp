@@ -916,6 +916,8 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
         case COPYLIBRARYCATEGORY:
         case FETCHCATEGORYCATEGORIES:
         case FETCHCATEGORYCHILDREN:
+        case FETCHCATEGORYSUBSET:
+        case FETCHCOF:
             if (result.has("category_id"))
             {
                 id = result["category_id"];

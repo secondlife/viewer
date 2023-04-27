@@ -731,10 +731,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                     LLInventoryModel::item_array_t* items(NULL);
                     gInventory.getDirectDescendentsOf(cat_id, categories, items);
 
-                    LLViewerInventoryCategory::EFetchType target_state =
-                        fetch_info.mFetchType > FT_CONTENT_RECURSIVE
-                        ? LLViewerInventoryCategory::FETCH_RECURSIVE
-                        : LLViewerInventoryCategory::FETCH_NORMAL;
+                    LLViewerInventoryCategory::EFetchType target_state = LLViewerInventoryCategory::FETCH_RECURSIVE;
                     // technically limit is 'as many as you can put into url', but for now stop at 10
                     const S32 batch_limit = 10;
                     bool content_done = true;
@@ -747,8 +744,6 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                         if (LLViewerInventoryCategory::VERSION_UNKNOWN != child_cat->getVersion()
                             || child_cat->getFetching() >= target_state)
                         {
-                            // push it back to verify everything inside is fetched
-                            mFetchFolderQueue.push_back(FetchQueueInfo((*it)->getUUID(), FT_RECURSIVE));
                             continue;
                         }
 
@@ -759,6 +754,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                             if (children.empty())
                             {
                                 // fetch marketplace alone
+                                // Should it actually be fetched as FT_FOLDER_AND_CONTENT?
                                 children.push_back(child_cat->getUUID());
                                 mExpectedFolderIds.push_back(child_cat->getUUID());
                                 child_cat->setFetching(target_state);
@@ -803,7 +799,23 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                         AISAPI::FetchCategorySubset(cat_id, children, item_type, true, cb, 0);
                     }
 
-                    if (!content_done)
+                    if (content_done)
+                    {
+                        // This will have a bit of overlap with onAISContentCalback,
+                        // but something else might have dowloaded folders, so verify
+                        // every child that is complete has it's children done as well
+                        for (LLInventoryModel::cat_array_t::iterator it = categories->begin();
+                             it != categories->end();
+                             ++it)
+                        {
+                            LLViewerInventoryCategory* child_cat = (*it);
+                            if (LLViewerInventoryCategory::VERSION_UNKNOWN != child_cat->getVersion())
+                            {
+                                mFetchFolderQueue.push_back(FetchQueueInfo(child_cat->getUUID(), FT_RECURSIVE));
+                            }
+                        }
+                    }
+                    else
                     {
                         // send it back to get the rest
                         mFetchFolderQueue.push_back(FetchQueueInfo(cat_id, FT_CONTENT_RECURSIVE));
@@ -844,7 +856,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                 else
                 {
                     // Already fetched, check if anything inside needs fetching
-                    if (fetch_info.mFetchType >= FT_CONTENT_RECURSIVE)
+                    if (fetch_info.mFetchType == FT_RECURSIVE)
                     {
                         LLInventoryModel::cat_array_t * categories(NULL);
                         LLInventoryModel::item_array_t * items(NULL);

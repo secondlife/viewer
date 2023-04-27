@@ -84,7 +84,7 @@ protected:
         FT_DEFAULT = 0,
         FT_FORCED, // request non-recursively even if already loaded
         FT_CONTENT_RECURSIVE, // request content recursively
-        FT_FOLDER_AND_CONTENT, // request content recursively
+        FT_FOLDER_AND_CONTENT, // request folder, then content recursively
         FT_RECURSIVE, // request everything recursively
     } EFetchType;
     struct FetchQueueInfo
