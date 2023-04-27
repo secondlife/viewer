@@ -411,12 +411,13 @@ void LLDrawPoolBump::renderGroup(LLSpatialGroup* group, U32 type, bool texture =
 	{
 		LLDrawInfo& params = **k;
 		
+#if 0 // TODO SL-19656 figure out how to reenable trackAttachments()
         LLViewerObject* vobj = (LLViewerObject *)params.mFace->getViewerObject();
-
         if( vobj && vobj->isAttachment() )
         {
             trackAttachments( vobj, params.mFace->isState(LLFace::RIGGED), &ratPtr );
         }
+#endif
 
 		applyModelMatrix(params);
 
@@ -574,6 +575,7 @@ void LLDrawPoolBump::renderDeferred(S32 pass)
 
             LLCullResult::increment_iterator(i, end);
 
+#if 0 // TODO SL-19656 figure out how to reenable trackAttachments()
             if(params.mFace)
             {
                 LLViewerObject* vobj = (LLViewerObject *)params.mFace->getViewerObject();
@@ -583,6 +585,7 @@ void LLDrawPoolBump::renderDeferred(S32 pass)
                     trackAttachments( vobj, params.mFace->isState(LLFace::RIGGED), &ratPtr );
                 }
             }
+#endif
 
             LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(params.mAlphaMaskCutoff);
             LLDrawPoolBump::bindBumpMap(params, bump_channel);
@@ -1217,6 +1220,7 @@ void LLDrawPoolBump::pushBumpBatches(U32 type)
 	{
 		LLDrawInfo& params = **i;
 
+#if 0 // TODO SL-19656 figure out how to reenable trackAttachments()
         if(params.mFace)
         {
             LLViewerObject* vobj = (LLViewerObject *)params.mFace->getViewerObject();
@@ -1226,6 +1230,7 @@ void LLDrawPoolBump::pushBumpBatches(U32 type)
                 trackAttachments( vobj, params.mFace->isState(LLFace::RIGGED), &ratPtr );
             }
         }
+#endif
 
 		if (LLDrawPoolBump::bindBumpMap(params))
 		{
