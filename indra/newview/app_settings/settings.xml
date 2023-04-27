@@ -9197,6 +9197,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>RenderDisablePostProcessing</key>
+  <map>
+    <key>Comment</key>
+    <string>Disable tone mapping and exposure correction when build floater is open (for artists developing materials)</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderMaxOpenGLVersion</key>
   <map>
     <key>Comment</key>

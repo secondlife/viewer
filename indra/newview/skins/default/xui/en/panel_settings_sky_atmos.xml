@@ -223,7 +223,7 @@
                             left_delta="-5"
                             top_delta="25"
                             width="80">
-                        Scene Gamma:
+                        Brightness:
                     </text>
                     <slider
                             decimal_digits="2"

@@ -1492,7 +1492,28 @@ function="World.EnvPreset"
                      function="ToggleControl"
                      parameter="ShowSelectionBeam" />
                 </menu_item_check>
-
+                <menu_item_check
+                       label="Highlight Transparent"
+                       name="Highlight Transparent"
+                       shortcut="control|alt|T"
+                       use_mac_ctrl="true">
+                  <menu_item_check.on_check
+                   function="View.CheckHighlightTransparent" />
+                  <menu_item_check.on_click
+                   function="View.HighlightTransparent" />
+                </menu_item_check>
+        <menu_item_separator/>
+          
+          <menu_item_check
+            label="No Post"
+            name="No Post">
+            <menu_item_check.on_check
+             control="RenderDisablePostProcessing" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="RenderDisablePostProcessing" />
+          </menu_item_check>
+          
         <menu_item_separator/>
 
                 <menu_item_check
@@ -1900,16 +1921,6 @@ function="World.EnvPreset"
                 <menu_item_check.on_click
                  function="ToggleControl"
                  parameter="HideSelectedObjects" />
-            </menu_item_check>
-            <menu_item_check
-             label="Highlight Transparent"
-             name="Highlight Transparent"
-             shortcut="control|alt|T"
-             use_mac_ctrl="true">
-                <menu_item_check.on_check
-                 function="View.CheckHighlightTransparent" />
-                <menu_item_check.on_click
-                 function="View.HighlightTransparent" />
             </menu_item_check>
             <menu_item_check
              label="Show Mouselook Crosshairs"
