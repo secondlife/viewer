@@ -4,14 +4,14 @@
     <container_view name="statistics_view">
       <stat_view label="ベーシック" name="basic">
         <stat_bar label="FPS" name="fps" />
-        <stat_bar label="UDP データを受け取りました" name="bandwidth" />
+        <stat_bar label="UDPデータを受け取りました" name="bandwidth" />
         <stat_bar label="パケットロス" name="packet_loss" />
         <stat_bar label="Pingシム" name="ping" />
       </stat_view>
       <stat_view label="アドバンス" name="advanced">
         <stat_view label="描画" name="render">
-          <stat_bar label="KTris (フレームごと)" name="ktrisframe" />
-          <stat_bar label="KTris (秒ごと)" name="ktrissec" />
+          <stat_bar label="KTris（フレームごと）" name="ktrisframe" />
+          <stat_bar label="KTris（秒ごと）" name="ktrissec" />
           <stat_bar label="オブジェクト合計" name="totalobjs" />
           <stat_bar label="キャッシュされたオブジェクト" name="cachedobjs" />
           <stat_bar label="新規オブジェクト" name="newobjs" />
@@ -24,8 +24,8 @@
           <stat_bar label="キャッシュヒット率" name="texture_cache_hits" />
           <stat_bar label="キャッシュ読み取り遅延" name="texture_cache_read_latency" />
           <stat_bar label="カウント" name="numimagesstat" />
-          <stat_bar label="Raw カウント" name="numrawimagesstat" />
-          <stat_bar label="GL メモリ" name="gltexmemstat" />
+          <stat_bar label="Rawカウント" name="numrawimagesstat" />
+          <stat_bar label="GLメモリ" name="gltexmemstat" />
           <stat_bar label="フォーマット済メモリ" name="formattedmemstat" />
           <stat_bar label="Raw メモリ" name="rawmemstat" />
           <stat_bar label="統合メモリ" name="glboundmemstat" />
@@ -60,14 +60,14 @@
       </stat_view>
       <stat_view label="シミュレーター" name="sim">
         <stat_bar label="時間の遅れ" name="simtimedilation" />
-        <stat_bar label="シム FPS" name="simfps" />
-        <stat_bar label="物理作用 FPS" name="simphysicsfps" />
+        <stat_bar label="シムのFPS" name="simfps" />
+        <stat_bar label="物理作用のFPS" name="simphysicsfps" />
         <stat_view label="物理作用の詳細" name="physicsdetail">
           <stat_bar label="ピン留めオブジェクト" name="physicspinnedtasks" />
-          <stat_bar label="低 LOD オブジェクト" name="physicslodtasks" />
+          <stat_bar label="低LODオブジェクト" name="physicslodtasks" />
           <stat_bar label="メモリ配分" name="physicsmemoryallocated" />
         </stat_view>
-        <stat_bar label="エージェントの更新/秒" name="simagentups" />
+        <stat_bar label="エージェントの更新／秒" name="simagentups" />
         <stat_bar label="メインエージェント" name="simmainagents" />
         <stat_bar label="チャイルドエージェント" name="simchildagents" />
         <stat_bar label="オブジェクト" name="simobjects" />

@@ -7,7 +7,7 @@
     <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" tool_tip="マウスカーソルが指している場所に向かって歩きます。" value="移動先" />
   </rows>
   <rows name="teleport_to" value="teleport_to">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" tool_tip="マウスカーソルが指す場所にテレポートしますが、すべての場所において、必ずしも直接テレポートできるとは限らないため、代わりに目的地の近くにテレポートする場合があります。" value="テレポート素する" />
+    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" tool_tip="マウスカーソルが指す場所にテレポートしますが、すべての場所において、必ずしも直接テレポートできるとは限らないため、代わりに目的地の近くにテレポートする場合があります。" value="テレポートする" />
   </rows>
   <rows name="push_forward" value="push_forward">
     <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="前に移動" />
@@ -31,7 +31,7 @@
     <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="ジャンプ／飛行" />
   </rows>
   <rows name="push_down" value="push_down">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="下がる" />
+    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="下降" />
   </rows>
   <rows name="run_forward" value="run_forward">
     <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="前に走る" />

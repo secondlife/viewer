@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Animation Preview">
   <floater.string name="failed_to_initialize"> 動きを初期化できませんでした </floater.string>
-  <floater.string name="anim_too_long"> アニメーションファイルの長さは[LENGTH]秒です。
-    アニメーションの最大長は[MAX_LENGTH]秒です。 </floater.string>
-  <floater.string name="failed_file_read"> アニメーションファイルを読み取れません。
+  <floater.string name="anim_too_long">このアニメーションファイルの長さは[LENGTH]秒です。
+アニメーションの最大長は[MAX_LENGTH]秒です。</floater.string>
+  <floater.string name="failed_file_read">アニメーションファイルを読み取れません。
 [STATUS]</floater.string>
   <floater.string name="E_ST_OK">Ok </floater.string>
   <floater.string name="E_ST_EOF">ファイルの終端が不完全です。</floater.string>
@@ -13,7 +13,7 @@
   <floater.string name="E_ST_NO_JOINT">ROOTまたはJOINTが見つかりません。</floater.string>
   <floater.string name="E_ST_NO_NAME">JOINT名を取得できません。</floater.string>
   <floater.string name="E_ST_NO_OFFSET">OFFSETが見つかりません。</floater.string>
-  <floater.string name="E_ST_NO_CHANNELS">CHANNELS が見つかりません。</floater.string>
+  <floater.string name="E_ST_NO_CHANNELS">CHANNELSが見つかりません。</floater.string>
   <floater.string name="E_ST_NO_ROTATION">回転順序を取得できません。</floater.string>
   <floater.string name="E_ST_NO_AXIS">回転軸を取得できません。</floater.string>
   <floater.string name="E_ST_NO_MOTION">MOTION が見つかりません。</floater.string>
@@ -31,12 +31,12 @@
   <floater.string name="E_ST_NO_XLT_MERGECHILD">Mergechild名を取得できません。</floater.string>
   <floater.string name="E_ST_NO_XLT_MERGEPARENT">Mergeparent名を取得できません。</floater.string>
   <floater.string name="E_ST_NO_XLT_PRIORITY">priority値を取得できません。</floater.string>
-  <floater.string name="E_ST_NO_XLT_LOOP">loop 値を取得できません。</floater.string>
+  <floater.string name="E_ST_NO_XLT_LOOP">loop値を取得できません。</floater.string>
   <floater.string name="E_ST_NO_XLT_EASEIN">easeln値を取得できません。</floater.string>
   <floater.string name="E_ST_NO_XLT_EASEOUT">easeOut値を取得できません。</floater.string>
   <floater.string name="E_ST_NO_XLT_HAND">Hand morph値を取得できません。</floater.string>
   <floater.string name="E_ST_NO_XLT_EMOTE">emote名を読みとれません。</floater.string>
-  <floater.string name="E_ST_BAD_ROOT">ルートジョイント名が不正です。hip」を使用してください。</floater.string>
+  <floater.string name="E_ST_BAD_ROOT">ルートジョイント名が不正です。「hip」を使用してください。</floater.string>
   <text name="name_label">名前：</text>
   <text name="description_label">説明：</text>
   <spinner label="優先度" name="priority" tool_tip="このアニメーションでどのアニメーションを上書きできるかを決めます" />
@@ -89,8 +89,8 @@
     <item label="座る" name="Sitting" />
     <item label="飛ぶ" name="Flying" />
   </combo_box>
-  <spinner label="イーズイン（秒）" name="ease_in_time" tool_tip="アニメーションのブレンドイン時間（秒）" />
-  <spinner label="イーズアウト（秒）" name="ease_out_time" tool_tip="アニメーションのブレンドアウト時間（秒）" />
+  <spinner label="イーズ・イン（秒）" name="ease_in_time" tool_tip="アニメーションのブレンドイン時間（秒）" />
+  <spinner label="イーズ・アウト（秒）" name="ease_out_time" tool_tip="アニメーションのブレンドアウト時間（秒）" />
   <button name="play_btn" tool_tip="アニメーションを再生する。" />
   <button name="pause_btn" tool_tip="アニメーションを一時停止する。" />
   <button name="stop_btn" tool_tip="アニメーションの再生を停止する。" />

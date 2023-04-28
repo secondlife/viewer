@@ -23,7 +23,7 @@
       <menu_item_check label="一時退席中" name="Away" />
       <menu_item_check label="着信拒否" name="Do Not Disturb" />
     </menu>
-    <menu_item_call label="L$ の購入…" name="Buy and Sell L$" />
+    <menu_item_call label="L$の購入…" name="Buy and Sell L$" />
     <menu_item_call label="マーケティングプレイスのリスト…" name="MarketplaceListings" />
     <menu_item_call label="マイアカウント…" name="Manage My Account">
       <menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=ja" />
@@ -67,7 +67,7 @@
     <menu_item_call label="スナップショット" name="Take Snapshot" />
     <menu_item_call label="場所のプロフィール" name="Place Profile" />
     <menu_item_call label="土地情報" name="About Land" />
-    <menu_item_call label="地域 / 不動産" name="RegionEstate" />
+    <menu_item_call label="リージョン（地域）／不動産" name="RegionEstate" />
     <menu_item_call label="保有地…" name="My Land" />
     <menu_item_call label="この土地を購入" name="Buy Land" />
     <menu label="表示" name="LandShow">
@@ -155,7 +155,7 @@
       <menu_item_call label="モデル" name="Upload Model" />
       <menu_item_call label="一括 （ファイルにつきL$[COST]）…" name="Bulk Upload" />
     </menu>
-    <menu_item_call label="元に戻す" name="Undo" />
+    <menu_item_call label="取り消し" name="Undo" />
     <menu_item_call label="やり直し" name="Redo" />
   </menu>
   <menu label="ヘルプ" name="Help">
@@ -218,12 +218,12 @@
       <menu_item_check label="FRInfo のテスト" name="Test FRInfo" />
       <menu_item_check label="フレキシブルオブジェクト" name="Flexible Objects" />
     </menu>
-    <menu_item_check label="Use Plugin Read Thread" name="Use Plugin Read Thread" />
+    <menu_item_check label="プラグイン読み取りスレッドを使用" name="Use Plugin Read Thread" />
     <menu_item_call label="グループキャッシュのクリア" name="ClearGroupCache" />
     <menu_item_check label="マウスの平滑化" name="Mouse Smoothing" />
     <menu_item_call label="リリースキー" name="Release Keys" />
     <menu label="ショートカット" name="Shortcuts">
-      <menu_item_check label="アドバンスメニューを表示 - レガシーのショートカット" name="Show Advanced Menu - legacy shortcut" />
+      <menu_item_check label="アドバンスメニューを表示－レガシーのショートカット" name="Show Advanced Menu - legacy shortcut" />
       <menu_item_call label="ウィンドウを閉じる" name="Close Window" />
       <menu_item_call label="全てのウィンドウを閉じる" name="Close All Windows" />
       <menu_item_call label="スナップショットをディスクに保存する" name="Snapshot to Disk" />
@@ -393,7 +393,7 @@
         <menu_item_call label="スカート" name="Grab Skirt" />
       </menu>
       <menu label="キャラクターテスト" name="Character Tests">
-        <menu_item_call label="容姿を XML に保存する" name="Appearance To XML" />
+        <menu_item_call label="容姿をXMLに保存する" name="Appearance To XML" />
         <menu_item_call label="キャラクタジオメトリの切り替え" name="Toggle Character Geometry" />
         <menu_item_call label="男性アバターのテスト" name="Test Male" />
         <menu_item_call label="女性アバターのテスト" name="Test Female" />
@@ -420,9 +420,9 @@
       <menu_item_call label="アバターテクスチャをデバッグ" name="Debug Avatar Textures" />
       <menu_item_call label="ローカルテクスチャをダンプ" name="Dump Local Textures" />
     </menu>
-    <menu_item_check label="HTTP Texture" name="HTTP Textures" />
+    <menu_item_check label="HTTPテスクチャ" name="HTTP Textures" />
     <menu_item_call label="圧縮画像" name="Compress Images" />
-    <menu_item_call label="Visual Leak Detector を有効にする" name="Enable Visual Leak Detector" />
+    <menu_item_call label="Visual Leak Detectorを有効にする" name="Enable Visual Leak Detector" />
     <menu_item_check label="デバッグ用のミニダンプを出力する" name="Output Debug Minidump" />
     <menu_item_check label="次回の起動時にコンソールウィンドウを表示する" name="Console Window" />
     <menu label="ログレベルを設定" name="Set Logging Level">
@@ -450,8 +450,8 @@
       <menu_item_call label="リンデンコンテンツに設定する" name="Set to Linden Content" />
       <menu_item_call label="パブリックの土地を取得する" name="Claim Public Land" />
     </menu>
-    <menu label="リージョン/地域" name="Region">
-      <menu_item_call label="一時アセットデータをダンプ" name="Dump Temp Asset Data" />
+    <menu label="リージョン（地域）" name="Region">
+      <menu_item_call label="一時アセットデータのダンプ" name="Dump Temp Asset Data" />
       <menu_item_call label="リージョンの状態を保存する" name="Save Region State" />
     </menu>
     <menu_item_call label="グリッドツール" name="God Tools" />

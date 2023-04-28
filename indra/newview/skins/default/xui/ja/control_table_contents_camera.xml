@@ -28,16 +28,16 @@
     <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの仰角を下げる" />
   </rows>
   <rows name="pan_up" value="pan_up">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの中心を上に" />
+    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの中心を上に移動" />
   </rows>
   <rows name="pan_down" value="pan_down">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの中心を下に" />
+    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの中心を下に移動" />
   </rows>
   <rows name="pan_left" value="pan_left">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの中心を左に" />
+    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの中心を左に移動" />
   </rows>
   <rows name="pan_right" value="pan_right">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの中心を右に" />
+    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの中心を右に移動" />
   </rows>
   <rows name="pan_in" value="pan_in">
     <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの中心を拡大" />
