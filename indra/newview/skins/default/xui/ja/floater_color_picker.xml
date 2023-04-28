@@ -1,31 +1,35 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="ColorPicker" title="カラーピッカー">
-	<text name="r_val_text">
-		赤：
-	</text>
-	<text name="g_val_text">
-		緑：
-	</text>
-	<text name="b_val_text">
-		青：
-	</text>
-	<text name="h_val_text">
-		色相：
-	</text>
-	<text name="s_val_text">
-		色調：
-	</text>
-	<text name="l_val_text">
-		輝度：
-	</text>
-	<check_box label="すぐ適用" name="apply_immediate"/>
-	<button label="" label_selected="" name="color_pipette"/>
-	<button label="取り消し" label_selected="取り消し" name="cancel_btn"/>
-	<button label="OK" label_selected="OK" name="select_btn"/>
-	<text name="Current color:">
-		現在の色：
-	</text>
-	<text name="(Drag below to save.)">
-		（下にドラッグして保存）
-	</text>
+<floater legacy_header_height="18" can_minimize="false" height="405" layout="topleft" name="ColorPicker" help_topic="colorpicker" title="カラーピッカー" width="440">
+  <tab_container name="color_type_container" follows="left|top" layout="topleft" left="4" top="20" label_pad_left="6" width="130" tab_width="57" height="93">
+    <panel name="RGB" label="RGB" follows="left|top" layout="topleft">
+      <text type="string" length="1" follows="left|top" height="20" layout="topleft" left="5" mouse_opaque="false" name="r_val_text" top="3" width="60">赤：</text>
+      <spinner decimal_digits="0" follows="left|top" height="20" increment="1" initial_value="128" layout="topleft" left_delta="63" max_val="255" name="rspin" top_delta="0" width="50" />
+      <text type="string" length="1" follows="left|top" height="20" layout="topleft" left="5" mouse_opaque="false" name="g_val_text" width="60">緑：</text>
+      <spinner decimal_digits="0" follows="left|top" height="20" increment="1" initial_value="128" layout="topleft" left_delta="63" max_val="255" name="gspin" top_delta="0" width="50" />
+      <text type="string" length="1" follows="left|top" height="20" layout="topleft" left="5" mouse_opaque="false" name="b_val_text" width="60">青：</text>
+      <spinner decimal_digits="0" follows="left|top" height="20" increment="1" initial_value="128" layout="topleft" left_delta="63" max_val="255" name="bspin" top_delta="0" width="50" />
+    </panel>
+    <panel name="LSL" label="LSL" follows="left|top" layout="topleft">
+      <text type="string" length="1" follows="left|top" height="20" layout="topleft" left="5" mouse_opaque="false" name="r_val_text_float" top="3" width="60">赤：</text>
+      <spinner decimal_digits="3" follows="left|top" height="20" increment="0.01" initial_value="0.5" layout="topleft" left_delta="63" max_val="1.0" name="rspin_float" top_delta="0" width="50" />
+      <text type="string" length="1" follows="left|top" height="20" layout="topleft" left="5" mouse_opaque="false" name="g_val_text_float" width="60">緑：</text>
+      <spinner decimal_digits="3" follows="left|top" height="20" increment="0.01" initial_value="0.5" layout="topleft" left_delta="63" max_val="1.0" name="gspin_float" top_delta="0" width="50" />
+      <text type="string" length="1" follows="left|top" height="20" layout="topleft" left="5" mouse_opaque="false" name="b_val_text_float" width="60">青：</text>
+      <spinner decimal_digits="3" follows="left|top" height="20" increment="0.01" initial_value="0.5" layout="topleft" left_delta="63" max_val="1.0" name="bspin_float" top_delta="0" width="50" />
+    </panel>
+  </tab_container>
+  <text type="string" length="1" follows="left|top" height="20" layout="topleft" left="10" top_pad="2" mouse_opaque="false" name="h_val_text" width="60">色相：</text>
+  <spinner decimal_digits="0" follows="left" height="20" increment="1" initial_value="180" layout="topleft" left_delta="63" max_val="360" name="hspin" top_delta="0" width="50" />
+  <text type="string" length="1" follows="left|top" height="20" layout="topleft" left="10" mouse_opaque="false" name="s_val_text" width="60">彩度：</text>
+  <spinner decimal_digits="0" follows="left" height="20" increment="1" initial_value="50" layout="topleft" left_delta="63" max_val="100" name="sspin" top_delta="0" width="50" />
+  <text type="string" length="1" follows="left|top" height="20" layout="topleft" left="10" mouse_opaque="false" name="l_val_text" width="60">輝度：</text>
+  <spinner decimal_digits="0" follows="left" height="20" increment="1" initial_value="50" layout="topleft" left_delta="63" max_val="100" name="lspin" top_delta="0" width="50" />
+  <text type="string" length="1" follows="left|top" height="20" layout="topleft" left="10" top_pad="5" name="hex_text" width="60">Hex #</text>
+  <line_editor default_text="808080" layout="topleft" follows="left" font="Monospace" name="hex_value" max_length_bytes="6" left_delta="63" top_delta="0" height="20" width="50"/>
+  <check_box follows="left|bottom" height="20" label="すぐ適用" layout="topleft" left="10" name="apply_immediate" top_pad="170" width="100" />
+  <button follows="left|bottom" height="28" image_selected="eye_button_active.tga" image_unselected="eye_button_inactive.tga" layout="topleft" left_pad="50" name="color_pipette" width="28" />
+  <button follows="right|bottom" height="23" label="OK" label_selected="OK" layout="topleft" right="-120" top_delta="5" name="select_btn" width="100" />
+  <button follows="right|bottom" height="23" label="キャンセル" label_selected="キャンセル" layout="topleft" left_pad="5" right="-10" name="cancel_btn" width="100" />
+  <text tool_tip="パレットの下にドラッグして保存" length="1" follows="left|top" height="16" layout="topleft" left="10" name="Current color:" top="215" width="94">現在の色：</text>
+  <menu_button menu_filename="menu_copy_color_picker.xml" follows="top|left" height="11" image_disabled="ClipboardSmallMenu_Disabled" image_selected="ClipboardSmallMenu_Press" image_unselected="ClipboardSmallMenu_Off" layout="topleft" left_pad="0" top_delta="0" name="clipboard_color" tool_tip="Color copy options" width="19"/>
 </floater>

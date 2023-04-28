@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel layout="topleft" follows="top|right|left" width="300" height="38" name="music_ticker">
+  <string name="paused">（何も再生されていません）</string>
+  <string name="loading">（読み込んでいます…）</string>
+  <icon top="19" color="AlAshGrey" follows="left|top|right" height="1" layout="topleft" image_name="white.tga" left="0" mouse_opaque="false" name="ticker_background" width="244" />
+  <locate top="0" bottom="-1" left="244" name="visualizer_box" width="60" follows="top|right" use_bounding_rect="true" layout="topleft"/>
+  <icon top="0" bottom="-1" color="AlAshGrey" follows="top|right" layout="topleft" image_name="Ticker_Grid" left="244" mouse_opaque="false" name="visualizer_grid" width="60" />
+  <text text_color="AlBlue" bg_visible="false" border_visible="false" layout="topleft" top="0" follows="top|left" font="SansSerifBold" h_pad="0" halign="left" height="16" left="4" mouse_opaque="false" name="artist_label" v_pad="0" width="50">アーティスト：</text>
+  <text bg_visible="false" border_visible="false" layout="topleft" top="0" follows="top|left|right" font="SansSerifBold" h_pad="0" halign="left" height="16" left="50" mouse_opaque="false" name="artist_text" v_pad="0" width="193">
+  </text>
+  <text text_color="AlBlue" bg_visible="false" border_visible="false" layout="topleft" top="19" follows="top|left" font="SansSerifBold" h_pad="0" halign="left" height="16" left="4" mouse_opaque="false" name="title_label" v_pad="0" width="50">タイトル：</text>
+  <text bg_visible="false" border_visible="false" layout="topleft" top="19" follows="top|left|right" font="SansSerifBold" h_pad="0" halign="left" height="16" left="50" mouse_opaque="false" name="title_text" v_pad="0" width="193">
+  </text>
+</panel>

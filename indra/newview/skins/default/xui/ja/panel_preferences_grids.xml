@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel border="true" follows="left|top|right|bottom" height="408" label="Grids" layout="topleft" left="102" name="grids" top="1" width="517">
+  <text type="string" length="1" follows="left|top" height="12" layout="topleft" left="30" name="add_grid_text" top="12" width="400">新しいグリッドを追加：</text>
+  <line_editor border_style="line" border_thickness="1" follows="left|top" font="SansSerif" height="19" layout="topleft" left="50" max_length_chars="4096" name="add_grid" top_pad="8" label="ログインURIを入力" width="320" />
+  <button layout="topleft" follows="left|top" height="19" label="追加" left_pad="2" name="add_grid_commit" top_delta="0" width="50">
+    <button.commit_callback function="Pref.AddGrid" />
+  </button>
+  <text type="string" length="1" layout="topleft" follows="left|top" height="12" left="30" name="manage_grid_text" top_pad="4" width="400">グリッド管理：</text>
+  <scroll_list layout="topleft" follows="left|top" height="225" left="50" name="grid_list" draw_heading="true" top_pad="8" width="370">
+    <scroll_list.columns label="Grid name" name="grid_label" width="150" />
+    <scroll_list.columns dynamic_width="true" label="ログインURI" name="login_uri" />
+    <scroll_list.commit_callback function="Pref.SelectGrid" />
+  </scroll_list>
+  <button enabled="false" layout="topleft" follows="left|top" height="19" label="アクティベート" left_pad="5" name="activate_grid" top_delta="5" width="75">
+    <button.commit_callback function="Pref.ActivateGrid" />
+  </button>
+  <button enabled="false" layout="topleft" follows="left|top" height="19" label="リフレッシュ" left_delta="0" name="refresh_grid" top_pad="5" width="75">
+    <button.commit_callback function="Pref.RefreshGrid" />
+  </button>
+  <button enabled="false" layout="topleft" follows="left|top" height="19" label="削除" left_delta="0" name="remove_grid" top_pad="5" width="75">
+    <button.commit_callback function="Pref.RemoveGrid" />
+  </button>
+  <button enabled="false" layout="topleft" follows="left|top" height="19" label="デバッグ" left_delta="0" name="debug_grid" top_pad="5" width="75">
+    <button.commit_callback function="Pref.DebugGrid" />
+  </button>
+  <check_box control_name="ForceShowGrid" height="20" layout="topleft" follows="left|top" label="ログイン時にグリッド選択を表示" left="30" name="show_grid_selection_check" tool_tip="ログイン画面にグリッド選択を表示して、他のワールドにログインします。" width="280" top="310" />
+</panel>

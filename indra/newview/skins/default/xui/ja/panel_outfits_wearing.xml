@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="Wearing">
-	<panel.string name="no_attachments">
-		着用しているアタッチメントはありません。
-	</panel.string>
-	<accordion name="wearables_accordion">
-		<accordion_tab name="tab_wearables" title="着用物"/>
-		<accordion_tab name="tab_temp_attachments" title="一時的なアタッチメント"/>
-	</accordion>
-	<panel name="bottom_panel">
-		<menu_button name="options_gear_btn" tool_tip="オプションを表示します"/>
-	</panel>
+<panel background_visible="true" bg_alpha_color="DkGray" follows="all" height="430" layout="topleft" left="0" name="Wearing" top="0" width="312">
+  <panel.string name="no_attachments">着用しているアタッチメントはありません。</panel.string>
+  <accordion fit_parent="true" follows="all" height="400" layout="topleft" left="0" single_expansion="true" top="0" name="wearables_accordion" background_visible="true" bg_alpha_color="DkGray2" width="309">
+    <accordion_tab layout="topleft" name="tab_wearables" title="着用物">
+      <wearable_items_list follows="all" height="400" layout="topleft" left="3" multi_select="true" name="cof_items_list" show_item_widgets="true" standalone="false" top="0" width="309" worn_indication_enabled="false" />
+    </accordion_tab>
+    <accordion_tab layout="topleft" name="tab_temp_attachments" title="一時的なアタッチメント">
+      <scroll_list draw_heading="false" left="3" width="309" height="400" follows="all" name="temp_attachments_list">
+        <scroll_list.columns name="icon" width="15" />
+        <scroll_list.columns name="text" width="210" />
+      </scroll_list>
+    </accordion_tab>
+  </accordion>
+  <panel background_visible="true" follows="bottom|left|right" height="28" layout="topleft" left="4" name="bottom_panel" top_pad="0" width="312">
+    <menu_button follows="bottom|left" height="25" image_hover_unselected="Toolbar_Left_Over" image_overlay="OptionsMenu_Off" image_selected="Toolbar_Left_Selected" image_unselected="Toolbar_Left_Off" layout="topleft" left="0" name="options_gear_btn" tool_tip="オプションを表示します。" top="1" width="31" />
+    <icon follows="bottom|left|right" height="25" image_name="Toolbar_Right_Off" layout="topleft" left_pad="1" name="dummy_icon" width="274" />
+  </panel>
 </panel>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater legacy_header_height="18" single_instance="true" can_resize="true" height="590" min_height="135" min_width="430" layout="topleft" name="search" save_rect="true" title="SEARCH" width="602">
+  <floater.string name="not_found">「[TEXT]」は見つかりませんでした。</floater.string>
+  <floater.string name="no_results">結果なし</floater.string>
+  <floater.string name="result_spillover">[TOTAL]件以上のうち[VISIBLE_BEGIN]～[VISIBLE_END]件を表示しています。</floater.string>
+  <floater.string name="result_count">全[TOTAL]件ヒットしました。</floater.string>
+  <floater.string name="searching">検索中…</floater.string>
+  <floater.string name="all_categories">すべてのカテゴリ</floater.string>
+  <floater.string name="search_banned">コミュニティ規定で明確にされているコンテンツ制限により、検索クエリの一部の用語が除外されました。</floater.string>
+  <floater.string name="search_short">検索キーワードが短すぎたため、検索は実行されませんでした。</floater.string>
+  <floater.string name="search_disabled">このリージョン（地域）ではディレクトリ検索が無効になっています。</floater.string>
+  <floater.string name="search_no_date_offset">検索語句に日付のオフセットがありませんでした。</floater.string>
+  <floater.string name="search_no_catgory">検索語句にカテゴリがありません。</floater.string>
+  <floater.string name="search_no_query">検索語句にクエリ文字列がありませんでした。</floater.string>
+  <tab_container border="true" follows="all" top="16" left="0" height="573" width="602" name="search_tabs" tab_min_width="70" tab_position="top">
+    <panel border="false" label="人" filename="panel_search_people.xml" class="panel_search_people" name="panel_search_people" follows="left|top|right" layout="topleft" left="0" top="0" bottom="-16" />
+    <panel border="false" label="グループ" filename="panel_search_groups.xml" class="panel_search_groups" name="panel_search_groups" follows="left|top|right" layout="topleft" left="0" top="0" bottom="-1" />
+    <panel border="false" label="場所" filename="panel_search_places.xml" class="panel_search_places" name="panel_search_places" follows="left|top|right" layout="topleft" left="0" top="0" bottom="-1" />
+    <panel border="false" label="ランド" filename="panel_search_landsales.xml" class="panel_search_landsales" name="panel_search_landsales" follows="left|top|right" layout="topleft" left="0" top="0" bottom="-1" />
+    <panel border="false" label="イベント" filename="panel_search_events.xml" class="panel_search_events" name="panel_search_events" follows="left|top|right" layout="topleft" left="0" top="0" bottom="-1" />
+    <panel border="false" label="クラシファイド" filename="panel_search_classifieds.xml" class="panel_search_classifieds" name="panel_search_classifieds" follows="left|top|right" layout="topleft" left="0" top="0" bottom="-1" />
+    <panel border="false" label="AltaVista" filename="panel_search_web.xml" class="panel_search_web" name="panel_search_web" follows="all" layout="topleft" left="0" top="0" bottom="-1" />
+  </tab_container>
+  <layout_stack follows="all" animate="false" top="86" height="480" left="0" right="-1" drag_handle_gap="2" drag_handle_first_indent="1" drag_handle_second_indent="1" layout="topleft" name="results_stack" orientation="horizontal" show_drag_handle="true">
+    <layout_panel border="true" auto_resize="true" user_resize="true" layout="topleft" top="0" left="0" width="300" bottom="-1" min_height="10" name="results_lp">
+      <scroll_list layout="topleft" top="1" left="2" width="300" bottom="-1" column_padding="0" draw_heading="true" follows="left|right|top|bottom" multi_select="true" name="results" search_column="0" />
+    </layout_panel>
+    <layout_panel border="true" auto_resize="true" user_resize="true" layout="topleft" top="0" bottom="-1" left="405" width="313" min_height="10" name="detail_lp">
+      <panel follows="all" name="detail_avatar" top="0" bottom="-1" left="0" width="313" class="panel_profile_legacy_sidetray" filename="panel_profile_legacy_sidetray.xml" />
+      <panel follows="all" name="detail_group" top="0" bottom="-1" left="0" width="313" class="panel_group_info_sidetray" filename="panel_group_info_sidetray.xml" />
+      <panel follows="all" name="detail_place" top="0" bottom="-1" left="0" width="313" class="panel_places" filename="panel_places.xml" />
+      <panel follows="all" name="detail_event" top="0" bottom="-1" left="0" width="313" class="panel_event_info" filename="panel_event_info.xml" />
+      <panel follows="all" name="detail_classified" top="0" bottom="-1" left="0" width="313" class="panel_classified_info" filename="panel_classified_info.xml" />
+    </layout_panel>
+  </layout_stack>
+  <text follows="bottom|left" height="16" layout="topleft" left="4" name="results_status" top_pad="3" value="[TOTAL]件" width="205" />
+  <button follows="bottom|left" height="16" width="16" image_unselected="Arrow_Left" image_disabled="Arrow_Left_Off" image_disabled_selected="Arrow_Left_Off" image_selected="Arrow_Left" image_pressed="Arrow_Left" image_top_pad="0" layout="topleft" left_pad="5" name="PageDn" top_delta="0" />
+  <button follows="bottom|left" height="16" width="16" image_unselected="Arrow_Right" image_disabled="Arrow_Right_Off" image_disabled_selected="Arrow_Right_Off" image_selected="Arrow_Right" image_pressed="Arrow_Right" image_top_pad="0" layout="topleft" left_pad="5" name="PageUp" top_delta="0" />
+  <loading_indicator follows="bottom|right" height="16" layout="topleft" right="-4" name="loading" top_delta="0" width="16" />
+</floater>

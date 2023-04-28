@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater legacy_header_height="18" default_tab_group="1" height="110" layout="topleft" name="search replace" help_topic="search_replace" title="検索／置換" width="300">
+  <check_box control_name="LSLFindCaseInsensitivity" height="16" label="大文字小文字を区別しない" layout="topleft" left="55" name="case_text" top="61" width="120" />
+  <check_box control_name="LSLFindDirection" height="16" label="Search Up" layout="topleft" left_pad="0" name="find_previous" top="61" width="120" />
+  <panel background_visible="false" follows="left|right|bottom" height="25" label="bottom_panel" layout="topleft" left="6" name="bottom_panel" top_pad="2">
+    <button image_hover_unselected="Toolbar_Left_Over" image_selected="Toolbar_Left_Selected" image_unselected="Toolbar_Left_Off" label="検索" left="0" name="search_btn" top="1" width="95" />
+    <button image_hover_unselected="Toolbar_Middle_Over" image_selected="Toolbar_Middle_Selected" image_unselected="Toolbar_Middle_Off" label="置換" left_pad="1" name="replace_btn" top="1" width="95" />
+    <button image_hover_unselected="Toolbar_Right_Over" image_selected="Toolbar_Right_Selected" image_unselected="Toolbar_Right_Off" label="全て置換" left_pad="1" name="replace_all_btn" top="1" width="95" />
+  </panel>
+  <text type="string" length="1" follows="left|top" height="16" layout="topleft" left="5" name="txt" top="21" width="45">検索</text>
+  <text type="string" length="1" follows="left|top" height="16" layout="topleft" left_delta="0" name="txt2" top_pad="5" width="45">置換</text>
+  <line_editor border_style="line" border_thickness="1" follows="left|top" height="16" layout="topleft" left="55" name="search_text" tab_group="1" top="21" width="240" />
+  <line_editor border_style="line" border_thickness="1" follows="left|top" height="16" layout="topleft" left_delta="0" name="replace_text" top_pad="5" width="240" />
+</floater>

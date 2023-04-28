@@ -1,8 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="menu_gear_default">
-	<menu_item_call label="着用中のアウトフィットを入れ替える" name="wear"/>
-	<menu_item_call label="着用中のアウトフィットから取り除く" name="remove"/>
-	<menu_item_call label="名前の変更" name="rename"/>
-	<menu_item_call label="リンクを外す" name="remove_link"/>
-	<menu_item_call label="アウトフィットを削除する" name="delete"/>
+<menu bottom="806" layout="topleft" left="0" mouse_opaque="false" name="menu_gear_default" visible="false">
+  <menu_item_call label="この衣装に着替える" layout="topleft" name="wear">
+    <on_click function="panel_outfits_inventory_gear_default.Custom.Action" parameter="wear" />
+    <on_enable function="panel_outfits_inventory_gear_default.Enable" parameter="wear" />
+  </menu_item_call>
+  <menu_item_call label="この衣装から取り除く" layout="topleft" name="remove">
+    <on_click function="panel_outfits_inventory_gear_default.Custom.Action" parameter="remove" />
+    <on_enable function="panel_outfits_inventory_gear_default.Enable" parameter="remove" />
+  </menu_item_call>
+  <menu_item_separator layout="topleft" name="Outfits Gear Separator" />
+  <menu_item_call label="名前変更" layout="topleft" name="rename">
+    <on_click function="panel_outfits_inventory_gear_default.Custom.Action" parameter="rename" />
+    <on_enable function="panel_outfits_inventory_gear_default.Enable" parameter="rename" />
+  </menu_item_call>
+  <menu_item_call label="リンクを外す" layout="topleft" name="remove_link">
+    <on_click function="panel_outfits_inventory_gear_default.Custom.Action" parameter="remove_link" />
+    <on_enable function="panel_outfits_inventory_gear_default.Enable" parameter="remove_link" />
+  </menu_item_call>
+  <menu_item_call label="衣装を削除する" layout="topleft" name="delete">
+    <on_click function="panel_outfits_inventory_gear_default.Custom.Action" parameter="delete" />
+    <on_enable function="panel_outfits_inventory_gear_default.Enable" parameter="delete_outfit" />
+  </menu_item_call>
 </menu>

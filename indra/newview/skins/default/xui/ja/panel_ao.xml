@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="animation_overrider_outer_panel" left="0" top="0" width="200" height="334" follows="all" visible="true" layout="topleft">
+  <!-- Main Panel -->
+  <panel name="animation_overrider_panel" left="10" top="4" width="180" height="320" follows="all" visible="true" layout="topleft">
+    <check_box name="ao_enable" label="AOを有効化" tool_tip="アニメーションオーバーライドを有効化／無効化する。" control_name="AlchemyAOEnable" left="0" top="4" width="20" height="20" follows="left|top" layout="topleft" />
+    <combo_box name="ao_set_selection_combo" tool_tip="編集するアニメーションセットを選択します。" left="0" top_pad="2" right="-24" height="20" allow_text_entry="true" max_chars="256" follows="left|right|top" layout="topleft">
+      <combo_box.commit_callback function="AO.SelectSet" />
+    </combo_box>
+    <button name="ao_activate" tool_tip="このアニメーションセットを今すぐアクティブにします。" left_pad="4" width="20" height="20" follows="right|top" layout="topleft">
+      <button.commit_callback function="AO.ActivateSet" />
+    </button>
+    <icon left_delta="4" top_delta="4" width="12" height="12" image_name="Activate_Checkmark" follows="right|top" layout="topleft" />
+    <check_box name="ao_default" label="Default" tool_tip="このアニメーションセットを、ログイン時に再生されるデフォルトのセットにします。" left="0" top_pad="8" width="20" height="20" follows="left|top" layout="topleft">
+      <check_box.commit_callback function="AO.SetDefault" />
+    </check_box>
+    <button name="ao_add" tool_tip="新しいアニメーションセットを作成します。" top_delta="0" right="-24" width="20" height="20" image_overlay="AddItem_Press" follows="right|top" layout="topleft">
+      <button.commit_callback function="AO.AddSet" />
+    </button>
+    <button name="ao_remove" tool_tip="このアニメーションセットを削除します。" left_pad="4" width="20" height="20" image_overlay="TrashItem_Press" follows="right|top" layout="topleft">
+      <button.commit_callback function="AO.RemoveSet" />
+    </button>
+    <check_box name="ao_sit_override" label="Override Sits" tool_tip="座ったときのアニメーションのオーバーライドが必要な場合は、これをオンにします。" left="0" top_pad="4" width="100" height="16" follows="left|top" layout="topleft">
+      <check_box.commit_callback function="AO.SetSitOverride" />
+    </check_box>
+    <check_box name="ao_smart" label="Be smart" tool_tip="スマートモードは、座るオーバーライドがオブジェクト自体のアニメーションと衝突するかどうかを判断しようとし、オーバーライド機能を一時的に無効にします。" left_pad="4" right="-1" height="16" follows="left|top" layout="topleft">
+      <check_box.commit_callback function="AO.SetSmart" />
+    </check_box>
+    <check_box name="ao_disable_stands_in_mouselook" label="マウスルックでスタンドを無効にする" tool_tip="カスタムスタンドアニメーションをマウスルックに保持する必要がある場合は、このボックスをオンにします。" left="0" top_pad="4" width="100" height="16" follows="left|top" layout="topleft">
+      <check_box.commit_callback function="AO.DisableStandsML" />
+    </check_box>
+    <combo_box name="ao_state_selection_combo" tool_tip="編集したいアニメーションステートを選択します。" left="0" top_pad="4" right="-1" height="20" follows="left|right|top" layout="topleft">
+      <combo_box.commit_callback function="AO.SelectState" />
+    </combo_box>
+    <scroll_list name="ao_state_animation_list" top_pad="4" right="-24" height="98" multi_select="true" follows="all" layout="topleft">
+      <scroll_list.columns name="icon" dynamic_width="false" width="20" />
+      <scroll_list.columns name="animation_name" dynamic_width="true" />
+      <scroll_list.commit_callback function="AO.SelectAnim" />
+    </scroll_list>
+    <panel name="ao_animation_move_trash_panel" left_pad="4" right="-1" height="98" follows="right|top|bottom" layout="topleft">
+      <button name="ao_move_up" tool_tip="選択したアニメーションをリストの上に移動します。" left="0" top="0" width="20" height="32" image_overlay="Arrow_Up" follows="left|top" layout="topleft">
+        <button.commit_callback function="AO.MoveAnimUp" />
+      </button>
+      <button name="ao_move_down" tool_tip="選択したアニメーションをリストの下に移動します。" top_pad="4" width="20" height="32" image_overlay="Arrow_Down" follows="left|top" layout="topleft">
+        <button.commit_callback function="AO.MoveAnimDown" />
+      </button>
+      <button name="ao_trash" tool_tip="選択したアニメーションをリストから削除します。" left_delta="0" bottom="-1" width="20" height="20" image_overlay="TrashItem_Press" follows="left|bottom" layout="topleft">
+        <button.commit_callback function="AO.RemoveAnim" />
+      </button>
+    </panel>
+    <check_box name="ao_cycle" label="サイクル" tool_tip="アニメーション状態が呼び出されるたびに、リストから別のアニメーションを再生します。" left="0" top_pad="4" width="55" height="16" follows="left|bottom" layout="topleft">
+      <check_box.commit_callback function="AO.SetCycle" />
+    </check_box>
+    <check_box name="ao_randomize" label="順番をランダマイズ" tool_tip="サイクル モードでアニメーションの順序をランダム化します。" left_pad="4" width="100" height="16" follows="left|bottom" layout="topleft">
+      <check_box.commit_callback function="AO.SetRandomize" />
+    </check_box>
+    <text name="ao_cycle_time_seconds_label" value="サイクルタイム（秒）：" left="0" top_pad="4" width="120" follows="left|right|bottom" layout="topleft" />
+    <spinner name="ao_cycle_time" tool_tip="リスト内の次のアニメーションに切り替えるまでの時間。自動アニメーションサイクリングを無効にするには、これを0に設定します。" top_delta="-6" left_pad="8" height="16" right="-1" decimal_digits="0" initial_value="0" min_val="0" max_val="999" increment="1" follows="right|bottom" layout="topleft">
+      <spinner.commit_callback function="AO.SetCycleTime" />
+    </spinner>
+    <button name="ao_reload" label="リロード" tool_tip="アニメーション オーバーライド設定をリロードします。" left="0" top_pad="8" right="-1" height="20" follows="left|right|bottom" layout="topleft">
+      <button.commit_callback function="AO.Reload" />
+    </button>
+    <layout_stack name="next_previous_buttons_stack" left="0" top_pad="4" right="-1" height="20" orientation="horizontal" follows="left|right|bottom" layout="topleft">
+      <layout_panel name="next_previous_buttons_stack_left" width="90" height="20" user_resize="false" follows="all" layout="topleft">
+        <button name="ao_previous" image_overlay="BackArrow_Off" tool_tip="現在の状態の前のアニメーションに切り替えます。" left="0" top="0" width="90" height="20" follows="all" layout="topleft">
+          <button.commit_callback function="AO.PrevAnim" />
+        </button>
+      </layout_panel>
+      <layout_panel name="next_previous_buttons_stack_right" width="90" height="20" user_resize="false" follows="all" layout="topleft">
+        <button name="ao_next" image_overlay="ForwardArrow_Off" tool_tip="現在の状態の次のアニメーションに切り替えます。" left="2" top="0" width="90" height="20" follows="all" layout="topleft">
+          <button.commit_callback function="AO.NextAnim" />
+        </button>
+      </layout_panel>
+    </layout_stack>
+  </panel>
+  <!-- Cute Reload Cover Panel -->
+  <panel name="ao_reload_cover" left="0" top="0" width="200" height="325" follows="all" visible="false" bg_alpha_color="Black_50" bg_opaque_color="Black_50" background_visible="true" background_opaque="true" mouse_opaque="true" layout="topleft">
+    <panel name="ao_reload_text_panel" left="30" top="110" right="-30" bottom="-110" bg_alpha_color="Black_50" bg_opaque_color="Black_50" background_visible="true" background_opaque="true" follows="left|right|top">
+      <view_border name="ao_reload_view_border" left="0" top="0" right="-1" bottom="-1" follows="all" />
+      <text name="reload_label" left_delta="0" top_delta="16" halign="center" valign="center" follows="all">設定をリロードしています。</text>
+      <text name="wait_label" v_pad="-4" bottom="-16" halign="center" valign="center" follows="all">しばらくお待ち下さい。</text>
+      <layout_stack name="ao_reload_indicator_layout_stack" left="0" top="31" right="-1" height="32" orientation="horizontal" follows="top|left|right">
+        <layout_panel name="ao_reload_indicator_left_layout_panel" width="160" height="32" auto_resize="true" user_resize="false">
+        </layout_panel>
+        <layout_panel name="ao_reload_indicator_layout_panel" width="32" height="32" auto_resize="false" user_resize="false">
+          <loading_indicator left="0" top="0" width="32" height="32" follows="right|top" name="ao_reload_indicator" />
+        </layout_panel>
+        <layout_panel name="ao_reload_indicator_right_layout_panel" width="160" height="32" auto_resize="true" user_resize="false">
+        </layout_panel>
+      </layout_stack>
+    </panel>
+  </panel>
+</panel>

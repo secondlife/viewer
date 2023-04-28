@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel height="25" layout="topleft" name="panel_hide_beacon" mouse_opaque="false" visible="true" width="133">
+  <button follows="left|bottom" height="19" label="ビーコンを隠す" layout="topleft" left="10" name="hide_beacon_btn" tool_tip="トラッキングを停止してビーコンを隠す。" top="2" visible="false" width="113" />
+</panel>

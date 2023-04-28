@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater positioning="cascading" can_close="true" can_resize="true" height="580" min_height="350" min_width="260" layout="topleft" name="floater_profile_legacy" save_rect="true" title="プロフィール" width="370">
+  <panel class="panel_profile_legacy_sidetray" name="panel_profile_legacy_sidetray" filename="panel_profile_legacy_sidetray.xml" label="プロフィール" font="SansSerifBold" follows="all" layout="topleft" min_height="350" left="1" right="-1" top="0" bottom="-8"/>
+</floater>
