@@ -257,10 +257,12 @@ set(viewer_SOURCE_FILES
     llfloaterpathfindinglinksets.cpp
     llfloaterpathfindingobjects.cpp
     llfloaterpay.cpp
+    llfloaterperformance.cpp
     llfloaterperms.cpp
     llfloaterpostprocess.cpp
     llfloaterprofile.cpp
     llfloaterpreference.cpp
+    llfloaterpreferencesgraphicsadvanced.cpp
     llfloaterpreferenceviewadvanced.cpp
     llfloaterpreviewtrash.cpp
     llfloaterprofiletexture.cpp
@@ -904,10 +906,12 @@ set(viewer_HEADER_FILES
     llfloaterpathfindinglinksets.h
     llfloaterpathfindingobjects.h
     llfloaterpay.h
+    llfloaterperformance.h
     llfloaterperms.h
     llfloaterpostprocess.h
     llfloaterprofile.h
     llfloaterpreference.h
+    llfloaterpreferencesgraphicsadvanced.h
     llfloaterpreferenceviewadvanced.h
     llfloaterpreviewtrash.h
     llfloaterprofiletexture.h
@@ -1349,6 +1353,9 @@ set(viewer_HEADER_FILES
     VertexCache.h
     VorbisFramework.h
     )
+
+  list(APPEND viewer_SOURCE_FILES llperfstats.cpp)
+  list(APPEND viewer_HEADER_FILES llperfstats.h)
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
 

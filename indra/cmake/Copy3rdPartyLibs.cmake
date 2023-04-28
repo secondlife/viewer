@@ -220,6 +220,7 @@ elseif(LINUX)
                  libfreetype.so.6.6.2
                  libfreetype.so.6
                  libhunspell-1.3.so.0.0.0
+                 libopenjp2.so
                  libuuid.so.16
                  libuuid.so.16.0.22
                  libfontconfig.so.1.8.0
@@ -295,6 +296,6 @@ if(DARWIN)
     # that end up in any of the above SHARED_LIB_STAGING_DIR_MUMBLE
     # directories.
     add_custom_command( TARGET stage_third_party_libs POST_BUILD
-            COMMAND cmake -E create_symlink ${SHARED_LIB_STAGING_DIR} ${CMAKE_BINARY_DIR}/sharedlibs/Resources
+            COMMAND ${CMAKE_COMMAND} -E create_symlink ${SHARED_LIB_STAGING_DIR} ${CMAKE_BINARY_DIR}/sharedlibs/Resources
             )
 endif()

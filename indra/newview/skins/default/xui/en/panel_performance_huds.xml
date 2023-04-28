@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ bevel_style="none"
+ follows="left|top"
+ height="580"
+ width="580"
+ name="panel_performance_huds"
+ layout="topleft"
+ left="0"
+ top="0">
+  <button
+    height="16"
+    width="16"
+    layout="topleft"
+    mouse_opaque="true"
+    follows="left|top"
+    name="back_btn"
+    top="7"
+    image_selected="Arrow_Left_Off"
+    image_pressed="Arrow_Left_Off"
+    image_unselected="Arrow_Left_Off"
+    left="15"
+    is_toggle="true">
+  </button>
+  <text
+   follows="left|top"
+   height="18"
+   layout="topleft"
+   left_pad="0"
+   valign="center"
+   halign="center"
+   top="6"
+   name="back_lbl"
+   width="32">
+    Back
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifLarge"
+   text_color="White"
+   height="20"
+   layout="topleft"
+   left="20"
+   top_pad="15"
+   name="huds_title"
+   width="135">
+    Your active HUDs
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   text_color="White"
+   height="18"
+   layout="topleft"
+   top_pad="5"
+   left="20"
+   name="huds_desc1"
+   width="540">
+    Detaching HUDs you aren't using saves memory and can make Second Life run faster.
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   text_color="White"
+   height="18"
+   layout="topleft"
+   top_pad="3"
+   left="20"
+   name="huds_desc2"
+   width="540">
+    Note: Using a HUD's minimize button does not detach it. 
+  </text>
+  <name_list
+    column_padding="0"
+    draw_stripes="true"
+    height="450"
+    follows="left|top"
+    layout="topleft"
+    name="hud_list"
+    top_pad="10"
+    width="540">
+        <name_list.columns
+         label=""
+         name="complex_visual"
+         width="90" />
+        <name_list.columns
+         label=""
+         name="complex_value"
+         width="40" />
+        <name_list.columns
+         label=""
+         name="name"/>
+  </name_list>
+</panel>
+

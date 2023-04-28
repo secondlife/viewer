@@ -49,6 +49,7 @@
 #include "llspatialpartition.h"
 #include "llglcommonfunc.h"
 #include "llvoavatar.h"
+#include "llperfstats.h"
 
 #include "llenvironment.h"
 
@@ -348,9 +349,21 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
             {
                 LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA+pass]; // <-- hacky + pass to use PASS_ALPHA_RIGGED on second pass 
 
+                std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{}; // Render time Stats collection
                 for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)
                 {
                     LLDrawInfo& params = **k;
+
+# if 0 // TODO SL-19656 figure out how to reenable trackAttachments()
+                    if(params.mFace)
+                    {
+                        LLViewerObject* vobj = (LLViewerObject *)params.mFace->getViewerObject();
+                        if(vobj->isAttachment())
+                        {
+                            trackAttachments( vobj, params.mFace->isState(LLFace::RIGGED), &ratPtr );
+                        }
+                    }
+#endif
 
                     bool rigged = (params.mAvatar != nullptr);
                     gHighlightProgram.bind(rigged);
@@ -535,8 +548,18 @@ void LLDrawPoolAlpha::renderRiggedEmissives(std::vector<LLDrawInfo*>& emissives)
     LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
 
+    std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{}; // Render time Stats collection
     for (LLDrawInfo* draw : emissives)
     {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("Emissives");
+# if 0 // TODO SL-19656 figure out how to reenable trackAttachments()
+        auto vobj = draw->mFace?draw->mFace->getViewerObject():nullptr;
+        if(vobj && vobj->isAttachment())
+        {
+            trackAttachments( vobj, draw->mFace->isState(LLFace::RIGGED), &ratPtr );
+        }
+#endif
+
         bool tex_setup = TexSetup(draw, false);
         if (lastAvatar != draw->mAvatar || lastMeshId != draw->mSkinInfo->mHash)
         {
@@ -664,7 +687,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
 			LLSpatialGroup::drawmap_elem_t& draw_info = rigged ? group->mDrawMap[LLRenderPass::PASS_ALPHA_RIGGED] : group->mDrawMap[LLRenderPass::PASS_ALPHA];
 
-			for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
+            std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{}; // Render time Stats collection
+            for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
 			{
 				LLDrawInfo& params = **k;
                 if ((bool)params.mAvatar != rigged)
@@ -675,6 +699,18 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                 LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("ra - push batch");
 
                 LLRenderPass::applyModelMatrix(params);
+
+# if 0 // TODO SL-19656 figure out how to reenable trackAttachments()
+                if(params.mFace)
+                {
+                    LLViewerObject* vobj = (LLViewerObject *)params.mFace->getViewerObject();
+
+                    if(vobj->isAttachment())
+                    {
+                        trackAttachments( vobj, params.mFace->isState(LLFace::RIGGED), &ratPtr );
+                    }
+                }
+#endif
 
                 LLMaterial* mat = NULL;
                 LLGLTFMaterial *gltf_mat = params.mGLTFMaterial; 
@@ -868,6 +904,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 					gGL.matrixMode(LLRender::MM_MODELVIEW);
 				}
 			}
+
+            ratPtr.reset(); // force the final batch to terminate to avoid double counting on the subsidiary batches for FB and Emmissives
 
             // render emissive faces into alpha channel for bloom effects
             if (!depth_only)
