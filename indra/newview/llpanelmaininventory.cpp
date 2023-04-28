@@ -2211,6 +2211,9 @@ void LLPanelMainInventory::onCombinationRootChanged(bool gallery_clicked)
     }
     mForceShowInvLayout = false;
     updateTitle();
+
+    //force update scroll container
+    mCombinationInventoryPanel->reshape(getChild<LLUICtrl>("combination_view_inventory")->getRect().getWidth(), 1, true);
 }
 
 void LLPanelMainInventory::updateCombinationVisibility()
@@ -2250,8 +2253,8 @@ void LLPanelMainInventory::updateCombinationVisibility()
         }
 
         mCombinationScroller->reshape(llmax(inv_rect.getWidth(), galery_rect.getWidth()), inv_rect.getHeight() + galery_rect.getHeight(), true);
-        mCombinationGalleryPanel->handleReshape(galery_rect, false);
-        mCombinationInventoryPanel->handleReshape(inv_rect, false);
+        mCombinationGalleryPanel->setShape(galery_rect, false);
+        mCombinationInventoryPanel->setShape(inv_rect, false);
     }
 }
 
