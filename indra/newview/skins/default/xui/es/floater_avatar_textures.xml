@@ -1,16 +1,10 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <floater name="avatar_texture_debug" title="TEXTURAS DEL AVATAR">
-	<floater.string name="InvalidAvatar">
-		AVATAR NO VÁLIDO
-	</floater.string>
+	<floater.string name="InvalidAvatar">AVATAR NO VÁLIDO</floater.string>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text name="label">
-				Texturas obtenidas mediante bake
-			</text>
-			<text name="composite_label">
-				Texturas compuestas
-			</text>
+			<text name="label">Texturas obtenidas mediante bake</text>
+			<text name="composite_label">Texturas compuestas</text>
 			<button label="Volcar IDs a la consola" label_selected="Volcado" name="Dump"/>
 			<panel name="scroll_content_panel">
 				<texture_picker label="Pelo" name="hair-baked"/>
@@ -44,5 +38,21 @@
 				<texture_picker label="Falda" name="skirt"/>
 			</panel>
 		</panel>
+		<texture_picker name="upper_universal_tattoo" label="Tatuaje superior Unv"/>
+		<texture_picker name="aux1_tattoo" label="Tatuaje Auxiliar 1"/>
+		<texture_picker name="leftarm-baked" label="Brazo Izquierdo"/>
+		<texture_picker name="aux1-baked" label="AUXILIAR 1"/>
+		<texture_picker name="skirt_tattoo" label="Tatuaje de Falda"/>
+		<texture_picker name="aux2_tattoo" label="Tatuaje AUXILIAR 2"/>
+		<texture_picker name="eyes_tattoo" label="Tatuaje de Ojos"/>
+		<texture_picker name="head_universal_tattoo" label="Tatuaje Unv en la cabeza"/>
+		<texture_picker name="leftleg_tattoo" label="Tatuaje en la pierna izquierda"/>
+		<texture_picker name="aux3-baked" label="AUXILIAR 3"/>
+		<texture_picker name="hair_tattoo" label="Tatuaje de Cabello"/>
+		<texture_picker name="leftleg-baked" label="Pierna izquierda"/>
+		<texture_picker name="aux2-baked" label="AUXILIAR 2"/>
+		<texture_picker name="aux3_tattoo" label="Tatuaje AUXILIAR 3"/>
+		<texture_picker name="leftarm_tattoo" label="Tatuaje brazo izquierdo"/>
+		<texture_picker name="lower_universal_tattoo" label="Tatuaje Bajo Unv"/>
 	</scroll_container>
 </floater>

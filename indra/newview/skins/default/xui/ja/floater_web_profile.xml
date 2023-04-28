@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_web_profile"
+         help_topic="web_profile"
+         width="780"
+         height="775"
+         filename="floater_web_content.xml"/>

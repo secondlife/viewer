@@ -126,7 +126,7 @@ public:
 protected:
     typedef std::vector< std::pair<std::size_t, std::size_t> > EdgeList;
     typedef std::vector<std::size_t> VertexList;
-    VertexList topo_sort(int vertices, const EdgeList& edges) const;
+    VertexList topo_sort(size_t vertices, const EdgeList& edges) const;
 
     /**
      * refpair is specifically intended to capture a pair of references. This
@@ -539,7 +539,7 @@ public:
                 for (typename DepNodeMap::const_iterator nmi = mNodes.begin(), nmend = mNodes.end();
                      nmi != nmend; ++nmi)
                 {
-                    int thisnode = vmap[nmi->first];
+                    auto thisnode = vmap[nmi->first];
                     // after dependencies: build edges from the named node to this one
                     for (typename DepNode::dep_set::const_iterator ai = nmi->second.after.begin(),
                                                                    aend = nmi->second.after.end();

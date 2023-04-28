@@ -4,7 +4,7 @@
   <string name="skip_step">0.2</string>
   <layout_stack name="progress_indicator_area">
     <layout_panel name="media_progress_indicator">
-      <progress_bar name="media_progress_bar" tool_tip="ローディング" />
+      <progress_bar name="media_progress_bar" tool_tip="読み込んでいます…" />
     </layout_panel>
   </layout_stack>
   <layout_stack name="media_controls">
@@ -63,4 +63,5 @@
       <button name="new_window_btn" tool_tip="URL をブラウザで開く" />
     </layout_panel>
   </layout_stack>
+  <icon name="media_secure_lock_flag" tool_tip="安全なブラウジング" />
 </panel>

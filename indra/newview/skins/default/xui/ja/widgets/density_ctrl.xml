@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<densityctrl border="true" follows="all" label="Density" name="density_ctrl" layout="topleft" left="0" top="0" width="320" height="240">
+<densityctrl border="true" follows="all" label="密度" name="density_ctrl" layout="topleft" left="0" top="0" width="320" height="240">
   <text follows="left|top" height="11" layout="topleft" left="15" top_pad="-5" width="120">指数項</text>
   <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left="15" min_val="0" max_val="1" name="level_exponential" top_delta="15" width="200" can_edit_text="true"/>
 

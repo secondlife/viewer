@@ -6,5 +6,4 @@
     <text read_only="true" length="1" follows="left|top" left="1" height="10" layout="topleft" name="outfit_name" top="2" width="150" use_ellipses="true">Summer hipster, Pierce Pierce Pierce Pierce</text>
     <text read_only="true" length="1" follows="left|top" left="1" height="10" layout="topleft" name="outfit_worn_text" top="12" width="150">（着用中）</text>
   </panel>
-
 </panel>

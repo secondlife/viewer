@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<floater legacy_header_height="18" height="185" help_topic="floater_save_preset" layout="topleft" name="save_camera_preset" save_rect="true" title="Save Camera Preset" width="280">
+<floater legacy_header_height="18" height="185" help_topic="floater_save_preset" layout="topleft" name="save_camera_preset" save_rect="true" title="カメラプリセットの保存" width="280">
   <string name="btn_label_save">保存</string>
   <string name="btn_label_replace">置き換え</string>
   <radio_group height="85" layout="topleft" left="20" top="15" width="150" name="radio_save_preset">

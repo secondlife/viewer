@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<panel name="GroupCreation" label="Creacion de grupo">
+	<panel name="group_info_top">
+		<line_editor name="group_name_editor" label="Escribe el nuevo nombre de tu grupo aquí"/>
+	</panel>
+	<layout_panel name="group_info"/>
+	<layout_stack name="layout">
+		<texture_picker name="insignia" tool_tip="Haz click para seleccionar una fotografía"/>
+		<text_editor name="charter">Reglas del grupo</text_editor>
+		<button name="back" tool_tip="Regresar al listado de grupos"/>
+		<text name="info_deletion">Nota: luego de 7 días, un grupo sin miembros (además del creador) sera eliminado.</text>
+		<check_box name="check_enrollment_fee" label="Costo para unirse" tool_tip="Establece si debe solicitar un costo para el unirse al grupo"/>
+		<combo_box.item name="pg" label="Contenido general"/>
+		<scroll_list.rows name="basic" value="Basico (marcador de posición)"/>
+		<button name="btn_create" label="Crear un grupo por L$" tool_tip="Crear un grupo nuevo"/>
+		<text name="fee_information">El costo para la creación de grupos esta basado en tu nivel de membresía</text>
+		<scroll_list.rows name="premium" value="Premium (Marcador de posición)"/>
+		<check_box name="open_enrollement" label="Cualquiera se puede unir" tool_tip="Establece si este grupo permite que se unan nuevos miembros sin ser invitados."/>
+		<combo_item name="select_mature">-Seleccionar clasificacion de madurez-</combo_item>
+		<spinner name="spin_enrollment_fee" label="L$" tool_tip="Los miembros nuevos deben pagar esta cuota para unirse al grupo cuando la Cuota de Enrolamiento está seleccionada"/>
+		<combo_box.item name="mature" label="Moderar Contenido"/>
+	</layout_stack>
+	<layout_panel name="layout_crt"/>
+	<layout_stack name="button_row_ls"/>
+	<layout_panel name="create_actions"/>
+	<panel name="preferences_container"/>
+	<combo_box name="group_mature_check" tool_tip="Las clasificaciones de madurez designan el tipo de contenido y comportamientos permitidos en un grupo"/>
+	<scroll_list name="membership_list"/>
+	<layout_panel name="create_info"/>
+</panel>

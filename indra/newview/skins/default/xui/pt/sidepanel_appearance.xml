@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <panel label="Looks" name="appearance panel">
 	<string name="No Outfit" value="Nenhum"/>
 	<string name="Unsaved Changes" value="Mudanças não salvas"/>
@@ -7,10 +7,9 @@
 	<panel name="panel_currentlook">
 		<button label="E" name="editappearance_btn"/>
 		<button label="O" name="openoutfit_btn"/>
-		<text name="currentlook_status">
-			(Status)
-		</text>
+		<text name="currentlook_status">(Status)</text>
 		<button label="" name="edit_outfit_btn" tool_tip="Editar este look"/>
+		<text name="currentlook_name">MinhaRoupa Com um Nome muito Longo como ALCE</text>
 	</panel>
 	<filter_editor label="Filtrar looks" name="Filter"/>
 </panel>

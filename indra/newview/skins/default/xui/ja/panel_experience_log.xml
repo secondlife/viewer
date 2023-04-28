@@ -1,24 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="EVENTS">
-  <string name="no_events" value="イベントなし。" />
-  <string name="loading" value="ローディング…" />
-  <layout_stack>
-    <layout_panel>
-      <scroll_list name="experience_log_list">
-        <columns label="時間" name="time" />
-        <columns label="イベント" name="event" />
-        <columns label="体験" name="experience_name" />
-        <columns label="オブジェクト" name="object_name" />
+
+<panel layout="topleft" top="3" left="3" width="500" height="300" label="EVENTS" bg_opaque_color="0 0.5 0 0.3" follows="all">
+  <string name="no_events" value="イベントはありません。" />
+  <string name="loading" value="読み込んでいます…。" />
+  <layout_stack layout="topleft" top="0" left="4" right="-1" bottom="-4" orientation="vertical" follows="all">
+    <layout_panel layout="topleft" top="0" left="1" right="-1" height="250" follows="all">
+      <scroll_list draw_heading="true" left="1" right="-86" height="250" follows="all" name="experience_log_list">
+        <columns width="100" user_resize="true" name="time" label="時間" />
+        <columns width="100" user_resize="true" name="event" label="イベント" />
+        <columns width="100" user_resize="true" name="experience_name" label="体験" />
+        <columns width="100" user_resize="true" name="object_name" label="オブジェクト" />
       </scroll_list>
-      <button label="知らせる" name="btn_notify" />
-      <button label="プロフィール" name="btn_profile_xp" />
-      <button label="報告" name="btn_report_xp" />
+
+      <button layout="topleft" follows="top|right" name="btn_notify" label="通知" top_pad="-225" left_pad="5" right="-1" enabled="false" />
+
+      <button layout="topleft" follows="top|right" name="btn_profile_xp" label="プロフィール" top_pad="5" right="-1" enabled="false" />
+
+      <button layout="topleft" follows="top|right" name="btn_report_xp" label="報告" top_pad="5" right="-1" enabled="false" />
     </layout_panel>
-    <layout_panel name="button_panel">
-      <check_box label="すべてのイベント日数を通知" name="notify_all" />
-      <button label="クリア" name="btn_clear" />
-      <button label="&lt;" name="btn_prev" />
-      <button label="&gt;" name="btn_next" />
+    <layout_panel layout="topleft" top="0" left="1" right="-1" height="30" min_height="30" follows="all" name="button_panel" visible="true">
+      <check_box top="0" follows="top|left" height="26" label="すべてのイベント日数を通知" width="140" name="notify_all" />
+
+      <spinner top="5" control_name="LogDays" decimal_digits="0" follows="left|top" height="23" increment="1" initial_value="7" label_width="30" layout="topleft" left_pad="5" max_val="14" min_val="0" name="logsizespinner" width="40" />
+      <button top="5" left="280" layout="topleft" follows="top|left" name="btn_clear" label="クリア" width="80" enabled="false" />
+      <button top="5" layout="topleft" left_pad="5" width="20" follows="top|left" name="btn_prev" label="&lt;" enabled="false" />
+      <button top="5" layout="topleft" follows="top|left" name="btn_next" label="&gt;" left_pad="5" width="20" enabled="false" />
     </layout_panel>
   </layout_stack>
 </panel>

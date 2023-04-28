@@ -29,4 +29,9 @@
   <button name="set_voice_middlemouse_button" tool_tip="マウスの中央ボタンにリセット" />
   <button label="入力・出力機器" name="device_settings_btn" />
   <panel label="機器の設定" name="device_settings_panel" />
+  <combo_box name="media_auto_play_combo">
+    <item name="autoplay_enabled" label="再生する"/>
+    <item name="autoplay_ask" label="確認する"/>
+    <item name="autoplay_disabled" label="再生しない"/>
+  </combo_box>
 </panel>

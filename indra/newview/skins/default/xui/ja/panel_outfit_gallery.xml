@@ -2,7 +2,7 @@
 <panel background_visible="true" bg_alpha_color="DkGray" border="false" follows="all" height="430" name="衣装ギャラリー" layout="topleft" left="0" top="0" width="312">
   <string name="outfit_photo_string">"[OUTFIT_NAME]"の衣装の画像</string>
   <string name="no_outfits_msg">あなたはまだ衣装を持っていません。[secondlife:///app/search/all/ 検索]してみてください。</string>
-  <string name="no_matched_outfits_msg">お探しのものが見つかりませんでしたか？[secondlife:///app/search/all/[SEARCH_TERM]Search]してみてください。</string>
+  <string name="no_matched_outfits_msg">お探しのものが見つかりませんでしたか？[secondlife:///app/search/all/[SEARCH_TERM] 検索]してみてください。</string>
   <text type="string" clip_partial="false" follows="left|top|right" layout="topleft" left="13" name="no_outfits_txt" top="0" height="32" valign="center" parse_urls="true" wrap="true">検索中…</text>
   <scroll_container follows="all" height="400" width="312" layout="topleft" left="4" top="0" name="gallery_scroll_panel" opaque="false" top_pad="0">
     <!--outfit_gallery_item layout="topleft" left="10" name="preview_outfit1" height="175" width="150" follows="left|top"/-->

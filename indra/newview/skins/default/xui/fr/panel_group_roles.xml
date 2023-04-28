@@ -1,20 +1,12 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <panel label="Membres et rôles" name="roles_tab">
-	<panel.string name="default_needs_apply_text">
-		Certaines modifications n&apos;ont pas été enregistrées.
-	</panel.string>
-	<panel.string name="want_apply_text">
-		Voulez-vous enregistrer vos modifications ?
-	</panel.string>
+	<panel.string name="default_needs_apply_text">Certaines modifications n'ont pas été enregistrées.</panel.string>
+	<panel.string name="want_apply_text">Voulez-vous enregistrer vos modifications ?</panel.string>
 	<tab_container name="roles_tab_container">
 		<panel label="MEMBRES" name="members_sub_tab" tool_tip="Membres">
-			<panel.string name="help_text">
-				Vous pouvez ajouter ou supprimer les rôles assignés aux membres.
-Pour sélectionner plusieurs membres, cliquez sur leurs noms en maintenant la touche Ctrl enfoncée.
-			</panel.string>
-			<panel.string name="donation_area">
-				[AREA] m²
-			</panel.string>
+			<panel.string name="help_text">Vous pouvez ajouter ou supprimer les rôles assignés aux membres.
+Pour sélectionner plusieurs membres, cliquez sur leurs noms en maintenant la touche Ctrl enfoncée.</panel.string>
+			<panel.string name="donation_area">[AREA] m²</panel.string>
 			<filter_editor label="Filtrer les membres" name="filter_input"/>
 			<name_list name="member_list">
 				<name_list.columns label="Membre" name="name"/>
@@ -27,24 +19,14 @@ Pour sélectionner plusieurs membres, cliquez sur leurs noms en maintenant la to
 			<button label="Bannir un ou plusieurs membres" name="member_ban"/>
 		</panel>
 		<panel label="RÔLES" name="roles_sub_tab">
-			<panel.string name="help_text">
-				Chaque rôle possède un titre et des
+			<panel.string name="help_text">Chaque rôle possède un titre et des
         pouvoirs. Les membres peuvent avoir
         un ou plusieurs rôles. Un groupe peut avoir jusqu’à 10 rôles,
-        notamment les rôles Tous et Propriétaire.
-			</panel.string>
-			<panel.string name="cant_delete_role">
-				Les rôles Tous et Propriétaires sont spéciaux et ne peuvent pas être supprimés.
-			</panel.string>
-			<panel.string name="power_folder_icon">
-				Inv_FolderClosed
-			</panel.string>
-			<panel.string name="power_all_have_icon">
-				Checkbox_On
-			</panel.string>
-			<panel.string name="power_partial_icon">
-				Checkbox_Off
-			</panel.string>
+        notamment les rôles Tous et Propriétaire.</panel.string>
+			<panel.string name="cant_delete_role">Les rôles Tous et Propriétaires sont spéciaux et ne peuvent pas être supprimés.</panel.string>
+			<panel.string name="power_folder_icon">Inv_FolderClosed</panel.string>
+			<panel.string name="power_all_have_icon">Checkbox_On</panel.string>
+			<panel.string name="power_partial_icon">Checkbox_Off</panel.string>
 			<filter_editor label="Filtrer les rôles" name="filter_input"/>
 			<scroll_list name="role_list">
 				<scroll_list.columns label="Rôle" name="name"/>
@@ -54,91 +36,62 @@ Pour sélectionner plusieurs membres, cliquez sur leurs noms en maintenant la to
 			<button label="Nouveau rôle" name="role_create"/>
 			<button label="Supprimer le rôle" name="role_delete"/>
 		</panel>
-		<panel height="148" label="POUVOIRS" name="actions_sub_tab" tool_tip="Vous pouvez afficher une description du pouvoir et voir quels membres et rôles peuvent s&apos;en servir.">
-			<panel.string name="help_text">
-				Les pouvoirs déterminent les facultés de chaque membre
-        dans le groupe. Il existe une vaste gamme de pouvoirs.
-			</panel.string>
+		<panel height="148" label="POUVOIRS" name="actions_sub_tab" tool_tip="Vous pouvez afficher une description du pouvoir et voir quels membres et rôles peuvent s'en servir.">
+			<panel.string name="help_text">Les pouvoirs déterminent les facultés de chaque membre
+        dans le groupe. Il existe une vaste gamme de pouvoirs.</panel.string>
 			<filter_editor label="Filtrer les pouvoirs" name="filter_input"/>
 			<scroll_list bottom_delta="-120" height="118" name="action_list" tool_tip="Sélectionnez un pouvoir pour en savoir plus">
 				<scroll_list.columns label="" name="action"/>
 			</scroll_list>
 		</panel>
 		<panel label="RÉSIDENTS BANNIS" name="banlist_sub_tab" tool_tip="Affiche les résidents bannis de ce groupe.">
-			<panel.string name="help_text">
-				Les résidents figurant sur la liste des résidents bannis ne peuvent pas rejoindre le groupe.
-			</panel.string>
-			<panel.string name="ban_count_template">
-				Nombre de résidents bannis : [COUNT]/[LIMIT]
-			</panel.string>
+			<panel.string name="help_text">Les résidents figurant sur la liste des résidents bannis ne peuvent pas rejoindre le groupe.</panel.string>
+			<panel.string name="ban_count_template">Nombre de résidents bannis : [COUNT]/[LIMIT]</panel.string>
 			<name_list name="ban_list">
 				<name_list.columns label="Résident(e)" name="name"/>
 				<name_list.columns label="Date de bannissement" name="ban_date"/>
 			</name_list>
 			<button label="Bannir un ou plusieurs résidents" name="ban_create" tool_tip="Bannir des résidents de votre groupe"/>
-			<button label="Annuler le bannissement d&apos;un ou plusieurs membres" name="ban_delete" tool_tip="Annuler le bannissement de certains résidents de votre groupe"/>
+			<button label="Annuler le bannissement d'un ou plusieurs membres" name="ban_delete" tool_tip="Annuler le bannissement de certains résidents de votre groupe"/>
 			<button name="ban_refresh" tool_tip="Actualiser la liste des résidents bannis"/>
 		</panel>
+		<button name="role_copy" label="Copier rôle"/>
 	</tab_container>
 	<panel name="members_footer">
-		<text name="static">
-			Rôles assignés
-		</text>
+		<text name="static">Rôles assignés</text>
 		<scroll_list name="member_assigned_roles">
 			<scroll_list.columns label="" name="checkbox"/>
 			<scroll_list.columns label="" name="role"/>
 		</scroll_list>
-		<text name="static2">
-			Pouvoirs attribués
-		</text>
-		<scroll_list name="member_allowed_actions" tool_tip="Pour en savoir plus sur chaque pouvoir, consultez l&apos;onglet Pouvoirs">
+		<text name="static2">Pouvoirs attribués</text>
+		<scroll_list name="member_allowed_actions" tool_tip="Pour en savoir plus sur chaque pouvoir, consultez l'onglet Pouvoirs">
 			<scroll_list.columns label="" name="action"/>
 		</scroll_list>
 	</panel>
 	<panel name="members_header">
-		<text_editor name="member_action_description">
-			Ce pouvoir permet « d&apos;expulser des membres de ce groupe ». Seul un propriétaire peut expulser un autre propriétaire.
-		</text_editor>
+		<text_editor name="member_action_description">Ce pouvoir permet « d'expulser des membres de ce groupe ». Seul un propriétaire peut expulser un autre propriétaire.</text_editor>
 	</panel>
 	<panel name="roles_footer">
-		<text name="static">
-			Nom du rôle
-		</text>
+		<text name="static">Nom du rôle</text>
 		<line_editor name="role_name"/>
-		<text name="static3">
-			Titre du rôle
-		</text>
+		<text name="static3">Titre du rôle</text>
 		<line_editor name="role_title"/>
-		<text name="static2">
-			Description
-		</text>
+		<text name="static2">Description</text>
 		<text_editor name="role_description"/>
-		<text name="static4">
-			Membres assignés
-		</text>
-		<check_box label="Afficher les membres" name="role_visible_in_list" tool_tip="Détermine si les personnes n&apos;appartenant pas au groupe peuvent voir les membres de ce rôle dans l&apos;onglet Général."/>
-		<text name="static5" tool_tip="Une liste des pouvoirs auquel le rôle sélectionné a accès.">
-			Pouvoirs attribués
-		</text>
-		<scroll_list name="role_allowed_actions" tool_tip="Pour en savoir plus sur chaque pouvoir, consultez l&apos;onglet Pouvoirs">
+		<text name="static4">Membres assignés</text>
+		<check_box label="Afficher les membres" name="role_visible_in_list" tool_tip="Détermine si les personnes n'appartenant pas au groupe peuvent voir les membres de ce rôle dans l'onglet Général."/>
+		<text name="static5" tool_tip="Une liste des pouvoirs auquel le rôle sélectionné a accès.">Pouvoirs attribués</text>
+		<scroll_list name="role_allowed_actions" tool_tip="Pour en savoir plus sur chaque pouvoir, consultez l'onglet Pouvoirs">
 			<scroll_list.columns label="" name="checkbox"/>
 			<scroll_list.columns label="" name="action"/>
 		</scroll_list>
 	</panel>
 	<panel name="roles_header">
-		<text_editor name="role_action_description">
-			Ce pouvoir permet « d&apos;expulser des membres de ce groupe ». Seul un propriétaire peut expulser un autre propriétaire.
-		</text_editor>
+		<text_editor name="role_action_description">Ce pouvoir permet « d'expulser des membres de ce groupe ». Seul un propriétaire peut expulser un autre propriétaire.</text_editor>
 	</panel>
 	<panel name="actions_footer">
-		<text_editor name="action_description">
-			Ce pouvoir permet d&apos;expulser des membres du groupe. Seul un propriétaire peut expulser un autre propriétaire.
-		</text_editor>
-		<text name="static2">
-			Rôles avec ce pouvoir
-		</text>
-		<text name="static3">
-			Membres avec ce pouvoir
-		</text>
+		<text_editor name="action_description">Ce pouvoir permet d'expulser des membres du groupe. Seul un propriétaire peut expulser un autre propriétaire.</text_editor>
+		<text name="static2">Rôles avec ce pouvoir</text>
+		<text name="static3">Membres avec ce pouvoir</text>
 	</panel>
 </panel>

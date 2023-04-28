@@ -5,13 +5,13 @@
       <text name="info_parcel_label">区画：</text>
       <text name="info_parcel">区画名</text>
       <text name="info_size_label">サイズ：</text>
-      <text name="info_size">[AREA]平方メートル</text>
+      <text name="info_size">[AREA]㎡</text>
       <text name="info_action">この区画を販売：</text>
       <text name="price_label">１．価格の設定：</text>
       <text name="price_text">適正価格を設定してください。</text>
       <text name="price_ld">L$</text>
       <line_editor name="price">0</line_editor>
-      <text name="price_per_m">（1平方メートルあたり L$[PER_METER]）</text>
+      <text name="price_per_m">（1㎡あたり L$[PER_METER]）</text>
       <text name="sell_to_label">２．特定の人に販売：</text>
       <text name="sell_to_text">販売先の指定なしか、特定の人に販売するかを選択してください。</text>
       <combo_box name="sell_to">

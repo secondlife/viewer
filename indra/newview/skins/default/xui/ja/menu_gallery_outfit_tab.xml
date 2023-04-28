@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu layout="topleft" name="Outfit">
-  <menu_item_call label="衣装 - 現在の衣装と交換" layout="topleft" name="wear_replace">
+  <menu_item_call label="衣装－現在の衣装と交換" layout="topleft" name="wear_replace">
     <on_click function="Outfit.WearReplace" />
     <on_enable function="Outfit.OnEnable" parameter="wear_replace" />
     <on_visible function="Outfit.OnVisible" parameter="wear_replace" />
   </menu_item_call>
-  <menu_item_call label="衣装 - 現在の衣装に追加" layout="topleft" name="wear_add">
+  <menu_item_call label="衣装－現在の衣装に追加" layout="topleft" name="wear_add">
     <on_click function="Outfit.WearAdd" />
     <on_enable function="Outfit.OnEnable" parameter="wear_add" />
     <on_visible function="Outfit.OnVisible" parameter="wear_add" />
   </menu_item_call>
-  <menu_item_call label="脱ぐ - 現在の衣装から削除" layout="topleft" name="take_off">
+  <menu_item_call label="脱ぐ－現在の衣装から削除" layout="topleft" name="take_off">
     <on_click function="Outfit.TakeOff" />
     <on_enable function="Outfit.OnEnable" parameter="take_off" />
     <on_visible function="Outfit.OnVisible" parameter="take_off" />
@@ -54,7 +54,7 @@
     <menu_item_call label="新しい下着（上半身）" layout="topleft" name="New Undershirt">
       <menu_item_call.on_click function="Outfit.Create" parameter="undershirt" />
     </menu_item_call>
-    <menu_item_call label="新しい下着（下半身）" layout="topleft" name="新しい下着（下）">
+    <menu_item_call label="新しい下着（下半身）" layout="topleft" name="New Underpants">
       <menu_item_call.on_click function="Outfit.Create" parameter="underpants" />
     </menu_item_call>
     <menu_item_call label="新しいアルファ" layout="topleft" name="New Alpha">

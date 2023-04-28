@@ -15,7 +15,7 @@
       <panel.string name="new users only">新規住人専用</panel.string>
       <panel.string name="anyone">誰でも</panel.string>
       <panel.string name="area_text">面積：</panel.string>
-      <panel.string name="area_size_text">[AREA]平方メートル</panel.string>
+      <panel.string name="area_size_text">[AREA]㎡</panel.string>
       <panel.string name="auction_id_text">オークション ID：[ID]</panel.string>
       <panel.string name="need_tier_to_modify">この土地を修正変更するには、購入を承認する必要があります。</panel.string>
       <panel.string name="group_owned_text">（グループ所有）</panel.string>
@@ -25,9 +25,7 @@
       <panel.string name="none_text">（なし）</panel.string>
       <panel.string name="sale_pending_text">（購入審査中）</panel.string>
       <panel.string name="no_selection_text">区画が選択されていません。</panel.string>
-      <panel.string name="time_stamp_template">[year,datetime,local]／[mth,datetime,local]
-[day,datetime,local]／[wkday,datetime,local]
-[hour,datetime,local]:[min,datetime,local]：[second,datetime,local]</panel.string>
+      <panel.string name="time_stamp_template">[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日[wkday,datetime,local]　[hour,datetime,local]：[min,datetime,local]：[second,datetime,local]</panel.string>
       <text name="Name:">名前：</text>
       <line_editor name="Name" />
       <text name="Description:">説明：</text>
@@ -43,7 +41,7 @@
       <check_box label="所有者が譲渡と共に寄付" name="check contrib" tool_tip="土地がグループに譲渡されるとき、前の所有者は譲渡が成立するよう、十分な土地を寄付します。" />
       <text name="For Sale:">販売の有無：</text>
       <text name="Not for sale.">販売対象外</text>
-      <text name="For Sale: Price L$[PRICE].">価格：L$[PRICE]（L$[PRICE_PER_SQM]/ 平方メートル）</text>
+      <text name="For Sale: Price L$[PRICE].">価格：L$[PRICE]（L$[PRICE_PER_SQM]/ ㎡）</text>
       <button label="土地を売る" label_selected="土地を販売…" name="Sell Land..." />
       <text name="For sale to">販売先：[BUYER]</text>
       <text name="Sell with landowners objects in parcel.">オブジェクトを一緒に販売</text>
@@ -124,7 +122,7 @@
     </panel>
     <panel label="オプション" name="land_options_panel">
       <panel.string name="search_enabled_tooltip">この区画を検索結果に表示する</panel.string>
-      <panel.string name="search_disabled_small_tooltip">区画面積が128平方メートルかそれ以下のため、このオプションは無効です。
+      <panel.string name="search_disabled_small_tooltip">区画面積が128㎡かそれ以下のため、このオプションは無効です。
 大きな区画のみ検索に表示させることが可能です。</panel.string>
       <panel.string name="search_disabled_permissions_tooltip">あなたはこの区画の設定編集ができないため、このオプションは無効です。</panel.string>
       <panel.string name="mature_check_mature">「Moderate」コンテンツ</panel.string>

@@ -11,18 +11,18 @@
         <text_editor follows="left|top|right" layout="topleft" type="string" name="charter" left_pad="3" height="86" max_length="511" top="6" right="-4" bg_readonly_color="PanelDefaultBackgroundColor" text_readonly_color="White" word_wrap="true">グループ憲章</text_editor>
       </panel>
       <panel layout="topleft" follows="left|top|right" background_visible="false" bevel_style="none" border="false" bg_alpha_color="FloaterUnfocusBorderColor" height="100" width="313" left="0" name="preferences_container" top_pad="5">
-        <check_box follows="right|top|left" layout="topleft" label="Anyone can join" height="16" left="10" name="open_enrollement" tool_tip="このグループが招待なしで新しいメンバーに参加できるようにするかどうかを設定します。" width="90" />
-        <check_box label="登録料" layout="topleft" name="check_enrollment_fee" tool_tip="グループへの参加に入会金が必要かどうかを設定します。" top_pad="5" left_delta="0" height="16" width="300" />
+        <check_box follows="right|top|left" layout="topleft" label="Anyone can join" height="16" left="10" name="open_enrollement" tool_tip="このグループが招待なしで、新しいメンバーに参加できるようにするかどうかを設定します。" width="90" />
+        <check_box label="登録料" layout="topleft" name="check_enrollment_fee" tool_tip="グループへへの加入に入会金が必要かどうかを設定します。" top_pad="5" left_delta="0" height="16" width="300" />
         <spinner decimal_digits="0" follows="left|top" halign="left" increment="1" label_width="15" label="L$" layout="topleft" max_val="99999" height="23" left="30" name="spin_enrollment_fee" tool_tip="登録料がチェックされている場合、新しいメンバーはグループに参加するためにこの料金を支払う必要があります。" width="170" />
         <combo_box follows="left|top" layout="topleft" name="group_mature_check" tool_tip="レーティングは、グループで許可されるコンテンツと行動のタイプを指定します。" height="23" left="10" top_pad="4" width="190">
-          <combo_item name="select_mature" value="Select">- レーティングの選択 -</combo_item>
+          <combo_item name="select_mature" value="Select">－レーティングの選択－</combo_item>
           <combo_box.item label="Moderateコンテンツ" name="mature" value="Mature" />
           <combo_box.item label="Generalコンテンツ" name="pg" value="Not Mature" />
         </combo_box>
       </panel>
     </layout_panel>
     <layout_panel background_visible="false" background_opaque="true" name="create_info" follows="all" layout="topleft" auto_resize="false" user_resize="false" height="200" width="313">
-      <text font="SansSerifSmall" follows="top|left|right" layout="topleft" mouse_opaque="false" type="string" name="fee_information" skip_link_underline="true" height="26" left="8" right="-8" top="5" word_wrap="true">グループを作成するための料金は、メンバーシップ レベルに基づいています。[https://secondlife.com/my/account/membership.php 詳細]</text>
+      <text font="SansSerifSmall" follows="top|left|right" layout="topleft" mouse_opaque="false" type="string" name="fee_information" skip_link_underline="true" height="26" left="8" right="-8" top="5" word_wrap="true">グループを作成するための料金は、メンバーシップレベルに基づいています。[https://secondlife.com/my/account/membership.php 詳細]</text>
       <scroll_list draw_border="false" background_visible="false" follows="left|top|bottom|right" layout="topleft" multi_select="true" name="membership_list" row_padding="4" enabled="false" height="150" left="2" top_pad="8" width="290">
         <scroll_list.columns dynamic_width="false" name="clmn_name" width="220"/>
         <scroll_list.columns dynamic_width="true" name="clmn_price"/>

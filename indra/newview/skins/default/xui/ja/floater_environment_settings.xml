@@ -6,10 +6,10 @@
     <radio_item label="自然環境をカスタマイズ" name="use_my_settings" />
   </radio_group>
   <panel name="user_environment_settings">
-    <text name="note">注記： カスタム設定は他のユーザーには見えません。</text>
+    <text name="note">注記：カスタム設定は他のユーザーには見えません。</text>
     <text name="water_settings_title">水の設定</text>
     <combo_box name="water_settings_preset_combo">
-      <combo_box.item label="- プリセットを選択 -" name="item0" />
+      <combo_box.item label="－プリセットを選択－" name="item0" />
     </combo_box>
     <text name="sky_dayc_settings_title">空／日周期</text>
     <radio_group name="sky_dayc_settings_radio_group">
@@ -17,10 +17,10 @@
       <radio_item label="日周期" name="my_dayc_settings" />
     </radio_group>
     <combo_box name="sky_settings_preset_combo">
-      <combo_box.item label="- プリセットを選択 -" name="item0" />
+      <combo_box.item label="－プリセットを選択－" name="item0" />
     </combo_box>
     <combo_box name="dayc_settings_preset_combo">
-      <combo_box.item label="- プリセットを選択 -" name="item0" />
+      <combo_box.item label="－プリセットを選択－" name="item0" />
     </combo_box>
   </panel>
   <button label="OK" name="ok_btn" />

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <floater name="avatar_texture_debug" title="アバターのテクスチャ">
   <floater.string name="InvalidAvatar">無効なアバター</floater.string>
   <scroll_container name="profile_scroll">
@@ -52,12 +52,12 @@
         <texture_picker label="左腕のタトゥ" name="leftarm_tattoo" />
         <texture_picker label="左足" name="leftleg-baked" />
         <texture_picker label="左足のタトゥ" name="leftleg_tattoo" />
-        <texture_picker label="補助１" name="aux1-baked" />
-        <texture_picker label="補助１タトゥ" name="aux1_tattoo" />
-        <texture_picker label="補助２" name="aux2-baked" />
-        <texture_picker label="補助２タトゥ" name="aux2_tattoo" />
-        <texture_picker label="補助３" name="aux3-baked" />
-        <texture_picker label="補助３タトゥ" name="aux3_tattoo" />
+        <texture_picker label="予備１" name="aux1-baked" />
+        <texture_picker label="予備１タトゥ" name="aux1_tattoo" />
+        <texture_picker label="予備２" name="aux2-baked" />
+        <texture_picker label="予備２タトゥ" name="aux2_tattoo" />
+        <texture_picker label="予備３" name="aux3-baked" />
+        <texture_picker label="予備３タトゥ" name="aux3_tattoo" />
       </panel>
     </panel>
   </scroll_container>

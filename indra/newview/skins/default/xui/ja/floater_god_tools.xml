@@ -25,7 +25,7 @@
       <line_editor name="gridposy" tool_tip="これは、このリージョン（地域）のグリッドyの位置です。" />
       <text name="Redirect to Grid: ">グリッドにリダイレクト：</text>
       <text name="billable factor text">請求率：</text>
-      <text name="land cost text">平方メートル当たりL$：</text>
+      <text name="land cost text">㎡当たりL$：</text>
       <button label="更新" label_selected="更新" name="Refresh" tool_tip="上記の情報を更新するには、ここをクリックします。" />
       <button label="適用" label_selected="適用" name="Apply" tool_tip="上記の変更を適用するには、ここをクリックします。" />
       <button label="地域を選択" label_selected="地域を選択" name="Select Region" tool_tip="土地ツールで地域全体を選択してください。" />

@@ -1,15 +1,50 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="太陽＆月" name="panel_settings_sky_hbodies">
-  <layout_stack>
-    <layout_panel name="sun_layout">
-      <check_box label="ビーコンを表示" name="sunbeacon" />
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel border="true" follows="all" label="Sun &amp; Moon" layout="topleft" left="0" name="panel_settings_sky_hbodies" top="0">
+  <layout_stack name="main_ls" follows="all" layout="topleft" left="5" top="5" right="-5" bottom="-5" orientation="horizontal">
+    <layout_panel border="true" bevel_style="in" auto_resize="true" user_resize="false" visible="true" name="sun_layout" height="400">
+      <text name="sun_stars_label" follows="left|top" height="10" layout="topleft" left_delta="15" top_pad="15" font="SansSerifBold" width="120">太陽＆星</text>
+      <text name="position_label" follows="left|top" height="10" layout="topleft" left_delta="10" top_delta="25" width="100">位置：</text>
+      <sun_moon_trackball name="sun_rotation" follows="left|top" left_delta="0" top_delta="20" height="150" width="150" thumb_mode="sun" />
+      <text name="image_label" follows="left|top" height="10" layout="topleft" left_delta="160" top_delta="-20" width="200">画像：</text>
+      <texture_picker height="123" layout="topleft" left_delta="5" name="sun_image" top_pad="10" width="100"/>
+      <text name="scale_label" follows="left|top" height="10" layout="topleft" left_delta="-5" top_delta="110" width="80">スケール：</text>
+      <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0.25" max_val="20" name="sun_scale" top_delta="15" width="130" can_edit_text="true"/>
+      <text name="color_label" follows="left|top" height="10" layout="topleft" left_delta="65" top_delta="20" width="80">色：</text>
+      <color_swatch can_apply_immediately="true" follows="left|top" height="37" label_height="0" layout="topleft" left_delta="5" name="sun_moon_color" top_pad="5" width="60" />
+      <text follows="left|top" name="sun_azimuth_label" height="10" layout="topleft" left_delta="-235" top_delta="-3" width="200">方位角：</text>
+      <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="359.99" name="sun_azimuth" top_delta="13" width="215" can_edit_text="true"/>
+      <text follows="left|top" name="sun_elevation_label" height="10" layout="topleft" left_delta="-5" top_delta="22" width="200">標高：</text>
+      <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="-90" max_val="90" name="sun_elevation" top_delta="13" width="215" can_edit_text="true"/>
+      <text name="glow_focus_label" follows="left|top" height="10" layout="topleft" left_delta="-5" top_delta="22" width="200">グローフォーカス：</text>
+      <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="-2" max_val="2" name="glow_focus" top_delta="13" width="215" can_edit_text="true"/>
+      <text name="glow_size_label" follows="left|top" height="10" layout="topleft" left_delta="-5" top_delta="22" width="200">グローサイズ：</text>
+      <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="1.99" name="glow_size" top_delta="13" width="215" can_edit_text="true"/>
+      <text name="star_brightness_label" follows="left|top" height="10" layout="topleft" left_delta="-5" top_delta="22" width="200">星の輝度：</text>
+      <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="500" name="star_brightness" top_delta="13" width="215" can_edit_text="true"/>
+
+      <check_box control_name="sunbeacon" follows="left|top" layout="topleft" width="60" height="16" label="ビーコンを表示" name="sunbeacon" top_pad="5" left_delta="-8"/>
+
     </layout_panel>
-    <layout_panel>
-      <layout_stack>
-        <layout_panel name="moon_layout">
-          <check_box label="ビーコンを表示" name="moonbeacon" />
+    <layout_panel name="moon_layout" border="false" bevel_style="in" auto_resize="true" user_resize="false" visible="true" height="400">
+      <layout_stack name="moon_stack" left="5" top="5" right="-5" bottom="-5" follows="left|top|right|bottom" orientation="vertical">
+        <layout_panel border="true" bevel_style="in" auto_resize="true" user_resize="false" visible="true" name="moon_layout" height="220">
+          <text name="moon_label" follows="left|top" height="10" layout="topleft" left_delta="15" top_pad="15" font="SansSerifBold" width="80">月</text>
+          <text name="position_label" follows="left|top" height="10" layout="topleft" left_delta="10" top_delta="25" width="100">位置：</text>
+          <sun_moon_trackball name="moon_rotation" follows="left|top" left_delta="0" top_delta="20" height="150" width="150" thumb_mode="moon" />
+          <text name="moon_image_label" follows="left|top" height="10" layout="topleft" left_delta="160" top_delta="-20" width="200">画像：</text>
+          <texture_picker height="123" layout="topleft" left_delta="5" name="moon_image" top_pad="10" width="100"/>
+          <text name="scale_label" follows="left|top" height="10" layout="topleft" left_delta="-5" top_delta="110" width="80">スケール：</text>
+          <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0.25" max_val="20" name="moon_scale" top_delta="15" width="130" can_edit_text="true"/>
+          <text follows="left|top" name="moon_azimuth_label" height="10" layout="topleft" left_delta="-170" top_delta="32" width="200">方位角：</text>
+          <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="359.99" name="moon_azimuth" top_delta="13" width="215" can_edit_text="true"/>
+          <text follows="left|top" name="moon_elevation_label" height="10" layout="topleft" left_delta="-5" top_delta="22" width="200">標高：</text>
+          <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="-90" max_val="90" name="moon_elevation" top_delta="13" width="215" can_edit_text="true"/>
+          <text name="brightness_label" follows="left|top" height="10" layout="topleft" left_delta="-5" top_delta="22" width="200">輝度：</text>
+          <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0.0" max_val="1.0" name="moon_brightness" top_delta="13" width="215" can_edit_text="true"/>
+          <check_box control_name="moonbeacon" follows="left|top" layout="topleft" width="60" height="16" label="ビーコンを表示" name="moonbeacon" top_pad="5" left_delta="-8"/>
+
         </layout_panel>
       </layout_stack>
     </layout_panel>
   </layout_stack>
-</panel>
+</panel>                

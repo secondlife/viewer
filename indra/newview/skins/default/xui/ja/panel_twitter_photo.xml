@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_twitter_photo">
   <text name="status_label">何が起きているのでしょうか？</text>
   <text name="status_counter_label">140</text>
-  <check_box initial_value="true" label="SL の場所を含む" name="add_location_cb" />
+  <check_box initial_value="true" label="SLの場所を含む" name="add_location_cb" />
   <check_box initial_value="true" label="画像を含める" name="add_photo_cb" />
   <combo_box name="resolution_combobox" tool_tip="画像解像度">
     <combo_box.item label="現在のウィンドウ" name="CurrentWindow" />

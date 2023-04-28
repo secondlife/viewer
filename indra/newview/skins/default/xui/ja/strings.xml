@@ -469,7 +469,7 @@ support@secondlife.com にお問い合わせください。</string>
   <!-- world map -->
   <string name="texture_loading">読み込んでいます…</string>
   <string name="worldmap_offline">オフライン</string>
-  <string name="worldmap_item_tooltip_format">[AREA]平方メートル L$[PRICE]</string>
+  <string name="worldmap_item_tooltip_format">[AREA]㎡ L$[PRICE]</string>
   <string name="worldmap_results_none_found">見つかりませんでした。</string>
 
   <!-- animations uploading status codes -->

@@ -72,7 +72,6 @@ protected:
 
 	typedef std::set<LLUUID> landmark_uuid_list_t;
 	landmark_uuid_list_t mBadList;
-	landmark_uuid_list_t mWaitList;
 
 	typedef std::map<LLUUID,F32> landmark_requested_list_t;
 	landmark_requested_list_t mRequestedList;

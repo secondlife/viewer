@@ -178,7 +178,7 @@ private:
     // store it as a map from name string to position index. Of course that's
     // easy to generate from the incoming names array, but why do it more than
     // once?
-    typedef std::map<LLSD::String, LLSD::Integer> IndexMap;
+    typedef std::map<LLSD::String, size_t> IndexMap;
     IndexMap _indexes;
     // Generated array of default values, aligned with the array of param names.
     LLSD _defaults;
@@ -197,9 +197,9 @@ LLSDArgsMapper::LLSDArgsMapper(const std::string& function,
     {
         LL_ERRS("LLSDArgsMapper") << function << " names must be an array, not " << names << LL_ENDL;
     }
-    LLSD::Integer nparams(_names.size());
+    auto nparams(_names.size());
     // From _names generate _indexes.
-    for (LLSD::Integer ni = 0, nend = _names.size(); ni < nend; ++ni)
+    for (size_t ni = 0, nend = _names.size(); ni < nend; ++ni)
     {
         _indexes[_names[ni]] = ni;
     }
@@ -214,7 +214,7 @@ LLSDArgsMapper::LLSDArgsMapper(const std::string& function,
 
     if (defaults.isUndefined() || defaults.isArray())
     {
-        LLSD::Integer ndefaults = defaults.size();
+        auto ndefaults = defaults.size();
         // defaults is a (possibly empty) array. Right-align it with names.
         if (ndefaults > nparams)
         {
@@ -224,10 +224,10 @@ LLSDArgsMapper::LLSDArgsMapper(const std::string& function,
 
         // Offset by which we slide defaults array right to right-align with
         // _names array
-        LLSD::Integer offset = nparams - ndefaults;
+        auto offset = nparams - ndefaults;
         // Fill rightmost _defaults entries from defaults, and mark them as
         // filled
-        for (LLSD::Integer i = 0, iend = ndefaults; i < iend; ++i)
+        for (size_t i = 0, iend = ndefaults; i < iend; ++i)
         {
             _defaults[i + offset] = defaults[i];
             _has_dft[i + offset] = 1;
@@ -247,7 +247,7 @@ LLSDArgsMapper::LLSDArgsMapper(const std::string& function,
                 continue;
             }
 
-            LLSD::Integer pos = ixit->second;
+            auto pos = ixit->second;
             // Store default value at that position in the _defaults array.
             _defaults[pos] = mi->second;
             // Don't forget to record the fact that we've filled this
@@ -301,7 +301,7 @@ LLSD LLSDArgsMapper::map(const LLSD& argsmap) const
     {
         // Fill args from array. If there are too many args in passed array,
         // ignore the rest.
-        LLSD::Integer size(argsmap.size());
+        auto size(argsmap.size());
         if (size > args.size())
         {
             // We don't just use std::min() because we want to sneak in this
@@ -338,7 +338,7 @@ LLSD LLSDArgsMapper::map(const LLSD& argsmap) const
                                             << mi->first << "=" << mi->second << LL_ENDL;
                 continue;
             }
-            LLSD::Integer pos = ixit->second;
+            auto pos = ixit->second;
             // Store the value at that position in the args array.
             args[pos] = mi->second;
             // Don't forget to record the fact that we've filled this
@@ -349,7 +349,7 @@ LLSD LLSDArgsMapper::map(const LLSD& argsmap) const
 
     // Fill any remaining holes from _defaults.
     LLSD unfilled(LLSD::emptyArray());
-    for (LLSD::Integer i = 0, iend = args.size(); i < iend; ++i)
+    for (size_t i = 0, iend = args.size(); i < iend; ++i)
     {
         if (! filled[i])
         {
@@ -503,9 +503,9 @@ struct LLEventDispatcher::MapParamsDispatchEntry: public LLEventDispatcher::Para
         if (defaults.isArray() || defaults.isUndefined())
         {
             // Right-align the params and defaults arrays.
-            LLSD::Integer offset = params.size() - defaults.size();
+            auto offset = params.size() - defaults.size();
             // Now the name of every defaults[i] is at params[i + offset].
-            for (LLSD::Integer i(0), iend(defaults.size()); i < iend; ++i)
+            for (size_t i(0), iend(defaults.size()); i < iend; ++i)
             {
                 // Erase this optional param from mRequired.
                 mRequired.erase(params[i + offset].asString());

@@ -75,6 +75,9 @@
   <mimetype name="application/x-director">
     <label name="application/x-director_label">Macromedia Director</label>
   </mimetype>
+  <mimetype name="application/octet-stream">
+    <label name="application/octet-stream_label">ストリーム</label>
+  </mimetype>
   <mimetype name="audio/mid">
     <label name="audio/mid_label">オーディオ（MIDI）</label>
   </mimetype>

@@ -1,20 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
-<panel name="panel_login">
-  <panel.string name="forgot_password_url">http://secondlife.com/account/request.php?lang=ja</panel.string>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel follows="all" height="768" layout="topleft" name="panel_login" focus_root="true" background_visible="true" bg_opaque_color="0.16 0.16 0.16 1" background_opaque="true" width="1024">
+  <panel.string name="forgot_password_url">http://secondlife.com/account/request.php</panel.string>
   <panel.string name="sign_up_url">https://join.secondlife.com/</panel.string>
-  <layout_stack name="ui_stack">
-    <layout_panel name="ui_container">
-      <combo_box label="ユーザー名" name="username_combo" tool_tip="登録時に自分で選んだユーザー名（例：bobsmith12、Steller Sunshineなど）" />
-      <line_editor label="パスワード" name="password_edit" />
-      <combo_box label="お気に入りの場所" name="start_location_combo">
-        <combo_box.item label="最後にログアウトした場所" name="MyLastLocation" />
-        <combo_box.item label="ホーム" name="MyHome" />
+  <layout_stack follows="left|right|top" height="172" left="0" name="ui_stack" orientation="horizontal" top="10" width="1024">
+    <layout_panel height="172" auto_resize="true" name="ui_elastic_pad_left" width="32" />
+    <layout_panel auto_resize="false" follows="left|right|top" name="ui_container" width="1011" left="0" top="0" height="172">
+      <icon height="73" width="165" image_name="login_sl_logo" left="0" top="25" name="sl_logo_small" />
+      <combo_box left_pad="22" bottom_delta="-7" allow_text_entry="true" follows="left|top" height="32" label="ユーザー名" combo_editor.font="SansSerifLarge" max_chars="128" combo_editor.commit_on_focus_lost="false" combo_editor.prevalidate_callback="ascii" tool_tip="登録時に自分で選んだユーザー名（例：bobsmith12、Steller Sunshineなど）" name="username_combo" width="206">
+        <combo_box.combo_editor text_pad_left="8" bg_image_always_focused="true"/>
       </combo_box>
-      <button label="ログイン" name="connect_btn" />
-      <check_box label="記憶する" name="remember_check" />
-      <text name="forgot_password_text">パスワードを忘れた場合</text>
-      <combo_box label="グリッドを選択" name="server_combo" />
-      <text name="sign_up_text">登録</text>
+      <line_editor follows="left|top" height="32" left_pad="15" max_length_chars="16" text_pad_left="8" name="password_edit" label="パスワード" bg_image_always_focused="true" font="SansSerifLarge" is_password="true" select_on_focus="true" commit_on_focus_lost="false" bottom_delta="0" width="165" />
+      <combo_box allow_text_entry="true" control_name="NextLoginLocation" follows="left|top" label="お気に入りの場所" height="32" max_chars="128" combo_editor.font="SansSerifLarge" left_pad="15" bottom_delta="0" name="start_location_combo" width="175" combo_button.scale_image="true">
+        <combo_box.combo_editor bg_image_always_focused="true" text_pad_left="8"/>
+        <combo_box.item label="最後にいた場所" name="MyLastLocation" value="last" />
+        <combo_box.item label="ホーム" name="MyHome" value="home" />
+      </combo_box>
+      <button follows="left|top" image_unselected="PushButton_Login" image_pressed="PushButton_Login_Pressed" image_hover_unselected="PushButton_Login_Over" label="ログイン" label_color="White" font="SansSerifMedium" name="connect_btn" enabled="true" width="120" height="32" left_pad="15" bottom_delta="0" />
+      <text follows="left|top" font="SansSerifLarge" font.style="BOLD" text_color="EmphasisColor" height="34" name="sign_up_text" left_pad="10" width="200" valign="center">サインアップ</text>
+      <check_box follows="left|top" font="SansSerifMedium" left="185" bottom_delta="21" height="24" label="名前を記憶" word_wrap="down" check_button.bottom="3" name="remember_name" tool_tip="すでに記憶されているユーザーは、「私」＞「初期設定」＞「詳細設定」＞「記憶されたユーザー名」から削除できます。" width="198" />
+      <check_box control_name="RememberPassword" follows="left|top" font="SansSerifMedium" text_color="EmphasisColor" height="24" left="408" bottom_delta="0" label="パスワードを保存" word_wrap="down" check_button.bottom="3" name="remember_password" width="165" />
+      <combo_box allow_text_entry="false" font="SansSerifTiny" follows="left|top" height="26" left="588" bottom_delta="8" max_chars="128" label="Select grid" layout="topleft" name="server_combo" width="149" />
+      <text follows="left|top" font="SansSerifMedium" text_color="EmphasisColor" height="16" name="forgot_password_text" left="778" bottom_delta="-8" width="120" halign="center">パスワードを忘れましたか？</text>
     </layout_panel>
+    <layout_panel height="172" auto_resize="true" name="ui_elastic_pad_right" width="32" />
   </layout_stack>
+  <web_browser tab_stop="false" trusted_content="true" bg_opaque_color="Black" border_visible="false" follows="all" left="0" name="login_html" start_url="" top="154" height="600" width="1024" />
 </panel>

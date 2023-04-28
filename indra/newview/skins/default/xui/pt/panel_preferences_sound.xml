@@ -1,13 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <panel label="Sons" name="Preference Media panel">
-	<panel.string name="middle_mouse">
-		Botão do meio do mouse
-	</panel.string>
+	<panel.string name="middle_mouse">Botão do meio do mouse</panel.string>
 	<slider label="Volume principal" name="System Volume"/>
 	<check_box initial_value="true" name="mute_when_minimized"/>
-	<text name="mute_chb_label">
-		Silenciar ao minimizar
-	</text>
+	<text name="mute_chb_label">Silenciar ao minimizar</text>
 	<slider label="Botões" name="UI Volume"/>
 	<slider label="Ambiente" name="Wind Volume"/>
 	<slider label="Efeitos sonoros" name="SFX Volume"/>
@@ -20,12 +16,8 @@
 	<check_box label="Autorizar auto-play de mídias" name="media_auto_play_btn" tool_tip="Marque esta opção para auto-executar mídias, se elas quiserem" value="true"/>
 	<check_box label="Tocar mídia anexada em outros avatares" name="media_show_on_others_btn" tool_tip="Desmarque esta opção para ocultar mídias anexadas em avatares por perto" value="true"/>
 	<check_box label="Tocar áudio de gestos" name="gesture_audio_play_btn" tool_tip="Selecione para ouvir o áudio de gestos" value="true"/>
-	<text name="voice_chat_settings">
-		Configuração de bate-papo de voz
-	</text>
-	<text name="Listen from">
-		Ouvir a partir de:
-	</text>
+	<text name="voice_chat_settings">Configuração de bate-papo de voz</text>
+	<text name="Listen from">Ouvir a partir de:</text>
 	<radio_group name="ear_location">
 		<radio_item label="Posição de câmera" name="0"/>
 		<radio_item label="Posição do avatar" name="1"/>
@@ -37,4 +29,9 @@
 	<button name="set_voice_middlemouse_button" tool_tip="Redefinir como botão do meio do mouse"/>
 	<button label="Controles de entrada/saída" name="device_settings_btn" width="180"/>
 	<panel label="Configuração dos dispositivo" name="device_settings_panel"/>
+	<combo_box name="media_auto_play_combo">
+		<item name="autoplay_enabled" label="Sim"/>
+		<item name="autoplay_ask" label="Perguntar"/>
+		<item name="autoplay_disabled" label="Não"/>
+	</combo_box>
 </panel>

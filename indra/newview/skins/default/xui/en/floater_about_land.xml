@@ -2,13 +2,16 @@
 <floater
  positioning="cascading"
  can_tear_off="false"
- height="396"
+ can_resize="true"
  layout="topleft"
  name="floaterland"
  help_topic="floaterland"
  save_rect="true"
  title="ABOUT LAND"
- width="634">
+ height="396"
+ width="634"
+ min_height="420"
+ min_width="634">
     <floater.string
       name="maturity_icon_general">
       "Parcel_PG_Dark"
@@ -659,10 +662,11 @@
              type="string"
              length="1"
              enabled="false"
-             follows="top|left"
+             follows="top|left|right"
              height="175"
              layout="topleft"
              left="10"
+             right="-10"
              max_length="65535"
              name="covenant_editor"
              width="470"
@@ -1129,25 +1133,25 @@
   top_delta="-6"/>
             <button
              enabled="false"
-             follows="left|top"
+             follows="top|right"
              height="23"
              label="Return Objects"
              layout="topleft"
              left_pad="6"
              name="Return objects..."
              top_delta="0"
-             right="-154"
+             right="-10"
              width="164" />
             <name_list
              column_padding="0"
              draw_heading="true"
-             follows="top|left"
+             follows="all"
              height="150"
              layout="topleft"
              left="10"
              name="owner list"
              name_column="name"
-             width="470">
+             right="-10">
                 <name_list.columns
                  label="Type"
                  name="type"
@@ -1341,9 +1345,9 @@ Only large parcels can be listed in search.
           <panel
             bevel_style="none"
             border="true"
-            top="121"
-            bottom="121"
-            follows="left|bottom|right"
+            top="116"
+            bottom="116"
+            follows="left|top|right"
             left="20"
             right="-20"/>
           <check_box
@@ -1377,9 +1381,10 @@ Only large parcels can be listed in search.
              enabled="true"
              height="23"
              layout="topleft"
-             left="164"
+             left="18"
              top="194"
              name="land category"
+             follows="left|top"
              visible="true"
              width="140">
                 <combo_box.item
@@ -1508,18 +1513,18 @@ Only large parcels can be listed in search.
                 Landing Point: [LANDING]
             </text>
             <button
-             follows="right|top"
+             follows="left|top"
              top_pad="0"
              height="23"
              label="Set"
              label_selected="Set"
              layout="topleft"
              name="Set"
-             left="399"
+             left_delta="0"
              tool_tip="Sets the landing point where visitors arrive. Sets to your avatar&apos;s location inside this parcel."
              width="50" />
             <button
-             follows="right|top"
+             follows="left|top"
              height="23"
              label="Clear"
              label_selected="Clear"
@@ -1546,7 +1551,8 @@ Only large parcels can be listed in search.
              layout="topleft"
              name="landing type"
              top_pad="0"
-             left="399"
+             left_delta="0"
+             follows="left|top"
              tool_tip="Teleport Routing -- select how to handle teleports onto your land"
              width="120">
                 <combo_box.item
@@ -1590,7 +1596,8 @@ Only large parcels can be listed in search.
             <combo_box
              height="23"
              layout="topleft"
-             left_pad="144"
+             left_pad="0"
+             follows="left|top"
              name="media type"
              tool_tip="Specify if the URL is a movie, web page, or other media"
              width="120"
@@ -1599,7 +1606,7 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="16"
              layout="topleft"
-             left_pad="-134"
+             left_pad="6"
              name="mime_type"
              width="200" />
             <text
@@ -1625,11 +1632,11 @@ Only large parcels can be listed in search.
              width="300"
              top_delta="0"/>
             <button
-             follows="right|top"
+             follows="left|top"
              height="23"
              label="Set"
              layout="topleft"
-             left_pad="149"
+             left_pad="3"
              name="set_media_url"
              width="70"
              top_delta="0"/>
@@ -1985,7 +1992,8 @@ Only large parcels can be listed in search.
             <combo_box
              height="23"
              layout="topleft"
-             left_pad="166"
+             follows="left|top"
+             left_pad="22"
              name="pass_combo"
              top_delta="0"
              width="100">
@@ -2039,14 +2047,21 @@ Only large parcels can be listed in search.
              top_pad="5"
              width="400">
                 (The estate owner may have limited these choices)
-            </text>            
-            <panel
-            name="Allowed_layout_panel"
-            follows="top|left"
-            left="10"
-            height="170"
-             top_pad="8"
-            width="240">
+            </text>
+            <layout_stack name="access_stack"
+              height="170"
+              follows="all"
+              animate="false"
+              left="10"
+              right="-10"
+              top_pad="8"
+              orientation="horizontal">
+            <layout_panel
+              auto_resize="true"
+              user_resize="false"
+              name="Allowed_layout_panel"
+              height="170"
+              width="240">
             <text
              type="string"
              length="1"
@@ -2062,7 +2077,7 @@ Only large parcels can be listed in search.
             </text>
             <name_list
              column_padding="0"
-             follows="top|bottom"
+             follows="all"
              heading_height="14"
              height="125"
              layout="topleft"
@@ -2070,7 +2085,7 @@ Only large parcels can be listed in search.
              multi_select="true"
              name="AccessList"
              tool_tip="([LISTED] listed, [MAX] max)"
-             width="230" />
+             width="228" />
             <button
              follows="bottom"
              height="23"
@@ -2080,22 +2095,21 @@ Only large parcels can be listed in search.
              name="add_allowed"
              width="100" />
             <button
-             follows="bottom"
+             follows="right|bottom"
              height="23"
              label="Remove"
              label_selected="Remove"
              layout="topleft"
-             left_pad="10"
+             left_pad="28"
              name="remove_allowed"
-             right="-10"
              width="100" />
-             </panel>
-            <panel
+             </layout_panel>
+            <layout_panel
+            auto_resize="true"
+            user_resize="false"
             name="Banned_layout_panel"
-            follows="top|right"
             height="170"
-            width="240"
-            left_pad="146">
+            width="240">
             <text
              type="string"
              length="1"
@@ -2103,7 +2117,7 @@ Only large parcels can be listed in search.
              height="16"
              label="Ban"
              layout="topleft"
-             left="0"
+             left="1"
              name="BanCheck"
              top="0"
              width="200">
@@ -2111,11 +2125,11 @@ Only large parcels can be listed in search.
             </text>
             <name_list
              column_padding="0"
-             follows="top|bottom"
+             follows="all"
              heading_height="16"
              height="125"
              layout="topleft"
-             left="0"
+             left="1"
              multi_select="true"
              draw_heading="true"
              name="BannedList"
@@ -2135,21 +2149,21 @@ Only large parcels can be listed in search.
              height="23"
              label="Add"
              layout="topleft"
-             left="0"
+             left="1"
              name="add_banned"
              width="100" />
             <button
              enabled="false"
-             follows="bottom"
+             follows="right|bottom"
              height="23"
              label="Remove"
              label_selected="Remove"
              layout="topleft"
-             left_pad="10"
+             left_pad="29"
              name="remove_banned"
-             right="-10"
              width="100" />
-             </panel>
+             </layout_panel>
+          </layout_stack>
         </panel>
        <panel
           border="true"

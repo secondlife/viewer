@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ background_visible="true"
+ height="250"
+ layout="topleft"
+ name="script_floater"
+ can_dock="true"
+ can_minimize="true"
+ visible="false" 
+ width="350"
+ can_resize="false"
+ min_width="350"
+ min_height="200">
+</floater>

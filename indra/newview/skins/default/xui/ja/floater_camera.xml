@@ -6,32 +6,33 @@
   <floater.string name="free_mode_title">オブジェクト視点</floater.string>
   <string name="inactive_combo_text">Use preset</string>
   <panel border="false" height="123" layout="topleft" left="2" top="0" mouse_opaque="false" name="controls" width="220">
-    <!--TODO: replace + - images -->
+    <!--TODO:
+    replace + - images -->
     <panel border="false" class="camera_zoom_panel" height="123" layout="topleft" left="0" mouse_opaque="false" name="zoom" top="0" width="220">
       <joystick_rotate follows="top|left" height="78" layout="topleft" left="7" name="cam_rotate_stick" quadrant="left" sound_flags="3" visible="true" tool_tip="対象にカメラを追尾" top="25" width="78" />
       <button follows="top|left" height="18" image_disabled="AddItem_Disabled" image_selected="AddItem_Press" image_unselected="AddItem_Off" layout="topleft" left_pad="14" name="zoom_plus_btn" width="18" top="23">
         <commit_callback function="Zoom.plus" />
         <mouse_held_callback function="Zoom.plus" />
       </button>
-      <slider_bar height="50" layout="topleft" name="zoom_slider" orientation="vertical" tool_tip="カメラを上下左右に移動" top_pad="0" min_val="0" max_val="1" width="18">
+      <slider_bar height="50" layout="topleft" name="zoom_slider" orientation="vertical" tool_tip="対象にカメラをズーム" top_pad="0" min_val="0" max_val="1" width="18">
         <commit_callback function="Slider.value_changed" />
       </slider_bar>
       <button follows="top|left" height="18" image_disabled="MinusItem_Disabled" image_selected="MinusItem_Press" image_unselected="MinusItem_Off" layout="topleft" name="zoom_minus_btn" top_pad="0" width="18">
         <commit_callback function="Zoom.minus" />
         <mouse_held_callback function="Zoom.minus" />
       </button>
-      <joystick_track follows="top|left" height="78" image_selected="Cam_Tracking_In" image_unselected="Cam_Tracking_Out" layout="topleft" left="133" name="cam_track_stick" quadrant="left" scale_image="false" sound_flags="3" tool_tip="Move camera up and down, left and right" top="25" width="78" />
-      <text type="string" length="1" follows="left|top" height="15" layout="topleft" left="41" top_pad="9" name="precise_ctrs_label" width="200">Use precise controls</text>
+      <joystick_track follows="top|left" height="78" image_selected="Cam_Tracking_In" image_unselected="Cam_Tracking_Out" layout="topleft" left="133" name="cam_track_stick" quadrant="left" scale_image="false" sound_flags="3" tool_tip="カメラを上下左右に動かします。" top="25" width="78" />
+      <text type="string" length="1" follows="left|top" height="15" layout="topleft" left="41" top_pad="9" name="precise_ctrs_label" width="200">精密制御を使用する</text>
     </panel>
   </panel>
   <panel follows="all" height="102" layout="topleft" left_pad="2" name="buttons_panel" top="22" width="212">
     <panel_camera_item name="front_view" tool_tip="前方視界" width="30">
-      <panel_camera_item.mousedown_callback function="CameraPresets.ChangeView" parameter="前から見る" />
+      <panel_camera_item.mousedown_callback function="CameraPresets.ChangeView" parameter="Front View" />
       <panel_camera_item.picture image_name="Cam_Preset_Front_Off" />
       <panel_camera_item.selected_picture image_name="Cam_Preset_Front_On" />
     </panel_camera_item>
     <panel_camera_item name="group_view" tool_tip="斜方視界" width="30" left_pad="4">
-      <panel_camera_item.mousedown_callback function="CameraPresets.ChangeView" parameter="横から見る" />
+      <panel_camera_item.mousedown_callback function="CameraPresets.ChangeView" parameter="Side View" />
       <panel_camera_item.picture image_name="Cam_Preset_Side_Off" />
       <panel_camera_item.selected_picture image_name="Cam_Preset_Side_On" />
     </panel_camera_item>
@@ -54,7 +55,7 @@
       <combo_list mouse_wheel_opaque="true" />
       <combo_box.item label="プリセットを使用" name="Use preset" value="default" />
     </combo_box>
-    <button height="16" width="16" layout="topleft" mouse_opaque="true" name="gear_btn" tool_tip="My Camera Presets" top_delta="3" left_pad="10" image_selected="Icon_Gear" image_pressed="Icon_Gear" image_unselected="Icon_Gear" is_toggle="true">
+    <button height="16" width="16" layout="topleft" mouse_opaque="true" name="gear_btn" tool_tip="カメラのプリセット" top_delta="3" left_pad="10" image_selected="Icon_Gear" image_pressed="Icon_Gear" image_unselected="Icon_Gear" is_toggle="true">
       <button.commit_callback function="CameraPresets.ShowPresetsList" />
     </button>
     <button follows="top|left" height="25" label="プリセットを保存…" layout="topleft" left="0" name="save_preset_btn" top_pad="18" width="150">
