@@ -638,12 +638,6 @@ void handleUserTargetDrawDistanceChanged(const LLSD& newValue)
     LLPerfStats::tunables.userTargetDrawDistance = newval;
 }
 
-void handleUserTargetReflectionsChanged(const LLSD& newValue)
-{
-    const auto newval = gSavedSettings.getS32("UserTargetReflections");
-    LLPerfStats::tunables.userTargetReflections = newval;
-}
-
 void handlePerformanceStatsEnabledChanged(const LLSD& newValue)
 {
     const auto newval = gSavedSettings.getBOOL("PerfStatsCaptureEnabled");
@@ -736,6 +730,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderReflectionProbeDetail", handleReflectionProbeDetailChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderReflectionsEnabled", handleReflectionProbeDetailChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderScreenSpaceReflections", handleReflectionProbeDetailChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderShadowDetail", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderDeferredSSAO", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderPerformanceTest", handleRenderPerfTestChanged);
     setting_setup_signal_listener(gSavedSettings, "ChatFontSize", handleChatFontSizeChanged);
@@ -838,7 +833,6 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "AutoTuneLock", handleAutoTuneLockChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderAvatarMaxART", handleRenderAvatarMaxARTChanged);
     setting_setup_signal_listener(gSavedSettings, "PerfStatsCaptureEnabled", handlePerformanceStatsEnabledChanged);
-    setting_setup_signal_listener(gSavedSettings, "UserTargetReflections", handleUserTargetReflectionsChanged);
     setting_setup_signal_listener(gSavedSettings, "AutoTuneRenderFarClipTarget", handleUserTargetDrawDistanceChanged);
     setting_setup_signal_listener(gSavedSettings, "AutoTuneImpostorFarAwayDistance", handleUserImpostorDistanceChanged);
     setting_setup_signal_listener(gSavedSettings, "AutoTuneImpostorByDistEnabled", handleUserImpostorByDistEnabledChanged);

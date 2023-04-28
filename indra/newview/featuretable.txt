@@ -113,7 +113,6 @@ RenderReflectionProbeLevel  1   0
 list LowMid
 RenderAnisotropic			1	0
 RenderAvatarLODFactor		1	0.5
-RenderAvatarMaxNonImpostors 1   5
 RenderAvatarMaxComplexity   1	100000
 RenderAvatarPhysicsLODFactor 1	0.75
 RenderAvatarMaxNonImpostors 1   5
@@ -144,7 +143,6 @@ RenderReflectionProbeLevel  1   1
 list Mid
 RenderAnisotropic			1	1
 RenderAvatarLODFactor		1	1.0
-RenderAvatarMaxNonImpostors 1   7
 RenderAvatarMaxComplexity   1	200000
 RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarMaxNonImpostors 1   7
@@ -175,7 +173,6 @@ RenderReflectionProbeLevel  1   2
 list MidHigh
 RenderAnisotropic			1	1
 RenderAvatarLODFactor		1	1.0
-RenderAvatarMaxNonImpostors 1   9
 RenderAvatarMaxComplexity   1	250000
 RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarMaxNonImpostors 1   9
@@ -206,7 +203,6 @@ RenderReflectionProbeLevel  1   2
 list High
 RenderAnisotropic			1	1
 RenderAvatarLODFactor		1	1.0
-RenderAvatarMaxNonImpostors 1   11
 RenderAvatarMaxComplexity   1	300000
 RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarMaxNonImpostors 1   11
@@ -237,7 +233,6 @@ RenderReflectionProbeLevel  1   3
 list HighUltra
 RenderAnisotropic			1	1
 RenderAvatarLODFactor		1	1.0
-RenderAvatarMaxNonImpostors 1   16
 RenderAvatarMaxComplexity   1	350000
 RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarMaxNonImpostors 1   16

@@ -117,7 +117,6 @@ namespace LLPerfStats
         static constexpr U32 UserAutoTuneEnabled{256};
         static constexpr U32 UserTargetFPS{512};
         static constexpr U32 UserARTCutoff{1024};
-        static constexpr U32 UserTargetReflections{2048};
         static constexpr U32 UserAutoTuneLock{4096};
 
         U32 tuningFlag{0}; // bit mask for changed settings
@@ -151,7 +150,6 @@ namespace LLPerfStats
         void updateUserARTCutoffSlider(F32 nv){userARTCutoffSliderValue=nv; tuningFlag |= UserARTCutoff;};
         void updateUserAutoTuneEnabled(bool nv){userAutoTuneEnabled=nv; tuningFlag |= UserAutoTuneEnabled;};
         void updateUserAutoTuneLock(bool nv){userAutoTuneLock=nv; tuningFlag |= UserAutoTuneLock;};
-        void updateUserTargetReflections(S32 nv){userTargetReflections=nv; tuningFlag |= UserTargetReflections;};
 
         void resetChanges(){tuningFlag=Nothing;};
         void initialiseFromSettings();

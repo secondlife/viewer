@@ -16953,17 +16953,6 @@
     <key>Value</key>
     <real>256.0</real>
   </map>
-  <key>UserTargetReflections</key>
-  <map>
-    <key>Comment</key>
-    <string>Set by auto tune floater on build</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>S32</string>
-    <key>Value</key>
-    <integer>4</integer>
-  </map>
   <key>PerfStatsCaptureEnabled</key>
   <map>
     <key>Comment</key>

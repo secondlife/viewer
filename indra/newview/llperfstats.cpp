@@ -75,7 +75,6 @@ namespace LLPerfStats
         if( tuningFlag & UserAutoTuneEnabled ){ gSavedSettings.setBOOL("AutoTuneFPS", userAutoTuneEnabled); };
         if( tuningFlag & UserAutoTuneLock ){ gSavedSettings.setBOOL("AutoTuneLock", userAutoTuneLock); };
         if( tuningFlag & UserTargetFPS ){ gSavedSettings.setU32("TargetFPS", userTargetFPS); };
-        if( tuningFlag & UserTargetReflections ){ gSavedSettings.setS32("UserTargetReflections", userTargetReflections); };
         // Note: The Max ART slider is logarithmic and thus we have an intermediate proxy value
         if( tuningFlag & UserARTCutoff ){ gSavedSettings.setF32("RenderAvatarMaxART", userARTCutoffSliderValue); };
         resetChanges();
@@ -122,7 +121,6 @@ namespace LLPerfStats
         LLPerfStats::tunables.userFPSTuningStrategy = gSavedSettings.getU32("TuningFPSStrategy");
         LLPerfStats::tunables.userTargetFPS = gSavedSettings.getU32("TargetFPS");
         LLPerfStats::tunables.vsyncEnabled = gSavedSettings.getBOOL("RenderVSyncEnable");
-        LLPerfStats::tunables.userTargetReflections = gSavedSettings.getS32("UserTargetReflections");
 
         LLPerfStats::tunables.userAutoTuneLock = gSavedSettings.getBOOL("AutoTuneLock") && gSavedSettings.getU32("KeepAutoTuneLock");
 

@@ -142,8 +142,6 @@ BOOL LLFloaterPerformance::postBuild()
     mMaxARTChangedSignal = gSavedSettings.getControl("RenderAvatarMaxART")->getCommitSignal()->connect(boost::bind(&LLFloaterPerformance::updateMaxRenderTime, this));
     mNearbyPanel->getChild<LLSliderCtrl>("RenderAvatarMaxART")->setCommitCallback(boost::bind(&LLFloaterPerformance::updateMaxRenderTime, this));
 
-    // store the current setting as the users desired reflection detail and DD
-    //gSavedSettings.setS32("UserTargetReflections", LLPipeline::RenderReflectionDetail);
     if(!LLPerfStats::tunables.userAutoTuneEnabled)
     {
         gSavedSettings.setF32("AutoTuneRenderFarClipTarget", LLPipeline::RenderFarClip);
