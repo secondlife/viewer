@@ -197,6 +197,7 @@ LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
 
 const F32 BACKLIGHT_DAY_MAGNITUDE_OBJECT = 0.1f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_OBJECT = 0.08f;
+const F32 ALPHA_BLEND_CUTOFF = 0.598f;
 const F32 DEFERRED_LIGHT_FALLOFF = 0.5f;
 const U32 DEFERRED_VB_MASK = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1;
 
@@ -6764,6 +6765,8 @@ void LLPipeline::renderAlphaObjects(bool rigged)
     assertInitialized();
     gGL.loadMatrix(gGLModelView);
     gGLLastMatrix = NULL;
+    S32 sun_up = LLEnvironment::instance().getIsSunUp() ? 1 : 0;
+    U32 target_width = LLRenderTarget::sCurResX;
     U32 type = LLRenderPass::PASS_ALPHA;
     LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
@@ -6786,10 +6789,18 @@ void LLPipeline::renderAlphaObjects(bool rigged)
         {
             if (pparams->mGLTFMaterial)
             {
+                gDeferredShadowGLTFAlphaMaskProgram.bind(rigged);
+                LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
+                LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
+                LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
                 mSimplePool->pushRiggedGLTFBatch(*pparams, lastAvatar, lastMeshId);
             }
             else
             {
+                gDeferredShadowAlphaMaskProgram.bind(rigged);
+                LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
+                LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
+                LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
                 if (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash)
                 {
                     mSimplePool->uploadMatrixPalette(*pparams);
@@ -6797,18 +6808,26 @@ void LLPipeline::renderAlphaObjects(bool rigged)
                     lastMeshId = pparams->mSkinInfo->mHash;
                 }
 
-                mSimplePool->pushBatch(*pparams, true, true, true);
+                mSimplePool->pushBatch(*pparams, true, true);
             }
         }
         else
         {
             if (pparams->mGLTFMaterial)
             {
+                gDeferredShadowGLTFAlphaMaskProgram.bind(rigged);
+                LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
+                LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
+                LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
                 mSimplePool->pushGLTFBatch(*pparams);
             }
             else
             {
-                mSimplePool->pushBatch(*pparams, true, true, true);
+                gDeferredShadowAlphaMaskProgram.bind(rigged);
+                LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
+                LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
+                LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
+                mSimplePool->pushBatch(*pparams, true, true);
             }
         }
     }
@@ -6825,11 +6844,11 @@ void LLPipeline::renderMaskedObjects(U32 type, bool texture, bool batch_texture,
 	gGLLastMatrix = NULL;
     if (rigged)
     {
-        mAlphaMaskPool->pushRiggedMaskBatches(type+1, texture, batch_texture, true);
+        mAlphaMaskPool->pushRiggedMaskBatches(type+1, texture, batch_texture);
     }
     else
     {
-        mAlphaMaskPool->pushMaskBatches(type, texture, batch_texture, true);
+        mAlphaMaskPool->pushMaskBatches(type, texture, batch_texture);
     }
 	gGL.loadMatrix(gGLModelView);
 	gGLLastMatrix = NULL;		
@@ -6843,11 +6862,11 @@ void LLPipeline::renderFullbrightMaskedObjects(U32 type, bool texture, bool batc
 	gGLLastMatrix = NULL;
     if (rigged)
     {
-        mFullbrightAlphaMaskPool->pushRiggedMaskBatches(type+1, texture, batch_texture, true);
+        mFullbrightAlphaMaskPool->pushRiggedMaskBatches(type+1, texture, batch_texture);
     }
     else
     {
-        mFullbrightAlphaMaskPool->pushMaskBatches(type, texture, batch_texture, true);
+        mFullbrightAlphaMaskPool->pushMaskBatches(type, texture, batch_texture);
     }
 	gGL.loadMatrix(gGLModelView);
 	gGLLastMatrix = NULL;		
@@ -8834,8 +8853,6 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 
     stop_glerror();
 
-    LLEnvironment& environment = LLEnvironment::instance();
-
     struct CompareVertexBuffer
     {
         bool operator()(const LLDrawInfo* const& lhs, const LLDrawInfo* const& rhs)
@@ -8850,7 +8867,6 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
     {
         bool rigged = j == 1;
         gDeferredShadowProgram.bind(rigged);
-        LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
 
         gGL.diffuseColor4f(1, 1, 1, 1);
 
@@ -8895,27 +8911,25 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow alpha");
         LL_PROFILE_GPU_ZONE("shadow alpha");
-
+        const S32 sun_up = LLEnvironment::instance().getIsSunUp() ? 1 : 0;
         U32 target_width = LLRenderTarget::sCurResX;
 
         for (int i = 0; i < 2; ++i)
         {
             bool rigged = i == 1;
 
-            gDeferredShadowAlphaMaskProgram.bind(rigged);
-            LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
-            LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
-
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow alpha masked");
                 LL_PROFILE_GPU_ZONE("shadow alpha masked");
+                gDeferredShadowAlphaMaskProgram.bind(rigged);
+                LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
+                LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 renderMaskedObjects(LLRenderPass::PASS_ALPHA_MASK, true, true, rigged);
             }
 
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow alpha blend");
                 LL_PROFILE_GPU_ZONE("shadow alpha blend");
-                LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(0.598f);
                 renderAlphaObjects(rigged);
             }
 
@@ -8923,8 +8937,8 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
                 LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow fullbright alpha masked");
                 LL_PROFILE_GPU_ZONE("shadow alpha masked");
                 gDeferredShadowFullbrightAlphaMaskProgram.bind(rigged);
+                LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
-                LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
                 renderFullbrightMaskedObjects(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, true, true, rigged);
             }
 
@@ -8932,9 +8946,10 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
                 LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow alpha grass");
                 LL_PROFILE_GPU_ZONE("shadow alpha grass");
                 gDeferredTreeShadowProgram.bind(rigged);
+                LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
+
                 if (i == 0)
                 {
-                    LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(0.598f);
                     renderObjects(LLRenderPass::PASS_GRASS, true);
                 }
 
@@ -8953,8 +8968,8 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
         {
             bool rigged = i == 1;
             gDeferredShadowGLTFAlphaMaskProgram.bind(rigged);
+            LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
             LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
-            LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
             
             gGL.loadMatrix(gGLModelView);
             gGLLastMatrix = NULL;

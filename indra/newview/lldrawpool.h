@@ -349,17 +349,15 @@ public:
 	void resetDrawOrders() { }
 
 	static void applyModelMatrix(const LLDrawInfo& params);
-    static void resetGLTFTextureTransform();
-	virtual void pushBatches(U32 type, bool texture = true, bool batch_textures = false, bool reset_gltf = false);
-    virtual void pushRiggedBatches(U32 type, bool texture = true, bool batch_textures = false, bool reset_gltf = false);
+	virtual void pushBatches(U32 type, bool texture = true, bool batch_textures = false);
+    virtual void pushRiggedBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushGLTFBatches(U32 type);
     void pushGLTFBatch(LLDrawInfo& params);
     void pushRiggedGLTFBatches(U32 type);
     void pushRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId);
-	virtual void pushMaskBatches(U32 type, bool texture = true, bool batch_textures = false, bool reset_gltf = false);
-    virtual void pushRiggedMaskBatches(U32 type, bool texture = true, bool batch_textures = false, bool reset_gltf = false);
-    // reset_gltf: batch is interleaved with GLTF batches that share the same shader
-	virtual void pushBatch(LLDrawInfo& params, bool texture, bool batch_textures = false, bool reset_gltf = false);
+	virtual void pushMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
+    virtual void pushRiggedMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
+	virtual void pushBatch(LLDrawInfo& params, bool texture, bool batch_textures = false);
     static bool uploadMatrixPalette(LLDrawInfo& params);
     static bool uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinInfo);
 	virtual void renderGroup(LLSpatialGroup* group, U32 type, bool texture = true);
