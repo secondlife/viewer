@@ -1550,6 +1550,7 @@ void AISUpdate::doUpdate()
 	}
 
 	// CREATE CATEGORIES
+    const S32 MAX_UPDATE_BACKLOG = 50; // stall prevention
 	for (deferred_category_map_t::const_iterator create_it = mCategoriesCreated.begin();
 		 create_it != mCategoriesCreated.end(); ++create_it)
 	{
@@ -1558,6 +1559,13 @@ void AISUpdate::doUpdate()
 
 		gInventory.updateCategory(new_category, LLInventoryObserver::CREATE);
 		LL_DEBUGS("Inventory") << "created category " << category_id << LL_ENDL;
+
+        // fetching can receive massive amount of items and fodlers
+        if (gInventory.getChangedIDs().size() > MAX_UPDATE_BACKLOG)
+        {
+            gInventory.notifyObservers();
+            checkTimeout();
+        }
 	}
 
 	// UPDATE CATEGORIES
@@ -1612,6 +1620,13 @@ void AISUpdate::doUpdate()
 		// case this is create.
 		LL_DEBUGS("Inventory") << "created item " << item_id << LL_ENDL;
 		gInventory.updateItem(new_item, LLInventoryObserver::CREATE);
+
+        // fetching can receive massive amount of items and fodlers
+        if (gInventory.getChangedIDs().size() > MAX_UPDATE_BACKLOG)
+        {
+            gInventory.notifyObservers();
+            checkTimeout();
+        }
 	}
 	
 	// UPDATE ITEMS

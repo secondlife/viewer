@@ -130,7 +130,7 @@ private:
     // Debug is very log-heavy, give it more time or it will take forever to process
     // Todo: find a way to make throttle static isntead of per-request
     const F32 EXPIRY_SECONDS_DEBUG = 1.f;
-    const F32 EXPIRY_SECONDS_LIVE = 0.01f;
+    const F32 EXPIRY_SECONDS_LIVE = 0.008f;
 
 	typedef std::map<LLUUID,S32> uuid_int_map_t;
 	uuid_int_map_t mCatDescendentDeltas;
