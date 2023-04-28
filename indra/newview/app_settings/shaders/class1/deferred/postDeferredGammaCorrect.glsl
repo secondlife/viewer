@@ -177,7 +177,7 @@ void main()
 
     diff.rgb = toneMap(diff.rgb);
 
-#if LEGACY_GAMMA
+#ifdef LEGACY_GAMMA
 #ifndef NO_POST
     diff.rgb = legacyGamma(diff.rgb);
 #endif
