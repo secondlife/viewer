@@ -729,9 +729,11 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                     gInventory.getDirectDescendentsOf(cat_id, categories, items);
 
                     LLViewerInventoryCategory::EFetchType target_state = LLViewerInventoryCategory::FETCH_RECURSIVE;
-                    // technically limit is 'as many as you can put into url', but for now stop at 10
-                    const S32 batch_limit = 20;
                     bool content_done = true;
+
+                    // Top limit is 'as many as you can put into url'
+                    static LLCachedControl<S32> ais_batch(gSavedSettings, "BatchSizeAIS3", 20);
+                    S32 batch_limit = llclamp(ais_batch(), 1, 40);
 
                     for (LLInventoryModel::cat_array_t::iterator it = categories->begin();
                          it != categories->end();

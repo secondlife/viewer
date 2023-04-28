@@ -690,9 +690,16 @@ void LLViewerInventoryCategory::setFetching(LLViewerInventoryCategory::EFetchTyp
     {
         if (mDescendentsRequested.hasExpired() || (mFetching == FETCH_NONE))
         {
-            const F32 FETCH_TIMER_EXPIRY = 30.0f;
             mDescendentsRequested.reset();
-            mDescendentsRequested.setTimerExpirySec(FETCH_TIMER_EXPIRY);
+            if (AISAPI::isAvailable())
+            {
+                mDescendentsRequested.setTimerExpirySec(AISAPI::HTTP_TIMEOUT);
+            }
+            else
+            {
+                const F32 FETCH_TIMER_EXPIRY = 30.0f;
+                mDescendentsRequested.setTimerExpirySec(FETCH_TIMER_EXPIRY);
+            }
         }
         mFetching = fetching;
     }

@@ -46,6 +46,7 @@
 //=========================================================================
 const std::string AISAPI::INVENTORY_CAP_NAME("InventoryAPIv3");
 const std::string AISAPI::LIBRARY_CAP_NAME("LibraryAPIv3");
+const S32 AISAPI::HTTP_TIMEOUT = 180;
 
 std::list<AISAPI::ais_query_item_t> AISAPI::sPostponedQuery;
 
@@ -823,7 +824,7 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
     LLCore::HttpHeaders::ptr_t httpHeaders;
 
-    httpOptions->setTimeout(180);
+    httpOptions->setTimeout(HTTP_TIMEOUT);
 
     LL_DEBUGS("Inventory") << "Request url: " << url << LL_ENDL;
 

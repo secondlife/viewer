@@ -38,6 +38,7 @@
 class AISAPI
 {
 public:
+    static const S32 HTTP_TIMEOUT;
     typedef enum {
         INVENTORY,
         LIBRARY
