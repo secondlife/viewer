@@ -590,13 +590,6 @@ void LLRenderPass::applyModelMatrix(const LLDrawInfo& params)
 	}
 }
 
-void LLRenderPass::resetGLTFTextureTransform()
-{
-    F32 ignore_gltf_transform[8];
-    LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(ignore_gltf_transform);
-    LLGLSLShader::sCurBoundShaderPtr->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)ignore_gltf_transform);
-}
-
 void LLRenderPass::pushBatch(LLDrawInfo& params, bool texture, bool batch_textures)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;

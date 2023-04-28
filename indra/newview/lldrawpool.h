@@ -349,8 +349,6 @@ public:
 	void resetDrawOrders() { }
 
 	static void applyModelMatrix(const LLDrawInfo& params);
-    // Use before a non-GLTF batch if it is interleaved with GLTF batches that share the same shader
-    static void resetGLTFTextureTransform();
 	virtual void pushBatches(U32 type, bool texture = true, bool batch_textures = false);
     virtual void pushRiggedBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushGLTFBatches(U32 type);
