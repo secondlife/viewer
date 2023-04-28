@@ -1,9 +1,9 @@
 /** 
- * @file shadowAlphaMaskF.glsl
+ * @file pbrShadowAlphaMaskF.glsl
  *
- * $LicenseInfo:firstyear=2011&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2011, Linden Research, Inc.
+ * Copyright (C) 2023, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,8 +23,6 @@
  * $/LicenseInfo$
  */
 
-/*[EXTRA_CODE_HERE]*/
-
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -41,29 +39,12 @@ uniform float minimum_alpha;
 
 void main() 
 {
-	float alpha = diffuseLookup(vary_texcoord0.xy).a;
+    float alpha = diffuseLookup(vary_texcoord0.xy).a;
 
     if (alpha < minimum_alpha)
     {
         discard;
     }
 
-#if !defined(IS_FULLBRIGHT)
-    alpha *= vertex_color.a;
-#endif
-
-    if (alpha < 0.05) // treat as totally transparent
-    {
-        discard;
-    }
-
-    if (alpha < 0.88) // treat as semi-transparent
-    {
-        if (fract(0.5*floor(target_pos_x / post_pos.w )) < 0.25)
-        {
-            discard;
-        }
-    }
-
-	frag_color = vec4(1,1,1,1);
+    frag_color = vec4(1,1,1,1);
 }
