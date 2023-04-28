@@ -408,6 +408,7 @@ bool LLFeatureManager::loadGPUClass()
 {
 	if (!gSavedSettings.getBOOL("SkipBenchmark"))
 	{
+		F32 class1_gbps = gSavedSettings.getF32("RenderClass1MemoryBandwidth");
 		//get memory bandwidth from benchmark
 		F32 gbps;
 		try
@@ -442,19 +443,19 @@ bool LLFeatureManager::loadGPUClass()
 			mGPUClass = GPU_CLASS_0;
 	#endif
 		}
-		else if (gbps <= 32.0f)
+		else if (gbps <= class1_gbps)
 		{
 			mGPUClass = GPU_CLASS_1;
 		}
-		else if (gbps <= 64.0f)
+		else if (gbps <= class1_gbps *2.f)
 		{
 			mGPUClass = GPU_CLASS_2;
 		}
-		else if (gbps <= 128.0f)
+		else if (gbps <= class1_gbps*4.f)
 		{
 			mGPUClass = GPU_CLASS_3;
 		}
-		else if (gbps <= 256.0f)
+		else if (gbps <= class1_gbps*8.f)
 		{
 			mGPUClass = GPU_CLASS_4;
 		}

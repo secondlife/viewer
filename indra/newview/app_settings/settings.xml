@@ -8828,6 +8828,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>RenderClass1MemoryBandwidth</key>
+  <map>
+    <key>Comment</key>
+    <string>Memory bandwidth at which to default to Class 1 in gigabytes per second.  Used as basis for higher classes.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>32.0</real>
+  </map>
   <key>RenderCloudShadowAmbianceFactor</key>
   <map>
     <key>Comment</key>
