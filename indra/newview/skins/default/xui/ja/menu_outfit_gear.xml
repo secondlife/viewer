@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="Gear Outfit">
-  <menu_item_call label="着る - 着用中の衣装を入れ替える" name="wear" />
-  <menu_item_call label="着る - 着用中の衣装に追加する" name="wear_add" />
-  <menu_item_call label="取り外す - 着用中の衣装から取り除く" name="take_off" />
+  <menu_item_call label="着る－着用中の衣装を入れ替える" name="wear" />
+  <menu_item_call label="着る－着用中の衣装に追加する" name="wear_add" />
+  <menu_item_call label="脱ぐ－着用中の衣装から取り外す" name="take_off" />
   <menu_item_call label="画像をアップロード（L$10）" name="upload_photo" />
   <menu_item_call label="画像を選択" name="select_photo" />
   <menu_item_call label="スナップショットを撮る" name="take_snapshot" />
   <menu_item_call label="画像を削除" name="remove_photo" />
-  <menu label="衣類" name="New Clothes">
+  <menu label="服装" name="New Clothes">
     <menu_item_call label="シャツ" name="New Shirt" />
     <menu_item_call label="ズボン" name="New Pants" />
     <menu_item_call label="靴" name="New Shoes" />

@@ -8,8 +8,8 @@
   <icon name="icon_animation" tool_tip="アニメーション" />
   <check_box label="身体部位" name="check_bodypart" />
   <icon name="icon_bodypart" tool_tip="身体部位" />
-  <check_box label="服" name="check_clothing" />
-  <icon name="icon_clothing" tool_tip="衣類" />
+  <check_box label="服装" name="check_clothing" />
+  <icon name="icon_clothing" tool_tip="服装" />
   <check_box label="ジェスチャー" name="check_gesture" />
   <icon name="icon_gesture" tool_tip="ジェスチャー" />
   <check_box label="ノートカード" name="check_notecard" />

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu layout="topleft" name="Outfit">
-  <menu_item_call label="衣装－現在の衣装と交換" layout="topleft" name="wear_replace">
+  <menu_item_call label="衣装－この衣装に着替える" layout="topleft" name="wear_replace">
     <on_click function="Outfit.WearReplace" />
     <on_enable function="Outfit.OnEnable" parameter="wear_replace" />
     <on_visible function="Outfit.OnVisible" parameter="wear_replace" />
   </menu_item_call>
-  <menu_item_call label="衣装－現在の衣装に追加" layout="topleft" name="wear_add">
+  <menu_item_call label="衣装－この衣装に追加する" layout="topleft" name="wear_add">
     <on_click function="Outfit.WearAdd" />
     <on_enable function="Outfit.OnEnable" parameter="wear_add" />
     <on_visible function="Outfit.OnVisible" parameter="wear_add" />
   </menu_item_call>
-  <menu_item_call label="脱ぐ－現在の衣装から削除" layout="topleft" name="take_off">
+  <menu_item_call label="衣装－この衣装から取り外す" layout="topleft" name="take_off">
     <on_click function="Outfit.TakeOff" />
     <on_enable function="Outfit.OnEnable" parameter="take_off" />
     <on_visible function="Outfit.OnVisible" parameter="take_off" />
@@ -29,7 +29,7 @@
     <on_visible function="Outfit.OnVisible" parameter="remove_photo" />
   </menu_item_call>
   <menu_item_separator name="sepatator1" />
-  <menu height="175" label="新しい服" layout="topleft" left_delta="0" mouse_opaque="false" name="New Clothes" top_pad="514" width="125">
+  <menu height="175" label="新しい服装" layout="topleft" left_delta="0" mouse_opaque="false" name="New Clothes" top_pad="514" width="125">
     <menu_item_call label="新しいシャツ" layout="topleft" name="New Shirt">
       <menu_item_call.on_click function="Outfit.Create" parameter="shirt" />
     </menu_item_call>
@@ -60,7 +60,7 @@
     <menu_item_call label="新しいアルファ" layout="topleft" name="New Alpha">
       <menu_item_call.on_click function="Outfit.Create" parameter="alpha" />
     </menu_item_call>
-    <menu_item_call label="新しい物理" layout="topleft" name="New Physics">
+    <menu_item_call label="新しい物理作用" layout="topleft" name="New Physics">
       <menu_item_call.on_click function="Outfit.Create" parameter="physics" />
     </menu_item_call>
     <menu_item_call label="新しいタトゥ" layout="topleft" name="New Tattoo">

@@ -16,14 +16,14 @@
     <combo_box follows="top|left" height="20" layout="topleft" left_delta="135" name="language_select_combo_2" top_delta="0" width="55">
       <combo_box.item label="en" name="item1" value="en" />
     </combo_box>
-    <button follows="left|top" height="25" label="Show" layout="topleft" left_pad="10" name="display_floater_2" tool_tip="選択したXMLファイルで定義されたXUIフロータを表示します。" top_delta="-2" width="95" />
+    <button follows="left|top" height="25" label="表示" layout="topleft" left_pad="10" name="display_floater_2" tool_tip="選択したXMLファイルで定義されたXUIフロータを表示します。" top_delta="-2" width="95" />
     <button enabled="false" follows="left|top" height="25" label="非表示" layout="topleft" left_pad="10" name="close_displayed_floater_2" tool_tip="現在表示されているフローターが存在する場合は、それを閉じます。" top_delta="0" width="85" />
     <button follows="left|top" height="25" label="スキーマをエクスポート" layout="topleft" left_pad="10" name="export_schema" top_delta="0" width="120" />
     <check_box follows="left|top" label="四角形を表示" name="show_rectangles" left_pad="10" top_delta="0" height="25" width="120" />
     <scroll_list bottom="525" column_padding="0" draw_heading="true" draw_stripes="false" follows="left|top|bottom|right" label="Name" layout="topleft" left="10" name="name_list" right="-10" tab_group="1" search_column="1" top="80">
       <scroll_list.columns label="タイトル" name="title_column" width="150" />
-      <scroll_list.columns label="ファイル" name="file_column" width="150" />
-      <scroll_list.columns dynamic_width="true" label="Top-Level Node" name="top_level_node_column" />
+      <scroll_list.columns label="ファイル名" name="file_column" width="150" />
+      <scroll_list.columns dynamic_width="true" label="トップレベルのノード" name="top_level_node_column" />
     </scroll_list>
     <panel bevel_style="in" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3" border="true" bottom_delta="65" follows="left|right|bottom" height="60" layout="topleft" left="10" name="editor_panel" right="-10">
       <text type="string" length="1" follows="left|bottom" font="SansSerif" height="30" layout="topleft" left="10" left_delta="10" name="editor_path_label" top="10" width="100">エディタのパス：</text>

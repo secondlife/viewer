@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="item properties" title="インベントリアイテムのプロパティ">
-  <floater.string name="unknown">(不明）</floater.string>
-  <floater.string name="public">(公共)</floater.string>
+  <floater.string name="unknown">（不明）</floater.string>
+  <floater.string name="public">（公共）</floater.string>
   <floater.string name="you_can">できること：</floater.string>
   <floater.string name="owner_can">オーナーは次のことができます：</floater.string>
-  <floater.string name="acquiredDate">[year,datetime,local]／[mth,datetime,local]／[day,datetime,local]（[wkday,datetime,local]）
-[hour,datetime,local]：[min,datetime,local]：[second,datetime,local]</floater.string>
+  <floater.string name="acquiredDate">[year,datetime,local]／[mth,datetime,local]／[day,datetime,local]（[wkday,datetime,local]）[hour,datetime,local]：[min,datetime,local]：[second,datetime,local]</floater.string>
   <text name="LabelItemNameTitle">名前：</text>
   <text name="LabelItemDescTitle">説明：</text>
   <text name="LabelCreatorTitle">クリエーター</text>

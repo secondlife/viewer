@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater width="365" height="330" layout="topleft" min_height="330" min_width="365" name="floater_lightbox_settings" positioning="cascading" title="LIGHTBOX WORK IN PROGRESS" save_rect="true" can_resize="false" can_resize_height="false">
+<floater width="365" height="330" layout="topleft" min_height="330" min_width="365" name="floater_lightbox_settings" positioning="cascading" title="作業中のライトボックス" save_rect="true" can_resize="false" can_resize_height="false">
   <tab_container top_pad="0" enabled="true" follows="left|top" height="330" left_delta="5" mouse_opaque="false" name="lightbox_tab_container" tab_position="top" tab_stop="false" width="350">
     <!--Image Panel-->
-    <panel label="Image" class="colortone_settings" layout="topleft" name="colortone_settings" can_resize="false">
+    <panel label="画像" class="colortone_settings" layout="topleft" name="colortone_settings" can_resize="false">
       <!--LUT Control-->
       <text follows="left|top" height="15" left="10" top_pad="6" width="60" layout="topleft" tool_tip="画像の色彩調整に使用するカラーグレーディングLUT (ルックアップテクスチャ)。カスタムLUTを使用するには完全なファイル名が必要です！" value="アクティブなLUT：" />
       <!--TODO: Make more flexible?-->
@@ -48,7 +48,7 @@
       <spinner top_pad="-20" height="15" label_width="0" right="-20" decimal_digits="1" follows="top|right" layout="topleft" max_val="1.0" min_val="0.0" width="55" increment=".1" name="sharp_strength_spinner" control_name="">
         <spinner.commit_callback function="LightBox.CASCommit" parameter="spinner" />
       </spinner>
-      <text name="sharp_dynamic_text" follows="left|top" height="15" left="30" top_pad="10" width="50" layout="topleft" value="Contrast:" />
+      <text name="sharp_dynamic_text" follows="left|top" height="15" left="30" top_pad="10" width="50" layout="topleft" value="コントラスト：" />
       <slider top_pad="-18" height="20" increment=".1" follows="left|top|right" layout="topleft" max_val="1.0" min_val="0.0" left_delta="80" right="-75" show_text="false" name="sharp_dynamic_slider" control_name="">
         <slider.commit_callback function="LightBox.CASCommit" parameter="slider" />
       </slider>
@@ -59,7 +59,7 @@
         <button.commit_callback function="LightBox.ResetGroupDefault" parameter="sharpen" />
       </button>
       <!--Tonemapper Control-->
-      <text follows="left|top" height="15" left="10" top_pad="6" width="70" layout="topleft" tool_tip="HDR色空間をSDR色空間に変換するアルゴリズムを選択してください。" value="Tonemapper:" />
+      <text follows="left|top" height="15" left="10" top_pad="6" width="70" layout="topleft" tool_tip="HDR色空間をSDR色空間に変換するアルゴリズムを選択してください。" value="トーンマップ：" />
       <combo_box allow_text_entry="false" tool_tip="HDR色空間をSDR色空間に変換するアルゴリズムを選択してください。" control_name="RenderToneMapType" follows="left|top" height="16" layout="topleft" left_delta="70" max_chars="128" name="tonemap_type_combo" top_pad="-16" width="80">
         <combo_box.item label="リニア" name="toneLinear" value="1" />
         <combo_box.item label="ラインハルト" name="toneReinhard" value="2" />
@@ -86,49 +86,49 @@
         <spinner.commit_callback function="LightBox.TonemapperCommit" parameter="spinner" />
       </spinner>
 
-      <text visible="false" name="tonemapper_dynamic_text2" follows="left|top" height="15" left="30" top_pad="10" width="100" layout="topleft" value="TonemapD2:" />
+      <text visible="false" name="tonemapper_dynamic_text2" follows="left|top" height="15" left="30" top_pad="10" width="100" layout="topleft" value="トーンマップD2：" />
       <slider visible="false" top_pad="-18" height="20" increment=".1" follows="left|top|right" layout="topleft" max_val="1.0" min_val="0.0" left_delta="100" right="-55" show_text="false" name="tonemapper_dynamic_slider2" control_name="">
         <slider.commit_callback function="LightBox.TonemapperCommit" parameter="slider" />
       </slider>
       <spinner visible="false" top_pad="-20" height="15" label_width="0" right="-1" decimal_digits="1" follows="top|right" layout="topleft" max_val="1.0" min_val="0.0" width="55" increment=".1" name="tonemapper_dynamic_spinner2" control_name="">
         <spinner.commit_callback function="LightBox.TonemapperCommit" parameter="spinner" />
       </spinner>
-      <text visible="false" name="tonemapper_dynamic_text3" follows="left|top" height="15" left="30" top_pad="10" width="100" layout="topleft" value="TonemapD3:" />
+      <text visible="false" name="tonemapper_dynamic_text3" follows="left|top" height="15" left="30" top_pad="10" width="100" layout="topleft" value="トーンマップD3：" />
       <slider visible="false" top_pad="-18" height="20" increment=".1" follows="left|top|right" layout="topleft" max_val="1.0" min_val="0.0" left_delta="100" right="-55" show_text="false" name="tonemapper_dynamic_slider3" control_name="">
         <slider.commit_callback function="LightBox.TonemapperCommit" parameter="slider" />
       </slider>
       <spinner visible="false" top_pad="-20" height="15" label_width="0" right="-1" decimal_digits="1" follows="top|right" layout="topleft" max_val="1.0" min_val="0.0" width="55" increment=".1" name="tonemapper_dynamic_spinner3" control_name="">
         <spinner.commit_callback function="LightBox.TonemapperCommit" parameter="spinner" />
       </spinner>
-      <text visible="false" name="tonemapper_dynamic_text4" follows="left|top" height="15" left="30" top_pad="10" width="100" layout="topleft" value="TonemapD4:" />
+      <text visible="false" name="tonemapper_dynamic_text4" follows="left|top" height="15" left="30" top_pad="10" width="100" layout="topleft" value="トーンマップD4：" />
       <slider visible="false" top_pad="-18" height="20" increment=".1" follows="left|top|right" layout="topleft" max_val="1.0" min_val="0.0" left_delta="100" right="-55" show_text="false" name="tonemapper_dynamic_slider4" control_name="">
         <slider.commit_callback function="LightBox.TonemapperCommit" parameter="slider" />
       </slider>
       <spinner visible="false" top_pad="-20" height="15" label_width="0" right="-1" decimal_digits="1" follows="top|right" layout="topleft" max_val="1.0" min_val="0.0" width="55" increment=".1" name="tonemapper_dynamic_spinner4" control_name="">
         <spinner.commit_callback function="LightBox.TonemapperCommit" parameter="spinner" />
       </spinner>
-      <text visible="false" name="tonemapper_dynamic_text5" follows="left|top" height="15" left="30" top_pad="10" width="100" layout="topleft" value="TonemapD5:" />
+      <text visible="false" name="tonemapper_dynamic_text5" follows="left|top" height="15" left="30" top_pad="10" width="100" layout="topleft" value="トーンマップD5：" />
       <slider visible="false" top_pad="-18" height="20" increment=".1" follows="left|top|right" layout="topleft" max_val="1.0" min_val="0.0" left_delta="100" right="-55" show_text="false" name="tonemapper_dynamic_slider5" control_name="">
         <slider.commit_callback function="LightBox.TonemapperCommit" parameter="slider" />
       </slider>
       <spinner visible="false" top_pad="-20" height="15" label_width="0" right="-1" decimal_digits="1" follows="top|right" layout="topleft" max_val="1.0" min_val="0.0" width="55" increment=".1" name="tonemapper_dynamic_spinner5" control_name="">
         <spinner.commit_callback function="LightBox.TonemapperCommit" parameter="spinner" />
       </spinner>
-      <text visible="false" name="tonemapper_dynamic_text6" follows="left|top" height="15" left="30" top_pad="10" width="100" layout="topleft" value="TonemapD6:" />
+      <text visible="false" name="tonemapper_dynamic_text6" follows="left|top" height="15" left="30" top_pad="10" width="100" layout="topleft" value="トーンマップD6：" />
       <slider visible="false" top_pad="-18" height="20" increment=".1" follows="left|top|right" layout="topleft" max_val="1.0" min_val="0.0" left_delta="100" right="-55" show_text="false" name="tonemapper_dynamic_slider6" control_name="">
         <slider.commit_callback function="LightBox.TonemapperCommit" parameter="slider" />
       </slider>
       <spinner visible="false" top_pad="-20" height="15" label_width="0" right="-1" decimal_digits="1" follows="top|right" layout="topleft" max_val="1.0" min_val="0.0" width="55" increment=".1" name="tonemapper_dynamic_spinner6" control_name="">
         <spinner.commit_callback function="LightBox.TonemapperCommit" parameter="spinner" />
       </spinner>
-      <text visible="false" name="tonemapper_dynamic_text7" follows="left|top" height="15" left="30" top_pad="10" width="100" layout="topleft" value="TonemapD7:" />
+      <text visible="false" name="tonemapper_dynamic_text7" follows="left|top" height="15" left="30" top_pad="10" width="100" layout="topleft" value="トーンマップD7：" />
       <slider visible="false" top_pad="-18" height="20" increment=".1" follows="left|top|right" layout="topleft" max_val="1.0" min_val="0.0" left_delta="100" right="-55" show_text="false" name="tonemapper_dynamic_slider7" control_name="">
         <slider.commit_callback function="LightBox.TonemapperCommit" parameter="slider" />
       </slider>
       <spinner visible="false" top_pad="-20" height="15" label_width="0" right="-1" decimal_digits="1" follows="top|right" layout="topleft" max_val="1.0" min_val="0.0" width="55" increment=".1" name="tonemapper_dynamic_spinner7" control_name="">
         <spinner.commit_callback function="LightBox.TonemapperCommit" parameter="spinner" />
       </spinner>
-      <text visible="false" name="tonemapper_dynamic_text8" follows="left|top" height="15" left="30" top_pad="10" width="100" layout="topleft" value="TonemapD8:" />
+      <text visible="false" name="tonemapper_dynamic_text8" follows="left|top" height="15" left="30" top_pad="10" width="100" layout="topleft" value="トーンマップD8：" />
       <slider visible="false" top_pad="-18" height="20" increment=".1" follows="left|top|right" layout="topleft" max_val="1.0" min_val="0.0" left_delta="100" right="-55" show_text="false" name="tonemapper_dynamic_slider8" control_name="">
         <slider.commit_callback function="LightBox.TonemapperCommit" parameter="slider" />
       </slider>
@@ -141,8 +141,8 @@
     <panel label="レンダリング" class="render_settings" layout="topleft" name="render_settings">
       <!--Anti-Aliasing-->
       <text follows="left|top" height="15" left="10" top_pad="4" width="75" layout="topleft" tool_tip="アンチエイリアシングの品質を制御" value="アンチエイリアシング：" />
-      <check_box follows="left|top" height="15" left="115" top_pad="-14" width="80" layout="topleft" label="Use SMAA" tool_tip="Toggles using Subpixel Morphological AA instead of Fast Approximate AA. SMAA in most situations results in a less blurry image vs FXAA" control_name="AlchemyRenderSMAA"/>
-      <combo_box follows="top|left" layout="topleft" height="16" width="150" right="-2" top_pad="-16" max_chars="128" allow_text_entry="false" tool_tip="Controls Anti-Aliasing Quality" control_name="RenderFSAASamples" name="smaa_combo">
+      <check_box follows="left|top" height="15" left="115" top_pad="-14" width="80" layout="topleft" label="SMAAを使用" tool_tip="高速近似アンチエイリアス（FXAA）の代わりに、サブピクセル形態学的アンチエイリアス（SMAA）の使用を切り替えます。ほとんどの場合、SMAA は FXAA よりも画像のぼやけが少なくなります。" control_name="AlchemyRenderSMAA"/>
+      <combo_box follows="top|left" layout="topleft" height="16" width="150" right="-2" top_pad="-16" max_chars="128" allow_text_entry="false" tool_tip="アンチエイリアスの品質" control_name="RenderFSAASamples" name="smaa_combo">
         <combo_box.item label="無効" name="smaa_off" value="0" />
         <combo_box.item label="低（２倍）" name="smaa_2" value="2" />
         <combo_box.item label="中（４倍）" name="smaa_4" value="4" />
@@ -179,20 +179,20 @@
       <slider_bar top_pad="-18" height="20" increment="32" follows="left|top|right" layout="topleft" max_val="1024" min_val="32" left="120" right="-55" name="draw_dist_slider_bar" control_name="RenderFarClip"/>
       <spinner top_pad="-20" height="15" label_width="0" right="-2" decimal_digits="0" follows="top|right" layout="topleft" max_val="1024" min_val="32" width="55" increment="32" name="draw_dist_spinner" control_name="RenderFarClip"/>
       <!--Object LOD-->
-      <text follows="left|top" height="15" left="10" top_pad="8" width="90" layout="topleft" value="Object LOD:" />
+      <text follows="left|top" height="15" left="10" top_pad="8" width="90" layout="topleft" value="オブジェクトのLOD：" />
       <slider_bar top_pad="-18" height="20" increment=".1" follows="left|top|right" layout="topleft" max_val="4.0" min_val="1.0" left="120" right="-55" name="lod_slider_bar" control_name="RenderVolumeLODFactor"/>
       <spinner top_pad="-20" height="15" label_width="0" right="-2" decimal_digits="1" follows="top|right" layout="topleft" max_val="4.0" min_val="1.0" width="55" increment=".1" name="lod_spinner" control_name="RenderVolumeLODFactor"/>
       <!--Max Particles-->
-      <text follows="left|top" height="15" left="10" top_pad="8" width="90" layout="topleft" value="Max Particles:" />
+      <text follows="left|top" height="15" left="10" top_pad="8" width="90" layout="topleft" value="最大パーティクル数：" />
       <slider_bar top_pad="-18" height="20" increment="256" follows="left|top|right" layout="topleft" max_val="8192" min_val="0" left="120" right="-55" name="max_particles_slider_bar" control_name="RenderMaxPartCount"/>
       <spinner top_pad="-20" height="15" label_width="0" right="-2" decimal_digits="0" follows="top|right" layout="topleft" max_val="8192" min_val="0" width="55" increment="256" name="max_particles_spinner" control_name="RenderMaxPartCount"/>
       <!--Max Non-Impostors-->
-      <text follows="left|top" height="15" left="10" top_pad="8" width="90" layout="topleft" value="Max Avatars:" />
+      <text follows="left|top" height="15" left="10" top_pad="8" width="90" layout="topleft" value="最大アバター数：" />
       <slider_bar top_pad="-18" height="20" increment="1" follows="left|top|right" layout="topleft" max_val="65" min_val="0" left="120" right="-55" name="max_avatar_slider_bar" control_name="RenderAvatarMaxNonImpostors"/>
       <spinner top_pad="-20" height="15" label_width="0" right="-2" decimal_digits="0" follows="top|right" layout="topleft" max_val="65" min_val="0" width="55" increment="1" name="max_avatar_spinner" control_name="RenderAvatarMaxNonImpostors"/>
     </panel>
     <!--Shadows/SSAO Panel-->
-    <panel label="Shadows" class="shadow_settings" layout="topleft" name="shadow_settings">
+    <panel label="影" class="shadow_settings" layout="topleft" name="shadow_settings">
       <!--TODO: Display a warning message and disable this panel if Advanced Lighting Model is disabled?-->
       <!--Shadow Detail-->
       <!--TODO: Disable sliders if set to None?-->

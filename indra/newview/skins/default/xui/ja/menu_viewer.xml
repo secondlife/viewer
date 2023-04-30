@@ -37,7 +37,7 @@
     <menu_item_call label="シェイプの編集…" layout="topleft" name="Edit My Shape"/>
     <menu_item_call label="衣装パーツの編集…" layout="topleft" name="Edit Outfit"/>
     <menu label="脱ぐ" layout="topleft" name="Take Off &gt;">
-      <menu label="衣類" layout="topleft" name="Clothes &gt;">
+      <menu label="服装" layout="topleft" name="Clothes &gt;">
         <menu_item_call enabled="false" label="シャツ" layout="topleft" name="Shirt"/>
         <menu_item_call enabled="false" label="ズボン" layout="topleft" name="Pants"/>
         <menu_item_call enabled="false" label="スカート" layout="topleft" name="Skirt"/>
@@ -51,14 +51,14 @@
         <menu_item_call enabled="false" label="物理作用" layout="topleft" name="Self Physics"/>
         <menu_item_call enabled="false" label="アルファ" layout="topleft" name="Self Alpha"/>
         <menu_item_separator layout="topleft" />
-        <menu_item_call label="すべての衣類" layout="topleft" name="All Clothes"/>
+        <menu_item_call label="すべての服装" layout="topleft" name="All Clothes"/>
       </menu>
       <menu label="HUD" layout="topleft" name="Avatar Detach HUD" />
       <menu label="取り外し" layout="topleft" name="Avatar Detach" />
       <menu_item_call label="全てを取り外す" layout="topleft" name="Detach All"/>
     </menu>
     <menu_item_separator/>
-    <menu_item_call label="アバターを比較…" name="Avatar Picker"/>
+    <menu_item_call label="アバターを選択…" name="Avatar Picker"/>
     <menu_item_separator/>
 
     <menu_item_call label="座る／立つ" layout="topleft" shortcut="alt|shift|S" name="Sit stand"/>
@@ -633,7 +633,7 @@
   <menu label="管理者" name="Deprecated">
     <menu label="オブジェクトを取り付ける" name="Attach Object" />
     <menu label="オブジェクトを取り外す" name="Detach Object" />
-    <menu label="衣類を脱ぐ" name="Take Off Clothing">
+    <menu label="服装を脱ぐ" name="Take Off Clothing">
       <menu_item_call label="シャツ" name="Shirt" />
       <menu_item_call label="ズボン" name="Pants" />
       <menu_item_call label="靴" name="Shoes" />
@@ -647,7 +647,7 @@
       <menu_item_call label="タトゥ" name="Tattoo" />
       <menu_item_call label="ユニバーサル" name="Universal" />
       <menu_item_call label="物理作用" name="Physics" />
-      <menu_item_call label="すべての衣類" name="All Clothes" />
+      <menu_item_call label="すべての服装" name="All Clothes" />
     </menu>
     <menu label="ヘルプ" name="DeprecatedHelp">
       <menu_item_call label="リンデン公式ブログ" name="Official Linden Blog" />

@@ -21,7 +21,7 @@
   <menu_item_call label="新しいスクリプト" name="New Script" />
   <menu_item_call label="新しいノートカード" name="New Note" />
   <menu_item_call label="新しいジェスチャー" name="New Gesture" />
-  <menu label="新しい衣類" name="New Clothes">
+  <menu label="新しい服装" name="New Clothes">
     <menu_item_call label="新しいシャツ" name="New Shirt" />
     <menu_item_call label="新しいズボン" name="New Pants" />
     <menu_item_call label="新しい靴" name="New Shoes" />
@@ -70,7 +70,7 @@
   <menu_item_call label="開く" name="Sound Open" />
   <menu_item_call label="着用中の衣装を入れ替える" name="Replace Outfit" />
   <menu_item_call label="着用中の衣装に追加する" name="Add To Outfit" />
-  <menu_item_call label="着用中の衣装から取り除く" name="Remove From Outfit" />
+  <menu_item_call label="着用中の衣装から取り外す" name="Remove From Outfit" />
   <menu_item_call label="衣装のリストをクリップボードにコピー" name="Copy outfit list to clipboard" />
   <menu_item_call label="オリジナルを探す" name="Find Original" />
   <menu_item_call label="アイテムを除外する" name="Purge Item" />
@@ -88,7 +88,7 @@
   <menu_item_call label="リンクを置き換える" name="Replace Links" />
   <menu_item_call label="削除" name="Delete" />
   <menu_item_call label="システムフォルダを削除する" name="Delete System Folder" />
-  <menu_item_call label="コンファレンスチャットを開始する" name="Conference Chat Folder" />
+  <menu_item_call label="会話チャットを開始する" name="Conference Chat Folder" />
   <menu_item_call label="再生する" name="Sound Play" />
   <menu_item_call label="SLurl をコピー" name="url_copy" />
   <menu_item_call label="ランドマークの情報" name="About Landmark" />
@@ -97,7 +97,7 @@
   <menu_item_call label="ローカルで再生する" name="Animation Audition" />
   <menu_item_call label="インスタントメッセージを送信する" name="Send Instant Message" />
   <menu_item_call label="テレポートを送る…" name="Offer Teleport..." />
-  <menu_item_call label="コンファレンスチャットを開始する" name="Conference Chat" />
+  <menu_item_call label="会話チャットを開始する" name="Conference Chat" />
   <menu_item_call label="アクティブ" name="Activate" />
   <menu_item_call label="非アクティブ" name="Deactivate" />
   <menu_item_call label="名前をつけて保存する" name="Save As" />
@@ -113,5 +113,5 @@
   <menu_item_call label="区画に適用" name="Settings Apply Parcel" />
   <menu_item_call label="マーケットプレイスのリストにコピー" name="Marketplace Copy" />
   <menu_item_call label="マーケットプレイスのリストに移動" name="Marketplace Move" />
-  <menu_item_call label="－－オプションなし－－" name="--no options--" />
+  <menu_item_call label="－オプションなし－" name="--no options--" />
 </menu>

@@ -12,9 +12,9 @@
   <panel.string name="unknown">（不明）</panel.string>
   <!-- Wearables filtering strings -->
   <string name="Filter.All" value="全て" />
-  <string name="Filter.Clothes/Body" value="衣類／身体" />
+  <string name="Filter.Clothes/Body" value="服装／身体" />
   <string name="Filter.Objects" value="オブジェクト" />
-  <string name="Filter.Clothing" value="衣類" />
+  <string name="Filter.Clothing" value="服装" />
   <string name="Filter.Bodyparts" value="身体部位" />
   <string name="replace_body_part" value="クリックして既存のシェイプと置き換える" />
   <button follows="top|left" height="24" image_hover_unselected="BackButton_Over" image_pressed="BackButton_Press" image_unselected="BackButton_Off" layout="topleft" name="back_btn" left="5" tab_stop="false" top="1" width="30" use_draw_context_alpha="false" />
@@ -24,7 +24,7 @@
     <icon follows="left|top" height="31" image_name="Shirt_Large" left="2" mouse_opaque="false" name="outfit_icon" top="2" scale_image="true" visible="true" width="31" />
     <panel bevel_style="none" follows="top|left|right" height="37" layout="topleft" left_pad="5" name="outfit_name_and_status" top="2" width="270">
       <text follows="top|left|right" font="SansSerifSmallBold" height="13" layout="topleft" name="status" text_color="EmphasisColor" top="2" value="編集中…" use_ellipses="true" width="245" />
-      <text follows="bottom|left|right" font="SansSerifLargeBold" height="18" layout="topleft" name="curr_outfit_name" parse_urls="false" text_color="LtGray" top_pad="2" value="[Current Outfit]" use_ellipses="true" width="245" />
+      <text follows="bottom|left|right" font="SansSerifLargeBold" height="18" layout="topleft" name="curr_outfit_name" parse_urls="false" text_color="LtGray" top_pad="2" value="[現在の衣装]" use_ellipses="true" width="245" />
       <loading_indicator follows="right|top" height="24" layout="topleft" right="-2" name="edit_outfit_loading_indicator" top="6" width="24" />
     </panel>
   </panel>

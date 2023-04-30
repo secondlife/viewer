@@ -8,8 +8,7 @@
     <message name="blocked_tport">申し訳ございませんが、テレポートは現在、ブロックされています。もう少し後でやり直してください。
 やり直してもテレポートできない場合は、いったんログアウトし、再度ログインして問題を解決してください。</message>
     <message name="nolandmark_tport">残念ながら、システムはランドマークの目的地を探せませんでした。</message>
-    <message name="timeout_tport">申し訳ございませんが、システムはテレポートの接続を完了できませんでした。もう少し後でやり直してください。
-    </message>
+    <message name="timeout_tport">申し訳ございませんが、システムはテレポートの接続を完了できませんでした。もう少し後でやり直してください。</message>
     <message name="NoHelpIslandTP">ウェルカムアイランドにテレポートで戻ることはできません。
 「Welcome Island Public」に行き再度チュートリアルを行ってください。</message>
     <message name="noaccess_tport">残念ながら、そのテレポート目的地へのアクセスがありません。</message>

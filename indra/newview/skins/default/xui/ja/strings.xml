@@ -54,7 +54,7 @@ LOD 係数：[LOD_FACTOR]
 [LIBCEF_VERSION]LibVLC バージョン：[LIBVLC_VERSION]
 ボイスサーバーバージョン:[VOICE_VERSION]</string>
   <string name="AboutTraffic">パケット損失：[PACKETS_LOST,number,0]／[PACKETS_IN,number,0]（[PACKETS_PCT,number,1]%）</string>
-  <string name="AboutTime">[month, datetime, slt]／[day, datetime, slt]／[year, datetime, slt]　[hour, datetime, slt]：[min,datetime, slt]:：[second,datetime,slt]</string>
+  <string name="AboutTime">[year, datetime, slt]年[month, datetime, slt]月[day, datetime, slt]日　[hour, datetime, slt]：[min,datetime, slt]:：[second,datetime,slt]</string>
   <string name="ErrorFetchingServerReleaseNotesURL">サーバーのリリースノートの URL を取得中にエラーが発生しました。</string>
   <string name="BuildConfiguration">ビルド構成</string>
   <!--  progress -->
@@ -72,18 +72,18 @@ LOD 係数：[LOD_FACTOR]
   <string name="LoginInitializingBrowser">内蔵 Web ブラウザを初期化しています…</string>
   <string name="LoginInitializingMultimedia">マルチメディアを初期化しています…</string>
   <string name="LoginInitializingFonts">フォントをローディング中…</string>
-  <string name="LoginVerifyingCache">キャッシュファイルを検証しています（所要時間は 60 ～ 90 秒）…</string>
+  <string name="LoginVerifyingCache">キャッシュファイルを検証しています（所要時間は60～90秒）…</string>
   <string name="LoginProcessingResponse">対応を処理中です…</string>
   <string name="LoginInitializingWorld">ワールドを初期化中です…</string>
   <string name="LoginDecodingImages">画像をデコードしています…</string>
-  <string name="LoginInitializingQuicktime">QuickTime を初期化しています…</string>
-  <string name="LoginQuicktimeNotFound">QuickTime が見つかりません。初期化に失敗しました。</string>
-  <string name="LoginQuicktimeOK">QuickTime が正常に初期化されました。</string>
+  <string name="LoginInitializingQuicktime">QuickTimeを初期化しています…</string>
+  <string name="LoginQuicktimeNotFound">QuickTimeが見つかりません。初期化に失敗しました。</string>
+  <string name="LoginQuicktimeOK">QuickTimeが正常に初期化されました。</string>
   <string name="LoginRequestSeedCapGrant">リージョン（地域）の機能をリクエストしています…</string>
   <string name="LoginRetrySeedCapGrant">リージョン（地域）の機能をリクエスト、試行[NUMBER]回…</string>
   <string name="LoginWaitingForRegionHandshake">リージョン（地域）のハンドシェイクを待っています…</string>
   <string name="LoginConnectingToRegion">リージョン（地域）に接続しています…</string>
-  <string name="LoginDownloadingClothing">衣類をダウンロードしています…</string>
+  <string name="LoginDownloadingClothing">服装をダウンロードしています…</string>
   <string name="InvalidCertificate">証明書が無効または壊れています。グリッド管理者にご連絡ください。</string>
   <string name="CertInvalidHostname">無効なホストネームがサーバーにアクセスしていました。SLURL かグリッドのホストネームをご確認ください。</string>
   <string name="CertExpired">グリッドが返した証明書は有効期限が終了していると考えられます。お使いのシステムクロックを確認するか、グリッドの管理者にお問い合わせください。</string>
@@ -359,7 +359,7 @@ support@secondlife.com にお問い合わせください。</string>
   <string name="calling card">コーリングカード</string>
   <string name="landmark">ランドマーク</string>
   <string name="legacy script">レガシースクリプト</string>
-  <string name="clothing">衣類</string>
+  <string name="clothing">服装</string>
   <string name="object">オブジェクト</string>
   <string name="note card">ノートカード</string>
   <string name="folder">フォルダ</string>
@@ -2277,9 +2277,9 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="LeaveMouselook">ESC キーを押してワールドビューに戻ります</string>
 
   <!-- inventory -->
-  <string name="InventoryNoMatchingItems">お探しのものは見つかりましたか？[secondlife:///app/search/all/[SEARCH_TERM]検索]をお試しください。</string>
+  <string name="InventoryNoMatchingItems">お探しのものは見つかりましたか？[secondlife:///app/search/all/[SEARCH_TERM] 検索]をお試しください。</string>
   <string name="InventoryNoMatchingRecentItems">お探しのものは見つかりましたか？[secondlife:///app/inventory/filters Show filters]をお試しください。</string>
-  <string name="PlacesNoMatchingItems">お探しのものは見つかりましたか？[secondlife:///app/search/places/[SEARCH_TERM]検索]をお試しください。</string>
+  <string name="PlacesNoMatchingItems">お探しのものは見つかりましたか？[secondlife:///app/search/places/[SEARCH_TERM] 検索]をお試しください。</string>
   <string name="FavoritesNoMatchingItems">ここにランドマークをドラッグしてお気に入りに追加します。</string>
   <string name="MarketplaceNoMatchingItems">アイテムが見つかりませんでした。検索文字列のスペルを確認して、もう一度やり直してください。</string>
   <string name="InventoryNoTexture">インベントリ内にこのテクスチャのコピーがありません</string>
@@ -2371,7 +2371,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="GetMoreGestures" value="ショッピング &gt;&gt;" />
   <string name="Animations" value="アニメーション、" />
   <string name="Calling Cards" value="コーリングカード、" />
-  <string name="Clothing" value="衣類、" />
+  <string name="Clothing" value="服装、" />
   <string name="Gestures" value="ジェスチャー、" />
   <string name="Landmarks" value="ランドマーク、" />
   <string name="Notecards" value="ノートカード、" />
@@ -2391,7 +2391,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="InvFolder Calling Cards">コーリングカード</string>
   <string name="InvFolder Landmarks">ランドマーク</string>
   <string name="InvFolder Scripts">スクリプト</string>
-  <string name="InvFolder Clothing">衣類</string>
+  <string name="InvFolder Clothing">服装</string>
   <string name="InvFolder Objects">オブジェクト</string>
   <string name="InvFolder Notecards">ノートカード</string>
   <string name="InvFolder New Folder">新規フォルダ</string>
@@ -2413,7 +2413,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="InvFolder favorites">お気に入り</string>
   <string name="InvFolder Current Outfit">着用中の衣装</string>
   <string name="InvFolder Initial Outfits">最初の衣装</string>
-  <string name="InvFolder My Outfits">マイ 衣装</string>
+  <string name="InvFolder My Outfits">衣装</string>
   <string name="InvFolder Accessories">アクセサリ</string>
   <string name="InvFolder Meshes">メッシュ</string>
   <string name="InvFolder Received Items">受け取った商品</string>
@@ -2495,7 +2495,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="Invalid Attachment">装着先が正しくありません</string>
   <string name="ATTACHMENT_MISSING_ITEM">エラー：アイテムが見つかりません</string>
   <string name="ATTACHMENT_MISSING_BASE_ITEM">エラー：ベースアイテムが見つかりません</string>
-  <string name="ATTACHMENT_NOT_ATTACHED">エラー：オブジェクトは現在の衣装内にありますが、添付されていません</string>
+  <string name="ATTACHMENT_NOT_ATTACHED">エラー：オブジェクトは現在の衣装にありますが、添付されていません</string>
 
   <!-- Avatar age computation, see LLDateUtil::ageFromDate -->
   <string name="YearsMonthsOld">[AGEYEARS][AGEMONTHS]</string>
@@ -2599,7 +2599,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="Unknown">（不明）</string>
   <string name="SummaryForTheWeek" value="今週のまとめ。開始日は" />
   <string name="NextStipendDay" value="です。次回のお小遣い支給日：" />
-  <string name="GroupPlanningDate">[year,datetime,utc]/[mthnum,datetime,utc]/[day,datetime,utc]</string>
+  <string name="GroupPlanningDate">[year,datetime,utc]年[mthnum,datetime,utc]月[day,datetime,utc]日</string>
   <string name="GroupIndividualShare" value="グループ 個人の割り当て" />
   <string name="GroupColumn" value="グループの設定" />
   <string name="Balance">残高</string>
@@ -2709,7 +2709,7 @@ For AI Character: Get the closest navigable point to the point provided.
 
   <!-- panel dir browser -->
   <string name="PanelDirCountFound">[COUNT]件見つかりました</string>
-  <string name="PanelDirTimeStr">[hour12,datetime,utc]：[min,datetime,utc][ampm,datetime,utc]</string>
+  <string name="PanelDirTimeStr">[ampm,datetime,utc]　[hour12,datetime,utc]：[min,datetime,utc]</string>
 
   <!-- panel dir events -->
   <string name="PanelDirEventsDateText">[mthnum,datetime,slt]／[day,datetime,slt]</string>
@@ -2789,7 +2789,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="GroupMoneyBalance">残高</string>
   <string name="GroupMoneyCredits">収入</string>
   <string name="GroupMoneyDebits">支出</string>
-  <string name="GroupMoneyDate">[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日[weekday,datetime,utc]</string>
+  <string name="GroupMoneyDate">[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日　[weekday,datetime,utc]</string>
 
   <!-- Viewer menu -->
   <string name="AcquiredItems">取得アイテム</string>
@@ -3540,7 +3540,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="IM_logging_string">-- インスタントメッセージの保存開始 --</string>
   <string name="IM_typing_start_string">[NAME]は入力中です…</string>
   <string name="Unnamed">（名前なし）</string>
-  <string name="IM_moderated_chat_label">（モデレート： デフォルトでボイスはオフ）</string>
+  <string name="IM_moderated_chat_label">（モデレート：デフォルトでボイスはオフ）</string>
   <string name="IM_unavailable_text_label">このコールでは文字チャットが利用できません。</string>
   <string name="IM_muted_text_label">グループのモデレータが、あなたの文字チャットを使用禁止にしました。</string>
   <string name="IM_default_text_label">ここをクリックしてインスタントメッセージを開始。</string>
@@ -3565,7 +3565,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="hang_up-im">ボイスコールから退席しました</string>
   <string name="answering-im">接続中…</string>
   <string name="conference-title">複数人チャット</string>
-  <string name="conference-title-incoming">[AGENT_NAME]とコンファレンスする</string>
+  <string name="conference-title-incoming">[AGENT_NAME]と会話する</string>
   <string name="inventory_item_offered-im">持ち物アイテム '[ITEM_NAME]' が送られてきました</string>
   <string name="inventory_folder_offered-im">持ち物フォルダ '[ITEM_NAME]' が送られてきました</string>
   <string name="share_alert">インベントリからここにアイテムをドラッグします</string>
@@ -3693,36 +3693,36 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Speech Gestures">会話ジェスチャー</string>
   <string name="Common Gestures">一般的ジェスチャー</string>
   <!-- gestures -->
-  <string name="Male - Excuse me">男性–すみません</string>
-  <string name="Male - Get lost">男性–あっち行けよ</string>
-  <string name="Male - Blow kiss">男性–投げキッス</string>
-  <string name="Male - Boo">男性–ぶー</string>
-  <string name="Male - Bored">男性–退屈</string>
-  <string name="Male - Hey">男性–やぁ</string>
-  <string name="Male - Laugh">男性–笑う</string>
-  <string name="Male - Repulsed">男性–拒絶</string>
-  <string name="Male - Shrug">男性–肩をすくめる</string>
-  <string name="Male - Stick tougue out">男性–舌を出す</string>
-  <string name="Male - Wow">男性–わぁ</string>
+  <string name="Male - Excuse me">男性－すみません</string>
+  <string name="Male - Get lost">男性－あっち行けよ</string>
+  <string name="Male - Blow kiss">男性－投げキッス</string>
+  <string name="Male - Boo">男性－ぶー</string>
+  <string name="Male - Bored">男性－退屈</string>
+  <string name="Male - Hey">男性－–やぁ</string>
+  <string name="Male - Laugh">男性－笑う</string>
+  <string name="Male - Repulsed">男性－拒絶</string>
+  <string name="Male - Shrug">男性－肩をすくめる</string>
+  <string name="Male - Stick tougue out">男性－舌を出す</string>
+  <string name="Male - Wow">男性－わぁ</string>
 
-  <string name="Female - Chuckle">女性–クスクス</string>
-  <string name="Female - Cry">女性–泣く</string>
-  <string name="Female - Embarrassed">女性–恥ずかしい</string>
-  <string name="Female - Excuse me">女性–すみません</string>
-  <string name="Female - Get lost">女性–あっち行ってよ</string>
+  <string name="Female - Chuckle">女性－クスクス</string>
+  <string name="Female - Cry">女性－泣く</string>
+  <string name="Female - Embarrassed">女性－恥ずかしい</string>
+  <string name="Female - Excuse me">女性－すみません</string>
+  <string name="Female - Get lost">女性－あっち行ってよ</string>
   <string name="Female - Blow kiss">女性–投げキッス</string>
-  <string name="Female - Boo">女性–ぶー</string>
-  <string name="Female - Bored">女性–退屈</string>
-  <string name="Female - Hey">女性–やぁ</string>
-  <string name="Female - Hey baby">女性–ヘイ、ベィビー！</string>
-  <string name="Female - Laugh">女性–笑う</string>
-  <string name="Female - Looking good">女性–いい感じ</string>
-  <string name="Female - Over here">女性–こっちよ</string>
-  <string name="Female - Please">女性–プリーズ</string>
-  <string name="Female - Repulsed">女性–拒絶</string>
-  <string name="Female - Shrug">女性–肩をすくめる</string>
-  <string name="Female - Stick tougue out">女性–舌を出す</string>
-  <string name="Female - Wow">女性–わぁ</string>
+  <string name="Female - Boo">女性－ぶー</string>
+  <string name="Female - Bored">女性－退屈</string>
+  <string name="Female - Hey">女性－やぁ</string>
+  <string name="Female - Hey baby">女性－ヘイ、ベィビー！</string>
+  <string name="Female - Laugh">女性－笑う</string>
+  <string name="Female - Looking good">女性－いい感じ</string>
+  <string name="Female - Over here">女性－こっちよ</string>
+  <string name="Female - Please">女性－プリーズ</string>
+  <string name="Female - Repulsed">女性－拒絶</string>
+  <string name="Female - Shrug">女性－肩をすくめる</string>
+  <string name="Female - Stick tougue out">女性－舌を出す</string>
+  <string name="Female - Wow">女性－わぁ</string>
 
   <!-- settings -->
   <string name="New Daycycle">新しいデイサイクル</string>
@@ -3946,7 +3946,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <!-- Mouse button names (short) begin -->
   <string name="LMB">左クリック</string>
   <string name="MMB">ホイールクリック</string>
-  <string name="RMB">→クリック</string>
+  <string name="RMB">右クリック</string>
   <string name="MB4">進むボタン</string>
   <string name="MB5">戻るボタン</string>
   <string name="Double LMB">右ダブルクリック</string>

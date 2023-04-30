@@ -3,7 +3,7 @@
   <text name="name_label">名前：</text>
   <text name="description_label">説明：</text>
   <text name="preview_label">プレビュー：</text>
-  <combo_box label="服の種類" name="clothing_type_combo">
+  <combo_box label="服装の種類" name="clothing_type_combo">
     <item label="画像" name="Image" value="画像" />
     <item label="髪型" name="Hair" value="髪型" />
     <item label="女性の頭" name="FemaleHead" value="女性の頭" />

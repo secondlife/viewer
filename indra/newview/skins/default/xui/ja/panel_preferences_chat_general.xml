@@ -32,7 +32,7 @@
       <item label="アクションなし" name="NoAction" value="noaction"/>
     </combo_box>
     <check_box control_name="PlaySoundNonFriendIM" height="23" label="サウンド再生" layout="topleft" name="play_sound_non_friend_im" left_pad="7" top_delta="-3" width="28"></check_box>
-    <text layout="topleft" left="0" height="13" name="conference_ims" width="145" top_pad="11">カンファレンスIM：</text>
+    <text layout="topleft" left="0" height="13" name="conference_ims" width="145" top_pad="11">会話IM：</text>
     <combo_box control_name="NotificationConferenceIMOptions" height="23" layout="topleft" left_pad="5" top_delta="-6" name="ConferenceIMOptions" width="223">
       <item label="会話ウィンドウを開く" name="OpenConversationsWindow" value="openconversations"/>
       <item label="メッセージをポップアップ" name="PopUpMessage" value="toast"/>
@@ -68,7 +68,7 @@
   </panel>
   <panel border="false" height="50" layout="topleft" follows="left|top" name="play_sound_settings" left="13" top_pad="10" width="517">
     <text layout="topleft" left="0" name="play_sound" width="100" top_pad="8" visible="true">サウンド再生：</text>
-    <check_box control_name="PlaySoundNewConversation" height="16" label="新しい会議" layout="topleft" left_pad="15" top_pad="-10" name="new_conversation" width="150" />
+    <check_box control_name="PlaySoundNewConversation" height="16" label="新しい会話" layout="topleft" left_pad="15" top_pad="-10" name="new_conversation" width="150" />
     <check_box control_name="PlaySoundIncomingVoiceCall" height="16" label="音声通話の着信" layout="topleft" top_pad="6" name="incoming_voice_call" width="150" />
     <check_box control_name="PlaySoundTeleportOffer" height="16" label="テレポートのオファー" layout="topleft" left_pad="35" top_pad="-38" name="teleport_offer" width="150" />
     <check_box control_name="PlaySoundInventoryOffer" height="16" label="インベントリのオファー" layout="topleft" top_pad="6" name="inventory_offer" width="150" />
@@ -89,7 +89,7 @@
     </button>
     <text name="log_location_label" layout="topleft" left="0" text_color="White" height="12" top_pad="15" width="55">場所：</text>
     <line_editor control_name="InstantMessageLogPath" border_style="line" border_thickness="1" font="SansSerif" height="23" layout="topleft" left_pad="55" max_length_bytes="4096" name="log_path_string" top_delta="-5" width="185"></line_editor>
-    <button enabled="false" follows="left|top" height="23" label="ブラウズ…" label_selected="ブラウズ" layout="topleft" left_pad="5" name="log_path_button" top_delta="0" width="112">
+    <button enabled="false" follows="left|top" height="23" label="ブラウズ…" label_selected="ブラウズ…" layout="topleft" left_pad="5" name="log_path_button" top_delta="0" width="112">
       <commit_callback function="Pref.LogPath" />
     </button>
   </panel>

@@ -4,7 +4,7 @@
   <floater.string name="localchat">近くのボイスチャット</floater.string>
   <floater.string name="anonymous">匿名ユーザー</floater.string>
   <floater.string name="VoiceInviteP2P">がコールしています。</floater.string>
-  <floater.string name="VoiceInviteAdHoc">がカンファレンスチャットで、ボイスチャットに参加しました。</floater.string>
+  <floater.string name="VoiceInviteAdHoc">が会話チャットで、ボイスチャットに参加しました。</floater.string>
   <text name="connecting">[CALLEE_NAME]に接続中</text>
   <text name="calling">[CALLEE_NAME]をコール中</text>
   <text name="noanswer">繋がりませんでした。あとでもう一度お試しください。</text>

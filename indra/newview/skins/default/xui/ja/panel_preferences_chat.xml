@@ -30,7 +30,7 @@
       <item label="動作なし" name="NoAction" value="noaction" />
     </combo_box>
     <check_box label="サウンドを再生" name="play_sound_non_friend_im" />
-    <text name="conference_ims">会議 IM：</text>
+    <text name="conference_ims">会話 IM：</text>
     <combo_box name="ConferenceIMOptions">
       <item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations" />
       <item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト" />

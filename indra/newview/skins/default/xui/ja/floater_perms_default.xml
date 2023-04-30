@@ -12,7 +12,7 @@
 		<text name="label_9" tool_tip="スクリプトを作成するときに、デフォルトの権限を設定する。">スクリプト</text>
 		<text name="label_10" tool_tip="ノートカードを作成するときに、デフォルトの権限を設定する。">ノートカード</text>
 		<text name="label_11" tool_tip="ジェスチャーを作成するときに、デフォルトの権限を設定する。">ジェスチャー</text>
-		<text name="label_12" tool_tip="衣服またはボディパーツを作成するときに、デフォルトの権限を設定する。">装着するもの</text>
+		<text name="label_12" tool_tip="衣服装またはボディパーツを作成するときに、デフォルトの権限を設定する。">装着するもの</text>
 		<text name="label_13" tool_tip="自然環境の設定を作成するときに、デフォルトの権限を設定する。">設定</text>
 		<check_box name="env_settings_c" value="true" />
 	</panel>
