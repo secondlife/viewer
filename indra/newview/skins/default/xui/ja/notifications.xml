@@ -473,7 +473,7 @@ L$ が不足しているのでこのグループに参加することができ�
   <notification name="DisplaySettingsNoShaders">グラフィックドライバを初期化中に [APP_NAME] がクラッシュしました。
 ドライバの一般的なエラーを防ぐために、画質が低に設定されます。 そのため、一部のグラフィック特性に制限が出ます。
 お使いのグラフィックカードのドライバをアップデートするようおすすめします。
-画質は、環境設定 ＞ グラフィック で設定できます。</notification>
+画質は、初期設定 ＞ グラフィック で設定できます。</notification>
   <notification name="RegionNoTerraforming">[REGION] では、地形の変更ができません。</notification>
   <notification name="ParcelNoTerraforming">あなたには [PARCEL] 区画を地形編集する許可がありません。</notification>
   <notification name="CannotCopyWarning">あなたには次アイテムをコピーする権限がありません：
@@ -1221,7 +1221,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
   <notification name="EstateParcelEnvironmentOverride">このオプションをオフにすると、区画所有者がその区画に加えたカスタム環境が削除されます。必要に応じて区画所有者と相談してください。 続けますか？
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
-  <notification name="RegionEntryAccessBlocked">訪問しようとしているリージョン（地域）には現在の環境設定を超えるコンテンツが含まれています。「私」＞「初期設定」＞「一般」を選択して、環境設定を変更できます。
+  <notification name="RegionEntryAccessBlocked">訪問しようとしているリージョン（地域）には現在の初期設定を超えるコンテンツが含まれています。「私」＞「初期設定」＞「一般」を選択して、初期設定を変更できます。
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="SLM_UPDATE_FOLDER">[MESSAGE]</notification>
@@ -1229,45 +1229,45 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
     <url name="url">http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview</url>
     <usetemplate ignoretext="リージョン（地域）の横断：訪問しようとしているリージョン（地域）には、成人のみアクセスできるコンテンツが含まれています。" name="okcancelignore" notext="閉じる" yestext="ナレッジベースを開く" />
   </notification>
-  <notification name="RegionEntryAccessBlocked_Notify">訪問しようとしているリージョン（地域）には、[REGIONMATURITY]コンテンツが含まれていますが、現在の環境設定は、[REGIONMATURITY]コンテンツ除外するように設定されています。</notification>
+  <notification name="RegionEntryAccessBlocked_Notify">訪問しようとしているリージョン（地域）には、[REGIONMATURITY]コンテンツが含まれていますが、現在の初期設定は、[REGIONMATURITY]コンテンツ除外するように設定されています。</notification>
   <notification name="RegionEntryAccessBlocked_NotifyAdultsOnly">訪問しようとしているリージョン（地域）には、成人のみアクセスできる[REGIONMATURITY] コンテンツが含まれています。</notification>
-  <notification name="RegionEntryAccessBlocked_Change">訪問しようとしているリージョン（地域）には、[REGIONMATURITY]コンテンツが含まれていますが、現在の環境設定は、[REGIONMATURITY]コンテンツを除外するように設定されています。環境設定を変更するか、取り消すことができます。
+  <notification name="RegionEntryAccessBlocked_Change">訪問しようとしているリージョン（地域）には、[REGIONMATURITY]コンテンツが含まれていますが、現在の初期設定は、[REGIONMATURITY]コンテンツを除外するように設定されています。初期設定を変更するか、取り消すことができます。
 初期設定を変更した後、もう一度、リージョン（地域）に入ることができます。
     <form name="form">
       <button name="OK" text="初期設定の変更" />
       <button default="true" name="Cancel" text="キャンセル" />
-      <ignore name="ignore" text="リージョン（地域）の横断：訪問しようとしているリージョン（地域）には現在の環境設定により除外されたコンテンツが含まれています。" />
+      <ignore name="ignore" text="リージョン（地域）の横断：訪問しようとしているリージョン（地域）には現在の初期設定により除外されたコンテンツが含まれています。" />
     </form>
   </notification>
-  <notification name="RegionEntryAccessBlocked_PreferencesOutOfSync">あなたの環境設定がサーバーと同期していないため、テレポートに技術的な問題が発生しています。
+  <notification name="RegionEntryAccessBlocked_PreferencesOutOfSync">あなたの初期設定がサーバーと同期していないため、テレポートに技術的な問題が発生しています。
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
-  <notification name="TeleportEntryAccessBlocked">訪問しようとしているリージョン（地域）には現在の環境設定を超えるコンテンツが含まれています。「私」＞「初期設定」＞「一般」を選択して、環境設定を変更できます。
+  <notification name="TeleportEntryAccessBlocked">訪問しようとしているリージョン（地域）には現在の初期設定を超えるコンテンツが含まれています。「私」＞「初期設定」＞「一般」を選択して、初期設定を変更できます。
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="TeleportEntryAccessBlocked_AdultsOnlyContent">訪問しようとしているリージョン（地域）には、成人のみアクセスできる [REGIONMATURITY] コンテンツが含まれています。 
     <url name="url">http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview</url>
     <usetemplate ignoretext="テレポート：訪問しようとしているリージョン（地域）には、成人のみアクセスできるコンテンツが含まれています。" name="okcancelignore" notext="閉じる" yestext="ナレッジベースを開く" />
   </notification>
-  <notification name="TeleportEntryAccessBlocked_Notify">訪問しようとしているリージョン（地域）には、[REGIONMATURITY]コンテンツが含まれていますが、現在の環境設定は[REGIONMATURITY]コンテンツを除外するように設定されています。</notification>
+  <notification name="TeleportEntryAccessBlocked_Notify">訪問しようとしているリージョン（地域）には、[REGIONMATURITY]コンテンツが含まれていますが、現在の初期設定は[REGIONMATURITY]コンテンツを除外するように設定されています。</notification>
   <notification name="TeleportEntryAccessBlocked_NotifyAdultsOnly">訪問しようとしているリージョン（地域）には、成人のみアクセスできる[REGIONMATURITY] コンテンツが含まれています。</notification>
-  <notification name="TeleportEntryAccessBlocked_ChangeAndReTeleport">訪問しようとしているリージョン（地域）には[REGIONMATURITY]コンテンツが含まれていますが、現在の環境設定は [REGIONMATURITY]コンテンツを除外するように設定されています。
-環境設定を変更してテレポートを続けるか、このテレポートを取り消すことができます。
+  <notification name="TeleportEntryAccessBlocked_ChangeAndReTeleport">訪問しようとしているリージョン（地域）には[REGIONMATURITY]コンテンツが含まれていますが、現在の初期設定は [REGIONMATURITY]コンテンツを除外するように設定されています。
+初期設定を変更してテレポートを続けるか、このテレポートを取り消すことができます。
     <form name="form">
       <button name="OK" text="変更して続ける" />
       <button name="Cancel" text="キャンセル" />
-      <ignore name="ignore" text="テレポート（再起動可能）：訪問しようとしているリージョン（地域）には現在の環境設定により除外されたコンテンツが含まれています。" />
+      <ignore name="ignore" text="テレポート（再起動可能）：訪問しようとしているリージョン（地域）には現在の初期設定により除外されたコンテンツが含まれています。" />
     </form>
   </notification>
-  <notification name="TeleportEntryAccessBlocked_Change">訪問しようとしているリージョン（地域）には [REGIONMATURITY]コンテンツが含まれていますが、現在の環境設定は、[REGIONMATURITY]コンテンツを除外するように設定されています。
-環境設定を変更するか、テレポートを取り消すことができます。環境設定を変更した後、もう一度テレポートを実行する必要があります。
+  <notification name="TeleportEntryAccessBlocked_Change">訪問しようとしているリージョン（地域）には [REGIONMATURITY]コンテンツが含まれていますが、現在の初期設定は、[REGIONMATURITY]コンテンツを除外するように設定されています。
+初期設定を変更するか、テレポートを取り消すことができます。初期設定を変更した後、もう一度テレポートを実行する必要があります。
     <form name="form">
-      <button name="OK" text="環境設定の変更" />
+      <button name="OK" text="初期設定の変更" />
       <button name="Cancel" text="キャンセル" />
-      <ignore name="ignore" text="テレポート（再起動不可）：訪問しようとしているリージョン（地域）には現在の環境設定により除外されたコンテンツが含まれています。" />
+      <ignore name="ignore" text="テレポート（再起動不可）：訪問しようとしているリージョン（地域）には現在の初期設定により除外されたコンテンツが含まれています。" />
     </form>
   </notification>
-  <notification name="TeleportEntryAccessBlocked_PreferencesOutOfSync">あなたの環境設定がサーバーと同期していないため、テレポートに技術的な問題が発生しています。
+  <notification name="TeleportEntryAccessBlocked_PreferencesOutOfSync">あなたの初期設定がサーバーと同期していないため、テレポートに技術的な問題が発生しています。
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="RegionTPSpecialUsageBlocked">リージョンに入ることができません。'[REGION_NAME]' はスキルゲーミングリージョンであり、あなたはこのリージョンに入るための特定の基準を満たす必要があります。
@@ -1275,44 +1275,44 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="PreferredMaturityChanged">今後、[RATING]
-    コンテンツ付きのリージョン（地域）を訪問しようとしているという通知を受け取りません。後でメニューバーの「私」＞「初期設定」＞「一般」を使用して、コンテンツの環境設定を変更できます。
+    コンテンツ付きのリージョン（地域）を訪問しようとしているという通知を受け取りません。後でメニューバーの「私」＞「初期設定」＞「一般」を使用して、コンテンツの初期設定を変更できます。
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="MaturityChangeError">現在、[PREFERRED_MATURITY]
-    コンテンツを表示するように環境設定を変更できませんでした。あなたの環境設定は、[ACTUAL_MATURITY] コンテンツを表示するようにリセットされました。メニューバーの「私」＞「初期設定」＞「一般」を使用して、もう一度環境設定を変更できます。
+    コンテンツを表示するように初期設定を変更できませんでした。あなたの初期設定は、[ACTUAL_MATURITY] コンテンツを表示するようにリセットされました。メニューバーの「私」＞「初期設定」＞「一般」を使用して、もう一度初期設定を変更できます。
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
-  <notification name="LandClaimAccessBlocked">取得しようとしている土地には現在の環境設定を超えるレーティング区分が含まれています。「私」＞「初期設定」＞「一般」を選択して、環境設定を変更できます。 
+  <notification name="LandClaimAccessBlocked">取得しようとしている土地には現在の初期設定を超えるレーティング区分が含まれています。「私」＞「初期設定」＞「一般」を選択して、初期設定を変更できます。 
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="LandClaimAccessBlocked_AdultsOnlyContent">この土地を購入できるのは、成人だけです。    
     <url name="url">https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83%8A%E3%83%AC%E3%83%83%E3%82%B8%E3%83%99%E3%83%BC%E3%82%B9/%E3%83%AC%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0%E5%8C%BA%E5%88%86-r323/</url>
     <usetemplate ignoretext="この土地を購入できるのは、成人だけです。" name="okcancelignore" notext="閉じる" yestext="ナレッジベースを開く" />
   </notification>
-  <notification name="LandClaimAccessBlocked_Notify">取得しようとしている土地には。[REGIONMATURITY]コンテンツが含まれていますが、現在の環境設定は、[REGIONMATURITY]コンテンツを除外するように設定されています。</notification>
+  <notification name="LandClaimAccessBlocked_Notify">取得しようとしている土地には。[REGIONMATURITY]コンテンツが含まれていますが、現在の初期設定は、[REGIONMATURITY]コンテンツを除外するように設定されています。</notification>
   <notification name="LandClaimAccessBlocked_NotifyAdultsOnly">取得しようとしている土地には、成人のみアクセスできる[REGIONMATURITY]コンテンツが含まれています。</notification>
-  <notification name="LandClaimAccessBlocked_Change">取得しようとしている土地には、[REGIONMATURITY]コンテンツが含まれていますが、現在の環境設定は、[REGIONMATURITY]コンテンツを除外するように設定されています。環境設定を変更して、もう一度土地の取得を試みることができます。
+  <notification name="LandClaimAccessBlocked_Change">取得しようとしている土地には、[REGIONMATURITY]コンテンツが含まれていますが、現在の初期設定は、[REGIONMATURITY]コンテンツを除外するように設定されています。初期設定を変更して、もう一度土地の取得を試みることができます。
     <form name="form">
-      <button name="OK" text="環境設定の変更" />
+      <button name="OK" text="初期設定の変更" />
       <button name="Cancel" text="キャンセル" />
-      <ignore name="ignore" text="取得しようとしている土地には現在の環境設定により除外されたコンテンツが含まれています。" />
+      <ignore name="ignore" text="取得しようとしている土地には現在の初期設定により除外されたコンテンツが含まれています。" />
     </form>
   </notification>
-  <notification name="LandBuyAccessBlocked">購入しようとしている土地には現在の環境設定を超えるレーティング区分が含まれています。「私」＞「初期設定」＞「一般」を選択して、環境設定を変更できます。
+  <notification name="LandBuyAccessBlocked">購入しようとしている土地には現在の初期設定を超えるレーティング区分が含まれています。「私」＞「初期設定」＞「一般」を選択して、初期設定を変更できます。
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="LandBuyAccessBlocked_AdultsOnlyContent">この土地を取得できるのは、成人だけです。
     <url name="url">https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83%8A%E3%83%AC%E3%83%83%E3%82%B8%E3%83%99%E3%83%BC%E3%82%B9/%E3%83%AC%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0%E5%8C%BA%E5%88%86-r323/</url>
     <usetemplate ignoretext="この土地を取得できるのは、成人だけです。" name="okcancelignore" notext="閉じる" yestext="ナレッジベースを開く" />
   </notification>
-  <notification name="LandBuyAccessBlocked_Notify">購入しようとしている土地には [REGIONMATURITY]コンテンツが含まれていますが、現在の環境設定は、[REGIONMATURITY]コンテンツを除外するように設定されています。</notification>
+  <notification name="LandBuyAccessBlocked_Notify">購入しようとしている土地には [REGIONMATURITY]コンテンツが含まれていますが、現在の初期設定は、[REGIONMATURITY]コンテンツを除外するように設定されています。</notification>
   <notification name="LandBuyAccessBlocked_NotifyAdultsOnly">購入しようとしている土地には、成人のみアクセスできる[REGIONMATURITY]コンテンツが含まれています。</notification>
-  <notification name="LandBuyAccessBlocked_Change">購入しようとしている土地には [REGIONMATURITY]コンテンツが含まれていますが、現在の環境設定は、[REGIONMATURITY]コンテンツを除外するように設定されています。
-環境設定を変更して、もう一度土地の購入を試みることができます。
+  <notification name="LandBuyAccessBlocked_Change">購入しようとしている土地には [REGIONMATURITY]コンテンツが含まれていますが、現在の初期設定は、[REGIONMATURITY]コンテンツを除外するように設定されています。
+初期設定を変更して、もう一度土地の購入を試みることができます。
     <form name="form">
-      <button name="OK" text="環境設定の変更" />
+      <button name="OK" text="初期設定の変更" />
       <button name="Cancel" text="キャンセル" />
-      <ignore name="ignore" text="購入しようとしている土地には現在の環境設定により除外されたコンテンツが含まれています。" />
+      <ignore name="ignore" text="購入しようとしている土地には現在の初期設定により除外されたコンテンツが含まれています。" />
     </form>
   </notification>
   <notification name="TooManyPrimsSelected">選択したプリムが多すぎます：[MAX_PRIM_COUNT]
@@ -1714,7 +1714,7 @@ Linden Lab</notification>
 
 土地所有者のもの以外はスクリプトが実行されません。</notification>
 <notification name="ClaimPublicLand">そのリージョンにいないと公共の土地を取得することはできません。</notification>
-<notification name="RegionTPAccessBlocked">訪問しようとしているリージョン（地域）には現在の環境設定を超えるコンテンツが含まれています。「私」＞「初期設定」＞「一般」を選択して、初期設定を変更できます。</notification>
+<notification name="RegionTPAccessBlocked">訪問しようとしているリージョン（地域）には現在の初期設定を超えるコンテンツが含まれています。「私」＞「初期設定」＞「一般」を選択して、初期設定を変更できます。</notification>
 <notification name="URBannedFromRegion">あなたはリージョンへの立入が禁止されています。</notification>
 <notification name="NoTeenGridAccess">あなたのアカウントではティーングリッドに接続できません。</notification>
 <notification name="ImproperPaymentStatus">このリージョンに入るために適した支払いステータスがありません。</notification>
@@ -1776,8 +1776,8 @@ Linden Lab</notification>
 </form>
 </notification>
 <notification name="TeleportOffered_MaturityExceeded">[NAME_SLURL] はテレポートであなたを呼んでいます。 “[MESSAGE]”&lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt; －[MATURITY_STR]
-このリージョン（地域）には[REGION_CONTENT_MATURITY] コンテンツが含まれていますが、現在の環境設定は [REGION_CONTENT_MATURITY]コンテンツを除外するように設定されています。
-環境設定を変更してテレポートを続けるか、このテレポートを取り消すことができます。
+このリージョン（地域）には[REGION_CONTENT_MATURITY] コンテンツが含まれていますが、現在の初期設定は [REGION_CONTENT_MATURITY]コンテンツを除外するように設定されています。
+初期設定を変更してテレポートを続けるか、このテレポートを取り消すことができます。
 <form name="form">
   <button name="Teleport" text="変更して続ける" />
   <button name="Cancel" text="キャンセル" />
@@ -2106,7 +2106,7 @@ UDP:3478, 3479, 5060, 5062, 6250, 12000-32000
 <notification label="" name="HintMoveClick">⒈クリックして歩行地面の一箇所をクリックすると、その場所まで歩きます。
 
 ⒉クリック・ドラッグで視界を回転世界の一箇所をクリックしてドラッグすると、視界の向きが変わります。</notification>
-<notification label="表示名" name="HintDisplayName">表示名（カスタマイズ可能）を設定します。ユーザー名は固有で変更できませんが、ここで追加する表示名は変更可能です。他の住人の名前の表示方法は環境設定で変更してください。</notification>
+<notification label="表示名" name="HintDisplayName">表示名（カスタマイズ可能）を設定します。ユーザー名は固有で変更できませんが、ここで追加する表示名は変更可能です。他の住人の名前の表示方法は初期設定で変更してください。</notification>
 <notification label="表示" name="HintView">カメラの視点を変更するには、水平・垂直コントロールを使います。Escapeを押すか、または歩行すると、視点がリセットされます。</notification>
 <notification label="インベントリ" name="HintInventory">インベントリにはあなたのアイテムがすべて含まれます。新しく追加されたアイテムは「最新」タブに一覧表示されています。</notification>
 <notification label="あなたのリンデンドル" name="HintLindenDollar">これがあなたの L$ 残高です。リンデンドルを購入するには「L$の購入」をクリックします。</notification>
@@ -2495,8 +2495,8 @@ UDP:3478, 3479, 5060, 5062, 6250, 12000-32000
 <notification name="FailedToFindSettings">データベースから [NAME] の設定の読み込みができませんでした。</notification>
 <notification name="FailedToLoadSettingsApply">環境にこれらの設定を適用することができません。</notification>
 <notification name="FailedToBuildSettingsDay">環境にこれらの設定を適用することができません。</notification>
-<notification name="NoEnvironmentSettings">このリージョンは環境設定をサポートしていません。</notification>
-<notification label="衣装を保存する" name="SaveSettingAs">現在の環境設定を次の内容で保存する：<form name="form">
+<notification name="NoEnvironmentSettings">このリージョンは初期設定をサポートしていません。</notification>
+<notification label="衣装を保存する" name="SaveSettingAs">現在の初期設定を次の内容で保存する：<form name="form">
   <input name="message">[DESC]（新）</input>
   <button name="OK" text="OK" />
   <button name="Cancel" text="キャンセル" />

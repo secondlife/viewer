@@ -148,7 +148,7 @@
 
   <!--
   <menu create_jump_keys="true" label="環境編集" name="Environment Editor" tear_off="true">
-    <menu_item_call label="環境設定…" name="Environment Settings"/>
+    <menu_item_call label="初期設定…" name="Environment Settings"/>
     <menu_item_separator/>
     <menu name="Water Presets" label="水のプリセット"/>
     <menu name="Sky Presets" label="空のプリセット">
@@ -262,7 +262,7 @@
     <menu_item_call label="バグを報告する" name="Report Bug" />
     <menu_item_separator/>
 
-    <menu_item_call label="衝突・プッシュ・打撃" name="Bumps, Pushes &amp;amp; Hits" />
+    <menu_item_call label="衝突・プッシュ＆打撃" name="Bumps, Pushes &amp;amp; Hits" />
     <menu_item_call label="[APP_NAME]について" name="About Second Life" />
   </menu>
   <menu label="拡張" name="Advanced">

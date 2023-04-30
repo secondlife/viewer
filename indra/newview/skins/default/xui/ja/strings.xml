@@ -3547,7 +3547,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="IM_to_label">宛先</string>
   <string name="IM_moderator_label">（モデレータ）</string>
   <string name="Saved_message">（保存日時：[LONG_TIMESTAMP]）</string>
-  <string name="IM_unblock_only_groups_friends">このメッセージを表示するには、「環境設定」の「プライバシー」で「フレンドとグループ以外からはコールと IM を受信しない」チェックボックスをオフにします。</string>
+  <string name="IM_unblock_only_groups_friends">このメッセージを表示するには、「初期設定」の「プライバシー」で「フレンドとグループ以外からはコールと IM を受信しない」チェックボックスをオフにします。</string>
   <string name="OnlineStatus">オンライン</string>
   <string name="OfflineStatus">オフライン</string>
   <string name="not_online_msg">ユーザーがオンラインでありません－メッセージは保存され、後で配信されます。</string>
@@ -3989,7 +3989,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Command_People_Label">人</string>
   <string name="Command_Picks_Label">ピック</string>
   <string name="Command_Places_Label">場所</string>
-  <string name="Command_Preferences_Label">環境設定</string>
+  <string name="Command_Preferences_Label">初期設定</string>
   <string name="Command_Profile_Label">プロフィール</string>
   <string name="Command_Report_Abuse_Label">嫌がらせの報告</string>
   <string name="Command_Search_Label">検索</string>
@@ -4023,7 +4023,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Command_People_Tooltip">フレンド、グループ、近くの人</string>
   <string name="Command_Picks_Tooltip">プロフィールで紹介するお気に入りの場所</string>
   <string name="Command_Places_Tooltip">保存済みの場所</string>
-  <string name="Command_Preferences_Tooltip">環境設定</string>
+  <string name="Command_Preferences_Tooltip">初期設定</string>
   <string name="Command_Profile_Tooltip">プロフィールを編集／表示</string>
   <string name="Command_Report_Abuse_Tooltip">嫌がらせの報告</string>
   <string name="Command_Search_Tooltip">場所、イベント、人を検索する。</string>
@@ -4098,8 +4098,8 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="ExperiencePermissionShort17">環境</string>
 
   <!-- Conversation log messages -->
-  <string name="logging_calls_disabled_log_empty">会話はログに記録されていません。ログの記録を開始するには、「環境設定」&gt;「チャット」で「保存: ログのみ」または「保存: ログと会話のテキスト」を選択します。</string>
-  <string name="logging_calls_disabled_log_not_empty">これ以上の会話は記録されません。ログの記録を再開するには、「環境設定」&gt;「チャット」で「保存: ログのみ」または「保存: ログと会話のテキスト」を選択します。</string>
+  <string name="logging_calls_disabled_log_empty">会話はログに記録されていません。ログの記録を開始するには、「初期設定」&gt;「チャット」で「保存: ログのみ」または「保存: ログと会話のテキスト」を選択します。</string>
+  <string name="logging_calls_disabled_log_not_empty">これ以上の会話は記録されません。ログの記録を再開するには、「初期設定」&gt;「チャット」で「保存: ログのみ」または「保存: ログと会話のテキスト」を選択します。</string>
   <string name="logging_calls_enabled_log_empty">ログイン時の会話はありません。誰かにご連絡した後、または誰かがあなたに連絡した後、ログエントリがここに表示されます。</string>
   <string name="loading_chat_logs">読み込み中…</string>
 

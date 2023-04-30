@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar name="Login Menu">
   <menu label="私" name="File">
-    <menu_item_call label="環境設定…" name="Preferences..." />
+    <menu_item_call label="初期設定…" name="Preferences..." />
     <menu_item_call label="ウィンドウを閉じる" name="Close Window" />
     <menu_item_check label="グリッドピッカーを表示する" name="Show Grid Picker" />
     <menu_item_call label="[APP_NAME]を終了" name="Quit" />
@@ -21,7 +21,7 @@
   <menu_item_check label="デバッグメニューを表示する" name="Show Debug Menu" />
   <menu label="デバッグ" name="Debug">
     <menu_item_call label="デバッグ設定を表示" name="Debug Settings" />
-    <menu_item_call label="XUI プレビューツール" name="UI Preview Tool" />
+    <menu_item_call label="XUIプレビューツール" name="UI Preview Tool" />
     <menu label="UI テスト" name="UI Tests" />
     <menu_item_call label="ウィンドウのサイズを設定…" name="Set Window Size..." />
     <menu_item_call label="利用規約を表示" name="TOS" />

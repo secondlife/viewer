@@ -1,175 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater
- legacy_header_height="18"
- positioning="centered"
- default_tab_group="1"
- height="530"
- layout="topleft"
- name="Preferences"
- help_topic="preferences"
- save_rect="true"
- single_instance="true"
- title="PREFERENCES"
- width="658">
-   <button
-     follows="right|bottom"
-     height="23"
-     label="OK"
-     label_selected="OK"
-     layout="topleft"
-     right="-105"
-     name="OK"
-     top="492"
-     width="90">
-        <button.commit_callback
-         function="Pref.OK" />
-    </button>
-    <button
-     follows="right|bottom"
-     height="23"
-     label="Cancel"
-     label_selected="Cancel"
-     layout="topleft"
-     left_pad="5"
-     name="Cancel"
-     right="-10"
-     width="90" >
-        <button.commit_callback
-         function="Pref.Cancel" />
-    </button>
+<floater name="Preferences" title="初期設定">
+  <button label="OK" label_selected="OK" name="OK" />
+  <button name="キャンセル" />
 
-    <panel
-     name="search_panel"
-     layout="topleft"
-     follows="left|top|right"
-     left="4"
-     right="-4"
-     top="21"
-     height="18"
-     tab_group="2">
-        <search_editor
-         clear_button_visible="true"
-         follows="left|top|right"
-         height="18"
-         label="Search Settings"
-         layout="topleft"
-         left="0"
-         max_length_bytes="255"
-         name="search_prefs_edit"
-         right="-1"
-         text_pad_left="6"
-         tool_tip="Type the search term you are interested in here. Results will be displayed for partial fulltext matches within the setting's name or comment."
-         top="0">
-         <search_editor.commit_callback
-          function="UpdateFilter" />
-         <search_editor.clear_button
-          rect.height="18"
-          rect.width="18"
-          rect.bottom="-1" />
-         <search_editor.search_button
-          rect.height="12"
-          rect.width="12"
-          rect.bottom="-1" />
-        </search_editor>
-    </panel>
+  <panel name="search_panel">
+    <search_editor label="設定を検索" name="search_prefs_edit" tool_tip="検索したい内容をここに入力してください。設定の名前またはコメントに部分的に一致する結果が表示されます。" />
+  </panel>
 
-    <tab_container
-     follows="all"
-     halign="left"
-     height="440"
-     layout="topleft"
-     left="0"
-     name="pref core"
-     tab_group="1"
-     tab_position="left"
-     tab_width="140"
-     tab_padding_right="0"
-     top="40"
-     width="658">
-        <panel
-	 class="panel_preference"
-         filename="panel_preferences_general.xml"
-         label="General"
-         layout="topleft"
-         help_topic="preferences_general_tab"
-         name="general" />
-        <panel
-	 class="panel_preference_graphics"
-         filename="panel_preferences_graphics1.xml"
-         label="Graphics"
-         layout="topleft"
-         help_topic="preferences_display_tab"
-         name="display" />
-        <panel
-		 class="panel_preference"
-         filename="panel_preferences_sound.xml"
-         label="Sound &amp; Media"
-         layout="topleft"
-         help_topic="preferences_audio_tab"
-         name="audio" />
-        <panel
-		 class="panel_preference"
-         filename="panel_preferences_chat.xml"
-         label="Chat"
-         layout="topleft"
-         help_topic="preferences_chat_tab"
-         name="chat" />
-        <panel
-		 class="panel_preference"
-         filename="panel_preferences_move.xml"
-         label="Move &amp; View"
-         layout="topleft"
-         help_topic="preferences_move_tab"
-         name="move" />
-        <panel
-		 class="panel_preference"
-         filename="panel_preferences_alerts.xml"
-         label="Notifications"
-         layout="topleft"
-         help_topic="preferences_msgs_tab"
-         name="msgs" />
-        <panel
-		 class="panel_preference"
-         filename="panel_preferences_colors.xml"
-         label="Colors"
-         layout="topleft"
-         help_topic="preferences_colors_tab"
-         name="colors" />
-        <panel
-         class="panel_preference_privacy"
-         filename="panel_preferences_privacy.xml"
-         label="Privacy"
-         layout="topleft"
-         help_topic="preferences_im_tab"
-         name="im" />
-        <panel
-		 class="panel_preference"
-         filename="panel_preferences_setup.xml"
-         label="Setup"
-         layout="topleft"
-         help_topic="preferences_input_tab"
-         name="input" />
-        <panel
-		 class="panel_preference"
-         filename="panel_preferences_advanced.xml"
-         label="Advanced"
-         layout="topleft"
-         help_topic="preferences_advanced1_tab"
-         name="advanced1" />
-        <panel
-         class="panel_preference"
-         filename="panel_preferences_uploads.xml"
-         label="Uploads"
-         layout="topleft"
-         help_topic="preferences_uploads_tab"
-         name="uploads" />
-        <panel
-         class="panel_preference_controls"
-         filename="panel_preferences_controls.xml"
-         label="Controls"
-         layout="topleft"
-         help_topic="preferences_controls_tab"
-         name="controls" />
-    </tab_container>
+  <tab_container name="pref core">
+    <panel label="一般" name="general" />
+    <panel label="グラフィック" name="display" />
+    <panel label="サウンドとメディア" name="audio" />
+    <panel label="チャット" name="chat" />
+    <panel label="移動と表示" name="move" />
+    <panel label="通知" name="msgs" />
+    <panel label="色" name="colors" />
+    <panel label="プライバシー" name="im" />
+    <panel label="セットアップ" name="input" />
+    <panel label="拡張" name="advanced1" />
+    <panel label="アップロード" name="uploads" />
+    <panel label="操作" name="controls" />
+  </tab_container>
 
 </floater>

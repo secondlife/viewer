@@ -2,13 +2,13 @@
 <panel label="環境" name="panel_env_info">
   <string name="str_label_use_default">既定の設定を使用</string>
   <string name="str_label_use_region">リージョン（地域）の設定を使用</string>
-  <string name="str_altitude_desription">空 [INDEX]([ALTITUDE]m)</string>
+  <string name="str_altitude_desription">空 [INDEX]（[ALTITUDE]m）</string>
   <string name="str_no_parcel">区画が選択されていません。環境設定が無効になっています。</string>
   <string name="str_cross_region">リージョン（地域）の境界では環境設定ができません。</string>
-  <string name="str_legacy">このリージョンで環境設定はできません。</string>
+  <string name="str_legacy">このリージョン（地域）で環境設定はできません。</string>
   <string name="str_disallowed">不動産マネージャーが、このリージョン（地域）で区画の環境を変更することを許可していません。</string>
   <string name="str_too_small">環境をサポートするには、最低でも128㎡の区画が必要です。</string>
-  <string name="str_empty">(空)</string>
+  <string name="str_empty">（空）</string>
   <string name="str_region_env">（リージョンの環境）</string>
   <layout_stack>
     <layout_panel name="pnl_environment_disabled">
@@ -25,7 +25,7 @@
               <check_box label="区画所有者が環境を上書きすることがあります" name="chk_allow_override" />
             </layout_panel>
             <layout_panel name="pnl_environment_length">
-              <text name="lbl_apparent_time">[HH]：[MM][AP]（[PRC]％）</text>
+              <text name="lbl_apparent_time">[AP]　[HH]：[MM]（[PRC]％）</text>
             </layout_panel>
             <layout_panel name="pnl_environment_buttons" />
           </layout_stack>
@@ -67,7 +67,7 @@
     </layout_panel>
   </layout_stack>
   <layout_panel name="pnl_environment_region_msg">
-    <text name="region_text_lbl">地域：</text>
+    <text name="region_text_lbl">リージョン（地域）：</text>
     <text name="region_text">不明</text>
   </layout_panel>
 </panel>
