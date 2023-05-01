@@ -227,16 +227,6 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		return 0;
 	}
 
-    // render time capture
-    // This path does not appear to have attachments. Prove this then remove.
-    std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{};
-    auto vobj = mFace->getViewerObject();
-    if( vobj && vobj->isAttachment() )
-    {
-        trackAttachments( vobj, mFace->isState(LLFace::RIGGED), &ratPtr );
-        LL_WARNS("trackAttachments") << "Attachment render time is captuted." << LL_ENDL;
-    }
-
 	U32 triangle_count = 0;
 
 	S32 diffuse_channel = LLDrawPoolAvatar::sDiffuseChannel;

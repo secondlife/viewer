@@ -352,17 +352,6 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
                 {
                     LLDrawInfo& params = **k;
 
-# if 0 // TODO SL-19656 figure out how to reenable trackAttachments()
-                    if(params.mFace)
-                    {
-                        LLViewerObject* vobj = (LLViewerObject *)params.mFace->getViewerObject();
-                        if(vobj->isAttachment())
-                        {
-                            trackAttachments( vobj, params.mFace->isState(LLFace::RIGGED), &ratPtr );
-                        }
-                    }
-#endif
-
                     bool rigged = (params.mAvatar != nullptr);
                     gHighlightProgram.bind(rigged);
                     gGL.diffuseColor4f(1, 0, 0, 1);
@@ -549,13 +538,6 @@ void LLDrawPoolAlpha::renderRiggedEmissives(std::vector<LLDrawInfo*>& emissives)
     for (LLDrawInfo* draw : emissives)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("Emissives");
-# if 0 // TODO SL-19656 figure out how to reenable trackAttachments()
-        auto vobj = draw->mFace?draw->mFace->getViewerObject():nullptr;
-        if(vobj && vobj->isAttachment())
-        {
-            trackAttachments( vobj, draw->mFace->isState(LLFace::RIGGED), &ratPtr );
-        }
-#endif
 
         bool tex_setup = TexSetup(draw, false);
         if (lastAvatar != draw->mAvatar || lastMeshId != draw->mSkinInfo->mHash)
@@ -695,18 +677,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                 LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("ra - push batch");
 
                 LLRenderPass::applyModelMatrix(params);
-
-# if 0 // TODO SL-19656 figure out how to reenable trackAttachments()
-                if(params.mFace)
-                {
-                    LLViewerObject* vobj = (LLViewerObject *)params.mFace->getViewerObject();
-
-                    if(vobj->isAttachment())
-                    {
-                        trackAttachments( vobj, params.mFace->isState(LLFace::RIGGED), &ratPtr );
-                    }
-                }
-#endif
 
                 LLMaterial* mat = NULL;
                 LLGLTFMaterial *gltf_mat = params.mGLTFMaterial; 

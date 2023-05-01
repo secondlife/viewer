@@ -57,8 +57,6 @@ const S32 BAR_RIGHT_PAD = 5;
 const S32 BAR_BOTTOM_PAD = 9;
 
 constexpr auto AvType       {LLPerfStats::ObjType_t::OT_AVATAR};
-constexpr auto AttType      {LLPerfStats::ObjType_t::OT_ATTACHMENT};
-constexpr auto HudType      {LLPerfStats::ObjType_t::OT_HUD};
 
 class LLExceptionsContextMenu : public LLListContextMenu
 {

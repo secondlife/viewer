@@ -390,16 +390,6 @@ void LLRenderPass::renderGroup(LLSpatialGroup* group, U32 type, bool texture)
 		LLDrawInfo *pparams = *k;
 		if (pparams) 
         {
-#if 0 // TODO SL-19656 figure out how to reenable trackAttachments()
-            if(pparams->mFace)
-            {
-                LLViewerObject* vobj = pparams->mFace->getViewerObject();
-                if(vobj->isAttachment())
-                {
-                    trackAttachments(vobj, false, &ratPtr);
-                }
-            }
-#endif
             pushBatch(*pparams, texture);
 		}
 	}
@@ -417,17 +407,6 @@ void LLRenderPass::renderRiggedGroup(LLSpatialGroup* group, U32 type, bool textu
         LLDrawInfo* pparams = *k;
         if (pparams) 
         {
-#if 0 // TODO SL-19656 figure out how to reenable trackAttachments()
-            if(pparams->mFace)
-            {
-                LLViewerObject* vobj = pparams->mFace->getViewerObject();
-                if(vobj->isAttachment())
-                {
-                    trackAttachments( vobj, true ,&ratPtr);
-                }
-            }
-#endif
-
             if (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash)
             {
                 uploadMatrixPalette(*pparams);
@@ -450,16 +429,6 @@ void LLRenderPass::pushBatches(U32 type, bool texture, bool batch_textures)
         LLDrawInfo* pparams = *i;
         LLCullResult::increment_iterator(i, end);
 
-#if 0 // TODO SL-19656 figure out how to reenable trackAttachments()
-            if(pparams->mFace)
-            {
-                LLViewerObject* vobj = pparams->mFace->getViewerObject();
-                if(vobj->isAttachment())
-                {
-                    trackAttachments( vobj, false, &ratPtr);
-                }
-            }
-#endif
 		pushBatch(*pparams, texture, batch_textures);
 	}
 }
@@ -475,17 +444,6 @@ void LLRenderPass::pushRiggedBatches(U32 type, bool texture, bool batch_textures
     {
         LLDrawInfo* pparams = *i;
         LLCullResult::increment_iterator(i, end);
-
-#if 0 // TODO SL-19656 figure out how to reenable trackAttachments()
-            if(pparams->mFace)
-            {
-                LLViewerObject* vobj = pparams->mFace->getViewerObject();
-                if(vobj->isAttachment())
-                {
-                    trackAttachments( vobj, true, &ratPtr);
-                }
-            }
-#endif
 
         if (pparams->mAvatar.notNull() && (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash))
         {
@@ -507,16 +465,6 @@ void LLRenderPass::pushMaskBatches(U32 type, bool texture, bool batch_textures)
 	{
         LLDrawInfo* pparams = *i;
         LLCullResult::increment_iterator(i, end);
-#if 0 // TODO SL-19656 figure out how to reenable trackAttachments()
-            if((*pparams).mFace)
-            {
-                LLViewerObject* vobj = (*pparams).mFace->getViewerObject();
-                if(vobj->isAttachment())
-                {
-                    trackAttachments( vobj, false, &ratPtr);
-                }
-            }
-#endif
 		LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(pparams->mAlphaMaskCutoff);
 		pushBatch(*pparams, texture, batch_textures);
 	}
@@ -536,16 +484,6 @@ void LLRenderPass::pushRiggedMaskBatches(U32 type, bool texture, bool batch_text
         LLCullResult::increment_iterator(i, end);
 
         llassert(pparams);
-#if 0 // TODO SL-19656 figure out how to reenable trackAttachments()
-        if((*pparams).mFace)
-        {
-            LLViewerObject* vobj = (*pparams).mFace->getViewerObject();
-            if(vobj->isAttachment())
-            {
-                trackAttachments( vobj, true, &ratPtr);
-            }
-        }
-#endif
 
         if (LLGLSLShader::sCurBoundShaderPtr)
         {

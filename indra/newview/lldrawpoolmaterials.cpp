@@ -199,18 +199,6 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 		
         LLCullResult::increment_iterator(i, end);
 
-#if 0 // TODO SL-19656 figure out how to reenable trackAttachments()
-        if(params.mFace)
-        {
-            LLViewerObject* vobj = (LLViewerObject *)params.mFace->getViewerObject();
-
-            if( vobj && vobj->isAttachment() )
-            {
-                trackAttachments( vobj, params.mFace->isState(LLFace::RIGGED), &ratPtr );
-            }
-        }
-#endif
-
         if (specular > -1 && params.mSpecColor != lastSpecular)
         {
             lastSpecular = params.mSpecColor;

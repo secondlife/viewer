@@ -69,8 +69,6 @@ namespace LLPerfStats
     enum class ObjType_t{
         OT_GENERAL=0, // Also Unknown. Used for n/a type stats such as scenery
         OT_AVATAR,
-        OT_ATTACHMENT,
-        OT_HUD,
         OT_COUNT
     };
     enum class StatType_t{
@@ -260,31 +258,6 @@ namespace LLPerfStats
                 doUpd(avKey, ot, type, val);
                 return;
             }
-
-            if (ot == ObjType_t::OT_ATTACHMENT)
-            {
-                if( !upd.isHUD ) // don't include HUD cost in self.
-                {
-                    LL_PROFILE_ZONE_NAMED("Att as Av")
-                    // For all attachments that are not rigged we add them to the avatar (for all avatars) cost.
-                    doUpd(avKey, ObjType_t::OT_AVATAR, type, val);
-                }
-                if( avKey == focusAv )
-                {
-                    LL_PROFILE_ZONE_NAMED("Att as Att")
-                // For attachments that are for the focusAv (self for now) we record them for the attachment/complexity view
-                    if(upd.isHUD)
-                    {
-                        ot = ObjType_t::OT_HUD;
-                    }
-                    // LL_INFOS("perfstats") << "frame: " << gFrameCount << " Attachment update("<< (type==StatType_t::RENDER_GEOMETRY?"GEOMETRY":"SHADOW") << ": " << key.asString() << " = " << val << LL_ENDL;
-                    doUpd(key, ot, type, val);
-                }
-                // else
-                // {
-                //     // LL_INFOS("perfstats") << "frame: " << gFrameCount << " non-self Att update("<< (type==StatType_t::RENDER_GEOMETRY?"GEOMETRY":"SHADOW") << ": " << key.asString() << " = " << val << " for av " << avKey.asString() << LL_ENDL;
-                // }
-            }
         }
 
         static inline void doUpd(const LLUUID& key, ObjType_t ot, StatType_t type, uint64_t val)
@@ -409,51 +382,7 @@ namespace LLPerfStats
 
     using RecordSceneTime = RecordTime<ObjType_t::OT_GENERAL>;
     using RecordAvatarTime = RecordTime<ObjType_t::OT_AVATAR>;
-    using RecordAttachmentTime = RecordTime<ObjType_t::OT_ATTACHMENT>;
-    using RecordHudAttachmentTime = RecordTime<ObjType_t::OT_HUD>;
-     
+
 };// namespace LLPerfStats
-
-// helper functions
-using RATptr = std::unique_ptr<LLPerfStats::RecordAttachmentTime>;
-using RSTptr = std::unique_ptr<LLPerfStats::RecordSceneTime>;
-
-template <typename T>
-static inline void trackAttachments(const T * vobj, bool isRigged, RATptr* ratPtrp)
-{
-    if( !vobj ){ ratPtrp->reset(); return;};
-    
-    const T* rootAtt{vobj};
-    if (rootAtt->isAttachment())
-    {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
-
-        while( !rootAtt->isRootEdit() )
-        {
-            rootAtt = (T*)(rootAtt->getParent());
-        }
-
-        auto avPtr = (T*)(rootAtt->getParent()); 
-        if(!avPtr){ratPtrp->reset(); return;}
-
-        auto& av = avPtr->getID();
-        auto& obj = rootAtt->getAttachmentItemID();
-        if (!*ratPtrp || (*ratPtrp)->stat.objID != obj || (*ratPtrp)->stat.avID != av)
-        {
-            if (*ratPtrp)
-            {
-                // deliberately reset to ensure destruction before construction of replacement.
-                ratPtrp->reset();
-            };
-            *ratPtrp = std::make_unique<LLPerfStats::RecordAttachmentTime>( 
-                av, 
-                obj,
-                ( LLPipeline::sShadowRender?LLPerfStats::StatType_t::RENDER_SHADOWS : LLPerfStats::StatType_t::RENDER_GEOMETRY ), 
-                isRigged, 
-                rootAtt->isHUDAttachment());
-        }
-    }
-    return;
-};
 
 #endif
