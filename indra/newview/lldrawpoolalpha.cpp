@@ -49,7 +49,6 @@
 #include "llspatialpartition.h"
 #include "llglcommonfunc.h"
 #include "llvoavatar.h"
-#include "llperfstats.h"
 
 #include "llenvironment.h"
 
@@ -349,7 +348,6 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
             {
                 LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA+pass]; // <-- hacky + pass to use PASS_ALPHA_RIGGED on second pass 
 
-                std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{}; // Render time Stats collection
                 for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)
                 {
                     LLDrawInfo& params = **k;
@@ -548,7 +546,6 @@ void LLDrawPoolAlpha::renderRiggedEmissives(std::vector<LLDrawInfo*>& emissives)
     LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
 
-    std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{}; // Render time Stats collection
     for (LLDrawInfo* draw : emissives)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("Emissives");
@@ -687,7 +684,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
 			LLSpatialGroup::drawmap_elem_t& draw_info = rigged ? group->mDrawMap[LLRenderPass::PASS_ALPHA_RIGGED] : group->mDrawMap[LLRenderPass::PASS_ALPHA];
 
-            std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{}; // Render time Stats collection
             for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
 			{
 				LLDrawInfo& params = **k;
@@ -904,8 +900,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 					gGL.matrixMode(LLRender::MM_MODELVIEW);
 				}
 			}
-
-            ratPtr.reset(); // force the final batch to terminate to avoid double counting on the subsidiary batches for FB and Emmissives
 
             // render emissive faces into alpha channel for bloom effects
             if (!depth_only)

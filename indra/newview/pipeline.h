@@ -132,7 +132,8 @@ public:
     bool allocateShadowBuffer(U32 resX, U32 resY);
 
 	void resetVertexBuffers(LLDrawable* drawable);
-	void generateImpostor(LLVOAvatar* avatar, bool preview_avatar = false);
+    void profileAvatar(LLVOAvatar* avatar, bool profile_attachments = false);
+	void generateImpostor(LLVOAvatar* avatar, bool preview_avatar = false, bool for_profile = false, LLViewerObject* specific_attachment = nullptr);
 	void bindScreenToTexture();
 	void renderFinalize();
 	void copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst);

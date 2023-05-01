@@ -52,8 +52,6 @@
 #include "llglcommonfunc.h"
 #include "llvoavatar.h"
 #include "llviewershadermgr.h"
-#include "llperfstats.h"
-
 
 S32 LLDrawPool::sNumDrawPools = 0;
 
@@ -387,7 +385,6 @@ void LLRenderPass::renderGroup(LLSpatialGroup* group, U32 type, bool texture)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 	LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[type];
 
-    std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{}; // Perf stats 
 	for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
 	{
 		LLDrawInfo *pparams = *k;
@@ -415,7 +412,6 @@ void LLRenderPass::renderRiggedGroup(LLSpatialGroup* group, U32 type, bool textu
     LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
     
-    std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{}; // Perf stats 
     for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)
     {
         LLDrawInfo* pparams = *k;
@@ -447,7 +443,6 @@ void LLRenderPass::renderRiggedGroup(LLSpatialGroup* group, U32 type, bool textu
 void LLRenderPass::pushBatches(U32 type, bool texture, bool batch_textures)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-    std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{};
     auto* begin = gPipeline.beginRenderMap(type);
     auto* end = gPipeline.endRenderMap(type);
     for (LLCullResult::drawinfo_iterator i = begin; i != end; )
@@ -476,7 +471,6 @@ void LLRenderPass::pushRiggedBatches(U32 type, bool texture, bool batch_textures
     U64 lastMeshId = 0;
     auto* begin = gPipeline.beginRenderMap(type);
     auto* end = gPipeline.endRenderMap(type);
-    std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{}; // Perf stats 
     for (LLCullResult::drawinfo_iterator i = begin; i != end; )
     {
         LLDrawInfo* pparams = *i;
@@ -507,7 +501,6 @@ void LLRenderPass::pushRiggedBatches(U32 type, bool texture, bool batch_textures
 void LLRenderPass::pushMaskBatches(U32 type, bool texture, bool batch_textures)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-    std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{};
     auto* begin = gPipeline.beginRenderMap(type);
     auto* end = gPipeline.endRenderMap(type);
 	for (LLCullResult::drawinfo_iterator i = begin; i != end; )
@@ -534,7 +527,6 @@ void LLRenderPass::pushRiggedMaskBatches(U32 type, bool texture, bool batch_text
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
-    std::unique_ptr<LLPerfStats::RecordAttachmentTime> ratPtr{};
     auto* begin = gPipeline.beginRenderMap(type);
     auto* end = gPipeline.endRenderMap(type);
     for (LLCullResult::drawinfo_iterator i = begin; i != end; )
