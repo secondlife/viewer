@@ -10072,6 +10072,10 @@ static LLTrace::BlockTimerStatHandle FTM_GENERATE_IMPOSTOR("Generate Impostor");
 
 void LLPipeline::profileAvatar(LLVOAvatar* avatar, bool profile_attachments)
 {
+    if (gGLManager.mGLVersion < 3.25f)
+    { // profiling requires GL 3.3 or later
+        return;
+    }
     LLGLSLShader* cur_shader = LLGLSLShader::sCurBoundShaderPtr;
 
     mRT->deferredScreen.bindTarget();
