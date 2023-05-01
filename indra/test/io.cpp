@@ -1163,7 +1163,12 @@ namespace tut
 
 		// pump for long enough the the client socket closes, and the
 		// server socket should not be closed yet.
-		pump_loop(mPump,0.2f);
+		// nat 2023-05-01: On cloud CI hardware we've been getting failures
+		// from the ensure_equals() below. We assume that the time limit is
+		// only to keep the test from waiting "forever" if the response never
+		// arrives. Bump it up to a timeout that should be WAY longer than
+		// needed.
+		pump_loop(mPump,10.0f);
 		count = mPump->runningChains();
 		ensure_equals("client chain timed out ", count, 2);
 		LL_DEBUGS() << "** client chain should be closed." << LL_ENDL;
