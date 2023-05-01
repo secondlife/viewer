@@ -1240,7 +1240,6 @@ namespace tut
         }
     }
 
-#ifdef ENABLE_FAILING_UNIT_TESTS
     // These hard-coded indices and constraints for a simplified two-fingered arm:
     //
     // chest   collar  shoulder   elbow    wrist (5)--(6)--(7)-. index
@@ -1387,6 +1386,48 @@ namespace tut
         //                                           (8)--(9)--(10)-. ring     /|
         //                                                                    Z X
         //
+        std::vector<std::string> names = {
+            "mChest",
+            "mCollar",
+            "mShoulder",
+            "mElbow",
+            "mWrist",
+            "mIndex1",
+            "mIndex2",
+            "mIndex3",
+            "mRing1",
+            "mRing2",
+            "mRing3"
+        };
+
+        std::vector<LLVector3> local_positions = {
+            {0.0f, 0.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f},
+            {-0.2f, 0.5f, 0.0f},
+            {0.0f, 0.3f, 0.0f},
+            {0.0f, 0.3f, 0.0f},
+            {0.2f, 0.5f, 0.0f},
+            {0.0f, 0.3f, 0.0f},
+            {0.0f, 0.3f, 0.0f}
+        };
+
+        std::vector<LLVector3> end_positions = {
+            {0.0f, 1.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f},
+            {0.0f, 0.3f, 0.0f},
+            {0.0f, 0.3f, 0.0f},
+            {0.0f, 0.3f, 0.0f},
+            {0.0f, 0.3f, 0.0f},
+            {0.0f, 0.3f, 0.0f},
+            {0.0f, 0.3f, 0.0f}
+        };
+
         // We try to bend the elbow near PI/2 by setting fingertip targets
         // in the positive X-direction:
         //
@@ -1395,7 +1436,7 @@ namespace tut
         //                              |
         //                              |
         //                              |
-        //                             (4)
+        //                             (4) wrist
         //           +--Y               |
         //          /|               (8)|(5)
         //         Z X                |   |
@@ -1404,69 +1445,51 @@ namespace tut
         //                          (10) (7)
         //                            |   |
         //
-        std::vector<LLVector3> local_positions;
-        std::vector<LLVector3> bones;
+        LLJoint* parent_joint = nullptr;
+        LLJoint* wrist_joint = nullptr;
+        std::vector<LLJoint*> joints;
+        for (size_t i = 0; i < local_positions.size(); ++i)
+        {
+            S16 id = (S16)(i);
+            if (id == INDEX_1 || id == RING_1)
+            {
+                parent_joint = wrist_joint;
+            }
+            LLJoint* joint = new LLJoint(names[i], parent_joint);
+            joint->setIsBone(true);
+            joint->setJointNum(id);
+            joint->setPosition(local_positions[i]);
+            joint->setEnd(end_positions[i]);
+            joints.push_back(joint);
 
-        // mChest (the root for this test)
-        local_positions.push_back(LLVector3::zero);
-        bones.push_back(LLVector3(0.0f, 1.0f, 0.0f));
-        // mCollarLeft
-        local_positions.push_back(LLVector3(0.0f, 1.0f, 0.0f));
-        bones.push_back(LLVector3(0.0f, 1.0f, 0.0f));
-        // mShoulderLeft
-        local_positions.push_back(LLVector3(0.0f, 1.0f, 0.0f));
-        bones.push_back(LLVector3(0.0f, 1.0f, 0.0f));
-        // mElbowLeft
-        local_positions.push_back(LLVector3(0.0f, 1.0f, 0.0f));
-        bones.push_back(LLVector3(0.0f, 1.0f, 0.0f));
-        // mWristLeft
-        local_positions.push_back(LLVector3(0.0f, 1.0f, 0.0f));
-        bones.push_back(LLVector3(0.0f, 0.5f, 0.0f));
+            if (id == WRIST)
+            {
+                wrist_joint = joint;
+            }
+            parent_joint = joint;
+        }
 
-        // mHandIndex1Left
-        local_positions.push_back(LLVector3(0.2f, 0.5f, 0.0f));
-        bones.push_back(LLVector3(0.0f, 0.3f, 0.0f));
-        // mHandIndex2Left
-        local_positions.push_back(LLVector3(0.0f, 0.3f, 0.0f));
-        bones.push_back(LLVector3(0.0f, 0.3f, 0.0f));
-        // mHandIndex3Left
-        local_positions.push_back(LLVector3(0.0f, 0.3f, 0.0f));
-        bones.push_back(LLVector3(0.0f, 0.3f, 0.0f));
-
-        // mHandRing1Left
-        local_positions.push_back(LLVector3(-0.2f, 0.5f, 0.0f));
-        bones.push_back(LLVector3(0.0f, 0.3f, 0.0f));
-        // mHandRing2Left
-        local_positions.push_back(LLVector3(0.0f, 0.3f, 0.0f));
-        bones.push_back(LLVector3(0.0f, 0.3f, 0.0f));
-        // mHandRing3Left
-        local_positions.push_back(LLVector3(0.0f, 0.3f, 0.0f));
-        bones.push_back(LLVector3(0.0f, 0.3f, 0.0f));
-
-        LLIKConstraintFactory &factory(LLIKConstraintFactory::instance());
-        LLIK::Constraint::Info info;
-        LLIK::Constraint::ptr_t null_constraint = factory.getConstraint(info);
-
-        S16 joint_id = 0;
         LLIK::Solver solver;
         constexpr F32 ACCEPTABLE_ERROR = 1.0e-3f; // one mm
         solver.setAcceptableError(ACCEPTABLE_ERROR);
-        solver.setRootID(joint_id);
-        for (S32 id = 0; id < (S16)(local_positions.size()); ++id)
+        solver.setRootID(CHEST);
+        LLIKConstraintFactory factory;
+        for (size_t i = 0; i < local_positions.size(); ++i)
         {
+            S16 id = (S16)(i);
             S16 parent_id = id - 1;
             if (id == INDEX_1 || id == RING_1)
             {
                 parent_id = WRIST;
             }
-            LLIK::Constraint::Info info = get_constraint_info(id, local_positions[id]);
+            LLIK::Constraint::Info info = get_constraint_info(id, local_positions[i]);
             LLIK::Constraint::ptr_t constraint = factory.getConstraint(info);
-            solver.addJoint(id, parent_id, local_positions[id], bones[id], constraint);
+            solver.addJoint(id, parent_id, joints[i], constraint);
         }
         std::vector<S16> fingertip_indices = { INDEX_3, RING_3 };
 
         // measure the initial offsets to fingers from elbow_tip
-        LLVector3 elbow_tip = solver.getJointWorldTipPos(ELBOW);
+        LLVector3 elbow_tip = solver.getJointWorldEndPos(ELBOW);
         std::vector<LLVector3> finger_offsets;
         for (auto id : fingertip_indices)
         {
@@ -1494,19 +1517,20 @@ namespace tut
         // solve
         //solver.enableDebugIfPossible();
         solver.updateJointConfigs(configs);
-        F32 max_error = solver.solve();
+        F32 error = solver.solve();
 
         // check results
         // Note; this test does not quite reach ACCEPTABLE_ERROR after 16 iterations
         // however it gets close
-        F32 allowable_error = 0.033f;
-        for (size_t i = 0; i < fingertip_indices.size(); ++i)
+        F32 allowable_error = 0.016f;
+        ensure("LLIK::Solver finger should reach target", error < allowable_error);
+
+        // cleanup LLJoints
+        for (auto joint: joints)
         {
-            F32 error = dist_vec(solver.getJointWorldEndPos(fingertip_indices[i]), finger_target_positions[i]);
-            ensure("LLIK::Solver finger should reach target", error < allowable_error);
+            delete joint;
         }
     }
-#endif // ENABLE_FAILING_UNIT_TESTS
 
     void build_skeleton_arm(std::vector<LLJoint*>& joints, LLIKConstraintFactory& factory, LLIK::Solver& solver, bool with_fingers=true)
 	{
