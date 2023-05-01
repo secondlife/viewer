@@ -2775,15 +2775,6 @@ F32 LLIK::Solver::solve()
 {
     rebuildAllChains();
 
-    // Before each solve: we relax a fraction toward the reset pose.
-    // This provides return pressure that removes floating-point drift that would
-    // otherwise wander around within the valid zones of the constraints.
-    constexpr F32 INITIAL_RELAXATION_FACTOR = 0.25f;
-    for (auto& root : mActiveRoots)
-    {
-        root->relaxRotationsRecursively(INITIAL_RELAXATION_FACTOR);
-    }
-
 #ifdef DEBUG_LLIK_UNIT_TESTS
     if (mDebugEnabled)
     {
@@ -2819,8 +2810,14 @@ F32 LLIK::Solver::solve()
     }
 #endif
 
-    // start with one FABRIK pass (does not enforce constraints)
-    executeFabrikPass();
+    // Before each solve: we relax a fraction toward the reset pose.
+    // This provides return pressure that removes floating-point drift that would
+    // otherwise wander around within the valid zones of the constraints.
+    constexpr F32 INITIAL_RELAXATION_FACTOR = 0.25f;
+    for (auto& root : mActiveRoots)
+    {
+        root->relaxRotationsRecursively(INITIAL_RELAXATION_FACTOR);
+    }
 
     constexpr U32 MAX_FABRIK_ITERATIONS = 16;
     constexpr U32 MIN_FABRIK_ITERATIONS = 4;
@@ -2830,34 +2827,7 @@ F32 LLIK::Solver::solve()
 #ifdef DEBUG_LLIK_UNIT_TESTS
         if (mDebugEnabled) { std::cout << "    ('loop'," << loop << ")," << std::endl; }
 #endif
-
-        // pull elbows downward toward a more natual pose
-        for (const auto& wrist_joint : mWristJoints)
-        {
-            dropElbow(wrist_joint);
-        }
-
-        // since our FABRIK implementation doesn't enforce constraints
-        // during the forward/backward passes we do it here
-        enforceConstraintsOutward();
-
-        // It is often possible to remove excess twist between the Joints
-        // without swinging their bones in the world-frame.  We try this now
-        // to help reduce the "spin drift" that can occur where Joint
-        // orientations pick up systematic and floating-point errors and
-        // drift within the twist-limits of their constraints.
-        for (const auto& data_pair : mChainMap)
-        {
-            const joint_list_t& chain = data_pair.second;
-            untwistChain(chain);
-        }
-
-        executeFabrikPass();
-
-        // Note: we don't bother enforcing constraints after this FABRIK pass.
-        // The algorithm is expected to converge so final constraint violations
-        // should be small.
-        max_error = measureMaxError();
+        max_error = solveOnce();
     }
     mLastError = max_error;
 
@@ -2873,6 +2843,51 @@ F32 LLIK::Solver::solve()
     }
 #endif
     return mLastError;
+}
+
+F32 LLIK::Solver::solveOnce()
+{
+    // uncomment your experimental algorithm here
+    //executeFabrikPass();
+    //executeCcdPass();
+    executeFabrikWithDroppedElbow();
+
+    return measureMaxError();
+}
+
+void LLIK::Solver::executeFabrikWithDroppedElbow(bool enable_constraints, bool untwist)
+{
+    executeFabrikPass();
+
+    // pull elbows downward toward a more natual pose
+    for (const auto& wrist_joint : mWristJoints)
+    {
+        dropElbow(wrist_joint);
+    }
+
+    if (enable_constraints)
+    {
+        // since our FABRIK implementation doesn't enforce constraints
+        // during the forward/backward passes we do it here
+        enforceConstraintsOutward();
+
+        if (untwist)
+        {
+            // It is often possible to remove excess twist between the Joints
+            // without swinging their bones in the world-frame.  We try this now
+            // to help reduce the "spin drift" that can occur where Joint
+            // orientations pick up systematic and floating-point errors and
+            // drift within the twist-limits of their constraints.
+            for (const auto& data_pair : mChainMap)
+            {
+                const joint_list_t& chain = data_pair.second;
+                untwistChain(chain);
+            }
+
+            executeFabrikPass();
+            // Note: we don't bother enforcing constraints after untwisting.
+        }
+    }
 }
 
 LLVector3 LLIK::Solver::getJointLocalPos(S16 joint_id) const

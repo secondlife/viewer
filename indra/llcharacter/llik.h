@@ -638,7 +638,6 @@ public:
     LLQuaternion getJointLocalRot(S16 joint_id) const;
     LLVector3 getJointLocalPos(S16 joint_id) const;
     bool getJointLocalTransform(S16 joint_id, LLVector3& pos, LLQuaternion& rot) const;
-    LLVector3 getJointWorldTipPos(S16 joint_id) const;
     LLVector3 getJointWorldEndPos(S16 joint_id) const;
     LLQuaternion getJointWorldRot(S16 joint_id) const;
 
@@ -657,6 +656,11 @@ public:
     void setAcceptableError(F32 slop) { mAcceptableError = slop; }
 
 private:
+    F32 solveOnce();
+
+    // experimental solver methods
+    void executeFabrikWithDroppedElbow(bool enable_constraints=true, bool untwist=true);
+
     bool isSubBase(S16 joint_id) const;
     bool isSubRoot(S16 joint_id) const;
     //void adjustTargets(joint_config_map_t& targets); // EXPERIMENTAL: keep this
