@@ -3198,7 +3198,13 @@ LLSD LLAppViewer::getViewerInfo() const
 	// LLFloaterAbout.
 	LLSD info;
 	auto& versionInfo(LLVersionInfo::instance());
-	info["VIEWER_VERSION"] = LLSDArray(versionInfo.getMajor())(versionInfo.getMinor())(versionInfo.getPatch())(versionInfo.getBuild());
+    LLSD vvInfo = LLSD::emptyArray();
+    vvInfo.append(versionInfo.getMajor());
+	vvInfo.append(versionInfo.getMinor());
+	vvInfo.append(versionInfo.getPatch());
+	vvInfo.append(versionInfo.getBuild());
+	info["VIEWER_VERSION"] = vvInfo;
+
 	info["VIEWER_VERSION_STR"] = versionInfo.getVersion();
 	info["CHANNEL"] = versionInfo.getChannel();
     info["ADDRESS_SIZE"] = ADDRESS_SIZE;
