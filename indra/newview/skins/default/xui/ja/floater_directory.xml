@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater legacy_header_height="18" single_instance="true" can_resize="true" height="590" min_height="135" min_width="430" layout="topleft" name="search" save_rect="true" title="SEARCH" width="602">
+<floater legacy_header_height="18" single_instance="true" can_resize="true" height="590" min_height="135" min_width="430" layout="topleft" name="search" save_rect="true" title="検索" width="602">
   <floater.string name="not_found">「[TEXT]」は見つかりませんでした。</floater.string>
   <floater.string name="no_results">結果なし</floater.string>
   <floater.string name="result_spillover">[TOTAL]件以上のうち[VISIBLE_BEGIN]～[VISIBLE_END]件を表示しています。</floater.string>

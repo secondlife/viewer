@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Joystick" title="ジョイスティックの設定">
-  <check_box label="ジョイスティックを使う：" name="enable_joystick" width="120" />
-  <text left="180" name="joystick_type" width="320" />
+  <floater.string name="JoystickDisabled">なし</floater.string>
+  <text name="joystick_lbl">ジョイスティック：</text>
   <spinner label="X軸マッピング" name="JoystickAxis1" />
   <spinner label="Y軸マッピング" name="JoystickAxis2" />
   <spinner label="Z軸マッピング" name="JoystickAxis0" />

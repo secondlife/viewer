@@ -11,7 +11,7 @@
           <color_swatch can_apply_immediately="true" follows="left|top" height="40" label_height="0" layout="topleft" left_delta="0" name="blue_horizon" top_pad="5" width="60" />
           <text follows="left|top" height="10" layout="topleft" left_delta="0" top_pad="10" width="80">青の濃度：</text>
           <color_swatch can_apply_immediately="true" follows="left|top" height="40" label_height="0" layout="topleft" left_delta="0" name="blue_density" top_pad="5" width="60" />
-          <button follows="left|top" height="23" label="Reset" tool_tip="Close and reset to Shared Environment" layout="topleft" name="btn_reset" left_delta="-2" top_pad="10" width="100" />
+          <button follows="left|top" height="23" label="リセット" tool_tip="閉じて共有された環境にリセットします。" layout="topleft" name="btn_reset" left_delta="-2" top_pad="10" width="100" />
           <text follows="right|top" height="10" layout="topleft" right="-12" top="5" width="60">太陽の色：</text>
           <color_swatch can_apply_immediately="true" follows="left|top" height="10" label_height="0" layout="topleft" left_delta="0" name="sun_color" top_pad="5" width="60" />
           <text follows="left|top" height="10" layout="topleft" left_delta="0" top_pad="5" width="80">雲の色：:</text>
@@ -57,7 +57,7 @@
           <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="359.99" name="moon_azimuth" top_pad="5" width="130" can_edit_text="true" />
           <text follows="left|top" height="10" layout="topleft" left_delta="-5" top_pad="5" width="200">標高：</text>
           <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="-90" max_val="90" name="moon_elevation" top_pad="5" width="130" can_edit_text="true" />
-          <check_box control_name="moonbeacon" follows="left|top" width="60" height="16" label="ビーコンを表示" layout="topleft" name="moonbeacon" left_delta="0" top_pad="8" />
+          <check_box control_name="moonbeacon" label="ビーコンを表示" />
         </layout_panel>
       </layout_stack>
     </layout_panel>

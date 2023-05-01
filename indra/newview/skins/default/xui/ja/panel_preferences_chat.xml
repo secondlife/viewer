@@ -7,14 +7,14 @@
     <check_box label="フレンドとグループ以外からはコールと IM を受信しない" name="voice_call_friends_only_check" />
     <text name="font_size">文字の大きさ：</text>
     <combo_box name="chat_font_size">
-      <item label="小規模" name="Small" value="0" />
+      <item label="小" name="Small" value="0" />
       <item label="中" name="Medium" value="1" />
-      <item label="大規模" name="Large" value="2" />
+      <item label="大" name="Large" value="2" />
     </combo_box>
     <check_box label="吹き出しチャット" name="bubble_text_chat" />
   </panel>
   <panel name="im_notification_settings">
-    <text name="friend_ims">フレンド IM：</text>
+    <text name="friend_ims">フレンドIM：</text>
     <combo_box name="FriendIMOptions">
       <item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations" />
       <item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト" />
@@ -22,7 +22,7 @@
       <item label="動作なし" name="NoAction" value="noaction" />
     </combo_box>
     <check_box label="サウンドを再生" name="play_sound_friend_im" />
-    <text name="non_friend_ims">フレンドのいない IM：</text>
+    <text name="non_friend_ims">フレンドのいないIM：</text>
     <combo_box name="NonFriendIMOptions">
       <item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations" />
       <item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト" />
@@ -30,7 +30,7 @@
       <item label="動作なし" name="NoAction" value="noaction" />
     </combo_box>
     <check_box label="サウンドを再生" name="play_sound_non_friend_im" />
-    <text name="conference_ims">会話 IM：</text>
+    <text name="conference_ims">会話IM：</text>
     <combo_box name="ConferenceIMOptions">
       <item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations" />
       <item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト" />
@@ -54,7 +54,7 @@
       <item label="動作なし" name="NoAction" value="noaction" />
     </combo_box>
     <check_box label="サウンドを再生" name="play_sound_nearby_chat_im" />
-    <text name="object_ims">オブジェクト IM：</text>
+    <text name="object_ims">オブジェクトによるIM：</text>
     <combo_box name="ObjectIMOptions">
       <item label="開いている会話ウィンドウ" name="OpenConversationsWindow" value="openconversations" />
       <item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト" />
@@ -62,7 +62,7 @@
       <item label="動作なし" name="NoAction" value="noaction" />
     </combo_box>
     <check_box label="サウンドを再生" name="play_sound_object_im" />
-    <text name="notifications_alert">一時的にすべての通知を停止するには、「コミュニケーション」 &gt; 「着信拒否]を使用します。</text>
+    <text name="notifications_alert">一時的にすべての通知を停止するには、「コミュニケーション」＞「着信拒否」を使用します。</text>
   </panel>
   <panel name="play_sound_settings">
     <text name="play_sound">サウンドを再生：</text>

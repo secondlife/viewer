@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater can_close="true" can_drag_on_left="false" can_minimize="true" can_resize="true" height="197" width="580" min_width="580" min_height="128" name="asset_hex_editor" title="Hex Editor" save_rect="true" positioning="cascading">
-	<hex_editor name="hex" follows="left|top|right|bottom" left="5" top="5" width="570" height="170" visible="true"/>
-	<slider can_edit_text="false" top_pad="0" control_name="column_count" decimal_digits="3" follows="left|bottom" height="16" increment="1" label="カラム" left="10" max_val="48" min_val="8" mouse_opaque="true" name="column_count" show_text="false" value="16" width="100" />
-	<text name="status_text" follows="left|bottom" width="300" left="120" top_delta="0" height="20">[STATUS]</text>
-	<button name="upload_btn" follows="right|bottom" right="-120" width="100" top_delta="-5" label="[UPLOAD]" enabled="false"/>
-	<button name="save_btn" follows="right|bottom" right="-10" width="100" top_delta="0" label="保存" enabled="false"/>
+<floater can_close="true" can_drag_on_left="false" can_minimize="true" can_resize="true" height="197" width="580" min_width="580" min_height="128" name="asset_hex_editor" title="Hexエディタ" save_rect="true" positioning="cascading">
+  <hex_editor name="hex" follows="left|top|right|bottom" left="5" top="5" width="570" height="170" visible="true" />
+  <slider can_edit_text="false" top_pad="0" control_name="column_count" decimal_digits="3" follows="left|bottom" height="16" increment="1" label="カラム" left="10" max_val="48" min_val="8" mouse_opaque="true" name="column_count" show_text="false" value="16" width="100" />
+  <text name="status_text" follows="left|bottom" width="300" left="120" top_delta="0" height="20">[STATUS]</text>
+  <button name="upload_btn" follows="right|bottom" right="-120" width="100" top_delta="-5" label="[UPLOAD]" enabled="false" />
+  <button name="save_btn" follows="right|bottom" right="-10" width="100" top_delta="0" label="保存" enabled="false" />
 </floater>

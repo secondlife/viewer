@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Give Money" title="">
+<floater name="Give Money" title="オブジェクトにお支払い">
   <string name="payee_group">グループに支払う</string>
   <string name="payee_resident">住人に支払う</string>
   <text name="paying_text">支払中：</text>

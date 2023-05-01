@@ -927,7 +927,7 @@ SHA1 フィンガープリント：[MD5_DIGEST]
   <notification name="KickUsersFromRegion">このリージョンにいる全ての住人をホームにテレポートしますか？
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
-  <notification name="ChangeObjectBonusFactor">リージョン（地域）内でビルドが確立された後にオブジェクトボーナスを下げると、オブジェクトが返されたり、削除されたりします。本当にオブジェクトボーナスを変更しますか？
+  <notification name="ChangeObjectBonusFactor">リージョン（地域）内で制作が確立された後にオブジェクトボーナスを下げると、オブジェクトが返されたり、削除されたりします。本当にオブジェクトボーナスを変更しますか？
     <usetemplate ignoretext="オブジェクトボーナス係数の変更を確認" name="okcancelignore" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="EstateObjectReturn">[USER_NAME] が所有しているオブジェクトを返却しますか？<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
@@ -1052,7 +1052,7 @@ https://secondlife.com/support/downloads/ からダウンロードしてくだ�
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="DoNotDisturbModeSet">着信拒否がオンになっています。着信する通信が通知されません。－他の住人は「着信拒否」応答を受け取ります
-    (「初期設定」 &gt; 「一般」で設定)。 －音声通話は拒否されます。
+    (「初期設定」＞「一般」で設定)。 －音声通話は拒否されます。
     <usetemplate ignoretext="マイ ログイン状態を「通知を受けない」モードに変更しました。" name="okignore" yestext="OK" />
   </notification>
   <notification name="JoinedTooManyGroupsMember">加入できるグループの最大限に達しました。
@@ -1501,7 +1501,7 @@ Linden Lab</notification>
     <button ignore="交換しない" name="No" text="キャンセル" />
   </form>
 </notification>
-<notification name="TooManyWearables">[AMOUNT] 以上のアイテムを含むフォルダを装着できません。「詳細設定」 &gt; 「デバッグ設定を表示」 &gt;「WearFolderLimit」でこの制限を変更できます。</notification>
+<notification name="TooManyWearables">[AMOUNT] 以上のアイテムを含むフォルダを装着できません。「詳細設定」＞「デバッグ設定を表示」 &gt;「WearFolderLimit」でこの制限を変更できます。</notification>
 <notification label="「通知を受けない」モードの警告" name="DoNotDisturbModePay">「通知を受けない」をオンにします。この支払との交換で提供されるアイテムが受信されなくなります。
 このトランザクションを完了するために、「通知を受けない」をオフにしてもよろしいですか。
   <form name="form">
@@ -2156,37 +2156,37 @@ UDP:3478, 3479, 5060, 5062, 6250, 12000-32000
   <button name="cancel" text="キャンセル" />
 </form>
 </notification>
-<notification label="" name="NoClassifieds">クラシファイド広告の作成と編集はアドバンスモードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
+<notification label="" name="NoClassifieds">クラシファイド広告の作成と編集は拡張モードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
 <usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了" />
 </notification>
-<notification label="" name="NoGroupInfo">グループの作成と編集はアドバンスモードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
+<notification label="" name="NoGroupInfo">グループの作成と編集は拡張モードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
 <usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了" />
 </notification>
-<notification label="" name="NoPlaceInfo">場所のプロフィールの表示はアドバンスモードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
+<notification label="" name="NoPlaceInfo">場所のプロフィールの表示は拡張モードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
 <usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了" />
 </notification>
-<notification label="" name="NoPicks">ピックの作成と編集はアドバンスモードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
+<notification label="" name="NoPicks">ピックの作成と編集は拡張モードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
 <usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了" />
 </notification>
-<notification label="" name="NoWorldMap">世界地図の表示はアドバンスモードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
+<notification label="" name="NoWorldMap">世界地図の表示は拡張モードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
 <usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了" />
 </notification>
-<notification label="" name="NoVoiceCall">ボイスコールはアドバンスモードでのみ利用できます。ログアウトしてモードを変更しますか？
+<notification label="" name="NoVoiceCall">ボイスコールは拡張モードでのみ利用できます。ログアウトしてモードを変更しますか？
 <usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了" />
 </notification>
-<notification label="" name="NoAvatarShare">共有はアドバンスモードでのみ利用できます。ログアウトしてモードを変更しますか？
+<notification label="" name="NoAvatarShare">共有は拡張モードでのみ利用できます。ログアウトしてモードを変更しますか？
 <usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了" />
 </notification>
-<notification label="" name="NoAvatarPay">他の住人への支払いはアドバンスモードでのみ利用できます。ログアウトしてモードを変更しますか？
+<notification label="" name="NoAvatarPay">他の住人への支払いは拡張モードでのみ利用できます。ログアウトしてモードを変更しますか？
 <usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了" />
 </notification>
-<notification label="" name="NoInventory">インベントリの表示はアドバンスモードでのみ利用できます。ログアウトしてモードを変更しますか？
+<notification label="" name="NoInventory">インベントリの表示は拡張モードでのみ利用できます。ログアウトしてモードを変更しますか？
 <usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了" />
 </notification>
-<notification label="" name="NoAppearance">容姿エディターはアドバンスモードでのみ利用できます。ログアウトしてモードを変更しますか？
+<notification label="" name="NoAppearance">容姿エディターは拡張モードでのみ利用できます。ログアウトしてモードを変更しますか？
 <usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了" />
 </notification>
-<notification label="" name="NoSearch">検索はアドバンスモードでのみ利用できます。ログアウトしてモードを変更しますか？
+<notification label="" name="NoSearch">検索は拡張モードでのみ利用できます。ログアウトしてモードを変更しますか？
 <usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了" />
 </notification>
 <notification label="" name="ConfirmHideUI">この操作により、全てのメニュー項目とボタンが非表示になります。再び表示するには [SHORTCUT]をもう一度クリックしてください。

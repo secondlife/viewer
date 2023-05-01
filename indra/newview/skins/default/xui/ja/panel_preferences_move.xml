@@ -7,10 +7,11 @@
   <check_box label="容姿" name="appearance_camera_movement" tool_tip="編集モードに入ったときに、自動カメラポジションを使います" />
   <text name="keyboard_lbl">キーボード：</text>
   <check_box label="常にキー操作で動くようにする" name="arrow_keys_move_avatar_check" />
-  <check_box label="上矢印キー2度押し+長押しで走る" name="tap_tap_hold_to_run" />
+  <check_box label="上矢印キー２度押し＋長押しで走る" name="tap_tap_hold_to_run" />
+  <check_box control_name="AutomaticFly" label="ジャンプまたはしゃがみキーを押し続けると、飛行を開始または停止します。" name="automatic_fly" />
   <text name="mouse_lbl">マウス：</text>
   <check_box label="一人称視点で表示する" name="first_person_avatar_visible" />
-  <text name=" Mouse Sensitivity">一人称視点のマウスの感度：</text>
+  <text name=" Mouse Sensitivity">一人称視点時のマウスの感度：</text>
   <check_box label="切り替え" name="invert_mouse" />
   <text name="single_click_action_lbl">土地をシングルクリック：</text>
   <combo_box name="single_click_action_combo">
@@ -23,5 +24,6 @@
     <combo_box.item label="クリックされた地点に移動" name="1" />
     <combo_box.item label="クリックされた地点にテレポート" name="2" />
   </combo_box>
-  <button label="その他のディバイス" name="joystick_setup_button" />
+  <check_box control_name="EnableCollisionSounds" label="ぶつかったときにサウンドを鳴らす" name="sound_on_collisions" />
+  <button label="その他のデバイス" name="joystick_setup_button" />
 </panel>

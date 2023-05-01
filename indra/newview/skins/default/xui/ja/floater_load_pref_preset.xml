@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Load Pref Preset" title="優先するプリセットを読み込み">
   <string name="title_graphic">グラフィックのプリセットを読み込む</string>
   <string name="title_camera">カメラのプリセットを読み込む</string>
