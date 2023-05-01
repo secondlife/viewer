@@ -52,7 +52,6 @@
 #include "llviewerpartsim.h"
 #include "llviewercontrol.h" // for gSavedSettings
 #include "llviewertexturelist.h"
-#include "llperfstats.h"
 
 static U32 sShaderLevel = 0;
 
@@ -370,9 +369,8 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	{
 		return;
 	}
-    LLPerfStats::RecordAvatarTime T(avatarp->getID(), LLPerfStats::StatType_t::RENDER_SHADOWS);
 
-	LLVOAvatar::AvatarOverallAppearance oa = avatarp->getOverallAppearance();
+    LLVOAvatar::AvatarOverallAppearance oa = avatarp->getOverallAppearance();
 	BOOL impostor = !LLPipeline::sImpostorRender && avatarp->isImpostor();
     // no shadows if the shadows are causing this avatar to breach the limit.
     if (avatarp->isTooSlow() || impostor || (oa == LLVOAvatar::AOA_INVISIBLE))
@@ -741,7 +739,6 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	{
 		return;
 	}
-    LLPerfStats::RecordAvatarTime T(avatarp->getID(), LLPerfStats::StatType_t::RENDER_GEOMETRY);
 
 	if (!single_avatar && !avatarp->isFullyLoaded() )
 	{

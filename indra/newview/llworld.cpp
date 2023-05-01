@@ -1424,10 +1424,10 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 	}
 }
 
-S32 LLWorld::getNearbyAvatarsAndCompl(std::vector<LLCharacter*> &valid_nearby_avs)
+F32 LLWorld::getNearbyAvatarsAndMaxGPUTime(std::vector<LLCharacter*> &valid_nearby_avs)
 {
     static LLCachedControl<F32> render_far_clip(gSavedSettings, "RenderFarClip", 64);
-    S32 nearby_max_complexity = 0;
+    F32 nearby_max_complexity = 0;
     F32 radius = render_far_clip * render_far_clip;
     std::vector<LLCharacter*>::iterator char_iter = LLCharacter::sInstances.begin();
     while (char_iter != LLCharacter::sInstances.end())
@@ -1441,8 +1441,8 @@ S32 LLWorld::getNearbyAvatarsAndCompl(std::vector<LLCharacter*> &valid_nearby_av
                 char_iter++;
                 continue;
             }
-            avatar->calculateUpdateRenderComplexity();
-            nearby_max_complexity = llmax(nearby_max_complexity, (S32)avatar->getVisualComplexity());
+            gPipeline.profileAvatar(avatar);
+            nearby_max_complexity = llmax(nearby_max_complexity, avatar->getGPURenderTime());
             valid_nearby_avs.push_back(*char_iter);
         }
         char_iter++;

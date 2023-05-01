@@ -199,18 +199,7 @@ namespace LLPerfStats
                 // LL_INFOS("scenestats") << "Scenestat: " << static_cast<size_t>(statEntry) << " before=" << avg << " new=" << val << " newavg=" << statsDoubleBuffer[writeBuffer][static_cast<size_t>(ObjType_t::OT_GENERAL)][LLUUID::null][static_cast<size_t>(statEntry)] << LL_ENDL;
             }
         }
-// Allow attachment times etc to update even when FPS limited or sleeping.
-        auto& statsMap = statsDoubleBuffer[writeBuffer][static_cast<size_t>(ObjType_t::OT_ATTACHMENT)];
-        for(auto& stat_entry : statsMap)
-        {
-            auto val = stat_entry.second[static_cast<size_t>(ST::RENDER_COMBINED)];
-            if(val > SMOOTHING_PERIODS){
-                auto avg = statsDoubleBuffer[writeBuffer ^ 1][static_cast<size_t>(ObjType_t::OT_ATTACHMENT)][stat_entry.first][static_cast<size_t>(ST::RENDER_COMBINED)];
-                stat_entry.second[static_cast<size_t>(ST::RENDER_COMBINED)] = avg + (val / SMOOTHING_PERIODS) - (avg / SMOOTHING_PERIODS);
-            }
-        }
-
-
+        
         auto& statsMapAv = statsDoubleBuffer[writeBuffer][static_cast<size_t>(ObjType_t::OT_AVATAR)];
         for(auto& stat_entry : statsMapAv)
         {

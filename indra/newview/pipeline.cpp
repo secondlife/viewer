@@ -10070,7 +10070,88 @@ void LLPipeline::renderRiggedGroups(LLRenderPass* pass, U32 type, bool texture)
 
 static LLTrace::BlockTimerStatHandle FTM_GENERATE_IMPOSTOR("Generate Impostor");
 
-void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
+void LLPipeline::profileAvatar(LLVOAvatar* avatar, bool profile_attachments)
+{
+    if (gGLManager.mGLVersion < 3.25f)
+    { // profiling requires GL 3.3 or later
+        return;
+    }
+    LLGLSLShader* cur_shader = LLGLSLShader::sCurBoundShaderPtr;
+
+    mRT->deferredScreen.bindTarget();
+    mRT->deferredScreen.clear();
+
+    bool profile_enabled = LLGLSLShader::sProfileEnabled;
+    LLGLSLShader::sProfileEnabled = true;
+
+    if (!profile_attachments)
+    {
+        // profile entire avatar all at once
+        
+        // use gDebugProgram as a proxy for getting profile results
+        gDebugProgram.clearStats();
+        gDebugProgram.placeProfileQuery();
+        LLGLSLShader::sProfileEnabled = false;
+
+        LLTimer cpu_timer;
+
+        generateImpostor(avatar, false, true);
+
+        avatar->mCPURenderTime = (F32)cpu_timer.getElapsedTimeF32() * 1000.f;
+
+        LLGLSLShader::sProfileEnabled = true;
+        gDebugProgram.readProfileQuery();
+
+        avatar->mGPURenderTime = gDebugProgram.mTimeElapsed / 1000000.f;
+
+        avatar->mGPUSamplesPassed = gDebugProgram.mSamplesDrawn;
+        avatar->mGPUTrianglesRendered = gDebugProgram.mTrianglesDrawn;
+    }
+    else 
+    { 
+        // profile attachments one at a time
+        LLVOAvatar::attachment_map_t::iterator iter;
+        LLVOAvatar::attachment_map_t::iterator begin = avatar->mAttachmentPoints.begin();
+        LLVOAvatar::attachment_map_t::iterator end = avatar->mAttachmentPoints.end();
+
+        for (iter = begin;
+            iter != end;
+            ++iter)
+        {
+            LLViewerJointAttachment* attachment = iter->second;
+            for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+                attachment_iter != attachment->mAttachedObjects.end();
+                ++attachment_iter)
+            {
+                LLViewerObject* attached_object = attachment_iter->get();
+                if (attached_object)
+                {
+                    gDebugProgram.clearStats();
+                    gDebugProgram.placeProfileQuery();
+                    LLGLSLShader::sProfileEnabled = false;
+
+                    generateImpostor(avatar, false, true, attached_object);
+                    LLGLSLShader::sProfileEnabled = true;
+                    gDebugProgram.readProfileQuery();
+
+                    attached_object->mGPURenderTime = gDebugProgram.mTimeElapsed / 1000000.f;
+
+                    // TODO: maybe also record triangles and samples
+                }
+            }
+        }
+    }
+
+    LLGLSLShader::sProfileEnabled = profile_enabled;
+    mRT->deferredScreen.flush();
+
+    if (cur_shader)
+    {
+        cur_shader->bind();
+    }
+}
+
+void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool for_profile, LLViewerObject* specific_attachment)
 {
     LL_RECORD_BLOCK_TIME(FTM_GENERATE_IMPOSTOR);
     LL_PROFILE_GPU_ZONE("generateImpostor");
@@ -10090,11 +10171,11 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
 	assertInitialized();
 
     // previews can't be muted or impostered
-	bool visually_muted = !preview_avatar && avatar->isVisuallyMuted();
+	bool visually_muted = !for_profile && !preview_avatar && avatar->isVisuallyMuted();
     LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID()
                               << " is " << ( visually_muted ? "" : "not ") << "visually muted"
                               << LL_ENDL;
-	bool too_complex = !preview_avatar && avatar->isTooComplex();
+	bool too_complex = !for_profile && !preview_avatar && avatar->isTooComplex();
     LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID()
                               << " is " << ( too_complex ? "" : "not ") << "too complex"
                               << LL_ENDL;
@@ -10129,6 +10210,11 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
          );
 	}
 	
+    if (specific_attachment && specific_attachment->isHUDAttachment())
+    { //enable HUD rendering
+        setRenderTypeMask(RENDER_TYPE_HUD, END_RENDER_TYPES);
+    }
+
 	S32 occlusion = sUseOcclusion;
 	sUseOcclusion = 0;
 
@@ -10185,20 +10271,30 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
         }
         else
         {
-            LLVOAvatar::attachment_map_t::iterator iter;
-            for (iter = avatar->mAttachmentPoints.begin();
-                iter != avatar->mAttachmentPoints.end();
-                ++iter)
+            if (specific_attachment)
             {
-                LLViewerJointAttachment *attachment = iter->second;
-                for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-                    attachment_iter != attachment->mAttachedObjects.end();
-                    ++attachment_iter)
+                markVisible(specific_attachment->mDrawable->getSpatialBridge(), *viewer_camera);
+            }
+            else
+            {
+                LLVOAvatar::attachment_map_t::iterator iter;
+                LLVOAvatar::attachment_map_t::iterator begin = avatar->mAttachmentPoints.begin();
+                LLVOAvatar::attachment_map_t::iterator end = avatar->mAttachmentPoints.end();
+
+                for (iter = begin;
+                    iter != end;
+                    ++iter)
                 {
-                    LLViewerObject* attached_object = attachment_iter->get();
-                    if (attached_object)
+                    LLViewerJointAttachment* attachment = iter->second;
+                    for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+                        attachment_iter != attachment->mAttachedObjects.end();
+                        ++attachment_iter)
                     {
-                        markVisible(attached_object->mDrawable->getSpatialBridge(), *viewer_camera);
+                        LLViewerObject* attached_object = attachment_iter->get();
+                        if (attached_object)
+                        {
+                            markVisible(attached_object->mDrawable->getSpatialBridge(), *viewer_camera);
+                        }
                     }
                 }
             }
@@ -10327,6 +10423,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
 
 	LLDrawPoolAvatar::sMinimumAlpha = old_alpha;
 
+    if (!for_profile)
 	{ //create alpha mask based on depth buffer (grey out if muted)
 		if (LLPipeline::sRenderDeferred)
 		{
