@@ -58,6 +58,7 @@
 #include "llfeaturemanager.h"
 #include "llviewernetwork.h"
 #include "llmeshrepository.h" //for LLMeshRepository::sBytesReceived
+#include "llperfstats.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
 #include "llcorehttputil.h"
@@ -209,6 +210,13 @@ LLTrace::EventStatHandle<F64Seconds >	AVATAR_EDIT_TIME("avataredittime", "Second
 LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > OBJECT_CACHE_HIT_RATE("object_cache_hits");
 
 LLTrace::EventStatHandle<F64Seconds >	TEXTURE_FETCH_TIME("texture_fetch_time");
+
+LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >  SCENERY_FRAME_PCT("scenery_frame_pct");
+LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >  AVATAR_FRAME_PCT("avatar_frame_pct");
+LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >  HUDS_FRAME_PCT("huds_frame_pct");
+LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >  UI_FRAME_PCT("ui_frame_pct");
+LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >  SWAP_FRAME_PCT("swap_frame_pct");
+LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >  IDLE_FRAME_PCT("idle_frame_pct");
 }
 
 LLViewerStats::LLViewerStats() 
@@ -415,6 +423,89 @@ void update_statistics()
 			texture_stats_timer.reset();
 		}
 	}
+
+    if (LLFloaterReg::instanceVisible("scene_load_stats"))
+    {
+        static const F32 perf_stats_freq = 1;
+        static LLFrameTimer perf_stats_timer;
+        if (perf_stats_timer.getElapsedTimeF32() >= perf_stats_freq)
+        {
+            LLStringUtil::format_map_t args;
+            LLPerfStats::bufferToggleLock.lock(); // prevent toggle for a moment
+
+            auto tot_frame_time_raw = LLPerfStats::StatsRecorder::getSceneStat(LLPerfStats::StatType_t::RENDER_FRAME);
+            // cumulative avatar time (includes idle processing, attachments and base av)
+            auto tot_avatar_time_raw = LLPerfStats::StatsRecorder::getSum(LLPerfStats::ObjType_t::OT_AVATAR, LLPerfStats::StatType_t::RENDER_COMBINED);
+            // cumulative avatar render specific time (a bit arbitrary as the processing is too.)
+            // auto tot_av_idle_time_raw = LLPerfStats::StatsRecorder::getSum(AvType, LLPerfStats::StatType_t::RENDER_IDLE);
+            // auto tot_avatar_render_time_raw = tot_avatar_time_raw - tot_av_idle_time_raw;
+            // the time spent this frame on the "display()" call. Treated as "tot time rendering"
+            auto tot_render_time_raw = LLPerfStats::StatsRecorder::getSceneStat(LLPerfStats::StatType_t::RENDER_DISPLAY);
+            // sleep time is basically forced sleep when window out of focus 
+            auto tot_sleep_time_raw = LLPerfStats::StatsRecorder::getSceneStat(LLPerfStats::StatType_t::RENDER_SLEEP);
+            // time spent on UI
+            auto tot_ui_time_raw = LLPerfStats::StatsRecorder::getSceneStat(LLPerfStats::StatType_t::RENDER_UI);
+            // cumulative time spent rendering HUDS
+            auto tot_huds_time_raw = LLPerfStats::StatsRecorder::getSceneStat(LLPerfStats::StatType_t::RENDER_HUDS);
+            // "idle" time. This is the time spent in the idle poll section of the main loop
+            auto tot_idle_time_raw = LLPerfStats::StatsRecorder::getSceneStat(LLPerfStats::StatType_t::RENDER_IDLE);
+            // similar to sleep time, induced by FPS limit
+            //auto tot_limit_time_raw = LLPerfStats::StatsRecorder::getSceneStat(LLPerfStats::StatType_t::RENDER_FPSLIMIT);
+            // swap time is time spent in swap buffer
+            auto tot_swap_time_raw = LLPerfStats::StatsRecorder::getSceneStat(LLPerfStats::StatType_t::RENDER_SWAP);
+
+            LLPerfStats::bufferToggleLock.unlock();
+
+             auto tot_frame_time_ns = LLPerfStats::raw_to_ns(tot_frame_time_raw);
+            auto tot_avatar_time_ns = LLPerfStats::raw_to_ns(tot_avatar_time_raw);
+            auto tot_huds_time_ns = LLPerfStats::raw_to_ns(tot_huds_time_raw);
+            // UI time includes HUD time so dedut that before we calc percentages
+            auto tot_ui_time_ns = LLPerfStats::raw_to_ns(tot_ui_time_raw - tot_huds_time_raw);
+
+            // auto tot_sleep_time_ns          = LLPerfStats::raw_to_ns( tot_sleep_time_raw );
+            // auto tot_limit_time_ns          = LLPerfStats::raw_to_ns( tot_limit_time_raw );
+
+            // auto tot_render_time_ns         = LLPerfStats::raw_to_ns( tot_render_time_raw );
+            auto tot_idle_time_ns = LLPerfStats::raw_to_ns(tot_idle_time_raw);
+            auto tot_swap_time_ns = LLPerfStats::raw_to_ns(tot_swap_time_raw);
+            auto tot_scene_time_ns = LLPerfStats::raw_to_ns(tot_render_time_raw - tot_avatar_time_raw - tot_swap_time_raw - tot_ui_time_raw);
+            // auto tot_overhead_time_ns  = LLPerfStats::raw_to_ns( tot_frame_time_raw - tot_render_time_raw - tot_idle_time_raw );
+
+            // // remove time spent sleeping for fps limit or out of focus.
+            // tot_frame_time_ns -= tot_limit_time_ns;
+            // tot_frame_time_ns -= tot_sleep_time_ns;
+
+            if (tot_frame_time_ns != 0)
+            {
+                auto pct_avatar_time = (tot_avatar_time_ns * 100) / tot_frame_time_ns;
+                auto pct_huds_time = (tot_huds_time_ns * 100) / tot_frame_time_ns;
+                auto pct_ui_time = (tot_ui_time_ns * 100) / tot_frame_time_ns;
+                auto pct_idle_time = (tot_idle_time_ns * 100) / tot_frame_time_ns;
+                auto pct_swap_time = (tot_swap_time_ns * 100) / tot_frame_time_ns;
+                auto pct_scene_render_time = (tot_scene_time_ns * 100) / tot_frame_time_ns;
+                pct_avatar_time = llclamp(pct_avatar_time, 0., 100.);
+                pct_huds_time = llclamp(pct_huds_time, 0., 100.);
+                pct_ui_time = llclamp(pct_ui_time, 0., 100.);
+                pct_idle_time = llclamp(pct_idle_time, 0., 100.);
+                pct_swap_time = llclamp(pct_swap_time, 0., 100.);
+                pct_scene_render_time = llclamp(pct_scene_render_time, 0., 100.);
+                if (tot_sleep_time_raw == 0)
+                {
+                    sample(LLStatViewer::SCENERY_FRAME_PCT, (U32)llround(pct_scene_render_time));
+                    sample(LLStatViewer::AVATAR_FRAME_PCT, (U32)llround(pct_avatar_time));
+                    sample(LLStatViewer::HUDS_FRAME_PCT, (U32)llround(pct_huds_time));
+                    sample(LLStatViewer::UI_FRAME_PCT, (U32)llround(pct_ui_time));
+                    sample(LLStatViewer::SWAP_FRAME_PCT, (U32)llround(pct_swap_time));
+                    sample(LLStatViewer::IDLE_FRAME_PCT, (U32)llround(pct_idle_time));
+                }
+            }
+            else
+            {
+                LL_WARNS("performance") << "Scene time 0. Skipping til we have data." << LL_ENDL;
+            }
+            perf_stats_timer.reset();
+        }
+    }
 }
 
 void update_texture_time()
@@ -527,6 +618,7 @@ void send_viewer_stats(bool include_preferences)
 
 	system["gpu"] = gpu_desc;
 	system["gpu_class"] = (S32)LLFeatureManager::getInstance()->getGPUClass();
+    system["gpu_memory_bandwidth"] = LLFeatureManager::getInstance()->getGPUMemoryBandwidth();
 	system["gpu_vendor"] = gGLManager.mGLVendorShort;
 	system["gpu_version"] = gGLManager.mDriverVersionVendorString;
 	system["opengl_version"] = gGLManager.mGLVersionString;

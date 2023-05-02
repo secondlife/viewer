@@ -207,6 +207,7 @@
 #include "llstacktrace.h"
 
 #include "threadpool.h"
+#include "llperfstats.h"
 
 
 #if LL_WINDOWS
@@ -1496,6 +1497,8 @@ bool idle_startup()
 			LLViewerParcelAskPlay::getInstance()->loadSettings();
 		}
 
+		gAgent.addRegionChangedCallback(boost::bind(&LLPerfStats::StatsRecorder::clearStats));
+
 		// *Note: this is where gWorldMap used to be initialized.
 
 		// register null callbacks for audio until the audio system is initialized
@@ -2255,7 +2258,7 @@ bool idle_startup()
 
 	if (STATE_CLEANUP == LLStartUp::getStartupState())
 	{
-		set_startup_status(1.0, "", "");
+        set_startup_status(1.0, "", "");
 		display_startup();
 
 		if (!mBenefitsSuccessfullyInit)
@@ -2341,6 +2344,8 @@ bool idle_startup()
 			"");
 
 		LLUIUsage::instance().clear();
+
+        LLPerfStats::StatsRecorder::setAutotuneInit();
 
 		return TRUE;
 	}
@@ -3404,6 +3409,9 @@ bool process_login_success_response()
 	if(!text.empty()) gAgentID.set(text);
 	gDebugInfo["AgentID"] = text;
 	
+	LLPerfStats::StatsRecorder::setEnabled(gSavedSettings.getBOOL("PerfStatsCaptureEnabled"));
+	LLPerfStats::StatsRecorder::setFocusAv(gAgentID);
+
 	// Agent id needed for parcel info request in LLUrlEntryParcel
 	// to resolve parcel name.
 	LLUrlEntryParcel::setAgentID(gAgentID);

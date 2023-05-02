@@ -1900,6 +1900,41 @@ Graphics Quality can be raised in Preferences &gt; Graphics.
 
   <notification
    icon="alertmodal.tga"
+   name="AutoFPSConfirmDisable"
+   type="alertmodal">
+Changing this setting will disable automatic adjustment and turn off 'Automatic settings'.
+Are you sure you want to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Continue"/>
+  </notification>
+  <notification
+   icon="alertmodal.tga"
+   name="AdvancedLightingConfirm"
+   type="alertmodal">
+To turn on advanced lighting, we need to increase quality to level 4.
+    <tag>confirm</tag>
+  <usetemplate
+   name="okcancelbuttons"
+   notext="Cancel"
+   yestext="OK"/>
+  </notification>
+  <notification
+ icon="alertmodal.tga"
+   name="ShadowsConfirm"
+   type="alertmodal">
+To enable shadows, we need to increase quality to level 4.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="RegionNoTerraforming"
    type="alertmodal">
 The region [REGION] does not allow terraforming.
@@ -11930,4 +11965,18 @@ If you want others to see this object, remove it and re-attach it to an avatar a
         yestext="OK"/>
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="EnableAutoFPSWarning"
+   type="alertmodal">
+You are about to enable AutoFPS. All unsaved graphics settings will be lost.
+
+Would you like to save them first?
+      <tag>confirm</tag>
+      <usetemplate
+       name="okcancelbuttons"
+       notext="No"
+       yestext="Yes"/>
+  </notification>
+    
 </notifications>
