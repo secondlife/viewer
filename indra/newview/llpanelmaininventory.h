@@ -83,8 +83,9 @@ public:
 									   EAcceptance* accept,
 									   std::string& tooltip_msg);
 	/*virtual*/ void changed(U32);
+    /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	/*virtual*/ void draw();
-	/*virtual*/ void 	onVisibilityChange ( BOOL new_visibility );
+	/*virtual*/ void onVisibilityChange ( BOOL new_visibility );
 
 	LLInventoryPanel* getPanel() { return mActivePanel; }
 	LLInventoryPanel* getActivePanel() { return mActivePanel; }
@@ -192,6 +193,7 @@ private:
     LLInventorySingleFolderPanel* mSingleFolderPanelInventory;
     LLInventoryGallery* mInventoryGalleryPanel;
 
+    LLUICtrl* mCombinationScrollPanel;
     LLInventorySingleFolderPanel* mCombinationInventoryPanel;
     LLInventoryGallery* mCombinationGalleryPanel;
     LLView* mCombinationScroller;
@@ -232,6 +234,7 @@ private:
 	bool						mNeedUploadCost;
 
     bool                        mForceShowInvLayout;
+    bool                        mCombinationShapeDirty;
 	// List Commands                                                              //
 	////////////////////////////////////////////////////////////////////////////////
 };

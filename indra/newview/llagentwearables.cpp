@@ -1307,8 +1307,9 @@ void LLAgentWearables::findAttachmentsAddRemoveInfo(LLInventoryModel::item_array
 	}
 
 	// Build up list of objects to be removed and items currently attached.
-	for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
-		 iter != gAgentAvatarp->mAttachmentPoints.end();)
+    LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin();
+    LLVOAvatar::attachment_map_t::iterator end = gAgentAvatarp->mAttachmentPoints.end();
+	while (iter != end)
 	{
 		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 		LLViewerJointAttachment* attachment = curiter->second;
