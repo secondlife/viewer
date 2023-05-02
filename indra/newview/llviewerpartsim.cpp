@@ -716,7 +716,7 @@ void LLViewerPartSim::updateSimulation()
 
 			if (upd && vobj && (vobj->getPCode() == LL_PCODE_VOLUME))
 			{
-				if(vobj->getAvatar() && vobj->getAvatar()->isTooComplex())
+				if(vobj->getAvatar() && vobj->getAvatar()->isTooComplex() && vobj->getAvatar()->isTooSlow())
 				{
 					upd = FALSE;
 				}
