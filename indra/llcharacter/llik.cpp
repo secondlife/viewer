@@ -2819,9 +2819,6 @@ F32 LLIK::Solver::solve()
     }
 #endif
 
-    // start with one FABRIK pass (does not enforce constraints)
-    executeFabrikPass();
-
     constexpr U32 MAX_FABRIK_ITERATIONS = 16;
     constexpr U32 MIN_FABRIK_ITERATIONS = 4;
     F32 max_error = std::numeric_limits<F32>::max();
@@ -2830,34 +2827,7 @@ F32 LLIK::Solver::solve()
 #ifdef DEBUG_LLIK_UNIT_TESTS
         if (mDebugEnabled) { std::cout << "    ('loop'," << loop << ")," << std::endl; }
 #endif
-
-        // pull elbows downward toward a more natual pose
-        for (const auto& wrist_joint : mWristJoints)
-        {
-            dropElbow(wrist_joint);
-        }
-
-        // since our FABRIK implementation doesn't enforce constraints
-        // during the forward/backward passes we do it here
-        enforceConstraintsOutward();
-
-        // It is often possible to remove excess twist between the Joints
-        // without swinging their bones in the world-frame.  We try this now
-        // to help reduce the "spin drift" that can occur where Joint
-        // orientations pick up systematic and floating-point errors and
-        // drift within the twist-limits of their constraints.
-        for (const auto& data_pair : mChainMap)
-        {
-            const joint_list_t& chain = data_pair.second;
-            untwistChain(chain);
-        }
-
-        executeFabrikPass();
-
-        // Note: we don't bother enforcing constraints after this FABRIK pass.
-        // The algorithm is expected to converge so final constraint violations
-        // should be small.
-        max_error = measureMaxError();
+        max_error = solveOnce();
     }
     mLastError = max_error;
 
@@ -2873,6 +2843,66 @@ F32 LLIK::Solver::solve()
     }
 #endif
     return mLastError;
+}
+
+F32 LLIK::Solver::solveOnce()
+{
+    // Special experimental IK logic
+    bool enforce_constraints = true;
+    bool drop_elbow = true;
+    bool untwist = true;
+    // uncomment the selected IK algorithm below:
+
+    // CCD
+    //executeCcd(enforce_constraints, drop_elbow, untwist);
+
+    // FABRIK
+    executeFabrik(enforce_constraints, drop_elbow, untwist);
+
+    return measureMaxError();
+}
+
+void LLIK::Solver::executeFabrik(bool enforce_constraints, bool drop_elbow, bool untwist)
+{
+    executeFabrikPass();
+
+    // pull elbows downward toward a more natual pose
+    for (const auto& wrist_joint : mWristJoints)
+    {
+        dropElbow(wrist_joint);
+    }
+
+    if (enforce_constraints)
+    {
+        // since our FABRIK implementation doesn't enforce constraints
+        // during the forward/backward passes we do it here
+        enforceConstraintsOutward();
+
+        if (untwist)
+        {
+            // It is often possible to remove excess twist between the Joints
+            // without swinging their bones in the world-frame.  We try this now
+            // to help reduce the "spin drift" that can occur where Joint
+            // orientations pick up systematic and floating-point errors and
+            // drift within the twist-limits of their constraints.
+            for (const auto& data_pair : mChainMap)
+            {
+                const joint_list_t& chain = data_pair.second;
+                untwistChain(chain);
+            }
+
+            executeFabrikPass();
+            // Note: we don't bother enforcing constraints after untwisting.
+        }
+    }
+}
+
+void LLIK::Solver::executeCcd(bool enforce_constraints, bool drop_elbow, bool untwist)
+{
+    // TODO: modify executeCcdPass() to handle enforce_constraints
+    // TODO: handle drop_elbow before CCD pass
+    // TODO?: handle untwist
+    executeCcdPass(enforce_constraints);
 }
 
 LLVector3 LLIK::Solver::getJointLocalPos(S16 joint_id) const
@@ -3095,8 +3125,6 @@ void LLIK::Solver::enforceConstraintsOutward()
     }
 }
 
-// EXPERIMENTAL: keep this even though it is not being used.
-//
 // Cyclic Coordinate Descend (CCD) is an alternative IK algorithm.
 // http://rodolphe-vaillant.fr/entry/114/cyclic-coordonate-descent-inverse-kynematic-ccd-ik
 //
@@ -3104,14 +3132,15 @@ void LLIK::Solver::enforceConstraintsOutward()
 // instability when Constraints are being enforced. We keep it around just in
 // case we want to try it, or for when we figure out how to enforce Constraints
 // without making CCD unstable.
-void LLIK::Solver::executeCcdPass()
+void LLIK::Solver::executeCcdPass(bool enforce_constraints)
 {
+    // TODO: handle enforce_constraints
     DEBUG_SET_PHASE(CCD);
     // mChainMap is sorted by outer_end joint_id, low-to-high
     // and CCD is an inward pass, so we traverse the map in reverse
     for (chain_map_t::const_reverse_iterator itr = mChainMap.rbegin(); itr != mChainMap.rend(); ++itr)
     {
-        executeCcdInward(itr->second);
+        executeCcdInward(itr->second, enforce_constraints);
     }
 
     // executeCcdInward(chain) recomputes world-frame transform of all Joints in chain
@@ -3124,7 +3153,7 @@ void LLIK::Solver::executeCcdPass()
     }
 }
 
-void LLIK::Solver::executeCcdInward(const joint_list_t& chain)
+void LLIK::Solver::executeCcdInward(const joint_list_t& chain, bool enforce_constraints)
 {
     // 'chain' starts at a end-effector or sub-base.
     // Don't forget: 'chain' is organized in descending order:

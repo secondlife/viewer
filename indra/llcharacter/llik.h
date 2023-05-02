@@ -638,7 +638,6 @@ public:
     LLQuaternion getJointLocalRot(S16 joint_id) const;
     LLVector3 getJointLocalPos(S16 joint_id) const;
     bool getJointLocalTransform(S16 joint_id, LLVector3& pos, LLQuaternion& rot) const;
-    LLVector3 getJointWorldTipPos(S16 joint_id) const;
     LLVector3 getJointWorldEndPos(S16 joint_id) const;
     LLQuaternion getJointWorldRot(S16 joint_id) const;
 
@@ -657,6 +656,12 @@ public:
     void setAcceptableError(F32 slop) { mAcceptableError = slop; }
 
 private:
+    F32 solveOnce();
+
+    // experimental solver methods
+    void executeFabrik(bool enforce_constraints=false, bool drop_elbow=false, bool untwist=false);
+    void executeCcd(bool enforce_constraints=false, bool drop_elbow=false, bool untwist=false);
+
     bool isSubBase(S16 joint_id) const;
     bool isSubRoot(S16 joint_id) const;
     //void adjustTargets(joint_config_map_t& targets); // EXPERIMENTAL: keep this
@@ -668,8 +673,8 @@ private:
     void shiftChainToBase(const joint_list_t& chain);
     void executeFabrikPass();
     void enforceConstraintsOutward();
-    void executeCcdPass(); // EXPERIMENTAL
-    void executeCcdInward(const joint_list_t& chain);
+    void executeCcdPass(bool enforce_constraints); // EXPERIMENTAL
+    void executeCcdInward(const joint_list_t& chain, bool enforce_constraints);
     void untwistChain(const joint_list_t& chain);
     F32 measureMaxError();
 
