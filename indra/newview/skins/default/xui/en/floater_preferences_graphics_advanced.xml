@@ -39,7 +39,8 @@
     max_val="512"
     name="DrawDistance"
     top_delta="16"
-    width="330" />
+    width="330">
+    </slider>
   <text
     type="string"
     length="1"
@@ -521,8 +522,8 @@
     label_width="185"
     layout="topleft"
     left="420"
-    min_val="1"
-    max_val="2"
+    min_val="0"
+    max_val="4"
     name="ObjectMeshDetail"
     show_text="false"
     top_delta="16"
