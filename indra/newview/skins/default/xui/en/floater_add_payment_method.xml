@@ -19,7 +19,7 @@
   </floater.string>
   <panel
    background_opaque="false"
-   bg_alpha_color="AddPaymentPanel"
+   bg_alpha_color="PanelGray"
    border_visible="false"
    background_visible="true"
    label="wrapper_panel"
