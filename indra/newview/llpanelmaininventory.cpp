@@ -287,6 +287,7 @@ BOOL LLPanelMainInventory::postBuild()
 
 	// Trigger callback for focus received so we can deselect items in inbox/outbox
 	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMainInventory::onFocusReceived, this));
+    mCombinationShapeDirty = true;
 
 	return TRUE;
 }
@@ -1964,6 +1965,7 @@ void LLPanelMainInventory::onVisibilityChange( BOOL new_visibility )
 		}
 		getActivePanel()->getRootFolder()->finishRenamingItem();
 	}
+    mCombinationShapeDirty = true;
 }
 
 bool LLPanelMainInventory::isSaveTextureEnabled(const LLSD& userdata)
@@ -2240,7 +2242,7 @@ void LLPanelMainInventory::updateCombinationVisibility()
     if(mSingleFolderMode && isCombinationViewMode() && mCombinationShapeDirty)
     {
         mCombinationShapeDirty = false;
-        mCombinationInventoryPanel->reshape(1,1); // force reduce visible area
+        mCombinationInventoryPanel->reshape(1,1); // HACK: force reduce visible area
         if (!mCombinationGalleryPanel->hasVisibleItems())
         {
             mCombinationGalleryPanel->handleModifiedFilter();
@@ -2251,9 +2253,8 @@ void LLPanelMainInventory::updateCombinationVisibility()
         LLRect inner_galery_rect = mCombinationGalleryPanel->getScrollableContainer()->getScrolledViewRect();
         LLScrollContainer* scroll = static_cast<LLScrollContainer*>(mCombinationScrollPanel);
         LLRect scroller_window_rect = scroll->getContentWindowRect();
-
-        const S32 BORDER_PAD = 1;
-        S32 desired_width = llmax(inv_inner_rect.getWidth(), scroller_window_rect.getWidth()) + BORDER_PAD;
+        S32 desired_width = llmax(inv_inner_rect.getWidth(), scroller_window_rect.getWidth());
+        const S32 BORDER_PAD = 2; // two sides
 
         inv_rect.mBottom = 0;
         inv_rect.mRight = inv_rect.mLeft + desired_width;
@@ -2279,7 +2280,7 @@ void LLPanelMainInventory::updateCombinationVisibility()
             galery_rect.mTop = galery_rect.mBottom;
         }
 
-        mCombinationScroller->reshape(desired_width, inv_rect.getHeight() + galery_rect.getHeight() + BORDER_PAD, true);
+        mCombinationScroller->reshape(desired_width, inv_rect.getHeight() + galery_rect.getHeight(), true);
         mCombinationGalleryPanel->setShape(galery_rect, false);
         mCombinationInventoryPanel->setShape(inv_rect, false);
     }
