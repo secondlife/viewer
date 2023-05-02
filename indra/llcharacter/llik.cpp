@@ -2848,9 +2848,9 @@ F32 LLIK::Solver::solve()
 F32 LLIK::Solver::solveOnce()
 {
     // Special experimental IK logic
-    bool enforce_constraints = false;
-    bool drop_elbow = false;
-    bool untwist = false;
+    bool enforce_constraints = true;
+    bool drop_elbow = true;
+    bool untwist = true;
     // uncomment the selected IK algorithm below:
 
     // CCD
