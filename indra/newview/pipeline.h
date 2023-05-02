@@ -132,8 +132,17 @@ public:
     bool allocateShadowBuffer(U32 resX, U32 resY);
 
 	void resetVertexBuffers(LLDrawable* drawable);
+
+    // perform a profile of the given avatar
+    // if profile_attachments is true, run a profile for each attachment
     void profileAvatar(LLVOAvatar* avatar, bool profile_attachments = false);
+
+    // generate an impostor for the given avatar
+    //  preview_avatar - if true, a preview window render is being performed
+    //  for_profile - if true, a profile is being performed, do not update actual impostor
+    //  specific_attachment - specific attachment to profile, or nullptr to profile entire avatar
 	void generateImpostor(LLVOAvatar* avatar, bool preview_avatar = false, bool for_profile = false, LLViewerObject* specific_attachment = nullptr);
+
 	void bindScreenToTexture();
 	void renderFinalize();
 	void copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst);

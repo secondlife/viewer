@@ -1611,6 +1611,7 @@ namespace LLError
 
 bool debugLoggingEnabled(const std::string& tag)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
     LLMutexTrylock lock(getMutex<LOG_MUTEX>(), 5);
     if (!lock.isLocked())
     {

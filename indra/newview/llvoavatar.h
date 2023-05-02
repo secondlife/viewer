@@ -305,6 +305,9 @@ public:
 	static const U32 VISUAL_COMPLEXITY_UNKNOWN;
 	void			updateVisualComplexity();
 	
+    void placeProfileQuery();
+    void readProfileQuery(S32 retries);
+
     // get the GPU time in ms of rendering this avatar including all attachments
     // returns -1 if this avatar has not been profiled using gPipeline.profileAvatar
     F32             getGPURenderTime() { return mGPURenderTime; }
@@ -313,18 +316,11 @@ public:
     // return -1 if this avatar has not been profiled using gPipeline.mProfileAvatar
     F32             getCPURenderTime() { return mCPURenderTime; }
 
-    // get the number of samples passed during the avatar profile
-    // return -1 if this avatar has not been profiled using gPipeline.mProfileAvatar
-    S32             getGPUSamplesPassed() { return mGPUSamplesPassed; }
-
-    // get the number of triangles rendered during the avatar profile
-    // return -1 if this avatar has not been profiled using gPipeline.mProfileAvatar
-    S32             getGPUTrianglesRendered() { return mGPUTrianglesRendered; }
-
-    // DEPRECATED -- obsolete avatar render cost
+    
+    // avatar render cost
 	U32				getVisualComplexity()			{ return mVisualComplexity;				};
 
-    // DEPRECATED -- obsolete surface area calculation
+    // surface area calculation
 	F32				getAttachmentSurfaceArea()		{ return mAttachmentSurfaceArea;		};
 
 	U32				getReportedVisualComplexity()					{ return mReportedVisualComplexity;				};	// Numbers as reported by the SL server
@@ -555,19 +551,17 @@ private:
 	S32	 		mUpdatePeriod;
 	S32  		mNumInitFaces; //number of faces generated when creating the avatar drawable, does not inculde splitted faces due to long vertex buffer.
 
+    // profile handle
+    U32 mGPUTimerQuery = 0;
+
     // profile results
 
     // GPU render time in ms
     F32 mGPURenderTime = -1.f;
+    bool mGPUProfilePending = false;
 
     // CPU render time in ms
     F32 mCPURenderTime = -1.f;
-
-    // number of samples passed according to GPU
-    S32 mGPUSamplesPassed = -1;
-
-    // number of triangles rendered according to GPU
-    S32 mGPUTrianglesRendered = -1;
 
 	// the isTooComplex method uses these mutable values to avoid recalculating too frequently
     // DEPRECATED -- obsolete avatar render cost values

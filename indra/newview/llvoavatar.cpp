@@ -2697,6 +2697,10 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 
     if ((LLFrameTimer::getFrameCount() + mID.mData[0]) % compl_upd_freq == 0)
     {
+        // DEPRECATED 
+        // replace with LLPipeline::profileAvatar?
+        // Avatar profile takes ~ 0.5ms while idleUpdateRenderComplexity takes ~5ms
+        // (both are unacceptably costly)
         idleUpdateRenderComplexity();
     }
     idleUpdateDebugInfo();
@@ -10841,6 +10845,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
     hud_complexity_list_t& hud_complexity_list,
     object_complexity_list_t& object_complexity_list)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
     if (attached_object && !attached_object->isHUDAttachment())
 		{
         mAttachmentVisibleTriangleCount += attached_object->recursiveGetTriangleCount();
@@ -10984,23 +10989,24 @@ void LLVOAvatar::accountRenderComplexityForObject(
 // Calculations for mVisualComplexity value
 void LLVOAvatar::calculateUpdateRenderComplexity()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
     /*****************************************************************
      * This calculation should not be modified by third party viewers,
      * since it is used to limit rendering and should be uniform for
      * everyone. If you have suggested improvements, submit them to
      * the official viewer for consideration.
      *****************************************************************/
-	static const U32 COMPLEXITY_BODY_PART_COST = 200;
-	static LLCachedControl<F32> max_complexity_setting(gSavedSettings,"MaxAttachmentComplexity");
-	F32 max_attachment_complexity = max_complexity_setting;
-	max_attachment_complexity = llmax(max_attachment_complexity, DEFAULT_MAX_ATTACHMENT_COMPLEXITY);
-
-	// Diagnostic list of all textures on our avatar
-	static std::set<LLUUID> all_textures;
-
     if (mVisualComplexityStale)
 	{
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
+
+        static const U32 COMPLEXITY_BODY_PART_COST = 200;
+        static LLCachedControl<F32> max_complexity_setting(gSavedSettings, "MaxAttachmentComplexity");
+        F32 max_attachment_complexity = max_complexity_setting;
+        max_attachment_complexity = llmax(max_attachment_complexity, DEFAULT_MAX_ATTACHMENT_COMPLEXITY);
+
+        // Diagnostic list of all textures on our avatar
+        static std::set<LLUUID> all_textures;
+
 		U32 cost = VISUAL_COMPLEXITY_UNKNOWN;
 		LLVOVolume::texture_cost_t textures;
 		hud_complexity_list_t hud_complexity_list;
@@ -11467,3 +11473,43 @@ BOOL LLVOAvatar::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type,
 	// non-self avatars don't have wearables
 	return FALSE;
 }
+
+void LLVOAvatar::placeProfileQuery()
+{
+    if (mGPUTimerQuery == 0)
+    {
+        glGenQueries(1, &mGPUTimerQuery);
+    }
+
+    glBeginQuery(GL_TIME_ELAPSED, mGPUTimerQuery);
+}
+
+void LLVOAvatar::readProfileQuery(S32 retries)
+{
+    if (!mGPUProfilePending)
+    {
+        glEndQuery(GL_TIME_ELAPSED);
+        mGPUProfilePending = true;
+    }
+
+    GLuint64 result = 0;
+    glGetQueryObjectui64v(mGPUTimerQuery, GL_QUERY_RESULT_AVAILABLE, &result);
+
+    if (result == GL_TRUE || --retries <= 0)
+    { // query available, readback result
+        GLuint64 time_elapsed = 0;
+        glGetQueryObjectui64v(mGPUTimerQuery, GL_QUERY_RESULT, &time_elapsed);
+        mGPURenderTime = time_elapsed / 1000000.f;
+        mGPUProfilePending = false;
+    }
+    else
+    { // wait until next frame
+        LLUUID id = getID();
+
+        LL::WorkQueue::getInstance("mainloop")->post([id, retries] {
+            LLVOAvatar* avatar = (LLVOAvatar*) gObjectList.findObject(id);
+            avatar->readProfileQuery(retries);
+            });
+    }
+}
+
