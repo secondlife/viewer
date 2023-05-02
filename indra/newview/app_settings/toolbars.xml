@@ -22,6 +22,7 @@
     <command name="voice"/>
     <command name="minimap"/>
     <command name="snapshot"/>
+    <command name="performance"/>
   </left_toolbar>
   <right_toolbar
     button_display_mode="icons_only">

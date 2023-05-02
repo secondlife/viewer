@@ -410,6 +410,59 @@
           </stat_view>
 			  </stat_view>
 		  </stat_view>
+      <stat_view 
+        name="frame_stats"
+        label="Frame breakdown"
+        show_label="true">
+          <stat_bar name="packet_loss"
+            label="Scenery"
+            orientation="horizontal"
+            unit_label=" %"
+            stat="scenery_frame_pct"
+            bar_max="100"
+            tick_spacing="0.5"
+            show_bar="false"/>
+          <stat_bar name="packet_loss"
+            label="Avatar"
+            orientation="horizontal"
+            unit_label=" %"
+            stat="avatar_frame_pct"
+            bar_max="100"
+            tick_spacing="0.5"
+            show_bar="false"/>
+          <stat_bar name="packet_loss"
+            label="UI"
+            orientation="horizontal"
+            unit_label=" %"
+            stat="ui_frame_pct"
+            bar_max="100"
+            tick_spacing="0.5"
+            show_bar="false"/>
+          <stat_bar name="packet_loss"
+            label="HUDs"
+            orientation="horizontal"
+            unit_label=" %"
+            stat="huds_frame_pct"
+            bar_max="100"
+            tick_spacing="0.5"
+            show_bar="false"/>
+        <stat_bar name="packet_loss"
+            label="Swap"
+            orientation="horizontal"
+            unit_label=" %"
+            stat="swap_frame_pct"
+            bar_max="100"
+            tick_spacing="0.5"
+            show_bar="false"/>
+        <stat_bar name="packet_loss"
+            label="Tasks"
+            orientation="horizontal"
+            unit_label=" %"
+            stat="idle_frame_pct"
+            bar_max="100"
+            tick_spacing="0.5"
+            show_bar="false"/>
+      </stat_view>
     </container_view>
   </scroll_container>
 </floater>
