@@ -2775,6 +2775,15 @@ F32 LLIK::Solver::solve()
 {
     rebuildAllChains();
 
+    // Before each solve: we relax a fraction toward the reset pose.
+    // This provides return pressure that removes floating-point drift that would
+    // otherwise wander around within the valid zones of the constraints.
+    constexpr F32 INITIAL_RELAXATION_FACTOR = 0.25f;
+    for (auto& root : mActiveRoots)
+    {
+        root->relaxRotationsRecursively(INITIAL_RELAXATION_FACTOR);
+    }
+
 #ifdef DEBUG_LLIK_UNIT_TESTS
     if (mDebugEnabled)
     {
@@ -2809,15 +2818,6 @@ F32 LLIK::Solver::solve()
         }
     }
 #endif
-
-    // Before each solve: we relax a fraction toward the reset pose.
-    // This provides return pressure that removes floating-point drift that would
-    // otherwise wander around within the valid zones of the constraints.
-    constexpr F32 INITIAL_RELAXATION_FACTOR = 0.25f;
-    for (auto& root : mActiveRoots)
-    {
-        root->relaxRotationsRecursively(INITIAL_RELAXATION_FACTOR);
-    }
 
     constexpr U32 MAX_FABRIK_ITERATIONS = 16;
     constexpr U32 MIN_FABRIK_ITERATIONS = 4;
