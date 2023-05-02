@@ -107,6 +107,7 @@ public:
 		Optional<LLFolderView::Params>		folder_view;
 		Optional<LLFolderViewFolder::Params> folder;
 		Optional<LLFolderViewItem::Params>	 item;
+        Optional<bool>                       open_first_folder;
 
         // All item and folder views will be initialized on init if true (default)
         // Will initialize on visibility change otherwise.
@@ -126,6 +127,7 @@ public:
             show_root_folder("show_root_folder", false),
             allow_drop_on_root("allow_drop_on_root", true),
             use_marketplace_folders("use_marketplace_folders", false),
+            open_first_folder("open_first_folder", true),
 			scroll("scroll"),
 			accepts_drag_and_drop("accepts_drag_and_drop"),
 			folder_view("folder_view"),
