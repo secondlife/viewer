@@ -56,8 +56,6 @@ const S32 BAR_LEFT_PAD = 2;
 const S32 BAR_RIGHT_PAD = 5;
 const S32 BAR_BOTTOM_PAD = 9;
 
-constexpr auto AvType       {LLPerfStats::ObjType_t::OT_AVATAR};
-
 class LLExceptionsContextMenu : public LLListContextMenu
 {
 public:
