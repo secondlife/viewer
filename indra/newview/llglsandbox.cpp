@@ -990,6 +990,7 @@ private:
 
 //-----------------------------------------------------------------------------
 // gpu_benchmark()
+//  returns measured memory bandwidth of GPU in gigabytes per second
 //-----------------------------------------------------------------------------
 F32 gpu_benchmark()
 {
