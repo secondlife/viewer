@@ -297,7 +297,8 @@ public:
                                                      const F32 max_attachment_complexity,
                                                      LLVOVolume::texture_cost_t& textures,
                                                      U32& cost,
-                                                     hud_complexity_list_t& hud_complexity_list);
+                                                     hud_complexity_list_t& hud_complexity_list,
+                                                     object_complexity_list_t& object_complexity_list);
 	void			calculateUpdateRenderComplexity();
 	static const U32 VISUAL_COMPLEXITY_UNKNOWN;
 	void			updateVisualComplexity();
@@ -313,6 +314,8 @@ public:
 	static void     updateImpostorRendering(U32 newMaxNonImpostorsValue);
 
 	void 			idleUpdateBelowWater();
+
+	static void updateNearbyAvatarCount();
 
 	//--------------------------------------------------------------------
 	// Static preferences (controlled by user settings/menus)
@@ -338,6 +341,9 @@ public:
 
     static LLPointer<LLViewerTexture>  sCloudTexture;
 
+	static std::vector<LLUUID> sAVsIgnoringARTLimit;
+    static S32 sAvatarsNearby;
+
 	//--------------------------------------------------------------------
 	// Region state
 	//--------------------------------------------------------------------
@@ -349,6 +355,16 @@ public:
 	//--------------------------------------------------------------------
 public:
 	BOOL			isFullyLoaded() const;
+
+    // check and return current state relative to limits
+    // default will test only the geometry (combined=false).
+    // this allows us to disable shadows separately on complex avatars.
+
+    inline bool 	isTooSlowWithoutShadows() const {return mTooSlowWithoutShadows;};
+    bool 	isTooSlow() const;
+
+    void 			updateTooSlow();
+
 	bool 			isTooComplex() const;
 	bool 			visualParamWeightsAreDefault();
 	virtual bool	getIsCloud() const;
@@ -368,6 +384,7 @@ public:
 	void 			logMetricsTimerRecord(const std::string& phase_name, F32 elapsed, bool completed);
 
     void            calcMutedAVColor();
+    void            markARTStale();
 
 protected:
 	LLViewerStats::PhaseMap& getPhases() { return mPhases; }
@@ -388,6 +405,17 @@ private:
 	LLColor4		mMutedAVColor;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
+
+    U32				mLastARTUpdateFrame{0};
+    U64				mRenderTime{0};
+    U64				mGeomTime{0};
+    bool			mARTStale{true};
+    bool			mARTCapped{false};
+    // variables to hold "slowness" status
+    bool			mTooSlow{false};
+    bool			mTooSlowWithoutShadows{false};
+
+    bool            mTuned{false};
 
 private:
 	LLViewerStats::PhaseMap mPhases;
@@ -1143,6 +1171,8 @@ public:
 
 	// COF version of last appearance message received for this av.
 	S32 mLastUpdateReceivedCOFVersion;
+
+    U64 getLastART() const { return mRenderTime; }
 
 /**                    Diagnostics
  **                                                                            **

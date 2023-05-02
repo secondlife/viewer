@@ -3303,6 +3303,8 @@ class LLAvatarCheckImpostorMode : public view_listener_t
 				return (avatar->getVisualMuteSettings() == LLVOAvatar::AV_DO_NOT_RENDER);
 			case 2:
 				return (avatar->getVisualMuteSettings() == LLVOAvatar::AV_ALWAYS_RENDER);
+            case 4:
+                return (avatar->getVisualMuteSettings() != LLVOAvatar::AV_RENDER_NORMALLY);
 			default:
 				return false;
 		}

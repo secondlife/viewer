@@ -258,6 +258,18 @@
     <check_box.commit_callback
       function="Pref.RenderOptionUpdate" />
   </check_box>
+
+  <button
+  height="23"
+  label="Automatic adjustments settings"
+  layout="topleft"
+  left="30"
+  name="AutoAdjustmentsButton"
+  top_delta="30"
+  width="200">
+    <button.commit_callback
+      function="Pref.AutoAdjustments"/>
+  </button>
   
   <slider
     control_name="IndirectMaxComplexity"
@@ -274,7 +286,7 @@
     max_val="101"
     name="IndirectMaxComplexity"
     show_text="false"
-    top_delta="60"
+    top_delta="40"
     width="300">
     <slider.commit_callback
       function="Pref.UpdateIndirectMaxComplexity"

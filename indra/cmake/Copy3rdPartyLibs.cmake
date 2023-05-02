@@ -220,6 +220,7 @@ elseif(LINUX)
                  libfreetype.so.6.6.2
                  libfreetype.so.6
                  libhunspell-1.3.so.0.0.0
+                 libopenjp2.so
                  libuuid.so.16
                  libuuid.so.16.0.22
                  libfontconfig.so.1.8.0
