@@ -659,7 +659,8 @@ private:
     F32 solveOnce();
 
     // experimental solver methods
-    void executeFabrikWithDroppedElbow(bool enable_constraints=true, bool untwist=true);
+    void executeFabrik(bool enforce_constraints=false, bool drop_elbow=false, bool untwist=false);
+    void executeCcd(bool enforce_constraints=false, bool drop_elbow=false, bool untwist=false);
 
     bool isSubBase(S16 joint_id) const;
     bool isSubRoot(S16 joint_id) const;
@@ -672,8 +673,8 @@ private:
     void shiftChainToBase(const joint_list_t& chain);
     void executeFabrikPass();
     void enforceConstraintsOutward();
-    void executeCcdPass(); // EXPERIMENTAL
-    void executeCcdInward(const joint_list_t& chain);
+    void executeCcdPass(bool enforce_constraints); // EXPERIMENTAL
+    void executeCcdInward(const joint_list_t& chain, bool enforce_constraints);
     void untwistChain(const joint_list_t& chain);
     F32 measureMaxError();
 
