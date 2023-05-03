@@ -27,7 +27,7 @@
 #import "llsys_objc.h"
 #import <AppKit/AppKit.h>
 
-static int intAtStringIndex(NSArray *array, int index)
+static auto intAtStringIndex(NSArray *array, int index)
 {
     return int([(NSString *)[array objectAtIndex:index] integerValue]);
 }

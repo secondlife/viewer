@@ -292,6 +292,7 @@ public:
 	//@{
 		LLSD(const char*);
 		void assign(const char*);
+		LLSD& operator=(const char* v) { assign(v); return *this; }
 	//@}
 	
 	/** @name Map Values */

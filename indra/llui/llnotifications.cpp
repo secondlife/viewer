@@ -337,7 +337,7 @@ void LLNotificationForm::addElement(const std::string& type, const std::string& 
 	element["name"] = name;
 	element["text"] = name;
 	element["value"] = value;
-	element["index"] = mFormData.size();
+	element["index"] = LLSD::Integer(mFormData.size());
 	element["enabled"] = enabled;
 	mFormData.append(element);
 }
