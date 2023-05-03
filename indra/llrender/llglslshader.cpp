@@ -243,9 +243,9 @@ void LLGLSLShader::stopProfile()
     }
 }
 
-void LLGLSLShader::placeProfileQuery()
+void LLGLSLShader::placeProfileQuery(bool for_runtime)
 {
-    if (sProfileEnabled)
+    if (sProfileEnabled || for_runtime)
     {
         if (mTimerQuery == 0)
         {
@@ -254,42 +254,70 @@ void LLGLSLShader::placeProfileQuery()
             glGenQueries(1, &mPrimitivesQuery);
         }
 
-        glBeginQuery(GL_SAMPLES_PASSED, mSamplesQuery);
         glBeginQuery(GL_TIME_ELAPSED, mTimerQuery);
-        glBeginQuery(GL_PRIMITIVES_GENERATED, mPrimitivesQuery);
+
+        if (!for_runtime)
+        {
+            glBeginQuery(GL_SAMPLES_PASSED, mSamplesQuery);
+            glBeginQuery(GL_PRIMITIVES_GENERATED, mPrimitivesQuery);
+        }
     }
 }
 
-void LLGLSLShader::readProfileQuery()
+bool LLGLSLShader::readProfileQuery(bool for_runtime, bool force_read)
 {
-    if (sProfileEnabled)
+    if (sProfileEnabled || for_runtime)
     {
-        glEndQuery(GL_TIME_ELAPSED);
-        glEndQuery(GL_SAMPLES_PASSED);
-        glEndQuery(GL_PRIMITIVES_GENERATED);
+        if (!mProfilePending)
+        {
+            glEndQuery(GL_TIME_ELAPSED);
+            if (!for_runtime)
+            {
+                glEndQuery(GL_SAMPLES_PASSED);
+                glEndQuery(GL_PRIMITIVES_GENERATED);
+            }
+            mProfilePending = for_runtime;
+        }
+
+        if (mProfilePending && for_runtime && !force_read)
+        {
+            GLuint64 result = 0;
+            glGetQueryObjectui64v(mTimerQuery, GL_QUERY_RESULT_AVAILABLE, &result);
+
+            if (result != GL_TRUE)
+            {
+                return false;
+            }
+        }
 
         GLuint64 time_elapsed = 0;
         glGetQueryObjectui64v(mTimerQuery, GL_QUERY_RESULT, &time_elapsed);
-
-        GLuint64 samples_passed = 0;
-        glGetQueryObjectui64v(mSamplesQuery, GL_QUERY_RESULT, &samples_passed);
-
-        U64 primitives_generated = 0;
-        glGetQueryObjectui64v(mPrimitivesQuery, GL_QUERY_RESULT, &primitives_generated);
-        sTotalTimeElapsed += time_elapsed;
         mTimeElapsed += time_elapsed;
+        mProfilePending = false;
 
-        sTotalSamplesDrawn += samples_passed;
-        mSamplesDrawn += samples_passed;
+        if (!for_runtime)
+        {
+            GLuint64 samples_passed = 0;
+            glGetQueryObjectui64v(mSamplesQuery, GL_QUERY_RESULT, &samples_passed);
 
-        U32 tri_count = (U32)primitives_generated / 3;
+            U64 primitives_generated = 0;
+            glGetQueryObjectui64v(mPrimitivesQuery, GL_QUERY_RESULT, &primitives_generated);
+            sTotalTimeElapsed += time_elapsed;
 
-        mTrianglesDrawn += tri_count;
-        sTotalTrianglesDrawn += tri_count;
+            sTotalSamplesDrawn += samples_passed;
+            mSamplesDrawn += samples_passed;
 
-        sTotalBinds++;
-        mBinds++;
+            U32 tri_count = (U32)primitives_generated / 3;
+
+            mTrianglesDrawn += tri_count;
+            sTotalTrianglesDrawn += tri_count;
+
+            sTotalBinds++;
+            mBinds++;
+        }
     }
+
+    return true;
 }
 
 

@@ -3016,17 +3016,6 @@ void LLPipeline::markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags f
 {
 	if (drawablep && !drawablep->isDead() && assertInitialized())
 	{
-        LL_DEBUGS("AnimatedObjectsLinkset");
-        LLVOVolume *vol_obj = drawablep->getVOVolume();
-        if (vol_obj && vol_obj->isAnimatedObject() && vol_obj->isRiggedMesh())
-        {
-            std::string vobj_name = llformat("Vol%p", vol_obj);
-            F32 est_tris = vol_obj->getEstTrianglesMax();
-            LL_CONT << vobj_name << " markRebuild, tris " << est_tris 
-                    << " priority " << (S32) priority << " flag " << std::hex << flag;
-        }
-        LL_ENDL;
-    
 		if (!drawablep->isState(LLDrawable::BUILT))
 		{
 			priority = true;
@@ -7696,10 +7685,18 @@ void LLPipeline::bindShadowMaps(LLGLSLShader& shader)
 
 void LLPipeline::bindDeferredShaderFast(LLGLSLShader& shader)
 {
-    shader.bind();
-    bindLightFunc(shader);
-    bindShadowMaps(shader);
-    bindReflectionProbes(shader);
+    if (shader.mCanBindFast)
+    { // was previously fully bound, use fast path
+        shader.bind();
+        bindLightFunc(shader);
+        bindShadowMaps(shader);
+        bindReflectionProbes(shader);
+    }
+    else
+    { //wasn't previously bound, use slow path
+        bindDeferredShader(shader);
+        shader.mCanBindFast = true;
+    }
 }
 
 void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_target)
@@ -10067,30 +10064,24 @@ void LLPipeline::renderRiggedGroups(LLRenderPass* pass, U32 type, bool texture)
     }
 }
 
-static LLTrace::BlockTimerStatHandle FTM_GENERATE_IMPOSTOR("Generate Impostor");
-
 void LLPipeline::profileAvatar(LLVOAvatar* avatar, bool profile_attachments)
 {
     if (gGLManager.mGLVersion < 3.25f)
     { // profiling requires GL 3.3 or later
         return;
     }
+
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+
     LLGLSLShader* cur_shader = LLGLSLShader::sCurBoundShaderPtr;
 
     mRT->deferredScreen.bindTarget();
     mRT->deferredScreen.clear();
 
-    bool profile_enabled = LLGLSLShader::sProfileEnabled;
-    LLGLSLShader::sProfileEnabled = true;
-
     if (!profile_attachments)
     {
-        // profile entire avatar all at once
-        
-        // use gDebugProgram as a proxy for getting profile results
-        gDebugProgram.clearStats();
-        gDebugProgram.placeProfileQuery();
-        LLGLSLShader::sProfileEnabled = false;
+        // profile entire avatar all at once and readback asynchronously
+        avatar->placeProfileQuery();
 
         LLTimer cpu_timer;
 
@@ -10098,13 +10089,7 @@ void LLPipeline::profileAvatar(LLVOAvatar* avatar, bool profile_attachments)
 
         avatar->mCPURenderTime = (F32)cpu_timer.getElapsedTimeF32() * 1000.f;
 
-        LLGLSLShader::sProfileEnabled = true;
-        gDebugProgram.readProfileQuery();
-
-        avatar->mGPURenderTime = gDebugProgram.mTimeElapsed / 1000000.f;
-
-        avatar->mGPUSamplesPassed = gDebugProgram.mSamplesDrawn;
-        avatar->mGPUTrianglesRendered = gDebugProgram.mTrianglesDrawn;
+        avatar->readProfileQuery(5); // allow up to 5 frames of latency
     }
     else 
     { 
@@ -10125,23 +10110,19 @@ void LLPipeline::profileAvatar(LLVOAvatar* avatar, bool profile_attachments)
                 LLViewerObject* attached_object = attachment_iter->get();
                 if (attached_object)
                 {
+                    // use gDebugProgram to do the GPU queries
                     gDebugProgram.clearStats();
-                    gDebugProgram.placeProfileQuery();
-                    LLGLSLShader::sProfileEnabled = false;
+                    gDebugProgram.placeProfileQuery(true);
 
                     generateImpostor(avatar, false, true, attached_object);
-                    LLGLSLShader::sProfileEnabled = true;
-                    gDebugProgram.readProfileQuery();
+                    gDebugProgram.readProfileQuery(true, true);
 
                     attached_object->mGPURenderTime = gDebugProgram.mTimeElapsed / 1000000.f;
-
-                    // TODO: maybe also record triangles and samples
                 }
             }
         }
     }
 
-    LLGLSLShader::sProfileEnabled = profile_enabled;
     mRT->deferredScreen.flush();
 
     if (cur_shader)
@@ -10152,7 +10133,7 @@ void LLPipeline::profileAvatar(LLVOAvatar* avatar, bool profile_attachments)
 
 void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool for_profile, LLViewerObject* specific_attachment)
 {
-    LL_RECORD_BLOCK_TIME(FTM_GENERATE_IMPOSTOR);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     LL_PROFILE_GPU_ZONE("generateImpostor");
 	LLGLState::checkStates();
 
@@ -10200,6 +10181,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
             RENDER_TYPE_TREE,
             RENDER_TYPE_VOIDWATER,
             RENDER_TYPE_WATER,
+            RENDER_TYPE_ALPHA_POST_WATER,
             RENDER_TYPE_PASS_GRASS,
             RENDER_TYPE_HUD,
             RENDER_TYPE_PARTICLES,
@@ -10391,9 +10373,9 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
 		LLDrawPoolAvatar::sMinimumAlpha = 0.f;
 	}
 
-    if (preview_avatar)
+    if (preview_avatar || for_profile)
     {
-        // previews don't care about imposters
+        // previews and profiles don't care about imposters
         renderGeomDeferred(camera);
         renderGeomPostDeferred(camera);
     }
@@ -10501,7 +10483,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.popMatrix();
 
-    if (!preview_avatar)
+    if (!preview_avatar && !for_profile)
     {
         avatar->mNeedsImpostorUpdate = FALSE;
         avatar->cacheImpostorValues();

@@ -1155,6 +1155,7 @@ LLViewerObject* LLVOAvatarSelf::getWornAttachment(const LLUUID& inv_item_id)
 
 bool LLVOAvatarSelf::getAttachedPointName(const LLUUID& inv_item_id, std::string& name) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	if (!gInventory.getItem(inv_item_id))
 	{
 		name = "ATTACHMENT_MISSING_ITEM";

@@ -4548,6 +4548,7 @@ LLMeshCostData::LLMeshCostData()
 
 bool LLMeshCostData::init(const LLSD& header)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
     mSizeByLOD.resize(4);
     mEstTrisByLOD.resize(4);
 

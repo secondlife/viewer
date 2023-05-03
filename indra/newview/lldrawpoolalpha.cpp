@@ -107,12 +107,10 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool d
     // i.e. shaders\class1\deferred\alphaF.glsl
     if (deferredEnvironment)
     {
-        gPipeline.bindDeferredShader( *shader );
+        shader->mCanBindFast = false;
     }
-    else
-    {
-        shader->bind();
-    }
+    
+    shader->bind();
     shader->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f / 2.2f));
 
     if (LLPipeline::sRenderingHUDs)

@@ -1603,7 +1603,9 @@ BOOL LLVOVolume::updateLOD()
 	{
 		return FALSE;
 	}
-	
+
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+
 	BOOL lod_changed = FALSE;
 
 	if (!LLSculptIDSize::instance().isUnloaded(getVolume()->getParams().getSculptID())) 
@@ -1617,15 +1619,6 @@ BOOL LLVOVolume::updateLOD()
 
 	if (lod_changed)
 	{
-		LL_DEBUGS("AnimatedObjectsLinkset");
-		if (isAnimatedObject() && isRiggedMesh())
-		{
-			std::string vobj_name = llformat("Vol%p", this);
-			F32 est_tris = getEstTrianglesMax();
-			LL_CONT << vobj_name << " updateLOD to " << getLOD() << ", tris " << est_tris;
-		}
-		LL_ENDL;
-
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, FALSE);
 		mLODChanged = TRUE;
 	}
@@ -3937,6 +3930,7 @@ const LLMatrix4 LLVOVolume::getRenderMatrix() const
 // children, and cost should only be increased for unique textures  -Nyx
 U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
     /*****************************************************************
      * This calculation should not be modified by third party viewers,
      * since it is used to limit rendering and should be uniform for
@@ -4531,15 +4525,6 @@ const LLMatrix4& LLVOVolume::getWorldMatrix(LLXformMatrix* xform) const
 
 void LLVOVolume::markForUpdate(BOOL priority)
 { 
-    LL_DEBUGS("AnimatedObjectsLinkset");
-    if (isAnimatedObject() && isRiggedMesh())
-    {
-        std::string vobj_name = llformat("Vol%p", this);
-        F32 est_tris = getEstTrianglesMax();
-        LL_CONT << vobj_name << " markForUpdate, tris " << est_tris;
-    }
-    LL_ENDL;
-
     if (mDrawable)
     {
         shrinkWrap();
@@ -6096,14 +6081,6 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 					
 					if (!vobj) continue;
 
-					LL_DEBUGS("AnimatedObjectsLinkset");
-					if (vobj->isAnimatedObject() && vobj->isRiggedMesh())
-					{
-						std::string vobj_name = llformat("Vol%p", vobj);
-						F32 est_tris = vobj->getEstTrianglesMax();
-						LL_CONT << vobj_name << " rebuildMesh, tris " << est_tris;
-					}
-					LL_ENDL;
 					if (vobj->isNoLOD()) continue;
 
 					vobj->preRebuild();

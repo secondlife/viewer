@@ -3965,6 +3965,7 @@ U32 LLViewerObject::recursiveGetTriangleCount(S32* vcount) const
 // prim's scale. Should revisit at some point.
 F32 LLViewerObject::recursiveGetScaledSurfaceArea() const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
     F32 area = 0.f;
     const LLDrawable* drawable = mDrawable;
     if (drawable)
