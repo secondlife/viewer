@@ -227,16 +227,16 @@ public:
         // fromJson() is performance heavy offload to a thread.
         main_queue->postTo(
             general_queue,
-            [object_override]() // Work done on general queue
+            [sides=object_override.mSides]() // Work done on general queue
         {
             std::vector<ReturnData> results;
 
-            if (!object_override.mSides.empty())
+            if (!sides.empty())
             {
-                results.reserve(object_override.mSides.size());
+                results.reserve(sides.size());
                 // parse json
-                std::unordered_map<S32, std::string>::const_iterator iter = object_override.mSides.begin();
-                std::unordered_map<S32, std::string>::const_iterator end = object_override.mSides.end();
+                std::unordered_map<S32, std::string>::const_iterator iter = sides.begin();
+                std::unordered_map<S32, std::string>::const_iterator end = sides.end();
                 while (iter != end)
                 {
                     std::string warn_msg, error_msg;
@@ -259,9 +259,9 @@ public:
             }
             return results;
         },
-            [object_override, this](std::vector<ReturnData> results) // Callback to main thread
+            [object_id=object_override.mObjectId, this](std::vector<ReturnData> results) // Callback to main thread
             {
-            LLViewerObject * obj = gObjectList.findObject(object_override.mObjectId);
+            LLViewerObject * obj = gObjectList.findObject(object_id);
 
             if (results.size() > 0 )
             {
@@ -287,7 +287,7 @@ public:
                     // unblock material editor
                     if (obj && obj->getTE(side) && obj->getTE(side)->isSelected())
                     {
-                        doSelectionCallbacks(object_override.mObjectId, side);
+                        doSelectionCallbacks(object_id, side);
                     }
                 }
 
@@ -300,7 +300,7 @@ public:
                             obj->setTEGLTFMaterialOverride(i, nullptr);
                             if (obj->getTE(i) && obj->getTE(i)->isSelected())
                             {
-                                doSelectionCallbacks(object_override.mObjectId, i);
+                                doSelectionCallbacks(object_id, i);
                             }
                         }
                     }

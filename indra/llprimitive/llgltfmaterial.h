@@ -167,6 +167,7 @@ public:
     
     // set the contents of this LLGLTFMaterial from the given json
     // returns true if successful
+    // if unsuccessful, the contents of this LLGLTFMaterial should be left unchanged and false is returned
     // json - the json text to load from
     // warn_msg - warning message from TinyGLTF if any
     // error_msg - error_msg from TinyGLTF if any
