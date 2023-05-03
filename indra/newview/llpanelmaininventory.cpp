@@ -736,6 +736,8 @@ void LLPanelMainInventory::onClearSearch()
 			inbox_panel->onClearSearch();
 		}
 	}
+
+    mCombinationShapeDirty = true;
 }
 
 void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
@@ -793,6 +795,8 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 			inbox_panel->onFilterEdit(search_string);
 		}
 	}
+
+    mCombinationShapeDirty = true;
 }
 
 
@@ -1681,6 +1685,8 @@ void LLPanelMainInventory::setSingleFolderViewRoot(const LLUUID& folder_id, bool
         mCombinationInventoryPanel->changeFolderRoot(folder_id);
     }
     updateNavButtons();
+
+    mCombinationShapeDirty = true;
 }
 
 LLUUID LLPanelMainInventory::getSingleFolderViewRoot()
@@ -2235,14 +2241,20 @@ void LLPanelMainInventory::onCombinationRootChanged(bool gallery_clicked)
 
     //force update scroll container
     mCombinationShapeDirty = true;
+    mCombinationInventoryPanel->reshape(1, 1);
 }
 
 void LLPanelMainInventory::updateCombinationVisibility()
 {
-    if(mSingleFolderMode && isCombinationViewMode() && mCombinationShapeDirty)
+    if(mSingleFolderMode
+       && isCombinationViewMode()
+       && mCombinationShapeDirty)
     {
-        mCombinationShapeDirty = false;
-        mCombinationInventoryPanel->reshape(1,1); // HACK: force reduce visible area
+        if (mCombinationInventoryPanel->areViewsInitialized())
+        {
+            mCombinationShapeDirty = false;
+            mCombinationInventoryPanel->reshape(1,1); // HACK: force reduce visible area
+        }
         if (!mCombinationGalleryPanel->hasVisibleItems())
         {
             mCombinationGalleryPanel->handleModifiedFilter();
@@ -2253,8 +2265,8 @@ void LLPanelMainInventory::updateCombinationVisibility()
         LLRect inner_galery_rect = mCombinationGalleryPanel->getScrollableContainer()->getScrolledViewRect();
         LLScrollContainer* scroll = static_cast<LLScrollContainer*>(mCombinationScrollPanel);
         LLRect scroller_window_rect = scroll->getContentWindowRect();
-        S32 desired_width = llmax(inv_inner_rect.getWidth(), scroller_window_rect.getWidth());
         const S32 BORDER_PAD = 2; // two sides
+        S32 desired_width = llmax(inv_inner_rect.getWidth(), scroller_window_rect.getWidth() - BORDER_PAD);
 
         inv_rect.mBottom = 0;
         inv_rect.mRight = inv_rect.mLeft + desired_width;

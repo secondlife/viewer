@@ -2246,6 +2246,13 @@ void LLInventorySingleFolderPanel::doCreate(const LLSD& userdata)
 /* Asset Pre-Filtered Inventory Panel related class                     */
 /************************************************************************/
 
+LLAssetFilteredInventoryPanel::LLAssetFilteredInventoryPanel(const Params& p)
+    : LLInventoryPanel(p)
+    , mAssetType(LLAssetType::AT_NONE)
+{
+}
+
+
 void LLAssetFilteredInventoryPanel::initFromParams(const Params& p)
 {
     mAssetType = LLAssetType::lookup(p.filter_asset_type.getValue());
