@@ -1617,15 +1617,14 @@ BOOL LLVOVolume::updateLOD()
 
 	if (lod_changed)
 	{
-        if (debugLoggingEnabled("AnimatedObjectsLinkset"))
-        {
-            if (isAnimatedObject() && isRiggedMesh())
-            {
-                std::string vobj_name = llformat("Vol%p", this);
-                F32 est_tris = getEstTrianglesMax();
-                LL_DEBUGS("AnimatedObjectsLinkset") << vobj_name << " updateLOD to " << getLOD() << ", tris " << est_tris << LL_ENDL; 
-            }
-        }
+		LL_DEBUGS("AnimatedObjectsLinkset");
+		if (isAnimatedObject() && isRiggedMesh())
+		{
+			std::string vobj_name = llformat("Vol%p", this);
+			F32 est_tris = getEstTrianglesMax();
+			LL_CONT << vobj_name << " updateLOD to " << getLOD() << ", tris " << est_tris;
+		}
+		LL_ENDL;
 
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, FALSE);
 		mLODChanged = TRUE;
@@ -4532,15 +4531,14 @@ const LLMatrix4& LLVOVolume::getWorldMatrix(LLXformMatrix* xform) const
 
 void LLVOVolume::markForUpdate(BOOL priority)
 { 
-    if (debugLoggingEnabled("AnimatedObjectsLinkset"))
+    LL_DEBUGS("AnimatedObjectsLinkset");
+    if (isAnimatedObject() && isRiggedMesh())
     {
-        if (isAnimatedObject() && isRiggedMesh())
-        {
-            std::string vobj_name = llformat("Vol%p", this);
-            F32 est_tris = getEstTrianglesMax();
-            LL_DEBUGS("AnimatedObjectsLinkset") << vobj_name << " markForUpdate, tris " << est_tris << LL_ENDL; 
-        }
+        std::string vobj_name = llformat("Vol%p", this);
+        F32 est_tris = getEstTrianglesMax();
+        LL_CONT << vobj_name << " markForUpdate, tris " << est_tris;
     }
+    LL_ENDL;
 
     if (mDrawable)
     {
@@ -6098,15 +6096,14 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 					
 					if (!vobj) continue;
 
-					if (debugLoggingEnabled("AnimatedObjectsLinkset"))
+					LL_DEBUGS("AnimatedObjectsLinkset");
+					if (vobj->isAnimatedObject() && vobj->isRiggedMesh())
 					{
-						if (vobj->isAnimatedObject() && vobj->isRiggedMesh())
-						{
-							std::string vobj_name = llformat("Vol%p", vobj);
-							F32 est_tris = vobj->getEstTrianglesMax();
-							LL_DEBUGS("AnimatedObjectsLinkset") << vobj_name << " rebuildMesh, tris " << est_tris << LL_ENDL;
-						}
+						std::string vobj_name = llformat("Vol%p", vobj);
+						F32 est_tris = vobj->getEstTrianglesMax();
+						LL_CONT << vobj_name << " rebuildMesh, tris " << est_tris;
 					}
+					LL_ENDL;
 					if (vobj->isNoLOD()) continue;
 
 					vobj->preRebuild();
