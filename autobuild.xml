@@ -3183,6 +3183,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>RelWithDebInfo</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
+                  <string>-parallelizeTargets</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3214,6 +3215,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>RelWithDebInfo</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
+                  <string>-parallelizeTargets</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3239,6 +3241,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>Release</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
+                  <string>-parallelizeTargets</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3268,6 +3271,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>Release</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
+                  <string>-parallelizeTargets</string>
                 </array>
               </map>
               <key>configure</key>
