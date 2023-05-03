@@ -369,7 +369,7 @@ LLViewerObject::~LLViewerObject()
     }
 
 	// Delete memory associated with extra parameters.
-	std::map<U16, ExtraParameter*>::iterator iter;
+	std::unordered_map<U16, ExtraParameter*>::iterator iter;
 	for (iter = mExtraParameterList.begin(); iter != mExtraParameterList.end(); ++iter)
 	{
 		if(iter->second != NULL)
@@ -1555,7 +1555,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				unpackParticleSource(block_num, owner_id);
 
 				// Mark all extra parameters not used
-				std::map<U16, ExtraParameter*>::iterator iter;
+				std::unordered_map<U16, ExtraParameter*>::iterator iter;
 				for (iter = mExtraParameterList.begin(); iter != mExtraParameterList.end(); ++iter)
 				{
 					iter->second->in_use = FALSE;
@@ -1947,7 +1947,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				}
 				
 				// Mark all extra parameters not used
-				std::map<U16, ExtraParameter*>::iterator iter;
+				std::unordered_map<U16, ExtraParameter*>::iterator iter;
 				for (iter = mExtraParameterList.begin(); iter != mExtraParameterList.end(); ++iter)
 				{
 					iter->second->in_use = FALSE;
@@ -6242,7 +6242,8 @@ LLViewerObject::ExtraParameter* LLViewerObject::createNewParameterEntry(U16 para
 
 LLViewerObject::ExtraParameter* LLViewerObject::getExtraParameterEntry(U16 param_type) const
 {
-	std::map<U16, ExtraParameter*>::const_iterator itor = mExtraParameterList.find(param_type);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VIEWER;
+	std::unordered_map<U16, ExtraParameter*>::const_iterator itor = mExtraParameterList.find(param_type);
 	if (itor != mExtraParameterList.end())
 	{
 		return itor->second;

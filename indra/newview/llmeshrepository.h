@@ -194,6 +194,63 @@ private:
     LLFrameTimer mTimer;
 };
 
+class LLMeshHeader
+{
+public:
+
+    LLMeshHeader() {}
+
+    explicit LLMeshHeader(const LLSD& header)
+    {
+        fromLLSD(header);
+    }
+
+    void fromLLSD(const LLSD& header)
+    {
+        const char* lod[] =
+        {
+            "lowest_lod",
+            "low_lod",
+            "medium_lod",
+            "high_lod"
+        };
+
+        mVersion = header["version"].asInteger();
+
+        for (U32 i = 0; i < 4; ++i)
+        {
+            mLodOffset[i] = header[lod[i]]["offset"].asInteger();
+            mLodSize[i] = header[lod[i]]["size"].asInteger();
+        }
+
+        mSkinOffset = header["skin"]["offset"].asInteger();
+        mSkinSize = header["skin"]["size"].asInteger();
+
+        mPhysicsConvexOffset = header["physics_convex"]["offset"].asInteger();
+        mPhysicsConvexSize = header["physics_convex"]["size"].asInteger();
+
+        mPhysicsMeshOffset = header["physics_mesh"]["offset"].asInteger();
+        mPhysicsMeshSize = header["physics_mesh"]["size"].asInteger();
+
+        m404 = header.has("404");
+    }
+
+    S32 mVersion = -1;
+    S32 mSkinOffset = -1;
+    S32 mSkinSize = -1;
+
+    S32 mPhysicsConvexOffset = -1;
+    S32 mPhysicsConvexSize = -1;
+
+    S32 mPhysicsMeshOffset = -1;
+    S32 mPhysicsMeshSize = -1;
+
+    S32 mLodOffset[4] = { -1 };
+    S32 mLodSize[4] = { -1 };
+
+    bool m404 = false;
+};
+
 class LLMeshRepoThread : public LLThread
 {
 public:
@@ -210,7 +267,7 @@ public:
 	LLCondition* mSignal;
 
 	//map of known mesh headers
-	typedef boost::unordered_map<LLUUID, std::pair<U32, LLSD>> mesh_header_map; // pair is header_size and data
+	typedef boost::unordered_map<LLUUID, std::pair<U32, LLMeshHeader>> mesh_header_map; // pair is header_size and data
 	mesh_header_map mMeshHeader;
 
 	class HeaderRequest : public RequestStats
@@ -497,7 +554,7 @@ class LLMeshCostData
 public:
     LLMeshCostData();
 
-    bool init(const LLSD& header);
+    bool init(const LLMeshHeader& header);
     
     // Size for given LOD
     S32 getSizeByLOD(S32 lod);
@@ -532,10 +589,10 @@ public:
 
 private:
     // From the "size" field of the mesh header. LOD 0=lowest, 3=highest.
-    std::vector<S32> mSizeByLOD;
+    std::array<S32,4> mSizeByLOD;
 
     // Estimated triangle counts derived from the LOD sizes. LOD 0=lowest, 3=highest.
-    std::vector<F32> mEstTrisByLOD;
+    std::array<F32,4> mEstTrisByLOD;
 };
 
 class LLMeshRepository
@@ -566,9 +623,9 @@ public:
     F32 getEstTrianglesMax(LLUUID mesh_id);
     F32 getEstTrianglesStreamingCost(LLUUID mesh_id);
 	F32 getStreamingCostLegacy(LLUUID mesh_id, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
-	static F32 getStreamingCostLegacy(LLSD& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
+	static F32 getStreamingCostLegacy(LLMeshHeader& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
     bool getCostData(LLUUID mesh_id, LLMeshCostData& data);
-    bool getCostData(LLSD& header, LLMeshCostData& data);
+    bool getCostData(LLMeshHeader& header, LLMeshCostData& data);
 
 	LLMeshRepository();
 
@@ -588,7 +645,7 @@ public:
 	void notifyDecompositionReceived(LLModel::Decomposition* info);
 
 	S32 getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
-	static S32 getActualMeshLOD(LLSD& header, S32 lod);
+	static S32 getActualMeshLOD(LLMeshHeader& header, S32 lod);
 	const LLMeshSkinInfo* getSkinInfo(const LLUUID& mesh_id, LLVOVolume* requesting_obj = nullptr);
 	LLModel::Decomposition* getDecomposition(const LLUUID& mesh_id);
 	void fetchPhysicsShape(const LLUUID& mesh_id);

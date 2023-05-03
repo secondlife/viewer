@@ -7833,7 +7833,7 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
 				   for (LLVOVolume::texture_cost_t::iterator iter = textures.begin(); iter != textures.end(); ++iter)
 				   {
 					   // add the cost of each individual texture in the linkset
-					   cost += iter->second;
+					   cost += LLVOVolume::getTextureCost(*iter);
 				   }
 
 				   textures.clear();
@@ -7855,7 +7855,7 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
 			for (LLVOVolume::texture_cost_t::iterator iter = textures.begin(); iter != textures.end(); ++iter)
 			{
 				// add the cost of each individual texture in the linkset
-				cost += iter->second;
+				cost += LLVOVolume::getTextureCost(*iter);
 			}
 
 			textures.clear();
