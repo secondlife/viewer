@@ -30,6 +30,7 @@ jobs:
       DEVELOPER_DIR: ${{ matrix.developer_dir }}
       LOGFAIL: debug # Show details when tests fail
       GIT_REF: ${{ github.head_ref || github.ref }}
+      LL_SKIP_REQUIRE_SYSROOT: 1
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
