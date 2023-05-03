@@ -20,6 +20,7 @@ include(FMODSTUDIO)
 include(Hunspell)
 include(JPEGEncoderBasic)
 include(JsonCpp)
+include(LibVLCPlugin)
 include(LLAppearance)
 include(LLAudio)
 include(LLCA)
@@ -542,6 +543,7 @@ set(viewer_SOURCE_FILES
     llsky.cpp
     llslurl.cpp
     llsnapshotlivepreview.cpp
+    llsoundconverter.cpp
     llspatialpartition.cpp
     llspeakers.cpp
     llspeakingindicatormanager.cpp
@@ -1174,6 +1176,7 @@ set(viewer_HEADER_FILES
     llslurl.h
     llsnapshotlivepreview.h
     llsnapshotmodel.h
+    llsoundconverter.h
     llspatialpartition.h
     llspeakers.h
     llspeakingindicatormanager.h
@@ -1900,6 +1903,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llappearance
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
+        ll::libvlc
         ll::tracy
         )
 
@@ -1952,6 +1956,8 @@ if (LINUX)
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         ${COPY_INPUT_DEPENDENCIES}
       )
+
+  add_subdirectory(llplugin)
 
   if (PACKAGE)
   endif (PACKAGE)

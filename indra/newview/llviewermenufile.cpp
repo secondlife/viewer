@@ -352,7 +352,7 @@ void LLMediaFilePicker::notify(const std::vector<std::string>& filenames)
 //============================================================================
 
 #if LL_WINDOWS
-static std::string SOUND_EXTENSIONS = "wav";
+static std::string SOUND_EXTENSIONS = "mp3 wav";
 static std::string IMAGE_EXTENSIONS = "tga bmp jpg jpeg png";
 static std::string ANIM_EXTENSIONS =  "bvh anim";
 #ifdef _CORY_TESTING
@@ -371,7 +371,7 @@ std::string build_extensions_string(LLFilePicker::ELoadFilter filter)
 #if LL_WINDOWS
 	case LLFilePicker::FFLOAD_IMAGE:
 		return IMAGE_EXTENSIONS;
-	case LLFilePicker::FFLOAD_WAV:
+	case LLFilePicker::FFLOAD_SOUND:
 		return SOUND_EXTENSIONS;
 	case LLFilePicker::FFLOAD_ANIM:
 		return ANIM_EXTENSIONS;
@@ -464,40 +464,54 @@ const void upload_single_file(const std::vector<std::string>& filenames, LLFileP
 	
 	if (!filename.empty())
 	{
-		if (type == LLFilePicker::FFLOAD_WAV)
-		{
-			// pre-qualify wavs to make sure the format is acceptable
-			std::string error_msg;
-			if (check_for_invalid_wav_formats(filename, error_msg))
-			{
-				LL_INFOS() << error_msg << ": " << filename << LL_ENDL;
-				LLSD args;
-				args["FILE"] = filename;
-				LLNotificationsUtil::add(error_msg, args);
-				return;
-			}
-			else
-			{
-				LLFloaterReg::showInstance("upload_sound", LLSD(filename));
-			}
+        switch (type)
+        {
+            case LLFilePicker::FFLOAD_SOUND:
+                {
+                    std::string ext = gDirUtilp->getExtension(filename);
+                    if (ext == "wav")
+                    {
+                        // pre-qualify wavs to make sure the format is acceptable
+                        std::string error_msg;
+                        if (check_for_invalid_wav_formats(filename, error_msg))
+                        {
+                            LL_INFOS() << error_msg << ": " << filename << LL_ENDL;
+                            LLSD args;
+                            args["FILE"] = filename;
+                            LLNotificationsUtil::add(error_msg, args);
+                            return;
+                        }
+                        else
+                        {
+                            LLFloaterReg::showInstance("upload_sound", LLSD(filename));
+                        }
+                    }
+                    else
+                    {
+
+                    }
+                    break;
+                }
+            case LLFilePicker::FFLOAD_IMAGE:
+                LLFloaterReg::showInstance("upload_image", LLSD(filename));
+                break;
+            case LLFilePicker::FFLOAD_ANIM:
+                {
+                    std::string filename_lc(filename);
+                    LLStringUtil::toLower(filename_lc);
+                    if (filename_lc.rfind(".anim") != std::string::npos)
+                    {
+                        LLFloaterReg::showInstance("upload_anim_anim", LLSD(filename));
+                    }
+                    else
+                    {
+                        LLFloaterReg::showInstance("upload_anim_bvh", LLSD(filename));
+                    }
+                    break;
+                }
+            default:
+                break;
 		}
-		if (type == LLFilePicker::FFLOAD_IMAGE)
-		{
-			LLFloaterReg::showInstance("upload_image", LLSD(filename));
-		}
-		if (type == LLFilePicker::FFLOAD_ANIM)
-		{
-			std::string filename_lc(filename);
-			LLStringUtil::toLower(filename_lc);
-			if (filename_lc.rfind(".anim") != std::string::npos)
-			{
-				LLFloaterReg::showInstance("upload_anim_anim", LLSD(filename));
-			}
-			else
-			{
-				LLFloaterReg::showInstance("upload_anim_bvh", LLSD(filename));
-			}
-		}		
 	}
 	return;
 }
@@ -660,7 +674,7 @@ class LLFileUploadSound : public view_listener_t
 		{
 			gAgentCamera.changeCameraToDefault();
 		}
-		(new LLFilePickerReplyThread(boost::bind(&upload_single_file, _1, _2), LLFilePicker::FFLOAD_WAV, false))->getFile();
+		(new LLFilePickerReplyThread(boost::bind(&upload_single_file, _1, _2), LLFilePicker::FFLOAD_SOUND, false))->getFile();
 		return true;
 	}
 };

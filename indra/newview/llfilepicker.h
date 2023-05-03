@@ -74,7 +74,7 @@ public:
 	enum ELoadFilter
 	{
 		FFLOAD_ALL = 1,
-		FFLOAD_WAV = 2,
+		FFLOAD_SOUND = 2,
 		FFLOAD_IMAGE = 3,
 		FFLOAD_ANIM = 4,
 #ifdef _CORY_TESTING

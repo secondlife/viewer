@@ -51,7 +51,7 @@
 LLFilePicker LLFilePicker::sInstance;
 
 #if LL_WINDOWS
-#define SOUND_FILTER L"Sounds (*.wav)\0*.wav\0"
+#define SOUND_FILTER L"Sounds (*.mp3; *.wav)\0*.mp3;*.wav\0"
 #define IMAGE_FILTER L"Images (*.tga; *.bmp; *.jpg; *.jpeg; *.png)\0*.tga;*.bmp;*.jpg;*.jpeg;*.png\0"
 #define ANIM_FILTER L"Animations (*.bvh; *.anim)\0*.bvh;*.anim\0"
 #define COLLADA_FILTER L"Scene (*.dae)\0*.dae\0"
@@ -181,7 +181,7 @@ BOOL LLFilePicker::setupFilter(ELoadFilter filter)
 		ANIM_FILTER \
 		L"\0";
 		break;
-	case FFLOAD_WAV:
+	case FFLOAD_SOUND:
 		mOFN.lpstrFilter = SOUND_FILTER \
 			L"\0";
 		break;
@@ -642,7 +642,8 @@ std::unique_ptr<std::vector<std::string>> LLFilePicker::navOpenFilterProc(ELoadF
             allowedv->push_back("app");
             allowedv->push_back("exe");
             break;
-        case FFLOAD_WAV:
+        case FFLOAD_SOUND:
+            allowedv->push_back("mp3");
             allowedv->push_back("wav");
             break;
         case FFLOAD_ANIM:
@@ -1493,7 +1494,7 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 		std::string filtername = "";
 		switch (filter)
 		{
-		case FFLOAD_WAV:
+		case FFLOAD_SOUND:
 			filtername = add_wav_filter_to_gtkchooser(picker);
 			break;
 		case FFLOAD_ANIM:
@@ -1616,7 +1617,7 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 	std::string filename = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter() + "upload";
 	switch (filter)
 	{
-	case FFLOAD_WAV: filename += ".wav"; break;
+	case FFLOAD_SOUND: filename += ".wav"; break;
 	case FFLOAD_IMAGE: filename += ".tga"; break;
 	case FFLOAD_ANIM: filename += ".bvh"; break;
 	default: break;
