@@ -11,13 +11,15 @@ jobs:
   build:
     strategy:
       matrix:
-        runner: [windows-large]
+        runner: [windows-large, macos-12-xl]
         configuration: [ReleaseOS]
         addrsize: [64]
         include:
           - runner: windows-large
             configuration: ReleaseOS
             addrsize: 32
+          - runner: macos-12-xl
+            developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
     runs-on: ${{ matrix.runner }}
     env:
       AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
@@ -25,8 +27,10 @@ jobs:
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
       AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
       AUTOBUILD_VSVER: "170" # vs2k22
+      DEVELOPER_DIR: ${{ matrix.developer_dir }}
       LOGFAIL: debug # Show details when tests fail
       GIT_REF: ${{ github.head_ref || github.ref }}
+      LL_SKIP_REQUIRE_SYSROOT: 1
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
