@@ -467,7 +467,29 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 		LLError::CallSite& _site(_sites[which]);                        \
 		lllog_test_()
 
-// Check at run-time whether logging is enabled, without generating output
+/*
+// Check at run-time whether logging is enabled, without generating output.
+Resist the temptation to add a function like this because it incurs the
+expense of locking and map-searching every time control reaches it.
 bool debugLoggingEnabled(const std::string& tag);
+
+Instead of:
+
+if debugLoggingEnabled("SomeTag")
+{
+    // ... presumably expensive operation ...
+    LL_DEBUGS("SomeTag") << ... << LL_ENDL;
+}
+
+Use this:
+
+LL_DEBUGS("SomeTag");
+// ... presumably expensive operation ...
+LL_CONT << ...;
+LL_ENDL;
+
+LL_DEBUGS("SomeTag") performs the locking and map-searching ONCE, then caches
+the result in a static variable.
+*/ 
 
 #endif // LL_LLERROR_H

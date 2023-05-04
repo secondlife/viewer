@@ -28,6 +28,7 @@
 #define LL_LLVIEWEROBJECT_H
 
 #include <map>
+#include <unordered_map>
 
 #include "llassetstorage.h"
 //#include "llhudicon.h"
