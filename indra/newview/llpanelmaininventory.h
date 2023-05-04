@@ -222,6 +222,7 @@ protected:
 	 * Set upload cost in "Upload" sub menu.
 	 */
 	void setUploadCostIfNeeded();
+    void disableAddIfNeeded();
 private:
 	LLToggleableMenu*			mMenuGearDefault;
     LLToggleableMenu*           mMenuViewDefault;

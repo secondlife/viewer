@@ -1494,6 +1494,7 @@ void LLPanelMainInventory::onAddButtonClick()
 	LLMenuGL* menu = (LLMenuGL*)mMenuAddHandle.get();
 	if (menu)
 	{
+        disableAddIfNeeded();
 		menu->getChild<LLMenuItemGL>("New Folder")->setEnabled(!isRecentItemsPanelSelected());
 
 		setUploadCostIfNeeded();
@@ -2197,6 +2198,55 @@ void LLPanelMainInventory::setUploadCostIfNeeded()
 		menu->getChild<LLView>("Upload Sound")->setLabelArg("[COST]", sound_upload_cost_str);
 		menu->getChild<LLView>("Upload Animation")->setLabelArg("[COST]", animation_upload_cost_str);
 	}
+}
+
+bool is_add_allowed(LLUUID folder_id)
+{
+    if(!gInventory.isObjectDescendentOf(folder_id, gInventory.getRootFolderID()))
+    {
+        return false;
+    }
+
+    std::vector<LLFolderType::EType> not_allowed_types;
+    not_allowed_types.push_back(LLFolderType::FT_LOST_AND_FOUND);
+    not_allowed_types.push_back(LLFolderType::FT_FAVORITE);
+    not_allowed_types.push_back(LLFolderType::FT_MARKETPLACE_LISTINGS);
+    not_allowed_types.push_back(LLFolderType::FT_TRASH);
+    not_allowed_types.push_back(LLFolderType::FT_CURRENT_OUTFIT);
+    not_allowed_types.push_back(LLFolderType::FT_INBOX);
+
+    for (std::vector<LLFolderType::EType>::const_iterator it = not_allowed_types.begin();
+         it != not_allowed_types.end(); ++it)
+    {
+        if(gInventory.isObjectDescendentOf(folder_id, gInventory.findCategoryUUIDForType(*it)))
+        {
+            return false;
+        }
+    }
+
+    LLViewerInventoryCategory* cat = gInventory.getCategory(folder_id);
+    if (cat && (cat->getPreferredType() == LLFolderType::FT_OUTFIT))
+    {
+        return false;
+    }
+    return true;
+}
+
+void LLPanelMainInventory::disableAddIfNeeded()
+{
+    LLMenuGL* menu = (LLMenuGL*)mMenuAddHandle.get();
+    if (menu)
+    {
+        bool enable = !mSingleFolderMode || is_add_allowed(getCurrentSFVRoot());
+
+        menu->getChild<LLMenuItemGL>("New Folder")->setEnabled(enable);
+        menu->getChild<LLMenuItemGL>("New Script")->setEnabled(enable);
+        menu->getChild<LLMenuItemGL>("New Note")->setEnabled(enable);
+        menu->getChild<LLMenuItemGL>("New Gesture")->setEnabled(enable);
+        menu->setItemEnabled("New Clothes", enable);
+        menu->setItemEnabled("New Body Parts", enable);
+        menu->setItemEnabled("New Settings", enable);
+    }
 }
 
 bool LLPanelMainInventory::hasSettingsInventory()
