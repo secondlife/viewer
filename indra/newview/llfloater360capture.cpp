@@ -197,21 +197,18 @@ void LLFloater360Capture::changeInterestListMode(bool send_everything)
 
     if (gAgent.requestPostCapability("InterestList", body, [](const LLSD & response)
     {
-        LL_INFOS("360Capture") <<
-                               "InterestList capability responded: \n" <<
+        LL_DEBUGS("360Capture") << "InterestList capability responded: \n" <<
                                ll_pretty_print_sd(response) <<
                                LL_ENDL;
     }))
     {
-        LL_INFOS("360Capture") <<
-                               "Successfully posted an InterestList capability request with payload: \n" <<
+        LL_DEBUGS("360Capture") << "Successfully posted an InterestList capability request with payload: \n" <<
                                ll_pretty_print_sd(body) <<
                                LL_ENDL;
     }
     else
     {
-        LL_INFOS("360Capture") <<
-                               "Unable to post an InterestList capability request with payload: \n" <<
+        LL_WARNS("360Capture") << "Unable to post an InterestList capability request with payload: \n" <<
                                ll_pretty_print_sd(body) <<
                                LL_ENDL;
     }
@@ -632,11 +629,8 @@ void LLFloater360Capture::capture360Images()
     // display time to encode all 6 images.  It tends to be a fairly linear
     // time for each so we don't need to worry about displaying the time
     // for each - this gives us plenty to use for optimizing
-    LL_INFOS("360Capture") <<
-                           "Time to encode and save 6 images was " <<
-                           encode_time_total <<
-                           " seconds" <<
-                           LL_ENDL;
+    LL_INFOS("360Capture") << "Time to encode and save 6 images was " <<
+                           encode_time_total << " seconds" << LL_ENDL;
 
     // Write the JavaScript file footer (the bottom of the file after the
     // declarations of the actual data URLs array). The footer comprises of
@@ -668,7 +662,7 @@ void LLFloater360Capture::capture360Images()
     // as a change - only the subsequent 5 are
     if (camera_changed_times < 5)
     {
-        LL_INFOS("360Capture") << "Warning: we only captured " << camera_changed_times << " images." << LL_ENDL;
+        LL_WARNS("360Capture") << "360 image capture expected 5 or more images, only captured " << camera_changed_times << " images." << LL_ENDL;
     }
 
     // now we have the 6 shots saved in a well specified location,

@@ -332,9 +332,9 @@ public:
 
 	typedef enum
 	{
-		CACHE_MISS_TYPE_FULL = 0,
-		CACHE_MISS_TYPE_CRC,
-		CACHE_MISS_TYPE_NONE
+		CACHE_MISS_TYPE_TOTAL = 0,	// total cache miss - object not in cache
+		CACHE_MISS_TYPE_CRC,		// object in cache, but CRC doesn't match
+		CACHE_MISS_TYPE_NONE		// not a miss:  cache hit
 	} eCacheMissType;
 
 	typedef enum
@@ -551,10 +551,10 @@ private:
 	class CacheMissItem
 	{
 	public:
-		CacheMissItem(U32 id, LLViewerRegion::eCacheMissType miss_type) : mID(id), mType(miss_type){}
+        CacheMissItem(U32 id, LLViewerRegion::eCacheMissType miss_type) : mID(id), mType(miss_type) {}
 
-		U32                            mID;     //local object id
-		LLViewerRegion::eCacheMissType mType;   //cache miss type
+		U32                         mID;     //local object id
+        LLViewerRegion::eCacheMissType	mType;  // cache miss type
 
 		typedef std::list<CacheMissItem> cache_miss_list_t;
 	};

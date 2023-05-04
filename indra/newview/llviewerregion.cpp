@@ -2618,14 +2618,10 @@ LLVOCacheEntry* LLViewerRegion::getCacheEntry(U32 local_id, bool valid)
 	return NULL;
 	}
 
-void LLViewerRegion::addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type)
+void LLViewerRegion::addCacheMiss(U32 id, LLViewerRegion::eCacheMissType cache_miss_type)
 {
 	mRegionCacheMissCount++;
-#if 0
-	mCacheMissList.insert(CacheMissItem(id, miss_type));
-#else
-	mCacheMissList.push_back(CacheMissItem(id, miss_type));
-#endif
+    mCacheMissList.push_back(CacheMissItem(id, cache_miss_type));
 }
 
 //check if a non-cacheable object is already created.
@@ -2701,10 +2697,10 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 		}
 	}
 	else
-	{
+	{	// Total miss, don't have the object in cache
 		// LL_INFOS() << "Cache miss for " << local_id << LL_ENDL;
-		addCacheMiss(local_id, CACHE_MISS_TYPE_FULL);
-        cache_miss_type = CACHE_MISS_TYPE_FULL;
+        addCacheMiss(local_id, CACHE_MISS_TYPE_TOTAL);
+        cache_miss_type = CACHE_MISS_TYPE_TOTAL;
 	}
 
 	return false;
@@ -2712,7 +2708,7 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 
 void LLViewerRegion::addCacheMissFull(const U32 local_id)
 {
-	addCacheMiss(local_id, CACHE_MISS_TYPE_FULL);
+	addCacheMiss(local_id, CACHE_MISS_TYPE_TOTAL);
 }
 
 void LLViewerRegion::requestCacheMisses()
@@ -2763,7 +2759,6 @@ void LLViewerRegion::requestCacheMisses()
 	mCacheDirty = TRUE ;
 	// LL_INFOS() << "KILLDEBUG Sent cache miss full " << full_count << " crc " << crc_count << LL_ENDL;
 	LLViewerStatsRecorder::instance().requestCacheMissesEvent(mCacheMissList.size());
-	LLViewerStatsRecorder::instance().log(0.2f);
 
 	mCacheMissList.clear();
 }
