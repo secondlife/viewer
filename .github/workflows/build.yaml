@@ -11,14 +11,14 @@ jobs:
   build:
     strategy:
       matrix:
-        runner: [windows-large, macos-12]
+        runner: [windows-large, macos-12-xl]
         configuration: [ReleaseOS]
         addrsize: [64]
         include:
           - runner: windows-large
             configuration: ReleaseOS
             addrsize: 32
-          - runner: macos-12
+          - runner: macos-12-xl
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
     runs-on: ${{ matrix.runner }}
     env:
