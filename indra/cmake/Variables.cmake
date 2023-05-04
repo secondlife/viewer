@@ -174,7 +174,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   message(STATUS "CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL = '${CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL}'")
 
   # allow disabling this check by setting LL_SKIP_REQUIRE_SYSROOT either ON as cmake cache var or non-empty as environment var
-  set(LL_SKIP_REQUIRE_SYSROOT OFF CACHE BOOL "Skip requirent to set toolchain sysroot ahead of time. Not skipped by default for consistency, but skipping can be useful for selecting alternative xcode versions side by side")
+  set(LL_SKIP_REQUIRE_SYSROOT OFF CACHE BOOL "Skip requirement to set toolchain sysroot ahead of time. Not skipped by default for consistency, but skipping can be useful for selecting alternative xcode versions side by side")
   if("$ENV{LL_SKIP_REQUIRE_SYSROOT}" STREQUAL "" AND NOT ${LL_SKIP_REQUIRE_SYSROOT})
     string(REGEX MATCHALL "[^ ]+" LL_BUILD_LIST "$ENV{LL_BUILD}")
     list(FIND LL_BUILD_LIST "-iwithsysroot" sysroot_idx)
