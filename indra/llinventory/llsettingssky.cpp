@@ -630,7 +630,7 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
             boost::bind(&Validator::verifyFloatRange, _1, _2, llsd::array(0.0f, 1.0f))));
 
         validation.push_back(Validator(SETTING_REFLECTION_PROBE_AMBIANCE, false, LLSD::TypeReal,
-            boost::bind(&Validator::verifyFloatRange, _1, _2, LLSD(LLSDArray(0.0f)(10.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, _2, LLSD(llsd::array(0.0f, 10.0f)))));
 
         validation.push_back(Validator(SETTING_RAYLEIGH_CONFIG, true, LLSD::TypeArray, &validateRayleighLayers));
         validation.push_back(Validator(SETTING_ABSORPTION_CONFIG, true, LLSD::TypeArray, &validateAbsorptionLayers));
