@@ -122,7 +122,7 @@ protected:
 		BOOL in_use;
 		LLNetworkData *data;
 	};
-	std::map<U16, ExtraParameter*> mExtraParameterList;
+	std::unordered_map<U16, ExtraParameter*> mExtraParameterList;
 
 public:
 	typedef std::list<LLPointer<LLViewerObject> > child_list_t;

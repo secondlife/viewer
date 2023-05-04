@@ -3190,7 +3190,13 @@ void LLVOVolume::setLightCutoff(F32 cutoff)
 
 BOOL LLVOVolume::getIsLight() const
 {
-	return getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT);
+    mIsLight = getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT);
+    return mIsLight;
+}
+
+bool LLVOVolume::getIsLightFast() const
+{
+    return mIsLight;
 }
 
 LLColor3 LLVOVolume::getLightSRGBBaseColor() const
@@ -3576,6 +3582,31 @@ BOOL LLVOVolume::hasLightTexture() const
 	return FALSE;
 }
 
+bool LLVOVolume::isFlexibleFast() const
+{
+    return mVolumep && mVolumep->getParams().getPathParams().getCurveType() == LL_PCODE_PATH_FLEXIBLE;
+}
+
+bool LLVOVolume::isSculptedFast() const
+{
+    return mVolumep && mVolumep->getParams().isSculpt();
+}
+
+bool LLVOVolume::isMeshFast() const
+{
+    return mVolumep && mVolumep->getParams().isMeshSculpt();
+}
+
+bool LLVOVolume::isRiggedMeshFast() const
+{
+    return mSkinInfo.notNull();
+}
+
+bool LLVOVolume::isAnimatedObjectFast() const
+{
+    return mIsAnimatedObject;
+}
+
 BOOL LLVOVolume::isVolumeGlobal() const
 {
 	if (mVolumeImpl)
@@ -3736,8 +3767,8 @@ bool LLVOVolume::canBeAnimatedObject() const
 bool LLVOVolume::isAnimatedObject() const
 {
     LLVOVolume *root_vol = (LLVOVolume*)getRootEdit();
-    bool root_is_animated_flag = root_vol->getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG;
-    return root_is_animated_flag;
+    mIsAnimatedObject = root_vol->getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG;
+    return mIsAnimatedObject;
 }
 
 // Called any time parenting changes for a volume. Update flags and
@@ -3924,6 +3955,34 @@ const LLMatrix4 LLVOVolume::getRenderMatrix() const
 	return mDrawable->getWorldMatrix();
 }
 
+//static 
+S32 LLVOVolume::getTextureCost(const LLViewerTexture* img)
+{
+    static const U32 ARC_TEXTURE_COST = 16; // multiplier for texture resolution - performance tested
+
+    S32 texture_cost = 0;
+    S8 type = img->getType();
+    if (type == LLViewerTexture::FETCHED_TEXTURE || type == LLViewerTexture::LOD_TEXTURE)
+    {
+        const LLViewerFetchedTexture* fetched_texturep = static_cast<const LLViewerFetchedTexture*>(img);
+        if (fetched_texturep
+            && fetched_texturep->getFTType() == FTT_LOCAL_FILE
+            && (img->getID() == IMG_ALPHA_GRAD_2D || img->getID() == IMG_ALPHA_GRAD)
+            )
+        {
+            // These two textures appear to switch between each other, but are of different sizes (4x256 and 256x256).
+            // Hardcode cost from larger one to not cause random complexity changes
+            texture_cost = 320;
+        }
+    }
+    if (texture_cost == 0)
+    {
+        texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (img->getFullHeight() / 128.f + img->getFullWidth() / 128.f));
+    }
+
+    return texture_cost;
+}
+
 // Returns a base cost and adds textures to passed in set.
 // total cost is returned value + 5 * size of the resulting set.
 // Cannot include cost of textures, as they may be re-used in linked
@@ -3940,17 +3999,16 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 
 	// Get access to params we'll need at various points.  
 	// Skip if this is object doesn't have a volume (e.g. is an avatar).
-	BOOL has_volume = (getVolume() != NULL);
-	LLVolumeParams volume_params;
-	LLPathParams path_params;
-	LLProfileParams profile_params;
+    if (getVolume() == NULL)
+    {
+        return 0;
+    }
 
 	U32 num_triangles = 0;
 
 	// per-prim costs
 	static const U32 ARC_PARTICLE_COST = 1; // determined experimentally
 	static const U32 ARC_PARTICLE_MAX = 2048; // default values
-	static const U32 ARC_TEXTURE_COST = 16; // multiplier for texture resolution - performance tested
 	static const U32 ARC_LIGHT_COST = 500; // static cost for light-producing prims 
 	static const U32 ARC_MEDIA_FACE_COST = 1500; // static cost per media-enabled face 
 
@@ -3985,45 +4043,41 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	const LLDrawable* drawablep = mDrawable;
 	U32 num_faces = drawablep->getNumFaces();
 
-	if (has_volume)
-	{
-		volume_params = getVolume()->getParams();
-		path_params = volume_params.getPathParams();
-		profile_params = volume_params.getProfileParams();
+	const LLVolumeParams& volume_params = getVolume()->getParams();
 
-        LLMeshCostData costs;
-		if (getCostData(costs))
-		{
-            if (isAnimatedObject() && isRiggedMesh())
-            {
-                // Scaling here is to make animated object vs
-                // non-animated object ARC proportional to the
-                // corresponding calculations for streaming cost.
-                num_triangles = (ANIMATED_OBJECT_COST_PER_KTRI * 0.001 * costs.getEstTrisForStreamingCost())/0.06;
-            }
-            else
-            {
-                F32 radius = getScale().length()*0.5f;
-                num_triangles = costs.getRadiusWeightedTris(radius);
-            }
-		}
+    LLMeshCostData costs;
+	if (getCostData(costs))
+	{
+        if (isAnimatedObjectFast() && isRiggedMeshFast())
+        {
+            // Scaling here is to make animated object vs
+            // non-animated object ARC proportional to the
+            // corresponding calculations for streaming cost.
+            num_triangles = (ANIMATED_OBJECT_COST_PER_KTRI * 0.001 * costs.getEstTrisForStreamingCost())/0.06;
+        }
+        else
+        {
+            F32 radius = getScale().length()*0.5f;
+            num_triangles = costs.getRadiusWeightedTris(radius);
+        }
 	}
+	
 
 	if (num_triangles <= 0)
 	{
 		num_triangles = 4;
 	}
 
-	if (isSculpted())
+	if (isSculptedFast())
 	{
-		if (isMesh())
+		if (isMeshFast())
 		{
 			// base cost is dependent on mesh complexity
 			// note that 3 is the highest LOD as of the time of this coding.
 			S32 size = gMeshRepo.getMeshSize(volume_params.getSculptID(), getLOD());
 			if ( size > 0)
 			{
-				if (isRiggedMesh())
+				if (isRiggedMeshFast())
 				{
 					// weighted attachment - 1 point for every 3 bytes
 					weighted_mesh = 1;
@@ -4037,21 +4091,15 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		}
 		else
 		{
-			const LLSculptParams *sculpt_params = (LLSculptParams *) getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-			LLUUID sculpt_id = sculpt_params->getSculptTexture();
-			if (textures.find(sculpt_id) == textures.end())
+            LLViewerFetchedTexture* texture = mSculptTexture;
+			if (texture && textures.find(texture) == textures.end())
 			{
-				LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(sculpt_id);
-				if (texture)
-				{
-					S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
-					textures.insert(texture_cost_t::value_type(sculpt_id, texture_cost));
-				}
+                textures.insert(texture);
 			}
 		}
 	}
 
-	if (isFlexible())
+	if (isFlexibleFast())
 	{
 		flexi = 1;
 	}
@@ -4060,85 +4108,66 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		particles = 1;
 	}
 
-	if (getIsLight())
+	if (getIsLightFast())
 	{
 		produces_light = 1;
 	}
 
-	for (S32 i = 0; i < num_faces; ++i)
-	{
-		const LLFace* face = drawablep->getFace(i);
-		if (!face) continue;
-		const LLTextureEntry* te = face->getTextureEntry();
-		const LLViewerTexture* img = face->getTexture();
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_VOLUME("ARC - face list");
+        for (S32 i = 0; i < num_faces; ++i)
+        {
+            const LLFace* face = drawablep->getFace(i);
+            if (!face) continue;
+            const LLTextureEntry* te = face->getTextureEntry();
+            const LLViewerTexture* img = face->getTexture();
 
-		if (img)
-		{
-			if (textures.find(img->getID()) == textures.end())
-			{
-                S32 texture_cost = 0;
-                S8 type = img->getType();
-                if (type == LLViewerTexture::FETCHED_TEXTURE || type == LLViewerTexture::LOD_TEXTURE)
+            if (img)
+            {
+                textures.insert(img);
+            }
+
+            if (face->isInAlphaPool())
+            {
+                alpha = 1;
+            }
+            else if (img && img->getPrimaryFormat() == GL_ALPHA)
+            {
+                invisi = 1;
+            }
+            if (face->hasMedia())
+            {
+                media_faces++;
+            }
+
+            if (te)
+            {
+                if (te->getBumpmap())
                 {
-                    const LLViewerFetchedTexture* fetched_texturep = static_cast<const LLViewerFetchedTexture*>(img);
-                    if (fetched_texturep
-                        && fetched_texturep->getFTType() == FTT_LOCAL_FILE
-                        && (img->getID() == IMG_ALPHA_GRAD_2D || img->getID() == IMG_ALPHA_GRAD)
-                        )
-                    {
-                        // These two textures appear to switch between each other, but are of different sizes (4x256 and 256x256).
-                        // Hardcode cost from larger one to not cause random complexity changes
-                        texture_cost = 320;
-                    }
+                    // bump is a multiplier, don't add per-face
+                    bump = 1;
                 }
-                if (texture_cost == 0)
+                if (te->getShiny())
                 {
-                    texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (img->getFullHeight() / 128.f + img->getFullWidth() / 128.f));
+                    // shiny is a multiplier, don't add per-face
+                    shiny = 1;
                 }
-				textures.insert(texture_cost_t::value_type(img->getID(), texture_cost));
-			}
-		}
-
-		if (face->isInAlphaPool())
-		{
-			alpha = 1;
-		}
-		else if (img && img->getPrimaryFormat() == GL_ALPHA)
-		{
-			invisi = 1;
-		}
-		if (face->hasMedia())
-		{
-			media_faces++;
-		}
-
-		if (te)
-		{
-			if (te->getBumpmap())
-			{
-				// bump is a multiplier, don't add per-face
-				bump = 1;
-			}
-			if (te->getShiny())
-			{
-				// shiny is a multiplier, don't add per-face
-				shiny = 1;
-			}
-			if (te->getGlow() > 0.f)
-			{
-				// glow is a multiplier, don't add per-face
-				glow = 1;
-			}
-			if (face->mTextureMatrix != NULL)
-			{
-				animtex = 1;
-			}
-			if (te->getTexGen())
-			{
-				planar = 1;
-			}
-		}
-	}
+                if (te->getGlow() > 0.f)
+                {
+                    // glow is a multiplier, don't add per-face
+                    glow = 1;
+                }
+                if (face->mTextureMatrix != NULL)
+                {
+                    animtex = 1;
+                }
+                if (te->getTexGen())
+                {
+                    planar = 1;
+                }
+            }
+        }
+    }
 
 	// shame currently has the "base" cost of 1 point per 15 triangles, min 2.
 	shame = num_triangles  * 5.f;
@@ -4217,7 +4246,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
     // Streaming cost for animated objects includes a fixed cost
     // per linkset. Add a corresponding charge here translated into
     // triangles, but not weighted by any graphics properties.
-    if (isAnimatedObject() && isRootEdit())
+    if (isAnimatedObjectFast() && isRootEdit())
     {
         shame += (ANIMATED_OBJECT_BASE_COST/0.06) * 5.0f;
     }
@@ -4232,7 +4261,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 
 F32 LLVOVolume::getEstTrianglesMax() const
 {
-	if (isMesh() && getVolume())
+	if (isMeshFast() && getVolume())
 	{
 		return gMeshRepo.getEstTrianglesMax(getVolume()->getParams().getSculptID());
 	}
@@ -4241,7 +4270,7 @@ F32 LLVOVolume::getEstTrianglesMax() const
 
 F32 LLVOVolume::getEstTrianglesStreamingCost() const
 {
-	if (isMesh() && getVolume())
+	if (isMeshFast() && getVolume())
 	{
 		return gMeshRepo.getEstTrianglesStreamingCost(getVolume()->getParams().getSculptID());
 	}
@@ -4256,7 +4285,7 @@ F32 LLVOVolume::getStreamingCost() const
     LLMeshCostData costs;
     if (getCostData(costs))
     {
-        if (isAnimatedObject() && isRootEdit())
+        if (isRootEdit() && isAnimatedObject())
         {
             // Root object of an animated object has this to account for skeleton overhead.
             linkset_base_cost = ANIMATED_OBJECT_BASE_COST;
@@ -4286,7 +4315,9 @@ F32 LLVOVolume::getStreamingCost() const
 // virtual
 bool LLVOVolume::getCostData(LLMeshCostData& costs) const
 {
-    if (isMesh())
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+
+    if (isMeshFast())
     {
         return gMeshRepo.getCostData(getVolume()->getParams().getSculptID(), costs);
     }
@@ -4296,11 +4327,11 @@ bool LLVOVolume::getCostData(LLMeshCostData& costs) const
 		S32 counts[4];
 		LLVolume::getLoDTriangleCounts(volume->getParams(), counts);
 
-		LLSD header;
-		header["lowest_lod"]["size"] = counts[0] * 10;
-		header["low_lod"]["size"] = counts[1] * 10;
-		header["medium_lod"]["size"] = counts[2] * 10;
-		header["high_lod"]["size"] = counts[3] * 10;
+        LLMeshHeader header;
+		header.mLodSize[0] = counts[0] * 10;
+		header.mLodSize[1] = counts[1] * 10;
+		header.mLodSize[2] = counts[2] * 10;
+		header.mLodSize[3] = counts[3] * 10;
 
 		return gMeshRepo.getCostData(header, costs);
     }
