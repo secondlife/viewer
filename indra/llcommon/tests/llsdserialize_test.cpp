@@ -1922,10 +1922,12 @@ namespace tut
     static void toPythonUsing(const std::string& desc,
                               const FormatterFunction& serialize)
     {
-        LLSD cdata(LLSDArray(17)(3.14)
-                  ("This string\n"
-                   "has several\n"
-                   "lines."));
+        set_test_name("verify sequence to Python");
+
+        LLSD cdata(llsd::array(17, 3.14,
+                               "This string\n"
+                               "has several\n"
+                               "lines."));
 
         const char pydata[] =
             "def verify(iterable):\n"
