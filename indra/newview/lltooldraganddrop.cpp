@@ -2150,12 +2150,14 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
                 if (nodep)
                 {
                     uuid_vec_t material_ids;
+                    gltf_materials_vec_t override_materials;
                     S32 num_faces = obj->getNumTEs();
                     for (S32 face = 0; face < num_faces; face++)
                     {
                         material_ids.push_back(obj->getRenderMaterialID(face));
+                        override_materials.push_back(nullptr);
                     }
-                    nodep->saveGLTFMaterialIds(material_ids);
+                    nodep->saveGLTFMaterials(material_ids, override_materials);
                 }
             }
             else
@@ -2169,6 +2171,7 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
                     && nodep->mSavedGLTFMaterialIds.size() > face)
                 {
                     nodep->mSavedGLTFMaterialIds[face] = obj->getRenderMaterialID(face);
+                    nodep->mSavedGLTFOverrideMaterials[face] = nullptr;
                 }
             }
         }

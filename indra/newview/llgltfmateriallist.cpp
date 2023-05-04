@@ -433,6 +433,19 @@ void LLGLTFMaterialList::queueApply(const LLViewerObject* obj, S32 side, const L
     }
 }
 
+void LLGLTFMaterialList::queueApply(const LLViewerObject* obj, S32 side, const LLUUID& asset_id, const LLGLTFMaterial* material_override)
+{
+    if (asset_id.isNull() || material_override == nullptr)
+    {
+        queueApply(obj, side, asset_id);
+    }
+    else
+    {
+        LLGLTFMaterial* material = new LLGLTFMaterial(*material_override);
+        sApplyQueue.push_back({ obj->getID(), side, asset_id, material });
+    }
+}
+
 void LLGLTFMaterialList::queueUpdate(const LLSD& data)
 {
     llassert(is_valid_update(data));
@@ -477,7 +490,7 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
     }
     sModifyQueue.clear();
 
-    for (auto& e : sApplyQueue)
+    for (ApplyMaterialAssetData& e : sApplyQueue)
     {
         data[i]["object_id"] = e.object_id;
         data[i]["side"] = e.side;
