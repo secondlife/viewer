@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llfloaterbvhpreview.cpp
  * @brief LLFloaterBvhPreview class implementation
  *
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -120,11 +120,12 @@ std::string STATUS[] =
 //-----------------------------------------------------------------------------
 // LLFloaterBvhPreview()
 //-----------------------------------------------------------------------------
-LLFloaterBvhPreview::LLFloaterBvhPreview(const std::string& filename) : 
+LLFloaterBvhPreview::LLFloaterBvhPreview(const std::string& filename) :
 	LLFloaterNameDesc(filename)
 {
 	mLastMouseX = 0;
 	mLastMouseY = 0;
+    mOriginalDuration = 1.f;
 
 	mIDList["Standing"] = ANIM_AGENT_STAND;
 	mIDList["Walking"] = ANIM_AGENT_FEMALE_WALK;
@@ -179,6 +180,11 @@ void LLFloaterBvhPreview::setAnimCallbacks()
 	getChild<LLUICtrl>("ease_in_time")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateEaseIn, this, _1));
 	getChild<LLUICtrl>("ease_out_time")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitEaseOut, this));
 	getChild<LLUICtrl>("ease_out_time")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateEaseOut, this, _1));
+
+	getChild<LLUICtrl>("anim_duration")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitDuration, this));
+    getChild<LLUICtrl>("anim_duration")->setValidateBeforeCommit(boost::bind(&LLFloaterBvhPreview::validateDuration, this, _1));
+    getChild<LLUICtrl>("duration_percent")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitPercent, this));
+    getChild<LLUICtrl>("duration_percent")->setValidateBeforeCommit(boost::bind(&LLFloaterBvhPreview::validatePercent, this, _1));
 }
 
 const joint_alias_map_t & LLFloaterBvhPreview::getAnimationJointAliases()
@@ -288,7 +294,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 		mMotionID = mTransactionID.makeAssetID(gAgent.getSecureSessionID());
 
 		// motion will be returned, but it will be in a load-pending state, as this is a new motion
-		// this motion will not request an asset transfer until next update, so we have a chance to 
+		// this motion will not request an asset transfer until next update, so we have a chance to
 		// load the keyframe data locally
 		motionp = (LLKeyframeMotion*)mAnimPreview->getDummyAvatar()->createMotion(mMotionID);
 
@@ -342,6 +348,10 @@ BOOL LLFloaterBvhPreview::postBuild()
 			getChild<LLUICtrl>("hand_pose_combo")->setValue(LLHandMotion::getHandPoseName(motionp->getHandPose()));
 			getChild<LLUICtrl>("ease_in_time")->setValue(LLSD(motionp->getEaseInDuration()));
 			getChild<LLUICtrl>("ease_out_time")->setValue(LLSD(motionp->getEaseOutDuration()));
+
+			mOriginalDuration = motionp->getDuration();
+            getChild<LLUICtrl>("anim_duration")->setValue(LLSD(mOriginalDuration));
+
 			setEnabled(TRUE);
 			std::string seconds_string;
 			seconds_string = llformat(" - %.2f seconds", motionp->getDuration());
@@ -354,6 +364,8 @@ BOOL LLFloaterBvhPreview::postBuild()
 			mMotionID.setNull();
 			getChild<LLUICtrl>("bad_animation_text")->setValue(getString("failed_to_initialize"));
 		}
+
+        mOriginalDuration = motionp->getDuration();
 	}
 	else
 	{
@@ -367,7 +379,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 		else
 		{
 			LLUIString out_str = getString("failed_file_read");
-			out_str.setArg("[STATUS]", getString(STATUS[loader.getStatus()])); 
+			out_str.setArg("[STATUS]", getString(STATUS[loader.getStatus()]));
 			getChild<LLUICtrl>("bad_animation_text")->setValue(out_str.getString());
 		}
 
@@ -474,6 +486,36 @@ void LLFloaterBvhPreview::resetMotion()
 	}
 }
 
+
+//-----------------------------------------------------------------------------
+// updateMotionTime()
+//-----------------------------------------------------------------------------
+void LLFloaterBvhPreview::updateMotionTime()
+{	// Use the current duration adjustment to tweak motion values
+
+	LLVOAvatar *avatarp = mAnimPreview->getDummyAvatar();
+    LLKeyframeMotion *motionp = dynamic_cast<LLKeyframeMotion *>(avatarp->findMotion(mMotionID));
+	if (!motionp)
+	{
+        LL_WARNS("BVH") << "updateMotionTime() - no motion found for " << mMotionID << LL_ENDL;
+        return;
+	}
+	if (motionp->getDuration() <= 0 || mOriginalDuration <= 0.f)
+	{	// Paranoia
+        LL_WARNS("BVH") << "updateMotionTime() - unexpected duration values "
+			<< motionp->getDuration() << " or " << mOriginalDuration << LL_ENDL;
+        return;
+	}
+
+	// Want to change all time values by this factor
+    F32 adjustment = (F32) getChild<LLUICtrl>("anim_duration")->getValue().asReal() / motionp->getDuration();
+
+	LL_DEBUGS("BVH") << "updateMotionTime() - adjusting motion time by " << adjustment << LL_ENDL;
+	motionp->adjustTime(adjustment);
+
+	resetMotion();
+}
+
 //-----------------------------------------------------------------------------
 // handleMouseDown()
 //-----------------------------------------------------------------------------
@@ -523,7 +565,7 @@ BOOL LLFloaterBvhPreview::handleHover(S32 x, S32 y, MASK mask)
 			
 			mAnimPreview->rotate(yaw_radians, pitch_radians);
 		}
-		else 
+		else
 		{
 			F32 yaw_radians = (F32)(x - mLastMouseX) * -0.01f;
 			F32 zoom_amt = (F32)(y - mLastMouseY) * 0.02f;
@@ -879,6 +921,130 @@ bool LLFloaterBvhPreview::validateEaseOut(const LLSD& data)
 	return true;
 }
 
+
+//-----------------------------------------------------------------------------
+// onCommitDuration()
+//-----------------------------------------------------------------------------
+void LLFloaterBvhPreview::onCommitDuration()
+{
+    if (!getEnabled() || !mAnimPreview)
+        return;
+
+    //    LLVOAvatar       *avatarp = mAnimPreview->getDummyAvatar();
+    //    LLKeyframeMotion *motionp = (LLKeyframeMotion *) avatarp->findMotion(mMotionID);
+
+    // Limit the duration between 50% and 2x the original duration
+    F32 cur_duration = (F32) getChild<LLUICtrl>("anim_duration")->getValue().asReal();
+    F32 new_duration = llclamp(cur_duration, mOriginalDuration * 0.5f, mOriginalDuration * 2.f);
+    getChild<LLUICtrl>("anim_duration")->setValue(LLSD(new_duration));
+
+	F32 new_percent = 100.f * new_duration / mOriginalDuration;
+    new_percent     = llclamp(new_percent, 50.f, 200.f);
+    getChild<LLUICtrl>("duration_percent")->setValue(LLSD(new_percent));
+
+	LL_DEBUGS("BVH") << "onCommitDuration: value is " << new_duration << " : "
+                    << new_percent << "%" << LL_ENDL;
+
+	updateMotionTime();
+}
+
+
+//-----------------------------------------------------------------------------
+// validateDuration()
+//-----------------------------------------------------------------------------
+bool LLFloaterBvhPreview::validateDuration(const LLSD &data)
+{
+	if (!getEnabled() || !mAnimPreview)
+		return false;
+
+//	LLVOAvatar       *avatarp = mAnimPreview->getDummyAvatar();
+//	LLKeyframeMotion *motionp = (LLKeyframeMotion *) avatarp->findMotion(mMotionID);
+
+	// Limit the duration between 50% and 2x the original duration
+    F32 cur_duration = (F32) getChild<LLUICtrl>("anim_duration")->getValue().asReal();
+    F32 new_duration = llclamp(cur_duration, mOriginalDuration * 0.5f, mOriginalDuration * 2.f);
+
+    if (new_duration == cur_duration)
+    {	// Value was not limited, so just log it
+        LL_DEBUGS("BVH") << "validateDuration: no clamping value " << cur_duration << " seconds" << LL_ENDL;
+    }
+    else
+    {  // Value was limited, so set UI and sync up percentage
+        getChild<LLUICtrl>("anim_duration")->setValue(LLSD(new_duration));
+
+        F32 new_percent = 100.f * new_duration / mOriginalDuration;
+        new_percent     = llclamp(new_percent, 50.f, 200.f);
+        getChild<LLUICtrl>("duration_percent")->setValue(LLSD(new_percent));
+
+        LL_DEBUGS("BVH") << "validateDuration: set new values to " << new_duration << " seconds and "
+						<< new_percent << "%" << LL_ENDL;
+    }
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// onCommitPercent()
+//-----------------------------------------------------------------------------
+void LLFloaterBvhPreview::onCommitPercent()
+{
+    if (!getEnabled() || !mAnimPreview)
+        return;
+
+//    LLVOAvatar       *avatarp = mAnimPreview->getDummyAvatar();
+//    LLKeyframeMotion *motionp = (LLKeyframeMotion *) avatarp->findMotion(mMotionID);
+
+    // Limit the percent between 50 and 200
+    F32 cur_percent    = (F32) getChild<LLUICtrl>("duration_percent")->getValue().asReal();
+    F32 clamped_percent = llclamp(cur_percent, 50.f, 200.f);
+
+	getChild<LLUICtrl>("duration_percent")->setValue(LLSD(clamped_percent));
+
+	F32 new_duration = clamped_percent * mOriginalDuration / 100.f;
+    new_duration     = llclamp(new_duration, mOriginalDuration * 0.5f, mOriginalDuration * 2.f);
+    getChild<LLUICtrl>("anim_duration")->setValue(LLSD(new_duration));
+
+    LL_DEBUGS("BVH") << "onCommitPercent: value is " << clamped_percent
+		<< "% for " << new_duration << " seconds" << LL_ENDL;
+
+	updateMotionTime();
+}
+
+//-----------------------------------------------------------------------------
+// validatePercent()
+//-----------------------------------------------------------------------------
+bool LLFloaterBvhPreview::validatePercent(const LLSD &data)
+{
+    if (!getEnabled() || !mAnimPreview)
+        return false;
+
+ //   LLVOAvatar       *avatarp = mAnimPreview->getDummyAvatar();
+ //   LLKeyframeMotion *motionp = (LLKeyframeMotion *) avatarp->findMotion(mMotionID);
+
+    // Limit the duration between 50% and 2x the original duration
+    F32 cur_value    = (F32) getChild<LLUICtrl>("duration_percent")->getValue().asReal();
+    F32 new_value = llclamp(cur_value, 50.f, 200.f);
+
+    if (new_value == cur_value)
+    {
+        LL_DEBUGS("BVH") << "validatePercent: no change " << new_value << "%" << LL_ENDL;
+    }
+    else
+    {  // Limit the percentage between 50 and 200
+		getChild<LLUICtrl>("duration_percent")->setValue(LLSD(new_value));
+
+		F32 new_duration = llclamp(mOriginalDuration * new_value / 100.f, mOriginalDuration * 0.5f, mOriginalDuration * 2.f);
+		getChild<LLUICtrl>("anim_duration")->setValue(LLSD(new_duration));
+		
+		LL_DEBUGS("BVH") << "validatePercent: set new values to " << new_value
+			<< "% and " << new_duration << " seconds" << LL_ENDL;
+    }
+
+    return true;
+}
+
+
+
 //-----------------------------------------------------------------------------
 // validateLoopIn()
 //-----------------------------------------------------------------------------
@@ -1142,7 +1308,7 @@ BOOL	LLPreviewAnimation::render()
 
 	LLVector3 target_pos = avatarp->mRoot->getWorldPosition();
 
-	LLQuaternion camera_rot = LLQuaternion(mCameraPitch, LLVector3::y_axis) * 
+	LLQuaternion camera_rot = LLQuaternion(mCameraPitch, LLVector3::y_axis) *
 		LLQuaternion(mCameraYaw, LLVector3::z_axis);
 
 	LLQuaternion av_rot = avatarp->mRoot->getWorldRotation() * camera_rot;
@@ -1185,8 +1351,8 @@ BOOL	LLPreviewAnimation::render()
 // requestUpdate()
 //-----------------------------------------------------------------------------
 void LLPreviewAnimation::requestUpdate()
-{ 
-	mNeedsUpdate = TRUE; 
+{
+	mNeedsUpdate = TRUE;
 }
 
 //-----------------------------------------------------------------------------

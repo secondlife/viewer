@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llkeyframemotion.cpp
  * @brief Implementation of LLKeyframeMotion class.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -96,21 +96,21 @@ U32 LLKeyframeMotion::JointMotionList::dumpDiagInfo()
 		LL_INFOS() << "\tJoint " << joint_motion_p->mJointName << LL_ENDL;
 		if (joint_motion_p->mUsage & LLJointState::SCALE)
 		{
-			LL_INFOS() << "\t" << joint_motion_p->mScaleCurve.mNumKeys << " scale keys at " 
+			LL_INFOS() << "\t" << joint_motion_p->mScaleCurve.mNumKeys << " scale keys at "
 			<< joint_motion_p->mScaleCurve.mNumKeys * sizeof(ScaleKey) << " bytes" << LL_ENDL;
 
 			total_size += joint_motion_p->mScaleCurve.mNumKeys * sizeof(ScaleKey);
 		}
 		if (joint_motion_p->mUsage & LLJointState::ROT)
 		{
-			LL_INFOS() << "\t" << joint_motion_p->mRotationCurve.mNumKeys << " rotation keys at " 
+			LL_INFOS() << "\t" << joint_motion_p->mRotationCurve.mNumKeys << " rotation keys at "
 			<< joint_motion_p->mRotationCurve.mNumKeys * sizeof(RotationKey) << " bytes" << LL_ENDL;
 
 			total_size += joint_motion_p->mRotationCurve.mNumKeys * sizeof(RotationKey);
 		}
 		if (joint_motion_p->mUsage & LLJointState::POS)
 		{
-			LL_INFOS() << "\t" << joint_motion_p->mPositionCurve.mNumKeys << " position keys at " 
+			LL_INFOS() << "\t" << joint_motion_p->mPositionCurve.mNumKeys << " position keys at "
 			<< joint_motion_p->mPositionCurve.mNumKeys * sizeof(PositionKey) << " bytes" << LL_ENDL;
 
 			total_size += joint_motion_p->mPositionCurve.mNumKeys * sizeof(PositionKey);
@@ -120,6 +120,23 @@ U32 LLKeyframeMotion::JointMotionList::dumpDiagInfo()
 
 	return total_size;
 }
+
+
+void LLKeyframeMotion::JointMotionList::adjustTime(F32 adjustment)
+{	// Change time values by this factor
+    mDuration *= adjustment;
+    mLoopInPoint *= adjustment;
+    mLoopOutPoint *= adjustment;
+    mEaseInDuration *= adjustment;
+    mEaseOutDuration *= adjustment;
+
+	for (U32 i = 0; i < getNumJointMotions(); i++)
+	{
+		LLKeyframeMotion::JointMotion *joint_motion_p = mJointMotionArray[i];
+		joint_motion_p->adjustTime(adjustment);
+	}
+}
+
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -140,7 +157,7 @@ LLKeyframeMotion::ScaleCurve::ScaleCurve()
 //-----------------------------------------------------------------------------
 // ScaleCurve::~ScaleCurve()
 //-----------------------------------------------------------------------------
-LLKeyframeMotion::ScaleCurve::~ScaleCurve() 
+LLKeyframeMotion::ScaleCurve::~ScaleCurve()
 {
 	mKeys.clear();
 	mNumKeys = 0;
@@ -207,6 +224,50 @@ LLVector3 LLKeyframeMotion::ScaleCurve::interp(F32 u, ScaleKey& before, ScaleKey
 		return lerp(before.mScale, after.mScale, u);
 	}
 }
+
+// Common code for PositionCurve, ScaleCurve and RotationCurve classes
+// Scale time values by the adjustment factor
+// The passed in curve_map (mKeys) has a time as key, and a value KeyT object with the same mTime.
+// Both need to be adjusted.
+template <class KeyT, class CurveT> void adjustTimeMaps(CurveT &curve_map, F32 adjustment)
+{
+    typedef std::vector<KeyT>   key_vec_t;
+    typedef std::map<F32, KeyT> key_map_t;
+
+	// Get all the existing objects, adjust their time, and save them
+    key_vec_t new_keys;
+    key_map_t::iterator cur_key = curve_map.begin();
+    while (cur_key != curve_map.end())
+    {
+	    KeyT new_key = cur_key->second;
+        new_key.mTime *= adjustment;
+        new_keys.push_back(new_key);
+		cur_key++;
+    }
+
+	// Clear the mMap and re-add the adjusted keys
+    curve_map.clear();
+    key_vec_t::iterator new_key = new_keys.begin();
+    while (new_key != new_keys.end())
+    {
+		curve_map[new_key->mTime] = *new_key;
+        new_key++;
+    }
+}
+
+//-----------------------------------------------------------------------------
+// ScaleCurve::adjustTime()
+//-----------------------------------------------------------------------------
+void LLKeyframeMotion::ScaleCurve::adjustTime(F32 adjustment)
+{
+	// Adjust curve keys and map
+    adjustTimeMaps<LLKeyframeMotion::ScaleKey, LLKeyframeMotion::ScaleCurve::key_map_t>(mKeys, adjustment);
+
+    // Adjust loop keys too
+    mLoopInKey.mTime *= adjustment;
+    mLoopOutKey.mTime *= adjustment;
+}
+
 
 //-----------------------------------------------------------------------------
 // RotationCurve::RotationCurve()
@@ -288,6 +349,19 @@ LLQuaternion LLKeyframeMotion::RotationCurve::interp(F32 u, RotationKey& before,
 	}
 }
 
+//-----------------------------------------------------------------------------
+// RotationCurve::adjustTime()
+//-----------------------------------------------------------------------------
+void LLKeyframeMotion::RotationCurve::adjustTime(F32 adjustment)
+{
+	// Adjust curve keys and map
+    adjustTimeMaps<LLKeyframeMotion::RotationKey, LLKeyframeMotion::RotationCurve::key_map_t>(mKeys, adjustment);
+
+	// Adjust loop keys too
+	mLoopInKey.mTime *= adjustment;
+    mLoopOutKey.mTime *= adjustment;
+}
+
 
 //-----------------------------------------------------------------------------
 // PositionCurve::PositionCurve()
@@ -355,6 +429,7 @@ LLVector3 LLKeyframeMotion::PositionCurve::getValue(F32 time, F32 duration)
 	return value;
 }
 
+
 //-----------------------------------------------------------------------------
 // interp()
 //-----------------------------------------------------------------------------
@@ -371,6 +446,18 @@ LLVector3 LLKeyframeMotion::PositionCurve::interp(F32 u, PositionKey& before, Po
 	}
 }
 
+//-----------------------------------------------------------------------------
+// PositionCurve::adjustTime()
+//-----------------------------------------------------------------------------
+void LLKeyframeMotion::PositionCurve::adjustTime(F32 adjustment)
+{
+    // Adjust curve keys and map
+    adjustTimeMaps<LLKeyframeMotion::PositionKey, LLKeyframeMotion::PositionCurve::key_map_t>(mKeys, adjustment);
+
+    // Adjust loop keys too
+    mLoopInKey.mTime *= adjustment;
+    mLoopOutKey.mTime *= adjustment;
+}
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -383,7 +470,7 @@ LLVector3 LLKeyframeMotion::PositionCurve::interp(F32 u, PositionKey& before, Po
 //-----------------------------------------------------------------------------
 void LLKeyframeMotion::JointMotion::update(LLJointState* joint_state, F32 time, F32 duration)
 {
-	// this value being 0 is the cause of https://jira.lindenlab.com/browse/SL-22678 but I haven't 
+	// this value being 0 is the cause of https://jira.lindenlab.com/browse/SL-22678 but I haven't
 	// managed to get a stack to see how it got here. Testing for 0 here will stop the crash.
 	if ( joint_state == NULL )
 	{
@@ -417,6 +504,16 @@ void LLKeyframeMotion::JointMotion::update(LLJointState* joint_state, F32 time, 
 	}
 }
 
+//-----------------------------------------------------------------------------
+// JointMotion::adjustTime()
+//-----------------------------------------------------------------------------
+void LLKeyframeMotion::JointMotion::adjustTime(F32 adjustment)
+{
+	mScaleCurve.adjustTime(adjustment);
+	mRotationCurve.adjustTime(adjustment);
+	mPositionCurve.adjustTime(adjustment);
+}
+
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -428,7 +525,7 @@ void LLKeyframeMotion::JointMotion::update(LLJointState* joint_state, F32 time, 
 // LLKeyframeMotion()
 // Class Constructor
 //-----------------------------------------------------------------------------
-LLKeyframeMotion::LLKeyframeMotion(const LLUUID &id) 
+LLKeyframeMotion::LLKeyframeMotion(const LLUUID &id)
 	: LLMotion(id),
 		mJointMotionList(NULL),
 		mPelvisp(NULL),
@@ -656,7 +753,7 @@ BOOL LLKeyframeMotion::setupPose()
 //-----------------------------------------------------------------------------
 BOOL LLKeyframeMotion::onActivate()
 {
-	// If the keyframe anim has an associated emote, trigger it. 
+	// If the keyframe anim has an associated emote, trigger it.
 	if( mJointMotionList->mEmoteName.length() > 0 )
 	{
 		LLUUID emote_anim_id = gAnimLibrary.stringToAnimState(mJointMotionList->mEmoteName);
@@ -700,8 +797,8 @@ BOOL LLKeyframeMotion::onUpdate(F32 time, U8* joint_mask)
 			}
 			else
 			{
-				mLastLoopedTime = mJointMotionList->mLoopInPoint + 
-					fmod(time - mJointMotionList->mLoopOutPoint, 
+				mLastLoopedTime = mJointMotionList->mLoopInPoint +
+					fmod(time - mJointMotionList->mLoopOutPoint,
 					mJointMotionList->mLoopOutPoint - mJointMotionList->mLoopInPoint);
 			}
 		}
@@ -733,7 +830,7 @@ void LLKeyframeMotion::applyKeyframes(F32 time)
 	for (U32 i=0; i<mJointMotionList->getNumJointMotions(); i++)
 	{
 		mJointMotionList->getJointMotion(i)->update(mJointStates[i],
-													  time, 
+													  time,
 													  mJointMotionList->mDuration );
 	}
 
@@ -812,7 +909,7 @@ void LLKeyframeMotion::setStopTime(F32 time)
 		}
 		else
 		{
-			loop_fraction_time = fmod(time - start_loop_time, 
+			loop_fraction_time = fmod(time - start_loop_time,
 				mJointMotionList->mLoopOutPoint - mJointMotionList->mLoopInPoint);
 		}
 		mStopTimestamp = llmax(time, 
@@ -949,13 +1046,13 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 	}
 
 	LLJoint* root_joint = getJoint(shared_data->mJointStateIndices[shared_data->mChainLength]);
-	if (! root_joint) 
+	if (! root_joint)
 	{
 		return;
 	}
 	
 	LLVector3 root_pos = root_joint->getWorldPosition();
-//	LLQuaternion root_rot = 
+//	LLQuaternion root_rot =
 	root_joint->getParent()->getWorldRotation();
 //	LLQuaternion inv_root_rot = ~root_rot;
 
@@ -1045,8 +1142,8 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 		constraint->mWeight = LLSmoothInterpolation::lerp(constraint->mWeight, 1.f, 0.3f);
 	}
 
-	F32 weight = constraint->mWeight * ((shared_data->mEaseOutStopTime == 0.f) ? 1.f : 
-		llmin(clamp_rescale(time, shared_data->mEaseInStartTime, shared_data->mEaseInStopTime, 0.f, 1.f), 
+	F32 weight = constraint->mWeight * ((shared_data->mEaseOutStopTime == 0.f) ? 1.f :
+		llmin(clamp_rescale(time, shared_data->mEaseInStartTime, shared_data->mEaseInStopTime, 0.f, 1.f),
 		clamp_rescale(time, shared_data->mEaseOutStartTime, shared_data->mEaseOutStopTime, 1.f, 0.f)));
 
 	LLVector3 source_to_target = target_pos - keyframe_source_pos;
@@ -1083,14 +1180,14 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 				return;
 			}
 			
-			LLVector3 kinematic_position = cur_joint->getWorldPosition() + 
+			LLVector3 kinematic_position = cur_joint->getWorldPosition() +
 				(source_to_target * constraint->mJointLengthFractions[joint_num]);
 
 			// convert intermediate joint positions to world coordinates
 			positions[joint_num] = ( constraint->mPositions[joint_num] * mPelvisp->getWorldRotation()) + mPelvisp->getWorldPosition();
 			F32 time_constant = 1.f / clamp_rescale(constraint->mFixupDistanceRMS, 0.f, 0.5f, 0.2f, 8.f);
 //			LL_INFOS() << "Interpolant " << LLSmoothInterpolation::getInterpolant(time_constant, FALSE) << " and fixup distance " << constraint->mFixupDistanceRMS << " on " << mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolume)->getName() << LL_ENDL;
-			positions[joint_num] = lerp(positions[joint_num], kinematic_position, 
+			positions[joint_num] = lerp(positions[joint_num], kinematic_position,
 				LLSmoothInterpolation::getInterpolant(time_constant, FALSE));
 		}
 
@@ -1101,10 +1198,10 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 			for (joint_num = 1; joint_num < shared_data->mChainLength; joint_num++)
 			{
 				// constraint to child
-				LLVector3 acceleration = (positions[joint_num - 1] - positions[joint_num]) * 
+				LLVector3 acceleration = (positions[joint_num - 1] - positions[joint_num]) *
 					(dist_vec(positions[joint_num], positions[joint_num - 1]) - joint_lengths[joint_num - 1]) * JOINT_LENGTH_K;
 				// constraint to parent
-				acceleration  += (positions[joint_num + 1] - positions[joint_num]) * 
+				acceleration  += (positions[joint_num + 1] - positions[joint_num]) *
 					(dist_vec(positions[joint_num + 1], positions[joint_num]) - joint_lengths[joint_num]) * JOINT_LENGTH_K;
 
 				if (acceleration.magVecSquared() < MIN_ACCELERATION_SQUARED)
@@ -1117,10 +1214,10 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 				velocities[joint_num - 1] += acceleration;
 			}
 
-			if ((iteration_count >= MIN_ITERATION_COUNT) && 
+			if ((iteration_count >= MIN_ITERATION_COUNT) &&
 				(num_joints_finished == shared_data->mChainLength - 1))
 			{
-//				LL_INFOS() << iteration_count << " iterations on " << 
+//				LL_INFOS() << iteration_count << " iterations on " <<
 //					mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolume)->getName() << LL_ENDL;
 				break;
 			}
@@ -1257,7 +1354,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 	else if (version != KEYFRAME_MOTION_VERSION || sub_version != KEYFRAME_MOTION_SUBVERSION)
 	{
 #if LL_RELEASE
-		LL_WARNS() << "Bad animation version " << version << "." << sub_version 
+		LL_WARNS() << "Bad animation version " << version << "." << sub_version
                    << " for animation " << asset_id << LL_ENDL;
 		return FALSE;
 #else
@@ -1459,7 +1556,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 //			LL_INFOS() << "  joint: " << joint_name << LL_ENDL;
             if ((joint_num >= (S32)LL_CHARACTER_MAX_ANIMATED_JOINTS) || (joint_num < 0))
             {
-                LL_WARNS() << "Joint will be omitted from animation: joint_num " << joint_num 
+                LL_WARNS() << "Joint will be omitted from animation: joint_num " << joint_num
                            << " is outside of legal range [0-"
                            << LL_CHARACTER_MAX_ANIMATED_JOINTS << ") for joint " << joint->getName()
                            << " for animation " << asset_id << LL_ENDL;
@@ -1684,12 +1781,12 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 					LL_WARNS() << "can't read pos in position key (" << k << ")" << LL_ENDL;
 					return FALSE;
 				}
-                
+
                 //MAINT-6162
                 pos_key.mPosition.mV[VX] = llclamp( pos_key.mPosition.mV[VX], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
                 pos_key.mPosition.mV[VY] = llclamp( pos_key.mPosition.mV[VY], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
                 pos_key.mPosition.mV[VZ] = llclamp( pos_key.mPosition.mV[VZ], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-                
+
 			}
 			else
 			{
@@ -2075,8 +2172,8 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 		success &= dp.packU8(shared_constraintp->mConstraintType, "constraint_type");
 		char source_volume[16]; /* Flawfinder: ignore */
 		snprintf(source_volume, sizeof(source_volume), "%s",	/* Flawfinder: ignore */
-				 mCharacter->findCollisionVolume(shared_constraintp->mSourceConstraintVolume)->getName().c_str()); 
-        
+				 mCharacter->findCollisionVolume(shared_constraintp->mSourceConstraintVolume)->getName().c_str());
+
 		success &= dp.packBinaryDataFixed((U8*)source_volume, 16, "source_volume");
 		success &= dp.packVector3(shared_constraintp->mSourceConstraintOffset, "source_offset");
 		char target_volume[16];	/* Flawfinder: ignore */
@@ -2201,7 +2298,7 @@ const LLBBoxLocal &LLKeyframeMotion::getPelvisBBox()
 //-----------------------------------------------------------------------------
 void LLKeyframeMotion::setPriority(S32 priority)
 {
-	if (mJointMotionList) 
+	if (mJointMotionList)
 	{
 		S32 priority_delta = priority - mJointMotionList->mBasePriority;
 		mJointMotionList->mBasePriority = (LLJoint::JointPriority)priority;
@@ -2212,7 +2309,7 @@ void LLKeyframeMotion::setPriority(S32 priority)
 			JointMotion* joint_motion = mJointMotionList->getJointMotion(i);			
 			joint_motion->mPriority = (LLJoint::JointPriority)llclamp(
 				(S32)joint_motion->mPriority + priority_delta,
-				(S32)LLJoint::LOW_PRIORITY, 
+				(S32)LLJoint::LOW_PRIORITY,
 				(S32)LLJoint::HIGHEST_PRIORITY);
 			getJointState(i)->setPriority(joint_motion->mPriority);
 		}
@@ -2272,9 +2369,9 @@ void LLKeyframeMotion::flushKeyframeCache()
 //-----------------------------------------------------------------------------
 void LLKeyframeMotion::setLoop(BOOL loop)
 {
-	if (mJointMotionList) 
+	if (mJointMotionList)
 	{
-		mJointMotionList->mLoop = loop; 
+		mJointMotionList->mLoop = loop;
 		mSendStopTimestamp = F32_MAX;
 	}
 }
@@ -2287,7 +2384,7 @@ void LLKeyframeMotion::setLoopIn(F32 in_point)
 {
 	if (mJointMotionList)
 	{
-		mJointMotionList->mLoopInPoint = in_point; 
+		mJointMotionList->mLoopInPoint = in_point;
 		
 		// set up loop keys
 		for (U32 i = 0; i < mJointMotionList->getNumJointMotions(); i++)
@@ -2316,7 +2413,7 @@ void LLKeyframeMotion::setLoopOut(F32 out_point)
 {
 	if (mJointMotionList)
 	{
-		mJointMotionList->mLoopOutPoint = out_point; 
+		mJointMotionList->mLoopOutPoint = out_point;
 		
 		// set up loop keys
 		for (U32 i = 0; i < mJointMotionList->getNumJointMotions(); i++)
@@ -2405,6 +2502,18 @@ void LLKeyframeMotion::onLoadComplete(const LLUUID& asset_uuid,
 	else
 	{
 		LL_WARNS() << "No existing motion for asset data. UUID: " << asset_uuid << LL_ENDL;
+	}
+}
+
+
+//-----------------------------------------------------------------------------
+// adjustTime() - adjust all the time values by this factor
+//-----------------------------------------------------------------------------
+void LLKeyframeMotion::adjustTime(F32 adjustment)
+{
+	if (mJointMotionList)
+	{
+		mJointMotionList->adjustTime(adjustment);
 	}
 }
 
@@ -2499,7 +2608,7 @@ void LLKeyframeDataCache::clear()
 //-----------------------------------------------------------------------------
 // JointConstraint()
 //-----------------------------------------------------------------------------
-LLKeyframeMotion::JointConstraint::JointConstraint(JointConstraintSharedData* shared_data) : mSharedData(shared_data) 
+LLKeyframeMotion::JointConstraint::JointConstraint(JointConstraintSharedData* shared_data) : mSharedData(shared_data)
 {
 	mWeight = 0.f;
 	mTotalLength = 0.f;
