@@ -80,6 +80,12 @@ const F32 MAX_CAMERA_ZOOM = 10.f;
 
 const F32 BASE_ANIM_TIME_OFFSET = 5.f;
 
+const F32 MIN_DURATION_ADJUSTMENT = 0.5f;
+const F32 MAX_DURATION_ADJUSTMENT = 2.f;
+
+const F32 MIN_DURATION_PERCENT =  50.f;
+const F32 MAX_DURATION_PERCENT = 200.f;
+
 std::string STATUS[] =
 {
 	"E_ST_OK",
@@ -935,11 +941,11 @@ void LLFloaterBvhPreview::onCommitDuration()
 
     // Limit the duration between 50% and 2x the original duration
     F32 cur_duration = (F32) getChild<LLUICtrl>("anim_duration")->getValue().asReal();
-    F32 new_duration = llclamp(cur_duration, mOriginalDuration * 0.5f, mOriginalDuration * 2.f);
+    F32 new_duration = llclamp(cur_duration, mOriginalDuration * MIN_DURATION_ADJUSTMENT, mOriginalDuration * MAX_DURATION_ADJUSTMENT);
     getChild<LLUICtrl>("anim_duration")->setValue(LLSD(new_duration));
 
 	F32 new_percent = 100.f * new_duration / mOriginalDuration;
-    new_percent     = llclamp(new_percent, 50.f, 200.f);
+    new_percent     = llclamp(new_percent, MIN_DURATION_PERCENT, MAX_DURATION_PERCENT);
     getChild<LLUICtrl>("duration_percent")->setValue(LLSD(new_percent));
 
 	LL_DEBUGS("BVH") << "onCommitDuration: value is " << new_duration << " : "
@@ -962,7 +968,7 @@ bool LLFloaterBvhPreview::validateDuration(const LLSD &data)
 
 	// Limit the duration between 50% and 2x the original duration
     F32 cur_duration = (F32) getChild<LLUICtrl>("anim_duration")->getValue().asReal();
-    F32 new_duration = llclamp(cur_duration, mOriginalDuration * 0.5f, mOriginalDuration * 2.f);
+    F32 new_duration = llclamp(cur_duration, mOriginalDuration * MIN_DURATION_ADJUSTMENT, mOriginalDuration * MAX_DURATION_ADJUSTMENT);
 
     if (new_duration == cur_duration)
     {	// Value was not limited, so just log it
@@ -973,7 +979,7 @@ bool LLFloaterBvhPreview::validateDuration(const LLSD &data)
         getChild<LLUICtrl>("anim_duration")->setValue(LLSD(new_duration));
 
         F32 new_percent = 100.f * new_duration / mOriginalDuration;
-        new_percent     = llclamp(new_percent, 50.f, 200.f);
+        new_percent     = llclamp(new_percent, MIN_DURATION_PERCENT, MAX_DURATION_PERCENT);
         getChild<LLUICtrl>("duration_percent")->setValue(LLSD(new_percent));
 
         LL_DEBUGS("BVH") << "validateDuration: set new values to " << new_duration << " seconds and "
@@ -996,12 +1002,12 @@ void LLFloaterBvhPreview::onCommitPercent()
 
     // Limit the percent between 50 and 200
     F32 cur_percent    = (F32) getChild<LLUICtrl>("duration_percent")->getValue().asReal();
-    F32 clamped_percent = llclamp(cur_percent, 50.f, 200.f);
+    F32 clamped_percent = llclamp(cur_percent, MIN_DURATION_PERCENT, MAX_DURATION_PERCENT);
 
 	getChild<LLUICtrl>("duration_percent")->setValue(LLSD(clamped_percent));
 
 	F32 new_duration = clamped_percent * mOriginalDuration / 100.f;
-    new_duration     = llclamp(new_duration, mOriginalDuration * 0.5f, mOriginalDuration * 2.f);
+    new_duration     = llclamp(new_duration, mOriginalDuration * MIN_DURATION_ADJUSTMENT, mOriginalDuration * MAX_DURATION_ADJUSTMENT);
     getChild<LLUICtrl>("anim_duration")->setValue(LLSD(new_duration));
 
     LL_DEBUGS("BVH") << "onCommitPercent: value is " << clamped_percent
@@ -1023,7 +1029,7 @@ bool LLFloaterBvhPreview::validatePercent(const LLSD &data)
 
     // Limit the duration between 50% and 2x the original duration
     F32 cur_value    = (F32) getChild<LLUICtrl>("duration_percent")->getValue().asReal();
-    F32 new_value = llclamp(cur_value, 50.f, 200.f);
+    F32 new_value = llclamp(cur_value, MIN_DURATION_PERCENT, MAX_DURATION_PERCENT);
 
     if (new_value == cur_value)
     {
@@ -1033,7 +1039,7 @@ bool LLFloaterBvhPreview::validatePercent(const LLSD &data)
     {  // Limit the percentage between 50 and 200
 		getChild<LLUICtrl>("duration_percent")->setValue(LLSD(new_value));
 
-		F32 new_duration = llclamp(mOriginalDuration * new_value / 100.f, mOriginalDuration * 0.5f, mOriginalDuration * 2.f);
+		F32 new_duration = llclamp(mOriginalDuration * new_value / 100.f, mOriginalDuration * MIN_DURATION_ADJUSTMENT, mOriginalDuration * MAX_DURATION_ADJUSTMENT);
 		getChild<LLUICtrl>("anim_duration")->setValue(LLSD(new_duration));
 		
 		LL_DEBUGS("BVH") << "validatePercent: set new values to " << new_value
