@@ -1190,13 +1190,14 @@ bool LLAppViewer::init()
     }
     else
     {
-        LL_WARNS("InitInfo") << "Skipping updater check." << LL_ENDL;
+        LL_WARNS("InitInfo") << "Skipping updater check due to settings." << LL_ENDL;
+    }
+#else //LL_RELEASE_FOR_DOWNLOAD
+    {
+      LL_WARNS("InitInfo") << "Skipping updater check: not a LL_RELEASE_FOR_DOWNLOAD build." << LL_ENDL;
     }
 #endif //LL_RELEASE_FOR_DOWNLOAD
 
-    {
-        LL_WARNS("InitInfo") << "Skipping updater check." << LL_ENDL;
-    }
 
     if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getS32("QAModeEventHostPort") > 0)
     {
