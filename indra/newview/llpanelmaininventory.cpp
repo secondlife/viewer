@@ -916,6 +916,7 @@ void LLPanelMainInventory::changed(U32 mask)
         || (mask & LLInventoryObserver::STRUCTURE)
         || (mask & LLInventoryObserver::REMOVE)
         || (mask & LLInventoryObserver::ADD)
+        || (mask & LLInventoryObserver::INTERNAL) // Thumbnail
         || (mask & LLInventoryObserver::LABEL))
     {
         // todo: can be limited to just observed folder
