@@ -882,6 +882,11 @@ void LLInventoryGallery::scrollToShowItem(const LLUUID& item_id)
     }
 }
 
+LLInventoryGalleryItem* LLInventoryGallery::getSelectedItem()
+{
+    return mItemMap[mSelectedItemID];
+}
+
 void LLInventoryGallery::updateMessageVisibility()
 {
 

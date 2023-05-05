@@ -120,9 +120,12 @@ public:
     void onBackFolderClicked();
     void onForwardFolderClicked();
     void setSingleFolderViewRoot(const LLUUID& folder_id, bool clear_nav_history = true);
-    void setGallerySelection(const LLUUID& item_id);
+    void setGallerySelection(const LLUUID& item_id, bool new_window = false);
     LLUUID getSingleFolderViewRoot();
     bool isSingleFolderMode() { return mSingleFolderMode; }
+
+    void scrollToGallerySelection();
+    void scrollToInvPanelSelection();
 
     void setViewMode(EViewModeType mode);
     bool isListViewMode() { return (mViewMode == MODE_LIST); }
@@ -236,6 +239,8 @@ private:
 
     bool                        mForceShowInvLayout;
     bool                        mCombinationShapeDirty;
+    bool                        mDelayedCombGalleryScroll;
+    bool                        mDelayedCombInvPanelScroll;
 	// List Commands                                                              //
 	////////////////////////////////////////////////////////////////////////////////
 };

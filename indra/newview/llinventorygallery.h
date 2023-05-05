@@ -129,6 +129,7 @@ public:
     bool hasVisibleItems();
     void handleModifiedFilter();
     LLScrollContainer* getScrollableContainer() { return mScrollPanel; }
+    LLInventoryGalleryItem* getSelectedItem();
 
 protected:
 

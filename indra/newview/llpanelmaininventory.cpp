@@ -122,7 +122,9 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
       mViewMode(MODE_COMBINATION),
       mCombinationShapeDirty(true),
       mListViewRootUpdatedConnection(),
-      mGalleryRootUpdatedConnection()
+      mGalleryRootUpdatedConnection(),
+      mDelayedCombGalleryScroll(false),
+      mDelayedCombInvPanelScroll(false)
 {
 	// Menu Callbacks (non contex menus)
 	mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLPanelMainInventory::doToSelected, this, _2));
@@ -466,7 +468,7 @@ void LLPanelMainInventory::newFolderWindow(LLUUID folder_id, LLUUID item_to_sele
                     main_inventory->setFocus(true);
                     if(item_to_select.notNull())
                     {
-                        sidepanel_inventory->getActivePanel()->setSelection(item_to_select, TAKE_FOCUS_YES);
+                        main_inventory->setGallerySelection(item_to_select);
                     }
                     return;
                 }
@@ -491,7 +493,7 @@ void LLPanelMainInventory::newFolderWindow(LLUUID folder_id, LLUUID item_to_sele
                     main_inventory->setSingleFolderViewRoot(folder_id);
                     if(item_to_select.notNull())
                     {
-                        sidepanel_inventory->getActivePanel()->setSelection(item_to_select, TAKE_FOCUS_YES);
+                        main_inventory->setGallerySelection(item_to_select, true);
                     }
                 }
             }
@@ -2345,6 +2347,15 @@ void LLPanelMainInventory::updateCombinationVisibility()
         mCombinationScroller->reshape(desired_width, inv_rect.getHeight() + galery_rect.getHeight(), true);
         mCombinationGalleryPanel->setShape(galery_rect, false);
         mCombinationInventoryPanel->setShape(inv_rect, false);
+
+        if(mDelayedCombGalleryScroll)
+        {
+            scrollToGallerySelection();
+        }
+        else if(mDelayedCombInvPanelScroll)
+        {
+            scrollToInvPanelSelection();
+        }
     }
 }
 
@@ -2478,7 +2489,7 @@ LLInventoryFilter& LLPanelMainInventory::getCurrentFilter()
     }
 }
 
-void LLPanelMainInventory::setGallerySelection(const LLUUID& item_id)
+void LLPanelMainInventory::setGallerySelection(const LLUUID& item_id, bool new_window)
 {
     if(mSingleFolderMode && isGalleryViewMode())
     {
@@ -2488,13 +2499,60 @@ void LLPanelMainInventory::setGallerySelection(const LLUUID& item_id)
     {
         if(mCombinationGalleryPanel->getFilter().checkAgainstFilterThumbnails(item_id))
         {
-            mCombinationGalleryPanel->changeItemSelection(item_id, true);
+            mCombinationGalleryPanel->changeItemSelection(item_id, false);
+            if(new_window)
+            {
+                mDelayedCombGalleryScroll = new_window;
+            }
+            else
+            {
+                scrollToGallerySelection();
+            }
         }
         else
         {
-            mCombinationInventoryPanel->setSelection(item_id, false);
+            mCombinationInventoryPanel->setSelection(item_id, true);
+            if(new_window)
+            {
+                mDelayedCombInvPanelScroll = new_window;
+            }
+            else
+            {
+                scrollToInvPanelSelection();
+            }
         }
     }
+    else if (mSingleFolderMode && isListViewMode())
+    {
+        mSingleFolderPanelInventory->setSelection(item_id, true);
+    }
 }
+
+void LLPanelMainInventory::scrollToGallerySelection()
+{
+    LLInventoryGalleryItem* item = mCombinationGalleryPanel->getSelectedItem();
+    LLScrollContainer* scroll_panel = getChild<LLScrollContainer>("combination_view_inventory");
+
+    if(item)
+    {
+        LLRect item_rect;
+        item->localRectToOtherView(item->getLocalRect(), &item_rect, mCombinationScroller);
+        scroll_panel->scrollToShowRect(item_rect);
+    }
+}
+
+void LLPanelMainInventory::scrollToInvPanelSelection()
+{
+    LLFolderViewItem* item = mCombinationInventoryPanel->getRootFolder()->getCurSelectedItem();
+    LLScrollContainer* scroll_panel = getChild<LLScrollContainer>("combination_view_inventory");
+
+    if(item)
+    {
+        LLRect item_rect;
+        item->localRectToOtherView(item->getLocalRect(), &item_rect, mCombinationScroller);
+        scroll_panel->scrollToShowRect(item_rect);
+    }
+}
+
 // List Commands                                                              //
 ////////////////////////////////////////////////////////////////////////////////
