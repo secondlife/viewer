@@ -428,7 +428,7 @@ void LLPuppetMotion::solveIKAndHarvestResults(const LLIK::Solver::joint_config_m
     }
 
 	LLPuppetEvent broadcast_event;
-    const LLIK::Solver::joint_list_t& active_joints = mIKSolver.getActiveJoints();
+    const LLIK::Joint::joint_vec_t& active_joints = mIKSolver.getActiveJoints();
     for (auto joint: active_joints)
     {
         S16 id = joint->getID();
