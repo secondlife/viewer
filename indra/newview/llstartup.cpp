@@ -1900,8 +1900,20 @@ bool idle_startup()
 			LLNotificationsUtil::add("InventoryUnusable");
 		}
 		
-        LLInventoryModelBackgroundFetch::instance().start();
 		gInventory.createCommonSystemCategories();
+
+        LLInventoryModelBackgroundFetch::instance().start();
+        LLUUID cof_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+        LLViewerInventoryCategory* cof = gInventory.getCategory(cof_id);
+        if (cof
+            && cof->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
+        {
+            // Special case, dupplicate request prevention.
+            // Cof folder will be requested via FetchCOF
+            // in appearance manager, prevent recursive fetch
+            cof->setFetching(LLViewerInventoryCategory::FETCH_RECURSIVE);
+        }
+
 
 		// It's debatable whether this flag is a good idea - sets all
 		// bits, and in general it isn't true that inventory

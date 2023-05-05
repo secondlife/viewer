@@ -4565,10 +4565,14 @@ void callAfterCOFFetch(nullary_func_t cb)
 {
     LLUUID cat_id = LLAppearanceMgr::instance().getCOF();
     LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
-    if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN && AISAPI::isAvailable())
+    if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
     {
-        // Assume that we have no relevant cache. Fetch cof, and items cof's links point to.
-        AISAPI::FetchCOF([cb](const LLUUID& id)
+        if (AISAPI::isAvailable())
+        {
+            // Mark cof (update timer) so that background fetch won't request it
+            cat->setFetching(LLViewerInventoryCategory::FETCH_RECURSIVE);
+            // Assume that we have no relevant cache. Fetch cof, and items cof's links point to.
+            AISAPI::FetchCOF([cb](const LLUUID& id)
                          {
                              cb();
                              LLUUID cat_id = LLAppearanceMgr::instance().getCOF();
@@ -4578,8 +4582,14 @@ void callAfterCOFFetch(nullary_func_t cb)
                                  cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
                              }
                          });
-        // Mark it so that background fetch won't request it if it didn't already
-        cat->setFetching(LLViewerInventoryCategory::FETCH_RECURSIVE);
+        }
+        else
+        {
+            LL_WARNS() << "AIS API v3 not available, can't use AISAPI::FetchCOF" << LL_ENDL;
+            // startup should have marked folder as fetching, remove that
+            cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
+            callAfterCategoryFetch(cat_id, cb);
+        }
     }
     else
     {
