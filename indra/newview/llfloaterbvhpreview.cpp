@@ -936,9 +936,6 @@ void LLFloaterBvhPreview::onCommitDuration()
     if (!getEnabled() || !mAnimPreview)
         return;
 
-    //    LLVOAvatar       *avatarp = mAnimPreview->getDummyAvatar();
-    //    LLKeyframeMotion *motionp = (LLKeyframeMotion *) avatarp->findMotion(mMotionID);
-
     // Limit the duration between 50% and 2x the original duration
     F32 cur_duration = (F32) getChild<LLUICtrl>("anim_duration")->getValue().asReal();
     F32 new_duration = llclamp(cur_duration, mOriginalDuration * MIN_DURATION_ADJUSTMENT, mOriginalDuration * MAX_DURATION_ADJUSTMENT);
@@ -962,9 +959,6 @@ bool LLFloaterBvhPreview::validateDuration(const LLSD &data)
 {
 	if (!getEnabled() || !mAnimPreview)
 		return false;
-
-//	LLVOAvatar       *avatarp = mAnimPreview->getDummyAvatar();
-//	LLKeyframeMotion *motionp = (LLKeyframeMotion *) avatarp->findMotion(mMotionID);
 
 	// Limit the duration between 50% and 2x the original duration
     F32 cur_duration = (F32) getChild<LLUICtrl>("anim_duration")->getValue().asReal();
@@ -997,9 +991,6 @@ void LLFloaterBvhPreview::onCommitPercent()
     if (!getEnabled() || !mAnimPreview)
         return;
 
-//    LLVOAvatar       *avatarp = mAnimPreview->getDummyAvatar();
-//    LLKeyframeMotion *motionp = (LLKeyframeMotion *) avatarp->findMotion(mMotionID);
-
     // Limit the percent between 50 and 200
     F32 cur_percent    = (F32) getChild<LLUICtrl>("duration_percent")->getValue().asReal();
     F32 clamped_percent = llclamp(cur_percent, MIN_DURATION_PERCENT, MAX_DURATION_PERCENT);
@@ -1023,9 +1014,6 @@ bool LLFloaterBvhPreview::validatePercent(const LLSD &data)
 {
     if (!getEnabled() || !mAnimPreview)
         return false;
-
- //   LLVOAvatar       *avatarp = mAnimPreview->getDummyAvatar();
- //   LLKeyframeMotion *motionp = (LLKeyframeMotion *) avatarp->findMotion(mMotionID);
 
     // Limit the duration between 50% and 2x the original duration
     F32 cur_value    = (F32) getChild<LLUICtrl>("duration_percent")->getValue().asReal();
