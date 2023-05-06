@@ -2357,6 +2357,12 @@ void LLPanelMainInventory::updateCombinationVisibility()
         {
             scrollToInvPanelSelection();
         }
+
+        LLFolderView* root_folder = mCombinationInventoryPanel->getRootFolder();
+        if (root_folder)
+        {
+            root_folder->updateRenamerPosition();
+        }
     }
 }
 
