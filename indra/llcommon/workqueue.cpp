@@ -161,12 +161,7 @@ bool LL::WorkQueue::done()
     return mQueue.done();
 }
 
-void LL::WorkQueue::post(const Work& callable)
-{
-    mQueue.push(callable);
-}
-
-bool LL::WorkQueue::postIfOpen(const Work& callable)
+bool LL::WorkQueue::post(const Work& callable)
 {
     return mQueue.pushIfOpen(callable);
 }
@@ -215,26 +210,16 @@ bool LL::WorkSchedule::done()
     return mQueue.done();
 }
 
-void LL::WorkSchedule::post(const Work& callable)
+bool LL::WorkSchedule::post(const Work& callable)
 {
     // Use TimePoint::clock::now() instead of TimePoint's representation of
     // the epoch because this WorkSchedule may contain a mix of past-due
     // TimedWork items and TimedWork items scheduled for the future. Sift this
     // new item into the correct place.
-    post(callable, TimePoint::clock::now());
-}
-
-void LL::WorkSchedule::post(const Work& callable, const TimePoint& time)
-{
-    mQueue.push(TimedWork(time, callable));
-}
-
-bool LL::WorkSchedule::postIfOpen(const Work& callable)
-{
     return postIfOpen(callable, TimePoint::clock::now());
 }
 
-bool LL::WorkSchedule::postIfOpen(const Work& callable, const TimePoint& time)
+bool LL::WorkSchedule::post(const Work& callable, const TimePoint& time)
 {
     return mQueue.pushIfOpen(TimedWork(time, callable));
 }
