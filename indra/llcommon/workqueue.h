@@ -516,37 +516,45 @@ namespace LL
         // Here we believe target WorkQueue still exists. Post to it a
         // lambda that packages our callable, our callback and a weak_ptr
         // to this originating WorkQueue.
-        tptr->post(
-            [reply = super::getWeak(),
-             callable = std::move(callable),
-             callback = std::move(callback)]
-            () mutable
-            {
-                // Use postMaybe() below in case this originating WorkQueue
-                // has been closed or destroyed. Remember, the outer lambda is
-                // now running on a thread servicing the target WorkQueue, and
-                // real time has elapsed since postTo()'s tptr->post() call.
-                try
+        try
+        {
+            tptr->post(
+                [reply = super::getWeak(),
+                 callable = std::move(callable),
+                 callback = std::move(callback)]
+                () mutable
                 {
-                    // Make a reply lambda to repost to THIS WorkQueue.
-                    // Delegate to makeReplyLambda() so we can partially
-                    // specialize on void return.
-                    postMaybe(reply, makeReplyLambda(std::move(callable), std::move(callback)));
-                }
-                catch (...)
-                {
-                    // Either variant of makeReplyLambda() is responsible for
-                    // calling the caller's callable. If that throws, return
-                    // the exception to the originating thread.
-                    postMaybe(
-                        reply,
-                        // Bind the current exception to transport back to the
-                        // originating WorkQueue. Once there, rethrow it.
-                        [exc = std::current_exception()](){ std::rethrow_exception(exc); });
-                }
-            },
-            // if caller passed a TimePoint, pass it along to post()
-            std::forward<ARGS>(args)...);
+                    // Use postMaybe() below in case this originating WorkQueue
+                    // has been closed or destroyed. Remember, the outer lambda is
+                    // now running on a thread servicing the target WorkQueue, and
+                    // real time has elapsed since postTo()'s tptr->post() call.
+                    try
+                    {
+                        // Make a reply lambda to repost to THIS WorkQueue.
+                        // Delegate to makeReplyLambda() so we can partially
+                        // specialize on void return.
+                        postMaybe(reply, makeReplyLambda(std::move(callable), std::move(callback)));
+                    }
+                    catch (...)
+                    {
+                        // Either variant of makeReplyLambda() is responsible for
+                        // calling the caller's callable. If that throws, return
+                        // the exception to the originating thread.
+                        postMaybe(
+                            reply,
+                            // Bind the current exception to transport back to the
+                            // originating WorkQueue. Once there, rethrow it.
+                            [exc = std::current_exception()](){ std::rethrow_exception(exc); });
+                    }
+                },
+                // if caller passed a TimePoint, pass it along to post()
+                std::forward<ARGS>(args)...);
+        }
+        catch (const Closed&)
+        {
+            // target WorkQueue still exists, but is Closed
+            return false;
+        }
 
         // looks like we were able to post()
         return true;

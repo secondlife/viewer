@@ -92,14 +92,21 @@ LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
-    // Instantiate the ImageRequest right in the lambda, why not?
-    mThreadPool->getQueue().post(
-        [req = ImageRequest(image, discard, needs_aux, responder)]
-        () mutable
-        {
-            auto done = req.processRequest();
-            req.finishRequest(done);
-        });
+	try
+	{
+		// Instantiate the ImageRequest right in the lambda, why not?
+		mThreadPool->getQueue().post(
+			[req = ImageRequest(image, discard, needs_aux, responder)]
+			() mutable
+			{
+				auto done = req.processRequest();
+				req.finishRequest(done);
+			});
+	}
+	catch (const LLThreadSafeQueueInterrupt&)
+	{
+		LL_DEBUGS() << "Tried to start decoding on shutdown" << LL_ENDL;
+	}
 
     // It's important to our consumer (LLTextureFetchWorker) that we return a
     // nonzero handle. It is NOT important that the nonzero handle be unique:
