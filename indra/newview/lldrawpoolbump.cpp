@@ -77,6 +77,7 @@ static LLGLSLShader* shader = NULL;
 static S32 cube_channel = -1;
 static S32 diffuse_channel = -1;
 static S32 bump_channel = -1;
+static BOOL shiny = FALSE;
 
 // Enabled after changing LLViewerTexture::mNeedsCreateTexture to an
 // LLAtomicBool; this should work just fine, now. HB
@@ -197,7 +198,7 @@ void LLStandardBumpmap::destroyGL()
 LLDrawPoolBump::LLDrawPoolBump() 
 :  LLRenderPass(LLDrawPool::POOL_BUMP)
 {
-	mShiny = FALSE;
+	shiny = FALSE;
 }
 
 
@@ -346,7 +347,7 @@ void LLDrawPoolBump::beginFullbrightShiny()
 		diffuse_channel = 0;
 	}
 
-	mShiny = TRUE;
+	shiny = TRUE;
 }
 
 void LLDrawPoolBump::renderFullbrightShiny()
@@ -398,7 +399,7 @@ void LLDrawPoolBump::endFullbrightShiny()
 	
 	diffuse_channel = -1;
 	cube_channel = 0;
-	mShiny = FALSE;
+	shiny = FALSE;
 }
 
 void LLDrawPoolBump::renderGroup(LLSpatialGroup* group, U32 type, bool texture = true)
@@ -541,7 +542,7 @@ void LLDrawPoolBump::renderDeferred(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_BUMP);
 
-    mShiny = TRUE;
+    shiny = TRUE;
     for (int i = 0; i < 2; ++i)
     {
         bool rigged = i == 1;
@@ -575,11 +576,11 @@ void LLDrawPoolBump::renderDeferred(S32 pass)
                     avatar = params.mAvatar;
                     skin = params.mSkinInfo->mHash;
                 }
-                pushBatch(params, true, false);
+                pushBumpBatch(params, true, false);
             }
             else
             {
-                pushBatch(params, true, false);
+                pushBumpBatch(params, true, false);
             }
         }
 
@@ -589,7 +590,7 @@ void LLDrawPoolBump::renderDeferred(S32 pass)
         gGL.getTexUnit(0)->activate();
     }
 
-    mShiny = FALSE;
+    shiny = FALSE;
 }
 
 
@@ -1213,12 +1214,12 @@ void LLDrawPoolBump::pushBumpBatches(U32 type)
                     }
                 }
             }
-			pushBatch(params, false);
+			pushBumpBatch(params, false);
 		}
 	}
 }
 
-void LLDrawPoolBump::pushBatch(LLDrawInfo& params, bool texture, bool batch_textures)
+void LLRenderPass::pushBumpBatch(LLDrawInfo& params, bool texture, bool batch_textures)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 	applyModelMatrix(params);
@@ -1239,7 +1240,7 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, bool texture, bool batch_text
 	{ //not batching textures or batch has only 1 texture -- might need a texture matrix
 		if (params.mTextureMatrix)
 		{
-			if (mShiny)
+			if (shiny)
 			{
 				gGL.getTexUnit(0)->activate();
 				gGL.matrixMode(LLRender::MM_TEXTURE);
@@ -1258,7 +1259,7 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, bool texture, bool batch_text
 			tex_setup = true;
 		}
 
-		if (mShiny && mShaderLevel > 1 && texture)
+		if (shiny && mShaderLevel > 1 && texture)
 		{
 			if (params.mTexture.notNull())
 			{
@@ -1276,7 +1277,7 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, bool texture, bool batch_text
 
     if (tex_setup)
 	{
-		if (mShiny)
+		if (shiny)
 		{
 			gGL.getTexUnit(0)->activate();
 		}
