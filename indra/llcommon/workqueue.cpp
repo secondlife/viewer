@@ -216,7 +216,7 @@ bool LL::WorkSchedule::post(const Work& callable)
     // the epoch because this WorkSchedule may contain a mix of past-due
     // TimedWork items and TimedWork items scheduled for the future. Sift this
     // new item into the correct place.
-    return postIfOpen(callable, TimePoint::clock::now());
+    return post(callable, TimePoint::clock::now());
 }
 
 bool LL::WorkSchedule::post(const Work& callable, const TimePoint& time)
