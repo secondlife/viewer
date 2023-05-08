@@ -573,7 +573,7 @@ namespace LL
                 std::forward<ARGS>(args)...);
             if (! posted)
             {
-                LLTHROW(Closed);
+                LLTHROW(WorkQueueBase::Closed());
             }
             auto future{ LLCoros::getFuture(promise) };
             // now, on the calling thread, wait for that result
@@ -608,7 +608,7 @@ namespace LL
                 std::forward<ARGS>(args)...);
             if (! posted)
             {
-                LLTHROW(Closed);
+                LLTHROW(WorkQueueBase::Closed());
             }
             auto future{ LLCoros::getFuture(promise) };
             // block until set_value()
