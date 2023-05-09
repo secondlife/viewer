@@ -56,6 +56,7 @@
 #include "llviewermessage.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
+#include "llviewerstatsrecorder.h"
 #include "llviewertexturelist.h"
 #include "llvolume.h"
 #include "llvolumemgr.h"
@@ -4089,6 +4090,8 @@ void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVol
 		}
 		
 		mLoadingMeshes[detail].erase(obj_iter);
+
+		LLViewerStatsRecorder::instance().meshLoaded();
 	}
 }
 

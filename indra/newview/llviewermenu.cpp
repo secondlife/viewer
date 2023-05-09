@@ -119,6 +119,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerstats.h"
+#include "llviewerstatsrecorder.h"
 #include "llvoavatarself.h"
 #include "llvoicevivox.h"
 #include "llworldmap.h"
@@ -1295,48 +1296,98 @@ class LLAdvancedDumpRegionObjectCache : public view_listener_t
 	}
 };
 
-class LLAdvancedInterestListFullUpdate : public view_listener_t
+class LLAdvancedToggleInterestList360Mode : public view_listener_t
 {
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLSD request;
-		LLSD body;
-		static bool using_360 = false;
+public:
+    bool handleEvent(const LLSD &userdata)
+    {
+        LLSD request;
+        LLSD body;
 
-		if (using_360)
-		{
-			body["mode"] = LLSD::String("default");
-		}
-		else
-		{
-			body["mode"] = LLSD::String("360");
-		}
-		using_360 = !using_360;
+        // First do a GET to report on current mode and update stats
+        if (gAgent.requestGetCapability("InterestList",
+                                        [](const LLSD &response) {
+                                            LL_DEBUGS("360Capture") << "InterestList capability GET responded: \n"
+                                                                   << ll_pretty_print_sd(response) << LL_ENDL;
+                                        }))
+        {
+            LL_DEBUGS("360Capture") << "Successful GET InterestList capability request with return body: \n"
+                                   << ll_pretty_print_sd(body) << LL_ENDL;
+        }
+        else
+        {
+            LL_WARNS("360Capture") << "Unable to GET InterestList capability request with return body: \n"
+                                   << ll_pretty_print_sd(body) << LL_ENDL;
+        }
 
-        if (gAgent.requestPostCapability("InterestList", body, [](const LLSD& response)
+        // Now do a POST to change the mode
+        if (sUsing360)
         {
-            LL_INFOS("360Capture") <<
-                "InterestList capability responded: \n" <<
-                ll_pretty_print_sd(response) <<
-                LL_ENDL;
-        }))
+            body["mode"] = LLSD::String("default");
+        }
+        else
         {
-            LL_INFOS("360Capture") <<
-                "Successfully posted an InterestList capability request with payload: \n" <<
-                ll_pretty_print_sd(body) <<
-                LL_ENDL;
+            body["mode"] = LLSD::String("360");
+        }
+        sUsing360 = !sUsing360;
+        LL_INFOS("360Capture") << "Setting InterestList capability mode to " << body["mode"].asString() << LL_ENDL;
+
+        if (gAgent.requestPostCapability("InterestList", body,
+                                         [](const LLSD &response) {
+                                             LL_DEBUGS("360Capture") << "InterestList capability responded: \n"
+                                                                    << ll_pretty_print_sd(response) << LL_ENDL;
+                                         }))
+        {
+            LL_DEBUGS("360Capture") << "Successfully posted an InterestList capability request with payload: \n"
+                                   << ll_pretty_print_sd(body) << LL_ENDL;
             return true;
         }
         else
         {
-            LL_INFOS("360Capture") <<
-                "Unable to post an InterestList capability request with payload: \n" <<
-                ll_pretty_print_sd(body) <<
-                LL_ENDL;
+            LL_DEBUGS("360Capture") << "Unable to post an InterestList capability request with payload: \n"
+                                   << ll_pretty_print_sd(body) << LL_ENDL;
             return false;
         }
+    };
+
+	static bool sUsing360;
+};
+
+bool LLAdvancedToggleInterestList360Mode::sUsing360 = false;
+
+class LLAdvancedCheckInterestList360Mode : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return LLAdvancedToggleInterestList360Mode::sUsing360;
 	}
 };
+
+class LLAdvancedToggleStatsRecorder : public view_listener_t
+{
+    bool handleEvent(const LLSD &userdata)
+    {
+        if (LLViewerStatsRecorder::instance().isEnabled())
+		{	// Turn off both recording and logging
+			LLViewerStatsRecorder::instance().enableObjectStatsRecording(false);
+		}
+		else
+		{	// Turn on both recording and logging
+			LLViewerStatsRecorder::instance().enableObjectStatsRecording(true, true);
+		}
+        return true;
+    }
+};
+
+class LLAdvancedCheckStatsRecorder : public view_listener_t
+{
+    bool handleEvent(const LLSD &userdata)
+    {	// Use the logging state as the indicator of whether the stats recorder is on
+        return LLViewerStatsRecorder::instance().isLogging();
+    }
+};
+
+
 
 class LLAdvancedBuyCurrencyTest : public view_listener_t
 	{
@@ -4492,33 +4543,6 @@ void handle_duplicate_in_place(void*)
 	LLSelectMgr::getInstance()->selectDuplicate(offset, TRUE);
 }
 
-/* dead code 30-apr-2008
-void handle_deed_object_to_group(void*)
-{
-	LLUUID group_id;
-	
-	LLSelectMgr::getInstance()->selectGetGroup(group_id);
-	LLSelectMgr::getInstance()->sendOwner(LLUUID::null, group_id, FALSE);
-	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_RELEASE_COUNT);
-}
-
-BOOL enable_deed_object_to_group(void*)
-{
-	if(LLSelectMgr::getInstance()->getSelection()->isEmpty()) return FALSE;
-	LLPermissions perm;
-	LLUUID group_id;
-
-	if (LLSelectMgr::getInstance()->selectGetGroup(group_id) &&
-		gAgent.hasPowerInGroup(group_id, GP_OBJECT_DEED) &&
-		LLSelectMgr::getInstance()->selectGetPermissions(perm) &&
-		perm.deedToGroup(gAgent.getID(), group_id))
-	{
-		return TRUE;
-	}
-	return FALSE;
-}
-
-*/
 
 
 /*
@@ -9469,7 +9493,10 @@ void initialize_menus()
 	// Advanced > World
 	view_listener_t::addMenu(new LLAdvancedDumpScriptedCamera(), "Advanced.DumpScriptedCamera");
 	view_listener_t::addMenu(new LLAdvancedDumpRegionObjectCache(), "Advanced.DumpRegionObjectCache");
-	view_listener_t::addMenu(new LLAdvancedInterestListFullUpdate(), "Advanced.InterestListFullUpdate");
+    view_listener_t::addMenu(new LLAdvancedToggleInterestList360Mode(), "Advanced.ToggleInterestList360Mode");
+    view_listener_t::addMenu(new LLAdvancedCheckInterestList360Mode(), "Advanced.CheckInterestList360Mode");
+    view_listener_t::addMenu(new LLAdvancedToggleStatsRecorder(), "Advanced.ToggleStatsRecorder");
+    view_listener_t::addMenu(new LLAdvancedCheckStatsRecorder(), "Advanced.CheckStatsRecorder");
 
 	// Advanced > UI
 	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test,	_2));	// sigh! this one opens the MEDIA browser

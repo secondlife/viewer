@@ -17085,5 +17085,38 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>StatsReportMaxDuration</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum seconds for viewer stats file data, prevents huge file</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>300</real>
+  </map>
+	<key>StatsReportFileInterval</key>
+	<map>
+		<key>Comment</key>
+		<string>Interval to save viewer stats file data</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>F32</string>
+		<key>Value</key>
+		<real>0.2</real>
+	</map>
+  <key>StatsReportSkipZeroDataSaves</key>
+  <map>
+    <key>Comment</key>
+    <string>In viewer stats data file, skip saving entry if there is no data</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
 </map>
 </llsd>

@@ -3485,14 +3485,24 @@ function="World.EnvPreset"
                 <menu_item_call.on_click
                  function="Advanced.DumpRegionObjectCache" />
             </menu_item_call>
-        
-<menu_item_call
-             label="Interest List: Full Update"
-             name="Interest List: Full Update"
+
+			<menu_item_check
+			  label="Interest List 360 Mode"
+             name="Interest List: 360 Mode"
              shortcut="alt|shift|I">
-                <menu_item_call.on_click
-                 function="Advanced.InterestListFullUpdate" />
-            </menu_item_call>
+			   <menu_item_check.on_check
+				function="Advanced.CheckInterestList360Mode" />
+			   <menu_item_check.on_click
+				  function="Advanced.ToggleInterestList360Mode" />
+            </menu_item_check>
+			<menu_item_check
+             label="Record Stats to File"
+             name="Stats Recorder File">
+				<menu_item_check.on_check
+                 function="Advanced.CheckStatsRecorder" />
+				<menu_item_check.on_click
+                 function="Advanced.ToggleStatsRecorder" />
+			</menu_item_check>
         </menu>
         <menu
          create_jump_keys="true"
