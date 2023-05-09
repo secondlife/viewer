@@ -101,12 +101,20 @@ class LLViewerStatsRecorder : public LLSingleton<LLViewerStatsRecorder>
         }
 	}
 
-	void textureFetch(S32 msg_size)
+	void textureFetch()
 	{
         if (mEnableStatsRecording)
         {
-            recordTextureFetch(msg_size);
+            recordTextureFetch();
         }
+	}
+
+	void meshLoaded()
+	{
+		if (mEnableStatsRecording)
+		{
+			recordMeshLoaded();
+		}
 	}
 
 	void idle()
@@ -123,7 +131,8 @@ private:
 	void recordObjectUpdateEvent(const EObjectUpdateType update_type);
 	void recordCacheFullUpdate(LLViewerRegion::eCacheUpdateResult update_result);
 	void recordRequestCacheMissesEvent(S32 count);
-	void recordTextureFetch(S32 msg_size);
+	void recordTextureFetch();
+	void recordMeshLoaded();
 	void writeToLog(F32 interval);
     void closeStatsFile();
 	void makeStatsFileName();
@@ -156,7 +165,8 @@ private:
 	S32			mObjectCacheUpdateReplacements;
 	S32			mObjectUpdateFailures;
 	S32			mObjectUpdateFailuresSize;
-	S32			mTextureFetchSize;
+	S32			mTextureFetchCount;
+    S32         mMeshLoadedCount;
 
 	void	clearStats();
 };

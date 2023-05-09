@@ -80,7 +80,8 @@ void LLViewerStatsRecorder::clearStats()
 	mObjectCacheUpdateReplacements = 0;
 	mObjectUpdateFailures = 0;
 	mObjectUpdateFailuresSize = 0;
-	mTextureFetchSize = 0;
+	mTextureFetchCount = 0;
+    mMeshLoadedCount = 0;
 }
 
 
@@ -243,8 +244,9 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 					<< "Cache Update Adds,"
 					<< "Cache Update Replacements,"
 					<< "Update Failures,"
-					<< "Texture Fetch bps,"
-					<< "\n";
+					<< "Texture Count,"
+                    << "Mesh Load Count,"
+                    << "\n";
 
 			data_size = col_headers.str().size();
 			if (fwrite(col_headers.str().c_str(), 1, data_size, mStatsFile ) != data_size)
@@ -277,7 +279,8 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 		<< "," << mObjectCacheUpdateAdds
 		<< "," << mObjectCacheUpdateReplacements
 		<< "," << mObjectUpdateFailures
-		<< "," << (mTextureFetchSize * 8 / delta_time)
+		<< "," << mTextureFetchCount
+		<< "," << mMeshLoadedCount
 		<< "\n";
 
 	data_size = stats_data.str().size();
@@ -329,10 +332,14 @@ F32 LLViewerStatsRecorder::getTimeSinceStart()
 	return (F32) (LLFrameTimer::getTotalSeconds() - mFileOpenTime);
 }
 
-void LLViewerStatsRecorder::recordTextureFetch( S32 msg_size )
+void LLViewerStatsRecorder::recordTextureFetch()
 {
-	mTextureFetchSize += msg_size;
+    mTextureFetchCount += 1;
 }
 
+void LLViewerStatsRecorder::recordMeshLoaded()
+{
+	mMeshLoadedCount += 1;
+}
 
 
