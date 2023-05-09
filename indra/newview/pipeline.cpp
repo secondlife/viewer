@@ -953,7 +953,8 @@ void LLPipeline::refreshCachedSettings()
 	LLPipeline::sAutoMaskAlphaNonDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaNonDeferred");
 	LLPipeline::sUseFarClip = gSavedSettings.getBOOL("RenderUseFarClip");
 	LLVOAvatar::sMaxNonImpostors = gSavedSettings.getU32("RenderAvatarMaxNonImpostors");
-	LLVOAvatar::updateImpostorRendering(LLVOAvatar::sMaxNonImpostors);
+	LLVOAvatar::updateAvatarImpostorRendering(LLVOAvatar::sMaxNonImpostors);
+	LLVOAvatar::updateControlAVImpostorRendering(LLVOAvatar::sMaxControlAVNonImpostors);
 	LLPipeline::sDelayVBUpdate = gSavedSettings.getBOOL("RenderDelayVBUpdate");
 
 	LLPipeline::sUseOcclusion = 
@@ -4580,8 +4581,11 @@ void LLPipeline::renderDebug()
 		{
 			DebugBlip& blip = *iter;
 
+			const F32 blip_vert_speed = 1.f;
+			const F32 blip_lifetime = 3.f;
+
 			blip.mAge += gFrameIntervalSeconds.value();
-			if (blip.mAge > 2.f)
+			if (blip.mAge > blip_lifetime)
 			{
 				mDebugBlips.erase(iter++);
 			}
@@ -4590,7 +4594,7 @@ void LLPipeline::renderDebug()
 				iter++;
 			}
 
-			blip.mPosition.mV[2] += gFrameIntervalSeconds.value()*2.f;
+			blip.mPosition.mV[2] += gFrameIntervalSeconds.value()* blip_vert_speed;
 
 			gGL.color4fv(blip.mColor.mV);
 			gGL.vertex3fv(blip.mPosition.mV);
@@ -10137,6 +10141,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
     LL_PROFILE_GPU_ZONE("generateImpostor");
 	LLGLState::checkStates();
 
+	static LLCachedControl<F32> impostor_scale_factor(gSavedSettings,"ImpostorScaleFactor");
 	static LLCullResult result;
 	result.clear();
 	grabReferences(result);
@@ -10292,12 +10297,14 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
     if (!preview_avatar)
 	{
 		const LLVector4a* ext = avatar->mDrawable->getSpatialExtents();
+		LLVector4a scaled_extents[2];
+		scaleBoundBox(impostor_scale_factor, ext, scaled_extents);
 		LLVector3 pos(avatar->getRenderPosition()+avatar->getImpostorOffset());
 
 		camera.lookAt(viewer_camera->getOrigin(), pos, viewer_camera->getUpAxis());
 	
 		LLVector4a half_height;
-		half_height.setSub(ext[1], ext[0]);
+		half_height.setSub(scaled_extents[0], scaled_extents[1]);
 		half_height.mul(0.5f);
 
 		LLVector4a left;
@@ -10360,6 +10367,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
 		}
 		else if(resX != avatar->mImpostor.getWidth() || resY != avatar->mImpostor.getHeight())
 		{
+			LL_DEBUGS("Avatar") << "Impostor resize " << resX << ", " << resY << " av " << avatar->getFullname() << LL_ENDL;
 			avatar->mImpostor.resize(resX,resY);
 		}
 
@@ -10472,6 +10480,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
         avatar->setImpostorDim(tdim);
     }
 
+	LLVOAvatar::sUseControlAVImpostors = (0 != LLVOAvatar::sMaxControlAVNonImpostors);
 	sUseOcclusion = occlusion;
 	sReflectionRender = false;
 	sImpostorRender = false;

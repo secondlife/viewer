@@ -34,6 +34,15 @@
 #include "llmeshrepository.h"
 #include "llviewerregion.h"
 #include "llskinningutil.h"
+#include "llviewerinventory.h"
+#include "llviewerwearable.h"
+#include "llwearablelist.h"
+#include "llvoavatarself.h"
+#include "lldispatcher.h"
+#include "llviewergenericmessage.h"
+#include "llsdserialize.h"
+#include "llsdutil.h"
+#include "llavatarappearancedefines.h"
 
 const F32 LLControlAvatar::MAX_LEGAL_OFFSET = 3.0f;
 const F32 LLControlAvatar::MAX_LEGAL_SIZE = 64.0f;
@@ -48,7 +57,9 @@ LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewer
     mMarkedForDeath(false),
     mRootVolp(NULL),
     mScaleConstraintFixup(1.0),
-	mRegionChanged(false)
+	mRegionChanged(false),
+	mObjectInventoryObserver(NULL),
+	mBodySizeHeightFix(0.f)
 {
     mIsDummy = TRUE;
     mIsControlAvatar = true;
@@ -76,6 +87,10 @@ void LLControlAvatar::initInstance()
 	hideSkirt();
 
     mInitFlags |= 1<<4;
+
+	computeBodySize();
+	LL_INFOS("Axon") << "initInstance initial body size z is " << mBodySize[2] << LL_ENDL;
+	
 }
 
 const LLVOAvatar *LLControlAvatar::getAttachedAvatar() const
@@ -181,6 +196,10 @@ void LLControlAvatar::matchVolumeTransform()
 		mPositionConstraintFixup = new_pos_fixup;
 		mScaleConstraintFixup = new_scale_fixup;
 
+		// This needs to be validated against constraint logic
+		LLVector3 hover_param_offset = getVisualParamWeight(LLAvatarAppearanceDefines::AVATAR_HOVER) * LLVector3(0.f, 0.f, 1.f);
+		LLVector3 body_size_offset = mBodySizeHeightFix * LLVector3(0.f, 0.f, 1.f);
+
         if (mRootVolp->isAttachment())
         {
             LLVOAvatar *attached_av = getAttachedAvatar();
@@ -248,9 +267,9 @@ void LLControlAvatar::matchVolumeTransform()
             mRoot->setWorldRotation(bind_rot*obj_rot);
             if (getRegion() && !isDead())
             {
-                setPositionAgent(vol_pos);
-            }
-			mRoot->setPosition(vol_pos + mPositionConstraintFixup);
+				setPositionAgent(vol_pos);
+			}
+			mRoot->setPosition(vol_pos + mPositionConstraintFixup + body_size_offset + hover_param_offset);
 
             F32 global_scale = gSavedSettings.getF32("AnimatedObjectsGlobalScale");
             setGlobalScale(global_scale * mScaleConstraintFixup);
@@ -343,6 +362,74 @@ void LLControlAvatar::updateVolumeGeom()
     //setGlobalScale(obj_scale_z/2.0f); // roughly fit avatar height range (2m) into object height
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLAnimatedObjectInventoryObserver
+//
+// Helper class to watch for changes in an animated object inventory.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLAnimatedObjectInventoryObserver : public LLVOInventoryListener
+{
+public:
+	LLAnimatedObjectInventoryObserver(LLViewerObject* object)
+	{
+		registerVOInventoryListener(object, NULL);
+	}
+	virtual ~LLAnimatedObjectInventoryObserver()
+	{
+		removeVOInventoryListener();
+	}
+	/*virtual*/ void inventoryChanged(LLViewerObject* object,
+									  LLInventoryObject::object_list_t* inventory,
+									  S32 serial_num,
+									  void* user_data);
+};
+
+// This is a prototype implementation of applying body parts to
+// animated object skeletons. It wouldn't work as a real solution,
+// because animated object inventories are only available to the owner
+// of the animated object.
+static void on_cav_wearable_fetched(LLViewerWearable* wearable, void* data)
+{
+	LLViewerObject *root = (LLViewerObject*) data;
+	LL_INFOS() << "Got wearable " << wearable->getName() << LL_ENDL;
+	if (root && root->getControlAvatar())
+	{
+		wearable->writeToAvatar(root->getControlAvatar());
+		root->getControlAvatar()->updateVisualParams();
+	}
+}
+
+/*virtual*/
+void LLAnimatedObjectInventoryObserver::inventoryChanged(LLViewerObject* object,
+														 LLInventoryObject::object_list_t* inventory,
+														 S32 serial_num,
+														 void* user_data)
+{
+	if (inventory)
+	{
+		LL_INFOS() << "object " << object << " inventory size " << inventory->size() << LL_ENDL;
+		for (auto it = inventory->begin(); it!= inventory->end(); ++it)
+		{
+			LLViewerInventoryItem *inv_item = dynamic_cast<LLViewerInventoryItem*>(it->get());
+			if (inv_item && inv_item->getType()==LLAssetType::AT_BODYPART)
+			{
+				LL_INFOS() << "Process body part: " << inv_item->getName() << LL_ENDL;
+				LLWearableList::instance().getAsset(inv_item->getAssetUUID(),
+													inv_item->getName(),
+													gAgentAvatarp,
+													inv_item->getType(),
+													on_cav_wearable_fetched,
+													(void*)object);
+
+			}
+		}
+	}
+	else
+	{
+		LL_INFOS() << "object " << object << " no inventory" << LL_ENDL;
+	}
+}
+
 LLControlAvatar *LLControlAvatar::createControlAvatar(LLVOVolume *obj)
 {
 	LLControlAvatar *cav = (LLControlAvatar*)gObjectList.createObjectViewer(LL_PCODE_LEGACY_AVATAR, gAgent.getRegion(), CO_FLAG_CONTROL_AVATAR);
@@ -350,17 +437,35 @@ LLControlAvatar *LLControlAvatar::createControlAvatar(LLVOVolume *obj)
     if (cav)
     {
         cav->mRootVolp = obj;
-
-        // Sync up position/rotation with object
-        cav->matchVolumeTransform();
-    }
-
-    return cav;
+		
+		// Sync up position/rotation with object
+		cav->matchVolumeTransform();
+	}
+	return cav;
 }
 
 void LLControlAvatar::markForDeath()
 {
     mMarkedForDeath = true;
+
+	mRootVolp = NULL;
+
+	delete mObjectInventoryObserver;
+	mObjectInventoryObserver = NULL;
+}
+
+// virtual
+void LLControlAvatar::markDead()
+{
+	// Normally mRootVolp has already been cleared in unlinkControlAvatar(),
+	// unless there's some bulk object cleanup happening e.g. on region destruction.
+	// In that case the control avatar may be killed first.
+	if (mRootVolp)
+	{
+		mRootVolp->mControlAvatar = NULL;
+		mRootVolp = NULL;
+	}
+	LLVOAvatar::markDead();
 }
 
 void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)
@@ -493,11 +598,16 @@ void LLControlAvatar::updateDebugText()
                 type_string += "-";
             }
         }
-        addDebugText(llformat("CAV obj %d anim %d active %s impost %d upprd %d strcst %f",
+		S32 num_visual_params = 0;
+		LLSD visual_params_sd = mRootVolp->getVisualParamsSD();
+		if (visual_params_sd.isMap())
+		{
+			num_visual_params = visual_params_sd.size();
+		}
+        addDebugText(llformat("CAV obj %d anim %d active %s impost %d upprd %d strcst %f vis_params %d",
                               total_linkset_count, animated_volume_count, 
-                              active_string.c_str(), (S32) isImpostor(), getUpdatePeriod(), streaming_cost));
-        addDebugText(llformat("types %s lods %s", type_string.c_str(), lod_string.c_str()));
-        addDebugText(llformat("flags %s", animated_object_flag_string.c_str()));
+                              active_string.c_str(), (S32) isImpostor(), getUpdatePeriod(), streaming_cost, num_visual_params));
+        addDebugText(llformat("types %s lods %s flags %s", type_string.c_str(), lod_string.c_str(),animated_object_flag_string.c_str()));
         addDebugText(llformat("tris %d (est %.1f, streaming %.1f), verts %d", total_tris, est_tris, est_streaming_tris, total_verts));
         addDebugText(llformat("pxarea %s rank %d", LLStringOps::getReadableNumber(getPixelArea()).c_str(), getVisibilityRank()));
         addDebugText(llformat("lod_radius %s dists %s", LLStringOps::getReadableNumber(lod_radius).c_str(),cam_dist_string.c_str()));
@@ -509,6 +619,17 @@ void LLControlAvatar::updateDebugText()
                                   mPositionConstraintFixup[2],
                                   mScaleConstraintFixup));
         }
+
+		F32 hover_param_z = getVisualParamWeight(LLAvatarAppearanceDefines::AVATAR_HOVER);
+		F32 body_size_offset_z = mBodySizeHeightFix;
+		F32 fixup_z = mPositionConstraintFixup[2];
+		F32 total_offset_z = hover_param_z + body_size_offset_z + fixup_z; 
+		if (hover_param_z != 0.f || body_size_offset_z != 0.f || fixup_z != 0.f || total_offset_z != 0.f)
+		{
+			addDebugText(llformat("z base: %.3f deltas: constraint %.3f body_size %.3f, hover_param %.3f = total %.3f",
+								  mRootVolp->getRenderPosition()[2],
+								  fixup_z, body_size_offset_z, hover_param_z, total_offset_z));
+		}
         
 #if 0
         std::string region_name = "no region";
@@ -603,6 +724,47 @@ void LLControlAvatar::updateAnimations()
 
     mSignaledAnimations = anims;
     processAnimationStateChanges();
+}
+
+// virtual
+void LLControlAvatar::updateVisualParams()
+{
+	// FIXME Axon: should look for changes to *reference* body size
+	// (that is, the body size as it would be computed by appearance
+	// service/simulator, without considering effects from
+	// animations.)  Currently using overall body size which includes
+	// everything.
+
+	if (mBodySize == LLVector3())
+	{
+		// Set initial value. No offset to update.
+		LL_WARNS("Axon") << "Unitialized mBodySize; should have been set in initInstance()" << LL_ENDL;
+		//llassert(mBodySize != LLVector3());
+		computeBodySize();
+		LL_INFOS("Axon") << "uvp initial body size z is " << mBodySize[2] << LL_ENDL;
+		LLVOAvatar::updateVisualParams();
+	}
+	else
+	{
+		//F32 orig_body_size = mBodySize.mV[2];
+		F32 orig_pelvis_to_foot = mPelvisToFoot;
+		//F32 orig_delta = orig_body_size * 2.0 - orig_pelvis_to_foot;
+		LL_INFOS("Axon") << "updateVisualParams, initial body size " << mBodySize << LL_ENDL;
+	
+		LLVOAvatar::updateVisualParams();
+
+		LL_INFOS("Axon") << "updateVisualParams, end body size " << mBodySize << LL_ENDL;
+
+		//F32 body_size_delta = mBodySize.mV[2] - orig_body_size;
+
+		//F32 final_delta =  (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
+		F32 new_pelvis_to_foot = mPelvisToFoot;
+
+		mBodySizeHeightFix += new_pelvis_to_foot - orig_pelvis_to_foot;
+
+		//root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
+		LL_INFOS("Axon") << "updateVisualParams, mBodySizeHeightFix " << mBodySizeHeightFix << LL_ENDL;
+	}
 }
 
 // virtual

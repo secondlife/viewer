@@ -78,3 +78,17 @@ void matMulBoundBox(const LLMatrix4a &mat, const LLVector4a *in_extents, LLVecto
 			out_extents[1].setMax(out_extents[1], tv[i]);
 		}
 }
+
+void scaleBoundBox(F32 scale, const LLVector4a *in_extents, LLVector4a *out_extents)
+{
+	LLVector4a center;
+	center.setAdd(in_extents[0], in_extents[1]);
+	center.mul(0.5f);
+	LLVector4a scale_extents[2];
+	scale_extents[0].setSub(in_extents[0],center);
+	scale_extents[0].mul(scale);
+	out_extents[0].setAdd(scale_extents[0],center);
+	scale_extents[1].setSub(in_extents[1],center);
+	scale_extents[1].mul(scale);
+	out_extents[1].setAdd(scale_extents[1],center);
+}

@@ -30,6 +30,8 @@
 #include "llvoavatar.h"
 #include "llvovolume.h"
 
+class LLAnimatedObjectInventoryObserver;
+
 class LLControlAvatar:
     public LLVOAvatar
 {
@@ -55,6 +57,7 @@ public:
     // Delayed kill so we don't make graphics pipeline unhappy calling
     // markDead() inside other graphics pipeline operations.
     void markForDeath();
+	virtual void markDead();
 
     virtual void idleUpdate(LLAgent &agent, const F64 &time);
 	virtual bool computeNeedsUpdate();
@@ -62,6 +65,8 @@ public:
 
     void getAnimatedVolumes(std::vector<LLVOVolume*>& volumes);
     void updateAnimations();  
+	// virtual
+	void updateVisualParams();
     
 	virtual LLViewerObject*	lineSegmentIntersectRiggedAttachments(
         const LLVector4a& start, const LLVector4a& end,
@@ -94,12 +99,16 @@ public:
     LLVector3 mPositionConstraintFixup;
     F32 mScaleConstraintFixup;
 
+	F32 mBodySizeHeightFix;
+	
     static const F32 MAX_LEGAL_OFFSET;
     static const F32 MAX_LEGAL_SIZE;
 
 	static void onRegionChanged();
 	bool mRegionChanged;
 	static boost::signals2::connection sRegionChangedSlot;
+
+	LLAnimatedObjectInventoryObserver *mObjectInventoryObserver;
 };
 
 typedef std::map<LLUUID, S32> signaled_animation_map_t;
@@ -111,9 +120,10 @@ class LLObjectSignaledAnimationMap: public LLSingleton<LLObjectSignaledAnimation
     LLSINGLETON_EMPTY_CTOR(LLObjectSignaledAnimationMap); 
 
 public:
-    object_signaled_animation_map_t mMap;
-
     object_signaled_animation_map_t& getMap() { return mMap; }
+
+private:
+    object_signaled_animation_map_t mMap;
 };
 
 #endif //LL_CONTROLAVATAR_H

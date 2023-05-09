@@ -8192,6 +8192,10 @@ void handle_dump_timers()
 void handle_debug_avatar_textures(void*)
 {
 	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+	if (!objectp)
+	{
+		objectp = gAgentAvatarp;
+	}
 	if (objectp)
 	{
 		LLFloaterReg::showInstance( "avatar_textures", LLSD(objectp->getID()) );

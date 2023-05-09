@@ -762,8 +762,12 @@ public:
     static const S32 CO_FLAG_CONTROL_AVATAR = 1 << 0;
     static const S32 CO_FLAG_UI_AVATAR = 1 << 1;
 
-protected:
     LLPointer<LLControlAvatar> mControlAvatar;
+
+	// Extended attributes, initially used for animated object visual params but general mechanism.
+	LLSD getVisualParamsSD() const;
+	void applyExtendedAttributes();
+	void applyExtendedAttributesVisualParams();
 
 protected:
 	// delete an item in the inventory, but don't tell the
@@ -1010,5 +1014,14 @@ public:
 	virtual void updateDrawable(BOOL force_damped);
 };
 
+typedef std::map<LLUUID, LLSD> object_extended_attributes_map_t;
+
+class LLObjectExtendedAttributesMap: public LLSingleton<LLObjectExtendedAttributesMap>,
+									 public object_extended_attributes_map_t
+{
+    LLSINGLETON_EMPTY_CTOR(LLObjectExtendedAttributesMap); 
+public:
+	LLSD getField(const LLUUID& object_id, const std::string& field_name);
+};
 
 #endif

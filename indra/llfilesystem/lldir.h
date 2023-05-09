@@ -194,6 +194,8 @@ class LLDir
 
 	virtual void dumpCurrentDirectories(LLError::ELevel level = LLError::LEVEL_DEBUG);
 
+	bool isDevBuildLayout() { return mIsDevBuildLayout; }
+
 	// Utility routine
 	std::string buildSLOSCacheDir() const;
 
@@ -237,6 +239,8 @@ protected:
 							const std::string& filename,
 							const FUNCTION& function) const;
 
+	bool		mIsDevBuildLayout;		// False for normal installation, true if running under IDE or otherwise developing from source.
+	
 	std::string mAppName;               // install directory under progams/ ie "SecondLife"   
 	std::string mExecutablePathAndName; // full path + Filename of .exe
 	std::string mExecutableFilename;    // Filename of .exe

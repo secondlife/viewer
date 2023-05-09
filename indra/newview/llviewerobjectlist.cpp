@@ -497,6 +497,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				compressed_dp.unpackU32(local_id, "LocalID");
 				compressed_dp.unpackU8(pcode, "PCode");
 				
+                LL_DEBUGS("ObjectUpdate") << "compressed non terse update, obj " << local_id << ", global ID " << fullid << " from " << mesgsys->getSender() << " update_type " << update_type << LL_ENDL;
 				if (pcode == 0)
 				{
 					// object creation will fail, LLViewerObject::createObject()
@@ -546,7 +547,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			}
             else
             {
-                LL_DEBUGS("ObjectUpdate") << "Non-full, non-compressed update, obj " << local_id << ", global ID " << fullid << " from " << mesgsys->getSender() << LL_ENDL;
+                LL_DEBUGS("ObjectUpdate") << "Non-full, non-compressed update, obj " << local_id << ", global ID " << fullid << " from " << mesgsys->getSender() << " update_type " << update_type << LL_ENDL;
             }
 		}
 		else // OUT_FULL only?
@@ -556,7 +557,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
 			msg_size += sizeof(LLUUID);
 			msg_size += sizeof(U32);
-			LL_DEBUGS("ObjectUpdate") << "Full Update, obj " << local_id << ", global ID " << fullid << " from " << mesgsys->getSender() << LL_ENDL;
+			LL_DEBUGS("ObjectUpdate") << "Full Update, obj " << local_id << ", global ID " << fullid << " from " << mesgsys->getSender() << " update_type " << update_type << LL_ENDL;
 		}
 		objectp = findObject(fullid);
 

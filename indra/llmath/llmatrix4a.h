@@ -229,5 +229,6 @@ inline std::ostream& operator<<(std::ostream& s, const LLMatrix4a& m)
 } 
 
 void matMulBoundBox(const LLMatrix4a &a, const LLVector4a *in_extents, LLVector4a *out_extents);
+void scaleBoundBox(F32 scale, const LLVector4a *in_extents, LLVector4a *out_extents);
 
 #endif

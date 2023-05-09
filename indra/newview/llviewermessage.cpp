@@ -3767,8 +3767,7 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 				// Display green bubble on kill
 				if ( gShowObjectUpdates )
 				{
-					LLColor4 color(0.f,1.f,0.f,1.f);
-					gPipeline.addDebugBlip(objectp->getPositionAgent(), color);
+					gPipeline.addDebugBlip(objectp->getPositionAgent(), LLColor4::green);
 					LL_DEBUGS("MessageBlip") << "Kill blip for local " << local_id << " at " << objectp->getPositionAgent() << LL_ENDL;
 				}
 
@@ -4090,6 +4089,11 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 	//clear animation flags
 	avatarp->mSignaledAnimations.clear();
 	
+	if (gShowObjectUpdates)
+	{
+		gPipeline.addDebugBlip(avatarp->getPositionAgent(), LLColor4::cyan);
+	}
+	
 	if (avatarp->isSelf())
 	{
 		LLUUID object_id;
@@ -4208,6 +4212,11 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
         return;
     }
 
+	if (gShowObjectUpdates)
+	{
+		gPipeline.addDebugBlip(volp->getPositionAgent(), LLColor4::cyan);
+	}
+	
     volp->updateControlAvatar();
     LLControlAvatar *avatarp = volp->getControlAvatar();
     if (!avatarp)

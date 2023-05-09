@@ -589,6 +589,7 @@ private:
 //-----------------------------------------------------------------------------
 U32 LLVOAvatar::sMaxNonImpostors = 12; // Set from RenderAvatarMaxNonImpostors
 bool LLVOAvatar::sLimitNonImpostors = false; // True unless RenderAvatarMaxNonImpostors is 0 (unlimited)
+U32 LLVOAvatar::sMaxControlAVNonImpostors = 0;
 F32 LLVOAvatar::sRenderDistance = 256.f;
 S32	LLVOAvatar::sNumVisibleAvatars = 0;
 S32	LLVOAvatar::sNumLODChangesThisFrame = 0;
@@ -614,6 +615,7 @@ BOOL LLVOAvatar::sShowAnimationDebug = FALSE;
 BOOL LLVOAvatar::sVisibleInFirstPerson = FALSE;
 F32 LLVOAvatar::sLODFactor = 1.f;
 F32 LLVOAvatar::sPhysicsLODFactor = 1.f;
+bool LLVOAvatar::sUseControlAVImpostors = false; // overwridden by RenderAvatarMaxNonImpostors
 BOOL LLVOAvatar::sJointDebug = FALSE;
 F32 LLVOAvatar::sUnbakedTime = 0.f;
 F32 LLVOAvatar::sUnbakedUpdateTime = 0.f;
@@ -1960,16 +1962,22 @@ LLVOAvatar* LLVOAvatar::asAvatar()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::startDefaultMotions()
 {
-	//-------------------------------------------------------------------------
-	// start default motions
-	//-------------------------------------------------------------------------
-	startMotion( ANIM_AGENT_HEAD_ROT );
-	startMotion( ANIM_AGENT_EYE );
-	startMotion( ANIM_AGENT_BODY_NOISE );
-	startMotion( ANIM_AGENT_BREATHE_ROT );
-	startMotion( ANIM_AGENT_PHYSICS_MOTION );
-	startMotion( ANIM_AGENT_HAND_MOTION );
-	startMotion( ANIM_AGENT_PELVIS_FIX );
+	if (mEnableDefaultMotions)
+	{
+		// Regular avatars enable all motions
+		startMotion( ANIM_AGENT_HEAD_ROT );
+		startMotion( ANIM_AGENT_EYE );
+		startMotion( ANIM_AGENT_BODY_NOISE );
+		startMotion( ANIM_AGENT_BREATHE_ROT );
+		startMotion( ANIM_AGENT_PHYSICS_MOTION );
+		startMotion( ANIM_AGENT_HAND_MOTION );
+		startMotion( ANIM_AGENT_PELVIS_FIX );
+	}
+	else
+	{
+		// Animated objects only support a subset
+		startMotion( ANIM_AGENT_PHYSICS_MOTION );
+	}
 
 	//-------------------------------------------------------------------------
 	// restart any currently active motions
@@ -2014,11 +2022,7 @@ void LLVOAvatar::buildCharacter()
 		mAahMorph = getVisualParam( "Express_Open_Mouth" );
 	}
 
-    // Currently disabled for control avatars (animated objects), enabled for all others.
-    if (mEnableDefaultMotions)
-    {
 	startDefaultMotions();
-    }
 
 	//-------------------------------------------------------------------------
 	// restart any currently active motions
@@ -2838,7 +2842,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 	BOOL visible = isVisible() || mNeedsAnimUpdate;
 
 	// update attachments positions
-	if (detailed_update)
+	if (detailed_update || !getImpostorsEnabled())
 	{
         U32 draw_order = 0;
         S32 attachment_selected = LLSelectMgr::getInstance()->getSelection()->getObjectCount() && LLSelectMgr::getInstance()->getSelection()->isAttachment();
@@ -4136,6 +4140,7 @@ void LLVOAvatar::computeUpdatePeriod()
         && (!isSelf() || visually_muted)
         && !isUIAvatar()
         && (sLimitNonImpostors || visually_muted)
+        && getImpostorsEnabled()
         && !mNeedsAnimUpdate)
 	{
 		const LLVector4a* ext = mDrawable->getSpatialExtents();
@@ -5836,10 +5841,10 @@ void LLVOAvatar::processAnimationStateChanges()
 	else if (mInAir && !isSitting())
 	{
 		stopMotion(ANIM_AGENT_WALK_ADJUST);
-        if (mEnableDefaultMotions)
-        {
-		startMotion(ANIM_AGENT_FLY_ADJUST);
-	}
+		if (mEnableDefaultMotions)
+		{
+			startMotion(ANIM_AGENT_FLY_ADJUST);
+		}
 	}
 	else
 	{
@@ -5849,17 +5854,17 @@ void LLVOAvatar::processAnimationStateChanges()
 
 	if ( isAnyAnimationSignaled(AGENT_GUN_AIM_ANIMS, NUM_AGENT_GUN_AIM_ANIMS) )
 	{
-        if (mEnableDefaultMotions)
-        {
-		startMotion(ANIM_AGENT_TARGET);
-        }
+		if (mEnableDefaultMotions)
+		{
+			startMotion(ANIM_AGENT_TARGET);
+		}
 		stopMotion(ANIM_AGENT_BODY_NOISE);
 	}
 	else
 	{
 		stopMotion(ANIM_AGENT_TARGET);
-        if (mEnableDefaultMotions)
-        {
+		if (mEnableDefaultMotions)
+		{
 			startMotion(ANIM_AGENT_BODY_NOISE);
 		}
 	}
@@ -7768,7 +7773,7 @@ void LLVOAvatar::getOffObject()
 
     if (mEnableDefaultMotions)
     {
-	startMotion(ANIM_AGENT_BODY_NOISE);
+		startMotion(ANIM_AGENT_BODY_NOISE);
     }
 
 	if (isSelf())
@@ -9378,6 +9383,11 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 	mLastAppearanceMessageTimer.reset();
 
+	if ( gShowObjectUpdates )
+	{
+		gPipeline.addDebugBlip(getPositionAgent(), LLColor4::white);
+	}
+	
 	LLPointer<LLAppearanceMessageContents> contents(new LLAppearanceMessageContents);
 	parseAppearanceMessage(mesgsys, *contents);
 	if (enable_verbose_dumps)
@@ -9444,8 +9454,8 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	// RequestAgentUpdateAppearanceResponder::onRequestRequested()
 	// assumes that cof version is only updated with server-bake
 	// appearance messages.
-    LL_INFOS("Avatar") << "Processing appearance message version " << thisAppearanceVersion << LL_ENDL;
-
+	LL_INFOS("Avatar") << "Processing appearance message version " << thisAppearanceVersion << LL_ENDL;
+	
     // Note:
     // locally the COF is maintained via LLInventoryModel::accountForUpdate
     // which is called from various places.  This should match the simhost's 
@@ -10278,6 +10288,7 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 	
 	// Update the avatars that have changed status
 	U32 rank = 2; //1 is reserved for self. 
+	U32 control_rank = 2; // animeshes have own ranks. 
 	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
 		 iter != LLCharacter::sInstances.end(); ++iter)
 	{
@@ -10305,7 +10316,14 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 		}
 		else if (inst->mDrawable.notNull() && inst->mDrawable->isVisible())
 		{
-			inst->setVisibilityRank(rank++);
+            if (inst->isControlAvatar())
+            {
+                inst->setVisibilityRank(control_rank++);
+            }
+            else
+            {
+                inst->setVisibilityRank(rank++);
+            }
 		}
 	}
 
@@ -10582,10 +10600,34 @@ void LLVOAvatar::updateImpostors()
 	LLCharacter::sAllowInstancesChange = TRUE;
 }
 
+bool LLVOAvatar::getImpostorsEnabled() const
+{
+    if (mIsControlAvatar)
+    {
+        return sUseControlAVImpostors;
+    }
+    else
+    {
+        return sLimitNonImpostors;
+    }
+}
+
+U32 LLVOAvatar::getMaxNonImpostors() const
+{
+    if (mIsControlAvatar)
+    {
+        return sMaxControlAVNonImpostors;
+    }
+    else
+    {
+        return sMaxNonImpostors;
+    }
+}
+
 // virtual
 BOOL LLVOAvatar::isImpostor()
 {
-	return isVisuallyMuted() || (sLimitNonImpostors && (mUpdatePeriod > 1));
+    return getImpostorsEnabled() && (isVisuallyMuted() || (mUpdatePeriod > 1)) ? TRUE : FALSE;
 }
 
 BOOL LLVOAvatar::shouldImpostor(const F32 rank_factor)
@@ -10598,7 +10640,7 @@ BOOL LLVOAvatar::shouldImpostor(const F32 rank_factor)
 	{
 		return true;
 	}
-	return sLimitNonImpostors && (mVisibilityRank > sMaxNonImpostors * rank_factor);
+	return getImpostorsEnabled() && sLimitNonImpostors && (mVisibilityRank > getMaxNonImpostors() * rank_factor);
 }
 
 BOOL LLVOAvatar::needsImpostorUpdate() const
@@ -10628,9 +10670,10 @@ void LLVOAvatar::cacheImpostorValues()
 
 void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& distance) const
 {
+	static LLCachedControl<F32> impostor_scale_factor(gSavedSettings,"ImpostorScaleFactor");
+
 	const LLVector4a* ext = mDrawable->getSpatialExtents();
-	extents[0] = ext[0];
-	extents[1] = ext[1];
+	scaleBoundBox(impostor_scale_factor, ext, extents);
 
 	LLVector3 at = LLViewerCamera::getInstance()->getOrigin()-(getRenderPosition()+mImpostorOffset);
 	distance = at.normalize();
@@ -10645,7 +10688,7 @@ const U32 LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER = 66; /* Must equal the maximum a
 										   * slider in panel_preferences_graphics1.xml */
 
 // static
-void LLVOAvatar::updateImpostorRendering(U32 newMaxNonImpostorsValue)
+void LLVOAvatar::updateAvatarImpostorRendering(U32 newMaxNonImpostorsValue)
 {
 	U32  oldmax = sMaxNonImpostors;
 	bool oldflg = sLimitNonImpostors;
@@ -10667,6 +10710,20 @@ void LLVOAvatar::updateImpostorRendering(U32 newMaxNonImpostorsValue)
             << "now " << (sLimitNonImpostors ? "use" : "don't use" ) << " impostors (max " << sMaxNonImpostors << "); "
             << LL_ENDL;
     }
+}
+
+// static
+void LLVOAvatar::updateControlAVImpostorRendering(U32 newMaxCAVNonImpostorsValue)
+{
+    if (NON_IMPOSTORS_MAX_SLIDER <= newMaxCAVNonImpostorsValue)
+    {
+        sMaxControlAVNonImpostors = 0;
+    }
+    else
+    {
+        sMaxControlAVNonImpostors = newMaxCAVNonImpostorsValue;
+    }
+    sUseControlAVImpostors = (0 != sMaxControlAVNonImpostors);
 }
 
 

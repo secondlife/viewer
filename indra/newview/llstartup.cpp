@@ -1890,8 +1890,8 @@ bool idle_startup()
 		}
 		display_startup();
 
-		// This method MUST be called before gInventory.findCategoryUUIDForType because of 
-		// gInventory.mIsAgentInvUsable is set to true in the gInventory.buildParentChildMap.
+		// This method MUST be called before gInventory.findCategoryUUIDForType because 
+		// gInventory.mIsAgentInvUsable is set to true in gInventory.buildParentChildMap().
 		gInventory.buildParentChildMap();
 
 		// If buildParentChildMap succeeded, inventory will now be in

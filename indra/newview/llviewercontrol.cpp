@@ -408,6 +408,12 @@ static bool handleRepartition(const LLSD&)
 	return true;
 }
 
+static bool handleControlAVImpostorsChanged(const LLSD& newvalue)
+{
+    LLVOAvatar::updateControlAVImpostorRendering(newvalue.asInteger());
+    return true;
+}
+
 static bool handleRenderDynamicLODChanged(const LLSD& newvalue)
 {
 	LLPipeline::sDynamicLOD = newvalue.asBoolean();
@@ -691,6 +697,7 @@ void setting_setup_signal_listener(LLControlGroup& group, const std::string& set
 void settings_setup_listeners()
 {
     setting_setup_signal_listener(gSavedSettings, "FirstPersonAvatarVisible", handleRenderAvatarMouselookChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderAnimatedObjectMaxNonImpostors", handleControlAVImpostorsChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderFarClip", handleRenderFarClipChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderTerrainDetail", handleTerrainDetailChanged);
     setting_setup_signal_listener(gSavedSettings, "OctreeStaticObjectSizeFactor", handleRepartition);

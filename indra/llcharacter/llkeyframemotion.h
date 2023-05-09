@@ -214,15 +214,15 @@ protected:
 			mUseTargetOffset(FALSE),
 			mConstraintType(CONSTRAINT_TYPE_POINT),
 			mConstraintTargetType(CONSTRAINT_TARGET_TYPE_BODY),
-			mSourceConstraintVolume(0),
-			mTargetConstraintVolume(0),
+			mSourceConstraintVolumeID(-1),
+			mTargetConstraintVolumeID(-1),
 			mJointStateIndices(NULL)
 		{ };
 		~JointConstraintSharedData() { delete [] mJointStateIndices; }
 
-		S32						mSourceConstraintVolume;
+		S32						mSourceConstraintVolumeID;
 		LLVector3				mSourceConstraintOffset;
-		S32						mTargetConstraintVolume;
+		S32						mTargetConstraintVolumeID;
 		LLVector3				mTargetConstraintOffset;
 		LLVector3				mTargetConstraintDir;
 		S32						mChainLength;

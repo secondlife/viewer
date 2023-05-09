@@ -6884,7 +6884,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 	if (vobj && vobj->isMesh())
 	{
 		//This check (if(...)) with assert here just for ensure that this situation will not happens, and can be removed later. For example on the next release.
-		llassert(!"renderOneWireframe() was removed SL-10194");
+		//llassert(!"renderOneWireframe() was removed SL-10194");
 		return;
 	}
 

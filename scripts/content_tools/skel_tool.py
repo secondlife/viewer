@@ -29,6 +29,7 @@ $/LicenseInfo$
 import argparse
 
 from lxml import etree
+from collections import defaultdict
  
 def get_joint_names(tree):
     joints = [element.get('name') for element in tree.getroot().iter() if element.tag in ['bone','collision_volume']]
@@ -71,6 +72,22 @@ def check_symmetry(name, field, vec1, vec2):
         print(name,field,"y mirror image fail")
     if vec1[2] != vec2[2]:
         print(name,field,"z match fail")
+
+def enforce_alias_rules(tree, element, fix=False):
+    if element.tag != "bone":
+        return
+    alias_lis = []
+    aliases = element.get("aliases")
+    if aliases:
+        alias_lis = aliases.split(" ")
+    name = element.get("name")
+    if name:
+        std_alias = "avatar_" + name
+        if not std_alias in alias_lis:
+            print "missing expected alias",name,std_alias
+        for alias in alias_lis:
+            if alias.startswith("avatar_") and alias != std_alias:
+                print "invalid avatar_ alias",name,alias
 
 def enforce_alias_rules(tree, element, fix=False):
     if element.tag != "bone":
@@ -257,10 +274,11 @@ def validate_skel_tree(tree, ogtree, reftree, fix=False):
 
 def slider_info(ladtree,skeltree):
     for param in ladtree.iter("param"):
+        bones = []
         for skel_param in param.iter("param_skeleton"):
             bones = [b for b in skel_param.iter("bone")]
         if bones:
-            print("param",param.get("name"),"id",param.get("id"))
+            print("param",param.get("name"),"id",param.get("id"),"group",param.get("group"))
             value_min = float(param.get("value_min"))
             value_max = float(param.get("value_max"))
             neutral = 100.0 * (0.0-value_min)/(value_max-value_min)
@@ -287,7 +305,107 @@ def slider_info(ladtree,skeltree):
                     print("    Offset MaxX", offset_max[0])
                     print("    Offset MaxY", offset_max[1])
                     print("    Offset MaxZ", offset_max[2])
-    
+
+def has_child_of_type(elt,child_type):
+    return next(elt.iter(child_type),None) is not None
+
+def get_param_type(param):
+    for ptype in ["param_driver","param_skeleton","param_morph","param_color","param_alpha"]:
+        if has_child_of_type(param,ptype):
+            return ptype
+    return ""
+
+def skel_slider_info(ladtree,skeltree):
+    all_params = [p for p in ladtree.iter("param")]
+    parity = 1
+    for param in sorted(all_params, key=lambda x: int(x.get("id"))):
+        if int(param.get("group")) in [0,3]:
+            param_type = get_param_type(param)
+            skel_params = []
+            for skel_param in param.iter("param_skeleton"):
+                skel_params.append(param)
+            for skel_driver in param.iter("param_driver"):
+                for driven in skel_driver.iter("driven"):
+                    driven_id = driven.get("id")
+                    driven_params = [p for p in ladtree.iter("param") if p.get("id")==driven_id]
+                    if len(driven_params)==0:
+                        print "param not found",driven_id
+                        continue
+                    for d in driven_params:
+                        if get_param_type(d) == "param_skeleton":
+                            skel_params.append(d)
+                        if get_param_type(d) == "param_morph":
+                            for volume_morph in d.iter("volume_morph"):
+                                collision_bones.add(volume_morph.get("name"))
+            bones = set()
+            bone_drivers = defaultdict(set)
+            for skel_param in skel_params:
+                for b in skel_param.iter("bone"):
+                    bone_name = b.get("name")
+                    bones.add(bone_name)
+                    #print "driver add",bone_name,skel_param
+                    bone_drivers[b.get("name")].add(skel_param.get("id"))
+            if bones:
+                #print "param",param.get("name"),"id",param.get("id"),"group",param.get("group")
+                value_min = float(param.get("value_min"))
+                value_max = float(param.get("value_max"))
+                neutral = (0.0-value_min)/(value_max-value_min)
+                print "|",param.get("id")
+                print "|",param.get("name")
+                print "|","{0:.4f}".format(neutral)
+                print "|", ", ".join(sorted(list(bones)))
+                if parity:
+                    print "|-"
+                else:
+                    print "|-bgcolor={{#var:bgcolor}}"
+                parity = 1-parity
+
+def collision_slider_info(ladtree,skeltree):
+    all_params = [p for p in ladtree.iter("param")]
+    parity = 1
+    print """ 
+{|border="1" cellpadding="3" width="66%"
+|- {{Hl2}}
+! ID
+! Name
+! Neutral value
+! Collision Volumes
+|-bgcolor={{#var:bgcolor}}
+"""
+
+    for param in sorted(all_params, key=lambda x: int(x.get("id"))):
+        if int(param.get("group")) in [0,3]:
+            param_type = get_param_type(param)
+            collision_bones = set()
+            for volume_morph in param.iter("volume_morph"):
+                collision_bones.add(volume_morph.get("name"))
+            for skel_driver in param.iter("param_driver"):
+                for driven in skel_driver.iter("driven"):
+                    driven_id = driven.get("id")
+                    driven_params = [p for p in ladtree.iter("param") if p.get("id")==driven_id]
+                    if len(driven_params)==0:
+                        print "param not found",driven_id
+                        continue
+                    for d in driven_params:
+                        if get_param_type(d) == "param_morph":
+                            for volume_morph in d.iter("volume_morph"):
+                                collision_bones.add(volume_morph.get("name"))
+            if collision_bones:
+                #print param.get("id"), "-> Collision", ",".join(collision_bones)
+                value_min = float(param.get("value_min"))
+                value_max = float(param.get("value_max"))
+                neutral = (0.0-value_min)/(value_max-value_min)
+                print "|",param.get("id")
+                print "|",param.get("name")
+                print "|","{0:.4f}".format(neutral)
+                print "|", ", ".join(sorted(list(collision_bones)))
+                if parity:
+                    print "|-"
+                else:
+                    print "|-bgcolor={{#var:bgcolor}}"
+                parity = 1-parity
+    print "|}"
+
 # Check contents of avatar_lad file relative to a specified skeleton
 def validate_lad_tree(ladtree,skeltree,orig_ladtree):
     print("validate_lad_tree")
@@ -460,7 +578,11 @@ if __name__ == "__main__":
     parser.add_argument("--remove", nargs="+", help="remove specified joints")
     parser.add_argument("--list", action="store_true", help="list joint names")
     parser.add_argument("--compare", help="alternate skeleton file to compare")
-    parser.add_argument("--slider_info", help="information about the lad file sliders and affected bones", action="store_true")
+    parser.add_argument("--slider_info", help="information about the lad file sliders that directly affect bones", action="store_true")
+    parser.add_argument("--skel_slider_info", help="information about the lad file sliders that directly or indirectly affect bones", 
+                        action="store_true")
+    parser.add_argument("--collision_slider_info", help="information about the lad file sliders that directly or indirectly affect collision bones", 
+                        action="store_true")
     parser.add_argument("infilename", nargs="?", help="name of a skel .xml file to input", default="avatar_skeleton.xml")
     parser.add_argument("outfilename", nargs="?", help="name of a skel .xml file to output")
     args = parser.parse_args()
@@ -479,7 +601,10 @@ if __name__ == "__main__":
     orig_ladtree = None
 
     if args.ogfile:
-        ogtree = etree.parse(args.ogfile)
+        try:
+            ogtree = etree.parse(args.ogfile)
+        except:
+            pass
 
     if args.ref_file:
         reftree = etree.parse(args.ref_file)
@@ -488,7 +613,10 @@ if __name__ == "__main__":
         ladtree = etree.parse(args.lad_file)
 
     if args.orig_lad_file:
-        orig_ladtree = etree.parse(args.orig_lad_file)
+        try:
+            orig_ladtree = etree.parse(args.orig_lad_file)
+        except:
+            pass
 
     if args.remove:
         for name in args.remove:
@@ -513,6 +641,12 @@ if __name__ == "__main__":
 
     if ladtree and tree and args.slider_info:
         slider_info(ladtree,tree)
+        
+    if ladtree and tree and args.skel_slider_info:
+        skel_slider_info(ladtree,tree)
+        
+    if ladtree and tree and args.collision_slider_info:
+        collision_slider_info(ladtree,tree)
         
     if args.outfilename:
         f = open(args.outfilename,"w")

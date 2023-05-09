@@ -828,7 +828,7 @@ void LLKeyframeMotion::initializeConstraint(JointConstraint* constraint)
 	JointConstraintSharedData *shared_data = constraint->mSharedData;
 
 	S32 joint_num;
-	LLVector3 source_pos = mCharacter->getVolumePos(shared_data->mSourceConstraintVolume, shared_data->mSourceConstraintOffset);
+	LLVector3 source_pos = mCharacter->getVolumePos(shared_data->mSourceConstraintVolumeID, shared_data->mSourceConstraintOffset);
 	LLJoint* cur_joint = getJoint(shared_data->mJointStateIndices[0]);
 	if ( !cur_joint )
 	{
@@ -860,8 +860,8 @@ void LLKeyframeMotion::initializeConstraint(JointConstraint* constraint)
 	// add last step in chain, from final joint to constraint position
 	constraint->mTotalLength += source_pos_offset;
 
-	constraint->mSourceVolume = mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolume);
-	constraint->mTargetVolume = mCharacter->findCollisionVolume(shared_data->mTargetConstraintVolume);
+	constraint->mSourceVolume = mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolumeID);
+	constraint->mTargetVolume = mCharacter->findCollisionVolume(shared_data->mTargetConstraintVolumeID);
 }
 
 //-----------------------------------------------------------------------------
@@ -876,7 +876,7 @@ void LLKeyframeMotion::activateConstraint(JointConstraint* constraint)
 	// grab ground position if we need to
 	if (shared_data->mConstraintTargetType == CONSTRAINT_TARGET_TYPE_GROUND)
 	{
-		LLVector3 source_pos = mCharacter->getVolumePos(shared_data->mSourceConstraintVolume, shared_data->mSourceConstraintOffset);
+		LLVector3 source_pos = mCharacter->getVolumePos(shared_data->mSourceConstraintVolumeID, shared_data->mSourceConstraintOffset);
 		LLVector3 ground_pos_agent;
 		mCharacter->getGround(source_pos, ground_pos_agent, constraint->mGroundNorm);
 		constraint->mGroundPos = mCharacter->getPosGlobalFromAgent(ground_pos_agent + shared_data->mTargetConstraintOffset);
@@ -955,11 +955,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 	}
 	
 	LLVector3 root_pos = root_joint->getWorldPosition();
-//	LLQuaternion root_rot = 
 	root_joint->getParent()->getWorldRotation();
-//	LLQuaternion inv_root_rot = ~root_rot;
-
-//	LLVector3 current_source_pos = mCharacter->getVolumePos(shared_data->mSourceConstraintVolume, shared_data->mSourceConstraintOffset);
 
 	//apply underlying keyframe animation to get nominal "kinematic" joint positions
 	for (joint_num = 0; joint_num <= shared_data->mChainLength; joint_num++)
@@ -980,17 +976,16 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 	}
 
 
-	LLVector3 keyframe_source_pos = mCharacter->getVolumePos(shared_data->mSourceConstraintVolume, shared_data->mSourceConstraintOffset);
+	LLVector3 keyframe_source_pos = mCharacter->getVolumePos(shared_data->mSourceConstraintVolumeID, shared_data->mSourceConstraintOffset);
 	LLVector3 target_pos;
 
 	switch(shared_data->mConstraintTargetType)
 	{
 	case CONSTRAINT_TARGET_TYPE_GROUND:
 		target_pos = mCharacter->getPosAgentFromGlobal(constraint->mGroundPos);
-//		LL_INFOS() << "Target Pos " << constraint->mGroundPos << " on " << mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolume)->getName() << LL_ENDL;
 		break;
 	case CONSTRAINT_TARGET_TYPE_BODY:
-		target_pos = mCharacter->getVolumePos(shared_data->mTargetConstraintVolume, shared_data->mTargetConstraintOffset);
+		target_pos = mCharacter->getVolumePos(shared_data->mTargetConstraintVolumeID, shared_data->mTargetConstraintOffset);
 		break;
 	default:
 		break;
@@ -1008,7 +1003,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 			norm = constraint->mGroundNorm;
 			break;
 		case CONSTRAINT_TARGET_TYPE_BODY:
-			target_jointp = mCharacter->findCollisionVolume(shared_data->mTargetConstraintVolume);
+			target_jointp = mCharacter->findCollisionVolume(shared_data->mTargetConstraintVolumeID);
 			if (target_jointp)
 			{
 				// *FIX: do proper normal calculation for stretched
@@ -1018,7 +1013,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 
 			if (norm.isExactlyZero())
 			{
-				source_jointp = mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolume);
+				source_jointp = mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolumeID);
 				norm = -1.f * shared_data->mSourceConstraintOffset;
 				if (source_jointp)	
 				{
@@ -1089,7 +1084,6 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 			// convert intermediate joint positions to world coordinates
 			positions[joint_num] = ( constraint->mPositions[joint_num] * mPelvisp->getWorldRotation()) + mPelvisp->getWorldPosition();
 			F32 time_constant = 1.f / clamp_rescale(constraint->mFixupDistanceRMS, 0.f, 0.5f, 0.2f, 8.f);
-//			LL_INFOS() << "Interpolant " << LLSmoothInterpolation::getInterpolant(time_constant, FALSE) << " and fixup distance " << constraint->mFixupDistanceRMS << " on " << mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolume)->getName() << LL_ENDL;
 			positions[joint_num] = lerp(positions[joint_num], kinematic_position, 
 				LLSmoothInterpolation::getInterpolant(time_constant, FALSE));
 		}
@@ -1120,8 +1114,6 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 			if ((iteration_count >= MIN_ITERATION_COUNT) && 
 				(num_joints_finished == shared_data->mChainLength - 1))
 			{
-//				LL_INFOS() << iteration_count << " iterations on " << 
-//					mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolume)->getName() << LL_ENDL;
 				break;
 			}
 		}
@@ -1151,7 +1143,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 			// at bottom of chain, use point on collision volume, not joint position
 			if (joint_num == 1)
 			{
-				current_at = mCharacter->getVolumePos(shared_data->mSourceConstraintVolume, shared_data->mSourceConstraintOffset) -
+				current_at = mCharacter->getVolumePos(shared_data->mSourceConstraintVolumeID, shared_data->mSourceConstraintOffset) -
 					cur_joint->getWorldPosition();
 			}
 			else
@@ -1803,8 +1795,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 
 			bin_data[BIN_DATA_LENGTH] = 0; // Ensure null termination
 			str = (char*)bin_data;
-			constraintp->mSourceConstraintVolume = mCharacter->getCollisionVolumeID(str);
-			if (constraintp->mSourceConstraintVolume == -1)
+			constraintp->mSourceConstraintVolumeID = mCharacter->getCollisionVolumeID(str);
+			if (constraintp->mSourceConstraintVolumeID == -1)
 			{
 				LL_WARNS() << "not a valid source constraint volume " << str
 						   << " for animation " << asset_id << LL_ENDL;
@@ -1842,8 +1834,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 			else
 			{
 				constraintp->mConstraintTargetType = CONSTRAINT_TARGET_TYPE_BODY;
-				constraintp->mTargetConstraintVolume = mCharacter->getCollisionVolumeID(str);
-				if (constraintp->mTargetConstraintVolume == -1)
+				constraintp->mTargetConstraintVolumeID = mCharacter->getCollisionVolumeID(str);
+				if (constraintp->mTargetConstraintVolumeID == -1)
 				{
 					LL_WARNS() << "not a valid target constraint volume " << str
 							   << " for animation " << asset_id << LL_ENDL;
@@ -1913,7 +1905,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 				return FALSE;
 			}
 
-			LLJoint* joint = mCharacter->findCollisionVolume(constraintp->mSourceConstraintVolume);
+			LLJoint* joint = mCharacter->findCollisionVolume(constraintp->mSourceConstraintVolumeID);
 			// get joint to which this collision volume is attached
 			if (!joint)
 			{
@@ -2068,7 +2060,7 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 		success &= dp.packU8(shared_constraintp->mConstraintType, "constraint_type");
 		char source_volume[16]; /* Flawfinder: ignore */
 		snprintf(source_volume, sizeof(source_volume), "%s",	/* Flawfinder: ignore */
-				 mCharacter->findCollisionVolume(shared_constraintp->mSourceConstraintVolume)->getName().c_str()); 
+				 mCharacter->findCollisionVolume(shared_constraintp->mSourceConstraintVolumeID)->getName().c_str()); 
         
 		success &= dp.packBinaryDataFixed((U8*)source_volume, 16, "source_volume");
 		success &= dp.packVector3(shared_constraintp->mSourceConstraintOffset, "source_offset");
@@ -2080,7 +2072,7 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 		else
 		{
 			snprintf(target_volume, sizeof(target_volume),"%s", /* Flawfinder: ignore */
-					 mCharacter->findCollisionVolume(shared_constraintp->mTargetConstraintVolume)->getName().c_str());	
+					 mCharacter->findCollisionVolume(shared_constraintp->mTargetConstraintVolumeID)->getName().c_str());	
 		}
 		success &= dp.packBinaryDataFixed((U8*)target_volume, 16, "target_volume");
 		success &= dp.packVector3(shared_constraintp->mTargetConstraintOffset, "target_offset");

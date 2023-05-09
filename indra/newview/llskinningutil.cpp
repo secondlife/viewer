@@ -108,7 +108,8 @@ void LLSkinningUtil::scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin
         // Fix invalid names to "mPelvis". Currently meshes with
         // invalid names will be blocked on upload, so this is just
         // needed for handling of any legacy bad data.
-        if (!avatar->getJoint(skin->mJointNames[j]))
+		LLJoint *joint = avatar->getJoint(skin->mJointNames[j]);
+        if (!joint || joint->getJointNum() < 0) // check against joint num is needed to catch some special joints like mRoot.
         {
             LL_DEBUGS("Avatar") << avatar->getFullname() << " mesh rigged to invalid joint " << skin->mJointNames[j] << LL_ENDL;
             LL_WARNS_ONCE("Avatar") << avatar->getFullname() << " mesh rigged to invalid joint" << skin->mJointNames[j] << LL_ENDL;

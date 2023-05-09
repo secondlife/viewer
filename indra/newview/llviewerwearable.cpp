@@ -36,6 +36,7 @@
 #include "lltextureentry.h"
 #include "llviewertexlayer.h"
 #include "llvoavatarself.h"
+#include "llcontrolavatar.h"
 #include "llavatarappearancedefines.h"
 #include "llviewerwearable.h"
 #include "llviewercontrol.h"
@@ -316,43 +317,46 @@ LLUUID LLViewerWearable::getDefaultTextureImageID(ETextureIndex index) const
 //virtual
 void LLViewerWearable::writeToAvatar(LLAvatarAppearance *avatarp)
 {
-	LLVOAvatarSelf* viewer_avatar = dynamic_cast<LLVOAvatarSelf*>(avatarp);
+	LLVOAvatarSelf* self_avatar = dynamic_cast<LLVOAvatarSelf*>(avatarp);
+	LLControlAvatar* control_avatar = dynamic_cast<LLControlAvatar*>(avatarp);
 
-	if (!avatarp || !viewer_avatar) return;
+	if (!avatarp || (!self_avatar && !control_avatar)) return;
 
-	if (!viewer_avatar->isValid()) return;
+	if (self_avatar && !self_avatar->isValid()) return;
 
 	ESex old_sex = avatarp->getSex();
 
 	LLWearable::writeToAvatar(avatarp);
 
-
 	// Pull texture entries
-	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
+	if (self_avatar)
 	{
-		if (LLAvatarAppearance::getDictionary()->getTEWearableType((ETextureIndex) te) == mType)
+		for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 		{
-			te_map_t::const_iterator iter = mTEMap.find(te);
-			LLUUID image_id;
-			if(iter != mTEMap.end())
+			if (LLAvatarAppearance::getDictionary()->getTEWearableType((ETextureIndex) te) == mType)
 			{
-				image_id = iter->second->getID();
+				te_map_t::const_iterator iter = mTEMap.find(te);
+				LLUUID image_id;
+				if(iter != mTEMap.end())
+				{
+					image_id = iter->second->getID();
+				}
+				else
+				{	
+					image_id = getDefaultTextureImageID((ETextureIndex) te);
+				}
+				LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture( image_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE );
+				// MULTI-WEARABLE: assume index 0 will be used when writing to avatar. TODO: eliminate the need for this.
+				self_avatar->setLocalTextureTE(te, image, 0);
 			}
-			else
-			{	
-				image_id = getDefaultTextureImageID((ETextureIndex) te);
-			}
-			LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture( image_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE );
-			// MULTI-WEARABLE: assume index 0 will be used when writing to avatar. TODO: eliminate the need for this.
-			viewer_avatar->setLocalTextureTE(te, image, 0);
 		}
-	}
 
-	ESex new_sex = avatarp->getSex();
-	if( old_sex != new_sex )
-	{
-		viewer_avatar->updateSexDependentLayerSets();
-	}	
+		ESex new_sex = avatarp->getSex();
+		if( old_sex != new_sex )
+		{
+			self_avatar->updateSexDependentLayerSets();
+		}	
+	}
 }
 
 
