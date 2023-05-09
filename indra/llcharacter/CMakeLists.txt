@@ -78,7 +78,7 @@ if (LL_TESTS)
   include(LLAddBuildTest)
   # UNIT TESTS
   SET(llcharacter_TEST_SOURCE_FILES
-    #llik.cpp
+    llik.cpp
     lljoint.cpp
   )
   set_source_files_properties(

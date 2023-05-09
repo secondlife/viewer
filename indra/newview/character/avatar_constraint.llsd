@@ -11,20 +11,20 @@
         },
     'mCollarLeft':
         {
-            'cone_angle':r9,
+            'cone_angle':r3,
             'forward_axis':
                 [r-0.021,r0.085,r0.165],
-            'max_twist':r18,
-            'min_twist':r-18,
+            'max_twist':r3,
+            'min_twist':r-3,
             'type':'TWIST_LIMITED_CONE'
         },
     'mCollarRight':
         {
-            'cone_angle':r9,
+            'cone_angle':r3,
             'forward_axis':
                 [r-0.021,r-0.085,r0.165],
-            'max_twist':r18,
-            'min_twist':r-18,
+            'max_twist':r3,
+            'min_twist':r-3,
             'type':'TWIST_LIMITED_CONE'
         },
     'mElbowLeft':
@@ -32,9 +32,9 @@
             'forward_axis':
                 [r0,r1,r0],
             'max_bend':r0,
-            'max_twist':r135,
+            'max_twist':r0.5,
             'min_bend':r-157.5,
-            'min_twist':r-45,
+            'min_twist':r-0.5,
             'pivot_axis':
                 [r0,r0,r1],
             'type':'ELBOW'
@@ -43,12 +43,12 @@
         {
             'forward_axis':
                 [r-0,r-1,r-0],
-            'max_bend':r0,
-            'max_twist':r135,
-            'min_bend':r-157.5,
-            'min_twist':r-45,
+            'max_bend':r157.5,
+            'max_twist':r0.5,
+            'min_bend':r0.0,
+            'min_twist':r-0.5,
             'pivot_axis':
-                [r-0,r-0,r-1],
+                [r0,r0,r1],
             'type':'ELBOW'
         },
     'mHandIndex1Left':
@@ -391,21 +391,15 @@
         },
     'mShoulderLeft':
         {
-            'cone_angle':r90,
             'forward_axis':
                 [r0,r1,r0],
-            'max_twist':r102.857,
-            'min_twist':r-72,
-            'type':'TWIST_LIMITED_CONE'
+            'type':'SHOULDER'
         },
     'mShoulderRight':
         {
-            'cone_angle':r90,
             'forward_axis':
                 [r-0,r-1,r-0],
-            'max_twist':r102.857,
-            'min_twist':r-72,
-            'type':'TWIST_LIMITED_CONE'
+            'type':'SHOULDER'
         },
     'mTorso':
         {
