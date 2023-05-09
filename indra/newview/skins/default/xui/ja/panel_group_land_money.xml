@@ -5,7 +5,7 @@
   <panel.string name="epmty_view_group_land_text">なし</panel.string>
   <panel.string name="cant_view_group_accounting_text">グループの会計情報を確認する権限がありません。</panel.string>
   <panel.string name="loading_txt">読み込んでいます…</panel.string>
-  <panel.string name="land_contrib_error">土地の貢献を設定することができません</panel.string>
+  <panel.string name="land_contrib_error">土地の貢献を設定することができません。</panel.string>
   <panel name="layout_panel_landmoney">
     <scroll_list name="group_parcel_list">
       <scroll_list.columns label="区画" name="name" />

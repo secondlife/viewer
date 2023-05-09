@@ -21,8 +21,8 @@
         <icons_combo_box.item label="「General」コンテンツ" name="pg_ci" value="PG" />
       </icons_combo_box>
       <check_box label="毎週自動更新" name="auto_renew" />
-      <text name="price_for_listing_label" value="掲載価格：" />
-      <spinner label="L$" name="price_for_listing" tool_tip="掲載価格" value="50" />
+      <text name="price_for_listing_label" value="掲載料：" />
+      <spinner label="L$" name="price_for_listing" tool_tip="掲載料" value="50" />
     </panel>
   </scroll_container>
   <panel label="bottom_panel" name="bottom_panel">

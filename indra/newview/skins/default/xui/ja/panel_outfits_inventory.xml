@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Outfits" bg_alpha_color="DkGray" bg_opaque_color="DkGray" background_opaque="true" background_visible="true" follows="all" height="575" label="Things" layout="topleft" min_height="350" min_width="240" width="320" border="false">
-  <panel.string name="wear_outfit_tooltip">選択した衣装に着替える</panel.string>
+  <panel.string name="wear_outfit_tooltip">選択したアウトフィットに着替える</panel.string>
   <panel.string name="wear_items_tooltip">選択したアイテムを着用</panel.string>
   <tab_container follows="all" height="539" layout="topleft" left="5" name="appearance_tabs" tab_min_width="100" tab_height="30" tab_position="top" halign="center" top="8" width="315">
-    <panel class="outfit_gallery" filename="panel_outfit_gallery.xml" height="520" name="outfit_gallery_tab" background_visible="true" help_topic="outfit_gallery_tab" follows="all" label="衣装ギャラリー" layout="topleft" width="315" />
-    <panel class="outfits_list" filename="panel_outfits_list.xml" height="520" name="outfitslist_tab" background_visible="true" help_topic="my_outfits_tab" follows="all" label="自分の衣装" layout="topleft" width="315" />
+    <panel class="outfit_gallery" filename="panel_outfit_gallery.xml" height="520" name="outfit_gallery_tab" background_visible="true" help_topic="outfit_gallery_tab" follows="all" label="アウトフィットギャラリー" layout="topleft" width="315" />
+    <panel class="outfits_list" filename="panel_outfits_list.xml" height="520" name="outfitslist_tab" background_visible="true" help_topic="my_outfits_tab" follows="all" label="自分のアウトフィット" layout="topleft" width="315" />
     <panel background_visible="true" bg_alpha_color="DkGray" class="panel_wearing" filename="panel_outfits_wearing.xml" follows="all" height="520" help_topic="now_wearing_tab" label="着用中" layout="topleft" name="cof_tab" width="315" />
   </tab_container>
 

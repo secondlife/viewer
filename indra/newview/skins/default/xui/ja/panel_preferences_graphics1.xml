@@ -20,7 +20,7 @@
 
   <slider label="アバターの最大複雑度：" name="IndirectMaxComplexity" tool_tip="どの点で視覚的に複雑なアバターを JellyDoll として描くかを制御します" />
   <text name="IndirectMaxComplexityText">0</text>
-  <text name="IndirectMaxComplexityLink">[https://community.secondlife.com/t5/Featured-News/Why-are-all-these-people-made-of-colored-jelly/ba-p/3031255 これはなんですか？（英語）]</text>
+  <text name="IndirectMaxComplexityLink">[https://community.secondlife.com/t5/Featured-News/Why-are-all-these-people-made-of-colored-jelly/ba-p/3031255 これはなんですか？]</text>
 
 
   <check_box initial_value="true" label="フレンドは常に描画" name="AlwaysRenderFriends" />

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel border="true" follows="all" label="水" layout="topleft" left="0" help_topic="land_general_tab" name="panel_settings_water" top="0">
+<panel label="水" name="panel_settings_water">
   <layout_stack name="water_stack1" follows="all" layout="topleft" left="5" top="5" right="-5" bottom="-5" orientation="vertical">
     <layout_panel border="true" bevel_style="in" auto_resize="false" user_resize="false" visible="true" height="105">
       <text follows="left|top" height="20" font="SansSerif" layout="topleft" left="5" top="5" width="215">水中のフォグ：</text>

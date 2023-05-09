@@ -8,10 +8,10 @@
     <combo_box.item label="1024x768" name="1024x768" />
     <combo_box.item label="カスタム" name="Custom" />
   </combo_box>
-  <spinner label="横幅 x 高さ" name="profile_snapshot_width" />
+  <spinner label="横幅✕高さ" name="profile_snapshot_width" />
   <check_box label="縦横比の固定" name="profile_keep_aspect_check" />
   <text name="caption_label">キャプション：</text>
-  <check_box initial_value="true" label="場所を含む" name="add_location_cb" />
+  <check_box label="場所を含む" name="add_location_cb" />
   <button label="キャンセル" name="cancel_btn" />
   <button label="投稿" name="post_btn" />
 </panel>

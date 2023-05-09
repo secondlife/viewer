@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater positioning="cascading" can_close="true" can_resize="false" height="572" help_topic="sidebar_me" min_width="333" min_height="440" name="floater_classified" save_rect="true" save_visibility="false" title="クラシファイド" width="333">
-  <panel class="panel_classified_info" name="main_panel" filename="panel_classified_info.xml" follows="all" />
+<floater name="floater_classified" title="クラシファイド広告">
+  <panel name="main_panel" filename="panel_classified_info.xml" />
 </floater>

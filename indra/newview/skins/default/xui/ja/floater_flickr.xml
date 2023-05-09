@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_flickr" title="FLICKR で共有する">
+<floater name="floater_flickr" title="FLICKRで共有する">
   <panel name="background">
     <tab_container name="tabs">
       <panel label="画像" name="panel_flickr_photo" />

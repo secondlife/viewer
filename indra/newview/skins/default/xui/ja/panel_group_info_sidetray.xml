@@ -2,7 +2,7 @@
 <panel label="グループインベントリ" name="GroupInfo">
   <panel.string name="default_needs_apply_text">保存していない変更があります。</panel.string>
   <panel.string name="want_apply_text">変更を保存しますか？</panel.string>
-  <panel.string name="group_join_btn">参加 （L$[AMOUNT]）</panel.string>
+  <panel.string name="group_join_btn">入会費（L$ [AMOUNT]）</panel.string>
   <panel.string name="group_join_free">無料</panel.string>
   <panel name="group_info_top">
     <text_editor name="group_name" value="（読み込んでいます…）" />

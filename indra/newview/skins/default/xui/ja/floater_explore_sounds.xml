@@ -1,27 +1,27 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater can_close="true" can_minimize="true" positioning="centered" can_resize="true" height="300" width="550" min_width="550" min_height="170" name="sound_explorer" title="サウンド" save_rect="true" save_visibility="true" single_instance="true" reuse_instance="false">
-	<floater.string name="Playing">再生中</floater.string>
-	<floater.string name="NotPlaying">[TIME]分前</floater.string>
-	<floater.string name="Type_UI">UI</floater.string>
-	<floater.string name="Type_Avatar">アバター</floater.string>
-	<floater.string name="Type_llTriggerSound">llTriggerSound</floater.string>
-	<floater.string name="Type_llLoopSound">llLoopSound</floater.string>
-	<floater.string name="Type_llPlaySound">llPlaySound</floater.string>
-	<check_box follows="top|left" bottom_delta="20" left="5" width="64" name="avatars_chk" label="アバター" />
-	<check_box follows="top|left" bottom_delta="0" left_delta="64" width="64" name="objects_chk" label="オブジェクト" initial_value="true" />
-	<check_box follows="top|left" bottom_delta="0" left_delta="64" width="160" name="collision_chk" label="デフォルトの衝突音" />
-	<check_box follows="top|left" bottom_delta="0" left_delta="160" width="110" name="repeated_asset_chk" label="繰り返しのアセット" />
-	<check_box follows="top|left" bottom_delta="0" left_delta="110" width="80" name="pause_chk" label="ログを一時停止" initial_value="false"/>
-	<scroll_list column_padding="0" draw_heading="true" follows="all" left="10" multi_select="true" name="sound_list" search_column="0" top="40" right="-10" bottom="-60">
-		<columns dynamicwidth="false" width="80" label="再生中" name="playing" />
-		<columns dynamicwidth="false" width="100" label="種類" name="type" />
-		<columns dynamicwidth="true" label="所有者" name="owner" />
-		<columns dynamicwidth="false" width="0" label="サウンド" name="sound" />
-	</scroll_list>
-	<button bottom_delta="25" follows="left|bottom" height="20" label="ローカルで再生" name="play_locally_btn" left="10" width="95" enabled="false"/>
-	<button bottom_delta="0" follows="left|bottom" height="20" label="ローカルで停止" name="stop_locally_btn" left_delta="100" width="95" enabled="false"/>
-	<button bottom_delta="0" follows="left|bottom" height="20" label="見る" name="look_at_btn" left_delta="100" width="95" enabled="false"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="sound_explorer" title="サウンド">
+  <floater.string name="Playing">再生中</floater.string>
+  <floater.string name="NotPlaying">[TIME]分前</floater.string>
+  <floater.string name="Type_UI">UI</floater.string>
+  <floater.string name="Type_Avatar">アバター</floater.string>
+  <floater.string name="Type_llTriggerSound">llTriggerSound</floater.string>
+  <floater.string name="Type_llLoopSound">llLoopSound</floater.string>
+  <floater.string name="Type_llPlaySound">llPlaySound</floater.string>
+  <check_box name="avatars_chk" label="アバター" />
+  <check_box name="objects_chk" label="オブジェクト" />
+  <check_box name="collision_chk" label="デフォルトの衝突音" />
+  <check_box name="repeated_asset_chk" label="繰り返しのアセット" />
+  <check_box name="pause_chk" label="ログを一時停止" />
+  <scroll_list name="sound_list">
+    <columns label="再生中" name="playing" />
+    <columns label="種類" name="type" />
+    <columns label="所有者" name="owner" />
+    <columns label="サウンド" name="sound" />
+  </scroll_list>
+  <button label="ローカルで再生" name="play_locally_btn" />
+  <button label="ローカルで停止" name="stop_locally_btn" />
+  <button label="見る" name="look_at_btn" />
 
-	<button bottom_delta="0" follows="left|bottom" height="20" label="提示" name="stop_btn" right="-10" width="95" enabled="false"/>
-	<button bottom_delta="0" follows="left|bottom" height="20" label="ブラックリスト" name="bl_btn" right="-110" width="95" enabled="false" visible="false"/>
+  <button label="提示" name="stop_btn" />
+  <button label="ブラックリスト" />
 </floater>

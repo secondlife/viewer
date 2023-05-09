@@ -22,7 +22,7 @@
         <text type="string" length="1" follows="top|right" halign="left" height="13" top_delta="6" left_pad="5" layout="topleft" name="me_label" width="90">自分</text>
         <check_box control_name="MapShowPeople" follows="top|right" height="16" layout="topleft" left="3" name="people_chk" top_pad="9" width="22" />
         <icon color="0 1 0 1" follows="top|right" height="8" image_name="map_avatar_8.tga" layout="topleft" left_pad="3" mouse_opaque="true" name="person" top_delta="3" width="8" />
-        <text type="string" length="1" follows="top|right" halign="left" height="16" top_delta="-2" left_pad="7" layout="topleft" name="person_label" width="90">人</text>
+        <text type="string" length="1" follows="top|right" halign="left" height="16" top_delta="-2" left_pad="7" layout="topleft" name="person_label" width="90">人物</text>
         <check_box control_name="MapShowInfohubs" follows="top|right" height="16" layout="topleft" left="3" name="infohub_chk" top_pad="3" width="22" />
         <icon follows="top|right" height="16" image_name="map_infohub.tga" layout="topleft" left_pad="0" mouse_opaque="true" name="infohub" top_delta="0" width="16" />
         <text type="string" length="1" follows="top|right" halign="left" height="16" top_delta="2" left_pad="3" layout="topleft" name="infohub_label" width="90">情報ハブ</text>

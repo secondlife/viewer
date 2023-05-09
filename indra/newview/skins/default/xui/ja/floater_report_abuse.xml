@@ -14,7 +14,7 @@
   <text name="object_name">Consetetur Sadipscing</text>
   <text name="owner_name_label">所有者：</text>
   <text name="owner_name">Hendrerit Vulputate Kamawashi Longname</text>
-  <combo_box name="category_combo" tool_tip="カテゴリ -- この報告に最も適したカテゴリを選択してください">
+  <combo_box name="category_combo" tool_tip="カテゴリ－この報告に最も適したカテゴリを選択してください">
     <combo_box.item label="カテゴリを選択してください" name="Select_category" />
     <combo_box.item label="年齢＞年齢偽証" name="Age__Age_play" />
     <combo_box.item label="年齢＞成人の住人が Teen Second Life にいる" name="Age__Adult_resident_on_Teen_Second_Life" />

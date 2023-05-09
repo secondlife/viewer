@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<toggleable_menu layout="topleft" name="Copy Color Picker Menu">
-  <menu_item_call label="LSLベクトルをコピー" layout="topleft" name="params_copy_lsl" visible="true">
-    <on_click function="ColorPicker.menuDoToSelected" parameter="color_copy_lsl" />
-  </menu_item_call>
-  <menu_item_call label="Hexをコピー" layout="topleft" name="params_copy_hex" visible="true">
-    <on_click function="ColorPicker.menuDoToSelected" parameter="color_copy_hex" />
-  </menu_item_call>
-  <menu_item_call label="フロートベクター４をコピー" layout="topleft" name="params_copy_vec4" visible="true">
-    <on_click function="ColorPicker.menuDoToSelected" parameter="color_copy_vec4" />
-  </menu_item_call>
-  <menu_item_call label="RGBベクター４をコピー" layout="topleft" name="params_copy_vec4u" visible="true">
-    <on_click function="ColorPicker.menuDoToSelected" parameter="color_copy_vec4u" />
-  </menu_item_call>
+<toggleable_menu name="Copy Color Picker Menu">
+  <menu_item_call label="LSLベクトルをコピー" name="params_copy_lsl" />
+  <menu_item_call label="Hexをコピー" name="params_copy_hex" />
+  <menu_item_call label="フロートベクター４をコピー" name="params_copy_vec4" />
+  <menu_item_call label="RGBベクター４をコピー" name="params_copy_vec4u" />
 </toggleable_menu>

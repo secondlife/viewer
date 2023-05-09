@@ -72,9 +72,9 @@
             <button label="リージョン（地域）／不動産" name="region_info_btn" />
           </panel>
         </accordion_tab>
-        <accordion_tab name="estate_information_tab" title="エステート（不動産）">
+        <accordion_tab name="estate_information_tab" title="不動産（不動産）">
           <panel name="estate_information_panel">
-            <text name="estate_name_label" value="エステート：" />
+            <text name="estate_name_label" value="不動産：" />
             <text name="estate_rating_label" value="レーティング：" />
             <text name="estate_owner_label" value="所有者：" />
             <text name="estate_owner" value="長い所有者の名前をテスト" />

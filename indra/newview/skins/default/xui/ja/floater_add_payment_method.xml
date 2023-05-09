@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater height="405" width="900" layout="topleft" name="floater_add_payment_method" single_instance="true" show_title="false" legacy_header_height="0" header_height="0" background_visible="false" can_resize="false" can_drag_on_left="false" can_minimize="false" can_close="false">
+<floater name="floater_add_payment_method">
   <floater.string name="continue_url">https://secondlife.com/my/lindex/buy.php?associate_for_viewer=1</floater.string>
-  <panel background_opaque="false" bg_alpha_color="AddPaymentPanel" border_visible="false" background_visible="true" label="wrapper_panel" layout="topleft" left="0" name="wrapper_panel" top="0" height="405" width="900" follows="all" translate="false">
-    <text type="string" length="1" follows="top|left|right" font="SansSerifLargeBold" text_color="White" layout="topleft" left="0" height="14" top_pad="30" width="900" halign="center" name="title_txt">支払い方法を追加してリンデン ドルを購入し、Second Life をもっと楽しみましょう。</text>
-    <button follows="top|left|right" height="24" label="始めましょう" font="SansSerifMedium" layout="topleft" left="320" name="continue_btn" image_unselected="PushButton_Login" image_pressed="PushButton_Login_Pressed" image_hover_unselected="PushButton_Login_Over" label_color="White" top_pad ="15" width="140"/>
-    <button follows="top|left|right" height="24" label="後で" layout="topleft" left_pad="9" name="close_btn" width="90"/>
-    <icon height="195" width="260" image_name="add_payment_image_left" layout="topleft" left="30" name="image_left" top_pad="30" use_draw_context_alpha="false"/>
-    <icon height="195" width="260" image_name="add_payment_image_center" layout="topleft" left_pad="30" name="image_center" use_draw_context_alpha="false"/>
-    <icon height="195" width="260" image_name="add_payment_image_right" layout="topleft" left_pad="30" name="image_right" use_draw_context_alpha="false"/>
-    <text type="string" length="1" follows="top|left" font="SansSerifMedium" text_color="White" height="75" width="260" top_pad="15" layout="topleft" word_wrap="true" left="30" name="image_left_desc">お気に入りのアバターを作成します。店舗やSecond Life Marketplaceにある何百万ものアイテムから選択できます。あなたのスタイルがここにあります。</text>
-    <text type="string" length="1" follows="top|left" font="SansSerifMedium" text_color="White" height="75" width="260" layout="topleft" word_wrap="true" left_pad="30" name="image_center_desc">お気に入りのパフォーマーやホストに寄付してください。あなたのサポートは、彼らが素晴らしい体験を生み出すのに役立ちます。</text>
-    <text type="string" length="1" follows="top|left" font="SansSerifMedium" text_color="White" height="75" width="260" layout="topleft" word_wrap="true" left_pad="30" name="image_right_desc">あなたの夢の家を作ります。何百万ものアイテムを購入できるので、あなただけの住まいを作ることができます。</text>
+  <panel label="wrapper_panel" name="wrapper_panel">
+    <text name="title_txt">支払い方法を追加してリンデンドルを購入し、Second Lifeをもっと楽しみましょう。</text>
+    <button label="始めましょう" name="continue_btn" />
+    <button label="後で" name="close_btn"/>
+    <text name="image_left_desc">お気に入りのアバターを作成します。店舗やSecond Life Marketplaceにある何百万ものアイテムから選択できます。あなたのスタイルがここにあります。</text>
+    <text name="image_center_desc">お気に入りのパフォーマーやホストに寄付してください。あなたのサポートは、彼らが素晴らしい体験を生み出すのに役立ちます。</text>
+    <text name="image_right_desc">あなたの夢の家を作ります。何百万ものアイテムを購入できるので、あなただけの住まいを作ることができます。</text>
   </panel>
 </floater>

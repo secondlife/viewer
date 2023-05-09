@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater layout="topleft" name="env_adjust_snapshot" help_topic="day_presets" save_rect="false" title="個人的な照明" width="845" height="280" min_width="500" min_height="275" single_instance="true" can_resize="false">
-  <layout_stack name="outer_stack" width="845" height="275" follows="all" animate="false" top="0" orientation="vertical">
+<floater name="env_adjust_snapshot" title="個人的な照明">
+  <layout_stack name="outer_stack">
     <!-- If I put in a timeline it would go here -->
-    <layout_panel name="env_controls" border="false" bevel_style="in" auto_resize="true" user_resize="true" height="150" min_height="0" visible="true">
-      <layout_stack name="settings_stack" width="855" height="150" follows="all" animate="false" orientation="horizontal">
-        <layout_panel border="false" bevel_style="in" auto_resize="false" user_resize="false" visible="true" width="160" height="150">
-          <text follows="left|top" height="10" layout="topleft" left="10" top="5" width="80">周辺：</text>
-          <color_swatch can_apply_immediately="true" follows="left|top" height="40" label_height="0" layout="topleft" left_delta="0" name="ambient_light" top_pad="5" width="60" />
-          <text follows="left|top" height="10" layout="topleft" left_delta="0" top_pad="10" width="80">青のホライズン：</text>
-          <color_swatch can_apply_immediately="true" follows="left|top" height="40" label_height="0" layout="topleft" left_delta="0" name="blue_horizon" top_pad="5" width="60" />
-          <text follows="left|top" height="10" layout="topleft" left_delta="0" top_pad="10" width="80">青の濃度：</text>
-          <color_swatch can_apply_immediately="true" follows="left|top" height="40" label_height="0" layout="topleft" left_delta="0" name="blue_density" top_pad="5" width="60" />
-          <button follows="left|top" height="23" label="リセット" tool_tip="閉じて共有された環境にリセットします。" layout="topleft" name="btn_reset" left_delta="-2" top_pad="10" width="100" />
-          <text follows="right|top" height="10" layout="topleft" right="-12" top="5" width="60">太陽の色：</text>
-          <color_swatch can_apply_immediately="true" follows="left|top" height="10" label_height="0" layout="topleft" left_delta="0" name="sun_color" top_pad="5" width="60" />
+    <layout_panel name="env_controls">
+      <layout_stack name="settings_stack">
+        <layout_panel>
+          <text>周辺：</text>
+          <color_swatch name="ambient_light" />
+          <text >青のホライズン：</text>
+          <color_swatch name="blue_horizon" />
+          <text >青の濃度：</text>
+          <color_swatch name="blue_density" />
+          <button label="リセット" tool_tip="閉じて共有された環境にリセットします。" name="btn_reset" />
+          <text >太陽の色：</text>
+          <color_swatch name="sun_color" />
           <text follows="left|top" height="10" layout="topleft" left_delta="0" top_pad="5" width="80">雲の色：:</text>
-          <color_swatch can_apply_immediately="true" follows="left|top" height="10" label_height="0" layout="topleft" left_delta="0" name="cloud_color" top_pad="5" width="60" />
+          <color_swatch name="cloud_color" />
           <text follows="left|top" height="10" layout="topleft" left_delta="0" top_pad="10" name="cloud_map_label" width="80">雲の画像：:</text>
           <texture_picker height="63" layout="topleft" left_delta="0" name="cloud_map" top_pad="5" width="60" />
           <text follows="left|top" height="10" layout="topleft" left_delta="0" top_pad="-13" name="cloud_map_label" width="80">水の画像：</text>

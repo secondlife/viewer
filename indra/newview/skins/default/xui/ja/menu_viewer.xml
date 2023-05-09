@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+<?xml version="1.0"?>
 <menu_bar name="Main Menu">
   <menu label="私" name="Me">
     <menu_item_call label="プロフィール…" name="Profile" />
@@ -9,76 +9,76 @@
     <menu_item_call label="体験…" name="Experiences" />
     <menu_item_call label="カメラコントロール…" name="Camera Controls" />
 
-    <menu_item_separator/>
+    <menu_item_separator />
     <menu_item_check label="一時退席中" name="Away" />
     <menu_item_check label="着信拒否" name="Do Not Disturb" />
 
-    <menu_item_separator/>
+    <menu_item_separator />
     <menu_item_call label="L$の購入…" name="Buy and Sell L$" />
     <menu_item_call label="マーケットプレイスのリスト…" name="MarketplaceListings" />
     <menu_item_call label="アカウントのダッシュボード…" name="Manage My Account" />
     <menu_item_call label="[Membership]" name="Membership" />
 
-    <menu_item_separator/>
+    <menu_item_separator />
 
-    <menu_item_call label="初期設定…" name="Preferences" shortcut="control|P" />
+    <menu_item_call label="初期設定…" name="Preferences" />
     <menu_item_call label="ツールバーのボタン…" name="Toolbars" />
     <menu_item_call label="全てのコントロールを隠す" name="Hide UI" shortcut="control|shift|U" />
     <menu_item_check label="HUDを表示" name="Show HUD Attachments" shortcut="alt|shift|H" />
 
-    <menu_item_separator/>
-    <menu_item_call label="[APP_NAME]の終了" name="Quit" shortcut="control|Q" />
+    <menu_item_separator />
+    <menu_item_call label="[APP_NAME]の終了" name="Quit" />
   </menu>
 
-  <menu create_jump_keys="true" label="アバター" name="Avatar" tear_off="true">
-    <menu_item_call label="着用中…" name="NowWearing" shortcut="control|O"/>
-    <menu_item_call label="衣装…" name="ChangeOutfit"/>
-    <menu_item_call label="ホバーする高さ…" layout="topleft" shortcut="alt|control|H" name="Hover Height"/>
-    <menu_item_call label="シェイプの編集…" layout="topleft" name="Edit My Shape"/>
-    <menu_item_call label="衣装パーツの編集…" layout="topleft" name="Edit Outfit"/>
-    <menu label="脱ぐ" layout="topleft" name="Take Off &gt;">
-      <menu label="服装" layout="topleft" name="Clothes &gt;">
-        <menu_item_call enabled="false" label="シャツ" layout="topleft" name="Shirt"/>
-        <menu_item_call enabled="false" label="ズボン" layout="topleft" name="Pants"/>
-        <menu_item_call enabled="false" label="スカート" layout="topleft" name="Skirt"/>
-        <menu_item_call enabled="false" label="靴" layout="topleft" name="Shoes"/>
-        <menu_item_call enabled="false" label="靴下" layout="topleft" name="Socks"/>
-        <menu_item_call enabled="false" label="上着" layout="topleft" name="Jacket"/>
-        <menu_item_call enabled="false" label="手袋" layout="topleft" name="Gloves"/>
-        <menu_item_call enabled="false" label="下着（上半身）" layout="topleft" name="Self Undershirt"/>
-        <menu_item_call enabled="false" label="下着（下半身）" layout="topleft" name="Self Underpants"/>
-        <menu_item_call enabled="false" label="タトゥ" layout="topleft" name="Self Tattoo"/>
-        <menu_item_call enabled="false" label="物理作用" layout="topleft" name="Self Physics"/>
-        <menu_item_call enabled="false" label="アルファ" layout="topleft" name="Self Alpha"/>
-        <menu_item_separator layout="topleft" />
-        <menu_item_call label="すべての服装" layout="topleft" name="All Clothes"/>
+  <menu label="アバター" name="Avatar">
+    <menu_item_call label="着用中…" name="NowWearing" />
+    <menu_item_call label="アウトフィット…" name="ChangeOutfit" />
+    <menu_item_call label="ホバーする高さ…" name="Hover Height" />
+    <menu_item_call label="シェイプの編集…" name="Edit My Shape" />
+    <menu_item_call label="アウトフィットパーツの編集…" name="Edit Outfit" />
+    <menu label="脱ぐ　＞" name="Take Off &gt;">
+      <menu label="服装　＞" name="Clothes &gt;">
+        <menu_item_call enabled="false" label="シャツ" name="Shirt" />
+        <menu_item_call enabled="false" label="ズボン" name="Pants" />
+        <menu_item_call enabled="false" label="スカート" name="Skirt" />
+        <menu_item_call enabled="false" label="靴" name="Shoes" />
+        <menu_item_call enabled="false" label="靴下" name="Socks" />
+        <menu_item_call enabled="false" label="上着" name="Jacket" />
+        <menu_item_call enabled="false" label="手袋" name="Gloves" />
+        <menu_item_call enabled="false" label="下着（上半身）" name="Self Undershirt" />
+        <menu_item_call enabled="false" label="下着（下半身）" name="Self Underpants" />
+        <menu_item_call enabled="false" label="タトゥ" name="Self Tattoo" />
+        <menu_item_call enabled="false" label="物理作用" name="Self Physics" />
+        <menu_item_call enabled="false" label="アルファ" name="Self Alpha" />
+        <menu_item_separator />
+        <menu_item_call label="すべての服装" name="All Clothes" />
       </menu>
-      <menu label="HUD" layout="topleft" name="Avatar Detach HUD" />
-      <menu label="取り外し" layout="topleft" name="Avatar Detach" />
-      <menu_item_call label="全てを取り外す" layout="topleft" name="Detach All"/>
+      <menu label="HUD" name="Avatar Detach HUD" />
+      <menu label="取り外し" name="Avatar Detach" />
+      <menu_item_call label="全てを取り外す" name="Detach All" />
     </menu>
-    <menu_item_separator/>
-    <menu_item_call label="アバターを選択…" name="Avatar Picker"/>
-    <menu_item_separator/>
+    <menu_item_separator />
+    <menu_item_call label="アバターを選択…" name="Avatar Picker" />
+    <menu_item_separator />
 
-    <menu_item_call label="座る／立つ" layout="topleft" shortcut="alt|shift|S" name="Sit stand"/>
-    <menu_item_call label="飛行／歩行" name="Fly land" shortcut="HOME"/>
-    <menu_item_call label="アニメーション停止" name="Stop Animating My Avatar" allow_key_repeat="true" shortcut="alt|shift|A"/>
-    <menu_item_check label="歩行／走行／飛行…" name="WalkRunFly"/>
-    <menu_item_check label="常時走行" name="Always Run" shortcut="control|R"/>
-    <menu_item_separator/>
-    <menu_item_check label="ジェスチャー…" name="Gestures" shortcut="control|G"/>
-    <menu_item_separator/>
-    <menu_item_call label="スケルトンをリセット" layout="topleft" name="Reset Skeleton"/>
-    <menu_item_call label="スケルトンとアニメーションをリセット" layout="topleft" name="Reset Skeleton And Animations"/>
-    <menu_item_call label="スクリプトを装着…" name="MyScripts"/>
-    <menu_item_separator/>
-    <menu_item_call label="アバターに関するヘルプ…" name="Help with avatars"/>
+    <menu_item_call label="座る／立つ" shortcut="alt|shift|S" name="Sit stand" />
+    <menu_item_call label="飛行／歩行" name="Fly land" shortcut="HOME" />
+    <menu_item_call label="アニメーション停止" name="Stop Animating My Avatar" />
+    <menu_item_check label="歩行／走行／飛行…" name="WalkRunFly" />
+    <menu_item_check label="常時走行" name="Always Run" shortcut="control|R" />
+    <menu_item_separator />
+    <menu_item_check label="ジェスチャー…" name="Gestures" shortcut="control|G" />
+    <menu_item_separator />
+    <menu_item_call label="スケルトンをリセット" name="Reset Skeleton" />
+    <menu_item_call label="スケルトンとアニメーションをリセット" name="Reset Skeleton And Animations" />
+    <menu_item_call label="スクリプトを装着…" name="MyScripts" />
+    <menu_item_separator />
+    <menu_item_call label="アバターに関するヘルプ…" name="Help with avatars" />
   </menu>
   <menu label="コミュニケーション" name="Communicate">
     <menu_item_check label="会話…" name="Conversations" />
     <menu_item_check label="近くのチャット…" name="Nearby Chat" />
-    <menu_item_check label="話す" name="Speak" />
+    <menu_item_check label="ボイスチャット" name="Speak" />
     <menu_item_check label="会話ログ…" name="Conversation Log..." />
     <menu label="ボイスモーフィング" name="VoiceMorphing">
       <menu_item_check label="ボイスモーフィングなし" name="NoVoiceMorphing" />
@@ -89,7 +89,7 @@
     <menu_item_check label="ジェスチャー…" name="Gestures" />
     <menu_item_check label="フレンド" name="My Friends" />
     <menu_item_check label="グループ" name="My Groups" />
-    <menu_item_check label="近くにいる人" name="Active Speakers" />
+    <menu_item_check label="近くにいる人物" name="Active Speakers" />
     <menu_item_check label="リストをブロック" name="Block List" />
     <menu_item_check label="着信拒否" name="Do Not Disturb" />
   </menu>
@@ -100,22 +100,22 @@
     <menu_item_check label="ミニマップ" name="Mini-Map" />
     <menu_item_call label="イベント" name="Events" />
     <menu_item_check label="検索…" name="Search" />
-    <menu_item_separator/>
+    <menu_item_separator />
     <menu_item_call label="ホームにテレポート" name="Teleport Home" />
     <menu_item_call label="現在地をホームに設定" name="Set Home to Here" />
-    <menu_item_separator/>
+    <menu_item_separator />
     <menu_item_call label="スナップショット" name="Take Snapshot" />
 
-    <menu_item_call label="360度スナップショット" name="Capture 360" shortcut="control|alt|shift|s"/>
+    <menu_item_call label="360度スナップショット" name="Capture 360" />
     <menu_item_call label="場所のプロフィール" name="Place Profile" />
-    <menu_item_separator/>
+    <menu_item_separator />
     <menu_item_call label="土地情報" name="About Land" />
     <menu_item_call label="リージョン（地域）／不動産" name="RegionEstate" />
-    <menu_item_call label="自分のLindenホーム…" name="Linden Home"/>
+    <menu_item_call label="自分のLindenホーム…" name="Linden Home" />
     <menu_item_call label="自分の所有地…" name="My Land" />
     <menu_item_call label="この土地を購入" name="Buy Land" />
 
-    <menu_item_separator/>
+    <menu_item_separator />
 
     <menu label="表示" name="LandShow">
       <menu_item_check label="立入禁止ライン" name="Ban Lines" />
@@ -182,10 +182,10 @@
       <menu_item_call label="前のパーツまたは面を含める" name="Include Previous Part or Face" />
     </menu>
     <menu_item_call label="リージョン（地域）オブジェクト" name="pathfinding_linkset_menu_item" />
-    <menu_item_separator/>
+    <menu_item_separator />
     <menu_item_call label="選択をフォーカス" name="Focus on Selection" />
     <menu_item_call label="選択をズーム" name="Zoom to Selection" />
-    <menu_item_separator/>
+    <menu_item_separator />
     <menu label="オブジェクト" name="Object">
       <menu_item_call label="購入" name="Menu Object Buy" />
       <menu_item_call label="取得" name="Menu Object Take" />
@@ -211,25 +211,25 @@
     </menu>
 
 
-    <menu_item_separator/>
+    <menu_item_separator />
 
     <menu label="オプション" name="Options">
       <menu_item_check label="権限の詳細を表示する" name="DebugPermissions" />
 
-      <menu_item_separator/>
+      <menu_item_separator />
 
       <menu_item_check label="自分のオブジェクトだけを選択する" name="Select Only My Objects" />
       <menu_item_check label="動的オブジェクトだけを選択する" name="Select Only Movable Objects" />
       <menu_item_check label="範囲内を選択する" name="Select By Surrounding" />
 
-      <menu_item_separator/>
+      <menu_item_separator />
 
       <menu_item_check label="選択外形を表示" name="Show Selection Outlines" />
       <menu_item_check label="隠れた位置の選択も表示する" name="Show Hidden Selection" />
       <menu_item_check label="選択した光の効果範囲を表示する" name="Show Light Radius for Selection" />
       <menu_item_check label="選択ビームを表示する" name="Show Selection Beam" />
 
-      <menu_item_separator/>
+      <menu_item_separator />
 
       <menu_item_check label="グリッド吸着" name="Snap to Grid" />
       <menu_item_call label="オブジェクトのＸＹ軸をグリッドに吸着" name="Snap Object XY to Grid" />
@@ -238,13 +238,13 @@
       <menu_item_call label="デフォルトの権限設定…" name="Set default permissions" />
     </menu>
     <menu label="アップロード" name="Upload">
-      <menu_item_call label="画像（L$[COST]）…" name="Upload Image" />
-      <menu_item_call label="サウンド（L$[COST]）…" name="Upload Sound" />
-      <menu_item_call label="アニメーション（L$[COST]）…" name="Upload Animation" />
+      <menu_item_call label="画像（L$ [COST]）…" name="Upload Image" />
+      <menu_item_call label="サウンド（L$ [COST]）…" name="Upload Sound" />
+      <menu_item_call label="アニメーション（L$ [COST]）…" name="Upload Animation" />
       <menu_item_call label="モデル" name="Upload Model" />
-      <menu_item_call label="一括 （ファイルにつきL$[COST]）…" name="Bulk Upload" />
+      <menu_item_call label="一括 （ファイルにつきL$ [COST]）…" name="Bulk Upload" />
     </menu>
-    <menu_item_separator/>
+    <menu_item_separator />
     <menu_item_call label="取り消し" name="Undo" />
     <menu_item_call label="やり直し" name="Redo" />
   </menu>
@@ -257,26 +257,26 @@
     <menu_item_call label="日本語サポートページ" name="Support portal" />
     <menu_item_call label="[SECOND_LIFE]ニュース" name="Second Life News" />
     <menu_item_call label="[SECOND_LIFE]ブログ" name="Second Life Blogs" />
-    <menu_item_separator/>
+    <menu_item_separator />
 
     <menu_item_call label="嫌がらせを報告する" name="Report Abuse" />
     <menu_item_call label="バグを報告する" name="Report Bug" />
-    <menu_item_separator/>
+    <menu_item_separator />
 
     <menu_item_call label="衝突・プッシュ＆打撃" name="Bumps, Pushes &amp;amp; Hits" />
     <menu_item_call label="[APP_NAME]について" name="About Second Life" />
   </menu>
   <menu label="拡張" name="Advanced">
-    <menu_item_call label="テクスチャのリベークをする" name="Rebake Texture" />
-    <menu_item_call label="UIのサイズをデフォルトにする" name="Set UI Size to Default" />
+    <menu_item_call label="テクスチャをリベークする" name="Rebake Texture" />
+    <menu_item_call label="UIサイズをデフォルトにする" name="Set UI Size to Default" />
     <menu_item_call label="ウィンドウサイズ設定…" name="Set Window Size..." />
 
-    <menu_item_separator/>
+    <menu_item_separator />
 
     <menu_item_check label="遠くのオブジェクトを選択しない" name="Limit Select Distance" />
     <menu_item_check label="カメラの距離移動を制限しない" name="Disable Camera Distance" />
 
-    <menu_item_separator/>
+    <menu_item_separator />
 
     <menu label="パフォーマンスツール" name="Performance Tools">
       <menu_item_call label="遅延メーター" name="Lag Meter" />
@@ -285,7 +285,7 @@
       <menu_item_check label="アバターの複雑さ情報を表示" name="Avatar Draw Info" />
     </menu>
     <menu label="ハイライトと表示" name="Highlighting and Visibility">
-      <menu_item_check label="安っぽいビーコン" name="Cheesy Beacon" />
+      <menu_item_check label="ビーコンを簡素化" name="Cheesy Beacon" />
       <menu_item_check label="パーティクルを非表示" name="Hide Particles" />
       <menu_item_check label="選択を非表示" name="Hide Selected" />
       <menu_item_check label="透明部分をハイライト" name="Highlight Transparent" />
@@ -306,7 +306,7 @@
       <menu_item_check label="アルファ" name="Rendering Type Alpha" />
       <menu_item_check label="木" name="Rendering Type Tree" />
       <menu_item_check label="アバター" name="Rendering Type Character" />
-      <menu_item_check label="アニメッシュ" name="Rendering Type Control Avatar"/>
+      <menu_item_check label="アニメッシュ" name="Rendering Type Control Avatar" />
       <menu_item_check label="サーフェスパッチ" name="Rendering Type Surface Patch" />
       <menu_item_check label="空" name="Rendering Type Sky" />
       <menu_item_check label="水" name="Rendering Type Water" />
@@ -332,25 +332,25 @@
     <menu_item_check label="マウスの平滑化" name="Mouse Smoothing" />
     <menu_item_call label="リリースキー" name="Release Keys" />
 
-    <menu_item_separator/>
+    <menu_item_separator />
 
     <menu label="ショートカット" name="Shortcuts">
 
       <menu_item_call label="ウィンドウを閉じる" name="Close Window" />
       <menu_item_call label="全てのウィンドウを閉じる" name="Close All Windows" />
 
-      <menu_item_separator/>
+      <menu_item_separator />
 
       <menu_item_call label="スナップショットをディスクに保存する" name="Snapshot to Disk" />
 
-      <menu_item_separator/>
+      <menu_item_separator />
 
       <menu_item_call label="マウスルック" name="Mouselook" />
       <menu_item_check label="ジョイスティック・フライカム" name="Joystick Flycam" />
       <menu_item_call label="表示をリセットする" name="Reset View" />
       <menu_item_call label="最後の発言者を見る" name="Look at Last Chatter" />
 
-      <menu_item_separator/>
+      <menu_item_separator />
 
       <menu_item_call label="ズーム・イン" name="Zoom In" />
       <menu_item_call label="ズーム（デフォルト）" name="Zoom Default" />
@@ -367,20 +367,20 @@
       <menu_item_check label="テクスチャのコンソール" name="Texture Console" />
       <menu_item_check label="デバッグコンソール" name="Debug Console" />
       <menu_item_call label="通知コンソール" name="Notifications" />
-      <menu_item_check label="リージョイん（地域）デバッグコンソール" name="Region Debug Console" />
+      <menu_item_check label="リージョン（地域）デバッグコンソール" name="Region Debug Console" />
       <menu_item_check label="ファーストタイマー" name="Fast Timers" />
       <menu_item_check label="メモリ" name="Memory" />
       <menu_item_check label="シーンの統計" name="Scene Statistics" />
       <menu_item_check label="シーンの読み込みモニター" name="Scene Loading Monitor" />
       <menu_item_call label="テクスチャ取得デバッグコンソール" name="Texture Fetch Debug Console" />
 
-      <menu_item_separator/>
+      <menu_item_separator />
 
       <menu_item_call label="リージョン情報をデバッグコンソールへ" name="Region Info to Debug Console" />
       <menu_item_call label="グループ情報をデバッグコンソールへ" name="Group Info to Debug Console" />
       <menu_item_call label="性能情報をデバッグコンソールへ" name="Capabilities Info to Debug Console" />
 
-      <menu_item_separator/>
+      <menu_item_separator />
 
       <menu_item_check label="カメラ" name="Camera" />
       <menu_item_check label="風" name="Wind" />
@@ -391,19 +391,19 @@
       <menu_item_check label="時間を表示する" name="Show Time" />
       <menu_item_check label="アップロードコストを表示" name="Show Upload Cost" />
       <menu_item_check label="描画情報を表示する" name="Show Render Info" />
-      <menu_item_check label="アバターの描画情報を表示" name="Show Avatar Render Info"/>
+      <menu_item_check label="アバターの描画情報を表示" name="Show Avatar Render Info" />
       <menu_item_check label="テクスチャ情報を表示" name="Show Texture Info" />
       <menu_item_check label="マトリックスを表示する" name="Show Matrices" />
       <menu_item_check label="カーソルを乗せた場所の色を表示する" name="Show Color Under Cursor" />
       <menu_item_check label="メモリを表示" name="Show Memory" />
 
-      <menu_item_separator/>
+      <menu_item_separator />
 
       <menu_item_check label="オブジェクトのアップデートを表示する" name="Show Updates" />
     </menu>
     <menu label="エラー実行" name="Force Errors">
       <menu_item_call label="ブレークポイント" name="Force Breakpoint" />
-      <menu_item_call label="LLError とクラッシュを実行する" name="Force LLError And Crash" />
+      <menu_item_call label="LLErrorとクラッシュを実行する" name="Force LLError And Crash" />
       <menu_item_call label="バッドメモリアクセスを実行する" name="Force Bad Memory Access" />
       <menu_item_call label="無限ループ" name="Force Infinite Loop" />
       <menu_item_call label="ドライバのクラッシュを実行する" name="Force Driver Carsh" />
@@ -498,14 +498,14 @@
 
       <menu_item_call label="パケットをドロップ" name="Drop a Packet" />
     </menu>
-    <menu create_jump_keys="true" label="キャッシュ" name="Cache" tear_off="true">
+    <menu label="キャッシュ" name="Cache">
       <menu_item_call label="ディスクキャッシュをパージ" name="Purge Disk Cache" />
     </menu>
     <menu_item_call label="スクリプト付きカメラをダンプ" name="Dump Scripted Camera" />
     <menu label="レコーダー" name="Recorder">
       <menu_item_call visible="false" label="イベントの記録開始" name="Start event recording" />
-      <menu_item_call visible="false" label="イベントの記録停止" name="Stop event recording"/>
-      <menu_item_call visible="false" label="イベントの記録のプレイバック" name="Playback event recording"/>
+      <menu_item_call visible="false" label="イベントの記録停止" name="Stop event recording" />
+      <menu_item_call visible="false" label="イベントの記録のプレイバック" name="Playback event recording" />
 
       <menu_item_call label="再生開始" name="Start Playback" />
       <menu_item_call label="再生停止" name="Stop Playback" />
@@ -519,11 +519,11 @@
       <menu_item_check label="固定された天気" name="Fixed Weather" />
       <menu_item_call label="リージョンオブジェクトのキャッシュをダンプ" name="Dump Region Object Cache" />
 
-      <menu_item_call label="関心リスト：フルアップデート" name="Interest List: Full Update" shortcut="alt|shift|I"/>
+      <menu_item_call label="関心リスト：フルアップデート" name="Interest List: Full Update" />
     </menu>
     <menu label="UI" name="UI">
       <menu_item_call label="メディアブラウザ" name="Media Browser" />
-      <menu_item_call label="FB接続テスト" name="FB Connect Test"/>
+      <menu_item_call label="FB接続テスト" name="FB Connect Test" />
       <menu_item_call label="SelectMgrをダンプ" name="Dump SelectMgr" />
       <menu_item_call label="インベントリの出力" name="Dump Inventory" />
       <menu_item_call label="タイマーをダンプ" name="Dump Timers" />
@@ -587,11 +587,11 @@
       <menu_item_call label="ローカルテクスチャをダンプ" name="Dump Local Textures" />
     </menu>
 
-    <menu_item_separator/>
+    <menu_item_separator />
 
     <menu_item_check label="HTTPテスクチャ" name="HTTP Textures" />
     <menu_item_call label="圧縮画像" name="Compress Images" />
-    <menu_item_call label="圧縮ファイルテスト" name="Compress File Test"/>
+    <menu_item_call label="圧縮ファイルテスト" name="Compress File Test" />
 
     <menu_item_call label="Visual Leak Detectorを有効にする" name="Enable Visual Leak Detector" />
 
@@ -605,7 +605,7 @@
       <menu_item_check label="なし" name="None" />
     </menu>
 
-    <menu_item_separator/>
+    <menu_item_separator />
 
     <menu_item_call label="管理者ステータスの呼び出し" name="Request Admin Options" />
     <menu_item_call label="管理者ステータス解除" name="Leave Admin Options" />
@@ -657,7 +657,7 @@
         <menu_item_call label="パブリック問題トラッカー" name="Public Issue Tracker" />
         <menu_item_call label="パブリック問題トラッカーヘルプ" name="Publc Issue Tracker Help" />
 
-        <menu_item_separator/>
+        <menu_item_separator />
 
         <menu_item_call label="バグ報告の基礎知識" name="Bug Reporing 101" />
         <menu_item_call label="セキュリティ問題" name="Security Issues" />

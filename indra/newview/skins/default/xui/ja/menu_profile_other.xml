@@ -1,67 +1,23 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<toggleable_menu layout="topleft" name="アバタプロフィールメニュー">
-  <menu_item_call label="IM" layout="topleft" name="im">
-    <menu_item_call.on_click function="Profile.Commit" parameter="im"/>
-  </menu_item_call>
-  <menu_item_call label="テレポートの申込み" name="offer_teleport">
-    <menu_item_call.on_click function="Profile.Commit" parameter="offer_teleport"/>
-    <menu_item_call.on_enable function="Profile.EnableItem" parameter="offer_teleport"/>
-  </menu_item_call>
-  <menu_item_call label="テレポートのリクエスト" name="request_teleport">
-    <menu_item_call.on_click function="Profile.Commit" parameter="request_teleport"/>
-    <menu_item_call.on_enable function="Profile.EnableItem" parameter="request_teleport"/>
-  </menu_item_call>
-  <menu_item_call label="ボイスコール" layout="topleft" name="voice_call">
-    <menu_item_call.on_click function="Profile.Commit" parameter="voice_call"/>
-    <menu_item_call.on_enable function="Profile.EnableItem" parameter="voice_call"/>
-  </menu_item_call>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Avatar Profile Menu">
+  <menu_item_call label="IM" name="im" />
+  <menu_item_call label="テレポートの申込み" name="offer_teleport" />
+  <menu_item_call label="テレポートのリクエスト" name="request_teleport" />
+  <menu_item_call label="ボイスコール" name="voice_call" />
   <menu_item_separator />
-  <menu_item_call label="チャット履歴を表示…" layout="topleft" name="chat_history">
-    <menu_item_call.on_click function="Profile.Commit" parameter="chat_history"/>
-    <menu_item_call.on_enable function="Profile.EnableItem" parameter="chat_history"/>
-  </menu_item_call>
-  <menu_item_separator name="separator_chat_history"/>
-  <menu_item_call label="フレンド追加" layout="topleft" name="add_friend">
-    <menu_item_call.on_click function="Profile.Commit" parameter="add_friend"/>
-    <menu_item_call.on_visible function="Profile.EnableItem" parameter="add_friend"/>
-  </menu_item_call>
-  <menu_item_call label="フレンド削除" layout="topleft" name="remove_friend">
-    <menu_item_call.on_click function="Profile.Commit" parameter="remove_friend"/>
-    <menu_item_call.on_enable function="Profile.EnableItem" parameter="remove_friend"/>
-  </menu_item_call>
-  <menu_item_call label="グループに招待…" layout="topleft" name="invite_to_group">
-    <menu_item_call.on_click function="Profile.Commit" parameter="invite_to_group"/>
-  </menu_item_call>
-  <menu_item_separator name="separator_invite_to_group"/>
-  <menu_item_call label="権限" layout="topleft" name="agent_permissions">
-    <menu_item_call.on_click function="Profile.Commit" parameter="agent_permissions"/>
-    <menu_item_call.on_visible function="Profile.EnableItem" parameter="agent_permissions"/>
-  </menu_item_call>
-  <menu_item_call label="マップ" layout="topleft" name="map">
-    <menu_item_call.on_click function="Profile.Commit" parameter="can_show_on_map"/>
-    <menu_item_call.on_enable function="Profile.EnableItem" parameter="can_show_on_map"/>
-  </menu_item_call>
-  <menu_item_call label="共有" layout="topleft" name="share">
-    <menu_item_call.on_click function="Profile.Commit" parameter="share"/>
-  </menu_item_call>
-  <menu_item_call label="支払い" layout="topleft" name="pay">
-    <menu_item_call.on_click function="Profile.Commit" parameter="pay"/>
-  </menu_item_call>
-  <menu_item_check label="ブロック／解除" layout="topleft" name="block_unblock">
-    <menu_item_check.on_click function="Profile.Commit" parameter="toggle_block_agent"/>
-    <menu_item_check.on_check function="Profile.CheckItem" parameter="toggle_block_agent"/>
-    <menu_item_check.on_enable function="Profile.EnableItem" parameter="toggle_block_agent"/>
-  </menu_item_check>
-  <menu_item_separator name="separator_copy_options"/>
-  <menu_item_call label="表示名をコピー" layout="topleft" name="copy_display_name">
-    <menu_item_call.on_click function="Profile.Commit" parameter="copy_display_name"/>
-    <menu_item_call.on_enable function="Profile.EnableItem" parameter="copy_display_name"/>
-  </menu_item_call>
-  <menu_item_call label="エージェント名をコピー" layout="topleft" name="copy_name">
-    <menu_item_call.on_click function="Profile.Commit" parameter="copy_username"/>
-    <menu_item_call.on_enable function="Profile.EnableItem" parameter="copy_username"/>
-  </menu_item_call>
-  <menu_item_call label="エージェントIdをコピー" layout="topleft" name="copy_id">
-    <menu_item_call.on_click function="Profile.Commit" parameter="copy_user_id"/>
-  </menu_item_call>
+  <menu_item_call label="チャット履歴を表示…" name="chat_history" />
+  <menu_item_separator name="separator_chat_history" />
+  <menu_item_call label="フレンド追加" name="add_friend" />
+  <menu_item_call label="フレンド削除" name="remove_friend" />
+  <menu_item_call label="グループに招待…" name="invite_to_group" />
+  <menu_item_separator name="separator_invite_to_group" />
+  <menu_item_call label="権限" name="agent_permissions" />
+  <menu_item_call label="マップ" name="map" />
+  <menu_item_call label="共有" name="share" />
+  <menu_item_call label="支払い" name="pay" />
+  <menu_item_check label="ブロック／解除" name="block_unblock" />
+  <menu_item_separator name="separator_copy_options" />
+  <menu_item_call label="表示名をコピー" name="copy_display_name" />
+  <menu_item_call label="エージェント名をコピー" name="copy_name" />
+  <menu_item_call label="エージェントIdをコピー" name="copy_id" />
 </toggleable_menu>

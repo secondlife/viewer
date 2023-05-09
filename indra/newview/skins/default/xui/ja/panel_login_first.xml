@@ -19,7 +19,7 @@
       <layout_stack name="images_stack">
         <layout_panel name="images_container">
           <text name="image_caption_left">最初のステップは、アイランドについて学ぶことです。さあ、アイランド探検の入口を見つけてください！</text>
-          <text name="image_caption_right">ソーシャル アイランドを探検して、他の新しい住人を探してください！</text>
+          <text name="image_caption_right">ソーシャルアイランドを探検して、他の新しい住人を探してください！</text>
         </layout_panel>
       </layout_stack>
     </layout_panel>

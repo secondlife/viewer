@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <notifications>
   <global name="skipnexttime">今後は表示しない</global>
-  <global name="skipnexttimesessiononly">以後、これを表示しない（現セッションで）</global>
+  <global name="skipnexttimesessiononly">今後、これを表示しない
+（現セッションで）</global>
   <global name="alwayschoose">常にこのオプションを選択</global>
   <global name="implicitclosebutton">閉じる</global>
   <template name="okbutton">
@@ -49,12 +50,16 @@
 最新ビューアーがインストールされているかご確認ください。
 
 エラー詳細：「 [_NAME] 」という通知はnotifications.xmlにありませんでした。
+    <tag>fail</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
-  <notification name="FloaterNotFound">フロータエラー：下記のコントロールが見つかりませんでした：[CONTROLS]
+  <notification name="FloaterNotFound">フロータエラー：下記のコントロールが見つかりませんでした：
+[CONTROLS]
+    <tag>fail</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="TutorialNotFound">現在利用可能なチュートリアルはありません。
+    <tag>fail</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="GenericAlert">[MESSAGE]</notification>
@@ -70,10 +75,18 @@
   <notification name="LoginFailedNoNetwork">[SECOND_LIFE_GRID]に接続できませんでした。 
 「[DIAGNOSTIC]」
 インターネット接続が正常かご確認ください。
+    <tag>fail</tag>
     <usetemplate name="okbutton" yestext="OK" />
+  </notification>
+  <notification name="LoginFailedToParse">ビューアがサーバーから不正な形式の応答を受け取りました。インターネット接続が正常に機能していることを確認してから、後でもう一度お試しください。
+
+これが誤りだと思われる場合は、サポートにお問い合わせください。
+    <tag>fail</tag>
+    <usetemplate name="okbutton" yestext="OK"/>
   </notification>
   <notification name="MessageTemplateNotFound">メッセージテンプレート[PATH]がありませんでした。
     <usetemplate name="okbutton" yestext="OK" />
+    <tag>fail</tag>
   </notification>
   <notification name="WearableSave">現在の服装、身体部位の変更を保存しますか？
     <usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="保存しない" yestext="保存" />
@@ -82,6 +95,7 @@
     <usetemplate name="okcancelbuttons" notext="アイテムを移動しない" yestext="アイテムを移動" />
   </notification>
   <notification name="OutboxFolderCreated">マーチャントアウトボックスの最上位に転送した各アイテムにつき、それぞれ１つの新しいフォルダが作成されました。
+    <unique/>
     <usetemplate ignoretext="新しいフォルダがマーチャントアウトボックス内に作成されました" name="okignore" yestext="OK" />
   </notification>
   <notification name="OutboxImportComplete">成功 マーケットプレイスに正常に送信されたすべてのフォルダ。
@@ -92,11 +106,11 @@
 詳細については、[[MARKETPLACE_IMPORTS_URL] エラーログ]をご覧ください。
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
-  <notification name="OutboxImportFailed">'[ERROR_CODE]' エラーで転送できませんでした。
+  <notification name="OutboxImportFailed">'[ERROR_CODE]' 以下のエラーで転送できませんでした。
 システムまたはネットワークのエラーのため、フォルダはマーケットプレイスに送信されませんでした。後でもう一度お試しください。
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
-  <notification name="OutboxInitFailed">'[ERROR_CODE]' エラーでマーケットプレイスを初期化できませんでした。
+  <notification name="OutboxInitFailed">'[ERROR_CODE]' マーケットプレイスを初期化できませんでした。
 システムまたはネットワークのエラーのため、マーケットプレイスの初期化に失敗しました。後でもう一度お試しください。
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
@@ -123,48 +137,71 @@
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="MerchantForceValidateListing">リストを作成するために、リストするコンテンツの階層を固定しました。
+    <tag>confirm</tag>
     <usetemplate ignoretext="リストの作成によりコンテンツの階層が修正されることを警告する" name="okignore" yestext="OK" />
   </notification>
   <notification name="ConfirmMerchantActiveChange">この操作により、このリストの有効な内容が変更されます。続けますか？
+    <tag>confirm</tag>
     <usetemplate ignoretext="マーケットプレイスで有効なリストを変更する前に確認する" name="okcancelignore" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="ConfirmMerchantMoveInventory">マーケットプレイスのリストウィンドウにドラッグしたアイテムは元の場所からコピーされるのではなく、移動します。続けますか？
+    <tag>confirm</tag>
     <usetemplate ignoretext="アイテムをインベントリからマーケットプレイスに移動する前に確認する" name="okcancelignore" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="ConfirmListingCutOrDelete">リストフォルダを移動または削除すると、マーケットプレイスのリストが削除されます。マーケットプレイスのリストを維持する場合は、変更するバージョンフォルダの中身を移動または削除してください。続けますか？
+    <tag>confirm</tag>
     <usetemplate ignoretext="マーケットプレイスからリストを移動または削除する前に確認する" name="okcancelignore" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="ConfirmCopyToMarketplace">これらのアイテムの１つまたは複数をマーケットプレイスにコピーする権限がありません。移動するか、置き去りにすることはできます。
+    <tag>confirm</tag>
     <usetemplate canceltext="キャンセル" ignoretext="コピー付加アイテムを含む選択内容をマーケットプレイスへコピーする前に確認する" name="yesnocancelbuttons" notext="アイテムを移動しない" yestext="アイテムを移動" />
   </notification>
   <notification name="ConfirmMerchantUnlist">この操作により、このリストが削除されます。続けますか？
+    <tag>confirm</tag>
     <usetemplate ignoretext="マーケットプレイスで有効なリストを削除する前に確認する" name="okcancelignore" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="ConfirmMerchantClearVersion">この操作により、現在のリストのバージョンフォルダが無効になります。続けますか？
+    <tag>confirm</tag>
     <usetemplate ignoretext="マーケットプレイスでリストのバージョンフォルダを無効にする前に確認する" name="okcancelignore" notext="キャンセル" yestext="OK" />
   </notification>
-  <notification name="AlertMerchantListingNotUpdated">このリストをアップデートできませんでした。[[URL] ここをクリック]してマーケットプレイスで編集します。
+  <notification name="AlertMerchantListingNotUpdated">このリストをアップデートできませんでした。
+[[URL] ここをクリック]してマーケットプレイスで編集します。
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
-  <notification name="AlertMerchantListingCannotWear">マーケットプレイスのリストフォルダにある衣服装やボディパーツを着用できません。</notification>
-  <notification name="AlertMerchantListingInvalidID">リストIDが無効です。</notification>
+  <notification name="AlertMerchantListingCannotWear">マーケットプレイスのリストフォルダにある衣服装やボディパーツを着用できません。
+    <tag>fail</tag>
+  </notification>
+  <notification name="AlertMerchantListingInvalidID">リストIDが無効です。
+    <tag>fail</tag>
+  </notification>
   <notification name="AlertMerchantListingActivateRequired">このリストには複数のバージョンフォルダがあるか、バージョンフォルダがありません。後で、単独でバージョンフォルダを選択して有効にする必要があります。
+    <tag>confirm</tag>
     <usetemplate ignoretext="複数のバージョンフォルダのあるリストを作成するときに、バージョンフォルダの有効化に関する警告が表示されます" name="okignore" yestext="OK" />
   </notification>
   <notification name="AlertMerchantStockFolderSplit">各種の在庫品目を別々の在庫フォルダに分けたため、フォルダはリストに表示できるように配置されています。
+    <tag>confirm</tag>
     <usetemplate ignoretext="リストに表示する前に在庫フォルダが分割されると、警告が表示されます" name="okignore" yestext="OK" />
   </notification>
   <notification name="AlertMerchantStockFolderEmpty">在庫が空のため、リストを削除しました。もう一度リストを表示するには、在庫フォルダにユニットを追加する必要があります。
+    <tag>confirm</tag>
     <usetemplate ignoretext="在庫フォルダが空のためにリストが表示されないと警告が表示されます" name="okignore" yestext="OK" />
   </notification>
   <notification name="AlertMerchantVersionFolderEmpty">バージョンフォルダが空のため、リストを削除しました。もう一度リストを表示するには、バージョンフォルダにアイテムを追加する必要があります。
+    <tag>confirm</tag>
     <usetemplate ignoretext="バージョンフォルダが空のためにリストが表示されないと警告が表示されます" name="okignore" yestext="OK" />
   </notification>
-  <notification name="WriteAnimationFail">アニメーションデータの書き込みに問題があります。後でもう一度お試しください。</notification>
-  <notification name="UploadAuctionSnapshotFail">次の理由で、オークションのスナップショットのアップロード時に問題が起こりました。
-[REASON]</notification>
-  <notification name="UnableToViewContentsMoreThanOne">一度に複数のアイテムの中身を表示できません。アイテムを１つだけ選択して、もう一度お試しください。</notification>
+  <notification name="WriteAnimationFail">アニメーションデータの書き込みに問題があります。後でもう一度お試しください。
+    <tag>fail</tag>
+  </notification>
+  <notification name="UploadAuctionSnapshotFail">以下の理由で、オークションのスナップショットのアップロード時に問題が起こりました：[REASON]
+    <tag>fail</tag>
+  </notification>
+  <notification name="UnableToViewContentsMoreThanOne">一度に複数のアイテムの中身を表示できません。
+アイテムを１つだけ選択して、もう一度お試しください。
+    <tag>fail</tag>
+  </notification>
   <notification name="SaveClothingBodyChanges">服装、身体部位に対する変更をすべて保存しますか？
+    <tag>confirm</tag>
     <usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="保存しない" yestext="すべて保存" />
   </notification>
   <notification name="FriendsAndGroupsOnly">フレンド以外の人からのコールや、インスタントメッセージを無視する設定にしたことを、相手に知られることはありません。
@@ -174,35 +211,46 @@
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="AllowMultipleViewers">複数の Second Lifeビューアーを実行することはサポートされていません。
-  テクスチャキャッシュのコリジョンや破損、およびビジュアルとパフォーマンスの低下につながる恐れがあります。
+テクスチャキャッシュのコリジョンや破損、およびビジュアルとパフォーマンスの低下につながる恐れがあります。
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="GrantModifyRights">他人に修正権限を与えると、権限を与えられた人はあなたが所有するインワールドのオブジェクトを変更、削除、持ち帰ることができます。この権限を与える際には十分に注意してください。
-    [NAME] に修正権限を与えますか？
+[NAME] に修正権限を与えますか？
     <usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい" />
   </notification>
   <notification name="GrantModifyRightsMultiple">他人に修正権限を与えると、権限を与えられた人はあなたが所有するインワールドのオブジェクトを変更することができます。
-    この権限を与える際には十分に注意してください。 選択した住人に修正権限を与えますか？
+この権限を与える際には十分に注意してください。 選択した住人に修正権限を与えますか？
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい" />
   </notification>
-  <notification name="RevokeModifyRights">[NAME]の修正権限を解約しますか？ 
+  <notification name="RevokeModifyRights">[NAME]の修正権限を解除しますか？ 
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい" />
   </notification>
   <notification name="RevokeModifyRightsMultiple">選択した住人から変更権限を取り下げますか？
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい" />
   </notification>
   <notification name="GroupNameLengthWarning">グループ名は[MIN_LEN]～[MAX_LEN]文字である必要があります。
+    <tag>group</tag>
+    <tag>fail</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="UnableToCreateGroup">グループを作成できません。
 [MESSAGE] 
+    <tag>group</tag>
+    <tag>fail</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="PanelGroupApply">[NEEDS_APPLY_MESSAGE]
-[WANT_APPLY_MESSAGE] 
+[WANT_APPLY_MESSAGE]
+    <tag>group</tag>
+    <tag>fail</tag>
     <usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="変更を無視" yestext="変更を適用" />
   </notification>
   <notification name="MustSpecifyGroupNoticeSubject">グループ通知の送信には、件名の記入が必要です。
+    <tag>group</tag>
+    <tag>fail</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="AddGroupOwnerWarning">あなたは、[ROLE_NAME]の役割にメンバーを与えようとしています。任命されたメンバーが自ら退任しない限り、 役柄から削除できません。 
@@ -238,189 +286,341 @@
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="EjectGroupMemberWarning">[AVATAR_NAME]をグループから追放しようとしています。
+    <tag>group</tag>
+    <tag>confirm</tag>
     <usetemplate ignoretext="グループからの参加者の追放を確認します" name="okcancelignore" notext="キャンセル" yestext="追放" />
   </notification>
   <notification name="EjectGroupMembersWarning">[COUNT]名のメンバーをグループから追放しようとしています。
+    <tag>group</tag>
+    <tag>confirm</tag>
     <usetemplate ignoretext="グループからの複数のメンバーの追放を確認します" name="okcancelignore" notext="キャンセル" yestext="追放" />
   </notification>
   <notification name="BanGroupMemberWarning">[AVATAR_NAME]をグループから追放しようとしています。
+    <tag>group</tag>
+    <tag>confirm</tag>
     <usetemplate ignoretext="グループからの参加者の追放を確認します" name="okcancelignore" notext="キャンセル" yestext="禁止" />
   </notification>
   <notification name="BanGroupMembersWarning">[COUNT]名のメンバーをグループから追放しようとしています。
+    <tag>group</tag>
+    <tag>confirm</tag>
     <usetemplate ignoretext="グループからの複数のメンバーの追放を確認します" name="okcancelignore" notext="キャンセル" yestext="禁止" />
   </notification>
   <notification name="GroupBanUserOnBanlist">一部の住人がグループから追放されたため、招待状が送られませんでした。</notification>
-  <notification name="AttachmentDrop">アタッチメントを下に置こうとしています。 続けますか？
+  <notification name="AttachmentDrop">アタッチメントを下に置こうとしています。
+続けてもよろしいですか？
     <usetemplate ignoretext="アタッチメントを下に落とす前の確認" name="okcancelignore" notext="いいえ" yestext="はい" />
   </notification>
-  <notification name="JoinGroupCanAfford">このグループに参加するには、L$ [COST]かかります。 続行しますか？
+  <notification name="JoinGroupCanAfford">このグループに参加するには、L$ [COST]かかります。
+続けますか？
+    <tag>confirm</tag>
+    <tag>funds</tag>
+    <tag>group</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="参加" />
   </notification>
-  <notification name="JoinGroupNoCost">&lt;nolink&gt;[NAME]&lt;/nolink&gt; というグループに入ろうとしています。 続けますか？
+  <notification name="JoinGroupNoCost">&lt;nolink&gt;[NAME]&lt;/nolink&gt; というグループに入ろうとしています。
+続けますか？
+    <tag>group</tag>
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="参加" />
   </notification>
   <notification name="JoinGroupCannotAfford">このグループに加入するには、L$ [COST]必要です。
-L$ が不足しているのでこのグループに参加することができません。</notification>
+L$が不足しているので、このグループに参加することができません。
+    <tag>group</tag>
+    <tag>fail</tag>
+    <tag>funds</tag>
+  </notification>
   <notification name="CreateGroupCost">このグループ作成にかかる費用：L$[COST]
 一人ではグループにならないので、永久に削除されてしまいます。
 ４８時間以内にメンバーを勧誘し、入会してもらってください。
+    <tag>group</tag>
+    <tag>funds</tag>
     <usetemplate canceltext="キャンセル" name="okcancelbuttons" notext="キャンセル" yestext="L$100 でグループを作成" />
   </notification>
   <notification name="JoinGroupInaccessible">あなたはグループに参加することはできません。
+    <tag>group_id</tag>
+    <tag>success</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="JoinGroupError">グループ参加リクエスト中にエラーが発生しました。
+    <tag>group_id</tag>
+    <tag>success</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
-  <notification name="JoinGroupErrorReason">グループに参加できません：[reason]
+  <notification name="JoinGroupErrorReason">以下のグループに参加できませんでした：[reason]
+    <tag>group_id</tag>
+    <tag>success</tag>
+    <tag>reason</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="JoinGroupTrialUser">申し訳ありませんが、トライアルユーザーはグループに参加できません。
+    <tag>group_id</tag>
+    <tag>success</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="JoinGroupMaxGroups">「&lt;nolink&gt;[group_name]&lt;/nolink&gt;」に参加できません：
 既に[group_count] グループのメンバーになっています。参加できるのは最大[max_groups]グループまでです。
+    <tag>success</tag>
+    <tag>group_id</tag>
+    <tag>group_name</tag>
+    <tag>group_count</tag>
+    <tag>max_groups</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="JoinGroupClosedEnrollment">「&lt;nolink&gt;[group_name]&lt;/nolink&gt;」に参加できません：
 このグループは現在、参加が制限されています。
+    <tag>group_id</tag>
+    <tag>success</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
-  <notification name="JoinGroupSuccess">このユーザーグループに追加されました。
+  <notification name="JoinGroupSuccess">このユーザーグループに入会しました。
+    <tag>group_id</tag>
+    <tag>success</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="JoinGroupInsufficientFunds">会員料金として必要なL$ [membership_fee]を送金することができません。
+    <tag>group_id</tag>
+    <tag>success</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
-  <notification name="LandBuyPass">L$ [COST]で[TIME]時間[PARCEL_NAME]に入ることができます。 入場許可を購入しますか？
+  <notification name="LandBuyPass">この区画（[PARCEL_NAME]）は、L$ [COST]で[TIME]時間入ることができます。入場許可証を購入しますか？
+    <tag>fail</tag>
+    <tag>funds</tag>
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
-  <notification name="SalePriceRestriction">不特定の人に売却する場合には、
-売却価格はL$ 0以上に設定する必要があります。
-売却価格をL$ 0に設定する場合は、
-売却する個人を選択してください。</notification>
-  <notification name="ConfirmLandSaleChange">選択した [LAND_SIZE] ㎡の土地は、売り出し中に設定されています。 売却価格 L$
-    [SALE_PRICE] で、[NAME] に売却を認可します。<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
+  <notification name="SalePriceRestriction">不特定の人に売却する場合には、売却価格はL$ 0以上に設定する必要があります。
+売却価格をL$ 0に設定する場合は、売却する個人を選択してください。
+    <tag>fail</tag>
+  </notification>
+  <notification name="ConfirmLandSaleChange">選択した[LAND_SIZE]㎡の土地は、売り出し中に設定されています。 売却価格L$
+    [SALE_PRICE]で、[NAME]に売却を認可します。
+    <tag>confirm</tag>
+    <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="ConfirmLandSaleToAnyoneChange">注意：「誰にでも販売」をクリックすることで、あなたの土地はこのリージョンにいる人に限らず、[SECOND_LIFE]コミュニティ全体で利用可能となります。 
-選択した [LAND_SIZE] ㎡の土地は、販売対象に設定されました。
-販売価格L$ [SALE_PRICE]で、[NAME] が販売対象者となります。
+選択した[LAND_SIZE]㎡の土地は、販売対象に設定されました。
+販売価格L$ [SALE_PRICE]で、[NAME]が販売対象者となります。
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="ReturnObjectsDeededToGroup">グループ「&lt;nolink&gt;[NAME]&lt;/nolink&gt;」と共有するこのにある区画のすべてのオブジェクトを前のオーナーのインベントリに返却しますか？
-*注意*この操作をすると、グループに譲渡された譲渡禁止のオブジェクトを削除することになります。
+*警告*
+この操作をすると、グループに譲渡された譲渡禁止のオブジェクトを削除することになります。
 オブジェクト：[N]
+    <tag>confirm</tag>
+    <tag>group</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="ReturnObjectsOwnedByUser">この区画で、 住人 [NAME] が所有する全てのオブジェクトを本人のインベントリに本当に返却してもよいですか？
 オブジェクト：[N]
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="ReturnObjectsOwnedBySelf">この土地区画内にある、あなたが所有するすべてのオブジェクトを、あなたのインベントリに戻そうとしています。続けますか？
 オブジェクト：[N]
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="ReturnObjectsNotOwnedBySelf">この土地区画内にある、あなた以外が所有するすべてのオブジェクトを、それぞれの所有者のインベントリに戻そうとしています。 操作を続行しますか？ 
 グループに譲渡された「再販・プレゼント可」のオブジェクトは、以前の所有者に返却されます。
 
 *警告* 
+
 これにより、グループに譲渡された「再販・プレゼント不可」のオブジェクトは削除されます！
 オブジェクト：[N]
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="ReturnObjectsNotOwnedByUser">この土地区画内にある、[NAME]以外による所有のオブジェクトをすべてそれぞれの所有者のインベントリに返却しようとしています。操作を続行しますか？
 グループに譲渡された「再販・プレゼント可」のオブジェクトは、以前の所有者に返却されます。
 
 *警告* 
+
 これにより、グループに譲渡された「再販・プレゼント不可」のオブジェクトは削除されます！ 
 オブジェクト：[N]
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="ReturnAllTopObjects">リストされた全てのオブジェクトを所有者の持ち物に戻しますか？
 これによりすべてのスクリプト化されたオブジェクトがリージョンに戻ります！
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="DisableAllTopObjects">このリージョン（地域）内のすべてのオブジェクトを無効にしようとしています。操作を続行しますか？
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="ReturnObjectsNotOwnedByGroup">グループ &lt;nolink&gt;[NAME]&lt;/nolink&gt;と共有されていない、この区画にあるオブジェクトを前のオーナーに返却しますか？
 オブジェクト：[N] 
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="UnableToDisableOutsideScripts">スクリプトを無効にできません。
 このリージョン（地域）全体が「ダメージ有効」に設定されています。
-武器を使用するにはスクリプトの実行を許可する必要があります。</notification>
+武器を使用するにはスクリプトの実行を許可する必要があります。
+    <tag>fail</tag>
+  </notification>
   <notification name="MultipleFacesSelected">現在複数の面が選択されています。
 このまま続けた場合、メディアの別々のインスタンスがオブジェクトの複数の面に設定されます。
 メディアを１つの面だけに取り付けるには、「面を選択」を選んでオブジェクトの希望する面をクリック、それから「追加」をクリックしてください。
+    <tag>confirm</tag>
     <usetemplate ignoretext="メディアが選択した複数の面にセットされるとき" name="okcancelignore" notext="キャンセル" yestext="OK" />
   </notification>
-  <notification name="MustBeInParcel">着地点を設定するには、この区画の内側に立ってください。</notification>
-  <notification name="PromptRecipientEmail">受信者の有効なメールアドレスを入力してください。</notification>
-  <notification name="PromptSelfEmail">あなたのメールアドレスを入力してください。</notification>
+  <notification name="MustBeInParcel">着地点を設定するには、この区画の内側に立ってください。
+    <tag>fail</tag>
+  </notification>
+  <notification name="PromptRecipientEmail">受信者の有効なメールアドレスを入力してください。
+    <tag>fail</tag>
+  </notification>
+  <notification name="PromptSelfEmail">あなたのメールアドレスを入力してください。
+    <tag>fail</tag>
+  </notification>
   <notification name="PromptMissingSubjMsg">デフォルトの件名またはメッセージを付けて、スナップショットを送信しますか？
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
-  <notification name="ErrorProcessingSnapshot">スナップショットデータの処理エラー</notification>
-  <notification name="ErrorEncodingSnapshot">スナップショットのエンコード化でエラーが出ました！</notification>
-  <notification name="ErrorCannotAffordUpload">このアイテムをアップロードするには、L$[COST]が必要です。</notification>
-  <notification name="ErrorPhotoCannotAfford">インベントリに写真を保存するには、L$[COST]が必要です。L$を購入するか、代わりに写真をコンピュータに保存できます。</notification>
-  <notification name="ErrorTextureCannotAfford">インベントリにテクスチャを保存するには、L$[COST]が必要です。L$を購入するか、代わりに写真をコンピュータに保存できます。</notification>
-  <notification name="ErrorUploadingPostcard">次の理由で、スナップショットの送信時に問題が起こりました：[REASON]</notification>
-  <notification name="ErrorUploadingReportScreenshot">次の理由で、レポートのスクリーンショットのアップロード時に問題が起こりました。
-[REASON]</notification>
-  <notification name="MustAgreeToLogIn">[SECOND_LIFE] へのログインを続けるには、Second Lifeの利用規約、プライバシーポリシー、およびサービス規約に同意する必要があります。</notification>
-  <notification name="CouldNotPutOnOutfit">衣装を装着できません。衣装フォルダに服装、身体部位、アタッチメントがありません。</notification>
-  <notification name="CannotWearTrash">ごみ箱にある服装や身体部位の着用はできません。</notification>
-  <notification name="MaxAttachmentsOnOutfit">オブジェクトを付けられませんでした。最大数の [MAX_ATTACHMENTS] 個を越えています。 どれか取り外してからお試しください。</notification>
-  <notification name="CannotWearInfoNotComplete">まだ読み込まれていないため、そのアイテムを装着できません。後でやり直してください。</notification>
-  <notification name="MustEnterPasswordToLogIn">ログインするためにパスワードを入力してください</notification>
-  <notification name="MustHaveAccountToLogIn">注意：記入漏れの箇所があります。 アバターのユーザー名を入力してください。 [SECOND_LIFE]に入るにはアカウントが必要です。今すぐアカウントを作成しますか？
+  <notification name="ErrorProcessingSnapshot">スナップショットデータの処理エラー
+    <tag>fail</tag>
+  </notification>
+  <notification name="ErrorEncodingSnapshot">スナップショットのエンコードエラー
+    <tag>fail</tag>
+  </notification>
+  <notification name="ErrorCannotAffordUpload">このアイテムをアップロードするには、L$[COST]が必要です。
+    <tag>fail</tag>
+  </notification>
+  <notification name="ErrorPhotoCannotAfford">インベントリに写真を保存するには、L$[COST]が必要です。L$を購入するか、代わりに写真をコンピュータに保存できます。
+    <tag>fail</tag>
+  </notification>
+  <notification name="ErrorTextureCannotAfford">インベントリにテクスチャを保存するには、L$[COST]が必要です。L$を購入するか、代わりに写真をコンピュータに保存できます。
+    <tag>fail</tag>
+  </notification>
+  <notification name="ErrorUploadingPostcard">以下の理由でスナップショットの送信時に問題が起こりました：[REASON]
+    <tag>fail</tag>
+  </notification>
+  <notification name="ErrorUploadingReportScreenshot">以下の理由で、レポートのスクリーンショットのアップロード時に問題が起こりました：[REASON]
+    <tag>fail</tag>
+  </notification>
+  <notification name="MustAgreeToLogIn">[SECOND_LIFE]へのログインを続けるには、Second Lifeの利用規約、プライバシーポリシー、およびサービス規約に同意する必要があります。
+    <tag>fail</tag>
+  </notification>
+  <notification name="CouldNotPutOnOutfit">アウトフィットを装着できません。
+アウトフィットフォルダに服装、身体部位、アタッチメントがありません。
+    <tag>fail</tag>
+  </notification>
+  <notification name="CannotWearTrash">ごみ箱にある服装や身体部位は、着用できません。
+    <tag>fail</tag>
+  </notification>
+  <notification name="MaxAttachmentsOnOutfit">オブジェクトを装着できませんでした。
+最大装着数[MAX_ATTACHMENTS]個を越えています。どれか取り外してからお試しください。
+    <tag>fail</tag>
+  </notification>
+  <notification name="CannotWearInfoNotComplete">まだ読み込まれていないため、そのアイテムを装着できません。後でやり直してください。
+    <tag>fail</tag>
+  </notification>
+  <notification name="MustEnterPasswordToLogIn">ログインするためにパスワードを入力してください。
+    <tag>fail</tag>
+  </notification>
+  <notification name="MustHaveAccountToLogIn">おっと、記入漏れがあります。
+アバターのユーザー名を入力してください。
+
+[SECOND_LIFE]に入るにはアカウントが必要です。今すぐアカウントを作成しますか？
+    <tag>confirm</tag>
     <url name="url">[create_account_url]</url>
     <usetemplate name="okcancelbuttons" notext="もう一度試す" yestext="新しいアカウントを作成" />
   </notification>
-  <notification name="InvalidCredentialFormat">ユーザー名のフィールドにアバターのユーザー名もしくは氏名を入力してから、再度ログインする必要があります。</notification>
-  <notification name="InvalidGrid">'[GRID]' は有効なグリッド ID ではありません。</notification>
-  <notification name="InvalidLocationSLURL">ログイン位置で有効なグリッドが指定されませんでした。</notification>
-  <notification name="DeleteClassified">クラシファイド広告 [NAME] を削除しますか？ 支払い済みの料金は返金されません。
+  <notification name="InvalidCredentialFormat">ユーザー名のフィールドにアバターのユーザー名もしくは氏名を入力してから、再度ログインする必要があります。
+    <tag>fail</tag>
+  </notification>
+  <notification name="InvalidGrid">「[GRID]」は、有効なグリッドIDではありません。
+    <tag>fail</tag>
+  </notification>
+  <notification name="InvalidLocationSLURL">ログイン位置で有効なグリッドが指定されませんでした。
+    <tag>fail</tag>
+  </notification>
+  <notification name="DeleteClassified">クラシファイド広告『[NAME]』を削除してもよろしいですか？
+支払い済みの料金は返金されません。
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
-  <notification name="DeleteMedia">この面にあるメディアを削除する選択をしました。 続けますか？
+  <notification name="DeleteMedia">この顔に紐づけられたメディアの削除を選択しました。
+続行してもよろしいですか？
+    <tag>confirm</tag>
     <usetemplate ignoretext="オブジェクトからメディアを削除する前の確認" name="okcancelignore" notext="いいえ" yestext="はい" />
   </notification>
   <notification name="ClassifiedSave">クラシファイド広告[NAME]への変更を保存しますか？
+    <tag>confirm</tag>
     <usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="保存しない" yestext="保存" />
   </notification>
   <notification name="ClassifiedInsufficientFunds">クラシファイド広告を出すには、資金が足りません。
+    <tag>fail</tag>
     <usetemplate name="okbutton" yestext="OK" />
+  </notification>
+
+  <notification name="ProfileDeleteClassified">クラシファイド広告&lt;nolink&gt;[CLASSIFIED]&lt;/nolink&gt;を削除してもよろしいですか？
+    <tag>confirm</tag>
+    <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
+  </notification>
+  <notification name="ProfileDeletePick">ピック&lt;nolink&gt;[PICK]&lt;/nolink&gt;を削除してもよろしいですか？
+    <tag>confirm</tag>
+    <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
+  </notification>
+  <notification name="ProfileUnpublishedClassified">未公開のクラシファイド広告があります。
+ウィンドウを閉じると変更が失われます。
+    <tag>confirm</tag>
+    <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
+  </notification>
+  <notification name="ProfileUnsavedChanges">保存されていない変更があります。
+    <tag>confirm</tag>
+    <tag>save</tag>
+    <usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="破棄" yestext="保存"/>
   </notification>
   <notification name="DeleteAvatarPick">&lt;nolink&gt;[PICK]&lt;/nolink&gt;を削除しますか？
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
-  <notification name="DeleteOutfits">選択した衣装を削除しますか？
+  <notification name="DeleteOutfits">このアウトフィットを削除してもよろしいですか？
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
-  <notification name="PromptGoToEventsPage">[SECOND_LIFE] イベント Web ページに移動しますか？
-    <url name="url">http://secondlife.com/events/?lang=ja-JP</url>
+  <notification name="PromptGoToEventsPage">[SECOND_LIFE]イベントWebページに移動しますか？
+    <url name="url">https://secondlife.com/my/community/events/?lang=ja-JP</url>
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
-  <notification name="SelectProposalToView">表示する提案を選択してください。</notification>
-  <notification name="SelectHistoryItemToView">表示する履歴アイテムを選択してください。</notification>
-  <notification name="CacheWillClear">[APP_NAME] を再起動後にキャッシュがクリアされます。</notification>
-  <notification name="CacheWillBeMoved">[APP_NAME] を再起動後にキャッシュが移動されます。
-    ご注意：キャッシュがクリアされます。</notification>
-  <notification name="ChangeConnectionPort">ポートの設定は [APP_NAME] を再起動後に反映されます。</notification>
-  <notification name="ChangeDeferredDebugSetting">デバッグ設定の変更は [APP_NAME] を再起動後に反映されます。</notification>
-  <notification name="ChangeSkin">新しいスキンは [APP_NAME] を再起動後に表示されます。</notification>
-  <notification name="ChangeLanguage">言語の変更は [APP_NAME] を再起動後に反映されます。</notification>
-  <notification name="GoToAuctionPage">[SECOND_LIFE]の Web ページに移動し、入札あるいはオークションの詳細を確認しますか？
+  <notification name="SelectProposalToView">表示する提案を選択してください。
+    <tag>fail</tag>
+  </notification>
+  <notification name="SelectHistoryItemToView">表示する履歴アイテムを選択してください。
+    <tag>fail</tag>
+  </notification>
+
+  <!--
+  <notification name="ResetShowNextTimeDialogs">Would you like to re-enable all these popups, which you previously indicated &apos;Don&apos;t show me again&apos;?
+    <usetemplate name="okcancelbuttons" notext="Cancel" yestext="OK"/>
+  </notification>
+  <notification name="SkipShowNextTimeDialogs">Would you like to disable all popups which can be skipped?
+    <usetemplate name="okcancelbuttons" notext="Cancel" yestext="OK"/>
+  </notification>
+  -->
+
+  <notification name="CacheWillClear">キャッシュは、[APP_NAME]再起動後にクリアされます。</notification>
+  <notification name="CacheWillBeMoved">キャッシュは、[APP_NAME]再起動後が移動されます。
+注意：キャッシュがクリアされます。</notification>
+  <notification name="ChangeConnectionPort">ポートの設定は、[APP_NAME]再起動後に反映されます。</notification>
+  <notification name="ChangeDeferredDebugSetting">デバッグ設定の変更は、[APP_NAME]再起動後に反映されます。</notification>
+  <notification name="ChangeSkin">新しいスキンは、[APP_NAME]再起動後に表示されます。</notification>
+  <notification name="ChangeLanguage">言語の変更は、[APP_NAME]再起動後に反映されます。</notification>
+  <notification name="GoToAuctionPage">[SECOND_LIFE]のWebページに移動し、入札あるいはオークションの詳細を確認しますか？
+    <tag>confirm</tag>
     <url name="url">http://secondlife.com/auctions/auction-detail.php?id=[AUCTION_ID]</url>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="SaveChanges">変更を保存しますか？
+    <tag>confirm</tag>
     <usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="保存しない" yestext="保存" />
   </notification>
   <notification name="DeleteNotecard">ノートカードを削除しますか？
+    <unique />
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="LoadPreviousReportScreenshot">以前のスクリーンショットをレポートに使用しますか？
@@ -428,170 +628,368 @@ L$ が不足しているのでこのグループに参加することができ�
   </notification>
   <notification name="GestureSaveFailedTooManySteps">ジェスチャーの保存に失敗しました。
 ステップが多すぎます。
-ステップをいくつか削除してから再保存してください</notification>
-  <notification name="GestureSaveFailedTryAgain">ジェスチャーの保存に失敗しました。少し待ってからもう一度試してください。</notification>
+ステップをいくつか削除してから再保存してください
+    <tag>fail</tag>
+  </notification>
+  <notification name="GestureSaveFailedTryAgain">ジェスチャーの保存に失敗しました。
+少し待ってからもう一度試してください。
+    <tag>fail</tag>
+  </notification>
   <notification name="GestureSaveFailedObjectNotFound">ジェスチャーの保存に失敗しました。オブジェクト、または関連するオブジェクトインベントリが見つかりません。
-    オブジェクトが範囲内に存在しないか、または削除された可能性があります。</notification>
-  <notification name="GestureSaveFailedReason">次の理由で、ジェスチャーの保存時に問題が起こりました。 [REASON]。 後でもう一度試してください。</notification>
+オブジェクトが範囲内に存在しないか、削除された可能性があります。
+    <tag>fail</tag>
+  </notification>
+  <notification name="GestureSaveFailedReason">以下の理由で、ジェスチャーの保存時に問題が起こりました：[REASON]
+お手数ですが、後でもう一度試してください。
+    <tag>fail</tag>
+  </notification>
   <notification name="SaveNotecardFailObjectNotFound">ノートカードの保存に失敗しました。オブジェクト、または関連するオブジェクトインベントリが見つかりません。
-オブジェクトが範囲内に存在しないか、または削除された可能性があります。</notification>
-  <notification name="SaveNotecardFailReason">次の理由で、ノートカードの保存時に問題が起こりました。 [REASON]。 後でもう一度試してください。</notification>
+オブジェクトが範囲内に存在しないか、削除された可能性があります。
+    <tag>fail</tag>
+  </notification>
+  <notification name="SaveNotecardFailReason">以下の理由で、ノートカードの保存時に問題が起こりました：[REASON]
+お手数ですが、後でもう一度試してください。
+    <tag>fail</tag>
+  </notification>
   <notification name="ScriptCannotUndo">あなたのスクリプトのバージョンでは、変更を元に戻すことはできませんでした。
-サーバーの最新保存バージョンをロードしますか？ （**警告**：この操作後元に戻すことはできません）
+サーバーの最新保存バージョンをロードしますか？
+（**警告**：この操作後元に戻すことはできません）
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
   <notification name="SaveScriptFailObjectNotFound">スクリプトの保存に失敗しました。スクリプトが入ったオブジェクトが見つかりません。
-オブジェクトは範囲外か、または削除されているかもしれません。</notification>
+オブジェクトは範囲外か、または削除されているかもしれません。
+    <tag>fail</tag>
+  </notification>
   <notification name="StartRegionEmpty">ログイン位置が指定されていません。
 ログイン位置の欄にリージョン名を入力するか、「最後にログアウトした場所」か「自宅（ホーム）」を選択してください。
+    <tag>fail</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
   <notification name="CouldNotStartStopScript">スクリプトの起動または停止に失敗しました。スクリプトが格納されているオブジェクトが見つかりません。
-オブジェクトが範囲内に存在しないか、または削除された可能性があります。</notification>
-  <notification name="CannotDownloadFile">ファイルをダウンロードできません。</notification>
-  <notification label="" name="MediaFileDownloadUnsupported">[SECOND_LIFE]でサポートされていないファイルのダウンロードを要求しました。
+オブジェクトが範囲内に存在しないか、または削除された可能性があります。
+    <tag>fail</tag>
+  </notification>
+  <notification name="CannotDownloadFile">ファイルをダウンロードできません。
+    <tag>fail</tag>
+  </notification>
+  <notification label="" name="MediaFileDownloadUnsupported">ダウンロードをリクエストしたファイルは[SECOND_LIFE]でサポートされていません。
+    <unique/>
+    <tag>confirm</tag>
     <usetemplate ignoretext="サポートされていないファイルのダウンロードを警告する" name="okignore" yestext="OK" />
   </notification>
-  <notification name="CannotWriteFile">ファイル [[FILE]] を書き込めません。</notification>
-  <notification name="UnsupportedHardware">お使いのコンピューターは [APP_NAME] の必要最低限の動作環境を満たしていません。
-パフォーマンスの低下を感じるかもしれません。 恐れ入りますが [SUPPORT_SITE] ではサポート対象外のシステムに関する技術的サポートは行っておりません。[_URL]に移動して確認をしますか？
+  <notification name="CannotWriteFile">ファイル[[FILE]]に書き込むことができませんでした。
+    <tag>fail</tag>
+  </notification>
+  <notification name="UnsupportedHardware">お使いのコンピュータは [APP_NAME] の最小システム要件を満たしていません。
+このためパフォーマンスが低下する場合があります。恐れ入りますが[SUPPORT_SITE]は、サポートされていないシステム構成に対する技術的サポートを提供できません。
+
+詳細について、[_URL]を確認しますか？
     <url name="url" option="0">http://secondlife.com/support/sysreqs.php?lang=ja</url>
+    <tag>fail</tag>
     <usetemplate ignoretext="使用中のコンピューターのハードウェアがサポートされていないとき" name="okcancelignore" notext="いいえ" yestext="はい" />
   </notification>
-  <notification name="RunLauncher">ビューアー実行ファイルを直接実行しないでください。代わりに、既存のショートカットの内のどれかをアップデートし、SL_Launcherを実行してください。</notification>
   <notification name="OldGPUDriver">グラフィックスチップに最新のドライバがある可能性があります。グラフィックドライバを更新することにより、大幅にパフォーマンスが向上します。
 ドライバの更新を確認するために [URL]にアクセスしますか？
     <url name="url">[URL]</url>
+    <tag>confirm</tag>
+    <tag>fail</tag>
     <usetemplate ignoretext="使用中のグラフィックドライバが古くなっています" name="okcancelignore" notext="いいえ" yestext="はい" />
   </notification>
-  <notification name="UnknownGPU">お使いのシステムには、[APP_NAME] が認識できないグラフィックカードが搭載されています。 [APP_NAME]でまだテストされていない最新ハードウェアのためだと考えられます。
-問題ないとは思いますが、グラフィックの設定を調整する必要があるかもしれません。 （「私」＞「初期設定」 ＞「グラフィック」）
+  <notification name="UnknownGPU">お使いのシステムには、[APP_NAME]が認識できないグラフィックカードが搭載されています。 [APP_NAME]でまだテストされていない最新ハードウェアのためだと考えられます。
+問題ないとは思いますが、グラフィックの設定を調整する必要があるかもしれません。
+（「私」＞「初期設定」＞「グラフィック」）
+    <tag>fail</tag>
     <form name="form">
       <ignore name="ignore" text="使用中のグラフックカードが認識されないとき" />
     </form>
   </notification>
   <notification name="DisplaySettingsNoShaders">グラフィックドライバを初期化中に [APP_NAME] がクラッシュしました。
-ドライバの一般的なエラーを防ぐために、画質が低に設定されます。 そのため、一部のグラフィック特性に制限が出ます。
+ドライバの一般的なエラーを防ぐために、画質が低に設定されます。このため、一部のグラフィック特性に制限が出ます。
 お使いのグラフィックカードのドライバをアップデートするようおすすめします。
-画質は、初期設定 ＞ グラフィック で設定できます。</notification>
-  <notification name="RegionNoTerraforming">[REGION] では、地形の変更ができません。</notification>
-  <notification name="ParcelNoTerraforming">あなたには [PARCEL] 区画を地形編集する許可がありません。</notification>
-  <notification name="CannotCopyWarning">あなたには次アイテムをコピーする権限がありません：
-    &lt;nolink&gt;[ITEMS]&lt;/nolink&gt; 他の住人に譲ると、そのアイテムはあなたの持ち物から削除されます。本当にこれらのアイテムを譲りますか？
+画質は、「初期設定：＞「グラフィック」で設定できます。
+    <tag>fail</tag>
+  </notification>
+  <notification name="AutoFPSConfirmDisable">この設定を変更すると、「自動調整」の設定が無効になります。
+続けてもよろしいですか？
+    <tag>confirm</tag>
+    <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="続ける"/>
+  </notification>
+  <notification name="AdvancedLightingConfirm">高度な照明をオンにするには、品質をレベル4以上にする必要があります。
+    <tag>confirm</tag>
+    <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
+  </notification>
+  <notification name="ShadowsConfirm">影を有効にするには、品質をレベルを4以上にする必要があります。
+    <tag>confirm</tag>
+    <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
+  </notification>
+  <notification name="RegionNoTerraforming">[REGION]では、地形の変更ができません。
+    <tag>fail</tag>
+  </notification>
+  <notification name="ParcelNoTerraforming">[PARCEL]区画の地形を編集する権限がありません。
+    <tag>fail</tag>
+  </notification>
+  <notification name="CannotCopyWarning">以下のアイテムをコピーする権限がありません：
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+他の人に譲ると、そのアイテムはあなたの持ち物から削除されます。本当にこれらのアイテムを譲りますか？
+    <tag>confirm</tag>
+    <tag>fail</tag>
     <usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい" />
   </notification>
-  <notification name="CannotGiveItem">インベントリのアイテムを渡せません。</notification>
-  <notification name="TransactionCancelled">取引がキャンセルされました。</notification>
-  <notification name="TooManyItems">一度に 42 個以上のアイテムは渡せません。</notification>
-  <notification name="NoItems">選択したアイテムを渡す権限がありません。</notification>
-  <notification name="CannotCopyCountItems">あなたは選択した [COUNT] 個のアイテムののコピーを許されていません。
-これらのアイテムはあなたのインベントリから失われます。 本当にアイテムを渡したいですか？
+  <notification name="CannotGiveItem">インベントリのアイテムを渡すことができません。
+    <tag>fail</tag>
+  </notification>
+  <notification name="TransactionCancelled">取引がキャンセルされました。
+    <tag>fail</tag>
+  </notification>
+  <notification name="TooManyItems">一度に42個以上のアイテムを渡すことはできません。
+    <tag>fail</tag>
+  </notification>
+  <notification name="NoItems">選択したアイテムを渡す権限がありません。
+    <tag>fail</tag>
+  </notification>
+  <notification name="CannotCopyCountItems">あなたは選択した[COUNT]個のアイテムののコピーを許されていません。
+これらのアイテムはあなたのインベントリから失われます。
+本当にアイテムを渡してもよろしいですか？
+    <tag>confirm</tag>
+    <tag>fail</tag>
     <usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい" />
   </notification>
-  <notification name="CannotGiveCategory">選択したフォルダを渡す権限がありません</notification>
-  <notification name="FreezeAvatar">このアバターをフリーズしますか？ アバターは一時的に動けなくなり、チャットを含めインワールドで何もできなくなります。
+  <notification name="CannotGiveCategory">選択したフォルダを渡す権限がありません。
+    <tag>fail</tag>
+  </notification>
+  <notification name="FreezeAvatar">このアバターをフリーズしますか？
+アバターは一時的に動けなくなり、チャットを含めインワールドで何もできなくなります。
+    <tag>confirm</tag>
     <usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="解除" yestext="フリーズ" />
   </notification>
   <notification name="FreezeAvatarFullname">[AVATAR_NAME]をフリーズしますか？
 フリーズされた人は一時的に動けなくなり、チャットなど、この世界に対する関わりを持つことができなくなります。
+    <tag>confirm</tag>
     <usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="解除" yestext="フリーズ" />
   </notification>
-  <notification name="EjectAvatarFullname">あなたの土地から [AVATAR_NAME] を追放しますか？
-    <usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="追放と禁止" yestext="追放" />
+  <notification name="EjectAvatarFullname">あなたの土地から[AVATAR_NAME]を追放しますか？
+    <tag>confirm</tag>
+    <usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="追放しバンする" yestext="追放する" />
   </notification>
   <notification name="EjectAvatarNoBan">このアバターをあなたの土地から追放しますか？
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="追放" />
   </notification>
-  <notification name="EjectAvatarFullnameNoBan">[AVATAR_NAME] をあなたの土地から追放しますか？
+  <notification name="EjectAvatarFullnameNoBan">[AVATAR_NAME]をあなたの土地から追放しますか？
+    <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="追放" />
   </notification>
-  <notification name="EjectAvatarFromGroup">&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt; から[AVATAR_NAME] を追放しました</notification>
-  <notification name="AcquireErrorTooManyObjects">取得エラー：選択したオブジェクトの数が多すぎます。</notification>
-  <notification name="AcquireErrorObjectSpan">取得エラー：
-オブジェクトが複数のリージョン（地域）にまたがって存在しています。
-すべて同じリージョン内に移動させてから取得してください。</notification>
-  <notification name="PromptGoToCurrencyPage">[EXTRA] [_URL] に移動してリンデンドル購入に関する情報を確認しますか？ 
+  <notification name="EjectAvatarFromGroup">&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt; から[AVATAR_NAME] を追放しました。
+    <tag>group</tag>
+  </notification>
+  <notification name="AcquireErrorTooManyObjects">取得エラー：選択したオブジェクトの数が多すぎます。
+    <tag>fail</tag>
+  </notification>
+  <notification name="AcquireErrorObjectSpan">取得エラー：オブジェクトが複数のリージョン（地域）にまたがって存在しています。
+すべて同じリージョン内に移動させてから取得してください。
+    <tag>fail</tag>
+  </notification>
+  <notification name="PromptGoToCurrencyPage">[EXTRA]
+  
+[_URL]に移動してリンデンドル購入に関する情報を確認しますか？ 
     <url name="url">http://secondlife.com/app/currency/?lang=ja-JP</url>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
-  <notification name="MuteLimitReached">[MUTE_LIMIT] エントリの制限に達したため、ブロックリストに新しいエントリを追加できません。</notification>
+  <notification name="MuteLimitReached">[MUTE_LIMIT]エントリの制限に達したため、ブロックリストに新しいエントリを追加できません。
+    <tag>fail</tag>
+  </notification>
   <notification name="UnableToLinkObjects">[COUNT] 個のオブジェクトをリンクできません。
-リンクできるのは最大 [MAX] 個です。</notification>
-  <notification name="CannotLinkIncompleteSet">セットで揃っているオブジェクトのみリンクできます。
-複数のオブジェクトを選択してください。</notification>
+リンクできるオブジェクトは最大[MAX]個です。
+    <tag>fail</tag>
+  </notification>
+  <notification name="CannotLinkIncompleteSet">セットで揃っているオブジェクトのみリンクできます。複数のオブジェクトを選択してください。
+    <tag>fail</tag>
+  </notification>
   <notification name="CannotLinkModify">すべてのオブジェクトの修正許可がないためリンクできません。
-どのオブジェクトもロックされておらず、あなたのものであることを確認してください。</notification>
-  <notification name="CannotLinkPermanent">リージョン（地域）の境界を越えてオブジェクトをリンクできません。</notification>
-  <notification name="CannotLinkAcrossRegions">リージョン（地域）の境界を越えてオブジェクトをリンクできません。</notification>
+
+どのオブジェクトもロックされておらず、あなたのものであることを確認してください。
+    <tag>fail</tag>
+  </notification>
+  <notification name="CannotLinkPermanent">リージョン（地域）の境界を越えてオブジェクトをリンクできません。
+    <tag>fail</tag>
+  </notification>
+  <notification name="CannotLinkAcrossRegions">リージョン（地域）の境界を越えてオブジェクトをリンクできません。
+    <tag>fail</tag>
+  </notification>
   <notification name="CannotLinkDifferentOwners">所有者が異なるため、オブジェクトをリンクできません。
-自分が所有しているオブジェクトだけを選択してください。</notification>
-  <notification name="NoFileExtension">「 [FILE] 」の拡張子が無効です。
+自分が所有しているオブジェクトだけを選択してください。
+    <tag>fail</tag>
+  </notification>
+  <notification name="NoFileExtension">ファイル「 [FILE] 」の拡張子は無効です。
 
 このファイルの拡張子が正しいかどうかを確認してください。</notification>
-  <notification name="InvalidFileExtension">[EXTENSION] は無効です。 正しい拡張子：[VALIDS] 
+  <notification name="InvalidFileExtension">[EXTENSION]は無効なファイルの拡張子です。
+有効な拡張子：[VALIDS] 
+    <tag>fail</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
-  <notification name="CannotUploadSoundFile">読み込みのためにアップロードされたサウンドファイルを開けません：[FILE]</notification>
-  <notification name="SoundFileNotRIFF">RIFF WAVE ファイルとして認識されません：[FILE]</notification>
-  <notification name="SoundFileNotPCM">PCM WAVE オーディオファイルとして認識されません：[FILE]</notification>
-  <notification name="SoundFileInvalidChannelCount">ファイルのチャンネル数が無効です（モノラルまたはステレオを使用する必要があります）：[FILE]</notification>
-  <notification name="SoundFileInvalidSampleRate">ファイルのサンプルレートがサポートされていません（44.1k である必要があります）：[FILE]</notification>
-  <notification name="SoundFileInvalidWordSize">ファイルのワードサイズがサポートされていません（8 または 16 ビットである必要があります）：[FILE]</notification>
-  <notification name="SoundFileInvalidHeader">WAV ヘッダーにデータチャンクが見つかりません：[FILE]</notification>
-  <notification name="SoundFileInvalidChunkSize">WAV ファイルのチャンクサイズが間違っています：[FILE]</notification>
-  <notification name="SoundFileInvalidTooLong">オーディオファイルが長すぎます。（最大 10 秒）：[FILE]</notification>
+  <notification name="CannotUploadSoundFile">読み込みのためにアップロードされたサウンドファイルを開けません：
+[FILE]
+    <tag>fail</tag>
+  </notification>
+  <notification name="SoundFileNotRIFF">RIFF WAVEファイルとして認識されません：
+[FILE]
+    <tag>fail</tag>
+  </notification>
+  <notification name="SoundFileNotPCM">PCM WAVEオーディオファイルとして認識されません：
+[FILE]
+    <tag>fail</tag>
+  </notification>
+  <notification name="SoundFileInvalidChannelCount">ファイルのチャンネル数が無効です（モノラルまたはステレオを使用する必要があります）：
+[FILE]
+    <tag>fail</tag>
+  </notification>
+  <notification name="SoundFileInvalidSampleRate">ファイルのサンプルレートがサポートされていません（44.1kである必要があります）：
+[FILE]
+    <tag>fail</tag>
+  </notification>
+  <notification name="SoundFileInvalidWordSize">ファイルのワードサイズがサポートされていません（8bitか、16bitである必要があります）：
+[FILE]
+    <tag>fail</tag>
+  </notification>
+  <notification name="SoundFileInvalidHeader">WAVヘッダーにデータチャンクが見つかりません：
+[FILE]
+    <tag>fail</tag>
+  </notification>
+  <notification name="SoundFileInvalidChunkSize">WAVファイルのチャンクサイズが間違っています：
+[FILE]
+    <tag>fail</tag>
+  </notification>
+  <notification name="SoundFileInvalidTooLong">オーディオファイルが長すぎます。（最大 10 秒）：
+[FILE]
+    <tag>fail</tag>
+  </notification>
   <notification name="ProblemWithFile">「 [FILE] 」に問題があります。
 
-[ERROR]</notification>
-  <notification name="CannotOpenTemporarySoundFile">書き込み用の一時圧縮サウンドファイルを開くことができません：[FILE]</notification>
-  <notification name="UnknownVorbisEncodeFailure">不明の Vorbis のエンコードに失敗：[FILE]</notification>
-  <notification name="CannotEncodeFile">次のファイルのエンコードができません：[FILE]</notification>
+[ERROR]
+    <tag>fail</tag>
+  </notification>
+  <notification name="CannotOpenTemporarySoundFile">書き込み用の一時圧縮サウンドファイルを開くことができません：
+[FILE]
+    <tag>fail</tag>
+  </notification>
+  <notification name="UnknownVorbisEncodeFailure">不明のVorbisのエンコードに失敗しました：
+[FILE]
+    <tag>fail</tag>
+  </notification>
+  <notification name="CannotEncodeFile">次のファイルのエンコードができません：
+[FILE]
+    <tag>fail</tag>
+  </notification>
   <notification name="CorruptedProtectedDataStore">ユーザー名とパスワードを自動入力できません。これはネットワーク設定が変更された場合に起こります
+    <tag>fail</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
-  <notification name="CorruptResourceFile">破損したリソースファイル：[FILE]</notification>
-  <notification name="UnknownResourceFileVersion">不明のリンデンリソースファイルのバージョン：[FILE]</notification>
-  <notification name="UnableToCreateOutputFile">出力ファイルを作成できません：[FILE]</notification>
-  <notification name="DoNotSupportBulkAnimationUpload">現在 [APP_NAME] では、BVH
-形式のアニメーションファイルの一括アップロードはサポートされていません。</notification>
-  <notification name="CannotUploadReason">次の理由で、「 [FILE] 」をアップロードできません：[REASON]
-あとでもう一度試してください。</notification>
+  <notification name="CorruptResourceFile">破損したリソースファイル：
+[FILE]
+    <tag>fail</tag>
+  </notification>
+  <notification name="UnknownResourceFileVersion">不明なLindenリソースファイルのバージョンです：
+[FILE]
+    <tag>fail</tag>
+  </notification>
+  <notification name="UnableToCreateOutputFile">出力ファイルを作成できません：
+[FILE]
+    <tag>fail</tag>
+  </notification>
+  <notification name="DoNotSupportBulkAnimationUpload">現在[APP_NAME]では、BVH形式のアニメーションファイルの一括アップロードはサポートされていません。
+    <tag>fail</tag>
+  </notification>
+  <notification name="CannotUploadReason">以下の理由で「 [FILE] 」をアップロードできませんでした：[REASON]
+お手数ですがもう一度やり直してください。
+    <tag>fail</tag>
+  </notification>
   <notification name="LandmarkCreated">「 [LANDMARK_NAME] 」を「 [FOLDER_NAME] 」フォルダに追加しました。</notification>
-  <notification name="LandmarkAlreadyExists">現在地のランドマークを既に持っています。
+  <notification name="LandmarkAlreadyExists">この場所のランドマークは、既に持っています。
+    <tag>fail</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
-  <notification name="CannotCreateLandmarkNotOwner">土地の所有者が許可していないため、ランドマークを作成することはできません。</notification>
-  <notification name="CannotRecompileSelectObjectsNoScripts">「リコンパイル」できません。
-スクリプトのオブジェクトを選択してください。</notification>
-  <notification name="CannotRecompileSelectObjectsNoPermission">「リコンパイル」できません。
-修正修正権限のあるスクリプトのオブジェクトを選択してください。</notification>
+  <notification label="フォルダ作成" name="CreateLandmarkFolder">
+    <unique/>
+    フォルダ名を入力してください：
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="message" type="text">
+      </input>
+      <button default="true" index="0" name="OK" text="OK"/>
+      <button index="1" name="Cancel" text="キャンセル"/>
+    </form>
+  </notification>
+  <notification name="CannotRecompileSelectObjectsNoScripts">「再コンパイル」できません。
+スクリプトのオブジェクトを選択してください。
+    <tag>fail</tag>
+  </notification>
+  <notification name="CannotRecompileSelectObjectsNoPermission">「再コンパイル」できません。
+修正修正権限のあるスクリプトのオブジェクトを選択してください。
+    <tag>fail</tag>
+  </notification>
   <notification name="CannotResetSelectObjectsNoScripts">「再設定」ができません。
 
-スクリプトのオブジェクトを選択してください。</notification>
+スクリプトのオブジェクトを選択してください。
+    <tag>fail</tag>
+  </notification>
   <notification name="CannotResetSelectObjectsNoPermission">「再設定」ができません。
-修正権限のあるスクリプトのオブジェクトを選択してください。</notification>
-  <notification name="CannotOpenScriptObjectNoMod">修正権限のないオブジェクトのスクリプトは開くことはできません。</notification>
+修正権限のあるスクリプトのオブジェクトを選択してください。
+    <tag>fail</tag>
+  </notification>
+  <notification name="CannotOpenScriptObjectNoMod">修正権限のないオブジェクトのスクリプトは開くことはできません。
+    <tag>fail</tag>
+  </notification>
   <notification name="CannotSetRunningSelectObjectsNoScripts">スクリプトの「実行」ができません。
-スクリプトのオブジェクトを選択してください。</notification>
+スクリプトのオブジェクトを選択してください。
+    <tag>fail</tag>
+  </notification>
   <notification name="CannotSetRunningNotSelectObjectsNoScripts">スクリプトを「実行しない」設定にできません。
-スクリプトのオブジェクトを選択してください。</notification>
+スクリプトのオブジェクトを選択してください。
+    <tag>fail</tag>
+  </notification>
   <notification name="NoFrontmostFloater">保存する frontmost フロータがありません。</notification>
   <notification name="SeachFilteredOnShortWords">指定した検索クエリは変更され、短すぎる語句は取り除かれています。
 
 検索語句：[FINALQUERY]</notification>
-  <notification name="SeachFilteredOnShortWordsEmpty">指定した検索語句が短すぎたため、検索は行われませんでした。</notification>
+  <notification name="SeachFilteredOnShortWordsEmpty">指定した検索語句が短すぎたため、検索は行われませんでした。
+    <tag>fail</tag>
+  </notification>
+  <!-- Generic Teleport failure modes - strings will be inserted from teleport_strings.xml if available. -->
   <notification name="CouldNotTeleportReason">テレポートに失敗しました。
-[REASON]</notification>
-  <notification name="invalid_tport">テレポート処理中に問題が発生しました。 ログインし直す必要があるかもしれません。
-このメッセージが何度も出る場合は、[SUPPORT_SITE] をご確認ください。</notification>
+[REASON]
+    <tag>fail</tag>
+  </notification>
+  <!-- Teleport failure modes not delivered via the generic mechanism
+    above (for example, delivered as an AlertMessage on
+    region-crossing :( ) - these paths should really be merged
+    in the future. -->
+  <notification name="invalid_tport">テレポートの試行は１分間に６回までと制限されています。１分待ってからもう一度テレポートしてみてください。問題が解決しない場合は、ログインし直してください。
+    <tag>fail</tag>
+  </notification>
   <notification name="invalid_region_handoff">リージョン間の移動中に問題が発生しました。 ログインし直す必要があるかもしれません。
-このメッセージが何度も出る場合は、[SUPPORT_SITE] をご確認ください。</notification>
+このメッセージが何度も出る場合は、[SUPPORT_SITE]をご確認ください。
+    <tag>fail</tag>
+  </notification>
   <notification name="blocked_tport">申し訳ございません。テレポートは現在、ブロックされています。しばらくしてから再度お試しください。
-それでもテレポートできない場合は、ログアウトし、ログインし直して問題を解決してください。</notification>
-  <notification name="nolandmark_tport">申し訳ございません。ランドマークの目的地が見つかりませんでした。</notification>
+それでもテレポートできない場合は、ログアウトし、ログインし直して問題を解決してください。
+    <tag>fail</tag>
+  </notification>
+  <notification name="nolandmark_tport">申し訳ございません。ランドマークの目的地が見つかりませんでした。
+    <tag>fail</tag>
+  </notification>
   <notification name="timeout_tport">申し訳ございません。システムによるテレポート接続が完了できませんでした。
-しばらくしてから再度お試しください。</notification>
-  <notification name="noaccess_tport">残念ながら、目的地へアクセスが許可されていないため、テレポートできません。</notification>
+しばらくしてから再度お試しください。
+    <tag>fail</tag>
+  </notification>
+  <notification name="noaccess_tport">残念ながら、目的地へアクセスが許可されていないため、テレポートできません。
+    <tag>fail</tag>
+  </notification>
+
+
+
+
   <notification name="missing_attach_tport">
 添付物がまだ届いていません。テレポートをする前にあと数秒間お待ちいただくか、いったんログアウトし、再度ログインしてください。</notification>
   <notification name="too_many_uploads_tport">このリージョンのアセットキューが現在混み合っているため、テレポートのリクエストをすぐに処理することが難しい状況です。
@@ -734,7 +1132,7 @@ L$ が不足しているのでこのグループに参加することができ�
 この辞書は追加辞書として使用できますが、メイン辞書としては使用できません。
 https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries を参照してください。</notification>
   <notification name="SpellingDictImportFailed">[FROM_NAME]から[TO_NAME]へコピーできません</notification>
-  <notification label="衣装を保存する" name="SaveOutfitAs">着用中の衣装を新しい衣装として保存：
+  <notification label="アウトフィットを保存する" name="SaveOutfitAs">着用中のアウトフィットを新しいアウトフィットとして保存：
     <form name="form">
       <input name="message">[DESC] （新）</input>
       <button name="OK" text="OK" />
@@ -748,7 +1146,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries を参照してく
       <button name="Cancel" text="キャンセル" />
     </form>
   </notification>
-  <notification label="衣装の名前を変更する" name="RenameOutfit">新しい衣装の名前：
+  <notification label="アウトフィットの名前を変更する" name="RenameOutfit">新しいアウトフィットの名前：
     <form name="form">
       <input name="new_name">[NAME]</input>
       <button name="OK" text="OK" />
@@ -1157,7 +1555,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
       <button name="Cancel" text="キャンセル" />
     </form>
   </notification>
-  <notification label="Lindenの不動産を変更" name="ChangeLindenEstate">リンデンが所有するエステート（メインランド、ティーングリッド、オリエンテーションなど）を変更しようとしています。 住人の体験に根本的に影響を与えるため、非常に危険な行為です。
+  <notification label="Lindenの不動産を変更" name="ChangeLindenEstate">リンデンが所有する不動産（メインランド、ティーングリッド、オリエンテーションなど）を変更しようとしています。 住人の体験に根本的に影響を与えるため、非常に危険な行為です。
 メインランドでは、何千というリージョンが変更による影響を受け、そのためスペースサーバーに負担をかけることになります。 それでも続けますか？
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
@@ -1620,8 +2018,8 @@ Linden Lab</notification>
 <notification name="NotecardMissing">ノートカードがデータベースにありません。</notification>
 <notification name="NotecardNoPermissions">このノートカードを見る権限がありません。</notification>
 <notification name="RezItemNoPermissions">オブジェクトを Rez するには権限が不足しています。</notification>
-<notification name="IMAcrossParentEstates">親エステート間では IM を送信できません。</notification>
-<notification name="TransferInventoryAcrossParentEstates">親エステート間でインベントリを移動することはできません。</notification>
+<notification name="IMAcrossParentEstates">親不動産間では IM を送信できません。</notification>
+<notification name="TransferInventoryAcrossParentEstates">親不動産間でインベントリを移動することはできません。</notification>
 <notification name="UnableToLoadNotecard">ノートカードを読み込めません。あとで再度お試しください。</notification>
 <notification name="ScriptMissing">データベースにスクリプトがありません。</notification>
 <notification name="ScriptNoPermissions">スクリプトを閲覧するには権限が不十分です。</notification>
@@ -2059,7 +2457,7 @@ M キーを押して変更します。</notification>
 <notification name="ReleasedLandWithReclaim">[AREA]m²の区画「[PARCEL_NAME]」が公開されました。同区画が他の住人に売り出される前の[RECLAIM_PERIOD]時間内であれば無償で土地を取り戻すことができます。</notification>
 <notification name="ReleasedLandNoReclaim">[AREA]m²の区画「[PARCEL_NAME]」が公開されました。一般に公開されたので、今なら誰でも購入可能です。</notification>
 <notification name="AvatarRezNotification">（作成後[EXISTENCE]秒経過）'[NAME]'というアバターは[TIME]秒後に姿を現わしました。</notification>
-<notification name="AvatarRezSelfBakedDoneNotification">（作成後[EXISTENCE]秒経過）衣装のベークは[TIME]秒後に完了しました。</notification>
+<notification name="AvatarRezSelfBakedDoneNotification">（作成後[EXISTENCE]秒経過）アウトフィットのベークは[TIME]秒後に完了しました。</notification>
 <notification name="AvatarRezSelfBakedUpdateNotification">（作成後[EXISTENCE]秒経過）容姿の更新は[TIME]秒後に送信されました。
 [STATUS]</notification>
 <notification name="AvatarRezCloudNotification">（[EXISTENCE]秒）アバター「[NAME]」がクラウドになりました。</notification>
@@ -2461,7 +2859,7 @@ UDP:3478, 3479, 5060, 5062, 6250, 12000-32000
 <notification name="CantCreateRequestedInvFolder">リクエストされた持ち物フォルダーを作成できません。</notification>
 <notification name="CantCreateInventory">そのインベントリを作成できません。</notification>
 <notification name="CantCreateLandmark">ランドマークを作成できません。</notification>
-<notification name="CantCreateOutfit">衣装をすぐには作成できません。しばらくしてから再度お試しください。</notification>
+<notification name="CantCreateOutfit">アウトフィットをすぐには作成できません。しばらくしてから再度お試しください。</notification>
 <notification name="InventoryNotForSale">インベントリは販売対象ではありません。</notification>
 <notification name="CantFindInvItem">持ち物アイテムを見つけることができません。</notification>
 <notification name="CantFindObject">オブジェクトが見つかりません。</notification>
@@ -2496,7 +2894,7 @@ UDP:3478, 3479, 5060, 5062, 6250, 12000-32000
 <notification name="FailedToLoadSettingsApply">環境にこれらの設定を適用することができません。</notification>
 <notification name="FailedToBuildSettingsDay">環境にこれらの設定を適用することができません。</notification>
 <notification name="NoEnvironmentSettings">このリージョンは初期設定をサポートしていません。</notification>
-<notification label="衣装を保存する" name="SaveSettingAs">現在の初期設定を次の内容で保存する：<form name="form">
+<notification label="アウトフィットを保存する" name="SaveSettingAs">現在の初期設定を次の内容で保存する：<form name="form">
   <input name="message">[DESC]（新）</input>
   <button name="OK" text="OK" />
   <button name="Cancel" text="キャンセル" />
@@ -2525,4 +2923,54 @@ UDP:3478, 3479, 5060, 5062, 6250, 12000-32000
 <notification name="EnvironmentApplyFailed">この設定で問題が発生しました。この設定は現在保存または適用ができません。</notification>
 <notification name="TrackLoadFailed">トラックを[TRACK]にロードできません。</notification>
 <notification name="TrackLoadMismatch">トラックを[TRACK1]から[TRACK2]にロードできません。</notification>
+<notification name="CompressionTestResults">
+Test result for gzip level 6 file compression with [FILE] of size [SIZE] KB:
+Packing: [PACK_TIME]s [PSIZE]KB
+Unpacking: [UNPACK_TIME]s [USIZE]KB
+<tag>fail</tag>
+</notification>
+<notification icon="alertmodal.tga" label="Prompt for MFA Token" name="PromptMFAToken" type="alertmodal">
+[MESSAGE]
+<tag>confirm</tag>
+<form name="form">
+  <input name="token" type="text" width="400" />
+  <button default="true" index="0" name="continue" text="Continue"/>
+  <button index="1" name="cancel" text="Cancel"/>
+</form>
+</notification>
+
+<notification icon="alertmodal.tga" label="Create subfolder" name="CreateSubfolder" type="alertmodal">
+<unique/>
+    Name the new folder:
+<tag>confirm</tag>
+<form name="form">
+  <input name="message" type="text">
+        [DESC]
+  </input>
+  <button default="true" index="0" name="OK" text="OK"/>
+  <button index="1" name="Cancel" text="Cancel"/>
+</form>
+</notification>
+<notification icon="alertmodal.tga" name="SameFolderRequired" type="alert">
+    Selected items must be in the same folder.
+<tag>fail</tag>
+<usetemplate name="okbutton" yestext="OK"/>
+</notification>
+
+<notification icon="alertmodal.tga" name="RiggedMeshAttachedToHUD" type="alertmodal">
+    An object "[NAME]" attached to HUD point "[POINT]" contains rigged mesh.
+
+Rigged mesh objects are designed for attachment to the avatar. You will see this object but no one else will.
+
+If you want others to see this object, remove it and re-attach it to an avatar attachment point.
+<tag>confirm</tag>
+<usetemplate ignoretext="Warn me when rigged mesh is attached to HUD point." name="okignore" yestext="OK"/>
+</notification>
+<notification name="EnableAutoFPSWarning" type="alertmodal">
+You are about to enable AutoFPS. All unsaved graphics settings will be lost.
+
+Would you like to save them first?
+<tag>confirm</tag>
+<usetemplate name="okcancelbuttons" notext="No" yestext="Yes"/>
+</notification>
 </notifications>

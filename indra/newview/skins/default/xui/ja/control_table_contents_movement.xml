@@ -1,60 +1,62 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <contents>
   <rows enabled="false" name="move_actions" value="">
-    <columns type="icontext" column="lst_action" font="SansSerif" halign="left" label="移動アクション" name="lst_action" value="Move_Walk_Off" />
+    <columns type="icontext" label="移動アクション" name="lst_action" value="Move_Walk_Off" />
   </rows>
   <rows name="walk_to" value="walk_to">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" tool_tip="マウスカーソルが指している場所に向かって歩きます。" value="移動先" />
+    <columns name="lst_action" tool_tip="マウスカーソルが指している場所に向かって歩きます。" value="移動先" />
   </rows>
   <rows name="teleport_to" value="teleport_to">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" tool_tip="マウスカーソルが指す場所にテレポートしますが、すべての場所において、必ずしも直接テレポートできるとは限らないため、代わりに目的地の近くにテレポートする場合があります。" value="テレポートする" />
+    <columns name="lst_action"
+      tool_tip="マウスカーソルが指す場所にテレポートしますが、すべての場所において、必ずしも直接テレポートできるとは限らないため、代わりに目的地の近くにテレポートする場合があります。"
+      value="テレポートする" />
   </rows>
   <rows name="push_forward" value="push_forward">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="前に移動" />
+    <columns name="lst_action" value="前に移動" />
   </rows>
   <rows name="push_backward" value="push_backward">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="後ろに移動" />
+    <columns name="lst_action" value="後ろに移動" />
   </rows>
   <rows name="turn_left" value="turn_left">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="左を向いて移動" />
+    <columns name="lst_action" value="左を向いて移動" />
   </rows>
   <rows name="turn_right" value="turn_right">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="右を向いて移動" />
+    <columns name="lst_action" value="右を向いて移動" />
   </rows>
   <rows name="slide_left" value="slide_left">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="左へ平行移動" />
+    <columns name="lst_action" value="左へ平行移動" />
   </rows>
   <rows name="slide_right" value="slide_right">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="右へ平行移動" />
+    <columns name="lst_action" value="右へ平行移動" />
   </rows>
   <rows name="jump" value="jump">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="ジャンプ／飛行" />
+    <columns name="lst_action" value="ジャンプ／飛行" />
   </rows>
   <rows name="push_down" value="push_down">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="下降" />
+    <columns name="lst_action" value="下降" />
   </rows>
   <rows name="run_forward" value="run_forward">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="前に走る" />
+    <columns name="lst_action" value="前に走る" />
   </rows>
   <rows name="run_backward" value="run_backward">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="後ろに走る" />
+    <columns name="lst_action" value="後ろに走る" />
   </rows>
   <rows name="run_left" value="run_left">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="左に走る" />
+    <columns name="lst_action" value="左に走る" />
   </rows>
   <rows name="run_right" value="run_right">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="右に走る" />
+    <columns name="lst_action" value="右に走る" />
   </rows>
   <rows name="toggle_run" value="toggle_run">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="常時走行切り替え" />
+    <columns name="lst_action" value="常時走行切り替え" />
   </rows>
   <rows name="toggle_fly" value="toggle_fly">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="飛行／停止切り替え" />
+    <columns name="lst_action" value="飛行／停止切り替え" />
   </rows>
   <rows name="toggle_sit" value="toggle_sit">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="座る／立つ" />
+    <columns name="lst_action" value="座る／立つ" />
   </rows>
   <rows name="stop_moving" value="stop_moving">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="立ち止まる" />
+    <columns name="lst_action" value="立ち止まる" />
   </rows>
 </contents>

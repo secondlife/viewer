@@ -24,7 +24,7 @@
         </layout_panel>
         <layout_panel name="shop_btn_lp">
           <button label="ショッピング" name="shop_btn" tool_tip="マーケットプレイスのサイトを開く" />
-          <button label="装着" name="wear_btn" tool_tip="選択した衣装を着用する" />
+          <button label="装着" name="wear_btn" tool_tip="選択したアウトフィットを着用する" />
           <button label="再生" name="play_btn" />
           <button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポートする" />
         </layout_panel>

@@ -9,7 +9,7 @@
   </scroll_list>
   <button label="テレポート" label_selected="テレポート" name="Teleport" tool_tip="この土地の中心にテレポートします" />
   <button label="地図" label_selected="地図" name="Show on Map" tool_tip="この土地を世界地図に表示します" />
-  <text name="contrib_label">所属グループへの貢献：	</text>
+  <text name="contrib_label">所属グループへの貢献：</text>
   <scroll_list name="grant list">
     <column label="グループ名" name="group" />
     <column label="面積" name="area" />

@@ -34,10 +34,10 @@
     <label name="libvlc_label">LibVLC 対応メディア</label>
   </scheme>
   <mimetype name="blank">
-    <label name="blank_label">-- なし --</label>
+    <label name="blank_label">─なし─</label>
   </mimetype>
   <mimetype name="none/none">
-    <label name="none/none_label">-- なし --</label>
+    <label name="none/none_label">─なし─</label>
   </mimetype>
   <mimetype name="audio/*">
     <label name="audio2_label">オーディオ</label>

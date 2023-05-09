@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater legacy_header_height="18" can_resize="true" height="300" layout="topleft" min_height="300" min_width="400" name="inspect" help_topic="inspect" save_rect="true" title="オブジェクトの検査" width="400">
-  <floater.string name="timeStamp">[year,datetime,slt]年[mth,datetime,slt]月[day,datetime,slt]日[wkday,datetime,slt]　[hour,datetime,slt]：[min,datetime,slt]：[second,datetime,slt]</floater.string>
-  <scroll_list bottom="268" column_padding="0" draw_heading="true" follows="top|right|left|bottom" layout="topleft" left="10" name="object_list" right="-10" tool_tip="このリストからオブジェクトを選択して、インワールドでハイライトします。" top="20">
+<floater name="inspect" title="オブジェクトの調査">
+  <floater.string name="timeStamp">[year,datetime,slt]年[mth,datetime,slt]月[day,datetime,slt]日（[wkday,datetime,slt]）　[hour,datetime,slt]：[min,datetime,slt]：[second,datetime,slt]</floater.string>
+  <scroll_list name="object_list" tool_tip="このリストからオブジェクトを選択して、インワールドでハイライトします。">
     <scroll_list.columns relative_width="0.25" label="オブジェクト名" name="object_name" />
     <scroll_list.columns relative_width="0.25" label="所有者" name="owner_name" />
     <scroll_list.columns relative_width="0.25" label="制作者" name="creator_name" />
     <scroll_list.columns relative_width="0.25" label="制作日" name="creation_date" />
     <scroll_list.commit_callback function="Inspect.SelectObject" />
   </scroll_list>
-  <button follows="left|bottom" height="23" label="所有者のプロフィール…" layout="topleft" left_delta="-1" name="button owner" tool_tip="ハイライトされたオブジェクトの所有者のプロフィールを見る" top_pad="4" width="150">
-    <button.commit_callback function="Inspect.OwnerProfile" />
-  </button>
-  <button follows="left|bottom" height="23" label="制作者のプロフィール…" layout="topleft" left_pad="5" name="button creator" tool_tip="ハイライトされたオブジェクトの元の作成者のプロフィールを見る" top_delta="0" width="150">
-    <button.commit_callback function="Inspect.CreatorProfile" />
-  </button>
+  <button label="所有者のプロフィール…" name="button owner" tool_tip="ハイライトされたオブジェクトの所有者のプロフィールを見る" />
+  <button label="制作者のプロフィール…" name="button creator" tool_tip="ハイライトされたオブジェクトの元の作成者のプロフィールを見る" />
 </floater>

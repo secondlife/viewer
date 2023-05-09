@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="avatar_texture_debug" title="アバターのテクスチャ">
   <floater.string name="InvalidAvatar">無効なアバター</floater.string>
   <scroll_container name="profile_scroll">

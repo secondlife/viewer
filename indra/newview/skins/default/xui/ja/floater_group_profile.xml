@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater positioning="cascading" can_close="true" can_resize="true" height="580" min_height="350" min_width="260" layout="topleft" name="floater_group_profile" save_rect="true" title="グループ" width="370">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_group_profile" title="グループ">
   <floater.string name="title_create_group">新しいグループを作成…</floater.string>
-  <panel class="panel_group_info_sidetray" name="panel_group_info_sidetray" filename="panel_group_info_sidetray.xml" visible="true" background_visible="false" follows="all" layout="topleft" left="0" top="0" width="373" height="577"/>
-  <panel class="panel_group_creation_sidetray" name="panel_group_creation_sidetray" filename="panel_group_creation_sidetray.xml" visible="false" background_visible="false" follows="all" layout="topleft" top="0" width="369"/>
+  <panel name="panel_group_info_sidetray" filename="panel_group_info_sidetray.xml" />
+  <panel name="panel_group_creation_sidetray" filename="panel_group_creation_sidetray.xml" />
 </floater>

@@ -6,7 +6,7 @@
   <floater.string name="step_wait">待機：</floater.string>
   <floater.string name="stop_txt">停止</floater.string>
   <floater.string name="preview_txt">プレビュー</floater.string>
-  <floater.string name="none_text">-- なし --</floater.string>
+  <floater.string name="none_text">－なし－</floater.string>
   <floater.string name="Title">ジェスチャー：[NAME]</floater.string>
   <text name="desc_label">説明：</text>
   <text name="trigger_label">トリガー：</text>

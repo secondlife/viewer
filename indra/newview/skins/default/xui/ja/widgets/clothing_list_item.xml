@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<clothing_list_item follows="top|right|left" height="23" layout="topleft" left="0" name="wearable_item" bottom="0" width="380">
-  <lock_icon height="16" follows="top|left" image_name="Inv_Object" layout="topleft" left="21" name="item_icon" top="2" width="16" />
-  <item_name follows="left|right" height="16" layout="topleft" left="42" parse_urls="false" use_ellipses="true" name="item_name" text_color="White" top="5" value="…" width="359" />
-  <up_btn name="btn_move_up" layout="topleft" follows="top|right" image_overlay="UpArrow_Off" top="1" left="0" height="23" width="23" tab_stop="false" />
-  <down_btn name="btn_move_down" layout="topleft" follows="top|right" image_overlay="DownArrow_Off" top="1" left="26" height="23" width="23" tab_stop="false" />
-  <lock_panel background_visible="false" name="btn_lock" layout="topleft" follows="top|right" top="0" left="0" height="23" width="23" tab_stop="false" tool_tip="編集権限がありません。" />
-  <lock_icon name="btn_lock1" layout="topleft" follows="top|right" image_name="Locked_Icon" top="2" left="5" height="13" width="9" tab_stop="false" />
-  <edit_panel background_visible="false" name="btn_edit_panel" layout="topleft" follows="top|right" top="0" left="26" height="23" width="26" tab_stop="false" />
-  <edit_btn name="btn_edit" layout="topleft" follows="top|right" image_overlay="Edit_Wrench" top="1" left="0" height="23" width="23" tab_stop="false" tool_tip="衣装を編集" />
+<clothing_list_item name="wearable_item">
+  <lock_icon name="item_icon" />
+  <item_name name="item_name" value="…" />
+  <up_btn name="btn_move_up" />
+  <down_btn name="btn_move_down" />
+  <lock_panel name="btn_lock" tool_tip="編集権限がありません。" />
+  <lock_icon name="btn_lock1" />
+  <edit_panel name="btn_edit_panel" />
+  <edit_btn name="btn_edit" tool_tip="アウトフィットを編集" />
 </clothing_list_item>

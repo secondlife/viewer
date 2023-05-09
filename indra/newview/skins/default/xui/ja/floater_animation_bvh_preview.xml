@@ -95,6 +95,6 @@
   <button name="pause_btn" tool_tip="アニメーションを一時停止する。" />
   <button name="stop_btn" tool_tip="アニメーションの再生を停止する。" />
   <text name="bad_animation_text"> アニメーションファイルを読み取れません。Poser 4からエクスポートしたBVHファイルをお勧めします。</text>
-  <button label="アップロード（L$[AMOUNT]）" name="ok_btn" />
+  <button label="アップロード（L$ [AMOUNT]）" name="ok_btn" />
   <button label="キャンセル" name="cancel_btn" />
 </floater>

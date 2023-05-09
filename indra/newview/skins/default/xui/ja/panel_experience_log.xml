@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 
-<panel layout="topleft" top="3" left="3" width="500" height="300" label="EVENTS" bg_opaque_color="0 0.5 0 0.3" follows="all">
+<panel layout="topleft" top="3" left="3" width="500" height="300" label="イベント" bg_opaque_color="0 0.5 0 0.3" follows="all">
   <string name="no_events" value="イベントはありません。" />
   <string name="loading" value="読み込んでいます…。" />
   <layout_stack layout="topleft" top="0" left="4" right="-1" bottom="-4" orientation="vertical" follows="all">

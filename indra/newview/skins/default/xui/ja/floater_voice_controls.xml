@@ -4,7 +4,7 @@
   <string name="title_group">[GROUP]とグループコール</string>
   <string name="title_adhoc">会話コール</string>
   <string name="title_peer_2_peer">[NAME]とコール</string>
-  <string name="no_one_near">近くにボイスを有効にしている人はいません。</string>
+  <string name="no_one_near">近くにボイスを有効にしている人物はいません。</string>
   <layout_stack name="my_call_stack">
     <layout_panel name="my_panel">
       <text name="user_text" value="私のアバター：" />

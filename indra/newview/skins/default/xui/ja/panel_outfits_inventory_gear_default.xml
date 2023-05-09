@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu bottom="806" layout="topleft" left="0" mouse_opaque="false" name="menu_gear_default" visible="false">
-  <menu_item_call label="この衣装に着替える" layout="topleft" name="wear">
+  <menu_item_call label="このアウトフィットに着替える" layout="topleft" name="wear">
     <on_click function="panel_outfits_inventory_gear_default.Custom.Action" parameter="wear" />
     <on_enable function="panel_outfits_inventory_gear_default.Enable" parameter="wear" />
   </menu_item_call>
-  <menu_item_call label="この衣装から取り除く" layout="topleft" name="remove">
+  <menu_item_call label="このアウトフィットから取り除く" layout="topleft" name="remove">
     <on_click function="panel_outfits_inventory_gear_default.Custom.Action" parameter="remove" />
     <on_enable function="panel_outfits_inventory_gear_default.Enable" parameter="remove" />
   </menu_item_call>
@@ -17,7 +17,7 @@
     <on_click function="panel_outfits_inventory_gear_default.Custom.Action" parameter="remove_link" />
     <on_enable function="panel_outfits_inventory_gear_default.Enable" parameter="remove_link" />
   </menu_item_call>
-  <menu_item_call label="衣装を削除する" layout="topleft" name="delete">
+  <menu_item_call label="アウトフィットを削除する" layout="topleft" name="delete">
     <on_click function="panel_outfits_inventory_gear_default.Custom.Action" parameter="delete" />
     <on_enable function="panel_outfits_inventory_gear_default.Enable" parameter="delete_outfit" />
   </menu_item_call>

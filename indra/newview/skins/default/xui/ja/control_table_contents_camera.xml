@@ -1,72 +1,72 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <contents>
   <rows enabled="false" name="camera_actions" value="">
-    <columns type="icontext" column="lst_action" font="SansSerif" halign="left" label="Camera" name="lst_action" value="Cam_FreeCam_Off" />
+    <columns type="icontext" label="Camera" name="lst_action" value="Cam_FreeCam_Off" />
   </rows>
   <rows name="look_up" value="look_up">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="上に向ける" />
+    <columns name="lst_action" value="上に向ける" />
   </rows>
   <rows name="look_down" value="look_down">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="下に向ける" />
+    <columns name="lst_action" value="下に向ける" />
   </rows>
   <rows name="move_forward" value="move_forward">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラを近づける" />
+    <columns name="lst_action" value="カメラを近づける" />
   </rows>
   <rows name="move_backward" value="move_backward">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラを遠ざける" />
+    <columns name="lst_action" value="カメラを遠ざける" />
   </rows>
   <rows name="move_forward_fast" value="move_forward_fast">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラを高速に近づける" />
+    <columns name="lst_action" value="カメラを高速に近づける" />
   </rows>
   <rows name="move_backward_fast" value="move_backward_fast">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラを高速に遠ざける" />
+    <columns name="lst_action" value="カメラを高速に遠ざける" />
   </rows>
   <rows name="spin_over" value="spin_over">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの仰角を上げる" />
+    <columns name="lst_action" value="カメラの仰角を上げる" />
   </rows>
   <rows name="spin_under" value="spin_under">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの仰角を下げる" />
+    <columns name="lst_action" value="カメラの仰角を下げる" />
   </rows>
   <rows name="pan_up" value="pan_up">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの中心を上に移動" />
+    <columns name="lst_action" value="カメラの中心を上に移動" />
   </rows>
   <rows name="pan_down" value="pan_down">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの中心を下に移動" />
+    <columns name="lst_action" value="カメラの中心を下に移動" />
   </rows>
   <rows name="pan_left" value="pan_left">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの中心を左に移動" />
+    <columns name="lst_action" value="カメラの中心を左に移動" />
   </rows>
   <rows name="pan_right" value="pan_right">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの中心を右に移動" />
+    <columns name="lst_action" value="カメラの中心を右に移動" />
   </rows>
   <rows name="pan_in" value="pan_in">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの中心を拡大" />
+    <columns name="lst_action" value="カメラの中心を拡大" />
   </rows>
   <rows name="pan_out" value="pan_out">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="カメラの中心を縮小" />
+    <columns name="lst_action" value="カメラの中心を縮小" />
   </rows>
   <rows name="spin_around_ccw" value="spin_around_ccw">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" tool_tip="対象に対して、カメラを反時計回りに回します。" value="反時計回り" />
+    <columns name="lst_action" tool_tip="対象に対して、カメラを反時計回りに回します。" value="反時計回り" />
   </rows>
   <rows name="spin_around_cw" value="spin_around_cw">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" tool_tip="対象に対して、カメラをカメラを時計回りに回します。" value="時計回り" />
+    <columns name="lst_action" tool_tip="対象に対して、カメラをカメラを時計回りに回します。" value="時計回り" />
   </rows>
   <rows name="move_forward_sitting" value="move_forward_sitting">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="座ってカメラを近づける" />
+    <columns name="lst_action" value="座ってカメラを近づける" />
   </rows>
   <rows name="move_backward_sitting" value="move_backward_sitting">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="座ってカメラを遠ざける" />
+    <columns name="lst_action" value="座ってカメラを遠ざける" />
   </rows>
   <rows name="spin_over_sitting" value="spin_over_sitting">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="座ってカメラの仰角を上げる" />
+    <columns name="lst_action" value="座ってカメラの仰角を上げる" />
   </rows>
   <rows name="spin_under_sitting" value="spin_under_sitting">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" value="座ってカメラの仰角を下げる" />
+    <columns name="lst_action" value="座ってカメラの仰角を下げる" />
   </rows>
   <rows name="spin_around_ccw_sitting" value="spin_around_ccw_sitting">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" tool_tip="座った状態で対象に対して、カメラを反時計回りに回します。" value="座って反時計回り" />
+    <columns name="lst_action" tool_tip="座った状態で対象に対して、カメラを反時計回りに回します。" value="座って反時計回り" />
   </rows>
   <rows name="spin_around_cw_sitting" value="spin_around_cw_sitting">
-    <columns column="lst_action" font="SansSerif" halign="left" name="lst_action" tool_tip="座った状態で対象に対して、カメラを時計回りに回します。" value="座って時計回り" />
+    <columns name="lst_action" tool_tip="座った状態で対象に対して、カメラを時計回りに回します。" value="座って時計回り" />
   </rows>
 </contents>

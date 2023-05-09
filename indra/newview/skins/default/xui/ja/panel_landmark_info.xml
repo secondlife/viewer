@@ -9,8 +9,7 @@
   <string name="server_update_text">場所の情報はサーバーがアップデートされるまでご利用いただけません。</string>
   <string name="server_error_text">この位置の情報は現在ご利用いただけません。あとでもう一度お試しください。</string>
   <string name="server_forbidden_text">この位置の情報は、アクセス制限のためご利用いただけません。 許可については区画所有者にお問い合わせください。</string>
-  <string name="acquired_date">[year,datetime,local]　[mth,datetime,local]　[day,datetime,local]　[wkday,datetime,local]
-[hour,datetime,local]:[min,datetime,local]:[second,datetime,local]</string>
+  <string name="acquired_date">[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日（[wkday,datetime,local]）[hour,datetime,local]：[min,datetime,local]：[second,datetime,local]</string>
   <button name="back_btn" tool_tip="戻る" />
   <text name="title" value="場所のプロフィール" />
   <scroll_container name="place_scroll">

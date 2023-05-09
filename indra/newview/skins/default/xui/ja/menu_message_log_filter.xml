@@ -1,21 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<toggleable_menu height="201" layout="topleft" mouse_opaque="false" name="messagelog_filter_menu" width="120">
-  <menu_item_call name="no_filter" label="フィルタなし">
-    <menu_item_call.on_click function="MessageLog.Filter.Action" userdata=""/>
-  </menu_item_call>
-  <menu_item_call name="less_spam" label="スパムメッセージを減らす">
-    <menu_item_call.on_click function="MessageLog.Filter.Action" userdata="!StartPingCheck !CompletePingCheck !PacketAck !SimulatorViewerTimeMessage !SimStats !AgentUpdate !AgentAnimation !AvatarAnimation !ViewerEffect !CoarseLocationUpdate !LayerData !CameraConstraint !ObjectUpdateCached !RequestMultipleObjects !ObjectUpdate !ObjectUpdateCompressed !ImprovedTerseObjectUpdate !KillObject !ImagePacket !SendXferPacket !ConfirmXferPacket !TransferPacket"/>
-  </menu_item_call>
-  <menu_item_call name="less_spam_no_sound" label="スパムメッセージを減らす（拍手サウンドを除く）">
-    <menu_item_call.on_click function="MessageLog.Filter.Action" userdata="!StartPingCheck !CompletePingCheck !PacketAck !SimulatorViewerTimeMessage !SimStats !AgentUpdate !AgentAnimation !AvatarAnimation !ViewerEffect !CoarseLocationUpdate !LayerData !CameraConstraint !ObjectUpdateCached !RequestMultipleObjects !ObjectUpdate !ObjectUpdateCompressed !ImprovedTerseObjectUpdate !KillObject !ImagePacket !SendXferPacket !ConfirmXferPacket !TransferPacket !SoundTrigger !AttachedSound !PreloadSound"/>
-  </menu_item_call>
-  <menu_item_call name="less_spam_no_sound" label="スパムメッセージを減らす（拍手サウンドを含む）">
-    <menu_item_call.on_click function="MessageLog.Filter.Action" userdata="!StartPingCheck !CompletePingCheck !PacketAck !SimulatorViewerTimeMessage !SimStats !AgentUpdate !AgentAnimation !AvatarAnimation !ViewerEffect !CoarseLocationUpdate !LayerData !CameraConstraint !ObjectUpdateCached !RequestMultipleObjects !ObjectUpdate !ObjectUpdateCompressed !ImprovedTerseObjectUpdate !KillObject !ImagePacket !SendXferPacket !ConfirmXferPacket !TransferPacket !SoundTrigger !AttachedSound !PreloadSound !FindAgent !MapBlockRequest"/>
-  </menu_item_call>
-  <menu_item_call name="obj_update" label="オブジェクト更新">
-    <menu_item_call.on_click function="MessageLog.Filter.Action" userdata="ObjectUpdateCached ObjectUpdate ObjectUpdateCompressed ImprovedTerseObjectUpdate KillObject RequestMultipleObjects"/>
-  </menu_item_call>
-  <menu_item_call name="abnormal" label="アブノーマル">
-    <menu_item_call.on_click function="MessageLog.Filter.Action" userdata="Invalid TestMessage AddCircuitCode NeighborList AvatarTextureUpdate SimulatorMapUpdate SimulatorSetMap SubscribeLoad UnsubscribeLoad SimulatorReady SimulatorPresentAtLocation SimulatorLoad SimulatorShutdownRequest RegionPresenceRequestByRegionID RegionPresenceRequestByHandle RegionPresenceResponse UpdateSimulator LogDwellTime FeatureDisabled LogFailedMoneyTransaction UserReportInternal SetSimStatusInDatabase SetSimPresenceInDatabase OpenCircuit CloseCircuit DirFindQueryBackend DirPlacesQueryBackend DirClassifiedQueryBackend DirLandQueryBackend DirPopularQueryBackend GroupNoticeAdd DataHomeLocationRequest DataHomeLocationReply DerezContainer ObjectCategory ObjectExportSelected StateSave ReportAutosaveCrash AgentAlertMessage NearestLandingRegionRequest NearestLandingRegionReply NearestLandingRegionUpdated TeleportLandingStatusChanged ConfirmEnableSimulator KickUserAck SystemKickUser AvatarPropertiesRequestBackend UpdateParcel RemoveParcel MergeParcel LogParcelChanges CheckParcelSales ParcelSales StartAuction ConfirmAuctionStart CompleteAuction CancelAuction CheckParcelAuctions ParcelAuctions ChatPass EdgeDataPacket SimStatus ChildAgentUpdate ChildAgentAlive ChildAgentPositionUpdate ChildAgentDying ChildAgentUnknown AtomicPassObject KillChildAgents ScriptSensorRequest ScriptSensorReply DataServerLogout RequestInventoryAsset InventoryAssetResponse TransferInventory TransferInventoryAck EventLocationRequest EventLocationReply MoneyTransferBackend RoutedMoneyBalanceReply SetStartLocation NetTest SetCPURatio SimCrashed NameValuePair RemoveNameValuePair UpdateAttachment RemoveAttachment EmailMessageRequest EmailMessageReply InternalScriptMail ScriptDataRequest ScriptDataReply InviteGroupResponse TallyVotes LiveHelpGroupRequest LiveHelpGroupReply GroupDataUpdate LogTextMessage CreateTrustedCircuit ParcelRename SystemMessage RpcChannelRequest RpcChannelReply RpcScriptRequestInbound RpcScriptRequestInboundForward RpcScriptReplyInbound ScriptMailRegistration Error"/>
-  </menu_item_call>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="messagelog_filter_menu">
+  <menu_item_call name="no_filter" label="フィルタなし" />
+  <menu_item_call name="less_spam" label="スパムメッセージを減らす" />
+  <menu_item_call name="less_spam_no_sound" label="スパムメッセージを減らす（拍手サウンドを除く）" />
+  <menu_item_call name="less_spam_no_sound" label="スパムメッセージを減らす（拍手サウンドを含む）" />
+  <menu_item_call name="obj_update" label="オブジェクト更新" />
+  <menu_item_call name="abnormal" label="アブノーマル" />
 </toggleable_menu>

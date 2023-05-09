@@ -1,48 +1,36 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel height="70" layout="topleft" name="panel_search_events" width="602">
-   <text follows="left|top" height="16" layout="topleft" left="4" name="search_title" top="4" value="検索語句を入力：" width="128" />
-   <radio_group top_delta="0" left="130" height="16" width="230" layout="topleft" initial_value="current" name="events_search_mode">
-      <radio_item height="16" label="進行中および今後" layout="topleft" name="current" value="current" top_pad="0" width="120" />
-      <radio_item height="16" label="日付で" layout="topleft" name="date" value="date" left_pad="40" width="120" />
-      <radio_group.commit_callback function="Search.query" />
-   </radio_group>
-   <button follows="top|left" height="16" width="16" image_unselected="MinusItem_Off" image_disabled="MinusItem_Disabled" image_selected="MinusItem_Press" image_pressed="MinusItem_Press" image_top_pad="0" layout="topleft" left_pad="14" name="minus_day" top_delta="0">
-      <button.commit_callback function="Search.MinusDay" />
-   </button>
-   <text type="string" length="1" follows="left|top" top_delta="0" layout="topleft" left_pad="5" name="events_date" font.style="BOLD" height="16" width="40" value="4/20" />
-   <button follows="top|left" height="16" width="16" image_unselected="AddItem_Off" image_disabled="AddItem_Disabled" image_selected="AddItem_Press" image_pressed="AddItem_Press" image_top_pad="0" layout="topleft" left_pad="5" name="plus_day" top_delta="0">
-      <button.commit_callback function="Search.AddDay" />
-   </button>
-   <check_box control_name="ShowPGEvents" follows="right|top" height="16" label="" layout="topleft" left="489" name="pg_all" top="4" width="15">
-      <check_box.commit_callback function="Search.query" />
-   </check_box>
-   <icon follows="right|top" height="16" image_name="Parcel_PG_Dark" layout="topleft" left_pad="2" name="rating_icon_general" top_delta="-1" width="18"/>
-   <check_box control_name="ShowMatureEvents" follows="right|top" height="16" label="" layout="topleft" left_pad="2" name="mature_all" top_delta="1" width="15">
-      <check_box.commit_callback function="Search.query" />
-   </check_box>
-   <icon follows="right|top" height="16" image_name="Parcel_M_Dark" layout="topleft" left_pad="2" name="rating_icon_moderate" top_delta="-1" width="18"/>
-   <check_box control_name="ShowAdultEvents" follows="right|top" height="16" label="" layout="topleft" left_pad="2" name="adult_all" top_delta="1" width="15">
-      <check_box.commit_callback function="Search.query" />
-   </check_box>
-   <icon follows="right|top" height="16" image_name="Parcel_R_Dark" layout="topleft" left_pad="2" name="rating_icon_adult" top_delta="-1" width="18"/>
-   <search_editor follows="top|left|right" search_button_visible="true" height="22" text_readonly_color="DkGray" label="検索" layout="topleft" top_pad="1" left="4" right="-128" name="search_bar" select_on_focus="true" commit_on_focus_lost="false" tool_tip="検索語句を入力してください。">
-      <search_editor.commit_callback function="Search.query" />
-   </search_editor>
-   <combo_box follows="right|top" layout="topleft" height="23" allow_text_entry="false" top_delta="0" left_pad="2" name="events_category" width="122">
-      <combo_box.item label="全カテゴリ" name="any" value="0" />
-      <combo_box.item label="" value="filter_separator" enabled="false" />
-      <combo_box.item label="ディスカッション" name="discussion" value="18" />
-      <combo_box.item label="スポーツ" name="sports" value="19" />
-      <combo_box.item label="音楽ライブ" name="music" value="20" />
-      <!-- <combo_box.item label="???" name="mystery_category" value="21" /> -->
-      <combo_box.item label="ビジネス" name="commercial" value="22" />
-      <combo_box.item label="夜の生活／エンターティメント" name="nightlife" value="23" />
-      <combo_box.item label="ゲーム／コンテスト" name="games" value="24" />
-      <combo_box.item label="野外劇場" name="pageants" value="25" />
-      <combo_box.item label="教育的" name="education" value="26" />
-      <combo_box.item label="芸術と文化" name="arts" value="27" />
-      <combo_box.item label="慈善団体／支援団体" name="charity" value="28" />
-      <combo_box.item label="その他" name="misc" value="29" />
-      <combo_box.commit_callback function="Search.query" />
-   </combo_box>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_search_events">
+  <text name="search_title" value="検索語句を入力：" />
+  <radio_group name="events_search_mode">
+    <radio_item label="進行中および今後" name="current" value="current" />
+    <radio_item label="日付で" name="date" value="date" />
+    <radio_group.commit_callback function="Search.query" />
+  </radio_group>
+  <button name="minus_day" />
+  <text name="events_date" />
+  <button name="plus_day" />
+  <check_box name="pg_all" />
+  <icon name="rating_icon_general" />
+  <check_box name="mature_all" />
+  <icon name="rating_icon_moderate" />
+  <check_box name="adult_all" />
+  <icon name="rating_icon_adult" />
+  <search_editor label="検索" name="search_bar" tool_tip="検索語句を入力してください。" />
+  <combo_box name="events_category">
+    <combo_box.item label="全カテゴリ" name="any" value="0" />
+    <combo_box.item label="" value="filter_separator" enabled="false" />
+    <combo_box.item label="ディスカッション" name="discussion" value="18" />
+    <combo_box.item label="スポーツ" name="sports" value="19" />
+    <combo_box.item label="音楽ライブ" name="music" value="20" />
+    <!-- <combo_box.item label="???" name="mystery_category" value="21" /> -->
+    <combo_box.item label="ビジネス" name="commercial" value="22" />
+    <combo_box.item label="夜の生活／エンターティメント" name="nightlife" value="23" />
+    <combo_box.item label="ゲーム／コンテスト" name="games" value="24" />
+    <combo_box.item label="野外劇場" name="pageants" value="25" />
+    <combo_box.item label="教育" name="education" value="26" />
+    <combo_box.item label="芸術と文化" name="arts" value="27" />
+    <combo_box.item label="慈善団体／支援団体" name="charity" value="28" />
+    <combo_box.item label="その他" name="misc" value="29" />
+    <combo_box.commit_callback function="Search.query" />
+  </combo_box>
 </panel>

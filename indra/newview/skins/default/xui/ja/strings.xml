@@ -11,7 +11,7 @@ that are returned from one component and may appear in many places
   <string name="SECOND_LIFE">Second Life</string>
   <string name="APP_NAME">Second Life</string>
   <string name="CAPITALIZED_APP_NAME">SECOND LIFE</string>
-  <string name="SECOND_LIFE_GRID">Second Life Grid</string>
+  <string name="SECOND_LIFE_GRID">Second Lifeグリッド</string>
   <string name="SUPPORT_SITE">Second Lifeサポートポータル</string>
   <!-- starting up -->
   <string name="StartupDetectingHardware">ハードウェアの検出中です…</string>
@@ -106,7 +106,7 @@ LOD 係数：[LOD_FACTOR]
   <string name="AditiGridLabel">Second Life ベータテストグリッド (Aditi)</string>
 
   <string name="ViewerDownloadURL">http://secondlife.com/download</string>
-  <string name="LoginFailedViewerNotPermitted">お使いの古いビューアーでは Second Life にアクセスできません。以下のページから新しいビューアーをダウンロードしてください：http://secondlife.com/download
+  <string name="LoginFailedViewerNotPermitted">お使いの古いビューアーでは、Second Lifeにアクセスできません。以下のページから新しいビューアーをダウンロードしてください：http://secondlife.com/download
 
 詳細については、FAQ を参照してください：
 http://secondlife.com/viewer-access-faq</string>
@@ -274,7 +274,7 @@ support@secondlife.com にお問い合わせください。</string>
   <string name="TooltipObjectIMUrl">クリックしてこのオブジェクトの説明文を見ます。</string>
   <string name="TooltipMapUrl">クリックしてこの場所を地図に表示します。</string>
   <string name="TooltipSLAPP">クリックして secondlife:// コマンドを出します。</string>
-  <string name="CurrentURL" value=" 現在のURL：[CurrentURL]" />
+  <string name="CurrentURL" value="現在のURL：[CurrentURL]" />
   <string name="TooltipEmail">クリックして電子メールを作成</string>
 
   <!-- text for SLURL labels -->
@@ -460,7 +460,7 @@ support@secondlife.com にお問い合わせください。</string>
   <string name="anim_whisper">小声で話す</string>
   <string name="anim_whistle">口笛を吹く</string>
   <string name="anim_express_wink">ウィンク</string>
-  <string name="anim_wink_hollywood">ウィンク(ハリウッド)</string>
+  <string name="anim_wink_hollywood">ウィンク（ハリウッド）</string>
   <string name="anim_express_worry">心配する</string>
   <string name="anim_yes_happy">笑顔で頷く</string>
   <string name="anim_yes_head">頷く</string>
@@ -514,8 +514,10 @@ support@secondlife.com にお問い合わせください。</string>
   <string name="ChangeEnvSettings">自然環境の設定を変更する</string>
 
   <string name="NotConnected">接続されていません</string>
-  <string name="AgentNameSubst">（あなた）</string>  <!-- Substitution for agent name -->
-  <string name="JoinAnExperience">体験に参加</string>  <!-- intentionally blank -->
+  <!-- Substitution for agent name -->
+  <string name="AgentNameSubst">（あなた）</string>
+  <!-- intentionally blank -->
+  <string name="JoinAnExperience">体験に参加</string>
   <string name="SilentlyManageEstateAccess">土地のアクセスリストを管理するときにアラートを表示しない</string>
   <string name="OverrideYourAnimations">デフォルトのアニメーションを置き換え</string>
   <string name="ScriptReturnObjects">あなたの代わりにオブジェクトを返却</string>
@@ -532,9 +534,9 @@ support@secondlife.com にお問い合わせください。</string>
   <string name="land_type_unknown">（不明）</string>
 
   <!-- For land type back from the simulator -->
-  <string name="Estate / Full Region">エステート／フルリージョン</string>
-  <string name="Estate / Homestead">エステート／居住地</string>
-  <string name="Mainland / Homestead">メインランド／居住地</string>
+  <string name="Estate / Full Region">不動産／フルリージョン</string>
+  <string name="Estate / Homestead">不動産／入植地</string>
+  <string name="Mainland / Homestead">メインランド／入植地</string>
   <string name="Mainland / Full Region">メインランド／フルリージョン</string>
 
   <!-- File load/save dialogs -->
@@ -560,7 +562,7 @@ support@secondlife.com にお問い合わせください。</string>
 
   <!-- LSL Usage Hover Tips -->
   <!-- NOTE: For now these are set as translate="false", until DEV-40761 is implemented (to internationalize the rest of tooltips in the same window).
-             This has no effect on viewer code, but prevents Linden Lab internal localization tool from scraping these strings.  -->
+This has no effect on viewer code, but prevents Linden Lab internal localization tool from scraping these strings.  -->
   <string name="LSLTipSleepTime" translate="false">
 Sleeps script for [SLEEP_TIME] seconds.
   </string>
@@ -2284,48 +2286,48 @@ For AI Character: Get the closest navigable point to the point provided.
 
   <!-- inventory -->
   <string name="InventoryNoMatchingItems">お探しのものは見つかりましたか？[secondlife:///app/search/all/[SEARCH_TERM] 検索]をお試しください。</string>
-  <string name="InventoryNoMatchingRecentItems">お探しのものは見つかりましたか？[secondlife:///app/inventory/filters Show filters]をお試しください。</string>
+  <string name="InventoryNoMatchingRecentItems">お探しのものは見つかりましたか？[secondlife:///app/inventory/filters フィルタを表示]をお試しください。</string>
   <string name="PlacesNoMatchingItems">お探しのものは見つかりましたか？[secondlife:///app/search/places/[SEARCH_TERM] 検索]をお試しください。</string>
   <string name="FavoritesNoMatchingItems">ここにランドマークをドラッグしてお気に入りに追加します。</string>
   <string name="MarketplaceNoMatchingItems">アイテムが見つかりませんでした。検索文字列のスペルを確認して、もう一度やり直してください。</string>
   <string name="InventoryNoTexture">インベントリ内にこのテクスチャのコピーがありません</string>
   <string name="InventoryInboxNoItems">マーケットプレイスで購入した商品はここに表示されます。その後、アイテムをインベントリにドラッグすれば、それらのアイテムを使用できます。</string>
-  <string name="MarketplaceURL">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/</string>
+  <string name="MarketplaceURL">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/?lang=ja-JP</string>
   <string name="MarketplaceURL_CreateStore">https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83%8A%E3%83%AC%E3%83%83%E3%82%B8%E3%83%99%E3%83%BC%E3%82%B9/%E3%83%9E%E3%83%BC%E3%82%B1%E3%83%83%E3%83%88%E3%83%97%E3%83%AC%E3%82%A4%E3%82%B9%E3%81%A7%E8%B2%A9%E5%A3%B2%E3%81%99%E3%82%8B-r769/</string>
-  <string name="MarketplaceURL_Dashboard">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard</string>
-  <string name="MarketplaceURL_Imports">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports</string>
-  <string name="MarketplaceURL_LearnMore">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more</string>
+  <string name="MarketplaceURL_Dashboard">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard?lang=ja-JP</string>
+  <string name="MarketplaceURL_Imports">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports?lang=ja-JP</string>
+  <string name="MarketplaceURL_LearnMore">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more?lang=ja-JP</string>
   <string name="InventoryPlayAnimationTooltip">[再生]オプションでウィンドウを開ける。</string>
   <string name="InventoryPlayGestureTooltip">インワールドで選択済みのジェスチャーを実行する。</string>
   <string name="InventoryPlaySoundTooltip">[再生]オプションでウィンドウを開ける。</string>
   <string name="InventoryOutboxNotMerchantTitle">マーケットプレイスでは誰でもアイテムを売ることができます。</string>
   <string name="InventoryOutboxNotMerchantTooltip" />
-  <string name="InventoryOutboxNotMerchant">マーチャントになりたい方は、[[MARKETPLACE_CREATE_STORE_URL]マーケットプレイスストアを作成]する必要があります。</string>
+  <string name="InventoryOutboxNotMerchant">マーチャントになりたい方は、[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイスストアを作成]する必要があります。</string>
   <string name="InventoryOutboxNoItemsTitle">アウトボックスは空です。</string>
   <string name="InventoryOutboxNoItemsTooltip" />
-  <string name="InventoryOutboxNoItems">[[MARKETPLACE_DASHBOARD_URL]マーケットプレイス]に販売するアイテムを一覧するには、フォルダをこのエリアにドラッグし、「マーケットプレイスに送信」をクリックします。</string>
+  <string name="InventoryOutboxNoItems">[[MARKETPLACE_DASHBOARD_URL] マーケットプレイス]に販売するアイテムを一覧するには、フォルダをこのエリアにドラッグし、「マーケットプレイスに送信」をクリックします。</string>
   <string name="InventoryOutboxInitializingTitle">マーケットプレイスの初期化。</string>
-  <string name="InventoryOutboxInitializing">[[MARKETPLACE_CREATE_STORE_URL]マーケットプレイス ストア]のアカウントにアクセスしています。</string>
+  <string name="InventoryOutboxInitializing">[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイス ストア]のアカウントにアクセスしています。</string>
   <string name="InventoryOutboxErrorTitle">マーケットプレイス エラー。</string>
-  <string name="InventoryOutboxError">[[MARKETPLACE_CREATE_STORE_URL]マーケットプレイス ストア]がエラーを返しています。</string>
+  <string name="InventoryOutboxError">[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイスストア]がエラーを返しています。</string>
   <string name="InventoryMarketplaceError">マーケットプレイスのリストを開くときにエラーが発生しました。引き続きこのメッセージを受信するには、Second Life のサポート（http://support.secondlife.com）にお問い合わせください</string>
   <string name="InventoryMarketplaceListingsNoItemsTitle">マーケットプレイスのリストフォルダが空です。</string>
   <string name="InventoryMarketplaceListingsNoItems">[[MARKETPLACE_DASHBOARD_URL]マーケットプレイス]に販売するアイテムを一覧するには、フォルダをこのエリアにドラッグします。</string>
   <string name="InventoryItemsCount">（[ITEMS_COUNT]個のアイテム）</string>
-  <string name="Marketplace Validation Warning Stock">バージョンフォルダに在庫フォルダが含まれなければなりません</string>
-  <string name="Marketplace Validation Error Mixed Stock">: エラー：在庫フォルダ内のすべてのアイテムはコピー不可で同じ種類でなければなりません</string>
-  <string name="Marketplace Validation Error Subfolder In Stock">: エラー：在庫フォルダにサブフォルダを含めることはできません</string>
-  <string name="Marketplace Validation Warning Empty">: 警告：フォルダにアイテムが含まれていません</string>
-  <string name="Marketplace Validation Warning Create Stock">: 警告：在庫フォルダを作成しています</string>
-  <string name="Marketplace Validation Warning Create Version">: 警告：バージョンフォルダ作成中</string>
-  <string name="Marketplace Validation Warning Move">: 警告：アイテム移動中</string>
-  <string name="Marketplace Validation Warning Delete">: 警告：フォルダの中身が在庫フォルダに移されました。空のフォルダを削除します</string>
-  <string name="Marketplace Validation Error Stock Item">: エラー：在庫フォルダにコピー不可アイテムを含める必要があります</string>
-  <string name="Marketplace Validation Warning Unwrapped Item">: 警告：バージョンフォルダにアイテムが含まれていなければなりません</string>
-  <string name="Marketplace Validation Error">: エラー：</string>
-  <string name="Marketplace Validation Warning">: 警告：</string>
-  <string name="Marketplace Validation Error Empty Version">: 警告：バージョンフォルダには、最低１アイテムが含まれなければなりません</string>
-  <string name="Marketplace Validation Error Empty Stock">: 警告：在庫フォルダには、最低１アイテムが含まれていなければなりません</string>
+  <string name="Marketplace Validation Warning Stock">バージョンフォルダには、在庫フォルダが含まれなければなりません。</string>
+  <string name="Marketplace Validation Error Mixed Stock">エラー：在庫フォルダ内のすべてのアイテムは、コピー不可で同じ種類でなければなりません。</string>
+  <string name="Marketplace Validation Error Subfolder In Stock">エラー：在庫フォルダにサブフォルダを含めることはできません。</string>
+  <string name="Marketplace Validation Warning Empty">警告：フォルダにアイテムが含まれていません。</string>
+  <string name="Marketplace Validation Warning Create Stock">警告：在庫フォルダを作成しています。</string>
+  <string name="Marketplace Validation Warning Create Version">警告：バージョンフォルダを作成しています。</string>
+  <string name="Marketplace Validation Warning Move">: 警告：アイテムを移動しています。</string>
+  <string name="Marketplace Validation Warning Delete">: 警告：フォルダの中身が在庫フォルダに移されました。空のフォルダを削除します。</string>
+  <string name="Marketplace Validation Error Stock Item">: エラー：在庫フォルダには、コピー不可アイテムを含める必要があります。</string>
+  <string name="Marketplace Validation Warning Unwrapped Item">: 警告：バージョンフォルダには、アイテムが含まれていなければなりません。</string>
+  <string name="Marketplace Validation Error">エラー：</string>
+  <string name="Marketplace Validation Warning">警告：</string>
+  <string name="Marketplace Validation Error Empty Version">警告：バージョンフォルダには、最低１アイテムが含まれなければなりません</string>
+  <string name="Marketplace Validation Error Empty Stock">警告：在庫フォルダには、最低１アイテムが含まれていなければなりません</string>
 
   <string name="Marketplace Validation No Error">報告するエラーまたは警告はありません</string>
   <string name="Marketplace Error None">エラーなし</string>
@@ -2417,9 +2419,9 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="InvFolder favorite">お気に入り</string>
   <string name="InvFolder Favorites">お気に入り</string>
   <string name="InvFolder favorites">お気に入り</string>
-  <string name="InvFolder Current Outfit">着用中の衣装</string>
-  <string name="InvFolder Initial Outfits">最初の衣装</string>
-  <string name="InvFolder My Outfits">衣装</string>
+  <string name="InvFolder Current Outfit">着用中のアウトフィット</string>
+  <string name="InvFolder Initial Outfits">最初のアウトフィット</string>
+  <string name="InvFolder My Outfits">アウトフィット</string>
   <string name="InvFolder Accessories">アクセサリ</string>
   <string name="InvFolder Meshes">メッシュ</string>
   <string name="InvFolder Received Items">受け取った商品</string>
@@ -2499,9 +2501,9 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="Left Hind Foot">左後足</string>
   <string name="Right Hind Foot">右後足</string>
   <string name="Invalid Attachment">装着先が正しくありません</string>
-  <string name="ATTACHMENT_MISSING_ITEM">エラー：アイテムが見つかりません</string>
-  <string name="ATTACHMENT_MISSING_BASE_ITEM">エラー：ベースアイテムが見つかりません</string>
-  <string name="ATTACHMENT_NOT_ATTACHED">エラー：オブジェクトは現在の衣装にありますが、添付されていません</string>
+  <string name="ATTACHMENT_MISSING_ITEM">エラー：アイテムが見つかりません。</string>
+  <string name="ATTACHMENT_MISSING_BASE_ITEM">エラー：ベースアイテムが見つかりません。</string>
+  <string name="ATTACHMENT_NOT_ATTACHED">エラー：オブジェクトは現在のアウトフィットにありますが、添付されていません。</string>
 
   <!-- Avatar age computation, see LLDateUtil::ageFromDate -->
   <string name="YearsMonthsOld">[AGEYEARS][AGEMONTHS]</string>
@@ -2715,7 +2717,8 @@ For AI Character: Get the closest navigable point to the point provided.
 
   <!-- panel dir browser -->
   <string name="PanelDirCountFound">[COUNT]件見つかりました</string>
-  <string name="PanelDirTimeStr">[ampm,datetime,utc]　[hour12,datetime,utc]：[min,datetime,utc]</string>
+  <!--string name="PanelDirTimeStr">[ampm,datetime,utc][hour12,datetime,utc]：[min,datetime,utc]</string-->
+  <string name="PanelDirTimeStr">[ampm,datetime,jst][hour12,datetime,jst]：[min,datetime,jst]</string>
 
   <!-- panel dir events -->
   <string name="PanelDirEventsDateText">[mthnum,datetime,slt]／[day,datetime,slt]</string>
@@ -2738,7 +2741,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="RegionNoCovenant">この不動産には約款がありません。</string>
   <string name="RegionNoCovenantOtherOwner">この不動産には約款がありません。この不動産上の土地は不動産所有者により販売され、Linden Labは販売しません。販売に関するお問い合わせは、不動産所有者までお願い致します。</string>
   <!-- use value="" to keep the trailing space -->
-  <string name="covenant_last_modified" value="最終修正日： " />
+  <string name="covenant_last_modified" value="最終更新日：" />
   <string name="none_text" value="（なし）" />
   <string name="never_text" value="（無）" />
 
@@ -2795,13 +2798,13 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="GroupMoneyBalance">残高</string>
   <string name="GroupMoneyCredits">収入</string>
   <string name="GroupMoneyDebits">支出</string>
-  <string name="GroupMoneyDate">[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日　[weekday,datetime,utc]</string>
+  <string name="GroupMoneyDate">[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日[weekday,datetime,utc]</string>
 
   <!-- Viewer menu -->
   <string name="AcquiredItems">取得アイテム</string>
   <string name="Cancel">キャンセル</string>
   <string name="UploadingCosts">[NAME]のアップロード料金は L$[AMOUNT]です</string>
-  <string name="BuyingCosts">これを L$[AMOUNT]で購入します</string>
+  <string name="BuyingCosts">これを L$ [AMOUNT]で購入します</string>
   <string name="UnknownFileExtension">不明な拡張子：%s
 使用可能な拡張子：.wav, .tga, .bmp, .jpg, .jpeg, or .bvh</string>
   <string name="MuteObject2">オブジェクトのブロック</string>
@@ -2846,7 +2849,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="Shopping">ショッピング</string>
   <string name="Land Rental">土地のレンタル</string>
   <string name="Property Rental">プロパティのレンタル</string>
-  <string name="Special Attraction">特別アトラクション</string>
+  <string name="Special Attraction">特別なアトラクション</string>
   <string name="New Products">新製品</string>
   <string name="Employment">雇用</string>
   <string name="Wanted">求む</string>
@@ -2856,7 +2859,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <!-- PARCEL_CATEGORY_UI_STRING -->
   <string name="None">なし</string>
   <string name="Linden Location">Linden 所在地</string>
-  <string name="Adult">Adult</string>
+  <string name="Adult">成人向け</string>
   <string name="Arts&amp;Culture">芸術と文化</string>
   <string name="Business">ビジネス</string>
   <string name="Educational">教育</string>
@@ -2881,7 +2884,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name=")">）</string>
   <string name=".">。</string>
   <string name="'">'</string>
-  <string name="---">---</string>
+  <string name="---">─</string>
 
   <!-- media -->
   <string name="Multiple Media">複数のメディア</string>
@@ -2934,8 +2937,8 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 また、「コントロールパネル」＞「画面」＞「設定」内で、モニターが「最高 （３２ビット）」に設定されていることもご確認ください。
 このメッセージが何度も出る場合は、[SUPPORT_SITE]へご連絡ください。</string>
   <string name="MBPixelFmtSetErr">ピクセル形式が設定できません</string>
-  <string name="MBGLContextErr">GL レンダーコンテキストが作れません</string>
-  <string name="MBGLContextActErr">GL レンダーコンテキストをアクティベートできません。</string>
+  <string name="MBGLContextErr">GLレンダーコンテキストが作れません</string>
+  <string name="MBGLContextActErr">GLレンダーコンテキストを有効化できません。</string>
   <string name="MBVideoDrvErr">お使いのコンピューターのビデオカードドライバが正常にインストールできなかった、または古いかサポート対象外のため、[APP_NAME]は実行できません。
 最新のビデオカードドライバがインストールされているのを確認し、されている場合は再インストールをお試しください。
 
@@ -3520,14 +3523,14 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="LocationCtrlBuildTooltip">オブジェクトの制作や落とす事は禁止されています。</string>
   <string name="LocationCtrlScriptsTooltip">スクリプト不可</string>
   <string name="LocationCtrlDamageTooltip">体力</string>
-  <string name="LocationCtrlAdultIconTooltip">Adult リージョン</string>
-  <string name="LocationCtrlModerateIconTooltip">Moderate リージョン</string>
-  <string name="LocationCtrlGeneralIconTooltip">General リージョン</string>
+  <string name="LocationCtrlAdultIconTooltip">Adultリージョン</string>
+  <string name="LocationCtrlModerateIconTooltip">Moderateリージョン</string>
+  <string name="LocationCtrlGeneralIconTooltip">Generalリージョン</string>
   <string name="LocationCtrlSeeAVsTooltip">この区画内のアバターは、この区画の外にいるアバターからは見ることも聞くこともできません。</string>
   <string name="LocationCtrlPathfindingDirtyTooltip">リージョン（地域）が再構築されるまで、移動するオブジェクトは正しく動作しない可能性があります。</string>
-  <string name="LocationCtrlPathfindingDisabledTooltip">このリージョン（地域）でダイナミック経路探索が有効になっていません。</string>
+  <string name="LocationCtrlPathfindingDisabledTooltip">このリージョン（地域）では、動的経路探索が有効になっていません。</string>
   <!-- Strings used by the (currently Linux) auto-updater app -->
-  <string name="UpdaterWindowTitle">[APP_NAME]アップデート</string>
+  <string name="UpdaterWindowTitle">[APP_NAME]のアップデート</string>
   <string name="UpdaterNowUpdating">只今[APP_NAME]をアップデート中です…</string>
   <string name="UpdaterNowInstalling">[APP_NAME]をインストール中です…</string>
   <string name="UpdaterUpdatingDescriptive">お使いの[APP_NAME]ビューアーが最新バージョンにアップデートされています。 数分かかることがありますのでしばらくお待ちください。</string>
@@ -3560,21 +3563,21 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="not_online_inventory">ユーザーがオンラインでありません–インベントリが保存されました。</string>
 
   <!-- voice calls -->
-  <string name="answered_call">相手がコールを受けました</string>
-  <string name="you_started_call">ボイスコールを開始します</string>
-  <string name="you_joined_call">ボイスコールに参加しました</string>
+  <string name="answered_call">相手がコールを受けました。</string>
+  <string name="you_started_call">ボイスコールを開始します。</string>
+  <string name="you_joined_call">ボイスコールに参加しました。</string>
   <string name="you_auto_rejected_call-im">「通知を受けない」がオンのときに、自動的にボイスコールを拒否しました。</string>
   <string name="name_started_call">[NAME]はボイスコールを開始します</string>
 
   <string name="ringing-im">ボイスコールに参加…</string>
-  <string name="connected-im">接続しました。コール終了をクリックして切ります</string>
+  <string name="connected-im">接続しました。コール終了をクリックして切ります。</string>
   <string name="hang_up-im">ボイスコールから退席しました</string>
   <string name="answering-im">接続中…</string>
   <string name="conference-title">複数人チャット</string>
   <string name="conference-title-incoming">[AGENT_NAME]と会話する</string>
-  <string name="inventory_item_offered-im">持ち物アイテム '[ITEM_NAME]' が送られてきました</string>
-  <string name="inventory_folder_offered-im">持ち物フォルダ '[ITEM_NAME]' が送られてきました</string>
-  <string name="share_alert">インベントリからここにアイテムをドラッグします</string>
+  <string name="inventory_item_offered-im">持ち物アイテム '[ITEM_NAME]' が送られてきました。</string>
+  <string name="inventory_folder_offered-im">持ち物フォルダ '[ITEM_NAME]' が送られてきました。</string>
+  <string name="share_alert">インベントリからここにアイテムをドラッグします。</string>
   <string name="facebook_post_success">Facebook に投稿しました。</string>
   <string name="flickr_post_success">Flickr に投稿しました。</string>
   <string name="twitter_post_success">Twitter に投稿しました。</string>
@@ -3615,7 +3618,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   So, let add string with name="removed" with the same value as "removed_from_group" -->
   <string name="removed">グループから脱退しました。</string>
   <string name="removed_from_group">あなたはグループから削除されました。</string>
-  <string name="close_on_no_ability">このチャットセッションを継続することはできません</string>
+  <string name="close_on_no_ability">このチャットセッションを継続することはできません。</string>
   <string name="unread_chat_single">[SOURCES]は何か新しいことを言いました。</string>
   <string name="unread_chat_multiple">[SOURCES]は何か新しいことを言いました。</string>
   <string name="session_initialization_timed_out_error">セッションの初期化がタイムアウトしました。</string>
@@ -3630,19 +3633,19 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="membership_url">https://secondlife.com/my/account/membership.php</string>
 
   <!-- Financial operations strings -->
-  <string name="paid_you_ldollars">[NAME]は[REASON]のために L$[AMOUNT]を支払いました。</string>
-  <string name="paid_you_ldollars_gift">[NAME]は L$[AMOUNT]支払いました：[REASON]</string>
+  <string name="paid_you_ldollars">[NAME]は[REASON]のためにL$ [AMOUNT]を支払いました。</string>
+  <string name="paid_you_ldollars_gift">[NAME]はL$ [AMOUNT]支払いました：[REASON]</string>
   <string name="paid_you_ldollars_no_reason">[NAME]は L$[AMOUNT]を支払いました。</string>
-  <string name="you_paid_ldollars">[NAME]に L$[AMOUNT]を支払いました：[REASON]</string>
-  <string name="you_paid_ldollars_gift">[NAME]に L$[AMOUNT]を支払いました：[REASON]</string>
-  <string name="you_paid_ldollars_no_info">L$[AMOUNT]を支払いました。</string>
-  <string name="you_paid_ldollars_no_reason">[NAME]に L$[AMOUNT]を支払いました。</string>
-  <string name="you_paid_ldollars_no_name">L$[AMOUNT]を支払いました：[REASON]</string>
+  <string name="you_paid_ldollars">[NAME]にL$ [AMOUNT]を支払いました：[REASON]</string>
+  <string name="you_paid_ldollars_gift">[NAME]にL$ [AMOUNT]を支払いました：[REASON]</string>
+  <string name="you_paid_ldollars_no_info">L$ [AMOUNT]を支払いました。</string>
+  <string name="you_paid_ldollars_no_reason">[NAME]にL$ [AMOUNT]を支払いました。</string>
+  <string name="you_paid_ldollars_no_name">L$ [AMOUNT]を支払いました：[REASON]</string>
   <string name="you_paid_failure_ldollars">[NAME]に[REASON]の代金 L$[AMOUNT]を支払えませんでした。</string>
-  <string name="you_paid_failure_ldollars_gift">[NAME]に L$[AMOUNT]を支払えませんでした：[REASON]</string>
-  <string name="you_paid_failure_ldollars_no_info">L$[AMOUNT]を支払えませんでした。</string>
-  <string name="you_paid_failure_ldollars_no_reason">[NAME]に L$[AMOUNT]を支払えませんでした。</string>
-  <string name="you_paid_failure_ldollars_no_name">[REASON]の 代金 L$[AMOUNT]を支払えませんでした。</string>
+  <string name="you_paid_failure_ldollars_gift">[NAME]にL$ [AMOUNT]を支払えませんでした：[REASON]</string>
+  <string name="you_paid_failure_ldollars_no_info">L$ [AMOUNT]を支払えませんでした。</string>
+  <string name="you_paid_failure_ldollars_no_reason">[NAME]にL$ [AMOUNT]を支払えませんでした。</string>
+  <string name="you_paid_failure_ldollars_no_name">[REASON]の代金L$ [AMOUNT]を支払えませんでした。</string>
   <string name="for item">[ITEM]向け</string>
   <string name="for a parcel of land">土地区画のため</string>
   <string name="for a land access pass">土地の入場許可を得るため</string>
@@ -3650,14 +3653,14 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="to create a group">グループを作成するため</string>
   <string name="to join a group">グループに参加するため</string>
   <string name="to upload">アップロードするため</string>
-  <string name="to publish a classified ad">クラシファイド広告を掲載する</string>
+  <string name="to publish a classified ad">クラシファイド広告を掲載する。</string>
 
-  <string name="uploading_costs">アップロード料金は L$[AMOUNT]です</string>
-  <string name="this_costs">料金は L$[AMOUNT]です</string>
+  <string name="uploading_costs">アップロード料金はL$ [AMOUNT]です。</string>
+  <string name="this_costs">料金はL$ [AMOUNT]です。</string>
 
-  <string name="buying_selected_land">選択した土地を L$[AMOUNT]で購入します</string>
-  <string name="this_object_costs">このオブジェクトは L$[AMOUNT]です</string>
-  <string name="giving">L$[AMOUNT]を渡します</string>
+  <string name="buying_selected_land">選択した土地をL$ [AMOUNT]で購入します。</string>
+  <string name="this_object_costs">このオブジェクトは、L$ [AMOUNT]です。</string>
+  <string name="giving">L$ [AMOUNT]を渡します。</string>
 
   <string name="group_role_everyone">全員</string>
   <string name="group_role_officers">オフィサー</string>
@@ -3769,8 +3772,8 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="DefaultMimeType">なし／なし</string>
 
   <string name="texture_load_dimensions_error">[WIDTH]✕[HEIGHT]以上の画像は読み込めません。</string>
-  <string name="outfit_photo_load_dimensions_error">最大衣装画像サイズは[WIDTH]✕[HEIGHT]です。画像のサイズを調整するか、別の画像を使用してください。</string>
-  <string name="outfit_photo_select_dimensions_error">最大衣装画像サイズは[WIDTH]✕[HEIGHT]です。別のテクスチャを選択してください。</string>
+  <string name="outfit_photo_load_dimensions_error">アウトフィット画像の最大サイズは[WIDTH]✕[HEIGHT]です。画像のサイズを調整するか、別の画像を使用してください。</string>
+  <string name="outfit_photo_select_dimensions_error">アウトフィット画像の最大サイズは[WIDTH]✕[HEIGHT]です。別のテクスチャを選択してください。</string>
   <string name="outfit_photo_verify_dimensions_error">画像の寸法を確認できません。画像サイズがピッカーに表示されるまでお待ちください。</string>
   <!-- language specific white-space characters, delimiters, spacers, item separation symbols -->
   <string name="sentences_separator" value="　"></string>
@@ -3825,7 +3828,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="DeleteItems">選択したアイテムを削除しますか？</string>
   <string name="DeleteItem">選択したアイテムを削除しますか？</string>
 
-  <string name="EmptyOutfitText">この衣装にはアイテムがありません。</string>
+  <string name="EmptyOutfitText">このアウトフィットにはアイテムがありません。</string>
 
   <!-- External editor status codes -->
   <string name="ExternalEditorNotSet">ExternalEditor 設定を使ってエディターを選択します。</string>
@@ -3977,7 +3980,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 
   <string name="Command_360_Capture_Label">360度スナップショット</string>
   <string name="Command_AboutLand_Label">土地情報</string>
-  <string name="Command_Appearance_Label">衣装</string>
+  <string name="Command_Appearance_Label">アウトフィット</string>
   <string name="Command_Avatar_Label">アバター一式</string>
   <string name="Command_Build_Label">制作</string>
   <string name="Command_Chat_Label">チャット</string>
@@ -3986,7 +3989,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Command_Destinations_Label">行き先</string>
   <string name="Command_Environments_Label">環境</string>
   <string name="Command_Gestures_Label">ジェスチャー</string>
-  <string name="Command_Grid_Status_Label">グリッドステータス</string>
+  <string name="Command_Grid_Status_Label">グリッド状況</string>
   <string name="Command_HowTo_Label">ハウツー</string>
   <string name="Command_Inventory_Label">インベントリ</string>
   <string name="Command_Map_Label">地図</string>
@@ -3994,7 +3997,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Command_MarketplaceListings_Label">マーケットプレイス</string>
   <string name="Command_MiniMap_Label">ミニマップ</string>
   <string name="Command_Move_Label">歩行／走行／飛行</string>
-  <string name="Command_People_Label">人</string>
+  <string name="Command_People_Label">人物</string>
   <string name="Command_Picks_Label">ピック</string>
   <string name="Command_Places_Label">場所</string>
   <string name="Command_Preferences_Label">初期設定</string>
@@ -4002,7 +4005,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Command_Report_Abuse_Label">嫌がらせの報告</string>
   <string name="Command_Search_Label">検索</string>
   <string name="Command_Snapshot_Label">スナップショット</string>
-  <string name="Command_Speak_Label">話す</string>
+  <string name="Command_Speak_Label">音声通話</string>
   <string name="Command_View_Label">カメラ操作</string>
   <string name="Command_Voice_Label">ボイス設定</string>
 
@@ -4011,7 +4014,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Command_Appearance_Tooltip">アバターを変更</string>
   <string name="Command_Avatar_Tooltip">アバター一式を選択</string>
   <string name="Command_Build_Tooltip">オブジェクトの制作と地形の変形</string>
-  <string name="Command_Chat_Tooltip">近くの人とテキストチャットをする。</string>
+  <string name="Command_Chat_Tooltip">近くにいる人物とテキストチャットをする。</string>
   <string name="Command_Conversations_Tooltip">全員との会話</string>
   <string name="Command_Compass_Tooltip">コンパス</string>
   <string name="Command_Destinations_Tooltip">行ってみたい場所</string>
@@ -4023,19 +4026,19 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Command_Map_Tooltip">世界地図</string>
   <string name="Command_Marketplace_Tooltip">ショッピングに出掛ける</string>
   <string name="Command_MarketplaceListings_Tooltip">創作アイテムを販売します</string>
-  <string name="Command_MiniMap_Tooltip">近くの人を表示する</string>
+  <string name="Command_MiniMap_Tooltip">近くの人物を表示する</string>
   <string name="Command_Move_Tooltip">アバターの移動</string>
-  <string name="Command_People_Tooltip">フレンド、グループ、近くの人</string>
+  <string name="Command_People_Tooltip">フレンド、グループ、近くの人物</string>
   <string name="Command_Picks_Tooltip">プロフィールで紹介するお気に入りの場所</string>
   <string name="Command_Places_Tooltip">保存済みの場所</string>
   <string name="Command_Preferences_Tooltip">初期設定</string>
   <string name="Command_Profile_Tooltip">プロフィールを編集／表示</string>
   <string name="Command_Report_Abuse_Tooltip">嫌がらせの報告</string>
-  <string name="Command_Search_Tooltip">場所、イベント、人を検索する。</string>
+  <string name="Command_Search_Tooltip">場所、イベント、人物を検索する。</string>
   <string name="Command_Snapshot_Tooltip">スナップショット画像を撮る。</string>
-  <string name="Command_Speak_Tooltip">マイクを使って近くの人と話す。</string>
+  <string name="Command_Speak_Tooltip">マイクを使って近くの人物と話す。</string>
   <string name="Command_View_Tooltip">カメラアングルを変更</string>
-  <string name="Command_Voice_Tooltip">インワールドでのコールや近くにいる人の音量調整</string>
+  <string name="Command_Voice_Tooltip">インワールドでのコールや近くにいる人物の音量調整</string>
 
   <string name="Toolbar_Bottom_Tooltip">現在、下のツールバーにあります。</string>
   <string name="Toolbar_Left_Tooltip">現在、左のツールバーにあります。</string>
@@ -4102,8 +4105,8 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="ExperiencePermissionShort17">環境</string>
 
   <!-- Conversation log messages -->
-  <string name="logging_calls_disabled_log_empty">会話はログに記録されていません。ログの記録を開始するには、「初期設定」＞「チャット」で「保存: ログのみ」または「保存: ログと会話のテキスト」を選択します。</string>
-  <string name="logging_calls_disabled_log_not_empty">これ以上の会話は記録されません。ログの記録を再開するには、「初期設定」＞「チャット」で「保存: ログのみ」または「保存: ログと会話のテキスト」を選択します。</string>
+  <string name="logging_calls_disabled_log_empty">会話はログに記録されていません。ログの記録を開始するには、「初期設定」＞「チャット」で「保存：ログのみ」または「保存：ログと会話のテキスト」を選択します。</string>
+  <string name="logging_calls_disabled_log_not_empty">これ以上の会話は記録されません。ログの記録を再開するには、「初期設定」＞「チャット」で「保存：ログのみ」または「保存：ログと会話のテキスト」を選択します。</string>
   <string name="logging_calls_enabled_log_empty">ログイン時の会話はありません。誰かにご連絡した後、または誰かがあなたに連絡した後、ログエントリがここに表示されます。</string>
   <string name="loading_chat_logs">読み込み中…</string>
 
@@ -4123,7 +4126,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Mav_Details_MAV_UNKNOWN_VERSION">物理形状のバージョンが正しくありません。物理モデルに正しいバージョンを設定してください。</string>
 
   <!-- CURL error messages -->
-  <string name="couldnt_resolve_host">DNS がホスト名 ([HOSTNAME]) を解決できませんでした。
+  <string name="couldnt_resolve_host">DNSがホスト名 ([HOSTNAME]) を解決できませんでした。
 www.secondlife.com のウェブサイトに接続できるかご確認ください。
 接続できても、このエラーが継続的に起こる場合は、サポートセクションから問題を報告してください。</string>
   <string name="ssl_peer_certificate">ログインサーバーが SSL 経由で確認できませんでした。

@@ -269,7 +269,7 @@
   </tab_container>
   <panel name="land info panel">
     <text name="label_parcel_info">区画情報</text>
-    <text name="label_area_price">価格：[AREA]㎡ L$[PRICE]</text>
+    <text name="label_area_price">価格：[AREA]㎡　L$ [PRICE]</text>
     <text name="label_area">面積：[AREA]㎡</text>
     <button label="土地情報" label_selected="土地情報" name="button about land" />
     <check_box label="所有者を表示" name="checkbox show owners" tool_tip="所有者の種類別に区画を色づけます：緑色＝あなたの土地　水色＝あなたのグループ所有地　赤色＝他人が所有する土地　黄色 = 売り出し中　紫色＝オークション　灰色＝パブリック" />

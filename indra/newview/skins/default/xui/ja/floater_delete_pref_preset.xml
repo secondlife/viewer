@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<floater legacy_header_height="18" height="130" help_topic="floater_delete_preset" layout="topleft" name="delete_pref_preset" save_rect="true" title="プリセットの削除" width="300">
+<floater name="delete_pref_preset" title="プリセットの削除">
 
-	<string name="title_graphic">グラフィックのプリセットを削除</string>
-	<string name="title_camera">カメラのプリセットを削除</string>
+  <string name="title_graphic">グラフィックのプリセットを削除</string>
+  <string name="title_camera">カメラのプリセットを削除</string>
 
-	<text follows="top|left|right" height="10" layout="topleft" left="20" name="Preset" top="30" width="200">プリセットを選択</text>
-	<combo_box follows="top|left" layout="topleft" left="20" name="preset_combo" top_delta="20" width="200"/>
-	<button follows="top|left" height="23" label="削除" layout="topleft" top_delta="40" left="20" name="delete" width="70"/>
-	<button follows="top|left" height="23" label="キャンセル" layout="topleft" left_pad="20" name="cancel" width="70"/>
+  <text name="Preset">プリセットを選択</text>
+  <combo_box name="preset_combo" />
+  <button label="削除" name="delete" />
+  <button label="キャンセル" name="cancel" />
 </floater>

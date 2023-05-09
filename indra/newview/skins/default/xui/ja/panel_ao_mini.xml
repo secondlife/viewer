@@ -1,13 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
-<panel name="ao_mini" class="ao_mini" left="0" top="0" width="120" height="70" follows="all" visible="true" layout="topleft">
-  <combo_box height="23" layout="topleft" left="3" right="-28" top="1" name="set_list" />
-  <button follows="top|right" height="23" image_overlay="Edit_Wrench" label="" layout="topleft" left_pad="2" name="ao_wrench" tool_tip="メインのAOコントロールを開く" top="1" width="23">
-    <button.commit_callback function="AO.OpenFloater" />
-  </button>
-  <button name="ao_prev" image_overlay="BackArrow_Off" tool_tip="現在の状態の次のアニメーションに切り替えます。" left="2" top_pad="2" width="57" height="20" follows="all" layout="topleft">
-    <button.commit_callback function="AO.PrevAnim" />
-  </button>
-  <button name="ao_next" image_overlay="ForwardArrow_Off" tool_tip="現在の状態の次のアニメーションに切り替えます。" left_pad="2" top_delta="0" width="57" height="20" follows="all" layout="topleft">
-    <button.commit_callback function="AO.NextAnim" />
-  </button>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="ao_mini">
+  <combo_box name="set_list" />
+  <button name="ao_wrench" tool_tip="メインのAOコントロールを開く" />
+  <button name="ao_prev" tool_tip="現在の状態の次のアニメーションに切り替えます。" />
+  <button name="ao_next" tool_tip="現在の状態の次のアニメーションに切り替えます。" />
 </panel>

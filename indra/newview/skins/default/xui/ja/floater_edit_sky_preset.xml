@@ -3,8 +3,8 @@
   <string name="title_new">新しい空のプリセットを作成</string>
   <string name="title_edit">空のプリセットを編集</string>
   <string name="hint_new">新しいプリセットに名前をつけ、希望の設定に調節して、「保存」をクリックします。</string>
-  <string name="hint_edit">空のプリセットを編集するには、希望の設定に調節して、「保存」をクリックします。	</string>
-  <string name="combo_label">- プリセットを選択 -</string>
+  <string name="hint_edit">空のプリセットを編集するには、希望の設定に調節して、「保存」をクリックします。</string>
+  <string name="combo_label">－プリセットを選択－</string>
   <text name="hint">プリセットを編集するには、希望の設定に調節して、「保存」をクリックします。</text>
   <text name="label">プリセットの名前：</text>
   <text name="note">注記：自分で作成したプリセットの名前を変更すると、新しいプリセットが別に作成されるだけで、元のプリセットは変更されません。</text>

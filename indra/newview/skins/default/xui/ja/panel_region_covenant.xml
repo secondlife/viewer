@@ -16,7 +16,7 @@
   <text name="region_name_lbl">名前：</text>
   <text name="region_name_text">Erica</text>
   <text name="region_landtype_lbl">種類：</text>
-  <text name="region_landtype_text">メインランド／居住地</text>
+  <text name="region_landtype_text">メインランド／入植地</text>
   <text name="region_maturity_lbl">区分：</text>
   <text name="region_maturity_text">Adult</text>
   <text name="resellable_lbl">再販：</text>

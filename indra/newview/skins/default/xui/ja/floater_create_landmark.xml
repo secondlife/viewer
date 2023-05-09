@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater can_resize="false" show_title="false" can_minimize="false" can_close="false" header_height="10" bg_opaque_image="Window_NoTitle_Foreground" bg_alpha_image="Window_NoTitle_Background" height="305" layout="topleft" name="create_landmark" width="330" title="ランドマーク作成">
+<floater name="create_landmark" title="ランドマーク作成">
   <string name="favorites_bar">お気に入りバー</string>
-  <text follows="left|top" height="15" layout="topleft" left="20" name="title_label" top="5" font="SansSerifLargeBold" value="ランドマークの追加" width="290" />
-  <text follows="left|top" height="15" layout="topleft" left="20" name="name_label" top_pad="10" value="名前" width="290" />
-  <line_editor follows="left|top" height="22" layout="topleft" max_length_bytes="63" name="title_editor" prevalidate_callback="ascii" text_readonly_color="white" top_pad="5" width="290" />
-  <text follows="left|top" height="15" layout="topleft" name="folder_label" top_pad="10" value="ランドマークの保存先：" width="290" />
-  <combo_box follows="bottom|left" height="23" layout="topleft" name="folder_combo" top_pad="2" width="290" />
-  <text follows="left|top" layout="topleft" top_pad="6" left="20" name="new_folder_textbox" height="20" parse_urls="true" skip_link_underline="true" wrap="true">[secondlife:/// フォルダを作成]</text>
-  <text follows="left|top" height="15" layout="topleft" name="notes_label" top_pad="10" value="私のノート" width="290" />
-  <text_editor bg_readonly_color="DkGray0" follows="all" height="75" layout="topleft" max_length="127" name="notes_editor" spellcheck="true" text_readonly_color="white" text_type="ascii_with_newline" commit_on_focus_lost="true" top_pad="5" width="290" wrap="true" />
-  <button follows="bottom|left|right" height="23" label="OK" layout="topleft" mouse_opaque="false" name="ok_btn" top_pad="10" left="19" width="140" />
-  <button follows="bottom|left|right" height="23" label="キャンセル" layout="topleft" left_pad="12" mouse_opaque="false" name="cancel_btn" width="140" />
+  <text name="title_label" value="ランドマークの追加" />
+  <text name="name_label" value="名前" />
+  <line_editor name="title_editor" />
+  <text name="folder_label" value="ランドマークの保存先：" />
+  <combo_box name="folder_combo" />
+  <text name="new_folder_textbox">[secondlife:/// フォルダを作成]</text>
+  <text name="notes_label" value="私のノート" />
+  <text_editor name="notes_editor" />
+  <button label="OK" name="ok_btn" />
+  <button label="キャンセル" name="cancel_btn" />
 </floater>
