@@ -437,9 +437,10 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 			{
 				const LLViewerInventoryCategory * cat(gInventory.getCategory(cat_id));
 		
-				if (cat && std::find(all_cats.begin(), all_cats.end(), cat_id) == all_cats.end())
+				if (cat)
 				{
-					if (LLViewerInventoryCategory::VERSION_UNKNOWN == cat->getVersion())
+					if (LLViewerInventoryCategory::VERSION_UNKNOWN == cat->getVersion()
+                        && std::find(all_cats.begin(), all_cats.end(), cat_id) == all_cats.end())
 					{
 						LLSD folder_sd;
 						folder_sd["folder_id"]		= cat->getUUID();
