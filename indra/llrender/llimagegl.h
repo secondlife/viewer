@@ -340,7 +340,7 @@ public:
     template <typename CALLABLE>
     bool post(CALLABLE&& func)
     {
-        return getQueue().postIfOpen(std::forward<CALLABLE>(func));
+        return getQueue().post(std::forward<CALLABLE>(func));
     }
 
     void run() override;
