@@ -1039,7 +1039,7 @@ void LLPipeline::refreshCachedSettings()
 	if (gNonInteractive)
 	{
 		LLVOAvatar::sMaxNonImpostors = 1;
-		LLVOAvatar::updateImpostorRendering(LLVOAvatar::sMaxNonImpostors);
+		//LLVOAvatar::updateImpostorRendering(LLVOAvatar::sMaxNonImpostors);
 	}
 }
 
