@@ -161,7 +161,8 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mInvFVBridgeBuilder(NULL),
 	mInventoryViewModel(p.name),
 	mGroupedItemBridge(new LLFolderViewGroupedItemBridge),
-	mFocusSelection(false)
+	mFocusSelection(false),
+    mBuildChildrenViews(true)
 {
 	mInvFVBridgeBuilder = &INVENTORY_BRIDGE_BUILDER;
 
@@ -1016,8 +1017,11 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
                                                   LLInventoryObject const* objectp,
                                                   LLFolderViewItem *folder_view_item,
                                                   LLFolderViewFolder *parent_folder,
-                                                  const EBuildModes &mode)
+                                                  const EBuildModes &mode,
+                                                  S32 depth)
 {
+    depth++;
+
     // Force the creation of an extra root level folder item if required by the inventory panel (default is "false")
     bool allow_drop = true;
     bool create_root = false;
@@ -1117,7 +1121,8 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
         }
 	}
 
-    bool create_children = folder_view_item && objectp->getType() == LLAssetType::AT_CATEGORY;
+    bool create_children = folder_view_item && objectp->getType() == LLAssetType::AT_CATEGORY
+                            && (mBuildChildrenViews || depth == 0);
 
     if (create_children)
     {
@@ -1137,7 +1142,10 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
                 {
                     create_children = false;
                     // run it again for the sake of creating children
-                    mBuildViewsQueue.push_back(id);
+                    if (mBuildChildrenViews || depth == 0)
+                    {
+                        mBuildViewsQueue.push_back(id);
+                    }
                 }
                 else
                 {
@@ -1150,7 +1158,10 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
             {
                 create_children = false;
                 // run it to create children, current caller is only interested in current view
-                mBuildViewsQueue.push_back(id);
+                if (mBuildChildrenViews || depth == 0)
+                {
+                    mBuildViewsQueue.push_back(id);
+                }
                 break;
             }
             case BUILD_ONE_FOLDER:
@@ -1198,11 +1209,11 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
                         // each time, especially since content is growing, we can just
                         // iter over copy of mItemMap in some way
                         LLFolderViewItem* view_itemp = getItemByID(cat->getUUID());
-                        buildViewsTree(cat->getUUID(), id, cat, view_itemp, parentp, (mode == BUILD_ONE_FOLDER ? BUILD_NO_CHILDREN : mode));
+                        buildViewsTree(cat->getUUID(), id, cat, view_itemp, parentp, (mode == BUILD_ONE_FOLDER ? BUILD_NO_CHILDREN : mode), depth);
                     }
                     else
                     {
-                        buildViewsTree(cat->getUUID(), id, cat, NULL, parentp, (mode == BUILD_ONE_FOLDER ? BUILD_NO_CHILDREN : mode));
+                        buildViewsTree(cat->getUUID(), id, cat, NULL, parentp, (mode == BUILD_ONE_FOLDER ? BUILD_NO_CHILDREN : mode), depth);
                     }
                 }
 			}
@@ -1222,7 +1233,7 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
                     // each time, especially since content is growing, we can just
                     // iter over copy of mItemMap in some way
                     LLFolderViewItem* view_itemp = getItemByID(item->getUUID());
-                    buildViewsTree(item->getUUID(), id, item, view_itemp, parentp, mode);
+                    buildViewsTree(item->getUUID(), id, item, view_itemp, parentp, mode, depth);
                 }
 			}
 		}
@@ -2078,6 +2089,7 @@ static LLDefaultChildRegistry::Register<LLInventorySingleFolderPanel> t_single_f
 LLInventorySingleFolderPanel::LLInventorySingleFolderPanel(const Params& params)
     : LLInventoryPanel(params)
 {
+    mBuildChildrenViews = false;
     getFilter().setSingleFolderMode(true);
     getFilter().setEmptyLookupMessage("InventorySingleFolderNoMatches");
     getFilter().setDefaultEmptyLookupMessage("InventorySingleFolderEmpty");

@@ -305,6 +305,8 @@ protected:
 	 */
 	const LLInventoryFolderViewModelBuilder* mInvFVBridgeBuilder;
 
+    bool mBuildChildrenViews;
+
 
 	//--------------------------------------------------------------------
 	// Sorting
@@ -372,7 +374,8 @@ private:
                                               LLInventoryObject const* objectp,
                                               LLFolderViewItem *target_view,
                                               LLFolderViewFolder *parent_folder_view,
-                                              const EBuildModes &mode);
+                                              const EBuildModes &mode,
+                                              S32 depth = -1);
 
     typedef enum e_views_initialization_state
     {
