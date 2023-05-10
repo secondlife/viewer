@@ -870,7 +870,7 @@ public:
 LL_COMMON_API std::string zip_llsd(LLSD& data);
 
 
-LL_COMMON_API U8* unzip_llsdNavMesh( bool& valid, size_t& outsize,std::istream& is, size_t size);
+LL_COMMON_API U8* unzip_llsdNavMesh( bool& valid, size_t& outsize,std::istream& is, S32 size);
 
 // returns a pointer to the array or past the array if the deprecated header exists
 LL_COMMON_API char* strip_deprecated_header(char* in, U32& cur_size, U32* header_size = nullptr);

@@ -43,6 +43,7 @@
 #include "llui.h" 
 #include "llglheaders.h"
 #include "llrender.h"
+#include "llstartup.h"
 #include "llwindow.h"	// swapBuffers()
 
 // newview includes
@@ -149,6 +150,7 @@ U32 LLPipeline::RenderFSAASamples;
 U32 LLPipeline::RenderResolutionDivisor;
 bool LLPipeline::RenderUIBuffer;
 S32 LLPipeline::RenderShadowDetail;
+S32 LLPipeline::RenderShadowSplits;
 bool LLPipeline::RenderDeferredSSAO;
 F32 LLPipeline::RenderShadowResolutionScale;
 bool LLPipeline::RenderLocalLights;
@@ -544,6 +546,7 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderResolutionDivisor");
 	connectRefreshCachedSettingsSafe("RenderUIBuffer");
 	connectRefreshCachedSettingsSafe("RenderShadowDetail");
+    connectRefreshCachedSettingsSafe("RenderShadowSplits");
 	connectRefreshCachedSettingsSafe("RenderDeferredSSAO");
 	connectRefreshCachedSettingsSafe("RenderShadowResolutionScale");
 	connectRefreshCachedSettingsSafe("RenderLocalLights");
@@ -615,7 +618,6 @@ void LLPipeline::init()
 
 LLPipeline::~LLPipeline()
 {
-
 }
 
 void LLPipeline::cleanup()
@@ -1075,6 +1077,7 @@ void LLPipeline::refreshCachedSettings()
 	RenderResolutionDivisor = gSavedSettings.getU32("RenderResolutionDivisor");
 	RenderUIBuffer = gSavedSettings.getBOOL("RenderUIBuffer");
 	RenderShadowDetail = gSavedSettings.getS32("RenderShadowDetail");
+    RenderShadowSplits = gSavedSettings.getS32("RenderShadowSplits");
 	RenderDeferredSSAO = gSavedSettings.getBOOL("RenderDeferredSSAO");
 	RenderShadowResolutionScale = gSavedSettings.getF32("RenderShadowResolutionScale");
 	RenderLocalLights = gSavedSettings.getBOOL("RenderLocalLights");
@@ -6002,7 +6005,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 			LLDrawable* drawable = light->drawable;
             const LLViewerObject *vobj = light->drawable->getVObj();
             if(vobj && vobj->getAvatar() 
-               && (vobj->getAvatar()->isTooComplex() || vobj->getAvatar()->isInMuteList())
+               && (vobj->getAvatar()->isTooComplex() || vobj->getAvatar()->isInMuteList() || vobj->getAvatar()->isTooSlow())
                )
             {
                 drawable->clearState(LLDrawable::NEARBY_LIGHT);
@@ -6081,7 +6084,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 				continue;
 			}
             LLVOAvatar * av = light->getAvatar();
-            if (av && (av->isTooComplex() || av->isInMuteList()))
+            if (av && (av->isTooComplex() || av->isInMuteList() || av->isTooSlow()))
             {
                 // avatars that are already in the list will be removed by removeMutedAVsLights
                 continue;
@@ -10247,14 +10250,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 	if (mSunDiffuse == LLColor4::black)
 	{ //sun diffuse is totally black, shadows don't matter
-		LLGLDepthTest depth(GL_TRUE);
-
-		for (S32 j = 0; j < 4; j++)
-		{
-			mShadow[j].bindTarget();
-			mShadow[j].clear();
-			mShadow[j].flush();
-		}
+        skipRenderingShadows();
 	}
 	else
 	{
@@ -10309,7 +10305,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 			std::vector<LLVector3> fp;
 
-			if (!gPipeline.getVisiblePointCloud(shadow_cam, min, max, fp, lightDir))
+			if (!gPipeline.getVisiblePointCloud(shadow_cam, min, max, fp, lightDir)
+                || j > RenderShadowSplits)
 			{
 				//no possible shadow receivers
 				if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
@@ -10871,10 +10868,10 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
                               << " is " << ( too_complex ? "" : "not ") << "too complex"
                               << LL_ENDL;
 
-	pushRenderTypeMask();
-	
-	if (visually_muted || too_complex)
-	{
+    pushRenderTypeMask();
+
+    if (visually_muted || too_complex)
+    {
         // only show jelly doll geometry
 		andRenderTypeMask(LLPipeline::RENDER_TYPE_AVATAR,
 							LLPipeline::RENDER_TYPE_CONTROL_AV,
@@ -11532,5 +11529,29 @@ void LLPipeline::restoreHiddenObject( const LLUUID& id )
 			unhideDrawable( pDrawable );			
 		}
 	}
+}
+
+void LLPipeline::skipRenderingShadows()
+{
+    LLGLDepthTest depth(GL_TRUE);
+
+    for (S32 j = 0; j < 4; j++)
+    {
+        mShadow[j].bindTarget();
+        mShadow[j].clear();
+        mShadow[j].flush();
+    }
+}
+
+void LLPipeline::handleShadowDetailChanged()
+{
+    if (RenderShadowDetail > gSavedSettings.getS32("RenderShadowDetail"))
+    {
+        skipRenderingShadows();
+    }
+    else
+    {
+        LLViewerShaderMgr::instance()->setShaders();
+    }
 }
 

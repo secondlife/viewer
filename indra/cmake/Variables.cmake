@@ -191,9 +191,15 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   # development must be done after the build as we do in viewer_manifest.py for
   # released builds
   # https://stackoverflow.com/a/54296008
+  # With Xcode 14.1, apparently you must take drastic steps to prevent
+  # implicit signing.
+  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED NO)
+  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED NO)
   # "-" represents "Sign to Run Locally" and empty string represents "Do Not Sign"
   set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
-
+  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "")
+  set(CMAKE_XCODE_ATTRIBUTE_DISABLE_MANUAL_TARGET_ORDER_BUILD_WARNING YES)
+  set(CMAKE_XCODE_ATTRIBUTE_GCC_WARN_64_TO_32_BIT_CONVERSION NO)
   set(CMAKE_OSX_ARCHITECTURES "${ARCH}")
   string(REPLACE "i686"  "i386"   CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
   string(REPLACE "AMD64" "x86_64" CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")

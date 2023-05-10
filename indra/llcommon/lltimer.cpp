@@ -121,7 +121,7 @@ U32 micro_sleep(U64 us, U32 max_yields)
     U64 start = get_clock_count();
     // This is kernel dependent.  Currently, our kernel generates software clock
     // interrupts at 250 Hz (every 4,000 microseconds).
-    const U64 KERNEL_SLEEP_INTERVAL_US = 4000;
+    const S64 KERNEL_SLEEP_INTERVAL_US = 4000;
 
     auto num_sleep_intervals = (us - (KERNEL_SLEEP_INTERVAL_US >> 1)) / KERNEL_SLEEP_INTERVAL_US;
     if (num_sleep_intervals > 0)

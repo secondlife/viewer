@@ -122,39 +122,39 @@
    <menu_item_separator />
     
  <context_menu
-       label="Render Avatar"
+       label="Display this avatar"
        layout="topleft"
-        name="Render Avatar">
-      <menu_item_check
-        name="RenderNormally"
-        label="Default">
-        <menu_item_check.on_check
-          function="Avatar.CheckImpostorMode"
-          parameter="0" />
-	    <menu_item_check.on_click
-	      function="Avatar.SetImpostorMode"
-	      parameter="0" />
-      </menu_item_check>
-      <menu_item_check
-        name="AlwaysRenderFully"
-        label="Always">
-        <menu_item_check.on_check
-          function="Avatar.CheckImpostorMode"
-          parameter="2" />
-	    <menu_item_check.on_click
-	      function="Avatar.SetImpostorMode"
-	      parameter="2" />
-      </menu_item_check>
-      <menu_item_check
-        name="DoNotRender"
-        label="Never">
-        <menu_item_check.on_check
-          function="Avatar.CheckImpostorMode"
-          parameter="1" />
-	    <menu_item_check.on_click
-	      function="Avatar.SetImpostorMode"
-	      parameter="1" />
-      </menu_item_check>
+       name="Render Avatar">
+       <menu_item_check
+         name="AlwaysRenderFully"
+         label="Always full detail">
+         <menu_item_check.on_check
+           function="Avatar.CheckImpostorMode"
+           parameter="2" />
+         <menu_item_check.on_click
+           function="Avatar.SetImpostorMode"
+           parameter="2" />
+       </menu_item_check>
+       <menu_item_check
+         name="DoNotRender"
+         label="Never full detail">
+         <menu_item_check.on_check
+           function="Avatar.CheckImpostorMode"
+           parameter="1" />
+         <menu_item_check.on_click
+           function="Avatar.SetImpostorMode"
+           parameter="1" />
+       </menu_item_check>
+       <menu_item_call
+         name="RenderNormally"
+         label="Remove from exceptions">
+         <menu_item_call.on_visible
+           function="Avatar.CheckImpostorMode"
+           parameter="4" />
+         <menu_item_call.on_click
+           function="Avatar.SetImpostorMode"
+           parameter="0" />
+       </menu_item_call>
       <menu_item_separator />
       <menu_item_call
         label="Exceptions..."

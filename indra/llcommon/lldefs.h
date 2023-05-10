@@ -169,32 +169,46 @@ const U32	MAXADDRSTR		= 17;		// 123.567.901.345 = 15 chars + \0 + 1 for good luc
 //   llclampb(a)     // clamps a to [0 .. 255]
 //
 
-// recursion tail
-template <typename T>
-inline auto llmax(T data)
+template <typename T1, typename T2> 
+inline auto llmax(T1 d1, T2 d2)
 {
-    return data;
+	return (d1 > d2) ? d1 : d2;
 }
 
-template <typename T0, typename T1, typename... Ts> 
-inline auto llmax(T0 d0, T1 d1, Ts... rest)
+template <typename T1, typename T2, typename T3> 
+inline auto llmax(T1 d1, T2 d2, T3 d3)
 {
-    auto maxrest = llmax(d1, rest...);
-    return (d0 > maxrest)? d0 : maxrest;
+	auto r = llmax(d1,d2);
+	return llmax(r, d3);
 }
 
-// recursion tail
-template <typename T>
-inline auto llmin(T data)
+template <typename T1, typename T2, typename T3, typename T4> 
+inline auto llmax(T1 d1, T2 d2, T3 d3, T4 d4)
 {
-    return data;
+	auto r1 = llmax(d1,d2);
+	auto r2 = llmax(d3,d4);
+	return llmax(r1, r2);
 }
 
-template <typename T0, typename T1, typename... Ts> 
-inline auto llmin(T0 d0, T1 d1, Ts... rest)
+template <typename T1, typename T2> 
+inline auto llmin(T1 d1, T2 d2)
 {
-    auto minrest = llmin(d1, rest...);
-    return (d0 < minrest) ? d0 : minrest;
+	return (d1 < d2) ? d1 : d2;
+}
+
+template <typename T1, typename T2, typename T3> 
+inline auto llmin(T1 d1, T2 d2, T3 d3)
+{
+	auto r = llmin(d1,d2);
+	return (r < d3 ? r : d3);
+}
+
+template <typename T1, typename T2, typename T3, typename T4> 
+inline auto llmin(T1 d1, T2 d2, T3 d3, T4 d4)
+{
+	auto r1 = llmin(d1,d2);
+	auto r2 = llmin(d3,d4);
+	return llmin(r1, r2);
 }
 
 template <typename A, typename MIN, typename MAX> 

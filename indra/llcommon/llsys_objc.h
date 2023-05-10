@@ -29,6 +29,8 @@
 
 #include <cstdint>
 
+// C++ land doesn't define NSInteger, and we don't want to introduce that for
+// this one case, so use int64_t instead (which is equivalent).
 bool LLGetDarwinOSInfo(int64_t &major, int64_t &minor, int64_t &patch);
 
 
