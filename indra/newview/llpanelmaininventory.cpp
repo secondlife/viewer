@@ -1498,7 +1498,6 @@ void LLPanelMainInventory::onAddButtonClick()
 	if (menu)
 	{
         disableAddIfNeeded();
-		menu->getChild<LLMenuItemGL>("New Folder")->setEnabled(!isRecentItemsPanelSelected());
 
 		setUploadCostIfNeeded();
 
@@ -2242,7 +2241,7 @@ void LLPanelMainInventory::disableAddIfNeeded()
     {
         bool enable = !mSingleFolderMode || is_add_allowed(getCurrentSFVRoot());
 
-        menu->getChild<LLMenuItemGL>("New Folder")->setEnabled(enable);
+        menu->getChild<LLMenuItemGL>("New Folder")->setEnabled(enable && !isRecentItemsPanelSelected());
         menu->getChild<LLMenuItemGL>("New Script")->setEnabled(enable);
         menu->getChild<LLMenuItemGL>("New Note")->setEnabled(enable);
         menu->getChild<LLMenuItemGL>("New Gesture")->setEnabled(enable);
