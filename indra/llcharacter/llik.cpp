@@ -3114,21 +3114,6 @@ void LLIK::Solver::enforceConstraints()
         }
     }
 
-    /*
-    for (auto& data_pair : mChainMap)
-    {
-        auto& chain = data_pair.second;
-        // We update the world-frame transforms of all the joints from inside-->out
-        // and since each chain is organized from outside-->in we must traverse
-        // the chain in reverse order.  We skip the last element of each chain
-        // because it is either the root, or was updated as part of an earlier chain.
-        for (S32 i = chain.size() - 2; i >= 0; --i)
-        {
-            chain[i]->updatePosAndRotFromParent();
-        }
-    }
-    */
-
     // recompute world-frame transforms from inside-->out
     if (adjusted_joint_ids.size() > 0)
     {
