@@ -221,6 +221,8 @@ protected:
     void updateNavButtons();
     
     void onCombinationRootChanged(bool gallery_clicked);
+    void onCombinationGallerySelectionChanged(const LLUUID& category_id);
+    void onCombinationInventorySelectionChanged(const std::deque<LLFolderViewItem*>& items, BOOL user_action);
 	/**
 	 * Set upload cost in "Upload" sub menu.
 	 */

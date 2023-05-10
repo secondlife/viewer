@@ -116,6 +116,7 @@ public:
     void computeDifference(const LLInventoryModel::cat_array_t vcats, const LLInventoryModel::item_array_t vitems, uuid_vec_t& vadded, uuid_vec_t& vremoved);
 
     void deselectItem(const LLUUID& category_id);
+    void clearSelection();
     void changeItemSelection(const LLUUID& item_id, bool scroll_to_selection = false);
     void scrollToShowItem(const LLUUID& item_id);
     void signalSelectionItemID(const LLUUID& category_id);

@@ -1056,6 +1056,14 @@ void LLInventoryGallery::deselectItem(const LLUUID& category_id)
     }
 }
 
+void LLInventoryGallery::clearSelection()
+{
+    if(mSelectedItemID != LLUUID::null)
+    {
+        changeItemSelection(LLUUID::null);
+    }
+}
+
 void LLInventoryGallery::signalSelectionItemID(const LLUUID& category_id)
 {
     mSelectionChangeSignal(category_id);

@@ -262,7 +262,7 @@ BOOL LLPanelMainInventory::postBuild()
     LLInventoryFilter& comb_inv_filter = mCombinationInventoryPanel->getFilter();
     comb_inv_filter.setFilterThumbnails(LLInventoryFilter::FILTER_EXCLUDE_THUMBNAILS);
     comb_inv_filter.markDefault();
-    mCombinationInventoryPanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mCombinationInventoryPanel, _1, _2));
+    mCombinationInventoryPanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onCombinationInventorySelectionChanged, this, _1, _2));
     mCombinationInventoryPanel->setRootChangedCallback(boost::bind(&LLPanelMainInventory::onCombinationRootChanged, this, false));
 
     mCombinationGalleryPanel = getChild<LLInventoryGallery>("comb_gallery_view_inv");
@@ -270,6 +270,7 @@ BOOL LLPanelMainInventory::postBuild()
     comb_gallery_filter.setFilterThumbnails(LLInventoryFilter::FILTER_ONLY_THUMBNAILS);
     comb_gallery_filter.markDefault();
     mCombinationGalleryPanel->setRootChangedCallback(boost::bind(&LLPanelMainInventory::onCombinationRootChanged, this, true));
+    mCombinationGalleryPanel->setSelectionChangeCallback(boost::bind(&LLPanelMainInventory::onCombinationGallerySelectionChanged, this, _1));
 
     mCombinationScroller = getChild<LLView>("combination_scroller");
 
@@ -2294,6 +2295,24 @@ void LLPanelMainInventory::onCombinationRootChanged(bool gallery_clicked)
     //force update scroll container
     mCombinationShapeDirty = true;
     mCombinationInventoryPanel->reshape(1, 1);
+}
+
+void LLPanelMainInventory::onCombinationGallerySelectionChanged(const LLUUID& category_id)
+{
+    if(category_id != LLUUID::null)
+    {
+        mCombinationInventoryPanel->unSelectAll();
+    }
+}
+
+void LLPanelMainInventory::onCombinationInventorySelectionChanged(const std::deque<LLFolderViewItem*>& items, BOOL user_action)
+{
+    onSelectionChange(mCombinationInventoryPanel, items, user_action);
+
+    if(!items.empty())
+    {
+        mCombinationGalleryPanel->clearSelection();
+    }
 }
 
 void LLPanelMainInventory::updateCombinationVisibility()
