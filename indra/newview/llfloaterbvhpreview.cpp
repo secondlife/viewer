@@ -83,9 +83,6 @@ const F32 BASE_ANIM_TIME_OFFSET = 5.f;
 const F32 MIN_DURATION_ADJUSTMENT = 0.5f;
 const F32 MAX_DURATION_ADJUSTMENT = 2.f;
 
-const F32 MIN_DURATION_PERCENT =  50.f;
-const F32 MAX_DURATION_PERCENT = 200.f;
-
 std::string STATUS[] =
 {
 	"E_ST_OK",
@@ -942,7 +939,7 @@ void LLFloaterBvhPreview::onCommitDuration()
     getChild<LLUICtrl>("anim_duration")->setValue(LLSD(new_duration));
 
 	F32 new_percent = 100.f * new_duration / mOriginalDuration;
-    new_percent     = llclamp(new_percent, MIN_DURATION_PERCENT, MAX_DURATION_PERCENT);
+    new_percent     = llclamp(new_percent, MIN_DURATION_ADJUSTMENT * 100.f, MAX_DURATION_ADJUSTMENT * 100.f);
     getChild<LLUICtrl>("duration_percent")->setValue(LLSD(new_percent));
 
 	LL_DEBUGS("BVH") << "onCommitDuration: value is " << new_duration << " : "
@@ -973,7 +970,7 @@ bool LLFloaterBvhPreview::validateDuration(const LLSD &data)
         getChild<LLUICtrl>("anim_duration")->setValue(LLSD(new_duration));
 
         F32 new_percent = 100.f * new_duration / mOriginalDuration;
-        new_percent     = llclamp(new_percent, MIN_DURATION_PERCENT, MAX_DURATION_PERCENT);
+        new_percent     = llclamp(new_percent, MIN_DURATION_ADJUSTMENT * 100.f, MAX_DURATION_ADJUSTMENT * 100.f);
         getChild<LLUICtrl>("duration_percent")->setValue(LLSD(new_percent));
 
         LL_DEBUGS("BVH") << "validateDuration: set new values to " << new_duration << " seconds and "
@@ -993,7 +990,7 @@ void LLFloaterBvhPreview::onCommitPercent()
 
     // Limit the percent between 50 and 200
     F32 cur_percent    = (F32) getChild<LLUICtrl>("duration_percent")->getValue().asReal();
-    F32 clamped_percent = llclamp(cur_percent, MIN_DURATION_PERCENT, MAX_DURATION_PERCENT);
+    F32 clamped_percent = llclamp(cur_percent, MIN_DURATION_ADJUSTMENT * 100.f, MAX_DURATION_ADJUSTMENT * 100.f);
 
 	getChild<LLUICtrl>("duration_percent")->setValue(LLSD(clamped_percent));
 
@@ -1017,7 +1014,7 @@ bool LLFloaterBvhPreview::validatePercent(const LLSD &data)
 
     // Limit the duration between 50% and 2x the original duration
     F32 cur_value    = (F32) getChild<LLUICtrl>("duration_percent")->getValue().asReal();
-    F32 new_value = llclamp(cur_value, MIN_DURATION_PERCENT, MAX_DURATION_PERCENT);
+    F32 new_value = llclamp(cur_value, MIN_DURATION_ADJUSTMENT * 100.f, MAX_DURATION_ADJUSTMENT * 100.f);
 
     if (new_value == cur_value)
     {
