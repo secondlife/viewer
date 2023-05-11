@@ -2562,7 +2562,6 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 		return;
 	}
     // record time and refresh "tooSlow" status
-    LLPerfStats::RecordAvatarTime T(getID(), LLPerfStats::StatType_t::RENDER_IDLE); // per avatar "idle" time.
     updateTooSlow();
 
 	static LLCachedControl<bool> disable_all_render_types(gSavedSettings, "DisableAllRenderTypes");
@@ -8310,14 +8309,6 @@ bool LLVOAvatar::isTooSlow() const
     return mTooSlow;
 }
 
-// use Avatar Render Time as complexity metric
-// markARTStale - Mark stale and set the frameupdate to now so that we can wait at least one frame to get a revised number.
-void LLVOAvatar::markARTStale()
-{
-    mARTStale=true;
-    mLastARTUpdateFrame = LLFrameTimer::getFrameCount();
-}
-
 // Udpate Avatar state based on render time
 void LLVOAvatar::updateTooSlow()
 {
@@ -8328,41 +8319,9 @@ void LLVOAvatar::updateTooSlow()
 
     // mTooSlow - Is the avatar flagged as being slow (includes shadow time)
     // mTooSlowWithoutShadows - Is the avatar flagged as being slow even with shadows removed.
-    // mARTStale - the rendertime we have is stale because of an update. We need to force a re-render to re-assess slowness
-
-    if( mARTStale )
-    {
-        if ( LLFrameTimer::getFrameCount() - mLastARTUpdateFrame < 5 ) 
-        {
-            // LL_INFOS() << this->getFullname() << " marked stale " << LL_ENDL;
-            // we've not had a chance to update yet (allow a few to be certain a full frame has passed)
-            return;
-        }
-
-        mARTStale = false;
-        mTooSlow = false;
-        mTooSlowWithoutShadows = false;
-        // LL_INFOS() << this->getFullname() << " refreshed ART combined = " << mRenderTime << " @ " << mLastARTUpdateFrame << LL_ENDL;
-    }
-
-    // Either we're not stale or we've updated.
-
-    U64 render_time_raw;
-    U64 render_geom_time_raw;
-
-    if( !mTooSlow ) 
-    {
-        // we are fully rendered, so we use the live values
-        std::lock_guard<std::mutex> lock{LLPerfStats::bufferToggleLock};
-        render_time_raw = LLPerfStats::StatsRecorder::get(LLPerfStats::ObjType_t::OT_AVATAR, id, LLPerfStats::StatType_t::RENDER_COMBINED);
-        render_geom_time_raw = LLPerfStats::StatsRecorder::get(LLPerfStats::ObjType_t::OT_AVATAR, id, LLPerfStats::StatType_t::RENDER_GEOMETRY);
-    }
-    else
-    {
-        // use the cached values.
-        render_time_raw = mRenderTime;
-        render_geom_time_raw = mGeomTime;
-    }
+    
+    // get max render time in ms
+    F32 max_art_ms = (F32) (LLPerfStats::renderAvatarMaxART_ns / 1000000.0);
 
 	bool autotune = LLPerfStats::tunables.userAutoTuneEnabled && !mIsControlAvatar && !isSelf();
 
@@ -8378,19 +8337,13 @@ void LLVOAvatar::updateTooSlow()
     }
 
 	bool exceeds_max_ART =
-        ((LLPerfStats::renderAvatarMaxART_ns > 0) && (LLPerfStats::raw_to_ns(render_time_raw) >= LLPerfStats::renderAvatarMaxART_ns));
+        ((LLPerfStats::renderAvatarMaxART_ns > 0) && 
+            (mGPURenderTime >= max_art_ms)); // NOTE: don't use getGPURenderTime accessor here to avoid "isTooSlow" feedback loop
 
     if (exceeds_max_ART && !ignore_tune)
     {
-        if( !mTooSlow ) // if we were previously not slow (with or without shadows.)
-        {			
-            // if we weren't capped, we are now
-            mLastARTUpdateFrame = LLFrameTimer::getFrameCount();
-            mRenderTime = render_time_raw;
-            mGeomTime = render_geom_time_raw;
-            mARTStale = false;
-            mTooSlow = true;
-        }
+        mTooSlow = true;
+        
         if(!mTooSlowWithoutShadows) // if we were not previously above the full impostor cap
         {
             bool render_friend_or_exception =  	( alwaysRenderFriends && LLAvatarTracker::instance().isBuddy( id ) ) ||
@@ -8398,13 +8351,12 @@ void LLVOAvatar::updateTooSlow()
             if( (!isSelf() || allowSelfImpostor) && !render_friend_or_exception  )
             {
                 // Note: slow rendering Friends still get their shadows zapped.
-                mTooSlowWithoutShadows = (LLPerfStats::raw_to_ns(render_geom_time_raw) >= LLPerfStats::renderAvatarMaxART_ns);
+                mTooSlowWithoutShadows = getGPURenderTime()*2.f >= max_art_ms;  // NOTE: assumes shadow rendering doubles render time
             }
         }
     }
     else
     {
-        // LL_INFOS() << this->getFullname() << " ("<< (combined?"combined":"geometry") << ") good render time = " << LLPerfStats::raw_to_ns(render_time_raw) << " vs ("<< LLVOAvatar::sRenderTimeCap_ns << " set @ " << mLastARTUpdateFrame << LL_ENDL;
         mTooSlow = false;
         mTooSlowWithoutShadows = false;
 
@@ -11103,6 +11055,21 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
             // HUD complexity
             LLHUDRenderNotifier::getInstance()->updateNotificationHUD(hud_complexity_list);
         }
+
+        //schedule an update to ART next frame if needed
+        if (LLPerfStats::tunables.userAutoTuneEnabled && 
+            LLPerfStats::tunables.userFPSTuningStrategy != LLPerfStats::TUNE_SCENE_ONLY &&
+            !isVisuallyMuted())
+        {
+            LLUUID id = getID(); // <== use id to make sure this avatar didn't get deleted between frames
+            LL::WorkQueue::getInstance("mainloop")->post([this, id]()
+                {
+                    if (gObjectList.findObject(id) != nullptr)
+                    {
+                        gPipeline.profileAvatar(this);
+                    }
+                });
+        }
     }
 }
 
@@ -11465,6 +11432,9 @@ void LLVOAvatar::readProfileQuery(S32 retries)
         glGetQueryObjectui64v(mGPUTimerQuery, GL_QUERY_RESULT, &time_elapsed);
         mGPURenderTime = time_elapsed / 1000000.f;
         mGPUProfilePending = false;
+
+        setDebugText(llformat("%d", (S32)(mGPURenderTime * 1000.f)));
+
     }
     else
     { // wait until next frame
@@ -11476,4 +11446,68 @@ void LLVOAvatar::readProfileQuery(S32 retries)
             });
     }
 }
+
+
+F32 LLVOAvatar::getGPURenderTime()
+{
+    return isVisuallyMuted() ? 0.f : mGPURenderTime;
+}
+
+// static
+F32 LLVOAvatar::getTotalGPURenderTime()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
+
+    F32 ret = 0.f;
+
+    for (LLCharacter* iter : LLCharacter::sInstances)
+    {
+        LLVOAvatar* inst = (LLVOAvatar*) iter;
+        ret += inst->getGPURenderTime();
+    }
+
+    return ret;
+}
+
+F32 LLVOAvatar::getMaxGPURenderTime()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
+
+    F32 ret = 0.f;
+
+    for (LLCharacter* iter : LLCharacter::sInstances)
+    {
+        LLVOAvatar* inst = (LLVOAvatar*)iter;
+        ret = llmax(inst->getGPURenderTime(), ret);
+    }
+
+    return ret;
+}
+
+F32 LLVOAvatar::getAverageGPURenderTime()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
+
+    F32 ret = 0.f;
+
+    S32 count = 0;
+
+    for (LLCharacter* iter : LLCharacter::sInstances)
+    {
+        LLVOAvatar* inst = (LLVOAvatar*)iter;
+        if (!inst->isTooSlow())
+        {
+            ret += inst->getGPURenderTime();
+            ++count;
+        }
+    }
+
+    if (count > 0)
+    {
+        ret /= count;
+    }
+
+    return ret;
+}
+
 

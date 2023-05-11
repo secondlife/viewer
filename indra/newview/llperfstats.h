@@ -42,6 +42,10 @@ extern U32 gFrameCount;
 extern LLUUID gAgentID;
 namespace LLPerfStats
 {
+
+    // called once per main loop iteration
+    void updateClass();
+
 // Note if changing these, they should correspond with the log range of the correpsonding sliders
     static constexpr U64 ART_UNLIMITED_NANOS{50000000};
     static constexpr U64 ART_MINIMUM_NANOS{100000};
@@ -68,7 +72,6 @@ namespace LLPerfStats
 
     enum class ObjType_t{
         OT_GENERAL=0, // Also Unknown. Used for n/a type stats such as scenery
-        OT_AVATAR,
         OT_COUNT
     };
     enum class StatType_t{
@@ -162,6 +165,9 @@ namespace LLPerfStats
         using Queue = LLThreadSafeQueue<StatsRecord>;
     public:
 
+        // called once per main loop iteration on General thread
+        static void update();
+
         static inline StatsRecorder& getInstance()
         {
             static StatsRecorder instance;
@@ -241,7 +247,6 @@ namespace LLPerfStats
 
             auto ot{upd.objType};
             auto& key{upd.objID};
-            auto& avKey{upd.avID};
             auto type {upd.statType};
             auto val {upd.time};
 
@@ -249,13 +254,6 @@ namespace LLPerfStats
             {
                 // LL_INFOS("perfstats") << "General update:" << LL_ENDL;
                 doUpd(key, ot, type,val);
-                return;
-            }
-
-            if (ot == ObjType_t::OT_AVATAR)
-            {
-                // LL_INFOS("perfstats") << "Avatar update:" << LL_ENDL;
-                doUpd(avKey, ot, type, val);
                 return;
             }
         }
@@ -286,42 +284,7 @@ namespace LLPerfStats
         static void toggleBuffer();
         static void clearStatsBuffers();
 
-        // thread entry
-        static void run()
-        {
-            StatsRecord upd[10];
-            auto & instance {StatsRecorder::getInstance()};
-            LL_PROFILER_SET_THREAD_NAME("PerfStats");
-
-            while( enabled() && !LLApp::isExiting() )
-            {
-                auto count = 0;
-                while (count < 10)
-                {
-                    if (instance.q.tryPopFor(std::chrono::milliseconds(10), upd[count]))
-                    {
-                        count++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                //LL_PROFILER_THREAD_BEGIN("PerfStats");
-                if(count)
-                {
-                    // LL_INFOS("perfstats") << "processing " << count << " updates." << LL_ENDL;
-                    for(auto i =0; i < count; i++)
-                    {
-                        instance.processUpdate(upd[i]);
-                    }
-                }
-                //LL_PROFILER_THREAD_END("PerfStats");
-            }
-        }
-
         Queue q;
-        std::thread t;
 
         ~StatsRecorder() = default;
         StatsRecorder(const StatsRecorder&) = delete;
@@ -354,13 +317,6 @@ namespace LLPerfStats
             LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
         };
 
-        template < ObjType_t OD = ObjTypeDiscriminator,
-                   std::enable_if_t<OD == ObjType_t::OT_AVATAR> * = nullptr>
-        RecordTime( const LLUUID & av, StatType_t type ):RecordTime<ObjTypeDiscriminator>(std::move(av), LLUUID::null, type)
-        {
-            //LL_PROFILE_ZONE_COLOR(tracy::Color::Purple);
-        };
-
         ~RecordTime()
         { 
             if(!LLPerfStats::StatsRecorder::enabled())
@@ -375,13 +331,19 @@ namespace LLPerfStats
         };
     };
 
-    
+
     inline double raw_to_ns(U64 raw)    { return (static_cast<double>(raw) * 1000000000.0) / LLPerfStats::cpu_hertz; };
     inline double raw_to_us(U64 raw)    { return (static_cast<double>(raw) *    1000000.0) / LLPerfStats::cpu_hertz; };
     inline double raw_to_ms(U64 raw)    { return (static_cast<double>(raw) *       1000.0) / LLPerfStats::cpu_hertz; };
 
+    inline U64 ns_to_raw(double ns)     { return (U64)(LLPerfStats::cpu_hertz * (ns / 1000000000.0)); }
+    inline U64 us_to_raw(double us)     { return (U64)(LLPerfStats::cpu_hertz * (us / 1000000.0)); }
+    inline U64 ms_to_raw(double ms)     { return (U64)(LLPerfStats::cpu_hertz * (ms / 1000.0));
+
+    }
+    
+
     using RecordSceneTime = RecordTime<ObjType_t::OT_GENERAL>;
-    using RecordAvatarTime = RecordTime<ObjType_t::OT_AVATAR>;
 
 };// namespace LLPerfStats
 

@@ -472,7 +472,7 @@ void update_statistics()
 
             auto tot_frame_time_raw = LLPerfStats::StatsRecorder::getSceneStat(LLPerfStats::StatType_t::RENDER_FRAME);
             // cumulative avatar time (includes idle processing, attachments and base av)
-            auto tot_avatar_time_raw = LLPerfStats::StatsRecorder::getSum(LLPerfStats::ObjType_t::OT_AVATAR, LLPerfStats::StatType_t::RENDER_COMBINED);
+            auto tot_avatar_time_raw = LLPerfStats::us_to_raw(LLVOAvatar::getTotalGPURenderTime());
             // cumulative avatar render specific time (a bit arbitrary as the processing is too.)
             // auto tot_av_idle_time_raw = LLPerfStats::StatsRecorder::getSum(AvType, LLPerfStats::StatType_t::RENDER_IDLE);
             // auto tot_avatar_render_time_raw = tot_avatar_time_raw - tot_av_idle_time_raw;

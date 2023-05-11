@@ -10073,6 +10073,9 @@ void LLPipeline::profileAvatar(LLVOAvatar* avatar, bool profile_attachments)
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
 
+    // don't continue to profile an avatar that is known to be too slow
+    llassert(!avatar->isTooSlow());
+
     LLGLSLShader* cur_shader = LLGLSLShader::sCurBoundShaderPtr;
 
     mRT->deferredScreen.bindTarget();
@@ -10345,25 +10348,28 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
 		resY = llmin(nhpo2((U32) (fov*pa)), (U32) 512);
 		resX = llmin(nhpo2((U32) (atanf(tdim.mV[0]/distance)*2.f*RAD_TO_DEG*pa)), (U32) 512);
 
-		if (!avatar->mImpostor.isComplete())
-		{
-            avatar->mImpostor.allocate(resX, resY, GL_RGBA, true);
+        if (!for_profile)
+        {
+            if (!avatar->mImpostor.isComplete())
+            {
+                avatar->mImpostor.allocate(resX, resY, GL_RGBA, true);
 
-			if (LLPipeline::sRenderDeferred)
-			{
-				addDeferredAttachments(avatar->mImpostor, true);
-			}
-		
-			gGL.getTexUnit(0)->bind(&avatar->mImpostor);
-			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
-			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		}
-		else if(resX != avatar->mImpostor.getWidth() || resY != avatar->mImpostor.getHeight())
-		{
-			avatar->mImpostor.resize(resX,resY);
-		}
+                if (LLPipeline::sRenderDeferred)
+                {
+                    addDeferredAttachments(avatar->mImpostor, true);
+                }
 
-		avatar->mImpostor.bindTarget();
+                gGL.getTexUnit(0)->bind(&avatar->mImpostor);
+                gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+                gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+            }
+            else if (resX != avatar->mImpostor.getWidth() || resY != avatar->mImpostor.getHeight())
+            {
+                avatar->mImpostor.resize(resX, resY);
+            }
+
+            avatar->mImpostor.bindTarget();
+        }
 	}
 
 	F32 old_alpha = LLDrawPoolAvatar::sMinimumAlpha;
@@ -10466,7 +10472,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
 		gGL.popMatrix();
 	}
 
-    if (!preview_avatar)
+    if (!preview_avatar && !for_profile)
     {
         avatar->mImpostor.flush();
         avatar->setImpostorDim(tdim);

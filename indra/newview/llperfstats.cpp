@@ -39,6 +39,11 @@ extern LLControlGroup gSavedSettings;
 
 namespace LLPerfStats
 {
+    // avatar timing metrics in ms (updated once per mainloop iteration)
+    std::atomic<F32> sTotalAvatarTime = 0.f;
+    std::atomic<F32> sAverageAvatarTime = 0.f;
+    std::atomic<F32> sMaxAvatarTime = 0.f;
+
     std::atomic<int64_t> tunedAvatars{0};
     std::atomic<U64> renderAvatarMaxART_ns{(U64)(ART_UNLIMITED_NANOS)}; // highest render time we'll allow without culling features
     bool belowTargetFPS{false};
@@ -141,14 +146,12 @@ namespace LLPerfStats
         resetChanges();
     }
 
-    StatsRecorder::StatsRecorder():q(1024*16),t(&StatsRecorder::run)
+    StatsRecorder::StatsRecorder():q(1024*16)
     {
         // create a queue
-        // create a thread to consume from the queue
         tunables.initialiseFromSettings();
         LLPerfStats::cpu_hertz = (F64)LLTrace::BlockTimer::countsPerSecond();
         LLPerfStats::vsync_max_fps = gViewerWindow->getWindow()->getRefreshRate();
-        t.detach();
     }
 
     // static
@@ -200,20 +203,6 @@ namespace LLPerfStats
             }
         }
         
-        auto& statsMapAv = statsDoubleBuffer[writeBuffer][static_cast<size_t>(ObjType_t::OT_AVATAR)];
-        for(auto& stat_entry : statsMapAv)
-        {
-            for(auto& stat : avatarStatsToAvg)
-            {
-                auto val = stat_entry.second[static_cast<size_t>(stat)];
-                if(val > SMOOTHING_PERIODS)
-                {
-                    auto avg = statsDoubleBuffer[writeBuffer ^ 1][static_cast<size_t>(ObjType_t::OT_AVATAR)][stat_entry.first][static_cast<size_t>(stat)];
-                    stat_entry.second[static_cast<size_t>(stat)] = avg + (val / SMOOTHING_PERIODS) - (avg / SMOOTHING_PERIODS);
-                }
-            }
-        }
-
         // swap the buffers
         if(enabled())
         {
@@ -293,6 +282,36 @@ namespace LLPerfStats
         }
     }
 
+    // called once per main loop iteration on main thread
+    void updateClass()
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+        
+        sTotalAvatarTime = LLVOAvatar::getTotalGPURenderTime();
+        sAverageAvatarTime = LLVOAvatar::getAverageGPURenderTime();
+        sMaxAvatarTime = LLVOAvatar::getMaxGPURenderTime();
+
+        auto& general = LL::WorkQueue::getInstance("General");
+
+        if (general)
+        {
+            general->post([] { StatsRecorder::update(); });
+        }
+    }
+
+    // called once per main loop iteration on General thread
+    void StatsRecorder::update()
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+        StatsRecord upd;
+        auto& instance{ StatsRecorder::getInstance() };
+
+        while (enabled() && !LLApp::isQuitting() && instance.q.tryPop(upd))
+        {
+            instance.processUpdate(upd);
+        }
+    }
+
     //static
     int StatsRecorder::countNearbyAvatars(S32 distance)
     {
@@ -327,6 +346,8 @@ namespace LLPerfStats
     // static
     void StatsRecorder::updateAvatarParams()
     {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+
         if(tunables.autoTuneTimeout)
         {
             LLPerfStats::lastSleepedFrame = gFrameCount;
@@ -380,10 +401,10 @@ namespace LLPerfStats
             }
         }
 
-        auto av_render_max_raw = LLPerfStats::StatsRecorder::getMax(ObjType_t::OT_AVATAR, LLPerfStats::StatType_t::RENDER_COMBINED);
+        auto av_render_max_raw = ms_to_raw(sMaxAvatarTime);
         // Is our target frame time lower than current? If so we need to take action to reduce draw overheads.
         // cumulative avatar time (includes idle processing, attachments and base av)
-        auto tot_avatar_time_raw = LLPerfStats::StatsRecorder::getSum(ObjType_t::OT_AVATAR, LLPerfStats::StatType_t::RENDER_COMBINED);
+        auto tot_avatar_time_raw = ms_to_raw(sTotalAvatarTime); 
 
         // The frametime budget we have based on the target FPS selected
         auto target_frame_time_raw = (U64)llround(LLPerfStats::cpu_hertz / (target_fps == 0 ? 1 : target_fps));
@@ -417,7 +438,7 @@ namespace LLPerfStats
             // if so we've got work to do
 
             // how much of the frame was spent on non avatar related work?
-            U64 non_avatar_time_raw = tot_frame_time_raw - tot_avatar_time_raw;
+            U64 non_avatar_time_raw = tot_frame_time_raw > tot_avatar_time_raw ? tot_frame_time_raw - tot_avatar_time_raw : 0;
 
             // If the target frame time < scene time (estimated as non_avatar time)
             U64 target_avatar_time_raw;
@@ -475,7 +496,11 @@ namespace LLPerfStats
                 {
                     new_render_limit_ns = renderAvatarMaxART_ns;
                 }
-                new_render_limit_ns -= LLPerfStats::ART_MIN_ADJUST_DOWN_NANOS;
+
+                if (new_render_limit_ns > LLPerfStats::ART_MIN_ADJUST_DOWN_NANOS)
+                {
+                    new_render_limit_ns -= LLPerfStats::ART_MIN_ADJUST_DOWN_NANOS;
+                }
 
                 // bounce at the bottom to prevent "no limit" 
                 new_render_limit_ns = std::max((U64)new_render_limit_ns, (U64)LLPerfStats::ART_MINIMUM_NANOS);

@@ -309,11 +309,21 @@ public:
     void readProfileQuery(S32 retries);
 
     // get the GPU time in ms of rendering this avatar including all attachments
-    // returns -1 if this avatar has not been profiled using gPipeline.profileAvatar
-    F32             getGPURenderTime() { return mGPURenderTime; }
+    // returns 0.f if this avatar has not been profiled using gPipeline.profileAvatar
+    // or the avatar is visually muted
+    F32             getGPURenderTime();
+
+    // get the total GPU render time in ms of all avatars that have been benched
+    static F32      getTotalGPURenderTime();
+
+    // get the max GPU render time in ms of all avatars that have been benched
+    static F32      getMaxGPURenderTime();
+
+    // get the average GPU render time in ms of all avatars that have been benched
+    static F32      getAverageGPURenderTime();
 
     // get the CPU time in ms of rendering this avatar including all attachments
-    // return -1 if this avatar has not been profiled using gPipeline.mProfileAvatar
+    // return 0.f if this avatar has not been profiled using gPipeline.mProfileAvatar
     F32             getCPURenderTime() { return mCPURenderTime; }
 
     
@@ -401,8 +411,7 @@ public:
 	void 			logMetricsTimerRecord(const std::string& phase_name, F32 elapsed, bool completed);
 
     void            calcMutedAVColor();
-    void            markARTStale();
-
+    
 protected:
 	LLViewerStats::PhaseMap& getPhases() { return mPhases; }
 	BOOL			updateIsFullyLoaded();
@@ -423,11 +432,6 @@ private:
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
 
-    U32				mLastARTUpdateFrame{0};
-    U64				mRenderTime{0};
-    U64				mGeomTime{0};
-    bool			mARTStale{true};
-    bool			mARTCapped{false};
     // variables to hold "slowness" status
     bool			mTooSlow{false};
     bool			mTooSlowWithoutShadows{false};
@@ -557,11 +561,11 @@ private:
     // profile results
 
     // GPU render time in ms
-    F32 mGPURenderTime = -1.f;
+    F32 mGPURenderTime = 0.f;
     bool mGPUProfilePending = false;
 
     // CPU render time in ms
-    F32 mCPURenderTime = -1.f;
+    F32 mCPURenderTime = 0.f;
 
 	// the isTooComplex method uses these mutable values to avoid recalculating too frequently
     // DEPRECATED -- obsolete avatar render cost values
@@ -1202,8 +1206,6 @@ public:
 
 	// COF version of last appearance message received for this av.
 	S32 mLastUpdateReceivedCOFVersion;
-
-    U64 getLastART() const { return mRenderTime; }
 
 /**                    Diagnostics
  **                                                                            **
