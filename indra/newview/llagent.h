@@ -294,9 +294,14 @@ public:
 	boost::signals2::connection     addRegionChangedCallback(const region_changed_signal_t::slot_type& cb);
 	void                            removeRegionChangedCallback(boost::signals2::connection callback);
 
+
+	void changeInterestListMode(bool use_360_mode);
+	bool getInterestList360Mode() const { return mUse360Mode; }
+
 private:
 	LLViewerRegion	*mRegionp;
 	region_changed_signal_t		            mRegionChangedSignal;
+	bool                                    mUse360Mode;
 
 	//--------------------------------------------------------------------
 	// History

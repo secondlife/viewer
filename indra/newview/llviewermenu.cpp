@@ -1301,65 +1301,18 @@ class LLAdvancedToggleInterestList360Mode : public view_listener_t
 public:
     bool handleEvent(const LLSD &userdata)
     {
-        LLSD request;
-        LLSD body;
-
-        // First do a GET to report on current mode and update stats
-        if (gAgent.requestGetCapability("InterestList",
-                                        [](const LLSD &response) {
-                                            LL_DEBUGS("360Capture") << "InterestList capability GET responded: \n"
-                                                                   << ll_pretty_print_sd(response) << LL_ENDL;
-                                        }))
-        {
-            LL_DEBUGS("360Capture") << "Successful GET InterestList capability request with return body: \n"
-                                   << ll_pretty_print_sd(body) << LL_ENDL;
-        }
-        else
-        {
-            LL_WARNS("360Capture") << "Unable to GET InterestList capability request with return body: \n"
-                                   << ll_pretty_print_sd(body) << LL_ENDL;
-        }
-
-        // Now do a POST to change the mode
-        if (sUsing360)
-        {
-            body["mode"] = LLSD::String("default");
-        }
-        else
-        {
-            body["mode"] = LLSD::String("360");
-        }
-        sUsing360 = !sUsing360;
-        LL_INFOS("360Capture") << "Setting InterestList capability mode to " << body["mode"].asString() << LL_ENDL;
-
-        if (gAgent.requestPostCapability("InterestList", body,
-                                         [](const LLSD &response) {
-                                             LL_DEBUGS("360Capture") << "InterestList capability responded: \n"
-                                                                    << ll_pretty_print_sd(response) << LL_ENDL;
-                                         }))
-        {
-            LL_DEBUGS("360Capture") << "Successfully posted an InterestList capability request with payload: \n"
-                                   << ll_pretty_print_sd(body) << LL_ENDL;
-            return true;
-        }
-        else
-        {
-            LL_DEBUGS("360Capture") << "Unable to post an InterestList capability request with payload: \n"
-                                   << ll_pretty_print_sd(body) << LL_ENDL;
-            return false;
-        }
-    };
-
-	static bool sUsing360;
+        // Toggle the mode - regions will get updated
+        bool new_mode = !gAgent.getInterestList360Mode();
+        gAgent.changeInterestListMode(new_mode);
+        return true;
+    }
 };
-
-bool LLAdvancedToggleInterestList360Mode::sUsing360 = false;
 
 class LLAdvancedCheckInterestList360Mode : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		return LLAdvancedToggleInterestList360Mode::sUsing360;
+		return gAgent.getInterestList360Mode();
 	}
 };
 

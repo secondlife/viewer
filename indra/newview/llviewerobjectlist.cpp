@@ -369,7 +369,7 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 		if (!objectp)
 		{
 			LL_INFOS() << "createObject failure for object: " << fullid << LL_ENDL;
-			recorder.objectUpdateFailure(0);
+			recorder.objectUpdateFailure();
 			return NULL;
 		}
 		justCreated = true;
@@ -501,7 +501,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 						<< " Flags: " << flags
 						<< " Region: " << regionp->getName()
 						<< " Region id: " << regionp->getRegionID() << LL_ENDL;
-					recorder.objectUpdateFailure(msg_size);
+					recorder.objectUpdateFailure();
 					continue;
 				}
 				else if ((flags & FLAGS_TEMPORARY_ON_REZ) == 0)
@@ -612,7 +612,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				if (update_type == OUT_TERSE_IMPROVED)
 				{
 					// LL_INFOS() << "terse update for an unknown object (compressed):" << fullid << LL_ENDL;
-					recorder.objectUpdateFailure(msg_size);
+					recorder.objectUpdateFailure();
 					continue;
 				}
 			}
@@ -621,7 +621,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				if (update_type != OUT_FULL)
 				{
 					//LL_INFOS() << "terse update for an unknown object:" << fullid << LL_ENDL;
-					recorder.objectUpdateFailure(msg_size);
+					recorder.objectUpdateFailure();
 					continue;
 				}
 
@@ -634,7 +634,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			{
 				mNumDeadObjectUpdates++;
 				//LL_INFOS() << "update for a dead object:" << fullid << LL_ENDL;
-				recorder.objectUpdateFailure(msg_size);
+				recorder.objectUpdateFailure();
 				continue;
 			}
 #endif
@@ -647,7 +647,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			if (!objectp)
 			{
 				LL_INFOS() << "createObject failure for object: " << fullid << LL_ENDL;
-				recorder.objectUpdateFailure(msg_size);
+				recorder.objectUpdateFailure();
 				continue;
 			}
 

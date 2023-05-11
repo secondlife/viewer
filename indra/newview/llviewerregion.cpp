@@ -646,7 +646,8 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mInvisibilityCheckHistory(-1),
 	mPaused(FALSE),
 	mRegionCacheHitCount(0),
-	mRegionCacheMissCount(0)
+	mRegionCacheMissCount(0),
+    mUse360Mode(false)
 {
 	mWidth = region_width_meters;
 	mImpl->mOriginGlobal = from_region_handle(handle); 
@@ -3283,6 +3284,9 @@ void LLViewerRegion::setCapabilitiesReceived(bool received)
 
 		// This is a single-shot signal. Forget callbacks to save resources.
 		mCapabilitiesReceivedSignal.disconnect_all_slots();
+
+		// Set the region to the desired interest list mode
+        setInterestList360Mode(gAgent.getInterestList360Mode());
 	}
 }
 
@@ -3300,6 +3304,82 @@ void LLViewerRegion::logActiveCapabilities() const
 {
 	log_capabilities(mImpl->mCapabilities);
 }
+
+
+bool LLViewerRegion::requestPostCapability(const std::string &capName, LLSD &postData, httpCallback_t cbSuccess, httpCallback_t cbFailure)
+{
+    std::string url = getCapability(capName);
+
+    if (url.empty())
+    {
+        LL_WARNS("Region") << "Could not retrieve region " << getRegionID()
+			<< " POST capability \"" << capName << "\"" << LL_ENDL;
+        return false;
+    }
+
+    LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url, gAgent.getAgentPolicy(), postData, cbSuccess, cbFailure);
+    return true;
+}
+
+bool LLViewerRegion::requestGetCapability(const std::string &capName, httpCallback_t cbSuccess, httpCallback_t cbFailure)
+{
+    std::string url;
+
+    url = getCapability(capName);
+
+    if (url.empty())
+    {
+        LL_WARNS("Region") << "Could not retrieve region " << getRegionID()
+                           << " GET capability \"" << capName << "\"" << LL_ENDL;
+        return false;
+    }
+
+    LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet(url, gAgent.getAgentPolicy(), cbSuccess, cbFailure);
+    return true;
+}
+
+
+void LLViewerRegion::setInterestList360Mode(bool use_360_mode)
+{
+    if (use_360_mode != mUse360Mode)
+    {
+        LLSD body;
+        mUse360Mode = use_360_mode;
+
+        if (mUse360Mode)
+        {
+            body["mode"] = LLSD::String("360");
+        }
+        else
+        {
+            body["mode"] = LLSD::String("default");
+        }
+
+        if (requestPostCapability("InterestList", body,
+                                  [](const LLSD &response) {
+                                      LL_DEBUGS("360Capture") << "InterestList capability responded: \n"
+                                          << ll_pretty_print_sd(response) << LL_ENDL;
+                                  }))
+        {
+            LL_DEBUGS("360Capture") << "Region " << getRegionID()
+                                    << " Successfully posted an InterestList capability request with payload: \n"
+                                    << ll_pretty_print_sd(body) << LL_ENDL;
+        }
+        else
+        {
+            LL_WARNS("360Capture") << "Region " << getRegionID() 
+								   << " Unable to post an InterestList capability request with payload: \n"
+                                   << ll_pretty_print_sd(body) << LL_ENDL;
+        }
+    }
+    else
+    {
+        LL_DEBUGS("360Capture") << "Region " << getRegionID() << "No change, skipping Interest List mode POST to "
+                                << (use_360_mode ? "360" : "default") << " mode" << LL_ENDL;
+    }
+}
+
+
 
 LLSpatialPartition* LLViewerRegion::getSpatialPartition(U32 type)
 {
