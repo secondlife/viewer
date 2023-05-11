@@ -460,7 +460,7 @@ LLQuaternion LLIK::TwistLimitedCone::computeAdjustedLocalRot(const LLQuaternion&
     // compute two axes perpendicular to joint_forward: perp_x and perp_y
     LLVector3 perp_x = mForward % joint_forward;
     F32 perp_length = perp_x.length();
-    constexpr F32 MIN_PERP_LENGTH = 1.0e-3f;
+    constexpr F32 MIN_PERP_LENGTH = 1.0e-4f;
     if (perp_length < MIN_PERP_LENGTH)
     {
         perp_x = LLVector3::y_axis % mForward;
@@ -510,9 +510,96 @@ LLIK::ShoulderConstraint::ShoulderConstraint()
 LLIK::ShoulderConstraint::ShoulderConstraint(LLSD &parameters):
     LLIK::Constraint(LLIK::Constraint::SHOULDER_CONSTRAINT, parameters)
 {
+    mConeAxis = mForward + LLVector3::x_axis - 1.5f * LLVector3::z_axis;
+    mConeAxis.normalize();
 }
 
+// ShoulderConstraint is a HACK and is not configurable at runtime.
+// It is like a TwistLimitedCone with hard-coded parameters:
+//
+// cone_axis = mForward + <1,0,-1.5>
+// max_bend = PI/4
+// max_twist = PI/2
+// min_twist = -PI/2
+//
+// And it supplies the "drop elbow" logic during its enforce() step.
+//
 bool LLIK::ShoulderConstraint::enforce(Joint& shoulder_joint) const
+{
+    bool something_changed = dropElbow(shoulder_joint);
+
+    // compute cone_axis in parent-frame
+    LLQuaternion joint_local_rot = shoulder_joint.getLocalRot();
+    LLVector3 cone_axis = mConeAxis * joint_local_rot;
+
+    // clamp swing to remain inside cone
+    LLQuaternion adjusted_local_rot = joint_local_rot;
+    F32 axial_component = cone_axis * mConeAxis;
+    //constexpr F32 cos_cone_angle = 0.707106781f;
+    //constexpr F32 sin_cone_angle = 0.707106781f;
+    F32 cos_cone_angle = std::cos(F_PI/10.0f);
+    F32 sin_cone_angle = std::sin(F_PI/10.0f);
+    if (axial_component < cos_cone_angle)
+    {
+        // the joint's version of mConeAxis lies outside the cone
+        // so we project it onto the surface of the cone...
+        //
+        // projection               = (forward_part)         + (orthogonal_part)
+        LLVector3 perp = cone_axis - axial_component * mConeAxis;
+        perp.normalize();
+        LLVector3 new_cone_axis = cos_cone_angle * mConeAxis + sin_cone_angle * perp;
+
+        // ... then compute the adjusted rotation
+        LLQuaternion adjustment;
+        adjustment.shortestArc(cone_axis, new_cone_axis);
+        adjusted_local_rot = joint_local_rot * adjustment;
+    }
+
+    // rotate mConeAxis by adjusted_local_rot
+    cone_axis = mConeAxis * adjusted_local_rot;
+    axial_component = cone_axis * mConeAxis;
+
+    // compute two axes perpendicular to cone_axis: perp_x and perp_y
+    LLVector3 perp_x = mConeAxis % cone_axis;
+    F32 perp_length = perp_x.length();
+    constexpr F32 MIN_PERP_LENGTH = 1.0e-4f;
+    if (perp_length < MIN_PERP_LENGTH)
+    {
+        perp_x = LLVector3::y_axis % mConeAxis;
+        perp_length = perp_x.length();
+        if (perp_length < MIN_PERP_LENGTH)
+        {
+            perp_x = mConeAxis % LLVector3::x_axis;
+        }
+    }
+    perp_x.normalize();
+    LLVector3 perp_y = cone_axis % perp_x;
+
+    // the components of joint_perp on each direction allow us to compute twist angle
+    LLVector3 joint_perp = perp_x * adjusted_local_rot;
+    F32 twist = std::atan2(joint_perp * perp_y, joint_perp * perp_x);
+
+    // clamp twist within bounds
+    constexpr F32 max_twist = 0.5f * F_PI;
+    F32 new_twist = compute_clamped_angle(twist, -max_twist, max_twist);
+    if (new_twist != twist)
+    {
+        joint_perp -= (joint_perp * cone_axis) * cone_axis;
+        LLVector3 new_joint_perp = std::cos(new_twist) * perp_x + std::sin(new_twist) * perp_y;
+        LLQuaternion adjustment;
+        adjustment.shortestArc(joint_perp, new_joint_perp);
+        adjusted_local_rot = adjusted_local_rot * adjustment;
+    }
+    adjusted_local_rot.normalize();
+
+    if (!LLQuaternion::almost_equal(adjusted_local_rot, joint_local_rot, VERY_SMALL_ANGLE))
+    {
+        something_changed = true;
+    }
+    return something_changed;
+}
+
+bool LLIK::ShoulderConstraint::dropElbow(Joint& shoulder_joint) const
 {
     Joint::ptr_t elbow_joint;
     shoulder_joint.getSingleActiveChild(elbow_joint);
@@ -571,7 +658,6 @@ bool LLIK::ShoulderConstraint::enforce(Joint& shoulder_joint) const
         }
         return true;
     }
-
     return false;
 }
 
@@ -1574,27 +1660,6 @@ F32 LLIK::Joint::recursiveComputeLongestChainLength(F32 length) const
         }
     }
     return longest_length;
-}
-
-LLVector3 LLIK::Joint::computeEndTargetPos() const
-{
-    // Note: we expect this Joint has either: a target,
-    // or at least one active child
-    if (hasPosTarget())
-    {
-        return mConfig->getTargetPos();
-    }
-    LLVector3 target_pos = LLVector3::zero;
-    S32 num_active_children = 0;
-    for (const auto& child : mChildren)
-    {
-        if (child->isActive())
-        {
-            target_pos += child->mPos;
-            ++num_active_children;
-        }
-    }
-    return (1.0f / F32(num_active_children)) * target_pos;
 }
 
 LLVector3 LLIK::Joint::computeWorldTipOffset() const

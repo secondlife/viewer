@@ -214,6 +214,11 @@ private:
     F32 mMaxTwist;
 };
 
+// ShoulderConstraint is a HACK.  It is basically a TwistLimitedConstraint
+// with implicit axis that does not align with mForward
+// and is not configurable (yet) at runtime..
+// See ShoulderConstraint::enforce() implementation for details.
+//
 class ShoulderConstraint : public Constraint
 {
 public:
@@ -236,6 +241,12 @@ public:
 #ifdef DEBUG_LLIK_UNIT_TESTS
     void dumpConfig() const override;
 #endif
+
+protected:
+    bool dropElbow(Joint& joint) const;
+
+private:
+    LLVector3 mConeAxis;
 };
 
 // ElbowConstraint can only bend (with limits) about its 'pivot' axis
@@ -527,7 +538,6 @@ public:
 
     void updateGeometry(const LLVector3& local_pos, const LLVector3& bone);
 
-    LLVector3 computeEndTargetPos() const;
     LLVector3 computeWorldTipOffset() const;
     void updateEndInward();
     void updateEndOutward();
