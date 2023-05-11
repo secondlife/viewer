@@ -295,13 +295,13 @@ void* ll_aligned_malloc_fallback( size_t size, int align )
 	void *p = VirtualAlloc(NULL, for_alloc+sysinfo.dwPageSize, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 	if(NULL == p) {
 		// call debugger
-		__asm int 3;
+		lldebugbreak();
 	}
 	DWORD old;
 	BOOL Res = VirtualProtect((void*)((char*)p + for_alloc), sysinfo.dwPageSize, PAGE_NOACCESS, &old);
 	if(FALSE == Res) {
 		// call debugger
-		__asm int 3;
+		lldebugbreak();
 	}
 
 	void* ret = (void*)((char*)p + for_alloc-size);

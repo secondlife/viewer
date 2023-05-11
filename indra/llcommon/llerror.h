@@ -382,12 +382,18 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 
 #define LL_NEWLINE '\n'
 
+// wrapper lldebugbreak for compiler debugger trap intrinsics
+#if LL_MSVC
+#define lldebugbreak __debugbreak
+#else
+#define lldebugbreak __builtin_trap
+#endif
+
 // Use this only in LL_ERRS or in a place that LL_ERRS may not be used
 #define LLERROR_CRASH         \
 {                             \
-    int* make_me_crash = NULL;\
-    *make_me_crash = 0;       \
-    exit(*make_me_crash);     \
+    lldebugbreak();           \
+    std::abort();             \
 }
 
 #define LL_ENDL                                         \
