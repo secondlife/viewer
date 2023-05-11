@@ -104,7 +104,11 @@ public:
 	void onCommitEaseOut();
 	bool validateEaseIn(const LLSD& data);
 	bool validateEaseOut(const LLSD& data);
-	static void	onBtnOK(void*);
+    void onCommitDuration();
+    bool validateDuration(const LLSD &data);
+    void onCommitPercent();
+    bool validatePercent(const LLSD &data);
+    static void onBtnOK(void *);
 	static void onSaveComplete(const LLUUID& asset_uuid,
 									   LLAssetType::EType type,
 									   void* user_data,
@@ -117,6 +121,7 @@ private:
 protected:
 	void			draw();
 	void			resetMotion();
+	void			updateMotionTime();
 
 	LLPointer< LLPreviewAnimation > mAnimPreview;
 	S32					mLastMouseX;
@@ -129,6 +134,7 @@ protected:
 	LLAssetID			mMotionID;
 	LLTransactionID		mTransactionID;
 	LLAnimPauseRequest	mPauseRequest;
+    F32					mOriginalDuration;
 
 	std::map<std::string, LLUUID>	mIDList;
 };

@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llkeyframemotion.h
  * @brief Implementation of LLKeframeMotion class.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -86,70 +86,81 @@ public:
 	//-------------------------------------------------------------------------
 
 	// motions must specify whether or not they loop
-	virtual BOOL getLoop() { 
-		if (mJointMotionList) return mJointMotionList->mLoop; 
-		else return FALSE;
+	BOOL getLoop() override
+	{
+		if (mJointMotionList)
+			return mJointMotionList->mLoop;
+		return FALSE;
 	}
 
 	// motions must report their total duration
-	virtual F32 getDuration() { 
-		if (mJointMotionList) return mJointMotionList->mDuration; 
-		else return 0.f;
+    F32 getDuration() override
+    {
+		if (mJointMotionList)
+			return mJointMotionList->mDuration;
+		return 0.f;
 	}
 
 	// motions must report their "ease in" duration
-	virtual F32 getEaseInDuration() { 
-		if (mJointMotionList) return mJointMotionList->mEaseInDuration; 
-		else return 0.f;
+    F32 getEaseInDuration() override
+    {
+		if (mJointMotionList)
+			return mJointMotionList->mEaseInDuration;
+		return 0.f;
 	}
 
 	// motions must report their "ease out" duration.
-	virtual F32 getEaseOutDuration() { 
-		if (mJointMotionList) return mJointMotionList->mEaseOutDuration; 
-		else return 0.f;
+    F32 getEaseOutDuration() override
+    {
+		if (mJointMotionList)
+			return mJointMotionList->mEaseOutDuration;
+		return 0.f;
 	}
 
 	// motions must report their priority
-	virtual LLJoint::JointPriority getPriority() { 
-		if (mJointMotionList) return mJointMotionList->mBasePriority; 
-		else return LLJoint::LOW_PRIORITY;
+    LLJoint::JointPriority getPriority() override
+    {
+		if (mJointMotionList)
+			return mJointMotionList->mBasePriority;
+		return LLJoint::LOW_PRIORITY;
 	}
 
-    virtual S32 getNumJointMotions()
+    S32 getNumJointMotions() override
     {
         if (mJointMotionList)
-        {
             return mJointMotionList->getNumJointMotions();
-        }
         return 0;
     }
 
-	virtual LLMotionBlendType getBlendType() { return NORMAL_BLEND; }
+	LLMotionBlendType getBlendType() override { return NORMAL_BLEND; }
 
 	// called to determine when a motion should be activated/deactivated based on avatar pixel coverage
-	virtual F32 getMinPixelArea() { return MIN_REQUIRED_PIXEL_AREA_KEYFRAME; }
+    F32 getMinPixelArea() override { return MIN_REQUIRED_PIXEL_AREA_KEYFRAME; }
 
 	// run-time (post constructor) initialization,
 	// called after parameters have been set
 	// must return true to indicate success and be available for activation
-	virtual LLMotionInitStatus onInitialize(LLCharacter *character);
+	LLMotionInitStatus onInitialize(LLCharacter *character) override;
 
 	// called when a motion is activated
 	// must return TRUE to indicate success, or else
 	// it will be deactivated
-	virtual BOOL onActivate();
+    BOOL onActivate() override;
 
 	// called per time step
 	// must return TRUE while it is active, and
 	// must return FALSE when the motion is completed.
-	virtual BOOL onUpdate(F32 time, U8* joint_mask);
+    BOOL onUpdate(F32 time, U8 *joint_mask) override;
 
 	// called when a motion is deactivated
-	virtual void onDeactivate();
+    void onDeactivate() override;
 
-	virtual void setStopTime(F32 time);
+	void setStopTime(F32 time) override;
 
-	static void onLoadComplete(const LLUUID& asset_uuid,
+	// Change all the time values by this factor
+    void adjustTime(F32 adjustment);
+
+    static void onLoadComplete(const LLUUID &asset_uuid,
 							   LLAssetType::EType type,
 							   void* user_data, S32 status, LLExtStat ext_status);
 
@@ -180,7 +191,7 @@ public:
 		if (mJointMotionList) mJointMotionList->mHandPose = pose;
 	}
 
-	LLHandMotion::eHandPose getHandPose() { 
+	LLHandMotion::eHandPose getHandPose() {
 		return (mJointMotionList) ? mJointMotionList->mHandPose : LLHandMotion::HAND_POSE_RELAXED;
 	}
 
@@ -198,7 +209,7 @@ public:
 
 	static void flushKeyframeCache();
 
-protected:
+  protected:
 	//-------------------------------------------------------------------------
 	// JointConstraintSharedData
 	//-------------------------------------------------------------------------
@@ -207,17 +218,17 @@ protected:
 	public:
 		JointConstraintSharedData() :
 			mChainLength(0),
-			mEaseInStartTime(0.f), 
+			mEaseInStartTime(0.f),
 			mEaseInStopTime(0.f),
 			mEaseOutStartTime(0.f),
-			mEaseOutStopTime(0.f), 
+			mEaseOutStopTime(0.f),
 			mUseTargetOffset(FALSE),
 			mConstraintType(CONSTRAINT_TYPE_POINT),
 			mConstraintTargetType(CONSTRAINT_TARGET_TYPE_BODY),
 			mSourceConstraintVolume(0),
 			mTargetConstraintVolume(0),
 			mJointStateIndices(NULL)
-		{ };
+		{};
 		~JointConstraintSharedData() { delete [] mJointStateIndices; }
 
 		S32						mSourceConstraintVolume;
@@ -327,6 +338,7 @@ public:
 		~ScaleCurve();
 		LLVector3 getValue(F32 time, F32 duration);
 		LLVector3 interp(F32 u, ScaleKey& before, ScaleKey& after);
+        void      adjustTime(F32 adjustment);
 
 		InterpolationType	mInterpolationType;
 		S32					mNumKeys;
@@ -346,6 +358,7 @@ public:
 		~RotationCurve();
 		LLQuaternion getValue(F32 time, F32 duration);
 		LLQuaternion interp(F32 u, RotationKey& before, RotationKey& after);
+        void         adjustTime(F32 adjustment);
 
 		InterpolationType	mInterpolationType;
 		S32					mNumKeys;
@@ -365,6 +378,7 @@ public:
 		~PositionCurve();
 		LLVector3 getValue(F32 time, F32 duration);
 		LLVector3 interp(F32 u, PositionKey& before, PositionKey& after);
+		void adjustTime(F32 adjustment);
 
 		InterpolationType	mInterpolationType;
 		S32					mNumKeys;
@@ -388,6 +402,7 @@ public:
 		LLJoint::JointPriority	mPriority;
 
 		void update(LLJointState* joint_state, F32 time, F32 duration);
+        void adjustTime(F32 adjustment);
 	};
 	
 	//-------------------------------------------------------------------------
@@ -410,15 +425,16 @@ public:
 		constraint_list_t		mConstraints;
 		LLBBoxLocal				mPelvisBBox;
 		// mEmoteName is a facial motion, but it's necessary to appear here so that it's cached.
-		// TODO: LLKeyframeDataCache::getKeyframeData should probably return a class containing 
+		// TODO: LLKeyframeDataCache::getKeyframeData should probably return a class containing
 		// JointMotionList and mEmoteName, see LLKeyframeMotion::onInitialize.
-		std::string				mEmoteName; 
+		std::string				mEmoteName;
 	public:
 		JointMotionList();
 		~JointMotionList();
 		U32 dumpDiagInfo();
 		JointMotion* getJointMotion(U32 index) const { llassert(index < mJointMotionArray.size()); return mJointMotionArray[index]; }
 		U32 getNumJointMotions() const { return mJointMotionArray.size(); }
+        void adjustTime(F32 adjustment);
 	};
 
 protected:
@@ -444,7 +460,7 @@ public:
 	LLKeyframeDataCache(){};
 	~LLKeyframeDataCache();
 
-	typedef std::map<LLUUID, class LLKeyframeMotion::JointMotionList*> keyframe_data_map_t; 
+	typedef std::map<LLUUID, class LLKeyframeMotion::JointMotionList*> keyframe_data_map_t;
 	static keyframe_data_map_t sKeyframeDataMap;
 
 	static void addKeyframeData(const LLUUID& id, LLKeyframeMotion::JointMotionList*);

@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_minimize="false"
- height="645"
+ height="669"
  layout="topleft"
  name="Animation Preview"
  help_topic="animation_preview"
@@ -482,7 +482,49 @@ Maximum animation length is [MAX_LENGTH] seconds.
      name="ease_out_time"
      tool_tip="Amount of time (in seconds) over which animations blends out"
      width="210" />
-    <button
+	<spinner
+     follows="left|top"
+     height="23"
+     increment="0.023"
+     initial_value="0"
+     label="Duration (sec)"
+     label_width="100"
+     layout="topleft"
+     top_pad="0"
+     max_val="10"
+     name="anim_duration"
+     tool_tip="Time duration (in seconds) from start to finish"
+     width="180" />
+	<spinner
+     bottom_delta="0"
+     follows="left|top"
+     height="23"
+     increment="1"
+     initial_value="100"
+     label=" "
+     label_width="10"
+     layout="topleft"
+     left_pad="10"
+     min_val="50"
+     max_val="200"
+     name="duration_percent"
+     tool_tip="Change time duration by percentage"
+     width="80" />
+	<text
+     type="string"
+     length="1"
+     bottom_delta="0"
+     top_pad="10"
+     follows="left"
+     height="23"
+     width="40"
+     word_wrap="false"
+     layout="topleft"
+     left_pad="10"
+     name="percent_label">
+         %
+	</text>
+	<button
      follows="top|right"
      height="23"
      image_overlay="Play_Over"
@@ -557,7 +599,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
 We recommend BVH files exported from Poser 4.
     </text>
     <button
-    	top="580"
+    	top="604"
      follows="bottom|left"
      height="23"
      label="Upload (L$[AMOUNT])"
@@ -566,7 +608,7 @@ We recommend BVH files exported from Poser 4.
      name="ok_btn"
      width="128" />
     <button
-    	top="580"
+    	top="604"
      follows="bottom|left"
      height="23"
      label="Cancel"
