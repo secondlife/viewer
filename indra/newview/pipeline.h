@@ -376,6 +376,8 @@ public:
 	bool hasRenderType(const U32 type) const;
 	bool hasAnyRenderType(const U32 type, ...) const;
 
+	static bool isWaterClip();
+
 	void setRenderTypeMask(U32 type, ...);
 	// This is equivalent to 'setRenderTypeMask'
 	//void orRenderTypeMask(U32 type, ...);

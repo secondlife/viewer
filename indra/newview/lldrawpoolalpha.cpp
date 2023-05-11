@@ -157,7 +157,7 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 { 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 
-    if ((!LLPipeline::sRenderTransparentWater || gCubeSnapshot) && getType() == LLDrawPool::POOL_ALPHA_PRE_WATER)
+    if (LLPipeline::isWaterClip() && getType() == LLDrawPool::POOL_ALPHA_PRE_WATER)
     { // don't render alpha objects on the other side of the water plane if water is opaque
         return;
     }
