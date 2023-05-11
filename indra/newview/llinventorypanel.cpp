@@ -1798,14 +1798,14 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 }
 
 //static
-void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const LLUUID& obj_id, BOOL main_panel, BOOL take_keyboard_focus, BOOL reset_filter)
+void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const LLUUID& obj_id, BOOL use_main_panel, BOOL take_keyboard_focus, BOOL reset_filter)
 {
 	LLSidepanelInventory* sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 	sidepanel_inventory->showInventoryPanel();
 
 	bool in_inbox = (gInventory.isObjectDescendentOf(obj_id, gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX)));
 
-	if (!in_inbox && (main_panel || !sidepanel_inventory->getMainInventoryPanel()->isRecentItemsPanelSelected()))
+	if (!in_inbox && (use_main_panel || !sidepanel_inventory->getMainInventoryPanel()->isRecentItemsPanelSelected()))
 	{
 		sidepanel_inventory->selectAllItemsPanel();
 	}
@@ -1822,7 +1822,12 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
         }
     }
 
-
+    LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
+    if (main_inventory && main_inventory->isSingleFolderMode()
+        && use_main_panel)
+    {
+        main_inventory->toggleViewMode();
+    }
 	LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
 
 	if (active_panel)

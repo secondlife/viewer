@@ -76,6 +76,7 @@
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llpanelgrouplandmoney.h"
+#include "llpanelmaininventory.h"
 #include "llrecentpeople.h"
 #include "llscriptfloater.h"
 #include "llscriptruntimeperms.h"
@@ -1536,11 +1537,28 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 		}
 
 		////////////////////////////////////////////////////////////////////////////////
+        static LLUICachedControl<bool> find_original_new_floater("FindOriginalOpenWindow", false);
+        //show in a new single-folder window
+        if(find_original_new_floater)
+        {
+            const LLInventoryObject *obj = gInventory.getObject(obj_id);
+            if (obj && obj->getParentUUID().notNull())
+            {
+                LLPanelMainInventory::newFolderWindow(obj->getParentUUID(), obj_id);
+            }
+        }
+        else
+        {
 		// Highlight item
 		const BOOL auto_open = 
 			gSavedSettings.getBOOL("ShowInInventory") && // don't open if showininventory is false
 			!from_name.empty(); // don't open if it's not from anyone.
-		LLInventoryPanel::openInventoryPanelAndSetSelection(auto_open, obj_id);
+            if(auto_open)
+            {
+                LLFloaterReg::showInstance("inventory");
+            }
+		LLInventoryPanel::openInventoryPanelAndSetSelection(auto_open, obj_id, true);
+        }
 	}
 }
 

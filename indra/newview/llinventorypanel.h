@@ -246,7 +246,7 @@ public:
 
 	static void openInventoryPanelAndSetSelection(BOOL auto_open,
 													const LLUUID& obj_id,
-													BOOL main_panel = FALSE,
+													BOOL use_main_panel = FALSE,
 													BOOL take_keyboard_focus = TAKE_FOCUS_YES,
 													BOOL reset_filter = FALSE);
     static void setSFViewAndOpenFolder(const LLInventoryPanel* panel, const LLUUID& folder_id);
