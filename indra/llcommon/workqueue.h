@@ -83,13 +83,10 @@ namespace LL
 
         /*---------------------- fire and forget API -----------------------*/
 
-        /// fire-and-forget
-        virtual void post(const Work&) = 0;
-
         /**
          * post work, unless the queue is closed before we can post
          */
-        virtual bool postIfOpen(const Work&) = 0;
+        virtual bool post(const Work&) = 0;
 
         /**
          * post work, unless the queue is full
@@ -247,13 +244,10 @@ namespace LL
 
         /*---------------------- fire and forget API -----------------------*/
 
-        /// fire-and-forget
-        void post(const Work&) override;
-
         /**
          * post work, unless the queue is closed before we can post
          */
-        bool postIfOpen(const Work&) override;
+        bool post(const Work&) override;
 
         /**
          * post work, unless the queue is full
@@ -320,22 +314,16 @@ namespace LL
 
         /*---------------------- fire and forget API -----------------------*/
 
-        /// fire-and-forget
-        void post(const Work& callable) override;
-
-        /// fire-and-forget, but at a particular (future?) time
-        void post(const Work& callable, const TimePoint& time);
-
         /**
          * post work, unless the queue is closed before we can post
          */
-        bool postIfOpen(const Work& callable) override;
+        bool post(const Work& callable) override;
 
         /**
          * post work for a particular time, unless the queue is closed before
          * we can post
          */
-        bool postIfOpen(const Work& callable, const TimePoint& time);
+        bool post(const Work& callable, const TimePoint& time);
 
         /**
          * post work, unless the queue is full
@@ -356,7 +344,7 @@ namespace LL
          * an LLCond variant, e.g. LLOneShotCond or LLBoolCond.
          */
         template <typename Rep, typename Period, typename CALLABLE>
-        void postEvery(const std::chrono::duration<Rep, Period>& interval,
+        bool postEvery(const std::chrono::duration<Rep, Period>& interval,
                        CALLABLE&& callable);
 
     private:
@@ -417,15 +405,10 @@ namespace LL
                 // move-only callable; but naturally this statement must be
                 // the last time we reference this instance, which may become
                 // moved-from.
-                try
-                {
-                    auto target{ std::dynamic_pointer_cast<WorkSchedule>(mTarget.lock()) };
-                    target->post(std::move(*this), mStart);
-                }
-                catch (const Closed&)
-                {
-                    // Once this queue is closed, oh well, just stop
-                }
+                auto target{ std::dynamic_pointer_cast<WorkSchedule>(mTarget.lock()) };
+                // Discard bool return: once this queue is closed, oh well,
+                // just stop
+                target->post(std::move(*this), mStart);
             }
         }
 
@@ -437,7 +420,7 @@ namespace LL
     };
 
     template <typename Rep, typename Period, typename CALLABLE>
-    void WorkSchedule::postEvery(const std::chrono::duration<Rep, Period>& interval,
+    bool WorkSchedule::postEvery(const std::chrono::duration<Rep, Period>& interval,
                                  CALLABLE&& callable)
     {
         if (interval.count() <= 0)
@@ -454,7 +437,7 @@ namespace LL
         // Instantiate and post a suitable BackJack, binding a weak_ptr to
         // self, the current time, the desired interval and the desired
         // callable.
-        post(
+        return post(
             BackJack<Rep, Period, CALLABLE>(
                  getWeak(), TimePoint::clock::now(), interval, std::move(callable)));
     }
@@ -516,48 +499,37 @@ namespace LL
         // Here we believe target WorkQueue still exists. Post to it a
         // lambda that packages our callable, our callback and a weak_ptr
         // to this originating WorkQueue.
-        try
-        {
-            tptr->post(
-                [reply = super::getWeak(),
-                 callable = std::move(callable),
-                 callback = std::move(callback)]
-                () mutable
+        return tptr->post(
+            [reply = super::getWeak(),
+             callable = std::move(callable),
+             callback = std::move(callback)]
+            () mutable
+            {
+                // Use postMaybe() below in case this originating WorkQueue
+                // has been closed or destroyed. Remember, the outer lambda is
+                // now running on a thread servicing the target WorkQueue, and
+                // real time has elapsed since postTo()'s tptr->post() call.
+                try
                 {
-                    // Use postMaybe() below in case this originating WorkQueue
-                    // has been closed or destroyed. Remember, the outer lambda is
-                    // now running on a thread servicing the target WorkQueue, and
-                    // real time has elapsed since postTo()'s tptr->post() call.
-                    try
-                    {
-                        // Make a reply lambda to repost to THIS WorkQueue.
-                        // Delegate to makeReplyLambda() so we can partially
-                        // specialize on void return.
-                        postMaybe(reply, makeReplyLambda(std::move(callable), std::move(callback)));
-                    }
-                    catch (...)
-                    {
-                        // Either variant of makeReplyLambda() is responsible for
-                        // calling the caller's callable. If that throws, return
-                        // the exception to the originating thread.
-                        postMaybe(
-                            reply,
-                            // Bind the current exception to transport back to the
-                            // originating WorkQueue. Once there, rethrow it.
-                            [exc = std::current_exception()](){ std::rethrow_exception(exc); });
-                    }
-                },
-                // if caller passed a TimePoint, pass it along to post()
-                std::forward<ARGS>(args)...);
-        }
-        catch (const Closed&)
-        {
-            // target WorkQueue still exists, but is Closed
-            return false;
-        }
-
-        // looks like we were able to post()
-        return true;
+                    // Make a reply lambda to repost to THIS WorkQueue.
+                    // Delegate to makeReplyLambda() so we can partially
+                    // specialize on void return.
+                    postMaybe(reply, makeReplyLambda(std::move(callable), std::move(callback)));
+                }
+                catch (...)
+                {
+                    // Either variant of makeReplyLambda() is responsible for
+                    // calling the caller's callable. If that throws, return
+                    // the exception to the originating thread.
+                    postMaybe(
+                        reply,
+                        // Bind the current exception to transport back to the
+                        // originating WorkQueue. Once there, rethrow it.
+                        [exc = std::current_exception()](){ std::rethrow_exception(exc); });
+                }
+            },
+            // if caller passed a TimePoint, pass it along to post()
+            std::forward<ARGS>(args)...);
     }
 
     template <typename... ARGS>
@@ -568,18 +540,9 @@ namespace LL
         auto tptr = target.lock();
         if (tptr)
         {
-            try
-            {
-                tptr->post(std::forward<ARGS>(args)...);
-                // we were able to post()
-                return true;
-            }
-            catch (const Closed&)
-            {
-                // target WorkQueue still exists, but is Closed
-            }
+            return tptr->post(std::forward<ARGS>(args)...);
         }
-        // either target no longer exists, or its WorkQueue is Closed
+        // target no longer exists
         return false;
     }
 
@@ -591,7 +554,7 @@ namespace LL
         auto operator()(WorkQueueBase* self, CALLABLE&& callable, ARGS&&... args)
         {
             LLCoros::Promise<RETURNTYPE> promise;
-            self->post(
+            bool posted = self->post(
                 // We dare to bind a reference to Promise because it's
                 // specifically designed for cross-thread communication.
                 [&promise, callable = std::move(callable)]()
@@ -608,6 +571,10 @@ namespace LL
                 },
                 // if caller passed a TimePoint, pass it to post()
                 std::forward<ARGS>(args)...);
+            if (! posted)
+            {
+                LLTHROW(WorkQueueBase::Closed());
+            }
             auto future{ LLCoros::getFuture(promise) };
             // now, on the calling thread, wait for that result
             LLCoros::TempStatus st("waiting for WorkQueue::waitForResult()");
@@ -623,7 +590,7 @@ namespace LL
         void operator()(WorkQueueBase* self, CALLABLE&& callable, ARGS&&... args)
         {
             LLCoros::Promise<void> promise;
-            self->post(
+            bool posted = self->post(
                 // &promise is designed for cross-thread access
                 [&promise, callable = std::move(callable)]()
                 mutable {
@@ -639,6 +606,10 @@ namespace LL
                 },
                 // if caller passed a TimePoint, pass it to post()
                 std::forward<ARGS>(args)...);
+            if (! posted)
+            {
+                LLTHROW(WorkQueueBase::Closed());
+            }
             auto future{ LLCoros::getFuture(promise) };
             // block until set_value()
             LLCoros::TempStatus st("waiting for void WorkQueue::waitForResult()");
