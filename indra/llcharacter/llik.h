@@ -312,6 +312,7 @@ public:
     LLSD asLLSD() const override;
     size_t generateHash() const override;
 
+    bool enforce(Joint& joint) const override;
     LLQuaternion computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const override;
     bool allowsTwist() const override { return false; }
 #ifdef DEBUG_LLIK_UNIT_TESTS
