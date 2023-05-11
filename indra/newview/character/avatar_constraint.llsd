@@ -2,41 +2,41 @@
 {
     'mChest':
         {
-            'cone_angle':r3.6,
+            'cone_angle':r6,
             'forward_axis':
                 [r0,r0,r1],
-            'max_twist':r3.6,
-            'min_twist':r-3.6,
+            'max_twist':r6,
+            'min_twist':r-6,
             'type':'TWIST_LIMITED_CONE'
         },
     'mCollarLeft':
         {
-            'cone_angle':r3,
+            'cone_angle':r12,
             'forward_axis':
                 [r-0.021,r0.085,r0.165],
-            'max_twist':r3,
-            'min_twist':r-3,
+            'max_twist':r6,
+            'min_twist':r-6,
             'type':'TWIST_LIMITED_CONE'
         },
     'mCollarRight':
         {
-            'cone_angle':r3,
+            'cone_angle':r12,
             'forward_axis':
                 [r-0.021,r-0.085,r0.165],
-            'max_twist':r3,
-            'min_twist':r-3,
+            'max_twist':r6,
+            'min_twist':r-6,
             'type':'TWIST_LIMITED_CONE'
         },
     'mElbowLeft':
         {
             'forward_axis':
                 [r0,r1,r0],
-            'max_bend':r0,
+            'max_bend':r157.5,
             'max_twist':r0.5,
-            'min_bend':r-157.5,
+            'min_bend':r0,
             'min_twist':r-0.5,
             'pivot_axis':
-                [r0,r0,r1],
+                [r0,r0,r-1],
             'type':'ELBOW'
         },
     'mElbowRight':
