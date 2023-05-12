@@ -162,12 +162,7 @@ namespace LLPerfStats
     extern Tunables tunables;
 
     class StatsRecorder{
-        using Queue = LLThreadSafeQueue<StatsRecord>;
     public:
-
-        // called once per main loop iteration on General thread
-        static void update();
-
         static inline StatsRecorder& getInstance()
         {
             static StatsRecorder instance;
@@ -176,9 +171,24 @@ namespace LLPerfStats
         static inline void setFocusAv(const LLUUID& avID){focusAv = avID;};
         static inline const LLUUID& getFocusAv(){return focusAv;};
         static inline void setAutotuneInit(){autotuneInit = true;};
-        static inline void send(StatsRecord && upd){StatsRecorder::getInstance().q.pushFront(std::move(upd));};
-        static void endFrame(){StatsRecorder::getInstance().q.pushFront(StatsRecord{StatType_t::RENDER_DONE, ObjType_t::OT_GENERAL, LLUUID::null, LLUUID::null, 0});};
-        static void clearStats(){StatsRecorder::getInstance().q.pushFront(StatsRecord{StatType_t::RENDER_DONE, ObjType_t::OT_GENERAL, LLUUID::null, LLUUID::null, 1});};
+        
+        static inline void send(StatsRecord && upd)
+        {
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+            StatsRecorder::getInstance().processUpdate(upd);
+        }
+
+        static void endFrame()
+        {
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+            StatsRecorder::getInstance().processUpdate(StatsRecord{StatType_t::RENDER_DONE, ObjType_t::OT_GENERAL, LLUUID::null, LLUUID::null, 0});
+        }
+
+        static void clearStats()
+        {
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+            StatsRecorder::getInstance().processUpdate(StatsRecord{StatType_t::RENDER_DONE, ObjType_t::OT_GENERAL, LLUUID::null, LLUUID::null, 1});
+        }
 
         static inline void setEnabled(bool on_or_off){collectionEnabled=on_or_off;};
         static inline void enable()     { collectionEnabled=true; };
@@ -284,8 +294,6 @@ namespace LLPerfStats
         static void toggleBuffer();
         static void clearStatsBuffers();
 
-        Queue q;
-
         ~StatsRecorder() = default;
         StatsRecorder(const StatsRecorder&) = delete;
         StatsRecorder& operator=(const StatsRecorder&) = delete;
@@ -307,7 +315,7 @@ namespace LLPerfStats
                     start{LLTrace::BlockTimer::getCPUClockCount64()},
                     stat{type, ObjTypeDiscriminator, std::move(av), std::move(id), 0, isRiggedAtt, isHUDAtt}
         {
-            //LL_PROFILE_ZONE_COLOR(tracy::Color::Orange);
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
         };
 
         template < ObjType_t OD = ObjTypeDiscriminator,
@@ -323,8 +331,6 @@ namespace LLPerfStats
             {
                 return;
             }
-
-            //LL_PROFILE_ZONE_COLOR(tracy::Color::Red);
 
             stat.time = LLTrace::BlockTimer::getCPUClockCount64() - start;
             StatsRecorder::send(std::move(stat));
