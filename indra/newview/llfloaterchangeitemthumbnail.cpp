@@ -335,6 +335,7 @@ void LLFloaterChangeItemThumbnail::refreshFromObject(LLInventoryObject* obj)
     LLViewerInventoryItem* item = dynamic_cast<LLViewerInventoryItem*>(obj);
     if (item)
     {
+        setTitle(getString("title_item_thumbnail"));
         // This floater probably shouldn't be possible to open
         // for imcomplete items
         llassert(item->isFinished());
@@ -348,6 +349,7 @@ void LLFloaterChangeItemThumbnail::refreshFromObject(LLInventoryObject* obj)
 
         if (cat)
         {
+            setTitle(getString("title_folder_thumbnail"));
             icon_img = LLUI::getUIImage(LLViewerFolderType::lookupIconName(cat->getPreferredType(), true));
 
             if (thumbnail_id.isNull() && (cat->getPreferredType() == LLFolderType::FT_OUTFIT))
