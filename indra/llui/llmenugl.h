@@ -442,6 +442,7 @@ public:
 	/*virtual*/ void drawBackground(LLMenuItemGL* itemp, F32 alpha);
 	/*virtual*/ void setVisible(BOOL visible);
 	/*virtual*/ bool addChild(LLView* view, S32 tab_group = 0);
+    /*virtual*/ void deleteAllChildren();
 	/*virtual*/ void removeChild( LLView* ctrl);
 	/*virtual*/ BOOL postBuild();
 	

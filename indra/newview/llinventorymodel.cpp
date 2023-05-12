@@ -594,7 +594,11 @@ const LLUUID LLInventoryModel::findCategoryUUIDForTypeInRoot(
 		}
 	}
 	
-	if(rv.isNull() && create_folder && root_id.notNull())
+	if(rv.isNull() 
+       && root_id.notNull()
+       && create_folder
+       && preferred_type != LLFolderType::FT_MARKETPLACE_LISTINGS
+       && preferred_type != LLFolderType::FT_OUTBOX)
 	{
 
 		if (isInventoryUsable())

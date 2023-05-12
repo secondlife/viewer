@@ -1882,6 +1882,13 @@ bool LLMenuGL::addContextChild(LLView* view, S32 tab_group)
 	return false;
 }
 
+
+void LLMenuGL::deleteAllChildren()
+{
+    mItems.clear();
+    LLUICtrl::deleteAllChildren();
+}
+
 void LLMenuGL::removeChild( LLView* ctrl)
 {
 	// previously a dynamic_cast with if statement to check validity

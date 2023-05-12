@@ -67,6 +67,7 @@ public:
 	virtual ~LLLayoutStack();
 
 	/*virtual*/ void draw();
+    /*virtual*/ void deleteAllChildren();
 	/*virtual*/ void removeChild(LLView*);
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ bool addChild(LLView* child, S32 tab_group = 0);
