@@ -162,6 +162,13 @@ public:
         DEFERRED_NORM_CUTOFF,               //  "norm_cutoff"
         DEFERRED_SHADOW_TARGET_WIDTH,       //  "shadow_target_width"
 
+        DEFERRED_SSR_ITR_COUNT,             //  "iterationCount"
+        DEFERRED_SSR_RAY_STEP,              //  "rayStep"
+        DEFERRED_SSR_DIST_BIAS,             //  "distanceBias"
+        DEFERRED_SSR_REJECT_BIAS,           //  "depthRejectBias"
+        DEFERRED_SSR_GLOSSY_SAMPLES,        //  "glossySampleCount"
+        DEFERRED_SSR_NOISE_SINE,            //  "noiseSine"
+
         MODELVIEW_DELTA_MATRIX,             //  "modelview_delta"
         INVERSE_MODELVIEW_DELTA_MATRIX,     //  "inv_modelview_delta"
         CUBE_SNAPSHOT,                      //  "cube_snapshot"

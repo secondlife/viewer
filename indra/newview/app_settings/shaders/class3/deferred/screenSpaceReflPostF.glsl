@@ -57,7 +57,7 @@ vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensi
 
 float random (vec2 uv);
 
-float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source);
+float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source, float glossiness);
 
 void main() 
 {
@@ -90,7 +90,7 @@ void main()
 
     vec4 collectedColor = vec4(0);
 
-    float w = tapScreenSpaceReflection(4, tc, pos, n, collectedColor, diffuseMap);
+    float w = tapScreenSpaceReflection(4, tc, pos, n, collectedColor, diffuseMap, 0);
 
     collectedColor.rgb *= specCol.rgb;
 
