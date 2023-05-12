@@ -128,8 +128,3 @@ vec3 legacy_adjust_fullbright(vec3 c)
     return c / exp_scale * 1.34;
 }
 
-
-vec3 legacy_adjust_post(vec3 c)
-{
-    return c;
-}

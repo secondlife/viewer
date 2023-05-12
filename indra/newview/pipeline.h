@@ -132,7 +132,17 @@ public:
     bool allocateShadowBuffer(U32 resX, U32 resY);
 
 	void resetVertexBuffers(LLDrawable* drawable);
-	void generateImpostor(LLVOAvatar* avatar, bool preview_avatar = false);
+
+    // perform a profile of the given avatar
+    // if profile_attachments is true, run a profile for each attachment
+    void profileAvatar(LLVOAvatar* avatar, bool profile_attachments = false);
+
+    // generate an impostor for the given avatar
+    //  preview_avatar - if true, a preview window render is being performed
+    //  for_profile - if true, a profile is being performed, do not update actual impostor
+    //  specific_attachment - specific attachment to profile, or nullptr to profile entire avatar
+	void generateImpostor(LLVOAvatar* avatar, bool preview_avatar = false, bool for_profile = false, LLViewerObject* specific_attachment = nullptr);
+
 	void bindScreenToTexture();
 	void renderFinalize();
 	void copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst);
@@ -366,6 +376,8 @@ public:
 	bool hasRenderType(const U32 type) const;
 	bool hasAnyRenderType(const U32 type, ...) const;
 
+	static bool isWaterClip();
+
 	void setRenderTypeMask(U32 type, ...);
 	// This is equivalent to 'setRenderTypeMask'
 	//void orRenderTypeMask(U32 type, ...);
@@ -435,6 +447,7 @@ public:
 	void skipRenderingOfTerrain( bool flag );
 	void hideObject( const LLUUID& id );
 	void restoreHiddenObject( const LLUUID& id );
+    void handleShadowDetailChanged();
 
     LLReflectionMapManager mReflectionMapManager;
     void overrideEnvironmentMap();
@@ -449,6 +462,7 @@ private:
 	void connectRefreshCachedSettingsSafe(const std::string name);
 	void hideDrawable( LLDrawable *pDrawable );
 	void unhideDrawable( LLDrawable *pDrawable );
+    void skipRenderingShadows();
 public:
 	enum {GPU_CLASS_MAX = 3 };
 
@@ -591,7 +605,6 @@ public:
 		RENDER_DEBUG_PHYSICS_SHAPES     =  0x02000000,
 		RENDER_DEBUG_NORMALS	        =  0x04000000,
 		RENDER_DEBUG_LOD_INFO	        =  0x08000000,
-		RENDER_DEBUG_RENDER_COMPLEXITY  =  0x10000000,
 		RENDER_DEBUG_ATTACHMENT_BYTES	=  0x20000000, // not used
 		RENDER_DEBUG_TEXEL_DENSITY		=  0x40000000,
 		RENDER_DEBUG_TRIANGLE_COUNT		=  0x80000000,
@@ -765,7 +778,6 @@ protected:
 	U64						mOldRenderDebugMask;
 	std::stack<U32>			mRenderDebugFeatureStack;
 
-	
 	/////////////////////////////////////////////
 	//
 	//
@@ -959,6 +971,7 @@ public:
 	static U32 RenderResolutionDivisor;
 	static bool RenderUIBuffer;
 	static S32 RenderShadowDetail;
+    static S32 RenderShadowSplits;
 	static bool RenderDeferredSSAO;
 	static F32 RenderShadowResolutionScale;
 	static bool RenderLocalLights;

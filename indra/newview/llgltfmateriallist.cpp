@@ -219,40 +219,36 @@ public:
         struct ReturnData
         {
         public:
-            LLPointer<LLGLTFMaterial> mMaterial;
+            LLGLTFMaterial mMaterial;
             S32 mSide;
             bool mSuccess;
         };
 
-        // fromJson() is performance heavy offload to a thread.
-        main_queue->postTo(
-            general_queue,
-            [object_override]() // Work done on general queue
+        if (!object_override.mSides.empty())
         {
-            std::vector<ReturnData> results;
-
-            if (!object_override.mSides.empty())
+            // fromJson() is performance heavy offload to a thread.
+            main_queue->postTo(
+                general_queue,
+                [sides=object_override.mSides]() // Work done on general queue
             {
-                results.reserve(object_override.mSides.size());
+                std::vector<ReturnData> results;
+
+                results.reserve(sides.size());
                 // parse json
-                std::unordered_map<S32, std::string>::const_iterator iter = object_override.mSides.begin();
-                std::unordered_map<S32, std::string>::const_iterator end = object_override.mSides.end();
+                std::unordered_map<S32, std::string>::const_iterator iter = sides.begin();
+                std::unordered_map<S32, std::string>::const_iterator end = sides.end();
                 while (iter != end)
                 {
-                    LLPointer<LLGLTFMaterial> override_data = new LLGLTFMaterial();
                     std::string warn_msg, error_msg;
 
-                    bool success = override_data->fromJSON(iter->second, warn_msg, error_msg);
-
                     ReturnData result;
+
+                    bool success = result.mMaterial.fromJSON(iter->second, warn_msg, error_msg);
+
                     result.mSuccess = success;
                     result.mSide = iter->first;
 
-                    if (success)
-                    {
-                        result.mMaterial = override_data;
-                    }
-                    else
+                    if (!success)
                     {
                         LL_WARNS("GLTF") << "failed to parse GLTF override data.  errors: " << error_msg << " | warnings: " << warn_msg << LL_ENDL;
                     }
@@ -260,64 +256,68 @@ public:
                     results.push_back(result);
                     iter++;
                 }
-            }
-            return results;
-        },
-            [object_override, this](std::vector<ReturnData> results) // Callback to main thread
+                return results;
+            },
+            [object_id=object_override.mObjectId, this](std::vector<ReturnData> results) // Callback to main thread
             {
-            LLViewerObject * obj = gObjectList.findObject(object_override.mObjectId);
+                LLViewerObject * obj = gObjectList.findObject(object_id);
 
-            if (results.size() > 0 )
-            {
-                std::unordered_set<S32> side_set;
-
-                for (int i = 0; i < results.size(); ++i)
+                if (results.size() > 0 )
                 {
-                    if (results[i].mSuccess)
-                    {
-                        // flag this side to not be nulled out later
-                        side_set.insert(results[i].mSide);
+                    std::unordered_set<S32> side_set;
 
-                        if (obj)
+                    for (auto const & result : results)
+                    {
+                        S32 side = result.mSide;
+                        if (result.mSuccess)
                         {
-                            obj->setTEGLTFMaterialOverride(results[i].mSide, results[i].mMaterial);
+                            // copy to heap here because LLTextureEntry is going to take ownership with an LLPointer
+                            LLGLTFMaterial * material = new LLGLTFMaterial(result.mMaterial);
+
+                            // flag this side to not be nulled out later
+                            side_set.insert(side);
+
+                            if (obj)
+                            {
+                                obj->setTEGLTFMaterialOverride(side, material);
+                            }
+                        }
+
+                        // unblock material editor
+                        if (obj && obj->getTE(side) && obj->getTE(side)->isSelected())
+                        {
+                            doSelectionCallbacks(object_id, side);
                         }
                     }
-                    
-                    // unblock material editor
-                    if (obj && obj->getTE(results[i].mSide) && obj->getTE(results[i].mSide)->isSelected())
-                    {
-                        doSelectionCallbacks(object_override.mObjectId, results[i].mSide);
-                    }
-                }
 
-                if (obj && side_set.size() != obj->getNumTEs())
-                { // object exists and at least one texture entry needs to have its override data nulled out
-                    for (int i = 0; i < obj->getNumTEs(); ++i)
-                    {
-                        if (side_set.find(i) == side_set.end())
+                    if (obj && side_set.size() != obj->getNumTEs())
+                    { // object exists and at least one texture entry needs to have its override data nulled out
+                        for (int i = 0; i < obj->getNumTEs(); ++i)
                         {
-                            obj->setTEGLTFMaterialOverride(i, nullptr);
-                            if (obj->getTE(i) && obj->getTE(i)->isSelected())
+                            if (side_set.find(i) == side_set.end())
                             {
-                                doSelectionCallbacks(object_override.mObjectId, i);
+                                obj->setTEGLTFMaterialOverride(i, nullptr);
+                                if (obj->getTE(i) && obj->getTE(i)->isSelected())
+                                {
+                                    doSelectionCallbacks(object_id, i);
+                                }
                             }
                         }
                     }
                 }
-            }
-            else if (obj)
-            { // override list was empty or an error occurred, null out all overrides for this object
-                for (int i = 0; i < obj->getNumTEs(); ++i)
-                {
-                    obj->setTEGLTFMaterialOverride(i, nullptr);
-                    if (obj->getTE(i) && obj->getTE(i)->isSelected())
+                else if (obj)
+                { // override list was empty or an error occurred, null out all overrides for this object
+                    for (int i = 0; i < obj->getNumTEs(); ++i)
                     {
-                        doSelectionCallbacks(obj->getID(), i);
+                        obj->setTEGLTFMaterialOverride(i, nullptr);
+                        if (obj->getTE(i) && obj->getTE(i)->isSelected())
+                        {
+                            doSelectionCallbacks(obj->getID(), i);
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
     }
 
 private:
@@ -433,6 +433,19 @@ void LLGLTFMaterialList::queueApply(const LLViewerObject* obj, S32 side, const L
     }
 }
 
+void LLGLTFMaterialList::queueApply(const LLViewerObject* obj, S32 side, const LLUUID& asset_id, const LLGLTFMaterial* material_override)
+{
+    if (asset_id.isNull() || material_override == nullptr)
+    {
+        queueApply(obj, side, asset_id);
+    }
+    else
+    {
+        LLGLTFMaterial* material = new LLGLTFMaterial(*material_override);
+        sApplyQueue.push_back({ obj->getID(), side, asset_id, material });
+    }
+}
+
 void LLGLTFMaterialList::queueUpdate(const LLSD& data)
 {
     llassert(is_valid_update(data));
@@ -477,7 +490,7 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
     }
     sModifyQueue.clear();
 
-    for (auto& e : sApplyQueue)
+    for (ApplyMaterialAssetData& e : sApplyQueue)
     {
         data[i]["object_id"] = e.object_id;
         data[i]["side"] = e.side;

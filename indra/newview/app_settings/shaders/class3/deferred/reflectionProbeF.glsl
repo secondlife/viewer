@@ -47,7 +47,11 @@ layout (std140) uniform ReflectionProbes
     mat4 refBox[MAX_REFMAP_COUNT];
     // list of bounding spheres for reflection probes sorted by distance to camera (closest first)
     vec4 refSphere[MAX_REFMAP_COUNT];
-    // extra parameters (currently only .x used for probe ambiance)
+    // extra parameters 
+    //  x - irradiance scale
+    //  y - radiance scale
+    //  z - fade in
+    //  w - znear
     vec4 refParams[MAX_REFMAP_COUNT];
     // index  of cube map in reflectionProbes for a corresponding reflection probe
     // e.g. cube map channel of refSphere[2] is stored in refIndex[2]
@@ -59,6 +63,8 @@ layout (std140) uniform ReflectionProbes
 
     // neighbor list data (refSphere indices, not cubemap array layer)
     ivec4 refNeighbor[1024];
+
+    ivec4 refBucket[256];
 
     // number of reflection probes present in refSphere
     int refmapCount;
@@ -118,13 +124,26 @@ bool shouldSampleProbe(int i, vec3 pos)
     return true;
 }
 
+int getStartIndex(vec3 pos)
+{
+#if 1
+    int idx = clamp(int(floor(-pos.z)), 0, 255);
+    return clamp(refBucket[idx].x, 1, refmapCount+1);
+#else
+    return 1;
+#endif
+}
+
 // call before sampleRef
 // populate "probeIndex" with N probe indices that influence pos where N is REF_SAMPLE_COUNT
 void preProbeSample(vec3 pos)
 {
 #if REFMAP_LEVEL > 0
+
+    int start = getStartIndex(pos);
+
     // TODO: make some sort of structure that reduces the number of distance checks
-    for (int i = 1; i < refmapCount; ++i)
+    for (int i = start; i < refmapCount; ++i)
     {
         // found an influencing probe
         if (shouldSampleProbe(i, pos))
@@ -142,6 +161,7 @@ void preProbeSample(vec3 pos)
                 {
                     // check up to REF_SAMPLE_COUNT-1 neighbors (neighborIdx is ivec4 index)
 
+                    // sample refNeighbor[neighborIdx].x
                     int idx = refNeighbor[neighborIdx].x;
                     if (shouldSampleProbe(idx, pos))
                     {
@@ -157,6 +177,7 @@ void preProbeSample(vec3 pos)
                         break;
                     }
 
+                    // sample refNeighbor[neighborIdx].y
                     idx = refNeighbor[neighborIdx].y;
                     if (shouldSampleProbe(idx, pos))
                     {
@@ -172,6 +193,7 @@ void preProbeSample(vec3 pos)
                         break;
                     }
 
+                    // sample refNeighbor[neighborIdx].z
                     idx = refNeighbor[neighborIdx].z;
                     if (shouldSampleProbe(idx, pos))
                     {
@@ -187,6 +209,7 @@ void preProbeSample(vec3 pos)
                         break;
                     }
 
+                    // sample refNeighbor[neighborIdx].w
                     idx = refNeighbor[neighborIdx].w;
                     if (shouldSampleProbe(idx, pos))
                     {
@@ -197,11 +220,7 @@ void preProbeSample(vec3 pos)
                         }
                     }
                     count++;
-                    if (count == neighborCount)
-                    {
-                        break;
-                    }
-
+                    
                     ++neighborIdx;
                 }
 
@@ -734,6 +753,14 @@ vec4 sampleReflectionProbesDebug(vec3 pos)
     {
         debugTapRefMap(pos, dir, d, i, col);
     }
+
+#if 0 //debug getStartIndex
+    col.g = float(getStartIndex(pos));
+
+    col.g /= 255.0;
+    col.rb = vec2(0);
+    col.a = 1.0;
+#endif
 
     return col;
 }

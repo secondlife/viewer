@@ -70,6 +70,13 @@ public:
     // NOTE: Implicitly clears most override data if present
     static void queueApply(const LLViewerObject* obj, S32 side, const LLUUID& asset_id);
 
+    // Queue an application of a material asset we want to send to the simulator.  Call "flushUpdates" to flush pending updates.
+    //  object_id - ID of object to apply material asset to
+    //  side - TextureEntry index to apply material to, or -1 for all sides
+    //  asset_id - ID of material asset to apply, or LLUUID::null to disassociate current material asset
+    //  mat - override material, if null, will clear most override data
+    static void queueApply(const LLViewerObject* obj, S32 side, const LLUUID& asset_id, const LLGLTFMaterial* mat);
+
     // flush pending material updates to the simulator
     // Automatically called once per frame, but may be called explicitly
     // for cases that care about the done_callback forwarded to LLCoros::instance().launch

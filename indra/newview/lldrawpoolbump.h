@@ -53,7 +53,6 @@ public:
 	LLDrawPoolBump();
 
 	/*virtual*/ void prerender() override;
-	void pushBatch(LLDrawInfo& params, bool texture, bool batch_textures = false, bool reset_gltf = false) override;
 
 	void pushBumpBatches(U32 type);
 	void renderGroup(LLSpatialGroup* group, U32 type, bool texture) override;

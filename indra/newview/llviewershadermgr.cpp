@@ -188,6 +188,8 @@ LLGLSLShader			gDeferredPostProgram;
 LLGLSLShader			gDeferredCoFProgram;
 LLGLSLShader			gDeferredDoFCombineProgram;
 LLGLSLShader			gDeferredPostGammaCorrectProgram;
+LLGLSLShader            gNoPostGammaCorrectProgram;
+LLGLSLShader            gLegacyPostGammaCorrectProgram;
 LLGLSLShader			gExposureProgram;
 LLGLSLShader			gLuminanceProgram;
 LLGLSLShader			gFXAAProgram;
@@ -295,6 +297,8 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
     mShaderList.push_back(&gHUDPBRAlphaProgram);
     mShaderList.push_back(&gDeferredSkinnedPBRAlphaProgram);
     mShaderList.push_back(&gDeferredPostGammaCorrectProgram); // for gamma
+    mShaderList.push_back(&gNoPostGammaCorrectProgram);
+    mShaderList.push_back(&gLegacyPostGammaCorrectProgram);
 
 }
 
@@ -1010,6 +1014,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gExposureProgram.unload();
         gLuminanceProgram.unload();
 		gDeferredPostGammaCorrectProgram.unload();
+        gNoPostGammaCorrectProgram.unload();
+        gLegacyPostGammaCorrectProgram.unload();
 		gFXAAProgram.unload();
 		gDeferredWLSkyProgram.unload();
 		gDeferredWLCloudProgram.unload();
@@ -2338,11 +2344,10 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredShadowGLTFAlphaMaskProgram.mName = "Deferred GLTF Shadow Alpha Mask Shader";
         gDeferredShadowGLTFAlphaMaskProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
         gDeferredShadowGLTFAlphaMaskProgram.mShaderFiles.clear();
-        gDeferredShadowGLTFAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskV.glsl", GL_VERTEX_SHADER));
-        gDeferredShadowGLTFAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskF.glsl", GL_FRAGMENT_SHADER));
+        gDeferredShadowGLTFAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/pbrShadowAlphaMaskV.glsl", GL_VERTEX_SHADER));
+        gDeferredShadowGLTFAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/pbrShadowAlphaMaskF.glsl", GL_FRAGMENT_SHADER));
         gDeferredShadowGLTFAlphaMaskProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         gDeferredShadowGLTFAlphaMaskProgram.clearPermutations();
-        gDeferredShadowGLTFAlphaMaskProgram.addPermutation("GLTF", "1");
         success = make_rigged_variant(gDeferredShadowGLTFAlphaMaskProgram, gDeferredSkinnedShadowGLTFAlphaMaskProgram);
         success = success && gDeferredShadowGLTFAlphaMaskProgram.createShader(NULL, NULL);
         llassert(success);
@@ -2537,6 +2542,37 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		success = gDeferredPostGammaCorrectProgram.createShader(NULL, NULL);
 		llassert(success);
 	}
+    
+    if (success)
+    {
+        gNoPostGammaCorrectProgram.mName = "No Post Gamma Correction Post Process";
+        gNoPostGammaCorrectProgram.mFeatures.hasSrgb = true;
+        gNoPostGammaCorrectProgram.mFeatures.isDeferred = true;
+        gNoPostGammaCorrectProgram.mShaderFiles.clear();
+        gNoPostGammaCorrectProgram.clearPermutations();
+        gNoPostGammaCorrectProgram.addPermutation("NO_POST", "1");
+        gNoPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+        gNoPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredGammaCorrect.glsl", GL_FRAGMENT_SHADER));
+        gNoPostGammaCorrectProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = gNoPostGammaCorrectProgram.createShader(NULL, NULL);
+        llassert(success);
+    }
+
+    if (success)
+    {
+        gLegacyPostGammaCorrectProgram.mName = "Legacy Gamma Correction Post Process";
+        gLegacyPostGammaCorrectProgram.mFeatures.hasSrgb = true;
+        gLegacyPostGammaCorrectProgram.mFeatures.isDeferred = true;
+        gLegacyPostGammaCorrectProgram.mShaderFiles.clear();
+        gLegacyPostGammaCorrectProgram.clearPermutations();
+        gLegacyPostGammaCorrectProgram.addPermutation("LEGACY_GAMMA", "1");
+        gLegacyPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+        gLegacyPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredGammaCorrect.glsl", GL_FRAGMENT_SHADER));
+        gLegacyPostGammaCorrectProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = gLegacyPostGammaCorrectProgram.createShader(NULL, NULL);
+        llassert(success);
+    }
+
 
 	if (success && gGLManager.mGLVersion > 3.9f)
 	{

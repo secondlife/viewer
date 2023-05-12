@@ -48,8 +48,6 @@ void main()
         discard;
     }
 
-#if !defined(GLTF)
-
 #if !defined(IS_FULLBRIGHT)
     alpha *= vertex_color.a;
 #endif
@@ -66,7 +64,6 @@ void main()
             discard;
         }
     }
-#endif
 
 	frag_color = vec4(1,1,1,1);
 }

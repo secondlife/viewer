@@ -110,7 +110,7 @@ private:
     void deleteProbe(U32 i);
 
     // get a free cube index
-    // if no cube indices are free, free one starting from the back of the probe list
+    // returns -1 if allocation failed
     S32 allocateCubeIndex();
 
     // update the neighbors of the given probe 
@@ -137,12 +137,9 @@ private:
     // storage for reflection probe irradiance maps
     LLPointer<LLCubeMapArray> mIrradianceMaps;
 
-    // array indicating if a particular cubemap is free
-    bool mCubeFree[LL_MAX_REFLECTION_PROBE_COUNT];
+    // list of free cubemap indices
+    std::list<S32> mCubeFree;
 
-    // start tracking the given spatial group
-    void trackGroup(LLSpatialGroup* group);
-    
     // perform an update on the currently updating Probe
     void doProbeUpdate();
 

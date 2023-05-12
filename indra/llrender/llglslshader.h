@@ -168,8 +168,16 @@ public:
     void unload();
     void clearStats();
     void dumpStats();
-    void placeProfileQuery();
-    void readProfileQuery();
+
+    // place query objects for profiling if profiling is enabled
+    // if for_runtime is true, will place timer query only whether or not profiling is enabled
+    void placeProfileQuery(bool for_runtime = false);
+
+    // Readback query objects if profiling is enabled
+    // If for_runtime is true, will readback timer query iff query is available
+    // Will return false if a query is pending (try again later)
+    // If force_read is true, will force an immediate readback (severe performance penalty)
+    bool readProfileQuery(bool for_runtime = false, bool force_read = false);
 
     BOOL createShader(std::vector<LLStaticHashedString>* attributes,
         std::vector<LLStaticHashedString>* uniforms,
@@ -292,6 +300,7 @@ public:
     defines_map_t mDefines;
 
     //statistics for profiling shader performance
+    bool mProfilePending = false;
     U32 mTimerQuery;
     U32 mSamplesQuery;
     U32 mPrimitivesQuery;
@@ -307,6 +316,9 @@ public:
 
     // this pointer should be set to whichever shader represents this shader's rigged variant
     LLGLSLShader* mRiggedVariant = nullptr;
+
+    // hacky flag used for optimization in LLDrawPoolAlpha
+    bool mCanBindFast = false;
 
 #ifdef LL_PROFILER_ENABLE_RENDER_DOC
     void setLabel(const char* label);

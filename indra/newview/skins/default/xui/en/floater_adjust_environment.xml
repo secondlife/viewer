@@ -239,7 +239,7 @@
                           layout="topleft"
                           left_delta="-5"
                           top_pad="15"
-                          width="80">Scene Gamma:</text>
+                          width="80">Brightness:</text>
                     <slider decimal_digits="2"
                             follows="left|top"
                             height="16"

@@ -55,6 +55,7 @@
 #include "m3math.h"
 #include "m4math.h"
 #include "llmatrix4a.h"
+#include "llperfstats.h" 
 
 #if !LL_DARWIN && !LL_LINUX
 extern PFNGLWEIGHTPOINTERARBPROC glWeightPointerARB;

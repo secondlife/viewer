@@ -28,6 +28,7 @@
 #define LL_LLVIEWEROBJECT_H
 
 #include <map>
+#include <unordered_map>
 
 #include "llassetstorage.h"
 //#include "llhudicon.h"
@@ -122,7 +123,7 @@ protected:
 		BOOL in_use;
 		LLNetworkData *data;
 	};
-	std::map<U16, ExtraParameter*> mExtraParameterList;
+	std::unordered_map<U16, ExtraParameter*> mExtraParameterList;
 
 public:
 	typedef std::list<LLPointer<LLViewerObject> > child_list_t;
@@ -441,7 +442,7 @@ public:
 
 	void sendMaterialUpdate() const;
 
-	void setDebugText(const std::string &utf8text);
+	void setDebugText(const std::string &utf8text, const LLColor4& color = LLColor4::white);
 	void appendDebugText(const std::string &utf8text);
 	void initHudText();
 	void restoreHudText();
@@ -941,6 +942,10 @@ public:
     // reflection probe state
     bool mIsReflectionProbe = false;  // if true, this object should register itself with LLReflectionProbeManager
     LLPointer<LLReflectionMap> mReflectionProbe = nullptr; // reflection probe coupled to this viewer object.  If not null, should be deregistered when this object is destroyed
+
+    // the amount of GPU time (in ms) it took to render this object according to LLPipeline::profileAvatar
+    // -1.f if no profile data available
+    F32 mGPURenderTime = -1.f;
 };
 
 ///////////////////

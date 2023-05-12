@@ -146,7 +146,7 @@ S32 LLQueuedThread::updateQueue(F32 max_time_ms)
         // schedule a call to threadedUpdate for every call to updateQueue
         if (!isQuitting())
         {
-            mRequestQueue.postIfOpen([=]()
+            mRequestQueue.post([=]()
                 {
                     LL_PROFILE_ZONE_NAMED_CATEGORY_THREAD("qt - update");
                     mIdleThread = FALSE;

@@ -32,9 +32,6 @@ mat4 getObjectSkinnedTransform();
 uniform mat4 modelview_projection_matrix;
 #endif
 
-uniform vec4[2] texture_base_color_transform;
-vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
-
 uniform float shadow_target_width;
 
 in vec3 position;
@@ -70,6 +67,6 @@ void main()
 	
 	passTextureIndex();
 
-	vary_texcoord0 = texture_transform(texcoord0, texture_base_color_transform, texture_matrix0);
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	vertex_color = diffuse_color;
 }

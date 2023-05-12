@@ -113,6 +113,8 @@
 #include "llrendersphere.h"
 #include "llskinningutil.h"
 
+#include "llperfstats.h"
+
 #include <boost/lexical_cast.hpp>
 
 extern F32 SPEED_ADJUST_MAX;
@@ -204,6 +206,8 @@ const U32 LLVOAvatar::VISUAL_COMPLEXITY_UNKNOWN = 0;
 const F64 HUD_OVERSIZED_TEXTURE_DATA_SIZE = 1024 * 1024;
 
 const F32 MAX_TEXTURE_WAIT_TIME_SEC = 60;
+
+const S32 MIN_NONTUNED_AVS = 5;
 
 enum ERenderName
 {
@@ -616,6 +620,8 @@ F32 LLVOAvatar::sUnbakedUpdateTime = 0.f;
 F32 LLVOAvatar::sGreyTime = 0.f;
 F32 LLVOAvatar::sGreyUpdateTime = 0.f;
 LLPointer<LLViewerTexture> LLVOAvatar::sCloudTexture = NULL;
+std::vector<LLUUID> LLVOAvatar::sAVsIgnoringARTLimit;
+S32 LLVOAvatar::sAvatarsNearby = 0;
 
 //-----------------------------------------------------------------------------
 // Helper functions
@@ -813,6 +819,14 @@ LLVOAvatar::~LLVOAvatar()
 	{
 		debugAvatarRezTime("AvatarRezLeftNotification","left sometime after declouding");
 	}
+
+    if(mTuned)
+    {
+        LLPerfStats::tunedAvatars--;
+        mTuned = false;
+    }
+    sAVsIgnoringARTLimit.erase(std::remove(sAVsIgnoringARTLimit.begin(), sAVsIgnoringARTLimit.end(), mID), sAVsIgnoringARTLimit.end());
+
 
 	logPendingPhases();
 	
@@ -1434,7 +1448,7 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
                                 continue;
                             }
                         }
-                        if (vol && vol->isRiggedMesh())
+                        if (vol && vol->isRiggedMeshFast())
                         {
                             continue;
                         }
@@ -2547,11 +2561,17 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 		LL_INFOS() << "Warning!  Idle on dead avatar" << LL_ENDL;
 		return;
 	}
+    // record time and refresh "tooSlow" status
+    updateTooSlow();
 
 	static LLCachedControl<bool> disable_all_render_types(gSavedSettings, "DisableAllRenderTypes");
 	if (!(gPipeline.hasRenderType(mIsControlAvatar ? LLPipeline::RENDER_TYPE_CONTROL_AV : LLPipeline::RENDER_TYPE_AVATAR))
 		&& !disable_all_render_types && !isSelf())
 	{
+        if (!mIsControlAvatar)
+        {
+            idleUpdateNameTag( mLastRootPos );
+        }
 		return;
 	}
 
@@ -2676,6 +2696,10 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 
     if ((LLFrameTimer::getFrameCount() + mID.mData[0]) % compl_upd_freq == 0)
     {
+        // DEPRECATED 
+        // replace with LLPipeline::profileAvatar?
+        // Avatar profile takes ~ 0.5ms while idleUpdateRenderComplexity takes ~5ms
+        // (both are unacceptably costly)
         idleUpdateRenderComplexity();
     }
     idleUpdateDebugInfo();
@@ -3131,7 +3155,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 																 LLPartData::LL_PART_TARGET_POS_MASK );
 			
 			// do not generate particles for dummy or overly-complex avatars
-			if (!mIsDummy && !isTooComplex())
+			if (!mIsDummy && !isTooComplex() && !isTooSlow())
 			{
 				setParticleSource(particle_parameters, getID());
 			}
@@ -3216,11 +3240,9 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
     static LLCachedControl<F32> FADE_DURATION(gSavedSettings, "RenderNameFadeDuration"); // seconds
     static LLCachedControl<bool> use_chat_bubbles(gSavedSettings, "UseChatBubbles");
 
-	bool visible_avatar = isVisible() || mNeedsAnimUpdate;
 	bool visible_chat = use_chat_bubbles && (mChats.size() || mTyping);
 	bool render_name =	visible_chat ||
-		(visible_avatar &&
-		 ((sRenderName == RENDER_NAME_ALWAYS) ||
+		(((sRenderName == RENDER_NAME_ALWAYS) ||
 		  (sRenderName == RENDER_NAME_FADE && time_visible < NAME_SHOW_TIME)));
 	// If it's your own avatar, don't draw in mouselook, and don't
 	// draw if we're specifically hiding our own name.
@@ -3715,7 +3737,7 @@ bool LLVOAvatar::isVisuallyMuted()
         }
 		else 
 		{
-			muted = isTooComplex();
+			muted = isTooComplex() || isTooSlow();
 		}
 	}
 
@@ -8275,6 +8297,86 @@ bool LLVOAvatar::isTooComplex() const
 	return too_complex;
 }
 
+bool LLVOAvatar::isTooSlow() const
+{
+    static LLCachedControl<bool> always_render_friends(gSavedSettings, "AlwaysRenderFriends");
+    bool render_friend =  (LLAvatarTracker::instance().isBuddy(getID()) && always_render_friends);
+
+    if (render_friend || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
+    {
+        return false;
+    }
+    return mTooSlow;
+}
+
+// Udpate Avatar state based on render time
+void LLVOAvatar::updateTooSlow()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
+    static LLCachedControl<bool> alwaysRenderFriends(gSavedSettings, "AlwaysRenderFriends");
+    static LLCachedControl<bool> allowSelfImpostor(gSavedSettings, "AllowSelfImpostor");
+    const auto id = getID();
+
+    // mTooSlow - Is the avatar flagged as being slow (includes shadow time)
+    // mTooSlowWithoutShadows - Is the avatar flagged as being slow even with shadows removed.
+    
+    // get max render time in ms
+    F32 max_art_ms = (F32) (LLPerfStats::renderAvatarMaxART_ns / 1000000.0);
+
+	bool autotune = LLPerfStats::tunables.userAutoTuneEnabled && !mIsControlAvatar && !isSelf();
+
+	bool ignore_tune = false;
+    if (autotune && sAVsIgnoringARTLimit.size() > 0)
+    {
+        auto it = std::find(sAVsIgnoringARTLimit.begin(), sAVsIgnoringARTLimit.end(), mID);
+        if (it != sAVsIgnoringARTLimit.end())
+        {
+            S32 index = it - sAVsIgnoringARTLimit.begin();
+            ignore_tune = (index < (MIN_NONTUNED_AVS - sAvatarsNearby + 1 + LLPerfStats::tunedAvatars));
+        }
+    }
+
+	bool exceeds_max_ART =
+        ((LLPerfStats::renderAvatarMaxART_ns > 0) && 
+            (mGPURenderTime >= max_art_ms)); // NOTE: don't use getGPURenderTime accessor here to avoid "isTooSlow" feedback loop
+
+    if (exceeds_max_ART && !ignore_tune)
+    {
+        mTooSlow = true;
+        
+        if(!mTooSlowWithoutShadows) // if we were not previously above the full impostor cap
+        {
+            bool render_friend_or_exception =  	( alwaysRenderFriends && LLAvatarTracker::instance().isBuddy( id ) ) ||
+                ( getVisualMuteSettings() == LLVOAvatar::AV_ALWAYS_RENDER ); 
+            if( (!isSelf() || allowSelfImpostor) && !render_friend_or_exception  )
+            {
+                // Note: slow rendering Friends still get their shadows zapped.
+                mTooSlowWithoutShadows = getGPURenderTime()*2.f >= max_art_ms;  // NOTE: assumes shadow rendering doubles render time
+            }
+        }
+    }
+    else
+    {
+        mTooSlow = false;
+        mTooSlowWithoutShadows = false;
+
+		if (ignore_tune)
+		{
+            return;
+		}
+    }
+    if(mTooSlow && !mTuned)
+    {
+        LLPerfStats::tunedAvatars++; // increment the number of avatars that have been tweaked.
+        mTuned = true;
+    }
+    else if(!mTooSlow && mTuned)
+    {
+        LLPerfStats::tunedAvatars--;
+        mTuned = false;
+    }
+}
+
 //-----------------------------------------------------------------------------
 // findMotion()
 //-----------------------------------------------------------------------------
@@ -10536,6 +10638,64 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 
     // Render Complexity
     calculateUpdateRenderComplexity(); // Update mVisualComplexity if needed	
+
+	bool autotune = LLPerfStats::tunables.userAutoTuneEnabled && !mIsControlAvatar && !isSelf();
+    if (autotune && !isDead())
+    {
+        static LLCachedControl<F32> render_far_clip(gSavedSettings, "RenderFarClip", 64);
+        F32 radius = render_far_clip * render_far_clip;
+
+        bool is_nearby = true;
+        if ((dist_vec_squared(getPositionGlobal(), gAgent.getPositionGlobal()) > radius) &&
+            (dist_vec_squared(getPositionGlobal(), gAgentCamera.getCameraPositionGlobal()) > radius))
+        {
+            is_nearby = false;
+        }
+
+        if (is_nearby && (sAVsIgnoringARTLimit.size() < MIN_NONTUNED_AVS))
+        {
+            if (std::count(sAVsIgnoringARTLimit.begin(), sAVsIgnoringARTLimit.end(), mID) == 0)
+            {
+                sAVsIgnoringARTLimit.push_back(mID);
+            }
+        }
+        else if (!is_nearby)
+        {
+            sAVsIgnoringARTLimit.erase(std::remove(sAVsIgnoringARTLimit.begin(), sAVsIgnoringARTLimit.end(), mID),
+                                       sAVsIgnoringARTLimit.end());
+        }
+        updateNearbyAvatarCount();
+    }
+}
+
+void LLVOAvatar::updateNearbyAvatarCount()
+{
+    static LLFrameTimer agent_update_timer;
+
+	if (agent_update_timer.getElapsedTimeF32() > 1.0f)
+    {
+        S32 avs_nearby = 0;
+        static LLCachedControl<F32> render_far_clip(gSavedSettings, "RenderFarClip", 64);
+        F32 radius = render_far_clip * render_far_clip;
+        std::vector<LLCharacter *>::iterator char_iter = LLCharacter::sInstances.begin();
+        while (char_iter != LLCharacter::sInstances.end())
+        {
+            LLVOAvatar *avatar = dynamic_cast<LLVOAvatar *>(*char_iter);
+            if (avatar && !avatar->isDead() && !avatar->isControlAvatar())
+            {
+                if ((dist_vec_squared(avatar->getPositionGlobal(), gAgent.getPositionGlobal()) > radius) &&
+                    (dist_vec_squared(avatar->getPositionGlobal(), gAgentCamera.getCameraPositionGlobal()) > radius))
+                {
+                    char_iter++;
+                    continue;
+                }
+                avs_nearby++;
+            }
+            char_iter++;
+        }
+        sAvatarsNearby = avs_nearby;
+        agent_update_timer.reset();
+    }
 }
 
 void LLVOAvatar::idleUpdateDebugInfo()
@@ -10626,6 +10786,7 @@ void LLVOAvatar::updateVisualComplexity()
 	mVisualComplexityStale = true;
 }
 
+
 // Account for the complexity of a single top-level object associated
 // with an avatar. This will be either an attached object or an animated
 // object.
@@ -10634,137 +10795,149 @@ void LLVOAvatar::accountRenderComplexityForObject(
     const F32 max_attachment_complexity,
     LLVOVolume::texture_cost_t& textures,
     U32& cost,
-    hud_complexity_list_t& hud_complexity_list)
+    hud_complexity_list_t& hud_complexity_list,
+    object_complexity_list_t& object_complexity_list)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
     if (attached_object && !attached_object->isHUDAttachment())
-		{
+    {
         mAttachmentVisibleTriangleCount += attached_object->recursiveGetTriangleCount();
         mAttachmentEstTriangleCount += attached_object->recursiveGetEstTrianglesMax();
         mAttachmentSurfaceArea += attached_object->recursiveGetScaledSurfaceArea();
 
-					textures.clear();
-					const LLDrawable* drawable = attached_object->mDrawable;
-					if (drawable)
-					{
-						const LLVOVolume* volume = drawable->getVOVolume();
-						if (volume)
-						{
-                            F32 attachment_total_cost = 0;
-                            F32 attachment_volume_cost = 0;
-                            F32 attachment_texture_cost = 0;
-                            F32 attachment_children_cost = 0;
+        textures.clear();
+        const LLDrawable* drawable = attached_object->mDrawable;
+        if (drawable)
+        {
+            const LLVOVolume* volume = drawable->getVOVolume();
+            if (volume)
+            {
+                F32 attachment_total_cost = 0;
+                F32 attachment_volume_cost = 0;
+                F32 attachment_texture_cost = 0;
+                F32 attachment_children_cost = 0;
                 const F32 animated_object_attachment_surcharge = 1000;
 
-                if (attached_object->isAnimatedObject())
+                if (volume->isAnimatedObjectFast())
                 {
                     attachment_volume_cost += animated_object_attachment_surcharge;
                 }
-							attachment_volume_cost += volume->getRenderCost(textures);
+                attachment_volume_cost += volume->getRenderCost(textures);
 
-							const_child_list_t children = volume->getChildren();
-							for (const_child_list_t::const_iterator child_iter = children.begin();
-								  child_iter != children.end();
-								  ++child_iter)
-							{
-								LLViewerObject* child_obj = *child_iter;
-								LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
-								if (child)
-								{
-									attachment_children_cost += child->getRenderCost(textures);
-								}
-							}
-
-							for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
-								 volume_texture != textures.end();
-								 ++volume_texture)
-							{
-								// add the cost of each individual texture in the linkset
-								attachment_texture_cost += volume_texture->second;
-							}
-                            attachment_total_cost = attachment_volume_cost + attachment_texture_cost + attachment_children_cost;
-                            LL_DEBUGS("ARCdetail") << "Attachment costs " << attached_object->getAttachmentItemID()
-                                                   << " total: " << attachment_total_cost
-                                                   << ", volume: " << attachment_volume_cost
-                                                   << ", " << textures.size()
-                                                   << " textures: " << attachment_texture_cost
-                                                   << ", " << volume->numChildren()
-                                                   << " children: " << attachment_children_cost
-                                                   << LL_ENDL;
-                            // Limit attachment complexity to avoid signed integer flipping of the wearer's ACI
-                            cost += (U32)llclamp(attachment_total_cost, MIN_ATTACHMENT_COMPLEXITY, max_attachment_complexity);
-						}
-					}
-				}
-                if (isSelf()
-                    && attached_object
-                    && attached_object->isHUDAttachment()
-                    && !attached_object->isTempAttachment()
-                    && attached_object->mDrawable)
+                const_child_list_t children = volume->getChildren();
+                for (const_child_list_t::const_iterator child_iter = children.begin();
+                    child_iter != children.end();
+                    ++child_iter)
                 {
-                    textures.clear();
-                    BOOL is_rigged_mesh = attached_object->isRiggedMesh();
-        mAttachmentSurfaceArea += attached_object->recursiveGetScaledSurfaceArea();
-
-                    const LLVOVolume* volume = attached_object->mDrawable->getVOVolume();
-                    if (volume)
+                    LLViewerObject* child_obj = *child_iter;
+                    LLVOVolume* child = dynamic_cast<LLVOVolume*>(child_obj);
+                    if (child)
                     {
-                        LLHUDComplexity hud_object_complexity;
-                        hud_object_complexity.objectName = attached_object->getAttachmentItemName();
-                        hud_object_complexity.objectId = attached_object->getAttachmentItemID();
-                        std::string joint_name;
-                        gAgentAvatarp->getAttachedPointName(attached_object->getAttachmentItemID(), joint_name);
-                        hud_object_complexity.jointName = joint_name;
-                        // get cost and individual textures
-                        hud_object_complexity.objectsCost += volume->getRenderCost(textures);
-                        hud_object_complexity.objectsCount++;
-
-                        LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
-                        for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-                            iter != child_list.end(); ++iter)
-                        {
-                            LLViewerObject* childp = *iter;
-                            is_rigged_mesh |= childp->isRiggedMesh();
-                            const LLVOVolume* chld_volume = dynamic_cast<LLVOVolume*>(childp);
-                            if (chld_volume)
-                            {
-                                // get cost and individual textures
-                                hud_object_complexity.objectsCost += chld_volume->getRenderCost(textures);
-                                hud_object_complexity.objectsCount++;
-                            }
-                        }
-                        if (is_rigged_mesh && !attached_object->mRiggedAttachedWarned)
-                        {
-                            LLSD args;                            
-                            LLViewerInventoryItem* itemp = gInventory.getItem(attached_object->getAttachmentItemID());
-                            args["NAME"] = itemp ? itemp->getName() : LLTrans::getString("Unknown");
-                            args["POINT"] = LLTrans::getString(getTargetAttachmentPoint(attached_object)->getName());
-                            LLNotificationsUtil::add("RiggedMeshAttachedToHUD", args);
-
-                            attached_object->mRiggedAttachedWarned = true;
-                        }
-
-                        hud_object_complexity.texturesCount += textures.size();
-
-                        for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
-                            volume_texture != textures.end();
-                            ++volume_texture)
-                        {
-                            // add the cost of each individual texture (ignores duplicates)
-                            hud_object_complexity.texturesCost += volume_texture->second;
-                            LLViewerFetchedTexture *tex = LLViewerTextureManager::getFetchedTexture(volume_texture->first);
-                            if (tex)
-                            {
-                                // Note: Texture memory might be incorect since texture might be still loading.
-                                hud_object_complexity.texturesMemoryTotal += tex->getTextureMemory();
-                                if (tex->getOriginalHeight() * tex->getOriginalWidth() >= HUD_OVERSIZED_TEXTURE_DATA_SIZE)
-                                {
-                                    hud_object_complexity.largeTexturesCount++;
-                                }
-                            }
-                        }
-                        hud_complexity_list.push_back(hud_object_complexity);
+                        attachment_children_cost += child->getRenderCost(textures);
                     }
                 }
+
+                for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
+                    volume_texture != textures.end();
+                    ++volume_texture)
+                {
+                    // add the cost of each individual texture in the linkset
+                    attachment_texture_cost += LLVOVolume::getTextureCost(*volume_texture);
+                }
+                attachment_total_cost = attachment_volume_cost + attachment_texture_cost + attachment_children_cost;
+                LL_DEBUGS("ARCdetail") << "Attachment costs " << attached_object->getAttachmentItemID()
+                    << " total: " << attachment_total_cost
+                    << ", volume: " << attachment_volume_cost
+                    << ", " << textures.size()
+                    << " textures: " << attachment_texture_cost
+                    << ", " << volume->numChildren()
+                    << " children: " << attachment_children_cost
+                    << LL_ENDL;
+                // Limit attachment complexity to avoid signed integer flipping of the wearer's ACI
+                cost += (U32)llclamp(attachment_total_cost, MIN_ATTACHMENT_COMPLEXITY, max_attachment_complexity);
+
+                if (isSelf())
+                {
+                    LLObjectComplexity object_complexity;
+                    object_complexity.objectName = attached_object->getAttachmentItemName();
+                    object_complexity.objectId = attached_object->getAttachmentItemID();
+                    object_complexity.objectCost = attachment_total_cost;
+                    object_complexity_list.push_back(object_complexity);
+                }
+            }
+        }
+    }
+    if (isSelf()
+        && attached_object
+        && attached_object->isHUDAttachment()
+        && !attached_object->isTempAttachment()
+        && attached_object->mDrawable)
+    {
+        textures.clear();
+        mAttachmentSurfaceArea += attached_object->recursiveGetScaledSurfaceArea();
+
+        const LLVOVolume* volume = attached_object->mDrawable->getVOVolume();
+        if (volume)
+        {
+            BOOL is_rigged_mesh = volume->isRiggedMeshFast();
+            LLHUDComplexity hud_object_complexity;
+            hud_object_complexity.objectName = attached_object->getAttachmentItemName();
+            hud_object_complexity.objectId = attached_object->getAttachmentItemID();
+            std::string joint_name;
+            gAgentAvatarp->getAttachedPointName(attached_object->getAttachmentItemID(), joint_name);
+            hud_object_complexity.jointName = joint_name;
+            // get cost and individual textures
+            hud_object_complexity.objectsCost += volume->getRenderCost(textures);
+            hud_object_complexity.objectsCount++;
+
+            LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
+            for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+                iter != child_list.end(); ++iter)
+            {
+                LLViewerObject* childp = *iter;
+                const LLVOVolume* chld_volume = dynamic_cast<LLVOVolume*>(childp);
+                if (chld_volume)
+                {
+                    is_rigged_mesh = is_rigged_mesh || chld_volume->isRiggedMeshFast();
+                    // get cost and individual textures
+                    hud_object_complexity.objectsCost += chld_volume->getRenderCost(textures);
+                    hud_object_complexity.objectsCount++;
+                }
+            }
+            if (is_rigged_mesh && !attached_object->mRiggedAttachedWarned)
+            {
+                LLSD args;
+                LLViewerInventoryItem* itemp = gInventory.getItem(attached_object->getAttachmentItemID());
+                args["NAME"] = itemp ? itemp->getName() : LLTrans::getString("Unknown");
+                args["POINT"] = LLTrans::getString(getTargetAttachmentPoint(attached_object)->getName());
+                LLNotificationsUtil::add("RiggedMeshAttachedToHUD", args);
+
+                attached_object->mRiggedAttachedWarned = true;
+            }
+
+            hud_object_complexity.texturesCount += textures.size();
+
+            for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
+                volume_texture != textures.end();
+                ++volume_texture)
+            {
+                // add the cost of each individual texture (ignores duplicates)
+                hud_object_complexity.texturesCost += LLVOVolume::getTextureCost(*volume_texture);
+                const LLViewerTexture* img = *volume_texture;
+                if (img->getType() == LLViewerTexture::FETCHED_TEXTURE)
+                {
+                    LLViewerFetchedTexture* tex = (LLViewerFetchedTexture*)img;
+                    // Note: Texture memory might be incorect since texture might be still loading.
+                    hud_object_complexity.texturesMemoryTotal += tex->getTextureMemory();
+                    if (tex->getOriginalHeight() * tex->getOriginalWidth() >= HUD_OVERSIZED_TEXTURE_DATA_SIZE)
+                    {
+                        hud_object_complexity.largeTexturesCount++;
+                    }
+                }
+            }
+            hud_complexity_list.push_back(hud_object_complexity);
+        }
+    }
 }
 
 // Calculations for mVisualComplexity value
@@ -10776,19 +10949,22 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
      * everyone. If you have suggested improvements, submit them to
      * the official viewer for consideration.
      *****************************************************************/
-	static const U32 COMPLEXITY_BODY_PART_COST = 200;
-	static LLCachedControl<F32> max_complexity_setting(gSavedSettings,"MaxAttachmentComplexity");
-	F32 max_attachment_complexity = max_complexity_setting;
-	max_attachment_complexity = llmax(max_attachment_complexity, DEFAULT_MAX_ATTACHMENT_COMPLEXITY);
-
-	// Diagnostic list of all textures on our avatar
-	static std::set<LLUUID> all_textures;
-
     if (mVisualComplexityStale)
 	{
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
+
+        static const U32 COMPLEXITY_BODY_PART_COST = 200;
+        static LLCachedControl<F32> max_complexity_setting(gSavedSettings, "MaxAttachmentComplexity");
+        F32 max_attachment_complexity = max_complexity_setting;
+        max_attachment_complexity = llmax(max_attachment_complexity, DEFAULT_MAX_ATTACHMENT_COMPLEXITY);
+
+        // Diagnostic list of all textures on our avatar
+        static std::unordered_set<const LLViewerTexture*> all_textures;
+
 		U32 cost = VISUAL_COMPLEXITY_UNKNOWN;
 		LLVOVolume::texture_cost_t textures;
 		hud_complexity_list_t hud_complexity_list;
+        object_complexity_list_t object_complexity_list;
 
 		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 		{
@@ -10832,7 +11008,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
             if (volp && !volp->isAttachment())
             {
                 accountRenderComplexityForObject(volp, max_attachment_complexity,
-                                                 textures, cost, hud_complexity_list);
+                                                 textures, cost, hud_complexity_list, object_complexity_list);
             }
         }
 
@@ -10848,45 +11024,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 			{
                 LLViewerObject* attached_object = attachment_iter->get();
                 accountRenderComplexityForObject(attached_object, max_attachment_complexity,
-                                                 textures, cost, hud_complexity_list);
-			}
-		}
-
-		// Diagnostic output to identify all avatar-related textures.
-		// Does not affect rendering cost calculation.
-		if (isSelf() && debugLoggingEnabled("ARCdetail"))
-		{
-			// print any attachment textures we didn't already know about.
-			for (LLVOVolume::texture_cost_t::iterator it = textures.begin(); it != textures.end(); ++it)
-			{
-				LLUUID image_id = it->first;
-				if( ! (image_id.isNull() || image_id == IMG_DEFAULT || image_id == IMG_DEFAULT_AVATAR)
-				   && (all_textures.find(image_id) == all_textures.end()))
-				{
-					// attachment texture not previously seen.
-					LL_DEBUGS("ARCdetail") << "attachment_texture: " << image_id.asString() << LL_ENDL;
-					all_textures.insert(image_id);
-				}
-			}
-
-			// print any avatar textures we didn't already know about
-		    for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearance::getDictionary()->getTextures().begin();
-			 iter != LLAvatarAppearance::getDictionary()->getTextures().end();
-				 ++iter)
-			{
-			    const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = iter->second;
-				// TODO: MULTI-WEARABLE: handle multiple textures for self
-				const LLViewerTexture* te_image = getImage(iter->first,0);
-				if (!te_image)
-					continue;
-				LLUUID image_id = te_image->getID();
-				if( image_id.isNull() || image_id == IMG_DEFAULT || image_id == IMG_DEFAULT_AVATAR)
-					continue;
-				if (all_textures.find(image_id) == all_textures.end())
-				{
-					LL_DEBUGS("ARCdetail") << "local_texture: " << texture_dict->mName << ": " << image_id << LL_ENDL;
-					all_textures.insert(image_id);
-				}
+                                                 textures, cost, hud_complexity_list, object_complexity_list);
 			}
 		}
 
@@ -10913,9 +11051,24 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
         {
             // Avatar complexity
             LLAvatarRenderNotifier::getInstance()->updateNotificationAgent(mVisualComplexity);
-
+            LLAvatarRenderNotifier::getInstance()->setObjectComplexityList(object_complexity_list);
             // HUD complexity
             LLHUDRenderNotifier::getInstance()->updateNotificationHUD(hud_complexity_list);
+        }
+
+        //schedule an update to ART next frame if needed
+        if (LLPerfStats::tunables.userAutoTuneEnabled && 
+            LLPerfStats::tunables.userFPSTuningStrategy != LLPerfStats::TUNE_SCENE_ONLY &&
+            !isVisuallyMuted())
+        {
+            LLUUID id = getID(); // <== use id to make sure this avatar didn't get deleted between frames
+            LL::WorkQueue::getInstance("mainloop")->post([this, id]()
+                {
+                    if (gObjectList.findObject(id) != nullptr)
+                    {
+                        gPipeline.profileAvatar(this);
+                    }
+                });
         }
     }
 }
@@ -11088,7 +11241,7 @@ LLVOAvatar::AvatarOverallAppearance LLVOAvatar::getOverallAppearance() const
 		{	// Always want to see this AV as an impostor
 			result = AOA_JELLYDOLL;
 		}
-		else if (isTooComplex())
+		else if (isTooComplex() || isTooSlow())
 		{
 			result = AOA_JELLYDOLL;
 		}
@@ -11115,7 +11268,7 @@ void LLVOAvatar::calcMutedAVColor()
         new_color = LLColor4::grey4;
         change_msg = " blocked: color is grey4";
     }
-    else if (!isTooComplex())
+    else if (!isTooComplex() && !isTooSlow())
     {
         new_color = LLColor4::white;
         change_msg = " simple imposter ";
@@ -11251,3 +11404,110 @@ BOOL LLVOAvatar::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type,
 	// non-self avatars don't have wearables
 	return FALSE;
 }
+
+void LLVOAvatar::placeProfileQuery()
+{
+    if (mGPUTimerQuery == 0)
+    {
+        glGenQueries(1, &mGPUTimerQuery);
+    }
+
+    glBeginQuery(GL_TIME_ELAPSED, mGPUTimerQuery);
+}
+
+void LLVOAvatar::readProfileQuery(S32 retries)
+{
+    if (!mGPUProfilePending)
+    {
+        glEndQuery(GL_TIME_ELAPSED);
+        mGPUProfilePending = true;
+    }
+
+    GLuint64 result = 0;
+    glGetQueryObjectui64v(mGPUTimerQuery, GL_QUERY_RESULT_AVAILABLE, &result);
+
+    if (result == GL_TRUE || --retries <= 0)
+    { // query available, readback result
+        GLuint64 time_elapsed = 0;
+        glGetQueryObjectui64v(mGPUTimerQuery, GL_QUERY_RESULT, &time_elapsed);
+        mGPURenderTime = time_elapsed / 1000000.f;
+        mGPUProfilePending = false;
+
+        setDebugText(llformat("%d", (S32)(mGPURenderTime * 1000.f)));
+
+    }
+    else
+    { // wait until next frame
+        LLUUID id = getID();
+
+        LL::WorkQueue::getInstance("mainloop")->post([id, retries] {
+            LLVOAvatar* avatar = (LLVOAvatar*) gObjectList.findObject(id);
+            avatar->readProfileQuery(retries);
+            });
+    }
+}
+
+
+F32 LLVOAvatar::getGPURenderTime()
+{
+    return isVisuallyMuted() ? 0.f : mGPURenderTime;
+}
+
+// static
+F32 LLVOAvatar::getTotalGPURenderTime()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
+
+    F32 ret = 0.f;
+
+    for (LLCharacter* iter : LLCharacter::sInstances)
+    {
+        LLVOAvatar* inst = (LLVOAvatar*) iter;
+        ret += inst->getGPURenderTime();
+    }
+
+    return ret;
+}
+
+F32 LLVOAvatar::getMaxGPURenderTime()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
+
+    F32 ret = 0.f;
+
+    for (LLCharacter* iter : LLCharacter::sInstances)
+    {
+        LLVOAvatar* inst = (LLVOAvatar*)iter;
+        ret = llmax(inst->getGPURenderTime(), ret);
+    }
+
+    return ret;
+}
+
+F32 LLVOAvatar::getAverageGPURenderTime()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
+
+    F32 ret = 0.f;
+
+    S32 count = 0;
+
+    for (LLCharacter* iter : LLCharacter::sInstances)
+    {
+        LLVOAvatar* inst = (LLVOAvatar*)iter;
+        if (!inst->isTooSlow())
+        {
+            ret += inst->getGPURenderTime();
+            ++count;
+        }
+    }
+
+    if (count > 0)
+    {
+        ret /= count;
+    }
+
+    return ret;
+}
+
+

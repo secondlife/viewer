@@ -388,14 +388,14 @@ void LLRenderTarget::release()
         glBindFramebuffer(GL_FRAMEBUFFER, sCurFBO);
     }
 
-    if (mFBO == sCurFBO)
-    {
-        sCurFBO = 0;
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    }
-
     if (mFBO)
     {
+        if (mFBO == sCurFBO)
+        {
+            sCurFBO = 0;
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
+
         glDeleteFramebuffers(1, (GLuint *) &mFBO);
         mFBO = 0;
     }

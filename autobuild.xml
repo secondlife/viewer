@@ -1,5 +1,6 @@
 <?xml version="1.0" ?>
-<llsd><map>
+<llsd>
+<map>
     <key>installables</key>
     <map>
       <key>SDL</key>
@@ -183,9 +184,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>02b569ac2bd71f201e3dd86ade7b3eeb</string>
+              <string>27a77bfba1fa56fd59f4f26605baac35</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113876/983684/bugsplat-1.0.7.579696-darwin64-579696.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113802/983479/bugsplat-1.0.7.579669-darwin64-579669.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -195,9 +196,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5b32c47ae8e8cf0d4106f08e8db18044</string>
+              <string>c5abb9545039bd9113c8bf11d58f4501</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113878/983697/bugsplat-4.0.3.0.579696-windows-579696.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113803/983490/bugsplat-4.0.3.0.579669-windows-579669.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -207,16 +208,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>79c005fd8a660f8551b3c9ede64fa4ef</string>
+              <string>45e9b9215ce653171b572f44ee7bbf0c</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113879/983696/bugsplat-4.0.3.0.579696-windows64-579696.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113804/983491/bugsplat-4.0.3.0.579669-windows64-579669.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.0.3.0.579696</string>
+        <string>4.0.3.0.579669</string>
       </map>
       <key>colladadom</key>
       <map>
@@ -773,9 +774,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4f8dc85863fec36e8d872c31f4abcd05</string>
+              <string>7cc58b3acb230a7e65ea5f0ff800be393eb4aa1b</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/101480/892402/glext-68-common-572829.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-glext/releases/download/v69/glext-68-common-685b36e.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -3180,6 +3183,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>RelWithDebInfo</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
+                  <string>-parallelizeTargets</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3211,6 +3215,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>RelWithDebInfo</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
+                  <string>-parallelizeTargets</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3236,6 +3241,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>Release</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
+                  <string>-parallelizeTargets</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3265,6 +3271,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>Release</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
+                  <string>-parallelizeTargets</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3511,4 +3518,5 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
     <string>autobuild</string>
     <key>version</key>
     <string>1.3</string>
-  </map></llsd>
+  </map>
+</llsd>

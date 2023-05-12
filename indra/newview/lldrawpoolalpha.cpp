@@ -107,12 +107,10 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool d
     // i.e. shaders\class1\deferred\alphaF.glsl
     if (deferredEnvironment)
     {
-        gPipeline.bindDeferredShader( *shader );
+        shader->mCanBindFast = false;
     }
-    else
-    {
-        shader->bind();
-    }
+    
+    shader->bind();
     shader->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f / 2.2f));
 
     if (LLPipeline::sRenderingHUDs)
@@ -159,7 +157,7 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 { 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 
-    if ((!LLPipeline::sRenderTransparentWater || gCubeSnapshot) && getType() == LLDrawPool::POOL_ALPHA_PRE_WATER)
+    if (LLPipeline::isWaterClip() && getType() == LLDrawPool::POOL_ALPHA_PRE_WATER)
     { // don't render alpha objects on the other side of the water plane if water is opaque
         return;
     }
@@ -537,6 +535,8 @@ void LLDrawPoolAlpha::renderRiggedEmissives(std::vector<LLDrawInfo*>& emissives)
 
     for (LLDrawInfo* draw : emissives)
     {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("Emissives");
+
         bool tex_setup = TexSetup(draw, false);
         if (lastAvatar != draw->mAvatar || lastMeshId != draw->mSkinInfo->mHash)
         {
@@ -664,7 +664,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
 			LLSpatialGroup::drawmap_elem_t& draw_info = rigged ? group->mDrawMap[LLRenderPass::PASS_ALPHA_RIGGED] : group->mDrawMap[LLRenderPass::PASS_ALPHA];
 
-			for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
+            for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
 			{
 				LLDrawInfo& params = **k;
                 if ((bool)params.mAvatar != rigged)

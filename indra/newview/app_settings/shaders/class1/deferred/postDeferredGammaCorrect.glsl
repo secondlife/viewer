@@ -104,19 +104,19 @@ vec3 toneMapACES_Hill(vec3 color)
 uniform float exposure;
 uniform float gamma;
 
-vec3 legacy_adjust_post(vec3 c);
-
-vec3 toneMap(vec3 color, float gs)
+vec3 toneMap(vec3 color)
 {
+#ifndef NO_POST
     float exp_scale = texture(exposureMap, vec2(0.5,0.5)).r;
 
-    color *= exposure * exp_scale * gs;
+    color *= exposure * exp_scale;
 
     color = toneMapACES_Hill(color);
+#else
+    color *= 0.6;
+#endif
 
     color = linear_to_srgb(color);
-
-    color = legacy_adjust_post(color);
 
     return color;
 }
@@ -170,22 +170,19 @@ vec3 legacyGamma(vec3 color)
     return color;
 }
 
-float legacyGammaApprox()
-{
-    //TODO -- figure out how to plumb this in as a uniform
-    float c = 0.5;
-    float gc = 1.0-pow(c, gamma);
-    
-    return gc/c * gamma;
-}
-
 void main() 
 {
     //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
     vec4 diff = texture2D(diffuseRect, vary_fragcoord);
 
-    diff.rgb = toneMap(diff.rgb, legacyGammaApprox());
-    
+    diff.rgb = toneMap(diff.rgb);
+
+#ifdef LEGACY_GAMMA
+#ifndef NO_POST
+    diff.rgb = legacyGamma(diff.rgb);
+#endif
+#endif
+
     vec2 tc = vary_fragcoord.xy*screen_res*4.0;
     vec3 seed = (diff.rgb+vec3(1.0))*vec3(tc.xy, tc.x+tc.y);
     vec3 nz = vec3(noise(seed.rg), noise(seed.gb), noise(seed.rb));

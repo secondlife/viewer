@@ -33,6 +33,7 @@
 #include "llstl.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llviewercontrol.h"
 #include "lldrawpool.h"
 #include "llglheaders.h"
@@ -1421,6 +1422,36 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 			}
 		}
 	}
+}
+
+F32 LLWorld::getNearbyAvatarsAndMaxGPUTime(std::vector<LLCharacter*> &valid_nearby_avs)
+{
+    static LLCachedControl<F32> render_far_clip(gSavedSettings, "RenderFarClip", 64);
+    F32 nearby_max_complexity = 0;
+    F32 radius = render_far_clip * render_far_clip;
+    std::vector<LLCharacter*>::iterator char_iter = LLCharacter::sInstances.begin();
+    while (char_iter != LLCharacter::sInstances.end())
+    {
+        LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*char_iter);
+        if (avatar && !avatar->isDead() && !avatar->isControlAvatar())
+        {
+            if ((dist_vec_squared(avatar->getPositionGlobal(), gAgent.getPositionGlobal()) > radius) &&
+                (dist_vec_squared(avatar->getPositionGlobal(), gAgentCamera.getCameraPositionGlobal()) > radius))
+            {
+                char_iter++;
+                continue;
+            }
+
+            if (!avatar->isTooSlow())
+            {
+                gPipeline.profileAvatar(avatar);
+            }
+            nearby_max_complexity = llmax(nearby_max_complexity, avatar->getGPURenderTime());
+            valid_nearby_avs.push_back(*char_iter);
+        }
+        char_iter++;
+    }
+    return nearby_max_complexity;
 }
 
 bool LLWorld::isRegionListed(const LLViewerRegion* region) const

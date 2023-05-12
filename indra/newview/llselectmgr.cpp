@@ -2188,8 +2188,8 @@ void LLSelectMgr::selectionRevertGLTFMaterials()
                 // Enqueue update to server
                 if (asset_id.notNull())
                 {
-                    // Restore overrides
-                    LLGLTFMaterialList::queueModify(objectp, te, nodep->mSavedGLTFOverrideMaterials[te]);
+                    // Restore overrides and base material
+                    LLGLTFMaterialList::queueApply(objectp, te, asset_id, nodep->mSavedGLTFOverrideMaterials[te]);
                 } 
                 else
                 {
@@ -5797,7 +5797,7 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
                 if (can_copy && can_transfer && node->getObject()->getVolume())
                 {
                     uuid_vec_t material_ids;
-                    gltf_materials_vec_t materials;
+                    gltf_materials_vec_t override_materials;
                     LLVOVolume* vobjp = (LLVOVolume*)node->getObject();
                     for (int i = 0; i < vobjp->getNumTEs(); ++i)
                     {
@@ -5812,18 +5812,16 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
                         if (old_override)
                         {
                             LLPointer<LLGLTFMaterial> mat = new LLGLTFMaterial(*old_override);
-                            materials.push_back(mat);
+                            override_materials.push_back(mat);
                         }
                         else
                         {
-                            materials.push_back(nullptr);
+                            override_materials.push_back(nullptr);
                         }
                     }
-                    node->saveGLTFMaterialIds(material_ids);
-
                     // processObjectProperties does not include overrides so this
                     // might need to be moved to LLGLTFMaterialOverrideDispatchHandler
-                    node->saveGLTFOverrideMaterials(materials);
+                    node->saveGLTFMaterials(material_ids, override_materials);
                 }
 			}
 
@@ -6576,8 +6574,7 @@ LLSelectNode::LLSelectNode(const LLSelectNode& nodep)
 	}
 	
 	saveTextures(nodep.mSavedTextures);
-    saveGLTFMaterialIds(nodep.mSavedGLTFMaterialIds);
-    saveGLTFOverrideMaterials(nodep.mSavedGLTFOverrideMaterials);
+    saveGLTFMaterials(nodep.mSavedGLTFMaterialIds, nodep.mSavedGLTFOverrideMaterials);
 }
 
 LLSelectNode::~LLSelectNode()
@@ -6711,28 +6708,21 @@ void LLSelectNode::saveTextures(const uuid_vec_t& textures)
 	}
 }
 
-void LLSelectNode::saveGLTFMaterialIds(const uuid_vec_t& materials)
+void LLSelectNode::saveGLTFMaterials(const uuid_vec_t& materials, const gltf_materials_vec_t& override_materials)
 {
     if (mObject.notNull())
     {
         mSavedGLTFMaterialIds.clear();
+        mSavedGLTFOverrideMaterials.clear();
 
         for (uuid_vec_t::const_iterator materials_it = materials.begin();
             materials_it != materials.end(); ++materials_it)
         {
             mSavedGLTFMaterialIds.push_back(*materials_it);
         }
-    }
-}
 
-void LLSelectNode::saveGLTFOverrideMaterials(const gltf_materials_vec_t& materials)
-{
-    if (mObject.notNull())
-    {
-        mSavedGLTFOverrideMaterials.clear();
-
-        for (gltf_materials_vec_t::const_iterator mat_it = materials.begin();
-            mat_it != materials.end(); ++mat_it)
+        for (gltf_materials_vec_t::const_iterator mat_it = override_materials.begin();
+            mat_it != override_materials.end(); ++mat_it)
         {
             mSavedGLTFOverrideMaterials.push_back(*mat_it);
         }
@@ -7833,7 +7823,7 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
 				   for (LLVOVolume::texture_cost_t::iterator iter = textures.begin(); iter != textures.end(); ++iter)
 				   {
 					   // add the cost of each individual texture in the linkset
-					   cost += iter->second;
+					   cost += LLVOVolume::getTextureCost(*iter);
 				   }
 
 				   textures.clear();
@@ -7855,7 +7845,7 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
 			for (LLVOVolume::texture_cost_t::iterator iter = textures.begin(); iter != textures.end(); ++iter)
 			{
 				// add the cost of each individual texture in the linkset
-				cost += iter->second;
+				cost += LLVOVolume::getTextureCost(*iter);
 			}
 
 			textures.clear();
