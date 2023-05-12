@@ -311,7 +311,13 @@ bool LLView::addChild(LLView* child, S32 tab_group)
 	}
 
 	child->mParentView = this;
-	updateBoundingRect();
+    if (getVisible() && child->getVisible())
+    {
+        // if child isn't visible it won't affect bounding rect
+        // if current view is not visible it will be recalculated
+        // on visibility change
+        updateBoundingRect();
+    }
 	mLastTabGroup = tab_group;
 	return true;
 }
