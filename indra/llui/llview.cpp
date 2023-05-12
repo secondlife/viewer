@@ -581,6 +581,7 @@ void LLView::deleteAllChildren()
         delete viewp;
         mChildList.pop_front();
 	}
+    updateBoundingRect();
 }
 
 void LLView::setAllChildrenEnabled(BOOL b)
