@@ -6,10 +6,10 @@
   <text name="payee_name">非常に長い名前が途中で切れていないかをテストして確認</text>
   <text name="payment_message_label">説明（任意項目）：</text>
   <panel label="検索" name="PatternsPanel">
-    <button label="L$ 1 支払う" label_selected="L$ 1 支払う" name="fastpay 1" />
-    <button label="L$ 5 支払う" label_selected="L$ 5 支払う" name="fastpay 5" />
-    <button label="L$ 10 支払う" label_selected="L$ 10 支払う" name="fastpay 10" />
-    <button label="L$ 20 支払う" label_selected="L$ 20 支払う" name="fastpay 20" />
+    <button label="L$ 1支払う" label_selected="L$ 1支払う" name="fastpay 1" />
+    <button label="L$ 5支払う" label_selected="L$ 5支払う" name="fastpay 5" />
+    <button label="L$ 10支払う" label_selected="L$ 10支払う" name="fastpay 10" />
+    <button label="L$ 20 払う" label_selected="L$ 20支払う" name="fastpay 20" />
   </panel>
   <panel label="検索" name="InputPanel">
     <text name="amount text">その他の金額：</text>

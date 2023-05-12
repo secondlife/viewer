@@ -142,8 +142,8 @@
       <check_box label="全員" name="all object entry check" tool_tip="このオプションを選択すると、住人は他の区画にあるオブジェクトをこの区画に移動することが可能です。" />
       <check_box label="グループ" name="group object entry check" tool_tip="このオプションを選択すると、区画のグループメンバーは他の区画にあるオブジェクトをこの区画に移動することが可能です。" />
       <text name="allow_label4">スクリプトの実行：</text>
-      <check_box label="全員" name="check other scripts" tool_tip="このオプションを選択すると、住人はアタッチメントなどのスクリプトをあなたの区画で実行できます。" />
-      <check_box label="グループ" name="check group scripts" tool_tip="このオプションを選択すると、区画のグループメンバーは、アタッチメントなどのスクリプトをあなたの区画で実行できます。" />
+      <check_box label="全員" name="check other scripts" tool_tip="このオプションを選択すると、住人は装着物などのスクリプトをあなたの区画で実行できます。" />
+      <check_box label="グループ" name="check group scripts" tool_tip="このオプションを選択すると、区画のグループメンバーは、装着物などのスクリプトをあなたの区画で実行できます。" />
       <check_box label="安全（ダメージなし）" name="check safe" tool_tip="チェックを入れるとこの土地でのダメージコンバットが無効になり、「安全」に設定されます。 チェックを外すとダメージコンバットが有効になります。" />
       <check_box label="プッシュ禁止" name="PushRestrictCheck" tool_tip="スクリプトによるプッシュを禁止します。 このオプションを選択することにより、あなたの土地での破壊的行動を防ぐことができます。" />
       <check_box label="検索に区画を表示（週 L$ 30）" name="ShowDirectoryCheck" tool_tip="この区画を検索結果に表示します" />

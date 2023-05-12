@@ -4,7 +4,7 @@
   <floater.string name="grid_local_text">ローカル</floater.string>
   <floater.string name="grid_world_text">世界</floater.string>
   <floater.string name="grid_reference_text">リファレンス</floater.string>
-  <floater.string name="grid_attachment_text">アタッチメント</floater.string>
+  <floater.string name="grid_attachment_text">装着物</floater.string>
   <text name="grid_mode_label" tool_tip="グリッドの不透明度">モード</text>
   <combo_box name="combobox grid mode" tool_tip="オブジェクトの配置に使うグリッドルーラを選択">
     <combo_box.item label="インワールドグリッド" name="World" />

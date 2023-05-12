@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater width="300" height="159" layout="topleft" min_height="159" min_width="300" name="floater_quick_settings" positioning="cascading" title="簡易設定" save_rect="true" can_resize="true" can_resize_height="false">
-  <panel name="quick_settings" class="quick_settings" filename="panel_quick_settings.xml" layout="topleft" follows="all" />
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_quick_settings" title="簡易設定">
+  <panel name="quick_settings" />
 </floater>

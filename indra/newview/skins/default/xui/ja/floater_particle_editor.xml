@@ -1,107 +1,55 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater can_resize="true" height="357" min_height="359" min_width="480" name="particle_editor_floater" save_rect="true" save_visibility="false" single_instance="false" title="パーティクルエディタ" width="480">
-  <layout_stack follows="all" animate="false" top="0" height="357" left="0" right="-1" drag_handle_gap="0" drag_handle_first_indent="1" drag_handle_second_indent="1" layout="topleft" name="master_stack" orientation="horizontal" show_drag_handle="true">
-    <layout_panel bg_alpha_color="PanelDefaultBackgroundColor" bg_opaque_color="PanelDefaultBackgroundColor" background_visible="true" background_opaque="true" name="layout_master" follows="all" layout="topleft" auto_resize="false" user_resize="false" height="357" width="300">
-      <accordion left="0" top="0" single_expansion="false" follows="all" layout="topleft" name="accordion_master" height="357" width="300">
-        <accordion_tab expanded="true" layout="topleft" height="152" name="burst_tab" title="バースト／エイジ" fit_panel="true">
-          <panel follows="all" height="152" left="0" name="burst_panel" top="0" right="-1">
-            <slider follows="left|top" decimal_digits="2" initial_value="0.3" increment="0.1" name="burst_rate" label="Rate:" label_width="50" can_edit_text="true" left="0" width="275" min_val="0" height="16" max_val="1000" top="0">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="0" initial_value="5" increment="1" name="burst_count" label="数：" label_width="50" can_edit_text="true" left="0" width="275" min_val="1" height="16" max_val="1000" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="3" initial_value="0" increment="0.001" name="burst_radius" label="半径：" label_width="50" can_edit_text="true" left="0" width="275" min_val="0" max_val="50" height="16" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="3" initial_value="0.5" increment="0.001" name="burst_speed_max" label="最大速度：" label_width="70" can_edit_text="true" left="0" width="275" min_val="0" max_val="100" height="16" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="3" initial_value="0.5" increment="0.001" name="burst_speed_min" label="最低速度：" label_width="70" can_edit_text="true" left="0" width="275" min_val="0" max_val="100" height="16" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="3" initial_value="0" increment="0.001" name="source_max_age" label="ソースの最大エイジ：" label_width="100" can_edit_text="true" left="0" width="275" min_val="0" max_val="1000" height="16" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="3" initial_value="5" increment="0.001" name="particle_max_age" label="パーティクルの最大エイジ：" label_width="100" can_edit_text="true" left="0" width="275" min_val="0" max_val="30" height="16" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="particle_editor_floater" title="パーティクルエディタ">
+  <layout_stack name="master_stack">
+    <layout_panel name="layout_master">
+      <accordion name="accordion_master">
+        <accordion_tab name="burst_tab" title="バースト／エイジ">
+          <panel name="burst_panel" top="0" right="-1">
+            <slider name="burst_rate" label="レート：" />
+            <slider name="burst_count" label="数：" />
+            <slider name="burst_radius" label="半径：" />
+            <slider name="burst_speed_max" label="最大速度：" />
+            <slider name="burst_speed_min" label="最低速度：" />
+            <slider name="source_max_age" label="発生源の寿命：" />
+            <slider name="particle_max_age" label="パーティクルの最大寿命：" />
           </panel>
         </accordion_tab>
-        <accordion_tab expanded="false" layout="topleft" height="140" name="angle_tab" title="スケール／角度" fit_panel="true">
-          <panel follows="all" height="140" left="0" name="angle_panel" top="0" width="313">
-            <slider follows="left|top" decimal_digits="3" initial_value="0.5" increment="0.001" name="scale_start_x" label="開始スケールX：" label_width="72" can_edit_text="true" left="0" width="275" min_val="0.03125" max_val="4" height="16" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="3" initial_value="0.5" increment="0.001" name="scale_start_y" label="開始スケールY：" label_width="72" can_edit_text="true" left="0" width="275" min_val="0.03125" max_val="4" height="16" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="3" initial_value="0.5" increment="0.001" name="scale_end_x" label="終了スケールX：" label_width="70" can_edit_text="true" left="0" width="275" min_val="0.03125" max_val="4" height="16" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="3" initial_value="0.5" increment="0.001" name="scale_end_y" label="終了スケールY：" label_width="70" can_edit_text="true" left="0" width="275" min_val="0.03125" max_val="4" height="16" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="3" initial_value="0" increment="0.001" name="angle_begin" label="開始角度：" label_width="70" can_edit_text="true" left="0" width="275" min_val="-3.14" max_val="3.14" height="16" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="3" initial_value="0" increment="0.001" name="angle_end" label="終了角度：" label_width="70" can_edit_text="true" left="0" width="275" min_val="-3.14" max_val="3.14" height="16" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
+        <accordion_tab name="angle_tab" title="スケール／角度">
+          <panel name="angle_panel">
+            <slider name="scale_start_x" label="開始スケールX：" />
+            <slider name="scale_start_y" label="開始スケールY：" />
+            <slider name="scale_end_x" label="終了スケールX：" />
+            <slider name="scale_end_y" label="終了スケールY：" />
+            <slider name="angle_begin" label="開始角度：" />
+            <slider name="angle_end" label="終了角度：" />
           </panel>
         </accordion_tab>
-        <accordion_tab expanded="false" layout="topleft" height="100" name="alpha_tab" title="アルファ／グロー" fit_panel="true">
-          <panel follows="all" height="100" left="0" name="alpha_panel" top="0" width="313">
-            <slider follows="left|top" decimal_digits="3" initial_value="1" increment="0.001" name="start_alpha" label="開始アルファ：" label_width="70" can_edit_text="true" left="0" width="275" min_val="0" max_val="1" height="16" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="3" initial_value="1" increment="0.001" name="end_alpha" label="終了アルファ：" label_width="70" can_edit_text="true" left="0" width="275" min_val="0" max_val="1" height="16" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="3" initial_value="0" increment="0.001" name="start_glow" label="開始グロー：" label_width="70" can_edit_text="true" left="0" width="275" min_val="0" max_val="1" height="16" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="3" initial_value="0" increment="0.001" name="end_glow" label="終了グロー：" label_width="70" can_edit_text="true" left="0" width="275" min_val="0" max_val="1" height="16" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
+        <accordion_tab name="alpha_tab" title="アルファ／グロー">
+          <panel name="alpha_panel">
+            <slider name="start_alpha" label="開始アルファ：" />
+            <slider name="end_alpha" label="終了アルファ：" />
+            <slider name="start_glow" label="開始グロー：" />
+            <slider name="end_glow" label="終了グロー：" />
           </panel>
         </accordion_tab>
-        <accordion_tab expanded="false" layout="topleft" height="100" name="omega_tab" title="加速／オメガ" fit_panel="true">
-          <panel follows="all" height="100" left="0" name="omega_panel" top="0" width="313">
-            <text name="Acceleration_Label" follows="left|top" height="16" left="0" top="0" width="76">加速：</text>
-            <slider follows="left|top" decimal_digits="2" initial_value="0" increment="0.01" name="acceleration_x" label="X：" label_width="10" can_edit_text="true" left="0" width="90" min_val="-100" max_val="100" height="16" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="2" initial_value="0" increment="0.01" name="acceleration_y" can_edit_text="true" label="Y：" label_width="10" left_pad="2" width="90" min_val="-100" max_val="100" height="16" top_delta="0">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="2" initial_value="0" increment="0.01" name="acceleration_z" can_edit_text="true" label="Z：" label_width="10" left_pad="2" width="90" min_val="-100" max_val="100" height="16" top_delta="0">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <text name="Omega_Label" follows="left|top" height="16" left="0" top_pad="4" width="76">オメガ：</text>
-            <slider follows="left|top" decimal_digits="2" initial_value="0" increment="0.01" name="omega_x" label="X：" label_width="10" can_edit_text="true" left="0" width="90" min_val="-100" max_val="100" height="16" top_pad="2">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="2" initial_value="0" increment="0.01" name="omega_y" label="Y：" label_width="10" can_edit_text="true" left_pad="2" width="90" min_val="-100" max_val="100" height="16" top_delta="0">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
-            <slider follows="left|top" decimal_digits="2" initial_value="0" increment="0.01" name="omega_z" label="Z：" label_width="10" can_edit_text="true" left_pad="2" width="90" min_val="-100" max_val="100" height="16" top_delta="0">
-              <slider.commit_callback function="Particle.Edit" />
-            </slider>
+        <accordion_tab name="omega_tab" title="加速／オメガ">
+          <panel name="omega_panel">
+            <text name="Acceleration_Label">加速：</text>
+            <slider name="acceleration_x" label="X：" />
+            <slider name="acceleration_y" can_edit_text="true" label="Y：" />
+            <slider name="acceleration_z" can_edit_text="true" label="Z：" />
+            <text name="Omega_Label">オメガ：</text>
+            <slider name="omega_x" label="X：" />
+            <slider name="omega_y" label="Y：" />
+            <slider name="omega_z" label="Z：" />
           </panel>
         </accordion_tab>
-        <accordion_tab expanded="true" layout="topleft" height="100" name="color_tab" title="色／テスクチャ：" fit_panel="true">
-          <panel follows="all" height="100" left="0" name="color_panel" top="0" width="313">
-            <texture_picker follows="left|top" height="70" width="62" left="0" can_apply_immediately="true" name="texture_picker" label="テスクチャ" top="4">
-              <texture_picker.commit_callback function="Particle.Edit" />
-            </texture_picker>
-            <color_swatch follows="left|top" height="70" width="62" label="開始色" left_pad="5" can_apply_immediately="true" name="start_color_selector" top_delta="0">
-              <color_swatch.commit_callback function="Particle.Edit" />
-            </color_swatch>
-            <color_swatch follows="left|top" height="70" width="62" label="終了色" left_pad="5" name="end_color_selector" can_apply_immediately="true" top_delta="0">
-              <color_swatch.commit_callback function="Particle.Edit" />
-            </color_swatch>
-            <combo_box name="blend_func_src_combo" follows="left|top" height="22" left_pad="4" top_delta="0" width="74">
+        <accordion_tab name="color_tab" title="色／テスクチャ：">
+          <panel name="color_panel">
+            <texture_picker name="texture_picker" label="テスクチャ" />
+            <color_swatch label="開始色" name="start_color_selector" />
+            <color_swatch label="終了色" name="end_color_selector" />
+            <combo_box name="blend_func_src_combo">
               <combo_box.commit_callback function="Particle.Edit" />
               <combo_box.item label="ブレンド１" name="blend_one" value="blend_one" />
               <combo_box.item label="ブレンド０" name="blend_zero" value="blend_zero" />
@@ -112,7 +60,7 @@
               <combo_box.item label="ブレンド元のアルファ" name="blend_src_alpha" value="blend_src_alpha" />
               <combo_box.item label="ブレンド１－元のアルファ" name="blend_one_minus_src_alpha" value="blend_one_minus_src_alpha" />
             </combo_box>
-            <combo_box name="blend_func_dest_combo" follows="left|top" height="22" left_delta="0" top_pad="4" width="74">
+            <combo_box name="blend_func_dest_combo">
               <combo_box.commit_callback function="Particle.Edit" />
               <combo_box.item label="ブレンド１" name="blend_one" value="blend_one" />
               <combo_box.item label="ブレンド０" name="blend_zero" value="blend_zero" />
@@ -127,9 +75,9 @@
         </accordion_tab>
       </accordion>
     </layout_panel>
-    <layout_panel layout="topleft" follows="all" height="258" left_pad="0" name="checkbox_panel" width="120">
-      <text name="Pattern_Label" follows="left|top" height="16" left="0" top="0" width="100">パターン：</text>
-      <combo_box follows="left|right|top" name="pattern_type_combo" top_pad="2" left_delta="0" right="-2">
+    <layout_panel name="checkbox_panel">
+      <text name="Pattern_Label">パターン：</text>
+      <combo_box name="pattern_type_combo">
         <combo_box.commit_callback function="Particle.Edit" />
         <combo_box.item label="爆発" name="explode" value="explode" />
         <combo_box.item label="角度" name="angle" value="angle" />
@@ -137,43 +85,21 @@
         <combo_box.item label="角錐は空" name="angle_cone_empty" value="angle_cone_empty" />
         <combo_box.item label="ドロップ" name="drop" value="drop" />
       </combo_box>
-      <check_box follows="left|top" height="16" name="bounce_checkbox" label="跳ねる" left="0" top_pad="4" width="80">
-        <check_box.commit_callback function="Particle.Edit" />
-      </check_box>
-      <check_box follows="left|top" height="16" name="emissive_checkbox" label="放射性" top_pad="4" left="0" width="80">
-        <check_box.commit_callback function="Particle.Edit" />
-      </check_box>
-      <check_box follows="left|top" height="16" name="wind_checkbox" label="風" top_pad="4" left="0" width="80">
-        <check_box.commit_callback function="Particle.Edit" />
-      </check_box>
-      <check_box follows="left|top" height="16" name="ribbon_checkbox" label="リボン" top_pad="4" left="0" width="80">
-        <check_box.commit_callback function="Particle.Edit" />
-      </check_box>
-      <check_box follows="left|top" height="16" name="follow_source_checkbox" label="ソースに追従" top_pad="4" left="0" width="120">
-        <check_box.commit_callback function="Particle.Edit" />
-      </check_box>
-      <check_box follows="left|top" height="16" name="follow_velocity_checkbox" label="速度に追従" top_pad="4" width="120">
-        <check_box.commit_callback function="Particle.Edit" />
-      </check_box>
-      <check_box follows="left|top" height="16" name="interpolate_color_checkbox" label="色を補間" top_pad="4" width="120">
-        <check_box.commit_callback function="Particle.Edit" />
-      </check_box>
-      <check_box follows="left|top" height="16" name="interpolate_scale_checkbox" label="補間スケール" top_pad="4" width="120">
-        <check_box.commit_callback function="Particle.Edit" />
-      </check_box>
-      <check_box follows="left|top" height="16" name="target_position_checkbox" label="目標位置" top_pad="4" width="120">
-        <check_box.commit_callback function="Particle.Edit" />
-      </check_box>
-      <check_box follows="left|top" height="16" name="target_linear_checkbox" label="線形の目標" top_pad="4" width="120">
-        <check_box.commit_callback function="Particle.Edit" />
-      </check_box>
-      <line_editor follows="left|right|top" left="0" name="target_key_input" height="20" right="-48">
-        <line_editor.commit_callback function="Particle.Edit" />
-      </line_editor>
-      <button follows="right|top" image_overlay="StopReload_Over" left_pad="4" name="clear_target_button" tool_tip="対象物やアバターをクリア" width="20" height="20" />
-      <button follows="right|top" image_overlay="Inv_Object" left_pad="2" name="pick_target_button" tool_tip="ここをクリックして、パーティクルの目標オブジェクトやアバターを選択します。" width="20" height="20" />
-      <button follows="left|top" height="24" name="copy_button" label="コピー" tool_tip="パーティクルシステムのパラメータを、LSLスクリプトとしてクリップボードにコピーします。" top_pad="7" left="2" width="85" />
-      <button follows="left|top" height="24" name="inject_button" label="注入" tool_tip="このパーティクルシステムを選択したオブジェクトに注入します。" left_pad="4" width="85" />
+      <check_box label="跳ねる" />
+      <check_box name="emissive_checkbox" label="放射性" />
+      <check_box name="wind_checkbox" label="風" />
+      <check_box name="ribbon_checkbox" label="リボン" />
+      <check_box name="follow_source_checkbox" label="ソースに追従" />
+      <check_box name="follow_velocity_checkbox" label="速度に追従" />
+      <check_box name="interpolate_color_checkbox" label="色を補間" />
+      <check_box name="interpolate_scale_checkbox" label="補間スケール" />
+      <check_box name="target_position_checkbox" label="目標位置" />
+      <check_box name="target_linear_checkbox" label="線形の目標" />
+      <line_editor fname="target_key_input" />
+      <button name="clear_target_button" tool_tip="対象物やアバターをクリア" />
+      <button name="pick_target_button" tool_tip="ここをクリックして、パーティクルの目標オブジェクトやアバターを選択します。" />
+      <button name="copy_button" label="コピー" tool_tip="パーティクルシステムのパラメータを、LSLスクリプトとしてクリップボードにコピーします。" />
+      <button name="inject_button" label="注入" tool_tip="このパーティクルシステムを選択したオブジェクトに注入します。" />
     </layout_panel>
   </layout_stack>
 </floater>

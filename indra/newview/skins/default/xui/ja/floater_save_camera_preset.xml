@@ -1,14 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
-<floater legacy_header_height="18" height="185" help_topic="floater_save_preset" layout="topleft" name="save_camera_preset" save_rect="true" title="カメラプリセットの保存" width="280">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="save_camera_preset" title="カメラプリセットの保存">
   <string name="btn_label_save">保存</string>
   <string name="btn_label_replace">置き換え</string>
-  <radio_group height="85" layout="topleft" left="20" top="15" width="150" name="radio_save_preset">
-    <radio_item label="新しいプリセットとして保存" name="new_preset" top="10" layout="topleft" height="16" value="0" />
-    <radio_item label="プリセットを置き換え" name="replace_preset" layout="topleft" top="70" height="16" value="1" />
+  <radio_group name="radio_save_preset">
+    <radio_item label="新しいプリセットとして保存" name="new_preset" />
+    <radio_item label="プリセットを置き換え" name="replace_preset" />
   </radio_group>
-  <line_editor commit_on_focus_lost="true" follows="top|left" height="23" layout="topleft" left="41" name="preset_txt_editor" width="200" top="45" />
-  <button follows="top|left" height="25" label="保存" layout="topleft" top="145" left="25" name="save" width="110" />
-  <button follows="bottom|right" height="25" label="キャンセル" layout="topleft" left_pad="20" name="cancel" width="110" />
+  <line_editor name="preset_txt_editor" />
+  <button label="保存" name="save" />
+  <button label="キャンセル" name="cancel" />
   <!-- *HACK to correctly draw drop-down list over the buttons-->
-  <combo_box follows="top|left" layout="topleft" left="41" name="preset_combo" top_delta="-40" width="200" />
+  <combo_box name="preset_combo" />
 </floater>

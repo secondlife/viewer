@@ -13,10 +13,10 @@
   <menu_item_call label="フリーズ…" name="Freeze..." />
   <menu_item_call label="追放" name="Eject..." />
   <menu_item_call label="テクスチャのデバッグ…" name="Debug..." />
-  <menu_item_call label="ダンプ XML" name="Dump XML" />
+  <menu_item_call label="XMLとしてダンプ" name="Dump XML" />
   <menu_item_call label="ズームイン" name="Zoom In" />
   <menu_item_call label="支払う…" name="Pay..." />
-  <menu_item_call label="オブジェクトのプロフィール" name="Object Inspect" />
+  <menu_item_call label="オブジェクトの調査" name="Object Inspect" />
   <context_menu label="アバターを描画" name="Render Avatar">
     <menu_item_check label="デフォルト" name="RenderNormally" />
     <menu_item_check label="常に使用する" name="AlwaysRenderFully" />

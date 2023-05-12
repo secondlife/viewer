@@ -1,48 +1,48 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater legacy_header_height="18" can_resize="true" height="640" layout="topleft" min_height="230" min_width="750" name="gui_preview_tool" help_topic="gui_preview_tool" single_instance="true" title="XUI プレビューツール" translate="false" width="750">
+<floater name="gui_preview_tool" title="XUIプレビューツール">
   <string name="ExternalEditorNotSet">環境変数LL_XUI_EDITORまたはExternalEditor設定を設定するか、[EDITOR PATH]フィールドにそのパスを指定して、エディターを選択します。</string>
-  <panel bottom="640" follows="left|top|right|bottom" layout="topleft" left="0" mouse_opaque="false" default_tab_group="1" name="main_panel" right="750" top="0">
-    <text type="string" length="1" follows="top|left" font="SansSerif" height="30" layout="topleft" left="10" name="select_language_label" top="25" width="130">優先言語：</text>
-    <combo_box follows="top|left" height="20" layout="topleft" left_pad="5" name="language_select_combo" top_delta="0" width="55">
+  <panel name="main_panel">
+    <text name="select_language_label">優先言語：</text>
+    <combo_box name="language_select_combo">
+      <combo_box.item label="ja" name="item1" value="ja" />
+    </combo_box>
+    <button label="表示" label_selected="表示" name="display_floater" tool_tip="選択したXMLファイルで定義されたXUIフロータを表示します。" />
+    <button label="非表示" label_selected="非表示" name="close_displayed_floater" tool_tip="現在表示されているフローターが存在する場合は、それを閉じます。" />
+    <button label="編集…" label_selected="編集…" name="edit_floater" tool_tip="選択したXMLファイルによって定義されたXUIフローターを編集します（外部エディターを開きます）。ローカライズされたバージョンが存在しない場合は、enバージョンを開きます。" top_delta="0" width="95" />
+    <button label="保存" label_selected="保存" name="save_floater" tool_tip="選択したXMLファイルで定義されたXUIフロータを保存します。" />
+    <button label="全て保存" label_selected="全て保存" name="save_all_floaters" tool_tip="選択した言語で定義されたすべてのXUIフロータを保存します。" />
+    <button label="≫" label_selected="≪" name="toggle_overlap_panel" tool_tip="重なっている要素の強調表示と表示パネルを切り替えます。要素を右クリックして、この機能用に選択します。選択した要素は、赤い四角形でマークされます。" top_delta="0" width="30" />
+    <text name="select_language_label_2">二次言語：</text>
+    <combo_box name="language_select_combo_2">
       <combo_box.item label="en" name="item1" value="en" />
     </combo_box>
-    <button follows="left|top" height="25" label="表示" label_selected="表示" layout="topleft" left_pad="10" name="display_floater" tool_tip="選択したXMLファイルで定義されたXUIフロータを表示します。" top_delta="-2" width="95" />
-    <button enabled="false" follows="left|top" height="25" label="非表示" label_selected="非表示" layout="topleft" left_pad="10" name="close_displayed_floater" tool_tip="現在表示されているフローターが存在する場合は、それを閉じます。" top_delta="0" width="85" />
-    <button follows="left|top" height="25" label="編集…" label_selected="編集…" layout="topleft" left_pad="10" name="edit_floater" tool_tip="選択したXMLファイルによって定義されたXUIフローターを編集します（外部エディターを開きます）。ローカライズされたバージョンが存在しない場合は、enバージョンを開きます。" top_delta="0" width="95" />
-    <button follows="left|top" height="25" label="保存" label_selected="保存" layout="topleft" left_pad="5" name="save_floater" tool_tip="選択したXMLファイルで定義されたXUIフロータを保存します。" top_delta="0" width="85" />
-    <button follows="left|top" height="25" label="全て保存" label_selected="全て保存" layout="topleft" left_pad="10" name="save_all_floaters" tool_tip="選択した言語で定義されたすべてのXUIフロータを保存します。" top_delta="0" width="85" />
-    <button follows="right|top" height="25" is_toggle="true" label="&gt; &gt;" label_selected="&lt; &lt;" layout="topleft" left_pad="15" name="toggle_overlap_panel" tool_tip="重なっている要素の強調表示と表示パネルを切り替えます。要素を右クリックして、この機能用に選択します。選択した要素は、赤い四角形でマークされます。" top_delta="0" width="30" />
-    <text type="string" length="1" follows="top|left" font="SansSerif" height="30" layout="topleft" left="10" name="select_language_label_2" right="-50" top="53" width="105">二次言語：</text>
-    <combo_box follows="top|left" height="20" layout="topleft" left_delta="135" name="language_select_combo_2" top_delta="0" width="55">
-      <combo_box.item label="en" name="item1" value="en" />
-    </combo_box>
-    <button follows="left|top" height="25" label="表示" layout="topleft" left_pad="10" name="display_floater_2" tool_tip="選択したXMLファイルで定義されたXUIフロータを表示します。" top_delta="-2" width="95" />
-    <button enabled="false" follows="left|top" height="25" label="非表示" layout="topleft" left_pad="10" name="close_displayed_floater_2" tool_tip="現在表示されているフローターが存在する場合は、それを閉じます。" top_delta="0" width="85" />
-    <button follows="left|top" height="25" label="スキーマをエクスポート" layout="topleft" left_pad="10" name="export_schema" top_delta="0" width="120" />
-    <check_box follows="left|top" label="四角形を表示" name="show_rectangles" left_pad="10" top_delta="0" height="25" width="120" />
-    <scroll_list bottom="525" column_padding="0" draw_heading="true" draw_stripes="false" follows="left|top|bottom|right" label="Name" layout="topleft" left="10" name="name_list" right="-10" tab_group="1" search_column="1" top="80">
-      <scroll_list.columns label="タイトル" name="title_column" width="150" />
-      <scroll_list.columns label="ファイル名" name="file_column" width="150" />
-      <scroll_list.columns dynamic_width="true" label="トップレベルのノード" name="top_level_node_column" />
+    <button label="表示" name="display_floater_2" tool_tip="選択したXMLファイルで定義されたXUIフロータを表示します。" />
+    <button enabled="false" label="非表示" name="close_displayed_floater_2" tool_tip="現在表示されているフローターが存在する場合は、それを閉じます。" />
+    <button label="スキーマをエクスポート" name="export_schema" />
+    <check_box label="四角形を表示" name="show_rectangles" />
+    <scroll_list name="name_list">
+      <scroll_list.columns label="タイトル" name="title_column" />
+      <scroll_list.columns label="ファイル名" name="file_column" />
+      <scroll_list.columns label="トップレベルのノード" name="top_level_node_column" />
     </scroll_list>
-    <panel bevel_style="in" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3" border="true" bottom_delta="65" follows="left|right|bottom" height="60" layout="topleft" left="10" name="editor_panel" right="-10">
-      <text type="string" length="1" follows="left|bottom" font="SansSerif" height="30" layout="topleft" left="10" left_delta="10" name="editor_path_label" top="10" width="100">エディタのパス：</text>
-      <line_editor border_style="line" border_thickness="1" follows="left|bottom" font="SansSerif" height="20" layout="topleft" left_delta="100" max_length_bytes="300" name="executable_path_field" select_on_focus="true" tool_tip="フローターXMLファイルを編集するためのエディター（実行可能ファイル）へのフルパス。（引用符は必要ありません）" top_delta="-2" width="315" />
-      <button follows="left|bottom" height="25" label="ブラウズ…" label_selected="ブラウズ…" layout="topleft" left_pad="5" name="browse_for_executable" tool_tip="フローターXMLファイルを編集するためのエディター（実行可能ファイル）を参照します。" top_delta="-2" width="75" />
-      <text type="string" length="1" follows="left|bottom" font="SansSerif" height="30" layout="topleft" left="10" left_delta="-420" name="executable_args_label" top="36" width="100">エディタの引数：</text>
-      <line_editor border_style="line" border_thickness="1" follows="left|bottom" font="SansSerif" height="20" layout="topleft" left_delta="100" max_length_bytes="300" name="executable_args_field" select_on_focus="true" tool_tip="エディターへのコマンドライン引数。'%FILE%'を使用してターゲット ファイルを参照します。このフィールドが空の場合、「YourProgram.exe FileName.xml」が実行されます" top_delta="-2" width="315" />
+    <panel name="editor_panel">
+      <text name="editor_path_label">エディタのパス：</text>
+      <line_editor name="executable_path_field" tool_tip="フローターXMLファイルを編集するためのエディター（実行可能ファイル）へのフルパス。（引用符は必要ありません）" />
+      <button follows="left|bottom" label="ブラウズ…" label_selected="ブラウズ…" name="browse_for_executable" tool_tip="フローターXMLファイルを編集するためのエディター（実行可能ファイル）を参照します。" />
+      <text name="executable_args_label">エディタの引数：</text>
+      <line_editor name="executable_args_field" tool_tip="エディターへのコマンドライン引数。'%FILE%'を使用してターゲット ファイルを参照します。このフィールドが空の場合、「YourProgram.exe FileName.xml」が実行されます" top_delta="-2" width="315" />
     </panel>
-    <panel bevel_style="in" bg_alpha_color="0 0 0 0" bg_opaque_color="0 0 0 0.3" border="true" bottom_delta="40" follows="left|right|bottom" height="35" layout="topleft" left="10" name="vlt_panel" right="-10">
-      <text type="string" length="1" follows="left|bottom" font="SansSerif" height="30" layout="topleft" left="10" left_delta="10" name="diff_file_label" top="10" width="200">差分ファイル：</text>
-      <line_editor border_style="line" border_thickness="1" follows="left|bottom" font="SansSerif" height="20" layout="topleft" left_delta="65" max_length_bytes="300" name="vlt_diff_path_field" select_on_focus="true" tool_tip="Viewer Localization Toolkitによって生成されたXMLのD0、D1言語差分ファイルへのフルパス" top_delta="-2" width="235" />
-      <button follows="left|bottom" height="25" label="ブラウズ…" label_selected="ブラウズ…" layout="topleft" left_pad="5" name="browse_for_vlt_diffs" tool_tip="VLTで生成されたD0、D1差分ファイルを参照して、変更されたファイルと要素を強調表示します。" top_delta="-2" width="75" />
-      <button follows="left|bottom" height="25" is_toggle="true" label="差分をハイライト" label_selected="ハイライトを解除" layout="topleft" left_pad="5" name="toggle_vlt_diff_highlight" tool_tip="変更された言語データを含むファイルと要素の強調表示を切り替えます。" top_delta="0" width="110" />
+    <panel name="vlt_panel">
+      <text name="diff_file_label">差分ファイル：</text>
+      <line_editor name="vlt_diff_path_field" tool_tip="Viewer Localization Toolkitによって生成されたXMLのD0、D1言語差分ファイルへのフルパス" />
+      <button label="ブラウズ…" label_selected="ブラウズ…" name="browse_for_vlt_diffs" tool_tip="VLTで生成されたD0、D1差分ファイルを参照して、変更されたファイルと要素を強調表示します。" />
+      <button is_toggle="true" label="差分をハイライト" label_selected="ハイライトを解除" name="toggle_vlt_diff_highlight" tool_tip="変更された言語データを含むファイルと要素の強調表示を切り替えます。" />
     </panel>
   </panel>
-  <scroll_container follows="top|right|bottom" height="600" layout="topleft" left="750" name="overlap_scroll" reserve_scroll_corner="true" top="20" width="300">
-    <panel border="true" name="overlap_dummy_panel" top="0" left="0" width="300" height="600">
-      <overlap_panel background_opaque="true" background_visible="true" bevel_style="in" bg_alpha_color="0 0 0 1" bg_opaque_color="1 1 1 1" border="true" follows="top|right|bottom" height="600" label="Overlap Panel" layout="topleft" left="0" min_width="300" name="overlap_panel" tool_tip="このパネルには、現在選択されている要素と、それに重なっているすべての要素が水平線で区切られて表示されます。" top="0" visible="false" width="300" />
-      <text type="string" length="1" follows="top|right" font="SansSerif" height="30" layout="topleft" left="10" name="overlap_panel_label" top="10" width="150">重なる要素：</text>
+  <scroll_container follows="top|right|bottom" height="600" layout="topleft" name="overlap_scroll">
+    <panel border="true" name="overlap_dummy_panel">
+      <overlap_panel label="オーバーラップパネル" ame="overlap_panel" tool_tip="このパネルには、現在選択されている要素と、それに重なっているすべての要素が水平線で区切られて表示されます。" />
+      <text name="overlap_panel_label">重なる要素：</text>
     </panel>
   </scroll_container>
 </floater>

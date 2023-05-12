@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="menu_inventory_add">
   <menu label="アップロード" name="upload">
-    <menu_item_call label="画像 （L$[COST]）…" name="Upload Image" />
-    <menu_item_call label="サウンド （L$[COST]）…" name="Upload Sound" />
-    <menu_item_call label="アニメーション （L$[COST]）…" name="Upload Animation" />
+    <menu_item_call label="画像 （L$ [COST]）…" name="Upload Image" />
+    <menu_item_call label="サウンド （L$ [COST]）…" name="Upload Sound" />
+    <menu_item_call label="アニメーション （L$ [COST]）…" name="Upload Animation" />
     <menu_item_call label="モデル" name="Upload Model" />
-    <menu_item_call label="一括 （ファイルにつき L$[COST]）…" name="Bulk Upload" />
+    <menu_item_call label="一括 （ファイルにつき L$ [COST]）…" name="Bulk Upload" />
   </menu>
   <menu_item_call label="新規フォルダ" name="New Folder" />
   <menu_item_call label="新規スクリプト" name="New Script" />

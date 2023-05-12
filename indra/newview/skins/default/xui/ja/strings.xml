@@ -55,9 +55,9 @@ LOD 係数：[LOD_FACTOR]
 オーディオドライババージョン：[AUDIO_DRIVER_VERSION]
 [LIBCEF_VERSION]LibVLC バージョン：[LIBVLC_VERSION]
 ボイスサーバーバージョン:[VOICE_VERSION]</string>
-  <string name="AboutTraffic">パケット損失：[PACKETS_LOST,number,0]／[PACKETS_IN,number,0]（[PACKETS_PCT,number,1]%）</string>
+  <string name="AboutTraffic">パケット損失：[PACKETS_LOST,number,0]／[PACKETS_IN,number,0]（[PACKETS_PCT,number,1]％）</string>
   <string name="AboutTime">[year, datetime, slt]年[month, datetime, slt]月[day, datetime, slt]日　[hour, datetime, slt]：[min,datetime, slt]:：[second,datetime,slt]</string>
-  <string name="ErrorFetchingServerReleaseNotesURL">サーバーのリリースノートの URL を取得中にエラーが発生しました。</string>
+  <string name="ErrorFetchingServerReleaseNotesURL">サーバーのリリースノートのURLを取得中にエラーが発生しました。</string>
   <string name="BuildConfiguration">ビルド構成</string>
 
   <!--  progress -->
@@ -487,7 +487,7 @@ support@secondlife.com にお問い合わせください。</string>
   <string name="NearbyChatTitle">近くのチャット</string>
   <string name="NearbyChatLabel">（近くのチャット）</string>
   <string name="whisper">のささやき：</string>
-  <string name="shout">の叫び：</string>
+  <string name="shout">のシャウト：</string>
   <string name="ringing">インワールドボイスチャットに接続中…</string>
   <string name="connected">接続しました</string>
   <string name="unavailable">現在地では、ボイスを利用できません。</string>
@@ -503,12 +503,12 @@ support@secondlife.com にお問い合わせください。</string>
   <string name="RemapControlInputs">制御入力のリマップ</string>
   <string name="AnimateYourAvatar">アバターへのアニメーション動作</string>
   <string name="AttachToYourAvatar">アバターに装着</string>
-  <string name="ReleaseOwnership">所有権を解放し公のものとする</string>
+  <string name="ReleaseOwnership">所有権を解放し公共物とする</string>
   <string name="LinkAndDelink">他のオブジェクトのリンクとリンク解除</string>
   <string name="AddAndRemoveJoints">他のオブジェクトとのジョイントの追加と削除</string>
   <string name="ChangePermissions">権限の変更</string>
   <string name="TrackYourCamera">カメラ追従</string>
-  <string name="ControlYourCamera">カメラのコントロール</string>
+  <string name="ControlYourCamera">カメラ操作</string>
   <string name="TeleportYourAgent">あなたをテレポート</string>
   <string name="ForceSitAvatar">アバターを強制的に座らせる</string>
   <string name="ChangeEnvSettings">自然環境の設定を変更する</string>
@@ -2431,8 +2431,8 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="InvFolder Friends">フレンド</string>
   <string name="InvFolder All">全員</string>
 
-  <string name="no_attachments">着用しているアタッチメントはありません</string>
-  <string name="Attachments remain">アタッチメント（残りのスロット数：[COUNT]）</string>
+  <string name="no_attachments">着用している装着物はありません</string>
+  <string name="Attachments remain">装着物（残りのスロット数：[COUNT]）</string>
 
   <!-- inventory FVBridge -->
   <!--  This is used in llpanelinventory.cpp when constructing a context menu for an item for Sale  -->
@@ -3962,7 +3962,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="RMB">右クリック</string>
   <string name="MB4">進むボタン</string>
   <string name="MB5">戻るボタン</string>
-  <string name="Double LMB">右ダブルクリック</string>
+  <string name="Double LMB">左ダブルクリック</string>
   <!-- Mouse button names end -->
 
   <!-- llviewerwindow -->
@@ -3977,8 +3977,8 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="ParticleHiding">パーティクルを非表示</string>
 
   <!-- commands -->
-
-  <string name="Command_360_Capture_Label">360度スナップショット</string>
+  <!-- 「360度スナップショット」だと文字が切れてしまうため -->
+  <string name="Command_360_Capture_Label">360度Sショット</string>
   <string name="Command_AboutLand_Label">土地情報</string>
   <string name="Command_Appearance_Label">アウトフィット</string>
   <string name="Command_Avatar_Label">アバター一式</string>

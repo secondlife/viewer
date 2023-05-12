@@ -1,17 +1,16 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater layout="topleft" can_close="true" can_drag_on_left="false" can_minimize="true" can_resize="false" height="130" width="350" name="new_inventory_item" title="ローカルインベントリのアセットを作成">
-  <text top="5" follows="left|top" h_pad="0" halign="left" height="10" left="10" name="LabelItemNameTitle" v_pad="0" width="78" value="名前：" />
-  <line_editor top_delta="0" enabled="true" follows="left|top|right" font="SansSerifSmall" height="16" is_unicode="false" left="88" max_length="63" mouse_opaque="true" name="name_line" width="252" />
-  <text top_delta="20" follows="left|top" h_pad="0" halign="left" height="10" left="10" name="LabelItemDescTitle" v_pad="0" width="78" value="説明：" />
-  <line_editor top_delta="0" enabled="true" follows="left|top|right" height="16" is_unicode="false" left="88" max_length="127" mouse_opaque="true" name="desc_line" width="252" />
-  <text top_delta="20" follows="left|top" h_pad="0" halign="left" height="16" left="10" name="LabelAssetTitle" v_pad="0" width="78" value="アセット：" />
-  <line_editor top_delta="0" enabled="true" follows="left|top|right" height="16" is_unicode="false" left="88" max_length="127" mouse_opaque="true" name="asset_id_line" width="252" />
-  <text top_delta="20" follows="left|top" h_pad="0" halign="left" height="16" left="10" name="LabelCreatorTitle" v_pad="0" width="78" value="作成者：" />
-  <line_editor top_delta="0" enabled="true" follows="left|top|right" height="16" is_unicode="false" left="88" max_length="127" name="creator_id_line" width="252" />
-  <text top_delta="20" follows="left|top" h_pad="0" halign="left" height="16" left="10" name="LabelOwnerTitle" v_pad="0" width="78" value="所有者" />
-  <line_editor top_delta="0" enabled="true" follows="left|top|right" height="16" is_unicode="false" left="88" max_length="127" name="owner_id_line" width="252" />
-  <combo_box top_delta="20" allow_text_entry="false" follows="left|top" height="18" left="8" max_chars="20" name="type_combo" width="100">
-  </combo_box>
-  <check_box top_delta="0" height="16" initial_value="true" label="直ちに開く" left="113" name="chk_open" width="120" />
-  <button top_delta="0" height="20" label="OK" left="240" name="ok_btn" width="100" />
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="new_inventory_item" title="ローカルインベントリのアセットを作成">
+  <text name="LabelItemNameTitle" value="名前：" />
+  <line_editor tname="name_line" />
+  <text name="LabelItemDescTitle" value="説明：" />
+  <line_editor name="desc_line" />
+  <text name="LabelAssetTitle" value="アセット：" />
+  <line_editor name="asset_id_line" />
+  <text name="LabelCreatorTitle" value="作成者：" />
+  <line_editor name="creator_id_line" />
+  <text name="LabelOwnerTitle" value="所有者" />
+  <line_editor name="owner_id_line" />
+  <combo_box name="type_combo" />
+  <check_box label="直ちに開く" name="chk_open" />
+  <button label="OK" name="ok_btn" />
 </floater>

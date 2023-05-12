@@ -306,9 +306,9 @@
     <usetemplate ignoretext="グループからの複数のメンバーの追放を確認します" name="okcancelignore" notext="キャンセル" yestext="禁止" />
   </notification>
   <notification name="GroupBanUserOnBanlist">一部の住人がグループから追放されたため、招待状が送られませんでした。</notification>
-  <notification name="AttachmentDrop">アタッチメントを下に置こうとしています。
+  <notification name="AttachmentDrop">装着物を下に置こうとしています。
 続けてもよろしいですか？
-    <usetemplate ignoretext="アタッチメントを下に落とす前の確認" name="okcancelignore" notext="いいえ" yestext="はい" />
+    <usetemplate ignoretext="装着物を下に落とす前の確認" name="okcancelignore" notext="いいえ" yestext="はい" />
   </notification>
   <notification name="JoinGroupCanAfford">このグループに参加するには、L$ [COST]かかります。
 続けますか？
@@ -504,7 +504,7 @@ L$が不足しているので、このグループに参加することができ
     <tag>fail</tag>
   </notification>
   <notification name="CouldNotPutOnOutfit">アウトフィットを装着できません。
-アウトフィットフォルダに服装、身体部位、アタッチメントがありません。
+アウトフィットフォルダに服装、身体部位、装着物がありません。
     <tag>fail</tag>
   </notification>
   <notification name="CannotWearTrash">ごみ箱にある服装や身体部位は、着用できません。
@@ -2394,7 +2394,7 @@ M キーを押して変更します。</notification>
 <notification name="ConfirmCloseAll">すべての IM を閉じますか？
 <usetemplate ignoretext="すべての IM を閉じる前の確認" name="okcancelignore" notext="キャンセル" yestext="OK" />
 </notification>
-<notification name="AttachmentSaved">アタッチメントが保存されました。</notification>
+<notification name="AttachmentSaved">装着物が保存されました。</notification>
 <notification name="AppearanceToXMLSaved">外観が XML [PATH]に保存されました</notification>
 <notification name="AppearanceToXMLFailed">外観を XML に保存できませんでした。</notification>
 <notification name="SnapshotToComputerFailed">スナップショットを[PATH]に保存できませんでした：ディスクの空き容量が不足しています。
@@ -2717,8 +2717,8 @@ UDP:3478, 3479, 5060, 5062, 6250, 12000-32000
 <notification name="NoPermToCopyInventory">そのインベントリをコピーすることは許可されません。</notification>
 <notification name="CantSaveItemDoesntExist">オブジェクトのコンテンツに保存できません。アイテムが存在していません。</notification>
 <notification name="CantSaveItemAlreadyExists">オブジェクトのコンテンツに保存できません。同じ名前を持つアイテムがすでにインベントリに存在します。</notification>
-<notification name="CantSaveModifyAttachment">オブジェクトのコンテンツに保存できません。このため、アタッチメントの権限が変更されます。</notification>
-<notification name="AttachmentHasTooMuchInventory">ご使用のアタッチメントに含まれるインベントリが多すぎるため、インベントリを追加できません。</notification>
+<notification name="CantSaveModifyAttachment">オブジェクトのコンテンツに保存できません。このため、装着物の権限が変更されます。</notification>
+<notification name="AttachmentHasTooMuchInventory">ご使用の装着物に含まれるインベントリが多すぎるため、インベントリを追加できません。</notification>
 <notification name="IllegalAttachment">添付ファイルはアバターの存在しない点を要求しました。代わりに胸に添付されていました。</notification>
 <notification name="TooManyScripts">スクリプトが多すぎます。</notification>
 <notification name="UnableAddScript">テキストを追加できません！</notification>
@@ -2746,8 +2746,8 @@ UDP:3478, 3479, 5060, 5062, 6250, 12000-32000
 <notification name="EstateManagerFailedllTeleportHome">[SLURL]のオブジェクト '[OBJECT_NAME]'で不動産マネージャーのホームをテレポートできません。</notification>
 <notification name="TeleportedHomeByObjectOnParcel">区画 '[PARCEL_NAME]' のオブジェクト '[OBJECT_NAME]'によって、あなたはホームにテレポートされました。</notification>
 <notification name="TeleportedHomeByObject">​オブジェクト ​'[OBJECT_NAME]' によって、あなたはホームへテレポートされています。</notification>
-<notification name="TeleportedByAttachment">[ITEM_ID]へのアタッチメントによって、あなたはテレポートされています。
-<usetemplate ignoretext="テレポート：アタッチメントによりテレポートされました" name="notifyignore" />
+<notification name="TeleportedByAttachment">[ITEM_ID]への装着物によって、あなたはテレポートされています。
+<usetemplate ignoretext="テレポート：装着物によりテレポートされました" name="notifyignore" />
 </notification>
 <notification name="TeleportedByObjectOnParcel">区画 '[PARCEL_NAME]' のオブジェクト'[OBJECT_NAME]'によって、あなたはテレポートされています。
 <usetemplate ignoretext="テレポート：区画上のオブジェクトによりテレポートされました" name="notifyignore" />
@@ -2783,17 +2783,17 @@ UDP:3478, 3479, 5060, 5062, 6250, 12000-32000
 <notification name="DeedFailedNoPermToDeedForGroup">あなたのグループにオブジェクトを譲渡する権限がないため、譲渡に失敗しました。</notification>
 <notification name="NoPrivsToBuyObject">現在のアクセス権限では、ここでオブジェクトを購入できません。</notification>
 <notification name="CantAttachObjectAvatarSittingOnIt">アバターがオブジェクトに存在するため、オブジェクトを着用できません。</notification>
-<notification name="WhyAreYouTryingToWearShrubbery">木や草をアタッチメントとして着用できません。</notification>
+<notification name="WhyAreYouTryingToWearShrubbery">木や草を装着物として着用できません。</notification>
 <notification name="CantAttachGroupOwnedObjs">グループが所有しているオブジェクトは着用できません。</notification>
 <notification name="CantAttachObjectsNotOwned">所有していないオブジェクトは着用できません。</notification>
 <notification name="CantAttachNavmeshObjects">ナビメッシュに貢献しているオブジェクトは着用できません。</notification>
 <notification name="CantAttachObjectNoMovePermissions">あなたにはオブジェクトを移動する権限がないため、そのオブジェクト添付できません。</notification>
 <notification name="CantAttachNotEnoughScriptResources">オブジェクトの着用に使用できるスクリプトリソースが足りません。</notification>
 <notification name="CantDropItemTrialUser">オブジェクトをここにドロップできません。フリートライアル領域をお試しください。</notification>
-<notification name="CantDropMeshAttachment">メッシュアタッチメントをドロップすることはできません。インベントリから切り離して、ワールドでRezしてください。</notification>
-<notification name="CantDropAttachmentNoPermission">アタッチメントのドロップに失敗しました。そこへドロップする権限がありません。</notification>
-<notification name="CantDropAttachmentInsufficientLandResources">アタッチメントのドロップに失敗しました。利用できる土地リソースの数が足りません。</notification>
-<notification name="CantDropAttachmentInsufficientResources">利用できるリソースが足りないため、アタッチメントのドロップに失敗しました。</notification>
+<notification name="CantDropMeshAttachment">メッシュ装着物をドロップすることはできません。インベントリから切り離して、ワールドでRezしてください。</notification>
+<notification name="CantDropAttachmentNoPermission">装着物のドロップに失敗しました。そこへドロップする権限がありません。</notification>
+<notification name="CantDropAttachmentInsufficientLandResources">装着物のドロップに失敗しました。利用できる土地リソースの数が足りません。</notification>
+<notification name="CantDropAttachmentInsufficientResources">利用できるリソースが足りないため、装着物のドロップに失敗しました。</notification>
 <notification name="CantDropObjectFullParcel">ここにオブジェクトをドロップできません。区画が埋まっています。</notification>
 <notification name="CantTouchObjectBannedFromParcel">土地区画に入場することを禁止されているため、このオブジェクトを触ったり、つかむことができません。</notification>
 <notification name="PlzNarrowDeleteParams">削除パラメーターを絞ってください。</notification>

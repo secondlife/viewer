@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater legacy_header_height="18" can_resize="false" height="325" layout="topleft" name="outfit_photo_preview" help_topic="preview_texture" width="410">
+<floater name="outfit_photo_preview">
   <floater.string name="Title">テスクチャ：[NAME]</floater.string>
   <floater.string name="exceed_limits">アウトフィット画像の最大サイズは[MAX_WIDTH]✕[MAX_HEIGHT]です。他のテスクチャを選択してください。</floater.string>
   <floater.string name="photo_confirmation">この画像を[OUTFIT]のアウトフィット画像にしますか？</floater.string>

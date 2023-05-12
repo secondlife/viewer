@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater legacy_header_height="18" can_resize="true" height="400" layout="topleft" name="floater_test_checkbox" help_topic="floater_test_checkbox" translate="false" width="400">
-  <check_box control_name="ShowStartLocation" height="15" initial_value="true" label="おおっ！これはチェックボックスのようだ！" layout="topleft" left="10" name="show_location_checkbox" top="28" width="256" />
-  <check_box height="15" label="最小のチェックボックス" layout="topleft" left_delta="0" name="minimal_checkbox" top_pad="14" width="150" />
-  <check_box enabled="false" height="15" label="無効状態のチェックボックス" layout="topleft" left_delta="0" name="disabled_checkbox" top_pad="14" width="150" />
-  <check_box height="15" label="有効時の文字色" layout="topleft" left_delta="0" name="text_enabled_color_checkbox" label_text.text_color="EmphasisColor" top_pad="14" width="150" />
-  <check_box enabled="false" height="15" label="無効時の文字色" layout="topleft" left_delta="0" name="text_disabled_color_checkbox" label_text.text_readonly_color="EmphasisColor_35" top_pad="14" width="150" />
-  <check_box height="15" initial_value="true" label="チェックボックスの初期値" layout="topleft" left_delta="0" name="initial_value_checkbox" top_pad="14" width="150" />
-  <check_box font="Monospace" height="15" label="等幅フォント" layout="topleft" left_delta="0" name="font_checkbox" top_pad="14" width="150" />
+<floater name="floater_test_checkbox">
+  <check_box label="おおっ！これはチェックボックスのようだ！" name="show_location_checkbox" />
+  <check_box label="最小のチェックボックス" name="minimal_checkbox" />
+  <check_box label="無効状態のチェックボックス" name="disabled_checkbox" />
+  <check_box label="有効時の文字色" name="text_enabled_color_checkbox" />
+  <check_box label="無効時の文字色" name="text_disabled_color_checkbox" />
+  <check_box label="チェックボックスの初期値" name="initial_value_checkbox" />
+  <check_box label="等幅フォント" name="font_checkbox" />
 </floater>

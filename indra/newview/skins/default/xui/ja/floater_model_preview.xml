@@ -15,15 +15,15 @@
   <string name="mesh_status_good">発送</string>
   <string name="mesh_status_na">該当なし</string>
   <string name="mesh_status_none">なし</string>
-  <string name="mesh_status_submesh_mismatch">テクスチャ編集可能な面の数は描画詳細度に応じて異なります。</string>
-  <string name="mesh_status_mesh_mismatch">メッシュインスタンスの数は描画詳細度に応じて異なります。</string>
+  <string name="mesh_status_submesh_mismatch">テクスチャ編集可能な面の数は、描画詳細度に応じて異なります。</string>
+  <string name="mesh_status_mesh_mismatch">メッシュインスタンスの数は、描画詳細度に応じて異なります。</string>
   <string name="mesh_status_too_many_vertices">描画詳細度に対して頂点の数が多すぎます。</string>
   <string name="mesh_status_missing_lod">必要な描画詳細度が見つかりません。</string>
-  <string name="mesh_status_invalid_material_list">LOD 付きの材料は参考モデルのサブセットではありません。</string>
-  <string name="phys_status_vertex_limit_exceeded">一部の物理的な外殻構造が頂点の制限を超えます。</string>
+  <string name="mesh_status_invalid_material_list">LOD付きの材料は、参考モデルのサブセットではありません。</string>
+  <string name="phys_status_vertex_limit_exceeded">一部の物理的な外殻構造が、頂点の制限を超えます。</string>
   <string name="layer_all">全て</string>
   <string name="decomposing">分析中</string>
-  <string name="simplifying">単純化</string>
+  <string name="simplifying">簡素化</string>
   <string name="tbd">未定</string>
   <panel name="left_panel">
     <panel name="model_name_representation_panel">
@@ -32,7 +32,7 @@
       <combo_box name="model_category_combo">
         <combo_item label="1つを選択…" name="Choose one" />
         <combo_item label="アバターの形" name="Avatar shape" />
-        <combo_item label="アバターのアタッチメント" name="Avatar attachment" />
+        <combo_item label="アバターの装着物" name="Avatar attachment" />
         <combo_item label="動くオブジェクト（車、動物）" name="Moving object (vehicle, animal)" />
         <combo_item label="制作用コンポーネント" name="Building Component" />
         <combo_item label="大型、不動、等" name="Large, non moving etc" />
@@ -104,7 +104,7 @@
         <panel name="physics geometry">
           <text name="first_step_name">手順１：描画詳細度</text>
           <combo_box name="physics_lod_combo" tool_tip="実像に適用するLOD">
-            <combo_item name="choose_one">1つを選択…            </combo_item>
+            <combo_item name="choose_one">１つを選択…</combo_item>
             <combo_item name="physics_high">高</combo_item>
             <combo_item name="physics_medium">中</combo_item>
             <combo_item name="physics_low">低</combo_item>
@@ -123,13 +123,13 @@
           <button label="キャンセル" name="decompose_cancel" />
         </panel>
         <panel name="physics simplification">
-          <text name="second_step_label">手順３：単純化</text>
+          <text name="second_step_label">手順３：簡素化</text>
           <text name="simp_method_header">方法：</text>
           <text name="pass_method_header">パス：</text>
           <text name="Detail Scale label">詳細度：</text>
           <text name="Retain%_label">維持率：</text>
           <combo_box name="Combine Quality" value="1" />
-          <button label="単純化" name="Simplify" />
+          <button label="簡素化" name="Simplify" />
           <button label="キャンセル" name="simplify_cancel" />
         </panel>
         <panel name="physics info">
@@ -143,11 +143,11 @@
         <text name="scale_label"> スケール（1=増減なし）：</text>
         <spinner name="import_scale" value="1.0" />
         <text name="dimensions_label">サイズ：</text>
-        <text name="import_dimensions">[X]X[Y]X[Z]</text>
+        <text name="import_dimensions">[X]✕[Y]✕[Z]</text>
         <check_box label="テクスチャを含む" name="upload_textures" />
         <text name="include_label">アバターモデル専用：</text>
         <check_box label="スキンの重さを含む" name="upload_skin" />
-        <check_box label="ジョイントポジションを含む" name="upload_joints" />
+        <check_box label="ジョイント位置を含む" name="upload_joints" />
         <check_box label="ジョイント位置が定義されている場合、スケールをロック" name="lock_scale_if_joint_position" />
         <text name="pelvis_offset_label">Z オフセット（アバターを上下調整）：</text>
         <spinner name="pelvis_offset" value="0.0" />
@@ -170,18 +170,18 @@
   </panel>
   <text name="lod_label">プレビュー：</text>
   <panel name="right_panel">
-    <combo_box name="preview_lod_combo" tool_tip="プレビュー表示の LOD 設定">
+    <combo_box name="preview_lod_combo" tool_tip="プレビュー表示のLOD設定">
       <combo_item name="high">高</combo_item>
       <combo_item name="medium">中</combo_item>
       <combo_item name="low">低</combo_item>
       <combo_item name="lowest">最低</combo_item>
     </combo_box>
     <text name="label_display">外観…</text>
-    <check_box label="稜" name="show_edges" />
+    <check_box label="輪部" name="show_edges" />
     <check_box label="物理効果" name="show_physics" />
     <check_box label="テクスチャ" name="show_textures" />
     <check_box label="スキンの重さ" name="show_skin_weight" />
-    <check_box label="ジョイント" name="show_joint_positions" />
+    <check_box label="ジョイント位置" name="show_joint_positions" />
     <text name="physics_explode_label">プレビュースプレッド：</text>
   </panel>
 </floater>

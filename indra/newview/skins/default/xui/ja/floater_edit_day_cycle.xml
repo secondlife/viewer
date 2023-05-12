@@ -7,9 +7,9 @@
   <string name="combo_label">－プリセットを選択－</string>
   <text name="label">プリセット名：</text>
   <text name="note">注意：自分で作成したプリセットの名前を変更すると、新しいプリセットが別に作成されるだけで、元のプリセットは変更されません。</text>
-  <text name="hint_item1">－特定の空の設定や時間を編集するにはタブを1つクリックします。</text>
-  <text name="hint_item2">－移行時間を設定するにはタブをクリックしてドラッグします。</text>
-  <text name="hint_item3">－デイサイクルをプレビューするにはスクラバーを使います。</text>
+  <text name="hint_item1">－特定の空の設定や時間を編集するには、タブを一つクリックします。</text>
+  <text name="hint_item2">－移行時間を設定するには、タブをクリックしてドラッグします。</text>
+  <text name="hint_item3">－デイサイクルをプレビューするには、スクラバーを使います。</text>
   <panel name="day_cycle_slider_panel">
     <multi_slider initial_value="0" name="WLTimeSlider" />
     <multi_slider initial_value="0" name="WLDayCycleKeys" />

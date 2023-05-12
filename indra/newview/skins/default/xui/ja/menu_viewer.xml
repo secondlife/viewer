@@ -14,7 +14,8 @@
     <menu_item_check label="着信拒否" name="Do Not Disturb" />
 
     <menu_item_separator />
-    <menu_item_call label="L$の購入…" name="Buy and Sell L$" />
+    <!-- L$は空白になってしまうため翻訳を変更 -->
+    <menu_item_call label="リンデンドルの購入…" name="Buy and Sell L$" />
     <menu_item_call label="マーケットプレイスのリスト…" name="MarketplaceListings" />
     <menu_item_call label="アカウントのダッシュボード…" name="Manage My Account" />
     <menu_item_call label="[Membership]" name="Membership" />

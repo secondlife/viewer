@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" short_title="制作ツール" title="">
+<floater name="toolbox floater" short_title="制作" title="制作ツール">
   <floater.string name="grid_screen_text">画面</floater.string>
   <floater.string name="grid_local_text">ローカル</floater.string>
   <floater.string name="grid_world_text">世界</floater.string>
   <floater.string name="grid_reference_text">リファレンス</floater.string>
-  <floater.string name="grid_attachment_text">アタッチメント</floater.string>
+  <floater.string name="grid_attachment_text">装着物</floater.string>
   <floater.string name="status_rotate">色の付いたバンドをドラッグしてオブジェクトを回転</floater.string>
   <floater.string name="status_scale">選択した側をクリックし、ドラッグで引き伸ばす</floater.string>
-  <floater.string name="status_move">移動：ドラッグ、コピー：Shift + ドラッグ</floater.string>
+  <floater.string name="status_move">移動：ドラッグ、コピー：Shift＋ドラッグ</floater.string>
   <floater.string name="status_modifyland">土地をクリックし、ボタンを押したまま入力して修正変更</floater.string>
-  <floater.string name="status_camera">クリック + ドラッグで視界移動</floater.string>
-  <floater.string name="status_grab">ドラッグで移動、Ctrlで持ち上げ、Ctrl + Shiftで回転</floater.string>
+  <floater.string name="status_camera">クリック＋ドラッグで視界移動</floater.string>
+  <floater.string name="status_grab">ドラッグで移動、Ctrlで持ち上げ、Ctrl＋Shiftで回転</floater.string>
   <floater.string name="status_place">インワールドでクリックして作成</floater.string>
   <floater.string name="status_selectland">土地をクリックし、ドラッグして選択</floater.string>
   <floater.string name="status_selectcount">選択されているオブジェクトは[OBJ_COUNT]個、土地の負荷は[LAND_IMPACT]　[secondlife:///app/openfloater/object_weights 詳細]</floater.string>
@@ -24,12 +24,12 @@
   <radio_group name="focus_radio_group">
     <radio_item label="ズーム" name="radio zoom" />
     <radio_item label="旋回（Ctrl）" name="radio orbit" />
-    <radio_item label="水平・垂直移動 (Ctrl + Shift)" name="radio pan" />
+    <radio_item label="水平・垂直移動 (Ctrl＋Shift)" name="radio pan" />
   </radio_group>
   <radio_group name="move_radio_group">
     <radio_item label="移動" name="radio move" />
     <radio_item label="持ち上げる（Ctrl）" name="radio lift" />
-    <radio_item label="回転 (Ctrl + Shift)" name="radio spin" />
+    <radio_item label="回転 (Ctrl＋Shift)" name="radio spin" />
   </radio_group>
   <radio_group name="edit_radio_group">
     <radio_item label="移動" name="radio position" />
@@ -66,7 +66,7 @@
   <button label="" label_selected="" name="ToolGrass" tool_tip="草地" />
   <check_box label="選択したツールを維持" name="checkbox sticky" />
   <check_box label="選択したものをコピー" name="checkbox copy selection" />
-  <check_box initial_value="true" label="中央に位置" name="checkbox copy centers" />
+  <check_box label="中央に位置" name="checkbox copy centers" />
   <check_box label="回転" name="checkbox copy rotates" />
   <radio_group name="land_radio_group">
     <radio_item label="土地を選択" name="radio select land" />
@@ -87,33 +87,33 @@
     <panel label="一般" name="General">
       <panel.string name="text deed continued">譲渡</panel.string>
       <panel.string name="text deed">譲渡</panel.string>
-      <panel.string name="text modify info 1">このオブジェクトを修正できます。</panel.string>
-      <panel.string name="text modify info 2">これらのオブジェクトを修正できます。</panel.string>
-      <panel.string name="text modify info 3">このオブジェクトを修正できません。</panel.string>
-      <panel.string name="text modify info 4">これらのオブジェクトを修正できません。</panel.string>
-      <panel.string name="text modify info 5">リージョン（地域）の境界を越えてこのオブジェクトを修正できません。</panel.string>
-      <panel.string name="text modify info 6">リージョン（地域）の境界を越えてこれらのオブジェクトを修正できません。</panel.string>
-      <panel.string name="text modify warning">オブジェクト全体を選択して権限の設定を行ってください。</panel.string>
+      <panel.string name="text modify info 1">このオブジェクトは、修正することができます。</panel.string>
+      <panel.string name="text modify info 2">これらのオブジェクトは、修正することができます。</panel.string>
+      <panel.string name="text modify info 3">このオブジェクトは、修正することができません。</panel.string>
+      <panel.string name="text modify info 4">これらのオブジェクトは、修正することができません。</panel.string>
+      <panel.string name="text modify info 5">リージョン（地域）の境界を越えて、このオブジェクトを修正することはできません。</panel.string>
+      <panel.string name="text modify info 6">リージョン（地域）の境界を越えて、これらのオブジェクトを修正することはできません。</panel.string>
+      <panel.string name="text modify warning">オブジェクト全体を選択して、権限の設定を行ってください。</panel.string>
       <panel.string name="Cost Default">価格：L$</panel.string>
       <panel.string name="Cost Total">合計：L$</panel.string>
       <panel.string name="Cost Per Unit">単価：L$</panel.string>
-      <panel.string name="Cost Mixed">混合価格</panel.string>
-      <panel.string name="Sale Mixed">混合販売</panel.string>
+      <panel.string name="Cost Mixed">合計価格</panel.string>
+      <panel.string name="Sale Mixed">合算販売</panel.string>
       <text name="Name:">名前：</text>
-      <line_editor name="Object Name" tool_tip="使用できる名前の文字数は最大 63 文字までです。長いプリム名は短縮されます。名前に使用できる文字は ASCII-7 （非拡張）に含まれる印字可能な文字のみです（縦線「|」は例外）。" />
+      <line_editor name="Object Name" tool_tip="使用できる名前の文字数は最大６３文字までです。長いプリム名は短縮されます。名前に使用できる文字は、ASCII-7（非拡張）に含まれる印字可能な文字のみです（縦線「|」は例外）。" />
       <text name="Description:">説明：</text>
-      <line_editor name="Object Description" tool_tip="ビューアーの設定で[すべてのオブジェクト上でヒントを表示]が選択されている場合、オブジェクトにマウスのポインタをかざすとそのオブジェクトの説明がポップアップ表示されます。プリムの説明は最大 127 バイトまでに制限されているため、それよりも長い文字列は切り捨てられます。" />
+      <line_editor name="Object Description" tool_tip="ビューアーの設定で「すべてのオブジェクト上でヒントを表示」が選択されている場合、オブジェクトにマウスのポインタをかざすと、そのオブジェクトの説明がポップアップ表示されます。プリムの説明は最大 127 バイトまでに制限されているため、それよりも長い文字列は切り捨てられます。" />
       <text name="Creator:">制作者：</text>
       <text name="Creator Name">Mrs. Esbee Linden (esbee.linden)</text>
       <text name="Owner:">所有者：</text>
       <text name="Owner Name">Mrs. Erica "Moose" Linden (erica.linden)</text>
       <text name="Group:">グループ：</text>
       <name_box initial_value="読み込んでいます…" name="Group Name Proxy" />
-      <button label="設定…" label_selected="設定…" name="button set group" tool_tip="このオブジェクト権限を共有するグループを選択します" />
-      <check_box label="共有" name="checkbox share with group" tool_tip="設定したグループのメンバー全員にこのオブジェクトの修正権限を与えます。 譲渡しない限り、役割制限を有効にはできません" />
+      <button label="設定…" label_selected="設定…" name="button set group" tool_tip="このオブジェクト権限を共有したいグループを選択します。" />
+      <check_box label="共有" name="checkbox share with group" tool_tip="設定したグループのメンバー全員に、このオブジェクトの修正権限を与えます。 譲渡しない限り、役割制限を有効にはできません" />
       <button label="譲渡" label_selected="譲渡" name="button deed" tool_tip="このアイテムを譲渡すると「次の所有者」の権限が適用されます。 グループ共有オブジェクトは、グループのオフィサーが譲渡できます" />
       <text name="label click action">クリックで：</text>
-      <combo_box name="clickaction" tool_tip="マウスを 1 回左クリックすると、オブジェクトに対してアクションを起こせるようになります。各クリックアクションには、何ができるかを示す特別なカーソルがあります。クリックアクションによっては、動作要件が必要なものもあります。たとえば、[タッチ]や[支払い]にはスクリプトが必要になるなどです">
+      <combo_box name="clickaction" tool_tip="マウスを１回左クリックすると、オブジェクトに対してアクションを起こせるようになります。各クリックアクションには、何ができるかを示す特別なカーソルがあります。クリック・アクションによっては、動作要件が必要なものもあります。たとえば、「触る」や「お支払い」には、スクリプトが必要になるなどです">
         <combo_box.item label="触る（デフォルト）" name="Touch/grab(default)" />
         <combo_box.item label="オブジェクトに座る" name="Sitonobject" />
         <combo_box.item label="オブジェクトを購入する" name="Buyobject" />
@@ -123,22 +123,22 @@
         <combo_box.item label="なし" name="None" />
       </combo_box>
       <check_box label="販売対象：" name="checkbox for sale" tool_tip="このオブジェクトやオブジェクトの中身が購入できるようになるか、指定価格でインワールドにコピーできるようになります。" />
-      <spinner label="L$" name="Edit Cost" tool_tip="オブジェクトの価格。" />
+      <spinner label="L$" name="Edit Cost" tool_tip="オブジェクトの価格" />
       <combo_box name="sale type" tool_tip="購入者がコピー、コピーの中身、またはアイテム自体を受け取るのか選択してください。">
         <combo_box.item label="コピー" name="Copy" />
         <combo_box.item label="中身" name="Contents" />
-        <combo_box.item label="オリジナル" name="Original" />
+        <combo_box.item label="オブジェクトそのもの" name="Original" />
       </combo_box>
       <check_box label="検索に表示" name="search_check" tool_tip="検索結果にこのオブジェクトを表示します。" />
       <panel name="perms_build">
-        <text name="perm_modify">あなたはこのオブジェクトを修正できます。</text>
+        <text name="perm_modify">あなたは、このオブジェクトを修正することができます。</text>
         <text name="Anyone can:">全員：</text>
         <check_box label="移動" name="checkbox allow everyone move" tool_tip="オブジェクトは誰でも動かすことができます。" />
         <check_box label="コピー" name="checkbox allow everyone copy" tool_tip="オブジェクトのコピーは誰でも受け取ることができます。オブジェクトとそのオブジェクトの中身はすべて、コピーまたは譲渡できるように設定する必要があります。" />
-        <text name="Next owner can:">次の所有者：</text>
-        <check_box label="修正" name="checkbox next owner can modify" tool_tip="次の所有者は、アイテム名などのプロパティ内容を編集したり、このオブジェクトのサイズを変更することができます。" />
-        <check_box label="コピー" name="checkbox next owner can copy" tool_tip="次の所有者は、このオブジェクトを無制限にコピーできます。コピーには制作者の情報が含まれ、コピー元のアイテムと違って許可などに関し制限があります。" />
-        <check_box label="再販・プレゼント" name="checkbox next owner can transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販できます。" />
+        <text name="Next owner can:">譲渡先の所有者：</text>
+        <check_box label="修正" name="checkbox next owner can modify" tool_tip="譲渡先の所有者は、アイテム名などのプロパティ内容を編集したり、このオブジェクトのサイズを変更することができます。" />
+        <check_box label="コピー" name="checkbox next owner can copy" tool_tip="譲渡先の所有者は、このオブジェクトを無制限にコピーできます。コピーには制作者の情報が含まれ、コピー元のアイテムと違って許可などに関し制約があります。" />
+        <check_box label="再販・プレゼント" name="checkbox next owner can transfer" tool_tip="譲渡先の所有者は、このオブジェクトを他人に譲渡したり再販することができます。" />
         <text name="B:">B：</text>
         <text name="O:">O：</text>
         <text name="G:">G：</text>
@@ -151,10 +151,10 @@
       </panel>
     </panel>
     <panel label="形状" name="Object">
-      <check_box label="ロック" name="checkbox locked" tool_tip="オブジェクトの移動と削除を禁止します。 この機能を使うと、制作中の意図せぬ編集を防ぐことができます" />
-      <check_box label="物理" name="Physical Checkbox Ctrl" tool_tip="オブジェクトに対する重力の作用と影響を有効にします" />
-      <check_box label="臨時" name="Temporary Checkbox Ctrl" tool_tip="制作後 1 分でオブジェクトは削除されます" />
-      <check_box label="ファントム" name="Phantom Checkbox Ctrl" tool_tip="オブジェクト同士の衝突またはオブジェクトとアバターの衝突を回避します" />
+      <check_box label="ロック" name="checkbox locked" tool_tip="オブジェクトの移動と削除を禁止します。この機能を使うと、制作中の意図せぬ編集を防ぐことができます。" />
+      <check_box label="物理" name="Physical Checkbox Ctrl" tool_tip="オブジェクトに対する重力の作用と影響を有効にします。" />
+      <check_box label="臨時" name="Temporary Checkbox Ctrl" tool_tip="制作後１分でオブジェクトは削除されます。" />
+      <check_box label="ファントム" name="Phantom Checkbox Ctrl" tool_tip="オブジェクト同士の衝突、またはオブジェクトとアバターの衝突を回避します。" />
       <text name="label position">位置（メートル）</text>
       <spinner label="X" name="Pos X" />
       <spinner label="Y" name="Pos Y" />
@@ -202,15 +202,15 @@
       <text name="advanced_cut">プロフィールカット（始点と終点）</text>
       <text name="advanced_dimple">くぼみ（始点と終点）</text>
       <text name="advanced_slice">切り取り（始点と終点）</text>
-      <spinner label="B" name="Path Limit Begin" />
-      <spinner label="E" name="Path Limit End" />
+      <spinner label="始" name="Path Limit Begin" />
+      <spinner label="終" name="Path Limit End" />
       <text name="text taper2">テーパー</text>
       <spinner label="X" name="Taper X" />
       <spinner label="Y" name="Taper Y" />
       <text name="text radius delta">半径</text>
       <text name="text revolutions">回転体</text>
-      <texture_picker label="スカルプトテクスチャ" name="sculpt texture control" tool_tip="クリックして画像を選択してください" />
-      <check_box label="ミラー" name="sculpt mirror control" tool_tip="スカルプトプリムを X 軸上で反転させます" />
+      <texture_picker label="スカルプトテクスチャ" name="sculpt texture control" tool_tip="クリックして画像を選択してください。" />
+      <check_box label="ミラー" name="sculpt mirror control" tool_tip="スカルプトプリムをＸ軸上で反転させます" />
       <check_box label="裏返し" name="sculpt invert control" tool_tip="スカルプトプリムを反転させて裏返します" />
       <text name="label sculpt type">縫い目のタイプ</text>
       <combo_box name="sculpt type control">
@@ -224,19 +224,19 @@
       <panel.string name="None">なし</panel.string>
       <panel.string name="Prim">プリム</panel.string>
       <panel.string name="Convex Hull">凸状の外殻構造</panel.string>
-      <text name="select_single">プリムを 1 つだけ選択して編集してください</text>
+      <text name="select_single">プリムを１つだけ選択して編集してください。</text>
       <text name="edit_object">オブジェクトの特徴を編集：</text>
-      <check_box label="アニメーションメッシュ" name="Animated Mesh Checkbox Ctrl" tool_tip="リグ入りメッシュオブジェクトをそれぞれアニメーションさせることができるようになります" />
-      <check_box label="フレキシブルパス" name="Flexible1D Checkbox Ctrl" tool_tip="Z 軸を中心にオブジェクトの屈曲を有効にします（クライアント側のみ）" />
+      <check_box label="アニメーションメッシュ" name="Animated Mesh Checkbox Ctrl" tool_tip="リグ入りメッシュオブジェクトを、それぞれアニメーションさせることができるようになります。" />
+      <check_box label="フレキシブルパス" name="Flexible1D Checkbox Ctrl" tool_tip="Ｚ軸を中心に、オブジェクトの屈曲を有効にします。（クライアント側のみ）" />
       <spinner label="柔軟性" name="FlexNumSections" />
       <spinner label="重力" name="FlexGravity" />
       <spinner label="ドラッグ" name="FlexFriction" />
       <spinner label="風" name="FlexWind" />
       <spinner label="緊張" name="FlexTension" />
-      <spinner label="X 軸方向の力" name="FlexForceX" />
-      <spinner label="Y 軸方向の力" name="FlexForceY" />
-      <spinner label="Z 軸方向の力" name="FlexForceZ" />
-      <check_box label="光" name="Light Checkbox Ctrl" tool_tip="オブジェクトが発光します" />
+      <spinner label="X軸方向の力" name="FlexForceX" />
+      <spinner label="Y軸方向の力" name="FlexForceY" />
+      <spinner label="Z軸方向の力" name="FlexForceZ" />
+      <check_box label="発光" name="Light Checkbox Ctrl" tool_tip="オブジェクトが発光します" />
       <color_swatch label="" name="colorswatch" tool_tip="クリックしてカラーピッカーを開きます" />
       <texture_picker label="" name="light texture control" tool_tip="クリックで投影画を選択します（遅延レンダリング有効時のみ）" />
       <spinner label="輝度" name="Light Intensity" />
@@ -263,7 +263,7 @@
     </panel>
     <panel label="材質" name="Texture" />
     <panel label="中身" name="Contents">
-      <button label="新しいスクリプト" label_selected="新規スクリプト" name="button new script" />
+      <button label="新規スクリプト" label_selected="新規スクリプト" name="button new script" />
       <button label="権限" name="button permissions" />
     </panel>
   </tab_container>

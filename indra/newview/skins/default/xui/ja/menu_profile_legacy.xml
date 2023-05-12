@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<toggleable_menu name="menu_profile_legacy" left="0" bottom="0" visible="false" mouse_opaque="false">
+<toggleable_menu name="menu_profile_legacy">
   <menu_item_call label="Webのプロフィールを表示…" name="webprofile" />
   <menu_item_separator />
   <!--

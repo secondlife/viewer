@@ -5,7 +5,7 @@
   <floater.string name="messaging_complete_none_found">経路探索キャラクターがありません。</floater.string>
   <floater.string name="messaging_complete_available">[NUM_TOTAL]キャラクター中[NUM_SELECTED]キャラクターが選択されました。</floater.string>
   <floater.string name="messaging_not_enabled">このリージョン（地域）は経路探索に対応していません。</floater.string>
-  <floater.string name="character_cpu_time">[CPU_TIME]µs</floater.string>
+  <floater.string name="character_cpu_time">[CPU_TIME]㎲</floater.string>
   <floater.string name="character_owner_loading">[Loading]</floater.string>
   <floater.string name="character_owner_unknown">[Unknown]</floater.string>
   <floater.string name="character_owner_group">[group]</floater.string>

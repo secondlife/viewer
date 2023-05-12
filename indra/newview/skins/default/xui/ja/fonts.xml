@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <fonts>
   <font name="default" comment="default font files (global fallbacks)">
+    <file>NotoSansCJKjp-Medium.otf</file>
     <file>DejaVuSans.ttf</file>
     <os name="Windows">
       <file load_collection="true">YuGothM.ttc</file>
@@ -31,6 +32,7 @@
     </os>
   </font>
   <font name="SansSerifBold" comment="Name of bold sans-serif font">
+    <file>NotoSansCJKjp-Bold.otf</file>
     <file>DejaVuSans-Bold.ttf</file>
     <os name="Windows">
       <file load_collection="true">YuGothB.ttc</file>
@@ -60,10 +62,11 @@
     <file>DejaVuSans-BoldOblique.ttf</file>
   </font>
   <font name="Monospace" comment="Name of monospace font">
-
+    <file></file>
     <file>DejaVuSansMono.ttf</file>
   </font>
   <font name="DejaVu" comment="Name of DejaVu font">
+    <file>NotoSansMonoCJKjp-Regular.otf</file>
     <file>DejaVuSans.ttf</file>
   </font>
   <font name="DejaVu" comment="Name of DejaVu font (bold)" font_style="BOLD">
