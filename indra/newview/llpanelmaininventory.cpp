@@ -938,6 +938,7 @@ void LLPanelMainInventory::reshape(S32 width, S32 height, BOOL called_from_paren
 {
     mCombinationShapeDirty = true;
     LLPanel::reshape(width, height, called_from_parent);
+    updateCombinationVisibility();
 }
 
 // virtual
@@ -959,9 +960,9 @@ void LLPanelMainInventory::draw()
 		mResortActivePanel = false;
 	}
 
+    updateCombinationVisibility();
 	LLPanel::draw();
 	updateItemcountText();
-    updateCombinationVisibility();
 }
 
 void LLPanelMainInventory::updateItemcountText()
