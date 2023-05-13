@@ -4,7 +4,7 @@
   <menu_item_call label="ボイスコール…" name="Call" />
   <menu_item_call label="チャットの履歴を開く…" name="Chat history" />
   <menu_item_call label="プロフィールを表示" name="View Profile" />
-  <menu_item_call label="テレポートを送る" name="teleport" />
+  <menu_item_call label="テレポートのオファー" name="teleport" />
   <menu_item_call label="フレンド登録" name="add_friend" />
   <menu_item_call label="フレンドを削除" name="remove_friend" />
   <menu_item_call label="グループに招待…." name="Invite" />

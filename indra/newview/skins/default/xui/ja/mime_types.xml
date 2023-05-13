@@ -1,28 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <mimetypes name="default">
+  <defaultlabel>（不明）</defaultlabel>
+  <defaultwidget>なし</defaultwidget>
   <widgetset name="web">
     <label name="web_label">Webコンテンツ</label>
-    <tooltip name="web_tooltip">ここにWebコンテンツがあります。</tooltip>
-    <playtip name="web_playtip">Webコンテンツを表示</playtip>
+    <tooltip name="web_tooltip">この場所には、Webコンテンツが含まれています。</tooltip>
+    <playtip name="web_playtip">Web コンテンツを表示する</playtip>
   </widgetset>
   <widgetset name="movie">
     <label name="movie_label">ムービー</label>
-    <tooltip name="movie_tooltip">ここにはムービーがあります。</tooltip>
-    <playtip name="movie_playtip">ムービー再生</playtip>
+    <tooltip name="movie_tooltip">この場所には、ムービーがあります。</tooltip>
+    <playtip name="movie_playtip">ムービーを再生する</playtip>
   </widgetset>
   <widgetset name="image">
     <label name="image_label">画像</label>
-    <tooltip name="image_tooltip">ここには画像があります。</tooltip>
-    <playtip name="image_playtip">ここの画像を表示</playtip>
+    <tooltip name="image_tooltip">この場所には、画像があります</tooltip>
+    <playtip name="image_playtip">この場所の画像を表示する</playtip>
   </widgetset>
   <widgetset name="audio">
     <label name="audio_label">オーディオ</label>
-    <tooltip name="audio_tooltip">ここではオーディオが聞けます。</tooltip>
-    <playtip name="audio_playtip">ここのオーディオを再生する</playtip>
+    <tooltip name="audio_tooltip">この場所には、オーディオがあります。</tooltip>
+    <playtip name="audio_playtip">この場所のオーディオを再生する</playtip>
   </widgetset>
   <widgetset name="none">
     <label name="none_label">コンテンツなし</label>
-    <tooltip name="none_tooltip">ここにはメディアはありません。</tooltip>
+    <tooltip name="none_tooltip">この場所には、メディアがありません。</tooltip>
   </widgetset>
   <scheme name="rtsp">
     <label name="rtsp_label">リアルタイム・ストリーミング</label>
@@ -31,7 +33,7 @@
     <label name="example_label">例 プラグイン スキーム トリガー</label>
   </scheme>
   <scheme name="libvlc">
-    <label name="libvlc_label">LibVLC 対応メディア</label>
+    <label name="libvlc_label">LibVLC対応メディア</label>
   </scheme>
   <mimetype name="blank">
     <label name="blank_label">─なし─</label>
@@ -52,7 +54,7 @@
     <label name="vnd.secondlife.qt.legacy_label">ムービー（QuickTime）</label>
   </mimetype>
   <mimetype name="application/javascript">
-    <label name="application/javascript_label">Javascript</label>
+    <label name="application/javascript_label">JavaScript</label>
   </mimetype>
   <mimetype name="application/ogg">
     <label name="application/ogg_label">Oggオーディオ／ビデオ</label>
@@ -61,7 +63,7 @@
     <label name="application/pdf_label">PDFドキュメント</label>
   </mimetype>
   <mimetype name="application/postscript">
-    <label name="application/postscript_label">Postscriptドキュメント</label>
+    <label name="application/postscript_label">PostScriptドキュメント</label>
   </mimetype>
   <mimetype name="application/rtf">
     <label name="application/rtf_label">リッチ・テキスト（RTF）</label>

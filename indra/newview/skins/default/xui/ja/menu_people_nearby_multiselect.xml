@@ -6,5 +6,5 @@
   <menu_item_call label="コール" name="call" />
   <menu_item_call label="共有" name="share" />
   <menu_item_call label="支払い" name="pay" />
-  <menu_item_call label="テレポートを送る" name="offer_teleport" />
+  <menu_item_call label="テレポートをオファー" name="offer_teleport" />
 </context_menu>

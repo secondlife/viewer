@@ -6,7 +6,7 @@
   <menu_item_call label="選択した項目を閉じる" name="close_selected_conversations" />
   <menu_item_call label="プロフィールを表示" name="view_profile" />
   <menu_item_call label="IM" name="im" />
-  <menu_item_call label="テレポートを送る" name="offer_teleport" />
+  <menu_item_call label="テレポートのオファー" name="offer_teleport" />
   <menu_item_call label="ボイスコール" name="voice_call" />
   <menu_item_call label="チャットの履歴…" name="chat_history" />
   <menu_item_call label="フレンド追加" name="add_friend" />
@@ -17,11 +17,12 @@
   <menu_item_call label="地図" name="map" />
   <menu_item_call label="共有" name="share" />
   <menu_item_call label="支払い" name="pay" />
+  <menu_item_call label="嫌がらせの報告" name="report_abuse" />
   <menu_item_check label="ボイスをブロック" name="block_unblock" />
   <menu_item_check label="テキストをブロックする" name="MuteText" />
-  <menu_item_call label="グループ情報" name="group_profile" />
-  <menu_item_call label="グループをアクティブにする" name="activate_group" />
-  <menu_item_call label="グループから脱退する" name="leave_group" />
+  <menu_item_call label="グループのプロフィール" name="group_profile" />
+  <menu_item_call label="このグループをアクティブ化" name="activate_group" />
+  <menu_item_call label="このグループから脱退する" name="leave_group" />
   <context_menu label="モデレーターのオプション" name="Moderator Options">
     <menu_item_check label="テキストチャットを許可" name="AllowTextChat" />
     <menu_item_call label="この参加者をミュートする" name="ModerateVoiceMuteSelected" />
@@ -29,5 +30,5 @@
     <menu_item_call label="全員の音声をミュートする" name="ModerateVoiceMute" />
     <menu_item_call label="全員のミュートを解除する" name="ModerateVoiceUnmute" />
   </context_menu>
-  <menu_item_call label="メンバーを立入禁止" name="BanMember" />
+  <menu_item_call label="メンバーをバンする" name="BanMember" />
 </toggleable_menu>

@@ -37,20 +37,20 @@
     <menu_item_call label="ホバーする高さ…" name="Hover Height" />
     <menu_item_call label="シェイプの編集…" name="Edit My Shape" />
     <menu_item_call label="アウトフィットパーツの編集…" name="Edit Outfit" />
-    <menu label="脱ぐ　＞" name="Take Off &gt;">
-      <menu label="服装　＞" name="Clothes &gt;">
-        <menu_item_call enabled="false" label="シャツ" name="Shirt" />
-        <menu_item_call enabled="false" label="ズボン" name="Pants" />
-        <menu_item_call enabled="false" label="スカート" name="Skirt" />
-        <menu_item_call enabled="false" label="靴" name="Shoes" />
-        <menu_item_call enabled="false" label="靴下" name="Socks" />
-        <menu_item_call enabled="false" label="上着" name="Jacket" />
-        <menu_item_call enabled="false" label="手袋" name="Gloves" />
-        <menu_item_call enabled="false" label="下着（上半身）" name="Self Undershirt" />
-        <menu_item_call enabled="false" label="下着（下半身）" name="Self Underpants" />
-        <menu_item_call enabled="false" label="タトゥ" name="Self Tattoo" />
-        <menu_item_call enabled="false" label="物理作用" name="Self Physics" />
-        <menu_item_call enabled="false" label="アルファ" name="Self Alpha" />
+    <menu label="脱ぐ　▶" name="Take Off &gt;">
+      <menu label="服装　▶" name="Clothes &gt;">
+        <menu_item_call label="シャツ" name="Shirt" />
+        <menu_item_call label="ズボン" name="Pants" />
+        <menu_item_call label="スカート" name="Skirt" />
+        <menu_item_call label="靴" name="Shoes" />
+        <menu_item_call label="靴下" name="Socks" />
+        <menu_item_call label="上着" name="Jacket" />
+        <menu_item_call label="手袋" name="Gloves" />
+        <menu_item_call label="下着（上半身）" name="Self Undershirt" />
+        <menu_item_call label="下着（下半身）" name="Self Underpants" />
+        <menu_item_call label="タトゥ" name="Self Tattoo" />
+        <menu_item_call label="物理作用" name="Self Physics" />
+        <menu_item_call label="アルファ" name="Self Alpha" />
         <menu_item_separator />
         <menu_item_call label="すべての服装" name="All Clothes" />
       </menu>
@@ -504,9 +504,9 @@
     </menu>
     <menu_item_call label="スクリプト付きカメラをダンプ" name="Dump Scripted Camera" />
     <menu label="レコーダー" name="Recorder">
-      <menu_item_call visible="false" label="イベントの記録開始" name="Start event recording" />
-      <menu_item_call visible="false" label="イベントの記録停止" name="Stop event recording" />
-      <menu_item_call visible="false" label="イベントの記録のプレイバック" name="Playback event recording" />
+      <menu_item_call label="イベントの記録開始" name="Start event recording" />
+      <menu_item_call label="イベントの記録停止" name="Stop event recording" />
+      <menu_item_call label="イベントの記録のプレイバック" name="Playback event recording" />
 
       <menu_item_call label="再生開始" name="Start Playback" />
       <menu_item_call label="再生停止" name="Stop Playback" />

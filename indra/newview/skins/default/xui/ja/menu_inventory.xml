@@ -7,17 +7,19 @@
   <menu_item_call label="リストを編集" name="Marketplace Edit Listing" />
   <menu_item_call label="リスト" name="Marketplace List" />
   <menu_item_call label="リストから取り除く" name="Marketplace Unlist" />
-  <menu_item_call label="有効にする" name="Marketplace Activate" />
-  <menu_item_call label="無効にする" name="Marketplace Deactivate" />
+  <menu_item_call label="有効に" name="Marketplace Activate" />
+  <menu_item_call label="無効に" name="Marketplace Deactivate" />
+  <menu_item_separator name="Marketplace Listings Separator" />
   <menu_item_call label="共有" name="Share" />
   <menu_item_call label="開く" name="Task Open" />
   <menu_item_call label="再生" name="Task Play" />
   <menu_item_call label="プロパティ" name="Task Properties" />
   <menu_item_call label="名前の変更" name="Task Rename" />
   <menu_item_call label="削除" name="Task Remove" />
-  <menu_item_call label="ごみ箱を空にする" name="Empty Trash" />
-  <menu_item_call label="遺失物フォルダを空にする" name="Empty Lost And Found" />
+  <menu_item_call label="ごみ箱を空に" name="Empty Trash" />
+  <menu_item_call label="遺失物フォルダを空に" name="Empty Lost And Found" />
   <menu_item_call label="新しいフォルダ" name="New Folder" />
+  <menu_item_call label="新しいアウトフィット" name="New Outfit" />
   <menu_item_call label="新しいスクリプト" name="New Script" />
   <menu_item_call label="新しいノートカード" name="New Note" />
   <menu_item_call label="新しいジェスチャー" name="New Gesture" />
@@ -68,49 +70,63 @@
   <menu_item_call label="テレポート" name="Landmark Open" />
   <menu_item_call label="開く" name="Animation Open" />
   <menu_item_call label="開く" name="Sound Open" />
-  <menu_item_call label="着用中のアウトフィットを入れ替える" name="Replace Outfit" />
-  <menu_item_call label="着用中のアウトフィットに追加する" name="Add To Outfit" />
+  <menu_item_call label="着用中のアウトフィットと入れ替え" name="Replace Outfit" />
+  <menu_item_call label="着用中のアウトフィットに追加" name="Add To Outfit" />
   <menu_item_call label="着用中のアウトフィットから取り外す" name="Remove From Outfit" />
-  <menu_item_call label="アウトフィットのリストをクリップボードにコピー" name="Copy outfit list to clipboard" />
+  <menu_item_call label="アウトフィット一覧をクリップボードにコピー" name="Copy outfit list to clipboard" />
+  <menu_item_separator name="Outfit Separator" />
   <menu_item_call label="オリジナルを探す" name="Find Original" />
-  <menu_item_call label="アイテムを除外する" name="Purge Item" />
-  <menu_item_call label="アイテムを復元する" name="Restore Item" />
+  <menu_item_call label="アイテムを除外" name="Purge Item" />
+  <menu_item_call label="アイテムを復元" name="Restore Item" />
   <menu_item_call label="開く" name="Open" />
-  <menu_item_call label="オリジナルを開きます" name="Open Original" />
+  <menu_item_call label="オリジナルを開く" name="Open Original" />
   <menu_item_call label="プロパティ" name="Properties" />
-  <menu_item_call label="名前を変更する" name="Rename" />
-  <menu_item_call label="UUID をコピーする" name="Copy Asset UUID" />
-  <menu_item_call label="メイン画面で表示する" name="Show in Main Panel" />
+  <menu_item_call label="名前を変更" name="Rename" />
+  <menu_item_call label="アセットのUUIDをコピー" name="Copy Asset UUID" />
+  <menu_item_call label="メインパネルで表示" name="Show in Main Panel" />
   <menu_item_call label="カット" name="Cut" />
   <menu_item_call label="コピー" name="Copy" />
   <menu_item_call label="ペースト" name="Paste" />
-  <menu_item_call label="リンクをペーストる" name="Paste As Link" />
+  <menu_item_call label="リンクとしてペースト" name="Paste As Link" />
   <menu_item_call label="リンクを置き換える" name="Replace Links" />
+  <menu_item_separator name="Paste Separator" />
   <menu_item_call label="削除" name="Delete" />
-  <menu_item_call label="システムフォルダを削除する" name="Delete System Folder" />
-  <menu_item_call label="会話チャットを開始する" name="Conference Chat Folder" />
-  <menu_item_call label="再生する" name="Sound Play" />
-  <menu_item_call label="SLurl をコピー" name="url_copy" />
+  <menu_item_call label="システムフォルダを削除" name="Delete System Folder" />
+  <menu_item_separator />
+  <menu_item_separator />
+  <menu_item_call label="会話チャットを開始" name="Conference Chat Folder" />
+  <menu_item_call label="再生" name="Sound Play" />
+  <menu_item_call label="SLurlをコピー" name="url_copy" />
   <menu_item_call label="ランドマークの情報" name="About Landmark" />
   <menu_item_call label="地図に表示" name="show_on_map" />
-  <menu_item_call label="インワールドで再生する" name="Animation Play" />
-  <menu_item_call label="ローカルで再生する" name="Animation Audition" />
-  <menu_item_call label="インスタントメッセージを送信する" name="Send Instant Message" />
-  <menu_item_call label="テレポートを送る…" name="Offer Teleport..." />
-  <menu_item_call label="会話チャットを開始する" name="Conference Chat" />
-  <menu_item_call label="アクティブ" name="Activate" />
-  <menu_item_call label="非アクティブ" name="Deactivate" />
-  <menu_item_call label="名前をつけて保存する" name="Save As" />
-  <menu_item_call label="自分から取り外す" name="Detach From Yourself" />
+  <menu_item_separator name="Animation Separator" />
+  <menu_item_call label="インワールドで再生" name="Animation Play" />
+  <menu_item_call label="ローカルで再生" name="Animation Audition" />
+  <menu_item_call label="インスタントメッセージを送信" name="Send Instant Message" />
+  <menu_item_call label="テレポートをオファー…" name="Offer Teleport..." />
+  <menu_item_call label="テレポートをリクエスト…" name="Request Teleport..." />
+  <menu_item_call label="会話チャットを開始" name="Conference Chat" />
+  <menu_item_call label="有効化" name="Activate" />
+  <menu_item_call label="無効化" name="Deactivate" />
+  <menu_item_call label="名前をつけて保存" name="Save As" />
+  <menu_item_call label="選択を名前をつけて保存" layout="topleft" name="Save Selected As" />
+  <menu_item_separator name="Wearable And Object Separator" />
+  <!-- COMMENTED OUT for DEV-32347 -->
+  <!--
+  <menu_item_call label="最後の場所へリストア" name="Restore to Last Position" />
+  -->
   <menu_item_call label="装着" name="Wearable And Object Wear" />
   <menu label="装着先" name="Attach To" />
   <menu label="HUD 装着先" name="Attach To HUD" />
   <menu_item_call label="触る" name="Attachment Touch" />
   <menu_item_call label="編集" name="Wearable Edit" />
   <menu_item_call label="追加" name="Wearable Add" />
-  <menu_item_call label="取り外す" name="Take Off" />
+  <menu_item_call label="取り外す" name="Detach From Yourself" />
+  <menu_item_call label="脱ぐ" name="Take Off" />
+  <menu_item_separator name="Settings Separator" />
   <menu_item_call label="自分にのみ適用" name="Settings Apply Local" />
   <menu_item_call label="区画に適用" name="Settings Apply Parcel" />
+  <menu_item_separator layout="topleft" />
   <menu_item_call label="マーケットプレイスのリストにコピー" name="Marketplace Copy" />
   <menu_item_call label="マーケットプレイスのリストに移動" name="Marketplace Move" />
   <menu_item_call label="－オプションなし－" name="--no options--" />
