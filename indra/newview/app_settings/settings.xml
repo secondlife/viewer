@@ -16964,17 +16964,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  <key>360CaptureUseInterestListCap</key>
-  <map>
-    <key>Comment</key>
-    <string>Flag if set, uses the new InterestList cap to ask the simulator for full content</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>1</integer>
-  </map>
   <key>360CaptureJPEGEncodeQuality</key>
   <map>
     <key>Comment</key>

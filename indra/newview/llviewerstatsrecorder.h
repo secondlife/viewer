@@ -53,11 +53,11 @@ class LLViewerStatsRecorder : public LLSingleton<LLViewerStatsRecorder>
 	bool isEnabled() const { return mEnableStatsRecording; }
 	bool isLogging() const { return mEnableStatsLogging; }
 
-	void objectUpdateFailure(S32 msg_size)
+	void objectUpdateFailure()
     {
         if (mEnableStatsRecording)
         {
-            recordObjectUpdateFailure(msg_size);
+            mObjectUpdateFailures++;
         }
 	}
 
@@ -73,7 +73,7 @@ class LLViewerStatsRecorder : public LLSingleton<LLViewerStatsRecorder>
     {
         if (mEnableStatsRecording)
         {
-            recordCacheHitEvent();
+            mObjectCacheHitCount++;
         }
     }
 
@@ -97,7 +97,7 @@ class LLViewerStatsRecorder : public LLSingleton<LLViewerStatsRecorder>
 	{
         if (mEnableStatsRecording)
         {
-            recordRequestCacheMissesEvent(count);
+            mObjectCacheMissRequests += count;
         }
 	}
 
@@ -105,7 +105,7 @@ class LLViewerStatsRecorder : public LLSingleton<LLViewerStatsRecorder>
 	{
         if (mEnableStatsRecording)
         {
-            recordTextureFetch();
+            mTextureFetchCount += 1;
         }
 	}
 
@@ -113,8 +113,16 @@ class LLViewerStatsRecorder : public LLSingleton<LLViewerStatsRecorder>
 	{
 		if (mEnableStatsRecording)
 		{
-			recordMeshLoaded();
+            mMeshLoadedCount += 1;
 		}
+	}
+
+	void recordObjectKills(S32 num_objects)
+	{ 
+		if (mEnableStatsRecording)
+        {
+            mObjectKills += num_objects;
+        }
 	}
 
 	void idle()
@@ -125,14 +133,9 @@ class LLViewerStatsRecorder : public LLSingleton<LLViewerStatsRecorder>
 	F32 getTimeSinceStart();
 
 private:
-	void recordObjectUpdateFailure(S32 msg_size);
 	void recordCacheMissEvent(U8 cache_miss_type);
-	void recordCacheHitEvent();
 	void recordObjectUpdateEvent(const EObjectUpdateType update_type);
 	void recordCacheFullUpdate(LLViewerRegion::eCacheUpdateResult update_result);
-	void recordRequestCacheMissesEvent(S32 count);
-	void recordTextureFetch();
-	void recordMeshLoaded();
 	void writeToLog(F32 interval);
     void closeStatsFile();
 	void makeStatsFileName();
@@ -158,15 +161,14 @@ private:
 	S32			mObjectFullUpdates;
 	S32			mObjectTerseUpdates;
 	S32			mObjectCacheMissRequests;
-	S32			mObjectCacheMissResponses;
 	S32			mObjectCacheUpdateDupes;
 	S32			mObjectCacheUpdateChanges;
 	S32			mObjectCacheUpdateAdds;
 	S32			mObjectCacheUpdateReplacements;
 	S32			mObjectUpdateFailures;
-	S32			mObjectUpdateFailuresSize;
 	S32			mTextureFetchCount;
     S32         mMeshLoadedCount;
+	S32			mObjectKills;
 
 	void	clearStats();
 };

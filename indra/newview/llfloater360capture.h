@@ -50,8 +50,6 @@ class LLFloater360Capture:
         void onOpen(const LLSD& key) override;
         void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event) override;
 
-        void changeInterestListMode(bool send_everything);
-
         const std::string getHTMLBaseFolder();
         void capture360Images();
 
@@ -93,6 +91,8 @@ class LLFloater360Capture:
         std::string mImageSaveDir;
 
         LLPointer<LLImageRaw> mRawImages[6];
+
+        std::string mStartILMode;
 };
 
 #endif  // LL_FLOATER_360CAPTURE_H

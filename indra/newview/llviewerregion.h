@@ -32,6 +32,7 @@
 #include <string>
 #include <boost/signals2.hpp>
 
+#include "llcorehttputil.h"
 #include "llwind.h"
 #include "v3dmath.h"
 #include "llstring.h"
@@ -278,6 +279,15 @@ public:
 	static bool isSpecialCapabilityName(const std::string &name);
 	void logActiveCapabilities() const;
 
+	// Utilities to post and get via
+    // HTTP using the agent's policy settings and headers.
+    typedef LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t httpCallback_t;
+    bool requestPostCapability(const std::string &capName,
+                               LLSD              &postData,
+                               httpCallback_t     cbSuccess = NULL,
+                               httpCallback_t     cbFailure = NULL);
+    bool requestGetCapability(const std::string &capName, httpCallback_t cbSuccess = NULL, httpCallback_t cbFailure = NULL);
+
     /// implements LLCapabilityProvider
 	/*virtual*/ const LLHost& getHost() const;
 	const U64 		&getHandle() const 			{ return mHandle; }
@@ -477,7 +487,13 @@ public:
 	};
 	typedef std::set<LLViewerRegion*, CompareRegionByLastUpdate> region_priority_list_t;
 
-private:
+	void setInterestListMode(const std::string & new_mode);
+    const std::string & getInterestListMode() const { return mInterestListMode; }
+
+	static const std::string IL_MODE_DEFAULT;
+    static const std::string IL_MODE_360;
+
+  private:
 	static S32  sNewObjectCreationThrottle;
 	LLViewerRegionImpl * mImpl;
 	LLFrameTimer         mRegionTimer;
@@ -574,6 +590,9 @@ private:
 	LLFrameTimer mMaterialsCapThrottleTimer;
 	LLFrameTimer mRenderInfoRequestTimer;
 	LLFrameTimer mRenderInfoReportTimer;
+
+	// how the server interest list works
+    std::string mInterestListMode;
 };
 
 inline BOOL LLViewerRegion::getRegionProtocol(U64 protocol) const
