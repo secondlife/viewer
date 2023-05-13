@@ -295,13 +295,14 @@ public:
 	void                            removeRegionChangedCallback(boost::signals2::connection callback);
 
 
-	void changeInterestListMode(bool use_360_mode);
-	bool getInterestList360Mode() const { return mUse360Mode; }
+	void changeInterestListMode(const std::string & new_mode);
+    const std::string & getInterestListMode() const { return mInterestListMode; }
 
 private:
 	LLViewerRegion	*mRegionp;
 	region_changed_signal_t		            mRegionChangedSignal;
-	bool                                    mUse360Mode;
+
+    std::string								mInterestListMode;	// How agent wants regions to send updates
 
 	//--------------------------------------------------------------------
 	// History

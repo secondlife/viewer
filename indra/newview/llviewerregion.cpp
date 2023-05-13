@@ -104,6 +104,9 @@ S32  LLViewerRegion::sLastCameraUpdated = 0;
 S32  LLViewerRegion::sNewObjectCreationThrottle = -1;
 LLViewerRegion::vocache_entry_map_t LLViewerRegion::sRegionCacheCleanup;
 
+const std::string LLViewerRegion::IL_MODE_DEFAULT = "default";
+const std::string LLViewerRegion::IL_MODE_360     = "360";
+
 typedef std::map<std::string, std::string> CapabilityMap;
 
 static void log_capabilities(const CapabilityMap &capmap);
@@ -647,7 +650,7 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mPaused(FALSE),
 	mRegionCacheHitCount(0),
 	mRegionCacheMissCount(0),
-    mUse360Mode(false)
+    mInterestListMode(IL_MODE_DEFAULT)
 {
 	mWidth = region_width_meters;
 	mImpl->mOriginGlobal = from_region_handle(handle); 
@@ -3286,7 +3289,7 @@ void LLViewerRegion::setCapabilitiesReceived(bool received)
 		mCapabilitiesReceivedSignal.disconnect_all_slots();
 
 		// Set the region to the desired interest list mode
-        setInterestList360Mode(gAgent.getInterestList360Mode());
+        setInterestListMode(gAgent.getInterestListMode());
 	}
 }
 
@@ -3339,22 +3342,21 @@ bool LLViewerRegion::requestGetCapability(const std::string &capName, httpCallba
 }
 
 
-void LLViewerRegion::setInterestList360Mode(bool use_360_mode)
+void LLViewerRegion::setInterestListMode(const std::string &new_mode)
 {
-    if (use_360_mode != mUse360Mode)
+    if (new_mode != mInterestListMode)
     {
-        LLSD body;
-        mUse360Mode = use_360_mode;
+        mInterestListMode = new_mode;
 
-        if (mUse360Mode)
-        {
-            body["mode"] = LLSD::String("360");
-        }
-        else
-        {
-            body["mode"] = LLSD::String("default");
-        }
+		if (mInterestListMode != std::string(IL_MODE_DEFAULT) && mInterestListMode != std::string(IL_MODE_360))
+		{
+			LL_WARNS("360Capture") << "Region " << getRegionID() << " setInterestListMode() invalid interest list mode: " 
+				<< mInterestListMode << ", setting to default" << LL_ENDL;
+            mInterestListMode = IL_MODE_DEFAULT;
+		}
 
+		LLSD body;
+        body["mode"] = mInterestListMode;
         if (requestPostCapability("InterestList", body,
                                   [](const LLSD &response) {
                                       LL_DEBUGS("360Capture") << "InterestList capability responded: \n"
@@ -3375,13 +3377,13 @@ void LLViewerRegion::setInterestList360Mode(bool use_360_mode)
     else
     {
         LL_DEBUGS("360Capture") << "Region " << getRegionID() << "No change, skipping Interest List mode POST to "
-                                << (use_360_mode ? "360" : "default") << " mode" << LL_ENDL;
+								<< new_mode << " mode" << LL_ENDL;
     }
 }
 
 
 
-LLSpatialPartition* LLViewerRegion::getSpatialPartition(U32 type)
+LLSpatialPartition *LLViewerRegion::getSpatialPartition(U32 type)
 {
 	if (type < mImpl->mObjectPartition.size() && type < PARTITION_VO_CACHE)
 	{

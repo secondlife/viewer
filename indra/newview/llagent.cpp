@@ -401,7 +401,7 @@ LLAgent::LLAgent() :
 	mHttpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
 	mTeleportState(TELEPORT_NONE),
 	mRegionp(NULL),
-    mUse360Mode(false),
+    mInterestListMode(LLViewerRegion::IL_MODE_DEFAULT),
 
 	mAgentOriginGlobal(),
 	mPositionGlobal(),
@@ -904,10 +904,9 @@ void LLAgent::capabilityReceivedCallback(const LLUUID &region_id, LLViewerRegion
             LLAppViewer::instance()->updateNameLookupUrl(regionp);
         }
 
-        if (gAgent.getInterestList360Mode())
+        if (gAgent.getInterestListMode() == LLViewerRegion::IL_MODE_360)
         {
-            const bool use_360_mode = true;
-            gAgent.changeInterestListMode(use_360_mode);
+            gAgent.changeInterestListMode(LLViewerRegion::IL_MODE_360);
         }
     }
 }
@@ -2932,22 +2931,29 @@ void LLAgent::processMaturityPreferenceFromServer(const LLSD &result, U8 perferr
 // (hopefully) small period of time while the full contents resolves.
 // Pass in a flag to ask the simulator/interest list to "send everything" or
 // not (the default mode)
-void LLAgent::changeInterestListMode(bool use_360_mode)
+void LLAgent::changeInterestListMode(const std::string &new_mode)
 {
-    mUse360Mode = use_360_mode;
-
-	// Change interest list mode for all regions.  If they are already set for the current mode,
-	// the setting will have no effect.
-    for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
-         iter != LLWorld::getInstance()->getRegionList().end();
-         ++iter)
+    if (new_mode != mInterestListMode)
     {
-        LLViewerRegion *regionp = *iter;
-        if (regionp && regionp->isAlive() && regionp->capabilitiesReceived())
+        mInterestListMode = new_mode;
+
+        // Change interest list mode for all regions.  If they are already set for the current mode,
+        // the setting will have no effect.
+        for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+             iter != LLWorld::getInstance()->getRegionList().end();
+             ++iter)
         {
-            regionp->setInterestList360Mode(mUse360Mode);
+            LLViewerRegion *regionp = *iter;
+            if (regionp && regionp->isAlive() && regionp->capabilitiesReceived())
+            {
+                regionp->setInterestListMode(mInterestListMode);
+            }
         }
     }
+	else
+	{
+		LL_DEBUGS("360Capture") << "Agent interest list mode is already set to " << mInterestListMode << LL_ENDL;
+	}
 }
 
 

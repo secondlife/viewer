@@ -1302,8 +1302,14 @@ public:
     bool handleEvent(const LLSD &userdata)
     {
         // Toggle the mode - regions will get updated
-        bool new_mode = !gAgent.getInterestList360Mode();
-        gAgent.changeInterestListMode(new_mode);
+        if (gAgent.getInterestListMode() == LLViewerRegion::IL_MODE_360)
+        {
+			gAgent.changeInterestListMode(LLViewerRegion::IL_MODE_DEFAULT);
+		}
+		else
+		{
+			gAgent.changeInterestListMode(LLViewerRegion::IL_MODE_360);
+		}
         return true;
     }
 };
@@ -1312,7 +1318,7 @@ class LLAdvancedCheckInterestList360Mode : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		return gAgent.getInterestList360Mode();
+		return (gAgent.getInterestListMode() == LLViewerRegion::IL_MODE_360);
 	}
 };
 

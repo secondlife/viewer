@@ -64,11 +64,10 @@ LLFloater360Capture::LLFloater360Capture(const LLSD& key)
     // such time as we ask it not to (the dtor). If we crash or
     // otherwise, exit before this is turned off, the Simulator
     // will take care of cleaning up for us.
-    mWasIn360Mode = gAgent.getInterestList360Mode();
+    mStartILMode = gAgent.getInterestListMode();
 
     // send everything to us for as long as this floater is open
-    const bool use_360_mode = true;
-    gAgent.changeInterestListMode(use_360_mode);
+    gAgent.changeInterestListMode(LLViewerRegion::IL_MODE_360);
 }
 
 LLFloater360Capture::~LLFloater360Capture()
@@ -86,9 +85,9 @@ LLFloater360Capture::~LLFloater360Capture()
     // list updates.
     if (!LLApp::isExiting() && 
         gSavedSettings.getBOOL("360CaptureUseInterestListCap") &&
-        mWasIn360Mode != gAgent.getInterestList360Mode())
+        mStartILMode != gAgent.getInterestListMode())
     {
-        gAgent.changeInterestListMode(mWasIn360Mode);
+        gAgent.changeInterestListMode(mStartILMode);
     }
 }
 

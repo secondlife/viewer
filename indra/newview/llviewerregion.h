@@ -487,12 +487,13 @@ public:
 	};
 	typedef std::set<LLViewerRegion*, CompareRegionByLastUpdate> region_priority_list_t;
 
-	void setInterestList360Mode(bool use_360_mode);
-	bool getInterestList360Mode() const { return mUse360Mode; }
+	void setInterestListMode(const std::string & new_mode);
+    const std::string & getInterestListMode() const { return mInterestListMode; }
 
+	static const std::string IL_MODE_DEFAULT;
+    static const std::string IL_MODE_360;
 
-
-private:
+  private:
 	static S32  sNewObjectCreationThrottle;
 	LLViewerRegionImpl * mImpl;
 	LLFrameTimer         mRegionTimer;
@@ -591,7 +592,7 @@ private:
 	LLFrameTimer mRenderInfoReportTimer;
 
 	// how the server interest list works
-    bool mUse360Mode;
+    std::string mInterestListMode;
 };
 
 inline BOOL LLViewerRegion::getRegionProtocol(U64 protocol) const

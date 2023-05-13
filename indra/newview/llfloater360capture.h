@@ -92,7 +92,7 @@ class LLFloater360Capture:
 
         LLPointer<LLImageRaw> mRawImages[6];
 
-        bool mWasIn360Mode;
+        std::string mStartILMode;
 };
 
 #endif  // LL_FLOATER_360CAPTURE_H
