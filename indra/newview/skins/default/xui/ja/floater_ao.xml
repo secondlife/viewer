@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="ao" title="アニメーションの上書き">
-  <floater.string name="ao_no_sets_loaded">セットが読み込まれていません。</floater.string>
-  <floater.string name="ao_no_animations_loaded">アニメーションが読み込まれていません。</floater.string>
-  <panel name="animation_overrider_outer_panel" filename="panel_ao.xml" />
-</floater>

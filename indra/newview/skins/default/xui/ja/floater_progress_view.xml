@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="progress_view">
-  <floater.string name="loc_fmt">[REGION]へレポートしています…。</floater.string>
-  <floater.string name="teleporting">テレポートしています…。</floater.string>
-  <text name="location" value="[APP_NAME]" />
-  <text name="progress_text" />
-  <button label="キャンセル" />
-  <progress_bar name="progress_bar" />
-</floater>

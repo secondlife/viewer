@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="asset_hex_editor" title="Hexエディタ">
-  <hex_editor name="hex" />
-  <slider label="カラム" name="column_count" />
-  <text name="status_text">[STATUS]</text>
-  <button name="upload_btn" label="[UPLOAD]" />
-  <button name="save_btn" label="保存" />
-</floater>

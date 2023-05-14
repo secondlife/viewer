@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_profile_legacy" title="プロフィール">
-  <panel name="panel_profile_legacy_sidetray" label="プロフィール" />
-</floater>

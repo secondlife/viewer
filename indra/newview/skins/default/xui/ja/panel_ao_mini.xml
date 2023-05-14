@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="ao_mini">
-  <combo_box name="set_list" />
-  <button name="ao_wrench" tool_tip="メインのAOコントロールを開く" />
-  <button name="ao_prev" tool_tip="現在の状態の次のアニメーションに切り替えます。" />
-  <button name="ao_next" tool_tip="現在の状態の次のアニメーションに切り替えます。" />
-</panel>

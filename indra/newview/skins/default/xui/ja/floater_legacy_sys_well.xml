@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="legacy_sys_well_window" title="通知">
-  <string name="title_im_well_window">会話</string>
-  <string name="title_notification_well_window">通知</string>
-
-  <flat_list_view color="FloaterDefaultBackgroundColor" />
-</floater>

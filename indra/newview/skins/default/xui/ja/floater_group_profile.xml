@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_group_profile" title="グループ">
-  <floater.string name="title_create_group">新しいグループを作成…</floater.string>
-  <panel name="panel_group_info_sidetray" filename="panel_group_info_sidetray.xml" />
-  <panel name="panel_group_creation_sidetray" filename="panel_group_creation_sidetray.xml" />
-</floater>
