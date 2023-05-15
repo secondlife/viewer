@@ -401,10 +401,15 @@ LLVector3 LLAgentCamera::calcFocusOffset(LLViewerObject *object, LLVector3 origi
 
 	// if is avatar - don't do any funk heuristics to position the focal point
 	// see DEV-30589
-	if (object->isAvatar() || (object->isAnimatedObject() && object->getControlAvatar()))
+	if ((object->isAvatar() && !object->isRoot()) || (object->isAnimatedObject() && object->getControlAvatar()))
 	{
 		return original_focus_point - obj_pos;
 	}
+    if (object->isAvatar())
+    {
+        LLVOAvatar* av = object->asAvatar();
+        return original_focus_point - av->getCharacterPosition();
+    }
 	
 	LLQuaternion inv_obj_rot = ~obj_rot; // get inverse of rotation
 	LLVector3 object_extents = object->getScale();	
