@@ -616,12 +616,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>e85e29bb4924ca7333e387acc29bf5445aa33f4e</string>
+              <string>0a637eed8c841e29fc12459d8e122d188f27177f</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-fmodstudio/releases/download/v2.02.06.c0dea14/fmodstudio-2.02.06.c0dea14-darwin64-c0dea14.tar.zst</string>
+              <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/108297245</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -630,12 +632,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>4c165679be285584dae7613706a725c613cac343</string>
+              <string>68fb759ee1f99e4d4df97354b228a82b7bbfc5b4</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-fmodstudio/releases/download/v2.02.06.c0dea14/fmodstudio-2.02.06.c0dea14-linux64-c0dea14.tar.zst</string>
+              <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/108297247</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -644,12 +648,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>d51f1b31c5dfa45cfbc6cfb57d5dd11147cd36a6</string>
+              <string>fb13595a59f31aa2730723499cabd0397e5f1b18</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-fmodstudio/releases/download/v2.02.06.c0dea14/fmodstudio-2.02.06.c0dea14-windows-c0dea14.tar.zst</string>
+              <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/108297259</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -658,12 +664,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>1627152b815b7c2048e7781ab9c99c4bc49c524b</string>
+              <string>02790e0e9bd904eaa8b15bf9bedb4fabfa80ad64</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-fmodstudio/releases/download/v2.02.06.c0dea14/fmodstudio-2.02.06.c0dea14-windows64-c0dea14.tar.zst</string>
+              <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/108297256</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1276,12 +1284,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>e5b1a93e09a0ce5ba4082953e8f08245224c807c</string>
+              <string>bcc7e2c34896fc9cbc41828dee8a4ddf54f10453</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-kdu/releases/download/v7.10.4.2dc3b89/kdu-7.10.4.2dc3b89-darwin64-2dc3b89.tar.zst</string>
+              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/108298968</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1290,12 +1300,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>72c9ffff1d08d3e4aa6b367e6c9fcbbc9709b145</string>
+              <string>9de772df2ed12e9c742df6c90670c7cbbb9c93a6</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-kdu/releases/download/v7.10.4.2dc3b89/kdu-7.10.4.2dc3b89-linux64-2dc3b89.tar.zst</string>
+              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/108298969</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1304,12 +1316,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>9e0a42db2ee1abe11485ee42232f8bde362c98f6</string>
+              <string>3513764294c0c3e4fa669f57bb26454c91e79692</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-kdu/releases/download/v7.10.4.2dc3b89/kdu-7.10.4.2dc3b89-windows-2dc3b89.tar.zst</string>
+              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/108298972</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1318,12 +1332,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>45e7b349a655e47c7bffb667a163b2038dadd4d0</string>
+              <string>92533ff0f8c1881ad85e75800f9072c413ccf7b7</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-kdu/releases/download/v7.10.4.2dc3b89/kdu-7.10.4.2dc3b89-windows64-2dc3b89.tar.zst</string>
+              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/108298970</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1691,10 +1707,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>e51c6f5dfd76eb148348a44ff57e66c2</string>
+              <string>2cd9ebe73cefb04cc4b3a13109a0cd8750d35dcd</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/104810/918016/llphysicsextensions_source-1.0.575107-darwin64-575107.tar.bz2</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/108297119</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1703,10 +1723,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>c1b43e99c5ddccc18b0e9cb288bf75e1</string>
+              <string>0f1b99fc7f79830f32268a3a7f6035e1934fdd5e</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4721/14828/llphysicsextensions_source-1.0.504710-linux64-504710.tar.bz2</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/108297120</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1715,13 +1739,33 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>dbbe4cc568ac149d862e421cdda4dd48</string>
+              <string>306fcd760120cad597f2580265ec550655b4232a</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/104809/918011/llphysicsextensions_source-1.0.575107-windows-575107.tar.bz2</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/108297126</string>
             </map>
             <key>name</key>
             <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>creds</key>
+              <string>github</string>
+              <key>hash</key>
+              <string>0d10dddd2d125496405e9843a64ba87c89c27559</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/108297122</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
           </map>
         </map>
         <key>version</key>
@@ -2445,12 +2489,14 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>983e4c92f07b87a2d1f5d9b003992dac0652ce87</string>
+              <string>cc7c5bf53f83cff81d874ad66394df0991bd432c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-slvoice/releases/download/v4.10.0000.32327.5fc3fe7c.db0dc68/slvoice-4.10.0000.32327.5fc3fe7c.db0dc68-darwin64-db0dc68.tar.zst</string>
+              <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/108299352</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2471,12 +2517,14 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>13107396b48c20663175c131b86164f3868bfa17</string>
+              <string>3a3dedc5ac1c19c6af40673908a3cc0c1f75c52c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-slvoice/releases/download/v4.10.0000.32327.5fc3fe7c.db0dc68/slvoice-4.10.0000.32327.5fc3fe7c.db0dc68-windows-db0dc68.tar.zst</string>
+              <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/108299354</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2485,12 +2533,14 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>6a3745e02a8c83352bec77e0e34e5e990138bc41</string>
+              <string>0c205371bb1731a9812b00556037729fdc057cbc</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-slvoice/releases/download/v4.10.0000.32327.5fc3fe7c.db0dc68/slvoice-4.10.0000.32327.5fc3fe7c.db0dc68-windows64-db0dc68.tar.zst</string>
+              <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/108299356</string>
             </map>
             <key>name</key>
             <string>windows64</string>
