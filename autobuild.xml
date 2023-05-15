@@ -996,10 +996,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>ba229348c1d9d58519cd854ff9d8ef3d</string>
+              <string>a32d7a0bae6d0f07f6e45d98cc2d3cf9837603c9</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/55213/512968/havok_source-2012.1-2-darwin64-539117.tar.bz2</string>
+              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/108288925</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1020,10 +1024,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>4ff2af85106907acb171bb1e38a3757e</string>
+              <string>05bb597393ec0a47b0654a46ddaeca367c606b0e</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/55214/512993/havok_source-2012.1-2-windows-539117.tar.bz2</string>
+              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/108288933</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1032,10 +1040,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>bcaf4631ea10f7d09eecb73e8f5bef6c</string>
+              <string>a1acc90afbd497b7eac549b906b2a711399a312f</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/55212/512962/havok_source-2012.1-2-windows64-539117.tar.bz2</string>
+              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/108288929</string>
             </map>
             <key>name</key>
             <string>windows64</string>
