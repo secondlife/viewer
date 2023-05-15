@@ -21,6 +21,8 @@ jobs:
     env:
       AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
       AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
+      # authorizes fetching private constituent packages
+      AUTOBUILD_GITHUB_TOKEN: ${{ secrets.SHARED_AUTOBUILD_GITHUB_TOKEN }}
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
       AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
       AUTOBUILD_VSVER: "170"
