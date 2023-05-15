@@ -31,6 +31,7 @@
 #include "llagent.h"
 #include "llappearancemgr.h"
 #include "llinventorymodel.h"
+#include "llstartup.h"
 #include "lltooldraganddrop.h" // pack_permissions_slam
 #include "llviewerinventory.h"
 #include "llviewerregion.h"
@@ -372,7 +373,7 @@ void LLAttachmentsMgr::onAttachmentArrived(const LLUUID& inv_item_id)
 {
     LLTimer timer;
     bool expected = mAttachmentRequests.getTime(inv_item_id, timer);
-    if (!expected)
+    if (!expected && LLStartUp::getStartupState() > STATE_WEARABLES_WAIT)
     {
         LLInventoryItem *item = gInventory.getItem(inv_item_id);
         LL_WARNS() << "ATT Attachment was unexpected or arrived after " << MAX_ATTACHMENT_REQUEST_LIFETIME << " seconds: "
@@ -411,10 +412,14 @@ void LLAttachmentsMgr::onDetachCompleted(const LLUUID& inv_item_id)
             LL_DEBUGS("Avatar") << "ATT all detach requests have completed" << LL_ENDL;
         }
     }
-    else
+    else if (!LLApp::isExiting())
     {
         LL_WARNS() << "ATT unexpected detach for "
                    << (item ? item->getName() : "UNKNOWN") << " id " << inv_item_id << LL_ENDL;
+    }
+    else
+    {
+        LL_DEBUGS("Avatar") << "ATT detach on shutdown for " << (item ? item->getName() : "UNKNOWN") << " " << inv_item_id << LL_ENDL;
     }
 
     LL_DEBUGS("Avatar") << "ATT detached item flagging as questionable for COF link checking "
