@@ -23,8 +23,6 @@
  * $/LicenseInfo$
  */
  
-/*[EXTRA_CODE_HERE]*/
-
 out vec4 frag_color;
 
 void main() 

@@ -29,8 +29,6 @@
 
 out vec4 frag_color;
 
-vec3 fullbrightAtmosTransport(vec3 light);
-
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 

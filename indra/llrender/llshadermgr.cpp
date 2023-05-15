@@ -276,7 +276,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		}
 	}
 
-	if (features->hasAtmospherics || features->isDeferred || features->hasTransport)
+	if (features->hasAtmospherics || features->isDeferred)
     {
         if (!shader->attachFragmentObject("windlight/atmosphericsFuncs.glsl")) {
             return FALSE;
@@ -288,14 +288,6 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		}
 	}
 	
-	if (features->hasTransport)
-	{
-        if (!shader->attachFragmentObject("windlight/transportF.glsl"))
-		{
-			return FALSE;
-		}
-	}
-
 	// NOTE order of shader object attaching is VERY IMPORTANT!!!
 	if (features->hasWaterFog)
 	{
