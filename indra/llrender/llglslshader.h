@@ -35,32 +35,28 @@
 class LLShaderFeatures
 {
 public:
-    bool calculatesLighting;
-    bool calculatesAtmospherics;
-    bool hasLighting; // implies no transport (it's possible to have neither though)
-    bool isAlphaLighting; // indicates lighting shaders need not be linked in (lighting performed directly in alpha shader to match deferred lighting functions)
-    bool isSpecular;
-    bool hasWaterFog; // implies no gamma
-    bool hasTransport; // implies no lighting (it's possible to have neither though)
-    bool hasSkinning;
-    bool hasObjectSkinning;
-    bool hasAtmospherics;
-    bool hasGamma;
-    bool hasShadows;
-    bool hasAmbientOcclusion;
-    bool hasSrgb;
-    bool encodesNormal; // include: shaders\class1\environment\encodeNormF.glsl
-    bool isDeferred;
-    bool hasScreenSpaceReflections;
-    S32 mIndexedTextureChannels;
-    bool disableTextureIndex;
-    bool hasAlphaMask;
+    S32 mIndexedTextureChannels = 0;
+    bool calculatesLighting = false;
+    bool calculatesAtmospherics = false;
+    bool hasLighting = false; // implies no transport (it's possible to have neither though)
+    bool isAlphaLighting = false; // indicates lighting shaders need not be linked in (lighting performed directly in alpha shader to match deferred lighting functions)
+    bool isSpecular = false;
+    bool hasWaterFog = false; // implies no gamma
+    bool hasTransport = false; // implies no lighting (it's possible to have neither though)
+    bool hasSkinning = false;
+    bool hasObjectSkinning = false;
+    bool hasAtmospherics = false;
+    bool hasGamma = false;
+    bool hasShadows = false;
+    bool hasAmbientOcclusion = false;
+    bool hasSrgb = false;
+    bool encodesNormal = false; // include: shaders\class1\environment\encodeNormF.glsl
+    bool isDeferred = false;
+    bool hasScreenSpaceReflections = false;
+    bool disableTextureIndex = false;
+    bool hasAlphaMask = false;
     bool hasReflectionProbes = false;
-    bool attachNothing;
-
-    // char numLights;
-
-    LLShaderFeatures();
+    bool attachNothing = false;
 };
 
 // ============= Structure for caching shader uniforms ===============
@@ -261,6 +257,10 @@ public:
     //helper to conditionally bind mRiggedVariant instead of this
     void bind(bool rigged);
     
+    bool isComplete() const { return mProgramObject != 0; }
+
+    LLUUID hash();
+
     // Unbinds any previously bound shader by explicitly binding no shader.
     static void unbind();
 
@@ -283,9 +283,7 @@ public:
     U32 mAttributeMask;  //mask of which reserved attributes are set (lines up with LLVertexBuffer::getTypeMask())
     std::vector<GLint> mUniform;   //lookup table of uniform enum to uniform location
     LLStaticStringTable<GLint> mUniformMap; //lookup map of uniform name to uniform location
-    typedef std::unordered_map<GLint, std::string> uniform_name_map_t;
     typedef std::unordered_map<GLint, LLVector4> uniform_value_map_t;
-    uniform_name_map_t mUniformNameMap; //lookup map of uniform location to uniform name
     uniform_value_map_t mValue; //lookup map of uniform location to last known value
     std::vector<GLint> mTexture;
     S32 mTotalUniformSize;
@@ -296,8 +294,11 @@ public:
     LLShaderFeatures mFeatures;
     std::vector< std::pair< std::string, GLenum > > mShaderFiles;
     std::string mName;
-    typedef std::unordered_map<std::string, std::string> defines_map_t;
+    typedef std::map<std::string, std::string> defines_map_t; //NOTE: this must be an ordered map to maintain hash consistency
     defines_map_t mDefines;
+    static defines_map_t sGlobalDefines;
+    LLUUID mShaderHash;
+    bool mUsingBinaryProgram = false;
 
     //statistics for profiling shader performance
     bool mProfilePending = false;
