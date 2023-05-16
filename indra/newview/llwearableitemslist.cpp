@@ -104,8 +104,6 @@ BOOL LLPanelWearableOutfitItem::postBuild()
 {
     LLPanelWearableListItem::postBuild();
     
-    LLViewerInventoryItem* inv_item = getItem();
-    mShowWidgets &= (inv_item->getType() != LLAssetType::AT_BODYPART);
     if(mShowWidgets)
     {
         addWidgetToRightSide("add_wearable");
@@ -208,7 +206,12 @@ void LLPanelWearableOutfitItem::updateItem(const std::string& name,
     if(mShowWidgets)
     {
         setShowWidget("add_wearable", !is_worn);
-        setShowWidget("remove_wearable", is_worn);
+
+        // Body parts can't be removed, only replaced
+        LLViewerInventoryItem* inv_item = getItem();
+        bool show_remove = is_worn && inv_item && (inv_item->getType() != LLAssetType::AT_BODYPART);
+        setShowWidget("remove_wearable", show_remove);
+
         if(mHovered)
         {
             setWidgetsVisible(true);
