@@ -122,6 +122,7 @@
 #include "llviewerstatsrecorder.h"
 #include "llvoavatarself.h"
 #include "llvoicevivox.h"
+#include "llworld.h"
 #include "llworldmap.h"
 #include "pipeline.h"
 #include "llviewerjoystick.h"
@@ -333,6 +334,7 @@ void handle_debug_avatar_textures(void*);
 void handle_grab_baked_texture(void*);
 BOOL enable_grab_baked_texture(void*);
 void handle_dump_region_object_cache(void*);
+void handle_reset_interest_lists(void *);
 
 BOOL enable_save_into_task_inventory(void*);
 
@@ -1346,6 +1348,14 @@ class LLAdvancedCheckStatsRecorder : public view_listener_t
     }
 };
 
+class LLAdvancedResetInterestLists : public view_listener_t
+{
+    bool handleEvent(const LLSD &userdata)
+    {	// Reset all region interest lists
+        handle_reset_interest_lists(NULL);
+        return true;
+    }
+};
 
 
 class LLAdvancedBuyCurrencyTest : public view_listener_t
@@ -3891,6 +3901,22 @@ void handle_dump_region_object_cache(void*)
 		regionp->dumpCache();
 	}
 }
+
+void handle_reset_interest_lists(void *)
+{
+    // Check all regions and reset their interest list
+    for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+         iter != LLWorld::getInstance()->getRegionList().end();
+         ++iter)
+    {
+        LLViewerRegion *regionp = *iter;
+        if (regionp && regionp->isAlive() && regionp->capabilitiesReceived())
+        {
+            regionp->resetInterestList();
+        }
+    }
+}
+
 
 void handle_dump_focus()
 {
@@ -9452,10 +9478,11 @@ void initialize_menus()
 	// Advanced > World
 	view_listener_t::addMenu(new LLAdvancedDumpScriptedCamera(), "Advanced.DumpScriptedCamera");
 	view_listener_t::addMenu(new LLAdvancedDumpRegionObjectCache(), "Advanced.DumpRegionObjectCache");
-    view_listener_t::addMenu(new LLAdvancedToggleInterestList360Mode(), "Advanced.ToggleInterestList360Mode");
-    view_listener_t::addMenu(new LLAdvancedCheckInterestList360Mode(), "Advanced.CheckInterestList360Mode");
     view_listener_t::addMenu(new LLAdvancedToggleStatsRecorder(), "Advanced.ToggleStatsRecorder");
     view_listener_t::addMenu(new LLAdvancedCheckStatsRecorder(), "Advanced.CheckStatsRecorder");
+    view_listener_t::addMenu(new LLAdvancedToggleInterestList360Mode(), "Advanced.ToggleInterestList360Mode");
+    view_listener_t::addMenu(new LLAdvancedCheckInterestList360Mode(), "Advanced.CheckInterestList360Mode");
+    view_listener_t::addMenu(new LLAdvancedResetInterestLists(), "Advanced.ResetInterestLists");
 
 	// Advanced > UI
 	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test,	_2));	// sigh! this one opens the MEDIA browser

@@ -608,6 +608,9 @@ public:
         callbackHttpPost(url, LLCore::HttpRequest::DEFAULT_POLICY_ID, postData, success, failure);
     }
 
+    static void callbackHttpDel(const std::string &url, LLCore::HttpRequest::policy_t policyId, completionCallback_t success = NULL,
+                            completionCallback_t failure = NULL);
+
     /// Generic Get and post routines for HTTP via coroutines.
     /// These static methods do all required setup for the GET or POST operation.
     /// When the operation completes successfully they will put the success message in the log at INFO level, 
@@ -669,6 +672,7 @@ private:
 
     static void trivialGetCoro(std::string url, LLCore::HttpRequest::policy_t policyId, completionCallback_t success, completionCallback_t failure);
     static void trivialPostCoro(std::string url, LLCore::HttpRequest::policy_t policyId, LLSD postData, completionCallback_t success, completionCallback_t failure);
+    static void trivialDelCoro(std::string url, LLCore::HttpRequest::policy_t policyId, completionCallback_t success, completionCallback_t failure);
 
     void checkDefaultHeaders(LLCore::HttpHeaders::ptr_t &headers);
 

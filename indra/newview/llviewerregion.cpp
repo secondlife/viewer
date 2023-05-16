@@ -3341,6 +3341,21 @@ bool LLViewerRegion::requestGetCapability(const std::string &capName, httpCallba
     return true;
 }
 
+bool LLViewerRegion::requestDelCapability(const std::string &capName, httpCallback_t cbSuccess, httpCallback_t cbFailure)
+{
+    std::string url;
+
+    url = getCapability(capName);
+
+    if (url.empty())
+    {
+        LL_WARNS("Region") << "Could not retrieve region " << getRegionID() << " DEL capability \"" << capName << "\"" << LL_ENDL;
+        return false;
+    }
+
+    LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpDel(url, gAgent.getAgentPolicy(), cbSuccess, cbFailure);
+    return true;
+}
 
 void LLViewerRegion::setInterestListMode(const std::string &new_mode)
 {
@@ -3381,6 +3396,20 @@ void LLViewerRegion::setInterestListMode(const std::string &new_mode)
     }
 }
 
+
+void LLViewerRegion::resetInterestList()
+{
+	if (requestDelCapability("InterestList", [](const LLSD &response) {
+							LL_DEBUGS("360Capture") << "InterestList capability DEL responded: \n" << ll_pretty_print_sd(response) << LL_ENDL;
+						}))
+	{
+		LL_DEBUGS("360Capture") << "Region " << getRegionID() << " Successfully reset InterestList capability" << LL_ENDL;
+	}
+	else
+	{
+		LL_WARNS("360Capture") << "Region " << getRegionID() << " Unable to DEL InterestList capability request" << LL_ENDL;
+	}
+}
 
 
 LLSpatialPartition *LLViewerRegion::getSpatialPartition(U32 type)

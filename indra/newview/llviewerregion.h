@@ -287,6 +287,7 @@ public:
                                httpCallback_t     cbSuccess = NULL,
                                httpCallback_t     cbFailure = NULL);
     bool requestGetCapability(const std::string &capName, httpCallback_t cbSuccess = NULL, httpCallback_t cbFailure = NULL);
+    bool requestDelCapability(const std::string &capName, httpCallback_t cbSuccess = NULL, httpCallback_t cbFailure = NULL);
 
     /// implements LLCapabilityProvider
 	/*virtual*/ const LLHost& getHost() const;
@@ -489,6 +490,8 @@ public:
 
 	void setInterestListMode(const std::string & new_mode);
     const std::string & getInterestListMode() const { return mInterestListMode; }
+
+	void resetInterestList();
 
 	static const std::string IL_MODE_DEFAULT;
     static const std::string IL_MODE_360;
