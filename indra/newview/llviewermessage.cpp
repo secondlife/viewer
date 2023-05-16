@@ -1544,7 +1544,14 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
             const LLInventoryObject *obj = gInventory.getObject(obj_id);
             if (obj && obj->getParentUUID().notNull())
             {
-                LLPanelMainInventory::newFolderWindow(obj->getParentUUID(), obj_id);
+                if (obj->getActualType() == LLAssetType::AT_CATEGORY)
+                {
+                    LLPanelMainInventory::newFolderWindow(obj_id);
+                }
+                else
+                {
+                    LLPanelMainInventory::newFolderWindow(obj->getParentUUID(), obj_id);
+                }
             }
         }
         else
