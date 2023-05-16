@@ -46,7 +46,6 @@
 
 #include "llvoavatarself.h"
 
-//#define ENABLE_RIGHT_CONSTRAINTS
 
 // BEGIN_HACK : hard-coded joint_ids
 //constexpr U16 PELVIS_ID = 0;
@@ -54,13 +53,10 @@
 constexpr U16 CHEST_ID = 6;
 //constexpr U16 NECK_ID = 7;
 //constexpr U16 HEAD_ID = 8;
-#ifdef ENABLE_LEFT_CONSTRAINTS
 constexpr S16 COLLAR_LEFT_ID = 58;
 constexpr S16 SHOULDER_LEFT_ID = 59;
 constexpr S16 ELBOW_LEFT_ID = 60;
-#endif // ENABLE_LEFT_CONSTRAINTS
 constexpr S16 WRIST_LEFT_ID = 61;
-#ifdef ENABLE_LEFT_CONSTRAINTS
 constexpr S16 HAND_MIDDLE_LEFT_1_ID = 62;
 constexpr S16 HAND_MIDDLE_LEFT_2_ID = 63;
 constexpr S16 HAND_MIDDLE_LEFT_3_ID = 64;
@@ -76,15 +72,10 @@ constexpr S16 HAND_PINKY_LEFT_3_ID = 73;
 constexpr S16 HAND_THUMB_LEFT_1_ID = 74;
 constexpr S16 HAND_THUMB_LEFT_2_ID = 75;
 constexpr S16 HAND_THUMB_LEFT_3_ID = 76;
-#endif // ENABLE_LEFT_CONSTRAINTS
-
-#ifdef ENABLE_RIGHT_CONSTRAINTS
 constexpr S16 COLLAR_RIGHT_ID = 77;
 constexpr S16 SHOULDER_RIGHT_ID = 78;
 constexpr S16 ELBOW_RIGHT_ID = 79;
-#endif // ENABLE_RIGHT_CONSTRAINTS
 constexpr S16 WRIST_RIGHT_ID = 80;
-#ifdef ENABLE_RIGHT_CONSTRAINTS
 constexpr S16 HAND_MIDDLE_RIGHT_1_ID = 81;
 constexpr S16 HAND_MIDDLE_RIGHT_2_ID = 82;
 constexpr S16 HAND_MIDDLE_RIGHT_3_ID = 83;
@@ -100,7 +91,6 @@ constexpr S16 HAND_PINKY_RIGHT_3_ID = 92;
 constexpr S16 HAND_THUMB_RIGHT_1_ID = 93;
 constexpr S16 HAND_THUMB_RIGHT_2_ID = 94;
 constexpr S16 HAND_THUMB_RIGHT_3_ID = 95;
-#endif //ENABLE_RIGHT_CONSTRAINTS
 
 // TODO: implement "allow incremental updates" policy
 // TODO: figure out how to handle scale of local_pos changes
@@ -213,11 +203,14 @@ LLMotion::LLMotionInitStatus LLPuppetMotion::onInitialize(LLCharacter *character
         ids.insert(CHEST_ID);
         mIKSolver.setSubBaseIds(ids);
 
-        //// HACK: white list of sub-roots.
-        //// This HACK prevents the spine from being included in the IK solution,
-        //// effectively preventing the spine from moving.
+        //// TEMPORARY HACK: whitelist of sub-roots.
+        //// This HACK forces joints to form the base of their chain
+        //// effectively preventing them from being moved during the IK solution.
+        //// The plan is to disable this when we have a more robust full-avatar IK solution.
         //ids.clear();
         //ids.insert(CHEST_ID);
+        //ids.insert(COLLAR_LEFT_ID);
+        //ids.insert(COLLAR_RIGHT_ID);
         //mIKSolver.setSubRootIds(ids);
     }
     return STATUS_SUCCESS;
@@ -298,7 +291,7 @@ void LLPuppetMotion::updateSkeletonGeometry()
     {
         S16 joint_id = data_pair.first;
 
-        LLIK::Constraint::ptr_t constraint(factory.getConstrForJoint(data_pair.second->getJoint()->getName()));
+        LLIK::Constraint::ptr_t constraint(factory.getConstraintByName(data_pair.second->getJoint()->getName()));
         mIKSolver.resetJointGeometry(joint_id, constraint);
     }
     measureArmSpan();
@@ -452,7 +445,7 @@ void LLPuppetMotion::solveIKAndHarvestResults(const LLIK::Solver::joint_config_m
     }
 
 	LLPuppetEvent broadcast_event;
-    const LLIK::Solver::joint_list_t& active_joints = mIKSolver.getActiveJoints();
+    const LLIK::Joint::joint_vec_t& active_joints = mIKSolver.getActiveJoints();
     for (auto joint: active_joints)
     {
         S16 id = joint->getID();
@@ -1018,7 +1011,7 @@ void LLPuppetMotion::collectJoints(LLJoint* joint)
     S16 joint_id = joint->getJointNum();
     mJointStates[joint_id] = joint_state;
 
-    LLIK::Constraint::ptr_t constraint = LLIKConstraintFactory::instance().getConstrForJoint(joint->getName());
+    LLIK::Constraint::ptr_t constraint = LLIKConstraintFactory::instance().getConstraintByName(joint->getName());
     mIKSolver.addJoint(joint_id, parent_id, joint, constraint);
 
     // Recurse through the children of this joint and add them to our joint control list

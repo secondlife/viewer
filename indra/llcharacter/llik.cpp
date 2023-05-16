@@ -40,7 +40,7 @@
 #include "llmath.h"
 #include "v3math.h"
 #include "llquaternion.h"
-#include "lldir.h"
+#include "../llfilesystem/lldir.h"
 #include "llsdserialize.h"
 
 namespace
@@ -49,6 +49,7 @@ namespace
     constexpr const char *UNKNOWN_CONSTRAINT_NAME               ("UNKNOWN_CONSTRAINT");
     constexpr const char *SIMPLE_CONE_CONSTRAINT_NAME           ("SIMPLE_CONE");
     constexpr const char *TWIST_LIMITED_CONE_CONSTRAINT_NAME    ("TWIST_LIMITED_CONE");
+    constexpr const char *SHOULDER_CONSTRAINT_NAME              ("SHOULDER");
     constexpr const char *ELBOW_CONSTRAINT_NAME                 ("ELBOW");
     constexpr const char *KNEE_CONSTRAINT_NAME                  ("KNEE");
     constexpr const char *ACUTE_ELLIPSOIDAL_CONE_CONSTRAINT_NAME("ACUTE_ELLIPSOIDAL_CONE");
@@ -64,6 +65,8 @@ namespace
             return SIMPLE_CONE_CONSTRAINT_NAME;
         case LLIK::Constraint::TWIST_LIMITED_CONE_CONSTRAINT:
             return TWIST_LIMITED_CONE_CONSTRAINT_NAME;
+        case LLIK::Constraint::SHOULDER_CONSTRAINT:
+            return SHOULDER_CONSTRAINT_NAME;
         case LLIK::Constraint::ELBOW_CONSTRAINT:
             return ELBOW_CONSTRAINT_NAME;
         case LLIK::Constraint::KNEE_CONSTRAINT:
@@ -123,6 +126,7 @@ namespace
     #define DEBUG_LOG_EVENT_DETAIL(DETAIL) NO_OP_MACRO
 #endif
 
+constexpr F32 VERY_SMALL_ANGLE = 0.001f * F_PI;
 
 F32 remove_multiples_of_two_pi(F32 angle)
 {
@@ -152,6 +156,9 @@ void compute_angle_limits(F32& min_angle, F32& max_angle)
     }
 }
 
+// returns value of aliased angle clamped to the range [min_angle, max_angle]
+// NOTE: all angles are in radians
+// and min_angle and max_angle are expected to be aliased to the range [-PI, PI]
 F32 compute_clamped_angle(F32 angle, F32 min_angle, F32 max_angle)
 {
     // utility function for clamping angle between two limits
@@ -170,15 +177,25 @@ F32 compute_clamped_angle(F32 angle, F32 min_angle, F32 max_angle)
     //           .-'          \
     // invalid_bisector       min_angle
     //
-    F32 invalid_bisector = max_angle + 0.5 * (F_TWO_PI - (max_angle - min_angle));
-    if ((angle > max_angle && angle < invalid_bisector)
-            || angle < invalid_bisector - F_TWO_PI)
+    if (angle > max_angle || angle < min_angle)
     {
-        angle = max_angle;
-    }
-    else
-    {
-        angle = min_angle;
+        // compute invalid bisector
+        F32 invalid_bisector = max_angle + 0.5 * (F_TWO_PI - (max_angle - min_angle));
+
+        // remove full cycles from angle
+        angle = angle - ((S32)(angle / F_TWO_PI)) * F_TWO_PI;
+
+        if ((angle > max_angle && angle < invalid_bisector)
+                || angle < invalid_bisector - F_TWO_PI)
+        {
+            // out of range and closer to max_angle
+            angle = max_angle;
+        }
+        else if (angle < min_angle || angle > invalid_bisector)
+        {
+            // out of range and closer to min_angle
+            angle = min_angle;
+        }
     }
     return angle;
 }
@@ -276,33 +293,24 @@ size_t LLIK::Constraint::generateHash() const
     return seed;
 }
 
-
+// returns 'true' if joint was adjusted
 bool LLIK::Constraint::enforce(Joint& joint) const
 {
+    // This enforce() method of the base-Constraint provides no back-pressure
+    // on joint's parent when adjusting joint's local-frame transform.
+    // Override this method as necessary to provide back-pressure for select
+    // derived Constraints.
     const LLQuaternion& local_rot = joint.getLocalRot();
     LLQuaternion adjusted_local_rot = computeAdjustedLocalRot(local_rot);
     if (! LLQuaternion::almost_equal(adjusted_local_rot, local_rot))
     {
+        // Note: we update joint's local-frame rot, but not its world-frame rot
+        // -- that responsibility belongs to external code.
         joint.setLocalRot(adjusted_local_rot);
+        joint.applyLocalRot();
         return true;
     }
     return false;
-}
-
-LLQuaternion LLIK::Constraint::minimizeTwist(const LLQuaternion& joint_local_rot) const
-{
-    // Default behavior of minimizeTwist() is to compute
-    // the shortest rotation that produces the same swing.
-    LLVector3 joint_forward = mForward * joint_local_rot;
-    LLVector3 swing_axis = mForward % joint_forward;
-    constexpr F32 MIN_AXIS_LENGTH = 1.0e-5f;
-    LLQuaternion new_local_rot = LLQuaternion::DEFAULT;
-    if (swing_axis.length() > MIN_AXIS_LENGTH)
-    {
-        F32 swing_angle = std::acos(mForward * joint_forward);
-        new_local_rot.setAngleAxis(swing_angle, swing_axis);
-    }
-    return new_local_rot;
 }
 
 std::string LLIK::Constraint::typeToName() const
@@ -419,7 +427,7 @@ LLSD LLIK::TwistLimitedCone::asLLSD() const
     return data;
 }
 
-size_t LLIK::TwistLimitedCone::generateHash() const 
+size_t LLIK::TwistLimitedCone::generateHash() const
 {
     size_t seed(Constraint::generateHash());
     boost::hash_combine(seed, mConeAngle);
@@ -457,7 +465,7 @@ LLQuaternion LLIK::TwistLimitedCone::computeAdjustedLocalRot(const LLQuaternion&
     // compute two axes perpendicular to joint_forward: perp_x and perp_y
     LLVector3 perp_x = mForward % joint_forward;
     F32 perp_length = perp_x.length();
-    constexpr F32 MIN_PERP_LENGTH = 1.0e-3f;
+    constexpr F32 MIN_PERP_LENGTH = 1.0e-4f;
     if (perp_length < MIN_PERP_LENGTH)
     {
         perp_x = LLVector3::y_axis % mForward;
@@ -475,41 +483,17 @@ LLQuaternion LLIK::TwistLimitedCone::computeAdjustedLocalRot(const LLQuaternion&
     F32 twist = std::atan2(joint_perp * perp_y, joint_perp * perp_x);
 
     // clamp twist within bounds
-    if (twist > mMaxTwist || twist < mMinTwist)
+    F32 new_twist = compute_clamped_angle(twist, mMinTwist, mMaxTwist);
+    if (new_twist != twist)
     {
-        twist = compute_clamped_angle(twist, mMinTwist, mMaxTwist);
         joint_perp -= (joint_perp * joint_forward) * joint_forward;
-        LLVector3 new_joint_perp = std::cos(twist) * perp_x + std::sin(twist) * perp_y;
+        LLVector3 new_joint_perp = std::cos(new_twist) * perp_x + std::sin(new_twist) * perp_y;
         LLQuaternion adjustment;
         adjustment.shortestArc(joint_perp, new_joint_perp);
         adjusted_local_rot = adjusted_local_rot * adjustment;
     }
     adjusted_local_rot.normalize();
     return adjusted_local_rot;
-}
-
-LLQuaternion LLIK::TwistLimitedCone::minimizeTwist(const LLQuaternion& joint_local_rot) const
-{
-    // Compute the swing and combine with default twist
-    // which is the midpoint of the twist range.
-    LLQuaternion mid_twist;
-    mid_twist.setAngleAxis(0.5f * (mMinTwist + mMaxTwist), mForward);
-
-    // joint_local_rot = mid_twist * swing
-    LLQuaternion new_local_rot = mid_twist;
-
-    LLVector3 joint_forward = mForward * joint_local_rot;
-    LLVector3 swing_axis = mForward % joint_forward;
-    constexpr F32 MIN_SWING_AXIS_LENGTH = 1.0e-3f;
-    if (swing_axis.length() > MIN_SWING_AXIS_LENGTH)
-    {
-        LLQuaternion swing;
-        F32 swing_angle = std::acos(mForward * joint_forward);
-        swing.setAngleAxis(swing_angle, swing_axis);
-        new_local_rot = mid_twist * swing;
-    }
-
-    return new_local_rot;
 }
 
 #ifdef DEBUG_LLIK_UNIT_TESTS
@@ -523,6 +507,191 @@ void LLIK::TwistLimitedCone::dumpConfig() const
 }
 #endif
 
+LLIK::ShoulderConstraint::ShoulderConstraint()
+{
+    mType = LLIK::Constraint::SHOULDER_CONSTRAINT;
+}
+
+LLIK::ShoulderConstraint::ShoulderConstraint(LLSD &parameters):
+    LLIK::Constraint(LLIK::Constraint::SHOULDER_CONSTRAINT, parameters)
+{
+    mConeAxis = mForward + LLVector3::x_axis - 1.5f * LLVector3::z_axis;
+    mConeAxis.normalize();
+}
+
+// ShoulderConstraint is a HACK and is not configurable at runtime.
+// It is like a TwistLimitedCone with hard-coded parameters:
+//
+// cone_axis = mForward + <1,0,-1.5>
+// max_bend = PI/4
+// max_twist = PI/2
+// min_twist = -PI/2
+//
+// And it supplies the "drop elbow" logic during its enforce() step.
+//
+bool LLIK::ShoulderConstraint::enforce(Joint& shoulder_joint) const
+{
+    bool something_changed = dropElbow(shoulder_joint);
+
+    // compute cone_axis in parent-frame
+    LLQuaternion joint_local_rot = shoulder_joint.getLocalRot();
+    LLVector3 cone_axis = mConeAxis * joint_local_rot;
+
+    // clamp swing to remain inside cone
+    LLQuaternion adjusted_local_rot = joint_local_rot;
+    F32 axial_component = cone_axis * mConeAxis;
+    //constexpr F32 cos_cone_angle = 0.707106781f;
+    //constexpr F32 sin_cone_angle = 0.707106781f;
+    F32 cos_cone_angle = std::cos(F_PI/10.0f);
+    F32 sin_cone_angle = std::sin(F_PI/10.0f);
+    if (axial_component < cos_cone_angle)
+    {
+        // the joint's version of mConeAxis lies outside the cone
+        // so we project it onto the surface of the cone...
+        //
+        // projection               = (forward_part)         + (orthogonal_part)
+        LLVector3 perp = cone_axis - axial_component * mConeAxis;
+        perp.normalize();
+        LLVector3 new_cone_axis = cos_cone_angle * mConeAxis + sin_cone_angle * perp;
+
+        // ... then compute the adjusted rotation
+        LLQuaternion adjustment;
+        adjustment.shortestArc(cone_axis, new_cone_axis);
+        adjusted_local_rot = joint_local_rot * adjustment;
+    }
+
+    // rotate mConeAxis by adjusted_local_rot
+    cone_axis = mConeAxis * adjusted_local_rot;
+    axial_component = cone_axis * mConeAxis;
+
+    // compute two axes perpendicular to cone_axis: perp_x and perp_y
+    LLVector3 perp_x = mConeAxis % cone_axis;
+    F32 perp_length = perp_x.length();
+    constexpr F32 MIN_PERP_LENGTH = 1.0e-4f;
+    if (perp_length < MIN_PERP_LENGTH)
+    {
+        perp_x = LLVector3::y_axis % mConeAxis;
+        perp_length = perp_x.length();
+        if (perp_length < MIN_PERP_LENGTH)
+        {
+            perp_x = mConeAxis % LLVector3::x_axis;
+        }
+    }
+    perp_x.normalize();
+    LLVector3 perp_y = cone_axis % perp_x;
+
+    // the components of joint_perp on each direction allow us to compute twist angle
+    LLVector3 joint_perp = perp_x * adjusted_local_rot;
+    F32 twist = std::atan2(joint_perp * perp_y, joint_perp * perp_x);
+
+    // clamp twist within bounds
+    constexpr F32 max_twist = 0.5f * F_PI;
+    F32 new_twist = compute_clamped_angle(twist, -max_twist, max_twist);
+    if (new_twist != twist)
+    {
+        joint_perp -= (joint_perp * cone_axis) * cone_axis;
+        LLVector3 new_joint_perp = std::cos(new_twist) * perp_x + std::sin(new_twist) * perp_y;
+        LLQuaternion adjustment;
+        adjustment.shortestArc(joint_perp, new_joint_perp);
+        adjusted_local_rot = adjusted_local_rot * adjustment;
+    }
+    adjusted_local_rot.normalize();
+
+    if (!LLQuaternion::almost_equal(adjusted_local_rot, joint_local_rot, VERY_SMALL_ANGLE))
+    {
+        something_changed = true;
+    }
+    return something_changed;
+}
+
+bool LLIK::ShoulderConstraint::dropElbow(Joint& shoulder_joint) const
+{
+    Joint::ptr_t elbow_joint;
+    shoulder_joint.getSingleActiveChild(elbow_joint);
+    if (!elbow_joint)
+    {
+        return LLIK::Constraint::enforce(shoulder_joint);
+    }
+    // make sure elbow_joint's world-frame transform is up to date
+    elbow_joint->updatePosAndRotFromParent();
+
+    // Experimental HACK: apply the "drop elbow" behavior here where we
+    // enforce the shoulder constraint.
+
+    // get some points
+    LLVector3 shoulder = shoulder_joint.getWorldTipPos();
+    LLVector3 elbow = elbow_joint->getWorldTipPos();
+    LLVector3 wrist = elbow_joint->computeWorldEndPos();
+
+    // compute legs of triangle
+    LLVector3 reach = wrist - shoulder;
+    LLVector3 upper_arm = elbow - shoulder;
+
+    // compute effective shoulder pivot and target_pivot
+    LLVector3 pivot = reach % upper_arm;
+    pivot.normalize();
+    LLVector3 target_pivot = LLVector3::z_axis % reach;
+    target_pivot.normalize();
+
+    // compute rotation from one pivot to the other
+    LLQuaternion adjustment;
+    adjustment.shortestArc(pivot, target_pivot);
+
+    if (!LLQuaternion::almost_equal(adjustment, LLQuaternion::DEFAULT, VERY_SMALL_ANGLE))
+    {
+        // adjust shoulder's world-frame rot
+        adjustment = shoulder_joint.getWorldRot() * adjustment;
+        adjustment.normalize();
+        shoulder_joint.setWorldRot(adjustment);
+
+        // update shoulder local-frame rot
+        const Joint::ptr_t& collar_joint = shoulder_joint.getParent();
+        if (collar_joint)
+        {
+            // compute shoulders's local-frame rot using the two world-frame rots
+            //     child_rot = child_local_rot * parent_rot
+            // --> child_local_rot = child_rot * parent_rot_inv
+            LLQuaternion parent_rot_inv = collar_joint->getWorldRot();
+            parent_rot_inv.conjugate();
+            adjustment = adjustment * parent_rot_inv;
+            adjustment.normalize();
+            shoulder_joint.setLocalRot(adjustment);
+        }
+        else
+        {
+            shoulder_joint.setLocalRot(shoulder_joint.getWorldRot());
+        }
+        return true;
+    }
+    return false;
+}
+
+LLQuaternion LLIK::ShoulderConstraint::computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const
+{
+    return joint_local_rot;
+}
+
+LLSD LLIK::ShoulderConstraint::asLLSD() const
+{
+    LLSD data = Constraint::asLLSD();
+    return data;
+}
+
+size_t LLIK::ShoulderConstraint::generateHash() const
+{
+    size_t seed(Constraint::generateHash());
+    return seed;
+}
+
+#ifdef DEBUG_LLIK_UNIT_TESTS
+void LLIK::ShoulderConstraint::dumpConfig() const
+{
+    LL_INFOS("debug") << "{'type':'ShoulderConstraint'"
+        << ",'forward':(" << mForward.mV[VX] << "," << mForward.mV[VY] << "," << mForward.mV[VZ] << ")"
+        << "}" << LL_ENDL;
+}
+#endif
+
 //========================================================================
 LLIK::ElbowConstraint::ElbowConstraint(const LLVector3& forward_axis, const LLVector3& pivot_axis, F32 min_bend, F32 max_bend, F32 min_twist, F32 max_twist)
 {
@@ -530,7 +699,7 @@ LLIK::ElbowConstraint::ElbowConstraint(const LLVector3& forward_axis, const LLVe
     mForward.normalize();
     mPivotAxis = mForward % (pivot_axis % mForward);
     mPivotAxis.normalize();
-    mLeft = mPivotAxis % mForward;
+    mPivotXForward = mPivotAxis % mForward;
 
     mMinBend = min_bend;
     mMaxBend = max_bend;
@@ -548,7 +717,7 @@ LLIK::ElbowConstraint::ElbowConstraint(LLSD &parameters):
     mPivotAxis = mForward % (LLVector3(parameters["pivot_axis"]) % mForward);
     mPivotAxis.normalize();
 
-    mLeft = mPivotAxis % mForward;
+    mPivotXForward = mPivotAxis % mForward;
 
     mMinBend = parameters["min_bend"].asReal() * DEG_TO_RAD;
     mMaxBend = parameters["max_bend"].asReal() * DEG_TO_RAD;
@@ -582,6 +751,123 @@ size_t LLIK::ElbowConstraint::generateHash() const
     return seed;
 }
 
+bool LLIK::ElbowConstraint::enforce(Joint& elbow_joint) const
+{
+    // ElbowConstraint overrides the base enforce() algorithm.
+    // It tries to twist the lower-arm and backtwist the upper-arm
+    // to accomodate the bend angle as much as possible.
+
+    const Joint::ptr_t& shoulder_joint = elbow_joint.getParent();
+    if (!shoulder_joint)
+    {
+        // the elbow has no shoulder --> rely on the base algorithm
+        return LLIK::Constraint::enforce(elbow_joint);
+    }
+    bool something_changed = false;
+
+    // If the elbow is bent, then we twist the upper- and lower-arm bones
+    // to align their respective elbow-pivot axes.
+    // We do the math in the world-frame.
+
+    // compute the vertices of shoulder-elbow-wrist triangle
+    LLVector3 shoulder = shoulder_joint->getWorldTipPos();
+    LLVector3 elbow = elbow_joint.getWorldTipPos();
+    LLVector3 wrist = elbow_joint.computeWorldEndPos();
+
+    // compute elbow pivot per each joint
+    LLQuaternion elbow_rot = elbow_joint.getWorldRot();
+    LLVector3 lower_pivot = mPivotAxis * elbow_rot;
+    LLVector3 upper_pivot = mPivotAxis * shoulder_joint->getWorldRot();
+
+    // compute the pivot axis per bend at the elbow
+    LLVector3 lower_arm = wrist - elbow;
+    lower_arm.normalize();
+    LLVector3 upper_arm = elbow - shoulder;
+    upper_arm.normalize();
+    LLVector3 bend_pivot = upper_arm % lower_arm;
+
+    F32 length = bend_pivot.length();
+    constexpr F32 MIN_PIVOT_LENGTH = 1.0e-6f;
+    if (length < MIN_PIVOT_LENGTH)
+    {
+        // arm is mostly straight, which means bend_pivot is not well defined
+        // so we set it to the upper_pivot
+        bend_pivot = upper_pivot;
+    }
+    else
+    {
+        // normalize bend_pivot
+        bend_pivot /= length;
+    }
+
+    // measure forearm twist relative to bend_pivot
+    LLQuaternion adjustment;
+    adjustment.shortestArc(bend_pivot, lower_pivot);
+    F32 angle;
+    LLVector3 axis;
+    adjustment.getAngleAxis(&angle, axis);
+    if (axis * lower_arm < 0.0f)
+    {
+        angle *= -1.0f;
+    }
+
+    // enforce eblow twist
+    F32 new_twist = compute_clamped_angle(angle, mMinTwist, mMaxTwist);
+    if (new_twist != angle)
+    {
+        adjustment.setAngleAxis(new_twist - angle, lower_arm);
+        elbow_rot = elbow_rot * adjustment;
+        elbow_rot.normalize();
+        elbow_joint.setWorldRot(elbow_rot);
+        something_changed = true;
+    }
+
+    LLQuaternion shoulder_rot = shoulder_joint->getWorldRot();
+
+    // At this point the twist of the elbow is within tolerance of the
+    // bend_axis.  Now we back-rotate the shoulder to align its notion of
+    // pivot_axis to agree with bend_axis
+    adjustment.shortestArc(upper_pivot, bend_pivot);
+    if (!LLQuaternion::almost_equal(adjustment, LLQuaternion::DEFAULT, VERY_SMALL_ANGLE))
+    {
+        // rotate shoulder around to align upper_pivot to bend_pivot
+        shoulder_rot = shoulder_rot * adjustment;
+        shoulder_rot.normalize();
+        shoulder_joint->setWorldRot(shoulder_rot);
+
+        const Joint::ptr_t& collar_joint = shoulder_joint->getParent();
+        if (collar_joint)
+        {
+            // compute shoulder's new local-frame rot
+            //     child_rot = child_local_rot * parent_rot
+            // --> child_local_rot = child_rot * parent_rot_inv
+            LLQuaternion parent_rot_inv = collar_joint->getWorldRot();
+            parent_rot_inv.conjugate();
+            LLQuaternion new_local_rot = shoulder_rot * parent_rot_inv;
+            new_local_rot.normalize();
+            shoulder_joint->setLocalRot(new_local_rot);
+        }
+        else
+        {
+            shoulder_joint->setLocalRot(shoulder_joint->getWorldRot());
+        }
+        something_changed = true;
+    }
+
+    if (something_changed)
+    {
+        // compute elbow's local-frame rot using the two world-frame rots
+        //     child_rot = child_local_rot * parent_rot
+        // --> child_local_rot = child_rot * parent_rot_inv
+        LLQuaternion parent_rot_inv = shoulder_rot;
+        parent_rot_inv.conjugate();
+        LLQuaternion new_local_rot = elbow_rot * parent_rot_inv;
+        new_local_rot.normalize();
+        elbow_joint.setLocalRot(new_local_rot);
+    }
+    return something_changed;
+}
+
 LLQuaternion LLIK::ElbowConstraint::computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const
 {
     // rotate mForward into joint-frame
@@ -592,68 +878,38 @@ LLQuaternion LLIK::ElbowConstraint::computeAdjustedLocalRot(const LLQuaternion& 
     LLQuaternion adjustment;
     adjustment.shortestArc(joint_forward, projected_joint_forward);
     LLQuaternion adjusted_local_rot = joint_local_rot * adjustment;
+    LLVector3 new_joint_forward = mForward * adjusted_local_rot;
 
     // measure twist
     LLVector3 twisted_pivot = mPivotAxis * adjusted_local_rot;
     F32 cos_part = twisted_pivot * mPivotAxis;
-    F32 sin_part = (mLeft * adjusted_local_rot) * mPivotAxis;
+    F32 sin_part = (mPivotXForward * adjusted_local_rot) * mPivotAxis;
     F32 twist = std::atan2(sin_part, cos_part);
 
-    LLVector3 new_joint_forward = mForward * adjusted_local_rot;
-    if (twist < mMinTwist || twist > mMaxTwist)
+    F32 new_twist = compute_clamped_angle(twist, mMinTwist, mMaxTwist);
+    if (new_twist != twist)
     {
         // adjust twist
-        twist = compute_clamped_angle(twist, mMinTwist, mMaxTwist);
         LLVector3 swung_left_axis = mPivotAxis % new_joint_forward;
-        LLVector3 new_twisted_pivot = std::cos(twist) * mPivotAxis - std::sin(twist) * swung_left_axis;
+        LLVector3 new_twisted_pivot = std::cos(new_twist) * mPivotAxis - std::sin(new_twist) * swung_left_axis;
         adjustment.shortestArc(twisted_pivot, new_twisted_pivot);
         adjusted_local_rot = adjusted_local_rot * adjustment;
         new_joint_forward = mForward * adjusted_local_rot;
     }
 
     // measure bend
-    F32 bend = std::atan2(new_joint_forward * mLeft, new_joint_forward * mForward);
+    F32 bend = std::atan2(new_joint_forward * mPivotXForward, new_joint_forward * mForward);
 
-    if (bend > mMaxBend || bend < mMinBend)
+    F32 new_bend = compute_clamped_angle(bend, mMinBend, mMaxBend);
+    if (new_bend != bend)
     {
         // adjust bend
-        bend = compute_clamped_angle(bend, mMinBend, mMaxBend);
-        new_joint_forward = std::cos(bend) * mForward + std::sin(bend) * mLeft;
+        new_joint_forward = std::cos(new_bend) * mForward + std::sin(new_bend) * mPivotXForward;
         adjustment.shortestArc(joint_forward, new_joint_forward);
         adjusted_local_rot = adjusted_local_rot * adjustment;
     }
     adjusted_local_rot.normalize();
     return adjusted_local_rot;
-}
-
-LLQuaternion LLIK::ElbowConstraint::minimizeTwist(const LLQuaternion& joint_local_rot) const
-{
-    // Assume all swing is really just bend about mPivotAxis and twist is centered
-    // in the valid twist range.
-    // If bend_angle is outside the limits then we check both +/- bend_angle and pick
-    // the one closest to the allowed range.  This comes down to a simple question:
-    // which is closer to the midpoint of the bend range?
-
-    LLVector3 joint_forward = mForward * joint_local_rot;
-    F32 fdot = joint_forward * mForward;
-    LLVector3 perp_part = joint_forward - fdot * mForward;
-    F32 bend_angle = std::atan2(perp_part.length(), fdot);
-
-    if (bend_angle < mMinBend  || bend_angle > mMaxBend)
-    {
-        F32 alt_bend_angle = - bend_angle;
-        F32 mid_bend = 0.5f * (mMinBend + mMaxBend);
-        if (std::abs(alt_bend_angle - mid_bend) < std::abs(bend_angle - mid_bend))
-        {
-            bend_angle = alt_bend_angle;
-        }
-    }
-    LLQuaternion bend;
-    bend.setAngleAxis(bend_angle, mPivotAxis);
-
-    LLQuaternion mid_twist;
-    mid_twist.setAngleAxis(0.5f * (mMinTwist + mMaxTwist), mForward);
-    return mid_twist * bend;
 }
 
 #ifdef DEBUG_LLIK_UNIT_TESTS
@@ -676,7 +932,7 @@ LLIK::KneeConstraint::KneeConstraint(const LLVector3& forward_axis, const LLVect
     mForward.normalize();
     mPivotAxis = mForward % (pivot_axis % mForward);
     mPivotAxis.normalize();
-    mLeft = mPivotAxis % mForward;
+    mPivotXForward = mPivotAxis % mForward;
 
     mMinBend = min_bend;
     mMaxBend = max_bend;
@@ -689,7 +945,7 @@ LLIK::KneeConstraint::KneeConstraint(LLSD &parameters):
 {
     mPivotAxis = mForward % (LLVector3(parameters["pivot_axis"]) % mForward);
     mPivotAxis.normalize();
-    mLeft = mPivotAxis % mForward;
+    mPivotXForward = mPivotAxis % mForward;
 
     mMinBend = parameters["min_bend"].asReal() * DEG_TO_RAD;
     mMaxBend = parameters["max_bend"].asReal() * DEG_TO_RAD;
@@ -717,6 +973,122 @@ size_t LLIK::KneeConstraint::generateHash() const
     return seed;
 }
 
+bool LLIK::KneeConstraint::enforce(Joint& knee_joint) const
+{
+    // KneeConstraint overrides the base enforce() algorithm.
+    // It tries to twist the lower-leg and backtwist the upper-leg
+    // to accomodate the bend angle.
+
+    const Joint::ptr_t& hip_joint = knee_joint.getParent();
+    if (!hip_joint)
+    {
+        // the knee has no thigh --> rely on the base algorithm
+        return LLIK::Constraint::enforce(knee_joint);
+    }
+    bool something_changed = false;
+
+    // If the knee is bent, then we twist the upper- and lower-leg bones
+    // to align their respective knee-pivot axes.
+    // We do the math in the world-frame.
+
+    // compute the vertices of hip-knee-ankle triangle
+    LLVector3 hip = hip_joint->getWorldTipPos();
+    LLVector3 knee = knee_joint.getWorldTipPos();
+    LLVector3 ankle = knee_joint.computeWorldEndPos();
+
+    // compute knee pivot per each joint
+    LLQuaternion knee_rot = knee_joint.getWorldRot();
+    LLVector3 lower_pivot = mPivotAxis * knee_rot;
+    LLVector3 upper_pivot = mPivotAxis * hip_joint->getWorldRot();
+
+    // compute the pivot axis per bend at the knee
+    LLVector3 lower_leg = ankle - knee;
+    lower_leg.normalize();
+    LLVector3 upper_leg = knee - hip;
+    upper_leg.normalize();
+    LLVector3 bend_pivot = upper_leg % lower_leg;
+
+    F32 length = bend_pivot.length();
+    constexpr F32 MIN_PIVOT_LENGTH = 1.0e-6f;
+    if (length < MIN_PIVOT_LENGTH)
+    {
+        // arm is mostly straight, which means bend_pivot is not well defined
+        // so we set it to the upper_pivot
+        bend_pivot = upper_pivot;
+    }
+    else
+    {
+        // normalize bend_pivot
+        bend_pivot /= length;
+    }
+
+    // measure forearm twist relative to bend_pivot
+    LLQuaternion adjustment;
+    adjustment.shortestArc(bend_pivot, lower_pivot);
+    F32 angle;
+    LLVector3 axis;
+    adjustment.getAngleAxis(&angle, axis);
+    if (axis * lower_leg < 0.0f)
+    {
+        angle *= -1.0f;
+    }
+
+    constexpr F32 MIN_KNEE_TWIST = 0.1f;
+    if (fabsf(angle) > MIN_KNEE_TWIST)
+    {
+        // compute clamped twist and apply new knee_rot
+        adjustment.setAngleAxis(-angle, lower_leg);
+        knee_rot = knee_rot * adjustment;
+        knee_rot.normalize();
+        knee_joint.setWorldRot(knee_rot);
+        something_changed = true;
+    }
+
+    LLQuaternion hip_rot = hip_joint->getWorldRot();
+
+    // At this point the twist of the knee_joint is within tolerance of the
+    // bend_axis.  Now we back-rotate the hip to align its notion of
+    // pivot_axis to agree with bend_axis
+    adjustment.shortestArc(upper_pivot, bend_pivot);
+    if (!LLQuaternion::almost_equal(adjustment, LLQuaternion::DEFAULT, VERY_SMALL_ANGLE))
+    {
+        // rotate hip around to align upper_pivot to bend_pivot
+        hip_rot = hip_rot * adjustment;
+        hip_rot.normalize();
+        hip_joint->setWorldRot(hip_rot);
+
+        const Joint::ptr_t& pelvis = hip_joint->getParent();
+        if (pelvis)
+        {
+            // compute hip's new local-frame rot
+            //     child_rot = child_local_rot * parent_rot
+            // --> child_local_rot = child_rot * parent_rot_inv
+            LLQuaternion parent_rot_inv = pelvis->getWorldRot();
+            parent_rot_inv.conjugate();
+            LLQuaternion new_local_rot = hip_rot * parent_rot_inv;
+            new_local_rot.normalize();
+            hip_joint->setLocalRot(new_local_rot);
+        }
+        else
+        {
+            hip_joint->setLocalRot(hip_joint->getWorldRot());
+        }
+        something_changed = true;
+    }
+    if (something_changed)
+    {
+        // compute knee's local-frame rot using the two world-frame rots
+        //     child_rot = child_local_rot * parent_rot
+        // --> child_local_rot = child_rot * parent_rot_inv
+        LLQuaternion parent_rot_inv = hip_rot;
+        parent_rot_inv.conjugate();
+        LLQuaternion new_local_rot = knee_rot * parent_rot_inv;
+        new_local_rot.normalize();
+        knee_joint.setLocalRot(new_local_rot);
+    }
+    return something_changed;
+}
+
 LLQuaternion LLIK::KneeConstraint::computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const
 {
     // rotate mPivotAxis into joint-frame
@@ -731,41 +1103,17 @@ LLQuaternion LLIK::KneeConstraint::computeAdjustedLocalRot(const LLQuaternion& j
     LLVector3 new_joint_forward = joint_forward;
 
     // compute angle between mForward and new_joint_forward
-    F32 bend = std::atan2(new_joint_forward * mLeft, new_joint_forward * mForward);
-    if (bend > mMaxBend || bend < mMinBend)
+    F32 bend = std::atan2(new_joint_forward * mPivotXForward, new_joint_forward * mForward);
+    F32 new_bend = compute_clamped_angle(bend, mMinBend, mMaxBend);
+    if (new_bend != bend)
     {
-        bend = compute_clamped_angle(bend, mMinBend, mMaxBend);
-        new_joint_forward = std::cos(bend) * mForward + std::sin(bend) * mLeft;
+        new_joint_forward = std::cos(new_bend) * mForward + std::sin(new_bend) * mPivotXForward;
         adjustment.shortestArc(joint_forward, new_joint_forward);
         adjusted_local_rot = adjusted_local_rot * adjustment;
     }
 
     adjusted_local_rot.normalize();
     return adjusted_local_rot;
-}
-
-LLQuaternion LLIK::KneeConstraint::minimizeTwist(const LLQuaternion& joint_local_rot) const
-{
-    // Assume all swing is really just bend about mPivotAxis.
-    // If bend_angle is outside the limits then we check both +/- bend_angle and pick
-    // the one closest to the allowed range.  This comes down to a simple question:
-    // which is closer to the midpoint of the bend range?
-    LLVector3 joint_forward = mForward * joint_local_rot;
-    F32 fdot = joint_forward * mForward;
-    LLVector3 perp_part = joint_forward - fdot * mForward;
-    F32 bend_angle = std::atan2(perp_part.length(), fdot);
-    if (bend_angle < mMinBend  || bend_angle > mMaxBend)
-    {
-        F32 alt_bend_angle = - bend_angle;
-        F32 mid_bend = 0.5f * (mMinBend + mMaxBend);
-        if (std::abs(alt_bend_angle - mid_bend) < std::abs(bend_angle - mid_bend))
-        {
-            bend_angle = alt_bend_angle;
-        }
-    }
-    LLQuaternion bend;
-    bend.setAngleAxis(bend_angle, mPivotAxis);
-    return bend;
 }
 
 #ifdef DEBUG_LLIK_UNIT_TESTS
@@ -1096,7 +1444,7 @@ LLIK::DoubleLimitedHinge::DoubleLimitedHinge(LLSD &parameters):
     }
 }
 
-LLSD LLIK::DoubleLimitedHinge::asLLSD() const 
+LLSD LLIK::DoubleLimitedHinge::asLLSD() const
 {
     LLSD data = Constraint::asLLSD();
 
@@ -1138,10 +1486,10 @@ LLQuaternion LLIK::DoubleLimitedHinge::computeAdjustedLocalRot(const LLQuaternio
     F32 up_component = joint_forward * mUp;
     LLVector3 horizontal_axis = joint_forward - up_component * mUp;
     F32 yaw = std::atan2(horizontal_axis * mLeft, horizontal_axis * mForward);
-    if (yaw > mMaxYaw || yaw < mMinYaw)
+    F32 new_yaw = compute_clamped_angle(yaw, mMinYaw, mMaxYaw);
+    if (new_yaw != yaw)
     {
-        yaw = compute_clamped_angle(yaw, mMinYaw, mMaxYaw);
-        horizontal_axis = std::cos(yaw) * mForward + std::sin(yaw) * mLeft;
+        horizontal_axis = std::cos(new_yaw) * mForward + std::sin(new_yaw) * mLeft;
     }
     else
     {
@@ -1154,10 +1502,10 @@ LLQuaternion LLIK::DoubleLimitedHinge::computeAdjustedLocalRot(const LLQuaternio
     // pitch drops the forward axis down.
     F32 horizontal_component = std::sqrt(std::max(1.0f - up_component * up_component, 0.0f));
     F32 pitch = std::atan2(-up_component, horizontal_component);
-    if (pitch > mMaxPitch || pitch < mMinPitch)
+    F32 new_pitch = compute_clamped_angle(pitch, mMinPitch, mMaxPitch);
+    if (new_pitch != pitch)
     {
-        pitch = compute_clamped_angle(pitch, mMinPitch, mMaxPitch);
-        up_component = -std::sin(pitch);
+        up_component = -std::sin(new_pitch);
         horizontal_component = std::sqrt(std::max(1.0f - up_component * up_component, 0.0f));
     }
 
@@ -1169,18 +1517,6 @@ LLQuaternion LLIK::DoubleLimitedHinge::computeAdjustedLocalRot(const LLQuaternio
         adjustment.shortestArc(joint_forward, new_joint_forward);
         adjusted_local_rot = adjusted_local_rot * adjustment;
     }
-    adjusted_local_rot.normalize();
-    return adjusted_local_rot;
-}
-
-LLQuaternion LLIK::DoubleLimitedHinge::minimizeTwist(const LLQuaternion& joint_local_rot) const
-{
-    // eliminate twist by adjusting the rotated mLeft axis
-    // to remain in horizontal plane
-    LLVector3 joint_left = mLeft * joint_local_rot;
-    LLQuaternion adjustment;
-    adjustment.shortestArc(joint_left, joint_left - (joint_left * mUp) * mUp);
-    LLQuaternion adjusted_local_rot = joint_local_rot * adjustment;
     adjusted_local_rot.normalize();
     return adjusted_local_rot;
 }
@@ -1329,27 +1665,6 @@ F32 LLIK::Joint::recursiveComputeLongestChainLength(F32 length) const
         }
     }
     return longest_length;
-}
-
-LLVector3 LLIK::Joint::computeEndTargetPos() const
-{
-    // Note: we expect this Joint has either: a target,
-    // or at least one active child
-    if (hasPosTarget())
-    {
-        return mConfig->getTargetPos();
-    }
-    LLVector3 target_pos = LLVector3::zero;
-    S32 num_active_children = 0;
-    for (const auto& child : mChildren)
-    {
-        if (child->isActive())
-        {
-            target_pos += child->mPos;
-            ++num_active_children;
-        }
-    }
-    return (1.0f / F32(num_active_children)) * target_pos;
 }
 
 LLVector3 LLIK::Joint::computeWorldTipOffset() const
@@ -1592,6 +1907,11 @@ void LLIK::Joint::applyLocalRot()
         }
         DEBUG_LOG_EVENT_DETAIL(enforce);
     }
+    else
+    {
+        // for root Joint: local-frame is world-frame
+        mRot = mLocalRot;
+    }
 }
 
 void LLIK::Joint::updateLocalRot()
@@ -1672,15 +1992,10 @@ void LLIK::Joint::lockLocalRot(const LLQuaternion& local_rot)
 
 bool LLIK::Joint::enforceConstraint()
 {
-    if (localRotLocked())
+    if (!localRotLocked() && mConstraint && !(hasDisabledConstraint()))
     {
-        // A fixed mLocalRot is effectively like a fixed Constraint so we
-        // always return 'true' here: the Constraint is in effect and mRot may
-        // have been optimistically modified but mLocalRot was not.
-        return true;
-    }
-    if (mConstraint && !(hasDisabledConstraint()))
-    {
+        // Note: constraint will reach in and update the local- and world-frame
+        // transforms of this Joint and its parent as necessary
         return mConstraint->enforce(*this);
     }
     return false;
@@ -1698,25 +2013,21 @@ void LLIK::Joint::updateWorldTransformsRecursively()
     }
 }
 
-// return valid Joint::ptr_t to child iff only one child is active
-// else return null Joint::ptr_t
-LLIK::Joint::ptr_t LLIK::Joint::getSingleActiveChild()
+// takes reference to a null Joint::ptr_t and updates it if it finds only one active child
+void LLIK::Joint::getSingleActiveChild(Joint::ptr_t& active_child) const
 {
-    Joint::ptr_t active_child;
-    for (Joint::ptr_t& child: mChildren)
+    for (const Joint::ptr_t& child: mChildren)
     {
         if (child->isActive())
         {
             if (active_child)
             {
-                // second child --> this Joint is not a "false" sub-base
                 active_child.reset();
                 break;
             }
             active_child = child;
         }
     }
-    return active_child;
 }
 
 LLVector3 LLIK::Joint::computeWorldEndPos() const
@@ -1752,9 +2063,10 @@ void LLIK::Joint::setLocalRot(const LLQuaternion& new_local_rot)
 {
     if (!localRotLocked())
     {
-        constexpr F32 BLEND_COEF = 0.25f;
-        mLocalRot = lerp(BLEND_COEF, mLocalRot, new_local_rot);
-        //mLocalRot = new_local_rot;
+        // EXPERIMENTAL/DEBUG blend
+        //constexpr F32 BLEND_COEF = 0.25f;
+        //mLocalRot = lerp(BLEND_COEF, mLocalRot, new_local_rot);
+        mLocalRot = new_local_rot;
     }
 }
 
@@ -1803,10 +2115,7 @@ void LLIK::Joint::adjustWorldRot(const LLQuaternion& adjustment)
     mRot = mRot * adjustment;
     DEBUG_LOG_EVENT;
     updateLocalRot();
-    if (enforceConstraint())
-    {
-        applyLocalRot();
-    }
+    enforceConstraint();
 }
 
 void LLIK::Joint::collectTargetPositions(std::vector<LLVector3>& local_targets, std::vector<LLVector3>& world_targets) const
@@ -1835,6 +2144,18 @@ void LLIK::Joint::collectTargetPositions(std::vector<LLVector3>& local_targets, 
                 local_targets.push_back(child->mLocalPos);
                 world_targets.push_back(child->mPos);
             }
+        }
+    }
+}
+
+void LLIK::Joint::collectActiveChildrenRecursively(Joint::joint_map_t& joint_map) const
+{
+    for (auto& child: mChildren)
+    {
+        if (child->isActive())
+        {
+            joint_map.insert({child->getID(), child});
+            child->collectActiveChildrenRecursively(joint_map);
         }
     }
 }
@@ -1879,7 +2200,10 @@ void LLIK::Joint::transformTargetsToParentLocal(std::vector<LLVector3>& local_ta
     }
 }
 
-bool LLIK::Joint::swingTowardTargets(const std::vector<LLVector3>& local_targets, const std::vector<LLVector3>& world_targets)
+bool LLIK::Joint::swingTowardTargets(
+        const std::vector<LLVector3>& local_targets,
+        const std::vector<LLVector3>& world_targets,
+        F32 swing_factor)
 {
     if (localRotLocked())
     {
@@ -1888,7 +2212,6 @@ bool LLIK::Joint::swingTowardTargets(const std::vector<LLVector3>& local_targets
         return true;
     }
 
-    constexpr F32 MIN_SWING_ANGLE = 0.001f * F_PI;
     bool something_changed = false;
     if (hasRotTarget())
     {
@@ -1907,6 +2230,10 @@ bool LLIK::Joint::swingTowardTargets(const std::vector<LLVector3>& local_targets
         }
         else
         {
+            // We will compute an "average" adjustment
+            // so we want to start with a zero-value adjustment = <0,0,0,0>.
+            // Since adjustment was just initialized to <W,X,Y,Z> = <0,0,0,1>
+            // we only need to zero out the W component
             adjustment.mQ[VW] = 0.0f;
             for (size_t i = 0; i < num_targets; ++i)
             {
@@ -1927,12 +2254,11 @@ bool LLIK::Joint::swingTowardTargets(const std::vector<LLVector3>& local_targets
             adjustment.normalize();
         }
 
-        if (!LLQuaternion::almost_equal(adjustment, LLQuaternion::DEFAULT, MIN_SWING_ANGLE))
+        if (!LLQuaternion::almost_equal(adjustment, LLQuaternion::DEFAULT, VERY_SMALL_ANGLE))
         {
             // lerp the adjustment instead of using the full rotation
             // this allows swing to distribute along the length of the chain
-            constexpr F32 SWING_FACTOR = 0.25f;
-            adjustment = lerp(SWING_FACTOR, LLQuaternion::DEFAULT, adjustment);
+            adjustment = lerp(swing_factor, LLQuaternion::DEFAULT, adjustment);
 
             // compute mRot
             mRot = mRot * adjustment;
@@ -1952,15 +2278,7 @@ bool LLIK::Joint::swingTowardTargets(const std::vector<LLVector3>& local_targets
         mLocalRot = mRot * inv_parentRot;
         mLocalRot.normalize();
 
-        if (enforceConstraint())
-        {
-            applyLocalRot();
-
-            // EXPERIMENTAL
-            // we hit the constraint during the swing
-            // perhaps some twist can get us closer
-            //twistTowardTargets(local_targets, world_targets); // DISABLED EXPERIMENT
-        }
+        enforceConstraint();
     }
     return something_changed;
 }
@@ -2081,92 +2399,7 @@ void LLIK::Joint::twistTowardTargets(const std::vector<LLVector3>& local_targets
     mLocalRot = mRot * inv_parentRot;
     mLocalRot.normalize();
 
-    if (enforceConstraint())
-    {
-        applyLocalRot();
-    }
-}
-
-void LLIK::Joint::untwist()
-{
-    if (hasRotTarget())
-    {
-        mRot = mConfig->getTargetRot();
-        updateLocalRot();
-        DEBUG_LOG_EVENT;
-    }
-    else if (!localRotLocked())
-    {
-        // compute new_local_rot
-        LLQuaternion new_local_rot = LLQuaternion::DEFAULT;
-        if (mConstraint && !(hasDisabledConstraint()))
-        {
-            new_local_rot = mConstraint->minimizeTwist(mLocalRot);
-        }
-        else
-        {
-            LLVector3 bone = mBone;
-            bone.normalize();
-            LLVector3 new_bone = bone * mLocalRot;
-            LLVector3 swing_axis = bone % new_bone;
-            constexpr F32 MIN_SWING_AXIS_LENGTH = 1.0e-3f;
-            if (swing_axis.length() > MIN_SWING_AXIS_LENGTH)
-            {
-                F32 swing_angle = std::acos(new_bone * bone);
-                new_local_rot.setAngleAxis(swing_angle, swing_axis);
-            }
-        }
-
-        // blend toward new_local_rot
-        constexpr F32 UNTWIST_BLEND = 0.25f;
-        mLocalRot = lerp(UNTWIST_BLEND, mLocalRot, new_local_rot);
-        // Note: if UNTWIST_BLEND is increased here the consequence will be
-        // more noticeable occasional pops in some joints. It is an interaction
-        // with transitions in/out of the
-        //     if (swing_axis.length() > MIN_SWING_AXIS_LENGTH)
-        // condition above.
-
-        // apply new mLocalRot
-        LLQuaternion new_rot = mLocalRot * mParent->mRot;
-        if (!mParent->localRotLocked())
-        {
-            // check to see if new mLocalRot would change world-frame bone
-            // (which only happens for some Constraints)
-            LLVector3 old_bone = mBone * mRot;
-            LLVector3 new_bone = mBone * new_rot;
-            constexpr F32 MIN_DELTA_COEF = 0.01f;
-            if ((new_bone - old_bone).length() > MIN_DELTA_COEF * mBone.length())
-            {
-                // The new mLocalRot would change the world-frame bone direction
-                // so we counter-rotate mParent to compensate.
-
-                // compute axis of correction
-                LLVector3 axis = mParent->mBone * mParent->mRot;
-                axis.normalize();
-
-                // project child bones to plane
-                old_bone = old_bone - (old_bone * axis) * axis;
-                new_bone = new_bone - (new_bone * axis) * axis;
-
-                // compute correction from new_bone back to old_bone
-                LLQuaternion twist;
-                twist.shortestArc(new_bone, old_bone);
-
-                // compute new parent rot
-                DEBUG_SET_CONTEXT(pre_untwist_parent);
-                LLQuaternion new_parent_rot = mParent->mRot * twist;
-                new_parent_rot.normalize();
-                mParent->setWorldRot(new_parent_rot);
-                mParent->updateLocalRot();
-
-                // compute new rot
-                new_rot = mLocalRot * mParent->mRot;
-            }
-        }
-        mRot = new_rot;
-        mRot.normalize();
-        DEBUG_LOG_EVENT;
-    }
+    enforceConstraint();
 }
 
 //LLIK::Solver class
@@ -2225,7 +2458,7 @@ LLVector3 LLIK::Solver::computeReach(S16 to_id, S16 from_id) const
 
     // start at descendent and traverse up the limb
     // until we find the ancestor
-    joint_map_t::const_iterator itr = mSkeleton.find(descendent);
+    Joint::joint_map_t::const_iterator itr = mSkeleton.find(descendent);
     if (itr != mSkeleton.end())
     {
         Joint::ptr_t joint = itr->second;
@@ -2262,7 +2495,7 @@ void LLIK::Solver::addJoint(
         LL_WARNS("Puppet") << "failed to add invalid joint_id=" << joint_id << LL_ENDL;
         return;
     }
-    joint_map_t::iterator itr = mSkeleton.find(joint_id);
+    Joint::joint_map_t::iterator itr = mSkeleton.find(joint_id);
     if (itr != mSkeleton.end())
     {
         LL_WARNS("Puppet") << "failed to add joint_id=" << joint_id << ": already exists" << LL_ENDL;
@@ -2316,7 +2549,7 @@ void LLIK::Solver::adjustTargets(joint_config_map_t& targets)
     for (auto& data_pair : targets)
     {
         Joint::Config& target = data_pair.second;
-        U8 mask = target.getFlags();
+        Flag mask = target.getFlags();
         if (!target.hasWorldPos() || target.hasLocalRot() || !target.hasWorldRot())
         {
             // target does not match our needs
@@ -2431,7 +2664,7 @@ bool LLIK::Solver::updateJointConfigs(const joint_config_map_t& configs)
             { //Found old target in current configs.
                 const Joint::Config& old_target = data_pair.second;
                 const Joint::Config& new_target = itr->second;
-                U8 mask = old_target.getFlags();
+                Flag mask = old_target.getFlags();
                 if (mask != new_target.getFlags())
                 {
                     something_changed = true;
@@ -2485,7 +2718,7 @@ void LLIK::Solver::rebuildAllChains()
     // before recompute chains: clear active status on old chains
     for (const auto& data_pair : mChainMap)
     {
-        const joint_list_t& chain = data_pair.second;
+        const Joint::joint_vec_t& chain = data_pair.second;
         for (const Joint::ptr_t& joint : chain)
         {
             joint->resetFlags();
@@ -2558,7 +2791,7 @@ void LLIK::Solver::rebuildAllChains()
     {
         // make sure joint_id is valid
         S16 joint_id = data_pair.first;
-        joint_map_t::iterator itr = mSkeleton.find(joint_id);
+        Joint::joint_map_t::iterator itr = mSkeleton.find(joint_id);
         if (itr == mSkeleton.end())
         {
             continue;
@@ -2574,7 +2807,7 @@ void LLIK::Solver::rebuildAllChains()
         if (joint->getID() == mRootID)
         {
             // for root: world-frame == local-frame
-            U8 flags = joint->getConfigFlags();
+            Flag flags = joint->getConfigFlags();
             if (flags & MASK_ROT)
             {
                 LLQuaternion q;
@@ -2626,7 +2859,7 @@ void LLIK::Solver::rebuildAllChains()
         if (config.hasTargetPos())
         {
             // add and build chain
-            mChainMap[joint_id] = joint_list_t();
+            mChainMap[joint_id] = Joint::joint_vec_t();
             buildChain(joint, mChainMap[joint_id], sub_bases, config.getChainLimit());
 
             //HACK or FIX?  If we have sequential end effectors, we are not guaranteed the expression
@@ -2650,7 +2883,7 @@ void LLIK::Solver::rebuildAllChains()
         else if (config.hasTargetRot())
         {
             // add and build chain
-            mChainMap[joint_id] = joint_list_t();
+            mChainMap[joint_id] = Joint::joint_vec_t();
             buildChain(joint, mChainMap[joint_id], sub_bases, config.getChainLimit());
         }
 
@@ -2674,7 +2907,7 @@ void LLIK::Solver::rebuildAllChains()
         {
             // add and build chain
             Joint::ptr_t joint = mSkeleton[joint_id];
-            mChainMap[joint_id] = joint_list_t();
+            mChainMap[joint_id] = Joint::joint_vec_t();
             buildChain(joint, mChainMap[joint_id], new_sub_bases, 255);
         }
         sub_bases = std::move(new_sub_bases);
@@ -2689,7 +2922,8 @@ void LLIK::Solver::rebuildAllChains()
         if (!outer_end->hasPosTarget()
                 && !isSubBase(outer_end->getID()))
         {
-            Joint::ptr_t active_child = outer_end->getSingleActiveChild();
+            Joint::ptr_t active_child;
+            outer_end->getSingleActiveChild(active_child);
             if (active_child)
             {
                 // outer_end doesn't have a target, isn't flagged as subbase,
@@ -2736,35 +2970,37 @@ void LLIK::Solver::rebuildAllChains()
 #ifdef DEBUG_LLIK_UNIT_TESTS
     if (mDebugEnabled)
     {
-        std::cout << "joint_configs=[" << std::endl;
+        std::stringstream s;
+        s << "joint_configs=[" << std::endl;
         for (const auto& data_pair : mJointConfigs)
         {
             const Joint::Config& config = data_pair.second;
-            std::cout << "    {";
-            std::cout << "'id':" << data_pair.first;
+            s << "    {";
+            s << "'id':" << data_pair.first;
             if (config.hasTargetPos())
             {
                 const LLVector3& p = config.getTargetPos();
-                std::cout << ",'p':(" << p.mV[VX] << "," << p.mV[VY] << "," << p.mV[VZ] << ")";
+                s << ",'p':(" << p.mV[VX] << "," << p.mV[VY] << "," << p.mV[VZ] << ")";
             }
             else if (config.hasLocalPos())
             {
                 const LLVector3& p = config.getLocalPos();
-                std::cout << ",'P':(" << p.mV[VX] << "," << p.mV[VY] << "," << p.mV[VZ] << ")";
+                s << ",'P':(" << p.mV[VX] << "," << p.mV[VY] << "," << p.mV[VZ] << ")";
             }
             if (config.hasTargetRot())
             {
                 const LLQuaternion& q = config.getTargetRot();
-                std::cout << ",'q':(" << q.mQ[VX] << "," << q.mQ[VY] << "," << q.mQ[VZ] << "," << q.mQ[VW] << ")";
+                s << ",'q':(" << q.mQ[VX] << "," << q.mQ[VY] << "," << q.mQ[VZ] << "," << q.mQ[VW] << ")";
             }
             else if (config.hasLocalRot())
             {
                 const LLQuaternion& q = config.getLocalRot();
-                std::cout << ",'Q':(" << q.mQ[VX] << "," << q.mQ[VY] << "," << q.mQ[VZ] << "," << q.mQ[VW] << ")";
+                s << ",'Q':(" << q.mQ[VX] << "," << q.mQ[VY] << "," << q.mQ[VZ] << "," << q.mQ[VW] << ")";
             }
-            std::cout << "},\n";
+            s << "},\n";
         }
-        std::cout << "]" << std::endl;
+        s << "]" << std::endl;
+        std::cout << s.str() << std::endl;
     }
 #endif
 
@@ -2831,10 +3067,10 @@ F32 LLIK::Solver::solve()
     }
 #endif
 
-    constexpr U32 MAX_FABRIK_ITERATIONS = 16;
-    constexpr U32 MIN_FABRIK_ITERATIONS = 4;
+    constexpr U32 MAX_SOLVER_ITERATIONS = 16;
+    constexpr U32 MIN_SOLVER_ITERATIONS = 4;
     F32 max_error = std::numeric_limits<F32>::max();
-    for (U32 loop = 0; loop < MIN_FABRIK_ITERATIONS || (loop < MAX_FABRIK_ITERATIONS && max_error > mAcceptableError); ++loop)
+    for (U32 loop = 0; loop < MIN_SOLVER_ITERATIONS || (loop < MAX_SOLVER_ITERATIONS && max_error > mAcceptableError); ++loop)
     {
 #ifdef DEBUG_LLIK_UNIT_TESTS
         if (mDebugEnabled) { std::cout << "    ('loop'," << loop << ")," << std::endl; }
@@ -2859,62 +3095,15 @@ F32 LLIK::Solver::solve()
 
 F32 LLIK::Solver::solveOnce()
 {
-    // Special experimental IK logic
-    bool enforce_constraints = true;
-    bool drop_elbow = true;
-    bool untwist = true;
     // uncomment the selected IK algorithm below:
 
-    // CCD
-    //executeCcd(enforce_constraints, drop_elbow, untwist);
+    // CCD - experimental
+    //executeCcdPass();
 
     // FABRIK
-    executeFabrik(enforce_constraints, drop_elbow, untwist);
-
-    return measureMaxError();
-}
-
-void LLIK::Solver::executeFabrik(bool enforce_constraints, bool drop_elbow, bool untwist)
-{
     executeFabrikPass();
 
-    // pull elbows downward toward a more natual pose
-    for (const auto& wrist_joint : mWristJoints)
-    {
-        dropElbow(wrist_joint);
-    }
-
-    if (enforce_constraints)
-    {
-        // since our FABRIK implementation doesn't enforce constraints
-        // during the forward/backward passes we do it here
-        enforceConstraintsOutward();
-
-        if (untwist)
-        {
-            // It is often possible to remove excess twist between the Joints
-            // without swinging their bones in the world-frame.  We try this now
-            // to help reduce the "spin drift" that can occur where Joint
-            // orientations pick up systematic and floating-point errors and
-            // drift within the twist-limits of their constraints.
-            for (const auto& data_pair : mChainMap)
-            {
-                const joint_list_t& chain = data_pair.second;
-                untwistChain(chain);
-            }
-
-            executeFabrikPass();
-            // Note: we don't bother enforcing constraints after untwisting.
-        }
-    }
-}
-
-void LLIK::Solver::executeCcd(bool enforce_constraints, bool drop_elbow, bool untwist)
-{
-    // TODO: modify executeCcdPass() to handle enforce_constraints
-    // TODO: handle drop_elbow before CCD pass
-    // TODO?: handle untwist
-    executeCcdPass(enforce_constraints);
+    return measureMaxError();
 }
 
 LLVector3 LLIK::Solver::getJointLocalPos(S16 joint_id) const
@@ -2943,7 +3132,7 @@ bool LLIK::Solver::getJointLocalTransform(S16 joint_id, LLVector3& pos, LLQuater
 LLVector3 LLIK::Solver::getJointWorldEndPos(S16 joint_id) const
 {
     LLVector3 pos;
-    joint_map_t::const_iterator itr = mSkeleton.find(joint_id);
+    Joint::joint_map_t::const_iterator itr = mSkeleton.find(joint_id);
     if (itr != mSkeleton.end())
     {
         pos = itr->second->computeWorldEndPos();
@@ -2954,7 +3143,7 @@ LLVector3 LLIK::Solver::getJointWorldEndPos(S16 joint_id) const
 LLQuaternion LLIK::Solver::getJointWorldRot(S16 joint_id) const
 {
     LLQuaternion rot;
-    joint_map_t::const_iterator itr = mSkeleton.find(joint_id);
+    Joint::joint_map_t::const_iterator itr = mSkeleton.find(joint_id);
     if (itr != mSkeleton.end())
     {
         rot = itr->second->getWorldRot();
@@ -2964,7 +3153,7 @@ LLQuaternion LLIK::Solver::getJointWorldRot(S16 joint_id) const
 
 void LLIK::Solver::resetJointGeometry(S16 joint_id, const Constraint::ptr_t& constraint)
 {
-    joint_map_t::iterator itr = mSkeleton.find(joint_id);
+    Joint::joint_map_t::iterator itr = mSkeleton.find(joint_id);
     if (itr == mSkeleton.end())
     {
         LL_WARNS("Puppet") << "failed update unknown joint_id=" << joint_id << LL_ENDL;
@@ -2976,7 +3165,7 @@ void LLIK::Solver::resetJointGeometry(S16 joint_id, const Constraint::ptr_t& con
     // Note: will need to call computeReach() after all Joint geometries are reset.
 }
 
-void LLIK::Solver::buildChain(Joint::ptr_t joint, joint_list_t& chain, std::set<S16>& sub_bases, size_t chain_length)
+void LLIK::Solver::buildChain(Joint::ptr_t joint, Joint::joint_vec_t& chain, std::set<S16>& sub_bases, size_t chain_length)
 {
     // Builds a Chain in descending order (inward) from end-effector or
     // sub-base.  Stops at next end-effector (has target), sub-base (more than
@@ -3021,7 +3210,7 @@ void LLIK::Solver::buildChain(Joint::ptr_t joint, joint_list_t& chain, std::set<
     }
 }
 
-void LLIK::Solver::executeFabrikInward(const joint_list_t& chain)
+void LLIK::Solver::executeFabrikInward(const Joint::joint_vec_t& chain)
 {
     DEBUG_SET_CONTEXT(inward);
     // chain starts at end-effector or sub-base.
@@ -3044,7 +3233,7 @@ void LLIK::Solver::executeFabrikInward(const joint_list_t& chain)
     }
 }
 
-void LLIK::Solver::executeFabrikOutward(const joint_list_t& chain)
+void LLIK::Solver::executeFabrikOutward(const Joint::joint_vec_t& chain)
 {
     DEBUG_SET_CONTEXT(outward);
     // chain starts at a end-effector or sub-base.
@@ -3066,7 +3255,7 @@ void LLIK::Solver::executeFabrikOutward(const joint_list_t& chain)
     chain[0]->updateEndOutward();
 }
 
-void LLIK::Solver::shiftChainToBase(const joint_list_t& chain)
+void LLIK::Solver::shiftChainToBase(const Joint::joint_vec_t& chain)
 {
     S32 last_index = (S32)(chain.size()) - 1;
     const Joint::ptr_t& inner_end_child = chain[last_index - 1];
@@ -3105,37 +3294,75 @@ void LLIK::Solver::executeFabrikPass()
     DEBUG_SET_CONTEXT(outward);
     for (const auto& data_pair : mChainMap)
     {
-        const joint_list_t& chain = data_pair.second;
+        const Joint::joint_vec_t& chain = data_pair.second;
         executeFabrikOutward(chain);
+    }
+    // Note: at the end of all this: both local- and world-frame Joint transforms are correct.
+
+    enforceConstraints();
+}
+
+void LLIK::Solver::enforceConstraints()
+{
+    DEBUG_SET_CONTEXT(enforce_constraints);
+    // enforce the constraints from outside-->in
+    // this is important because some constraints will also adjust the parent joint
+    // and we need the parent joint's world-frame transform to be correct when that happens
+    std::vector<S16> adjusted_joint_ids;
+    for (chain_map_t::const_reverse_iterator itr = mChainMap.rbegin(); itr != mChainMap.rend(); ++itr)
+    {
+        S16 joint_id = enforceConstraintsInward(itr->second);
+        if (joint_id > -1)
+        {
+            // as we proceed we remember the smallest joint_id that was updated on that chain
+            adjusted_joint_ids.push_back(joint_id);
+        }
+    }
+
+    // recompute world-frame transforms from inside-->out
+    if (adjusted_joint_ids.size() > 0)
+    {
+        // As the constraints were enforced the local-frame transform of Joints
+        // may have been updated but the world-frame transforms will tend to be
+        // invalidated.  So we identify all possibly stale Joints and then update
+        // them from inside-->out (from low joint_id --> high).
+
+        // collect the set of active joints to be updated
+        Joint::joint_map_t joint_map;
+        for (size_t i = 0; i < adjusted_joint_ids.size(); ++i)
+        {
+            S32 joint_id = adjusted_joint_ids[i];
+            Joint::ptr_t joint = mSkeleton[joint_id];
+            joint_map.insert({joint_id, joint});
+            joint->collectActiveChildrenRecursively(joint_map);
+        }
+
+        // now we update the joints outward by index: low to high
+        for (const auto& data_pair : joint_map)
+        {
+            const Joint::ptr_t& joint = data_pair.second;
+            joint->updatePosAndRotFromParent();
+        }
     }
 }
 
-void LLIK::Solver::enforceConstraintsOutward()
+// returns lowest id of joint adjusted by its constraint,
+// else returns -1 if none were adjusted
+S16 LLIK::Solver::enforceConstraintsInward(const Joint::joint_vec_t& chain)
 {
-    for (const auto& data_pair : mChainMap)
+    // Don't forget chain is organized in descending order:
+    // for inward pass we traverse the chain forward.
+    S16 lowest_joint_id = false;
+    size_t num_joints = chain.size() - 1; // subtract one because we don't enforce inner-end
+    for (S32 i = 0; i < num_joints; ++i)
     {
-        const joint_list_t& chain = data_pair.second;
-
-        // chain starts at a end-effector or sub-base.
-        // Don't forget: chain is organized in descending order:
-        // for outward pass we traverse the chain in reverse.
-        S32 last_index = (S32)(chain.size()) - 1;
-
-        // skip the Joint at last_index:
-        // chain's inner-end doesn't move at this stage.
-
-        // traverse the middle of chain in reverse
-        for (S32 i = last_index - 1; i > -1; --i)
+        const Joint::ptr_t& joint = chain[i];
+        if (joint->enforceConstraint())
         {
-            const Joint::ptr_t& joint = chain[i];
-            joint->updatePosAndRotFromParent();
-            if (joint->enforceConstraint())
-            {
-                joint->applyLocalRot();
-            }
+            lowest_joint_id = joint->getID();
         }
-        chain[0]->updateChildLocalRots();
     }
+    return lowest_joint_id;
 }
 
 // Cyclic Coordinate Descend (CCD) is an alternative IK algorithm.
@@ -3145,15 +3372,14 @@ void LLIK::Solver::enforceConstraintsOutward()
 // instability when Constraints are being enforced. We keep it around just in
 // case we want to try it, or for when we figure out how to enforce Constraints
 // without making CCD unstable.
-void LLIK::Solver::executeCcdPass(bool enforce_constraints)
+void LLIK::Solver::executeCcdPass()
 {
-    // TODO: handle enforce_constraints
     DEBUG_SET_PHASE(CCD);
     // mChainMap is sorted by outer_end joint_id, low-to-high
     // and CCD is an inward pass, so we traverse the map in reverse
     for (chain_map_t::const_reverse_iterator itr = mChainMap.rbegin(); itr != mChainMap.rend(); ++itr)
     {
-        executeCcdInward(itr->second, enforce_constraints);
+        executeCcdInward(itr->second);
     }
 
     // executeCcdInward(chain) recomputes world-frame transform of all Joints in chain
@@ -3166,7 +3392,7 @@ void LLIK::Solver::executeCcdPass(bool enforce_constraints)
     }
 }
 
-void LLIK::Solver::executeCcdInward(const joint_list_t& chain, bool enforce_constraints)
+void LLIK::Solver::executeCcdInward(const Joint::joint_vec_t& chain)
 {
     // 'chain' starts at a end-effector or sub-base.
     // Don't forget: 'chain' is organized in descending order:
@@ -3181,13 +3407,14 @@ void LLIK::Solver::executeCcdInward(const joint_list_t& chain, bool enforce_cons
     outer_end->collectTargetPositions(local_targets, world_targets);
 
     DEBUG_SET_CONTEXT(swing);
-    if (!outer_end->swingTowardTargets(local_targets, world_targets))
+    F32 swing_factor = IK_DEFAULT_CCD_SWING_FACTOR;
+    if (!outer_end->swingTowardTargets(local_targets, world_targets, swing_factor))
     {
         // targets are close enough
         return;
     }
 
-    // traverse Chain forward and swing each part
+    // traverse Chain forward (inward toward root) and swing each part
     // Skip first Joint in 'chain' (the "outer end"): we just handled it.
     // Also skip last Joint in 'chain' (the "inner end"): it is either
     // the outer end of another Chain (and will be updated as part of a
@@ -3198,7 +3425,7 @@ void LLIK::Solver::executeCcdInward(const joint_list_t& chain, bool enforce_cons
     for (S32 i = 1; i < last_index; ++i)
     {
         chain[i-1]->transformTargetsToParentLocal(local_targets);
-        if (!chain[i]->swingTowardTargets(local_targets, world_targets))
+        if (!chain[i]->swingTowardTargets(local_targets, world_targets, swing_factor))
         {
             break;
         }
@@ -3215,20 +3442,6 @@ void LLIK::Solver::executeCcdInward(const joint_list_t& chain, bool enforce_cons
     // finally: make sure to update outer_end's children's mLocalRots
     // Note: we don't bother to enforce constraints in this step
     outer_end->updateChildLocalRots();
-}
-
-void LLIK::Solver::untwistChain(const joint_list_t& chain)
-{
-    DEBUG_SET_CONTEXT(untwist);
-    S32 last_index = (S32)(chain.size()) - 1;
-    // Note: we start at last_index-1 becuase Joint::untwist() will affect its
-    // parent's twist and we don't want to mess with the inner_end of the chain
-    // since it will be handled later in another chain.
-    for (S32 i = last_index - 1; i > -1; --i)
-    {
-        chain[i]->untwist();
-    }
-    chain[0]->updateChildLocalRots();
 }
 
 F32 LLIK::Solver::measureMaxError()
@@ -3310,8 +3523,8 @@ void LLIK::Solver::updateBounds(const LLVector3& point)
 #endif // DEBUG_LLIK_UNIT_TESTS
 
 void LLIKConstraintFactory::initSingleton()
-{   
-    // For unit tests no need to attempt to load the constraints config file from disk.  Attempting to do 
+{
+    // For unit tests no need to attempt to load the constraints config file from disk.  Attempting to do
     // so introduces an unnecessary dependency on LLDir into the unit tests.
 #ifndef LL_TEST
     // Load the default constraints and mappings from config file.
@@ -3327,7 +3540,8 @@ void LLIKConstraintFactory::initSingleton()
     {
         std::ifstream file(constraint_file);
 
-        if (!LLSDSerialize::deserialize(constraint_data, file, LLSDSerialize::SIZE_UNLIMITED))
+        constexpr llssize MAX_EXPECTED_LINE_LENGTH = 256;
+        if (!LLSDSerialize::deserialize(constraint_data, file, MAX_EXPECTED_LINE_LENGTH))
         {
             LL_WARNS("IK") << "Unable to load and parse IK constraints from " << constraint_file << LL_ENDL;
             return;
@@ -3337,7 +3551,7 @@ void LLIKConstraintFactory::initSingleton()
 #endif // !LL_TEST
 }
 
-LLIK::Constraint::ptr_t LLIKConstraintFactory::getConstrForJoint(const std::string &joint_name) const
+LLIK::Constraint::ptr_t LLIKConstraintFactory::getConstraintByName(const std::string &joint_name) const
 {
     auto it = mJointMapping.find(joint_name);
     if (it == mJointMapping.end())
@@ -3400,6 +3614,10 @@ std::shared_ptr<LLIK::Constraint> LLIKConstraintFactory::create(LLSD &data)
     else if (type == TWIST_LIMITED_CONE_CONSTRAINT_NAME)
     {
         ptr = std::make_shared<LLIK::TwistLimitedCone>(data);
+    }
+    else if (type == SHOULDER_CONSTRAINT_NAME)
+    {
+        ptr = std::make_shared<LLIK::ShoulderConstraint>(data);
     }
     else if (type == ELBOW_CONSTRAINT_NAME)
     {

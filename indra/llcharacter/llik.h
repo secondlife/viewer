@@ -61,29 +61,33 @@ class Solver;
 class Joint;
 
 // config flags
-constexpr U8 CONFIG_FLAG_LOCAL_POS = 1 << 0;
-constexpr U8 CONFIG_FLAG_LOCAL_ROT = 1 << 1;
-constexpr U8 CONFIG_FLAG_LOCAL_SCALE = 1 << 2;
-constexpr U8 CONFIG_FLAG_DISABLE_CONSTRAINT = 1 << 3;
-constexpr U8 CONFIG_FLAG_TARGET_POS = 1 << 4;
-constexpr U8 CONFIG_FLAG_TARGET_ROT = 1 << 5;
-constexpr U8 CONFIG_FLAG_HAS_DELEGATED      = 1 << 6;  // EXPERIMENTAL
-constexpr U8 CONFIG_FLAG_ENABLE_REPORTING  = 1 << 7;  // EXPERIMENTAL
+using Flag = U16;
 
-constexpr U8 IK_FLAG_LOCAL_ROT = 1 << 1; // IK has adjusted local_rot
-constexpr U8 IK_FLAG_ACTIVE = 1 << 5;
-constexpr U8 IK_FLAG_LOCAL_ROT_LOCKED = 1 << 7; // local_rot is locked during IK
+constexpr Flag CONFIG_FLAG_LOCAL_POS = 1 << 0;
+constexpr Flag CONFIG_FLAG_LOCAL_ROT = 1 << 1;
+constexpr Flag CONFIG_FLAG_LOCAL_SCALE = 1 << 2;
+constexpr Flag CONFIG_FLAG_DISABLE_CONSTRAINT = 1 << 3;
+constexpr Flag CONFIG_FLAG_TARGET_POS = 1 << 4;
+constexpr Flag CONFIG_FLAG_TARGET_ROT = 1 << 5;
+constexpr Flag CONFIG_FLAG_HAS_DELEGATED      = 1 << 6;  // EXPERIMENTAL
+constexpr Flag CONFIG_FLAG_ENABLE_REPORTING  = 1 << 7;  // EXPERIMENTAL
+constexpr Flag CONFIG_FLAG_IS_ELBOW = 1 << 8;
 
-constexpr U8 MASK_POS = CONFIG_FLAG_TARGET_POS | CONFIG_FLAG_LOCAL_POS;
-constexpr U8 MASK_ROT = CONFIG_FLAG_TARGET_ROT | CONFIG_FLAG_LOCAL_ROT;
-constexpr U8 MASK_TRANSFORM = MASK_POS | MASK_ROT;
-constexpr U8 MASK_LOCAL = CONFIG_FLAG_LOCAL_POS | CONFIG_FLAG_LOCAL_ROT | CONFIG_FLAG_DISABLE_CONSTRAINT;
-constexpr U8 MASK_TARGET = CONFIG_FLAG_TARGET_POS | CONFIG_FLAG_TARGET_ROT;
+constexpr Flag IK_FLAG_LOCAL_ROT = 1 << 1; // IK has adjusted local_rot
+constexpr Flag IK_FLAG_ACTIVE = 1 << 5;
+constexpr Flag IK_FLAG_LOCAL_ROT_LOCKED = 1 << 7; // local_rot is locked during IK
+
+constexpr Flag MASK_POS = CONFIG_FLAG_TARGET_POS | CONFIG_FLAG_LOCAL_POS;
+constexpr Flag MASK_ROT = CONFIG_FLAG_TARGET_ROT | CONFIG_FLAG_LOCAL_ROT;
+constexpr Flag MASK_TRANSFORM = MASK_POS | MASK_ROT;
+constexpr Flag MASK_LOCAL = CONFIG_FLAG_LOCAL_POS | CONFIG_FLAG_LOCAL_ROT | CONFIG_FLAG_DISABLE_CONSTRAINT;
+constexpr Flag MASK_TARGET = CONFIG_FLAG_TARGET_POS | CONFIG_FLAG_TARGET_ROT;
 
 // this mask relates to LLJointState::Usage enum
-constexpr U8 MASK_JOINT_STATE_USAGE = CONFIG_FLAG_LOCAL_POS | CONFIG_FLAG_LOCAL_ROT | CONFIG_FLAG_LOCAL_SCALE;
+constexpr Flag MASK_JOINT_STATE_USAGE = CONFIG_FLAG_LOCAL_POS | CONFIG_FLAG_LOCAL_ROT | CONFIG_FLAG_LOCAL_SCALE;
 
 constexpr F32 IK_DEFAULT_ACCEPTABLE_ERROR = 5.0e-4f; // half millimeter
+constexpr F32 IK_DEFAULT_CCD_SWING_FACTOR = 0.25f;
 
 // A Constraint exists at the tip of Joint
 // and limits the range of Joint.mLocalRot.
@@ -98,6 +102,7 @@ public:
         UNKNOWN_CONSTRAINT,
         SIMPLE_CONE_CONSTRAINT,
         TWIST_LIMITED_CONE_CONSTRAINT,
+        SHOULDER_CONSTRAINT,
         ELBOW_CONSTRAINT,
         KNEE_CONSTRAINT,
         ACUTE_ELLIPSOIDAL_CONE_CONSTRAINT,
@@ -105,6 +110,11 @@ public:
     };
 
     Constraint() {}
+
+    // parameters = {
+    //   "forward_axis": vec3,
+    //   ...
+    // }
     Constraint(ConstraintType type, LLSD &parameters) :
         mType(type)
     {
@@ -118,9 +128,8 @@ public:
     virtual size_t          generateHash() const;
 
     ConstraintType          getType() const { return mType; }
-    bool                    enforce(Joint& joint) const;
+    virtual bool            enforce(Joint& joint) const;
     virtual LLQuaternion    computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const = 0;
-    virtual LLQuaternion    minimizeTwist(const LLQuaternion& joint_local_rot) const;
 
     // all Constraints have a forward axis
     const LLVector3&        getForwardAxis() const { return mForward; }
@@ -193,7 +202,6 @@ public:
     size_t      generateHash() const override;
 
     LLQuaternion computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const override;
-    LLQuaternion minimizeTwist(const LLQuaternion& joint_local_rot) const override;
 #ifdef DEBUG_LLIK_UNIT_TESTS
     void dumpConfig() const override;
 #endif
@@ -206,6 +214,41 @@ private:
     F32 mMaxTwist;
 };
 
+// ShoulderConstraint is a HACK.  It is basically a TwistLimitedConstraint
+// with implicit axis that does not align with mForward
+// and is not configurable (yet) at runtime..
+// See ShoulderConstraint::enforce() implementation for details.
+//
+class ShoulderConstraint : public Constraint
+{
+public:
+    ShoulderConstraint();
+
+    // parameters = {
+    //   "forward_axis": vec3,
+    //   ...
+    // }
+    ShoulderConstraint(LLSD &parameters);
+
+    ~ShoulderConstraint(){}
+
+    LLSD    asLLSD() const override;
+    size_t  generateHash() const override;
+
+    bool    enforce(Joint& joint) const override;
+    LLQuaternion computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const override;
+
+#ifdef DEBUG_LLIK_UNIT_TESTS
+    void dumpConfig() const override;
+#endif
+
+protected:
+    bool dropElbow(Joint& joint) const;
+
+private:
+    LLVector3 mConeAxis;
+};
+
 // ElbowConstraint can only bend (with limits) about its 'pivot' axis
 // and allows limited twist about its 'forward' axis.
 class ElbowConstraint : public Constraint
@@ -213,29 +256,38 @@ class ElbowConstraint : public Constraint
     // A Constraint for Elbow: limited hinge with limited twist about forward (forearm) axis.
     //
     // View from the side,             View with foreward axis out of page:
-    // with pivot axis out of page:
-    //                                      up  max_twist
+    // with pivot axis (up)
+    // out of page                          up  max_twist
     //        / max_bend                     | /
     //       /                               |/
-    //  ---(o)--------+  forward        ----(o)----> left
+    //  ---(o)-------->  forward        ----(o)----> left
     //       \                              /|
     //        \ min_bend                   / |
     //                              min_twist
 public:
     ElbowConstraint(const LLVector3& forward_axis, const LLVector3& pivot_axis, F32 min_bend, F32 max_bend, F32 min_twist, F32 max_twist);
+
+    // parameters = {
+    //   "forward_axis": vec3,
+    //   "pivot_axis": vec3,
+    //   "min_bend": float degrees,
+    //   "max_bend": float degrees,
+    //   "min_twist": float degrees,
+    //   "max_twist": float degrees
+    // }
     ElbowConstraint(LLSD &parameters);
 
     LLSD asLLSD() const override;
     size_t generateHash() const override;
 
+    bool enforce(Joint& joint) const override;
     LLQuaternion computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const override;
-    LLQuaternion minimizeTwist(const LLQuaternion& joint_local_rot) const override;
 #ifdef DEBUG_LLIK_UNIT_TESTS
     void dumpConfig() const override;
 #endif
 private:
     LLVector3 mPivotAxis;
-    LLVector3 mLeft;
+    LLVector3 mPivotXForward;
     F32 mMinBend;
     F32 mMaxBend;
     F32 mMinTwist;
@@ -259,20 +311,27 @@ class KneeConstraint : public Constraint
     //
 public:
     KneeConstraint(const LLVector3& forward_axis, const LLVector3& pivot_axis, F32 min_bend, F32 max_bend);
+
+    // parameters = {
+    //   "forward_axis": vec3,
+    //   "pivot_axis": vec3,
+    //   "min_bend": float degrees,
+    //   "max_bend": float degrees
+    // }
     KneeConstraint(LLSD &parameters);
 
     LLSD asLLSD() const override;
     size_t generateHash() const override;
 
+    bool enforce(Joint& joint) const override;
     LLQuaternion computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const override;
     bool allowsTwist() const override { return false; }
-    LLQuaternion minimizeTwist(const LLQuaternion& joint_local_rot) const override;
 #ifdef DEBUG_LLIK_UNIT_TESTS
     void dumpConfig() const override;
 #endif
 private:
     LLVector3 mPivotAxis;
-    LLVector3 mLeft;
+    LLVector3 mPivotXForward;
     F32 mMinBend;
     F32 mMaxBend;
 };
@@ -304,6 +363,16 @@ public:
             F32 left,
             F32 down,
             F32 right);
+
+    // parameters = {
+    //   "forward_axis": vec3,
+    //   "up_axis": vec3,
+    //   "forward": float,
+    //   "up": float,
+    //   "down": float,
+    //   "left": float,
+    //   "right": float,
+    // }
     AcuteEllipsoidalCone(LLSD &parameters);
 
     LLSD    asLLSD() const override;
@@ -357,13 +426,21 @@ public:
             F32 max_yaw,
             F32 min_pitch,
             F32 max_pitch);
+
+    // parameters = {
+    //   "forward_axis": vec3,
+    //   "up_axis": vec3,
+    //   "min_yaw": float (degrees),
+    //   "max_yaw": float (degrees),
+    //   "min_pitch": float (degrees),
+    //   "max_pitch": float (degrees)
+    // }
     DoubleLimitedHinge(LLSD &parameters);
 
     LLSD    asLLSD() const override;
     size_t  generateHash() const override;
 
     LLQuaternion computeAdjustedLocalRot(const LLQuaternion& joint_local_rot) const override;
-    LLQuaternion minimizeTwist(const LLQuaternion& joint_local_rot) const override;
 #ifdef DEBUG_LLIK_UNIT_TESTS
     void dumpConfig() const override;
 #endif
@@ -429,12 +506,16 @@ public:
         const LLQuaternion& getTargetRot() const { return mTargetRot; }
         size_t getChainLimit() const { return (mChainLimit) ? mChainLimit : 255; }
 
+        bool isElbow() const { return (mFlags & CONFIG_FLAG_IS_ELBOW) > 0; }
+
         void delegate() { mFlags |= CONFIG_FLAG_HAS_DELEGATED; } // EXPERIMENTAL
         bool hasDelegated() const { return (mFlags & CONFIG_FLAG_HAS_DELEGATED) > 0; } // EXPERIMENTAL
 
-        U8 getFlags() const { return mFlags; }
+        Flag getFlags() const { return mFlags; }
 
         void updateFrom(const Config& other_config);
+
+        //void dropElbow();
 
     private:
         LLVector3 mLocalPos;
@@ -443,11 +524,12 @@ public:
         LLVector3 mTargetPos;
         LLQuaternion mTargetRot;
         U8 mChainLimit = 0;
-        U8 mFlags = 0; // per-feature bits
+        Flag mFlags = 0; // per-feature bits
     };
 
     using ptr_t = std::shared_ptr<Joint>;
-    using child_vec_t = std::vector<ptr_t>;
+    using joint_vec_t = std::vector<ptr_t>;
+    using joint_map_t = std::map<S16, ptr_t>;
 
     Joint(LLJoint* info);
     void resetFromInfo();
@@ -460,7 +542,6 @@ public:
 
     void updateGeometry(const LLVector3& local_pos, const LLVector3& bone);
 
-    LLVector3 computeEndTargetPos() const;
     LLVector3 computeWorldTipOffset() const;
     void updateEndInward();
     void updateEndOutward();
@@ -494,8 +575,8 @@ public:
     const Config* getConfig() const { return mConfig; }
     bool hasPosTarget() const { return (mConfigFlags & CONFIG_FLAG_TARGET_POS) > 0; }
     bool hasRotTarget() const { return (mConfigFlags & CONFIG_FLAG_TARGET_ROT) > 0; }
-    U8 getConfigFlags() const { return mConfigFlags; }
-    U8 getHarvestFlags() const { return (mConfigFlags | mIkFlags) & MASK_LOCAL; }
+    Flag getConfigFlags() const { return mConfigFlags; }
+    Flag getHarvestFlags() const { return (mConfigFlags | mIkFlags) & MASK_LOCAL; }
     void resetFlags();
     void lockLocalRot(const LLQuaternion& local_rot);
 
@@ -505,7 +586,7 @@ public:
 
     const LLQuaternion& getLocalRot() const { return mLocalRot; }
     S16 getID() const { return mID; }
-    ptr_t getSingleActiveChild();
+    void getSingleActiveChild(ptr_t& child) const;
     const LLVector3& getBone() const { return mBone; }
     const LLVector3& getLocalPos() const { return mLocalPos; }
     const LLVector3& getLocalScale() const { return mLocalScale; }
@@ -523,9 +604,11 @@ public:
     size_t getNumChildren() const { return mChildren.size(); }
 
     void transformTargetsToParentLocal(std::vector<LLVector3>& local_targets) const;
-    bool swingTowardTargets(const std::vector<LLVector3>& local_targets, const std::vector<LLVector3>& world_targets);
+    bool swingTowardTargets(
+            const std::vector<LLVector3>& local_targets,
+            const std::vector<LLVector3>& world_targets,
+            F32 swing_factor = IK_DEFAULT_CCD_SWING_FACTOR);
     void twistTowardTargets(const std::vector<LLVector3>& local_targets, const std::vector<LLVector3>& world_targets);
-    void untwist();
 
     // We call flagForHarvest() when we expect the joint to be updated by IK
     // so we know to harvest its mLocalRot later.
@@ -538,12 +621,14 @@ public:
 
     void collectTargetPositions(std::vector<LLVector3>& local_targets, std::vector<LLVector3>& world_targets) const;
 
+    void collectActiveChildrenRecursively(joint_map_t& joint_map) const;
+
 protected:
     void reset();
     void relaxRot(F32 blend_factor);
 
 protected:
-    std::vector<ptr_t> mChildren;      //List of joint_ids attached to this one.
+    joint_vec_t  mChildren; //List of joint_ids attached to this one.
 
     LLVector3 mLocalPos; // current pos in parent-frame
     LLVector3 mPos; // pos in world-frame
@@ -576,8 +661,8 @@ protected:
 
     const Config* mConfig = nullptr; // pointer into Solver::mJointConfigs
 
-    U8 mConfigFlags = 0; // cache of mConfig->mFlags
-    U8 mIkFlags = 0; // flags for IK calculations
+    Flag mConfigFlags = 0; // cache of mConfig->mFlags
+    Flag mIkFlags = 0; // flags for IK calculations
 };
 
 
@@ -587,11 +672,9 @@ protected:
 class Solver
 {
 public:
-    using joint_map_t = std::map<S16, Joint::ptr_t>;
-    using S16_vec_t = std::vector<S16>;
     using joint_config_map_t = std::map<S16, Joint::Config>;
-    using joint_list_t = std::vector<Joint::ptr_t>;
-    using chain_map_t = std::map<S16, joint_list_t>;
+    // Note: chain_map_t must be an ORDERED map
+    using chain_map_t = std::map<S16, Joint::joint_vec_t>;
 
 public:
     Solver();
@@ -625,7 +708,7 @@ public:
     void setRootID(S16 root_id) { mRootID = root_id; }
     S16 getRootID() const { return mRootID; }
 
-    const joint_list_t getActiveJoints() const { return mActiveJoints; }
+    const Joint::joint_vec_t getActiveJoints() const { return mActiveJoints; }
 
     // Specify list of joint ids that should be considered as sub-bases
     // e.g. joints that are known to have multipe child chains,
@@ -663,27 +746,25 @@ private:
     F32 solveOnce();
 
     // experimental solver methods
-    void executeFabrik(bool enforce_constraints=false, bool drop_elbow=false, bool untwist=false);
-    void executeCcd(bool enforce_constraints=false, bool drop_elbow=false, bool untwist=false);
+    void executeFabrikPass();
+    void executeCcdPass(); // EXPERIMENTAL
+    void enforceConstraints();
 
     bool isSubBase(S16 joint_id) const;
     bool isSubRoot(S16 joint_id) const;
     //void adjustTargets(joint_config_map_t& targets); // EXPERIMENTAL: keep this
     void dropElbow(const Joint::ptr_t& wrist_joint);
     void rebuildAllChains();
-    void buildChain(Joint::ptr_t joint, joint_list_t& chain, std::set<S16>& sub_bases, size_t chain_length);
-    void executeFabrikInward(const joint_list_t& chain);
-    void executeFabrikOutward(const joint_list_t& chain);
-    void shiftChainToBase(const joint_list_t& chain);
-    void executeFabrikPass();
-    void enforceConstraintsOutward();
-    void executeCcdPass(bool enforce_constraints); // EXPERIMENTAL
-    void executeCcdInward(const joint_list_t& chain, bool enforce_constraints);
-    void untwistChain(const joint_list_t& chain);
+    void buildChain(Joint::ptr_t joint, Joint::joint_vec_t &chain, std::set<S16> &sub_bases, size_t chain_length);
+    void executeFabrikInward(const Joint::joint_vec_t& chain);
+    void executeFabrikOutward(const Joint::joint_vec_t& chain);
+    void shiftChainToBase(const Joint::joint_vec_t& chain);
+    S16 enforceConstraintsInward(const Joint::joint_vec_t& chain);
+    void executeCcdInward(const Joint::joint_vec_t& chain);
     F32 measureMaxError();
 
 private:
-    joint_map_t mSkeleton;
+    Joint::joint_map_t mSkeleton;
     joint_config_map_t mJointConfigs;
 
     chain_map_t mChainMap;
@@ -691,7 +772,7 @@ private:
     std::set<S16> mSubRootIds; // HACK: whitelist of sub-roots
     std::set<Joint::ptr_t> mActiveRoots;
     std::vector<Joint::ptr_t> mActiveJoints; // Joints with non-default local-pos
-    joint_list_t mWristJoints;
+    Joint::joint_vec_t mWristJoints;
     F32 mAcceptableError = IK_DEFAULT_ACCEPTABLE_ERROR;
     F32 mLastError = 0.0f;
     S16 mRootID;                //ID number of the root joint for this skeleton
@@ -715,7 +796,8 @@ class LLIKConstraintFactory: public LLSingleton<LLIKConstraintFactory>
 public:
     size_t                          getNumConstraints() const { return mConstraints.size(); } // for unit-test
 
-    LLIK::Constraint::ptr_t         getConstrForJoint(const std::string &joint_name) const;
+    LLIK::Constraint::ptr_t         getConstraintByName(const std::string &joint_name) const;
+    LLIK::Constraint::ptr_t         getConstraint(LLSD constraint_def);
 
 protected:
     void                            initSingleton() override;
@@ -725,7 +807,6 @@ private:
     using constraint_map_t = std::unordered_map<std::string, LLIK::Constraint::ptr_t>;
 
     void                            processConstraintMappings(LLSD mappings);
-    LLIK::Constraint::ptr_t         getConstraint(LLSD constraint_def);
 
     static LLIK::Constraint::ptr_t  create(LLSD &data);
 
