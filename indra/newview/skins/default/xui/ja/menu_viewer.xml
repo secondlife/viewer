@@ -97,7 +97,7 @@
   <menu label="世界" name="World">
     <menu_item_call label="現在地をランドマーク" name="Create Landmark Here" />
     <menu_item_call label="行き先…" name="Destinations" />
-    <menu_item_check label="世界地図" name="World Map" />
+    <menu_item_check label="ワールドマップ" name="World Map" />
     <menu_item_check label="ミニマップ" name="Mini-Map" />
     <menu_item_call label="イベント" name="Events" />
     <menu_item_check label="検索…" name="Search" />
@@ -622,7 +622,7 @@
       <menu_item_call label="アセットのIDを取得" name="Get Assets IDs" />
     </menu>
     <menu label="区画" name="Parcel">
-      <menu_item_call label="私を所有者にする" name="Owner To Me" />
+      <menu_item_call label="自分を所有者にする" name="Owner To Me" />
       <menu_item_call label="Lindenのコンテンツに設定する" name="Set to Linden Content" />
       <menu_item_call label="パブリックの土地を取得する" name="Claim Public Land" />
     </menu>

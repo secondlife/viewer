@@ -5,7 +5,7 @@
   <tab_container name="appearance_tabs">
     <panel name="outfit_gallery_tab" label="アウトフィットギャラリー" />
     <panel name="outfitslist_tab" label="自分のアウトフィット" />
-    <panel label="着用中" />
+    <panel name="cof_tab" label="着用中" />
   </tab_container>
 
   <panel name="bottom_panel">
@@ -13,10 +13,10 @@
       <layout_panel name="save_btn_lp">
         <button label="変更を保存" name="save_btn" />
       </layout_panel>
-      <layout_panel layout="bottomleft" name="save_as_btn_lp">
+      <layout_panel name="save_as_btn_lp">
         <button label="名前をつけて保存…" name="save_as_btn" />
       </layout_panel>
-      <layout_panel layout="bottomleft" name="wear_btn_lp">
+      <layout_panel name="wear_btn_lp">
         <button label="着用" name="wear_btn" />
       </layout_panel>
     </layout_stack>

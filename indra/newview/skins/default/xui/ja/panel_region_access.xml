@@ -38,12 +38,12 @@
         <filter_editor label="禁止されたエージェントを検索" name="banned_search_input" />
         <button label="コピー" name="copy_banned_list_btn" />
       </panel>
-      <text name="ban_resident_label">常に禁止：</text>
+      <text name="ban_resident_label">常にバン：</text>
       <name_list name="banned_avatar_name_list">
         <columns label="名前" name="name" />
         <columns label="最後にログインした日" name="last_login_date" />
-        <columns label="禁止された日付" name="ban_date" />
-        <columns label="禁止した人：" name="bannedby" />
+        <columns label="バンされた日付" name="ban_date" />
+        <columns label="バンした人：" name="bannedby" />
       </name_list>
       <button label="追加…" name="add_banned_avatar_btn" />
       <button label="削除…" name="remove_banned_avatar_btn" />

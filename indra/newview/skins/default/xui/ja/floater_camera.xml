@@ -14,7 +14,7 @@
       <slider_bar tool_tip="対象にカメラをズーム" />
       <button name="zoom_minus_btn" />
       <joystick_track tool_tip="カメラを上下左右に動かします。" />
-      <text name="precise_ctrs_label">精密制御を使用する</text>
+      <text name="precise_ctrs_label">数値で角度方位を指定</text>
     </panel>
   </panel>
   <panel name="buttons_panel">

@@ -6,7 +6,9 @@
   </panel>
   <panel name="accordion_panel">
     <accordion name="wearable_accordion">
-      <accordion_tab name="shoes_main_tab" title="靴" />
+      <accordion_tab name="shoes_main_tab" title="靴">
+        <scrolling_panel_list name="shoes_main_param_list" />
+      </accordion_tab>
     </accordion>
   </panel>
 </panel>

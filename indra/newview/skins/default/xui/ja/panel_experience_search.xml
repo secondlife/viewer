@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel layout="topleft" top="18" left="0" width="350" height="330" label="検索" follows="all">
-
+<panel name="panel_experience_search" label="検索">
   <string name="not_found">「[TEXT]」は見つかりませんでした。</string>
   <string name="no_results">検索結果：なし</string>
   <string name="searching">検索しています…。</string>
@@ -8,34 +7,28 @@
   <string name="maturity_icon_general">"Parcel_PG_Light"</string>
   <string name="maturity_icon_moderate">"Parcel_M_Light"</string>
   <string name="maturity_icon_adult">"Parcel_R_Light"</string>
-  <panel follows="all" left="5" right="-3" bottom="-2" top="0" name="search_panel">
-    <text left="0" follows="top|left|right" right="-1">名前の一部を入力してください：</text>
-    <line_editor left="0" follows="left|top|right" name="edit" height="18" right="-60" />
-    <button label="進む" follows="top|right" top_pad="-18" left_pad="2" right="-1" height="18" name="find" />
-    <text top_pad="6" left="0" follows="top|left" width="180">コンテンツの最大レーティング：</text>
-    <icons_combo_box follows="left|top" height="20" label="Moderate" layout="topleft" name="maturity" top_pad="-13" left_pad="0" right="-1">
-      <icons_combo_box.drop_down_button image_overlay="Parcel_M_Light" image_overlay_alignment="left" imgoverlay_label_space="3" pad_left="3" />
-      <icons_combo_box.item label="Adult" name="Adult" value="42">
-        <item.columns halign="center" type="icon" value="Parcel_R_Light" width="20" />
-      </icons_combo_box.item>
-      <icons_combo_box.item label="Moderate" name="Mature" value="21">
-        <item.columns halign="center" type="icon" value="Parcel_M_Light" width="20" />
-      </icons_combo_box.item>
-      <icons_combo_box.item label="General" name="PG" value="13">
-        <item.columns halign="center" type="icon" value="Parcel_PG_Light" width="20" />
-      </icons_combo_box.item>
+  <panel name="search_panel">
+    <text name="lbl name part">名前の一部を入力してください：</text>
+    <line_editor name="edit" />
+    <button label="進む" name="find" />
+    <text name="lbl max content rating">コンテンツの最大レーティング：</text>
+    <icons_combo_box label="Moderate" name="maturity">
+      <icons_combo_box.drop_down_button  />
+      <icons_combo_box.item label="Adult" name="Adult" value="42" />
+      <icons_combo_box.item label="Moderate" name="Mature" value="21"/>
+      <icons_combo_box.item label="General" name="PG" value="13"/>
     </icons_combo_box>
-    <scroll_list draw_heading="true" left="0" right="-1" height="239" top_pad="4" follows="all" column_padding="5" name="search_results">
-      <columns halign="center" width="24" name="maturity" label="" />
-      <columns user_resize="true" name="experience_name" label="名前" />
-      <columns user_resize="true" name="owner" label="所有者" />
+    <scroll_list name="search_results">
+      <columns name="maturity" label="" />
+      <columns name="experience_name" label="名前" />
+      <columns name="owner" label="所有者" />
     </scroll_list>
 
-    <button follows="left|bottom" height="23" label="OK" label_selected="OK" name="ok_btn" top_pad="3" left="0" width="95" />
-    <button follows="left|bottom" height="23" label="キャンセル" name="cancel_btn" width="95" left_pad="3" />
-    <button follows="left|bottom" height="23" label="プロフィールを表示" name="profile_btn" width="95" left_pad="3" />
-    <button follows="left|bottom" height="23" label="&lt;" name="left_btn" width="23" left_pad="3" enabled="false" />
-    <button follows="left|bottom" height="23" label="&gt;" name="right_btn" width="23" left_pad="3" enabled="false" />
+    <button label="OK" label_selected="OK" name="ok_btn" />
+    <button label="キャンセル" name="cancel_btn" />
+    <button label="プロフィール表示" name="profile_btn" />
+    <button label="⇦" name="left_btn" />
+    <button label="⇨" name="right_btn" />
 
   </panel>
 </panel>

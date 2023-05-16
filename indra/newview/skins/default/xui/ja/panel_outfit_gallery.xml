@@ -44,7 +44,7 @@
   <panel name="bottom_panel">
     <menu_button tool_tip="追加オプションを表示" name="options_gear_btn" />
     <icon name="dummy_icon" />
-    <text name="OutfitcountText">[COUNT]個のアウトフィット</text>
+    <text name="OutfitcountText">[COUNT]個</text>
     <text name="avatar_complexity_label">複雑度：[WEIGHT]</text>
     <button name="trash_btn" tool_tip="選択されたアウトフィットを削除" />
   </panel>

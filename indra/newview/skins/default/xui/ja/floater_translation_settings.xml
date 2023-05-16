@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_translation_settings" title="チャットの翻訳設定">
-  <string name="bing_api_key_not_verified">Bing appID を認証できませんでした。もう一度お試しください。</string>
-  <string name="google_api_key_not_verified">Google API キーを認証できませんでした。もう一度お試しください。</string>
-  <string name="bing_api_key_verified">Bing appID が認証されました。</string>
-  <string name="google_api_key_verified">Google API キーが認証されました。</string>
+  <string name="bing_api_key_not_verified">Bing appIDを認証できませんでした。もう一度お試しください。</string>
+  <string name="google_api_key_not_verified">Google APIキーを認証できませんでした。もう一度お試しください。</string>
+  <string name="bing_api_key_verified">Bing appIDが認証されました。</string>
+  <string name="google_api_key_verified">Google APIキーが認証されました。</string>
   <check_box label="チャット中の機械翻訳機能を有効にする" name="translate_chat_checkbox" />
   <text name="translate_language_label">翻訳する言語：</text>
   <combo_box name="translate_language_combo">

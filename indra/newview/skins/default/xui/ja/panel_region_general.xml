@@ -2,7 +2,7 @@
 <panel label="リージョン（地域）" name="General">
   <text name="region_text_lbl">リージョン（地域）：</text>
   <text left_delta="70" name="region_text">未知</text>
-  <text name="version_channel_text_lbl" width="100">バージョン：</text>
+  <text name="version_channel_text_lbl">バージョン：</text>
   <text left_delta="70" name="version_channel_text">不明</text>
   <text name="region_type_lbl">種類：</text>
   <text left_delta="70" name="region_type">不明

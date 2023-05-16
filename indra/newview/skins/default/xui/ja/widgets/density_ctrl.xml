@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<densityctrl border="true" follows="all" label="密度" name="density_ctrl" layout="topleft" left="0" top="0" width="320" height="240">
+<densityctrl abel="密度" name="density_ctrl">
   <text follows="left|top" height="11" layout="topleft" left="15" top_pad="-5" width="120">指数項</text>
-  <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left="15" min_val="0" max_val="1" name="level_exponential" top_delta="15" width="200" can_edit_text="true" />
+  <slider dname="level_exponential" />
 
   <view left_pad="15" top="15" name="preview_image" height="140" width="140" follows="left|top" />
   <text follows="left|top" height="11" layout="topleft" left="15" top_pad="-5" width="120">指数尺度係数</text>
-  <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left="15" min_val="0" max_val="1" name="exponential_scale" top_delta="15" width="200" can_edit_text="true" />
+  <slider dname="exponential_scale" />
 
   <text follows="left|top" height="11" layout="topleft" left="15" top_pad="-5" width="120">線形項</text>
-  <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left="15" min_val="0" max_val="1" name="level_linear" top_delta="15" width="200" can_edit_text="true" />
+  <slider dname="level_linear" />
 
   <text follows="left|top" height="11" layout="topleft" left="15" top_pad="-5" width="120">定数項</text>
-  <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left="15" min_val="0" max_val="1" name="level_constant" top_delta="15" width="200" can_edit_text="true" />
+  <slider dname="level_constant" />
 
   <text follows="left|top" height="11" layout="topleft" left="15" top_pad="15" width="80">最大高度</text>
-  <slider decimal_digits="0" follows="left|top" height="16" increment="1" initial_value="0" layout="topleft" left="15" min_val="1000" max_val="40000" name="max_altitude" top_delta="15" width="200" can_edit_text="true" />
+  <slider name="max_altitude" />
 
   <text follows="left|top" height="11" layout="topleft" name="aniso_factor_label" left="15" top_pad="15" width="80">異方性係数</text>
-  <slider decimal_digits="0" follows="left|top" height="16" increment="1" initial_value="0" layout="topleft" left="15" min_val="1000" max_val="40000" name="aniso_factor" top_delta="15" width="200" can_edit_text="true" />
+  <slider name="aniso_factor" />
 </densityctrl>

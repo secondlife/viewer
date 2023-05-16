@@ -6,7 +6,7 @@
       <text name="label">ベークド
 テクスチャ</text>
       <text name="composite_label">合成テクスチャ</text>
-      <button label="ID をコンソールにダンプ" label_selected="ダンプ" name="Dump" />
+      <button label="ＩＤをコンソールにダンプ" label_selected="ダンプ" name="Dump" />
       <panel name="scroll_content_panel">
         <texture_picker label="髪" name="hair-baked" />
         <texture_picker label="髪" name="hair_grain" />

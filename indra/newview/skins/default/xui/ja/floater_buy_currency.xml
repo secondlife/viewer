@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater layout="topleft" title="L$の購入" name="buy currency">
+<floater title="L$の購入" name="buy currency">
   <floater.string name="buy_currency">約[LOCALAMOUNT]でL$ [LINDENS]を購入</floater.string>
   <floater.string name="info_cannot_buy">購入できません。</floater.string>
   <floater.string name="estimated_zero">US$ 0.00</floater.string>
   <icon name="normal_background" />
-  <layout_stack animate="false" name="outer_stack" layout="topleft" follows="all" orientation="vertical" left="0" top="0" width="350" height="285">
+  <layout_stack name="outer_stack">
     <layout_panel name="layout_panel_title">
       <text name="info_need_more">L$が足りません。</text>
       <text name="info_buying">L$を購入</text>
@@ -23,7 +23,7 @@
       <text name="required_amount">L$ [AMT]</text>
     </layout_panel>
     <layout_panel name="layout_panel_action">
-      <view_border bevel_style="none" height="0" layout="topleft" left="20" name="text_border_2" top_pad="5" width="300" />
+      <view_border name="text_border_2" />
       <text name="currency_action">購入金額を選択</text>
       <text name="currency_label">L$</text>
       <line_editor label="L$" name="currency_amt">1234</line_editor>
@@ -33,8 +33,8 @@
       <text name="total_amount">L$ [AMT]</text>
     </layout_panel>
     <layout_panel name="layout_panel_msg">
-      <view_border bevel_style="none" height="0" layout="topleft" left="20" name="text_border_3" top_pad="0" width="300" />
-      <text name="currency_links">[http://www.secondlife.com/my/account/payment_method_management.php 支払い方法]｜[http://www.secondlife.com/my/account/currency.php L$の購入]</text>
+      <view_border name="text_border_3" />
+      <text name="currency_links">[https://accounts.secondlife.com/billing_information/ 支払い方法]｜[https://www.secondlife.com/my/lindex/buy.php L$の購入]</text>
       <text name="exchange_rate_note">金額を再入力して、最新の為替レートを確認してください。</text>
       <text name="purchase_warning_repurchase">L$ を受け取ったら、
 もう一度購入してください。</text>

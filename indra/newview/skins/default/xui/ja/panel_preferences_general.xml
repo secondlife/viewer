@@ -35,12 +35,12 @@
   <check_box label="ユーザー名" name="show_slids" tool_tip="bobsmith123 などユーザー名を表示" />
   <check_box label="グループタイトル" name="show_all_title_checkbox1" tool_tip="オフィサーまたはメンバーなど、グループタイトルを表示" />
   <check_box label="フレンドをハイライト表示" name="show_friends" tool_tip="フレンドの名前をハイライト表示" />
-  <check_box label="表示名を表示" name="display_names_check" tool_tip="これを選択すると、チャット、IM などで表示名が表示されます。" />
+  <check_box label="表示名を表示" name="display_names_check" tool_tip="これを選択すると、チャット、ＩＭなどで表示名が表示されます。" />
 
-  <text name="inworld_typing_rg_label">文字キーを押して次の操作：</text>
+  <text name="inworld_typing_rg_label">特定キーを押したときの動作：</text>
   <radio_group name="inworld_typing_preference">
     <radio_item label="チャットを始める" name="radio_start_chat" value="1" />
-    <radio_item label="移動する（WASDなど）" name="radio_move" value="0" />
+    <radio_item label="移動する（WSADなど）" name="radio_move" value="0" />
   </radio_group>
 
   <text name="title_afk_text">「離席」とするまでの時間：</text>

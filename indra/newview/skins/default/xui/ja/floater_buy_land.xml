@@ -55,10 +55,10 @@
   <text name="estate_owner_label">不動産オーナー：</text>
   <text name="estate_owner_text">（不明）</text>
   <text name="resellable_changeable_label">このリージョン（地域）で購入した土地：</text>
-  <text left="460" name="resellable_clause">再販できる場合とできない場合があります。</text>
-  <text left="460" name="changeable_clause">統合または再分割できる場合とできない場合があります。</text>
+  <text name="resellable_clause">再販できる場合とできない場合があります。</text>
+  <text name="changeable_clause">統合または再分割できる場合とできない場合があります。</text>
   <text name="covenant_text">不動産約款に同意してください：</text>
-  <text left="470" name="covenant_timestamp_text" />
+  <text name="covenant_timestamp_text" />
   <text_editor name="covenant_editor">読み込んでいます…。</text_editor>
   <check_box label="上記の約款に同意します" name="agree_covenant" />
   <text name="info_parcel_label">区画：</text>

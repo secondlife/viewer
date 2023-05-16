@@ -28,7 +28,7 @@
     <check_box label="物理効果カプセルを表示" name="show_physics_capsule" />
     <button label="取る" name="take_objects" />
     <button label="コピーを取る" name="take_copy_objects" />
-    <button label="私をそこにテレポートする" name="teleport_me_to_object" tool_tip="1 つのキャラクターが選択された場合にのみ有効です。" />
+    <button label="その場所にテレポート" name="teleport_me_to_object" tool_tip="1 つのキャラクターが選択された場合にのみ有効です。" />
     <button label="返却" name="return_objects" />
     <button label="削除" name="delete_objects" />
   </panel>

@@ -19,7 +19,7 @@
   <floater.string name="network_packet_loss_critical_pct">10</floater.string>
   <floater.string name="network_packet_loss_warning_pct">5</floater.string>
   <floater.string name="network_packet_loss_critical_msg">接続で[NETWORK_PACKET_LOSS_CRITICAL]％を超えるパケットが脱落しています。</floater.string>
-  <floater.string name="network_packet_loss_warning_msg">接続で[NETWORK_PACKET_LOSS_WARNING]%～[NETWORK_PACKET_LOSS_CRITICAL]%のパケットが脱落しています。</floater.string>
+  <floater.string name="network_packet_loss_warning_msg">接続で[NETWORK_PACKET_LOSS_WARNING]％～[NETWORK_PACKET_LOSS_CRITICAL]％のパケットが脱落しています。</floater.string>
   <floater.string name="network_performance_normal_msg">標準</floater.string>
   <floater.string name="network_ping_critical_ms">600</floater.string>
   <floater.string name="network_ping_warning_ms">300</floater.string>

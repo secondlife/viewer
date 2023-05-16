@@ -3,7 +3,7 @@
   <text name="script_memory">アバターのスクリプト使用</text>
   <text name="loading_text">読み込んでいます…</text>
   <scroll_list name="scripts_list">
-    <scroll_list.columns label="サイズ （㎅）" name="size" width="90" />
+    <scroll_list.columns label="サイズ （㎅）" name="size" />
     <scroll_list.columns label="URL" name="urls" />
     <scroll_list.columns label="オブジェクト名" name="name" />
     <scroll_list.columns label="場所" name="location" />

@@ -140,7 +140,7 @@
         </panel>
       </panel>
       <panel label="アップロードのオプション" name="modifiers_panel">
-        <text name="scale_label"> スケール（1=増減なし）：</text>
+        <text name="scale_label"> スケール（１＝増減なし）：</text>
         <spinner name="import_scale" value="1.0" />
         <text name="dimensions_label">サイズ：</text>
         <text name="import_dimensions">[X]✕[Y]✕[Z]</text>
@@ -149,7 +149,7 @@
         <check_box label="スキンの重さを含む" name="upload_skin" />
         <check_box label="ジョイント位置を含む" name="upload_joints" />
         <check_box label="ジョイント位置が定義されている場合、スケールをロック" name="lock_scale_if_joint_position" />
-        <text name="pelvis_offset_label">Z オフセット（アバターを上下調整）：</text>
+        <text name="pelvis_offset_label">Ｚオフセット（アバターを上下調整）：</text>
         <spinner name="pelvis_offset" value="0.0" />
       </panel>
     </tab_container>
@@ -158,7 +158,7 @@
       <button label="キャンセル" name="cancel_btn" />
       <button label="アップロード" name="ok_btn" tool_tip="シミュレーターにアップロード" />
       <button label="設定をクリアしてフォームをリセット" name="reset_btn" />
-      <text name="upload_fee">アップロード料金：L$[FEE]</text>
+      <text name="upload_fee">アップロード料金：L$ [FEE]</text>
       <text name="prim_weight">土地の負荷：[EQ]</text>
       <text name="download_weight">ダウンロード：[ST]</text>
       <text name="physics_weight">物理演算：[PH]</text>

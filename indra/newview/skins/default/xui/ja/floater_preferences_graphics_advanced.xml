@@ -44,7 +44,7 @@
   <check_box label="HiDPI 表示のためにサポートを有効にする（再起動が必要）" name="use HiDPI" tool_tip="高画質の描画のために OpenGL を有効にする" />
 
   <text name="antialiasing label">アンチエイリアシング：</text>
-  <combo_box label="アンチエイリアシング" name="fsaa" width="120">
+  <combo_box label="アンチエイリアシング" name="fsaa">
     <combo_box.item label="無効" name="FSAADisabled" value="0" />
     <combo_box.item label="2x" name="2x" value="2" />
     <combo_box.item label="4x" name="4x" value="4" />

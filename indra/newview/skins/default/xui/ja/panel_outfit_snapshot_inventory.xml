@@ -6,5 +6,5 @@
   <text name="hint_lbl">インベントリ画像をアップロードするには、L$[UPLOAD_COST]かかります。
 金額はサブスクリプションレベルによって異なります。高いレベルでは減額されます。</text>
   <button label="キャンセル" name="cancel_btn" />
-  <button flabel="アップロード（L$ [UPLOAD_COST]）" name="save_btn" />
+  <button label="アップロード（L$ [UPLOAD_COST]）" name="save_btn" />
 </panel>

@@ -5,7 +5,7 @@
     <panel name="profile_scroll_panel">
       <panel name="sidebar_people">
         <text name="tab_name" value="人物" />
-        <text name="tab_description">あなたのフレンド、グループ、連絡先、近くの人物を探します。</text>
+        <text name="tab_description">あなたのフレンド、グループ、連絡先、近隣の人物を探します。</text>
       </panel>
       <panel name="sidebar_places">
         <text name="tab_name" value="場所" />

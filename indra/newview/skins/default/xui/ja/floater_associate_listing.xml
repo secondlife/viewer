@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="associate listing" title="一覧の関連付け">
-  <text name="message">一覧ID:</text>
-  <line_editor name="listing_id">ここにIDを入力</line_editor>
+  <text name="message">一覧ＩＤ：</text>
+  <line_editor name="listing_id">ここにＩＤを入力</line_editor>
   <button label="OK" name="OK" />
   <button label="キャンセル" name="Cancel" />
 </floater>

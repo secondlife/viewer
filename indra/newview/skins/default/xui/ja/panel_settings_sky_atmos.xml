@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel border="true" follows="all" label="大気と雷" layout="topleft" left="0" name="panel_settings_sky_atmos" top="0">
+<panel label="大気と雷" name="panel_settings_sky_atmos">
   <layout_stack follows="all" layout="topleft" left="5" top="5" right="-5" bottom="-5" orientation="vertical">
     <layout_panel border="true" bevel_style="in" auto_resize="false" user_resize="false" visible="true" height="75">
 

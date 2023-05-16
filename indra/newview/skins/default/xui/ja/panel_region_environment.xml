@@ -57,7 +57,7 @@
             <settings_drop_target name="sdt_ground" tool_tip="持ち物から設定をこのターゲットボックスにドラッグし、地表レベルの空として選択します。" />
           </panel>
           <panel name="pnl_water">
-            <text name="txt_water">水</text>
+            <text name="txt_water">水面</text>
             <line_editor name="edt_invname_water">不明</line_editor>
             <settings_drop_target name="sdt_water" tool_tip="持ち物から設定をこのターゲットボックスにドラッグし、現在の水として選択する" />
           </panel>

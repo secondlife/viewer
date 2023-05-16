@@ -72,7 +72,7 @@
   <notification name="BadInstallation">[APP_NAME]をアップデート中にエラーが発生しました。ビューアーの[http://get.secondlife.com 最新バージョンをダウンロード]してください。
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
-  <notification name="LoginFailedNoNetwork">[SECOND_LIFE_GRID]に接続できませんでした。 
+  <notification name="LoginFailedNoNetwork">[SECOND_LIFE_GRID]に接続できませんでした。
 「[DIAGNOSTIC]」
 インターネット接続が正常かご確認ください。
     <tag>fail</tag>
@@ -219,7 +219,7 @@
     <usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい" />
   </notification>
   <notification name="GrantModifyRightsMultiple">他人に修正権限を与えると、権限を与えられた人はあなたが所有するインワールドのオブジェクトを変更することができます。
-この権限を与える際には十分に注意してください。 選択した住人に修正権限を与えますか？
+この権限を与える際には十分に注意してください。選択した住人に修正権限を与えますか？
     <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい" />
   </notification>
@@ -253,7 +253,7 @@
     <tag>fail</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
-  <notification name="AddGroupOwnerWarning">あなたは、[ROLE_NAME]の役割にメンバーを与えようとしています。任命されたメンバーが自ら退任しない限り、 役柄から削除できません。 
+  <notification name="AddGroupOwnerWarning">あなたは、[ROLE_NAME]の役割にメンバーを与えようとしています。任命されたメンバーが自ら退任しない限り、 役柄から削除できません。
 操作を続行しますか？
     <usetemplate ignoretext="グループオーナーを新しく追加する前の確認" name="okcancelignore" notext="いいえ" yestext="はい" />
   </notification>
@@ -392,12 +392,12 @@ L$が不足しているので、このグループに参加することができ
 売却価格をL$ 0に設定する場合は、売却する個人を選択してください。
     <tag>fail</tag>
   </notification>
-  <notification name="ConfirmLandSaleChange">選択した[LAND_SIZE]㎡の土地は、売り出し中に設定されています。 売却価格L$
+  <notification name="ConfirmLandSaleChange">選択した[LAND_SIZE]㎡の土地は、売り出し中に設定されています。売却価格L$
     [SALE_PRICE]で、[NAME]に売却を認可します。
     <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
-  <notification name="ConfirmLandSaleToAnyoneChange">注意：「誰にでも販売」をクリックすることで、あなたの土地はこのリージョンにいる人に限らず、[SECOND_LIFE]コミュニティ全体で利用可能となります。 
+  <notification name="ConfirmLandSaleToAnyoneChange">注意：「誰にでも販売」をクリックすることで、あなたの土地はこのリージョンにいる人に限らず、[SECOND_LIFE]コミュニティ全体で利用可能となります。
 選択した[LAND_SIZE]㎡の土地は、販売対象に設定されました。
 販売価格L$ [SALE_PRICE]で、[NAME]が販売対象者となります。
     <tag>confirm</tag>
@@ -421,7 +421,7 @@ L$が不足しているので、このグループに参加することができ
     <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
-  <notification name="ReturnObjectsNotOwnedBySelf">この土地区画内にある、あなた以外が所有するすべてのオブジェクトを、それぞれの所有者のインベントリに戻そうとしています。 操作を続行しますか？ 
+  <notification name="ReturnObjectsNotOwnedBySelf">この土地区画内にある、あなた以外が所有するすべてのオブジェクトを、それぞれの所有者のインベントリに戻そうとしています。操作を続行しますか？ 
 グループに譲渡された「再販・プレゼント可」のオブジェクトは、以前の所有者に返却されます。
 
 *警告* 
@@ -696,7 +696,7 @@ L$が不足しているので、このグループに参加することができ
     <tag>fail</tag>
     <usetemplate ignoretext="使用中のグラフィックドライバが古くなっています" name="okcancelignore" notext="いいえ" yestext="はい" />
   </notification>
-  <notification name="UnknownGPU">お使いのシステムには、[APP_NAME]が認識できないグラフィックカードが搭載されています。 [APP_NAME]でまだテストされていない最新ハードウェアのためだと考えられます。
+  <notification name="UnknownGPU">お使いのシステムには、[APP_NAME]が認識できないグラフィックカードが搭載されています。[APP_NAME]でまだテストされていない最新ハードウェアのためだと考えられます。
 問題ないとは思いますが、グラフィックの設定を調整する必要があるかもしれません。
 （「私」＞「初期設定」＞「グラフィック」）
     <tag>fail</tag>
@@ -968,7 +968,7 @@ L$が不足しているので、このグループに参加することができ
   <notification name="invalid_tport">テレポートの試行は１分間に６回までと制限されています。１分待ってからもう一度テレポートしてみてください。問題が解決しない場合は、ログインし直してください。
     <tag>fail</tag>
   </notification>
-  <notification name="invalid_region_handoff">リージョン間の移動中に問題が発生しました。 ログインし直す必要があるかもしれません。
+  <notification name="invalid_region_handoff">リージョン間の移動中に問題が発生しました。ログインし直す必要があるかもしれません。
 このメッセージが何度も出る場合は、[SUPPORT_SITE]をご確認ください。
     <tag>fail</tag>
   </notification>
@@ -1149,8 +1149,8 @@ L$が不足しているので、このグループに参加することができ
     <tag>fail</tag>
   </notification>
 
-  <notification name="LandDivideWarning">この土地を分割すると、2 つの区画に別れます。 区画ごとの設定が可能になります。
-この操作を行うと、一部の設定がデフォルトにリセットされます。 土地の分割操作を続行しますか？
+  <notification name="LandDivideWarning">この土地を分割すると、2 つの区画に別れます。区画ごとの設定が可能になります。
+この操作を行うと、一部の設定がデフォルトにリセットされます。土地の分割操作を続行しますか？
     <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
@@ -1184,12 +1184,12 @@ L$が不足しているので、このグループに参加することができ
   </notification>
 
   <notification name="JoinLandWarning">この土地を統合すると、選択された長方形に交差する全ての区画を基にして、大きな区画が１つ作成されます。
-新しい区画の名前とオプションを再設定する必要があります。 土地を統合しますか？
+新しい区画の名前とオプションを再設定する必要があります。土地を統合しますか？
     <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
 
-  <notification name="ConfirmNotecardSave">このアイテムをコピー、表示する前に、ノートカードの保存が必要です。 保存しますか？
+  <notification name="ConfirmNotecardSave">このアイテムをコピー、表示する前に、ノートカードの保存が必要です。保存しますか？
     <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
@@ -1217,11 +1217,11 @@ L$が不足しているので、このグループに参加することができ
   </notification>
 
   <notification name="CannotSaveToAssetStore">「 [NAME] 」を保存できません。
-通常これは一時的なエラーです。 数分後にもう一度着用物をカスタマイズ・保存してください。
+通常これは一時的なエラーです。数分後にもう一度着用物をカスタマイズ・保存してください。
     <tag>fail</tag>
   </notification>
 
-  <notification name="YouHaveBeenLoggedOut">しまった、[SECOND_LIFE] からログアウトされてしまいました。 [MESSAGE]
+  <notification name="YouHaveBeenLoggedOut">しまった、[SECOND_LIFE] からログアウトされてしまいました。[MESSAGE]
     <usetemplate name="okcancelbuttons" notext="終了" yestext="IMとチャットを表示" />
   </notification>
 
@@ -1236,7 +1236,7 @@ L$が不足しているので、このグループに参加することができ
     <tag>fail</tag>
   </notification>
 
-  <notification label="フレンド登録" name="AddFriendWithMessage">フレンド登録すると、お互いの現在地の地図への表示許可、オンライン状態の表示設定ができます。[NAME] にフレンドシップを申し出ますか？
+  <notification label="フレンド登録" name="AddFriendWithMessage">フレンド登録すると、お互いの現在地のマップへの表示許可、オンライン状態の表示設定ができます。[NAME] にフレンドシップを申し出ますか？
     <tag>friendship</tag>
     <tag>confirm</tag>
     <form name="form">
@@ -1443,7 +1443,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
   </notification>
 
   <notification name="ConfirmObjectTakeNoOwn">取得しようとしているオブジェクトには、あなたの所有物ではないオブジェクトが含まれています。
-あなたの所有物ではないオブジェクトを取得すると、次の所有者の権限がそのオブジェクトに適用されます。 そのため、将来、修正やコピーの能力が制限される可能性があります。
+あなたの所有物ではないオブジェクトを取得すると、次の所有者の権限がそのオブジェクトに適用されます。そのため、将来、修正やコピーの能力が制限される可能性があります。
 
 本当にこのまま取得を続けますか？
     <tag>confirm</tag>
@@ -1451,7 +1451,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
   </notification>
 
   <notification name="ConfirmObjectTakeLockNoOwn">少なくとも１つのオブジェクトがロックされています。
-取得しようとしているオブジェクトには、あなたの所有物ではないオブジェクトが含まれています。 あなたの所有物ではないオブジェクトを取得すると、次の所有者の権限がそのオブジェクトに適用されます。
+取得しようとしているオブジェクトには、あなたの所有物ではないオブジェクトが含まれています。あなたの所有物ではないオブジェクトを取得すると、次の所有者の権限がそのオブジェクトに適用されます。
 そのため、将来、編集やコピーの能力が制限される可能性があります。
 
 この選択内容のままで続行することは可能ですが、本当にこのまま取得を続けますか？
@@ -1472,7 +1472,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
 
-  <notification name="DeedLandToGroupWithContribution">この区画が譲渡されると、グループはその土地利用料として十分な残高を維持していく必要があります。 
+  <notification name="DeedLandToGroupWithContribution">この区画が譲渡されると、グループはその土地利用料として十分な残高を維持していく必要があります。
 譲渡には同時に [NAME]からグループへの土地の貢献が含まれます。土地の購入価格は所有者に返金されません。
 譲渡された区画が売却されると、販売価格はグループメンバーの間で均等に分配されます。
 
@@ -1576,7 +1576,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
     <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="女性" yestext="男性" />
   </notification>
-  <notification name="CantTeleportToGrid">現在のグリッド（[CURRENT_GRID]）とはグリッド（[GRID]）が異なるため、[SLURL]にテレポートできませんでした。 ビューアーを閉じてからもう一度お試しください。
+  <notification name="CantTeleportToGrid">現在のグリッド（[CURRENT_GRID]）とはグリッド（[GRID]）が異なるため、[SLURL]にテレポートできませんでした。ビューアーを閉じてからもう一度お試しください。
     <tag>fail</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
@@ -1629,13 +1629,13 @@ SHA1 フィンガープリント：[MD5_DIGEST]
 
   <notification name="RevokedModifyRights">[NAME]は、オブジェクトを編集する権限を取り消されました。</notification>
 
-  <notification name="FlushMapVisibilityCaches">このリージョンの地図のキャッシュを消去します。デバッグ目的のみに便利な操作です。
-（作成中は５分経過すると、全員の地図が再度ログイン後に更新されます）
+  <notification name="FlushMapVisibilityCaches">このリージョンのマップのキャッシュを消去します。デバッグ目的のみに便利な操作です。
+（作成中は５分経過すると、全員のマップが再度ログイン後に更新されます）
     <tag>fail</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
 
-  <notification name="BuyOneObjectOnly">一度に１つ以上のオブジェクトを買うことはできません。 オブジェクトを１つだけ選んでもう一度お試しください。
+  <notification name="BuyOneObjectOnly">一度に１つ以上のオブジェクトを買うことはできません。オブジェクトを１つだけ選んでもう一度お試しください。
     <tag>fail</tag>
   </notification>
 
@@ -1672,7 +1672,7 @@ SHA1 フィンガープリント：[MD5_DIGEST]
 
   <notification name="RawUploadStarted">アップロードを開始しました。接続速度によっては、最大２分程度かかります。</notification>
 
-  <notification name="ConfirmBakeTerrain">現在の地形を構築しようとしています。この操作を行うと、現在の地形が上昇・下降の制限範囲の中心となり、「復元」ツールのデフォルトになります。 操作を続行しますか？
+  <notification name="ConfirmBakeTerrain">現在の地形を構築しようとしています。この操作を行うと、現在の地形が上昇・下降の制限範囲の中心となり、「復元」ツールのデフォルトになります。操作を続行しますか？
     <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
@@ -1786,7 +1786,7 @@ OKをクリックして、ダウンロードとインストールを開始しま
     <usetemplate ignoretext="ブラウザを起動してQA Wikiを見るとき" name="okcancelignore" notext="キャンセル" yestext="OK" />
   </notification>
 
-  <notification name="WebLaunchPublicIssue">[SECOND_LIFE]のパブリック問題トラッカーで、バグやその他の問題を報告できます。 
+  <notification name="WebLaunchPublicIssue">[SECOND_LIFE]のパブリック問題トラッカーで、バグやその他の問題を報告できます。
     <tag>confirm</tag>
     <usetemplate ignoretext="ブラウザを起動してパブリック問題トラッカーを使用するとき" name="okcancelignore" notext="キャンセル" yestext="ページへ行く" />
   </notification>
@@ -1871,7 +1871,7 @@ OKをクリックして、ダウンロードとインストールを開始しま
   </notification>
 
   <notification name="JoinedTooManyGroupsMember">加入できるグループの最大限に達しました。
-    このグループに加入するために他のグループを脱退するか、この申し入れを断ってください。 [NAME] があなたをグループのメンバーとして勧誘しています。
+    このグループに加入するために他のグループを脱退するか、この申し入れを断ってください。[NAME] があなたをグループのメンバーとして勧誘しています。
     <tag>group</tag>
     <tag>fail</tag>
     <usetemplate name="okcancelbuttons" notext="辞退" yestext="参加" />
@@ -1884,7 +1884,7 @@ OKをクリックして、ダウンロードとインストールを開始しま
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
 
-  <notification name="GroupLimitInfo">ベーシック会員の住民は、最大[MAX_BASIC]グループまで参加することができます。 プレミアム会員は、最大[MAX_PREMIUM] まで可能です。
+  <notification name="GroupLimitInfo">ベーシック会員の住民は、最大[MAX_BASIC]グループまで参加することができます。プレミアム会員は、最大[MAX_PREMIUM] まで可能です。
 [https://secondlife.com/my/account/membership.php? 詳細、またはアップグレード] 
     <tag>group</tag>
     <tag>fail</tag>
@@ -2140,7 +2140,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
 
-  <notification name="EstateParcelEnvironmentOverride">このオプションをオフにすると、区画所有者がその区画に加えたカスタム環境が削除されます。必要に応じて区画所有者と相談してください。 続けますか？
+  <notification name="EstateParcelEnvironmentOverride">このオプションをオフにすると、区画所有者がその区画に加えたカスタム環境が削除されます。必要に応じて区画所有者と相談してください。続けますか？
     <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
@@ -2152,7 +2152,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
 
-  <notification name="RegionEntryAccessBlocked_AdultsOnlyContent">訪問しようとしているリージョン（地域）には、成人のみアクセスできる[REGIONMATURITY]コンテンツが含まれています。 
+  <notification name="RegionEntryAccessBlocked_AdultsOnlyContent">訪問しようとしているリージョン（地域）には、成人のみアクセスできる[REGIONMATURITY]コンテンツが含まれています。
     <url name="url">https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83%8A%E3%83%AC%E3%83%83%E3%82%B8%E3%83%99%E3%83%BC%E3%82%B9/%E3%83%AC%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0%E5%8C%BA%E5%88%86-r323/</url>
     <tag>fail</tag>
     <usetemplate ignoretext="リージョン（地域）の横断：訪問しようとしているリージョン（地域）には、成人のみアクセスできるコンテンツが含まれています。" name="okcancelignore" notext="閉じる" yestext="ナレッジベースを開く" />
@@ -2189,7 +2189,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
 
-  <notification name="TeleportEntryAccessBlocked_AdultsOnlyContent">訪問しようとしているリージョン（地域）には、成人のみアクセスできる [REGIONMATURITY] コンテンツが含まれています。 
+  <notification name="TeleportEntryAccessBlocked_AdultsOnlyContent">訪問しようとしているリージョン（地域）には、成人のみアクセスできる [REGIONMATURITY] コンテンツが含まれています。
     <unique>
       <context>REGIONMATURITY</context>
     </unique>
@@ -2262,12 +2262,12 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
 
-  <notification name="LandClaimAccessBlocked">取得しようとしている土地には現在の初期設定を超えるレーティング区分が含まれています。「私」＞「初期設定」＞「一般」を選択して、初期設定を変更できます。 
+  <notification name="LandClaimAccessBlocked">取得しようとしている土地には現在の初期設定を超えるレーティング区分が含まれています。「私」＞「初期設定」＞「一般」を選択して、初期設定を変更できます。
     <tag>fail</tag>
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
 
-  <notification name="LandClaimAccessBlocked_AdultsOnlyContent">この土地を購入できるのは、成人だけです。    
+  <notification name="LandClaimAccessBlocked_AdultsOnlyContent">この土地を購入できるのは、成人だけです。   
     <tag>fail</tag>
     <url name="url">https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83%8A%E3%83%AC%E3%83%83%E3%82%B8%E3%83%99%E3%83%BC%E3%82%B9/%E3%83%AC%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0%E5%8C%BA%E5%88%86-r323/</url>
     <usetemplate ignoretext="この土地を購入できるのは、成人だけです。" name="okcancelignore" notext="閉じる" yestext="ナレッジベースを開く" />
@@ -2367,7 +2367,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
 
-  <notification name="PublishClassified">注意：クラシファイド広告の料金は払い戻しされません。 L$ [AMOUNT]で、このクラシファイド広告を今すぐ公開しますか？
+  <notification name="PublishClassified">注意：クラシファイド広告の料金は払い戻しされません。L$ [AMOUNT]で、このクラシファイド広告を今すぐ公開しますか？
     <tag>confirm</tag>
     <tag>funds</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
@@ -2383,7 +2383,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
     <usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="いいえ" yestext="はい" />
   </notification>
 
-  <notification label="再起動を確認" name="ConfirmRestart">このリージョンを 2 分後に再起動しようとしています。 続けますか？
+  <notification label="再起動を確認" name="ConfirmRestart">このリージョンを 2 分後に再起動しようとしています。続けますか？
     <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
@@ -2398,7 +2398,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
   </notification>
 
   <notification label="地域のレーティング区分指定変更済み" name="RegionMaturityChange">このリージョンのレーティング区分が変更されました。
-地図にこの変更が反映するには数分かかることがあります。
+マップにこの変更が反映するには数分かかることがあります。
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
 
@@ -2524,7 +2524,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
     </form>
   </notification>
 
-  <notification name="PayConfirmation">L$ [AMOUNT]を[TARGET]に支払うことを確認してください。 
+  <notification name="PayConfirmation">L$ [AMOUNT]を[TARGET]に支払うことを確認してください。
     <tag>confirm</tag>
     <usetemplate ignoretext="支払い前に確認 (合計金額がL$ 200以上の場合)" name="okcancelignore" notext="キャンセル" yestext="支払い" />
   </notification>
@@ -2560,14 +2560,14 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
     <usetemplate ignoretext="終了時の確認" name="okcancelignore" notext="終了しない" yestext="終了" />
   </notification>
 
-  <notification name="ConfirmRestoreToybox">この操作を実行すると、デフォルト設定のボタンとツールバーが復元されます。 
+  <notification name="ConfirmRestoreToybox">この操作を実行すると、デフォルト設定のボタンとツールバーが復元されます。
 
 この操作は元に戻せません。
     <tag>confirm</tag>
     <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK" />
   </notification>
 
-  <notification name="ConfirmClearAllToybox">この操作により、全てのボタンはツールボックスに戻り、ツールバーは空になります。 
+  <notification name="ConfirmClearAllToybox">この操作により、全てのボタンはツールボックスに戻り、ツールバーは空になります。
 
 この操作は元に戻せません。
     <unique />
@@ -2583,7 +2583,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
     </form>
   </notification>
 
-  <notification name="DeleteFilteredItems">あなたのインベントリには現在フィルターがかけられているため、削除しようとしているアイテムによっては表示されないことがあります。
+  <notification name="DeleteFilteredItems">あなたのインベントリには現在フィルタがかけられているため、削除しようとしているアイテムによっては表示されないことがあります。
   
 これらのアイテムを削除しますか？
     <tag>confirm</tag>
@@ -2632,7 +2632,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
   </notification>
   <notification name="HelpReportAbuseContainsCopyright">親愛なる居住者様
 
-知的財産権の侵害を報告しているようです。 正しく報告していることを確認してください。
+知的財産権の侵害を報告しているようです。正しく報告していることを確認してください。
 
 ⑴嫌がらせの報告の手順。居住者が、[SECOND_LIFE]権限システムを悪用していると思われる場合（たとえば、CopyBotまたは同様のコピーツールを使用して、知的財産権を侵害していると思われる場合）は、不正使用報告を提出することができます。不正行為チームは、[SECOND_LIFE][http://secondlife.com/corporate/tos.php 利用規約]や、[http://jp.secondlife.com/corporate/cs.php コミュニティ・スタンダード]に違反する行為を調査し、に違反する行為に対する適切な処罰を下します。ただし、担当チームは[SECOND_LIFE]の世界からコンテンツを削除して欲しいというリクエストには応じません。
 
@@ -2763,7 +2763,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
     <usetemplate name="okbutton" yestext="OK" />
   </notification>
 
-  <notification name="PPSaveEffectAlert">ポストプロセス効果が存在します。 上書きしますか？
+  <notification name="PPSaveEffectAlert">ポストプロセス効果が存在します。上書きしますか？
     <usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい" />
   </notification>
 
@@ -3118,7 +3118,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
     <tag>fail</tag>
   </notification>
 
-  <notification name="RegionParcelBan">立入禁止された区画を横断することはできません。 別の方法をお試しください。
+  <notification name="RegionParcelBan">立入禁止された区画を横断することはできません。別の方法をお試しください。
     <tag>fail</tag>
   </notification>
 
@@ -3519,7 +3519,7 @@ Your L$ balance is shown in the upper-right.
   </notification>
 
   <notification name="VoiceInviteAdHoc">[NAME]は 会話チャットののボイスチャットコールに参加しました。
-受け入れるをクリックするか、断る場合は拒否をクリックしてください。 ブロックをクリックすると、この発信者をブロックします。
+受け入れるをクリックするか、断る場合は拒否をクリックしてください。ブロックをクリックすると、この発信者をブロックします。
     <form name="form">
       <button name="Accept" text="受け入れる" />
       <button name="Decline" text="拒否" />
@@ -3528,7 +3528,7 @@ Your L$ balance is shown in the upper-right.
   </notification>
 
   <notification name="InviteAdHoc">[NAME]があなたを会話チャットに招待しています。
-受け入れるをクリックするか、断る場合は拒否をクリックしてください。 ブロックをクリックすると、この発信者をブロックします。
+受け入れるをクリックするか、断る場合は拒否をクリックしてください。ブロックをクリックすると、この発信者をブロックします。
     <tag>confirm</tag>
     <tag>voice</tag>
     <unique>
@@ -3555,21 +3555,21 @@ Your L$ balance is shown in the upper-right.
     <tag>voice</tag>
   </notification>
 
-  <notification name="VoiceChannelDisconnected">[VOICE_CHANNEL_NAME]への接続が切れました。「近くのボイスチャット」に再接続されます。
+  <notification name="VoiceChannelDisconnected">[VOICE_CHANNEL_NAME]への接続が切れました。「近隣のボイスチャット」に再接続されます。
     <tag>voice</tag>
     <unique>
       <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
-  <notification name="VoiceChannelDisconnectedP2P">[VOICE_CHANNEL_NAME]がコールを終了しました。「近くのボイスチャット」に再接続されます。
+  <notification name="VoiceChannelDisconnectedP2P">[VOICE_CHANNEL_NAME]がコールを終了しました。「近隣のボイスチャット」に再接続されます。
     <tag>voice</tag>
     <unique>
       <context>VOICE_CHANNEL_NAME</context>
     </unique>
   </notification>
 
-  <notification name="P2PCallDeclined">[VOICE_CHANNEL_NAME]があなたのコールを拒否しました。「近くのボイスチャット」に再接続されます。
+  <notification name="P2PCallDeclined">[VOICE_CHANNEL_NAME]があなたのコールを拒否しました。「近隣のボイスチャット」に再接続されます。
     <tag>voice</tag>
     <tag>fail</tag>
     <unique>
@@ -3577,7 +3577,7 @@ Your L$ balance is shown in the upper-right.
     </unique>
   </notification>
 
-  <notification name="P2PCallNoAnswer">[VOICE_CHANNEL_NAME]はあなたのコールを受けることができません。「近くのボイスチャット」に再接続されます。
+  <notification name="P2PCallNoAnswer">[VOICE_CHANNEL_NAME]はあなたのコールを受けることができません。「近隣のボイスチャット」に再接続されます。
     <tag>fail</tag>
     <tag>voice</tag>
     <unique>
@@ -3586,7 +3586,7 @@ Your L$ balance is shown in the upper-right.
   </notification>
 
   <notification name="VoiceChannelJoinFailed">[VOICE_CHANNEL_NAME]への接続に失敗しました。あとで再度お試しください。
-「近くのボイスチャット」に再接続されます。
+「近隣のボイスチャット」に再接続されます。
     <tag>fail</tag>
     <tag>voice</tag>
     <unique>
@@ -4057,7 +4057,7 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
     <usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了" />
   </notification>
 
-  <notification label="" name="NoWorldMap">世界地図の表示は拡張モードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
+  <notification label="" name="NoWorldMap">ワールドマップの表示は拡張モードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
     <unique />
     <tag>fail</tag>
     <tag>confirm</tag>
@@ -4133,7 +4133,7 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
     <usetemplate ignoretext="選択された一部のリンクセットは、形状が凸状でないため設定できません。" name="okcancelignore" notext="キャンセル" yestext="OK" />
   </notification>
 
-  <notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted">選択された一部のリンクセットはファントムフラグが切り替えられます。 
+  <notification name="PathfindingLinksets_WarnOnPhantom_MismatchOnRestricted">選択された一部のリンクセットはファントムフラグが切り替えられます。
   
 一部の選択されたリンクセットは、リンクセットへの権限が制限されているため「[REQUESTED_TYPE]」に設定できません。これらのリンクセットは代わりに「[RESTRICTED_TYPE]」に設定されます。
 
@@ -4190,7 +4190,7 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
 
   <global name="UnsupportedRAM">－あなたのシステムメモリは必須動作環境の条件を満たしていません。</global>
 
-  <global name="You can only set your 'Home Location' on your land or at a mainland Infohub.">自分の土地をお持ちの場合、「ホーム」に設定できます。お持ちでない場合は、地図で「情報ハブ」をお探しください。</global>
+  <global name="You can only set your 'Home Location' on your land or at a mainland Infohub.">自分の土地をお持ちの場合、「ホーム」に設定できます。お持ちでない場合は、マップで「情報ハブ」をお探しください。</global>
 
   <global name="You died and have been teleported to your home location">死んでしまったので、ホームにテレポートされました。</global>
 
@@ -4533,7 +4533,7 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
     <tag>fail</tag>
   </notification>
 
-  <notification name="AssetServerTimeoutObjReturn">アセットサーバーが適時に応答しませんでした。 オブジェクトが地域に返されました。
+  <notification name="AssetServerTimeoutObjReturn">アセットサーバーが適時に応答しませんでした。オブジェクトが地域に返されました。
     <tag>fail</tag>
   </notification>
 

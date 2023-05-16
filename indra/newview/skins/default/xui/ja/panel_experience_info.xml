@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_experience_info">
   <text name="title" value="体験のプロフィール" />
   <scroll_container name="xp_scroll">
     <panel name="scrolling_panel">
-      <layout_stack follows="all" height="480" layout="topleft" left="0" top="0" orientation="vertical" width="315">
+      <layout_stack name="ls1">
         <layout_panel name="image_panel">
           <texture_picker name="logo" />
         </layout_panel>
-        <layout_panel follows="all" height="19" layout="topleft" left="0" top="5" width="313" auto_resize="false">
+        <layout_panel name="title panel">
           <text name="experience_title" value="カイルのスーパーヒーローRPG" />
         </layout_panel>
         <layout_panel name="description panel">
@@ -16,34 +16,35 @@
         <layout_panel name="location panel">
           <text name="Location">場所：</text>
           <text name="LocationTextText">どこか</text>
-          <button label="テレポート" name="teleport_btn"/>
+          <button label="テレポート" name="teleport_btn" />
           <button label="マップ" name="map_btn" />
         </layout_panel>
         <layout_panel name="marketplace panel">
-          <text name="Location" width="290">マーケットプレイスストア：</text>
+          <text name="Location">マーケットプレイスストア：</text>
           <text name="LocationTextText">どこか</text>
         </layout_panel>
-        <layout_panel follows="left|top|right" height="69" left="0" top="0" auto_resize="false" width="315">
-          <text name="ContentRating" width="100">レーティング：</text>
+        <layout_panel name="details panel">
+          <text name="ContentRating">レーティング：</text>
           <text name="ContentRatingText">Adult</text>
-          <text name="Owner" width="100">所有者：</text>
+          <text name="Owner">所有者：</text>
           <text name="OwnerText">カイル</text>
           <button label="編集" name="edit_btn" />
 
 
           <!--
-          <expandable_text allow_scroll="false" bg_visible="false" follows="left|top|right" h_pad="0" height="35" width="280" layout="topleft" font="SansSerifBig" font.style="BOLD" left="10" top_pad="10" name="pick_name" read_only="false" text_color="white" v_pad="0" use_ellipses="true" value="これは体験です。" />
+          <expandable_text name="pick_name" value="これは体験です。" />
 
-          <text follows="left|top" height="16" layout="topleft" left="10" top_pad="10" value="Maturity level:" width="130" />
-          <icon follows="top|left" height="16" image_name="unknown" layout="topleft" left_pad="10" name="maturity_icon" top_pad="-18" width="18" />
-          <text follows="top|left" height="16" layout="topleft" left_pad="5" name="maturity_value" top_pad="-14" value="不明" width="118" />
-          <panel follows="left|top|right" name="location_panel" left="10" width="280" visible="false" top_pad="10" height="42">
+          <text follows="left|top" height="16" layout="topleft" left="10" top_pad="10" value="Maturity
+          level:" width="130" />
+          <icon name="maturity_icon" />
+          <text name="maturity_value" value="不明" />
+          <panel name="location_panel">
             <text follows="left|top|right" height="16" layout="topleft" left="00" top="0" value="場所：" width="280" />
 
             <text follows="left|top|right" height="16" layout="topleft" left="0" top_pad="10" value="場所：" width="280" />
           </panel>
 
-          <panel follows="left|top|right" name="location_panel" left="10" width="280" top_pad="10" height="42">
+          <panel name="location_panel">
             <text follows="left|top|right" height="16" layout="topleft" left="00" top="0" value="場所：" width="280" />
 
             <text follows="left|top|right" height="16" layout="topleft" left="0" top_pad="10" value="場所：" width="280" />

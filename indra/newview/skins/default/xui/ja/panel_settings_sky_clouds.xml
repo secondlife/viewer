@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel border="true" follows="all" label="雲" layout="topleft" left="0" help_topic="land_general_tab" name="panel_settings_sky_clouds" top="0">
-  <layout_stack follows="all" layout="topleft" left="5" top="5" right="-5" bottom="-5" orientation="hoizontal">
-    <layout_panel border="true" bevel_style="in" auto_resize="true" user_resize="false" visible="true" height="75">
+<panel label="雲" name="panel_settings_sky_clouds">
+  <layout_stack >
+    <layout_panel>
       <text follows="left|top" height="10" layout="topleft" left_delta="15" top_pad="15" width="80">雲の色：</text>
-      <color_swatch can_apply_immediately="true" follows="left|top" height="37" label_height="0" layout="topleft" left_delta="0" name="cloud_color" top_pad="5" width="60" />
+      <color_swatch name="cloud_color" />
       <text follows="left|top" height="10" layout="topleft" left_delta="0" top_delta="47" width="200">雲の量：</text>
-      <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="1" name="cloud_coverage" top_delta="20" width="214" can_edit_text="true"/>
+      <slider name="cloud_coverage" />
       <text follows="left|top" height="10" layout="topleft" left_delta="-5" top_delta="25" width="200">雲のスケール：</text>
-      <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0.01" max_val="3" name="cloud_scale" top_delta="20" width="214" can_edit_text="true"/>
+      <slider name="cloud_scale" />
       <text follows="left|top" height="10" layout="topleft" left_delta="-5" top_delta="25" width="200">雲の分散：</text>
-      <slider decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="1.0" name="cloud_variance" top_delta="20" width="214" can_edit_text="true"/>
+      <slider name="cloud_variance" />
       <text follows="left|top" height="10" layout="topleft" left_delta="-5" top_delta="25" width="200">雲の移動：</text>
-      <xy_vector follows="left|top" name="cloud_scroll_xy" width="127" height="145" visible="true" left_delta="0" top_delta="21" min_val_x="-30" max_val_x="30" min_val_y="-30" max_val_y="30" logarithmic="1"/>
+      <xy_vector name="cloud_scroll_xy" />
 
       <text follows="left|top" height="10" layout="topleft" left_delta="160" top_delta="-20" width="200">雲の画像：</text>
-      <texture_picker height="123" layout="topleft" left_delta="5" name="cloud_map" top_pad="10" width="100"/>
+      <texture_picker name="cloud_map" />
     </layout_panel>
-    <layout_panel border="true" bevel_style="in" auto_resize="true" user_resize="false" visible="true" height="75">
+    <layout_panel>
       <text follows="left|top" height="10" layout="topleft" left_delta="15" top_pad="15" width="200">雲の密度：</text>
-      <slider label="X" decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="1" name="cloud_density_x" top_delta="20" width="200" can_edit_text="true"/>
-      <slider label="Y" decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="0" min_val="0" max_val="1" name="cloud_density_y" top_delta="20" width="200" can_edit_text="true"/>
-      <slider label="D" decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="0" min_val="0" max_val="3" name="cloud_density_d" top_delta="20" width="200" can_edit_text="true"/>
+      <slider label="Ｘ" name="cloud_density_x"/>
+      <slider label="Ｙ" name="cloud_density_y" />
+      <slider label="密度" name="cloud_density_d" />
       <text follows="left|top" height="10" layout="topleft" left_delta="-5" top_delta="35" width="200">雲の詳細：</text>
-      <slider label="X" decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="1" name="cloud_detail_x" top_delta="20" width="200" can_edit_text="true"/>
-      <slider label="Y" decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="0" min_val="0" max_val="1" name="cloud_detail_y" top_delta="20" width="200" can_edit_text="true"/>
-      <slider label="D" decimal_digits="2" follows="left|top" height="16" increment="0.01" initial_value="0" layout="topleft" left_delta="0" min_val="0" max_val="1" name="cloud_detail_d" top_delta="20" width="200" can_edit_text="true"/>
+      <slider label="Ｘ" name="cloud_detail_x" />
+      <slider label="Ｙ" name="cloud_detail_y" />
+      <slider label="密度" name="cloud_detail_d" />
     </layout_panel>
   </layout_stack>
 </panel>                

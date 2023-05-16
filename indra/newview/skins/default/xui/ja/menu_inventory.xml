@@ -82,7 +82,7 @@
   <menu_item_call label="オリジナルを開く" name="Open Original" />
   <menu_item_call label="プロパティ" name="Properties" />
   <menu_item_call label="名前を変更" name="Rename" />
-  <menu_item_call label="アセットのUUIDをコピー" name="Copy Asset UUID" />
+  <menu_item_call label="アセットのＵＵＩＤをコピー" name="Copy Asset UUID" />
   <menu_item_call label="メインパネルで表示" name="Show in Main Panel" />
   <menu_item_call label="カット" name="Cut" />
   <menu_item_call label="コピー" name="Copy" />
@@ -98,7 +98,7 @@
   <menu_item_call label="再生" name="Sound Play" />
   <menu_item_call label="SLurlをコピー" name="url_copy" />
   <menu_item_call label="ランドマークの情報" name="About Landmark" />
-  <menu_item_call label="地図に表示" name="show_on_map" />
+  <menu_item_call label="マップに表示" name="show_on_map" />
   <menu_item_separator name="Animation Separator" />
   <menu_item_call label="インワールドで再生" name="Animation Play" />
   <menu_item_call label="ローカルで再生" name="Animation Audition" />

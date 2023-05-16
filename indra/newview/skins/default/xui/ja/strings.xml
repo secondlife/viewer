@@ -72,7 +72,7 @@ LOD 係数：[LOD_FACTOR]
   <string name="LoginInProgressNoFrozen">ログイン中です…</string>
   <string name="LoginAuthenticating">認証しています…</string>
   <string name="LoginMaintenance">アカウントのメンテナンスを実行しています…</string>
-  <string name="LoginAttempt">前回のログインに失敗しました。 ログイン中です（[NUMBER]回目）</string>
+  <string name="LoginAttempt">前回のログインに失敗しました。ログイン中です（[NUMBER]回目）</string>
   <string name="LoginPrecaching">ワールドを読み込んでいます…</string>
   <string name="LoginInitializingBrowser">内蔵 Web ブラウザを初期化しています…</string>
   <string name="LoginInitializingMultimedia">マルチメディアを初期化しています…</string>
@@ -177,7 +177,7 @@ support@secondlife.com にお問い合わせください。</string>
   <string name="LoginFailedLoggingOutSession">あなたの前のセッションはシステムによってログアウトされています。
 しばらくしてから再度お試しください。</string>
   <!-- Disconnection -->
-  <string name="AgentLostConnection">このリージョンに不都合が発生している可能性があります。 ご使用のインターネット接続をご確認ください。</string>
+  <string name="AgentLostConnection">このリージョンに不都合が発生している可能性があります。ご使用のインターネット接続をご確認ください。</string>
   <string name="SavingSettings">設定を保存中です…</string>
   <string name="LoggingOut">ログアウト中です…</string>
   <string name="ShuttingDown">シャットダウン中です…</string>
@@ -272,14 +272,14 @@ support@secondlife.com にお問い合わせください。</string>
   <string name="TooltipParcelUrl">クリックしてこの区画の説明文を見ます。</string>
   <string name="TooltipTeleportUrl">クリックしてこの場所にテレポートします。</string>
   <string name="TooltipObjectIMUrl">クリックしてこのオブジェクトの説明文を見ます。</string>
-  <string name="TooltipMapUrl">クリックしてこの場所を地図に表示します。</string>
+  <string name="TooltipMapUrl">クリックしてこの場所をマップに表示します。</string>
   <string name="TooltipSLAPP">クリックして secondlife:// コマンドを出します。</string>
   <string name="CurrentURL" value="現在のURL：[CurrentURL]" />
   <string name="TooltipEmail">クリックして電子メールを作成</string>
 
   <!-- text for SLURL labels -->
   <string name="SLurlLabelTeleport">テレポート</string>
-  <string name="SLurlLabelShowOnMap">地図に表示</string>
+  <string name="SLurlLabelShowOnMap">マップに表示</string>
 
   <!-- label strings for secondlife:///app/agent SLapps -->
   <string name="SLappAgentMute">無視</string>
@@ -484,15 +484,15 @@ support@secondlife.com にお問い合わせください。</string>
   <string name="ST_NO_JOINT">ROOT または JOINT が見つかりません</string>
 
   <!-- Chat -->
-  <string name="NearbyChatTitle">近くのチャット</string>
-  <string name="NearbyChatLabel">（近くのチャット）</string>
+  <string name="NearbyChatTitle">近隣チャット</string>
+  <string name="NearbyChatLabel">（近隣のチャット）</string>
   <string name="whisper">のささやき：</string>
   <string name="shout">のシャウト：</string>
   <string name="ringing">インワールドボイスチャットに接続中…</string>
   <string name="connected">接続しました</string>
   <string name="unavailable">現在地では、ボイスを利用できません。</string>
   <string name="hang_up">インワールドボイスチャットの通話が切断されました。</string>
-  <string name="reconnect_nearby">「近くのボイスチャット」に再接続されます。</string>
+  <string name="reconnect_nearby">「近隣ボイスチャット」に再接続されます。</string>
   <string name="ScriptQuestionCautionChatGranted">[REGIONNAME]の[REGIONPOS]という場所にある、「[OWNERNAME]」が所有する「[OBJECTNAME]」というオブジェクトは、次の権限を許可しました：
 [PERMISSIONS]</string>
   <string name="ScriptQuestionCautionChatDenied">[REGIONNAME]の[REGIONPOS]という場所にある、「[OWNERNAME]」が所有する「[OBJECTNAME]」というオブジェクトは、次の権限を拒否しました：
@@ -2762,7 +2762,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="EnvironmentTransparent">透過</string>
 
   <!-- panel classified -->
-  <string name="ClassifiedClicksTxt">クリック数：[TELEPORT]テレポート、[MAP]地図、[PROFILE]プロフィール</string>
+  <string name="ClassifiedClicksTxt">クリック数：[TELEPORT]テレポート、[MAP]マップ、[PROFILE]プロフィール</string>
   <string name="ClassifiedUpdateAfterPublish">（掲載後更新）</string>
 
   <!-- panel picks -->
@@ -2914,7 +2914,7 @@ For AI Character: Get the closest navigable point to the point provided.
 クラッシュ報告を送信しますか？</string>
   <string name="MBAlert">通知</string>
   <string name="MBNoDirectX">[APP_NAME]は DirectX 9.0b 及びそれ以降のバージョンを検出することができませんでした。
-[APP_NAME]は DirectX を使用して安定性の問題、低パフォーマンス、クラッシュ等悪影響を与えるハードウェアや古いドライバを検出します。 DirectX 9.0b がなくても
+[APP_NAME]は DirectX を使用して安定性の問題、低パフォーマンス、クラッシュ等悪影響を与えるハードウェアや古いドライバを検出します。DirectX 9.0b がなくても
 [APP_NAME]を実行できますが、DirectX 9.0bとのご使用を強く推奨します。
 
 続けますか？</string>
@@ -2932,7 +2932,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="MBPixelFmtDescErr">ピクセル形式情報が見つかりません</string>
   <string name="MBTrueColorWindow">[APP_NAME]を実行するには、True Color （３２ビット）が必要です。
 お使いのコンピューターの「コントロールパネル」＞「画面」＞「設定」に行き、「最高 （３２ビット)」に設定してください。</string>
-  <string name="MBAlpha">[APP_NAME]は８ビットのアルファチャンネルを取得できないため実行できません。 通常ビデオカードのドライバの問題で起こります。
+  <string name="MBAlpha">[APP_NAME]は８ビットのアルファチャンネルを取得できないため実行できません。通常ビデオカードのドライバの問題で起こります。
 お使いのコンピューターに最新のビデオカードドライバがインストールされているかご確認ください。
 また、「コントロールパネル」＞「画面」＞「設定」内で、モニターが「最高 （３２ビット）」に設定されていることもご確認ください。
 このメッセージが何度も出る場合は、[SUPPORT_SITE]へご連絡ください。</string>
@@ -3533,7 +3533,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="UpdaterWindowTitle">[APP_NAME]のアップデート</string>
   <string name="UpdaterNowUpdating">只今[APP_NAME]をアップデート中です…</string>
   <string name="UpdaterNowInstalling">[APP_NAME]をインストール中です…</string>
-  <string name="UpdaterUpdatingDescriptive">お使いの[APP_NAME]ビューアーが最新バージョンにアップデートされています。 数分かかることがありますのでしばらくお待ちください。</string>
+  <string name="UpdaterUpdatingDescriptive">お使いの[APP_NAME]ビューアーが最新バージョンにアップデートされています。数分かかることがありますのでしばらくお待ちください。</string>
   <string name="UpdaterProgressBarTextWithEllipses">アップデートをダウンロード中です…</string>
   <string name="UpdaterProgressBarText">アップデートをダウンロード中</string>
   <string name="UpdaterFailDownloadTitle">アップデートのダウンロードに失敗しました</string>
@@ -3581,11 +3581,11 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="facebook_post_success">Facebook に投稿しました。</string>
   <string name="flickr_post_success">Flickr に投稿しました。</string>
   <string name="twitter_post_success">Twitter に投稿しました。</string>
-  <string name="no_session_message">（IM セッションが存在しません）</string>
+  <string name="no_session_message">（ＩＭセッションが存在しません）</string>
   <string name="only_user_message">このセッションにいるユーザーはあなただけです。</string>
   <string name="offline_message">[NAME]はオフライン中です。</string>
   <string name="invite_message">このボイスチャットに応答・接続する場合は、[BUTTON NAME]をクリックしてください。</string>
-  <string name="muted_message">この住人をブロックしています。 メッセージを送ると、ブロックが自動的に解除されます。</string>
+  <string name="muted_message">この住人をブロックしています。メッセージを送ると、ブロックが自動的に解除されます。</string>
   <!--Some times string name is getting from the body of server response.
   For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post.
   In case of the EXT-3115 issue 'generic' is passed into the gIMMgr::showSessionStartError as a string name.
@@ -3782,8 +3782,8 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="server_is_down">
 大変申し訳ございませんが、予期しない問題が発生しました。
 
-サービスに関する既知の問題については、https://status.secondlifegrid.net/をご覧ください。
-問題が引き続き発生する場合は、お使いのネットワークやファイアウォールの設定を調べてください。</string>
+サービスに関する既知の問題については、https://status.secondlifegrid.net/ をご覧ください。
+問題が引き続き発生する場合は、お使いのネットワークやファイヤーウォールの設定を調べてください。</string>
   <string name="dateTimeWeekdaysNames">日曜日:月曜日:火曜日:水曜日:木曜日:金曜日:土曜日</string>
   <string name="dateTimeWeekdaysShortNames">日:月:火:水:木:金:土</string>
 
@@ -3992,7 +3992,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Command_Grid_Status_Label">グリッド状況</string>
   <string name="Command_HowTo_Label">ハウツー</string>
   <string name="Command_Inventory_Label">インベントリ</string>
-  <string name="Command_Map_Label">地図</string>
+  <string name="Command_Map_Label">マップ</string>
   <string name="Command_Marketplace_Label">マーケットプレイス</string>
   <string name="Command_MarketplaceListings_Label">マーケットプレイス</string>
   <string name="Command_MiniMap_Label">ミニマップ</string>
@@ -4023,12 +4023,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Command_Grid_Status_Tooltip">現在のグリッドステータスを表示</string>
   <string name="Command_HowTo_Tooltip">一般的タスクの実行方法</string>
   <string name="Command_Inventory_Tooltip">インベントリを表示・使用</string>
-  <string name="Command_Map_Tooltip">世界地図</string>
+  <string name="Command_Map_Tooltip">ワールドマップ</string>
   <string name="Command_Marketplace_Tooltip">ショッピングに出掛ける</string>
   <string name="Command_MarketplaceListings_Tooltip">創作アイテムを販売します</string>
-  <string name="Command_MiniMap_Tooltip">近くの人物を表示する</string>
+  <string name="Command_MiniMap_Tooltip">近隣の人を表示する</string>
   <string name="Command_Move_Tooltip">アバターの移動</string>
-  <string name="Command_People_Tooltip">フレンド、グループ、近くの人物</string>
+  <string name="Command_People_Tooltip">フレンド、グループ、近隣の人物</string>
   <string name="Command_Picks_Tooltip">プロフィールで紹介するお気に入りの場所</string>
   <string name="Command_Places_Tooltip">保存済みの場所</string>
   <string name="Command_Preferences_Tooltip">初期設定</string>
@@ -4036,7 +4036,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Command_Report_Abuse_Tooltip">嫌がらせの報告</string>
   <string name="Command_Search_Tooltip">場所、イベント、人物を検索する。</string>
   <string name="Command_Snapshot_Tooltip">スナップショット画像を撮る。</string>
-  <string name="Command_Speak_Tooltip">マイクを使って近くの人物と話す。</string>
+  <string name="Command_Speak_Tooltip">マイクを使って近隣の人と話す。</string>
   <string name="Command_View_Tooltip">カメラアングルを変更</string>
   <string name="Command_Voice_Tooltip">インワールドでのコールや近くにいる人物の音量調整</string>
 

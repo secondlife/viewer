@@ -13,10 +13,10 @@
     </layout_panel>
     <layout_panel name="controls_lp">
       <panel name="layout_panel_1">
-        <text name="events_label" width="215">凡例</text>
+        <text name="events_label">凡例</text>
       </panel>
       <panel follows="right|top" name="layout_panel_2">
-        <button name="Show My Location" tool_tip="自分のアバターのいる場所をマップの中心にする。"/>
+        <button name="Show My Location" tool_tip="マップの中心を自分のアバターのいる場所にする。"/>
         <text name="me_label">自分</text>
         <check_box control_name="MapShowPeople" name="people_chk" />
         <icon name="person" />
@@ -29,8 +29,8 @@
         <text name="land_sale_label">販売中の土地</text>
         <icon name="square2" />
         <text name="auction_label">オークション中の土地</text>
-        <icon name="square2" left="20" />
-        <text name="by_owner_label" width="100">所有者で</text>
+        <icon name="square2" />
+        <text name="by_owner_label">所有者で</text>
 
         <button name="Go Home" tool_tip="自分のホームの場所にテレポート" />
 
@@ -77,8 +77,8 @@
           <button.commit_callback function="WMap.Clear" />
         </button>
         <scroll_list name="search_results">
-          <scroll_list.columns label="" name="icon" width="16" />
-          <scroll_list.columns label="" name="sim_name" width="193" />
+          <scroll_list.columns label="" name="icon" />
+          <scroll_list.columns label="" name="sim_name" />
           <scroll_list.commit_callback function="WMap.SearchResult" />
         </scroll_list>
         <text name="events_label">場所：</text>

@@ -23,7 +23,7 @@
   <string name="can_not_change">このリージョンで購入した土地は、統合・分割できません。</string>
   <string name="server_update_text">場所の情報は、サーバーがアップデートされるまでご利用いただけません。</string>
   <string name="server_error_text">この場所の情報は現在ご利用いただけません。あとでもう一度お試しください。</string>
-  <string name="server_forbidden_text">この場所の情報は、アクセス制限のためご利用いただけません。 許可については区画所有者にお問い合わせください。</string>
+  <string name="server_forbidden_text">この場所の情報は、アクセス制限のためご利用いただけません。許可については区画所有者にお問い合わせください。</string>
   <string name="acquired_date">[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日[wkday,datetime,local]　[hour,datetime,local]：[min,datetime,local]：[second,datetime,local]</string>
   <button name="back_btn" tool_tip="戻る" />
   <text name="title" value="場所のプロフィール" />

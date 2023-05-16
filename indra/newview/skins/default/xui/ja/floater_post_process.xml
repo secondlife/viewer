@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Post-Process Floater" title="ポストプロセス設定">
   <tab_container name="Post-Process Tabs">
-    <panel label="カラー・フィルター" name="wmiColorFilterPanel">
+    <panel label="カラー・フィルタ" name="wmiColorFilterPanel">
       <check_box label="有効" name="wmiColorFilterToggle" />
       <text name="wmiColorFilterBrightnessText">明度</text>
       <text name="wmiColorFilterSaturationText">彩度</text>

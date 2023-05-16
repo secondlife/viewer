@@ -11,5 +11,5 @@
     <text name="currentlook_name">MOOSEみたいな長い名前の私のアウトフィット</text>
     <button label="" name="edit_outfit_btn" tool_tip="このアウトフィットを編集" />
   </panel>
-  <filter_editor label="アウトフィットをフィルター" name="Filter" />
+  <filter_editor label="アウトフィットをフィルタ" name="Filter" />
 </panel>

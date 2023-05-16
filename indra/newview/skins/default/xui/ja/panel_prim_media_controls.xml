@@ -41,7 +41,7 @@
       </layout_stack>
     </layout_panel>
     <layout_panel name="media_play_position">
-      <slider_bar initial_value="0.5" name="media_play_slider" tool_tip="ムービー再生進行" />
+      <slider_bar name="media_play_slider" tool_tip="ムービー再生進行" />
     </layout_panel>
     <layout_panel name="skip_back">
       <button name="skip_back_btn" tool_tip="前にステップ" />

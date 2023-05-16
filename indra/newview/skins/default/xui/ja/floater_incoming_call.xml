@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="incoming call" title="着信">
   <floater.string name="lifetime">5</floater.string>
-  <floater.string name="localchat">近くのボイスチャット</floater.string>
+  <floater.string name="localchat">近隣のボイスチャット</floater.string>
   <floater.string name="anonymous">匿名ユーザー</floater.string>
   <floater.string name="VoiceInviteP2P">からコールを受けています。</floater.string>
   <floater.string name="VoiceInviteAdHoc">が会話チャットで、ボイスチャットに参加しました。</floater.string>

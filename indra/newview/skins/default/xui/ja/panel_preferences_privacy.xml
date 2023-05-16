@@ -9,8 +9,8 @@
   <check_box label="コールが終了したら自動的にマイクのスイッチを切る" name="auto_disengage_mic_check" />
   <check_box label="ログイン時にお気に入りのランドマークを表示（「開始地点」ドロップダウンメニュー経由）" name="favorites_on_login_check" />
   <text name="Logs:">チャットログ：</text>
-  <check_box label="近くのチャットログをコンピューターに保存する" name="log_nearby_chat" />
-  <check_box label="IM ログをコンピューターに保存する" name="log_instant_messages" />
+  <check_box label="近隣チャットログをコンピューターに保存する" name="log_nearby_chat" />
+  <check_box label="ＩＭログをコンピューターに保存する" name="log_instant_messages" />
   <check_box label="チャットログでラインごとに時間を入れる" name="show_timestamps_check_im" />
   <check_box label="ログファイル名に日付を入れる。" name="logfile_name_datestamp" />
   <text name="log_path_desc">ログの保存場所：</text>

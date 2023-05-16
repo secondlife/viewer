@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater layout="topleft" name="env_edit_extdaycycle" help_topic="day_presets" save_rect="false" title="デイサイクルを編集" width="705" height="700" min_width="705" min_height="700" single_instance="true" can_resize="false">
+<floater name="env_edit_extdaycycle" title="デイサイクルを編集">
 
   <!-- obsolete?, add as hint for 'save' button? -->
   <string name="title_new">新しいデイサイクルを作成</string>
@@ -29,8 +29,8 @@
         <layout_panel name="timeline_track_selection">
           <panel name="timeline_layers">
             <button label="空４" name="sky4_track" />
-            <button label="空３" layout="topleft" name="sky3_track" />
-            <button label="空２" layout="topleft" name="sky2_track" />
+            <button label="空３" name="sky3_track" />
+            <button label="空２" name="sky2_track" />
             <button label="地表レベル" name="sky1_track" />
             <button label="水" name="water_track" />
           </panel>
@@ -92,7 +92,7 @@
             <panel filename="panel_settings_sky_clouds.xml" label="雲" name="clouds_panel" />
             <panel filename="panel_settings_sky_sunmoon.xml" label="太陽＆月" name="moon_panel" />
             <!-- added programatically so it doesn't show up whether we want it or not
-            <panel border="true" class="panel_settings_density" filename="panel_settings_sky_density.xml" label="Density" layout="topleft" left_delta="0" top_pad="5" name="density_panel" />
+            <panel name="density_panel" />
             -->
           </tab_container>
         </layout_panel>

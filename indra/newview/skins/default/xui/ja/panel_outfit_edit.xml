@@ -39,18 +39,19 @@ It is calculated as border_size + 2*UIResizeBarOverlap
         <layout_panel name="add_button_and_combobox">
           <!-- List containing items from the COF and Base outfit -->
           <panel name="cof_wearables_list" />
-          <button name="show_add_wearables_btn" tool_tip="開く／閉じる" />
+          <button name="show_add_wearables_btn" label="更に追加…" tool_tip="開く／閉じる" />
           <combo_box name="list_view_filter_combobox" />
           <combo_box name="folder_view_filter_combobox" />
           <button name="filter_button" />
         </layout_panel>
         <layout_panel name="filter_panel">
-          <filter_editor label="インベントリを着用可能でフィルタ" name="look_item_filter" />
+          <filter_editor label="インベントリを着用可能物でフィルタ" name="look_item_filter" />
         </layout_panel>
       </layout_stack>
     </layout_panel>
     <layout_panel name="add_wearables_panel">
-      <!-- this icon represent dragbar between layout panels.This is a workaround implemented in EXT-7255 becouse of an issue with layout stack (EXT-7471) -->
+      <!-- this icon represent dragbar between layout panels.
+      This is a workaround implemented in EXT-7255 becouse of an issue with layout stack (EXT-7471) -->
       <icon follows="left|top|right" height="10" image_name="Dragbar" left="0" top_pad="-9" width="313" />
       <inventory_panel name="folder_view" />
       <panel name="filtered_wearables_panel">
