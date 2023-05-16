@@ -2195,8 +2195,8 @@ void LLInventorySingleFolderPanel::updateSingleFolderRoot()
         LLUUID root_id = mFolderID;
         if (mFolderRoot.get())
         {
-            removeItemID(getRootFolderID());
-            mFolderRoot.get()->destroyView();
+            mItemMap.clear();
+            mFolderRoot.get()->destroyRoot();
         }
 
         mCommitCallbackRegistrar.pushScope();
