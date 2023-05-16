@@ -1539,7 +1539,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 		////////////////////////////////////////////////////////////////////////////////
         static LLUICachedControl<bool> find_original_new_floater("FindOriginalOpenWindow", false);
         //show in a new single-folder window
-        if(find_original_new_floater)
+        if(find_original_new_floater && !from_name.empty())
         {
             const LLInventoryObject *obj = gInventory.getObject(obj_id);
             if (obj && obj->getParentUUID().notNull())
