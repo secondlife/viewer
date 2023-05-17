@@ -1,11 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <panel name="MediaControls">
-	<string name="control_background_image_name">
-		Inspector_Background
-	</string>
-	<string name="skip_step">
-		0.2
-	</string>
+	<string name="control_background_image_name">Inspector_Background</string>
+	<string name="skip_step">0.2</string>
 	<layout_stack name="progress_indicator_area">
 		<layout_panel name="media_progress_indicator">
 			<progress_bar name="media_progress_bar" tool_tip="Medien werden geladen"/>
@@ -66,5 +62,6 @@
 		<layout_panel name="new_window">
 			<button name="new_window_btn" tool_tip="URL in Browser öffnen"/>
 		</layout_panel>
+		<icon name="media_secure_lock_flag" tool_tip="Sicheres Surfen"/>
 	</layout_stack>
 </panel>

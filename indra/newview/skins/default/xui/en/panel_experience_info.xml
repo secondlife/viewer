@@ -44,6 +44,7 @@
       width="315"
       min_width="315">
       <layout_stack
+        name="ls1"
         follows="all"
         height="480"
         layout="topleft"
@@ -73,6 +74,7 @@
             width="290" />
         </layout_panel>
         <layout_panel
+          name="title panel"
           follows="all"
           height="19"
           layout="topleft"
@@ -203,6 +205,7 @@
           </text>
         </layout_panel>
         <layout_panel
+          name="details panel"
           follows="left|top|right"
           height="69"
           left="0"

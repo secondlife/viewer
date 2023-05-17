@@ -11434,7 +11434,10 @@ void LLVOAvatar::readProfileQuery(S32 retries)
 
         LL::WorkQueue::getInstance("mainloop")->post([id, retries] {
             LLVOAvatar* avatar = (LLVOAvatar*) gObjectList.findObject(id);
-            avatar->readProfileQuery(retries);
+            if(avatar)
+            {
+                avatar->readProfileQuery(retries);
+            }
             });
     }
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu name="Avatar Profile Menu Self">
+	<menu_item_call label="Edytuj Wyświetlane Imię" name="edit_display_name" />
+	<menu_item_call label="Edytuj partnera" name="edit_partner" />
+	<menu_item_call label="Prześlij obraz" name="upload_photo" />
+	<menu_item_call label="Zmień obraz" name="change_photo" />
+	<menu_item_call label="Usuń obraz" name="remove_photo" />
+	<menu_item_call label="Kopiuj Wyświetlane Imię" name="copy_display_name" />
+	<menu_item_call label="Kopiuj imię" name="copy_name" />
+	<menu_item_call label="Kopiuj UUID" name="copy_id" />
+</toggleable_menu>

@@ -123,7 +123,7 @@ void LLQueuedThread::shutdown()
 
 // MAIN THREAD
 // virtual
-S32 LLQueuedThread::update(F32 max_time_ms)
+size_t LLQueuedThread::update(F32 max_time_ms)
 {
     LL_PROFILE_ZONE_SCOPED;
 	if (!mStarted)
@@ -137,7 +137,7 @@ S32 LLQueuedThread::update(F32 max_time_ms)
 	return updateQueue(max_time_ms);
 }
 
-S32 LLQueuedThread::updateQueue(F32 max_time_ms)
+size_t LLQueuedThread::updateQueue(F32 max_time_ms)
 {
     LL_PROFILE_ZONE_SCOPED;
 	// Frame Update
@@ -183,9 +183,9 @@ void LLQueuedThread::incQueue()
 
 //virtual
 // May be called from any thread
-S32 LLQueuedThread::getPending()
+size_t LLQueuedThread::getPending()
 {
-	return mRequestQueue.size();
+    return mRequestQueue.size();
 }
 
 // MAIN thread
@@ -526,7 +526,7 @@ void LLQueuedThread::run()
 
 		threadedUpdate();
 		
-		int pending_work = processNextRequest();
+		auto pending_work = processNextRequest();
 
 		if (pending_work == 0)
 		{

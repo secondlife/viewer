@@ -99,7 +99,7 @@ public:
         return mSelf;
     }
 
-    static S32 instanceCount() 
+    static size_t instanceCount() 
     { 
         return LockStatic()->mMap.size(); 
     }
@@ -374,7 +374,7 @@ public:
         return mSelf;
     }
     
-    static S32 instanceCount()
+    static size_t instanceCount()
     {
         return LockStatic()->mSet.size();
     }
