@@ -29,6 +29,7 @@
 
 #include "lltextbase.h"
 
+#include "llemojidictionary.h"
 #include "llemojihelper.h"
 #include "lllocalcliprect.h"
 #include "llmenugl.h"
@@ -366,7 +367,7 @@ void LLTextBase::onValueChange(S32 start, S32 end)
 {
 }
 
-std::vector<LLRect> LLTextBase::getSelctionRects()
+std::vector<LLRect> LLTextBase::getSelectionRects()
 {
     // Nor supposed to be called without selection
     llassert(hasSelection());
@@ -463,7 +464,7 @@ void LLTextBase::drawSelectionBackground()
     // Draw selection even if we don't have keyboard focus for search/replace
     if (hasSelection() && !mLineInfoList.empty())
     {
-        std::vector<LLRect> selection_rects = getSelctionRects();
+        std::vector<LLRect> selection_rects = getSelectionRects();
 		
 		// Draw the selection box (we're using a box instead of reversing the colors on the selected text).
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -904,9 +905,12 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 	// Insert special segments where necessary (insertSegment takes care of splitting normal text segments around them for us)
 	{
 		LLStyleSP emoji_style;
+		LLEmojiDictionary* ed = LLEmojiDictionary::instanceExists() ? LLEmojiDictionary::getInstance() : NULL;
 		for (S32 text_kitty = 0, text_len = wstr.size(); text_kitty < text_len; text_kitty++)
 		{
-			if (LLStringOps::isEmoji(wstr[text_kitty]))
+			llwchar code = wstr[text_kitty];
+			bool isEmoji = ed ? ed->isEmoji(code) : LLStringOps::isEmoji(code);
+			if (isEmoji)
 			{
 				if (!emoji_style)
 				{
@@ -2181,8 +2185,8 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 		S32 start=0,end=0;
 		LLUrlMatch match;
 		std::string text = new_text;
-		while ( LLUrlRegistry::instance().findUrl(text, match,
-				boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3),isContentTrusted() || mAlwaysShowIcons))
+		while (LLUrlRegistry::instance().findUrl(text, match,
+				boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3), isContentTrusted() || mAlwaysShowIcons))
 		{
 			start = match.getStart();
 			end = match.getEnd()+1;
@@ -2430,18 +2434,18 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 			LLStyle::Params normal_style_params(style_params);
 			normal_style_params.font.style("NORMAL");
 			LLStyleConstSP normal_sp(new LLStyle(normal_style_params));
-			segments.push_back(new LLOnHoverChangeableTextSegment(sp, normal_sp, segment_start, segment_end, *this ));
+			segments.push_back(new LLOnHoverChangeableTextSegment(sp, normal_sp, segment_start, segment_end, *this));
 		}
 		else
 		{
-		segments.push_back(new LLNormalTextSegment(sp, segment_start, segment_end, *this ));
+			segments.push_back(new LLNormalTextSegment(sp, segment_start, segment_end, *this));
 		}
 
 		insertStringNoUndo(getLength(), wide_text, &segments);
 	}
 
 	// Set the cursor and scroll position
-	if( selection_start != selection_end )
+	if (selection_start != selection_end)
 	{
 		mSelectionStart = selection_start;
 		mSelectionEnd = selection_end;
@@ -2449,7 +2453,7 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 		mIsSelecting = was_selecting;
 		setCursorPos(cursor_pos);
 	}
-	else if( cursor_was_at_end )
+	else if (cursor_was_at_end)
 	{
 		setCursorPos(getLength());
 	}
@@ -2461,25 +2465,28 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 
 void LLTextBase::appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, bool underline_on_hover_only)
 {
-	if (new_text.empty()) return; 
+	if (new_text.empty())
+	{
+		return; 
+	}
 
 	std::string::size_type start = 0;
-	std::string::size_type pos = new_text.find("\n",start);
+	std::string::size_type pos = new_text.find("\n", start);
 	
-	while(pos!=-1)
+	while (pos != std::string::npos)
 	{
-		if(pos!=start)
+		if (pos != start)
 		{
 			std::string str = std::string(new_text,start,pos-start);
-			appendAndHighlightTextImpl(str,highlight_part, style_params, underline_on_hover_only);
+			appendAndHighlightTextImpl(str, highlight_part, style_params, underline_on_hover_only);
 		}
 		appendLineBreakSegment(style_params);
 		start = pos+1;
-		pos = new_text.find("\n",start);
+		pos = new_text.find("\n", start);
 	}
 
-	std::string str = std::string(new_text,start,new_text.length()-start);
-	appendAndHighlightTextImpl(str,highlight_part, style_params, underline_on_hover_only);
+	std::string str = std::string(new_text, start, new_text.length() - start);
+	appendAndHighlightTextImpl(str, highlight_part, style_params, underline_on_hover_only);
 }
 
 

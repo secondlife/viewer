@@ -140,7 +140,7 @@ protected:
 	/* virtual */ void onFocusReceived();
 
 	// prepare chat's params and out one message to chatHistory
-	void appendMessage(const LLChat& chat, const LLSD &args = 0);
+	void appendMessage(const LLChat& chat, const LLSD& args = LLSD());
 
 	std::string appendTime();
 	void assignResizeLimits();

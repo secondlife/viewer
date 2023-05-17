@@ -57,7 +57,7 @@ private:
 	bool matchesPattern(const LLEmojiDescriptor* descr);
 
 	void onCategoryCommit();
-	void onSearchKeystroke(class LLLineEditor* caller, void* user_data);
+	void onSearchKeystroke();
 	void onPreviewEmojiClick();
 	void onEmojiSelect();
 	void onEmojiEmpty();

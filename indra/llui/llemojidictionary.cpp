@@ -199,6 +199,17 @@ std::string LLEmojiDictionary::getNameFromEmoji(llwchar ch) const
 	return (mEmoji2Descr.end() != it) ? it->second->Name : LLStringUtil::null;
 }
 
+bool LLEmojiDictionary::isEmoji(llwchar ch) const
+{
+	// Currently used codes: A9,AE,203C,2049,2122,...,2B55,3030,303D,3297,3299,1F004,...,1FAF6
+	if (ch == 0xA9 || ch == 0xAE || (ch >= 0x2000 && ch < 0x3300) || (ch >= 0x1F000 && ch < 0x20000))
+	{
+		return mEmoji2Descr.find(ch) != mEmoji2Descr.end();
+	}
+
+	return false;
+}
+
 void LLEmojiDictionary::addEmoji(LLEmojiDescriptor&& descr)
 {
 	mEmojis.push_back(descr);

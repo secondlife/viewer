@@ -654,7 +654,7 @@ protected:
 		return mLabel.getString() + getToolTip();
 	}
 
-    std::vector<LLRect> getSelctionRects();
+    std::vector<LLRect> getSelectionRects();
 
 protected:
 	// text segmentation and flow

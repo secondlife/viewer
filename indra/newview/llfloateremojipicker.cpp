@@ -60,9 +60,25 @@ public:
 	{
 		LLScrollListItem::draw(rect, fg_color, hover_color, select_color, highlight_color, column_padding);
 
+		LLWString wstr(1, mEmoji);
 		S32 width = getColumn(0)->getWidth();
-		LLFontGL::getFontEmoji()->render(LLWString(1, mEmoji), 0, rect.mLeft + width / 2, rect.getCenterY(), LLColor4::white,
-			LLFontGL::HCENTER, LLFontGL::VCENTER, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW_SOFT, 1, S32_MAX, nullptr, false, true);
+		F32 x = rect.mLeft + width / 2;
+		F32 y = rect.getCenterY();
+		LLFontGL::getFontEmoji()->render(
+			wstr,                       // wstr
+			0,                          // begin_offset
+			x,                          // x
+			y,                          // y
+			LLColor4::white,            // color
+			LLFontGL::HCENTER,          // halign
+			LLFontGL::VCENTER,          // valign
+			LLFontGL::NORMAL,           // style
+			LLFontGL::DROP_SHADOW_SOFT, // shadow
+			1,                          // max_chars
+			S32_MAX,                    // max_pixels
+			nullptr,                    // right_x
+			false,                      // use_ellipses
+			true);                      // use_color
 	}
 
 private:
@@ -101,13 +117,13 @@ BOOL LLFloaterEmojiPicker::postBuild()
 {
 	// Should be initialized first
 	mPreviewEmoji = getChild<LLButton>("PreviewEmoji");
-	mPreviewEmoji->setClickedCallback(boost::bind(&LLFloaterEmojiPicker::onPreviewEmojiClick, this));
+	mPreviewEmoji->setClickedCallback([this](LLUICtrl*, const LLSD&) { onPreviewEmojiClick(); });
 
 	mCategory = getChild<LLComboBox>("Category");
-	mCategory->setCommitCallback(boost::bind(&LLFloaterEmojiPicker::onCategoryCommit, this));
+	mCategory->setCommitCallback([this](LLUICtrl*, const LLSD&) { onCategoryCommit(); });
 	const LLEmojiDictionary::cat2descrs_map_t& cat2Descrs = LLEmojiDictionary::instance().getCategory2Descrs();
 	mCategory->clearRows();
-	for (const LLEmojiDictionary::cat2descrs_item_t& item : cat2Descrs)
+	for (const LLEmojiDictionary::cat2descrs_item_t item : cat2Descrs)
 	{
 		std::string value = item.first;
 		std::string name = value;
@@ -117,13 +133,13 @@ BOOL LLFloaterEmojiPicker::postBuild()
 	mCategory->setSelectedByValue(mSelectedCategory, true);
 
 	mSearch = getChild<LLLineEditor>("Search");
-	mSearch->setKeystrokeCallback(boost::bind(&LLFloaterEmojiPicker::onSearchKeystroke, this, _1, _2), NULL);
+	mSearch->setKeystrokeCallback([this](LLLineEditor*, void*) { onSearchKeystroke(); }, NULL);
 	mSearch->setFont(LLViewerChat::getChatFont());
 	mSearch->setText(mSearchPattern);
 
 	mEmojis = getChild<LLScrollListCtrl>("Emojis");
-	mEmojis->setCommitCallback(boost::bind(&LLFloaterEmojiPicker::onEmojiSelect, this));
-	mEmojis->setDoubleClickCallback(boost::bind(&LLFloaterEmojiPicker::onEmojiPick, this));
+	mEmojis->setCommitCallback([this](LLUICtrl*, const LLSD&) { onEmojiSelect(); });
+	mEmojis->setDoubleClickCallback([this]() { onEmojiPick(); });
 	fillEmojis();
 
 	return TRUE;
@@ -139,7 +155,7 @@ void LLFloaterEmojiPicker::fillEmojis()
 	mEmojis->clearRows();
 
 	const LLEmojiDictionary::emoji2descr_map_t& emoji2Descr = LLEmojiDictionary::instance().getEmoji2Descr();
-	for (const LLEmojiDictionary::emoji2descr_item_t& it : emoji2Descr)
+	for (const LLEmojiDictionary::emoji2descr_item_t it : emoji2Descr)
 	{
 		const LLEmojiDescriptor* descr = it.second;
 
@@ -150,6 +166,8 @@ void LLFloaterEmojiPicker::fillEmojis()
 			continue;
 
 		LLScrollListItem::Params params;
+		// The following line adds default monochrome view of the emoji (is shown as an example)
+		//params.columns.add().column("look").value(wstring_to_utf8str(LLWString(1, it.first)));
 		params.columns.add().column("name").value(descr->Name);
 		mEmojis->addRow(new LLEmojiScrollListItem(it.first, params), params);
 	}
@@ -194,7 +212,7 @@ void LLFloaterEmojiPicker::onCategoryCommit()
 	fillEmojis();
 }
 
-void LLFloaterEmojiPicker::onSearchKeystroke(LLLineEditor* caller, void* user_data)
+void LLFloaterEmojiPicker::onSearchKeystroke()
 {
 	mSearchPattern = mSearch->getText();
 	mSelectedEmojiIndex = 0;
