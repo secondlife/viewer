@@ -68,6 +68,7 @@ public:
 	const LLEmojiDescriptor* getDescriptorFromEmoji(llwchar emoji) const;
 	const LLEmojiDescriptor* getDescriptorFromShortCode(const std::string& short_code) const;
 	std::string getNameFromEmoji(llwchar ch) const;
+	bool isEmoji(llwchar ch) const;
 
 	const emoji2descr_map_t& getEmoji2Descr() const { return mEmoji2Descr; }
 	const code2descr_map_t& getShortCode2Descr() const { return mShortCode2Descr; }

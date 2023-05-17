@@ -435,8 +435,8 @@ void LLFloaterIMSessionTab::onEmojiPanelBtnClicked(LLFloaterIMSessionTab* self)
 		if (!picker->isShown())
 		{
 			picker->show(
-				boost::bind(&LLFloaterIMSessionTab::onEmojiPicked, self, _1),
-				boost::bind(&LLFloaterIMSessionTab::onEmojiPickerClosed, self));
+				[self](llwchar emoji) { self->onEmojiPicked(emoji); },
+				[self]() { self->onEmojiPickerClosed(); });
 			if (LLFloater* root_floater = gFloaterView->getParentFloater(self))
 			{
 				root_floater->addDependentFloater(picker, TRUE, TRUE);
@@ -461,51 +461,43 @@ void LLFloaterIMSessionTab::onEmojiPickerClosed()
 
 std::string LLFloaterIMSessionTab::appendTime()
 {
-	time_t utc_time;
-	utc_time = time_corrected();
-	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
-		+LLTrans::getString("TimeMin")+"]";
+	std::string timeStr = "[" + LLTrans::getString("TimeHour") + "]:"
+						  "[" + LLTrans::getString("TimeMin") + "]";
 
 	LLSD substitution;
-
-	substitution["datetime"] = (S32) utc_time;
-	LLStringUtil::format (timeStr, substitution);
+	substitution["datetime"] = (S32)time_corrected();
+	LLStringUtil::format(timeStr, substitution);
 
 	return timeStr;
 }
 
-void LLFloaterIMSessionTab::appendMessage(const LLChat& chat, const LLSD &args)
+void LLFloaterIMSessionTab::appendMessage(const LLChat& chat, const LLSD& args)
 {
+	if (chat.mMuted || !mChatHistory)
+		return;
 
 	// Update the participant activity time
 	LLFloaterIMContainer* im_box = LLFloaterIMContainer::findInstance();
 	if (im_box)
 	{
-		im_box->setTimeNow(mSessionID,chat.mFromID);
+		im_box->setTimeNow(mSessionID, chat.mFromID);
 	}
 	
-
 	LLChat& tmp_chat = const_cast<LLChat&>(chat);
 
-	if(tmp_chat.mTimeStr.empty())
+	if (tmp_chat.mTimeStr.empty())
 		tmp_chat.mTimeStr = appendTime();
 
-	if (!chat.mMuted)
-	{
-		tmp_chat.mFromName = chat.mFromName;
-		LLSD chat_args;
-		if (args) chat_args = args;
-		chat_args["use_plain_text_chat_history"] =
-				gSavedSettings.getBOOL("PlainTextChatHistory");
-		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
-		chat_args["show_names_for_p2p_conv"] =
-				!mIsP2PChat || gSavedSettings.getBOOL("IMShowNamesForP2PConv");
+	tmp_chat.mFromName = chat.mFromName;
 
-		if (mChatHistory)
-		{
-			mChatHistory->appendMessage(chat, chat_args);
-		}
-	}
+	LLSD chat_args = args;
+	chat_args["use_plain_text_chat_history"] =
+			gSavedSettings.getBOOL("PlainTextChatHistory");
+	chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
+	chat_args["show_names_for_p2p_conv"] = !mIsP2PChat ||
+			gSavedSettings.getBOOL("IMShowNamesForP2PConv");
+
+	mChatHistory->appendMessage(chat, chat_args);
 }
 
 static LLTrace::BlockTimerStatHandle FTM_BUILD_CONVERSATION_VIEW_PARTICIPANT("Build Conversation View");
