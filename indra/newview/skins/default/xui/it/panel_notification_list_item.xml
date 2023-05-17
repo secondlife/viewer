@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<panel name="main_panel">
+	<panel name="sender_time_panel_exp"/>
+	<panel name="main_info_panel_expanded"/>
+	<layout_panel name="layout_panel_middle_exp"/>
+	<layout_stack name="horizontal_stack"/>
+	<panel name="panel_expanded_view"/>
+	<layout_panel name="layout_panel_expanded_view"/>
+	<layout_stack name="item_vertical_stack"/>
+	<panel name="panel_total_view">
+		<text name="notification_time_exp" value="2014-12-24 23:30:00"/>
+		<text name="sender_or_fee_box_exp">Mittente: &quot;Residente R e s i d e n t e R e s i d e n t e R e s i d e n t e&quot;.</text>
+		<text name="notification_time" value="2014-12-24 23:30:00"/>
+		<text name="notification_title_exp">Titolo dell'Avviso Titolo dell'Avviso Titolo T i t o l o d e l l ' A v v i s o T i t o l o d e l l ' a v v i s o</text>
+		<avatar_icon name="avatar_icon" tool_tip="Avatar"/>
+		<button name="join_btn" label="Iscriviti a"/>
+		<chat_editor name="notification_text_exp">Il testo dell'avviso va qui b l a b l a.</chat_editor>
+		<button name="decline_btn" label="Rifiuta"/>
+		<group_icon name="group_icon_exp" tool_tip="Gruppo"/>
+		<text name="sender_or_fee_box">Mittente: &quot;Residente R e s i d e n t e R e s i d e n t e R e s i d e n t e&quot;.</text>
+		<group_icon name="group_icon" tool_tip="Gruppo"/>
+		<icon name="attachment_icon_exp" tool_tip="Allegato"/>
+		<avatar_icon name="avatar_icon_exp" tool_tip="Avatar"/>
+		<icon name="system_notification_icon_exp" tool_tip="Icona"/>
+		<text name="notification_title">Nome del gruppo: Titolo dell' Avviso T i t o l o d e l l ' A v v i s o T i t o l o d e l l ' a v v i s o T itolo dell'avviso</text>
+		<button name="info_btn" label="Info"/>
+		<text name="group_name_exp">Nome del gruppo Nome del gruppo Nome del gruppo No m e</text>
+		<icon name="attachment_icon" tool_tip="Allegato"/>
+		<icon name="system_notification_icon" tool_tip="Icona"/>
+		<text name="attachment_text">L'allegato va qui b l a b l a.</text>
+	</panel>
+	<panel name="sender_time_panel"/>
+	<panel name="main_info_panel"/>
+	<layout_panel name="layout_panel_middle"/>
+	<panel name="panel_condensed_view"/>
+	<layout_panel name="layout_panel_condensed_view"/>
+	<panel name="notification_title_panel_exp"/>
+	<layout_panel name="layout_panel_right"/>
+	<panel name="button_panel"/>
+	<panel name="notification_text_panel_exp"/>
+	<layout_panel name="layout_panel_right_exp"/>
+	<panel name="notification_title_panel"/>
+	<panel name="attachment_panel"/>
+</panel>

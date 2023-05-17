@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="main_panel">
+	<panel.string name="sender_resident_text">
+		Wysłał/a: "[SENDER_RESIDENT]"
+	</panel.string>
+	<panel.string name="group_name_text">
+		Grupa: "[GROUP_NAME]"
+	</panel.string>
+	<panel.string name="group_fee_text">
+		Opłata: [GROUP_FEE]
+	</panel.string>
+	<panel name="panel_total_view">
+		<layout_stack name="item_vertical_stack">
+			<layout_panel name="layout_panel_condensed_view">
+				<panel name="panel_condensed_view">
+					<layout_stack name="horizontal_stack">
+						<layout_panel name="layout_panel_right">
+							<group_icon name="group_icon" tool_tip="Grupa" />
+							<avatar_icon name="avatar_icon" tool_tip="Osoba" />
+							<icon name="system_notification_icon" tool_tip="Ikona" />
+						</layout_panel>
+						<layout_panel name="layout_panel_middle">
+							<panel name="main_info_panel">
+								<panel name="notification_title_panel">
+									<icon name="attachment_icon" tool_tip="Załącznik" />
+								</panel>
+							</panel>
+						</layout_panel>
+					</layout_stack>
+				</panel>
+			</layout_panel>
+			<layout_panel name="layout_panel_expanded_view">
+				<panel name="panel_expanded_view">
+					<layout_stack name="horizontal_stack">
+						<layout_panel name="layout_panel_right_exp">
+							<group_icon name="group_icon_exp" tool_tip="Grupa" />
+							<avatar_icon name="avatar_icon_exp" tool_tip="Osoba" />
+							<icon name="system_notification_icon_exp" tool_tip="Ikona" />
+							<icon name="attachment_icon_exp" tool_tip="Załącznik" />
+						</layout_panel>
+						<layout_panel name="layout_panel_middle_exp">
+							<panel name="main_info_panel_expanded">
+								<panel name="button_panel">
+									<button name="join_btn" label="Dołącz" />
+									<button name="decline_btn" label="Anuluj"/>
+								</panel>
+							</panel>
+						</layout_panel>
+					</layout_stack>
+				</panel>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

@@ -1817,10 +1817,10 @@ namespace tut
     {
         set_test_name("verify sequence to Python");
 
-        LLSD cdata(LLSDArray(17)(3.14)
-                  ("This string\n"
-                   "has several\n"
-                   "lines."));
+        LLSD cdata(llsd::array(17, 3.14,
+                               "This string\n"
+                               "has several\n"
+                               "lines."));
 
         const char pydata[] =
             "def verify(iterable):\n"

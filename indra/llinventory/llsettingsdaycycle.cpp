@@ -440,8 +440,8 @@ LLSD LLSettingsDay::defaults()
         }
 
         LLSD tracks;
-        tracks.append(LLSDArray(waterTrack));
-        tracks.append(LLSDArray(skyTrack));
+        tracks.append(llsd::array(waterTrack));
+        tracks.append(llsd::array(skyTrack));
 
         dfltsetting[SETTING_TRACKS] = tracks;
         dfltsetting[SETTING_FRAMES] = frames;

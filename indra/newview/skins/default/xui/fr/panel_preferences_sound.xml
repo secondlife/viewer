@@ -1,13 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <panel label="Sons" name="Preference Media panel">
-	<panel.string name="middle_mouse">
-		Bouton central de la souris
-	</panel.string>
+	<panel.string name="middle_mouse">Bouton central de la souris</panel.string>
 	<slider label="Volume principal" name="System Volume"/>
 	<check_box initial_value="true" name="mute_when_minimized"/>
-	<text name="mute_chb_label">
-		Couper lorsque minimisé
-	</text>
+	<text name="mute_chb_label">Couper lorsque minimisé</text>
 	<slider label="Boutons" name="UI Volume"/>
 	<slider label="Ambiant" name="Wind Volume"/>
 	<slider label="Effets sonores" name="SFX Volume"/>
@@ -20,21 +16,22 @@
 	<check_box label="Autoriser la lecture automatique du média" name="media_auto_play_btn" tool_tip="Cocher pour autoriser la lecture automatique du média." value="true"/>
 	<check_box label="Lire le média attaché aux autres avatars" name="media_show_on_others_btn" tool_tip="Décocher pour masquer le média attaché aux autres avatars près de vous." value="true"/>
 	<check_box label="Lire les sons des gestes" name="gesture_audio_play_btn" tool_tip="Cocher cette case pour entendre les sons associés aux gestes." value="true"/>
-	<text name="voice_chat_settings">
-		Paramètres du chat vocal
-	</text>
-	<text name="Listen from">
-		Écouter à partir de :
-	</text>
+	<text name="voice_chat_settings">Paramètres du chat vocal</text>
+	<text name="Listen from">Écouter à partir de :</text>
 	<radio_group name="ear_location">
 		<radio_item label="Position de la caméra" name="0"/>
-		<radio_item label="Position de l&apos;avatar" name="1"/>
+		<radio_item label="Position de l'avatar" name="1"/>
 	</radio_group>
-	<check_box label="Faire bouger les lèvres de l&apos;avatar lorsqu&apos;il parle" name="enable_lip_sync"/>
-	<check_box label="Activer/désactiver la fonction Parler quand j&apos;appuie sur :" name="push_to_talk_toggle_check" tool_tip="En mode bascule, appuyez une fois sur la touche de contrôle de la fonction, puis relâchez-la pour activer/désactiver votre micro. Si vous n&apos;êtes pas en mode bascule, le micro ne diffuse votre voix que lorsque vous maintenez la touche de contrôle de la fonction enfoncée."/>
+	<check_box label="Faire bouger les lèvres de l'avatar lorsqu'il parle" name="enable_lip_sync"/>
+	<check_box label="Activer/désactiver la fonction Parler quand j'appuie sur :" name="push_to_talk_toggle_check" tool_tip="En mode bascule, appuyez une fois sur la touche de contrôle de la fonction, puis relâchez-la pour activer/désactiver votre micro. Si vous n'êtes pas en mode bascule, le micro ne diffuse votre voix que lorsque vous maintenez la touche de contrôle de la fonction enfoncée."/>
 	<line_editor label="Touche de contrôle de la fonction Appuyer pour parler" name="modifier_combo"/>
 	<button label="Définir la touche" name="set_voice_hotkey_button"/>
 	<button name="set_voice_middlemouse_button" tool_tip="Réinitialiser sur le bouton central de la souris"/>
-	<button label="Périphériques d&apos;entrée/de sortie" name="device_settings_btn"/>
+	<button label="Périphériques d'entrée/de sortie" name="device_settings_btn"/>
 	<panel label="Paramètres du matériel" name="device_settings_panel"/>
+	<combo_box name="media_auto_play_combo">
+		<item name="autoplay_enabled" label="Oui"/>
+		<item name="autoplay_ask" label="Demander"/>
+		<item name="autoplay_disabled" label="Non"/>
+	</combo_box>
 </panel>

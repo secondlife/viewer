@@ -211,11 +211,8 @@ void LLMotionController::purgeExcessMotions()
 	{
 		// too many motions active this frame, kill all blenders
 		mPoseBlender.clearBlenders();
-		for (motion_set_t::iterator loaded_motion_it = mLoadedMotions.begin(); 
-			 loaded_motion_it != mLoadedMotions.end(); 
-			 ++loaded_motion_it)
+		for (LLMotion* cur_motionp : mLoadedMotions)
 		{
-			LLMotion* cur_motionp = *loaded_motion_it;
 			// motion isn't playing, delete it
 			if (!isMotionActive(cur_motionp))
 			{
@@ -225,13 +222,10 @@ void LLMotionController::purgeExcessMotions()
 	}
 	
 	// clean up all inactive, loaded motions
-	for (std::set<LLUUID>::iterator motion_it = motions_to_kill.begin();
-		motion_it != motions_to_kill.end();
-		++motion_it)
+	for (LLUUID motion_id : motions_to_kill)
 	{
 		// look up the motion again by ID to get canonical instance
 		// and kill it only if that one is inactive
-		LLUUID motion_id = *motion_it;
 		LLMotion* motionp = findMotion(motion_id);
 		if (motionp && !isMotionActive(motionp))
 		{
@@ -1059,12 +1053,11 @@ LLMotion* LLMotionController::findMotion(const LLUUID& id) const
 void LLMotionController::dumpMotions()
 {
 	LL_INFOS() << "=====================================" << LL_ENDL;
-	for (motion_map_t::iterator iter = mAllMotions.begin();
-		 iter != mAllMotions.end(); iter++)
+	for (motion_map_t::value_type& motion_pair : mAllMotions)
 	{
-		LLUUID id = iter->first;
+		LLUUID id = motion_pair.first;
 		std::string state_string;
-		LLMotion *motion = iter->second;
+		LLMotion *motion = motion_pair.second;
 		if (mLoadingMotions.find(motion) != mLoadingMotions.end())
 			state_string += std::string("l");
 		if (mLoadedMotions.find(motion) != mLoadedMotions.end())
@@ -1083,10 +1076,9 @@ void LLMotionController::dumpMotions()
 //-----------------------------------------------------------------------------
 void LLMotionController::deactivateAllMotions()
 {
-	for (motion_map_t::iterator iter = mAllMotions.begin();
-		 iter != mAllMotions.end(); iter++)
+	for (motion_map_t::value_type& motion_pair : mAllMotions)
 	{
-		LLMotion* motionp = iter->second;
+		LLMotion* motionp = motion_pair.second;
 		deactivateMotionInstance(motionp);
 	}
 }
@@ -1118,10 +1110,9 @@ void LLMotionController::flushAllMotions()
 	mCharacter->removeAnimationData("Hand Pose");
 
 	// restart motions
-	for (std::vector<std::pair<LLUUID,F32> >::iterator iter = active_motions.begin();
-		 iter != active_motions.end(); ++iter)
+	for (std::vector<std::pair<LLUUID,F32> >::value_type& motion_pair : active_motions)
 	{
-		startMotion(iter->first, iter->second);
+		startMotion(motion_pair.first, motion_pair.second);
 	}
 }
 

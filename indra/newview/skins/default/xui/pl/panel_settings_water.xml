@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Woda" name="panel_settings_water">
+	<layout_stack name="water_stack1">
+		<layout_panel name="lp_top">
+			<text name="water_fog_label">
+				Mgła wodna:
+			</text>
+			<text name="color_label">
+				Kolor:
+			</text>
+			<text name="density_exponent_label">
+				Wykładnik gęstości:
+			</text>
+			<text name="underwater_modifier_label">
+				Modyfikator pod wodą:
+			</text>
+			<text name="FresnelScaleText">
+				Skala Fresnela:
+			</text>
+			<text name="FresnelOffsetText">
+				Przesun. Fresnela:
+			</text>
+		</layout_panel>
+		<layout_panel name="lp_bottom">
+			<layout_stack name="water_stack2">
+				<layout_panel name="lp_left">
+					<text name="normal_map_label">
+						Mapa normalnych
+					</text>
+					<text name="large_wave_speed_label">
+						Prędkość dużej fali
+					</text>
+					<text name="small_wave_speed_label">
+						Prędkość małej fali
+					</text>
+					<text name="reflection_wavelet_scale_label">
+						Skala odbicia falkowego
+					</text>
+				</layout_panel>
+				<layout_panel name="lp_right">
+					<text name="refraction_and_blur_label">
+						Refrakcja i rozmycie:
+					</text>
+					<text name="refraction_scale_above_label">
+						Skala refrakcji (powyżej)
+					</text>
+					<text name="refraction_scale_below_label">
+						Skala refrakcji (poniżej)
+					</text>
+					<text name="blur_multiplier_label">
+						Mnożnik rozmycia
+					</text>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</panel>     

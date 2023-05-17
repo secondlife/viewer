@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_profile" label="Profil">
+	<string name="date_format" value="Urodziny: [day,datetime,slt] [mth,datetime,slt] [year,datetime,slt]" />
+	<string name="CaptionTextAcctInfo">
+Konto: [ACCTTYPE]
+[PAYMENTINFO]
+	</string>
+	<layout_stack name="image_stack">
+		<layout_panel name="basics_panel">
+			<line_editor name="user_name" value="(ładowanie...)" />
+			<line_editor name="sl_birth_date" value="(ładowanie...)" />
+			<line_editor name="user_age" value="(ładowanie...)" />
+		</layout_panel>
+		<layout_panel name="partner_layout">
+			<text name="partner_link" value="Partner: (ładowanie...)" />
+		</layout_panel>
+		<layout_panel name="frind_layout">
+			<text name="frind_text" value="Jesteście znajomymi" />
+		</layout_panel>
+		<layout_panel name="account_layout">
+			<text name="account_info" value="Konto: (ładowanie...)" />
+		</layout_panel>
+		<layout_panel name="settings_panel">
+			<text name="search_label" value="Profil w wyszukiwarce:" />
+			<combo_box name="show_in_search" tool_tip="Pozwól innym zobaczyć Cię w wynikach wyszukiwania">
+				<combo_box.item name="Hide" label="Ukryj" />
+				<combo_box.item name="Show" label="Pokaż" />
+			</combo_box>
+		</layout_panel>
+		<layout_panel name="menu_panel">
+			<menu_button label="Akcje" name="agent_actions_menu" />
+		</layout_panel>
+	</layout_stack>
+	<layout_stack name="main_stack">
+		<layout_panel name="display_name_panel">
+			<line_editor name="display_name" value="(ładowanie...)" />
+			<icon tool_tip="Znajomy może zobaczyć mój status online" name="can_see_online" />
+			<icon tool_tip="Znajomy nie może zobaczyć mojego statusu online" name="cant_see_online" />
+			<icon tool_tip="Znajomy może mnie zobaczyć na mapie" name="can_see_on_map" />
+			<icon tool_tip="Znajomy nie może mnie zobaczyć na mapie" name="cant_see_on_map" />
+			<icon tool_tip="Znajomy może edytować moje obiekty" name="can_edit_objects" />
+			<icon tool_tip="Znajomy nie może edytować moich obiektów" name="cant_edit_objects" />
+		</layout_panel>
+		<layout_panel name="about_buttons_panel">
+			<button name="save_description_changes" label="Zapisz" />
+			<button name="discard_description_changes" label="Odrzuć" />
+		</layout_panel>
+		<layout_panel name="groups_panel">
+			<text name="group_label" value="Grupy" />
+		</layout_panel>
+	</layout_stack>
+</panel>
