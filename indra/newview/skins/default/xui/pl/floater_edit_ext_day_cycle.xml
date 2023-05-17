@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="env_edit_extdaycycle" title="Edytuj cykl dnia">
+	<string name="title_new">Stwórz nowy cykl dnia</string>
+	<string name="title_edit">Edytuj cykl dnia</string>
+	<string name="hint_new">Nazwij cykl dnia, ustaw co trzeba i kliknij na "Zapisz".</string>
+	<string name="hint_edit">Aby edytować cykl dnia ustaw co trzeba i kliknij na "Zapisz".</string>
+	<string name="sky_track_label">Niebo [ALT]</string>
+	<string name="sky_label">Niebo</string>
+	<string name="water_label">Woda</string>
+	<string name="commit_parcel">Zastosuj do działki</string>
+	<string name="commit_region">Zastosuj do regionu</string>
+	<layout_stack name="outer_stack">
+		<layout_panel name="name_and_import">
+			<text name="label">
+				Nazwa cyklu dnia:
+			</text>
+			<button label="Importuj" name="btn_import" tool_tip="Zaimportuj starsze ustawienia z dysku." />
+		</layout_panel>
+		<layout_panel name="content">
+			<layout_stack name="content_stack">
+				<layout_panel name="timeline_track_selection">
+					<panel name="timeline_layers">
+						<button label="Niebo 4" name="sky4_track" />
+						<button label="Niebo 3" name="sky3_track" />
+						<button label="Niebo 2" name="sky2_track" />
+						<button label="Poziom ziemi" name="sky1_track" />
+						<button label="Woda" name="water_track" />
+					</panel>
+					<panel name="timeline">
+						<layout_stack name="track_options_ls">
+							<layout_panel name="track_options_lp">
+								<button label="Klonuj ścieżkę z" name="copy_track" />
+								<button label="Wczytaj ścieżkę z" name="load_track" />
+								<button label="Czyść ścieżkę" name="clear_track" />
+							</layout_panel>
+							<layout_panel name="track_progress_lp">
+								<layout_stack name="progress_control">
+									<layout_panel name="skip_back">
+										<button name="skip_back_btn" tool_tip="Krok wstecz" />
+									</layout_panel>
+									<layout_panel name="skip_forward">
+										<button name="skip_forward_btn" tool_tip="Krok w przód" />
+									</layout_panel>
+								</layout_stack>
+							</layout_panel>
+							<layout_panel name="frames_lp">
+								<button label="Dodaj [FRAME]" name="add_frame" />
+								<button label="Wczytaj [FRAME]" name="btn_load_frame" />
+								<button label="Usuń [FRAME]" name="delete_frame" />
+							</layout_panel>
+						</layout_stack>
+					</panel>
+				</layout_panel>
+				<layout_panel name="frame_edit_controls">
+					<text name="icn_lock_edit">
+						Wybierz klatkę kluczową z osi czasu, aby edytować ustawienia.
+					</text>
+				</layout_panel>
+				<layout_panel name="frame_settings_water">
+					<tab_container name="water_tabs">
+						<panel label="Woda" name="water_panel" />
+					</tab_container>
+				</layout_panel>
+				<layout_panel name="frame_settings_sky">
+					<tab_container name="sky_tabs">
+						<panel label="Atmosfera i światła" name="atmosphere_panel" />
+						<panel label="Chmury" name="clouds_panel" />
+						<panel label="Słońce i Księżyc" name="moon_panel" />
+						<!-- <panel label="Gęstość" name="density_panel" /> -->
+					</tab_container>
+				</layout_panel>        
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="buttons">
+			<button label="Zapisz" name="save_btn" />
+			<button label="Anuluj" name="cancel_btn" /> 
+		</layout_panel>
+	</layout_stack>
+</floater>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu name="menu_settings_gear">
+	<menu_item_call label="Edycja" name="edit_settings" />
+	<menu_item_call name="Settings Apply Local" label="Stosuj tylko dla mnie" />
+	<menu_item_call name="Settings Apply Parcel" label="Stosuj dla działki" />
+	<menu_item_call name="Settings Apply Region" label="Stosuj dla regionu" />
+	<menu_item_call label="Kopiuj" name="copy_settings" />
+	<menu_item_call label="Wklej" name="paste_settings" />
+	<menu_item_call label="Kopiuj UUID" name="copy_uuid" />
+</toggleable_menu>

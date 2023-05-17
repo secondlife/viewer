@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Dostęp" name="Access">
+	<tab_container name="tabs">
+		<panel label="ZARZĄDCY MAJĄTKU" name="estate_managers_panel">
+			<text name="estate_manager_label">
+				Zarządcy majątku:
+			</text>
+			<name_list name="estate_manager_name_list">
+				<columns label="Imię" name="name" />
+			</name_list>
+			<button label="Dodaj..." name="add_estate_manager_btn" />
+			<button label="Usuń..." name="remove_estate_manager_btn" />      
+		</panel>
+		<panel label="DOZWOLENI" name="allowed_panel">
+			<panel name="allowed_search_panel">
+				<filter_editor label="Szukaj wśród dozwolonych" name="allowed_search_input" />
+				<button label="Kopiuj" name="copy_allowed_list_btn" />
+			</panel>
+			<text name="allow_resident_label">
+				Zawsze zezwalaj:
+			</text>
+			<name_list name="allowed_avatar_name_list">
+				<columns label="Imię" name="name" />
+			</name_list>
+			<button label="Dodaj..." name="add_allowed_avatar_btn" />
+			<button label="Usuń..." name="remove_allowed_avatar_btn" />
+		</panel>
+		<panel label="DOZWOLONE GRUPY" name="allowed_groups_panel">
+			<panel name="allowed_group_search_panel">
+				<filter_editor label="Szukaj wśród dozwolonych grup" name="allowed_group_search_input" />
+				<button label="Kopiuj" name="copy_allowed_group_list_btn" />
+			</panel>
+			<text name="allow_group_label">
+				Zawsze zezwalaj grupom:
+			</text>
+			<name_list name="allowed_group_name_list">
+				<columns label="Nazwa" name="name" />
+			</name_list>
+			<button label="Dodaj..." name="add_allowed_group_btn" />
+			<button label="Usuń..." name="remove_allowed_group_btn" />
+		</panel>
+		<panel label="ZBANOWANI" name="banned_panel">
+			<panel name="banned_search_panel">
+				<filter_editor label="Szukaj wśród zbanowanych" name="banned_search_input" />
+				<button label="Kopiuj" name="copy_banned_list_btn" />
+			</panel>
+			<text name="ban_resident_label">
+				Zawsze banuj:
+			</text>
+			<name_list name="banned_avatar_name_list">
+				<columns label="Imię" name="name" />
+				<columns label="Ostatnie logowanie" name="last_login_date" />
+				<columns label="Zbanowano" name="ban_date" />
+				<columns label="Przez" name="bannedby" />
+			</name_list>
+			<button label="Dodaj..." name="add_banned_avatar_btn" />
+			<button label="Usuń..." name="remove_banned_avatar_btn" />
+		</panel>
+	</tab_container>
+</panel>

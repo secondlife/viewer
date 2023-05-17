@@ -47,7 +47,10 @@ static const std::map<std::string, U32> DefaultPoolSizes{
 };
 
 static const U32 DEFAULT_POOL_SIZE = 5;
-const U32 LLCoprocedureManager::DEFAULT_QUEUE_SIZE = 4096;
+// SL-14399: When we teleport to a brand-new simulator, the coprocedure queue
+// gets absolutely slammed with fetch requests. Make this queue effectively
+// unlimited.
+const U32 LLCoprocedureManager::DEFAULT_QUEUE_SIZE = 1024*1024;
 
 //=========================================================================
 class LLCoprocedurePool: private boost::noncopyable

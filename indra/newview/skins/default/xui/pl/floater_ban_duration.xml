@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="ban_duration" title="Czas trwania bana">
+	<text name="duration_textbox">
+		Czas trwania bana:
+	</text>
+	<radio_group name="ban_duration_radio">
+		<radio_item label="Na zawsze" name="always_radio">
+			Na zawsze
+		</radio_item>
+		<radio_item label="Tymczasowo" name="temporary_radio">
+			Tymczasowo
+		</radio_item>
+	</radio_group>
+	<text name="hours_textbox">
+		godzin.
+	</text>
+	<button label="Anuluj" name="cancel_btn" />
+</floater>

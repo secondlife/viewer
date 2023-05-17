@@ -5848,12 +5848,8 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 			{
 				count++;
 				known_questions |= script_perm.permbit;
-
-                if (!LLMuteList::isLinden(owner_name))
-                {
-                    // check whether permission question should cause special caution dialog
-                    caution |= (script_perm.caution);
-                }
+				// check whether permission question should cause special caution dialog
+				caution |= (script_perm.caution);
 
 				if (("ScriptTakeMoney" == script_perm.question) && has_not_only_debit)
 					continue;

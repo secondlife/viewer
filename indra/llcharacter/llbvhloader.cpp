@@ -156,10 +156,9 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 	}
     
     // Recognize all names we've been told are legal.
-    std::map<std::string, std::string>::iterator iter;
-    for (iter = joint_alias_map.begin(); iter != joint_alias_map.end(); iter++)
+    for (std::map<std::string, std::string>::value_type& alias_pair : joint_alias_map)
     {
-        makeTranslation( iter->first , iter->second );
+        makeTranslation( alias_pair.first , alias_pair.second );
     }
 	
 	char error_text[128];		/* Flawfinder: ignore */
@@ -950,10 +949,8 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 //------------------------------------------------------------------------
 void LLBVHLoader::applyTranslations()
 {
-	JointVector::iterator ji;
-	for (ji = mJoints.begin(); ji != mJoints.end(); ++ji )
+	for (Joint* joint : mJoints)
 	{
-		Joint *joint = *ji;
 		//----------------------------------------------------------------
 		// Look for a translation for this joint.
 		// If none, skip to next joint
@@ -1066,10 +1063,8 @@ void LLBVHLoader::optimize()
 		mEaseOut *= factor;
 	}
 
-	JointVector::iterator ji;
-	for (ji = mJoints.begin(); ji != mJoints.end(); ++ji)
+	for (Joint* joint : mJoints)
 	{
-		Joint *joint = *ji;
 		BOOL pos_changed = FALSE;
 		BOOL rot_changed = FALSE;
 
@@ -1294,15 +1289,12 @@ U32 LLBVHLoader::getOutputSize()
 // writes contents to datapacker
 BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 {
-	JointVector::iterator ji;
-	KeyVector::iterator ki;
 	F32 time;
 
 	// count number of non-ignored joints
 	S32 numJoints = 0;
-	for (ji=mJoints.begin(); ji!=mJoints.end(); ++ji)
+	for (Joint* joint : mJoints)
 	{
-		Joint *joint = *ji;
 		if ( ! joint->mIgnore )
 			numJoints++;
 	}
@@ -1321,11 +1313,8 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 	dp.packU32(mHand, "hand_pose");
 	dp.packU32(numJoints, "num_joints");
 
-	for (	ji = mJoints.begin();
-			ji != mJoints.end();
-			++ji )
+	for (Joint* joint : mJoints)
 	{
-		Joint *joint = *ji;
 		// if ignored, skip it
 		if ( joint->mIgnore )
 			continue;
@@ -1348,17 +1337,15 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 		Joint *mergeParent = NULL;
 		Joint *mergeChild = NULL;
 
-		JointVector::iterator mji;
-		for (mji=mJoints.begin(); mji!=mJoints.end(); ++mji)
+		for (Joint* mjoint : mJoints)
 		{
-			Joint *mjoint = *mji;
 			if ( !joint->mMergeParentName.empty() && (mjoint->mName == joint->mMergeParentName) )
 			{
-				mergeParent = *mji;
+				mergeParent = mjoint;
 			}
 			if ( !joint->mMergeChildName.empty() && (mjoint->mName == joint->mMergeChildName) )
 			{
-				mergeChild = *mji;
+				mergeChild = mjoint;
 			}
 		}
 
@@ -1367,19 +1354,17 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 		LLQuaternion::Order order = bvhStringToOrder( joint->mOrder );
 		S32 outcount = 0;
 		S32 frame = 0;
-		for (	ki = joint->mKeys.begin();
-				ki != joint->mKeys.end();
-				++ki )
+		for (Key& key : joint->mKeys)
 		{
 
 			if ((frame == 0) && joint->mRelativeRotationKey)
 			{
-				first_frame_rot = mayaQ( ki->mRot[0], ki->mRot[1], ki->mRot[2], order);
+				first_frame_rot = mayaQ( key.mRot[0], key.mRot[1], key.mRot[2], order);
 				
 				fixup_rot.shortestArc(LLVector3::z_axis * first_frame_rot * frameRot, LLVector3::z_axis);
 			}
 
-			if (ki->mIgnoreRot)
+			if (key.mIgnoreRot)
 			{
 				frame++;
 				continue;
@@ -1418,7 +1403,7 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 				mergeChildRot.loadIdentity();
 			}
 
-			LLQuaternion inRot = mayaQ( ki->mRot[0], ki->mRot[1], ki->mRot[2], order);
+			LLQuaternion inRot = mayaQ( key.mRot[0], key.mRot[1], key.mRot[2], order);
 
 			LLQuaternion outRot =  frameRotInv* mergeChildRot * inRot * mergeParentRot * ~first_frame_rot * frameRot * offsetRot;
 
@@ -1446,16 +1431,14 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 			LLVector3 relKey;
 
 			frame = 0;
-			for (	ki = joint->mKeys.begin();
-					ki != joint->mKeys.end();
-					++ki )
+			for (Key& key : joint->mKeys)
 			{
 				if ((frame == 0) && joint->mRelativePositionKey)
 				{
-					relKey.setVec(ki->mPos);
+					relKey.setVec(key.mPos);
 				}
 
-				if (ki->mIgnorePos)
+				if (key.mIgnorePos)
 				{
 					frame++;
 					continue;
@@ -1463,7 +1446,7 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 
 				time = llmax((F32)(frame - NUMBER_OF_IGNORED_FRAMES_AT_START), 0.0f) * mFrameTime; // Time elapsed before this frame starts.
 
-				LLVector3 inPos = (LLVector3(ki->mPos) - relKey) * ~first_frame_rot;// * fixup_rot;
+				LLVector3 inPos = (LLVector3(key.mPos) - relKey) * ~first_frame_rot;// * fixup_rot;
 				LLVector3 outPos = inPos * frameRot * offsetRot;
 
 				outPos *= INCHES_TO_METERS;
@@ -1496,24 +1479,22 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 	S32 num_constraints = (S32)mConstraints.size();
 	dp.packS32(num_constraints, "num_constraints");
 
-	for (ConstraintVector::iterator constraint_it = mConstraints.begin();
-		constraint_it != mConstraints.end();
-		constraint_it++)
+	for (Constraint& constraint : mConstraints)
 		{
-			U8 byte = constraint_it->mChainLength;
+			U8 byte = constraint.mChainLength;
 			dp.packU8(byte, "chain_length");
 			
-			byte = constraint_it->mConstraintType;
+			byte = constraint.mConstraintType;
 			dp.packU8(byte, "constraint_type");
-			dp.packBinaryDataFixed((U8*)constraint_it->mSourceJointName, 16, "source_volume");
-			dp.packVector3(constraint_it->mSourceOffset, "source_offset");
-			dp.packBinaryDataFixed((U8*)constraint_it->mTargetJointName, 16, "target_volume");
-			dp.packVector3(constraint_it->mTargetOffset, "target_offset");
-			dp.packVector3(constraint_it->mTargetDir, "target_dir");
-			dp.packF32(constraint_it->mEaseInStart,	"ease_in_start");
-			dp.packF32(constraint_it->mEaseInStop,	"ease_in_stop");
-			dp.packF32(constraint_it->mEaseOutStart,	"ease_out_start");
-			dp.packF32(constraint_it->mEaseOutStop,	"ease_out_stop");
+			dp.packBinaryDataFixed((U8*)constraint.mSourceJointName, 16, "source_volume");
+			dp.packVector3(constraint.mSourceOffset, "source_offset");
+			dp.packBinaryDataFixed((U8*)constraint.mTargetJointName, 16, "target_volume");
+			dp.packVector3(constraint.mTargetOffset, "target_offset");
+			dp.packVector3(constraint.mTargetDir, "target_dir");
+			dp.packF32(constraint.mEaseInStart,	"ease_in_start");
+			dp.packF32(constraint.mEaseInStop,	"ease_in_stop");
+			dp.packF32(constraint.mEaseOutStart,	"ease_out_start");
+			dp.packF32(constraint.mEaseOutStop,	"ease_out_stop");
 		}
 
 	
