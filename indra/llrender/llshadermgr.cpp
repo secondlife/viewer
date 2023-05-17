@@ -681,13 +681,13 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 		{
 			switch (vary_texture_index)
 			{
-				case 0: ret = texture2D(tex0, texcoord); break;
-				case 1: ret = texture2D(tex1, texcoord); break;
-				case 2: ret = texture2D(tex2, texcoord); break;
+				case 0: ret = texture(tex0, texcoord); break;
+				case 1: ret = texture(tex1, texcoord); break;
+				case 2: ret = texture(tex2, texcoord); break;
 				.
 				.
 				.
-				case N: return texture2D(texN, texcoord); break;
+				case N: return texture(texN, texcoord); break;
 			}
 
 			return ret;
@@ -714,7 +714,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 		
 		if (texture_index_channels == 1)
 		{ //don't use flow control, that's silly
-			extra_code_text[extra_code_count++] = strdup("return texture2D(tex0, texcoord);\n");
+			extra_code_text[extra_code_count++] = strdup("return texture(tex0, texcoord);\n");
 			extra_code_text[extra_code_count++] = strdup("}\n");
 		}
 		else if (major_version > 1 || minor_version >= 30)
@@ -723,7 +723,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 			{ //switches are unreliable on some NVIDIA drivers
 				for (U32 i = 0; i < texture_index_channels; ++i)
 				{
-					std::string if_string = llformat("\t%sif (vary_texture_index == %d) { return texture2D(tex%d, texcoord); }\n", i > 0 ? "else " : "", i, i); 
+					std::string if_string = llformat("\t%sif (vary_texture_index == %d) { return texture(tex%d, texcoord); }\n", i > 0 ? "else " : "", i, i); 
 					extra_code_text[extra_code_count++] = strdup(if_string.c_str());
 				}
 				extra_code_text[extra_code_count++] = strdup("\treturn vec4(1,0,1,1);\n");
@@ -738,7 +738,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 				//switch body
 				for (S32 i = 0; i < texture_index_channels; ++i)
 				{
-					std::string case_str = llformat("\t\tcase %d: return texture2D(tex%d, texcoord);\n", i, i);
+					std::string case_str = llformat("\t\tcase %d: return texture(tex%d, texcoord);\n", i, i);
 					extra_code_text[extra_code_count++] = strdup(case_str.c_str());
 				}
 
