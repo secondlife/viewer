@@ -2083,6 +2083,21 @@ class LLAdvancedPurgeDiskCache : public view_listener_t
 };
 
 
+////////////////////////
+// PURGE SHADER CACHE //
+////////////////////////
+
+
+class LLAdvancedPurgeShaderCache : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLViewerShaderMgr::instance()->clearShaderCache();
+		LLViewerShaderMgr::instance()->setShaders();
+		return true;
+	}
+};
+
 ////////////////////
 // EVENT Recorder //
 ///////////////////
@@ -9432,6 +9447,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedClickRenderShadowOption(), "Advanced.ClickRenderShadowOption");
 	view_listener_t::addMenu(new LLAdvancedClickRenderProfile(), "Advanced.ClickRenderProfile");
 	view_listener_t::addMenu(new LLAdvancedClickRenderBenchmark(), "Advanced.ClickRenderBenchmark");
+	view_listener_t::addMenu(new LLAdvancedPurgeShaderCache(), "Advanced.ClearShaderCache");
 
 	#ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 	view_listener_t::addMenu(new LLAdvancedHandleToggleHackedGodmode(), "Advanced.HandleToggleHackedGodmode");
