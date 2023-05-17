@@ -1166,9 +1166,10 @@ bool LLShaderMgr::loadCachedProgramBinary(LLGLSLShader* shader)
 
 				if (result == in_data.size())
 				{
+					GLenum error = glGetError(); // Clear current error
 					glProgramBinary(shader->mProgramObject, shader_info.mBinaryFormat, in_data.data(), shader_info.mBinaryLength);
 
-					GLenum error = glGetError();
+					error = glGetError();
 					GLint success = GL_TRUE;
 					glGetProgramiv(shader->mProgramObject, GL_LINK_STATUS, &success);
 					if (error == GL_NO_ERROR && success == GL_TRUE)
@@ -1199,8 +1200,9 @@ bool LLShaderMgr::saveCachedProgramBinary(LLGLSLShader* shader)
 		std::vector<U8> program_binary;
 		program_binary.resize(binary_info.mBinaryLength);
 
+		GLenum error = glGetError(); // Clear current error
 		glGetProgramBinary(shader->mProgramObject, program_binary.size() * sizeof(U8), nullptr, &binary_info.mBinaryFormat, program_binary.data());
-		GLenum error = glGetError();
+		error = glGetError();
 		if (error == GL_NO_ERROR)
 		{
 			std::string out_path = gDirUtilp->add(mShaderCacheDir, shader->mShaderHash.asString() + ".shaderbin");

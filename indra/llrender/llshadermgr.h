@@ -322,9 +322,9 @@ public:
 
     struct ProgramBinaryData
     {
-        GLsizei mBinaryLength;
-        GLenum mBinaryFormat;
-        F32 mLastUsedTime;
+        GLsizei mBinaryLength = 0;
+        GLenum mBinaryFormat = 0;
+        F32 mLastUsedTime = 0.0;
     };
     std::map<LLUUID, ProgramBinaryData> mShaderBinaryCache;
     bool mShaderCacheInitialized = false;
