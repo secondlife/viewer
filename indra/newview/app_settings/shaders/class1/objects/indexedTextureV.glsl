@@ -23,9 +23,9 @@
  * $/LicenseInfo$
  */
 
-ATTRIBUTE int texture_index;
+in int texture_index;
 
-VARYING_FLAT int vary_texture_index;
+flat out int vary_texture_index;
 
 void passTextureIndex()
 {

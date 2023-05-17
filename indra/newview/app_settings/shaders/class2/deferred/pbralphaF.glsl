@@ -214,7 +214,7 @@ void main()
     // emissiveColor is the emissive color factor from GLTF and is already in linear space
     vec3 colorEmissive = emissiveColor;
     // emissiveMap here is a vanilla RGB texture encoded as sRGB, manually convert to linear
-    colorEmissive *= srgb_to_linear(texture2D(emissiveMap, emissive_texcoord.xy).rgb);
+    colorEmissive *= srgb_to_linear(texture(emissiveMap, emissive_texcoord.xy).rgb);
 
     // PBR IBL
     float gloss      = 1.0 - perceptualRoughness;
@@ -305,7 +305,7 @@ void main()
     // emissiveColor is the emissive color factor from GLTF and is already in linear space
     vec3 colorEmissive = emissiveColor;
     // emissiveMap here is a vanilla RGB texture encoded as sRGB, manually convert to linear
-    colorEmissive *= srgb_to_linear(texture2D(emissiveMap, emissive_texcoord.xy).rgb);
+    colorEmissive *= srgb_to_linear(texture(emissiveMap, emissive_texcoord.xy).rgb);
 
     
     float a = basecolor.a*vertex_color.a;

@@ -366,7 +366,7 @@ void LLVolumeImplFlexible::doIdleUpdate()
 
 				if	(visible)
 				{
-					if (!drawablep->isState(LLDrawable::IN_REBUILD_Q1) &&
+					if (!drawablep->isState(LLDrawable::IN_REBUILD_Q) &&
 						pixel_area > 256.f)
 					{
 						U32 id;

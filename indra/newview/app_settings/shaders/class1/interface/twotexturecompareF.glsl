@@ -23,11 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform sampler2D tex0;
 uniform sampler2D tex1;
@@ -36,12 +32,12 @@ uniform float dither_scale;
 uniform float dither_scale_s;
 uniform float dither_scale_t;
 
-VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
+in vec2 vary_texcoord0;
+in vec2 vary_texcoord1;
 
 void main() 
 {
-	frag_color = abs(texture2D(tex0, vary_texcoord0.xy) - texture2D(tex1, vary_texcoord0.xy));
+	frag_color = abs(texture(tex0, vary_texcoord0.xy) - texture(tex1, vary_texcoord0.xy));
 
 	vec2 dither_coord;
 	dither_coord[0] = vary_texcoord0[0] * dither_scale_s;

@@ -1028,10 +1028,6 @@ U64 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_LOD_INFO;
 	}
-	else if ("build queue" == info_display)
-	{
-		return LLPipeline::RENDER_DEBUG_BUILD_QUEUE;
-	}
 	else if ("lights" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_LIGHTS;

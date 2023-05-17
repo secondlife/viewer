@@ -99,9 +99,9 @@ uniform vec3 waterFogColorLinear;
 
 
 //bigWave is (refCoord.w, view.w);
-VARYING vec4 refCoord;
-VARYING vec4 littleWave;
-VARYING vec4 view;
+in vec4 refCoord;
+in vec4 littleWave;
+in vec4 view;
 in vec3 vary_position;
 in vec3 vary_normal;
 in vec3 vary_tangent;
@@ -144,12 +144,12 @@ void main()
     //get wave normals
     vec2 bigwave = vec2(refCoord.w, view.w);
     vec3 wave1_a = texture(bumpMap, bigwave, -2      ).xyz*2.0-1.0;
-    vec3 wave2_a = texture2D(bumpMap, littleWave.xy).xyz*2.0-1.0;
-    vec3 wave3_a = texture2D(bumpMap, littleWave.zw).xyz*2.0-1.0;
+    vec3 wave2_a = texture(bumpMap, littleWave.xy).xyz*2.0-1.0;
+    vec3 wave3_a = texture(bumpMap, littleWave.zw).xyz*2.0-1.0;
 
     vec3 wave1_b = texture(bumpMap2, bigwave      ).xyz*2.0-1.0;
-    vec3 wave2_b = texture2D(bumpMap2, littleWave.xy).xyz*2.0-1.0;
-    vec3 wave3_b = texture2D(bumpMap2, littleWave.zw).xyz*2.0-1.0;
+    vec3 wave2_b = texture(bumpMap2, littleWave.xy).xyz*2.0-1.0;
+    vec3 wave3_b = texture(bumpMap2, littleWave.zw).xyz*2.0-1.0;
 
     //wave1_a = wave2_a = wave3_a = wave1_b = wave2_b = wave3_b = vec3(0,0,1);
 
@@ -210,16 +210,16 @@ void main()
     vec3 sunlit_linear = srgb_to_linear(sunlit);
 
 #ifdef TRANSPARENT_WATER
-    vec4 fb = texture2D(screenTex, distort2);
-    float depth = texture2D(screenDepth, distort2).r;
+    vec4 fb = texture(screenTex, distort2);
+    float depth = texture(screenDepth, distort2).r;
     vec3 refPos = getPositionWithNDC(vec3(distort2*2.0-vec2(1.0), depth*2.0-1.0));
 
     if (refPos.z > pos.z-0.05)
     {
         //we sampled an above water sample, don't distort
         distort2 = distort;
-        fb = texture2D(screenTex, distort2);
-        depth = texture2D(screenDepth, distort2).r;
+        fb = texture(screenTex, distort2);
+        depth = texture(screenDepth, distort2).r;
         refPos = getPositionWithNDC(vec3(distort2 * 2.0 - vec2(1.0), depth * 2.0 - 1.0));
     }
 

@@ -27,7 +27,7 @@ uniform mat4 modelview_matrix;
 uniform mat3 normal_matrix;
 uniform mat4 modelview_projection_matrix;
 
-ATTRIBUTE vec3 position;
+in vec3 position;
 
 
 void calcAtmospherics(vec3 inPositionEye);
@@ -39,9 +39,9 @@ uniform vec3 eyeVec;
 uniform float waterHeight;
 uniform vec3 lightDir;
 
-VARYING vec4 refCoord;
-VARYING vec4 littleWave;
-VARYING vec4 view;
+out vec4 refCoord;
+out vec4 littleWave;
+out vec4 view;
 out vec3 vary_position;
 out vec3 vary_light_dir;
 out vec3 vary_tangent;

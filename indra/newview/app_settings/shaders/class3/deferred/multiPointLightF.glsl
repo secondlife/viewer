@@ -23,15 +23,9 @@
  * $/LicenseInfo$
  */
 
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform sampler2D depthMap;
 uniform sampler2D diffuseRect;
@@ -49,7 +43,7 @@ uniform vec2  screen_res;
 uniform float far_z;
 uniform mat4  inv_proj;
 
-VARYING vec4 vary_fragcoord;
+in vec4 vary_fragcoord;
 
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 float calcLegacyDistanceAttenuation(float distance, float falloff);
@@ -88,15 +82,15 @@ void main()
     vec3 n;
     vec4 norm = getNormalEnvIntensityFlags(tc, n, envIntensity); // need `norm.w` for GET_GBUFFER_FLAG()
 
-    vec4 spec    = texture2D(specularRect, tc);
-    vec3 diffuse = texture2D(diffuseRect, tc).rgb;
+    vec4 spec    = texture(specularRect, tc);
+    vec3 diffuse = texture(diffuseRect, tc).rgb;
 
     vec3  h, l, v = -normalize(pos);
     float nh, nv, vh, lightDist;
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 colorEmissive = texture2D(emissiveRect, tc).rgb;
+        vec3 colorEmissive = texture(emissiveRect, tc).rgb;
         vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
@@ -167,7 +161,7 @@ void main()
 
                         if (nh > 0.0)
                         {
-                            float scol = fres * texture2D(lightFunc, vec2(nh, spec.a)).r * gt / (nh * nl);
+                            float scol = fres * texture(lightFunc, vec2(nh, spec.a)).r * gt / (nh * nl);
                             col += lit * scol * light_col[i].rgb * spec.rgb;
                         }
                     }

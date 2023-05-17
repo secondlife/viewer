@@ -3107,22 +3107,6 @@ public:
 				renderNormals(drawable);
 			}
 			
-			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BUILD_QUEUE))
-			{
-				if (drawable->isState(LLDrawable::IN_REBUILD_Q2))
-				{
-					gGL.diffuseColor4f(0.6f, 0.6f, 0.1f, 1.f);
-					const LLVector4a* ext = drawable->getSpatialExtents();
-					LLVector4a center;
-					center.setAdd(ext[0], ext[1]);
-					center.mul(0.5f);
-					LLVector4a size;
-					size.setSub(ext[1], ext[0]);
-					size.mul(0.5f);
-					drawBoxOutline(center, size);
-				}
-			}
-
             if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
             {
                 setTextureAreaDebugText(drawable);
@@ -3452,14 +3436,12 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_BBOXES |
 									  LLPipeline::RENDER_DEBUG_NORMALS |
 									  LLPipeline::RENDER_DEBUG_POINTS |
-									  //LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY |
                                       LLPipeline::RENDER_DEBUG_TEXTURE_AREA |
 									  LLPipeline::RENDER_DEBUG_TEXTURE_ANIM |
 									  LLPipeline::RENDER_DEBUG_RAYCAST |
 									  LLPipeline::RENDER_DEBUG_AVATAR_VOLUME |
 									  LLPipeline::RENDER_DEBUG_AVATAR_JOINTS |
 									  LLPipeline::RENDER_DEBUG_AGENT_TARGET |
-									  //LLPipeline::RENDER_DEBUG_BUILD_QUEUE |
 									  LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA |
 									  LLPipeline::RENDER_DEBUG_TEXEL_DENSITY))
 	{

@@ -34,22 +34,22 @@ uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 uniform sampler2D specularMap;
 
-VARYING vec2 vary_texcoord0;
+in vec2 vary_texcoord0;
 
 vec3 linear_to_srgb(vec3 c);
 vec2 encode_normal (vec3 n);
 
 void main() 
 {
-	vec4 col = texture2D(diffuseMap, vary_texcoord0.xy);
+	vec4 col = texture(diffuseMap, vary_texcoord0.xy);
 
 	if (col.a < minimum_alpha)
 	{
 		discard;
 	}
 
-	vec4 norm = texture2D(normalMap,   vary_texcoord0.xy);
-	vec4 spec = texture2D(specularMap, vary_texcoord0.xy);
+	vec4 norm = texture(normalMap,   vary_texcoord0.xy);
+	vec4 spec = texture(specularMap, vary_texcoord0.xy);
 
 	frag_data[0] = vec4(col.rgb, 0.0);
 	frag_data[1] = spec;

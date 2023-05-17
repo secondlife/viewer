@@ -27,9 +27,9 @@ uniform mat4 projection_matrix;
 
 mat4 getSkinnedTransform();
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec3 normal;
-ATTRIBUTE vec2 texcoord0;
+in vec3 position;
+in vec3 normal;
+in vec2 texcoord0;
 
 void main()
 {

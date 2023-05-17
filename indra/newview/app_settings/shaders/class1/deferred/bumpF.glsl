@@ -31,18 +31,18 @@ uniform float minimum_alpha;
 uniform sampler2D diffuseMap;
 uniform sampler2D bumpMap;
 
-VARYING vec3 vary_mat0;
-VARYING vec3 vary_mat1;
-VARYING vec3 vary_mat2;
+in vec3 vary_mat0;
+in vec3 vary_mat1;
+in vec3 vary_mat2;
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+in vec4 vertex_color;
+in vec2 vary_texcoord0;
 
 vec2 encode_normal(vec3 n);
 
 void main() 
 {
-	vec4 col = texture2D(diffuseMap, vary_texcoord0.xy);
+	vec4 col = texture(diffuseMap, vary_texcoord0.xy);
 	
 	if(col.a < minimum_alpha)
 	{
@@ -50,7 +50,7 @@ void main()
     }		
 		col *= vertex_color;
 		
-		vec3 norm = texture2D(bumpMap, vary_texcoord0.xy).rgb * 2.0 - 1.0;
+		vec3 norm = texture(bumpMap, vary_texcoord0.xy).rgb * 2.0 - 1.0;
 
 		vec3 tnorm = vec3(dot(norm,vary_mat0),
 			  dot(norm,vary_mat1),

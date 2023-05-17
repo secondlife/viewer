@@ -25,16 +25,16 @@
  
 uniform mat4 projection_matrix;
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec3 normal;
-ATTRIBUTE vec2 texcoord0;
+in vec3 position;
+in vec3 normal;
+in vec2 texcoord0;
 
 mat4 getSkinnedTransform();
 
-ATTRIBUTE vec4 weight;
+in vec4 weight;
 
-VARYING vec3 vary_normal;
-VARYING vec2 vary_texcoord0;
+out vec3 vary_normal;
+out vec2 vary_texcoord0;
 
 void main()
 {

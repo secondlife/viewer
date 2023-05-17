@@ -23,9 +23,9 @@
  * $/LicenseInfo$
  */
 
-ATTRIBUTE vec3 position;
+in vec3 position;
 
-VARYING vec4 vary_fragcoord;
+out vec4 vary_fragcoord;
 
 void main()
 {

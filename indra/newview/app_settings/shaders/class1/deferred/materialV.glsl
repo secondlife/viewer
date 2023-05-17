@@ -43,38 +43,38 @@ uniform mat4 modelview_projection_matrix;
 uniform mat4 modelview_matrix;
 #endif
 
-VARYING vec3 vary_position;
+out vec3 vary_position;
 
 #endif
 
 uniform mat4 texture_matrix0;
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec4 diffuse_color;
-ATTRIBUTE vec3 normal;
-ATTRIBUTE vec2 texcoord0;
+in vec3 position;
+in vec4 diffuse_color;
+in vec3 normal;
+in vec2 texcoord0;
 
 
 #ifdef HAS_NORMAL_MAP
-ATTRIBUTE vec4 tangent;
-ATTRIBUTE vec2 texcoord1;
+in vec4 tangent;
+in vec2 texcoord1;
 
 out vec3 vary_tangent;
 flat out float vary_sign;
 out vec3 vary_normal;
 
-VARYING vec2 vary_texcoord1;
+out vec2 vary_texcoord1;
 #else
-VARYING vec3 vary_normal;
+out vec3 vary_normal;
 #endif
 
 #ifdef HAS_SPECULAR_MAP
-ATTRIBUTE vec2 texcoord2;
-VARYING vec2 vary_texcoord2;
+in vec2 texcoord2;
+out vec2 vary_texcoord2;
 #endif
  
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+out vec4 vertex_color;
+out vec2 vary_texcoord0;
 
 void main()
 {

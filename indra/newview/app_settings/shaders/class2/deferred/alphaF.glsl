@@ -25,19 +25,13 @@
 
 //class2/deferred/alphaF.glsl
 
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
 #define INDEXED 1
 #define NON_INDEXED 2
 #define NON_INDEXED_NO_COLOR 3
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform mat3 env_mat;
 uniform vec3 sun_dir;
@@ -47,13 +41,13 @@ uniform vec3 moon_dir;
 uniform sampler2D diffuseMap;
 #endif
 
-VARYING vec3 vary_fragcoord;
-VARYING vec3 vary_position;
-VARYING vec2 vary_texcoord0;
-VARYING vec3 vary_norm;
+in vec3 vary_fragcoord;
+in vec3 vary_position;
+in vec2 vary_texcoord0;
+in vec3 vary_norm;
 
 #ifdef USE_VERTEX_COLOR
-VARYING vec4 vertex_color; //vertex color should be treated as sRGB
+in vec4 vertex_color; //vertex color should be treated as sRGB
 #endif
 
 #ifdef HAS_ALPHA_MASK
@@ -195,7 +189,7 @@ void main()
 #endif
 
 #ifdef USE_DIFFUSE_TEX
-    vec4 diffuse_tap = texture2D(diffuseMap,vary_texcoord0.xy);
+    vec4 diffuse_tap = texture(diffuseMap,vary_texcoord0.xy);
 #endif
 
 #ifdef USE_INDEXED_TEX

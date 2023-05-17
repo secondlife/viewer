@@ -998,8 +998,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		
 		LLSpatialGroup::sNoDelete = FALSE;
 		gPipeline.clearReferences();
-
-		gPipeline.rebuildGroups();
 	}
 
 	LLAppViewer::instance()->pingMainloopTimeout("Display:FrameStats");
@@ -1130,8 +1128,6 @@ void display_cube_face()
 
     LLSpatialGroup::sNoDelete = FALSE;
     gPipeline.clearReferences();
-
-    gPipeline.rebuildGroups();
 }
 
 void render_hud_attachments()

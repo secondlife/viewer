@@ -29,15 +29,15 @@ out vec4 frag_data[4];
 
 uniform sampler2D diffuseMap;
 
-VARYING vec3 vary_normal;
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+in vec3 vary_normal;
+in vec4 vertex_color;
+in vec2 vary_texcoord0;
 
 vec2 encode_normal(vec3 n);
 
 void main() 
 {
-	vec3 col = vertex_color.rgb * texture2D(diffuseMap, vary_texcoord0.xy).rgb;
+	vec3 col = vertex_color.rgb * texture(diffuseMap, vary_texcoord0.xy).rgb;
 	frag_data[0] = vec4(col, 0.0);
 	frag_data[1] = vertex_color.aaaa; // spec
 	//frag_data[1] = vec4(vec3(vertex_color.a), vertex_color.a+(1.0-vertex_color.a)*vertex_color.a); // spec - from former class3 - maybe better, but not so well tested

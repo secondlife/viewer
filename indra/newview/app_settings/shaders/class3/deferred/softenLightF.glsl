@@ -23,19 +23,12 @@
  * $/LicenseInfo$
  */
 
-#extension GL_ARB_texture_rectangle : enable
-#extension GL_ARB_shader_texture_lod : enable
-
 #define FLT_MAX 3.402823466e+38
 
 #define REFMAP_COUNT 256
 #define REF_SAMPLE_COUNT 64 //maximum number of samples to consider
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform sampler2D diffuseRect;
 uniform sampler2D specularRect;
@@ -60,7 +53,7 @@ uniform mat3 env_mat;
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
 uniform int  sun_up_factor;
-VARYING vec2 vary_fragcoord;
+in vec2 vary_fragcoord;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
@@ -127,16 +120,16 @@ void main()
     vec2  tc           = vary_fragcoord.xy;
     float depth        = getDepth(tc.xy);
     vec4  pos          = getPositionWithDepth(tc, depth);
-    vec4  norm         = texture2D(normalMap, tc);
+    vec4  norm         = texture(normalMap, tc);
     float envIntensity = norm.z;
     norm.xyz           = getNorm(tc);
     vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
 
-    vec4 baseColor     = texture2D(diffuseRect, tc);
-    vec4 spec        = texture2D(specularRect, vary_fragcoord.xy); // NOTE: PBR linear Emissive
+    vec4 baseColor     = texture(diffuseRect, tc);
+    vec4 spec        = texture(specularRect, vary_fragcoord.xy); // NOTE: PBR linear Emissive
 
 #if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
-    vec2 scol_ambocc = texture2D(lightMap, vary_fragcoord.xy).rg;
+    vec2 scol_ambocc = texture(lightMap, vary_fragcoord.xy).rg;
 #endif
 
 #if defined(HAS_SUN_SHADOW)
@@ -180,12 +173,12 @@ void main()
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 orm = texture2D(specularRect, tc).rgb; 
+        vec3 orm = texture(specularRect, tc).rgb; 
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
         float ao = orm.r * ambocc;
 
-        vec3 colorEmissive = texture2D(emissiveRect, tc).rgb;
+        vec3 colorEmissive = texture(emissiveRect, tc).rgb;
         // PBR IBL
         float gloss      = 1.0 - perceptualRoughness;
         
@@ -211,7 +204,7 @@ void main()
     else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {
         //should only be true of WL sky, just port over base color value
-        color = texture2D(emissiveRect, tc).rgb;
+        color = texture(emissiveRect, tc).rgb;
         color = srgb_to_linear(color);
         if (sun_up_factor > 0)
         {
@@ -263,7 +256,7 @@ void main()
                 float gtdenom = 2 * nh;
                 float gt = max(0,(min(gtdenom * nv / vh, gtdenom * nl / vh)));
 
-                scol *= fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*nl);
+                scol *= fres*texture(lightFunc, vec2(nh, spec.a)).r*gt/(nh*nl);
                 color.rgb += lit*scol*sunlit_linear.rgb*spec.rgb;
             }
 

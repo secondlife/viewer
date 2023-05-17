@@ -40,7 +40,7 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
     
     vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
     vec3 env_vec = env_mat * refnormpersp;
-    glossenv = srgb_to_linear(textureCube(environmentMap, env_vec).rgb);
+    glossenv = srgb_to_linear(texture(environmentMap, env_vec).rgb);
 }
 
 void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
@@ -63,7 +63,7 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
     vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
     vec3 env_vec = env_mat * refnormpersp;
 
-    legacyenv = srgb_to_linear(textureCube(environmentMap, env_vec).rgb);
+    legacyenv = srgb_to_linear(texture(environmentMap, env_vec).rgb);
 
     glossenv = legacyenv;
 }
