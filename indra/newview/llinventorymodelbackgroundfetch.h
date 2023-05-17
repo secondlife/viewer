@@ -78,6 +78,10 @@ public:
 	void addRequestAtFront(const LLUUID & id, bool recursive, bool is_category);
 	void addRequestAtBack(const LLUUID & id, bool recursive, bool is_category);
 
+    bool removeFromQueue(const LLUUID cat_id);
+    void emptyQueue();
+    void setPenaltyBox(bool penalty_box);
+
 protected:
 
     typedef enum {
@@ -130,6 +134,8 @@ private:
 	fetch_queue_t mFetchFolderQueue;
     fetch_queue_t mFetchItemQueue;
     std::list<LLUUID> mExpectedFolderIds; // for debug, should this track time?
+
+    bool mPenaltyBox;
 };
 
 #endif // LL_LLINVENTORYMODELBACKGROUNDFETCH_H

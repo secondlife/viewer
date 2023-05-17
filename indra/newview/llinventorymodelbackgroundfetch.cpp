@@ -44,6 +44,7 @@
 #include "bufferarray.h"
 #include "bufferstream.h"
 #include "llcorehttputil.h"
+#include "llnotificationsutil.h"
 
 // History (may be apocryphal)
 //
@@ -91,6 +92,7 @@
 namespace
 {
 
+bool oversizeNotificationShown = false;
 ///----------------------------------------------------------------------------
 /// Class <anonymous>::BGItemHttpHandler
 ///----------------------------------------------------------------------------
@@ -195,7 +197,8 @@ LLInventoryModelBackgroundFetch::LLInventoryModelBackgroundFetch():
     mAllRecursiveFoldersFetched(false),
 	mRecursiveInventoryFetchStarted(false),
 	mRecursiveLibraryFetchStarted(false),
-	mMinTimeBetweenFetches(0.3f)
+	mMinTimeBetweenFetches(0.3f),
+    mPenaltyBox(false)
 {}
 
 LLInventoryModelBackgroundFetch::~LLInventoryModelBackgroundFetch()
@@ -913,6 +916,11 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 		return;
 	}
 
+    if (mPenaltyBox)
+    {
+        return;
+    }
+
 	// *TODO:  These values could be tweaked at runtime to effect
 	// a fast/slow fetch throttle.  Once login is complete and the scene
 	// is mostly loaded, we could turn up the throttle and fill missing
@@ -1135,6 +1143,42 @@ bool LLInventoryModelBackgroundFetch::fetchQueueContainsNoDescendentsOf(const LL
 	return true;
 }
 
+bool LLInventoryModelBackgroundFetch::removeFromQueue(const LLUUID cat_id)
+{
+    for (fetch_queue_t::const_iterator it = mFetchFolderQueue.begin();
+        it != mFetchFolderQueue.end();
+        ++it)
+    {
+        if (cat_id == (*it).mUUID)
+        {
+            mFetchFolderQueue.erase(it);
+            return true;
+        }
+    }
+    for (fetch_queue_t::const_iterator it = mFetchItemQueue.begin();
+        it != mFetchItemQueue.end();
+        ++it)
+    {
+        if (cat_id == (*it).mUUID)
+        {
+            mFetchItemQueue.erase(it);
+            return true;
+        }
+    }
+    return false;
+}
+
+void LLInventoryModelBackgroundFetch::emptyQueue()
+{
+    mFetchFolderQueue.erase(mFetchFolderQueue.begin(), mFetchFolderQueue.end());
+    mFetchItemQueue.erase(mFetchItemQueue.begin(), mFetchItemQueue.end());
+}
+
+
+void LLInventoryModelBackgroundFetch::setPenaltyBox(bool penalty_box)
+{
+    mPenaltyBox = penalty_box;
+}
 
 namespace
 {
@@ -1370,13 +1414,46 @@ void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::Http
 			fetcher->addRequestAtFront(folder_id, recursive, true);
 		}
 	}
-	else
-	{
-		if (fetcher->isBulkFetchProcessingComplete())
-		{
-			fetcher->setAllFoldersFetched();
-		}
-	}
+    else
+    {
+        LLSD body_llsd;
+        if (status == LLCore::HttpStatus(403)
+            && LLCoreHttpUtil::responseToLLSD(response, false, body_llsd)
+            && body_llsd["oversize_inventory"].asBoolean() == true
+            )
+        {
+            LL_WARNS(LOG_INV) << "Can't fetch the oversized inventory folder (v2)" << LL_ENDL;
+            if (!oversizeNotificationShown)
+            {
+                LLNotificationsUtil::add("InventoryOversize");
+                oversizeNotificationShown = true;
+            }
+
+            if (body_llsd.has("oversize_categories"))
+            {
+                for (LLSD::array_const_iterator cat_it = body_llsd["oversize_categories"].beginArray();
+                    cat_it != body_llsd["oversize_categories"].endArray();
+                    ++cat_it)
+                {
+                    LLSD cat_sd(*cat_it);
+                    LL_WARNS(LOG_INV) << "Removing from the fetch queue: " << cat_sd.asString() << LL_ENDL;
+                    fetcher->removeFromQueue(cat_sd.asUUID());
+                }
+            }
+            else // TODO: penalty box
+            {
+                LL_WARNS_ONCE(LOG_INV) << "AIS penalty box had been hit" << LL_ENDL;
+                fetcher->setPenaltyBox(true);
+                fetcher->emptyQueue();
+                fetcher->setAllFoldersFetched();
+            }
+            
+        }
+        else if (fetcher->isBulkFetchProcessingComplete())
+        {
+            fetcher->setAllFoldersFetched();
+        }
+    }
 }
 
 
