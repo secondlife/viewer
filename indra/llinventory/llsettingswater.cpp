@@ -286,6 +286,19 @@ F32 LLSettingsWater::getModifiedWaterFogDensity(bool underwater) const
     if (underwater && underwater_fog_mod > 0.0f)
     {        
         underwater_fog_mod = llclamp(underwater_fog_mod, 0.0f, 10.0f);
+        // BUG-233797/BUG-233798 -ve underwater fog density can cause (unrecoverable) blackout.
+        // raising a negative number to a non-integral power results in a non-real result (which is NaN for our purposes)
+        // Two methods were tested, number 2 is being used:
+        // 1) Force the fog_mod to be integral. The effect is unlikely to be nice, but it is better than blackness.
+        // In this method a few of the combinations are "usable" but the water colour is effectively inverted (blue becomes yellow)
+        // this seems to be unlikely to be a desirable use case for the majority.
+        // 2) Force density to be an arbitrary non-negative (i.e. 1) when underwater and modifier is not an integer (1 was aribtrarily chosen as it gives at least some notion of fog in the transition)
+        // This is more restrictive, effectively forcing a density under certain conditions, but allowing the range of #1 and avoiding blackness in other cases
+        // at the cost of overriding the fog density. 
+        if(fog_density < 0.0f && underwater_fog_mod != (F32)llround(underwater_fog_mod) )
+        {
+            fog_density = 1.0f;
+        }
         fog_density = pow(fog_density, underwater_fog_mod);
     }
     return fog_density;

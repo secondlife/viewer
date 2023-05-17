@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<panel name="GroupCreation" label="Criação do Grupo">
+	<panel name="group_info_top">
+		<line_editor name="group_name_editor" label="Digite o nome do seu novo grupo aqui"/>
+	</panel>
+	<layout_panel name="group_info"/>
+	<layout_stack name="layout">
+		<texture_picker name="insignia" tool_tip="Clique para escolher uma imagem"/>
+		<text_editor name="charter">Estatuto do Grupo</text_editor>
+		<button name="back" tool_tip="Voltar à lista de grupos"/>
+		<text name="info_deletion">Nota: Após 7 dias, um grupo sem nenhum membro (além do criador) será apagado</text>
+		<check_box name="check_enrollment_fee" label="Custo para participar" tool_tip="Define se será cobrada uma taxa de inscrição para participar do grupo"/>
+		<combo_box.item name="pg" label="Conteúdo Geral"/>
+		<scroll_list.rows name="basic" value="Básico (nome provisório)"/>
+		<button name="btn_create" label="Crie grupo por L$ [COST]" tool_tip="Criar novo Grupo"/>
+		<text name="fee_information">A taxa para criar um grupo baseia-se no seu nível de assinatura
+[https://secondlife.com/my/account/membership.php Mais informações]</text>
+		<scroll_list.rows name="premium" value="Premium (nome provisório)"/>
+		<check_box name="open_enrollement" label="Qualquer um pode participar" tool_tip="Define se este grupo aceita que novos membros participem sem serem convidados."/>
+		<combo_item name="select_mature">- Selecionar nível de maturidade -</combo_item>
+		<spinner name="spin_enrollment_fee" label="L$" tool_tip="Novos membros deverão pagar esta taxa para participar do grupo quando a Taxa de Inscrição estiver marcada."/>
+		<combo_box.item name="mature" label="Moderar Conteúdo"/>
+	</layout_stack>
+	<layout_panel name="layout_crt"/>
+	<layout_stack name="button_row_ls"/>
+	<layout_panel name="create_actions"/>
+	<panel name="preferences_container"/>
+	<combo_box name="group_mature_check" tool_tip="Os níveis de maturidade determinam o tipo de conteúdo e comportamento permitidos em um grupo"/>
+	<scroll_list name="membership_list"/>
+	<layout_panel name="create_info"/>
+</panel>

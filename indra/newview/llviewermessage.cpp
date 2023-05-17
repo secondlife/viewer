@@ -5823,12 +5823,8 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 			{
 				count++;
 				known_questions |= script_perm.permbit;
-
-                if (!LLMuteList::isLinden(owner_name))
-                {
-                    // check whether permission question should cause special caution dialog
-                    caution |= (script_perm.caution);
-                }
+				// check whether permission question should cause special caution dialog
+				caution |= (script_perm.caution);
 
 				if (("ScriptTakeMoney" == script_perm.question) && has_not_only_debit)
 					continue;
@@ -6292,7 +6288,7 @@ bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 		// More than OFFER_RECIPIENT_LIMIT targets will overload the message
 		// producing an llerror.
 		LLSD args;
-		args["OFFERS"] = notification["payload"]["ids"].size();
+		args["OFFERS"] = LLSD::Integer(notification["payload"]["ids"].size());
 		args["LIMIT"] = static_cast<int>(OFFER_RECIPIENT_LIMIT);
 		LLNotificationsUtil::add("TooManyTeleportOffers", args);
 		return false;

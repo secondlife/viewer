@@ -1,21 +1,13 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <panel label="Mitglieder und Rollen" name="roles_tab">
-	<panel.string name="default_needs_apply_text">
-		Diese Änderungen wurden nicht gespeichert.
-	</panel.string>
-	<panel.string name="want_apply_text">
-		Möchten Sie Ihre Änderungen speichern?
-	</panel.string>
+	<panel.string name="default_needs_apply_text">Diese Änderungen wurden nicht gespeichert.</panel.string>
+	<panel.string name="want_apply_text">Möchten Sie Ihre Änderungen speichern?</panel.string>
 	<tab_container name="roles_tab_container">
 		<panel label="MITGLIEDER" name="members_sub_tab" tool_tip="Mitglieder">
-			<panel.string name="help_text">
-				Sie können Mitgliedern Rollen zuweisen und entziehen.
+			<panel.string name="help_text">Sie können Mitgliedern Rollen zuweisen und entziehen.
 Drücken Sie die Strg-Taste und klicken Sie auf Namen,
-um mehrere Mitglieder auszuwählen.
-			</panel.string>
-			<panel.string name="donation_area">
-				[AREA] m².
-			</panel.string>
+um mehrere Mitglieder auszuwählen.</panel.string>
+			<panel.string name="donation_area">[AREA] m².</panel.string>
 			<filter_editor label="Mitglieder filtern" name="filter_input"/>
 			<name_list name="member_list">
 				<name_list.columns label="Mitglied" name="name" relative_width="0.30"/>
@@ -28,24 +20,14 @@ um mehrere Mitglieder auszuwählen.
 			<button label="Mitglied(er) verbannen" name="member_ban"/>
 		</panel>
 		<panel label="ROLLEN" name="roles_sub_tab">
-			<panel.string name="help_text">
-				Rollen haben einen Titel und umfassen bestimmte
+			<panel.string name="help_text">Rollen haben einen Titel und umfassen bestimmte
         Fähigkeiten. Mitglieder können mehrere
         Rollen innehaben. Eine Gruppe kann bis zu 10 Rollen
-        aufweisen, darunter „Jeder“ und „Eigentümer“.
-			</panel.string>
-			<panel.string name="cant_delete_role">
-				Die Rollen „Jeder&quot; und „Eigentuemer&quot; sind besondere Rollen und können nicht gelöscht werden.
-			</panel.string>
-			<panel.string name="power_folder_icon">
-				Inv_FolderClosed
-			</panel.string>
-			<panel.string name="power_all_have_icon">
-				Checkbox_On
-			</panel.string>
-			<panel.string name="power_partial_icon">
-				Checkbox_Off
-			</panel.string>
+        aufweisen, darunter „Jeder“ und „Eigentümer“.</panel.string>
+			<panel.string name="cant_delete_role">Die Rollen „Jeder&quot; und „Eigentuemer&quot; sind besondere Rollen und können nicht gelöscht werden.</panel.string>
+			<panel.string name="power_folder_icon">Inv_FolderClosed</panel.string>
+			<panel.string name="power_all_have_icon">Checkbox_On</panel.string>
+			<panel.string name="power_partial_icon">Checkbox_Off</panel.string>
 			<filter_editor label="Rollen filtern" name="filter_input"/>
 			<scroll_list name="role_list">
 				<scroll_list.columns label="Rolle" name="name"/>
@@ -56,22 +38,16 @@ um mehrere Mitglieder auszuwählen.
 			<button label="Rolle löschen" name="role_delete"/>
 		</panel>
 		<panel label="FÄHIGKEITEN" name="actions_sub_tab" tool_tip="Sie können eine Beschreibung der Fähigkeit anzeigen und welche Rollen bzw. Mitglieder über diese Fähigkeit verfügen.">
-			<panel.string name="help_text">
-				Fähigkeiten verleihen Mitgliedern in Rollen bestimmte
-        Rechte in einer Gruppe. Es gibt viele verschiedene Fähigkeiten.
-			</panel.string>
+			<panel.string name="help_text">Fähigkeiten verleihen Mitgliedern in Rollen bestimmte
+        Rechte in einer Gruppe. Es gibt viele verschiedene Fähigkeiten.</panel.string>
 			<filter_editor label="Fähigkeiten filtern" name="filter_input"/>
 			<scroll_list name="action_list" tool_tip="Eine Fähigkeit auswählen, um mehr Details anzuzeigen.">
 				<scroll_list.columns label="" name="action"/>
 			</scroll_list>
 		</panel>
 		<panel label="VERBANNTE EINWOHNER" name="banlist_sub_tab" tool_tip="Verbannte Einwohner in dieser Gruppe anzeigen.">
-			<panel.string name="help_text">
-				Einwohner auf der Bannliste können nicht der Gruppe beitreten.
-			</panel.string>
-			<panel.string name="ban_count_template">
-				Anzahl Verbannungen: [COUNT]/[LIMIT]
-			</panel.string>
+			<panel.string name="help_text">Einwohner auf der Bannliste können nicht der Gruppe beitreten.</panel.string>
+			<panel.string name="ban_count_template">Anzahl Verbannungen: [COUNT]/[LIMIT]</panel.string>
 			<name_list name="ban_list">
 				<name_list.columns label="Einwohner" name="name"/>
 				<name_list.columns label="Datum der Verbannung" name="ban_date"/>
@@ -80,66 +56,43 @@ um mehrere Mitglieder auszuwählen.
 			<button label="Verbannung(en) entfernen" name="ban_delete" tool_tip="Verbannung für bestimmte Einwohner in Ihrer Gruppe aufheben"/>
 			<button name="ban_refresh" tool_tip="Bannliste aktualisieren"/>
 		</panel>
+		<button name="role_copy" label="Rolle kopieren"/>
 	</tab_container>
 	<panel name="members_footer">
-		<text name="static">
-			Rollen
-		</text>
+		<text name="static">Rollen</text>
 		<scroll_list name="member_assigned_roles">
 			<scroll_list.columns label="" name="checkbox"/>
 			<scroll_list.columns label="" name="role"/>
 		</scroll_list>
-		<text name="static2">
-			Zulässige Fähigkeiten
-		</text>
+		<text name="static2">Zulässige Fähigkeiten</text>
 		<scroll_list name="member_allowed_actions" tool_tip="Um detaillierte Informationen zu den Fähigkeiten anzuzeigen, siehe Registerkarte Fähigkeiten.">
 			<scroll_list.columns label="" name="action"/>
 		</scroll_list>
 	</panel>
 	<panel name="members_header">
-		<text_editor name="member_action_description">
-			Diese Fähigkeit wird als „Mitglieder dieser Gruppe verweisen“ bezeichnet. Eigentümer können nur von anderen Eigentümern verwiesen werden.
-		</text_editor>
+		<text_editor name="member_action_description">Diese Fähigkeit wird als „Mitglieder dieser Gruppe verweisen“ bezeichnet. Eigentümer können nur von anderen Eigentümern verwiesen werden.</text_editor>
 	</panel>
 	<panel name="roles_footer">
-		<text name="static">
-			Rolle:
-		</text>
+		<text name="static">Rolle:</text>
 		<line_editor name="role_name"/>
-		<text name="static3">
-			Rollentitel
-		</text>
+		<text name="static3">Rollentitel</text>
 		<line_editor name="role_title"/>
-		<text name="static2">
-			Beschreibung
-		</text>
+		<text name="static2">Beschreibung</text>
 		<text_editor name="role_description"/>
-		<text name="static4">
-			Mitglieder in Rolle
-		</text>
-		<check_box label="Mitglieder anzeigen" name="role_visible_in_list" tool_tip="Festlegen, ob Mitglieder in dieser Rolle auf der Registerkarte  &apos;Allgemein &apos; für Personen außerhalb der Gruppe sichtbar sind."/>
-		<text name="static5" tool_tip="Eine Liste der Fähigkeiten der aktuell ausgewählten Rolle.">
-			Zulässige Fähigkeiten
-		</text>
+		<text name="static4">Mitglieder in Rolle</text>
+		<check_box label="Mitglieder anzeigen" name="role_visible_in_list" tool_tip="Festlegen, ob Mitglieder in dieser Rolle auf der Registerkarte  'Allgemein ' für Personen außerhalb der Gruppe sichtbar sind."/>
+		<text name="static5" tool_tip="Eine Liste der Fähigkeiten der aktuell ausgewählten Rolle.">Zulässige Fähigkeiten</text>
 		<scroll_list name="role_allowed_actions" tool_tip="Um detaillierte Informationen zu den Fähigkeiten anzuzeigen, siehe Registerkarte Fähigkeiten.">
 			<scroll_list.columns label="" name="checkbox"/>
 			<scroll_list.columns label="" name="action"/>
 		</scroll_list>
 	</panel>
 	<panel name="roles_header">
-		<text_editor name="role_action_description">
-			Diese Fähigkeit wird als „Mitglieder dieser Gruppe verweisen“ bezeichnet. Eigentümer können nur von anderen Eigentümern verwiesen werden.
-		</text_editor>
+		<text_editor name="role_action_description">Diese Fähigkeit wird als „Mitglieder dieser Gruppe verweisen“ bezeichnet. Eigentümer können nur von anderen Eigentümern verwiesen werden.</text_editor>
 	</panel>
 	<panel name="actions_footer">
-		<text_editor name="action_description">
-			Diese Fähigkeit heißt „Mitglieder aus dieser Gruppe werfen“. Eigentümer können nur von anderen Eigentümern hinausgeworfen werden.
-		</text_editor>
-		<text name="static2">
-			Rollen mit Fähigkeiten
-		</text>
-		<text name="static3">
-			Rollen mit dieser Fähigkeit
-		</text>
+		<text_editor name="action_description">Diese Fähigkeit heißt „Mitglieder aus dieser Gruppe werfen“. Eigentümer können nur von anderen Eigentümern hinausgeworfen werden.</text_editor>
+		<text name="static2">Rollen mit Fähigkeiten</text>
+		<text name="static3">Rollen mit dieser Fähigkeit</text>
 	</panel>
 </panel>

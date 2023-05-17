@@ -247,31 +247,9 @@ void LLKeyboardWin32::scanKeyboard()
 {
 	S32 key;
 	MSG	msg;
-	BOOL pending_key_events = PeekMessage(&msg, NULL, WM_KEYFIRST, WM_KEYLAST, PM_NOREMOVE | PM_NOYIELD);
+	PeekMessage(&msg, NULL, WM_KEYFIRST, WM_KEYLAST, PM_NOREMOVE | PM_NOYIELD);
 	for (key = 0; key < KEY_COUNT; key++)
 	{
-		// On Windows, verify key down state. JC
-		// RN: only do this if we don't have further key events in the queue
-		// as otherwise there might be key repeat events still waiting for this key we are now dumping
-		if (!pending_key_events && mKeyLevel[key])
-		{
-			// *TODO: I KNOW there must be a better way of
-			// interrogating the key state than this, using async key
-			// state can cause ALL kinds of bugs - Doug
-            if ((key < KEY_BUTTON0) && ((key < '0') || (key > '9')))
-			{
-				// ...under windows make sure the key actually still is down.
-				// ...translate back to windows key
-				U16 virtual_key = inverseTranslateExtendedKey(key);
-				// keydown in highest bit
-				if (!pending_key_events && !(GetAsyncKeyState(virtual_key) & 0x8000))
-				{
- 					//LL_INFOS() << "Key up event missed, resetting" << LL_ENDL;
-    				mKeyLevel[key] = FALSE;
-				}
-			}
-		}
-
 		// Generate callback if any event has occurred on this key this frame.
 		// Can't just test mKeyLevel, because this could be a slow frame and
 		// key might have gone down then up. JC

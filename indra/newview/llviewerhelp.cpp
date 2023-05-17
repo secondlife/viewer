@@ -43,7 +43,7 @@ class LLHelpHandler : public LLCommandHandler
 {
 public:
 	// requests will be throttled from a non-trusted browser
-	LLHelpHandler() : LLCommandHandler("help", UNTRUSTED_THROTTLE) {}
+	LLHelpHandler() : LLCommandHandler("help", UNTRUSTED_CLICK_ONLY) {}
 
 	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
 	{

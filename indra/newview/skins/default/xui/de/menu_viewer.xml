@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <menu_bar name="Main Menu">
 	<menu label="Ich" name="Me">
 		<menu_item_call label="Profil..." name="Profile"/>
@@ -429,6 +429,15 @@
 		<menu_item_call label="Admin-Status anfordern" name="Request Admin Options"/>
 		<menu_item_call label="Admin-Status verlassen" name="Leave Admin Options"/>
 		<menu_item_check label="Admin-Menü anzeigen" name="View Admin Options"/>
+		<menu_item_call name="All Animations 10 Slower" label="Alle Animationen 10% langsamer"/>
+		<menu_item_check name="Show Avatar Render Info" label="Avatar-Renderinfo anzeigen"/>
+		<menu_item_call name="All Animations 10 Faster" label="Alle Animationen 10 % schneller"/>
+		<menu_item_call name="Playback event recording" label="Eventaufzeichnung wiedergeben"/>
+		<menu_item_call name="FB Connect Test" label="FB-Verbindungsprüfung"/>
+		<menu_item_call name="Stop event recording" label="Eventaufzeichnung anhalten"/>
+		<menu_item_call name="Reset All Animation Speed" label="Alle Animationsgeschwindigkeiten zurücksetzen"/>
+		<menu_item_call name="Start event recording" label="Eventaufzeichnung starten"/>
+		<menu_item_check name="Slow Motion Animations" label="Zeitlupen-Animationen"/>
 	</menu>
 	<menu label="Admin" name="Admin">
 		<menu label="Objekt" name="AdminObject">
@@ -481,4 +490,5 @@
 			</menu>
 		</menu>
 	</menu>
+	<menu name="Animation Speed" label="Animationsgeschwindigkeit"/>
 </menu_bar>

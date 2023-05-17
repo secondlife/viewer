@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu name="save_settings_menu">
+	<menu_item_check name="save_settings" label="Zapisz" />
+	<menu_item_check name="save_as_new_settings" label="Zapisz jako" />
+	<menu_item_check name="commit_changes" label="Zastosuj" />
+	<menu_item_check name="apply_local" label="Stosuj tylko dla mnie" />
+	<menu_item_check name="apply_parcel" label="Stosuj dla działki" />
+	<menu_item_check name="apply_region" label="Stosuj dla regionu" />
+</toggleable_menu>

@@ -323,6 +323,8 @@ void set_flags_and_update_appearance()
 {
 	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
 	LLAppearanceMgr::instance().updateAppearanceFromCOF(true, true, no_op);
+
+    LLInventoryModelBackgroundFetch::instance().start();
 }
 
 // Returns false to skip other idle processing. Should only return
@@ -3030,7 +3032,7 @@ bool LLStartUp::dispatchURL()
 			|| (dx*dx > SLOP*SLOP)
 			|| (dy*dy > SLOP*SLOP) )
 		{
-			LLURLDispatcher::dispatch(getStartSLURL().getSLURLString(), "clicked",
+			LLURLDispatcher::dispatch(getStartSLURL().getSLURLString(), LLCommandHandler::NAV_TYPE_CLICKED,
 						  NULL, false);
 		}
 		return true;

@@ -2173,6 +2173,7 @@ bool LLAppViewer::cleanup()
 	LLSelectMgr::deleteSingleton();
 	LLViewerEventRecorder::deleteSingleton();
     LLWorld::deleteSingleton();
+    LLVoiceClient::deleteSingleton();
 
 	// It's not at first obvious where, in this long sequence, a generic cleanup
 	// call OUGHT to go. So let's say this: as we migrate cleanup from
