@@ -167,7 +167,7 @@ public:
         }
 
         // Process the SLapp as if it was a secondlife://{PLACE} SLurl
-        LLURLDispatcher::dispatch(url, "clicked", web, true);
+        LLURLDispatcher::dispatch(url, LLCommandHandler::NAV_TYPE_CLICKED, web, true);
         return true;
     }
        

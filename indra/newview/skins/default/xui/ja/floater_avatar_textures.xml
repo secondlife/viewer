@@ -1,18 +1,12 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <floater name="avatar_texture_debug" title="アバターのテクスチャ">
-	<floater.string name="InvalidAvatar">
-		無効なアバター
-	</floater.string>
+	<floater.string name="InvalidAvatar">無効なアバター</floater.string>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text name="label">
-				ベークド
-テクスチャ
-			</text>
-			<text name="composite_label">
-				合成
-テクスチャ
-			</text>
+			<text name="label">ベークド
+テクスチャ</text>
+			<text name="composite_label">合成
+テクスチャ</text>
 			<button label="ID をコンソールにダンプ" label_selected="ダンプ" name="Dump"/>
 			<panel name="scroll_content_panel">
 				<texture_picker label="髪" name="hair-baked"/>
@@ -46,5 +40,21 @@
 				<texture_picker label="スカート" name="skirt"/>
 			</panel>
 		</panel>
+		<texture_picker name="upper_universal_tattoo" label="上腕 タトゥー"/>
+		<texture_picker name="aux1_tattoo" label="予備 1 タトゥー"/>
+		<texture_picker name="leftarm-baked" label="左腕"/>
+		<texture_picker name="aux1-baked" label="予備 1"/>
+		<texture_picker name="skirt_tattoo" label="スカートタトゥー"/>
+		<texture_picker name="aux2_tattoo" label="予備 2 タトゥー"/>
+		<texture_picker name="eyes_tattoo" label="アイタトゥー"/>
+		<texture_picker name="head_universal_tattoo" label="頭 Unv タトゥー"/>
+		<texture_picker name="leftleg_tattoo" label="左脚タトゥー"/>
+		<texture_picker name="aux3-baked" label="予備 3"/>
+		<texture_picker name="hair_tattoo" label="ヘアータトゥー"/>
+		<texture_picker name="leftleg-baked" label="左脚"/>
+		<texture_picker name="aux2-baked" label="予備 2"/>
+		<texture_picker name="aux3_tattoo" label="予備 3 タトゥー"/>
+		<texture_picker name="leftarm_tattoo" label="左腕タトゥー"/>
+		<texture_picker name="lower_universal_tattoo" label="下腕タトゥー"/>
 	</scroll_container>
 </floater>

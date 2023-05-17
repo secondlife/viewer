@@ -8352,6 +8352,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>NvAPICreateApplicationProfile</key>
+    <map>
+      <key>Comment</key>
+      <string>Create NVIDIA application profile for optimized settings</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PurgeCacheOnNextStartup</key>
     <map>
       <key>Comment</key>

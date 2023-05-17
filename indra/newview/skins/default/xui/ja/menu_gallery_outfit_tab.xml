@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<context_menu name="Outfit">
+	<menu name="New Clothes" label="新しい洋服">
+		<menu_item_call name="New Skirt" label="新しいスカート"/>
+		<menu_item_call name="New Underpants" label="新しい下着"/>
+		<menu_item_call name="New Undershirt" label="新しい肌着"/>
+		<menu_item_call name="New Shirt" label="新しいシャツ"/>
+		<menu_item_call name="New Pants" label="新しいパンツ"/>
+		<menu_item_call name="New Tattoo" label="新しいタトゥー"/>
+		<menu_item_call name="New Physics" label="新しい体"/>
+		<menu_item_call name="New Jacket" label="新しいジャケット"/>
+		<menu_item_call name="New Shoes" label="新しい靴"/>
+		<menu_item_call name="New Gloves" label="新しいグローブ"/>
+		<menu_item_call name="New Alpha" label="新しいアルファ"/>
+		<menu_item_call name="New Socks" label="新しい靴下"/>
+	</menu>
+	<menu name="New Body Parts" label="新しいボディーパーツ">
+		<menu_item_call name="New Hair" label="新しい髪"/>
+		<menu_item_call name="New Eyes" label="新しい目"/>
+		<menu_item_call name="New Shape" label="新しいシェイプ"/>
+		<menu_item_call name="New Skin" label="新しい皮膚"/>
+	</menu>
+</context_menu>
