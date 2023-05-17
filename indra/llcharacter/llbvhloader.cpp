@@ -144,25 +144,6 @@ void LLBVHLoader::loadAnimationData(const char* buffer,
     mFilenameAndPath = full_path_filename;
     mTransformType = transform_type;        // Passed in from globals for development
 
-    errorLine = 0;
-    std::string anim_ini("anim.ini");
-	mStatus = loadTranslationTable(anim_ini);
-	if (mStatus == E_ST_NO_XLT_FILE)
-	{
-		LL_WARNS("BVH") << "No translation table found." << LL_ENDL;
-		return;
-	}
-	else if (mStatus != E_ST_OK)
-	{
-		LL_WARNS("BVH") << "ERROR in " << anim_ini << " [line: " << getLineNumber() << "] " << mStatus << LL_ENDL;
-		errorLine = getLineNumber();
-        return;
-    }
-    else
-    {
-        LL_INFOS("BVH") << "Loaded anim.ini with " << mTranslations.size() << " translations" << LL_ENDL;
-    }
-
     // Recognize all names we've been told are legal from standard SL skeleton
     joint_alias_map_t::const_iterator iter;
     for (iter = joint_alias_map.begin(); iter != joint_alias_map.end(); iter++)
@@ -194,7 +175,7 @@ void LLBVHLoader::loadAnimationData(const char* buffer,
         return;
 	}
 
-	applyTranslations();    // Map between joints found in file and the aliased names.  Also detects mSkeletonType
+	applyTranslations();    // Map between joints found in file and the aliased names.
 	optimize();
 
 	LL_DEBUGS("BVH") << "After translations and optimize from file " << mFilenameAndPath << LL_ENDL;
@@ -209,309 +190,6 @@ LLBVHLoader::~LLBVHLoader()
 	std::for_each(mJoints.begin(),mJoints.end(),DeletePointer());
 	mJoints.clear();
     reset();        // Clean up mAssimpImporter and mAssimpScene
-}
-
-//------------------------------------------------------------------------
-// LLBVHLoader::loadTranslationTable() - reads anim.ini
-//------------------------------------------------------------------------
-ELoadStatus LLBVHLoader::loadTranslationTable(const std::string & fileName)
-{
-	//--------------------------------------------------------------------
-	// open file
-	//--------------------------------------------------------------------
-	std::string path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,fileName);
-
-	LLAPRFile infile ;
-	infile.open(path, LL_APR_R);
-	apr_file_t *fp = infile.getFileHandle();
-	if (!fp)
-		return E_ST_NO_XLT_FILE;
-
-	LL_INFOS("BVH") << "Loading translation table: " << fileName << LL_ENDL;
-
-    //--------------------------------------------------------------------
-	// load header
-	//--------------------------------------------------------------------
-	if ( ! getLine(fp) )
-		return E_ST_EOF;
-	if ( strnicmp(mLine, "Translations 1.0", 16) )
-		return E_ST_NO_XLT_HEADER;
-
-
-    // NOTE - some of this code appears to be gloriously broken.
-    // SL shipped with nothing in the anim.ini
-    // file, but now trying to make some name translations for it
-
-	//--------------------------------------------------------------------
-	// load data one line at a time
-	//--------------------------------------------------------------------
-	bool loadingGlobals = false;
-	while ( getLine(fp) )
-	{
-		//----------------------------------------------------------------
-		// check the 1st token on the line to determine if it's empty or a comment
-		//----------------------------------------------------------------
-		char token[128]; /* Flawfinder: ignore */
-		if ( sscanf(mLine, " %127s", token) != 1 )	/* Flawfinder: ignore */
-			continue;
-
-		if (token[0] == '#')
-			continue;
-
-		//----------------------------------------------------------------
-		// check if a [ALIAS aliasBoneName boneName] or [GLOBALS] was specified.
-		//----------------------------------------------------------------
-		if (token[0] == '[')
-		{
-			char name[128]; /* Flawfinder: ignore */
-            if ( sscanf(mLine, " [%127s %*[^]]", name) != 1 )
-				return E_ST_NO_XLT_NAME;
-
-			if (stricmp(name, "GLOBALS")==0)
-			{
-				loadingGlobals = true;
-				continue;
-			}
-            else if (stricmp(name, "ALIAS") == 0)
-            {
-                loadingGlobals = false;
-
-                char alias_name[128];       /* Flawfinder: ignore */
-                char joint_name[128];       /* Flawfinder: ignore */
-                if (sscanf(mLine, " [ALIAS %127s %127[^]]s ]", &alias_name[0], &joint_name[0]) != 2)
-                {
-                    LL_WARNS("BVH") << "anim.ini line error: " << mLine << LL_ENDL;
-                    return E_ST_NO_XLT_NAME;
-                }
-                LL_DEBUGS("BVH") << "Animation joint anim.ini alias: " << std::string(alias_name) << " to " << std::string(joint_name) << LL_ENDL;
-                makeTranslation(alias_name, joint_name);
-                continue;
-            }
-        }
-
-		//----------------------------------------------------------------
-		// check for optional emote
-		//----------------------------------------------------------------
-		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "emote")==0)
-		{
-			char emote_str[1024];	/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %1023s", emote_str) != 1 )	/* Flawfinder: ignore */
-				return E_ST_NO_XLT_EMOTE;
-
-			mEmoteName.assign( emote_str );
-            LL_DEBUGS("BVH") << "Emote name: " << mEmoteName.c_str() << LL_ENDL;
-			continue;
-		}
-
-
-		//----------------------------------------------------------------
-		// check for global priority setting
-		//----------------------------------------------------------------
-		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "priority")==0)
-		{
-			S32 priority;
-			if ( sscanf(mLine, " %*s = %d", &priority) != 1 )
-				return E_ST_NO_XLT_PRIORITY;
-
-			mPriority = priority;
-            LL_DEBUGS("BVH") << "Priority set to " << mPriority << LL_ENDL;
-			continue;
-		}
-
-		//----------------------------------------------------------------
-		// check for global loop setting
-		//----------------------------------------------------------------
-		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "loop")==0)
-		{
-			char trueFalse[128];		/* Flawfinder: ignore */
-			trueFalse[0] = '\0';
-
-            // At this point we don't have mDuration, so mLoopInPoint and mLoopOutPoint
-            // are read and set between 0 and 1
-            mLoopInPoint = 0.f;
-            mLoopOutPoint = 1.f;
-
-			if ( sscanf(mLine, " %*s = %f %f", &mLoopInPoint, &mLoopOutPoint) == 2 )
-			{
-                mLoopInPoint = llclampf(mLoopInPoint);                          // Clamp between 0 and 1
-                mLoopOutPoint = llclamp(mLoopOutPoint, mLoopInPoint, 1.f);
-                mLoop = (mLoopOutPoint > mLoopInPoint);
-			}
-			else if ( sscanf(mLine, " %*s = %127s", trueFalse) == 1 )	/* Flawfinder: ignore */
-			{
-				mLoop = (LLStringUtil::compareInsensitive(trueFalse, "true")==0);
-			}
-			else
-			{
-				return E_ST_NO_XLT_LOOP;
-			}
-
-			continue;
-		}
-
-		//----------------------------------------------------------------
-		// check for global easeIn setting
-		//----------------------------------------------------------------
-		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "easein")==0)
-		{
-			F32 duration;
-			char type[128];	/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %f %127s", &duration, type) != 2 )	/* Flawfinder: ignore */
-				return E_ST_NO_XLT_EASEIN;
-
-			mEaseIn = duration;
-			continue;
-		}
-
-		//----------------------------------------------------------------
-		// check for global easeOut setting
-		//----------------------------------------------------------------
-		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "easeout")==0)
-		{
-			F32 duration;
-			char type[128];		/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %f %127s", &duration, type) != 2 )	/* Flawfinder: ignore */
-				return E_ST_NO_XLT_EASEOUT;
-
-			mEaseOut = duration;
-			continue;
-		}
-
-		//----------------------------------------------------------------
-		// check for global handMorph setting
-		//----------------------------------------------------------------
-		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "hand")==0)
-		{
-			S32 handMorph;
-			if (sscanf(mLine, " %*s = %d", &handMorph) != 1)
-				return E_ST_NO_XLT_HAND;
-
-			mHand = handMorph;
-			continue;
-		}
-
-		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "constraint")==0)
-		{
-			LLAnimConstraint constraint;
-
-			// try reading optional target direction
-			if(sscanf( /* Flawfinder: ignore */
-				mLine,
-				" %*s = %d %f %f %f %f %15s %f %f %f %15s %f %f %f %f %f %f", 
-				&constraint.mChainLength,
-				&constraint.mEaseInStart,
-				&constraint.mEaseInStop,
-				&constraint.mEaseOutStart,
-				&constraint.mEaseOutStop,
-				constraint.mSourceJointName,
-				&constraint.mSourceOffset.mV[VX],
-				&constraint.mSourceOffset.mV[VY],
-				&constraint.mSourceOffset.mV[VZ],
-				constraint.mTargetJointName,
-				&constraint.mTargetOffset.mV[VX],
-				&constraint.mTargetOffset.mV[VY],
-				&constraint.mTargetOffset.mV[VZ],
-				&constraint.mTargetDir.mV[VX],
-				&constraint.mTargetDir.mV[VY],
-				&constraint.mTargetDir.mV[VZ]) != 16)
-			{
-				if(sscanf( /* Flawfinder: ignore */
-					mLine,
-					" %*s = %d %f %f %f %f %15s %f %f %f %15s %f %f %f", 
-					&constraint.mChainLength,
-					&constraint.mEaseInStart,
-					&constraint.mEaseInStop,
-					&constraint.mEaseOutStart,
-					&constraint.mEaseOutStop,
-					constraint.mSourceJointName,
-					&constraint.mSourceOffset.mV[VX],
-					&constraint.mSourceOffset.mV[VY],
-					&constraint.mSourceOffset.mV[VZ],
-					constraint.mTargetJointName,
-					&constraint.mTargetOffset.mV[VX],
-					&constraint.mTargetOffset.mV[VY],
-					&constraint.mTargetOffset.mV[VZ]) != 13)
-				{
-					return E_ST_NO_CONSTRAINT;
-				}
-			}
-			else
-			{
-				// normalize direction
-				if (!constraint.mTargetDir.isExactlyZero())
-				{
-					constraint.mTargetDir.normVec();
-				}
-
-			}
-
-			constraint.mConstraintType = CONSTRAINT_TYPE_POINT;
-			mConstraints.push_back(constraint);
-			continue;
-		}
-
-		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "planar_constraint")==0)
-		{
-			LLAnimConstraint constraint;
-
-			// try reading optional target direction
-			if(sscanf( /* Flawfinder: ignore */
-				mLine,
-				" %*s = %d %f %f %f %f %15s %f %f %f %15s %f %f %f %f %f %f", 
-				&constraint.mChainLength,
-				&constraint.mEaseInStart,
-				&constraint.mEaseInStop,
-				&constraint.mEaseOutStart,
-				&constraint.mEaseOutStop,
-				constraint.mSourceJointName,
-				&constraint.mSourceOffset.mV[VX],
-				&constraint.mSourceOffset.mV[VY],
-				&constraint.mSourceOffset.mV[VZ],
-				constraint.mTargetJointName,
-				&constraint.mTargetOffset.mV[VX],
-				&constraint.mTargetOffset.mV[VY],
-				&constraint.mTargetOffset.mV[VZ],
-				&constraint.mTargetDir.mV[VX],
-				&constraint.mTargetDir.mV[VY],
-				&constraint.mTargetDir.mV[VZ]) != 16)
-			{
-				if(sscanf( /* Flawfinder: ignore */
-					mLine,
-					" %*s = %d %f %f %f %f %15s %f %f %f %15s %f %f %f",
-					&constraint.mChainLength,
-					&constraint.mEaseInStart,
-					&constraint.mEaseInStop,
-					&constraint.mEaseOutStart,
-					&constraint.mEaseOutStop,
-					constraint.mSourceJointName,
-					&constraint.mSourceOffset.mV[VX],
-					&constraint.mSourceOffset.mV[VY],
-					&constraint.mSourceOffset.mV[VZ],
-					constraint.mTargetJointName,
-					&constraint.mTargetOffset.mV[VX],
-					&constraint.mTargetOffset.mV[VY],
-					&constraint.mTargetOffset.mV[VZ]) != 13)
-				{
-					return E_ST_NO_CONSTRAINT;
-				}
-			}
-			else
-			{
-				// normalize direction
-				if (!constraint.mTargetDir.isExactlyZero())
-				{
-					constraint.mTargetDir.normVec();
-				}
-			}
-
-			constraint.mConstraintType = CONSTRAINT_TYPE_PLANE;
-			mConstraints.push_back(constraint);
-			continue;
-		}
-	}
-
-	infile.close() ;
-	return E_ST_OK;
 }
 
 static S32 test_transform_chain = 3;
@@ -555,14 +233,7 @@ void LLBVHLoader::selectTransformMatrix(const std::string & in_name, LLAnimTrans
     static S32 test_transform = 999;
 
     S32 use_transform = mTransformType;
-    if (mSkeletonType == "mixamo")
-    {
-        if (joint_in_test(in_name, translation.mOutName))
-        {
-            use_transform = test_transform;
-        }
-    }
-    else if (use_transform != 2 && use_transform != 214)
+    if (use_transform != 2 && use_transform != 214)
     {
         LL_WARNS("BVH") << "Using non-standard transform matrix " << use_transform << " for importing SL skeleton animation, this may cause issues."
             << "  Try changing debug setting AnimationImportTransform to the default 2" << LL_ENDL;
@@ -650,7 +321,6 @@ void LLBVHLoader::makeTranslation(const std::string & alias_name, const std::str
     }
 
     newTrans.mOutName = joint_name;
-    // Note - can't call selectTransformMatrix() here because mSkeletonType isn't detected yet
 
     if (joint_name == "mPelvis")
     {
@@ -664,41 +334,6 @@ void LLBVHLoader::makeTranslation(const std::string & alias_name, const std::str
     }
 }
 
-
-// hack data
-void LLBVHLoader::tweakJointData(LLAnimJointVector & joints)
-{
-    static bool enable_joint_tweaks = true;
-
-    if (mSkeletonType != "mixamo")
-        return;
-
-    if (enable_joint_tweaks)
-    {
-        for (U32 j = 0; j < joints.size(); j++)
-        {
-            LLAnimJoint *joint = joints[j];
-            if (joint_in_test(joint->mName, joint->mOutName))
-            {
-                LL_DEBUGS("BVH") << "No debug tweaks for " << joint->mName << "/" << joint->mOutName << " data" << LL_ENDL;
-            }
-            else
-            {
-                LL_DEBUGS("BVH") << "Zeroing all rotations for " << joint->mName << "/" << joint->mOutName << LL_ENDL;
-                for (S32 i = 0; i < mNumFrames; i++)        // This is a LOT of data
-                {
-                    if (i < joint->mKeys.size())    // Check this in case file load failed.
-                    {
-                        LLAnimKey &key = joint->mKeys[i];
-                        key.mRot[0] = 0;
-                        key.mRot[1] = 0;
-                        key.mRot[2] = 0;
-                    }
-                }
-            }
-        }
-    }
-}
 
 void LLBVHLoader::dumpJointInfo(LLAnimJointVector & joints)
 {
@@ -760,7 +395,7 @@ void LLBVHLoader::dumpJointInfo(LLAnimJointVector & joints)
                             << (key.mIgnoreRot ? " Ignore Rot " : "")
                             << " pos " << key.mPos[0] << "," << key.mPos[1] << "," << key.mPos[2]
                             << " rot " << key.mRot[0] << "," << key.mRot[1] << "," << key.mRot[2] << LL_ENDL;
-                    }
+					}
                 }
             }
             else
@@ -771,7 +406,7 @@ void LLBVHLoader::dumpJointInfo(LLAnimJointVector & joints)
         if (skipped_joints > 0)
         {
             LL_DEBUGS("BVHDump") << "  Skipped " << skipped_joints << " identical joints for " << joint->mName << "/" << joint->mOutName << LL_ENDL;
-        }
+		}
     }
 }
 
@@ -1156,7 +791,7 @@ void LLBVHLoader::applyTranslations()
 		if ( trans.mIgnore )
 		{
             LL_DEBUGS("BVH") << "Ignoring animation joint " << joint->mName << LL_ENDL;
-			joint->mIgnore = true;
+            joint->mIgnore = true;
 			continue;
 		}
 
@@ -1164,7 +799,7 @@ void LLBVHLoader::applyTranslations()
 		if ( ! trans.mOutName.empty() )
 		{
             LL_DEBUGS("BVH") << "Replacing joint name " << joint->mName.c_str() << " with translation " << trans.mOutName.c_str() << LL_ENDL;
-			joint->mOutName = trans.mOutName;
+            joint->mOutName = trans.mOutName;
 		}
 
         //Allow joint position changes as of SL-318
@@ -1177,26 +812,26 @@ void LLBVHLoader::applyTranslations()
 		// Set the relative position and rotation flags if necessary
 		if ( trans.mRelativePositionKey )
 		{
-			LL_DEBUGS("BVH") << "Removing 1st position offset from all keys for " << joint->mOutName.c_str() << LL_ENDL;
-			joint->mRelativePositionKey = true;
+            LL_DEBUGS("BVH") << "Removing 1st position offset from all keys for " << joint->mOutName.c_str() << LL_ENDL;
+            joint->mRelativePositionKey = true;
 		}
 
 		if ( trans.mRelativeRotationKey )
 		{
             LL_DEBUGS("BVH") << "Replacing 1st rotation from all keys for " << joint->mOutName.c_str() << LL_ENDL;
-			joint->mRelativeRotationKey = true;
+            joint->mRelativeRotationKey = true;
 		}
 
 		if ( trans.mRelativePosition.magVec() > 0.0f )
 		{
 			joint->mRelativePosition = trans.mRelativePosition;
+         }
             LL_DEBUGS("BVH") << "Replacing mRelativePosition with translation " <<
 				joint->mRelativePosition.mV[0] << " " <<
 				joint->mRelativePosition.mV[1] << " " <<
 				joint->mRelativePosition.mV[2] <<
 				" from all position keys in " <<
 				joint->mOutName.c_str() << LL_ENDL;
-		}
 
 		// Set change of coordinate frame
 		joint->mFrameMatrix = trans.mFrameMatrix;
@@ -1432,7 +1067,6 @@ void LLBVHLoader::reset()
 	mLineNumber = 0;
 	mTranslations.clear();
 	mConstraints.clear();
-    mSkeletonType = "SL";
     mTransformType = 214;
 
     if (mAssimpImporter)
@@ -1978,53 +1612,45 @@ void LLBVHLoader::extractJointsFromAssimp()
             {
                 std::string node_name(cur_node->mNodeName.C_Str());
 
-                // Special filter for mixamo fbx format ... joints will look like "mixamorig:Hips"
-                if (node_name.find("mixamorig:") == 0)
+                auto        trans_ptr = mTranslations.find(node_name);
+                if (trans_ptr != mTranslations.end())
                 {
-                    LL_DEBUGS("Assimp") << "Converting mixamo joint name " << node_name << " to " << node_name.substr(10) << LL_ENDL;
-                    node_name = node_name.substr(10);
-                }
+                    std::string outname = mTranslations[node_name].mOutName;
 
-                if (node_name == "Hips")
-                {
-                    LL_INFOS("BVH") << "Detected mixamo style Hips, using that skeleton type" << LL_ENDL;
-                    mSkeletonType = "mixamo";
-                }
+                    mJoints.push_back(new LLAnimJoint(outname));
+                    LLAnimJoint *joint = mJoints.back();
+                    LL_DEBUGS("Assimp") << "Created joint " << outname << " at index " << mJoints.size() - 1 << LL_ENDL;
 
-                mJoints.push_back(new LLAnimJoint(node_name));
-                LLAnimJoint *joint = mJoints.back();
-                LL_DEBUGS("Assimp") << "Created joint " << node_name << " at index " << mJoints.size() - 1 << LL_ENDL;
+                    joint->mNumChannels = (node_index == 0) ? 6 : 3;
 
-                joint->mNumChannels = (node_index == 0) ? 6 : 3;
+                    // To do - Can we figure out mChildTreeMaxDepth ?   It's used only for some threshold calculations about
+                    // detectable movement, but without it there may be a behavior change
 
-                // To do - Can we figure out mChildTreeMaxDepth ?   It's used only for some threshold calculations about
-                // detectable movement, but without it there may be a behavior change
+                    joint->mOrder[0] = 'X';
+                    joint->mOrder[1] = 'Y';
+                    joint->mOrder[2] = 'Z';
 
-                joint->mOrder[0] = 'X';
-                joint->mOrder[1] = 'Y';
-                joint->mOrder[2] = 'Z';
-
-                // Add all animations frames
-                for (S32 key_index = 0; key_index < cur_node->mNumRotationKeys; key_index++)
-                {
-                    joint->mKeys.push_back(LLAnimKey());
-                    LLAnimKey &key = joint->mKeys.back();
-
-                    const aiQuatKey & cur_quat = cur_node->mRotationKeys[key_index];
-                    LLQuaternion ll_quat(cur_quat.mValue.x, cur_quat.mValue.y, cur_quat.mValue.z, cur_quat.mValue.w);
-                    F32 roll, pitch, yaw;
-                    ll_quat.getEulerAngles(&roll, &pitch, &yaw);
-                    key.mRot[0] = roll * RAD_TO_DEG;
-                    key.mRot[1] = pitch * RAD_TO_DEG;
-                    key.mRot[2] = yaw * RAD_TO_DEG;
-
-                    if (joint->mNumChannels == 6 &&
-                        key_index < cur_node->mNumPositionKeys)
+                    // Add all animations frames
+                    for (S32 key_index = 0; key_index < cur_node->mNumRotationKeys; key_index++)
                     {
-                        const aiVectorKey & cur_vector = cur_node->mPositionKeys[key_index];
-                        key.mPos[0] = cur_vector.mValue.x;
-                        key.mPos[1] = cur_vector.mValue.y;
-                        key.mPos[2] = cur_vector.mValue.z;
+                        joint->mKeys.push_back(LLAnimKey());
+                        LLAnimKey &key = joint->mKeys.back();
+
+                        const aiQuatKey &cur_quat = cur_node->mRotationKeys[key_index];
+                        LLQuaternion     ll_quat(cur_quat.mValue.x, cur_quat.mValue.y, cur_quat.mValue.z, cur_quat.mValue.w);
+                        F32              roll, pitch, yaw;
+                        ll_quat.getEulerAngles(&roll, &pitch, &yaw);
+                        key.mRot[0] = roll * RAD_TO_DEG;
+                        key.mRot[1] = pitch * RAD_TO_DEG;
+                        key.mRot[2] = yaw * RAD_TO_DEG;
+
+                        if (joint->mNumChannels == 6 && key_index < cur_node->mNumPositionKeys)
+                        {
+                            const aiVectorKey &cur_vector = cur_node->mPositionKeys[key_index];
+                            key.mPos[0]                   = cur_vector.mValue.x;
+                            key.mPos[1]                   = cur_vector.mValue.y;
+                            key.mPos[2]                   = cur_vector.mValue.z;
+                        }
                     }
                 }
             }
@@ -2035,12 +1661,7 @@ void LLBVHLoader::extractJointsFromAssimp()
             }
         }
 
-        tweakJointData(mJoints);
-
-        LL_INFOS("Assimp") << "Extracted " << mJoints.size() << " animation joints from assimp"
-            << ", using " << mSkeletonType << " skeleton" << LL_ENDL;
+        LL_INFOS("Assimp") << "Extracted " << mJoints.size() << " animation joints from assimp" << LL_ENDL;
         dumpJointInfo(mJoints);
     }
 }
-
-void            detectSkeletonType();           // Scan scene, detect skeleton type and adjust translations

@@ -254,9 +254,6 @@ public:
 */
 
 protected:
-    // Loads the specified translation table.
-	ELoadStatus loadTranslationTable(const std::string & fileName);
-
     //Create a new joint translation
     void makeTranslation(const std::string & LLAnimKey, const std::string & value);
 
@@ -269,7 +266,6 @@ protected:
 
     // Debugging and testing
 	void dumpJointInfo(LLAnimJointVector & joints);
-    void tweakJointData(LLAnimJointVector & joints);
 
 	// Applies translations to BVH data loaded.
 	void applyTranslations();
@@ -287,7 +283,6 @@ protected:
     // Assimp functions
     ELoadStatus     loadAssimp();                   // Load library and scene from file
     void            extractJointsFromAssimp();      // Extract data out of assimp scene into joints
-    void            detectSkeletonType();           // Scan scene, detect skeleton type and adjust translations
 
     void            dumpAssimp();       // Diagnostic dump to file
     void            dumpAssimpAnimations(llofstream & data_stream);
@@ -323,8 +318,6 @@ protected:
 
 	// computed values
 	F32	mDuration;
-
-    std::string         mSkeletonType;      // should be "sl" or "mixamo", determined by root name
 
     // Assimp data
     std::string         mFilenameAndPath;   // Source file (bvh)
