@@ -23,10 +23,10 @@
  * $/LicenseInfo$
  */
 
-ATTRIBUTE vec3 position;
+in vec3 position;
 
-VARYING vec2 vary_fragcoord;
-VARYING vec2 vary_tc;
+out vec2 vary_fragcoord;
+out vec2 vary_tc;
 
 uniform vec2 tc_scale;
 

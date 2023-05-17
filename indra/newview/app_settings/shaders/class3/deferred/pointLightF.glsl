@@ -23,15 +23,9 @@
  * $/LicenseInfo$
  */
  
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform sampler2D diffuseRect;
 uniform sampler2D specularRect;
@@ -48,8 +42,8 @@ uniform vec3 color;
 uniform float falloff;
 uniform float size;
 
-VARYING vec4 vary_fragcoord;
-VARYING vec3 trans_center;
+in vec4 vary_fragcoord;
+in vec3 trans_center;
 
 uniform vec2 screen_res;
 
@@ -83,8 +77,8 @@ void main()
     vec3 n;
     vec4 norm = getNormalEnvIntensityFlags(tc, n, envIntensity); // need `norm.w` for GET_GBUFFER_FLAG()
 
-    vec3 diffuse = texture2D(diffuseRect, tc).rgb;
-    vec4 spec    = texture2D(specularRect, tc);
+    vec3 diffuse = texture(diffuseRect, tc).rgb;
+    vec4 spec    = texture(specularRect, tc);
 
     // Common half vectors calcs
     vec3  lv = trans_center.xyz-pos;
@@ -101,7 +95,7 @@ void main()
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 colorEmissive = texture2D(emissiveRect, tc).rgb; 
+        vec3 colorEmissive = texture(emissiveRect, tc).rgb; 
         vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
@@ -141,7 +135,7 @@ void main()
 
             if (nh > 0.0)
             {
-                float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*nl);
+                float scol = fres*texture(lightFunc, vec2(nh, spec.a)).r*gt/(nh*nl);
                 final_color += lit*scol*color.rgb*spec.rgb;
             }
         }

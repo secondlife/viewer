@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="presets_pulldown">
+	<text name="Graphic Presets">
+		Ustawienia graficzne
+	</text>
+	<button name="open_prefs_btn" label="Otwórz preferencje graficzne" tool_tip="Otwórz kartę preferencji graficznych" />
+</panel>

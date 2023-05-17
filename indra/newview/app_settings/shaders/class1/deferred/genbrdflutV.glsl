@@ -25,9 +25,9 @@
 
 uniform mat4 modelview_projection_matrix;
 
-ATTRIBUTE vec3 position;
+in vec3 position;
 
-VARYING vec2 vary_uv;
+out vec2 vary_uv;
 
 void main()
 {

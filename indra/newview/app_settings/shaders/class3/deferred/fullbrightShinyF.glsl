@@ -25,21 +25,17 @@
  
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 #ifndef HAS_DIFFUSE_LOOKUP
 uniform sampler2D diffuseMap;
 #endif
 
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
-VARYING vec3 vary_texcoord1;
-VARYING vec3 vary_position;
+in vec4 vertex_color;
+in vec2 vary_texcoord0;
+in vec3 vary_texcoord1;
+in vec3 vary_position;
 
 uniform samplerCube environmentMap;
 
@@ -62,7 +58,7 @@ void main()
 #ifdef HAS_DIFFUSE_LOOKUP
 	vec4 color = diffuseLookup(vary_texcoord0.xy);
 #else
-	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
+	vec4 color = texture(diffuseMap, vary_texcoord0.xy);
 #endif
 	
 	color.rgb *= vertex_color.rgb;

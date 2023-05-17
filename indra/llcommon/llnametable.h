@@ -86,12 +86,10 @@ public:
 	// O(N)! (currently only used in one place... (newsim/llstate.cpp))
 	const char *resolveData(const DATA &data) const
 	{
-		const_iter_t iter = mNameMap.begin();
-		const_iter_t end = mNameMap.end();
-		for (; iter != end; ++iter)
+		for (const name_map_t::value_type& pair : mNameMap)
 		{
-			if (iter->second == data)
-				return iter->first;
+			if (pair.second == data)
+				return pair.first;
 		}
    		return NULL;
 	}		

@@ -192,13 +192,13 @@ void clear_glerror();
 
 	//disable lighting for rendering hud objects
 	//INCORRECT USAGE
-	LLGLEnable lighting(GL_LIGHTING);
+	LLGLEnable blend(GL_BLEND);
 	renderHUD();
-	LLGLDisable lighting(GL_LIGHTING);
+	LLGLDisable blend(GL_BLEND);
 
 	//CORRECT USAGE
 	{
-		LLGLEnable lighting(GL_LIGHTING);
+		LLGLEnable blend(GL_BLEND);
 		renderHUD();
 	}
 
@@ -206,7 +206,7 @@ void clear_glerror();
 	is useful:
 
 	{
-		LLGLEnable lighting(light_hud ? GL_LIGHTING : 0);
+		LLGLEnable blend(blend_hud ? GL_GL_BLEND: 0);
 		renderHUD();
 	}
 

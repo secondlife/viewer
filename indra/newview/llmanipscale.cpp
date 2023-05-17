@@ -212,7 +212,6 @@ void LLManipScale::render()
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLGLDepthTest gls_depth(GL_TRUE);
 	LLGLEnable gl_blend(GL_BLEND);
-	LLGLEnable gls_alpha_test(GL_ALPHA_TEST);
 	LLBBox bbox = LLSelectMgr::getInstance()->getBBoxOfSelection();
 
 	if( canAffectSelection() )
@@ -1317,11 +1316,11 @@ void LLManipScale::renderGuidelinesPart( const LLBBox& bbox )
 
 	{
 		LLGLDepthTest gls_depth(GL_TRUE);
-		gl_stippled_line_3d( guideline_start, guideline_end, LLColor4(1.f, 1.f, 1.f, 0.5f) );
+		gl_line_3d( guideline_start, guideline_end, LLColor4(1.f, 1.f, 1.f, 0.5f) );
 	}
 	{
 		LLGLDepthTest gls_depth(GL_FALSE);
-		gl_stippled_line_3d( guideline_start, guideline_end, LLColor4(1.f, 1.f, 1.f, 0.25f) );
+		gl_line_3d( guideline_start, guideline_end, LLColor4(1.f, 1.f, 1.f, 0.25f) );
 	}
 }
 

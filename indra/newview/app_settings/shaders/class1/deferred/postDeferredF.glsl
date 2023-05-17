@@ -23,15 +23,9 @@
  * $/LicenseInfo$
  */
 
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform sampler2D diffuseRect;
 
@@ -40,11 +34,11 @@ uniform vec2 screen_res;
 uniform float max_cof;
 uniform float res_scale;
 
-VARYING vec2 vary_fragcoord;
+in vec2 vary_fragcoord;
 
 void dofSample(inout vec4 diff, inout float w, float min_sc, vec2 tc)
 {
-	vec4 s = texture2D(diffuseRect, tc);
+	vec4 s = texture(diffuseRect, tc);
 
 	float sc = abs(s.a*2.0-1.0)*max_cof;
 
@@ -63,7 +57,7 @@ void dofSample(inout vec4 diff, inout float w, float min_sc, vec2 tc)
 
 void dofSampleNear(inout vec4 diff, inout float w, float min_sc, vec2 tc)
 {
-	vec4 s = texture2D(diffuseRect, tc);
+	vec4 s = texture(diffuseRect, tc);
 
 	float wg = 0.25;
 
@@ -79,7 +73,7 @@ void main()
 {
 	vec2 tc = vary_fragcoord.xy;
 	
-	vec4 diff = texture2D(diffuseRect, vary_fragcoord.xy);
+	vec4 diff = texture(diffuseRect, vary_fragcoord.xy);
 	
 	{ 
 		float w = 1.0;

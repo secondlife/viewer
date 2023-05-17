@@ -27,9 +27,9 @@
 
 out vec4 frag_data[4];
 
-VARYING vec3 vary_normal;
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+in vec3 vary_normal;
+in vec4 vertex_color;
+in vec2 vary_texcoord0;
 
 vec2 encode_normal(vec3 n);
 vec3 linear_to_srgb(vec3 c);

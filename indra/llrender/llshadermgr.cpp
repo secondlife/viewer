@@ -591,30 +591,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 	
 	if (major_version == 1 && minor_version < 30)
 	{
-		if (minor_version < 10)
-		{
-			//should NEVER get here -- if major version is 1 and minor version is less than 10, 
-			// viewer should never attempt to use shaders, continuing will result in undefined behavior
-			LL_ERRS() << "Unsupported GLSL Version." << LL_ENDL;
-		}
-
-		if (minor_version <= 19)
-		{
-			shader_code_text[shader_code_count++] = strdup("#version 110\n");
-			extra_code_text[extra_code_count++] = strdup("#define ATTRIBUTE attribute\n");
-			extra_code_text[extra_code_count++] = strdup("#define VARYING varying\n");
-			extra_code_text[extra_code_count++] = strdup("#define VARYING_FLAT varying\n");
-		}
-		else if (minor_version <= 29)
-		{
-			//set version to 1.20
-			shader_code_text[shader_code_count++] = strdup("#version 120\n");
-       		extra_code_text[extra_code_count++] = strdup("#define FXAA_GLSL_120 1\n");
-			extra_code_text[extra_code_count++] = strdup("#define FXAA_FAST_PIXEL_OFFSET 0\n");
-			extra_code_text[extra_code_count++] = strdup("#define ATTRIBUTE attribute\n");
-			extra_code_text[extra_code_count++] = strdup("#define VARYING varying\n");
-			extra_code_text[extra_code_count++] = strdup("#define VARYING_FLAT varying\n");
-		}
+        llassert(false); // GL 3.1 or later required
 	}
 	else
 	{  
@@ -651,40 +628,14 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         }
 		else
 		{
-			//set version to 1.30
-			shader_code_text[shader_code_count++] = strdup("#version 130\n");
+			//set version to 1.40
+			shader_code_text[shader_code_count++] = strdup("#version 140\n");
 			//some implementations of GLSL 1.30 require integer precision be explicitly declared
 			extra_code_text[extra_code_count++] = strdup("precision mediump int;\n");
 			extra_code_text[extra_code_count++] = strdup("precision highp float;\n");
 		}
 
-		extra_code_text[extra_code_count++] = strdup("#define DEFINE_GL_FRAGCOLOR 1\n");
 		extra_code_text[extra_code_count++] = strdup("#define FXAA_GLSL_130 1\n");
-
-		extra_code_text[extra_code_count++] = strdup("#define ATTRIBUTE in\n");
-
-		if (type == GL_VERTEX_SHADER)
-		{ //"varying" state is "out" in a vertex program, "in" in a fragment program 
-			// ("varying" is deprecated after version 1.20)
-			extra_code_text[extra_code_count++] = strdup("#define VARYING out\n");
-			extra_code_text[extra_code_count++] = strdup("#define VARYING_FLAT flat out\n");
-		}
-		else
-		{
-			extra_code_text[extra_code_count++] = strdup("#define VARYING in\n");
-			extra_code_text[extra_code_count++] = strdup("#define VARYING_FLAT flat in\n");
-		}
-
-		//backwards compatibility with legacy texture lookup syntax
-		extra_code_text[extra_code_count++] = strdup("#define texture2D texture\n");
-		extra_code_text[extra_code_count++] = strdup("#define textureCube texture\n");
-		extra_code_text[extra_code_count++] = strdup("#define texture2DLod textureLod\n");
-		
-		if (major_version > 1 || minor_version >= 40)
-		{ //GLSL 1.40 replaces texture2DRect et al with texture
-			extra_code_text[extra_code_count++] = strdup("#define texture2DRect texture\n");
-			extra_code_text[extra_code_count++] = strdup("#define shadow2DRect(a,b) vec2(texture(a,b))\n");
-		}
 	}
 
     // Use alpha float to store bit flags
@@ -722,13 +673,13 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 		.
 		uniform sampler2D texN;
 		
-		VARYING_FLAT ivec4 vary_texture_index;
+		flat in int vary_texture_index;
 
 		vec4 ret = vec4(1,0,1,1);
 
 		vec4 diffuseLookup(vec2 texcoord)
 		{
-			switch (vary_texture_index.r))
+			switch (vary_texture_index)
 			{
 				case 0: ret = texture2D(tex0, texcoord); break;
 				case 1: ret = texture2D(tex1, texcoord); break;
@@ -754,7 +705,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 
 		if (texture_index_channels > 1)
 		{
-			extra_code_text[extra_code_count++] = strdup("VARYING_FLAT int vary_texture_index;\n");
+			extra_code_text[extra_code_count++] = strdup("flat in int vary_texture_index;\n");
 		}
 
 		extra_code_text[extra_code_count++] = strdup("vec4 diffuseLookup(vec2 texcoord)\n");

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="camera_preset_item">
+	<text name="preset_name" value="Domyślne" />
+	<button name="delete_btn" tool_tip="Usuń ustawienie" />
+	<button name="reset_btn" tool_tip="Zresetuj ustawienie do wartości domyślnych" />
+</panel>

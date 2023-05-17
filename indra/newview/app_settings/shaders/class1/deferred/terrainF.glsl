@@ -33,10 +33,10 @@ uniform sampler2D detail_2;
 uniform sampler2D detail_3;
 uniform sampler2D alpha_ramp;
 
-VARYING vec3 pos;
-VARYING vec3 vary_normal;
-VARYING vec4 vary_texcoord0;
-VARYING vec4 vary_texcoord1;
+in vec3 pos;
+in vec3 vary_normal;
+in vec4 vary_texcoord0;
+in vec4 vary_texcoord1;
 
 vec2 encode_normal(vec3 n);
 
@@ -44,14 +44,14 @@ void main()
 {
     /// Note: This should duplicate the blending functionality currently used for the terrain rendering.
     
-    vec4 color0 = texture2D(detail_0, vary_texcoord0.xy);
-    vec4 color1 = texture2D(detail_1, vary_texcoord0.xy);
-    vec4 color2 = texture2D(detail_2, vary_texcoord0.xy);
-    vec4 color3 = texture2D(detail_3, vary_texcoord0.xy);
+    vec4 color0 = texture(detail_0, vary_texcoord0.xy);
+    vec4 color1 = texture(detail_1, vary_texcoord0.xy);
+    vec4 color2 = texture(detail_2, vary_texcoord0.xy);
+    vec4 color3 = texture(detail_3, vary_texcoord0.xy);
 
-    float alpha1 = texture2D(alpha_ramp, vary_texcoord0.zw).a;
-    float alpha2 = texture2D(alpha_ramp,vary_texcoord1.xy).a;
-    float alphaFinal = texture2D(alpha_ramp, vary_texcoord1.zw).a;
+    float alpha1 = texture(alpha_ramp, vary_texcoord0.zw).a;
+    float alpha2 = texture(alpha_ramp,vary_texcoord1.xy).a;
+    float alphaFinal = texture(alpha_ramp, vary_texcoord1.zw).a;
     vec4 outColor = mix( mix(color3, color2, alpha2), mix(color1, color0, alpha1), alphaFinal );
    
     outColor.a = 0.0; // yes, downstream atmospherics 

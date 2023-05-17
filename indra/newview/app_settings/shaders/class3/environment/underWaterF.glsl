@@ -50,9 +50,9 @@ uniform float waterFogKS;
 uniform vec2 screenRes;
 
 //bigWave is (refCoord.w, view.w);
-VARYING vec4 refCoord;
-VARYING vec4 littleWave;
-VARYING vec4 view;
+in vec4 refCoord;
+in vec4 littleWave;
+in vec4 view;
 in vec3 vary_position;
 
 vec4 applyWaterFogViewLinearNoClip(vec3 pos, vec4 color, vec3 sunlit);
@@ -62,9 +62,9 @@ void main()
 	vec4 color;
 
     //get detail normals
-	vec3 wave1 = texture2D(bumpMap, vec2(refCoord.w, view.w)).xyz*2.0-1.0;
-	vec3 wave2 = texture2D(bumpMap, littleWave.xy).xyz*2.0-1.0;
-	vec3 wave3 = texture2D(bumpMap, littleWave.zw).xyz*2.0-1.0;    
+	vec3 wave1 = texture(bumpMap, vec2(refCoord.w, view.w)).xyz*2.0-1.0;
+	vec3 wave2 = texture(bumpMap, littleWave.xy).xyz*2.0-1.0;
+	vec3 wave3 = texture(bumpMap, littleWave.zw).xyz*2.0-1.0;    
 	vec3 wavef = normalize(wave1+wave2+wave3);
 	
 	//figure out distortion vector (ripply)   
@@ -72,7 +72,7 @@ void main()
 	distort = distort+wavef.xy*refScale;
 
 #ifdef TRANSPARENT_WATER
-	vec4 fb = texture2D(screenTex, distort);
+	vec4 fb = texture(screenTex, distort);
 #else
     vec4 fb = vec4(waterFogColorLinear, 0.0);
 #endif

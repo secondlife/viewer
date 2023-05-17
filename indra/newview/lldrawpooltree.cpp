@@ -71,7 +71,6 @@ void LLDrawPoolTree::renderDeferred(S32 pass)
         return;
     }
 
-    LLGLState test(GL_ALPHA_TEST, 0);
 
     gGL.getTexUnit(sDiffTex)->bindFast(mTexturep);
     mTexturep->addTextureStats(1024.f * 1024.f); // <=== keep Linden tree textures at full res

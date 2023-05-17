@@ -150,7 +150,7 @@ BOOL LLVOSurfacePatch::updateGeometry(LLDrawable *drawable)
 {
     LL_PROFILE_ZONE_SCOPED;
 
-	dirtySpatialGroup(TRUE);
+	dirtySpatialGroup();
 	
 	S32 min_comp, max_comp, range;
 	min_comp = lltrunc(mPatchp->getMinComposition());
@@ -785,7 +785,7 @@ void LLVOSurfacePatch::dirtyGeom()
 {
 	if (mDrawable)
 	{
-		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
 		LLFace* facep = mDrawable->getFace(0);
 		if (facep)
 		{

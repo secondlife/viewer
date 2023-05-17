@@ -191,8 +191,8 @@ public:
 	void        markShift(LLDrawable *drawablep);
 	void        markTextured(LLDrawable *drawablep);
 	void		markGLRebuild(LLGLUpdate* glu);
-	void		markRebuild(LLSpatialGroup* group, bool priority = false);
-	void        markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag = LLDrawable::REBUILD_ALL, bool priority = false);
+	void		markRebuild(LLSpatialGroup* group);
+	void        markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag = LLDrawable::REBUILD_ALL);
 	void		markPartitionMove(LLDrawable* drawablep);
 	void		markMeshDirty(LLSpatialGroup* group);
 
@@ -599,7 +599,6 @@ public:
 		RENDER_DEBUG_SCULPTED           =  0x00080000,
 		RENDER_DEBUG_AVATAR_VOLUME      =  0x00100000,
 		RENDER_DEBUG_AVATAR_JOINTS      =  0x00200000,
-		RENDER_DEBUG_BUILD_QUEUE		=  0x00400000,
 		RENDER_DEBUG_AGENT_TARGET       =  0x00800000,
 		RENDER_DEBUG_UPDATE_TYPE		=  0x01000000,
 		RENDER_DEBUG_PHYSICS_SHAPES     =  0x02000000,
@@ -637,7 +636,6 @@ public:
 	static bool				sShowHUDAttachments;
 	static bool				sForceOldBakedUpload; // If true will not use capabilities to upload baked textures.
 	static S32				sUseOcclusion;  // 0 = no occlusion, 1 = read only, 2 = read/write
-	static bool				sDelayVBUpdate;
 	static bool				sAutoMaskAlphaDeferred;
 	static bool				sAutoMaskAlphaNonDeferred;
 	static bool				sRenderTransparentWater;
@@ -822,9 +820,7 @@ protected:
 	// Different queues of drawables being processed.
 	//
 	LLDrawable::drawable_list_t 	mBuildQ1; // priority
-	LLDrawable::drawable_list_t 	mBuildQ2; // non-priority
 	LLSpatialGroup::sg_vector_t		mGroupQ1; //priority
-	LLSpatialGroup::sg_vector_t		mGroupQ2; // non-priority
 
 	LLSpatialGroup::sg_vector_t		mGroupSaveQ1; // a place to save mGroupQ1 until it is safe to unref
 
@@ -833,7 +829,6 @@ protected:
 
 	LLDrawable::drawable_list_t		mPartitionQ; //drawables that need to update their spatial partition radius 
 
-	bool mGroupQ2Locked;
 	bool mGroupQ1Locked;
 
 	bool mResetVertexBuffers; //if true, clear vertex buffers on next update

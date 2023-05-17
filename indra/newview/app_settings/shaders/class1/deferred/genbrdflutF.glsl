@@ -49,7 +49,7 @@ SOFTWARE.
 
 /*[EXTRA_CODE_HERE]*/
 
-VARYING vec2 vary_uv;
+in vec2 vary_uv;
 
 out vec4 outColor;
 

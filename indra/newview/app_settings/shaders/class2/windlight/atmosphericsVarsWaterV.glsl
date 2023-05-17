@@ -23,9 +23,9 @@
  * $/LicenseInfo$
  */
  
-VARYING vec3 vary_PositionEye;
-VARYING vec3 vary_AdditiveColor;
-VARYING vec3 vary_AtmosAttenuation;
+out vec3 vary_PositionEye;
+out vec3 vary_AdditiveColor;
+out vec3 vary_AtmosAttenuation;
 
 vec3 atmos_attenuation;
 vec3 sunlit_color;

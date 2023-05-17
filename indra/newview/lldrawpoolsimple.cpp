@@ -79,7 +79,6 @@ void LLDrawPoolGlow::renderPostDeferred(S32 pass)
     LLGLSLShader* shader = &gDeferredEmissiveProgram;
 
 	LLGLEnable blend(GL_BLEND);
-	LLGLDisable test(GL_ALPHA_TEST);
 	gGL.flush();
 	/// Get rid of z-fighting with non-glow pass.
 	LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
@@ -132,7 +131,6 @@ void LLDrawPoolSimple::renderDeferred(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_SIMPLE_DEFERRED);
 	LLGLDisable blend(GL_BLEND);
-	LLGLDisable alpha_test(GL_ALPHA_TEST);
 
 	//render static
     setup_simple_shader(&gDeferredDiffuseProgram);

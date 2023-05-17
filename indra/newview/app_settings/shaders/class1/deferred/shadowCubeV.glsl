@@ -25,7 +25,7 @@
 
 uniform mat4 modelview_projection_matrix;
 
-ATTRIBUTE vec3 position;
+in vec3 position;
 
 uniform vec3 box_center;
 uniform vec3 box_size;

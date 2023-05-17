@@ -23,15 +23,9 @@
  * $/LicenseInfo$
  */
 
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform vec2 screen_res;
 uniform mat4 projection_matrix;
@@ -39,8 +33,8 @@ uniform mat4 inv_proj;
 uniform float zNear;
 uniform float zFar;
 
-VARYING vec2 vary_fragcoord;
-VARYING vec3 camera_ray;
+in vec2 vary_fragcoord;
+in vec3 camera_ray;
 
 uniform sampler2D specularRect;
 uniform sampler2D diffuseRect;
@@ -67,10 +61,10 @@ void main()
     vec3 n;
     vec4 norm = getNormalEnvIntensityFlags(tc, n, envIntensity); // need `norm.w` for GET_GBUFFER_FLAG()
     vec3 pos = getPositionWithDepth(tc, getDepth(tc)).xyz;
-    vec4 spec    = texture2D(specularRect, tc);
+    vec4 spec    = texture(specularRect, tc);
     vec2 hitpixel;
     
-    vec4 diffuse = texture2D(diffuseRect, tc);
+    vec4 diffuse = texture(diffuseRect, tc);
     vec3 specCol = spec.rgb;
 
     vec4 fcol = texture(diffuseMap, tc);

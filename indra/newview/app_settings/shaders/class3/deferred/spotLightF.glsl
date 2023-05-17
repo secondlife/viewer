@@ -23,9 +23,6 @@
  * $/LicenseInfo$
  */
  
-#extension GL_ARB_texture_rectangle : enable
-#extension GL_ARB_shader_texture_lod : enable
-
 /*[EXTRA_CODE_HERE]*/
 
 #define DEBUG_ANY_LIGHT_TYPE         0 // Output green light cone
@@ -38,11 +35,7 @@
 #define DEBUG_SPOT_NL                  0 // monochome area effected by light
 #define DEBUG_SPOT_ZERO                0 // Output zero for spotlight
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform sampler2D diffuseRect;
 uniform sampler2D specularRect;
@@ -75,8 +68,8 @@ uniform float size;
 uniform vec3 color;
 uniform float falloff;
 
-VARYING vec3 trans_center;
-VARYING vec4 vary_fragcoord;
+in vec3 trans_center;
+in vec4 vary_fragcoord;
 uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
@@ -126,7 +119,7 @@ void main()
 
     if (proj_shadow_idx >= 0)
     {
-        vec4 shd = texture2D(lightMap, tc);
+        vec4 shd = texture(lightMap, tc);
         shadow = (proj_shadow_idx == 0) ? shd.b : shd.a;
         shadow += shadow_fade;
         shadow = clamp(shadow, 0.0, 1.0);
@@ -147,15 +140,15 @@ void main()
     float nh, nl, nv, vh, lightDist;
     calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
 
-    vec3 diffuse = texture2D(diffuseRect, tc).rgb;
-    vec4 spec    = texture2D(specularRect, tc);
+    vec3 diffuse = texture(diffuseRect, tc).rgb;
+    vec4 spec    = texture(specularRect, tc);
     vec3 dlit    = vec3(0, 0, 0);
     vec3 slit    = vec3(0, 0, 0);
 
     vec3 amb_rgb = vec3(0);
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 colorEmissive = texture2D(emissiveRect, tc).rgb;
+        vec3 colorEmissive = texture(emissiveRect, tc).rgb;
         vec3 orm = spec.rgb; 
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
@@ -231,7 +224,7 @@ void main()
 
             if (nh > 0.0)
             {
-                float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*nl);
+                float scol = fres*texture(lightFunc, vec2(nh, spec.a)).r*gt/(nh*nl);
                 vec3 speccol = dlit*scol*spec.rgb*shadow;
                 speccol = clamp(speccol, vec3(0), vec3(1));
                 final_color += speccol;

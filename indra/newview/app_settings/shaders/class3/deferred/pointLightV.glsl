@@ -26,13 +26,13 @@
 uniform mat4 modelview_projection_matrix;
 uniform mat4 modelview_matrix;
 
-ATTRIBUTE vec3 position;
+in vec3 position;
 
 uniform vec3 center;
 uniform float size;
 
-VARYING vec4 vary_fragcoord;
-VARYING vec3 trans_center;
+out vec4 vary_fragcoord;
+out vec3 trans_center;
 
 void main()
 {

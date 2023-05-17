@@ -23,15 +23,9 @@
  * $/LicenseInfo$
  */
 
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform sampler2D normalMap;
 uniform sampler2D lightMap;
@@ -43,7 +37,7 @@ uniform vec2 screen_res;
 uniform vec3 kern[4];
 uniform float kern_scale;
 
-VARYING vec2 vary_fragcoord;
+in vec2 vary_fragcoord;
 
 vec4 getPosition(vec2 pos_screen);
 vec3 getNorm(vec2 pos_screen);

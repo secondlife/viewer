@@ -819,13 +819,13 @@ LLTextureCache::~LLTextureCache()
 //////////////////////////////////////////////////////////////////////////////
 
 //virtual
-S32 LLTextureCache::update(F32 max_time_ms)
+size_t LLTextureCache::update(F32 max_time_ms)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	static LLFrameTimer timer ;
 	static const F32 MAX_TIME_INTERVAL = 300.f ; //seconds.
 
-	S32 res;
+	size_t res;
 	res = LLWorkerThread::update(max_time_ms);
 
 	mListMutex.lock();

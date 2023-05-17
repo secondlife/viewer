@@ -63,7 +63,6 @@
 #include "llfeaturemanager.h"
 #include "llfloatertelehub.h"
 #include "llfloaterreg.h"
-#include "llgldbg.h"
 #include "llhudmanager.h"
 #include "llhudnametag.h"
 #include "llhudtext.h"
@@ -284,7 +283,6 @@ bool	LLPipeline::sRenderHighlight = true;
 LLRender::eTexIndex LLPipeline::sRenderHighlightTextureChannel = LLRender::DIFFUSE_MAP;
 bool	LLPipeline::sForceOldBakedUpload = false;
 S32		LLPipeline::sUseOcclusion = 0;
-bool	LLPipeline::sDelayVBUpdate = true;
 bool	LLPipeline::sAutoMaskAlphaDeferred = true;
 bool	LLPipeline::sAutoMaskAlphaNonDeferred = false;
 bool	LLPipeline::sRenderTransparentWater = true;
@@ -340,7 +338,6 @@ LLPipeline::LLPipeline() :
 	mOldRenderDebugMask(0),
 	mMeshDirtyQueryObject(0),
 	mGroupQ1Locked(false),
-	mGroupQ2Locked(false),
 	mResetVertexBuffers(false),
 	mLastRebuildPool(NULL),
 	mLightMask(0),
@@ -475,7 +472,6 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderAutoMaskAlphaNonDeferred");
 	connectRefreshCachedSettingsSafe("RenderUseFarClip");
 	connectRefreshCachedSettingsSafe("RenderAvatarMaxNonImpostors");
-	connectRefreshCachedSettingsSafe("RenderDelayVBUpdate");
 	connectRefreshCachedSettingsSafe("UseOcclusion");
 	// DEPRECATED -- connectRefreshCachedSettingsSafe("WindLightUseAtmosShaders");
 	// DEPRECATED -- connectRefreshCachedSettingsSafe("RenderDeferred");
@@ -560,7 +556,6 @@ void LLPipeline::cleanup()
 	assertInitialized();
 
 	mGroupQ1.clear() ;
-	mGroupQ2.clear() ;
 
 	for(pool_set_t::iterator iter = mPools.begin();
 		iter != mPools.end(); )
@@ -954,7 +949,6 @@ void LLPipeline::refreshCachedSettings()
 	LLPipeline::sUseFarClip = gSavedSettings.getBOOL("RenderUseFarClip");
 	LLVOAvatar::sMaxNonImpostors = gSavedSettings.getU32("RenderAvatarMaxNonImpostors");
 	LLVOAvatar::updateImpostorRendering(LLVOAvatar::sMaxNonImpostors);
-	LLPipeline::sDelayVBUpdate = gSavedSettings.getBOOL("RenderDelayVBUpdate");
 
 	LLPipeline::sUseOcclusion = 
 			(!gUseWireframe
@@ -1760,7 +1754,7 @@ void LLPipeline::createObject(LLViewerObject* vobj)
 		vobj->setDrawableParent(NULL); // LLPipeline::addObject 2
 	}
 
-	markRebuild(drawablep, LLDrawable::REBUILD_ALL, TRUE);
+	markRebuild(drawablep, LLDrawable::REBUILD_ALL);
 
 	if (drawablep->getVOVolume() && RenderAnimateRes)
 	{
@@ -1876,10 +1870,10 @@ void LLPipeline::updateMovedList(LLDrawable::drawable_vector_t& moved_list)
 			{ //will likely not receive any future world matrix updates
 				// -- this keeps attachments from getting stuck in space and falling off your avatar
 				drawablep->clearState(LLDrawable::ANIMATED_CHILD);
-				markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, TRUE);
+				markRebuild(drawablep, LLDrawable::REBUILD_VOLUME);
 				if (drawablep->getVObj())
 				{
-					drawablep->getVObj()->dirtySpatialGroup(TRUE);
+					drawablep->getVObj()->dirtySpatialGroup();
 				}
 			}
 			iter = moved_list.erase(curiter);
@@ -2428,7 +2422,6 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 		gGL.setColorMask(false, false);
 
 		LLGLDisable blend(GL_BLEND);
-		LLGLDisable test(GL_ALPHA_TEST);
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 
@@ -2518,33 +2511,6 @@ void LLPipeline::clearRebuildGroups()
 	// Copy the saved HUD groups back in
 	mGroupQ1.assign(hudGroups.begin(), hudGroups.end());
 	mGroupQ1Locked = false;
-
-	// Clear the HUD groups
-	hudGroups.clear();
-
-	mGroupQ2Locked = true;
-	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ2.begin();
-		 iter != mGroupQ2.end(); ++iter)
-	{
-		LLSpatialGroup* group = *iter;
-
-		// If the group contains HUD objects, save the group
-		if (group->isHUDGroup())
-		{
-			hudGroups.push_back(group);
-		}
-		// Else, no HUD objects so clear the build state
-		else
-		{
-			group->clearState(LLSpatialGroup::IN_BUILD_Q2);
-		}
-	}	
-	// Clear the group
-	mGroupQ2.clear();
-
-	// Copy the saved HUD groups back in
-	mGroupQ2.assign(hudGroups.begin(), hudGroups.end());
-	mGroupQ2Locked = false;
 }
 
 void LLPipeline::clearRebuildDrawables()
@@ -2556,24 +2522,11 @@ void LLPipeline::clearRebuildDrawables()
 		LLDrawable* drawablep = *iter;
 		if (drawablep && !drawablep->isDead())
 		{
-			drawablep->clearState(LLDrawable::IN_REBUILD_Q2);
-			drawablep->clearState(LLDrawable::IN_REBUILD_Q1);
+			drawablep->clearState(LLDrawable::IN_REBUILD_Q);
 		}
 	}
 	mBuildQ1.clear();
 
-	// clear drawables on the non-priority build queue
-	for (LLDrawable::drawable_list_t::iterator iter = mBuildQ2.begin();
-		 iter != mBuildQ2.end(); ++iter)
-	{
-		LLDrawable* drawablep = *iter;
-		if (!drawablep->isDead())
-		{
-			drawablep->clearState(LLDrawable::IN_REBUILD_Q2);
-		}
-	}	
-	mBuildQ2.clear();
-	
 	//clear all moving bridges
 	for (LLDrawable::drawable_vector_t::iterator iter = mMovedBridge.begin();
 		 iter != mMovedBridge.end(); ++iter)
@@ -2627,52 +2580,6 @@ void LLPipeline::rebuildPriorityGroups()
 
 }
 
-void LLPipeline::rebuildGroups()
-{
-	if (mGroupQ2.empty() || gCubeSnapshot)
-	{
-		return;
-	}
-
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-	mGroupQ2Locked = true;
-	// Iterate through some drawables on the non-priority build queue
-	S32 size = (S32) mGroupQ2.size();
-	S32 min_count = llclamp((S32) ((F32) (size * size)/4096*0.25f), 1, size);
-			
-	S32 count = 0;
-	
-	std::sort(mGroupQ2.begin(), mGroupQ2.end(), LLSpatialGroup::CompareUpdateUrgency());
-
-	LLSpatialGroup::sg_vector_t::iterator iter;
-	LLSpatialGroup::sg_vector_t::iterator last_iter = mGroupQ2.begin();
-
-	for (iter = mGroupQ2.begin();
-		 iter != mGroupQ2.end() && count <= min_count; ++iter)
-	{
-		LLSpatialGroup* group = *iter;
-		last_iter = iter;
-
-		if (!group->isDead())
-		{
-			group->rebuildGeom();
-			
-			if (group->getSpatialPartition()->mRenderByGroup)
-			{
-				count++;
-			}
-		}
-
-		group->clearState(LLSpatialGroup::IN_BUILD_Q2);
-	}	
-
-	mGroupQ2.erase(mGroupQ2.begin(), ++last_iter);
-
-	mGroupQ2Locked = false;
-
-	updateMovedList(mMovedBridge);
-}
-
 void LLPipeline::updateGeom(F32 max_dtime)
 {
 	LLTimer update_timer;
@@ -2698,16 +2605,6 @@ void LLPipeline::updateGeom(F32 max_dtime)
 		LLDrawable* drawablep = *curiter;
 		if (drawablep && !drawablep->isDead())
 		{
-			if (drawablep->isState(LLDrawable::IN_REBUILD_Q2))
-			{
-				drawablep->clearState(LLDrawable::IN_REBUILD_Q2);
-				LLDrawable::drawable_list_t::iterator find = std::find(mBuildQ2.begin(), mBuildQ2.end(), drawablep);
-				if (find != mBuildQ2.end())
-				{
-					mBuildQ2.erase(find);
-				}
-			}
-
 			if (drawablep->isUnload())
 			{
 				drawablep->unload();
@@ -2716,7 +2613,7 @@ void LLPipeline::updateGeom(F32 max_dtime)
 
 			if (updateDrawableGeom(drawablep, TRUE))
 			{
-				drawablep->clearState(LLDrawable::IN_REBUILD_Q1);
+				drawablep->clearState(LLDrawable::IN_REBUILD_Q);
 				mBuildQ1.erase(curiter);
 			}
 		}
@@ -2725,54 +2622,6 @@ void LLPipeline::updateGeom(F32 max_dtime)
 			mBuildQ1.erase(curiter);
 		}
 	}
-		
-	// Iterate through some drawables on the non-priority build queue
-	S32 min_count = 16;
-	S32 size = (S32) mBuildQ2.size();
-	if (size > 1024)
-	{
-		min_count = llclamp((S32) (size * (F32) size/4096), 16, size);
-	}
-		
-	S32 count = 0;
-	
-	max_dtime = llmax(update_timer.getElapsedTimeF32()+0.001f, F32SecondsImplicit(max_dtime));
-	LLSpatialGroup* last_group = NULL;
-	LLSpatialBridge* last_bridge = NULL;
-
-	for (LLDrawable::drawable_list_t::iterator iter = mBuildQ2.begin();
-		 iter != mBuildQ2.end(); )
-	{
-		LLDrawable::drawable_list_t::iterator curiter = iter++;
-		LLDrawable* drawablep = *curiter;
-
-		LLSpatialBridge* bridge = drawablep->isRoot() ? drawablep->getSpatialBridge() :
-									drawablep->getParent()->getSpatialBridge();
-
-		if (drawablep->getSpatialGroup() != last_group && 
-			(!last_bridge || bridge != last_bridge) &&
-			(update_timer.getElapsedTimeF32() >= max_dtime) && count > min_count)
-		{
-			break;
-		}
-
-		//make sure updates don't stop in the middle of a spatial group
-		//to avoid thrashing (objects are enqueued by group)
-		last_group = drawablep->getSpatialGroup();
-		last_bridge = bridge;
-
-		bool update_complete = true;
-		if (!drawablep->isDead())
-		{
-			update_complete = updateDrawableGeom(drawablep, FALSE);
-			count++;
-		}
-		if (update_complete)
-		{
-			drawablep->clearState(LLDrawable::IN_REBUILD_Q2);
-			mBuildQ2.erase(curiter);
-		}
-	}	
 
 	updateMovedList(mMovedBridge);
 }
@@ -2979,67 +2828,31 @@ void LLPipeline::markMeshDirty(LLSpatialGroup* group)
 	mMeshDirtyGroup.push_back(group);
 }
 
-void LLPipeline::markRebuild(LLSpatialGroup* group, bool priority)
+void LLPipeline::markRebuild(LLSpatialGroup* group)
 {
 	if (group && !group->isDead() && group->getSpatialPartition())
 	{
-		if (group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_HUD)
+		if (!group->hasState(LLSpatialGroup::IN_BUILD_Q1))
 		{
-			priority = true;
-		}
+			llassert_always(!mGroupQ1Locked);
 
-		if (priority)
-		{
-			if (!group->hasState(LLSpatialGroup::IN_BUILD_Q1))
-			{
-				llassert_always(!mGroupQ1Locked);
-
-				mGroupQ1.push_back(group);
-				group->setState(LLSpatialGroup::IN_BUILD_Q1);
-
-				if (group->hasState(LLSpatialGroup::IN_BUILD_Q2))
-				{
-					LLSpatialGroup::sg_vector_t::iterator iter = std::find(mGroupQ2.begin(), mGroupQ2.end(), group);
-					if (iter != mGroupQ2.end())
-					{
-						mGroupQ2.erase(iter);
-					}
-					group->clearState(LLSpatialGroup::IN_BUILD_Q2);
-				}
-			}
-		}
-		else if (!group->hasState(LLSpatialGroup::IN_BUILD_Q2 | LLSpatialGroup::IN_BUILD_Q1))
-		{
-			llassert_always(!mGroupQ2Locked);
-			mGroupQ2.push_back(group);
-			group->setState(LLSpatialGroup::IN_BUILD_Q2);
-
+			mGroupQ1.push_back(group);
+			group->setState(LLSpatialGroup::IN_BUILD_Q1);
 		}
 	}
 }
 
-void LLPipeline::markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag, bool priority)
+void LLPipeline::markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag)
 {
 	if (drawablep && !drawablep->isDead() && assertInitialized())
 	{
-		if (!drawablep->isState(LLDrawable::BUILT))
+		if (!drawablep->isState(LLDrawable::IN_REBUILD_Q))
 		{
-			priority = true;
+			mBuildQ1.push_back(drawablep);
+			drawablep->setState(LLDrawable::IN_REBUILD_Q); // mark drawable as being in priority queue
 		}
-		if (priority)
-		{
-			if (!drawablep->isState(LLDrawable::IN_REBUILD_Q1))
-			{
-				mBuildQ1.push_back(drawablep);
-				drawablep->setState(LLDrawable::IN_REBUILD_Q1); // mark drawable as being in priority queue
-			}
-		}
-		else if (!drawablep->isState(LLDrawable::IN_REBUILD_Q2))
-		{
-			mBuildQ2.push_back(drawablep);
-			drawablep->setState(LLDrawable::IN_REBUILD_Q2); // need flag here because it is just a list
-		}
-		if (flag & (LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION))
+
+        if (flag & (LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION))
 		{
 			drawablep->getVObj()->setChanged(LLXform::SILHOUETTE);
 		}
@@ -3085,7 +2898,6 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 				markVisible(drawablep, camera);
 			}
 
-			if (!sDelayVBUpdate)
 			{ //rebuild mesh as soon as we know it's visible
 				group->rebuildMesh();
 			}
@@ -3141,7 +2953,6 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 			group->setVisible();
 			stateSort(group, camera);
 
-			if (!sDelayVBUpdate)
 			{ //rebuild mesh as soon as we know it's visible
 				group->rebuildMesh();
 			}
@@ -3742,7 +3553,6 @@ void render_hud_elements()
 
 	if (!LLPipeline::sReflectionRender && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 	{
-		LLGLEnable multisample(LLPipeline::RenderFSAASamples > 0 ? GL_MULTISAMPLE : 0);
 		gViewerWindow->renderSelections(FALSE, FALSE, FALSE); // For HUD version in render_ui_3d()
 	
 		// Draw the tracking overlays
@@ -3777,7 +3587,6 @@ void LLPipeline::renderHighlights()
 	// Render highlighted faces.
 	LLGLSPipelineAlpha gls_pipeline_alpha;
 	LLColor4 color(1.f, 1.f, 1.f, 0.5f);
-	LLGLEnable color_mat(GL_COLOR_MATERIAL);
 	disableLights();
 
 	if ((LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
@@ -3947,8 +3756,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 			}
 		}
 
-		LLGLEnable multisample(RenderFSAASamples > 0 ? GL_MULTISAMPLE : 0);
-
 		LLVertexBuffer::unbind();
 
 		LLGLState::checkStates();
@@ -4054,8 +3861,6 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 	U32 cur_type = 0;
 
 	LLGLEnable cull(GL_CULL_FACE);
-
-	LLGLEnable multisample(RenderFSAASamples > 0 ? GL_MULTISAMPLE : 0);
 
 	calcNearbyLights(camera);
 	setupHWLights();
@@ -4884,63 +4689,6 @@ void LLPipeline::renderDebug()
 			}
 			gGL.end();
 		}
-	}
-
-	if (mRenderDebugMask & LLPipeline::RENDER_DEBUG_BUILD_QUEUE)
-	{
-		U32 count = 0;
-		U32 size = mGroupQ2.size();
-		LLColor4 col;
-
-		LLVertexBuffer::unbind();
-		LLGLEnable blend(GL_BLEND);
-		gGL.setSceneBlendType(LLRender::BT_ALPHA);
-		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
-		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
-		
-		gGL.pushMatrix();
-		gGL.loadMatrix(gGLModelView);
-		gGLLastMatrix = NULL;
-
-		for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ2.begin(); iter != mGroupQ2.end(); ++iter)
-		{
-			LLSpatialGroup* group = *iter;
-			if (group->isDead())
-			{
-				continue;
-			}
-
-			LLSpatialBridge* bridge = group->getSpatialPartition()->asBridge();
-
-			if (bridge && (!bridge->mDrawable || bridge->mDrawable->isDead()))
-			{
-				continue;
-			}
-
-			if (bridge)
-			{
-				gGL.pushMatrix();
-				gGL.multMatrix((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
-			}
-
-			F32 alpha = llclamp((F32) (size-count)/size, 0.f, 1.f);
-
-			
-			LLVector2 c(1.f-alpha, alpha);
-			c.normVec();
-
-			
-			++count;
-			col.set(c.mV[0], c.mV[1], 0, alpha*0.5f+0.5f);
-			group->drawObjectBox(col);
-
-			if (bridge)
-			{
-				gGL.popMatrix();
-			}
-		}
-
-		gGL.popMatrix();
 	}
 
 	gGL.flush();
@@ -6041,11 +5789,7 @@ void LLPipeline::findReferences(LLDrawable *drawablep)
 	{
 		LL_INFOS() << "In mBuildQ1" << LL_ENDL;
 	}
-	if (std::find(mBuildQ2.begin(), mBuildQ2.end(), drawablep) != mBuildQ2.end())
-	{
-		LL_INFOS() << "In mBuildQ2" << LL_ENDL;
-	}
-
+	
 	S32 count;
 	
 	count = gObjectList.findReferences(drawablep);
@@ -7140,7 +6884,6 @@ void LLPipeline::generateGlow(LLRenderTarget* src)
 
 		{
 			LLGLEnable blend_on(GL_BLEND);
-			LLGLEnable test(GL_ALPHA_TEST);
 
 			gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 
@@ -7559,8 +7302,6 @@ void LLPipeline::renderFinalize()
 
     enableLightsFullbright();
 
-    LLGLDisable test(GL_ALPHA_TEST);
-
     gGL.setColorMask(true, true);
     glClearColor(0, 0, 0, 0);
 
@@ -7971,8 +7712,6 @@ void LLPipeline::renderDeferredLighting()
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("deferred");
         LLViewerCamera *camera = LLViewerCamera::getInstance();
         
-        LLGLEnable multisample(RenderFSAASamples > 0 ? GL_MULTISAMPLE : 0);
-
         if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
         {
             gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD);
@@ -8133,7 +7872,6 @@ void LLPipeline::renderDeferredLighting()
             {
                 LLGLDepthTest depth(GL_FALSE);
                 LLGLDisable   blend(GL_BLEND);
-                LLGLDisable   test(GL_ALPHA_TEST);
 
                 // full screen blit
                 mScreenTriangleVB->setBuffer();
@@ -10773,7 +10511,7 @@ void LLPipeline::hideObject( const LLUUID& id )
 void LLPipeline::hideDrawable( LLDrawable *pDrawable )
 {
 	pDrawable->setState( LLDrawable::FORCE_INVISIBLE );
-	markRebuild( pDrawable, LLDrawable::REBUILD_ALL, TRUE );
+	markRebuild( pDrawable, LLDrawable::REBUILD_ALL);
 	//hide the children
 	LLViewerObject::const_child_list_t& child_list = pDrawable->getVObj()->getChildren();
 	for ( LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
@@ -10784,14 +10522,14 @@ void LLPipeline::hideDrawable( LLDrawable *pDrawable )
 		if ( drawable )
 		{
 			drawable->setState( LLDrawable::FORCE_INVISIBLE );
-			markRebuild( drawable, LLDrawable::REBUILD_ALL, TRUE );
+			markRebuild( drawable, LLDrawable::REBUILD_ALL);
 		}
 	}
 }
 void LLPipeline::unhideDrawable( LLDrawable *pDrawable )
 {
 	pDrawable->clearState( LLDrawable::FORCE_INVISIBLE );
-	markRebuild( pDrawable, LLDrawable::REBUILD_ALL, TRUE );
+	markRebuild( pDrawable, LLDrawable::REBUILD_ALL);
 	//restore children
 	LLViewerObject::const_child_list_t& child_list = pDrawable->getVObj()->getChildren();
 	for ( LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
@@ -10802,7 +10540,7 @@ void LLPipeline::unhideDrawable( LLDrawable *pDrawable )
 		if ( drawable )
 		{
 			drawable->clearState( LLDrawable::FORCE_INVISIBLE );
-			markRebuild( drawable, LLDrawable::REBUILD_ALL, TRUE );
+			markRebuild( drawable, LLDrawable::REBUILD_ALL);
 		}
 	}
 }

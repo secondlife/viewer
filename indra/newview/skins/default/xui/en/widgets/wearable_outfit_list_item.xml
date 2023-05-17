@@ -41,6 +41,7 @@
     width="359" />
     <add_btn
      name="add_wearable"
+     visible="false"
      layout="topleft"
      follows="top|right"
      image_unselected="Add_Icon"
@@ -52,6 +53,7 @@
      tab_stop="false" />
     <remove_btn
      name="remove_wearable"
+     visible="false"
      layout="topleft"
      follows="top|right"
      image_unselected="Remove_Icon"

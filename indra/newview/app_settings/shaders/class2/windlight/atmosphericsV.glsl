@@ -23,7 +23,7 @@
  * $/LicenseInfo$
  */
 
-// VARYING param funcs
+// out param funcs
 
 
 uniform vec3 sun_dir;

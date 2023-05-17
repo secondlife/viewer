@@ -25,14 +25,14 @@
  
 uniform mat4 modelview_projection_matrix;
 
-ATTRIBUTE vec3 position;
+in vec3 position;
 
 uniform vec2 glowDelta;
 
-VARYING vec4 vary_texcoord0;
-VARYING vec4 vary_texcoord1;
-VARYING vec4 vary_texcoord2;
-VARYING vec4 vary_texcoord3;
+out vec4 vary_texcoord0;
+out vec4 vary_texcoord1;
+out vec4 vary_texcoord2;
+out vec4 vary_texcoord3;
 
 void main() 
 {

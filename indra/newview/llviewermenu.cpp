@@ -1028,10 +1028,6 @@ U64 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_LOD_INFO;
 	}
-	else if ("build queue" == info_display)
-	{
-		return LLPipeline::RENDER_DEBUG_BUILD_QUEUE;
-	}
 	else if ("lights" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_LIGHTS;
@@ -2793,6 +2789,13 @@ bool enable_object_touch(LLUICtrl* ctrl)
 void handle_object_open()
 {
 	LLFloaterReg::showInstance("openobject");
+}
+
+bool enable_object_inspect()
+{
+    LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+    LLViewerObject* selected_objectp = selection->getFirstRootObject();
+    return selected_objectp != NULL;
 }
 
 struct LLSelectedTEGetmatIdAndPermissions : public LLSelectedTEFunctor
@@ -7934,7 +7937,7 @@ bool enable_object_take_copy()
 	bool all_valid = false;
 	if (LLSelectMgr::getInstance())
 	{
-		if (!LLSelectMgr::getInstance()->getSelection()->isEmpty())
+		if (LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() > 0)
 		{
 		all_valid = true;
 #ifndef HACKED_GODLIKE_VIEWER
@@ -9661,6 +9664,7 @@ void initialize_menus()
 	commit.add("Object.Open", boost::bind(&handle_object_open));
 	commit.add("Object.Take", boost::bind(&handle_take));
 	commit.add("Object.ShowInspector", boost::bind(&handle_object_show_inspector));
+    enable.add("Object.EnableInspect", boost::bind(&enable_object_inspect));
     enable.add("Object.EnableEditGLTFMaterial", boost::bind(&enable_object_edit_gltf_material));
     enable.add("Object.EnableSaveGLTFMaterial", boost::bind(&enable_object_save_gltf_material));
 	enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
