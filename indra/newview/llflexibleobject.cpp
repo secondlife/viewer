@@ -348,7 +348,7 @@ void LLVolumeImplFlexible::doIdleUpdate()
 			if (mRenderRes == -1)
 			{
 				updateRenderRes();
-				gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
+				gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION);
 			}
 			else
 			{
@@ -361,7 +361,7 @@ void LLVolumeImplFlexible::doIdleUpdate()
 				// MAINT-1890 Clamp the update period to ensure that the update_period is no greater than 32 frames
 				update_period = llclamp(update_period, 1U, 32U);
 
-				// We control how fast flexies update, buy splitting updates among frames
+				// We control how fast flexies update, buy splitting updates among frames   
 				U64 virtual_frame_num = LLTimer::getElapsedSeconds() / SEC_PER_FLEXI_FRAME;
 
 				if	(visible)
@@ -400,7 +400,7 @@ void LLVolumeImplFlexible::doIdleUpdate()
 							updateRenderRes();
 
                             mVO->shrinkWrap();
-							gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION, FALSE);
+							gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_POSITION);
 						}
 					}
 				}

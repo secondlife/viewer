@@ -191,8 +191,8 @@ public:
 	void        markShift(LLDrawable *drawablep);
 	void        markTextured(LLDrawable *drawablep);
 	void		markGLRebuild(LLGLUpdate* glu);
-	void		markRebuild(LLSpatialGroup* group, bool priority = false);
-	void        markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag = LLDrawable::REBUILD_ALL, bool priority = false);
+	void		markRebuild(LLSpatialGroup* group);
+	void        markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag = LLDrawable::REBUILD_ALL);
 	void		markPartitionMove(LLDrawable* drawablep);
 	void		markMeshDirty(LLSpatialGroup* group);
 
@@ -637,7 +637,6 @@ public:
 	static bool				sShowHUDAttachments;
 	static bool				sForceOldBakedUpload; // If true will not use capabilities to upload baked textures.
 	static S32				sUseOcclusion;  // 0 = no occlusion, 1 = read only, 2 = read/write
-	static bool				sDelayVBUpdate;
 	static bool				sAutoMaskAlphaDeferred;
 	static bool				sAutoMaskAlphaNonDeferred;
 	static bool				sRenderTransparentWater;

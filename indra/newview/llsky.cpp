@@ -116,13 +116,13 @@ void LLSky::resetVertexBuffers()
 	if (gSky.mVOSkyp.notNull())
 	{
 		gPipeline.resetVertexBuffers(gSky.mVOSkyp->mDrawable);
-		gPipeline.markRebuild(gSky.mVOSkyp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		gPipeline.markRebuild(gSky.mVOSkyp->mDrawable, LLDrawable::REBUILD_ALL);
 	}
 	if (gSky.mVOWLSkyp.notNull())
 	{
 		gSky.mVOWLSkyp->resetVertexBuffers();
 		gPipeline.resetVertexBuffers(gSky.mVOWLSkyp->mDrawable);
-		gPipeline.markRebuild(gSky.mVOWLSkyp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		gPipeline.markRebuild(gSky.mVOWLSkyp->mDrawable, LLDrawable::REBUILD_ALL);
 	}
 }
 

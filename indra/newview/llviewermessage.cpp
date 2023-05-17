@@ -4222,7 +4222,7 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
         //if (!avatarp->mRootVolp->isAnySelected())
         {
             avatarp->updateVolumeGeom();
-            avatarp->mRootVolp->recursiveMarkForUpdate(TRUE);
+            avatarp->mRootVolp->recursiveMarkForUpdate();
         }
     }
         

@@ -376,11 +376,11 @@ void LLVOTree::idleUpdate(LLAgent &agent, const F64 &time)
 
 	if (mReferenceBuffer.isNull())
 	{
-		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
 	}
 	else if (trunk_LOD != mTrunkLOD)
 	{
-		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, FALSE);
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
 	}
 	else
 	{
