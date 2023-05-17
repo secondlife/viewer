@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_experience_search" label="Wyszukiwanie">
+	<string name="not_found">
+		Nie znaleziono: &apos;[TEXT]&apos;
+	</string>
+	<string name="no_results">
+		Brak wyników
+	</string>
+	<string name="searching">
+		Szukam...
+	</string>
+	<string name="loading">
+		Wczytywanie...
+	</string>
+	<panel name="search_panel">
+		<text name="lbl name part">
+			Wpisz fragment nazwy:
+		</text>
+		<button label="Szukaj" name="find"/>
+		<text name="lbl max content rating">
+			Maksymalna klasyfikacja:
+		</text>
+		<icons_combo_box label="Moderate (umiarkowana)" name="maturity">
+			<icons_combo_box.item label="Adult (dla dorosłych)" name="Adult" />
+			<icons_combo_box.item label="Moderate (umiarkowana)" name="Mature" />
+			<icons_combo_box.item label="General (dla wszystkich)" name="PG" />
+		</icons_combo_box>
+		<scroll_list name="search_results">
+			<columns name="experience_name" label="Nazwa" />
+			<columns name="owner" label="Właściciel" />
+		</scroll_list>
+		<button label="Anuluj" name="cancel_btn" />
+		<button label="Pokaż profil" name="profile_btn" />
+	</panel>
+</panel>

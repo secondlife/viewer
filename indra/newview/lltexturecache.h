@@ -113,7 +113,7 @@ public:
 	LLTextureCache(bool threaded);
 	~LLTextureCache();
 
-	/*virtual*/ S32 update(F32 max_time_ms);	
+	/*virtual*/ size_t update(F32 max_time_ms);
 	
 	void purgeCache(ELLPath location, bool remove_dir = true);
 	void setReadOnly(BOOL read_only) ;

@@ -309,6 +309,17 @@
 			media_plugin_cef
 		</impl>
 	</mimetype>
+    <mimetype name="application/octet-stream">
+        <label name="application/octet-stream_label">
+            Stream
+        </label>
+        <widgettype>
+            movie
+        </widgettype>
+        <impl>
+            media_plugin_libvlc
+        </impl>
+    </mimetype>
 	<mimetype name="audio/mid">
 		<label name="audio/mid_label">
 			Audio (MIDI)
@@ -474,6 +485,17 @@
 			media_plugin_libvlc
 		</impl>
 	</mimetype>
+    <mimetype name="video/x-flv">
+        <label name="video/x-flv_label">
+            Movie (flv)
+        </label>
+        <widgettype>
+            movie
+        </widgettype>
+        <impl>
+            media_plugin_libvlc
+        </impl>
+    </mimetype>
   <mimetype name="application/octet-stream">
     <label name="video/octet-stream">
       Movie

@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<context_menu name="Outfit">
+	<menu name="New Clothes" label="Novas Roupas">
+		<menu_item_call name="New Skirt" label="Nova Saia"/>
+		<menu_item_call name="New Underpants" label="Novas Roupas Íntimas"/>
+		<menu_item_call name="New Undershirt" label="Nova Camisa de Baixo"/>
+		<menu_item_call name="New Shirt" label="Nova Camisa"/>
+		<menu_item_call name="New Pants" label="Nova Calça"/>
+		<menu_item_call name="New Tattoo" label="Nova Tatuagem"/>
+		<menu_item_call name="New Physics" label="Novo Físico"/>
+		<menu_item_call name="New Jacket" label="Nova Jaqueta"/>
+		<menu_item_call name="New Shoes" label="Novos Sapatos"/>
+		<menu_item_call name="New Gloves" label="Novas Luvas"/>
+		<menu_item_call name="New Alpha" label="Novo Alpha"/>
+		<menu_item_call name="New Socks" label="Novas Meias"/>
+	</menu>
+	<menu name="New Body Parts" label="Novas Partes do Corpo">
+		<menu_item_call name="New Hair" label="Novo Cabelo"/>
+		<menu_item_call name="New Eyes" label="Novos Olhos"/>
+		<menu_item_call name="New Shape" label="Novo Formato"/>
+		<menu_item_call name="New Skin" label="Nova Pele"/>
+	</menu>
+</context_menu>

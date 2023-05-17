@@ -9,6 +9,7 @@
         name="panel_settings_sky_clouds"
         top="0">
     <layout_stack 
+            name="main_ls"
             follows="all"
             layout="topleft"
             left="5"
@@ -17,6 +18,7 @@
             bottom="-5"
             orientation="hoizontal">
         <layout_panel
+                name="left_lp"
                 border="true"
                 bevel_style="in"
                 auto_resize="true"
@@ -24,6 +26,7 @@
                 visible="true"
                 height="75">
             <text
+                    name="cloud_color_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
@@ -43,6 +46,7 @@
                     top_pad="5"
                     width="60" />
             <text
+                    name="cloud_coverage_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
@@ -66,6 +70,7 @@
                     width="214"
                     can_edit_text="true"/>
             <text
+                    name="cloud_scale_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
@@ -89,6 +94,7 @@
                     width="214"
                     can_edit_text="true"/>
             <text
+                    name="cloud_variance_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
@@ -112,6 +118,7 @@
                     width="214"
                     can_edit_text="true"/>
             <text
+                    name="cloud_scroll_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
@@ -135,6 +142,7 @@
                     logarithmic="1"/>
 
             <text
+                    name="cloud_image_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
@@ -152,6 +160,7 @@
                     width="100"/>
         </layout_panel>
         <layout_panel
+                name="right_lp"
                 border="true"
                 bevel_style="in"
                 auto_resize="true"
@@ -159,6 +168,7 @@
                 visible="true"
                 height="75">
             <text
+                    name="cloud_density_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
@@ -213,6 +223,7 @@
                     width="200"
                     can_edit_text="true"/>
             <text
+                    name="cloud_detail_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"

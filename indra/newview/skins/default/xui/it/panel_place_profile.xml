@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" ?>
 <panel name="place_profile">
 	<string name="on" value="Attivo"/>
 	<string name="off" value="Disattivato"/>
@@ -17,30 +17,14 @@
 	<string name="area_text" value="m²"/>
 	<string name="all_residents_text" value="Tutti i residenti"/>
 	<string name="group_text" value="Gruppo"/>
-	<string name="can_resell">
-		Il terreno acquistato in questa regione può essere rivenduto.
-	</string>
-	<string name="can_not_resell">
-		Il terreno acquistato in questa regione non può essere rivenduto.
-	</string>
-	<string name="can_change">
-		Il terreno acquistato in questa regione può essere unito o suddiviso.
-	</string>
-	<string name="can_not_change">
-		Il terreno acquistato in questa regione non può essere unito o suddiviso.
-	</string>
-	<string name="server_update_text">
-		Informazioni sul luogo non disponibili senza l&apos;aggiornamento del server.
-	</string>
-	<string name="server_error_text">
-		Informazioni su questo luogo non disponibili al momento, riprova più tardi.
-	</string>
-	<string name="server_forbidden_text">
-		Informazioni su questo luogo non disponibili a causa delle limitazioni di accesso.  Controlla i tuoi permessi con il proprietario del terreno.
-	</string>
-	<string name="acquired_date">
-		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
-	</string>
+	<string name="can_resell">Il terreno acquistato in questa regione può essere rivenduto.</string>
+	<string name="can_not_resell">Il terreno acquistato in questa regione non può essere rivenduto.</string>
+	<string name="can_change">Il terreno acquistato in questa regione può essere unito o suddiviso.</string>
+	<string name="can_not_change">Il terreno acquistato in questa regione non può essere unito o suddiviso.</string>
+	<string name="server_update_text">Informazioni sul luogo non disponibili senza l'aggiornamento del server.</string>
+	<string name="server_error_text">Informazioni su questo luogo non disponibili al momento, riprova più tardi.</string>
+	<string name="server_forbidden_text">Informazioni su questo luogo non disponibili a causa delle limitazioni di accesso.  Controlla i tuoi permessi con il proprietario del terreno.</string>
+	<string name="acquired_date">[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]</string>
 	<button name="back_btn" tool_tip="Indietro"/>
 	<text name="title" value="Profilo del luogo"/>
 	<scroll_container name="place_scroll">
@@ -80,9 +64,7 @@
 						<text name="region_owner_label" value="Proprietario:"/>
 						<text name="region_owner" value="moose Van Moose nome lunghissimo moose"/>
 						<text name="region_group_label" value="Gruppo:"/>
-						<text name="region_group">
-							The Mighty Moose of mooseville soundvillemoose
-						</text>
+						<text name="region_group">The Mighty Moose of mooseville soundvillemoose</text>
 						<button label="Regione/proprietà immobiliare" name="region_info_btn"/>
 					</panel>
 				</accordion_tab>
@@ -110,5 +92,8 @@
 				</accordion_tab>
 			</accordion>
 		</panel>
+		<text name="parcel_title" value="SampleParcel, Name Long (145, 228, 26)"/>
+		<text name="region_title" value="SampleRegion"/>
+		<expandable_text name="description" value="Du waltz die spritz"/>
 	</scroll_container>
 </panel>
