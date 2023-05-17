@@ -732,12 +732,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                         {
                             target_shader = &(gDeferredMaterialWaterProgram[mask]);
                         }
-
-                        if (params.mAvatar != nullptr)
-                        {
-                            llassert(target_shader->mRiggedVariant != nullptr);
-                            target_shader = target_shader->mRiggedVariant;
-                        }
                     }
                     else if (!params.mFullbright)
                     {
@@ -750,6 +744,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
                     if (params.mAvatar != nullptr)
                     {
+                        llassert(target_shader->mRiggedVariant != nullptr);
                         target_shader = target_shader->mRiggedVariant;
                     }
 
