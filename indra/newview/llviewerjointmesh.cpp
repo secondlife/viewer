@@ -39,7 +39,6 @@
 #include "lldrawpoolbump.h"
 #include "lldynamictexture.h"
 #include "llface.h"
-#include "llgldbg.h"
 #include "llglheaders.h"
 #include "llviewertexlayer.h"
 #include "llviewercamera.h"

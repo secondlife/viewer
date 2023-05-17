@@ -56,49 +56,26 @@ private:
 class LLGLSDefault
 {
 protected:
-	LLGLEnable mColorMaterial;
-	LLGLDisable mAlphaTest, mBlend, mCullFace, mDither, 
-		mLineSmooth, mLineStipple, mNormalize, mPolygonSmooth,
-		mGLMultisample;
+    LLGLDisable mBlend, mCullFace;
 public:
 	LLGLSDefault()
 		:
-		// Enable
-		mColorMaterial(GL_COLOR_MATERIAL),
 		// Disable
-		mAlphaTest(GL_ALPHA_TEST),
 		mBlend(GL_BLEND), 
-		mCullFace(GL_CULL_FACE),
-		mDither(GL_DITHER),
-		mLineSmooth(GL_LINE_SMOOTH),
-		mLineStipple(GL_LINE_STIPPLE),
-		mNormalize(GL_NORMALIZE),
-		mPolygonSmooth(GL_POLYGON_SMOOTH),
-		mGLMultisample(GL_MULTISAMPLE)
+		mCullFace(GL_CULL_FACE)
 	{ }
 };
 
 class LLGLSObjectSelect
 { 
 protected:
-	LLGLDisable mBlend, mAlphaTest;
+	LLGLDisable mBlend;
 	LLGLEnable mCullFace;
 public:
 	LLGLSObjectSelect()
 		: mBlend(GL_BLEND), 
-		  mAlphaTest(GL_ALPHA_TEST),
 		  mCullFace(GL_CULL_FACE)
 	{ }
-};
-
-class LLGLSObjectSelectAlpha
-{
-protected:
-	LLGLEnable mAlphaTest;
-public:
-	LLGLSObjectSelectAlpha()
-		: mAlphaTest(GL_ALPHA_TEST)
-	{}
 };
 
 //----------------------------------------------------------------------------
@@ -106,24 +83,14 @@ public:
 class LLGLSUIDefault
 { 
 protected:
-	LLGLEnable mBlend, mAlphaTest;
+	LLGLEnable mBlend;
 	LLGLDisable mCullFace;
 	LLGLDepthTest mDepthTest;
 public:
 	LLGLSUIDefault() 
-		: mBlend(GL_BLEND), mAlphaTest(GL_ALPHA_TEST),
+		: mBlend(GL_BLEND),
 		  mCullFace(GL_CULL_FACE),
 		  mDepthTest(GL_FALSE, GL_TRUE, GL_LEQUAL)
-	{}
-};
-
-class LLGLSNoAlphaTest // : public LLGLSUIDefault
-{
-protected:
-	LLGLDisable mAlphaTest;
-public:
-	LLGLSNoAlphaTest()
-		: mAlphaTest(GL_ALPHA_TEST)
 	{}
 };
 
@@ -144,11 +111,10 @@ public:
 class LLGLSPipelineAlpha // : public LLGLSPipeline
 { 
 protected:
-	LLGLEnable mBlend, mAlphaTest;
+	LLGLEnable mBlend;
 public:
 	LLGLSPipelineAlpha()
-		: mBlend(GL_BLEND),
-		  mAlphaTest(GL_ALPHA_TEST)
+		: mBlend(GL_BLEND)
 	{ }
 };
 
@@ -162,20 +128,9 @@ public:
 	{}
 };
 
-class LLGLSPipelineAvatar
-{
-protected:
-	LLGLEnable mNormalize;
-public:
-	LLGLSPipelineAvatar()
-		: mNormalize(GL_NORMALIZE)
-	{}
-};
-
 class LLGLSPipelineSkyBox
 { 
 protected:
-	LLGLDisable mAlphaTest;
     LLGLDisable mCullFace;
     LLGLSquashToFarClip mSquashClip;
 public:
@@ -201,13 +156,11 @@ public:
 class LLGLSTracker
 {
 protected:
-	LLGLEnable mCullFace, mBlend, mAlphaTest;
+	LLGLEnable mCullFace, mBlend;
 public:
 	LLGLSTracker() :
 		mCullFace(GL_CULL_FACE),
-		mBlend(GL_BLEND),
-		mAlphaTest(GL_ALPHA_TEST)
-		
+		mBlend(GL_BLEND)
 	{ }
 };
 

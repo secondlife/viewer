@@ -6288,9 +6288,6 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 
 	auto renderMeshSelection_f = [fogCfx, wireframe_selection](LLSelectNode* node, LLViewerObject* objectp, LLColor4 hlColor)
 	{
-		//Need to because crash on ATI 3800 (and similar cards) MAINT-5018 
-		LLGLDisable multisample(LLPipeline::RenderFSAASamples > 0 ? GL_MULTISAMPLE : 0);
-
 		LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
 		if (shader)

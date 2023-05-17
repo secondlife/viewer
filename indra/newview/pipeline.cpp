@@ -63,7 +63,6 @@
 #include "llfeaturemanager.h"
 #include "llfloatertelehub.h"
 #include "llfloaterreg.h"
-#include "llgldbg.h"
 #include "llhudmanager.h"
 #include "llhudnametag.h"
 #include "llhudtext.h"
@@ -2428,7 +2427,6 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 		gGL.setColorMask(false, false);
 
 		LLGLDisable blend(GL_BLEND);
-		LLGLDisable test(GL_ALPHA_TEST);
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 
@@ -3742,7 +3740,6 @@ void render_hud_elements()
 
 	if (!LLPipeline::sReflectionRender && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 	{
-		LLGLEnable multisample(LLPipeline::RenderFSAASamples > 0 ? GL_MULTISAMPLE : 0);
 		gViewerWindow->renderSelections(FALSE, FALSE, FALSE); // For HUD version in render_ui_3d()
 	
 		// Draw the tracking overlays
@@ -3777,7 +3774,6 @@ void LLPipeline::renderHighlights()
 	// Render highlighted faces.
 	LLGLSPipelineAlpha gls_pipeline_alpha;
 	LLColor4 color(1.f, 1.f, 1.f, 0.5f);
-	LLGLEnable color_mat(GL_COLOR_MATERIAL);
 	disableLights();
 
 	if ((LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
@@ -3947,8 +3943,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 			}
 		}
 
-		LLGLEnable multisample(RenderFSAASamples > 0 ? GL_MULTISAMPLE : 0);
-
 		LLVertexBuffer::unbind();
 
 		LLGLState::checkStates();
@@ -4054,8 +4048,6 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 	U32 cur_type = 0;
 
 	LLGLEnable cull(GL_CULL_FACE);
-
-	LLGLEnable multisample(RenderFSAASamples > 0 ? GL_MULTISAMPLE : 0);
 
 	calcNearbyLights(camera);
 	setupHWLights();
@@ -7140,7 +7132,6 @@ void LLPipeline::generateGlow(LLRenderTarget* src)
 
 		{
 			LLGLEnable blend_on(GL_BLEND);
-			LLGLEnable test(GL_ALPHA_TEST);
 
 			gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 
@@ -7559,8 +7550,6 @@ void LLPipeline::renderFinalize()
 
     enableLightsFullbright();
 
-    LLGLDisable test(GL_ALPHA_TEST);
-
     gGL.setColorMask(true, true);
     glClearColor(0, 0, 0, 0);
 
@@ -7971,8 +7960,6 @@ void LLPipeline::renderDeferredLighting()
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("deferred");
         LLViewerCamera *camera = LLViewerCamera::getInstance();
         
-        LLGLEnable multisample(RenderFSAASamples > 0 ? GL_MULTISAMPLE : 0);
-
         if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
         {
             gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD);
@@ -8133,7 +8120,6 @@ void LLPipeline::renderDeferredLighting()
             {
                 LLGLDepthTest depth(GL_FALSE);
                 LLGLDisable   blend(GL_BLEND);
-                LLGLDisable   test(GL_ALPHA_TEST);
 
                 // full screen blit
                 mScreenTriangleVB->setBuffer();
