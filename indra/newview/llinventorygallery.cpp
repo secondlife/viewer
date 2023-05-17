@@ -45,6 +45,7 @@
 #include "llfriendcard.h"
 #include "llgesturemgr.h"
 #include "llmarketplacefunctions.h"
+#include "lloutfitobserver.h"
 #include "lltrans.h"
 #include "llviewerassettype.h"
 #include "llviewermessage.h"
@@ -244,8 +245,7 @@ void LLInventoryGallery::updateRootFolder()
         }
     }
 
-    const LLUUID cof = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-    mCategoriesObserver->addCategory(cof, boost::bind(&LLInventoryGallery::onCOFChanged, this));
+    LLOutfitObserver::instance().addCOFChangedCallback(boost::bind(&LLInventoryGallery::onCOFChanged, this));
 
     if (!mGalleryCreated)
     {
