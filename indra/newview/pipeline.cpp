@@ -2457,9 +2457,9 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 	}
 }
 	
-bool LLPipeline::updateDrawableGeom(LLDrawable* drawablep, bool priority)
+bool LLPipeline::updateDrawableGeom(LLDrawable* drawablep)
 {
-	bool update_complete = drawablep->updateGeometry(priority);
+	bool update_complete = drawablep->updateGeometry();
 	if (update_complete && assertInitialized())
 	{
 		drawablep->setState(LLDrawable::BUILT);
@@ -2611,7 +2611,7 @@ void LLPipeline::updateGeom(F32 max_dtime)
 				drawablep->clearState(LLDrawable::FOR_UNLOAD);
 			}
 
-			if (updateDrawableGeom(drawablep, TRUE))
+			if (updateDrawableGeom(drawablep))
 			{
 				drawablep->clearState(LLDrawable::IN_REBUILD_Q);
 				mBuildQ1.erase(curiter);

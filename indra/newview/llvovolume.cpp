@@ -2063,7 +2063,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	LLSpatialGroup* group = drawable->getSpatialGroup();
 	if (group)
 	{
-        gPipeline.markRebuild(group);
+        group->dirtyMesh();
 	}
 
 	updateRelativeXform();

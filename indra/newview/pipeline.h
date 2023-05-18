@@ -455,7 +455,7 @@ private:
 	void unloadShaders();
 	void addToQuickLookup( LLDrawPool* new_poolp );
 	void removeFromQuickLookup( LLDrawPool* poolp );
-	bool updateDrawableGeom(LLDrawable* drawable, bool priority);
+	bool updateDrawableGeom(LLDrawable* drawable);
 	void assertInitializedDoError();
 	bool assertInitialized() { const bool is_init = isInit(); if (!is_init) assertInitializedDoError(); return is_init; };
 	void connectRefreshCachedSettingsSafe(const std::string name);

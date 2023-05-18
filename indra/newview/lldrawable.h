@@ -166,7 +166,7 @@ public:
 	void updateTexture();
 	void updateMaterial();
 	virtual void updateDistance(LLCamera& camera, bool force_update);
-	BOOL updateGeometry(BOOL priority);
+	BOOL updateGeometry();
 	void updateFaceSize(S32 idx);
 		
 	void updateSpecialHoverCursor(BOOL enabled);
