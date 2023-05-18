@@ -2054,7 +2054,7 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 			LL_DEBUGS("BVH") << "  rot: t " << rot_key.mTime << " angles " << rot_angles.mV[VX] <<","<< rot_angles.mV[VY] <<","<< rot_angles.mV[VZ] << LL_ENDL;
 		}
 
-		success &= dp.packS32(joint_motionp->mPositionCurve.mNumKeys, "num_pos_keys");
+		success &= dp.packS32(joint_motionp->mPositionCurve.mKeys.size(), "num_pos_keys");
 		for (PositionCurve::key_map_t::value_type& pos_pair : joint_motionp->mPositionCurve.mKeys)
 		{
 			PositionKey& pos_key = pos_pair.second;
