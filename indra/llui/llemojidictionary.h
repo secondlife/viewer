@@ -57,11 +57,11 @@ class LLEmojiDictionary : public LLParamSingleton<LLEmojiDictionary>, public LLI
 
 public:
 	typedef std::map<llwchar, const LLEmojiDescriptor*> emoji2descr_map_t;
-	typedef std::pair<llwchar, const LLEmojiDescriptor*> emoji2descr_item_t;
+	typedef emoji2descr_map_t::value_type emoji2descr_item_t;
 	typedef std::map<std::string, const LLEmojiDescriptor*> code2descr_map_t;
-	typedef std::pair<std::string, const LLEmojiDescriptor*> code2descr_item_t;
+	typedef code2descr_map_t::value_type code2descr_item_t;
 	typedef std::map<std::string, std::vector<const LLEmojiDescriptor*>> cat2descrs_map_t;
-	typedef std::pair<std::string, std::vector<const LLEmojiDescriptor*>> cat2descrs_item_t;
+	typedef cat2descrs_map_t::value_type cat2descrs_item_t;
 
 	static void initClass();
 	LLWString   findMatchingEmojis(const std::string& needle) const;
