@@ -282,47 +282,45 @@ void LLDrawPoolAlpha::renderDebugAlpha()
         gGL.diffuseColor4f(1, 0, 0, 1);
         gGL.getTexUnit(0)->bindFast(LLViewerFetchedTexture::getSmokeImage());
 
-        U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0;
+        renderAlphaHighlight();
 
-        renderAlphaHighlight(mask);
-
-		pushBatches(LLRenderPass::PASS_ALPHA_MASK, mask, FALSE);
-		pushBatches(LLRenderPass::PASS_ALPHA_INVISIBLE, mask, FALSE);
+		pushUntexturedBatches(LLRenderPass::PASS_ALPHA_MASK);
+		pushUntexturedBatches(LLRenderPass::PASS_ALPHA_INVISIBLE);
 
 		// Material alpha mask
 		gGL.diffuseColor4f(0, 0, 1, 1);
-		pushBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, mask, FALSE);
-		pushBatches(LLRenderPass::PASS_NORMMAP_MASK, mask, FALSE);
-		pushBatches(LLRenderPass::PASS_SPECMAP_MASK, mask, FALSE);
-		pushBatches(LLRenderPass::PASS_NORMSPEC_MASK, mask, FALSE);
-		pushBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, mask, FALSE);
-        pushBatches(LLRenderPass::PASS_GLTF_PBR_ALPHA_MASK, mask, FALSE);
+		pushUntexturedBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK);
+		pushUntexturedBatches(LLRenderPass::PASS_NORMMAP_MASK);
+		pushUntexturedBatches(LLRenderPass::PASS_SPECMAP_MASK);
+		pushUntexturedBatches(LLRenderPass::PASS_NORMSPEC_MASK);
+		pushUntexturedBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK);
+        pushUntexturedBatches(LLRenderPass::PASS_GLTF_PBR_ALPHA_MASK);
 
 		gGL.diffuseColor4f(0, 1, 0, 1);
-		pushBatches(LLRenderPass::PASS_INVISIBLE, mask, FALSE);
+        pushUntexturedBatches(LLRenderPass::PASS_INVISIBLE);
 
         gHighlightProgram.mRiggedVariant->bind();
         gGL.diffuseColor4f(1, 0, 0, 1);
 
-        pushRiggedBatches(LLRenderPass::PASS_ALPHA_MASK_RIGGED, mask, FALSE);
-        pushRiggedBatches(LLRenderPass::PASS_ALPHA_INVISIBLE_RIGGED, mask, FALSE);
+        pushRiggedBatches(LLRenderPass::PASS_ALPHA_MASK_RIGGED, false);
+        pushRiggedBatches(LLRenderPass::PASS_ALPHA_INVISIBLE_RIGGED, false);
 
         // Material alpha mask
         gGL.diffuseColor4f(0, 0, 1, 1);
-        pushRiggedBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK_RIGGED, mask, FALSE);
-        pushRiggedBatches(LLRenderPass::PASS_NORMMAP_MASK_RIGGED, mask, FALSE);
-        pushRiggedBatches(LLRenderPass::PASS_SPECMAP_MASK_RIGGED, mask, FALSE);
-        pushRiggedBatches(LLRenderPass::PASS_NORMSPEC_MASK_RIGGED, mask, FALSE);
-        pushRiggedBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK_RIGGED, mask, FALSE);
-        pushRiggedBatches(LLRenderPass::PASS_GLTF_PBR_ALPHA_MASK_RIGGED, mask, FALSE);
+        pushRiggedBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK_RIGGED, false);
+        pushRiggedBatches(LLRenderPass::PASS_NORMMAP_MASK_RIGGED, false);
+        pushRiggedBatches(LLRenderPass::PASS_SPECMAP_MASK_RIGGED, false);
+        pushRiggedBatches(LLRenderPass::PASS_NORMSPEC_MASK_RIGGED, false);
+        pushRiggedBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK_RIGGED, false);
+        pushRiggedBatches(LLRenderPass::PASS_GLTF_PBR_ALPHA_MASK_RIGGED, false);
 
         gGL.diffuseColor4f(0, 1, 0, 1);
-        pushRiggedBatches(LLRenderPass::PASS_INVISIBLE_RIGGED, mask, FALSE);
+        pushRiggedBatches(LLRenderPass::PASS_INVISIBLE_RIGGED, false);
         LLGLSLShader::sCurBoundShaderPtr->unbind();
 	}
 }
 
-void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
+void LLDrawPoolAlpha::renderAlphaHighlight()
 {
     for (int pass = 0; pass < 2; ++pass)
     { //two passes, one rigged and one not
