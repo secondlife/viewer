@@ -123,7 +123,7 @@ BOOL LLFloaterEmojiPicker::postBuild()
 	mCategory->setCommitCallback([this](LLUICtrl*, const LLSD&) { onCategoryCommit(); });
 	const LLEmojiDictionary::cat2descrs_map_t& cat2Descrs = LLEmojiDictionary::instance().getCategory2Descrs();
 	mCategory->clearRows();
-	for (const LLEmojiDictionary::cat2descrs_item_t item : cat2Descrs)
+	for (const LLEmojiDictionary::cat2descrs_item_t& item : cat2Descrs)
 	{
 		std::string value = item.first;
 		std::string name = value;
@@ -155,9 +155,9 @@ void LLFloaterEmojiPicker::fillEmojis()
 	mEmojis->clearRows();
 
 	const LLEmojiDictionary::emoji2descr_map_t& emoji2Descr = LLEmojiDictionary::instance().getEmoji2Descr();
-	for (const LLEmojiDictionary::emoji2descr_item_t it : emoji2Descr)
+	for (const LLEmojiDictionary::emoji2descr_item_t& item : emoji2Descr)
 	{
-		const LLEmojiDescriptor* descr = it.second;
+		const LLEmojiDescriptor* descr = item.second;
 
 		if (!mSelectedCategory.empty() && !matchesCategory(descr))
 			continue;
@@ -169,7 +169,7 @@ void LLFloaterEmojiPicker::fillEmojis()
 		// The following line adds default monochrome view of the emoji (is shown as an example)
 		//params.columns.add().column("look").value(wstring_to_utf8str(LLWString(1, it.first)));
 		params.columns.add().column("name").value(descr->Name);
-		mEmojis->addRow(new LLEmojiScrollListItem(it.first, params), params);
+		mEmojis->addRow(new LLEmojiScrollListItem(item.first, params), params);
 	}
 
 	if (mEmojis->getItemCount())
