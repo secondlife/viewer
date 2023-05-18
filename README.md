@@ -41,4 +41,3 @@ pull requests and more. See the [open source portal][] for details.
 [download]: https://secondlife.com/support/downloads/
 [tpv]: http://wiki.secondlife.com/wiki/Third_Party_Viewer_Directory
 [open source portal]: http://wiki.secondlife.com/wiki/Open_Source_Portal
-
