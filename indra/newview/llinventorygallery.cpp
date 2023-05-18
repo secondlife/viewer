@@ -200,6 +200,14 @@ void LLInventoryGallery::updateRootFolder()
         delete mCategoriesObserver;
 
         mCategoriesObserver = new LLInventoryCategoriesObserver();
+
+        if (gInventory.containsObserver(mThumbnailsObserver))
+        {
+            gInventory.removeObserver(mThumbnailsObserver);
+        }
+        delete mThumbnailsObserver;
+        mThumbnailsObserver = new LLThumbnailsObserver();
+        gInventory.addObserver(mThumbnailsObserver);
     }
     {
         mRootChangedSignal();
@@ -699,7 +707,11 @@ void LLInventoryGallery::updateAddedItem(LLUUID item_id)
         LL_WARNS("InventoryGallery") << "Failed to find item: " << item_id << LL_ENDL;
         return;
     }
-
+    if(!mFilter->checkAgainstFilterThumbnails(item_id))
+    {
+        mThumbnailsObserver->addSkippedItem(item_id, boost::bind(&LLInventoryGallery::onThumbnailAdded, this, item_id));
+        return;
+    }
     std::string name = obj->getName();
     LLUUID thumbnail_id = obj->getThumbnailUUID();;
     LLInventoryType::EType inventory_type(LLInventoryType::IT_CATEGORY);
@@ -813,6 +825,15 @@ void LLInventoryGallery::updateItemThumbnail(LLUUID item_id)
         {
             reArrangeRows();
         }
+    }
+}
+
+void LLInventoryGallery::onThumbnailAdded(LLUUID item_id)
+{
+    if((mItemMap.count(item_id) == 0) && mFilter->checkAgainstFilterThumbnails(item_id))
+    {
+        updateAddedItem(item_id);
+        reArrangeRows();
     }
 }
 
@@ -1525,9 +1546,33 @@ void LLInventoryGalleryItem::updateNameText()
 
 void LLThumbnailsObserver::changed(U32 mask)
 {
-    if (!mItemMap.size())
-        return;
     std::vector<LLUUID> deleted_ids;
+    for (item_map_t::iterator iter = mSkippedItems.begin();
+         iter != mSkippedItems.end();
+         ++iter)
+    {
+        const LLUUID& obj_id = (*iter).first;
+        LLItemData& data = (*iter).second;
+        
+        LLInventoryObject* obj = gInventory.getObject(obj_id);
+        if (!obj)
+        {
+            deleted_ids.push_back(obj_id);
+            continue;
+        }
+
+        const LLUUID thumbnail_id = obj->getThumbnailUUID();
+        if (data.mThumbnailID != thumbnail_id)
+        {
+            data.mThumbnailID = thumbnail_id;
+            data.mCallback();
+        }
+    }
+    for (std::vector<LLUUID>::iterator deleted_id = deleted_ids.begin(); deleted_id != deleted_ids.end(); ++deleted_id)
+    {
+        removeSkippedItem(*deleted_id);
+    }
+    deleted_ids.clear();
 
     for (item_map_t::iterator iter = mItemMap.begin();
          iter != mItemMap.end();
@@ -1569,9 +1614,23 @@ bool LLThumbnailsObserver::addItem(const LLUUID& obj_id, callback_t cb)
     return false;
 }
 
+void LLThumbnailsObserver::addSkippedItem(const LLUUID& obj_id, callback_t cb)
+{
+    LLInventoryObject* obj = gInventory.getObject(obj_id);
+    if (obj)
+    {
+        mSkippedItems.insert(item_map_value_t(obj_id, LLItemData(obj_id, obj->getThumbnailUUID(), cb)));
+    }
+}
+
 void LLThumbnailsObserver::removeItem(const LLUUID& obj_id)
 {
     mItemMap.erase(obj_id);
+}
+
+void LLThumbnailsObserver::removeSkippedItem(const LLUUID& obj_id)
+{
+    mSkippedItems.erase(obj_id);
 }
 
 //-----------------------------

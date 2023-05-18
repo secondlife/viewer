@@ -89,6 +89,7 @@ public:
     void updateRemovedItem(LLUUID item_id);
     void updateChangedItemName(LLUUID item_id, std::string name);
     void updateItemThumbnail(LLUUID item_id);
+    void onThumbnailAdded(LLUUID item_id);
     void updateWornItem(LLUUID item_id, bool is_worn);
 
     void updateMessageVisibility();
@@ -308,7 +309,9 @@ public:
 
     virtual void changed(U32 mask);
     bool addItem(const LLUUID& obj_id, callback_t cb);
+    void addSkippedItem(const LLUUID& obj_id, callback_t cb);
     void removeItem(const LLUUID& obj_id);
+    void removeSkippedItem(const LLUUID& obj_id);
 
 protected:
 
@@ -328,6 +331,7 @@ protected:
     typedef std::map<LLUUID, LLItemData> item_map_t;
     typedef item_map_t::value_type item_map_value_t;
     item_map_t mItemMap;
+    item_map_t mSkippedItems;
 };
 
 class LLGalleryGestureObserver : public LLGestureManagerObserver
