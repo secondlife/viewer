@@ -178,7 +178,7 @@ public:
 	// Finds width and height of this object and it's children.  Also
 	// makes sure that this view and it's children are the right size.
 	virtual S32 arrange( S32* width, S32* height );
-	virtual S32 getItemHeight();
+	virtual S32 getItemHeight() const;
     virtual S32 getLabelXPos();
     S32 getIconPad();
     S32 getTextPad();
@@ -217,9 +217,9 @@ public:
 
 	void setIsCurSelection(BOOL select) { mIsCurSelection = select; }
 
-	BOOL getIsCurSelection() { return mIsCurSelection; }
+	BOOL getIsCurSelection() const { return mIsCurSelection; }
 
-	BOOL hasVisibleChildren() { return mHasVisibleChildren; }
+	BOOL hasVisibleChildren() const { return mHasVisibleChildren; }
 
 	// true if object can't have children
 	virtual bool isFolderComplete() { return true; }
@@ -268,7 +268,7 @@ public:
 	virtual LLFolderView*	getRoot();
 	virtual const LLFolderView*	getRoot() const;
 	BOOL			isDescendantOf( const LLFolderViewFolder* potential_ancestor );
-	S32				getIndentation() { return mIndentation; }
+	S32				getIndentation() const { return mIndentation; }
 
 	virtual BOOL	passedFilter(S32 filter_generation = -1);
 	virtual BOOL	isPotentiallyVisible(S32 filter_generation = -1);

@@ -136,7 +136,7 @@ public:
 	// Find width and height of this object and its children. Also
 	// makes sure that this view and its children are the right size.
 	virtual S32 arrange( S32* width, S32* height );
-	virtual S32 getItemHeight();
+	virtual S32 getItemHeight() const;
 
 	void arrangeAll() { mArrangeGeneration++; }
 	S32 getArrangeGeneration() { return mArrangeGeneration; }

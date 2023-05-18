@@ -2064,7 +2064,7 @@ LLFolderViewItem* LLFolderView::getNextUnselectedItem()
 	return new_selection;
 }
 
-S32 LLFolderView::getItemHeight()
+S32 LLFolderView::getItemHeight() const
 {
 	if(!hasVisibleChildren())
 {

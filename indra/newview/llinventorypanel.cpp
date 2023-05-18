@@ -1311,10 +1311,18 @@ BOOL LLInventoryPanel::handleToolTip(S32 x, S32 y, MASK mask)
             params["inv_type"] = vm_item_p->getInventoryType();
             params["thumbnail_id"] = vm_item_p->getThumbnailUUID();
             params["item_id"] = vm_item_p->getUUID();
-            
+
+            // tooltip should only show over folder, but screen
+            // rect includes items under folder as well
+            LLRect actionable_rect = hover_item_p->calcScreenRect();
+            if (hover_item_p->isOpen() && hover_item_p->hasVisibleChildren())
+            {
+                actionable_rect.mBottom = actionable_rect.mTop - hover_item_p->getItemHeight();
+            }
+
 			LLToolTipMgr::instance().show(LLToolTip::Params()
 					.message(hover_item_p->getToolTip())
-					.sticky_rect(hover_item_p->calcScreenRect())
+					.sticky_rect(actionable_rect)
 					.delay_time(LLView::getTooltipTimeout())
 					.create_callback(boost::bind(&LLInspectTextureUtil::createInventoryToolTip, _1))
 					.create_params(params));
