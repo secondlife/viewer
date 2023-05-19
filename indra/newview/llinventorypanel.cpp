@@ -1834,7 +1834,13 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
     if (main_inventory && main_inventory->isSingleFolderMode()
         && use_main_panel)
     {
-        main_inventory->toggleViewMode();
+        const LLInventoryObject *obj = gInventory.getObject(obj_id);
+        if (obj)
+        {
+            main_inventory->setSingleFolderViewRoot(obj->getParentUUID(), false);
+            main_inventory->setGallerySelection(obj_id);
+            return;
+        }
     }
 	LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
 
