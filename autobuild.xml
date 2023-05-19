@@ -123,9 +123,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fedc8d63856f534b6098102e059dc548</string>
+              <string>59c1827cab82516504a2eb31e0aa7e38035b5085</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87776/805857/boost-1.72-darwin64-563847.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-boost/releases/download/v1.81-90bb2df/boost-1.81-darwin64-90bb2df.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -147,9 +149,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6cc9fb4ca21365c4470a3e516544ba71</string>
+              <string>401f576f99e8a72850061c885072278e3e886434</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87784/805850/boost-1.72-windows-563847.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-boost/releases/download/v1.81-90bb2df/boost-1.81-windows-90bb2df.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -159,16 +163,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0c526efc3f8825cd25cdf635e238fab3</string>
+              <string>26214a33c568929ffeeb3463ce183f2888ce4fe4</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87783/805851/boost-1.72-windows64-563847.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-boost/releases/download/v1.81-90bb2df/boost-1.81-windows64-90bb2df.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.72</string>
+        <string>1.81</string>
       </map>
       <key>bugsplat</key>
       <map>
@@ -949,9 +955,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>11d0794582e91a57f6524ad345f2399d</string>
+              <string>c016d7333a3ded88c060119b4e3a5847015a8711</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87791/805924/googlemock-1.7.0.563853-darwin64-563853.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-googlemock/releases/download/v1.7.0.77bba00/googlemock-1.7.0.77bba00-darwin64-77bba00.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -973,9 +981,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7d267050970ec6e28749178597bc8af0</string>
+              <string>588ceffc4e30ff699694a9f70b9de81994e2c19f</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87793/805930/googlemock-1.7.0.563853-windows-563853.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-googlemock/releases/download/v1.7.0.77bba00/googlemock-1.7.0.77bba00-windows-77bba00.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -985,16 +995,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>27638c692f0ec6121e54bf75f2d45e49</string>
+              <string>df51dff9a820fc96c18c2bc00b64467e541633a5</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87792/805936/googlemock-1.7.0.563853-windows64-563853.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-googlemock/releases/download/v1.7.0.77bba00/googlemock-1.7.0.77bba00-windows64-77bba00.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.7.0.563853</string>
+        <string>1.7.0.77bba00</string>
       </map>
       <key>gstreamer</key>
       <map>
