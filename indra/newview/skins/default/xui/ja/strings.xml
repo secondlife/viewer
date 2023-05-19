@@ -21,48 +21,49 @@ that are returned from one component and may appear in many places
   <string name="StartupRequireDriverUpdate">グラフィックを初期化できませんでした。グラフィックドライバを更新してください。</string>
 
   <!-- about dialog/support string-->
-  <string name="AboutHeader">[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3]（[ADDRESS_SIZE]bit）
+  <string name="AboutHeader">[CHANNEL]　[VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3]（[ADDRESS_SIZE]bit）
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]</string>
   <string name="BuildConfig">ビルド構成：[BUILD_CONFIG]</string>
 
-  <string name="AboutPosition">あなたの現在地は、[POSITION_LOCAL_0,number,1]、[POSITION_LOCAL_1,number,1]、[POSITION_LOCAL_2,number,1]の[REGION]です。
-位置は &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; です。（[HOSTIP]）
-SLURL:&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
-（グローバル座標[POSITION_0,number,1]、[POSITION_1,number,1]、[POSITION_2,number,1]）
+  <string name="AboutPosition">あなたは、現在[REGION]の[POSITION_LOCAL_0,number,1]，[POSITION_LOCAL_1,number,1]，[POSITION_LOCAL_2,number,1]にいます。
+位置は、&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt;です。（[HOSTIP]）
+SLURL：&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
+（グローバル座標は、[POSITION_0,number,1]，[POSITION_1,number,1]，[POSITION_2,number,1]です。）
 [SERVER_VERSION]
 [SERVER_RELEASE_NOTES_URL]</string>
   <!-- *NOTE: Do not translate text like GPU, Graphics Card, etc -
        Most PC users who know what these mean will be used to the English versions,
        and this info sometimes gets sent to support. -->
-  <string name="AboutSystem">CPU：[CPU]
+  <string name="AboutSystem">ＣＰＵ：[CPU]
 メモリ：[MEMORY_MB]㎆
-OS バージョン：[OS_VERSION]
+ＯＳのバージョン：[OS_VERSION]
 グラフィックカード製造元：[GRAPHICS_CARD_VENDOR]
 グラフィックカード:[GRAPHICS_CARD]</string>
-  <string name="AboutDriver">Windows グラフィックドライババージョン：[GRAPHICS_DRIVER_VERSION]</string>
-  <string name="AboutOGL">OpenGL バージョン：[OPENGL_VERSION]</string>
+  <string name="AboutDriver">Windowsグラフィックドライババージョン：[GRAPHICS_DRIVER_VERSION]</string>
+  <string name="AboutOGL">OpenGLバージョン：[OPENGL_VERSION]</string>
   <string name="AboutSettings">ウィンドウサイズ:[WINDOW_WIDTH]x[WINDOW_HEIGHT]
-フォントサイズ調整:[FONT_SIZE_ADJUSTMENT]pt
-UI スケーリング:[UI_SCALE]
-描画距離:[DRAW_DISTANCE]m
-帯域幅：[NET_BANDWITH]kbit/s
-LOD 係数：[LOD_FACTOR]
+フォントサイズ調整：[FONT_SIZE_ADJUSTMENT]pt
+ＵＩスケーリング：[UI_SCALE]
+描画距離：[DRAW_DISTANCE]ｍ
+帯域幅：[NET_BANDWITH]kbit／秒
+ＬＯＤ係数：[LOD_FACTOR]
 描画の質：[RENDER_QUALITY]
 高度なライティングモデル：[GPU_SHADERS]
 テクスチャメモリ：[TEXTURE_MEMORY]㎆</string>
-  <string name="AboutOSXHiDPI">HiDPI 表示モード：[HIDPI]</string>
-  <string name="AboutLibs">J2C デコーダバージョン：[J2C_VERSION]
+  <string name="AboutOSXHiDPI">高ＤＰＩ表示モード：[HIDPI]</string>
+  <string name="AboutLibs">J2Cデコーダバージョン：[J2C_VERSION]
 オーディオドライババージョン：[AUDIO_DRIVER_VERSION]
-[LIBCEF_VERSION]LibVLC バージョン：[LIBVLC_VERSION]
-ボイスサーバーバージョン:[VOICE_VERSION]</string>
+LibCEFバージョン：[LIBCEF_VERSION]
+LibVLCバージョン：[LIBVLC_VERSION]
+ボイスサーバーバージョン：[VOICE_VERSION]</string>
   <string name="AboutTraffic">パケット損失：[PACKETS_LOST,number,0]／[PACKETS_IN,number,0]（[PACKETS_PCT,number,1]％）</string>
-  <string name="AboutTime">[year, datetime, slt]年[month, datetime, slt]月[day, datetime, slt]日　[hour, datetime, slt]：[min,datetime, slt]:：[second,datetime,slt]</string>
-  <string name="ErrorFetchingServerReleaseNotesURL">サーバーのリリースノートのURLを取得中にエラーが発生しました。</string>
+  <string name="AboutTime">[year, datetime, slt]年[month, datetime, slt]月[day, datetime, slt]日　[hour, datetime, slt]：[min,datetime, slt]：[second,datetime,slt]</string>
+  <string name="ErrorFetchingServerReleaseNotesURL">サーバーのリリースノートのＵＲＬ取得時にエラーが発生しました。</string>
   <string name="BuildConfiguration">ビルド構成</string>
 
   <!--  progress -->
-  <string name="ProgressRestoring">復元中です…</string>
-  <string name="ProgressChangingResolution">解像度を変更中です…</string>
+  <string name="ProgressRestoring">修復しています…</string>
+  <string name="ProgressChangingResolution">解像度を変更しています…</string>
 
   <!-- Legacy strings, almost never used -->
   <string name="Fullbright">明るさ全開（レガシー）</string>  <!-- used in the Build > materials dropdown-->
@@ -74,63 +75,63 @@ LOD 係数：[LOD_FACTOR]
   <string name="LoginMaintenance">アカウントのメンテナンスを実行しています…</string>
   <string name="LoginAttempt">前回のログインに失敗しました。ログイン中です（[NUMBER]回目）</string>
   <string name="LoginPrecaching">ワールドを読み込んでいます…</string>
-  <string name="LoginInitializingBrowser">内蔵 Web ブラウザを初期化しています…</string>
+  <string name="LoginInitializingBrowser">内蔵Webブラウザを初期化しています…</string>
   <string name="LoginInitializingMultimedia">マルチメディアを初期化しています…</string>
-  <string name="LoginInitializingFonts">フォントをローディング中…</string>
+  <string name="LoginInitializingFonts">フォントを読み込んでいます…</string>
   <string name="LoginVerifyingCache">キャッシュファイルを検証しています（所要時間は60～90秒）…</string>
-  <string name="LoginProcessingResponse">対応を処理中です…</string>
-  <string name="LoginInitializingWorld">ワールドを初期化中です…</string>
+  <string name="LoginProcessingResponse">レスポンスを処理しています…</string>
+  <string name="LoginInitializingWorld">ワールドを初期化しています…</string>
   <string name="LoginDecodingImages">画像をデコードしています…</string>
   <string name="LoginInitializingQuicktime">QuickTimeを初期化しています…</string>
   <string name="LoginQuicktimeNotFound">QuickTimeが見つかりません。初期化に失敗しました。</string>
   <string name="LoginQuicktimeOK">QuickTimeが正常に初期化されました。</string>
   <string name="LoginRequestSeedCapGrant">リージョン（地域）の機能をリクエストしています…</string>
-  <string name="LoginRetrySeedCapGrant">リージョン（地域）の機能をリクエスト、試行[NUMBER]回…</string>
+  <string name="LoginRetrySeedCapGrant">リージョン（地域）の機能をリクエストしています…（試行[NUMBER]回目）</string>
   <string name="LoginWaitingForRegionHandshake">リージョン（地域）のハンドシェイクを待っています…</string>
   <string name="LoginConnectingToRegion">リージョン（地域）に接続しています…</string>
   <string name="LoginDownloadingClothing">服装をダウンロードしています…</string>
-  <string name="InvalidCertificate">証明書が無効または壊れています。グリッド管理者にご連絡ください。</string>
-  <string name="CertInvalidHostname">無効なホストネームがサーバーにアクセスしていました。SLURL かグリッドのホストネームをご確認ください。</string>
-  <string name="CertExpired">グリッドが返した証明書は有効期限が終了していると考えられます。お使いのシステムクロックを確認するか、グリッドの管理者にお問い合わせください。</string>
-  <string name="CertKeyUsage">SSL 証明書のエラーが発生しました。グリッド管理者にご連絡ください。</string>
+  <string name="InvalidCertificate">証明書が無効であるか、壊れています。グリッド管理者にご連絡ください。</string>
+  <string name="CertInvalidHostname">無効なホストネームがサーバーにアクセスしようとしています。SLURLかグリッドのホストネームをご確認ください。</string>
+  <string name="CertExpired">グリッドが返した証明書は有効期限が過ぎていると考えられます。お使いのシステムクロックを確認するか、グリッドの管理者にお問い合わせください。</string>
+  <string name="CertKeyUsage">SSL証明書のエラーが発生しました。グリッド管理者にご連絡ください。</string>
   <string name="CertBasicConstraints">サーバーの証明書チェーンに証明書が多すぎます。グリッド管理者にご連絡ください。</string>
-  <string name="CertInvalidSignature">グリッドサーバーが返した証明書の署名を認証できませんでした。グリッドの管理者にお問い合わせください。</string>
+  <string name="CertInvalid">証明書が読み込めませんでした。グリッド管理者に連絡してください。</string>
+  <string name="CertInvalidSignature">グリッドが返したサーバー証明書の署名を認証できませんでした。グリッドの管理者にお問い合わせください。</string>
   <string name="CertAllocationFailure">証明書にOpenSSLメモリを割り当てることができませんでした。</string>
 
   <string name="LoginFailedNoNetwork">ネットワークエラー：接続を確立できませんでした。お使いのネットワーク接続をご確認ください。</string>
   <string name="LoginFailedHeader">ログインに失敗しました。</string>
   <string name="Quit">終了</string>
-  <string name="create_account_url">http://join.secondlife.com/?sourceid=[sourceid]</string>
+  <string name="create_account_url">https://join.secondlife.com/?lang=ja&amp;sourceid=[sourceid]</string>
 
-  <string name="AgniGridLabel">Second Life メイングリッド (Agni)</string>
-  <string name="AditiGridLabel">Second Life ベータテストグリッド (Aditi)</string>
+  <string name="AgniGridLabel">Second Lifeメイングリッド (Agni)</string>
+  <string name="AditiGridLabel">Second Lifeベータテストグリッド (Aditi)</string>
 
-  <string name="ViewerDownloadURL">http://secondlife.com/download</string>
-  <string name="LoginFailedViewerNotPermitted">お使いの古いビューアーでは、Second Lifeにアクセスできません。以下のページから新しいビューアーをダウンロードしてください：http://secondlife.com/download
+  <string name="ViewerDownloadURL">https://secondlife.com/support/downloads/?lang=ja</string>
+  <string name="LoginFailedViewerNotPermitted">お使いの古いビューアーでは、Second Lifeにアクセスできません。以下のページから新しいビューアーをダウンロードしてください：https://secondlife.com/support/downloads/?lang=ja
 
 詳細については、FAQ を参照してください：
-http://secondlife.com/viewer-access-faq</string>
-  <string name="LoginIntermediateOptionalUpdateAvailable">ビューアーアップデート（オプション）があります：[VERSION]</string>
-  <string name="LoginFailedRequiredUpdate">ビューアーアップデート（必須）：[VERSION]</string>
-  <string name="LoginFailedAlreadyLoggedIn">このエージェントは既にログインされています。</string>
+https://secondlife.com/viewer-access-faq</string>
+  <string name="LoginIntermediateOptionalUpdateAvailable">ビューアーの更新（オプション）があります：[VERSION]</string>
+  <string name="LoginFailedRequiredUpdate">ビューアーの更新（必須）：[VERSION]</string>
+  <string name="LoginFailedAlreadyLoggedIn">このエージェントは既にログインしています。</string>
   <string name="LoginFailedAuthenticationFailed">申し訳ありませんが、ログインできませんでした。
 以下の情報が正しく入力されたことを確認してください：
-* ユーザー名（bobsmith12 または steller.sunshine など）
-* パスワード
-また、Caps Lock キーが有効になっていないこともお確かめください。</string>
-  <string name="LoginFailedPasswordChanged">セキュリティ上の理由により、あなたのパスワードは変更されました。
-アカウントページ（http://secondlife.com/password）に移動し、
+・ユーザー名（bobsmith12 または steller.sunshine など）
+・パスワード
+・２段階認証（使用している場合）
+また、Caps Lockが入っていないこともご確認ください。</string>
+  <string name="LoginFailedPasswordChanged">セキュリティ上の理由により、あなたのパスワードは変更されました。 アカウントページ（https://secondlife.com/my/account/request.php?lang=ja-JP）へ移動し、
 秘密の質問に答えて、パスワードをリセットしてください。
 ご迷惑をおかけして申し訳ございません。</string>
-  <string name="LoginFailedPasswordReset">弊社はシステムを若干変更しました。お手数ですが、パスワードのリセットをお願いします。
-アカウントページ（http://secondlife.com/password）に移動し、
+  <string name="LoginFailedPasswordReset">弊社はシステムを若干変更しました。お手数ですが、パスワードのリセットをお願いします。 アカウントページ（https://secondlife.com/my/account/request.php?lang=ja-JP）に移動し、
 秘密の質問に答えて、パスワードをリセットしてください。
 ご迷惑をおかけして申し訳ございません。</string>
-  <string name="LoginFailedEmployeesOnly">Second Life はメンテナンスのため、一時的にご利用いただけません。
+  <string name="LoginFailedEmployeesOnly">Second Lifeは、メンテナンス中のため、一時的にご利用いただけません。
 従業員以外にはログインをご遠慮いただいています。
 最新の状況については www.secondlife.com/status でお確かめください。</string>
-  <string name="LoginFailedPremiumOnly">既にログインしているユーザーに最上のインワールド体験を提供するため、Second Life へのログインは一時的に制限されています。
-申し訳ございませんが、有料アカウントのユーザーを優先するため、現在のところ無料アカウントのユーザーには Second Life へのアクセスをご遠慮いただいています。</string>
+  <string name="LoginFailedPremiumOnly">既にログインしているユーザーに最上のインワールド体験を提供するため、Second Lifeへのログインは一時的に制限されています。
+申し訳ございませんが、有料アカウントのユーザーを優先するため、現在のところ無料アカウントのユーザーには Second Lifeへのアクセスをご遠慮いただいています。</string>
 
   <string name="LoginFailedComputerProhibited">このパソコンからは Second Life にアクセスできません。
 システムのエラーだと思われる場合は、
@@ -138,21 +139,21 @@ support@secondlife.com にお問い合わせください。</string>
   <string name="LoginFailedAcountSuspended">あなたのアカウントは
 太平洋時間の[TIME]までご利用いただけません。</string>
   <string name="LoginFailedAccountDisabled">現在リクエストを完了することができません。
-Second Life のサポート（http://support.secondlife.com）にお問い合わせください。</string>
+Second Life のサポート（https://support.secondlife.com/）にお問い合わせください。</string>
   <string name="LoginFailedTransformError">ログイン時にデータの不一致が見つかりました。
 support@secondlife.com にお問い合わせください。</string>
   <!--'Pacific time' placeholder for [TIME] in case time from server can't be decoded-->
   <string name="PacificTime">太平洋時間</string>
-  <string name="LoginFailedAccountMaintenance">現在アカウントのメインテナンスが行われています。
-あなたのアカウントは
+  <string name="LoginFailedAccountMaintenance">現在アカウントのメンテナンスが行われています。
+あなたのアカウントは、
 太平洋時間の[TIME]までご利用いただけません。
 システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。</string>
-  <string name="LoginFailedPendingLogoutFault">ログアウトをリスクエストしたら、シミュレーターから「fault」が返されました。</string>
+  <string name="LoginFailedPendingLogoutFault">ログアウトのリスクエスト時に、シミュレーターから「fault」が返されました。</string>
   <string name="LoginFailedPendingLogout">システムによるログアウトが実行されました。
 しばらくしてから再度お試しください。</string>
-  <string name="LoginFailedUnableToCreateSession">有効なセッションを生成できません。</string>
+  <string name="LoginFailedUnableToCreateSession">有効なセッションを生成できませんでした。</string>
   <string name="LoginFailedUnableToConnectToSimulator">シミュレーターに接続できませんでした。</string>
-  <string name="LoginFailedRestrictedHours">あなたの Second Life アカウントにアクセスできるのは、
+  <string name="LoginFailedRestrictedHours">あなたのSecond Lifeアカウントにアクセスできるのは、
 太平洋時間の[START]～[END]の間に限られます。
 有効な時間帯に再度お試しください。
 システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。</string>
@@ -176,6 +177,7 @@ support@secondlife.com にお問い合わせください。</string>
 しばらくしてから再度お試しください。</string>
   <string name="LoginFailedLoggingOutSession">あなたの前のセッションはシステムによってログアウトされています。
 しばらくしてから再度お試しください。</string>
+
   <!-- Disconnection -->
   <string name="AgentLostConnection">このリージョンに不都合が発生している可能性があります。ご使用のインターネット接続をご確認ください。</string>
   <string name="SavingSettings">設定を保存中です…</string>
@@ -185,28 +187,9 @@ support@secondlife.com にお問い合わせください。</string>
   <string name="SentToInvalidRegion">無効なリージョンにテレポートされました。</string>
   <string name="TestingDisconnect">ビューアーの接続を切るテスト中</string>
 
-  <string name="SocialFacebookConnecting">Facebook に接続中…</string>
-  <string name="SocialFacebookPosting">投稿中…</string>
-  <string name="SocialFacebookDisconnecting">Facebook から切断中…</string>
-  <string name="SocialFacebookErrorConnecting">Facebook への接続時のエラー</string>
-  <string name="SocialFacebookErrorPosting">Facebook への投稿時のエラー</string>
-  <string name="SocialFacebookErrorDisconnecting">Facebook からの切断時のエラー</string>
-  <string name="SocialFlickrConnecting">Flickr に接続中…</string>
-  <string name="SocialFlickrPosting">投稿中…</string>
-  <string name="SocialFlickrDisconnecting">Flickr から切断中…</string>
-  <string name="SocialFlickrErrorConnecting">Flickr への接続時のエラー</string>
-  <string name="SocialFlickrErrorPosting">Flickr への投稿時のエラー</string>
-  <string name="SocialFlickrErrorDisconnecting">Flickr からの切断時のエラー</string>
-  <string name="SocialTwitterConnecting">Twitter に接続中…</string>
-  <string name="SocialTwitterPosting">投稿中…</string>
-  <string name="SocialTwitterDisconnecting">Twitter から切断中…</string>
-  <string name="SocialTwitterErrorConnecting">Twitter への接続時のエラー</string>
-  <string name="SocialTwitterErrorPosting">Twitter への投稿時のエラー</string>
-  <string name="SocialTwitterErrorDisconnecting">Twitter からの切断時のエラー</string>
-
   <!-- SLShare: User Friendly Filter Names Translation -->
   <string name="BlackAndWhite">白黒</string>
-  <string name="Colors1970">1970 年代のカラー</string>
+  <string name="Colors1970">１９７０年代のカラー</string>
   <string name="Intense">強調</string>
   <string name="Newspaper">新聞紙</string>
   <string name="Sepia">セピア</string>
@@ -233,49 +216,49 @@ support@secondlife.com にお問い合わせください。</string>
   <string name="TooltipFlagNoScripts">スクリプトなし</string>
   <string name="TooltipLand">土地：</string>
   <string name="TooltipMustSingleDrop">アイテムは１つだけここにドラッグできます。</string>
-  <string name="TooltipTooManyWearables">[AMOUNT]以上のアイテムを含むフォルダを装着できません。「詳細設定」&gt;「デバッグ設定を表示」&gt;「WearFolderLimit」でこの制限を変更できます。</string>
-  <string name="TooltipPrice" value="L$[AMOUNT]：" />
+  <string name="TooltipTooManyWearables">[AMOUNT]個以上のアイテムを含むフォルダを装着できません。「詳細設定」＞「デバッグ設定を表示」＞「WearFolderLimit」でこの制限を変更できます。</string>
+  <string name="TooltipPrice" value="L$ [AMOUNT]：" />
   <string name="TooltipSLIcon">これは、SecondLife.com または LindenLab.com の公式ドメイン上のページにリンクします。</string>
 
-  <string name="TooltipOutboxDragToWorld">マーケットプレイスのリストフォルダからアイテムを Rez できません</string>
-  <string name="TooltipOutboxWorn">着ているアイテムをマーケットプレイスのリストフォルダに置くことはできません。</string>
-  <string name="TooltipOutboxFolderLevels">ネスト入りフォルダの深さが[AMOUNT]階層を超えています必要に応じてアイテムを箱に入れ、フォルダの階層を減らします。</string>
-  <string name="TooltipOutboxTooManyFolders">サブフォルダ数が[AMOUNT]個を超えています。必要に応じてアイテムを箱に入れ、リストのフォルダ階層を減らします。</string>
-  <string name="TooltipOutboxTooManyObjects">アイテム数が[AMOUNT]個を超えています。１つのリスト内で[AMOUNT]個を超えるアイテムを販売するためには、いくつかのアイテムを箱に入れる必要があります。</string>
+  <string name="TooltipOutboxDragToWorld">マーケットプレイスのリストフォルダから、直接アイテムをRezすることはできません</string>
+  <string name="TooltipOutboxWorn">着用しているアイテムをマーケットプレイスのリストフォルダに置くことはできません。</string>
+  <string name="TooltipOutboxFolderLevels">フォルダの階層の深さが、[AMOUNT]階層を超えています。必要に応じてアイテムをボックスに入れるなどをして、フォルダの階層数を減らしてください。</string>
+  <string name="TooltipOutboxTooManyFolders">サブフォルダの数が、[AMOUNT]個を超えています。必要に応じてアイテムをボックスに入れ、リストのフォルダ階層を減らしてください。</string>
+  <string name="TooltipOutboxTooManyObjects">アイテムの数が、[AMOUNT]個を超えています。１つのリスト内で[AMOUNT]個を超えるアイテムを販売するためには、いくつかのアイテムをボックスに入れる必要があります。</string>
   <string name="TooltipOutboxTooManyStockItems">在庫アイテム数が[AMOUNT]個を超えています。</string>
-  <string name="TooltipOutboxCannotDropOnRoot">アイテムまたはフォルダは「すべて」または「関連付けされていない」タブによってのみドロップできます。これらのタブのいずれかを選択してから、もう一度アイテムまたはフォルダを選択してください。</string>
-  <string name="TooltipOutboxNoTransfer">これらのオブジェクトの１つまたは複数は売り渡したり譲渡したりできないものです。</string>
-  <string name="TooltipOutboxNotInInventory">アイテムはインベントリからマーケットプレイスへの移動のみできます。</string>
-  <string name="TooltipOutboxLinked">リンクされた相手またはフォルダをマーケットプレイスに置くことはできません。</string>
-  <string name="TooltipOutboxCallingCard">コーリングカードをマーケットプレイスに置くことはできません。</string>
+  <string name="TooltipOutboxCannotDropOnRoot">アイテムまたはフォルダは、「すべて」または「関連付けされていない」タブによってのみドロップできます。これらのタブのいずれかを選択してから、もう一度アイテムまたはフォルダを選択してください。</string>
+  <string name="TooltipOutboxNoTransfer">これらのオブジェクトは、再販したり譲渡することができません。</string>
+  <string name="TooltipOutboxNotInInventory">アイテムは、インベントリからマーケットプレイスへの移動のみできます。</string>
+  <string name="TooltipOutboxLinked">リンクされた相手またはフォルダは、マーケットプレイスに置くことはできません。</string>
+  <string name="TooltipOutboxCallingCard">コーリングカードは、マーケットプレイスに置くことはできません。</string>
   <string name="TooltipOutboxDragActive">表示されているリストを移動できません。</string>
   <string name="TooltipOutboxCannotMoveRoot">ルートフォルダをリストに表示するマーケットプレイスを移動できません。</string>
-  <string name="TooltipOutboxMixedStock">在庫フォルダ内のアイテムはすべて同じ種類と権限でなければなりません。</string>
+  <string name="TooltipOutboxMixedStock">在庫フォルダ内のアイテムは、すべて同じ種類と権限でなければなりません。</string>
 
   <string name="TooltipDragOntoOwnChild">フォルダをその子フォルダに移動することはできません。</string>
   <string name="TooltipDragOntoSelf">フォルダをそのフォルダ自身に移動することはできません。</string>
 
   <!-- tooltips for Urls -->
-  <string name="TooltipHttpUrl">クリックしてこのWebページを見ます。</string>
-  <string name="TooltipSLURL">クリックしてこの場所の情報を見ます。</string>
-  <string name="TooltipAgentUrl">クリックしてこの住人のプロフィールを見ます。</string>
+  <string name="TooltipHttpUrl">クリックしてこのWebページを開きます。</string>
+  <string name="TooltipSLURL">クリックしてこの場所の情報を閲覧します。</string>
+  <string name="TooltipAgentUrl">クリックしてこの住人のプロフィールを閲覧します。</string>
   <string name="TooltipAgentInspect">この住人の詳細を参照</string>
   <string name="TooltipAgentMute">クリックしてこの住人に対して無視設定をします。</string>
   <string name="TooltipAgentUnmute">クリックしてこの住人に対する無視設定を解除します。</string>
   <string name="TooltipAgentIM">クリックしてこの住人に IM を送ります。</string>
   <string name="TooltipAgentPay">クリックしてこの住人に支払います。</string>
-  <string name="TooltipAgentOfferTeleport">クリックしてこの住人にテレポートのリクエストを送ります。</string>
+  <string name="TooltipAgentOfferTeleport">クリックしてこの住人にテレポートのオファーを送ります。</string>
   <string name="TooltipAgentRequestFriend">クリックしてこの住人にフレンド登録リクエストを送ります。</string>
-  <string name="TooltipGroupUrl">クリックしてこのグループの説明文を見ます。</string>
-  <string name="TooltipEventUrl">クリックしてこのグループの説明文を見ます。</string>
+  <string name="TooltipGroupUrl">クリックしてこのグループの説明文を閲覧します。</string>
+  <string name="TooltipEventUrl">クリックしてこのグループの説明文を閲覧します。</string>
   <string name="TooltipClassifiedUrl">クリックしてこのクラシファイド広告を見ます。</string>
   <string name="TooltipParcelUrl">クリックしてこの区画の説明文を見ます。</string>
   <string name="TooltipTeleportUrl">クリックしてこの場所にテレポートします。</string>
   <string name="TooltipObjectIMUrl">クリックしてこのオブジェクトの説明文を見ます。</string>
   <string name="TooltipMapUrl">クリックしてこの場所をマップに表示します。</string>
   <string name="TooltipSLAPP">クリックして secondlife:// コマンドを出します。</string>
-  <string name="CurrentURL" value="現在のURL：[CurrentURL]" />
-  <string name="TooltipEmail">クリックして電子メールを作成</string>
+  <string name="CurrentURL" value="現在のＵＲＬ：[CurrentURL]" />
+  <string name="TooltipEmail">クリックして電子メールを作成します。</string>
 
   <!-- text for SLURL labels -->
   <string name="SLurlLabelTeleport">テレポート</string>
@@ -284,17 +267,17 @@ support@secondlife.com にお問い合わせください。</string>
   <!-- label strings for secondlife:///app/agent SLapps -->
   <string name="SLappAgentMute">無視</string>
   <string name="SLappAgentUnmute">ミュート解除</string>
-  <string name="SLappAgentIM">IM</string>
-  <string name="SLappAgentPay">支払う</string>
-  <string name="SLappAgentOfferTeleport">次の場所にテレポートを送ります：</string>
+  <string name="SLappAgentIM">ＩＭ</string>
+  <string name="SLappAgentPay">支払い</string>
+  <string name="SLappAgentOfferTeleport">次の場所へのテレポートのオファーを送ります：</string>
   <string name="SLappAgentRequestFriend">フレンド登録リクエスト</string>
   <string name="SLappAgentRemoveFriend">フレンドの削除</string>
 
   <!-- ButtonToolTips, llfloater.cpp -->
   <string name="BUTTON_CLOSE_DARWIN">閉じる（⌘W）</string>
-  <string name="BUTTON_CLOSE_WIN">閉じる（Ctrl+W）</string>
+  <string name="BUTTON_CLOSE_WIN">閉じる（Ctrl＋W）</string>
   <string name="BUTTON_CLOSE_CHROME">閉じる</string>
-  <string name="BUTTON_RESTORE">復元</string>
+  <string name="BUTTON_RESTORE">復帰</string>
   <string name="BUTTON_MINIMIZE">元に戻す（縮小）</string>
   <string name="BUTTON_TEAR_OFF">別ウィンドウで開く</string>
   <string name="BUTTON_DOCK">ドッキング</string>
@@ -351,7 +334,7 @@ support@secondlife.com にお問い合わせください。</string>
   <string name="AssetUploadServerDifficulties">サーバーに予期せぬ問題が発生しました。</string>
   <string name="AssetUploadServerUnavaliable">サービスがご利用いただけないか、アップロードがタイムアウトしました。</string>
   <string name="AssetUploadRequestInvalid">アップロードリクエスト中にエラーが発生しました。問題を解決するには、サポート
-（http://secondlife.com/support）にお問い合わせください。</string>
+（https://support.secondlife.com/）にお問い合わせください。</string>
 
   <!-- Settings errors -->
   <string name="SettingValidationError">インポートする設定[NAME]の検証に失敗しました。</string>
@@ -475,8 +458,8 @@ support@secondlife.com にお問い合わせください。</string>
   <!-- world map -->
   <string name="texture_loading">読み込んでいます…</string>
   <string name="worldmap_offline">オフライン</string>
-  <string name="worldmap_item_tooltip_format">[AREA]㎡ L$[PRICE]</string>
-  <string name="worldmap_results_none_found">見つかりませんでした。</string>
+  <string name="worldmap_item_tooltip_format">[AREA]㎡　L$ [PRICE]（[SQMPRICE] L$／㎡）</string>
+  <string name="worldmap_results_none_found">何も見つかりませんでした。</string>
 
   <!-- animations uploading status codes -->
   <string name="Ok">OK</string>
@@ -493,12 +476,10 @@ support@secondlife.com にお問い合わせください。</string>
   <string name="unavailable">現在地では、ボイスを利用できません。</string>
   <string name="hang_up">インワールドボイスチャットの通話が切断されました。</string>
   <string name="reconnect_nearby">「近隣ボイスチャット」に再接続されます。</string>
-  <string name="ScriptQuestionCautionChatGranted">[REGIONNAME]の[REGIONPOS]という場所にある、「[OWNERNAME]」が所有する「[OBJECTNAME]」というオブジェクトは、次の権限を許可しました：
-[PERMISSIONS]</string>
-  <string name="ScriptQuestionCautionChatDenied">[REGIONNAME]の[REGIONPOS]という場所にある、「[OWNERNAME]」が所有する「[OBJECTNAME]」というオブジェクトは、次の権限を拒否しました：
-[PERMISSIONS]</string>
+  <string name="ScriptQuestionCautionChatGranted">リージョン（地域）「[REGIONNAME]」の「[REGIONPOS]」という場所にある、「[OWNERNAME]」が所有する「[OBJECTNAME]」というオブジェクトは、以下の権限を許可しました：[PERMISSIONS]</string>
+  <string name="ScriptQuestionCautionChatDenied">リージョン（地域）「[REGIONNAME]」の「[REGIONPOS]」という場所にある、「[OWNERNAME]」が所有する「[OBJECTNAME]」というオブジェクトは、以下の権限を拒否しました：[PERMISSIONS]</string>
   <string name="AdditionalPermissionsRequestHeader">あなたのアカウントへのアクセスを許可すると、このオブジェクトには次の操作も許可されます：</string>
-  <string name="ScriptTakeMoney">リンデンドル（L$）を支払う</string>
+  <string name="ScriptTakeMoney">リンデンドル（L$）のお支払い</string>
   <string name="ActOnControlInputs">制御入力に基づいて行動</string>
   <string name="RemapControlInputs">制御入力のリマップ</string>
   <string name="AnimateYourAvatar">アバターへのアニメーション動作</string>
@@ -2282,7 +2263,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="GraphicsQualityHigh">高</string>
 
   <!-- mouselook -->
-  <string name="LeaveMouselook">ESC キーを押してワールドビューに戻ります</string>
+  <string name="LeaveMouselook">ESCキーを押してワールドビューに戻ります</string>
 
   <!-- inventory -->
   <string name="InventoryNoMatchingItems">お探しのものは見つかりましたか？[secondlife:///app/search/all/[SEARCH_TERM] 検索]をお試しください。</string>
@@ -2344,7 +2325,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="MarketplaceNoStock">在庫なし</string>
   <string name="MarketplaceUpdating">アップデート中…</string>
 
-  <string name="UploadFeeInfo">料金はサブスクリプションのレベルにより異なります。レベルが高いほど、料金が下がります。[https://secondlife.com/my/account/membership.php? 詳細]</string>
+  <string name="UploadFeeInfo">料金はサブスクリプションのレベルにより異なります。レベルが高いほど、料金が下がります。[https://accounts.secondlife.com/change_membership/?lang=ja-JP 詳細]</string>
 
   <string name="Open landmarks">オープン ランドマーク</string>
   <string name="Unconstrained">アンコンストレインド（制約なし）</string>
@@ -2436,7 +2417,7 @@ For AI Character: Get the closest navigable point to the point provided.
 
   <!-- inventory FVBridge -->
   <!--  This is used in llpanelinventory.cpp when constructing a context menu for an item for Sale  -->
-  <string name="Buy">買う</string>
+  <string name="Buy">購入</string>
   <string name="BuyforL$">L$ で購入</string>
 
   <string name="Stone">石</string>
@@ -2618,7 +2599,7 @@ For AI Character: Get the closest navigable point to the point provided.
 
   <!-- floater IM bonus_info: When a Linden with Admin/god status receives a new IM this displays the estate (Mainland vs. teen grid) of the source avatar.
 		This is to help Lindens when answering questions. -->
-  <string name="IMParentEstate">parent estate</string>
+  <string name="IMParentEstate">親の不動産</string>
   <string name="IMMainland">メインランド</string>
   <string name="IMTeen">ティーン</string>
 
@@ -2643,12 +2624,12 @@ For AI Character: Get the closest navigable point to the point provided.
 
   <!-- script limits floater -->
   <string name="ScriptLimitsParcelScriptMemory">区画スクリプトメモリ</string>
-  <string name="ScriptLimitsParcelsOwned">区画一覧：[PARCELS]</string>
-  <string name="ScriptLimitsMemoryUsed">使用されたメモリ：[MAX]㎅中[COUNT]㎅：[AVAILABLE]㎅利用可</string>
+  <string name="ScriptLimitsParcelsOwned">区画一覧：[PARCELS]個</string>
+  <string name="ScriptLimitsMemoryUsed">使用されたメモリ：[MAX]㎅中[COUNT]㎅　[AVAILABLE]㎅利用可</string>
   <string name="ScriptLimitsMemoryUsedSimple">使用されたメモリ：[COUNT]㎅</string>
-  <string name="ScriptLimitsParcelScriptURLs">区画のスクリプトURL</string>
-  <string name="ScriptLimitsURLsUsed">使用された URL：[MAX]中[COUNT]：[AVAILABLE]利用可</string>
-  <string name="ScriptLimitsURLsUsedSimple">使用されたURL：[COUNT]</string>
+  <string name="ScriptLimitsParcelScriptURLs">区画のスクリプトＵＲＬ</string>
+  <string name="ScriptLimitsURLsUsed">使用されたＵＲＬ：[MAX]件中[COUNT]件　[AVAILABLE]件利用可</string>
+  <string name="ScriptLimitsURLsUsedSimple">使用されたＵＲＬ：[COUNT]件</string>
   <string name="ScriptLimitsRequestError">情報のリクエスト中にエラーが発生しました</string>
   <string name="ScriptLimitsRequestNoParcelSelected">区画が選択されていません。</string>
   <string name="ScriptLimitsRequestWrongRegion">エラー：スクリプト情報は現在地のみ取得できます</string>
@@ -2686,14 +2667,14 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="ATTACH_BELLY">腹</string>
   <string name="ATTACH_LEFT_PEC">左胸筋</string>
   <string name="ATTACH_RIGHT_PEC">右胸筋</string>
-  <string name="ATTACH_HUD_CENTER_2">HUD（中央 2）</string>
-  <string name="ATTACH_HUD_TOP_RIGHT">HUD（右上）</string>
-  <string name="ATTACH_HUD_TOP_CENTER">HUD（上・中央）</string>
-  <string name="ATTACH_HUD_TOP_LEFT">HUD（左上）</string>
-  <string name="ATTACH_HUD_CENTER_1">HUD（中央 1）</string>
-  <string name="ATTACH_HUD_BOTTOM_LEFT">HUD（左下）</string>
-  <string name="ATTACH_HUD_BOTTOM">HUD（下）</string>
-  <string name="ATTACH_HUD_BOTTOM_RIGHT">HUD（右下）</string>
+  <string name="ATTACH_HUD_CENTER_2">ＨＵＤ（中央 2）</string>
+  <string name="ATTACH_HUD_TOP_RIGHT">ＨＵＤ（右上）</string>
+  <string name="ATTACH_HUD_TOP_CENTER">ＨＵＤ（上・中央）</string>
+  <string name="ATTACH_HUD_TOP_LEFT">ＨＵＤ（左上）</string>
+  <string name="ATTACH_HUD_CENTER_1">ＨＵＤ（中央 1）</string>
+  <string name="ATTACH_HUD_BOTTOM_LEFT">ＨＵＤ（左下）</string>
+  <string name="ATTACH_HUD_BOTTOM">ＨＵＤ（下）</string>
+  <string name="ATTACH_HUD_BOTTOM_RIGHT">ＨＵＤ（右下）</string>
   <string name="ATTACH_NECK">首</string>
   <string name="ATTACH_AVATAR_CENTER">アバターの中央</string>
   <string name="ATTACH_LHAND_RING1">左薬指</string>
@@ -2717,8 +2698,7 @@ For AI Character: Get the closest navigable point to the point provided.
 
   <!-- panel dir browser -->
   <string name="PanelDirCountFound">[COUNT]件見つかりました</string>
-  <!--string name="PanelDirTimeStr">[ampm,datetime,utc][hour12,datetime,utc]：[min,datetime,utc]</string-->
-  <string name="PanelDirTimeStr">[ampm,datetime,jst][hour12,datetime,jst]：[min,datetime,jst]</string>
+  <string name="PanelDirTimeStr">[ampm,datetime,utc]　[hour12,datetime,utc]：[min,datetime,utc]</string>
 
   <!-- panel dir events -->
   <string name="PanelDirEventsDateText">[mthnum,datetime,slt]／[day,datetime,slt]</string>
@@ -2728,7 +2708,7 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="PanelContentsNewScript">新規スクリプト</string>
 
   <!-- panel preferences general -->
-  <string name="DoNotDisturbModeResponseDefault">この住民が「通知を受けない」をオンにすると、あなたのメッセージが後で表示されるようになります。</string>
+  <string name="DoNotDisturbModeResponseDefault">この住民が「着信拒否」をオンにすると、あなたのメッセージが後で表示されるようになります。</string>
 
   <!-- Mute -->
   <string name="MuteByName">（名前で）</string>
@@ -2747,7 +2727,7 @@ For AI Character: Get the closest navigable point to the point provided.
 
   <!--Region Details-->
   <string name="GroupOwned">グループ所有</string>
-  <string name="Public">パブリック</string>
+  <string name="Public">公共</string>
 
   <!-- Environment settings -->
   <string name="LocalSettings">ローカル設定</string>
@@ -2766,9 +2746,9 @@ For AI Character: Get the closest navigable point to the point provided.
   <string name="ClassifiedUpdateAfterPublish">（掲載後更新）</string>
 
   <!-- panel picks -->
-  <string name="NoPicksClassifiedsText">ピックやクラシファイド広告を作成していません。作成するには、下にある「プラス」ボタンをクリックします。</string>
-  <string name="NoPicksText">ピックを作成していません。[新規]ボタンをクリックしてピックを作成する。</string>
-  <string name="NoClassifiedsText">クラシファイド広告を作成していません。[新規]ボタンをクリックしてクラシファイド広告を作成する。</string>
+  <string name="NoPicksClassifiedsText">ピックやクラシファイド広告を作成していません。作成するには、下にある「＋」ボタンをクリックします。</string>
+  <string name="NoPicksText">ピックを作成していません。「新規」ボタンをクリックしてピックを作成する。</string>
+  <string name="NoClassifiedsText">クラシファイド広告を作成していません。「新規」ボタンをクリックしてクラシファイド広告を作成する。</string>
   <string name="NoAvatarPicksClassifiedsText">ピック、またはクラシファイド広告がありません</string>
   <string name="NoAvatarPicksText">ピックがありません</string>
   <string name="NoAvatarClassifiedsText">クラシファイド広告がありません</string>
@@ -3530,16 +3510,16 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="LocationCtrlPathfindingDirtyTooltip">リージョン（地域）が再構築されるまで、移動するオブジェクトは正しく動作しない可能性があります。</string>
   <string name="LocationCtrlPathfindingDisabledTooltip">このリージョン（地域）では、動的経路探索が有効になっていません。</string>
   <!-- Strings used by the (currently Linux) auto-updater app -->
-  <string name="UpdaterWindowTitle">[APP_NAME]のアップデート</string>
-  <string name="UpdaterNowUpdating">只今[APP_NAME]をアップデート中です…</string>
+  <string name="UpdaterWindowTitle">[APP_NAME]の更新</string>
+  <string name="UpdaterNowUpdating">只今[APP_NAME]を更新中です…</string>
   <string name="UpdaterNowInstalling">[APP_NAME]をインストール中です…</string>
-  <string name="UpdaterUpdatingDescriptive">お使いの[APP_NAME]ビューアーが最新バージョンにアップデートされています。数分かかることがありますのでしばらくお待ちください。</string>
+  <string name="UpdaterUpdatingDescriptive">お使いの[APP_NAME]ビューアーを最新バージョンに更新しています。数分かかることがありますのでしばらくお待ちください。</string>
   <string name="UpdaterProgressBarTextWithEllipses">アップデートをダウンロード中です…</string>
-  <string name="UpdaterProgressBarText">アップデートをダウンロード中</string>
-  <string name="UpdaterFailDownloadTitle">アップデートのダウンロードに失敗しました</string>
-  <string name="UpdaterFailUpdateDescriptive">[APP_NAME]をアップデート中にエラーが発生しました。www.secondlife.comから最新バージョンをダウンロードしてください。</string>
-  <string name="UpdaterFailInstallTitle">アップデートのインストールに失敗しました</string>
-  <string name="UpdaterFailStartTitle">ビューアーの起動に失敗しました</string>
+  <string name="UpdaterProgressBarText">更新をダウンロード中…</string>
+  <string name="UpdaterFailDownloadTitle">更新のダウンロードに失敗しました。</string>
+  <string name="UpdaterFailUpdateDescriptive">[APP_NAME]の更新中にエラーが発生しました。www.secondlife.comから最新バージョンをダウンロードしてください。</string>
+  <string name="UpdaterFailInstallTitle">更新のインストールに失敗しました。</string>
+  <string name="UpdaterFailStartTitle">ビューアーの起動に失敗しました。</string>
 
   <!-- System Messages -->
   <string name="ItemsComingInTooFastFrom">[APP_NAME]：アイテムが[FROM_NAME]から同時にたくさん読み込まれているため、自動プレビューが[TIME]秒間無効となります。</string>
@@ -3555,12 +3535,13 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="IM_default_text_label">ここをクリックしてインスタントメッセージを開始。</string>
   <string name="IM_to_label">宛先</string>
   <string name="IM_moderator_label">（モデレータ）</string>
+  <!-- TODO: [LOGN_TIMESTAMP]の時刻表記が日本で標準的な書式でない -->
   <string name="Saved_message">（保存日時：[LONG_TIMESTAMP]）</string>
   <string name="IM_unblock_only_groups_friends">このメッセージを表示するには、「初期設定」の「プライバシー」で「フレンドとグループ以外からはコールとIMを受信しない」チェックボックスをオフにします。</string>
   <string name="OnlineStatus">オンライン</string>
   <string name="OfflineStatus">オフライン</string>
   <string name="not_online_msg">ユーザーがオンラインでありません－メッセージは保存され、後で配信されます。</string>
-  <string name="not_online_inventory">ユーザーがオンラインでありません–インベントリが保存されました。</string>
+  <string name="not_online_inventory">ユーザーがオンラインでありません–インベントリに保存されました。</string>
 
   <!-- voice calls -->
   <string name="answered_call">相手がコールを受けました。</string>
@@ -3570,17 +3551,15 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="name_started_call">[NAME]はボイスコールを開始します</string>
 
   <string name="ringing-im">ボイスコールに参加…</string>
-  <string name="connected-im">接続しました。コール終了をクリックして切ります。</string>
+  <string name="connected-im">接続しました。「通話終了」をクリックして切断します。</string>
   <string name="hang_up-im">ボイスコールから退席しました</string>
   <string name="answering-im">接続中…</string>
   <string name="conference-title">複数人チャット</string>
   <string name="conference-title-incoming">[AGENT_NAME]と会話する</string>
-  <string name="inventory_item_offered-im">持ち物アイテム '[ITEM_NAME]' が送られてきました。</string>
-  <string name="inventory_folder_offered-im">持ち物フォルダ '[ITEM_NAME]' が送られてきました。</string>
+  <string name="inventory_item_offered-im">アイテム「[ITEM_NAME]」がインベントリに送られてきました。</string>
+  <string name="inventory_folder_offered-im">フォルダ「[ITEM_NAME]」がインベントリに送られてきました。</string>
   <string name="share_alert">インベントリからここにアイテムをドラッグします。</string>
-  <string name="facebook_post_success">Facebook に投稿しました。</string>
-  <string name="flickr_post_success">Flickr に投稿しました。</string>
-  <string name="twitter_post_success">Twitter に投稿しました。</string>
+
   <string name="no_session_message">（ＩＭセッションが存在しません）</string>
   <string name="only_user_message">このセッションにいるユーザーはあなただけです。</string>
   <string name="offline_message">[NAME]はオフライン中です。</string>
@@ -3591,19 +3570,19 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   In case of the EXT-3115 issue 'generic' is passed into the gIMMgr::showSessionStartError as a string name.
   Also there are some other places where "generic" is used.
   So, let add string with name="generic" with the same value as "generic_request_error" -->
-  <string name="generic">リクエスト中にエラーが発生しました。あとでもう一度お試しください。</string>
-  <string name="generic_request_error">要求中にエラーが発生しました。後でもう一度試してください。</string>
+  <string name="generic">リクエスト中にエラーが発生しました。お手数ですが、もう一度やり直してください。</string>
+  <string name="generic_request_error">要求中にエラーが発生しました。お手数ですが、もう一度やり直してください。</string>
   <string name="insufficient_perms_error">あなたには充分な権限がありません。</string>
   <string name="session_does_not_exist_error">このセッションは既に切断されています。</string>
   <string name="no_ability_error">あなたにはその能力がありません。</string>
   <string name="no_ability">あなたにはその能力がありません。</string>
-  <string name="not_a_mod_error">あなたはセッションモデレータではありません。</string>
+  <string name="not_a_mod_error">あなたは、セッションモデレータではありません。</string>
   <!--Some times string name is getting from the body of server response.
   For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post.
   In case of the EXT-3562 issue 'muted' is passed into the gIMMgr::showSessionStartError as a string name.
   So, let add string with name="muted" with the same value as "muted_error" -->
   <string name="muted">グループのモデレーターが、あなたのテキストチャットを禁止しました。</string>
-  <string name="muted_error">グループモデレータがあなたのテキストチャットを無効化しました。</string>
+  <string name="muted_error">グループモデレータが、あなたのテキストチャットを無効化しました。</string>
   <string name="add_session_event">[RECIPIENT]とのチャットセッションにユーザーを追加することができません。</string>
   <!--Some times string name is getting from the body of server response.
   For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post.
@@ -3617,10 +3596,10 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   In case of the EXT-3459 issue 'removed' is passed into the gIMMgr::showSessionStartError as a string name.
   So, let add string with name="removed" with the same value as "removed_from_group" -->
   <string name="removed">グループから脱退しました。</string>
-  <string name="removed_from_group">あなたはグループから削除されました。</string>
+  <string name="removed_from_group">あなたは、グループから削除されました。</string>
   <string name="close_on_no_ability">このチャットセッションを継続することはできません。</string>
-  <string name="unread_chat_single">[SOURCES]は何か新しいことを言いました。</string>
-  <string name="unread_chat_multiple">[SOURCES]は何か新しいことを言いました。</string>
+  <string name="unread_chat_single">[SOURCES]は、何か新しいことを言いました。</string>
+  <string name="unread_chat_multiple">[SOURCES]は、何か新しいことを言いました。</string>
   <string name="session_initialization_timed_out_error">セッションの初期化がタイムアウトしました。</string>
 
   <string name="Home position set.">家の配置の設定。</string>
@@ -3628,43 +3607,43 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="voice_morphing_url">https://secondlife.com/destination/voice-island</string>
   <string name="premium_voice_morphing_url">https://secondlife.com/destination/voice-morphing-premium</string>
 
-  <string name="lindenhomes_get_home_url">https://secondlife.com/land/lindenhomes/member.php</string>
+  <string name="lindenhomes_get_home_url">https://secondlife.com/land/lindenhomes/member.php?lang=ja-JP</string>
   <string name="lindenhomes_my_home_url">https://land.secondlife.com/ja-JP/lindenhomes/my-home.php</string>
-  <string name="membership_url">https://secondlife.com/my/account/membership.php</string>
+  <string name="membership_url">https://accounts.secondlife.com/change_membership/?lang=ja-JP</string>
 
   <!-- Financial operations strings -->
-  <string name="paid_you_ldollars">[NAME]は[REASON]のためにL$ [AMOUNT]を支払いました。</string>
-  <string name="paid_you_ldollars_gift">[NAME]はL$ [AMOUNT]支払いました：[REASON]</string>
-  <string name="paid_you_ldollars_no_reason">[NAME]は L$[AMOUNT]を支払いました。</string>
-  <string name="you_paid_ldollars">[NAME]にL$ [AMOUNT]を支払いました：[REASON]</string>
-  <string name="you_paid_ldollars_gift">[NAME]にL$ [AMOUNT]を支払いました：[REASON]</string>
+  <string name="paid_you_ldollars">[NAME]は、[REASON]費用のL$ [AMOUNT]を支払いました。</string>
+  <string name="paid_you_ldollars_gift">[NAME]は、[REASON]費用のL$ [AMOUNT]支払いました。</string>
+  <string name="paid_you_ldollars_no_reason">[NAME]は、L$ [AMOUNT]を支払いました。</string>
+  <string name="you_paid_ldollars">[NAME]に[REASON]費用のL$ [AMOUNT]を支払いました。</string>
+  <string name="you_paid_ldollars_gift">[NAME]に[REASON]費用のL$ [AMOUNT]を支払いました。</string>
   <string name="you_paid_ldollars_no_info">L$ [AMOUNT]を支払いました。</string>
   <string name="you_paid_ldollars_no_reason">[NAME]にL$ [AMOUNT]を支払いました。</string>
-  <string name="you_paid_ldollars_no_name">L$ [AMOUNT]を支払いました：[REASON]</string>
-  <string name="you_paid_failure_ldollars">[NAME]に[REASON]の代金 L$[AMOUNT]を支払えませんでした。</string>
-  <string name="you_paid_failure_ldollars_gift">[NAME]にL$ [AMOUNT]を支払えませんでした：[REASON]</string>
+  <string name="you_paid_ldollars_no_name">[REASON]費用のL$ [AMOUNT]を支払いました。</string>
+  <string name="you_paid_failure_ldollars">[NAME]に[REASON]費用L$ [AMOUNT]を支払えませんでした。</string>
+  <string name="you_paid_failure_ldollars_gift">[NAME]に[REASON]費用のL$ [AMOUNT]を支払えませんでした。</string>
   <string name="you_paid_failure_ldollars_no_info">L$ [AMOUNT]を支払えませんでした。</string>
   <string name="you_paid_failure_ldollars_no_reason">[NAME]にL$ [AMOUNT]を支払えませんでした。</string>
-  <string name="you_paid_failure_ldollars_no_name">[REASON]の代金L$ [AMOUNT]を支払えませんでした。</string>
-  <string name="for item">[ITEM]向け</string>
-  <string name="for a parcel of land">土地区画のため</string>
-  <string name="for a land access pass">土地の入場許可を得るため</string>
-  <string name="for deeding land">土地を譲渡するため</string>
-  <string name="to create a group">グループを作成するため</string>
-  <string name="to join a group">グループに参加するため</string>
-  <string name="to upload">アップロードするため</string>
-  <string name="to publish a classified ad">クラシファイド広告を掲載する。</string>
+  <string name="you_paid_failure_ldollars_no_name">[REASON]費用L$ [AMOUNT]を支払えませんでした。</string>
+  <string name="for item">[ITEM]</string>
+  <string name="for a parcel of land">土地区画</string>
+  <string name="for a land access pass">土地への入場許可</string>
+  <string name="for deeding land">土地を譲渡</string>
+  <string name="to create a group">グループ作成</string>
+  <string name="to join a group">グループ参加</string>
+  <string name="to upload">アップロード</string>
+  <string name="to publish a classified ad">クラシファイド広告掲載</string>
 
-  <string name="uploading_costs">アップロード料金はL$ [AMOUNT]です。</string>
-  <string name="this_costs">料金はL$ [AMOUNT]です。</string>
+  <string name="uploading_costs">アップロード費用はL$ [AMOUNT]です。</string>
+  <string name="this_costs">費用はL$ [AMOUNT]です。</string>
 
   <string name="buying_selected_land">選択した土地をL$ [AMOUNT]で購入します。</string>
-  <string name="this_object_costs">このオブジェクトは、L$ [AMOUNT]です。</string>
+  <string name="this_object_costs">このオブジェクトの費用は、L$ [AMOUNT]です。</string>
   <string name="giving">L$ [AMOUNT]を渡します。</string>
 
   <string name="group_role_everyone">全員</string>
   <string name="group_role_officers">オフィサー</string>
-  <string name="group_role_owners">オーナー</string>
+  <string name="group_role_owners">所有者</string>
   <string name="group_member_status_online">オンライン</string>
 
   <string name="uploading_abuse_report">アップロード中…
@@ -3772,17 +3751,15 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="DefaultMimeType">なし／なし</string>
 
   <string name="texture_load_dimensions_error">[WIDTH]✕[HEIGHT]以上の画像は読み込めません。</string>
-  <string name="outfit_photo_load_dimensions_error">アウトフィット画像の最大サイズは[WIDTH]✕[HEIGHT]です。画像のサイズを調整するか、別の画像を使用してください。</string>
-  <string name="outfit_photo_select_dimensions_error">アウトフィット画像の最大サイズは[WIDTH]✕[HEIGHT]です。別のテクスチャを選択してください。</string>
+  <string name="outfit_photo_load_dimensions_error">アウトフィット画像の最大サイズは、[WIDTH]✕[HEIGHT]です。画像のサイズを調整するか、別の画像を使用してください。</string>
+  <string name="outfit_photo_select_dimensions_error">アウトフィット画像の最大サイズは、[WIDTH]✕[HEIGHT]です。別のテクスチャを選択してください。</string>
   <string name="outfit_photo_verify_dimensions_error">画像の寸法を確認できません。画像サイズがピッカーに表示されるまでお待ちください。</string>
   <!-- language specific white-space characters, delimiters, spacers, item separation symbols -->
   <string name="sentences_separator" value="　"></string>
   <string name="words_separator" value="、"/>
 
   <string name="server_is_down">
-大変申し訳ございませんが、予期しない問題が発生しました。
-
-サービスに関する既知の問題については、https://status.secondlifegrid.net/ をご覧ください。
+大変申し訳ございませんが、予期しない問題が発生しました。サービスに関する既知の問題については、 https://status.secondlifegrid.net/?lang=ja-JP をご覧ください。
 問題が引き続き発生する場合は、お使いのネットワークやファイヤーウォールの設定を調べてください。</string>
   <string name="dateTimeWeekdaysNames">日曜日:月曜日:火曜日:水曜日:木曜日:金曜日:土曜日</string>
   <string name="dateTimeWeekdaysShortNames">日:月:火:水:木:金:土</string>
@@ -3800,7 +3777,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="LocalEstimateUSD">[AMOUNT]米ドル</string>
 
   <!-- Group Profile roles and powers -->
-  <string name="Group Ban">グループへの立入禁止</string>
+  <string name="Group Ban">グループからバン</string>
   <string name="Membership">会員</string>
   <string name="Roles">役割</string>
   <string name="Group Identity">グループの識別情報</string>
@@ -3815,11 +3792,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Notices">通知</string>
 
   <!-- SL Membership -->
-  <string name="Chat" value=" チャット：">チャット</string>
+  <string name="Chat" value="チャット：">チャット</string>
   <string name="BaseMembership">ベース</string>
   <string name="PremiumMembership">プレミアム</string>
   <string name="Premium_PlusMembership">プレミアムプラス</string>
-  <string name="InternalMembership">Internal</string>  <!-- No need to translate -->
+  <!-- No need to translate -->
+  <string name="InternalMembership">Internal</string>
 
   <string name="MembershipUpgradeText">メンバーシッププランの変更…</string>
   <string name="MembershipPremiumText">プレミアムメンバーシップ</string>
@@ -3978,7 +3956,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 
   <!-- commands -->
   <!-- 「360度スナップショット」だと文字が切れてしまうため -->
-  <string name="Command_360_Capture_Label">360度Sショット</string>
+  <string name="Command_360_Capture_Label">３６０度Ｓショット</string>
   <string name="Command_AboutLand_Label">土地情報</string>
   <string name="Command_Appearance_Label">アウトフィット</string>
   <string name="Command_Avatar_Label">アバター一式</string>
@@ -4009,7 +3987,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Command_View_Label">カメラ操作</string>
   <string name="Command_Voice_Label">ボイス設定</string>
 
-  <string name="Command_360_Capture_Tooltip">360度の正距円筒図法の画像をキャプチャする</string>
+  <string name="Command_360_Capture_Tooltip">３６０度の正距円筒図法の画像をキャプチャする</string>
   <string name="Command_AboutLand_Tooltip">訪問先に関する情報</string>
   <string name="Command_Appearance_Tooltip">アバターを変更</string>
   <string name="Command_Avatar_Tooltip">アバター一式を選択</string>
@@ -4052,7 +4030,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Solid">ソリッド</string>
   <string name="Wrap">ラップ</string>
   <string name="Preview">プレビュー</string>
-  <string name="Normal">普通</string>
+  <string name="Normal">通常</string>
 
   <!-- Pathfinding -->
   <string name="Pathfinding_Wiki_URL">https://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer</string>
@@ -4101,20 +4079,20 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="ExperiencePermissionShort10">カメラを制御</string>
   <string name="ExperiencePermissionShort11">テレポート</string>
   <string name="ExperiencePermissionShort12">権限</string>
-  <string name="ExperiencePermissionShort16">Sit</string>
+  <string name="ExperiencePermissionShort16">座る</string>
   <string name="ExperiencePermissionShort17">環境</string>
 
   <!-- Conversation log messages -->
   <string name="logging_calls_disabled_log_empty">会話はログに記録されていません。ログの記録を開始するには、「初期設定」＞「チャット」で「保存：ログのみ」または「保存：ログと会話のテキスト」を選択します。</string>
   <string name="logging_calls_disabled_log_not_empty">これ以上の会話は記録されません。ログの記録を再開するには、「初期設定」＞「チャット」で「保存：ログのみ」または「保存：ログと会話のテキスト」を選択します。</string>
-  <string name="logging_calls_enabled_log_empty">ログイン時の会話はありません。誰かにご連絡した後、または誰かがあなたに連絡した後、ログエントリがここに表示されます。</string>
+  <string name="logging_calls_enabled_log_empty">ログイン時の会話はありません。誰かと話した後や、誰かがあなたに話しかけた後に、そのときのログがここに記載されます。</string>
   <string name="loading_chat_logs">読み込み中…</string>
 
   <!-- Statistics -->
   <string name="na">該当なし</string>
 
   <!-- Presets graphic/camera -->
-  <string name="preset_combo_label">－空リスト－</string>
+  <string name="preset_combo_label">－空のリスト－</string>
   <string name="Default">デフォルト</string>
   <string name="none_paren_cap">（なし）</string>
   <string name="no_limit">無制限</string>
@@ -4122,18 +4100,18 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
   <string name="Mav_Details_MAV_FOUND_DEGENERATE_TRIANGLES">物理形状に小さすぎる三角形が含まれています。物理モデルを簡略化してください。</string>
   <string name="Mav_Details_MAV_CONFIRMATION_DATA_MISMATCH">物理形状に不正な確認データがあります。物理モデルを修正してください。</string>
   <!-- MAV_BLOCK_MISSING means server didn't get and couldn't substitute physics_convex, high_lod or BoundingVerts-->
-  <string name="Mav_Details_MAV_BLOCK_MISSING">データがありません。ハイLODが存在し、有効であることを確認してください。設定されていない場合は、物理モデルを設定します。</string>
+  <string name="Mav_Details_MAV_BLOCK_MISSING">データがありません。高ＬＯＤが存在し、有効であることを確認してください。設定されていない場合は、物理モデルを設定します。</string>
   <string name="Mav_Details_MAV_UNKNOWN_VERSION">物理形状のバージョンが正しくありません。物理モデルに正しいバージョンを設定してください。</string>
 
   <!-- CURL error messages -->
   <string name="couldnt_resolve_host">DNSがホスト名 ([HOSTNAME]) を解決できませんでした。
 www.secondlife.com のウェブサイトに接続できるかご確認ください。
 接続できても、このエラーが継続的に起こる場合は、サポートセクションから問題を報告してください。</string>
-  <string name="ssl_peer_certificate">ログインサーバーが SSL 経由で確認できませんでした。
+  <string name="ssl_peer_certificate">ログインサーバーがＳＳＬ経由で確認できませんでした。
 このエラーが継続的に起こる場合は、Secondlife.com のサポートセクションから問題を報告してください。</string>
   <string name="ssl_connect_error">この問題の多くは、お使いのコンピュータの時計が正しく設定されていないために起こります。
-コントロールパネルから時刻と日付が正しく設定されているかご確認ください。
-お使いのネットワークとファイアウォールも正しく設定されているかお確かめください。
+コントロールパネルから、時刻と日付が正しく設定されている事をご確認してください。
+また、お使いのネットワークとファイアウォールが正しく設定されている事もお確かめください。
 このエラーが継続的に起こる場合は、Secondlife.com のサポートセクションから問題を報告してください。
 [https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83%8A%E3%83%AC%E3%83%83%E3%82%B8%E3%83%99%E3%83%BC%E3%82%B9/%E3%83%AD%E3%82%B0%E3%82%A4%E3%83%B3%E3%82%A8%E3%83%A9%E3%83%BC-r1283/ ナレッジベース]</string>
 </strings>

@@ -63,7 +63,7 @@
     <label name="application/rtf_label">リッチテキスト（RTF）</label>
   </mimetype>
   <mimetype name="application/smil">
-    <label name="application/smil_label">同期マルチメディア統合言語(SMIL)</label>
+    <label name="application/smil_label">同期マルチメディア統合言語（SMIL）</label>
   </mimetype>
   <mimetype name="application/xhtml+xml">
     <label name="application/xhtml+xml_label">Webページ（XHTML）</label>
